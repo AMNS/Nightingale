@@ -1,0 +1,209 @@
+//
+// Prefix header for all source files of the 'Nightingale' target in the 'Nightingale' project.
+//
+
+// MAS
+#pragma once
+#ifndef TARGET_API_MAC_CARBON
+#define TARGET_API_MAC_CARBON 1
+#endif
+// MAS
+
+#include <Carbon/Carbon.h>
+#include <ApplicationServices/ApplicationServices.h>
+
+//
+//#include "NLimits.h"
+//#include "CarbonCompat.h" // needed by FMData.h
+// #include "FMData.h" // pulls in FMTypes.h
+//#include "NTypes.h" // needs FMData.h above
+//#include "StringPool.h" // needed by applicationTypes
+//#include "OMSCompat.h" // needed by applicationTypes
+#include "MIDICompat.h"
+//#include "applicationTypes.h"
+//#include "FreeMIDIUtils.h" // needs applicationTypes
+//#include "CarbonTemplates.h"
+//
+//#include "OpcodeNightingaleDefs.h"
+//#include "defs.h"
+//
+//#include "MIDIRecUtils.h" // used in NightTemplates
+//#include "NightTemplates.h"
+//
+//#include "EssentialTools.h" // CapsLockKeyDown etc.
+//
+//#include "UIFUtils.h"
+
+/*
+ * Nightingale.precomp.c
+ * This is the source for <Nightingale.precomp.h>, Nightingale's Precompiled Header.
+ */
+
+
+//#ifndef __MWERKS__
+/* These were a precaution, to protect ancient (non-universal) 68K code. Now that OS X
+has been around for years, it's doubtful they do anything useful. --DAB */
+//#undef powerc
+//#undef __powerc
+//#endif
+
+/* Standard Apple (Macintosh) headers */
+
+//#ifdef TARGET_API_MAC_CARBON
+
+/* Take advantage of the fact that Metrowerks seems to have renamed MacHeaders.h
+	to MacHeaders.c to maintain parallel nomenclature */
+	
+//#include "NightMacHeaders.c"
+
+//#else
+
+#include "NightMacHeaders.h"
+
+//#endif
+
+/* Standard ANSI/ISO C headers we want available everywhere */
+
+#include <string.h>
+#include <limits.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#include "compilerFlags.h"	/* For PUBLIC_VERSION */
+#if !defined(PUBLIC_VERSION)
+#include "Consolation.h"
+#include "HandleManager.h"
+#endif
+
+#include "StringPool.h"
+
+#if TARGET_API_MAC_CARBON
+
+// 9.9.2002 1st Carbon Port attempt
+
+#include "FreeMIDICompat.h"
+//#include "FreeMIDI.h"
+#include "OMSCompat.h"
+//#include "OMSTypes.h"
+
+#else
+
+
+/* MOTU's FreeMIDI SDK headers */
+
+#include "FreeMIDI.h"
+
+/* Opcode's OMS headers */
+
+#include "OMS.h"
+//#include "OMSConfig.h"
+#include "OMSDeviceMenu.h"
+//#include "OMSTimer.h"
+//#include "OMSTypes.h"
+#include "OMSNameMgr.h"
+
+#endif
+
+/* Define the platform. NB: When it wasn't running on a Motorola 680x0 family CPU, Mac
+OSs used to include an emulator for it, so we could use 680x0 code on any MacOS machine.
+But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K code! */
+
+#define OS_MAC					/* Generate code for MacOS */
+
+/* General Nightingale headers */
+
+#include "NLimits.h"
+#include "NTypes.h"
+#include "defs.h"
+
+// MAS -- copied from NResourceID.h
+#define TEST_SEARCH_NG
+
+#if TARGET_API_MAC_CARBON
+// MAS
+#define TARGET_API_MAC_CARBON_FILEIO 1
+#define TARGET_API_MAC_CARBON_MIDI   1
+// MAS
+#include "CarbonCompat.h"
+//#include "StandardFile.h"
+#endif
+
+#include "applicationTypes.h"
+
+/* Other Nightingale headers */
+
+#include "Beam.h"
+#include "Browser.h"
+#include "Check.h"
+#include "CheckUtils.h"
+#include "Clipboard.h"
+#include "Context.h"
+#include "Copy.h"
+#include "CrossLinks.h"
+#include "Debug.h"
+#include "Delete.h"
+#include "DialogUtils.h"
+#include "Dragging.h"
+#include "Draw.h"
+#include "DrawUtils.h"
+#include "DSUtils.h"
+#include "DurationPopUp.h"
+#include "DynamicPopUp.h"
+#include "EndianUtils.h"
+#include "Enigma.h"
+#include "EssentialTools.h"
+#include "FileInput.h"
+#include "File.h"
+#include "FreeMIDIUtils.h"
+#include "GRBeam.h"
+#include "Heaps.h"
+#include "help.h"
+#include "Insert.h"
+#include "InsNew.h"
+#include "InstrDialog.h"
+#include "InsUtils.h"
+#include "ShowFormat.h"
+#include "MasterPage.h"
+#include "MCaret.h"
+#include "Merge.h"
+#include "MIDIGeneral.h"
+#include "MIDIRecUtils.h"
+#include "ModNRPopUp.h"
+#include "MPImportExport.h"
+#include "Multivoice.h"
+#include "MusicFont.h"
+#include "NavServices.h"
+#include "Nodes.h"
+#include "Objects.h"
+#include "Octava.h"
+#include "PitchUtils.h"
+#include "PS_Stdio.h"
+#include "Reconstruct.h"
+#include "RhythmDur.h"
+#include "Score.h"
+#include "Search.h"
+#define TEST_SEARCH_NG
+#ifdef TEST_SEARCH_NG
+#include "SearchScore.h"
+#endif
+#include "Select.h"
+#include "SelUtils.h"
+#include "Set.h"
+#include "Slurs.h"
+#include "SpaceHighLevel.h"
+#include "SpaceTime.h"
+#include "Tuplet.h"
+#include "UIFUtils.h"
+#include "Undo.h"
+#include "Utility.h"
+
+/* Vision-related files */
+
+#include "OpcodeNightingaleDefs.h"
+
+#include "OMSUtils.h"
+
+/* Generic application files */
+
+#include "NightTemplates.h"
+#include "CarbonTemplates.h"

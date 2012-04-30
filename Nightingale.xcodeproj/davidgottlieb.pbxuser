@@ -1,0 +1,240 @@
+// !$*UTF8*$!
+{
+	0867D6ABFE840B52C02AAC07 /* English */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {711, 429}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {711, 429}}";
+			sepNavWindowFrame = "{{61, 173}, {750, 558}}";
+		};
+	};
+	20286C28FDCF999611CA2CEA /* Project object */ = {
+		activeBuildConfigurationName = Release;
+		activeExecutable = 3422C0140E74D1CD00C3ED1C /* Nightingale */;
+		activeTarget = 8D0C4E890486CD37000505A6 /* Nightingale */;
+		breakpointsGroup = 34300E450E92CFDF00343C19 /* XCBreakpointsBucket */;
+		codeSenseManager = 3422C02A0E74D1F500C3ED1C /* Code sense */;
+		executables = (
+			3422C0140E74D1CD00C3ED1C /* Nightingale */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXErrorsWarningsDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXErrorsWarningsDataSource_LocationID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					300,
+					151.2085,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXErrorsWarningsDataSource_TypeID,
+					PBXErrorsWarningsDataSource_MessageID,
+					PBXErrorsWarningsDataSource_LocationID,
+				);
+			};
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = 1;
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					311,
+					20,
+					48,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					200,
+					81,
+					20,
+					48,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 357366612;
+			PBXWorkspaceStateSaveDate = 357366612;
+		};
+		sourceControlManager = 3422C0290E74D1F500C3ED1C /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	3422C0140E74D1CD00C3ED1C /* Nightingale */ = {
+		isa = PBXExecutable;
+		activeArgIndex = 2147483647;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		dylibVariantSuffix = "";
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = Nightingale;
+		savedGlobals = {
+		};
+		sourceDirectories = (
+		);
+	};
+	3422C0290E74D1F500C3ED1C /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+		};
+		scmType = "";
+	};
+	3422C02A0E74D1F500C3ED1C /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+	34300E450E92CFDF00343C19 /* XCBreakpointsBucket */ = {
+		isa = XCBreakpointsBucket;
+		name = "Project Breakpoints";
+		objects = (
+		);
+	};
+	8D0C4E890486CD37000505A6 /* Nightingale */ = {
+		activeExec = 0;
+		executables = (
+			3422C0140E74D1CD00C3ED1C /* Nightingale */,
+		);
+	};
+	8D0C4E960486CD37000505A6 /* Info.plist */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {711, 2352}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {711, 429}}";
+			sepNavWindowFrame = "{{38, 194}, {750, 558}}";
+		};
+	};
+	D03E69730D5F60AB005FD177 /* applicationTypes.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {842, 7014}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 6494}, {735, 520}}";
+			sepNavWindowFrame = "{{124, 61}, {774, 649}}";
+		};
+	};
+	D03E697B0D5F60B9005FD177 /* Application.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {735, 560}}";
+			sepNavSelRange = "{138, 0}";
+			sepNavVisRect = "{{0, 0}, {735, 520}}";
+			sepNavWindowFrame = "{{55, 124}, {774, 649}}";
+		};
+	};
+	D03E697D0D5F60B9005FD177 /* compilerFlags.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {735, 630}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {735, 520}}";
+			sepNavWindowFrame = "{{202, 69}, {774, 649}}";
+		};
+	};
+	D03E697F0D5F60B9005FD177 /* Nightingale.appl.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {735, 520}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {735, 520}}";
+			sepNavWindowFrame = "{{78, 103}, {774, 649}}";
+		};
+	};
+	D03E6B070D5F6EC9005FD177 /* EssentialTools.cp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {758, 23086}}";
+			sepNavSelRange = "{5486, 31}";
+			sepNavVisRect = "{{0, 4982}, {711, 429}}";
+			sepNavWindowFrame = "{{449, 115}, {750, 558}}";
+		};
+	};
+	D03E6B560D5F7538005FD177 /* NightMacHeaders.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {711, 4802}}";
+			sepNavSelRange = "{0, 76}";
+			sepNavVisRect = "{{0, 2514}, {711, 429}}";
+			sepNavWindowFrame = "{{478, 220}, {750, 558}}";
+		};
+	};
+	D03E6DDD0D5F986D005FD177 /* DialogsBoth.cp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {735, 6986}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 6466}, {735, 520}}";
+			sepNavWindowFrame = "{{101, 82}, {774, 649}}";
+		};
+	};
+	D03E6DF20D5F986D005FD177 /* Initialize.cp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {735, 21714}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {735, 520}}";
+			sepNavWindowFrame = "{{124, 61}, {774, 649}}";
+		};
+	};
+	D03E6DF30D5F986D005FD177 /* InitNightingale.cp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {1166, 16772}}";
+			sepNavSelRange = "{16470, 0}";
+			sepNavVisRect = "{{0, 7140}, {735, 520}}";
+			sepNavWindowFrame = "{{346, 49}, {774, 649}}";
+		};
+	};
+	D03E70970D5FA5B2005FD177 /* SetCommand.cp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {920, 23926}}";
+			sepNavSelRange = "{52673, 86}";
+			sepNavVisRect = "{{0, 20930}, {735, 520}}";
+			sepNavWindowFrame = "{{269, 121}, {774, 649}}";
+		};
+	};
+	D088B9460D5FB9000028C2BC /* MidiMap.cp */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {711, 6412}}";
+			sepNavSelRange = "{1281, 0}";
+			sepNavVisRect = "{{0, 342}, {711, 429}}";
+			sepNavWindowFrame = "{{130, 110}, {750, 558}}";
+		};
+	};
+	D099DB1A0DB2FE0300C228DB /* EndianUtils.h */ = {
+		uiCtxt = {
+			sepNavIntBoundsRect = "{{0, 0}, {735, 520}}";
+			sepNavSelRange = "{0, 0}";
+			sepNavVisRect = "{{0, 0}, {735, 520}}";
+			sepNavWindowFrame = "{{55, 124}, {774, 649}}";
+		};
+	};
+}
