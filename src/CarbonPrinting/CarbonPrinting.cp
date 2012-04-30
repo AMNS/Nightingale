@@ -1020,13 +1020,6 @@ static void PrintDemoBanner(Document *doc, Boolean toPostScript)
 	}
 #endif
 
-//#ifdef DEMO_VERSION
-	Str255 banKey = "\prampage";
-	if (toPostScript)
-		PS_Banner(doc, banKey, banLine1, banLine2, banLine3);
-//	else
-//		QD_Banner(doc, banKey, banLine1, banLine2, banLine3);
-//#endif
 }
 
 /* ------------------------------------------------------------------------------

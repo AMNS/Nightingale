@@ -230,6 +230,11 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 		char fmtStr[256];
 		char str[256];
 		Byte glyph;
+		double dPercent;
+		double dSdcf;
+		long lPercent;
+		long sdcf;        
+		short temp;
 		
 		if (paper) thisImageRect = *paper;		/* thisImageRect must be static */
 
@@ -370,14 +375,15 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 		ddFact = DDFact;
 		if ((ddFact != 16) || (percent != 100))
 		{
-			short temp = 0;
+			temp = 0;
 			temp++;
 		}
 #if 1
-		double dPercent = percent/100.0;
-		double dSdcf = dPercent * DDFact;
-		long lPercent = dPercent;
-		long sdcf = dSdcf;
+
+		dPercent = percent/100.0;
+		dSdcf = dPercent * DDFact;
+		lPercent = dPercent;
+		sdcf = dSdcf;
 		//PS_Print("/SDCF %ld %ld mul def\r", lPercent);
 		PS_Print("/SDCF %ld 100 %ld div mul def\r",(long)DDFact,(long)percent);
 #else
@@ -437,12 +443,14 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 			PS_Print("%%%%EndProlog\r");
 
 		return thisError;
+
 PSRErr:
 		GetIndCString(fmtStr, PRINTERRS_STRS, 5);    /* "Can't get PostScript resource 'TEXT' %d." */
 		sprintf(strBuf, fmtStr, resID); 
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		return thisError;
+
 	}
 	
 OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOAT scaleFactor,
@@ -1130,69 +1138,6 @@ static void PS_StrEncrypted(unsigned char *string, unsigned char *key)
 			if (k > klen) k = 1;
 		}
 	}
-
-/*
- *	If this is a demo version, print the "demo version" banner across the page;
- *	else do nothing.
- */
-
-//#ifdef DEMO_VERSION
-#if 1
-OSErr PS_Banner(Document *doc, unsigned char banKey[], unsigned char banLine1[],
-				unsigned char banLine2[], unsigned char banLine3[])
-	{ 
-		if (usingFile) {
-			PS_Print("\r"); PS_Print("gsave\r");
-			PS_Print("55 rotate\r");
-			PS_Print(".65 setgray\r");
-			
-			PS_Print("/Times-Roman 68 NF\r");
-			PS_Print("3000 -900 moveto\r");
-			PS_Print("("); PS_StrEncrypted(banLine1, banKey); PS_Print(") show\r");
-		 	
-			PS_Print("/Times-Roman 55 NF\r");
-			PS_Print("3400 0 moveto\r");
-			PS_Print("("); PS_StrEncrypted(banLine2, banKey); PS_Print(") show\r");
-			
-			PS_Print("/Times-Roman 48 NF\r");
-			PS_Print("3400 800 moveto\r");
-			PS_Print("("); PS_StrEncrypted(banLine3, banKey); PS_Print(") show\r");
-
-			PS_Print("grestore\r"); PS_Print("\r");
-		}
-		else {
-			/*
-			 *	To get the "QuickDraw font runaround", call PS_FontString to set the
-			 *	font and size for each line; it also sets the graphics environment, so
-			 *	we have to reset rotation and gray level each time.
-			 */
-			PS_FontString(doc,99,99,"\p","\pTimes", 68, 0);
-			PS_Print("gsave 55 rotate .65 setgray 2800 -900 moveto (\r");
-			//PS_StrEncrypted(banLine1, banKey);	
-			PS_String("Test1");	 
-		 	PS_Print(") show grestore\r");
-
-			PS_FontString(doc,99,99,"\p","\pTimes", 55, 0);
-			PS_Print("gsave 55 rotate .65 setgray 3400 0 moveto (\r");
-			//PS_StrEncrypted(banLine2, banKey);		 
-			PS_String("Test2");	 
-		 	PS_Print(") show grestore\r");
-
-			PS_FontString(doc,99,99,"\p","\pTimes", 48, 0);
-			PS_Print("gsave 55 rotate .65 setgray 3400 800 moveto (\r");
-			//PS_StrEncrypted(banLine3, banKey);		 
-			PS_String("Test3");	 
-		 	PS_Print(") show grestore\r");
-		}
-		return(thisError);
-	}
-#else
-OSErr PS_Banner(Document *, unsigned char [], unsigned char [], unsigned char [], unsigned char [])
-	{ 
-		return(thisError);
-	}
-#endif
-
 
 /*
  *	Do what needs to be done to end processing the current page.

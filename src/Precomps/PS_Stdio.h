@@ -19,8 +19,7 @@ OSErr	PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 OSErr PS_HeaderHdl(Document *doc, const unsigned char *docName, INT16 nPages, FASTFLOAT scaleFactor,
 						Boolean landscape, Boolean doEncoding, Rect *bBox, Rect *paper);
 OSErr	PS_NewPage(Document *doc, char *name, INT16 nSeq);
-OSErr	PS_Banner(Document *doc, const unsigned char [], const unsigned char [],
-				  const unsigned char [], const unsigned char []);
+
 OSErr	PS_EndPage(void);
 OSErr	PS_Trailer(Document *, INT16 nfontsUsed, FONTUSEDITEM fontUsedTbl[], unsigned char *measNumFont, Rect *bBox);
 OSErr	PS_IntoQD(Document *doc, INT16 first);

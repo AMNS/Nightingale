@@ -13,3 +13,7 @@
 
 #MacOS stuff
 .DS_STORE
+
+#Xcode User-specific stuff
+project.xcworkspace
+xcuserdata
