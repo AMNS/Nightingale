@@ -17,3 +17,7 @@
 #Xcode User-specific stuff
 project.xcworkspace
 xcuserdata
+*.mode1v3
+*.pbxuser
+build
+

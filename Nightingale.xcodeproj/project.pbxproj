@@ -1314,7 +1314,7 @@
 				ARCHS = ppc;
 				COPY_PHASE_STRIP = NO;
 				GCC_VERSION = 4.0;
-				SDKROOT = macosx10.4;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				VALID_ARCHS = "i386 ppc";
 			};
 			name = Debug;
@@ -1327,7 +1327,7 @@
 				GCC_VERSION = 4.0;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRESERVE_DEAD_CODE_INITS_AND_TERMS = YES;
-				SDKROOT = macosx10.4;
+				SDKROOT = /Developer/SDKs/MacOSX10.4u.sdk;
 				VALID_ARCHS = "i386 ppc";
 			};
 			name = Release;
