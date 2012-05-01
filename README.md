@@ -12,7 +12,7 @@ Development environment requirements
 ) ; downloads require Apple Developer account
  - also works with XCode version 3.2.2
  - should work with version 2.4 or better, but only versions 4.2 and 3.2.2 have been tested
-
+ - when installing XCode/Developer Tools, ensure MacOS 10.4 SDK installation option is selected (it may not be selected by default)
 
 
 
