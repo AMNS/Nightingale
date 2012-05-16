@@ -1427,7 +1427,6 @@ Boolean InitGlobals()
 			AppendMenu(editMenu, "\p(-");
 			AppendMenu(editMenu, "\pBrowser");
 			AppendMenu(editMenu, "\pDebug...");
-			AppendMenu(editMenu, "\pShow Debug Window");
 			AppendMenu(editMenu, "\pDelete Objects");
 		}
 

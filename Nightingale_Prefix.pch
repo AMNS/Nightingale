@@ -71,7 +71,6 @@ has been around for years, it's doubtful they do anything useful. --DAB */
 
 #include "compilerFlags.h"	/* For PUBLIC_VERSION */
 #if !defined(PUBLIC_VERSION)
-#include "Consolation.h"
 #include "HandleManager.h"
 #endif
 

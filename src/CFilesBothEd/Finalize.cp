@@ -228,12 +228,6 @@ Boolean CloseSetupFile()
 
 void Finalize()
 {
-#ifndef PUBLIC_VERSION
-	WindowPtr w;
-
-	w = DebugWindow();
-	if (w) HideWindow(w);
-#endif
 	if (!OpenSetupFile()) return;			/* If it fails, there's nothing worth doing ??REALLY? */
 	
 	(void)UpdateSetupFile();

@@ -1,1 +1,0 @@
-#pragma once#ifndef _CompilingConsolationLibraryOnly_	#define GetNextEvent		GetDebugEvent	#define WaitNextEvent	WaitDebugEvent#endif

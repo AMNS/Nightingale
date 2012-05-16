@@ -1553,7 +1553,6 @@ Boolean InitCoreMIDI()
 	if (!gCoreMIDIInited) {
 	
 		if (FALSE && OptionKeyDown()) {
-			ShowHideDebugWindow(TRUE);
 			long lgDefaultChannel = (long)gDefaultChannel;
 			DebugPrintf("gDefaultChannel = %ld %ld %ld\n", gDefaultChannel, (long)gDefaultChannel, lgDefaultChannel);
 		}

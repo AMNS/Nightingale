@@ -11,8 +11,6 @@
 
 #include "CarbonPrinting.h"
 
-#include "ConsolationDefs.h"
-
 #ifndef SEARCH_DBFORMAT_MEF
 
 

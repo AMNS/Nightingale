@@ -27,7 +27,6 @@ static void		InitFinal(void);
 static Boolean	InitAllCursors(void);
 static void		InitNightFonts(void);
 static Boolean	InitNightGlobals(void);
-static void 		InitDDB(void);
 static Boolean	InitTables(void);
 static Boolean	ExpireTimeOK(void);
 static void 		PrintInfo(void);
@@ -51,7 +50,6 @@ void InitNightingale()
 	if (!CopyProtectionOK(TRUE)) NExitToShell("Copy Protect");
 #endif
 	if (!InitAllCursors()) NExitToShell("Init All Cursors");
-	InitDDB();
 	if (!InitNightGlobals()) NExitToShell("Init Night Globals");
 	MEInitCaretSystem();
 	
@@ -295,39 +293,6 @@ static Boolean InitNightGlobals()
 	
 	return TRUE;
 }
-
-
-/* Initialize the CurrentEvents/Consolation window (Doug's DeBugger) */
-
-static void InitDDB()
-{
-#ifndef PUBLIC_VERSION
-	short debugWTop, debugWRight, debugWLeft; Rect r;
-	
-	Rect bounds = GetQDScreenBitsBounds();
-	if (bounds.bottom<=400) 
-		  debugWTop = bounds.bottom-150;		/* Ancient 9-in. screen (SE/30, etc.) */
-	else if (bounds.bottom<=650) 
-		  debugWTop = bounds.bottom-250;		/* 640x480 screen, etc. */
-	else debugWTop = bounds.bottom-400;		/* Big screen */
-	
-	debugWLeft = 40;
-	
-	if (bounds.right<=640) 						/* Ancient 9-in. screen (SE/30, etc.) */
-		debugWRight = 510;
-	else debugWRight = 600 + debugWLeft;
-	
-	
-	SetRect(&r, debugWLeft, debugWTop, debugWRight, bounds.bottom);
-#ifdef FUTUREEVENTS
-	SetDebugLevel(2);
-	SetDebugMask(highLevelEventMask);
-	SetDebugPause(TRUE);
-#endif
-	InitDebugWindow(&r, FALSE);
-#endif
-}
-
 
 /* Read 'BBX#', 'MCMp' and 'MCOf' resources for alternative music fonts, and store
 their information in newly allocated musFontInfo[]. Return TRUE if OK; FALSE if error.

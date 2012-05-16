@@ -734,17 +734,8 @@ DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);
 				printf("printf: running debug command\n");
 				DebugPrintf("DebugPrintf: running debug command\n");
 				
-				DoDebug("M", FALSE);
+				DoDebug("M");
 				fflush(stdout);
-				break;
-			case EM_ShowDebug:
-				if (showDbgWin = !showDbgWin) {
-					ShowHideDebugWindow(TRUE);
-					DebugPrintf("Showing Debug Window\n");					
-				}
-				else {				
-					ShowHideDebugWindow(FALSE);
-				}
 				break;
 			case EM_DeleteObjs:
 				if (doc) DeleteSelObjs(doc);
@@ -887,18 +878,18 @@ static void DoTestMenu(INT16 choice)
 				break;
 			case TS_Debug:
 #ifndef PUBLIC_VERSION
-				DoDebug("M", FALSE);
+				DoDebug("M");
 #endif				
 				break;
 			case TS_ShowDebug:
 //				static Boolean showDbgWin = FALSE;
 				
 				if (showDbgWin = !showDbgWin) {
-					ShowHideDebugWindow(TRUE);
+//					ShowHideDebugWindow(TRUE);
 					DebugPrintf("Showing Debug Window\n");					
 				}
 				else {				
-					ShowHideDebugWindow(FALSE);
+//					ShowHideDebugWindow(FALSE);
 				}
 				
 				break;
@@ -2587,14 +2578,13 @@ static void InstallDebugMenuItems(Boolean installAll)
 			AppendMenu(editMenu, "\pBrowser");
 			if (installAll) {
 				AppendMenu(editMenu, "\pDebug...");
-				AppendMenu(editMenu, "\pShow Debug Window");
+//				AppendMenu(editMenu, "\pShow Debug Window");
 				AppendMenu(editMenu, "\pDelete Objects");
 			}
 		}
 		else {
 			printf("removing .. \n");
 			DeleteMenuItem(editMenu, EM_DeleteObjs);			
-			DeleteMenuItem(editMenu, EM_ShowDebug);
 			DeleteMenuItem(editMenu, EM_Debug);
 			DeleteMenuItem(editMenu, EM_Browser);
 			DeleteMenuItem(editMenu, EM_Browser-1);
