@@ -17,10 +17,6 @@
 // MAS
 #include "CarbonTemplates.h"
 
-#ifdef COPY_PROTECT
-#include "Eve.h"
-#endif
-
 void 		InitNightingale(void);
 static Boolean	DoSplashScreen(void);
 static void		InitFinal(void);

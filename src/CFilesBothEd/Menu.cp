@@ -515,7 +515,7 @@ Boolean DoFileMenu(INT16 choice)
 #endif
 #ifndef LIGHT_VERSION
 			case FM_GetETF:
-				OpenETFFile();
+				// ETF (Finale Enigma Transportable File) support removed, so do nothing
 				break;
 #endif
 #ifndef VIEWER_VERSION
@@ -2681,7 +2681,6 @@ static void FixFileMenu(Document *doc, INT16 nSel)
 		
 #ifdef LIGHT_VERSION
 		XableItem(fileMenu,FM_GetScan,FALSE);
-		XableItem(fileMenu,FM_GetETF,FALSE);
 #endif
 		XableItem(fileMenu,FM_SaveEPSF,doc!=NULL && doc!=clipboard
 										&& !doc->masterView && !doc->showFormat);

@@ -73,8 +73,6 @@ void DoAboutBox(
 	Boolean /*first*/			/* Currently unused */
 	)
 {
-    DebugPrintf("DebugPrintf DoAboutBoxFart hole knockers stink?");
-
 	short			type, itemHit, curResFile;
 	INT16			x, y;
 	Rect			smallRect, bigRect;

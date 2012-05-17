@@ -45,8 +45,6 @@
 		D03E6E090D5F986D005FD177 /* DrawUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE30D5F986D005FD177 /* DrawUtils.cp */; };
 		D03E6E0A0D5F986D005FD177 /* DSUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE40D5F986D005FD177 /* DSUtils.cp */; };
 		D03E6E0B0D5F986D005FD177 /* EditScore.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE50D5F986D005FD177 /* EditScore.cp */; };
-		D03E6E0C0D5F986D005FD177 /* EnigmaConvert.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE60D5F986D005FD177 /* EnigmaConvert.cp */; };
-		D03E6E0D0D5F986D005FD177 /* EnigmaParse.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE70D5F986D005FD177 /* EnigmaParse.cp */; };
 		D03E6E0E0D5F986D005FD177 /* Error.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE80D5F986D005FD177 /* Error.cp */; };
 		D03E6E0F0D5F986D005FD177 /* File.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE90D5F986D005FD177 /* File.cp */; };
 		D03E6E100D5F986D005FD177 /* FileInput.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEA0D5F986D005FD177 /* FileInput.cp */; };
@@ -276,7 +274,6 @@
 		D03E6B9C0D5F7807005FD177 /* DSUtils.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = DSUtils.h; sourceTree = "<group>"; };
 		D03E6B9D0D5F7807005FD177 /* DurationPopUp.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = DurationPopUp.h; sourceTree = "<group>"; };
 		D03E6B9E0D5F7807005FD177 /* DynamicPopUp.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = DynamicPopUp.h; sourceTree = "<group>"; };
-		D03E6B9F0D5F7807005FD177 /* Enigma.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = Enigma.h; sourceTree = "<group>"; };
 		D03E6BA00D5F7807005FD177 /* File.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
 		D03E6BA10D5F7807005FD177 /* FileInput.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = FileInput.h; sourceTree = "<group>"; };
 		D03E6BA20D5F7807005FD177 /* GRBeam.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = GRBeam.h; sourceTree = "<group>"; };
@@ -353,8 +350,6 @@
 		D03E6DE30D5F986D005FD177 /* DrawUtils.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = DrawUtils.cp; sourceTree = "<group>"; };
 		D03E6DE40D5F986D005FD177 /* DSUtils.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = DSUtils.cp; sourceTree = "<group>"; };
 		D03E6DE50D5F986D005FD177 /* EditScore.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = EditScore.cp; sourceTree = "<group>"; };
-		D03E6DE60D5F986D005FD177 /* EnigmaConvert.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = EnigmaConvert.cp; sourceTree = "<group>"; };
-		D03E6DE70D5F986D005FD177 /* EnigmaParse.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = EnigmaParse.cp; sourceTree = "<group>"; };
 		D03E6DE80D5F986D005FD177 /* Error.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Error.cp; sourceTree = "<group>"; };
 		D03E6DE90D5F986D005FD177 /* File.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = File.cp; sourceTree = "<group>"; };
 		D03E6DEA0D5F986D005FD177 /* FileInput.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = FileInput.cp; sourceTree = "<group>"; };
@@ -693,7 +688,6 @@
 				D03E6B9C0D5F7807005FD177 /* DSUtils.h */,
 				D03E6B9D0D5F7807005FD177 /* DurationPopUp.h */,
 				D03E6B9E0D5F7807005FD177 /* DynamicPopUp.h */,
-				D03E6B9F0D5F7807005FD177 /* Enigma.h */,
 				D03E6BA00D5F7807005FD177 /* File.h */,
 				D03E6BA10D5F7807005FD177 /* FileInput.h */,
 				D03E6BA20D5F7807005FD177 /* GRBeam.h */,
@@ -800,8 +794,6 @@
 				D03E6DE30D5F986D005FD177 /* DrawUtils.cp */,
 				D03E6DE40D5F986D005FD177 /* DSUtils.cp */,
 				D03E6DE50D5F986D005FD177 /* EditScore.cp */,
-				D03E6DE60D5F986D005FD177 /* EnigmaConvert.cp */,
-				D03E6DE70D5F986D005FD177 /* EnigmaParse.cp */,
 				D03E6DE80D5F986D005FD177 /* Error.cp */,
 				D03E6DE90D5F986D005FD177 /* File.cp */,
 				D03E6DEA0D5F986D005FD177 /* FileInput.cp */,
@@ -1059,7 +1051,6 @@
 			};
 			buildConfigurationList = C0E91AC908A95435008D54AB /* Build configuration list for PBXProject "Nightingale" */;
 			compatibilityVersion = "Xcode 2.4";
-			developmentRegion = English;
 			hasScannedForEncodings = 1;
 			knownRegions = (
 				en,
@@ -1136,8 +1127,6 @@
 				D03E6E090D5F986D005FD177 /* DrawUtils.cp in Sources */,
 				D03E6E0A0D5F986D005FD177 /* DSUtils.cp in Sources */,
 				D03E6E0B0D5F986D005FD177 /* EditScore.cp in Sources */,
-				D03E6E0C0D5F986D005FD177 /* EnigmaConvert.cp in Sources */,
-				D03E6E0D0D5F986D005FD177 /* EnigmaParse.cp in Sources */,
 				D03E6E0E0D5F986D005FD177 /* Error.cp in Sources */,
 				D03E6E0F0D5F986D005FD177 /* File.cp in Sources */,
 				D03E6E100D5F986D005FD177 /* FileInput.cp in Sources */,
