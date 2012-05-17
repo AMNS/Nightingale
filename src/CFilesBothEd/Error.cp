@@ -2,11 +2,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1991-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1991-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -102,7 +102,7 @@ static INT16 DoGeneralAlert(unsigned char *str)
 
 /*
  *	Given a string, str, an argument string, msg, and the index, n,
- *	for the argument of the form ÇnÈ to be found in str, substitute.
+ *	for the argument of the form Â«nÂ» to be found in str, substitute.
  *	str is expected to be 256 bytes in length.  This currently only
  *	works for n=0,1,...9.  All strings are Pascal.  This routine
  *	can be called repeatedly to substitute different strings into the
@@ -118,21 +118,21 @@ void InstallArg(unsigned char *str, unsigned char *msg, INT16 n)
 		msgLen = *msg;
 		n += '0';
 		
-		/* Scan backwards from last character for Ç */
+		/* Scan backwards from last character for Â« */
 		
 		dst = str+strLen;
 		while (dst > str)
-			if (*dst-- == (unsigned char)'È')
+			if (*dst-- == (unsigned char)'Â»')
 				if (dst>str && *dst-- == n)
-					if (dst>str && *dst==(unsigned char)'Ç') {
+					if (dst>str && *dst==(unsigned char)'Â«') {
 						/* Found start of arg insertion point */
 						if (msgLen > 3) {
 							if (strLen + msgLen - 3 <= 255) {
 								/* Make room for argument string */
-								dst += 3;			/* 3 = sizeof "ÇnÈ" */
+								dst += 3;			/* 3 = sizeof "Â«nÂ»" */
 								src = str+strLen+1;
 								while (--src >= dst) *(src+msgLen-3) = *src;
-								/* Overwrite the ÇnÈ */
+								/* Overwrite the Â«nÂ» */
 								dst -= 3;
 								src = msg+1;
 								*str += msgLen-3;
@@ -142,7 +142,7 @@ void InstallArg(unsigned char *str, unsigned char *msg, INT16 n)
 						 else {
 							/* String is getting smaller */
 							*str += msgLen-3;
-							/* Overwrite ÇnÈ with message */
+							/* Overwrite Â«nÂ» with message */
 							src = msg+1;
 							len = msgLen;
 							while (msgLen-- > 0) *dst++ = *src++;

@@ -11,11 +11,11 @@ DESC:	Routines for printing and for handling printing-related dialogs:
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -579,7 +579,7 @@ static void PrintDemoBanner(Document *doc, Boolean toPostScript)
 	unsigned char *banLine2 = "\pAdvanced Music Notation Systems, Inc.";
 	unsigned char *banLine3 = "\pfax: 413-268-7317  e-mail: info@ngale.com";
 #else
-	unsigned char *banLine1 = "\p\33T+(/VAkD;f\25ZB#R+(<RI.Ž";  /* Ends in Option-e e */
+	unsigned char *banLine1 = "\p\33T+(/VAkD;f\25ZB#R+(<RI.Ã©";  /* Ends in Option-e e */
 	unsigned char *banLine2 = "\p\37C/64AD'\6\3%.ZQ2\6\02244WP(R1";
 	unsigned char *banLine3 = "\ps\26rko\1\23f\24tqh\23\5k\6btk\5\b\177\20pkj\3\25|";
 #endif

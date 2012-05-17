@@ -6,11 +6,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1992-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1992-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -1146,7 +1146,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			oldStyle = GetPortTxFace();
 			
 			oneChar[0] = 1;
-			oneChar[1] = '¡';			// Shift-option 8
+			oneChar[1] = 'Â°';			// Shift-option 8
 			TextFont(doc->musicFontNum);
 			TextSize(UseTextSize(fontSize, doc->magnify));
 			MoveTo(d2p(DragXD(xd)), d2p(yd));

@@ -135,7 +135,7 @@ void DisposeEditField(PEDITFIELD theField)
  * replaces any text already in the field. Returns TRUE if ok, FALSE if error.
  */
 
-/* ¥¥¥¥¥¥InsideMac says:
+/* â€¢â€¢â€¢â€¢â€¢â€¢InsideMac says:
 TESetText doesn't dispose of any text currently in the edit record.
 Any repercussions for us?
 */
@@ -167,7 +167,7 @@ Boolean SetEditFieldText(PEDITFIELD theField, Handle textH, unsigned char *textP
  * Caller should dispose of this handle when finished with it.
  * Handle will be NIL if there's a problem.
  */
-/*¥¥¥¥¥¥¥¥should make caller allocate handle and pass it in. Then resize it.
+/*â€¢â€¢â€¢â€¢â€¢â€¢â€¢â€¢should make caller allocate handle and pass it in. Then resize it.
 Otherwise, if caller wants to keep using the same handle (like flow-in),
 they'll have to Dispose the old one...*/
 CharsHandle GetEditFieldText(PEDITFIELD theField)
@@ -363,7 +363,7 @@ static void ScrollCharacter(PEDITFIELD theField, short charPos, Boolean toBottom
 }
 
 
-/* ¥¥¥What about handling menu enabling? Won't that conflict w/dlog mgr? */
+/* â€¢â€¢â€¢What about handling menu enabling? Won't that conflict w/dlog mgr? */
 void DoTEEdit(PEDITFIELD theField, short cmd)
 {
 	long		scrapLen, teLen, numSelChars;
@@ -392,10 +392,10 @@ void DoTEEdit(PEDITFIELD theField, short cmd)
 				charsToPaste = MAX_CHARS_IN_FIELD - teLen;
 				scrapH = TEScrapHandle();
 				HLock(scrapH);
-/* ¥¥¥¥
+/* â€¢â€¢â€¢â€¢
 copy chars 0 through charsToPaste from scrapH
 "paste" them into teH. How?
-¥¥¥¥Use TEInsert.
+â€¢â€¢â€¢â€¢Use TEInsert.
 */				
 				HUnlock(scrapH);
 #endif
@@ -524,7 +524,7 @@ void DoTEFieldKeyEvent(PEDITFIELD theField, EventRecord *event)
 	if ((**theField->teH).teLength >= MAX_CHARS_IN_FIELD)
 		if ( !(ch==CH_BS || ch==CH_ENTER || ch==LEFTARROWKEY || ch==RIGHTARROWKEY ||
 														ch==UPARROWKEY || ch==DOWNARROWKEY) ) {
-			SysBeep(10);			/* ¥¥¥need more than this? */
+			SysBeep(10);			/* â€¢â€¢â€¢need more than this? */
 			return;
 		}
 		

@@ -6,7 +6,7 @@
 	
 	Created 10/6/94 by Chris Majoros
 	
-	Copyright © 1994-1997 Mark of the Unicorn, Inc.
+	Copyright Â© 1994-1997 Mark of the Unicorn, Inc.
 
 ***************************************************************************************/
 

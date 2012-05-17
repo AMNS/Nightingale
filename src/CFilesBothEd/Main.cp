@@ -1,15 +1,15 @@
 /*									NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1986-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1986-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
 /*
- * 						  (*)   N I G H T I N G A L E ¨   (*)
+ * 						  (*)   N I G H T I N G A L E Â®   (*)
  * 
  *	Donald Byrd, Charles Rose, Douglas McKenna, Dave Winzler, and John Gibson
  *							Advanced Music Notation Systems, Inc.

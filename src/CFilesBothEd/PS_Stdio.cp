@@ -2,12 +2,12 @@
 
 /*										NOTICE
  *
- *	THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROPERTY OF
+ *	THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROPERTY OF
  *	ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE SECRET AND IS
  *	NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED WRITTEN
  *	AUTHORIZATION FROM THE OWNER.
  *
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -325,7 +325,7 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 		
 		if (PS_Resource(-1,'TEXT',resID=128)) goto PSRErr;		/* Start Preamble (1) */
 
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 		/* /qw needs stringwidth of a char whose code depends on the music font.
 			Formerly, this was 'q', but MCH_quarterNoteHead is same width as 'q' in
 			Sonata, and MCH_quarterNoteHead is a better choice for other fonts. */
@@ -335,7 +335,7 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 
 		if (PS_Resource(-1,'TEXT',resID=129)) goto PSRErr;		/* Start Preamble (2) */
 
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 		/*	Curly braces. For fonts that have curly brace chars, we use them, but also
 			provide a homebrew method that draws the braces without relying on the font.
 			(Why was this provided before?) For fonts, like Petrucci, that don't have
@@ -363,11 +363,11 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 			if (PS_Resource(-1,'TEXT',resID=132)) goto PSRErr;	/* Curly brace (2), homebrew only */
 		}
 
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 		if (doEncoding)
 			if (PS_Resource(-1,'TEXT',resID=133)) goto PSRErr;	/* Encoding */
 
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 		/* Now directly print stuff that needs information from here */
 		
 		PS_Print("/MFS %ld def\r",(long)musicPtSize);
@@ -420,7 +420,7 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 		/* And finish up with final matrix-related stuff */
 		
 		if (PS_Resource(-1,'TEXT',resID=134)) goto PSRErr;	/* End Preamble */
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 
 		/*	Need the PostScript font name of our music font, which can differ from the screen font
 			name. IM Font Mgr. Ref., p. 102, gives code for doing this for a 'FOND' rsrc.  Hints 
@@ -431,7 +431,7 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 											musFontInfo[doc->musFontInfoIndex].postscriptFontName);
 
 		PS_Print("\rend         %% NightingaleDict\r\r");
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 
 		/*
 		 *	Once the final transformation is settled, we'll push it onto the graphics
@@ -548,7 +548,7 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOA
  			PS_Print("/NightTopSave save def\r\r");				/* restore in Trailer */
 		
 		if (PS_Resource(-1,'TEXT',resID=128)) goto PSRErr;		/* Start Preamble (1) */
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 		/* /qw needs stringwidth of a char whose code depends on the music font.
 			Formerly, this was 'q', but MCH_quarterNoteHead is same width as 'q' in
 			Sonata, and MCH_quarterNoteHead is a better choice for other fonts. */
@@ -558,7 +558,7 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOA
 
 		if (PS_Resource(-1,'TEXT',resID=129)) goto PSRErr;		/* Start Preamble (2) */
 
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 		/*	Curly braces. For fonts that have curly brace chars, we use them, but also
 			provide a homebrew method that draws the braces without relying on the font.
 			(Why was this provided before?) For fonts, like Petrucci, that don't have
@@ -586,11 +586,11 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOA
 			if (PS_Resource(-1,'TEXT',resID=132)) goto PSRErr;	/* Curly brace (2), homebrew only */
 		}
 
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 		if (doEncoding)
 			if (PS_Resource(-1,'TEXT',resID=133)) goto PSRErr;	/* Encoding */
 
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 		/* Now directly print stuff that needs information from here */
 		
 		PS_Print("/MFS %ld def\r",(long)musicPtSize);
@@ -630,7 +630,7 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOA
 		/* And finish up with final matrix-related stuff */
 		
 		if (PS_Resource(-1,'TEXT',resID=134)) goto PSRErr;	/* End Preamble */
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 
 		/*	Need the PostScript font name of our music font, which can differ from the screen font
 			name. IM Font Mgr. Ref., p. 102, gives code for doing this for a 'FOND' rsrc.  Hints 
@@ -642,7 +642,7 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOA
 #if 0		
 #endif
 		PS_Print("\rend         %% NightingaleDict\r\r");
-		//PS_Print("%%¥¥¥¥\r");
+		//PS_Print("%%â€¢â€¢â€¢â€¢\r");
 
 		/*
 		 *	Once the final transformation is settled, we'll push it onto the graphics

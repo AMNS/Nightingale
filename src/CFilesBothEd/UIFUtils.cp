@@ -19,11 +19,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -658,10 +658,10 @@ INT16 ConvertQuote(TEHandle textH, INT16 ch)
 			if (ch=='"' || ch=='\'') {
 				n = (*textH)->selStart;
 				prev = (n > 0) ? ((unsigned char) *(*((*textH)->hText) + n-1)) : 0;
-				if (prev=='\r' || prev==' ' || prev=='Ê' || prev=='\t' || n==0)
-					ch = (ch=='"' ? 'Ò' : 'Ô');
+				if (prev=='\r' || prev==' ' || prev=='Â ' || prev=='\t' || n==0)
+					ch = (ch=='"' ? 'â€œ' : 'â€˜');
 				 else
-					ch = (ch=='"' ? 'Ó' : 'Õ');
+					ch = (ch=='"' ? 'â€' : 'â€™');
 				}
 		return(ch);
 	}
@@ -816,10 +816,10 @@ void TruncPopUpString(UserPopUp *p)
 		width = StringWidth(p->str);
 		if (width > space) {
 			len = *p->str;
-			width -= CharWidth('É');
+			width -= CharWidth('â€¦');
 			while (len>0 && width>space)
 				width -= CharWidth(p->str[len--]);
-			p->str[++len] = 'É';
+			p->str[++len] = 'â€¦';
 			*p->str = len;
 			}
 	}

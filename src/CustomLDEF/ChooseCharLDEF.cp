@@ -105,7 +105,7 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 			GetPenState(&pnState);
 			PenPat(NGetQDGlobalsGray());
 			cellRect = *lRect;
-			cellRect.right++;
+			cellRect.right++;			
 			cellRect.bottom++;
 			FrameRect(&cellRect);
 			SetPenState(&pnState);
@@ -157,7 +157,7 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 
 				charHt = charBBox.bottom - charBBox.top + 1;
 
-/* ¥¥¥Still a problem for those few chars that have zero width */
+/* â€¢â€¢â€¢Still a problem for those few chars that have zero width */
 				leftDraw = lRect->left + ((cellWid - charWid)>>1);
 				topDraw = lRect->top + ((cellHt - charHt)>>1) + (fontInfo.ascent-charBBox.top);
 				
@@ -211,7 +211,7 @@ static void CenterInRect(Rect *r,Rect *cInR)
 }
 
 
-/* ¥¥¥so far, bbox.left & right undefined!! */
+/* â€¢â€¢â€¢so far, bbox.left & right undefined!! */
 void GetCharBBox(GrafPtr port, Rect *bbox)
 {
 	register short	i;
@@ -240,7 +240,7 @@ void GetCharBBox(GrafPtr port, Rect *bbox)
 	else
 		bbox->top = 0;
 
-/* ¥¥¥Will this next line cause that odd address crash on a macPlus?
+/* â€¢â€¢â€¢Will this next line cause that odd address crash on a macPlus?
 i.e., am I trying to access a WORD (or larger) value aligned on an odd address?
 I think the answer is "No". If I were doing "if (*(short *)p)" below, then I would be.
 */
@@ -291,7 +291,7 @@ int	width,				/* required width of requested GrafPort */
 #if OLDWAY	/* the way it is in Nightingale */
 	imagePtr = (QDPtr)NewPtr(imageSize);
 #else
-	/* ¥¥¥In order for GetCharBBox to work correctly, I need 
+	/* â€¢â€¢â€¢In order for GetCharBBox to work correctly, I need 
 	 * to clear the bytes that will end up outside of bitmap.bounds.
 	 */
 	imagePtr = (QDPtr)NewPtrClear(imageSize);

@@ -14,11 +14,11 @@
 
 /*										NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL
  * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
  * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
  * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc.
+ * Copyright Â© 1988-99 by Advanced Music Notation Systems, Inc.
  * All Rights Reserved.
  *
  */
@@ -1096,7 +1096,7 @@ PushLock(OBJheap);
 					if (LinkSEL(pL)) HiliteRect(&r);
 				}
 				else
-					HiliteInsertNode(doc, p->firstObj, staffn, TRUE);		/* Hiliting onÊ*/
+					HiliteInsertNode(doc, p->firstObj, staffn, TRUE);		/* Hiliting onÂ */
 				while (Button()) ;
 
 				/* Double-clicking all subtypes but GRArpeggio allows editing them. */
@@ -1357,7 +1357,7 @@ PushLock(OBJheap);
 			case SMDblClick:
 #ifndef VIEWER_VERSION
 				oldObjRect = p->objRect;
-				HiliteInsertNode(doc, p->firstObjL, staffn, TRUE);		/* Hiliting onÊ*/
+				HiliteInsertNode(doc, p->firstObjL, staffn, TRUE);		/* Hiliting onÂ */
 				while (Button()) ;
 				p = GetPTEMPO(pL);
 				PStrCopy((StringPtr)PCopy(p->string), (StringPtr)tempoStr);
@@ -1370,7 +1370,7 @@ PushLock(OBJheap);
 				if (tempoStr[0]>63) tempoStr[0] = 63;					/* Limit length for consistency with InsertTempo */
 				if (metroStr[0]>63) metroStr[0] = 63;					/* Limit length for consistency with InsertTempo */
 				p = GetPTEMPO(pL);
-				HiliteInsertNode(doc, p->firstObjL, staffn, FALSE);	/* Hiliting offÊ*/
+				HiliteInsertNode(doc, p->firstObjL, staffn, FALSE);	/* Hiliting offÂ */
 				if (ok) {
 					offset = PReplace(p->string,tempoStr);
 					if (offset<0L)

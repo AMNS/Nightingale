@@ -1,5 +1,5 @@
 /* FreeMIDIUtils.h for Nightingale
-   Copyright © 2001 by Adept Music Notation Solutions, Inc. All Rights Reserved. */
+   Copyright Â© 2001 by Adept Music Notation Solutions, Inc. All Rights Reserved. */
 
 #ifndef _FREEMIDIUTILS_
 #define _FREEMIDIUTILS_

@@ -6,11 +6,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
  
@@ -1482,7 +1482,7 @@ static void DCheckALLNOTES(Document *doc)
 	myHeap = doc->Heap + SYNCtype;
 	PushLock(myHeap);
 	nObjs = myHeap->nObjs-myHeap->nFree;			
-	DebugPrintf("¥START DCheckALLNOTES...\n");
+	DebugPrintf("â€¢START DCheckALLNOTES...\n");
 	p = *(myHeap->block); p += myHeap->objSize;
 	for (k = 1; k<nObjs; k++, p += myHeap->objSize)
 		DCheckANOTE((PANOTE)p, 6, *(myHeap->block));		/* CAVEAT: 2nd arg = nstaves */

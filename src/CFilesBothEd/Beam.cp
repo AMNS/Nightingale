@@ -1,10 +1,10 @@
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  */
 
 /* Beam.c for Nightingale - beaming-related functions for regular notes/rests, plus

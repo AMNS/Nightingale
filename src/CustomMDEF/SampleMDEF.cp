@@ -12,7 +12,7 @@
 				please do not use, install, modify or redistribute this Apple software.
 
 				In consideration of your agreement to abide by the following terms, and subject
-				to these terms, Apple grants you a personal, non-exclusive license, under AppleÕs
+				to these terms, Apple grants you a personal, non-exclusive license, under Appleâ€™s
 				copyrights in this original Apple software (the "Apple Software"), to use,
 				reproduce, modify and redistribute the Apple Software, with or without
 				modifications, in source and/or binary forms; provided that if you redistribute
@@ -40,7 +40,7 @@
 				(INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN
 				ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-	Copyright © 2000-2001 Apple Computer, Inc., All Rights Reserved
+	Copyright Â© 2000-2001 Apple Computer, Inc., All Rights Reserved
 */
 
 #define TARGET_API_MAC_CARBON 1
@@ -149,7 +149,7 @@
 
 
 /*==================================================================================================*/
-/*	¥ÊConstants																						*/
+/*	â€¢Â Constants																						*/
 /*==================================================================================================*/
 
 // for our wrapper around GetThemeMetric
@@ -167,7 +167,7 @@ typedef int ThemeMenuMetric;
 
 
 /*==================================================================================================*/
-/*	¥ÊTypes																							*/
+/*	â€¢Â Types																							*/
 /*==================================================================================================*/
 
 // for our wrapper glue around EraseMenuBackground, ScrollMenuImage, and CGContextClearRect
@@ -232,7 +232,7 @@ MenuItemDrawInfo;
 
 
 /*==================================================================================================*/
-/*	¥ Prototypes																					*/
+/*	â€¢ Prototypes																					*/
 /*==================================================================================================*/
 
 static void					DrawMenu( MenuRef menu, const Rect* bounds, MenuTrackingData* trackingData, CGContextRef context );
@@ -276,7 +276,7 @@ static void					DoScrollMenuImage( MenuRef menu, const Rect* bounds, int dh, int
 
 
 /*==================================================================================================*/
-/*	¥ÊFunctions																						*/
+/*	â€¢Â Functions																						*/
 /*==================================================================================================*/
 
 /*--------------------------------------------------------------------------------------------------*/

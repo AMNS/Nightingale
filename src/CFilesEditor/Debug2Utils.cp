@@ -11,11 +11,11 @@ or exceeding their 32K per module object code size limit.
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -67,7 +67,7 @@ Boolean DCheckVoiceTable(Document *doc,
 		
 		if (pPart->firstStaff<1 || pPart->firstStaff>doc->nstaves
 		||  pPart->lastStaff<1 || pPart->lastStaff>doc->nstaves) {
-			COMPLAIN("¥DCheckVoiceTable: PART %ld firstStaff OR lastStaff IS ILLEGAL.\n",
+			COMPLAIN("â€¢DCheckVoiceTable: PART %ld firstStaff OR lastStaff IS ILLEGAL.\n",
 						(long)partn);
 			return bad;
 		}
@@ -349,7 +349,7 @@ Boolean DCheck1NEntries(
 	bad = FALSE;
 		
 	if (TYPE_BAD(pL)) {
-		COMPLAIN2("¥DCheck1NEntries: OBJ AT %u HAS BAD type %d.\n", pL, ObjLType(pL));
+		COMPLAIN2("â€¢DCheck1NEntries: OBJ AT %u HAS BAD type %d.\n", pL, ObjLType(pL));
 		return bad;
 	}
 
@@ -357,7 +357,7 @@ Boolean DCheck1NEntries(
 	for (subCount = 0, subL = FirstSubLINK(pL); subL!=NILINK;
 			subL = tempL, subCount++) {
 		if (subCount>255) {
-			COMPLAIN2("¥DCheck1NEntries: OBJ AT %u HAS nEntries=%d  BUT SEEMS TO HAVE OVER 255 SUBOBJECTS.\n",
+			COMPLAIN2("â€¢DCheck1NEntries: OBJ AT %u HAS nEntries=%d  BUT SEEMS TO HAVE OVER 255 SUBOBJECTS.\n",
 							pL, LinkNENTRIES(pL));
 			break;
 		}
@@ -365,7 +365,7 @@ Boolean DCheck1NEntries(
 	}
 
 	if (LinkNENTRIES(pL)!=subCount)
-		COMPLAIN3("¥DCheck1NEntries: OBJ AT %u HAS nEntries=%d BUT %d SUBOBJECTS.\n",
+		COMPLAIN3("â€¢DCheck1NEntries: OBJ AT %u HAS nEntries=%d BUT %d SUBOBJECTS.\n",
 						pL, LinkNENTRIES(pL), subCount);
 	
 	return bad;
@@ -494,7 +494,7 @@ Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 			break;
 	}
 	
-	if (bad) COMPLAIN2("¥DCheck1SubobjLinks: A SUBOBJ OF OBJ AT %u HAS A BAD LINK OF %d.\n",
+	if (bad) COMPLAIN2("â€¢DCheck1SubobjLinks: A SUBOBJ OF OBJ AT %u HAS A BAD LINK OF %d.\n",
 								pL, badLink);
 	
 	return bad;

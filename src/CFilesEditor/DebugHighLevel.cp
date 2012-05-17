@@ -1,10 +1,10 @@
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -34,7 +34,7 @@ checkable. Someday... Anyway, return FALSE normally, TRUE if things are dangerou
 f*cked up.
 
 There are four levels of checks:
-	Most important: messages about problems are prefixed with '¥'
+	Most important: messages about problems are prefixed with 'â€¢'
 	More important: messages about problems are prefixed with '*'
 	Less & Least important: messages about problems have no prefix
 */
@@ -385,7 +385,7 @@ Boolean DoDebug(
 	}
 	
 	if (doc==NULL) {
-		DebugPrintf("¥DoDebug: doc NULL");
+		DebugPrintf("â€¢DoDebug: doc NULL");
 		return TRUE;
 	}
 	if (DebugDialog(label, &what, &istart, &istop, &disp, &check,	/* What does the */
@@ -416,7 +416,7 @@ Boolean DoDebug(
 		case MIN_THINGS:
 			if (DCheckEverything(doc, what==EVERYTHING, what==MIN_THINGS)) {
 					/* Things are in a disasterous state. Quit before we crash! */
-					DebugPrintf("¥DoDebug: CAN'T FINISH CHECKING.\n"); 					
+					DebugPrintf("â€¢DoDebug: CAN'T FINISH CHECKING.\n"); 					
 					return TRUE;							
 			}
 			else
@@ -479,7 +479,7 @@ Boolean DoDebug(
 				DCheckHeirarchy(doc);
 				if (selLinksBad) {
 					/* Things are in a disasterous state. Quit before we crash! */
-					DebugPrintf("¥DoDebug: CAN'T DISPLAY THE SELECTION.\n"); 	
+					DebugPrintf("â€¢DoDebug: CAN'T DISPLAY THE SELECTION.\n"); 	
 					return TRUE;
 				}
 			}

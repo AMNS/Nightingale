@@ -13,11 +13,11 @@ By Donald Byrd, rev.for v. 3.5. FreeMIDI support added by John Gibson for v4.1.
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-2001 by Adept Music Notation Solutions, Inc. All Rights Reserved.
+ * Copyright Â© 1988-2001 by Adept Music Notation Solutions, Inc. All Rights Reserved.
  */
  
 /* Nightingale supports MOTU's FreeMIDI, Opcode's OMS, and Apple's MIDI Manager. It
@@ -1214,9 +1214,9 @@ during the lead-in time (considering STARTTIME_SLOP), and insert them into the m
 object list before <selStartL>. Return the end time of the last note if we insert
 anything, else returns -1L. */
 
-// ¥¥
-// ¥¥ÊNeed to rewrite to handle the fact that we are using MIDIPackets, not MMMIDIPackets.
-// ¥¥
+// â€¢â€¢
+// â€¢â€¢Â Need to rewrite to handle the fact that we are using MIDIPackets, not MMMIDIPackets.
+// â€¢â€¢
 
 #define TIME_SCALEFACTOR 8	/* Large enuf to avoid overflow, small enuf to keep precision */
 
@@ -1502,7 +1502,7 @@ static void RecordBuffer(
 			OMSInitTimer();
 			break;
 		case MIDIDR_CM:
-			// ¥¥ÊInitCMBuffer();
+			// â€¢â€¢Â InitCMBuffer();
 			oldRecIndex = 0L;
 			CMInitTimer();
 			break;
@@ -2366,9 +2366,9 @@ If any of the buffers overflows, we give an error message. NB: <nOnBuffer> is sm
 but I've never heard of it overflowing except in test versions when we're printing
 debug information. */
 
-// ¥¥
-// ¥¥ÊNeed to rewrite to handle the fact that we are using MIDIPackets, not MMMIDIPackets.
-// ¥¥
+// â€¢â€¢
+// â€¢â€¢Â Need to rewrite to handle the fact that we are using MIDIPackets, not MMMIDIPackets.
+// â€¢â€¢
 
 static long cmNowTime;
 
@@ -2771,7 +2771,7 @@ Boolean StepRecord(
 			break;
 		case MIDIDR_CM:
 			CMInitTimer();
-			// ¥¥ InitCMBuffer();
+			// â€¢â€¢ InitCMBuffer();
 			break;
 		case MIDIDR_BI:
 			MayInitBIMIDI(BIMIDI_SMALLBUFSIZE, BIMIDI_SMALLBUFSIZE);	/* initialize serial chip for MIDI port */

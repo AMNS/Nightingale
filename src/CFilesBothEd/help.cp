@@ -2,8 +2,8 @@
 where your resources are, and then Do_Help()  to bring up the help screen.
 That's all there is to it!
 
-Copyright © Joe Pillera, 1990.  All Rights Reserved.
-Copyright © MacTutor Magazine, 1990.  All Rights Reserved. */
+Copyright Â© Joe Pillera, 1990.  All Rights Reserved.
+Copyright Â© MacTutor Magazine, 1990.  All Rights Reserved. */
 
 /* Modifications for THINK C 5 and 6 mostly by Erik Olson. Further modifications,
 including for THINK C 7, by Donald Byrd, 12/94 and later. */

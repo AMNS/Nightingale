@@ -2,11 +2,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1997-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1997-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -24,7 +24,7 @@
 
 /* With THINK C 7 on my PowerBook 540 and my PowerBook G3/400, Nightingale links okay,
 but trying to run results in a mysterious data segment overflow apparently resulting
-from the fact that Symantec's ANSIÑsmall library takes 600+ bytes more on those
+from the fact that Symantec's ANSIâ€”small library takes 600+ bytes more on those
 machines, even though the file containing the library appears to be identical! Comment
 the following kludge in to avoid it. */
 #if 0

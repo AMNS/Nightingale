@@ -6,11 +6,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -1660,7 +1660,7 @@ Boolean GetGraphicDBox(Document *doc,
 			break;
 		case GRMIDISustainOn:
 			string[0] = 1;
-			string[1] = '¡';			// Shift-option 8
+			string[1] = 'Â°';			// Shift-option 8
 			pStr = string;
 			fontID = doc->musicFontNum;
 			break;
@@ -2036,7 +2036,7 @@ PushLock(GRAPHICheap);
 						break;
 					case GRMIDISustainOn:
 						oneChar[0] = 1;
-						oneChar[1] = '¡';			// Shift-option 8
+						oneChar[1] = 'Â°';			// Shift-option 8
 						TextFace(normal);
 						TextFont(doc->musicFontNum);
 						DrawString(oneChar);
@@ -2124,7 +2124,7 @@ PushLock(GRAPHICheap);
 					break;
 				case GRMIDISustainOn:
 					oneChar[0] = 1;
-					oneChar[1] = '¡';			// Shift-option 8
+					oneChar[1] = 'Â°';			// Shift-option 8
 					PS_FontString(doc, xd, yd,oneChar,
 										doc->fontTable[p->fontInd].fontName,
 										fontSize, fontStyle);

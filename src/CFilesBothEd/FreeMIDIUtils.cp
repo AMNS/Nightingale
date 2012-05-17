@@ -4,11 +4,11 @@ though there are some differences. */
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALE‚Ñ¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 2001 by Adept Music Notation Solutions, Inc. All Rights Reserved.
+ * Copyright ¬© 2001 by Adept Music Notation Solutions, Inc. All Rights Reserved.
  *
  */
 
@@ -493,7 +493,7 @@ static short FMSReadHook(long sourceID, MidiPacketPtr pakP, long refCon)
 	if (flags & fmsMsgType)
 		gInputErrorCount++;
 	else if (flags & fmsContMask)
-		;															/* don’t echo or keep sysex */
+		;															/* don‚Äôt echo or keep sysex */
 	else if (pakP->data[0]<MCOMMANDMASK) {
 		command = COMMAND(pakP->data[0]);
 
@@ -1053,9 +1053,9 @@ void SetFMSConfigMenuTitles()
 
 	if (useWhichMIDI!=MIDIDR_FMS) return;
 
-	GetIndString(str, MENUCMD_STRS, 25);				/* "Interface Settings…" */
+	GetIndString(str, MENUCMD_STRS, 25);				/* "Interface Settings‚Ä¶" */
 	SetMenuItemText(playRecMenu, PL_OpenExtMIDISetup1, str);
-	GetIndString(str, MENUCMD_STRS, 26);				/* "Edit FreeMIDI Configuration…" */
+	GetIndString(str, MENUCMD_STRS, 26);				/* "Edit FreeMIDI Configuration‚Ä¶" */
 	SetMenuItemText(playRecMenu, PL_OpenExtMIDISetup2, str);
 }
 

@@ -1,11 +1,11 @@
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
  *
- * Copyright © 1986-95 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1986-95 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  * These are private interfaces for the two "DebugUtil" files, which had
  * to be broken into two files because of a code overflow.
@@ -21,7 +21,7 @@ Boolean DCheck1SubobjLinks(Document *, LINK);
 Boolean DCheck1NEntries(Document *, LINK);
 
 /* These functions implement three levels of checking:
-	Most important: messages about problems are prefixed with '¥'
+	Most important: messages about problems are prefixed with 'â€¢'
 	More important: messages about problems are prefixed with '*'
 	Less & Least important: messages about problems have no prefix
 */

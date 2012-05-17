@@ -6,7 +6,7 @@
  *	MacHeaders.c
  *
  *	Script to generate the 'MacHeaders<xxx>' precompiled header for Metrowerks C/C++.
- *  Copyright © 1993 metrowerks inc.  All rights reserved.
+ *  Copyright Â© 1993 metrowerks inc.  All rights reserved.
  */
 
 /*
@@ -204,9 +204,9 @@
  *  There are some conflicts and order dependencies among the various
  *  headers:
  *
- *	¥	<LoMem.h> and <SysEqu.h> cannot both be included.
+ *	â€¢	<LoMem.h> and <SysEqu.h> cannot both be included.
  *
- *	¥	<asm.h> and <Traps.h>, if both are included, must appear
+ *	â€¢	<asm.h> and <Traps.h>, if both are included, must appear
  *		in that order.  If <Traps.h> is included, traps used in
  *		inline assembly must appear without leading underscores.
  *

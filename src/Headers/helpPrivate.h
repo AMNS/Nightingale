@@ -4,7 +4,7 @@
 |			 program to run correctly.	It is also designed to compile  |
 |			 cleanly with help.c, in order to make a code library file. |
 |-----------------------------------------------------------------------|
-|		Copyright © Joe Pillera, 1990.  All Rights Reserved.			|
+|		Copyright Â© Joe Pillera, 1990.  All Rights Reserved.			|
 |		Revised by Don Byrd, 1997.										|
 \***********************************************************************/
 

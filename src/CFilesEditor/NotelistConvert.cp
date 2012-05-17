@@ -8,12 +8,12 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALE‚Ñ¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
  *
- * Copyright © 1986-2002 by Adept Music Notation Solutions, Inc. All Rights Reserved.
+ * Copyright ¬© 1986-2002 by Adept Music Notation Solutions, Inc. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -909,7 +909,7 @@ static Boolean ConvertDynamic(Document *doc, NLINK pL)
 	LINK			dynamicL;
 	char			str[32];
 	char			*dynamStrs[] = { "pppp", "", "", "", "", "", "", "", "", "ffff",
-										  "più piano", "meno piano", "meno forte", "più forte", "",
+										  "pi√π piano", "meno piano", "meno forte", "pi√π forte", "",
 										  "fz", "sfz", "rf", "rfz", "fp", "sfp" };
 
 	pD = GetPNL_DYNAMIC(pL);

@@ -378,7 +378,7 @@ static void InvertItem(short item, Boolean leaveBlack, Rect *menuRect, MenuHandl
 	}
 #endif
 
-/* ¥¥¥all this clipping stuff is probably unnecessary */
+/* â€¢â€¢â€¢all this clipping stuff is probably unnecessary */
 	saveClip = NewRgn();
 	GetClip(saveClip);
 	GetItemRect(item, menuRect, &itemRect);
@@ -882,7 +882,7 @@ static void GetItemRect(short item, Rect *menuRect, Rect *itemRect)
 
 /* Show the menu under the cursor. This is called after SizeMenu,
  * but before DrawMenu and ChooseItem.
- * ¥¥See Tech Note 172, "Parameters for MDEF Message #3"
+ * â€¢â€¢See Tech Note 172, "Parameters for MDEF Message #3"
  * From Apple text MDEF:
  * 
  * Calc TopMenuItem and MenuRect so that the top of PopUpItem is at TopLeft
@@ -995,7 +995,7 @@ static void PopUpMenu(MenuHandle theMenu, Rect *menuRect, short v, short h, shor
 	}
 	
 	
-/*	*item = ; ¥¥¥¥¥ What goes here? */
+/*	*item = ; â€¢â€¢â€¢â€¢â€¢ What goes here? */
 
 broken:
 	gIsAPopUp = TRUE;

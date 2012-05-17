@@ -1,5 +1,5 @@
 /* OMSUtils.h for Nightingale
-   Copyright © 1988-97 by Advanced Music Notation Systems, Inc. All Rights Reserved. */
+   Copyright Â© 1988-97 by Advanced Music Notation Systems, Inc. All Rights Reserved. */
 
 #ifndef _OMSUTILS_
 #define _OMSUTILS_

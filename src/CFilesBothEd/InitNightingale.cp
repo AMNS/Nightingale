@@ -2,11 +2,11 @@
 
 /*									NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -540,7 +540,7 @@ static void PrintInfo()
 		sizeof(TIMESIG), sizeof(BEAMSET), sizeof(CONNECT), sizeof(DYNAMIC));
 	DebugPrintf("Size of GRAPHIC=%ld OCTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
 		sizeof(GRAPHIC), sizeof(OCTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
-	DebugPrintf("Size of TEMPO=%ld SPACE=%ld ENDING=%ld PSMEAS=%ld ¥SUPEROBJ=%ld\n",
+	DebugPrintf("Size of TEMPO=%ld SPACE=%ld ENDING=%ld PSMEAS=%ld â€¢SUPEROBJ=%ld\n",
 		sizeof(TEMPO), sizeof(SPACE), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
 #endif
 #endif

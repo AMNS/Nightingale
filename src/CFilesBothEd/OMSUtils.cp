@@ -3,11 +3,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1995-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1995-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
  
@@ -1066,9 +1066,9 @@ void SetOMSConfigMenuTitles()
 
 	if (useWhichMIDI!=MIDIDR_OMS) return;
 
-	GetIndString(str, MENUCMD_STRS, 23);				/* "OMS MIDI SetupÉ" */
+	GetIndString(str, MENUCMD_STRS, 23);				/* "OMS MIDI Setupâ€¦" */
 	SetMenuItemText(playRecMenu, PL_OpenExtMIDISetup1, str);
-	GetIndString(str, MENUCMD_STRS, 24);				/* "Open Current OMS Studio SetupÉ" */
+	GetIndString(str, MENUCMD_STRS, 24);				/* "Open Current OMS Studio Setupâ€¦" */
 	SetMenuItemText(playRecMenu, PL_OpenExtMIDISetup2, str);
 }
 

@@ -14,11 +14,11 @@
 
 /*								NOTICE
  *
- *	THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL
+ *	THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL
  *	PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
  *	TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT
  *	RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- *	Copyright © 1988-98 by Advanced Music Notation Systems, Inc.
+ *	Copyright Â© 1988-98 by Advanced Music Notation Systems, Inc.
  *	All Rights Reserved.
  */
  
@@ -283,8 +283,8 @@ static char HandleLastSync(Document *doc, INT16 staff, INT16 voice, Point pt)
 }
 
 
-/* If the slur was drawn "backwards"Ñfor a cross-system slur, bottom to top, for
-a same-system one, right to leftÑswap endpts so that the slur's first sync is
+/* If the slur was drawn "backwards"â€”for a cross-system slur, bottom to top, for
+a same-system one, right to leftâ€”swap endpts so that the slur's first sync is
 before the last. If a cross-staff slur goes from a lower to an upper staff, swap
 start and end staff numbers. */
 
