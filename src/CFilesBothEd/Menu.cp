@@ -2668,6 +2668,9 @@ void FixMenus()
 
 static void FixFileMenu(Document *doc, INT16 nSel)
 	{
+		//always disable Finale ETF import until it has been removed from menu (rsrc) entirely
+		XableItem(fileMenu,FM_GetETF,FALSE);        
+        
 		XableItem(fileMenu,FM_Close,doc!=NULL);
 		XableItem(fileMenu,FM_CloseAll,doc!=NULL);
 
