@@ -1,1 +1,1 @@
-Boolean SetDynamicDialog(SignedByte *dynamicType);
+Boolean SetDynamicDialog(SignedByte *dynamicType);

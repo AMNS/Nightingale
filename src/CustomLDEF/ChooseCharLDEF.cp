@@ -1,4 +1,3 @@
-
 /* This LDEF draws just the first character in a cell and draws a
  * dotted line border. It tries to center the character in the cell.
  * It uses all the font characteristics of the current port.

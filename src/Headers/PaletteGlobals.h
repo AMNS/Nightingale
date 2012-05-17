@@ -1,4 +1,3 @@
-
 /* Constants for tear-off palettes */
 
 #define PALETTE_GLOBALS_TYPE		'PGLB'
