@@ -79,7 +79,7 @@ void DoAboutBox(
 	Boolean		okay, keepGoing=TRUE;
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	Handle		hndl, versH;
+	Handle		hndl;
 	Rect			box;
 	char			fmtStr[256], str[256], serialStr[256], userName[256], userOrg[256];
 	ModalFilterUPP	filterUPP;
@@ -135,23 +135,22 @@ void DoAboutBox(
 	ShowDialogItem(dlog, STXT7_CopyNum);
  #endif
 #endif
-
+	
+	
 	/* Get version number string and display it in a static text item. */
-	curResFile = CurResFile();
-	UseResFile(appRFRefNum);
-	versH = Get1Resource('vers', 1);
-	if (GoodResource(versH)) {
-		unsigned char vstr[256], *vers_str;
-		HLock(versH);
-		vers_str = (unsigned char *)(*versH) + 6;
-		vstr[0] = 0;
-		PStrCopy("\pv. ", vstr);
-		PStrCat(vstr, vers_str);
-		PutDlgString(dlog, STXT_VERS, vstr, FALSE);
-		HUnlock(versH);
-		ReleaseResource(versH);
-	}
-	UseResFile(curResFile);
+	unsigned char vstr[256], *vers_str;
+	const char *bundle_version_str;
+	
+	/* Get version number from main bundle (Info.plist); 
+	   this is the string value for key "CFBundleVersion" aka "Bundle version" 
+	 */
+	CFStringRef vsr = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey);
+	bundle_version_str = CFStringGetCStringPtr(vsr, kCFStringEncodingMacRoman);
+	vers_str = CToPString((char *) bundle_version_str);
+	vstr[0] = 0;
+	PStrCopy("\pv. ", vstr);
+	PStrCat(vstr, vers_str);
+	PutDlgString(dlog, STXT_VERS, vstr, FALSE);
 
 	GetDialogItem(dlog, BUT2_Special, &type, &hndl, &box);
 	HiliteControl((ControlHandle)hndl, CTL_INACTIVE);
