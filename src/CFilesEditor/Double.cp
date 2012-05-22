@@ -2,11 +2,11 @@
 
 /*										NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL
  * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
  * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
  * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright Â© 1988-97 by Advanced Music Notation Systems, Inc.
+ * Copyright © 1988-97 by Advanced Music Notation Systems, Inc.
  * All Rights Reserved.
  *
  */
@@ -464,7 +464,7 @@ void DblSetupVMap(Document *doc, INT16 vMap[], LINK startL, LINK endL, short src
 	for (v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn!=0)
 			DebugPrintf("%ciVoice %d part %d relVoice=%d\n",
-							(v==1? 'â€¢' : ' '),
+							(v==1? '¥' : ' '),
 							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
 #endif	
 }

@@ -6,11 +6,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALE‚Ñ¢ PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright ¬© 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -2128,7 +2128,7 @@ char TempoGlyph(LINK pL)
 	p = GetPTEMPO(pL);
 	switch (p->subType) {
 		case BREVE_L_DUR:
-			return 0xDD;			/* On Mac, '‚Ä∫'=shift-option 4 */
+			return 0xDD;			/* On Mac, '›'=shift-option 4 */
 		case WHOLE_L_DUR:
 			return 'w';
 		case HALF_L_DUR:
@@ -2142,9 +2142,9 @@ char TempoGlyph(LINK pL)
 		case THIRTY2ND_L_DUR:
 			return 'r';
 		case SIXTY4TH_L_DUR:
-			return 0xC6;			/* On Mac, '‚àÜ'=option j */
+			return 0xC6;			/* On Mac, '∆'=option j */
 		case ONE28TH_L_DUR:
-			return 0x8D;			/* On Mac, '√ß'=option c */
+			return 0x8D;			/* On Mac, 'ç'=option c */
 		case NO_L_DUR:
 		default:
 			return '\0';
@@ -2382,16 +2382,16 @@ Boolean DrawCheckInterrupt(Document */*doc*/)
 					 * The following chars. have their top bit on, which gets extended,
 					 * so we have to mask it off--yeech.
 					 */
-					case ('¬∫' & 0xFF):		/* Option-0 */
-					case ('¬°' & 0xFF):		/* Option-1 */
-					case ('‚Ñ¢' & 0xFF):		/* Option-2 */
-					case ('¬£' & 0xFF):		/* Option-3 */
-					case ('¬¢' & 0xFF):		/* Option-4 */
-					case ('‚àû' & 0xFF):		/* Option-5 */
-					case ('¬ß' & 0xFF):		/* Option-6 */
-					case ('¬∂' & 0xFF):		/* Option-7 */
-					case ('‚Ä¢' & 0xFF):		/* Option-8 */
-					case ('¬™' & 0xFF):		/* Option-9 */
+					case ('º' & 0xFF):		/* Option-0 */
+					case ('¡' & 0xFF):		/* Option-1 */
+					case ('™' & 0xFF):		/* Option-2 */
+					case ('£' & 0xFF):		/* Option-3 */
+					case ('¢' & 0xFF):		/* Option-4 */
+					case ('∞' & 0xFF):		/* Option-5 */
+					case ('§' & 0xFF):		/* Option-6 */
+					case ('¶' & 0xFF):		/* Option-7 */
+					case ('•' & 0xFF):		/* Option-8 */
+					case ('ª' & 0xFF):		/* Option-9 */
 						return TRUE;
 
 					case '.':											/* For "power users", cmd-. just interrupts */

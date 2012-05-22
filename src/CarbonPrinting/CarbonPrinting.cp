@@ -11,7 +11,7 @@
 				please do not use, install, modify or redistribute this Apple software.
 
 				In consideration of your agreement to abide by the following terms, and subject
-				to these terms, Apple grants you a personal, non-exclusive license, under Appleâ€™s
+				to these terms, Apple grants you a personal, non-exclusive license, under AppleÕs
 				copyrights in this original Apple software (the "Apple Software"), to use,
 				reproduce, modify and redistribute the Apple Software, with or without
 				modifications, in source and/or binary forms; provided that if you redistribute
@@ -39,7 +39,7 @@
 				(INCLUDING NEGLIGENCE), STRICT LIABILITY OR OTHERWISE, EVEN IF APPLE HAS BEEN
 				ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-	Copyright Â© 1999-2001 Apple Computer, Inc., All Rights Reserved
+	Copyright © 1999-2001 Apple Computer, Inc., All Rights Reserved
 */
 
 #include "Nightingale_Prefix.pch"
@@ -978,7 +978,7 @@ static void PrintDemoBanner(Document *doc, Boolean toPostScript)
 	const unsigned char *banLine2 = "\pAdvanced Music Notation Systems, Inc.";
 	const unsigned char *banLine3 = "\pfax: 413-268-7317  e-mail: info@ngale.com";
 #else
-	const unsigned char *banLine1 = "\p\33T+(/VAkD;f\25ZB#R+(<RI.Ã©";  /* Ends in Option-e e */
+	const unsigned char *banLine1 = "\p\33T+(/VAkD;f\25ZB#R+(<RI.Ž";  /* Ends in Option-e e */
 	const unsigned char *banLine2 = "\p\37C/64AD'\6\3%.ZQ2\6\02244WP(R1";
 	const unsigned char *banLine3 = "\ps\26rko\1\23f\24tqh\23\5k\6btk\5\b\177\20pkj\3\25|";
 #endif
@@ -1472,7 +1472,7 @@ static OSStatus TestDrawPage(PMPrintSession printSession, UInt32 pageNumber, Boo
 			"\p/BMU {BM} BD\r",
 			"\p/BMD {BM} BD\r",
 			"\p/BK {XF/y XD/x XD/h XD/bkw(\302)stringwidth pop .36275 mul def\r",
-			"\p     (\302)x y MS x y moveto x y h add lineto		% 302 = Â¬\r",
+			"\p     (\302)x y MS x y moveto x y h add lineto		% 302 = Â\r",
 			"\p     x bkw add y h add lineto x bkw add y lineto closepath fill\r",
 			"\p     (L)x y h add MS} BD\r",
 			"\p/CH {				%	char  --  top bottom\r",

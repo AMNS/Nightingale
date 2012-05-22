@@ -1,10 +1,10 @@
 /*									NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright Â© 1989-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 1989-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -18,9 +18,9 @@
 #define NO_SERIAL_NUM
 
 #define	CR_LEADING				14		/* Vert. dist. between baselines of credit text */
-#define	PAUSE_CODE				'Ï€'	/* [opt-p] If line of TEXT resource begins with this,
+#define	PAUSE_CODE				'¹'	/* [opt-p] If line of TEXT resource begins with this,
 													animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
-#define	BOLD_CODE				'âˆ«'	/* [opt-b] If this begins a line of TEXT resource, or follows
+#define	BOLD_CODE				'º'	/* [opt-b] If this begins a line of TEXT resource, or follows
 													PAUSE_CODE, that line will be drawn in bold. */
 #define	SCROLL_PAUSE_DELAY	210	/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
 #define	SCROLL_NORM_DELAY		4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
@@ -203,7 +203,7 @@ void DoAboutBox(
 				{
 					Document *doc=GetDocumentFromWindow(TopDocument);
 					if (doc!=NULL)
-						DCheckEverything(doc, maxCheck, minCheck);	/* ??Requires Consolationâ„¢ */
+						DCheckEverything(doc, maxCheck, minCheck);	/* ??Requires Consolationª */
 				}
 #else
 				SysBeep(1);		/* For future use; maybe a simple "Debug Check" */

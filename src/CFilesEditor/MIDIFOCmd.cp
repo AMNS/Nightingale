@@ -2,12 +2,12 @@
 
 /*										NOTICE
  *
- *	THIS FILE IS PART OF THE NIGHTINGALE‚Ñ¢ PROGRAM AND IS CONFIDENTIAL PROPERTY OF
+ *	THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROPERTY OF
  *	ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE SECRET AND IS
  *	NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED WRITTEN
  *	AUTHORIZATION FROM THE OWNER.
  *
- *	Copyright ¬©1992-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ *	Copyright ©1992-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -409,7 +409,7 @@ Boolean TranscribeMFDialog(
 	curPop = &durPop0dot;
 	
 	Pstrcpy((unsigned char *)strBuf, filename);
-	PStrCat((unsigned char *)strBuf, "\p‚Äù");
+	PStrCat((unsigned char *)strBuf, "\p”");
 	PutDlgString(dlog,FILENAME_DI,(unsigned char *)strBuf,FALSE);
 
 	PutDlgWord(dlog, NNOTES_DI, nNotes, FALSE);

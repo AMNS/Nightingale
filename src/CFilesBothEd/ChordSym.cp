@@ -2,11 +2,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright Â© 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -51,7 +51,7 @@ Boolean ParseChordSym(
 				unsigned char *csStr,	/* Pascal string stored by chord symbol graphic */
 				char *rootStr,				/* receives note name C string (e.g., "C", "Bb") */
 				char *qualStr,				/* receives quality C string (e.g., "Maj", "min", "dim") */
-				char *extStr,				/* receives extension C string (e.g., "7", "âˆ†7", "+6", "7#9") */
+				char *extStr,				/* receives extension C string (e.g., "7", "Æ7", "+6", "7#9") */
 				char *extStk1Str,			/* receives (bottom) extension stack C string */
 				char *extStk2Str,			/* receives (middle) extension stack C string */
 				char *extStk3Str,			/* receives (top) extension stack C string */
@@ -142,7 +142,7 @@ static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
 /* Parse the given string as a sequence of 6 chunks of text and draw them according
  * to a (rather complicated) chord symbol formatting scheme:
  * 	Chunk				Format														Typical use
- * 	Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯Â¯
+ * 	øøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøøø
  * 	rootStr		Chord symbol font and size;								Chord sym root,
  * 					accidentals in music font (e.g. Sonata),				harp pedals,
  * 					with size config.chordSymMusSize percent				harmony exam figs.
@@ -1320,7 +1320,7 @@ static Boolean CheckCSuserItems(DialogPtr dlog, Point where, short *itemHit)
 		}
 		changeMenu = TRUE;
 		InsertMenuItem(p->menu, "\p ", 0);			/* use SetMenuItemText to ignore any meta-chars in eStr */
-		if (eStr[1]=='-') eStr[1] = 'â€“';				/* prevent dotted line in menu! */
+		if (eStr[1]=='-') eStr[1] = 'Ð';				/* prevent dotted line in menu! */
 		SetMenuItemText(p->menu, 1, eStr);
 		InsertMenuItem(p->menu, "\p(-", 1);
 		ChangePopUpChoice(p, 1);

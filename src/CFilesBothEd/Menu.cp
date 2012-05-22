@@ -2,11 +2,11 @@
 
 /*									NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright Â© 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -2909,15 +2909,15 @@ static void FixTestMenu(Document *doc, INT16 nSel)
 	{
 #ifndef PUBLIC_VERSION
 		if (clickMode==ClickErase)
-			SetItemMark(testMenu, TS_ClickErase, 'â€¢');
+			SetItemMark(testMenu, TS_ClickErase, '¥');
 		else
 			SetItemMark(testMenu, TS_ClickErase, noMark);
 		if (clickMode==ClickSelect)
-			SetItemMark(testMenu, TS_ClickSelect, 'â€¢');
+			SetItemMark(testMenu, TS_ClickSelect, '¥');
 		else
 			SetItemMark(testMenu, TS_ClickSelect, noMark);
 		if (clickMode==ClickFrame)
-			SetItemMark(testMenu, TS_ClickFrame, 'â€¢');
+			SetItemMark(testMenu, TS_ClickFrame, '¥');
 		else
 			SetItemMark(testMenu, TS_ClickFrame, noMark);
 
