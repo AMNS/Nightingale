@@ -571,7 +571,7 @@
 				D088B8300D5FADC30028C2BC /* Utilities */,
 				D03E71210D5FA92E005FD177 /* CFilesCarbon */,
 				D03E70EC0D5FA655005FD177 /* CarbonTEField */,
-				D03E6AAB0D5F6C3D005FD177 /* CFilesBothEd */,
+				D03E6AAB0D5F6C3D005FD177 /* CFilesBoth */,
 				D03E6F2D0D5FA4F5005FD177 /* CFilesEditor */,
 				D03E6BCB0D5F790F005FD177 /* CNgaleSearch */,
 				D03E6EBE0D5F9FAD005FD177 /* CoreAudio */,
@@ -733,7 +733,7 @@
 			path = MIDI;
 			sourceTree = "<group>";
 		};
-		D03E6AAB0D5F6C3D005FD177 /* CFilesBothEd */ = {
+		D03E6AAB0D5F6C3D005FD177 /* CFilesBoth */ = {
 			isa = PBXGroup;
 			children = (
 				D03AF84F0D6F4F9C0018F558 /* Main.cp */,
@@ -827,8 +827,8 @@
 				D03E6D700D5F9457005FD177 /* Menu.cp */,
 				D03E6B070D5F6EC9005FD177 /* EssentialTools.cp */,
 			);
-			name = CFilesBothEd;
-			path = src/CFilesBothEd;
+			name = CFilesBoth;
+			path = src/CFilesBoth;
 			sourceTree = "<group>";
 		};
 		D03E6AFF0D5F6E3D005FD177 /* CarbonNavServices */ = {
