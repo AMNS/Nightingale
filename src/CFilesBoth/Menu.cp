@@ -507,11 +507,6 @@ Boolean DoFileMenu(INT16 choice)
 			case FM_Extract:
 				if (doc) DoExtract(doc);
 				break;
-#ifndef LIGHT_VERSION
-			case FM_GetScan:
-				OpenScanFile();
-				break;
-#endif
 #endif
 #ifndef LIGHT_VERSION
 			case FM_GetETF:
@@ -2681,10 +2676,9 @@ static void FixFileMenu(Document *doc, INT16 nSel)
 		XableItem(fileMenu,FM_Extract,doc!=NULL && doc!=clipboard);
 		INT16 numOpenDocs = NumOpenDocuments();
 		//XableItem(fileMenu,FM_Import,numOpenDocs == 0);
-		
-#ifdef LIGHT_VERSION
+
+		// always disable NoteScan import until it has been removed from menu (rsrc) entirely
 		XableItem(fileMenu,FM_GetScan,FALSE);
-#endif
 		XableItem(fileMenu,FM_SaveEPSF,doc!=NULL && doc!=clipboard
 										&& !doc->masterView && !doc->showFormat);
 		XableItem(fileMenu,FM_SaveText,doc!=NULL && doc!=clipboard

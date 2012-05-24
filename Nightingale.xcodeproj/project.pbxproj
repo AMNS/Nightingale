@@ -129,8 +129,6 @@
 		D03E70CF0D5FA5B2005FD177 /* NotelistConvert.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70880D5FA5B2005FD177 /* NotelistConvert.cp */; };
 		D03E70D00D5FA5B2005FD177 /* NotelistParse.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70890D5FA5B2005FD177 /* NotelistParse.cp */; };
 		D03E70D10D5FA5B2005FD177 /* NotelistSave.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708A0D5FA5B2005FD177 /* NotelistSave.cp */; };
-		D03E70D20D5FA5B2005FD177 /* NScanner.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708B0D5FA5B2005FD177 /* NScanner.cp */; };
-		D03E70D30D5FA5B2005FD177 /* NScanUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708C0D5FA5B2005FD177 /* NScanUtils.cp */; };
 		D03E70D40D5FA5B2005FD177 /* OhioSlurs.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708D0D5FA5B2005FD177 /* OhioSlurs.cp */; };
 		D03E70D50D5FA5B2005FD177 /* PitchCmds.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708E0D5FA5B2005FD177 /* PitchCmds.cp */; };
 		D03E70D60D5FA5B2005FD177 /* PitchDialogs.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708F0D5FA5B2005FD177 /* PitchDialogs.cp */; };
@@ -154,7 +152,6 @@
 		D06D071C0D7287ED0055C107 /* NHLP.icns in Resources */ = {isa = PBXBuildFile; fileRef = D06D07120D7287ED0055C107 /* NHLP.icns */; };
 		D06D071D0D7287ED0055C107 /* NSET.icns in Resources */ = {isa = PBXBuildFile; fileRef = D06D07130D7287ED0055C107 /* NSET.icns */; };
 		D06D071E0D7287ED0055C107 /* ps.icns in Resources */ = {isa = PBXBuildFile; fileRef = D06D07140D7287ED0055C107 /* ps.icns */; };
-		D06D071F0D7287ED0055C107 /* Scan.icns in Resources */ = {isa = PBXBuildFile; fileRef = D06D07150D7287ED0055C107 /* Scan.icns */; };
 		D06D07200D7287ED0055C107 /* SCOR.icns in Resources */ = {isa = PBXBuildFile; fileRef = D06D07160D7287ED0055C107 /* SCOR.icns */; };
 		D06D07210D7287ED0055C107 /* Text.icns in Resources */ = {isa = PBXBuildFile; fileRef = D06D07170D7287ED0055C107 /* Text.icns */; };
 		D088B8670D5FB18E0028C2BC /* ChooseCharLDEF.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B8660D5FB18E0028C2BC /* ChooseCharLDEF.cp */; };
@@ -442,13 +439,10 @@
 		D03E70880D5FA5B2005FD177 /* NotelistConvert.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistConvert.cp; sourceTree = "<group>"; };
 		D03E70890D5FA5B2005FD177 /* NotelistParse.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistParse.cp; sourceTree = "<group>"; };
 		D03E708A0D5FA5B2005FD177 /* NotelistSave.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistSave.cp; sourceTree = "<group>"; };
-		D03E708B0D5FA5B2005FD177 /* NScanner.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NScanner.cp; sourceTree = "<group>"; };
-		D03E708C0D5FA5B2005FD177 /* NScanUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NScanUtils.cp; sourceTree = "<group>"; };
 		D03E708D0D5FA5B2005FD177 /* OhioSlurs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OhioSlurs.cp; sourceTree = "<group>"; };
 		D03E708E0D5FA5B2005FD177 /* PitchCmds.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PitchCmds.cp; sourceTree = "<group>"; };
 		D03E708F0D5FA5B2005FD177 /* PitchDialogs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PitchDialogs.cp; sourceTree = "<group>"; };
 		D03E70900D5FA5B2005FD177 /* PrefsDialog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PrefsDialog.cp; sourceTree = "<group>"; };
-		D03E70910D5FA5B2005FD177 /* Print.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Print.cp; sourceTree = "<group>"; };
 		D03E70920D5FA5B2005FD177 /* Reformat.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Reformat.cp; sourceTree = "<group>"; };
 		D03E70930D5FA5B2005FD177 /* RfmtDlog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RfmtDlog.cp; sourceTree = "<group>"; };
 		D03E70940D5FA5B2005FD177 /* RfmtRaw.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = RfmtRaw.cp; sourceTree = "<group>"; };
@@ -472,13 +466,11 @@
 		D06D07120D7287ED0055C107 /* NHLP.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = NHLP.icns; path = Resources/NHLP.icns; sourceTree = "<group>"; };
 		D06D07130D7287ED0055C107 /* NSET.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = NSET.icns; path = Resources/NSET.icns; sourceTree = "<group>"; };
 		D06D07140D7287ED0055C107 /* ps.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = ps.icns; path = Resources/ps.icns; sourceTree = "<group>"; };
-		D06D07150D7287ED0055C107 /* Scan.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Scan.icns; path = Resources/Scan.icns; sourceTree = "<group>"; };
 		D06D07160D7287ED0055C107 /* SCOR.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = SCOR.icns; path = Resources/SCOR.icns; sourceTree = "<group>"; };
 		D06D07170D7287ED0055C107 /* Text.icns */ = {isa = PBXFileReference; lastKnownFileType = image.icns; name = Text.icns; path = Resources/Text.icns; sourceTree = "<group>"; };
 		D088B7D00D5FA97F0028C2BC /* CarbonStubs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CarbonStubs.h; sourceTree = "<group>"; };
 		D088B8270D5FAD420028C2BC /* Notelist.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Notelist.h; sourceTree = "<group>"; };
 		D088B8340D5FADDF0028C2BC /* FileUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; lineEnding = 0; path = FileUtils.h; sourceTree = "<group>"; };
-		D088B8400D5FAE7E0028C2BC /* NPIFStructs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NPIFStructs.h; sourceTree = "<group>"; };
 		D088B8660D5FB18E0028C2BC /* ChooseCharLDEF.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = ChooseCharLDEF.cp; sourceTree = "<group>"; usesTabs = 1; };
 		D088B86D0D5FB1D00028C2BC /* TEfield.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = TEfield.cp; sourceTree = "<group>"; };
 		D088B8A00D5FB2B30028C2BC /* CarbonStubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CarbonStubs.cp; sourceTree = "<group>"; };
@@ -591,7 +583,6 @@
 				D06D07120D7287ED0055C107 /* NHLP.icns */,
 				D06D07130D7287ED0055C107 /* NSET.icns */,
 				D06D07140D7287ED0055C107 /* ps.icns */,
-				D06D07150D7287ED0055C107 /* Scan.icns */,
 				D06D07160D7287ED0055C107 /* SCOR.icns */,
 				D06D07170D7287ED0055C107 /* Text.icns */,
 				D0DDAAFB0D6641D7004B30F7 /* Nightingale.rsrc */,
@@ -618,7 +609,6 @@
 		D03E696D0D5F6078005FD177 /* Headers */ = {
 			isa = PBXGroup;
 			children = (
-				D088B8400D5FAE7E0028C2BC /* NPIFStructs.h */,
 				D088B8270D5FAD420028C2BC /* Notelist.h */,
 				D03E70E80D5FA5F9005FD177 /* DebugUtils.h */,
 				D03E6E6F0D5F9C67005FD177 /* helpPrivate.h */,
@@ -957,13 +947,10 @@
 				D03E70880D5FA5B2005FD177 /* NotelistConvert.cp */,
 				D03E70890D5FA5B2005FD177 /* NotelistParse.cp */,
 				D03E708A0D5FA5B2005FD177 /* NotelistSave.cp */,
-				D03E708B0D5FA5B2005FD177 /* NScanner.cp */,
-				D03E708C0D5FA5B2005FD177 /* NScanUtils.cp */,
 				D03E708D0D5FA5B2005FD177 /* OhioSlurs.cp */,
 				D03E708E0D5FA5B2005FD177 /* PitchCmds.cp */,
 				D03E708F0D5FA5B2005FD177 /* PitchDialogs.cp */,
 				D03E70900D5FA5B2005FD177 /* PrefsDialog.cp */,
-				D03E70910D5FA5B2005FD177 /* Print.cp */,
 				D03E70920D5FA5B2005FD177 /* Reformat.cp */,
 				D03E70930D5FA5B2005FD177 /* RfmtDlog.cp */,
 				D03E70940D5FA5B2005FD177 /* RfmtRaw.cp */,
@@ -1080,7 +1067,6 @@
 				D06D071C0D7287ED0055C107 /* NHLP.icns in Resources */,
 				D06D071D0D7287ED0055C107 /* NSET.icns in Resources */,
 				D06D071E0D7287ED0055C107 /* ps.icns in Resources */,
-				D06D071F0D7287ED0055C107 /* Scan.icns in Resources */,
 				D06D07200D7287ED0055C107 /* SCOR.icns in Resources */,
 				D06D07210D7287ED0055C107 /* Text.icns in Resources */,
 			);
@@ -1212,8 +1198,6 @@
 				D03E70CF0D5FA5B2005FD177 /* NotelistConvert.cp in Sources */,
 				D03E70D00D5FA5B2005FD177 /* NotelistParse.cp in Sources */,
 				D03E70D10D5FA5B2005FD177 /* NotelistSave.cp in Sources */,
-				D03E70D20D5FA5B2005FD177 /* NScanner.cp in Sources */,
-				D03E70D30D5FA5B2005FD177 /* NScanUtils.cp in Sources */,
 				D03E70D40D5FA5B2005FD177 /* OhioSlurs.cp in Sources */,
 				D03E70D50D5FA5B2005FD177 /* PitchCmds.cp in Sources */,
 				D03E70D60D5FA5B2005FD177 /* PitchDialogs.cp in Sources */,

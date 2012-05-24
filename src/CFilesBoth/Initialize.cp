@@ -708,7 +708,6 @@ static Boolean GetConfig()
 		config.tupletNumSize = 110;
 		config.tupletColonSize = 60;
 		config.octaveNumSize = 120;
-		config.noteScanEpsXD = -1;
 		config.lineLW = -1;
 		config.ledgerLLen = config.ledgerLOtherLen = -1;
 		config.slurDashLen = config.slurSpaceLen = -1;
@@ -921,8 +920,6 @@ static Boolean GetConfig()
 			{ config.tupletColonSize = 60; ERR(86); }
 	if (config.octaveNumSize < 0 || config.octaveNumSize > 127)
 			{ config.octaveNumSize = 110; ERR(87); }
-	if (config.noteScanEpsXD < 0 || config.noteScanEpsXD > 18)
-			{ config.noteScanEpsXD = 2; ERR(88); }
 	if (config.lineLW < 1 || config.lineLW > 127) { config.lineLW = 25; ERR(89); }
 	if (config.ledgerLLen < 32) { config.ledgerLLen = 48; ERR(90); }
 	if (config.ledgerLOtherLen < 0) { config.ledgerLOtherLen = 12; ERR(91); }

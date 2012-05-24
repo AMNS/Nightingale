@@ -363,16 +363,6 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	void		GetSlurTieCurveDir(Document *, INT16, LINK, Boolean *);
 	INT16		AddNoteTies(Document *, LINK, LINK, INT16, INT16);
 
-/* NightScanner.c and NightScanUtils.c */
-
-	Boolean	BuildNightScanDoc(Document *doc, unsigned char *fileName, short vRefNum, FSSpec *pfsSpec, long *version, Boolean isNew,
-							short pageWidth,short pageHt,short nStaves,short rastral,short FILEXResolution);
-	void		NSInvisify(Document *doc);
-	Boolean 	NSProblems(Document *doc, short *pTotalErrors, short *pFirstErrMeas,
-					short *pFirstErrStaff);
-	short		OpenScanFile(void);
-	Boolean	NSEnabled(void);
-
 /* NotelistConvert.c */
 
 	Boolean	OpenNotelistFile(Str255 fileName, NSClientDataPtr pNSD);
