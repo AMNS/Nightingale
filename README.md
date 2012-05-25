@@ -12,10 +12,12 @@ Development environment requirements
  Following [these instructions] (http://stackoverflow.com/questions/5333490/how-can-we-restore-ppc-ppc64-as-well-as-full-10-4-10-5-sdk-support-to-xcode-4
 ) restores support for the SDKs, but seems to fail in Step 4 (restoring support for GCC 4.0). At that point, run these commands:
 
-    curl -O https://raw.github.com/thinkyhead/Legacy-XCode-Scripts/master/restore-with-xcode3.sh
-    chmod 744 restore-with-xcode3.sh
-    ./restore-with-xcode3.sh
-    curl -O https://raw.github.com/thinkyhead/Legacy-XCode-Scripts/master/restore-with-xcode4.sh
+```
+curl -O https://raw.github.com/thinkyhead/Legacy-XCode-Scripts/master/restore-with-xcode3.sh
+chmod 744 restore-with-xcode3.sh
+./restore-with-xcode3.sh
+curl -O https://raw.github.com/thinkyhead/Legacy-XCode-Scripts/master/restore-with-xcode4.sh
+```
 
 The last "curl" may fail, but it seems to result in Xcode 4.2 doing what we want.
 
