@@ -40,3 +40,5 @@ void DisplayNode(Document *, LINK, INT16, Boolean, Boolean, Boolean);
 void MemUsageStats(Document *);
 void DisplayIndexNode(Document *, LINK, INT16, INT16 *);
 void DHexDump(unsigned char *, long, INT16, INT16);
+
+#define DebugPrintf printf

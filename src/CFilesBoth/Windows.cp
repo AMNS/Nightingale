@@ -13,8 +13,6 @@ box, Message box, etc. - revised for v.99. */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
-#include "SearchScorePrivate.h"
-
 
 void DoCloseWindow(WindowPtr w)
 	{
@@ -27,12 +25,7 @@ void DoCloseWindow(WindowPtr w)
 			}
 			
 		Document *doc = GetDocumentFromWindow(w);		
-			
-		if (kind == DOCUMENTKIND && doc == gResListDocument) {
-			DoCloseResListDocument(GetDocumentFromWindow(w));
-			return;			
-		}
-		
+					
 		if (kind == DOCUMENTKIND) {
 			if (!DoCloseDocument(GetDocumentFromWindow(w))) {
 				/* User canceled, or error */
@@ -184,10 +177,11 @@ void DoZoom(WindowPtr w, INT16 part)
 		GrafPtr oldPort; INT16 across,down,kind;
 		
 		GetPort(&oldPort); SetPort(GetWindowPort(w));
+		Document *doc;
 		
 		switch (GetWindowKind(w)) {
 			case DOCUMENTKIND:
-				Document *doc = GetDocumentFromWindow(w); 
+				doc = GetDocumentFromWindow(w); 
 				Rect portRect;
 				
 				if (doc) {
@@ -394,29 +388,13 @@ palettes and the TopDocument, adjust the order also. This function can replace m
 uses of FrontWindow() in the rest of the program. */
 
 #if TARGET_API_MAC_CARBON
-
-void AnalyzeModelessDlogs() 
-	{
-		WindowPtr w = GetDialogWindow(gResultListDlog);
-		WindowPtr wFront = FrontWindow();
-		
-		if (w == wFront) {
-			if (palettesVisible[TOOL_PALETTE] ) {
-				PaletteGlobals *pg = *paletteGlobals[TOOL_PALETTE];
-				palettesVisible[TOOL_PALETTE] = FALSE;
-				DoCloseWindow(pg->paletteWindow);				
-			}			
-		}			
-	}
 	
 void AnalyzeWindows()
 	{
 		INT16 palettesFound; Boolean inOrder;
 		WindowPtr next;
 		//WindowPtr bottom;
-		
-		AnalyzeModelessDlogs();
-		
+				
 		/*
 		 *	Make sure all SendBehind() and NewWindow() calls bring a window to the front
 		 *	if there are no visible palettes
@@ -660,16 +638,8 @@ void OurDragWindow(WindowPtr whichWindow)
 			}
 #else
 	Document *doc = GetDocumentFromWindow(whichWindow);
-	if (doc==gResListDocument) {
-		Point where = theEvent.where;
-		Rect portBounds = GetQDPortBounds();
-		DragWindow(whichWindow,where,NULL);
-		
-	}
-	else {
-		Rect portBounds = GetQDPortBounds();
-		DragWindow(whichWindow,theEvent.where,&portBounds);
-	}
+	Rect portBounds = GetQDPortBounds();
+	DragWindow(whichWindow,theEvent.where,&portBounds);
 #endif
 	}
 

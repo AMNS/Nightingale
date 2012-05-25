@@ -152,9 +152,6 @@ GLOBAL ScrapRef 	gNightScrap;
 
 GLOBAL Boolean		gCoreMIDIInited;
 
-GLOBAL DialogPtr  gResultListDlog;		/* Modeless dialog */
-GLOBAL Document 	*gResListDocument;
-
 /* ------------------------------- With Initialization ------------------------------ */
 
 #ifdef MAIN

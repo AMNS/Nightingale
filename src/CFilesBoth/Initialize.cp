@@ -17,7 +17,6 @@
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
-#include "SearchScorePrivate.h"
 
 #include "SampleMDEF.h"
 #include "GraphicMDEF.h"
@@ -37,7 +36,6 @@ static INT16		GetToolGrid(PaletteGlobals *whichPalette);
 static void			SetupPaletteRects(Rect *whichRects, INT16 across, INT16 down, INT16 width,
 								INT16 height);
 static Boolean		PrepareClipDoc(void);
-static Boolean		PrepareSearchDoc(void);
 void		InitNightingale(void);
 
 
@@ -1259,55 +1257,6 @@ static Boolean PrepareClipDoc()
 		SetWCTitle((WindowPtr)clipboard,title);
 		return TRUE;
 	}
-
-#define SEARCH_TITLE 17	
-/* Provide the pre-allocated search document with default values. */
-	
-static Boolean PrepareSearchDoc()
-	{
-#if 1
-		searchPatDoc = NULL;
-		gResultListDlog = NULL;
-#else
-		WindowPtr w; char title[256]; long junkVersion;
-		LINK partL; PPARTINFO pPart;
-
-		searchPatDoc = documentTable+1;
-		searchPatDoc->inUse = TRUE;
-		
-		//w = GetNewWindow(docWindowID,&searchPatDoc->theWindow,(WindowPtr)-1);
-		w = GetNewWindow(docWindowID,NULL,(WindowPtr)-1);
-		if (w == NULL) return(FALSE);
-		searchPatDoc->theWindow = w;		
-		SetWindowKind(w,DOCUMENTKIND);
-		
-		ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
-		if (!BuildDocument(searchPatDoc,NULL,0,NULL,&junkVersion,TRUE))
-			return FALSE;
-		//((WindowPeek)w)->windowKind = DOCUMENTKIND;
-		//((WindowPeek)w)->spareFlag = TRUE;
-		//if (!BuildDocument(searchPatDoc,NULL,0,&junkVersion,TRUE))
-		//	return FALSE;
-			
-		/* Reset fields for which Search Score needs non-standard values. */
-		searchPatDoc->canCutCopy = FALSE;
-		searchPatDoc->lookVoice = 1;					/* the only voice that matters! */
-		searchPatDoc->firstNames = NONAMES;
-		searchPatDoc->firstIndent = pt2d(1);
-
-		GetIndCString(title,MiscStringsID,SEARCH_TITLE);
-		
-		SetWCTitle((WindowPtr)searchPatDoc,title);
-		Pstrcpy(searchPatDoc->name,"\pSearch Pattern");
-
-		partL = FirstSubLINK(searchPatDoc->headL);
-		partL = NextPARTINFOL(partL);
-		pPart = GetPPARTINFO(partL);
-		strcpy(pPart->name, "SEARCH");
-		strcpy(pPart->shortName, "SEARCH");
-#endif
-		return TRUE;
-	}
 	
 Boolean BuildEmptyDoc(Document *doc) 
 	{
@@ -1319,29 +1268,6 @@ Boolean BuildEmptyDoc(Document *doc)
 		return TRUE;
 	}
 
-static Boolean PrepareResultListDoc()
-	{
-		WindowPtr w;
-		
-		Document *doc = FirstFreeDocument();
-		if (doc == NULL) { TooManyDocs(); return(FALSE); }
-		
-		gResListDocument = doc;
-		gResListDocument->inUse = TRUE;
-		
-		w = GetNewWindow(docWindowID,NULL,(WindowPtr)-1);
-		if (w == NULL) return(FALSE);
-		gResListDocument->theWindow = w;		
-		SetWindowKind(w,DOCUMENTKIND);
-		
-		SetWCTitle(w,"Result List");
-		Pstrcpy(gResListDocument->name,"\pResult List");
-		
-		BuildEmptyDoc(gResListDocument);
-		BuildResListDocument(gResListDocument);
-		
-		return TRUE;
-	}
 	
 //#define TEST_MDEF_CODE
 #ifdef TEST_MDEF_CODE
@@ -1391,8 +1317,6 @@ Boolean InitGlobals()
 		
 		/* Preallocate the clipboard and search documents */
 		if (!PrepareClipDoc()) return FALSE;
-		if (!PrepareSearchDoc()) return FALSE;
-		if (!PrepareResultListDoc()) return FALSE;
 			
 		/* Set up the global scrap reference */
 		GetCurrentScrap(&gNightScrap);

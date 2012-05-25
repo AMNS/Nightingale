@@ -270,7 +270,6 @@ enum {							/* File menu */
 	FM_SearchInFiles,
 	FM_Quit
 	};
-	
 // CER 5/17/2004
 // If the Edit Menu items are changed, make sure EM_LastItem still equals
 // the last menu item

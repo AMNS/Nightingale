@@ -89,3 +89,4 @@ Boolean TrapAvailable(short);
 Boolean GetSN(char *);
 
 Boolean EnforcePageLimit(Document *doc);
+

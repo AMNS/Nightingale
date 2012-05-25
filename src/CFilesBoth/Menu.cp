@@ -295,127 +295,6 @@ static Boolean GetNotelistFile(Str255 macfName, short *vRefNum)
 #endif
 
 
-
-#ifdef TEST_SEARCH_NG
-#include "SearchScoreDBFormat.h"
-
-static Boolean usePitch = TRUE;
-static Boolean useDuration = TRUE;
-static FASTFLOAT pitchWeight = 0.75;
-static INT16 pitchSearchType = TYPE_PITCHMIDI_REL;
-static INT16 durSearchType = TYPE_DURATION_REL;
-static Boolean includeRests = TRUE;
-static INT16 maxTranspose = 127;
-static INT16 pitchTolerance = 0;
-static Boolean keepContour = TRUE;
-static INT16 chordNotes = TYPE_CHORD_OUTER;
-static Boolean matchTiedDur = TRUE;
-
-static void EMSearchMelody(Document *doc, Boolean again);
-static void EMSearchMelody(Document *doc, Boolean again)
-{
-
-	Document *theDoc = (Document *)TopDocument;
-	Boolean findAll;
-
-	if (theDoc==searchPatDoc) {
-		CParamText("The Search Pattern is the front window: you can't search it for itself!",
-						"", "", "");											// ??I18N BUG
-		StopInform(GENERIC_ALRT);
-		return;
-	}
-	
-	if (again) {
-		(void)DoSearchScore(doc, TRUE, usePitch, useDuration, pitchSearchType,
-							durSearchType, includeRests, maxTranspose, pitchTolerance,
-							pitchWeight, keepContour, chordNotes, matchTiedDur);
-		return;
-	}
-
-	if (SearchDialog(FALSE, &findAll, &usePitch, &useDuration, &pitchSearchType,
-						&durSearchType, &includeRests, &maxTranspose, &pitchTolerance,
-						&keepContour, &chordNotes, &matchTiedDur)) {
-		if (findAll)
-			(void)DoIRSearchScore(doc, usePitch, useDuration, pitchSearchType,
-								durSearchType, includeRests, maxTranspose, pitchTolerance,
-								pitchWeight, keepContour, chordNotes, matchTiedDur);
-		else
-			(void)DoSearchScore(doc, FALSE, usePitch, useDuration, pitchSearchType,
-								durSearchType, includeRests, maxTranspose, pitchTolerance,
-								pitchWeight, keepContour, chordNotes, matchTiedDur);
-	}
-}
-
-
-/* Ask user for an input file. Return 1 if okay, 0 not (user cancelled). Note that this
-code does not use Navigation Services, so it won't work on Mac OS X or Carbon apps, but
-it assumes system 7.0 or later. */
-
-short FSpGetInputFileFromUser(FSSpec *theFile);
-short FSpGetInputFileFromUser(FSSpec *theFile)
-{	
-#if 0
-	short ans;
-
-	StandardFileReply reply;
-	SFTypeList types;
-	StandardGetFile(NULL,-1,types,&reply);
-	if (reply.sfGood)
-		*theFile = reply.sfFile;
-	ans = reply.sfGood;
-
-	return(ans);
-#else			
-	NSClientData nscd;
-	short vrefnum; short ans;
-	char str[256];
-	
-	if (ans = GetInputName(str,FALSE,tmpStr,&vrefnum,&nscd)) {
-		*theFile = nscd.nsFSSpec;
-		vrefnum = nscd.nsFSSpec.vRefNum;		
-	}
-	
-	return ans;
-#endif
-						
-}
-
-
-static void FMSearchFilesMelody(void);
-static void FMSearchFilesMelody()
-{
-	short vrefnum; INT16 returnCode; char str[256];
-	Boolean findAllDummy;
-	FSSpec theFile;
-	Str255 filename;
-#ifdef SEARCH_DBFORMAT_MEF
-	if (!GetTextFile(filename, &vrefnum)) return;
-
-	if (SearchDialog(TRUE, &findAllDummy, &usePitch, &useDuration, &pitchSearchType,
-						&durSearchType, &includeRests, &maxTranspose, &pitchTolerance,
-						&keepContour, &chordNotes, &matchTiedDur)) {
-		(void)DoIRSearchFiles(filename, vrefnum, usePitch, useDuration, pitchSearchType,
-							durSearchType, includeRests, maxTranspose, pitchTolerance,
-							pitchWeight, keepContour, chordNotes, matchTiedDur);
-	}
-#else
-	if (!FSpGetInputFileFromUser(&theFile)) return;
-	
-	if (SearchDialog(TRUE, &findAllDummy, &usePitch, &useDuration, &pitchSearchType,
-						&durSearchType, &includeRests, &maxTranspose, &pitchTolerance,
-						&keepContour, &chordNotes, &matchTiedDur)) {
-		(void)DoIRSearchFiles(&theFile, usePitch, useDuration, pitchSearchType,
-							durSearchType, includeRests, maxTranspose, pitchTolerance,
-							pitchWeight, keepContour, chordNotes, matchTiedDur);
-	}
-#endif
-}
-
-#endif
-
-
-
-
 /*
  *	Handle a choice from the File Menu.  Return FALSE if it's time to quit.
  */
@@ -602,12 +481,6 @@ Boolean DoFileMenu(INT16 choice)
 				if (doc) FMPreferences(doc);
 				break;
 #endif
-
-#ifdef TEST_SEARCH_NG
-			case FM_SearchInFiles:
-				FMSearchFilesMelody();
-				break;
-#endif
 			case FM_Quit:
 				if (!IsSafeToQuit()) break;
 				if (!SaveToolPalette(TRUE)) break;
@@ -634,7 +507,6 @@ void DoEditMenu(choice)
  *	Handle a choice from the Edit Menu.
  */
 
-//#define TEST_SEARCH_NG				// ??TEMPORARY! BELONGS IN Nightingale.precomp.c!!!!!!!!
 void DoEditMenu(INT16 choice)
 	{
 		register Document *doc=GetDocumentFromWindow(TopDocument);
@@ -709,14 +581,6 @@ DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);
 				DoSet(doc);
 				break;
 
-#ifdef TEST_SEARCH_NG
-			case EM_SearchMelody:
-				EMSearchMelody(doc, FALSE);
-				break;
-			case EM_SearchAgain:
-				EMSearchMelody(doc, TRUE);
-				break;
-#endif
 			case EM_Browser:
 				if (OptionKeyDown())
 					Browser(doc,doc->masterHeadL, doc->masterTailL);
@@ -1241,7 +1105,6 @@ void DoGroupsMenu(INT16 choice)
  *	Handle a choice from the View Menu.
  */
 
-void		ShowSearchDocument(void);			
 
 void DoViewMenu(INT16 choice)
 	{
@@ -1330,7 +1193,7 @@ void DoViewMenu(INT16 choice)
 				palettesVisible[TOOL_PALETTE] = TRUE;
 				break;
 			case VM_ShowSearchPattern:
-				ShowSearchDocument();
+				//Do nothing; Nigthingale Search has been removed
 				break;
 #endif
 			default:
@@ -2627,7 +2490,7 @@ void FixMenus()
 		 */
 		
 		if (theDoc) {
-			if (theDoc!=clipboard && theDoc != gResListDocument) {
+			if (theDoc!=clipboard ) {
 				InstallDoc(theDoc);
 				CountSelection(theDoc, &nInRange, &nSel);
 				beforeFirst = BeforeFirstMeas(theDoc->selStartL);
@@ -2697,6 +2560,13 @@ static void FixFileMenu(Document *doc, INT16 nSel)
 		XableItem(fileMenu,FM_Preferences,doc!=NULL && doc!=clipboard);
 		XableItem(fileMenu,FM_ScoreInfo,doc!=NULL);
 #endif
+		
+		//disable all Nightingale Search Menu items until they have been removed from menu (rsrc) entirely
+		XableItem(editMenu,EM_SearchMelody,FALSE);        
+		XableItem(editMenu,EM_SearchAgain,FALSE);        
+		XableItem(fileMenu,FM_SearchInFiles,FALSE);        
+		XableItem(viewMenu, VM_ShowSearchPattern, FALSE);
+		
 	}
 
 

@@ -19,8 +19,6 @@
 
 #include "CarbonPrinting.h"
 
-#include "SearchScorePrivate.h"
-
 
 #define mouseMovedEvt			0xFA
 #define suspResumeEvt			0x01
@@ -70,31 +68,6 @@ static void UnloadSomeSegs()
 #endif
 	}
 
-static Boolean ResultListIsFront() {
-	if (gResultListDlog == NULL) return FALSE;
-	
-	WindowPtr w = GetDialogWindow(gResultListDlog);
-	
-	return (w == FrontWindow());
-}
-
-static Boolean ResultListEvent() {
-	
-	if (gResultListDlog == NULL) return FALSE;
-	
-	if (theEvent.what == mouseDown) {
-	
-		Rect bounds;
-		Point pt = theEvent.where;
-		
-		GetWindowPortBounds(GetDialogWindow(gResultListDlog), &bounds);
-		
-		return PtInRect(pt,&bounds);
-	}
-	
-	return FALSE;
-}
-
 /* Handle each event as it arrives from the event queue.  Check available memory every
 so often on NULL events.  Also maintain the cursor and try to purge all segments. */
 
@@ -118,21 +91,6 @@ Boolean DoEvent()
 		else {
 			haveEvent = GetNextEvent(everyEvent, &theEvent);
 			}
-				
-		if (haveEvent) {
-			if (IsDialogEvent(&theEvent)) {
-				/* Handle modeless dialog event. We have only one modeless dialog (the
-				 * Result List for searches), so there's no need to figure out which one!
-				 */
-				DoDialogEvent(&theEvent);
-				return keepGoing;
-			}
-			
-			if (ResultListEvent()) {
-				// MAS DoDialogEvent(&theEvent);
-				return keepGoing;
-			}
-		}
 
 
 		AnalyzeWindows();			/* After event has been gotten */
@@ -313,17 +271,14 @@ void DoUpdate(WindowPtr w)
 		Rect bBox; Boolean doView;
 		
 		GetPort(&oldPort); SetPort(GetWindowPort(w));
+		Document *doc, *topDoc;
 		
 		BeginUpdate(w);
 	
 		switch (GetWindowKind(w)) {
 			case DOCUMENTKIND:
-				Document *doc=GetDocumentFromWindow(w);
-				if (doc!=NULL) 
-				if (doc == gResListDocument) {
-					HandleResListUpdate();
-				}
-				else {
+				doc=GetDocumentFromWindow(w);
+				if (doc!=NULL) {
 					doView = TRUE;
 					/* Get bounding box of region to redraw in local coords */
 					RgnHandle visRgn = NewRgn();
@@ -334,7 +289,7 @@ void DoUpdate(WindowPtr w)
 					DrawDocumentControls(doc);
 					DrawMessageBox(doc, TRUE);
 					if (doView) DrawDocumentView(doc, &bBox);
-					Document *topDoc = GetDocumentFromWindow(TopDocument);
+					topDoc = GetDocumentFromWindow(TopDocument);
 					if (topDoc!=NULL) InstallDoc(topDoc);
 				}
 				break;
@@ -372,6 +327,8 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 		static Boolean wasOurWindow;
 		static short lastCount;
 		WindowPtr curAct;
+		Document *doc;
+		DialogPtr d;
 		
 		w = (WindowPtr)event->message;
 		HiliteUserWindows();		/* Make sure all windows are properly hilited */
@@ -422,23 +379,15 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 		
 		switch (GetWindowKind(w)) {
 			case DOCUMENTKIND:
-				Document *doc = GetDocumentFromWindow(w);
-				if (doc) 
-				if (doc == gResListDocument) {
-					ActivateResListDocument(doc, activ);
+				doc = GetDocumentFromWindow(w);
+				if (doc) {
+					ActivateDocument(doc,activ);
 				}
-				else {				
-				ActivateDocument(doc,activ);
-				}
-				break;
-			case RESLISTKIND:
-				Document *reslistdoc = GetDocumentFromWindow(w);
-				if (reslistdoc) ActivateResListDocument(reslistdoc,activ);
 				break;
 			case PALETTEKIND:
 				break;
 			case dialogKind:
-				DialogPtr d = GetDialogFromWindow(w);
+				d = GetDialogFromWindow(w);
 				if (d) {
 					if (activ) {
 						DialogSelect(event,&d,&itemHit);
@@ -618,7 +567,7 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 		ControlHandle control;
 		Rect portRect;
 		short contrlHilite;
-		
+		Document *doc;
 
 		if (actionUPP == NULL)			/* first time, so allocate it */
 			actionUPP = NewControlActionUPP(ScrollDocument);
@@ -628,12 +577,8 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 		
 		switch (GetWindowKind(w)) {
 			case DOCUMENTKIND:
-				Document *doc = GetDocumentFromWindow(w);
-				if (doc) 
-				if (doc == gResListDocument) {
-					HandleResListMouseDown(pt, modifiers);
-				}
-				else {
+				doc = GetDocumentFromWindow(w);
+				if (doc) {
 					//switch( code = FindControl(pt,w,&control) ) {
 					control = FindControlUnderMouse(pt, w, &code);
 					switch( code ) {
@@ -908,7 +853,7 @@ static void DoGrow(WindowPtr w, Point pt, Boolean /*command*/)
 			case DOCUMENTKIND:
 				GetWindowPortBounds(w, &oldRect);
 				Document *doc = GetDocumentFromWindow(w);
-				if (doc && doc!=gResListDocument)  {
+				if (doc)  {
 					PrepareMessageDraw(doc,&oldMessageRect,TRUE);
 					oldMessageRect.top--;		/* Include DrawGrowIcon line */
 					SetRect(&limitRect,MESSAGEBOX_WIDTH+70,80,20000,20000);

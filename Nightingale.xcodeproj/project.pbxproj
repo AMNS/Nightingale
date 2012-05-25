@@ -12,14 +12,9 @@
 		D03AF8500D6F4F9C0018F558 /* Main.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03AF84F0D6F4F9C0018F558 /* Main.cp */; };
 		D03E6B080D5F6EC9005FD177 /* EssentialTools.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6B070D5F6EC9005FD177 /* EssentialTools.cp */; };
 		D03E6B180D5F6F0F005FD177 /* NavServices.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6B170D5F6F0F005FD177 /* NavServices.cp */; };
-		D03E6CBB0D5F8F73005FD177 /* ResultList.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6CBA0D5F8F73005FD177 /* ResultList.cp */; };
-		D03E6CD80D5F90E7005FD177 /* ResultListDocument.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6CD70D5F90E7005FD177 /* ResultListDocument.cp */; };
-		D03E6CED0D5F9128005FD177 /* SearchScore.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6CEC0D5F9128005FD177 /* SearchScore.cp */; };
-		D03E6CFF0D5F919F005FD177 /* SearchScoreDlog.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6CFE0D5F919F005FD177 /* SearchScoreDlog.cp */; };
-		D03E6D060D5F91E3005FD177 /* SearchScoreNative.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6D050D5F91E3005FD177 /* SearchScoreNative.cp */; };
 		D03E6D5A0D5F9349005FD177 /* CarbonPrinting.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6D590D5F9349005FD177 /* CarbonPrinting.cp */; };
 		D03E6D710D5F9457005FD177 /* Menu.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6D700D5F9457005FD177 /* Menu.cp */; };
-		D03E6DA50D5F95C8005FD177 /* Event.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DA40D5F95C8005FD177 /* Event.cp */; };
+		D03E6DA50D5F95C8005FD177 /* Event.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DA40D5F95C8005FD177 /* Event.cp */; };		
 		D03E6DB10D5F9644005FD177 /* About.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DAE0D5F9644005FD177 /* About.cp */; };
 		D03E6DB20D5F9644005FD177 /* Context.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DAF0D5F9644005FD177 /* Context.cp */; };
 		D03E6DB30D5F9644005FD177 /* Copy.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DB00D5F9644005FD177 /* Copy.cp */; };
@@ -306,15 +301,7 @@
 		D03E6BC40D5F78BF005FD177 /* Tuplet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Tuplet.h; sourceTree = "<group>"; };
 		D03E6BC50D5F78BF005FD177 /* Undo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Undo.h; sourceTree = "<group>"; };
 		D03E6BC60D5F78BF005FD177 /* Utility.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Utility.h; sourceTree = "<group>"; };
-		D03E6BD10D5F7930005FD177 /* SearchScore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchScore.h; sourceTree = "<group>"; };
-		D03E6BD20D5F7930005FD177 /* SearchScoreDBFormat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchScoreDBFormat.h; sourceTree = "<group>"; };
-		D03E6BD50D5F7930005FD177 /* SearchScorePrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SearchScorePrivate.h; sourceTree = "<group>"; };
 		D03E6CA50D5F8E85005FD177 /* Set.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Set.h; sourceTree = "<group>"; };
-		D03E6CBA0D5F8F73005FD177 /* ResultList.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResultList.cp; sourceTree = "<group>"; };
-		D03E6CD70D5F90E7005FD177 /* ResultListDocument.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ResultListDocument.cp; sourceTree = "<group>"; };
-		D03E6CEC0D5F9128005FD177 /* SearchScore.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SearchScore.cp; sourceTree = "<group>"; };
-		D03E6CFE0D5F919F005FD177 /* SearchScoreDlog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SearchScoreDlog.cp; sourceTree = "<group>"; };
-		D03E6D050D5F91E3005FD177 /* SearchScoreNative.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SearchScoreNative.cp; sourceTree = "<group>"; };
 		D03E6D3F0D5F92CD005FD177 /* Search.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Search.h; sourceTree = "<group>"; };
 		D03E6D530D5F9311005FD177 /* CarbonPrinting.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CarbonPrinting.h; sourceTree = "<group>"; };
 		D03E6D590D5F9349005FD177 /* CarbonPrinting.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = CarbonPrinting.cp; sourceTree = "<group>"; };
@@ -565,7 +552,6 @@
 				D03E70EC0D5FA655005FD177 /* CarbonTEField */,
 				D03E6AAB0D5F6C3D005FD177 /* CFilesBoth */,
 				D03E6F2D0D5FA4F5005FD177 /* CFilesEditor */,
-				D03E6BCB0D5F790F005FD177 /* CNgaleSearch */,
 				D03E6EBE0D5F9FAD005FD177 /* CoreAudio */,
 				D03E6AFF0D5F6E3D005FD177 /* CarbonNavServices */,
 				32DBCF6D0370B57F00C91783 /* Nightingale_Prefix.pch */,
@@ -813,7 +799,7 @@
 				D03E6DAE0D5F9644005FD177 /* About.cp */,
 				D03E6DAF0D5F9644005FD177 /* Context.cp */,
 				D03E6DB00D5F9644005FD177 /* Copy.cp */,
-				D03E6DA40D5F95C8005FD177 /* Event.cp */,
+				D03E6DA40D5F95C8005FD177 /* Event.cp */,				
 				D03E6D700D5F9457005FD177 /* Menu.cp */,
 				D03E6B070D5F6EC9005FD177 /* EssentialTools.cp */,
 			);
@@ -829,22 +815,6 @@
 			);
 			name = CarbonNavServices;
 			path = src/CarbonNavServices;
-			sourceTree = "<group>";
-		};
-		D03E6BCB0D5F790F005FD177 /* CNgaleSearch */ = {
-			isa = PBXGroup;
-			children = (
-				D03E6D050D5F91E3005FD177 /* SearchScoreNative.cp */,
-				D03E6CFE0D5F919F005FD177 /* SearchScoreDlog.cp */,
-				D03E6CEC0D5F9128005FD177 /* SearchScore.cp */,
-				D03E6CD70D5F90E7005FD177 /* ResultListDocument.cp */,
-				D03E6CBA0D5F8F73005FD177 /* ResultList.cp */,
-				D03E6BD10D5F7930005FD177 /* SearchScore.h */,
-				D03E6BD20D5F7930005FD177 /* SearchScoreDBFormat.h */,
-				D03E6BD50D5F7930005FD177 /* SearchScorePrivate.h */,
-			);
-			name = CNgaleSearch;
-			path = src/CNgaleSearch;
 			sourceTree = "<group>";
 		};
 		D03E6D4F0D5F92F2005FD177 /* CarbonPrinting */ = {
@@ -1081,14 +1051,9 @@
 			files = (
 				D03E6B080D5F6EC9005FD177 /* EssentialTools.cp in Sources */,
 				D03E6B180D5F6F0F005FD177 /* NavServices.cp in Sources */,
-				D03E6CBB0D5F8F73005FD177 /* ResultList.cp in Sources */,
-				D03E6CD80D5F90E7005FD177 /* ResultListDocument.cp in Sources */,
-				D03E6CED0D5F9128005FD177 /* SearchScore.cp in Sources */,
-				D03E6CFF0D5F919F005FD177 /* SearchScoreDlog.cp in Sources */,
-				D03E6D060D5F91E3005FD177 /* SearchScoreNative.cp in Sources */,
 				D03E6D5A0D5F9349005FD177 /* CarbonPrinting.cp in Sources */,
 				D03E6D710D5F9457005FD177 /* Menu.cp in Sources */,
-				D03E6DA50D5F95C8005FD177 /* Event.cp in Sources */,
+				D03E6DA50D5F95C8005FD177 /* Event.cp in Sources */,				
 				D03E6DB10D5F9644005FD177 /* About.cp in Sources */,
 				D03E6DB20D5F9644005FD177 /* Context.cp in Sources */,
 				D03E6DB30D5F9644005FD177 /* Copy.cp in Sources */,
