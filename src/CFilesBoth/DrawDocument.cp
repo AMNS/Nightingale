@@ -201,12 +201,6 @@ void RecomputeView(Document *doc)
 		/* Get new view and move grow rectangle to new position */
 
 		PrepareMessageDraw(doc,&messageRect,TRUE);
-#ifdef NOMORE
-		SetRect(&messageRect, w->portRect.left, 
-						w->portRect.bottom-14,
-						w->portRect.left+MESSAGEBOX_WIDTH-1,
-						w->portRect.bottom);
-#endif
 		EraseAndInval(&doc->growRect);
 		
 		GetControlBounds(doc->hScroll, &contrlRect);

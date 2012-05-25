@@ -72,11 +72,7 @@ DDIST CalcYStem(
 	else {
 		if (nflags>1) qtrSp += 4*(nflags-1);			/* Every flag after 1st adds a space */
 	}
-#ifdef NOMORE
-	dLen = qtrSp*staffHeight/(4*STFLINES-4);
-#else
 	dLen = qtrSp*staffHeight/(4*(staffLines-1));
-#endif
 	ystem = (stemDown ? yhead+dLen : yhead-dLen);	/* Initially, set length to <qtrSp> */
 
 	if (!noExtend) {
@@ -690,39 +686,6 @@ void SetFont(INT16 which)
 	
 	TextFace(0);											/* Plain */
 }
-
-
-#ifdef NOMORE
-/* ------------------------------------------------------------------ StringRect -- */
-/* Calculates the enclosing rectangle for a given Pascal string. */
-
-Rect StringRect(Str255 *s)
-{
-	INT16		length, i;
-	Rect		rStr,
-				rChar;
-	char		*c;
-	Boolean	cached;
-
-/* CHECK TO SEE IF THE CURRENT FONT IS CACHED */
-	cached = (qd.thePort->txFont==charRectCache.fontNum && qd.thePort->txSize==charRectCache.fontSize);
-
-	c = (char *) s;
-	length = *c++;
-	for (i=0; i<length; i++) {
-		if (cached)
-			rChar = charRectCache.charRect[*c++];
-		else
-			rChar = CharRect(*c++);
-		if (i==0)
-			rStr = rChar;
-		else
-			UnionRect(&rStr, &rChar, &rStr);
-	}
-	return rStr;
-}
-#endif
-
 
 /* ------------------------------------------------ AllocContext,AllocSpTimeInfo -- */
 /* Allocate arrays on the heap: context[MAXSTAVES+1], spTimeInfo[MAX_MEASNODES]. */

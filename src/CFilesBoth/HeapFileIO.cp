@@ -1038,57 +1038,6 @@ static INT16 ReadSubHeaps(Document *doc, INT16 refNum, long version, Boolean isV
 	return 0;
 }
 
-
-#ifdef NOMORE
-
-/* Read MODNR heap from file */
-
-static void ReadModHeap(Document *doc, INT16 refNum)
-{
-	HEAP *myHeap;
-	INT16 i, j, ioErr, hdrErr;
-	unsigned INT16 nFObjs;
-	long count, nExpand;
-	LINK pL;
-	char *p;
-	
-	myHeap = doc->Heap + MODNRtype;
-	i = MODNRtype;
-		
-	/* Read the number of subobjects in the heap and the heap header. We must write
-		and read the heap header in all cases, regardless of whether there are any
-		objects/subobjects in the heap: we can't know beforehand whether there are any
-		in a given heap. */
-
-	hdrErr = ReadHeapHdr(doc, refNum, version, isViewerFile, i, &nFObjs);
-	if (hdrErr) return hdrErr;
-	
-	if (nFObjs) {
-
-	/* Having found out how many objs are in the heap in the file, we can
-		expand, if necessary, the memory pool to accomodate them. */
-
-		if (nFObjs+1 >= myHeap->nObjs) {
-			nExpand = (long)nFObjs - (long)myHeap->nObjs + EXTRAOBJS;
-			if (!ExpandFreeList(myHeap, nExpand))
-				{ OpenError(TRUE, refNum, memFullErr, MEM_ERRINFO); return(memFullErr); }
-		}
-
-	/* Read nFObjs+1 objects from the file, since the zeroth object is not used. */
-
-		count = (unsigned long)myHeap->objSize*(unsigned long)(nFObjs);
-		p = *(myHeap->block); p += myHeap->objSize;
-		PushLock(myHeap);
-		ioErr = FSRead(refNum, &count, p);
-		PopLock(myHeap);
-		if (ioErr) 
-			{ OpenError(TRUE, refNum, ioErr, i); return(ioErr); }
-		RebuildFreeList(doc, i, nFObjs);
-	}
-}
-
-#endif
-
 /* Read the number of objects/subobjects in the heap and the heap header from the file.
 The header is used only for error checking. Return 0 if all OK, else an error code
 (either a system I/O error code or one of our own). */

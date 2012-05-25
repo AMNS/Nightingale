@@ -231,22 +231,6 @@ static INT16 BuildSysTable(Document */*doc*/, LINK startSysL, LINK endL, SYSDATA
 	return CountObjects(startSysL, endL, SYSTEMtype);
 }
 
-
-#ifdef NOMORE
-/* -------------------------------------------------------------- LinkToSysIndex -- */
-/* Not used in v.1.03; may be useful again someday. */
-
-static INT16 LinkToSysIndex(LINK sysL,SYSDATA *sysTable)
-{
-	INT16 s=0;
-	
-	for ( ; s<nSysInScore; s++)
-		if (sysTable[s].sysL == sysL) return s;
-		
-	return -1;
-}
-#endif
-
 /* -------------------------------------------------------------- DebugRfmtTable -- */
 
 #ifdef RFMTBUG

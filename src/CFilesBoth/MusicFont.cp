@@ -333,43 +333,6 @@ Rect CharRect(INT16 ic)
 }
 
 
-#ifdef NOMORE
-/* ----------------------------------------------------------------- GetBBoxList -- */
-/* Get list of character bounding boxes from a resource (presumably created from
-an AFM file). */
-
-Boolean GetBBoxList(Rect cBBox[])
-{
-	Handle rlist;
-	INT16 *w, ch, count, xw, xl, yt, xr, yb;
-	
-	rlist = GetResource('BBX#', 128);
-	if (rlist==NULL) {
-		MayErrMsg("GetBBoxList: can't find character bounding box list resource\n");
-		return FALSE;
-		}
-	
-	MoveHHi(rlist); HLock(rlist);
-
-	w = (INT16 *)(*rlist);
-	count = *w++;
-	
-	while (count-- > 0) {
-		ch = *w++;
-		xw = *w++;
-		xl = *w++; yb = -(*w++); xr = *w++; yt = -(*w++);
-		if (ch>=0 && ch<256) {
-			SetRect(&cBBox[ch], xl, yt, xr, yb);
-		}
-		else MayErrMsg("GetBBoxList: ch=%d IS ILLEGAL\n");
-	}
-		
-	HUnlock(rlist); HPurge(rlist);
-	return TRUE;
-}
-#endif
-
-
 /* -------------------------------------------------------------- NumToSonataStr -- */
 /*	Convert an integer to a Pascal string of Sonata italic digits, e.g., for tuplet
 accessory numerals. */

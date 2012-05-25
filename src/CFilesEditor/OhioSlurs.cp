@@ -579,32 +579,4 @@ static void SL_GetHighest()
 	}
 
 
-#ifdef NOMORE
-/*
- *	We include a homebrew square root function here so that we don't have
- *	to include the whole math library.  This is a vanilla implementation of
- *	Newton's Method.
- */
-
-double sqrt(double x)
-	{
-		double r,tol,mtol,lastr,err;
-		
-		if (x <= 0.0) return(0.0);
-		
-		lastr = 0.0;
-		r = 1.0;
-		tol = 1e-7;
-		mtol = -err;
-		
-		while ((err=r-lastr)>tol || err<mtol) {
-			lastr = r;
-			r = .5 * (r + x/r);
-			}
-		
-		return(r);
-	}
-#endif
-
-
 #endif /* NOTYET */

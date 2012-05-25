@@ -1510,10 +1510,6 @@ static void DrawMBRest(Document *doc, PCONTEXT pContext,
 
 /* ------------------------------------------------------------------- DrawRest -- */
 
-#ifdef NOMORE
-static INT16 restObjRTweak[MAX_L_DUR+1] = 
-					{ 0, 0, 0, 0, 0, -2, -2, -2, -2, -2 };
-#endif
 
 #define STEMLET_LEN 4		/* For beamed rests (quarter-spaces) */
 

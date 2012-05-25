@@ -125,9 +125,6 @@ static Boolean HiliteSyncRect(
 				}
 			}
 		
-#ifdef NOMORE	/* AVOID MYSTERIOUS HANGING IN PlaySequence */
-	if (SectRect(r,&doc->viewRect,&result))
-#endif
 		HiliteRect(r);
 		/* Convert back to paper coords */
 

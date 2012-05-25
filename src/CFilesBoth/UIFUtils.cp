@@ -96,10 +96,6 @@ void HiliteInsertNode(
 		LineTo(xp+1, ypBot);
 		
 		if (staffn!=NOONE) {
-#ifdef NOMORE
-			MoveTo(xp+1, context.paper.top+d2p(blackTop));		/* Erase on special staff */
-			LineTo(xp+1, context.paper.top+d2p(blackBottom));
-#endif
 			PenSize(3, 1);													/* Draw thicker on special staff */
 			MoveTo(xp, context.paper.top+d2p(blackTop));
 			LineTo(xp, context.paper.top+d2p(blackBottom));

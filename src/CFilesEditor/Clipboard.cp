@@ -2613,9 +2613,6 @@ INT16 NewVoice(Document *doc, INT16 stf,
 		Int2UserVoice(clipboard, cIV, &cUV, &cPartL);					/* iV => uV: clip */
 		InstallDoc(doc);
 		dPartL = ClipStf2Part(stf,doc,stfDiff,&partStf);				/* p => p: clip => doc */
-#ifdef NOMORE
-		deflt = IsDefaultVoice(doc,cUV, cPartL);
-#endif
 		uV = Part2UserVoice(cIV,cUV,doc,dPartL);							/* p => uV: doc */
 		return User2IntVoice(doc, uV, dPartL);								/* uV => iV: doc */	
 	}

@@ -516,15 +516,9 @@ static void DrawInstrInfo(Document *doc, INT16 staffn, Rect *paper, CONTEXT cont
 				break;
 			default:
 				CToPString(strBuf);
-#ifdef NOMORE
-				fontSize = 3*context[staffn].staffHeight/4;
-				PS_FontString(doc, xd, yd-context[staffn].staffHeight/6, (StringPtr)strBuf,
-									"\pHelvetica", fontSize, bold);
-#else
 				fontSize = 3*LNSPACE(&context[staffn]);
 				PS_FontString(doc, xd, yd-(4*LNSPACE(&context[staffn]))/6, (StringPtr)strBuf,
 									"\pHelvetica", fontSize, bold);
-#endif
 				break;
 		}
 	}
@@ -1027,30 +1021,12 @@ PushLock(KEYSIGheap);
 	
 		aKeySig = GetPAKEYSIG(aKeySigL);
 		if (!LinkVALID(pL) && outputTo==toScreen) {
-#ifdef NOMORE
-			if (aKeySig->visible) {
-				SetRect(&subRect,
-							d2p(xd),
-							d2p(pContext->staffTop - pContext->staffHalfHeight),
-							d2p(xd) + width,
-							d2p(pContext->staffTop + pContext->staffHeight + 
-									pContext->staffHalfHeight));
-			}
-			else
-				SetRect(&subRect,
-							d2p(xd),
-							d2p(pContext->staffTop - pContext->staffHalfHeight),
-							d2p(xd),
-							d2p(pContext->staffTop + pContext->staffHeight + 
-									pContext->staffHalfHeight));
-#else
 			SetRect(&subRect,
 						d2p(xd),
 						d2p(pContext->staffTop - pContext->staffHalfHeight),
 						d2p(xd) + width,
 						d2p(pContext->staffTop + pContext->staffHeight + 
 								pContext->staffHalfHeight));
-#endif
 			if (drawn)
 				UnionRect(&LinkOBJRECT(pL), &subRect, &LinkOBJRECT(pL));
 			else {

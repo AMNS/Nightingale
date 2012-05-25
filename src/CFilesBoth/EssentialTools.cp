@@ -1191,9 +1191,6 @@ static pascal short DlgHook(short itemHit, DialogPtr /*dlog*/)
 				itemHit = ourCancel;
 				break;
 			default:
-#ifdef NOMORE
-				newButtonHit = FALSE;
-#endif
 				break;
 			}
 		return(itemHit);

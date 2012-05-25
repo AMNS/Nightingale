@@ -621,9 +621,6 @@ short HandleOptionKeyMsgBox(Document *doc, Size /*lyricLen*/)
 		
 	if (optDownNow != optDownBefore) {
 		if (optDownNow) currWord = prevWord;
-#ifdef NOMORE
-		else if (currWord >= lyricLen) return EXIT_NOW;
-#endif
 		FlowDrawMsgBox(doc);
 	}
 	

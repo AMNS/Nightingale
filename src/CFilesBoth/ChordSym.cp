@@ -324,15 +324,10 @@ void DrawChordSym(Document *doc,
 				pt = newPt;
 			}
 
-#ifdef NOMORE
-// ??? This Move has no effect, since Draw1Extension starts with MoveTo!
-			Move(dblGap, 0);		/* double the gap (it needs it) */
-			GetPen(&pt);			/* NB: pen reset by every call to Draw1Extension */
-#else
+
 			GetPen(&pt);			/* NB: pen reset by every call to Draw1Extension */
 			if (*extStk1Str || *extStk2Str || *extStk3Str)
 				pt.h += dblGap;	/* double the gap (it needs it) */
-#endif
 			
 			/* Draw 3 extension stack strings, each level center justified and enclosed in parentheses.
 			 * First determine justification by calling Draw1Extension with draw=FALSE.
@@ -457,12 +452,9 @@ void DrawChordSym(Document *doc,
    
 			/* superscript, inter-chunk gap, etc. */
 			superScriptD = pt2d(csSize*(long)config.chordSymSuperscr/100L);
-#ifdef NOMORE
-			gapD = pt2d(csSmallSize*(long)CS_GAPBTWFIELDS/100L);
-#else
+
 			/* Need more precision for this; otherwise, it's often zero. */
 			gapD = pt2d((INT16)rint((double)csSmallSize*((double)(CS_GAPBTWFIELDS)/100.0)));
-#endif
 			dblGapD = gapD*2;
 			parenTweak = csSmallSize*(long)CS_PAREN_YOFFSET/100L;
 	

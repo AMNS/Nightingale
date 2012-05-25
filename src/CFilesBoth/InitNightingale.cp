@@ -182,28 +182,6 @@ void InitNightFonts()
 	textFontSmallSize = textFontSize-3;
 
 	GetFNum("\pSonata", &sonataFontNum);				/* Get ID of Adobe Sonata font */
-#ifdef NOMORE		/* Nothing to do with new music font scheme. */
-	if (config.musicFontID!=0) {							/* Get ID of font to use for music chars. */
-		musicFontNum = config.musicFontID;
-		SetResLoad(FALSE);
-		fontHdl = GetResource('FOND', musicFontNum);
-		SetResLoad(TRUE);
-		GetResInfo(fontHdl, &fontID, &fontType, (unsigned char *)fontName);
-		PToCString((unsigned char *)fontName);
-		if (strlen(fontName)==0) {
-			GetIndCString(notFoundStr, INITERRS_STRS, 19);	/* "NOT FOUND" */
-			strcpy(fontName, (char *)notFoundStr);
-		}
-		if (!config.fastLaunch) {
-			GetIndCString(fmtStr, INITERRS_STRS, 15);		/* "The Nightingale Prefs file specifies the font with ID %d (%s) as the music font: Nightingale will use it instead of Sonata." */
-			sprintf(strBuf, fmtStr, musicFontNum, fontName);
-			CParamText(strBuf, "", "", "");
-			NoteInform(GENERIC_ALRT);
-		}
-	}
-	else
-		musicFontNum = sonataFontNum;						/* System font if Sonata isn't available! */
-#endif
 }
 
 
@@ -651,11 +629,7 @@ void InitMusicFontStuff()
 
 /* ---------------------------------------------------------- MIDI initialization -- */
 
-#ifdef NOMORE
-static INT16 GetMIDIChoiceFromUser(long verNumMM, long verNumOMS);
-#else
 static INT16 GetMIDIChoiceFromUser(long verNumMM, long verNumOMS, long verNumFMS);
-#endif
 static INT16 ChooseMIDISystem(void);
 static Boolean InitChosenMIDISystem(void);
 //static Boolean AllocMPacketBuffer(void);
@@ -705,64 +679,6 @@ static Boolean GetBIMIDISetup(void)
 }
 
 
-#ifdef NOMORE
-
-/* NOTE: Since the MIDI Pascal driver is not compatible with CodeWarrior, the ALRTs
-invoked by this function have been changed. Now, instead of offering to use Built-in
-MIDI, they offer to disable MIDI entirely. The old ALRTs are still in place for
-reference.  -JGG, 20-June-00 */
-
-static INT16 GetMIDIChoiceFromUser(long verNumMM, long verNumOMS)
-{
-	char verStrMM[256];	/* MIDI Manager version (standard version no. string) */
-	char verStrOMS[64];	/* OMS version (standard version no. string) */
-	short response;
-	INT16 useWhichMIDI;
-	
-	if (verNumMM!=0) {
-		StdVerNumToStr(verNumMM, verStrMM);
-	}
-	if (verNumOMS!=0) {
-		StdVerNumToStr(verNumOMS, verStrOMS);
-	}
-
-	if (verNumMM!=0 && verNumOMS!=0) {
-		CParamText(verStrOMS, verStrMM, "", "");
-		PlaceAlert(USEOMS_MM_NOBI_ALRT, NULL, 0, 80);
-		response = CautionAdvise(USEOMS_MM_NOBI_ALRT);
-		if (response == 1) {						/* OMS Item */
-			useWhichMIDI = MIDIDR_OMS;
-		}
-		else if (response == 2) {				/* MIDI Manager Item */
-			useWhichMIDI = MIDIDR_MM;
-		}
-		else {										/* Disable MIDI Item */
-			useWhichMIDI = MIDIDR_NONE;
-		}
-	}
-	else if (verNumOMS!=0) {
-		CParamText(verStrOMS, "", "", "");
-		PlaceAlert(USEOMS_NOBI_ALRT, NULL, 0, 80);
-		useWhichMIDI = (CautionAdvise(USEOMS_NOBI_ALRT)==OK? MIDIDR_OMS : MIDIDR_NONE);
-	}
-	else if (verNumMM!=0) {
-		CParamText(verStrMM, "", "", "");
-		PlaceAlert(USEMM_NOBI_ALRT, NULL, 0, 80);
-		useWhichMIDI = (CautionAdvise(USEMM_NOBI_ALRT)==OK? MIDIDR_MM : MIDIDR_NONE);
-	}
-	else {
-		GetIndCString(strBuf, INITERRS_STRS, 27);		/* "OMS and MIDI Manager are not available, so MIDI will be disabled" */
-
-		CParamText(strBuf, "", "", "");
-		PlaceAlert(GENERIC_ALRT, NULL, 0, 80);
-		StopInform(GENERIC_ALRT);
-		useWhichMIDI = MIDIDR_NONE;
-	}
-	
-	return useWhichMIDI;
-}
-
-#else /* !NOMORE */
 
 /* -------------------------------------------------------- GetMIDIChoiceFromUser -- */
 static enum {
@@ -869,7 +785,6 @@ static INT16 GetMIDIChoiceFromUser(long verNumMM, long verNumOMS, long verNumFMS
 
 #endif // TARGET_API_MAC_CARBON_MIDI
 
-#endif /* !NOMORE */
 
 #ifdef TARGET_API_MAC_CARBON_MIDI
 

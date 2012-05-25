@@ -1394,24 +1394,6 @@ void DoPlayRecMenu(INT16 choice)
 				if (doc) MIDIDialog(doc);
 				if (useWhichMIDI==MIDIDR_FMS)
 					FMSSetInputDestinationMatch(doc);
-#ifdef NOMORE
-				if (useWhichMIDI==MIDIDR_BI) {
-					if (config.midiThru!=oldMIDIThru) {
-						/*
-						 * I don't think this code can ever be executed: as of v.3.0, there's
-						 *	no control of MIDI Thru in the MIDI dialog.
-						 */
-						if (config.midiThru==1) {
-							MayInitBIMIDI(BIMIDI_SMALLBUFSIZE, BIMIDI_SMALLBUFSIZE);	/* be sure low-level stuff is initialized */
-							MidiThru(1);
-						}
-						else {
-							MidiThru(0);
-							MayResetBIMIDI(FALSE);
-						}
-					}
-				}
-#endif
 				break;
 #ifndef VIEWER_VERSION
 			case PL_Metronome:

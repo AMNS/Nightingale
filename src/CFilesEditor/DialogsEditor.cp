@@ -1936,9 +1936,6 @@ Boolean SetDurDialog(
 			case SETLDUR_DI:
 				PutDlgChkRadio(dlog, SETLDUR_DI, !GetDlgChkRadio(dlog, SETLDUR_DI));
 				newSetLDur = GetDlgChkRadio(dlog, SETLDUR_DI);
-#ifdef NOMORE
-				PutDlgChkRadio(dlog, CV_DI, newSetLDur);
-#endif
 				if (newSetLDur) {
 					XableLDurPanel(dlog, TRUE);
 				}
@@ -1952,9 +1949,6 @@ Boolean SetDurDialog(
 				SelectDialogItemText(dlog, DUMMYFLD_DI, 0, ENDTEXT);
 				HiliteGPopUp(curPop, popUpHilited = TRUE);
 				PutDlgChkRadio(dlog, SETLDUR_DI, newSetLDur = TRUE);
-#ifdef NOMORE
-				PutDlgChkRadio(dlog, CV_DI, newSetLDur);
-#endif
 				XableLDurPanel(dlog, TRUE);
 				if (setDurGroup!=SETDURSTO_DI)
 					SwitchRadio(dlog, &setDurGroup, SETDURSTO_DI);
@@ -3812,44 +3806,6 @@ Boolean PanSettingDialog(unsigned char *string)
 	MissingDialog(PATCHCHANGE1_DLOG);
 	return FALSE;
 }
-
-
-
-#ifdef NOMORE	/* Obsolete: JG's ChordSymDialog is now in permanently. */
-
-Boolean ChordSymDialog(unsigned char *string)
-{
-	short			ditem;
-	DialogPtr	dlog;
-	GrafPtr		oldPort;
-
-	GetPort(&oldPort);
-	dlog = GetNewDialog(CHORDSYM_DLOG, NULL, BRING_TO_FRONT);
-	if (dlog) {
-		SetPort(GetDialogWindowPort(dlog));
-		CenterWindow(GetDialogWindow(dlog), 70);
-		
-		/* Fill in dialog's values */
-		PutDlgString(dlog,EDIT4_A,string,TRUE);
-		ShowWindow(GetDialogWindow(dlog));
-		ArrowCursor();
-
-		while (1) {
-			ModalDialog(OKButFilter, &ditem);	
-			if (ditem == OK || ditem==Cancel) break;
-			}
-		if (ditem == OK)
-			GetDlgString(dlog,EDIT4_A,string);
-	
-		DisposeDialog(dlog);
-		SetPort(oldPort);
-		return (ditem == OK);
-		}
-	MissingDialog(CHORDSYM_DLOG);
-	return FALSE;
-}
-
-#endif
 
 
 Boolean ChordFrameDialog(Document *doc,

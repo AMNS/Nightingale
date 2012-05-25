@@ -188,10 +188,6 @@ Boolean ParseNotelistFile(Str255 fileName, FSSpec *fsSpec)
 	if (!ok) goto Err;
 
 	ok = PostProcessNotelist();
-#ifdef NOMORE
-	if (!ok)
-		MayErrMsg("Had trouble processing Notelist file. This score may not convert well.");
-#endif
 
 #if PRINTNOTELIST
 	if (printNotelist)

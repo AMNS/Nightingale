@@ -60,10 +60,6 @@ void InstallMagnify(Document *doc)
 			magRound = 8>>(doc->magnify/2);
 		}
 		
-#ifdef NOMORE
-		if (odd(doc->magnify))
-			magRound -= divby4(magRound); 				/* May not be optimal: see above */
-#endif
 #ifdef TEST_MAG
 		{
 			DDIST d; INT16 pxl, dummy;
@@ -761,32 +757,6 @@ In all cases, return TRUE if all staves are the same size, else FALSE. */
 Boolean AllStavesSameSize(Document *);
 Boolean AllStavesSameSize(Document *doc)
 {
-#ifdef NOMORE
-	LINK staffL, aStaffL; Boolean firstTime=TRUE, allSameSize=TRUE;
-	DDIST staffHt; short i;
-	
-	staffL = SSearch(doc->headL, STAFFtype, GO_RIGHT);				/* Should never fail */
-	for (aStaffL = FirstSubLINK(staffL); aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
-		if (firstTime) {
-			staffHt = StaffHEIGHT(aStaffL);
-			firstTime = FALSE;
-		}
-		if (StaffHEIGHT(aStaffL)!=staffHt) {
-			allSameSize = FALSE;
-			break;
-		}
-	}
-
-	if (allSameSize) {
-		if (staffHt!=drSize[doc->srastral])
-			if (CautionAdvise(STFSIZE_ALRT)==OK) {
-				for (i = 0; i<=MAXRASTRAL; i++)
-					if (staffHt==drSize[i]) doc->srastral = i;
-				doc->nonstdStfSizes = FillRelStaffSizes(doc); 		/* Should return FALSE! */
-			}
-			return TRUE;
-	}
-#else
 	LINK staffL, aStaffL; Boolean firstTime=TRUE, allSameSize=TRUE;
 	DDIST lnSpace, thisLnSpace; short i;
 	
@@ -816,7 +786,6 @@ Boolean AllStavesSameSize(Document *doc)
 			}
 			return TRUE;
 	}
-#endif	
 	return FALSE;
 }
 
@@ -1086,9 +1055,6 @@ Boolean BuildDocument(
 ProfilerSetStatus(TRUE);
 #endif
 			if (OpenFile(doc,(unsigned char *)fileName,vRefNum,pfsSpec,fileVersion)!=noErr) {
-#ifdef NOMORE	/* Causes a freeze for me. Why do it anyway in this case?  -JGG */
-				NewDocScore(doc);
-#endif
 				return FALSE;
 				}
 #ifdef USE_PROFILER

@@ -367,57 +367,6 @@ INT16 SetAndClarifyDur(
 	return kount;
 }
 
-
-#ifdef NOMORE
-
-/* -------------------------------------------------------------- QuantizeSelDurs -- */
-/* Extend the selection vertically to include in their entirety partly-selected
-chords and extend it horizontally to include in their entirety partly-selected
-beats; then quantize the attack time??YES! and duration of every selected note/rest/chord
-to a grid whose points are separated by the duration described by <quantumDur> and
-<quantumDots>. If there are pauses between the notes, intersperse rests as
-necessary??. */
-
-Boolean QuantizeSelDurs(Document *doc, INT16 quantumDur, INT16 quantumDots,
-								Boolean tuplet)
-{
-	LINK			pL, aNoteL;
-	PANOTE		aNote;
-	INT16			quantum, mult;
-	Boolean		didAnything;
-	
-	didAnything = FALSE;
-	if (ExtendSelChords(doc)) InvalWindow(doc);
-
-	quantum = Code2LDur(quantumDur, quantumDots);
-	
-	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
-		if (LinkSEL(pL) && SyncTYPE(pL)) {
-			aNoteL = FirstSubLINK(pL);
-			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
-				if (NoteSEL(aNoteL) && MainNote(aNoteL)) {
-					aNote = GetPANOTE(aNoteL);
-					if (aNote->subType==UNKNOWN_L_DUR)
-						mult = (aNote->playDur+PDURUNIT-1)/quantum;
-					else
-						mult = SimpleLDur(aNoteL)/quantum;
-					/*
-					 *	It's not really obvious what should be done with notes/rests/chords
-					 * short enough that their durations would normally be rounded to zero.
-					 * Reasonable possibilities include setting them to the quantum,
-					 *	discarding them, and, for notes/chords, make them grace notes/chords.
-					 *	For now, we'll go the first way.
-					 */
-					if (mult==0) mult = 1;
-					if (SetAndClarifyDur(doc, pL, aNoteL, mult*quantum)>0)
-						didAnything = TRUE;
-				}
-		}
-	return didAnything;
-}
-
-#endif
-
 /* ---------------------------------------------------------------- BeatStrength -- */
 
 #define SUPERBEAT 9				/* Greatest possible metric strength */

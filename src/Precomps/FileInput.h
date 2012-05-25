@@ -1,9 +1,5 @@
 /* FileInput.h for Nightingale */
 
-#ifdef NOMORE
-#include "stdioxtra.h"		/* NG can't easily include <stdio.h>! */
-#endif
-
 LINK FICreateTUPLET(Document *doc, short voice, short staffn, LINK beforeL, short nInTuple,
 							short tupleNum, short tupleDenom, Boolean numVis, Boolean denomVis, Boolean brackVis);
 void FIFixTupletLinks(Document *doc, LINK startL, LINK endL, short voice);

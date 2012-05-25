@@ -85,10 +85,6 @@ Rect *paper, Rect *updateRect, INT16 sysNum)
 				pSystem = GetPSYSTEM(pL);
 				/* Convert systemRect to paper-relative pixels */
 				D2Rect(&pSystem->systemRect, &r);
-#ifdef NOMORE
-				/* Include the width of Connect or part names on left */
-				r.left = 1;
-#endif
 				/* Convert to window-relative and check for intersection with update area */
 				OffsetRect(&r,paper->left,paper->top);
 				
@@ -185,10 +181,6 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				pSystem = GetPSYSTEM(pL);
 				/* Convert systemRect to paper-relative pixels */
 				D2Rect(&pSystem->systemRect, &r);
-#ifdef NOMORE	// JGG
-				/* Include the width of Connect or part names on left */
-				r.left = 1;
-#endif
 				/* Convert to window-relative and check for intersection with update area */
 				OffsetRect(&r,paper->left,paper->top);
 				
@@ -326,10 +318,6 @@ grayPage:
 				pSystem = GetPSYSTEM(pL);
 				/* Convert systemRect to paper-relative pixels */
 				D2Rect(&pSystem->systemRect, &r);
-#ifdef NOMORE	// JGG
-				/* Include the width of Connect or part names on left */
-				r.left = 1;
-#endif
 				/* Convert to window-relative and check for intersection with update area */
 				OffsetRect(&r,paper->left,paper->top);
 				
@@ -392,10 +380,6 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				pSystem = GetPSYSTEM(pL);
 				/* Convert systemRect to paper-relative pixels */
 				D2Rect(&pSystem->systemRect, &r);
-#ifdef NOMORE	// JGG
-				/* Include the width of Connect or part names on left */
-				r.left = 1;
-#endif
 				/* Convert to window-relative and check for intersection with update area */
 				OffsetRect(&r,paper->left,paper->top);
 				

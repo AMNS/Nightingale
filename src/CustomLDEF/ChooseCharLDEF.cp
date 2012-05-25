@@ -67,35 +67,6 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 	
 	switch (lMessage) {
 		case lInitMsg:
-#ifdef NOMORE
-#ifdef USE_GRAFPORT
-			charPort = NewGrafPort(fontInfo.widMax,
-								fontInfo.ascent + fontInfo.descent + fontInfo.leading);
-			GetPort(&oldPort);
-			SetPort(charPort);
-			TextFont(oldPort->txFont);
-			TextSize(oldPort->txSize);
-			SetPort(oldPort);			
-			/* get the grey pattern from the System file */
-			//grayPat = (PatHandle) GetResource('PAT ', SYS_GRAY);
-#else
-			GetPort(&oldPort);
-			SaveGWorld();
-			
-			charPort = MakeGWorld(fontInfo.widMax,
-											 fontInfo.ascent + fontInfo.descent + fontInfo.leading, TRUE);
-			SetGWorld(charPort, NULL);
-			
-			TextFont(GetPortTextFont(oldPort));
-			TextSize(GetPortTextSize(oldPort));
-			/* get the grey pattern from the System file */
-			//grayPat = (PatHandle) GetResource('PAT ', SYS_GRAY);
-			
-			UnlockGWorld(charPort);
-			RestoreGWorld();
-			SetPort(oldPort);			
-#endif // USE_GRAFPORT
-#endif // NOMORE
 	  		break;
 
 		case lDrawMsg:
@@ -176,15 +147,6 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 			break;
 
 		case lCloseMsg:
-#ifdef NOMORE
-#ifdef USE_GRAFPORT
-			if (charPort)						/* in case allocation failed on init */
-				DisposGrafPort(charPort);
-#else
-			if (charPort)						/* in case allocation failed on init */
-				DisposeGWorld(charPort);
-#endif // USE_GRAFPORT
-#endif // NOMORE
 			break;
 	}
 	

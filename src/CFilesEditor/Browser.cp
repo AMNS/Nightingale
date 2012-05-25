@@ -599,14 +599,6 @@ void ShowObject(Document *doc, LINK pL, INT16 index)
 	
 	measL = pL;
 	while (measL!=NILINK && ObjLType(measL)!=MEASUREtype) measL = LeftLINK(measL);
-#ifdef NOMORE
-	if (measL) {
-		pMeasure = GetPMEASURE(sysL);
-		measureBBox = pMeasure->measureBBox;
-		}
-	 else
-		SetRect(&measureBBox,0,0,0,0);
-#endif
 	sysL = pL;
 	while (sysL!=NILINK && ObjLType(sysL)!=SYSTEMtype) sysL = LeftLINK(sysL);
 	if (sysL) {

@@ -20,9 +20,6 @@ void InitDocMusicFont(Document *);
 void SetTextSize(Document *);
 void BuildCharRectCache(Document *);
 Rect CharRect(INT16);
-#ifdef NOMORE
-Boolean GetBBoxList(Rect []);
-#endif
 
 void NumToSonataStr(long, unsigned char *);
 void GetMusicAscDesc(Document *, unsigned char *, INT16, INT16 *, INT16 *);
