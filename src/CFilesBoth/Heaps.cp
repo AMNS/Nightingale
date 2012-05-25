@@ -98,30 +98,6 @@ to push arguments on stack, JSR, MOVEQ to pop stack), while the macro takes 30
 bytes. This version is also much faster than the macro, while a function version
 written in C turned out to be considerably slower than the C macro. */
  
-#ifdef __MWERKS__
-
-#ifdef TARGET_CPU_68K
-/* This generates same asm as the Symantec C version below, but with it enabled,
-Ngale crashes hard in the second call to NewNode while building clip doc.  -JGG */
-asm char *LinkToPtr(HEAP *heap, LINK link)
-{
-	fralloc
-
-	movea.l		heap,A0
-	move.w		struct(HEAP.objSize)(A0),D0
-	mulu.w		link,D0
-	movea.l		struct(HEAP.block)(A0),A0
-	add.l			(A0),D0
-
-	frfree
-	rts
-}
-#else
-#error No PPC asm LinkToPtr
-#endif
-
-#else /* !__WERKS__ */
-
 char *LinkToPtr(HEAP *heap, LINK link)
 //HEAP *heap;
 //LINK link;
@@ -142,7 +118,6 @@ char *LinkToPtr(HEAP *heap, LINK link)
 		}
 #endif                               
 }
-#endif /* !__WERKS__ */
 #endif /* LinkToPtrFUNCTION */
 
 

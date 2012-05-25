@@ -40,28 +40,6 @@
  */
 
 
-//#ifndef __MWERKS__
-/* These were a precaution, to protect ancient (non-universal) 68K code. Now that OS X
-has been around for years, it's doubtful they do anything useful. --DAB */
-//#undef powerc
-//#undef __powerc
-//#endif
-
-/* Standard Apple (Macintosh) headers */
-
-//#ifdef TARGET_API_MAC_CARBON
-
-/* Take advantage of the fact that Metrowerks seems to have renamed MacHeaders.h
-	to MacHeaders.c to maintain parallel nomenclature */
-	
-//#include "NightMacHeaders.c"
-
-//#else
-
-#include "NightMacHeaders.h"
-
-//#endif
-
 /* Standard ANSI/ISO C headers we want available everywhere */
 
 #include <string.h>
@@ -70,9 +48,6 @@ has been around for years, it's doubtful they do anything useful. --DAB */
 #include <stdio.h>
 
 #include "compilerFlags.h"	/* For PUBLIC_VERSION */
-#if !defined(PUBLIC_VERSION)
-#include "HandleManager.h"
-#endif
 
 #include "StringPool.h"
 

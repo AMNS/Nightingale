@@ -50,9 +50,7 @@ enum {									// Types of strings in separate bits
 // struct alignment is stable. (No problem in THINK C 7, since it's 68K-only.)
 
 // MAS: force alignment to mac68k on all platforms
-//#ifdef __MWERKS__
 #pragma options align=mac68k
-//#endif
 
 typedef struct OpaqueStringPool {
 		Byte nulltype;						// Type of null string: both C and Pascal
@@ -68,9 +66,6 @@ typedef struct OpaqueStringPool {
 		
 		} StringPool;
 
-#ifdef __MWERKS__
-#pragma options align=reset
-#endif
 
 // Private globals
 

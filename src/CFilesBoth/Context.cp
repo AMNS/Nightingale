@@ -207,16 +207,6 @@ void GetContext(Document *doc, LINK contextL, INT16 theStaff, PCONTEXT pContext)
 		return;
 	}
 	
-/* MAS low-level globals 
-#ifndef __MWERKS__
-	if (GARBAGEP(pContext)) {
-		MayErrMsg("GetContext: garbage pointer, staff=%ld. contextL=%ld pContext=%lx.",
-					(long)theStaff, (long)contextL, pContext);
-		return;
-	}
-#endif
-*/
-
 	if (STAFFN_BAD(doc, theStaff)) {
 		MayErrMsg("GetContext: illegal staff number %ld. contextL=%ld", (long)theStaff,
 					(long)contextL);

@@ -42,9 +42,6 @@ void InitNightingale()
 
 	if (!config.fastLaunch)
 		if (!DoSplashScreen()) NExitToShell("Splash Screen");
-#ifdef COPY_PROTECT
-	if (!CopyProtectionOK(TRUE)) NExitToShell("Copy Protect");
-#endif
 	if (!InitAllCursors()) NExitToShell("Init All Cursors");
 	if (!InitNightGlobals()) NExitToShell("Init Night Globals");
 	MEInitCaretSystem();

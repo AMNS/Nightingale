@@ -1476,15 +1476,7 @@ long NMIDIVersion()
 long NMIDIVersion()
 {
 	long verNumMM;
-#ifdef __MWERKS__
-	{
-		struct NumVersion sVersMM;
-		sVersMM = MIDIVersion();
-		verNumMM = *((long *)&sVersMM);
-	}
-#else
 	verNumMM = MIDIVersion();
-#endif
 
 	return verNumMM;
 }

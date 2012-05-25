@@ -67,7 +67,6 @@
 		D03E6EF50D5FA2CC005FD177 /* SFormat.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EEF0D5FA2CC005FD177 /* SFormat.cp */; };
 		D03E6EFF0D5FA2F8005FD177 /* Multivoice.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EF70D5FA2F8005FD177 /* Multivoice.cp */; };
 		D03E6F000D5FA2F8005FD177 /* MusicFont.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EF80D5FA2F8005FD177 /* MusicFont.cp */; };
-		D03E6F010D5FA2F8005FD177 /* NANSI.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EF90D5FA2F8005FD177 /* NANSI.cp */; };
 		D03E6F020D5FA2F8005FD177 /* NewSlur.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EFA0D5FA2F8005FD177 /* NewSlur.cp */; };
 		D03E6F030D5FA2F8005FD177 /* Nodes.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EFB0D5FA2F8005FD177 /* Nodes.cp */; };
 		D03E6F040D5FA2F8005FD177 /* NTimeMgr.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EFC0D5FA2F8005FD177 /* NTimeMgr.cp */; };
@@ -103,7 +102,6 @@
 		D03E70B80D5FA5B2005FD177 /* ExtractHighLevel.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70710D5FA5B2005FD177 /* ExtractHighLevel.cp */; };
 		D03E70B90D5FA5B2005FD177 /* FlowInText.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70720D5FA5B2005FD177 /* FlowInText.cp */; };
 		D03E70BA0D5FA5B2005FD177 /* HairpinEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70730D5FA5B2005FD177 /* HairpinEdit.cp */; };
-		D03E70BB0D5FA5B2005FD177 /* HandleManager.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70740D5FA5B2005FD177 /* HandleManager.cp */; };
 		D03E70BC0D5FA5B2005FD177 /* HeaderFooterDialog.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70750D5FA5B2005FD177 /* HeaderFooterDialog.cp */; };
 		D03E70BD0D5FA5B2005FD177 /* HeapBrowser.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70760D5FA5B2005FD177 /* HeapBrowser.cp */; };
 		D03E70BE0D5FA5B2005FD177 /* InfoDialog.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70770D5FA5B2005FD177 /* InfoDialog.cp */; };
@@ -247,8 +245,6 @@
 		D03E6B070D5F6EC9005FD177 /* EssentialTools.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EssentialTools.cp; sourceTree = "<group>"; };
 		D03E6B170D5F6F0F005FD177 /* NavServices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NavServices.cp; sourceTree = "<group>"; };
 		D03E6B1C0D5F7170005FD177 /* UIFUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UIFUtils.h; sourceTree = "<group>"; };
-		D03E6B560D5F7538005FD177 /* NightMacHeaders.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NightMacHeaders.h; sourceTree = "<group>"; };
-		D03E6B840D5F7702005FD177 /* HandleManager.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = HandleManager.h; sourceTree = "<group>"; };
 		D03E6B8E0D5F7807005FD177 /* Beam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Beam.h; sourceTree = "<group>"; };
 		D03E6B8F0D5F7807005FD177 /* Browser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Browser.h; sourceTree = "<group>"; };
 		D03E6B900D5F7807005FD177 /* Check.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Check.h; sourceTree = "<group>"; };
@@ -368,7 +364,6 @@
 		D03E6EEF0D5FA2CC005FD177 /* SFormat.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SFormat.cp; sourceTree = "<group>"; };
 		D03E6EF70D5FA2F8005FD177 /* Multivoice.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Multivoice.cp; sourceTree = "<group>"; };
 		D03E6EF80D5FA2F8005FD177 /* MusicFont.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MusicFont.cp; sourceTree = "<group>"; };
-		D03E6EF90D5FA2F8005FD177 /* NANSI.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NANSI.cp; sourceTree = "<group>"; };
 		D03E6EFA0D5FA2F8005FD177 /* NewSlur.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewSlur.cp; sourceTree = "<group>"; };
 		D03E6EFB0D5FA2F8005FD177 /* Nodes.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nodes.cp; sourceTree = "<group>"; };
 		D03E6EFC0D5FA2F8005FD177 /* NTimeMgr.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NTimeMgr.cp; sourceTree = "<group>"; };
@@ -404,7 +399,6 @@
 		D03E70710D5FA5B2005FD177 /* ExtractHighLevel.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ExtractHighLevel.cp; sourceTree = "<group>"; };
 		D03E70720D5FA5B2005FD177 /* FlowInText.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FlowInText.cp; sourceTree = "<group>"; };
 		D03E70730D5FA5B2005FD177 /* HairpinEdit.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HairpinEdit.cp; sourceTree = "<group>"; };
-		D03E70740D5FA5B2005FD177 /* HandleManager.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HandleManager.cp; sourceTree = "<group>"; };
 		D03E70750D5FA5B2005FD177 /* HeaderFooterDialog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HeaderFooterDialog.cp; sourceTree = "<group>"; };
 		D03E70760D5FA5B2005FD177 /* HeapBrowser.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = HeapBrowser.cp; sourceTree = "<group>"; };
 		D03E70770D5FA5B2005FD177 /* InfoDialog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InfoDialog.cp; sourceTree = "<group>"; };
@@ -676,8 +670,6 @@
 				D03E6BA90D5F7807005FD177 /* MasterPage.h */,
 				D03E6BAA0D5F7807005FD177 /* MCaret.h */,
 				D03E6BAB0D5F7807005FD177 /* Merge.h */,
-				D03E6B840D5F7702005FD177 /* HandleManager.h */,
-				D03E6B560D5F7538005FD177 /* NightMacHeaders.h */,
 				D03E6B1C0D5F7170005FD177 /* UIFUtils.h */,
 				D03E6A9E0D5F6B8A005FD177 /* EssentialTools.h */,
 				D03E6A670D5F69BE005FD177 /* NightTemplates.h */,
@@ -764,7 +756,6 @@
 				D088B8F30D5FB7CD0028C2BC /* MIDIUtils.cp */,
 				D03E6EF70D5FA2F8005FD177 /* Multivoice.cp */,
 				D03E6EF80D5FA2F8005FD177 /* MusicFont.cp */,
-				D03E6EF90D5FA2F8005FD177 /* NANSI.cp */,
 				D03E6EFA0D5FA2F8005FD177 /* NewSlur.cp */,
 				D03E6EFB0D5FA2F8005FD177 /* Nodes.cp */,
 				D03E6EFC0D5FA2F8005FD177 /* NTimeMgr.cp */,
@@ -895,7 +886,6 @@
 				D03E70710D5FA5B2005FD177 /* ExtractHighLevel.cp */,
 				D03E70720D5FA5B2005FD177 /* FlowInText.cp */,
 				D03E70730D5FA5B2005FD177 /* HairpinEdit.cp */,
-				D03E70740D5FA5B2005FD177 /* HandleManager.cp */,
 				D03E70750D5FA5B2005FD177 /* HeaderFooterDialog.cp */,
 				D03E70760D5FA5B2005FD177 /* HeapBrowser.cp */,
 				D03E70770D5FA5B2005FD177 /* InfoDialog.cp */,
@@ -1106,7 +1096,6 @@
 				D03E6EF50D5FA2CC005FD177 /* SFormat.cp in Sources */,
 				D03E6EFF0D5FA2F8005FD177 /* Multivoice.cp in Sources */,
 				D03E6F000D5FA2F8005FD177 /* MusicFont.cp in Sources */,
-				D03E6F010D5FA2F8005FD177 /* NANSI.cp in Sources */,
 				D03E6F020D5FA2F8005FD177 /* NewSlur.cp in Sources */,
 				D03E6F030D5FA2F8005FD177 /* Nodes.cp in Sources */,
 				D03E6F040D5FA2F8005FD177 /* NTimeMgr.cp in Sources */,
@@ -1142,7 +1131,6 @@
 				D03E70B80D5FA5B2005FD177 /* ExtractHighLevel.cp in Sources */,
 				D03E70B90D5FA5B2005FD177 /* FlowInText.cp in Sources */,
 				D03E70BA0D5FA5B2005FD177 /* HairpinEdit.cp in Sources */,
-				D03E70BB0D5FA5B2005FD177 /* HandleManager.cp in Sources */,
 				D03E70BC0D5FA5B2005FD177 /* HeaderFooterDialog.cp in Sources */,
 				D03E70BD0D5FA5B2005FD177 /* HeapBrowser.cp in Sources */,
 				D03E70BE0D5FA5B2005FD177 /* InfoDialog.cp in Sources */,

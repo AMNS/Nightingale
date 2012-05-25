@@ -472,20 +472,6 @@ equiv. KSINFO is necessarily even, so BlockMove(ks1, ks2, sizeof(KSINFO)) doesn'
 #define COMPOUND(numer) (numer%3==0 && numer>3)
 
 /* ---------------------------------------------------------------- ERROR CHECKING -- */ 
-
-/* Macintosh low-memory global variables: these should be used solely for error checking. */
-
-// MAS : low-mem globals can't be used anymore
-//extern long MLM_ApplZone : 0x2AA;
-//extern long MLM_CurrentA5 : 0x904L;
-// MAS
-
-/* Is the pointer garbage (outside appl. heap or stack (including NULL) or odd)?
-NB: completely system-dependent! */
-#ifndef __MWERKS__  /* Doesn't work, even with LM accessor functions. */
-#define GARBAGEP(p) (((long)(p)<MLM_ApplZone) || (long)(p)>=MLM_CurrentA5 	\
-							|| odd((long)(p)))
-#endif
 		
 /* calls to be replaced by calls to GARBAGELX */						 
 #define GARBAGEL(pL) 0
@@ -567,14 +553,8 @@ with MAX_TSDENOM, above! */
 
 /* Standard font names */
 
-// MAS and Xcode > __MWERKS__
-//#ifdef __MWERKS__
 #define SYSFONTID_SANSSERIF	kFontIDGeneva			/* Universal Interfaces 3.0.1 */
 #define SYSFONTID_MONOSPACED	kFontIDMonaco			/* Universal Interfaces 3.0.1 */
-//#else
-//#define SYSFONTID_SANSSERIF	geneva					/* Universal Interfaces 2.1 */
-//#define SYSFONTID_MONOSPACED	monaco					/* Universal Interfaces 2.1 */
-//#endif
 
 /* Rect corners */
 

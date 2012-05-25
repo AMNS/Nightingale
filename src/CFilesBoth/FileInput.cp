@@ -1573,13 +1573,6 @@ Boolean SaveTextToFile(Ptr		pText,						/* block of text */
 	long		inOutCount, dirID, procID;
 	OSErr		result;
 
-#ifndef __MWERKS__
-	if (GARBAGEP(pText)) {
-		MayErrMsg("SaveTextToFile received garbage pointer: %ld", (long)pText);
-		return FALSE;
-	}
-#endif
-
 	GetIndString(promptStr, MiscStringsID, promptStrID);
 	
 	SFPutFile(dialogWhere, promptStr, suggestedFileName, NULL, &reply);

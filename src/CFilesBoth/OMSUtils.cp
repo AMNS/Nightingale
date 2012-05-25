@@ -775,16 +775,6 @@ OMSAPI(void) NightOMSAppHook(OMSAppHookMsg *msg, long appHookRefCon)
 {
 	OMSUniqueID deletedDestUniqueId;
 	short deletedDestIoRefNum;
-	
-#ifdef THINK_C
-	/*	Set up A5 for access to globals during this routine. */
-	asm {
-		move.l	a5,-(sp)		; save previous A5
-		move.l	appHookRefCon,a5		; set up A5 from myRefCon
-	}
-#elif __MWERKS__
-	long olda5 = SetA5(appHookRefCon);
-#endif
 
 	switch (msg->msgType) {
 		case omsMsgModeChanged:
@@ -814,13 +804,6 @@ OMSAPI(void) NightOMSAppHook(OMSAppHookMsg *msg, long appHookRefCon)
 			break;
 	}
 	
-#ifdef THINK_C
-	asm {
-		move.l	(sp)+,a5		; restore previous A5
-	}
-#elif __MWERKS__
-	SetA5(olda5);
-#endif
 }
 
 

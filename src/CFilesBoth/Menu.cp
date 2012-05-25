@@ -17,10 +17,6 @@
 #include "CarbonTemplates.h" // MAS
 #include "MidiMap.h"
 
-#ifdef COPY_PROTECT
-#include "Eve.h"
-#endif
-
 static void	MovePalette(WindowPtr whichPalette,Point position);
 
 static Boolean IsSafeToQuit(void);
@@ -126,38 +122,6 @@ Boolean DoMenu(long menuChoice)
 		menu = HiWord(menuChoice); choice = LoWord(menuChoice);
 		if (TopDocument) MEHideCaret(GetDocumentFromWindow(TopDocument));
 
-#ifdef COPY_PROTECT
-		/*
-		 *	To discourage a user from launching Nightingale, then giving their copy-
-		 * protection key to someone else while they're running, check the key every
-		 * now and then. But if we do find a problem with it, it's possible that 
-		 * something went wrong and they're not trying to cheat, so don't be too
-		 * severe--just ignore all following non-File-menu commands; they can still
-		 * save files and use the Quit command (as well as some commands we'd rather
-		 * they didn't)!
-		 */
-
-		if (menu!=fileID) {
-			static long checkCopyProtTime=0L;
-			long timeNow;
-
-			if (copyProtProblem) goto Cleanup;
-		
-			timeNow = TickCount();
-			if (timeNow>checkCopyProtTime) {
-				checkCopyProtTime = timeNow+(3L*60L*60L);			/* Check at most every 3 minutes */
-				if (!CopyProtectionOK(FALSE)) {
-					GetIndCString(strBuf, COPYPROTECT_STRS, 4);	/* "Nightingale will now ignore all commands but File menu commands." */
-					CParamText(strBuf, "", "", "");
-					PlaceAlert(GENERIC_ALRT, NULL, 0, 80);
-					StopInform(GENERIC_ALRT);
-					copyProtProblem = TRUE;
-					goto Cleanup;
-				}
-			}
-		}
-		
-#endif
 		switch(menu) {
 			case appleID:
 				DoAppleMenu(choice);

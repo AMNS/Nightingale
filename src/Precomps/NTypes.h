@@ -18,11 +18,6 @@
 	#pragma options align=mac68k
 //#endif
 
-#ifndef __MWERKS__			// TEMP., TIL WE KNOW HOW TO DO ASSEMBLY LANGUAGE IN CODEWARRIOR
-// MAS
-// Xcode is also not __MWERKS__ !
-// #define LinkToPtrFUNCTION	/* Undefine to allow THINK Debugger to evaluate all mem.macros! */
-#endif
 
 /* ----------------------------- Data-structure Things ----------------------------- */
 

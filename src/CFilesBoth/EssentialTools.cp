@@ -30,100 +30,14 @@ static void	DrawSelBox(short index);
 static void	SetSelectionBox(Point pt);
 
 
-#ifdef THINK_C
-
-#include <Sane.h>
-pascal void fp68k(...);
-
-/* Given a double and a buffer, format the double as a C string. The obvious way to
-do this is with sprintf. But in THINK C, to avoid linking problems, we're using the
-"small" version of the ANSI library, in which floating-point conversion isn't
-supported. So we use Apple's SANE package to do a partial conversion into the Decimal
-data structure, and then we take it from there.  Delivers its first argument. */
-
-char *ftoaTC(char *buffer, double arg);
-static char *ftoaTC(char *buffer, double arg)
-{
-		short n; char *dst,*src; char *point = NULL;
-		DecForm dform; Decimal dcmal;
-		short double sdTemp;
-		
-		dform.style = TRUE;			/* Convert binary to decimal record */
-		dform.digits = 10;
-
-		/*
-		 *	Doug and I can't find the fp68k code for the 12-byte long double format
-		 *	we're using elsewhere (and which seems best for THINK C 5), so just
-		 *	convert the argument to a (8-byte) short double and pass that to fp68k.
-		 */
-		sdTemp = arg;
-		fp68k(&dform,&sdTemp,&dcmal,FFDBL+FOB2D);
-
-		/*
-		 *	The Decimal structure contains a flag in the high order byte of
-		 *	the sgn field for the sign of the result; the negative of the
-		 *	the number of digits to the left of the decimal point; and a Pascal
-		 *	string of the exact digits in the result, broken into a length 
-		 *	field and a string data field. We format the result string in buffer.
-		 */
-		
-		dst = buffer; src = (char *)dcmal.sig.text;
-		
-		 /* Deal with 0.0 separately for now, since dcmal.exp is wierdly large */
-		 
-		if (arg == 0.0) {
-			*dst++ = '0';
-			*dst++ = '.';
-			*dst++ = '0';
-			}
-		 else if (src[0]=='N' || src[1]=='N') {
-		 	*dst++ = 'N';
-		 	*dst++ = 'A';
-		 	*dst++ = 'N';
-		 	}
-		 else {
-			if (dcmal.sgn & 0x100) *dst++ = '-';
-			n = dcmal.sig.length + dcmal.exp;
-			if (n <= 0) {
-				*dst++ = '0'; point = dst; *dst++ = '.';
-				while (n++ < 0) *dst++ = '0';
-				n = dcmal.sig.length;
-				while (n-- > 0) *dst++ = *src++;
-				}
-			 else {
-				while (n-- > 0) *dst++ = *src++;
-				point = dst; *dst++ = '.';
-				n = dcmal.exp;							/* cf supra */
-				while (n++ < 0) *dst++ = *src++;
-				}
-			}
-
-		/* Cut off all trailing 0's past first one after decimal point, if any */
-		
-		if (point)
-			for (src=dst-1; src>point+1; src--)
-				if (*src=='0') dst--;
-				 else		   break;
-		*dst = '\0';
-		
-		return(buffer);
-}
-
-#endif
-
-
 /* Given a double and a buffer, format the double as a C string. The obvious way to
 do this is with sprintf, but in THINK C, we can't, for reasons explained in the
 comments on ftoaTC.  Delivers its first argument. */
 
 char *ftoa(char *buffer, double arg)
 	{
-#ifdef THINK_C
-		return ftoaTC(buffer, arg);
-#else
 		sprintf(buffer, "%.2f", arg);		/* JGG: Just use 2 decimal places */
 		return buffer;
-#endif
 	}
 
 

@@ -127,13 +127,6 @@ void Initialize()
 	creatorType = CREATOR_TYPE_NORMAL;
 	documentType = DOCUMENT_TYPE_NORMAL;
 #endif
-#ifdef FUTUREEVENTS
-#ifdef THINK_C
-	myAppType = (Count1Resources('CODE') < 16) ? 'KAHL' : creatorType;
-#else
-	#error  THINK C-dependent code, but this isn't THINK C.
-#endif
-#endif
 	/*
 	 *	Figure out our machine environment before doing anything more. This
 	 *	can't be done until after the various ToolBox calls above.
