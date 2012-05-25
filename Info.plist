@@ -102,44 +102,6 @@
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>*</string>
-			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>Scan.icns</string>
-			<key>CFBundleTypeName</key>
-			<string>NoteScan File</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>Scan</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-		</dict>
-		<dict>
-			<key>CFBundleTypeExtensions</key>
-			<array>
-				<string>txt</string>
-				<string>text</string>
-				<string>*</string>
-			</array>
-			<key>CFBundleTypeIconFile</key>
-			<string>Scan.icns</string>
-			<key>CFBundleTypeMIMETypes</key>
-			<array>
-				<string>text/plain</string>
-			</array>
-			<key>CFBundleTypeName</key>
-			<string>Text document</string>
-			<key>CFBundleTypeOSTypes</key>
-			<array>
-				<string>TEXT</string>
-			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
-		</dict>
 	</array>
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
