@@ -1325,28 +1325,6 @@ returns FALSE. Call it before starting a MIDI operation that might use built-in 
 static Boolean BIMIDIPortIsBusy(void);
 static Boolean BIMIDIPortIsBusy()
 {
-#ifdef ENABLE_BIMIDI
-	if (useWhichMIDI!=MIDIDR_BI) return FALSE;
-	
-	if (ControlKeyDown()) return FALSE;							/* Skip checking */
-
-	if (portSettingBIMIDI==MODEM_PORT) {
-		if (!PORT_IS_FREE(MLM_PortAUse)) {
-			GetIndCString(strBuf, MENUCMDMSGS_STRS, 7);		/* "...Modem port already in use." */
-			CParamText(strBuf, "", "", "");
-			StopInform(GENERIC_ALRT);
-			return TRUE;
-		}
-	}
-	else {
-		if (!PORT_IS_FREE(MLM_PortBUse)) {
-			GetIndCString(strBuf, MENUCMDMSGS_STRS, 8);		/* "...Printer port already in use." */
-			CParamText(strBuf, "", "", "");
-			StopInform(GENERIC_ALRT);
-			return TRUE;
-		}
-	}
-#endif	
 	return FALSE;
 }
 
@@ -1463,22 +1441,6 @@ void DoPlayRecMenu(INT16 choice)
 			case PL_MIDIModPrefs:
 				if (doc) PLMIDIModPrefs(doc);
 				break;
-#ifdef ENABLE_BIMIDI
-			case PL_MIDIDriverSetup:
-				if (useWhichMIDI!=MIDIDR_BI) {
-					GetIndCString(strBuf, MENUCMDMSGS_STRS, 6);	/* "You can't set up the MIDI Driver because you aren't using built-in MIDI." */
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-					break;
-				}
-				newPortSetting = portSettingBIMIDI;
-				newInterfaceSpeed = interfaceSpeedBIMIDI;
-				if (MIDIDriverDialog(&newPortSetting, &newInterfaceSpeed)) {
-					portSettingBIMIDI = newPortSetting;
-					interfaceSpeedBIMIDI = newInterfaceSpeed;
-				}
-				break;
-#endif
 			case PL_PartMIDI:
 				if (doc) EditPartMIDI(doc);
 				break;

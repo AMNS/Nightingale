@@ -1381,20 +1381,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 
 	SetTimeStamps(doc);										/* Up to first meas. w/unknown durs. */
 
-#ifndef TARGET_API_MAC_CARBON_MIDI
-	if (useWhichMIDI==MIDIDR_FMS) {
-		if (version<'N103') {
-			/* These won't pop any alerts. */
-			FMSCheckPartDestinations(doc, TRUE);
-			FMSSetNewDocRecordDevice(doc);
-			doc->changed = FALSE;		/* because FMSCheckPartDestinations sets this */
-		}
-		else {
-			FMSCheckDocOutputDestinations(doc);
-			FMSGetInputDestinationMatch(doc);
-		}
-	}
-#endif
 
 	/*
 	 * Assume that no information in the score having to do with window-relative

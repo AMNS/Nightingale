@@ -153,25 +153,6 @@ Boolean AltInsTrackPitch(
 	durIndex = *symIndex;
 	partn = Staff2Part(doc, staff);
 	useChan = UseMIDIChannel(doc, partn);									/* Set feedback channel no. */
-#ifndef TARGET_API_MAC_CARBON_MIDI
-	if (useWhichMIDI == MIDIDR_OMS) {
-		OMSUniqueID fdbkDevice = GetOMSDeviceForPartn(doc, partn);
-		if (!OMSChannelValid(fdbkDevice, (INT16)useChan)) {
-			useChan = config.defaultOutputChannel;
-			fdbkDevice = config.defaultOutputDevice;
-		}
-		useIORefNum = OMSUniqueIDToRefNum(fdbkDevice);
-
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		fmsUniqueID fdbkDevice = GetFMSDeviceForPartn(doc, partn);
-		if (!FMSChannelValid(fdbkDevice, (INT16)useChan)) {
-			useChan = config.defaultOutputChannel;
-			fdbkDevice = config.defaultOutputDevice;
-		}
-		useIORefNum = fdbkDevice;		/* these are same for FreeMIDI */
-	}
-#endif
 
 	octTransp = (octType>0? noteOffset[octType-1] : 0);				/* Set feedback transposition */
 	partL = FindPartInfo(doc, partn);

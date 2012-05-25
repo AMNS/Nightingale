@@ -42,6 +42,9 @@ void InitNightingale()
 
 	if (!config.fastLaunch)
 		if (!DoSplashScreen()) NExitToShell("Splash Screen");
+#ifdef COPY_PROTECT
+	if (!CopyProtectionOK(TRUE)) NExitToShell("Copy Protect");
+#endif
 	if (!InitAllCursors()) NExitToShell("Init All Cursors");
 	if (!InitNightGlobals()) NExitToShell("Init Night Globals");
 	MEInitCaretSystem();
@@ -725,63 +728,35 @@ static INT16 GetMIDIChoiceFromUser(long verNumMM, long verNumOMS)
 
 	if (verNumMM!=0 && verNumOMS!=0) {
 		CParamText(verStrOMS, verStrMM, "", "");
-#ifdef ENABLE_BIMIDI
-		PlaceAlert(USEOMS_MM_ALRT, NULL, 0, 80);
-		response = CautionAdvise(USEOMS_MM_ALRT);
-#else
 		PlaceAlert(USEOMS_MM_NOBI_ALRT, NULL, 0, 80);
 		response = CautionAdvise(USEOMS_MM_NOBI_ALRT);
-#endif
 		if (response == 1) {						/* OMS Item */
 			useWhichMIDI = MIDIDR_OMS;
 		}
 		else if (response == 2) {				/* MIDI Manager Item */
 			useWhichMIDI = MIDIDR_MM;
 		}
-#ifdef ENABLE_BIMIDI
-		else {										/* Built In Item */
-			useWhichMIDI = MIDIDR_BI;
-		}
-#else
 		else {										/* Disable MIDI Item */
 			useWhichMIDI = MIDIDR_NONE;
 		}
-#endif
 	}
 	else if (verNumOMS!=0) {
 		CParamText(verStrOMS, "", "", "");
-#ifdef ENABLE_BIMIDI
-		PlaceAlert(USEOMS_ALRT, NULL, 0, 80);
-		useWhichMIDI = (CautionAdvise(USEOMS_ALRT)==OK? MIDIDR_OMS : MIDIDR_BI);
-#else
 		PlaceAlert(USEOMS_NOBI_ALRT, NULL, 0, 80);
 		useWhichMIDI = (CautionAdvise(USEOMS_NOBI_ALRT)==OK? MIDIDR_OMS : MIDIDR_NONE);
-#endif
 	}
 	else if (verNumMM!=0) {
 		CParamText(verStrMM, "", "", "");
-#ifdef ENABLE_BIMIDI
-		PlaceAlert(USEMM_ALRT, NULL, 0, 80);
-		useWhichMIDI = (CautionAdvise(USEMM_ALRT)==OK? MIDIDR_MM : MIDIDR_BI);
-#else
 		PlaceAlert(USEMM_NOBI_ALRT, NULL, 0, 80);
 		useWhichMIDI = (CautionAdvise(USEMM_NOBI_ALRT)==OK? MIDIDR_MM : MIDIDR_NONE);
-#endif
 	}
 	else {
-#ifdef ENABLE_BIMIDI
-		GetIndCString(strBuf, INITERRS_STRS, 21);		/* "OMS and MIDI Manager are not available, so built-in MIDI will be used" */
-#else
 		GetIndCString(strBuf, INITERRS_STRS, 27);		/* "OMS and MIDI Manager are not available, so MIDI will be disabled" */
-#endif
+
 		CParamText(strBuf, "", "", "");
 		PlaceAlert(GENERIC_ALRT, NULL, 0, 80);
 		StopInform(GENERIC_ALRT);
-#ifdef ENABLE_BIMIDI
-		useWhichMIDI = MIDIDR_BI;
-#else
 		useWhichMIDI = MIDIDR_NONE;
-#endif
 	}
 	
 	return useWhichMIDI;

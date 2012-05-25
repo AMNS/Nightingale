@@ -28,7 +28,6 @@ static void			InitToolbox(void);
 static Boolean		AddSetupResource(Handle);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
-static Boolean		CheckDeskTop(void);
 static void			InstallCoreEventHandlers(void);
 static Boolean		NInitFloatingWindows(void);
 static void			SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);

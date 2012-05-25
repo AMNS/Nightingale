@@ -45,7 +45,6 @@
 #endif
 
 static void		FileStartup(void);
-static Boolean	CheckDeskTop(void);
 
 
 /* Main routine and entry point for application */
@@ -95,7 +94,6 @@ static void FileStartup()
 			 *	Open command.
 			 */
 		
-			CheckDeskTop();
 			AnalyzeWindows();
 			}
 		DoOpenApplication(!appleEventsOK);
@@ -112,39 +110,3 @@ void DoOpenApplication(Boolean askForFile)
 			DoViewMenu(VM_SymbolPalette);
 #endif
 	}
-
-/* Handle opening documents selected from the DeskTop when the application is
-launched, either for opening or printing. Should be called only if Apple Events
-aren't available. */
-
-static Boolean CheckDeskTop()
-{
-#if TARGET_CPU_68K
-	short msg,count,i;
-	AppFile file;
-	
-	CountAppFiles(&msg,&count);
-	if (count == 0) return(FALSE);
-	if (msg == appPrint) { CannotPrint(); ExitToShell(); }
-
-	/*
-	 *	Loop through all files selected on desktop, skipping those that belong
-	 *	to us but aren't normal documents, opening/printing those that belong
-	 *	to us and are normal docs, and complaining about those that don't belong.
-	 */
-	for (i=1; i<=count; i++) {
-		GetAppFiles(i,&file);
-		if (file.fType != documentType) {
-			if (file.fType != (OSType)'NHLP'		/* Nightingale Help */
-			&&  file.fType != (OSType)'NSET'		/* Nightingale Prefs */
-			&&  file.fType != (OSType)'LNCH')	/* "Launch" document */
-				NotOurs(file.fName);
-		}
-		else {
-			SetVol(NULL,file.vRefNum);
-			if (!DoOpenDocument(file.fName,file.vRefNum,FALSE)) break;
-		}
-	}
-#endif	
-	return(TRUE); 
-}

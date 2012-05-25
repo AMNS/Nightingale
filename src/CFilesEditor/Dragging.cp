@@ -1939,24 +1939,6 @@ static Boolean SymDragLoop(
 				partn = Staff2Part(doc, staff);
 				useChan = UseMIDIChannel(doc, partn);							/* Set feedback channel no. */
 
-#ifndef TARGET_API_MAC_CARBON_MIDI
-				if (useWhichMIDI == MIDIDR_OMS) {
-					fdbkDevice = GetOMSDeviceForPartn(doc, partn);
-					if (!OMSChannelValid(fdbkDevice, (INT16)useChan)) {
-						useChan = config.defaultOutputChannel;
-						fdbkDevice = config.defaultOutputDevice;
-					}
-					useIORefNum = OMSUniqueIDToRefNum(fdbkDevice);
-				}
-				else if (useWhichMIDI == MIDIDR_FMS) {
-					fmsUniqueID fdbkDevice = GetFMSDeviceForPartn(doc, partn);
-					if (!FMSChannelValid(fdbkDevice, (INT16)useChan)) {
-						useChan = config.defaultOutputChannel;
-						fdbkDevice = config.defaultOutputDevice;
-					}
-					useIORefNum = fdbkDevice;		/* these are same for FreeMIDI */
-				}
-#endif // TARGET_API_MAC_CARBON_MIDI
 
 				if (octL = OctOnStaff(doc->selStartL, staff)) {
 					octType = OctType(octL);
@@ -2032,24 +2014,6 @@ static Boolean SymDragLoop(
 			partn = Staff2Part(doc, staff);
 			useChan = UseMIDIChannel(doc, partn);							/* Set feedback channel no. */
 
-#ifndef TARGET_API_MAC_CARBON_MIDI
-			if (useWhichMIDI == MIDIDR_OMS) {
-				fdbkDevice = GetOMSDeviceForPartn(doc, partn);
-				if (!OMSChannelValid(fdbkDevice, (INT16)useChan)) {
-					useChan = config.defaultOutputChannel;
-					fdbkDevice = config.defaultOutputDevice;
-				}
-				useIORefNum = OMSUniqueIDToRefNum(fdbkDevice);
-			}
-			else if (useWhichMIDI == MIDIDR_FMS) {
-				fmsUniqueID fdbkDevice = GetFMSDeviceForPartn(doc, partn);
-				if (!FMSChannelValid(fdbkDevice, (INT16)useChan)) {
-					useChan = config.defaultOutputChannel;
-					fdbkDevice = config.defaultOutputDevice;
-				}
-				useIORefNum = fdbkDevice;		/* these are same for FreeMIDI */
-			}
-#endif // TARGET_API_MAC_CARBON_MIDI
 
 			if (octL = OctOnStaff(doc->selStartL, staff)) {
 				octType = OctType(octL);
@@ -2379,10 +2343,6 @@ setAccDone:
 
 		case SYNCtype:
 			if (doc->feedback && !NoteREST(subObjL) && vert) {
-#ifndef TARGET_API_MAC_CARBON_MIDI
-				MIDIFBNoteOff(doc, noteNum, useChan, useIORefNum);
-				MIDIFBOff(doc);
-#endif // TARGET_API_MAC_CARBON_MIDI
 
 			}
 			SetNoteFields(doc, pL, subObjL, xdDiff, ydDiff, xp, yp, vert, FALSE, newAcc);
@@ -2390,10 +2350,6 @@ setAccDone:
 
 		case GRSYNCtype:
 			if (doc->feedback && vert) {
-#ifndef TARGET_API_MAC_CARBON_MIDI
-				MIDIFBNoteOff(doc, noteNum, useChan, useIORefNum);
-				MIDIFBOff(doc);
-#endif // TARGET_API_MAC_CARBON_MIDI
 			}
 			SetGRNoteFields(doc, pL, subObjL, xdDiff, ydDiff, xp, yp, vert, FALSE, newAcc);
 			break;

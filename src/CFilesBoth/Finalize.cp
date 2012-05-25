@@ -240,16 +240,6 @@ void Finalize()
 	else if (useWhichMIDI==MIDIDR_FMS)
 		FMSClose();
 #endif
-#ifdef ENABLE_BIMIDI
-	else {
-		(void)BIMIDIUpdateSetupFile();
-	/*
-	 *	If MIDI Thru is enabled, reset the serial communications chip to protect
-	 *	our user against a crash later (see comments on MayInitBIMIDI elsewhere).
-	 */
-		MayResetBIMIDI(TRUE);
-	}
-#endif
 
 	CloseSetupFile();
 }

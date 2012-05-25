@@ -433,7 +433,7 @@ enum {							/* Play/Record menu */
     PL_MIDIThru,
 	PL_MIDIDynPrefs,
 	PL_MIDIModPrefs,
-#ifdef ENABLE_BIMIDI
+#ifdef ENABLE_BIMIDI //unused
     PL_MIDIDriverSetup,
 #endif
     PL_____________3,
