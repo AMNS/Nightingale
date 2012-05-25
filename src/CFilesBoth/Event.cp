@@ -754,27 +754,24 @@ which may or may not be visible, and which can be visible even when there's
 no current document open.  Other keys, such as DELETE or RETURN, are dealt
 with separately.  Routine delivers whether to continue event loop or not. */
 
-// MAS no more Mercutio
-//#include "MercutioAPI.h"
 
 static Boolean DoKeyDown(EventRecord *event)
 	{
 		short ch,itemHit,key; INT16 nparts; WindowPtr wp;
 		Boolean keepGoing = TRUE,scoreView;
 		Document *doc = GetDocumentFromWindow(TopDocument);
-		MenuHandle hMercutioMenu = editMenu;		/* A permanent menu that uses Mercutio */
+		MenuHandle hMenu = editMenu;
 		unsigned long cmdCode;
 		
 		ch = (unsigned)(event->message & charCodeMask);
 		key = (event->message>>8) & charCodeMask;
 		
 		if (event->modifiers & cmdKey) {
-			/* Use Mercutio's fancy replacement for MenuKey. */
 #if TARGET_API_MAC_CARBON
 			//cmdCode = MenuKey((char)(event->message & charCodeMask));
 			cmdCode = MenuEvent(event);
 #else
-			cmdCode = MDEF_MenuKey(event->message, event->modifiers, hMercutioMenu);
+			cmdCode = MDEF_MenuKey(event->message, event->modifiers, hMenu);
 #endif
 			return(DoMenu(cmdCode));
 		}
