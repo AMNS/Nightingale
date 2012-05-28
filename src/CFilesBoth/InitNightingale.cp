@@ -630,14 +630,6 @@ void InitMusicFontStuff()
 #ifdef TARGET_API_MAC_CARBON_MIDI
 
 
-static INT16 ChooseMIDISystem()
-{
-	/* For now, only support Core MIDI */
-	useWhichMIDI = MIDIDR_CM;
-	
-	return useWhichMIDI;
-}
-
 static Boolean InitChosenMIDISystem()
 {
 	Boolean midiOk = TRUE;
@@ -650,7 +642,8 @@ static Boolean InitChosenMIDISystem()
 
 Boolean InitMIDISystem()
 {
-	ChooseMIDISystem();
+	/* For now, only support MacOS Core MIDI */
+	useWhichMIDI = MIDIDR_CM;
 
 	return InitChosenMIDISystem();
 }
