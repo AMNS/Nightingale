@@ -627,60 +627,13 @@ void InitMusicFontStuff()
 }
 
 
-/* ---------------------------------------------------------- MIDI initialization -- */
-
-static INT16 GetMIDIChoiceFromUser(long verNumMM, long verNumOMS, long verNumFMS);
-static INT16 ChooseMIDISystem(void);
-static Boolean InitChosenMIDISystem(void);
-//static Boolean AllocMPacketBuffer(void);
-
-/* Allocate a buffer for MIDI Manager-compatible MIDI Packets, pointed to by
-<mPacketBuffer>. If we have trouble doing so, return FALSE, else TRUE. */
-
-/*static*/ Boolean AllocMPacketBuffer()
-{
-	Size bytesFree, grow;
-
-	/* A single note takes two MIDI Packets padded to even length = 20 bytes in the buffer
-	 * (for Note On and Note Off), while Nightingale's object list data structure as of
-	 * v.2.1 takes 30 bytes per note plus a great deal of overhead for the Sync, etc. See
-	 * the comment on AllocRawBuffer.
-	 */
-	bytesFree = MaxMem(&grow);
-	mPacketBufferLen = bytesFree/4L;							/* Take a fraction of available memory */
-	mPacketBufferLen = n_min(mPacketBufferLen, 100000L);	/* Limit its size to make NewPtr faster */
-
-	if (mPacketBufferLen<5000L) return FALSE;				/* Impose an arbitrary minimum */
-	
-	mPacketBuffer = (unsigned char *)(NewPtr(mPacketBufferLen));
-	return (GoodNewPtr((Ptr)mPacketBuffer));
-}
-
-
-/* -------------------------------------------------------- GetMIDIChoiceFromUser -- */
-static enum {
-	FMS_RAD_DI = 2,
-	OMS_RAD_DI,
-	MM_RAD_DI,
-	NONE_RAD_DI
-} E_MIDI_CHOICE;
-
 #ifdef TARGET_API_MAC_CARBON_MIDI
 
-static INT16 GetMIDIChoiceFromUser(long /*verNumMM*/, long /*verNumOMS*/, long /*verNumFMS*/)
-{
-	useWhichMIDI = MIDIDR_CM;
-	return useWhichMIDI;
-}
-
-#endif // TARGET_API_MAC_CARBON_MIDI
-
-
-#ifdef TARGET_API_MAC_CARBON_MIDI
 
 static INT16 ChooseMIDISystem()
 {
-	GetMIDIChoiceFromUser(0,0,0);
+	/* For now, only support Core MIDI */
+	useWhichMIDI = MIDIDR_CM;
 	
 	return useWhichMIDI;
 }
@@ -703,4 +656,5 @@ Boolean InitMIDISystem()
 }
 
 #endif // TARGET_API_MAC_CARBON_MIDI
+
 

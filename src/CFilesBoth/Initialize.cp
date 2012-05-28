@@ -859,10 +859,8 @@ static Boolean GetConfig()
 	if (config.defaultPatch < 1 || config.defaultPatch > MAXPATCHNUM)
 			{ config.defaultPatch = 1; ERR(65); }
 			
-	/* if config is hosed, let's not arbitrarily default to MIDI Manager. Let the user
-		decide (3=MIDISYS_ASK: cf. ChooseMIDISystem). */
 	if (config.whichMIDI < 0 || config.whichMIDI > MIDISYS_NONE) {
-		config.whichMIDI = MIDISYS_ASK; ERR(66);
+		ERR(66);
 	}
 	
 	if (config.enclMargin < 0) { config.enclMargin = 2; ERR(67); }

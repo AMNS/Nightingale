@@ -45,10 +45,6 @@ GLOBAL MenuHandle
 					symbolMenu,
 					clavierMenu;
 
-GLOBAL Boolean		canLaunchPatchBay;		/* use of MIDI Manager selected */
-GLOBAL Boolean		canLaunchFMSorOMSSetup;	/* can launch external MIDI config edit program
-												for FreeMIDI or OMS */
-
 GLOBAL unsigned char *tmpStr;				/* General string storage for anyone */
 GLOBAL Pattern		paperBack;				/* What background behind paper looks like */
 

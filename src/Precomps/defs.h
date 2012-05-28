@@ -106,7 +106,6 @@ enum {										/* MIDI Driver: */
 
 enum {										/* MIDI Driver config settings */
 	MIDISYS_CM,								/* Core MIDI */
-	MIDISYS_ASK,
 	MIDISYS_NONE
 };
 
