@@ -95,14 +95,13 @@ void GetPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 							Byte partChannel[], SignedByte partVelo[],
 							INT16 *pUseNoteNum, INT16 *pUseChan, INT16 *pUseVelo);
-void SetMIDIProgram(INT16, INT16);
 
 OSStatus	StartNoteNow(INT16 noteNum, SignedByte channel, SignedByte velocity, short ioRefNum);
 OSStatus	EndNoteNow(INT16 noteNum, SignedByte channel, short ioRefNum);
 Boolean	EndNoteLater(INT16 noteNum, SignedByte channel, long endTime, short ioRefNum);
 Boolean	CMEndNoteLater(INT16 noteNum, SignedByte channel, long endTime, long ioRefNum);
 
-void MIDITriple(INT16, INT16, INT16);
+//chirgwin void MIDITriple(INT16, INT16, INT16);
 
 Boolean AllocMPacketBuffer(void);
 Boolean MMInit(long *);

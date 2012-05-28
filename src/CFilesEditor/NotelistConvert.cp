@@ -1318,12 +1318,6 @@ static Boolean BuildNLDoc(
 
 	strcpy((char *)doc->comment, COMMENT_NOTELIST);
 
-	if (useWhichMIDI==MIDIDR_FMS) {
-		/* These won't pop any alerts. */
-		(void)FMSCheckPartDestinations(doc, TRUE);
-		FMSSetNewDocRecordDevice(doc);
-	}
-
 	if (!InitDocUndo(doc))
 		return FALSE;
 	

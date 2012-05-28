@@ -427,15 +427,6 @@ typedef struct {
 	INT16		filler[32];
 } MIDIModNRPreferences;
 
-/*
- *	Configuration information for the built-in MIDI driver is kept in a 'BIMI'
- * resource, with this structure.
- */
-
-typedef struct {
-	short 	portSetting;				/* MODEM_PORT or PRINTER_PORT */
-	short 	interfaceSpeed;			/* IFSPEEDP5MHZ, IFSPEED1MHZ, IFSPEED2MHZ, IFSPEED_FAST */
-} BIMIDI;
 
 /*
  * The GridRec holds the information for the tool palette.

@@ -1387,9 +1387,6 @@ Boolean InitGlobals()
 		InsertMenu( customMenu, 0 );
 		AddSampleItems( customMenu );
 #endif
-
-		SetFMSConfigMenuTitles();
-		SetOMSConfigMenuTitles();
 		
 		masterPgMenu = GetMenu(masterPgID);	if (!masterPgMenu) return FALSE;
 		

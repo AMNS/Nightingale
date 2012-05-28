@@ -19,7 +19,6 @@
 
 #include "CarbonPrinting.h"
 
-
 #define mouseMovedEvt			0xFA
 #define suspResumeEvt			0x01
 #define isResume(e)				( ((e)->message & 1) != 0 )
@@ -95,7 +94,6 @@ Boolean DoEvent()
 
 		AnalyzeWindows();			/* After event has been gotten */
 		
-		OMSEventLoopAction();	/* Handle MIDI environment changes to popups etc. */
 		
 		FixCursor();				/* After windows have been analyzed */
 		if (fixCount>0 && !quitting) {
@@ -435,8 +433,6 @@ void DoSuspendResume(EventRecord *event)
 					/* Convert to activate event */
 					event->modifiers |= activeFlag;
 					inBackground = FALSE;
-					OMSResumeEvent();
-					FMSResumeEvent();
 					if (clipShow) {
 						/* DoSelectWindow(clipboard->theWindow); */
 						ShowWindow(clipboard->theWindow);
@@ -448,8 +444,6 @@ void DoSuspendResume(EventRecord *event)
 					}
 				 else {				/* Else it's a suspend event */
 					inBackground = TRUE;
-					OMSSuspendEvent();
-					FMSSuspendEvent();
 					/* Convert to deactivate event */
 					event->modifiers &= ~activeFlag;
 					if (clipShow = IsWindowVisible(clipboard->theWindow))

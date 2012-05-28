@@ -14,7 +14,6 @@ recording - formerly in MIDIRecord.c.
 //#include <midi.h>						/* for MIDIPacket */
 //#endif
 
-#include "MIDIPASCAL3.h"
 
 Boolean BIMIDINoteAtTime(short noteNum, short channel, short velocity, long time);
 
@@ -294,14 +293,8 @@ short RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset)
 
 	switch (useWhichMIDI) {
 		case MIDIDR_CM:
-		case MIDIDR_OMS:
-		case MIDIDR_MM:
 			AlwaysErrMsg("RecPreparePlayback: only built-in MIDI is implemented.");
 			return -1;
-		case MIDIDR_BI:
-			if (!BIMIDIAllocNoteBuffer(doc, recMeasL, playToL))
-				return -1;
-			break;
 		default:
 			;
 	}
@@ -339,24 +332,6 @@ short RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset)
 	return npBufSize;
 }
 
-
-Boolean BIMIDINoteAtTime(
-	short noteNum,
-	short channel,					/* 1 to MAXCHANNEL */
-	short velocity,
-	long time)
-{
-	INT16 rc;
-	
-	MidiOut(MNOTEON+channel-1, time, (int *)&rc);	if (rc==0) goto Overflow;
-	MidiOut(noteNum, time, (int *)&rc);					if (rc==0) goto Overflow;
-	MidiOut(velocity, time, (int *)&rc);				if (rc==0) goto Overflow;
-	return TRUE;
-	
-Overflow:
-	return FALSE;
-}
-
 /* Send Note On and Note Off (or velocity zero Note On) events for all notes, including
 metronome "clicks". Return immediately, since playing is asynchronous. Assumes the event
 times are sorted.
@@ -371,25 +346,8 @@ Boolean RecPlayNotes(unsigned short outBufSize)
 	for (i = 0; i<npBufInd; i++) {
 		switch (useWhichMIDI) {
 			case MIDIDR_CM:
-			case MIDIDR_OMS:
-			case MIDIDR_MM:
 				AlwaysErrMsg("RecPlayNotes: only built-in MIDI is implemented.");
 				return FALSE;
-			case MIDIDR_BI:
-				/*
-				 * See if there's enough room in output buffer for an event; if not, just return
-				 * failure. (The expression to check if enough room is based on the fact that we
-				 * want to add 3 items.)
-				 */
-				OutCount((unsigned int *)&outBufCount);
-				if (outBufCount > outBufSize-(3+1)) goto Overflow;
-		
-				/* Checking result codes from MidiOut should be redundant, but won't hurt. */
-			
-				time = notePlayBuf[i].time;
-				if (!BIMIDINoteAtTime(notePlayBuf[i].noteNum, notePlayBuf[i].channel,
-												notePlayBuf[i].velocity, notePlayBuf[i].time))
-						goto Overflow;
 			default:
 				;
 		}

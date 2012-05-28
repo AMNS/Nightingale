@@ -1,6 +1,6 @@
 /* MIDIRecord.c for Nightingale - from MIDI input to simple Syncs.
 By Donald Byrd, rev.for v. 3.5. FreeMIDI support added by John Gibson for v4.1.
-		AllocRawBuffer			SetRecordFlats				RecordMessage
+		SetRecordFlats				RecordMessage
 		RawMIDI2MMNote			RecordDlogMsg				OMSPrepareRecord
 		RecordDialog			SoundClickNow
 		FillMNote				RawMIDI2Packets			MIDI2Night
@@ -77,7 +77,6 @@ typedef struct NotePacket {
 	Byte	data[3];
 } NotePacket;
 
-static Boolean AllocRawBuffer(void);
 static void SetRecordFlats(Document *);
 static void RecordMessage(Document *, Boolean);
 
@@ -110,40 +109,6 @@ static void PrintBuffer(Document *, long);
 
 
 /* ========================================== GENERAL AND USER-INTERFACE ROUTINES == */
-
-/* -------------------------------------------------------------- AllocRawBuffer -- */
-/* Allocate a buffer for recording into with the built-in MIDI driver, pointed to by
-<rawBuffer>. If we have trouble doing so, return FALSE, else TRUE.
-
-A single note takes from 4 to 6 longwords = 16 to 24 bytes in the input buffer
-(for both Note On and Note Off), while Nightingale's object list data structure
-as of v. 3.0 takes 30 bytes per note plus a great deal of overhead for the Sync, etc.;
-thus, the total memory needed to completely handle a note is over three times the
-space it occupies in the input buffer. Therefore, considering only notes, the
-largest useful buffer size is less than 1/3 of available memory. But Nightingale's
-other limitations are such that recording large amounts of data at once isn't
-really useful anyway. */
-
-static Boolean AllocRawBuffer()
-{
-	Size bytesFree, grow;
-
-	/* Don't bother for FreeMIDI and OMS MIDI. */
-	if (useWhichMIDI==MIDIDR_FMS || useWhichMIDI==MIDIDR_OMS || useWhichMIDI==MIDIDR_CM) {
-		rawBuffer = NULL;
-		return TRUE;
-	}
-
-	bytesFree = MaxMem(&grow);
-	rawBufferLength = bytesFree/4L;							/* Take a fraction of available memory */
-	rawBufferLength = n_min(rawBufferLength, 160000L);	/* Limit its size to make NewPtr faster */
-
-	if (rawBufferLength<2000L) return FALSE;
-	
-	rawBufferLength /= 4L;										/* Convert bytes to longwords */
-	rawBuffer = (long *)(NewPtr(rawBufferLength*4L));
-	return (GoodNewPtr((Ptr)rawBuffer));
-}
 
 
 /* -------------------------------------------------------------- SetRecordFlats -- */
@@ -262,112 +227,7 @@ static Boolean RecordDlogMsg(INT16 which, Rect *flashRect)
 }
 
 
-/* --------------------------------------------------------------- FMSPrepareRecord -- */
-/* Do some initialization of FreeMIDI, and return information needed for recording.
-Return FALSE if there's a problem, TRUE if all is well. */
 
-static Boolean FMSPrepareRecord(Document *doc, LINK partL, INT16 *pUseChan, fmsUniqueID *pThruDevice, fmsUniqueID *pInputDevice, INT16 *pThruChannel);
-
-static Boolean FMSPrepareRecord(
-						Document *doc,
-						LINK partL,
-						INT16 *pUseChan,						/* input AND output */
-						fmsUniqueID *pThruDevice,
-						fmsUniqueID *pInputDevice,
-						INT16 *pThruChannel)
-{
-	char	      errStr[256];
-	PPARTINFO	pPart;
-
-	*pInputDevice = doc->fmsInputDevice;
-	if (!FMSChannelValid(*pInputDevice, *pUseChan)) {
-		*pInputDevice = config.defaultInputDevice;
-		*pUseChan = config.defaultChannel;
-		if (!FMSChannelValid(*pInputDevice, *pUseChan)) {
-			GetIndCString(errStr, MIDIERRS_STRS, 33);		/* "FreeMIDI Input Device not Connected." */
-			CParamText(errStr, "", "", "");
-			StopInform(GENERIC_ALRT);
-			return FALSE;
-		}
-	}
-	FMSSetSelectedInputDevice(*pInputDevice, *pUseChan);
-
-	if (doc->polyTimbral) {
-		*pThruDevice = GetFMSDeviceForPartL(doc, partL);
-		pPart = GetPPARTINFO(partL);
-		*pThruChannel = pPart->channel;
-		if (!FMSChannelValid(*pThruDevice, *pThruChannel)) {
-			*pThruDevice = config.defaultOutputDevice;
-			*pThruChannel = config.defaultOutputChannel;
-		}
-	}
-	else {
-		*pThruDevice = *pInputDevice;
-		*pThruChannel = *pUseChan;
-	}
-	FMSSetMIDIThruDevice(*pThruDevice, *pThruChannel);
-
-	return TRUE;
-}
-
-
-/* --------------------------------------------------------------- OMSPrepareRecord -- */
-/* Do some initialization of OMS, and return information needed for recording. Return
-FALSE if there's a problem, TRUE if all is well. */
-
-static Boolean OMSPrepareRecord(Document *doc, LINK partL, INT16 *pUseChan, OMSUniqueID *pThruDevice, OMSUniqueID *pInputDevice, INT16 *pThruChannel);
-
-static Boolean OMSPrepareRecord(
-						Document *doc,
-						LINK partL,
-						INT16 *pUseChan,						/* input AND output */
-						OMSUniqueID *pThruDevice,
-						OMSUniqueID *pInputDevice,
-						INT16 *pThruChannel)
-{
-	OMSErr		errOMS;
-	char	      errStr[256], fmtStr[256];
-	PPARTINFO	pPart;
-
-	*pInputDevice = doc->omsInputDevice;
-	if (!OMSChannelValid(*pInputDevice, *pUseChan)) {
-		*pInputDevice = config.defaultInputDevice;
-		*pUseChan = config.defaultChannel;
-		if (!OMSChannelValid(*pInputDevice, *pUseChan)) {
-			GetIndCString(errStr, MIDIERRS_STRS, 32);		/* "OMS Input Device not Connected." */
-			CParamText(errStr, "", "", "");
-			StopInform(GENERIC_ALRT);
-			return FALSE;
-		}
-	}
-	OMSSetSelectedInputDevice(*pInputDevice, *pUseChan);
-
-	if (doc->polyTimbral) {
-		*pThruDevice = GetOMSDeviceForPartL(doc, partL);
-		pPart = GetPPARTINFO(partL);
-		*pThruChannel = pPart->channel;
-		if (!OMSChannelValid(*pThruDevice, *pThruChannel)) {
-			*pThruDevice = config.defaultOutputDevice;
-			*pThruChannel = config.defaultOutputChannel;
-		}
-	}
-	else {
-		*pThruDevice = *pInputDevice;
-		*pThruChannel = *pUseChan;
-	}
-	OMSSetMidiThruDevice(*pThruDevice, *pThruChannel);
-	
-	errOMS = OpenOMSInput(*pInputDevice);
-	if (errOMS) {
-		GetIndCString(fmtStr, MIDIERRS_STRS, 27);		/* "OMS Input Device not Connected..." */
-		sprintf(errStr, fmtStr, errOMS);
-		CParamText(errStr, "", "", "");
-		StopInform(GENERIC_ALRT);
-		return FALSE;
-	}
-	
-	return TRUE;
-}
 
 /* --------------------------------------------------------------- CMPrepareRecord -- */
 /* Do some initialization of CoreMIDI, and return information needed for recording. Return
@@ -500,12 +360,7 @@ Boolean RecordDialog(
 	partL = FindPartInfo(doc, partn);
 	pPart = GetPPARTINFO(partL);
 
-	if (useWhichMIDI == MIDIDR_OMS) {
-		if (!OMSPrepareRecord(doc, partL, &useChan, &thruDevice, &inputDevice, &thruChannel))
-			return FALSE;
-		sprintf(param2, "%d", gmOMSBufferLength/1024L);
-	}
-	else if (useWhichMIDI == MIDIDR_CM) {
+	if (useWhichMIDI == MIDIDR_CM) {
 		if (doc->cmInputDevice == kInvalidMIDIUniqueID)
 			doc->cmInputDevice = gSelectedInputDevice;
 		if (!CMPrepareRecord(doc, partL, &useChan, &cmThruDevice, &cmInputDevice, &thruChannel)) {
@@ -515,12 +370,6 @@ Boolean RecordDialog(
 			return FALSE;
 		}
 		sprintf(param2, "%d", kCMBufLen/0x0400); //kCMBufLen/1024L);
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		/* NB: we aren't using inputDevice and thruChannel */
-		if (!FMSPrepareRecord(doc, partL, &useChan, &thruDevice, &inputDevice, &thruChannel))
-			return FALSE;
-		sprintf(param2, "%d", gmFMSBufferLength/1024L);
 	}
 	else
 		sprintf(param2, "%d", rawBufferLength/1024L);
@@ -642,9 +491,7 @@ Boolean RecordDialog(
 	/* --- 3. If dialog was terminated with OK, check any new values. --- */
 	/* ---    If any are illegal, keep dialog on the screen to try again. - */
 
-		if (useWhichMIDI == MIDIDR_OMS)
-			CloseOMSInput(inputDevice);
-		else if (useWhichMIDI == MIDIDR_CM)
+		if (useWhichMIDI == MIDIDR_CM)
 			CloseCoreMidiInput();
 			
 		if (dialogOver==Cancel)
@@ -681,7 +528,7 @@ Boolean RecordDialog(
 		transpose = 0;
 	split = (GetControlValue(splitHdl)!=0);
 	*pMetronome = GetDlgChkRadio(dlog, METRONOME_DI);
-	FMSSetMIDIThruDeviceFromConfig();
+//chirgwin	FMSSetMIDIThruDeviceFromConfig();
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);												/* Free heap space */
 	PopLock(OBJheap);
@@ -727,23 +574,7 @@ static void SoundClickNow(
 	
 	if (clickViaMIDI) {
 		endTime = GetMIDITime(0L)+config.metroDur;
-		if (useWhichMIDI==MIDIDR_MM) {
-			MMStartNoteNow(config.metroNote, config.metroChannel, config.metroVelo);
-			MMEndNoteAtTime(config.metroNote, config.metroChannel, endTime);
-		}
-		else if (useWhichMIDI==MIDIDR_OMS) {
-			ioRefNum = OMSUniqueIDToRefNum(config.metroDevice);
-			OMSStartNoteNow(config.metroNote, config.metroChannel, config.metroVelo, ioRefNum);
-
-			/*
-			 * ??The following use of SleepMS is not great--the implementation as of v.3.0A
-			 * is terrible and may not give accurate enough timing for this use, especially
-			 * on a very fast Mac.
-			 */
-			SleepMS((long)config.metroDur);
-			OMSEndNoteNow(config.metroNote, config.metroChannel, ioRefNum);
-		}
-		else if (useWhichMIDI==MIDIDR_CM) {
+		if (useWhichMIDI==MIDIDR_CM) {
 		
 			MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 		
@@ -756,21 +587,6 @@ static void SoundClickNow(
 			 */
 			SleepMS((long)config.metroDur);
 			CMEndNoteNow(gDestID, config.metroNote, config.metroChannel);
-		}
-		else if (useWhichMIDI==MIDIDR_FMS) {
-			FMSStartNoteNow(config.metroNote, config.metroChannel, config.metroVelo, config.metroDevice);
-
-			/*
-			 * ??The following use of SleepMS is not great--the implementation as of v.3.0A
-			 * is terrible and may not give accurate enough timing for this use, especially
-			 * on a very fast Mac.
-			 */
-			SleepMS((long)config.metroDur);
-			FMSEndNoteNow(config.metroNote, config.metroChannel, config.metroDevice);
-		}
-		else {
-			StartNoteNow(config.metroNote, config.metroChannel, config.metroVelo, 0);
-			(void)BIMIDINoteAtTime(config.metroNote, config.metroChannel, 0, endTime);
 		}
 	}
 	else {
@@ -787,166 +603,6 @@ static void SoundClickNow(
 		else
 			SysBeep(1);
 	}
-}
-
-
-/* ----------------------------------------------------------------- FillFMSMNote -- */
-
-static Boolean FillFMSMNote(MMMIDIPacket *p, Byte channel, MNOTEPTR pMNote)
-{
-	Byte vNOff, vNOn; 		/* status bytes for Note Off/On on correct channel */
-	Boolean	first, done;
-	MMMIDIPacket *nextP;
-	INT16 command;							
-	register long offTime;
-	char fmtStr[256];
-	
-	vNOff = MNOTEOFF+channel;
-	vNOn = MNOTEON+channel;
-
-	pMNote->noteNumber = p->data[1];
-	pMNote->channel = channel;
-	pMNote->startTime = p->tStamp;
-	pMNote->onVelocity = p->data[2];
-	pMNote->duration = 0;											/* To be filled in later */
-	pMNote->offVelocity = config.noteOffVel;
-
-	if (pMNote->onVelocity==0)										/* Really a Note Off */
-		return FALSE;
-
-	done = FALSE;
-	first = TRUE;
-	while (nextP = PeekAtNextFMSMIDIPacket(first)) {
-		if (nextP->data[0] & MSTATUSMASK) {
-			if (nextP->data[0]==vNOff)			command = MNOTEOFF;	/* Pick up (on our channel) Note Off */
-			else if (nextP->data[0]==vNOn)	command = MNOTEON;	/*		and On messages */
-			else										command = 0;			/* Ignore all other messages */
-		}
-		switch (command) {
-			case 	MNOTEOFF:
-				if (nextP->data[1]==pMNote->noteNumber) {
-					offTime = nextP->tStamp;									/* Get milliseconds */
-					pMNote->duration = offTime-pMNote->startTime;
-					if (pMNote->onVelocity<config.minRecVelocity			/* Too soft and */
-					&& pMNote->duration<config.minRecDuration)			/*   too short? */
-						 	return FALSE;
-					pMNote->offVelocity = nextP->data[2];
-					DeletePeekedAtFMSMIDIPacket();
-					done = TRUE;
-				}
-				break;
-				
-			case MNOTEON:
-				if (nextP->data[1]==pMNote->noteNumber) {
-					if (nextP->data[2]==0) {									/* Really a Note Off */
-						offTime = nextP->tStamp;								/* Get milliseconds */
-						pMNote->duration = offTime-pMNote->startTime;
-						if (pMNote->onVelocity<config.minRecVelocity		/* Too soft and */
-						&& pMNote->duration<config.minRecDuration)		/*   too short? */
-						 	return FALSE;
-						pMNote->offVelocity = config.noteOffVel;
-						DeletePeekedAtFMSMIDIPacket();
-						done = TRUE;
-					}
-				}
-				break;
-				
-			default:
-				break;
-		}
-	first = FALSE;
-	}
-
-	if (!done) {
-		GetIndCString(fmtStr, MIDIERRS_STRS, 2);					/* "No Note Off for Note On" */
-		sprintf(strBuf, fmtStr, pMNote->startTime/1000L, pMNote->startTime%1000L,
-								pMNote->noteNumber);
-		CParamText(strBuf, "", "", "");
-		StopInform(GENERIC_ALRT);
-		pMNote->duration = 0;
-		pMNote->offVelocity = config.noteOffVel;
-	}
-	return TRUE;
-}
-
-
-/* ----------------------------------------------------------------- FillOMSMNote -- */
-
-static Boolean FillOMSMNote(MMMIDIPacket *p, Byte channel, MNOTEPTR pMNote)
-{
-	Byte vNOff, vNOn; 		/* status bytes for Note Off/On on correct channel */
-	Boolean	first, done;
-	MMMIDIPacket *nextP;
-	INT16 command;							
-	register long offTime;
-	char fmtStr[256];
-	
-	vNOff = MNOTEOFF+channel;
-	vNOn = MNOTEON+channel;
-
-	pMNote->noteNumber = p->data[1];
-	pMNote->channel = channel;
-	pMNote->startTime = p->tStamp;
-	pMNote->onVelocity = p->data[2];
-	pMNote->duration = 0;											/* To be filled in later */
-	pMNote->offVelocity = config.noteOffVel;
-
-	if (pMNote->onVelocity==0)										/* Really a Note Off */
-		return FALSE;
-
-	done = FALSE;
-	first = TRUE;
-	while (nextP = PeekAtNextOMSMIDIPacket(first)) {
-		if (nextP->data[0] & MSTATUSMASK) {
-			if (nextP->data[0]==vNOff)			command = MNOTEOFF;	/* Pick up (on our channel) Note Off */
-			else if (nextP->data[0]==vNOn)	command = MNOTEON;	/*		and On messages */
-			else										command = 0;			/* Ignore all other messages */
-		}
-		switch (command) {
-			case 	MNOTEOFF:
-				if (nextP->data[1]==pMNote->noteNumber) {
-					offTime = nextP->tStamp;									/* Get milliseconds */
-					pMNote->duration = offTime-pMNote->startTime;
-					if (pMNote->onVelocity<config.minRecVelocity			/* Too soft and */
-					&& pMNote->duration<config.minRecDuration)			/*   too short? */
-						 	return FALSE;
-					pMNote->offVelocity = nextP->data[2];
-					DeletePeekedAtOMSMIDIPacket();
-					done = TRUE;
-				}
-				break;
-				
-			case MNOTEON:
-				if (nextP->data[1]==pMNote->noteNumber) {
-					if (nextP->data[2]==0) {									/* Really a Note Off */
-						offTime = nextP->tStamp;								/* Get milliseconds */
-						pMNote->duration = offTime-pMNote->startTime;
-						if (pMNote->onVelocity<config.minRecVelocity		/* Too soft and */
-						&& pMNote->duration<config.minRecDuration)		/*   too short? */
-						 	return FALSE;
-						pMNote->offVelocity = config.noteOffVel;
-						DeletePeekedAtOMSMIDIPacket();
-						done = TRUE;
-					}
-				}
-				break;
-				
-			default:
-				break;
-		}
-	first = FALSE;
-	}
-
-	if (!done) {
-		GetIndCString(fmtStr, MIDIERRS_STRS, 2);					/* "No Note Off for Note On" */
-		sprintf(strBuf, fmtStr, pMNote->startTime/1000L, pMNote->startTime%1000L,
-								pMNote->noteNumber);
-		CParamText(strBuf, "", "", "");
-		StopInform(GENERIC_ALRT);
-		pMNote->duration = 0;
-		pMNote->offVelocity = config.noteOffVel;
-	}
-	return TRUE;
 }
 
 
@@ -1191,12 +847,6 @@ static long RawMIDI2Packets(long rBufLen)
 static void *GetNextMidiPacket(long mRecLen, long loc)
 {
 	/* Point p to the beginning of the next MMMIDIPacket and get its length */
-	if (useWhichMIDI == MIDIDR_OMS) {
-		return GetOMSMIDIPacket();
-	}
-	if (useWhichMIDI == MIDIDR_FMS) {
-		return GetFMSMIDIPacket();
-	}
 	if (useWhichMIDI == MIDIDR_CM) {
 		return GetCMMIDIPacket();
 	}
@@ -1292,10 +942,6 @@ static long MIDI2Night(
 		if (command==MNOTEON && (anyChan || channel==useChan)) {
 			if (useWhichMIDI == MIDIDR_CM)
 				noteFilled = FillCMMNote(pCM, channel, &theNote);
-			else if (useWhichMIDI == MIDIDR_OMS)
-				noteFilled = FillOMSMNote(pMM, channel, &theNote);
-			else if (useWhichMIDI == MIDIDR_FMS)
-				noteFilled = FillFMSMNote(pMM, channel, &theNote);
 			else
 				noteFilled = FillMNote(loc, mRecLen, channel, &theNote);
 				
@@ -1365,8 +1011,6 @@ NextEvent:
 			}
 
 		}
-		if (useWhichMIDI == MIDIDR_MM)
-			loc += ROUND_UP_EVEN(pMM->len);
 	}
 
 	if (ignored>0 && WARN_IGNORED) {
@@ -1397,8 +1041,6 @@ NextEvent:
 		return -1L;
 }	
 
-
-#include "MIDIPASCAL3.h"
 
 /* Convert MIDI Pascal-format data to MacTutor format. Expedient: I don't have time to
 rewrite higher-level routines that assume MacTutor format. But even more repulsive
@@ -1474,12 +1116,7 @@ static void RecordBuffer(
 	maxMS = PDUR2MS(MAX_SAFE_MEASDUR, microbeats);
 	r = mRecIndex = 0L;
 
-	if (playAlong && useWhichMIDI==MIDIDR_BI) {
-		npBufSize = RecPreparePlayback(doc, msPerBeat, ptLeadInOffset);
-		if (npBufSize<=0) return;
-	}
-	else
-		*ptLeadInOffset = -1L;
+	*ptLeadInOffset = -1L;
 
 	ArrowCursor();
 
@@ -1491,35 +1128,16 @@ static void RecordBuffer(
 	 * buffer large enough to play along everything.
 	 */
 	switch (useWhichMIDI) {
-		case MIDIDR_FMS:
-			InitFMSBuffer();
-			oldRecIndex = 0L;
-			FMSInitTimer();
-			break;
-		case MIDIDR_OMS:
-			InitOMSBuffer();
-			oldRecIndex = 0L;
-			OMSInitTimer();
-			break;
 		case MIDIDR_CM:
 			// •• InitCMBuffer();
 			oldRecIndex = 0L;
 			CMInitTimer();
-			break;
-		case MIDIDR_BI:
-			outBufSize = 3*(npBufSize+1);
-			MayInitBIMIDI(BIMIDI_BUFSIZE, outBufSize);		/* initialize hardware, allocate buffer */
-			InitBIMIDITimer();										/* initialize millisecond timer */
 			break;
 		default:
 			break;
 	}
 	StartMIDITime();
 	
-	if (playAlong && useWhichMIDI==MIDIDR_BI)
-		if (!RecPlayNotes(outBufSize)) MayErrMsg("RecPlayNotes failed.");
-
-	if (useWhichMIDI==MIDIDR_MM) MIDIPoll(inputMMRefNum, midiGetEverything);
 	recordingNow = TRUE;
 
 	InvertRect(&flashRect);									/* Confirm recording is in progress */
@@ -1536,8 +1154,6 @@ static void RecordBuffer(
 		if (metronome) {
 			timeMS = GetMIDITime(0L);
 			if (timeMS>=nextClickMS) {
-				if (!(config.metroViaMIDI && playAlong && useWhichMIDI==MIDIDR_BI))
-					SoundClickNow(config.metroViaMIDI, FALSE);
 				if (beatCount==0L) startClickMS = timeMS;
 				beatCount++;
 				elapsedMS = beatCount*msPerBeat;
@@ -1553,36 +1169,6 @@ static void RecordBuffer(
 		}
 
 		switch (useWhichMIDI) {
-			case MIDIDR_FMS:
-				if (gFMSMIDIBufferFull) {
-					GetIndCString(fmtStr, MIDIERRS_STRS, 26);		/* "Reached the limit of %d MIDI packets in one take" */
-					sprintf(strBuf, fmtStr, mRecIndex);
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-					done = TRUE;
-				}
-				else {
-					FillFMSBuffer();
-					if (mRecIndex > oldRecIndex) {
-						QuickFlashRect(&flashRect);					/* Flash to reassure user */
-						oldRecIndex = mRecIndex;
-					}
-				}
-				break;
-			case MIDIDR_OMS:
-				/* Nothing but UI to do here: all else is done at interrupt level in NightOMSReadHook */
-				if (gOMSMIDIBufferFull) {
-					GetIndCString(fmtStr, MIDIERRS_STRS, 26);		/* "Reached the limit of %d MIDI packets in one take" */
-					sprintf(strBuf, fmtStr, mRecIndex);
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-					done = TRUE;
-				}
-				else if (mRecIndex > oldRecIndex) {
-					QuickFlashRect(&flashRect);						/* Flash to reassure user */
-					oldRecIndex = mRecIndex;
-				}
-				break;
 			case MIDIDR_CM:
 				/* Nothing but UI to do here: all else is done at interrupt level in NightOMSReadHook */
 				if (gCMMIDIBufferFull) {
@@ -1595,30 +1181,6 @@ static void RecordBuffer(
 				else if (mRecIndex > oldRecIndex) {
 					QuickFlashRect(&flashRect);						/* Flash to reassure user */
 					oldRecIndex = mRecIndex;
-				}
-				break;
-			case MIDIDR_MM:
-				oldRecIndex = mRecIndex;
-				MIDIPoll(inputMMRefNum, midiGetCurrent);
-				if (mRecIndex>oldRecIndex)
-					QuickFlashRect(&flashRect);						/* Flash to reassure user */
-				break;
-			case MIDIDR_BI:
-				MidiIn((int *)&midiWord, &timeStamp);
-				if (midiWord>=0) {
-					MIDIDataToLong(midiWord, timeStamp, &mdata);	/* Convert MIDI Pascal to MacTutor format! */
-					midiByte = midiWord;
-					if (midiByte<MLOW_SYSREALTIME						/* skip System Real Time msgs */
-					||  midiByte>MHI_SYSREALTIME) {
-						rawBuffer[r++] = mdata;
-						if (r>=rawBufferLength) {
-							OutOfRawRecMemory();
-							done = TRUE;
-						}
-						if ((r % 10)==1) QuickFlashRect(&flashRect);	/* Flash every so often to reassure user */
-					}
-					else
-						ignoredRTM++;
 				}
 				break;
 			default:
@@ -1635,8 +1197,6 @@ static void RecordBuffer(
 
 /* *** END SEMI-REALTIME, LOW-LEVEL CODE. *** */
 
-	if (useWhichMIDI==MIDIDR_BI) mRecIndex = RawMIDI2Packets(r);
-
 	if (ignoredRTM && WARN_IGNORED) {
 		GetIndCString(fmtStr, MIDIERRS_STRS, 5);			/* "Ignored %ld Real Time messages" */
 		sprintf(strBuf, fmtStr, ignoredRTM);
@@ -1645,18 +1205,6 @@ static void RecordBuffer(
 	}
 	FlushEvents(mDownMask, 0);									/* Discard mouse click that ended recording */
 
-	/*
-	 * If any notes were playing when the user cancelled recording, they don't get
-	 * turned off; I have no idea why. Solutions less drastic than this (Midi(0),
-	 * MayResetBIMIDI(), etc.--done before the call to StopMIDITime) have all failed;
-	 * this seems to work solidly, but the situation isn't too satisfying. (I haven't
-	 * tried shorter delays before AllNotesOff.)
-	 */
-	if (useWhichMIDI==MIDIDR_BI) {
-		SleepMS(200L);
-		AllNotesOff();
-		ArrowCursor();
-	}
 }
 
 
@@ -1752,10 +1300,6 @@ Boolean Record(Document *doc)
 	timeChange = -1L;
 
 	WaitCursor();
-	if (!AllocRawBuffer()) {
-		NoMoreMemory();
-		goto Finished;
-	}
 
 	if (useWhichMIDI == MIDIDR_CM) {
 		if (!ResetMIDIPacketList()) {
@@ -2258,102 +1802,6 @@ static Boolean IsOurNoteOn(void *pv,
 }
 
 
-/* MIDI Pascal equivalent of MIDI Manager's MIDIPoll: add as many complete "real" (non-
-zero velocity) Note Ons as possible to <mPacketBuffer>, our global buffer of MIDIPackets.
-Designed to be called any time MIDI is active, so it may find any legal sequence of
-MIDI bytes starting at any point: two complete and one unfinished Note Ons, just a
-velocity byte, etc. Or it may find nothing. Uses <rawBuffer> as a working area.
-
-Return TRUE if all OK or nothing to do, FALSE if there's an error (<rawBuffer> full). */
-
-#ifdef DEBUG_1195
-typedef struct dSS {
-	long midiByte;
-	INT16 r;
-} DSS;
-#endif
-
-Boolean MPMIDIPoll(INT16);
-
-Boolean MPMIDIPoll(INT16 channel)					/* 0 to 15 */
-{
-	long				mdata, timeStamp;
-	Byte				midiByte;
-	INT16				midiWord, len;
-	MMMIDIPacket		*p;
-	static long		r;
-	static Byte		prevChan=255;				/* Guarantee we initialize on 1st call */
-#ifdef DEBUG_1195
-	#define DEBUGS_SIZE 1000
-	static DSS *debugSave=NULL;
-	static long dS=0L, d;
-
-	if (!debugSave) {
-		long dSEltSize=sizeof(DSS);
-		debugSave = (DSS *)NewPtr(DEBUGS_SIZE*dSEltSize);
-		if (!GoodNewPtr((Ptr)debugSave)) MayErrMsg("MPMIDIPoll: CAN'T ALLOC debugSave.");
-	}
-#endif
-
-	/* On the first call and any time <channel> has changed, reinitialize <r>. */
-	
-	if (channel!=prevChan) r = 0L;
-	prevChan = channel;
-	MidiIn((int *)&midiWord, &timeStamp);
-	
-	while (midiWord>=0) {
-		MIDIDataToLong(midiWord, timeStamp, &mdata);	/* Convert MIDI Pascal to MacTutor format! */
-		midiByte = midiWord;
-		if (midiByte<MLOW_SYSREALTIME						/* Skip System Real Time msgs */
-		||  midiByte>MHI_SYSREALTIME) {
-			rawBuffer[r++] = mdata;
-			if (r>=rawBufferLength)
-				return FALSE;
-			
-#ifdef DEBUG_1195
-				if (dS<DEBUGS_SIZE) {
-					debugSave[dS].midiByte = midiByte;
-					debugSave[dS].r = r-1L;
-					dS++;
-				}
-#endif
-			/*
-			 *	If a new Note On (with non-zero velocity!) has arrived on the correct
-			 *	channel, add it to the MMMIDIPacket buffer.
-			 */
-			if (NoteOnDemon(channel, midiByte)) {
-				p = (MMMIDIPacket *)&mPacketBuffer[mRecIndex];
-#ifdef DEBUG_1195
-				if (r-1L<=0L) {
-					MayErrMsg("MPMIDIPoll: CALLING RawMIDI2MMNote WITH 1stParam=%ld. midiByte=0x%x",
-								r-1L, midiByte);
-					for (d=0; d<dS; d++) {
-						DebugPrintf("<%ld %lx %d> ", d, debugSave[d].midiByte, debugSave[d].r);
-						if (d%6==5 || d==dS-1) DebugPrintf("\n");
-					}
-				}
-#endif
-				RawMIDI2MMNote(r-1L, TRUE, channel, &len, p);
-				/* 
-				 * Set position for next MMMIDIPacket: for some CPUs, must be an even (word) offset.
-				 */
-				mRecIndex += ROUND_UP_EVEN(len);
-				r = 0L;
-			}
-		}
-		MidiIn((int *)&midiWord, &timeStamp);
-	}
-	/*
-	 * The following delay made the old MacTutor MIDI driver's RxMIDI behave much
-	 * better. It's probably not needed anymore, but I don't think it hurts
-	 * anything. -DB, 10/95
-	 */
-	SleepMS(10L);
-
-	return TRUE;
-}
-
-
 #define NONBUF_SIZE 100		/* Size of Note On buffer <nOnBuffer>, in NotePackets */
 
 /* Add all the Note Ons for the given channel we can to <nOnBuffer>; return index
@@ -2678,10 +2126,6 @@ Boolean StepRecord(
 	gotSomething = FALSE;
 
 	WaitCursor();
-	if (!AllocRawBuffer()) {
-		NoMoreMemory();
-		goto Finished;
-	}
 
 	if (useWhichMIDI == MIDIDR_CM) {
 		if (!ResetMIDIPacketList()) {
@@ -2724,11 +2168,6 @@ Boolean StepRecord(
 	voice = USEVOICE(doc, doc->selStaff);
 	useChan = doc->channel;
 
-	if (useWhichMIDI == MIDIDR_OMS) {
-		partL = GetSelPart(doc);
-		if (!OMSPrepareRecord(doc, partL, &useChan, &thruDevice, &inputDevice, &thruChannel))
-			return FALSE;
-	}
 	if (useWhichMIDI == MIDIDR_CM) {
 		partL = GetSelPart(doc);
 		if (doc->cmInputDevice == kInvalidMIDIUniqueID)
@@ -2736,12 +2175,6 @@ Boolean StepRecord(
 		if (!CMPrepareRecord(doc, partL, &useChan, &cmThruDevice, &cmInputDevice, &thruChannel)) {
 			return FALSE;
 		}
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		/* NB: we aren't using inputDevice and thruChannel */
-		partL = GetSelPart(doc);
-		if (!FMSPrepareRecord(doc, partL, &useChan, &thruDevice, &inputDevice, &thruChannel))
-			return FALSE;
 	}
 	
 	split = FALSE;															/* No split pt in Step Record */
@@ -2761,21 +2194,9 @@ Boolean StepRecord(
 /* *** BEGIN SEMI-REALTIME, LOW-LEVEL CODE. Handle with care! *** */
 
 	switch (useWhichMIDI) {
-		case MIDIDR_FMS:
-			FMSInitTimer();
-			InitFMSBuffer();
-			break;
-		case MIDIDR_OMS:
-			OMSInitTimer();
-			InitOMSBuffer();
-			break;
 		case MIDIDR_CM:
 			CMInitTimer();
 			// •• InitCMBuffer();
-			break;
-		case MIDIDR_BI:
-			MayInitBIMIDI(BIMIDI_SMALLBUFSIZE, BIMIDI_SMALLBUFSIZE);	/* initialize serial chip for MIDI port */
-			InitBIMIDITimer();													/* initialize millisecond timer */
 			break;
 		default:
 			break;
@@ -2783,8 +2204,6 @@ Boolean StepRecord(
 
 	StartMIDITime();
 	
-	/* Flush MIDI Manager's buffer, then set the recording-in-progress flag */
-	if (useWhichMIDI==MIDIDR_MM) MIDIPoll(inputMMRefNum, midiGetEverything);
 	recordingNow = TRUE;
 
 	InvertMsgRect(doc);												/* Confirm recording is in progress */
@@ -2920,9 +2339,6 @@ Boolean StepRecord(
 	recordingNow = FALSE;
 	StopMIDITime();
 	
-	if (useWhichMIDI == MIDIDR_OMS)
-		CloseOMSInput(inputDevice);
-	
 /* *** END SEMI-REALTIME, LOW-LEVEL CODE. *** */
 
 	if (ignoredRTM && WARN_IGNORED) {
@@ -2974,7 +2390,7 @@ Boolean StepRecord(
 	FlushEvents(mDownMask, 0);									/* Discard mouse click that ended recording */
 
 Finished:
-	FMSSetMIDIThruDeviceFromConfig();
+//chirgwin	FMSSetMIDIThruDeviceFromConfig();
 
 	if (rawBuffer) DisposePtr((Ptr)rawBuffer);
 	if (mergeObjs) DisposePtr((Ptr)mergeObjs);
@@ -3003,10 +2419,6 @@ Boolean RTMRecord(Document *doc)
 	timeChange = -1L;
 
 	WaitCursor();
-	if (!AllocRawBuffer()) {
-		NoMoreMemory();
-		goto Finished;
-	}
 
 	if (useWhichMIDI == MIDIDR_CM) {
 		if (!ResetMIDIPacketList()) {
@@ -3055,7 +2467,7 @@ static void PrintNBuffer(Document *doc, NotePacket nOnBuffer[], INT16 nOnBufLen)
 	INT16 n, i;
 	
 	DebugPrintf("PNB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d nOnBufLen=%d:\n",
-					(useWhichMIDI==MIDIDR_MM? "MIDIMgr" : "built-in MIDI"),
+					"built-in MIDI",
 					doc->deflamTime, config.minRecVelocity, config.minRecDuration, nOnBufLen);
 	for (n = 0; n<nOnBufLen; n++) {
 		DebugPrintf("  %x TS=%ld data=", nOnBuffer[n].flags, nOnBuffer[n].tStamp);
@@ -3077,7 +2489,7 @@ static void PrintBuffer(Document *doc, long mBufLen)
 	long loc; INT16 i, len;
 	
 	DebugPrintf("PB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d mBufLen=%ld:\n",
-					(useWhichMIDI==MIDIDR_MM? "MIDIMgr" : "built-in MIDI"),
+					"built-in MIDI",
 					doc->deflamTime, config.minRecVelocity, config.minRecDuration, mBufLen);
 	loc = 0L;
 	while (loc<mBufLen) {

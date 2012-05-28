@@ -766,17 +766,6 @@ void PlaySequence(
 	pSystem = GetPSYSTEM(systemL);
 	D2Rect(&pSystem->systemRect, &sysRect);
 
-	if (useWhichMIDI==MIDIDR_OMS) {
-		OMSUniqueID omsPartDevice[MAXSTAVES];
-		if (!GetOMSPartPlayInfo(doc, partTransp, partChannel, partPatch, partVelo,
-									partIORefNum, omsPartDevice))
-			return;	/* User cancelled playback. */
-	}
-	else if (useWhichMIDI==MIDIDR_FMS) {
-		if (!GetFMSPartPlayInfo(doc, partTransp, partChannel, partPatch,
-								partBankSel0, partBankSel32, partVelo, partDevice))
-			return;
-	}
 	if (useWhichMIDI==MIDIDR_CM) {
 #if CMDEBUG
 		DebugPrintf("doc inputDev=%ld\n", doc->cmInputDevice);
@@ -827,20 +816,8 @@ void PlaySequence(
 	if (tooManyTempi) tempoCount = MAX_TCONVERT;				/* Table size exceeded */
 
 	switch (useWhichMIDI) {
-		case MIDIDR_FMS:
-			FMSInitTimer();
-			break;
-		case MIDIDR_OMS:
-			OMSInitTimer();
-			break;
-		case MIDIDR_MM:
-			break;
 		case MIDIDR_CM:
 			CMSetup(doc, partChannel);
-			break;
-		case MIDIDR_BI:
-			MayInitBIMIDI(BIMIDI_SMALLBUFSIZE, BIMIDI_SMALLBUFSIZE);	/* initialize serial chip */
-			InitBIMIDITimer();													/* initialize millisecond timer */
 			break;
 		default:
 			break;
@@ -864,24 +841,12 @@ void PlaySequence(
 	 *	If "play on instruments' parts" is set, send out program changes to the correct
 	 *	patch numbers for all channels that have any instruments assigned to them.
 	 */
-	if (useWhichMIDI == MIDIDR_OMS) {
-		OMSMIDIProgram(doc, partPatch, partChannel, partIORefNum);
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		FMSMIDIProgram(doc);
-	}
-	else if (useWhichMIDI == MIDIDR_CM) {
+	if (useWhichMIDI == MIDIDR_CM) {
 		OSErr err = CMMIDIProgram(doc, partPatch, partChannel);
 		if (err != noErr) {
 			ErrorMsg(20);
 			//MayErrMsg("Unable to Play Score: go to the Instrument MIDI Settings dialog and make sure a device is set to all parts.");
 			return;
-		}
-	}
-	else {
-		if (doc->polyTimbral && !doc->dontSendPatches) {
-			for (i = 1; i<=MAXCHANNEL; i++)
-				if (channelPatch[i]<=MAXPATCHNUM) SetMIDIProgram(i, channelPatch[i]);
 		}
 	}
 	SleepTicks(10L);	/* Let synth settle after patch change, before playing notes. */
@@ -1030,18 +995,7 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 							 *	limited to legal range; channel number; and duration, includ-
 							 * ing any tied notes to right.
 							 */
-							if (useWhichMIDI==MIDIDR_OMS)
-								GetOMSNotePlayInfo(doc, aNoteL, partTransp, partChannel, partVelo,
-														partIORefNum,
-														&useNoteNum, &useChan, &useVelo, &useIORefNum);
-							else if (useWhichMIDI==MIDIDR_FMS) {
-								fmsUniqueID deviceID;
-								GetFMSNotePlayInfo(doc, aNoteL, partTransp, partChannel, partVelo,
-														partDevice,
-														&useNoteNum, &useChan, &useVelo, &deviceID);
-								useIORefNum = (short)deviceID;
-							}
-							else if (useWhichMIDI==MIDIDR_CM) {
+							if (useWhichMIDI==MIDIDR_CM) {
 								CMGetNotePlayInfo(doc, aNoteL, partTransp, partChannel, partVelo,
 														&useNoteNum, &useChan, &useVelo);
 							}

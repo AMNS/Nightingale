@@ -60,9 +60,7 @@ MIDI note no. 0 and C-natural are used instead--not good. */
 static char * 				strcut(char *, char *, INT16);
 static rangeHandle			ReadInstr(ListHandle, short, short);
 static pascal Boolean		TheFilter(DialogPtr, EventRecord *, INT16 *);
-static pascal Boolean		TheOMSPMFilter(DialogPtr, EventRecord *, INT16 *);
 static pascal Boolean		TheCMPMFilter(DialogPtr, EventRecord *, INT16 *);
-static pascal Boolean		TheFMSPMFilter(DialogPtr, EventRecord *, INT16 *);
 static Boolean 				GetInstr(rangeHandle, char *);
 static Boolean				MpCheck(PARTINFO *);
 static void 					NoteErase(INT16, char, char, Boolean);
@@ -238,18 +236,6 @@ INT16 CMInstrDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice)
 	return InstrDialog(doc, mp);
 }
 
-INT16 OMSInstrDialog(Document *doc, PARTINFO *mp, OMSUniqueID *mpDevice)
-{
-	origMPDevice = (unsigned long *)mpDevice;
-	return InstrDialog(doc, mp);
-}
-
-INT16 FMSInstrDialog(Document *doc, PARTINFO *mp, fmsUniqueID *mpDevice)
-{
-	origMPDevice = (unsigned long *)mpDevice;
-	return InstrDialog(doc, mp);
-}
-
 
 /* InstrDialog returns 1 on OK, 0 on Cancel or if an error occurs. */
 
@@ -279,23 +265,7 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 		return(0);
 	}
 
-	if (useWhichMIDI == MIDIDR_OMS) {
-		theDialog = GetNewDialog(OMS_INSTRUMENT_DLOG, 0L, BRING_TO_FRONT);
-		if (!theDialog) {
-			DisposeModalFilterUPP(filterUPP);
-			MissingDialog(OMS_INSTRUMENT_DLOG);
-			return(0);
-		}
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		theDialog = GetNewDialog(FMS_INSTRUMENT_DLOG, 0L, BRING_TO_FRONT);
-		if (!theDialog) {
-			DisposeModalFilterUPP(filterUPP);
-			MissingDialog(FMS_INSTRUMENT_DLOG);
-			return(0);
-		}
-	}
-	else if (useWhichMIDI == MIDIDR_CM) {
+	if (useWhichMIDI == MIDIDR_CM) {
 		theDialog = GetNewDialog(CM_INSTRUMENT_DLOG, 0L, BRING_TO_FRONT);
 		if (!theDialog) {
 			DisposeModalFilterUPP(filterUPP);
@@ -357,35 +327,10 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 		goto broken;
 	}
 
-	if (useWhichMIDI==MIDIDR_OMS) {
-		/* create the popup menu of available output devices */
-		GetDialogItem(theDialog, OMS_OUTPUT_MENU, &scratch, &hndl, &deviceMenuBox);
-		omsOutputMenuH = CreateOMSOutputMenu(&deviceMenuBox);
-		/* ??Surely CreateOMSOutputMenu can fail--we should check here! */
-	}
-	else if (useWhichMIDI==MIDIDR_CM) {
+	if (useWhichMIDI==MIDIDR_CM) {
 		/* create the popup menu of available output devices */
 		GetDialogItem(theDialog, OMS_OUTPUT_MENU, &scratch, &hndl, &deviceMenuBox);
 		cmOutputMenuH = CreateCMOutputMenu(theDialog, &cmOutputPopup, &deviceMenuBox, NULL, OMS_OUTPUT_MENU);
-	}
-	else if (useWhichMIDI==MIDIDR_FMS) {
-		GetDialogItem(theDialog, FMS_OUTPUT_MENU, &scratch, &hndl, &deviceMenuBox);
-		GetDialogItem(theDialog, FMS_PATCH_MENU, &scratch, &hndl, &patchMenuBox);
-		fmsDeviceID = mp->fmsOutputDevice;
-		fmsChannel = mp->channel;
-		fmsSendPatchChange = (doc->polyTimbral && !doc->dontSendPatches);
-		if (FMSCheckOutputDevice(&fmsDeviceID, &fmsChannel, FALSE)==deviceMatch) {
-			if (fmsSendPatchChange) {
-				/* This is the only way to get patch menu to show current patch. */
-#ifdef CARBON_NOTYET
-				FMSMIDIOneProgram(mp->fmsOutputDevice, mp->channel,
-							mp->patchNum, mp->bankNumber0, mp->bankNumber32);
-#else
-				FMSMIDIOneProgram(mp->fmsOutputDevice, mp->channel,
-							mp->patchNum, 0, 0);
-#endif
-			}
-		}
 	}
 
 	/* Added following to genericize noteName placement as part of USING_OMS changes */
@@ -433,22 +378,7 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 
 		/* set unique device ID for OMS
 			See code in GetOMSPartPlayInfo for a similar situation.  -JGG, 7/23/00 */
-		if (useWhichMIDI == MIDIDR_OMS) {
-			/* Validate device / channel combination. */
-			if (OMSChannelValid(*origMPDevice, (INT16)(mp->channel)))
-				master.device = *origMPDevice;
-			else
-				master.device = config.defaultOutputDevice;
-			/* It's possible our device has changed, so validate again. */
-			if (OMSChannelValid(master.device, (INT16)(mp->channel)))
-				master.channel = mp->channel;
-			else
-				master.channel = config.defaultOutputChannel;
-
-			if ((master.channel != mp->channel) || master.device != *origMPDevice)
-				master.changedDeviceChannel = 1;
-		}
-		else if (useWhichMIDI == MIDIDR_CM) {
+		if (useWhichMIDI == MIDIDR_CM) {
 			/* Validate device / channel combination. */
 			if (CMTransmitChannelValid(*origMPDevice, (INT16)(mp->channel)))
 				master.cmDevice = *origMPDevice;
@@ -476,23 +406,12 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 	ShowWindow(GetDialogWindow(theDialog));
 	ArrowCursor();
 	
-	/* stuff the edit text fields */
-	if (useWhichMIDI!=MIDIDR_FMS) {
-		PutDlgWord(theDialog, CHANNEL_DI, master.channel, FALSE);
-		PutDlgWord(theDialog, PATCH_DI, master.patchNum, FALSE);
-	}
 	PutDlgWord(theDialog, V_BALANCE, master.velBalance, FALSE);
 
 	CToPString(strcpy((char *)str, master.abbr));
 	PutDlgString(theDialog, INSTRABRV, str, FALSE);
 
-	if (useWhichMIDI==MIDIDR_OMS && omsOutputMenuH!=NULL) {
-		GetIndString(deviceStr, MIDIPLAYERRS_STRS, 16);
-		SetOMSDeviceMenuSelection(omsOutputMenuH, 0, master.device, deviceStr, TRUE);
-		DrawOMSDeviceMenu(omsOutputMenuH);
-		TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-	}
-	else if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH!=NULL) {
+	if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH!=NULL) {
 		GetIndString(deviceStr, MIDIPLAYERRS_STRS, 16);
 		short currChoice = GetCMDeviceIndex(master.cmDevice);
 
@@ -540,31 +459,7 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 		} while (!dialogOver);
 	
 		if (dialogOver==OKBTN) {
-			if (useWhichMIDI==MIDIDR_OMS) {
-				gotValue = GetDlgWord(theDialog, CHANNEL_DI, &val);
-#ifdef CARBON_NOTYET
-				master.device = (*omsOutputMenuH)->select.uniqueID;
-#else
-				master.device = 0;
-#endif
-				if ((gotValue && val != mp->channel) || master.device != *origMPDevice)
-					master.changedDeviceChannel = 1;
-				if (gotValue && OMSChannelValid(master.device, val)) {
-					*origMPDevice = master.device;
-					mp->channel = val;
-					master.validDeviceChannel = 1;
-				}
-				else {
-					GetIndCString(strBuf, INSTRERRS_STRS, 7);    /* "Channel number and device are inconsistant" */
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-					GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
-					HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
-					dialogOver = 0;
-					continue;									/* Loop back for correction */
-				}					
-			}
-			else if (useWhichMIDI==MIDIDR_CM) {
+			if (useWhichMIDI==MIDIDR_CM) {
 				gotValue = GetDlgWord(theDialog, CHANNEL_DI, &val);
 				master.cmDevice = GetCMOutputDeviceID();
 				if ((gotValue && val != mp->channel) || master.cmDevice != *origMPDevice)
@@ -584,9 +479,6 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 					continue;										/* Loop back for correction */
 				}					
 			}
-			else if (useWhichMIDI==MIDIDR_FMS) {
-				/* Nothing to do in this case, because fmsDeviceID and fmsChannel already updated. */
-			}
 			else {
 				/* Copy modified channel, if valid. If not, loop back. */
 				gotValue = GetDlgWord(theDialog, CHANNEL_DI, &val);
@@ -601,24 +493,6 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 					HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
 					dialogOver = 0;
 					continue;									/* Loop back for correction */
-				}
-			}
-						
-			if (useWhichMIDI!=MIDIDR_FMS) {
-				gotValue = GetDlgWord(theDialog, PATCH_DI, &val);
-				if (useWhichMIDI==MIDIDR_OMS || useWhichMIDI==MIDIDR_CM)
-					if (gotValue && val != mp->patchNum) master.changedDeviceChannel = 1;
-				if (gotValue && val >= 1 && val <= MAXPATCHNUM)
-					mp->patchNum = val;
-				else {
-					GetIndCString(fmtStr, INSTRERRS_STRS, 5);    /* "Patch number must be between 1 and %d." */
-					sprintf(strBuf, fmtStr, MAXPATCHNUM); 
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-					GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
-					HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
-					dialogOver = 0;
-					continue;										/* Loop back for correction */
 				}
 			}
 
@@ -664,17 +538,7 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 	
 	DisposeHandle((Handle)rangeHdl);
 	
-	if (useWhichMIDI == MIDIDR_OMS) {
-		if (master.validDeviceChannel && master.changedDeviceChannel) {
-			/* Ask user if they want to save the entered device/channel/patch as default
-			 * for instrument, or... could add a new instrument type (need more flags
-			 * to know when this has happened).  If so, then pack up a new instrument
-			 * string and either insert/append a new instrument or overlay an existing one.
-			 */
-		}
-		DisposeOMSDeviceMenu(omsOutputMenuH);
-	}
-	else if (useWhichMIDI==MIDIDR_CM)
+	if (useWhichMIDI==MIDIDR_CM)
 	{
 		if (master.validDeviceChannel && master.changedDeviceChannel) {
 			/* Ask user if they want to save the entered device/channel/patch as default
@@ -688,20 +552,6 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 			cmVecDevices = NULL;
 		}
 		DisposePopUp(&cmOutputPopup);
-	}
-	else if (useWhichMIDI==MIDIDR_FMS) {
-		short patch, bank0, bank32;
-
-		GetFMSCurrentPatchInfo(fmsDeviceID, fmsChannel, &patch, &bank0, &bank32);
-		mp->fmsOutputDevice = *origMPDevice = fmsDeviceID;
-		mp->channel = (Byte)fmsChannel;
-		if (patch!=NO_PATCHNUM)
-			mp->patchNum = (Byte)patch;
-#ifdef CARBON_NOTYET
-		mp->bankNumber0 = (Byte)bank0;
-		mp->bankNumber32 = (Byte)bank32;
-#endif
-		/* destinationMatch record sync'd to fmsOutputDevice by caller. */
 	}
 
 broken:
@@ -741,16 +591,8 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, INT1
 				DrawStaves();
 				ShowInit(&master);
 				FrameDefault(theDialog,OKBTN,TRUE);
-				if (useWhichMIDI==MIDIDR_OMS && omsOutputMenuH!=NULL) {
-					DrawOMSDeviceMenu(omsOutputMenuH);
-					TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-				}
-				else if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH!=NULL) {
+				if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH!=NULL) {
 					DrawPopUp(&cmOutputPopup);
-				}
-				else if (useWhichMIDI==MIDIDR_FMS) {
-					DrawFMSDeviceMenu(&deviceMenuBox, fmsDeviceID, fmsChannel);
-					DrawFMSPatchMenu(&patchMenuBox, fmsDeviceID, fmsChannel);
 				}
 				EndUpdate(GetDialogWindow(theDialog));
 				SetPort(oldPort);
@@ -767,31 +609,11 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, INT1
 			GetDialogItem (theDialog, CANCELBTN, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	break;
 
-			if (useWhichMIDI==MIDIDR_OMS && omsOutputMenuH!=NULL) {
-				if (TestOMSDeviceMenu(omsOutputMenuH, mouseLoc)) {
-					omsMenuItem = ClickOMSDeviceMenu(omsOutputMenuH);
-					TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-					break;
-				}
-			}
-			else if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH != NULL) {
+			if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH != NULL) {
 				if (PtInRect(mouseLoc, &deviceMenuBox)) {
 					if (ans = DoUserPopUp(&cmOutputPopup)) {
 						*itemHit = OMS_OUTPUT_MENU;
 					}
-					break;
-				}
-			}
-			else if (useWhichMIDI==MIDIDR_FMS) {
-				if (PtInRect(mouseLoc, &deviceMenuBox)) {
-					if (RunFMSDeviceMenu(&deviceMenuBox, &fmsDeviceID, &fmsChannel))
-						DrawFMSPatchMenu(&patchMenuBox, fmsDeviceID, fmsChannel);	/* update patch menu also */
-					*itemHit = FMS_OUTPUT_MENU;
-					break;
-				}
-				if (PtInRect(mouseLoc, &patchMenuBox)) {
-					RunFMSPatchMenu(&patchMenuBox, fmsDeviceID, fmsChannel);
-					*itemHit = FMS_PATCH_MENU;
 					break;
 				}
 			}
@@ -909,36 +731,12 @@ static void ShowLSelect(DialogPtr theDialog, INT16 cell)
 	master.patchNum = selectedInstr->patchNum;
 	master.velBalance = selectedInstr->velBalance;
 
-	if (useWhichMIDI==MIDIDR_OMS) {
-		if (!OMSChannelValid(master.device, (INT16)(master.channel))) {
-			master.channel = config.defaultOutputChannel;
-			master.device = config.defaultOutputDevice;
-		}
-	}
-
 	InitRange(&master);
 	
 	/* put new values and strings in the text boxes */
 	PutDlgWord(theDialog, CHANNEL_DI, master.channel, FALSE);
 	PutDlgWord(theDialog, PATCH_DI, master.patchNum, FALSE);
 	PutDlgWord(theDialog, V_BALANCE, master.velBalance, FALSE);
-
-	if (useWhichMIDI==MIDIDR_OMS && omsOutputMenuH!=NULL) {
-		GetIndString(deviceStr, MIDIPLAYERRS_STRS, 16);
-		SetOMSDeviceMenuSelection(omsOutputMenuH, 0, master.device, deviceStr, TRUE);
-	}
-	else if (useWhichMIDI==MIDIDR_FMS) {
-		fmsChannel = master.channel;
-		if (fmsSendPatchChange) {
-			/* This is the only way to get patch menu to show current patch. */
-			FMSMIDIOneProgram(fmsDeviceID, fmsChannel,
-						master.patchNum, NO_BANKSELECT, NO_BANKSELECT);
-			InvalWindowRect(GetDialogWindow(theDialog),&deviceMenuBox);
-			InvalWindowRect(GetDialogWindow(theDialog),&patchMenuBox);
-			//InvalRect(&deviceMenuBox);
-			//InvalRect(&patchMenuBox);
-		}
-	}
 
 	CToPString(strcpy((char *)theText, master.abbr));
 	PutDlgString(theDialog, INSTRABRV, theText, FALSE);
@@ -1530,25 +1328,7 @@ static Boolean GetInstr(rangeHandle rHdl, char *strPtr)
 		(*rHdl)->velBalance = (char)atoi(tmp_str);
 	else
 		return(FALSE);
-		
-	if (useWhichMIDI==MIDIDR_OMS) {
-		/* unique device ID */
-		if ((strPtr = strcut(tmp_str, strPtr, 5)) != NULL) {
-			(*rHdl)->device = (char)atoi(tmp_str);
-			if (!OMSChannelValid((*rHdl)->device, (INT16)((*rHdl)->channel))) {
-				(*rHdl)->channel = 0;
-				(*rHdl)->device = 0;
-				(*rHdl)->validDeviceChannel = 0;
-			}
-			else {
-				(*rHdl)->validDeviceChannel = 1;
-			}
-			(*rHdl)->changedDeviceChannel = 0;
-		}
-		else
-			return(FALSE);
-	}
-	
+			
 	return(TRUE);
 }
 
@@ -1711,15 +1491,11 @@ Boolean MpCheck(PARTINFO *p)
 {
 	short minPatchNum;
 
-	minPatchNum = (useWhichMIDI==MIDIDR_FMS)? 0 : 1;
+	minPatchNum = 1;
 
 	if (p!=NULL)
 	{
-		if (useWhichMIDI==MIDIDR_OMS && !OMSChannelValid(*origMPDevice , p->channel)) {
-			master.device = config.defaultOutputDevice;
-			master.channel = config.defaultOutputChannel;
-		}
-		else if (useWhichMIDI==MIDIDR_CM && !CMTransmitChannelValid(*origMPDevice , p->channel)) {
+		if (useWhichMIDI==MIDIDR_CM && !CMTransmitChannelValid(*origMPDevice , p->channel)) {
 			master.cmDevice = config.cmDefaultOutputDevice;
 			master.channel = config.cmDefaultOutputChannel;
 		}
@@ -1756,26 +1532,11 @@ Boolean MpCheck(PARTINFO *p)
 
 #define PM_ALLPARTS		17
 
-Boolean OMSPartMIDIDialog(Document *doc, PARTINFO *mp, OMSUniqueID *mpDevice)
-{
-	Boolean allParts;
-	
-	origMPDevice = (unsigned long *)mpDevice;
-	return PartMIDIDialog(doc, mp, &allParts);
-}
 
 Boolean CMPartMIDIDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice, Boolean *allParts)
 {
 	origMPDevice = (unsigned long *)mpDevice;
 	return PartMIDIDialog(doc, mp, allParts);
-}
-
-Boolean FMSPartMIDIDialog(Document *doc, PARTINFO *mp, fmsUniqueID *mpDevice)
-{
-	Boolean allParts;
-	
-	origMPDevice = (unsigned long *)mpDevice;		/* ??But we don't use this for FMS */
-	return PartMIDIDialog(doc, mp, &allParts);
 }
 
 Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
@@ -1794,19 +1555,6 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 	
 	GetPort(&oldPort);
 
-	if (useWhichMIDI==MIDIDR_OMS) {
-		filterUPP = NewModalFilterUPP(TheOMSPMFilter);
-		if (filterUPP == NULL) {
-			MissingDialog(OMS_PARTMIDI_DLOG);
-			return(0);
-		}
-		theDialog = GetNewDialog(OMS_PARTMIDI_DLOG, 0L, BRING_TO_FRONT);
-		if (!theDialog) {
-			DisposeModalFilterUPP(filterUPP);
-			MissingDialog(OMS_PARTMIDI_DLOG);
-			return(0);
-		}
-	}
 	if (useWhichMIDI==MIDIDR_CM) {
 		filterUPP = NewModalFilterUPP(TheCMPMFilter);
 		if (filterUPP == NULL) {
@@ -1817,19 +1565,6 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 		if (!theDialog) {
 			DisposeModalFilterUPP(filterUPP);
 			MissingDialog(OMS_PARTMIDI_DLOG);
-			return(0);
-		}
-	}
-	else if (useWhichMIDI==MIDIDR_FMS) {
-		filterUPP = NewModalFilterUPP(TheFMSPMFilter);
-		if (filterUPP == NULL) {
-			MissingDialog(FMS_PARTMIDI_DLOG);
-			return(0);
-		}
-		theDialog = GetNewDialog(FMS_PARTMIDI_DLOG, 0L, BRING_TO_FRONT);
-		if (!theDialog) {
-			DisposeModalFilterUPP(filterUPP);
-			MissingDialog(FMS_PARTMIDI_DLOG);
 			return(0);
 		}
 	}
@@ -1849,33 +1584,10 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 
 	SetPort(GetDialogWindowPort(theDialog));;
 
-	if (useWhichMIDI==MIDIDR_OMS) {
-		/* create the popup menu of available output devices */
-		GetDialogItem(theDialog, PM_DEVICE_OMS, &scratch, &hndl, &deviceMenuBox);
-		omsOutputMenuH = CreateOMSOutputMenu(&deviceMenuBox);
-	}
-	else if (useWhichMIDI==MIDIDR_CM) {
+	if (useWhichMIDI==MIDIDR_CM) {
 		/* create the popup menu of available output devices */
 		GetDialogItem(theDialog, PM_DEVICE_CM, &scratch, &hndl, &deviceMenuBox);
 		cmOutputMenuH = CreateCMOutputMenu(theDialog, &cmOutputPopup, &deviceMenuBox, NULL, PM_DEVICE_CM);
-	}
-	else if (useWhichMIDI==MIDIDR_FMS) {
-		GetDialogItem(theDialog, PM_DEVICE_FMS, &scratch, &hndl, &deviceMenuBox);
-		GetDialogItem(theDialog, PM_PATCH_FMS, &scratch, &hndl, &patchMenuBox);
-		fmsDeviceID = mp->fmsOutputDevice;
-		fmsChannel = mp->channel;
-		if (FMSCheckOutputDevice(&fmsDeviceID, &fmsChannel, FALSE)==deviceMatch) {
-			if (doc->polyTimbral && !doc->dontSendPatches) {
-				/* This is the only way to get patch menu to show current patch. */
-#ifdef CARBON_NOTYET
-				FMSMIDIOneProgram(mp->fmsOutputDevice, mp->channel,
-							mp->patchNum, mp->bankNumber0, mp->bankNumber32);
-#else
-				FMSMIDIOneProgram(mp->fmsOutputDevice, mp->channel,
-							mp->patchNum, 0, 0);
-#endif
-			}
-		}
 	}
 
 	if (MpCheck(mp)) {
@@ -1890,22 +1602,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 
 		/* set unique device ID for OMS.
 			See code in GetOMSPartPlayInfo for a similar situation.  -JGG, 7/23/00 */
-		if (useWhichMIDI == MIDIDR_OMS) {
-			/* Validate device / channel combination. */
-			if (OMSChannelValid(*origMPDevice, (INT16)(mp->channel)))
-				master.device = *origMPDevice;
-			else
-				master.device = config.defaultOutputDevice;
-			/* It's possible our device has changed, so validate again. */
-			if (OMSChannelValid(master.device, (INT16)(mp->channel)))
-				master.channel = mp->channel;
-			else
-				master.channel = config.defaultOutputChannel;
-
-			if ((master.channel != mp->channel) || master.device != *origMPDevice)
-				master.changedDeviceChannel = 1;
-		}
-		else if (useWhichMIDI == MIDIDR_CM) {
+		if (useWhichMIDI == MIDIDR_CM) {
 			/* Validate device / channel combination. */
 			if (CMTransmitChannelValid(*origMPDevice, (INT16)(mp->channel)))
 				master.cmDevice = *origMPDevice;
@@ -1928,11 +1625,6 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 		master = dfault;
 	}	
 	
-	/* stuff the edit text fields */
-	if (useWhichMIDI!=MIDIDR_FMS) {
-		PutDlgWord(theDialog, PM_PATCH, master.patchNum, FALSE);
-		PutDlgWord(theDialog, PM_CHANNEL, master.channel, FALSE);
-	}
 	PutDlgWord(theDialog, PM_V_BALANCE, master.velBalance, FALSE);
 
 	CToPString(strcpy((char *)str, master.abbr));
@@ -1941,13 +1633,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 	CToPString(strcpy((char *)str, master.name));
 	PutDlgString(theDialog, PM_INSTRNAME, str, TRUE);
 
-	if (useWhichMIDI==MIDIDR_OMS && omsOutputMenuH!=NULL) {
-		GetIndString(deviceStr, MIDIPLAYERRS_STRS, 16);
-		SetOMSDeviceMenuSelection(omsOutputMenuH, 0, master.device, deviceStr, TRUE);
-		DrawOMSDeviceMenu(omsOutputMenuH);
-		TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-	}
-	else if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH!=NULL) {
+	if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH!=NULL) {
 		GetIndString(deviceStr, MIDIPLAYERRS_STRS, 16);
 		short currChoice = GetCMDeviceIndex(master.cmDevice);
 
@@ -1963,9 +1649,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 	// 5_17r4: we are now using MIDIDR_CM and the selected text is the patch text, 
 	// not the channel
 	
-	if (useWhichMIDI==MIDIDR_FMS)
-		SelectDialogItemText(theDialog, PM_V_BALANCE, 0, ENDTEXT);
-	else if (useWhichMIDI==MIDIDR_CM)
+	if (useWhichMIDI==MIDIDR_CM)
 		SelectDialogItemText(theDialog, PM_PATCH, 0, ENDTEXT);
 	else
 		SelectDialogItemText(theDialog, PM_CHANNEL, 0, ENDTEXT);
@@ -1993,31 +1677,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 	
 			/* Copy modified channel, patch number, and velocity, if valid. If not, loop back. */
 
-			if (useWhichMIDI==MIDIDR_OMS) {
-				gotValue = GetDlgWord(theDialog, PM_CHANNEL, &val);
-#ifdef CARBON_NOTYET
-				master.device = (*omsOutputMenuH)->select.uniqueID;
-#else
-				master.device = 0;
-#endif
-				if ((gotValue && val != mp->channel) || master.device != *origMPDevice)
-					master.changedDeviceChannel = 1;
-				if (gotValue && OMSChannelValid(master.device, val)) {
-					*origMPDevice = master.device;
-					mp->channel = val;
-					master.validDeviceChannel = 1;
-				}
-				else {
-					GetIndCString(strBuf, INSTRERRS_STRS, 7);    /* "Channel number and device are inconsistant" */
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-					GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
-					HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
-					dialogOver = 0;
-					continue;										/* Loop back for correction */
-				}					
-			}
-			else if (useWhichMIDI==MIDIDR_CM) {
+			if (useWhichMIDI==MIDIDR_CM) {
 				gotValue = GetDlgWord(theDialog, PM_CHANNEL, &val);
 				master.cmDevice = GetCMOutputDeviceID();
 				if ((gotValue && val != mp->channel) || master.cmDevice != *origMPDevice)
@@ -2037,9 +1697,6 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 					continue;										/* Loop back for correction */
 				}					
 			}
-			else if (useWhichMIDI==MIDIDR_FMS) {
-				/* Nothing to do in this case, because fmsDeviceID and fmsChannel already updated. */
-			}
 			else {
 				gotValue = GetDlgWord(theDialog, PM_CHANNEL, &val);
 				if (gotValue && val > 0 && val <= MAXCHANNEL)
@@ -2056,22 +1713,6 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 				}
 			}
 			
-			if (useWhichMIDI!=MIDIDR_FMS) {
-				gotValue = GetDlgWord(theDialog, PM_PATCH, &val);
-				if (gotValue && val >= 1 && val <= MAXPATCHNUM)
-					mp->patchNum = val;
-				else {
-					GetIndCString(fmtStr, INSTRERRS_STRS, 5);    /* "Patch number must be between 1 and %d." */
-					sprintf(strBuf, fmtStr, MAXPATCHNUM); 
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-					GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
-					HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
-					dialogOver = 0;
-					continue;										/* Loop back for correction */
-				}
-			}
-
 			gotValue = GetDlgWord(theDialog, PM_V_BALANCE, &val);
 			if (gotValue && val >= -127 && val <= MAX_VELOCITY)
 				mp->partVelocity = val;
@@ -2111,22 +1752,6 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 				}					
 			}
 			
-			if (useWhichMIDI!=MIDIDR_FMS) {
-				gotValue = GetDlgWord(theDialog, PM_PATCH, &val);
-				if (gotValue && val >= 1 && val <= MAXPATCHNUM)
-					mp->patchNum = val;
-				else {
-					GetIndCString(fmtStr, INSTRERRS_STRS, 5);    /* "Patch number must be between 1 and %d." */
-					sprintf(strBuf, fmtStr, MAXPATCHNUM); 
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-					GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
-					HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
-					dialogOver = 0;
-					continue;												/* Loop back for correction */
-				}
-			}
-
 			gotValue = GetDlgWord(theDialog, PM_V_BALANCE, &val);
 			if (gotValue && val >= -127 && val <= MAX_VELOCITY)
 				mp->partVelocity = val;
@@ -2144,18 +1769,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 		}
 	}		/* while (dialogOver==0) */
 
-	if (useWhichMIDI==MIDIDR_OMS)
-	{
-		if (master.validDeviceChannel && master.changedDeviceChannel) {
-			/* Ask user if they want to save the entered device/channel/patch as default
-			 * for instrument, or... could add a new instrument type (need more flags
-			 * to know when this has happened).  If so, then pack up a new instrument
-			 * string and either insert/append a new instrument or overlay an existing one.
-			 */
-		}
-		DisposeOMSDeviceMenu(omsOutputMenuH);
-	}
-	else if (useWhichMIDI==MIDIDR_CM)
+	if (useWhichMIDI==MIDIDR_CM)
 	{
 		if (master.validDeviceChannel && master.changedDeviceChannel) {
 			/* Ask user if they want to save the entered device/channel/patch as default
@@ -2169,20 +1783,6 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 			cmVecDevices = NULL;
 		}
 		DisposePopUp(&cmOutputPopup);
-	}
-	else if (useWhichMIDI==MIDIDR_FMS) {
-		short patch, bank0, bank32;
-
-		GetFMSCurrentPatchInfo(fmsDeviceID, fmsChannel, &patch, &bank0, &bank32);
-		mp->fmsOutputDevice = fmsDeviceID;
-		mp->channel = (Byte)fmsChannel;
-		if (patch!=NO_PATCHNUM)
-			mp->patchNum = (Byte)patch;
-#ifdef CARBON_NOTYET
-		mp->bankNumber0 = (Byte)bank0;
-		mp->bankNumber32 = (Byte)bank32;
-#endif
-		/* destinationMatch record sync'd to fmsOutputDevice by caller. */
 	}
 
 broken:
@@ -2214,10 +1814,6 @@ pascal Boolean TheOMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 
 				UpdateDialogVisRgn(theDialog);			
 				FrameDefault(theDialog,OKBTN,TRUE);
 
-				if (useWhichMIDI==MIDIDR_OMS && omsOutputMenuH!=NULL) {
-					DrawOMSDeviceMenu(omsOutputMenuH);
-					TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-				}
 
 				EndUpdate(GetDialogWindow(theDialog));
 				SetPort(oldPort);
@@ -2233,14 +1829,6 @@ pascal Boolean TheOMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 
 			if (PtInRect(mouseLoc, &box))	break;
 			GetDialogItem(theDialog, CANCELBTN, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	break;
-
-			if (useWhichMIDI==MIDIDR_OMS && omsOutputMenuH!=NULL) {
-				if (TestOMSDeviceMenu(omsOutputMenuH, mouseLoc)) {
-					omsMenuItem = ClickOMSDeviceMenu(omsOutputMenuH);
-					TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-					break;
-				}
-			}
 
 		case autoKey:
 		case keyDown:
@@ -2315,69 +1903,6 @@ pascal Boolean TheCMPMFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *
 		
 	return(filterVal);
 }
-
-
-
-pascal Boolean TheFMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *itemHit)
-{		
-	GrafPtr		oldPort;
-	Point 		mouseLoc;
-	Boolean		filterVal = FALSE;
-	INT16			type;
-	Handle		hndl;
-	Rect			box;
-	
-	switch(theEvent->what)
-	{
-		case updateEvt:
-			if ((WindowPtr)theEvent->message == GetDialogWindow(theDialog)) {
-				GetPort(&oldPort); SetPort(GetDialogWindowPort(theDialog));
-				BeginUpdate(GetDialogWindow(theDialog));				
-				UpdateDialogVisRgn(theDialog);
-				FrameDefault(theDialog,OKBTN,TRUE);
-				DrawFMSDeviceMenu(&deviceMenuBox, fmsDeviceID, fmsChannel);
-				DrawFMSPatchMenu(&patchMenuBox, fmsDeviceID, fmsChannel);
-				EndUpdate(GetDialogWindow(theDialog));
-				SetPort(oldPort);
-			}
-			break;
-			
-		case mouseDown:
-			mouseLoc = theEvent->where;
-			GlobalToLocal(&mouseLoc);
-			
-			/* If we've hit the OK or Cancel button, bypass the rest of the control stuff below. */
-			GetDialogItem(theDialog, OKBTN, &type, &hndl, &box);
-			if (PtInRect(mouseLoc, &box))	break;
-			GetDialogItem(theDialog, CANCELBTN, &type, &hndl, &box);
-			if (PtInRect(mouseLoc, &box))	break;
-
-			if (PtInRect(mouseLoc, &deviceMenuBox)) {
-				if (RunFMSDeviceMenu(&deviceMenuBox, &fmsDeviceID, &fmsChannel))
-					DrawFMSPatchMenu(&patchMenuBox, fmsDeviceID, fmsChannel);	/* update patch menu also */
-				*itemHit = PM_DEVICE_FMS;
-				break;
-			}
-			if (PtInRect(mouseLoc, &patchMenuBox)) {
-				RunFMSPatchMenu(&patchMenuBox, fmsDeviceID, fmsChannel);
-				*itemHit = PM_PATCH_FMS;
-				break;
-			}
-			break;
-
-		case autoKey:
-		case keyDown:
-			if (DlgCmdKey(theDialog, theEvent, itemHit, FALSE))
-				return TRUE;
-			break;
-			
-		case activateEvt:
-			break;
-	}
-		
-	return filterVal;
-}
-
 
 /* --------------------------------------------------------- XLoadInstrDialogSeg -- */
 /* Null function to allow loading or unloading InstrDialog.c's segment. */

@@ -1042,12 +1042,6 @@ Boolean BuildDocument(
 			doc->currentSheet = 0;
 			doc->origin = doc->sheetOrigin;					/* Ignore position recorded in file */
 
-			if (useWhichMIDI==MIDIDR_FMS && doc!=clipboard) {
-				/* These won't pop any alerts. */
-				(void)FMSCheckPartDestinations(doc, TRUE);
-				doc->changed = FALSE;		/* because FMSCheckPartDestinations sets this */
-				FMSSetNewDocRecordDevice(doc);
-			}
 		}
 		else {														/* Finally READ THE FILE! */
 #ifdef USE_PROFILER
