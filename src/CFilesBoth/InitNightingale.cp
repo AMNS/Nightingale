@@ -42,9 +42,6 @@ void InitNightingale()
 
 	if (!config.fastLaunch)
 		if (!DoSplashScreen()) NExitToShell("Splash Screen");
-#ifdef COPY_PROTECT
-	if (!CopyProtectionOK(TRUE)) NExitToShell("Copy Protect");
-#endif
 	if (!InitAllCursors()) NExitToShell("Init All Cursors");
 	if (!InitNightGlobals()) NExitToShell("Init Night Globals");
 	MEInitCaretSystem();
@@ -115,8 +112,6 @@ static Boolean DoSplashScreen()
 	CenterWindow(GetDialogWindow(dlog), 65);
 	ShowWindow(GetDialogWindow(dlog));
 	UpdateDialogVisRgn(dlog);
-
-	if (!GetSN(serialStr)) return FALSE;				/* The serial no. must check but don't care what it is */
 
  #ifdef NO_SERIAL_NUM	/* not as much to read */
 	SleepTicksWaitButton(120L);							/* So user has time to read it */

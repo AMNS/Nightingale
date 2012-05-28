@@ -69,9 +69,6 @@ void DoCloseWindow(WindowPtr w)
 						pg = *paletteGlobals[TOOL_PALETTE];
 						palettesVisible[TOOL_PALETTE] = FALSE;
 						ChangeToolSize(pg->firstAcross,pg->firstDown,TRUE);
-#ifndef TARGET_API_MAC_CARBON
-						UnloadSeg(DrawToolMenu);
-#endif
 						break;
 					}
 			}
@@ -584,63 +581,9 @@ palettes. This version can handle, e.g., Radius FPD-equipped SE's. */
 
 void OurDragWindow(WindowPtr whichWindow)
 	{
-#ifdef CARBON_NOTYET
-		GrafPort *savePort, deskPort;
-		Rect dragLimit,*portBounds;
-		RgnHandle dragRgn;
-		long result;
-		Point move;
-		
-		if (WaitMouseUp()) {
-			GetPort(&savePort);
-			OpenPort(&deskPort);
-			CopyRgn(LMGetGrayRgn(), deskPort.visRgn);
-			deskPort.portRect = (*LMGetGrayRgn())->rgnBBox;
-			SetPort(&deskPort);
-			
-			SetClip(LMGetGrayRgn());
-			
-			/* Ensure the drag outline does not get drawn through the windows above whichWindow */
-			
-			dragLimit = (*LMGetGrayRgn())->rgnBBox;
-			
-			ClipAbove(whichWindow);
-			
-			CopyRgn(((WindowPeek)whichWindow)->strucRgn, dragRgn = NewRgn());
-			
-			/* Drag the outline of the window around the screen. */
-			result = DragGrayRgn(dragRgn, theEvent.where, &dragLimit, &dragLimit, noConstraint, NULL);
-			
-			move.h = result & 0xFFFF; /* LoWord(result) */
-			move.v = result >> 16; 		/* HiWord(result). */
-			
-			/* Note: CodeWarrior promotes the hex constant to long before comparing,
-				resulting in windows dragged into menubar disappearing.  -JGG */
-			if (move.v != (short)0x8000) {
-				/* The mouse button has been released inside dragLimit. */
-				/* See Inside Mac, Vol. I, pp. 294-295, for explanation of 0x8000. */
-				if (((CGrafPtr)whichWindow)->portVersion & 0xc000)
-					/* The window is a color port */
-					portBounds = &(*((CGrafPtr) whichWindow)->portPixMap)->bounds;
-				else
-					/* The window is an old-style port */
-					portBounds = &whichWindow->portBits.bounds;
-	
-				move.h += whichWindow->portRect.left - portBounds->left;
-				move.v += whichWindow->portRect.top - portBounds->top;
-				
-				MoveWindow(whichWindow, move.h, move.v, FALSE);
-				}
-			DisposeRgn(dragRgn);
-			
-			ClosePort(&deskPort);
-			SetPort(savePort);
-			}
-#else
 	Document *doc = GetDocumentFromWindow(whichWindow);
 	Rect portBounds = GetQDPortBounds();
 	DragWindow(whichWindow,theEvent.where,&portBounds);
-#endif
 	}
 
 

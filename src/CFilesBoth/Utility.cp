@@ -831,54 +831,7 @@ The GrafPort thus created should be disposed of with the DisposGrafPort function
 
 GrafPtr NewGrafPort(INT16 width, INT16 height)	/* required size of requested GrafPort */
 {
-#if CARBON_NOTYET
-	BitMap	aBitMap;			/* scratch bitmap */
-	QDPtr		imagePtr;		/* pointer to image memory area */
-	long		imageSize;		/* size of the image (in bytes) */
-	GrafPtr	oldPort,			/* original GrafPort saved here */
-				ourPort;			/* pointer to our GrafPort */
-	Rect		ourPortRect;	/* enclosing rectangle for our GrafPort */
 
-	GetPort(&oldPort);											/* remember original grafport */
-	
-	/* Create a bitmap large enough to hold a <width> by <height> bit image. */
-
-	aBitMap.rowBytes = 2*((width+15)/16);
-	imageSize = (long)aBitMap.rowBytes*height;
-	imagePtr = (QDPtr)NewPtr(imageSize);
-	if (!GoodNewPtr((Ptr)imagePtr)) {
-		OutOfMemory(imageSize);
-		return NULL;
-	}
-	aBitMap.baseAddr = (Ptr)imagePtr;
-	SetRect(&ourPortRect, 0, 0, width, height);
-	aBitMap.bounds = ourPortRect;
-	
-	/* We've got a bitmap; now set up a GrafPort that uses it. */
-
-	ourPort = (GrafPtr)NewPtr(sizeof(GrafPort));
-	if (!GoodNewPtr((Ptr)ourPort)) {
-		OutOfMemory((long)sizeof(GrafPort));
-		DisposePtr((Ptr)imagePtr);
-		return NULL;
-	}
-	OpenPort(ourPort);												/* init our GrafPort */
-	SetPort(ourPort);
-	SetPortBits(&aBitMap);											/* have it use our bitmap */
-	SetOrigin(0, 0);
-	PortSize(ourPortRect.right, ourPortRect.bottom);
-	RectRgn(ourPort->visRgn, &ourPortRect);
-	ClipRect(&ourPortRect);
-	
-	/*
-	 * At this point, the GrafPort is complete, but the bitmap contains garbage.
-	 * The easiest way to clear it is with EraseRect.
-	 */
-	EraseRect(&ourPortRect);
-	
-	SetPort(oldPort);													/* restore original GrafPort */
-	return ourPort;
-#else
 	GrafPtr	oldPort,
 				ourPort;
 	Rect		ourPortRect;	/* enclosing rectangle for our GrafPort */
@@ -895,7 +848,6 @@ GrafPtr NewGrafPort(INT16 width, INT16 height)	/* required size of requested Gra
 	
 	SetPort(oldPort);													/* restore original GrafPort */
 	return ourPort;
-#endif
 }
 
 
@@ -904,13 +856,7 @@ GrafPtr NewGrafPort(INT16 width, INT16 height)	/* required size of requested Gra
 
 void DisposGrafPort(GrafPtr aPort)
 {
-#if CARBON_NOTYET
-	DisposePtr(aPort->portBits.baseAddr);					/* toss the bitmap */
-	ClosePort(aPort);												/* toss the visRgn and clipRgn */
-	DisposePtr((Ptr)aPort);										/* toss the GrafPort */
-#else
 	DisposePort(aPort);
-#endif
 }
 
 
@@ -1508,9 +1454,6 @@ char *StdVerNumToStr(long verNum, char *verStr)
 
 /* ---------------------------------------------------------------- PlayResource -- */
 
-#if !TARGET_API_MAC_CARBON_MACHO
-//MAS #include <Sound.h>
-#endif
 
 /* Play a 'snd ' resource, as found in the given handle.  If sync is TRUE, play it
 synchronously here and return when it's done.  If sync is FALSE, start the sound
@@ -1560,146 +1503,3 @@ INT16 PlayResource(Handle snd, Boolean sync)
 			}
 		return(err);
 	}
-
-
-/* ---------------------------------------------------------------- TrapAvailable -- */
-/* Routines to determine whether a given trap is available on this machine, from the
-THINK Reference version of what appears in Inside Mac, Vol. VI, Chapter 3. The
-only tricky thing is the fact that the trap address might not even be defined if
-this is an early machine. */
-
-#ifndef TARGET_API_MAC_CARBON
-
-#include<Traps.h>
-#include<OSUtils.h>
-
-#define TRAP_MASK 0x0800
-
-static short NumToolboxTraps(void);
-static TrapType GetTrapType(short theTrap);
-
-static short NumToolboxTraps(void)
-{
-	if (NGetTrapAddress(_InitGraf, ToolTrap) ==
-		 NGetTrapAddress(0xAA6E, ToolTrap))
-		return(0x0200);
-	else
-		return(0x0400);
-}
-
-static TrapType GetTrapType(short theTrap)
-{
-	if ((theTrap & TRAP_MASK) > 0)
-		return(ToolTrap);
-	else
-		return(OSTrap);
-}
-
-Boolean TrapAvailable(short theTrap)
-{
-	TrapType	tType;
-
-	tType = GetTrapType(theTrap);
-	if (tType == ToolTrap) theTrap = theTrap & 0x07FF;
-	if (theTrap >= NumToolboxTraps()) theTrap = _Unimplemented;
-
-	return (NGetTrapAddress(theTrap, tType) !=
-			  NGetTrapAddress(_Unimplemented, ToolTrap));
-}
-
-#endif // TARGET_API_MAC_CARBON
-
-/* ----------------------------------------------------------------------- GetSN -- */ 
-/* Get the serial number of this copy of Nightingale; also compute its checksum and
-compare it to the value stored in a resource. If there's a problem (either bad
-resource or checksum error), give an error message and return FALSE: either case
-is serious and would be a good reason for aborting. NB: We use a very simple-minded
-method to compute the checksum (add the bytes of the binary number, then complement
-the result). It might not be hard for a hacker to figure this out. It'd be better to
-use a more sophisticated method, e.g., the method we use to encrypt the demo banner
-text. Cf. PrintBanner(). */
-
-#if 1
-/* As of v. 3.5, we no longer use this form of piracy protection, so just return TRUE. */
-
-Boolean GetSN(
-				char *serialStr)		/* the serial no. as a string */
-{
-	sprintf(serialStr, "9999");
-	return TRUE;
-}
-
-#else
-
-Boolean GetSN(
-				char *serialStr)		/* the serial no. as a string */
-{
-	Handle snRsrc, checksumRsrc;
-	unsigned long serialNum, checksum, storedChecksum;
-	Byte *p;
-	INT16 i;
-		
-#if defined(DEMO_VERSION) || defined(VIEWER_VERSION)
-	sprintf(serialStr, "9999");
-	return TRUE;
-#endif
-
-	/*
-	 * We should really be using Get1Resource, not GetResource. However, there's
-	 * very little chance of the wierd resources we're looking for being found
-	 * in another open resource file, so I doubt it makes any difference.
-	 */
-	snRsrc = GetResource('twst', 1000);
-	checksumRsrc = GetResource('gpxw', 1000);
-	if (!snRsrc || !checksumRsrc) {
-		GetIndCString(strBuf, MISCERRS_STRS, 21);   			 /* "Can't get or check the serial number..." */
-		CParamText(strBuf, "", "", ""); 
-		StopInform(GENERIC_ALRT);
-		return FALSE;
-	}
-	
-	LoadResource(snRsrc);											/* Just to be safe */
-	serialNum = *(unsigned long *)(*snRsrc);
-	p = (Byte *)&serialNum;
-	for (checksum = 0, i = 0; i<4; i++) {
-		checksum += *(p+i);
-	}
-
-	serialNum = ~serialNum;
-	while (serialNum>999999L) serialNum /= 10L;				/* Really only the top 6 digits */
-	sprintf(serialStr, "%ld", serialNum);
-
-	LoadResource(checksumRsrc);									/* Just to be safe */
-	storedChecksum = *(unsigned long *)(*checksumRsrc);
-#ifndef PUBLIC_VERSION
-	if (CapsLockKeyDown() && ShiftKeyDown() && ControlKeyDown()) /* For rare testing */
-#endif
-	if (checksum!=storedChecksum) {
-		CParamText(serialStr, "", "", "");
-		StopInform(SERIALNO_ALRT);
-		return FALSE;
-	}
-
-	return TRUE;
-}
-
-#endif
-
-#ifdef LIGHT_VERSION
-/* If doc exceeds max. pages allowed, inform the user and, if doc is undo-able,
-call DoUndo to restore it to its previous state (presumably before the page
-count was exceeded). Return TRUE if doc exceeded limit; FALSE if it didn't. */
-Boolean EnforcePageLimit(Document *doc)
-{
-	Boolean limitEnforced = FALSE;
-
-	if (doc->numSheets>MAXPAGES) {
-		if (doc->undo.canUndo)		/* We can be called from cmds like Open Notelist, that don't need undo here. */
-			DoUndo(doc);
-		DisableUndo(doc, FALSE);
-		StopInform(LIGHTVERS_MAXPAGES_ALRT);
-		limitEnforced = TRUE;
-	}
-	return limitEnforced;
-}
-#endif

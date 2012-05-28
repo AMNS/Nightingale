@@ -16,10 +16,6 @@ you should check that the extended Time Manager is available with something like
 		Gestalt(gestaltTimeMgrVersion, &gestaltAnswer);
 gestaltAnswer = 3 (gestaltExtendedTimeMgr) for the extended Time Manager. */
 
-// MAS we are targeting Mach-O
-//#if !TARGET_API_MAC_CARBON_MACHO
-//#include <Timer.h>
-//#endif
 // MAS include Carbon
 #include <Carbon/Carbon.h>
 // MAS

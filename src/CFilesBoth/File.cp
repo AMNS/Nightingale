@@ -871,10 +871,6 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 		partL = NextPARTINFOL(FirstSubLINK(doc->headL));
 		for ( ; partL; partL = NextPARTINFOL(partL)) {
 			pPart = GetPPARTINFO(partL);
-#ifdef CARBON_NOTYET_BANKNUM
-			pPart->bankNumber0 = NO_BANKSELECT;
-			pPart->bankNumber32 = NO_BANKSELECT;
-#endif
 			pPart->fmsOutputDevice = noUniqueID;
 			/* ??We're probably not supposed to play with these fields... */
 			pPart->fmsOutputDestination.basic.destinationType = 0,
@@ -884,10 +880,6 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 		partL = NextPARTINFOL(FirstSubLINK(doc->masterHeadL));
 		for ( ; partL; partL = NextPARTINFOL(partL)) {
 			pPart = GetPPARTINFO(partL);
-#ifdef CARBON_NOTYET_BANKNUM
-			pPart->bankNumber0 = NO_BANKSELECT;
-			pPart->bankNumber32 = NO_BANKSELECT;
-#endif
 			pPart->fmsOutputDevice = noUniqueID;
 			/* ??We're probably not supposed to play with these fields... */
 			pPart->fmsOutputDestination.basic.destinationType = 0,

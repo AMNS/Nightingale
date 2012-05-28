@@ -33,9 +33,6 @@ DEMO_ and VIEWER_ each require PUBLIC_, but DEMO_ and VIEWER_ are mutually exclu
 #error "LIGHT_VERSION and VIEWER_VERSION is illegal."
 #endif
 
-#define NoCOPY_PROTECT
-
-#define NoUSE_PROFILER
 
 #define JG_NOTELIST
 

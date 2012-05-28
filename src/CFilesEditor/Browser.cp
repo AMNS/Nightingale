@@ -830,10 +830,6 @@ void BrowseHeader(Document *doc, LINK pL, INT16 index)
 		sprintf(s, "patch=%d chan=%d name=%s",
 			q->patchNum, q->channel, q->name);
 		DrawLine(s);
-#ifdef CARBON_NOTYET_BANKNUM
-		sprintf(s, "bankNumber0=%d bankNumber32=%d",
-			q->bankNumber0, q->bankNumber32);
-#endif
 		DrawLine(s);
 		sprintf(s, "fmsOutputDevice=%d",
 			q->fmsOutputDevice);

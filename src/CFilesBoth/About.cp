@@ -47,7 +47,9 @@ static enum {
 
 
 /* Get information about this copy of Nightingale: its serial number and the
-name and organization of its owner. */
+name and organization of its owner. 
+ Ignore serial number for now --chirgwin Mon May 28 16:02:01 PDT 2012
+ */
 
 static Boolean GetSNAndOwner(char *serialStr, char *userName, char *userOrg)
 {
@@ -61,7 +63,7 @@ static Boolean GetSNAndOwner(char *serialStr, char *userName, char *userOrg)
 	GetIndCString(userName, 1000, 1);
 	GetIndCString(userOrg, 1000, 2);
 
-	return GetSN(serialStr);
+	return TRUE;
 }
 
 static GrafPtr	fullTextPort;
@@ -212,11 +214,7 @@ void DoAboutBox(
 		}
 	}
 	
-#if !TARGET_API_MAC_CARBON
-	DisposGrafPort(fullTextPort);
-#else
 	DestroyGWorld(fullTextPort);
-#endif
 	
 	HideWindow(GetDialogWindow(dlog));
 	//ZoomRect(&smallRect, &bigRect, FALSE);
@@ -294,70 +292,6 @@ Boolean SetupCredits()
 	}
 	textLen = GetResourceSizeOnDisk(creditText);
 	
-#if !TARGET_API_MAC_CARBON
-	/* Lock and dereference handle to text */
-	HLock(creditText);
-	textPtr = (char *) *creditText;
-		
-	/* How many lines in text? */
-	for (i=0, numLines=0; i<textLen; i++, textPtr++) {
-		if (*textPtr == CH_CR) numLines++;
-	}
-	textPtr = (char *) *creditText;						/* reset ptr */
-
-	/* Create offscreen port to hold formatted text */
-	portWid = creditRect.right - creditRect.left;					/* creditRect is static global declared above */
-	fullTextPort = NewGrafPort(portWid, numLines * CR_LEADING);
-	if (!fullTextPort) {
-		HUnlock(creditText);
-		ReleaseResource(creditText);
-		return FALSE;
-	}
-	GetPort(&oldPort);
-	SetPort(fullTextPort);
-	TextFont(textFontNum);
-	TextSize(textFontSmallSize);
-
-	/* Initialize pauseLines[], so that we won't pause inadvertantly
-		on a line whose number happens to be given by garbage. */
-	for (i=0; i<MAX_PAUSE_LINES; i++)
-		pauseLines[i] = -1;
-	
-	/* Break text into lines, draw them into offscreen port, interpreting
-		the codes that might begin a line.
-		NB: the pause code must precede the bold code if both are used in
-		the same line.  After the first MAX_PAUSE_LINES pause codes have been
-		interpreted, any following ones are ignored. */
-	thisStr = strP = textPtr;
-	for (i=0, lineNum=1, pauseLineCount=0; i<textLen; i++) {
-		if (*textPtr == CH_CR) {
-			*strP = '\0';													/* this string complete */
-			/* Parse next line for codes */
-			if (*thisStr==PAUSE_CODE) {
-				if (pauseLineCount<=MAX_PAUSE_LINES)
-					pauseLines[pauseLineCount++] = lineNum;		/* put this line number in array of lines to pause on */
-				thisStr++;
-			}
-			if (*thisStr==BOLD_CODE) {
-				TextFace(bold);											/* style is bold */
-				thisStr++;
-			}
-			else TextFace(0);												/* style is plain */
-			strWid = TextWidth(thisStr, 0, strlen(thisStr));	/* compute position for centered text */
-			offset = (portWid - strWid) / 2;
-			MoveTo(offset, lineNum * CR_LEADING);					/* draw text */
-			DrawText(thisStr, 0, strlen(thisStr));
-			lineNum++;														/* advance line number */
-			thisStr = strP = ++textPtr;
-		}
-		else *strP++ = *textPtr++;
-	}
-
-	HUnlock(creditText);
-	ReleaseResource(creditText);
-	SetPort(oldPort);
-	
-#else
 	/* Lock and dereference handle to text */
 	HLock(creditText);
 	textPtr = (char *) *creditText;
@@ -421,7 +355,6 @@ Boolean SetupCredits()
 	
 	HUnlock(creditText);
 	ReleaseResource(creditText);	
-#endif
 	
 	return TRUE;
 }

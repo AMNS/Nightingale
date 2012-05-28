@@ -69,30 +69,6 @@ PushLock(DYNAMheap);
 
 #ifdef USE_BITMAP
 
-#ifdef USE_GRAFPORT
-	dynamPort = NewGrafPort(oldObjRect.right-oldObjRect.left, oldObjRect.bottom-oldObjRect.top);
-	if (dynamPort==NULL)
-		return;
-
-	GetPort(&scrnPort);
-	fontID = GetPortTxFont();
-	SetPort(dynamPort);
-	TextFont(fontID);
-
-	/* Fiddle with bitmap coordinate system so that DrawGRAPHIC will draw into our tiny rect. */
-	grPortOrigin = TOP_LEFT(oldObjRect);
-	Pt2Window(doc, &grPortOrigin);
-	SetOrigin(grPortOrigin.h, grPortOrigin.v);
-	GetPortBounds(dynamPort,&bounds);
-	ClipRect(&bounds);
-
-	DrawDYNAMIC(doc, dynamL, context, TRUE);			/* draw dynamic into bitmap */
-
-	SetPort(scrnPort);
-
-	destRect = oldObjRect;
-	Rect2Window(doc, &destRect);
-#else
 	GetPort(&scrnPort);
 	fontID = GetPortTxFont();
 	
@@ -118,7 +94,6 @@ PushLock(DYNAMheap);
 	
 	destRect = oldObjRect;
 	Rect2Window(doc, &destRect);
-#endif // USE_GRAFPORT
 
 #else
 	TextMode(srcXor);
@@ -239,13 +214,7 @@ PushLock(DYNAMheap);
 	EraseAndInval(&newObjRect);					/* must do this even if no change, to keep hiliting in sync */
 
 #ifdef USE_BITMAP
-
-#ifdef USE_GRAFPORT
-	DisposGrafPort(dynamPort);
-#else
 	DestroyGWorld(gwPtr);
-#endif // USE_GRAFPORT
-
 #endif
 
 	MEHideCaret(doc);

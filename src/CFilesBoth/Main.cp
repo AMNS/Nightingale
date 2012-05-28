@@ -40,9 +40,6 @@
 #define MAIN                    /* Global variables will be allocated here */
 #include "Nightingale.appl.h"
 
-#ifdef USE_PROFILER
-#include <profiler.h>
-#endif
 
 static void		FileStartup(void);
 
@@ -55,27 +52,13 @@ int main()
 		if (CapsLockKeyDown() && ShiftKeyDown() && OptionKeyDown())
 			DebugStr("\pBREAK AT MAIN");
 #endif
-#ifdef USE_PROFILER
-		if (ProfilerInit(collectDetailed, bestTimeBase,
-						/*numfuncs*/ 500, /*stackdepth*/ 20) != noErr)
-			return 0;
-		ProfilerSetStatus(FALSE);	/* Turn it off until later */
-#endif
 		Initialize();
-#ifndef TARGET_API_MAC_CARBON
-		UnloadSeg(&Initialize);		/* Reclaim space, since it won't be called again */
-#endif
 		FileStartup();
 		
 		while (DoEvent()) ;			/* Life until event-ual death */
 
 		Finalize();
 
-#ifdef USE_PROFILER
-		if (ProfilerDump("\pniteprofile") != noErr)
-			SysBeep(20);
-		ProfilerTerm();
-#endif
 		return 0;
 }
 

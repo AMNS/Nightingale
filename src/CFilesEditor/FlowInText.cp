@@ -876,14 +876,6 @@ static void FlowInTextObjects(Document	*doc, INT16 theFont, TEXTSTYLE theStyle)
 				FlowDrawMsgBox(doc);				/* DoUpdate may have overwritten msg box */
 				break;
 			case diskEvt:
-#ifndef TARGET_API_MAC_CARBON_FILEIO
-				if (result = HiWord(evt.message)) {
-					SetPt(&corner, 112, 80);
-						/* NB: Can dialog box be centered? There doesn't appear to be a DLOG */
-						/* resource for this one. Location (112,80) is the value used by Finder 6.1. */
-					result = DIBadMount(corner, evt.message);
-				}
-#endif
 				break;
 			case app4Evt:
 				DoSuspendResume(&evt);

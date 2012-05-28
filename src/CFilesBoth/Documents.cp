@@ -644,11 +644,7 @@ Boolean DoSaveDocument(register Document *doc)
 		if (doc->docNew || doc->readOnly) return(DoSaveAs(doc));
 		
 		err = SaveFile(doc, FALSE);
-#ifndef TARGET_API_MAC_CARBON_FILEIO
-#ifndef USE_PROFILER
-		UnloadSeg(SaveFile);
-#endif		
-#endif		
+
 		if (err!=CANCEL_INT) {
 			HSetVol(NULL,doc->vrefnum,0);
 		
@@ -707,11 +703,6 @@ Boolean DoSaveAs(register Document *doc)
 			  err = CANCEL_INT;
 			  }
 
-#ifndef TARGET_API_MAC_CARBON
-#ifndef USE_PROFILER
-			UnloadSeg(SaveFile);
-#endif
-#endif
 			if (keepGoing = err!=CANCEL_INT) {
 				doc->changed = FALSE;
 				doc->named = TRUE;
@@ -1050,21 +1041,9 @@ Boolean BuildDocument(
 			}
 		}
 		else {														/* Finally READ THE FILE! */
-#ifdef USE_PROFILER
-#include <profiler.h>
-ProfilerSetStatus(TRUE);
-#endif
 			if (OpenFile(doc,(unsigned char *)fileName,vRefNum,pfsSpec,fileVersion)!=noErr) {
 				return FALSE;
 				}
-#ifdef USE_PROFILER
-ProfilerSetStatus(FALSE);
-#endif
-#ifndef TARGET_API_MAC_CARBON
-#ifndef USE_PROFILER
-			UnloadSeg(OpenFile);
-#endif
-#endif
 			doc->firstSheet = 0 /* Or whatever; may be document specific */;
 			doc->currentSheet = 0;
 			doc->lastGlobalFont = 4;							/* Default is Regular1 */

@@ -49,16 +49,6 @@ void InitToolbox()
 #else
 #if TARGET_API_MAC_CARBON
 	FlushEvents(everyEvent, 0);		// ?? DO WE NEED THIS?
-#else
-	/* Initialize the usual suspects */
-	
-	InitGraf(&qd.thePort);
-	InitFonts();
-	InitWindows();
-	InitMenus();
-	InitDialogs(NULL);
-	TEInit();
-	FlushEvents(everyEvent, 0);
 #endif
 #endif
 }
@@ -75,15 +65,6 @@ void Initialize()
 	Str63 dummyVolName;
 	
 	InitToolbox();
-
-#ifndef TARGET_API_MAC_CARBON	
-
-	oldEventMask = LMGetSysEvtMask();
-#ifdef WANT_KEY_UPS
-	SetEventMask(oldEventMask|keyUpMask);
-#endif
-
-#endif
 
 	/* Store away resource file and volume refNum and dir ID of Nightingale appl. */
 
@@ -1013,11 +994,7 @@ static Boolean NInitFloatingWindows()
 					break;
 				}
 
-#if 0 // def CARBON_NOMORE
-			wdefID = (16 * wdefID) + noGrowDocProc;
-#else
 			wdefID = floatGrowProc;
-#endif
 			
 			if (thisMac.hasColorQD)
 				palettes[index] = (WindowPtr)NewCWindow(NULL,

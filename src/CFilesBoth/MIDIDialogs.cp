@@ -1828,10 +1828,6 @@ Boolean MIDIModifierDialog(Document */*doc*/)
 /* Setup dialog for MIDI Pascal for Macintosh. Should also be useful for similar
 simple MIDI drivers. Returns TRUE if OK'd, FALSE if Cancelled or there's a problem. */
 
-#if !TARGET_API_MAC_CARBON_MACHO
-//#include <Power.h>
-//#include <Traps.h>
-#endif
 
 #include "MIDIPASCAL3.h"
 
@@ -1904,13 +1900,6 @@ Boolean MIDIDriverDialog(
 		default:					;
 	}
 	PutDlgChkRadio(dlog, group2, TRUE);
-
-#if !TARGET_API_MAC_CARBON_MACHO
-//	if (!TrapAvailable(_SerialPower)) {
-//		GetDialogItem(dlog,MIDI_WAKEPORTS, &itemtype, &onHdl, &box);
-//		HiliteControl((ControlHandle)onHdl, CTL_INACTIVE);
-//	}
-#endif
 
 	CenterWindow(GetDialogWindow(dlog), 70);
 	ShowWindow(GetDialogWindow(dlog));

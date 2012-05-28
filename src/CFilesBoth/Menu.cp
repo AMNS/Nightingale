@@ -190,10 +190,6 @@ static void DoAppleMenu(INT16 choice)
 				UseResFile(appRFRefNum);				/* a precaution */
 				break;
 			default:
-#ifndef TARGET_API_MAC_CARBON
-				GetMenuItemText(appleMenu,choice,accName);
-				OpenDeskAcc(accName);
-#endif
 				break;
 			}
 	}
@@ -340,9 +336,6 @@ Boolean DoFileMenu(INT16 choice)
 					fsSpec = nscd.nsFSSpec;
 					ImportMIDIFile(&fsSpec);
 				}
-#ifndef TARGET_API_MAC_CARBON
-				UnloadSeg(ImportMIDIFile);
-#endif
 				break;
 			case FM_Export:
 				if (doc) SaveMIDIFile(doc);
@@ -386,9 +379,6 @@ Boolean DoFileMenu(INT16 choice)
 
 			case FM_SheetSetup:
 				if (doc) DoSheetSetup(doc);
-#ifndef TARGET_API_MAC_CARBON
-				UnloadSeg(DoSheetSetup);
-#endif
 				break;
 #ifndef VIEWER_VERSION
 			case FM_PageSetup:
@@ -403,9 +393,6 @@ Boolean DoFileMenu(INT16 choice)
 #else
 				if (doc) DoPageSetup(doc);
 #endif
-#ifndef TARGET_API_MAC_CARBON
-				UnloadSeg(DoPageSetup);
-#endif
 				break;
 			case FM_Print:
 #if TARGET_API_MAC_CARBON
@@ -413,18 +400,12 @@ Boolean DoFileMenu(INT16 choice)
 #else
 				if (doc) DoPrintScore(doc);
 #endif
-#ifndef TARGET_API_MAC_CARBON
-				UnloadSeg(DoPrintScore);
-#endif
 				break;
 			case FM_SaveEPSF:
 #if TARGET_API_MAC_CARBON
 				if (doc) NDoPostScript(doc);
 #else
 				if (doc) DoPostScript(doc);
-#endif
-#ifndef TARGET_API_MAC_CARBON
-				UnloadSeg(DoPostScript);
 #endif
 				break;
 			case FM_SaveText:
@@ -531,15 +512,9 @@ DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);
 				break;
 			case EM_GetInfo:
 				InfoDialog(doc);
-#ifndef TARGET_API_MAC_CARBON
-				UnloadSeg(InfoDialog);
-#endif
 				break;
 			case EM_ModifierInfo:
 				ModNRDialog(doc);
-#ifndef TARGET_API_MAC_CARBON
-				UnloadSeg(InfoDialog);
-#endif
 				break;
 			case EM_Set:
 				DoSet(doc);
@@ -668,23 +643,14 @@ static void DoTestMenu(INT16 choice)
 						Browser(doc,doc->undo.headL, doc->undo.tailL);
 					else
 						Browser(doc,doc->headL, doc->tailL);
-#ifndef TARGET_API_MAC_CARBON
-					UnloadSeg(Browser);
-#endif
 					}
 				break;
 			case TS_HeapBrowser:
 				HeapBrowser();
-#ifndef TARGET_API_MAC_CARBON
-				UnloadSeg(HeapBrowser);
-#endif
 				break;
 			case TS_Context:
 				if (doc) {
 					ShowContext(doc);
-#ifndef TARGET_API_MAC_CARBON
-					UnloadSeg(ShowContext);
-#endif
 					}
 				break;
 			case TS_ClickErase:
@@ -999,9 +965,6 @@ void DoGroupsMenu(INT16 choice)
 		switch(choice) {
 			case GM_AutomaticBeam:
 				DoAutoBeam(doc);
-#ifndef TARGET_API_MAC_CARBON
-				UnloadSeg(DoAutoBeam);
-#endif
 				break;
 			case GM_Beam:
 				if (cmdIsBeam) DoBeam(doc);
@@ -1017,18 +980,12 @@ void DoGroupsMenu(INT16 choice)
 				if (cmdIsTuplet) {
 					tParam.isFancy = FALSE;
 					DoTuple(doc, &tParam);
-#ifndef TARGET_API_MAC_CARBON
-					UnloadSeg(DoTuple);
-#endif
 #ifdef CURE_MACKEYS_DISEASE
 					DCheckNEntries(doc);
 #endif
 					}
 				else {
 					DoUntuple(doc);
-#ifndef TARGET_API_MAC_CARBON
-					UnloadSeg(DoUntuple);
-#endif
 #ifdef CURE_MACKEYS_DISEASE
 					DCheckNEntries(doc);
 #endif
@@ -1047,15 +1004,9 @@ void DoGroupsMenu(INT16 choice)
 			case GM_Octava:
 				if (cmdIsOctava) {
 					DoOctava(doc);
-#ifndef TARGET_API_MAC_CARBON
-					UnloadSeg(DoOctava);
-#endif
 				}
 				else {
 					DoRemoveOctava(doc);
-#ifndef TARGET_API_MAC_CARBON
-					UnloadSeg(DoRemoveOctava);
-#endif
 				}
 				break;
 			default:
@@ -1433,9 +1384,6 @@ void DoPlayRecMenu(INT16 choice)
 			default:
 				break;
 			}
-#ifndef TARGET_API_MAC_CARBON
-		UnloadSeg(PlayEntire);			/* MIDIGeneral.c segment should contain all of the above */
-#endif
 	}
 
 #ifdef VIEWER_VERSION
@@ -1633,9 +1581,6 @@ void FMPreferences(Document *doc)
 		static INT16 section=1;			/* Initially show General preferences */
 		
 		PrefsDialog(doc, doc->used, &section);
-#ifndef TARGET_API_MAC_CARBON
-		UnloadSeg(PrefsDialog);
-#endif
 		FillSpaceMap(doc, doc->spaceTable);
 	}
 

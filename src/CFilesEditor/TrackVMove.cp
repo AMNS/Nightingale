@@ -191,14 +191,6 @@ Boolean AltInsTrackPitch(
 	OffsetRect(&accBox,context.paper.left,context.paper.top);
 	SetRect(&saveBox, 0, 0, accBox.right-accBox.left, accBox.bottom-accBox.top);
 
-#ifdef USE_GRAFPORT
-	savePort = NewGrafPort(saveBox.right+1, saveBox.bottom+1);
-
-	ourPortBits = GetPortBitMapForCopyBits(ourPort);
-	savePortBits = GetPortBitMapForCopyBits(savePort);
-	CopyBits(ourPortBits,savePortBits, &accBox, &saveBox, srcCopy, NULL);
-	
-#else
 	SaveGWorld();
 	
 	gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, TRUE);
@@ -209,7 +201,6 @@ Boolean AltInsTrackPitch(
 	CopyBits(ourPortBits,savePortBits, &accBox, &saveBox, srcCopy, NULL);
 	
 	RestoreGWorld();
-#endif // USE_GRAFPORT
 
 //	CopyBits(&ourPort->portBits, &savePort->portBits,
 //				&accBox, &saveBox, srcCopy, NULL);
@@ -455,11 +446,7 @@ Boolean AltInsTrackPitch(
 						
 //	CopyBits(&savePort->portBits, &ourPort->portBits,
 //				&saveBox, &accBox, srcCopy, NULL);
-#ifdef USE_GRAFPORT
-	DisposGrafPort(savePort);										/* done with this */
-#else
 	DestroyGWorld(gwPtr);
-#endif // USE_GRAFPORT
 
 	if (accMode==CHROMATIC_MODE) ShowCursor();
 	
@@ -896,14 +883,6 @@ Boolean InsTrackPitch(
 	/* Convert accBox to window coordinates */
 	OffsetRect(&accBox,context.paper.left,context.paper.top);
 	SetRect(&saveBox, 0, 0, accBox.right-accBox.left, accBox.bottom-accBox.top);
-#ifdef USE_GRAFPORT
-	savePort = NewGrafPort(saveBox.right+1, saveBox.bottom+1);
-	
-	savePortBits = GetPortBitMapForCopyBits(savePort);
-	thePortBits = GetPortBitMapForCopyBits(GetQDGlobalsThePort());
-	CopyBits(thePortBits,savePortBits, &accBox, &saveBox, srcCopy, NULL);
-
-#else
 	SaveGWorld();
 	
 	gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, TRUE);
@@ -914,7 +893,6 @@ Boolean InsTrackPitch(
 	CopyBits(thePortBits,savePortBits, &accBox, &saveBox, srcCopy, NULL);
 	
 	RestoreGWorld();
-#endif // USE_GRAFPORT
 
 //	CopyBits(&qd.thePort->portBits, &savePort->portBits,
 //			 &accBox, &saveBox, srcCopy, NULL);
@@ -1047,11 +1025,7 @@ Boolean InsTrackPitch(
 
 //	CopyBits(&savePort->portBits, &ourPort->portBits,
 //				&saveBox, &accBox, srcCopy, NULL);
-#ifdef USE_GRAFPORT
-	DisposGrafPort(savePort);										/* done with this */
-#else
 	DestroyGWorld(gwPtr);
-#endif // USE_GRAFPORT
 
 	if (outOfBounds) {
 		*pHalfLn = halfLnOrig;

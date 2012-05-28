@@ -45,29 +45,6 @@ static Boolean printOnly;
 static ControlActionUPP	actionUPP = NULL;
 
 
-/* Try (but not very hard) to mark as much space as possible as purgeable. */
-
-static void UnloadSomeSegs()
-	{
-#ifdef USE_PROFILER
-		return;
-#else
-
-#ifndef TARGET_API_MAC_CARBON
-#ifndef VIEWER_VERSION
-		UnloadSeg(InstrDialog);
-		UnloadSeg(TransposeDialog);
-		UnloadSeg(InfoDialog);
-		UnloadSeg(TextDialog);
-#endif
-#ifndef PUBLIC_VERSION
-		UnloadSeg(Browser);
-		UnloadSeg(DoDebug);
-#endif
-#endif
-#endif
-	}
-
 /* Handle each event as it arrives from the event queue.  Check available memory every
 so often on NULL events.  Also maintain the cursor and try to purge all segments. */
 
@@ -81,8 +58,6 @@ Boolean DoEvent()
 		static INT16 fixCount = 1;
 		Point corner;
 		static long checkMemTime=BIGNUM, checkDSTime=BIGNUM;
-		
-		UnloadSomeSegs();
 
 		if (hasWaitNextEvent) {
 			soon = (config.mShakeThresh ? 0 : 8);
@@ -134,9 +109,6 @@ Boolean DoEvent()
 						 *	the location used by Finder 6.1.
 						 */
 						SetPt(&corner, 112, 80);
-#ifndef TARGET_API_MAC_CARBON_FILEIO
-						result = DIBadMount(corner, theEvent.message);
-#endif
 						}
         	    	break;
         	    case app4Evt:
@@ -726,13 +698,6 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 						}
 #endif
 						
-#ifndef TARGET_API_MAC_CARBON
-#ifndef VIEWER_VERSION
-#ifndef USE_PROFILER
-					UnloadSeg(DoEditMaster);
-#endif
-#endif
-#endif
 					}
 				}
 			 else {
@@ -941,12 +906,6 @@ pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, /*u
 			}
 
 		AEDisposeDesc(&docList);
-#ifndef TARGET_API_MAC_CARBON
-#ifndef USE_PROFILER
-		if (printOnly)
-			UnloadSeg(&DoPrintScore);
-#endif
-#endif
 		return(err);
 	}
 

@@ -2336,74 +2336,7 @@ separate strings for the keys that have different enabling conditions. */
 
 Boolean DrawCheckInterrupt(Document */*doc*/)
 	{
-#ifdef CARBON_NOTYET
-		EvQElPtr evt,tail; unsigned char ch;
-		
-		evt = (EvQElPtr)(LMGetEventQueue()->qHead);			/* First event in queue */
-		tail = (EvQElPtr)(LMGetEventQueue()->qTail);			/* Last event in queue */
-		
-		/*
-		 *	If an event is posted now, it will be appended in a new link
-		 *	beyond where tail now points (since tail is only a local copy here).
-		 *	So we won't reach it here until we are called next time.
-		 *	Note that no event can be taken out of queue while we're in
-		 *	the scan loop, so we won't have a link pulled out from under us.
-		 *	The test for being at the end of the queue is done by comparing
-		 *	with tail, not by testing for NULL, since the Toolbox may or may not
-		 *	keep extra information beyond tail in the list (not likely, but if
-		 *	it's not documented, better to be on the safe side).
-		 */
-		
-		while (evt) {
-			if (evt->evtQWhat==keyDown && (evt->evtQModifiers&cmdKey)!=0) {
-				ch = (unsigned char) (evt->evtQMessage & charCodeMask);
-				switch (ch) {
-					case '[':
-							if (ENABLE_REDUCE(doc)) return TRUE;
-							break;
-					case ']':
-							if (ENABLE_ENLARGE(doc)) return TRUE;
-							break;
-					case 'G':
-					case 'g':
-							if (ENABLE_GOTO(doc)) return TRUE;
-							break;
-					case 'L':
-					case 'l':
-					case 'N':
-					case 'n':
-					case '0':		/* Zero, not 'Oh' */
-					case 'o':
-					case 'O':
-					case ';':
-					case 'W':
-					case 'w':
-					/*
-					 * The following chars. have their top bit on, which gets extended,
-					 * so we have to mask it off--yeech.
-					 */
-					case ('¼' & 0xFF):		/* Option-0 */
-					case ('Á' & 0xFF):		/* Option-1 */
-					case ('ª' & 0xFF):		/* Option-2 */
-					case ('£' & 0xFF):		/* Option-3 */
-					case ('¢' & 0xFF):		/* Option-4 */
-					case ('°' & 0xFF):		/* Option-5 */
-					case ('¤' & 0xFF):		/* Option-6 */
-					case ('¦' & 0xFF):		/* Option-7 */
-					case ('¥' & 0xFF):		/* Option-8 */
-					case ('»' & 0xFF):		/* Option-9 */
-						return TRUE;
-
-					case '.':											/* For "power users", cmd-. just interrupts */
-						if (config.powerUser) return TRUE;
-					}
-				}
-			evt = (evt==tail) ? NULL : (EvQElPtr)(evt->qLink);
-			}
-		return(FALSE);
-#else
 		return FALSE;
-#endif
 	}
 
 

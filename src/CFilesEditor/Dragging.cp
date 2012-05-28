@@ -1911,14 +1911,6 @@ static Boolean SymDragLoop(
 				accy += doc->currentPaper.top;
 				SetRect(&saveBox, 0, 0, accBox.right-accBox.left,
 						accBox.bottom-accBox.top);
-#ifdef USE_GRAFPORT
-				accPort = NewGrafPort(saveBox.right+1, saveBox.bottom+1);
-				if (!accPort) goto broken;
-
-				wPortBits = GetPortBitMapForCopyBits(GetWindowPort(w));
-				accPortBits = GetPortBitMapForCopyBits(accPort);
-				CopyBits(wPortBits, accPortBits, &accBox, &saveBox, srcCopy, NULL);
-#else
 				SaveGWorld();
 				
 				gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, TRUE);
@@ -1930,7 +1922,6 @@ static Boolean SymDragLoop(
 				CopyBits(wPortBits, accPortBits, &accBox, &saveBox, srcCopy, NULL);
 				
 				RestoreGWorld();
-#endif // USE_GRAFPORT
 
 //				CopyBits(&w->portBits, &(accPort->portBits),
 //						 &accBox, &saveBox, srcCopy, NULL);
@@ -1986,14 +1977,6 @@ static Boolean SymDragLoop(
 			SetRect(&saveBox, 0, 0, accBox.right-accBox.left,
 					accBox.bottom-accBox.top);
 					
-#ifdef USE_GRAFPORT
-			accPort = NewGrafPort(saveBox.right+1, saveBox.bottom+1);
-			if (!accPort) goto broken;
-
-			wPortBits = GetPortBitMapForCopyBits(GetWindowPort(w));
-			accPortBits = GetPortBitMapForCopyBits(accPort);
-			CopyBits(wPortBits, accPortBits, &accBox, &saveBox, srcCopy, NULL);
-#else
 			SaveGWorld();
 			
 			gwPtr = MakeGWorld(saveBox.right+1, saveBox.bottom+1, TRUE);
@@ -2005,7 +1988,6 @@ static Boolean SymDragLoop(
 			CopyBits(wPortBits, accPortBits, &accBox, &saveBox, srcCopy, NULL);
 			
 			RestoreGWorld();
-#endif // USE_GRAFPORT
 
 //			CopyBits(&w->portBits, &(accPort->portBits),
 //					 &accBox, &saveBox, srcCopy, NULL);
@@ -2407,25 +2389,15 @@ setAccDone:
 	
 	SDCleanUp(doc, oldPort, spaceFactor, pL, TRUE, xdDiff, ydDiff);
 	
-#ifdef USE_GRAFPORT
-	if (accPort != NULL)
-		DisposGrafPort(accPort);
-#else
 	if (gwPtr != NULL)
 		DestroyGWorld(gwPtr);
-#endif // USE_GRAFPORT
 	return TRUE;
 	
 broken:	
 	SDCleanUp(doc, oldPort, spaceFactor, pL, FALSE, 0, 0);
 	
-#ifdef USE_GRAFPORT
-	if (accPort != NULL)
-		DisposGrafPort(accPort);
-#else
 	if (gwPtr != NULL)
 		DestroyGWorld(gwPtr);
-#endif // USE_GRAFPORT
 	return FALSE;
 
 noteDragDone:
