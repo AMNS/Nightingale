@@ -42,7 +42,6 @@ struct BeamCounter {
 };
 
 struct BeamCounter *beamCounterPtr;
-extern struct QNote QLast;
 Byte UserBeamBreaksAt[32];						/* initialized but unused so far */
 Byte CurrentBeamCondition = CROSSRESTS;
 
@@ -59,7 +58,7 @@ static void DoNextBeamState(Document *doc, LINK pL, INT16 voice, Byte nextBeamSt
 
 
 /* begin: moved here from old OpcodeUtils.c by chirgwin Mon May 28 07:17:18 PDT 2012 
- TODO: remove these two functions
+ TODO: remove this function or at least find it a better home
  */
   
  /* Given a one-byte value, a starting address, and a length, fill memory with the value. */
@@ -71,71 +70,6 @@ void FillMem(Byte value, void *loc, DoubleWord len)
 
 	while (--slen >= 0L) *ptr++ = value;
 }
-
-
-/*		EventTimEX  Off-Next-   LastNote Measure128  denompH              Velocity
-  										                   	  IthTuple    type								RV
-  														      					 num	          MIDInote 								Spare
-  														      					    denom         		Channel*/
-struct QNote QFirst
-		=          {0, 0, &QLast, &QFirst, 0, 0, 2, 1, 0, 0xff, 0xff, 0xff, 0x40, 0x40, 0xff};
-struct QNote QLast
-		= {0x3fffffff, 0, &QLast, &QFirst, 0, 0, 2, 1, 0, 0xff, 0xff, 0xff, 0x40, 0x40, 0xff};
-struct QNote QFree
-		=          {0, 0, &QLast, &QFirst, 0, 0, 2, 1, 0, 0xff, 0xff, 0xff, 0x40, 0x40, 0xff};
-
-
-
-#define integralPowerOf2(x) ((((x - 1) | x) + 1) == (x << 1))
-
-void FillInWatershed128(
-						DoubleWord start128,
-						Word length128,
-						Byte num,
-						Byte denompH,
-						Boolean toplevel,
-						Byte meterType
-						)
-{
-	Byte numies[3];
-	Word lengths128[3];
-	register Byte j;
-	register Byte k;
-	long lTemp;
-	
-	if ((length128 > 128) || (!integralPowerOf2(num))) {
-		if ((meterType == Compound) && ((num & 1) != 0) && ((num % 3) == 0)) {
-			k = 3;
-			numies[0] = numies[1] = numies[2] = num / 3;
-			lengths128[0] = lengths128[1] = lengths128[2] = length128 / 3;
-			RCP->RelativeStrength = 2;
-		}
-		else {
-			k = 2;
-			numies[1] = num >> 1;
-			lTemp = (long)length128*numies[1];
-			lengths128[1] =  lTemp/num;
-			numies[0] = num - numies[1];
-			lengths128[0] = length128 - lengths128[1];
-		}
-		for (j = 0; j < k; j++) {
-			FillInWatershed128 (start128, lengths128[j], numies[j], xTS.denompH, FALSE, meterType);
-			start128 += lengths128[j];
-			if (toplevel) {
-				RCP->RelativeStrength = 3;
-			}
-		}
-	}
-	else {
-		RCP->BeatsThisRunoff = num;
-		RCP->Watershed128 = start128;
-		for (k = 0; num > 1; k++, num >>= 1) ;
-		RCP->RunoffdenompH = denompH - k;
-		RCP->WatershedEX = start128 * (WholeNote / 128);
-		RCP++;
-	}
-}
-
 
 
 /* end: moved here from old OpcodeUtils.c by chirgwin Mon May 28 07:17:18 PDT 2012 */
@@ -195,27 +129,12 @@ static void CreateNBeamBeatList(Byte num, Byte denom)
 
 	beatEX = (LCD4 * FineFactor) / denom;
 	RCP = RCPtr;
+
 	FillMem (0, RCPtr, 32 * sizeof (struct RhythmClarification));
 	FillMem (0, UserBeamBreaksAt, 32);
-	if (meterType == UserDefined) {					// As of v. 3.0A, never used! 
-		Start128 = 0;
 
-		/* Ray's comment: There isn't an X D P in this approach
-		for (UserPtr = X D P->UserBeamBreaksAt; *UserPtr != 0; UserPtr++) {
-			Length128 = (*UserPtr * 128) / denom;
-			FillInWatershed128 (Start128, Length128, *UserPtr,
-					denomtopH (denom), FALSE, meterType);
-			Start128 += Length128;
-			}
-		*/
-
-	}
-	else {
-		FillInWatershed128 (0, QLast.Measure128, num,
-				denomtopH (denom), TRUE, meterType);
-	}
 	RCP->BeatsThisRunoff = num;
-	RCP->Watershed128 = QLast.Measure128;
+	RCP->Watershed128 = 0;
 	RCP->RunoffdenompH = 0xff;
 	RCP->WatershedEX = MeasureLengthEX;
 	RCP->RelativeStrength = 9;
