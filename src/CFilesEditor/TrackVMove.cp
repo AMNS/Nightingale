@@ -825,22 +825,6 @@ Boolean InsTrackPitch(
 		}
 		useFeedback = FALSE;
 	}
-	if (useWhichMIDI == MIDIDR_OMS) {
-		OMSUniqueID fdbkDevice = GetOMSDeviceForPartn(doc, partn);
-		if (!OMSChannelValid(fdbkDevice, (INT16)useChan)) {
-			useChan = config.defaultOutputChannel;
-			fdbkDevice = config.defaultOutputDevice;
-		}
-		useIORefNum = OMSUniqueIDToRefNum(fdbkDevice);
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		fmsUniqueID fdbkDevice = GetFMSDeviceForPartn(doc, partn);
-		if (!FMSChannelValid(fdbkDevice, (INT16)useChan)) {
-			useChan = config.defaultOutputChannel;
-			fdbkDevice = config.defaultOutputDevice;
-		}
-		useIORefNum = fdbkDevice;		/* these are same for FreeMIDI */
-	}
 //#endif
 
 	octTransp = (octType>0? noteOffset[octType-1] : 0);				/* Set feedback transposition */
@@ -866,8 +850,6 @@ Boolean InsTrackPitch(
 		noteNum = GetMappedNoteNum(doc, noteNum);		
 	}
 	CMMIDIFBNoteOn(doc, noteNum, useChan, partDevID);
-#else
-	MIDIFBNoteOn(doc, noteNum, useChan, useIORefNum);
 #endif
 	InsertLedgers(p2d(downPt.h), halfLn, &context);
 	halfLnLo = halfLnHi = halfLn;
@@ -914,8 +896,6 @@ Boolean InsTrackPitch(
 					outOfBounds = TRUE;
 #ifdef TARGET_API_MAC_CARBON_MIDI
 					CMMIDIFBNoteOff(doc, noteNum, useChan, partDevID);
-#else
-					MIDIFBNoteOff(doc, noteNum, useChan, useIORefNum);
 #endif
 					InvertCrossbar(doc);
 					do {
@@ -981,8 +961,6 @@ Boolean InsTrackPitch(
 					}
 #ifdef TARGET_API_MAC_CARBON_MIDI
 					CMMIDIFBNoteOff(doc, noteNum, useChan, partDevID);
-#else
-					MIDIFBNoteOff(doc, noteNum, useChan, useIORefNum);
 #endif
 					if (accident==0) {
 						if (ACC_IN_CONTEXT)
@@ -999,8 +977,6 @@ Boolean InsTrackPitch(
 						noteNum = GetMappedNoteNum(doc, noteNum);		
 					}
 					CMMIDIFBNoteOn(doc, noteNum, useChan, partDevID);
-#else
-					MIDIFBNoteOn(doc, noteNum, useChan, useIORefNum);
 #endif
 				}
 				
@@ -1011,9 +987,6 @@ Boolean InsTrackPitch(
 	
 #ifdef TARGET_API_MAC_CARBON_MIDI
 	CMMIDIFBNoteOff(doc, noteNum, useChan, partDevID);
-	MIDIFBOff(doc);
-#else
-	MIDIFBNoteOff(doc, noteNum, useChan, useIORefNum);
 	MIDIFBOff(doc);
 #endif
 	

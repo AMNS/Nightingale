@@ -60,22 +60,6 @@
 #include "OMSCompat.h"
 //#include "OMSTypes.h"
 
-#else
-
-
-/* MOTU's FreeMIDI SDK headers */
-
-#include "FreeMIDI.h"
-
-/* Opcode's OMS headers */
-
-#include "OMS.h"
-//#include "OMSConfig.h"
-#include "OMSDeviceMenu.h"
-//#include "OMSTimer.h"
-//#include "OMSTypes.h"
-#include "OMSNameMgr.h"
-
 #endif
 
 /* Define the platform. NB: When it wasn't running on a Motorola 680x0 family CPU, Mac
@@ -127,7 +111,6 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 #include "EssentialTools.h"
 #include "FileInput.h"
 #include "File.h"
-#include "FreeMIDIUtils.h"
 #include "GRBeam.h"
 #include "Heaps.h"
 #include "help.h"
@@ -170,7 +153,6 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 
 #include "OpcodeNightingaleDefs.h"
 
-#include "OMSUtils.h"
 
 /* Generic application files */
 

@@ -116,7 +116,7 @@ GLOBAL Pattern		diagonalDkGray, diagonalLtGray;
 
 GLOBAL long			oneMSDelayCount;		/* Approx. iterations of empty loop that takes 1 ms */
 
-GLOBAL Byte			useWhichMIDI;			/* MIDIDR_MM=MIDI Mgr, MIDIDR_BI=built-in, or MIDIDR_NONE */
+GLOBAL Byte			useWhichMIDI;			/* MIDIDR_CM is MacOS Carbon MIDI or MIDIDR_NONE */
 GLOBAL short		timeMMRefNum;			/* MIDI Manager time base port reference number */ 
 GLOBAL short		inputMMRefNum;			/* MIDI Manager input port reference number */ 
 GLOBAL short		outputMMRefNum;		/* MIDI Manager output port reference number */

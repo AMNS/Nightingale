@@ -100,21 +100,12 @@ enum {										/* Function return values: */
 };
 
 enum {										/* MIDI Driver: */
-	MIDIDR_FMS,								/* FreeMIDI driver */
-	MIDIDR_OMS,								/* OMS driver */
-	MIDIDR_MM,								/* Apple MIDI Manager */
-	MIDIDR_BI,								/* Nightingale's built-in MIDI driver */
 	MIDIDR_CM,								/* Core MIDI */
 	MIDIDR_NONE								/* No MIDI driver */
 };
 
 enum {										/* MIDI Driver config settings */
-	MIDISYS_FMS=0,
-	MIDISYS_OMS,
-	MIDISYS_MM,
-	MIDISYS_BI,
 	MIDISYS_CM,								/* Core MIDI */
-	MIDISYS_ASK,
 	MIDISYS_NONE
 };
 

@@ -340,29 +340,15 @@ INT16 MakeTConvertTable(
 
 
 /* ------------------------------------------- MIDI Manager/Driver glue functions -- */
-/* The following functions support Apple MIDI Manager, our built-in MIDI driver
-for Macintosh (currently MIDI Pascal), and OMS. */
-
-#include "MIDIPASCAL3.h"
+/* The following functions support Apple Core MIDI */
 
 void StartMIDITime()
 {
 	switch (useWhichMIDI) {
-		case MIDIDR_FMS:
-			FMSStartTime();
-			break;
-		case MIDIDR_OMS:
-			OMSStartTime();
-			break;
 		case MIDIDR_CM:
 			CMStartTime();
 			break;
-		case MIDIDR_MM:
-			MIDISetCurTime(timeMMRefNum, 0L);	
-			MIDIStartTime(timeMMRefNum);
-			break;
-		default:	/* MIDIDR_BI */
-			MidiStartTime();
+		default:
 			break;
 	};
 }
@@ -374,20 +360,10 @@ long GetMIDITime(long pageTurnTOffset)
 	long time;
 
 	switch (useWhichMIDI) {
-		case MIDIDR_FMS:
-			time = FMSGetCurTime();
-			break;
-		case MIDIDR_OMS:
-			time = OMSGetCurTime();
-			break;
 		case MIDIDR_CM:
 			time = CMGetCurTime();
 			break;
-		case MIDIDR_MM:
-			time = MIDIGetCurTime(timeMMRefNum);
-			break;
-		default:	/* MIDIDR_BI */
-			MidiGetTime(&time);
+		default:
 			break;
 	};
 	return time-(TURN_PAGES_WAIT? pageTurnTOffset : 0);
@@ -397,21 +373,10 @@ long GetMIDITime(long pageTurnTOffset)
 void StopMIDITime()
 {
 	switch (useWhichMIDI) {
-		case MIDIDR_FMS:
-			FMSStopTime();
-			break;
-		case MIDIDR_OMS:
-			OMSStopTime();
-			break;
 		case MIDIDR_CM:
 			CMStopTime();
 			break;
-		case MIDIDR_MM:
-			MIDIStopTime(timeMMRefNum);
-			break;
-		default:		/* MIDIDR_BI. NB: does not reset the driver's tickcount! */
-			MidiStopTime();										/* we're done with the millisecond timer... */
-			MayResetBIMIDI(FALSE);								/* ...and the SCC we're using as a MIDI port */
+		default:
 			break;
 	};
 }
@@ -422,87 +387,8 @@ void StopMIDI()
 		CMKillEventList();
 	else
 		KillEventList();												/* stop all notes being played */
-
-	if (useWhichMIDI!=MIDIDR_MM) WaitForQueue();				/* or "useWhichMIDI==MIDIDR_BI"? */
 	
 	StopMIDITime();
-}
-
-
-/* Initialize the built-in MIDI driver's timer to tick every millisecond. Does not
-reset the driver's tickcount! */
-
-void InitBIMIDITimer()
-{
-	MidiTime(ONEMILLISEC);
-}
-
-
-/* ------------------------------------------------- MayInitBIMIDI,MayResetBIMIDI -- */
-/* Be sure the the built-in MIDI driver is initialized. With MIDI Pascal, if it isn't
-already initialized, this allocates buffers, and initializes the SCC chip for MIDI use.
-Unfortunately, doing the latter modifies the interrupt vector, and that means we have
-to be sure to call the reset routine (via MayResetBIMIDI) before quitting to avoid a
-disaster after we've quit.
-
-NB: these functions depend on <initedBIMIDI> to keep track of the state; except for
-one-time initialization, it should not be set anywhere else! */
-
-#define DEBUG_THRU
-
-void MayInitBIMIDI(INT16 inBufSize, INT16 outBufSize)
-{
-	if (useWhichMIDI==MIDIDR_BI)
-		if (!initedBIMIDI) {
-#if (defined(DEBUG_THRU) && !defined(PUBLIC_VERSION))
-			if (CapsLockKeyDown() && ShiftKeyDown())
-				DebugPrintf("MayInitBIMIDI: about to InitMidi\n");
-#endif
-			InitMidi(inBufSize, outBufSize);
-			MidiPort(portSettingBIMIDI);
-			MidiPort(interfaceSpeedBIMIDI);
-			initedBIMIDI = TRUE;
-		}
-}
-
-/* Be sure the the built-in MIDI driver is reset. Exception: if MIDI Thru is on,
-unless the caller specifies otherwise, just reset the driver's tickcount. This is
-because--to keep MIDI Thru working--we shouldn't reset the driver till just before
-we exit. */
- 
-void MayResetBIMIDI(
-	Boolean evenIfMIDIThru)							/* Reset regardless of MIDI Thru? */
-{
-	if (useWhichMIDI==MIDIDR_BI)
-		if (initedBIMIDI) {
-#define MIDI_THRU
-#ifdef MIDI_THRU
-#if (defined(DEBUG_THRU) && !defined(PUBLIC_VERSION))
-			if (CapsLockKeyDown() && ShiftKeyDown())
-				DebugPrintf("MayResetBIMIDI: about to 'reset', evenIfMIDIThru=%d\n",
-									evenIfMIDIThru);
-#endif
-			if (config.midiThru!=0 && !evenIfMIDIThru)
-				MidiSetTime(0L);
-			else {
-				QuitMidi();
-				initedBIMIDI = FALSE;
-			}
-#else
-			QuitMidi();
-			initedBIMIDI = FALSE;
-#endif
-		}
-}
-
-/* ----------------------------------------------------------------- WaitForQueue -- */
-/*	Allow time for low-level queue to empty. For use with built-in MIDI driver. */
-
-static void WaitForQueue()
-{
-	if (useWhichMIDI==MIDIDR_BI) {
-		SleepTicks(5L);						/* May not be necessary but just in case */
-	}
 }
 
 
@@ -710,28 +596,6 @@ void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 
 #define PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
 
-/* Set the given MIDI channel to play the given "program" (patch number). */
-
-void SetMIDIProgram(INT16 channel, INT16 patchNum)
-{
-	MMMIDIPacket mPacket;
-	INT16 rc;
-
-	if (useWhichMIDI==MIDIDR_MM) {
-		mPacket.flags = MM_STD_FLAGS;	
-		mPacket.len = MM_HDR_SIZE+2;
-				
-		mPacket.tStamp = MM_NOW;
-		mPacket.data[0] = MPGMCHANGE+channel-1;
-		mPacket.data[1] = patchNum-PATCHNUM_BASE;
-		MIDIWritePacket(outputMMRefNum, &mPacket);		
-	}
-	else {
-		MidiNow(MPGMCHANGE+channel-1, patchNum-PATCHNUM_BASE, 255, (int *)&rc);	/* Should never fail */
-	}
-}
-
-
 /* ---------------------------------------- StartNoteNow,EndNoteNow,EndNoteLater -- */
 /* Functions to start and end notes; handle OMS, FreeMIDI, MIDI Manager, and built-in
 MIDI (MIDI Pascal or MacTutor driver). Caveat: EndNoteLater does not communicate with
@@ -746,20 +610,8 @@ OSStatus StartNoteNow(INT16 noteNum, SignedByte channel, SignedByte velocity, sh
 	
 	if (noteNum>=0) {
 		switch (useWhichMIDI) {
-			case MIDIDR_FMS:
-				FMSStartNoteNow(noteNum, channel, velocity, (fmsUniqueID)ioRefNum);
-				break;
-			case MIDIDR_OMS:
-				OMSStartNoteNow(noteNum, channel, velocity, ioRefNum);
-				break;
 			case MIDIDR_CM:
 				err = CMStartNoteNow(0, noteNum, channel, velocity);
-				break;
-			case MIDIDR_MM:
-				MMStartNoteNow(noteNum, channel, velocity);
-				break;
-			case MIDIDR_BI:
-				MIDITriple(MNOTEON+channel-1, noteNum, velocity);
 				break;
 			default:
 				break;
@@ -774,20 +626,8 @@ OSStatus EndNoteNow(INT16 noteNum, SignedByte channel, short ioRefNum)
 	OSStatus err = noErr;
 	
 	switch (useWhichMIDI) {
-		case MIDIDR_FMS:
-			FMSEndNoteNow(noteNum, channel, (fmsUniqueID)ioRefNum);
-			break;
-		case MIDIDR_OMS:
-			OMSEndNoteNow(noteNum, channel, ioRefNum);
-			break;
 		case MIDIDR_CM:
 			err = CMEndNoteNow(0, noteNum, channel);
-			break;
-		case MIDIDR_MM:
-			MMEndNoteAtTime(noteNum, channel, 0L);
-			break;
-		case MIDIDR_BI:
-			MIDITriple(MNOTEON+channel-1, noteNum, 0);
 			break;
 		default:
 			break;
@@ -858,23 +698,6 @@ void MMEndNoteAtTime(
 }
 
 
-/* ------------------------------------------------------------------ MIDITriple -- */
-/*	For built-in MIDI (MIDI Pascal or MacTutor): Transmit 3 bytes over MIDI, except
-if 2nd is negative, do nothing. This is intended for note-related commands, where
-the 2nd byte is the note number; Nightingale uses negative values for rests. */
-
-void MIDITriple(INT16 MIDI1, INT16 MIDI2, INT16 MIDI3)
-{
-	INT16 rc;
-	
-	if (useWhichMIDI!=MIDIDR_BI) { MayErrMsg("MIDITriple: Not using Built In MIDI"); return; }
-	
-	if (MIDI2>=0) {
-		MidiNow(MIDI1, MIDI2, MIDI3, (int *)&rc);					/* Should never fail */
-	}
-}
-
-
 /* --------------------------------------------------------------- MIDIConnected -- */
 /*	Return TRUE if a MIDI device is connected. */
 
@@ -915,23 +738,8 @@ void MIDIFBOn(Document *doc)
 {
 	if (doc->feedback) {
 		switch (useWhichMIDI) {
-			case MIDIDR_FMS:
-				FMSFBOn(doc);
-				break;
-			case MIDIDR_OMS:
-				OMSFBOn(doc);
-				break;
 			case MIDIDR_CM:
 				CMFBOn(doc);
-				break;
-			case MIDIDR_MM:
-				MIDISetCurTime(timeMMRefNum, 0L);	
-				MIDIStartTime(timeMMRefNum);
-				break;
-			case MIDIDR_BI:
-//				if (portSettingBIMIDI==MODEM_PORT && !PORT_IS_FREE(MLM_PortAUse)) break;
-//				if (portSettingBIMIDI==PRINTER_PORT && !PORT_IS_FREE(MLM_PortBUse)) break;
-				MayInitBIMIDI(BIMIDI_SMALLBUFSIZE, BIMIDI_SMALLBUFSIZE);
 				break;
 			default:
 				break;
@@ -948,23 +756,8 @@ void MIDIFBOff(Document *doc)
 {
 	if (doc->feedback) {
 		switch (useWhichMIDI) {
-			case MIDIDR_FMS:
-				FMSFBOff(doc);
-				break;
-			case MIDIDR_OMS:
-				OMSFBOff(doc);
-				break;
 			case MIDIDR_CM:
 				CMFBOff(doc);
-				break;
-			case MIDIDR_MM:
-				MIDIStopTime(timeMMRefNum);
-				break;
-			case MIDIDR_BI:
-//				if (portSettingBIMIDI==MODEM_PORT && !PORT_IS_FREE(MLM_PortAUse)) break;
-//				if (portSettingBIMIDI==PRINTER_PORT && !PORT_IS_FREE(MLM_PortBUse)) break;
-				WaitForQueue();
-				MayResetBIMIDI(FALSE);
 				break;
 			default:
 				break;
@@ -984,22 +777,8 @@ void MIDIFBNoteOn(
 {
 	if (doc->feedback) {
 		switch (useWhichMIDI) {
-			case MIDIDR_FMS:
-				FMSFBNoteOn(doc, noteNum, channel, (fmsUniqueID)useIORefNum);
-				break;
-			case MIDIDR_OMS:
-				OMSFBNoteOn(doc, noteNum, channel, useIORefNum);
-				break;
 			case MIDIDR_CM:
 				CMFBNoteOn(doc, noteNum, channel, useIORefNum);
-				break;
-			case MIDIDR_MM:
-				MMStartNoteNow(noteNum, channel, config.feedbackNoteOnVel); /* PRE_OMS was StartNoteNow */
-				break;
-			case MIDIDR_BI:
-//				if (portSettingBIMIDI==MODEM_PORT && !PORT_IS_FREE(MLM_PortAUse)) return;
-//				if (portSettingBIMIDI==PRINTER_PORT && !PORT_IS_FREE(MLM_PortBUse)) return;
-				MIDITriple(MNOTEON+channel-1, noteNum, config.feedbackNoteOnVel);
 				break;
 			default:
 				break;
@@ -1027,22 +806,8 @@ void MIDIFBNoteOff(
 {
 	if (doc->feedback) {
 		switch (useWhichMIDI) {
-			case MIDIDR_FMS:
-				FMSFBNoteOff(doc, noteNum, channel, (fmsUniqueID)useIORefNum);
-				break;
-			case MIDIDR_OMS:
-				OMSFBNoteOff(doc, noteNum, channel, useIORefNum);
-				break;
 			case MIDIDR_CM:
 				CMFBNoteOff(doc, noteNum, channel, useIORefNum);
-				break;
-			case MIDIDR_MM:
-				MMEndNoteAtTime(noteNum, channel, 0L);
-				break;
-			case MIDIDR_BI:
-//				if (portSettingBIMIDI==MODEM_PORT && !PORT_IS_FREE(MLM_PortAUse)) return;
-//				if (portSettingBIMIDI==PRINTER_PORT && !PORT_IS_FREE(MLM_PortBUse)) return;
-				MIDITriple(MNOTEON+channel-1, noteNum, 0);
 				break;
 			default:
 				break;
@@ -1074,22 +839,10 @@ void SendAllNotesOff()
 {
 	INT16 channel; MIDIPacket mPacket;
 
-	for (channel = 1; channel<=MAXCHANNEL; channel++)
-		if (useWhichMIDI==MIDIDR_MM) {
-			mPacket.flags = MM_STD_FLAGS;	
-			mPacket.len = MM_HDR_SIZE+3;
-					
-			mPacket.tStamp = MM_NOW;
-			mPacket.data[0] = MCTLCHANGE+channel-1;
-			mPacket.data[1] = MCHMODE_ALLNOTESOFF;
-			mPacket.data[2] = 0;			
-			MIDIWritePacket(outputMMRefNum, &mPacket);		
-		}
-		else {
-			INT16 rc;
-			
+	for (channel = 1; channel<=MAXCHANNEL; channel++) {
+			INT16 rc;			
 			MidiNow(MCTLCHANGE+channel-1, MCHMODE_ALLNOTESOFF, 0, (int *)&rc);	/* Should never fail */
-		}
+	}
 }
 
 #endif
@@ -1110,14 +863,10 @@ void AllNotesOff()
 	
 	WaitCursor();
 
-	if (useWhichMIDI==MIDIDR_BI) MayInitBIMIDI(BIMIDI_SMALLBUFSIZE, BIMIDI_SMALLBUFSIZE);
 	
 	for (channel = 1; channel<=MAXCHANNEL; channel++)
 		for (noteNum = 0; noteNum<=MAX_NOTENUM; noteNum++) {
-			if (useWhichMIDI==MIDIDR_MM)
-				MMEndNoteAtTime(noteNum, channel, 0L);
-			else
-				MIDITriple(MNOTEON+channel-1, noteNum, 0);
+//chirgwin			MIDITriple(MNOTEON+channel-1, noteNum, 0);
 
 			/*
 			 * Pause a bit, to try to avoid overloading the synth on the receiving end.
@@ -1126,10 +875,5 @@ void AllNotesOff()
 			 * in SleepMS.
 			 */
 			SleepMS(1L);
-		}
-	
-	if (useWhichMIDI==MIDIDR_BI) {
-		WaitForQueue();
-		MayResetBIMIDI(FALSE);
-	}
+		}	
 }

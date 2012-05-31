@@ -447,9 +447,6 @@ static void MPDeleteSelRange(Document *doc, LINK partL)
 				while (pSubL) {
 					if (pSubL==partL) {
 						tempL = NextPARTINFOL(pSubL);
-						if (useWhichMIDI == MIDIDR_OMS) {
-							DeletePartLOMSDevice(doc, partL);
-						}
 						RemoveLink(pL, PARTINFOheap, FirstSubLINK(pL), pSubL);
 						HeapFree(PARTINFOheap,pSubL);
 						pSubL = tempL;
@@ -702,8 +699,6 @@ static void InsertPartMP(Document *doc,
 	partList = HeapAlloc(PARTINFOheap,nadd);
 	if (!partList) { NoMoreMemory(); return; }	/* ??not good--leaves doc in inconsistent state! */
 
-	if (useWhichMIDI == MIDIDR_OMS)
-		InsertPartLOMSDevice(doc, partL, nadd);	/* make room for devices for new parts */
 	aPartL = partList;
 	for ( ; aPartL; aPartL=NextPARTINFOL(aPartL))
 		InitPart(aPartL, 0, 0);

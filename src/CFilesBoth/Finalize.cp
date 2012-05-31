@@ -162,49 +162,6 @@ static Boolean UpdateSetupFile()
 }
 
 
-/* Save current built-in MIDI parameters in the Prefs (formerly "Setup") file's 'BIMI'
-resource, if they've been changed. We assume Prefs file is open. Return TRUE if all OK,
-give an error message and return FALSE if there's a problem. */
-
-#define BIMI_RES_NAME	"\pBuilt-in MIDI driver settings"
-
-static Boolean BIMIDIUpdateSetupFile(void);
-static Boolean BIMIDIUpdateSetupFile()
-{
-	Handle hBIMIRes; BIMIDI **hBIMIDI; Boolean changed; OSErr result;
-	
-	/*
-	 * Get the BIMI resource from file and compare it to our internal values.
-	 * If it's been changed, ask for permission to update the file.
-	 */
-	hBIMIRes = GetResource('BIMI', THE_BIMI);
-	if (ReportResError()) return FALSE;
-
-	changed = (((BIMIDI *)*hBIMIRes)->portSetting!=portSettingBIMIDI ||
-			   ((BIMIDI *)*hBIMIRes)->interfaceSpeed!=interfaceSpeedBIMIDI);
-	if (!changed) return TRUE;
-	
-	GetIndCString(strBuf, SAVEPREFS_STRS, 4);    			/* "Built-in MIDI driver settings" */
-	CParamText(strBuf, "", "", "");
-	if (CautionAdvise(SAVECNFG_ALRT)==OK) {
-		/* Create a handle to a BIMIDI and fill it with updated values. */
-		hBIMIDI = (BIMIDI **)NewHandle((long) sizeof(BIMIDI));
-		if (result = MemError()) {
-			MayErrMsg("UpdateSetupFile: can't allocate hBIMIDI.  Error %d", result);
-			return FALSE;
-		}
-		BlockMove(*hBIMIRes, *hBIMIDI, (Size)sizeof(BIMIDI));
-
-		(*hBIMIDI)->portSetting = portSettingBIMIDI;
-		(*hBIMIDI)->interfaceSpeed = interfaceSpeedBIMIDI;
-
-		ReplaceSetupResource(hBIMIRes, (Handle)hBIMIDI, 'BIMI', THE_BIMI,
-								BIMI_RES_NAME);
-	}
-	
-	return TRUE;
-}
-
 /* -------------------------------------------------------------- CloseSetupFile -- */
 /* Closes the Prefs file; returns TRUE is successful, FALSE if error. From InsideMac:
 If there's no resource file open with the given reference number, CloseResFile will
@@ -231,15 +188,6 @@ void Finalize()
 	if (!OpenSetupFile()) return;			/* If it fails, there's nothing worth doing ??REALLY? */
 	
 	(void)UpdateSetupFile();
-
-#ifndef TARGET_API_MAC_CARBON_MIDI
-	if (useWhichMIDI==MIDIDR_MM)
-		MMClose();
-	else if (useWhichMIDI==MIDIDR_OMS)
-		OMSClose();
-	else if (useWhichMIDI==MIDIDR_FMS)
-		FMSClose();
-#endif
 
 	CloseSetupFile();
 }

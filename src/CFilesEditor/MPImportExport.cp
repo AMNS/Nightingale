@@ -137,24 +137,7 @@ INT16 SDInstrDialog(Document *doc, INT16 firstStf)
 	partL = MPFindPartInfo(doc, partn);
 	pPart = GetPPARTINFO(partL);
 	partInfo = *pPart;
-	if (useWhichMIDI == MIDIDR_OMS) {
-		OMSUniqueID device = GetOMSDeviceForPartn(doc, partn);
-		if ((changed = OMSInstrDialog(doc, &partInfo, &device))!=0) {
-			MPSetInstr(doc, &partInfo);
-			SetOMSDeviceForPartn(doc, partn, device);
-			doc->masterChanged = TRUE;
-		}
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		fmsUniqueID device = GetFMSDeviceForPartn(doc, partn);
-		if ((changed = FMSInstrDialog(doc, &partInfo, &device))!=0) {
-			MPSetInstr(doc, &partInfo);
-			SetFMSDeviceForPartL(doc, partL, device);
-			FMSSetOutputDestinationMatch(doc, partL);
-			doc->masterChanged = TRUE;
-		}
-	}
-	else if (useWhichMIDI == MIDIDR_CM) {
+	if (useWhichMIDI == MIDIDR_CM) {
 		MIDIUniqueID device = GetCMDeviceForPartn(doc, partn);
 		if ((changed = CMInstrDialog(doc, &partInfo, &device))!=0) {
 			MPSetInstr(doc, &partInfo);

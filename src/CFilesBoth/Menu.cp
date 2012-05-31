@@ -1179,8 +1179,6 @@ void PLTransposeScore(Document *doc)
 }
 
 
-#include "MIDIPASCAL3.h"
-
 /* Handle the "Part MIDI Settings" dialog. */
 
 void EditPartMIDI(Document *doc)
@@ -1194,21 +1192,7 @@ void EditPartMIDI(Document *doc)
 	firstStaff = PartFirstSTAFF(partL);
 	pPart = GetPPARTINFO(partL);
 	partInfo = *pPart;
-	if (useWhichMIDI == MIDIDR_OMS) {
-		OMSUniqueID device;
-		partn = (INT16)PartL2Partn(doc, partL);
-		device = GetOMSDeviceForPartn(doc, partn);
-		if (OMSPartMIDIDialog(doc, &partInfo, &device)) {
-			pPart = GetPPARTINFO(partL);
-			*pPart = partInfo;
-			pMPartL = Staff2PartL(doc, doc->masterHeadL, firstStaff);
-			pMPart = GetPPARTINFO(pMPartL);
-			*pMPart = partInfo;
-			SetOMSDeviceForPartn(doc, partn, device);
-			doc->changed = TRUE;
-		}
-	}
-	else if (useWhichMIDI == MIDIDR_CM) {
+	if (useWhichMIDI == MIDIDR_CM) {
 		MIDIUniqueID device;
 		partn = (INT16)PartL2Partn(doc, partL);
 		device = GetCMDeviceForPartn(doc, partn);
@@ -1242,20 +1226,6 @@ void EditPartMIDI(Document *doc)
 					//pPart->transpose = partInfo.transpose;
 				}
 			}
-		}
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		fmsUniqueID device;
-		device = GetFMSDeviceForPartL(doc, partL);
-		if (FMSPartMIDIDialog(doc, &partInfo, &device)) {
-			pPart = GetPPARTINFO(partL);
-			*pPart = partInfo;
-			FMSSetOutputDestinationMatch(doc, partL);
-			partInfo = *pPart;				/* includes updated destinationMatch rec */
-			pMPartL = Staff2PartL(doc, doc->masterHeadL, firstStaff);
-			pMPart = GetPPARTINFO(pMPartL);
-			*pMPart = partInfo;
-			doc->changed = TRUE;
 		}
 	}
 	else if (PartMIDIDialog(doc, &partInfo, &allParts)) {
@@ -1328,11 +1298,7 @@ void DoPlayRecMenu(INT16 choice)
 				break;
 #endif
 			case PL_AllNotesOff:
-				if (useWhichMIDI == MIDIDR_OMS)
-					OMSAllNotesOff2();
-				else if (useWhichMIDI == MIDIDR_FMS)
-					FMSAllNotesOff();
-				else if (useWhichMIDI == MIDIDR_CM)
+				if (useWhichMIDI == MIDIDR_CM)
 					CMAllNotesOff();
 				else {
 					if (BIMIDIPortIsBusy()) break;
@@ -1343,30 +1309,18 @@ void DoPlayRecMenu(INT16 choice)
 				MEHideCaret(doc);
 //				oldMIDIThru = config.midiThru;
 				if (doc) MIDIDialog(doc);
-				if (useWhichMIDI==MIDIDR_FMS)
-					FMSSetInputDestinationMatch(doc);
 				break;
 #ifndef VIEWER_VERSION
 			case PL_Metronome:
-				if (useWhichMIDI==MIDIDR_OMS)
-					OMSMetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
-									&config.metroVelo, &config.metroDur, &config.metroDevice);
-				else if (useWhichMIDI==MIDIDR_CM)
+				if (useWhichMIDI==MIDIDR_CM)
 					CMMetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
 									&config.metroVelo, &config.metroDur, &config.cmMetroDevice);
-				else if (useWhichMIDI==MIDIDR_FMS)
-					FMSMetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
-									&config.metroVelo, &config.metroDur, &config.metroDevice);
 				else
 					MetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
 									&config.metroVelo, &config.metroDur);
 				break;
 #endif
 			case PL_MIDIThru:
-				if (useWhichMIDI==MIDIDR_FMS) {
-					if (MIDIThruDialog())
-						FMSSetMIDIThruDeviceFromConfig();
-				}
 				break;
 			case PL_MIDIDynPrefs:
 				if (doc) PLMIDIDynPrefs(doc);
@@ -3247,7 +3201,6 @@ static void FixPlayRecordMenu(Document *doc, INT16 nSel)
 	#endif
 	 		XableItem(playRecMenu, PL_MIDISetup, doc!=clipboard);
 	 		XableItem(playRecMenu, PL_Metronome, haveMIDI);		/* Metro and thru are global options */
-	 		XableItem(playRecMenu, PL_MIDIThru, useWhichMIDI==MIDIDR_FMS);
 			XableItem(playRecMenu, PL_MIDIDynPrefs, doc!=clipboard);
 			XableItem(playRecMenu, PL_MIDIModPrefs, doc!=clipboard);
 			XableItem(playRecMenu, PL_PartMIDI, doc!=clipboard);

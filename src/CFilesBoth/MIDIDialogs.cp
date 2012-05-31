@@ -319,15 +319,9 @@ static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
 			DrawMyItems(theDialog);
 			UpdateDialogVisRgn(theDialog);
 			FrameDefault(theDialog,OK,TRUE);
-			if (useWhichMIDI == MIDIDR_OMS && omsInputMenuH != NULL) {
-				DrawOMSDeviceMenu(omsInputMenuH);
-				TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-			}
-			else if (useWhichMIDI == MIDIDR_CM && cmInputMenuH != NULL) {
+			if (useWhichMIDI == MIDIDR_CM && cmInputMenuH != NULL) {
 				DrawPopUp(&cmInputPopup);
 			}
-			else if (useWhichMIDI == MIDIDR_FMS)
-				DrawFMSDeviceMenu(&inputDeviceMenuBox, fmsInputDevice, fmsInputChannel);
 			EndUpdate(GetDialogWindow(theDialog));
 			SetPort(oldPort);
 			*item = 0;
@@ -344,27 +338,12 @@ static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
 			GetDialogItem (theDialog, Cancel, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	{*item = Cancel; break;};
 
-			if (useWhichMIDI == MIDIDR_OMS && omsInputMenuH != NULL) {
-				if (TestOMSDeviceMenu(omsInputMenuH, mouseLoc)) {
-					omsMenuItem = ClickOMSDeviceMenu(omsInputMenuH);
-					*item = INPUT_DEVICE_MENU;
-					TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-				}
-				break;
-			}
-			else if (useWhichMIDI == MIDIDR_CM && cmInputMenuH != NULL) {
+			if (useWhichMIDI == MIDIDR_CM && cmInputMenuH != NULL) {
 				GetDialogItem (theDialog, INPUT_DEVICE_MENU, &type, &hndl, &box);
 				if (PtInRect(mouseLoc, &box))	{
 					if (ans = DoUserPopUp(&cmInputPopup)) {
 						*item = INPUT_DEVICE_MENU;
 					}
-				}
-			}
-			else if (useWhichMIDI == MIDIDR_FMS) {
-				if (PtInRect(mouseLoc, &inputDeviceMenuBox)) {
-					RunFMSDeviceMenu(&inputDeviceMenuBox, &fmsInputDevice, &fmsInputChannel);
-					*item = INPUT_DEVICE_MENU;
-					break;
 				}
 			}
 			break;
@@ -410,7 +389,7 @@ void MIDIDialog(Document *doc)
 
 	/* We use the same dialog resource for OMS and FreeMIDI.  For the
 		latter, we hide the channel edit field. */
-	if (useWhichMIDI == MIDIDR_CM || useWhichMIDI == MIDIDR_OMS || useWhichMIDI == MIDIDR_FMS) {
+	if (useWhichMIDI == MIDIDR_CM) {
 		dlog = GetNewDialog(OMS_MIDISETUP_DLOG, NULL, BRING_TO_FRONT);
 		if (dlog == NULL) {
 			DisposeModalFilterUPP(filterUPP);
@@ -431,27 +410,12 @@ void MIDIDialog(Document *doc)
 	cmVecDevices = NULL;
 
 	GetDialogItem(dlog, INPUT_DEVICE_MENU, &scratch, &aHdl, &inputDeviceMenuBox);
-	if (useWhichMIDI == MIDIDR_OMS) {
-		omsInputMenuH = CreateOMSInputMenu(&inputDeviceMenuBox);
-	}
-	else if (useWhichMIDI == MIDIDR_CM) {
+	if (useWhichMIDI == MIDIDR_CM) {
 		if (doc->cmInputDevice == kInvalidMIDIUniqueID) {
 			doc->cmInputDevice = gSelectedInputDevice;
 			docDirty = TRUE;
 		}
 		cmInputMenuH = CreateCMInputMenu(doc, dlog, &cmInputPopup, &inputDeviceMenuBox);
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		if (FMSChannelValid(doc->fmsInputDevice, doc->channel)) {
-			fmsInputDevice = doc->fmsInputDevice;
-			fmsInputChannel = doc->channel;
-		}
-//FIXME: But who says the config has valid chans??
-		else {
-			fmsInputDevice = config.defaultInputDevice;
-			fmsInputChannel = config.defaultChannel;
-		}
-		inputDeviceMenuBox.right += 50;	/* widen this, since we've hidden channel field */
 	}
 
 	/*
@@ -467,29 +431,7 @@ void MIDIDialog(Document *doc)
 	groupFlats = (doc->recordFlats? FLATS_DI : SHARPS_DI);		/* Set up radio button group */
 	PutDlgChkRadio(dlog, groupFlats, 1);
 
-	if (useWhichMIDI == MIDIDR_OMS) {
-		if (!OMSChannelValid(doc->omsInputDevice, doc->channel)) {
-			doc->channel = config.defaultChannel;
-			doc->omsInputDevice = config.defaultInputDevice;
-			omsInputDeviceChanged = TRUE;
-			if (OMSChannelValid(doc->omsInputDevice, doc->channel))
-				omsInputDeviceValid = TRUE;
-			else
-				omsInputDeviceValid = FALSE;
-		}
-		else
-			omsInputDeviceValid = TRUE;
-		PutDlgWord(dlog, CHANNEL, doc->channel, FALSE);
-		GetIndString(deviceStr, MIDIPLAYERRS_STRS, 16);
-		SetOMSDeviceMenuSelection(omsInputMenuH, 0, doc->omsInputDevice, deviceStr, TRUE);
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		/* Hide these fields, since we use the popup for channel and device. */
-		HideDialogItem(dlog, CHANNEL);
-		HideDialogItem(dlog, CHANNEL_LABEL);
-	}
-	else
-		PutDlgWord(dlog, CHANNEL, doc->channel, FALSE);
+	PutDlgWord(dlog, CHANNEL, doc->channel, FALSE);
 
 	PutDlgWord(dlog, MASTERVELOCITY_DI, doc->velocity, FALSE);
 	PutDlgChkRadio(dlog, FEEDBACK, doc->feedback);
@@ -510,11 +452,7 @@ void MIDIDialog(Document *doc)
 
 	CenterWindow(GetDialogWindow(dlog), 100);
 	ShowWindow(GetDialogWindow(dlog));
-	if (useWhichMIDI == MIDIDR_OMS && omsInputMenuH != NULL) {
-		DrawOMSDeviceMenu(omsInputMenuH);
-		TextFont(0); TextSize(0); 		/* Prevent OMS menu's font from infecting the other items. */
-	}
-	else if (useWhichMIDI == MIDIDR_CM && cmInputMenuH != NULL) {
+	if (useWhichMIDI == MIDIDR_CM && cmInputMenuH != NULL) {
 		DrawPopUp(&cmInputPopup);
 	}
 	
@@ -577,19 +515,7 @@ void MIDIDialog(Document *doc)
 		}
 		else {
 			GetDlgWord(dlog, CHANNEL, &newval);
-			if (useWhichMIDI == MIDIDR_OMS) {
-#ifdef CARBON_NOTYET
-				if (omsInputMenuH && (*omsInputMenuH)->select.uniqueID !=0 && !OMSChannelValid((*omsInputMenuH)->select.uniqueID, newval)) {
-#else
-				if (omsInputMenuH /*&& (*omsInputMenuH)->select.uniqueID !=0 && !OMSChannelValid((*omsInputMenuH)->select.uniqueID, newval)*/) {
-#endif
-					GetIndCString(strBuf, MIDIPLAYERRS_STRS, 14);	/* "Channel not valid for device" */
-					CParamText(strBuf, "", "", "");
-					StopInform(MIDIBADVALUE_ALRT);
-					dialogOver = 0;										/* Keep dialog on screen */
-				}
-			}
-			else if (useWhichMIDI == MIDIDR_CM) {
+			if (useWhichMIDI == MIDIDR_CM) {
 				if (newval<1 || newval>MAXCHANNEL) {
 					GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 4);	/* "Channel number must be..." */
 					sprintf(strBuf, fmtStr, MAXCHANNEL);
@@ -609,16 +535,7 @@ void MIDIDialog(Document *doc)
 					}
 				}
 			}
-			else if (useWhichMIDI != MIDIDR_FMS) {
-				if (newval<1 || newval>MAXCHANNEL) {
-					GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 4);	/* "Channel number must be..." */
-					sprintf(strBuf, fmtStr, MAXCHANNEL);
-					CParamText(strBuf, "", "", "");
-					StopInform(MIDIBADVALUE_ALRT);
-					dialogOver = 0;										/* Keep dialog on screen */
-				}
-			}
-	
+			
 			GetDlgWord(dlog, MASTERVELOCITY_DI, &newval);
 			if (newval<-127 || newval>127) {						/* 127=MAX_VELOCITY */
 				GetIndCString(strBuf, MIDIPLAYERRS_STRS, 5);	/* "Master velocity must be..." */
@@ -669,15 +586,7 @@ void MIDIDialog(Document *doc)
 	newval = GetDlgChkRadio(dlog, FLATS_DI);
 	GEN_ACCEPT(doc->recordFlats);
 
-	if (useWhichMIDI == MIDIDR_OMS) {
-#ifdef CARBON_NOTYET
-		newval = (INT16)((*omsInputMenuH)->select.uniqueID);
-#else
-		newval = 0;
-#endif
-		GEN_ACCEPT(doc->omsInputDevice);
-	}
-	else if (useWhichMIDI == MIDIDR_CM) {
+	if (useWhichMIDI == MIDIDR_CM) {
 		MIDIUniqueID endptID = GetCMInputDeviceID();
 		if (endptID != kInvalidMIDIUniqueID) {
 			if (doc->cmInputDevice != endptID) {
@@ -688,10 +597,6 @@ void MIDIDialog(Document *doc)
 			GetDlgWord(dlog, CHANNEL, &newval);
 			GEN_ACCEPT(doc->channel);
 		}
-	}
-	else if (useWhichMIDI == MIDIDR_FMS) {
-		doc->fmsInputDevice = fmsInputDevice;
-		doc->channel = fmsInputChannel;
 	}
 	else {
 		GetDlgWord(dlog, CHANNEL, &newval);
@@ -761,7 +666,7 @@ pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, INT16 *item
 				BeginUpdate(GetDialogWindow(dlog));				
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, TRUE);
-				DrawFMSDeviceMenu(&deviceMenuBox, thruDevice, thruChannel);
+//chirgwin				DrawFMSDeviceMenu(&deviceMenuBox, thruDevice, thruChannel);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 			}
@@ -770,7 +675,7 @@ pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, INT16 *item
 			mouseLoc = theEvent->where;
 			GlobalToLocal(&mouseLoc);
 			if (PtInRect(mouseLoc, &deviceMenuBox)) {
-				(void)RunFMSDeviceMenu(&deviceMenuBox, &thruDevice, &thruChannel);
+//chirgwin				(void)RunFMSDeviceMenu(&deviceMenuBox, &thruDevice, &thruChannel);
 				*itemHit = POP_Device;
 				return TRUE;
 				break;
@@ -797,7 +702,8 @@ Boolean MIDIThruDialog()
 	ModalFilterUPP	filterUPP;
 	
 	/* ??Could support OMS later, but need a channel text field? */
-	if (useWhichMIDI!=MIDIDR_FMS)
+//	if (useWhichMIDI!=MIDIDR_FMS)
+	if (useWhichMIDI!=MIDIDR_NONE)
 		return FALSE;
 
 	filterUPP = NewModalFilterUPP(MIDIThruFilter);
@@ -914,15 +820,16 @@ static DialogPtr OpenOMSMetroDialog(
 	SetPort(GetDialogWindowPort(dlog));
 
 	GetDialogItem(dlog, OMS_METRO_MENU, &scratch, &hndl, &metroMenuBox);
-	omsMetroMenuH = CreateOMSOutputMenu(&metroMenuBox);
+//chirgwin	omsMetroMenuH = CreateOMSOutputMenu(&metroMenuBox);
 	if (omsMetroMenuH==NULL) { SysBeep(5); SetPort(oldPort); return(NULL);}
 
 	/* Fill in dialog's values here */
 
-	if (!OMSChannelValid(device, channel)) {
+/* chirgwin	if (!OMSChannelValid(device, channel)) {
 		channel = config.defaultOutputChannel;
 		device = config.defaultOutputDevice;
 	}
+*/ 
 	GetIndString(deviceStr, MIDIPLAYERRS_STRS, 16);			/* "No devices available" */
 	SetOMSDeviceMenuSelection(omsMetroMenuH, 0, device, deviceStr, TRUE);
 
@@ -1026,34 +933,13 @@ static Boolean MetroBadValues(DialogPtr dlog)
 	char fmtStr[256];
 
 	GetDlgWord(dlog,EDIT7_Chan,&val);
-	if (useWhichMIDI == MIDIDR_OMS) {
-#ifdef CARBON_NOTYET
-		if (omsMetroMenuH && !OMSChannelValid((*omsMetroMenuH)->select.uniqueID, val)) {
-#else
-		if (omsMetroMenuH /*&& !OMSChannelValid((*omsMetroMenuH)->select.uniqueID, val)/*/) {
-#endif
-			GetIndCString(strBuf, MIDIPLAYERRS_STRS, 14);	/* "Channel not valid for device" */
-			CParamText(strBuf, "", "", "");
-			StopInform(GENERIC_ALRT);
-			bad = TRUE;													/* Keep dialog on screen */
-		}
-	}
-	else if (useWhichMIDI == MIDIDR_CM) {
+	if (useWhichMIDI == MIDIDR_CM) {
 		MIDIUniqueID device = GetCMOutputDeviceID();
 		if (cmMetroMenuH && !CMTransmitChannelValid(device, val)) {
 			GetIndCString(strBuf, MIDIPLAYERRS_STRS, 19);	/* "Channel not valid for device" */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
 			bad = TRUE;													/* Keep dialog on screen */
-		}
-	}
-	else if (useWhichMIDI != MIDIDR_FMS) {						/* we don't use a channel field for FreeMIDI */
-		if (val<1 || val>MAXCHANNEL) {
-			GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 4);		/* "Channel number must be..." */
-			sprintf(strBuf, fmtStr, MAXCHANNEL);
-			CParamText(strBuf, "", "", "");
-			StopInform(GENERIC_ALRT);
-			bad = TRUE;
 		}
 	}
 
@@ -1101,7 +987,7 @@ pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 
 			BeginUpdate(GetDialogWindow(theDialog));
 			UpdateDialogVisRgn(theDialog);
 			FrameDefault(theDialog,OK,TRUE);
-			DrawFMSDeviceMenu(&metroMenuBox, fmsMetroDevice, fmsMetroChannel);
+//chirgwin			DrawFMSDeviceMenu(&metroMenuBox, fmsMetroDevice, fmsMetroChannel);
 			EndUpdate(GetDialogWindow(theDialog));
 			SetPort(oldPort);
 			*item = 0;
@@ -1119,7 +1005,7 @@ pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 
 			if (PtInRect(mouseLoc, &box))	{*item = BUT2_Cancel; break;};
 			
 			if (PtInRect(mouseLoc, &metroMenuBox)) {
-				RunFMSDeviceMenu(&metroMenuBox, &fmsMetroDevice, &fmsMetroChannel);
+//chirgwin				RunFMSDeviceMenu(&metroMenuBox, &fmsMetroDevice, &fmsMetroChannel);
 				*item = FMS_METRO_MENU;
 				break;
 			}
@@ -1828,8 +1714,6 @@ Boolean MIDIModifierDialog(Document */*doc*/)
 /* Setup dialog for MIDI Pascal for Macintosh. Should also be useful for similar
 simple MIDI drivers. Returns TRUE if OK'd, FALSE if Cancelled or there's a problem. */
 
-
-#include "MIDIPASCAL3.h"
 
 static enum {						/* Dialog item numbers */
 	MIDI_OK=1,

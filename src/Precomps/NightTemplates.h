@@ -600,7 +600,6 @@ pascal short	FindToolItem(Point pt);
 	void		DrawDocumentView(Document *doc, Rect *updateRect);
 	void		ExportDeskScrap(void);
 	Boolean	ClipboardChanged(ScrapRef scrap);
-	void		FillInWatershed128 (DoubleWord, Word, Byte, Byte, Boolean, Byte);
 	void		FillMem(Byte, void *, DoubleWord);
 	void		FixCrossSysObjects(Document *, LINK, LINK);
 	void		ImportDeskScrap(void);
