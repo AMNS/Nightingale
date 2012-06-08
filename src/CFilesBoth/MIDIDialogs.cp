@@ -666,7 +666,6 @@ pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, INT16 *item
 				BeginUpdate(GetDialogWindow(dlog));				
 				UpdateDialogVisRgn(dlog);
 				FrameDefault(dlog, OK, TRUE);
-//chirgwin				DrawFMSDeviceMenu(&deviceMenuBox, thruDevice, thruChannel);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 			}
@@ -675,7 +674,6 @@ pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, INT16 *item
 			mouseLoc = theEvent->where;
 			GlobalToLocal(&mouseLoc);
 			if (PtInRect(mouseLoc, &deviceMenuBox)) {
-//chirgwin				(void)RunFMSDeviceMenu(&deviceMenuBox, &thruDevice, &thruChannel);
 				*itemHit = POP_Device;
 				return TRUE;
 				break;
@@ -820,16 +818,10 @@ static DialogPtr OpenOMSMetroDialog(
 	SetPort(GetDialogWindowPort(dlog));
 
 	GetDialogItem(dlog, OMS_METRO_MENU, &scratch, &hndl, &metroMenuBox);
-//chirgwin	omsMetroMenuH = CreateOMSOutputMenu(&metroMenuBox);
 	if (omsMetroMenuH==NULL) { SysBeep(5); SetPort(oldPort); return(NULL);}
 
 	/* Fill in dialog's values here */
 
-/* chirgwin	if (!OMSChannelValid(device, channel)) {
-		channel = config.defaultOutputChannel;
-		device = config.defaultOutputDevice;
-	}
-*/ 
 	GetIndString(deviceStr, MIDIPLAYERRS_STRS, 16);			/* "No devices available" */
 	SetOMSDeviceMenuSelection(omsMetroMenuH, 0, device, deviceStr, TRUE);
 
@@ -987,7 +979,6 @@ pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 
 			BeginUpdate(GetDialogWindow(theDialog));
 			UpdateDialogVisRgn(theDialog);
 			FrameDefault(theDialog,OK,TRUE);
-//chirgwin			DrawFMSDeviceMenu(&metroMenuBox, fmsMetroDevice, fmsMetroChannel);
 			EndUpdate(GetDialogWindow(theDialog));
 			SetPort(oldPort);
 			*item = 0;
@@ -1005,7 +996,6 @@ pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 
 			if (PtInRect(mouseLoc, &box))	{*item = BUT2_Cancel; break;};
 			
 			if (PtInRect(mouseLoc, &metroMenuBox)) {
-//chirgwin				RunFMSDeviceMenu(&metroMenuBox, &fmsMetroDevice, &fmsMetroChannel);
 				*item = FMS_METRO_MENU;
 				break;
 			}

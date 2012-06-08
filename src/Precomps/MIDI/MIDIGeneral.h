@@ -101,8 +101,6 @@ OSStatus	EndNoteNow(INT16 noteNum, SignedByte channel, short ioRefNum);
 Boolean	EndNoteLater(INT16 noteNum, SignedByte channel, long endTime, short ioRefNum);
 Boolean	CMEndNoteLater(INT16 noteNum, SignedByte channel, long endTime, long ioRefNum);
 
-//chirgwin void MIDITriple(INT16, INT16, INT16);
-
 Boolean AllocMPacketBuffer(void);
 Boolean MMInit(long *);
 Boolean MMClose(void);
@@ -141,7 +139,6 @@ void MIDIFBOn(Document *);
 void MIDIFBOff(Document *);
 void MIDIFBNoteOn(Document *, INT16, INT16, short);
 void MIDIFBNoteOff(Document *, INT16, INT16, short);
-void AllNotesOff(void);
 
 /* High (UI)-level MIDI play routines */
 

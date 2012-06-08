@@ -1055,9 +1055,6 @@ PushLock(PARTINFOheap);
 	strcpy(pPart->name, "Unnamed");
 	strcpy(pPart->shortName, "Unnam.");
 
-	/* OMS-specific initialization */
-//chirgwin	SetOMSDeviceForPartL(0, partL, config.defaultOutputDevice);  /* current doc, this part, def device */
-
 	/* FreeMIDI-specific initialization */
 #ifdef CARBON_NOTYET_BANKNUM
 	pPart->bankNumber0 = NO_BANKSELECT;
@@ -1066,7 +1063,6 @@ PushLock(PARTINFOheap);
 	pPart->fmsOutputDevice = noUniqueID;
 	pPart->fmsOutputDestination.basic.destinationType = 0,
 	pPart->fmsOutputDestination.basic.name[0] = 0;
-//chirgwin	FMSSetNewPartDevice(partL);
 PopLock(PARTINFOheap);
 }
 

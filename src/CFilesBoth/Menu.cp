@@ -1298,11 +1298,8 @@ void DoPlayRecMenu(INT16 choice)
 				break;
 #endif
 			case PL_AllNotesOff:
-				if (useWhichMIDI == MIDIDR_CM)
+				if (useWhichMIDI == MIDIDR_CM) {
 					CMAllNotesOff();
-				else {
-					if (BIMIDIPortIsBusy()) break;
-					AllNotesOff();
 				}
 				break;
 			case PL_MIDISetup:

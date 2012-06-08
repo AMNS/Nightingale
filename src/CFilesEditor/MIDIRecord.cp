@@ -528,7 +528,6 @@ Boolean RecordDialog(
 		transpose = 0;
 	split = (GetControlValue(splitHdl)!=0);
 	*pMetronome = GetDlgChkRadio(dlog, METRONOME_DI);
-//chirgwin	FMSSetMIDIThruDeviceFromConfig();
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);												/* Free heap space */
 	PopLock(OBJheap);
@@ -2390,7 +2389,6 @@ Boolean StepRecord(
 	FlushEvents(mDownMask, 0);									/* Discard mouse click that ended recording */
 
 Finished:
-//chirgwin	FMSSetMIDIThruDeviceFromConfig();
 
 	if (rawBuffer) DisposePtr((Ptr)rawBuffer);
 	if (mergeObjs) DisposePtr((Ptr)mergeObjs);
