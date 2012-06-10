@@ -26,3 +26,18 @@ Downloads require an Apple Developer account; they may also require either a pai
  - should work with version 2.4 or better, but only versions 4.2 and 3.2.2 have been tested
  - NB: when installing Xcode/Developer Tools, be sure MacOS 10.4 SDK installation option is selected; it may not be selected by default.
 
+Debugging
+---------
+It's not currently possible to attach a debugger on an Intel machine (due to Rosetta translation requirements).  It should be possible to debug on a PPC machine.
+
+XCode puts debug build products in a directory like:
+`~/Library/Developer/Xcode/DerivedData/Nightingale-dghtzivoyrfkjudiupfaqdqicrev/Build/Products/Debug/`
+This can be found using:
+`find ~/* -name Nightingale.app`
+And run like:
+`open -a ~/Library/Developer/Xcode/DerivedData/Nightingale-dghtzivoyrfkjudiupfaqdqicrev/Build/Products/Debug/Nightingale.app`
+or simply:
+`~/Library/Developer/Xcode/DerivedData/Nightingale-dghtzivoyrfkjudiupfaqdqicrev/Build/Products/Debug/Nightingale.app/Contents/MacOS/Nightingale`
+The latter is helpful, since stderr/out will be printed to the command line.
+
+
