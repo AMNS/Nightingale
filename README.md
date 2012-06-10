@@ -31,13 +31,21 @@ Debugging
 It's not currently possible to attach a debugger on an Intel machine (due to Rosetta translation requirements).  It should be possible to debug on a PPC machine.
 
 XCode puts debug build products in a directory like:
+
 `~/Library/Developer/Xcode/DerivedData/Nightingale-dghtzivoyrfkjudiupfaqdqicrev/Build/Products/Debug/`
+
 This can be found using:
+
 `find ~/* -name Nightingale.app`
+
 And run like:
+
 `open -a ~/Library/.../Build/Products/Debug/Nightingale.app`
+
 or simply:
+
 `Nightingale.app/Contents/MacOS/Nightingale`
+
 The latter is helpful, since stderr/out will be printed to the command line.
 
 
