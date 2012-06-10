@@ -35,9 +35,9 @@ XCode puts debug build products in a directory like:
 This can be found using:
 `find ~/* -name Nightingale.app`
 And run like:
-`open -a ~/Library/Developer/Xcode/DerivedData/Nightingale-dghtzivoyrfkjudiupfaqdqicrev/Build/Products/Debug/Nightingale.app`
+`open -a ~/Library/.../Build/Products/Debug/Nightingale.app`
 or simply:
-`~/Library/Developer/Xcode/DerivedData/Nightingale-dghtzivoyrfkjudiupfaqdqicrev/Build/Products/Debug/Nightingale.app/Contents/MacOS/Nightingale`
+`Nightingale.app/Contents/MacOS/Nightingale`
 The latter is helpful, since stderr/out will be printed to the command line.
 
 
