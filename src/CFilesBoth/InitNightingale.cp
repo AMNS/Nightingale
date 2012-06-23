@@ -24,7 +24,6 @@ static Boolean	InitAllCursors(void);
 static void		InitNightFonts(void);
 static Boolean	InitNightGlobals(void);
 static Boolean	InitTables(void);
-static Boolean	ExpireTimeOK(void);
 static void 		PrintInfo(void);
 static void		InitMusicFontStuff(void);
 static Boolean	InitMIDISystem(void);
@@ -47,7 +46,6 @@ void InitNightingale()
 	MEInitCaretSystem();
 	
 	if (!InitTables()) NExitToShell("Init Tables");
-	if (!ExpireTimeOK()) NExitToShell("Expire Time");
 	PrintInfo();
 	InitMusicFontStuff();
 	if (!InitMIDISystem()) NExitToShell("Init Midi");
@@ -445,55 +443,6 @@ static Boolean InitTables()
 }
 
 
-/* If this copy's expiration date is past, say so and return FALSE. */
-
-static Boolean ExpireTimeOK()
-{
-	DateTimeRec expire;				/* Expiration date of this copy of program */
-	unsigned long secsNow, secsExpire;
-
-	//CER 10/23/2003, 5.06a2
-	if (config.noExpire==33) return TRUE;				/* For Emergency Use Only */
-	/*
-	 * For a bit more security, bury these dates in the code, and avoid having
-	 * the year appear explicitly as a constant. But caveat: this makes setting
-	 * expire.year pretty tricky!
-	 */
-#if defined(VIEWER_VERSION)
-	expire.year = 1899;
-	expire.month = 7;
-#elif defined(PUBLIC_VERSION)
-	#define NoEVAL_SUBVERSION		/* for 3.0A academic evaluation version */
-	#ifdef EVAL_SUBVERSION
-		expire.year = 1895;
-		expire.month = 10;
-	#else
-		return TRUE;
-	#endif
-#else										/* Not VIEWER_, not PUBLIC_VERSION = beta */
-	expire.year = 1911;
-	expire.month = 12;
-#endif
-	expire.day = 01;
-	expire.year += 101;				/* This is what makes setting expire.year tricky! */
-	expire.hour = expire.minute = expire.second = 0;
-	GetDateTime(&secsNow);
-	DateToSeconds(&expire, &secsExpire);
-
-	if (secsNow>=secsExpire) {
-		GetIndCString(strBuf, INITERRS_STRS, 12);	/* "...this beta copy of Nightingale..."/"This copy of NoteView..." */
-		CParamText(strBuf, "", "", "");
-#ifdef VIEWER_VERSION
-		StopInform(BIG_GENERIC_ALRT);
-		return TRUE;
-#else
-		StopInform(GENERIC_ALRT);
-		return FALSE;
-#endif
-	}
-	
-	return TRUE;
-}
 
 
 /* Print various information for debugging. */
