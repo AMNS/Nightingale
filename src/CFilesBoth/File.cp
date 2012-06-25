@@ -1059,9 +1059,6 @@ enum {
 	HEADER_ERR,
 	LASTTYPE_ERR,				/* Value for LASTtype in file is not we expect it to be */
 	TOOMANYSTAVES_ERR,
-#ifdef LIGHT_VERSION
-	TOOMANYPAGES_ERR,
-#endif
 	LOWMEM_ERR,
 	BAD_VERSION_ERR
 };
@@ -1214,14 +1211,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 		default:
 			;
 	}
-	
-#ifdef LIGHT_VERSION
-	if (doc->numSheets>MAXPAGES) {
-		errCode = TOOMANYPAGES_ERR;
-		errInfo = doc->numSheets;
-		goto Error;
-	}
-#endif
 
 	fix_end(doc->nstaves);
 	if (doc->nstaves>MAXSTAVES) {
@@ -1441,12 +1430,6 @@ void OpenError(Boolean fileOpened,
 				GetIndCString(fmtStr, FILEIO_STRS, 10);		/* "this version can handle only %d staves" */
 				sprintf(aStr, fmtStr, errInfo, MAXSTAVES);
 				break;
-#ifdef LIGHT_VERSION
-			case TOOMANYPAGES_ERR:
-				GetIndCString(fmtStr, FILEIO_STRS, 19);		/* "this version can handle only %d pages" */
-				sprintf(aStr, fmtStr, errInfo, MAXPAGES);
-				break;
-#endif
 			default:
 				/*
 				 * We expect descriptions of the common errors stored by code (negative

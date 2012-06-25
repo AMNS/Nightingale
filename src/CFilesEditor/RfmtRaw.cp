@@ -322,9 +322,6 @@ Cleanup:
 	status = Reformat(doc, startL, endL, FALSE, 9999, FALSE, 999, config.titleMargin);
 	if (status==FAILURE)
 		newSysOrPage = FALSE;
-#ifdef LIGHT_VERSION
-	EnforcePageLimit(doc);
-#endif
 
 	InvalRange(barL, sysTermL);
 	InvalWindow(doc);

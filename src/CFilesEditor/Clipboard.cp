@@ -1513,8 +1513,6 @@ Boolean DoPaste(Document *doc)
 
 	InitAntikink(doc, prevSelStartL, doc->selEndL);
 	MEAdjustCaret(doc,FALSE);
-	/* NOTE: If we ever set the <doRfmt> flag to TRUE in this call to RespaceBars, we'll 
-		have to guard against having more than MAXPAGES in the LIGHT_VERSION.  -JGG */
 	if (doc->autoRespace) {
 		RespaceBars(doc,prevSelStartL,doc->selEndL,RESFACTOR*(long)doc->spacePercent,FALSE,FALSE);
 	}

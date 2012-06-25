@@ -408,22 +408,8 @@ Boolean MoveBarsDown(Document *doc, LINK startL, LINK endL)
 			sys2L = CreateSystem(doc,prevL,sysTop,succSystem);
 		}
 		else {
-#ifdef LIGHT_VERSION
-			/* If we're on the last page user can have, put new sys on same page even
-				if it falls off the end of the page. */
-			if (doc->numSheets==MAXPAGES) {
-				sysRect = SystemRECT(sys1L);
-				sysTop = sysRect.bottom;
-				sys2L = CreateSystem(doc,prevL,sysTop,succSystem);
-			}
-			else {
-				CreatePage(doc, prevL);
-				sys2L = LinkRSYS(sys1L);
-			}
-#else
 			CreatePage(doc, prevL);
 			sys2L = LinkRSYS(sys1L);
-#endif
 		}
 		endBarL = RightLINK(prevL);
 	}

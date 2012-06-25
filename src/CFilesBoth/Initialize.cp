@@ -898,11 +898,6 @@ static Boolean GetConfig()
 			{ config.enlargeNRHiliteH = 1; ERR(99); }
 	if (config.enlargeNRHiliteV < 0 || config.enlargeNRHiliteV > 10)
 			{ config.enlargeNRHiliteV = 1; ERR(100); }
-#ifdef LIGHT_VERSION
-	/* We MUST have undo. It's the mechanism used to recover after exceeding
-	   page limit (e.g., by reformat). */
-	config.disableUndo = 0;
-#endif			
 	/* No validity check at this time for default or metro Devices, do it in InitOMS */
 
 	if (gotCnfg && nerr>0) {

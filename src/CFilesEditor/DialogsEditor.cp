@@ -924,11 +924,6 @@ Boolean PageNumDialog(Document *doc)
 
 	PutDlgChkRadio(dlog, ALTERNATE_DI, doc->alternatePGN);
 
-#ifdef LIGHT_VERSION
-	HideDialogItem(dlog, FIRSTNUM_DI-1);	/* 1st page num label */
-	HideDialogItem(dlog, FIRSTNUM_DI);		/* 1st page num edit field */
-#endif
-
 	CenterWindow(GetDialogWindow(dlog), 55);
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
@@ -999,10 +994,6 @@ Boolean PageNumDialog(Document *doc)
 	
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
-	
-#ifdef LIGHT_VERSION
-	doc->firstPageNumber = 1;	/* Prevent using full version to bump number? Paranoid. */
-#endif
 
 	SetPort(oldPort);
 	return (dialogOver==OK);

@@ -747,72 +747,6 @@ static void DisposeMasterData(Document *doc)
 		doc->oldMasterTailL = NILINK;
 }
 
-
-#ifdef LIGHT_VERSION
-/* MPPrepareUndo and MPEnforcePageLimit implement Undo when leaving Master Page
-just so that we can back out of a reformat that results in more pages than we let
-the user of NightLight have. This is a little tricky, since the normal Undo mechanism
-doesn't touch the header object, and the latter can have new subobjects added in
-ExportMasterPage. So we duplicate the current header object, and, if Reformat creates
-too many pages, use it to restore the header object that emerges from ExportMasterPage.
-Also, there are a number of doc fields that have to be restored in this case. Note that
-we prepare to undo the entire score range. -JGG */
-
-/*---------------------------------------------------------------- MPPrepareUndo -- */
-static Boolean MPPrepareUndo(Document *doc, Document *tmpDoc, LINK *tmpHeadL)
-{
-	doc->selStartL = doc->headL;  /* NB: PrepareUndo looks at sel range rather than its 2nd arg */
-	doc->selEndL = doc->tailL;
-	PrepareUndo(doc, RightLINK(doc->headL), U_Reformat, 20);		/* 20: "Reformat" */
-	*tmpHeadL = DuplicateObject(HEADERtype, doc->headL, FALSE, doc, doc, FALSE);
-	if (*tmpHeadL==NILINK)
-		return FALSE;
-	BlockMoveData(doc, tmpDoc, sizeof(Document));
-	return TRUE;
-}
-
-/*----------------------------------------------------------- MPEnforcePageLimit -- */
-static void MPEnforcePageLimit(Document *doc, Document *tmpDoc, LINK tmpHeadL)
-{
-	if (doc->numSheets>MAXPAGES) {
-		LINK firstSubL; PHEADER pTmpHead, pNewHead;
-
-		firstSubL = FirstSubLINK(doc->headL);
-		HeapFree(doc->Heap+HEADERtype, firstSubL);		/* Delete current part list. */
-
-		RightLINK(tmpHeadL) = RightLINK(doc->headL);
-		pTmpHead = GetPHEADER(tmpHeadL);
-		pNewHead = GetPHEADER(doc->headL);
-		BlockMoveData(pTmpHead, pNewHead, sizeof(SUPEROBJECT));
-
-		doc->numSheets = MAXPAGES + 1;			/* Force EnforcePageLimit to Undo */
-		EnforcePageLimit(doc);
-
-		ResetMasterPage(doc);
-
-		/* Restore some fields in <doc>. */
-		doc->nstaves = tmpDoc->nstaves;
-		doc->srastral = tmpDoc->srastral;
-		doc->altsrastral = tmpDoc->altsrastral;
-		doc->selStaff = tmpDoc->selStaff;
-		/* There's no telling what LINKs the previous selection endpoints now have
-		after the undo, so just set selection to tailL. Not great, but oh well.
-		We set oldSel* here, because ResetMasterFields will use these to set
-		selStartL and selEndL. */
-		doc->oldSelStartL = doc->tailL;
-		doc->oldSelEndL = doc->tailL;
-
-		/* Restore the old voice table. (UpdateVoiceTable wasn't sufficient here.) */
-		BlockMoveData(&tmpDoc->voiceTab, &doc->voiceTab, sizeof(doc->voiceTab));
-
-		RightLINK(tmpHeadL) = NILINK;
-		HeapFree(doc->Heap+OBJtype, tmpHeadL);		/* NOT including its subobj list, which doc->headL now uses */
-	}
-	else
-		DeleteNode(doc, tmpHeadL);					/* Including its subobj list */
-}
-#endif
-
 static enum {
 	RFMT_NONE=0,
 	RFMT_KeepSBreaks,
@@ -916,22 +850,7 @@ Boolean ExitMasterView(Document *doc)
  		saveChanges = CautionAdvise(exportAlertID);
  		WaitCursor();
  		if (saveChanges==OK) {
-#ifdef LIGHT_VERSION
-			LINK tmpHeadL = NILINK; Document tmpDoc;
-
-			if (reformat!=RFMT_NONE) {
-				if (!MPPrepareUndo(doc, &tmpDoc, &tmpHeadL)) {
-				/*	If we get here, it probably means there's not enough memory to undo.
-					An ALRT to this effect will have been given.  Fine, but for NightLight,
-					this means we can't afford to go ahead with a reformat, because it
-					might result in the page limit being exceeded.  ??Not sure what to do!  -JGG */
-
-					goto quit;
-				}
-			}
-#else
 			DisableUndo(doc, FALSE);			/* Since we can't Undo across a structural change */
-#endif
 			doc->changed = TRUE;
 			doc->locFmtChanged = FALSE;			/* Score has no local format changes */
 			ExportMasterPage(doc);				/* Export all editing changes to score */
@@ -940,9 +859,6 @@ Boolean ExitMasterView(Document *doc)
 							(reformat==RFMT_ChangeSBreaks),
 							(CARE_MEASPERSYS? MEASPERSYS : 9999), FALSE,
 							(CARE_SYSPERPAGE? SYSPERPAGE : 999), config.titleMargin);
-#ifdef LIGHT_VERSION
-				MPEnforcePageLimit(doc, &tmpDoc, tmpHeadL);
-#endif
 			}
 		}
 		else

@@ -225,10 +225,6 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 				changeSBreaks, (careMeasPerSys? measPerSys : 9999),
 				FALSE, 999, config.titleMargin);
 
-#ifdef LIGHT_VERSION
-	EnforcePageLimit(doc);
-#endif
-
 	(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
 }
 
@@ -525,17 +521,6 @@ static void ExtractToScore(Document *doc, LINK firstPartL, LINK lastPartL)
 					if (reformat) {
 						ReformatPart(partDoc, spacePercent, TRUE, careMeasPerSys,
 											measPerSys);
-#ifdef LIGHT_VERSION
-						if (partDoc->numSheets>MAXPAGES) {
-							/* Already given LIGHTVERS_MAXPAGES_ALRT in EnforcePageLimit. Unlikely
-								that we'll get a part that needs more pages than the score, but you
-								never know, if spacePercent is huge. */
-							partDoc->changed = FALSE;
-							DoCloseDocument(partDoc);
-							InstallDoc(doc);					/* See comment below about this. */
-							continue;
-						}
-#endif
 					}
 					else
 						NormalizePartFormat(partDoc);

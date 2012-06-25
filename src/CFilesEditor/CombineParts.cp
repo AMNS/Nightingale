@@ -332,10 +332,6 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 				changeSBreaks, (careMeasPerSys? measPerSys : 9999),
 				FALSE, 999, config.titleMargin);
 
-#ifdef LIGHT_VERSION
-	EnforcePageLimit(doc);
-#endif
-
 	(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
 }
 

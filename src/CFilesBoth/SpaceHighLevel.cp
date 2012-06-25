@@ -1245,9 +1245,6 @@ static Boolean PositionWholeMeasures(
 		if (goAhead) {
 			Reformat(doc, startBarL, LeftLINK(endSysL), TRUE, 9999, FALSE, 999,
 							config.titleMargin);
-#ifdef LIGHT_VERSION
-			EnforcePageLimit(doc);
-#endif
 		}
 		else
 			return FALSE;

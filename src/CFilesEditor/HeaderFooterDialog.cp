@@ -328,11 +328,6 @@ Boolean HeaderFooterDialog(Document *doc)
 
 	firstNumber = doc->firstPageNumber;
 	PutDlgWord(dlog, FIRSTNUM_DI, firstNumber, FALSE);
-	
-#ifdef LIGHT_VERSION
-	HideDialogItem(dlog, FIRSTNUM_DI - 1);	/* 1st page num label */
-	HideDialogItem(dlog, FIRSTNUM_DI);		/* 1st page num edit field */
-#endif
 
 	PutDlgWord(dlog, TOFFSET_DI, doc->headerFooterMargins.top, FALSE);
 	PutDlgWord(dlog, BOFFSET_DI, doc->headerFooterMargins.bottom, FALSE);
@@ -354,11 +349,7 @@ Boolean HeaderFooterDialog(Document *doc)
 	PutDlgString(dlog, FTRCENTER_DI, oldCenterFtrStr, FALSE);
 	PutDlgString(dlog, FTRRIGHT_DI, oldRightFtrStr, FALSE);
 
-#ifdef LIGHT_VERSION
-	SelectDialogItemText(dlog, TOFFSET_DI, 0, ENDTEXT);
-#else
 	SelectDialogItemText(dlog, FIRSTNUM_DI, 0, ENDTEXT);
-#endif
 
 	/* Set globals that help us toggle more/fewer options state of dlog. */
 	GetDialogItem(dlog, Cancel, &type, &hndl, &box);
@@ -493,10 +484,6 @@ Boolean HeaderFooterDialog(Document *doc)
 	
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
-	
-#ifdef LIGHT_VERSION
-	doc->firstPageNumber = 1;	/* Prevent using full version to bump number? Paranoid. */
-#endif
 
 	SetPort(oldPort);
 	return (dialogOver==OK);

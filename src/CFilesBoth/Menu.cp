@@ -335,11 +335,9 @@ Boolean DoFileMenu(short choice)
 			case FM_Extract:
 				if (doc) DoExtract(doc);
 				break;
-#ifndef LIGHT_VERSION
 			case FM_GetETF:
 				// ETF (Finale Enigma Transportable File) support removed, so do nothing
 				break;
-#endif
 #ifdef JG_NOTELIST
 			case FM_GetNotelist:
 				NSClientData nsData;
@@ -1360,7 +1358,6 @@ static void DoFormatMenu(short choice)
 		Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
 		
-#ifndef LIGHT_VERSION
 		switch(choice) {
 			case FT_Invisify:
 				SFInvisify(doc);
@@ -1371,7 +1368,6 @@ static void DoFormatMenu(short choice)
 			default:
 				break;
 			}
-#endif
 	}
 
 
@@ -1612,9 +1608,6 @@ static void SMReformat(Document *doc)
 				CParamText(strBuf, "", "", "");
 				NoteInform(GENERIC_ALRT);
 			}
-#ifdef LIGHT_VERSION
-			EnforcePageLimit(doc);
-#endif
 		}
 	}
 
@@ -2104,12 +2097,7 @@ void InstallDocMenus(Document *doc)
 		else if (doc->showFormat) { mid = formatID; mh = formatMenu; }
 		else							  { mid = playRecID; mh = playRecMenu; }
 		
-#ifdef LIGHT_VERSION
-		if (!doc->showFormat)
-			InsertMenu(mh,0);
-#else
 		InsertMenu(mh,0);
-#endif
 		DrawMenuBar();
 
 		if (oldMh) {

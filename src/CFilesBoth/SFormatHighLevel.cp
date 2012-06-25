@@ -160,14 +160,6 @@ static Boolean SFStaffNonempty(LINK pL, short staffn)
 }
 
 
-#ifdef LIGHT_VERSION		/* Disable things related to invisifying staves. */
-
-DDIST SetStfInvis(Document *doc, LINK pL, LINK aStaffL) { return (DDIST)0; }
-void InvisifySelStaves(Document *doc) { ; }
-void SFInvisify(Document *doc) { ; }
-
-#else /* !LIGHT_VERSION */
-
 /* Check whether we want to invisify all selected staff subObjects; if so return TRUE.
 If there are any cross-staff objects (as of v.2.1, only beams or slurs) on the
 staff in the system, it can't be invisified. Otherwise, if the staff has any notes,
@@ -343,9 +335,6 @@ void SFInvisify(Document *doc)
 	InvalRange(doc->headL,doc->tailL);
 	InvalWindow(doc);
 }
-
-#endif /* !LIGHT_VERSION */
-
 
 /* ------------------------------------------------------- VisifyStf and SFVisify -- */
 

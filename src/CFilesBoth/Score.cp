@@ -1144,9 +1144,6 @@ LINK AddSystem(Document *doc, LINK insertL, short where)
 			else
 				endRfmtL = doc->tailL;
 			Reformat(doc, newSysL, endRfmtL, FALSE, 9999, FALSE, 999, config.titleMargin);
-#ifdef LIGHT_VERSION
-			EnforcePageLimit(doc);
-#endif
 		}
 		else if (!LastSysInPage(newSysL)) {
 			DRect newSysR; long newPos; short hiWord;
@@ -1886,13 +1883,6 @@ LINK AddPage(Document *doc, LINK insertL)
 					(long)insertL, (long)ObjLType(insertL));
 		return NILINK;
 	}
-
-#ifdef LIGHT_VERSION
-	if (doc->numSheets==MAXPAGES) {
-		StopInform(LIGHTVERS_MAXPAGES_ALRT);
-		return NILINK;
-	}
-#endif
 
 	if (ScreenPagesCanOverflow(doc, doc->magnify, doc->numSheets+1)) {
 		GetIndCString(strBuf, MISCERRS_STRS, 25);				/* "The page will not be added." */

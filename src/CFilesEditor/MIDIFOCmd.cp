@@ -912,14 +912,6 @@ static Boolean OpenMIDIFile()
 			MFRespAndRfmt(doc, quantCode);
 			ProgressMsg(0, "");
 	
-#ifdef LIGHT_VERSION
-			if (doc->numSheets>MAXPAGES) {
-				doc->changed = FALSE;
-				DoCloseDocument(doc);
-				/* Already given LIGHTVERS_MAXPAGES_ALRT in Reformat. */
-				return FALSE;
-			}
-#endif
 			SelAllNoHilite(doc);
 			if (autoBeam && durQuantum>1) {
 				AutoBeam(doc);

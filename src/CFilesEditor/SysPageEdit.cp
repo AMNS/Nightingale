@@ -1428,14 +1428,6 @@ void PastePages(Document *doc)
 	DDIST change;
 	SearchParam pbSearch;
 	Rect paper, result; short pageNum; Boolean appending;
-	
-#ifdef LIGHT_VERSION
-	if (doc->numSheets + clipboard->numSheets > MAXPAGES) {
-//FIXME: Make a new rsrc for this...
-		StopInform(LIGHTVERS_MAXPAGES_ALRT);
-		return;
-	}
-#endif
 
 	/* The pages to be pasted in must contain systems with same part-staff format as
 		the destination doc. */

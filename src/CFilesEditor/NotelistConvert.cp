@@ -378,13 +378,6 @@ static Boolean NotelistToNight(Document *doc)
 	doc->spacePercent = spacePercent;
 	ok = RespaceBars(doc, firstMeasL, doc->tailL, RESFACTOR*spacePercent, FALSE, doReformat=TRUE);
 
-#ifdef LIGHT_VERSION
-	if (doc->numSheets>MAXPAGES) {
-		/* Already given LIGHTVERS_MAXPAGES_ALRT in Reformat. */
-		return FALSE;
-	}
-#endif
-
 	ProgressMsg(CONTINUENOTELIST_PMSTR, "");
 
 #if DOAUTOBEAM
