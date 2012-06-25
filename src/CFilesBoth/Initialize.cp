@@ -924,25 +924,7 @@ and allocate as many Master Pointers as possible up to numMasters. Return TRUE i
 all went well, FALSE if not. */
 
 static Boolean InitMemory(short numMasters)
-{
-#ifdef CARBON_NOMORE
-	THz thisZone; long heapSize; short orig;
-	
-	/* Increase stack size by decreasing heap size (thanks to DBW for the method). */
-	heapSize = (long)GetApplLimit()-(long)GetZone();
-	heapSize -= 32000;
-	SetApplLimit((Ptr)ApplicationZone()+heapSize);
-
-	MaxApplZone();
-	thisZone = ApplicationZone();
-	orig = thisZone->moreMast;
-	thisZone->moreMast = numMasters;
-	do {
-		MoreMasters();
-	} while (MemError()!=noErr && (thisZone->moreMast=(numMasters >>= 1))!=0);
-	thisZone->moreMast = orig;
-#endif
-	
+{	
 	return(numMasters >= 64);
 }
 

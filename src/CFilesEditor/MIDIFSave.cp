@@ -1219,23 +1219,6 @@ void SaveMIDIFile(Document *doc)
 	*filename = (len + suffixLen);						/* And ensure new string knows new length */
 	
 	/* Ask user where to put this MIDI file */
-#ifdef CARBON_NOMORE	
-	GetIndString(prompt, MiscStringsID, 14);
-	SFPutFile(SFPwhere, prompt, filename, NULL, &reply);
-	if (!reply.good) return;
-	PStrCopy(reply.fName, (StringPtr)filename);
-	vRefNum = reply.vRefNum;
-	
-	errCode = FSDelete(filename, vRefNum);									/* Delete existing file */
-	if (errCode!=noErr && errCode!=fnfErr)									/* Ignore "file not found" */
-		{ ReportIOError(errCode, SAVEMF_ALRT); return; }
-		
-	errCode = Create(filename, vRefNum, creatorType, 'Midi'); 		/* Create new file */
-	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
-	
-	errCode = FSOpen(filename, vRefNum, &fRefNum);						/* Open it */
-	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
-#else
 	NSClientData	nscd;
 	Boolean			keepGoing;
 	FSSpec 			fsSpec;
@@ -1255,7 +1238,6 @@ void SaveMIDIFile(Document *doc)
 		
 	errCode = FSpOpenDF (&fsSpec, fsRdWrPerm, &fRefNum);				/* Open the file */
 	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
-#endif	
 
 	WaitCursor();
 	

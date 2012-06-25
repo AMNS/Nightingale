@@ -535,14 +535,6 @@ void DoDragWindow(WindowPtr w)
 			if (!ActiveWindow(w))
 				DoSelectWindow(w);
 			else {
-#ifdef CARBON_NOMORE
-				if (GetWindowKind(w)==PALETTEKIND && w!=TopPalette) {
-					BringToFront(w);
-					/* Force the palette to be updated before it is dragged. */
-					SetPort(GetWindowPort(w));
-					UpdatePalette(w);
-					}
-#endif
 				OurDragWindow(w);
 				}
 	}
@@ -602,41 +594,9 @@ void DoSelectWindow(WindowPtr w)
 	{
 		//RgnHandle updateRgn; short dx,dy;
 		
+		/* No Palettes, bring the document to the front and generate an activate event. */		
 		if (IsDocumentKind(w))
-
-#ifdef CARBON_NOMORE		
-			if (TopPalette) {
-				/* Calculate window area not visible that will need to be updated. */
-				CopyRgn(w->visRgn, updateRgn = NewRgn());
-				OffsetRgn(updateRgn,
-						dx=(*((WindowPeek) w)->contRgn)->rgnBBox.left,
-						dy=(*((WindowPeek) w)->contRgn)->rgnBBox.top);
-				DiffRgn(((WindowPeek) w)->strucRgn, updateRgn, updateRgn);
-				
-				/* Move the document below the BottomPalette */
-				
-				SendBehind(w, BottomPalette);
-				CalcVisBehind(w, updateRgn);
-				/* PaintOne(w, updateRgn); */
-				PaintOne(w, ((WindowPeek) w)->contRgn);
-				
-				DisposeRgn(updateRgn);
-				
-				if (TopPalette != TopWindow)
-					/* Bring all active application windows forward by generating an activate event. */
-					SelectWindow(TopPalette);
-				 else
-					/* Ensure w and its controls are hilited properly. */
-					ActivateDocument(GetDocumentFromWindow(w), TRUE);
-
-				/* Ensure w and its controls are unhilited properly. */
-				ActivateDocument(GetDocumentFromWindow(TopDocument), FALSE);
-				}
-			 else
-				/* No Palettes, bring the document to the front and generate an activate event. */
-#endif
-				SelectWindow(w);
-
+			SelectWindow(w);
 		 else
 		 	if (IsDocumentKind(TopWindow))
 				/* Bring the palette to the front but don't generate an activate event. */
