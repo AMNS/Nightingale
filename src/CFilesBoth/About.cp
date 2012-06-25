@@ -114,13 +114,8 @@ void DoAboutBox(
 	OffsetRect(&textSection, -creditRect.left, -creditRect.top);
 	if (!SetupCredits()) goto broken;
 
-#ifdef DEMO_VERSION
-	ShowDialogItem(dlog, STXT_DEMO);
-	ShowDialogItem(dlog, PICT_DEMO);
-#else
 	HideDialogItem(dlog, STXT_DEMO);
 	HideDialogItem(dlog, PICT_DEMO);
-#endif
 
 #ifdef PUBLIC_VERSION
 	HideDialogItem(dlog, PICT8_Confident);

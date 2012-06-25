@@ -3,7 +3,6 @@
 /* #define *_VERSION and check for consistency. Relationships among versions:
 
 	VIEWER_VERSION has the least functionality: it's a subset of...
-	DEMO_VERSION, which is a subset of...
 	PUBLIC_VERSION, which is a subset of...
 	the internal (beta) version (no *_VERSION).
 
@@ -13,20 +12,11 @@
 DEMO_ and VIEWER_ each require PUBLIC_, but DEMO_ and VIEWER_ are mutually exclusive. */
 
 #define NoPUBLIC_VERSION
-#define NoDEMO_VERSION
 #define NoVIEWER_VERSION
 #define NoLIGHT_VERSION
 
-#if defined(DEMO_VERSION) && !defined(PUBLIC_VERSION)
-#error "DEMO_VERSION and not PUBLIC_VERSION is illegal."
-#endif
-
 #if defined(VIEWER_VERSION) && !defined(PUBLIC_VERSION)
 #error "VIEWER_VERSION and not PUBLIC_VERSION is illegal."
-#endif
-
-#if defined(VIEWER_VERSION) && defined(DEMO_VERSION)
-#error "VIEWER_VERSION and DEMO_VERSION is illegal."
 #endif
 
 #if defined(LIGHT_VERSION) && defined(VIEWER_VERSION)

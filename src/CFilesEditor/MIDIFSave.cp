@@ -1163,18 +1163,6 @@ static short AnyZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStartS
 	return nZeroVel;
 }
 
-
-#ifdef DEMO_VERSION
-
-void SaveMIDIFile(Document *doc)
-{
-	GetIndCString(strBuf, MIDIFILE_STRS, 9);			/* "Sorry, this demo version of Nightingale can't Export MIDI files." */
-	CParamText(strBuf, "", "", "");
-	StopInform(GENERIC_ALRT);
-}
-
-#else
-
 #define SUFINDEX 13
 
 static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
@@ -1276,5 +1264,3 @@ void SaveMIDIFile(Document *doc)
 	ArrowCursor();
 	errCode = FSClose(fRefNum);
 }
-
-#endif

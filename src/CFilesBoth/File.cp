@@ -1875,22 +1875,6 @@ operation is cancelled. */
 
 #define TEMP_FILENAME "\p**NightTemp**"
 
-#ifdef DEMO_VERSION
-
-short SaveFile(
-			Document *doc,
-			Boolean saveAs			/* TRUE if a Save As operation, FALSE if a Save */
-			)
-{
-	GetIndCString(strBuf, FILEIO_STRS, 12);    /* "Sorry, this demo version of Nightingale can't save files." */
-	CParamText(strBuf, "", "", "");
-	StopInform(GENERIC_ALRT);
-
-	return 0;
-}
-
-#else
-
 /* Given a filename and a suffix for a variant of the file, append the suffix to the
 filename, truncating if necessary to make the result a legal filename. NB: for
 systems whose filenames have extensions, like MS Windows, we should probably replace
@@ -2124,9 +2108,6 @@ Error:
 	SaveError(fileOpened, refNum, errCode, errInfo);
 	return errCode;
 }
-
-#endif /* DEMO_VERSION */
-
 
 /* --------------------------------------------------------------------- SaveError -- */
 /* Handle errors occurring while writing a file. Parameters are the same as those
