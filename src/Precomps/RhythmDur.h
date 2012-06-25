@@ -6,14 +6,14 @@ typedef struct {
 	char		nDots;	/* of note ENDING at <time> */
 } NOTEPIECE;
 
-Boolean SetSyncPDur(Document *, LINK, INT16, Boolean);
-void SetPDur(Document *, INT16, Boolean);
-Boolean SetSelNoteDur(Document *, INT16, INT16, Boolean);
+Boolean SetSyncPDur(Document *, LINK, short, Boolean);
+void SetPDur(Document *, short, Boolean);
+Boolean SetSelNoteDur(Document *, short, short, Boolean);
 Boolean SetDoubleHalveSelNoteDur(Document *, Boolean, Boolean);
-Boolean SetSelMBRest(Document *, INT16);
-INT16 SetAndClarifyDur(Document *, LINK, LINK, INT16);
-void SetNRCDur(Document *, LINK, INT16, char, char, PCONTEXT, Boolean);
-void ClearAccAndMods(Document *, LINK, INT16);
-Boolean MakeClarifyList(long, INT16, INT16, INT16, Boolean, NOTEPIECE [], INT16, INT16 *);
-Boolean ClarifyFromList(Document *, LINK, INT16, INT16, NOTEPIECE [], INT16, PCONTEXT);
+Boolean SetSelMBRest(Document *, short);
+short SetAndClarifyDur(Document *, LINK, LINK, short);
+void SetNRCDur(Document *, LINK, short, char, char, PCONTEXT, Boolean);
+void ClearAccAndMods(Document *, LINK, short);
+Boolean MakeClarifyList(long, short, short, short, Boolean, NOTEPIECE [], short, short *);
+Boolean ClarifyFromList(Document *, LINK, short, short, NOTEPIECE [], short, PCONTEXT);
 Boolean ClarifyRhythm(Document *);

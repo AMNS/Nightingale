@@ -26,20 +26,20 @@ Functions that handle both grace and regular beams are in Beam.c.
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean GetGRCrossStaff(INT16, LINK [], STFRANGE *);
+static Boolean GetGRCrossStaff(short, LINK [], STFRANGE *);
 static DDIST GRCrossStaffYStem(LINK, STFRANGE, DDIST, DDIST);
-static void FixGRSyncInBeamset(Document *, LINK, INT16, DDIST, STFRANGE, Boolean);
+static void FixGRSyncInBeamset(Document *, LINK, short, DDIST, STFRANGE, Boolean);
 static void FixGRStem(Document *, LINK, LINK, CONTEXT);
-static Boolean GetBeamGRSyncs(Document *, LINK, LINK, INT16, INT16, LINK [], LINK [], Boolean);
+static Boolean GetBeamGRSyncs(Document *, LINK, LINK, short, short, LINK [], LINK [], Boolean);
 
 /* ==================================================== CREATING/REMOVING/MODIFYING == */
 
 /* ----------------------------------------------------------------- CreateGRBeams -- */ 
 /* If possible, create a grace-note beam of the selection in the given voice. */
 
-void CreateGRBeams(Document *doc, INT16 v)
+void CreateGRBeams(Document *doc, short v)
 {
-	LINK beamL; INT16 nBeamable;
+	LINK beamL; short nBeamable;
 
 	beamL=NILINK;
 	nBeamable = CountGRBeamable(doc, doc->selStartL, doc->selEndL, v, TRUE);
@@ -62,17 +62,17 @@ void CreateGRBeams(Document *doc, INT16 v)
 #define NF_OK		1										/* Code for successful completion */
 #define BAD_CODE(returnCode) ((returnCode)<0) 
 
-static LINK AddNewGRBeam(Document *, LINK, INT16, INT16, INT16 *, Boolean, Boolean);
-static INT16 GetGRBeamXStf(LINK, INT16, LINK [], STFRANGE *);
-static DDIST CalcGRBeamYLevel(Document *, INT16, LINK [], LINK [], DDIST, INT16, Boolean, Boolean);
-static void SetBeamGRNoteStems(Document *, LINK, INT16, INT16, LINK [], LINK [], DDIST,
+static LINK AddNewGRBeam(Document *, LINK, short, short, short *, Boolean, Boolean);
+static short GetGRBeamXStf(LINK, short, LINK [], STFRANGE *);
+static DDIST CalcGRBeamYLevel(Document *, short, LINK [], LINK [], DDIST, short, Boolean, Boolean);
+static void SetBeamGRNoteStems(Document *, LINK, short, short, LINK [], LINK [], DDIST,
 									STFRANGE, Boolean);
 
 /* ------------------------------------------------------------------ AddNewGRBeam -- */
 /*	Add the GRBeamset to the data structure and initialize the appropriate fields. */
 
-static LINK AddNewGRBeam(Document *doc, LINK startL, INT16 v, INT16 nInBeam,
-									INT16 *staff,
+static LINK AddNewGRBeam(Document *doc, LINK startL, short v, short nInBeam,
+									short *staff,
 									Boolean needSel,
 									Boolean leaveSel	/* TRUE=leave the new Beamset selected */
 									)
@@ -112,9 +112,9 @@ static LINK AddNewGRBeam(Document *doc, LINK startL, INT16 v, INT16 nInBeam,
 stfRange and return TRUE. In the latter case, we assume the grace notes are on only
 two different staves; we don't check this, nor that the staves are consecutive. */
 
-static Boolean GetGRCrossStaff(INT16 nElem, LINK grNotes[], STFRANGE *stfRange)
+static Boolean GetGRCrossStaff(short nElem, LINK grNotes[], STFRANGE *stfRange)
 {
-	INT16 i, firstStaff, stf; STFRANGE theRange; Boolean crossStaff=FALSE;
+	short i, firstStaff, stf; STFRANGE theRange; Boolean crossStaff=FALSE;
 	
 	firstStaff = GRNoteSTAFF(grNotes[0]);
 	theRange.topStaff = theRange.bottomStaff = firstStaff;
@@ -132,9 +132,9 @@ static Boolean GetGRCrossStaff(INT16 nElem, LINK grNotes[], STFRANGE *stfRange)
 for the beamset object, return the range of staves in theRange, and check the
 validity of this range. */
 
-static INT16 GetGRBeamXStf(LINK beamL, INT16 bel, LINK GRNoteInSync[], STFRANGE *theRange)
+static short GetGRBeamXStf(LINK beamL, short bel, LINK GRNoteInSync[], STFRANGE *theRange)
 {
-	INT16 crossStaff; PBEAMSET beamp;
+	short crossStaff; PBEAMSET beamp;
 
 	beamp = GetPBEAMSET(beamL);
 	crossStaff = GetGRCrossStaff(bel, GRNoteInSync, theRange);
@@ -160,18 +160,18 @@ should go. */
 
 static DDIST CalcGRBeamYLevel(
 					Document *doc,
-					INT16		nElts,
+					short		nElts,
 					LINK		bpGRSync[],
 					LINK		GRNoteInSync[],
 					DDIST		stfHeight,
-					INT16		stfLines,
+					short		stfLines,
 					Boolean	crossStaff,
 					Boolean	stemDown
 					)
 {
 	PAGRNOTE	aGRNote;
 	LINK		aGRNoteL;
-	INT16 	iel, voice;
+	short 	iel, voice;
 	DDIST		maxYHead, minYHead, abovePos, belowPos, trystem;
 	STFRANGE theRange;
 	
@@ -244,7 +244,7 @@ static DDIST GRCrossStaffYStem(LINK aGRNoteL, STFRANGE theRange, DDIST ystem,
 a chord for the given voice, all the stems are set to zero length except the
 one furthest from the beam. */
 
-static void FixGRSyncInBeamset(Document *doc, LINK bpGRSyncL, INT16 voice,
+static void FixGRSyncInBeamset(Document *doc, LINK bpGRSyncL, short voice,
 							DDIST ystem, STFRANGE theRange, Boolean crossStaff)
 {
 	PAGRNOTE	extremeGRNote, aGRNote;
@@ -320,13 +320,13 @@ note of the beamset, else to the left. See Byrd's dissertation, Sec. 4.4.2, for
 a much better method. */
  
 static void SetBeamGRNoteStems(Document *doc, LINK beamL,
-										INT16 v, INT16 nInBeam,
+										short v, short nInBeam,
 										LINK bpGRSync[], LINK noteInSync[],
 										DDIST ystem,
 										STFRANGE theRange,
 										Boolean crossStaff)
 {
-	INT16 iel; LINK aGRNoteL, aNoteBeamL;
+	short iel; LINK aGRNoteL, aNoteBeamL;
 	PAGRNOTE aGRNote; PANOTEBEAM aNoteBeam;
 
 	aNoteBeamL = FirstSubLINK(beamL);
@@ -361,23 +361,23 @@ always horizontal and are at a vertical position decided by CalcGRBeamYLevel. */
 
 LINK CreateGRBEAMSET(Document *doc,
 						LINK startL, LINK endL,
-						INT16 v,
-						INT16 nInBeam,
+						short v,
+						short nInBeam,
 						Boolean needSel,		/* TRUE if we only want selected items */
 						Boolean doBeam			/* TRUE if we are explicitly beaming notes (so beamset will be selected) */
 						)
 {
-	INT16			staff;
+	short			staff;
 	PASTAFF		aStaff;
 	LINK			beamL, staffL, aStaffL;
 	LINK			bpGRSync[MAXINBEAM];
 	LINK			GRNoteInSync[MAXINBEAM];
 	PBEAMSET		pBeam;
 	DDIST			ystem, stfHeight;
-	INT16			stfLines;
+	short			stfLines;
 	Boolean		crossStaff;					/* TRUE if beam is cross-staff */
 	STFRANGE		theRange;					/* The range of staves occupied by a crossStaff beam */
-	INT16			returnCode;
+	short			returnCode;
 
 	returnCode = CheckBeamVars(nInBeam, FALSE, 0, 0);
 	if (BAD_CODE(returnCode)) return NILINK;
@@ -427,10 +427,10 @@ the beams. It may call InvalMeasures several times, which is slightly inefficien
 easier than figuring out the range for a single call (and perhaps returning them to
 the caller). */
 	
-void GRUnbeamx(Document *doc, LINK fromL, LINK toL, INT16 voice)
+void GRUnbeamx(Document *doc, LINK fromL, LINK toL, short voice)
 {
 	LINK beamFromL, beamToL, lBeamL, rBeamL, newBeamL;
-	INT16 nInBeam;	PBEAMSET	lBeam, rBeam, newBeam;
+	short nInBeam;	PBEAMSET	lBeam, rBeam, newBeam;
 	Boolean crossSys, firstSys;
 
 	/* If any beams cross the endpoints of the range, remove them first and, if
@@ -494,7 +494,7 @@ void FixGRStem(Document *doc, LINK syncL, LINK grNoteL, CONTEXT context)
 /* Unbeam every beamed grace note within the range and voice. If we actually find
 any, return TRUE. */
 
-Boolean GRUnbeamRange(Document *doc, LINK fromL, LINK toL, INT16 voice)
+Boolean GRUnbeamRange(Document *doc, LINK fromL, LINK toL, short voice)
 {
 	LINK			pL, beamL, noteBeamL, syncL, aGRNoteL, bGRNoteL;
 	PANOTEBEAM	pNoteBeam;
@@ -557,7 +557,7 @@ Boolean GRUnbeamRange(Document *doc, LINK fromL, LINK toL, INT16 voice)
 void GetBeamGRNotes(LINK pL, LINK grNotes[])
 {
 	LINK aNoteBeamL, pGRSyncL, aGRNoteL; PANOTEBEAM aNoteBeam;
-	INT16 i,voice;
+	short i,voice;
 
 	voice = BeamVOICE(pL);
 	aNoteBeamL = FirstSubLINK(pL);
@@ -581,7 +581,7 @@ void GetBeamGRNotes(LINK pL, LINK grNotes[])
 return the page-relative x-coordinate of the left or right end of a beam for the
 note/chord in that GRSync and voice. */
 
-DDIST CalcGRXStem(Document *doc, LINK grSyncL, INT16 voice, INT16 stemDir, DDIST measLeft,
+DDIST CalcGRXStem(Document *doc, LINK grSyncL, short voice, short stemDir, DDIST measLeft,
 						PCONTEXT pContext,
 						Boolean /*left*/				/* TRUE=left end of beam, else right */
 						)
@@ -589,7 +589,7 @@ DDIST CalcGRXStem(Document *doc, LINK grSyncL, INT16 voice, INT16 stemDir, DDIST
 	DDIST		dHeadWidth, xd, xdNorm;
 	LINK		aGRNoteL;
 	PAGRNOTE	aGRNote;
-	INT16		headWidth, xpStem;
+	short		headWidth, xpStem;
 	DDIST		lnSpace = LNSPACE(pContext);
 	
 	aGRNoteL = FindGRMainNote(grSyncL, voice);
@@ -652,14 +652,14 @@ primary beams; (in nSecs[i]) the number of secondary beams in progress at the i'
 note of the beamset (always 0 for grace beams); and (as function value) the direction
 of stems in the BEAMSET: -1=down, +1=up, 0=in both directions. */
 
-INT16 AnalyzeGRBeamset(LINK beamL, INT16 *nPrimary, INT16 nSecs[])
+short AnalyzeGRBeamset(LINK beamL, short *nPrimary, short nSecs[])
 {
 	LINK noteBeamL, grSyncL, aGRNoteL;
 	PANOTEBEAM	pNoteBeam;
-	register INT16 iel;
-	INT16 startend, upOrDown[MAXINBEAM], firstUpOrDown,
+	register short iel;
+	short startend, upOrDown[MAXINBEAM], firstUpOrDown,
 			nestLevel, nPrim;
-	INT16 whichWay;
+	short whichWay;
 	
 	/* Fill in a table of stem directions for all elements of the beam. */
 	
@@ -705,19 +705,19 @@ INT16 AnalyzeGRBeamset(LINK beamL, INT16 *nPrimary, INT16 nSecs[])
 build a table of beam segments to be drawn by DrawGRBEAMSET or by the beam-
 dragging feedback routine. */
 
-INT16 BuildGRBeamDrawTable(LINK beamL,
-							INT16 whichWay,	/* -1=all stems down, +1=all up, 0=in both directions */
-							INT16 nPrimary,
-							INT16 nSecs[],
+short BuildGRBeamDrawTable(LINK beamL,
+							short whichWay,	/* -1=all stems down, +1=all up, 0=in both directions */
+							short nPrimary,
+							short nSecs[],
 							BEAMINFO beamTab[],
-							INT16 tabLen
+							short tabLen
 							)
 {
 	LINK noteBeamL;
 	PANOTEBEAM pNoteBeam;
-	INT16 startend[MAXINBEAM], nFrac[MAXINBEAM];
-	INT16 i, k, direction, curLevel, minUsedLev, maxUsedLev;
-	register INT16 iel, count;
+	short startend[MAXINBEAM], nFrac[MAXINBEAM];
+	short i, k, direction, curLevel, minUsedLev, maxUsedLev;
+	register short iel, count;
 	
 	noteBeamL = FirstSubLINK(beamL);
 	for (iel = 0; iel<LinkNENTRIES(beamL); iel++, noteBeamL=NextNOTEBEAML(noteBeamL)) {
@@ -827,8 +827,8 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 					dLeft[MAXINBEAM],
 					xoffStart, xoffStop, 
 					dQuarterSp, extension;
-	register INT16 n, iel;
-	INT16			whichWay, beamCount,
+	register short n, iel;
+	short			whichWay, beamCount,
 					startUOD, stopUOD,
 					staff, voice,
 					nPrimary, nSecs[MAXINBEAM];
@@ -1044,11 +1044,11 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 /*	Fill in arrays of grSync LINKs and grNote LINKs which can be used to fill in the
 beamset's subobjects; return TRUE if things are OK, FALSE if not. */
 	
-static Boolean GetBeamGRSyncs(Document */*doc*/, LINK startL, LINK endL, INT16 v,
-										INT16 nInBeam, LINK bpGRSync[], LINK GRNoteInSync[],
+static Boolean GetBeamGRSyncs(Document */*doc*/, LINK startL, LINK endL, short v,
+										short nInBeam, LINK bpGRSync[], LINK GRNoteInSync[],
 										Boolean needSel)
 {
-	INT16 bel; LINK thisL, aGRNoteL; PAGRNOTE aGRNote;
+	short bel; LINK thisL, aGRNoteL; PAGRNOTE aGRNote;
 
 	for (bel=0, thisL=startL; thisL!=endL; thisL=RightLINK(thisL))
 		if (GRSyncTYPE(thisL) && (!needSel || LinkSEL(thisL))) {
@@ -1081,13 +1081,13 @@ static Boolean GetBeamGRSyncs(Document */*doc*/, LINK startL, LINK endL, INT16 v
 notes in it;  otherwise returns 0. Notice that range can't really be beamed if
 the result is 1. */
 
-INT16 CountGRBeamable(Document */*doc*/,			/* unused */
+short CountGRBeamable(Document */*doc*/,			/* unused */
 							LINK startL, LINK endL,
-							INT16 voice,
+							short voice,
 							Boolean needSelected		/* TRUE if we only want selected items */
 							)
 {
-	INT16		nbeamable,dur,staff;
+	short		nbeamable,dur,staff;
 	LINK		pL,aGRNoteL,firstL=NILINK,lastL=NILINK;
 
 	if (voice<1 || voice>MAXVOICES)
@@ -1141,7 +1141,7 @@ INT16 CountGRBeamable(Document */*doc*/,			/* unused */
 /* If the point just before node in the given voice is in the middle of a
 beam, VHasGRBeamAcross returns a pointer to the BEAMSET, otherwise NULL. */
 
-LINK VHasGRBeamAcross(LINK node, INT16 voice)	
+LINK VHasGRBeamAcross(LINK node, short voice)	
 {
 	LINK			lSyncL, rSyncL, lNoteL, rNoteL, beamL;
 	SearchParam	pbSearch;
@@ -1182,7 +1182,7 @@ LINK VHasGRBeamAcross(LINK node, INT16 voice)
 VCheckBeamAcross returns a pointer to the BEAMSET, otherwise NULL. Identical to
 VHasBeamAcross except that the search to the right starts just after node. */
 
-LINK VCheckGRBeamAcross(LINK node, INT16 voice)	
+LINK VCheckGRBeamAcross(LINK node, short voice)	
 {
 	LINK		lGRSyncL, rGRSyncL, lGRNoteL, rGRNoteL, beamL;
 	SearchParam	pbSearch;
@@ -1218,7 +1218,7 @@ LINK VCheckGRBeamAcross(LINK node, INT16 voice)
 	return NILINK;																		/* Should never get here */
 }
 
-LINK VCheckGRBeamAcrossIncl(LINK node, INT16 voice)	
+LINK VCheckGRBeamAcrossIncl(LINK node, short voice)	
 {
 	LINK		beamL, aGRNoteL;
 	SearchParam pbSearch;
@@ -1247,7 +1247,7 @@ LINK VCheckGRBeamAcrossIncl(LINK node, INT16 voice)
 all notes in Beamset, deletes the Beamset, and optionally fixes stems of
 notes/chords in the Beamset. */
 
-void RemoveGRBeam(Document *doc, LINK beamL, INT16	voice, Boolean /*fixStems*/)
+void RemoveGRBeam(Document *doc, LINK beamL, short	voice, Boolean /*fixStems*/)
 {
 	LINK		firstGRSyncL, lastGRSyncL, pL, aGRNoteL;
 	PAGRNOTE	aGRNote;
@@ -1272,7 +1272,7 @@ void RemoveGRBeam(Document *doc, LINK beamL, INT16	voice, Boolean /*fixStems*/)
 
 /* Recompute all grace note stems in the range [startL, endL] */
 
-void RecomputeGRNoteStems(Document *doc, LINK startL, LINK endL, INT16 v)
+void RecomputeGRNoteStems(Document *doc, LINK startL, LINK endL, short v)
 {
 	LINK pL, aGRNoteL;
 	CONTEXT context;

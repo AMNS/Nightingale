@@ -4,50 +4,50 @@ void DoBeam(Document *);
 void DoUnbeam(Document *);
 void Unbeam(Document *);
 LINK Rebeam(Document *, LINK);
-Boolean GetBeamEndYStems(Document *, INT16, LINK [], LINK [], LINK, DDIST, INT16, Boolean,
+Boolean GetBeamEndYStems(Document *, short, LINK [], LINK [], LINK, DDIST, short, Boolean,
 							DDIST *, DDIST *);
-DDIST Staff2TopStaff(DDIST, INT16, STFRANGE, DDIST);
+DDIST Staff2TopStaff(DDIST, short, STFRANGE, DDIST);
 void GetBeamNotes(LINK , LINK[]);
 
-void ExtendStems(Document *, LINK, INT16, INT16, INT16[], INT16[]);
-void SlantBeamNoteStems(Document *, LINK [], INT16, INT16, DDIST, DDIST, STFRANGE, Boolean);
+void ExtendStems(Document *, LINK, short, short, short[], short[]);
+void SlantBeamNoteStems(Document *, LINK [], short, short, DDIST, DDIST, STFRANGE, Boolean);
 
-LINK AddNewBeam(Document *, LINK, INT16, INT16, INT16 *, Boolean, Boolean);
-void FillSlantBeam(Document *, LINK, INT16, INT16, LINK[], LINK[],
+LINK AddNewBeam(Document *, LINK, short, short, short *, Boolean, Boolean);
+void FillSlantBeam(Document *, LINK, short, short, LINK[], LINK[],
 												DDIST, DDIST, STFRANGE, Boolean);
-INT16 CheckBeamVars(INT16, Boolean, INT16, INT16);
-LINK CreateXSysBEAMSET(Document *, LINK, LINK, INT16, INT16, INT16, Boolean, Boolean);
-LINK CreateNonXSysBEAMSET(Document *, LINK, LINK, INT16, INT16, Boolean, Boolean, INT16);
-LINK CreateBEAMSET(Document *, LINK, LINK, INT16, INT16, Boolean, INT16);
-void UnbeamV(Document *, LINK, LINK, INT16);
-Boolean UnbeamRange(Document *, LINK, LINK, INT16);
-void FixBeamsInRange(Document *, LINK, LINK, INT16, Boolean);
-void RemoveBeam(Document *, LINK, INT16, Boolean);
+short CheckBeamVars(short, Boolean, short, short);
+LINK CreateXSysBEAMSET(Document *, LINK, LINK, short, short, short, Boolean, Boolean);
+LINK CreateNonXSysBEAMSET(Document *, LINK, LINK, short, short, Boolean, Boolean, short);
+LINK CreateBEAMSET(Document *, LINK, LINK, short, short, Boolean, short);
+void UnbeamV(Document *, LINK, LINK, short);
+Boolean UnbeamRange(Document *, LINK, LINK, short);
+void FixBeamsInRange(Document *, LINK, LINK, short, Boolean);
+void RemoveBeam(Document *, LINK, short, Boolean);
 void DoBreakBeam(Document *);
 void DoFlipFractionalBeam(Document *);
 
-DDIST CalcXStem(Document *, LINK, INT16, INT16, DDIST, PCONTEXT, Boolean);
+DDIST CalcXStem(Document *, LINK, short, short, DDIST, PCONTEXT, Boolean);
 DDIST NoteXStfYStem(LINK, STFRANGE, DDIST, DDIST, Boolean);
 
-INT16 AnalyzeBeamset(LINK, INT16 *, INT16 [], INT16 [], SignedByte []);
-INT16 BuildBeamDrawTable(LINK, INT16, INT16, INT16 [], INT16 [], SignedByte [], BEAMINFO [], 
-							INT16);
-INT16 SkipPrimaryLevels(INT16, INT16, INT16, INT16);
-void SetBeamRect(Rect *, INT16, INT16, INT16, INT16, Boolean, DDIST);
+short AnalyzeBeamset(LINK, short *, short [], short [], SignedByte []);
+short BuildBeamDrawTable(LINK, short, short, short [], short [], SignedByte [], BEAMINFO [], 
+							short);
+short SkipPrimaryLevels(short, short, short, short);
+void SetBeamRect(Rect *, short, short, short, short, Boolean, DDIST);
 void DrawBEAMSET(Document *, LINK, CONTEXT []);
-void Draw1Beam(DDIST, DDIST, DDIST, DDIST, Boolean, DDIST, INT16, INT16, PCONTEXT);
+void Draw1Beam(DDIST, DDIST, DDIST, DDIST, Boolean, DDIST, short, short, PCONTEXT);
 
-Boolean GetBeamSyncs(Document *, LINK, LINK, INT16, INT16, LINK[], LINK[], Boolean);
+Boolean GetBeamSyncs(Document *, LINK, LINK, short, short, LINK[], LINK[], Boolean);
 LINK SelBeamedNote(Document *);
-Boolean CountXSysBeamable(Document *, LINK, LINK, INT16, INT16 *, INT16 *, Boolean);
-INT16 CountBeamable(Document *, LINK, LINK, INT16, Boolean);
+Boolean CountXSysBeamable(Document *, LINK, LINK, short, short *, short *, Boolean);
+short CountBeamable(Document *, LINK, LINK, short, Boolean);
 DDIST GetCrossStaffYLevel(Document *, LINK, STFRANGE);
-DDIST CalcBeamYLevel(Document *, INT16, LINK[], LINK[], LINK *, DDIST, DDIST,
-						Boolean, INT16, Boolean *);
-LINK VHasBeamAcross(LINK, INT16);
-LINK HasBeamAcross(LINK, INT16);	
-LINK VCheckBeamAcross(LINK, INT16);	
-LINK VCheckBeamAcrossIncl(LINK, INT16);	
+DDIST CalcBeamYLevel(Document *, short, LINK[], LINK[], LINK *, DDIST, DDIST,
+						Boolean, short, Boolean *);
+LINK VHasBeamAcross(LINK, short);
+LINK HasBeamAcross(LINK, short);	
+LINK VCheckBeamAcross(LINK, short);	
+LINK VCheckBeamAcrossIncl(LINK, short);	
 LINK FirstInBeam(LINK);
 LINK LastInBeam(LINK);
 

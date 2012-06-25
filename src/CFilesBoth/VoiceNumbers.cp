@@ -54,7 +54,7 @@ numbers of at least <startSt>. Intended to open up space in the voice mapping
 table for newly-added staves' default voices, or to remove space formerly needed
 for newly-deleted staves' default voices. */
 
-void OffsetVoiceNums(Document *doc, INT16 startSt, INT16 nvDelta)
+void OffsetVoiceNums(Document *doc, short startSt, short nvDelta)
 {
 	LINK aNoteL, aGRNoteL;
 	register LINK pL;
@@ -108,7 +108,7 @@ static void FillVoiceTable(
 					Boolean unused[])			/* On return, TRUE=nothing in voice */
 {
 	LINK pL, aNoteL, aGRNoteL;
-	INT16	v, iVoice, partn, lastUsedV;
+	short	v, iVoice, partn, lastUsedV;
 	
 	/*
 	 *	The objects with voice numbers other than notes and grace notes always
@@ -175,7 +175,7 @@ thereby confuse people. */
 
 void BuildVoiceTable(Document *doc, Boolean defaults)
 {
-	INT16	v, partn, s;
+	short	v, partn, s;
 	LINK	partL;
 	PPARTINFO pPart;
 	Boolean dummy[MAXVOICES+1];
@@ -220,7 +220,7 @@ void BuildVoiceTable(Document *doc, Boolean defaults)
 
 /* ---------------------------------------------------------------- MapVoiceNums -- */
 
-void MapVoiceNums(Document *doc, INT16 newVoiceTab[])
+void MapVoiceNums(Document *doc, short newVoiceTab[])
 {
 	LINK pL, aNoteL, aGRNoteL;
 	
@@ -263,7 +263,7 @@ the existing voice-mapping table is accurate. */
  
 static void CompactVoiceNums(Document *doc)
 {
-	INT16 newVoiceTab[MAXVOICES+1], v, vNew;
+	short newVoiceTab[MAXVOICES+1], v, vNew;
 	
 	/* Construct a special table that maps existing to desired voice numbers,
 		closing up any gaps. If we close any gaps, that will make the standard
@@ -293,7 +293,7 @@ and user voice number and specifies voices' <voiceRole> (upper, lower, etc.). Pr
 
 void UpdateVoiceTable(Document *doc, Boolean defaults)
 {
-	INT16 v;
+	short v;
 	Boolean maybeEmpty[MAXVOICES+1];
 	
 	/* Set all slots to "maybe empty" except (if <defaults>) those for default voices,
@@ -331,9 +331,9 @@ for the user-voice-number/part combination, also put it into the first empty slo
 if there is one. If it needs to add an entry but there are no empty slots, return
 0.  N.B. Assumes there no entries in the table after the first blank slot! */
 
-INT16 User2IntVoice(Document *doc, INT16 uVoice, LINK addPartL)
+short User2IntVoice(Document *doc, short uVoice, LINK addPartL)
 {
-	INT16 partn, v, voiceSlot;
+	short partn, v, voiceSlot;
 	LINK partL;
 	
 	partL = NextPARTINFOL(FirstSubLINK(doc->headL));
@@ -363,9 +363,9 @@ INT16 User2IntVoice(Document *doc, INT16 uVoice, LINK addPartL)
 number, and return TRUE. We get the information from the voice-mapping table; if the
 table has no entry for the voice/part combination, return FALSE. */
 
-Boolean Int2UserVoice(Document *doc, INT16 iVoice, INT16 *puVoice, LINK *pPartL)
+Boolean Int2UserVoice(Document *doc, short iVoice, short *puVoice, LINK *pPartL)
 {
-	INT16 partn;
+	short partn;
 
 	partn = doc->voiceTab[iVoice].partn;
 	if (partn<=0) return FALSE;
@@ -383,10 +383,10 @@ Boolean Int2UserVoice(Document *doc, INT16 iVoice, INT16 *puVoice, LINK *pPartL)
 greater than the number of staves in that part (so we can reserve voice numbers 1
 thru n for default voice numbers on staves 1 thru n). */
 
-INT16 NewVoiceNum(Document *doc, LINK partL)
+short NewVoiceNum(Document *doc, LINK partL)
 {
 	PPARTINFO pPart;
-	INT16 partn, freeVoice, oldFreeVoice, v;
+	short partn, freeVoice, oldFreeVoice, v;
 	
 	pPart = GetPPARTINFO(partL);
 	partn = Staff2Part(doc, pPart->firstStaff);

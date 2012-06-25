@@ -19,7 +19,7 @@ when user double-clicks a dynamic.                      -- John Gibson, 8/5/00 *
 #include "Nightingale.appl.h"
 
 
-extern Boolean TranslatePalChar(INT16 *, INT16, Boolean);
+extern Boolean TranslatePalChar(short *, short, Boolean);
 
 /* ASCII decimal for the dynamic symbols in popDynMod font */
 static enum {
@@ -139,10 +139,10 @@ remapped modifier key equivalents. */
 Boolean DynamicPopupKey(PGRAPHIC_POPUP p, DYN_POPKEY *pk, unsigned char theChar)
 {
 	short	i, newItem, newDynamicType;
-	INT16	intChar;
+	short	intChar;
 	
 	/* remap theChar according to the 'PLMP' resource */
-	intChar = (INT16)theChar;
+	intChar = (short)theChar;
 	TranslatePalChar(&intChar, 0, FALSE);
 	theChar = (unsigned char) intChar;
 	
@@ -216,7 +216,7 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			}
 			break;
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (INT16 *)itemHit, FALSE))
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, FALSE))
 				return TRUE;
 			ch = (unsigned char)evt->message;
 			ans = DynamicPopupKey(curPop, popKeysDynamic, ch);
@@ -234,7 +234,7 @@ Boolean SetDynamicDialog(SignedByte *dynamicType)
 {	
 	DialogPtr dlog;
 	short ditem=Cancel,type,oldResFile;
-	INT16 choice;
+	short choice;
 	Boolean dialogOver;
 	Handle hndl; Rect box;
 	GrafPtr oldPort;

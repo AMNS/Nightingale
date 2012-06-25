@@ -29,7 +29,7 @@
 #define UpRect_DI		5				/* DITL index of up button rect */
 #define DownRect_DI	6				/* DITL index of down button rect */
 
-extern INT16 minVal, maxVal;
+extern short minVal, maxVal;
 
 
 /* ----------------------------------------------------------------- LookAtDialog -- */
@@ -42,11 +42,11 @@ static enum
 	NEW_DI
 } E_LookAtItems;
 
-INT16 LookAtDialog(Document *doc, INT16 initVoice, LINK partL)
+short LookAtDialog(Document *doc, short initVoice, LINK partL)
 {	
 	DialogPtr	dlog;
 	short			ditem, itype;
-	INT16			voice, oldVoice;
+	short			voice, oldVoice;
 	Handle		newHdl;
 	Rect			tRect;
 	GrafPtr		oldPort;
@@ -135,19 +135,19 @@ static enum
 #define RMARKSTR(rMark)		( PCopy(GetPAGRAPHIC(FirstSubLINK(rMark))->string) )
 
 static UserPopUp gotoPopUp8;				/* popup8 is for TransposeDialog ??WHAT? */
-static INT16 currPage, currMeas;
+static short currPage, currMeas;
 static LINK firstMark, lastMark;
 static Document *gotoDoc;
 
-static void RMClickUp(INT16, DialogPtr);
-static void RMClickDown(INT16, DialogPtr);
+static void RMClickUp(short, DialogPtr);
+static void RMClickDown(short, DialogPtr);
 static Boolean RMHandleKeyDown(EventRecord *, LINK, LINK, DialogPtr);
 static Boolean RMHandleMouseDown(EventRecord *, LINK, LINK, DialogPtr);
-static pascal Boolean GoToFilter(DialogPtr,EventRecord *,INT16 *);
+static pascal Boolean GoToFilter(DialogPtr,EventRecord *,short *);
 
 
 static void RMClickUp(
-					INT16 /*lastMark*/,		/* unused */
+					short /*lastMark*/,		/* unused */
 					DialogPtr theDialog
 					)
 {
@@ -164,7 +164,7 @@ static void RMClickUp(
 
 
 static void RMClickDown(
-					INT16 /*lastMark*/,		/* unused */
+					short /*lastMark*/,		/* unused */
 					DialogPtr theDialog
 					)
 {
@@ -222,11 +222,11 @@ static Boolean RMHandleMouseDown(EventRecord *theEvent, LINK firstMark, LINK las
 		return FALSE;
 }
 
-static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHit)
+static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	Point where;
 	Boolean ans=FALSE; WindowPtr w;
-	INT16 choice;
+	short choice;
 
 	w = (WindowPtr)(evt->message);
 	switch(evt->what) {
@@ -245,7 +245,7 @@ static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHi
 			break;
 		case activateEvt:
 			if (w == GetDialogWindow(dlog)) {
-				INT16 activ = (evt->modifiers & activeFlag)!=0;
+				short activ = (evt->modifiers & activeFlag)!=0;
 				SetPort(GetWindowPort(w));
 			}
 			break;
@@ -296,12 +296,12 @@ static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHi
 mark to display. Returns the type of thing to go to if okay, <goDirectlyToJAIL>
 if cancel. */
 
-INT16 GoToDialog(Document *doc, INT16 *currPageNum, INT16 *currBar,
+short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 						LINK *currRMark)
 {	
 	DialogPtr dlog; unsigned char markStr[64];
 	short ditem,aShort;
-	INT16 value,gotoType,minPageVal,maxPageVal,minMeasVal,maxMeasVal;
+	short value,gotoType,minPageVal,maxPageVal,minMeasVal,maxMeasVal;
 	LINK pageL,measL,rMarkL,currMark; PPAGE pPage; PAMEASURE aMeasure;
 	GrafPtr oldPort; Boolean okay=FALSE,stillGoing;
 	Handle rHdl; Rect aRect;

@@ -23,16 +23,16 @@
 
 static Boolean MakeSlurCrossSys(Document *, LINK, LINK, LINK, LINK);
 static void MakeSlurNoncrossSys(Document *, LINK, LINK);
-static INT16 FixCrossSysSlurs(Document *, LINK, LINK, INT16 *, INT16 *);
+static short FixCrossSysSlurs(Document *, LINK, LINK, short *, short *);
 static Boolean MakeBeamCrossSys(Document *,LINK);
 static LINK MakeBeamNoncrossSys(Document *, LINK, LINK);
-static INT16 FixCrossSysBeams(Document *, LINK, LINK, INT16 *, INT16 *);
+static short FixCrossSysBeams(Document *, LINK, LINK, short *, short *);
 
-static INT16 FixCrossSysHairpins(Document *, LINK, LINK, INT16 *, INT16 *);
-static INT16 FixCrossSysDrawObjs(Document *, LINK, LINK, INT16 *, INT16 *);
+static short FixCrossSysHairpins(Document *, LINK, LINK, short *, short *);
+static short FixCrossSysDrawObjs(Document *, LINK, LINK, short *, short *);
 static void MakeOctCrossSys(Document *, LINK, LINK, LINK);
-static INT16 FixCrossSysOctavas(Document *, LINK, LINK, INT16 *, INT16 *);
-static INT16 FixCrossSysEndings(Document *, LINK, LINK, INT16 *, INT16 *);
+static short FixCrossSysOctavas(Document *, LINK, LINK, short *, short *);
+static short FixCrossSysEndings(Document *, LINK, LINK, short *, short *);
 
 /* ------------------------------------------------- MakeSlurCrossSys/NoncrossSys -- */
 /* Given a "normal" slur that should now be cross-system (presumably because its
@@ -87,8 +87,8 @@ static void MakeSlurNoncrossSys(Document *doc, LINK pL, LINK otherSlurL)
 /* Move the right endpoint of the Slur or Tie in the given voice from one Sync to
 another. */
 
-void MoveSlurEnd(INT16 voice, LINK oldSyncL, LINK newSyncL, Boolean isTie);
-void MoveSlurEnd(INT16 voice, LINK oldSyncL, LINK newSyncL, Boolean isTie)
+void MoveSlurEnd(short voice, LINK oldSyncL, LINK newSyncL, Boolean isTie);
+void MoveSlurEnd(short voice, LINK oldSyncL, LINK newSyncL, Boolean isTie)
 {
 	LINK aNoteL;
 	        
@@ -116,10 +116,10 @@ any that cross two or more.
 Return value is the number of Slurs truncated. If it's non-zero, we also return in
 parameters the first and last measures in which any are truncated. */
 
-INT16 FixCrossSysSlurs(Document *doc, LINK startL, LINK endL, INT16 *pTruncFirstMeas,
-								INT16 *pTruncLastMeas)
+short FixCrossSysSlurs(Document *doc, LINK startL, LINK endL, short *pTruncFirstMeas,
+								short *pTruncLastMeas)
 {
-	INT16 v, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
+	short v, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
 	LINK pL;
 	LINK	otherSlurL, firstSys, lastSys, secondSys, thirdSys, thisFirstObj,
 			otherFirstObj, thisLastObj, otherLastObj, lastObjSys, oldLastObj;
@@ -246,7 +246,7 @@ static Boolean MakeBeamCrossSys(Document *doc, LINK pL)
 {
 	LINK firstSyncL,lastSyncL,firstSys,lastSys,secondSys,
 	qL,prevL,qL2,prevL2,noteBeamL,beamL1,beamL2;
-	INT16 i,v,nInBeamOrig,nInBeam1,nInBeam2;
+	short i,v,nInBeamOrig,nInBeam1,nInBeam2;
 	PANOTEBEAM aNoteBeam;
 	Boolean truncate=FALSE;
 	
@@ -317,7 +317,7 @@ static Boolean MakeBeamCrossSys(Document *doc, LINK pL)
 static LINK MakeBeamNoncrossSys(Document *doc, LINK pL, LINK otherBeamL)
 {
 	LINK newFirstSyncL, newLastSyncL, beamL=NILINK;
-	INT16 v, nInBeam;
+	short v, nInBeam;
 	
 	v = BeamVOICE(pL);
 
@@ -342,7 +342,7 @@ and <beamL2>. Handles grace AND regular beams. */
 LINK RebeamXStf(Document *, LINK, LINK);
 LINK RebeamXStf(Document *doc, LINK beamL1, LINK beamL2)
 {
-	INT16 voice, nInBeam1, nInBeam2;
+	short voice, nInBeam1, nInBeam2;
 	LINK firstSyncL1, lastSyncL1, firstSyncL2, lastSyncL2;
 
 	voice = BeamVOICE(beamL1);
@@ -376,7 +376,7 @@ rebeaming. */
 static Boolean UpdateCrossSysBeam(Document *, LINK, LINK);
 static Boolean UpdateCrossSysBeam(Document *doc, LINK pL, LINK otherBeamL)
 {
-	LINK aNoteBeamL; PANOTEBEAM aNoteBeam; INT16 nInBeam, i;
+	LINK aNoteBeamL; PANOTEBEAM aNoteBeam; short nInBeam, i;
 	
 	nInBeam = LinkNENTRIES(pL);
 	aNoteBeamL = FirstSubLINK(pL);
@@ -413,10 +413,10 @@ parameters the first and last measures in which any are truncated. */
 #define CrossSysAndFirstSys(beamL)	 	( BeamCrossSYS(beamL) && BeamFirstSYS(beamL) )
 #define CrossSysAndSecondSys(beamL)		( BeamCrossSYS(beamL) && !BeamFirstSYS(beamL) )
 
-INT16 FixCrossSysBeams(Document *doc, LINK startL, LINK endL, INT16 *pTruncFirstMeas,
-								INT16 *pTruncLastMeas)
+short FixCrossSysBeams(Document *doc, LINK startL, LINK endL, short *pTruncFirstMeas,
+								short *pTruncLastMeas)
 {
-	INT16 v, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
+	short v, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
 	LINK pL, otherBeamL, nextL;
 	
 	for (nTrunc = 0, v = 1; v<=MAXVOICES; v++) {
@@ -491,11 +491,11 @@ can't be linked the way pieces of cross-system slurs and beams are.
 Return value is the number of hairpins truncated. If it's non-zero, we also return in
 parameters the first and last measures in which any are truncated. */
 
-INT16 FixCrossSysHairpins(Document *doc, LINK startL, LINK endL, INT16 *pTruncFirstMeas,
-									INT16 *pTruncLastMeas)
+short FixCrossSysHairpins(Document *doc, LINK startL, LINK endL, short *pTruncFirstMeas,
+									short *pTruncLastMeas)
 {
 	LINK pL, firstSys, lastSys, lastSync, dynamL;
-	INT16 staff, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
+	short staff, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
 	PADYNAMIC aDynamic; DDIST endxd;
 	
 	for (nTrunc = 0, pL = startL; pL!=endL; pL = RightLINK(pL)) {
@@ -539,11 +539,11 @@ though they can't be linked the way pieces of cross-system slurs and beams are.
 Return value is the number of Graphics truncated. If it's non-zero, we also return in
 parameters the first and last measures in which any are truncated. */
 
-INT16 FixCrossSysDrawObjs(Document *doc, LINK startL, LINK endL, INT16 *pTruncFirstMeas,
-									INT16 *pTruncLastMeas)
+short FixCrossSysDrawObjs(Document *doc, LINK startL, LINK endL, short *pTruncFirstMeas,
+									short *pTruncLastMeas)
 {
 	LINK pL, firstSys, lastSys, lastObj;
-	INT16 staff, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
+	short staff, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
 	PGRAPHIC pGraphic; DDIST endxd;
 	
 	for (nTrunc = 0, pL = startL; pL!=endL; pL = RightLINK(pL)) {
@@ -586,7 +586,7 @@ static void MakeOctCrossSys(Document *doc, LINK octL, LINK firstSys,
 										)
 {
 	LINK qL,prevL,firstSyncL,lastSyncL,noteOctL;
-	INT16 i,s,octType,nInOctava1; PANOTEOCTAVA anoteOct;
+	short i,s,octType,nInOctava1; PANOTEOCTAVA anoteOct;
 	
 	firstSyncL = FirstInOctava(octL);
 	lastSyncL = LastInOctava(octL);
@@ -620,11 +620,11 @@ can't be linked the way pieces of cross-system slurs and beams are.
 
 Return value is the number of Octavas truncated. */
 
-INT16 FixCrossSysOctavas(Document *doc, LINK startL, LINK endL, INT16 *pTruncFirstMeas,
-									INT16 *pTruncLastMeas)
+short FixCrossSysOctavas(Document *doc, LINK startL, LINK endL, short *pTruncFirstMeas,
+									short *pTruncLastMeas)
 {
 	LINK pL, firstSys, lastSys;
-	INT16 nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
+	short nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
 	POCTAVA pOctava;
 	
 	for (nTrunc = 0, pL = startL; pL!=endL; pL = RightLINK(pL)) {
@@ -661,13 +661,13 @@ can't be linked the way pieces of cross-system slurs and beams are.
 
 Return value is the number of Endings truncated. */
 
-INT16 FixCrossSysEndings(Document *doc, LINK startL, LINK endL, INT16 *pTruncFirstMeas,
-									INT16 *pTruncLastMeas)
+short FixCrossSysEndings(Document *doc, LINK startL, LINK endL, short *pTruncFirstMeas,
+									short *pTruncLastMeas)
 {
 	LINK pL;
 	PENDING p;
 	LINK firstSys, lastSys, lastSync;
-	INT16 staff, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
+	short staff, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
 	DDIST endxd;
 	
 	for (nTrunc = 0, pL = startL; pL!=endL; pL = RightLINK(pL)) {
@@ -718,8 +718,8 @@ that stay cross-system.
 
 void FixCrossSysObjects(Document *doc, LINK startL, LINK endL)
 {
-	INT16 nSlurTrunc, nBeamTrunc, nHairTrunc, nOctTrunc, nEndingTrunc, nDrawTrunc;
-	INT16 truncFirstMeas, truncLastMeas, truncVeryFirstMeas, truncVeryLastMeas;
+	short nSlurTrunc, nBeamTrunc, nHairTrunc, nOctTrunc, nEndingTrunc, nDrawTrunc;
+	short truncFirstMeas, truncLastMeas, truncVeryFirstMeas, truncVeryLastMeas;
 	char numStr1[32], numStr2[32];
 	char strSlur[32], strSlurs[32], strBeam[32], strBeams[32];
 	char strHairpin[32], strHairpins[32], strOctave[32], strOctaves[32], strEnding[32],

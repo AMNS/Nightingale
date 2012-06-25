@@ -44,14 +44,14 @@ static Word getw(Word);
 static DoubleWord getl(Word);
 static void SkipChunksUntil(DoubleWord);
 
-static Boolean TimeSigBad(INT16, INT16);
+static Boolean TimeSigBad(short, short);
 
 static DoubleWord GetVarLen(Byte [], DoubleWord *);
 
 static void InitMFEventQue(DoubleWord, Byte);
 static void SaveMFEventQue(DoubleWord *, Byte *);
 static DoubleWord GetDeltaTime(Byte [], DoubleWord *);
-static INT16 GetNextMFEvent(DoubleWord *, Byte [], Boolean *);
+static short GetNextMFEvent(DoubleWord *, Byte [], Boolean *);
 static Boolean FindNoteOff(DoubleWord, Boolean, Byte [], Boolean *);
 
 /* --------------------------------------------------------------------------------- */
@@ -67,7 +67,7 @@ Byte statusByteMF=0;					/* MIDI file track status in case of running status */
 
 /* --------------------------------------------------------------------------------- */
 
-INT16 tempoWindow = 65;
+short tempoWindow = 65;
 
 #define PUBLIC_VERSION_1
 
@@ -120,7 +120,7 @@ static void SkipChunksUntil(DoubleWord type)
 }
 
 
-static Boolean TimeSigBad(INT16 tsNum, INT16 tsDenom)
+static Boolean TimeSigBad(short tsNum, short tsDenom)
 {
 	char fmtStr[256];
 
@@ -316,14 +316,14 @@ event data and return OP_COMPLETE, and leave <locMF> pointing at the first byte 
 the event. If there are no more MIDI events, just return NOTHING_TO_DO. If there's a
 problem, return FAILURE. */
 
-static INT16 GetNextMFEvent(DoubleWord *pDeltaTime,
+static short GetNextMFEvent(DoubleWord *pDeltaTime,
 										Byte eventData[],
 										Boolean *pRunning)		/* TRUE=used running status */
 {
 	Byte command, i;
 	Word n;
 	DoubleWord delta;
-	INT16 opStatus=FAILURE;
+	short opStatus=FAILURE;
 
 	if (locMF>=lenMF) return NOTHING_TO_DO;				/* If equal, can't have data AND delta time remaining */
 	
@@ -406,21 +406,21 @@ Note Ons" case can be handled either by not calling any of these functions, or
 calling InitNoteOffList but never InsertNoteOffLoc: then the usedNoteOff list will
 stay empty and MayBeNoteOff will always return TRUE.  */
 
-static INT16 usedNoteOff[MAXMFEVENTLIST];
-static INT16 noteOffLim;
+static short usedNoteOff[MAXMFEVENTLIST];
+static short noteOffLim;
 
-Boolean InsertNoteOffLoc(INT16, INT16);
-Boolean CheckNoteOffList(INT16);
+Boolean InsertNoteOffLoc(short, short);
+Boolean CheckNoteOffList(short);
 void InitNoteOffList(void);
-Boolean MayBeNoteOff(INT16);
+Boolean MayBeNoteOff(short);
 
 /*	Insert the specified Note Off command location into the usedNoteOff list. The
 locations are those of the first data byte (the one containing the note number), not
 the status byte, since--with running status--there might not be a status byte. */
 
-Boolean InsertNoteOffLoc(INT16 locOn, INT16 locOff)
+Boolean InsertNoteOffLoc(short locOn, short locOff)
 {
-	INT16 i;
+	short i;
 	char fmtStr[256];
 
 	CheckNoteOffList(locOn);
@@ -450,9 +450,9 @@ Boolean InsertNoteOffLoc(INT16 locOn, INT16 locOff)
 /*	Check usedNoteOff[] to see if any its entries are no longer needed; if so, free
 their slots in the list. Return TRUE if the list ends up empty. */
 
-Boolean CheckNoteOffList(INT16 locOn)
+Boolean CheckNoteOffList(short locOn)
 {
-	INT16 i, maxUsed;
+	short i, maxUsed;
 	
 	for (i = 0, maxUsed = -1; i<noteOffLim; i++)
 		if (usedNoteOff[i]!=0) {
@@ -477,9 +477,9 @@ void InitNoteOffList()
 /* If the given location could not possibly be the first data byte of a valid Note
 Off because it's in the usedNoteOff list, return FALSE, else return TRUE. */
 
-Boolean MayBeNoteOff(INT16 locOff)
+Boolean MayBeNoteOff(short locOff)
 {
-	INT16 i;
+	short i;
 	
 	for (i = 0; i<noteOffLim; i++)
 		if (usedNoteOff[i]==locOff) return FALSE;
@@ -549,10 +549,10 @@ However, if triplets are allowed and the duration can be represented as one, ins
 return the negative duration code. If there is no corresponding duration code,
 return UNKNOWN_L_DUR. */
 
-INT16 Time2LDurQuantum(long, Boolean);
-INT16 Time2LDurQuantum(long time, Boolean allowTrips)
+short Time2LDurQuantum(long, Boolean);
+short Time2LDurQuantum(long time, Boolean allowTrips)
 {
-	INT16 qLDur, divisor, qLTry, tripPDurUnit;
+	short qLDur, divisor, qLTry, tripPDurUnit;
 
 	/* Try normal durations, starting with the shortest. */
 	
@@ -597,10 +597,10 @@ Return FALSE if we have trouble parsing the track (in which case values returned
 are as of the point where we had trouble), else TRUE. */
 
 Boolean GetTrackInfo(
-				INT16 *noteCount,
-				INT16 *nTooLong,
+				short *noteCount,
+				short *nTooLong,
 				Boolean chanUsed[MAXCHANNEL],
-				INT16 *quantumLDur,	/* code for coarsest grid that fits all attacks, or UNKNOWN_L_DUR=none */
+				short *quantumLDur,	/* code for coarsest grid that fits all attacks, or UNKNOWN_L_DUR=none */
 				Boolean *trip,			/* need triplets to fit all attacks? */
 				long *lastEvent		/* in ticks */
 				)
@@ -608,8 +608,8 @@ Boolean GetTrackInfo(
 	DoubleWord tickTime, deltaTime;
 	Byte eventData[255], dummy[3];
 	Byte command;
-	INT16 qLDur, qLDHere, i, opStatus;
-	INT16 totCount=0;
+	short qLDur, qLDHere, i, opStatus;
+	short totCount=0;
 	Boolean runStatus, tooLong, okay=FALSE, trips=FALSE;
 
 	for (i = 0; i<MAXCHANNEL; i++)
@@ -674,19 +674,19 @@ Return FALSE if we have trouble parsing the track (in which case values returned
 are as of the point where we had trouble), else TRUE. */
 
 Boolean GetTimingTrackInfo(
-				INT16 *tsCount,
-				INT16 *nTSBad,
-				INT16 *quantumLDur,	/* code for coarsest grid that fits all timesig denoms, or UNKNOWN_L_DUR=none */
+				short *tsCount,
+				short *nTSBad,
+				short *quantumLDur,	/* code for coarsest grid that fits all timesig denoms, or UNKNOWN_L_DUR=none */
 				long *lastEvent		/* in ticks */
 				)
 {
 	DoubleWord tickTime, deltaTime;
 	Byte eventData[255];
 	Byte command;
-	INT16 tsDenom, maxDenom, totCount=0;
+	short tsDenom, maxDenom, totCount=0;
 	Boolean runStatus, okay=FALSE;
 	long tickDur;
-	INT16 denomTab[MAX_DENOM_POW2+1] = { 1, 2, 4, 8, 16, 32, 64 };
+	short denomTab[MAX_DENOM_POW2+1] = { 1, 2, 4, 8, 16, 32, 64 };
 
 	*nTSBad = 0;
 	tickTime = 0L;
@@ -900,7 +900,7 @@ typedef struct MFNote {
 	Byte				noteNum;
 	Byte				onVelocity;
 	Byte				offVelocity;
-	unsigned INT16	dur;
+	unsigned short	dur;
 } MFNote;
 
 
@@ -908,14 +908,14 @@ static void NamePart(LINK, char *);
 static Boolean MakeMNote(MFNote *, Byte, MNOTE *);
 static LINK MFNewMeasure(Document *, LINK);
 static void FixTStampsForTimeSigs(Document *, LINK);
-static Boolean MFAddMeasures(Document *, INT16, long *);
+static Boolean MFAddMeasures(Document *, short, long *);
 static void DeleteAllMeasures(Document *, LINK, LINK);
-static Boolean DoMetaEvent(Document *, INT16, MFEvent *, INT16);
+static Boolean DoMetaEvent(Document *, short, MFEvent *, short);
 
 static void InitTrack2Night(Document *, long *, long *);
-static INT16 Track2RTStructs(Document *,TRACKINFO [],INT16,Boolean,long,long,INT16,LINKTIMEINFO [],
-								unsigned short, INT16 *,NOTEAUX [],INT16 *,INT16);
-static INT16 Track2Night(Document *, TRACKINFO [], INT16, INT16, INT16, INT16, long);
+static short Track2RTStructs(Document *,TRACKINFO [],short,Boolean,long,long,short,LINKTIMEINFO [],
+								unsigned short, short *,NOTEAUX [],short *,short);
+static short Track2Night(Document *, TRACKINFO [], short, short, short, short, long);
 
 /* Set basic sizes for merge table and one-track table. Cf. comments on InitTrack2Night. */
 #define MERGE_TAB_SIZE 4000			/* Max. Syncs and Measures in table for merging into */
@@ -925,13 +925,13 @@ static INT16 Track2Night(Document *, TRACKINFO [], INT16, INT16, INT16, INT16, l
 #define MAX_TEMPOCHANGE 1000				/* Max. no. of tempo changes in score */
 #define MAX_CTRLCHANGE 1000
 
-static INT16 tsNum, tsDenom, sharpsOrFlats;
-static INT16 measTabLen;
+static short tsNum, tsDenom, sharpsOrFlats;
+static short measTabLen;
 static long measDur, timeSigTime;
 static MEASINFO *measInfoTab;
-static INT16 tempoTabLen;
+static short tempoTabLen;
 static TEMPOINFO *tempoInfoTab;
-static INT16 ctrlTabLen;
+static short ctrlTabLen;
 static CTRLINFO *ctrlInfoTab;
 
 /* ---------------------------------------------------------------- Miscellaneous -- */
@@ -965,7 +965,7 @@ initialize qtrNTicks & timeBase before using! */
 
 static Boolean MakeMNote(MFNote *pn, Byte channel, MNOTE *pMNote)
 {
-	INT16	transpose=0;
+	short	transpose=0;
 	
 	pMNote->noteNumber = pn->noteNum-transpose;
 	pMNote->channel = channel;
@@ -989,7 +989,7 @@ before <pL>. */
 
 static LINK MFNewMeasure(Document *doc, LINK pL)
 {
-	LINK measL; INT16 sym; CONTEXT context;
+	LINK measL; short sym; CONTEXT context;
 
 	NewObjInit(doc, MEASUREtype, &sym, singleBarInChar, ANYONE, &context);
 	measL = CreateMeasure(doc, pL, -1, sym, context);
@@ -1034,9 +1034,9 @@ static void FixTStampsForTimeSigs(
 score, which we assume is brand-new and devoid of content. Set the Measures' timeStamps
 to give them the durations indicated by the time signatures. */
 
-static Boolean MFAddMeasures(Document *doc, INT16 maxMeasures, long *pStopTime)
+static Boolean MFAddMeasures(Document *doc, short maxMeasures, long *pStopTime)
 {
-	long measTime=0L, measDur; INT16 i, count, m, measNum=0; LINK measL, lastMeasL;
+	long measTime=0L, measDur; short i, count, m, measNum=0; LINK measL, lastMeasL;
 	Boolean firstMeas=TRUE;
 	char fmtStr[256];
 	
@@ -1110,18 +1110,18 @@ static unsigned long GetTempoMicrosecsPQ(MFEvent *p)
 
 static Boolean DoMetaEvent(
 						Document *doc,
-						INT16 track,
+						short track,
 						MFEvent *p,
-						INT16 tripletBias)	/* Percent bias towards quant. to triplets >= 2/3 quantum */
+						short tripletBias)	/* Percent bias towards quant. to triplets >= 2/3 quantum */
 {
 	long timeNow;
 	LINK partL;
-	INT16 i, newDenom, measCount;
+	short i, newDenom, measCount;
 	char string[256], str1[20], str2[20];
-	static INT16 measNum;
-	static INT16 fileSharpsOrFlats;
+	static short measNum;
+	static short fileSharpsOrFlats;
 	static long timePrev=-1;
-	INT16 denomTab[MAX_DENOM_POW2+1] = { 1, 2, 4, 8, 16, 32, 64 };
+	short denomTab[MAX_DENOM_POW2+1] = { 1, 2, 4, 8, 16, 32, 64 };
 	char fmtStr[256];
 	
 	timeNow = MFTicks2NTicks(p->tStamp);
@@ -1258,15 +1258,15 @@ basis to keep notes near the staff. They:
 clefs other than treble or bass; beyond that, handling other clefs looks hard.)
 */
 
-static LINK NewClefPrepare(Document *, LINK, INT16);
-static LINK Replace1Clef(Document *, LINK, INT16, char);
-static Boolean ReplaceClefs(Document *, char [], char [], INT16);
-static Boolean AddClefs(Document *, LINK, char [], char [], INT16);
-static Boolean ChangeClefs(Document *, LINK, INT16 [], char []);
+static LINK NewClefPrepare(Document *, LINK, short);
+static LINK Replace1Clef(Document *, LINK, short, char);
+static Boolean ReplaceClefs(Document *, char [], char [], short);
+static Boolean AddClefs(Document *, LINK, char [], char [], short);
+static Boolean ChangeClefs(Document *, LINK, short [], char []);
 static Boolean AddClefs1Measure(Document *, LINK, char []);
 static Boolean AddClefChanges(Document *);
 
-static LINK NewClefPrepare(Document *doc, LINK insL, INT16 nstaves)
+static LINK NewClefPrepare(Document *doc, LINK insL, short nstaves)
 {
 	LINK newL;
 	
@@ -1285,7 +1285,7 @@ static LINK NewClefPrepare(Document *doc, LINK insL, INT16 nstaves)
 LINK after the range affected, i.e., the next clef change on the staff, if any.
 Identical to ReplaceClef except this function doesn't affect selection. */
 
-LINK Replace1Clef(Document *doc, LINK firstClefL, INT16 staffn, char subtype)
+LINK Replace1Clef(Document *doc, LINK firstClefL, short staffn, char subtype)
 {
 	PACLEF		aClef;
 	LINK			aClefL,doneL;
@@ -1312,9 +1312,9 @@ LINK Replace1Clef(Document *doc, LINK firstClefL, INT16 staffn, char subtype)
 	return doneL;
 }
 
-static Boolean ReplaceClefs(Document *doc, char /*curClef*/[], char newClef[], INT16 nToChange)
+static Boolean ReplaceClefs(Document *doc, char /*curClef*/[], char newClef[], short nToChange)
 {
-	LINK firstClefL; INT16 i, s, staff;
+	LINK firstClefL; short i, s, staff;
 	
 	firstClefL = LSSearch(doc->headL, CLEFtype, 1, GO_RIGHT, FALSE);
 	
@@ -1329,9 +1329,9 @@ static Boolean ReplaceClefs(Document *doc, char /*curClef*/[], char newClef[], I
 }
 
 static Boolean AddClefs(Document *doc, LINK measL, char curClef[], char newClef[],
-								INT16 nToChange)
+								short nToChange)
 {
-	LINK newL, aClefL; PACLEF aClef; INT16 i, s, staff;
+	LINK newL, aClefL; PACLEF aClef; short i, s, staff;
 	
 	newL = NewClefPrepare(doc, measL, nToChange);
 	if (!newL) return FALSE;
@@ -1359,11 +1359,11 @@ static Boolean AddClefs(Document *doc, LINK measL, char curClef[], char newClef[
 static Boolean ChangeClefs(
 		Document *doc,
 		LINK measL,
-		INT16 avgNoteNum[],	/* Average note numbers, by staff; -1 = no notes on the staff */
+		short avgNoteNum[],	/* Average note numbers, by staff; -1 = no notes on the staff */
 		char curClef[]
 		)
 {
-	INT16 s, nToChange; char newClef[MAXSTAVES+1];
+	short s, nToChange; char newClef[MAXSTAVES+1];
 	LINK firstMeasL; Boolean beforeFirst, okay;
 	
 	for (nToChange = 0, s = 1; s<=doc->nstaves; s++) {
@@ -1397,7 +1397,7 @@ static Boolean ChangeClefs(
 static Boolean AddClefs1Measure(Document *doc, LINK measL, char curClef[])
 {
 	LINK endMeasL, pL, aNoteL;
-	INT16 s, noteCount[MAXSTAVES+1], avgNoteNum[MAXSTAVES+1];
+	short s, noteCount[MAXSTAVES+1], avgNoteNum[MAXSTAVES+1];
 	long totNoteNum[MAXSTAVES+1];
 	
 	for (s = 1; s<=doc->nstaves; s++)
@@ -1458,9 +1458,9 @@ static long SyncSimpleLDur(LINK syncL)
 	return dur;
 }
 
-static INT16 CountSyncs(Document *doc) 
+static short CountSyncs(Document *doc) 
 {
-	INT16 nSyncs = 0;
+	short nSyncs = 0;
 	
 	for (LINK pL = doc->headL; pL != doc->tailL; pL=RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
@@ -1472,9 +1472,9 @@ static INT16 CountSyncs(Document *doc)
 
 #if 1
 
-static LINKTIMEINFO *DocSyncTab(Document *doc, INT16 *tabSize, LINKTIMEINFO *rawSyncTab, INT16 rawTabSize) 
+static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *rawSyncTab, short rawTabSize) 
 {
-	INT16 nSyncs = CountSyncs(doc);
+	short nSyncs = CountSyncs(doc);
 	long tLen = nSyncs * sizeof(LINKTIMEINFO);
 	LINKTIMEINFO *docSyncTab = (LINKTIMEINFO *)NewPtr(tLen);
 	if (!GoodNewPtr((Ptr)docSyncTab)) {
@@ -1515,9 +1515,9 @@ static LINKTIMEINFO *DocSyncTab(Document *doc, INT16 *tabSize, LINKTIMEINFO *raw
 
 #else
 
-static LINKTIMEINFO *DocSyncTab(Document *doc, INT16 *tabSize) 
+static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize) 
 {
-	INT16 nSyncs = CountSyncs(doc);
+	short nSyncs = CountSyncs(doc);
 	long tLen = nSyncs * sizeof(LINKTIMEINFO);
 	LINKTIMEINFO *docSyncTab = (LINKTIMEINFO *)NewPtr(tLen);
 	if (!GoodNewPtr((Ptr)docSyncTab)) {
@@ -1539,7 +1539,7 @@ static LINKTIMEINFO *DocSyncTab(Document *doc, INT16 *tabSize)
 }
 
 #endif
-static LINK GetRelObj(LINKTIMEINFO *docSyncTab, INT16 tabSize, TEMPOINFO tempoInfo) 
+static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoInfo) 
 {
 	long timeStamp = tempoInfo.tStamp;
 	
@@ -1561,12 +1561,12 @@ static LINK GetRelObj(LINKTIMEINFO *docSyncTab, INT16 tabSize, TEMPOINFO tempoIn
 }
 
 
-//static LINK GetRelObj(LINKTIMEINFO *docSyncTab, INT16 tabSize, TEMPOINFO tempoInfo) 
+//static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoInfo) 
 //{
 //	return GetRelObj(docSyncTab, tabSize, tempoInfo);	
 //}
 
-static LINK GetRelObj(LINKTIMEINFO *docSyncTab, INT16 tabSize, CTRLINFO ctrlInfo) 
+static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrlInfo) 
 {
 	long timeStamp = ctrlInfo.tStamp;
 	
@@ -1592,7 +1592,7 @@ static LINK GetRelObj(LINKTIMEINFO *docSyncTab, INT16 tabSize, CTRLINFO ctrlInfo
 }
 
 
-static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, INT16 tabSize) 
+static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize) 
 {
 	DebugPrintf("%s: %ld\n", tabname, tabSize);
 	
@@ -1620,7 +1620,7 @@ static void PrintDocSyncDurs(Document *doc)
 }
 
 
-//static LINK GetRelObj(LINKTIMEINFO *docSyncTab, INT16 tabSize, CTRLINFO ctrlInfo) 
+//static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrlInfo) 
 //{
 //	long timeStamp = ctrlInfo.tStamp;
 //	return GetRelObj(docSyncTab, tabSize, timeStamp);	
@@ -1671,7 +1671,7 @@ static Boolean CompactTempoTab()
 
 #define MICROBEATS2TSCALE(mb) (60*1000000L/(mb))
 
-static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, INT16 tabSize) 
+static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short tabSize) 
 {
 	if (!CompactTempoTab()) return FALSE;
 	
@@ -1685,7 +1685,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, INT16 ta
 		if (relObj != NILINK) {
 			Str63 tempoStr;
 			Str63 metroStr;
-			INT16 clickStaff,pitchLev;
+			short clickStaff,pitchLev;
 			Boolean hideMM = FALSE;
 			Boolean dotted = FALSE;
 			Point pt;
@@ -1696,10 +1696,10 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, INT16 ta
 			long tscale = MICROBEATS2TSCALE(microbeats);
 			long tscale1 = MICROBEATS2TSCALE(microsecPQ);
 			
-			INT16 beatdur = DFLT_BEATDUR;
+			short beatdur = DFLT_BEATDUR;
 			long tempo = tscale / beatdur;
 			
-			INT16 dur = QTR_L_DUR;
+			short dur = QTR_L_DUR;
 			
 			NumToString(tempo, metroStr);
 			PStrCopy((StringPtr)"\p", (StringPtr)tempoStr);
@@ -1721,7 +1721,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, INT16 ta
 }
 
 
-static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, INT16 tabSize) 
+static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short tabSize) 
 {
 	PrintDocSyncTab("DocSyncTab", docSyncTab, tabSize);
 	
@@ -1734,8 +1734,8 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, INT16 
 		
 		if (relObj != NILINK) {
 			Point pt;
-			INT16 clickStaff,pitchLev,voice,hStyleChoice = 0;
-			INT16 newSize,newStyle,newEncl;
+			short clickStaff,pitchLev,voice,hStyleChoice = 0;
+			short newSize,newStyle,newEncl;
 			Str63 newFont; Str255 string;
 			Boolean newRelSize, newLyric = FALSE;
 			
@@ -1796,14 +1796,14 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, INT16 
 	return TRUE;
 }
 
-static Boolean AddRelObjects(Document *doc, LINKTIMEINFO *rawSyncTab, INT16 rawTabSize)
+static Boolean AddRelObjects(Document *doc, LINKTIMEINFO *rawSyncTab, short rawTabSize)
 {
-//	INT16 rawTabSize = 16;
+//	short rawTabSize = 16;
 	
 	PrintDocSyncTab("RawSyncTab", rawSyncTab, rawTabSize);
 	PrintDocSyncDurs(doc);
 	
- 	INT16 tabSize;
+ 	short tabSize;
 	LINKTIMEINFO *docSyncTab = DocSyncTab(doc, &tabSize, rawSyncTab, rawTabSize);
 	if (docSyncTab == NULL) return FALSE;
 	
@@ -1823,7 +1823,7 @@ done:
 /* ------------------------------------------------ Functions to FitStavesOnPaper -- */
 
 static void MFUpdateStaffTops(DDIST [], LINK, LINK);
-void FixForStaffSize(Document *, DDIST [], INT16);
+void FixForStaffSize(Document *, DDIST [], short);
 Boolean FitStavesOnPaper(Document *);
 
 /* Update the staffTop field of all staff subObjects in the given range. */
@@ -1844,9 +1844,9 @@ static void MFUpdateStaffTops(DDIST staffTop[], LINK headL, LINK tailL)
 
 /* Do everything necessary to change the given score's staff size to <newRastral>. */
 
-void FixForStaffSize(Document *doc, DDIST staffTop[], INT16 newRastral)
+void FixForStaffSize(Document *doc, DDIST staffTop[], short newRastral)
 {
-	FASTFLOAT fact; INT16 i; LINK sysL; DRect sysRect; DDIST sysSize, sysOffset;
+	FASTFLOAT fact; short i; LINK sysL; DRect sysRect; DDIST sysSize, sysOffset;
 	
 	if (newRastral==doc->srastral) return;
 	
@@ -1898,7 +1898,7 @@ which is generally false for the first page of a score because of config.titleMa
 
 Boolean FitStavesOnPaper(Document *doc)
 {
-	INT16 newRastral; FASTFLOAT fact;
+	short newRastral; FASTFLOAT fact;
 	LINK staffL, aStaffL; PASTAFF aStaff;
 	DDIST pageHeightAvail, botStaffTop, botStaffHt, newBotStaffTop,
 			staffTop[MAXSTAVES+1];
@@ -1967,7 +1967,7 @@ that (currently 60 percent) to the merge table. At current rates, every addition
 megabyte free adds about 78K (6500 objects) to the merge table, and about 52K (2600
 objects) to the one-track table. (For unknown reasons, the actual numbers of objects
 added seem to be somewhat different than these figures.) NB1: some utility routines
-we use expect INT16 counts, so we clip sizes to SHRT_MAX; therefore, giving Nightingale
+we use expect short counts, so we clip sizes to SHRT_MAX; therefore, giving Nightingale
 more than about 6000-7000K doesn't make the tables any larger. NB2: For compatibility,
 we should always use numbers at least as large as the Nightingale 3.0 values (3500 for
 each) as minima. */
@@ -2056,24 +2056,24 @@ static void InitTrack2Night(Document *doc, long *pMergeTabSize, long *pOneTrackT
 							
 #endif
 
-static INT16 Track2RTStructs(
+static short Track2RTStructs(
 					Document *doc,
 					TRACKINFO trackInfo[],
-					INT16 track,
+					short track,
 					Boolean isTempoMap,
 					long cStartTime, long cStopTime,
-					INT16 timeOffset,
+					short timeOffset,
 					LINKTIMEINFO rawSyncTab[],		/* Input: raw (unquantized and unclarified) NCs */
 					unsigned short maxTrkNotes,	/* size of <rawSyncTab> and <rawNoteAux> */
-					INT16 *pnSyncs,
+					short *pnSyncs,
 					NOTEAUX rawNoteAux[],			/* Input: auxiliary info on raw notes */
-					INT16 *pnAux,
-					INT16 tripletBias					/* Percent bias towards quant. to triplets >= 2/3 quantum */
+					short *pnAux,
+					short tripletBias					/* Percent bias towards quant. to triplets >= 2/3 quantum */
 					)
 {
 	Byte command, channel;
 	long loc, prevStartTime, chordEndTime, noteEndTime;
-	INT16 iSync, nAux;
+	short iSync, nAux;
 	long mult;
 	MFEvent *p;
 	MFNote *pn;
@@ -2212,13 +2212,13 @@ return NOTHING_TO_DO for it).
 NB: changing the quantum, maxMeasures, or scoreEndTime between tracks is probably not
 a good idea! */
 
-static INT16 Track2Night(
+static short Track2Night(
 					Document *doc,
 					TRACKINFO trackInfo[],
-					INT16 track,
-					INT16 quantum,			/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
-					INT16 tripletBias,	/* Percent bias towards quant. to triplets >= 2/3 quantum */
-					INT16 maxMeasures,	/* Transcribe no more than this many measures */
+					short track,
+					short quantum,			/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+					short tripletBias,	/* Percent bias towards quant. to triplets >= 2/3 quantum */
+					short maxMeasures,	/* Transcribe no more than this many measures */
 					long scoreEndTime		/* Last end-of-track time for any track, in PDUR ticks */
 					)
 {
@@ -2229,10 +2229,10 @@ static INT16 Track2Night(
 	NOTEAUX	*rawNoteAux;
 	long		len;
 	LINK		newFirstSync, measL, firstL, lastL;
-	INT16		nMergeObjs, voice, count, nNewSyncs,
+	short		nMergeObjs, voice, count, nNewSyncs,
 				nRawSyncs, nAux, status, tVErr;
-	INT16		timeOffset=0;								/* in PDUR ticks: normally 0 */
-	unsigned INT16 maxNewSyncs;
+	short		timeOffset=0;								/* in PDUR ticks: normally 0 */
+	unsigned short maxNewSyncs;
 	Boolean	isTempoMap, isLastTrack, okay=FALSE;
 	char		fmtStr[256];
 
@@ -2374,19 +2374,19 @@ if we succeed, FALSE if either there's an error or nothing useful in the MIDI fi
 
 NB: Time resolution globals must be initialized first! See MFTicks2NTicks. */
 
-INT16 MIDNight2Night(
+short MIDNight2Night(
 			Document *doc,
 			TRACKINFO trackInfo[],
-			INT16 quantum,					/* For attacks and releases, in PDUR ticks, or 1=no quantize */
-			INT16 tripletBias,			/* Percent bias towards quant. to triplets >= 2/3 quantum */
+			short quantum,					/* For attacks and releases, in PDUR ticks, or 1=no quantize */
+			short tripletBias,			/* Percent bias towards quant. to triplets >= 2/3 quantum */
 			Boolean delRedundantAccs,	/* Delete redundant accidentals? */
 			Boolean clefChanges,			/* Add clef changes to minimize ledger lines? */
 			Boolean setPlayDurs,			/* Set note playDurs according to logical durs.? */
-			INT16 maxMeasures,			/* Transcribe no more than this many measures */
+			short maxMeasures,			/* Transcribe no more than this many measures */
 			long lastEvent					/* End-of-track time, in MIDI file (not PDUR!) ticks */
 			)
 {
-	INT16 t, status; long len, endTime; Boolean gotNotes=FALSE;
+	short t, status; long len, endTime; Boolean gotNotes=FALSE;
 	LINK measL;
 	char fmtStr[256];
 	long tLen;
@@ -2487,7 +2487,7 @@ Done:
 
 /* ---------------------------------------------------------------- MFRespAndRfmt -- */
 
-Boolean MFRespAndRfmt(Document *doc, INT16 quantCode)
+Boolean MFRespAndRfmt(Document *doc, short quantCode)
 {
 	LINK measL, pL; long spacePercent;
 	

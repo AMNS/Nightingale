@@ -29,18 +29,18 @@ typedef struct {
 	short velocity;	
 } NOTEPLAYINFO;
 
-void ShellSortNPBuf(NOTEPLAYINFO notePlayBuf[], INT16 npBufInd);
+void ShellSortNPBuf(NOTEPLAYINFO notePlayBuf[], short npBufInd);
 static Boolean BIMIDIAllocNoteBuffer(Document *doc, LINK recMeasL, LINK playToL);
-static void GetClickTimeInfo(Document *doc, LINK recMeasL, LINK playToL, INT16 nLeadInMeas,
-								TCONVERT tConvertTab[], INT16 tempoCount, long *pToffset,
+static void GetClickTimeInfo(Document *doc, LINK recMeasL, LINK playToL, short nLeadInMeas,
+								TCONVERT tConvertTab[], short tempoCount, long *pToffset,
 								long *pClickLeadInDur, long *pLastStartTime);
 static Boolean RecPlayAddAllClicks(long msPerBeat, long lastStartTime);
 static Boolean BIMIDIAddNote(short noteNum, short channel, long startTime, long endTime,
 								short velocity);
 static void RecPlayAddAllNotes(Document *doc, LINK fromL, LINK toL, TCONVERT tConvertTab[],
-								INT16 tempoCount, long toffset);
-INT16 RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset);
-Boolean RecPlayNotes(unsigned INT16	outBufSize);
+								short tempoCount, long toffset);
+short RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset);
+Boolean RecPlayNotes(unsigned short	outBufSize);
 
 /* --------------------------------------------------------------- ShellSortNPBuf -- */
 /* ShellSortNPBuf does a Shell (diminishing increment) sort on <.times> of the
@@ -51,7 +51,7 @@ The Art of Computer Programming, vol. 2, pp. 84-95. */
 
 void ShellSortNPBuf(
 			NOTEPLAYINFO notePlayBuf[],
-			INT16 npBufInd)
+			short npBufInd)
 {
 	short nstep, ncheck, i, n; NOTEPLAYINFO temp;
 	
@@ -76,9 +76,9 @@ void ShellSortNPBuf(
 	}
 }
 
-static INT16 npBufInd;				/* Index of first free slot in notePlayBuf */
+static short npBufInd;				/* Index of first free slot in notePlayBuf */
 NOTEPLAYINFO *notePlayBuf;
-static INT16 npBufSize;				/* Size of notePlayBuf */
+static short npBufSize;				/* Size of notePlayBuf */
 
 /* Allocate a buffer for playing out of (while recording) with the built-in MIDI driver.
 The buffer is pointed to by <notePlayBuf>; set <npBufSize> to its size and <npBufInd> to
@@ -87,7 +87,7 @@ and return FALSE. */
 
 static Boolean BIMIDIAllocNoteBuffer(Document *doc, LINK recMeasL, LINK playToL)
 {
-	INT16 noteCount, maxMetroClicks; CONTEXT context;
+	short noteCount, maxMetroClicks; CONTEXT context;
 	
 	/*
 	 * We need an event buffer with room for two events (Note On and Note Off) for
@@ -119,9 +119,9 @@ static void GetClickTimeInfo(
 					Document *doc,
 					LINK recMeasL,
 					LINK playToL,
-					INT16 nLeadInMeas,
+					short nLeadInMeas,
 					TCONVERT tConvertTab[],
-					INT16 tempoCount,
+					short tempoCount,
 					long *pToffset,						/* output, in milliseconds: may be negative! */
 					long *pClickLeadInDur,				/* output, in milliseconds */
 					long *pLastStartTime)				/* output, in milliseconds */
@@ -192,8 +192,8 @@ static Boolean BIMIDIAddNote(short noteNum, short channel, long startTime, long 
 }
 
 #ifdef DEBUG_MIDIOUT
-pascal void DBGMidiOut(INT16 Midibyte, long TimeStamp, INT16 * Result);
-pascal void DBGMidiOut(INT16 Midibyte, long TimeStamp, INT16 * Result)
+pascal void DBGMidiOut(short Midibyte, long TimeStamp, short * Result);
+pascal void DBGMidiOut(short Midibyte, long TimeStamp, short * Result)
 {
 DebugPrintf("voidDBGMidiOut(0x%x, %ld)\n", Midibyte, TimeStamp);
 	MidiOut(Midibyte, TimeStamp, Result);
@@ -208,13 +208,13 @@ DebugPrintf("voidDBGMidiOut(0x%x, %ld)\n", Midibyte, TimeStamp);
 On) events for all the notes we might have to play. */
 
 static void RecPlayAddAllNotes(Document *doc, LINK fromL, LINK toL, TCONVERT tConvertTab[],
-										INT16 tempoCount, long toffset)
+										short tempoCount, long toffset)
 {
 	SignedByte	partVelo[MAXSTAVES];
 	Byte			partChannel[MAXSTAVES];
 	short			partTransp[MAXSTAVES];
 	Byte			channelPatch[MAXCHANNEL];
-	INT16			useNoteNum,
+	short			useNoteNum,
 					useChan, useVelo;
 	LINK			pL, measL, aNoteL;
 	long			playDur,										/* in PDUR ticks */
@@ -276,7 +276,7 @@ click. Return value is the size of the buffer, or -1 if there's a problem. */
 
 short RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset)
 {
-	INT16 i, measNum;
+	short i, measNum;
 	LINK recMeasL, playFromL, playToL;
 	long maxRecTime, toffset, lastStartTime;
 	TCONVERT tConvertTab[MAX_TCONVERT];
@@ -340,8 +340,8 @@ If we succeed, return TRUE; if not (probably not enough memory in the buffer), F
 
 Boolean RecPlayNotes(unsigned short outBufSize)
 {
-	unsigned INT16 outBufCount;
-	INT16 i; long time;
+	unsigned short outBufCount;
+	short i; long time;
 
 	for (i = 0; i<npBufInd; i++) {
 		switch (useWhichMIDI) {

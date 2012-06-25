@@ -37,23 +37,23 @@ static long 			*stfTimeDiff;
 
 static void DisposeArrays(void);
 
-static PTIME *PrepareSelRange(Document *doc, INT16 *nInRange, LINK *baseMeasL);
+static PTIME *PrepareSelRange(Document *doc, short *nInRange, LINK *baseMeasL);
 
-static void ShellSort(INT16 n, INT16 nvoices);
-static void SortPTimes(INT16 nInSelRange, INT16 nvoices);
+static void ShellSort(short n, short nvoices);
+static void SortPTimes(short nInSelRange, short nvoices);
 
-static INT16 GetTupleDenom(INT16 tupleNum,TupleParam *tParam);
-static Boolean ComputePlayDurs(Document *doc,SELRANGE [],INT16 [],INT16 [],INT16,TupleParam *);
-static Boolean RearrangeNotes(Document *doc, SELRANGE [], INT16, LINK);
+static short GetTupleDenom(short tupleNum,TupleParam *tParam);
+static Boolean ComputePlayDurs(Document *doc,SELRANGE [],short [],short [],short,TupleParam *);
+static Boolean RearrangeNotes(Document *doc, SELRANGE [], short, LINK);
 static Boolean CheckContinSel(Document *);
 
-static void SelectSync(LINK pL,INT16 v,Boolean sel);
-static void SelectTuplet(Document *doc,INT16 v,Boolean sel);
+static void SelectSync(LINK pL,short v,Boolean sel);
+static void SelectTuplet(Document *doc,short v,Boolean sel);
 static void DeleteTuplet(Document *doc,LINK tupletL);
-static Boolean RecomputePlayDurs(Document *, SELRANGE [], INT16 [], INT16 [], INT16, INT16);
+static Boolean RecomputePlayDurs(Document *, SELRANGE [], short [], short [], short, short);
 static void MarkTuplets(Document *doc);
 
-static Boolean SelRangeChkTuplet(INT16, LINK, LINK);
+static Boolean SelRangeChkTuplet(short, LINK, LINK);
 
 
 /* --------------------------------------------------------------------------------- */
@@ -77,9 +77,9 @@ static void DisposeArrays()
 /* Return TRUE if both numerator and denominator for tuplet to be created in
 voice v are below the allowed maximum of MAX_TUPLENUM = 255. */
 
-Boolean CheckMaxTupleNum(INT16 v, LINK vStartL, LINK vEndL, TupleParam *tParam)
+Boolean CheckMaxTupleNum(short v, LINK vStartL, LINK vEndL, TupleParam *tParam)
 {
-	INT16 tupleNum,tupleDenom;
+	short tupleNum,tupleDenom;
 
 	tupleNum = GetTupleNum(vStartL, vEndL, v, TRUE);
 	tupleDenom = GetTupleDenom(tupleNum,tParam);
@@ -95,9 +95,9 @@ Boolean CheckMaxTupleNum(INT16 v, LINK vStartL, LINK vEndL, TupleParam *tParam)
 3. If any of the notes has logical duration or is a multibar rest,
 	return 0. */
 
-INT16 GetTupleNum(LINK startL, LINK endL, INT16 voice, Boolean /*needSelected*/)
+short GetTupleNum(LINK startL, LINK endL, short voice, Boolean /*needSelected*/)
 {
-	INT16 	durUnit, tupleNum;
+	short 	durUnit, tupleNum;
 	PANOTE	aNote;
 	LINK		pL, aNoteL;
 	Boolean  firstNote;
@@ -121,7 +121,7 @@ INT16 GetTupleNum(LINK startL, LINK endL, INT16 voice, Boolean /*needSelected*/)
 						firstNote = FALSE;
 					}
 					else
-						durUnit = GCD(durUnit, (INT16)SimpleLDur(aNoteL));
+						durUnit = GCD(durUnit, (short)SimpleLDur(aNoteL));
 					break;						/* Assumes all notes in chord have same duration. */
 				}
 			}
@@ -147,9 +147,9 @@ INT16 GetTupleNum(LINK startL, LINK endL, INT16 voice, Boolean /*needSelected*/)
 /* ------------------------------------------------------------- PrepareSelRange -- */
 /* Prepare array for use by CreateTUPLET. If not enough memory, return NULL. */
 
-static PTIME *PrepareSelRange(Document *doc, INT16 *nInRange, LINK *baseMeasL)
+static PTIME *PrepareSelRange(Document *doc, short *nInRange, LINK *baseMeasL)
 {
-	INT16 nInMeas = 0, numNotes;
+	short nInMeas = 0, numNotes;
 	LINK pL;
 	
 	*baseMeasL = startMeas = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
@@ -178,9 +178,9 @@ static PTIME *PrepareSelRange(Document *doc, INT16 *nInRange, LINK *baseMeasL)
 /* Sort the pDurArray via Shell's algorithm. See comments on the algorithm in
 MIDIRecord.c and PitchUtils.c. */
 
-static void ShellSort(INT16 n, INT16 nvoices)
+static void ShellSort(short n, short nvoices)
 {
-	INT16 gap, i, j, arrLen;
+	short gap, i, j, arrLen;
 	PTIME t;
 
 	arrLen = n*nvoices;
@@ -199,7 +199,7 @@ static void ShellSort(INT16 n, INT16 nvoices)
 /* ------------------------------------------------------------------ SortPTimes -- */
 /* Sort the pTime array pDurArray based on the pTime field. */
 
-static void SortPTimes(INT16 nInMeas, INT16 nvoices)
+static void SortPTimes(short nInMeas, short nvoices)
 {
 	ShellSort(nInMeas, nvoices);
 }
@@ -209,9 +209,9 @@ static void SortPTimes(INT16 nInMeas, INT16 nvoices)
 /* Return the usual tuplet denominator for the given numerator: if tupleNum is 4,
 return 3, else return the next greatest power of 2 less than tupleNum. */
 
-static INT16 GetTupleDenom(INT16 tupleNum, TupleParam *tParam)
+static short GetTupleDenom(short tupleNum, TupleParam *tParam)
 {
-	INT16 i,tupleDenom;
+	short i,tupleDenom;
 
 	if (tParam->isFancy)
 		return tParam->accDenom;
@@ -225,10 +225,10 @@ static INT16 GetTupleDenom(INT16 tupleNum, TupleParam *tParam)
 
 /* ------------------------------------------------------------- ComputePlayDurs -- */
 
-static Boolean ComputePlayDurs(Document *doc, SELRANGE selRange[], INT16 tupleNum[],
-										INT16 /*nInTuple*/[], INT16 nInMeas, TupleParam *tParam)
+static Boolean ComputePlayDurs(Document *doc, SELRANGE selRange[], short tupleNum[],
+										short /*nInTuple*/[], short nInMeas, TupleParam *tParam)
 {
-	INT16 v, notes, vNotes, *noteStart, tupleDenom;
+	short v, notes, vNotes, *noteStart, tupleDenom;
 	long tempDur, stfStartTime, tempTime, tempTime2, playDur;
 	LINK pL, qL, aNoteL; PANOTE aNote;
 	Boolean nextSyncExists,isFancy;
@@ -242,7 +242,7 @@ static Boolean ComputePlayDurs(Document *doc, SELRANGE selRange[], INT16 tupleNu
 	/* Initialize noteStart[v], an array indicating the number of
 		syncs selRange[v].startL is after startMeas. */
 
-	noteStart = (INT16 *)NewPtr((Size)(MAXVOICES+1)*sizeof(INT16));
+	noteStart = (short *)NewPtr((Size)(MAXVOICES+1)*sizeof(short));
 	if (!GoodNewPtr((Ptr)noteStart)) goto broken;
 
 	isFancy = tParam->isFancy;
@@ -380,10 +380,10 @@ left <playDurs> of notes not being tupled or untupled alone (see code before cal
 to CopyNotes), but it's not obvious to me how it can tell. Probably a flag for this
 would have to be added to qDurArray. */
 
-static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], INT16 nNotes,
+static Boolean RearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNotes,
 										LINK /*baseMeasL*/)
 {
-	INT16 i, v, notes, numNotes, subCount=0, arrBound;
+	short i, v, notes, numNotes, subCount=0, arrBound;
 	PTIME *pTime, *qTime;
 	LINK pL, firstSubObj, newObjL, subL, newSubL, tempNewSubL, 
 			newSelStart;
@@ -580,7 +580,7 @@ in any voice; if there are, return FALSE, otherwise return TRUE. */
 
 static Boolean CheckContinSel(Document *doc)
 {
-	LINK link,measL,endMeasL; INT16 i,lastNode,v; Boolean first;
+	LINK link,measL,endMeasL; short i,lastNode,v; Boolean first;
 	SPACETIMEINFO *spTimeInfo;
 	long startTime,nextlTime;
 
@@ -634,7 +634,7 @@ static Boolean CheckContinSel(Document *doc)
 
 void DoTuple(Document *doc, TupleParam *tParam)
 {
-	INT16			v, nInMeas,
+	short			v, nInMeas,
     				nInTuple[MAXVOICES+1],	/* number of tuplable notes in selection */
 					tupleNum[MAXVOICES+1],	/* accessory numeral for tuplet */
 					maxTupleNum;
@@ -727,7 +727,7 @@ notes in <voice> from startL to endL are in one and the same beamset, else retur
 TRUE. This is the standard conventional-notation convention. Assumes a valid range
 for tupling, e.g., more than one note in the voice in the range. */
 
-Boolean GetBracketVis(Document *doc, LINK startL, LINK endL, INT16 voice)
+Boolean GetBracketVis(Document *doc, LINK startL, LINK endL, short voice)
 {
 	LINK startSync, endSync, startBeamL, endBeamL, aNoteL;
 	PANOTE aNote;
@@ -783,8 +783,8 @@ Boolean GetBracketVis(Document *doc, LINK startL, LINK endL, INT16 voice)
 
 void InitTuplet(
 			LINK tupletL,
-			INT16 staff, INT16 voice,
-			INT16 tupleNum, INT16 tupleDenom,
+			short staff, short voice,
+			short tupleNum, short tupleDenom,
 			Boolean numVis, Boolean	denomVis,
 			Boolean brackVis
 			)
@@ -845,9 +845,9 @@ void SetTupletYPos(Document *doc, LINK tupletL)
 LINK CreateTUPLET(
 			Document *doc,
 			LINK startL, LINK endL,
-			INT16 v,
-			INT16 nInTuple,
-			INT16 tupletNumeral,
+			short v,
+			short nInTuple,
+			short tupletNumeral,
 			Boolean needSelected,		/* TRUE if we only want selected items */
 			Boolean doTuple,				/* TRUE if we are explicitly tupling notes, so tuplet will be selected */
 			TupleParam *tParam
@@ -855,7 +855,7 @@ LINK CreateTUPLET(
 {
 	LINK			pL, tupletL, aNoteTupleL;
 	PANOTETUPLE aNoteTuple;
-	INT16 		tuplElem, iTuplElem, staff,
+	short 		tuplElem, iTuplElem, staff,
 					tupleNum, tupleDenom;						/* Printable "accessory" denominator */
 	Boolean		numVis, denomVis, brackVis;
 	LINK			aNoteL;
@@ -941,7 +941,7 @@ LINK CreateTUPLET(
 /* --------------------------------------------------------------------------------- */
 /* Utilities for DoUntuple. */
 
-static void SelectSync(LINK pL, INT16 v, Boolean sel)
+static void SelectSync(LINK pL, short v, Boolean sel)
 {
 	LINK aNoteL;
 	
@@ -954,7 +954,7 @@ static void SelectSync(LINK pL, INT16 v, Boolean sel)
 }
 
 
-static void SelectTuplet(Document *doc, INT16 v, Boolean sel)
+static void SelectTuplet(Document *doc, short v, Boolean sel)
 {
 	LINK pL;
 	
@@ -966,7 +966,7 @@ static void SelectTuplet(Document *doc, INT16 v, Boolean sel)
 
 static void DeleteTuplet(Document *doc, LINK tupletL)
 {
-	INT16 v; LINK pL,firstL,lastL,aNoteL;
+	short v; LINK pL,firstL,lastL,aNoteL;
 	
 	v = TupletVOICE(tupletL);
 	firstL = FirstInTuplet(tupletL);
@@ -987,13 +987,13 @@ static void DeleteTuplet(Document *doc, LINK tupletL)
 static Boolean RecomputePlayDurs(
 						Document *doc,
 						SELRANGE selRange[],
-						INT16 tupleNum[],
-						INT16 /*nInTuple*/[],
-						INT16 nInMeas,
-						INT16 tupleDenom
+						short tupleNum[],
+						short /*nInTuple*/[],
+						short nInMeas,
+						short tupleDenom
 						)
 {
-	INT16 v, notes, vNotes, *noteStart, k;
+	short v, notes, vNotes, *noteStart, k;
 	long tempDur, stfStartTime, tempTime, tempTime2, vDur;
 	LINK pL, qL, aNoteL; PANOTE aNote;
 	Boolean nextSyncExists;
@@ -1007,7 +1007,7 @@ static Boolean RecomputePlayDurs(
 	/* Initialize noteStart[v], an array indicating the number of syncs
 		selRange[v].startL is after startMeas. */
 
-	noteStart = (INT16 *)NewPtr((Size)(MAXVOICES+1)*sizeof(INT16));
+	noteStart = (short *)NewPtr((Size)(MAXVOICES+1)*sizeof(short));
 	if (!GoodNewPtr((Ptr)noteStart)) goto broken;
 
 	for (v = 0; v<=MAXVOICES; v++)
@@ -1133,7 +1133,7 @@ LINK RemoveTuplet(Document *doc, LINK tupletL)
 {
 	LINK nextL,baseMeasL; PTUPLET pTuplet;
 	SELRANGE selRange[MAXVOICES+1];
-	INT16 v,tupletV,nInMeas,nInTuple[MAXVOICES+1],tupleNum[MAXVOICES+1],tupleDenom;
+	short v,tupletV,nInMeas,nInTuple[MAXVOICES+1],tupleNum[MAXVOICES+1],tupleDenom;
 
 	/* Initialize selRange[],nInTuple[], and tupleNum[] for deletion of
 		tupletL; all slots for voices other than tupletL's are NILINK or 0;
@@ -1201,7 +1201,7 @@ void UnTuple(Document *doc)
 static void MarkTuplets(Document *doc)
 {
 	LINK startL,endL,pL,qL,vStartL,vEndL,tupletL,aNoteL;
-	INT16 v;
+	short v;
 
 	/* Clear spareFlags for all tuplets. */
 
@@ -1293,12 +1293,12 @@ void DoUntuple(Document *doc)
 <lastSync> inclusive, restore their pDur's to non-tupled values, and delete
 the tuplet <tupleL>. */
  
-void UntupleObj(Document *doc, LINK tupleL, LINK firstSync, LINK lastSync, INT16 voice)
+void UntupleObj(Document *doc, LINK tupleL, LINK firstSync, LINK lastSync, short voice)
 {
 	LINK pL, aNoteL;
 	PANOTE 	aNote;
 	long	 	tempDur;
-	INT16 	tupleNum, tupleDenom;
+	short 	tupleNum, tupleDenom;
 	PTUPLET 	tupletp;
 	
 	tupletp = GetPTUPLET(tupleL);
@@ -1336,14 +1336,14 @@ void DrawTupletBracket(
 			DDIST	 brackDelta, 				/* Distance to move bracket up from origin  */
 			DDIST	 yCutoffLen,
 			DDIST	 xMid,
-			INT16  tuplWidth,					/* Width of tuplet string (pixels), or <0 if none */
+			short  tuplWidth,					/* Width of tuplet string (pixels), or <0 if none */
 			Boolean firstUp,					/* Point left end of bracket upwards? */
 			Boolean lastUp,					/* Point right end of bracket upwards? */
 			PCONTEXT pContext,				/* Or NULL, e.g., to use in a dialog; see below */
 			Boolean dim
 			)
 {
-	INT16	firstx, firsty, lastx, lasty, y, ydelta, numxFirst, numxLast,
+	short	firstx, firsty, lastx, lasty, y, ydelta, numxFirst, numxLast,
 			yCutoff, paperLeft, paperTop;
 	
 	paperLeft = (pContext? pContext->paper.left : 0);
@@ -1385,7 +1385,7 @@ void DrawPSTupletBracket(
 			DDIST	 brackDelta, 				/* Distance from notehead to top (or bottom) of bracket */
 			DDIST	 yCutoffLen, 				/* Distance from notehead to start of bracket */
 			DDIST	 xMid,
-			INT16  tuplWidth,					/* Width of tuplet string (points), or <0 if none */
+			short  tuplWidth,					/* Width of tuplet string (points), or <0 if none */
 			Boolean firstUp,					/* Point left end of bracket upwards? */
 			Boolean lastUp,					/* Point right end of bracket upwards? */
 			PCONTEXT	pContext
@@ -1407,11 +1407,11 @@ void DrawPSTupletBracket(
 			  firstPt.h, firstyd, TUPLE_BRACKTHICK(lnSpace));
 			  
 	if (tuplWidth>=0) {
-		yd = (DDIST)InterpY((INT16)firstPt.h, (INT16)firstyd,
-									(INT16)lastPt.h, (INT16)lastyd, numxdFirst);
+		yd = (DDIST)InterpY((short)firstPt.h, (short)firstyd,
+									(short)lastPt.h, (short)lastyd, numxdFirst);
 		PS_Line(firstPt.h, firstyd, numxdFirst, yd, TUPLE_BRACKTHICK(lnSpace));
-		yd = (DDIST)InterpY((INT16)firstPt.h, (INT16)firstyd,
-									(INT16)lastPt.h, (INT16)lastyd, numxdLast);
+		yd = (DDIST)InterpY((short)firstPt.h, (short)firstyd,
+									(short)lastPt.h, (short)lastyd, numxdLast);
 		PS_Line(numxdLast, yd, lastPt.h, lastyd, TUPLE_BRACKTHICK(lnSpace));
 	}
 	else
@@ -1429,7 +1429,7 @@ static void GetTupleNotes(LINK, LINK[]);
 static void GetTupleNotes(LINK tupL, LINK notes[])
 {
 	LINK aNoteTupleL, syncL; PTUPLET tup; PANOTETUPLE aNoteTuple;
-	INT16 i, voice;
+	short i, voice;
 
 	tup = GetPTUPLET(tupL);
 	voice = TupletVOICE(tupL);
@@ -1484,7 +1484,7 @@ void GetTupletInfo(
 			LINK tupL,
 			PCONTEXT	pContext,
 			DDIST *pxd, DDIST *pyd,				/* Relative to the TOP_LEFT of tupL's Measure */
-			INT16  *pxColon,						/* Relative to the TOP_LEFT of tupL's Measure */
+			short  *pxColon,						/* Relative to the TOP_LEFT of tupL's Measure */
 			DPoint *pFirstPt, DPoint *pLastPt,
 			unsigned char tupleStr[],
 			DDIST *pDTuplWidth,
@@ -1492,14 +1492,14 @@ void GetTupletInfo(
 			)
 {
 	PTUPLET	tup;
-	INT16		staff;
+	short		staff;
 	DDIST		firstxd, lastxd, firstyd, lastyd;
 	DDIST		lastNoteWidth, dTuplWidth, measDiff;
 	LINK		firstSyncL, lastSyncL, firstMeasL, lastMeasL;
 	Boolean	sameMeas;
 	Rect		tempR, tupleRect, denomRect;
 	unsigned char denomStr[20];
-	INT16		nchars, tupleLen, strWidth;
+	short		nchars, tupleLen, strWidth;
 	GrafPtr	port;
 
 	GetPort(&port);		
@@ -1596,13 +1596,13 @@ void GetTupletInfo(
 void DrawTUPLET(Document *doc, LINK tupL, CONTEXT context[])
 {
 	PTUPLET	tup;
-	INT16		staff;
+	short		staff;
 	PCONTEXT	pContext;
 	DDIST		xd, yd, dTop, dLeft, acnxd, acnyd, temp,
 				topStfTop, bottomStfTop, firstNoteyd, lastNoteyd;
 	DDIST		brackDelta, yCutoffLen, dTuplWidth;
 	DPoint	firstPt, lastPt;
-	INT16		xp, yp, xColon;
+	short		xp, yp, xColon;
 	LINK		aNoteL, firstSyncL, lastSyncL,
 				tNotes[MAXINTUPLET];
 	Boolean	dim;										/* Should it be dimmed bcs in a voice not being looked at? */
@@ -1736,7 +1736,7 @@ PopLock(OBJheap);
 
 /* ----------------------------------------------------------- SelRangeChkTuplet -- */
 
-static Boolean SelRangeChkTuplet(INT16 v, LINK vStartL, LINK vEndL)
+static Boolean SelRangeChkTuplet(short v, LINK vStartL, LINK vEndL)
 {
 	LINK		pL, aNoteL;
 	PANOTE	aNote;
@@ -1759,7 +1759,7 @@ static Boolean SelRangeChkTuplet(INT16 v, LINK vStartL, LINK vEndL)
 return NILINK. Will return NILINK if <node> is in between the tupleL and its
 notes in the data structure. */
 
-LINK HasTupleAcross(LINK node, INT16 staff)
+LINK HasTupleAcross(LINK node, short staff)
 {
 	PANOTE	lNote, rNote;
 	LINK		lSyncL, rSyncL, lNoteL, rNoteL, tupleL;
@@ -1792,7 +1792,7 @@ LINK HasTupleAcross(LINK node, INT16 staff)
 
 LINK VHasTupleAcross(
 			LINK node,
-			INT16 v,
+			short v,
 			Boolean skipNode)	/* TRUE=look for tuplet status to right of <node> & skip <node> itself */
 {
 	PANOTE	lNote, rNote;
@@ -1839,7 +1839,7 @@ LINK LastInTuplet(LINK tupletL)
 {
 	LINK aNoteTupleL;
 	PANOTETUPLE aNoteTuple;
-	INT16 i, nInTuplet;	
+	short i, nInTuplet;	
 	
 	nInTuplet = LinkNENTRIES(tupletL);
 	aNoteTupleL = FirstSubLINK(tupletL);

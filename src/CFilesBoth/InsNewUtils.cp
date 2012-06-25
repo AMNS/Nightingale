@@ -30,7 +30,7 @@
 /* Keep the context fields in the staff object consistent with the context
 established by the BeforeFirstMeas objects. */
 
-void UpdateBFClefStaff(LINK firstClefL, INT16 staffn, INT16 subtype)
+void UpdateBFClefStaff(LINK firstClefL, short staffn, short subtype)
 {
 	LINK staffL,aStaffL;
 
@@ -41,7 +41,7 @@ void UpdateBFClefStaff(LINK firstClefL, INT16 staffn, INT16 subtype)
 			{ StaffCLEFTYPE(aStaffL) = subtype; break; }
 }
 
-void UpdateBFKSStaff(LINK firstKSL, INT16 staffn, KSINFO newKSInfo)
+void UpdateBFKSStaff(LINK firstKSL, short staffn, KSINFO newKSInfo)
 {
 	LINK staffL,aStaffL;
 
@@ -53,8 +53,8 @@ void UpdateBFKSStaff(LINK firstKSL, INT16 staffn, KSINFO newKSInfo)
 			KEYSIG_COPY(&newKSInfo,(PKSINFO)StaffKSITEM(aStaffL));
 }
 
-void UpdateBFTSStaff(LINK firstTSL, INT16 staffn, INT16 /*subType*/, INT16 /*numerator*/,
-							INT16 /*denominator*/)
+void UpdateBFTSStaff(LINK firstTSL, short staffn, short /*subType*/, short /*numerator*/,
+							short /*denominator*/)
 {
 	LINK staffL,aStaffL;
 
@@ -73,7 +73,7 @@ void UpdateBFTSStaff(LINK firstTSL, INT16 staffn, INT16 /*subType*/, INT16 /*num
 /* Replace clef before first (with invisible barline) Measure. Return the first
 LINK after the range affected, i.e., the next clef change on the staff, if any. */
 
-LINK ReplaceClef(Document *doc, LINK firstClefL, INT16 staffn, char subtype)
+LINK ReplaceClef(Document *doc, LINK firstClefL, short staffn, char subtype)
 {
 	LINK			aClefL,doneL;
 	char			oldClefType;
@@ -108,8 +108,8 @@ LINK ReplaceClef(Document *doc, LINK firstClefL, INT16 staffn, char subtype)
 the end of the range affected. */
 
 LINK ReplaceKeySig(Document *doc, LINK firstKeySigL,
-							INT16 staffn,							/* Desired staff no., or ANYONE */
-							INT16 sharpsOrFlats
+							short staffn,							/* Desired staff no., or ANYONE */
+							short sharpsOrFlats
 							)
 {
 	KSINFO		oldKSInfo,newKSInfo;
@@ -156,10 +156,10 @@ LINK ReplaceKeySig(Document *doc, LINK firstKeySigL,
 
 void ReplaceTimeSig(Document *doc,
 							LINK firstTimeSigL,
-							INT16 staffn,			/* Desired staff no., or ANYONE */
-							INT16 type,
-							INT16 numerator,
-							INT16 denominator
+							short staffn,			/* Desired staff no., or ANYONE */
+							short type,
+							short numerator,
+							short denominator
 							)
 {
 	PTIMESIG		pTimeSig;
@@ -220,7 +220,7 @@ static Boolean EnlargeResAreas(Document *doc, LINK startL, LINK endL, DDIST shif
 /* #1. These numbers must be the same as those computed by DelClefBefFirst and
 DelTimeSigBefFirst. */
 
-void FixInitialxds(Document *doc, LINK firstObjL, LINK endL, INT16 type)
+void FixInitialxds(Document *doc, LINK firstObjL, LINK endL, short type)
 {
 	DDIST change=0;
 
@@ -248,7 +248,7 @@ void FixInitialKSxds(
 						Document *doc,
 						LINK firstKeySigL,		/* the new initial keySig */
 						LINK endL,					/* end of the range affected */
-						INT16 staffn				/* staff no. or ANYONE */
+						short staffn				/* staff no. or ANYONE */
 						)
 {
 	DDIST 	needWidth,haveWidth,change;
@@ -281,11 +281,11 @@ negative value for <xd> (see below). */
 LINK CreateMeasure(register Document *doc,
 						LINK insertL,
 						DDIST xd,				/* <0=use prev. measure's+(DDIST)1 */
-						INT16 sym,
+						short sym,
 						CONTEXT context
 						)
 {
-	INT16			newRight;
+	short			newRight;
 	register PMEASURE pMeasure;
 	PMEASURE		prevMeas, nextMeasure;
 	LINK			tmpL, endMeasL,

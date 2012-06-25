@@ -35,19 +35,19 @@
 
 /* Prototypes for local functions */
 
-static Boolean IsRestPosLower(Document *, INT16, INT16);
-static void AddKSItem(LINK, Boolean, INT16, INT16);
+static Boolean IsRestPosLower(Document *, short, short);
+static void AddKSItem(LINK, Boolean, short, short);
 void SetMeasVisible(LINK, Boolean);
-static INT16 NormalStemUpDown(Document *, LINK, INT16, PCONTEXT);
+static short NormalStemUpDown(Document *, LINK, short, PCONTEXT);
 
 
 /* Debugging routine to dump the note heap */
 
-static void DumpNotes(INT16 n);
-static void DumpNotes(INT16 n)
+static void DumpNotes(short n);
+static void DumpNotes(short n)
 	{
 #ifndef PUBLIC_VERSION
-		PANOTE aNote; INT16 i;
+		PANOTE aNote; short i;
 		
 		say("NOTE HEAP DUMP:\n");
 		say("  objSize=%d nObjs=%u firstFree=%u lockLevel=%d\n",
@@ -113,12 +113,12 @@ the Syncs it refers to! Maybe this should be changed, but it wouldn't be easy.
 Returns the LINK to the duplicate object, or NILINK if a problem (probably out of
 memory). */
 
-LINK DuplicateObject(INT16 type, LINK objL, Boolean selectedOnly,
+LINK DuplicateObject(short type, LINK objL, Boolean selectedOnly,
 							Document *srcDoc, Document *dstDoc,
 							Boolean keepGraphics)
 {
 	HEAP *myHeap,*srcHeap,*dstHeap;
-	INT16 subcount = 0;
+	short subcount = 0;
 	LINK subL,newSubL;
 	LINK newObjL,tmpL,firstSubObj;
 	GenSubObj *pSub,*pNewSub; PMEVENT pObj,pNewObj;
@@ -598,7 +598,7 @@ PopLock(dstDoc->Heap+OBJtype);
 includes only the subobjects in the given voice. Returns the LINK to the duplicate
 Sync, or NILINK if there's a problem. */
 
-LINK DuplicNC(Document *doc, LINK syncL, INT16 voice)
+LINK DuplicNC(Document *doc, LINK syncL, short voice)
 {
 	LINK copyL, aNoteL, tempL;
 	
@@ -666,7 +666,7 @@ updates data structure cross-links appropriately. */
 	
 LINK GrowObject(Document *doc,
 						LINK pL,
-						INT16 numEntries)	/* Number of subobjects to add (may be negative) */
+						short numEntries)	/* Number of subobjects to add (may be negative) */
 {
 	PSTAFF		pStaff, lStaff, rStaff;
 	PMEASURE 	pMeasure, lMeasure, rMeasure;
@@ -760,9 +760,9 @@ measure and multibar rests, tuplet membership, and unknown duration. In the latt
 case, we set this note's play duration to that of the first note we find in its
 voice and Sync; if there is no such note, it's an error. */
 
-INT16 CalcPlayDur(LINK syncL, LINK aNoteL, char lDur, Boolean isRest, PCONTEXT pContext)
+short CalcPlayDur(LINK syncL, LINK aNoteL, char lDur, Boolean isRest, PCONTEXT pContext)
 {
-	INT16 playDur; LINK bNoteL; PANOTE bNote;
+	short playDur; LINK bNoteL; PANOTE bNote;
 	
 	if (isRest && lDur<=WHOLEMR_L_DUR) {
 		playDur = TimeSigDur(pContext->timeSigType,				/* Whole rest: duration=measure dur. */
@@ -794,8 +794,8 @@ INT16 CalcPlayDur(LINK syncL, LINK aNoteL, char lDur, Boolean isRest, PCONTEXT p
 
 static Boolean IsRestPosLower(
 				Document *doc,
-				INT16 staff,
-				INT16 voiceRole 	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+				short staff,
+				short voiceRole 	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
 				)
 {
 	LINK partL; PPARTINFO pPart;
@@ -820,16 +820,16 @@ LINK SetupNote(
 				Document *doc,
 				LINK syncL, LINK aNoteL,
 				char staffn,
-				INT16 halfLn,					/* Relative to the top of the staff */
-				char lDur, INT16 ndots,
+				short halfLn,					/* Relative to the top of the staff */
+				char lDur, short ndots,
 				char voice,
 				Boolean isRest,
-				INT16 accident,
-				INT16 octType
+				short accident,
+				short octType
 				)
 {
 	PANOTE		aNote;
-	INT16			voiceRole, midCHalfLn, effectiveAcc, playDur;
+	short			voiceRole, midCHalfLn, effectiveAcc, playDur;
 	QDIST			qStemLen;
 	CONTEXT		context;							/* current context */
 	SHORTQD		yqpit;
@@ -940,15 +940,15 @@ LINK SetupGRNote(
 				Document *doc,
 				LINK grSyncL, LINK aGRNoteL,
 				char staffn,
-				INT16 halfLn,						/* Relative to the top of the staff */
-				char lDur, INT16 ndots,
+				short halfLn,						/* Relative to the top of the staff */
+				char lDur, short ndots,
 				char voice,
-				INT16 accident,
-				INT16 octType
+				short accident,
+				short octType
 				)
 {
 	PAGRNOTE		aGRNote;
-	INT16			midCHalfLn, effectiveAcc;
+	short			midCHalfLn, effectiveAcc;
 	CONTEXT		context;
 	SHORTQD		yqpit;
 	
@@ -1029,7 +1029,7 @@ PopLock(GRNOTEheap);
 /* -------------------------------------------------------------------- InitPart -- */
 /* Initialize a garden-variety Part subobject. */
 
-void InitPart(LINK partL, INT16 firstStaff, INT16 lastStaff)
+void InitPart(LINK partL, short firstStaff, short lastStaff)
 {
 	PPARTINFO pPart;
 	
@@ -1070,8 +1070,8 @@ PopLock(PARTINFOheap);
 /* ------------------------------------------------------------------- InitStaff -- */
 /* Initialize a garden-variety staff subobject. */
 
-void InitStaff(LINK aStaffL, INT16 staff, INT16 top, INT16 left, INT16 right,
-						DDIST height, INT16 lines, INT16 showLines)
+void InitStaff(LINK aStaffL, short staff, short top, short left, short right,
+						DDIST height, short lines, short showLines)
 {
 	PASTAFF aStaff;
 	
@@ -1101,7 +1101,7 @@ void InitStaff(LINK aStaffL, INT16 staff, INT16 top, INT16 left, INT16 right,
 /* -------------------------------------------------------------------- InitClef -- */
 /*	Initialize a garden-variety clef subobject. */
 
-void InitClef(LINK aClefL, INT16 staff, DDIST xd, INT16 clefType)
+void InitClef(LINK aClefL, short staff, DDIST xd, short clefType)
 {
 	PACLEF aClef;
 	
@@ -1120,7 +1120,7 @@ void InitClef(LINK aClefL, INT16 staff, DDIST xd, INT16 clefType)
 /*	Initialize a garden-variety key signature subobject. Caveat: does NOT fill in
 the no. of sharps/flats and what they are! For that, use SetupKeySig. */
 
-void InitKeySig(LINK aKeySigL, INT16 staff, DDIST xd, INT16 nKSItems)
+void InitKeySig(LINK aKeySigL, short staff, DDIST xd, short nKSItems)
 {
 	PAKEYSIG aKeySig;
 	
@@ -1139,7 +1139,7 @@ void InitKeySig(LINK aKeySigL, INT16 staff, DDIST xd, INT16 nKSItems)
 
 /* ------------------------------------------------------------------- AddKSItem -- */
 
-static void AddKSItem(LINK aKeySigL, Boolean isSharp, INT16 n, INT16 line)
+static void AddKSItem(LINK aKeySigL, Boolean isSharp, short n, short line)
 {
 	PAKEYSIG	aKeySig;
 	
@@ -1156,10 +1156,10 @@ signatures only (all we support as of v.3.0). */
 enum {A = 5, B = 4, C = 3, D = 2, E =1, F = 0, G = 6};
 
 void SetupKeySig(LINK aKeySigL,
-						INT16 sharpsOrFlats)			/* >0 = sharps, <0 = flats */
+						short sharpsOrFlats)			/* >0 = sharps, <0 = flats */
 {
 	PAKEYSIG	aKeySig;
-	INT16 nItems;											/* No. of sharps/flats in key sig. */
+	short nItems;											/* No. of sharps/flats in key sig. */
 
 	aKeySig = GetPAKEYSIG(aKeySigL);
 	aKeySig->nKSItems = nItems = ABS(sharpsOrFlats);
@@ -1204,8 +1204,8 @@ void SetupKeySig(LINK aKeySigL,
 /* ----------------------------------------------------------------- InitTimeSig -- */
 /*	Initialize a garden-variety time signature subobject. */
 
-void InitTimeSig(LINK aTimeSigL, INT16 staff, DDIST xd, INT16 timeSigType, INT16 numerator,
-						INT16 denominator)
+void InitTimeSig(LINK aTimeSigL, short staff, DDIST xd, short timeSigType, short numerator,
+						short denominator)
 {
 	PATIMESIG aTimeSig;
 	
@@ -1226,9 +1226,9 @@ void InitTimeSig(LINK aTimeSigL, INT16 staff, DDIST xd, INT16 timeSigType, INT16
 /* ----------------------------------------------------------------- InitMeasure -- */
 /*	Initialize a garden-variety measure subobject. */
 
-void InitMeasure(LINK aMeasureL, INT16 staff, INT16 left, INT16 top, INT16 right,
-						INT16 bottom, Boolean barlineVisible,
-						Boolean connAbove, INT16 connStaff, INT16 measNum)
+void InitMeasure(LINK aMeasureL, short staff, short left, short top, short right,
+						short bottom, Boolean barlineVisible,
+						Boolean connAbove, short connStaff, short measNum)
 {
 	PAMEASURE aMeasure;
 
@@ -1250,8 +1250,8 @@ void InitMeasure(LINK aMeasureL, INT16 staff, INT16 left, INT16 top, INT16 right
 /* --------------------------------------------------------------- InitPSMeasure -- */
 /*	Initialize a generic PSMeasure subobject. */
 
-void InitPSMeasure(LINK aPSMeasL, INT16 staff, Boolean barlineVisible,
-							Boolean connAbove, INT16 connStaff, char subType)
+void InitPSMeasure(LINK aPSMeasL, short staff, Boolean barlineVisible,
+							Boolean connAbove, short connStaff, char subType)
 {
 	PAPSMEAS aPSMeas;
 
@@ -1268,7 +1268,7 @@ void InitPSMeasure(LINK aPSMeasL, INT16 staff, Boolean barlineVisible,
 /* ------------------------------------------------------------------ InitRptEnd -- */
 /*	Initialize a garden-variety RepeatEnd subobject. */
 
-void InitRptEnd(LINK pL, INT16 /*staff*/, char rptEndType, LINK measL)
+void InitRptEnd(LINK pL, short /*staff*/, char rptEndType, LINK measL)
 {
 	PRPTEND p;
 	PARPTEND aRpt;
@@ -1301,8 +1301,8 @@ void InitRptEnd(LINK pL, INT16 /*staff*/, char rptEndType, LINK measL)
 /* ----------------------------------------------------------------- InitDynamic -- */
 /*	Initialize a garden-variety Dynamic subobject. */
 
-void InitDynamic(Document *doc, LINK pL, INT16 staff, INT16 x, DDIST sysLeft,
-						INT16 pitchLev, CONTEXT *pContext)
+void InitDynamic(Document *doc, LINK pL, short staff, short x, DDIST sysLeft,
+						short pitchLev, CONTEXT *pContext)
 {
 	PADYNAMIC aDynamic;
 
@@ -1326,8 +1326,8 @@ void InitDynamic(Document *doc, LINK pL, INT16 staff, INT16 x, DDIST sysLeft,
 
 /* ---------------------------------------------------------------- SetupHairpin -- */
 
-void SetupHairpin(LINK newpL, INT16 staff, LINK lastSyncL, DDIST sysLeft,
-							INT16 endx, Boolean crossSys)
+void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft,
+							short endx, Boolean crossSys)
 {
 	LINK measL; PDYNAMIC newp; PADYNAMIC aDynamic;
 
@@ -1372,9 +1372,9 @@ void SetupHairpin(LINK newpL, INT16 staff, LINK lastSyncL, DDIST sysLeft,
 
 /* ----------------------------------------------------------------- InitGraphic -- */
 
-void InitGraphic(LINK graphicL, INT16 graphicType, INT16 staff, INT16 voice,
-						INT16 fontInd, Boolean relFSize, INT16 fSize, INT16 fStyle,
-						INT16 enclosure)
+void InitGraphic(LINK graphicL, short graphicType, short staff, short voice,
+						short fontInd, Boolean relFSize, short fSize, short fStyle,
+						short enclosure)
 {
 	PGRAPHIC pGraphic;
 
@@ -1417,9 +1417,9 @@ void SetMeasVisible(LINK measL, Boolean visible)
 /* -------------------------------------------------------------- ChordHasUnison -- */
 /* If the specified chord contains any unisons, return TRUE, else FALSE. */
 
-Boolean ChordHasUnison(LINK syncL, INT16 voice)
+Boolean ChordHasUnison(LINK syncL, short voice)
 {
-	INT16			noteCount, i;
+	short			noteCount, i;
 	CHORDNOTE	chordNote[MAXCHORD];
 	QDIST			prevyqpit;
 	PANOTE		aNote;
@@ -1445,7 +1445,7 @@ Boolean ChordHasUnison(LINK syncL, INT16 voice)
 one note to right of the stem. Works even if stem won't be drawn because, say, all notes
 are whole notes, etc. */
 
-Boolean ChordNoteToRight(LINK syncL, INT16 voice)
+Boolean ChordNoteToRight(LINK syncL, short voice)
 {
 	LINK		mainNoteL;
 	LINK		aNoteL;
@@ -1472,7 +1472,7 @@ Boolean ChordNoteToRight(LINK syncL, INT16 voice)
 least one note to left of the stem. Works even if stem won't be drawn because, say, all
 notes are whole notes, etc. */
 
-Boolean ChordNoteToLeft(LINK syncL, INT16 voice)
+Boolean ChordNoteToLeft(LINK syncL, short voice)
 {
 	LINK		mainNoteL;
 	LINK		aNoteL;
@@ -1497,7 +1497,7 @@ Boolean ChordNoteToLeft(LINK syncL, INT16 voice)
 #if 0
 /* --------------------------------------------------------------- FixTieIndices -- */
 
-#define TIESUBTYPE ((INT16)TRUE)
+#define TIESUBTYPE ((short)TRUE)
 
 /* Fix chord note indices in ties that begin or end at Sync pL to reflect the
 notes in pL that are being deleted, as shown by their selected flags.
@@ -1508,7 +1508,7 @@ void FixTieIndices(LINK pL)
 {
 	PANOTE aNote, bNote;
 	LINK	aNoteL, bNoteL;
-	INT16 i, j, s, noteInChord, thisLNote, thisRNote;
+	short i, j, s, noteInChord, thisLNote, thisRNote;
 	PASLUR aTie;
 	LINK slurL, aTieL;
 	SearchParam pbSearch;
@@ -1587,7 +1587,7 @@ void FixTieIndices(LINK pL)
 the voice's multivoice position) be stem up, return 1, else -1. Cf. the DOWNSTEM
 macro. */
 
-static INT16 NormalStemUpDown(Document *doc, LINK syncL, INT16 voice, CONTEXT *pContext)
+static short NormalStemUpDown(Document *doc, LINK syncL, short voice, CONTEXT *pContext)
 {
 	DDIST		maxy, miny, midLine;
 	LINK		aNoteL;
@@ -1637,8 +1637,8 @@ in a chord. */
 DDIST GetNCYStem(
 				Document *doc,
 				LINK		syncL,
-				INT16 	voice,
-				INT16		stemUpDown,					/* 1=up, -1=down */
+				short 	voice,
+				short		stemUpDown,					/* 1=up, -1=down */
 				Boolean	singleVoice,				/* TRUE=voice doesn't share staff */
 				PCONTEXT	pContext
 				)
@@ -1689,9 +1689,9 @@ notes in the chord without warning!
 
 void FixChordForYStem(
 				LINK		syncL,
-				INT16		voice,
-				INT16		stemUpDown,			/* 1=up, -1=down */
-				INT16		ystem					/* New ystem of chord */
+				short		voice,
+				short		stemUpDown,			/* 1=up, -1=down */
+				short		ystem					/* New ystem of chord */
 				)
 {
 	LINK aNoteL;
@@ -1759,14 +1759,14 @@ NB: Will do bad things if the the given sync and voice does not have a chord. */
 Boolean FixSyncForChord(
 				Document *doc,
 				LINK		syncL,
-				INT16		voice,
+				short		voice,
 				Boolean	beamed,			/* If TRUE, ignore stemUpDown and keep current stem endpt */
-				INT16		stemUpDown,		/* 1=up, -1=down, 0=let FixSyncForChord decide */
-				INT16		voices1orMore,	/* 1=single voice on staff, -1=multiple, 0=let us decide */
+				short		stemUpDown,		/* 1=up, -1=down, 0=let FixSyncForChord decide */
+				short		voices1orMore,	/* 1=single voice on staff, -1=multiple, 0=let us decide */
 				PCONTEXT	pContext 		/* Context; if NULL, FixSyncForChord will get it */
 				)
 {
-	INT16 	staff;
+	short 	staff;
 	DDIST		newxd, ystem;
 	LINK		aNoteL;
 	LINK		mainNoteL;
@@ -1835,7 +1835,7 @@ position. If the note is in a chord, this function will cause serious damage! */
 
 void FixSyncNote(Document *doc,
 						LINK syncL,
-						INT16 voice,
+						short voice,
 						PCONTEXT pContext)				/* Context to use or NULL */
 {
 	CONTEXT	context;
@@ -1870,7 +1870,7 @@ this function will cause serious problems! */
 
 void FixSyncForNoChord(Document *doc,
 								LINK syncL,
-								INT16 voice,
+								short voice,
 								PCONTEXT pContext)		/* Context to use or NULL */
 {
 	LINK aNoteL;
@@ -1890,10 +1890,10 @@ is going to change voice, all notes in the chord must change). */
 
 void FixNoteForClef(Document *doc,
 							LINK syncL, LINK aNoteL,
-							INT16 absStaff)					/* Destination staff */
+							short absStaff)					/* Destination staff */
 {
 	CONTEXT	oldContext,newContext;
-	INT16 yPrev, yHere, qStemLen;
+	short yPrev, yHere, qStemLen;
 	DDIST yDelta; Boolean stemDown; PANOTE aNote;
 
 	GetContext(doc,syncL,NoteSTAFF(aNoteL),&oldContext);
@@ -1927,13 +1927,13 @@ beamed, we just return the current endpoint of its MainNote (regardless of the
 specifed stem direction). Otherwise, return the stem endpoint of the note closest
 to the end of the stem for the specified direction. */
 
-DDIST GetGRCYStem(Document *, LINK, INT16, Boolean, INT16, Boolean, PCONTEXT);
+DDIST GetGRCYStem(Document *, LINK, short, Boolean, short, Boolean, PCONTEXT);
 DDIST GetGRCYStem(
 					Document *doc,
 					LINK		grSyncL,
-					INT16 	voice,
+					short 	voice,
 					Boolean	beamed,						/* If TRUE, ignore <stemUpDown> */
-					INT16		stemUpDown,					/* 1=up, -1=down */
+					short		stemUpDown,					/* 1=up, -1=down */
 					Boolean	/*singleVoice*/,				/* TRUE=voice doesn't share staff */
 					PCONTEXT	pContext
 					)
@@ -1987,9 +1987,9 @@ DDIST GetGRCYStem(
 
 void FixGRChordForYStem(
 				LINK		grSyncL,
-				INT16		voice,
-				INT16		stemUpDown,				/* 1=up, -1=down */
-				INT16		ystem 					/* New ystem of chord */
+				short		voice,
+				short		stemUpDown,				/* 1=up, -1=down */
+				short		ystem 					/* New ystem of chord */
 				)
 {
 	LINK aGRNoteL;
@@ -2055,14 +2055,14 @@ N.B. Will do bad things if the the given sync and voice does not have a chord. *
 Boolean FixGRSyncForChord(
 				Document *doc,
 				LINK		grSyncL,
-				INT16		voice,
+				short		voice,
 				Boolean	beamed,			/* If TRUE, ignore stemUpDown and keep current stem endpt */
-				INT16		stemUpDown,		/* 1=up, -1=down, 0=let FixGRSyncForChord decide */
-				INT16		voices1orMore,	/* 1=single voice on staff, -1=multiple, 0=let us decide */
+				short		stemUpDown,		/* 1=up, -1=down, 0=let FixGRSyncForChord decide */
+				short		voices1orMore,	/* 1=single voice on staff, -1=multiple, 0=let us decide */
 				PCONTEXT	pContext 		/* Context; if NULL, FixGRSyncForChord will get it */
 				)
 {
-	INT16 	staff;
+	short 	staff;
 	DDIST		newxd, ystem;
 	LINK		aGRNoteL, mainNoteL;
 	CONTEXT	context;
@@ -2130,7 +2130,7 @@ position. If the grace note is in a chord, this function will cause serious dama
 
 void FixGRSyncNote(Document *doc,
 							LINK grSyncL,
-							INT16 voice,
+							short voice,
 							PCONTEXT pContext)		/* Context to use or NULL */
 {
 	CONTEXT	context;
@@ -2170,7 +2170,7 @@ chord, this function will cause serious problems! */
 
 void FixGRSyncForNoChord(Document *doc,
 									LINK grSyncL,
-									INT16 voice,
+									short voice,
 									PCONTEXT pContext)		/* Context to use or NULL */
 {
 	LINK		aGRNoteL;
@@ -2199,10 +2199,10 @@ Cf. FixAugDots: perhaps they should be combined somehow. Also cf. FixNoteAugDotP
 void FixAugDotPos(
 			Document *doc,
 			LINK syncL,
-			INT16 voice,
+			short voice,
 			Boolean lineNotesOnly)				/* TRUE=set position for "line" notes only */	
 {
-	INT16	voiceRole, halfSp, midCHalfSp;
+	short	voiceRole, halfSp, midCHalfSp;
 	LINK mainNoteL, aNoteL;
 	Boolean stemDown, lineNote, midCIsInSpace;
 	CONTEXT context;
@@ -2237,7 +2237,7 @@ nothing. */
 
 void ToggleAugDotPos(Document *doc, LINK aNoteL, Boolean stemDown)
 {
-	PANOTE aNote; INT16 voiceRole;
+	PANOTE aNote; short voiceRole;
 	
 	aNote = GetPANOTE(aNoteL);					
 	if (aNote->ymovedots==1 || aNote->ymovedots==3)

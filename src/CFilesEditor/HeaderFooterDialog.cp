@@ -51,12 +51,12 @@ static enum {
 #define HEADERFOOTER_DELIM_CHAR	0x01
 #define MAX_HEADERFOOTER_STRLEN	253		/* 255 for Pascal string minus 2 delimiter chars */
 
-static INT16 showMoreOptions;
-static INT16 hPosGroup, vPosGroup;
-static INT16 cancelButLeft;
-static INT16 okButLeft;
-static INT16 okButMoreOptionsTop;
-static INT16 okButFewerOptionsTop;
+static short showMoreOptions;
+static short hPosGroup, vPosGroup;
+static short cancelButLeft;
+static short okButLeft;
+static short okButMoreOptionsTop;
+static short okButFewerOptionsTop;
 
 	
 /* ------------------------------------------------------- GetHeaderFooterStrings -- */
@@ -71,11 +71,11 @@ GetHeaderFooterStrings(
 		StringPtr	leftStr,
 		StringPtr	centerStr,
 		StringPtr	rightStr,
-		INT16			pageNum,
+		short			pageNum,
 		Boolean		usePageNum,
 		Boolean		isHeader)
 {
-	INT16				i, j, count;
+	short				i, j, count;
 	StringPtr		pSrc, pDst;
 	Str31				pageNumStr;
 	STRINGOFFSET	offset;
@@ -184,7 +184,7 @@ radio buttons). */
 
 static void SetOptionState(DialogPtr dlog)
 {
-	INT16		i, type, strID, top;
+	short		i, type, strID, top;
 	Handle	hndl;
 	Rect		box,portRect;
 	Str255	str;
@@ -266,10 +266,10 @@ Cancel or error, TRUE on OK. */
 Boolean HeaderFooterDialog(Document *doc)
 {
 	DialogPtr	dlog;
-	INT16			showGroup, oldShowGroup, oldVPosGroup, oldHPosGroup,
+	short			showGroup, oldShowGroup, oldVPosGroup, oldHPosGroup,
 					topOffset, bottomOffset, leftOffset, rightOffset,
 					ditem, dialogOver, type;
-	INT16			firstNumber, alternate;
+	short			firstNumber, alternate;
 	GrafPtr		oldPort;
 	Handle		hndl;
 	Rect			box;

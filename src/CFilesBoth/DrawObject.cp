@@ -19,18 +19,18 @@
 
 static void D2ObjRect(DRect *pdEnclBox, Rect *pobjRect);
 static void DrawPageNum(Document *, LINK, Rect *, PCONTEXT);
-static void DrawMeasNum(Document *, DDIST, DDIST, INT16, PCONTEXT);
+static void DrawMeasNum(Document *, DDIST, DDIST, short, PCONTEXT);
 static void ShadeProbMeasure(Document *, LINK, PCONTEXT);
-static void DrawPartName(Document *, LINK, INT16, SignedByte, DDIST, Rect *, CONTEXT []);
-static void DrawInstrInfo(Document *, INT16, Rect *, CONTEXT []);
+static void DrawPartName(Document *, LINK, short, SignedByte, DDIST, Rect *, CONTEXT []);
+static void DrawInstrInfo(Document *, short, Rect *, CONTEXT []);
 static void DrawHairpin(LINK, LINK, PCONTEXT, DDIST, DDIST, Boolean);
-static void DrawEnclosure(Document *, INT16, DRect *, PCONTEXT);
-static Boolean GetGraphicDBox(Document *, LINK, PCONTEXT, INT16, INT16, INT16, DRect *);
-static void DrawGRPICT(Document *, DDIST, DDIST, INT16, Handle, PCONTEXT, Boolean);
-static void DrawArpSign(Document *, DDIST, DDIST, DDIST, INT16, PCONTEXT, Boolean);
-static DDIST DrawGRDraw(Document *, DDIST, DDIST, DDIST, DDIST, INT16, PCONTEXT, Boolean,
+static void DrawEnclosure(Document *, short, DRect *, PCONTEXT);
+static Boolean GetGraphicDBox(Document *, LINK, PCONTEXT, short, short, short, DRect *);
+static void DrawGRPICT(Document *, DDIST, DDIST, short, Handle, PCONTEXT, Boolean);
+static void DrawArpSign(Document *, DDIST, DDIST, DDIST, short, PCONTEXT, Boolean);
+static DDIST DrawGRDraw(Document *, DDIST, DDIST, DDIST, DDIST, short, PCONTEXT, Boolean,
 						Boolean, Boolean *); 
-static void DrawBarline(Document *, LINK, INT16, INT16, CONTEXT [], SignedByte);
+static void DrawBarline(Document *, LINK, short, short, CONTEXT [], SignedByte);
 
 static void DrawNChar(char glyph);
 static void DrawNString(char glyph);
@@ -93,9 +93,9 @@ static void DrawHeaderFooter(Document *doc,
 								CONTEXT context[])
 {
 	PPAGE		p;
-	INT16		pageNum, fontSize, fontInd, fontID, oldFont, oldSize, oldStyle,
+	short		pageNum, fontSize, fontInd, fontID, oldFont, oldSize, oldStyle,
 				xp, yp;
-	INT16		lxpt, chxpt, rhxpt, cfxpt, rfxpt, hypt, fypt;
+	short		lxpt, chxpt, rhxpt, cfxpt, rfxpt, hypt, fypt;
 	DDIST		lnSpace;
 	Str255	lhStr, chStr, rhStr, lfStr, cfStr, rfStr;
 
@@ -127,19 +127,19 @@ static void DrawHeaderFooter(Document *doc,
 	lxpt = doc->headerFooterMargins.left;
 
 	if (chStr[0]) {
-		INT16 width = NPtStringWidth(doc, chStr, fontID, fontSize, doc->fontStylePG);
+		short width = NPtStringWidth(doc, chStr, fontID, fontSize, doc->fontStylePG);
 		chxpt = doc->origPaperRect.right/2 - width/2;
 	}
 	if (cfStr[0]) {
-		INT16 width = NPtStringWidth(doc, cfStr, fontID, fontSize, doc->fontStylePG);
+		short width = NPtStringWidth(doc, cfStr, fontID, fontSize, doc->fontStylePG);
 		cfxpt = doc->origPaperRect.right/2 - width/2;
 	}
 	if (rhStr[0]) {
-		INT16 width = NPtStringWidth(doc, rhStr, fontID, fontSize, doc->fontStylePG);
+		short width = NPtStringWidth(doc, rhStr, fontID, fontSize, doc->fontStylePG);
 		rhxpt = (doc->origPaperRect.right - doc->headerFooterMargins.right) - width;
 	}
 	if (rfStr[0]) {
-		INT16 width = NPtStringWidth(doc, rfStr, fontID, fontSize, doc->fontStylePG);
+		short width = NPtStringWidth(doc, rfStr, fontID, fontSize, doc->fontStylePG);
 		rfxpt = (doc->origPaperRect.right - doc->headerFooterMargins.right) - width;
 	}
 
@@ -215,7 +215,7 @@ static void DrawPageNum(Document *doc,
 								CONTEXT context[])
 {
 	PPAGE		p;
-	INT16		pageNum, fontSize, oldFont, oldSize, oldStyle,
+	short		pageNum, fontSize, oldFont, oldSize, oldStyle,
 				xpt, ypt, xp, yp, hPosPgn;
 	DDIST		lnSpace;
 	Str31		pageNumStr;
@@ -297,7 +297,7 @@ void DrawSYSTEM(Document *doc,
 						Rect *paper,					/* window coordinates of page */
 						CONTEXT context[])
 {
-	INT16			i;
+	short			i;
 	Rect			r,temp;
 	PCONTEXT		pContext;			/* ptr to current context[] entry */
 	PSYSTEM		p;
@@ -334,7 +334,7 @@ void DrawSYSTEM(Document *doc,
 
 void SetFontFromTEXTSTYLE(Document *doc, TEXTSTYLE *pTextStyle, DDIST lineSpace)
 {
-	INT16 fontInd, fontSize;
+	short fontInd, fontSize;
 	
 	fontInd = GetFontIndex(doc, pTextStyle->fontName);					/* Should never fail */
 	TextFont(doc->fontTable[fontInd].fontID);
@@ -355,14 +355,14 @@ because, for unclear reasons, the context for the last staff seems not be known
 until it's drawn. */
 
 static void DrawPartName(Document *doc, LINK staffL,
-						INT16 staffn,
+						short staffn,
 						SignedByte nameCode,		/* NONAMES, ABBREVNAMES, or FULLNAMES */
 						DDIST indent,
 						Rect *paper,
 						CONTEXT	context[]
 						)
 {
-	INT16			oldFont, oldSize, oldStyle, firstStaff, lastStaff,
+	short			oldFont, oldSize, oldStyle, firstStaff, lastStaff,
 					xname, yname, fontInd, fontID, fontSize, nameWidth;
 	DDIST			ydTop, ydBot, xd, yd, connWidth;
 	LINK			partL;
@@ -444,9 +444,9 @@ information across the left end of the staff. Intended for use in Master Page. *
 
 #define MIN_INSTRINFO_HT 6		/* Min. staff ht to show instr. info (pixels) */
 
-static void DrawInstrInfo(Document *doc, INT16 staffn, Rect *paper, CONTEXT context[])
+static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT context[])
 {
-	INT16			oldFont, oldSize, oldStyle, xname, yname, staffHtPixels, fontSize;
+	short			oldFont, oldSize, oldStyle, xname, yname, staffHtPixels, fontSize;
 	DDIST			xd, yd;
 	LINK			partL;
 	PPARTINFO	pPart;
@@ -528,14 +528,14 @@ static void DrawInstrInfo(Document *doc, INT16 staffn, Rect *paper, CONTEXT cont
 /* ----------------------------------------------------------------- Draw1Staff -- */
 
 void Draw1Staff(Document *doc,
-				INT16 /*staffn*/,
+				short /*staffn*/,
 				Rect *paper,
 				PCONTEXT pContext,
-				INT16 ground			/* _STAFF foreground/background code; see enum */
+				short ground			/* _STAFF foreground/background code; see enum */
 				)
 {
 	DDIST		yd;
-	INT16		lines,		/* Number of lines in the staff */
+	short		lines,		/* Number of lines in the staff */
 				line,
 				showLines;
 
@@ -578,12 +578,12 @@ void Draw1Staff(Document *doc,
 			// CER: 7.2005 Staff lines are too thin for 2 line staves. Put a floor of 24 under the font size.
 			// CER 11.2006 Rastral 8 2stf lines => ptSize of 3
 			
-			INT16 ptSize;
+			short ptSize;
 			if (lines == 5) {
 				ptSize = d2pt(pContext->staffHeight)+config.musFontSizeOffset;
 			}
 			else {
-				INT16 stfHeight = drSize[doc->srastral];
+				short stfHeight = drSize[doc->srastral];
 				ptSize = d2pt(stfHeight)+config.musFontSizeOffset;
 			}
 			if (ptSize < 3) 
@@ -622,15 +622,15 @@ void Draw1Staff(Document *doc,
 
 void DrawSTAFF(Document *doc, LINK pL, Rect *paper,
 				CONTEXT context[],
-				INT16 ground,				/* _STAFF foreground/background code; see enum */
-				INT16 hilite
+				short ground,				/* _STAFF foreground/background code; see enum */
+				short hilite
 				)
 {
 	PASTAFF		aStaff;			/* ptr to current sub item */
 	LINK			aStaffL;
 	PSYSTEM		pSystem;
 	PCONTEXT		pContext;		/* ptr to current context[] entry */
-	INT16			staffn;			/* current staff number */
+	short			staffn;			/* current staff number */
 	STFRANGE		stfRange = {0,0};
 	Point			enlarge = {0,0};
 
@@ -717,14 +717,14 @@ PopLock(STAFFheap);
 
 void DrawCONNECT(Document *doc, LINK pL,
 				CONTEXT context[],
-				INT16 ground			/* _STAFF foreground/background code; see enum */
+				short ground			/* _STAFF foreground/background code; see enum */
 				)
 {
 	PACONNECT	aConnect;			/* ptr to current subobj */
 	LINK			aConnectL, staffL;
 	PCONTEXT		pContext;			/* ptr to current context[] entry */
 	Rect			r;						/* Rect of current staff */
-	INT16			width,				/* Width of curly brace */
+	short			width,				/* Width of curly brace */
 					xwidth, brackHt,
 					px,pyTop,pyBot,stf;
 	DDIST 		xd,
@@ -882,12 +882,12 @@ void DrawCLEF(Document *doc, LINK pL, CONTEXT context[])
 {
 	PACLEF		aClef;			/* ptr to current subobject */
 	LINK			aClefL;
-	INT16			i;					/* scratch */
+	short			i;					/* scratch */
 	PCONTEXT		pContext;		/* ptr to current context[] entry */
 	DDIST			xd, yd,			/* scratch DDIST coordinates */
 					xdOct, ydOct,
 					lnSpace;
-	INT16			xp, yp, yp2,	/* pixel coordinates */
+	short			xp, yp, yp2,	/* pixel coordinates */
 					xpObj, ypObj,
 					xp2Obj, yp2Obj,
 		 			oldTxSize,
@@ -997,7 +997,7 @@ void DrawKEYSIG(Document *doc, LINK pL, CONTEXT context[])
 	LINK			aKeySigL;
 	PAKEYSIG		aKeySig;
 	PCONTEXT		pContext;		/* ptr to current context[] entry */
-	INT16			width,			/* pixel width of entire key signature */
+	short			width,			/* pixel width of entire key signature */
 					lines;			/* number of lines in current staff */
 	DDIST			xd, yd,			/* scratch DDIST coordinates */
 					dTop,
@@ -1052,7 +1052,7 @@ void DrawTIMESIG(Document *doc, LINK pL, CONTEXT context[])
 	PATIMESIG	aTimeSig;
 	LINK			aTimeSigL;
 	PCONTEXT		pContext;
-	INT16			subType,
+	short			subType,
 					npLeft, npRight,		/* left and right pixel coordinates, numerator & denominator */
 					dpLeft, dpRight,
 					npTop, dpTop,
@@ -1166,7 +1166,7 @@ void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DDIST yd,
 				endxd, endyd, hairThick,
 				sysLeft; 					/* left margin of current system */
 	PADYNAMIC aDynamic;
-	INT16		xp, yp, endxp, endyp, papyp, papendyp,
+	short		xp, yp, endxp, endyp, papyp, papendyp,
 				penThick;					/* vertical pen size in pixels */
 
 	lnSpace = LNSPACE(pContext);
@@ -1265,11 +1265,11 @@ void DrawDYNAMIC(
 {
 	PADYNAMIC	aDynamic;
 	LINK			aDynamicL;
-	INT16			oldTxSize, useTxSize,
+	short			oldTxSize, useTxSize,
 					sizePercent;	/* Percent of "normal" size to draw in */
 	DDIST			xd, yd,
 					lnSpace;
-	INT16			xp, yp;			/* pixel coordinates */
+	short			xp, yp;			/* pixel coordinates */
 	unsigned char glyph;			/* dynamic symbol */
 	Boolean		drawn;			/* FALSE until a subobject has been drawn */
 	Rect			rSub;				/* bounding boxes for subobject and entire object */
@@ -1371,7 +1371,7 @@ void DrawRPTEND(Document *doc, LINK pL, CONTEXT context[])
 	PARPTEND		aRpt;
 	Rect			rSub;
 	PCONTEXT		pContext;
-	INT16			connStaff;
+	short			connStaff;
 
 PushLock(OBJheap);
 
@@ -1426,7 +1426,7 @@ void DrawENDING(Document *doc, LINK pL, CONTEXT context[])
 	DDIST dTop,xd,yd,endxd,lnSpace,rise,endThick,xdNum,ydNum;
 	PENDING p;
 	char numStr[MAX_ENDING_STRLEN];
-	INT16 xp,yp,endxp, oldFont,oldSize,oldStyle,sysLeft,risePxl,
+	short xp,yp,endxp, oldFont,oldSize,oldStyle,sysLeft,risePxl,
 			endNum, fontSize, papLeft, papTop, strOffset;
 	PCONTEXT pContext;
 	CONTEXT firstContext;
@@ -1527,13 +1527,13 @@ PopLock(OBJheap);
 is a rectangle. */
 
 static void DrawEnclosure(Document */*doc*/,
-							INT16 enclType,
+							short enclType,
 							DRect *dBox,		/* bounding box for the object, with no margin */
 							PCONTEXT pContext
 							)
 {
 	DDIST		dEnclMargin, dEnclWidthOffset, dEnclThick;
-	INT16		enclMargin, enclThick;
+	short		enclMargin, enclThick;
 	Rect		boxRect;
 	
 	dEnclMargin = pt2d(config.enclMargin);
@@ -1577,7 +1577,7 @@ static void DrawEnclosure(Document */*doc*/,
 Boolean GetGraphicDBox(Document *doc,
 					LINK pL,
 					PCONTEXT pContext,
-					INT16 fontID, INT16 fontSize, INT16 fontStyle,
+					short fontID, short fontSize, short fontStyle,
 					DRect *dBox			/* Bounding box for Graphic (TOP_LEFT at 0,0 and no margin) */
 					)
 {
@@ -1592,7 +1592,7 @@ Boolean GetGraphicDBox(Document *doc,
 	switch (GraphicSubType(pL)) {
 		case GRPICT:
 			{
-				Handle picH; Rect r; INT16 width, height;
+				Handle picH; Rect r; short width, height;
 				
 				/*
 				 * Get the bounding box of the PICT resource. If the resource isn't available,
@@ -1678,14 +1678,14 @@ drawing isn't yet implemented! */
 
 void DrawGRPICT(Document */*doc*/,
 				DDIST xd, DDIST yd,
-				INT16 picID,			/* PICT resource ID */
+				short picID,			/* PICT resource ID */
 				Handle picH,			/* handle to PICT resource, or NULL */
 				PCONTEXT pContext,
 				Boolean /*dim*/				/* ignored */
 				)
 {
-	Rect r; INT16 width, height;
-	INT16 xp, yp, yTop; DDIST lnSpace;
+	Rect r; short width, height;
+	short xp, yp, yTop; DDIST lnSpace;
 	
 	lnSpace = LNSPACE(pContext);
 	yTop = pContext->paper.top;
@@ -1717,9 +1717,9 @@ void DrawGRPICT(Document */*doc*/,
 /* Draw an arpeggio or non-arpeggio sign. */
 
 void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
-						INT16 subType, PCONTEXT pContext, Boolean /*dim*/)	/* <dim> is ignored */
+						short subType, PCONTEXT pContext, Boolean /*dim*/)	/* <dim> is ignored */
 {
-	INT16 xp, yp, yTop; DDIST lnSpace, nonarpThick; Byte glyph;
+	short xp, yp, yTop; DDIST lnSpace, nonarpThick; Byte glyph;
 	
 	lnSpace = LNSPACE(pContext);
 	yTop = pContext->paper.top;
@@ -1768,14 +1768,14 @@ void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
 DDIST DrawGRDraw(Document */*doc*/,
 				DDIST xd, DDIST yd,		/* Center position of endpt */
 				DDIST xd2, DDIST yd2,	/* Center position of endpt */
-				INT16 lineLW,				/* in percent of linespace */
+				short lineLW,				/* in percent of linespace */
 				PCONTEXT pContext,
 				Boolean dim,
 				Boolean doDraw,			/* TRUE=really draw, FALSE=just return value */
 				Boolean *pVertical		/* Output: is line vertical or nearly vertical? */
 				)
 {
-	INT16 xp, yp, yTop, xp2, yp2; DDIST lnSpace, dThick;
+	short xp, yp, yTop, xp2, yp2; DDIST lnSpace, dThick;
 	Boolean vertical;
 	
 	lnSpace = LNSPACE(pContext);
@@ -1832,7 +1832,7 @@ Done:
 /* Draw a GRAPHIC object, including its enclosure, if it needs one. If necessary,
 also recompute its objRect. */
 
-#define SWAP(a, b)	{	INT16 temp; temp = (a); (a) = (b); (b) = temp; }
+#define SWAP(a, b)	{	short temp; temp = (a); (a) = (b); (b) = temp; }
 
 void DrawGRAPHIC(Document *doc,
 				LINK pL,
@@ -1850,7 +1850,7 @@ void DrawGRAPHIC(Document *doc,
 	DDIST			xd, yd,					/* point the Graphic is relative to */
 					xd2, yd2,				/* point the other end of Graphic is rel. to (GRDraw) */
 					dHeight;
-	INT16			oldFont, oldSize, oldStyle,
+	short			oldFont, oldSize, oldStyle,
 					fontID, fontSize, fontStyle,
 					xp, yp, staffn,
 					lineLW;
@@ -1964,7 +1964,7 @@ PushLock(GRAPHICheap);
 					case GRLyric:
 					case GRString:
 						if (p->multiLine) {
-							INT16 i, j, len, count, lineHt;
+							short i, j, len, count, lineHt;
 							FontInfo fInfo;
 							Byte *q = PCopy(theStrOffset);
 
@@ -2058,7 +2058,7 @@ PushLock(GRAPHICheap);
 				case GRLyric:
 				case GRString:
 					if (p->multiLine) {
-						INT16 i, j, len, count, lineHt;
+						short i, j, len, count, lineHt;
 						FontInfo fInfo;
 						Byte *q = PCopy(theStrOffset);
 
@@ -2145,7 +2145,7 @@ void DrawTEMPO(
 {
 	PTEMPO p;
 	PCONTEXT pContext; CONTEXT relContext;
-	INT16 oldFont,useTxSize,oldSize,oldStyle, fontSize,xp,yp,noteWidth,staffn;
+	short oldFont,useTxSize,oldSize,oldStyle, fontSize,xp,yp,noteWidth,staffn;
 	FontInfo fInfo; StringOffset theStrOffset;
 	char metroStr[256]; char noteChar;
 	DDIST xd,yd,extraGap; DDIST lineSpace,xdNote,xdDot,xdMM,ydNote,ydDot;
@@ -2290,7 +2290,7 @@ PopLock(TEMPOheap);
 
 void DrawSPACE(Document *doc, LINK pL, CONTEXT context[])
 {
-	DDIST dLeft,dTop,xd,yd; INT16 xp,yp,staffHeight,spaceWidth; PSPACE p;
+	DDIST dLeft,dTop,xd,yd; short xp,yp,staffHeight,spaceWidth; PSPACE p;
 	PCONTEXT pContext; Rect r;
 
  	p = GetPSPACE(pL);
@@ -2325,10 +2325,10 @@ void DrawSPACE(Document *doc, LINK pL, CONTEXT context[])
 /* ------------------------------------------------------------------ DrawMeasNum -- */
 /* Draw measure number, including its enclosure, if it needs one. */
 
-static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, INT16 measureNum,
+static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 								PCONTEXT pContext)
 {
-	INT16		xp, yp,
+	short		xp, yp,
 				oldFont, oldSize, oldStyle,	/* Text characteristics */
 				fontSize, fontInd, fontID;
 	DDIST		lineSpace;
@@ -2425,15 +2425,15 @@ static void ShadeProbMeasure(Document *doc, LINK pL, PCONTEXT pContext)
 
 void DrawBarline(Document *doc,
 					LINK pL,			/* Measure or PSEUDOMEAS object */
-					INT16 staff,
-					INT16 connStaff,
+					short staff,
+					short connStaff,
 					CONTEXT context[],
 					SignedByte subType
 					)
 {
 	PCONTEXT		pContext,		/* ptr to relevant context[] entries */
 					pContext2;
-	INT16			xp, ypTop, ypBot, betweenBars, thickBarWidth;
+	short			xp, ypTop, ypBot, betweenBars, thickBarWidth;
 	DDIST			dLeft, dTop, dBottom,	/* top of above staff and bottom of below staff */
 					lnSpace, dashLen,
 					barThick;
@@ -2557,7 +2557,7 @@ void DrawMEASURE(Document *doc, LINK pL, CONTEXT context[])
 	DRect			aDRect;			/* scratch */
 	Rect			measureRect,	/* Rect of current measure */
 					barlineRect;	/* Rect of current barline */
-	INT16			staff, connStaff,
+	short			staff, connStaff,
 					k, measureNum;
 	DDIST			dTop,				/* top of above staff */
 					dLeft,			/* left edge of staff */
@@ -2734,7 +2734,7 @@ void DrawPSMEAS(Document *doc, LINK pL, CONTEXT context[])
 					pContext2;
 	DRect			aDRect;			/* scratch */
 	Rect			barlineRect;	/* Rect of current barline */
-	INT16			connStaff;
+	short			connStaff;
 	DDIST			dTop, dBottom,	/* top of above staff and bottom of below staff */
 					dLeft,			/* left edge of staff */
 					lnSpace;
@@ -2817,7 +2817,7 @@ void DrawSLUR(Document *doc, LINK pL, CONTEXT context[])
 {
 	PSLUR			p;
 	CONTEXT		localContext;
-	INT16			j,
+	short			j,
 					penThick;				/* vertical pen size in pixels */
 	DDIST			xdFirst, ydFirst,		/* DDIST positions of end notes */
 					xdLast, ydLast,

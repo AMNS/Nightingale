@@ -33,7 +33,7 @@
 	Less & Least important: messages about problems have no prefix
 */
 
-extern INT16 nerr, errLim;
+extern short nerr, errLim;
 extern Boolean minDebugCheck;			/* TRUE=don't print Less and Least important checks */
 
 #ifdef DDB
@@ -70,7 +70,7 @@ FALSE if it's OK. Checks whether the LINK is larger than the heap currently allo
 and if LINK is on the freelist: in either case, it's not valid. */
 
 Boolean DBadLink(
-				Document *doc, INT16 type,
+				Document *doc, short type,
 				LINK pL,
 				Boolean allowNIL)				/* TRUE=NILINK is an acceptable value */
 {
@@ -125,7 +125,7 @@ Boolean DCheckHeadTail(
 	Boolean		bad;
 	LINK			partL;
 	PPARTINFO	pPartInfo;
-	INT16			nextStaff;
+	short			nextStaff;
 
 	bad = FALSE;
 
@@ -180,7 +180,7 @@ Boolean DCheckSyncSlurs(LINK syncL, LINK aNoteL)
 {
 	SearchParam pbSearch;
 	LINK			prevSyncL, slurL, searchL, otherSyncL;
-	INT16			voice;
+	short			voice;
 	Boolean		bad;
 
 	bad = FALSE;
@@ -343,7 +343,7 @@ Boolean DCheckMeasSubobjs(
 {
 	LINK aMeasL; PAMEASURE aMeas;
 	Boolean haveMeas[MAXSTAVES+1], foundConn;
-	INT16 s, missing, connStaff[MAXSTAVES+1], nBadConns;
+	short s, missing, connStaff[MAXSTAVES+1], nBadConns;
 	Boolean bad=FALSE;
 
 	for (s = 1; s<=doc->nstaves; s++)
@@ -412,14 +412,14 @@ consistency checks on an individual node. Returns:
 	+1 if less serious problems are found.
 */
 
-INT16 DCheckNode(
+short DCheckNode(
 				Document *doc,
 				LINK pL,
-				INT16 where,		/* Which object list: MAIN_DSTR,CLIP_DSTR,UNDO_DSTR,or MP_DSTR */
+				short where,		/* Which object list: MAIN_DSTR,CLIP_DSTR,UNDO_DSTR,or MP_DSTR */
 				Boolean fullCheck	/* FALSE=skip less important checks */
 				)
 {
-	INT16			minEntries, maxEntries;
+	short			minEntries, maxEntries;
 	Boolean		bad;
 	Boolean		terrible, abnormal,
 					objRectOrdered, lRectOrdered, rRectOrdered;
@@ -570,8 +570,8 @@ INT16 DCheckNode(
 		
 			case SYNCtype:
 			{
-				INT16 v;
-				INT16	vNotes[MAXVOICES+1],							/* No. of notes in sync in voice */
+				short v;
+				short	vNotes[MAXVOICES+1],							/* No. of notes in sync in voice */
 						vMainNotes[MAXVOICES+1],					/* No. of stemmed notes in sync in voice */
 						vlDur[MAXVOICES+1],							/* l_dur of voice's notes in sync */
 						vlDots[MAXVOICES+1],							/* Number of dots on voice's notes in sync */
@@ -741,7 +741,7 @@ INT16 DCheckNode(
 					DCheckSyncSlurs(pL, aNoteL);
 					
 					if (aNote->firstMod) {
-						unsigned INT16 nObjs = MODNRheap->nObjs;
+						unsigned short nObjs = MODNRheap->nObjs;
 						aModNRL = aNote->firstMod;
 						for ( ; aModNRL; aModNRL=NextMODNRL(aModNRL)) {
 							if (aModNRL >= nObjs) {    /* very crude check on node validity  -JGG */
@@ -1021,7 +1021,7 @@ INT16 DCheckNode(
 				break;
 
 			case BEAMSETtype: {
-				INT16 beamsNow;
+				short beamsNow;
 				
 				PushLock(NOTEBEAMheap);
 
@@ -1146,7 +1146,7 @@ INT16 DCheckNode(
 				break;
 				
 			case SLURtype: {
-				INT16 theInd, firstNoteNum, lastNoteNum;
+				short theInd, firstNoteNum, lastNoteNum;
 				PANOTE 	firstNote, lastNote;
 				LINK		firstNoteL, lastNoteL;
 				Boolean	foundFirst, foundLast;
@@ -1274,7 +1274,7 @@ INT16 DCheckNode(
 			case GRAPHICtype:
 				{
 					LINK aGraphicL;		PAGRAPHIC aGraphic;
-					PGRAPHIC pGraphic;	INT16 len;
+					PGRAPHIC pGraphic;	short len;
 
 					PushLock(GRAPHICheap);
 	 				pGraphic = GetPGRAPHIC(pL);
@@ -1333,7 +1333,7 @@ INT16 DCheckNode(
 				
 			case TEMPOtype:
 				{
-					PTEMPO pTempo; INT16 len;
+					PTEMPO pTempo; short len;
 					
 					PushLock(TEMPOheap);
 					if (DBadLink(doc, OBJtype, ((PTEMPO)p)->firstObjL, FALSE))
@@ -1517,7 +1517,7 @@ that no node outside the range they describe has its selected flag set, etc.
 Returns TRUE if the selection start or end link is garbage or not even
 in the data structure. */
  
-Boolean DCheckSel(Document *doc, INT16 *pnInRange, INT16 *pnSelFlag)
+Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 {
 	LINK pL;
 	Boolean bad=FALSE;
@@ -1587,7 +1587,7 @@ Boolean DCheckSel(Document *doc, INT16 *pnInRange, INT16 *pnSelFlag)
 Boolean DCheckHeirarchy(Document *doc)
 {
 	LINK 		pL, aStaffL, pageL, systemL;
-	INT16		nMissing, i,
+	short		nMissing, i,
 				nsystems, numSheets;
 	Boolean	aStaffFound[MAXSTAVES+1],				/* Found the individual staff? */
 				foundPage, foundSystem, foundStaff,	/* Found any PAGE, SYSTEM, STAFF obj yet? */
@@ -1790,7 +1790,7 @@ Boolean DCheckBeams(Document *doc)
 	PANOTE				aNote, aGRNote;
 	LINK					pL, aNoteL, aGRNoteL;
 	LINK					syncL, measureL, noteBeamL, qL;
-	INT16					staff, voice, v, n, nEntries;
+	short					staff, voice, v, n, nEntries;
 	LINK					beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
 	Boolean				expect2ndPiece[MAXVOICES+1], beamNotesOkay;
 	PBEAMSET				pBS;
@@ -1937,10 +1937,10 @@ Next:
 
 /* -----------------------------------------------------  DCheckOctaves and helpers -- */
 
-static LINK FindNextSyncGRSync(LINK, INT16);
-static INT16 CountSyncVoicesOnStaff(LINK, INT16);
+static LINK FindNextSyncGRSync(LINK, short);
+static short CountSyncVoicesOnStaff(LINK, short);
 
-static LINK FindNextSyncGRSync(LINK pL, INT16 staff)
+static LINK FindNextSyncGRSync(LINK pL, short staff)
 {
 	for ( ; pL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -1958,9 +1958,9 @@ static LINK FindNextSyncGRSync(LINK pL, INT16 staff)
 }
 
 
-INT16 CountSyncVoicesOnStaff(LINK syncL, INT16 staff)
+short CountSyncVoicesOnStaff(LINK syncL, short staff)
 {
-	LINK aNoteL; INT16 v, count;
+	LINK aNoteL; short v, count;
 	Boolean vInSync[MAXVOICES+1];
 	
 	for (v = 1; v<=MAXVOICES; v++)
@@ -1988,7 +1988,7 @@ Boolean DCheckOctaves(Document *doc)
 {
 	PANOTE				aNote;
 	LINK					pL, aNoteL, syncL, measureL, noteOctL;
-	INT16					staff, s, nVoice, j;
+	short					staff, s, nVoice, j;
 	LINK					octavaL[MAXSTAVES+1];
 	POCTAVA				pOct;
 	PANOTEOCTAVA		pNoteOct;
@@ -2091,8 +2091,8 @@ nice to check that non-cross-system slurs are entirely on one system. */
 Boolean DCheckSlurs(Document *doc)
 {
 	register LINK		pL;
-	register INT16		i;
-	INT16					staff, voice;
+	register short		i;
+	short					staff, voice;
 	LINK					slurEnd[MAXVOICES+1], tieEnd[MAXVOICES+1], endL;
 	LINK					slurSysL, otherSlurL, otherSlurSysL, nextSyncL, afterNextSyncL; 
 	Boolean				slur2FirstOK, slur2LastOK;
@@ -2225,10 +2225,10 @@ Boolean DCheckSlurs(Document *doc)
 -1; else return the tuplet's total duration. NB: in  case of chords, checks only one
 note/rest of the chord. */
 
-INT16 LegalTupletTotDur(LINK);
-INT16 LegalTupletTotDur(LINK tupL)
+short LegalTupletTotDur(LINK);
+short LegalTupletTotDur(LINK tupL)
 {
-	LINK pL, aNoteL, endL; INT16 voice;
+	LINK pL, aNoteL, endL; short voice;
 	
 	voice = TupletVOICE(tupL);
 	endL = LastInTuplet(tupL);
@@ -2263,7 +2263,7 @@ Boolean DCheckTuplets(
 	PTUPLET				pTuplet;
 	PANOTETUPLE			noteTup;
 	Boolean				bad;
-	INT16					staff, voice, tupUnit, tupledUnit, totalDur;
+	short					staff, voice, tupUnit, tupledUnit, totalDur;
 
 	bad = FALSE;
 
@@ -2338,7 +2338,7 @@ Boolean DCheckPlayDurs(
 	register LINK pL, aNoteL;
 	PANOTE aNote; PTUPLET pTuplet;
 	register Boolean bad;
-	INT16 v, shortDurThresh, tupletNum[MAXVOICES+1], tupletDenom[MAXVOICES+1];
+	short v, shortDurThresh, tupletNum[MAXVOICES+1], tupletDenom[MAXVOICES+1];
 	long lDur;
 
 	bad = FALSE;
@@ -2428,7 +2428,7 @@ with appearances of actual CLEF, KEYSIG, TIMESIG and DYNAM objects. */
  
 Boolean DCheckContext(Document *doc)
 {
-	register INT16	i;
+	register short	i;
 	register PASTAFF aStaff;
 	register PAMEASURE aMeas;
 	PACLEF		aClef;
@@ -2441,7 +2441,7 @@ Boolean DCheckContext(Document *doc)
 	LINK			aStaffL, aMeasL, aClefL, aKeySigL,
 					aTimeSigL, aDynamicL;
 	SignedByte	clefType[MAXSTAVES+1];			/* Current context: clef, */
-	INT16			nKSItems[MAXSTAVES+1];			/*   sharps & flats in key sig., */
+	short			nKSItems[MAXSTAVES+1];			/*   sharps & flats in key sig., */
 	SignedByte	timeSigType[MAXSTAVES+1],		/*   time signature, */
 					numerator[MAXSTAVES+1],
 					denominator[MAXSTAVES+1],

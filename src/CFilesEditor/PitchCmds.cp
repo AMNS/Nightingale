@@ -26,17 +26,17 @@
 
 /* Local variables and functions */
 
-LINK FindExtremeNote(LINK, INT16, INT16);
-LINK FindExtremeGRNote(LINK, INT16, INT16);
+LINK FindExtremeNote(LINK, short, short);
+LINK FindExtremeGRNote(LINK, short, short);
 void SetNRCStem(LINK, LINK, Boolean, DDIST);
 void SetGRNStem(LINK, LINK, Boolean, DDIST);
-static void FlipBeamList(Document *, LINK [], INT16);
+static void FlipBeamList(Document *, LINK [], short);
 
 /* --------------------------------------------------------- FindExtreme(GR)Note -- */
 
 LINK FindExtremeNote(LINK syncL,
-							INT16 voice,
-							INT16 stemUpDown)		/* 1=up, -1=down */
+							short voice,
+							short stemUpDown)		/* 1=up, -1=down */
 {
 	LINK lowNoteL, hiNoteL;
 
@@ -46,8 +46,8 @@ LINK FindExtremeNote(LINK syncL,
 }
 
 LINK FindExtremeGRNote(LINK grSyncL,
-								INT16 voice,
-								INT16 stemUpDown)		/* 1=up, -1=down */
+								short voice,
+								short stemUpDown)		/* 1=up, -1=down */
 {
 	LINK lowGRNoteL, hiGRNoteL;
 
@@ -60,7 +60,7 @@ LINK FindExtremeGRNote(LINK grSyncL,
 
 void SetNRCStem(LINK syncL, LINK aNoteL, Boolean makeLower, DDIST stemLen)
 {
-	DDIST ystem; INT16 voice;
+	DDIST ystem; short voice;
 	
 	if (NoteREST(aNoteL)) {
 #ifdef NOTYET
@@ -85,7 +85,7 @@ void SetNRCStem(LINK syncL, LINK aNoteL, Boolean makeLower, DDIST stemLen)
 
 void SetGRNStem(LINK grSyncL, LINK aGRNoteL, Boolean makeLower, DDIST stemLen)
 {
-	DDIST ystem; INT16 voice;
+	DDIST ystem; short voice;
 	
 	if (GRNoteINCHORD(aGRNoteL)) {
 		voice = GRNoteVOICE(aGRNoteL);
@@ -105,9 +105,9 @@ a voice role that'll make the stem directions opposite to the first note/chord's
 previous direction. Doesn't worry about center beams nor about preserving stem
 lengths. */
 
-static void FlipBeamList(Document *doc, LINK beamLA[], INT16 nBeamsets)
+static void FlipBeamList(Document *doc, LINK beamLA[], short nBeamsets)
 {
-	INT16 i, voice, nEntries, newRole;
+	short i, voice, nEntries, newRole;
 	LINK startL, endL, mainNoteL, newBeamL, mainGRNoteL;
 	Boolean stemDown, crossSystem, firstSystem, graceBeam;
 	
@@ -168,8 +168,8 @@ with some work, all the calls could be combined into one or, at most, a few. */
 void FlipSelDirection(Document *doc)
 {
 	LINK pL, aNoteL, startL, endL, beamL, aGRNoteL;
-	INT16 v; DDIST stemLen;
-	INT16 i, nBeamsets=0; Boolean found;
+	short v; DDIST stemLen;
+	short i, nBeamsets=0; Boolean found;
 	LINK beamLA[MAX_MEASNODES];	/* Enough for any reasonable but not any possible situation */
 	
 	PrepareUndo(doc, doc->selStartL, U_FlipSlurs, 33);			/* "Undo Flip Direction" */
@@ -278,7 +278,7 @@ Boolean Respell(Document *doc)
 {
 	LINK		pL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
-	INT16		v, s;
+	short		v, s;
 	CONTEXT	context[MAXSTAVES+1];
 	PCONTEXT	pContext;
 	Boolean	changedNotes, changedChords, voiceChanged[MAXVOICES+1];
@@ -358,15 +358,15 @@ TRUE if we actually change anything, else FALSE. */
 Boolean Transpose(
 				Document *doc,
 				Boolean	goUp,					/* TRUE=transpose up, else down */
-				INT16		octaves,				/* Unsigned no. of octaves transposition */
-				INT16		steps,				/* Unsigned no. of diatonic steps transposition */
-				INT16		semiChange,			/*	Unsigned total transposition in semitones */
+				short		octaves,				/* Unsigned no. of octaves transposition */
+				short		steps,				/* Unsigned no. of diatonic steps transposition */
+				short		semiChange,			/*	Unsigned total transposition in semitones */
 				Boolean	slashes 				/* Transpose notes with slash-appearance heads? */
 				)
 {
 	LINK		pL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
-	INT16		semiChangeOct,							/* Including octave change */
+	short		semiChangeOct,							/* Including octave change */
 				v, s,
 				spellingBad, chordSpellingBad, lowMIDINum, hiMIDINum;
 	CONTEXT	context[MAXSTAVES+1];
@@ -498,15 +498,15 @@ accidentals.
 Boolean DTranspose(
 				Document *doc,
 				Boolean	goUp,					/* TRUE=transpose up, else down */
-				INT16		octaves,				/* Unsigned no. of octaves transposition */
-				INT16		steps,				/* Unsigned no. of diatonic steps transposition */
+				short		octaves,				/* Unsigned no. of octaves transposition */
+				short		steps,				/* Unsigned no. of diatonic steps transposition */
 				Boolean	slashes 				/* Transpose notes with slash-appearance heads? */
 				)
 {
 	LINK		pL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
-	INT16		v, s;
-	//INT16		lowMIDINum, hiMIDINum;
+	short		v, s;
+	//short		lowMIDINum, hiMIDINum;
 	CONTEXT	context[MAXSTAVES+1];
 	Boolean	changedNotes, changedChords,
 				voiceChanged[MAXVOICES+1];
@@ -607,13 +607,13 @@ This assumes standard CMN accidental-carrying rules including ties across barlin
 If ACC_IN_CONTEXT is FALSE, it should probably do nothing.
 */
 
-Boolean StfDelRedundantAccs(Document *, INT16, Boolean []);
-Boolean StfDelRedundantAccs(Document *doc, INT16 code, Boolean trStaff[])
+Boolean StfDelRedundantAccs(Document *, short, Boolean []);
+Boolean StfDelRedundantAccs(Document *doc, short code, Boolean trStaff[])
 {
 	LINK pL, aNoteL;
 	LINK aGRNoteL;
 	Boolean didAnything, syncVChanged[MAXVOICES+1];
-	INT16 v;
+	short v;
 
 	if (code!=DELALL_REDUNDANTACCS_DI && code!=DELSOFT_REDUNDANTACCS_DI) return FALSE;
 
@@ -663,9 +663,9 @@ else FALSE. */
 Boolean TransposeKey(
 				Document *doc,
 				Boolean	goUp,					/* TRUE=transpose up, else down */
-				INT16		octaves,				/* Unsigned no. of octaves transposition */
-				INT16		steps,				/* Unsigned no. of diatonic steps transposition */
-				INT16		semiChange,			/*	Unsigned total transposition in semitones */
+				short		octaves,				/* Unsigned no. of octaves transposition */
+				short		steps,				/* Unsigned no. of diatonic steps transposition */
+				short		semiChange,			/*	Unsigned total transposition in semitones */
 				Boolean	trStaff[],			/* Staff nos. to be transposed */
 				Boolean	slashes,				/* Transpose notes with slash-appearance heads? */
 				Boolean	notes,				/* Transpose other (non-slash-appearance) notes? */
@@ -674,7 +674,7 @@ Boolean TransposeKey(
 {
 	LINK		pL, aKeySigL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
-	INT16		semiChangeOct,							/* Including octave change */
+	short		semiChangeOct,							/* Including octave change */
 				v, s, spaceProp,
 				ksSpellingBad, spellingBad, chordSpellingBad, lowMIDINum, hiMIDINum;
 	CONTEXT	context[MAXSTAVES+1];
@@ -863,7 +863,7 @@ everything else is deselected. Assumes doc is in the active window.
 void CheckRange(Document *doc)
 {
 	LINK pL, partL, aNoteL; PPARTINFO pPart; PANOTE aNote;
-	INT16 firstStaff, lastStaff, hiKeyNum, loKeyNum;
+	short firstStaff, lastStaff, hiKeyNum, loKeyNum;
 	Boolean noteFound=FALSE;
 	
 	DeselAll(doc);

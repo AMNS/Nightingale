@@ -30,7 +30,7 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static DDIST GetStaffLim(Document *doc,LINK pL,INT16 s,Boolean top,PCONTEXT pContext);
+static DDIST GetStaffLim(Document *doc,LINK pL,short s,Boolean top,PCONTEXT pContext);
 	
 
 /* ----------------------------------------------------------------- GetStaffLim -- */
@@ -39,7 +39,7 @@ bottom + 6 half-lines. */
 
 static DDIST GetStaffLim(
 						Document *doc, LINK pL,
-						INT16 staffn,
+						short staffn,
 						Boolean top,			/* TRUE if getting top staff limit. */
 						PCONTEXT pContext)
 {
@@ -69,11 +69,11 @@ STAFF, etc.--HiliteInsertNode does nothing. */
 void HiliteInsertNode(
 			Document *doc,
 			LINK		pL,
-			INT16		staffn,		/* No. of "special" staff to emphasize or NOONE */
+			short		staffn,		/* No. of "special" staff to emphasize or NOONE */
 			Boolean	flash 		/* TRUE=flash to emphasize special staff */
 			)
 {
-	INT16			xd, xp, ypTop, ypBot;
+	short			xd, xp, ypTop, ypBot;
 	DDIST			blackTop, blackBottom;
 	CONTEXT		context;
 
@@ -120,7 +120,7 @@ void HiliteInsertNode(
 Should NOT be used to erase the hiliting: for that, call HiliteInsertNode once
 or twice. */
 
-void HiliteTwoNodesOn(Document *doc, LINK node1, LINK node2, INT16 staffn)
+void HiliteTwoNodesOn(Document *doc, LINK node1, LINK node2, short staffn)
 {	
 	HiliteInsertNode(doc, node1, staffn, TRUE);							/* Hiliting on */
 	/* If both ends are the same, wait, erase, wait, and draw again */ 
@@ -145,7 +145,7 @@ hilite that link twice. */
 void HiliteAttPoints(
 			Document *doc,
 			LINK firstL, LINK lastL,		/* lastL may be NILINK */
-			INT16 staffn)
+			short staffn)
 {
 	if (!firstL) return;
 	
@@ -202,7 +202,7 @@ void FixCursor()
 	WindowPtr		wp;
 	CursHandle		newCursor;
 	Document			*doc;
-	static INT16	x,y,xOld,yOld,dx,dy,dxOld,dyOld,shaker,shookey;
+	static short	x,y,xOld,yOld,dx,dy,dxOld,dyOld,shaker,shookey;
 	static long 	now,soon,nextcheck;
 	PaletteGlobals *toolPalette;
 	char			message[256];
@@ -367,7 +367,7 @@ void FixCursor()
 
 void FlashRect(Rect *pRect)
 {
-	INT16	j;
+	short	j;
 	
 	for (j=0; j<FLASH_COUNT; j++) {
 		InvertRect(pRect);
@@ -384,7 +384,7 @@ other. Needed for editing beams, lines, hairpins, etc. */
 
 Boolean SamePoint(Point p1, Point p2)
 {
-	INT16 dx,dy; static INT16 slop = 2;
+	short dx,dy; static short slop = 2;
 	
 	dx = p1.h - p2.h; if (dx < 0) dx = -dx;
 	dy = p1.v - p2.v; if (dy < 0) dy = -dy;
@@ -396,25 +396,25 @@ Boolean SamePoint(Point p1, Point p2)
 /* ------------------------------------------------------------- Advise functions -- */
 /* Give alerts of varlous types and return value. */
 
-INT16 Advise(INT16 alertID)
+short Advise(short alertID)
 {
 	ArrowCursor();
 	return Alert(alertID, NULL);
 }
 
-INT16 NoteAdvise(INT16 alertID)
+short NoteAdvise(short alertID)
 {
 	ArrowCursor();
 	return NoteAlert(alertID, NULL);
 }
 
-INT16 CautionAdvise(INT16 alertID)
+short CautionAdvise(short alertID)
 {
 	ArrowCursor();
 	return CautionAlert(alertID, NULL);
 }
 
-INT16 StopAdvise(INT16 alertID)
+short StopAdvise(short alertID)
 {
 	ArrowCursor();
 	return StopAlert(alertID, NULL);
@@ -424,7 +424,7 @@ INT16 StopAdvise(INT16 alertID)
 /* ------------------------------------------------------------- Inform functions -- */
 /* Give valueless alerts of various types. */
 							
-void Inform(INT16 alertID)
+void Inform(short alertID)
 {
 	short dummy;
 	
@@ -432,7 +432,7 @@ void Inform(INT16 alertID)
 	dummy = Alert(alertID, NULL);
 }
 						
-void NoteInform(INT16 alertID)
+void NoteInform(short alertID)
 {
 	short dummy;
 	
@@ -440,7 +440,7 @@ void NoteInform(INT16 alertID)
 	dummy = NoteAlert(alertID, NULL);
 }
 						
-void CautionInform(INT16 alertID)
+void CautionInform(short alertID)
 {
 	short dummy;
 	
@@ -448,7 +448,7 @@ void CautionInform(INT16 alertID)
 	dummy = CautionAlert(alertID, NULL);
 }
 
-void StopInform(INT16 alertID)
+void StopInform(short alertID)
 {
 	short dummy;
 	
@@ -472,10 +472,10 @@ message, and pause for a brief time (HILITE_TICKS ticks). If which=0, remove the
 window. If which!=0 and there's already a ProgressMsg window up, remove it before
 putting up the new one. */
 
-Boolean ProgressMsg(INT16 which,
+Boolean ProgressMsg(short which,
 							char *moreInfo)				/* C string */
 {
-	static INT16 lastWhich=-999;
+	static short lastWhich=-999;
 	static DialogPtr dialogp=NULL; GrafPtr oldPort; char str[256];
 	short aShort; Handle tHdl; Rect aRect;
 	 
@@ -556,7 +556,7 @@ Boolean UserInterruptAndSel()
 /* Given a "heap index" or object type, return the name of the corresponding object. */
 
 const char *NameHeapType(
-			INT16 heapIndex,
+			short heapIndex,
 			Boolean friendly)		/* TRUE=give user-friendly names, FALSE=give "real" names */
 {
 	const char *ps;
@@ -646,7 +646,7 @@ space or return; closed quote otherwise, unless it's the first character in the
 string, in which case it's always open. If you want to allow the typing of standard
 ASCII single or double quote, do it as a Command key char. */
 
-INT16 ConvertQuote(TEHandle textH, INT16 ch)
+short ConvertQuote(TEHandle textH, short ch)
 	{
 		short n; unsigned char prev;
 
@@ -668,7 +668,7 @@ INT16 ConvertQuote(TEHandle textH, INT16 ch)
 normally be 4 so that the special drag cursor fits in with it. Intended to draw
 handles for dragging.*/
 
-void DrawBox(Point pt, INT16 size)
+void DrawBox(Point pt, short size)
 	{
 		PenSize(size,size); size >>= 1;
 		MoveTo(pt.h -= size,pt.v -= size);
@@ -699,10 +699,10 @@ user-friendly format, e.g., "voice 2 of Piano".
 be replaced with calls to this. */
 
 void Voice2UserStr(Document *doc,
-								INT16 voice,
+								short voice,
 								char str[])			/* user-friendly string describing the voice */
 {
-	INT16 userVoice;
+	short userVoice;
 	LINK partL; PPARTINFO pPart;
 	char partName[256], fmtStr[256];
 
@@ -719,12 +719,12 @@ user-friendly format, e.g., "staff 3 (Clarinet)" or "staff 5 (staff 2 of Piano)"
 be replaced with calls to this. */
 
 void Staff2UserStr(Document *doc,
-								INT16 staffn,
+								short staffn,
 								char str[])			/* user-friendly string describing the staff */
 {
-	INT16 relStaff;
+	short relStaff;
 	LINK partL; PPARTINFO pPart;
-	char fmtStr[256]; INT16 len;
+	char fmtStr[256]; short len;
 
 	partL = Staff2PartL(doc, doc->headL, staffn);
 	pPart = GetPPARTINFO(partL);
@@ -824,13 +824,13 @@ void TruncPopUpString(UserPopUp *p)
 /* Initialise a UserPopUp data structure; return FALSE if error. If firstChoice=0,
 no item is initially chosen. */
 
-INT16 InitPopUp(
+short InitPopUp(
 			DialogPtr dlog,
 			UserPopUp *p,
-			INT16 item,				/* Dialog item to set p->box from */
-			INT16 pItem,			/* Dialog item to set p->prompt from, or 0=set it empty */
-			INT16 menuID,
-			INT16 firstChoice		/* Initial choice, or 0=none */
+			short item,				/* Dialog item to set p->box from */
+			short pItem,			/* Dialog item to set p->prompt from, or 0=set it empty */
+			short menuID,
+			short firstChoice		/* Initial choice, or 0=none */
 			)
 	{
 		short type; Handle hndl;
@@ -853,9 +853,9 @@ INT16 InitPopUp(
 
 /* Invoke a popup menu; return TRUE if new choice was made */
 
-INT16 DoUserPopUp(UserPopUp *p)
+short DoUserPopUp(UserPopUp *p)
 	{
-		long choice; Point pt; INT16 ans = FALSE;
+		long choice; Point pt; short ans = FALSE;
 
 		InvertRect(&p->prompt);
 		InsertMenu(p->menu,-1);
@@ -868,7 +868,7 @@ INT16 DoUserPopUp(UserPopUp *p)
 		if (choice) {
 			choice = LoWord(choice);
 			if (choice != p->currentChoice) {
-				ChangePopUpChoice(p,(INT16)choice);
+				ChangePopUpChoice(p,(short)choice);
 				ans = TRUE;
 				}
 			}
@@ -880,7 +880,7 @@ INT16 DoUserPopUp(UserPopUp *p)
 This means unchecking the old choice, if any, and checking the new one, resetting
 the display string, and redisplaying. */
 
-void ChangePopUpChoice(UserPopUp *p, INT16 choice)
+void ChangePopUpChoice(UserPopUp *p, short choice)
 	{
 		if (p->currentChoice)
 			SetItemMark(p->menu,p->currentChoice,0);
@@ -905,7 +905,7 @@ void DisposePopUp(UserPopUp *p)
 
 /* Hilite or remove hiliting from the un-popped-up popup to show if it's active. */
 
-void HilitePopUp(UserPopUp *p, INT16 activ)
+void HilitePopUp(UserPopUp *p, short activ)
 	{
 		EraseRect(&p->box);
 
@@ -926,7 +926,7 @@ void HilitePopUp(UserPopUp *p, INT16 activ)
 its longest menu item string, and returns 1. The top left point isn't changed.
 If no change is necessary, ResizePopUp returns 0. */
  
-INT16 ResizePopUp(UserPopUp *p)
+short ResizePopUp(UserPopUp *p)
 	{
 		short thisWidth,maxWidth = 0,space,lastItemNum,menuItem;
 		Str255 str;
@@ -955,7 +955,7 @@ INT16 ResizePopUp(UserPopUp *p)
 /*	ShowPopUp does the job for pop-ups that HideDialogItem and ShowDialogItem do for normal
 dialog items. */
 
-void ShowPopUp(UserPopUp *p, INT16 vis)
+void ShowPopUp(UserPopUp *p, short vis)
 	{
 		switch (vis)	{
 			case TRUE:
@@ -979,7 +979,7 @@ void ShowPopUp(UserPopUp *p, INT16 vis)
 has any disabled items, unless they are the '--------' kind and are not the first
 or last items. Probably by John Gibson, not Resorcerer. */
 
-void HiliteArrowKey(DialogPtr /*dlog*/, INT16 whichKey, UserPopUp *pPopup,
+void HiliteArrowKey(DialogPtr /*dlog*/, short whichKey, UserPopUp *pPopup,
 										Boolean *pHilitedItem)
 {
 	short lastItemNum, newChoice;

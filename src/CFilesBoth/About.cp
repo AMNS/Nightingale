@@ -68,7 +68,7 @@ static Boolean GetSNAndOwner(char *serialStr, char *userName, char *userOrg)
 
 static GrafPtr	fullTextPort;
 static Rect		creditRect, textSection;
-static INT16	pauseLines[MAX_PAUSE_LINES];
+static short	pauseLines[MAX_PAUSE_LINES];
 static Boolean	firstAnimateCall;
 
 void DoAboutBox(
@@ -76,7 +76,7 @@ void DoAboutBox(
 	)
 {
 	short			type, itemHit, curResFile;
-	INT16			x, y;
+	short			x, y;
 	Rect			smallRect, bigRect;
 	Boolean		okay, keepGoing=TRUE;
 	DialogPtr	dlog;
@@ -280,9 +280,9 @@ Boolean SetupCredits()
 {
 	Handle		creditText;
 	char			*textPtr, *strP, *thisStr;
-	INT16			numLines, lineNum, strWid, offset, pauseLineCount, i;
+	short			numLines, lineNum, strWid, offset, pauseLineCount, i;
 	long			textLen;
-	INT16			portWid;
+	short			portWid;
 	
 	/* Get credit text from TEXT resource. (Get1Resource isn't worth the trouble.) */
 	creditText = GetResource('TEXT', ABOUT_TEXT);
@@ -369,8 +369,8 @@ void AnimateCredits(DialogPtr dlog)
 {
 	long				thisTime;
 	static long		lastTime;
-	static INT16	pixelCount;
-	INT16				i, thisLineNum;
+	static short	pixelCount;
+	short				i, thisLineNum;
 	Boolean			doPause=FALSE;
 
 	thisTime = TickCount();

@@ -17,8 +17,8 @@ for v.3.1 (pulled out of Beam.c):
 #include "Nightingale.appl.h"
 
 static Boolean BreakBeamBefore(Document *, LINK, LINK, LINK *);
-static Boolean BBFixCenterSecBeams(Document *, LINK [], INT16 [], INT16);
-static INT16 CountPrimaries(LINK);
+static Boolean BBFixCenterSecBeams(Document *, LINK [], short [], short);
+static short CountPrimaries(LINK);
 
 
 /* ------------------------------------------------------------- BreakBeamBefore -- */
@@ -29,7 +29,7 @@ user-interface actions. */
 
 Boolean BreakBeamBefore(Document */*doc*/, LINK beamL, LINK syncL, LINK *pPrevL)
 {
-	INT16 nInBeam, i, beamsNow; LINK aNoteBeamL, bNoteBeamL;
+	short nInBeam, i, beamsNow; LINK aNoteBeamL, bNoteBeamL;
 	PANOTEBEAM aNoteBeam, bNoteBeam, prevNoteBeam=NULL;
 	
 	nInBeam = LinkNENTRIES(beamL);
@@ -84,10 +84,10 @@ Boolean BreakBeamBefore(Document */*doc*/, LINK beamL, LINK syncL, LINK *pPrevL)
 /* Fix a center beam for its secondary beams; intended for use after adding secondary
 beam breaks. */
 
-static Boolean BBFixCenterSecBeams(Document *doc, LINK beamLA[], INT16 beamNPrimaryA[],
-												INT16 nBeamsets)
+static Boolean BBFixCenterSecBeams(Document *doc, LINK beamLA[], short beamNPrimaryA[],
+												short nBeamsets)
 {
-	INT16 i, voice, nInBeam, nPrimary, nSecsA[MAXINBEAM], nSecsB[MAXINBEAM];
+	short i, voice, nInBeam, nPrimary, nSecsA[MAXINBEAM], nSecsB[MAXINBEAM];
 	LINK beamL, firstL, lastL, firstNoteL, lastNoteL;
 	LINK bpSync[MAXINBEAM], noteInSync[MAXINBEAM];
 	SignedByte stemUpDown[MAXINBEAM];
@@ -151,10 +151,10 @@ static Boolean BBFixCenterSecBeams(Document *doc, LINK beamLA[], INT16 beamNPrim
 /* -------------------------------------------------------------- CountPrimaries -- */
 /* Return the no. of primary beams in the given beamset. */
 
-INT16 CountPrimaries(LINK beamL)
+short CountPrimaries(LINK beamL)
 {
 	LINK noteBeamL, syncL, aNoteL; PANOTEBEAM pNoteBeam;
-	INT16 iel, startend, firstStemUpDown, nestLevel, nPrim;
+	short iel, startend, firstStemUpDown, nestLevel, nPrim;
 	SignedByte stemUpDown[MAXINBEAM];
 	
 	/* Fill in a table of stem directions for all elements of the beam. */
@@ -199,10 +199,10 @@ anyway, the grace-beam drawing routines probably don't handle beam breaks. */
 
 void DoBreakBeam(Document *doc)
 {
-	LINK pL, beamL, prevL, partL; INT16 v, userVoice;
+	LINK pL, beamL, prevL, partL; short v, userVoice;
 	PPARTINFO pPart; char vStr[20], partName[256];
-	LINK beamLA[MAX_BEAMSETS]; INT16 beamNPrimaryA[MAX_BEAMSETS];
-	INT16	nBeamsets=0, i, nPrimary;
+	LINK beamLA[MAX_BEAMSETS]; short beamNPrimaryA[MAX_BEAMSETS];
+	short	nBeamsets=0, i, nPrimary;
 	Boolean found;
 	
 	DisableUndo(doc, FALSE);

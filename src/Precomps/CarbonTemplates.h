@@ -20,7 +20,7 @@ void CMNormalizeTimeStamps(void);
 void CloseCoreMidiInput(void);
 
 void CMInitTimer(void);
-void CMLoadTimer(INT16 interruptPeriod);
+void CMLoadTimer(short interruptPeriod);
 void CMStartTime(void);
 long CMGetCurTime(void);
 void CMStopTime(void);
@@ -30,16 +30,16 @@ void CMSetup(Document *doc, Byte *partChannel);
 void CMTeardown(void);
 
 OSStatus CMWritePacket(MIDIUniqueID destDevID, MIDITimeStamp tStamp, Byte *data);
-OSStatus CMEndNoteNow(MIDIUniqueID destDevID, INT16 noteNum, char channel);
-OSStatus CMStartNoteNow(MIDIUniqueID destDevID, INT16 noteNum, char channel, char velocity);
+OSStatus CMEndNoteNow(MIDIUniqueID destDevID, short noteNum, char channel);
+OSStatus CMStartNoteNow(MIDIUniqueID destDevID, short noteNum, char channel, char velocity);
 void CMFBOff(Document *doc);
 void CMFBOn(Document *doc);
 
-void CMMIDIFBNoteOn(Document *, INT16, INT16, MIDIUniqueID);
-void CMMIDIFBNoteOff(Document *, INT16, INT16, MIDIUniqueID);
+void CMMIDIFBNoteOn(Document *, short, short, MIDIUniqueID);
+void CMMIDIFBNoteOff(Document *, short, short, MIDIUniqueID);
 
-void CMFBNoteOn(Document *doc, INT16 noteNum, INT16 channel, short ioRefNum);
-void CMFBNoteOff(Document *doc, INT16 noteNum, INT16 channel, short ioRefNum);
+void CMFBNoteOn(Document *doc, short noteNum, short channel, short ioRefNum);
+void CMFBNoteOff(Document *doc, short noteNum, short channel, short ioRefNum);
 void CMAllNotesOff(void);
 
 void CMDebugPrintXMission(void);
@@ -49,8 +49,8 @@ MIDIUniqueID GetMIDIObjectId(MIDIObjectRef obj);
 Boolean CMRecvChannelValid(MIDIUniqueID devID, int channel);
 Boolean CMTransmitChannelValid(MIDIUniqueID devID, int channel);
 
-void CoreMidiSetSelectedInputDevice(MIDIUniqueID inputDevice, INT16 inputChannel);
-void CoreMidiSetSelectedMidiThruDevice(MIDIUniqueID thruDevice, INT16 thruChannel);
+void CoreMidiSetSelectedInputDevice(MIDIUniqueID inputDevice, short inputChannel);
+void CoreMidiSetSelectedMidiThruDevice(MIDIUniqueID thruDevice, short thruChannel);
 OSStatus OpenCoreMidiInput(MIDIUniqueID inputDevice);
 
 OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, Byte ctrlVal, MIDITimeStamp tstamp);
@@ -62,22 +62,22 @@ OSStatus CMMIDISustainOn(MIDIUniqueID destDevID, char channel);
 OSStatus CMMIDISustainOff(MIDIUniqueID destDevID, char channel);
 OSStatus CMMIDIPan(MIDIUniqueID destDevID, char channel, Byte panSetting);
 
-MIDIUniqueID GetCMDeviceForPartn(Document *doc, INT16 partn);
+MIDIUniqueID GetCMDeviceForPartn(Document *doc, short partn);
 MIDIUniqueID GetCMDeviceForPartL(Document *doc, LINK partL);
-void SetCMDeviceForPartn(Document *doc, INT16 partn, MIDIUniqueID device);
-void SetCMDeviceForPartL(Document *doc, LINK partL, INT16 partn, MIDIUniqueID device);
-void InsertPartnCMDevice(Document *doc, INT16 partn, INT16 numadd);
-void InsertPartLCMDevice(Document *doc, LINK partL, INT16 numadd);
-void DeletePartnCMDevice(Document *doc, INT16 partn);
+void SetCMDeviceForPartn(Document *doc, short partn, MIDIUniqueID device);
+void SetCMDeviceForPartL(Document *doc, LINK partL, short partn, MIDIUniqueID device);
+void InsertPartnCMDevice(Document *doc, short partn, short numadd);
+void InsertPartLCMDevice(Document *doc, LINK partL, short numadd);
+void DeletePartnCMDevice(Document *doc, short partn);
 void DeletePartLCMDevice(Document *doc, LINK partL);
 
 OSErr CMMIDIProgram(Document *, unsigned char *, unsigned char *);
 
-INT16 CMGetUseChannel(Byte partChannel[], INT16 partn);
+short CMGetUseChannel(Byte partChannel[], short partn);
 
 void CMGetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 						Byte partChannel[], SignedByte partVelo[],
-						INT16 *pUseNoteNum, INT16 *pUseChan, INT16 *pUseVelo);
+						short *pUseNoteNum, short *pUseChan, short *pUseVelo);
 
 Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 							Byte partPatch[], SignedByte partVelo[], short partIORefNum[],
@@ -85,7 +85,7 @@ Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 							
 void GetCMNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 								Byte partChannel[], SignedByte partVelo[], short partIORefNum[],
-								INT16 *pUseNoteNum, INT16 *pUseChan, INT16 *pUseVelo, short *puseIORefNum);
+								short *pUseNoteNum, short *pUseChan, short *pUseVelo, short *puseIORefNum);
 
 long FillCMSourcePopup(MenuHandle menu, vector<MIDIUniqueID> *vecDevices);
 long FillCMDestinationPopup(MenuHandle menu, vector<MIDIUniqueID> *vecDevices);

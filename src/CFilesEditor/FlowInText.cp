@@ -47,7 +47,7 @@ static enum {
 
 
 /* local prototypes */
-static Boolean FlowInDialog(Document *, INT16 *);
+static Boolean FlowInDialog(Document *, short *);
 static DialogPtr OpenThisDialog(Document *);
 static void CloseThisDialog(DialogPtr);
 static void DoDialogUpdate(DialogPtr);
@@ -58,23 +58,23 @@ static pascal Boolean MyFilter(DialogPtr, EventRecord *, short *);
 static Boolean CheckUserItems(Point, short *);
 static Boolean AnyBadValues(DialogPtr);
 
-static INT16 IsFlowInDelim(char);
+static short IsFlowInDelim(char);
 static long GetWord(char *, char *, long);
 static void FlowInFixCursor(Document *, Point, CursHandle);
 static void FlowDrawMsgBox(Document *);
-static void ShowLyricStyle(Document *, DialogPtr, INT16);
-static void CopyStyle(Document *, INT16, TEXTSTYLE *);
-static LINK InsertNewGraphic(Document *, LINK, INT16, INT16, char *, INT16, TEXTSTYLE, INT16);
+static void ShowLyricStyle(Document *, DialogPtr, short);
+static void CopyStyle(Document *, short, TEXTSTYLE *);
+static LINK InsertNewGraphic(Document *, LINK, short, short, char *, short, TEXTSTYLE, short);
 static void InsertSyllable(Document *, LINK, LINK *, short, short, short, short, short, TEXTSTYLE);
-static void FlowInTextObjects(Document *, INT16, TEXTSTYLE);
+static void FlowInTextObjects(Document *, short, TEXTSTYLE);
 
 static void RegisterHyphen(LINK, short, Boolean);
 static void StripHyphen(char *);
-static void AddHyphens(Document *, INT16, TEXTSTYLE);
+static void AddHyphens(Document *, short, TEXTSTYLE);
 static void DisposeHyphenList(void);
 
 
-static INT16 lastTextStyle=4;						/* Default text style number */
+static short lastTextStyle=4;						/* Default text style number */
 static Size currWord=0, prevWord;
 static LINK firstFlowL, lastFlowL;
 
@@ -97,7 +97,7 @@ static short		numHyphens = 0;
 
 /* Display Flow In Text dialog. Return TRUE if OK, FALSE if CANCEL or error. */
 
-Boolean FlowInDialog(Document *doc, INT16 *font)	/* ??should be static */
+Boolean FlowInDialog(Document *doc, short *font)	/* ??should be static */
 {
 	short itemHit;
 	Boolean okay,keepGoing=TRUE;
@@ -299,7 +299,7 @@ static void DoDialogUpdate(DialogPtr dlog)
 
 static DialogPtr OpenThisDialog(Document *doc)
 {
-	INT16 type; Handle hndl; Rect box; GrafPtr oldPort;
+	short type; Handle hndl; Rect box; GrafPtr oldPort;
 	DialogPtr dlog;
 
 	dlogFilterUPP = NewModalFilterUPP(MyFilter);
@@ -401,7 +401,7 @@ static Boolean AnyBadValues(DialogPtr /*dlog*/)
 /* Return TRUE if c is a delimiter for the units to be Flowed In: words (any white
 space is a delimiter) or explicitly-marked syllables ('-' is the delimiter). */
 
-static INT16 IsFlowInDelim(char c)
+static short IsFlowInDelim(char c)
 {
 	return (isspace(c) || c == '-');
 }
@@ -495,7 +495,7 @@ static void FlowDrawMsgBox(Document *doc)
 }
 
 
-static void ShowLyricStyle(Document *doc, DialogPtr dlog, INT16 theFont)
+static void ShowLyricStyle(Document *doc, DialogPtr dlog, short theFont)
 {
 	Str63 lyricStyleStr;
 	
@@ -520,7 +520,7 @@ static void ShowLyricStyle(Document *doc, DialogPtr dlog, INT16 theFont)
 }
 
 
-static void CopyStyle(Document *doc, INT16 theFont, TEXTSTYLE *pStyle)
+static void CopyStyle(Document *doc, short theFont, TEXTSTYLE *pStyle)
 {
 	switch (theFont) {
 		case TSRegular1STYLE:
@@ -543,16 +543,16 @@ static void CopyStyle(Document *doc, INT16 theFont, TEXTSTYLE *pStyle)
 
 
 static LINK InsertNewGraphic(Document *doc, LINK pL,
-						INT16 stf, INT16 v,
+						short stf, short v,
 						char *str,				/* C string, allocated by caller */
-						INT16 font,
+						short font,
 						TEXTSTYLE theStyle,
-						INT16 pitchLev
+						short pitchLev
 						)
 {
 	DDIST					xd, yd;
 	LINK					newpL, aGraphicL;
-	INT16					graphicType, fontInd;
+	short					graphicType, fontInd;
 	CONTEXT				context;
 	PGRAPHIC				pGraphic;
 	PAGRAPHIC			aGraphic;
@@ -696,9 +696,9 @@ void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, short v,
 }
 
 
-static void FlowInTextObjects(Document	*doc, INT16 theFont, TEXTSTYLE theStyle)
+static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 {
-	INT16						ans, stf, v=0, sym, pitchLev;
+	short						ans, stf, v=0, sym, pitchLev;
 	short						ch, val, oldVal, status, activ;
 	short						change, oldPitchLev, lyricLen;
 	WindowPtr				w = doc->theWindow;
@@ -892,7 +892,7 @@ done:
 
 void DoTextFlowIn(Document *doc)
 {
-	INT16 theFont;			/* NB: this is itemNumber of text style popup in FlowInDialog! 
+	short theFont;			/* NB: this is itemNumber of text style popup in FlowInDialog! 
 										for use in 1 call to User2HeaderFontNum. */
 	TEXTSTYLE style;
 
@@ -1215,9 +1215,9 @@ short CreateHyphenRun(
 }
 
 
-static void AddHyphens(Document *doc, INT16 theFont, TEXTSTYLE theStyle)
+static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 {
-	INT16			i, j;
+	short			i, j;
 	HYPHENSPAN	*h;
 	LINK			firstSyncL, lastSyncL;
 	CONTEXT		context;

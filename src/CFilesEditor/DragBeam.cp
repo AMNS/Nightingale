@@ -31,7 +31,7 @@ static enum {
 typedef struct {
 	Point			leftPt, rightPt;			/* paper coords */
 	SignedByte	leftUOD, rightUOD;		/* 1: upstem, -1: downstem */
-	INT16			thickness;					/* pixels */
+	short			thickness;					/* pixels */
 	Rect			objRect;						/* paper coords. For updating purposes only */
 } BEAMFEEDBACK;
 
@@ -39,13 +39,13 @@ typedef struct {
 static Boolean QuantizeBeamEndYStems(Document *doc, LINK beamL, DDIST yDiffFirst,
 										DDIST yDiffLast, DDIST *pDeltaFirst, DDIST *pDeltaLast);
 static Boolean PtInBeam(Document *, Point, BEAMFEEDBACK *);
-static void EditBeam(Document *, LINK, INT16, BEAMFEEDBACK *);
+static void EditBeam(Document *, LINK, short, BEAMFEEDBACK *);
 static void InitBeamGrips(BEAMFEEDBACK *);
-static void GetMaxSecs(LINK, INT16 [], INT16 [], INT16 [], INT16 *, INT16 *);
+static void GetMaxSecs(LINK, short [], short [], short [], short *, short *);
 static void SetBeamFeedback(Document *, LINK, BEAMFEEDBACK *);
 static void InitBeamBounds(Document *, LINK, Rect *);
 static void DoBeamFeedback(Document *, BEAMFEEDBACK *);
-static void DrawBeamGrip(Document *, INT16);
+static void DrawBeamGrip(Document *, short);
 static void DrawBothGrips(Document *);
 
 static Point	lGrip, rGrip;				/* in paper coords */
@@ -59,7 +59,7 @@ void DoBeamEdit(Document *doc, LINK beamL)
 	Rect				newObjRect, oldObjRect, updateRect;
 	BEAMFEEDBACK	origBeam, oldBeam, thisBeam;
 	DDIST				yDiffLeft, yDiffRight, deltaFirst, deltaLast;
-	INT16				oldGripV, newGripV, grip;
+	short				oldGripV, newGripV, grip;
 
 	FlushEvents(everyEvent, 0);
 	
@@ -198,18 +198,18 @@ a good chance it'll actually make the beam look worse in terms of slope or by
 putting the endpoints on different staff lines. */
 
 static Boolean QuantizeYStemsForBeam(CONTEXT context, Boolean stemUp, Boolean noCenter,
-										INT16 ledgerSpaces, DDIST *pFirstystem, DDIST *pLastystem);
+										short ledgerSpaces, DDIST *pFirstystem, DDIST *pLastystem);
 static Boolean QuantizeYStemsForBeam(
 						CONTEXT context,
 						Boolean stemUp,
 						Boolean noCenter,						/* TRUE=don't allow the "center" position */
-						INT16 ledgerSpaces,					/* How far above/below staff to go (spaces) */
+						short ledgerSpaces,					/* How far above/below staff to go (spaces) */
 						DDIST *pFirstystem, DDIST *pLastystem	/* Both inputs and outputs! */
 						)
 {
 	DDIST firstystem, lastystem, origFirstystem, origLastystem, dSpace, dQuarterSpace,
 			dRound, dTolerance;
-	INT16 firstMult, lastMult, centerPos;
+	short firstMult, lastMult, centerPos;
 		
 	dSpace = LNSPACE(&context);
 	dTolerance = ((ledgerSpaces-1)*dSpace) + (dSpace/2);
@@ -230,8 +230,8 @@ static Boolean QuantizeYStemsForBeam(
 	 * Round firstystem and lastystem to multiples of dQuarterSpace. We must take
 	 * the sign into account to avoid annoying inconsistencies.
 	 */	
-	firstystem = (DDIST)RoundSignedInt((INT16)firstystem, (INT16)dQuarterSpace);
-	lastystem = (DDIST)RoundSignedInt((INT16)lastystem, (INT16)dQuarterSpace);
+	firstystem = (DDIST)RoundSignedInt((short)firstystem, (short)dQuarterSpace);
+	lastystem = (DDIST)RoundSignedInt((short)lastystem, (short)dQuarterSpace);
 	
 	/* NB: as of v. 3.1b39, <noCenter> is never TRUE, so this code isn't well tested. */
 	
@@ -381,14 +381,14 @@ static Boolean PtInBeam(
 static void EditBeam(
 					Document			*doc,
 					LINK				beamL,
-					INT16	 			grip,			/* Edit mode: LGRIP, RGRIP, DRAGBEAM */
+					short	 			grip,			/* Edit mode: LGRIP, RGRIP, DRAGBEAM */
 					BEAMFEEDBACK	*bm
 					)
 {
 	Point		oldPt, newPt;
 	long		aLong;
 	Rect		boundsRect;				/* in paper coords */
-	INT16		dv;
+	short		dv;
 		
 	if (grip==DRAGBEAM)								/* Erase the handles prior to dragging the beam. */
 		DrawBothGrips(doc);
@@ -466,14 +466,14 @@ static void InitBeamGrips(BEAMFEEDBACK *bm)
 
 static void GetMaxSecs(
 					LINK		beamL,
-					INT16		nSecs[],
-					INT16		nSecsA[],
-					INT16		nSecsB[],
-					INT16		*pMaxAbove,
-					INT16		*pMaxBelow
+					short		nSecs[],
+					short		nSecsA[],
+					short		nSecsB[],
+					short		*pMaxAbove,
+					short		*pMaxBelow
 					)
 {
-	INT16 numEntries, maxAbove, maxBelow; register INT16 n;
+	short numEntries, maxAbove, maxBelow; register short n;
 	
 	numEntries = LinkNENTRIES(beamL);
 	maxAbove = maxBelow = 0;
@@ -524,9 +524,9 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 {
 	PBEAMSET		beamP;
 	BEAMINFO		beamTab[BEAMTABLEN];
-	INT16			firstStaff, lastStaff, voice, stemUOD, n, whichWay, beamCount,
+	short			firstStaff, lastStaff, voice, stemUOD, n, whichWay, beamCount,
 					maxAbove, maxBelow, nPrimary, fracLevUp, fracLevDown;
-	INT16			nSecs[MAXINBEAM], nSecsA[MAXINBEAM], nSecsB[MAXINBEAM];
+	short			nSecs[MAXINBEAM], nSecsA[MAXINBEAM], nSecsB[MAXINBEAM];
 	DDIST			sysLeft, firstStaffTop, lastStaffTop, firstSyncXD, lastSyncXD, beamThick,
 					firstXStem, lastXStem, leftYstem, rightYstem, flagYDelta, xtraWidD, dQuarterSp;
 	LINK			firstSyncL, lastSyncL, firstNoteL, lastNoteL, staffL, aStaffL, measL;
@@ -712,7 +712,7 @@ static void InitBeamBounds(
 					Rect		*bounds 				/* paper coords */
 					)
 {
-	INT16		staffn;
+	short		staffn;
 	CONTEXT	context;
 
 	staffn = BeamSTAFF(beamL);												/* doesn't matter which one of beam's staves */
@@ -756,7 +756,7 @@ static void DoBeamFeedback(Document *doc, BEAMFEEDBACK *bm)
 
 static void DrawBeamGrip(
 					Document *doc,
-					INT16		whichOne 		/* LGRIP or RGRIP */
+					short		whichOne 		/* LGRIP or RGRIP */
 					)
 {
 	Point gripPt;
@@ -783,7 +783,7 @@ static void DrawBothGrips(Document *doc)
 /* After the beam has been dragged, fix the stem lengths of the notes in 
 the beamset. */
 
-Boolean FixStemLengths(LINK beamL, DDIST yDiff, INT16 grip)
+Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 {
 	DDIST		hDiff,						/* horiz. distance btw. 1st and last syncs in beam */
 				noteDiff, stemChange;
@@ -914,7 +914,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, INT16 grip)
 /* After the beam has been dragged, fix the stem lengths of the grace notes
 in the beamset. */
 
-Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, INT16 grip)
+Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 {
 	DDIST		hDiff,						/* horiz. distance btw. 1st and last syncs in beam */
 				noteDiff, stemChange;

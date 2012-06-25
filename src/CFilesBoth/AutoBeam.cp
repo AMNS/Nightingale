@@ -54,7 +54,7 @@ static long GetAnyLTime(Document *, LINK);
 static void ExpandSelRange(Document *doc);
 static void CreateBeatList(Document *doc, LINK pL, LINK aNoteL);
 static Byte SetBeamCounter(Document *doc, LINK pL, LINK aNoteL);
-static void DoNextBeamState(Document *doc, LINK pL, INT16 voice, Byte nextBeamState);
+static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamState);
 
 
 /* begin: moved here from old OpcodeUtils.c by chirgwin Mon May 28 07:17:18 PDT 2012 
@@ -301,7 +301,7 @@ static Byte SetBeamCounter(Document *doc, LINK pL, LINK aNoteL)
 	return nextBeamState;
 }
 
-static void DoNextBeamState(Document *doc, LINK pL, INT16 voice, Byte nextBeamState)
+static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamState)
 {
 	switch (nextBeamState) {
 		case POSTULATED + DISCONTINUEBEAM:

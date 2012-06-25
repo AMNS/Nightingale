@@ -97,7 +97,7 @@ Boolean ProcessNRGR(
 				)
 {
 	char rCode, mCode; PANOTE aNote; PAGRNOTE aGRNote;
-	INT16 userVoice, np, i, effAcc;
+	short userVoice, np, i, effAcc;
 	LINK thePartL, aModNRL; PAMODNR aModNR;
 	LINK	firstSyncL, bNoteL;
 	
@@ -290,7 +290,7 @@ and ignores the other subtypes. Returns TRUE normally, FALSE if there's a proble
 
 Boolean ProcessGraphic(Document *doc, LINK graphicL)
 {
-	char typeCode, styleCode; INT16 userVoice, np; LINK thePartL, aGraphicL;
+	char typeCode, styleCode; short userVoice, np; LINK thePartL, aGraphicL;
 	PGRAPHIC pGraphic; PAGRAPHIC aGraphic;
 	StringOffset theStrOffset; StringPtr pStr; char str[256];
 	
@@ -378,7 +378,7 @@ Returns TRUE normally, FALSE if there's a problem. */
 Boolean ProcessTuplet(Document *doc, LINK tupletL)
 {
 	PTUPLET pTuplet;
-	INT16 userVoice, np;
+	short userVoice, np;
 	LINK thePartL;
 	
 PushLock(OBJheap);
@@ -402,7 +402,7 @@ Returns TRUE normally, FALSE if there's a problem. */
 
 Boolean ProcessBeamset(Document *doc, LINK beamL)
 {
-	INT16 userVoice, np;
+	short userVoice, np;
 	LINK thePartL;
 	
 PushLock(OBJheap);
@@ -429,7 +429,7 @@ Boolean WriteScoreHeader(Document *doc, LINK startL)
 {
 	char filename[256];
 	LINK partL, prevMeasL; PPARTINFO pPart;
-	INT16 startMeas;
+	short startMeas;
 
 	if (doc->named) {
 		PStrCopy((StringPtr)doc->name,(StringPtr)filename);
@@ -464,15 +464,15 @@ voices. N.B. <voice> is an INTERNAL voice number, which is rarely the same as
 the part-relative voice number Nightingale shows to users! Return value is the
 number of lines in the Notelist file. */
 
-unsigned INT16 ProcessScore(
+unsigned short ProcessScore(
 						Document *doc,
-						INT16 voice,		/* voice number, or ANYONE to include all voices */
+						short voice,		/* voice number, or ANYONE to include all voices */
 						Boolean rests 		/* TRUE=include rests */
 						)
 {
 	LINK pL, aNoteL, aGRNoteL, aKeySigL, aTimeSigL, aMeasL, aClefL;
 	Boolean anyVoice;
-	unsigned INT16 count=0;
+	unsigned short count=0;
 	
 	if (!WriteScoreHeader(doc, doc->selStartL)) goto Error;
 	count++;
@@ -594,12 +594,12 @@ static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
 
 void SaveNotelist(
 			Document *doc,
-			INT16 /*voice*/,			/* (ignored) voice number, or ANYONE to include all voices */
+			short /*voice*/,			/* (ignored) voice number, or ANYONE to include all voices */
 			Boolean /*rests*/	 		/* (ignored) TRUE=include rests */
 			)
 {
-	INT16		sufIndex;
-	INT16		len, suffixLen, ch;
+	short		sufIndex;
+	short		len, suffixLen, ch;
 	Str255	filename, prompt;
 	CFStringRef	nlFileName;
 	NSClientData nsData;
@@ -664,12 +664,12 @@ should simply be a matter of passing them on to ProcessScore. */
 
 void SaveNotelist(
 			Document *doc,
-			INT16 voice,		/* (ignored) voice number, or ANYONE to include all voices */
+			short voice,		/* (ignored) voice number, or ANYONE to include all voices */
 			Boolean rests 		/* (ignored) TRUE=include rests */
 			)
 {
-	INT16		sufIndex;
-	INT16		len, suffixLen, ch;
+	short		sufIndex;
+	short		len, suffixLen, ch;
 	short		vRefNum;
 	Str255	filename, prompt;
 	Rect		paperRect;

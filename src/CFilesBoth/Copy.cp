@@ -16,9 +16,9 @@
 
 #define EXTRAOBJS	4
 
-LINK GetSrcLink(LINK dstL, COPYMAP *copyMap, INT16 numObjs)
+LINK GetSrcLink(LINK dstL, COPYMAP *copyMap, short numObjs)
 {
-	INT16 i=0;
+	short i=0;
 
 	for ( ; i<numObjs; i++)
 		if (copyMap[i].srcL)
@@ -28,9 +28,9 @@ LINK GetSrcLink(LINK dstL, COPYMAP *copyMap, INT16 numObjs)
 	return NILINK;
 }
 
-LINK GetDstLink(LINK srcL, COPYMAP *copyMap, INT16 numObjs)
+LINK GetDstLink(LINK srcL, COPYMAP *copyMap, short numObjs)
 {
-	INT16 i=0;
+	short i=0;
 
 	for ( ; i<numObjs; i++)
 		if (copyMap[i].srcL==srcL)
@@ -44,10 +44,10 @@ LINK GetDstLink(LINK srcL, COPYMAP *copyMap, INT16 numObjs)
 dynamics, etc.) that refer to objects of other types. Returns TRUE if it succeeds,
 FALSE if it fails (due to lack of memory). */
 
-Boolean SetupCopyMap(LINK startL, LINK endL, COPYMAP **copyMap, INT16 *objCount)
+Boolean SetupCopyMap(LINK startL, LINK endL, COPYMAP **copyMap, short *objCount)
 {
 	LINK pL;
-	INT16 i, numObjs=0;
+	short i, numObjs=0;
 	Boolean okay=TRUE;
 
 	for (pL=startL; pL!=endL; pL = RightLINK(pL))
@@ -71,9 +71,9 @@ Boolean SetupCopyMap(LINK startL, LINK endL, COPYMAP **copyMap, INT16 *objCount)
  */
 
 void CopyFixLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL,
-						COPYMAP *copyMap, INT16 numObjs)
+						COPYMAP *copyMap, short numObjs)
 {
-	register INT16 i; INT16 type;
+	register short i; short type;
 	register LINK pL;
 	
 	if (fixDoc!=doc)
@@ -164,10 +164,10 @@ void CopyFixLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL,
 
 Boolean CopyRange(Document *srcDoc, Document *dstDoc, LINK srcStartL, LINK srcEndL,
 							LINK insertL,
-							INT16 /*toRange*/		/* unused */
+							short /*toRange*/		/* unused */
 							)
 {
-	LINK pL,prevL,copyL,initL; INT16 i,numObjs; COPYMAP *copyMap;
+	LINK pL,prevL,copyL,initL; short i,numObjs; COPYMAP *copyMap;
 
 	InstallDoc(srcDoc);
 

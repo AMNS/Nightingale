@@ -17,9 +17,9 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static void SDInvalObjRects(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 offset);
+static void SDInvalObjRects(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff, short offset);
 static void SDInvalMeasures(Document *doc, LINK pL);
-static void SDInvalObject(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 offset);
+static void SDInvalObject(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff, short offset);
 
 /* ====================================================== Horizontal note dragging == */
 /* Auxiliary functions for dragging notes horizontally.
@@ -29,7 +29,7 @@ expressing DDIST offset from the xd of pL, taking measures into account. If the
 object dragged is at the end of the score, rightL will be the tail, and rightLim is
 flagged as not valid by giving it a value of -1. */
 
-void GetHDragLims(Document */*doc*/, LINK pL, LINK subObjL, INT16 /*staff*/, CONTEXT /*context*/,
+void GetHDragLims(Document */*doc*/, LINK pL, LINK subObjL, short /*staff*/, CONTEXT /*context*/,
 						DDIST *leftLim, DDIST *rightLim)
 {
 	DDIST leftLimit,rightLimit,needLeft,needRight,measWidth,objXD;
@@ -79,10 +79,10 @@ void GetHDragLims(Document */*doc*/, LINK pL, LINK subObjL, INT16 /*staff*/, CON
 /*	Draw pseudo-ledger lines for insertion feedback for notes to be inserted at
 the halfline number <halfLine>. */
 
-void SDInsertLedgers(LINK pL, LINK aNoteL, INT16 halfLine, PCONTEXT pContext)
+void SDInsertLedgers(LINK pL, LINK aNoteL, short halfLine, PCONTEXT pContext)
 {
 	DDIST	staffTop,staffHeight,xd;
-	INT16 l,staffLines,ledgerLeft,ledgerLen,staff;
+	short l,staffLines,ledgerLeft,ledgerLen,staff;
 	LINK staffL, aStaffL; PASTAFF aStaff;
 
 	PenNormal();
@@ -120,10 +120,10 @@ void SDInsertLedgers(LINK pL, LINK aNoteL, INT16 halfLine, PCONTEXT pContext)
 /* Get new accidental for note dragged vertically from within SymDragLoop,
 a la InsTrackPitch. ??I'm not sure this is ever called! --DAB, 2/97 */
 
-INT16 SDSetAccidental(Document *doc, GrafPtr accPort, Rect accBox, Rect saveBox, INT16 accy)
+short SDSetAccidental(Document *doc, GrafPtr accPort, Rect accBox, Rect saveBox, short accy)
 {
 	Point accPt, oldPt; 
-	INT16 accident, accidentOld=0;
+	short accident, accidentOld=0;
 	WindowPtr w=doc->theWindow;
 
 	GetPaperMouse(&oldPt,&doc->currentPaper);
@@ -158,13 +158,13 @@ INT16 SDSetAccidental(Document *doc, GrafPtr accPort, Rect accBox, Rect saveBox,
 /* --------------------------------------------------------------- SDMIDIFeedback -- */
 /* Give MIDI feedback, presumably called while dragging a note vertically. */
 
-void SDMIDIFeedback(Document *doc, INT16 *noteNum, INT16 useChan, INT16 acc,
-							INT16 transp, INT16 midCHalfLn, INT16 halfLn,
-							INT16 octTransp,
+void SDMIDIFeedback(Document *doc, short *noteNum, short useChan, short acc,
+							short transp, short midCHalfLn, short halfLn,
+							short octTransp,
 							short ioRefNum				/* Ignored unless using OMS or FreeMIDI */
 							)
 {
-	INT16 prevAccident;
+	short prevAccident;
 
 	if (!doc->feedback) return;
 
@@ -187,7 +187,7 @@ void SDMIDIFeedback(Document *doc, INT16 *noteNum, INT16 useChan, INT16 acc,
 /* ---------------------------------------------------------------------- Getystem -- */
 /* If <sync> has any notes in <voice>, return the ystem of the main note. */
 
-DDIST Getystem(INT16 voice, LINK sync)
+DDIST Getystem(short voice, LINK sync)
 {
 	LINK aNoteL;
 	PANOTE aNote;
@@ -207,7 +207,7 @@ DDIST Getystem(INT16 voice, LINK sync)
 /* -------------------------------------------------------------------- GetGRystem -- */
 /* If <GRsync> has any notes in <voice>, return the ystem of the main note. */
 
-DDIST GetGRystem(INT16 voice, LINK GRsync)
+DDIST GetGRystem(short voice, LINK GRsync)
 {
 	LINK aGRNoteL;
 	PAGRNOTE aGRNote;
@@ -230,17 +230,17 @@ dragged horizontally. Cross staff beams must have their note stems
 fixed up differently. */
 
 static void HDragFixXStfNoteStems(LINK beamL,LINK qL,LINK firstSyncL,
-					DDIST hDiff,DDIST vDiff,DDIST lastystem,INT16 *h);
+					DDIST hDiff,DDIST vDiff,DDIST lastystem,short *h);
 static void FixNoteStems(LINK beamL,LINK qL,LINK firstSyncL,
-					DDIST hDiff,DDIST vDiff,DDIST lastystem,INT16 *h);
+					DDIST hDiff,DDIST vDiff,DDIST lastystem,short *h);
 static void FixXStfNoteStems(Document *doc,LINK beamL);
 static void HDragFixNoteStems(Document *doc,LINK beamL,LINK firstSyncL,
-					DDIST hDiff,DDIST vDiff,DDIST lastystem,INT16 xStf);
+					DDIST hDiff,DDIST vDiff,DDIST lastystem,short xStf);
 
 #ifdef NOTYET
 
 static void HDragFixXStfNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff,
-												DDIST vDiff, DDIST lastystem, INT16 *h)
+												DDIST vDiff, DDIST lastystem, short *h)
 {
 	LINK qSubL;
 	DDIST noteDiff,newStemDiff;
@@ -276,9 +276,9 @@ static void HDragFixXStfNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hD
 }
 
 static void HDragFixNoteStems(Document *doc, LINK beamL, LINK firstSyncL, DDIST hDiff,
-										DDIST vDiff, DDIST lastystem, INT16 xStf)
+										DDIST vDiff, DDIST lastystem, short xStf)
 {
-	INT16 h; LINK qL;
+	short h; LINK qL;
 
 	qL=RightLINK(beamL);
 	for (h=0; qL && h<LinkNENTRIES(beamL); qL=RightLINK(qL)) {
@@ -298,7 +298,7 @@ static void HDragFixNoteStems(Document *doc, LINK beamL, LINK firstSyncL, DDIST 
 #endif
 
 static void FixNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff,
-									DDIST vDiff, DDIST lastystem, INT16 *h)
+									DDIST vDiff, DDIST lastystem, short *h)
 {
 	LINK qSubL;
 	DDIST noteDiff,newStemDiff;
@@ -328,7 +328,7 @@ static void FixNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff,
 
 static void FixXStfNoteStems(Document *doc, LINK beamL)
 {
-	INT16 v,nInBeam,staff,stfLines; Boolean upOrDown;
+	short v,nInBeam,staff,stfLines; Boolean upOrDown;
 	DDIST stfHeight,ystem,firstystem,lastystem;
 	LINK startL,endL,bpSync[MAXINBEAM],noteInSync[MAXINBEAM],staffL,aStaffL,baseL;
 	STFRANGE theRange; PASTAFF aStaff;
@@ -376,9 +376,9 @@ static void FixXStfNoteStems(Document *doc, LINK beamL)
 
 
 static void HDragFixNoteStems(Document *doc, LINK beamL, LINK firstSyncL, DDIST hDiff,
-										DDIST vDiff, DDIST lastystem, INT16 xStf)
+										DDIST vDiff, DDIST lastystem, short xStf)
 {
-	INT16 h; LINK qL;
+	short h; LINK qL;
 
 	if (xStf) {
 		FixXStfNoteStems(doc,beamL);
@@ -421,7 +421,7 @@ void SDFixGRStemLengths(LINK beamL)
 	DDIST		hDiff, noteDiff, vDiff, firstystem, lastystem, newStemDiff;
 	LINK		qL, firstSyncL, lastSyncL, qSubL;
 	PAGRNOTE	qSub;
-	INT16		h;
+	short		h;
 	float 	fhDiff, fnoteDiff, fvDiff;
 	
 	firstSyncL = FirstInBeam(beamL);
@@ -470,11 +470,11 @@ find the closest legal clef position to which this movement corresponds and
 pin the movement to this position. For now, assumes clef is a C clef, since
 we don't allow vertically dragging either the F or the G clef. */
 
-DDIST SDGetClosestClef(Document */*doc*/, INT16 halfLnDiff, LINK /*pL*/, LINK subObjL,
+DDIST SDGetClosestClef(Document */*doc*/, short halfLnDiff, LINK /*pL*/, LINK subObjL,
 								CONTEXT /*context*/)
 {
 	PACLEF aClef;
-	INT16 clefHalfLn, newHalfLn;
+	short clefHalfLn, newHalfLn;
 
 	clefHalfLn = ClefMiddleCHalfLn(ClefType(subObjL));
 
@@ -535,7 +535,7 @@ static void ClipToPort(Document *doc, Rect *r)
 
 static GrafPtr RectGrafPort(Rect r)
 {
-	GrafPtr ourPort; INT16 rWidth, rHeight;
+	GrafPtr ourPort; short rWidth, rHeight;
 
 	/* Allocate GrafPort the size of r */
 	rWidth = r.right-r.left;
@@ -917,7 +917,7 @@ GrafPtr SetupSysPorts(Document *doc, LINK pL)
 void DragBeforeFirst(Document *doc, LINK pL, Point pt)
 {
 	Boolean		found;
-	INT16			index;
+	short			index;
 	CONTEXT		context[MAXSTAVES+1];
 	STFRANGE		stfRange = {0,0};
 
@@ -984,7 +984,7 @@ void SDSpaceMeasures(Document *doc, LINK pL, long spaceFactor)
 to the coordinate system of doc->currentPaper. */
 
 static void SDInvalObjRects(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff,
-										INT16 offset)
+										short offset)
 {
 	Rect r;
 
@@ -1022,7 +1022,7 @@ static void SDInvalMeasures(Document *doc, LINK pL)
 
 /* ----------------------------------------------------------------- SDInvalObject -- */
 
-static void SDInvalObject(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 offset)
+static void SDInvalObject(Document *doc, LINK pL, DDIST xdDiff, DDIST ydDiff, short offset)
 {
 	SDInvalObjRects(doc, pL, xdDiff, ydDiff, offset);
 	SDInvalMeasures(doc, pL);

@@ -4,58 +4,58 @@
 #define ACCBOXWIDE (ACCSIZE-4)
 
 Boolean GetPaperMouse(Point *pt, Rect *paper);
-INT16 ForceInMeasure(Document *, INT16);
+short ForceInMeasure(Document *, short);
 void GetInsRect(Document *, LINK, Rect *);
-Boolean TrackAndAddHairpin(Document *, LINK, Point, INT16, INT16, INT16, PCONTEXT); 
-Boolean TrackAndAddEnding(Document *, Point, INT16);
-Boolean TrackAndAddLine(Document *, Point, INT16, INT16);
+Boolean TrackAndAddHairpin(Document *, LINK, Point, short, short, short, PCONTEXT); 
+Boolean TrackAndAddEnding(Document *, Point, short);
+Boolean TrackAndAddLine(Document *, Point, short, short);
 
-INT16 GetPitchLim(Document *, LINK, INT16, Boolean);
-INT16 CalcPitchLevel(INT16, PCONTEXT, LINK, INT16);
+short GetPitchLim(Document *, LINK, short, Boolean);
+short CalcPitchLevel(short, PCONTEXT, LINK, short);
 
-LINK FindSync(Document *, Point pt, Boolean isGraphic, INT16 clickStaff);
-Boolean AddCheckVoiceTable(Document *, INT16);
-Boolean AddNoteCheck(Document *, LINK addToSyncL, INT16 staff, INT16 symIndex);
-LINK FindGRSync(Document *, Point pt, Boolean isGraphic, INT16 clickStaff);
-Boolean AddGRNoteCheck(Document *, LINK addToSyncL, INT16 staff);
+LINK FindSync(Document *, Point pt, Boolean isGraphic, short clickStaff);
+Boolean AddCheckVoiceTable(Document *, short);
+Boolean AddNoteCheck(Document *, LINK addToSyncL, short staff, short symIndex);
+LINK FindGRSync(Document *, Point pt, Boolean isGraphic, short clickStaff);
+Boolean AddGRNoteCheck(Document *, LINK addToSyncL, short staff);
 LINK FindSyncRight(Document *, Point, Boolean);
 LINK FindSyncLeft(Document *, Point, Boolean);
 LINK FindGRSyncRight(Document *, Point, Boolean);
 LINK FindGRSyncLeft(Document *, Point, Boolean);
 LINK FindSymRight(Document *, Point, Boolean, Boolean);
-LINK FindLPI(Document *, Point, INT16, INT16, Boolean);	
-LINK ObjAtEndTime(Document *, LINK, INT16, INT16, long *, Boolean, Boolean);
+LINK FindLPI(Document *, Point, short, short, Boolean);	
+LINK ObjAtEndTime(Document *, LINK, short, short, long *, Boolean, Boolean);
 LINK LocateInsertPt(LINK);
 
-INT16 FindStaff(Document *, Point);
+short FindStaff(Document *, Point);
 LINK SetCurrentSystem(Document *, Point);
 LINK GetCurrentSystem(Document *);
 void CheckSuccSystem(LINK);
-INT16 InsError(void);
+short InsError(void);
 void AddNoteFixBeams(Document *, LINK, LINK);
 void AddGRNoteFixBeams(Document *, LINK, LINK);
-void UntupleObj(Document *, LINK, LINK, LINK, INT16);
-void AddNoteFixTuplets(Document *, LINK, LINK, INT16);
+void UntupleObj(Document *, LINK, LINK, LINK, short);
+void AddNoteFixTuplets(Document *, LINK, LINK, short);
 Boolean AddNoteFixOctavas(LINK, LINK);
-void AddNoteFixSlurs(Document *, LINK, INT16);
+void AddNoteFixSlurs(Document *, LINK, short);
 void AddNoteFixGraphics(LINK, LINK);
 
 void FixWholeRests(Document *, LINK);
 void FixNewMeasAccs(Document *, LINK);
 Boolean InsFixMeasNums(Document *, LINK);
-LINK FindGraphicObject(Document *, Point, INT16 *, INT16 *);
+LINK FindGraphicObject(Document *, Point, short *, short *);
 Boolean ChkGraphicRelObj(LINK, char);
-LINK FindTempoObject(Document *, Point, INT16 *, INT16 *);
-LINK FindEndingObject(Document *, Point, INT16 *);
+LINK FindTempoObject(Document *, Point, short *, short *);
+LINK FindEndingObject(Document *, Point, short *);
 void UpdateTailxd(Document *doc);
 
 void CenterTextGraphic(Document *doc,LINK newL);
 
-void FixInitialxds(Document *, LINK, LINK, INT16);
-void FixInitialKSxds(Document *, LINK, LINK, INT16);
+void FixInitialxds(Document *, LINK, LINK, short);
+void FixInitialKSxds(Document *, LINK, LINK, short);
 
-Boolean NewObjInit(Document *, INT16, INT16 *, char, INT16, CONTEXT *);
-void NewObjSetup(Document *, LINK, INT16, DDIST);
-LINK NewObjPrepare(Document *, INT16, INT16 *, char, INT16, INT16, CONTEXT *);
-void NewObjCleanup(Document *, LINK, INT16);
+Boolean NewObjInit(Document *, short, short *, char, short, CONTEXT *);
+void NewObjSetup(Document *, LINK, short, DDIST);
+LINK NewObjPrepare(Document *, short, short *, char, short, short, CONTEXT *);
+void NewObjCleanup(Document *, LINK, short);
 void XLoadInsUtilsSeg(void);

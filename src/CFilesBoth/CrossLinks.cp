@@ -29,7 +29,7 @@ void FixAllBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 
 void FixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	INT16			i, k;
+	short			i, k;
 	PANOTE 		aNote;
 	PANOTEBEAM 	paNoteBeam;
 	LINK			pL, qL, aNoteL, aNoteBeamL;
@@ -71,7 +71,7 @@ void FixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 
 void FixGRBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	INT16			i, k;
+	short			i, k;
 	PAGRNOTE 	aGRNote;
 	PANOTEBEAM 	paNoteBeam;
 	LINK			pL, qL, aGRNoteL, aNoteBeamL;
@@ -112,7 +112,7 @@ notes in a voice are always tupled. */
 
 void FixTupletLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	INT16			i, k;
+	short			i, k;
 	PANOTE 		aNote;
 	PANOTETUPLE paNoteTuple;
 	LINK			pL, qL, aNoteL, aNoteTupleL;
@@ -155,7 +155,7 @@ void FixTupletLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 
 void FixOctavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	INT16				i, k;
+	short				i, k;
 	PANOTE 			aNote;
 	PAGRNOTE			aGRNote;
 	PANOTEOCTAVA 	paNoteOct;

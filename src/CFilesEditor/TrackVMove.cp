@@ -37,11 +37,11 @@ static enum {
 	} E_TrackVMode;
 
 /* Local prototypes */
-static void DrawAccInBox(INT16, INT16, INT16, Rect *);
-static void CalcAccBox(Document *, PCONTEXT, Point *, Rect *, INT16 *);
-static void AltCalcAccidental(INT16 *, INT16 *, SignedByte, Boolean, INT16, INT16, Boolean);
+static void DrawAccInBox(short, short, short, Rect *);
+static void CalcAccBox(Document *, PCONTEXT, Point *, Rect *, short *);
+static void AltCalcAccidental(short *, short *, SignedByte, Boolean, short, short, Boolean);
 static void PaperMouse2Global(Point *, Rect *);
-static void SetMouse(INT16 x, INT16 y, Boolean updateCrs);
+static void SetMouse(short x, short y, Boolean updateCrs);
 
 
 /* ------------------------------------------------------------- AltInsTrackPitch -- */
@@ -68,21 +68,21 @@ out of sync with the standard versions. A better solution would be to add a
 parameter to MIDIFBNoteOn and MIDIFBNoteOff to tell them whether to delay or
 not, or possibly to have the delay controlled by config.altPitchCtl. */
 
-Boolean AltInsTrackPitch(Document *, Point, INT16 *, LINK, INT16, INT16 *, INT16 *,
-									INT16, Boolean);
+Boolean AltInsTrackPitch(Document *, Point, short *, LINK, short, short *, short *,
+									short, Boolean);
 Boolean AltInsTrackPitch(
 				Document *doc,
 				Point		downPt,			/* Location of mousedown */
-				INT16		*symIndex,		/* Symbol table index of note/rest to be inserted */
+				short		*symIndex,		/* Symbol table index of note/rest to be inserted */
 				LINK		startL,			/* link to node before which note/rest will go */
-				INT16		staff,
-				INT16		*pHalfLn,		/* pitch level return value */
-				INT16		*pAccident,		/* accidental return value */
-				INT16		octType,			/* type of octava note is to be inserted into. */
+				short		staff,
+				short		*pHalfLn,		/* pitch level return value */
+				short		*pAccident,		/* accidental return value */
+				short		octType,			/* type of octava note is to be inserted into. */
 				Boolean	inclDblAccs 	/* include dbl-sharp and dbl-flat in acc. sequence? */
 				)
 {
-	INT16		noteNum,
+	short		noteNum,
 				oldh, oldv, deltaV,
 				accident, accidentOld, prevAccident,
 				accSize, accBoxWid, boxVctr,
@@ -469,9 +469,9 @@ Boolean AltInsTrackPitch(
 global array of accidental characters (SonataAcc) in the given rect in the
 current port using the given size of the Sonata font. */
 
-void DrawAccInBox(INT16 accIndex, INT16 fontSize, INT16 baselineV, Rect *accBox)
+void DrawAccInBox(short accIndex, short fontSize, short baselineV, Rect *accBox)
 {
-	INT16 hoffset, boxWid;
+	short hoffset, boxWid;
 	Rect	eraseBox;
 	
 	if (accIndex>MAX_INDEX) {
@@ -500,9 +500,9 @@ to the caller.  NB: Currently no distinction based on whether box will include
 doubleflat. */
 
 void CalcAccBox(Document *doc, PCONTEXT pCont, Point *vCenterPt, Rect *accBoxR, 
-						INT16 *accSize)
+						short *accSize)
 {
-	INT16		accy, accBoxWid, accBoxHt, fontSize;
+	short		accy, accBoxWid, accBoxHt, fontSize;
 	FontInfo	fInfo;
 	
 	/* Vertically center box about point of mouseDown. */
@@ -569,20 +569,20 @@ pass back to the caller for further action.  Passes back an index into the
 global SonataAcc array. */
 
 void AltCalcAccidental(
-			INT16		*pAcc,			/* Current index into global SonataAcc[] */
-			INT16		*pHalfLn,		/* Current crossbar position, changed in this routine */
+			short		*pAcc,			/* Current index into global SonataAcc[] */
+			short		*pHalfLn,		/* Current crossbar position, changed in this routine */
 			SignedByte direction,	/* Which way is mouse going? (1: up, -1: down) */
 			Boolean	sharpKS,			/* Does current key sig contain sharps? (What about C major?) */
-			INT16		loPitchLim,		/* Pitch range in halfLines */
-			INT16		hiPitchLim,
+			short		loPitchLim,		/* Pitch range in halfLines */
+			short		hiPitchLim,
 			Boolean	inclDblAccs 	/* Include dbl-sharps and dbl-flats? */
 			)
 {
 	SignedByte minIndex, maxIndex, locIndex;
-	INT16		accident, halfLn;
+	short		accident, halfLn;
 	char		*accList;
 	Boolean	bumpHalfLn = FALSE;
-	register INT16 i;
+	register short i;
 
 	if (*pAcc>MAX_INDEX) {
 		MayErrMsg("AltCalcAccidental: bad accidental index.");
@@ -675,7 +675,7 @@ extern Byte			CrsrCouple : 0x8CF;
 */
 
 // Use CoreGraphics for SetMouse (MAS, see http://lists.apple.com/archives/Carbon-development/2001/Aug/msg00738.html)
-void SetMouse(INT16 x, INT16 y, Boolean updateCrs)
+void SetMouse(short x, short y, Boolean updateCrs)
 {
 	//Point	newPt;
 	CGPoint newPt;
@@ -721,16 +721,16 @@ returns TRUE. */
 Boolean InsTrackPitch(
 				register Document *doc,
 				Point		downPt,			/* Location of mousedown */
-				INT16		*symIndex,		/* Symbol table index of note/rest to be inserted (<0=unspecified note) */
+				short		*symIndex,		/* Symbol table index of note/rest to be inserted (<0=unspecified note) */
 				LINK		startL,			/* link to node where note/rest is or before it note/rest will go */
-				INT16		staff,
-				INT16		*pHalfLn,		/* pitch level return value */
-				INT16		*pAccident,		/* accidental return value */
-				INT16		octType 			/* type of octave sign note is to be inserted into. */
+				short		staff,
+				short		*pHalfLn,		/* pitch level return value */
+				short		*pAccident,		/* accidental return value */
+				short		octType 			/* type of octave sign note is to be inserted into. */
 				)
 {
 	Point		pt;
-	INT16		noteNum,
+	short		noteNum,
 				oldh, oldv,
 				accident, accidentOld,
 				prevAccident, accy,
@@ -738,7 +738,7 @@ Boolean InsTrackPitch(
 	Boolean	outOfBounds;
 	Rect		accBox, saveBox;
 	GrafPtr	savePort, ourPort;
-	INT16		halfLn, halfLnOld, halfLnOrig,
+	short		halfLn, halfLnOld, halfLnOrig,
 				halfLnLo, halfLnHi,
 				durIndex, durIndexOld, useChan, useIORefNum,
 				partn, octTransp, transp;
@@ -1023,19 +1023,19 @@ value.  If the final position is outside the music area, it	returns 0 to allow t
 caller to cancel the current operation;	if the mouse is never moved enough to
 change anything, it returns -1; else it returns 1. */
 
-INT16 InsTrackUpDown(
+short InsTrackUpDown(
 		register Document *doc,
 		Point		downPt,			/* Location of mousedown */
-		INT16		*symIndex,		/* Symbol table index of item to be inserted */
+		short		*symIndex,		/* Symbol table index of item to be inserted */
 		LINK		startL,			/* Node before which node will go, to determine staff size */
-		INT16		staff,
-		INT16		*pHalfLn 		/* pitch level return value */
+		short		staff,
+		short		*pHalfLn 		/* pitch level return value */
 		)
 {
 	Point		pt;
-	INT16		oldh, oldv;
+	short		oldh, oldv;
 	Boolean	isDynamic, outOfBounds, anyChange;
-	INT16		halfLn, halfLnOld, halfLnOrig,
+	short		halfLn, halfLnOld, halfLnOrig,
 				halfLnLo, halfLnHi,
 				itemIndex, itemIndexOld;
 	Rect		tRect;
@@ -1133,9 +1133,9 @@ INT16 InsTrackUpDown(
 /* ----------------------------------------------------------------- SetCrossbar -- */
 /* Calculate new crossbar rectangle, in paper-relative coords */
 
-void SetCrossbar(INT16 halfLn, INT16 h, PCONTEXT pCont)
+void SetCrossbar(short halfLn, short h, PCONTEXT pCont)
 {
-	INT16		top, left, bottom, right,
+	short		top, left, bottom, right,
 				ledgerLen, barWidth;
 	DDIST		lnSpace = LNSPACE(pCont);
 
@@ -1166,9 +1166,9 @@ void InvertCrossbar(Document *doc)
 
 #define ACC_STEP 3								/* Pixels between accidentals */
 
-INT16 CalcAccidental(INT16 newy, INT16 oldy)
+short CalcAccidental(short newy, short oldy)
 {
-	INT16	center, delta;
+	short	center, delta;
 	
 	center = ACC_STEP/2;
 	delta = newy-oldy;
@@ -1184,9 +1184,9 @@ INT16 CalcAccidental(INT16 newy, INT16 oldy)
 
 #define DUR_STEP 4								/* Pixels between duration changes */
 
-INT16 CalcNewDurIndex(INT16 oldIndex, INT16 newx, INT16 oldx)
+short CalcNewDurIndex(short oldIndex, short newx, short oldx)
 {
-	INT16 delta, newIndex;
+	short delta, newIndex;
 	
 	delta = newx-oldx;
 	newIndex = oldIndex-(delta/DUR_STEP);
@@ -1200,11 +1200,11 @@ INT16 CalcNewDurIndex(INT16 oldIndex, INT16 newx, INT16 oldx)
 
 #define DYN_STEP 4								/* Pixels between dynamic changes */
 
-INT16 CalcNewDynIndex(INT16 oldIndex, INT16 newx, INT16 oldx)
+short CalcNewDynIndex(short oldIndex, short newx, short oldx)
 {
 	static Boolean firstCall=TRUE;
-	static INT16	lowDynIndex, hiDynIndex;
-	INT16 			delta, j, newIndex;
+	static short	lowDynIndex, hiDynIndex;
+	short 			delta, j, newIndex;
 	
 	if (firstCall) {
 		for (j = 0; j<nsyms; j++)

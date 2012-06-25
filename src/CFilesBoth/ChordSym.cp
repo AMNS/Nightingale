@@ -17,8 +17,8 @@
 
 static Boolean ParseChordSym(unsigned char *, char *, char *, char *, char *, char *, char *, char *);
 static Boolean IsCSAcc(char *, unsigned char *);
-static INT16 Draw1Extension(Document *, char [], INT16, INT16, const unsigned char[], const unsigned char[],
-									INT16, INT16, INT16, INT16, INT16, Boolean, Boolean, Boolean);
+static short Draw1Extension(Document *, char [], short, short, const unsigned char[], const unsigned char[],
+									short, short, short, short, short, Boolean, Boolean, Boolean);
 static void BuildCSstring(DialogPtr, unsigned char []);
 static void GetCSOptions(DialogPtr, Boolean *);
 static void CloseCSDialog(DialogPtr);
@@ -177,13 +177,13 @@ static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
 void DrawChordSym(Document *doc,
 						DDIST xd, DDIST yd,
 						unsigned char *string,						/* Pascal string */
-						INT16 auxInfo,									/* currently interpreted as Boolean:
+						short auxInfo,									/* currently interpreted as Boolean:
 																					draw extension parentheses */
 						PCONTEXT pContext, Boolean dim,
 						DRect *dBox)									/* rect enclosing chord sym */
 {
 	register unsigned char	*p;
-	INT16							oldFont, oldSize, oldStyle, csFont, csSize, csFace,
+	short							oldFont, oldSize, oldStyle, csFont, csSize, csFace,
 									csSmallSize, musSmallSize, xp, yp, musicSize, newTop,
 									yTweak, superScript, gap, dblGap, stkLineHt, wid1, wid2, wid3,
 									maxWid, start2, start3, parenTweak, baseline, extraLeading;
@@ -436,7 +436,7 @@ void DrawChordSym(Document *doc,
 			DDIST			ydRoot, xTweakD, yTweakD, superScriptD, gapD, dblGapD, extStackWidD;
 			short			w;
 			unsigned char csName[32], musFontName[64], substr[2];
-			INT16			newFontIndex;
+			short			newFontIndex;
 			
 			PStrCopy((StringPtr)doc->musFontName, (StringPtr)musFontName);			
 			pTxStyle = (TEXTSTYLE *)doc->fontNameCS;
@@ -454,7 +454,7 @@ void DrawChordSym(Document *doc,
 			superScriptD = pt2d(csSize*(long)config.chordSymSuperscr/100L);
 
 			/* Need more precision for this; otherwise, it's often zero. */
-			gapD = pt2d((INT16)rint((double)csSmallSize*((double)(CS_GAPBTWFIELDS)/100.0)));
+			gapD = pt2d((short)rint((double)csSmallSize*((double)(CS_GAPBTWFIELDS)/100.0)));
 			dblGapD = gapD*2;
 			parenTweak = csSmallSize*(long)CS_PAREN_YOFFSET/100L;
 	
@@ -664,24 +664,24 @@ void DrawChordSym(Document *doc,
  * characteristics. Returns the width of the string it drew in pixels.
  */
 
-static INT16 Draw1Extension(
+static short Draw1Extension(
 			Document *doc,
 			char *str,							/* C string to enclose in parentheses */
-			INT16 xp, INT16 yp,				/* paper-rel pixels (QD) or points (PS); ignored if draw==FALSE */
+			short xp, short yp,				/* paper-rel pixels (QD) or points (PS); ignored if draw==FALSE */
 			const unsigned char musFontName[],	/* used only if drawing to PostScript */
 			const unsigned char csFontName[],	/* used only if drawing to PostScript */
-			INT16 musSmallSize,
-			INT16 csFont,
-			INT16 csSmallSize,
-			INT16 csFace,
-			INT16 parenTweak,
+			short musSmallSize,
+			short csFont,
+			short csSmallSize,
+			short csFace,
+			short parenTweak,
 			Boolean dim,
 			Boolean showParens,
 			Boolean draw				/* if TRUE draw the string; else calculate and return width only */
 			)
 {
 	register unsigned char	*p;
-	INT16							yTweak, w=0, wid;
+	short							yTweak, w=0, wid;
 	DDIST							yTweakD;
 	Point							pt;
 	DDIST							xd, yd;
@@ -860,7 +860,7 @@ static Document	*localDoc;
 
 /* --------------------------------------------------------------- ChordSymDialog -- */
 
-Boolean ChordSymDialog(Document *doc, unsigned char *string, INT16 *auxInfo)
+Boolean ChordSymDialog(Document *doc, unsigned char *string, short *auxInfo)
 {
 	short				item, type;
 	Boolean			showParens, keepGoing=TRUE;
@@ -1073,7 +1073,7 @@ static Boolean AnyBadCSvalues(DialogPtr dlog)
 
 static void ShowHideParens(DialogPtr dlog, Boolean show)
 {
-	INT16		item, type;
+	short		item, type;
 	Rect		box;
 	Handle	hndl;
 
@@ -1104,7 +1104,7 @@ static void DisplayChordSym(
 	DRect						dBox;
 	RgnHandle				rgnHdl;
 	Boolean					showParens;
-	INT16						auxInfo;
+	short						auxInfo;
 		
 	BuildCSstring(dlog, fullStr);
 
@@ -1229,7 +1229,7 @@ static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord	*evt, short *it
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(dlog, evt, (INT16 *)item, FALSE)) {
+			if (DlgCmdKey(dlog, evt, (short *)item, FALSE)) {
 				Str255		str;
 				short			curField;
 				

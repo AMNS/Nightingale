@@ -100,17 +100,17 @@ static Boolean popupAns;		/* New choice has been made in popup itemHit event */
 /* Global current values of what we're editing, so that we can draw the
 text as it looks from within the Filter during an update event. */
 
-static INT16 theFont;
-static INT16 theLyric;
-static INT16 theEncl;
-static INT16 theSize;				/* Only of interest when isRelative is FALSE */
-static INT16 theStyle;			/* plain, bold, etc. (as opposed to "stylechoice") */
+static short theFont;
+static short theLyric;
+static short theEncl;
+static short theSize;				/* Only of interest when isRelative is FALSE */
+static short theStyle;			/* plain, bold, etc. (as opposed to "stylechoice") */
 static Boolean isRelative;
-static INT16 theRelIndex;			/* Only of interest when isRelative is TRUE */
-static INT16 thePtSize;			/* The actual point size for either relative or absolute */
+static short theRelIndex;			/* Only of interest when isRelative is TRUE */
+static short thePtSize;			/* The actual point size for either relative or absolute */
 static DDIST theLineSpacing;	/* Between staff lines for this given context */
-static INT16 radioChoice;
-static INT16 theDlog;				/* Which dialog (text or Define Text Styles) being used */
+static short radioChoice;
+static short theDlog;				/* Which dialog (text or Define Text Styles) being used */
 
 static TEXTSTYLE	theRegular1, theRegular2, theRegular3, theRegular4, theRegular5,
 						theRegular6, theRegular7, theRegular8, theRegular9, theMeasNum,
@@ -126,24 +126,24 @@ static Rect fontRect,sizeRect,faceRect,styleRect,dimRect;		/* Panel frames */
 /* Prototypes for local routines */
 
 static void DimStylePanels(DialogPtr dlog, Boolean dim);
-static pascal  Boolean MyFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHit);
+static pascal  Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 
 static void	DebugPrintFonts(Document *doc);
 static void	SetFontPopUp(unsigned char *fontName, unsigned char *strbuf);
-static void	SetAbsSizePopUp(INT16 size, unsigned char *strbuf);
-static void	SetStyleBoxes(DialogPtr dlog, INT16 style);
-static void	SetStylePopUp(INT16 styleIndex);
-static INT16	GetStyleChoice(void);
-static void	SaveCurrentStyle(INT16 currStyle);
-static void	SetCurrentStyle(INT16 currStyle);
-static void	TSSetCurrentStyle(INT16 currStyle);
-static INT16	TDRelIndexToSize(INT16 index);
-static INT16	SizeToRelIndex(INT16 size);
-static INT16	GetStrFontStyle(Document *doc, INT16 styleChoice);
+static void	SetAbsSizePopUp(short size, unsigned char *strbuf);
+static void	SetStyleBoxes(DialogPtr dlog, short style);
+static void	SetStylePopUp(short styleIndex);
+static short	GetStyleChoice(void);
+static void	SaveCurrentStyle(short currStyle);
+static void	SetCurrentStyle(short currStyle);
+static void	TSSetCurrentStyle(short currStyle);
+static short	TDRelIndexToSize(short index);
+static short	SizeToRelIndex(short size);
+static short	GetStrFontStyle(Document *doc, short styleChoice);
 static void	UpdateDocStyles(Document *doc);
 static Boolean ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style);
 static void	GetRealSizes(void);
-static void	TuneRadioIn(DialogPtr dlog,INT16 itemHit, INT16 *radio);
+static void	TuneRadioIn(DialogPtr dlog,short itemHit, short *radio);
 static void	DrawExampleText(DialogPtr dlog, unsigned char *string);
 static void	InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle);
 
@@ -189,7 +189,7 @@ therefore be outlined.  Also defines the font number of the current font. */
 
 static void GetRealSizes()
 	{
-		INT16 i,nitems; unsigned char str[64]; long num;
+		short i,nitems; unsigned char str[64]; long num;
 		
 		if (popup7.currentChoice) {
 			/* Pull non-truncated menu item back into popup str storage */
@@ -201,7 +201,7 @@ static void GetRealSizes()
 			for (i=1; i<=nitems; i++) {
 				GetMenuItemText(popup11.menu,i,str);
 				StringToNum(str,&num);
-				SetItemStyle(popup11.menu, i, RealFont(theFont,(INT16)num) ? outline : 0);
+				SetItemStyle(popup11.menu, i, RealFont(theFont,(short)num) ? outline : 0);
 				}
 			/* Restore font name popup string to truncated version, if any */
 			TruncPopUpString(&popup7);
@@ -215,7 +215,7 @@ if it exists. */
 
 static void SetFontPopUp(unsigned char *fontName, unsigned char *strbuf)
 	{
-		INT16 nitems,i;
+		short nitems,i;
 		
 		nitems = CountMenuItems(popup7.menu);
 		for (i=1; i<=nitems; i++) {
@@ -233,9 +233,9 @@ static void SetFontPopUp(unsigned char *fontName, unsigned char *strbuf)
 look up the size in the size popup menu, and set the popup choice to display it,
 if it exists. */
 
-static void SetAbsSizePopUp(INT16 size, unsigned char *strbuf)
+static void SetAbsSizePopUp(short size, unsigned char *strbuf)
 	{
-		INT16 nitems,i; long num;
+		short nitems,i; long num;
 		
 		nitems = CountMenuItems(popup11.menu);
 		for (i=1; i<=nitems; i++) {
@@ -252,7 +252,7 @@ static void SetAbsSizePopUp(INT16 size, unsigned char *strbuf)
 
 /* Given a global style choice, set the "global style choice" popup to display it. */
 
-static void SetStylePopUp(INT16 styleIndex)
+static void SetStylePopUp(short styleIndex)
 	{
 		ChangePopUpChoice(&popup4,styleIndex);
 	}
@@ -260,7 +260,7 @@ static void SetStylePopUp(INT16 styleIndex)
 
 /* Return the current choice in the "global style choice" popup */
 
-static INT16 GetStyleChoice()
+static short GetStyleChoice()
 	{
 		if (popup4.currentChoice) {
 			/* Pull non-truncated menu item back into popup str storage */
@@ -273,7 +273,7 @@ static INT16 GetStyleChoice()
 /* Copy the TEXTSTYLE <theCurrent> into the appropriate TEXTSTYLE (<theRegular1>,
 <theRegular2>, etc.).  Handles all styles. */
 
-static void SaveCurrentStyle(INT16 currStyle)
+static void SaveCurrentStyle(short currStyle)
 	{
 	 	switch (currStyle) {
 			case Regular1STYLE:
@@ -329,7 +329,7 @@ static void SaveCurrentStyle(INT16 currStyle)
 
 /* Make the TEXTSTYLE <theCurrent> a copy of the specified style; handles all styles. */
 
-static void SetCurrentStyle(INT16 currStyle)
+static void SetCurrentStyle(short currStyle)
 	{
 	 	switch (currStyle) {
 			case Regular1STYLE:
@@ -386,7 +386,7 @@ static void SetCurrentStyle(INT16 currStyle)
 /* Make the TEXTSTYLE <theCurrent> a copy of the specified style; handles only
 the "regular" text styles, not those for measure numbers, tempo marks, etc. */
 
-static void TSSetCurrentStyle(INT16 currStyle)
+static void TSSetCurrentStyle(short currStyle)
 	{
 	 	switch (currStyle) {
 			case TSRegular1STYLE:
@@ -424,7 +424,7 @@ static void TSSetCurrentStyle(INT16 currStyle)
 
 /* Install a given style into dialog items */
 
-static void SetStyleBoxes(DialogPtr dlog, INT16 style)
+static void SetStyleBoxes(DialogPtr dlog, short style)
 	{
 		PutDlgChkRadio(dlog,CHK17_Plain,style == 0);
 		PutDlgChkRadio(dlog,CHK18_Bold,(style & bold)!=0);
@@ -444,7 +444,7 @@ the EditText field, and dim everything.  Otherwise, do the opposite. */
 
 static void DimStylePanels(DialogPtr dlog, Boolean dim)
 {
-	INT16		type, newType, ctlActive;
+	short		type, newType, ctlActive;
 	Handle		hndl;
 	Rect		box;
 	
@@ -503,10 +503,10 @@ static void DrawMyItems(DialogPtr /*dlog*/)
 insertion dialog and look for popup items and convert to itemHits, as well
 as the usual cutting/pasting and default button stuff. */
 
-static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHit)
+static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	{
 		Boolean ans=FALSE,doHilite=FALSE; WindowPtr w;
-		INT16 type,ch, currentStyle; Handle hndl;
+		short type,ch, currentStyle; Handle hndl;
 		Rect box; Point where; unsigned char str[256];
 		
 		w = (WindowPtr)(evt->message);
@@ -540,7 +540,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHit)
 #endif
 			case activateEvt:
 				if (w == GetDialogWindow(dlog)) {
-					INT16 activ = (evt->modifiers & activeFlag)!=0;
+					short activ = (evt->modifiers & activeFlag)!=0;
 					}
 				break;
 			case mouseDown:
@@ -641,7 +641,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHit)
 /* Deliver the absolute size that the Tiny...Jumbo...StaffHeight menu item represents,
 or 0 if out of bounds */
 
-static INT16 TDRelIndexToSize(INT16 index)
+static short TDRelIndexToSize(short index)
 	{
 		return(RelIndexToSize(index,theLineSpacing));
 	}
@@ -652,7 +652,7 @@ setting our global variables and setting the dialog's controls accordingly. */
 
 static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle)
 	{
-		unsigned char str[256]; INT16 tmpSize, i;
+		unsigned char str[256]; short tmpSize, i;
 
 		SetFontPopUp((unsigned char *)aStyle->fontName,str);
 		
@@ -692,9 +692,9 @@ static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle)
 /* Deliver the index 1-9 of the Tiny...Jumbo...StaffHeight menu item, or 0 if the
 given size isn't any of the predefined sizes. */
  
-static INT16 SizeToRelIndex(INT16 size)
+static short SizeToRelIndex(short size)
 	{
-		INT16 index;
+		short index;
 		
 		for (index=GRTiny; index<=GRLastSize; index++)
 			if (size == TDRelIndexToSize(index)) return(index);
@@ -705,9 +705,9 @@ static INT16 SizeToRelIndex(INT16 size)
 /* Determine which font style the string is in, and copy the relevant
 parameters into the global TEXTSTYLE record theCurrent. */
 
-static INT16 GetStrFontStyle(Document *doc, INT16 styleChoice)
+static short GetStrFontStyle(Document *doc, short styleChoice)
 {
-	INT16 globalFontIndex;
+	short globalFontIndex;
 
 	globalFontIndex = User2HeaderFontNum(doc, styleChoice);
 
@@ -800,7 +800,7 @@ room for fonts in the document's font index table. */
 
 static Boolean ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style)
 {
-	INT16		newFontIndex;
+	short		newFontIndex;
 	PGRAPHIC	pGraphic;
 	
 	/* Get the new font's index, adding it to the table if necessary.
@@ -828,7 +828,7 @@ static Boolean ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style)
 /* Change the current radio button item <*radio> to <itemHit>, and reset all that
 depends on it. NB: <*radio> is both input and output! */
 
-static void TuneRadioIn(DialogPtr dlog, INT16 itemHit, INT16 *radio)
+static void TuneRadioIn(DialogPtr dlog, short itemHit, short *radio)
 {
 	PutDlgChkRadio(dlog,*radio,FALSE);
 	*radio = itemHit;
@@ -852,7 +852,7 @@ otherwise it is the string to draw. */
 static void DrawExampleText(DialogPtr dlog, unsigned char *string)
 	{
 		unsigned char str[256],*pStr;
-		INT16 oldFont,oldSize,oldStyle,type,y,userItem,editText,i,tmpLen,oldLen;
+		short oldFont,oldSize,oldStyle,type,y,userItem,editText,i,tmpLen,oldLen;
 		Rect box; Handle hndl; RgnHandle oldClip;
 		
 		if (theDlog==TextDlog)
@@ -912,20 +912,20 @@ are returned unchanged. */
 
 Boolean TextDialog(
 			Document *doc,
-			INT16 *styleChoice,		/* Item index into the Define Style Choice pop-up (ID 36) */
+			short *styleChoice,		/* Item index into the Define Style Choice pop-up (ID 36) */
 			Boolean *relFSize,		/* TRUE means size=1...9 for Tiny...StaffHeight */
-			INT16 *size,			/* If *relFSize, Tiny...StaffHeight index, else in points */
-			INT16 *style,			/* Standard style bits */
-			INT16 *enclosure,		/* Enclosure code */
+			short *size,			/* If *relFSize, Tiny...StaffHeight index, else in points */
+			short *style,			/* Standard style bits */
+			short *enclosure,		/* Enclosure code */
 			Boolean *lyric,			/* TRUE=lyric, FALSE=other */
 			unsigned char *name,	/* Fontname or empty */
 			unsigned char *string,	/* Current text string or empty */
 			CONTEXT *context
 			)
 {
-	INT16 tmpSize,itemHit,type;
+	short tmpSize,itemHit,type;
 	Boolean okay=FALSE,keepGoing=TRUE;
-	INT16 val,i,currentStyle;
+	short val,i,currentStyle;
 	Handle hndl; Rect box; long num;
 	DialogPtr dlog; GrafPtr oldPort;
 	unsigned char str[256];
@@ -1308,7 +1308,7 @@ Boolean DefineStyleDialog(Document *doc,
 							CONTEXT *context)
 {
 	LINK			pL;
-	INT16			i, tmpSize, itemHit, type, val;
+	short			i, tmpSize, itemHit, type, val;
 	Boolean		okay=FALSE, keepGoing=TRUE, tooManyFonts=FALSE;
 	Handle		hndl;
 	Rect			box;
@@ -1318,7 +1318,7 @@ Boolean DefineStyleDialog(Document *doc,
 	unsigned char name[256], str[256];
 	char			fmtStr[256];
 	ModalFilterUPP filterUPP;
-	static INT16 currentStyle = Regular1STYLE;
+	static short currentStyle = Regular1STYLE;
 
 	theDlog = DefineStyleDlog;
 	

@@ -15,7 +15,7 @@ enum										/* Multivoice Dialog item numbers */
 	MVASSUME_BOTTOM_DI=12
 };
 
-Boolean MultivoiceDialog(INT16, INT16 *, Boolean *, Boolean *);
-QDIST GetRestMultivoiceRole(PCONTEXT, INT16, Boolean);
-void DoMultivoiceRules(Document *, INT16, Boolean, Boolean);
+Boolean MultivoiceDialog(short, short *, Boolean *, Boolean *);
+QDIST GetRestMultivoiceRole(PCONTEXT, short, Boolean);
+void DoMultivoiceRules(Document *, short, Boolean, Boolean);
 void TryMultivoiceRules(Document *, LINK, LINK);

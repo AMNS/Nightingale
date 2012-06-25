@@ -19,6 +19,6 @@ Boolean InsertSlur(Document *, Point);
 Boolean InsertTempo(Document *, Point);
 Boolean InsertSpace(Document *, Point);
 
-LINK AddNote(Document *, INT16, char, INT16, INT16, INT16, INT16);
-LINK AddGRNote(Document *, INT16, char, INT16, INT16, INT16, INT16);
+LINK AddNote(Document *, short, char, short, short, short, short);
+LINK AddGRNote(Document *, short, char, short, short, short, short);
 void XLoadInsertSeg(void);

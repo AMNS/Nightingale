@@ -43,7 +43,7 @@ enum {								/* used in NLOBJHEADER's objType field */
 	LAST_TYPE
 };
 
-typedef unsigned INT16 NLINK;
+typedef unsigned short NLINK;
 
 #define NLOBJHEADER			/* 8 bytes */																	\
 	long		lStartTime;			/* positive 32-bit integer */											\

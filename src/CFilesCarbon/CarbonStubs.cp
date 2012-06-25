@@ -49,7 +49,7 @@ void DeletePeekedAtOMSMIDIPacket(void)
 void OMSInitTimer(void)
 {}
 
-void OMSLoadTimer(INT16 /*interrruptPerios*/)
+void OMSLoadTimer(short /*interrruptPerios*/)
 {}
 
 void OMSStartTime(void)
@@ -64,16 +64,16 @@ void OMSStopTime(void)
 void LaunchPatchBay(void)
 {}
 
-void OMSSetSelectedInputDevice(OMSUniqueID /*device*/, INT16 /*channel*/)
+void OMSSetSelectedInputDevice(OMSUniqueID /*device*/, short /*channel*/)
 {}
 
-void OMSSetMidiThruDevice(OMSUniqueID /*device*/, INT16 /*channel*/)
+void OMSSetMidiThruDevice(OMSUniqueID /*device*/, short /*channel*/)
 {}
 
-void OMSEndNoteNow(INT16 /*noteNum*/, char /*channel*/, short /*ioRefNum*/)
+void OMSEndNoteNow(short /*noteNum*/, char /*channel*/, short /*ioRefNum*/)
 {}
 
-void OMSStartNoteNow(INT16 /*noteNum*/, char /*channel*/, char /*velocity*/, short /*ioRefNum*/)
+void OMSStartNoteNow(short /*noteNum*/, char /*channel*/, char /*velocity*/, short /*ioRefNum*/)
 {}
 
 void OMSMIDIProgram(Document */*doc*/, unsigned char */*partPatch*/, 
@@ -86,13 +86,13 @@ void OMSAllNotesOff2(void)
 void OMSFBOff(Document */*doc*/)
 {}
 
-void OMSFBNoteOff(Document */*doc*/, INT16 /*noteNum*/, INT16 /*channel*/, short /*ioRefNum*/)
+void OMSFBNoteOff(Document */*doc*/, short /*noteNum*/, short /*channel*/, short /*ioRefNum*/)
 {}
 
 void OMSFBOn(Document */*doc*/)
 {}
 
-void OMSFBNoteOn(Document */*doc*/, INT16 /*noteNum*/, INT16 /*channel*/, short /*ioRefNum*/)
+void OMSFBNoteOn(Document */*doc*/, short /*noteNum*/, short /*channel*/, short /*ioRefNum*/)
 {}
 
 void OMSEventLoopAction(void)
@@ -110,31 +110,31 @@ OMSDeviceMenuH CreateOMSOutputMenu(Rect */*menuBox*/)
 OMSDeviceMenuH CreateOMSInputMenu(Rect */*menuBox*/)
 { return (OMSDeviceMenuH)0; }
 
-OMSUniqueID GetOMSDeviceForPartn(Document */*doc*/, INT16 /*partn*/)
+OMSUniqueID GetOMSDeviceForPartn(Document */*doc*/, short /*partn*/)
 { return (OMSUniqueID)0; }
 
 OMSUniqueID GetOMSDeviceForPartL(Document */*doc*/, LINK /*partL*/)
 { return (OMSUniqueID)0; }
 
-void SetOMSDeviceForPartn(Document */*doc*/, INT16 /*partn*/, OMSUniqueID /*device*/)
+void SetOMSDeviceForPartn(Document */*doc*/, short /*partn*/, OMSUniqueID /*device*/)
 {}
 
 void SetOMSDeviceForPartL(Document */*doc*/, LINK /*partL*/, OMSUniqueID /*device*/)
 {}
 
-void InsertPartnOMSDevice(Document */*doc*/, INT16 /*partn*/, INT16 /*numadd*/)
+void InsertPartnOMSDevice(Document */*doc*/, short /*partn*/, short /*numadd*/)
 {}
 
-void InsertPartLOMSDevice(Document */*doc*/, LINK /*partL*/, INT16 /*numadd*/)
+void InsertPartLOMSDevice(Document */*doc*/, LINK /*partL*/, short /*numadd*/)
 {}
 
-void DeletePartnOMSDevice(Document */*doc*/, INT16 /*partn*/)
+void DeletePartnOMSDevice(Document */*doc*/, short /*partn*/)
 {}
 
 void DeletePartLOMSDevice(Document */*doc*/, LINK /*partL*/)
 {}
 
-Boolean OMSChannelValid(OMSUniqueID /*device*/, INT16 /*channel*/)
+Boolean OMSChannelValid(OMSUniqueID /*device*/, short /*channel*/)
 { return FALSE; }
 
 OMSErr OpenOMSInput(OMSUniqueID /*device*/)
@@ -150,7 +150,7 @@ Boolean GetOMSPartPlayInfo(Document *, short [], Byte [],
 
 void GetOMSNotePlayInfo(Document *, LINK , short [],
 						Byte [], SignedByte [], short [],
-						INT16 *, INT16 *, INT16 *, short *)
+						short *, short *, short *, short *)
 {}
 
 OMSAPI(OMSBool) TestOMSDeviceMenu(OMSDeviceMenuH , OMSPoint )
@@ -190,27 +190,27 @@ MMMIDIPacket *PeekAtNextFMSMIDIPacket(Boolean first) { return (MMMIDIPacket*)NUL
 void DeletePeekedAtFMSMIDIPacket(void) {}
 void InitFMSBuffer(void) {}
 void FillFMSBuffer(void) {}
-void FMSSetSelectedInputDevice(fmsUniqueID device, INT16 channel) {}
+void FMSSetSelectedInputDevice(fmsUniqueID device, short channel) {}
 
-void FMSSetMIDIThruDevice(fmsUniqueID device, INT16 channel) {}
+void FMSSetMIDIThruDevice(fmsUniqueID device, short channel) {}
 void FMSSetMIDIThruDeviceFromConfig(void) {}
 
 void FMSInitTimer(void) {}
-void FMSLoadTimer(INT16 interruptPeriod) {}
+void FMSLoadTimer(short interruptPeriod) {}
 void FMSStartTime(void) {}
 long FMSGetCurTime(void) { return 0; }
 void FMSStopTime(void) {}
-void FMSEndNoteNow(INT16 noteNum, char channel, fmsUniqueID device) {}
-void FMSStartNoteNow(INT16 noteNum, char channel, char velocity, fmsUniqueID device) {}
+void FMSEndNoteNow(short noteNum, char channel, fmsUniqueID device) {}
+void FMSStartNoteNow(short noteNum, char channel, char velocity, fmsUniqueID device) {}
 
 void FMSFBOn(Document *)
 {}
 void FMSFBOff(Document *)
 {}
 
-void FMSFBNoteOn(Document *, INT16 , INT16 , fmsUniqueID )
+void FMSFBNoteOn(Document *, short , short , fmsUniqueID )
 {}
-void FMSFBNoteOff(Document *, INT16 , INT16 , fmsUniqueID )
+void FMSFBNoteOff(Document *, short , short , fmsUniqueID )
 {}
 
 void FMSMIDIOneProgram(fmsUniqueID , Byte , Byte , Byte , Byte )
@@ -276,16 +276,16 @@ Boolean RunFMSPatchMenu(const Rect *, const fmsUniqueID , const short )
 Boolean GetFMSCurrentPatchInfo(const fmsUniqueID , const short , short *, short *, short *)
 { return TRUE; }
 
-fmsUniqueID GetFMSDeviceForPartn(Document *, INT16)
+fmsUniqueID GetFMSDeviceForPartn(Document *, short)
 { return (fmsUniqueID)0; }
 
 fmsUniqueID GetFMSDeviceForPartL(Document *doc, LINK partL) { return (fmsUniqueID)0; }
-//void SetFMSDeviceForPartn(Document *doc, INT16 partn, fmsUniqueID device);
+//void SetFMSDeviceForPartn(Document *doc, short partn, fmsUniqueID device);
 
 void SetFMSDeviceForPartL(Document *, LINK, fmsUniqueID)
 {}
 
-Boolean FMSChannelValid(fmsUniqueID device, INT16 channel) { return TRUE; }
+Boolean FMSChannelValid(fmsUniqueID device, short channel) { return TRUE; }
 
 Boolean GetFMSPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 						Byte partPatch[], Byte partBankSel0[], Byte partBankSel32[],
@@ -293,7 +293,7 @@ Boolean GetFMSPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[]
 						
 void GetFMSNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 				Byte partChannel[], SignedByte partVelo[], fmsUniqueID partDevice[],
-				INT16 *pUseNoteNum, INT16 *pUseChan, INT16 *pUseVelo, fmsUniqueID *puseDevice) {}
+				short *pUseNoteNum, short *pUseChan, short *pUseVelo, fmsUniqueID *puseDevice) {}
 
 #endif
 

@@ -8,7 +8,7 @@ GLOBAL short		oldEventMask;		/* Event mask state to restore */
 GLOBAL Boolean 		alreadyDrawn;		/* Don't include controls in next update */
 GLOBAL Boolean		notMenu;			/* Is operation in a torn off window or not */
 GLOBAL Rect			*updateRectTable;	/* Table of nUpdateRects rectangles to be redrawn */
-GLOBAL INT16		nUpdateRects;		/* Size of above, or -1 for standard update region */
+GLOBAL short		nUpdateRects;		/* Size of above, or -1 for standard update region */
 GLOBAL Boolean		holdCursor;			/* Don't reset arrow while this is TRUE */
 
 GLOBAL WindowPtr	TopDocument;		/* Frontmost document, or NULL */
@@ -16,9 +16,9 @@ GLOBAL WindowPtr	TopWindow;			/* Frontmost window, or NULL */
 GLOBAL WindowPtr	TopPalette;			/* Frontmost palette, or NULL */
 GLOBAL WindowPtr	BottomPalette;		/* Most buried palette, or NULL */
 
-GLOBAL INT16		toolCellWidth,		/* Size of a tool palette cell */
+GLOBAL short		toolCellWidth,		/* Size of a tool palette cell */
 					toolCellHeight;
-GLOBAL INT16		clavierCellWidth,	/* Size of clavier cell */
+GLOBAL short		clavierCellWidth,	/* Size of clavier cell */
 					clavierCellHeight;
 GLOBAL Rect			toolsFrame;			/* Frame for symbols picture in palette */
 GLOBAL Rect			clavierFrame;		/* Same for clavier palette */
@@ -53,7 +53,7 @@ GLOBAL Rect			theSelection;			/* Non-empty ==> a currently selected area */
 GLOBAL EventRecord	theEvent;				/* The current event */
 
 GLOBAL WindowPtr	palettes[TOTAL_PALETTES];			/* All palettes */
-GLOBAL INT16		palettesVisible[TOTAL_PALETTES];	/* Which were visible before suspend */
+GLOBAL short		palettesVisible[TOTAL_PALETTES];	/* Which were visible before suspend */
 GLOBAL PaletteGlobals **paletteGlobals[TOTAL_PALETTES];	/* Each palette's shared MDEF resource */
 GLOBAL Rect			toolRects[TOOL_COUNT];
 GLOBAL Rect			clavierRects[CLAVIER_COUNT];

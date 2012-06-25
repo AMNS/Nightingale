@@ -522,11 +522,11 @@ static pascal void NPrintDialogDoneProc(PMPrintSession printSession, WindowRef d
 static OSStatus SetupPrintDlogPages(Document *doc);
 static OSStatus GetPrintPageRange(Document *doc, UInt32 *firstPage, UInt32 *lastPage);
 static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPage);
-static Boolean IsRightJustOK(Document *doc, INT16 firstSheet, INT16 lastSheet);
+static Boolean IsRightJustOK(Document *doc, short firstSheet, short lastSheet);
 static OSStatus SetupPagesToPrint(Document *doc);
 static void PrintDemoBanner(Document *doc, Boolean toPostScript);
 static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession);
-static INT16 GetPrintDestination(Document *doc);
+static short GetPrintDestination(Document *doc);
 static void NDoPrintLoop(Document *doc);
 static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet);
 static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet);
@@ -542,7 +542,7 @@ static void DocSPFReleasePrintSession(Document *doc,PMPrintSession printSession,
 static void DocPostPrintingError(Document *doc,OSStatus status, CFStringRef errorFormatStringKey);
 
 static void FillFontUsedTbl(Document *doc);
-static INT16 PSTypeDialog(INT16, INT16);
+static short PSTypeDialog(short, short);
 
 
 // --------------------------------------------------------------------------------------------------------------
@@ -702,8 +702,8 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 			
 			OffsetRect(&rPaper,-rPaper.left,-rPaper.top);
 			if (!EqualRect(&doc->origPaperRect,&rPaper)) {
-				INT16 marginRight = doc->origPaperRect.right - doc->marginRect.right;
-				INT16 marginBottom = doc->origPaperRect.bottom - doc->marginRect.bottom;
+				short marginRight = doc->origPaperRect.right - doc->marginRect.right;
+				short marginBottom = doc->origPaperRect.bottom - doc->marginRect.bottom;
 				doc->marginRect.right = rPaper.right - marginRight;
 				doc->marginRect.bottom = rPaper.bottom - marginBottom;
 				doc->origPaperRect = rPaper;
@@ -847,8 +847,8 @@ static OSStatus SetupPrintDlogPages(Document *doc)
 {
 	OSStatus status = noErr;
 	
-	INT16 firstPage = doc->firstPageNumber;
-	INT16 lastPage = doc->firstPageNumber + doc->numSheets - 1;
+	short firstPage = doc->firstPageNumber;
+	short lastPage = doc->firstPageNumber + doc->numSheets - 1;
 	
 	status = PMSetPageRange(doc->docPrintInfo.docPrintSettings, firstPage, lastPage);
 	
@@ -892,7 +892,7 @@ static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPa
 #define JUSTSLOP .001
 
 static Boolean IsRightJustOK(Document *doc, 
-										INT16 firstSheet, INT16 lastSheet)	/* Inclusive range of sheet numbers */
+										short firstSheet, short lastSheet)	/* Inclusive range of sheet numbers */
 {
 	LINK startPageL, endPageL, pL, firstMeasL, termSysL, lastMeasL;
 	FASTFLOAT justFact;
@@ -934,7 +934,7 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 		firstSheet = firstPage - doc->firstPageNumber;
 		lastSheet  = lastPage - doc->firstPageNumber;
 		if (firstSheet > lastSheet)
-			{ INT16 sh = firstSheet; firstSheet = lastSheet; lastSheet = sh; }
+			{ short sh = firstSheet; firstSheet = lastSheet; lastSheet = sh; }
 		if (firstSheet < 0) firstSheet = 0;
 		if (lastSheet >= doc->numSheets) lastSheet = doc->numSheets-1;
 
@@ -1094,7 +1094,7 @@ static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 
 // --------------------------------------------------------------------------------------------------------------
 
-static INT16 GetPrintDestination(Document *doc)
+static short GetPrintDestination(Document *doc)
 {
 	Boolean includePostScript = IncludePostScriptInSpoolFile(doc->docPrintInfo.docPrintSession);
 	
@@ -1152,7 +1152,7 @@ void PS_FinishPrintDictHdl()
 
 static void NDoPrintLoop(Document *doc)
 {
-	INT16		saveOutputTo;
+	short		saveOutputTo;
 	OSStatus status;
 	UInt32	firstPage,lastPage;
 	UInt32	firstSheet,lastSheet;
@@ -1780,7 +1780,7 @@ static void DocPostPrintingError (Document */*doc*/, OSStatus status, CFStringRe
 
 static void FillFontUsedTbl(Document *doc)
 	{
-		INT16	j, k, styleBits;
+		short	j, k, styleBits;
 		LINK pL;
 		PGRAPHIC p;
 	
@@ -1801,15 +1801,15 @@ static void FillFontUsedTbl(Document *doc)
 
 Boolean NDoPostScript(Document *doc)
 	{
-		INT16			saveOutputTo, saveMagnify, sheet, sufIndex;
-		INT16			len, vref, rfNum, suffixLen, ch, firstSheet, topSheet;
-		INT16			newType, anInt, pageNum, sheetNum;
+		short			saveOutputTo, saveMagnify, sheet, sufIndex;
+		short			len, vref, rfNum, suffixLen, ch, firstSheet, topSheet;
+		short			newType, anInt, pageNum, sheetNum;
 		Str255		outname;
 		PicHandle	picHdl;
 		RgnHandle	rgnHdl;
 		Rect			paperRect;
-		INT16			EPSFile;
-		static INT16	type=1;
+		short			EPSFile;
+		static short	type=1;
 		char				fmtStr[256];
 
 		NSClientData	nscd;
@@ -1973,11 +1973,11 @@ static enum {
 	STXT6_Specify
 	} E_PSTypeItems;
 
-static INT16 group1;
+static short group1;
 
-static INT16 PSTypeDialog(INT16 oldType, INT16 pageNum)
+static short PSTypeDialog(short oldType, short pageNum)
 	{
-		INT16 itemHit,okay,type,keepGoing=TRUE;
+		short itemHit,okay,type,keepGoing=TRUE;
 		DialogPtr dlog; GrafPtr oldPort;
 		ModalFilterUPP	filterUPP;
 		Handle hndl;

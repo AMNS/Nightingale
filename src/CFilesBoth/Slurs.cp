@@ -22,25 +22,25 @@
 
 static Boolean	searchSpline,			/* Suppress drawing and search for point instead */
 					getBoundsSpline;		/* Suppress drawing and get bounding box instead */
-static INT16	xSearch,ySearch;		/* Point to search for (screen coordinates) */
-static INT16	slurLeft,slurRight,	/* Bounds to be found */
+static short	xSearch,ySearch;		/* Point to search for (screen coordinates) */
+static short	slurLeft,slurRight,	/* Bounds to be found */
 					slurBottom,slurTop;
 
 /* Prototypes for local routines */
 
 static void		DrawSlurBox(Rect *paper,DPoint knot,DPoint c0,DPoint c1,DPoint endPt);
 static Boolean	SameDPoint(DPoint p1, DPoint p2);
-static Boolean	DoSlurMouseDown(Document *doc, DPoint pt, LINK pL, LINK aSlurL, INT16 index);
-static Boolean	EditSlur(Rect *paper, SplineSeg *seg, DPoint *endpt, DPoint pt, INT16 how);
-static Boolean	Slursor(Rect *paper, DPoint *start,DPoint *end,DPoint *c0,DPoint *c1,INT16 type,
-						DPoint *q,INT16 curve);
+static Boolean	DoSlurMouseDown(Document *doc, DPoint pt, LINK pL, LINK aSlurL, short index);
+static Boolean	EditSlur(Rect *paper, SplineSeg *seg, DPoint *endpt, DPoint pt, short how);
+static Boolean	Slursor(Rect *paper, DPoint *start,DPoint *end,DPoint *c0,DPoint *c1,short type,
+						DPoint *q,short curve);
 static void		StartSearch(Rect *paper, DPoint pt);
 static void		EndSearch(void);
 static Boolean	BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean dashed);
 static Boolean	DrawSegment(Rect *paper, SplineSeg *seg, DPoint endpoint);
 static void		DeselectKnots(Rect *paper, LINK aSlurL);
 static void		HiliteSlur(Rect *paper, LINK aSlurL);
-static void		DrawDBox(Rect *paper, DPoint pt, INT16 size);
+static void		DrawDBox(Rect *paper, DPoint pt, short size);
 static void		DRound(DPoint *dst, DPoint src);
 
 static void		CreateTies(Document *doc, LINK pL, LINK aNoteL);
@@ -84,7 +84,7 @@ void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *en
 
 static Boolean SameDPoint(DPoint p1, DPoint p2)
 	{
-		INT16 dx,dy; static DDIST slop = pt2d(2);
+		short dx,dy; static DDIST slop = pt2d(2);
 		
 		dx = p1.h - p2.h; if (dx < 0) dx = -dx;
 		dy = p1.v - p2.v; if (dy < 0) dy = -dy;
@@ -96,7 +96,7 @@ static Boolean SameDPoint(DPoint p1, DPoint p2)
  *	Use a wide line to draw a filled box at a point.
  */
 
-static void DrawDBox(Rect *paper, DPoint p, INT16 size)
+static void DrawDBox(Rect *paper, DPoint p, short size)
 	{
 		p.h = d2p(p.h); p.v = d2p(p.v);
 		
@@ -115,7 +115,7 @@ static void DrawDBox(Rect *paper, DPoint p, INT16 size)
  *	This event loop is not considerate of other processes.
  */
 
-void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, INT16 index)
+void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
 	{
 		EventRecord		evt;
 		Boolean			stillEditing = TRUE;
@@ -162,9 +162,9 @@ void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, INT16 index)
  *	to control pts).
  */
 
-void GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, INT16 margin)
+void GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, short margin)
 	{
-		DPoint knot,c0,c1,endpoint; INT16 j; LINK sL;
+		DPoint knot,c0,c1,endpoint; short j; LINK sL;
 		Point startPt[MAXCHORD],endPt[MAXCHORD];
 		PASLUR aSlur;
 		
@@ -209,9 +209,9 @@ void GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, INT16 margin)
 
 void HiliteSlur(Rect *paper, LINK aSlurL)
 	{
-		SplineSeg *thisSeg; INT16 nSegs=1,i;
+		SplineSeg *thisSeg; short nSegs=1,i;
 		DPoint knot, c0, c1, endpoint;
-		INT16 size = BOXSIZE; PASLUR aSlur;
+		short size = BOXSIZE; PASLUR aSlur;
 		
 		if (aSlurL) {
 			PenMode(patXor);
@@ -251,9 +251,9 @@ static void DeselectKnots(Rect *paper, LINK aSlurL)
  */
 
 static Boolean DoSlurMouseDown(Document *doc, DPoint pt, LINK /*pL*/, LINK aSlurL,
-											INT16 /*index*/)
+											short /*index*/)
 	{
-		SplineSeg *thisSeg,seg; INT16 how = -1, nSegs=1,i;
+		SplineSeg *thisSeg,seg; short how = -1, nSegs=1,i;
 		DPoint endpoint;
 		static Boolean found,changed;
 		PASLUR aSlur;
@@ -331,7 +331,7 @@ gotit:
  */
 
 static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endpoint, DPoint pt,
-								INT16 how)
+								short how)
 	{
 		DPoint oldStart={0,0},
 					oldc0={0,0},
@@ -393,15 +393,15 @@ Boolean DrawSegment(Rect *paper, SplineSeg *seg, DPoint endpoint)
 
 static DPoint keepStart,keepEnd,keepc0,keepc1;
 static Rect keepPaper;
-static INT16 keepType;
+static short keepType;
 
 Boolean Slursor(Rect *paper, DPoint *start, DPoint *end,
-						DPoint *c0, DPoint *c1, INT16 type, DPoint *q, INT16 curve)
+						DPoint *c0, DPoint *c1, short type, DPoint *q, short curve)
 	{
 		DPoint p, tmp; DPoint *test; DDIST dist, dist4, dist8, dx, dy;
 		Boolean first=TRUE, shift=FALSE,up,constrain,knotConstrain,horiz,
 					stillWithinSlop;
-		Point pt, origPt; INT16 xdiff,ydiff;
+		Point pt, origPt; short xdiff,ydiff;
 		
 		if (type == S_Extend) type = S_New;		/* Not implemented: use New */
 		
@@ -537,7 +537,7 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end,
  */
 
 void DrawSlursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
-						INT16 type, Boolean dashed)
+						short type, Boolean dashed)
 	{
 		Point pStart,pEnd,pC0,pC1;
 		
@@ -607,7 +607,7 @@ void EndSearch()
 	
 Boolean FindSLUR(Rect *paper, Point pt, LINK aSlurL)
 	{
-		DPoint p,endpoint; INT16 i,nSegs=1; PASLUR aSlur;
+		DPoint p,endpoint; short i,nSegs=1; PASLUR aSlur;
 		SplineSeg *thisSeg,seg; Boolean found = FALSE;
 		
 		p.h = p2d(pt.h); p.v = p2d(pt.v);
@@ -644,9 +644,9 @@ void EndSlurBounds(Rect *paper, Rect *box)
  *	(LineTo's) and a series of space segments (MoveTo's).
  */
  
-static void LineOrMoveTo(INT16, INT16, INT16, Boolean *, INT16 *);
-static void LineOrMoveTo(INT16 x, INT16 y, INT16 segsPerDash,
-									Boolean *pDoingDash, INT16 *pSegsThisDash)
+static void LineOrMoveTo(short, short, short, Boolean *, short *);
+static void LineOrMoveTo(short x, short y, short segsPerDash,
+									Boolean *pDoingDash, short *pSegsThisDash)
 	{
 		if (*pDoingDash) LineTo(x,y);
 		else				  MoveTo(x,y);
@@ -668,10 +668,10 @@ static void LineOrMoveTo(INT16 x, INT16 y, INT16 segsPerDash,
 static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean dashed)
 	{
 		long i,ax,ay,bx,by,cx,cy,curx,cury;
-		INT16 x,y,s,s1,s2,s3,lastx,lasty,dx,dy;
+		short x,y,s,s1,s2,s3,lastx,lasty,dx,dy;
 		Boolean found = FALSE;
-		static INT16 epsilon = 5;
-		FASTFLOAT segLen; INT16 segsPerDash,segsThisDash;
+		static short epsilon = 5;
+		FASTFLOAT segLen; short segsPerDash,segsThisDash;
 		Boolean doingDash;
 
 		curx = startPt.h; cury = startPt.v;
@@ -799,7 +799,7 @@ static void GetSlurNoteLinks(
 {
 	LINK firstNoteL=NILINK, lastNoteL=NILINK, aNoteL; PANOTE aNote;
 	PASLUR aSlur; Boolean isASlur;
-	INT16 voice, slFirstInd, slLastInd, firstInd=-1, lastInd=-1;
+	short voice, slFirstInd, slLastInd, firstInd=-1, lastInd=-1;
 	
 	voice = SlurVOICE(slurL);
 	isASlur = !SlurTIE(slurL);
@@ -853,7 +853,7 @@ void GetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
 		LINK		firstNoteL, lastNoteL, aSlurL, firstSyncL, 
 					lastSyncL, systemL;
 		PSYSTEM  pSystem;
-		INT16 	k, xpFirst, xpLast, ypFirst, ypLast, firstStaff, lastStaff;
+		short 	k, xpFirst, xpLast, ypFirst, ypLast, firstStaff, lastStaff;
 		Boolean  firstMEAS, lastSYS;
 
 		/* If the Slur is cross-system, its firstSyncL may actually be a Measure (if
@@ -1006,7 +1006,7 @@ Boolean SetSlurCtlPoints(
 		Document *doc,
 		LINK slurL, LINK aSlurL,
 		LINK firstSyncL, LINK lastSyncL,
-		INT16 staff, INT16 /*voice*/,
+		short staff, short /*voice*/,
 		CONTEXT context,
 		Boolean curveUp
 		)
@@ -1017,7 +1017,7 @@ Boolean SetSlurCtlPoints(
 	PASLUR		aSlur;
 	//LINK		pL,aNoteL;
 	//PANOTE		aNote;
-	//INT16 		type,stemUp,accent,beam,degree;
+	//short 		type,stemUp,accent,beam,degree;
 	//DDIST		dTop,dBot,dLeft,xd,yd,stemLength;
 	//DDIST		xoffFirst,xoffLast,yoffFirst,yoffLast;
 	long			ltemp;
@@ -1137,7 +1137,7 @@ PrintSlurPoints(aSlurL, "SetSlurCtlPts: 1");
 	x0 = SCALECURVE(dLineSp);
 	if (x0 > span/3) x0 = span/3;
 	ltemp = (SlurTIE(slurL)? config.tieCurvature*dLineSp : config.slurCurvature*dLineSp);
-	y0 = (INT16)(ltemp/100L);
+	y0 = (short)(ltemp/100L);
 	
 	/* Compute left control point offset from slur start for long slurs */
 	
@@ -1196,7 +1196,7 @@ PrintSlurPoints(aSlurL, "SetSlurCtlPts: 2");
 /* Given a slur, rotate its control points by the angle of the vector (vx,vy).  Do it
 counterclockwise if ccw is 1, clockwise if ccw is -1  */
 
-void RotateSlurCtrlPts(LINK aSlurL, DDIST vx, DDIST vy, INT16 ccw)
+void RotateSlurCtrlPts(LINK aSlurL, DDIST vx, DDIST vy, short ccw)
 {
 	PASLUR aSlur;
 	FASTFLOAT x,y,cx,cy,r;
@@ -1325,7 +1325,7 @@ typedef struct {
 } SLURINFO;
 
 static SLURINFO *slurInfo,**slurInfoHdl;
-static INT16 lastSlur,maxSlurs;
+static short lastSlur,maxSlurs;
 
 /* If you move the endpoints of a Bezier curve much closer together, leaving the
 control points in their same relative positions, the curve will tend to develop
@@ -1339,7 +1339,7 @@ static DDIST SlurEndxd(LINK);
 
 Boolean AddSlurToList(LINK slurL)
 {
-	INT16 i;
+	short i;
 	char fmtStr[256];
 
 	/* Find first free slot in list, which may be at lastSlur (end of list) */
@@ -1392,7 +1392,7 @@ that might be affected. */
 
 Boolean InitAntikink(Document *doc, LINK startL, LINK endL)
 {
-	LINK startChkL, endChkL, pL; INT16 i,slurCount;
+	LINK startChkL, endChkL, pL; short i,slurCount;
 	DDIST leftEnd, rightEnd;
 	
 	lastSlur = 0;
@@ -1470,7 +1470,7 @@ GiveUp:
 
 void Antikink()
 {
-	INT16 i; DDIST leftEnd, rightEnd, newLen, dist;
+	short i; DDIST leftEnd, rightEnd, newLen, dist;
 	LINK aSlurL; PASLUR aSlur;
 	SplineSeg seg; DPoint endpoint; FASTFLOAT scale;
 

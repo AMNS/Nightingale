@@ -16,7 +16,7 @@ box, Message box, etc. - revised for v.99. */
 
 void DoCloseWindow(WindowPtr w)
 	{
-		INT16 kind; PaletteGlobals *pg;
+		short kind; PaletteGlobals *pg;
 		
 		kind = GetWindowKind(w);
 		if (kind < 0) {
@@ -78,10 +78,10 @@ void DoCloseWindow(WindowPtr w)
 /* Close all of our "normal" documents that have visible windows; leave special
 documents (e.g., clipboard) alone. Return the number of windows closed. */
 
-INT16 DoCloseAllDocWindows()
+short DoCloseAllDocWindows()
 {
 	WindowPtr w, next;
-	INT16 kind, nClosed;
+	short kind, nClosed;
 
 	/* Go thru the system window list and close our documents. NB: closing in this order
 	 * can cause a lot of unnecessary screen drawing for pieces of windows that get
@@ -168,10 +168,10 @@ void SetZoomState(WindowPtr /*w*/)
 
 /*	Handle a user zoom box event */
 
-void DoZoom(WindowPtr w, INT16 part)
+void DoZoom(WindowPtr w, short part)
 	{
 		PaletteGlobals *pg;
-		GrafPtr oldPort; INT16 across,down,kind;
+		GrafPtr oldPort; short across,down,kind;
 		
 		GetPort(&oldPort); SetPort(GetWindowPort(w));
 		Document *doc;
@@ -317,7 +317,7 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 	{
 		Rect			messageRect;
 		LINK			partL;
-		INT16			measNum, pageNum, userVoice;
+		short			measNum, pageNum, userVoice;
 		GrafPtr		oldPort;
 		WindowPtr	w=doc->theWindow;
 		char			partName[256], strBuf2[256];
@@ -388,7 +388,7 @@ uses of FrontWindow() in the rest of the program. */
 	
 void AnalyzeWindows()
 	{
-		INT16 palettesFound; Boolean inOrder;
+		short palettesFound; Boolean inOrder;
 		WindowPtr next;
 		//WindowPtr bottom;
 				
@@ -438,7 +438,7 @@ void AnalyzeWindows()
 #else
 void AnalyzeWindows()
 	{
-		INT16 palettesFound; Boolean inOrder;
+		short palettesFound; Boolean inOrder;
 		WindowPtr next,bottom;
 		
 		/*
@@ -538,7 +538,7 @@ active. */
 
 Boolean ActiveWindow(WindowPtr w)
 	{
-		INT16 kind;
+		short kind;
 		
 		if (w) {
 			kind = GetWindowKind(TopWindow);
@@ -627,7 +627,7 @@ some day. */
 
 void DoSelectWindow(WindowPtr w)
 	{
-		//RgnHandle updateRgn; INT16 dx,dy;
+		//RgnHandle updateRgn; short dx,dy;
 		
 		if (IsDocumentKind(w))
 
@@ -682,7 +682,7 @@ void DoSelectWindow(WindowPtr w)
 
 void ShowHidePalettes(Boolean show)
 	{
-		INT16 *pv, index;
+		short *pv, index;
 		WindowPtr *wp;
 		
 		wp = palettes;

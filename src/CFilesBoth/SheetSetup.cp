@@ -17,7 +17,7 @@ layout to be used for the "sheets" (pages) on the screen. */
 /* Prototypes */
 
 static Boolean AnyBadValues(DialogPtr dlog, Document *doc);
-static void SetRowsCols(DialogPtr dlog, INT16 r, INT16 c);
+static void SetRowsCols(DialogPtr dlog, short r, short c);
 
 /* Symbolic Dialog Item Numbers */
 
@@ -33,18 +33,18 @@ static enum {
 	LASTITEM
 	} E_SheetSetupItems;
 
-static INT16 group1;
+static short group1;
 static Boolean redraw;
 
 static Point where;
-static INT16 modifiers;
+static short modifiers;
 
 
 /* The public routine for invoking the Sheet Layout modal dialog. */
 
 void DoSheetSetup(register Document *doc)
 	{
-		INT16 itemHit,type,okay=FALSE,keepGoing=TRUE,maxRows,maxCols;
+		short itemHit,type,okay=FALSE,keepGoing=TRUE,maxRows,maxCols;
 		Handle hndl; Rect box;
 		DialogPtr dlog; GrafPtr oldPort;
 		ModalFilterUPP	filterUPP;
@@ -147,7 +147,7 @@ in the given document, etc. */
 
 static Boolean AnyBadValues(DialogPtr dlog, register Document *doc)
 	{
-		INT16 numRows,numCols,maxCols,maxRows;
+		short numRows,numCols,maxCols,maxRows;
 		long maxWidth = 32767L, maxHeight = 32767L;
 		Rect paperRect;
 		
@@ -188,8 +188,8 @@ values returned are magnification-dependent! */
 
 void GetMaxRowCol(
 		Document *doc,
-		INT16 width, INT16 height,				/* Paper size (pixels) */
-		INT16 *maxRows, INT16 *maxCols		/* Output: maximum rows, maximum cols. */
+		short width, short height,				/* Paper size (pixels) */
+		short *maxRows, short *maxCols		/* Output: maximum rows, maximum cols. */
 		)
 	{
 		long w,h,maxWidth,maxHeight;
@@ -212,7 +212,7 @@ void GetMaxRowCol(
 /* Install a row and column pair into their respective edit items without disturbing
 the others. */
 
-static void SetRowsCols(DialogPtr dlog, INT16 r, INT16 c)
+static void SetRowsCols(DialogPtr dlog, short r, short c)
 	{
 		TextEditState(dlog,TRUE);
 		PutDlgWord(dlog,EDIT8_Rows,r,FALSE);

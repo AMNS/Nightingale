@@ -58,7 +58,7 @@ static MIDITimeStamp	srFirstTimeStamp;
 
 long		rawBufferLength;			/* In 4-byte words (longs) */
 long		*rawBuffer;					/* Input buffer: word's 1st 3 bytes=time in ms., last byte=MIDI */
-INT16		transpose=0,				/* Amount to subtract from MIDI note nos. */
+short		transpose=0,				/* Amount to subtract from MIDI note nos. */
 			splitPoint=MIDI_MIDDLE_C,	/* MIDI note no. to split notes between staves */
 			otherStaff;					/* Staff no. for split-off notes */
 Boolean	printDebug=TRUE,			/* Show debug info in Current Events window? */
@@ -80,27 +80,27 @@ typedef struct NotePacket {
 static void SetRecordFlats(Document *);
 static void RecordMessage(Document *, Boolean);
 
-static void RawMIDI2MMNote(long, Boolean, INT16, INT16 *, MMMIDIPacket *);
-static Boolean RecordDialog(Document *, INT16, INT16, INT16, Boolean, Boolean, INT16 *,
+static void RawMIDI2MMNote(long, Boolean, short, short *, MMMIDIPacket *);
+static Boolean RecordDialog(Document *, short, short, short, Boolean, Boolean, short *,
 							Boolean *, long *);
 static void SoundClickNow(Boolean, Boolean);
 
 static Boolean FillMNote(long, long, Byte, MNOTEPTR);
 static long RawMIDI2Packets(long);
-static void MIDIDataToLong(INT16 midiWord, long timeStamp, long *pmdata);
+static void MIDIDataToLong(short midiWord, long timeStamp, long *pmdata);
 static void OutOfRawRecMemory(void);
 static void OutOfNoteOnRecMemory(void);
-static long MIDI2Night(Document *, INT16, long, long);
+static long MIDI2Night(Document *, short, long, long);
 
-static void RecordBuffer(Document *, Boolean, Boolean, INT16, Rect, long, long *);
+static void RecordBuffer(Document *, Boolean, Boolean, short, Rect, long, long *);
 
-static Boolean NoteOnDemon(INT16, Byte);
-static Boolean Clocks2Dur(INT16, INT16, INT16 *, INT16 *);
-static LINK StepMIDI2Night(Document *, NotePacket [], INT16, INT16, INT16, INT16);
-static void ShowNRCInBox(Document *, LINK, INT16, INT16, Rect *, INT16);
+static Boolean NoteOnDemon(short, Byte);
+static Boolean Clocks2Dur(short, short, short *, short *);
+static LINK StepMIDI2Night(Document *, NotePacket [], short, short, short, short);
+static void ShowNRCInBox(Document *, LINK, short, short, Rect *, short);
 
 static void PrintNote(MNOTEPTR, Boolean);
-static void PrintNBuffer(Document *, NotePacket [], INT16);
+static void PrintNBuffer(Document *, NotePacket [], short);
 static void PrintBuffer(Document *, long);
 
 #ifndef CM_DEBUG
@@ -164,8 +164,8 @@ Running Status. */
 static void RawMIDI2MMNote(
 				long rLast,
 				Boolean isOn,			/* TRUE=Note On, FALSE=Note Off */
-				INT16 channel,			/* 0 to 15 */
-				INT16 *len,				/* Output */
+				short channel,			/* 0 to 15 */
+				short *len,				/* Output */
 				MMMIDIPacket *mPacket	/* Output */
 				)
 {
@@ -192,12 +192,12 @@ that recording is in progress, and (CAVEAT!) leave thePort set to that window so
 caller can write into it. If which=0, remove the window and restore thePort to what
 it was as of the previous call with which!=0. */
 
-static Boolean RecordDlogMsg(INT16, Rect *);
+static Boolean RecordDlogMsg(short, Rect *);
 
-static Boolean RecordDlogMsg(INT16 which, Rect *flashRect)
+static Boolean RecordDlogMsg(short which, Rect *flashRect)
 {
 	static DialogPtr dlog=NULL; static GrafPtr oldPort;
-	INT16 anInt; Handle aHdl;
+	short anInt; Handle aHdl;
 	 
 	if (which>0) {
 		if (!dlog) {
@@ -233,15 +233,15 @@ static Boolean RecordDlogMsg(INT16 which, Rect *flashRect)
 /* Do some initialization of CoreMIDI, and return information needed for recording. Return
 FALSE if there's a problem, TRUE if all is well. */
 
-static Boolean CMPrepareRecord(Document *doc, LINK partL, INT16 *pUseChan, MIDIUniqueID *pThruDevice, MIDIUniqueID *pInputDevice, INT16 *pThruChannel);
+static Boolean CMPrepareRecord(Document *doc, LINK partL, short *pUseChan, MIDIUniqueID *pThruDevice, MIDIUniqueID *pInputDevice, short *pThruChannel);
 
 static Boolean CMPrepareRecord(
 						Document *doc,
 						LINK partL,
-						INT16 *pUseChan,						/* input AND output */
+						short *pUseChan,						/* input AND output */
 						MIDIUniqueID *pThruDevice,
 						MIDIUniqueID *pInputDevice,
-						INT16 *pThruChannel)
+						short *pThruChannel)
 {
 	OSStatus		errCM;
 	char	      errStr[256], fmtStr[256];
@@ -310,17 +310,17 @@ static enum				/* Dialog item numbers */
 
 Boolean RecordDialog(
 				Document *doc,
-				INT16 staffn, INT16 partn, INT16 useChan,
+				short staffn, short partn, short useChan,
 				Boolean noSplit,
 				Boolean	playAlong,	/* TRUE=play back existing score while recording */
-				INT16 *pOtherStaff,
+				short *pOtherStaff,
 				Boolean *pMetronome,
 				long *ptLeadInOffset	/* Time occupied by playback lead-in (PDUR ticks) */ 
 				)
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	INT16			ditem, anInt, dialogOver, newval, partTranspose, tempo;
+	short			ditem, anInt, dialogOver, newval, partTranspose, tempo;
 	ControlHandle	debugHdl, instTranspHdl, noTranspHdl,
 					splitHdl, recordHdl, reRecordHdl;
 	char			param1[256], param2[256], param3[256];
@@ -332,7 +332,7 @@ Boolean RecordDialog(
 	long			timeScale;
 	OMSUniqueID thruDevice, inputDevice;
 	MIDIUniqueID cmThruDevice, cmInputDevice;
-	INT16			thruChannel;
+	short			thruChannel;
 	ModalFilterUPP	filterUPP;
 			
 	ArrowCursor();
@@ -612,7 +612,7 @@ static Boolean FillCMMNote(MIDIPacket *p, Byte channel, MNOTEPTR pMNote)
 	Byte vNOff, vNOn; 		/* status bytes for Note Off/On on correct channel */
 	Boolean	first, done;
 	MIDIPacket *nextP;
-	INT16 command;							
+	short command;							
 	register long offTime;
 	char fmtStr[256];
 
@@ -704,7 +704,7 @@ static Boolean FillMNote(
 						MNOTEPTR		pMNote
 						)
 {
-	INT16 done, command;							
+	short done, command;							
 	Byte vNOff, vNOn; 			/* status bytes for Note Off/On on correct channel */
 	register long offTime, loc;
 	MMMIDIPacket *p;
@@ -800,7 +800,7 @@ static long RawMIDI2Packets(long rBufLen)
 	register long r, m;
 	long ignored;
 	MMMIDIPacket *p;
-	INT16 len;
+	short len;
 	char fmtStr[256];
 
 	command = 0;
@@ -877,7 +877,7 @@ anything, else returns -1L. */
 
 static long MIDI2Night(
 					Document *doc,
-					INT16 useChan,					/* <0 = accept notes on any channel */
+					short useChan,					/* <0 = accept notes on any channel */
 					long mRecLen,
 					long tLeadInOffset			/* Duration of lead-in time (PDUR ticks); -1L=to 1st note */
 					)
@@ -1046,7 +1046,7 @@ rewrite higher-level routines that assume MacTutor format. But even more repulsi
 than it looks at first, since the MacTutor-format buffer will then be converted
 to MIDI Manager format! Oh well. */
 
-void MIDIDataToLong(INT16 midiWord, long timeStamp, long *pmdata)
+void MIDIDataToLong(short midiWord, long timeStamp, long *pmdata)
 {
 	long macTutorLong;
 	
@@ -1077,8 +1077,8 @@ void OutOfNoteOnRecMemory()
 
 /* Prototypes for play-while-recording routines, which are defined elsewhere. */
 
-INT16 RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset);
-Boolean RecPlayNotes(unsigned INT16	outBufSize);
+short RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset);
+Boolean RecPlayNotes(unsigned short	outBufSize);
 
 #define BIMIDI_BUFSIZE 3000			/* Enough for any situation I've heard of */
 
@@ -1091,7 +1091,7 @@ static void RecordBuffer(
 					Document *doc,
 					Boolean playAlong,
 					Boolean metronome,
-					INT16 tempo,			/* in beats per minute */
+					short tempo,			/* in beats per minute */
 					Rect flashRect,
 					long timeScale,		/* tempo in PDUR ticks per minute */
 					long *ptLeadInOffset	/* output: duration of lead-in time (PDUR ticks); -1L=to 1st note */
@@ -1103,10 +1103,10 @@ static void RecordBuffer(
 	register long	r;
 	Boolean			done;
 	Byte				midiByte;
-	INT16				midiWord;
+	short				midiWord;
 	char				fmtStr[256];
-	unsigned INT16	outBufSize;
-	INT16				npBufSize;
+	unsigned short	outBufSize;
+	short				npBufSize;
 
 	msPerBeat = (1000*60L)/tempo;
 	beatCount = 0L;
@@ -1218,7 +1218,7 @@ before <pL>. Similar but not identical to MFNewMeasure. */
 
 static LINK RNewMeasure(Document *doc, LINK pL)
 {
-	LINK measL; INT16 sym; CONTEXT context;
+	LINK measL; short sym; CONTEXT context;
 
 	NewObjInit(doc, MEASUREtype, &sym, singleBarInChar, ANYONE, &context);
 	measL = CreateMeasure(doc, pL, -1, sym, context);
@@ -1284,7 +1284,7 @@ Boolean Record(Document *doc)
 {
 	static Boolean metronome=TRUE;
 	long timeChange, tLeadInOffset;
-	INT16 partn, useChan;
+	short partn, useChan;
 	LINK endMeasL;
 	
 	DebugPrintf("1. Starting to record\n");
@@ -1378,12 +1378,12 @@ and is told what channel number to look for, <useChan>, it will deliver TRUE
 when it finds the last byte of a "real" Note On (i.e., the second data byte of
 a Note On with non-zero velocity) on that channel. It understands Running Status. */
 
-static Boolean NoteOnDemon(INT16 useChan,				/* 0 to 15 */
+static Boolean NoteOnDemon(short useChan,				/* 0 to 15 */
 									Byte midiByte)
 {
 	static Byte		prevChan=255;			/* Guarantee we initialize on 1st call */
 	static Byte		command;
-	static INT16	noteOnBNum;
+	static short	noteOnBNum;
 	Byte				currentChan;
 
 	/* On the first call and any time <useChan> has changed, reinitialize <command>. */
@@ -1416,9 +1416,9 @@ static Boolean NoteOnDemon(INT16 useChan,				/* 0 to 15 */
 /* Given a number of clock ticks, >=1, and the logical duration 1 tick corresponds to,
 deliver the logical duration and number of dots for that many ticks. */
 
-static Boolean Clocks2Dur(INT16 clocks, INT16 clockLDur, INT16 *pLDur, INT16 *pnDots)
+static Boolean Clocks2Dur(short clocks, short clockLDur, short *pLDur, short *pnDots)
 {
-	Boolean allOK=TRUE; INT16 k,nOnes,highestBit;
+	Boolean allOK=TRUE; short k,nOnes,highestBit;
 	
 	if (clocks<1) { allOK = FALSE; clocks = 1; }
 
@@ -1471,17 +1471,17 @@ enum {
 static LINK StepMIDI2Night(
 						Document *doc,
 						NotePacket nOnBuffer[],
-						INT16 nChord,
-						INT16 symIndex,	/* symbol table index of Nightingale symbol to generate */
-						INT16 noteDur,
-						INT16 clocks
+						short nChord,
+						short symIndex,	/* symbol table index of Nightingale symbol to generate */
+						short noteDur,
+						short clocks
 						)
 {
 	Byte			command, channel;
 	MNOTE 		theNote;
 	Boolean		firstNote;
 	LINK			link, aNoteL;
-	INT16			lDur, ndots, symType, i;
+	short			lDur, ndots, symType, i;
 	CONTEXT  	context;
 
 	if (symtable[symIndex].objtype==MEASUREtype)
@@ -1567,18 +1567,18 @@ enum {						/* Values for <mode>: */
 static void ShowNRCInBox(
 					Document *doc,
 					LINK syncL,
-					INT16 voice, INT16 staff,
+					short voice, short staff,
 					Rect *clipRect,			/* Clipping area to restore */
-					INT16 mode					/* Which operation should the routine perform: see enum */
+					short mode					/* Which operation should the routine perform: see enum */
 					)
 {
 	static Rect box, lastNRCBox;
-	static INT16 position=-1;
+	static short position=-1;
 	static RgnHandle updateRgn;
 	static CONTEXT context;
 	static DDIST lineSpace;
 	DDIST savexd;
-	INT16 slideStep, i, xNRC;
+	short slideStep, i, xNRC;
 	LINK aNoteL;
 	Boolean drawn=FALSE, recalc=FALSE;
 		
@@ -1662,15 +1662,15 @@ static void ShowNRCInBox(
 
 /* ---------------------------------------------- Other StepRecord help functions -- */
 
-static INT16 MRSetNRCDur(Document *, LINK, INT16, INT16, INT16, INT16, INT16);
+static short MRSetNRCDur(Document *, LINK, short, short, short, short, short);
 static short PowerOf2Floor(short num);
-static void HiliteRecSync(Document *, long, LINKTIMEINFO [], INT16);
+static void HiliteRecSync(Document *, long, LINKTIMEINFO [], short);
 static void InvertMsgRect(Document *);
 static void QuickFlashMsgRect(Document *);
-static Boolean IsOurNoteOn(void *, INT16);
-static INT16 GetAllNoteOns(NotePacket [], INT16, INT16);
-static INT16 FindDeflamGap(Document *, NotePacket [], INT16, long);
-static Boolean SRKeyDown(Document *doc, EventRecord theEvent, LINK syncL, INT16 voice,
+static Boolean IsOurNoteOn(void *, short);
+static short GetAllNoteOns(NotePacket [], short, short);
+static short FindDeflamGap(Document *, NotePacket [], short, long);
+static Boolean SRKeyDown(Document *doc, EventRecord theEvent, LINK syncL, short voice,
 						short *pSymIndex, short *pNoteDur, short *pClocks, short *pNAugDots);
 
 /* Set the logical duration of the given note or rest or every note in the given
@@ -1683,17 +1683,17 @@ Return value is the number of aug. dots it ends up using.
 This is a special-purpose routine intended for use in step recording; for a general
 approach, see SetSelNoteDur. */
 
-static INT16 MRSetNRCDur(
+static short MRSetNRCDur(
 					Document */*doc*/,
 					LINK syncL,
-					INT16 voice,
-					INT16 /*symIndex*/,	/* symbol table index of Nightingale symbol if clocks==1 */
-					INT16 noteDur,
-					INT16 clocks,		/* Used to compute basic duration and no. of aug. dots */
-					INT16 nAugDots		/* Override no. of aug. dots */
+					short voice,
+					short /*symIndex*/,	/* symbol table index of Nightingale symbol if clocks==1 */
+					short noteDur,
+					short clocks,		/* Used to compute basic duration and no. of aug. dots */
+					short nAugDots		/* Override no. of aug. dots */
 					)
 {
-	INT16 lDur, ndots;
+	short lDur, ndots;
 	LINK aNoteL;
 	PANOTE aNote;
 	
@@ -1733,10 +1733,10 @@ short PowerOf2Floor(short num)
 timestamp. If we find one, call HiliteInsertNode on it. */
 
 static void HiliteRecSync(Document *doc, long absTimeStamp, LINKTIMEINFO syncs[],
-									INT16 nSyncs)
+									short nSyncs)
 {
 	static LINK firstMeas=NILINK;
-	INT16 i;
+	short i;
 		
 	for (i = 0; i<nSyncs; i++)
 		if (SyncTYPE(syncs[i].link))
@@ -1779,7 +1779,7 @@ static void QuickFlashMsgRect(Document *doc)
 for the given channel. */
 
 static Boolean IsOurNoteOn(void *pv,
-									INT16 useChan)		/* 0 to 15 */
+									short useChan)		/* 0 to 15 */
 {
 	Byte command, channel;
 	
@@ -1819,13 +1819,13 @@ debug information. */
 
 static long cmNowTime;
 
-INT16 GetAllNoteOns(NotePacket nOnBuffer[],
-						INT16 nOnBufPos,			/* On entry, first unused slot in <nOnBuffer> */
-						INT16 channel, long kk)				/* 0 to 15 */
+short GetAllNoteOns(NotePacket nOnBuffer[],
+						short nOnBufPos,			/* On entry, first unused slot in <nOnBuffer> */
+						short channel, long kk)				/* 0 to 15 */
 {
 	long				loc;
 	Byte				command;
-	INT16				i, n;
+	short				i, n;
 //	MMMIDIPacket	*p;
 	MIDIPacket		*pCM;
 	MIDITimeStamp	cmTimeStamp;
@@ -1872,9 +1872,9 @@ long CMGetHostTimeMillis();
 
 /* Look for a gap between consecutive Note Ons of at least the score's deflamTime. */
 
-INT16 FindDeflamGap(Document *doc, NotePacket nOnBuffer[], INT16 nOnBufLen, long nowTime, int jj)
+short FindDeflamGap(Document *doc, NotePacket nOnBuffer[], short nOnBufLen, long nowTime, int jj)
 {
-	INT16 i;
+	short i;
 	int nChord = 0;
 	
 	for (i = 1; i<nOnBufLen; i++) {
@@ -1925,16 +1925,16 @@ Boolean SRKeyDown(
 	Document *doc,
 	EventRecord theEvent,
 	LINK syncL,
-	INT16 voice,
+	short voice,
 	short *pSymIndex,
 	short *pNoteDur,				/* Note duration code (LDur) */
 	short *pClocks,				/* Multiplier for note duration */
 	short *pNAugDots)
 {
-	static INT16 lastDurChar=0;
+	static short lastDurChar=0;
 	short symIndex, noteDur, clocks, nAugDots, addClocks; 
 	char theChar;
-	INT16 intChar, sym, ch, key;
+	short intChar, sym, ch, key;
 	Boolean okay=TRUE;
 	Rect portRect;
 
@@ -1971,7 +1971,7 @@ Boolean SRKeyDown(
 	 */
 	if ((theEvent.modifiers & !btnState)==0) {
 		theChar = (char)theEvent.message & charCodeMask;
-		intChar = (INT16)theChar;
+		intChar = (short)theChar;
 		if (TranslatePalChar(&intChar, 0, FALSE))
 			theChar = (unsigned char)intChar;
 		sym = GetSymTableIndex(theChar);
@@ -2091,7 +2091,7 @@ Boolean StepRecord(
 	long				ignoredRTM, nowTime,
 						insertTime, diffTime;
 	Boolean			done, gotSomething;
-	INT16				useChan,
+	short				useChan,
 						nMergeObjs, voice;
 	short				symIndex, noteDur, clocks, nAugDots; 
 	LINK				insSyncL, oldSelStart, firstSync, syncL=NILINK, lastL;
@@ -2099,12 +2099,12 @@ Boolean StepRecord(
 	OMSUniqueID		thruDevice, inputDevice;
 	MIDIUniqueID	cmThruDevice, cmInputDevice;
 	char	      	fmtStr[256];
-	INT16				thruChannel;
+	short				thruChannel;
 	EventRecord		theEvent;
 	LINKTIMEINFO	*mergeObjs=NULL, *newSyncs=NULL;
 	NotePacket		nOnBuffer[NONBUF_SIZE];
-	INT16				nOnBufLen, nChord, i, maxNewSyncs, nNewSyncs;
-	INT16				syncsSoFar=0;
+	short				nOnBufLen, nChord, i, maxNewSyncs, nNewSyncs;
+	short				syncsSoFar=0;
 	Rect				portRect;
 	
 	// MAS definitions moved here, before first jump to 'Finished'
@@ -2412,7 +2412,7 @@ Boolean RTMRecord(Document *doc)
 {
 	static Boolean metronome=TRUE;
 	long timeChange, tLeadInOffset;
-	INT16 partn, useChan;
+	short partn, useChan;
 	
 	timeChange = -1L;
 
@@ -2459,10 +2459,10 @@ static void PrintNote(MNOTEPTR pMNote, Boolean newLine)
 }
 
 
-static void PrintNBuffer(Document *doc, NotePacket nOnBuffer[], INT16 nOnBufLen)
+static void PrintNBuffer(Document *doc, NotePacket nOnBuffer[], short nOnBufLen)
 {
 #ifndef PUBLIC_VERSION
-	INT16 n, i;
+	short n, i;
 	
 	DebugPrintf("PNB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d nOnBufLen=%d:\n",
 					"built-in MIDI",
@@ -2484,7 +2484,7 @@ static void PrintBuffer(Document *doc, long mBufLen)
 {
 #ifndef PUBLIC_VERSION
 	MMMIDIPacket *p;
-	long loc; INT16 i, len;
+	long loc; short i, len;
 	
 	DebugPrintf("PB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d mBufLen=%ld:\n",
 					"built-in MIDI",

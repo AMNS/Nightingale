@@ -48,7 +48,7 @@ void DrawDocumentView(Document *doc, Rect *updateRect)
 	{
 		Rect updater,margin,paper,result;
 		WindowPtr w = doc->theWindow;
-		INT16 i;
+		short i;
 		
 		if (doc->showWaitCurs) WaitCursor();
 		doc->showWaitCurs = TRUE;
@@ -190,7 +190,7 @@ extern Boolean magnifyOnly;			/* Secret message from SheetMagnify */
 void RecomputeView(Document *doc)
 	{
 		Rect r,rem,messageRect,portRect; WindowPtr w = doc->theWindow;
-		Point pt; INT16 width,height,x,y; Boolean changingView;
+		Point pt; short width,height,x,y; Boolean changingView;
 		Rect contrlRect;
 		
 		

@@ -302,12 +302,12 @@ Boolean CommandKeyDown() {
  */
 
 #if TARGET_API_MAC_CARBON
-void FrameDefault(DialogPtr dlog, INT16 item, INT16)
+void FrameDefault(DialogPtr dlog, short item, short)
 	{
 		SetDialogDefaultItem(dlog, item);
 	}
 #else
-void FrameDefault(DialogPtr dlog, INT16 item, INT16 draw)	/* ??<draw> should be Boolean */
+void FrameDefault(DialogPtr dlog, short item, short draw)	/* ??<draw> should be Boolean */
 	{
 		short type; Handle hndl; Rect box;
 		GrafPtr oldPort;
@@ -357,12 +357,12 @@ void TextEditState(DialogPtr dlog, Boolean save)
  *	whether the edit field is empty or not.
  */
 
-Handle PutDlgWord(DialogPtr dlog, INT16 item, INT16 val, Boolean sel)
+Handle PutDlgWord(DialogPtr dlog, short item, short val, Boolean sel)
 	{
 		return(PutDlgLong(dlog,item,(long)val,sel));
 	}
 
-Handle PutDlgLong(DialogPtr dlog, INT16 item, long val, Boolean sel)
+Handle PutDlgLong(DialogPtr dlog, short item, long val, Boolean sel)
 	{
 		unsigned char str[32];
 		
@@ -370,14 +370,14 @@ Handle PutDlgLong(DialogPtr dlog, INT16 item, long val, Boolean sel)
 		return(PutDlgString(dlog,item,str,sel));
 	}
 
-Handle PutDlgDouble(DialogPtr dlog, INT16 item, double val, Boolean sel)
+Handle PutDlgDouble(DialogPtr dlog, short item, double val, Boolean sel)
 	{
 		char str[64];
 		
 		return(PutDlgString(dlog,item,CToPString(ftoa(str,val)),sel));
 	}
 
-Handle PutDlgType(DialogPtr dlog, INT16 item, ResType type, Boolean sel)
+Handle PutDlgType(DialogPtr dlog, short item, ResType type, Boolean sel)
 	{
 		unsigned char str[1+sizeof(OSType)];
 		
@@ -392,7 +392,7 @@ Handle PutDlgType(DialogPtr dlog, INT16 item, ResType type, Boolean sel)
  *	In all cases, deliver handle of item.
  */
 
-Handle PutDlgString(DialogPtr dlog, INT16 item, const unsigned char *str, Boolean sel)
+Handle PutDlgString(DialogPtr dlog, short item, const unsigned char *str, Boolean sel)
 	{
 		short type; Handle hndl; Rect box; GrafPtr oldPort;
 		
@@ -412,7 +412,7 @@ Handle PutDlgString(DialogPtr dlog, INT16 item, const unsigned char *str, Boolea
 		return(hndl);
 	}
 
-Handle PutDlgChkRadio(DialogPtr dlog, INT16 item, INT16 val)
+Handle PutDlgChkRadio(DialogPtr dlog, short item, short val)
 	{
 		short type; Handle hndl; Rect box;
 		
@@ -426,7 +426,7 @@ Handle PutDlgChkRadio(DialogPtr dlog, INT16 item, INT16 val)
  *	or 0 if no characters in editText item.
  */
 
-INT16 GetDlgLong(DialogPtr dlog, INT16 item, long *num)
+short GetDlgLong(DialogPtr dlog, short item, long *num)
 	{
 		Str255 str;
 
@@ -437,7 +437,7 @@ INT16 GetDlgLong(DialogPtr dlog, INT16 item, long *num)
 		return(*str != 0);
 	}
 
-INT16 GetDlgWord(DialogPtr dlog, INT16 item, INT16 *num)
+short GetDlgWord(DialogPtr dlog, short item, short *num)
 	{
 		Str255 str; long n;
 
@@ -449,7 +449,7 @@ INT16 GetDlgWord(DialogPtr dlog, INT16 item, INT16 *num)
 		return(*str != 0);
 	}
 
-INT16 GetDlgDouble(DialogPtr dlog, INT16 item, double *val)
+short GetDlgDouble(DialogPtr dlog, short item, double *val)
 	{
 		Str255 str;
 
@@ -461,7 +461,7 @@ INT16 GetDlgDouble(DialogPtr dlog, INT16 item, double *val)
 		return(*str != 0);
 	}
 
-INT16 GetDlgString(DialogPtr dlog, INT16 item, unsigned char *str)
+short GetDlgString(DialogPtr dlog, short item, unsigned char *str)
 	{
 		short type; Handle hndl; Rect box;
 		
@@ -470,7 +470,7 @@ INT16 GetDlgString(DialogPtr dlog, INT16 item, unsigned char *str)
 		return(*str != 0);
 	}
 
-INT16 GetDlgChkRadio(DialogPtr dlog, INT16 item)
+short GetDlgChkRadio(DialogPtr dlog, short item)
 	{
 		short type; Handle hndl; Rect box;
 		
@@ -483,7 +483,7 @@ INT16 GetDlgChkRadio(DialogPtr dlog, INT16 item)
  *	legal 4-character string; FALSE otherwise.
  */
 
-INT16 GetDlgType(DialogPtr dlog, INT16 item, ResType *type)
+short GetDlgType(DialogPtr dlog, short item, ResType *type)
 	{
 		Str255 str;
 
@@ -560,7 +560,7 @@ testing result of GetScrap does not square with documentation, which states:
 	The length (in bytes) of the data or a negative function result that indicates the error. 	
 */
 
-OSType CanPaste(INT16 n, ...)
+OSType CanPaste(short n, ...)
 	{
 		OSType *nextType;
 		ScrapRef scrap;
@@ -1024,7 +1024,7 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
  *	Enable or disable a menu item
  */
 
-void XableItem(MenuHandle menu, INT16 item, INT16 enable)	/* ??<enable> should be Boolean */
+void XableItem(MenuHandle menu, short item, short enable)	/* ??<enable> should be Boolean */
 	{
 		if (enable) EnableMenuItem(menu,item);
 		 else		DisableMenuItem(menu,item);
@@ -1100,7 +1100,7 @@ void ClearStandardTypes()
 
 #ifdef TARGET_API_MAC_CARBON_FILEIO
 
-INT16 GetInputName(char */*prompt*/, Boolean /*newButton*/, unsigned char *name, short */*wd*/, NSClientDataPtr nsData)
+short GetInputName(char */*prompt*/, Boolean /*newButton*/, unsigned char *name, short */*wd*/, NSClientDataPtr nsData)
 	{
 		OSStatus 			err = noErr;
 		
@@ -1267,7 +1267,7 @@ static pascal Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit)
 homegrown input dialog, which lets us support a New button. The function
 returns an OP_ code indicating the user's wishes. */
 
-INT16 GetInputName(char *prompt, Boolean newButton, unsigned char *name, short *wd)
+short GetInputName(char *prompt, Boolean newButton, unsigned char *name, short *wd)
 	{
 		static Point pt; Rect r;
 		static SFTypeList list = { 0L, 0L, 0L, 0L };

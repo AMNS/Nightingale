@@ -99,11 +99,11 @@ void DisposeNodeList(Document *doc, LINK *headL, LINK *tailL)
  *	delivered.
  */
 
-Boolean ExpandNode(LINK link, LINK *subList, INT16 numEntries)
+Boolean ExpandNode(LINK link, LINK *subList, short numEntries)
 	{
 		HEAP	*subHeap;
 		LINK	subHead;
-		INT16	type;
+		short	type;
 	
 		if (numEntries > 0) {							/* Append sub-objects */
 		
@@ -139,9 +139,9 @@ Boolean ExpandNode(LINK link, LINK *subList, INT16 numEntries)
  *	checking!
  */
 
-void ShrinkNode(LINK link, INT16 numToSnip)
+void ShrinkNode(LINK link, short numToSnip)
 	{
-		INT16	numLeft;
+		short	numLeft;
 		LINK	next,tail,subHead;
 		HEAP	*subHeap;
 		
@@ -176,7 +176,7 @@ void ShrinkNode(LINK link, INT16 numToSnip)
  *	Minimally initialize the generic subobjects in given list of given type.
  */
 
-void InitNode(INT16 type, LINK subList)
+void InitNode(short type, LINK subList)
 	{
 		GenSubObj *subObj;
 		LINK subL;
@@ -229,7 +229,7 @@ void InitNode(INT16 type, LINK subList)
  *	something like "link = LocateInsertPt(link)": cf. InsNoteInto and InsNodeIntoSlot.
  */
 
-LINK InsertNode(Document *doc, LINK link, INT16 type, INT16 subCount)
+LINK InsertNode(Document *doc, LINK link, short type, short subCount)
 	{
 		LINK obj, prevL;
 	
@@ -376,7 +376,7 @@ void MoveRange(LINK startL, LINK endL, LINK beforeL)
 
 LINK DeleteRange(Document *doc, LINK startL, LINK endL)
 	{
-		LINK pL; INT16 type;
+		LINK pL; short type;
 		HEAP *objHeap,*subHeap;
 		
 		if (startL == NILINK)
@@ -415,7 +415,7 @@ LINK DeleteRange(Document *doc, LINK startL, LINK endL)
 
 LINK DeleteNode(Document *doc, LINK node)
 	{
-		INT16 type; LINK l,r;
+		short type; LINK l,r;
 		
 		if (node) {
 			type = ObjLType(node);
@@ -446,7 +446,7 @@ LINK DeleteNode(Document *doc, LINK node)
  *	have to be filled in by the caller, and are allocated with garbage in them.
  */
 
-LINK NewNode(Document *doc, INT16 type, INT16 subCount)
+LINK NewNode(Document *doc, short type, short subCount)
 	{
 		LINK	objHead,subHead,subL;
 		HEAP	*objHeap, *subHeap;

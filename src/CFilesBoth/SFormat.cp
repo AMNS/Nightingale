@@ -14,7 +14,7 @@ as in Work on Format mode. */
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean EditFormatMargin(Document *doc, Point pt, INT16 modifiers, INT16 doubleClick);
+static Boolean EditFormatMargin(Document *doc, Point pt, short modifiers, short doubleClick);
 static void UpdateScoreMargins(Document *doc);
 
 static void SFUpdateStfPos(Document *doc, LINK sysL, long newPos);
@@ -97,7 +97,7 @@ static void SFInvalMeasures(Document *doc, LINK sysL)
 /* Offset the systemRect of sysL by (dx,dy) pixels converted to DDISTs. Doesn't
 erase or inval anything; leaves the objRect of sysL alone. */
 
-void OffsetSystem(LINK sysL, INT16 dx, INT16 dy)
+void OffsetSystem(LINK sysL, short dx, short dy)
 {
 	OffsetDRect(&SystemRECT(sysL), p2d(dx), p2d(dy));
 }
@@ -110,7 +110,7 @@ void UpdateSysMeasYs(
 			)
 {
 	LINK staffL,staves[MAXSTAVES+1],measures[MAXSTAVES+1],prevMeasL,measL,aMeasL;
-	PASTAFF aStaff; PAMEASURE aMeas;	DRect sysRect; INT16 i;
+	PASTAFF aStaff; PAMEASURE aMeas;	DRect sysRect; short i;
 	
 	staffL = FillStaffArray(doc, sysL, staves);
 	measL = SSearch(staffL, MEASUREtype, GO_RIGHT);
@@ -273,7 +273,7 @@ void UpdateFormatStaff(Document *doc, LINK staffL, LINK aStaffL, long newPos)
 /* Update the main data structure to reflect changes resulting from dragging the
 Connect up or down. */
 
-void UpdateFormatConnect(Document *doc, LINK staffL, INT16 stfAbove, INT16 stfBelow,
+void UpdateFormatConnect(Document *doc, LINK staffL, short stfAbove, short stfBelow,
 									long newPos)
 {
 	LINK aStaffL;
@@ -287,7 +287,7 @@ void UpdateFormatConnect(Document *doc, LINK staffL, INT16 stfAbove, INT16 stfBe
 
 /* -------------------------------- Routines for showFormat editing and selection -- */
 
-static Boolean EditFormatMargin(Document *, Point, INT16, INT16)
+static Boolean EditFormatMargin(Document *, Point, short, short)
 {
 	return FALSE;
 }
@@ -297,7 +297,7 @@ static Boolean EditFormatMargin(Document *, Point, INT16, INT16)
 	
 void DoFormatSelect(Document *doc, Point pt)
 {
-	INT16 index;
+	short index;
 
 	FindFormatObject(doc, pt, &index, SMClick);
 }
@@ -308,7 +308,7 @@ clicked on while in the showFormat mode.  If one found, let user drag it to
 whereever, and return TRUE.  If nothing grabbable, return FALSE.  The pt provided
 is expected in paper-relative pixels.  */
 
-Boolean DoEditFormat(Document *doc, Point pt, INT16 modifiers, INT16 doubleClick)
+Boolean DoEditFormat(Document *doc, Point pt, short modifiers, short doubleClick)
 {
 	Boolean didSomething=FALSE;
 
@@ -334,9 +334,9 @@ Boolean DoEditFormat(Document *doc, Point pt, INT16 modifiers, INT16 doubleClick
 
 /* Return staff number of top visible staff in first System at or to left of <pL>. */
 
-INT16 FirstStaffn(LINK pL)
+short FirstStaffn(LINK pL)
 {
-	LINK staffL,aStaffL; INT16 firstStaffn=MAXSTAVES+1;
+	LINK staffL,aStaffL; short firstStaffn=MAXSTAVES+1;
 	
 	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, FALSE);
 	aStaffL = FirstSubLINK(staffL);
@@ -350,9 +350,9 @@ INT16 FirstStaffn(LINK pL)
 
 /* Return staff number of bottom visible staff in first System at or to left of <pL>. */
 
-INT16 LastStaffn(LINK pL)
+short LastStaffn(LINK pL)
 {
-	LINK staffL,aStaffL; INT16 lastStaffn=0;
+	LINK staffL,aStaffL; short lastStaffn=0;
 	
 	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, FALSE);
 	aStaffL = FirstSubLINK(staffL);
@@ -374,9 +374,9 @@ NextStaffn(doc,pL,FALSE,aConnect->staffBelow).
 
 Returns 0 if there is no visible staff satisfying the given conditions. */
 
-INT16 NextStaffn(Document *doc, LINK pL, INT16 up, INT16 base)
+short NextStaffn(Document *doc, LINK pL, short up, short base)
 {
-	LINK staffL,aStaffL; INT16 theStaffn;
+	LINK staffL,aStaffL; short theStaffn;
 	
 	if (base<1 || base>doc->nstaves) return 0;
 	
@@ -404,9 +404,9 @@ from staffn <base>, going in direction <up>. Identical to NextStaffn, except if
 there's no visible staff satisfying the conditions, this returns the extreme staff
 no. in the given direction. */
 
-INT16 NextLimStaffn(Document *doc, LINK pL, INT16 up, INT16 base)
+short NextLimStaffn(Document *doc, LINK pL, short up, short base)
 {
-	INT16 theStaffn;
+	short theStaffn;
 	
 	theStaffn = NextStaffn(doc,pL,up,base);
 	if (theStaffn==0) theStaffn = up? doc->nstaves : 1;
@@ -415,9 +415,9 @@ INT16 NextLimStaffn(Document *doc, LINK pL, INT16 up, INT16 base)
 }
 
 
-INT16 NumVisStaves(LINK pL)
+short NumVisStaves(LINK pL)
 {
-	LINK staffL,aStaffL,sysL; INT16 numVis=0;
+	LINK staffL,aStaffL,sysL; short numVis=0;
 	
 	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	staffL = LSSearch(sysL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
@@ -435,7 +435,7 @@ INT16 NumVisStaves(LINK pL)
 /* Visify any subObjs of pL on staffn, or pL itself if it is on staffn,
 according to vis: TRUE if make them visible, FALSE if invisible. */
 
-static void VisifySubObjs(LINK pL, INT16 staffn, INT16 vis)
+static void VisifySubObjs(LINK pL, short staffn, short vis)
 {
 	PMEVENT		p;
 	HEAP			*tmpHeap;
@@ -491,9 +491,9 @@ static void VisifySubObjs(LINK pL, INT16 staffn, INT16 vis)
 
 /* Visify everything from <pL> to the end of its system on <aStaffL>'s staff. */
 
-void VisifyAllObjs(Document *doc, LINK pL, LINK aStaffL, INT16 vis)
+void VisifyAllObjs(Document *doc, LINK pL, LINK aStaffL, short vis)
 {
-	LINK endL,qL; INT16 staffn;
+	LINK endL,qL; short staffn;
 	
 	endL = LastObjInSys(doc, pL);
 	staffn = StaffSTAFF(aStaffL);
@@ -527,7 +527,7 @@ void InvisFirstMeas(LINK staffL)
 the given object, return TRUE. ??BUG: doesn't check for cross-staff tuplets! Cf.
 checking for cross-staff objs for the Split Part command. */
 
-Boolean XStfObjOnStaff(LINK pL, INT16 staffn)
+Boolean XStfObjOnStaff(LINK pL, short staffn)
 {
 	LINK sysL, qL; PSLUR pSlur; PBEAMSET pBeam;
 	

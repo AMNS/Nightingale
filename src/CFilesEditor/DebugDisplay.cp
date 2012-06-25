@@ -25,7 +25,7 @@
 
 void DKSPrintf(PKSINFO KSInfo)
 {
-	INT16	k;
+	short	k;
 	
 	if (KSInfo->nKSItems>0)
 		DebugPrintf(" lets=%d:%c",
@@ -43,7 +43,7 @@ void DKSPrintf(PKSINFO KSInfo)
 /* Show information about the given object (node). If <abnormal>, ignores <doc>. */
 
 void DisplayNode(Document *doc, LINK pL,
-				INT16 kount,						/* Label to print for node */
+				short kount,						/* Label to print for node */
 				Boolean show_links,				/* Show node addr., links, size? */
 				Boolean show_subs,				/* Show subobjects? */
 				Boolean abnormal					/* Somewhere besides doc's main object list? */
@@ -458,7 +458,7 @@ void MemUsageStats(Document *doc)
 	long heapSize=0L, objHeapMemSize=0L, objHeapFileSize=0L, heapHdrSize=0L,
 			subTotal, mTotal, fTotal;
 	const char *ps; LINK pL; register HEAP *theHeap;
-	unsigned INT16 objCount[LASTtype], h;
+	unsigned short objCount[LASTtype], h;
 
 	/* Compute the total number of objects of each type and the number of note
 		modifiers in the object list. */
@@ -480,10 +480,10 @@ void MemUsageStats(Document *doc)
 		 */
  	}
  	
- 	heapHdrSize = (2+(LASTtype-1-FIRSTtype))*(sizeof(INT16)+sizeof(HEAP));
+ 	heapHdrSize = (2+(LASTtype-1-FIRSTtype))*(sizeof(short)+sizeof(HEAP));
  	
 	subTotal = 2*sizeof(long)+sizeof(DOCUMENTHDR)+sizeof(SCOREHEADER)
-					+sizeof((INT16)LASTtype)
+					+sizeof((short)LASTtype)
  					+sizeof(long)+GetHandleSize((Handle)doc->stringPool);
  	subTotal += heapHdrSize;
  	subTotal += sizeof(long);
@@ -505,7 +505,7 @@ void MemUsageStats(Document *doc)
 					"        *=%ld { heapHdrs=%ld HeapsMem/File=%ld/%ld }",
  					sizeof(long)+sizeof(long),
  					sizeof(DOCUMENTHDR), sizeof(SCOREHEADER),
- 					sizeof(INT16), GetHandleSize((Handle)doc->stringPool), sizeof(long),
+ 					sizeof(short), GetHandleSize((Handle)doc->stringPool), sizeof(long),
  					heapHdrSize, heapSize+objHeapMemSize, heapSize+objHeapFileSize);
  	DebugPrintf(" TOTAL Mem/File=%ld/%ld\n", mTotal, fTotal);
 }
@@ -513,7 +513,7 @@ void MemUsageStats(Document *doc)
 
 /* ------------------------------------------------------------- DisplayIndexNode -- */
 
-void DisplayIndexNode(Document *doc, register LINK pL, INT16 kount, INT16 *inLinep)
+void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLinep)
 {
 	PMEVENT		p;
 	char			selFlag;
@@ -556,8 +556,8 @@ void DisplayIndexNode(Document *doc, register LINK pL, INT16 kount, INT16 *inLin
 
 void DHexDump(unsigned char *pBuffer,
 				long limit,
-				INT16 nPerGroup,		/* Number of items to print in a group */
-				INT16 nPerLine			/* Number of items to print in a line */
+				short nPerGroup,		/* Number of items to print in a group */
+				short nPerLine			/* Number of items to print in a line */
 				)
 {
 	long l;

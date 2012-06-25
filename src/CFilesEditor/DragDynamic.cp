@@ -21,7 +21,7 @@ void DragDynamic(Document *doc, LINK dynamL)
 {
 	Point			oldPt, newPt, origPt;
 	long			aLong;
-	INT16			staffn, dh, dv, dhTotal, dvTotal, oldTxMode;
+	short			staffn, dh, dv, dhTotal, dvTotal, oldTxMode;
 	Rect			oldObjRect, newObjRect, boundsRect;		/* in paper coords */
 	Boolean		dynamVis, firstTime = TRUE, suppressRedraw = FALSE,
 					stillWithinSlop, horiz, vert;
@@ -35,7 +35,7 @@ void DragDynamic(Document *doc, LINK dynamL)
 	GrafPtr		dynamPort, scrnPort;
 	Rect			destRect;
 	Point			grPortOrigin;
-	INT16			fontID;
+	short			fontID;
 	const BitMap *dynamPortBits = NULL;
 	const BitMap *scrnPortBits = NULL;
 #endif
@@ -237,7 +237,7 @@ PopLock(DYNAMheap);
 static void InitDynamicBounds(Document *doc, LINK dynamL,
 										Point mousePt, Rect *bounds)	/* paper coords */
 {
-	INT16			staffn, mouseFromLeft, mouseFromRight;
+	short			staffn, mouseFromLeft, mouseFromRight;
 	Rect			objRect;
 	CONTEXT		context;
 	PAMEASURE	aMeasP;

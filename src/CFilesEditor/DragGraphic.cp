@@ -30,7 +30,7 @@ void DragGraphic(Document *doc, LINK graphicL)
 	Rect		oldObjRect, destRect, newObjRect, boundsRect, savedPaper;
 	GrafPtr	scrnPort, graphicPort;
 	long		aLong;
-	INT16		dh, dv, oldTxMode, constrain = NOCONSTRAIN;
+	short		dh, dv, oldTxMode, constrain = NOCONSTRAIN;
 	Boolean	suppressRedraw = FALSE, firstLoop = TRUE;
 	CONTEXT	context[MAXSTAVES+1];
 	LINK		measL;
@@ -219,7 +219,7 @@ PopLock(GRAPHICheap);
 static void InitGraphicBounds(Document *doc, LINK graphicL,
 										Point mousePt, Rect *bounds)	/* paper coords */
 {
-	INT16			staffn, mouseFromLeft, mouseFromRight, mouseFromTop, mouseFromBottom;
+	short			staffn, mouseFromLeft, mouseFromRight, mouseFromTop, mouseFromBottom;
 	Rect			objRect;
 	Boolean		dragIntoReserved = FALSE;
 	CONTEXT		context;

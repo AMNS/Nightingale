@@ -54,7 +54,7 @@ Boolean DoEvent()
 	{
 		Boolean haveEvent,keepGoing = TRUE,activ;
 		long soon; short result;
-		static INT16 fixCount = 1;
+		static short fixCount = 1;
 		Point corner;
 		static long checkMemTime=BIGNUM, checkDSTime=BIGNUM;
 
@@ -529,7 +529,7 @@ static Boolean DoMouseDown(EventRecord *event)
 
 static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 	{
-		short code,val,oldVal,change; INT16 index; GrafPtr oldPort;
+		short code,val,oldVal,change; short index; GrafPtr oldPort;
 		ControlHandle control;
 		Rect portRect;
 		short contrlHilite;
@@ -616,7 +616,7 @@ user pulls the mouse outside the viewRect of the window. */
 
 void AutoScroll()
 	{
-		Point pt; INT16 dx,dy; Document *theDoc = GetDocumentFromWindow(TopDocument);
+		Point pt; short dx,dy; Document *theDoc = GetDocumentFromWindow(TopDocument);
 		PenState pen;
 		
 		if (theDoc) {
@@ -643,7 +643,7 @@ selection rectangle with automatic scrolling if user drags mouse out of view. */
 static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 	{
 		Rect paper; Document *doc = GetDocumentFromWindow(w);
-		INT16 ans,doubleClick;
+		short ans,doubleClick;
 		Boolean didSomething;
 		
 		if (doc==NULL) return;
@@ -716,7 +716,7 @@ with separately.  Routine delivers whether to continue event loop or not. */
 
 static Boolean DoKeyDown(EventRecord *event)
 	{
-		short ch,itemHit,key; INT16 nparts; WindowPtr wp;
+		short ch,itemHit,key; short nparts; WindowPtr wp;
 		Boolean keepGoing = TRUE,scoreView;
 		Document *doc = GetDocumentFromWindow(TopDocument);
 		MenuHandle hMenu = editMenu;
@@ -1024,7 +1024,7 @@ pascal OSErr HandlePDOC(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 pascal OSErr HandleQUIT(const AppleEvent */*appleEvent*/, AppleEvent */*reply*/, /*unsigned*/ long /*refcon*/)
 	{
-		INT16 keepGoing = DoFileMenu(FM_Quit);
+		short keepGoing = DoFileMenu(FM_Quit);
 		
 		return(keepGoing);	/* ??Return value is nonsense! But unused as of v. 3.1 */
 	}

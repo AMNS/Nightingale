@@ -33,9 +33,9 @@ typedef struct {
 } STAFFINFO;
 
 static void ShellSort(short [], short);
-static INT16 GetStaff(Document *, Point);
-static INT16 GetNextStaffn(Document *, INT16, Boolean);
-static Point TrackStaffRect(Document *, Point, INT16 *, INT16 *, Rect *);
+static short GetStaff(Document *, Point);
+static short GetNextStaffn(Document *, short, Boolean);
+static Point TrackStaffRect(Document *, Point, short *, short *, Rect *);
 static void ChangeInvRect(Rect *, Rect *);
 static void GetStaffLimits(Document *, Point, STAFFINFO [], CONTEXT []);
 static void StartThread(void);
@@ -47,7 +47,7 @@ if the first selected object or subobject actually has a staff number (almost al
 the case unless it's a page-relative Graphic) return that number; if it doesn't,
 return NOONE. */
 
-INT16 GetSelStaff(Document *doc)
+short GetSelStaff(Document *doc)
 {
 	LINK pL;
 	
@@ -64,7 +64,7 @@ actually has a staff number (almost always the case unless it's a page-relative
 Graphic) return that number; if it doesn't or if nothing is selected, return
 NOONE. Also return in <pSelL> the first selected link (normally doc->selStartL). */
 
-INT16 GetStaffFromSel(Document *doc, LINK *pSelL)
+short GetStaffFromSel(Document *doc, LINK *pSelL)
 {
 	register LINK pL;
 	LINK aNoteL, aGRNoteL, aKeySigL, aTimeSigL, aClefL, aDynamicL, aRptEndL, 
@@ -173,9 +173,9 @@ Note: This code is derived from GetStfRangeOfSel.  -JGG */
 
 void GetSelPartList(Document *doc, LINK partL[])
 {
-	INT16			i, j;
-	INT16			selStaves[MAXSTAVES+1];
-	INT16			selParts[MAXSTAVES+1];
+	short			i, j;
+	short			selStaves[MAXSTAVES+1];
+	short			selParts[MAXSTAVES+1];
 	PMEVENT		p;
 	LINK 			pL, subObjL;
 	HEAP			*tmpHeap;
@@ -260,7 +260,7 @@ function, call GetSelPartList to build the <partList> array.  -JGG */
 
 Boolean IsSelPart(LINK partL, LINK partList[])
 {
-	INT16	i;
+	short	i;
 
 	for (i = 0; i<=MAXSTAVES; i++) {
 		if (partList[i]==NILINK)		/* end of list */
@@ -276,9 +276,9 @@ Boolean IsSelPart(LINK partL, LINK partList[])
 /* How many parts contain selected items? Before using this function, call
 GetSelPartList to build the <partList> array.  -JGG */
 
-INT16 CountSelParts(LINK partList[])
+short CountSelParts(LINK partList[])
 {
-	INT16	i;
+	short	i;
 
 	for (i = 0; i<=MAXSTAVES; i++) {
 		if (partList[i]==NILINK)		/* end of list */
@@ -293,7 +293,7 @@ INT16 CountSelParts(LINK partList[])
 
 LINK GetSelPart(Document *doc)
 {
-	INT16 selStaff; LINK partL;
+	short selStaff; LINK partL;
 	
 	selStaff = GetSelStaff(doc);
 	if (selStaff==NOONE) selStaff = 1;
@@ -309,7 +309,7 @@ subobject actually has a voice number (see ObjHasVoice for the current list of
 types) return that number; otherwise return its staff number (since that's the
 default voice number for the staff). If nothing is selected, returns NOONE. */
 
-INT16 GetVoiceFromSel(Document *doc)
+short GetVoiceFromSel(Document *doc)
 {
 	register LINK pL;
 	LINK			aNoteL, aGRNoteL, aClefL, aKeySigL, aTimeSigL, aDynamicL,
@@ -473,7 +473,7 @@ void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 /* Get the measure number and page number of the start of the selection in the given
 doc. */
 
-void Sel2MeasPage(Document *doc, INT16 *pMeasNum, INT16 *pPageNum)
+void Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
 {
 	LINK measL, aMeasureL; PAMEASURE aMeasure;
 	
@@ -506,11 +506,11 @@ void Sel2MeasPage(Document *doc, INT16 *pMeasNum, INT16 *pPageNum)
 /* Return the lowest and highest MIDI note numbers in selected notes in the given
 score. */
 
-void GetSelMIDIRange(Document *doc, INT16 *pLow, INT16 *pHi)
+void GetSelMIDIRange(Document *doc, short *pLow, short *pHi)
 {
 	LINK		pL, aNoteL;
 	PANOTE	aNote;
-	INT16		low, hi;
+	short		low, hi;
 	
 	low = MAX_NOTENUM;
 	hi = 0;
@@ -533,7 +533,7 @@ void GetSelMIDIRange(Document *doc, INT16 *pLow, INT16 *pHi)
 /* Look for a selected note or grace note with the given accidental. If it's found,
 return it, else return NILINK.*/
 
-LINK FindSelAcc(Document *doc, INT16 acc)
+LINK FindSelAcc(Document *doc, short acc)
 {
 	LINK pL, aNoteL, aGRNoteL;
 	
@@ -570,7 +570,7 @@ of Computer Programming, vol. 2, pp. 84-95. */
 
 static void ShellSort(short array[], short nsize)
 {
-	INT16 nstep, ncheck, i, n, temp;
+	short nstep, ncheck, i, n, temp;
 	
 	for (nstep = nsize/2; nstep>=1; nstep = nstep/2)
 	{
@@ -598,7 +598,7 @@ static void ShellSort(short array[], short nsize)
 
 STAFFINFO staffInfo[MAXSTAVES+1+1];			/* Need 1 extra fake "staff" at bottom! */
 
-#define SWAP(a, b)	{	INT16 temp; temp = (a); (a) = (b); (b) = temp; }
+#define SWAP(a, b)	{	short temp; temp = (a); (a) = (b); (b) = temp; }
 
 /* Make rect non-empty, if possible, by swapping boundaries */
 
@@ -620,9 +620,9 @@ visible staff above the one it found, if there is a visible staff above the one
 it found; otherwise it returns the one it found. Otherwise, it returns the
 bottommost visible staff. */
 
-static INT16 GetStaff(Document *doc, Point pt)
+static short GetStaff(Document *doc, Point pt)
 {
-	INT16 i, j;
+	short i, j;
 				
 	for (i = 1; i<doc->nstaves; i++)
 		if (staffInfo[i+1].visible && pt.v<=staffInfo[i+1].top) {
@@ -644,9 +644,9 @@ it fails to find a visible staff, in which case it returns <base>. Notice that t
 wrong if staff <base> is invisible. <up> means in direction of increasing staff no.,
 i.e., downward on the page. */
 
-static INT16 GetNextStaffn(Document *doc, INT16 base, Boolean up)
+static short GetNextStaffn(Document *doc, short base, Boolean up)
 {
-	INT16 i;
+	short i;
 	
 	if (up) {
 		for (i = base+1; i<=doc->nstaves+1; i++)		/* Consider fake staff at bottom */
@@ -680,13 +680,13 @@ static Rect topRect,midRect,botRect;
 static Point TrackStaffRect(
 						Document *doc,
 						Point startPt,								/* mousedown point */
-						INT16	*topStf, INT16 *bottomStf,		/* Top and bottom staves of selection (inclusive) */
+						short	*topStf, short *bottomStf,		/* Top and bottom staves of selection (inclusive) */
 						Rect	*paper
 						)
 {
 	Point		pt; long ans;
 	Rect		aR, oldR,paperOrig;
-	INT16		startStf, topStartStf, stf;
+	short		startStf, topStartStf, stf;
 	Boolean	cancelThis;
 	
 	GrafPtr	oldPort;
@@ -800,7 +800,7 @@ If the selection isn't empty, do nothing. */
 
 void FixEmptySelection(Document *doc, Point	pt)
 {
-	LINK maySectL, selL; INT16 staffn;
+	LINK maySectL, selL; short staffn;
 	Rect r;
 
 	/* If selection range is empty, process mouse click to set an insertion point
@@ -853,7 +853,7 @@ flags for the staves. */
 static void GetStaffLimits(Document *doc, Point pt, STAFFINFO staffInfo[],
 									CONTEXT context[])
 {
-	INT16 	staff, s, staffAbove;
+	short 	staff, s, staffAbove;
 	LINK		systemL, staffL;
 	DDIST		temp;
 	PSYSTEM	pSystem;
@@ -903,7 +903,7 @@ Boolean SelectStaffRect(Document *doc, Point	pt)
 	LINK		pL,firstMeasL,sysL,pageL,lastL,lastPageL;
 	Point		endPt;
 	Rect		selRect, aRect;
-	INT16		index, topStf, bottomStf;
+	short		index, topStf, bottomStf;
 	Boolean	found;
 	CONTEXT	context[MAXSTAVES+1];
 	STFRANGE stfRange;												/* Range of staves to pass to ContextObject */
@@ -998,7 +998,7 @@ void DoThreadSelect(Document *doc,
 	Point		newPt, newPtW;
 	Boolean	found, overSheet;
 	CONTEXT	context[MAXSTAVES+1];
-	INT16		index, sheetNum, type;
+	short		index, sheetNum, type;
 	STFRANGE stfRange = {0,0};
 	
 #define KLUDGE		/* ??THE CRUDEST POSSIBLE INTERFACE! */
@@ -1067,7 +1067,7 @@ void DoThreadSelect(Document *doc,
 /* --------------------------------------------------------- InsertSpaceTrackStf -- */
 /* Track the staff rect to provide feedback for insertion of space objects. */
 
-Point InsertSpaceTrackStf(Document *doc, Point pt, INT16 *topStf, INT16 *bottomStf)
+Point InsertSpaceTrackStf(Document *doc, Point pt, short *topStf, short *bottomStf)
 {
 	CONTEXT context[MAXSTAVES+1];
 	
@@ -1095,7 +1095,7 @@ other to opposite corners of the starting rectangle.
 The offsets are used when you want some slop in picking up a corner of an
 already existing rectangle, as in the case of grow handles for objects, etc. */
 
-void GetUserRect(Document *doc, Point pt, Point other, INT16 xoff, INT16 yoff, Rect *box)
+void GetUserRect(Document *doc, Point pt, Point other, short xoff, short yoff, Rect *box)
 {
 	Point last; Rect r,lastr,limit,portRect; PenState pn;
 	long now;

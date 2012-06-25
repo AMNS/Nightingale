@@ -19,11 +19,11 @@ Master Page, built on the old Score Dialog - rev. for v.3.1. */
 
 /* Prototypes for internal functions. */
 
-static void GroupMeas(Document *doc,LINK measL,INT16 firstStf,INT16 lastStf);
-static void UngroupMeas(Document *doc,LINK measL,INT16 firstStf,INT16 lastStf);
-static void GroupPart(Document *doc,INT16 firstStf,INT16 lastStf,Boolean connectBars,
-					INT16 connectType);
-static void UngroupPart(Document *doc,INT16 firstStf,INT16 lastStf);
+static void GroupMeas(Document *doc,LINK measL,short firstStf,short lastStf);
+static void UngroupMeas(Document *doc,LINK measL,short firstStf,short lastStf);
+static void GroupPart(Document *doc,short firstStf,short lastStf,Boolean connectBars,
+					short connectType);
+static void UngroupPart(Document *doc,short firstStf,short lastStf);
 
 static void StoreConnectGroup(LINK,LINK);
 static void StoreAllConnects(LINK);
@@ -95,10 +95,10 @@ void ExportEnvironment(Document *doc,
 
 /* Given a staff number, returns part it belongs to. */
 
-static INT16 MPStaff2Part(Document *, INT16);
-static INT16 MPStaff2Part(Document *doc, INT16 nstaff)
+static short MPStaff2Part(Document *, short);
+static short MPStaff2Part(Document *doc, short nstaff)
 {
-	INT16			np;
+	short			np;
 	PPARTINFO	pPart;
 	LINK			partL;
 	
@@ -112,10 +112,10 @@ static INT16 MPStaff2Part(Document *doc, INT16 nstaff)
 	return 0;
 }
 
-LINK MPFindPartInfo(Document *, INT16);
-LINK MPFindPartInfo(Document *doc, INT16 partn)
+LINK MPFindPartInfo(Document *, short);
+LINK MPFindPartInfo(Document *doc, short partn)
 {
-	INT16 		np;
+	short 		np;
 	LINK		partL;
 	
 	if (partn>LinkNENTRIES(doc->masterHeadL)) return NILINK;
@@ -129,9 +129,9 @@ LINK MPFindPartInfo(Document *doc, INT16 partn)
 /* Run Instrument dialog to edit information for the part staff <firstStf> belongs
 to. Return TRUE if user OKs the dialog, FALSE if cancel. */
 
-INT16 SDInstrDialog(Document *doc, INT16 firstStf)
+short SDInstrDialog(Document *doc, short firstStf)
 {
-	INT16 partn,changed; LINK partL; PPARTINFO pPart; PARTINFO partInfo;
+	short partn,changed; LINK partL; PPARTINFO pPart; PARTINFO partInfo;
 
 	partn = MPStaff2Part(doc,firstStf);
 	partL = MPFindPartInfo(doc, partn);
@@ -179,7 +179,7 @@ static Boolean TooManyChanges(Document *doc)
 
 /* Delete a part in Master Page. */
 
-void DelChangePart(Document *doc, INT16 firstStf, INT16 lastStf)
+void DelChangePart(Document *doc, short firstStf, short lastStf)
 {
 	if (TooManyChanges(doc)) return;
 	
@@ -192,7 +192,7 @@ void DelChangePart(Document *doc, INT16 firstStf, INT16 lastStf)
 
 /* Add a part in Master Page. */
 
-void AddChangePart(Document *doc, INT16 firstStf, INT16 nadd, INT16 nper, INT16 showLines)
+void AddChangePart(Document *doc, short firstStf, short nadd, short nper, short showLines)
 {
 	static Boolean firstDelAdd = TRUE;
 	char msg[20];
@@ -231,7 +231,7 @@ void AddChangePart(Document *doc, INT16 firstStf, INT16 nadd, INT16 nper, INT16 
 }
 
 
-void Make1StaffChangeParts(Document *doc, INT16 stf, INT16 nadd, INT16 showLines)
+void Make1StaffChangeParts(Document *doc, short stf, short nadd, short showLines)
 {
 	if (TooManyChanges(doc)) return;
 	
@@ -248,9 +248,9 @@ void Make1StaffChangeParts(Document *doc, INT16 stf, INT16 nadd, INT16 showLines
 /* Add a change record of type SDGroup to export a part grouping from Master Page. */
 
 void GroupChangeParts(Document *doc,
-							INT16 firstStf, INT16 lastStf,
+							short firstStf, short lastStf,
 							Boolean connectBars,				/* TRUE=extend barlines to connect staves */ 
-							INT16 connectType					/* CONNECTBRACKET or CONNECTCURLY */
+							short connectType					/* CONNECTBRACKET or CONNECTCURLY */
 							)
 {
 	if (TooManyChanges(doc)) return;
@@ -266,7 +266,7 @@ void GroupChangeParts(Document *doc,
 
 /* Add a change record of type SDUngroup to export a part ungrouping from Master Page. */
 
-void UngroupChangeParts(Document *doc, INT16 firstStf, INT16 lastStf)
+void UngroupChangeParts(Document *doc, short firstStf, short lastStf)
 {
 	if (TooManyChanges(doc)) return;
 
@@ -284,7 +284,7 @@ void UngroupChangeParts(Document *doc, INT16 firstStf, INT16 lastStf)
 staves [firstStf,lastStf] to reflect the grouping or ungrouping parts in that
 range. */
 
-static void GroupMeas(Document */*doc*/, LINK measL, INT16 firstStf, INT16 lastStf)
+static void GroupMeas(Document */*doc*/, LINK measL, short firstStf, short lastStf)
 {
 	LINK aMeasL; PAMEASURE aMeas;
 	
@@ -304,10 +304,10 @@ static void GroupMeas(Document */*doc*/, LINK measL, INT16 firstStf, INT16 lastS
 	}
 }
 
-static void UngroupMeas(Document *doc, LINK measL, INT16 firstStf, INT16 lastStf)
+static void UngroupMeas(Document *doc, LINK measL, short firstStf, short lastStf)
 {
 	LINK aMeasL, aPartL; PAMEASURE aMeas;
-	INT16 partFirstStf, partLastStf, s;
+	short partFirstStf, partLastStf, s;
 	
 	aMeasL = FirstSubLINK(measL);
 	
@@ -349,9 +349,9 @@ exiting Master Page. */
 #define CONNECT_GROUP CONNECTBRACKET	/* ??MPImportExport.c and MPCommands must agree! */
 
 static void GroupPart(Document *doc,
-							INT16 firstStf, INT16 lastStf,
+							short firstStf, short lastStf,
 							Boolean connectBars,				/* TRUE=extend barlines to connect staves */ 
-							INT16 connectType
+							short connectType
 							)
 {
 	LINK connectL,aConnectL,connList,measL;
@@ -414,10 +414,10 @@ static void GroupPart(Document *doc,
 from every Connect in the given score, and by changing subobjects in every Measure
 so barlines no longer extend across the group. */
 
-static void UngroupPart(Document *doc, INT16 firstStf, INT16 lastStf)
+static void UngroupPart(Document *doc, short firstStf, short lastStf)
 {
 	LINK connectL,aConnectL,bConnectL,nextConnL,measL;
-	PACONNECT aConnect,bConnect; DDIST connWidth; INT16 minGrpStf,maxGrpStf; 
+	PACONNECT aConnect,bConnect; DDIST connWidth; short minGrpStf,maxGrpStf; 
 
 	connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
 
@@ -468,7 +468,7 @@ subObj. The firstStaff and lastStaff fields of the Connect subObj must be set. *
 void StoreConnectGroup(LINK headL, LINK aConnectL)
 {
 	LINK partL; PACONNECT aConnect;
-	INT16 firstStf, lastStf;
+	short firstStf, lastStf;
 
 	aConnect = GetPACONNECT(aConnectL);
 	
@@ -512,7 +512,7 @@ void StoreAllConnects(LINK headL)
 void DelConnGroup(Document *doc, LINK connectL, LINK aConnectL)
 {
 	PACONNECT aConnect, bConnect; LINK bConnectL;
-	INT16 minGrpStf, maxGrpStf; DDIST connWidth;
+	short minGrpStf, maxGrpStf; DDIST connWidth;
 	
 	/* Move all Connect subObjs that were nested within the deleted Connect to
 		the right by the deleted Connect's width. */
@@ -539,7 +539,7 @@ that group fewer than 2 parts, presumably because of deleted parts, remove them.
 
 void DelBadGroupConnects(Document *doc)
 {
-	LINK connectL, aConnectL; PACONNECT aConnect; INT16 partAbove, partBelow;
+	LINK connectL, aConnectL; PACONNECT aConnect; short partAbove, partBelow;
 	LINK nextL;
 
 	connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
@@ -563,11 +563,11 @@ void DelBadGroupConnects(Document *doc)
 do anything to other staves in the object list; in particular, do not increase staff
 nos. of parts below. */
 
-static Boolean Add1StaffParts(Document *, LINK, INT16, INT16);
-static Boolean Add1StaffParts(Document *doc, LINK prevPartL, INT16 nadd, INT16 /*showLines*/)
+static Boolean Add1StaffParts(Document *, LINK, short, short);
+static Boolean Add1StaffParts(Document *doc, LINK prevPartL, short nadd, short /*showLines*/)
 {
 	LINK nextPartL,aPartL,partList,listHead;
-	INT16 j,lastStf,nextStf;
+	short j,lastStf,nextStf;
 	
 	/* Allocate and initialize a list of <nadd> parts and insert it into the list of
 		parts after prevPartL. */
@@ -611,7 +611,7 @@ multistaff-part Connects with group Connects, and build a new voice table. */
 static void Finish1StaffParts(Document *, LINK, LINK);
 static void Finish1StaffParts(Document *doc, LINK origPartL, LINK lastPartL)
 {
-	LINK connectL, aConnectL; PACONNECT aConnect; DDIST squareWider; INT16 firstStf;
+	LINK connectL, aConnectL; PACONNECT aConnect; DDIST squareWider; short firstStf;
 	
 	connectL = LSSearch(doc->headL,CONNECTtype,ANYONE,GO_RIGHT,FALSE);
 	
@@ -635,10 +635,10 @@ static void Finish1StaffParts(Document *doc, LINK origPartL, LINK lastPartL)
 	BuildVoiceTable(doc, TRUE);
 }
 
-static void Make1StaffParts(Document *, INT16, INT16, INT16);
-static void Make1StaffParts(Document *doc, INT16 staff, INT16 nStavesAdd, INT16 showLines)
+static void Make1StaffParts(Document *, short, short, short);
+static void Make1StaffParts(Document *doc, short staff, short nStavesAdd, short showLines)
 {
-	LINK partL, thePartL=NILINK, lastPartL; INT16 firstStf;
+	LINK partL, thePartL=NILINK, lastPartL; short firstStf;
 	
 	partL = FirstSubLINK(doc->headL);
 	for (partL = NextPARTINFOL(partL); partL; partL = NextPARTINFOL(partL)) {
@@ -655,9 +655,9 @@ static void Make1StaffParts(Document *doc, INT16 staff, INT16 nStavesAdd, INT16 
 /* Export changes (Add/Delete Part, Group/Ungroup Parts, Make 1-staff Parts) from
 Master Page to the main object list. Should be called when exiting Master Page. */
  
-INT16 ExportChanges(Document *doc)
+short ExportChanges(Document *doc)
 {
-	INT16 i,cstaff,npa, savedAutoRespace;
+	short i,cstaff,npa, savedAutoRespace;
 
  	if (doc->nChangeMP>=MAX_CHANGES) {
  		MayErrMsg("ExportChanges: Too many changes: doc->nChangeMP=%ld.", (long)doc->nChangeMP);

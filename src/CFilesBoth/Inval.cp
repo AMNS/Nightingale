@@ -31,13 +31,13 @@
 measure; otherwise erase and Inval its entire system.	N.B. Destroys the
 global array contextA. */
 
-void InvalMeasure(LINK pL, INT16 theStaff)	/* ??theStaff IS NONSENSE. SEE USE BELOW. */
+void InvalMeasure(LINK pL, short theStaff)	/* ??theStaff IS NONSENSE. SEE USE BELOW. */
 {
 	PMEASURE		pMeasure;
 	LINK			measureL,staffL, pageL;
 	Rect			r;
 	register Document *doc=GetDocumentFromWindow(TopDocument);
-	INT16			oldSheet;
+	short			oldSheet;
 	Rect			oldPaper;
 
 	if (doc==NULL) return;
@@ -90,12 +90,12 @@ the second specified object is in. If the second object is tail, erase and inval
 to tail. */
 
 void InvalMeasures(LINK fromL, LINK toL,
-							INT16 theStaff)			/* Staff no. or ANYONE */
+							short theStaff)			/* Staff no. or ANYONE */
 {
 	LINK			measureL, lastMeasureL, pageL;
 	Rect			r, tempR, nilRect;
 	Document		*doc=GetDocumentFromWindow(TopDocument);
-	INT16			oldSheet;
+	short			oldSheet;
 	Rect			oldPaper;
 
 	if (doc==NULL) return;
@@ -163,7 +163,7 @@ void InvalSystem(LINK pL)
 	Rect			r;
 	GrafPtr		oldPort;
 	register Document *doc=GetDocumentFromWindow(TopDocument);
-	INT16			oldSheet;
+	short			oldSheet;
 	Rect			oldPaper;
 	
 	if (doc==NULL) return;
@@ -309,10 +309,10 @@ provide correct results.
 add a <doDraw> parameter.
 */
 
-void InvalObject(Document *doc, LINK pL, INT16 doErase)
+void InvalObject(Document *doc, LINK pL, short doErase)
 {
 	Rect r,slurBBox; LINK aSlurL;
-	INT16 inset;
+	short inset;
 
 	GetAllContexts(doc,contextA,pL);
 	switch (ObjLType(pL)) {

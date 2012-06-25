@@ -30,7 +30,7 @@ static Boolean InitMoveBars(Document *doc, LINK startL, LINK endL, LINK *startBa
 static void FixMeasOwners(LINK pL, LINK sysL, LINK staffL, LINK endL, LINK *firstBarL);
 static void FixStartContext(Document *doc, LINK pL, LINK startL, LINK endL);
 static void CleanupMoveBars(Document *doc, LINK startL, LINK endL);
-static void MoveUpDownErr(LINK pL, INT16 errNum);
+static void MoveUpDownErr(LINK pL, short errNum);
 
 /* ------------------------------------------------------------ Various Utilities -- */
 
@@ -76,7 +76,7 @@ static void FixMeasOwners(LINK pL, LINK sysL, LINK staffL, LINK endL, LINK *firs
 
 static void FixStartContext(Document *doc, LINK pL, LINK startL, LINK endL)
 {
-	INT16 s; KSINFO KSInfo; TSINFO TSInfo; CONTEXT context;
+	short s; KSINFO KSInfo; TSINFO TSInfo; CONTEXT context;
 
 /* Fix start-of-system (or page) contexts. */
 	for (s = 1; s<=doc->nstaves; s++) {
@@ -127,7 +127,7 @@ static void CleanupMoveBars(Document *doc, LINK startL, LINK endL)
 }
 
 
-static void MoveUpDownErr(LINK pL, INT16 errNum)
+static void MoveUpDownErr(LINK pL, short errNum)
 {
 	switch (errNum) {
 		case 1:

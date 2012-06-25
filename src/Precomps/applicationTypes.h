@@ -17,15 +17,15 @@
 	Rect			marginRect;			/* Size of area within margins on sheet (points) */	\
 	Point			sheetOrigin;		/* Where in Quickdraw space to place sheet array */	\
 																													\
-	INT16			currentSheet;		/* Internal sheet [0, ..., numSheets) */					\
-	INT16			numSheets;			/* Number of sheets in Document (visible or not) */	\
-	INT16			firstSheet;			/* To be shown in upper left of sheet array */			\
-	INT16			firstPageNumber;	/* Page number of zero'th sheet */							\
-	INT16			startPageNumber;	/* First printed page number */								\
-	INT16			numRows;				/* Size of sheet array */										\
-	INT16			numCols;																						\
-	INT16			pageType;			/* Current standard/custom page size from popup menu */	\
-	INT16			measSystem;			/* Code for measurement system (from popup menu) */	\
+	short			currentSheet;		/* Internal sheet [0, ..., numSheets) */					\
+	short			numSheets;			/* Number of sheets in Document (visible or not) */	\
+	short			firstSheet;			/* To be shown in upper left of sheet array */			\
+	short			firstPageNumber;	/* Page number of zero'th sheet */							\
+	short			startPageNumber;	/* First printed page number */								\
+	short			numRows;				/* Size of sheet array */										\
+	short			numCols;																						\
+	short			pageType;			/* Current standard/custom page size from popup menu */	\
+	short			measSystem;			/* Code for measurement system (from popup menu) */	\
 																													\
 	Rect			headerFooterMargins; /* Header/footer/pagenum margins  */					\
 	Rect			currentPaper;		/* Paper rect in window coords for cur.sheet (pixels) */	\
@@ -64,7 +64,7 @@ typedef struct {
 #if TARGET_API_MAC_CARBON
 	FSSpec		fsSpec;
 #endif	
-	INT16			vrefnum;				/* Directory file name is local to */
+	short			vrefnum;				/* Directory file name is local to */
 	Rect			viewRect;			/* Port rect minus scroll bars */
 	Rect			growRect;			/* Grow box */
 
@@ -132,24 +132,24 @@ typedef struct {
 
 /* The remaining fields don't need to be saved. */
 	Rect			prevMargin;			/* doc->marginRect upon entering masterPage */
-	INT16			srastralMP;			/* srastral set inside masterPage */
-	INT16			nSysMP;				/* Number of systems which can fit on a page */
+	short			srastralMP;			/* srastral set inside masterPage */
+	short			nSysMP;				/* Number of systems which can fit on a page */
 	DDIST			firstIndentMP,		/* Amount to indent first System */
 					otherIndentMP;		/* Amount to indent Systems other than first */	
 	SignedByte	firstNamesMP,		/* 0=show none, 1=show abbrev., 2=show full names */
 					otherNamesMP;		/* 0=show none, 1=show abbrev., 2=show full names */
-	INT16			nstavesMP;			/* Number of staves in masterPage */
+	short			nstavesMP;			/* Number of staves in masterPage */
 	DDIST			*staffTopMP;		/* staffTop array for masterPage. 1-based indexing (staffn-based indexing) */
 	MPCHANGEDFLAGS						/* partChangedMP,sysChangedMP,stfChangedMP,margVChangedMP,margHChangedMP,indentChangedMP. */
 	LINK			oldMasterHeadL,	/* masterPage data structure used to revert MasterPage */
 					oldMasterTailL;
 
-	INT16			musicFontNum;		/* Font ID number of font to use for music chars */
-	INT16			musFontInfoIndex;	/* Index into <musFontInfo> of current music font */
+	short			musicFontNum;		/* Font ID number of font to use for music chars */
+	short			musFontInfoIndex;	/* Index into <musFontInfo> of current music font */
 
 	PARTINFO 	*partFiller;		/* Unused; formerly <part>, used in MPImportExport.c */
 	DDIST 		*staffTopFiller;	/* Unused; formerly <staffTop>, used in MPImportExport.c */
-	INT16			nChangeMP,
+	short			nChangeMP,
 					npartsFiller,		/* Unused; formerly <nparts>, used in MPImportExport.c */
 					nstaves1Filler;	/* Unused; formerly <nstaves>, used in MPImportExport.c */
 	CHANGE_RECORD	change[MAX_CHANGES];
@@ -421,10 +421,10 @@ typedef struct {
  */
 
 typedef struct {
-	INT16		velocityOffsets[32];	/* Velocity offset from note's value */
-	INT16		durationFactors[32];	/* % change from note's play duration */
-	INT16		timeFactors[32];		/* (unused) supposed to affect time offset */
-	INT16		filler[32];
+	short		velocityOffsets[32];	/* Velocity offset from note's value */
+	short		durationFactors[32];	/* % change from note's play duration */
+	short		timeFactors[32];		/* (unused) supposed to affect time offset */
+	short		filler[32];
 } MIDIModNRPreferences;
 
 
@@ -450,11 +450,11 @@ typedef struct {
 	Boolean			hasRepeatDotsChar;		/* Has repeat dot char (as in Sonata) */
 	Boolean			upstemFlagsHaveXOffset;	/* Upstem flags start to the right of their origin by width of "stem-space" char? */
 	Boolean			hasStemSpaceChar;			/* Has "stem-space" char giving with of notehead minus stem (as in Sonata)? */
-	INT16				stemSpaceWidth;			/* Width of note head minus stem (i.e., of "stem-space" char) (% of space) */
-	INT16				upstemExtFlagLeading;	/* Up-stem extension flag leading (% of space) */
-	INT16				downstemExtFlagLeading;	/* Down-stem extension flag leading (% of space) */
-	INT16				upstem8thFlagLeading;	/* Up-stem 8th flag leading (% of space) */
-	INT16				downstem8thFlagLeading;	/* Down-stem 8th flag leading (% of space) */
+	short				stemSpaceWidth;			/* Width of note head minus stem (i.e., of "stem-space" char) (% of space) */
+	short				upstemExtFlagLeading;	/* Up-stem extension flag leading (% of space) */
+	short				downstemExtFlagLeading;	/* Down-stem extension flag leading (% of space) */
+	short				upstem8thFlagLeading;	/* Up-stem 8th flag leading (% of space) */
+	short				downstem8thFlagLeading;	/* Down-stem 8th flag leading (% of space) */
 	unsigned char	postscriptFontName[32];	/* PostScript font name of this music font (not printer font file name). This
 															is usually same as font name, but (e.g.) "Mozart 2001" uses "Mozart-MMI". */
 	Rect				cBBox[256];		/* character bounding boxes (from 'BBX#' rsrc) */

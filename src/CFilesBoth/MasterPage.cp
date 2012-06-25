@@ -24,7 +24,7 @@ static void UpdateSystemRects(Document *, LINK);
 
 static Boolean DanglingContents(Document *);
 
-static INT16 MaxSysOnPage(Document *);
+static short MaxSysOnPage(Document *);
 static Boolean DanglingSystems(Document *);
 static Boolean SysVChanged(Document *);
 static Boolean SysHChanged(Document *);
@@ -51,10 +51,10 @@ static void RevertMasterPage(Document *);
 static void ResetMasterFields(Document *doc);
 static Boolean AnyMPChanged(Document *doc);
 static void ResetMasterPage(Document *doc);
-static INT16 GetExportAlert(Document *doc);
+static short GetExportAlert(Document *doc);
 static void DisposeMasterData(Document *doc);
 
-static Boolean MPChkSysHt(Document *doc,INT16 srastral,INT16 newRastral);
+static Boolean MPChkSysHt(Document *doc,short srastral,short newRastral);
 
 static LINK CopyMasterPage(Document *doc, LINK headL, LINK *newTailL);
 
@@ -145,7 +145,7 @@ void UpdateMPSysRectHeight(Document *doc, DDIST dv)
 
 static void UpdateSystemRects(Document *doc, LINK sysL)
 {
-	DDIST sysLeft; PSYSTEM pSystem; INT16 dv;
+	DDIST sysLeft; PSYSTEM pSystem; short dv;
 
 	/* Update the system left. */
 	sysLeft = MARGLEFT(doc) + doc->otherIndent;
@@ -204,7 +204,7 @@ static Boolean DanglingContents(Document *doc)
  * inside Master Page.
  */
 
-static INT16 MaxSysOnPage(Document *doc)
+static short MaxSysOnPage(Document *doc)
 {
 	return doc->nSysMP;		/* doc->nSysMP is maintained by drawing routines */
 }
@@ -217,7 +217,7 @@ static INT16 MaxSysOnPage(Document *doc)
 
 static Boolean DanglingSystems(Document *doc)
 {
-	INT16 maxOnPage; LINK pageL;
+	short maxOnPage; LINK pageL;
 
 	maxOnPage = MaxSysOnPage(doc);
 
@@ -380,7 +380,7 @@ static void MPFixSystemRectXs(Document *doc)
 
 void FixLedgerYSp(Document *doc)
 {
-	LINK staffL; INT16 hiPitchLim;
+	LINK staffL; short hiPitchLim;
 	
 	staffL = SSearch(doc->headL, STAFFtype, FALSE);
 	
@@ -447,7 +447,7 @@ static void SetStaffSizeMP(Document *doc)
 
 static void SetStaffLinesMP(Document *doc)
 {
-	INT16	staffn, staffLines, showLines;
+	short	staffn, staffLines, showLines;
 	LINK	masterStaffL, aMasterStaffL, staffL, aStaffL;
 	DDIST	lnSpace, staffHeight;
 	Boolean	showLedgers;
@@ -490,7 +490,7 @@ static void ConformLeftEnds(Document *doc)
 
 static void FixSelStaff(Document *doc)
 {
-	LINK staffL; INT16 botStaff;
+	LINK staffL; short botStaff;
 	
 	if (doc->selStaff>doc->nstaves) {
 		/* doc->selStaff doesn't exist. Use the highest-numbered staff that's
@@ -555,7 +555,7 @@ void ExportMasterPage(Document *doc)
 
 static void ChangeStaffTops(Document *doc, LINK /*pL*/, LINK aStaffL, long newPos)
 {
-	INT16 v;
+	short v;
 	
 	v = HiWord(newPos);
 	doc->staffTopMP[StaffSTAFF(aStaffL)] += p2d(v);
@@ -570,7 +570,7 @@ static void ChangeStaffTops(Document *doc, LINK /*pL*/, LINK aStaffL, long newPo
 void UpdateDraggedSystem(Document *doc, long newPos)
 {
 	LINK sysL,staffL,aStaffL; DRect sysRect;
-	INT16 v;
+	short v;
 	
 	sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
 	sysRect = SystemRECT(sysL);
@@ -595,7 +595,7 @@ void UpdateDraggedSystem(Document *doc, long newPos)
 
 void UpdateDraggedStaff(Document *doc, LINK pL, LINK aStaffL, long newPos)
 {
-	INT16 staffn;
+	short staffn;
 
 	staffn = StaffSTAFF(aStaffL);
 	ChangeStaffTops(doc, pL, aStaffL, newPos);
@@ -724,7 +724,7 @@ static void ResetMasterPage(Document *doc)
 exporting changes made inside Master Page. If so, return EXPORTFMT_ALRT; otherwise,
 return EXPORT_ALRT. */
 
-static INT16 GetExportAlert(Document *doc)
+static short GetExportAlert(Document *doc)
 {
 	if (doc->locFmtChanged) {
 
@@ -845,7 +845,7 @@ Page object list, since Add/DeletePart may have altered it. */
 
 Boolean ExitMasterView(Document *doc)
 {
-	INT16 stayInMP, saveChanges, nstaves, exportAlertID, reformat;
+	short stayInMP, saveChanges, nstaves, exportAlertID, reformat;
 	LINK staffL;
 
  	if (doc->masterChanged) {
@@ -1025,7 +1025,7 @@ respacing". This check is necessary because if at least one system will fit, we
 can reformat to satisfaction upon exiting Master Page; otherwise, we will be
 unable to reformat, with error resulting. */
 
-static Boolean MPChkSysHt(Document *doc, INT16 srastral, INT16 newRastral)
+static Boolean MPChkSysHt(Document *doc, short srastral, short newRastral)
 {
 	LINK sysL; DRect sysRect;
 	double sysSize, sysOffset;
@@ -1068,7 +1068,7 @@ void MPEditMargins(Document *doc)
 
 void DoMasterStfSize(Document *doc)
 {
-	INT16			i, newRastral, srastral;
+	short			i, newRastral, srastral;
 	Boolean		propRespace, partsSelected;
 	LINK			sysL;
 	DDIST			ymove;
@@ -1145,10 +1145,10 @@ void DoMasterStfSize(Document *doc)
 
 void DoMasterStfLines(Document *doc)
 {
-	INT16 showLines, staffLines;
+	short showLines, staffLines;
 	Boolean partsSelected;
 	LINK staffL, aStaffL;
-	static INT16 apparentStaffLines=STFLINES;
+	static short apparentStaffLines=STFLINES;
 	static Boolean showLedgers=TRUE, selPartsOnly=TRUE;
 
 	partsSelected = PartSel(doc);
@@ -1208,7 +1208,7 @@ void DoMasterStfLines(Document *doc)
 
 void MPEditMargins(Document *doc)
 {
-	INT16 lMarg,tMarg,rMarg,bMarg;
+	short lMarg,tMarg,rMarg,bMarg;
 
 	lMarg = doc->marginRect.left;
 	tMarg = doc->marginRect.top;
@@ -1523,13 +1523,13 @@ static void SetMasterPParts(Document *doc)
 
 static LINK MakeNewStaff(Document *doc, LINK qL, LINK qSystemL, DDIST sysTop)
 {
-	LINK aStaffL; INT16 MPinitStfTop1,MPinitStfTop2,MPledgerYSp;
+	LINK aStaffL; short MPinitStfTop1,MPinitStfTop2,MPledgerYSp;
 	DDIST staffLength,sysHeight,indent;
 	PSYSTEM qSystem; PSTAFF pStaff;
 
 	MPledgerYSp = doc->ledgerYSp;
-	MPinitStfTop1 = (INT16)(MPledgerYSp*drSize[doc->srastral]/STFHALFLNS);
-	MPinitStfTop2 = (INT16)(2.5*drSize[doc->srastral]);
+	MPinitStfTop1 = (short)(MPledgerYSp*drSize[doc->srastral]/STFHALFLNS);
+	MPinitStfTop2 = (short)(2.5*drSize[doc->srastral]);
 
 	staffLength = MARGWIDTH(doc)-doc->otherIndent;
 	sysHeight = MEAS_BOTTOM(MPinitStfTop1+MPinitStfTop2, STHEIGHT);
@@ -1620,7 +1620,7 @@ must be PartLevel. */
 void StoreConnectPart(LINK headL, LINK aConnectL)
 {
 	LINK partL;
-	INT16 firstStf, lastStf;
+	short firstStf, lastStf;
 	
 	if (ConnectCONNLEVEL(aConnectL)!=PartLevel) return;
 

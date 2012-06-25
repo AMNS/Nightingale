@@ -37,22 +37,22 @@ static enum {
 static DialogPtr OpenThisDialog(Document *doc);
 static void      CloseThisDialog(DialogPtr dlog);
 static void      DoDialogUpdate(DialogPtr dlog);
-static void      DoDialogActivate(DialogPtr dlog, INT16 activ);
+static void      DoDialogActivate(DialogPtr dlog, short activ);
 static void      DoDialogContent(DialogPtr dlog, EventRecord *evt);
-static INT16     DoDialogItem(DialogPtr dlog, short itemHit);
+static short     DoDialogItem(DialogPtr dlog, short itemHit);
 
 static pascal  	Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static Boolean 	CheckUserItems(Point where, short *itemHit);
-static INT16    AnyBadValues(DialogPtr dlog);
+static short    AnyBadValues(DialogPtr dlog);
 
 static void		GetChkMergeData(Document *doc, UserList *l);
 
-static INT16    BuildList(Document *doc, DialogPtr dlog, INT16 item, INT16 csize, UserList *l);
+static short    BuildList(Document *doc, DialogPtr dlog, short item, short csize, UserList *l);
 
-static INT16		DoOpenCell(UserList *l, StringPtr buf, short *len);
+static short		DoOpenCell(UserList *l, StringPtr buf, short *len);
 
 static Point where;
-static INT16 modifiers;
+static short modifiers;
 
 /* Lists and/or popups */
 
@@ -63,7 +63,7 @@ static ModalFilterUPP	dlogFilterUPP;
 
 /* Display the CheckMerge dialog.  Return TRUE if OK, FALSE if CANCEL or error. */
 
-INT16 DoChkMergeDialog(Document *doc)
+short DoChkMergeDialog(Document *doc)
 	{
 		short itemHit,okay,keepGoing=TRUE;
 		register DialogPtr dlog; GrafPtr oldPort;
@@ -161,7 +161,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 							break;
 						case 'a':
 						case 'A':
-							INT16 keyFocus = GetDialogKeyboardFocusItem(dlog);
+							short keyFocus = GetDialogKeyboardFocusItem(dlog);
 							if (keyFocus > 0) {
 								/* Dialog has text edit item: select all */
 								SelectDialogItemText(dlog,keyFocus,0,ENDTEXT);
@@ -222,7 +222,7 @@ static void DoDialogUpdate(DialogPtr dlog)
 
 /* Activate event: Activate or deactivate this dialog and any items in it */
 
-static void DoDialogActivate(DialogPtr dlog, INT16 activ)
+static void DoDialogActivate(DialogPtr dlog, short activ)
 	{
 		SetPort(GetDialogWindowPort(dlog));
 		LActivate(activ,list2.hndl);
@@ -282,7 +282,7 @@ static void CloseThisDialog(DialogPtr dlog)
 The local point is in where; modifiers in modifiers.
 Returns whether or not the dialog should be closed (keepGoing). */
 
-static INT16 DoDialogItem(DialogPtr dlog, short itemHit)
+static short DoDialogItem(DialogPtr dlog, short itemHit)
 	{
 		short okay=FALSE,keepGoing=TRUE,val;
 		Str255 str;
@@ -314,7 +314,7 @@ static INT16 DoDialogItem(DialogPtr dlog, short itemHit)
 /* Pull values out of dialog items and deliver TRUE if any of them are
 illegal or inconsistent; otherwise deliver FALSE. */
 
-static INT16 AnyBadValues(DialogPtr /*dlog*/)
+static short AnyBadValues(DialogPtr /*dlog*/)
 	{
 		return(FALSE);
 	}
@@ -323,14 +323,14 @@ static INT16 AnyBadValues(DialogPtr /*dlog*/)
 
 /* ClipVInfo is defined in <NTypes.h>. */
 
-static INT16 GetLengthList(UserList *l, ClipVInfo *clipVInfo);
+static short GetLengthList(UserList *l, ClipVInfo *clipVInfo);
 
 /* Set the length of the list to the number of voices with problems, and return this
 value. */
 
-static INT16 GetLengthList(UserList *l, ClipVInfo *clipVInfo)
+static short GetLengthList(UserList *l, ClipVInfo *clipVInfo)
 	{
-		INT16 v,nBad = 0;
+		short v,nBad = 0;
 
 		for (v=1; v<=MAXVOICES; v++)
 			if (clipVInfo[v].vBad) nBad++;
@@ -344,7 +344,7 @@ static void GetChkMergeData(Document *doc, UserList *l)
 		static char cellstr[64],partName[24];
 		ClipVInfo clipVInfo[MAXVOICES+1];
 		char fmtStr[256];
-		INT16 i,v,userV,stfDiff;
+		short i,v,userV,stfDiff;
 		LINK partL; PPARTINFO pPart;
 
 		for (v=1; v<=MAXVOICES; v++) {
@@ -384,7 +384,7 @@ static void GetChkMergeData(Document *doc, UserList *l)
 csize.  If success, delivers TRUE; if couldn't allocate ListMgr list (no more memory
 or whatever), delivers FALSE. */
 
-static INT16 BuildList(Document *doc, DialogPtr dlog, INT16 item, INT16 csize, UserList *l)
+static short BuildList(Document *doc, DialogPtr dlog, short item, short csize, UserList *l)
 	{
 		short type; Rect box; Handle hndl;
 
@@ -421,9 +421,9 @@ static INT16 BuildList(Document *doc, DialogPtr dlog, INT16 item, INT16 csize, U
 /* Do whatever when user double clicks (opens) on a list cell.  Delivers
 TRUE or FALSE according to whether any cell was selected or not. */
 
-static INT16 DoOpenCell(UserList *l, StringPtr buf, short *len)
+static short DoOpenCell(UserList *l, StringPtr buf, short *len)
 	{
-		INT16 ans;
+		short ans;
 
 		l->cell.h = l->cell.v = 0;
 		if (ans = LGetSelect(TRUE,&l->cell,l->hndl)) {

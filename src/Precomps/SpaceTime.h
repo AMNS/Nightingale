@@ -2,43 +2,43 @@
 
 Boolean FillRelStaffSizes(Document *);
 
-STDIST SymWidthLeft(Document *, LINK, INT16);
-STDIST SymWidthRight(Document *, LINK, INT16, Boolean);
+STDIST SymWidthLeft(Document *, LINK, short);
+STDIST SymWidthRight(Document *, LINK, short, Boolean);
 STDIST SymLikelyWidthRight(Document *, LINK, long);
-DDIST SymDWidthLeft(Document *, LINK, INT16, CONTEXT);
-DDIST SymDWidthRight(Document *, LINK, INT16, Boolean, CONTEXT);
-DDIST ConnectDWidth(INT16, char);
+DDIST SymDWidthLeft(Document *, LINK, short, CONTEXT);
+DDIST SymDWidthRight(Document *, LINK, short, Boolean, CONTEXT);
+DDIST ConnectDWidth(short, char);
 
 DDIST GetClefSpace(LINK clefL);
 DDIST GetTSWidth(LINK timeSigL);
-INT16 GetKSWidth(LINK, DDIST, INT16);
+short GetKSWidth(LINK, DDIST, short);
 DDIST KSDWidth(LINK,CONTEXT);
-DDIST GetKeySigWidth(Document *doc,LINK keySigL,INT16 staffn);
+DDIST GetKeySigWidth(Document *doc,LINK keySigL,short staffn);
 
 long SyncNeighborTime(Document *, LINK, Boolean);
 long GetLTime(Document *, LINK);
-INT16 GetSpTimeInfo(Document *, LINK, LINK, SPACETIMEINFO [], Boolean);
-long GetLDur(Document *, LINK, INT16);
-long GetVLDur(Document *, LINK, INT16);
+short GetSpTimeInfo(Document *, LINK, LINK, SPACETIMEINFO [], Boolean);
+long GetLDur(Document *, LINK, short);
+long GetVLDur(Document *, LINK, short);
 
-void FillSpaceMap(Document *, INT16);
+void FillSpaceMap(Document *, short);
 STDIST IdealSpace(Document *, long, long);
-INT16 FIdealSpace(Document *, long, long);
+short FIdealSpace(Document *, long, long);
 DDIST CalcSpaceNeeded(Document *doc, LINK pL);
 
-INT16 MeasSpaceProp(LINK);
+short MeasSpaceProp(LINK);
 void SetMeasSpacePercent(LINK, long);
-Boolean GetMSpaceRange(Document *, LINK, LINK, INT16 *, INT16 *);
+Boolean GetMSpaceRange(Document *, LINK, LINK, short *, short *);
 
-Boolean LDur2Code(INT16, INT16, INT16, char *, char *);
+Boolean LDur2Code(short, short, short, char *, char *);
 long Code2LDur(char, char);
 long SimpleLDur(LINK);
-INT16 GetMinDur(INT16, LINK, LINK);
-INT16 TupletTotDir(LINK);
-INT16 GetDurUnit(INT16, INT16, INT16);
-INT16 GetMaxDurUnit(LINK);
+short GetMinDur(short, LINK, LINK);
+short TupletTotDir(LINK);
+short GetDurUnit(short, short, short);
+short GetMaxDurUnit(LINK);
 long SimpleGRLDur(LINK);
-long TimeSigDur(INT16, INT16, INT16);
+long TimeSigDur(short, short, short);
 
 Boolean RhythmUnderstood(Document *, LINK, Boolean);
 Boolean FixTimeStamps(Document *, LINK, LINK);

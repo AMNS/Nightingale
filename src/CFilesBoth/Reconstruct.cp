@@ -21,11 +21,11 @@ static LINK InsertClJITBefore(Document *doc,LINK pL,LINK newObjL,COPYMAP *mergeM
 static LINK InsertClJIPBefore(Document *doc,LINK pL,LINK newObjL,COPYMAP *mergeMap);
 static LINK InsertClJDBefore(Document *doc,LINK pL,LINK newObjL,COPYMAP *mergeMap);
 
-static void LocateClJITObj(Document *, LINK, LINK, LINK, PTIME *,INT16,COPYMAP *,INT16 *);
-static void LocateClJIPObj(Document *, LINK, LINK, LINK, PTIME *,INT16,COPYMAP *,INT16 *);
-static void LocateClGenlJDObj(Document *, LINK, LINK, LINK, LINK, LINK, PTIME *,INT16,COPYMAP *,
-								INT16 *);
-static void LocateClJDObj(Document *, LINK, LINK, PTIME *,INT16,COPYMAP *,INT16 *);
+static void LocateClJITObj(Document *, LINK, LINK, LINK, PTIME *,short,COPYMAP *,short *);
+static void LocateClJIPObj(Document *, LINK, LINK, LINK, PTIME *,short,COPYMAP *,short *);
+static void LocateClGenlJDObj(Document *, LINK, LINK, LINK, LINK, LINK, PTIME *,short,COPYMAP *,
+								short *);
+static void LocateClJDObj(Document *, LINK, LINK, PTIME *,short,COPYMAP *,short *);
 
 static void FixSlurLinks(LINK slurL,PTIME *durArray);
 static void FixDynamLinks(LINK dynamL,PTIME *durArray);
@@ -37,7 +37,7 @@ static void FixGRDrawLinks(LINK graphicL,PTIME *durArray);
 
 /* Return TRUE if voice v contains notes in the selection range. */
 
-Boolean VoiceInSelRange(Document *doc, INT16 v)
+Boolean VoiceInSelRange(Document *doc, short v)
 {
 	LINK vStartL,vEndL;
 	
@@ -52,7 +52,7 @@ time of notes in those voices in the given measure; if so, return FALSE. */
 Boolean Check1ContinVoice(Document *doc, LINK measL, Boolean vInSel[],
 									SPACETIMEINFO *spTimeInfo)
 {
-	LINK link,endMeasL; INT16 i,lastNode,v;
+	LINK link,endMeasL; short i,lastNode,v;
 	Boolean first;
 	long startTime,nextlTime;
 
@@ -98,7 +98,7 @@ FALSE. */
 
 Boolean CheckContinVoice(Document *doc)
 {
-	LINK measL, lastL; INT16 v;
+	LINK measL, lastL; short v;
 	Boolean okay=FALSE, vInSel[MAXVOICES+1];
 	SPACETIMEINFO *spTimeInfo;
 	
@@ -125,9 +125,9 @@ Cleanup:
 /* First initialize the unused 0'th row of the array, then the rest of the rows.
 Set pTimes of 0'th row to BIGNUM to sort them above the world. */
 
-void InitDurArray(PTIME *durArray, INT16 nInMeas)
+void InitDurArray(PTIME *durArray, short nInMeas)
 {
-	INT16 notes,v;
+	short notes,v;
 
 	for (notes = 0; notes<nInMeas; notes++) {				/* unused 0'th row */
 			(durArray + notes)->objL = NILINK;
@@ -168,10 +168,10 @@ void InitDurArray(PTIME *durArray, INT16 nInMeas)
 
 /* Set playDur values for the pDurArray. */
 
-void SetPlayDurs(Document */*doc*/, PTIME *durArray, INT16 nInMeas, LINK startMeas,
+void SetPlayDurs(Document */*doc*/, PTIME *durArray, short nInMeas, LINK startMeas,
 						LINK endMeas)
 {
-	INT16 v,notes;
+	short v,notes;
 	LINK pL,aNoteL;
 	PANOTE aNote;
 	PTIME *pTime;
@@ -197,10 +197,10 @@ void SetPlayDurs(Document */*doc*/, PTIME *durArray, INT16 nInMeas, LINK startMe
 
 /* Set playDur values for the pDurArray from the note's logical duration. */
 
-void SetLDurs(Document *doc,PTIME *durArray,INT16 nInMeas,LINK startMeas,LINK endMeas);
-void SetLDurs(Document *doc, PTIME *durArray, INT16 nInMeas, LINK startMeas, LINK endMeas)
+void SetLDurs(Document *doc,PTIME *durArray,short nInMeas,LINK startMeas,LINK endMeas);
+void SetLDurs(Document *doc, PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas)
 {
-	INT16 v,notes;
+	short v,notes;
 	LINK pL,aNoteL;
 	PANOTE aNote;
 	PTIME *pTime;
@@ -226,10 +226,10 @@ void SetLDurs(Document *doc, PTIME *durArray, INT16 nInMeas, LINK startMeas, LIN
 
 /* Set pTime values for the pDurArray. */
 
-INT16 SetPTimes(Document *doc, PTIME *durArray, INT16 nInMeas, SPACETIMEINFO *spTimeInfo,
+short SetPTimes(Document *doc, PTIME *durArray, short nInMeas, SPACETIMEINFO *spTimeInfo,
 													LINK startMeas, LINK endMeas)
 {
-	INT16 j,v,notes,nInMeasure;
+	short j,v,notes,nInMeasure;
 	LINK pL,aNoteL,barLastL;
 	PANOTE aNote;
 
@@ -255,9 +255,9 @@ INT16 SetPTimes(Document *doc, PTIME *durArray, INT16 nInMeas, SPACETIMEINFO *sp
 
 /* Set link values for owning beams, octave signs, tuplets, and slurs. */
 
-void SetLinkOwners(PTIME *durArray, INT16 nInMeas, LINK startMeas, LINK endMeas)
+void SetLinkOwners(PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas)
 {
-	INT16 v,notes;
+	short v,notes;
 	LINK pL,aNoteL,beamL,octL,tupletL,slurL,tieL;
 	PANOTE aNote;
 	SearchParam pbSearch;
@@ -344,9 +344,9 @@ void SetLinkOwners(PTIME *durArray, INT16 nInMeas, LINK startMeas, LINK endMeas)
 /* Compact the pDurArray into qDurArray: copy into qDurArray only those pTimes s.t.
 pTime->subL!= NILINK, and then fill in the rest of the entries with default values. */
 
-INT16 CompactDurArray(PTIME *pDurArray, PTIME *qDurArray, INT16 numNotes)
+short CompactDurArray(PTIME *pDurArray, PTIME *qDurArray, short numNotes)
 {
-	PTIME *pTime,*qTime; INT16 i,arrBound,notes;
+	PTIME *pTime,*qTime; short i,arrBound,notes;
 
 	pTime = pDurArray;
 	qTime = qDurArray;
@@ -432,7 +432,7 @@ LINK is initialized. */
 LINK CopySubObjs(Document *doc, LINK newObjL, PTIME *pTime)
 {
 	LINK subL,newSubL,tempSubL; PTIME *qTime;
-	Boolean objSel=FALSE; INT16 v;
+	Boolean objSel=FALSE; short v;
 
 	qTime = pTime;
 	subL = qTime->subL;
@@ -477,7 +477,7 @@ LINK CopySubObjs(Document *doc, LINK newObjL, PTIME *pTime)
 /* Create a new Sync with subCount nEntries and copy object level information
 from pTime into it. */
 
-LINK CopySync(Document *doc, INT16 subCount, PTIME *pTime)
+LINK CopySync(Document *doc, short subCount, PTIME *pTime)
 {
 	PMEVENT pObj,pNewObj;
 	LINK firstSubObjL,newObjL;
@@ -900,9 +900,9 @@ void LocateJDObj(Document */*doc*/, LINK pL, LINK baseMeasL, PTIME *durArray)
 /* --------------------------------------------------------------- DebugDurArray -- */
 /* Print out values of the durArray. */
 
-void DebugDurArray(INT16 arrBound, PTIME *durArray)
+void DebugDurArray(short arrBound, PTIME *durArray)
 {
-	INT16 notes;
+	short notes;
 
 	for (notes=0; notes<arrBound; notes++) {
 		DebugPrintf("notes=%d objL=%d newObjL=%d subL=%d newSubL=%d slurFirstL=%d tieFirstL=%d\n",
@@ -931,7 +931,7 @@ relative to SYNCs. */
 void RelocateObjs(Document *doc, LINK headL, LINK tailL, LINK startMeas, LINK endMeas,
 						PTIME *durArray)
 {
-	LINK pL,nextL,nextSync,qL; INT16 objType;
+	LINK pL,nextL,nextSync,qL; short objType;
 
 	for (pL = headL; pL!=tailL; pL=nextL) {
 		nextL = RightLINK(pL);
@@ -998,7 +998,7 @@ RelocateClObjs), etc. */
 
 void InitCopyMap(LINK startL, LINK endL, COPYMAP *mergeMap)
 {
-	LINK pL; INT16 i;
+	LINK pL; short i;
 	
 	for (i=0,pL=startL; pL!=endL; i++,pL=RightLINK(pL)) {
 		mergeMap[i].srcL = pL;
@@ -1006,18 +1006,18 @@ void InitCopyMap(LINK startL, LINK endL, COPYMAP *mergeMap)
 	}
 }
 
-void SetCopyMap(LINK srcL, LINK dstL, INT16 numObjs, COPYMAP *mergeMap)
+void SetCopyMap(LINK srcL, LINK dstL, short numObjs, COPYMAP *mergeMap)
 {
-	INT16 i;
+	short i;
 	
 	for (i=0; i<numObjs; i++)
 		if (mergeMap[i].srcL==srcL)
 			mergeMap[i].dstL = dstL;
 }
 
-LINK GetCopyMap(LINK srcL, INT16 numObjs, COPYMAP *mergeMap)
+LINK GetCopyMap(LINK srcL, short numObjs, COPYMAP *mergeMap)
 {
-	INT16 i;
+	short i;
 
 	for (i=0; i<numObjs; i++)
 		if (mergeMap[i].srcL==srcL)
@@ -1026,9 +1026,9 @@ LINK GetCopyMap(LINK srcL, INT16 numObjs, COPYMAP *mergeMap)
 	return NILINK;
 }
 
-INT16 GetNumClObjs(Document *doc)
+short GetNumClObjs(Document *doc)
 {
-	INT16 i=0; LINK pL;
+	short i=0; LINK pL;
 
 	InstallDoc(clipboard);
 	
@@ -1059,7 +1059,7 @@ name, and determine that it will stay identical. */
 
 static LINK InsertClJITBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mergeMap)
 {
-	LINK copyL; INT16 numObjs;
+	LINK copyL; short numObjs;
 
 	copyL = DuplicateObject(ObjLType(pL),pL,FALSE,clipboard,doc,FALSE);
 	if (!copyL) return NILINK;
@@ -1092,7 +1092,7 @@ name, and determine that it will stay identical. */
 
 static LINK InsertClJIPBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mergeMap)
 {
-	LINK copyL; INT16 numObjs;
+	LINK copyL; short numObjs;
 
 	copyL = DuplicateObject(ObjLType(pL),pL,FALSE,clipboard,doc,FALSE);
 	if (!copyL) return NILINK;
@@ -1123,7 +1123,7 @@ static LINK InsertClJIPBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mer
 
 static LINK InsertClJDBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mergeMap)
 {
-	LINK copyL; INT16 numObjs;
+	LINK copyL; short numObjs;
 
 	copyL = DuplicateObject(ObjLType(pL),pL,FALSE,clipboard,doc,FALSE);
 	if (!copyL) return NILINK;
@@ -1160,7 +1160,7 @@ vMap for the LocateCl functions allows determination of new voice for objects
 translated by stfDiff. */
 
 static void LocateClJITObj(Document *doc, LINK pL, LINK nextL, LINK endMeasL,
-									PTIME *durArray, INT16 stfDiff, COPYMAP *mergeMap, INT16 *vMap)
+									PTIME *durArray, short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
 	PTIME *pTime; LINK newObjL=NILINK,copyL;
 	
@@ -1200,7 +1200,7 @@ on different staves. Even with this situation, could run into problems if try to
 tuple heterogeneous overlapping ranges in 2 separate voices on the same staff. */
 
 static void LocateClJIPObj(Document *doc, LINK pL, LINK nextL, LINK endMeasL,
-									PTIME *durArray, INT16 stfDiff, COPYMAP *mergeMap, INT16 *vMap)
+									PTIME *durArray, short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
 	PTIME *pTime; LINK newObjL=NILINK,aClefL,aTimeSigL,aKeySigL,aGRNoteL,copyL;
 
@@ -1254,10 +1254,10 @@ link relative to which to re-insert the J_D object. */
 
 static void LocateClGenlJDObj(Document *doc, LINK pL, LINK startClMeas, LINK endClMeas,
 										LINK startMeas, LINK endMeas, PTIME *durArray,
-										INT16 stfDiff, COPYMAP *mergeMap, INT16 *vMap)
+										short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
 	LINK firstL,newObjL,lastL,newLastL,copyL,qL;
-	PTIME *pTime; INT16 numObjs=0;
+	PTIME *pTime; short numObjs=0;
 
 	for (qL=RightLINK(clipFirstMeas); qL!=clipboard->tailL; numObjs++,qL=RightLINK(qL)) ;
 
@@ -1383,7 +1383,7 @@ can only be relative to SYNCs.
 the clipboard.*/
 
 static void LocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durArray,
-									INT16 stfDiff, COPYMAP *mergeMap, INT16 *vMap)
+									short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
 	LINK firstL,newObjL,lastL,newLastL,copyL;
 	PTIME *pTime;
@@ -1521,10 +1521,10 @@ static void LocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durArra
 from the clipboard which can only be relative to SYNCs. */
 
 void RelocateClObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startMeas,
-							LINK endMeas, PTIME *durArray, INT16 stfDiff, COPYMAP *mergeMap,
-							INT16 *vMap)
+							LINK endMeas, PTIME *durArray, short stfDiff, COPYMAP *mergeMap,
+							short *vMap)
 {
-	LINK pL,nextL,nextSync,qL; INT16 objType;
+	LINK pL,nextL,nextSync,qL; short objType;
 	
 	InstallDoc(clipboard);
 
@@ -1565,8 +1565,8 @@ void RelocateClObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startM
 relative to J_IT objects other than SYNCs or J_IP objects. */
 	
 void RelocateClGenlJDObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startMeas,
-									LINK endMeas, PTIME *durArray, INT16 stfDiff, COPYMAP *mergeMap,
-									INT16 *vMap)
+									LINK endMeas, PTIME *durArray, short stfDiff, COPYMAP *mergeMap,
+									short *vMap)
 {
 	LINK pL,nextL;
 
@@ -1694,7 +1694,7 @@ RearrangeNotes. If the first sync in the selection range is beamed/in Octava/
 in Tuplet, the owning object could be anywhere prior to the selection range; 
 find it and return it; else return the startMeas. As of v. 3.0, this is unused. */
 
-LINK GetBaseLink(Document *doc, INT16 type, LINK startMeasL)
+LINK GetBaseLink(Document *doc, short type, LINK startMeasL)
 {
 	LINK syncL, aNoteL, beamL, octL, tupletL;
 	
@@ -1904,12 +1904,12 @@ void FixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray,
 /* Update staff and voice numbers: for merging objects, both into staves other than
 those they came from, and into any staff when Look at Voice is in effect. */
 
-static void FixVoiceNum(LINK pL,INT16 stfDiff,INT16 *vMap);
-static void FixStaffn(LINK pL,INT16 stfDiff);
+static void FixVoiceNum(LINK pL,short stfDiff,short *vMap);
+static void FixStaffn(LINK pL,short stfDiff);
 
 static void FixVoiceNum(LINK pL,
-								INT16 /*stfDiff*/,		/* obsolete; ignored */
-								INT16 *vMap)
+								short /*stfDiff*/,		/* obsolete; ignored */
+								short *vMap)
 {
 	LINK aNoteL,aGRNoteL;
 
@@ -1943,7 +1943,7 @@ static void FixVoiceNum(LINK pL,
 	}
 }
 
-static void FixStaffn(LINK pL, INT16 stfDiff)
+static void FixStaffn(LINK pL, short stfDiff)
 {
 	LINK aNoteL,aGRNoteL,aDynamL,aClefL,aKSL,aTSL;
 
@@ -2007,7 +2007,7 @@ static void FixStaffn(LINK pL, INT16 stfDiff)
 	}
 }
 
-void FixStfAndVoice(LINK pL, INT16 stfDiff, INT16 *vMap)
+void FixStfAndVoice(LINK pL, short stfDiff, short *vMap)
 {
 	FixVoiceNum(pL,stfDiff,vMap);
 	FixStaffn(pL,stfDiff);

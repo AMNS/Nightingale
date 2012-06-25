@@ -22,7 +22,7 @@ static void SetupFormatMenu(Document *doc);
 static void EnterShowFormat(Document *doc);
 static void ExitShowFormat(Document *doc);
 
-static Boolean SFStaffNonempty(LINK, INT16);
+static Boolean SFStaffNonempty(LINK, short);
 static Boolean CheckSFInvis(Document *doc);
 
 static Boolean SFVisPossible(Document *doc);
@@ -126,7 +126,7 @@ and time signature changes don't count, since the user presumably wouldn't mind
 hiding them. Nor do rests; perhaps rests other than whole-measure rests should
 count, though. */
 
-static Boolean SFStaffNonempty(LINK pL, INT16 staffn)
+static Boolean SFStaffNonempty(LINK pL, short staffn)
 {
 	LINK sysL, qL, aNoteL;
 	
@@ -175,7 +175,7 @@ Tempo marks, Graphics, etc., on it, ask the user if they want to hide it anyway.
 
 static Boolean CheckSFInvis(Document *doc)
 {
-	LINK pL,aStaffL,partL; INT16 firstStf,lastStf,staffn;
+	LINK pL,aStaffL,partL; short firstStf,lastStf,staffn;
 	PPARTINFO pPart;
 	
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -219,7 +219,7 @@ DDIST SetStfInvis(Document *doc, LINK pL, LINK aStaffL)
 {
 	PASTAFF aStaff,bStaff;
 	LINK bStaffL,sysL;
-	DDIST vDiff,prevStfHt; INT16 staffn,prevBelowDist;
+	DDIST vDiff,prevStfHt; short staffn,prevBelowDist;
 
 	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	prevBelowDist = BelowStfDist(doc, sysL, pL);
@@ -353,7 +353,7 @@ void SFInvisify(Document *doc)
 and all staves in its system below it down by the space it now occupies. Return that
 space. If the staff is ALREADY visible, do nothing and return 0. */
 
-DDIST VisifyStf(LINK pL, LINK aStaffL, INT16 staffn)
+DDIST VisifyStf(LINK pL, LINK aStaffL, short staffn)
 {
 	DDIST vDiff; LINK sysL,bStaffL; PASTAFF aStaff,bStaff;
 
@@ -525,7 +525,7 @@ changing the call to VisifyAllObjs in SetStfInvis...DAB. */
 void SFVisify(Document *doc)
 {
 	LINK pL,sysL;
-	INT16 rfmt=Cancel;
+	short rfmt=Cancel;
 	
 	if (!SFVisPossible(doc)) {
 #ifdef NOTYET
@@ -596,7 +596,7 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 	Point			origPt;
 	Rect			topMargin, bottomMargin, leftMargin, rightMargin, margin, origMargin, sysRect;
 	CursHandle	cursorH;
-	INT16			oldVal, dy, dx, minVal, maxVal, xMove, yMove, staffn;
+	short			oldVal, dy, dx, minVal, maxVal, xMove, yMove, staffn;
 	LINK			lSys, rSys, staffL, aStaffL;
 	MarginType	marginType;
 	

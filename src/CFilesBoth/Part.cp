@@ -21,10 +21,10 @@
 
 static LINK staffLA[MAXSTAVES+1];				/* Array of links to staff subobjects */
 
-static void FixStaffNums(Document *, INT16, INT16, SignedByte []);
-static Boolean APFixVoiceNums(Document *, INT16, INT16);
-static void DPFixVoiceNums(Document *, INT16, INT16, INT16);
-static void SelPartRange(Document *doc,LINK startL,LINK endL,INT16 startStf,INT16 endStf);
+static void FixStaffNums(Document *, short, short, SignedByte []);
+static Boolean APFixVoiceNums(Document *, short, short);
+static void DPFixVoiceNums(Document *, short, short, short);
+static void SelPartRange(Document *doc,LINK startL,LINK endL,short startStf,short endStf);
 
 /* ============== Functions for updating staff and voice nos. and the voice table == */
 
@@ -39,8 +39,8 @@ Connect subobj for the group is different. Adding is simpler because you can't a
 the top or bottom staff of a group. */
 
 static void FixStaffNums(Document *doc,
-									INT16 afterStf,
-									INT16 nDelta,
+									short afterStf,
+									short nDelta,
 									SignedByte measConnStaff[])	/* Ignored if nDelta>0 */
 {
 	PMEVENT		p;
@@ -180,9 +180,9 @@ static void FixStaffNums(Document *doc,
 }
 
 
-Boolean APFixVoiceNums(Document *doc, INT16 afterStf, INT16 nDelta)
+Boolean APFixVoiceNums(Document *doc, short afterStf, short nDelta)
 {
-	INT16 tableLast, addPartn, v;
+	short tableLast, addPartn, v;
 
 	/*
 	 *	See if there's room to add the nDelta new default voice(s) to the voice table.
@@ -218,9 +218,9 @@ Boolean APFixVoiceNums(Document *doc, INT16 afterStf, INT16 nDelta)
 	return TRUE;
 }
 
-void DPFixVoiceNums(Document *doc, INT16 afterStf, INT16 nDelta, INT16 delPartn)
+void DPFixVoiceNums(Document *doc, short afterStf, short nDelta, short delPartn)
 {
-	INT16 newAfterSt, v;
+	short newAfterSt, v;
 
 	newAfterSt = afterStf-nDelta+1; 				/* First staff below deleted staves */
 	
@@ -246,10 +246,10 @@ void DPFixVoiceNums(Document *doc, INT16 afterStf, INT16 nDelta, INT16 delPartn)
 /* AddPart and auxiliary functions. */
 
 static DDIST InitPartGetStfLen(Document *doc);
-static void GrowAllObjects(Document *doc,INT16 nstAdd);
+static void GrowAllObjects(Document *doc,short nstAdd);
 static void GetSysLinks(LINK sysL,LINK *staffL,LINK *measL,LINK *clefL,LINK *keySigL,	
 																	LINK *timeSigL,LINK *connectL);
-static void InitSysPart(Document *doc,LINK sysL,INT16 nstAdd,INT16 afterStf,INT16 showLines);
+static void InitSysPart(Document *doc,LINK sysL,short nstAdd,short afterStf,short showLines);
 
 static DDIST InitPartGetStfLen(Document *doc)
 {
@@ -263,7 +263,7 @@ static DDIST InitPartGetStfLen(Document *doc)
 	return staffLen;
 }
 
-static void GrowAllObjects(Document *doc, INT16 nstAdd)
+static void GrowAllObjects(Document *doc, short nstAdd)
 {
 	LINK pL;
 
@@ -315,10 +315,10 @@ static void GetSysLinks(LINK sysL, LINK *staffL, LINK *measL, LINK *clefL,
 
 #define GetNextTIMESIGL(link)		( (link) ? NextTIMESIGL(link) : NILINK )
 
-static void InitSysPart(Document *doc, LINK sysL, INT16 nstAdd, INT16 afterStf,
-								INT16 showLines)
+static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
+								short showLines)
 {
-	INT16 prevNEntries,newNEntries,j,m,connStaff,ns,thisSt,measType,
+	short prevNEntries,newNEntries,j,m,connStaff,ns,thisSt,measType,
 			tsType,tsNum,tsDenom, groupConnType;
 	LINK staffL,measL,clefL,keySigL,timeSigL,connectL,nextMeasL,nextTSL,
 			aStaffL,aMeasL,aClefL,aKeySigL,aTimeSigL,aConnectL,pL,aPSMeasL;
@@ -580,11 +580,11 @@ of the subobject list, never the beginning. Also, some of it depends on header
 subobjects (PARTINFOs) being in order of increasing staves. */
 
 LINK AddPart(Document *doc,
-					INT16 afterStf,
-					INT16 nstAdd,
-					INT16 showLines)		/* 0=show 0 staff lines, 1=only middle line, SHOW_ALL_LINES=show all */
+					short afterStf,
+					short nstAdd,
+					short showLines)		/* 0=show 0 staff lines, 1=only middle line, SHOW_ALL_LINES=show all */
 {
-	INT16 partn, np; LINK partL,newPartL,sysL,measL,lastMeasL;
+	short partn, np; LINK partL,newPartL,sysL,measL,lastMeasL;
 	SignedByte measConnStaff[MAXSTAVES+1];										/* Unused */
 				
 	/*
@@ -654,9 +654,9 @@ LINK AddPart(Document *doc,
 
 /* Given staff number, returns number of part it belongs to. */
 
-INT16 Staff2Part(Document *doc, INT16 nstaff)
+short Staff2Part(Document *doc, short nstaff)
 {
-	INT16			np;
+	short			np;
 	PPARTINFO	pPart;
 	LINK			partL;
 	
@@ -677,9 +677,9 @@ INT16 Staff2Part(Document *doc, INT16 nstaff)
 
 /* Given staff number, returns part link it belongs to. */
 
-LINK Staff2PartLINK(Document *doc, INT16 nstaff)
+LINK Staff2PartLINK(Document *doc, short nstaff)
 {
-	INT16			np;
+	short			np;
 	PPARTINFO	pPart;
 	LINK			partL;
 	
@@ -704,7 +704,7 @@ startStf to endStf inclusive. Select Connect subobjects only if their range is
 entirely included. */
 
 static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
-									INT16 startStf, INT16 endStf)
+									short startStf, short endStf)
 {
 	LINK pL,aStaffL,aConnectL,subObjL;
 	Boolean selObject;
@@ -793,10 +793,10 @@ GroupLevel Connects that include only one part, which should normally be removed
 by the calling routine. */
 
 Boolean DeletePart(Document *doc,
-							INT16 startStf, INT16 endStf)		/* Inclusive range of staves */
+							short startStf, short endStf)		/* Inclusive range of staves */
 {
 	register PASTAFF aStaff;
-	INT16			deltaNStf, ydelta, ns, np, thisPart;
+	short			deltaNStf, ydelta, ns, np, thisPart;
 	LINK			pL,aStaffL,partL,qPartL,measL,lastMeasL,aMeasL;
 	DDIST			startStfTop, endStfTop;
 	Boolean		dontResp;

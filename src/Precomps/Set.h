@@ -1,26 +1,26 @@
 /*	Set.h	for Nightingale: prototypes for SetCommand.c and SetUtils.c */
 
 Boolean IsSetEnabled(Document *);
-Boolean SetDialog(Document *, INT16 *, INT16 *, INT16 *);
+Boolean SetDialog(Document *, short *, short *, short *);
 void DoSet(Document *doc);
 
-Boolean SetSelVoice(Document *, INT16);
-Boolean SetSelStaff(Document *, INT16);
+Boolean SetSelVoice(Document *, short);
+Boolean SetSelStaff(Document *, short);
 Boolean SetSelStemlen(Document *, unsigned STDIST);
-Boolean SetSelNRAppear(Document *, INT16);
-Boolean SetSelNRSmall(Document *doc, INT16 small);
-Boolean SetSelNRParens(Document *doc, INT16 small);
+Boolean SetSelNRAppear(Document *, short);
+Boolean SetSelNRSmall(Document *doc, short small);
+Boolean SetSelNRParens(Document *doc, short small);
 Boolean SetVelFromContext(Document *, Boolean);
-Boolean SetSelVelocity(Document *, INT16);
+Boolean SetSelVelocity(Document *, short);
 
-Boolean SetSelGraphicX(Document *, STDIST, INT16);
-Boolean SetSelGraphicY(Document *, STDIST, INT16, Boolean);
+Boolean SetSelGraphicX(Document *, STDIST, short);
+Boolean SetSelGraphicY(Document *, STDIST, short, Boolean);
 Boolean SetSelTempoX(Document *, STDIST);
 Boolean SetSelTempoY(Document *, STDIST, Boolean);
-Boolean SetSelGraphicStyle(Document *, INT16, INT16);
+Boolean SetSelGraphicStyle(Document *, short, short);
 
 Boolean SetSelMeasVisible(Document *, Boolean);
-Boolean SetSelMeasType(Document *, INT16);
+Boolean SetSelMeasType(Document *, short);
 
 Boolean SetSelDynamVisible(Document *, Boolean);
 Boolean SetSelDynamSmall(Document *, Boolean);
@@ -34,13 +34,13 @@ Boolean SetSelKeySigVisible(Document *, Boolean);
 Boolean SetSelTimeSigVisible(Document *, Boolean);
 
 Boolean SetSelTupBracket(Document *, Boolean);
-Boolean SetSelTupNums(Document *, INT16);
+Boolean SetSelTupNums(Document *, short);
 
 void SetSlurShape(Document *doc, LINK pL, LINK aSlurL, CONTEXT context);
 void SetAllSlursShape(Document *doc, LINK pL, Boolean recalc);
 Boolean SetSelSlurShape(Document *);
-Boolean SetSelSlurAppear(Document *, INT16);
+Boolean SetSelSlurAppear(Document *, short);
 
-Boolean SetSelLineThickness(Document *, INT16);
+Boolean SetSelLineThickness(Document *, short);
 Boolean SetSelPatchChangeVisible(Document *doc, Boolean visible);
 Boolean SetSelPanVisible(Document *doc, Boolean visible);

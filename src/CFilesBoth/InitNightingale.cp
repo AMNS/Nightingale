@@ -129,7 +129,7 @@ static Boolean DoSplashScreen()
 
 static Boolean InitAllCursors()
 {
-	INT16 i;
+	short i;
 
 	WaitCursor();
 
@@ -181,10 +181,10 @@ void InitNightFonts()
 /* Allocate <endingString> and get label strings for Endings into it. Return the
 number of strings found, or -1 if there's an error (probably out of memory). */
 
-static INT16 InitEndingStrings(void);
-static INT16 InitEndingStrings()
+static short InitEndingStrings(void);
+static short InitEndingStrings()
 {
-	char str[256]; INT16 n, strOffset;
+	char str[256]; short n, strOffset;
 	
 	endingString = NewPtr(MAX_ENDING_STRINGS*MAX_ENDING_STRLEN);
 	if (!GoodNewPtr(endingString)) return -1;
@@ -215,7 +215,7 @@ static Boolean InitNightGlobals()
 {
 	long		*locZero=0;
 	char		fmtStr[256];
-	INT16		j;
+	short		j;
 	
 	/*
 	 *	Since initialization routines can (and as of this writing do) use the coordinate-
@@ -271,7 +271,7 @@ example, "Petrucci" should have 'BBX#' 129, 'MCMp' 129 and 'MCOf' 129.
 static Boolean InitMusFontTables()
 {
 	short		i, nRes, resID, curResFile;
-	INT16		*w, ch, count, xw, xl, yt, xr, yb, index;
+	short		*w, ch, count, xw, xl, yt, xr, yb, index;
 	unsigned char *b;
 	Handle	resH;
 	Size		nBytes;
@@ -310,7 +310,7 @@ static Boolean InitMusFontTables()
 			musFontInfo[index].cBBox[ch].right = 
 			musFontInfo[index].cBBox[ch].bottom = 0;
 
-		w = (INT16 *)(*resH);
+		w = (short *)(*resH);
 		count = *w++;
 		while (count-- > 0) {
 			ch = *w++;
@@ -343,7 +343,7 @@ static Boolean InitMusFontTables()
 	for (i = 0; i < numMusFonts; i++) {
 		resH = Get1NamedResource('MCOf', musFontInfo[i].fontName);
 		if (!GoodResource(resH)) goto error;
-		w = (INT16 *)(*resH);
+		w = (short *)(*resH);
 		for (ch = 0; ch<256; ch++) {
 			musFontInfo[i].xd[ch] = *w++;
 			musFontInfo[i].yd[ch] = *w++;
@@ -355,7 +355,7 @@ static Boolean InitMusFontTables()
 	for (i = 0; i < numMusFonts; i++) {
 		resH = Get1NamedResource('MFEx', musFontInfo[i].fontName);
 		if (!GoodResource(resH)) goto error;
-		w = (INT16 *)(*resH);
+		w = (short *)(*resH);
 		musFontInfo[i].sonataFlagMethod = (*w++ != 0);
 		musFontInfo[i].has16thFlagChars = (*w++ != 0);
 		musFontInfo[i].hasCurlyBraceChars = (*w++ != 0);
@@ -389,7 +389,7 @@ static Boolean InitTables()
 {
 	MIDIPreferences **midiStuff;
 	MIDIModNRPreferences	**midiModNRH;
-	INT16 i;
+	short i;
 
 	l2p_durs[MAX_L_DUR] = PDURUNIT;						/* Set up lookup table to convert; assign 15 to 128th for tuplets */
 	for (i = MAX_L_DUR-1; i>0; i--)						/*   logical to physical durations */
@@ -493,7 +493,7 @@ Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
 
 static void CheckScrFonts()
 {
-	INT16		origLen, foundSizes=0;
+	short		origLen, foundSizes=0;
 	short		fontNum;
 
 	if (!GetFontNumber("\pSonata", &fontNum)) {
@@ -544,7 +544,7 @@ screen fonts. */
 
 void InitMusicFontStuff()
 {
-	INT16 maxPtSize, sonataFontNum;
+	short maxPtSize, sonataFontNum;
 	
 	/*
 	 *	We need a grafPort large enough for the largest Sonata character in the

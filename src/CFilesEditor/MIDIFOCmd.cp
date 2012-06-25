@@ -41,16 +41,16 @@ static OSErr errCode;
 
 static Boolean OpenMIDIFile(void);
 
-INT16 NumOpenDocuments(void);
+short NumOpenDocuments(void);
 
 
 /* ----------------------------------------------------- MFInfoDialog and helpers -- */
 /* Display statistics for the individual tracks of the MIDI file. */
 
 static void DMFDrawLine(char *);
-void ShowMFInfoPage(INT16, INT16, TRACKINFO [], INT16 [], INT16 [], Boolean [][MAXCHANNEL],
-							INT16 [], Boolean [], long []);
-static void MFInfoDialog(TRACKINFO [], INT16 [], INT16 [], Boolean [][MAXCHANNEL], INT16 [],
+void ShowMFInfoPage(short, short, TRACKINFO [], short [], short [], Boolean [][MAXCHANNEL],
+							short [], Boolean [], long []);
+static void MFInfoDialog(TRACKINFO [], short [], short [], Boolean [][MAXCHANNEL], short [],
 						Boolean [], long []);
 
 #define LEADING 11			/* Vertical dist. between lines displayed (pixels) */
@@ -58,7 +58,7 @@ static void MFInfoDialog(TRACKINFO [], INT16 [], INT16 [], Boolean [][MAXCHANNEL
 extern char durStrs[][16];
 
 static Rect textRect;
-static INT16 linenum;
+static short linenum;
 
 /* Draw the specified C string on the next line in MIDI File Info dialog */
 
@@ -67,8 +67,8 @@ static INT16 linenum;
 static void DMFDrawLine(char *s)
 {
 	char *p;
-	INT16 nt;
-	INT16 tab[TAB_COUNT]={10,35,70,100,150,							/* In pixels */
+	short nt;
+	short tab[TAB_COUNT]={10,35,70,100,150,							/* In pixels */
 									201,211,221,231, 251,261,271,281,	/* First 8 channels */
 									301,311,324,337, 357,370,383,396};	/* Second 8 channels */
 
@@ -101,16 +101,16 @@ static void DMFDrawLine(char *s)
 
 
 void ShowMFInfoPage(
-			INT16 pageNum, INT16 linesPerPage,
+			short pageNum, short linesPerPage,
 			TRACKINFO trackInfo[],
-			INT16 nTrackNotes[], INT16 nTooLong[],
+			short nTrackNotes[], short nTooLong[],
 			Boolean chanUsed[][MAXCHANNEL],
-			INT16 qTrLDur[],
+			short qTrLDur[],
 			Boolean qTrTriplets[],
 			long lastTrEvent[]
 			)
 {
-	INT16 first, t, i; char durStr[256], skippedStr[32];
+	short first, t, i; char durStr[256], skippedStr[32];
 	
 	EraseRect(&textRect);
 	TextFont(textFontNum); TextSize(textFontSmallSize); TextFace(0);	/* face 0 = plain */
@@ -166,9 +166,9 @@ static enum {
 
 static void MFInfoDialog(
 					TRACKINFO trackInfo[],
-					INT16 nTrackNotes[], INT16 nTooLong[],
+					short nTrackNotes[], short nTooLong[],
 					Boolean chanUsed[][MAXCHANNEL],
-					INT16 qTrLDur[],
+					short qTrLDur[],
 					Boolean qTrTriplets[],
 					long lastTrEvent[]
 					)
@@ -176,7 +176,7 @@ static void MFInfoDialog(
 	DialogPtr dialogp; GrafPtr oldPort;
 	Handle prevHdl, nextHdl, aHdl; Rect aRect, ticksRect;
 	short ditem, aShort;
-	INT16 dialogOver, linesPerPage, nPages, pageNum, t;
+	short dialogOver, linesPerPage, nPages, pageNum, t;
 	long lastEvTime;
 	char fmtStr[256];
 	 
@@ -313,7 +313,7 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			}
 			break;
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (INT16 *)itemHit, FALSE))
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, FALSE))
 				return TRUE;
 			ch = (unsigned char)evt->message;
 			field = GetDialogKeyboardFocusItem(dlog);
@@ -347,30 +347,30 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 	HiliteControl((ControlHandle)beamHdl, (rButGroup==NOQUANTIZE_DI ? CTL_INACTIVE : CTL_ACTIVE));	\
 	HiliteControl((ControlHandle)tripHdl, (rButGroup==NOQUANTIZE_DI ? CTL_INACTIVE : CTL_ACTIVE))
 
-Boolean TranscribeMFDialog(TRACKINFO [],INT16 [],INT16 [],Boolean [][MAXCHANNEL],
-				INT16 [], Boolean [],long [],INT16,INT16,INT16,INT16 *,Boolean *,
-				Boolean *,Boolean *,INT16 *);
+Boolean TranscribeMFDialog(TRACKINFO [],short [],short [],Boolean [][MAXCHANNEL],
+				short [], Boolean [],long [],short,short,short,short *,Boolean *,
+				Boolean *,Boolean *,short *);
 
 Boolean TranscribeMFDialog(									
 				TRACKINFO trackInfo[],
-				INT16 nTrackNotes[],	INT16 nTooLong[],		/* Specific track-by-track info */
+				short nTrackNotes[],	short nTooLong[],		/* Specific track-by-track info */
 				Boolean chanUsed[][MAXCHANNEL],
-				INT16 qTrLDur[],
+				short qTrLDur[],
 				Boolean qTrTriplets[],
 				long lastTrEvent[],
-				INT16 nNotes,										/* Totals for all tracks */
-				INT16 /*nGoodTrs*/,
-				INT16 qAllLDur,
-				INT16 *qDur,
+				short nNotes,										/* Totals for all tracks */
+				short /*nGoodTrs*/,
+				short qAllLDur,
+				short *qDur,
 				Boolean *autoBeam,								/* Beam automatically? */
 				Boolean *triplets,								/* Consider triplet rhythms? */
 				Boolean *clefChanges,							/* Generate clef changes? */
-				INT16 *maxMeasures
+				short *maxMeasures
 				)
 {
 	DialogPtr dlog; GrafPtr oldPort;
 	short ditem, aShort;
-	INT16 rButGroup, newDur, oldDur, maxMeas, t;
+	short rButGroup, newDur, oldDur, maxMeas, t;
 	short oldResFile; 
 	Boolean done, autoBm, trips, clefs, needTrips; short choice;
 	Handle ndHdl, beamHdl, tripHdl; Rect aRect;
@@ -614,28 +614,28 @@ static Boolean MFHeaderOK(Byte midiFileFormat, Word nTracks, Word timeBase)
 
 /* --------------------------------------------------------------- GetMIDIFileInfo -- */
 
-Boolean GetMIDIFileInfo(TRACKINFO [], INT16 *, long *, INT16 [], INT16 [],
-							Boolean [][MAXCHANNEL], INT16 [], Boolean [], long [], INT16 *,
-							INT16 *, INT16 *);
+Boolean GetMIDIFileInfo(TRACKINFO [], short *, long *, short [], short [],
+							Boolean [][MAXCHANNEL], short [], Boolean [], long [], short *,
+							short *, short *);
 Boolean GetMIDIFileInfo(
 				TRACKINFO trackInfo[],
-				INT16 */*pQuantCode*/,				/* ??Unused--should be removed! */
+				short */*pQuantCode*/,				/* ??Unused--should be removed! */
 				long *pLastEvent,						/* Output, in MIDI file (not Nightingale!) ticks */
-				INT16 nTrackNotes[],					/* Output, trk-by-trk no. of notes */
-				INT16 nTooLong[],						/* Output, trk-by-trk no. of notes over max. dur. */
+				short nTrackNotes[],					/* Output, trk-by-trk no. of notes */
+				short nTooLong[],						/* Output, trk-by-trk no. of notes over max. dur. */
 				Boolean chanUsed[][MAXCHANNEL],	/* Output, trk-by-trk: any notes on channel? */
-				INT16 qTrLDur[],						/* Output, trk-by-trk: code for coarsest grid */
+				short qTrLDur[],						/* Output, trk-by-trk: code for coarsest grid */
 				Boolean qTrTriplets[],				/* Output, trk-by-trk: need triplets to fit all? */
 				long lastTrEvent[],					/* Output, trk-by-trk: in ticks */
-				INT16 *pNNotes,						/* Output, total for all trks */
-				INT16 *pNGoodTrs,						/* Output: total for all trks */
-				INT16 *pqAllLDur						/* Output: total for all trks */
+				short *pNNotes,						/* Output, total for all trks */
+				short *pNGoodTrs,						/* Output: total for all trks */
+				short *pqAllLDur						/* Output: total for all trks */
 				)
 {
 	Byte midiFileFormat;
 	long fPos;
-	INT16 nNotes, qAllLDur, nGoodTrs, t, i, nChanUsed;
-	INT16 tsCount, nTSBad;
+	short nNotes, qAllLDur, nGoodTrs, t, i, nChanUsed;
+	short tsCount, nTSBad;
 	char fmtStr[256];
 
 	/* Read and check the MIDI file header. */
@@ -758,20 +758,20 @@ t, nTrackNotes[t], locMF-2, pChunkMF[locMF-2]);
 
 /* -------------------------------------------------------------- CheckAndConsult -- */
 
-static Boolean CheckAndConsult(TRACKINFO [],INT16 *,Boolean *,Boolean *,Boolean *,INT16 *,long *);
+static Boolean CheckAndConsult(TRACKINFO [],short *,Boolean *,Boolean *,Boolean *,short *,long *);
 static Boolean CheckAndConsult(
 						TRACKINFO trackInfo[],
-						INT16 *pQuantCode,
+						short *pQuantCode,
 						Boolean *pAutoBeam, Boolean *pTriplets, Boolean *pClefChanges,
-						INT16 *pMaxMeasures,
+						short *pMaxMeasures,
 						long *pLastEvent						/* in MIDI file (not Nightingale!) ticks */
 						)
 {
-	INT16 nTrackNotes[MAXTRACKS+1], nTooLong[MAXTRACKS+1], qTrLDur[MAXTRACKS+1];
+	short nTrackNotes[MAXTRACKS+1], nTooLong[MAXTRACKS+1], qTrLDur[MAXTRACKS+1];
 	Boolean chanUsed[MAXTRACKS+1][MAXCHANNEL];
 	Boolean qTrTriplets[MAXTRACKS+1];
 	long lastTrEvent[MAXTRACKS+1];
-	INT16 nNotes, qAllLDur, nGoodTrs;
+	short nNotes, qAllLDur, nGoodTrs;
 	
 	if (!GetMIDIFileInfo(trackInfo, pQuantCode, pLastEvent, nTrackNotes, nTooLong, chanUsed,
 							qTrLDur, qTrTriplets, lastTrEvent, &nNotes, &nGoodTrs, &qAllLDur))
@@ -797,15 +797,15 @@ one part of a single staff. Return TRUE if successful. */
 
 static Boolean OpenMIDIFile()
 {
-	static INT16 quantCode=SIXTEENTH_L_DUR;
+	static short quantCode=SIXTEENTH_L_DUR;
 	Word t, stf, len, td;
 	Document *doc;
 	LINK partL;
 	TRACKINFO trackInfo[MAXTRACKS+1];
 	Byte *pChunk;
-	INT16 durQuantum, tripletBias, status;
+	short durQuantum, tripletBias, status;
 	static Boolean autoBeam=FALSE, triplets=FALSE, clefChanges=TRUE;
-	static INT16 maxMeasures=9999;
+	static short maxMeasures=9999;
 	long lastEvent;
 	FSSpec fsSpec;
 	

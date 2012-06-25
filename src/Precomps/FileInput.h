@@ -3,7 +3,7 @@
 LINK FICreateTUPLET(Document *doc, short voice, short staffn, LINK beforeL, short nInTuple,
 							short tupleNum, short tupleDenom, Boolean numVis, Boolean denomVis, Boolean brackVis);
 void FIFixTupletLinks(Document *doc, LINK startL, LINK endL, short voice);
-Boolean FIReplaceKeySig(Document *doc, LINK keySigL, INT16 staffn, INT16 sharpsOrFlats);
+Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsOrFlats);
 Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn, short iVoice, Boolean visible);
 LINK FIInsertBarline(Document *doc, LINK insertBeforeL, short barlineType);
 Boolean SetMeasureSubType(LINK measL, short subType);

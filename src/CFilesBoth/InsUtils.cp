@@ -40,9 +40,9 @@
 
 
 static void IDrawHairpin(Point, Point, Boolean, PCONTEXT);
-static Boolean TrackHairpin(Document *, LINK, Point, Point *, Boolean, INT16);
-static Boolean GetCrossStatus(Document *, Point, Point, INT16 *, INT16 *);
-static void AddGRNoteUnbeam(Document *, LINK, LINK, LINK, INT16);
+static Boolean TrackHairpin(Document *, LINK, Point, Point *, Boolean, short);
+static Boolean GetCrossStatus(Document *, Point, Point, short *, short *);
+static void AddGRNoteUnbeam(Document *, LINK, LINK, LINK, short);
 static LINK NextStaff(Document *, LINK);
 static DDIST GetTopStfLim(Document *,LINK,LINK,PCONTEXT);
 static DDIST GetBotStfLim(Document *,LINK,LINK,PCONTEXT);
@@ -70,7 +70,7 @@ doc->currentSystem's initial (invisible) barline, return a value 1 pixel to righ
 of the that barline. Intended to be used by insertion routines that want to avoid
 trying to insert symbols before an initial measure. */
 
-INT16 ForceInMeasure(Document *doc, INT16 x)
+short ForceInMeasure(Document *doc, short x)
 {
 	DDIST sysLeft;		LINK sysL, firstMeasL;
 	
@@ -118,7 +118,7 @@ static void IDrawHairpin(Point downPt,			/* Original mouseDown */
 									PCONTEXT pContext
 								)
 {
-   INT16   rise;
+   short   rise;
         
    rise = d2p(qd2d(config.hairpinMouthWidth,
             pContext->staffHeight, pContext->staffLines)>>1);
@@ -142,10 +142,10 @@ static void IDrawHairpin(Point downPt,			/* Original mouseDown */
 #define HAIRPIN_MINLEN 5		/* in pixels */
 
 Boolean TrackHairpin(Document *doc, LINK pL, Point pt, Point *endPt, Boolean left,
-							INT16 staff)
+							short staff)
 {
 	Point		oldPt, newPt;
-	INT16		endv;
+	short		endv;
 	Boolean	firstLoop;
 	CONTEXT	context;
 	Rect		tRect;
@@ -193,7 +193,7 @@ Boolean TrackHairpin(Document *doc, LINK pL, Point pt, Point *endPt, Boolean lef
 the first and last systems. */
 
 static Boolean GetCrossStatus(Document *doc, Point pt, Point newPt,
-										INT16 *firstStf, INT16 *lastStf)
+										short *firstStf, short *lastStf)
 {
 	*firstStf = FindStaff(doc, pt);
 	firstDynSys = doc->currentSystem;
@@ -206,10 +206,10 @@ static Boolean GetCrossStatus(Document *doc, Point pt, Point newPt,
 it was entered forwards or backwards, if it's a crescendo or diminuendo; and
 add it to the data structure. */
 
-Boolean TrackAndAddHairpin(Document *doc, LINK insSyncL, Point pt, INT16 clickStaff,
-										INT16 sym, INT16 subtype, PCONTEXT pContext)
+Boolean TrackAndAddHairpin(Document *doc, LINK insSyncL, Point pt, short clickStaff,
+										short sym, short subtype, PCONTEXT pContext)
 {
-	Boolean isDIM,crossSys; INT16 pitchLev,firstStf,lastStf;
+	Boolean isDIM,crossSys; short pitchLev,firstStf,lastStf;
 	LINK lastSyncL; Point newPt;
 
 	isDIM = (subtype==DIM_DYNAM);
@@ -281,7 +281,7 @@ Done:
 /* ---------------------------------------------------------------------- Endings -- */
 
 static void IDrawEndingBracket(Point downPt, Point pt, DDIST lnSpace);
-static Boolean TrackEnding(Document *, LINK, Point, Point *, INT16);
+static Boolean TrackEnding(Document *, LINK, Point, Point *, short);
 
 /* Draw the ending bracket during the dragging loop. */
 
@@ -289,7 +289,7 @@ static void IDrawEndingBracket(Point downPt, Point pt,	/* Original mouseDown poi
 										DDIST lnSpace					/* Space between staff lines. */
 										)
 {
-	INT16 stfSpace;				/* Pixel distance between stafflines */
+	short stfSpace;				/* Pixel distance between stafflines */
 	
 	stfSpace = d2p(lnSpace);	/* Draw down 2 stafflines. */
 
@@ -303,9 +303,9 @@ static void IDrawEndingBracket(Point downPt, Point pt,	/* Original mouseDown poi
 
 #define ENDING_MINLEN 2		/* in pixels */
 
-Boolean TrackEnding(Document *doc, LINK pL, Point pt, Point *endPt, INT16 staff)
+Boolean TrackEnding(Document *doc, LINK pL, Point pt, Point *endPt, short staff)
 {
-	Point	oldPt, newPt; INT16 endv; Boolean firstLoop;
+	Point	oldPt, newPt; short endv; Boolean firstLoop;
 	CONTEXT context; DDIST lnSpace; Rect tRect;
 
 	GetContext(doc, pL, staff, &context);
@@ -351,18 +351,18 @@ Boolean TrackEnding(Document *doc, LINK pL, Point pt, Point *endPt, INT16 staff)
  
 #ifdef VIEWER_VERSION
 
-Boolean TrackAndAddEnding(Document *doc, Point pt, INT16 clickStaff)
+Boolean TrackAndAddEnding(Document *doc, Point pt, short clickStaff)
 {
 	return FALSE;
 }
 
 #else
 
-Boolean TrackAndAddEnding(Document *doc, Point pt, INT16 clickStaff)
+Boolean TrackAndAddEnding(Document *doc, Point pt, short clickStaff)
 {
-	static INT16 number=1;
-	static INT16 cutoffs=3;
-	INT16 newNumber, newCutoffs, pitchLev,firstStf,lastStf;
+	static short number=1;
+	static short cutoffs=3;
+	short newNumber, newCutoffs, pitchLev,firstStf,lastStf;
 	LINK insertL, lastL; Point newPt, findPt;
 	Boolean crossSys;
 
@@ -421,7 +421,7 @@ Boolean TrackAndAddEnding(Document *doc, Point pt, INT16 clickStaff)
 /* ----------------------------------------------------------------------- Lines -- */
 
 static void IDrawLine(Point downPt, Point pt);
-static Boolean TrackLine(Document *, LINK, Point, Point *, INT16);
+static Boolean TrackLine(Document *, LINK, Point, Point *, short);
 
 /* Draw the line during the dragging loop. */
 
@@ -436,7 +436,7 @@ static void IDrawLine(Point downPt,		/* Original mousedown point */
 
 #define LINE_MINLEN 2		/* in pixels */
 
-static Boolean TrackLine(Document *doc, LINK pL, Point pt, Point *endPt, INT16 staff)
+static Boolean TrackLine(Document *doc, LINK pL, Point pt, Point *endPt, short staff)
 {
 	Point	origPt, newPt, constrainPt;
 	CONTEXT context; Rect tRect;
@@ -512,7 +512,7 @@ Sync. */
 LINK InsFindNRG(Document *doc, Point pt, LINK *paNoteL);
 LINK InsFindNRG(Document *doc, Point pt, LINK *paNoteL)
 {
-	LINK syncL, aNoteL; INT16 index; short i; Boolean isSync;
+	LINK syncL, aNoteL; short index; short i; Boolean isSync;
 	
 	syncL = FindObject(doc, pt, &index, SMFind);
 	if (!syncL) return NILINK;
@@ -537,13 +537,13 @@ LINK InsFindNRG(Document *doc, Point pt, LINK *paNoteL)
 
 /* Get note, rest, or grace note half-space position. */
 
-INT16 GetNRGHalfSpaces(LINK syncL, LINK noteL, CONTEXT context);
-INT16 GetNRGHalfSpaces(
+short GetNRGHalfSpaces(LINK syncL, LINK noteL, CONTEXT context);
+short GetNRGHalfSpaces(
 						LINK syncL,
 						LINK noteL,
 						CONTEXT context)
 {
-	DDIST yd; INT16 halfSpace;
+	DDIST yd; short halfSpace;
 
 	if (SyncTYPE(syncL))
 		yd = NoteYD(noteL);
@@ -556,9 +556,9 @@ INT16 GetNRGHalfSpaces(
 
 /* Track the line and add it to the object list. Handles cancelling. */
  
-Boolean TrackAndAddLine(Document *doc, Point pt, INT16 clickStaff, INT16 voice)
+Boolean TrackAndAddLine(Document *doc, Point pt, short clickStaff, short voice)
 {	
-	INT16 firstStf,lastStf, firstHalfLn, lastHalfLn;
+	short firstStf,lastStf, firstHalfLn, lastHalfLn;
 	LINK insertL, lastL, syncL, aNoteL;
 	Point newPt, tempPt;
 	Boolean crossSys; CONTEXT context;
@@ -630,14 +630,14 @@ must already have a note/rest on the given staff. */
 
 LINK FindSync(Document *doc, Point pt,
 					Boolean isGraphic,			/* whether graphic or temporal insert */
-					INT16 clickStaff
+					short clickStaff
 					)
 {
 	register LINK addToSyncL;		/* sync to which to add note/rest */
 	LINK			lSyncL, rSyncL,	/* Links to left & right syncs */
 					aNoteL, lNoteL, rNoteL;
 	Rect			noteRect;
-	INT16			lDist, rDist,		/* Pixel distance from ins. pt to rSync, lSync */	
+	short			lDist, rDist,		/* Pixel distance from ins. pt to rSync, lSync */	
 					noteWidth,			/* 2*amount by which to shift lDist,rDist */
 					lSyncPos,
 					oneWayLimit,		/* Note position tolerance if only one side is possible */
@@ -761,9 +761,9 @@ LINK FindSync(Document *doc, Point pt,
 
 /* ---------------------------------------------------------- AddCheckVoiceTable -- */
 
-Boolean AddCheckVoiceTable(Document *doc, INT16 staff)
+Boolean AddCheckVoiceTable(Document *doc, short staff)
 {
-	INT16	voice;
+	short	voice;
 	char fmtStr[256];
 	
 	voice = USEVOICE(doc, staff);
@@ -786,11 +786,11 @@ distinguishes chord slashes, but they're really just funny notes.) */
 
 Boolean AddNoteCheck(Document *doc,
 							LINK		addToSyncL,		/* Sync to which to add note/rest */
-							INT16		staff,
-							INT16		symIndex			/* Symbol table index of note/rest to be inserted */
+							short		staff,
+							short		symIndex			/* Symbol table index of note/rest to be inserted */
 							)
 {
-	INT16		voice, userVoice;
+	short		voice, userVoice;
 	LINK		aNoteL, partL;
 	Boolean	isRest, isChordSlash, okay=TRUE;
 	char		fmtStr[256];
@@ -848,14 +848,14 @@ GRSync must already have a grace note on the given staff. */
 
 LINK FindGRSync(Document *doc, Point pt,
 					Boolean isGraphic,			/* whether graphic or temporal insert */
-					INT16 clickStaff
+					short clickStaff
 					)
 {
 	LINK			addToGRSyncL,			/* GRSync to which to add note/rest */
 					lGRSyncL, rGRSyncL,	/* Links to left & right GRSyncs */
 					aNoteL, lNoteL, rNoteL;
 	Rect			noteRect;
-	INT16			lDist, rDist,		/* Pixel distance from ins. pt to rSync, lSync */	
+	short			lDist, rDist,		/* Pixel distance from ins. pt to rSync, lSync */	
 					noteWidth,			/* 2*amount by which to shift lDist,rDist */
 					oneWayLimit,		/* Note position tolerance if only one side is possible */
 					limit;				/* Note position tolerance if left & right both possible */
@@ -965,10 +965,10 @@ staff to the given GRSync. */
 Boolean AddGRNoteCheck(
 				Document *doc,
 				LINK		addToGRSyncL,	/* GRSync to add grace note to */
-				INT16		staff
+				short		staff
 				)
 {
-	INT16		voice, userVoice;
+	short		voice, userVoice;
 	LINK		aNoteL, partL;
 	char		fmtStr[256];
 	
@@ -1099,8 +1099,8 @@ used in a search to the right used by the code. */
 
 LINK FindLPI(Document *doc,
 				Point		pt,
-				INT16		staff,			/* staff desired or ANYONE */
-				INT16		voice,			/* voice desired or ANYONE */
+				short		staff,			/* staff desired or ANYONE */
+				short		voice,			/* voice desired or ANYONE */
 				Boolean 	needVisible 	/* Must the FOLLOWING item on any staff be visible? */
 				)
 {
@@ -1180,8 +1180,8 @@ array. An optimization would do this only once or a mininum number of times. */
 LINK ObjAtEndTime(
 					Document 	*doc,
 					LINK 			pL,
-					INT16 		type,		/* objType (e.g. CLEFtype) or ANYTYPE */
-					INT16 		id,		/* clickStaff or voice */
+					short 		type,		/* objType (e.g. CLEFtype) or ANYTYPE */
+					short 		id,		/* clickStaff or voice */
 					long			*lTime,	/* LTime of obj */
 					Boolean		exact,	/* EXACT_TIME or MIN_TIME */
 					Boolean		useV		/* id is staff or voice */
@@ -1228,8 +1228,8 @@ Note that this does NOT guarantee legal MIDI note numbers, which depends on the 
 and possibly octave sign. Having at most MAX_LEDGERS ledger lines is necessary but
 not sufficient for a note to be a legal MIDI note. */
 
-INT16 GetPitchLim(Document *doc, LINK staffL,
-						INT16 staffn,
+short GetPitchLim(Document *doc, LINK staffL,
+						short staffn,
 						Boolean above			/* TRUE=want limit above staff, FALSE=below staff */
 						)
 {
@@ -1237,7 +1237,7 @@ INT16 GetPitchLim(Document *doc, LINK staffL,
 	LINK sysL;
 	register PASTAFF aStaff, bStaff;
 	DRect dr; DDIST dAway, aStaffBottom;
-	INT16 staffAbove, staffBelow, limit;
+	short staffAbove, staffBelow, limit;
 	CONTEXT context;
 	
 	sysL = SSearch(staffL, SYSTEMtype, GO_LEFT);
@@ -1287,16 +1287,16 @@ in half-lines, relative to the staff top line, negative values going up. */
 #define ABOVE_HOTSPOT 2	/* Pixels above hotspot that can intersect staff line */
 #define BELOW_HOTSPOT 1	/* Pixels below hotspot that can intersect staff line */
 
-INT16 CalcPitchLevel(
-					INT16		hotY,				/* mouse hotspot y (local coordinates) */
+short CalcPitchLevel(
+					short		hotY,				/* mouse hotspot y (local coordinates) */
 					PCONTEXT	pContext,		/* ptr to current context */
 					LINK		staffL,			/* staff object containing original hotspot y */
-					INT16		staffn
+					short		staffn
 					)
 {
-	register INT16 lineSp,			/* space between staff lines (pixels) */
+	register short lineSp,			/* space between staff lines (pixels) */
 					lines;
-	INT16			halfLns,					/* approximate half-line number */
+	short			halfLns,					/* approximate half-line number */
 					relHotY,					/* distance from staff top down to hotY (pixels) */
 					headHotY,				/* distances below hiPitchLim point */
 					headTop,
@@ -1368,7 +1368,7 @@ doc->currentSystem. */
 
 static DDIST GetTopStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT contextTbl)
 {
-	INT16 staffAbove; PCONTEXT pContext,qContext;
+	short staffAbove; PCONTEXT pContext,qContext;
 	DDIST topLimit;
 	
 	pContext = &contextTbl[StaffSTAFF(aStaffL)];
@@ -1386,7 +1386,7 @@ static DDIST GetTopStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT context
 
 static DDIST GetBotStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT contextTbl)
 {
-	INT16 staffBelow; PCONTEXT pContext,qContext;
+	short staffBelow; PCONTEXT pContext,qContext;
 	DDIST bottomLimit;
 
 	pContext = &contextTbl[StaffSTAFF(aStaffL)];
@@ -1402,14 +1402,14 @@ static DDIST GetBotStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT context
 	return bottomLimit;
 }
 
-INT16 FindStaff(Document *doc, Point pt)
+short FindStaff(Document *doc, Point pt)
 {
 	register LINK 		pL,aStaffL;
 	register PCONTEXT pContext;
 	Rect			r;
 	PCONTEXT		contextTbl;
 	DDIST			topLimit, bottomLimit;
-	INT16			staffn=NOONE;
+	short			staffn=NOONE;
 
 	contextTbl = AllocContext();
 	if (!contextTbl) return NOONE;
@@ -1497,7 +1497,7 @@ are always followed by rebeaming startL thru endL. ??This function probably shou
 go away; calls should be replaced with calls to RemoveBeam or some such. */
 
 static void AddGRNoteUnbeam(Document *doc, LINK beamL, LINK startL, LINK endL,
-										INT16 voice)
+										short voice)
 {
 	PAGRNOTE	aGRNote;
 	LINK 		pL, aGRNoteL;
@@ -1524,7 +1524,7 @@ void AddNoteFixBeams(Document *doc,
 							LINK newNoteL		/* The new note */
 							)
 {
-	INT16 		nBeamable, voice;
+	short 		nBeamable, voice;
 	LINK			firstSyncL, lastSyncL;
 	LINK			aNoteL, beamL, farNoteL, newBeamL;
 	PBEAMSET		pBeam, newBeam;
@@ -1637,7 +1637,7 @@ void AddGRNoteFixBeams(Document *doc,
 								LINK newGRNoteL			/* The new note */
 								)
 {
-	INT16 		voice;
+	short 		voice;
 	LINK			firstGRSyncL,lastGRSyncL,beamL;
 	SearchParam	pbSearch;
 	
@@ -1667,7 +1667,7 @@ the given note was just added. */
  
 void AddNoteFixTuplets(Document *doc,
 								LINK newL, LINK aNoteL,		/* Sync and new note (in that Sync) */
-								INT16 voice
+								short voice
 								)
 {
 	LINK mainNoteL, tupleL, firstSync, lastSync;
@@ -1699,7 +1699,7 @@ Boolean AddNoteFixOctavas(LINK newL, LINK newNoteL)	/* Sync and new note (in tha
 	LINK octavaL, newNoteOctavaL, aNoteOctavaL, octavaSyncL, nextSyncL;
 	PANOTEOCTAVA aNoteOctava, newNoteOctava;
 	PANOTE aNote;
-	INT16 staff;
+	short staff;
 	
 	staff = NoteSTAFF(newNoteL);
 	
@@ -1748,7 +1748,7 @@ Boolean AddNoteFixOctavas(LINK newL, LINK newNoteL)	/* Sync and new note (in tha
 cross any intervening notes: maybe this function should be renamed AddNoteFixTies.
 ??This function should certainly work by voice, not by staff! */
 
-void AddNoteFixSlurs(Document *doc, LINK newL, INT16 staff)
+void AddNoteFixSlurs(Document *doc, LINK newL, short staff)
 {
 	PANOTE	aNote;
 	LINK		syncL, tieL, aNoteL;
@@ -1858,7 +1858,7 @@ does that. */
 void FixNewMeasAccs(Document *doc, LINK measureL)
 {
 	LINK			endMeasL;
-	INT16			s;
+	short			s;
 	SignedByte	accAfterTable[MAX_STAFFPOS];
 	
 	endMeasL = EndMeasSearch(doc, measureL);
@@ -1884,9 +1884,9 @@ void FixNewMeasAccs(Document *doc, LINK measureL)
 /* Increment measure numbers from the given Measure to the end of the score by
 <increment>. */
 
-Boolean IncrMeasNums(LINK, INT16);
+Boolean IncrMeasNums(LINK, short);
 
-Boolean IncrMeasNums(LINK measL, INT16 increment)
+Boolean IncrMeasNums(LINK measL, short increment)
 {
 	LINK aMeasureL;
 	PAMEASURE aMeasure;
@@ -1952,9 +1952,9 @@ Boolean InsFixMeasNums(Document *doc, LINK newL)
 /* Get the relObj for a graphic which is to be inserted. */
 
 LINK FindGraphicObject(Document *doc, Point pt,
-								INT16 *staff, INT16 *voice)	/* Undefined if object is a System */
+								short *staff, short *voice)	/* Undefined if object is a System */
 {
-	INT16 index; LINK pL;
+	short index; LINK pL;
 
 	FindStaff(doc, pt);													/* Set currentSystem */
 	pL = FindRelObject(doc, pt, &index, SMFind);
@@ -2052,9 +2052,9 @@ Boolean ChkGraphicRelObj(LINK pL,
 /* -------------------------------------------------------------- FindTempoObject -- */
 /* Get the relObj for a Tempo object which is to be inserted. */
 
-LINK FindTempoObject(Document *doc, Point pt, INT16 *staff, INT16 *voice)
+LINK FindTempoObject(Document *doc, Point pt, short *staff, short *voice)
 {
-	INT16 index; LINK pL;
+	short index; LINK pL;
 
 	FindStaff(doc, pt);													/* Set currentSystem */
 	pL = FindRelObject(doc, pt, &index, SMFind);
@@ -2095,9 +2095,9 @@ and subObjects which span staff ranges the CheckObject and FindObject routines d
 not work well (??apparently in the sense of finding the correct subObjects); for
 these objects FindStaff should provide unambiguous results and is used. */
 
-LINK FindEndingObject(Document *doc, Point pt, INT16 *staff)
+LINK FindEndingObject(Document *doc, Point pt, short *staff)
 {
-	INT16 index,staffn; LINK pL;
+	short index,staffn; LINK pL;
 
 	staffn = FindStaff(doc, pt);												/* Set currentSystem */
 	pL = FindObject(doc, pt, &index, SMFind);
@@ -2133,7 +2133,7 @@ should be combined or, better, this function should just call MeasOccupiedWidth.
 
 void UpdateTailxd(Document *doc)
 {
-	LINK pL; INT16 j; DDIST width; CONTEXT context;
+	LINK pL; short j; DDIST width; CONTEXT context;
 
 	width = -1000;
 	pL = LeftLINK(doc->tailL);
@@ -2158,7 +2158,7 @@ magnification dependent; this should be changed. */
 
 void CenterTextGraphic(Document *doc, LINK graphicL)
 {
-	DDIST headWidth; CONTEXT context; INT16 width;
+	DDIST headWidth; CONTEXT context; short width;
 
 	GetContext(doc, graphicL, GraphicSTAFF(graphicL), &context);
 	width = NPtGraphicWidth(doc, graphicL, &context);
@@ -2170,7 +2170,7 @@ void CenterTextGraphic(Document *doc, LINK graphicL)
 
 /* ------------------------------------------------------------------ NewObjInit -- */
 
-Boolean NewObjInit(Document *doc, INT16 type, INT16 *sym, char inchar, INT16 staff,
+Boolean NewObjInit(Document *doc, short type, short *sym, char inchar, short staff,
 							PCONTEXT context)
 {
 	if (doc->selStartL==doc->headL)
@@ -2206,7 +2206,7 @@ Boolean NewObjInit(Document *doc, INT16 type, INT16 *sym, char inchar, INT16 sta
 
 void NewObjSetup(Document *doc,
 						LINK newpL,
-						INT16 /*staff*/,		/* no longer used */
+						short /*staff*/,		/* no longer used */
 						DDIST xd)
 {
 	doc->changed = TRUE;
@@ -2219,12 +2219,12 @@ void NewObjSetup(Document *doc,
 
 /* --------------------------------------------------------------- NewObjPrepare -- */
 
-LINK NewObjPrepare(Document *doc, INT16 type, INT16 *sym, char inchar, INT16 staff,
-							INT16 x, CONTEXT *context)
+LINK NewObjPrepare(Document *doc, short type, short *sym, char inchar, short staff,
+							short x, CONTEXT *context)
 {
 	LINK	 	newpL;
 	DDIST		xd;
-	INT16		insertType;
+	short		insertType;
 
 	NewObjInit(doc, type, sym, inchar, staff, context);
 
@@ -2265,7 +2265,7 @@ LINK NewObjPrepare(Document *doc, INT16 type, INT16 *sym, char inchar, INT16 sta
 
 /* --------------------------------------------------------------- NewObjCleanup -- */
 
-void NewObjCleanup(Document *doc, LINK newpL, INT16 staff)
+void NewObjCleanup(Document *doc, LINK newpL, short staff)
 {
 	LINK		pMeasL,sysL;
 	DDIST		measxd;

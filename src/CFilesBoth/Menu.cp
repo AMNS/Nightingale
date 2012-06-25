@@ -23,17 +23,17 @@ static Boolean IsSafeToQuit(void);
 static Boolean SetTranspKeyStaves(Document *, Boolean []);
 static void EditPartMIDI(Document *doc);
 
-static void	DoAppleMenu(INT16 choice);
-static void	DoTestMenu(INT16 choice);
-static void	DoScoreMenu(INT16 choice);
-static void	DoNotesMenu(INT16 choice);
-static void	DoGroupsMenu(INT16 choice);
+static void	DoAppleMenu(short choice);
+static void	DoTestMenu(short choice);
+static void	DoScoreMenu(short choice);
+static void	DoNotesMenu(short choice);
+static void	DoGroupsMenu(short choice);
 
 static void MPInstrument(Document *);
 
-static void	DoMasterPgMenu(INT16 choice);
-static void	DoFormatMenu(INT16 choice);
-static void	DoMagnifyMenu(INT16 choice);
+static void	DoMasterPgMenu(short choice);
+static void	DoFormatMenu(short choice);
+static void	DoMagnifyMenu(short choice);
 
 static void	FMPreferences(Document *doc);
 
@@ -51,7 +51,7 @@ static void	NMSetMBRest(Document *doc);
 static void	NMFillEmptyMeas(Document *doc);
 static void 	NMAddModifiers(Document *doc);
 static void 	NMStripModifiers(Document *doc);
-static INT16 CountSelVoices(Document *);
+static short CountSelVoices(Document *);
 static void 	NMMultiVoice(Document *doc);
 
 static void	VMLookAt(void);
@@ -61,7 +61,7 @@ static void	VMShowSyncs(void);
 static void	VMShowInvisibles(void);
 static void	VMColorVoices(void);
 static void	VMPianoRoll(void);
-static void	VMActivate(INT16);
+static void	VMActivate(short);
 
 static void	PLRecord(Document *doc, Boolean merge);
 static void	PLStepRecord(Document *doc, Boolean merge);
@@ -71,36 +71,36 @@ static void	PLTransposeScore(Document *);
 
 static void InstallDebugMenuItems(Boolean installAll);
 
-static void	FixFileMenu(Document *doc, INT16 nSel);
-static void	FixEditMenu(Document *doc, INT16 nInSelRange, INT16 nSel, Boolean isDA);
-static void	FixTestMenu(Document *doc, INT16 nSel);
+static void	FixFileMenu(Document *doc, short nSel);
+static void	FixEditMenu(Document *doc, short nInSelRange, short nSel, Boolean isDA);
+static void	FixTestMenu(Document *doc, short nSel);
 static void	DisableSMMove(void);
 static void	FixMoveMeasSys(Document *doc);
-static void	FixScoreMenu(Document *doc, INT16 nSel);
+static void	FixScoreMenu(Document *doc, short nSel);
 static LINK	MBRestSel(Document *);
 static void	FixNotesMenu(Document *doc, Boolean continSel);
-static Boolean SelRangeChkOct(INT16 staff,LINK	staffStartL,LINK staffEndL);
+static Boolean SelRangeChkOct(short staff,LINK	staffStartL,LINK staffEndL);
 static void	FixGroupsMenu(Document *doc, Boolean continSel);
 static void	AddWindowList(void);
 static void	FixViewMenu(Document *doc);
-static void	FixPlayRecordMenu(Document *doc, INT16 nSel);
+static void	FixPlayRecordMenu(Document *doc, short nSel);
 static void	FixMasterPgMenu(Document *doc);
 static void	FixFormatMenu(Document *doc);
 
-INT16 NumOpenDocuments(void);
+short NumOpenDocuments(void);
 
 static Boolean cmdIsBeam, cmdIsTuplet, cmdIsOctava;
 
 static Boolean	goUp=TRUE;								/* For "Transpose" dialog */
-static INT16 octaves=0, steps=0, semiChange=0;
+static short octaves=0, steps=0, semiChange=0;
 static Boolean slashes=FALSE;
 
 static Boolean	dGoUp=TRUE;								/* For "Diatonic Transpose" dialog */
-static INT16 dOctaves=0, dSteps=0;
+static short dOctaves=0, dSteps=0;
 static Boolean dSlashes=FALSE;
 
 static Boolean	kGoUp=TRUE;								/* For "Transpose Key" dialog */
-static INT16 kOctaves=0, kSteps=0, kSemiChange=0;
+static short kOctaves=0, kSteps=0, kSemiChange=0;
 static Boolean	kSlashes=FALSE, kNotes=TRUE, kChordSyms=TRUE;
 
 static Boolean	beforeFirst;
@@ -116,7 +116,7 @@ void DeleteSelObjs(Document *);
 Boolean DoMenu(long menuChoice)
 	{
 		static Boolean copyProtProblem=FALSE;
-		register INT16 choice; INT16 menu;
+		register short choice; short menu;
 		Boolean keepGoing = TRUE;
 		
 		menu = HiWord(menuChoice); choice = LoWord(menuChoice);
@@ -170,7 +170,7 @@ Cleanup:
  *	Handle a choice from the Apple Menu.
  */
 
-static void DoAppleMenu(INT16 choice)
+static void DoAppleMenu(short choice)
 	{
 //		Str255 accName;
 		
@@ -259,9 +259,9 @@ static Boolean GetNotelistFile(Str255 macfName, short *vRefNum)
  *	Handle a choice from the File Menu.  Return FALSE if it's time to quit.
  */
 
-Boolean DoFileMenu(INT16 choice)
+Boolean DoFileMenu(short choice)
 	{
-		Boolean keepGoing = TRUE, doSymbol; short vrefnum; INT16 returnCode;
+		Boolean keepGoing = TRUE, doSymbol; short vrefnum; short returnCode;
 		register Document *doc=GetDocumentFromWindow(TopDocument); char str[256];
 		NSClientData nscd; FSSpec fsSpec;
 		
@@ -441,7 +441,7 @@ Boolean DoFileMenu(INT16 choice)
 #ifdef VIEWER_VERSION
 
 void DoEditMenu(choice)
-	INT16 choice;
+	short choice;
 	{
 		SysBeep(1);
 	}
@@ -452,7 +452,7 @@ void DoEditMenu(choice)
  *	Handle a choice from the Edit Menu.
  */
 
-void DoEditMenu(INT16 choice)
+void DoEditMenu(short choice)
 	{
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
@@ -570,7 +570,7 @@ void DeleteObj(Document *doc, LINK pL)
 
 void DeleteSelObjs(Document *doc)
 {
-	INT16 nInRange, nSelFlag; LINK pL, nextL, firstMeasL;
+	short nInRange, nSelFlag; LINK pL, nextL, firstMeasL;
 	
 	CountSelection(doc, &nInRange, &nSelFlag);
 	if (nSelFlag<=0) { SysBeep(1); return; }
@@ -593,12 +593,12 @@ void DeleteSelObjs(Document *doc)
 	}
 }
 
-void SetMeasNumPos(Document *doc, LINK startL, LINK endL, INT16 xOffset, INT16 yOffset);
+void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset);
 void ResetAllMeasNumPos(Document *doc);
 
 void SetMeasNumPos(Document *doc,
 							LINK startL, LINK endL,
-							INT16 xOffset, INT16 yOffset)
+							short xOffset, short yOffset)
 {
 	PAMEASURE	aMeasure;
 	LINK			pL, aMeasureL;
@@ -629,7 +629,7 @@ void ResetAllMeasNumPos(Document *doc)
  *	Handle a choice from the Test Menu.
  */
 
-static void DoTestMenu(INT16 choice)
+static void DoTestMenu(short choice)
 	{
 #ifndef PUBLIC_VERSION
 		register Document *doc = GetDocumentFromWindow(TopDocument);			
@@ -703,7 +703,7 @@ static void DoTestMenu(INT16 choice)
 
 #ifdef VIEWER_VERSION
 
-static void DoScoreMenu(INT16 choice)
+static void DoScoreMenu(short choice)
 	{
 		SysBeep(1);
 	}
@@ -712,7 +712,7 @@ static void DoScoreMenu(INT16 choice)
  *	Handle a choice from the Notes Menu.
  */
 
-static void DoNotesMenu(INT16 choice)
+static void DoNotesMenu(short choice)
 	{
 		SysBeep(1);
 	}
@@ -721,16 +721,16 @@ static void DoNotesMenu(INT16 choice)
  *	Handle a choice from the Groups Menu.
  */
 
-void DoGroupsMenu(INT16 choice)
+void DoGroupsMenu(short choice)
 	{
 		SysBeep(1);
 	}
 
 #else
 
-static void DoScoreMenu(INT16 choice)
+static void DoScoreMenu(short choice)
 	{
-		register Document *doc=GetDocumentFromWindow(TopDocument); LINK insertL; INT16 where;
+		register Document *doc=GetDocumentFromWindow(TopDocument); LINK insertL; short where;
 		if (doc==NULL) return;
 		
 		switch(choice) {
@@ -811,7 +811,7 @@ to indicate Transpose Key shouldn't be allowed. */
 
 static Boolean SetTranspKeyStaves(Document *doc, Boolean trStaff[])
 	{
-		INT16 s; LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
+		short s; LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
 		
 		/* If anything is selected after the initial reserved area, don't allow
 			Transpose Key. */
@@ -853,10 +853,10 @@ static Boolean SetTranspKeyStaves(Document *doc, Boolean trStaff[])
  *	Handle a choice from the Notes Menu.
  */
 
-static void DoNotesMenu(INT16 choice)
+static void DoNotesMenu(short choice)
 	{
 		register Document *doc=GetDocumentFromWindow(TopDocument);
-		INT16 delAccCode;
+		short delAccCode;
 		Boolean canTranspKey, trStaff[MAXSTAVES+1];
 		short	addAccCode;
 		if (doc == NULL) return;
@@ -956,7 +956,7 @@ static void DoNotesMenu(INT16 choice)
  *	Handle a choice from the Groups Menu.
  */
 
-void DoGroupsMenu(INT16 choice)
+void DoGroupsMenu(short choice)
 	{
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		TupleParam tParam; Boolean okay;
@@ -1021,9 +1021,9 @@ void DoGroupsMenu(INT16 choice)
  */
 
 
-void DoViewMenu(INT16 choice)
+void DoViewMenu(short choice)
 	{
-		register Document *doc=GetDocumentFromWindow(TopDocument); INT16 palIndex;
+		register Document *doc=GetDocumentFromWindow(TopDocument); short palIndex;
 		Rect screen, pal, docRect;
 		
 		switch(choice) {
@@ -1159,7 +1159,7 @@ void PLMIDIModPrefs(Document *doc)
 void PLTransposeScore(Document *doc)
 {
 	static Boolean warnedTransp = FALSE;
-	INT16 partn, nparts; LINK partL;
+	short partn, nparts; LINK partL;
 	PPARTINFO pPart;
 
 	if (!warnedTransp) {
@@ -1185,7 +1185,7 @@ void EditPartMIDI(Document *doc)
 {
 	LINK partL, pMPartL; PPARTINFO pPart, pMPart;
 	PARTINFO partInfo; short firstStaff;
-	INT16 partn;
+	short partn;
 	Boolean allParts = FALSE;
 
 	partL = GetSelPart(doc);
@@ -1194,7 +1194,7 @@ void EditPartMIDI(Document *doc)
 	partInfo = *pPart;
 	if (useWhichMIDI == MIDIDR_CM) {
 		MIDIUniqueID device;
-		partn = (INT16)PartL2Partn(doc, partL);
+		partn = (short)PartL2Partn(doc, partL);
 		device = GetCMDeviceForPartn(doc, partn);
 		if (CMPartMIDIDialog(doc, &partInfo, &device, &allParts)) {
 		
@@ -1207,7 +1207,7 @@ void EditPartMIDI(Document *doc)
 			doc->changed = TRUE;
 			
 			if (allParts) {
-				INT16 partNum;
+				short partNum;
 				
 				partL = FirstSubLINK(doc->headL);
 				for (partNum=0; partNum<=LinkNENTRIES(doc->headL)-1; partNum++, partL = NextPARTINFOL(partL)) 
@@ -1253,11 +1253,11 @@ static Boolean BIMIDIPortIsBusy()
  *	Handle a choice from the Play/Record Menu
  */
 
-void DoPlayRecMenu(INT16 choice)
+void DoPlayRecMenu(short choice)
 	{		
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 //		short newPortSetting, newInterfaceSpeed;
-//		INT16 oldMIDIThru;
+//		short oldMIDIThru;
 
 		switch(choice) {
 		
@@ -1339,12 +1339,12 @@ void DoPlayRecMenu(INT16 choice)
 
 #ifdef VIEWER_VERSION
 
-static void DoMasterPgMenu(INT16 choice)
+static void DoMasterPgMenu(short choice)
 	{		
 		SysBeep(1);
 	}
 
-static void DoFormatMenu(INT16 choice)
+static void DoFormatMenu(short choice)
 	{		
 		SysBeep(1);
 	}
@@ -1353,7 +1353,7 @@ static void DoFormatMenu(INT16 choice)
 
 void MPInstrument(Document *doc)
 	{
-		LINK staffL, aStaffL; INT16 partStaffn;
+		LINK staffL, aStaffL; short partStaffn;
 		
 		staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
 	
@@ -1390,7 +1390,7 @@ void MPCombineParts(Document *doc)
  *	Handle a choice from the MasterPage Menu
  */
 
-static void DoMasterPgMenu(INT16 choice)
+static void DoMasterPgMenu(short choice)
 	{		
 		Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
@@ -1437,7 +1437,7 @@ static void DoMasterPgMenu(INT16 choice)
  *	Handle a choice from the Show Format Menu
  */
 
-static void DoFormatMenu(INT16 choice)
+static void DoFormatMenu(short choice)
 	{		
 		Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
@@ -1462,14 +1462,14 @@ static void DoFormatMenu(INT16 choice)
  *	Handle a choice from the Reduce/Enlarge To (Magnify) Menu
  */
 
-static void DoMagnifyMenu(INT16 choice)
+static void DoMagnifyMenu(short choice)
 	{		
 		/*
 		 * Assume the menu simply contains a list of all possible <doc->magnify>
 		 * values, starting with the smallest (MIN_MAGNIFY).
 		 */
 		Document *doc=GetDocumentFromWindow(TopDocument);
-		INT16 newMagnify, magnifyDiff;
+		short newMagnify, magnifyDiff;
 
 		if (doc) {
 			newMagnify = MIN_MAGNIFY+(choice-1);
@@ -1529,7 +1529,7 @@ static void MovePalette(WindowPtr whichPalette, Point position)
 
 void FMPreferences(Document *doc)
 	{
-		static INT16 section=1;			/* Initially show General preferences */
+		static short section=1;			/* Initially show General preferences */
 		
 		PrefsDialog(doc, doc->used, &section);
 		FillSpaceMap(doc, doc->spaceTable);
@@ -1542,8 +1542,8 @@ void FMPreferences(Document *doc)
  
 void SMLeftEnd(Document *doc)
 {
-	INT16	changeFirstIndent, changeOtherIndent;
-	INT16	firstNames, firstDist, otherNames, otherDist;
+	short	changeFirstIndent, changeOtherIndent;
+	short	firstNames, firstDist, otherNames, otherDist;
 	
 	firstNames = doc->firstNames;
 	firstDist = d2pt(doc->firstIndent);
@@ -1615,7 +1615,7 @@ static void SMMeasNum(Document *doc)
 
 static void SMRespace(Document *doc)
 	{
-		INT16 spMin, spMax, dval;
+		short spMin, spMax, dval;
 
 		GetMSpaceRange(doc, doc->selStartL, doc->selEndL, &spMin, &spMax);
 		dval = SpaceDialog(RESPACE_DLOG, spMin, spMax);
@@ -1657,9 +1657,9 @@ static void SMReformat(Document *doc)
 	{
 		static Boolean firstCall=TRUE, changeSBreaks, careMeasPerSys, exactMPS,
 							careSysPerPage, justify;
-		INT16 useMeasPerSys;
-		static INT16 measPerSys, sysPerPage, titleMargin;
-		INT16 endSysNum, status;
+		short useMeasPerSys;
+		static short measPerSys, sysPerPage, titleMargin;
+		short endSysNum, status;
 		LINK startSysL, endSysL;
 		
 		if (firstCall) {
@@ -1709,7 +1709,7 @@ static void SMReformat(Document *doc)
 static void NMAddModifiers(Document *doc)
 	{
 		LINK	pL, aNoteL, mainNoteL, aModNRL;
-		INT16	voice;
+		short	voice;
 		char	data = 0;
 		static Byte	modCode = MOD_STACCATO;
 		
@@ -1764,10 +1764,10 @@ static void NMStripModifiers(Document *doc)
 	}
 
 
-static INT16 CountSelVoices(Document *doc)
+static short CountSelVoices(Document *doc)
 	{
 		Boolean voiceUsed[MAXVOICES+1];
-		INT16 v, nSelVoices;
+		short v, nSelVoices;
 		LINK pL, aNoteL, aGRNoteL;
 		
 		for (v = 1; v<=MAXVOICES; v++)
@@ -1804,7 +1804,7 @@ static INT16 CountSelVoices(Document *doc)
 	
 static void NMMultiVoice(Document *doc)
 	{
-		static INT16 nSelVoices, voiceRole; static Boolean measMulti, assume;
+		static short nSelVoices, voiceRole; static Boolean measMulti, assume;
 
 		nSelVoices = CountSelVoices(doc);
 		if (MultivoiceDialog(nSelVoices, &voiceRole, &measMulti, &assume))
@@ -1818,7 +1818,7 @@ static void NMMultiVoice(Document *doc)
 	
 static void NMSetDuration(Document *doc)
 	{
-		static INT16 lDur=QTR_L_DUR, nDots=0, pDurPct=-1, lDurAction=SET_DURS_TO;
+		static short lDur=QTR_L_DUR, nDots=0, pDurPct=-1, lDurAction=SET_DURS_TO;
 		static Boolean setLDur=TRUE, setPDur=TRUE, cptV=TRUE;
 		Boolean unbeam, didAnything=FALSE;
 		
@@ -1874,7 +1874,7 @@ static void NMInsertByPos(Document *doc)
 	
 static void NMSetMBRest(Document *doc)
 	{
-		static INT16 newNMeas=4;
+		static short newNMeas=4;
 
 		if (SetMBRestDialog(doc, &newNMeas)) {
 			PrepareUndo(doc, doc->selStartL, U_SetDuration, 23);    	/* "Set Multibar Rest" */
@@ -1897,7 +1897,7 @@ static void NMSetMBRest(Document *doc)
 	
 static void NMFillEmptyMeas(Document *doc)
 	{
-		INT16 startMN, endMN; LINK measL, startL, endL; PAMEASURE aMeasure;
+		short startMN, endMN; LINK measL, startL, endL; PAMEASURE aMeasure;
 		
 		/* Default start and end measures are the first and last of the score. */
 		
@@ -1937,7 +1937,7 @@ static void NMFillEmptyMeas(Document *doc)
  
 static void VMLookAt()
 	{
-		INT16			dval, newLookV, userVoice, saveStaff;
+		short			dval, newLookV, userVoice, saveStaff;
 		Document		*doc=GetDocumentFromWindow(TopDocument);
 		LINK			partL;
 		PPARTINFO 	pPart;
@@ -2079,9 +2079,9 @@ static void VMPianoRoll()
 
 #define SPEC_DOC_COUNT 1	/* No. of special Documents (e.g., clipboard) at start of <documentTable> */
 
-static void VMActivate(INT16 choice)
+static void VMActivate(short choice)
 	{
-	INT16 itemNum; Document *doc;
+	short itemNum; Document *doc;
 	
 		/* The items at the end of the View menu (after the dividing line after
 		 *	VM_LastItem) correspond to Documents in documentTable. Search for the
@@ -2100,7 +2100,7 @@ static void VMActivate(INT16 choice)
 static Boolean OKToRecord(Document *);
 static Boolean OKToRecord(Document *doc)
 {
-	INT16 anInt; LINK lookPartL, selPartL; char str[256];
+	short anInt; LINK lookPartL, selPartL; char str[256];
 	
 	if (HasSmthgAcross(doc, doc->selStartL, str)) {
 		CParamText(str, "", "", "");
@@ -2152,7 +2152,7 @@ static void PLRecord(Document *doc, Boolean merge)
 
 static void PLStepRecord(Document *doc, Boolean merge)
 	{
-		INT16 spaceProp;
+		short spaceProp;
 		
 		if (!OKToRecord(doc)) return;
 
@@ -2185,7 +2185,7 @@ static void PLStepRecord(Document *doc, Boolean merge)
 
 void InstallDocMenus(Document *doc)
 	{
-		INT16 mid; MenuHandle oldMh, mh;
+		short mid; MenuHandle oldMh, mh;
 	
 		if (oldMh = GetMenuHandle(playRecID))
 			DeleteMenu(playRecID);
@@ -2267,7 +2267,7 @@ void FixMenus()
 	{
 		Boolean isDA; WindowPtr w;
 		register Document *theDoc;
-		INT16 nInRange=0,nSel=0;
+		short nInRange=0,nSel=0;
 		LINK firstMeasL;
 		Boolean continSel=FALSE;
 		
@@ -2328,7 +2328,7 @@ void FixMenus()
 
 /* Enable or disable all items in the File menu */
 
-static void FixFileMenu(Document *doc, INT16 nSel)
+static void FixFileMenu(Document *doc, short nSel)
 	{
 		//always disable Finale ETF import until it has been removed from menu (rsrc) entirely
 		XableItem(fileMenu,FM_GetETF,FALSE);        
@@ -2341,7 +2341,7 @@ static void FixFileMenu(Document *doc, INT16 nSel)
 										&& doc!=clipboard && !doc->masterView);
 		XableItem(fileMenu,FM_SaveAs,doc!=NULL && doc!=clipboard && !doc->masterView);
 		XableItem(fileMenu,FM_Extract,doc!=NULL && doc!=clipboard);
-		INT16 numOpenDocs = NumOpenDocuments();
+		short numOpenDocs = NumOpenDocuments();
 		//XableItem(fileMenu,FM_Import,numOpenDocs == 0);
 
 		// always disable NoteScan import until it has been removed from menu (rsrc) entirely
@@ -2377,7 +2377,7 @@ static void FixFileMenu(Document *doc, INT16 nSel)
 short CountSelPages(Document *);
 short CountSelPages(Document *doc)
 	{
-		Boolean selAcrossFirst; INT16 nPages; LINK pL;
+		Boolean selAcrossFirst; short nPages; LINK pL;
 		
 		if (!doc) return 0;
 		
@@ -2417,7 +2417,7 @@ static void GetUndoString(Document *doc, char undoMenuItem[])
 
 #ifdef VIEWER_VERSION
 
-static void FixEditMenu(Document *doc, INT16 nInRange, INT16 nSel, Boolean isDA)
+static void FixEditMenu(Document *doc, short nInRange, short nSel, Boolean isDA)
 	{
 		XableItem(editMenu,EM_Undo,isDA);
 		XableItem(editMenu,EM_Cut,isDA);
@@ -2433,7 +2433,7 @@ static void FixEditMenu(Document *doc, INT16 nInRange, INT16 nSel, Boolean isDA)
  * window isn't a DA and we're looking at the Master Page or Showing Format.
  */
 
-static void FixEditMenu(Document *doc, INT16 /*nInRange*/, INT16 nSel, Boolean isDA)
+static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean isDA)
 	{
 		Boolean mergeable,enablePaste,enableClearSys,enableClearPage;
 		char str[256], undoMenuItem[256], fmtStr[256];
@@ -2573,7 +2573,7 @@ static void FixEditMenu(Document *doc, INT16 /*nInRange*/, INT16 nSel, Boolean i
 
 #endif
 
-static void FixTestMenu(Document *doc, INT16 nSel)
+static void FixTestMenu(Document *doc, short nSel)
 	{
 #ifndef PUBLIC_VERSION
 		if (clickMode==ClickErase)
@@ -2668,7 +2668,7 @@ static void FixMoveMeasSys(Document *doc)
 
 #ifdef VIEWER_VERSION
 
-static void FixScoreMenu(Document *doc, INT16 nSel)
+static void FixScoreMenu(Document *doc, short nSel)
 	{
 	}
 	
@@ -2689,9 +2689,9 @@ static void FixGroupsMenu(doc, continSel)
  *	or it's the clipboard.
  */
 
-static void FixScoreMenu(Document *doc, INT16 nSel)
+static void FixScoreMenu(Document *doc, short nSel)
 	{
-		Boolean canAddSystem=FALSE; LINK insertL; INT16 where;
+		Boolean canAddSystem=FALSE; LINK insertL; short where;
 		Str255 str;
 	
 		UpdateMenu(scoreMenu, doc!=NULL && doc!=clipboard);
@@ -2810,7 +2810,7 @@ static void FixNotesMenu(Document *doc, Boolean /*continSel*/)
 	}
 
 
-static Boolean SelRangeChkOct(INT16 staff, LINK staffStartL, LINK staffEndL)
+static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 {
 	LINK pL,aNoteL,aGRNoteL;
 	PANOTE aNote; PAGRNOTE aGRNote;
@@ -2848,7 +2848,7 @@ static void FixOctavaCommands(Document *, Boolean);
 static void FixBeamCommands(Document *doc)
 {
 	Boolean hasBeam, hasGRBeam; LINK pL, aNoteL, aGRNoteL;
-	INT16 voice, nBeamable, nGRBeamable; Str255 str;
+	short voice, nBeamable, nGRBeamable; Str255 str;
 	
 	hasBeam = FALSE;			
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -2925,7 +2925,7 @@ knowGRBeamed:
 static void FixTupletCommands(Document *doc)
 {
 	Boolean hasTuplet; LINK pL, aNoteL, vStartL, vEndL;
-	INT16 voice, tupleNum; Str255 str;
+	short voice, tupleNum; Str255 str;
 	
 	hasTuplet = FALSE;
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -2988,7 +2988,7 @@ knowTupled:
 static void FixOctavaCommands(Document *doc, Boolean continSel)
 {
 	Boolean hasOctava; LINK pL, aNoteL, aGRNoteL, stfStartL, stfEndL;
-	INT16 staff, octavaNum; Str255 str;
+	short staff, octavaNum; Str255 str;
 
 	if (!continSel) {
 		DisableMenuItem(groupsMenu, GM_Octava);
@@ -3094,7 +3094,7 @@ static void FixGroupsMenu(Document *doc, Boolean continSel)
 
 void AddWindowList()
 {
-	INT16 startItems, itemNum; Document *doc;
+	short startItems, itemNum; Document *doc;
 	
 	/* Delete any window names from the end of the View menu. */
 	
@@ -3175,7 +3175,7 @@ static void FixViewMenu(Document *doc)
 /* Fix all items in Play/Record menu; disable entire menu if there's no score or
 we're looking at the Master Page. */
 
-static void FixPlayRecordMenu(Document *doc, INT16 nSel)
+static void FixPlayRecordMenu(Document *doc, short nSel)
 	{
 		Boolean disableWholeMenu, noteSel, haveMIDI=(useWhichMIDI!=MIDIDR_NONE);
 
@@ -3246,7 +3246,7 @@ this menu shouldn't be installed, so we don't even need to disable it. */
 
 static void FixMasterPgMenu(Document *doc)
 {
-	INT16 groupSel,nstavesMP, nparts; LINK staffL; Str255 str;
+	short groupSel,nstavesMP, nparts; LINK staffL; Str255 str;
 
 	if (doc==NULL || !doc->masterView) return;
 	
@@ -3283,7 +3283,7 @@ this menu shouldn't be installed, so we don't even need to disable it. */
 
 static void FixFormatMenu(Document *doc)
 {
-	INT16 nVis, nInvis; LINK pL, aStaffL;
+	short nVis, nInvis; LINK pL, aStaffL;
 
 	if (doc==NULL || !doc->showFormat) return;
 	

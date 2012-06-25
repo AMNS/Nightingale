@@ -16,8 +16,8 @@ static short FindAccModNR(Document *, Point, LINK *, LINK *, LINK *, Rect *);
 static LINK FindAccidental(Document *, Point, LINK *, Rect *);
 static void GetAccidentalBbox(Document *, LINK, LINK, Rect *);
 static void DoAccidentalDrag(Document *, Point, LINK, LINK, Rect *);
-static DDIST GetAccXOffset(PANOTE, INT16, PCONTEXT);
-static void DrawAccidentalParams(Document *doc, INT16);
+static DDIST GetAccXOffset(PANOTE, short, PCONTEXT);
+static void DrawAccidentalParams(Document *doc, short);
 static Boolean GetModNRbbox(Document *, LINK, LINK, LINK, Rect *);
 static void DoModNRDrag(Document *, Point, LINK, LINK, LINK, Rect *);
 static void DrawModNRParams(Document *doc, SHORTSTD, SHORTSTD);
@@ -179,7 +179,7 @@ Boolean DoAccModNRClick(Document *doc, Point pt)
 static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBBox)
 {
 	DDIST		noteXD, noteYD, accXOffset, xdNorm;
-	INT16		oldTxSize, useTxSize, sizePercent, charWid, baseLine;
+	short		oldTxSize, useTxSize, sizePercent, charWid, baseLine;
 	PANOTE	aNote;
 	CONTEXT	context;
 	Rect		accCharRect;
@@ -241,7 +241,7 @@ static void DoAccidentalDrag(Document *doc, Point pt, LINK syncL, LINK noteL,
 									Rect *origAccBBox)				/* in paper coords */
 {
 	DDIST		noteXD, noteYD, xdNorm, xdNormAdjusted, xOffset, accXOffset, dAccWidth;
-	INT16		accCode, oldTxMode, oldTxSize, useTxSize, 
+	short		accCode, oldTxMode, oldTxSize, useTxSize, 
 				sizePercent, diffH, accOriginH, xmoveAcc;
 	Point		oldPt, newPt;
 	Boolean	chordNoteToL, suppressRedraw = FALSE;
@@ -374,7 +374,7 @@ PopLock(NOTEheap);
 }
 
 
-DDIST GetAccXOffset(PANOTE aNote, INT16 sizePercent, PCONTEXT pContext)
+DDIST GetAccXOffset(PANOTE aNote, short sizePercent, PCONTEXT pContext)
 {
 	DDIST	accXOffset;
 	short	xmoveAcc;
@@ -388,7 +388,7 @@ DDIST GetAccXOffset(PANOTE aNote, INT16 sizePercent, PCONTEXT pContext)
 
 /* Draws the offset (negative) of the accidental from the notehead into the msg box. */
 
-static void DrawAccidentalParams(Document *doc, INT16 xmoveAcc)
+static void DrawAccidentalParams(Document *doc, short xmoveAcc)
 {
 	char str[256], fmtStr[256];
 	
@@ -406,7 +406,7 @@ static Boolean GetModNRbbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 										Rect *bbox)
 {
 	DDIST		noteXD, xdMod, ydMod, staffTop, xdNorm, lnSpace;
-	INT16		code, oldTxSize, useTxSize, sizePercent,
+	short		code, oldTxSize, useTxSize, sizePercent,
 				xOffset, yOffset, charWid, baseLine, wid, ht;
 	PAMODNR	aModNR;
 	PANOTE	aNote;
@@ -449,7 +449,7 @@ static Boolean GetModNRbbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 	charWid = CharWidth(glyph);			/* more accurate for screen fonts, especially when scaled */
 	TextSize(oldTxSize);
 
-	glyphRect = CharRect((INT16)glyph);
+	glyphRect = CharRect((short)glyph);
 
 	bbox->left = d2p(xdMod);
 	bbox->right = bbox->left + charWid;
@@ -483,7 +483,7 @@ static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK mo
 {
 	DDIST		noteXD, xdMod, ydMod, staffTop, xdNorm, xd, yd, xdModOrig, ydModOrig, lnSpace;
 	STDIST	xstd, ystdpit;
-	INT16		code, sizePercent, xOffset, yOffset, constrain = NOCONSTRAIN,
+	short		code, sizePercent, xOffset, yOffset, constrain = NOCONSTRAIN,
 				oldTxSize, useTxSize, oldTxMode;
 	Point		oldPt, newPt, modOrigin, diffPt;
 	Boolean	firstLoop = TRUE, suppressRedraw = FALSE;
@@ -496,7 +496,7 @@ static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK mo
 	GrafPtr	scrnPort, modPort;
 	Rect		destRect;
 	Point		grPortOrigin;
-	INT16		dh, dv, fontID;
+	short		dh, dv, fontID;
 #endif
 	
 /* ??Do I really need to lock these? What about the modNR heaps? */

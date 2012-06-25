@@ -28,20 +28,20 @@ Boolean NewMasterPage(Document *, DDIST sysTop, Boolean fromDoc);
 Boolean CopyMasterRange(Document *, LINK, LINK, LINK);
 
 void MPDeletePart(Document *doc);
-INT16 CountConnParts(Document *,LINK,LINK,LINK,LINK);
-void UpdateConnFields(LINK connectL,INT16 stfDiff,INT16 lastStf);
+short CountConnParts(Document *,LINK,LINK,LINK,LINK);
+void UpdateConnFields(LINK connectL,short stfDiff,short lastStf);
 
 void StoreAllConnectParts(LINK headL);
 void StoreConnectPart(LINK headL,LINK aConnectL);
 void MPAddPart(Document *doc);
 
-INT16 GetPartSelRange(Document *doc, LINK *firstPart, LINK *lastPart);
-INT16 PartRangeSel(Document *doc);
-INT16 GroupSel(Document *doc);
-INT16 PartSel(Document *doc);
+short GetPartSelRange(Document *doc, LINK *firstPart, LINK *lastPart);
+short PartRangeSel(Document *doc);
+short GroupSel(Document *doc);
+short PartSel(Document *doc);
 
 void MPSetInstr(Document *doc, PPARTINFO pPart);
-void GetSelStaves(LINK staffL,INT16 *minStf,INT16 *maxStf);
+void GetSelStaves(LINK staffL,short *minStf,short *maxStf);
 void DoGroupParts(Document *doc);
 void DoUngroupParts(Document *doc);
 Boolean DoMake1StaffParts(Document *doc);

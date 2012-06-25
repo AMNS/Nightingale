@@ -73,15 +73,15 @@ void COffsetRect(Rect *r, short h, short v)
 /*	PAGE object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckPAGE(Document *doc, LINK pL, CONTEXT context[],
+short CheckPAGE(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE /*stfRange*/,	/* unused */
 						Point enlarge)
 {
 	Rect		r;
 	PCONTEXT	pContext;
-	INT16		result;
+	short		result;
 
 	result = NOMATCH;
 	
@@ -150,9 +150,9 @@ INT16 CheckPAGE(Document *doc, LINK pL, CONTEXT context[],
 /* SYSTEM object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
+short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE /*stfRange*/,	/* unused */
 						Point enlarge)
 {
@@ -160,7 +160,7 @@ INT16 CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 	Rect		r,paperRect,sysRect,sysObjRect;
 	Point		mousePt;
 	PCONTEXT	pContext;
-	INT16		result;
+	short		result;
 	LINK		pageL;
 	DDIST		sysOffset;
 
@@ -273,16 +273,16 @@ INT16 CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 /* STAFF object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
+short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
 	LINK aStaffL;
 	PCONTEXT pContext;
 	Rect rSub,wSub,aRect;
-	INT16 i,result,staffn;
+	short i,result,staffn;
 	DDIST	dTop,dLeft,dBottom,dRight;
 	Boolean objSel=FALSE;
 	LINK partL;
@@ -429,9 +429,9 @@ INT16 CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 /* CONNECT object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
+short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE /*stfRange*/,	/* unused */
 						Point /*enlarge*/)
 {
@@ -439,7 +439,7 @@ INT16 CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 	LINK aConnectL,staffL,aStaffL,cStaffL;
 	Rect r,rSub,wSub,limitR,slopR;
 	PCONTEXT pContext;
-	INT16 i,j,result,staffAbove,staffBelow;
+	short i,j,result,staffAbove,staffBelow;
 	DDIST dTop,dLeft,xd,yd,dBottom,dRight,rSubRight;
 	Boolean entire,objSel=FALSE;
 	RgnHandle connectRgn; long newPos;
@@ -610,22 +610,22 @@ INT16 CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 /* CLEF object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckCLEF(Document *doc, LINK pL, CONTEXT context[],
+short CheckCLEF(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
 	PACLEF		aClef;			/* ptr to current sub object */
 	LINK			aClefL;
-	INT16			i,					/* scratch */
+	short			i,					/* scratch */
 					oldtxSize;		/* get & restore the port's textSize, for inMeasure clefs */
 	PCONTEXT		pContext;
 	DDIST			xd, yd,			/* scratch DDIST coordinates */
 					xdOct, ydOct,
 					lnSpace;
 	unsigned char	glyph;		/* clef symbol */
-	INT16			result;			/* =NOMATCH unless object/subobject clicked in */
+	short			result;			/* =NOMATCH unless object/subobject clicked in */
 	Boolean		objSelected;	/* FALSE unless something in the object is selected */
 	Rect			rSub,				/* paper-relative bounding box for sub-object */
 					wSub,				/* Window relative of above */
@@ -734,21 +734,21 @@ PopLock(CLEFheap);
 /* DYNAMIC object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckDYNAMIC(Document *doc, LINK pL, CONTEXT context[],
+short CheckDYNAMIC(Document *doc, LINK pL, CONTEXT context[],
 							Ptr ptr,
-							INT16 mode,
+							short mode,
 							STFRANGE stfRange,
 							Point enlarge)
 {
 	PADYNAMIC	aDynamic;		/* ptr to current subobject */
 	LINK			aDynamicL,
 					firstSync, lastSync;
-	INT16			i,					/* scratch */
+	short			i,					/* scratch */
 					staffn;			/* staff number of current subobject */
 	PCONTEXT		pContext;
 	DDIST			xd, yd;			/* scratch DDIST coordinates */
 	unsigned char	glyph;		/* dynamic symbol */
-	INT16			result;			/* =NOMATCH unless object/subobject clicked in */
+	short			result;			/* =NOMATCH unless object/subobject clicked in */
 	Boolean		objSelected;	/* FALSE unless something in the object is selected */
 	Rect			rSub,				/* bounding box for sub-object */
 					wSub,				/* window-relative of above */
@@ -902,18 +902,18 @@ PopLock(DYNAMheap);
 /* REPEATEND object selecter/highliter.  Does different things depending on the value
 of <mode> (see the list above). */
 
-INT16 CheckRPTEND(Document *doc, LINK pL, CONTEXT context[],
+short CheckRPTEND(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
 	LINK			aRptL;
 	PARPTEND		aRpt;
-	INT16			i;			
+	short			i;			
 	PCONTEXT		pContext;
 	unsigned char dummy=0;			/* for call to HandleSymDrag; not used. */
-	INT16			result;			/* =NOMATCH unless object/subobject clicked in */
+	short			result;			/* =NOMATCH unless object/subobject clicked in */
 	Boolean		objSelected;
 	DDIST 		xd, yd,
 					dBottom;			/* Bottom of subRect for aRpt, if aRpt->connStaff==0 */
@@ -1031,8 +1031,8 @@ PopLock(RPTENDheap);
 
 // ??BELONGS ELSEWHERE!
 
-Boolean ChordFrameDialog(Document *doc, Boolean *relFSize, INT16 *size, INT16 *style,
-				INT16 *enclosure, unsigned char *fontname, unsigned char *pTheChar);
+Boolean ChordFrameDialog(Document *doc, Boolean *relFSize, short *size, short *style,
+				short *enclosure, unsigned char *fontname, unsigned char *pTheChar);
 
 /* ----------------------------------------------------------------- CheckGRAPHIC -- */
 /* GRAPHIC object selecter/highliter.  Does different things depending on the value of
@@ -1041,9 +1041,9 @@ Boolean ChordFrameDialog(Document *doc, Boolean *relFSize, INT16 *size, INT16 *s
 	               subobject(s), selecting & highliting if so.
 */
 
-INT16 CheckGRAPHIC(Document *doc, LINK pL, CONTEXT /*context*/[],
+short CheckGRAPHIC(Document *doc, LINK pL, CONTEXT /*context*/[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
@@ -1051,13 +1051,13 @@ INT16 CheckGRAPHIC(Document *doc, LINK pL, CONTEXT /*context*/[],
 	LINK			aGraphicL;
 	CONTEXT		context1;
 	PCONTEXT		pContext;
-	INT16			result;			/* =NOMATCH unless object clicked in */
+	short			result;			/* =NOMATCH unless object clicked in */
 	Rect			r,					/* object rectangle */
 					aRect,			/* scratch */
 					oldObjRect,		/* rects to inval after editing by dblclicking. */
 					tempR;
 	unsigned char dummy=0;
-	INT16 		fontSize, fontStyle, enclosure,
+	short 		fontSize, fontStyle, enclosure,
 					newWidth, styleChoice,
 					staffn;
 	STRINGOFFSET offset;
@@ -1123,7 +1123,7 @@ PushLock(OBJheap);
 													&fontStyle, &enclosure, &lyric, newFont,
 													string, pContext);
 						if (change) {
-							INT16 i, newFontIndex;
+							short i, newFontIndex;
 							/*
 							 * Get the new font's index, adding it to the table if necessary.
 							 * But if the table overflows, give up.
@@ -1159,19 +1159,19 @@ PushLock(OBJheap);
 						change = PatchChangeDialog(string);
 						if (change) doc->changed = TRUE;
 						if (string[0]>16-1) string[0] = 16-1;		//if (string[0]>MPATCH_LEN-1) string[0] = MPATCH_LEN-1;
-						INT16 patchNum = FindIntInString(string);
+						short patchNum = FindIntInString(string);
 						p->info = patchNum;
 						break;
 					case GRMIDIPan:
 						change = PanSettingDialog(string);
 						if (change) doc->changed = TRUE;
 						if (string[0]>16-1) string[0] = 16-1;		//if (string[0]>MPATCH_LEN-1) string[0] = MPATCH_LEN-1;
-						INT16 pansetting = FindIntInString(string);
+						short pansetting = FindIntInString(string);
 						p->info = pansetting;
 						break;
 					case GRChordSym:
 						{
-							INT16 auxInfo = p->info;
+							short auxInfo = p->info;
 							change = ChordSymDialog(doc, string, &auxInfo);
 							if (change)	{
 								p->info = auxInfo;
@@ -1181,7 +1181,7 @@ PushLock(OBJheap);
 						break;
 					case GRChordFrame:
 						{
-							INT16 dummySize, dummyStyle, dummyEncl;
+							short dummySize, dummyStyle, dummyEncl;
 							Str63 dummyFont; Boolean dummyRelSize;
 
 							change = ChordFrameDialog(doc, &dummyRelSize, &dummySize, &dummyStyle,
@@ -1315,15 +1315,15 @@ PopLock(OBJheap);
 /* TEMPO object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckTEMPO(Document *doc, LINK pL, CONTEXT context[],
+short CheckTEMPO(Document *doc, LINK pL, CONTEXT context[],
 					Ptr ptr,
-					INT16 mode,
+					short mode,
 					STFRANGE stfRange,
 					Point enlarge)
 {
 	PTEMPO	p;
 	Rect		r,aRect,oldObjRect,newObjRect,tempR;
-	INT16		newWidth,result,dur,staffn;
+	short		newWidth,result,dur,staffn;
 	long		beatsPM;
 	Boolean	hideMM,ok,dotted;
 	Str63		tempoStr,metroStr;
@@ -1482,15 +1482,15 @@ PopLock(OBJheap);
 /* SPACE object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckSPACE(Document *doc, LINK pL, CONTEXT context[],
+short CheckSPACE(Document *doc, LINK pL, CONTEXT context[],
 					Ptr ptr,
-					INT16 mode,
+					short mode,
 					STFRANGE stfRange,
 					Point enlarge)
 {
 	PSPACE	p;
 	Rect		r,aRect,tempR;
-	INT16		result;
+	short		result;
 	PCONTEXT	pContext;
 
 	p = GetPSPACE(pL);
@@ -1589,15 +1589,15 @@ INT16 CheckSPACE(Document *doc, LINK pL, CONTEXT context[],
 /* ENDING object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckENDING(Document *doc, LINK pL, CONTEXT context[],
+short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
 	PENDING	p;
 	Rect		r,aRect,tempR;
-	INT16		result, endNum, newNumber, cutoffs, newCutoffs;
+	short		result, endNum, newNumber, cutoffs, newCutoffs;
 	unsigned char dummy=0;								/* for call to HandleSymDrag; not used. */
 	PCONTEXT	pContext;
 	Boolean	okay;
@@ -1722,7 +1722,7 @@ subobject the user clicked. Assumes keysig and object heaps have been locked. */
 
 static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 {
-	INT16 sharps, flats, oldSharpsOrFlats, newSharpsOrFlats;
+	short sharps, flats, oldSharpsOrFlats, newSharpsOrFlats;
 	LINK initKSL, endL;
 	PAKEYSIG aKeySig;
 	KSINFO oldKSInfo, newKSInfo;
@@ -1793,7 +1793,7 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 		else
 			initKSL = LSSearch(RightLINK(pL), KEYSIGtype, ANYONE, GO_RIGHT, FALSE);
 		if (initKSL) {
-			INT16 staff = onAllStaves? ANYONE : aKeySig->staffn;
+			short staff = onAllStaves? ANYONE : aKeySig->staffn;
 			FixInitialKSxds(doc, initKSL, endL, staff);
 		}
 
@@ -1815,18 +1815,18 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 /* KEYSIG object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckKEYSIG(Document *doc, LINK pL, CONTEXT context[],
+short CheckKEYSIG(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
 	PAKEYSIG		aKeySig;
 	LINK			aKeySigL;
 	PCONTEXT		pContext;
-	INT16			i,width;			/* total pixel width of key sig. */
-	INT16 		lines;
-	INT16			result;			/* =NOMATCH unless object/subobject clicked in */
+	short			i,width;			/* total pixel width of key sig. */
+	short 		lines;
+	short			result;			/* =NOMATCH unless object/subobject clicked in */
 	Boolean		objSelected;	/* FALSE unless something in the object is selected */
 	DDIST			xd, yd,			/* scratch DDIST coordinates */
 					dTop,				/* absolute DDIST position of origin (staff or measure) */
@@ -1953,23 +1953,23 @@ PopLock(KEYSIGheap);
 						a new slur. 
 */
 
-INT16 CheckSYNC(Document *doc, LINK pL, CONTEXT context[],
+short CheckSYNC(Document *doc, LINK pL, CONTEXT context[],
 					Ptr ptr,
-					INT16 mode,
+					short mode,
 					STFRANGE stfRange,
 					Point enlarge,
 					Point enlargeSpecial)
 {
 	PANOTE		aNote;			/* ptr to current subobject */
 	LINK			aNoteL, bNoteL;
-	INT16			i;					/* scratch */
+	short			i;					/* scratch */
 	PCONTEXT		pContext;
 	DDIST			xd, yd,			/* scratch DDIST coordinates */
 					dTop, dLeft,	/* absolute DDIST position of origin (staff or measure) */
 					lnSpace;
-	INT16			width;			/* dist to offset for otherStemSide */
-	INT16			glyph;			/* symbol */
-	INT16			result,			/* =NOMATCH unless object/subobject clicked in */
+	short			width;			/* dist to offset for otherStemSide */
+	short			glyph;			/* symbol */
+	short			result,			/* =NOMATCH unless object/subobject clicked in */
 					oldtxSize;		/* get & restore the port's textSize */
 	Boolean		objSelected,	/* FALSE unless something in the object is selected */
 					upOrDown,		/* needed for otherStemSide to offset rect correctly */
@@ -2187,21 +2187,21 @@ PopLock(NOTEheap);
 	               subobject(s), selecting & highliting if so.
 */
 
-INT16 CheckGRSYNC(Document *doc, LINK pL, CONTEXT context[],
+short CheckGRSYNC(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
 	PAGRNOTE		aGRNote;			/* ptr to current sub object */
 	LINK			aGRNoteL, bGRNoteL;
-	INT16			i;					/* scratch */
+	short			i;					/* scratch */
 	PCONTEXT		pContext;
 	DDIST			xd, yd,			/* scratch DDIST coordinates */
 					dTop, dLeft;	/* absolute DDIST position of origin (staff or measure) */
-	INT16			width;			/* dist to offset for otherStemSide */
-	INT16			glyph;			/* symbol */
-	INT16			result,			/* =NOMATCH unless object/subobject clicked in */
+	short			width;			/* dist to offset for otherStemSide */
+	short			glyph;			/* symbol */
+	short			result,			/* =NOMATCH unless object/subobject clicked in */
 					oldtxSize;		/* get & restore the port's textSize */
 	Boolean		objSelected,	/* FALSE unless something in the object is selected */
 					upOrDown,		/* needed for otherStemSide to offset rect correctly */
@@ -2371,7 +2371,7 @@ subobject the user clicked. Assumes timesig and object heaps have been locked. *
 
 static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL)
 {
-	INT16 subType, numerator, denominator;
+	short subType, numerator, denominator;
 	PATIMESIG aTimeSig;
 	Boolean beforeFirstMeas, change;
 	static Boolean onAllStaves = TRUE;
@@ -2425,9 +2425,9 @@ static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL)
 /* TIMESIG object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckTIMESIG(Document *doc, LINK pL, CONTEXT context[],
+short CheckTIMESIG(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
@@ -2435,10 +2435,10 @@ INT16 CheckTIMESIG(Document *doc, LINK pL, CONTEXT context[],
 	PATIMESIG	aTimeSig;
 	LINK			aTimeSigL;
 	PCONTEXT		pContext;
-	INT16			i, width;
-	INT16			result;			/* =NOMATCH unless object/subobject clicked in */
+	short			i, width;
+	short			result;			/* =NOMATCH unless object/subobject clicked in */
 	Boolean		objSelected;	/* FALSE unless something in the object is selected */
-	INT16			xp, yp;			/* scratch pixel coordinates */
+	short			xp, yp;			/* scratch pixel coordinates */
 	DDIST			dTop, dLeft;	/* absolute DDIST position of origin (staff or measure) */
 	Rect			rSub,				/* paper-relative subobject rectangle */
 					wSub,				/* window-relative of above */
@@ -2579,9 +2579,9 @@ PopLock(TIMESIGheap);
 /* MEASURE object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckMEASURE(Document *doc, LINK pL, CONTEXT context[],
+short CheckMEASURE(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
@@ -2589,10 +2589,10 @@ INT16 CheckMEASURE(Document *doc, LINK pL, CONTEXT context[],
 	PAMEASURE	aMeasure;
 	LINK			aMeasureL;
 	PCONTEXT		pContext;
-	INT16			i,
+	short			i,
 					halfWidth,		/* half of pixel width */
 					groupTopStf, groupBottomStf;	/* Top/bottom staff nos. for current group */
-	INT16			result,			/* =NOMATCH unless object/subobject clicked in */
+	short			result,			/* =NOMATCH unless object/subobject clicked in */
 					measureStf,connStaff;
 	Boolean		objSelected,	/* FALSE unless something in the object is selected */
 					measDrag,
@@ -2806,9 +2806,9 @@ PopLock(MEASUREheap);
 /* PSMEAS object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
+short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
@@ -2816,10 +2816,10 @@ INT16 CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 	PAPSMEAS		aPSMeas;
 	LINK			aPSMeasL;
 	PCONTEXT		pContext;
-	INT16			i,
+	short			i,
 					halfWidth,		/* half of pixel width */
 					groupTopStf, groupBottomStf;	/* Top/bottom staff nos. for current group */
-	INT16			result,			/* =NOMATCH unless object/subobject clicked in */
+	short			result,			/* =NOMATCH unless object/subobject clicked in */
 					measureStf,connStaff;
 	Boolean		objSelected,	/* FALSE unless something in the object is selected */
 					measDrag;
@@ -2990,13 +2990,13 @@ INT16 CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 /* BEAMSET object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckBEAMSET(Document *doc, LINK pL, CONTEXT context[],
+short CheckBEAMSET(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange)
 {
 	PBEAMSET 	p;
-	INT16			result;			/* =NOMATCH unless object/subobject clicked in */
+	short			result;			/* =NOMATCH unless object/subobject clicked in */
 	Rect			rSub,				/* bounding box for sub-object */
 					wSub,				/* window-relative of above */
 					aRect;			/* scratch */
@@ -3102,14 +3102,14 @@ PopLock(OBJheap);
 /* TUPLET object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckTUPLET(Document *doc, LINK pL, CONTEXT context[],
+short CheckTUPLET(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
 	PTUPLET		p;
-	INT16			result,			/* =NOMATCH unless object/subobject clicked in */
+	short			result,			/* =NOMATCH unless object/subobject clicked in */
 					totalDur;
 	Rect			rSub,				/* bounding box for subobject */
 					wSub,				/* window-relative of above */
@@ -3243,14 +3243,14 @@ PopLock(OBJheap);
 /* OCTAVA object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckOCTAVA(Document *doc, LINK pL, CONTEXT context[],
+short CheckOCTAVA(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
-						INT16 mode,
+						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
 	POCTAVA		p;
-	INT16			result;			/* =NOMATCH unless object/subobject clicked in */
+	short			result;			/* =NOMATCH unless object/subobject clicked in */
 	Rect			rSub,				/* bounding box for sub-object */
 					wSub,				/* window-relative of above */
 					aRect;			/* scratch */
@@ -3341,13 +3341,13 @@ PopLock(OBJheap);
 /* SLUR object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-INT16 CheckSLUR(Document *doc, LINK pL, CONTEXT context[],
+short CheckSLUR(Document *doc, LINK pL, CONTEXT context[],
 					Ptr ptr,
-					INT16 mode,
+					short mode,
 					STFRANGE stfRange)
 {
 	PSLUR			p;
-	INT16			i, result;		/* =NOMATCH unless object/subobject clicked in */
+	short			i, result;		/* =NOMATCH unless object/subobject clicked in */
 	Rect			rSub,				/* bounding box for sub-object */
 					wSub,				/* window-relative of above */
 					aRect;			/* scratch */

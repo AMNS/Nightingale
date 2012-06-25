@@ -32,13 +32,13 @@
 Boolean ClefBeforeBar(Document *doc,
 							LINK pLPIL,
 							char inchar,						/* Symbol to add */
-							INT16 staffn
+							short staffn
 							)
 {
 	LINK			firstMeasL, firstClefL;
 	Boolean 		isClef;
 	LINK			endL, doneL;
-	INT16			sym;
+	short			sym;
 	
 	if (!LinkBefFirstMeas(pLPIL)) return FALSE;
 
@@ -73,7 +73,7 @@ Boolean ClefBeforeBar(Document *doc,
 }
 
 
-Boolean KeySigBeforeBar(Document *doc, LINK pLPIL, INT16 staffn, INT16 sharpsOrFlats)
+Boolean KeySigBeforeBar(Document *doc, LINK pLPIL, short staffn, short sharpsOrFlats)
 {
 	LINK	firstMeasL,firstKeySigL,endL;
 	
@@ -110,8 +110,8 @@ Boolean KeySigBeforeBar(Document *doc, LINK pLPIL, INT16 staffn, INT16 sharpsOrF
  * #3. See comment in ClefBeforeBar for LeftLINK(endL).
  */
 
-Boolean TimeSigBeforeBar(Document *doc, LINK pLPIL, INT16 staffn, INT16 type,
-									INT16 numerator, INT16 denominator)
+Boolean TimeSigBeforeBar(Document *doc, LINK pLPIL, short staffn, short type,
+									short numerator, short denominator)
 {
 	LINK firstMeasL,firstTSL,endL;
 	Boolean isTimeSig;
@@ -153,12 +153,12 @@ If it's a chord, assumes all the notes have the same duration. */
 
 void AddDot(Document *doc,
 				LINK syncL,		/* Sync to whose notes/rest dot will be added */
-				INT16 voice		
+				short voice		
 				)
 {
 	PANOTE	aNote;
 	LINK		aNoteL;
-	INT16		playDur;
+	short		playDur;
 		
 	aNoteL = FindMainNote(syncL, voice);
 	aNote = GetPANOTE(aNoteL);
@@ -204,23 +204,23 @@ void AddDot(Document *doc,
 /* --------------------------------------------------------------------- AddNote -- */
 /* Add a note or rest to the object list at <doc->selStartL> */
 
-#define TIESUBTYPE ((INT16)TRUE)
-#define SLURSUBTYPE ((INT16)FALSE)
+#define TIESUBTYPE ((short)TRUE)
+#define SLURSUBTYPE ((short)FALSE)
 
 LINK AddNote(Document *doc,
-				INT16	x,			/* >=0 means new Sync, and this is its horiz. position in pixels, */
+				short	x,			/* >=0 means new Sync, and this is its horiz. position in pixels, */
 									/* <0  means add note/rest to the existing Sync <doc->selStartL>. */
 				char inchar,	/* Symbol to add */
-				INT16	staff,	/* Staff number */
-				INT16	pitchLev,/* Half-line pitch level */
-				INT16	acc,		/* Accidental code */
-				INT16 octType	/* -1 if not in Octava, else octSignType */
+				short	staff,	/* Staff number */
+				short	pitchLev,/* Half-line pitch level */
+				short	acc,		/* Accidental code */
+				short octType	/* -1 if not in Octava, else octSignType */
 				)
 {
 	PANOTE	aNote;
 	LINK		newL;
 	LINK		aNoteL=NILINK,measL;
-	INT16		sym, noteDur, noteNDots,
+	short		sym, noteDur, noteNDots,
 				midCpitchLev, voice;
 	Boolean 	inChord,				/* whether added note will be in a chord or not */
 				isRest,
@@ -353,18 +353,18 @@ LINK AddNote(Document *doc,
 /* Add a grace note to the object list at doc->selStartL. */
 
 LINK AddGRNote(Document *doc,
-					INT16	x,				/* >=0 means new GRSync, and this is its horiz. position in pts., */	
+					short	x,				/* >=0 means new GRSync, and this is its horiz. position in pts., */	
 											/* <0  means add grace note to the existing GRSync <doc->selStartL>. */
 					char	inchar,		/* Symbol to add */
-					INT16	staff,		/* Staff number */
-					INT16	pitchLev,	/* Half-line pitch level */
-					INT16	acc,			/* Accidental code */
-					INT16	octType		/* -1 if not in Octava, else octSignType */
+					short	staff,		/* Staff number */
+					short	pitchLev,	/* Half-line pitch level */
+					short	acc,			/* Accidental code */
+					short	octType		/* -1 if not in Octava, else octSignType */
 					)
 {
 	PAGRNOTE	aNote;
 	LINK		aNoteL=NILINK, newL;
-	INT16		sym, noteDur, noteNDots,
+	short		sym, noteDur, noteNDots,
 				midCpitchLev, voice;
 	Boolean 	inChord,				/* whether added grace note will be in a chord or not */
 				beamed;
@@ -460,8 +460,8 @@ LINK AddGRNote(Document *doc,
 
 /* -------------------------------------------------------------- GetChordEndpts -- */
 
-Boolean GetChordEndpts(Document *, LINK, INT16, DDIST *, DDIST *);
-Boolean GetChordEndpts(Document */*doc*/, LINK syncL, INT16 voice, DDIST *ydTop,
+Boolean GetChordEndpts(Document *, LINK, short, DDIST *, DDIST *);
+Boolean GetChordEndpts(Document */*doc*/, LINK syncL, short voice, DDIST *ydTop,
 								DDIST *ydBottom)
 {
 	LINK aNoteL;
@@ -496,11 +496,11 @@ INCREASE_HEIGHT should not be a multiple of STD_LINEHT/2. */
 Boolean NewArpSign(Document *doc,
 						Point /*pt*/,
 						char inchar,	/* Input char. code for symbol to add */
-						INT16 staff,
-						INT16 voice
+						short staff,
+						short voice
 						)
 {
-	INT16 sym; LINK newL, aGraphicL; CONTEXT context;
+	short sym; LINK newL, aGraphicL; CONTEXT context;
 	DDIST xd, ydTop, ydBottom; QDIST height;
 	PGRAPHIC pGraphic; PAGRAPHIC aGraphic;
 	Boolean okay=FALSE;
@@ -566,8 +566,8 @@ void GetGlissPositionInfo(CONTEXT context, DDIST *pxdPosition, DDIST *pxdOffset)
 	*pxdOffset = HeadWidth(LNSPACE(&context));
 }
 
-void GetClusterPositionInfo(LINK firstL, INT16 voice, CONTEXT context, DDIST *pxdOffset, DDIST *pydOffset);
-void GetClusterPositionInfo(LINK firstL, INT16 voice, CONTEXT context, DDIST *pxdOffset, DDIST *pydOffset)
+void GetClusterPositionInfo(LINK firstL, short voice, CONTEXT context, DDIST *pxdOffset, DDIST *pydOffset);
+void GetClusterPositionInfo(LINK firstL, short voice, CONTEXT context, DDIST *pxdOffset, DDIST *pydOffset)
 {
 	LINK aNoteL; short noteType; LONGDDIST ldHalfHeadWidth;
 	
@@ -588,12 +588,12 @@ to. We compute offsets on the assumption that, if both ends are attached to the 
 Sync or grace Sync, it's something like a tone cluster in Martino's notation; otherwise,
 it's something like a glissando or voice-leading line. */
 
-static void GetLineOffsets(LINK firstL, LINK lastL, INT16 pitchLev1, INT16 pitchLev2,
-							CONTEXT context, INT16 voice, DDIST *pxd1, DDIST *pxd2,
+static void GetLineOffsets(LINK firstL, LINK lastL, short pitchLev1, short pitchLev2,
+							CONTEXT context, short voice, DDIST *pxd1, DDIST *pxd2,
 							DDIST *pyd1, DDIST *pyd2);
 static void GetLineOffsets(LINK firstL, LINK lastL,
-							INT16 pitchLev1, INT16 pitchLev2,		/* For left and right ends */
-							CONTEXT context, INT16 voice,
+							short pitchLev1, short pitchLev2,		/* For left and right ends */
+							CONTEXT context, short voice,
 							DDIST *pxd1, DDIST *pxd2,
 							DDIST *pyd1, DDIST *pyd2)
 {
@@ -646,13 +646,13 @@ static void GetLineOffsets(LINK firstL, LINK lastL,
 }
 
 Boolean NewLine(Document *doc,
-						INT16 pitchLev1, INT16 pitchLev2,			/* For left and right ends */
+						short pitchLev1, short pitchLev2,			/* For left and right ends */
 						char inchar,
-						INT16 staff, INT16 voice,
+						short staff, short voice,
 						LINK lastL
 						)
 {
-	INT16 sym; LINK newL, aGraphicL; CONTEXT context;
+	short sym; LINK newL, aGraphicL; CONTEXT context;
 	DDIST xd1, yd1, xd2, yd2;
 	PGRAPHIC pGraphic; PAGRAPHIC aGraphic;
 	Boolean okay=FALSE;
@@ -709,22 +709,22 @@ void NewGraphic(
 			Document *doc,
 			Point	pt,					/* (Ignored) */
 			char	inchar,				/* Input char. code for symbol to add */
-			INT16	staff, INT16 voice,
-			INT16 pitchLev,			/* "Pitch level", i.e., vertical position (halflines) */
+			short	staff, short voice,
+			short pitchLev,			/* "Pitch level", i.e., vertical position (halflines) */
 			Boolean relFSize,
-			INT16	fSize, INT16 fStyle,
-			INT16 enclosure,
-			INT16	auxInfo,				/* currently only for chord symbol */
+			short	fSize, short fStyle,
+			short enclosure,
+			short	auxInfo,				/* currently only for chord symbol */
 			Boolean lyric,
 			unsigned char font[],
 			unsigned char string[],
-			INT16 styleChoice			/* Header (not user) index of global style choice */
+			short styleChoice			/* Header (not user) index of global style choice */
 			)
 {
-	INT16 sym, graphicType, fontInd;
+	short sym, graphicType, fontInd;
 	LINK newL, aGraphicL, pageL; CONTEXT context; DDIST xd, yd;
 	PGRAPHIC pGraphic; PAGRAPHIC aGraphic;
-	INT16 ans, patchNum, panSetting;
+	short ans, patchNum, panSetting;
 	unsigned char midiPatch[16];
 	
 PushLock(OBJheap);
@@ -796,7 +796,7 @@ PushLock(GRAPHICheap);
 	}
 
 	if (graphicType==GRLyric || graphicType==GRString) {
-			INT16 i;
+			short i;
 			pGraphic->multiLine = FALSE;
 			for (i = 1; i <= string[0]; i++)
 				if (string[i] == CH_CR) {
@@ -851,7 +851,7 @@ void NewMeasure(Document *doc,
 					char inchar		/* Input char. code for symbol to add */
 					)
 {
-	INT16			sym;
+	short			sym;
 	CONTEXT		context;
 	LINK			measL,endL;
 	DDIST			xdMeasure, xd;
@@ -889,7 +889,7 @@ void NewPseudoMeas(Document *doc,
 						char inchar		/* Input char. code for symbol to add */
 						)
 {
-	INT16			sym, subType;
+	short			sym, subType;
 	LINK			pseudoMeasL, prevMeasL, aPseudoMeasL, aprevMeasL;
 	PAPSMEAS		aPseudoMeas;
 	PAMEASURE	aprevMeas;
@@ -961,9 +961,9 @@ PopLock(PSMEASheap);
 
 /* ------------------------------------------------------------------- AddToClef -- */
 
-void AddToClef(Document *doc, char inchar, INT16 staff)
+void AddToClef(Document *doc, char inchar, short staff)
 {
-	LINK aClefL,newL, doneL; INT16 sym; PACLEF aClef;
+	LINK aClefL,newL, doneL; short sym; PACLEF aClef;
 	CONTEXT context; SignedByte oldClefType;
 
 	if (ExpandNode(newL=doc->selStartL, &aClefL, 1)) {
@@ -991,12 +991,12 @@ void AddToClef(Document *doc, char inchar, INT16 staff)
 /* Add a Clef to the object list. */
 
 void NewClef(Document *doc,
-				INT16	x,			/* <0 = add to existing clef obj, else horiz. position (pixels) */
+				short	x,			/* <0 = add to existing clef obj, else horiz. position (pixels) */
 				char inchar,	/* Input char. code for symbol to add */
-				INT16 staff		/* Staff number */
+				short staff		/* Staff number */
 				)
 {
-	INT16 sym; PCLEF newp; PACLEF aClef; LINK newL,aClefL, doneL;
+	short sym; PCLEF newp; PACLEF aClef; LINK newL,aClefL, doneL;
 	CONTEXT context; SignedByte oldClefType;
 
 	doc->undo.param1 = staff;
@@ -1032,10 +1032,10 @@ void NewClef(Document *doc,
 
 /* ---------------------------------------------- Utilities for inserting KeySigs -- */
 
-static Boolean ChkIns1KSCancel(LINK ksL, INT16 staff);
-static Boolean ChkInsKSCancel(Document *doc, LINK insL, INT16 staff);
+static Boolean ChkIns1KSCancel(LINK ksL, short staff);
+static Boolean ChkInsKSCancel(Document *doc, LINK insL, short staff);
 
-static Boolean ChkIns1KSCancel(LINK ksL, INT16 staff)
+static Boolean ChkIns1KSCancel(LINK ksL, short staff)
 {
 	LINK aKeySigL; PAKEYSIG aKeySig;
 	char fmtStr[256];
@@ -1051,9 +1051,9 @@ static Boolean ChkIns1KSCancel(LINK ksL, INT16 staff)
 	return FALSE;
 }
 
-static Boolean ChkInsKSCancel(Document *doc, LINK insL, INT16 staff)
+static Boolean ChkInsKSCancel(Document *doc, LINK insL, short staff)
 {
-	INT16 loopEnd, i, s; LINK prevKSL;
+	short loopEnd, i, s; LINK prevKSL;
 	
 	loopEnd = (staff==ANYONE ? doc->nstaves : 1);
 	for (i = 1; i <= loopEnd; i++) {
@@ -1072,12 +1072,12 @@ static Boolean ChkInsKSCancel(Document *doc, LINK insL, INT16 staff)
 insertion point is not in the first system's reserved area! */
 
 void NewKeySig(Document *doc,
-					INT16 x,						/* Horizontal position (pixels) */
-					INT16 sharpsOrFlats,		/* No. of sharps or flats in key sig. */
-					INT16 staff					/* Staff number, or ANYONE for all staves */
+					short x,						/* Horizontal position (pixels) */
+					short sharpsOrFlats,		/* No. of sharps or flats in key sig. */
+					short staff					/* Staff number, or ANYONE for all staves */
 					)
 {
-	INT16			i, sym, stfCount, useStaff;
+	short			i, sym, stfCount, useStaff;
 	char			dummyInchar='X';
 	PKEYSIG		newp;
 	PAKEYSIG		aKeySig;
@@ -1157,15 +1157,15 @@ PopLock(KEYSIGheap);
 #define TIMESIG_PALCHAR '8'		/* Substitute this for blank <inchar> */
 
 void NewTimeSig(Document *doc,
-					INT16	x,						/* Horizontal position (pixels) */
+					short	x,						/* Horizontal position (pixels) */
 					char	inchar,				/* Input char. code for symbol to add */
-					INT16	staff,				/* Staff number */
-					INT16	type,
-					INT16 numerator,
-					INT16	denominator			/* Numerator and denominator of timesig */
+					short	staff,				/* Staff number */
+					short	type,
+					short numerator,
+					short	denominator			/* Numerator and denominator of timesig */
 					)
 {
-	INT16			sym, i, stfCount, useStaff;
+	short			sym, i, stfCount, useStaff;
 	PTIMESIG		newp;
 	LINK 			newL, aTimeSigL;
 	PATIMESIG	aTimeSig;
@@ -1241,7 +1241,7 @@ static MODINFO modInfoTable[] = {
 	0,					0,				3,					-2,					/*	MOD_HEAVYACC_STACC */
 	0,					1,				0,					-2						/*	MOD_LONG_INVMORDENT */
 };
-static INT16 modInfoLen = (sizeof(modInfoTable) / sizeof(MODINFO));	/* Length of modInfoTable */ 
+static short modInfoLen = (sizeof(modInfoTable) / sizeof(MODINFO));	/* Length of modInfoTable */ 
 
 
 /* Given a note/rest/chord to which a specified note modifier is to be added,
@@ -1250,13 +1250,13 @@ level" in quarter-lines. If the note/rest is in a chord, assumes the modifier
 belongs to the chord as a whole, not to the individual note/rest, and so computes
 the modifier position based on the location of the main note.  -JGG, 4/23/01 */
 
-INT16 ModNRPitchLev(Document *doc,
+short ModNRPitchLev(Document *doc,
 						Byte modCode,			/* subtype field from symTable */
 						LINK insSyncL,
 						LINK theNoteL
 						)
 {
-	INT16		voice, midCHalfLn, modQPit, stfTopQtrLn, stfBotQtrLn;
+	short		voice, midCHalfLn, modQPit, stfTopQtrLn, stfBotQtrLn;
 	LINK		mainNoteL;
 	Boolean	stemDown, canBeInStaff, alwaysAbove, alwaysBelow, putModAbove, useStemEnd, hasMod;
 	QDIST		yqpit, yqstem, yOffsetAbove, yOffsetBelow;
@@ -1375,8 +1375,8 @@ INT16 ModNRPitchLev(Document *doc,
 		bothers with the first existing modifier. */
 	if (hasMod) {
 		LINK aModNRL = NoteFIRSTMOD(mainNoteL);
-		INT16 existModQPit = std2qd(ModNRYSTDPIT(aModNRL));
-		INT16 posDiff = abs(existModQPit - modQPit);
+		short existModQPit = std2qd(ModNRYSTDPIT(aModNRL));
+		short posDiff = abs(existModQPit - modQPit);
 		if (posDiff < 4) {
 			if (putModAbove)
 				modQPit -= (4 - posDiff);
@@ -1394,14 +1394,14 @@ INT16 ModNRPitchLev(Document *doc,
 
 void NewMODNR(Document *doc,
 				char	inchar,				/* Symbol code: symcode field from symTable */
-				INT16	slashes,
-				INT16	staff,
-				INT16	qPitchLev,			/* "Pitch level", i.e., vertical position (qtr-lines) */
+				short	slashes,
+				short	staff,
+				short	qPitchLev,			/* "Pitch level", i.e., vertical position (qtr-lines) */
 				LINK syncL,					/* Sync to which MODNR attached */
 				LINK aNoteL
 				)
 {
-	INT16			sym;
+	short			sym;
 	PAMODNR		aModNR;
 	LINK			aModNRL, lastModNRL;
 	PANOTE		aNote;
@@ -1452,11 +1452,11 @@ void NewMODNR(Document *doc,
 must be put into correct coordinate system; pitchLev is vertical coordinate
 relative to the staff in halfLns. */
 
-static void AddXSysDynamic(Document *doc, INT16 x, INT16 endx, char inchar,
-									INT16 staff, INT16 pitchLev, LINK lastSyncL)
+static void AddXSysDynamic(Document *doc, short x, short endx, char inchar,
+									short staff, short pitchLev, LINK lastSyncL)
 {
 	LINK newL1,newL2,sysL,measL,oldStartL; CONTEXT context;
-	DDIST sysLeft; INT16 sym,endx1; PSYSTEM pSystem;
+	DDIST sysLeft; short sym,endx1; PSYSTEM pSystem;
 	
 	/*
 	 * Add the first piece of the crossSys dynamic.
@@ -1508,10 +1508,10 @@ static void AddXSysDynamic(Document *doc, INT16 x, INT16 endx, char inchar,
 /* Call to InvalMeasures takes measL rather than lastSyncL as a parameter in an
 effort to avoid passing one more parameter. */
 
-LINK AddNewDynamic(Document *doc, INT16 staff, INT16 x, DDIST *sysLeft,
-									char inchar, INT16 *sym, PCONTEXT pContext, Boolean crossSys)
+LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
+									char inchar, short *sym, PCONTEXT pContext, Boolean crossSys)
 {
-	LINK sysL, measL, newL; PSYSTEM pSystem; PDYNAMIC newp; INT16 dtype;
+	LINK sysL, measL, newL; PSYSTEM pSystem; PDYNAMIC newp; short dtype;
 
 	sysL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, GO_RIGHT, FALSE);
 	pSystem = GetPSYSTEM(sysL);
@@ -1543,16 +1543,16 @@ LINK AddNewDynamic(Document *doc, INT16 staff, INT16 x, DDIST *sysLeft,
 
 void NewDynamic(
 				Document *doc,
-				INT16		x,						/* Horiz. position in pixels */
-				INT16		endx,					/* For hairpins, horiz. right endpt in pixels */
+				short		x,						/* Horiz. position in pixels */
+				short		endx,					/* For hairpins, horiz. right endpt in pixels */
 				char		inchar,				/* Symbol code: symcode field from symtable */
-				INT16		staff,				/* Staff number */
-				INT16		pitchLev,			/* Vertical position in halflines */
+				short		staff,				/* Staff number */
+				short		pitchLev,			/* Vertical position in halflines */
 				LINK  	lastSyncL,			/* For hairpins, sync right end is attached to */
 				Boolean	crossSys				/* (Ignored for now) Whether cross system */
 				)
 {
-	INT16	sym; LINK newL; CONTEXT context; DDIST sysLeft;
+	short	sym; LINK newL; CONTEXT context; DDIST sysLeft;
 	PDYNAMIC newp;
 	
 #ifdef NOTYET
@@ -1584,12 +1584,12 @@ void NewDynamic(
 /*	Add a Repeat/End to the object list. */
 
 void NewRptEnd(Document *doc,
-					INT16	x,						/* Horizontal position (pixels) */
+					short	x,						/* Horizontal position (pixels) */
 					char	inchar,				/* Input char. code for symbol to add */
-					INT16	staff					/* Staff number */
+					short	staff					/* Staff number */
 					)
 {
-	INT16			sym;
+	short			sym;
 	PRPTEND		newp;
 	LINK			newL, pL, prevMeasL;
 	CONTEXT		context;										/* current context */
@@ -1639,12 +1639,12 @@ void NewRptEnd(Document *doc,
 /* -------------------------------------------------------------------- NewEnding -- */
 /*	Add an ending to the object list. */
 
-void NewEnding(Document *doc, INT16 firstx, INT16 lastx, char inchar, INT16 clickStaff,
-					STDIST pitchLev, LINK lastL, INT16 number, INT16 cutoffs)
+void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clickStaff,
+					STDIST pitchLev, LINK lastL, short number, short cutoffs)
 {
 	LINK pL,firstL; PENDING pEnding;
 	CONTEXT context,firstContext,lastContext;
-	INT16 sym;
+	short sym;
 	DDIST firstRelxd,lastRelxd;
 	
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  						/* "Undo Insert" */
@@ -1683,13 +1683,13 @@ void NewEnding(Document *doc, INT16 firstx, INT16 lastx, char inchar, INT16 clic
 /* -------------------------------------------------------------------- NewTempo -- */
 /*	Add a Tempo mark to the object list. */
 
-void NewTempo(Document *doc, Point pt, char inchar, INT16 staff, STDIST pitchLev,
-					Boolean hideMM, INT16 dur, Boolean dotted,
+void NewTempo(Document *doc, Point pt, char inchar, short staff, STDIST pitchLev,
+					Boolean hideMM, short dur, Boolean dotted,
 					unsigned char *tempoStr, unsigned char *metroStr)
 {
 	LINK pL;
 	PTEMPO pTempo;
-	CONTEXT context; INT16 sym; long beatsPM;
+	CONTEXT context; short sym; long beatsPM;
 	
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
 	pL = NewObjPrepare(doc, TEMPOtype, &sym, inchar, staff, pt.h, &context);
@@ -1726,10 +1726,10 @@ PopLock(OBJheap);
 /* -------------------------------------------------------------------- NewSpace -- */
 /*	Add a Space mark to the object list. */
 
-void NewSpace(Document *doc, Point pt, char inchar, INT16 topStaff, INT16 bottomStaff,
+void NewSpace(Document *doc, Point pt, char inchar, short topStaff, short bottomStaff,
 					STDIST stdSpace)
 {
-	LINK pL; PSPACE pSpace; CONTEXT context; INT16 sym;
+	LINK pL; PSPACE pSpace; CONTEXT context; short sym;
 	
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  				/* "Undo Insert" */
 	pL = NewObjPrepare(doc, SPACEtype, &sym, inchar, topStaff, pt.h, &context);

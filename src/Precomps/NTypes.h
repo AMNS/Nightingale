@@ -26,13 +26,13 @@
 	typedef signed char SignedByte;
 */
 
-#define INT16 short				/* 2 bytes */
-#define STDIST INT16				/* range +-4096 staffLines, resolution 1/8 staffLine */
+#define INT16 short				/* 2 bytes; no longer used */
+#define STDIST short				/* range +-4096 staffLines, resolution 1/8 staffLine */
 #define LONGSTDIST long			/* range +-268,435,456 staffLines, resolution 1/8 staffLine */
-#define QDIST INT16				/* range +-8192 staffLines, resolution 1/4 staffLine */
+#define QDIST short				/* range +-8192 staffLines, resolution 1/4 staffLine */
 #define SHORTSTD SignedByte	/* range +-16 staffLines, resolution 1/8 staffLine */
 #define SHORTQD SignedByte		/* range +-32 staffLines, resolution 1/4 staffLine */
-#define DDIST INT16				/* range +-2048 points (+-28 in), resolution 1/16 point */
+#define DDIST short				/* range +-2048 points (+-28 in), resolution 1/16 point */
 #define SHORTDDIST SignedByte	/* range +-8 points, resolution 1/16 point */
 #define LONGDDIST long			/* range +-134,217,728 points (+-155344 ft), resolution 1/16 point */
 #define STD_LINEHT 8				/* STDIST scale: value for standard staff interline space */
@@ -135,16 +135,16 @@ enum									/* Object types: */
 #define LOWtype HEADERtype
 #define HIGHtype LASTtype
 
-typedef unsigned INT16 LINK;
+typedef unsigned short LINK;
 
 typedef struct {
 	Handle block;					/* Handle to floating array of objects */
-	INT16 objSize;					/* Size in bytes of each object in array */
-	INT16 type;						/* Type of object for this heap */
+	short objSize;					/* Size in bytes of each object in array */
+	short type;						/* Type of object for this heap */
 	LINK firstFree;				/* Index of head of free list */
-	unsigned INT16 nObjs;		/* Maximum number of objects in heap block */
-	unsigned INT16 nFree;		/* Size of the free list */
-	INT16 lockLevel;				/* Nesting lock level: >0 ==> locked */
+	unsigned short nObjs;		/* Maximum number of objects in heap block */
+	unsigned short nFree;		/* Size of the free list */
+	short lockLevel;				/* Nesting lock level: >0 ==> locked */
 } HEAP;
 
 
@@ -206,7 +206,7 @@ typedef struct xTEXTSTYLE {
 	unsigned short	enclosure:2;
 	unsigned short relFSize:1;		/* TRUE if size is relative to staff size */ 
 	unsigned	short	fontSize:7;		/* if relFSize, small..large code, else point size */
-	INT16				fontStyle;
+	short				fontStyle;
 } TEXTSTYLE, *PTEXTSTYLE;
 
 
@@ -259,7 +259,7 @@ typedef struct						/* A part (for an instrument or voice): */
 } PARTINFO, *PPARTINFO;
 
 typedef struct {
-	INT16	fontID;					/* font ID number for TextFont */
+	short	fontID;					/* font ID number for TextFont */
 	unsigned char fontName[32]; /* font name: Pascal string */
 } FONTITEM;
 
@@ -274,7 +274,7 @@ typedef struct {
 					selStartL,			/* currently selected range. */								\
 					selEndL;				/*		Also see the <selStaff> field. */					\
 																													\
-	INT16			nstaves,				/* number of staves in a system */							\
+	short			nstaves,				/* number of staves in a system */							\
 					nsystems;			/* number of systems in score */								\
 	unsigned char comment[MAX_COMMENT_LEN+1]; /* (unused) User comment on score */			\
 	char			feedback:1;			/* TRUE if we want feedback on note insert */			\
@@ -286,7 +286,7 @@ typedef struct {
 	char			lyricText:1;		/* (no longer used) TRUE if last text entered was lyric */	\
 	char			polyTimbral:1;		/* TRUE for one part per MIDI channel */					\
 	Byte			currentPage;		/* (no longer used) */											\
-	INT16			spacePercent,		/* Percentage of normal horizontal spacing used */		\
+	short			spacePercent,		/* Percentage of normal horizontal spacing used */		\
 					srastral,			/* Staff size rastral no.--score */							\
 					altsrastral,		/* (unused) Staff size rastral no.--parts */				\
 					tempo,				/* playback speed in beats per minute */					\
@@ -324,7 +324,7 @@ typedef struct {
 	unsigned short	enclosureMN:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizeMN:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizeMN:7;	/* if relFSizeMN, small..large code, else point size */ \
-	INT16				fontStyleMN;																			\
+	short				fontStyleMN;																			\
 																													\
 	unsigned char fontNamePN[32];	/* PART NAME FONT: default name, size and style */		\
 	unsigned short	fillerPN:5;																				\
@@ -332,7 +332,7 @@ typedef struct {
 	unsigned short	enclosurePN:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizePN:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizePN:7;	/* if relFSizePN, small..large code, else point size */ \
-	INT16				fontStylePN;																			\
+	short				fontStylePN;																			\
 																													\
 	unsigned char fontNameRM[32];	/* REHEARSAL MARK FONT: default name, size and style */	\
 	unsigned short	fillerRM:5;																				\
@@ -340,7 +340,7 @@ typedef struct {
 	unsigned short	enclosureRM:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizeRM:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizeRM:7;	/* if relFSizeRM, small..large code, else point size */ \
-	INT16				fontStyleRM;																			\
+	short				fontStyleRM;																			\
 																													\
 	unsigned char fontName1[32];	/* REGULAR FONT 1: default name, size and style */		\
 	unsigned short	fillerR1:5;																				\
@@ -348,7 +348,7 @@ typedef struct {
 	unsigned short	enclosure1:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize1:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize1:7;	/* if relFSize1, small..large code, else point size */ \
-	INT16				fontStyle1;																				\
+	short				fontStyle1;																				\
 																													\
 	unsigned char fontName2[32];	/* REGULAR FONT 2: default name, size and style */		\
 	unsigned short	fillerR2:5;																				\
@@ -356,7 +356,7 @@ typedef struct {
 	unsigned short	enclosure2:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize2:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize2:7;	/* if relFSize2, small..large code, else point size */ \
-	INT16				fontStyle2;																				\
+	short				fontStyle2;																				\
 																													\
 	unsigned char fontName3[32];	/* REGULAR FONT 3: default name, size and style */		\
 	unsigned short	fillerR3:5;																				\
@@ -364,7 +364,7 @@ typedef struct {
 	unsigned short	enclosure3:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize3:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize3:7;	/* if relFSize3, small..large code, else point size */ \
-	INT16				fontStyle3;																				\
+	short				fontStyle3;																				\
 																													\
 	unsigned char fontName4[32];	/* REGULAR FONT 4: default name, size and style */		\
 	unsigned short	fillerR4:5;																				\
@@ -372,7 +372,7 @@ typedef struct {
 	unsigned short	enclosure4:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize4:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize4:7;	/* if relFSizeR4, small..large code, else point size */ \
-	INT16				fontStyle4;																				\
+	short				fontStyle4;																				\
 																													\
 	unsigned char fontNameTM[32];	/* TEMPO MARK FONT: default name, size and style */	\
 	unsigned short	fillerTM:5;																				\
@@ -380,7 +380,7 @@ typedef struct {
 	unsigned short	enclosureTM:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizeTM:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizeTM:7;	/* if relFSizeTM, small..large code, else point size */ \
-	INT16				fontStyleTM;																			\
+	short				fontStyleTM;																			\
 																													\
 	unsigned char fontNameCS[32];	/* CHORD SYMBOL FONT: default name, size and style */	\
 	unsigned short	fillerCS:5;																				\
@@ -388,7 +388,7 @@ typedef struct {
 	unsigned short	enclosureCS:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizeCS:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizeCS:7;	/* if relFSizeCS, small..large code, else point size */ \
-	INT16				fontStyleCS;																			\
+	short				fontStyleCS;																			\
 																													\
 	unsigned char fontNamePG[32];	/* PAGE HEADER/FOOTER/NO.FONT: default name, size and style */	\
 	unsigned short	fillerPG:5;																				\
@@ -396,7 +396,7 @@ typedef struct {
 	unsigned short	enclosurePG:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizePG:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizePG:7;	/* if relFSizePG, small..large code, else point size */ \
-	INT16				fontStylePG;																			\
+	short				fontStylePG;																			\
 																													\
 	unsigned char fontName5[32];	/* REGULAR FONT 5: default name, size and style */		\
 	unsigned short	fillerR5:5;																				\
@@ -404,7 +404,7 @@ typedef struct {
 	unsigned short	enclosure5:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize5:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize5:7;	/* if relFSize5, small..large code, else point size */ \
-	INT16				fontStyle5;																				\
+	short				fontStyle5;																				\
 																													\
 	unsigned char fontName6[32];	/* REGULAR FONT 6: default name, size and style */		\
 	unsigned short	fillerR6:5;																				\
@@ -412,7 +412,7 @@ typedef struct {
 	unsigned short	enclosure6:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize6:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize6:7;	/* if relFSizeR6, small..large code, else point size */ \
-	INT16				fontStyle6;																				\
+	short				fontStyle6;																				\
 																													\
 	unsigned char fontName7[32];	/* REGULAR FONT 7: default name, size and style */		\
 	unsigned short	fillerR7:5;																				\
@@ -420,7 +420,7 @@ typedef struct {
 	unsigned short	enclosure7:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize7:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize7:7;	/* if relFSizeR7, small..large code, else point size */ \
-	INT16				fontStyle7;																				\
+	short				fontStyle7;																				\
 																													\
 	unsigned char fontName8[32];	/* REGULAR FONT 8: default name, size and style */		\
 	unsigned short	fillerR8:5;																				\
@@ -428,7 +428,7 @@ typedef struct {
 	unsigned short	enclosure8:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize8:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize8:7;	/* if relFSizeR8, small..large code, else point size */ \
-	INT16				fontStyle8;																				\
+	short				fontStyle8;																				\
 																													\
 	unsigned char fontName9[32];	/* REGULAR FONT 9: default name, size and style */		\
 	unsigned short	fillerR9:5;																				\
@@ -436,11 +436,11 @@ typedef struct {
 	unsigned short	enclosure9:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize9:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize9:7;	/* if relFSizeR9, small..large code, else point size */ \
-	INT16				fontStyle9;																				\
+	short				fontStyle9;																				\
 																													\
 	/* End of TEXTSTYLE records */																		\
 																													\
-	INT16			nfontsUsed;			/* no. of entries in fontTable */							\
+	short			nfontsUsed;			/* no. of entries in fontTable */							\
 	FONTITEM		fontTable[MAX_SCOREFONTS]; /* To convert stored to system font nos. */	\
 																													\
 	unsigned char musFontName[32]; /* name of this document's music font */					\
@@ -496,7 +496,7 @@ typedef struct sPAGE {
 	OBJECTHEADER
 	LINK			lPage,			/* Links to left and right Pages */
 					rPage;
-	INT16			sheetNum;		/* Sheet number: indexed from 0 */
+	short			sheetNum;		/* Sheet number: indexed from 0 */
 	StringPtr	headerStr,		/* (unused; when used, should be STRINGOFFSETs) */
 					footerStr;
 } PAGE, *PPAGE;
@@ -509,7 +509,7 @@ typedef struct sSYSTEM {
 	LINK			lSystem,			/* Links to left and right Systems */
 					rSystem;
 	LINK			pageL;			/* Link to previous (enclosing) Page */
-	INT16			systemNum;		/* System number: indexed from 1 */
+	short			systemNum;		/* System number: indexed from 1 */
 	DRect			systemRect;		/* DRect enclosing entire system, rel to Page */
 	Ptr			sysDescPtr;		/* (unused) ptr to data describing left edge of System */
 } SYSTEM, *PSYSTEM;
@@ -533,7 +533,7 @@ typedef struct {
 #ifdef NOTYET	/* ??caused code overflow with THINK C 4 */
 	SignedByte	fillerAS;
 #endif
-	INT16			fontSize;			/* preferred font size for this staff */
+	short			fontSize;			/* preferred font size for this staff */
 	DDIST			flagLeading;		/* (unused) vertical space between flags */
 	DDIST			minStemFree;		/* (unused) min. flag-free length of note stem */
 	DDIST			ledgerWidth;		/* (unused) Standard ledger line length */
@@ -553,7 +553,7 @@ typedef struct {
 												15=show all lines (default) (use SHOW_ALL_LINES for this) */
 #ifdef STAFFRASTRAL
 // ??maybe this should be drSize (DDIST) for the staff's current rastral?
-	INT16			srastral;			/* rastral for this staff */
+	short			srastral;			/* rastral for this staff */
 #endif
 } ASTAFF, *PASTAFF;
 
@@ -768,9 +768,9 @@ typedef struct {
 	SHORTQD		yqpit;			/* LG: clef-independent dist. below middle C ("pitch") (unused for rests) */
 	DDIST			xd, yd;			/* G: head position */
 	DDIST			ystem;			/* G: endpoint of stem (unused for rests) */
-	INT16			playTimeDelta;	/* P: PDURticks before/after timeStamp when note starts */
-	INT16			playDur;			/* P: PDURticks that note plays for */
-	INT16			pTime;			/* P: PDURticks play time; for internal use by Tuplet routines */
+	short			playTimeDelta;	/* P: PDURticks before/after timeStamp when note starts */
+	short			playDur;			/* P: PDURticks that note plays for */
+	short			pTime;			/* P: PDURticks play time; for internal use by Tuplet routines */
 	Byte			noteNum;			/* P: MIDI note number (unused for rests) */
 	Byte			onVelocity;		/* P: MIDI note-on velocity, normally loudness (unused for rests) */
 	Byte			offVelocity;	/* P: MIDI note-off (release) velocity (unused for rests) */
@@ -800,7 +800,7 @@ typedef struct {
 
 typedef struct {
 	OBJECTHEADER
-	unsigned INT16 timeStamp;	/* P: PDURticks since beginning of measure */
+	unsigned short timeStamp;	/* P: PDURticks since beginning of measure */
 } SYNC, *PSYNC;
 
 enum {								/* Notehead and rest appearances: */
@@ -863,7 +863,7 @@ typedef struct {
 typedef struct {
 	Byte			accNum;				/* Accessory numeral (numerator) for Tuplet */
 	Byte			accDenom;			/* Accessory denominator */
-	INT16			durUnit;				/* Duration units of denominator */
+	short			durUnit;				/* Duration units of denominator */
 	Boolean		numVis:1,
 					denomVis:1,
 					brackVis:1,
@@ -1047,18 +1047,18 @@ typedef struct {
 	Boolean		vConstrain:1;	/* (unused) TRUE if object is vertically constrained */
 	Boolean		hConstrain:1;	/* (unused) TRUE if object is horizontally constrained */
 	Byte			multiLine:1;	/* TRUE if string contains multiple lines of text (delimited by CR) */
-	INT16			info;				/* PICT res. ID (GRPICT); char (GRChar); length (GRArpeggio); */
+	short			info;				/* PICT res. ID (GRPICT); char (GRChar); length (GRArpeggio); */
 										/*   ref. to text style (FONT_R1, etc) (GRString,GRLyric); */
 										/*	  2nd x (GRDraw); draw extension parens (GRChordSym) */
 	union {
 		Handle		handle;		/* handle to resource, or NULL */
-		INT16			thickness;
+		short			thickness;
 	} gu;
 	SignedByte	fontInd;			/* index into font name table (GRChar,GRString only) */
 	Byte			relFSize:1;		/* TRUE if size is relative to staff size (GRChar,GRString only) */ 
 	Byte			fontSize:7;		/* if relSize, small..large code, else point size (GRChar,GRString only) */
-	INT16			fontStyle;		/* (GRChar,GRString only) */
-	INT16			info2;			/* top bits=sub-subtype (GRArpeggio), 2nd y (GRDraw) */
+	short			fontStyle;		/* (GRChar,GRString only) */
+	short			info2;			/* top bits=sub-subtype (GRArpeggio), 2nd y (GRDraw) */
 	LINK			firstObj;		/* link to object left end is relative to, or NULL */
 	LINK			lastObj;			/* link to object right end is relative to, or NULL */
 } GRAPHIC, *PGRAPHIC;
@@ -1217,7 +1217,7 @@ typedef struct {
 	char			filler:4;
 	Boolean		dotted:1;
 	Boolean		hideMM:1;
-	INT16			tempo;			/* new playback speed in beats per minute */	
+	short			tempo;			/* new playback speed in beats per minute */	
 	STRINGOFFSET string;			/* "tempo" index return by String Manager */
 	LINK			firstObjL;		/* object tempo depends on */
 	STRINGOFFSET metroStr;		/* "metronome mark" index return by String Manager */
@@ -1275,8 +1275,8 @@ typedef struct {
 	Boolean		measureVisible:1;	/* TRUE if measure is visible */
 	Boolean		inMeasure:1;		/* TRUE if currently in measure */
 	Rect			paper;				/* SHEET:	paper rect in window coords */ 
-	INT16			sheetNum;			/* PAGE:		sheet number */
-	INT16			systemNum;			/* SYSTEM:	number (unused) */
+	short			sheetNum;			/* PAGE:		sheet number */
+	short			systemNum;			/* SYSTEM:	number (unused) */
 	DDIST			systemTop;			/* 			page relative top */
 	DDIST			systemLeft;			/* 			page relative left edge */
 	DDIST			systemBottom;		/* 			page relative bottom */
@@ -1289,9 +1289,9 @@ typedef struct {
 	SignedByte	showLines;			/*				0=show no lines, 1=only middle line, or SHOW_ALL_LINES=show all */
 	Boolean		showLedgers;		/*				TRUE=show ledger lines for notes on this staff */
 #ifdef STAFFRASTRAL
-	INT16			srastral;			/*				rastral for this staff */
+	short			srastral;			/*				rastral for this staff */
 #endif
-	INT16			fontSize;			/* 			preferred font size */
+	short			fontSize;			/* 			preferred font size */
 	DDIST			measureTop;			/* MEASURE:	page relative top */
 	DDIST			measureLeft;		/* 			page relative left */
 	SignedByte	clefType;			/* MISC:		current clef type */
@@ -1306,8 +1306,8 @@ typedef struct {
 /* ---------------------------------------------------------------------- STFRANGE -- */
 
 typedef struct {				/* Staff range for staffRect selection mode. */
-	INT16		topStaff;
-	INT16		bottomStaff;
+	short		topStaff;
+	short		bottomStaff;
 } STFRANGE;
 
 
@@ -1364,7 +1364,7 @@ typedef struct {
 
 typedef struct						/* Symbol table data for a CMN symbol: */
 {
-	INT16			cursorID;		/* Resource ID of cursor */
+	short			cursorID;		/* Resource ID of cursor */
 	SignedByte	objtype;			/* Object type for symbol's opcode */
 	SignedByte	subtype;			/* subtype */
 	char			symcode;			/* Input char. code for symbol (0=none) */
@@ -1374,9 +1374,9 @@ typedef struct						/* Symbol table data for a CMN symbol: */
 typedef struct						/* Symbol table data for an object-list object: */
 {
 	SignedByte	objType;			/* mEvent type for symbol's opcode */
-	INT16			justType;
-	INT16			minEntries;
-	INT16			maxEntries;
+	short			justType;
+	short			minEntries;
+	short			maxEntries;
 	Boolean		objRectOrdered; /* TRUE=objRect meaningful & its .left should be in order */
 } OBJDATA;
 
@@ -1437,15 +1437,15 @@ typedef struct {
 InitSearchParam accordingly! */
 
 typedef struct {
-	INT16		id;					/* target staff number (for Staff, Measure, Sync, etc) */
+	short		id;					/* target staff number (for Staff, Measure, Sync, etc) */
 										/* or page number (for Page) */
 	Boolean	needSelected;		/* TRUE if we only want selected items */
 	Boolean	needInMeasure;		/* TRUE if we only want items inMeasure */
 	Boolean	inSystem;			/* TRUE if we want to stay within the System */
 	Boolean	optimize;			/* TRUE if use optimized search functions (LPageSearch, etc.) */
-	INT16		subtype;				/* ANYSUBTYPE or code for subtype wanted */
-	INT16		voice;				/* target voice number (for Sync, Beamset, etc.) */
-	INT16		entryNum;			/* output: index of subitem found */
+	short		subtype;				/* ANYSUBTYPE or code for subtype wanted */
+	short		voice;				/* target voice number (for Sync, Beamset, etc.) */
+	short		entryNum;			/* output: index of subitem found */
 	LINK		pEntry;				/* output: link to subitem found */
 } SearchParam;
 
@@ -1463,8 +1463,8 @@ typedef struct {
 	LINK		scorePrevL;				/* link before range in main object list */
 	LINK		scoreEndL;				/* end of range in main object list */
 	LINK		insertL;					/* Location in score of last operation */
-	INT16		param1;					/* parameter for an operation */
-	INT16		param2;					/* another parameter for an operation which requires 2 */
+	short		param1;					/* parameter for an operation */
+	short		param2;					/* another parameter for an operation which requires 2 */
 	Handle	undoRecord;				/* space for undo's private storage */
 	char		menuItem[64];			/* menu command: C string */
 	unsigned short redo : 1;		/* undo flag for menu: TRUE if redo, FALSE if undo */
@@ -1625,7 +1625,7 @@ typedef struct CTRLINFO {
 	Byte			channel;
 	Byte 			ctrlNum;
 	Byte 			ctrlVal;
-	INT16			track;
+	short			track;
 } CTRLINFO;
 
 /* ----------------------------------------------------- Document printing stuff -- */

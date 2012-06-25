@@ -29,31 +29,31 @@ static	Rect		Scroller_Rect;		/* Rectangle (computed) of scroll bar	*/
 static 	Rect		Dest_Rect;			/* Destination of TE rectangle			*/
 static	Rect		View_Rect;			/* Actual viewing region of text		*/
 static	Rect		Frame_Rect;			/* The rectangle to frame for text		*/
-static  INT16		Help_Topic;			/* What topic does user want info on?	*/
-static  INT16		Current_Pict;		/* Latest picture ID being displayed	*/
+static  short		Help_Topic;			/* What topic does user want info on?	*/
+static  short		Current_Pict;		/* Latest picture ID being displayed	*/
 static  DialogPtr	helpPtr;			/* Pointer to the help dialog box		*/
 static  TEHandle	myTEHandle;			/* The TE Manager data structure	    */
 static  Handle		myTEXTHandle;		/* My handle to the TEXT resource		*/
 static  ViewMode	Last_Type;			/* Was last one a pict or text?			*/ 
 static	ControlHandle myControl;		/* Handle to the text scroller			*/
 static 	GrafPtr		savePort;			/* Save a pointer to the old grafport	*/
-static	INT16		refnum;				/* Result of trying to open help file	*/
+static	short		refnum;				/* Result of trying to open help file	*/
 
 /* Keep track of the screen types */
 static	ViewMode	screen_mode[MAX_TOPICS];
 
 /* Disable his menus */
-static	INT16		First_Menu;
-static	INT16		Last_Menu;
+static	short		First_Menu;
+static	short		Last_Menu;
 
 /* Array traversal constants */
-static	INT16		START;
-static	INT16		FINIS;
+static	short		START;
+static	short		FINIS;
 
 /* Log positions of 'PICT' & 'TEXT' resources */
 static	TopicStr	topic_name[MAX_TOPICS];
-static	INT16		resource_start[MAX_TOPICS];
-static	INT16		resource_end[MAX_TOPICS];
+static	short		resource_start[MAX_TOPICS];
+static	short		resource_end[MAX_TOPICS];
 
 
 /***********************************************************************\
@@ -95,7 +95,7 @@ static	INT16		resource_end[MAX_TOPICS];
 | Returns :: void.														|
 \***********************************************************************/
 
-void Bold_Button( DialogPtr dPtr, INT16 itemNum )
+void Bold_Button( DialogPtr dPtr, short itemNum )
 {
  	Rect		iBox;			/* The rectangle for the button		*/
  	short		iType;			/* Type of dialog item				*/
@@ -130,11 +130,11 @@ void Bold_Button( DialogPtr dPtr, INT16 itemNum )
 | Returns :: void.														|
 \***********************************************************************/
 
-void Center_Window(DialogPtr theWindow, INT16 bumpUp, Boolean isModeless)
+void Center_Window(DialogPtr theWindow, short bumpUp, Boolean isModeless)
 {
 	Rect  tempRect;   	/* Temporary rectangle 					*/
-	INT16	pixels;			/* Raise from center this amount		*/
-	INT16	menuBar = 20;	/* Compensate 20 pixels for menu bar	*/
+	short	pixels;			/* Raise from center this amount		*/
+	short	menuBar = 20;	/* Compensate 20 pixels for menu bar	*/
 	Rect screenBitBounds;
 	
 	/* Compute centering information */
@@ -176,7 +176,7 @@ void Center_Window(DialogPtr theWindow, INT16 bumpUp, Boolean isModeless)
 	Rect    	dataBounds; 		/* Rect to setup the list  					*/
 	Handle   	DItem;    			/* Handle to the dialog item 				*/
 	FontInfo   	ThisFontInfo;    	/* Used to determine List element height  	*/
-	INT16		index;				/* Loop thru the topic list names			*/
+	short		index;				/* Loop thru the topic list names			*/
  	Rect		iBox;				/* The rectangle for the next/prev buttons	*/
  	short		iType;				/* Type of dialog item (button)				*/
  	Handle		iHandle;			/* Pointer to the item						*/
@@ -322,15 +322,15 @@ void Center_Window(DialogPtr theWindow, INT16 bumpUp, Boolean isModeless)
 | Returns :: void.														|
 \***********************************************************************/
 
-/*static*/ void Display_Pict( INT16 whichOne )
+/*static*/ void Display_Pict( short whichOne )
 {
-	INT16		nextPict;		/* Next picture to be displayed		*/
+	short		nextPict;		/* Next picture to be displayed		*/
  	Rect		iBox;			/* Temporary rectangle 				*/
  	short		iType;			/* Type of dialog item				*/
  	Handle		iHandle;		/* Pointer to the item				*/
 	PicHandle	newPict;		/* Pointer to the picture area 		*/
-	INT16 		mesg_this_one;	/* The screen we're on now			*/
-	INT16		mesg_max_one;	/* Total number of screens in topic */
+	short 		mesg_this_one;	/* The screen we're on now			*/
+	short		mesg_max_one;	/* Total number of screens in topic */
 	Str255 		s1,s2,s3,s4,s5;	/* Temporary strings for message	*/
 	
 	/* Enable the next & previous buttons? */
@@ -499,7 +499,7 @@ void Center_Window(DialogPtr theWindow, INT16 bumpUp, Boolean isModeless)
 void   Do_Help( short helpVRefNum, long helpDirID )
 {
 	MenuHandle	thisMenu;		/* Current menu bar to disable   */
-	INT16		index;			/* Loop thru menu resources		 */
+	short		index;			/* Loop thru menu resources		 */
 	
 	/* Bring up the help box */
 	if ( Create_Help(helpVRefNum, helpDirID) ) {
@@ -599,7 +599,7 @@ void   Do_Help( short helpVRefNum, long helpDirID )
 | Returns :: void.														|
 \***********************************************************************/
 
-/*static*/ void Handle_List_Event( INT16 whatHit )
+/*static*/ void Handle_List_Event( short whatHit )
 {
   	/* Get the selected topic from the user */
   	Help_Topic = whatHit + 1;
@@ -693,19 +693,19 @@ void   Do_Help( short helpVRefNum, long helpDirID )
 	Rect					tempRect;		/* Rectangle of the about... window			*/
 	Point   				myPt;    		/* Current list selection point 			*/
 	WindowPtr 			wPtr;				/* The pointer to the current window		*/
-	INT16 				thePart;			/* The type of mouse-down that occured		*/
-	INT16 				key;				/* Did the user hit the <return> key?		*/
-	INT16					whatHit;			/* Integer id of the dialog item user hit	*/
+	short 				thePart;			/* The type of mouse-down that occured		*/
+	short 				key;				/* Did the user hit the <return> key?		*/
+	short					whatHit;			/* Integer id of the dialog item user hit	*/
 	Rect   				DRect;    		/* Rectangle used for finding hit point 	*/
 	short    			DType; 			/* Type of dialog item (for OK button)		*/
-	INT16    			itemHit;   		/* Get selection from the user				*/
+	short    			itemHit;   		/* Get selection from the user				*/
 	Handle   			DItem;    		/* Handle to the dialog item 				*/
 	Boolean   			DoubleClick;  	/* Flag to see if double click on a list 	*/
-	INT16					oldValue;		/* Former value of scroll bar before event  */
-	INT16 				rc;				/* Return code from TrackControl() - ignore	*/
+	short					oldValue;		/* Former value of scroll bar before event  */
+	short 				rc;				/* Return code from TrackControl() - ignore	*/
 	Cell 					cellHit;			/* Find out where user single-clicked 		*/
 	ControlHandle		aControl;		/* Event took place in my scroller			*/
-	static  INT16 		lastHit;			/* Nicety: prevent redundant processing 	*/
+	static  short 		lastHit;			/* Nicety: prevent redundant processing 	*/
 	WindowPtr			w;
 	
 	/* -- Enter the event loop -- */
@@ -837,7 +837,7 @@ void   Do_Help( short helpVRefNum, long helpDirID )
 
 void Init_Help()
 {	
-	register INT16		index;		/* Loop thru user's information 	*/
+	register short		index;		/* Loop thru user's information 	*/
 	char				*HTBL_ptr;	/* Establish the basline pointer	*/
 	Help_Info_Handle	h;			/* Cast HTBL to this data structure	*/
 	long				mode;		/* Longint version of PICT or TEXT	*/
@@ -928,12 +928,12 @@ void Init_Help()
 | Returns :: Void.														|
 \***********************************************************************/
 
-/*static*/ pascal void My_Scroll_Filter( ControlHandle theControl, INT16 thePart )
+/*static*/ pascal void My_Scroll_Filter( ControlHandle theControl, short thePart )
 {
-	INT16	start, stop;	/* The outer boundry values of the scroller */
-	INT16	page;			/* The computed amount to correctly page	*/
-	INT16	newValue;		/* The new value to scroll up or down		*/
-	INT16	oldValue;		/* The previous value of the control		*/
+	short	start, stop;	/* The outer boundry values of the scroller */
+	short	page;			/* The computed amount to correctly page	*/
+	short	newValue;		/* The new value to scroll up or down		*/
+	short	oldValue;		/* The previous value of the control		*/
 	
 	/* Get the upper & lower limits to perform saftey checks */
 	start = GetControlMinimum(theControl);
@@ -984,7 +984,7 @@ void Init_Help()
   
 
 /***********************************************************************\
-|  						INT16 ParseInt( pPointer )						|
+|  						short ParseInt( pPointer )						|
 |-----------------------------------------------------------------------|
 | Purpose: Get the next integer from the HTBL resource.					|
 |-----------------------------------------------------------------------|
@@ -993,10 +993,10 @@ void Init_Help()
 | Returns :: Next integer in the HTBL resource.							|
 \***********************************************************************/
 
-/*static*/ INT16 ParseInt( char **pPointer )
+/*static*/ short ParseInt( char **pPointer )
 {
-	INT16	result=0;			/* Final integer result		   */
-	Byte	hiWord, lowWord;	/* Store 2 halves of the INT16 */
+	short	result=0;			/* Final integer result		   */
+	Byte	hiWord, lowWord;	/* Store 2 halves of the short */
 	
 	/* Get the raw data */
 	hiWord = (Byte) *((*pPointer)++);
@@ -1011,7 +1011,7 @@ void Init_Help()
 	
 	
 /***********************************************************************\
-|  						INT16 ParseOSType( pPointer )					|
+|  						short ParseOSType( pPointer )					|
 |-----------------------------------------------------------------------|
 | Purpose: Get the next screen type ('PICT' or 'TEXT') from the HTBL 	|
 |		   resource.													|
@@ -1025,7 +1025,7 @@ void Init_Help()
 {
  	long	result=0;		/* Final longint to return		*/
 	char	nextByte;		/* 1/4 of the longint 			*/
-	INT16	index;			/* Loop thru bytes in a long	*/
+	short	index;			/* Loop thru bytes in a long	*/
 	
 	/* Get the first of four bytes */
 	nextByte = (char) *((*pPointer)++);
@@ -1041,7 +1041,7 @@ void Init_Help()
 
 
 /***********************************************************************\
-|  					INT16 ParseString( pDest, pSource )					|
+|  					short ParseString( pDest, pSource )					|
 |-----------------------------------------------------------------------|
 | Purpose: Get the next string from the HTBL resource.					|
 |-----------------------------------------------------------------------|
@@ -1053,8 +1053,8 @@ void Init_Help()
 
 /*static*/ void ParseString( char *pDest, char **pSource )
   {
-	register INT16 x;
-	register INT16 iLen = *pDest++ = *((*pSource)++);
+	register short x;
+	register short iLen = *pDest++ = *((*pSource)++);
 	
 	/* if resource string is longer than allowed, truncate */
 	if (iLen>TOPIC_NAME_LENGTH) {
@@ -1087,7 +1087,7 @@ void Init_Help()
 
 /*static*/ void pStrCat( const Str255 p1, const Str255 p2, Str255 p3 )
   {
-    INT16 len1, len2;
+    short len1, len2;
 	
 	len1 = *p1++;
 	len2 = *p2++;
@@ -1130,10 +1130,10 @@ void Init_Help()
 | Returns :: void.														|
 \***********************************************************************/
 
-/*static*/ void Scroll_Picture( INT16 whatHit )
+/*static*/ void Scroll_Picture( short whatHit )
 {
-	INT16	theMax;			/* High bounds of help topic 	*/
-	INT16	theMin;			/* Low bounds of that topic	 	*/
+	short	theMax;			/* High bounds of help topic 	*/
+	short	theMin;			/* Low bounds of that topic	 	*/
 	
 	/* Find out which pictures are relevant */
 	theMin = resource_start[ Help_Topic ];
@@ -1175,7 +1175,7 @@ void Init_Help()
 | Returns :: void.														|
 \***********************************************************************/
 
-/*static*/ void Scroll_Text( INT16 oldValue, INT16 newValue )
+/*static*/ void Scroll_Text( short oldValue, short newValue )
 {
   TEScroll(0, (oldValue - newValue) * (*myTEHandle)->lineHeight, myTEHandle);
 }
@@ -1193,7 +1193,7 @@ void Init_Help()
 | Returns :: void.														|
 \***********************************************************************/
 
-/*static*/ void Set_Button_State( INT16 itemNum, Boolean state )
+/*static*/ void Set_Button_State( short itemNum, Boolean state )
  {
  	Rect		iBox;			/* The rectangle for the button		*/
  	short		iType;			/* Type of dialog item				*/

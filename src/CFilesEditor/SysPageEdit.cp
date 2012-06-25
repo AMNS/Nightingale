@@ -28,15 +28,15 @@ static enum {
 static void ReplaceHeader(Document *srcDoc, Document *dstDoc);
 static LINK EditSysGetStartL(Document *doc, Boolean paste);
 
-static INT16 CountStfMap(Boolean *staffMap);
+static short CountStfMap(Boolean *staffMap);
 static void InitStfMap(Boolean *staffMap);
 static Boolean KeySigCompare(PCONTEXT oldContext,PCONTEXT newContext);
-static LINK CreateClefContext(Document *, LINK, INT16, Boolean *, PCONTEXT);
-static LINK CreateKSContext(Document *, LINK, INT16, Boolean *, PCONTEXT, PCONTEXT);
-static LINK CreateTSContext(Document *, LINK, INT16, Boolean *, PCONTEXT);
+static LINK CreateClefContext(Document *, LINK, short, Boolean *, PCONTEXT);
+static LINK CreateKSContext(Document *, LINK, short, Boolean *, PCONTEXT, PCONTEXT);
+static LINK CreateTSContext(Document *, LINK, short, Boolean *, PCONTEXT);
 static void FixStfClefContext(LINK prevL);
-static RMEASDATA *GetRMeasTable(Document *doc,LINK sysL,INT16 *nMeas);
-static void RespaceSystem(Document *doc,LINK sysL,RMEASDATA *rmTable,INT16 nMeas);
+static RMEASDATA *GetRMeasTable(Document *doc,LINK sysL,short *nMeas);
+static void RespaceSystem(Document *doc,LINK sysL,RMEASDATA *rmTable,short nMeas);
 
 static void MoveSystemY(LINK sysL, DDIST dv);
 static void PSysInvalSys(Document *doc,LINK sysL);
@@ -137,9 +137,9 @@ static LINK EditSysGetStartL(Document *doc, Boolean paste)
  * subObjects need to be inserted.
  */
 
-static INT16 CountStfMap(Boolean *staffMap)
+static short CountStfMap(Boolean *staffMap)
 {
-	INT16 s,n=0;
+	short s,n=0;
 	
 	for (s=1; s<=MAXSTAVES; s++)
 		if (staffMap[s]) n++;
@@ -149,7 +149,7 @@ static INT16 CountStfMap(Boolean *staffMap)
 
 static void InitStfMap(Boolean *staffMap)
 {
-	INT16 s;
+	short s;
 	
 	for (s=0; s<=MAXSTAVES; s++) staffMap[s] = FALSE;
 }
@@ -158,7 +158,7 @@ static void InitStfMap(Boolean *staffMap)
 
 static Boolean KeySigCompare(PCONTEXT oldContext, PCONTEXT newContext)
 {
-	INT16 val;
+	short val;
 
 	/* BlockCompare returns non-zero value if the arguments are different */
 
@@ -173,10 +173,10 @@ static Boolean KeySigCompare(PCONTEXT oldContext, PCONTEXT newContext)
  * newContext[].
  */
 
-static LINK CreateClefContext(Document *doc, LINK insertL, INT16 nEntries, Boolean *staffMap,
+static LINK CreateClefContext(Document *doc, LINK insertL, short nEntries, Boolean *staffMap,
 											PCONTEXT newContext)
 {
-	LINK clefL,aClefL,prevL; INT16 s; DDIST xd;
+	LINK clefL,aClefL,prevL; short s; DDIST xd;
 	
 	prevL = LeftLINK(insertL);
 	clefL = InsertNode(doc, insertL, CLEFtype, nEntries);
@@ -203,10 +203,10 @@ static LINK CreateClefContext(Document *doc, LINK insertL, INT16 nEntries, Boole
 	return clefL;
 }
 
-static LINK CreateKSContext(Document *doc, LINK insertL, INT16 nEntries, Boolean *staffMap,
+static LINK CreateKSContext(Document *doc, LINK insertL, short nEntries, Boolean *staffMap,
 										PCONTEXT oldContext, PCONTEXT newContext)
 {
-	LINK keySigL,aKeySigL,prevL; INT16 s; DDIST xd;
+	LINK keySigL,aKeySigL,prevL; short s; DDIST xd;
 	PAKEYSIG aKeySig;
 	
 	prevL = LeftLINK(insertL);
@@ -251,10 +251,10 @@ static LINK CreateKSContext(Document *doc, LINK insertL, INT16 nEntries, Boolean
 }
 
 
-static LINK CreateTSContext(Document *doc, LINK insertL, INT16 nEntries, Boolean *staffMap,
+static LINK CreateTSContext(Document *doc, LINK insertL, short nEntries, Boolean *staffMap,
 										PCONTEXT newContext)
 {
-	LINK timeSigL,aTimeSigL,prevL; INT16 s; DDIST xd;
+	LINK timeSigL,aTimeSigL,prevL; short s; DDIST xd;
 	
 	prevL = LeftLINK(insertL);
 	timeSigL = InsertNode(doc, insertL, TIMESIGtype, nEntries);
@@ -288,7 +288,7 @@ static LINK CreateTSContext(Document *doc, LINK insertL, INT16 nEntries, Boolean
 static void FixStfClefContext(LINK prevL)
 {
 	LINK newSysL,newStfL,aStaffL,newClefL,aClefL;
-	INT16 clefType;
+	short clefType;
 
 	newSysL = SSearch(prevL,SYSTEMtype,GO_RIGHT);
 	newStfL = SSearch(newSysL,STAFFtype,GO_RIGHT);
@@ -312,10 +312,10 @@ static void FixStfClefContext(LINK prevL)
  * and return the number of measures in sysL in <nMeas>.
  */
 
-static RMEASDATA *GetRMeasTable(Document */*doc*/, LINK sysL, INT16 *nMeas)
+static RMEASDATA *GetRMeasTable(Document */*doc*/, LINK sysL, short *nMeas)
 {
 	LINK measL; DDIST mWidth;
-	INT16 i=0; RMEASDATA *rmTable;
+	short i=0; RMEASDATA *rmTable;
 
 	rmTable = (RMEASDATA *)NewPtr(MAX_MEASURES*sizeof(RMEASDATA));
 	if (!GoodNewPtr((Ptr)rmTable)) { NoMoreMemory(); return NULL; }
@@ -337,7 +337,7 @@ static RMEASDATA *GetRMeasTable(Document */*doc*/, LINK sysL, INT16 *nMeas)
  * all objects fit properly within it.
  */
 
-static void RespaceSystem(Document *doc, LINK sysL, RMEASDATA *rmTable, INT16 nMeas)
+static void RespaceSystem(Document *doc, LINK sysL, RMEASDATA *rmTable, short nMeas)
 {
 	LINK firstMeasL; CONTEXT context;
 	long newSpProp;
@@ -368,7 +368,7 @@ static void RespaceSystem(Document *doc, LINK sysL, RMEASDATA *rmTable, INT16 nM
 void CopySystem(Document *doc)
 {
 	LINK sysL,clipSys,lastL,startL,pL;
-	INT16 nSystems=0;
+	short nSystems=0;
 	
 	ReplaceHeader(doc,clipboard);
 	SetupClipDoc(doc,FALSE);
@@ -585,7 +585,7 @@ static void PSysFixStfSize(Document *doc, LINK newSysL, LINK rSys)
 static Boolean PSysFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContext,
 												PCONTEXT newContext)
 {
-	INT16 s,nEntries,nMeas;
+	short s,nEntries,nMeas;
 	Boolean staffMap[MAXSTAVES+1];
 	LINK firstMeasL,insertL,rightL,sysL;
 	RMEASDATA *rmTable;
@@ -920,7 +920,7 @@ void PasteSystem(Document *doc)
 	LINK prevL,insertL,startL,clipSys,lastL,succSys,newTS,
 		rSys,rStaff,rMeas,newPage,
 		sysL,staffL,measL,newSys,newStf,newMeas,newFirstMeas,firstLMeas;
-	INT16 nSystems=0; DRect sysRect,prevSysRect;
+	short nSystems=0; DRect sysRect,prevSysRect;
 	DDIST sysHeight;
 
 	/* System pasted in must have same part-staff format as destination doc. */
@@ -1103,7 +1103,7 @@ static Boolean GetXSysObj(LINK sysL, Boolean prev)
 void ClearSystem(Document *doc)
 {
 	LINK sysL,lastL,startL,pageL,lSys,rSys,staffL,lStaff,rStaff,lMeas,rMeas,succSys;
-	INT16 nSys,samePage; DRect sysRect; DDIST sysHeight;
+	short nSys,samePage; DRect sysRect; DDIST sysHeight;
 	
 	MEHideCaret(doc);
 
@@ -1212,7 +1212,7 @@ void ClearSystem(Document *doc)
 static Boolean PPageFixInitContext(Document *doc, LINK prevL, PCONTEXT oldContext,
 												PCONTEXT newContext)
 {
-	INT16 s,nEntries,nMeas;
+	short s,nEntries,nMeas;
 	Boolean staffMap[MAXSTAVES+1];
 	LINK firstMeasL,lastMeasL,insertL,rightL,sysL;
 	RMEASDATA *rmTable;
@@ -1335,7 +1335,7 @@ done:
 
 void CopyPages(Document *doc)
 {
-	LINK pageL,lastL,pL,insertL,lastPageL; INT16 nSystem, sheetNum;
+	LINK pageL,lastL,pL,insertL,lastPageL; short nSystem, sheetNum;
 	
 	WaitCursor();
 	
@@ -1427,7 +1427,7 @@ void PastePages(Document *doc)
 	Boolean newFirstPage=FALSE;
 	DDIST change;
 	SearchParam pbSearch;
-	Rect paper, result; INT16 pageNum; Boolean appending;
+	Rect paper, result; short pageNum; Boolean appending;
 	
 #ifdef LIGHT_VERSION
 	if (doc->numSheets + clipboard->numSheets > MAXPAGES) {

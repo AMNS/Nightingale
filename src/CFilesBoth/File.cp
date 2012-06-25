@@ -55,17 +55,17 @@ enum {
 
 /* ----------------------------------------------------- MissingFontsDialog et al -- */
 
-static INT16 MFDrawLine(unsigned char *);
-static void MissingFontsDialog(Document *, INT16);
+static short MFDrawLine(unsigned char *);
+static void MissingFontsDialog(Document *, short);
 
 #define LEADING 15			/* Vertical distance between lines displayed (pixels) */
 
 static Rect textRect;
-static INT16 linenum;
+static short linenum;
 
 /* Draw the specified Pascal string in quotes on the next line */
 
-static INT16 MFDrawLine(unsigned char *s)
+static short MFDrawLine(unsigned char *s)
 {
 	MoveTo(textRect.left, textRect.top+linenum*LEADING);
 	DrawChar('"');
@@ -76,7 +76,7 @@ static INT16 MFDrawLine(unsigned char *s)
 
 #define TEXT_DI 4
 
-static void MissingFontsDialog(Document *doc, INT16 nMissing)
+static void MissingFontsDialog(Document *doc, short nMissing)
 {
 	DialogPtr dialogp; GrafPtr oldPort;
 	short ditem, anInt, j;
@@ -125,9 +125,9 @@ extern void EnumerateFonts(Document *doc);
 
 static void FillFontTable(Document *doc)
 {
-	INT16		j;
-	//INT16		nFonts, i;
-	INT16		nMissing;
+	short		j;
+	//short		nFonts, i;
+	short		nMissing;
 	//short		fontID;
 	//Handle	fontHdl;
 	//ResType	fontType;
@@ -353,7 +353,7 @@ void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
 		LINK		aNoteL, firstNoteL, lastNoteL, aSlurL, firstSyncL, 
 					lastSyncL, pSystemL;
 		PSYSTEM  pSystem;
-		INT16 	k, xpFirst, xpLast, ypFirst, ypLast, firstStaff, lastStaff;
+		short 	k, xpFirst, xpLast, ypFirst, ypLast, firstStaff, lastStaff;
 		SignedByte	firstInd, lastInd;
 		Boolean  firstMEAS, lastSYS;
 
@@ -471,7 +471,7 @@ static void ConvertChordSlurs(Document *doc)
 {
 	LINK pL, aNoteL, aSlurL; PASLUR aSlur; Boolean foundChordSlur;
 	Point startPt[2],endPt[2], oldStartPt[2],oldEndPt[2];
-	INT16 v, changeStart, changeEnd;
+	short v, changeStart, changeEnd;
 	
 	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
 		if (SlurTYPE(pL) && !SlurTIE(pL)) {
@@ -504,7 +504,7 @@ static void ConvertChordSlurs(Document *doc)
 static void ConvertModNRVPositions(Document *, LINK);
 static void ConvertModNRVPositions(Document */*doc*/, LINK syncL)
 {
-	LINK aNoteL, aModNRL; PANOTE aNote; PAMODNR aModNR; INT16 yOff; Boolean above;
+	LINK aNoteL, aModNRL; PANOTE aNote; PAMODNR aModNR; short yOff; Boolean above;
 	
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
@@ -792,7 +792,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 	if (version<='N100'
 	|| (version=='N101' && (fileTime & 0x80000000)!=0)
 	|| ShiftKeyDown()) {
-		INT16 v; LINK aNoteL; Boolean foundChordSlur;
+		short v; LINK aNoteL; Boolean foundChordSlur;
 		
 		for (foundChordSlur = FALSE, pL = doc->headL; pL; pL = RightLINK(pL)) {
 			if (SlurTYPE(pL) && !SlurTIE(pL)) {
@@ -978,7 +978,7 @@ static Boolean ModifyScore(Document */*doc*/, long /*fileTime*/)
 #endif
 
 #ifdef FIX_UNBEAMED_FLAGS_AUGDOT_PROB
-	INT16 alteredCount; LINK pL;
+	short alteredCount; LINK pL;
 
   /* From SetupNote in Objects.c:
    * "On upstemmed notes with flags, xmovedots should really 
@@ -1080,7 +1080,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 					FSSpec *pfsSpec, long *fileVersion)
 {
 	short			errCode, refNum, strPoolErrCode;
-	INT16 		errInfo,				/* Type of object being read or other info on error */
+	short 		errInfo,				/* Type of object being read or other info on error */
 					lastType;
 	long			count, stringPoolSize,
 					fileTime;
@@ -1088,7 +1088,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	OMSSignature omsDevHdr;
 	long			fmsDevHdr;
 	long			omsBufCount, omsDevSize;
-	INT16			i;
+	short			i;
 	FInfo			fInfo;
 	FSSpec 		fsSpec;
 	long			cmHdr;
@@ -1415,10 +1415,10 @@ reading, since the file will no longer be open! */
 void OpenError(Boolean fileOpened,
 					short refNum,
 					short errCode,
-					INT16 errInfo)	/* More info: at what step error happened, type of obj being read, etc. */
+					short errInfo)	/* More info: at what step error happened, type of obj being read, etc. */
 {
 	char aStr[256], fmtStr[256]; StringHandle strHdl;
-	INT16 strNum;
+	short strNum;
 	
 	if (fileOpened) FSClose(refNum);
 	if (errCode!=0) {
@@ -1493,9 +1493,9 @@ static enum {
 static long GetOldFileSize(Document *doc);
 static long GetFileSize(Document *doc,long vAlBlkSize);
 static long GetFreeSpace(Document *doc,long *vAlBlkSize);
-static INT16 AskSaveType(Boolean canContinue);
-static INT16 GetSaveType(Document *doc,Boolean saveAs);
-static INT16 WriteFile(Document *doc,short refNum);
+static short AskSaveType(Boolean canContinue);
+static short GetSaveType(Document *doc,Boolean saveAs);
+static short WriteFile(Document *doc,short refNum);
 static Boolean SFChkScoreOK(Document *doc);
 static Boolean GetOutputFile(Document *doc);
 
@@ -1539,7 +1539,7 @@ the total size of all resources saved, rounded up to sector size. */
 
 static long GetFileSize(Document *doc, long vAlBlkSize)
 {
-	unsigned INT16 objCount[LASTtype], i, numMods=0, nHeaps;
+	unsigned short objCount[LASTtype], i, numMods=0, nHeaps;
 	long fileSize=0L, strHdlSize, blkMod, rSize;
 	LINK pL;
 	Handle stringHdl;
@@ -1565,7 +1565,7 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 	
 	fileSize += sizeof(SCOREHEADER);
 	
-	fileSize += sizeof((INT16)LASTtype);
+	fileSize += sizeof((short)LASTtype);
 
 	stringHdl = (Handle)GetStringPool();
 	strHdlSize = GetHandleSize(stringHdl);
@@ -1578,7 +1578,7 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 	/* Total number of objects of type heapIndex plus sizeAllObjects, 1
 		for each heap. */
 
-	fileSize += (sizeof(INT16)+sizeof(long))*nHeaps;
+	fileSize += (sizeof(short)+sizeof(long))*nHeaps;
 	
 	/* The HEAP struct header, 1 for each heap. */
 	fileSize += sizeof(HEAP)*nHeaps;
@@ -1637,7 +1637,7 @@ static long GetFreeSpace(Document *doc, long *vAlBlkSize)
 alerts, one if we can save on the specified volume at all, one if not. Coded so that
 the two alerts must have identical item nos. for Save As and Cancel. */
 
-static INT16 AskSaveType(Boolean canContinue)
+static short AskSaveType(Boolean canContinue)
 {
 	short saveType;
 
@@ -1655,7 +1655,7 @@ static INT16 AskSaveType(Boolean canContinue)
 at all, onto the current volume. If it cannot be saved safely, ask user what
 to do. */
 
-static INT16 GetSaveType(Document *doc, Boolean saveAs)
+static short GetSaveType(Document *doc, Boolean saveAs)
 {
 	Boolean keepGoing = TRUE,canContinue;
 	long fileSize,freeSpace,oldFileSize,vAlBlkSize;
@@ -1727,10 +1727,10 @@ static Boolean SFChkScoreOK(Document */*doc*/)
 to write data structure objects, and write the EOF marker. If any error is
 encountered, return that error without continuing. Otherwise, return noErr. */
 
-static INT16 WriteFile(Document *doc, short refNum)
+static short WriteFile(Document *doc, short refNum)
 {
 	short			errCode;
-	INT16			lastType=LASTtype;
+	short			lastType=LASTtype;
 	long			count, blockSize, strHdlSize;
 	unsigned long fileTime;
 	Handle 		stringHdl;
@@ -1911,7 +1911,7 @@ Boolean MakeVariantFilename(
 			Str255 bkpName			/* Pascal string */
 			)
 {
-	INT16 bkpNameLen; Boolean truncated = FALSE;
+	short bkpNameLen; Boolean truncated = FALSE;
 	
 	Pstrcpy(bkpName, filename);
 	PToCString(bkpName);
@@ -1965,8 +1965,8 @@ short SaveFile(
 	Str255			filename, bkpName;
 	short				vRefNum;
 	short				errCode, refNum;
-	INT16 			errInfo=noErr;				/* Type of object being read or other info on error */
-	INT16				saveType;
+	short 			errInfo=noErr;				/* Type of object being read or other info on error */
+	short				saveType;
 	Boolean			fileOpened;
 	const unsigned char	*tempName;
 	ScriptCode		scriptCode = smRoman;
@@ -2135,10 +2135,10 @@ for OpenError(). */
 void SaveError(Boolean fileOpened,
 					short refNum,
 					short errCode,
-					INT16 errInfo)		/* More info: at what step error happened, type of obj being written, etc. */
+					short errInfo)		/* More info: at what step error happened, type of obj being written, etc. */
 {
 	char aStr[256], fmtStr[256]; StringHandle strHdl;
-	INT16 strNum;
+	short strNum;
 
 	if (fileOpened) FSClose(refNum);
 

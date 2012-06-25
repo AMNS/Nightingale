@@ -35,7 +35,7 @@ static void MusCharRect(Rect [], unsigned char, long, Rect *);
 void PrintMusFontTables(Document *doc)
 {
 #ifndef PUBLIC_VERSION
-	INT16		i, j;
+	short		i, j;
 
 	say("Top document's music font is \"%p\".\n\n", doc->musFontName);
 
@@ -67,7 +67,7 @@ void PrintMusFontTables(Document *doc)
 by the mapping table for that font.  We use this, for example, in case the ASCII
 code of the treble clef in our music font is different from Sonata. */
 
-Byte MapMusChar(INT16 musFontInfoIndex, Byte mchar)
+Byte MapMusChar(short musFontInfoIndex, Byte mchar)
 {
 	return musFontInfo[musFontInfoIndex].cMap[mchar];
 }
@@ -76,7 +76,7 @@ Byte MapMusChar(INT16 musFontInfoIndex, Byte mchar)
 /* Modify in place the given Pascal string so that all its chars are mapped
 according to the current music font. */
 
-void MapMusPString(INT16 musFontInfoIndex, Byte str[])
+void MapMusPString(short musFontInfoIndex, Byte str[])
 {
 	short i;
 
@@ -91,7 +91,7 @@ to the corresponding Sonata character (whose horizontal offset is always zero).
 offset returned is a DDIST value, derived from the offset table, whose values
 are in percent of interline space.  Assumes that <glyph> has already been remapped. */
 
-DDIST MusCharXOffset(INT16 musFontInfoIndex, Byte glyph, DDIST lnSpace)
+DDIST MusCharXOffset(short musFontInfoIndex, Byte glyph, DDIST lnSpace)
 {
 	DDIST xd = musFontInfo[musFontInfoIndex].xd[glyph];
 	if (xd)
@@ -107,7 +107,7 @@ to the corresponding Sonata character (whose vertical offset is always zero).
 offset returned is a DDIST value, derived from the offset table, whose values
 are in percent of interline space.  Assumes that <glyph> has already been remapped. */
 
-DDIST MusCharYOffset(INT16 musFontInfoIndex, Byte glyph, DDIST lnSpace)
+DDIST MusCharYOffset(short musFontInfoIndex, Byte glyph, DDIST lnSpace)
 {
 	DDIST yd = musFontInfo[musFontInfoIndex].yd[glyph];
 	if (yd)
@@ -117,31 +117,31 @@ DDIST MusCharYOffset(INT16 musFontInfoIndex, Byte glyph, DDIST lnSpace)
 }
 
 
-Boolean MusFontHas16thFlag(INT16 musFontInfoIndex)
+Boolean MusFontHas16thFlag(short musFontInfoIndex)
 {
 	return musFontInfo[musFontInfoIndex].has16thFlagChars;
 }
 
 
-Boolean MusFontHasCurlyBraces(INT16 musFontInfoIndex)
+Boolean MusFontHasCurlyBraces(short musFontInfoIndex)
 {
 	return musFontInfo[musFontInfoIndex].hasCurlyBraceChars;
 }
 
 
-Boolean MusFontHasRepeatDots(INT16 musFontInfoIndex)
+Boolean MusFontHasRepeatDots(short musFontInfoIndex)
 {
 	return musFontInfo[musFontInfoIndex].hasRepeatDotsChar;
 }
 
 
-Boolean MusFontUpstemFlagsHaveXOffset(INT16 musFontInfoIndex)
+Boolean MusFontUpstemFlagsHaveXOffset(short musFontInfoIndex)
 {
 	return musFontInfo[musFontInfoIndex].upstemFlagsHaveXOffset;
 }
 
 
-INT16 MusFontStemSpaceWidthPixels(Document *doc, INT16 musFontInfoIndex, DDIST lnSpace)
+short MusFontStemSpaceWidthPixels(Document *doc, short musFontInfoIndex, DDIST lnSpace)
 {
 	if (musFontInfo[musFontInfoIndex].hasStemSpaceChar) {
 		Byte glyph = MapMusChar(doc->musFontInfoIndex, MCH_stemspace);
@@ -154,31 +154,31 @@ INT16 MusFontStemSpaceWidthPixels(Document *doc, INT16 musFontInfoIndex, DDIST l
 }
 
 
-DDIST MusFontStemSpaceWidthDDIST(INT16 musFontInfoIndex, DDIST lnSpace)
+DDIST MusFontStemSpaceWidthDDIST(short musFontInfoIndex, DDIST lnSpace)
 {
 	return (long)(musFontInfo[musFontInfoIndex].stemSpaceWidth * lnSpace) / 100L;
 }
 
 
-DDIST UpstemExtFlagLeading(INT16 musFontInfoIndex, DDIST lnSpace)
+DDIST UpstemExtFlagLeading(short musFontInfoIndex, DDIST lnSpace)
 {
 	return (long)(musFontInfo[musFontInfoIndex].upstemExtFlagLeading * lnSpace) / 100L;
 }
 
 
-DDIST DownstemExtFlagLeading(INT16 musFontInfoIndex, DDIST lnSpace)
+DDIST DownstemExtFlagLeading(short musFontInfoIndex, DDIST lnSpace)
 {
 	return (long)(musFontInfo[musFontInfoIndex].downstemExtFlagLeading * lnSpace) / 100L;
 }
 
 
-DDIST Upstem8thFlagLeading(INT16 musFontInfoIndex, DDIST lnSpace)
+DDIST Upstem8thFlagLeading(short musFontInfoIndex, DDIST lnSpace)
 {
 	return (long)(musFontInfo[musFontInfoIndex].upstem8thFlagLeading * lnSpace) / 100L;
 }
 
 
-DDIST Downstem8thFlagLeading(INT16 musFontInfoIndex, DDIST lnSpace)
+DDIST Downstem8thFlagLeading(short musFontInfoIndex, DDIST lnSpace)
 {
 	return (long)(musFontInfo[musFontInfoIndex].downstem8thFlagLeading * lnSpace) / 100L;
 }
@@ -187,9 +187,9 @@ DDIST Downstem8thFlagLeading(INT16 musFontInfoIndex, DDIST lnSpace)
 /* Return the index into the global musFontInfo table for the font whose font number
 is <fontNum>, or -1 if this font name isn't in the table. */
 
-static INT16 GetMusFontIndex(INT16 fontNum)
+static short GetMusFontIndex(short fontNum)
 {
-	INT16	i;
+	short	i;
 
 	for (i = 0; i < numMusFonts; i++)
 		if (musFontInfo[i].fontID==fontNum)
@@ -205,7 +205,7 @@ and notify user. */
 
 void InitDocMusicFont(Document *doc)
 {
-	INT16	fNum, index;
+	short	fNum, index;
 	char	fmtStr[256];
 
 	GetFNum(doc->musFontName, &fNum);
@@ -280,8 +280,8 @@ cBBox array. If the document's current font is not the music font, does nothing.
 void BuildCharRectCache(Document *doc)
 {
 	Rect		*bbox;
-	INT16		ic, refCode;
-	INT16		actualSize;
+	short		ic, refCode;
+	short		actualSize;
 	long		scale;
 	WindowPtr ourPort=doc->theWindow;
 
@@ -316,7 +316,7 @@ void BuildCharRectCache(Document *doc)
 /* -------------------------------------------------------------------- CharRect -- */
 /*	Get the enclosing rectangle for a given Sonata character in the size cached. */
 
-Rect CharRect(INT16 ic)
+Rect CharRect(short ic)
 {
 	Rect		r;
 
@@ -339,7 +339,7 @@ accessory numerals. */
 
 void NumToSonataStr(long number, unsigned char *string)
 {
-	INT16		nchars;
+	short		nchars;
 	
 	NumToString(number, string);
 	nchars = string[0];
@@ -356,12 +356,12 @@ void NumToSonataStr(long number, unsigned char *string)
 void GetMusicAscDesc(
 				Document *doc,
 				unsigned char *string,			/* Pascal string */
-				INT16 size,							/* in points, i.e., pixels at 100% magnification */
-				INT16 *pAsc, INT16 *pDesc
+				short size,							/* in points, i.e., pixels at 100% magnification */
+				short *pAsc, short *pDesc
 				)
 {
-	INT16				ascent, descent, refCode;
-	unsigned INT16	n, k;
+	short				ascent, descent, refCode;
+	unsigned short	n, k;
 	long				scale;
 	Rect				r, *bbox;
 	
@@ -398,14 +398,14 @@ void GetMusicAscDesc(
 
 /* N.B. The Sonata-36 staff is actually 37 points high! Beware. */
 
-static INT16 mscrnRSize[SFSIZES] =	  {8, 12, 16, 20, 24, 32, 36};	/* Actual sizes of Sonata screen fonts */
-static INT16 mscrnFontSize[SFSIZES] = {7, 12, 14, 18, 24, 28, 36};	/* Corresponding names of sizes */
+static short mscrnRSize[SFSIZES] =	  {8, 12, 16, 20, 24, 32, 36};	/* Actual sizes of Sonata screen fonts */
+static short mscrnFontSize[SFSIZES] = {7, 12, 14, 18, 24, 28, 36};	/* Corresponding names of sizes */
 
 /* Given "actual" size, get Sonata screen font size in Font Manager terms  */
 
-INT16 GetMNamedFontSize(INT16 screenSize)
+short GetMNamedFontSize(short screenSize)
 {
-	INT16 j, deltaSize, size;
+	short j, deltaSize, size;
 	
 	size = mscrnFontSize[0];
 	for (j = SFSIZES-1; j>=0; j--)
@@ -419,9 +419,9 @@ INT16 GetMNamedFontSize(INT16 screenSize)
 
 /* Given staff size, get music screen font size in Font Manager terms */
 
-INT16 Staff2MFontSize(DDIST staffHeight)
+short Staff2MFontSize(DDIST staffHeight)
 {
-	INT16 pointStaffHt, j, deltaSize, size;
+	short pointStaffHt, j, deltaSize, size;
 	
 	pointStaffHt = d2pt(staffHeight);
 	size = mscrnFontSize[0];
@@ -436,9 +436,9 @@ INT16 Staff2MFontSize(DDIST staffHeight)
 
 /* Given font size in Font Manager terms, get index into list of music screen font sizes */
 
-INT16 GetMFontSizeIndex(INT16 fontSize)
+short GetMFontSizeIndex(short fontSize)
 {
-	INT16 j;
+	short j;
 	
 	for (j = SFSIZES-1; j>=0; j--)
 		if (fontSize >= mscrnFontSize[j])
@@ -448,9 +448,9 @@ INT16 GetMFontSizeIndex(INT16 fontSize)
 
 /* Given Sonata screen font size in Font Manager terms, get "actual" size */
 
-INT16 GetActualFontSize(INT16 fMgrSize)
+short GetActualFontSize(short fMgrSize)
 {
-	INT16 j, deltaSize, size;
+	short j, deltaSize, size;
 	
 	size = mscrnRSize[0];
 	for (j = SFSIZES-1; j>=0; j--)
@@ -474,12 +474,12 @@ character is above the origin in Sonata 14, 24, and 36, but below it in Sonata
 18. Oh well. */
 
 /* fudgeHeadY and fudgeRestY parallel the list of available Sonata screen font sizes. */
-static INT16 fudgeHeadY[SFSIZES] = {			/* In pixels downward */
+static short fudgeHeadY[SFSIZES] = {			/* In pixels downward */
 /* Sonata  7 12 14 18 24  28 36 */
 			  0, 1, 1, 1, 1, 0, 0
 	};
 
-static INT16 fudgeRestY[6][SFSIZES] = {		/* In pixels downward */
+static short fudgeRestY[6][SFSIZES] = {		/* In pixels downward */
 /* Sonata  7 12 14 18 24 28 36 */
 			{ 1, 1, 1, 0, 1, 1, 0 },				/* Breve */
 			{ 0, 0, 1, 0, 0, 1, 0 },				/* Whole */
@@ -491,9 +491,9 @@ static INT16 fudgeRestY[6][SFSIZES] = {		/* In pixels downward */
 
 /* Get pixel Y-offset for noteheads */
 
-INT16 GetYHeadFudge(INT16 fontSize)
+short GetYHeadFudge(short fontSize)
 {
-	INT16	mFSizeIndex;					/* Index of font size in list of music screen fonts */
+	short	mFSizeIndex;					/* Index of font size in list of music screen fonts */
 
 	mFSizeIndex = GetMFontSizeIndex(fontSize);
 	return fudgeHeadY[mFSizeIndex];
@@ -501,9 +501,9 @@ INT16 GetYHeadFudge(INT16 fontSize)
 
 /* Get pixel Y-offset for rests */
 
-INT16 GetYRestFudge(INT16 fontSize, INT16 durCode)
+short GetYRestFudge(short fontSize, short durCode)
 {
-	INT16	mFSizeIndex;					/* Index of font size in list of music screen fonts */
+	short	mFSizeIndex;					/* Index of font size in list of music screen fonts */
 
 	mFSizeIndex = GetMFontSizeIndex(fontSize);
 	if (durCode>6) durCode = 6;						/* Treat shorter durs. as 16ths */

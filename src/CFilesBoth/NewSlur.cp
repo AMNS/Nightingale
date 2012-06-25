@@ -25,29 +25,29 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 		
-static char HandleFirstSync(Document *, INT16 staff, INT16 voice);
+static char HandleFirstSync(Document *, short staff, short voice);
 static Point NewTrackSlur(Document *, Rect *paper, Point pt, Rect *newPaper);
-static INT16 GetSyncStaff(LINK, INT16);
-static void CheckCrossness(Document *, INT16 staff, Point pt);
-static LINK ValidSlurEndpt(Document *, Point, INT16);
-static char HandleLastSync(Document *, INT16 staff, INT16 voice, Point pt);
-static void SwapEndpoints(Document *, INT16 *staff);
-static Boolean NestingIsOK(LINK, LINK, INT16, INT16, Boolean, Boolean, Boolean *);
-static INT16 FillTieArrays(LINK,LINK,INT16,CHORDNOTE [],CHORDNOTE [],INT16,
+static short GetSyncStaff(LINK, short);
+static void CheckCrossness(Document *, short staff, Point pt);
+static LINK ValidSlurEndpt(Document *, Point, short);
+static char HandleLastSync(Document *, short staff, short voice, Point pt);
+static void SwapEndpoints(Document *, short *staff);
+static Boolean NestingIsOK(LINK, LINK, short, short, Boolean, Boolean, Boolean *);
+static short FillTieArrays(LINK,LINK,short,CHORDNOTE [],CHORDNOTE [],short,
 									char [],char []);
 static Boolean WantTies(Boolean, Boolean);
-static INT16 HandleTie(LINK, LINK, INT16, INT16 *, char [], char []);
-static char NewSlurOrTie(INT16 staff, INT16 voice);
-static LINK AddNewSlur(Document *, LINK insertL, INT16 staff, INT16 voice);
+static short HandleTie(LINK, LINK, short, short *, char [], char []);
+static char NewSlurOrTie(short staff, short voice);
+static LINK AddNewSlur(Document *, LINK insertL, short staff, short voice);
 static void ClearSlurIndices(LINK newL);
 static char SetSlurIndices(LINK newL);
-static LINK Tie2NoteLINK(LINK, INT16, LINK);
-static void NewSlurSetCtlPts(Document *doc, INT16 staff, INT16 voice, CONTEXT context);
-static void CrossSysSetCtlPts(Document *, INT16 staff, INT16 voice, LINK newL, CONTEXT context);
-static void NewSlurCleanup(Document *doc, INT16 staff, LINK newL, Boolean user);
-static void NewCrossSystemSlur(Document *, INT16 staff, INT16 voice, CONTEXT context);
-static Boolean SlurToNext(Document *, INT16 *, INT16);
-static INT16 BuildTieArrays(LINK, LINK, INT16, char [], char[]);
+static LINK Tie2NoteLINK(LINK, short, LINK);
+static void NewSlurSetCtlPts(Document *doc, short staff, short voice, CONTEXT context);
+static void CrossSysSetCtlPts(Document *, short staff, short voice, LINK newL, CONTEXT context);
+static void NewSlurCleanup(Document *doc, short staff, LINK newL, Boolean user);
+static void NewCrossSystemSlur(Document *, short staff, short voice, CONTEXT context);
+static Boolean SlurToNext(Document *, short *, short);
+static short BuildTieArrays(LINK, LINK, short, char [], char[]);
 
 /* --------------------------------------------------- NewSlur and Help Functions -- */
 /* Functions for NewSlur. Functions called by NewSlur return one of these codes to
@@ -64,9 +64,9 @@ indicate whether they were successful, or if not, the reason why. */
 static LINK 	firstSyncL, lastSyncL;
 static LINK 	firstNoteL;
 static LINK 	slurL;
-static INT16 	endStaff;
-static INT16 	oldSystem;
-static INT16 	subCount;
+static short 	endStaff;
+static short 	oldSystem;
+static short 	subCount;
 static Point 	pt;
 static DPoint 	kn0Pt, kn1Pt;
 static DPoint 	c0, c1;
@@ -79,7 +79,7 @@ static Point	startPt[MAXCHORD], endPt[MAXCHORD];
 
 /* Look for the first sync endpt of the slur; if found, hilite it. */
 
-static char HandleFirstSync(Document *doc, INT16 staff, INT16 voice)
+static char HandleFirstSync(Document *doc, short staff, short voice)
 {
 	LINK aNoteL; PANOTE aNote;
 	Boolean noteFound=FALSE;
@@ -115,7 +115,7 @@ static Point NewTrackSlur(Document *doc, Rect *paper, Point pt, Rect *newPaper)
 	DPoint  tempPt;
 	Point   localPoint,globalPoint;
 	PANOTE  firstNote;
-	INT16	  sheetNum;
+	short	  sheetNum;
 
 	/*
 	 *	Decide whether the slur should curve up or down based on 1st note stem dir.
@@ -150,9 +150,9 @@ static Point NewTrackSlur(Document *doc, Rect *paper, Point pt, Rect *newPaper)
 }
 
 
-static INT16 GetSyncStaff(LINK pL, INT16 index)
+static short GetSyncStaff(LINK pL, short index)
 {
-	LINK aNoteL; INT16 i;
+	LINK aNoteL; short i;
 
 	if (!SyncTYPE(pL)) return NOONE;
 
@@ -177,9 +177,9 @@ the endnote of the tracking operation, use that note's staff here; otherwise, th
 best that can be done is to use the results of FindStaff. */
 
 
-static void CheckCrossness(Document *doc, INT16	staff, Point pt)
+static void CheckCrossness(Document *doc, short	staff, Point pt)
 {
-	INT16 objEndStaff=NOONE,index;
+	short objEndStaff=NOONE,index;
 	LINK pL;
 
 	oldSystem = doc->currentSystem;
@@ -208,7 +208,7 @@ static void CheckCrossness(Document *doc, INT16	staff, Point pt)
 }
 
 
-static LINK ValidSlurEndpt(Document *doc, Point pt, INT16 staffn)
+static LINK ValidSlurEndpt(Document *doc, Point pt, short staffn)
 {
 	PSYSTEM	pSystem;
 	LINK 	rightL=NILINK, leftL=NILINK, symRightL, symLeftL,
@@ -260,7 +260,7 @@ static LINK ValidSlurEndpt(Document *doc, Point pt, INT16 staffn)
 /* Call ValidSlurEndpt to find the last sync of the slur; check for a valid sync,
 and then hilite it. */
 
-static char HandleLastSync(Document *doc, INT16 staff, INT16 voice, Point pt)
+static char HandleLastSync(Document *doc, short staff, short voice, Point pt)
 {	
 	lastSyncL = ValidSlurEndpt(doc, pt, endStaff);
 	if (!lastSyncL || !SyncInVoice(lastSyncL, voice)) {									
@@ -288,9 +288,9 @@ a same-system one, right to left—swap endpts so that the slur's first sync is
 before the last. If a cross-staff slur goes from a lower to an upper staff, swap
 start and end staff numbers. */
 
-static void SwapEndpoints(Document *doc, INT16 *staff)
+static void SwapEndpoints(Document *doc, short *staff)
 {
-	DPoint tempPt; LINK tempL; INT16 tempStf; 
+	DPoint tempPt; LINK tempL; short tempStf; 
 	
 	if ((!crossSystem && (kn1Pt.h<kn0Pt.h)) ||		/* Drawn right to left on same system? */
 		(crossSystem && crossSysBack)) {					/* Drawn bottom to top across systems? */
@@ -350,8 +350,8 @@ enum {
 	C2_THEN_1=+1
 };
 
-static INT16 ComparePosInSys(LINK, LINK);
-static INT16 ComparePosInSys(LINK obj1, LINK obj2)
+static short ComparePosInSys(LINK, LINK);
+static short ComparePosInSys(LINK obj1, LINK obj2)
 {
 	LINK pL;
 	
@@ -375,7 +375,7 @@ static void CheckProposedSlur(
 					Boolean *pCanSlur
 					)
 {
-	LINK oldFirstL, oldLastL; INT16 firstPos, lastPos;
+	LINK oldFirstL, oldLastL; short firstPos, lastPos;
 
 	oldFirstL = SlurFIRSTSYNC(oldSlurL);
 	oldLastL = SlurLASTSYNC(oldSlurL);
@@ -430,8 +430,8 @@ static void CheckProposedSlur(
 
 static Boolean NestingIsOK(
 						LINK newFirstL, LINK newLastL,	/* firstSyncL, lastSyncL of proposed slur/tie */
-						INT16 staff,							/* on one end of the slur/tie */
-						INT16 voice,
+						short staff,							/* on one end of the slur/tie */
+						short voice,
 						Boolean crossSys,
 						Boolean crossStf,
 						Boolean *mustBeTie
@@ -474,17 +474,17 @@ sets the relevant notes' tiedL/tiedR flags.
 For a simpler approach that doesn't handle the accidental-tied-over-barline problem,
 see BuildTieArrays. */
 
-static INT16 FillTieArrays(
+static short FillTieArrays(
 					LINK firstL, LINK lastL,	/* Syncs */
-					INT16 voice,
+					short voice,
 					CHORDNOTE fChordNote[], 	/* NILINK noteL => ignore. NB: we destroy! */
 					CHORDNOTE lChordNote[],
-					INT16 cnCount,
+					short cnCount,
 					char firstIndA[],
 					char lastIndA[]
 					)
 {
-	INT16 subCount;
+	short subCount;
 	char index,n;
 	register LINK aNoteL,firstNoteL,lastNoteL;
 
@@ -543,14 +543,14 @@ static enum {
 	ASSUME_DI=6
 } E_WantTiesItems;
 
-static INT16 group1;
+static short group1;
 
 static Boolean WantTies(
 					Boolean /*firstChord*/, Boolean /*lastChord*/)		/* Both unused, for now */
 {
-	INT16 itemHit;
+	short itemHit;
 	Boolean value;
-	static INT16 assumeSlurTie=0, oldChoice=0;
+	static short assumeSlurTie=0, oldChoice=0;
 	register DialogPtr dlog; GrafPtr oldPort;
 	Boolean keepGoing=TRUE;
 	static Boolean firstCall=TRUE;
@@ -636,13 +636,13 @@ flags.
 
 HandleTie returns F_TIE, F_SLUR, or CANCEL_INT. */
 
-static INT16 HandleTie(LINK firstL, LINK lastL, INT16 voice, INT16 *subCount,
+static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
 										char firstIndA[MAXCHORD], char lastIndA[MAXCHORD])
 {
 	PANOTE	firstNote, lastNote;
 	LINK		firstNoteL, lastNoteL;
 	Boolean	firstChord, lastChord, itsATie;
-	INT16		i, flCount, nMatch, nTiedMatch, proceed;
+	short		i, flCount, nMatch, nTiedMatch, proceed;
 	CHORDNOTE fChordNote[MAXCHORD], lChordNote[MAXCHORD];
 	
 	for (i = 0; i<MAXCHORD; i++) 
@@ -723,12 +723,12 @@ which by calling HandleTie. If it must be a tie but it's not, we have an error.
 Otherwise, be sure the end notes' slur/tie L/R flags are set properly. */
 
 static char NewSlurOrTie(
-						INT16 staff,		/* on one end of the slur/tie */
-						INT16 voice)
+						short staff,		/* on one end of the slur/tie */
+						short voice)
 {
 	register LINK aNoteL;
 	register PANOTE aNote;
-	INT16 status;
+	short status;
 	
 	/* Check for nested and overlapping slurs. Note that we must check before any
 	 * changes are made to the data structure which will be hard to undo, such as
@@ -799,7 +799,7 @@ static char NewSlurOrTie(
 /* Insert the slur object before doc->selStartL, which is set to the slur's first 
 sync; initialize fields in the slur object. */
 
-static LINK AddNewSlur(Document *doc, LINK insertL, INT16 staff, INT16 voice)
+static LINK AddNewSlur(Document *doc, LINK insertL, short staff, short voice)
 {
 	LINK newL, aSlurL; register PSLUR pSlur; PASLUR aSlur;
 	CONTEXT context;
@@ -848,7 +848,7 @@ firstIndA/lastIndA value indexed by the position of aSlur in its linked list. */
 
 static char SetSlurIndices(LINK newL)
 {
-	INT16 firsti=0, lasti=0;
+	short firsti=0, lasti=0;
 	LINK aSlurL;
 	register PASLUR aSlur;
 	
@@ -888,13 +888,13 @@ end is attached to. */
 
 static LINK Tie2NoteLINK(
 					LINK theTieL,
-					INT16 voice,
+					short voice,
 					LINK syncL	/* firstSyncL of tie's Slur object: must really be a Sync */
 					)
 {
 	PASLUR aTie;
 	LINK aNoteL;
-	INT16 ind, i, n;
+	short ind, i, n;
 	
 	aTie = GetPASLUR(theTieL);
 	ind = aTie->firstInd;			/* Get sequence no. of note in its chord */
@@ -918,11 +918,11 @@ upper ties curve up, the two lower ones down, regardless of the notes. NB:
 should also consider doc->voiceTab[voice].voiceRole: non-single voices affect
 correct curve dir. */
 
-void GetTiesCurveDir(Document */*doc*/, INT16 voice, LINK slurL, Boolean curveUps[])
+void GetTiesCurveDir(Document */*doc*/, short voice, LINK slurL, Boolean curveUps[])
 {
 	LINK aTieL, aNoteL, syncL;
 	CHORDNOTE chordNote[MAXCHORD];
-	INT16 count, s, n, pitchOrder;
+	short count, s, n, pitchOrder;
 
 	firstSyncL = syncL = SlurFIRSTSYNC(slurL);
 	if (MeasureTYPE(syncL)) syncL = SlurLASTSYNC(slurL);
@@ -948,7 +948,7 @@ void GetTiesCurveDir(Document */*doc*/, INT16 voice, LINK slurL, Boolean curveUp
 direction of the notes it ties or slurs. NB: should also consider
 doc->voiceTab[voice].voiceRole: non-single voices affect correct curve dir. */
 
-void GetSlurTieCurveDir(Document */*doc*/, INT16 voice, LINK slurL, Boolean *curveUp)
+void GetSlurTieCurveDir(Document */*doc*/, short voice, LINK slurL, Boolean *curveUp)
 {
 	LINK syncL, aNoteL;
 
@@ -968,12 +968,12 @@ void GetSlurTieCurveDir(Document */*doc*/, INT16 voice, LINK slurL, Boolean *cur
 ties. For now, at least, they're always computed in a standard way, regardless of
 auto-respace. */
 
-static void NewSlurSetCtlPts(Document *doc, INT16 staff, INT16 voice, CONTEXT context)
+static void NewSlurSetCtlPts(Document *doc, short staff, short voice, CONTEXT context)
 {
 	register LINK aSlurL;
 	register PASLUR aSlur;
 	Boolean curveUp, curveUps[MAXCHORD];
-	INT16 i;
+	short i;
 	
 	if (subCount==1) {
 #ifdef NOTYET
@@ -1022,7 +1022,7 @@ static void NewSlurSetCtlPts(Document *doc, INT16 staff, INT16 voice, CONTEXT co
 
 static void CrossSysSetCtlPts(
 					Document *doc,
-					INT16 staff, INT16 voice,
+					short staff, short voice,
 					LINK newL,				/* Slur object: either piece of a cross-system slur */
 					CONTEXT context
 					)
@@ -1030,7 +1030,7 @@ static void CrossSysSetCtlPts(
 	register LINK aSlurL;
 	register PASLUR aSlur;
 	Boolean curveUp, curveUps[MAXCHORD];
-	INT16 i;
+	short i;
 	
 	if (subCount==1) {
 		GetSlurTieCurveDir(doc, voice, newL, &curveUp);
@@ -1062,7 +1062,7 @@ measures. */
 
 static void NewSlurCleanup(
 					Document *doc,
-					INT16		staff,
+					short		staff,
 					LINK		newL,
 					Boolean	user 		/* TRUE=assume call results from user directly creating slur */
 					)
@@ -1096,7 +1096,7 @@ anchor points. Then it deselects this slur, so that only one slur will be select
 at the end of the operation. Do the same for the slur on the next system, except
 that it stays selected. */
 
-static void NewCrossSystemSlur(Document *doc, INT16 staff, INT16 voice, CONTEXT context)
+static void NewCrossSystemSlur(Document *doc, short staff, short voice, CONTEXT context)
 {
 	PSLUR pSlur;
 	PASLUR aSlur;
@@ -1184,13 +1184,13 @@ static void NewCrossSystemSlur(Document *doc, INT16 staff, INT16 voice, CONTEXT 
 to make slur/tie go to next note/chord in <voice>. */
 
 static Boolean SlurToNext(Document *doc,
-									INT16 *pStaff,		/* Input AND output */
-									INT16 voice)
+									short *pStaff,		/* Input AND output */
+									short voice)
 {
  	SearchParam pbSearch;
  	LINK			aNoteL, lastSystemL;
  	PSYSTEM		pSystem;
- 	INT16			tempStf;
+ 	short			tempStf;
  		
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
@@ -1230,10 +1230,10 @@ called functions, and must return without completing the operation. */
 
 #define SLOP 2		/* Minimum slur-drawing horizontal distance (pixels) */
 
-void NewSlur(Document *doc, INT16 staff, INT16 voice, Point pt)
+void NewSlur(Document *doc, short staff, short voice, Point pt)
 {
 	CONTEXT context;	LINK firstMeas;
-	Point	newPt,globPt; INT16 ans;
+	Point	newPt,globPt; short ans;
 	Rect newPaper,paper;
 	
 	/* Disable later if problem */
@@ -1329,10 +1329,10 @@ case, it also sets the relevant notes' tiedL/tiedR flags.
 
 Will have problems if either chord (or only the last?) contains duplicate noteNums. */
 
-static INT16 BuildTieArrays(LINK firstL, LINK lastL, INT16 voice,
+static short BuildTieArrays(LINK firstL, LINK lastL, short voice,
 									char firstIndA[MAXCHORD], char lastIndA[MAXCHORD])
 {
-	INT16 subCount;
+	short subCount;
 	char firstInd, lastInd;
 	PANOTE firstNote, lastNote;
 	register LINK firstNoteL, lastNoteL;
@@ -1379,9 +1379,9 @@ if the notes are moved after the ties have been added, call SetAllSlursShape to
 fix them. Delivers the number of ties normally, 0 if either there are no notes in
 the given voice in the first Sync or an error is found. */
 
-INT16 AddNoteTies(Document *doc, LINK pL, LINK qL, INT16 staff, INT16 voice)
+short AddNoteTies(Document *doc, LINK pL, LINK qL, short staff, short voice)
 {
-	INT16 returnCode;
+	short returnCode;
 	CONTEXT context;
 
 	/* Set all the global variables used by the NewSlur routines. */

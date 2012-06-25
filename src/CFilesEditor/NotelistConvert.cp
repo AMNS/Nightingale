@@ -237,11 +237,11 @@ Error:
 /* Get the note subtype code for the shortest duration of any note/chord in the given
 range in the given voice. */
 
-INT16 GetShortestDurCode(INT16 voice, LINK startL, LINK endL);
-INT16 GetShortestDurCode(INT16 voice, LINK startL, LINK endL)
+short GetShortestDurCode(short voice, LINK startL, LINK endL);
+short GetShortestDurCode(short voice, LINK startL, LINK endL)
 {
 	LINK pL, aNoteL;
-	INT16 maxDurCode;
+	short maxDurCode;
 	
 	maxDurCode = SHRT_MIN;
 	for (pL = startL; pL!= endL; pL = RightLINK(pL))
@@ -268,7 +268,7 @@ static Boolean NotelistToNight(Document *doc)
 	PNL_GENERIC	pG;
 	NLINK			itemL;
 	char			fmtStr[256];
-	INT16			shortestDurCode;
+	short			shortestDurCode;
 	
 	result = SetupNLScore(doc);
 	if (!result) return FALSE;

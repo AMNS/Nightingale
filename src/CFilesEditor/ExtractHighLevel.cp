@@ -83,7 +83,7 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 										Boolean *pReformat, short *pSpacePercent)
 {	
 	DialogPtr dlog;
-	short ditem; INT16 radio1, radio2;
+	short ditem; short radio1, radio2;
 	GrafPtr oldPort;
 	short aShort; Handle aHdl; Rect spacePanelBox;
 	short newSpace;
@@ -135,7 +135,7 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
 			case OK:
-				GetDlgWord(dlog, SPACE_DI, (INT16 *)&newSpace);
+				GetDlgWord(dlog, SPACE_DI, (short *)&newSpace);
 				if (newSpace<MINSPACE || newSpace>MAXSPACE)
 					Inform(SPACE_ALRT);
 				else
@@ -167,7 +167,7 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 		*pAll = GetDlgChkRadio(dlog, EXTRACTALL_DI);
 		*pSave = GetDlgChkRadio(dlog, SAVE_DI);
 		*pReformat = GetDlgChkRadio(dlog, REFORMAT_DI);
-		GetDlgWord(dlog, SPACE_DI, (INT16 *)pSpacePercent);
+		GetDlgWord(dlog, SPACE_DI, (short *)pSpacePercent);
 	}
 	
 	DisposeDialog(dlog);
@@ -217,9 +217,9 @@ static void NormalizePartFormat(Document *doc)
 system positions and bounding boxes, reformat to update page breaks, and optionally
 reformat to update system breaks. */
 
-static void ReformatPart(Document *, short, Boolean, Boolean, INT16);
+static void ReformatPart(Document *, short, Boolean, Boolean, short);
 static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreaks,
-					Boolean careMeasPerSys, INT16 measPerSys)
+					Boolean careMeasPerSys, short measPerSys)
 {
 	LINK pL, firstDelL, lastDelL;
 	
@@ -257,7 +257,7 @@ Boolean DoExtract(Document *doc)
 		Boolean keepGoing=TRUE;
 		static Boolean allParts=TRUE, closeAndSave=FALSE, reformat=TRUE;
 		static Boolean firstCall=TRUE, careMeasPerSys;
-		static INT16 measPerSys;
+		static short measPerSys;
 		
 		GetSelPartList(doc, selPartList);
 

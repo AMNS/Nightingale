@@ -23,19 +23,19 @@ static enum {
 typedef struct {
 	Point	leftPt, rightPt;					/* paper coords */
 	Rect	objRect;								/* paper coords */
-	INT16	penThick;							/* pen thickness (pixels) */
-	INT16 centerOffset;						/* offset for vertical centering (pixels) */
+	short	penThick;							/* pen thickness (pixels) */
+	short centerOffset;						/* offset for vertical centering (pixels) */
 } DRAWOBJ;
 
 /* Local prototypes */
 
-static void EditDrawObj(Document *, LINK, INT16, DRAWOBJ *);
+static void EditDrawObj(Document *, LINK, short, DRAWOBJ *);
 static Boolean InitFeedback(Document *, PCONTEXT, LINK, DRAWOBJ *);
 static void InitGrips(Document *, PCONTEXT, LINK);
-static void InitDrawObjBounds(Document *, LINK, INT16, DRAWOBJ *, Point, Rect *);
+static void InitDrawObjBounds(Document *, LINK, short, DRAWOBJ *, Point, Rect *);
 static void DoDrawFeedback(Document *, DRAWOBJ *);
-static void UpdateTmpObjRect(Document *, INT16, DRAWOBJ *, INT16, INT16);
-static void DrawGrip(Document *, INT16);
+static void UpdateTmpObjRect(Document *, short, DRAWOBJ *, short, short);
+static void DrawGrip(Document *, short);
 static void DrawBothGrips(Document *);
 static void DrawInvalRects(Document *, LINK, DRAWOBJ *, Boolean);
 static void UpdateDrawObjData(Document *, PCONTEXT, LINK, DRAWOBJ *);
@@ -127,13 +127,13 @@ void DoDrawingEdit(Document *doc, LINK pL)
  */
 
 static void EditDrawObj(Document *doc, LINK pL,
-						INT16 grip,		/* Edit mode: LGRIP, RGRIP, DRAGOBJ */
+						short grip,		/* Edit mode: LGRIP, RGRIP, DRAGOBJ */
 						DRAWOBJ *pd)	
 {
 	Point		oldPt, newPt;
 	long		aLong;
 	Rect		boundsRect;				/* in paper coords */
-	INT16		dh, dv;
+	short		dh, dv;
 			
 	if (grip==DRAGOBJ)										/* Erase the boxes before dragging */
 		DrawBothGrips(doc);
@@ -221,7 +221,7 @@ void DragDrawObj(Document *doc, LINK pL)
 	Point		oldPt, newPt, origPt;
 	long		aLong;
 	Rect		boundsRect;				/* in paper coords */
-	INT16		dh, dv, dhTotal, dvTotal;
+	short		dh, dv, dhTotal, dvTotal;
 	CONTEXT	allContexts[MAXSTAVES+1];
 	CONTEXT	context;
 	STFRANGE	stfRange;
@@ -320,7 +320,7 @@ void LocateDrawObjEndPts(LINK pL, DDIST *pFirstXD, DDIST *pLastXD);
 void LocateDrawObjEndPts(LINK pL, DDIST *pFirstXD, DDIST *pLastXD)
 {
 	LINK firstL, lastL, aNoteL;
-	INT16 voice;
+	short voice;
 	
 	firstL = GraphicFIRSTOBJ(pL);
 	lastL = GraphicLASTOBJ(pL);
@@ -407,11 +407,11 @@ static void InitGrips(Document */*doc*/, PCONTEXT pContext, LINK pL)
 
 #define SYSHT_SLOP pt2d(8)
 
-static void InitDrawObjBounds(Document *doc, LINK pL, INT16 grip,
+static void InitDrawObjBounds(Document *doc, LINK pL, short grip,
 										DRAWOBJ *pd,
 										Point mousePt, Rect *bounds)	/* paper coords */
 {
-	INT16			staffn, mouseFromLeft, mouseFromRight;
+	short			staffn, mouseFromLeft, mouseFromRight;
 	CONTEXT		context;
 	PAMEASURE	aMeasP;
 	DDIST			sysLeft, sysTop, sysRight, sysBot, measWid;
@@ -513,7 +513,7 @@ static void DoDrawFeedback(Document *doc, DRAWOBJ *pd)
 
 /* ------------------------------------------------------------ UpdateTmpObjRect -- */
 
-static void UpdateTmpObjRect(Document */*doc*/, INT16 grip, DRAWOBJ *pd, INT16 dh, INT16 dv)
+static void UpdateTmpObjRect(Document */*doc*/, short grip, DRAWOBJ *pd, short dh, short dv)
 {	
 	if (grip == DRAGOBJ)
 		OffsetRect(&pd->objRect, dh, dv);
@@ -532,7 +532,7 @@ static void UpdateTmpObjRect(Document */*doc*/, INT16 grip, DRAWOBJ *pd, INT16 d
 /* Draw a small box for the left and right grips of the feedback object. */
 
 static void DrawGrip(Document *doc,
-							INT16 whichOne)		/* LGRIP or RGRIP */
+							short whichOne)		/* LGRIP or RGRIP */
 {
 	Point gripPt;
 

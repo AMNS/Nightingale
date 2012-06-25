@@ -34,10 +34,10 @@
 
 static void PageFixMeasRects(Document *, LINK, Boolean, Boolean);
 
-static LINK MakeClef(Document *, LINK, INT16, CONTEXT [], DDIST);
-static LINK MakeKeySig(Document *, LINK, INT16, CONTEXT [], INT16 *, DDIST);
-static LINK MakeTimeSig(Document *, LINK, INT16, CONTEXT [], DDIST);
-static void CreateSysFixContext(Document *, LINK, LINK, INT16);
+static LINK MakeClef(Document *, LINK, short, CONTEXT [], DDIST);
+static LINK MakeKeySig(Document *, LINK, short, CONTEXT [], short *, DDIST);
+static LINK MakeTimeSig(Document *, LINK, short, CONTEXT [], DDIST);
+static void CreateSysFixContext(Document *, LINK, LINK, short);
 
 static void ScrollToLink(Document *, LINK);
 
@@ -213,11 +213,11 @@ Boolean NewDocScore(Document *doc)
 	LINK			pL, qL, headL, tailL;
 	PPAGE			pPage;
 	DDIST			sysTop;
-	INT16			i;
+	short			i;
 	
 	doc->ledgerYSp = 2*config.defaultLedgers+2;
-	initStfTop1 = (INT16)(doc->ledgerYSp*drSize[doc->srastral]/STFHALFLNS);
-	initStfTop2 = (INT16)(2.5*drSize[doc->srastral]);
+	initStfTop1 = (short)(doc->ledgerYSp*drSize[doc->srastral]/STFHALFLNS);
+	initStfTop2 = (short)(2.5*drSize[doc->srastral]);
 	
 	doc->currentSystem = 1;
 
@@ -306,7 +306,7 @@ Boolean NewDocScore(Document *doc)
 
 DDIST GetSysHeight(Document *doc,
 							LINK sysL,
-							INT16 where)	/* See comments on CreateSystem */
+							short where)	/* See comments on CreateSystem */
 {
 	LINK baseSys; DRect sysRect;
 
@@ -494,7 +494,7 @@ static void PageFixMeasRects(
 {
 	LINK sysL, staffL, staves[MAXSTAVES+1];
 	LINK prevMeasL, measL, aMeasL, measures[MAXSTAVES+1];
-	PAMEASURE aMeas; PASTAFF aStaff; INT16 i;
+	PAMEASURE aMeas; PASTAFF aStaff; short i;
 	DRect sysRect;
 
 	staffL = FillStaffArray(doc, pageL, staves);
@@ -652,7 +652,7 @@ fixed right margin width), the systemRect.right in each System, the staff width
 in each Staff subobject, and the measure width in every Measure subobject that
 ends a System. */
  
-void SetStaffLength(Document *doc, INT16 staffLength)
+void SetStaffLength(Document *doc, short staffLength)
 {
 	PSYSTEM		pSys;
 	PASTAFF		aStaff;
@@ -703,7 +703,7 @@ measureRect heights, or anything in System objects (e.g., systemRect). */
 
 #define SCALE(v)	((v) = sizeRatio*(v))
 
-void SetStaffSize(Document */*doc*/, LINK headL, LINK tailL, INT16 oldRastral, INT16 newRastral)
+void SetStaffSize(Document */*doc*/, LINK headL, LINK tailL, short oldRastral, short newRastral)
 {
 	FASTFLOAT	sizeRatio;
 	PMEVENT		p;
@@ -949,7 +949,7 @@ is to be added before the system containing pL. If pL is in the final system, ad
 new system before the tail. If pL is before any system (pathological case, resulting
 from Select All), add at the end of the score. */
 
-LINK AddSysInsertPt(Document *doc, LINK pL, INT16 *where)
+LINK AddSysInsertPt(Document *doc, LINK pL, short *where)
 {
 	LINK insertL;
 	
@@ -1005,12 +1005,12 @@ static enum {
 	RAD5_RfmtScore
 } ESysOverflow;
 
-static INT16 group1;
+static short group1;
 
-static INT16 SysOverflowDialog(INT16);
-static INT16 SysOverflowDialog(INT16 oldChoice)
+static short SysOverflowDialog(short);
+static short SysOverflowDialog(short oldChoice)
 {
-	short itemHit; INT16 code;
+	short itemHit; short code;
 	Boolean keepGoing=TRUE;
 	DialogPtr dlog; GrafPtr oldPort;
 	ModalFilterUPP	filterUPP;
@@ -1080,13 +1080,13 @@ perhaps following page. Returns the new System's LINK if success, else NILINK.
 Assumes the specified document is in the active window. N.B. It's not clear if
 <where> is correct in call to AddSystem from ReformatRaw. */
 
-LINK AddSystem(Document *doc, LINK insertL, INT16 where)
+LINK AddSystem(Document *doc, LINK insertL, short where)
 {
 	LINK		newSysL,prevSysL,sysL,endRfmtL;
 	DRect		invalDRect,sysRect;
 	Rect		invalRect;
 	DDIST		sysTop;
-	static INT16 rfmtChoice=1;
+	static short rfmtChoice=1;
 
 	if (!PageTYPE(insertL) && !SystemTYPE(insertL) && !TailTYPE(insertL)) {
 		MayErrMsg("AddSystem: called with LINK %ld of bad type %ld",
@@ -1149,7 +1149,7 @@ LINK AddSystem(Document *doc, LINK insertL, INT16 where)
 #endif
 		}
 		else if (!LastSysInPage(newSysL)) {
-			DRect newSysR; long newPos; INT16 hiWord;
+			DRect newSysR; long newPos; short hiWord;
 			
 			newSysR = SystemRECT(newSysL);
 			hiWord = d2p(newSysR.bottom - newSysR.top);
@@ -1202,7 +1202,7 @@ void InitParts(Document *doc, Boolean master)
 new System's LINK, or NILINK. */
 
 LINK MakeSystem(Document *doc, LINK prevL, LINK prevPageL, LINK prevSysL, DDIST sysTop,
-						INT16 where)
+						short where)
 {
 	LINK pL,nextSysL; PSYSTEM pSystem;
 	DDIST sysHeight, staffLength, indent;
@@ -1256,7 +1256,7 @@ previous Staff or the Master Page Staff! */
 LINK MakeStaff(Document *doc,
 								LINK prevL, LINK prevStaffL, LINK systemL,
 								DDIST staffLength,
-								INT16 where,
+								short where,
 								DDIST /*staffTop*/[])						/* unused! */
 {
 	LINK pL, nextStaffL, aStaffL, copyStaffL;
@@ -1317,7 +1317,7 @@ LINK MakeStaff(Document *doc,
 new Connect's LINK, or NILINK. N.B. If where=<firstSystem>, assumes the system has
 exactly one part of two staves!*/
 
-LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, INT16 where)
+LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, short where)
 {
 	LINK pL, aConnectL, copyConnL;
 	PCONNECT pConnect; register PACONNECT aConnect;
@@ -1377,11 +1377,11 @@ LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, INT16 where)
 static LINK MakeClef(
 					Document *doc,
 					LINK prevL,
-					INT16 where,
+					short where,
 					CONTEXT context[],
 					DDIST spBefore)		/* Taken as clef's position, since nothing precedes it */
 {
-	LINK pL, prevClefL, aClefL; INT16 i;
+	LINK pL, prevClefL, aClefL; short i;
 
 	/* Create and fill in the Clef object. */
 
@@ -1417,11 +1417,11 @@ static LINK MakeClef(
 }
 
 
-static LINK MakeKeySig(Document *doc, LINK prevL, INT16 where, CONTEXT context[],
-								INT16 *maxSofonStf, DDIST spBefore)
+static LINK MakeKeySig(Document *doc, LINK prevL, short where, CONTEXT context[],
+								short *maxSofonStf, DDIST spBefore)
 {
 	LINK pL,prevKeySigL,aKeySigL; PAKEYSIG aKeySig;
-	INT16 i,k,maxSofon=0,maxSofonStaff=0;
+	short i,k,maxSofon=0,maxSofonStaff=0;
 
 	/* Create and fill in the KeySig object. */
 
@@ -1480,7 +1480,7 @@ static LINK MakeKeySig(Document *doc, LINK prevL, INT16 where, CONTEXT context[]
 }
 
 
-static LINK MakeTimeSig(Document *doc, LINK prevL, INT16 where, CONTEXT context[],
+static LINK MakeTimeSig(Document *doc, LINK prevL, short where, CONTEXT context[],
 								DDIST spBefore)
 {
 	LINK pL, prevTimeSigL, aTimeSigL;
@@ -1519,11 +1519,11 @@ Deliver new Measure's LINK, or NILINK. Does not depend on validity of cross-link
 Does not set the Measure's context fields: the calling routine must do so. */
 
 LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK systemL,
-								DDIST spBefore, DDIST staffTop[], INT16 where)
+								DDIST spBefore, DDIST staffTop[], short where)
 {
 	LINK pL,nextMeasL,aMeasureL,aPrevMeasL,partL,connectL,aConnectL,endMeasL,aStaffL;
 	PMEASURE pMeasure; PAMEASURE aPrevMeas; PPARTINFO pPart; PACONNECT aConnect;
-	INT16 i,j,connStaff; Boolean connAbove;
+	short i,j,connStaff; Boolean connAbove;
 	DDIST mTop,mBottom,sysHeight,staffLength,xd;
 	DRect sysRect;
 	
@@ -1631,9 +1631,9 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 
 /* ---------------------------------------------------------- CreateSysFixContext -- */
 
-static void CreateSysFixContext(Document *doc, LINK staffL, LINK measL, INT16 where)
+static void CreateSysFixContext(Document *doc, LINK staffL, LINK measL, short where)
 {
-	LINK aStaffL,aMeasL,theMeasL; CONTEXT theContext; INT16 i;
+	LINK aStaffL,aMeasL,theMeasL; CONTEXT theContext; short i;
 
 	/* Fill in clef/key sig./time sig. context fields of the initial Staff.
 		See comments on horrible way to establish context in CreateSystem. */
@@ -1705,13 +1705,13 @@ for <where> to determine where to add the system. N.B. If <firstSystem>, assumes
 the system is exactly one part of two staves!
 */
 
-LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, INT16 where)
+LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 {
 	register LINK pL;
 	LINK 			qPageL, systemL, qSystemL, staffL, qStaffL,
 					qConnectL, qMeasureL, timeSigL, aStaffL;
 	DDIST			dLineSp, staffLength, spBefore;
-	INT16			i, maxSofonStaff;
+	short			i, maxSofonStaff;
 	CONTEXT		context[MAXSTAVES+1];
 	DDIST 		staffTop[MAXSTAVES+1];
 
@@ -1878,7 +1878,7 @@ Assumes the specified document is in the active window. */
 
 LINK AddPage(Document *doc, LINK insertL)
 {
-	LINK newPageL, prevPageL; Rect paper, result; INT16 pageNum;
+	LINK newPageL, prevPageL; Rect paper, result; short pageNum;
 	Boolean appending; static Boolean alreadyWarned=FALSE;
 
 	if (!PageTYPE(insertL) && !TailTYPE(insertL)) {
@@ -1983,9 +1983,9 @@ LINK CreatePage(Document *doc, LINK prevL)
 
 /* ----------------------------------------------------------- Functions for GoTo -- */
 
-void ScrollToPage(Document *doc, INT16 pageNum)
+void ScrollToPage(Document *doc, short pageNum)
 {
-	INT16 sheetNum,x,y; Rect sheet; Boolean inval;
+	short sheetNum,x,y; Rect sheet; Boolean inval;
 	
 	sheetNum = pageNum - doc->firstPageNumber;
 	
@@ -2015,7 +2015,7 @@ void ScrollToPage(Document *doc, INT16 pageNum)
 
 static void ScrollToLink(Document *doc, LINK pL)
 {
-	Point pt; INT16 x,y;
+	Point pt; short x,y;
 
 	if (pL!=NILINK) {
 		pt = LinkToPt(doc, pL, TRUE);
@@ -2031,7 +2031,7 @@ static void ScrollToLink(Document *doc, LINK pL)
 
 void GoTo(Document *doc)
 {
-	INT16 pageNum,newPageNum,measNum,gotoType; PGRAPHIC pMark;
+	short pageNum,newPageNum,measNum,gotoType; PGRAPHIC pMark;
 	LINK measL,markL,newPageL; Boolean beforeFirst;
 	
 	pageNum = doc->currentSheet+doc->firstPageNumber;
@@ -2080,7 +2080,7 @@ void GoTo(Document *doc)
 
 void GoToSel(Document *doc)
 {
-	INT16 pageNum; LINK pageL; Rect sheet;
+	short pageNum; LINK pageL; Rect sheet;
 	
 	/* if (doc->selStartL in view) should maybe just return; on the other hand,
 		this way, it "touches up" the display, which unfortunately may be useful. */
@@ -2096,9 +2096,9 @@ void GoToSel(Document *doc)
 
 /* ---------------------------------------------------------------- FindPartInfo -- */
 
-LINK FindPartInfo(Document *doc, INT16 partn)
+LINK FindPartInfo(Document *doc, short partn)
 {
-	INT16 	np;
+	short 	np;
 	LINK		partL;
 	
 	if (partn>LinkNENTRIES(doc->headL)) return NILINK;

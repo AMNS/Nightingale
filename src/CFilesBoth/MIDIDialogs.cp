@@ -43,8 +43,8 @@ void MIDIDialog(Document *doc)
 {
 	DialogPtr dlog;
 	GrafPtr oldPort;
-	INT16 dialogOver;
-	INT16 ditem, newval, temp, anInt, groupFlats, groupPartSets;
+	short dialogOver;
+	short ditem, newval, temp, anInt, groupFlats, groupPartSets;
 	Handle aHdl, patchHdl, turnHdl;
 	Boolean docDirty;
 	char fmtStr[256];
@@ -300,9 +300,9 @@ static void DrawMyItems(DialogPtr)
 /* This filter outlines the OK Button, draws divider lines, and performs standard
 key and command-key filtering. */
 
-static pascal Boolean MIDIFilter(DialogPtr, EventRecord *, INT16 *);
+static pascal Boolean MIDIFilter(DialogPtr, EventRecord *, short *);
 static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
-											INT16 *item)
+											short *item)
 {
 	GrafPtr	oldPort;
 	short		type;
@@ -310,7 +310,7 @@ static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
 	Rect		box;
 	Point		mouseLoc;
 	short		omsMenuItem;
-	INT16		ans = 0;
+	short		ans = 0;
 
 	switch (theEvent->what) {
 		case updateEvt:
@@ -366,8 +366,8 @@ void MIDIDialog(Document *doc)
 {
 	DialogPtr dlog;
 	GrafPtr oldPort;
-	INT16 dialogOver;
-	INT16 ditem, newval, temp, anInt, groupFlats, groupPartSets;
+	short dialogOver;
+	short ditem, newval, temp, anInt, groupFlats, groupPartSets;
 	Handle aHdl, patchHdl, turnHdl;
 	Boolean docDirty = FALSE;
 	char fmtStr[256];
@@ -653,8 +653,8 @@ static Rect deviceMenuBox;
 static fmsUniqueID thruDevice;
 static short thruChannel;
 
-pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, INT16 *itemHit);
-pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, INT16 *itemHit)
+pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, short *itemHit);
+pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, short *itemHit)
 {		
 	GrafPtr	oldPort;
 	Point 	mouseLoc;
@@ -693,7 +693,7 @@ pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, INT16 *item
 
 Boolean MIDIThruDialog()
 {
-	INT16			itemHit, dialogOver, scratch;
+	short			itemHit, dialogOver, scratch;
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
 	Handle		hndl;
@@ -790,8 +790,8 @@ static short fmsMetroChannel = 0;
 
 /* Prototypes */
 
-static DialogPtr	OpenOMSMetroDialog(Boolean, INT16, INT16, INT16, INT16, OMSUniqueID);
-static DialogPtr	OpenMetroDialog(Boolean, INT16, INT16, INT16, INT16);
+static DialogPtr	OpenOMSMetroDialog(Boolean, short, short, short, short, OMSUniqueID);
+static DialogPtr	OpenMetroDialog(Boolean, short, short, short, short);
 static Boolean		MetroDialogItem(DialogPtr dlog, short itemHit);
 static Boolean		MetroBadValues(DialogPtr dlog);
 
@@ -804,7 +804,7 @@ the dlog opened, or NULL if error (no resource, no memory). */
 
 static DialogPtr OpenOMSMetroDialog(
 								Boolean viaMIDI,
-								INT16 channel, INT16 note, INT16 velocity, INT16 duration,
+								short channel, short note, short velocity, short duration,
 								OMSUniqueID device)
 {
 	Handle hndl; GrafPtr oldPort;
@@ -842,7 +842,7 @@ static DialogPtr OpenOMSMetroDialog(
 
 static DialogPtr OpenMetroDialog(
 								Boolean viaMIDI,
-								INT16 channel, INT16 note, INT16 velocity, INT16 duration)
+								short channel, short note, short velocity, short duration)
 {
 	GrafPtr oldPort;
 	DialogPtr dlog;
@@ -921,7 +921,7 @@ problem before delivering TRUE. */
 
 static Boolean MetroBadValues(DialogPtr dlog)
 {
-	INT16 val; Boolean bad=FALSE;
+	short val; Boolean bad=FALSE;
 	char fmtStr[256];
 
 	GetDlgWord(dlog,EDIT7_Chan,&val);
@@ -964,8 +964,8 @@ static Boolean MetroBadValues(DialogPtr dlog)
 
 /* --------------------------------------------------------------- FMSMetroFilter -- */
 
-pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *item);
-pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *item)
+pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item);
+pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
 	GrafPtr		oldPort;
 	short			type;
@@ -1016,7 +1016,7 @@ pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 
 Boolean FMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 								SignedByte *velocity, short *duration, fmsUniqueID *device)
 {
-	INT16				aNote, vel, dur;
+	short				aNote, vel, dur;
 	short				scratch, itemHit, okay, keepGoing=TRUE;
 	Handle			hndl;
 	DialogPtr		dlog;
@@ -1096,8 +1096,8 @@ Boolean FMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *not
 /* This filter outlines the OK Button and performs standard key and command-
 key filtering. */
 
-pascal Boolean OMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *item);
-pascal Boolean OMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *item)
+pascal Boolean OMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item);
+pascal Boolean OMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
 	GrafPtr		oldPort;
 	short			type;
@@ -1156,7 +1156,7 @@ pascal Boolean OMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 
 Boolean OMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 								SignedByte *velocity, short *duration, OMSUniqueID *device)
 {
-	INT16 chan, aNote, vel, dur;
+	short chan, aNote, vel, dur;
 	short itemHit,okay,keepGoing=TRUE;
 	DialogPtr dlog; GrafPtr oldPort;
 	ModalFilterUPP	filterUPP;
@@ -1257,7 +1257,7 @@ the dlog opened, or NULL if error (no resource, no memory). */
 
 static DialogPtr OpenCMMetroDialog(
 								Boolean viaMIDI,
-								INT16 channel, INT16 note, INT16 velocity, INT16 duration,
+								short channel, short note, short velocity, short duration,
 								MIDIUniqueID device)
 {
 	Handle hndl; GrafPtr oldPort;
@@ -1300,15 +1300,15 @@ static DialogPtr OpenCMMetroDialog(
 /* This filter outlines the OK Button and performs standard key and command-
 key filtering. */
 
-pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *item);
-pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *item)
+pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item);
+pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
 	GrafPtr		oldPort;
 	short			type;
 	Handle		hndl;
 	Rect			box;
 	Point 		mouseLoc;
-	INT16			ans;
+	short			ans;
 
 	switch (theEvent->what) {
 		case updateEvt:
@@ -1360,7 +1360,7 @@ pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *
 Boolean CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 								SignedByte *velocity, short *duration, MIDIUniqueID *device)
 {
-	INT16 chan, aNote, vel, dur;
+	short chan, aNote, vel, dur;
 	short itemHit,okay,keepGoing=TRUE;
 	DialogPtr dlog; GrafPtr oldPort;
 	ModalFilterUPP	filterUPP;
@@ -1428,7 +1428,7 @@ Boolean CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note
 Boolean MetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 							SignedByte *velocity, short *duration)
 {
-	INT16 chan, aNote, vel, dur;
+	short chan, aNote, vel, dur;
 	short itemHit,okay,keepGoing=TRUE;
 	DialogPtr dlog; GrafPtr oldPort;
 	ModalFilterUPP	filterUPP;
@@ -1481,10 +1481,10 @@ Boolean MetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 
 /* -------------------------------------------------------------- MIDIDynamDialog -- */
 
-static Boolean ItemValInRange(DialogPtr, short, INT16, INT16);
-static Boolean ItemValInRange(DialogPtr dlog, short DI, INT16 minVal, INT16 maxVal)
+static Boolean ItemValInRange(DialogPtr, short, short, short);
+static Boolean ItemValInRange(DialogPtr dlog, short DI, short minVal, short maxVal)
 {
-	INT16 value;
+	short value;
 	
 	GetDlgWord(dlog,DI,&value);
 	return (value>=minVal && value<=maxVal);
@@ -1500,7 +1500,7 @@ static enum {
 Boolean MIDIDynamDialog(Document */*doc*/, Boolean *apply)
 {
 	DialogPtr	dlog;
-	INT16			i, ditem, velo;
+	short			i, ditem, velo;
 	GrafPtr		oldPort;
 	Boolean		badValue;
 	char			fmtStr[256];
@@ -1592,7 +1592,7 @@ static enum {
 Boolean MIDIModifierDialog(Document */*doc*/)
 {
 	DialogPtr	dlog;
-	INT16			i, ditem, value;
+	short			i, ditem, value;
 	Boolean		valuesOK;
 	GrafPtr		oldPort;
 	char			fmtStr[256];
@@ -1721,13 +1721,13 @@ Boolean MIDIDriverDialog(
 		short *pPortSetting,			/* MODEM_PORT or PRINTER_PORT */
 		short *pInterfaceSpeed)		/* IFSPEEDP5MHZ, IFSPEED1MHZ, IFSPEED2MHZ, IFSPEED_FAST */
 {
-	INT16			ditem, oldPortSetting;
-	INT16			group1, group2;	 
+	short			ditem, oldPortSetting;
+	short			group1, group2;	 
 	Boolean		finished = FALSE;
 	GrafPtr		savePort;
 	DialogPtr	dlog;
 #if !TARGET_API_MAC_CARBON_MACHO
-	INT16			itemtype;
+	short			itemtype;
 	Rect			box;
 	Handle		onHdl;
 #endif

@@ -83,7 +83,7 @@ In addition:
 
 void FIFixTupletLinks(Document *doc, LINK startL, LINK endL, short voice)
 {
-	INT16			i, nInTuplet;
+	short			i, nInTuplet;
 	long			lDur;
 	LINK			pL, syncL, aNoteTupleL, aNoteL;
 	PANOTETUPLE	aNoteTuple;
@@ -117,7 +117,7 @@ are NOT in the reserved area. That is, it works with keysigs that are inMeasure.
 Assumes that there are no notes following this keysig on this staff, so there's
 no need to fix up following accidentals. (Adapted from ReplaceKeySig in InsNew.c.) */
 
-Boolean FIReplaceKeySig(Document *doc, LINK keySigL, INT16 staffn, INT16 sharpsOrFlats)
+Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsOrFlats)
 {
 	PAKEYSIG		aKeySig;
 	KSINFO		oldKSInfo, newKSInfo;
@@ -187,7 +187,7 @@ Returns the link of this barline if ok, NILINK if error. */
 
 LINK FIInsertBarline(Document *doc, LINK insertBeforeL, short barlineType)
 {
-	INT16		sym;
+	short		sym;
 	LINK		measL;
 	CONTEXT	context;
 	
@@ -554,10 +554,10 @@ static LINK InsertAndInitGraphic(Document *doc, LINK insertBeforeL, short graphi
 returns the last legal font index. Calling this repeatedly could overwhelm the user with
 repeated complaints: it should be used only if font table overflow is very unlikely. */
 
-INT16 FIGetFontIndex(Document *doc, unsigned char *fontName);
-INT16 FIGetFontIndex(Document *doc, unsigned char *fontName)
+short FIGetFontIndex(Document *doc, unsigned char *fontName);
+short FIGetFontIndex(Document *doc, unsigned char *fontName)
 {
-	INT16 fontInd;
+	short fontInd;
 	
 	fontInd = GetFontIndex(doc, fontName);
 	if (fontInd<0) {
@@ -783,7 +783,7 @@ new modifier, or NILINK if error. (Based on NewMODNR in InsNew.c.) */
 
 LINK FIInsertModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNoteL)
 {
-	INT16		qPitchLev;
+	short		qPitchLev;
 	LINK		aModNRL, lastModNRL;
 	PANOTE	aNote;
 	PAMODNR	aModNR;

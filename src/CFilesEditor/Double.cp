@@ -15,15 +15,15 @@
 #include "Nightingale.appl.h"
 
 static pascal Boolean DoubleFilter(DialogPtr, EventRecord *, short *);
-static Boolean DoubleDialog(Document *, INT16, INT16 *);
-static Boolean DblSrcStaffOK(LINK, LINK, INT16);
-static Boolean DblDstStaffOK(LINK, LINK, INT16);
+static Boolean DoubleDialog(Document *, short, short *);
+static Boolean DblSrcStaffOK(LINK, LINK, short);
+static Boolean DblDstStaffOK(LINK, LINK, short);
 static void FixNoteYForClef(Document *, LINK, LINK, short, CONTEXT, CONTEXT);
 static void FixChordsForClef(Document *, LINK, short, CONTEXT, CONTEXT);
-static short DupAndSetStaff(Document *, INT16 [], LINK, short, short, short);
+static short DupAndSetStaff(Document *, short [], LINK, short, short, short);
 static Boolean SyncHasNondfltVoice(LINK, short);
 static LINK HasNondfltVoice(Document *, short);
-static Boolean StfHasSmthgAcross(Document *, LINK, INT16, char []);
+static Boolean StfHasSmthgAcross(Document *, LINK, short, char []);
 static Boolean RangeHasUnmatchedSlurs(Document *, LINK, LINK, short);
 
 /* =========================================================== DoubleDialog, etc. == */
@@ -45,7 +45,7 @@ static pascal Boolean DoubleFilter(DialogPtr dlog, EventRecord *evt, short *item
 {
 	Point where;
 	Boolean ans=FALSE; WindowPtr w;
-	INT16 ch;
+	short ch;
 
 	w = (WindowPtr)(evt->message);
 	switch(evt->what) {
@@ -62,7 +62,7 @@ static pascal Boolean DoubleFilter(DialogPtr dlog, EventRecord *evt, short *item
 			break;
 		case activateEvt:
 			if (w == GetDialogWindow(dlog)) {
-				INT16 activ = (evt->modifiers & activeFlag)!=0;
+				short activ = (evt->modifiers & activeFlag)!=0;
 				SetPort(GetWindowPort(w));
 			}
 			break;
@@ -79,7 +79,7 @@ static pascal Boolean DoubleFilter(DialogPtr dlog, EventRecord *evt, short *item
 			break;
 		case autoKey:
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (INT16 *)itemHit, FALSE))
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, FALSE))
 				return TRUE;
 			else {
 				ch = (unsigned char)evt->message;
@@ -99,12 +99,12 @@ static pascal Boolean DoubleFilter(DialogPtr dlog, EventRecord *evt, short *item
 
 
 static Boolean DoubleDialog(Document *doc,
-							INT16 srcStf,		/* Staff no. containing material to be doubled */
-							INT16 *pDstStf		/* Destination staff no. */
+							short srcStf,		/* Staff no. containing material to be doubled */
+							short *pDstStf		/* Destination staff no. */
 							)
 {
 	DialogPtr	dlog;
-	INT16			ditem = Cancel, staffn, partChoice, nPart, partMaxStf;
+	short			ditem = Cancel, staffn, partChoice, nPart, partMaxStf;
 	GrafPtr		oldPort;
 	Boolean		keepGoing = TRUE;
 	LINK			thePartL, partL;
@@ -214,7 +214,7 @@ Done:
 fixing context for these is more difficult than I want to bother with now),
 return TRUE. */
 
-static Boolean DblSrcStaffOK(LINK startL, LINK endL, INT16 staffn)
+static Boolean DblSrcStaffOK(LINK startL, LINK endL, short staffn)
 {
 	LINK pL;
 	
@@ -250,7 +250,7 @@ Cf. SFStaffNonempty in SFormatHighLevel.c. Like there, it'd be good eventually
 to differentiate between notes and rests: for Double, we'd optionally remove any
 rests found, instead of refusing to proceed if any are found. Not yet, though. */
 
-static Boolean DblDstStaffOK(LINK startL, LINK endL, INT16 staffn)
+static Boolean DblDstStaffOK(LINK startL, LINK endL, short staffn)
 {
 	LINK pL;
 		
@@ -290,9 +290,9 @@ static Boolean DblDstStaffOK(LINK startL, LINK endL, INT16 staffn)
 /* =================================================== Voice-remapping functions == */
 /* Utilities for voice remapping, based on those for Past Insert and Paste Merge. */
 
-static void DblMapVoices(Document *, INT16 [], LINK, short);
+static void DblMapVoices(Document *, short [], LINK, short);
 short AssignNewVoice(Document *, LINK);
-short DblNewVoice(Document *, INT16 [], short, short, Boolean);
+short DblNewVoice(Document *, short [], short, short, Boolean);
 
 /* ------------------------------------------------------------------------------- */
 
@@ -302,7 +302,7 @@ and return the equivalent internal voice number. */
 
 short AssignNewVoice(Document *doc, LINK partL)
 {
-	INT16 partn; short maxUVUsed, v, iVoice;
+	short partn; short maxUVUsed, v, iVoice;
 	
 	partn = PartL2Partn(doc,partL);
 	maxUVUsed = -1;
@@ -318,12 +318,12 @@ short AssignNewVoice(Document *doc, LINK partL)
 belonging to the SOURCE staff, return an equivalent internal voice number for the
 destination staff. */
 
-short DblNewVoice(Document *doc, INT16 vMap[],
+short DblNewVoice(Document *doc, short vMap[],
 						short srcIV, short dstStf,
 						Boolean sameRel		/* TRUE=srcStf and dstStf are same staffn rel. to their parts */
 						)
 {
-	LINK srcPartL, dstPartL; INT16 uV;
+	LINK srcPartL, dstPartL; short uV;
 	
 	/* If the voice no. has already been mapped, use the mapping. */
 	
@@ -349,19 +349,19 @@ could be handled entirely "on the fly". */
 
 /* -------------------------------------------------------------------------------- */
 
-void DblSetNewVoices(Document *doc, INT16 vMap[], LINK pL, short srcStf, short dstStf,
+void DblSetNewVoices(Document *doc, short vMap[], LINK pL, short srcStf, short dstStf,
 							Boolean sameRel);
 
 /* Set up a mapping for any voices in which pL may participate, either the object
 	or the subobj: from that sub/object's original voice v to the new voice contained
 	in position v of the table. */
 
-void DblSetNewVoices(Document *doc, INT16 vMap[], LINK pL,
+void DblSetNewVoices(Document *doc, short vMap[], LINK pL,
 							short srcStf, short dstStf,
 							Boolean sameRel	/* TRUE=srcStf and dstStf are same staffn rel. to their parts */
 							)
 {
-	LINK aNoteL,aGRNoteL; INT16 voice;
+	LINK aNoteL,aGRNoteL; short voice;
 
 	switch (ObjLType(pL)) {
 		case SYNCtype:
@@ -440,11 +440,11 @@ We try to translate user voices in as intuitive a way as possible. Specifically:
 		part, and so is dstStf in its part), ALL user voice numbers are preserved.
 More could be done, but this should be enough to keep almost everyone happy. */
 
-void DblSetupVMap(Document *, INT16 [], LINK, LINK, short, short);
-void DblSetupVMap(Document *doc, INT16 vMap[], LINK startL, LINK endL, short srcStf,
+void DblSetupVMap(Document *, short [], LINK, LINK, short, short);
+void DblSetupVMap(Document *doc, short vMap[], LINK startL, LINK endL, short srcStf,
 						short dstStf)
 {
-	INT16 v; LINK pL; Boolean sameRel;
+	short v; LINK pL; Boolean sameRel;
 
 	/* Initialize the vMap table: (internal) old voice -> new voice. A value of NOONE at
 		position v in the table indicates no mapping has been established for voice v.
@@ -474,7 +474,7 @@ void DblSetupVMap(Document *doc, INT16 vMap[], LINK startL, LINK endL, short src
 /* If the given object has voice nos., update its voice no. or those of all its
 subobjects on the given staff according to the given voice-remapping table. */
 
-static void DblMapVoices(Document */*doc*/, INT16 vMap[], LINK pL, short dstStf)
+static void DblMapVoices(Document */*doc*/, short vMap[], LINK pL, short dstStf)
 {
 	LINK aNoteL,aGRNoteL; short voice;
 
@@ -540,7 +540,7 @@ void FixNoteYForClef(Document */*doc*/,
 							CONTEXT newContext
 							)
 {
-	INT16 yPrev, yHere;
+	short yPrev, yHere;
 	DDIST yDelta;
 	STDIST dystd;
 
@@ -570,7 +570,7 @@ void FixChordsForClef(Document *doc, LINK syncL,
 							CONTEXT newContext
 							)
 {
-	LINK aNoteL; Boolean stemDown; INT16 qStemLen;
+	LINK aNoteL; Boolean stemDown; short qStemLen;
 	
 	if (oldContext.clefType==newContext.clefType) return;
 
@@ -627,13 +627,13 @@ slot. For objs that have voice numbers, set the voice number as well.
 Return FAILURE if there's an error (probably out of memory), else NOTHING_TO_DO
 or OP_COMPLETE. */
 
-short DupAndSetStaff(Document *doc, INT16 voiceMap[],
+short DupAndSetStaff(Document *doc, short voiceMap[],
 						LINK pL,							/* Original object */
 						short srcStf, short dstStf,
 						short copyVoice				/* Single voice to copy, or -1 for all */
 						)
 {
-	INT16 nSubs, halfLn, effAcc;
+	short nSubs, halfLn, effAcc;
 	LINK tmpL, copyL, firstMod,
 			aNoteL, srcNoteL, nextSrcNoteL, dstNoteL,
 			aGRNoteL, srcGRNoteL, nextGRNoteL, dstGRNoteL;
@@ -904,10 +904,10 @@ near that function. */
 Boolean StfHasSmthgAcross(
 				Document *doc,
 				LINK link,
-				INT16 staff,
+				short staff,
 				char str[])			/* string describing the problem voice or staff */
 {
-	INT16 number;
+	short number;
 	Boolean isVoice, foundSmthg=FALSE;
 	
 	if (HasBeamAcross(link, staff)
@@ -951,10 +951,10 @@ Boolean RangeHasUnmatchedSlurs(Document */*doc*/, LINK startL, LINK endL, short 
 }
 
 
-LINK LSContextDynamicSearch(LINK, INT16, Boolean, Boolean);
+LINK LSContextDynamicSearch(LINK, short, Boolean, Boolean);
 LINK LSContextDynamicSearch(
 				LINK startL,				/* Place to start looking */
-				INT16 staff,				/* target staff number */
+				short staff,				/* target staff number */
 				Boolean goLeft,			/* TRUE if we should search left */
 				Boolean needSelected		/* TRUE if we only want selected items */
 				)
@@ -1025,7 +1025,7 @@ Boolean IsDoubleOK(Document *, short, short);
 Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 {
 	Boolean hasSmthgAcross, crossStaff;
-	INT16 srcPart, dstPart;
+	short srcPart, dstPart;
 	LINK pL;
 	char str[256];
 	
@@ -1070,21 +1070,21 @@ Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 		switch (ObjLType(pL)) {
 			case BEAMSETtype:
 				if (BeamCrossSTAFF(pL)) {
-					INT16 beamPart = Staff2Part(doc, BeamSTAFF(pL));
+					short beamPart = Staff2Part(doc, BeamSTAFF(pL));
 					if (beamPart==srcPart || beamPart==dstPart)
 						crossStaff = TRUE;
 				}
 				break;
 			case SLURtype:
 				if (SlurCrossSTAFF(pL)) {
-					INT16 slurPart = Staff2Part(doc, SlurSTAFF(pL));
+					short slurPart = Staff2Part(doc, SlurSTAFF(pL));
 					if (slurPart==srcPart || slurPart==dstPart)
 						crossStaff = TRUE;	/* may not be possible but just in case */
 				}
 				break;
 			case TUPLETtype:
 				if (IsTupletCrossStf(pL)) {
-					INT16 tuplPart = Staff2Part(doc, TupletSTAFF(pL));
+					short tuplPart = Staff2Part(doc, TupletSTAFF(pL));
 					if (tuplPart==srcPart || tuplPart==dstPart)
 						crossStaff = TRUE;
 				}
@@ -1123,13 +1123,13 @@ especially as regards the objects that affect context:
 These rules let us keep the context consistent without too much trouble while (I
 hope) not being too restrictive. */
 
-INT16 Double(Document *doc)
+short Double(Document *doc)
 {
-	static INT16 dstStf=1;
-	INT16 srcStf, status;
+	static short dstStf=1;
+	short srcStf, status;
 	LINK pL, selStartL, selEndL;
 	Boolean didSomething=FALSE, skipping;
-	INT16 voiceMap[MAXVOICES+1];
+	short voiceMap[MAXVOICES+1];
 	
 	srcStf = GetSelStaff(doc);
 	if (dstStf>doc->nstaves) dstStf = 1;

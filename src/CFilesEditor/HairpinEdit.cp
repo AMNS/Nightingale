@@ -23,19 +23,19 @@ static enum {
 
 typedef struct {
 	Point	leftPt, rightPt;					/* paper coords */
-	INT16	leftRise, rightRise;				/* pixels */
+	short	leftRise, rightRise;				/* pixels */
 	Rect	objRect;								/* paper coords */
-	INT16	penThick;							/* pen thickness */
+	short	penThick;							/* pen thickness */
 } HAIRPIN;
 
 /* local prototypes for hairpin editing routines */
-static void EditHairpin(Document *, LINK, INT16, HAIRPIN *);
+static void EditHairpin(Document *, LINK, short, HAIRPIN *);
 static Boolean InitHairFeedback(Document *, PCONTEXT, LINK, HAIRPIN *);
 static void InitHairGrips(Document *, PCONTEXT, LINK);
-static void InitHairBounds(Document *, LINK, INT16, HAIRPIN *, Point, Rect *);
+static void InitHairBounds(Document *, LINK, short, HAIRPIN *, Point, Rect *);
 static void DoHairFeedback(Document *, HAIRPIN *);
-static void UpdateTmpObjRect(Document *, INT16, HAIRPIN *, INT16, INT16);
-static void DrawHairGrip(Document *, INT16);
+static void UpdateTmpObjRect(Document *, short, HAIRPIN *, short, short);
+static void DrawHairGrip(Document *, short);
 static void DrawBothGrips(Document *);
 static void HairInvalRects(Document *, LINK, HAIRPIN *, Boolean);
 static void UpdateHairData(Document *, PCONTEXT, LINK, HAIRPIN *);
@@ -134,14 +134,14 @@ void DoHairpinEdit(Document *doc, LINK pL)
 static void EditHairpin(
 					Document	*doc,
 					LINK		pL,
-					INT16	 	grip,					/* Edit mode: LGRIP, RGRIP, DRAGOBJ */
+					short	 	grip,					/* Edit mode: LGRIP, RGRIP, DRAGOBJ */
 					HAIRPIN	*hp
 					)
 {
 	Point		oldPt, newPt;
 	long		aLong;
 	Rect		boundsRect;				/* in paper coords */
-	INT16		dh, dv;
+	short		dh, dv;
 	Boolean	allowTilt = TRUE;		/* FALSE only if shiftKeyDown */
 	
 	if (ShiftKeyDown()) allowTilt = FALSE;		/* ??but should also allow vert constraint */
@@ -234,7 +234,7 @@ void DragHairpin(Document	*doc, LINK pL)
 	Point		oldPt, newPt, origPt;
 	long		aLong;
 	Rect		boundsRect;				/* in paper coords */
-	INT16		dh, dv, dhTotal, dvTotal;
+	short		dh, dv, dhTotal, dvTotal;
 	CONTEXT	context;
 	Point		enlarge = {0,0};
 	HAIRPIN	oldHair, origHair, thisHair;
@@ -411,13 +411,13 @@ static void InitHairGrips(Document	*/*doc*/, PCONTEXT pContext, LINK pL)
 static void InitHairBounds(
 		Document *doc,
 		LINK		pL,
-		INT16		grip,
+		short		grip,
 		HAIRPIN	*hp,
 		Point		mousePt,				/* paper coords */
 		Rect		*bounds 				/* paper coords */
 		)
 {
-	INT16			staffn, mouseFromLeft, mouseFromRight;
+	short			staffn, mouseFromLeft, mouseFromRight;
 	CONTEXT		context;
 	PAMEASURE	aMeasP;
 	DDIST			sysLeft, sysTop, sysRight, sysBot, measWid;
@@ -502,7 +502,7 @@ static void InitHairBounds(
 static void DoHairFeedback(Document *doc, HAIRPIN *hp)
 {
 	Point	kludgePt, lPt, rPt;
-	register INT16	length, tilt, lRise, rRise;
+	register short	length, tilt, lRise, rRise;
 	
 	lPt = hp->leftPt;
 	rPt = hp->rightPt;
@@ -564,7 +564,7 @@ static void DoHairFeedback(Document *doc, HAIRPIN *hp)
 
 /* ------------------------------------------------------------- UpdateTmpObjRect -- */
 
-static void UpdateTmpObjRect(Document */*doc*/, INT16 grip, HAIRPIN *hp, INT16 dh, INT16 dv)
+static void UpdateTmpObjRect(Document */*doc*/, short grip, HAIRPIN *hp, short dh, short dv)
 {	
 	if (grip == DRAGOBJ)
 		OffsetRect(&hp->objRect, dh, dv);
@@ -584,7 +584,7 @@ static void UpdateTmpObjRect(Document */*doc*/, INT16 grip, HAIRPIN *hp, INT16 d
 /* Draw a 2x2 box for the left and right grips of the feedback hairpin. */
 
 static void DrawHairGrip(Document *doc,
-									INT16 whichOne)		/* LGRIP or RGRIP */
+									short whichOne)		/* LGRIP or RGRIP */
 {
 	Point gripPt;
 

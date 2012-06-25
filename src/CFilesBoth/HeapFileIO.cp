@@ -29,34 +29,34 @@
 
 #define EXTRAOBJS	10L
 
-static unsigned INT16 objCount[LASTtype];
+static unsigned short objCount[LASTtype];
 
 /* Local prototypes */
 
-static INT16 WriteObjHeap(Document *, INT16 refNum, LINK *firstSubLINKA, LINK *objA);
+static short WriteObjHeap(Document *, short refNum, LINK *firstSubLINKA, LINK *objA);
 static void CreateModTable(Document *, LINK **modA);
-static INT16 WriteModHeap(Document *, INT16 refNum, LINK **modA);
-static INT16 WriteModSubs(INT16 refNum, LINK aNoteL, LINK link, LINK **modA, unsigned INT16 *nMods);
-static INT16 WriteSubHeaps(Document *, INT16 refNum, LINK *firstSubLINKA, LINK *objA, LINK *modA);
-static INT16 WriteHeapHdr(Document *, INT16 refNum, INT16 heapIndex);
-static INT16 WriteSubObjs(INT16 refNum, INT16 heapIndex, LINK pL, LINK link, LINK *firstSubLINKA,
-						LINK *objA, LINK *modA, INT16 *objCount);
-static INT16 WriteObject(INT16 refNum, INT16 heapIndex, LINK pL);
+static short WriteModHeap(Document *, short refNum, LINK **modA);
+static short WriteModSubs(short refNum, LINK aNoteL, LINK link, LINK **modA, unsigned short *nMods);
+static short WriteSubHeaps(Document *, short refNum, LINK *firstSubLINKA, LINK *objA, LINK *modA);
+static short WriteHeapHdr(Document *, short refNum, short heapIndex);
+static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link, LINK *firstSubLINKA,
+						LINK *objA, LINK *modA, short *objCount);
+static short WriteObject(short refNum, short heapIndex, LINK pL);
 static Boolean ComputeObjCounts(Document *, LINK **firstSubLINKA, LINK **objA, LINK **modA);
-static INT16 ReadObjHeap(Document *doc, INT16 refNum, long version, Boolean isViewerFile);
-static INT16 ReadSubHeaps(Document *doc, INT16 refNum, long version, Boolean isViewerFile);
-static void ReadModHeap(Document *doc, INT16 refNum);
-static INT16 ReadHeapHdr(Document *doc, INT16 refNum, long version, Boolean isViewerFile,
-						INT16 heapIndex, unsigned INT16 *pnFObjs);
+static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile);
+static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isViewerFile);
+static void ReadModHeap(Document *doc, short refNum);
+static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean isViewerFile,
+						short heapIndex, unsigned short *pnFObjs);
 static void HeapFixLinks(Document *);
-static void RebuildFreeList(Document *doc, INT16 heapIndex, unsigned INT16 nFObjs);
+static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObjs);
 static void PrepareClips(void);
 static void SaveClipboard(void);
 
 /* Debugging functions */
 
-static void DisplayMeasure(char *, unsigned INT16);
-static void DisplayBeams(char *, unsigned INT16);
+static void DisplayMeasure(char *, unsigned short);
+static void DisplayBeams(char *, unsigned short);
 static void DCheckALLNOTES(Document *doc);
 
 
@@ -65,9 +65,9 @@ static void DCheckALLNOTES(Document *doc);
 /* Write all heaps with their headers to the given file. Returns 0 if no error,
 else an error code (either a system result code or one of our own codes). */
 
-INT16 WriteHeaps(Document *doc, INT16 refNum)
+short WriteHeaps(Document *doc, short refNum)
 {
-	LINK *firstSubLINKA, *objA, *modA; INT16 errCode;
+	LINK *firstSubLINKA, *objA, *modA; short errCode;
 	
 	if (ComputeObjCounts(doc, &firstSubLINKA, &objA, &modA)) {
 		CreateModTable(doc, &modA);
@@ -86,14 +86,14 @@ INT16 WriteHeaps(Document *doc, INT16 refNum)
 
 /* Write the object heap to the given file. */
 
-static INT16 WriteObjHeap(Document *doc, INT16 refNum, LINK *firstSubLINKA,
+static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
 								LINK *objA)
 {
 	LINK			pL, oldFirstObj;
 	LINK			leftL, rightL, subL, oldLastObj,
 					oldFirstSync, oldLastSync, oldLRepeat, oldRRepeat;
-	unsigned INT16 j;
-	INT16			ioErr=noErr, hdrErr;
+	unsigned short j;
+	short			ioErr=noErr, hdrErr;
 	long			count, startPosition, endPosition, zero=0L, sizeAllObjs;
 
 	PushLock(doc->Heap+OBJtype);
@@ -257,7 +257,7 @@ static INT16 WriteObjHeap(Document *doc, INT16 refNum, LINK *firstSubLINKA,
 static void CreateModTable(Document *doc, LINK **modA)
 {
 	HEAP *myHeap;
-	unsigned INT16 j, nMods=0;
+	unsigned short j, nMods=0;
 	LINK pL, aNoteL, subL;
 	PANOTE aNote;
 
@@ -293,11 +293,11 @@ static void CreateModTable(Document *doc, LINK **modA)
 }
 
 
-static INT16 WriteModHeap(Document *doc, INT16 refNum, LINK **modA)
+static short WriteModHeap(Document *doc, short refNum, LINK **modA)
 {
 	HEAP *myHeap;
-	INT16 ioErr=noErr;
-	unsigned INT16  j, nMods=0;
+	short ioErr=noErr;
+	unsigned short  j, nMods=0;
 	LINK pL, aNoteL;
 	PANOTE aNote;
 
@@ -325,13 +325,13 @@ static INT16 WriteModHeap(Document *doc, INT16 refNum, LINK **modA)
 in-file heap, and filling in the modA array so that notes can update
 their firstMod field in the WriteSubObjs routine. */
 
-static INT16 WriteModSubs(INT16 refNum, LINK aNoteL, LINK	link, LINK **/*modA*/,
-									unsigned INT16 *nMods)
+static short WriteModSubs(short refNum, LINK aNoteL, LINK	link, LINK **/*modA*/,
+									unsigned short *nMods)
 {
 	LINK 		nextL, subL, tempL;
 	HEAP 		*myHeap;
 	PANOTE 	aNote;
-	INT16		ioErr = noErr;
+	short		ioErr = noErr;
 	
 	/* The links are now being allocated sequentially, so that the <next> link
 		of the current link <link> is link+1. */	
@@ -358,8 +358,8 @@ static INT16 WriteModSubs(INT16 refNum, LINK aNoteL, LINK	link, LINK **/*modA*/,
 }
 
 
-static void MackeysDiseaseMsg(LINK pL, INT16 subObjCount, char *objString);
-static void MackeysDiseaseMsg(LINK pL, INT16 subObjCount, char *objString)
+static void MackeysDiseaseMsg(LINK pL, short subObjCount, char *objString);
+static void MackeysDiseaseMsg(LINK pL, short subObjCount, char *objString)
 {
 	AlwaysErrMsg("FILE IS PROBABLY UNUSABLE. WriteSubHeaps: %s at %ld (type=%ld) has nEntries=%ld but subObjCount=%ld. Please contact AMNS tech support.",
 				objString, (long)pL, (long)ObjLType(pL), (long)LinkNENTRIES(pL),
@@ -379,12 +379,12 @@ from what the object's LinkNENTRIES, something is seriously wrong, though I don'
 what the effects would be. To at least alert the user if this happens, we give a
 strongly-worded message in the latter case, but not the (at least as serious!) former. */
 
-static INT16 WriteSubHeaps(Document *doc, INT16 refNum, LINK *firstSubLINKA, LINK *objA,
+static short WriteSubHeaps(Document *doc, short refNum, LINK *firstSubLINKA, LINK *objA,
 									LINK *modA)
 {
 	HEAP *myHeap;
-	INT16 i, ioErr = noErr, hdrErr, modErr, subObjCount;
-	unsigned INT16 j;
+	short i, ioErr = noErr, hdrErr, modErr, subObjCount;
+	unsigned short j;
 	LINK pL;
 	
 	for (i=FIRSTtype; ioErr==noErr && i<LASTtype-1; i++) {
@@ -453,19 +453,19 @@ static INT16 WriteSubHeaps(Document *doc, INT16 refNum, LINK *firstSubLINKA, LIN
 followed by a copy of the HEAP structure (currently used just for error checking).
 Return 0 if all OK, else an error code (system I/O error). */
 
-static INT16 WriteHeapHdr(Document */*doc*/, INT16 refNum, INT16 heapIndex)
+static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 {
 	long count;
-	INT16  ioErr = noErr;
+	short  ioErr = noErr;
 	HEAP *myHeap;
 #ifdef N104_1TimeConvert	
-	INT16 oldObjSize;
+	short oldObjSize;
 #endif
 	
 	myHeap = Heap + heapIndex;
 
 	/* Write the total number of objects of type heapIndex */
-	count = sizeof(INT16);
+	count = sizeof(short);
 	ioErr = FSWrite(refNum, &count, &objCount[heapIndex]);
 	if (ioErr) { SaveError(TRUE, refNum, ioErr, heapIndex); return(ioErr); }
 
@@ -506,9 +506,9 @@ static INT16 WriteHeapHdr(Document */*doc*/, INT16 refNum, INT16 heapIndex)
 link and subobject <next> links to reflect the  new position of the subobjects in
 their in-file heap. */
 
-static INT16 WriteSubObjs(INT16 refNum, INT16 heapIndex, LINK pL, LINK link,
+static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 									LINK *firstSubLINKA, LINK *objA, LINK *modA,
-									INT16 *subObjCount)
+									short *subObjCount)
 {
 	LINK nextL, subL, tempL, beamSyncL, tupleSyncL, octSyncL, aModNRL;
 	HEAP 			*myHeap;
@@ -516,7 +516,7 @@ static INT16 WriteSubObjs(INT16 refNum, INT16 heapIndex, LINK pL, LINK link,
 	PANOTEBEAM 	aNoteBeam;
 	PANOTETUPLE aNoteTuple;
 	PANOTEOCTAVA aNoteOct;
-	INT16			ioErr=noErr, count;
+	short			ioErr=noErr, count;
 	
 	/* The links are now being allocated sequentially, so that the <next> link
 		of the current link <link> is link+1. */
@@ -606,13 +606,13 @@ varying lengths: only write out the length of the particular type of object.
 Returns an I/O Error code, or noErr. Heap must be locked by the calling routine
 for the sake of FSWrite. */
  
-static INT16 WriteObject(INT16 refNum, INT16 heapIndex, LINK pL)
+static short WriteObject(short refNum, short heapIndex, LINK pL)
 {
 	HEAP *myHeap;
 	long count;
-	INT16 ioErr;
+	short ioErr;
 	char *p;
-	INT16 temp = 0;
+	short temp = 0;
 	
 	myHeap = Heap + heapIndex;
 	if (heapIndex==OBJtype) count = objLength[ObjLType(pL)];
@@ -641,7 +641,7 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 {
 	LINK pL, aNoteL, aModNRL;
 	PANOTE aNote;
-	unsigned INT16 i, j, numMods=0;
+	unsigned short i, j, numMods=0;
 	
 	for (i=FIRSTtype; i<LASTtype; i++ )
 		objCount[i] = 0;
@@ -717,9 +717,9 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 /* Read all heaps from the given file. Returns 0 if no error, else an error code
 (either a system result code or one of our own codes). */
 
-INT16 ReadHeaps(Document *doc, INT16 refNum, long version, OSType fdType)
+short ReadHeaps(Document *doc, short refNum, long version, OSType fdType)
 {
-	INT16 errCode=0; Boolean isViewerFile;
+	short errCode=0; Boolean isViewerFile;
 	
 	/* ??I'm not sure if it's a good idea to call HeapFixLinks if there's an error...DB */
 	
@@ -753,15 +753,15 @@ lengths are is by looking at the type fields, which are at a known offset from t
 beginning of each object record.  Thus only a scan forwards through the block can
 work. */
 
-static INT16 ReadObjHeap(Document *doc, INT16 refNum, long version, Boolean isViewerFile)
+static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile)
 {
-	unsigned INT16 nFObjs;
-	INT16 ioErr, hdrErr;
+	unsigned short nFObjs;
+	short ioErr, hdrErr;
 	char *p;
 	long count, sizeAllObjs, heapSizeAllObjs, blockSize, nExpand;
 	HEAP *myHeap;
 	char *startPos;
-	char *src,*dst; INT16 type; long len,n;
+	char *src,*dst; short type; long len,n;
 
 	myHeap = doc->Heap + OBJtype;
 	hdrErr = ReadHeapHdr(doc, refNum, version, isViewerFile, OBJtype, &nFObjs);
@@ -839,8 +839,8 @@ static INT16 ReadObjHeap(Document *doc, INT16 refNum, long version, Boolean isVi
 
 
 #ifdef VIEWER_VERSION
-void DecodeMeasSubobjs(char *measZero, unsigned INT16 nFObjs);
-static void DecodeMeasSubobjs(char * measZero, unsigned INT16 nFObjs)
+void DecodeMeasSubobjs(char *measZero, unsigned short nFObjs);
+static void DecodeMeasSubobjs(char * measZero, unsigned short nFObjs)
 {
 	PAMEASURE aMeas; unsigned short num;
 
@@ -869,16 +869,16 @@ static void DecodeMeasSubobjs(char * measZero, unsigned INT16 nFObjs)
  *			respective formats.
  */
 
-static INT16 ReadSubHeaps(Document *doc, INT16 refNum, long version, Boolean isViewerFile)
+static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isViewerFile)
 {
 	HEAP *myHeap;
-	INT16 i, ioErr, hdrErr;
-	INT16 dynamObjSizeN102, dynamObjSizeN103;
-	INT16 partObjSizeN102, partObjSizeN103, partObjSizeN105;
-	unsigned INT16 nFObjs;
+	short i, ioErr, hdrErr;
+	short dynamObjSizeN102, dynamObjSizeN103;
+	short partObjSizeN102, partObjSizeN103, partObjSizeN105;
+	unsigned short nFObjs;
 	long count, nExpand, newPartFieldsSize;
 	char *p,*q,*r;
-	INT16 sizeDiff,newPartFieldsChunk1,destinationMatchSize2Byte;
+	short sizeDiff,newPartFieldsChunk1,destinationMatchSize2Byte;
 	
 	partObjSizeN105 = (doc->Heap+HEADERtype)->objSize;
 	partObjSizeN103 = partObjSizeN105-2;
@@ -960,7 +960,7 @@ static INT16 ReadSubHeaps(Document *doc, INT16 refNum, long version, Boolean isV
 			if (version<='N102') {
 				if (i==HEADERtype || i==DYNAMtype) {
 					unsigned long j; char *src, *dst;
-					INT16 oldSize, newSize;
+					short oldSize, newSize;
 
 					switch (i) {
 						case HEADERtype:
@@ -985,7 +985,7 @@ static INT16 ReadSubHeaps(Document *doc, INT16 refNum, long version, Boolean isV
 			{
 				if (i==HEADERtype) {
 					unsigned long j; char *src, *dst;
-					INT16 oldSize, newSize;
+					short oldSize, newSize;
 
 					switch (i) {
 						case HEADERtype:
@@ -1042,15 +1042,15 @@ static INT16 ReadSubHeaps(Document *doc, INT16 refNum, long version, Boolean isV
 The header is used only for error checking. Return 0 if all OK, else an error code
 (either a system I/O error code or one of our own). */
 
-static INT16 ReadHeapHdr(Document *doc, INT16 refNum, long /*version*/, Boolean /*isViewerFile*/,
-								INT16 heapIndex, unsigned INT16 *pnFObjs)
+static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean /*isViewerFile*/,
+								short heapIndex, unsigned short *pnFObjs)
 {
 	long count;
-	INT16  ioErr;
+	short  ioErr;
 	HEAP *myHeap, tempHeap;
 	
 	/* Read the total number of objects of type heapIndex */
-	count = sizeof(INT16);
+	count = sizeof(short);
 	ioErr = FSRead(refNum, &count, pnFObjs);
 	fix_end(*pnFObjs);
 	if (ioErr)
@@ -1093,12 +1093,12 @@ static INT16 ReadHeapHdr(Document *doc, INT16 refNum, long /*version*/, Boolean 
 
 //typedef struct {
 //	Handle block;					/* Handle to floating array of objects */
-//	INT16 objSize;					/* Size in bytes of each object in array */
-//	INT16 type;						/* Type of object for this heap */
+//	short objSize;					/* Size in bytes of each object in array */
+//	short type;						/* Type of object for this heap */
 //	LINK firstFree;				/* Index of head of free list */
-//	unsigned INT16 nObjs;		/* Maximum number of objects in heap block */
-//	unsigned INT16 nFree;		/* Size of the free list */
-//	INT16 lockLevel;				/* Nesting lock level: >0 ==> locked */
+//	unsigned short nObjs;		/* Maximum number of objects in heap block */
+//	unsigned short nFree;		/* Size of the free list */
+//	short lockLevel;				/* Nesting lock level: >0 ==> locked */
 //} HEAP;
 
 
@@ -1220,11 +1220,11 @@ void HeapFixLinks(Document *doc)
 
 /* Rebuild the free list of the heapIndex'th heap */
 
-static void RebuildFreeList(Document *doc, INT16 heapIndex, unsigned INT16 nFObjs)
+static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObjs)
 {
 	char *p;
 	HEAP *myHeap;
-	unsigned INT16 i;
+	unsigned short i;
 	
 	/*
 	 *	Set the firstFree object to be the next one past the total number
@@ -1273,7 +1273,7 @@ had better be locked when this function is called! */
 
 void DisplayMeasure(
 			char *measZero,				/* Address of Measure subobj 0 */
-			unsigned INT16 num			/* Subobject number (link) */
+			unsigned short num			/* Subobject number (link) */
 			)
 {
 	PAMEASURE aMeas; char s[256]; DRect mrect;
@@ -1312,8 +1312,8 @@ void DisplayMeasure(
 	DebugPrintf(" dynamicType=%hd\n", aMeas->dynamicType);
 }
 
-void DisplayMeasures(char *, unsigned INT16);
-void DisplayMeasures(char *p, unsigned INT16 nObjs)
+void DisplayMeasures(char *, unsigned short);
+void DisplayMeasures(char *p, unsigned short nObjs)
 {
 	DisplayMeasure(p, 1800);
 	DisplayMeasure(p, 1810);
@@ -1333,10 +1333,10 @@ greater than the number of Beam subobjects! NB: The link numbers seem to
 be off by 1 from what ends up in the object list. I don't have time to check
 this now; this is plausible, but it may be a bug. */
 
-void DisplayBeam(char *, unsigned INT16);
+void DisplayBeam(char *, unsigned short);
 void DisplayBeam(
 				char *measZero,				/* Address of Beam subobj 0 */
-				unsigned INT16 num			/* Subobject number (link) */
+				unsigned short num			/* Subobject number (link) */
 				)
 {
 	PANOTEBEAM aBeam; DRect mrect;
@@ -1349,7 +1349,7 @@ void DisplayBeam(
 						aBeam->fracs, (aBeam->fracGoLeft ? "T" : "f"));
 }
 
-void DisplayBeams(char *p, unsigned INT16 nObjs)
+void DisplayBeams(char *p, unsigned short nObjs)
 {
 	/* Version for A. Black's PTB score */
 	DisplayBeam(p, 500);
@@ -1376,7 +1376,7 @@ MacsBug. */
 /* Is the staff number illegal? */
 #define ZSTAFFN_BAD(staff)	((staff)<1 || (staff)>nstaves)
 
-#define LINKN(addr)	( (INT16)((long)((char *)(addr)-noteBlock)/sizeof(ANOTE)) )
+#define LINKN(addr)	( (short)((long)((char *)(addr)-noteBlock)/sizeof(ANOTE)) )
 
 #define MORE_INTRUSIVE
 #ifdef MORE_INTRUSIVE
@@ -1387,8 +1387,8 @@ MacsBug. */
 #define ZCOMPLAIN2(f, v1, v2) { strcpy(tmpStr,(f)); CtoPstr(tmpStr); DebugStr(tmpStr); }
 #endif
 
-void DCheckANOTE(PANOTE, INT16, char *);
-static void DCheckANOTE(PANOTE aNote, INT16 nstaves, char *noteBlock)
+void DCheckANOTE(PANOTE, short, char *);
+static void DCheckANOTE(PANOTE aNote, short nstaves, char *noteBlock)
 {
 	char		minl_dur;
 
@@ -1426,7 +1426,7 @@ static void DCheckANOTE(PANOTE aNote, INT16 nstaves, char *noteBlock)
 
 static void DCheckALLNOTES(Document *doc)
 {
-	INT16 k, nObjs;	HEAP *myHeap; 	char *p;
+	short k, nObjs;	HEAP *myHeap; 	char *p;
 	
 	myHeap = doc->Heap + SYNCtype;
 	PushLock(myHeap);

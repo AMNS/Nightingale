@@ -27,14 +27,14 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean AddNewGRSync(Document *, LINK, Point, INT16, INT16, INT16);
-static Boolean TrkInsSync(Document *, LINK, Point, INT16 *, INT16);
-static Boolean TrkInsNote(Document *, Point, INT16 *, INT16);
-static Boolean TrkInsGRSync(Document *, LINK, Point, INT16 *, INT16);
-static Boolean TrkInsGRNote(Document *, Point, INT16 *, INT16);
+static Boolean AddNewGRSync(Document *, LINK, Point, short, short, short);
+static Boolean TrkInsSync(Document *, LINK, Point, short *, short);
+static Boolean TrkInsNote(Document *, Point, short *, short);
+static Boolean TrkInsGRSync(Document *, LINK, Point, short *, short);
+static Boolean TrkInsGRNote(Document *, Point, short *, short);
 static LINK FindJIP(LINK,LINK);
-static Boolean ChkInsMODNR(LINK,INT16);
-static Boolean InsertHairpin(Document *,Point,LINK,INT16);
+static Boolean ChkInsMODNR(LINK,short);
+static Boolean InsertHairpin(Document *,Point,LINK,short);
 
 	
 /* Utility to add new GRSync before an object found by TimeSearchRight in AddGRNote. */
@@ -42,8 +42,8 @@ static Boolean InsertHairpin(Document *,Point,LINK,INT16);
 static Boolean AddNewGRSync(Document *doc,
 									LINK baseL,		/* base link */
 									Point	pt,
-									INT16 sym,
-									INT16 voice, INT16 clickStaff
+									short sym,
+									short voice, short clickStaff
 									)
 {
 	LINK addToGRSyncL;
@@ -78,16 +78,16 @@ specialized note--a quarter note on the middle line of the staff, with slash
 appearance, zero stemlength, and zero velocity. If necessary, it also adds a new
 Sync for the note. */
 
-static Boolean AddChordSlash(Document *, INT16, INT16, INT16);
+static Boolean AddChordSlash(Document *, short, short, short);
 static Boolean AddChordSlash(
 						Document *doc,
-						INT16 x,	/* >=0 means new Sync, and this is its horiz. position in pixels, */	
+						short x,	/* >=0 means new Sync, and this is its horiz. position in pixels, */	
 									/* <0  means add note/rest to the existing Sync <doc->selStartL>. */
-						INT16 staff,
-						INT16 octType
+						short staff,
+						short octType
 						)
 {
-	LINK aNoteL; PANOTE aNote; INT16 pitchLev;
+	LINK aNoteL; PANOTE aNote; short pitchLev;
 	
 	pitchLev = 4;
 	aNoteL = AddNote(doc, x, qtrNoteInChar, staff, pitchLev, 0, octType);
@@ -104,11 +104,11 @@ static Boolean AddChordSlash(
 
 /* Insert a new Sync with one note to the left of <rightL>. Handles cancelling. */
 
-static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, INT16 *sym, INT16 staff)
+static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, short *sym, short staff)
 {
 	LINK 	qL, octL;
-	INT16 octType=-1;
-	INT16 pitchLev, acc;
+	short octType=-1;
+	short pitchLev, acc;
 
 	if (!rightL) {
 		MayErrMsg("TrkInsSync: FindSymRight or TimeSearchRight returned NULL.");
@@ -141,10 +141,10 @@ static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, INT16 *sym, INT1
 
 /* Track the note and add it to the existing sync <doc->selStartL>. */
 
-static Boolean TrkInsNote(Document *doc, Point pt, INT16 *sym, INT16 staff)
+static Boolean TrkInsNote(Document *doc, Point pt, short *sym, short staff)
 {
-	INT16 pitchLev, acc; LINK octL;
-	INT16 octType=-1;
+	short pitchLev, acc; LINK octL;
+	short octType=-1;
 
 	if (octL = OctOnStaff(doc->selStartL, staff))
 		octType = OctType(octL);
@@ -162,11 +162,11 @@ static Boolean TrkInsNote(Document *doc, Point pt, INT16 *sym, INT16 staff)
 
 /* Insert a new GRSYNC with one grace note to the right of <rightL>. Handles cancelling. */
 
-static Boolean TrkInsGRSync(Document *doc, LINK rightL, Point pt, INT16 *sym, INT16	staff)
+static Boolean TrkInsGRSync(Document *doc, LINK rightL, Point pt, short *sym, short	staff)
 {
 	LINK 	qL, octL;
-	INT16 octType=-1;
-	INT16 pitchLev, acc;
+	short octType=-1;
+	short pitchLev, acc;
 
 	if (!rightL) {
 		MayErrMsg("TrkInsGRSync: FindSymRight or TimeSearchRight returned NULL.");
@@ -192,10 +192,10 @@ static Boolean TrkInsGRSync(Document *doc, LINK rightL, Point pt, INT16 *sym, IN
 
 /* Track the grace note and add it to the existing GRSYNC <doc->selStartL>. */
 
-static Boolean TrkInsGRNote(Document *doc, Point pt, INT16 *sym, INT16 staff)
+static Boolean TrkInsGRNote(Document *doc, Point pt, short *sym, short staff)
 {
-	INT16 pitchLev, acc; LINK octL;
-	INT16 octType=-1;
+	short pitchLev, acc; LINK octL;
+	short octType=-1;
 
 	if (octL = OctOnStaff(doc->selStartL, staff))
 		octType = OctType(octL);
@@ -265,7 +265,7 @@ Boolean InsertNote(
 					Boolean isGraphic		/* graphic ("by position") or temporal insert */
 					)
 {
-	INT16			clickStaff,		/* staff user clicked in */
+	short			clickStaff,		/* staff user clicked in */
 					sym,				/* index of current palChar in symtable[] */
 					voice;			/* voice to insert in */
 	LINK			addToSyncL,		/* sync to add note/rest to */
@@ -395,7 +395,7 @@ mousedown at the given point. Handles feedback and allows cancelling. */
 
 Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 {
-	INT16 clickStaff, voice, sym;
+	short clickStaff, voice, sym;
 	LINK  nodeRightL, pLPIL, addToSyncL, addToGRSyncL;
 	long	lTime;
 
@@ -476,7 +476,7 @@ mousedown at the given point. The point must be on a note (and not a rest). */
 Boolean InsertArpSign(Document *doc, Point pt)
 {
 	LINK pL, aNoteL;
-	INT16 clickStaff, voice;
+	short clickStaff, voice;
 	
 	pL = FindGraphicObject(doc, pt, &clickStaff, &voice);			
 	if (!pL) return FALSE;
@@ -496,7 +496,7 @@ suitable for a mousedown at the given point. Handles feedback and allows cancell
 Boolean InsertLine(Document *doc, Point pt)
 {
 	LINK insertL;
-	INT16 clickStaff, voice;
+	short clickStaff, voice;
 	
 	insertL = FindGraphicObject(doc, pt, &clickStaff, &voice);			
 	if (clickStaff==NOONE) return FALSE;
@@ -537,7 +537,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 	static Boolean firstMPCall=TRUE;
 	static Boolean firstMPanCall=TRUE;
 	LINK pL,measL;
-	INT16 sym,pitchLev,clickStaff,voice,newSize,newStyle,newEncl,
+	short sym,pitchLev,clickStaff,voice,newSize,newStyle,newEncl,
 			hStyleChoice,uStyleChoice,staff,auxInfo;
 	Str63 newFont; Str255 string;
 	Boolean newRelSize, newLyric;
@@ -637,7 +637,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				break;
 			case GRChordSym:
 				{
-					static INT16 CSAuxInfo = -1;
+					static short CSAuxInfo = -1;
 
 					/* NOTE: This will have to be changed if we encode other options in CSAuxInfo. */
 					if (CSAuxInfo==-1)	/* first time */
@@ -734,10 +734,10 @@ Cancelled:
 InitNightGlobals for another way to do this: it's probably better to use this
 function locally and avoid globals. */
 
-INT16 Type2SymTableIndex(SignedByte objtype, SignedByte subtype);
-INT16 Type2SymTableIndex(SignedByte objtype, SignedByte subtype)
+short Type2SymTableIndex(SignedByte objtype, SignedByte subtype);
+short Type2SymTableIndex(SignedByte objtype, SignedByte subtype)
 {
-	INT16 j;
+	short j;
 	
 	for (j=0; j<nsyms; j++)
 		if (objtype==symtable[j].objtype && subtype==symtable[j].subtype)
@@ -753,7 +753,7 @@ and allows cancelling. */
 Boolean InsertMusicChar(Document *doc, Point pt)
 {
 	LINK pL;
-	INT16 sym,pitchLev,clickStaff,voice,styleChoice,staff,stringInd;
+	short sym,pitchLev,clickStaff,voice,styleChoice,staff,stringInd;
 	Str63 musicFontName;
 	unsigned char string[2];
 	char stringInchar;
@@ -761,7 +761,7 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 	/* musicChar maps symtable[sym].durcode value to corresponding font character:
 	                     Ped.   *   */
 	char musicChar[] = { 0xA1, '*' };
-	INT16 index;
+	short index;
 
 	if (firstCall) {
 		stringInd = Type2SymTableIndex(GRAPHICtype, GRString);
@@ -823,7 +823,7 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 If obj is not a note or rest, we won't handle it, but will give the user some
 advice on how to get what they seem to want. */
 
-static Boolean ChkInsMODNR(LINK insSyncL, INT16 sym)
+static Boolean ChkInsMODNR(LINK insSyncL, short sym)
 {
 	if (MeasureTYPE(insSyncL) && symtable[sym].subtype==MOD_FERMATA) {
 		GetIndCString(strBuf, INSERTERRS_STRS, 1);    /* "To attach a fermata to a barline, use..." */
@@ -848,8 +848,8 @@ cancelling. */
 
 Boolean InsertMODNR(Document *doc, Point pt)
 {
-	INT16				staff, sym, index, pitchLev, qPitchLev, newSlashes, status, i;
-	static INT16	slashes=2, lastPitchLev=-3;
+	short				staff, sym, index, pitchLev, qPitchLev, newSlashes, status, i;
+	static short	slashes=2, lastPitchLev=-3;
 	LINK				insSyncL, aNoteL;
 
 	staff=FindStaff(doc, pt);
@@ -937,7 +937,7 @@ mousedown at the given point. RptEnds are J_IT objects. */
 
 Boolean InsertRptEnd(Document *doc, Point pt)
 {
-	INT16		clickStaff;													/* staff user clicked in */
+	short		clickStaff;													/* staff user clicked in */
 	LINK		pLPIL;														/* pointer to Last Previous Item */
 
 	clickStaff = FindStaff(doc, pt);									/* Find staff clicked on... */
@@ -957,7 +957,7 @@ add the ending to the object list. Endings are J_D objects. */
 
 Boolean InsertEnding(Document *doc, Point pt)
 {
-	INT16		clickStaff,													/* staff in which user clicked */
+	short		clickStaff,													/* staff in which user clicked */
 				staff;														/* staff & voice of obj found */
 	LINK		insertL;														/* relative obj for Ending */
 
@@ -983,7 +983,7 @@ return FALSE. */
 
 static Boolean InsMeasTupletOK(Document *doc)
 {
-	INT16 s;
+	short s;
 	char fmtStr[256];
 
 	for (s = 1; s<=doc->nstaves; s++)
@@ -1018,7 +1018,7 @@ the given point. */
 
 Boolean InsertMeasure(Document *doc, Point pt)
 {
-	INT16		clickStaff;
+	short		clickStaff;
 	LINK		pLPIL;														/* link to Last Previous Item */
 
 	clickStaff = FindStaff(doc, pt);									/* Sets doc->currentSystem */
@@ -1044,7 +1044,7 @@ at the given point. */
 
 Boolean InsertPseudoMeas(Document *doc, Point pt)
 {
-	INT16		clickStaff;													/* staff user clicked in */
+	short		clickStaff;													/* staff user clicked in */
 	LINK		pLPIL;														/* link to Last Previous Item */
 
 	clickStaff = FindStaff(doc, pt);									/* Was ANY staff clicked on? */
@@ -1068,7 +1068,7 @@ given point. */
 
 Boolean InsertClef(Document *doc, Point pt)
 {
-	INT16		clickStaff;													/* staff user clicked in */
+	short		clickStaff;													/* staff user clicked in */
 	LINK		pLPIL,insNodeL,aClefL;
 	long		lTime;														/* logical time */
 				
@@ -1107,7 +1107,7 @@ at the given point. */
 
 Boolean InsertKeySig(Document *doc, Point pt)
 {
-	INT16		clickStaff,								/* staff user clicked in */
+	short		clickStaff,								/* staff user clicked in */
 				sharps=0,flats=0,
 				sharpsOrFlats=0;
 	LINK		pLPIL,									/* pointer to Last Previous Item */
@@ -1151,11 +1151,11 @@ at the given point. */
 
 Boolean InsertTimeSig(Document *doc, Point pt)
 {
-	INT16			clickStaff;
+	short			clickStaff;
 	LINK			pLPIL,									/* pointer to Last Previous Item */
 					insNodeL;
 	long			lTime;									/* logical time */
-	static INT16 type=N_OVER_D,
+	static short type=N_OVER_D,
 					 numerator=4,denominator=4;
 	static Boolean onAllStaves=TRUE;					/* or "This Staff Only" */
 
@@ -1189,9 +1189,9 @@ Boolean InsertTimeSig(Document *doc, Point pt)
 /*	---------------------------------------------------------------- InsertHairpin -- */
 /* Handle hairpin insertion. */
 
-static Boolean InsertHairpin(Document *doc, Point pt, LINK /*pL*/, INT16 clickStaff)
+static Boolean InsertHairpin(Document *doc, Point pt, LINK /*pL*/, short clickStaff)
 {
-	LINK insSyncL,prevMeasL; INT16 sym,subtype;
+	LINK insSyncL,prevMeasL; short sym,subtype;
 	CONTEXT context;
 
 	sym = GetSymTableIndex(palChar);
@@ -1228,7 +1228,7 @@ mousedown at the given point. Handles feedback and allows cancelling. */
 
 Boolean InsertDynamic(Document *doc, Point pt)
 {
-	INT16 pitchLev,sym,clickStaff,index,staff,subtype;
+	short pitchLev,sym,clickStaff,index,staff,subtype;
 	LINK pL,insSyncL;
 	Point startPt; CONTEXT context;
 
@@ -1278,11 +1278,11 @@ Boolean InsertDynamic(Document *doc, Point pt)
 }
 
 
-static INT16 GetNoteStfVoice(LINK pL, INT16 index, INT16 *v);
+static short GetNoteStfVoice(LINK pL, short index, short *v);
 
-static INT16 GetNoteStfVoice(LINK pL, INT16 index, INT16 *v)
+static short GetNoteStfVoice(LINK pL, short index, short *v)
 {
-	LINK aNoteL; INT16 i;
+	LINK aNoteL; short i;
 
 	/* Return the voice and staff of the note at index. */
 	aNoteL = FirstSubLINK(pL);
@@ -1301,7 +1301,7 @@ for a mousedown at the given point. */
 
 Boolean InsertSlur(Document *doc, Point pt)
 {
-	INT16		staff, index, voice;
+	short		staff, index, voice;
 	LINK		pL, pLPIL;
 	Point		localPt;
 
@@ -1334,7 +1334,7 @@ mousedown at the given point.	Handles feedback and allows cancelling. */
 
 Boolean InsertTempo(Document *doc, Point pt)
 {
-	INT16 clickStaff,v,sym,pitchLev; static INT16 dur,beatsPM; LINK pL;
+	short clickStaff,v,sym,pitchLev; static short dur,beatsPM; LINK pL;
 	static Boolean hideMM,dotted;
 	static Str63 tempoStr;		/* limit length to save static var. space */
 	static Str63 metroStr;		/* limit length to save static var. space */
@@ -1382,7 +1382,7 @@ mousedown at the given point. Handles feedback and allows cancelling. */
 
 Boolean InsertSpace(Document *doc, Point pt)
 {
-	INT16 clickStaff,topStf,bottomStf; LINK pLPIL,measL; STDIST stdSpace=0;
+	short clickStaff,topStf,bottomStf; LINK pLPIL,measL; STDIST stdSpace=0;
 	Point newPt; CONTEXT context;
 	
 	clickStaff = FindStaff(doc, pt);										/* Find staff clicked on */

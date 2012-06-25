@@ -31,9 +31,9 @@ static Boolean		InitMemory(short numMasters);
 static void			InstallCoreEventHandlers(void);
 static Boolean		NInitFloatingWindows(void);
 static void			SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
-static INT16		GetToolGrid(PaletteGlobals *whichPalette);
-static void			SetupPaletteRects(Rect *whichRects, INT16 across, INT16 down, INT16 width,
-								INT16 height);
+static short		GetToolGrid(PaletteGlobals *whichPalette);
+static void			SetupPaletteRects(Rect *whichRects, short across, short down, short width,
+								short height);
 static Boolean		PrepareClipDoc(void);
 void		InitNightingale(void);
 
@@ -265,7 +265,7 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 {
 	Handle			resH;
 	OSType			theErr;
-	INT16				nSPTB, i;
+	short				nSPTB, i;
 	ScriptCode		scriptCode = smRoman;
 //	FSSpec			rfSpec;
 	
@@ -565,7 +565,7 @@ static Boolean GetConfig()
 {
 	Handle cnfgH;
 	Boolean gotCnfg;
-	INT16 nerr, firstErr;
+	short nerr, firstErr;
 	long cnfgSize;
 	char fmtStr[256];
 	
@@ -1041,7 +1041,7 @@ margin on all sides. */
 static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	{
 		PicHandle toolPicture; Rect picRect;
-		short curResFile; INT16 defaultToolItem;
+		short curResFile; short defaultToolItem;
 		
 		/* Allocate a grid of characters from the 'PLCH' resource. */
 		defaultToolItem = GetToolGrid(whichPalette);
@@ -1120,9 +1120,9 @@ are stored in the PLCH resource itself and should match the PICT that is being
 used to draw the palette.  Deliver the item number of the default tool (arrow),
 or 0 if problem. */
 
-static INT16 GetToolGrid(PaletteGlobals *whichPalette)
+static short GetToolGrid(PaletteGlobals *whichPalette)
 	{
-		INT16 maxRow, maxCol, row, col, item, defItem = 0; short curResFile;
+		short maxRow, maxCol, row, col, item, defItem = 0; short curResFile;
 		GridRec *pGrid; Handle hdl;
 		unsigned char *p;			/* Careful: contains both binary and char data! */
 		
@@ -1175,10 +1175,10 @@ static INT16 GetToolGrid(PaletteGlobals *whichPalette)
 
 /* Install the rectangles for the given pallete rects array and its dimensions */
 
-static void SetupPaletteRects(Rect *whichRects, INT16 itemsAcross, INT16 itemsDown,
-								INT16 itemWidth, INT16 itemHeight)
+static void SetupPaletteRects(Rect *whichRects, short itemsAcross, short itemsDown,
+								short itemWidth, short itemHeight)
 	{
-		INT16 across,down;
+		short across,down;
 		
 		whichRects->left = 0;
 		whichRects->top = 0;

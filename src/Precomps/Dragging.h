@@ -2,18 +2,18 @@
 
 /* Prototypes for DragUtils.c */
 
-void GetHDragLims(Document *,LINK,LINK,INT16,CONTEXT,DDIST *,DDIST *);
+void GetHDragLims(Document *,LINK,LINK,short,CONTEXT,DDIST *,DDIST *);
 
-void SDInsertLedgers(LINK pL, LINK aNoteL, INT16 halfLine, PCONTEXT pContext);
-INT16 SDSetAccidental(Document *doc, GrafPtr accPort, Rect accBox, Rect saveBox, INT16 accy);
-void SDMIDIFeedback(Document *doc, INT16 *noteNum, INT16 useChan, INT16 acc, INT16 transp, 
-						  INT16 midCHalfLn, INT16 halfLn, INT16 octTransp, short ioRefNum);
+void SDInsertLedgers(LINK pL, LINK aNoteL, short halfLine, PCONTEXT pContext);
+short SDSetAccidental(Document *doc, GrafPtr accPort, Rect accBox, Rect saveBox, short accy);
+void SDMIDIFeedback(Document *doc, short *noteNum, short useChan, short acc, short transp, 
+						  short midCHalfLn, short halfLn, short octTransp, short ioRefNum);
 
-DDIST Getystem(INT16 voice, LINK sync);
-DDIST GetGRystem(INT16 voice, LINK GRsync);
+DDIST Getystem(short voice, LINK sync);
+DDIST GetGRystem(short voice, LINK GRsync);
 void SDFixStemLengths(Document *doc, LINK beamL);
 void SDFixGRStemLengths(LINK beamL);
-DDIST SDGetClosestClef(Document *doc, INT16 halfLnDiff, LINK pL, LINK subObjL, CONTEXT context);
+DDIST SDGetClosestClef(Document *doc, short halfLnDiff, LINK pL, LINK subObjL, CONTEXT context);
 
 Rect GetSysRect(Document *doc, LINK pL);
 Rect GetMeasRect(Document *, LINK);
@@ -43,25 +43,25 @@ Boolean DelSlurTie(Document *, LINK);
 
 /* Prototypes for DragSet.c */
 
-void SetClefFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp, Boolean vert);
-void SetKeySigFields(LINK pL, LINK subObjL, DDIST xdDiff, INT16 xp);
-void SetTimeSigFields(LINK pL, LINK subObjL, DDIST xdDiff, INT16 xp);
-void SetNoteFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp, Boolean vert, Boolean beam, INT16 newAcc);
-void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp, Boolean vert, Boolean beam, INT16 newAcc);
-void SetDynamicFields(LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp);
-void SetRptEndFields(LINK pL, LINK subObjL, DDIST xdDiff, INT16 xp);
-void SetEndingFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp);
+void SetClefFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short xp, short yp, Boolean vert);
+void SetKeySigFields(LINK pL, LINK subObjL, DDIST xdDiff, short xp);
+void SetTimeSigFields(LINK pL, LINK subObjL, DDIST xdDiff, short xp);
+void SetNoteFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short xp, short yp, Boolean vert, Boolean beam, short newAcc);
+void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short xp, short yp, Boolean vert, Boolean beam, short newAcc);
+void SetDynamicFields(LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
+void SetRptEndFields(LINK pL, LINK subObjL, DDIST xdDiff, short xp);
+void SetEndingFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
 long SetMeasureFields(Document *doc, LINK pL, DDIST xdDiff);
 void SetPSMeasFields(Document *doc, LINK pL, DDIST xdDiff);
-void SetTupletFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp);
-void SetOctavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp);
-void SetGraphicFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp);
-void SetTempoFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp);
-void SetSpaceFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp);
-void SetBeamFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp);
-void SetSlurFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp);
+void SetTupletFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
+void SetOctavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
+void SetGraphicFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
+void SetTempoFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
+void SetSpaceFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
+void SetBeamFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
+void SetSlurFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
 
-void SetForNewPitch(Document *doc, LINK pL, LINK subObjL, CONTEXT context, INT16 pitchLev, INT16 acc);
+void SetForNewPitch(Document *doc, LINK pL, LINK subObjL, CONTEXT context, short pitchLev, short acc);
 
 /* Prototypes for Dragging.c */
 

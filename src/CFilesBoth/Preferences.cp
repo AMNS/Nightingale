@@ -91,22 +91,22 @@ static OSStatus FindTextPreferencesFile(OSType fType, OSType fCreator, FSSpec *p
 	return fnfErr;
 }
 
-static INT16 AddNewLine(char *buf) 
+static short AddNewLine(char *buf) 
 {
-	INT16 len = strlen(buf);
+	short len = strlen(buf);
 	buf[len++] = '\n';
 	buf[len] = '\0';
 	return len;
 }
 
-static Boolean AddSetupStrings(Handle resH, INT16 refNum)
+static Boolean AddSetupStrings(Handle resH, short refNum)
 {
-	INT16 	numStrings, i;
+	short 	numStrings, i;
 	long		count;
 	char 		buf[512];
 	OSStatus theErr;
 	
-	numStrings = *(INT16 *)(*resH);
+	numStrings = *(short *)(*resH);
 	for (i = 0; i < numStrings; i++) 
 	{
 		GetIndCString(buf, TEXTPREFS_STRS, i + 1);
@@ -129,7 +129,7 @@ static Boolean CreateTextSetupFile(FSSpec *fsSpec)
 	ScriptCode	scriptCode = smRoman;
 	OSStatus 	theErr;
 	Handle		resH;
-	INT16			refNum;
+	short			refNum;
 	
 	// Create a new text preferences file.
 
@@ -346,7 +346,7 @@ static Boolean ReadPrefsTbl(char *data, KeyValuePair *tbl, long numLines)
 
 Boolean GetTextConfig()
 {
-	INT16 refNum;
+	short refNum;
 	OSStatus theErr;
 	long count, numLines;
 	Ptr data, newData;

@@ -56,9 +56,9 @@ void MoveClefHoriz(LINK pL, LINK theClefL, DDIST xdDiff)
 any other changes to the object list necessary for consistency. */
 
 void SetClefFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff,
-							INT16 /*xp*/, INT16 /*yp*/, Boolean vert)
+							short /*xp*/, short /*yp*/, Boolean vert)
 {
-	INT16 halfLnDiff;
+	short halfLnDiff;
 	CONTEXT context;
 	SignedByte oldClef, newClef;
 	LINK doneL;
@@ -129,7 +129,7 @@ void MoveKeySigHoriz(LINK pL, LINK theKeySigL, DDIST xdDiff)
 /* Update fields of the given key sig for dragging by (xdDiff,ydDiff). Also make
 any other changes to the object list necessary for consistency. */
 
-void SetKeySigFields(LINK pL, LINK subObjL, DDIST xdDiff, INT16 /*xp*/)
+void SetKeySigFields(LINK pL, LINK subObjL, DDIST xdDiff, short /*xp*/)
 {
 	MoveKeySigHoriz(pL, subObjL, xdDiff);
 
@@ -173,7 +173,7 @@ void MoveTimeSigHoriz(LINK pL, LINK theTimeSigL, DDIST xdDiff)
 /* Update fields of the given time sig for dragging by (xdDiff,ydDiff). Also make
 any other changes to the object list necessary for consistency. */
 
-void SetTimeSigFields(LINK pL, LINK subObjL, DDIST xdDiff, INT16 /*xp*/)
+void SetTimeSigFields(LINK pL, LINK subObjL, DDIST xdDiff, short /*xp*/)
 {
 	MoveTimeSigHoriz(pL, subObjL, xdDiff);
 
@@ -231,16 +231,16 @@ void MoveNoteHoriz(LINK pL, LINK theNoteL, DDIST xdDiff)
 regardless of whether the note actually has dots or not. See more detailed comments on
 FixAugDotPos (which should probably call this!). */
 
-void FixNoteAugDotPos(SignedByte clefType, LINK aNoteL, INT16 voiceRole, Boolean stemDown,
+void FixNoteAugDotPos(SignedByte clefType, LINK aNoteL, short voiceRole, Boolean stemDown,
 								Boolean lineNotesOnly);
 void FixNoteAugDotPos(
 			SignedByte clefType,
 			LINK aNoteL,
-			INT16 voiceRole,
+			short voiceRole,
 			Boolean stemDown,
 			Boolean lineNotesOnly)						/* TRUE=set position for "line" notes only */	
 {
-	INT16	halfSp, midCHalfSp;
+	short	halfSp, midCHalfSp;
 	Boolean lineNote, midCIsInSpace;
 
 	midCHalfSp = ClefMiddleCHalfLn(clefType);						/* Get middle C staff pos. */		
@@ -258,8 +258,8 @@ void FixNoteAugDotPos(
 /* Return the Octava object that the given Sync or GRSync belongs to on the given
 staff. If none, return NILINK. */
 
-LINK FindOctava(LINK pL, INT16 staffn);
-LINK FindOctava(LINK pL, INT16 staffn)
+LINK FindOctava(LINK pL, short staffn);
+LINK FindOctava(LINK pL, short staffn)
 {
 	LINK octL;
 	
@@ -278,15 +278,15 @@ any other changes to the object list necessary for consistency. */
 
 void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 					DDIST xdDiff, DDIST ydDiff,
-					INT16 /*xp*/, INT16 /*yp*/,
+					short /*xp*/, short /*yp*/,
 					Boolean vert,
 					Boolean beam,		/* TRUE if dragging a beamset. */
-					INT16 newAcc		/* The new accidental resulting from vertical dragging. */
+					short newAcc		/* The new accidental resulting from vertical dragging. */
 					)
 {
 	PANOTE aNote;
 	LINK	 beamL, mainNoteL, octL;
-	INT16  halfLnDiff, halfLn, staffn, v,
+	short  halfLnDiff, halfLn, staffn, v,
 			 effectiveAcc, voiceRole, octType;
 	DDIST	 dDiff, firstystem, lastystem;
 	QDIST	 qStemLen;									/* y QDIST position relative to staff top */
@@ -454,15 +454,15 @@ any other changes to the object list necessary for consistency. */
 
 void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 						DDIST xdDiff, DDIST ydDiff,
-						INT16 /*xp*/, INT16 /*yp*/,
+						short /*xp*/, short /*yp*/,
 						Boolean vert,
 						Boolean /*beam*/,		/* TRUE if dragging a beamset. */
-						INT16 newAcc			/* The new accidental resulting from vertical dragging. */
+						short newAcc			/* The new accidental resulting from vertical dragging. */
 						)
 {
 	PAGRNOTE aGRNote;
 	LINK	 beamL, octL;
-	INT16  midCHalfLn, halfLnDiff, halfLn, staffn, accKeep, effectiveAcc, octType;
+	short  midCHalfLn, halfLnDiff, halfLn, staffn, accKeep, effectiveAcc, octType;
 	DDIST	 dDiff, firstystem, lastystem;
 	CONTEXT context;
 	Boolean main;
@@ -550,8 +550,8 @@ Dynamics still can't have more than one subobject, so it's of no practical relev
 and (2) Dynamics can be dragged both horizontally and vertically at the same time,
 so it's a little more complicated to do here. */
 
-void SetDynamicFields(LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, INT16 xp,
-								INT16 yp)
+void SetDynamicFields(LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short xp,
+								short yp)
 {
 	PADYNAMIC aDynamic;
 	PMEVENT p;
@@ -581,7 +581,7 @@ void SetDynamicFields(LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, INT16 x
 	
 /* ------------------------------------------------------------- SetRptEndFields -- */
 
-void SetRptEndFields(LINK pL, LINK /*subObjL*/, DDIST xdDiff, INT16 xp)
+void SetRptEndFields(LINK pL, LINK /*subObjL*/, DDIST xdDiff, short xp)
 {
 	PMEVENT p;
 
@@ -596,7 +596,7 @@ void SetRptEndFields(LINK pL, LINK /*subObjL*/, DDIST xdDiff, INT16 xp)
 /* ------------------------------------------------------------- SetEndingFields -- */
 
 void SetEndingFields(Document *doc, LINK pL, LINK /*subObjL*/, DDIST xdDiff, DDIST ydDiff,
-							INT16 xp, INT16 yp)
+							short xp, short yp)
 {
 	PENDING p; Rect r;
 
@@ -621,7 +621,7 @@ barline was dragged. */
 
 long SetMeasureFields(Document *doc, LINK pL, DDIST xdDiff)
 {
-	INT16 sysWidth;
+	short sysWidth;
 	LINK	qL, pSystemL, measL, prevMeasL; PSYSTEM pSystem;
 	long  oldMWidth, newMWidth, spaceFactor;
 	PMEASURE prevMeas;
@@ -670,7 +670,7 @@ long SetMeasureFields(Document *doc, LINK pL, DDIST xdDiff)
 	prevMeas = GetPMEASURE(prevMeasL);
 	spaceFactor = RESFACTOR*(long)prevMeas->spacePercent;
 	spaceFactor = (spaceFactor*newMWidth)/oldMWidth;
-	prevMeas->spacePercent = (INT16)(spaceFactor/RESFACTOR);
+	prevMeas->spacePercent = (short)(spaceFactor/RESFACTOR);
 	
 	return spaceFactor;
 }
@@ -689,7 +689,7 @@ void SetPSMeasFields(Document */*doc*/, LINK pL, DDIST xdDiff)
 
 /* -------------------------------------------------------------- SetTupletFields -- */
 
-void SetTupletFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp)
+void SetTupletFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 {
 	PTUPLET p;
 
@@ -706,7 +706,7 @@ void SetTupletFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp)
 
 /* -------------------------------------------------------------- SetOctavaFields -- */
 
-void SetOctavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp)
+void SetOctavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 {
 	POCTAVA p;
 
@@ -723,7 +723,7 @@ void SetOctavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp)
 
 /* ------------------------------------------------------------- SetGraphicFields -- */
 
-void SetGraphicFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp)
+void SetGraphicFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 {
 	PGRAPHIC p;
 	
@@ -742,7 +742,7 @@ void SetGraphicFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp)
 
 /* -------------------------------------------------------------- SetTempoFields -- */
 
-void SetTempoFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp)
+void SetTempoFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 {
 	PTEMPO p;
 	
@@ -757,7 +757,7 @@ void SetTempoFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 xp, INT16 yp)
 
 /* -------------------------------------------------------------- SetSpaceFields -- */
 
-void SetSpaceFields(LINK /*pL*/, DDIST /*xdDiff*/, DDIST /*ydDiff*/, INT16 /*xp*/, INT16 /*yp*/)
+void SetSpaceFields(LINK /*pL*/, DDIST /*xdDiff*/, DDIST /*ydDiff*/, short /*xp*/, short /*yp*/)
 {
 	/* There's nothing to do. */
 }
@@ -766,7 +766,7 @@ void SetSpaceFields(LINK /*pL*/, DDIST /*xdDiff*/, DDIST /*ydDiff*/, INT16 /*xp*
 
 #define DRAGBEAM	3
 
-void SetBeamFields(LINK pL, DDIST /*xdDiff*/, DDIST ydDiff, INT16 /*xp*/, INT16 /*yp*/)
+void SetBeamFields(LINK pL, DDIST /*xdDiff*/, DDIST ydDiff, short /*xp*/, short /*yp*/)
 {
 	if (GraceBEAM(pL))
 		FixGRStemLengths(pL, ydDiff, DRAGBEAM);
@@ -777,7 +777,7 @@ void SetBeamFields(LINK pL, DDIST /*xdDiff*/, DDIST ydDiff, INT16 /*xp*/, INT16 
 
 /* --------------------------------------------------------------- SetSlurFields -- */
 
-void SetSlurFields(LINK pL, DDIST xdDiff, DDIST ydDiff, INT16 /*xp*/, INT16 /*yp*/)
+void SetSlurFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short /*xp*/, short /*yp*/)
 {
 	PASLUR aSlur; LINK aSlurL;
 	
@@ -805,11 +805,11 @@ void SetForNewPitch(Document *doc,
 					LINK pL,					/* Sync or GRSync */
 					LINK subObjL,
 					CONTEXT context,
-					INT16 pitchLev, INT16 acc
+					short pitchLev, short acc
 					)
 {
 	PANOTE aNote; PAGRNOTE aGRNote;
-	INT16 oldPitchLev, yp; DDIST ydDiff; LINK slurL, startL;
+	short oldPitchLev, yp; DDIST ydDiff; LINK slurL, startL;
 			
 	if (SyncTYPE(pL)) {
 		if (NoteTIEDL(subObjL)) {

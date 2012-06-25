@@ -15,26 +15,26 @@ and clarifying rhythm in real-time situations. No user-interface implications. *
 #include "Nightingale.appl.h"
 #include <math.h>						/* For sqrt() prototype */
 
-static Boolean ClarToMeasFromList(Document *, LINK, INT16, INT16, INT16, LINK []);
-static INT16 FindTimeSig(long, INT16, MEASINFO [], INT16, long *, long *, long *);
-static Boolean TooManySyncs(INT16, INT16);
-static INT16 Clar1ToMeas(Document *, LINKTIMEINFO [], INT16, INT16 *, INT16 *, MEASINFO [],
-							INT16, INT16 *);
+static Boolean ClarToMeasFromList(Document *, LINK, short, short, short, LINK []);
+static short FindTimeSig(long, short, MEASINFO [], short, long *, long *, long *);
+static Boolean TooManySyncs(short, short);
+static short Clar1ToMeas(Document *, LINKTIMEINFO [], short, short *, short *, MEASINFO [],
+							short, short *);
 
-static void FindTimeRange(long, long, LINKTIMEINFO [], INT16, INT16 *, INT16 *);
-static INT16 FitTime(LINKTIMEINFO [], INT16, INT16, INT16, INT16, INT16, INT16);
-static void LevelChooseTuplets(long, long, INT16, LINKTIMEINFO [], INT16, INT16, INT16, INT16);
-static void ChooseTuplets(long, long, INT16, INT16, LINKTIMEINFO [], INT16, INT16, INT16);
-static INT16 GetNInTuple(LINKTIMEINFO [], INT16, INT16, INT16);
-static Boolean Clar1ToTuplet(Document *, INT16, LINKTIMEINFO [], INT16 *, INT16, unsigned INT16);
+static void FindTimeRange(long, long, LINKTIMEINFO [], short, short *, short *);
+static short FitTime(LINKTIMEINFO [], short, short, short, short, short, short);
+static void LevelChooseTuplets(long, long, short, LINKTIMEINFO [], short, short, short, short);
+static void ChooseTuplets(long, long, short, short, LINKTIMEINFO [], short, short, short);
+static short GetNInTuple(LINKTIMEINFO [], short, short, short);
+static Boolean Clar1ToTuplet(Document *, short, LINKTIMEINFO [], short *, short, unsigned short);
 
-static Boolean MFClarifyFromList(Document *, LINK, INT16, INT16, NOTEPIECE [], INT16, PCONTEXT,
-									LINKTIMEINFO [], INT16 *);
-static Boolean MFSetNRCDur(LINK, INT16, unsigned INT16, INT16, INT16, Boolean);
-static Boolean Clar1BelowMeas(Document *, INT16, LINKTIMEINFO, INT16, MEASINFO [], INT16, INT16 *,
-								LINKTIMEINFO [], unsigned INT16, INT16 *);
+static Boolean MFClarifyFromList(Document *, LINK, short, short, NOTEPIECE [], short, PCONTEXT,
+									LINKTIMEINFO [], short *);
+static Boolean MFSetNRCDur(LINK, short, unsigned short, short, short, Boolean);
+static Boolean Clar1BelowMeas(Document *, short, LINKTIMEINFO, short, MEASINFO [], short, short *,
+								LINKTIMEINFO [], unsigned short, short *);
 
-static Boolean Add1Tuplet(Document *, INT16, LINKTIMEINFO [], INT16, INT16);
+static Boolean Add1Tuplet(Document *, short, LINKTIMEINFO [], short, short);
 
 
 /* Simple-minded tuplet denominator for given numerator: cf. GetTupleDenom */
@@ -49,7 +49,7 @@ if (TSNUM_BAD(measInfoTab[(m)].numerator) || TSDENOM_BAD(measInfoTab[(m)].denomi
 				(long)measInfoTab[(m)].numerator, (long)measInfoTab[(m)].denominator)
 
 
-INT16 FindTimeSig(long timeUsed, INT16 m, MEASINFO measInfoTab[], INT16 measTabLen,
+short FindTimeSig(long timeUsed, short m, MEASINFO measInfoTab[], short measTabLen,
 						long *tsStartTime, long *tsEndTime, long *measDur)
 {
 	while (timeUsed>=*tsEndTime || m<0) {
@@ -70,7 +70,7 @@ INT16 FindTimeSig(long timeUsed, INT16 m, MEASINFO measInfoTab[], INT16 measTabL
 }
 
 
-Boolean TooManySyncs(INT16 numNeed, INT16 maxSyncs)
+Boolean TooManySyncs(short numNeed, short maxSyncs)
 {
 	char fmtStr[256];
 	
@@ -92,19 +92,19 @@ that don't cross Measure boundaries. We simply add descriptions of the new NCs t
 <rawSyncTab>. Return OP_COMPLETE if we clarify anything, FAILURE if we try to but
 can't, or NOTHING_TO_DO. */
 
-INT16 Clar1ToMeas(
+short Clar1ToMeas(
 			Document *doc,
 			LINKTIMEINFO rawSyncTab[],		/* Input and output: unclarified NCs */
-			INT16 maxRawSyncs,				/* Maximum size of rawSyncTab */
-			INT16 *pr,							/* Index into rawSyncTab */
-			INT16 *pnRawSyncs,				/* Current size of rawSyncTab */
+			short maxRawSyncs,				/* Maximum size of rawSyncTab */
+			short *pr,							/* Index into rawSyncTab */
+			short *pnRawSyncs,				/* Current size of rawSyncTab */
 			MEASINFO	measInfoTab[],
-			INT16 measTabLen,
-			INT16 *pm 							/* Index into measInfoTab; -1 = initialize */
+			short measTabLen,
+			short *pm 							/* Index into measInfoTab; -1 = initialize */
 			)
 {
-	INT16 nPieces, nNewSyncs;
-	INT16 pieceDur[MF_MAXPIECES], i, n, k, nInTimeSig;
+	short nPieces, nNewSyncs;
+	short pieceDur[MF_MAXPIECES], i, n, k, nInTimeSig;
 	long startTime, timeUsed, timeUsedInMeas, timeLeftInMeas, lDur, segDur;
 	static long measDur, tsStartTime, tsEndTime;
 	
@@ -194,14 +194,14 @@ boundaries at each measure boundary. */
 Boolean ClarAllToMeas(
 				Document *doc,
 				LINKTIMEINFO rawSyncTab[],		/* Input and output: unclarified NRCs */
-				INT16 maxRawSyncs,				/* Maximum size of rawSyncTab */
-				INT16 *pnRawSyncs,				/* Current size of rawSyncTab */
-				INT16 /*quantum*/,						/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+				short maxRawSyncs,				/* Maximum size of rawSyncTab */
+				short *pnRawSyncs,				/* Current size of rawSyncTab */
+				short /*quantum*/,						/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 				MEASINFO	measInfoTab[],
-				INT16 measTabLen
+				short measTabLen
 				)
 {
-	INT16 m, q;
+	short m, q;
 	
 	for (q = 0; q<*pnRawSyncs; q++) {
 		rawSyncTab[q].added = FALSE;
@@ -232,11 +232,11 @@ for speed. */
 void FindTimeRange(
 			long startTime, long endTime,
 			LINKTIMEINFO rawSyncTab[],
-			INT16 nRawSyncs,
-			INT16 *pStart, INT16 *pEnd 	/* 1st entry in range, 1st AFTER range: -1=none in range */
+			short nRawSyncs,
+			short *pStart, short *pEnd 	/* 1st entry in range, 1st AFTER range: -1=none in range */
 			)
 {
-	INT16 q, qEndTime;
+	short q, qEndTime;
 	
 	*pStart = *pEnd = -1;
 	
@@ -264,16 +264,16 @@ approximated more closely with a tuplet than with normal notes, considering the 
 bias. Return the tuplet numerator if so (3 = 3:2 is the only possibility right now),
 0 if not. */
 
-INT16 FitTime(
+short FitTime(
 			LINKTIMEINFO rawSyncTab[],
-			INT16 /*nRawSyncs*/,
-			INT16 start, INT16 end,
-			INT16 rangeDur,			/* Duration of the range being considered */
-			INT16 quantum,				/* for the non-tuplet version, in PDUR ticks */
-			INT16 tripletBias 		/* Bias towards triplets (roughly, -100=no triplets, +100=max.) */
+			short /*nRawSyncs*/,
+			short start, short end,
+			short rangeDur,			/* Duration of the range being considered */
+			short quantum,				/* for the non-tuplet version, in PDUR ticks */
+			short tripletBias 		/* Bias towards triplets (roughly, -100=no triplets, +100=max.) */
 			)
 {
-	INT16 quantumN, round=quantum/2, roundN, q, scaledTripBias;
+	short quantumN, round=quantum/2, roundN, q, scaledTripBias;
 	long temp, qTime, error, totalError, totalErrorN;
 	
 	/* Scale <tripletBias> to cover range of -2*quantum to 2*quantum . */
@@ -320,7 +320,7 @@ an eighth. */
 
 Boolean slotTupled[MAX_TUP_SLOTS];
 
-INT16 tupLevel[3];	 						/* 1=1 level above beat, 2=beat, 3=1 below beat */
+short tupLevel[3];	 						/* 1=1 level above beat, 2=beat, 3=1 below beat */
 
 /* Decide which NRCs in the given measure in rawSyncTab[] should be tupleted at the
 given duration level, and store the results in the tuplet fields of rawSyncTab[].
@@ -328,16 +328,16 @@ Also set <slotTupled> flags so we don't try to tuplet these NRCs again. */
 
 void LevelChooseTuplets(
 			long measStartTime, long measEndTime,
-			INT16 levBtDur,				/* Total dur. of tuplet on the desired level */
+			short levBtDur,				/* Total dur. of tuplet on the desired level */
 			LINKTIMEINFO rawSyncTab[],
-			INT16 nRawSyncs,
-			INT16 quantum,					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
-			INT16 tripletBias,			/* Percent bias towards triplets >= 2/3 durQuantum */
-			INT16 subBtDur
+			short nRawSyncs,
+			short quantum,					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+			short tripletBias,			/* Percent bias towards triplets >= 2/3 durQuantum */
+			short subBtDur
 			)
 {
 	long btStartTime, btEndTime; Boolean skip;
-	INT16 i, startSlot, endSlot, start, end, bestNum;
+	short i, startSlot, endSlot, start, end, bestNum;
 
 	if (levBtDur<2*quantum) return;	
 	
@@ -372,15 +372,15 @@ don't consider tuplets if meter is compound. */
 void ChooseTuplets(
 			long measStartTime,
 			long measEndTime,
-			INT16 numer, INT16 denom,	/* Time signature */
+			short numer, short denom,	/* Time signature */
 			LINKTIMEINFO rawSyncTab[],
-			INT16 nRawSyncs,
-			INT16 quantum,					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
-			INT16 tripletBias 			/* Percent bias towards triplets >= 2/3 durQuantum */
+			short nRawSyncs,
+			short quantum,					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+			short tripletBias 			/* Percent bias towards triplets >= 2/3 durQuantum */
 			)
 {
-	INT16 start, end, beatDur, subBeatDur, i, k;
-	INT16 levBtDur;								/* Total dur. of tuplet on the desired level */
+	short start, end, beatDur, subBeatDur, i, k;
+	short levBtDur;								/* Total dur. of tuplet on the desired level */
 	Boolean compound, tryOnlyOne;
 	
 	compound = COMPOUND(numer);
@@ -426,15 +426,15 @@ void ChooseTuplets(
 Boolean ChooseAllTuplets(
 				Document */*doc*/,
 				LINKTIMEINFO rawSyncTab[],	/* Input: raw (unquantized and unclarified) NCs */
-				INT16 /*maxRawSyncs*/,		/* Maximum size of rawSyncTab */
-				INT16 nRawSyncs,				/* Current size of rawSyncTab */
-				INT16 quantum,					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
-				INT16 tripletBias,			/* Percent bias towards quant. to triplets >= 2/3 durQuantum */
+				short /*maxRawSyncs*/,		/* Maximum size of rawSyncTab */
+				short nRawSyncs,				/* Current size of rawSyncTab */
+				short quantum,					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+				short tripletBias,			/* Percent bias towards quant. to triplets >= 2/3 durQuantum */
 				MEASINFO	measInfoTab[],
-				INT16 measTabLen
+				short measTabLen
 				)
 {
-	INT16 i, m, shiftDenom, k; long measDur, measStartTime=0L, measEndTime;
+	short i, m, shiftDenom, k; long measDur, measStartTime=0L, measEndTime;
 	
 	shiftDenom = 100;
 	for (k = 0; k<3; k++, shiftDenom /= 10)	
@@ -463,15 +463,15 @@ Boolean ChooseAllTuplets(
 we can't find the end of the tuplet, assume it ends with the last element of syncTab[].
 Assumes syncTab[] has already been clarifed to the tuplet level. */
 
-INT16 GetNInTuple(
+short GetNInTuple(
 			LINKTIMEINFO syncTab[],		/* Partly- or fully-clarified NRCs */
-			INT16 nSyncs,					/* Current size of syncTab */
-			INT16 start,					/* Index in syncTab of first element */
-			INT16 quantum 					/* In PDUR ticks, or <=1=already quantized */
+			short nSyncs,					/* Current size of syncTab */
+			short start,					/* Index in syncTab of first element */
+			short quantum 					/* In PDUR ticks, or <=1=already quantized */
 			)
 {
-	INT16 n;
-	INT16 tupQuantum, tupRound;		/* Quantum considering the current tuplet */
+	short n;
+	short tupQuantum, tupRound;		/* Quantum considering the current tuplet */
 	long temp, tupEndTime, qStartTime;
 
 	if (quantum>1) {
@@ -504,14 +504,14 @@ than one call. */
 
 static Boolean Clar1ToTuplet(
 						Document */*doc*/,
-						INT16 /*voice*/,
+						short /*voice*/,
 						LINKTIMEINFO rawSyncTab[],	/* Input and output: unclarified NCs */
-						INT16 *pnRawSyncs,
-						INT16 nDiv,						/* Index of the NC that crosses a tuplet boundary */
-						unsigned INT16 divTime 		/* Division point, relative to the start of the NC */
+						short *pnRawSyncs,
+						short nDiv,						/* Index of the NC that crosses a tuplet boundary */
+						unsigned short divTime 		/* Division point, relative to the start of the NC */
 						)
 {
-	INT16 n; unsigned INT16 newMult; Boolean restFill;
+	short n; unsigned short newMult; Boolean restFill;
 	
 	/*
 	 * Add an identical NC that will start the tuplet (or region FOLLOWING a tuplet--
@@ -551,15 +551,15 @@ rawSyncTab[]. */
 
 Boolean ClarAllToTuplets(
 				Document *doc,
-				INT16 voice,
+				short voice,
 				LINKTIMEINFO rawSyncTab[],	/* Input and output: unclarified NCs */
-				INT16 maxRawSyncs,			/* Maximum size of rawSyncTab */
-				INT16 *pnRawSyncs,
-				INT16 /*quantum*/ 			/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+				short maxRawSyncs,			/* Maximum size of rawSyncTab */
+				short *pnRawSyncs,
+				short /*quantum*/ 			/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 				)
 {
 	long endTupTime, endThisTime;
-	INT16 q, tupleNum, endTuplet, qr; unsigned INT16 divTime;
+	short q, tupleNum, endTuplet, qr; unsigned short divTime;
 	
 	/* Break NRCs at tuplet boundaries. */
 
@@ -616,14 +616,14 @@ Boolean ClarAllToTuplets(
 /* ------------------------------------------------------- RemoveShortAddedItems -- */
 /* Remove "added" NRC's that have very short duration. */
 
-static void RemoveShortAddedItems(LINKTIMEINFO [], INT16 *, INT16);
+static void RemoveShortAddedItems(LINKTIMEINFO [], short *, short);
 static void RemoveShortAddedItems(
 					LINKTIMEINFO rawSyncTab[],	/* Input: semi-raw (partly-clarified) NCs */
-					INT16 *pnRawSyncs,			/* Input and output: size of rawSyncTab */
-					INT16 quantum 					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+					short *pnRawSyncs,			/* Input and output: size of rawSyncTab */
+					short quantum 					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 					)
 {
-	INT16 q, nSkipped;
+	short q, nSkipped;
 	
 	nSkipped = 0;
 	for (q = 0; q<*pnRawSyncs; q++) {
@@ -666,16 +666,16 @@ it leaves that to somebody else. */
 
 Boolean ChooseChords(
 				Document */*doc*/,
-				INT16 /*voice*/,				/* Same as the staff, since we use only default voices */
+				short /*voice*/,				/* Same as the staff, since we use only default voices */
 				LINKTIMEINFO rawSyncTab[],	/* Input and output: raw (unquantized and unclarified) NCs */
-				INT16 /*maxRawSyncs*/,		/* Maximum size of rawSyncTab */
-				INT16 *pnRawSyncs,			/* Current size of rawSyncTab */
+				short /*maxRawSyncs*/,		/* Maximum size of rawSyncTab */
+				short *pnRawSyncs,			/* Current size of rawSyncTab */
 				NOTEAUX rawNoteAux[],		/* Input: raw notes */
-				INT16 quantum 					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+				short quantum 					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 				)
 {
-	INT16 endTuplet, q, qr, n;
-	INT16 tupQuantum, nextTupQuantum, tupRound;		/* Quantum considering the current tuplet */
+	short endTuplet, q, qr, n;
+	short tupQuantum, nextTupQuantum, tupRound;		/* Quantum considering the current tuplet */
 	long endTupTime, qStartTime, prevStartTime, qPrevStartTime, temp;
 	Boolean chordWithLast, okay=FALSE;
 	
@@ -793,17 +793,17 @@ boundaries or tuplet boundaries. */
 
 void QuantizeAndClip(
 			Document */*doc*/,
-			INT16 /*voice*/,
+			short /*voice*/,
 			LINKTIMEINFO rawSyncTab[],	/* Input and output: unclarified NCs */
-			INT16 *pnRawSyncs,
-			INT16 quantum 					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+			short *pnRawSyncs,
+			short quantum 					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 			)
 {
-	INT16 round=quantum/2, q, prev, endTuplet, n;
+	short round=quantum/2, q, prev, endTuplet, n;
 	long prevEndTime, temp, overlapTime, newMult;
 	long tupTime, timeSinceTup;				/* Time at last tuplet boundary, time since then */
 	long endTupTime;
-	INT16 tupQuantum, tupRound;				/* Quantum considering the current tuplet */
+	short tupQuantum, tupRound;				/* Quantum considering the current tuplet */
 		
 	if (quantum==1) return;
 	
@@ -907,13 +907,13 @@ void QuantizeAndClip(
 /* ----------------------------------------------------------- RemoveZeroDurItems -- */
 /* Remove NRC's that have been truncated to zero duration. */
 
-static void RemoveZeroDurItems(LINKTIMEINFO [], INT16 *);
+static void RemoveZeroDurItems(LINKTIMEINFO [], short *);
 static void RemoveZeroDurItems(
 					LINKTIMEINFO rawSyncTab[],		/* Input: semi-raw (partly-clarified) NCs */
-					INT16 *pnRawSyncs 				/* Input and output: size of rawSyncTab */
+					short *pnRawSyncs 				/* Input and output: size of rawSyncTab */
 					)
 {
-	INT16 q, nSkipped;
+	short q, nSkipped;
 	
 	nSkipped = 0;
 	for (q = 0; q<*pnRawSyncs; q++) {
@@ -948,13 +948,13 @@ static void RemoveZeroDurItems(
 /* If any of our proposed tuplets would end up containing only one NRC, cancel
 making the tuplet. */
 
-static void RemoveOneItemTuplets(LINKTIMEINFO [], INT16);
+static void RemoveOneItemTuplets(LINKTIMEINFO [], short);
 static void RemoveOneItemTuplets(
 					LINKTIMEINFO rawSyncTab[],		/* Input: semi-raw (partly-clarified) NCs */
-					INT16 nRawSyncs 					/* Current size of rawSyncTab */
+					short nRawSyncs 					/* Current size of rawSyncTab */
 					)
 {
-	INT16 q; long endTupTime;
+	short q; long endTupTime;
 	
 	for (q = 0; q<nRawSyncs; q++) {
 		if (rawSyncTab[q].tupleNum>0) {
@@ -976,16 +976,16 @@ rawSyncTab[] and rawNoteAux[]. */
 
 LINK BuildSyncs(
 			Document *doc,
-			INT16 voice,					/* Same as the staff, since we use only default voices */
+			short voice,					/* Same as the staff, since we use only default voices */
 			LINKTIMEINFO rawSyncTab[],	/* Input: raw (unquantized and unclarified) NCs */
-			INT16 nRawSyncs,				/* Size of rawSyncTab */
+			short nRawSyncs,				/* Size of rawSyncTab */
 			NOTEAUX rawNoteAux[],		/* Input: raw notes */
-			INT16 /*nAux*/,						/* (unused) Size of rawNoteAux */
+			short /*nAux*/,						/* (unused) Size of rawNoteAux */
 			LINK measL 						/* Measure into which to put the new Syncs */
 			)
 {
 	LINK firstL, lSync, aNoteL, firstSync; MNOTE theNote;
-	INT16 q; unsigned INT16 iAux; Boolean okay=FALSE;
+	short q; unsigned short iAux; Boolean okay=FALSE;
 	
 	/*
 	 *	Put objects generated by this track after the given Measure so they can be
@@ -1081,17 +1081,17 @@ with existing Syncs and does not return <newSyncs> and <nNewSyncs>. */
 Boolean MFClarifyFromList(
 			Document *doc,
 			LINK		syncL,
-			INT16		voice,
-			INT16		tieStaff,		/* Staff no. for ties, or <=0 for no ties (use with rests) */
+			short		voice,
+			short		tieStaff,		/* Staff no. for ties, or <=0 for no ties (use with rests) */
 			NOTEPIECE piece[],
-			INT16		kount,
+			short		kount,
 			PCONTEXT pContext,
 			LINKTIMEINFO newSyncs[],
-			INT16 	*nNewSyncs
+			short 	*nNewSyncs
 			)
 {
 	register LINK newL; LINK qL, prevL, aNoteL, tieL;
-	INT16 k; long curTime;
+	short k; long curTime;
 	
 	/*
 	 *	Strategy: set the existing NRC's duration to the first segment's, and add new
@@ -1143,12 +1143,12 @@ Boolean MFClarifyFromList(
 #define MAX_ERR (PDURUNIT-1)
 #define MAX_DOTS 2	/* Max. aug. dots allowed: be generous, since we have no alternative */
 
-Boolean MFSetNRCDur(LINK syncL, INT16 voice, unsigned INT16 lDur, INT16 tupleNum,
-							INT16 tupleDenom, Boolean setPDur)
+Boolean MFSetNRCDur(LINK syncL, short voice, unsigned short lDur, short tupleNum,
+							short tupleDenom, Boolean setPDur)
 {
 	char durCode, nDots; LINK aNoteL; PANOTE aNote;
 	
-	if (LDur2Code((INT16)lDur, MAX_ERR, MAX_DOTS, &durCode, &nDots)) {
+	if (LDur2Code((short)lDur, MAX_ERR, MAX_DOTS, &durCode, &nDots)) {
 		for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL))
 			if (NoteVOICE(aNoteL)==voice) {
 				aNote = GetPANOTE(aNoteL);
@@ -1170,23 +1170,23 @@ and <nNewSyncs> parameters. */
 
 static Boolean Clar1BelowMeas(
 						Document *doc,
-						INT16 voice,
+						short voice,
 						LINKTIMEINFO rawSyncInfo,
-						INT16 tupleNum,
+						short tupleNum,
 						MEASINFO	measInfoTab[],
-						INT16 measTabLen,
-						INT16 *m,							/* Index into measInfoTab; -1 = initialize */
+						short measTabLen,
+						short *m,							/* Index into measInfoTab; -1 = initialize */
 						LINKTIMEINFO newSyncTab[],
-						unsigned INT16 maxNewSyncs,
-						INT16 *nNewSyncs
+						unsigned short maxNewSyncs,
+						short *nNewSyncs
 						)
 {
 	LINK syncL, aNoteL;
 	CONTEXT context;
-	INT16 tupleDenom, staff, nPieces;
+	short tupleDenom, staff, nPieces;
 	Boolean compound;
 	NOTEPIECE piece[MF_MAXPIECES];
-	unsigned INT16 lDur;
+	unsigned short lDur;
 	long timeUsed, timeUsedInMeas;
 	static long measDur, tsStartTime, tsEndTime;
 	char fmtStr[256];
@@ -1271,17 +1271,17 @@ object list. */
 
 Boolean ClarAllBelowMeas(
 				Document *doc,
-				INT16 voice,
+				short voice,
 				LINKTIMEINFO rawSyncTab[],		/* Input: partly-clarified NRCs */
-				INT16 nRawSyncs,
+				short nRawSyncs,
 				MEASINFO	measInfoTab[],
-				INT16 measTabLen,
+				short measTabLen,
 				LINKTIMEINFO newSyncTab[],		/* Output: fully-clarified NRCs */
-				unsigned INT16 maxNewSyncs,
-				INT16 *nNewSyncs
+				unsigned short maxNewSyncs,
+				short *nNewSyncs
 				)
 {
-	INT16 m, q, endTuplet, tupleNum;
+	short m, q, endTuplet, tupleNum;
 	
 	m = -1;
 	*nNewSyncs = -1;
@@ -1321,12 +1321,12 @@ Boolean ClarAllBelowMeas(
 
 Boolean AddTies(
 				Document *doc,
-				INT16 voice,
+				short voice,
 				LINKTIMEINFO rawSyncTab[],		/* Input: semi-raw (partly-clarified) NCs */
-				INT16 nRawSyncs 					/* Current size of rawSyncTab */
+				short nRawSyncs 					/* Current size of rawSyncTab */
 				)
 {
-	INT16 q;
+	short q;
 	
 	for (q = 1; q<nRawSyncs; q++) {
 		/* Either note/chord may have been truncated to zero duration. */
@@ -1350,14 +1350,14 @@ you should call GetBracketVis for each tuplet. */
 
 static Boolean Add1Tuplet(
 						Document *doc,
-						INT16 voice,
+						short voice,
 						LINKTIMEINFO newSyncTab[],		/* Fully-clarified NCs */
-						INT16 nNewSyncs,					/* Current size of newSyncTab */
-						INT16 start 						/* Index in newSyncTab of first element */
+						short nNewSyncs,					/* Current size of newSyncTab */
+						short start 						/* Index in newSyncTab of first element */
 						)
 {
 	LINK tupletL, pL, aNoteL, aNoteTupleL;
-	INT16 nInTuple, tupleNum, tupleDenom, n;
+	short nInTuple, tupleNum, tupleDenom, n;
 	Boolean numVis, denomVis, brackVis;
 	PANOTETUPLE aNoteTuple;
 
@@ -1397,12 +1397,12 @@ static Boolean Add1Tuplet(
 
 Boolean AddTuplets(
 				Document *doc,
-				INT16 voice,
+				short voice,
 				LINKTIMEINFO newSyncTab[],		/* Fully-clarified NCs */
-				INT16 nNewSyncs 					/* Current size of newSyncTab */
+				short nNewSyncs 					/* Current size of newSyncTab */
 				)
 {
-	INT16 q;
+	short q;
 	
 	for (q = 0; q<nNewSyncs; q++) {		
 		if (newSyncTab[q].tupleNum>0)
@@ -1417,10 +1417,10 @@ Boolean AddTuplets(
 /* -------------------------------------------------------------------- Debugging -- */
 
 
-void DPrintMeasTab(char *label, MEASINFO	measInfoTab[], INT16 measTabLen)
+void DPrintMeasTab(char *label, MEASINFO	measInfoTab[], short measTabLen)
 {
 #ifndef PUBLIC_VERSION
-	INT16 m, nInTimeSig; long tsStartTime, tsEndTime, measDur;
+	short m, nInTimeSig; long tsStartTime, tsEndTime, measDur;
 
 	DebugPrintf("DPrintMeasTab '%s' measTabLen=%d:\n", label, measTabLen);
 
@@ -1441,10 +1441,10 @@ void DPrintMeasTab(char *label, MEASINFO	measInfoTab[], INT16 measTabLen)
 
 #define PR_LIMIT 16
 
-void DPrintLTIs(char *label, LINKTIMEINFO itemTab[], INT16 nItems)
+void DPrintLTIs(char *label, LINKTIMEINFO itemTab[], short nItems)
 {
 #ifndef PUBLIC_VERSION
-	INT16 i;
+	short i;
 	
 	DebugPrintf("DPrintLTIs '%s' nItems=%d:\n", label, nItems);
 	
@@ -1489,24 +1489,24 @@ returns NILINK. */
 
 LINK TranscribeVoice(
 			Document *doc,
-			INT16 voice,						/* Same as the staff, since we use only default voices */
+			short voice,						/* Same as the staff, since we use only default voices */
 			LINKTIMEINFO rawSyncTab[],		/* Input: raw (unquantized and unclarified) NCs */
-			INT16 maxRawSyncs,				/* Maximum size of rawSyncTab */
-			INT16 nRawSyncs,					/* Current size of rawSyncTab */
+			short maxRawSyncs,				/* Maximum size of rawSyncTab */
+			short nRawSyncs,					/* Current size of rawSyncTab */
 			NOTEAUX rawNoteAux[],			/* Input: auxiliary info on raw notes */
-			INT16 nAux,							/* Size of rawNoteAux */
-			INT16 quantum,						/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
-			INT16 tripletBias,				/* Percent bias towards quant. to triplets >= 2/3 durQuantum */
+			short nAux,							/* Size of rawNoteAux */
+			short quantum,						/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+			short tripletBias,				/* Percent bias towards quant. to triplets >= 2/3 durQuantum */
 			MEASINFO	measInfoTab[],
-			INT16 nMeasTab,
+			short nMeasTab,
 			LINK measL,							/* Measure into which to put the new Syncs */
 			LINKTIMEINFO newSyncTab[],		/* Output: fully-clarified NCs */
-			unsigned INT16 maxNewSyncs,
-			INT16 *pnNewSyncs,
-			INT16 *errCode
+			unsigned short maxNewSyncs,
+			short *pnNewSyncs,
+			short *errCode
 			)
 {
-	LINK firstSync; INT16 q;
+	LINK firstSync; short q;
 	
 	if (quantum>1) {
 if (DBG) DPrintLTIs("<ClarAllToMeas",rawSyncTab,nRawSyncs);

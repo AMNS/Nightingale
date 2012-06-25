@@ -39,16 +39,16 @@ enum {					/* Indices of error strings in Error Strings STR# resource */
 
 /* Prototypes for local routines */
 
-static void	ErrorMsg(INT16 index);
-static void	ErrorNumber(INT16 index, long num);
-static void	ErrorString(INT16 index, unsigned char *msg);
-static INT16	DoGeneralAlert(unsigned char *str);
+static void	ErrorMsg(short index);
+static void	ErrorNumber(short index, long num);
+static void	ErrorString(short index, unsigned char *msg);
+static short	DoGeneralAlert(unsigned char *str);
 
 
 /* Print an error message.  If index is non-zero, then retrieve the index'th
 string from our error strings resource. */
 
-static void ErrorMsg(INT16 index)
+static void ErrorMsg(short index)
 	{
 		Str255 str;
 		
@@ -63,7 +63,7 @@ static void ErrorMsg(INT16 index)
  *	have a ^0 in it where we'll place the argument to the message.
  */
 
-static void ErrorString(INT16 index, unsigned char *msg)
+static void ErrorString(short index, unsigned char *msg)
 	{
 		Str255 str;
 		
@@ -77,7 +77,7 @@ static void ErrorString(INT16 index, unsigned char *msg)
  *	message is kept in the index'th string in the error strings.
  */
 
-static void ErrorNumber(INT16 index, long num)
+static void ErrorNumber(short index, long num)
 	{
 		Str255 str; Str31 numStr;
 		
@@ -93,7 +93,7 @@ static void ErrorNumber(INT16 index, long num)
  *	fancy and choose different alerts based on the size of the string.
  */
 
-static INT16 DoGeneralAlert(unsigned char *str)
+static short DoGeneralAlert(unsigned char *str)
 	{
 		ParamText(str,"\p","\p","\p");
 		PlaceAlert(errorMsgID,NULL,0,40);
@@ -109,9 +109,9 @@ static INT16 DoGeneralAlert(unsigned char *str)
  *	given str.
  */
 
-void InstallArg(unsigned char *str, unsigned char *msg, INT16 n)
+void InstallArg(unsigned char *str, unsigned char *msg, short n)
 	{
-		unsigned char *src,*dst; INT16 strLen,msgLen,len;
+		unsigned char *src,*dst; short strLen,msgLen,len;
 		unsigned char *top;
 		
 		strLen = *str;
@@ -169,11 +169,11 @@ void BadInit()										{ ErrorMsg(badInit); }
 
 void TooManyDocs()								{ ErrorMsg(tooManyDocs); }
 
-void TooManyPages(INT16 limit)			 	{ ErrorNumber(tooManyPages,(long)limit); }
+void TooManyPages(short limit)			 	{ ErrorNumber(tooManyPages,(long)limit); }
 
-void TooManyRows(INT16 limit)		 			{ ErrorNumber(tooManyRows,(long)limit); }
+void TooManyRows(short limit)		 			{ ErrorNumber(tooManyRows,(long)limit); }
 	
-void TooManyColumns(INT16 limit)		 		{ ErrorNumber(tooManyColumns,(long)limit); }
+void TooManyColumns(short limit)		 		{ ErrorNumber(tooManyColumns,(long)limit); }
 
 void PageTooSmall()								{ ErrorMsg(pageTooSmall); }
 
@@ -216,7 +216,7 @@ void MayErrMsg(char *fmt, ...)
 {
 	va_list ap; long arg1,arg2,arg3,arg4,arg5,arg6;
 	
-	static INT16 alertCount = 2;
+	static short alertCount = 2;
 
 	va_start(ap,fmt);
 	arg1 = va_arg(ap,long);
@@ -274,7 +274,7 @@ void AlwaysErrMsg(char *fmt, ...)
 /* ---------------------------------------------------------------- ReportIOError -- */
 /* Alert user to the given I/O error, using the given dialog. */
 
-Boolean ReportIOError(INT16 errCode, INT16 dlog)
+Boolean ReportIOError(short errCode, short dlog)
 {
 	StringHandle strHdl; char fmtStr[256];
 	
@@ -343,7 +343,7 @@ Boolean ReportBadResource(Handle resH)
 also give a compiled-in error message, but it's probably too dangerous to try to get
 one from a resource in this situation. */
 
-void MissingDialog(INT16 /*dlogID*/)
+void MissingDialog(short /*dlogID*/)
 {
 	SysBeep(1);
 }
@@ -351,7 +351,7 @@ void MissingDialog(INT16 /*dlogID*/)
 /* ------------------------------------------------------------- AppleEventError -- */
 /* Alert user when an Apple event handler gets an error code. */
 
-void AppleEventError(char */*handlerName*/, INT16 errCode)
+void AppleEventError(char */*handlerName*/, short errCode)
 	{
 		char fmtStr[256], buf[256];
 		

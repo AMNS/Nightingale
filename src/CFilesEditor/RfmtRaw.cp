@@ -259,7 +259,7 @@ Boolean RespAndRfmtRaw(
 						widthChange;
 	LONGDDIST		staffLengthUse;
 	Boolean			newSysOrPage=FALSE;
-	INT16				status;
+	short				status;
 
 	barTermL = EndMeasSearch(doc, startL);
 	barL = LSSearch(LeftLINK(barTermL), MEASUREtype, ANYONE, GO_LEFT, FALSE);

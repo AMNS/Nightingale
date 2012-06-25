@@ -34,9 +34,9 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static INT16 GetTranspSpell(INT16, INT16, INT16, INT16, INT16 *, INT16 *, Boolean *);
-static void PSortNotes(CHORDNOTE [], INT16, Boolean);
-static void GSortNotes(CHORDNOTE [], INT16, Boolean);
+static short GetTranspSpell(short, short, short, short, short *, short *, Boolean *);
+static void PSortNotes(CHORDNOTE [], short, Boolean);
+static void GSortNotes(CHORDNOTE [], short, Boolean);
 
 
 /* ------------------------------------------------------------------- MoveModNRs -- */
@@ -66,9 +66,9 @@ void MoveModNRs(LINK aNoteL, STDIST dystd)
 sharps, <0 = flats. Should not be called for nonstandard key signatures (as of v3.0,
 not implemented, anyway). */ 
 
-INT16 GetSharpsOrFlats(PCONTEXT pContext)
+short GetSharpsOrFlats(PCONTEXT pContext)
 {
-	INT16 nitems;
+	short nitems;
 
 	nitems = pContext->nKSItems;
 	return (pContext->KSItem[0].sharp? nitems : -nitems);
@@ -79,7 +79,7 @@ INT16 GetSharpsOrFlats(PCONTEXT pContext)
 
 Boolean KeySigEqual(PKSINFO ks1, PKSINFO ks2)
 {
-	INT16 i, curnKSItems;
+	short i, curnKSItems;
 	
 	if ( (curnKSItems = ks1->nKSItems)!=ks2->nKSItems)
 		return FALSE;  
@@ -103,7 +103,7 @@ use the KEYSIG_COPY macro (BlockMove is impractical: see comments on KEYSIG_COPY
 
 void KeySigCopy(PKSINFO ks1, PKSINFO ks2)
 {
-	INT16 i;
+	short i;
 	
 	ks2->nKSItems = ks1->nKSItems;			
 	for (i = 0; i<ks1->nKSItems; i++)
@@ -114,7 +114,7 @@ void KeySigCopy(PKSINFO ks1, PKSINFO ks2)
 /* ----------------------------------------------------------- ClefMiddleCHalfLn -- */
 /*	Given clef, get staff half-line number of middle C. */
 
-INT16 ClefMiddleCHalfLn(SignedByte clefType)
+short ClefMiddleCHalfLn(SignedByte clefType)
 {
 	switch (clefType) {
 		case TREBLE8_CLEF:		return 17;
@@ -137,9 +137,9 @@ INT16 ClefMiddleCHalfLn(SignedByte clefType)
 
 /* ----------------------------------------------------------- Char2Acc,Acc2Char -- */
 
-INT16 Char2Acc(unsigned char charAcc)
+short Char2Acc(unsigned char charAcc)
 {
-	INT16 acc, i;
+	short acc, i;
 	
 	acc = -1;
 	for (i =1; i<=5; i++)
@@ -147,7 +147,7 @@ INT16 Char2Acc(unsigned char charAcc)
 	return acc;
 }
 
-unsigned char Acc2Char(INT16 acc)
+unsigned char Acc2Char(short acc)
 {	
 	return SonataAcc[acc];
 }
@@ -159,9 +159,9 @@ the key signature, and previous accidentals on its staff position in its measure
 NOT considering the possibility that its pitch is affected by a note it's tied to.
 To take the latter into account, first call FirstTiedNote. */
 
-INT16 EffectiveAcc(Document *doc, LINK syncL, LINK aNoteL)
+short EffectiveAcc(Document *doc, LINK syncL, LINK aNoteL)
 {
-	INT16		halfLn, effectiveAcc;
+	short		halfLn, effectiveAcc;
 	PANOTE	aNote;
 	
 	aNote = GetPANOTE(aNoteL);	
@@ -182,9 +182,9 @@ INT16 EffectiveAcc(Document *doc, LINK syncL, LINK aNoteL)
 EffectiveAcc, except there's no problem with ties because (as of v.3.1) we don't
 allow tied grace notes. */
 
-INT16 EffectiveGRAcc(Document *doc, LINK grSyncL, LINK aGRNoteL)
+short EffectiveGRAcc(Document *doc, LINK grSyncL, LINK aGRNoteL)
 {
-	INT16		halfLn, effectiveAcc;
+	short		halfLn, effectiveAcc;
 	PAGRNOTE	aGRNote;
 	
 	aGRNote = GetPAGRNOTE(aGRNoteL);	
@@ -202,17 +202,17 @@ INT16 EffectiveGRAcc(Document *doc, LINK grSyncL, LINK aGRNoteL)
 
 /* --------------------------------------------------------- Pitch2MIDI,Pitch2PC -- */
 
-static INT16	halfLine2semi[] =				/* White-key semitone offset for */ 
+static short	halfLine2semi[] =				/* White-key semitone offset for */ 
 					{ 0, 2, 4, 5, 7, 9, 11 };	/*   half-line positions above C */
 
 /* Convert pitch to MIDI note number. */
 
-INT16 Pitch2MIDI(
-		INT16	halfLines,					/* Half-lines above middle C */
-		INT16	acc 							/* Code for accidental */
+short Pitch2MIDI(
+		short	halfLines,					/* Half-lines above middle C */
+		short	acc 							/* Code for accidental */
 		)
 {
-	INT16		letterName,
+	short		letterName,
 				octave,
 				halfSteps;
 	
@@ -230,12 +230,12 @@ INT16 Pitch2MIDI(
 
 /* Convert pitch to pitch class (0=B#/C/Dbb, 1=C#/Db, ...11=A##/B/Cb). */
 
-INT16 Pitch2PC(
-		INT16	halfLines,				/* Half-lines above C: 0=C, 1=D...6=B */
-		INT16	acc 						/* Code for accidental; 0 and AC_NATURAL act the same */
+short Pitch2PC(
+		short	halfLines,				/* Half-lines above C: 0=C, 1=D...6=B */
+		short	acc 						/* Code for accidental; 0 and AC_NATURAL act the same */
 		)
 {
-	INT16		notePC;
+	short		notePC;
 	
 	notePC = halfLine2semi[halfLines];
 	if (acc!=0) notePC += acc-AC_NATURAL;			/* If an accidental, add it in */
@@ -248,9 +248,9 @@ INT16 Pitch2PC(
 /* ---------------------------------------------------------------------- PCDiff -- */
 /* Get pitch-class difference between two letter names */
 
-INT16 PCDiff(INT16 newLet, INT16 let, Boolean up)
+short PCDiff(short newLet, short let, Boolean up)
 {
-	INT16 diff;
+	short diff;
 	
 	diff = Pitch2PC(newLet, 0)-Pitch2PC(let, 0);
 	if (diff<0 && up)			return diff+12;
@@ -269,28 +269,28 @@ GetRespell does not care if the input spelling makes sense, so you can always ge
 a good spelling simply by passing GetRespell a ridiculous one, e.g., with letName=0
 and acc=1 (accidental of double-flat). */
 
-INT16 sharpSpelling[12][2] = {
+short sharpSpelling[12][2] = {
 	/* pitchclass C     C#           D     D#           E     F     F#           G	*/
 				    {0,0},{0,AC_SHARP},{1,0},{1,AC_SHARP},{2,0},{3,0},{3,AC_SHARP},{4,0},
 				    		 {4,AC_SHARP},{5,0},{5,AC_SHARP},{6,0}
 	/*						  G#           A     A#           B										*/
 };
 
-INT16 flatSpelling[12][2] = {
+short flatSpelling[12][2] = {
 	/* pitchclass C     Db          D     Eb          E     F     Gb          G     */
 				    {0,0},{1,AC_FLAT},{1,0},{2,AC_FLAT},{2,0},{3,0},{4,AC_FLAT},{4,0},
 				    		 {5,AC_FLAT},{5,0},{6,AC_FLAT},{6,0}
 	/*                  Ab          A     Bb          B                             */
 };
 
-INT16 GetRespell(
-		INT16 letName, 
-		INT16 acc,							/* Effective (not actual) accidental */
-		INT16 *pNewLetName,
-		INT16 *pNewAcc
+short GetRespell(
+		short letName, 
+		short acc,							/* Effective (not actual) accidental */
+		short *pNewLetName,
+		short *pNewAcc
 		)
 {
-	INT16 notePC, deltaHL;
+	short notePC, deltaHL;
 	Boolean didIt = FALSE;
 
 	notePC = Pitch2PC(letName, acc);							/* Get note's pitch class */
@@ -335,7 +335,7 @@ that, cf. FixSyncVoice in SetUtils.c, which probably should be combined with thi
 void FixRespelledVoice(
 				Document *doc,
 				LINK pL,
-				INT16 voice)		/* Sync or GRSync */
+				short voice)		/* Sync or GRSync */
 {
 	LINK		aNoteL, aGRNoteL;
 	CONTEXT	context;
@@ -375,9 +375,9 @@ void FixRespelledVoice(
 /* Functions to convert a character from A thru G to or from a letter-name code, with
 C=0, D=1...B=6. They do no error checking! */
 
-INT16 letNameCodes[7] = { 5, 6, 0, 1, 2, 3, 4 };
+short letNameCodes[7] = { 5, 6, 0, 1, 2, 3, 4 };
 
-INT16 Char2LetName(char charLet)
+short Char2LetName(char charLet)
 {
 	/*
 	 * The following depends on the assumption that character codes for letter A thru
@@ -390,7 +390,7 @@ INT16 Char2LetName(char charLet)
 
 char charCodes[7] = { 'C', 'D', 'E', 'F', 'G', 'A', 'B' };
 
-char LetName2Char(INT16 letName)
+char LetName2Char(short letName)
 {
 	return charCodes[letName];
 }
@@ -406,7 +406,7 @@ Boolean RespellChordSym(Document */*doc*/, LINK pL)
 	LINK			aGraphicL;
 	StringOffset theStrOffset;
 	unsigned char	string[256];
-	INT16			i, k, letName, acc, newLetName, newAcc,
+	short			i, k, letName, acc, newLetName, newAcc,
 					letPos, accPos;
 	
 	aGraphicL = FirstSubLINK(pL);
@@ -488,7 +488,7 @@ redundant accidentals. */
 Boolean RespellNote(Document *doc, LINK syncL, LINK aNoteL, PCONTEXT pContext)
 {
 	PANOTE	aNote;
-	INT16		stf, halfLn, effectiveAcc, letName, deltaHL,
+	short		stf, halfLn, effectiveAcc, letName, deltaHL,
 				newLetName, newAcc;
 	STDIST 	dystd;
 	DDIST		dyd;
@@ -535,7 +535,7 @@ Boolean RespellNote(Document *doc, LINK syncL, LINK aNoteL, PCONTEXT pContext)
 Boolean RespellGRNote(Document *doc, LINK grSyncL, LINK aGRNoteL, PCONTEXT pContext)
 {
 	PAGRNOTE	aGRNote;
-	INT16		stf, halfLn, effectiveAcc, letName, deltaHL,
+	short		stf, halfLn, effectiveAcc, letName, deltaHL,
 				newLetName, newAcc;
 	DDIST		dyd;
 
@@ -586,17 +586,17 @@ than an octave and, in semitones, less than an octave, so -7<=steps<=7, and
 
 Letter names are represented as 0=C, 1=D...6=B. */
 
-static INT16 GetTranspSpell(
-					INT16		letName,
-					INT16		acc,
-					INT16		steps,
-					INT16		semiChange,
-					INT16		*pNewLetName,
-					INT16		*pNewAcc,
+static short GetTranspSpell(
+					short		letName,
+					short		acc,
+					short		steps,
+					short		semiChange,
+					short		*pNewLetName,
+					short		*pNewAcc,
 					Boolean	*cantSpell
 					)
 {
-	INT16 newLetName, newAcc, accChange, deltaHL;
+	short newLetName, newAcc, accChange, deltaHL;
 	
 	if (ABS(steps)>7 || ABS(semiChange)>11)
 		MayErrMsg("GetTranspSpell: steps=%ld or semiChange=%ld is illegal.",
@@ -656,14 +656,14 @@ Return TRUE if all is well, FALSE if there's a problem. */
 Boolean TranspChordSym(
 				Document */*doc*/,
 				LINK		pL,
-				INT16		steps,			/* Signed no. of diatonic steps transposition */
-				INT16		semiChange 		/*	Signed total transposition in semitones */
+				short		steps,			/* Signed no. of diatonic steps transposition */
+				short		semiChange 		/*	Signed total transposition in semitones */
 				)
 {
 	LINK			aGraphicL;
 	StringOffset theStrOffset;
 	unsigned char	string[256];
-	INT16			i, k, letName, acc, newLetName, newAcc, letPos, accPos;
+	short			i, k, letName, acc, newLetName, newAcc, letPos, accPos;
 	Boolean		cantSpell;
 	
 	aGraphicL = FirstSubLINK(pL);
@@ -749,12 +749,12 @@ Boolean TranspNote(
 					LINK		syncL,
 					LINK		aNoteL,
 					CONTEXT	context,
-					INT16		octaves,			/* Signed no. of octaves transposition */
-					INT16		steps,			/* Signed no. of diatonic steps transposition */
-					INT16		semiChange 		/*	Signed total transposition in semitones */
+					short		octaves,			/* Signed no. of octaves transposition */
+					short		steps,			/* Signed no. of diatonic steps transposition */
+					short		semiChange 		/*	Signed total transposition in semitones */
 					)
 {
-	INT16 effectiveAcc, stf, halfLn, letName, deltaHL,
+	short effectiveAcc, stf, halfLn, letName, deltaHL,
 			newLetName, newAcc, deltaHLOct; 
 	PANOTE aNote;
 	Boolean cantSpell;
@@ -809,12 +809,12 @@ Boolean TranspGRNote(
 					LINK		grSyncL,
 					LINK		aGRNoteL,
 					CONTEXT	context,
-					INT16		octaves,				/* Signed no. of octaves transposition */
-					INT16		steps,				/* Signed no. of diatonic steps transposition */
-					INT16		semiChange 			/*	Signed total transposition in semitones */
+					short		octaves,				/* Signed no. of octaves transposition */
+					short		steps,				/* Signed no. of diatonic steps transposition */
+					short		semiChange 			/*	Signed total transposition in semitones */
 					)
 {
-	INT16 effectiveAcc, stf, halfLn, letName, deltaHL,
+	short effectiveAcc, stf, halfLn, letName, deltaHL,
 			newLetName, newAcc, deltaHLOct; 
 	PAGRNOTE aGRNote;
 	Boolean cantSpell;
@@ -859,12 +859,12 @@ We transpose the letter names and leave any other characters in the string untou
 
 void DTranspChordSym(Document */*doc*/,
 							LINK pL,
-							INT16 steps)		/* Signed no. of diatonic steps transposition */
+							short steps)		/* Signed no. of diatonic steps transposition */
 {
 	LINK			aGraphicL;
 	StringOffset theStrOffset;
 	unsigned char	string[256];
-	INT16			i, letName, newLetName;
+	short			i, letName, newLetName;
 	
 	aGraphicL = FirstSubLINK(pL);
 	theStrOffset = GraphicSTRING(aGraphicL);
@@ -911,11 +911,11 @@ void DTranspNote(
 				LINK		aNoteL,
 				CONTEXT	context,
 				Boolean	goUp,					/* TRUE=transpose up, else down */
-				INT16		octaves,				/* Signed no. of octaves transposition */
-				INT16		steps 				/* Signed no. of diatonic steps transposition */
+				short		octaves,				/* Signed no. of octaves transposition */
+				short		steps 				/* Signed no. of diatonic steps transposition */
 				)
 {
-	INT16 effectiveAcc, stf, halfLn, letName,
+	short effectiveAcc, stf, halfLn, letName,
 			newEffectiveAcc, newHalfLn, newLetName,
 			stepsOct, semiChangeOct;
 	STDIST dystd;
@@ -970,11 +970,11 @@ void DTranspGRNote(
 				LINK		aGRNoteL,
 				CONTEXT	context,
 				Boolean	goUp,					/* TRUE=transpose up, else down */
-				INT16		octaves,				/* Signed no. of octaves transposition */
-				INT16		steps 				/* Signed no. of diatonic steps transposition */
+				short		octaves,				/* Signed no. of octaves transposition */
+				short		steps 				/* Signed no. of diatonic steps transposition */
 				)
 {
-	INT16 effectiveAcc, stf, halfLn, letName,
+	short effectiveAcc, stf, halfLn, letName,
 			newEffectiveAcc, newHalfLn, newLetName,
 			stepsOct, semiChangeOct;
 	PAGRNOTE aGRNote;
@@ -1013,10 +1013,10 @@ void DTranspGRNote(
 are represented 0=C, 1=C#/Db, 2=D,  ...10=A#/Bb, 11=B; no other possibilities (B#,
 Gbb, etc.) are considered. */
 
-static INT16 DiatonicSteps(Boolean, INT16, INT16);
-static INT16 DiatonicSteps(
+static short DiatonicSteps(Boolean, short, short);
+static short DiatonicSteps(
 						Boolean useSharps,			/* TRUE=use sharps for black-key notes, FALSE=use flats */
-						INT16 ind, INT16 newInd		/* The two pitch classes */
+						short ind, short newInd		/* The two pitch classes */
 						)
 {
 	/* Diatonic scale degrees, one octave plus an extra entry at each ends */
@@ -1025,7 +1025,7 @@ static INT16 DiatonicSteps(
 	Byte flatDegree[] =  { 6,  0,  1,  1,  2,  2,  3,  4,  4,  5,  5,  6,  6, 0 }; 
 	/* 						  (B) C   Db  D   Eb  E   F   Gb  G   Ab  A   Bb  B  (C) */
 
-	INT16 stepCount, i, iMod;
+	short stepCount, i, iMod;
 	Boolean goUp=(ind<newInd);
 
 	if (ind==newInd) return 0;
@@ -1062,11 +1062,11 @@ the no. of sharps or flats in the key sig. transposed as described. If there is
 no such transposed key sig., return with *cantSpell=TRUE (in which case the
 function value is nonsense!), else *cantSpell=FALSE. */
 
-static INT16 TranspKS(INT16, INT16, INT16, Boolean *);
-static INT16 TranspKS(
-					INT16		sharpsOrFlats,		/* -=abs. value is no. of flats, else no. of sharps */
-					INT16		steps,				/* Signed no. of diatonic steps transposition */
-					INT16		semiChange,			/*	Signed total transposition in semitones */
+static short TranspKS(short, short, short, Boolean *);
+static short TranspKS(
+					short		sharpsOrFlats,		/* -=abs. value is no. of flats, else no. of sharps */
+					short		steps,				/* Signed no. of diatonic steps transposition */
+					short		semiChange,			/*	Signed total transposition in semitones */
 					Boolean	*cantSpell
 					)
 {
@@ -1075,7 +1075,7 @@ static INT16 TranspKS(
 	SignedByte nSOFFlat[] =  { 0,  -5, 2,  -3, 4,  -1, -6, 1,  -4, 3,  -2, 5 };
 	/* Major key equiv.: C   Db  D   Eb  E   F   Gb  G   Ab  A   Bb  B */
 
-	INT16 ind, newInd, stepCount, needSteps, newSOF;
+	short ind, newInd, stepCount, needSteps, newSOF;
 	Boolean enharmSwitch, useSharps;
 
 	useSharps = (sharpsOrFlats>=0);
@@ -1140,9 +1140,9 @@ static INT16 TranspKS(
 be called for nonstandard key signatures (which aren't implemented as of v.3.1,
 anyway). */ 
 
-INT16 XGetSharpsOrFlats(PKSINFO pKSInfo)
+short XGetSharpsOrFlats(PKSINFO pKSInfo)
 {
-	INT16 nitems;
+	short nitems;
 
 	nitems = pKSInfo->nKSItems;
 	return (pKSInfo->KSItem[0].sharp? nitems : -nitems);
@@ -1161,11 +1161,11 @@ Boolean TranspKeySig(
 					LINK		keySigL,
 					LINK		aKeySigL,
 					CONTEXT	/*context*/,
-					INT16		steps,				/* Signed no. of diatonic steps transposition */
-					INT16		semiChange 			/*	Signed total transposition in semitones */
+					short		steps,				/* Signed no. of diatonic steps transposition */
+					short		semiChange 			/*	Signed total transposition in semitones */
 					)
 {
-	INT16 stf, oldSOF, newSOF; PAKEYSIG aKeySig; Boolean cantSpell;
+	short stf, oldSOF, newSOF; PAKEYSIG aKeySig; Boolean cantSpell;
 	KSINFO oldKSInfo, newKSInfo; LINK lastL;
 	
 	stf = KeySigSTAFF(aKeySigL);
@@ -1207,15 +1207,15 @@ and five times in the other, two matches are counted. ??What about unisons? */
 
 Boolean CompareNCNotes(
 				LINK firstL, LINK lastL,	/* Syncs */
-				INT16 voice,
-				INT16 *pnMatch,				/* No. of literal matches */
-				INT16 *pnTiedMatch,			/* No. of matches if the notes/chords were tied across a barline */
+				short voice,
+				short *pnMatch,				/* No. of literal matches */
+				short *pnTiedMatch,			/* No. of matches if the notes/chords were tied across a barline */
 				CHORDNOTE fChordNote[],		/* for firstL (.noteL==NILINK => ignore) */
 				CHORDNOTE lChordNote[],		/* Equivalents in lastL: .noteL's only; .noteNum's are trash */
-				INT16 *pflCount 				/* No. of items in fChordNote and lChordNote (>=*pnTiedMatch) */
+				short *pflCount 				/* No. of items in fChordNote and lChordNote (>=*pnTiedMatch) */
 				)
 {
-	INT16 f, l, lMatch, nMatch, nTiedMatch, fCount, lCount;
+	short f, l, lMatch, nMatch, nTiedMatch, fCount, lCount;
 	Boolean sameMeas, matched, tiedAcrossMeas;
 	LINK prevMeasL, prevSyncL, prevTieL;
 	SearchParam pbSearch;
@@ -1291,10 +1291,10 @@ the number of matches found. Each note is counted only once: if a note number
 occurs (e.g.) twice in one chord and five times in the other, two matches are
 counted. */
 
-INT16 CompareNCNoteNums(LINK firstL, LINK lastL, INT16 voice)
+short CompareNCNoteNums(LINK firstL, LINK lastL, short voice)
 {
 	CHORDNOTE fChordNote[MAXCHORD], lChordNote[MAXCHORD];
-	INT16 fCount, lCount, matches, f, l;
+	short fCount, lCount, matches, f, l;
 	Byte fNoteNum, lNoteNum;
 
 	fCount = PSortChordNotes(firstL, voice, TRUE, fChordNote);	/* Ascending by note number */
@@ -1328,10 +1328,10 @@ optimal, but even an inefficient Shell sort is overkill for sorting typically 3
 or 4, at most a few dozen, things. See Knuth, The Art of Computer Programming, vol.
 2, pp. 84-95. */
 
-static void PSortNotes(CHORDNOTE chordNote[], INT16 nsize, Boolean ascending)
+static void PSortNotes(CHORDNOTE chordNote[], short nsize, Boolean ascending)
 {
-	INT16			nstep, ncheck;
-	INT16			i, n;
+	short			nstep, ncheck;
+	short			i, n;
 	CHORDNOTE	temp;
 	
 	for (nstep = nsize/2; nstep>=1; nstep = nstep/2)
@@ -1362,9 +1362,9 @@ static void PSortNotes(CHORDNOTE chordNote[], INT16 nsize, Boolean ascending)
 /* Make a table of all the notes in the voice in the Sync, sort it by note
 number, and deliver the number of notes. */
 
-INT16 PSortChordNotes(LINK pSyncL, INT16 voice, Boolean stemDown, CHORDNOTE chordNote[])
+short PSortChordNotes(LINK pSyncL, short voice, Boolean stemDown, CHORDNOTE chordNote[])
 {
-	INT16 c;
+	short c;
 	PANOTE aNote;
 	LINK aNoteL;
 
@@ -1393,10 +1393,10 @@ increments we use are powers of 2, which is not optimal, but even an inefficient
 sort is overkill for sorting typically 2 or 3, at most a few dozen, things. See
 Knuth, The Art of Computer Programming, vol. 2, pp. 84-95. */
 
-static void GSortNotes(CHORDNOTE chordNote[], INT16 nsize, Boolean ascending)
+static void GSortNotes(CHORDNOTE chordNote[], short nsize, Boolean ascending)
 {
-	INT16 		nstep, ncheck;
-	INT16			i, n;
+	short 		nstep, ncheck;
+	short			i, n;
 	CHORDNOTE	temp;
 	
 	for (nstep = nsize/2; nstep>=1; nstep = nstep/2) {
@@ -1425,14 +1425,14 @@ static void GSortNotes(CHORDNOTE chordNote[], INT16 nsize, Boolean ascending)
 /* Make a table of all the notes in the voice in the Sync, sort it by yqpit
 (vertical position relative to middle C), and deliver the number of notes. */
 
-INT16 GSortChordNotes(
+short GSortChordNotes(
 				LINK	syncL,
-				INT16	voice,
+				short	voice,
 				Boolean stemDown,		/* TRUE=sort in descending pitch (ASCENDING number) order */
 				CHORDNOTE chordNote[]
 				)
 {
-	INT16 c;
+	short c;
 	PANOTE aNote;
 	LINK aNoteL;
 
@@ -1457,14 +1457,14 @@ INT16 GSortChordNotes(
 /* Make a table of all the grace notes in the voice in the GRSync, sort it by yqpit
 (vertical position relative to middle C), and deliver the number of notes. */
 
-INT16 GSortChordGRNotes(
+short GSortChordGRNotes(
 				LINK	grSyncL,
-				INT16	voice,
+				short	voice,
 				Boolean stemDown,			/* TRUE=sort in descending pitch (ASCENDING number) order */
 				CHORDNOTE chordGRNote[]
 				)
 {
-	INT16 c;
+	short c;
 	PAGRNOTE aGRNote;
 	LINK aGRNoteL;
 
@@ -1491,10 +1491,10 @@ to reasonable positions. */
 
 #define QD_SECOND 2
 
-void ArrangeNCAccs(CHORDNOTE chordNote[], INT16 noteCount, Boolean stemDown)
+void ArrangeNCAccs(CHORDNOTE chordNote[], short noteCount, Boolean stemDown)
 {
-	INT16		i;
-	INT16 	accCount, midAcc, maxStep, accSoFar, diff;
+	short		i;
+	short 	accCount, midAcc, maxStep, accSoFar, diff;
 	QDIST		closest, ydiff, prevyqpit;
 	PANOTE	aNote;
 
@@ -1556,10 +1556,10 @@ from a chord, when a chord is beamed (since that can change stem direction), etc
 N.B. So far, doesn't handle unisons. With unisons, correct arrangement may be
 impossible, in which case this function returns FALSE. */
 
-Boolean ArrangeChordNotes(LINK syncL, INT16 voice, Boolean stemDown)
+Boolean ArrangeChordNotes(LINK syncL, short voice, Boolean stemDown)
 {
 	CHORDNOTE	chordNote[MAXCHORD];
-	INT16			i, noteCount;
+	short			i, noteCount;
 	QDIST			prevyqpit;
 	PANOTE		aNote;
 	Boolean		otherStemSide,			/* Put note on "wrong" side of the stem? */
@@ -1596,10 +1596,10 @@ Boolean ArrangeChordNotes(LINK syncL, INT16 voice, Boolean stemDown)
 /* Move all accidentals on the grace notes described by chordNote[0..noteCount-1]
 to reasonable positions. */
 
-void ArrangeGRNCAccs(CHORDNOTE chordNote[], INT16 noteCount, Boolean stemDown)
+void ArrangeGRNCAccs(CHORDNOTE chordNote[], short noteCount, Boolean stemDown)
 {
-	INT16		i;
-	INT16 	accCount, midAcc, maxStep, accSoFar, diff;
+	short		i;
+	short 	accCount, midAcc, maxStep, accSoFar, diff;
 	QDIST		closest, ydiff, prevyqpit;
 	PAGRNOTE	aGRNote;
 
@@ -1649,10 +1649,10 @@ from a chord, when a chord is beamed (since that can change stem direction), etc
 N.B. So far, doesn't handle unisons. With unisons, correct arrangement may be
 impossible, in which case this function returns FALSE. */
 
-Boolean ArrangeChordGRNotes(LINK grSyncL, INT16	voice, Boolean stemDown)
+Boolean ArrangeChordGRNotes(LINK grSyncL, short	voice, Boolean stemDown)
 {
 	CHORDNOTE	chordGRNote[MAXCHORD];
-	INT16			i, noteCount;
+	short			i, noteCount;
 	QDIST			prevyqpit;
 	PAGRNOTE		aGRNote;
 	Boolean		otherStemSide,			/* Put note on "wrong" side of the stem? */
@@ -1696,9 +1696,9 @@ If there's no such following note/grace note, do nothing. */
 void FixAccidental(
 				Document *doc,
 				LINK		fromL,
-				INT16		staff,
-				INT16		fixPos,			/* No. of half-lines below middle C */
-				INT16		accKeep 			/* Accidental to keep in effect on following note */
+				short		staff,
+				short		fixPos,			/* No. of half-lines below middle C */
+				short		accKeep 			/* Accidental to keep in effect on following note */
 				)
 {
 	LINK		pL, fixLastL, aNoteL, aGRNoteL, nextSyncL;
@@ -1774,14 +1774,14 @@ N.B. FixAllAccidentals does not understand barlines within its range. */
 void FixAllAccidentals(
 				LINK fixFirstL,
 				LINK fixLastL,
-				INT16 staff,
+				short staff,
 				Boolean pitchMod		/* TRUE=<accTable> has pitch modifers, else accidentals */
 				)
 {
 	PANOTE	aNote;
 	PAGRNOTE aGRNote;
 	LINK		pL, aNoteL, aGRNoteL;
-	INT16		halfLn;
+	short		halfLn;
 
 	for (pL = fixFirstL; pL!=fixLastL; pL=RightLINK(pL))
 		switch(ObjLType(pL)) {
@@ -1835,7 +1835,7 @@ void KeySig2AccTable(
 				PKSINFO pKSInfo				/* Key signature */
 				)
 {
-	INT16	j, k, basepos, octave, acc, letOffset, nKSItems;
+	short	j, k, basepos, octave, acc, letOffset, nKSItems;
 
 	letOffset = 3;													/* Key sig. code for C ??CF. SetUpKeySig */
 	nKSItems = pKSInfo->nKSItems;
@@ -1864,13 +1864,13 @@ void GetAccTable(
 				Document *doc,
 				SignedByte table[],			/* Table to fill in */
 				LINK target,					/* Object to get accidentals for */
-				INT16 staff)
+				short staff)
 {
 	CONTEXT	context;
 	LINK		fromL, thisL, aNoteL, aGRNoteL;
 	PANOTE	aNote;
 	PAGRNOTE aGRNote;
-	INT16		halfLnPos;
+	short		halfLnPos;
 
 	GetContext(doc, LeftLINK(target), staff, &context);
 	KeySig2AccTable(table, (PKSINFO)context.KSItem);				/* Init. table from key sig. */
@@ -1916,9 +1916,9 @@ void GetPitchTable(
 				Document *doc,
 				SignedByte table[],			/* Table to fill in */
 				LINK target,
-				INT16 staff)
+				short staff)
 {
-	INT16 j;
+	short j;
 
 	GetAccTable(doc, table, target, staff);
 	for (j = 0; j<MAX_STAFFPOS; j++)
@@ -1937,8 +1937,8 @@ void DelNoteFixAccs(
 				Document *doc,
 				LINK pL,
 				SignedByte staffn,
-				INT16 fixPos,			/* No. of half-lines below middle C */
-				INT16 accident)
+				short fixPos,			/* No. of half-lines below middle C */
+				short accident)
 {	
 	GetPitchTable(doc, accTable, pL, staffn);					/* Get pitch modif. situation */
 	if (accident!=0 &&												/* Is note's acc. a change from prev.? */
@@ -1954,14 +1954,14 @@ next note in the same line/space; and return the effective accidental for the ne
 note (it may have no accidental itself but is affected by a previous accidental
 on its line/space). */
 
-INT16 InsNoteFixAccs(
+short InsNoteFixAccs(
 				Document *doc,
 				LINK pL,
 				SignedByte staffn,
-				INT16 fixPos,			/* No. of half-lines below middle C */
-				INT16 accident)
+				short fixPos,			/* No. of half-lines below middle C */
+				short accident)
 {
-	INT16	accKeep;
+	short	accKeep;
 	
 	GetPitchTable(doc, accTable, pL, staffn);					/* Get pitch modif. situation */
 	if (accident!=0 &&												/* Is note's acc. a change from prev.? */
