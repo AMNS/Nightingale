@@ -93,21 +93,11 @@ short DoCloseAllDocWindows()
 		next = GetNextWindow(w);
 		kind = GetWindowKind(w);
 		
-#ifdef CARBON_NOTYET
-#ifndef PUBLIC_VERSION
-		if (CapsLockKeyDown() && OptionKeyDown()) {
-			DebugPrintf("DoCloseAllDocWindows: w=%lx kind=%d ", w, kind);
-			DebugPrintf("%c ", (w==(WindowPeek)clipboard? 'C' : '-'));
-			Document *doc=GetDocumentFromWindow(w);
-			if (doc) DebugPrintf("%p\n", (kind==DOCUMENTKIND? doc->name : "\p "));
-		}
-#endif
-#endif
 		if (kind == DOCUMENTKIND) {
 #ifdef TEST_SEARCH_NG
-			if (w==clipboard->theWindow || w==searchPatDoc->theWindow) continue;
+                       if (w==clipboard->theWindow || w==searchPatDoc->theWindow) continue;
 #else
-			if (w==clipboard->theWindow) continue;
+				if (w==clipboard->theWindow) continue;
 #endif
 			if (DoCloseDocument(GetDocumentFromWindow(w)))
 				nClosed++;
@@ -146,23 +136,6 @@ multi-screen systems. */
 
 void SetZoomState(WindowPtr /*w*/)
 	{
-#ifdef CARBON_NOTYET
-		WStateData *rPair;
-		Rect r,scrn;
-		WindowPeek wp = (WindowPeek)w;
-		
-		if (!wp->dataHandle) return;								/* No state data being kept */
-		
-		/* Get global port rect for this window */
-		
-		GetGlobalPort(w,&r);
-		GetMyScreen(&r,&scrn);
-		scrn.top += 20;												/* Standard drag bar height */
-		InsetRect(&scrn,4,4);										/* What we want to zoom out to */
-		rPair = (WStateData *)(*wp->dataHandle);
-		rPair->stdState = scrn;
-		rPair->userState = r;
-#endif
 	}
 
 

@@ -1194,11 +1194,7 @@ Boolean OMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *not
 		GetDlgWord(dlog,EDIT8_Note,&aNote); *note = aNote;
 		GetDlgWord(dlog,EDIT9_Vel,&vel); *velocity = vel;
 		GetDlgWord(dlog,EDIT10_Dur,&dur); *duration = dur;
-#ifdef CARBON_NOTYET
-		*device = (*omsMetroMenuH)->select.uniqueID;
-#else
 		*device = 0;
-#endif
 	}
 
 	/* That's all, folks! */

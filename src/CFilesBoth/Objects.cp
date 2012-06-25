@@ -1056,10 +1056,6 @@ PushLock(PARTINFOheap);
 	strcpy(pPart->shortName, "Unnam.");
 
 	/* FreeMIDI-specific initialization */
-#ifdef CARBON_NOTYET_BANKNUM
-	pPart->bankNumber0 = NO_BANKSELECT;
-	pPart->bankNumber32 = NO_BANKSELECT;
-#endif
 	pPart->fmsOutputDevice = noUniqueID;
 	pPart->fmsOutputDestination.basic.destinationType = 0,
 	pPart->fmsOutputDestination.basic.name[0] = 0;
