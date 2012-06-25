@@ -44,14 +44,6 @@ static LINK HasGROctAcrossPt(Document *, Point, short);
 /* -------------------------------------------------------------------- DoOctava -- */
 /* Put an octave sign around the selection. */
 
-#ifdef VIEWER_VERSION
-
-void DoOctava(Document *doc)
-{
-}
-
-#else
-
 void DoOctava(Document *doc)
 {
 	short staff;
@@ -67,8 +59,6 @@ void DoOctava(Document *doc)
 		}
 	}
 }
-
-#endif
 
 /* -------------------------------------------------------------- DoRemoveOctava -- */
 /* Remove the octave sign from the selection. */

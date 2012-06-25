@@ -1,7 +1,8 @@
 /***************************************************************************
 *	FILE:	DialogsBoth.c
 *	PROJ:	Nightingale, tiny rev. for v.3.5
-*	DESC:	Dialog-handling routines for misc. dialogs needed in VIEWER_VERSION
+*	DESC:	Dialog-handling routines for misc. dialogs needed in "viewer version"
+*			("viewer version" removed by chirgwin at Mon Jun 25 15:57:30 PDT 2012)
 *			as well as the full version.
 ***************************************************************************/
 

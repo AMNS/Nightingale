@@ -817,7 +817,6 @@ static short Draw1Extension(
 
 /*------------------------------------------------------- ChordSymDialog & friends -- */
 
-#ifndef VIEWER_VERSION
 
 /* WARNING: Code in CheckCSuserItems depends on popups following (by 1)
  * their associated edit fields in the item list.
@@ -1378,4 +1377,3 @@ setArrow:
 	ArrowCursor();
 }
 
-#endif /* VIEWER_VERSION */

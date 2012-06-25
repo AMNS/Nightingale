@@ -23,162 +23,6 @@
 /*	Setup MIDI channel assignment, tempo, port, etc. N.B. Does not handle SCCA
 for MIDI Thru! */
 
-#ifdef VIEWER_VERSION
-
-static enum				/* Dialog item numbers */
-{
-	CHANNEL=3,
-	PART_SETTINGS=4,
-	SEND_PATCHES,
-	NO_PART_SETTINGS,
-	MASTERVELOCITY_DI=8,
-	TURNPAGES_DI=9,
-	USE_MODIFIER_EFFECTS_DI=28
-};
-
-#define GEN_ACCEPT(field)	if (newval!=(field)) \
-						{ (field) = newval;  docDirty = TRUE; }
-
-void MIDIDialog(Document *doc)
-{
-	DialogPtr dlog;
-	GrafPtr oldPort;
-	short dialogOver;
-	short ditem, newval, temp, anInt, groupFlats, groupPartSets;
-	Handle aHdl, patchHdl, turnHdl;
-	Boolean docDirty;
-	char fmtStr[256];
-	ModalFilterUPP	filterUPP;
-	
-	ArrowCursor();
-
-/* --- 1. Create the dialog and initialize its contents. --- */
-
-	filterUPP = NewModalFilterUPP(MIDIFilter);
-	if (filterUPP == NULL) {
-		MissingDialog(MIDISETUP_DLOG);
-		return;
-	}
-	GetPort(&oldPort);
-	dlog = GetNewDialog(MIDISETUP_DLOG, NULL, BRING_TO_FRONT);
-	if (dlog == NULL) {
-		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(MIDISETUP_DLOG);
-		return;
-	}
-	SetPort(GetDialogWindowPort(dlog));
-
-	PutDlgWord(dlog, CHANNEL, doc->channel, FALSE);
-	PutDlgWord(dlog, MASTERVELOCITY_DI, doc->velocity, FALSE);
-	groupPartSets = (doc->polyTimbral? PART_SETTINGS : NO_PART_SETTINGS);	/* Set up radio button group */
-	PutDlgChkRadio(dlog, groupPartSets, 1);
-
-	patchHdl = PutDlgChkRadio(dlog, SEND_PATCHES, !doc->dontSendPatches);
-	if (!doc->polyTimbral) HiliteControl(patchHdl, CTL_INACTIVE);
-	turnHdl = PutDlgChkRadio(dlog, TURNPAGES_DI, config.turnPagesInPlay);
-	PutDlgChkRadio(dlog, USE_MODIFIER_EFFECTS_DI, config.useModNREffects);
-
-	SelectDialogItemText(dlog, CHANNEL, 0, ENDTEXT);						/* Initial selection */
-
-	CenterWindow(GetDialogWindow(dlog), 75);
-	ShowWindow(GetDialogWindow(dlog));
-	OutlineOKButton(dlog,TRUE);
-	
-/*--- 2. Interact with user til they push OK or Cancel. --- */
-
-	dialogOver = 0;
-	while (dialogOver==0) {
-		do {
-			ModalDialog(filterUPP, &ditem);
-			switch (ditem) {
-				case OK:
-				case Cancel:
-					dialogOver = ditem;
-					break;
-				case PART_SETTINGS:
-				case NO_PART_SETTINGS:
-					if (ditem!=groupPartSets) SwitchRadio(dlog, &groupPartSets, ditem);
-					newval = GetDlgChkRadio(dlog, PART_SETTINGS);					
-					HiliteControl(patchHdl, (newval? CTL_ACTIVE : CTL_INACTIVE));
-					if (!newval) PutDlgChkRadio(dlog, SEND_PATCHES, 0);
-			  		break;
-			  	case SEND_PATCHES:
-	  				PutDlgChkRadio(dlog, SEND_PATCHES,
-						!GetDlgChkRadio(dlog, SEND_PATCHES));
-			  		break;
-				case TURNPAGES_DI:
-	  				PutDlgChkRadio(dlog, TURNPAGES_DI,
-						!GetDlgChkRadio(dlog, TURNPAGES_DI));
-					break;				
-				case USE_MODIFIER_EFFECTS_DI:
-	  				PutDlgChkRadio(dlog, USE_MODIFIER_EFFECTS_DI,
-						!GetDlgChkRadio(dlog, USE_MODIFIER_EFFECTS_DI));
-					break;				
-			  default:
-			  	;
-			}
-		} while (!dialogOver);
-	
-	/* --- 3. If dialog was terminated with OK, check any new values. --- */
-	/* ---    If any are illegal, keep dialog on the screen to try again. - */
-	
-		if (dialogOver==Cancel) {
-			DisposeModalFilterUPP(filterUPP);
-			DisposeDialog(dlog);									/* Free heap space */
-			return;
-		}
-		else {
-			GetDlgWord(dlog, CHANNEL, &newval);
-			if (newval<1 || newval>MAXCHANNEL) {
-				GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 4);		/* "Channel number must be..." */
-				sprintf(strBuf, fmtStr, MAXCHANNEL);
-				CParamText(strBuf, "", "", "");
-				StopInform(MIDIBADVALUE_ALRT);
-				dialogOver = 0;										/* Keep dialog on screen */
-			}
-	
-			GetDlgWord(dlog, MASTERVELOCITY_DI, &newval);
-			if (newval<-127 || newval>127) {						/* 127=MAX_VELOCITY */
-				GetIndCString(strBuf, MIDIPLAYERRS_STRS, 5);	/* "Master velocity must be..." */
-				CParamText(strBuf, "", "", "");
-				StopInform(MIDIBADVALUE_ALRT);
-				dialogOver = 0;										/* Keep dialog on screen */
-			}
-		}
-	}
-	
-/* --- 4. Dialog was terminated with OK and all values are legal. --- */
-
-	/* Pick up changes to doc fields and, if any changed, set doc->changed. */
-	
-	docDirty = FALSE;
-
-	newval = GetDlgChkRadio(dlog, PART_SETTINGS);
-	GEN_ACCEPT(doc->polyTimbral);
-	
-	newval = !(GetDlgChkRadio(dlog, SEND_PATCHES));
-	GEN_ACCEPT(doc->dontSendPatches);
-
-	GetDlgWord(dlog, CHANNEL, &newval);
-	GEN_ACCEPT(doc->channel);
-	
-	GetDlgWord(dlog, MASTERVELOCITY_DI, &newval);
-	GEN_ACCEPT(doc->velocity);
-	
-	if (docDirty) doc->changed = TRUE;
-
-	/* Pick up changes to config fields. Checking for changes is done elsewhere. */
-	
-	config.turnPagesInPlay = (GetDlgChkRadio(dlog, TURNPAGES_DI)!=0? 1 : 0);
-	config.useModNREffects = (GetDlgChkRadio(dlog, USE_MODIFIER_EFFECTS_DI)!=0? 1 : 0);
-
-	DisposeModalFilterUPP(filterUPP);
-	DisposeDialog(dlog);											/* Free heap space */
-	SetPort(oldPort);
-	return; 
-}
-
-#else /* VIEWER_VERSION */
 
 static enum				/* Dialog item numbers */
 {
@@ -637,9 +481,6 @@ void MIDIDialog(Document *doc)
 	return; 
 }
 
-#endif /* VIEWER_VERSION */	
-
-
 /* --------------------------------------------------------------- MIDIThruDialog -- */
 
 static enum {
@@ -757,9 +598,6 @@ broken:
 	SetPort(oldPort);
 	return (itemHit==OK);
 }
-
-
-#ifndef VIEWER_VERSION
 
 /* ------------------------------------------------------------------ MetroDialog -- */
 
@@ -1471,9 +1309,6 @@ Boolean MetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 	
 	return okay;
 }
-
-#endif /* VIEWER_VERSION */	
-
 
 /* -------------------------------------------------------------- MIDIDynamDialog -- */
 

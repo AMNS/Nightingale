@@ -17,30 +17,9 @@ static Boolean CombinePartsDlog(unsigned char *, Boolean *, Boolean *, Boolean *
 
 /* ------------------------------------------------- CombinePartsDlog and DoExtract -- */
 
-#ifdef VIEWER_VERSION
-
-Boolean DoCombineParts(Document *doc, LINK *firstPartL, LINK *lastPartL)
-	{
-		return FALSE;
-	}
-	
-#else
-
-//static enum {
-//	EXTRACTALL_DI=4,
-//	EXTRACTONE_DI,
-//	WHICHONE_DI,
-//	SAVE_DI=8,
-//	OPEN_DI,
-//	REFORMAT_DI,
-//	SPACE_DI=12,
-//	SPACEBOX_DI=14
-//} E_ExtractItems;
-
 static enum {
 	COMBINEINPLACE_DI=4,
 	EXTRACTTOSCORE_DI,
-	//WHICHONE_DI,
 	SAVE_DI=8,
 	OPEN_DI,
 	REFORMAT_DI,
@@ -681,6 +660,4 @@ Boolean DoCombineParts(Document *doc)
 Done:
 		return TRUE;
 	}
-
-#endif /* VIEWER_VERSION */
 

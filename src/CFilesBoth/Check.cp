@@ -177,8 +177,6 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 
 		switch (mode) {
 			case SMClick:
-#ifndef VIEWER_VERSION
-
 				/* Get the bBox of all the staff subObjRects in the system */
 				sysRect = ComputeSysRect(pL, paperRect, pContext);
 				mousePt = *(Point *)ptr;
@@ -211,7 +209,6 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 						if (DragGraySysRect(doc, pL, ptr, sysObjRect, sysRect, r, pContext))
 							result = 0;
 				}
-#endif
 				break;
 			case SMDblClick:
 				/* No double click for SYSTEMs */
@@ -339,7 +336,6 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 						}
 						break;
 					case SMDblClick:
-#ifndef VIEWER_VERSION
 						/* Handle double click on staff object in Master Page. First, get the
 							part which includes the double clicked staff. Select all staves of
 							that part; then Hilite them before calling InstrDialog to prevent
@@ -359,7 +355,6 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 							
 							doc->selStartL = pL; doc->selEndL = RightLINK(pL);
 						}						
-#endif /* VIEWER_VERSION */
 						break;
 					case SMDrag:
 						/* If the rect the user drags out touches a staff subobject,
@@ -802,7 +797,6 @@ PushLock(DYNAMheap);
 			}
 			break;
 		case SMDblClick:
-#ifndef VIEWER_VERSION
 			firstSync = DynamFIRSTSYNC(pL);
 			lastSync = DynamLASTSYNC(pL);
 						
@@ -830,7 +824,6 @@ PushLock(DYNAMheap);
 					doc->changed = TRUE;
 				}
 			}
-#endif /* VIEWER_VERSION */
 			break;
 		case SMDrag:
 			UnionRect(&rSub, (Rect *)ptr, &aRect);			/* does (Rect *)ptr enclose rSub? */
@@ -1088,7 +1081,6 @@ PushLock(OBJheap);
 				}
 				break;
 			case SMDblClick:
-#ifndef VIEWER_VERSION
 				InvalObject(doc,pL,FALSE);											/* Insure objRect is correct */
 				oldObjRect = p->objRect;
 				if (GraphicSubType(pL)==GRDraw) {
@@ -1222,7 +1214,7 @@ PushLock(OBJheap);
 					EraseAndInval(&tempR);
 #endif
 				}
-#endif /* VIEWER_VERSION */
+
 				break;
 			case SMDrag:
 				tempR = *(Rect *)ptr;
@@ -1355,7 +1347,6 @@ PushLock(OBJheap);
 				}
 				break;
 			case SMDblClick:
-#ifndef VIEWER_VERSION
 				oldObjRect = p->objRect;
 				HiliteInsertNode(doc, p->firstObjL, staffn, TRUE);		/* Hiliting on */
 				while (Button()) ;
@@ -1400,7 +1391,7 @@ PushLock(OBJheap);
 				UnionRect(&oldObjRect, &newObjRect, &newObjRect);
 				OffsetRect(&newObjRect, doc->currentPaper.left, doc->currentPaper.top);
 				InvalWindowRect(doc->theWindow,&newObjRect);
-#endif /* VIEWER_VERSION */
+
 				break;
 			case SMDrag:
 #ifdef DRAGRECT_TEMPO
@@ -1618,7 +1609,6 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 				}
 				break;
 			case SMDblClick:
-#ifndef VIEWER_VERSION
 				HiliteTwoNodesOn(doc, EndingFIRSTOBJ(pL), EndingLASTOBJ(pL), EndingSTAFF(pL)); /* On */
 				while (Button()) ;
 				
@@ -1639,7 +1629,6 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 					InvalSystem(pL);
 					doc->changed = TRUE;
 				}
-#endif /* VIEWER_VERSION */
 				break;
 			case SMDrag:
 #ifdef DRAGRECT_ENDINGS
@@ -1861,15 +1850,11 @@ PushLock(KEYSIGheap);
 			}
 			break;
 		case SMDblClick:
-#ifndef VIEWER_VERSION
 			if (PtInRect(*(Point *)ptr, &rSub)) {
 				if (DoOpenKeysig(doc, pL, aKeySigL))
 					goto Cleanup;
 			}
 			break;
-#else
-			goto Cleanup;
-#endif
 		case SMDrag:
 			UnionRect(&rSub, (Rect *)ptr, &aRect);			/* does (Rect *)ptr enclose rSub? */
 			if (EqualRect(&aRect, (Rect *)ptr)) {
@@ -2076,12 +2061,10 @@ PushLock(NOTEheap);
 				}
 				break;
 			case SMDblClick:
-#ifndef VIEWER_VERSION
 				aRect = rSub;
 				InsetRect(&aRect, -(1+enlarge.h), -enlarge.v);
 				if (PtInRect(*(Point *)ptr, &aRect))
 					HiliteAttPoints(doc, pL, NILINK, NoteSTAFF(aNoteL));
-#endif /* VIEWER_VERSION */
 				break;
 			case SMStaffDrag:
 				if (aNote->staffn>=stfRange.topStaff && 
@@ -2499,15 +2482,11 @@ PushLock(TIMESIGheap);
 			}
 			break;
 		case SMDblClick:
-#ifndef VIEWER_VERSION
 			if (PtInRect(*(Point *)ptr, &rSub)) {
 				if (DoOpenTimesig(doc, pL, aTimeSigL))
 					goto Cleanup;
 			}
 			break;
-#else /* VIEWER_VERSION */
-			goto Cleanup;
-#endif
 		case SMDrag:
 			UnionRect(&rSub, (Rect *)ptr, &aRect);			/* does (Rect *)ptr enclose rSub? */
 			if (EqualRect(&aRect, (Rect *)ptr)) {
@@ -3027,13 +3006,11 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMDblClick:
-#ifndef VIEWER_VERSION
 		if (PtInRect(*(Point *)ptr, &rSub)) {
 			PrepareUndo(doc, pL, U_EditBeam, 4);			/* "Undo Edit Beam" */
 			DoBeamEdit(doc, pL);
 			result = 1;
 		}
-#endif /* VIEWER_VERSION */
 		break;
 	case SMDrag:
 		UnionRect(&rSub, (Rect *)ptr, &aRect);				/* does (Rect *)ptr enclose rSub? */
@@ -3142,7 +3119,6 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMDblClick:
-#ifndef VIEWER_VERSION
 		HiliteTwoNodesOn(doc, FirstInTuplet(pL), LastInTuplet(pL), p->staffn);	/* On */
 		while (Button()) ;
 
@@ -3177,7 +3153,6 @@ PushLock(OBJheap);
 			InvalWindowRect(doc->theWindow,&oldObjRect);
 #endif
 		}
-#endif /* VIEWER_VERSION */
 		break;
 	case SMDrag:
 		UnionRect(&rSub, (Rect *)ptr, &aRect);				/* does (Rect *)ptr enclose rSub? */
@@ -3273,9 +3248,7 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMDblClick:
-#ifndef VIEWER_VERSION
 		HiliteAttPoints(doc, FirstInOctava(pL), LastInOctava(pL), p->staffn);
-#endif /* VIEWER_VERSION */
 		break;
 	case SMDrag:
 		UnionRect(&rSub, (Rect *)ptr, &aRect);				/* does (Rect *)ptr enclose rSub? */
@@ -3383,7 +3356,6 @@ PushLock(OBJheap);
 			}
 			break;
 		case SMDblClick:
-#ifndef VIEWER_VERSION
 			if (PtInRect(*(Point *)ptr, &rSub)) {
 				PrepareUndo(doc, pL, U_EditSlur, 11);			/* "Undo Edit Slur" */
 				HiliteSlurNodes(doc, pL);
@@ -3391,7 +3363,6 @@ PushLock(OBJheap);
 				DoSlurEdit(doc, pL, aSlurL, i);
 				result = 1;
 			}
-#endif /* VIEWER_VERSION */
 			break;
 		case SMDrag:
 			UnionRect(&rSub, (Rect *)ptr, &aRect);				/* does (Rect *)ptr enclose rSub? */

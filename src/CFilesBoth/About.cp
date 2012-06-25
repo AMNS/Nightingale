@@ -123,14 +123,10 @@ void DoAboutBox(
 	ShowDialogItem(dlog, PICT8_Confident);
 #endif
 
-#ifdef VIEWER_VERSION
+#ifdef NO_SERIAL_NUM
 	HideDialogItem(dlog, STXT7_CopyNum);
 #else
- #ifdef NO_SERIAL_NUM
-	HideDialogItem(dlog, STXT7_CopyNum);
- #else
 	ShowDialogItem(dlog, STXT7_CopyNum);
- #endif
 #endif
 	
 	
@@ -161,11 +157,7 @@ void DoAboutBox(
 
 	y = GetMBarHeight()+10; x = 25;
 	SetRect(&smallRect, x, y, x+2, y+2);
-#ifdef VIEWER_VERSION
-	CenterWindow(GetDialogWindow(dlog), 36);
-#else
 	CenterWindow(GetDialogWindow(dlog), 70);
-#endif
 	GetWindowPortBounds(GetDialogWindow(dlog),&bigRect);
 	LocalToGlobal(&TOP_LEFT(bigRect));
 	LocalToGlobal(&BOT_RIGHT(bigRect));

@@ -1223,14 +1223,7 @@ static pascal Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				SetPort(GetWindowPort(w));
 				if (noNewButton) {
 					GetDialogItem(dlog,ourNewNew,&type,&hndl,&box);
-#ifndef VIEWER_VERSION
-#define DIM_NO_NEW
-#endif
-#ifdef DIM_NO_NEW
-					HiliteControl((ControlHandle)hndl,255);
-#else
 					HideDialogItem(dlog,ourNewNew);
-#endif
 					}
 				FrameDefault(dlog,OK,TRUE);
 				if (selEnd >= 0) { SelectDialogItemText(dlog,putName,0,selEnd); selEnd = -1; }

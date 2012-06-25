@@ -81,18 +81,6 @@ static Boolean DoSplashScreen()
 	if (!dlog) return FALSE;
 	SetPort(GetDialogWindowPort(dlog));
 
-#ifdef VIEWER_VERSION
-	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
-	CenterWindow(GetDialogWindow(dlog), 65);
-	ShowWindow(GetDialogWindow(dlog));
-	ArrowCursor();
-	ditem = OK-1;
-	do {
-		ModalDialog(OKButFilter, &ditem);				/* Handle dialog events */
-		if (ditem==ABOUT_DI) DoAboutBox(FALSE);
-	} while (ditem!=OK);
-	WaitCursor();
-#else
 	GetDialogItem(dlog, NAME_DI, &aShort, &aHdl, &aRect);
 
 	/* If the owner's name and organization aren't filled in, it's no big deal:
@@ -116,7 +104,6 @@ static Boolean DoSplashScreen()
  #else
 	SleepTicksWaitButton(180L);							/* So user has time to read the message */
  #endif
-#endif
 
 	HideWindow(GetDialogWindow(dlog));
 	DisposeDialog(dlog);										/* Free heap space */

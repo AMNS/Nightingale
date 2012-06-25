@@ -100,13 +100,8 @@ void Initialize()
 	 *	version 5.0.4 (the last version we tried it with).
 	 */
 	
-#ifdef VIEWER_VERSION
-	creatorType = CREATOR_TYPE_VIEWER;
-	documentType = DOCUMENT_TYPE_VIEWER;
-#else
 	creatorType = CREATOR_TYPE_NORMAL;
 	documentType = DOCUMENT_TYPE_NORMAL;
-#endif
 	/*
 	 *	Figure out our machine environment before doing anything more. This
 	 *	can't be done until after the various ToolBox calls above.
@@ -170,9 +165,6 @@ void Initialize()
 	
 	if (!NInitFloatingWindows())
 		{ BadInit(); ExitToShell(); }
-#ifdef VIEWER_VERSION
-	ShowHidePalettes(FALSE);
-#endif
 	
 	InitCursor();
 	WaitCursor();
@@ -1322,8 +1314,7 @@ Boolean InitGlobals()
 		testMenu = GetMenu(testID);		if (!testMenu) return FALSE;
 		InsertMenu(testMenu,0);
 #endif
-		
-#ifndef VIEWER_VERSION
+
 		scoreMenu = GetMenu(scoreID);		if (!scoreMenu) return FALSE;
 		InsertMenu(scoreMenu,0);
 		
@@ -1332,7 +1323,6 @@ Boolean InitGlobals()
 		
 		groupsMenu = GetMenu(groupsID);		if (!groupsMenu) return FALSE;
 		InsertMenu(groupsMenu,0);
-#endif
 		
 		viewMenu = GetMenu(viewID);			if (!viewMenu) return FALSE;
 		InsertMenu(viewMenu,0);

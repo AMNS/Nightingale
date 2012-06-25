@@ -266,7 +266,6 @@ Boolean DoFileMenu(short choice)
 		NSClientData nscd; FSSpec fsSpec;
 		
 		switch(choice) {
-#ifndef VIEWER_VERSION
 			case FM_New:
 				doSymbol = TopDocument == NULL;
 				DoOpenDocument(NULL,0,FALSE,NULL);
@@ -293,17 +292,11 @@ Boolean DoFileMenu(short choice)
 						}
 					}
 				break;
-#endif
 			case FM_OpenReadOnly:
 				if (!FirstFreeDocument()) TooManyDocs();
 				 else {
 					UseStandardType(documentType);
-#ifdef VIEWER_VERSION
-					UseStandardType(DOCUMENT_TYPE_NORMAL);				/* Also accept Nightingale's <documentType> */
-					GetIndCString(str, MENUCMDMSGS_STRS, 4);			/* "Which score do you want to open?" */
-#else
 					GetIndCString(str, MENUCMDMSGS_STRS, 5);			/* "Which score do you want to open read-only?" */
-#endif
 					if (returnCode = GetInputName(str,FALSE,tmpStr,&vrefnum,&nscd))
 						fsSpec = nscd.nsFSSpec;
 						vrefnum = nscd.nsFSSpec.vRefNum;
@@ -316,7 +309,6 @@ Boolean DoFileMenu(short choice)
 			case FM_CloseAll:
 				DoCloseAllDocWindows();
 				break;
-#ifndef VIEWER_VERSION
 			case FM_Save:
 				if (doc) DoSaveDocument(doc);
 				break;
@@ -343,13 +335,11 @@ Boolean DoFileMenu(short choice)
 			case FM_Extract:
 				if (doc) DoExtract(doc);
 				break;
-#endif
 #ifndef LIGHT_VERSION
 			case FM_GetETF:
 				// ETF (Finale Enigma Transportable File) support removed, so do nothing
 				break;
 #endif
-#ifndef VIEWER_VERSION
 #ifdef JG_NOTELIST
 			case FM_GetNotelist:
 				NSClientData nsData;
@@ -360,8 +350,6 @@ Boolean DoFileMenu(short choice)
 
 				break;
 #endif
-#endif
-#ifndef VIEWER_VERSION
 #ifdef USE_NL2XML
 			case FM_Notelist2XML:
 				NSClientData nsData;
@@ -372,7 +360,6 @@ Boolean DoFileMenu(short choice)
 
 				break;
 #endif
-#endif
 			case FM_OpenMidiMap:
 				MidiMapInfo();
 				break;
@@ -380,7 +367,6 @@ Boolean DoFileMenu(short choice)
 			case FM_SheetSetup:
 				if (doc) DoSheetSetup(doc);
 				break;
-#ifndef VIEWER_VERSION
 			case FM_PageSetup:
 #if TARGET_API_MAC_CARBON
 
@@ -425,7 +411,6 @@ Boolean DoFileMenu(short choice)
 			case FM_Preferences:
 				if (doc) FMPreferences(doc);
 				break;
-#endif
 			case FM_Quit:
 				if (!IsSafeToQuit()) break;
 				if (!SaveToolPalette(TRUE)) break;
@@ -437,16 +422,6 @@ Boolean DoFileMenu(short choice)
 		if (keepGoing) HiliteMenu(0);
 		return(keepGoing);
 	}
-
-#ifdef VIEWER_VERSION
-
-void DoEditMenu(choice)
-	short choice;
-	{
-		SysBeep(1);
-	}
-
-#else
 
 /*
  *	Handle a choice from the Edit Menu.
@@ -540,8 +515,6 @@ DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);
 				break;
 		}
 	}
-
-#endif
 
 //#ifndef PUBLIC_VERSION
 #if 1
@@ -700,33 +673,6 @@ static void DoTestMenu(short choice)
 /*
  *	Handle a choice from the Score Menu.
  */
-
-#ifdef VIEWER_VERSION
-
-static void DoScoreMenu(short choice)
-	{
-		SysBeep(1);
-	}
-
-/*
- *	Handle a choice from the Notes Menu.
- */
-
-static void DoNotesMenu(short choice)
-	{
-		SysBeep(1);
-	}
-
-/*
- *	Handle a choice from the Groups Menu.
- */
-
-void DoGroupsMenu(short choice)
-	{
-		SysBeep(1);
-	}
-
-#else
 
 static void DoScoreMenu(short choice)
 	{
@@ -1014,8 +960,6 @@ void DoGroupsMenu(short choice)
 			}
 	}
 
-#endif
-
 /*
  *	Handle a choice from the View Menu.
  */
@@ -1048,7 +992,6 @@ void DoViewMenu(short choice)
 			case VM_LookAtAllV:
 				VMLookAtAll();
 				break;
-#ifndef VIEWER_VERSION
 			case VM_ShowDurProb:
 				VMShowDurProblems();
 				break;
@@ -1065,14 +1008,12 @@ void DoViewMenu(short choice)
 					InvalWindow(doc);
 					}
 				break;
-#endif
 			case VM_ColorVoices:
 				VMColorVoices();
 				break;
 			case VM_RedrawScr:
 				RefreshScreen();
 				break;
-#ifndef VIEWER_VERSION
 			case VM_PianoRoll:
 				VMPianoRoll();
 				break;
@@ -1110,7 +1051,6 @@ void DoViewMenu(short choice)
 			case VM_ShowSearchPattern:
 				//Do nothing; Nigthingale Search has been removed
 				break;
-#endif
 			default:
 				VMActivate(choice);
 				break;
@@ -1123,11 +1063,7 @@ void DoViewMenu(short choice)
 
 void PLMIDIDynPrefs(Document *doc)
 {
-#ifdef VIEWER_VERSION
-	static Boolean apply=TRUE;
-#else
 	static Boolean apply=FALSE;
-#endif
 	Boolean okay;
 	
 	okay = MIDIDynamDialog(doc, &apply);
@@ -1276,7 +1212,6 @@ void DoPlayRecMenu(short choice)
 				MEHideCaret(doc);
 				if (doc) PlaySequence(doc, doc->selStartL, doc->tailL, TRUE, FALSE);
 				break;
-#ifndef VIEWER_VERSION
 			case PL_RecordInsert:
 				if (BIMIDIPortIsBusy()) break;
 				if (doc) PLRecord(doc, FALSE);
@@ -1296,7 +1231,6 @@ void DoPlayRecMenu(short choice)
 				if (BIMIDIPortIsBusy()) break;
 				if (doc) PLStepRecord(doc, TRUE);
 				break;
-#endif
 			case PL_AllNotesOff:
 				if (useWhichMIDI == MIDIDR_CM) {
 					CMAllNotesOff();
@@ -1307,7 +1241,6 @@ void DoPlayRecMenu(short choice)
 //				oldMIDIThru = config.midiThru;
 				if (doc) MIDIDialog(doc);
 				break;
-#ifndef VIEWER_VERSION
 			case PL_Metronome:
 				if (useWhichMIDI==MIDIDR_CM)
 					CMMetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
@@ -1316,7 +1249,6 @@ void DoPlayRecMenu(short choice)
 					MetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
 									&config.metroVelo, &config.metroDur);
 				break;
-#endif
 			case PL_MIDIThru:
 				break;
 			case PL_MIDIDynPrefs:
@@ -1336,20 +1268,6 @@ void DoPlayRecMenu(short choice)
 				break;
 			}
 	}
-
-#ifdef VIEWER_VERSION
-
-static void DoMasterPgMenu(short choice)
-	{		
-		SysBeep(1);
-	}
-
-static void DoFormatMenu(short choice)
-	{		
-		SysBeep(1);
-	}
-
-#else
 
 void MPInstrument(Document *doc)
 	{
@@ -1456,7 +1374,6 @@ static void DoFormatMenu(short choice)
 #endif
 	}
 
-#endif
 
 /*
  *	Handle a choice from the Reduce/Enlarge To (Magnify) Menu
@@ -1520,8 +1437,6 @@ static void MovePalette(WindowPtr whichPalette, Point position)
 				}
 			}
 	}
-
-#ifndef VIEWER_VERSION
 
 /*
  *	Get user preferences from dialog.
@@ -1926,8 +1841,6 @@ static void NMFillEmptyMeas(Document *doc)
 		}
 	}
 
-#endif
-
 /*
  * Get voice to look at from dialog, initialized with voice and part of first selected
  * object or, if nothing is selected, default voice and part of the insertion point's
@@ -1986,8 +1899,6 @@ static void VMLookAtAll()
 			}
 	}
 
-#ifndef VIEWER_VERSION
-
 /*
  *	Toggle showing/hiding rhythm problems.
  */
@@ -2032,8 +1943,6 @@ static void VMShowInvisibles()
 			InvalWindow(doc);
 			}
 	}
-	
-#endif /* VIEWER_VERSION */
 
 /*
  *	Toggle coloring of voices: non-default voices in color or everything in black.
@@ -2057,8 +1966,6 @@ static void VMColorVoices()
 			}
 	}
 
-#ifndef VIEWER_VERSION
-
 /*
  * Toggle showing score in pianoroll or normal form.
  */
@@ -2074,8 +1981,6 @@ static void VMPianoRoll()
 			}
 	}
 
-	
-#endif /* VIEWER_VERSION */
 
 #define SPEC_DOC_COUNT 1	/* No. of special Documents (e.g., clipboard) at start of <documentTable> */
 
@@ -2094,8 +1999,6 @@ static void VMActivate(short choice)
 				else						itemNum++;
 				}
 	}
-
-#ifndef VIEWER_VERSION
 
 static Boolean OKToRecord(Document *);
 static Boolean OKToRecord(Document *doc)
@@ -2174,8 +2077,6 @@ static void PLStepRecord(Document *doc, Boolean merge)
 			}
 		}
 	}
-
-#endif
 
 /*
  *	When activating a document, ensure that the correct menu is installed for
@@ -2336,7 +2237,6 @@ static void FixFileMenu(Document *doc, short nSel)
 		XableItem(fileMenu,FM_Close,doc!=NULL);
 		XableItem(fileMenu,FM_CloseAll,doc!=NULL);
 
-#ifndef VIEWER_VERSION
 		XableItem(fileMenu,FM_Save,doc!=NULL && !doc->readOnly && doc->changed
 										&& doc!=clipboard && !doc->masterView);
 		XableItem(fileMenu,FM_SaveAs,doc!=NULL && doc!=clipboard && !doc->masterView);
@@ -2355,15 +2255,12 @@ static void FixFileMenu(Document *doc, short nSel)
 										!doc->converted);
 		XableItem(fileMenu,FM_Export,doc!=NULL && doc!=clipboard && !doc->masterView);
 		XableItem(fileMenu,FM_OpenMidiMap,doc!=NULL && doc!=clipboard);
-#endif
 		XableItem(fileMenu,FM_SheetSetup,doc!=NULL && doc!=clipboard && !doc->overview);
-#ifndef VIEWER_VERSION
 		XableItem(fileMenu,FM_PageSetup,doc!=NULL && doc!=clipboard);
 		XableItem(fileMenu,FM_Print,doc!=NULL && doc!=clipboard && !doc->showFormat);
 
 		XableItem(fileMenu,FM_Preferences,doc!=NULL && doc!=clipboard);
 		XableItem(fileMenu,FM_ScoreInfo,doc!=NULL);
-#endif
 		
 		//disable all Nightingale Search Menu items until they have been removed from menu (rsrc) entirely
 		XableItem(editMenu,EM_SearchMelody,FALSE);        
@@ -2414,19 +2311,6 @@ static void GetUndoString(Document *doc, char undoMenuItem[])
 			GetIndCString(fmtStr, UNDOWORD_STRS, 1);				/* "Undo %s" */
 		sprintf(undoMenuItem, fmtStr, doc->undo.menuItem);
 	}
-
-#ifdef VIEWER_VERSION
-
-static void FixEditMenu(Document *doc, short nInRange, short nSel, Boolean isDA)
-	{
-		XableItem(editMenu,EM_Undo,isDA);
-		XableItem(editMenu,EM_Cut,isDA);
-		XableItem(editMenu,EM_Copy,isDA);
-		XableItem(editMenu,EM_Clear,isDA);
-		XableItem(editMenu,EM_Paste,isDA);
-	}
-	
-#else
 
 /*
  *	Enable or disable all items in the Edit menu; disable entire menu if the front
@@ -2571,8 +2455,6 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 		}
 	}
 
-#endif
-
 static void FixTestMenu(Document *doc, short nSel)
 	{
 #ifndef PUBLIC_VERSION
@@ -2665,24 +2547,6 @@ static void FixMoveMeasSys(Document *doc)
 		XableItem(scoreMenu, SM_MoveSystemDown, 
 			(LastSysInPage(sysL) && LinkRPAGE(pageL)!=NILINK));
 	}
-
-#ifdef VIEWER_VERSION
-
-static void FixScoreMenu(Document *doc, short nSel)
-	{
-	}
-	
-static void FixNotesMenu(doc, continSel)
-	register Document *doc; Boolean continSel;
-	{
-	}
-	
-static void FixGroupsMenu(doc, continSel)
-	register Document *doc; Boolean continSel;
-	{
-	}
-
-#else
 
 /*
  *	Fix all items in the Score menu; disable it entirely if there is no score
@@ -3090,8 +2954,6 @@ static void FixGroupsMenu(Document *doc, Boolean continSel)
 		FixOctavaCommands(doc, continSel);
 	}
 
-#endif
-
 void AddWindowList()
 {
 	short startItems, itemNum; Document *doc;
@@ -3147,7 +3009,6 @@ static void FixViewMenu(Document *doc)
 		
 		XableItem(viewMenu,VM_LookAtV,doc!=NULL && !doc->masterView && !doc->showFormat);
 		XableItem(viewMenu,VM_LookAtAllV,doc!=NULL && !doc->masterView && !doc->showFormat);
-#ifndef VIEWER_VERSION
 		XableItem(viewMenu,VM_ShowDurProb,doc!=NULL && !doc->masterView);
 		XableItem(viewMenu,VM_ShowSyncL,doc!=NULL && !doc->masterView);
 		XableItem(viewMenu,VM_ShowInvis,doc!=NULL && doc!=clipboard && !doc->masterView);
@@ -3159,17 +3020,13 @@ static void FixViewMenu(Document *doc)
 		
 		XableItem(viewMenu, VM_SymbolPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
 
-#endif
-
 		CheckMenuItem(viewMenu,VM_GoTo,doc!=NULL && doc->overview);
 		CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);
-#ifndef VIEWER_VERSION
 		CheckMenuItem(viewMenu,VM_ShowDurProb,doc!=NULL && doc->showDurProb);
 		CheckMenuItem(viewMenu,VM_ShowSyncL,doc!=NULL && doc->showSyncs);
 		CheckMenuItem(viewMenu,VM_ShowInvis,doc!=NULL && doc->showInvis);
 		CheckMenuItem(viewMenu, VM_ShowSystems, doc!=NULL && doc->frameSystems);
 		CheckMenuItem(viewMenu,VM_PianoRoll,doc!=NULL && doc->pianoroll);
-#endif
 	}
 
 /* Fix all items in Play/Record menu; disable entire menu if there's no score or
@@ -3187,7 +3044,6 @@ static void FixPlayRecordMenu(Document *doc, short nSel)
 			XableItem(playRecMenu, PL_PlayFromSelection, doc!=clipboard && haveMIDI);
 			XableItem(playRecMenu, PL_AllNotesOff, haveMIDI);
 	
-	#ifndef VIEWER_VERSION
 			noteSel = ObjTypeSel(doc, SYNCtype, 0)!=NILINK;
 			XableItem(playRecMenu, PL_Quantize, noteSel);
 	
@@ -3195,7 +3051,6 @@ static void FixPlayRecordMenu(Document *doc, short nSel)
 			XableItem(playRecMenu, PL_RecordMerge, doc!=clipboard && haveMIDI);
 			XableItem(playRecMenu, PL_StepRecInsert, doc!=clipboard && haveMIDI);
 			XableItem(playRecMenu, PL_StepRecMerge, doc!=clipboard && haveMIDI);
-	#endif
 	 		XableItem(playRecMenu, PL_MIDISetup, doc!=clipboard);
 	 		XableItem(playRecMenu, PL_Metronome, haveMIDI);		/* Metro and thru are global options */
 			XableItem(playRecMenu, PL_MIDIDynPrefs, doc!=clipboard);
@@ -3208,16 +3063,12 @@ static void FixPlayRecordMenu(Document *doc, short nSel)
 			XableItem(playRecMenu, PL_PlayEntire, FALSE);
 			XableItem(playRecMenu, PL_PlaySelection, FALSE);
 			XableItem(playRecMenu, PL_PlayFromSelection, FALSE);
-			XableItem(playRecMenu, PL_AllNotesOff, FALSE);
-	
-	#ifndef VIEWER_VERSION
+			XableItem(playRecMenu, PL_AllNotesOff, FALSE);	
 			XableItem(playRecMenu, PL_Quantize, FALSE);
 			XableItem(playRecMenu, PL_RecordInsert, FALSE);
 			XableItem(playRecMenu, PL_RecordMerge, FALSE);
 			XableItem(playRecMenu, PL_StepRecInsert, FALSE);
 			XableItem(playRecMenu, PL_StepRecMerge, FALSE);
-	#endif
-			
 	 		XableItem(playRecMenu, PL_MIDISetup, FALSE);
 	 		XableItem(playRecMenu, PL_Metronome, FALSE);
 	 		XableItem(playRecMenu, PL_MIDIThru, FALSE);
@@ -3228,18 +3079,6 @@ static void FixPlayRecordMenu(Document *doc, short nSel)
 			CheckMenuItem(playRecMenu, PL_Transpose, FALSE);
 		}
 	}
-
-#ifdef VIEWER_VERSION
-
-static void FixMasterPgMenu(Document *doc)
-{
-}
-
-static void FixFormatMenu(Document *doc)
-{
-}
-
-#else
 
 /* Fix all items in Master Page menu. If no score or we're not in Master Page,
 this menu shouldn't be installed, so we don't even need to disable it. */
@@ -3299,5 +3138,3 @@ static void FixFormatMenu(Document *doc)
 	XableItem(formatMenu, FT_Invisify, nVis>=2);
 	XableItem(formatMenu, FT_ShowInvis, nInvis>=1);
 }
-
-#endif

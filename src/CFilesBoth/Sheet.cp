@@ -381,8 +381,6 @@ void UnmagnifyPaper(Rect *magPaper, Rect *paper, short magnify)
 	}
 
 
-#ifndef VIEWER_VERSION
-
 /* Go directly to Master Page view, or back to current page */
 
 void DoMasterSheet(Document *doc)
@@ -446,9 +444,6 @@ void DoMasterSheet(Document *doc)
 		
 		// 5_02a4
 	}
-
-#endif /* VIEWER_VERSION */
-
 
 /* Given a point in window coordinates, deliver the sheet number of the sheet
 that the point falls in and return TRUE; return FALSE if it's outside any

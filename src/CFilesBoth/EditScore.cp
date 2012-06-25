@@ -117,15 +117,6 @@ void DoClickFrame(Document *doc, Point pt)
 			}
 	}
 
-
-#ifdef VIEWER_VERSION
-
-void DoClickInsert(Document *doc, Point pt)
-	{
-	}
-	
-#else
-
 void DoClickInsert(Document *doc, Point pt)
 	{
 		short index, subtype;
@@ -223,8 +214,6 @@ void DoClickInsert(Document *doc, Point pt)
 		xd = PageRelxd(doc->selStartL, &context);
 		doc->scaleCenter.h = context.paper.left+d2p(xd);
 	}
-
-#endif
 
 /* Null routine to allow loading or unloading EditScore.c's segment. */
 

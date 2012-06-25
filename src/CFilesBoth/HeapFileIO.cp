@@ -837,21 +837,6 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	return(ioErr);
 }
 
-
-#ifdef VIEWER_VERSION
-void DecodeMeasSubobjs(char *measZero, unsigned short nFObjs);
-static void DecodeMeasSubobjs(char * measZero, unsigned short nFObjs)
-{
-	PAMEASURE aMeas; unsigned short num;
-
-	for (num = 0; num<nFObjs; num++) {
-		aMeas = (PAMEASURE)((long)measZero+(long)num*sizeof(AMEASURE));
-		aMeas->staffn += 1;
-	}
-}
-#endif
-
-
 /* 
  * Read all subobject heaps from file. 
  *
@@ -1013,10 +998,6 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 					}
 				}
 			}
-#ifdef VIEWER_VERSION
-			if (isViewerFile && i==MEASUREtype)
-				DecodeMeasSubobjs(p, nFObjs);
-#endif
 #ifdef DEBUG_MEAS
 			if (ShiftKeyDown() && OptionKeyDown() && i==MEASUREtype)
 				DisplayMeasures(p, nFObjs);
@@ -1076,12 +1057,6 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 		}
 //#endif
 
-#ifdef VIEWER_VERSION
-	if (isViewerFile && heapIndex<=TUPLETtype) {
-		tempHeap.type >>= 8;
-		tempHeap.type -= 91;
-	}
-#endif
 	if (myHeap->type!=tempHeap.type)
 		{ OpenError(TRUE, refNum, HDR_TYPE_ERR, heapIndex); return HDR_TYPE_ERR; }
 		

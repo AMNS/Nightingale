@@ -18,15 +18,6 @@ static short NumPartStaves(LINK partL);
 
 /* ------------------------------------------------- CombinePartsDlog and DoExtract -- */
 
-#ifdef VIEWER_VERSION
-
-Boolean DoCombineParts(Document *doc, LINK *firstPartL, LINK *lastPartL)
-	{
-		return FALSE;
-	}
-	
-#else
-
 static enum {
 	COMBINEINPLACE_DI=4,
 	EXTRACTTOSCORE_DI,
@@ -1332,6 +1323,3 @@ Boolean DoCombineParts(Document *doc)
 Done:
 		return TRUE;
 	}
-
-#endif /* VIEWER_VERSION */
-

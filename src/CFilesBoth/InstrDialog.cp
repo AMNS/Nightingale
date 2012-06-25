@@ -227,9 +227,6 @@ static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MI
 
 // ---------------------------------------------------------------------------------
 
-
-#ifndef VIEWER_VERSION
-
 short CMInstrDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice)
 {
 	origMPDevice = (unsigned long*)mpDevice;
@@ -746,9 +743,6 @@ static void ShowLSelect(DialogPtr theDialog, short cell)
 	HUnlock((Handle)rangeHdl);
 }
 
-#endif /* not VIEWER_VERSION */
-
-
 /* -------------------------- ( FORMERLY iDialogMove.c) -------------------------- */
 
 
@@ -788,9 +782,6 @@ static void ShowLSelect(DialogPtr theDialog, short cell)
 #define TRANS_NOT_HT			5
 
 #define MIN_RANGE				3			/* minimum range in semitones */
-	
-
-#ifndef VIEWER_VERSION
 
 static void DrawStaves()
 {
@@ -1125,8 +1116,6 @@ static void DrawNoteNames(
 	}
 }
 
-#endif /* not VIEWER_VERSION */
-
 /* -------------------------- ( FORMERLY iDialogRange.c) -------------------------- */
 
 /* 
@@ -1397,9 +1386,6 @@ char *strcut(char *r,		/* ptr to temp buffer where data will go */
 	}		 
 }
 
-
-#ifndef VIEWER_VERSION
-
 void InitRange(
 			rangeMaster *M)	/* ptr to data we get copied from PARTINFO * or list */
 {	
@@ -1481,9 +1467,6 @@ void InitRange(
 	}
 	ShowInit(M);
 }
-
-#endif /* not VIEWER_VERSION */
-
 
 /* Return TRUE if p is not NULL and midinote values are safe and sane. */
 

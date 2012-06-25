@@ -575,15 +575,6 @@ void ActivateDocument(register Document *doc, short activ)
 			}
 	}
 
-#ifdef VIEWER_VERSION
-
-Boolean DocumentSaved(Document *doc)
-	{
-		return TRUE;
-	}
-
-#else
-
 /* Ensure that a given document is ready to be closed.  Ask user if any changes
 should be saved, and save them if he does.  If user says to Cancel, then return
 FALSE, otherwise return TRUE.  We use a simple alert, with a filter that lets us
@@ -738,8 +729,6 @@ void DoRevertDocument(register Document *doc)
 				}
 			}
 	}
-
-#endif
 
 /* If all staves (of the first Staff object only!) are the same size and that size is
 not the score's <srastral>, offer user a change to set <srastral> accordingly.
@@ -1048,14 +1037,12 @@ Boolean BuildDocument(
 				NewMasterPage(doc,sysTop,TRUE);
 				}
 			doc->nonstdStfSizes = FillRelStaffSizes(doc);
-#ifndef VIEWER_VERSION
 			if (doc->nonstdStfSizes)
 				if (!AllStavesSameSize(doc)) {
 				GetIndCString(strBuf, MISCERRS_STRS, 6);	/* "Not all staves are the std. size" */
 				CParamText(strBuf, "", "", "");
 				CautionInform(GENERIC_ALRT);
 				}
-#endif
 			}
 
 		if (!InitDocUndo(doc))

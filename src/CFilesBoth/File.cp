@@ -179,11 +179,7 @@ static void FillFontTable(Document *doc)
 		}
 	}
 
-#ifdef VIEWER_VERSION
-	if (nMissing!=0 && OptionKeyDown())
-#else
 	if (nMissing!=0)
-#endif
 		MissingFontsDialog(doc, nMissing);
 }
 

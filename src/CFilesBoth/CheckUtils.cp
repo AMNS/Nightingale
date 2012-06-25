@@ -205,7 +205,6 @@ Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
  * system in question.
  */
 
-#ifndef VIEWER_VERSION
 
 Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr,
 								Rect sysObjRect, Rect sysRect, Rect r, PCONTEXT pContext)
@@ -257,7 +256,6 @@ Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr,
 	return FALSE;
 }
 
-#endif
 
 /* -------------------------------------------------------------------------------- */
 /* Utilities for CheckSTAFF */

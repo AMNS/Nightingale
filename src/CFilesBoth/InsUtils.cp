@@ -349,15 +349,6 @@ Boolean TrackEnding(Document *doc, LINK pL, Point pt, Point *endPt, short staff)
 
 /* Track the ending and add it to the data structure. Handles cancelling. */
  
-#ifdef VIEWER_VERSION
-
-Boolean TrackAndAddEnding(Document *doc, Point pt, short clickStaff)
-{
-	return FALSE;
-}
-
-#else
-
 Boolean TrackAndAddEnding(Document *doc, Point pt, short clickStaff)
 {
 	static short number=1;
@@ -414,9 +405,6 @@ Boolean TrackAndAddEnding(Document *doc, Point pt, short clickStaff)
 		return FALSE;
 	}
 }
-
-#endif /* VIEWER_VERSION */
-
 
 /* ----------------------------------------------------------------------- Lines -- */
 

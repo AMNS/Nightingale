@@ -3,11 +3,6 @@ be in a precompiled header like defs.h because the _VERSION isn't yet defined. N
 if SETUP_FILE_NAME is changed, CREATESETUP_PMSTR may also need to be changed, until
 we can get rid of that silly thing. */
 
-#ifdef VIEWER_VERSION
-#define PROGRAM_NAME "NoteView"												/* C string */
-#define SETUP_FILE_NAME "\p:Preferences:NoteView 2000 Prefs"		/* Pascal string */
-#define HELP_FILE_NAME "NoteView 2000 Help"								/* C string */
-#else
 #define PROGRAM_NAME 	"Nightingale"										/* C string */
 
 #define PREFS_PATH		"\p:Preferences:"									/* The path separators are */
@@ -18,5 +13,4 @@ we can get rid of that silly thing. */
 #define SETUP_TEXTFILE_NAME 	"\pNightingale_Devel_Prefs.txt"
 
 #define HELP_FILE_NAME 	"Nightingale 2004 Help"							/* C string */
-#endif
 

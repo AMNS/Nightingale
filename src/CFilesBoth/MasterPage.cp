@@ -388,8 +388,6 @@ void FixLedgerYSp(Document *doc)
 	doc->ledgerYSp = -hiPitchLim;
 }
 
-#ifndef VIEWER_VERSION
-
 /* Conform all ranges [system, connect] in the score to the Master Page
 object list. */
 
@@ -542,8 +540,6 @@ void ExportMasterPage(Document *doc)
 	/* Editing margins may have invalidated objRects in the score. */
 	InvalRange(doc->headL, doc->tailL);
 }
-
-#endif
 
 
 /* ------------------------------------------------- MasterPage Editing Routines -- */
@@ -751,7 +747,6 @@ static void DisposeMasterData(Document *doc)
 		doc->oldMasterTailL = NILINK;
 }
 
-#ifndef VIEWER_VERSION
 
 #ifdef LIGHT_VERSION
 /* MPPrepareUndo and MPEnforcePageLimit implement Undo when leaving Master Page
@@ -962,8 +957,6 @@ quit:
 	return TRUE;
 }
 
-#endif
-
 
 /* ------------------------------------------- Routines for setting up MasterPage -- */
 
@@ -1047,23 +1040,6 @@ static Boolean MPChkSysHt(Document *doc, short srastral, short newRastral)
 	
 	return (sysSize < pageHt);
 }
-
-
-#ifdef VIEWER_VERSION
-
-void DoMasterStfSize(Document *doc)
-{
-}
-
-void DoMasterStfLines(Document *doc)
-{
-}
-
-void MPEditMargins(Document *doc)
-{
-}
-
-#else
 
 
 void DoMasterStfSize(Document *doc)
@@ -1228,9 +1204,6 @@ void MPEditMargins(Document *doc)
  	}
 }
 
-#endif /* VIEWER_VERSION */
-
-
 /* -------------------------------------------------------------- SetupMasterMenu -- */
 /* Replace the play/record menu with the Master Page menu. */
 
@@ -1329,14 +1302,6 @@ void ReplaceMasterPage(Document *doc)
 EVER be invisible; this can be called whenever there's a chance they might be,
 e.g., after constructing a Master Page object list from an ordinary system. */
 
-#ifdef VIEWER_VERSION
-
-void VisifyMasterStaves(Document *doc)
-{
-}
-
-#else
-
 void VisifyMasterStaves(Document *doc)
 {
 	LINK pL,aStaffL;
@@ -1351,8 +1316,6 @@ void VisifyMasterStaves(Document *doc)
 			break;
 		}
 }
-
-#endif
 
 /*
  *	Create a new Master Page object list, and return TRUE if OK; FALSE if not.

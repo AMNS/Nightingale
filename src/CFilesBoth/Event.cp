@@ -664,10 +664,6 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 					pt.h -= paper.left;
 					pt.v -= paper.top;
 					
-#ifdef VIEWER_VERSION
-					DoEditScore(doc,pt,modifiers,FALSE);
-					didSomething = FALSE;
-#else
 					if (doc->masterView) {
 						didSomething = DoEditMaster(doc,pt,modifiers,doubleClick);
 						if (didSomething) doc->masterChanged = TRUE;
@@ -681,7 +677,6 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 					}
 					else
 						didSomething = DoEditScore(doc,pt,modifiers,doubleClick);
-#endif
 
 #ifdef SHEETSSELECTION
 					if (didSomething)
@@ -747,7 +742,6 @@ static Boolean DoKeyDown(EventRecord *event)
 		 else
 			switch(ch) {
 				case CH_BS:							/* Handle backspace to delete */
-#ifndef VIEWER_VERSION
 					if (doc) {
 						if (scoreView && ContinSelection(doc, config.strictContin!=0)) {
 							if (BFSelClearable(doc, BeforeFirstMeas(doc->selStartL))) {
@@ -760,7 +754,6 @@ static Boolean DoKeyDown(EventRecord *event)
 							if (PartSel(doc)) MPDeletePart(doc);
 							}
 						}
-#endif
 					break;
 				case '\r':
 					if (doc) {
@@ -888,11 +881,7 @@ pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, /*u
 						DoCloseWindow(doc->theWindow);
 						}
 					else if (isFirst)
-#ifdef VIEWER_VERSION
-						;
-#else
 						DoViewMenu(VM_SymbolPalette);
-#endif
 					}
 				 else
 					break;					/* Couldn't open; error already reported */
@@ -924,14 +913,10 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			if (DoOpenDocument(theFile->name, theFile->vRefNum, FALSE, theFile)) break;
 			return NULL;
 		case 'TEXT':
-#ifndef VIEWER_VERSION
 			if (OpenNotelistFile(theFile->name, theFile)) break;
-#endif
 			return NULL;
 		case 'Midi':
-#ifndef VIEWER_VERSION
 			if (ImportMIDIFile(theFile)) break;			
-#endif
 			return NULL;
 		default:
 			/* ??We should give a specific, more helpful error message if it's a Help file. */		
@@ -979,14 +964,10 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			if (DoOpenDocument(theFile->name, wdRec.ioVRefNum, FALSE)) break;
 			return NULL;
 		case 'TEXT':
-#ifndef VIEWER_VERSION
 			if (OpenNotelistFile(theFile->name, wdRec.ioVRefNum)) break;
-#endif
 			return NULL;
 		case 'Midi':
-#ifndef VIEWER_VERSION
 			if (ImportMIDIFile(theFile->name, wdRec.ioVRefNum)) break;			
-#endif
 			return NULL;
 		default:
 			/* ??We should give a specific, more helpful error message if it's a Help file. */		

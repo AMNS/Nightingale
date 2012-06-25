@@ -167,26 +167,6 @@ static Byte cmPanSetting[MAXSTAVES + 1];
 static Boolean cmAllSustainOn[MAXSTAVES + 1];
 static Byte cmAllPanSetting[MAXSTAVES + 1];
 
-#ifdef VIEWER_VERSION
-
-void InitAddBarlines()
-{
-}
-
-void AddBarline(LINK pL)
-{
-}
-
-static Boolean TupletProblem(Document *doc, LINK insL)
-{
-}
-
-Boolean CloseAddBarlines(Document *doc)
-{
-}
-
-#else
-
 void InitAddBarlines()
 {
 	nBars = 0;
@@ -285,9 +265,6 @@ Boolean CloseAddBarlines(Document *doc)
 	InvalWindow(doc);
 	return okay;
 }
-
-#endif /* VIEWER_VERSION */
-
 
 /* ------------------------------------------------------------ SelAndHiliteSync -- */
 /* Select and hilite the given Sync, and set the document's scaleCenter (for

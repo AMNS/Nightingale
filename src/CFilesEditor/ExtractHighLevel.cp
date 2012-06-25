@@ -17,16 +17,6 @@ static Boolean ExtractDialog(unsigned char *, Boolean *, Boolean *, Boolean *, s
 
 /* ------------------------------------------------- ExtractDialog and DoExtract -- */
 
-#ifdef VIEWER_VERSION
-
-Boolean DoExtract(doc)
-	Document *doc;
-	{
-		return FALSE;
-	}
-	
-#else
-
 static enum {
 	EXTRACTALL_DI=4,
 	EXTRACTONE_DI,
@@ -368,6 +358,4 @@ Boolean DoExtract(Document *doc)
 Done:
 		return TRUE;
 	}
-
-#endif /* VIEWER_VERSION */
 
