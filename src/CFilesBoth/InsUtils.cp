@@ -1839,12 +1839,10 @@ void FixNewMeasAccs(Document *doc, LINK measureL)
 		GetAccTable(doc, accTable, measureL, s);						/* Accidentals before barline */
 		GetAccTable(doc, accAfterTable, RightLINK(measureL), s); /* Accidentals just after (=key sig.) */			
 		CombineTables(accTable, accAfterTable);
-		for (j = 0; j<MAX_STAFFPOS; j++)									/* Combine tables */
-			if (accTable[j]==accAfterTable[j])							/* Entry the same? */
-				accTable[j] = 0;												/* Yes, do nothing */
 		FixAllAccidentals(measureL, endMeasL, s, FALSE);
 	}
 }
+
 
 
 /* --------------------------------------------------------------- InsFixMeasNums -- */
@@ -1869,11 +1867,15 @@ Boolean InsFixMeasNums(Document *doc, LINK newL)
 	
 	switch (ObjLType(newL)) {
 		case MEASUREtype:
+#if 1
 			/* For years, the 2nd param here has been <NILINK>, i.e., do the entire file.
 			 * But starting just before <newL> can be much, much faster, and it should be
 			 * sufficient in all cases.  --DAB, 1/2000
 			 */
 			return UpdateMeasNums(doc, LeftLINK(newL));
+#else
+			return UpdateMeasNums(doc, NILINK);
+#endif
 		case SYNCtype:
 		case GRSYNCtype:
 			measL = LSSearch(newL, MEASUREtype, ANYONE, GO_LEFT, FALSE);

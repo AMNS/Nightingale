@@ -496,10 +496,7 @@ static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTr
 		
 	}
 	else {
-#if 1
-//		InvertItem(currentItem, FALSE, menuRect, theMenu);
 		trackingData->itemSelected = currentItem;
-#endif
 	}
 }
 
