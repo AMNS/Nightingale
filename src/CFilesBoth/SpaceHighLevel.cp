@@ -51,7 +51,6 @@ static STDIST IPSpaceNeeded(Document *, short, short, SPACETIMEINFO [], STDIST [
 static void ConsidITWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST []);
 static void ConsidIPWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST [], LONGSTDIST []);
 static void ConsiderWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST [], LONGSTDIST []);
-static Boolean RespBreakSystem(Document *, LINK, short, Boolean);
 
 /* -------------------------------------------------------------------- CenterNR -- */
 /* Center the given note or rest (normally a whole-measure or multi-bar rest)

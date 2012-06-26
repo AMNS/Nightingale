@@ -84,8 +84,6 @@ static StringPoolRef *poolStack,			// Stack for pushing/popping pool contexts
 
 static OSErr	MoreStringMemory(long n, StringPoolRef pool);
 static void	DefaultNoMemory(OSErr err);
-static void	BadPoolHandle(void);
-
 
 /*
  *	Re-initialize the String Manager to use a push/pop context stack of given

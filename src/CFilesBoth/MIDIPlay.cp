@@ -154,7 +154,6 @@ Boolean CloseAddBarlines(Document *);
 static void SendMidiSustainOn(Document *doc, MIDIUniqueID destDevID, char channel);
 static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channel);
 static void SendMidiPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting);
-static void SendMidiSustainOn(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
 static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
 static void SendMidiPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITimeStamp tStamp);
 
@@ -549,11 +548,6 @@ static void SendAllMidiPans(Document *doc, unsigned char *partChannel)
 	}		
 }
 
-static void SendMidiProgramChange(Document *doc, unsigned char *partPatch, unsigned char *partChannel) 
-{
-	CMMIDIProgram(doc, partPatch, partChannel);	
-}
-
 static Boolean IsMidiPatchChange(LINK pL) 
 {
 	if (ObjLType(pL) == GRAPHICtype) {
@@ -577,11 +571,6 @@ static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channe
 static void SendMidiPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting) 
 {
 	CMMIDIPan(destDevID, channel, panSetting);	
-}
-
-static void SendMidiSustainOn(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp) 
-{
-	CMMIDISustainOn(destDevID, channel, tStamp);	
 }
 
 static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp) 

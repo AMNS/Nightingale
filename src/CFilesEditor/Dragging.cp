@@ -35,7 +35,6 @@ static void SDDrawMBRest(Document *doc,PCONTEXT pContext,LINK theRestL,DDIST xd,
 static void SDDrawRest(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawNote(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawGRNote(Document *doc, LINK pL, LINK subObjL, LINK measureL);
-static void SDDrawDynamic(Document *doc, LINK pL, LINK subObjL, unsigned char glyph, LINK measureL);
 static void SDDrawRptEnd(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void MoveAndLineTo(short x1, short y1, short x2, short y2);
 static void SDDrawEnding(Document *doc, LINK pL, LINK subObjL, LINK measureL);
@@ -771,70 +770,6 @@ PushLock(GRNOTEheap);
 PopLock(OBJheap);
 PopLock(GRNOTEheap);
 }
-
-
-/* -------------------------------------------------------------------------------- */
-
-/* No longer used: replaced by DragDynamic and DragHairpin. */
-
-static void SDDrawDynamic(Document *doc, LINK pL, LINK subObjL, unsigned char glyph,
-									LINK measureL)
-{
-	PDYNAMIC	 p;
-	PADYNAMIC aDynamic;
-	DDIST		 xd,yd,dTop,dLeft,lnSpace,rise,endxd;
-	LINK		 firstMeasL, lastMeasL;
-	CONTEXT	 context;
-	Rect 		 mRect;
-	
-	mRect = SDGetMeasRect(doc, pL, measureL);
-	
-	/* ??Should call GetDynamicDrawInfo instead of figuring position out itself! */
-	p = GetPDYNAMIC(pL);
-	aDynamic = GetPADYNAMIC(subObjL);
-	GetContext(doc, pL, aDynamic->staffn, &context);
-	aDynamic = GetPADYNAMIC(subObjL);
-	dTop = context.measureTop;
-	dLeft = context.measureLeft;
-	xd = LinkXD(DynamFIRSTSYNC(pL)) + LinkXD(pL) + aDynamic->xd;
-	xd = DragXD(xd);
-	yd = dTop + aDynamic->yd;
-
-	lnSpace = context.staffHeight/(context.staffLines-1);
-	if (IsHairpin(pL)) {
-		/* ??BUG: measDiff isn't defined yet! Looks like could just rearrange these lines! */
-		DDIST measDiff = 0;
-		endxd = measDiff+LinkXD(DynamLASTSYNC(pL))+aDynamic->endxd;
-		rise = qd2d(aDynamic->mouthWidth, context.staffHeight, context.staffLines)/2;
-		firstMeasL = LSSearch(DynamFIRSTSYNC(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-		lastMeasL = LSSearch(DynamLASTSYNC(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-		measDiff = LinkXD(lastMeasL) - LinkXD(firstMeasL);
-	}
-
-	switch (DynamType(pL)) {
-		case DIM_DYNAM:
-			yd -= p2d(mRect.top);
-			MoveTo(d2p(xd), d2p(yd+rise));
-			LineTo(d2p(endxd), d2p(yd));
-			MoveTo(d2p(xd), d2p(yd-rise));
-			LineTo(d2p(endxd), d2p(yd));
-			break;
-		case CRESC_DYNAM:
-			yd -= p2d(mRect.top);
-			MoveTo(d2p(xd), d2p(yd));
-			LineTo(d2p(endxd), d2p(yd+rise));
-			MoveTo(d2p(xd), d2p(yd));
-			LineTo(d2p(endxd), d2p(yd-rise));
-			break;
-		default:
-			yd -= p2d(mRect.top);
-			TextSize(UseMTextSize(context.fontSize, doc->magnify));
-			MoveTo(d2p(xd), d2p(yd));
-			DrawChar(glyph);
-			break;
-	}
-}
-
 
 static void SDDrawRptEnd(Document *doc, LINK pL, LINK /*subObjL*/, LINK measureL)
 {

@@ -72,9 +72,6 @@ typedef struct {
 /* --------------------------------------------------------------------------------- */
 /* Prototypes for internal functions */
 
-static long GetSStartTime(Document *doc, short s);
-static long GetClipSEndTime(short s);
-
 static LINK GetSysEndL(LINK pL,Boolean goLeft);
 static LINK VSyncSearch(LINK pL, LINK *subL, short v, Boolean goLeft, Boolean needSel);
 static LINK VoiceSearch(LINK pL, VInfo *vInfo, short v, Boolean goLeft);

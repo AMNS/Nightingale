@@ -13,7 +13,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean CombinePartsDlog(unsigned char *, Boolean *, Boolean *, Boolean *, short *);
 static short NumPartStaves(LINK partL);
 
 /* ------------------------------------------------- CombinePartsDlog and DoExtract -- */
@@ -64,15 +63,6 @@ static void DimSpacePanel(DialogPtr dlog,
 		PenNormal();
 	}
 }
-
-/* User Item-drawing procedure to dim subordinate check boxes and text items */
-
-static pascal void UserDimPanel(DialogPtr d, short dItem);
-static pascal void UserDimPanel(DialogPtr d, short dItem)
-{
-	DimSpacePanel(d, dItem);
-}
-
 
 static Boolean CombinePartsDlog(unsigned char *firstPartName, unsigned char *lastPartName, 
 										Boolean *pInPlace, Boolean *pSave,
@@ -175,106 +165,6 @@ static Boolean CombinePartsDlog(unsigned char *firstPartName, unsigned char *las
 	return (ditem==OK);
 }
 
-static Boolean CombinePartsDlog1(unsigned char *partName, Boolean *pInPlace, Boolean *pSave,
-										Boolean *pReformat, short *pSpacePercent)
-{	
-	DialogPtr dlog;
-	short ditem; short radio1, radio2;
-	GrafPtr oldPort;
-	short aShort; Handle aHdl; Rect spacePanelBox;
-	short newSpace;
-	Boolean dialogOver=FALSE;
-	UserItemUPP userDimUPP;
-	ModalFilterUPP filterUPP;
-	
-	userDimUPP = NewUserItemUPP(UserDimPanel);
-	if (userDimUPP==NULL) {
-		MissingDialog((long)COMBINEPARTS_DLOG);  /* Missleading, but this isn't likely to happen. */
-		return FALSE;
-	}
-	filterUPP = NewModalFilterUPP(OKButFilter);
-	if (filterUPP == NULL) {
-		DisposeUserItemUPP(userDimUPP);
-		MissingDialog((long)COMBINEPARTS_DLOG);
-		return FALSE;
-	}
-	
-	dlog = GetNewDialog(COMBINEPARTS_DLOG, NULL, BRING_TO_FRONT);
-	if (!dlog) {
-		DisposeUserItemUPP(userDimUPP);
-		DisposeModalFilterUPP(filterUPP);
-		MissingDialog((long)COMBINEPARTS_DLOG);
-		return FALSE;
-	}
-	
-	GetPort(&oldPort);
-	SetPort(GetDialogWindowPort(dlog));
-
-//	PutDlgString(dlog,WHICHONE_DI,partName, FALSE);
-
-	radio1 = (*pInPlace ? COMBINEINPLACE_DI : EXTRACTTOSCORE_DI);
-	PutDlgChkRadio(dlog, radio1, TRUE);
-	radio2 = (*pSave ? SAVE_DI : OPEN_DI);
-	PutDlgChkRadio(dlog, radio2, TRUE);
-	PutDlgChkRadio(dlog, REFORMAT_DI, *pReformat);
-	GetDialogItem(dlog, SPACEBOX_DI, &aShort, &aHdl, &spacePanelBox);
-	SetDialogItem(dlog, SPACEBOX_DI, userItem, (Handle)userDimUPP, &spacePanelBox);
-	PutDlgWord(dlog, SPACE_DI, *pSpacePercent, TRUE);
-
-	CenterWindow(GetDialogWindow(dlog), 55);
-	ShowWindow(GetDialogWindow(dlog));
-	DimSpacePanel(dlog, SPACEBOX_DI);			/* Prevent flashing if subordinates need to be dimmed right away */
-	ArrowCursor();
-
-	dialogOver = FALSE;
-	while (!dialogOver) {
-		ModalDialog(filterUPP, &ditem);
-		switch (ditem) {
-			case OK:
-				GetDlgWord(dlog, SPACE_DI, (short *)&newSpace);
-				if (newSpace<MINSPACE || newSpace>MAXSPACE)
-					Inform(SPACE_ALRT);
-				else
-					dialogOver = TRUE;
-				break;
-			case Cancel:
-				dialogOver = TRUE;
-				break;
-			case REFORMAT_DI:
-				PutDlgChkRadio(dlog,REFORMAT_DI,!GetDlgChkRadio(dlog,REFORMAT_DI));
-				InvalWindowRect(GetDialogWindow(dlog),&spacePanelBox);					/* force filter to call DimSpacePanel */
-				break;
-			case COMBINEINPLACE_DI:
-			case EXTRACTTOSCORE_DI:
-				SwitchRadio(dlog, &radio1, ditem);
-				break;
-			case SAVE_DI:
-			case OPEN_DI:
-				SwitchRadio(dlog, &radio2, ditem);
-				break;
-			default:
-				;
-		}
-	}
-		
-	/* The dialog is over and everything's legal. If it was OKed, pick up new values. */
-	
-	if (ditem==OK) {
-		*pInPlace = GetDlgChkRadio(dlog, COMBINEINPLACE_DI);
-		*pSave = GetDlgChkRadio(dlog, SAVE_DI);
-		*pReformat = GetDlgChkRadio(dlog, REFORMAT_DI);
-		GetDlgWord(dlog, SPACE_DI, (short *)pSpacePercent);
-	}
-	
-	DisposeDialog(dlog);
-	DisposeUserItemUPP(userDimUPP);
-	DisposeModalFilterUPP(filterUPP);
-	SetPort(oldPort);
-	
-	return (ditem==OK);
-}
-
-
 /* ------------------------------------------------------------------------------ */
 
 /* Normalize the part's format by making all staves visible and giving all systems
@@ -340,68 +230,6 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 static Boolean EnoughFreeDocs()
 	{
 		return TRUE;		
-	}
-	
-static short MaxRelVoice(Document *doc, short partn)
-	{
-		short maxrv = -1;
-		
-		for (short v = 0; v<=MAXVOICES; v++) 
-		{
-			short vpartn = doc->voiceTab[v].partn;
-			if (vpartn == partn) 
-			{
-				if (doc->voiceTab[v].relVoice > maxrv)
-					maxrv = doc->voiceTab[v].relVoice;
-			}
-		}
-	
-		return maxrv;
-	}
-
-static void FixVoicesForPart(Document *doc, LINK destPartL, LINK partL, short stfDiff)
-	{
-		short partn = PartL2Partn(doc, partL);
-		short dpartn = PartL2Partn(doc, destPartL);
-		
-		short firstStf = PartFirstSTAFF(partL);
-		short lastStf = PartLastSTAFF(partL);		
-		short v;
-		
-		/* Fix up all the base relvoices */
-		for (v = firstStf; v<=lastStf; v++) {
-			doc->voiceTab[v].relVoice += stfDiff;		
-			doc->voiceTab[v].partn = dpartn;
-		}
-		
-		/* Clear all other relvoices for this part */		
-		for (v = 0; v<MAXVOICES+1; v++) 
-		{
-			if (v<firstStf || v>lastStf) 
-			{
-				short vpartn = doc->voiceTab[v].partn;
-				if (vpartn == partn) 
-				{
-					doc->voiceTab[v].relVoice = -1;
-					doc->voiceTab[v].partn = dpartn;
-				}				
-			}
-		}
-		
-		short maxrv = MaxRelVoice(doc, dpartn) + 1;
-		
-		/* Fix up all the remaining relvoices */
-		for (v = 0; v<MAXVOICES+1; v++) 
-		{
-			short vpartn = doc->voiceTab[v].partn;
-			if (vpartn == dpartn) 
-			{
-				if (doc->voiceTab[v].relVoice < 0)
-				{
-					doc->voiceTab[v].relVoice = maxrv++;
-				}
-			}
-		}
 	}
 	
 static Boolean CheckMultivoiceRoles(Document *doc, LINK firstPartL, LINK lastPartL)
@@ -677,17 +505,6 @@ static void DeselectCONNECT(LINK pL)
 	}
 	
 	LinkSEL(pL) = FALSE;
-}
-
-static void ViewConnect(LINK connectL) {
-	
-	int i = 0;
-	PCONNECT pConn = GetPCONNECT(connectL);
-	LINK aConnectL = FirstSubLINK(connectL);
-	for ( ; aConnectL; aConnectL=NextCONNECTL(aConnectL)) {
-		PACONNECT aConnect = GetPACONNECT(aConnectL);
-		i++;
-	}
 }
 
 static void UpdateMasterConnectsForPart(Document *doc, LINK firstPartL, LINK partL)
@@ -974,22 +791,6 @@ static void CopyVoiceTable(VOICEINFO *srcTab, VOICEINFO *dstTab)
 	for (int i = 0; i <= MAXVOICES; i++) {
 		dstTab[i] = srcTab[i];
 	}
-}
-
-static short TotalStfDiff(LINK firstPartL, LINK lastPartL) 
-{
-	short totalDiff = 0;
-	
-	LINK partL = firstPartL;
-	while (partL != NILINK && partL != lastPartL) 		// handle all the parts after the first
-	{
-		partL = NextPARTINFOL(partL);
-		
-		short stfDiff = NumPartStaves(partL);
-		totalDiff += stfDiff;
-	}
-	
-	return totalDiff;
 }
 
 static short TotalPartDiff(LINK firstPartL, LINK lastPartL) 

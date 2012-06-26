@@ -43,7 +43,6 @@ static void IDrawHairpin(Point, Point, Boolean, PCONTEXT);
 static Boolean TrackHairpin(Document *, LINK, Point, Point *, Boolean, short);
 static Boolean GetCrossStatus(Document *, Point, Point, short *, short *);
 static void AddGRNoteUnbeam(Document *, LINK, LINK, LINK, short);
-static LINK NextStaff(Document *, LINK);
 static DDIST GetTopStfLim(Document *,LINK,LINK,PCONTEXT);
 static DDIST GetBotStfLim(Document *,LINK,LINK,PCONTEXT);
 
@@ -1309,25 +1308,6 @@ short CalcPitchLevel(
 			return 2*lines+hiPitchLim+1;								/* In space below */
 	}
 }	
-
-
-/* ------------------------------------------------------------------- NextStaff -- */
-/*	Return pointer to the next Staff or System object, or tailL if there
-are none. N.B. With Nightingale's current (as of v.99) data structure, will
-NEVER return a Staff, since the next System will always precede it. */
-
-static LINK NextStaff(Document *doc, LINK pL)
-{
-	LINK		qL;
-
-	if ((qL = LinkRSTAFF(pL)) == NILINK)
-		return doc->tailL;							/* none; return tailL */
-	if (StaffSYS(qL)==StaffSYS(pL))
-		return qL;								/* same System; return next Staff */
-	else
-		return StaffSYS(qL);					/* different System; return next System */
-}
-
 
 /* -------------------------------------------------------------- FindStaff et al -- */
 /* Return the staffn of the staff nearest to the given point, presumably a mouse

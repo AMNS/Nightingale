@@ -9,8 +9,6 @@
 
 #include "ChooseCharLDEF.h"
 
-static void CenterInRect(Rect *r,Rect *cInR);
-
 void GetCharBBox(GrafPtr, Rect *);
 GrafPtr NewGrafPort(int, int);
 void DisposGrafPort(GrafPtr);
@@ -111,21 +109,6 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 	HSetState((Handle)lHandle, hStateList);
 
 }
-
-static void CenterInRect(Rect *r,Rect *cInR)
-{
-	short rWid = r->right-r->left;
-	short rHt = r->bottom-r->top;
-	
-	short cWid = cInR->right-cInR->left;
-	short cHt = cInR->bottom-cInR->top;
-	
-	short lMarg = (rWid - cWid)/2;
-	short tMarg = (rHt - cHt)/2;
-	
-	OffsetRect(cInR,lMarg,tMarg);	
-}
-
 
 /* •••so far, bbox.left & right undefined!! */
 void GetCharBBox(GrafPtr port, Rect *bbox)

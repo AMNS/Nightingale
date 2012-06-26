@@ -21,8 +21,6 @@ static Boolean DblDstStaffOK(LINK, LINK, short);
 static void FixNoteYForClef(Document *, LINK, LINK, short, CONTEXT, CONTEXT);
 static void FixChordsForClef(Document *, LINK, short, CONTEXT, CONTEXT);
 static short DupAndSetStaff(Document *, short [], LINK, short, short, short);
-static Boolean SyncHasNondfltVoice(LINK, short);
-static LINK HasNondfltVoice(Document *, short);
 static Boolean StfHasSmthgAcross(Document *, LINK, short, char []);
 static Boolean RangeHasUnmatchedSlurs(Document *, LINK, LINK, short);
 
@@ -796,52 +794,6 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 	
 	return OP_COMPLETE;
 }
-
-
-/* -------------------------------------------------------- Sync/HasNondfltVoice -- */
-/* ??Cf. SyncHasNondefaultVoice in Transcribe.c, which should be replace by
-this more general version. (The two functions below are unused in Ngale 2.1.) */
-
-static Boolean SyncHasNondfltVoice(
-						LINK syncL,		/* Either a Sync or a GRSync */
-						short stf		/* Staff no. to check or ANYONE */
-						)
-{
-	Boolean anyStaff; LINK aNoteL, aGRNoteL;
-	
-	anyStaff = (stf==ANYONE);
-	
-	if (SyncTYPE(syncL)) {
-		for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL))
-			if ((anyStaff || NoteSTAFF(aNoteL)==stf)
-			&&   NoteVOICE(aNoteL)!=NoteSTAFF(aNoteL))
-				return TRUE;
-		
-		return FALSE;
-	}
-	else if (GRSyncTYPE(syncL)) {
-		for (aGRNoteL = FirstSubLINK(syncL); aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
-			if ((anyStaff || GRNoteSTAFF(aGRNoteL)==stf)
-			&&   GRNoteVOICE(aGRNoteL)!=GRNoteSTAFF(aGRNoteL))
-				return TRUE;
-		
-		return FALSE;
-	}
-	
-	return TRUE;					/* Not a Sync or GRSync: a bad situation, but unlikely */
-}
-
-static LINK HasNondfltVoice(Document *doc, short srcStf)
-{
-	LINK pL;
-	
-	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
-		if (SyncTYPE(pL) || GRSyncTYPE(pL))
-			if (SyncHasNondfltVoice(pL, srcStf)) return pL;
-	
-	return NILINK;
-}
-
 
 /* ----------------------------------------------------------- StfHasSmthgAcross -- */
 /* If any "extended object" has a range that crosses the point just before the

@@ -219,8 +219,6 @@ DDIST GetGRystem(short voice, LINK GRsync)
 dragged horizontally. Cross staff beams must have their note stems
 fixed up differently. */
 
-static void HDragFixXStfNoteStems(LINK beamL,LINK qL,LINK firstSyncL,
-					DDIST hDiff,DDIST vDiff,DDIST lastystem,short *h);
 static void FixNoteStems(LINK beamL,LINK qL,LINK firstSyncL,
 					DDIST hDiff,DDIST vDiff,DDIST lastystem,short *h);
 static void FixXStfNoteStems(Document *doc,LINK beamL);

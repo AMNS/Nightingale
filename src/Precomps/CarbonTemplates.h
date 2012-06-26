@@ -24,8 +24,6 @@ void CMLoadTimer(short interruptPeriod);
 void CMStartTime(void);
 long CMGetCurTime(void);
 void CMStopTime(void);
-static void InitCoreMidiTimer();
-
 void CMSetup(Document *doc, Byte *partChannel);
 void CMTeardown(void);
 

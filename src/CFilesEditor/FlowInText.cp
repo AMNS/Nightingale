@@ -51,7 +51,6 @@ static Boolean FlowInDialog(Document *, short *);
 static DialogPtr OpenThisDialog(Document *);
 static void CloseThisDialog(DialogPtr);
 static void DoDialogUpdate(DialogPtr);
-static void DoDialogContent(DialogPtr, EventRecord *);
 static Boolean DoDialogItem(Document *, DialogPtr, short);
 
 static pascal Boolean MyFilter(DialogPtr, EventRecord *, short *);

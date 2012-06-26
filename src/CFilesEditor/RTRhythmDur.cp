@@ -15,7 +15,6 @@ and clarifying rhythm in real-time situations. No user-interface implications. *
 #include "Nightingale.appl.h"
 #include <math.h>						/* For sqrt() prototype */
 
-static Boolean ClarToMeasFromList(Document *, LINK, short, short, short, LINK []);
 static short FindTimeSig(long, short, MEASINFO [], short, long *, long *, long *);
 static Boolean TooManySyncs(short, short);
 static short Clar1ToMeas(Document *, LINKTIMEINFO [], short, short *, short *, MEASINFO [],

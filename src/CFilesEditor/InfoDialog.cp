@@ -23,7 +23,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean LegalStaff(Document *, short, Boolean);
 static Boolean LegalVert(Document *, short);
 static void SyncInfoDialog(Document *, LINK, char []);
 static Boolean PageRelGraphic(LINK);
@@ -95,28 +94,6 @@ void InfoDialog(Document *doc)
 			GenInfoDialog(doc, pL, unitLabel);
 	}
 }
-
-
-/* -------------------------------------------------------------- LegalStaff/Vert -- */
-
-/* As of v. 3.1, LegalStaff is unused, since staff no. is always read only. */
-
-static Boolean LegalStaff(Document *doc, short staff, Boolean noStaffOK)
-{
-	char fmtStr[256];
-
-	if ((staff<1 || staff>doc->nstaves) && !(noStaffOK && staff==NOONE))
-	{
-		GetIndCString(fmtStr, INFOERRS_STRS, 1);			/* "Staff number must be 1 to..." */
-		sprintf(strBuf, fmtStr, doc->nstaves);
-		CParamText(strBuf, "", "", "");
-		Inform(GINFO_ALRT);
-		return FALSE;
-	}
-	else
-		return TRUE;
-}
-
 
 static Boolean LegalVert(Document *doc, short newval)
 {

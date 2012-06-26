@@ -1019,25 +1019,6 @@ OSErr PS_NewPage(Document *doc, char *page, short n)
 	}
 
 
-static void PS_StrEncrypted(unsigned char *, unsigned char *);
-
-static void PS_StrEncrypted(unsigned char *string, unsigned char *key)
-	{
-	   	short i,k,len,klen;
-		/*
-		 *  Decrypt text string a character at a time, and then encrypt again
-		 *  after sending the character out to PostScript.  Because we're using
-		 *  a simple XOR, this leaves the string in the same state it was before.
-		 */
-		k = 1; klen = *key; len = *string;
-		for (i=1; i<=len; i++) {
-			string[i] ^= key[k];
-			PS_Char(string[i]);
-			string[i] ^= key[k++];
-			if (k > klen) k = 1;
-		}
-	}
-
 /*
  *	Do what needs to be done to end processing the current page.
  */

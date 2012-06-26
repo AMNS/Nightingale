@@ -1361,64 +1361,6 @@ static enum {
 	CHK3_Assume=5
 } E_PasteDRAItems;
 
-static Boolean PasteDelRedAccsDialog();
-Boolean PasteDelRedAccsDialog()
-{
-	static Boolean answer, assume=FALSE;
-	short itemHit;
-	Boolean keepGoing=TRUE;
-	DialogPtr dlog; GrafPtr oldPort;
-	ModalFilterUPP	filterUPP;
-
-	if (assume) return answer;
-	
-	/* Build dialog window and install its item values */
-	
-	filterUPP = NewModalFilterUPP(OKButFilter);
-	if (filterUPP == NULL) {
-		MissingDialog(PASTE_DELREDACCS_DLOG);
-		return FALSE;
-	}
-	GetPort(&oldPort);
-	dlog = GetNewDialog(PASTE_DELREDACCS_DLOG, NULL, BRING_TO_FRONT);
-	if (dlog==NULL) {
-		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(PASTE_DELREDACCS_DLOG);
-		return FALSE;
-	}
-	SetPort(GetDialogWindowPort(dlog));
-
-	PlaceWindow(GetDialogWindow(dlog), (WindowPtr)NULL, 0, 80);
-	ShowWindow(GetDialogWindow(dlog));
-
-	/* Entertain filtered user events until dialog is dismissed */
-	
-	while (keepGoing) {
-		ModalDialog(filterUPP, &itemHit);
-		switch(itemHit) {
-			case BUT1_DelSoft:
-				keepGoing = FALSE;
-				if (GetDlgChkRadio(dlog, CHK3_Assume)) assume = TRUE;
-				answer = TRUE;
-				break;
-			case BUT2_DelNone:
-				keepGoing = FALSE;
-				answer = FALSE;
-				break;
-			case CHK3_Assume:
-				PutDlgChkRadio(dlog, CHK3_Assume, !GetDlgChkRadio(dlog, CHK3_Assume));
-				break;
-			}
-		}
-	
-	DisposeModalFilterUPP(filterUPP);
-	DisposeDialog(dlog);
-	SetPort(oldPort);
-	
-	return answer;
-}
-
-
 /* --------------------------------------------------------------------- DoPaste -- */
 /* Paste the clipboard into the selection range. */
 
@@ -2519,7 +2461,6 @@ void MapStaves(Document *doc, LINK startL, LINK endL, short staffDiff)
 static VOICEINFO clip2DocVoiceTab[MAXVOICES+1];
 
 static LINK ClipStf2Part(short stf,Document *doc,short stfDiff,short *partStf);
-static Boolean IsDefaultVoice(Document *doc,short v,LINK partL);
 static short Part2UserVoice(short cIV,short cUV,Document *doc,LINK dPartL);
 static void MapVoice(Document *doc,LINK pL,short stfDiff);
 static void MapVoices(Document *doc,LINK startL,LINK endL,short stfDiff);

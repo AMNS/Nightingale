@@ -27,39 +27,6 @@ static void ShowNGRSync(Document *, LINK, CONTEXT []);
 static void DrawGRAcc(Document *, PCONTEXT, LINK, DDIST, DDIST, Boolean, short);
 static void DrawGRNCLedgers(LINK, PCONTEXT, LINK, DDIST, DDIST, short);
 
-static void DrawNChar(char glyph);
-static void DrawNString(char glyph);
-
-static void DrawNChar(char glyph)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawChar(glyph);
-	TextFont(fontNum);
-#else
-	DrawChar(glyph);
-#endif
-}
-
-static void DrawNString(Str255 str)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawString(str);
-	TextFont(fontNum);
-#else
-	DrawString(str);
-#endif
-}
-
-#ifdef TARGET_API_MAC_CARBON
-//#define DrawChar DrawNChar
-//#define DrawString DrawNString
-#endif
-
-
 /* ----------------------------------------------------------------- DrawSlashes -- */
 /* Draw the specified number of tremolo slashes at the given position. */
 
@@ -276,9 +243,6 @@ static short noteHeadGraphWidth = 5;		/* Replace noteheads with tiny graphs? ??M
 
 /* ------------------------------------------------------------------- DrawAugDots -- */
 /* Draw all the augmentation dots for the given note or rest. */
-
-static DDIST AugDotXOffset(LINK theNoteL, DDIST yd, PCONTEXT pContext,
-				Boolean chordNoteToR,  Boolean doNoteheadGraphs);
 
 static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dots for */
 						   PCONTEXT pContext,
@@ -712,9 +676,6 @@ void PaintRoundRightRect(Rect *paRect, short ovalWidth, short ovalHeight)
 	PaintRoundRect(&rightEndRect, ovalWidth, ovalHeight);
 	PaintRect(&otherRect);
 }
-
-
-static void DrawNoteheadGraph(Document *, unsigned char, Byte, Boolean, DDIST);
 
 /* QuickDraw only */
 /* Draw a little graph as a notehead: intended to be used to visualize changes during the note.

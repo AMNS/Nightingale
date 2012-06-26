@@ -16,8 +16,6 @@
 
 /* Local prototypes */
 
-static void AddStf2Meas(LINK,short);
-
 static Boolean CanDeletePart(Document *doc,short minStf,short maxStf);
 static Boolean OnlyOnePart(Document *doc,short minStf,short maxStf);
 static void MPRemovePart(Document *, LINK);
@@ -29,21 +27,6 @@ static Boolean MPAddChkVars(Document *,short nadd,short nper);
 static Boolean MPAddPartDialog(short *, short *);
 
 static void InsertPartMP(Document *doc,LINK partL,short nadd,short nper,short showLines);
-
-
-/* --------------------------------------------------------------------------------- */
-/* Deleting parts */
-
-static void AddStf2Meas(LINK aMeasL, short numStaves)
-{
-	PAMEASURE aMeas;
-
-	MeasureSTAFF(aMeasL) += numStaves;
-
-	aMeas = GetPAMEASURE(aMeasL);
-	if (!aMeas->connAbove && aMeas->connStaff>0)
-		aMeas->connStaff += numStaves;
-}
 
 
 #define DELETE_PART_DI	2			/* Delete Part button in DELPART_ANYWAY_ALRT */

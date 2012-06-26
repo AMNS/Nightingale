@@ -394,34 +394,6 @@ static Byte GetSustainCtrlVal(Boolean susOn)
 	return ctrlVal;
 }
 
-static void WriteAllMidiSustains(Document *doc, Byte *partChannel, Boolean susOn, long startTime) 
-{
-	Byte ctrlNum = MSUSTAIN;
-	Byte ctrlVal = GetSustainCtrlVal(susOn);
-	
-	DebugPrintf("Write: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
-	if (susOn) {
-		for (int j = 1; j<=MAXSTAVES; j++) {
-			if (cmFSSustainOn[j]) {
-				short partn = Staff2Part(doc,j);
-				short channel = partChannel[partn];
-				WriteDeltaTime(startTime);
-				WriteControlChange(channel, ctrlNum, ctrlVal);									
-			}
-		}
-	}
-	else {
-		for (int j = 1; j<=MAXSTAVES; j++) {
-			if (cmFSSustainOff[j]) {
-				short partn = Staff2Part(doc,j);
-				short channel = partChannel[partn];
-				WriteDeltaTime(startTime);
-				WriteControlChange(channel, ctrlNum, ctrlVal);									
-			}
-		}		
-	}
-}
-
 static void WriteMidiSustains(Document *doc, Byte *partChannel, Boolean susOn, long startTime, LINK pL, short stf) 
 {
 	LINK graphicL = LSSearch(pL, GRAPHICtype, stf, GO_LEFT, FALSE);
@@ -453,49 +425,6 @@ static void WriteAllMidiSustains(Document *doc, Byte *partChannel, Boolean susOn
 	{
 		if (NoteSTAFF(aNoteL) == stf)
 			WriteMidiSustains(doc, partChannel, susOn, startTime, pL, NoteSTAFF(aNoteL));
-	}
-}
-
-// TODO: from MIDIPlay.c
-
-static Boolean ValidPanSetting(Byte panSetting) 
-{
-	SignedByte sbpanSetting = (SignedByte)panSetting;
-	
-	return sbpanSetting >= 0;
-}
-
-static void WriteAllMidiPans(Document *doc, Byte *partChannel, long startTime) 
-{	
-	Byte ctrlNum = MPAN;
-
-	for (int j = 1; j<=MAXSTAVES; j++) 
-	{
-		Byte ctrlVal = cmFSPanSetting[j];
-		if (ValidPanSetting(ctrlVal))
-		{
-			short partn = Staff2Part(doc,j);
-			short channel = partChannel[partn];
-			WriteDeltaTime(startTime);
-//			WriteDeltaTime(0);
-			WriteControlChange(channel, ctrlNum, ctrlVal);									
-		}
-	}
-}
-
-static void WriteMidiPans(Document *doc, Byte *partChannel, long startTime, short stf) 
-{	
-	Byte ctrlNum = MPAN;
-
-	Byte ctrlVal = cmFSPanSetting[stf];
-	if (ValidPanSetting(ctrlVal))
-	{
-		short partn = Staff2Part(doc,stf);
-		short channel = partChannel[partn];
-		WriteDeltaTime(startTime);
-		WriteControlChange(channel, ctrlNum, ctrlVal);
-		SignedByte sbpanSetting = -1;
-		cmFSPanSetting[stf] = (Byte)sbpanSetting;
 	}
 }
 

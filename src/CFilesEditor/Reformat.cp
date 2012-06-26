@@ -57,7 +57,6 @@ static SYSDATA *AllocSysTable(Document *doc, LINK startSysL);
 static DDIST GetMWidth(Document *doc, LINK measL);
 static short BuildMeasTable(Document *, LINK, LINK, MEASDATA []);
 static short BuildSysTable(Document *, LINK, LINK, SYSDATA []);
-static short LinkToSIndex(LINK sysL, SYSDATA *sysTable);
 
 static short NewSysNums(Document *, short, Boolean, MEASDATA [], short, LINK);
 static void FixMeasVis(Document *doc, MEASDATA [], short);
@@ -71,7 +70,6 @@ static void DebugSysTable(SYSDATA sysTable[],short s,
 							DDIST pgHtUsed,DDIST pgHtAvail,short pgSysNum);
 static Boolean NewSheetNums(Document *, LINK, short, SYSDATA [], short, short);
 static LINK RfmtResetSlurs(Document *doc, LINK startMoveL);
-static Boolean SFirstMeasInSys(LINK measL);
 static void MoveSysJDObjs(Document *doc, LINK sysL, LINK measL, LINK endL, LINK newMeasL);
 static Boolean PrepareMoveMeasJDObjs(Document *, LINK, LINK);
 static Boolean MoveMeasJDObjs(Document *, LINK, LINK);
@@ -887,25 +885,6 @@ static LINK RfmtResetSlurs(Document *doc, LINK startMoveL)
 
 	return measL;
 }
-
-/* ------------------------------------------------------------- SFirstMeasInSys -- */
-/* Return TRUE if measL is the first Measure of its System. measL must be a
-Measure. */
-
-static Boolean SFirstMeasInSys(LINK measL)
-{
-	LINK sysL,lMeas;
-
-	lMeas = SSearch(LeftLINK(measL), MEASUREtype, GO_LEFT);
-	if (lMeas) {
-		sysL = SSearch(measL, SYSTEMtype, GO_LEFT);
-		if (sysL) 
-			return(IsAfter(lMeas, sysL));
-		return FALSE;										/* There's a Measure preceding but no System */
-	}
-	return TRUE;											/* This is first Measure of entire score */
-}
-
 
 /* ----------------------------------------------------- MoveXXXJDObjs functions -- */
 /* These functions are to update links in JD objects attached to objects that may

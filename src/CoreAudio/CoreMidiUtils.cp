@@ -1341,35 +1341,6 @@ void GetCMNotePlayInfo(
 	*puseIORefNum = partIORefNum[partn];
 }
 
-
-
-// --------------------------------------------------------------------------------------
-
-
-static void DisplayMidiDevices()
-{
-	CFStringRef pname, pmanuf, pmodel;
-	char name[64], manuf[64], model[64];
-	
-	int n = MIDIGetNumberOfDevices();
-	for (int i = 0; i < n; ++i) {
-		MIDIDeviceRef dev = MIDIGetDevice(i);
-		
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyName, &pname);
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyManufacturer, &pmanuf);
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyModel, &pmodel);
-		
-		CFStringGetCString(pname, name, sizeof(name), 0);
-		CFStringGetCString(pmanuf, manuf, sizeof(manuf), 0);
-		CFStringGetCString(pmodel, model, sizeof(model), 0);
-		CFRelease(pname);
-		CFRelease(pmanuf);
-		CFRelease(pmodel);
-
-		printf("name=%s, manuf=%s, model=%s\n", name, manuf, model);
-	}
-}
-
 long FillCMSourcePopup(MenuHandle menu, vector<MIDIUniqueID> *vecDevices)
 {
 	CFStringRef pname, pmanuf, pmodel;

@@ -27,7 +27,6 @@
 
 /* Prototypes for private routines */
 
-static void		UnloadSomeSegs(void);
 static void		DoNullEvent(EventRecord *evt);
 static Boolean	DoMouseDown(EventRecord *evt);
 static void		DoContent(WindowPtr w, Point pt, short modifiers, long when);

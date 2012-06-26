@@ -20,37 +20,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static void DrawNChar(char glyph)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawChar(glyph);
-	TextFont(fontNum);
-#else
-	DrawChar(glyph);
-#endif
-}
-
-static void DrawNString(Str255 str)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawString(str);
-	TextFont(fontNum);
-#else
-	DrawString(str);
-#endif
-}
-
-#ifdef TARGET_API_MAC_CARBON
-//#define DrawChar DrawNChar
-//#define DrawString DrawNString
-#endif
-
-
-
 /* ============================================================ C string "toolbox" == */
 /* The following are versions of Mac toolbox functions that expect C strings instead
 of Pascal strings. These are useful for two reasons: to aid portability (other

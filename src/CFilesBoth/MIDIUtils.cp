@@ -31,7 +31,6 @@ static short		lastEvent;
 static Boolean	InsertEvent(short note, SignedByte channel, long endTime, short ioRefNum);
 
 void		KillEventList(void);
-static void		WaitForQueue(void);
 void		SendAllNotesOff(void);
 
 /* -------------------------------------------------------------- UseMIDIChannel -- */

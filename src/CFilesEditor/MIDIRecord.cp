@@ -80,21 +80,14 @@ typedef struct NotePacket {
 static void SetRecordFlats(Document *);
 static void RecordMessage(Document *, Boolean);
 
-static void RawMIDI2MMNote(long, Boolean, short, short *, MMMIDIPacket *);
 static Boolean RecordDialog(Document *, short, short, short, Boolean, Boolean, short *,
 							Boolean *, long *);
-static void SoundClickNow(Boolean, Boolean);
 
 static Boolean FillMNote(long, long, Byte, MNOTEPTR);
-static long RawMIDI2Packets(long);
-static void MIDIDataToLong(short midiWord, long timeStamp, long *pmdata);
-static void OutOfRawRecMemory(void);
-static void OutOfNoteOnRecMemory(void);
 static long MIDI2Night(Document *, short, long, long);
 
 static void RecordBuffer(Document *, Boolean, Boolean, short, Rect, long, long *);
 
-static Boolean NoteOnDemon(short, Byte);
 static Boolean Clocks2Dur(short, short, short *, short *);
 static LINK StepMIDI2Night(Document *, NotePacket [], short, short, short, short);
 static void ShowNRCInBox(Document *, LINK, short, short, Rect *, short);
@@ -154,32 +147,6 @@ static void QuickFlashRect(Rect *r)
 	SleepTicks(HILITE_TICKS/3);			/* A short delay is all we need */
 	InvertRect(r);
 }
-
-
-/* --------------------------------------------------------------- RawMIDI2MMNote -- */
-/* If called when rawBuffer[rLast] is the LAST byte of a Note On or Note Off,
-translates the Note On/Off into the corresponding MIDI Manager MMMIDIPacket. Handles
-Running Status. */
-
-static void RawMIDI2MMNote(
-				long rLast,
-				Boolean isOn,			/* TRUE=Note On, FALSE=Note Off */
-				short channel,			/* 0 to 15 */
-				short *len,				/* Output */
-				MMMIDIPacket *mPacket	/* Output */
-				)
-{
-	mPacket->flags = MM_STD_FLAGS;
-	mPacket->len = MM_HDR_SIZE+3;
-
-	mPacket->tStamp = rawBuffer[rLast-1L] >> 8;			/* in milliseconds */
-	if (isOn) mPacket->data[0] = MNOTEON | channel;
-	else		 mPacket->data[0] = MNOTEOFF | channel;
-	mPacket->data[1] = rawBuffer[rLast-1L];
-	mPacket->data[2] = rawBuffer[rLast];
-	*len = mPacket->len;
-}
-
 
 /* ================================================= REAL-TIME RECORDING ROUTINES == */
 
@@ -538,73 +505,6 @@ Boolean RecordDialog(
 
 Boolean BIMIDINoteAtTime(short noteNum, short channel, short velocity, long time);
 
-/* ---------------------------------------------------------------- SoundClickNow -- */
-/* Simple metronome click, either Macintosh internal sound or as a MIDI "note".
-
-We can make a nice click on the Mac by using the Sound Manager via PlayResource and
-a sampled sound like "AhChoo.45-.48" or "AhChoo.47-.48" (yes, a very short section
-of someone sneezing). (The old Apple "snippet" ClickSound.p makes a lousy metronome
-sound, though MPU-401 users might like it.)
-
-If we're using internal sound, we "know" the sound is short, and we play it
-synchronously, not returning till it's done. If we're using MIDI, we play the sound
-asynchronously, i.e., we start it and return immediately.
-
-Timing the clicks accurately is not easy, especially with internal sounds. The Sound
-Manager uses VIA Timer T1: bad for anyone else who's relying on T1, for example a
-MIDI driver's timing routines! SysBeep doesn't help much: on most, perhaps all,
-recent Macs, with most, perhaps all, sounds, SysBeep actually uses the Sound Manager.
-With MIDI Manager's MIDIGetCurTime, there's a different but equally horrendous
-problem: even with no other MIDI applications running and no INITs other than MIDI
-Manager itself, the "clicks" are extremely uneven, apparently because it's skipping
-"beats", often two or three in a row. And TickCount is only fair. What works? The
-Time Manager is probably the only way to get truly reliable timing, though it looks
-like the extended version is required for really good results. Some day. */
-
-#define CLICK_snd 128
-
-static void SoundClickNow(
-					Boolean clickViaMIDI,	/* Click over MIDI instead of internal iff using MIDI Mgr */
-					Boolean /*accented*/			/* ignored: see comment below */
-					)
-{
-	Handle sndH; long endTime;
-	short ioRefNum;
-	
-	if (clickViaMIDI) {
-		endTime = GetMIDITime(0L)+config.metroDur;
-		if (useWhichMIDI==MIDIDR_CM) {
-		
-			MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
-		
-			CMStartNoteNow(gDestID, config.metroNote, config.metroChannel, config.metroVelo);
-
-			/*
-			 * ??The following use of SleepMS is not great--the implementation as of v.3.0A
-			 * is terrible and may not give accurate enough timing for this use, especially
-			 * on a very fast Mac.
-			 */
-			SleepMS((long)config.metroDur);
-			CMEndNoteNow(gDestID, config.metroNote, config.metroChannel);
-		}
-	}
-	else {
-		/*
-		 * You'd think the <accented> option could be implemented with SetSoundVol;
-		 * unfortunately, changing from 7 to 1 doesn't reduce the loudness immediately--
-		 * it seems to take a few, or maybe a few hundred, milliseconds. This could
-		 * easily because of analog hardware limitations, but I've never seen any
-		 * comments on this phenomenon.
-		 */
-		sndH = GetResource('snd ', CLICK_snd);
-		if (GoodResource(sndH))
-			PlayResource(sndH, TRUE);		/* Play the sound synchronously */
-		else
-			SysBeep(1);
-	}
-}
-
-
 /* ----------------------------------------------------------------- FillOMSMNote -- */
 
 static Boolean FillCMMNote(MIDIPacket *p, Byte channel, MNOTEPTR pMNote)
@@ -789,59 +689,6 @@ static Boolean FillMNote(
 
 
 #define WARN_IGNORED (CapsLockKeyDown() && ShiftKeyDown())
-
-/* ------------------------------------------------------------- RawMIDI2Packets -- */
-/* Find all Note Ons and Offs in the (MacTutor driver format) "raw" buffer and convert
-them to MIDI Manager packets. Return the total length of the MIDI packets. */
-
-static long RawMIDI2Packets(long rBufLen)
-{
-	Byte midiByte, command, currentChan;
-	register long r, m;
-	long ignored;
-	MMMIDIPacket *p;
-	short len;
-	char fmtStr[256];
-
-	command = 0;
-	r = m = 0L;
-	ignored = 0L;
-	
-	/* Scan the MacTutor-format input buffer, looking for Note Ons and Note Offs. */
-	while (r<rBufLen) {
-		midiByte = rawBuffer[r];
-		if (midiByte & MSTATUSMASK) { 							/* Is it a status byte? */
-			command = midiByte & MCOMMANDMASK;
-			currentChan = midiByte & MCHANNELMASK;
-			r++;
-		}
-		else {															/* Not status byte, must be data */
-			switch (command) {
-				case MNOTEON:
-				case MNOTEOFF:
-					p = (MMMIDIPacket *)&mPacketBuffer[m];
-					RawMIDI2MMNote(r+1, (command==MNOTEON), currentChan, &len, p);
-					m += len + ((len & 1) ? 1 : 0);
-					r += 2L;
-					break;
-				default:
-					ignored++;
-					r++;
-					break;
-			}
-		}
-	}
-
-	if (ignored>0 && WARN_IGNORED) {
-		GetIndCString(fmtStr, MIDIERRS_STRS, 3);		/* "Ignored %ld non-Note data bytes" */
-		sprintf(strBuf, fmtStr, ignored);
-		CParamText(strBuf, "", "", "");
-		StopInform(SMALL_GENERIC_ALRT);
-	}
-
-	return m;
-}
-
 
 static void *GetNextMidiPacket(long mRecLen, long loc)
 {
@@ -1039,41 +886,6 @@ NextEvent:
 	else
 		return -1L;
 }	
-
-
-/* Convert MIDI Pascal-format data to MacTutor format. Expedient: I don't have time to
-rewrite higher-level routines that assume MacTutor format. But even more repulsive
-than it looks at first, since the MacTutor-format buffer will then be converted
-to MIDI Manager format! Oh well. */
-
-void MIDIDataToLong(short midiWord, long timeStamp, long *pmdata)
-{
-	long macTutorLong;
-	
-	/* Move the 2nd, 3rd, and 4th bytes of <timeStamp> to the 1st 3 bytes of <*pmdata>. */
-	
-	macTutorLong = timeStamp << 8;
-	macTutorLong |= (Byte)midiWord;
-	*pmdata = macTutorLong;
-}
-
-void OutOfRawRecMemory()
-{
-	char fmtStr[256];
-
-	GetIndCString(fmtStr, MIDIERRS_STRS, 8);			/* "Out of memory. Raw record buffer full." */
-	sprintf(strBuf, fmtStr, rawBufferLength);
-	CParamText(strBuf, "", "", "");
-	StopInform(GENERIC_ALRT);
-}
-
-void OutOfNoteOnRecMemory()
-{
-	GetIndCString(strBuf, MIDIERRS_STRS, 9);			/* "Out of memory. Note On Buf exceeded." */
-	CParamText(strBuf, "", "", "");
-	StopInform(GENERIC_ALRT);
-}
-
 
 /* Prototypes for play-while-recording routines, which are defined elsewhere. */
 
@@ -1369,49 +1181,6 @@ Finished:
 	return (timeChange>=0L);
 }
 
-
-/* ===================================================== Step Recording functions == */
-
-/* ------------------------------------------------------------------ NoteOnDemon -- */
-/* If NoteOnDemon is called faithfully with every byte of MIDI data <midiByte>
-and is told what channel number to look for, <useChan>, it will deliver TRUE
-when it finds the last byte of a "real" Note On (i.e., the second data byte of
-a Note On with non-zero velocity) on that channel. It understands Running Status. */
-
-static Boolean NoteOnDemon(short useChan,				/* 0 to 15 */
-									Byte midiByte)
-{
-	static Byte		prevChan=255;			/* Guarantee we initialize on 1st call */
-	static Byte		command;
-	static short	noteOnBNum;
-	Byte				currentChan;
-
-	/* On the first call and any time <useChan> has changed, reinitialize <command>. */
-	
-	if (useChan!=prevChan) command = 0;
-	prevChan = useChan;
-
-	if (midiByte & MSTATUSMASK) {   					/* See if it's a status byte */
-		currentChan = midiByte & MCHANNELMASK;
-		if (currentChan==useChan) command = midiByte & MCOMMANDMASK;
-		else							  command = 0;
-		if (command==MNOTEON) noteOnBNum = 0;
-		return FALSE;
-	}
-	else if (command==MNOTEON) {
-			noteOnBNum++;
-			if (noteOnBNum==2) {							/* Note data byte 2 is velocity */
-				noteOnBNum = 0;
-				return (midiByte!=0);					/* Velocity 0 means really a Note Off */
-			}
-			else
-				return FALSE;
-		}
-	else
-		return FALSE;
-}
-
-
 /* ------------------------------------------------------------------- Clocks2Dur -- */
 /* Given a number of clock ticks, >=1, and the logical duration 1 tick corresponds to,
 deliver the logical duration and number of dots for that many ticks. */
@@ -1668,8 +1437,6 @@ static void HiliteRecSync(Document *, long, LINKTIMEINFO [], short);
 static void InvertMsgRect(Document *);
 static void QuickFlashMsgRect(Document *);
 static Boolean IsOurNoteOn(void *, short);
-static short GetAllNoteOns(NotePacket [], short, short);
-static short FindDeflamGap(Document *, NotePacket [], short, long);
 static Boolean SRKeyDown(Document *doc, EventRecord theEvent, LINK syncL, short voice,
 						short *pSymIndex, short *pNoteDur, short *pClocks, short *pNAugDots);
 
@@ -2055,22 +1822,6 @@ Boolean SRKeyDown(
 	
 	return okay;
 }
-
-static int TranslateBuffer(int nChord, int nOnBufLen, NotePacket *nOnBuffer)
-{
-	nOnBufLen -= nChord;
-	for (int i = 0; i<nOnBufLen; i++)
-		nOnBuffer[i] = nOnBuffer[i+nChord];
-		
-	return nOnBufLen;
-}
-
-static void SlideBuffer(NotePacket *nOnBuffer, int nOnBufLen, long time2Xlate)
-{
-	for (int i = 0; i<nOnBufLen; i++)
-		nOnBuffer[i].tStamp += time2Xlate;
-}
-
 
 /* Record data from MIDI, and generate Nightingale notes with durations specified by
 user on the Mac keyboard as they play, giving visual feedback for the notes. Also

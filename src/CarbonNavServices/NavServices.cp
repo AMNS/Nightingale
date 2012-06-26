@@ -43,12 +43,7 @@ static Handle NewOpenHandle(OSType applicationSignature, short numTypes, OSType 
 static void NSGetOpenFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD);
 static void NSGetSaveFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD);
 
-static void TerminateOpenFileDialog(void);
-static void TerminateSaveFileDialog(void);
 static void TerminateDialog( NavDialogRef inDialog );
-
-static void NSNavDisposeDialog(NavCBRecPtr callbackParms);
-static Boolean AdjustMenus(WindowPtr pWindow, Boolean editDialogs, Boolean forceTitlesOn);
 
 // custom dialog item:
 #define kControlListID		1320
@@ -730,29 +725,6 @@ OSStatus CompleteSave( NavReplyRecord* inReply, FSRef* inFileRef, Boolean inDidW
 }
 
 
-//
-// TerminateOpenFileDialog
-//
-static void TerminateOpenFileDialog()
-{
-	if ( gOpenFileDialog != NULL )
-	{
-		TerminateDialog( gOpenFileDialog );
-	}
-}
-
-
-//
-// TerminateSaveFileDialog
-//
-static void TerminateSaveFileDialog()
-{
-	if ( gSaveFileDialog != NULL )
-	{
-		TerminateDialog( gSaveFileDialog );
-	}
-}
-
 
 //
 // TerminateDialog
@@ -765,34 +737,3 @@ static void TerminateDialog( NavDialogRef inDialog )
 //	NavCustomControl( inDialog, kNavCtlTerminate, NULL );
 	return;
 }
-
-
-static void NSNavDisposeDialog(NavCBRecPtr callbackParms)
-{
-
-	if ( callbackParms->context == gOpenFileDialog )
-	{
-		NavDialogDispose( gOpenFileDialog );
-		gOpenFileDialog = NULL;
-	}
-	else if (callbackParms->context == gSaveFileDialog )
-	{
-		NavDialogDispose( gSaveFileDialog );
-		gSaveFileDialog = NULL;
-	}
-	
-	// if after dismissing the dialog SimpleText has no windows open (so Activate event will not be sent) -
-	// call AdjustMenus ourselves to have at right menus enabled
-	if (FrontWindow() == nil) 
-		AdjustMenus(nil, true, false);
-}
-
-//
-// AdjustMenus
-//
-static Boolean AdjustMenus(WindowPtr /*pWindow*/, Boolean /*editDialogs*/, Boolean /*forceTitlesOn*/)
-{
-	return false;
-}
-
-

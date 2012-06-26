@@ -15,7 +15,6 @@
 
 /* Prototypes for private routines */
 
-static Document *AlreadyInUse(unsigned char *name, short vrefnum);
 short NumFreeDocuments(void);
 short NumOpenDocuments(void);
 void PositionWindow(WindowPtr,Document *);

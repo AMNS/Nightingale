@@ -128,7 +128,6 @@ static Rect fontRect,sizeRect,faceRect,styleRect,dimRect;		/* Panel frames */
 static void DimStylePanels(DialogPtr dlog, Boolean dim);
 static pascal  Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 
-static void	DebugPrintFonts(Document *doc);
 static void	SetFontPopUp(unsigned char *fontName, unsigned char *strbuf);
 static void	SetAbsSizePopUp(short size, unsigned char *strbuf);
 static void	SetStyleBoxes(DialogPtr dlog, short style);
@@ -138,7 +137,6 @@ static void	SaveCurrentStyle(short currStyle);
 static void	SetCurrentStyle(short currStyle);
 static void	TSSetCurrentStyle(short currStyle);
 static short	TDRelIndexToSize(short index);
-static short	SizeToRelIndex(short size);
 static short	GetStrFontStyle(Document *doc, short styleChoice);
 static void	UpdateDocStyles(Document *doc);
 static Boolean ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style);
@@ -146,42 +144,6 @@ static void	GetRealSizes(void);
 static void	TuneRadioIn(DialogPtr dlog,short itemHit, short *radio);
 static void	DrawExampleText(DialogPtr dlog, unsigned char *string);
 static void	InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle);
-
-
-static void DebugPrintFonts(Document *doc)
-	{
-#ifndef PUBLIC_VERSION
-		DebugPrintf("fontName1=%p\n relFSize1=%d fontSize1=%d fontStyle1=%d\n",
-			doc->fontName1,doc->relFSize1,doc->fontSize1,doc->fontStyle1);
-		DebugPrintf("fontName2=%p\n relFSize2=%d fontSize2=%d fontStyle2=%d\n",
-			doc->fontName2,doc->relFSize2,doc->fontSize2,doc->fontStyle2);
-		DebugPrintf("fontName3=%p\n relFSize3=%d fontSize3=%d fontStyle3=%d\n",
-			doc->fontName3,doc->relFSize3,doc->fontSize3,doc->fontStyle3);
-		DebugPrintf("fontName4=%p\n relFSize4=%d fontSize4=%d fontStyle4=%d\n",
-			doc->fontName4,doc->relFSize4,doc->fontSize4,doc->fontStyle4);
-		DebugPrintf("fontName5=%p\n relFSize5=%d fontSize5=%d fontStyle5=%d\n",
-			doc->fontName5,doc->relFSize5,doc->fontSize5,doc->fontStyle5);
-		DebugPrintf("fontName6=%p\n relFSize6=%d fontSize6=%d fontStyle6=%d\n",
-			doc->fontName6,doc->relFSize6,doc->fontSize6,doc->fontStyle6);
-		DebugPrintf("fontName7=%p\n relFSize7=%d fontSize7=%d fontStyle7=%d\n",
-			doc->fontName7,doc->relFSize7,doc->fontSize7,doc->fontStyle7);
-		DebugPrintf("fontName8=%p\n relFSize8=%d fontSize8=%d fontStyle8=%d\n",
-			doc->fontName8,doc->relFSize8,doc->fontSize8,doc->fontStyle8);
-		DebugPrintf("fontName9=%p\n relFSize9=%d fontSize9=%d fontStyle9=%d\n",
-			doc->fontName9,doc->relFSize9,doc->fontSize9,doc->fontStyle9);
-			
-		DebugPrintf("fontNameTM=%p\n relFSizeTM=%d fontSizeTM=%d fontStyleTM=%d\n",
-			doc->fontNameTM,doc->relFSizeTM,doc->fontSizeTM,doc->fontStyleTM);
-
-		DebugPrintf("fontNameMN=%p\n relFSizeMN=%d fontSizeMN=%d fontStyleMN=%d\n",
-			doc->fontNameMN,doc->relFSizeMN,doc->fontSizeMN,doc->fontStyleMN);
-		DebugPrintf("fontNamePN=%p\n relFSizePN=%d fontSizePN=%d fontStylePN=%d\n",
-			doc->fontNamePN,doc->relFSizePN,doc->fontSizePN,doc->fontStylePN);
-		DebugPrintf("fontNameRM=%p\n relFSizeRM=%d fontSizeRM=%d fontStyleRM=%d\n",
-			doc->fontNameRM,doc->relFSizeRM,doc->fontSizeRM,doc->fontStyleRM);
-#endif
-	}
-
 
 /* Given the current state of the popups, determine from the font menu popup's
 current choice which sizes in the sizes menu are "real" ones and should
@@ -687,20 +649,6 @@ static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle)
 		else
 			PutDlgChkRadio(dlog, CHK31_Lyric, theLyric);
 	}
-
-
-/* Deliver the index 1-9 of the Tiny...Jumbo...StaffHeight menu item, or 0 if the
-given size isn't any of the predefined sizes. */
- 
-static short SizeToRelIndex(short size)
-	{
-		short index;
-		
-		for (index=GRTiny; index<=GRLastSize; index++)
-			if (size == TDRelIndexToSize(index)) return(index);
-		return(0);
-	}
-
 
 /* Determine which font style the string is in, and copy the relevant
 parameters into the global TEXTSTYLE record theCurrent. */

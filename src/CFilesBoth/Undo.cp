@@ -36,7 +36,6 @@ static long ModNRListSIze(LINK aModNRL);
 static long GetRangeMemAlloc(LINK startL, LINK endL);
 static Boolean UndoChkMemory(Document *doc, LINK sysL, LINK lastL);
 static void UndoDeselRange(Document *, LINK, LINK);
-static Boolean IsBetween(LINK, LINK, LINK);
 static LINK UndoLastObjInSys(Document *, LINK);
 static LINK UndoGetStartSys(Document *doc);
 static void GetUndoRange(Document *, LINK, LINK *, LINK *, short);
@@ -331,21 +330,6 @@ static void UndoDeselRange(Document */*doc*/, LINK startL, LINK endL)
 		if (LinkSEL(pL))				/* We need LinkSEL bcs DeselectNode can't deselect Pages, etc. */
 			DeselectNode(pL);
 }
-
-
-/* Return TRUE if <link> belongs to range [pL, qL); else return FALSE. ??How does
-this differ from WithinRange, if at all? */
-
-static Boolean IsBetween(LINK pL, LINK qL, LINK link)
-{
-	LINK sL;
-
-	for (sL = pL; sL!=qL; sL = RightLINK(sL))
-		if (sL==link) return TRUE;
-
-	return FALSE;
-}
-
 
 /* Return the last Object of pL's System. If pL is a System, will return
 the last Object of the previous system. */

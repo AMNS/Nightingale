@@ -25,7 +25,6 @@ typedef struct {
 } NOTEPLAYINFO;
 
 void ShellSortNPBuf(NOTEPLAYINFO notePlayBuf[], short npBufInd);
-static Boolean BIMIDIAllocNoteBuffer(Document *doc, LINK recMeasL, LINK playToL);
 static void GetClickTimeInfo(Document *doc, LINK recMeasL, LINK playToL, short nLeadInMeas,
 								TCONVERT tConvertTab[], short tempoCount, long *pToffset,
 								long *pClickLeadInDur, long *pLastStartTime);
@@ -74,37 +73,6 @@ void ShellSortNPBuf(
 static short npBufInd;				/* Index of first free slot in notePlayBuf */
 NOTEPLAYINFO *notePlayBuf;
 static short npBufSize;				/* Size of notePlayBuf */
-
-/* Allocate a buffer for playing out of (while recording) with the built-in MIDI driver.
-The buffer is pointed to by <notePlayBuf>; set <npBufSize> to its size and <npBufInd> to
-mark it empty, and return TRUE. If we have trouble allocating it, give an error message
-and return FALSE. */
-
-static Boolean BIMIDIAllocNoteBuffer(Document *doc, LINK recMeasL, LINK playToL)
-{
-	short noteCount, maxMetroClicks; CONTEXT context;
-	
-	/*
-	 * We need an event buffer with room for two events (Note On and Note Off) for
-	 * each note and "click" we might be playing. We'll count the notes, then
-	 * just add a fixed number large enough for all the clicks in any reasonable
-	 * situation.
-	 */
-	noteCount = CountNotes(ANYONE, recMeasL, playToL, FALSE);
-	GetContext(doc, recMeasL, 1, &context);
-	maxMetroClicks = (MAX_SAFE_MEASDUR/l2p_durs[context.denominator])+1;
-	npBufSize = 2*(noteCount+maxMetroClicks);
-
-	notePlayBuf = (NOTEPLAYINFO *)(NewPtr(npBufSize*sizeof(NOTEPLAYINFO)));
-	npBufInd = 0;
-	if (GoodNewPtr((Ptr)notePlayBuf))
-		return TRUE;
-	else {
-		OutOfMemory(npBufSize*sizeof(NOTEPLAYINFO));
-		return FALSE;
-	}
-}
-
 
 /* Return in a parameter the offset time, i.e., the absolute time since the beginning 
 of the score when playing clicks starts, in milliseconds: note that this time might be

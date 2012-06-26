@@ -905,7 +905,6 @@ static Boolean MakeMNote(MFNote *, Byte, MNOTE *);
 static LINK MFNewMeasure(Document *, LINK);
 static void FixTStampsForTimeSigs(Document *, LINK);
 static Boolean MFAddMeasures(Document *, short, long *);
-static void DeleteAllMeasures(Document *, LINK, LINK);
 static Boolean DoMetaEvent(Document *, short, MFEvent *, short);
 
 static void InitTrack2Night(Document *, long *, long *);
@@ -1078,17 +1077,6 @@ Done:
 	lastMeasL = SSearch(doc->tailL, MEASUREtype, GO_LEFT);
 	*pStopTime = MeasureTIME(lastMeasL);
 	return TRUE;
-}
-
-
-static void DeleteAllMeasures(Document *doc, LINK startL, LINK endL)
-{
-	LINK pL, nextL;
-	
-	for (pL = startL; pL!=endL; pL = nextL) {
-		nextL = RightLINK(pL);
-		if (MeasureTYPE(pL)) DeleteMeasure(doc, pL);
-	}
 }
 
 static unsigned long GetTempoMicrosecsPQ(MFEvent *p) 

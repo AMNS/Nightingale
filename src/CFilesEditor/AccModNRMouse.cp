@@ -13,7 +13,6 @@
 #include "Nightingale.appl.h"
 
 static short FindAccModNR(Document *, Point, LINK *, LINK *, LINK *, Rect *);
-static LINK FindAccidental(Document *, Point, LINK *, Rect *);
 static void GetAccidentalBbox(Document *, LINK, LINK, Rect *);
 static void DoAccidentalDrag(Document *, Point, LINK, LINK, Rect *);
 static DDIST GetAccXOffset(PANOTE, short, PCONTEXT);

@@ -20,13 +20,7 @@
 #include "Nightingale.appl.h"
 #include "NavServices.h"
 
-//#include "ConsolationDefs.h"
-
-static pascal	Boolean OurFilesOnly(ParmBlkPtr paramBlock);
-static pascal	Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static void	DrawSelBox(short index);
-static void	SetSelectionBox(Point pt);
-
 
 /* Given a double and a buffer, format the double as a C string. The obvious way to
 do this is with sprintf, but in THINK C, we can't, for reasons explained in the

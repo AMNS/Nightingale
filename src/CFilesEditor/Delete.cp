@@ -50,7 +50,6 @@ static void DSRemoveDynamic(Document *, LINK, short);
 
 static Boolean DeleteWhole(Document *, LINK);
 
-static void DeleteTie(Document *, LINK, LINK, LINK, Boolean);
 static void DeleteSlur(Document *, LINK, LINK, Boolean, Boolean);
 static void FixDelSlurs(Document *);
 static void DeleteOtherSlur(Document *, Boolean, Boolean, LINK);
@@ -585,70 +584,9 @@ static Boolean DeleteWhole(Document *doc, register LINK pL)
  *		ties a chord one (or more) of whose notes has been deleted. 
  *	3. case SLURtype performs the ordinary deletion of a slur which has been 
  *		selected by clicking or dragging and is to be explicitly deleted.
+ *
+ *  Note: DeleteTie removed by chirgwin Mon Jun 25 21:56:05 PDT 2012
  */
-
-
-/* ------------------------------------------------------------------ DeleteTie - */
-/* 1. DeleteTie is called with params pL & aNoteL, where pL is 
-		pFirst/LastSyncL of slurL, and aNoteL is the note selected for deletion, 
-		passed from FixDelSlurs as slurNoteL. aNoteL should be a subObj of pL, 
-		but we have no guarantee of this. 
-	2. slurL is the slur whose tie subobj is to be deleted; if slurL is not a
-		tie with multiple subobjects, we have an error condition.
-	3. goLeft is passed in order to tell us whether to use firstInd or lastInd 
-		of the slur subobject.
-	4. DeleteTie first gets the index of aNoteL in its chord, and the subobject 
-		of pL with that index in that chord; then it gets the slur subobject with
-		that index. Then it copies, ala DeleteSelection, every subobject of slurL
-		into qObLj except this one, and deletes slurL, linking qObjL back into the 
-		object list in its place.  */
-
-static void DeleteTie(
-					Document */*doc*/,
-					LINK pL,		/* First/LastSync of slurL */
-					LINK aNoteL,	/* subObj whose tie is to be deleted */
-					LINK slurL,		/* slur containing this tie */
-					Boolean goLeft	/* Direction of traversal of FixDelSlurs */
-					)
-{
-	PASLUR 	aSlur;
-	short 	i;
-	LINK		aSlurL, bNoteL;
-	
-	bNoteL = FirstSubLINK(pL);
-	for (i = 0; bNoteL; bNoteL=NextNOTEL(bNoteL))
-		if (NoteSTAFF(bNoteL)==NoteSTAFF(aNoteL)) {
-			if (aNoteL==bNoteL) break;		/* i gets the index of aNoteL in chord on staff */
-			i++;
-		}
-
-	if (aNoteL!=bNoteL)
-		MayErrMsg("DeleteTie: aNoteL %ld not equal to bNoteL %ld", 
-					(long)aNoteL, (long)bNoteL);
-	
-	aSlurL = FirstSubLINK(slurL);
-	for ( ; aSlurL; aSlurL=NextSLURL(aSlurL)) {
-		aSlur = GetPASLUR(aSlurL);
-		if (goLeft) {
-			aSlur = GetPASLUR(aSlurL);
-			if (aSlur->firstInd==i) break;	/* if aSlur has index i, keep it */
-		}
-		else if (aSlur->lastInd==i) break;
-	}
-
-	if (goLeft) {
-		if (aSlur->firstInd!=i) 
-			MayErrMsg("DeleteTie: aSlur->firstInd %ld not equal to i %ld",
-						 (long)aSlur->firstInd, (long)i);
-	}
-	else {
-		if (aSlur->lastInd!=i) 
-			MayErrMsg("DeleteTie: aSlur->lastInd %ld not equal to i %ld",
-						 (long)aSlur->lastInd, (long)i);
-	}
-		
-	MayErrMsg("For now, cannot delete notes in tied chords.");
-}
 
 
 /* ----------------------------------------------------------------- DeleteSlur -- */

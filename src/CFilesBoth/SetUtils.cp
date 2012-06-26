@@ -30,7 +30,6 @@
 #include "Nightingale.appl.h"
 
 static Boolean HomogenizeSel(Document *, short);
-static void FixChordStatus(Document *, LINK);
 static Boolean SSVChkNote(Document *, LINK, LINK, short);
 static Boolean SSVCheck(Document *, LINK, short);
 static void FixSyncVoice(Document *, LINK, short);

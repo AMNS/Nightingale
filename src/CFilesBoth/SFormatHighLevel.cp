@@ -26,7 +26,6 @@ static Boolean SFStaffNonempty(LINK, short);
 static Boolean CheckSFInvis(Document *doc);
 
 static Boolean SFVisPossible(Document *doc);
-static void ImposeMPSpacing(Document *doc);
 static Boolean SFCanVisify(Document *doc);
 
 static void OffsetStaves(Document *,LINK,DDIST,DDIST);
@@ -400,30 +399,6 @@ static Boolean SFVisPossible(Document *doc)
 	
 	return (d2pt(sysHt+vDiff) < doc->marginRect.bottom-doc->marginRect.top);
 }
-
-
-/* Impose Master Page spacing on all staff objects in doc's selection range.
-Go through the selection range, and for any selected staff object, set all
-subObject's staffTop to the staffTop of the Master Page staff's subObject on
-the corresponding staffn. Ignore aStaff->spaceBelow, which is ignored and not
-inited to 0 by VisifyStf. ??DOESN'T WORK so not used yet. */
-
-static void ImposeMPSpacing(Document *doc)
-{
-	LINK masterStfL,aStaffL,aMPStfL,pL;
-
-	masterStfL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,FALSE,FALSE);
-
-	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
-		if (StaffTYPE(pL) && LinkSEL(pL)) {
-			aStaffL = FirstSubLINK(pL);
-			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
-				aMPStfL = StaffOnStaff(masterStfL, StaffSTAFF(aStaffL));
-				StaffTOP(aStaffL) = StaffTOP(aMPStfL);
-			}
-		}
-}
-
 
 /* Return FALSE if visifying all staves will cause the bottom of the last system
 to go below the bottom margin of the page, to indicate reformatting necessary;

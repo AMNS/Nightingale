@@ -37,8 +37,6 @@
 /* --------------------------------------------------------------------------------- */
 /* Local prototypes */
 
-static Boolean PreProcessNotelist(FILE *f);
-static Boolean ProcessNotelist(FILE *f);
 static Boolean FSPreProcessNotelist(short refNum);
 static Boolean FSProcessNotelist(short refNum);
 static Boolean PostProcessNotelist(void);
@@ -69,7 +67,6 @@ static long CalcNLNoteLDur(NLINK noteL);
 static void ReportParseFailure(char *functionName, short errCode);
 
 /* Functions that call the Macintosh Toolbox */
-static short NotelistVersion(FILE *f);
 static short FSNotelistVersion(short refNum);
 static void PrintNotelistDS(void);
 static NLINK StoreString(char str[]);
@@ -203,55 +200,6 @@ Err:
 	return FALSE;
 }
 
-
-/* ----------------------------------------------------------- PreProcessNotelist -- */
-/* Count the number of objects of in the Notelist file, and allocate memory for them.
-Also initialize any parsers that require that. Then rewind the file position pointer.
-Returns TRUE if file makes sense to it and memory allocated; otherwise returns
-FALSE. */
-
-static Boolean PreProcessNotelist(FILE *f)
-{
-	char		firstChar;
-	short		ans;
-	Boolean	ok;
-		
-	gNotelistVersion = NotelistVersion(f);
-	if (gNotelistVersion<0) return FALSE;
-	
-	/* Count the objects we're interested in. */
-	gNumNLItems = 0;
-	while (ReadLine(gInBuf, LINELEN, f)) {
-		gLineCount++;
-
-		ans = sscanf(gInBuf, "%c", &firstChar);
-		if (ans<1) continue;										/* probably got a blank line */
-
-		switch (firstChar) {
-			case NOTE_CHAR:
-			case GRACE_CHAR:
-			case REST_CHAR:
-			case TUPLET_CHAR:
-			case BAR_CHAR:
-			case CLEF_CHAR:
-			case KEYSIG_CHAR:
-			case TIMESIG_CHAR:
-			case METRONOME_CHAR:
-			case GRAPHIC_CHAR:
-			case DYNAMIC_CHAR:
-				gNumNLItems++;
-				break;
-		}
-	}
-	
-	ok = AllocNotelistMemory();
-	if (!ok) return FALSE;
-	
-	rewind(f);
-
-	return TRUE;
-}
-
 static Boolean FSPreProcessNotelist(short refNum)
 {
 	char		firstChar;
@@ -298,67 +246,6 @@ static Boolean FSPreProcessNotelist(short refNum)
 /* -------------------------------------------------------------- ProcessNotelist -- */
 
 #define NOTELISTCODE_ALRT 310
-
-static Boolean ProcessNotelist(FILE *f)
-{
-	short		ans, checkcount = 1;
-	char		firstChar, secondChar;
-	Boolean	ok = TRUE;
-	char		fmtStr[256], str[256];
-	
-	gLineCount = 0L;
-	gNextEmptyNode = 0;
-	gLastTime = 0L;
-	
-	while (ReadLine(gInBuf, LINELEN, f)) {
-		gLineCount++;
-
-		ans = sscanf(gInBuf, "%c", &firstChar);
-		if (ans<1) continue;									/* probably got a blank line */
-		
-		switch (firstChar) {
-			case NOTE_CHAR:
-			case GRACE_CHAR:
-			case REST_CHAR:			ok = ParseNRGR();				break;
-			case TUPLET_CHAR:			ok = ParseTuplet();			break;
-
-			case BAR_CHAR:				ok = ParseBarline();			break;
-			case CLEF_CHAR:			ok = ParseClef();				break;
-			case KEYSIG_CHAR:			ok = ParseKeySig();			break;
-			case TIMESIG_CHAR:		ok = ParseTimeSig();			break;
-
-			case METRONOME_CHAR:		ok = ParseTempoMark();		break;
-			case GRAPHIC_CHAR:		ok = ParseTextGraphic();	break;
-			case DYNAMIC_CHAR:		ok = ParseDynamic();			break;
-
-			case COMMENT_CHAR:		/* It might be a structured comment... */
-				secondChar = '\0';
-				sscanf(gInBuf, "%*c%c", &secondChar);
-				if (secondChar==COMMENT_CHAR)
-					ok = ParseStructComment();
-				break;
-			
-			case BEAM_CHAR:
-				GetIndCString(fmtStr, NOTELIST_STRS, 39);		/* "'%c' is an illegal first character ("opcode"). This may be..." */
-				sprintf(str, fmtStr, gLineCount, firstChar);
-				CParamText(str, "", "", ""); 
-				ok = (CautionAdvise(NOTELISTCODE_ALRT)!=Cancel);
-				break;
-			
-			default:
-				GetIndCString(fmtStr, NOTELIST_STRS, 29);		/* "'%c' is an illegal first character ("opcode")." */
-				sprintf(str, fmtStr, gLineCount, firstChar);
-				CParamText(str, "", "", ""); 
-				ok = (CautionAdvise(NOTELISTCODE_ALRT)!=Cancel);
-		}
-		if (!ok) return FALSE;								/* This may be too drastic in some cases. */
-	}
-	
-#ifndef PUBLIC_VERSION
-	DebugPrintf("Notelist file read: %ld lines.\n", gLineCount);
-#endif
-	return TRUE;
-}
 
 static Boolean FSProcessNotelist(short refNum)
 {
@@ -1893,71 +1780,6 @@ If you change any of the COMMENT_NLHEADER's or add a new one, cf. ParseStructCom
 #define COMMENT_NLHEADER1	"%%Score-V1 file="		/* start of structured comment: Ngale 3.1 thru early 99 */
 #define COMMENT_NLHEADER2	"%%Notelist-V2 file="	/* start of structured comment: Ngale 99 */
 #define COMMENT_LINELEN		1024
-
-static short NotelistVersion(FILE *f)
-{
-	int		c;
-	Boolean	ok;
-	char		dummybuf[COMMENT_LINELEN];
-	char		fmtStr[256], errString[256];
-	short		index = 1;							/* index of error string in NOTELIST_STRS 'STR#' */ 
-#ifndef PUBLIC_VERSION
-	char		headerVerString[256];
-#endif
-
-	/* Skip over any whitespace at beginning of file. */
-	while (TRUE) {
-		c = fgetc(f);
-		if (c==EOF) goto Err;
-		else if (c==COMMENT_CHAR) {
-			c = fgetc(f);
-			if (c==COMMENT_CHAR) {				/* found structured comment */
-				ungetc(c, f);
-				ungetc(c, f);
-				break;
-			}
-			else {									/* normal comment precedes structured comment */
-				ok = ReadLine(dummybuf, COMMENT_LINELEN, f);
-				if (!ok) return -1;
-			}
-		}
-		else if (!isspace(c)) {					/* found structured comment */
-			ungetc(c, f);
-			break;
-		}
-	}
-	
-	/* See if file starts with a Notelist structured comment header (e.g.,
-		"%%Score file='Mozart clart quintet'  partstaves=1 1 1 1 1 0")
-	*/
-	if (!ReadLine(gInBuf, LINELEN, f)) goto Err;
-	
-#ifndef PUBLIC_VERSION
-	GoodStrncpy(headerVerString, gInBuf, strlen(COMMENT_NLHEADER2));
-	DebugPrintf("Notelist header string='%s'\n", headerVerString);
-#endif
-
-	if (strncmp(gInBuf, COMMENT_NLHEADER0, strlen(COMMENT_NLHEADER0))==0)
-		return 0;
-	if (strncmp(gInBuf, COMMENT_NLHEADER1, strlen(COMMENT_NLHEADER1))==0)
-		return 1;
-	if (strncmp(gInBuf, COMMENT_NLHEADER2, strlen(COMMENT_NLHEADER2))==0)
-		return 2;
-	
-Err:
-	/* There's something wrong with the Notelist header structured comment. Say so,
-	 * but if user gives the "secret code", go ahead and open it anyway, assuming a
-	 * recent version.
-	 */
-	GetIndCString(fmtStr, NOTELIST_STRS, index);
-	GoodStrncpy(errString, gInBuf, 30);
-	sprintf(strBuf, fmtStr, errString);
-	CParamText(strBuf, "", "", "");
-	StopInform(GENERIC_ALRT);
-	if (ControlKeyDown()) return 2;
-	return -1;
-}
-
 
 static short FSNotelistVersion(short refNum)
 {

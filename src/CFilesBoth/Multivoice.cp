@@ -31,8 +31,6 @@ static void SetNRCMultivoiceRole(Document *, LINK, LINK, CONTEXT, short);
 static void FixAugDots(Document *, LINK, short, CONTEXT, short);
 static void SetSelMultivoiceRules(Document *, LINK, LINK, short, CONTEXT, short);
 static LINK VoiceInSelection(Document *, short);
-static void UseMultivoiceRules(Document *, LINK, LINK, short, CONTEXT);
-
 
 /* --------------------------------------------------------- DimItem, UserDimItem -- */
 /* If checkbox is disabled, dim the static text field that is the bottom line of

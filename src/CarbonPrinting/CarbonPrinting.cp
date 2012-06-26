@@ -71,16 +71,13 @@ static OSStatus SetupPrintDlogPages(Document *doc);
 static OSStatus GetPrintPageRange(Document *doc, UInt32 *firstPage, UInt32 *lastPage);
 static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPage);
 static Boolean IsRightJustOK(Document *doc, short firstSheet, short lastSheet);
-static OSStatus SetupPagesToPrint(Document *doc);
 static void PrintDemoBanner(Document *doc, Boolean toPostScript);
 static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession);
 static short GetPrintDestination(Document *doc);
 static void NDoPrintLoop(Document *doc);
 static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet);
 static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet);
-static OSStatus DocFormatGetLandscape(Document *doc, Boolean *landscape);
 static OSStatus DocFormatGetAdjustedPaperRect(Document *doc, Rect *paperRect, Boolean xlateScale);
-static UInt32 NPagesInDoc(Document *doc);
 static OSStatus NDocDrawPage(Document *doc, UInt32 pageNum);
 static Boolean DocSessionOK(Document *doc, OSStatus status);
 static void DocReleasePrintSession(Document *doc);
@@ -659,44 +656,9 @@ static short GetPrintDestination(Document *doc)
 
 static Handle printDictHdl;
 
-static Handle PS_PreparePrintDictHdl(Document *doc, Rect *imageRect)
-	{
-		//Handle text; long size; 
-		Rect box;
-		short oldFile = CurResFile();
-		FSSpec fsSpec; OSErr thisError;
-		
-//		UseResFile(appRFRefNum);
-//		prec103 = Get1Resource('PREC',103);
-//		UseResFile(oldFile);
-		
-//		if (GoodResource(prec103)) {
-			//HNoPurge(prec103);
-			thisError = PS_Open(doc, NULL, 0, USING_HANDLE, 0L, &fsSpec);
-			//if (thisError) { ReleaseResource(prec103); return; }
-			if (thisError) { return NULL; }
-			
-			/* Now stuff prec103 with stuff from our resources */
-			
-			SetRect(&box,0,0,0,0);
-			PS_HeaderHdl(doc,"\p??",1,1.0,FALSE,TRUE,&box,imageRect);
-			//SetHandleSize(prec103,size=GetHandleSize(text = PS_GetTextHandle()));
-			//BlockMove(*text,*prec103,size);
-			return PS_GetTextHandle();
-#ifdef FOR_DEBUGGING_ONLY
-			ChangedResource(prec103);
-			WriteResource(prec103);
-			UpdateResFile(appRFRefNum);
-			ExitToShell();
-#endif
-//			}
-	}
-
 void PS_FinishPrintDictHdl()
 	{
 	}
-
-
 
 static void NDoPrintLoop(Document *doc)
 {
@@ -842,8 +804,6 @@ static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 	return status;
 }
 
-static OSStatus TestDrawPage(PMPrintSession printSession, UInt32 pageNumber, Boolean addPostScript);
-
 // --------------------------------------------------------------------------------------------------------------
 
 #define TEST_DRAWPAGE 0
@@ -874,16 +834,6 @@ static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 		status = DocFormatGetAdjustedPaperRect(doc, &imageRect, TRUE);
 
 		paper = doc->paperRect;
-
-#ifdef UNUSED_CODE_FROM_PRINT_C
-		frameRect = doc->marginRect;
-
-		if (status == noErr) {
-			status = DocFormatGetLandscape(doc, &landscape);
-			if (landscape)
-				scaleFactor = landScaleFactor;
-		}
-#endif
 		
 		if (status == noErr && PS_Open(doc,NULL,0,USING_PRINTER,'????',&fsSpec) == noErr) {
 
@@ -955,75 +905,6 @@ static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 	
 	return status;
 }
-/*------------------------------------------------------------------------------
-    Function:	DrawPage
-	
-    Parameters:
-        printSession	- current printing session
-        pageNumber	- the logical page number in the document
-        addPostScript	- flag to enable PostScript code
-	
-    Description:
-        Draws the contents of a single page.  If addPostScript is true, DrawPage
-        adds PostScript code into the spool file.  See the Printing chapter in
-        Inside Macintosh, Imaging with QuickDraw, for details about PostScript
-        PicComments.
-		
-------------------------------------------------------------------------------*/
-static OSStatus TestDrawPage(PMPrintSession printSession, UInt32 pageNumber, Boolean addPostScript)
-{
-	OSStatus status = noErr;
-	Str255 pageNumberString;
-	//	In this sample code we do some very simple text drawing.    
-	MoveTo(72,72);
-	TextFont(kFontIDHelvetica);
-	TextSize(24);
-	DrawString("\pDrawing Page Number ");
-	NumToString(pageNumber, pageNumberString);
-	DrawString(pageNumberString);
-
-	//	Conditionally insert PostScript into the spool file.
-	if (addPostScript)
-	{
-
-//	 	Str255		p2[4] = {
-//			"\puserdict /NightingaleDict 80 dict def\r",
-//			"\pNightingaleDict begin\r",
-//			"\p/BD {bind def}bind def\r",
-//			"\pend\r" };
-			
-        // The following PostScript code handles the transformation to QuickDraw's coordinate system
-        // assuming a letter size page.
-        Str255		postScriptStr1 = "\p0 792 translate 1 -1 scale \r";
-	    
-        // Set the current PostScript font to Times and draw some more text.
-        Str255		postScriptStr2 = "\p/Times-Roman findfont 12 scalefont setfont \r";
-        Str255		postScriptStr3 = "\p( and some PostScript text) show\r";
-       	    
-        status = PMSessionPostScriptBegin(printSession);
-        if (status == noErr)
-        {
-				short font = GetPortTxFont();
-				short size = GetPortTxSize();
-				
-            status = PMSessionPostScriptData(printSession, (char *)&postScriptStr1[1], postScriptStr1[0]);
-            if (status == noErr)
-                status = PMSessionPostScriptData(printSession, (char *)&postScriptStr2[1], postScriptStr2[0]);
-            if (status == noErr)
-                status = PMSessionPostScriptData(printSession, (char *)&postScriptStr3[1], postScriptStr3[0]);
-            if (status == noErr)
-                status = PMSessionPostScriptEnd(printSession);
-                
-        		TextFont(font);
-        		TextSize(size);
-        }
-    }   
-		
-    return status;
-}	//	DrawPage
-
-
-
 
 // --------------------------------------------------------------------------------------------------------------
 
@@ -1037,20 +918,6 @@ static OSStatus NDocDrawPage(Document *doc, UInt32 sheetNum)
 	return noErr;
 }
 
-// --------------------------------------------------------------------------------------------------------------
-
-static OSStatus DocFormatGetLandscape(Document *doc, Boolean *landscape)
-{
-	PMOrientation pmOrientation;
-	
-	OSStatus status = PMGetOrientation(doc->docPrintInfo.docPageFormat,&pmOrientation);
-	if (status == noErr)
-	{
-		*landscape = (pmOrientation == kPMLandscape || pmOrientation == kPMReverseLandscape);
-	}
-	
-	return status;
-}
 
 // --------------------------------------------------------------------------------------------------------------
 
@@ -1085,13 +952,6 @@ static OSStatus DocFormatGetAdjustedPaperRect(Document *doc, Rect *rPaper, Boole
 	}
 	
 	return status;
-}
-
-// --------------------------------------------------------------------------------------------------------------
-
-static UInt32 NPagesInDoc(Document *doc)
-{
-	return doc->numSheets;
 }
 
 // --------------------------------------------------------------------------------------------------------------

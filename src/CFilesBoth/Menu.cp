@@ -45,7 +45,6 @@ static void	SMRealign(Document *doc);
 static void	SMReformat(Document *doc);
 
 static void	NMSetDuration(Document *doc);
-static void NMDoubleHalveDurations(Document *doc, Boolean doubleDur);
 static void	NMInsertByPos(Document *doc);
 static void	NMSetMBRest(Document *doc);
 static void	NMFillEmptyMeas(Document *doc);

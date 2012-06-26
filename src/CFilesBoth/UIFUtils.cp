@@ -164,30 +164,6 @@ static void logPrint(char *str)
 	//printf(str);
 }
 
-static void isWhichPalette(WindowPtr wp)
-{
-	WindowPtr palPtr = (*paletteGlobals[TOOL_PALETTE])->paletteWindow;
-	if (wp==palPtr) {
-		logPrint("Is Tool Palette\n"); return;
-	}
-	WindowPtr helpPtr = (*paletteGlobals[HELP_PALETTE])->paletteWindow;
-	if (wp==palPtr) {
-		logPrint("Is Help Palette\n"); return;
-	}
-	WindowPtr clavPtr = (*paletteGlobals[CLAVIER_PALETTE])->paletteWindow;
-	if (wp==palPtr) {
-		logPrint("Is Clavier Palette\n"); return;
-	}
-		
-	logPrint("Is ???? Palette\n");
-}
-
-static void logPalette(WindowPtr wp)
-{
-	logPrint("2. In palette\n"); 
-	isWhichPalette(wp); 
-}
-
 /* -------------------------------------------------------------------- FixCursor -- */
 /*	Set cursor shape based on window and mouse position. This version allows "shaking
 off the mode".	*/

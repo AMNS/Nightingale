@@ -38,7 +38,6 @@ static DialogPtr OpenThisDialog(Document *doc);
 static void      CloseThisDialog(DialogPtr dlog);
 static void      DoDialogUpdate(DialogPtr dlog);
 static void      DoDialogActivate(DialogPtr dlog, short activ);
-static void      DoDialogContent(DialogPtr dlog, EventRecord *evt);
 static short     DoDialogItem(DialogPtr dlog, short itemHit);
 
 static pascal  	Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);

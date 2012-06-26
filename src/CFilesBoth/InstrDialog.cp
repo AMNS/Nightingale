@@ -165,8 +165,6 @@ static MenuHandle 			cmOutputMenuH;
 static UserPopUp				cmOutputPopup;
 static MIDIUniqueIDVector 	*cmVecDevices;
 
-static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MIDIUniqueID device);
-
 static Boolean ValidCMDeviceIndex(short idx) {
 	return (idx >= 0 && idx <cmVecDevices->size());
 }

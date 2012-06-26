@@ -21,36 +21,6 @@ static void DrawFlat(Document *, short, short, DDIST, DDIST, DDIST, short, short
 static void DrawSharp(Document *, short, short, DDIST, DDIST, DDIST, short, short *, PCONTEXT, short);
 static void DrawNatural(Document *, short, short, DDIST, DDIST, DDIST, short, short *, PCONTEXT, short);
 
-static void DrawNChar(char glyph)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawChar(glyph);
-	TextFont(fontNum);
-#else
-	DrawChar(glyph);
-#endif
-}
-
-static void DrawNString(Str255 str)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawString(str);
-	TextFont(fontNum);
-#else
-	DrawString(str);
-#endif
-}
-
-#ifdef TARGET_API_MAC_CARBON
-//#define DrawChar DrawNChar
-//#define DrawString DrawNString
-#endif
-
-
 /* ------------------------------------------------------------- GetSmallerRSize -- */
 /* Given a rastral size, get the next smaller "Preferred" rastral size, i.e., the
 next smaller size that has an integral no. of points (and therefore an integral

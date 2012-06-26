@@ -66,8 +66,6 @@ static short				fmsInputChannel = 0;
 
 static Rect divRect1, divRect2;
 
-static MenuHandle CreateCMInputMenu(DialogPtr dlog, Rect *box);
-
 static short kCMPopupID = 300;
 
 // -------------------------------------------------------------

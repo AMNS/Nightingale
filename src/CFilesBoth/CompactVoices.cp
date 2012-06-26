@@ -29,7 +29,6 @@ static void CVDisposeArrays(void);
 static PTIME *CVPrepareSelRange(Document *doc,LINK measL,short *nInRange);
 static void CVShellSort(short n, short nvoices);
 static void CVSortPTimes(short nInSelRange, short nvoices);
-static void TuplePlayDurs(PTIME *, short, LINK, LINK);
 static Boolean CVComputePlayTimes(Document *doc, SELRANGE [], char[], short);
 
 static Boolean CVRearrangeNotes(Document *doc, SELRANGE [], short, LINK);

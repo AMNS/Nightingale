@@ -45,20 +45,11 @@ static short WriteObject(short refNum, short heapIndex, LINK pL);
 static Boolean ComputeObjCounts(Document *, LINK **firstSubLINKA, LINK **objA, LINK **modA);
 static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isViewerFile);
 static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isViewerFile);
-static void ReadModHeap(Document *doc, short refNum);
 static short ReadHeapHdr(Document *doc, short refNum, long version, Boolean isViewerFile,
 						short heapIndex, unsigned short *pnFObjs);
 static void HeapFixLinks(Document *);
 static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObjs);
 static void PrepareClips(void);
-static void SaveClipboard(void);
-
-/* Debugging functions */
-
-static void DisplayMeasure(char *, unsigned short);
-static void DisplayBeams(char *, unsigned short);
-static void DCheckALLNOTES(Document *doc);
-
 
 /* =========================== Functions for Writing Heaps ======================== */
 
@@ -1230,14 +1221,6 @@ all heaps. */
 static void PrepareClips()
 {
 }
-
-
-/* Don't save it, for now */
-
-static void SaveClipboard()
-{
-}
-
 
 /* ====================== Debugging functions, normally unused ==================== */
 

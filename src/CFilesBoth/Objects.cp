@@ -40,30 +40,6 @@ static void AddKSItem(LINK, Boolean, short, short);
 void SetMeasVisible(LINK, Boolean);
 static short NormalStemUpDown(Document *, LINK, short, PCONTEXT);
 
-
-/* Debugging routine to dump the note heap */
-
-static void DumpNotes(short n);
-static void DumpNotes(short n)
-	{
-#ifndef PUBLIC_VERSION
-		PANOTE aNote; short i;
-		
-		say("NOTE HEAP DUMP:\n");
-		say("  objSize=%d nObjs=%u firstFree=%u lockLevel=%d\n",
-							NOTEheap->objSize, NOTEheap->nObjs,
-							NOTEheap->firstFree, NOTEheap->lockLevel);
-							
-		PushLock(NOTEheap);
-		
-		aNote = (PANOTE)(*NOTEheap->block);
-		for (aNote++,i=1; i<=n; i++,aNote++)
-			say("  [%d] next=%d staffn=%d\n",i,aNote->next,aNote->staffn);
-			
-		PopLock(NOTEheap);
-#endif
-	}
-
 /*
  *	Given the first item in a note's modNR list, create a duplicate list and return
  * its first item. This expands the ModNR heap one item at a time; it would be

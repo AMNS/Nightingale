@@ -28,7 +28,6 @@ static short	slurLeft,slurRight,	/* Bounds to be found */
 
 /* Prototypes for local routines */
 
-static void		DrawSlurBox(Rect *paper,DPoint knot,DPoint c0,DPoint c1,DPoint endPt);
 static Boolean	SameDPoint(DPoint p1, DPoint p2);
 static Boolean	DoSlurMouseDown(Document *doc, DPoint pt, LINK pL, LINK aSlurL, short index);
 static Boolean	EditSlur(Rect *paper, SplineSeg *seg, DPoint *endpt, DPoint pt, short how);
@@ -41,7 +40,6 @@ static Boolean	DrawSegment(Rect *paper, SplineSeg *seg, DPoint endpoint);
 static void		DeselectKnots(Rect *paper, LINK aSlurL);
 static void		HiliteSlur(Rect *paper, LINK aSlurL);
 static void		DrawDBox(Rect *paper, DPoint pt, short size);
-static void		DRound(DPoint *dst, DPoint src);
 
 static void		CreateTies(Document *doc, LINK pL, LINK aNoteL);
 

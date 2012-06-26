@@ -33,7 +33,6 @@ static Boolean MarginVChanged(Document *);
 static Boolean MarginHChanged(Document *);
 static Boolean IndentChanged(Document *);
 static Boolean RastralChanged(Document *);
-static Boolean GrpChanged(Document *);
 
 static void MPFixSystemRectYs(Document *);
 static void MPFixSystemRectXs(Document *);
@@ -45,9 +44,6 @@ static void ConformLeftEnds(Document *);
 static void FixSelStaff(Document *);
 
 static void ChangeStaffTops(Document *, LINK, LINK, long);
-static void RevertSysRects(Document *);
-static void RevertStfTops(Document *);
-static void RevertMasterPage(Document *);
 static void ResetMasterFields(Document *doc);
 static Boolean AnyMPChanged(Document *doc);
 static void ResetMasterPage(Document *doc);
@@ -290,12 +286,6 @@ static Boolean RastralChanged(Document *doc)
 {
 	return (doc->srastral!=doc->srastralMP);
 }
-
-static Boolean GrpChanged(Document *doc)
-{
-	return doc->grpChangedMP;
-}
-
 
 /* Update systemRectYs of all Systems in doc's main object list according to
 the current Master Page settings. */

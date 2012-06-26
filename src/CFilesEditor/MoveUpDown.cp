@@ -27,7 +27,6 @@
 
 static Boolean InitMoveBars(Document *doc, LINK startL, LINK endL, LINK *startBarL,
 							LINK *endBarL);
-static void FixMeasOwners(LINK pL, LINK sysL, LINK staffL, LINK endL, LINK *firstBarL);
 static void FixStartContext(Document *doc, LINK pL, LINK startL, LINK endL);
 static void CleanupMoveBars(Document *doc, LINK startL, LINK endL);
 static void MoveUpDownErr(LINK pL, short errNum);
@@ -54,21 +53,6 @@ static Boolean InitMoveBars(Document *doc, LINK startL, LINK endL, LINK *startBa
 	*startBarL = startMeasL;
 	*endBarL = EndMeasSearch(doc, LeftLINK(endL));										/* Stop at end of Measure */
 	return TRUE;
-}
-
-
-/* Fix owning-system and -staff and cross-measure pointers in measures in the range. */
-
-static void FixMeasOwners(LINK pL, LINK sysL, LINK staffL, LINK endL, LINK *firstBarL)
-{
-	LINK measL;
-
-	*firstBarL = LinkRMEAS(pL);
-	for (measL = *firstBarL; measL; measL = LinkRMEAS(measL)) { 			/* Fix owner-pointers */
-		MeasSYSL(measL) = sysL;
-		MeasSTAFFL(measL) = staffL;
-		if (measL==endL) return;
-	}
 }
 
 

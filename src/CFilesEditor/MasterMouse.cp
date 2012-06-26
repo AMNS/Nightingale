@@ -31,7 +31,6 @@ enum {
 static void sprintfInches(char *, short);
 static void DrawMarginParams(Document *doc, short whichMarg, short marg, short d);
 static Boolean EditDocMargin(Document *doc, Point pt, short modifiers, short doubleClick);
-static Boolean EditDocPart(Document *doc, Point pt, short modifiers, short doubleClick);
 static void DoMasterDblClick(Document *doc, Point pt, short modifiers);
 static void SelectMasterRectangle(Document *doc, Point pt);
 static void DoMasterObject(Document *, Point, short modifiers);
@@ -320,14 +319,6 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 			
 		return (didSomething);
 	}
-
-
-/* We want to edit the parts of the score by clicking in the area to the left of
-the part. However, once we have found a mouse click in this region, there is no
-way to maintain the selection feedback, since parts have no selection flag to set. */
-
-static Boolean EditDocPart(Document *, Point, short , short )
-	{ return FALSE; }
 
 
 /* Handle a double-click in Master Page: call FindMasterObject with selection

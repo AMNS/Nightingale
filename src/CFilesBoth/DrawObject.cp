@@ -32,38 +32,6 @@ static DDIST DrawGRDraw(Document *, DDIST, DDIST, DDIST, DDIST, short, PCONTEXT,
 						Boolean, Boolean *); 
 static void DrawBarline(Document *, LINK, short, short, CONTEXT [], SignedByte);
 
-static void DrawNChar(char glyph);
-static void DrawNString(char glyph);
-
-static void DrawNChar(char glyph)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawChar(glyph);
-	TextFont(fontNum);
-#else
-	DrawChar(glyph);
-#endif
-}
-
-static void DrawNString(Str255 str)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawString(str);
-	TextFont(fontNum);
-#else
-	DrawString(str);
-#endif
-}
-
-#ifdef TARGET_API_MAC_CARBON
-//#define DrawChar DrawNChar
-//define DrawString DrawNString
-#endif
-
 /* -------------------------------------------------------------------- D2ObjRect -- */
 /* Convert DRect to Rect. If Rect has zero width or height, move the edges apart
 slightly. Intended for computing objRects, which aren't useful if they're empty!

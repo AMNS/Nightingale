@@ -45,7 +45,6 @@ struct BeamCounter *beamCounterPtr;
 Byte UserBeamBreaksAt[32];						/* initialized but unused so far */
 Byte CurrentBeamCondition = CROSSRESTS;
 
-static Byte denomtopH(Word);
 static void CreateNBeamBeatList(Byte, Byte);
 static Byte BeamNoteRelationship(LINK, Byte);
 static void CreateBEAMandResetBeamCounter(Document *, Byte, LINK);
@@ -88,20 +87,6 @@ Variables whose names end in LCD are 480 to the quarter note.
 
 long BeamBeatListEX[5];
 long beatEX;
-
-/* negative exponent of denominator [as in NewNightingaleDefs.h]? */
-
-static Byte denomtopH(Word denom)
-{
-	Byte denompH;
-
-	denompH	= 0;
-	while (denom > 1) {
-		denompH++;
-		denom >>= 1;
-		}
-	return denompH;
-	}
 
 static void CreateNBeamBeatList(Byte num, Byte denom)
 {

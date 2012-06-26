@@ -19,7 +19,6 @@
 
 void 		InitNightingale(void);
 static Boolean	DoSplashScreen(void);
-static void		InitFinal(void);
 static Boolean	InitAllCursors(void);
 static void		InitNightFonts(void);
 static Boolean	InitNightGlobals(void);
