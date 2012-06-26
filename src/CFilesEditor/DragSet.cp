@@ -830,9 +830,6 @@ void SetForNewPitch(Document *doc,
 		SetNoteFields(doc, pL, subObjL, 0, ydDiff, 0, yp, TRUE, FALSE, acc);
 	}
 	else {
-#ifdef NOTYET
-		(When grace-note ties are implemented, handle similarly to with regular Syncs.)
-#endif
 		aGRNote = GetPAGRNOTE(subObjL);
 		oldPitchLev = qd2halfLn(aGRNote->yqpit)+ClefMiddleCHalfLn(context.clefType);
 		ydDiff = halfLn2d(pitchLev-oldPitchLev, context.staffHeight, context.staffLines);

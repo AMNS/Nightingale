@@ -830,15 +830,9 @@ short DCheckNode(
 							DDIST lnHeight = aStaff->staffHeight/(aStaff->staffLines-1);
 							DDIST srLnHeight = drSize[doc->srastral]/(STFLINES-1);
 							DDIST altsrLnHeight = drSize[doc->altsrastral]/(STFLINES-1);
-#ifdef NOTYET
-							if (lnHeight!=srLnHeight && lnHeight!=altsrLnHeight)
-								COMPLAIN2("*DCheckNode: SUBOBJ IN FIRST STAFF, AT %u (staffn=%d), staffHeight DISAGREES WITH s/altsrastral.\n",
-												pL, aStaff->staffn);
-#else
 							if (lnHeight!=srLnHeight)
 								COMPLAIN2("*DCheckNode: SUBOBJ IN FIRST STAFF, AT %u (staffn=%d), staffHeight DISAGREES WITH srastral.\n",
 												pL, aStaff->staffn);
-#endif
 						}
 						if (aStaff->staffLeft<0 || aStaff->staffLeft>sysWidth)
 							COMPLAIN("*DCheckNode: SUBOBJ IN STAFF AT %u staffLeft IS ILLEGAL.\n", pL);

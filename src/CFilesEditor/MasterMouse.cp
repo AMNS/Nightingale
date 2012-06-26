@@ -326,35 +326,8 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 the part. However, once we have found a mouse click in this region, there is no
 way to maintain the selection feedback, since parts have no selection flag to set. */
 
-#ifdef NOTYET
-static Boolean EditDocPart(Document *doc, Point pt, short modifiers, short doubleClick)
-	{		
-		return FALSE;		/* Nothing doing for now */
-		
-		short firstStf,lastStf, left, right;
-		Rect partRect;
-		
-		measL = LSSearch(doc->headL,MEASUREtype,ANYONE,GO_RIGHT,FALSE);
-		GetAllContexts(doc,contextA,measL);
-		sysL = LSSearch(doc->headL,SYSTEMtype,ANYONE,GO_RIGHT,FALSE);
-
-		left = 0; right = d2p(SystemRECT(sysL).left);
-
-		partL = NextPARTINFOL(FirstSubLINK(doc->headL));
-		for ( ; partL; partL=NextPARTINFOL(partL)) {
-			pPart = GetPPARTINFO(partL);
-			firstStf = pPart->firstStaff;
-			lastStf = pPart->lastStaff;
-			SetRect(&partRect,left,d2p(contextA[firstStf].staffTop),
-				right,d2p(contextA[lastStf].staffTop+contextA[lastStf].staffHeight));
-				
-			if (PtInRect(pt,&partRect)) break;
-		}
-	}
-#else
 static Boolean EditDocPart(Document *, Point, short , short )
 	{ return FALSE; }
-#endif		
 
 
 /* Handle a double-click in Master Page: call FindMasterObject with selection
@@ -515,11 +488,6 @@ Boolean DoEditMaster(Document *doc, Point pt, short modifiers, short doubleClick
 			didSomething = TRUE;
 			UpdateMasterMargins(doc);
 			}
-#ifdef NOTYET
-		 else if (EditDocPart(doc,pt,modifiers,doubleClick)) {
-			didSomething = TRUE;
-		 }
-#endif
 		 else {	
 			MEHideCaret(doc);
 			if (doubleClick)

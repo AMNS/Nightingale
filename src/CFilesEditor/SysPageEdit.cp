@@ -952,14 +952,6 @@ void PasteSystem(Document *doc)
 
 	startL = EditSysGetStartL(doc,TRUE);
 	if (PageTYPE(startL)) {
-
-#ifdef NOTYET
-		/* ??? Disable for now */
-
-		StopInform(FIRSTSYS_ALRT);
-		return;
-#endif
-
 		Paste1stSysInPage(doc, startL);
 		return;
 	}
@@ -1446,14 +1438,6 @@ void PastePages(Document *doc)
 	appending = TailTYPE(insertL);
 	prevL = LeftLINK(insertL);
 	if (newFirstPage) {
-
-#ifdef NOTYET
-		/* ??? Disable for now */
-
-		StopInform(FIRSTPAGE_ALRT);
-		return;
-#endif
-	
 		oldFirstSys = LSSearch(insertL,SYSTEMtype,ANYONE,GO_RIGHT,FALSE);
 
 		InitSearchParam(&pbSearch);

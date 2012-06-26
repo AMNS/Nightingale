@@ -110,14 +110,8 @@ static void CreateNBeamBeatList(Byte num, Byte denom)
 	long breakDurEX, lTemp;
 	Boolean break4, breakMin;
 	
-#ifdef NOTYET
-	break4 = (config.autoBeamOptions % 10)==0;		/* Rightmost digit: break4 */
-	breakMinField = config.autoBeamOptions / 10;
-	breakMin = ((breakMinField % 10)==0? 2 : 3);		/* 2nd digit from right: breakMin */
-#else
 	break4 = (config.autoBeamOptions & 1)==0;
 	breakMin = ((config.autoBeamOptions & 2)==0? 2 : 3);
-#endif
 	
 	if (((num % 3) == 0) && (num >= 6)) 			/* dotted: 2 dotted-quarter = 6/8 */
 		meterType = Compound;

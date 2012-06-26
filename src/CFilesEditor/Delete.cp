@@ -647,37 +647,7 @@ static void DeleteTie(
 						 (long)aSlur->lastInd, (long)i);
 	}
 		
-#ifdef NOTYET	
-	qL = NewNode(SLURtype, LinkNENTRIES(slurL)-1);
-	if (qL) {
-		qSlur = GetPSLUR(qL);
-		pSlur = GetPSLUR(slurL);
-		BlockMove(pSlur, qSlur, sizeof(SLUR));						/* Copy object header */
-		LinkNENTRIES(qL) = LinkNENTRIES(slurL)-1;
-		pSubL = FirstSubLINK(pL);
-		qSubL = FirstSubLINK(qL);
-		for ( ; pSubL && qSubL; pSubL=NextSLURL(pSubL), qSubL = nextL)
-			if (pSubL!=aSlurL) {
-				pSub = GetPASLUR(pSubL);
-				qSub = GetPASLUR(qSubL);
-				nextL = NextSLURL(qSubL);
-				BlockMove(pSub, qSub, sizeof(ASLUR));
-				NextSLURL(qSubL) = nextL;
-			}
-	
-		LeftLINK(qL) = LeftLINK(slurL);										
-		RightLINK(qL) = RightLINK(slurL);
-		LinkVALID(qL) = FALSE;
-		DeleteNode(doc, slurL);
-		qLeft = LeftLINK(qL);
-		qRight = RightLINK(qL);
-		RightLINK(qLeft) = LeftLINK(qRight) = qL;
-		}
-	 else
-		MayErrMsg("DeleteTie: Not enough memory");
-#else
 	MayErrMsg("For now, cannot delete notes in tied chords.");
-#endif
 }
 
 
@@ -747,13 +717,7 @@ static void DeleteSlur(
 	if (firstIsMeas || lastIsSys)
 		DeleteOtherSlur(doc, firstIsMeas, lastIsSys, slurL);
 	
-#ifdef NOTYET
-	if (isTie && LinkNENTRIES(slurL)>1)
-			DeleteTie(doc, pL, slurNoteL, slurL, goLeft);
-	else	DeleteNode(doc, slurL);
-#else
 	DeleteNode(doc, slurL);
-#endif
 }
 
 
@@ -2864,9 +2828,6 @@ void DeleteSelection(
 					/* Update aspects of any chords contained in pL. Fix tie indices for
 						chords tied with multiple ties, and fix stems, otherStemSides, etc.
 						of notes in chords with notes deleted. */
-#ifdef USEFIXTIEIND_NOTYET
-					FixTieIndices(pL);			/* OK because pL is still in object list. */
-#endif
 					FixDelChords(doc, pL, voiceChanged);
 				}
 				break;
@@ -2906,9 +2867,6 @@ void DeleteSelection(
 
 					/* Update aspects of any chords contained in pL. Fix stems, otherStemSides,
 						 etc., of grace notes in chords with grace notes deleted. */
-#ifdef USEFIXTIEIND_NOTYET
-					FixTieIndices(pL);			/* OK because pL is still in object list. */
-#endif
 					FixDelGRChords(doc, pL, voiceChanged);
 				}
 				break;

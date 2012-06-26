@@ -808,18 +808,7 @@ void FixEmptySelection(Document *doc, Point	pt)
 
 	if (doc->selStartL==doc->selEndL) {						
 		staffn = FindStaff(doc, pt);							/* Also sets doc->currentSystem */
-#ifdef NOTYET
-		if (staffn==NOONE) {
-			/* Not inside any system: use the nearest staff and system */
-			doc->currentSystem = ???;
-			if (pt.v<that systemRect.top ???)
-				staffn = 1;
-			else
-				staffn = doc->nstaves;
-		}
-#else
 		if (staffn==NOONE) return;							/* Click wasn't on any staff; return */
-#endif
 
 		doc->selStaff = staffn;
 

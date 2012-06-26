@@ -2980,14 +2980,8 @@ static void FixViewMenu(Document *doc)
 //		Boolean disableWholeMenu;
 		
 		AddWindowList();
-#ifdef NOTYET
-		disableWholeMenu = (doc==NULL);
-		UpdateMenu(viewMenu, !disableWholeMenu);
-		if (disableWholeMenu) return;
-#else
 		UpdateMenu(viewMenu, doc!=NULL);
 		/* ??If doc is NULL, we should return at this point--continuing is dangerous! */
-#endif
 		
 		XableItem(viewMenu,VM_GoTo,ENABLE_GOTO(doc));
 		XableItem(viewMenu,VM_GotoSel,ENABLE_GOTO(doc));

@@ -339,12 +339,6 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 
 static Boolean EnoughFreeDocs()
 	{
-#ifdef NOTYET
-		short numDocs = NumFreeDocuments();
-		
-		if (numDocs < 1) return FALSE;
-#endif
-
 		return TRUE;		
 	}
 	

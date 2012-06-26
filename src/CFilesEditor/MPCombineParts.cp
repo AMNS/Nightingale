@@ -232,12 +232,6 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 
 static Boolean EnoughFreeDocs()
 	{
-#ifdef NOTYET
-		short numDocs = NumFreeDocuments();
-		
-		if (numDocs < 1) return FALSE;
-#endif
-
 		return TRUE;		
 	}
 	
@@ -495,71 +489,6 @@ static void ExtractToScore(Document *doc, LINK firstPartL, LINK lastPartL)
 		{
 			return;
 		}
-#ifdef NOTYET		
-		
-		partL = FirstSubLINK(doc->headL);
-		for (partL=NextPARTINFOL(partL); partL && keepGoing; partL=NextPARTINFOL(partL)) {
-			
-			if (allParts || IsSelPart(partL, selPartList)) {
-				if (CheckAbort()) {
-					ProgressMsg(SKIPPARTS_PMSTR, "");
-					SleepTicks(90L);										/* So user can read the msg */
-					ProgressMsg(0, "");
-					goto Done;
-				}
-				PToCString(Pstrcpy(name,doc->name));
-				strcat((char *)name,"-");
-				pPart = GetPPARTINFO(partL);
-				strcat((char *)name,pPart->name);
-				CToPString((char *)name);
-	
-				WaitCursor();
-				/* ??If <doc> has been saved, <doc->vrefnum> seems to be correct, but if
-				it hasn't been, <doc->vrefnum> seems to be zero; I'm not sure if that's safe. */
-				partDoc = CreatePartDoc(doc,name,doc->vrefnum,&doc->fsSpec,partL);
-				if (partDoc) {
-					if (reformat) {
-						ReformatPart(partDoc, spacePercent, TRUE, careMeasPerSys,
-											measPerSys);
-					}
-					else
-						NormalizePartFormat(partDoc);
-
-					/* Finally, set empty selection just after the first Measure and put caret there.
-						??Will this necessarily be on the screen? */
-					
-					SetDefaultSelection(partDoc);
-					partDoc->selStaff = 1;
-					
-					MEAdjustCaret(partDoc, FALSE);		// ??AND REMOVE CALL IN CreatePartDoc!
-					AnalyzeWindows();
-					if (closeAndSave)
-						{ if (!DoCloseDocument(partDoc)) keepGoing = FALSE; }
-					 else
-						DoUpdate(partDoc->theWindow);
-					}
-				 else
-					keepGoing = FALSE;
-	
-				/*
-				 *	Installation of correct heaps here is not yet understood. This
-				 *	seems to leave the heaps in the correct state, yet a call to
-				 *	InstallDoc in DoCloseDocument when deleting the undo data
-				 *	structure is required as of implementing this to prevent crashing.
-				 *	It is totally unclear what this code has to do with deleting the undo
-				 *	data structure when closing documents, or how the incorrect state of
-				 *	heap installation is connected with this.
-				 *
-				 *	We require this call to insure that the for (partL= ... ) loop
-				 *	correctly traverses the score's partinfo list, since SaveParts
-				 *	must leave the parts heaps installed in order to display the
-				 *	part document.
-				 */
-				InstallDoc(doc);
-				}
-			}
-#endif
-
 	}
 	
 static void MPGetSelPartsList(Document *doc, LINK partL[])

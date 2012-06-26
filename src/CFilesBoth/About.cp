@@ -188,15 +188,7 @@ void DoAboutBox(
 				keepGoing = FALSE; okay = TRUE;
 				break;
 			case BUT2_Special:
-#ifdef NOTYET
-				{
-					Document *doc=GetDocumentFromWindow(TopDocument);
-					if (doc!=NULL)
-						DCheckEverything(doc, maxCheck, minCheck);	/* ??Requires Consolationª */
-				}
-#else
 				SysBeep(1);		/* For future use; maybe a simple "Debug Check" */
-#endif
 				break;
 		}
 	}

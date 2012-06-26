@@ -2260,9 +2260,6 @@ Boolean StepRecord(
 					
 			}
 #endif
-#ifdef NOTYET
-			if (printDebug) PrintNBuffer(nOnBuffer, nOnBufLen);
-#endif
 
 			if (nChord>0) {
 				int k = 0;
@@ -2318,10 +2315,6 @@ Boolean StepRecord(
 		
 		if (Button()) done = TRUE;
 	}
-
-#ifdef NOTYET
-	if (printDebug) PrintBuffer(doc, mRecIndex);
-#endif
 
 	/*
 	 * If user quit recording less than <deflamTime> after the last note, there may

@@ -248,17 +248,9 @@ long PDur2RealTime(
 	 */	
 	if (tabSize<=0) return 0L;
 	
-#ifdef NOTYET
-	if (tConvertTab[tabSize-1].pDurTime<=t)
-		i = tabSize;
-	else
-		for (i = 1; i<tabSize; i++)
-			if (tConvertTab[i].pDurTime>t) break;
-#else
 	for (i = 1; i<tabSize; i++)
 		if (tConvertTab[i].pDurTime>t) break;
 	if (tConvertTab[i].pDurTime<=t) i = tabSize;	/* ??IS i GUARANTEED TO BE MEANINGFUL? */
-#endif
 	msAtPrevTempo = tConvertTab[i-1].realTime;
 	
 	msSincePrevTempo = PDUR2MS(t-tConvertTab[i-1].pDurTime, tConvertTab[i-1].microbeats);
@@ -705,25 +697,7 @@ Boolean MIDIConnected()
 {
 	Boolean	result;
 	
-#ifdef NOTYET
-	Document *doc = (Document *)TopDocument;
-	long		startTime;
-	result = TRUE;										/* Assume a connection */
-	MayInitBIMIDI(BIMIDI_SMALLBUFSIZE);
-	MIDIFBNoteOn(doc, 0, doc->channel);			/* Send note commands */
-	MIDIFBNoteOff(doc, 0, doc->channel);
-	MIDIFBNoteOn(doc, 0, doc->channel);
-	MIDIFBNoteOff(doc, 0, doc->channel);
-	startTime = TickCount();
-	SleepTicks(1L);
-	if (!QueueEmpty())								/* Are the commands gone from queue? */
-		result = FALSE;								/* No, assumption is false */
-	if (TickCount()-startTime > 5)
-		result = FALSE;
-	MayResetBIMIDI(FALSE);
-#else
 	result = FALSE;									/* ??ABOVE CODE ALWAYS SAYS "TRUE" */
-#endif
 	return result;
 }
 

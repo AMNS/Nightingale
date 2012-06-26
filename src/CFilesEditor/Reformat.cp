@@ -1542,19 +1542,6 @@ short Reformat(
 		
 		doc->changed = TRUE;
 	}
-	
-#ifdef NOTYET
-	/*
-	 * Delete redundant time signatures: presumably they're anticipatory timesigs
-	 * moved into redundant positions by changing system breaks. ??Good idea, but
-	 * untested in this context--and it'd be better to do this only in the part of
-	 * the score we actually reformatted!
-	 */
-	if (changeSBreaks) {
-		LINK firstDelL, lastDelL;
-		(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
-	}
-#endif
 
 	return (nothingToDo? NOTHING_TO_DO : OP_COMPLETE);
 }

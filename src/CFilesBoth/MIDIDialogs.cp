@@ -888,13 +888,6 @@ Boolean FMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *not
 
 	/* Fill in dialog's values here */
 
-#ifdef NOTYET
-	if (!OMSChannelValid(*device, *channel)) {
-		*channel = config.defaultOutputChannel;
-		*device = config.defaultOutputDevice;
-	}
-#endif
-
 	group1 = (*viaMIDI? RAD4_Use : RAD5_Use);
 	PutDlgChkRadio(dlog, RAD4_Use, (group1==RAD4_Use));
 	PutDlgChkRadio(dlog, RAD5_Use, (group1==RAD5_Use));

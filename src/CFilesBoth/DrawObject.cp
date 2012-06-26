@@ -1555,9 +1555,6 @@ static void DrawEnclosure(Document */*doc*/,
 			PenSize(enclThick,enclThick);
 			OffsetRect(&boxRect,pContext->paper.left, pContext->paper.top);
 			if (enclType==ENCL_BOX) FrameRect(&boxRect);
-#ifdef NOTYET
-			else if (enclType==ENCL_CIRCLE) FrameOval(&boxRect);
-#endif
 			PenNormal();
 			break;
 		case toPostScript:
@@ -1599,23 +1596,7 @@ Boolean GetGraphicDBox(Document *doc,
 				 * instead use a very small but legal box, so the Graphic can still be selected
 				 * (to be fixed, deleted, etc.) but won't cause any problems.
 				 */
-#ifdef NOTYET
-				/* ??There are two problems with using GetPicture here. First, if the PICT
-				isn't in the score, it will try to get it from the app or from system
-				resources. This is not necessarily bad, but a way to avoid that would be
-				this. Just after opening the score, do:
-					scoreRFRefNum = CurResFile();
-				Then here do:
-					oldResFile = CurResFile();
-					UseResFile(scoreRFRefNum);
-					picH = Get1Resource('PICT', p->info);
-					UseResFile(oldResFile);
-				However, that brings up the second problem. I'm pretty sure that code won't
-				work because the score file isn't actually open at this point! Therefore,
-				the code as written now will _never_ draw a PICT from the score file. ?? */
-#else
 				picH = (Handle)GetPicture(p->info);
-#endif
 				if (ResError() || picH==NULL)
 					SetRect(&r, 0, 0, 2, 2);
 				else
@@ -2469,21 +2450,7 @@ void DrawBarline(Document *doc,
 			ypTop = pContext->paper.top + d2p(dTop);
 			ypBot = pContext->paper.top + d2p(dBottom);
 
-#ifdef NOTYET
-			/* The "-1"s below are purely empirical and to be conservative. ??Changing
-				this also requires changing code in CheckMEASURE for hit-testing and
-				hiliting. We should also make the analogous changes to repeat bars. */
-			betweenBars = d2p(lnSpace/2)-1;
-			if (betweenBars<2) betweenBars = 2;
-
-			thinBarWidth = betweenBars/2-1;
-			if (thinBarWidth<1) thinBarWidth = 1;
-
-			thickBarWidth = betweenBars-1;
-			if (thickBarWidth<2) thickBarWidth = 2;
-#else
 			betweenBars = 2;
-#endif
 
 			switch (subType) {
 				case BAR_SINGLE:

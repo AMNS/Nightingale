@@ -366,15 +366,8 @@ void PageFixSysRects(
 		if (FirstSysInPage(sysL)) {
 			if (setSysHts) {
 				measL = LSSearch(sysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
-#ifdef NOTYET
-				lastStf = LastStaffn(measL);
-				aMeasL = MeasOnStaff(measL, lastStf);
-				if (aMeasL) sysHeight = MeasMRECT(aMeasL).bottom;
-				else			sysHeight = 0;												/* Error */
-#else
 				aMeasL = MeasOnStaff(measL, doc->nstaves);
 				sysHeight = MeasMRECT(aMeasL).bottom;
-#endif	
 			}
 			else {
 				pSystem = GetPSYSTEM(sysL);

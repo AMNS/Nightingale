@@ -1557,15 +1557,6 @@ Boolean DefineStyleDialog(Document *doc,
 					}
 				theEncl = ENCL_NONE;
 				break;
-#ifdef NOTYET
-			case RAD25_Circular:
-				for (i=RAD24_None; i<=RAD26_Box; i++) {
-					GetDialogItem(dlog,i,&type,&hndl,&box);
-					SetControlValue((ControlHandle)hndl,i==RAD25_Circular);
-					}
-				theEncl = ENCL_CIRCLE;
-				break;
-#endif
 			case RAD26_Box:
 				for (i=RAD25_None; i<=RAD26_Box; i++) {
 					GetDialogItem(dlog,i,&type,&hndl,&box);

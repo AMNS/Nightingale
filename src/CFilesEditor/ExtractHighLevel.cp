@@ -266,18 +266,6 @@ Boolean DoExtract(Document *doc)
 		}
 		
 		DeselAll(doc);
-
-#ifdef NOTYET
-		/* If not enough free documents to hold the new parts, consult with user */
-		
-		numDocs = NumFreeDocuments();
-		partL = FirstSubLINK(doc->headL);
-		if (allParts)
-			for (numParts=0,partL=NextPARTINFOL(partL); partL; partL=NextPARTINFOL(partL))
-				numParts++;
-		if (numDocs<numParts)
-			give caution alert("Not enough free documents for all parts; go ahead anyway?")
-#endif
 		
 		partL = FirstSubLINK(doc->headL);
 		for (partL=NextPARTINFOL(partL); partL && keepGoing; partL=NextPARTINFOL(partL)) {

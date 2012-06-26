@@ -145,17 +145,6 @@ STDIST SymWidthLeft(
 				}
 			}
 	  		if (maxxmoveAcc>=0) {
-#ifdef NOTYET
-				/*
-				 *	Ordinarily, the accidental position is relative to a note on the "normal"
-				 *	side of the stem. But if grace note is in a chord that's downstemmed and
-				 *	has notes to the left of the stem, its accidental is moved to the left.
-				 * ??ChordNoteToLeft DOESN'T KNOW ABOUT GRACE NOTES. ALSO, noteToLeft
-				 * SHOULD BE CONSIDERED REGARDESS OF ACCS.--CF. case SYNCtype ABOVE.
-				 */
-				if (ChordNoteToLeft(pL, aGRNote->staffn)) maxxmoveAcc += 4;
-#endif
-
 	  			totWidth = STD_ACCWIDTH;
 	  			totWidth += (STD_ACCWIDTH*(maxxmoveAcc-DFLT_XMOVEACC))/4;
 	  			return GRACESIZE(totWidth);
@@ -307,22 +296,6 @@ STDIST SymWidthRight(
 			  	totWidth = n_max(totWidth, nwidth);
 	  		}
 	  	}
-#ifdef NOTYET
-		/*
-		 *	If chord is upstemmed and has grace notes to the right of the stem, it extends
-		 *	further to the right than it otherwise would.
-		 * ??ChordNoteToRight DOESN'T KNOW ABOUT GRACE NOTES.
-		 */
-		noteToRight = FALSE;
-		if (anyStaff) {
-			for (s = 1; s<=doc->nstaves; s++)
-				if (ChordNoteToRight(pL,s)) { noteToRight = TRUE; break; }
-		}
-		else
-			if (ChordNoteToRight(pL,staff)) noteToRight = TRUE;
-		if (noteToRight) totWidth += STD_LINEHT;
-#endif
-
 	  	return GRACESIZE(totWidth)+STD_LINEHT/3;
 
 	 case MEASUREtype:
@@ -377,9 +350,6 @@ STDIST SymWidthRight(
 			if (anyStaff || aClef->staffn==staff) {
 				aClef = GetPACLEF(aClefL);
 				width = (aClef->small? SMALLSIZE(normWidth) : normWidth);
-#ifdef NOTYET_FIXDRAWBUG
-				if (doc->nonstdStfSizes) width = STF_SCALE(width, aClef->staffn);
-#endif
   				totWidth = n_max(totWidth, width);
   			}
   		}
@@ -1335,46 +1305,6 @@ static void FixVoiceTimes(
 	for (i = 0; i<=MAXVOICES; i++)
 		if (vStaves[i]==staff) vLTimes[i] = n_max(vLTimes[i], timeHere);
 }
-
-
-#ifdef NOTYET
-			/* Synchronize for round-off error within the tuplet. Note that this
-				technique will cause GetSpTimeInfo to ignore any tweaking done to
-				the durations of notes in tuplets. To avoid that, instead of this,
-				when creating the tuplet, could add in the total round-off error
-				to the duration of the last note in the tuplet, if that duration
-				were stored in the data structure. But it is gotten from
-				CalcNoteLDur, which blindly adjusts multiplying by denom/num. 
-				So CalcNoteLDur could also check for LastInTuplet, and add diff
-				to compensate for round-off, if that were stored anywhere. To
-				get totalTime of tuplet, just need to store minDur: total time
-				= minDur * denom. totalTime is guaranteed to be an integer,
-				and so this algorithm is guaranteed to eliminate roundoff,
-				and synchronize all notes in the voice following the tuplet
-				properly. Problem is: what if one of the notes in the tuplet is
-				moved along by some other voice? */
-
-			if (NoteINTUPLET(aNoteL) {
-				tupletL = LVSearch(pL,TUPLETtype,NoteVOICE(aNoteL),FALSE,FALSE);
-				if (pL==LastInTuplet(tupletL)) {
-					syncForTuplet[NoteVOICE(aNoteL)] = TRUE;
-				}
-			}
-			else {
-				if (syncForTuplet[NoteVOICE(aNoteL)]) {
-					tupletL = LVSearch(pL,TUPLETtype,NoteVOICE(aNoteL),FALSE,FALSE);
-					firstL = FirstInTuplet(tupletL);
-					
-					tEndTime = ??? time of firstL + total time of tuplet ???;
-
-					if (vLTimes[NoteVOICE(aNoteL)) < tEndTime
-						vLTimes[NoteVOICE(aNote) = tEndTime;
-					
-					syncForTuplet[NoteVOICE(aNoteL)] = FALSE;
-				}
-			}
-#endif
-
 
 /* ----------------------------------------------------------------- GetSpTimeInfo -- */
 /* Creates the rhythmic spine, i.e., the set of MEvent logical times integrated

@@ -79,10 +79,6 @@ Boolean KeySigBeforeBar(Document *doc, LINK pLPIL, short staffn, short sharpsOrF
 	
 	if (!LinkBefFirstMeas(pLPIL)) return FALSE;
 
-#ifdef NOTYET
-	doc->undo.param1 = staff;
-	PrepareUndo(doc, doc->selStartL, U_InsertKeySig, 13); 		/* "Undo Insert" */
-#endif
 	if (doc->currentSystem==1) {
 		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, FALSE, FALSE);
 		firstKeySigL = LSSearch(firstMeasL, KEYSIGtype, 1, TRUE, FALSE);
@@ -1446,65 +1442,6 @@ void NewMODNR(Document *doc,
 
 /* ---------------------------------------------------- Functions for NewDynamic -- */
 
-#ifdef NOTYET
-
-/* Add a hairpin which spans two systems. x and endx are local x-coords which
-must be put into correct coordinate system; pitchLev is vertical coordinate
-relative to the staff in halfLns. */
-
-static void AddXSysDynamic(Document *doc, short x, short endx, char inchar,
-									short staff, short pitchLev, LINK lastSyncL)
-{
-	LINK newL1,newL2,sysL,measL,oldStartL; CONTEXT context;
-	DDIST sysLeft; short sym,endx1; PSYSTEM pSystem;
-	
-	/*
-	 * Add the first piece of the crossSys dynamic.
-	 */
-	doc->currentSystem = firstDynSys;											/* firstDynSys and lastDynSys are set by GetCrossStatus called by TrackAndAddHairpin */
-	newL1 = AddNewDynamic(doc, staff, x, &sysLeft, inchar,				/* return sysLeft, sym, and context */
-										&sym, &context, TRUE);
-	InitDynamic(doc, newL1, staff, x, sysLeft, pitchLev, &context);
-	sysL = LSSearch(newL1, SYSTEMtype, ANYONE, TRUE, FALSE);
-	pSystem = GetPSYSTEM(sysL);
-	endx1 = pSystem->systemRect.right -
-					std2d(STD_LINEHT, context.staffHeight, context.staffLines);
-	SetupHairpin(newL1, staff, sysL, sysLeft, d2p(endx1), TRUE);		/* set endpt xds and crossSys flag */
-
-	/*
-	 * Set doc->currentSystem and doc->selStartL so that the second piece
-	 * will be inserted on the correct system, at the correct insertion pt.
-	 */
-	doc->currentSystem = lastDynSys;
-	measL = LSSearch(lastSyncL, MEASUREtype, staff, TRUE, FALSE);
-	oldStartL = doc->selStartL;
-	doc->selStartL = RightLINK(measL);
-
-	/*
-	 * Add the second piece of the cross system dynamic.
-	 */
-	newL2 = AddNewDynamic(doc, staff, d2p(LinkXD(measL)+sysLeft),
-										&sysLeft, inchar, &sym, &context, TRUE);
-	InitDynamic(doc, newL2, staff, d2p(LinkXD(measL)+sysLeft), sysLeft,
-									pitchLev, &context);
-	SetupHairpin(newL2, staff, lastSyncL, sysLeft, endx, TRUE);
-	doc->selStartL = oldStartL;													/* restore doc->selStartL */
-	doc->selEndL = RightLINK(doc->selStartL);									/* make selRange into an insertion pt */
-	LinkSEL(newL2) = DynamicSEL(FirstSubLINK(newL2)) = FALSE;
-	DynamFIRSTSYNC(newL2) = measL;
-	
-	doc->currentSystem = firstDynSys;											/* restore doc->currentSystem */
-	FixContextForDynamic(doc, RightLINK(newL1), staff,
-									context.dynamicType, symtable[sym].subtype);
-	
-	InvalObject(doc,newL1,FALSE);
-	InvalObject(doc,newL2,FALSE);
-	NewObjCleanup(doc, newL1, staff);
-	InvalSystem(newL1); InvalSystem(newL2);
-}
-
-#endif
-
 /* Call to InvalMeasures takes measL rather than lastSyncL as a parameter in an
 effort to avoid passing one more parameter. */
 
@@ -1554,13 +1491,6 @@ void NewDynamic(
 {
 	short	sym; LINK newL; CONTEXT context; DDIST sysLeft;
 	PDYNAMIC newp;
-	
-#ifdef NOTYET
-	if (crossSys) {
-		AddXSysDynamic(doc, x, endx, inchar, staff, pitchLev, lastSyncL);
-		return;
-	}
-#endif
 
 	/* Insertion of crossSys dynamics is not currently undoable. */
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  						/* "Undo Insert" */

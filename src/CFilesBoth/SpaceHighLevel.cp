@@ -615,45 +615,6 @@ static void ConsidIPWidths(
 	}
 }
 
-
-#ifdef NOTYET
-
-#define SpaceSPWIDTH(link)	( (GetPSPACE(link))->spWidth )
-
-/* -------------------------------------------------------------- ConsidSPWidths -- */
-/*	Consider widths of all J_SP objects (only Spacers) and adjust spacing accordingly.
-Handles one measure. */
-
-static void ConsidSPWidths(
-					Document *doc,
-					LINK barTermL,							/* Object ending the Measure */
-					short				nInMeasure,
-					SPACETIMEINFO	spaceTimeInfo[],
-					LONGSTDIST		position[] 			/* Position table for J_IT & J_IP objs. for the measure */
-					)
-{
-	register short i,j;
-	STDIST		spWidth;
-	LINK			spaceL;
-
-	/*
-	 * Go thru the measure and, for each J_SP object, leave space for that object and
-	 *	move everything following to the right by its space.
-	 */
-
-	for (i = 0; i<=nInMeasure; i++)
-		if (spaceTimeInfo[i].justType==J_SP) {
-			spaceL = spaceTimeInfo[i].link;
-			spWidth = SpaceSPWIDTH(spaceL);
-			
-			for (j=i+1; j<=nInMeasure; j++)
-				position[j] += spWidth;
-		}
-}
-
-#endif
-
-
 /* -------------------------------------------------------------- ConsiderWidths -- */
 /* Consider objects' widths (both to left and right of their origins) and increase
 spacing as needed, not only to avoid overprinting, but to insure a separation of
@@ -694,9 +655,6 @@ static void ConsiderWidths(
 	 *	only for IT objects. Either way, it could easily (I think) be done here...
 	 */
 	 
-#ifdef NOTYET
-	ConsidSPWidths(doc, barTermL, nInMeasure, spaceTimeInfo, position);
-#endif
 }
 
 
@@ -1429,12 +1387,6 @@ Boolean RespaceBars(
 
 		goto Done;
 	}
-#ifdef NOTYET
-	else {	/* center whole-measure rests */
-		/* we'd like to do this here, but measures may've been reformatted, so
-			how do we get the correct links -- rmTable? */
-	}
-#endif
 
 	InvalRespBars(startInvalL,endSysL);
 

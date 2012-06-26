@@ -1713,34 +1713,6 @@ void BrowseGraphic(LINK pL)
 	sprintf(s, "aGraphic->next=%d", aGraphic->next);
 	DrawLine (s);	p = GetPGRAPHIC(pL);
 
-#ifdef NOTYET
-	strcpy(s, "");
-	if (p->vConstrain) strcat(s, "VCONSTRAIN ");
-	if (p->hConstrain) strcat(s, "HCONSTRAIN ");
-	DrawLine(s);	p = GetPGRAPHIC(pL);
-	switch (p->justify) {
-		case GRJustLeft:
-			pStr = "JUSTIFYLEFT";
-			break;
-		case GRJustRight:
-			pStr = "JUSTIFYRIGHT";
-			break;
-		case GRJustBoth:
-			pStr = "JUSTIFYBOTH";
-			break;
-		case GRJustCenter:
-			pStr = "JUSTIFYCENTER";
-			break;
-		default:
-			sprintf(s2, "UNKNOWN JUSTIFY TYPE %d", p->justify);
-			pStr = s2;
-	}
-	sprintf(s, "justify=%s", pStr);
-	DrawLine(s);	p = GetPGRAPHIC(pL);
-	sprintf(s, "handle=0x%lx", p->handle);
-	DrawLine(s);	p = GetPGRAPHIC(pL);
-#endif
-
 	sprintf(s, "firstObj=%d lastObj=%d", p->firstObj, p->lastObj);
 	DrawLine(s);	p = GetPGRAPHIC(pL);
 	sprintf(s, "info=%d", p->info);

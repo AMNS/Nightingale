@@ -62,16 +62,7 @@ void SetNRCStem(LINK syncL, LINK aNoteL, Boolean makeLower, DDIST stemLen)
 {
 	DDIST ystem; short voice;
 	
-	if (NoteREST(aNoteL)) {
-#ifdef NOTYET
-		GetContext()
-		yqpit = GetRestMultivoiceRole(&context, voiceRole, makeLower);
-		NoteYD(aNoteL) = qd2d(yqpit, context.staffHeight,
-								context.staffLines);
-		LinkVALID(syncL) = FALSE;								/* Rest's sel. area may have moved */
-#endif
-	}
-	else if (NoteINCHORD(aNoteL)) {
+	if (NoteINCHORD(aNoteL)) {
 		voice = NoteVOICE(aNoteL);
 		aNoteL = FindExtremeNote(syncL, voice, (makeLower? -1 : 1));
 		ystem = NoteYD(aNoteL)+(makeLower? stemLen : -stemLen);
@@ -514,21 +505,6 @@ Boolean DTranspose(
 	if (octaves==0 && steps==0) return FALSE;
 	
 	if (!goUp) { octaves *= -1; steps *= -1; }
-
-#ifdef NOTYET
-	/* It's hard to know the MIDI note nos. we're going to get exactly but easy
-		to know within one semitone, so just do an approximate check. */
-			
-	semiChangeOct = ??;
-	GetSelMIDIRange(doc, &lowMIDINum, &hiMIDINum);
-	if (lowMIDINum+semiChangeOct<2
-	||   hiMIDINum+semiChangeOct>126) {
-		GetIndCString(strBuf, PITCHERRS_STRS, 3);    /* "Transposing might lead to MIDI note number(s) below 1 or above 127." */
-		CParamText(strBuf, "", "", "");
-		StopInform(GENERIC_ALRT);
-		return FALSE;
-	}
-#endif
 
 	WaitCursor();
 

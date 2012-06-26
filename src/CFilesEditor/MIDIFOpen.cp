@@ -1229,18 +1229,6 @@ static Boolean DoMetaEvent(
 			return TRUE;
 
 		default:
-#ifdef NOTYET
-			if (track!=1
-			&& (p->data[1]!=ME_EOT
-				 && p->data[1]!=ME_SEQTRACKNAME && p->data[1]!=ME_INSTRNAME)) {
-				GetIndCString(fmtStr, MIDIFILE_STRS, 27);    /* "Found metaevent %d in track %d, but Nightingale can only handle this metaevent in the timing track." */
-				sprintf(strBuf, fmtStr, p->data[1], track); 
-				CParamText(strBuf, "", "", "");
-				StopInform(GENERIC_ALRT);
-				return FALSE;
-			}
-#endif
-		
 			return FALSE;
 	}
 }
@@ -2470,9 +2458,6 @@ short MIDNight2Night(
 		
 		if (setPlayDurs && quantum>1) SetPDur(doc, config.legatoPct, FALSE);
 
-#ifdef NOTYET
-		if (contains empty measures and user asked) NMFillEmptyMeas(doc);	/* ??too high level? */
-#endif
 	}
 
 Done:

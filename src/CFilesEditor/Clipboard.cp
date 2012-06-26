@@ -1014,19 +1014,10 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 	}
 	
 
-#ifdef NOTYET
-	// ??How can this really work? The whole problem is the accidental context may be wierd!
-	clipboard->selStartL = clipFirstMeas;
-	clipboard->selEndL = clipboard->tailL;
-	DelRedundantAccs(clipboard, ANYONE, DELSOFT_REDUNDANTACCS_DI);
-
-	InstallDoc(doc);
-#else
 	InstallDoc(doc);
 
 	clipboard->selStartL = clipFirstMeas;
 	clipboard->selEndL = clipboard->tailL;
-#endif
 }
 
 /*
@@ -2538,18 +2529,6 @@ static LINK ClipStf2Part(short stf, Document *doc, short stfDiff, short *partStf
 	*partStf = stf+stfDiff;
 	return Staff2PartL(doc,doc->headL,*partStf);
 }
-
-#ifdef NOTYET
-static Boolean IsDefaultVoice(Document *doc, short v, LINK partL)
-{
-	Boolean deflt;
-	
-	InstallDoc(clipboard);
-	deflt = (v>=PartFirstSTAFF(partL) && v<=PartLastSTAFF(partL));
-	InstallDoc(doc);
-	return deflt;
-}
-#endif
 
 /* Given clipboard internal voice no. and score part, if we have a user voice assigned
 in the document for pasting the clipboard voice into, return it; else add one to our

@@ -450,23 +450,6 @@ static Boolean TrackLine(Document *doc, LINK pL, Point pt, Point *endPt, short s
 			if (!horiz) constrainPt.h = pt.h;
 			if (!vert) constrainPt.v = pt.v;
 			if (PtInRect(newPt, &tRect) && (constrainPt.h!=pt.h || constrainPt.v!=pt.v)) {
-#ifdef NOTYET
-			if (stillWithinSlop) {
-				/*
-				 * If mouse is still within slop bounds, don't do anything. Otherwise,
-				 * decide whether horizontally/vertically constrained.
-				 */
-				dhTotal = newPt.h - origPt.h;
-				dvTotal = newPt.v - origPt.v;
-				if (ABS(dhTotal)<2 && ABS(dvTotal)<2) continue;
-				if (ShiftKeyDown()) {
-					horiz = ABS(dhTotal)>ABS(dvTotal);		/* 45 degree movement => vertical */
-					vert = !horiz;
-				}
-				/* And don't ever come back, you hear! */
-				stillWithinSlop = FALSE;
-			}
-#endif
 			if (!horiz) newPt.h = pt.h;
 			if (!vert) newPt.v = pt.v;
 					
@@ -1865,29 +1848,6 @@ void FixNewMeasAccs(Document *doc, LINK measureL)
 		FixAllAccidentals(measureL, endMeasL, s, FALSE);
 	}
 }
-
-
-#ifdef NOTYET
-/* ---------------------------------------------------------------- IncrMeasNums -- */
-/* Increment measure numbers from the given Measure to the end of the score by
-<increment>. */
-
-Boolean IncrMeasNums(LINK, short);
-
-Boolean IncrMeasNums(LINK measL, short increment)
-{
-	LINK aMeasureL;
-	PAMEASURE aMeasure;
-	
-	for ( ; measL; measL = LinkRMEAS(measL)) {
-		aMeasureL = FirstSubLINK(measL);
-		for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL)) {
-			aMeasure = GetPAMEASURE(aMeasureL);
-			aMeasure->measureNum += increment;
-		}
-	}	
-}
-#endif
 
 
 /* --------------------------------------------------------------- InsFixMeasNums -- */

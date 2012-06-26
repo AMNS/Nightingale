@@ -892,9 +892,6 @@ PushLock(NOTEheap);
 	 * stem direction or duration changes. Leave this for some other time.
 	 */
 	aNote->xmovedots = 3+WIDEHEAD(aNote->subType);
-#ifdef NOTYET
-	if (isRest) aNote->xmovedots += (IS_WIDEREST(aNote->subType)? 1 : 0);
-#endif
 	
 	if (halfLn%2==0)
 		aNote->ymovedots = GetLineAugDotPos(voiceRole, makeLower);
@@ -979,18 +976,10 @@ PushLock(GRNOTEheap);
 												effectiveAcc);
 	else
 		aGRNote->noteNum = Pitch2MIDI(midCHalfLn-halfLn, effectiveAcc);
-#ifdef NOTYET
-	makeLower = GetGRStemInfo(doc, grSyncL, aGRNoteL, &qStemLen);
-	aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(lDur),
-										makeLower,
-										context.staffHeight, context.staffLines,
-										qStemLen, TRUE);
-#else
 	aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(lDur),
 										FALSE,											/* Always stem up */
 										context.staffHeight, context.staffLines,
 										config.stemLenGrace, TRUE);
-#endif
 
 	aGRNote->onVelocity = dynam2velo[context.dynamicType];
 	aGRNote->offVelocity = config.noteOffVel;
@@ -1488,95 +1477,6 @@ Boolean ChordNoteToLeft(LINK syncL, short voice)
 	
 	return FALSE;
 }
-
-
-#if 0
-/* --------------------------------------------------------------- FixTieIndices -- */
-
-#define TIESUBTYPE ((short)TRUE)
-
-/* Fix chord note indices in ties that begin or end at Sync pL to reflect the
-notes in pL that are being deleted, as shown by their selected flags.
-N.B. This routine could probably be made much more efficient without too
-much work.  Don't know if it matters. */
-
-void FixTieIndices(LINK pL)
-{
-	PANOTE aNote, bNote;
-	LINK	aNoteL, bNoteL;
-	short i, j, s, noteInChord, thisLNote, thisRNote;
-	PASLUR aTie;
-	LINK slurL, aTieL;
-	SearchParam pbSearch;
-	Boolean hasChord = FALSE;
-	
-	/* If there are no notes in chords, there will be no indices to fix up; return. */
-	aNoteL=FirstSubLINK(pL);
-	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
-		if (NoteINCHORD(aNoteL)) 
-			{ hasChord = TRUE; break; }
-	if (!hasChord) return;
-		
-	InitSearchParam(&pbSearch);
-	pbSearch.voice = ANYONE;				
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = TRUE;
-	pbSearch.subtype = TIESUBTYPE;
-
-	for (s = 1; s<=doc->nstaves; s++) {
-		pbSearch.id = s;
-		noteInChord = -1;
-		aNoteL = FirstSubLINK(pL);
-		for (i=0; aNoteL; aNoteL=NextNOTEL(aNoteL), i++)
-			if (NoteSTAFF(aNoteL)==s) {
-				noteInChord++;
-				if (NoteSEL(aNoteL) && NoteINCHORD(aNoteL)) {
-					thisLNote = thisRNote = noteInChord;
-					bNoteL = NextNOTEL(aNoteL);
-					if (bNoteL)
-						for (j=i+1; j<LinkNENTRIES(pL) && bNoteL; 
-								j++, bNoteL=NextNOTEL(bNoteL)) {
-							bNote = GetPANOTE(bNoteL);
-							if (bNote->staffn==s && bNote->tiedL) {
-								/*
-								 * The first slur obj to the left may belong to a tie going
-								 * to the right from pL.
-								 */
-								slurL = L_Search(pL, SLURtype, TRUE, &pbSearch);
-								if (SlurLASTSYNC(slurL)!=pL)
-									slurL = L_Search(LeftLINK(slurL), SLURtype, TRUE, &pbSearch);
-								aTieL = FirstSubLINK(slurL);
-								for ( ; aTieL; aTieL=NextSLURL(aTieL)) {
-									aTie = GetPASLUR(aTieL);
-									if (aTie->lastInd>thisLNote) {
-										aTie->lastInd--;
-										thisLNote++;
-										break;
-									}
-								}
-							}
-							if (bNote->staffn==s && bNote->tiedR) {
-								slurL = L_Search(pL, SLURtype, TRUE, &pbSearch);
-								aTieL = FirstSubLINK(slurL);
-								for ( ; aTieL; aTieL=NextSLURL(aTieL)) {
-									aTie = GetPASLUR(aTieL);
-									if (aTie->firstInd>thisRNote) {
-										aTie->firstInd--;
-										thisRNote++;
-										break;
-									}
-								}
-							}
-						}
-					goto staffDone;
-				}		
-			}
-		staffDone:
-			;
-	}					
-}		
-#endif
-
 
 /* ---------------------------------------------------------- NormalStemUpDown -- */
 /* If the note or chord in the given Sync and voice would normally (considering
@@ -2141,12 +2041,8 @@ void FixGRSyncNote(Document *doc,
 		aGRNote->inChord = FALSE;
 		aGRNote->otherStemSide = FALSE;
 		aGRNote->xmoveAcc = DFLT_XMOVEACC;
-#ifdef NOTYET
-		stemDown = GetGRStemInfo(doc, grSyncL, aGRNoteL, &qStemLen);
-#else
 		stemDown = FALSE;							/* ??wrong if voiceRole==upper or cross */
 		qStemLen = config.stemLenGrace;
-#endif
 		if (pContext) context = *pContext;
 		else			  GetContext(doc, grSyncL, GRNoteSTAFF(aGRNoteL), &context);
 		GRNoteYSTEM(aGRNoteL) = CalcYStem(doc, GRNoteYD(aGRNoteL), NFLAGS(GRNoteType(aGRNoteL)),

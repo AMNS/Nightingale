@@ -590,9 +590,6 @@ void GetClefDrawInfo(
 	if (xdOctDelta==(DDIST)CANCEL_INT)
 		*xdOct = *ydOct = (DDIST)CANCEL_INT;
 	else {
-#ifdef NOTYET
-		xdOctDelta = SizePercentSCALE(xdOctDelta);
-#endif
 		*xdOct = *xd+xdOctDelta;
 		ydOctDelta = SizePercentSCALE(ydOctDelta);
 		*ydOct = *yd+ydOctDelta;
@@ -1795,13 +1792,7 @@ Boolean ShouldDrawConnect(
 		switch (aConnect->connLevel) {
 			case SystemLevel:
 				/* Zero visible staves in the system should never happen. */
-#ifdef NOTYET
-				if (config.show1StfSysConn==2) drawThisOne = FALSE;
-				else if (config.show1StfSysConn==1) drawThisOne = TRUE;
-				else drawThisOne = (NumVisStaves(pL)>1);
-#else
 				drawThisOne = (NumVisStaves(pL)>1 || config.show1StfSysConn);
-#endif
 				break;
 			case GroupLevel:
 				VisStavesInRange(doc, staffL, aConnect->staffAbove, aConnect->staffBelow,
@@ -2048,11 +2039,7 @@ void DrawPSMSubType(short subType, short xp, short ypTop, short ypBot)
 {
 	short betweenBars;
 	
-#ifdef NOTYET
-	(See code and comments in DrawBarline.)
-#else
 	betweenBars = 2;
-#endif
 	switch (subType) {
 		case PSM_DOTTED:
  			DrawVDashedLine(xp, ypTop, xp, ypBot);

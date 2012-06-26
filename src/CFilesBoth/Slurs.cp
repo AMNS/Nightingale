@@ -1055,83 +1055,6 @@ PrintSlurPoints(aSlurL, "SetSlurCtlPts: 1");
 	 *	with a linear blending between the two for medium spans.
 	 */
 
-#ifdef NOTYET
-#define OHIOSLURS
-#endif
-
-#ifdef OHIOSLURS
-
-	/*
-	 * Reference: Francisco Javier Sala, "Computer Design of Musical Slurs, Ties
-	 * and Phrase Marks" (report OSU-CISRC-10/87-TR32), The Ohio State Univ.
-	 */
-	 
-	/* Scan through all notes on the given staff from the slur's firstSync
-	 *	to its last sync, declaring their salient attributes to the OhioSlur
-	 *	library.  When we're done, ask the library to tell us what its idea
-	 *	of the slur control points should be.  The library expects all
-	 *	coordinate values to be in absolute DDISTS with respect to the 
-	 *	bottom staff line of the top staff.
-	 */
-		
-		dTop = context.measureTop;
-		dBot = dTop + context.staffHeight;
-		
-		SL_InitSlur(dLineSp,V_Single);
-		for (pL=firstSyncL; pL!=RightLINK(lastSyncL); pL=RightLINK(pL))
-			if (ObjLType(pL) == SYNCtype) {
-				type = (pL==firstSyncL) ? N_First :
-						 (pL==lastSyncL)  ? N_Last :
-						 						  N_Intermediate;
-				dLeft = context.measureLeft + LinkXD(pL);			/* abs. origin of object */
-				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
-					aNote = GetPANOTE(aNoteL);
-					if (aNote->voice==voice) {
-						if (type == N_First) xoffFirst = dLeft;
-						 else if (type == N_Last) xoffLast = dLeft;
-						stemUp = (aNote->ystem<aNote->yd) ? 1 : ((aNote->ystem>aNote->yd) ? -1 : 0);
-						beam = aNote->beamed;
-						accent = 0;				/* Should be up (1) or down (-1) or none (0) */
-						xd = dLeft + aNote->xd;
-						/* Change Y coordinates to staffBottom == 0, positive upwards */
-						yd = context.staffHeight - aNote->yd;
-						/* Save offsets so we can convert back to relative coords below */
-						if (type == N_First) { xoffFirst = xd; yoffFirst = aNote->yd; }
-						if (type == N_Last)  { xoffLast = xd;  yoffLast = aNote->yd; }
-						stemLength = ABS(aNote->yd-aNote->ystem);
-						SL_DeclareNote(type,stemUp,accent,beam,xd,yd,stemLength);
-						break;		/* ??At the moment, only uses the first note found */
-						}
-					}
-				}
-		
-		SL_GetSlur(&aSlur->seg.knot, &aSlur->seg.c0, &aSlur->seg.c1, &aSlur->endpoint);
-		
-		/* Now we have to flip vertically back to our coordinates, from Ohio slur land */
-		
-		aSlur->seg.knot.v = context.staffHeight - aSlur->seg.knot.v;
-		aSlur->seg.c0.v   = context.staffHeight - aSlur->seg.c0.v;
-		aSlur->seg.c1.v   = context.staffHeight - aSlur->seg.c1.v;
-		aSlur->endpoint.v = context.staffHeight - aSlur->endpoint.v;
-		
-		DebugPrintf("GetSlur: start:(%P) c0:(%P) c1:(%P) end:(%P)\n",
-						&aSlur->seg.knot, &aSlur->seg.c0, &aSlur->seg.c1, &aSlur->endpoint);
-		
-		/* And convert to note position-relative coordinates */
-		
-		aSlur->seg.knot.v -= yoffFirst;
-		aSlur->seg.knot.h -= xoffFirst;
-		aSlur->seg.c0.v   -= yoffFirst;
-		aSlur->seg.c0.h   -= xoffFirst;
-		aSlur->seg.c1.v   -= yoffLast;
-		aSlur->seg.c1.h   -= xoffLast;
-		aSlur->endpoint.v -= yoffLast;
-		aSlur->endpoint.h -= xoffLast;
-		
-		DebugPrintf("convert: start:(%P) c0:(%P) c1:(%P) end:(%P)\n",
-						&aSlur->seg.knot, &aSlur->seg.c0, &aSlur->seg.c1, &aSlur->endpoint);
-#else
-
 	/* Compute left control point offset from slur start for short slurs */
 	
 	x0 = SCALECURVE(dLineSp);
@@ -1165,7 +1088,6 @@ DebugPrintf("Non-Ohio: c0=(%d,%d) c1=(%d,%d)\n",x0,curveUp ? -y0 : y0,-x0,curveU
 	aSlur->seg.c0.v = curveUp ? -y0 : y0;
 	aSlur->seg.c1.h = -x0;
 	aSlur->seg.c1.v = aSlur->seg.c0.v;
-#endif
 
 /*
 	c0 is the offset from the left slur end to the left control point, c1 the offset

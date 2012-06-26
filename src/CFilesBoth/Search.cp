@@ -1051,35 +1051,6 @@ LINK GSSearch(
 	return foundL;
 }
 
-
-#ifdef NOTYET
-/* -------------------------------------------------------------------- LJSearch -- */
-/* Logical-order search for given justification type. */
-
-LINK LJSearch(
-			LINK		startL,				/* Place to start looking */
-			short		justType,			/* target type (or ANYTYPE) */
-			short		id,					/* target staff number */
-			Boolean	goLeft,				/* TRUE if we should search left */
-			Boolean	needSelected 		/* TRUE if we only want selected items */
-			)
-{
-	SearchParam	pbSearch;
-	LINK			foundL;
-
-	InitSearchParam(&pbSearch);
-	pbSearch.id = ANYONE;
-	pbSearch.needSelected = needSelected;
-	pbSearch.inSystem = FALSE;
-	pbSearch.subtype = ANYSUBTYPE;
-	pbSearch.voice = id;
-	pbSearch.needInMeasure = FALSE;
-	foundL = J_Search(startL, type, goLeft, &pbSearch);
-	return foundL;
-}
-#endif
-
-
 /* ----------------------------------------------------------- StaffFindSymRight -- */
 
 LINK StaffFindSymRight(Document *doc, Point pt, Boolean needVisible, short staffn)

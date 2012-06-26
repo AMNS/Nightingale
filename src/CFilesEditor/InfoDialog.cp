@@ -329,22 +329,6 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				case Cancel:
 					dialogOver = ditem;
 					break;
-#ifdef NOTYET
-				case UPDATE:
-					SetPort(doc->theWindow);
-					measureL = LSSearch(pL, MEASUREtype, ANYONE, TRUE, FALSE);
-					pMeasure = GetPMEASURE(measureL);
-					r = pMeasure->measureBBox;
-					if (LastMeasInSys(measureL)) r.right = doc->paperRect.right;
-					OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
-					EraseAndInval(&r);
-					/*
-					DrawRange(doc, measureL, pMeasure->rMeasure,&doc->viewRect);
-					*/
-					MayErrMsg("SyncInfoDialog: DrawRange expects the paper bounds\r");
-					SetPort(GetDialogWindowPort(dlog));
-					break;
-#endif
 			 	default:
 			 		;
 			}

@@ -206,25 +206,6 @@ static void SetOptionState(DialogPtr dlog)
 
 	/* Set visibility of Header/footer items. */
 	if (showMoreOptions) {
-#ifdef NOTYET
-		/* If all of the header/footer text items are empty, put pagenum symbol
-			into the right one. */
-		if (!GetDlgString(dlog, HDRLEFT_DI, str)
-				&& !GetDlgString(dlog, HDRCENTER_DI, str)
-				&& !GetDlgString(dlog, HDRRIGHT_DI, str)
-				&& !GetDlgString(dlog, FTRLEFT_DI, str)
-				&& !GetDlgString(dlog, FTRCENTER_DI, str)
-				&& !GetDlgString(dlog, FTRRIGHT_DI, str)) {
-			if (hPosGroup == LEFT_DI)
-				item = (vPosGroup==TOP_DI)? HDRLEFT_DI : FTRLEFT_DI;
-			else if (hPosGroup == CENTER_DI)
-				item = (vPosGroup==TOP_DI)? HDRCENTER_DI : FTRCENTER_DI;
-			else
-				item = (vPosGroup==TOP_DI)? HDRRIGHT_DI : FTRRIGHT_DI;
-			str[0] = 1; str[1] = PAGENUM_CHAR;
-			PutDlgString(dlog, item, str, TRUE);
-		}
-#endif
 		for (i = FIRST_HIDEABLE_ITEM; i <= LAST_HIDEABLE_ITEM; i++)
 			ShowDialogItem(dlog, i);
 	}

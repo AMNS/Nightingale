@@ -591,24 +591,7 @@ void FixChordsForClef(Document *doc, LINK syncL,
 			}
 	}
 	else if (GRSyncTYPE(syncL)) {
-#ifdef NOTYET
-		for (aGRNoteL = FirstSubLINK(syncL); aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
-			if (GRNoteSTAFF(aGRNoteL)==absStaff && GRMainNote(aGRNoteL)) {
-				if (GRNoteINCHORD(aNoteL)) {
-					FixGRSyncForChord(doc, syncL, GRNoteVOICE(aNoteL), GRNoteBEAMED(aNoteL), 0, 0, NULL);
-					}
-				else {
-					stemDown = GetGRCStemInfo(doc, syncL, aNoteL, newContext, &qStemLen);
-					GRNoteYSTEM(aGRNoteL) = CalcYStem(doc, GRNoteYD(aGRNoteL),
-														NFLAGS(GRNoteType(aGRNoteL)),
-														stemDown,
-														newContext.staffHeight, newContext.staffLines,
-														qStemLen, FALSE);
-				}
-			}
-#else
 		SysBeep(1);		/* ??NOT HELPFUL! Either fix this or give an error message. */
-#endif
 	}
 }
 
@@ -739,39 +722,11 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 					GRNoteACC(dstGRNoteL) = effAcc;
 					GRNoteACCSOFT(dstGRNoteL) = TRUE;
 				}
-#ifdef NOTYET
-				InsGRNoteFixAccs(doc, pL, dstStf, halfLn, GRNoteACC(dstGRNoteL));
-#endif
 			}
 
 			DblMapVoices(doc, voiceMap, pL, dstStf);
 			FixChordsForClef(doc, pL, dstStf, oldContext, newContext);			
 			break;
-			
-#ifdef NOTYET
-		/* ??Copying time sigs. should rarely be necessary--they should already be on
-			the dest. staff--but if they're not, the following isn't enough: Measures
-			and Systems on the dest. staff need their context fixed up. */
-		case TIMESIGtype:
-			{
-				LINK srcTimeSigL, aTimeSigL; PATIMESIG srcTimeSig, aTimeSig;
-			
-				if (TimeSigOnStaff(pL, dstStf)) return NOTHING_TO_DO;
-
-				srcTimeSigL = TimeSigOnStaff(pL, srcStf);
-				if (!srcTimeSigL) return NOTHING_TO_DO;
-	
-				if (!ExpandNode(pL, &aTimeSigL, 1)) return FAILURE;
-				
-				srcTimeSig = GetPATIMESIG(srcTimeSigL);
-				aTimeSig = GetPATIMESIG(aTimeSigL);
-				tmpL = aTimeSig->next;
-				*aTimeSig = *srcTimeSig;
-				aTimeSig->next = tmpL;
-				aTimeSig->staffn = dstStf;
-			}
-			break;
-#endif
 			
 		case BEAMSETtype:
 			if (!anyVoice && BeamVOICE(pL)!=copyVoice) break;
@@ -833,12 +788,6 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			break;
 		
 		case SPACEtype:
-#ifdef NOTYET
-			copyL = DuplicateObject(SPACEtype, pL, FALSE, doc, doc, FALSE);
-			if (!copyL) return FAILURE;
-			InsNodeIntoSlot(copyL, pL);	/* ??not sure if this is right--spacers are J_IT */
-			SpaceSTAFF(copyL) = dstStf;
-#endif
 			break;
 			
 		default:
@@ -1049,9 +998,6 @@ Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 	if (!hasSmthgAcross)
 		hasSmthgAcross = StfHasSmthgAcross(doc, doc->selEndL, srcStf, str);
 	if (hasSmthgAcross) {
-#ifdef NOTYET
-		CParamText(str, "", "", "");
-#endif
 		StopInform(DEXTOBJ_ALRT);
 		return FALSE;
 	}

@@ -1104,22 +1104,12 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 
 	pGraphic = GetPGRAPHIC(pL);
 	if (pGraphic->firstObj) {
-#ifdef NOTYET
-		if (pGraphic->graphicType==GRPICT && pGraphic->gu.handle==NULL)
-			pGraphic->gu.handle = (Handle)GetPicture(pGraphic->info);
-#endif
 	}
 
 	yd -= p2d(mRect.top);
 	switch (pGraphic->graphicType) {
 		case GRPICT:
-#ifdef NOTYET
-			D2Rect(&pGraphic->graphicRect, &pGraphic->objRect);
-			DrawPicture(pGraphic->handle, &pGraphic->objRect);
-			pGraphic->valid = TRUE;
-#else
 			MayErrMsg("SDDragGraphic: sorry, GRPICTs are not implemented.");
-#endif
 			break;
 		case GRArpeggio:
 			dHeight = qd2d(pGraphic->info, context.staffHeight, context.staffLines);

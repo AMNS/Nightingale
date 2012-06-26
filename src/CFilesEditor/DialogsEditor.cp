@@ -2534,20 +2534,8 @@ short RastralDialog(
 	GetDialogItem(rDialogp, rDownITM, &anInt, &aHdl, &rDownRect);
 	GetDialogItem(rDialogp, rUpITM, &anInt, &aHdl, &rUpRect);
 
-#ifdef NOTYET
-	if (canChoosePart) {
-		radio = (*selPartsOnly? SelPartsITM : AllPartsITM);
-		PutDlgChkRadio(rDialogp, radio, TRUE);
-	}
-	else {
-		PutDlgChkRadio(rDialogp, AllPartsITM, TRUE);
-		XableControl(rDialogp, SelPartsITM, FALSE);
-		XableControl(rDialogp, AllPartsITM, FALSE);
-	}
-#else
 	HideDialogItem(rDialogp, SelPartsITM);
 	HideDialogItem(rDialogp, AllPartsITM);
-#endif
 	
 	CenterWindow(GetDialogWindow(rDialogp), 70);
 	ShowWindow(GetDialogWindow(rDialogp));

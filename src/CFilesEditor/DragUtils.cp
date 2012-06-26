@@ -237,66 +237,6 @@ static void FixXStfNoteStems(Document *doc,LINK beamL);
 static void HDragFixNoteStems(Document *doc,LINK beamL,LINK firstSyncL,
 					DDIST hDiff,DDIST vDiff,DDIST lastystem,short xStf);
 
-#ifdef NOTYET
-
-static void HDragFixXStfNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff,
-												DDIST vDiff, DDIST lastystem, short *h)
-{
-	LINK qSubL;
-	DDIST noteDiff,newStemDiff;
-	float fhDiff,fvDiff,fnoteDiff;
-
-	for (qSubL=FirstSubLINK(qL); qSubL; qSubL=NextNOTEL(qSubL))
-		if (NoteVOICE(qSubL)==BeamVOICE(beamL))
-			if (MainNote(qSubL)) {
-				if (NoteBEAMED(qSubL)) {
-			 		noteDiff = SysRelxd(qL)-SysRelxd(firstSyncL);
-					if (noteDiff) {
-						fnoteDiff = hDiff-noteDiff;
-						fhDiff = hDiff;
-#ifdef MODIFY_THIS
-						if (NoteSTAFF(qSubL)==BeamSTAFF(beamL)) {
-							fvDiff = vDiff;
-							newStemDiff = (DDIST)fvDiff*(fnoteDiff/fhDiff);
-					 		NoteYSTEM(qSubL) = newStemDiff+lastystem;
-						}
-						else {
-							fvDiff = vDiff;
-							newStemDiff = (DDIST)fvDiff*(fnoteDiff/fhDiff);
-					 		NoteYSTEM(qSubL) = newStemDiff+lastystem;
-						}
-#endif
-				 	}
-				}
-				else if (!NoteREST(qSubL))
-					MayErrMsg("SDFixStemLengths: Unbeamed note in sync %ld where beamed note expected", (long)qL);
-				if (!NoteREST(qSubL) || NoteBEAMED(qSubL))
-					(*h)++;
-			}
-}
-
-static void HDragFixNoteStems(Document *doc, LINK beamL, LINK firstSyncL, DDIST hDiff,
-										DDIST vDiff, DDIST lastystem, short xStf)
-{
-	short h; LINK qL;
-
-	qL=RightLINK(beamL);
-	for (h=0; qL && h<LinkNENTRIES(beamL); qL=RightLINK(qL)) {
-		if (SyncTYPE(qL)) {
-			if (qL==firstSyncL)							/* have already done firstSync */
-				h++;
-			else {
-				if (xStf)
-					HDragFixXStfNoteStems(beamL,qL,firstSyncL,hDiff,vDiff,lastystem,&h);
-				else
-					FixNoteStems(beamL,qL,firstSyncL,hDiff,vDiff,lastystem,&h);
-			}
-		}
-	}
-}
-
-#endif
-
 static void FixNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff,
 									DDIST vDiff, DDIST lastystem, short *h)
 {

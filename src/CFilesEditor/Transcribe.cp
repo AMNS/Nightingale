@@ -530,16 +530,7 @@ static LINK QuantAllVoices(
 	if (!endExtraL) goto Done;
 	qStartL = LinkLMEAS(endExtraL);
 
-#ifdef NOTYET
-	for (v = 1; v<=MAXVOICES; v++) {
-		if (nRawSyncs[v]<=0) continue;
-		firstSyncQTime = minimum quantized time of the 1st sync in any voice;
-	}
-	qStartMeasL = LinkRMEAS(qStartL);
-	postQTimeOffset = MeasureTIME(qStartMeasL)-firstSyncQTime;
-#else
 	postQTimeOffset = 0L;
-#endif
 
 #ifndef PUBLIC_VERSION
 		DebugPrintf("quantum=%d tripBias=%d tryLev=%d leastSq=%d\n",
@@ -596,10 +587,6 @@ static LINK QuantAllVoices(
 
 		doc->selStartL = qStartL;
 		doc->selEndL = qEndL;
-
-#ifdef NOTYET
-		if (contains empty measures and user asked) NMFillEmptyMeas(doc);	/* ??too high level? */
-#endif
 
 		okay = TRUE;
 	}
@@ -1082,14 +1069,7 @@ Boolean QuantizeDialog(Document *doc,
 	if (choice==NOMATCH) choice = 1;
 	SetGPopUpChoice(curPop, choice);
 
-#ifdef NOTYET
-/* For now, hide the Recognize Triplets option, except from people who know the secret
-	enabling key: someday we'll fix the bugs (sigh). */
-	if (!(ControlKeyDown()))
-		HideDialogItem(dlog,QTUPLET_DI);
-#else
 	PutDlgChkRadio(dlog,QTUPLET_DI,*tuplet);
-#endif
 	PutDlgChkRadio(dlog,AUTOBEAM_DI,*autoBeam);
 
 	CenterWindow(GetDialogWindow(dlog), 60);
@@ -1230,31 +1210,6 @@ static Boolean RTMQuantizeSelDurs(Document *doc, short quantumDur, Boolean tuple
 	return FALSE;		
 }
 
-
-#ifdef NOTYET
-/* If the Measure where we're starting the merge begins with a time signature (other
-than in the reserved area), RTMQuantizeSelDurs has big problems, and has for a long
-time--this bug was already in Nightingale 2.0. Since as of this writing (2 Mar. 1996),
-we're on the verge of shipping v. 3.0, do the easiest safe thing to avoid it: add a
-barline just after the time signature. Sigh. */
-
-void AvoidTimeSigBugKludge(Document doc);
-static void AvoidTimeSigBugKludge(Document doc)
-{
-	/* ??If we're not going to remove the new barline, give an alert here to tell user! */
-	
-	saveSelStartL = doc->selStartL
-	saveSelEndL = doc->selEndL;
-	
-	NewObjInit(doc, MEASUREtype, &sym, singleBarInChar, ANYONE, &context);
-	measL = CreateMeasure(doc, pL, -1, sym, context);
-	
-	/* Restore selection and selection range ???NOT SO EASY! */
-	doc->selStartL = saveSelStartL;
-	doc->selEndL = saveSelEndL;
-}
-#endif
-
 /* --------------------------------------------------------------- RecTransMerge -- */
 /* Record, Transcribe, and Merge: Record data from MIDI and generate Nightingale
 notes of unknown duration; transcribe them, i.e., identify their durations as
@@ -1309,10 +1264,6 @@ we're on the verge of shipping v. 3.0, just warn the poor user. Sigh. */
 	if (!RTMRecord(doc)) return FALSE;
 
 	if (!QuantizeDialog(doc, &newDur, &tuplet, &autoBeam)) return FALSE;
-
-#ifdef NOTYET
-	AvoidTimeSigBugKludge(doc);
-#endif
 
 	if (!RTMQuantizeSelDurs(doc, newDur, tuplet, staffn)) return FALSE;
 

@@ -132,23 +132,7 @@ Boolean PreflightMem(short nKBytes)		/* if nKBytes<=0, assume max. size of a seg
 	if (nKBytes<=0) nKBytes = 32;
 	nBytes = 1024L*(long)nKBytes;
 
-#ifdef NOTYET
-	/* 
-	 *	This could be done with pointers, but handles are better because the Memory
-	 *	Manager won't work as hard putting the new block in the "best" place, so
-	 *	on the average it'll run faster.
-	 */
-	hndl = NewHandle(nBytes);
-	ans = (hndl!=NULL);
-	if (ans) {
-		DisposeHandle(hndl);
-		ReclaimMemory();			/* Refill the "rainy day" memory fund */
-	}
-	
-	return(ans);
-#else
 	return (FreeMem()>=nBytes);
-#endif
 }
 
 /*

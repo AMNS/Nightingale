@@ -313,14 +313,6 @@ static Boolean ProcessNotelist(FILE *f)
 	while (ReadLine(gInBuf, LINELEN, f)) {
 		gLineCount++;
 
-#ifdef NOTYET
-		if (--checkcount==0) { 
-			CheckEvent();										/* yield time to background tasks */
-			if (gAbortTranslate) return FALSE;
-			checkcount = BG_CHK_FREQ;
-		}
-#endif
-
 		ans = sscanf(gInBuf, "%c", &firstChar);
 		if (ans<1) continue;									/* probably got a blank line */
 		
@@ -381,14 +373,6 @@ static Boolean FSProcessNotelist(short refNum)
 	
 	while (FSReadLine(gInBuf, LINELEN, refNum)) {
 		gLineCount++;
-
-#ifdef NOTYET
-		if (--checkcount==0) { 
-			CheckEvent();										/* yield time to background tasks */
-			if (gAbortTranslate) return FALSE;
-			checkcount = BG_CHK_FREQ;
-		}
-#endif
 
 		ans = sscanf(gInBuf, "%c", &firstChar);
 		if (ans<1) continue;									/* probably got a blank line */

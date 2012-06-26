@@ -263,15 +263,6 @@ short FillMergeBuffer(
 			mergeObjs[i].time = ( SyncTYPE(pL)? SyncAbsTime(pL) : MeasureTIME(pL) );
 			i++;
 		}
-#ifdef NOTYET
-	/* If we've reached <maxObjs>, see if there are even more. */
-	
-	if (i==maxObjs)
-		for (pL = RightLINK(pL); pL; pL = RightLINK(pL))
-			if (SyncTYPE(pL) || (!syncsOnly && IsMeasAndMergable(pL)))
-				i++;
-#endif
-
 	return i;
 }
 

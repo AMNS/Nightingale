@@ -292,27 +292,6 @@ Boolean InsertNote(
 		check the sync for validity, set the selection range to equal this sync,
 		determine if it is in an octava, track the new note, and add it to the sync. */
 
-#ifdef NOTYET_AND_MAYBE_NEVER
-	if (isGraphic) {
-		addToSyncL = FindSync(doc, pt, isGraphic, clickStaff);
-		if (addToSyncL) {
-			if (!AddNoteCheck(doc, addToSyncL, clickStaff, sym)) {
-				InvalMeasure(addToSyncL, clickStaff);
-				return FALSE;
-			}
-			HiliteInsertNode(doc, addToSyncL, clickStaff, TRUE);
-			doc->selStartL = addToSyncL;
-			doc->selEndL = RightLINK(doc->selStartL);
-	
-			/* Determine if the new note is to be added into an existing octava'd range,
-				track the note, and add it to the sync. */
-			if (TrkInsNote(doc, pt, &sym, clickStaff))
-				return TRUE;
-	
-			goto Cancelled;
-		}
-	}
-#else
 	addToSyncL = FindSync(doc, pt, isGraphic, clickStaff);
 	if (addToSyncL) {
 			if (!AddNoteCheck(doc, addToSyncL, clickStaff, sym)) {
@@ -330,7 +309,6 @@ Boolean InsertNote(
 	
 			goto Cancelled;
 		}
-#endif
 
 	/* The click wasn't close to an existing sync, so we have to decide where
 		to insert it. In graphic mode, get first node to the right of pt.h, and
@@ -855,14 +833,6 @@ Boolean InsertMODNR(Document *doc, Point pt)
 	staff=FindStaff(doc, pt);
 	if (staff==NOONE) return FALSE;
 	
-#ifdef NOTYET
-	/* This should work without problems, but no time to test now. */
-	insSyncL = InsFindNRG(doc, pt, &aNoteL);
-	if (!insSyncL) return FALSE;
-
-	sym = GetSymTableIndex(palChar);
-	if (!ChkInsMODNR(insSyncL,sym)) return FALSE;
-#else
 	/* Find the symbol clicked on. */
 	insSyncL = FindObject(doc, pt, &index, SMFind);
 	if (!insSyncL) return FALSE;
@@ -879,7 +849,6 @@ Boolean InsertMODNR(Document *doc, Point pt)
 		MayErrMsg("InsertMODNR: note %ld in sync at %ld not found", (long)index, (long)insSyncL);
 		return FALSE;
 	}
-#endif
 
 	staff = NoteSTAFF(aNoteL);
 	doc->selEndL = doc->selStartL = insSyncL;						/* Selection is insertion point */

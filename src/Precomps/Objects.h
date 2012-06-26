@@ -57,8 +57,6 @@ Boolean ChordHasUnison(LINK, short);
 Boolean ChordNoteToRight(LINK, short);
 Boolean ChordNoteToLeft(LINK, short);
 
-void FixTieIndices(LINK);
-
 DDIST GetNCYStem(Document *, LINK, short, short, Boolean, PCONTEXT);
 void FixChordForYStem(LINK, short, short, short);
 Boolean FixSyncForChord(Document *, LINK, short, Boolean, short, short, PCONTEXT);

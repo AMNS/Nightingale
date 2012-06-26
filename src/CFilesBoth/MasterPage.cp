@@ -971,22 +971,7 @@ void DoMasterStfSize(Document *doc)
 	static Boolean	selPartsOnly=TRUE;
 
 	partsSelected = PartSel(doc);
-#ifdef NOTYET
-	if (partsSelected) {					/* Init dlog with rastral of top staff. */
-		staffL = SSearch(doc->masterHeadL, STAFFtype, GO_RIGHT);
-		for (aStaffL = FirstSubLINK(staffL); aStaffL; aStaffL = NextSTAFFL(aStaffL))
-			if (StaffSEL(aStaffL))
-				break;						/* has to happen if partsSelected */
-		srastral = StaffRastral(aStaffL);
-		if (srastral==-1)
-			srastral = doc->srastralMP;
-	}
-	else {
-		srastral = doc->srastralMP;
-	}
-#else
 	srastral = doc->srastralMP;
-#endif
 
 	newRastral = RastralDialog(partsSelected, srastral, &propRespace, &selPartsOnly);
 	if (newRastral>CANCEL_INT && newRastral!=srastral)	{

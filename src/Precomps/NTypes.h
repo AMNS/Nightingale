@@ -530,9 +530,6 @@ typedef struct {
 					staffRight;			/* relative to systemRect.left */
 	DDIST			staffHeight;		/* staff height */
 	SignedByte	staffLines;			/* number of lines in staff: 0..6 (always 5 for now) */
-#ifdef NOTYET	/* ??caused code overflow with THINK C 4 */
-	SignedByte	fillerAS;
-#endif
 	short			fontSize;			/* preferred font size for this staff */
 	DDIST			flagLeading;		/* (unused) vertical space between flags */
 	DDIST			minStemFree;		/* (unused) min. flag-free length of note stem */

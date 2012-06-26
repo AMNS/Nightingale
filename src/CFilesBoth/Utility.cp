@@ -1283,21 +1283,6 @@ void InitSleepMS()
 {
 	long startTicks, elapsedTicks, countPerTick, loopCount, l;
 
-#ifdef NOTYET
-extern short TimeDBRA : 0x0D00;
-#define DBRA_TO_LOOP (1510.0/2619.0)	/* Based on SE/30 timings */
-
-	/*
-	 * Compute delay count from TimeDBRA (see IM V-352). This has a reasonable value
-	 * even on PowerPCs (where it must be the value for emulation). However, on Mac
-	 * Plus, TimeDBRA==0, so use this code only if it looks reasonable.
-	 */
-	if (TimeDBRA>500) {
-		oneMSDelayCount = TimeDBRA*DBRA_TO_LOOP;
-		if (oneMSDelayCount is reasonable??) return;
-	}
-	
-#endif
 	loopCount = NORMAL_LOOP_COUNT;
 	/* If this is an early, slow CPU, reduce <loopCount> so it doesn't take too long. */ 
 #ifdef NO_SYSENVREC

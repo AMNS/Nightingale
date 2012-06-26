@@ -181,11 +181,6 @@ void PageTooLarge()								{ ErrorMsg(pageTooLarge); }
 
 void MissingValue()								{ ErrorMsg(missingValue); }
 
-#ifdef NOTYET
-/* Skip it for now, it's not called anywhere */
-void BadUpperLeft(long n, long m)		{ ErrorNumber(badUpperLeft,2,n,m); }
-#endif
-
 void NoMoreMemory()							{ ErrorMsg(noMoreMemory); }
 
 void OutOfMemory(long nBytes)				{ ErrorNumber(exhaustedMemory,nBytes); }

@@ -345,12 +345,6 @@ static Boolean NotelistToNight(Document *doc)
 		SelAllNoHilite(doc);
 		DelRedundantAccs(doc, ANYONE, DELALL_REDUNDANTACCS_DI);
 	}
-#ifdef NOTYET
-	/* Delete all redundant time signatures. */
-
-	(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
-
-#endif
 
 	/* Create slurs/ties before reformatting, so that we can get cross-sys & cross-pg slurs/ties. */
 	CreateAllTies(doc);
@@ -391,13 +385,6 @@ static Boolean NotelistToNight(Document *doc)
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		if (TupletTYPE(pL))
 			SetTupletYPos(doc, pL);
-
-#ifdef NOTYET
-/* Delete all redundant time signatures. */
-
-	(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
-
-#endif
 
 	FIJustifyAll(doc);															/* Justify every system. */
 	
@@ -1023,10 +1010,6 @@ static Boolean SetDefaultCoords(Document *doc)
 				staffn = TempoSTAFF(pL);
 				yd = qd2d(DFLT_TEMPO_HEIGHT, staffHeight[staffn], staffLines[staffn]);
 				LinkYD(pL) = yd;
-#ifdef NOTYET // probably no need to change this
-				xd = foo;
-				LinkXD(pL) = xd;
-#endif
 				break;
 			case DYNAMtype:
 				/* NB: Dynamic coordinates are bizarre -- they use the object's 

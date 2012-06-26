@@ -687,17 +687,6 @@ static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
 		if (itsATie) {
 			*subCount = FillTieArrays(firstL, lastL, voice, fChordNote, lChordNote,
 												flCount, firstIndA, lastIndA);
-#ifdef NOTYET
-			measL = SSearch(firstL, MEASUREtype, GO_RIGHT);
-			if (measL && WithinRange(firstL, measL, lastL)
-			&&  *subCount<VCountNotes(voice, firstL, RightLINK(firstL), TRUE)
-			&&  *subCount<VCountNotes(voice, lastL, RightLINK(lastL), TRUE) ) {
-			??CHECK FOR TIED-ACCIDENTALS SITUATIONS & WARN ABOUT SPECIFICALLY
-				GetIndCString(strBuf, SLURERRS_STRS, 3);    /* "Not all notes can be tied because not all pitches match." */
-				CParamText(strBuf, "", "", "");
-				StopInform(GENERIC_ALRT);
-			}
-#endif
 		}
 		else {
 			firstIndA[0] = lastIndA[0] = 0;
@@ -976,24 +965,6 @@ static void NewSlurSetCtlPts(Document *doc, short staff, short voice, CONTEXT co
 	short i;
 	
 	if (subCount==1) {
-#ifdef NOTYET
-	if (!doc->autoRespace && !slurToNext) {		/* Control points should mimic user-drawn curve */
-		aSlur = GetPASLUR(FirstSubLINK(slurL));
-		aSlur->startPt = startPt[0];
-		aSlur->endPt = endPt[0];
-		aSlur->seg.c0.h = c0.h - kn0Pt.h;
-		aSlur->seg.c0.v = c0.v - kn0Pt.v;
-		aSlur->seg.c1.h = c1.h - kn1Pt.h;
-		aSlur->seg.c1.v = c1.v - kn1Pt.v;
-		aSlur->seg.knot.h = kn0Pt.h - p2d(startPt[0].h);
-		aSlur->seg.knot.v = kn0Pt.v - p2d(startPt[0].v);
-		aSlur->endpoint.h = kn1Pt.h - p2d(endPt[0].h);
-		aSlur->endpoint.v = kn1Pt.v - p2d(endPt[0].v);
-	}
-	else {
-		(the next block goes here)
-	}
-#endif
 		GetSlurTieCurveDir(doc, voice, slurL, &curveUp);
 
 		aSlurL = FirstSubLINK(slurL);

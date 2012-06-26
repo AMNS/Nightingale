@@ -135,14 +135,6 @@ Boolean DCheckEverything(Document *doc,
 		}
 	InstallDoc(doc);
 
-#ifdef NOTYET			/* ??SKIP CHECKING UNDOCLIP, FOR NOW--HAS TOO MANY COMPLAINTS */
-#ifdef DDB
-	DebugPrintf(" Done.  CHK UNDOCLIP: ");
-#endif
-	for (pL = doc->undo.headL; pL!=doc->undo.tailL; pL = RightLINK(pL))
-		if (DCheckNode(doc, pL, UNDO_DSTR, maxCheck)<0) return TRUE;
-#endif
-
 #ifdef DDB
 	DebugPrintf(" Done.");
 	if (nerr>0) DebugPrintf(" %d ERRORS. ", nerr); 	

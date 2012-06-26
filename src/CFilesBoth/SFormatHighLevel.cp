@@ -517,16 +517,8 @@ void SFVisify(Document *doc)
 	short rfmt=Cancel;
 	
 	if (!SFVisPossible(doc)) {
-#ifdef NOTYET
-		imposeMP = CautionAdvise(SFVIS_ALL_ALRT1);
-		if (imposeMP==OK) {
-			ImposeMPSpacing(doc);
-		}
-		else return;
-#else
 		StopInform(SFVIS_ALL_ALRT1);
 		return;
-#endif
 	}
 	else if (!SFCanVisify(doc)) {
 		rfmt = CautionAdvise(SFVIS_ALL_ALRT);

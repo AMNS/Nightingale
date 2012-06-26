@@ -578,12 +578,6 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 						result = i;
 					break;
 				case SMHilite:
-#ifdef NOTYET
-					if (ConnectSEL(aConnectL)) {
-						InsetRect(&wSub, -enlarge.h, -enlarge.v);
-						HiliteRect(&wSub);
-					}
-#endif
 					break;
 				case SMFlash:
 					HiliteRect(&wSub);
