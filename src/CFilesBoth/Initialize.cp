@@ -44,12 +44,8 @@ this is platform-dependent. */
 
 void InitToolbox()
 {
-#ifndef OS_MAC
-#error MAC OS-ONLY CODE
-#else
 #if TARGET_API_MAC_CARBON
 	FlushEvents(everyEvent, 0);		// ?? DO WE NEED THIS?
-#endif
 #endif
 }
 		

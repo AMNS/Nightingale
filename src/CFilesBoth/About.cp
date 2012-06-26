@@ -357,9 +357,6 @@ void AnimateCredits(DialogPtr dlog)
 	const BitMap *ftpPortBits = GetPortBitMapForCopyBits(fullTextPort);
 	const BitMap *dlogPortBits = GetPortBitMapForCopyBits(GetDialogWindowPort(dlog));
 	CopyBits(ftpPortBits, dlogPortBits, &textSection, &creditRect, srcCopy, NULL);
-
-//	CopyBits(&fullTextPort->portBits, &dlog->portBits,
-//					&textSection, &creditRect, srcCopy, NULL);
 					
 	textSection.top++; textSection.bottom++;
 	pixelCount++;

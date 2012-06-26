@@ -50,21 +50,11 @@ void GetHDragLims(Document */*doc*/, LINK pL, LINK subObjL, short /*staff*/, CON
 	}
 	else rightLimit = LinkXD(rightL)-objXD;
 
-#ifdef NO_OVERLAP
-	needLeft = SymDWidthLeft(doc, pL, staff, context);
-	needLeft += SymDWidthRight(doc, leftL, staff, FALSE, context);
-#else
 	needLeft = pt2d(1);
-#endif
 	leftLimit -= needLeft;
 	
 	if (!TailTYPE(rightL)) {
-#ifdef NO_OVERLAP
-		needRight = SymDWidthRight(doc, pL, staff, FALSE, context);
-		needRight += SymDWidthLeft(doc, rightL, staff, context);
-#else
 		needRight = pt2d(1);
-#endif
 		rightLimit -= needRight;
 	}
 	*leftLim = leftLimit;

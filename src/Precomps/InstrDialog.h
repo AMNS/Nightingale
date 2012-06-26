@@ -32,9 +32,7 @@ void XLoadInstrDialogSeg(void);
 #define TWELVE				12
 #define RSIZE				3				/* max size of midinote value as string */
 
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
+#pragma options align=mac68k
 
 struct range
 {
@@ -66,9 +64,7 @@ struct scaleTblEnt
 };
 
 
-//#if TARGET_CPU_PPC
-	#pragma options align=reset
-//#endif
+#pragma options align=reset
 
 #endif
 

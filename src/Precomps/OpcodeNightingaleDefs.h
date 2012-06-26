@@ -10,9 +10,7 @@
 96/05/29					Further simplified.
 */
 
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
+#pragma options align=mac68k
 
 
 #define LCDsPerBeat 480L
@@ -76,6 +74,4 @@ struct RhythmClarification {
 	};
 
 
-//#if TARGET_CPU_PPC
-	#pragma options align=reset
-//#endif
+#pragma options align=reset

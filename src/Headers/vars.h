@@ -79,14 +79,10 @@ GLOBAL short		sonataFontNum,			/* font ID number of Sonata font */
 						dynam2velo[LAST_DYNAM],	/* Dynamic-mark-to-MIDI-velocity table */
 						modNRVelOffsets[32],	/* Modifier MIDI velocity offset table (mod codes indices) */
 						modNRDurFactors[32],	/* Modifier duration factor (% of note's play duration) (mod codes indices) */
-					/*	modNRTimeFactors[32], */	/* (unused) Modifier time factor (% of ??) (mod codes indices) */
 						magShift,				/* Shift count for coord. conversion for TopDocument */
 						magRound,				/* Addend for rounding in coord. conversion for TopDocument */ 
 						magMagnify,				/* Copy of <doc->magnify> for coord. conversion for TopDocument */
 						outputTo,				/* Current output device: screen or printer type */
-// MAS : this does not need to be made global -- conflicts with actual declaration in Slurs.cp
-//						slurLeft, slurRight,	/* Bounds for latest series of splines */
-//		   			slurTop, slurBottom,
 		   			firstDynSys,lastDynSys; /* firstSys, lastSys for hairpins */
 
 GLOBAL DDIST		drSize[MAXRASTRAL+1];	/* Sizes for staff rastral nos. */

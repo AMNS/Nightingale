@@ -14,9 +14,7 @@
 #define MAX_SCOREFONTS_N102	10
 #define MAX_COMMENT_LEN_N102	35
 
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
+#pragma options align=mac68k
 
 #define NIGHTSCOREHEADER_N102																				\
 	LINK 			headL,				/* links to header and tail objects */						\

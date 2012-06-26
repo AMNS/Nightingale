@@ -17,8 +17,6 @@
 
 /* ================================================= AltInsTrackPitch and helpers == */
 
-#define NO_EMPTY_BOXES 0			/* always get rid of box when showing no accidental */
-
 #define NO_ACCIDENTAL	0
 #define MIN_ACCSIZE		14		/* Feedback accidentals will be no smaller than this pt size */
 #define CH_MODE_CHNG		'\t'	/* Character code that will change note insertion mode. */
@@ -391,14 +389,7 @@ Boolean AltInsTrackPitch(
 					
 					/* Accidental change? */
 					if (accMode==CHROMATIC_MODE /* && accident!=accidentOld */)	{			/* Change of accidental? */
-#if NO_EMPTY_BOXES
-						if (accident==NO_ACCIDENTAL)				/* get rid of box */
-							CopyBits(&savePort->portBits, &ourPort->portBits,
-										&saveBox, &accBox, srcCopy, NULL);
-						else DrawAccInBox(accident, accSize, context.paper.top+boxVctr, &accBox);
-#else
 						DrawAccInBox(accident, accSize, context.paper.top+boxVctr, &accBox);
-#endif
 					}
 					
 					/* Play new MIDI note. */

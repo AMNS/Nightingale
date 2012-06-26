@@ -12,8 +12,6 @@
  *
  */
 
-// MAS : now _Prefix.pch, and already included
-// #include "Nightingale.precomp.h"
 #include "Nightingale_Prefix.pch"
 #include <Carbon/Carbon.h>
 // MAS

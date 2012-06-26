@@ -1,8 +1,6 @@
 /*	Objects.h for Nightingale */
 
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
+#pragma options align=mac68k
 
 /*
  *	This is used to access fields that are found only in subobjects whose data
@@ -20,10 +18,7 @@ typedef struct {
 		
 } GenSubObj;
 
-//#if TARGET_CPU_PPC
-	#pragma options align=reset
-//#endif
-
+#pragma options align=reset
 
 LINK CopyModNRList(Document *, Document *, LINK);
 LINK DuplicateObject(short,LINK,Boolean,Document *src,Document *dst,Boolean keepGraphics);

@@ -183,9 +183,6 @@ Boolean TrackHairpin(Document *doc, LINK pL, Point pt, Point *endPt, Boolean lef
 	PenNormal();
 
 	if (ABS(newPt.h-oldPt.h)<HAIRPIN_MINLEN) return FALSE;
-#ifdef NO_CROSS_SYSTEM_HAIR_THINGS
-	else if (!PtInRect(newPt, &tRect)) return FALSE;	/* Mouse must still be in System */
-#endif
 	else return TRUE;
 }
 

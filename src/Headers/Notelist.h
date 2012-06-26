@@ -304,6 +304,3 @@ Boolean FetchString(NLINK offset, char str[]);
 Boolean FetchModifier(NLINK modL, PNL_MOD pMod);
 void DisposNotelistMemory(void);
 
-/* in nlparse.c */
-//Boolean NL2XMLParseNotelistFile(Str255 fileName, NSClientDataPtr pNSD)
-

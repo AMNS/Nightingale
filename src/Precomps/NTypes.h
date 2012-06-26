@@ -14,10 +14,7 @@
 #ifndef TypesIncluded
 #define TypesIncluded
 
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
-
+#pragma options align=mac68k
 
 /* ----------------------------- Data-structure Things ----------------------------- */
 
@@ -1648,9 +1645,6 @@ typedef struct DocPrintInfo {
 //	NDocDrawPageProc	docDrawPageProc;
 } DocPrintInfo, *DocPrintInfoPtr;
 
-
-//#if TARGET_CPU_PPC
-	#pragma options align=reset
-//#endif
+#pragma options align=reset
 
 #endif /* TypesIncluded */

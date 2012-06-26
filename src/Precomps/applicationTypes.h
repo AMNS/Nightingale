@@ -5,9 +5,7 @@
 // MAS
 
 // MAS we want to /always/ use mac68k alignment
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
+#pragma options align=mac68k
 
 #define DOCUMENTHEADER	\
 	Point			origin;				/* Current origin of Document window */					\
@@ -485,6 +483,4 @@ struct SysEnvRec {
 };
 typedef struct SysEnvRec                SysEnvRec;
 
-//#if TARGET_CPU_PPC
-	#pragma options align=reset
-//#endif
+#pragma options align=reset

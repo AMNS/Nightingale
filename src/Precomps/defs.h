@@ -535,13 +535,6 @@ with MAX_TSDENOM, above! */
 
 /* ------------------------------------------------ MISCELLANEOUS SYSTEM-DEPENDENT -- */
 
-// MAS : we *are* on a Mac
-//#ifndef OS_MAC
-
-//#error MAC OS-ONLY CODE
-
-//#else
-
 /* Standard font names */
 
 #define SYSFONTID_SANSSERIF	kFontIDGeneva			/* Universal Interfaces 3.0.1 */
@@ -557,21 +550,5 @@ with MAX_TSDENOM, above! */
 #define GetWindowType(wind)		  ( ((WindowPeek)(wind))->windowKind-userKind-1 )
 #define SetWindowType(wind,type)	((WindowPeek)(wind))->windowKind = (type)+userKind+1
 
-/* Low-memory globals should no longer be used at all. Cf. <LowMem.h>; however,
-that defines LMGetPortBUse and LMSetPortBUse, but not the equivalents for port A. */
-
-// MAS : low-memory globals are obsolete
-//#ifdef NO_LONGER_USED
-//extern long MLM_Keymap : 0x174L;
-//#endif
-
-/* Macintosh low-memory global variables (formerly in SysEqu.h) */
-
-//extern unsigned char MLM_PortAUse : 0x290;	/* bit 7: 1=not in use, 0=in use */
-//extern unsigned char MLM_PortBUse : 0x291;	/* bit 7: 1=not in use, 0=in use */
-// MAS
-
 #define PORT_IS_FREE(portStatus) ((portStatus & 0x80)!=0)
 
-//#endif /* OS_MAC */
-// MAS

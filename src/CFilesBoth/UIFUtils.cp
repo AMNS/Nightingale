@@ -508,14 +508,10 @@ keys are ignored. ??Should be internationalized! */
 
 Boolean UserInterrupt()
 {
-#ifndef OS_MAC
-#error MAC OS-ONLY CODE
-#else
 	if (!CmdKeyDown()) return FALSE;
 	if (!KeyIsDown(47)) return FALSE;
 	
 	return TRUE;
-#endif
 }
 
 
@@ -525,14 +521,10 @@ keys are ignored. ??Should be internationalized! */
 
 Boolean UserInterruptAndSel()
 {
-#ifndef OS_MAC
-#error MAC OS-ONLY CODE
-#else
 	if (!CmdKeyDown()) return FALSE;
 	if (!KeyIsDown(44)) return FALSE;
 	
 	return TRUE;
-#endif
 }
 
 

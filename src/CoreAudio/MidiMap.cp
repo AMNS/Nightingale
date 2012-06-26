@@ -19,12 +19,9 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-// MAS
-//#include <Fsp_fopen.h>
 #include "FileUtils.h"
 // MAS
 
-//#include "MidiGeneral.h"
 #include "MidiMap.h"
 
 

@@ -329,19 +329,8 @@ void DrawChordSym(Document *doc,
 			/* Draw 3 extension stack strings, each level center justified and enclosed in parentheses.
 			 * First determine justification by calling Draw1Extension with draw=FALSE.
 			 */
-#ifdef NO_MORE_CENTER_JUST
-			wid1 = Draw1Extension(doc, extStk1Str, 0, 0, "\p", "\p", musSmallSize,
-											csFont, csSmallSize, csFace, 0, FALSE, showParens, FALSE);
-			wid2 = Draw1Extension(doc, extStk2Str, 0, 0, "\p", "\p", musSmallSize,
-											csFont, csSmallSize, csFace, 0, FALSE, showParens, FALSE);
-			wid3 = Draw1Extension(doc, extStk3Str, 0, 0, "\p", "\p", musSmallSize,
-											csFont, csSmallSize, csFace, 0, FALSE, showParens, FALSE);
-			start2 = ((wid1-wid2)>>1);						/* start of 2nd stk, relative to 1st */
-			start3 = ((wid1-wid3)>>1);						/* start of 3rd stk, relative to 1st */
-#else
 			start2 = start3 = 0;
 			wid1 = wid2 = wid3 = 0;
-#endif
 
 			stkLineHt = finfo.ascent + finfo.descent + finfo.leading; /* finfo of csFont, csSmallSize */
 			/* To allow for the greater ascent and descent of accidentals, increase
@@ -553,19 +542,8 @@ void DrawChordSym(Document *doc,
 			/* Draw 3 extension stack strings, each level center justified and enclosed in parentheses.
 			 * First determine justification by calling Draw1Extension with draw=FALSE.
 			 */
-#ifdef NO_MORE_CENTER_JUST
-			wid1 = Draw1Extension(doc, extStk1Str, 0, 0, musFontName, csName, musSmallSize,
-											csFont, csSmallSize, csFace, 0, FALSE, showParens, FALSE);
-			wid2 = Draw1Extension(doc, extStk2Str, 0, 0, musFontName, csName, musSmallSize,
-											csFont, csSmallSize, csFace, 0, FALSE, showParens, FALSE);
-			wid3 = Draw1Extension(doc, extStk3Str, 0, 0, musFontName, csName, musSmallSize,
-											csFont, csSmallSize, csFace, 0, FALSE, showParens, FALSE);
-			start2 = ((wid1-wid2)>>1);						/* start of 2nd stk, relative to 1st */
-			start3 = ((wid1-wid3)>>1);						/* start of 3rd stk, relative to 1st */
-#else
 			start2 = start3 = 0;
 			wid1 = wid2 = wid3 = 0;
-#endif
 
 			TextFont(csFont);  TextSize(csSmallSize);  TextFace(csFace);
 			GetFontInfo(&finfo);

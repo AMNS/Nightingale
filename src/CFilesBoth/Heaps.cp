@@ -106,9 +106,6 @@ char *LinkToPtr(HEAP *heap, LINK link)
 	 *	Rough C equivalent (this throws away high-order 16 bits, which we need to keep):
 	 *		return ( ((char *)(*(heap)->block)) + ((heap)->objSize*(link)) );
 	 */
-#ifndef OS_MAC
-#error MAC OS-ONLY CODE
-#else
 	asm {
 		MOVEA.L    heap,A0               
 		MOVE.W     OFFSET(HEAP,objSize)(A0),D0               
@@ -116,7 +113,6 @@ char *LinkToPtr(HEAP *heap, LINK link)
 		MOVEA.L    OFFSET(HEAP,block)(A0),A0                    
 		ADD.L      (A0),D0                    
 		}
-#endif                               
 }
 #endif /* LinkToPtrFUNCTION */
 

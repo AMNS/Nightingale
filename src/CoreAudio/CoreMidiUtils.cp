@@ -156,25 +156,6 @@ MIDIPacket *PeekAtNextCMMIDIPacket(Boolean first)
 		
 	return gPeekedPkt;
 
-/*			
-	if (CMValidCurrentPacket()) {
-		if (first) {
-			gPeekedPkt = gCurrentPacket;
-		}
-		else if (!IsActiveSensingPacket(gPeekedPkt)) {
-			gPeekedPkt = MIDIPacketNext(gPeekedPkt);
-		}
-		else {
-			gPeekedPkt = NULL;
-		}
-		
-	}
-	else {
-		gPeekedPkt = NULL;
-	}
-		
-	return gPeekedPkt;
-*/
 }
 
 /* -------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
