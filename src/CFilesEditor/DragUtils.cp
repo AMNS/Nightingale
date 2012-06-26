@@ -526,7 +526,6 @@ static GrafPtr SDGetGrafPorts(Rect r)
 Rect GetSysRect(Document *doc, LINK pL)
 {
 	LINK sysL; PSYSTEM pSystem; DRect sysR; Rect r;
-	WindowPtr w=doc->theWindow;
 	
 	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	pSystem = GetPSYSTEM(sysL);
@@ -544,7 +543,6 @@ Rect GetSysRect(Document *doc, LINK pL)
 Rect GetMeasRect(Document *doc, LINK measL)
 {
 	PMEASURE	pMeasure; Rect mRect;
-	WindowPtr w=doc->theWindow;
 	
 	pMeasure = GetPMEASURE(measL);
 	mRect = pMeasure->measureBBox;
@@ -561,7 +559,6 @@ doc's portRect. */
 Rect Get2MeasRect(Document *doc, LINK meas1, LINK meas2)
 {
 	PMEASURE	pMeasure; Rect mRect, mRect1, mRect2;
-	WindowPtr w=doc->theWindow;
 	
 	pMeasure = GetPMEASURE(meas1);
 	mRect1 = pMeasure->measureBBox;
@@ -659,7 +656,6 @@ Rect SDGetMeasRect(Document *doc, LINK pL, LINK measL)
 
 GrafPtr NewMeasGrafPort(Document *doc, LINK measL)
 {
-	WindowPtr w=doc->theWindow;
 	Rect		mBBox;
 	GrafPtr	oldPort, ourPort;
 	
@@ -679,7 +675,6 @@ GrafPtr NewMeasGrafPort(Document *doc, LINK measL)
 
 GrafPtr New2MeasGrafPort(Document *doc, LINK measL)
 {
-	WindowPtr w=doc->theWindow;
 	LINK		prevMeasL;
 	Rect		mBBox;
 	GrafPtr	oldPort, ourPort;
@@ -747,7 +742,6 @@ GrafPtr NewBeamGrafPort(Document *doc, LINK beamL, Rect *beamRect)
 GrafPtr SetupMeasPorts(Document *doc, LINK measL)
 {
 	Rect 		mRect,dstRect;
-	WindowPtr w=doc->theWindow;
 	
 	underBits = NewMeasGrafPort(doc, measL);
 	offScrBits = NewMeasGrafPort(doc, measL);
@@ -772,7 +766,6 @@ GrafPtr Setup2MeasPorts(Document *doc, LINK measL)
 {
 	Rect 		twoMeasRect,dstRect;
 	LINK		prevMeasL;
-	WindowPtr w=doc->theWindow;
 	
 	underBits = New2MeasGrafPort(doc, measL);
 	offScrBits = New2MeasGrafPort(doc, measL);
@@ -798,7 +791,6 @@ GrafPtr SetupNMeasPorts(Document *doc, LINK startL, LINK endL)
 {
 	Rect 		mBBox,dstRect;
 	LINK		firstMeasL, lastMeasL;
-	WindowPtr w=doc->theWindow;
 	
 	firstMeasL = LSSearch(startL, MEASUREtype, 1, GO_LEFT, FALSE);
 	lastMeasL = LSSearch(endL, MEASUREtype, 1, GO_LEFT, FALSE);
@@ -821,7 +813,6 @@ GrafPtr SetupNMeasPorts(Document *doc, LINK startL, LINK endL)
 GrafPtr SetupSysPorts(Document *doc, LINK pL)
 {
 	Rect dstRect, r;
-	WindowPtr w=doc->theWindow;
 	
 	r = GetSysRect(doc, pL);
 	if (!SDGetGrafPorts(r)) return NULL;

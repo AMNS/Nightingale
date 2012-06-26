@@ -174,7 +174,6 @@ static NavEventUPP GetNavSaveFileEventUPP()
 void HandleNewButton(ControlHandle theButton, NavCBRecPtr callBackParms)
 {
 	OSErr 	theErr = noErr;
-	short 	selection = 0;
 
 	theErr = NavCustomControl(callBackParms->context,kNavCtlCancel,NULL);
 
@@ -295,7 +294,6 @@ static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSel
 		case kNavCBStart:
 			{
 				UInt16 firstItem = 0;	
-				short	realItem = 0;
 				OSStatus theErr = noErr;
 				
 				// add the rest of the custom controls via the DITL resource list:
@@ -428,8 +426,6 @@ static void NSHandleSaveEvent(NavCBRecPtr callbackParms)
 //
 static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUserAction, void *inContextData )
 {
-	OSStatus	status = noErr;
-
 	// We only have to handle the user action if the context data is non-NULL, which
 	// means it is an action that applies to a specific document.
 	if ( inContextData != NULL )

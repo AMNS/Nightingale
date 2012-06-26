@@ -78,7 +78,6 @@ void QuickScroll(register Document *doc, register short dx, register short dy,
 		Rect src,dst,r,vRect,hRect,*nextRect,*nr,screen,portRect;
 		WindowPtr w; Point pt; GrafPtr oldPort;
 		short width, height,cVal,cMax,cMin,nUpdates,i,nScreens;
-		static Rect empty = { 0, 0, 0, 0 };
 		
 		w = doc->theWindow;
 		GetPort(&oldPort); SetPort(GetWindowPort(w));

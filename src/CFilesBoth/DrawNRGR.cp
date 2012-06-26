@@ -252,7 +252,6 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 {
 	PANOTE	theNote;
 	DDIST 	xdStart, xdDots, dhalfLn;
-	short		ndots;
 	char		lDur;
 
 	theNote = GetPANOTE(theNoteL);
@@ -306,9 +305,7 @@ static void DrawAugDots(Document *doc,
 	PANOTE	theNote;
 	DDIST 	xdDots, ydDots, dhalfLn;
 	short		ndots, xpDots, yp;
-	char		lDur;
 	Boolean	dim;				/* Should it be dimmed bcs in a voice not being looked at? */
-	Boolean doNoteheadGraphs;
 	Byte		glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	theNote = GetPANOTE(theNoteL);
@@ -701,8 +698,7 @@ void DrawNoteheadGraph(Document *doc,
 				xorg, yorg,
 				yTop, yBottom;
 	QDIST		qdLen;
-	Rect		graphRect, segRect,
-				rSub;					/* bounding box for subobject */
+	Rect		graphRect, segRect;
 	long		resFact;
 	Point		pt;
 	short		segColor[50];
@@ -2365,7 +2361,6 @@ void DrawGRSYNC(Document *doc, LINK pL, CONTEXT context[])
 	PCONTEXT		pContext;
 	Boolean		drawn;			/* FALSE until a subobject has been drawn */
 	Boolean		recalc;			/* TRUE if we need to recalc enclosing rectangle */
-	Point			enlarge = {0,0};
 	
 	drawn = FALSE;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);

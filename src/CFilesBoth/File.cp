@@ -1518,7 +1518,7 @@ the total size of all resources saved, rounded up to sector size. */
 
 static long GetFileSize(Document *doc, long vAlBlkSize)
 {
-	unsigned short objCount[LASTtype], i, numMods=0, nHeaps;
+	unsigned short objCount[LASTtype], i, nHeaps;
 	long fileSize=0L, strHdlSize, blkMod, rSize;
 	LINK pL;
 	Handle stringHdl;
@@ -1636,7 +1636,7 @@ to do. */
 
 static short GetSaveType(Document *doc, Boolean saveAs)
 {
-	Boolean keepGoing = TRUE,canContinue;
+	Boolean canContinue;
 	long fileSize,freeSpace,oldFileSize,vAlBlkSize;
 	
 	/* If doc->new, no previous document to protect from the save operation.

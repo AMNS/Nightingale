@@ -760,7 +760,7 @@ short GetMyScreen(Rect *r, Rect *bnds)
 void PlaceAlert(short id, WindowPtr w, short left, short top)
 	{
 		Handle alrt; Rect r,inside,bounds;
-		Boolean sect; long maxArea=0L;
+		Boolean sect;
 		
 		/*
 		 * This originally used Get1Resource, but it should get the ALRT from any

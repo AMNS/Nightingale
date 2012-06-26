@@ -852,7 +852,6 @@ static void GetInitialDefaultOutputDevice()
 	
 	MIDIEndpointRef dest = NULL;
 	MIDIEndpointRef d = NULL;
-	OSStatus err = noErr;
 	
 	int n = MIDIGetNumberOfDestinations();
 	int i = 0;

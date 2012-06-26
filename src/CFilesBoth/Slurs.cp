@@ -397,7 +397,7 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end,
 						DPoint *c0, DPoint *c1, short type, DPoint *q, short curve)
 	{
 		DPoint p, tmp; DPoint *test; DDIST dist, dist4, dist8, dx, dy;
-		Boolean first=TRUE, shift=FALSE,up,constrain,knotConstrain,horiz,
+		Boolean first=TRUE,up,constrain,knotConstrain,horiz,
 					stillWithinSlop;
 		Point pt, origPt; short xdiff,ydiff;
 		

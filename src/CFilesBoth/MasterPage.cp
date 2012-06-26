@@ -294,7 +294,6 @@ static void MPFixSystemRectYs(Document *doc)
 {
 	LINK sysL,masterSysL, firstSysL; PSYSTEM pSystem;
 	DDIST sysHeight, sysTop, topMargin, firstMargin;
-	Boolean firstSys=TRUE;
 	DDIST	masterSysTop, sysBottom, masterSysBottom;
 	DDIST lastSysBottom, yBetweenSys;
 	

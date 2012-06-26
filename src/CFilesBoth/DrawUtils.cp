@@ -119,7 +119,6 @@ void DrawMChar(
 		Boolean	dim 					/* Should character be dimmed? */
 		)
 {
-	static short lastMagnify=MAX_MAGNIFY;
 	Point pt;
 	GrafPtr oldPort; PenState pnState;
 

@@ -178,7 +178,7 @@ void FixCursor()
 	WindowPtr		wp;
 	CursHandle		newCursor;
 	Document			*doc;
-	static short	x,y,xOld,yOld,dx,dy,dxOld,dyOld,shaker,shookey;
+	static short	x,xOld,dx,dxOld,shaker,shookey;
 	static long 	now,soon,nextcheck;
 	PaletteGlobals *toolPalette;
 	char			message[256];

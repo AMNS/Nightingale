@@ -114,7 +114,6 @@ void DeleteSelObjs(Document *);
 
 Boolean DoMenu(long menuChoice)
 	{
-		static Boolean copyProtProblem=FALSE;
 		register short choice; short menu;
 		Boolean keepGoing = TRUE;
 		
@@ -2209,8 +2208,6 @@ static void FixFileMenu(Document *doc, short nSel)
 										&& doc!=clipboard && !doc->masterView);
 		XableItem(fileMenu,FM_SaveAs,doc!=NULL && doc!=clipboard && !doc->masterView);
 		XableItem(fileMenu,FM_Extract,doc!=NULL && doc!=clipboard);
-		short numOpenDocs = NumOpenDocuments();
-		//XableItem(fileMenu,FM_Import,numOpenDocs == 0);
 
 		// always disable NoteScan import until it has been removed from menu (rsrc) entirely
 		XableItem(fileMenu,FM_GetScan,FALSE);
@@ -2523,7 +2520,8 @@ static void FixMoveMeasSys(Document *doc)
 
 static void FixScoreMenu(Document *doc, short nSel)
 	{
-		Boolean canAddSystem=FALSE; LINK insertL; short where;
+		LINK insertL; 
+		short where;
 		Str255 str;
 	
 		UpdateMenu(scoreMenu, doc!=NULL && doc!=clipboard);

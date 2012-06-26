@@ -93,7 +93,6 @@ void GetInsRect(Document *doc, LINK startL, Rect *tRectp)
 				sysRect;
 	PSYSTEM	pSystem;
 	LINK		pSystemL;
-	WindowPtr w=doc->theWindow;
 
 	/* Get current view in paper-relative coords for current sheet */
 	docRect = doc->viewRect;

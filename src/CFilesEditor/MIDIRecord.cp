@@ -909,16 +909,12 @@ static void RecordBuffer(
 					long *ptLeadInOffset	/* output: duration of lead-in time (PDUR ticks); -1L=to 1st note */
 					)
 {
-	long				msPerBeat, mdata, ignoredRTM, microbeats, maxMS, elapsedMS;
+	long				msPerBeat, ignoredRTM, microbeats, maxMS, elapsedMS;
 	long				oldRecIndex, timeMS, nextClickMS, startClickMS,
-						beatCount, timeStamp;
+						beatCount;
 	register long	r;
 	Boolean			done;
-	Byte				midiByte;
-	short				midiWord;
 	char				fmtStr[256];
-	unsigned short	outBufSize;
-	short				npBufSize;
 
 	msPerBeat = (1000*60L)/tempo;
 	beatCount = 0L;

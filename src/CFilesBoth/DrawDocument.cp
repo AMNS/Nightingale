@@ -47,7 +47,6 @@ void DrawDocumentControls(Document *doc)
 void DrawDocumentView(Document *doc, Rect *updateRect)
 	{
 		Rect updater,margin,paper,result;
-		WindowPtr w = doc->theWindow;
 		short i;
 		
 		if (doc->showWaitCurs) WaitCursor();

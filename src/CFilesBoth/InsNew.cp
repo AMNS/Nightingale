@@ -717,7 +717,7 @@ void NewGraphic(
 	short sym, graphicType, fontInd;
 	LINK newL, aGraphicL, pageL; CONTEXT context; DDIST xd, yd;
 	PGRAPHIC pGraphic; PAGRAPHIC aGraphic;
-	short ans, patchNum, panSetting;
+	short patchNum, panSetting;
 	unsigned char midiPatch[16];
 	
 PushLock(OBJheap);

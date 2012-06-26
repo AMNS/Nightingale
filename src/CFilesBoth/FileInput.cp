@@ -175,9 +175,6 @@ Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 	aNote->visible = visible;
 	
 	return TRUE;
-broken:
-	MayErrMsg("FIInsertWholeMeasRest: error creating whole-measure rest on staff %d", staffn);
-	return FALSE;
 }
 
 

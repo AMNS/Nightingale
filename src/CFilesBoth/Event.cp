@@ -294,7 +294,6 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 		WindowPtr w; short itemHit;
 		ScrapRef scrap;
 		static Boolean wasOurWindow;
-		static short lastCount;
 		WindowPtr curAct;
 		Document *doc;
 		DialogPtr d;
@@ -711,9 +710,8 @@ with separately.  Routine delivers whether to continue event loop or not. */
 static Boolean DoKeyDown(EventRecord *event)
 	{
 		short ch,itemHit,key; short nparts; WindowPtr wp;
-		Boolean keepGoing = TRUE,scoreView;
+		Boolean scoreView;
 		Document *doc = GetDocumentFromWindow(TopDocument);
-		MenuHandle hMenu = editMenu;
 		unsigned long cmdCode;
 		
 		ch = (unsigned)(event->message & charCodeMask);

@@ -483,7 +483,6 @@ static LINK GetConnectForFirstPart(Document *doc, LINK firstPartL, LINK connectL
 		PACONNECT aConnect = GetPACONNECT(aConnectL);
 		aConnect->connLevel = PartLevel;
 		aConnect->connectType = CONNECTCURLY;
-		DDIST dLineSp = STHEIGHT/(STFLINES-1);								/* Space between staff lines */
 		aConnect->xd = -ConnectDWidth(doc->srastralMP, CONNECTCURLY);
 		aConnect->staffAbove = connStf;
 		aConnect->staffBelow = connStf;

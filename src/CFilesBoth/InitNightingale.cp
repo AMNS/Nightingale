@@ -72,7 +72,6 @@ static Boolean DoSplashScreen()
 {
 	DialogPtr dlog; GrafPtr oldPort;
 	short aShort; Handle aHdl; Rect aRect;
-	char serialStr[256];
 
 	GetPort(&oldPort);
 	dlog = GetNewDialog(OWNER_DLOG, NULL, BRING_TO_FRONT);
@@ -185,7 +184,6 @@ static short InitEndingStrings()
 
 static Boolean InitNightGlobals()
 {
-	long		*locZero=0;
 	char		fmtStr[256];
 	short		j;
 	

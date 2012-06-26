@@ -377,7 +377,6 @@ static Boolean PostMidiSustain(Document *doc, LINK pL, Boolean susOn)
 {
 	Boolean posted = FALSE;
 						
-	PGRAPHIC pGraphic = GetPGRAPHIC(pL);
 	short stf = GraphicSTAFF(pL);
 	if (stf > 0) 
 	{
@@ -397,7 +396,6 @@ static Boolean PostMidiPan(Document *doc, LINK pL)
 {
 	Boolean posted = FALSE;
 	
-	PGRAPHIC pGraphic = GetPGRAPHIC(pL);
 	short stf = GraphicSTAFF(pL);
 	if (stf > 0) 
 	{
@@ -472,7 +470,6 @@ static long long GetSustainSecs()
 
 static void ResetMidiSustain(Document *doc, unsigned char *partChannel) 
 {
-//	MIDITimeStamp tStamp = 5000L * kNanosToMillis;
 	
 	long long secs = GetSustainSecs();
 	MIDITimeStamp tStamp = TimeStampSecsFromNow(secs);
@@ -493,9 +490,7 @@ static void ResetMidiSustain(Document *doc, unsigned char *partChannel)
 
 static void ResetMidiPan(Document *doc, unsigned char *partChannel) 
 {
-//	MIDITimeStamp tStamp = 5000L * kNanosToMillis;
 
-	long long secs = GetSustainSecs();	
 	MIDITimeStamp tStamp = TimeStampSecsFromNow(0);
 	
 	for (int j = 1; j<=MAXSTAVES; j++) {
@@ -678,7 +673,6 @@ void PlaySequence(
 	LINK			pL, oldL, showOldL, aNoteL;
 	LINK			systemL, pageL, measL, newMeasL;
 	CursHandle	playCursor;
-	short			i;
 	short			useNoteNum,
 					useChan, useVelo;
 	long			t,
@@ -698,10 +692,7 @@ void PlaySequence(
 
 	short			useIORefNum;					/* NB: can be fmsUniqueID */
 	Byte			partPatch[MAXSTAVES];
-	Byte			partBankSel0[MAXSTAVES];	/* bank select for FreeMIDI only */
-	Byte			partBankSel32[MAXSTAVES];
 	short			partIORefNum[MAXSTAVES];
-	fmsUniqueID partDevice[MAXSTAVES];
 
 	short			oldCurrentSheet, tempoCount, barTapSlopMS;
 	EventRecord	theEvent;

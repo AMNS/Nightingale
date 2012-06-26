@@ -1327,7 +1327,6 @@ PopLock(DYNAMheap);
 void DrawRPTEND(Document *doc, LINK pL, CONTEXT context[])
 {
 	DDIST			xd, yd;
-	STFRANGE		stfRange = {0,0};
 	Boolean		drawn,
 					dotsOnly;		/* TRUE=don't draw barline proper, only repeat dots */
 	LINK			aRptL;

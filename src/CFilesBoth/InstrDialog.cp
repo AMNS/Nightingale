@@ -132,13 +132,9 @@ struct scaleTblEnt *noteInfo[T_TRNS_B];
 static short sLeft, sTop;
 
 static Rect noteNameRect;					/* Valid in all cases, OMS or not */
-static OMSDeviceMenuH omsOutputMenuH;
 
 static unsigned long *origMPDevice;		/* can be either MIDIUniqueID, OMSUniqueID or fmsUniqueID */
-static Rect deviceMenuBox, patchMenuBox;
-static fmsUniqueID fmsDeviceID = noUniqueID;
-static short fmsChannel = 0;
-static Boolean fmsSendPatchChange = FALSE;
+static Rect deviceMenuBox;
 
 /* default for range */
 static rangeMaster dfault =
@@ -160,7 +156,6 @@ static rangeMaster dfault =
 
 const short 					kCMPopupID = 300;
 
-static Rect						outputDeviceMenuBox;
 static MenuHandle 			cmOutputMenuH;
 static UserPopUp				cmOutputPopup;
 static MIDIUniqueIDVector 	*cmVecDevices;
@@ -570,7 +565,6 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, shor
 	Boolean			filterVal = FALSE;
 	Cell 			lSelection;
 	short			range, part;
-	short			omsMenuItem;
 	
 	switch(theEvent->what)
 	{
@@ -694,7 +688,7 @@ static void ShowLSelect(DialogPtr theDialog, short cell)
 	extern rangeHandle rangeHdl;
 	extern rangeMaster master;
 	rangeMaster *selectedInstr;
-	Str255 theText, deviceStr;
+	Str255 theText;
 	short r;
 	
 	if (cell < 0) return;								/* minimal sanity check */
@@ -926,7 +920,6 @@ static void InstrMoveRange(
 
 static void ClickEraseRange()
 {
-	extern struct scaleTblEnt scaleTbl[];
 	extern struct scaleTblEnt *noteInfo[3];
 	extern rangeMaster master;
 	extern short octTbl[];
@@ -1403,7 +1396,6 @@ void InitRange(
 	 * is currently displayed  by the drawing functions.
 	 */
 	 
-	extern short octTbl[12];
 	struct scaleTblEnt *savedp;
 	short r, i, pc, found;
 	Boolean useDefault;
@@ -1780,7 +1772,6 @@ pascal Boolean TheOMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 	GrafPtr		oldPort;
 	Point 		mouseLoc;
 	Boolean		filterVal = FALSE;
-	short			omsMenuItem;
 	short			type;
 	Handle		hndl;
 	Rect			box;

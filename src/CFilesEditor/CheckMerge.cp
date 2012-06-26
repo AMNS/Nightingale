@@ -101,7 +101,6 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	{
 		Boolean ans=FALSE,doHilite=FALSE; WindowPtr w;
 		short type,ch; Handle hndl; Rect box;
-		static long then; static Point clickPt;
 		
 		w = (WindowPtr)(evt->message);
 		switch(evt->what) {

@@ -60,9 +60,6 @@ static MenuHandle			cmInputMenuH;
 static UserPopUp			cmInputPopup;
 static MIDIUniqueIDVector *cmVecDevices;
 static Boolean				omsInputDeviceChanged;
-static Boolean				omsInputDeviceValid;
-static fmsUniqueID		fmsInputDevice = noUniqueID;
-static short				fmsInputChannel = 0;
 
 static Rect divRect1, divRect2;
 
@@ -151,7 +148,6 @@ static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
 	Handle	hndl;
 	Rect		box;
 	Point		mouseLoc;
-	short		omsMenuItem;
 	short		ans = 0;
 
 	switch (theEvent->what) {
@@ -213,7 +209,6 @@ void MIDIDialog(Document *doc)
 	Handle aHdl, patchHdl, turnHdl;
 	Boolean docDirty = FALSE;
 	char fmtStr[256];
-	Str255 deviceStr;
 	short scratch;
 	ModalFilterUPP	filterUPP;
 	
@@ -758,7 +753,6 @@ problem before delivering TRUE. */
 static Boolean MetroBadValues(DialogPtr dlog)
 {
 	short val; Boolean bad=FALSE;
-	char fmtStr[256];
 
 	GetDlgWord(dlog,EDIT7_Chan,&val);
 	if (useWhichMIDI == MIDIDR_CM) {
@@ -1520,140 +1514,3 @@ Boolean MIDIModifierDialog(Document */*doc*/)
 
 	return (ditem==OK);
 }
-
-
-/* ------------------------------------------------------------- MIDIDriverDialog -- */
-/* Setup dialog for MIDI Pascal for Macintosh. Should also be useful for similar
-simple MIDI drivers. Returns TRUE if OK'd, FALSE if Cancelled or there's a problem. */
-
-
-static enum {						/* Dialog item numbers */
-	MIDI_OK=1,
-	MIDI_CANCEL,
-	MIDI_MODEM_PORT,
-	MIDI_PRINTER_PORT,
-	MIDI_P5MHZ,
-	MIDI_1MHZ,
-	MIDI_2MHZ,
-	MIDI_FAST,
-	MIDI_WAKEPORTS
-} E_MIDIDriverItems;
-
-Boolean MIDIDriverDialog(
-		short *pPortSetting,			/* MODEM_PORT or PRINTER_PORT */
-		short *pInterfaceSpeed)		/* IFSPEEDP5MHZ, IFSPEED1MHZ, IFSPEED2MHZ, IFSPEED_FAST */
-{
-	short			ditem, oldPortSetting;
-	short			group1, group2;	 
-	Boolean		finished = FALSE;
-	GrafPtr		savePort;
-	DialogPtr	dlog;
-	short			itemtype;
-	Rect			box;
-	Handle		onHdl;
-	ModalFilterUPP	filterUPP;
-	 
-#ifndef PUBLIC_VERSION
-//	DebugPrintf("PortAUse=0x%x PortBUse=0x%x\n", MLM_PortAUse, MLM_PortBUse);
-#endif
-
-	/* If parameters are outside legal range, force them in. */
-	
-	if (*pPortSetting<MODEM_PORT || *pPortSetting>PRINTER_PORT)
-		*pPortSetting = MODEM_PORT;
-	if ((*pInterfaceSpeed<IFSPEEDP5MHZ || *pInterfaceSpeed>IFSPEED2MHZ)
-	&&  *pInterfaceSpeed!=IFSPEED_FAST)
-		*pInterfaceSpeed = IFSPEED1MHZ;
-	
-	oldPortSetting = *pPortSetting;
-	
-	filterUPP = NewModalFilterUPP(OKButFilter);
-	if (filterUPP == NULL) {
-		MissingDialog(MIDI_DRIVER_DLOG);
-		return FALSE;
-	}
-	GetPort(&savePort);
-	dlog = GetNewDialog(MIDI_DRIVER_DLOG, NULL, BRING_TO_FRONT);
-	if (!dlog) {
-		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(MIDI_DRIVER_DLOG);
-		return FALSE;
-	}
-	SetPort(GetDialogWindowPort(dlog));
-	
-	/* Set up radio button groups. */
-
-	group1 = (*pPortSetting==MODEM_PORT? MIDI_MODEM_PORT : MIDI_PRINTER_PORT);
-	PutDlgChkRadio(dlog, group1, TRUE);
-
-	switch (*pInterfaceSpeed) {
-		case IFSPEEDP5MHZ:	group2 = MIDI_P5MHZ; break;
-		case IFSPEED1MHZ:		group2 = MIDI_1MHZ; break;
-		case IFSPEED2MHZ:		group2 = MIDI_2MHZ; break;
-		case IFSPEED_FAST:	group2 = MIDI_FAST; break;
-		default:					;
-	}
-	PutDlgChkRadio(dlog, group2, TRUE);
-
-	CenterWindow(GetDialogWindow(dlog), 70);
-	ShowWindow(GetDialogWindow(dlog));
-	ArrowCursor();
-	
-	while (!finished)
-	{
-		ModalDialog(filterUPP, &ditem);
-		switch (ditem)
-		{
-			case MIDI_OK:
-				finished = TRUE;
-				if (group1!=MIDI_MODEM_PORT)
-					CautionInform(BIMIDI_PRINTERPORT_ALRT);	/* "WARNING: If you use the modem port for communications while..." */
-				*pPortSetting = (group1==MIDI_MODEM_PORT? MODEM_PORT : PRINTER_PORT);
-				switch (group2) {
-					case MIDI_P5MHZ:	*pInterfaceSpeed = IFSPEEDP5MHZ; break;
-					case MIDI_1MHZ:	*pInterfaceSpeed = IFSPEED1MHZ; break;
-					case MIDI_2MHZ:	*pInterfaceSpeed = IFSPEED2MHZ; break;
-					case MIDI_FAST:	*pInterfaceSpeed = IFSPEED_FAST; break;
-					default:				;
-				}
-				break;
-			
-			case MIDI_CANCEL:
-			  	*pPortSetting = oldPortSetting;
-				
-				finished = TRUE;
-				break;
-				
-			case MIDI_MODEM_PORT:
-			case MIDI_PRINTER_PORT:
-				if (ditem!=group1)
-					SwitchRadio(dlog, &group1, ditem);
-				break;
-			case MIDI_P5MHZ:
-			case MIDI_1MHZ:
-			case MIDI_2MHZ:
-			case MIDI_FAST:
-				if (ditem!=group2)
-					SwitchRadio(dlog, &group2, ditem);
-				break;
-			case MIDI_WAKEPORTS:
-				/*
-				 * If either port is busy, don't wake it. Don't bother telling the user:
-				 * if they actually try to use the port, they should be told it's not
-				 * available (cf. BIMIDIPortIsBusy).
-				 */
-//				if (PORT_IS_FREE(MLM_PortAUse))
-//					AOn();
-//				if (PORT_IS_FREE(MLM_PortBUse))
-//					BOn();
-				break;
-			default:
-				;							
-		}
-	}
-	
-	DisposeModalFilterUPP(filterUPP);
-	DisposeDialog(dlog);
-	SetPort(savePort);
-	return (ditem==OK);		
-} 

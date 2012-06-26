@@ -262,11 +262,6 @@ Boolean SetupSoftMIDI(Byte *activeChannel)
 											&ioDataSize
 											), home);
 	}
-    
-	if (debug) {
-		AUGraph graphLocal = graph;
-		AudioUnit synthUnitLocal = synthUnit;
-	}
 	
 	require_noerr (result = AUMIDIControllerMapChannelToAU(auMidiController, -1, synthUnit, -1, true), home);
 	
@@ -331,9 +326,6 @@ Boolean SetupSoftMIDI(const char *bankPath, Byte *activeChannel)
 	//CAShow (graph); // prints out the graph so we can see what it looks like...
 	
 	require_noerr (result = AUGraphStart (graph), home);
-
-	AUGraph graphLocal = graph;
-	AudioUnit synthUnitLocal = synthUnit;
  
 home:
 	return (result == noErr);
@@ -361,9 +353,6 @@ OSStatus SoftMIDISendMIDIEvent(MIDITimeStamp tStamp, UInt16 pktLen, Byte *data)
 	if (pktLen > 2)
 		b2 = data[2];
 		
-	AUGraph graphLocal = graph;
-	AudioUnit synthUnitLocal = synthUnit;
- 
 	OSStatus result = MusicDeviceMIDIEvent(synthUnit, b0, b1, b2, 0);
 	
 	return result;

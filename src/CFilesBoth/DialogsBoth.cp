@@ -246,7 +246,6 @@ static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, short *itemHi
 			break;
 		case activateEvt:
 			if (w == GetDialogWindow(dlog)) {
-				short activ = (evt->modifiers & activeFlag)!=0;
 				SetPort(GetWindowPort(w));
 			}
 			break;

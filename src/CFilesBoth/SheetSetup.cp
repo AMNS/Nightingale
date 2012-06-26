@@ -148,7 +148,6 @@ in the given document, etc. */
 static Boolean AnyBadValues(DialogPtr dlog, register Document *doc)
 	{
 		short numRows,numCols,maxCols,maxRows;
-		long maxWidth = 32767L, maxHeight = 32767L;
 		Rect paperRect;
 		
 		/* First check for empty items */

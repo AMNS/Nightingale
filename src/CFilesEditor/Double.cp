@@ -60,7 +60,6 @@ static pascal Boolean DoubleFilter(DialogPtr dlog, EventRecord *evt, short *item
 			break;
 		case activateEvt:
 			if (w == GetDialogWindow(dlog)) {
-				short activ = (evt->modifiers & activeFlag)!=0;
 				SetPort(GetWindowPort(w));
 			}
 			break;

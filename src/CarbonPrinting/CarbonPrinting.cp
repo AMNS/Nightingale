@@ -56,8 +56,6 @@ enum {
 /*------------------------------------------------------------------------------
 	Globals
 ------------------------------------------------------------------------------*/
-static	Handle	gflatPageFormat = NULL;		// used in FlattenAndSavePageFormat
-
 static PMSheetDoneUPP gMyPageSetupDoneProc = NULL;
 static PMSheetDoneUPP gMyPrintDialogDoneProc = NULL;
 
@@ -518,53 +516,6 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 
 static void PrintDemoBanner(Document *doc, Boolean toPostScript)
 {
-#ifdef DOING_INITIAL_ENCODE
-	const unsigned char *banLine1 = "\pPrinted by Nightingale(R)";
-	const unsigned char *banLine2 = "\pAdvanced Music Notation Systems, Inc.";
-	const unsigned char *banLine3 = "\pfax: 413-268-7317  e-mail: info@ngale.com";
-#else
-	const unsigned char *banLine1 = "\p\33T+(/VAkD;f\25ZB#R+(<RI.Ž";  /* Ends in Option-e e */
-	const unsigned char *banLine2 = "\p\37C/64AD'\6\3%.ZQ2\6\02244WP(R1";
-	const unsigned char *banLine3 = "\ps\26rko\1\23f\24tqh\23\5k\6btk\5\b\177\20pkj\3\25|";
-#endif
- 
-#ifdef DOING_INITIAL_ENCODE
-	short i,k,len,klen;
-	/*
-	 * Include this paragraph to encrypt <banLine>s the first time so that you
-	 * can break below with the debugger in order to write down the encrypted
-	 * version for plugging in above.  The banKey string should be unreadable
-	 * garbage, and should be stored far away (in the global strings) from the
-	 * encrypted banner string.
-	 *
-	 * This should never be included in any working version of the program.
-	 * The purpose of all this is to avoid having the banner text easily findable
-	 * while looking at the program either statically (with a resource editor) or
-	 * dynamically (with a debugger), so it won't be too easy for a hacker to
-	 * disable--e.g., by replacing the text with blanks.
-	 */
-	len = *banLine1;
-	k = 1; klen = *banKey;
-	for (i=1; i<=len; i++) {						/* For each byte in banner text... */
-		banLine1[i] ^= banKey[k++];					/* XOR in the next key byte */
-		if (k > klen) k = 1;						/* Cycle through all key bytes */
-	}
-
-	len = *banLine2;
-	k = 1; klen = *banKey;
-	for (i=1; i<=len; i++) {						/* For each byte in banner text... */
-		banLine2[i] ^= banKey[k++];					/* XOR in the next key byte */
-		if (k > klen) k = 1;						/* Cycle through all key bytes */
-	}
-
-	len = *banLine3;
-	k = 1; klen = *banKey;
-	for (i=1; i<=len; i++) {						/* For each byte in banner text... */
-		banLine3[i] ^= banKey[k++];					/* XOR in the next key byte */
-		if (k > klen) k = 1;						/* Cycle through all key bytes */
-	}
-#endif
-
 }
 
 /* ------------------------------------------------------------------------------
@@ -654,8 +605,6 @@ static short GetPrintDestination(Document *doc)
 
 #define USE_PREC103 1
 
-static Handle printDictHdl;
-
 void PS_FinishPrintDictHdl()
 	{
 	}
@@ -699,18 +648,16 @@ static void NDoPrintLoop(Document *doc)
 	require(status==noErr,displayError);
 	
 	if (status == noErr) {
-//		for ( ; copies>0; copies--) {
-			switch (outputTo) {
-				case toImageWriter:
-					status = PrintImageWriter(doc,firstSheet,lastSheet);
-					if (status != noErr) copies = -1;
-					break;
-				case toPostScript:
-					status = PrintLaserWriter(doc,firstSheet,lastSheet);
-					if (status != noErr) copies = -1;
-					break;
-			}
-//		}
+		switch (outputTo) {
+			case toImageWriter:
+				status = PrintImageWriter(doc,firstSheet,lastSheet);
+				if (status != noErr) copies = -1;
+				break;
+			case toPostScript:
+				status = PrintLaserWriter(doc,firstSheet,lastSheet);
+				if (status != noErr) copies = -1;
+				break;
+		}
 	}
 	
 	outputTo = saveOutputTo;

@@ -293,7 +293,6 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 	Boolean	MIDIDynamDialog(Document *, Boolean *);
 	Boolean	MIDIModifierDialog(Document *);
-	Boolean	MIDIDriverDialog(short *pPortSetting, short *pInterfaceSpeed);
 
 /* MIDI File-handling files */
 

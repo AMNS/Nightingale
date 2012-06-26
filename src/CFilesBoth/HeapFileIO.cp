@@ -603,7 +603,6 @@ static short WriteObject(short refNum, short heapIndex, LINK pL)
 	long count;
 	short ioErr;
 	char *p;
-	short temp = 0;
 	
 	myHeap = Heap + heapIndex;
 	if (heapIndex==OBJtype) count = objLength[ObjLType(pL)];

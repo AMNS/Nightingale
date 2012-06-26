@@ -558,7 +558,6 @@ void DrawOCTAVA(Document *doc, LINK pL, CONTEXT context[])
 	unsigned char octavaStr[20];
 	Boolean  bassa;
 	long		number;
-	Point		enlarge = {0,0};
 	short		octaveNumSize;
 
 PushLock(OBJheap);

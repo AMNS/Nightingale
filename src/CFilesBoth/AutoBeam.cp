@@ -91,7 +91,6 @@ long beatEX;
 static void CreateNBeamBeatList(Byte num, Byte denom)
 {
 	Byte Index, SIndex, meterType;
-	DoubleWord Start128;
 	long breakDurEX, lTemp;
 	Boolean break4, breakMin;
 	
