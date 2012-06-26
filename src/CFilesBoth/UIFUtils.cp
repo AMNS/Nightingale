@@ -228,20 +228,6 @@ void FixCursor()
 	
 	/* If mouse over any palette, use arrow unless a tool was just chosen */
 
-#if 0	
-	if (GetWindowKind(TopWindow) == PALETTEKIND) {
-		holdCursor = TRUE;
-		wp = toolPalette->paletteWindow;
-		RgnHandle strucRgn = NewRgn();
-		GetWindowRegion(wp, kWindowStructureRgn, strucRgn);
-		if (PtInRgn(globalpt,strucRgn)) {
-			if (!holdCursor) {  logPalette(wp); ArrowCursor(); }
-			DisposeRgn(strucRgn);
-			return;
-			}
-		DisposeRgn(strucRgn);
-		}		
-#else
 	if (GetWindowKind(TopWindow) == PALETTEKIND) {
 		holdCursor = TRUE;
 		for (wp=TopPalette; wp!=NULL && GetWindowKind(wp)==PALETTEKIND; wp=GetNextWindow(wp)) {
@@ -257,7 +243,6 @@ void FixCursor()
 				}
 			}
 		}
-#endif
 
 	holdCursor = FALSE;			/* OK to change cursor back to arrow when it's over a palette */
 	

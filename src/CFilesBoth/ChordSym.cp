@@ -195,9 +195,6 @@ void DrawChordSym(Document *doc,
 	FontInfo						finfo;
 	
 	ok = ParseChordSym(string, rootStr, qualStr, extStr, extStk1Str, extStk2Str, extStk3Str, bassStr);
-#if 0	/* ??Even if string is bad, its component strings are safe, and some of them may be non-empty. */
-	if (!ok) return;
-#endif
 
 	showParens = (Boolean)(auxInfo & 0x0001);
 

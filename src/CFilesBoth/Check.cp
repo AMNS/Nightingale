@@ -1200,13 +1200,6 @@ PushLock(OBJheap);
 					
 					newWidth = GraphicWidth(doc, pL, pContext);
 					LinkOBJRECT(pL).right = LinkOBJRECT(pL).left + newWidth;
-#if 0
-					InvalObject(doc,pL,TRUE);
-#else
-					tempR = LinkOBJRECT(pL);
-					Rect2Window(doc,&tempR);
-					EraseAndInval(&tempR);
-#endif
 				}
 
 				break;

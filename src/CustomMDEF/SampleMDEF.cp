@@ -446,20 +446,6 @@ static void ReleaseMenuItemData( const MenuItemDataRec* itemData )
 		CFRelease( itemData->cfText );
 }
 
-#if 0	// not currently used
-/*--------------------------------------------------------------------------------------------------*/
-static ThemeMenuType GetThemeMenuType( MenuRef menu )
-{
-	ThemeMenuType menuType;
-	GetMenuType( menu, &menuType );
-	
-	if ( !IsMenuItemEnabled( menu, 0 ) )
-		menuType |= kThemeMenuTypeInactive;
-		
-	return menuType;
-}
-#endif
-
 /*--------------------------------------------------------------------------------------------------*/
 static ThemeMenuState GetItemState( MenuItemAttributes attr, Boolean hilite )
 {

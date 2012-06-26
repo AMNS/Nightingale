@@ -633,17 +633,6 @@ static short BuildSpaceTblMenu(UserPopUp *popup)
 		
 	ReleaseResource((Handle)popup->menu);
 	popup->menu = GetMenu(SPACETBL_MENU);
-
-	
-#if 0
-	/* Better to just Release the menu then re-allocate, as above! */
-	/* make sure menu is empty before appending resource names to it */
-	numItems = CountMItems(popup->menu);
-	if (numItems) {
-		for (x = 1; x <= numItems; x++) {
-			DeleteMenuItem(popup->menu, 1); }
-	}
-#endif
 	
 	saveResFile = CurResFile();
 	UseResFile(setupFileRefNum);

@@ -511,15 +511,6 @@ static void DoHairFeedback(Document *doc, HAIRPIN *hp)
 	lRise = hp->leftRise;
 	rRise = hp->rightRise;
 	
-#if 0	/* attempt to sync w/ vert. retrace; this is worse!
-			NB: slotted Macs need a VBL task to do this. */
-{
-	long	ticks;
-	ticks = TickCount();
-	for ( ; ticks==TickCount(); /* say("ticks=%ld\n",TickCount()) */ ) ;
-}
-#endif
-
 	PenSize(1, hp->penThick);
 
 	MoveTo(lPt.h, lPt.v + lRise);
@@ -636,12 +627,6 @@ static void HairInvalRects(
 	Rect2Window(doc, &newObjRect);
 	Rect2Window(doc, &oldObjRect);
 	UnionRect(&oldObjRect, &newObjRect, &updateRect);
-#if 0
-if (ShiftKeyDown()) {
-	FrameRect(&updateRect);				/* to debug update rect */
-	SleepTicks(60L);
-}
-#endif
 	if (optimize)
 		EraseAndInval(&oldObjRect);
 	else

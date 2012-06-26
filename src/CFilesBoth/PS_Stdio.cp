@@ -639,8 +639,6 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 			get this name using the old Varityper ToolKit program. */
 		PS_Print("/MF {/%p findfont exch DCF mul dup neg FMX scale makefont setfont} BD\r",
 											musFontInfo[doc->musFontInfoIndex].postscriptFontName);
-#if 0		
-#endif
 		PS_Print("\rend         %% NightingaleDict\r\r");
 		//PS_Print("%%••••\r");
 
@@ -731,93 +729,6 @@ For example, given useFont = "Helvetica Narrow" and style (bold + italic), deliv
 useFont as "Helvetica-Narrow-BoldOblique". */
 
 static Boolean Res2FontName(unsigned char *,short);
-
-#if 0
-static Boolean Res2FontName(unsigned char *useFont, short style)
-	{
-	Handle resH; unsigned char *deFont;
-	
-		/*
-		 *  Get the suffixes for the desired style from the style-mapping table in the
-		 *	FOND resource. This is (poorly) documented in the LaserWriter Reference
-		 *	manual, p. 27ff.
-		 */
-		resH = GetNamedResource('FOND', useFont);
-		if (ResError()==noErr) {
-			short count,index,newStyle,nSuffices,state;
-			/* Careful: <suffix>, at least, points to a P string some of the time. */
-			Byte *p,*styleIndex,*suffix,*stringList;
-			unsigned char *baseName;
-			FamRec *fond;
-			
-			state = HGetState(resH);
-			HLock(resH);
-			fond = (FamRec *)(*resH);
-			
-			p = (Byte *)(*resH + fond->ffStylOff);		/* Start of style-mapping table */
-			p += sizeof(short) + 2*sizeof(long);		/* Past header to 48 style indices */
-			styleIndex = p; p += 48;					/* Save table start for later */
-			stringList = p;								/* Save start of string list */
-			count = *(short *)p; p += sizeof(short);	/* Get past string count */
-			baseName = p; p += 1 + *p;					/* Get font base name from 1st string */
-			
-			/* Convert from Mac style bits to 'FOND' style-mapping table style bits */
-			/* See p. 32, LaserWriter Reference Manual. */
-			
-			newStyle = 0;
-			if (style & bold) newStyle += bold;
-			if (style & italic) newStyle += italic;
-			
-			/* The FOND-brand style skips the underline bit, so we do too */
-
-			if (style & outline) newStyle += (outline>>1);
-			if (style & shadow) newStyle += (shadow>>1);
-			/*
-			 *	If both condense and extend are on, they would cancel out, and the FOND
-			 *	style-mapping table doesn't even have slots for styles that have both
-			 *	on, so avoid the situation.
-			 */
-			if ((style & (condense+extend)) == (condense+extend))
-				style &= ~(condense+extend);
-			if (style & condense) newStyle += (condense>>1);
-			if (style & extend) newStyle += (extend>>1);
-			
-			/* Now we can use newStyle as an index into the style index tables at styleIndex */
-			
-			index = styleIndex[newStyle];
-			/* Get pseudo-string that index points at in string list */
-			suffix = PS_NthString(stringList,index);
-			/* Each "character" in suffix is an index into stringList for appendage */
-			nSuffices = *suffix;
-
-			/* Start with base name */
-			
-			PStrCopy((StringPtr)baseName,useFont);
-			for (p=suffix+1; nSuffices>0; nSuffices--,p++) {
-				short lenSuff,lenName;
-				suffix = PS_NthString(stringList,*p);
-				lenName = *useFont;		/* What we've built so far */
-				lenSuff = *(unsigned char *)suffix;			/* What we're about to append */
-				if ((lenName+lenSuff) <= 255)
-					PStrCat(useFont,suffix);
-				 else
-					break;
-				}
-			HSetState(resH,state);
-			return TRUE;		
-			}
-			else {
-			
-			/* We couldn't get the FOND: use a default */
-			
-			if (style & bold) deFont = (unsigned char *)((style & italic) ? "\pTimes-BoldItalic" : "\pTimes-Bold");
-			 else			  deFont = (unsigned char *)((style & italic) ? "\pTimes-Italic" : "\pTimes-Roman");
-			 PStrCopy(deFont,useFont);
-			 return FALSE;
-			}
-	}
-	
-#else
 
 OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle* oHandle) 
 {
@@ -996,9 +907,6 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 			 return FALSE;
 			}
 	}
-	
-#endif
-
 
 /* Given a Pascal string of the Mac font name, convert it to the PostScript version,
 with any style (usually italic or bold) modifications, and print the result as a

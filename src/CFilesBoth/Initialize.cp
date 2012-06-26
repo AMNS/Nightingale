@@ -185,26 +185,6 @@ void Initialize()
 		{ BadInit(); ExitToShell(); }
 }
 
-#if 0 // def TARGET_API_MAC_CARBON_FILEIO
-
-Boolean CreateSetupFile(void)
-{
-	return FALSE;
-}
-
-Boolean OpenSetupFile()
-{
-	return FALSE;
-}
-
-Boolean AddSetupResource(Handle resH)
-{
-	return FALSE;
-}
-
-#else
-
-
 static OSStatus FindThePreferencesFile(OSType fType, OSType fCreator, FSSpec *prefsSpec) 
 {
 	short pvol;
@@ -310,11 +290,7 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 		file it opens the current resource file. */
 		
 	//setupFileRefNum = OpenResFile(SETUP_FILE_NAME);
-#if 0
-	setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
-#else
 	setupFileRefNum = FSpOpenResFile(rfSpec, fsRdWrPerm);
-#endif
 	
 	theErr = ResError();
 	if (theErr!=noErr) return FALSE;				/* Otherwise we'll write in the app's resource fork! */
@@ -543,10 +519,6 @@ Boolean AddSetupResource(Handle resH)
 	UseResFile(appRFRefNum);
 	return TRUE;
 }
-
-#endif // TARGET_API_MAC_CARBON_FILEIO
-
-
 
 /* Install our configuration data from the Prefs file; also check for, correct, and
 report any illegal values. Assumes the Prefs file is the current resource file. */

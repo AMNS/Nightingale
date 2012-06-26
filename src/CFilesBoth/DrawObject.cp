@@ -791,11 +791,6 @@ PushLock(CONNECTheap);
 				break;
 			case CONNECTCURLY:
 				if (!config.bracketsForBraces) {
-#if 0
-					curlyWider = ConnectDWidth(doc->srastral, CONNECTCURLY)
-										-ConnectDWidth(doc->srastral, CONNECTBRACKET);
-					xd -= curlyWider;
-#endif
 					switch (outputTo) {
 						case toScreen:
 						case toImageWriter:

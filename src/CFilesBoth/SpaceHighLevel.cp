@@ -29,10 +29,6 @@
 #include <ctype.h>
 #include "Nightingale.appl.h"
 
-#if 0
-#define SPACEBUG
-#endif
-
 /* This was originally right above Respace1Bar, but I needed it for CenterWholeMeasRests. -JGG */
 #define STFHEIGHT drSize[doc->srastral]	/* For now, assume all staves are same height */
 

@@ -127,15 +127,6 @@ PushLock(DYNAMheap);
 		}
 		dh = (horiz? newPt.h - oldPt.h : 0);
 		dv = (vert? newPt.v - oldPt.v : 0);
-				
-#if 0
-/*
- *	Wait until a tick, which is synchronised with the start of a vertical
- * raster scan. This is quick and dirty but helps some. NB: slotted Macs
- * may require a VBL task to be more accurate.
- */
-		now = TickCount(); while (now == TickCount());
-#endif
 
 #ifdef USE_BITMAP
 		if (firstTime) {

@@ -301,10 +301,6 @@ crossStaff ystem, and set the note's ystem to it. */
 				else	aGRNote->ystem = ystem;									/* No chord here */
 			}
 	}
-#if 0
-	if (inChord)
-		ArrangeGRChordNotes(bpGRSyncL,voice,stemDown);		/* Get heads & correct stem side */
-#endif
 }
 
 
@@ -1265,9 +1261,6 @@ void RemoveGRBeam(Document *doc, LINK beamL, short	voice, Boolean /*fixStems*/)
 		}
 	DeleteNode(doc, beamL);
 	
-#if 0
-	if (fixStems) UnbeamFixGRNotes(doc, firstGRSyncL, RightLINK(lastGRSyncL), voice);
-#endif
 }
 
 /* Recompute all grace note stems in the range [startL, endL] */

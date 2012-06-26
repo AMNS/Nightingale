@@ -632,20 +632,6 @@ PushLock(NOTEheap);
 		xdMod += (LNSPACE(&context)/8)*xOffset;
 		ydMod += (LNSPACE(&context)/8)*yOffset;
 		
-#if 0
-		/* To keep AutoScroll from leaving turds on the screen when it tries to
-		 * draw our modNR, temporarily set the modNR's code to an unused value,
-		 * so that Draw1ModNR won't do anything. For this purpose I put MOD_NULL
-		 * in the modCode enum (NTypes.h), and made DrawModNR ignore it.
-		 */
-		aModNR->modCode = MOD_NULL;
-		TextMode(srcOr);						/* so staff lines won't cut through notes */
-		AutoScroll();
-		TextMode(srcXor);
-		TextSize(useTxSize);					/* this might be changed in AutoScroll */
-		aModNR->modCode = code;
-#endif
-
 		/* Some symbols (like fermata) have different glyphs, depending on whether
 		 * modNR is above or below its note, so update glyph, etc. now.
 		 */

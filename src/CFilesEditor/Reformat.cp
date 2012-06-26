@@ -24,10 +24,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#if 0
-#define RFMTBUG						/* Compile debugging code */
-#endif
-
 #define MAX_MEAS_RFMT 1000			/* For debugging, max. Measures reformatted we can print info on */
 #define RIGHTEND_SLOP pt2d(1)		/* Last usable position relative to end of System */
 

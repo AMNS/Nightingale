@@ -674,15 +674,6 @@ static Boolean WriteTiming(
 	
 	/* Write initial tempo, the tempo as of the score's first note. */
 	
-#if 0
-	firstSyncL = SSearch(doc->headL, SYNCtype, GO_RIGHT);
-	WriteDeltaTime(0L);
-	timeScale = GetTempo(doc, firstSyncL);
-	microbeats = TSCALE2MICROBEATS(timeScale);
-	WriteTempoEvent((long)microbeats*DFLT_BEATDUR);
-//DebugPrintf("WriteTiming: firstSyncL=%d timeScale=%ld\n", firstSyncL, timeScale);
-#endif
-
 	measureTime = 0L;
 	for (pL = doc->headL; pL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -900,20 +891,6 @@ static short WriteMFNotes(
 			case GRAPHICtype:			
 				if (IsMidiController(pL)) 
 				{
-#if 0
-					Byte ctrlNum = GetMidiControlNum(pL);
-					Byte ctrlVal = GetMidiControlVal(pL);
-					short stf = GraphicSTAFF(pL);
-					//if (anyStaff || stf == staffn) {
-					if (stf==staffn) {
-						short partn = Staff2Part(doc,stf);
-						//short channel = CMGetUseChannel(partChannel, partn);
-						short channel = partChannel[partn];
-
-						WriteDeltaTime(startTime);
-						WriteControlChange(channel, ctrlNum, ctrlVal);						
-					}
-#else
 					if (useWhichMIDI==MIDIDR_CM) {
 									
 	//					if (IsMidiPatchChange(pL)) {
@@ -934,7 +911,6 @@ static short WriteMFNotes(
 							panPosted = MFSPostMidiPan(doc, pL, staffn);
 						}					
 					}
-#endif
 				}
 				break;
 								

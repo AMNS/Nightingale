@@ -636,25 +636,6 @@ void ShowHidePalettes(Boolean show)
 				}
 				if (index == TOOL_PALETTE) break;
 			}
-#if 0
-		WindowRecord **wh;
-		wh = (WindowRecord **)palettes;
-		pv = palettesVisible;				/* ??This seems to be uninitialized, yet it works! */
-		for (index=0; index<TOTAL_PALETTES; index++, wh++, pv++) {
-			if (*wh) {
-				if (show) {
-					ShowHide((WindowPtr)*wh, *pv);
-					*pv = FALSE;
-					}
-				else {
-					*pv = ((*wh)->visible != 0);
-					if (*pv)
-						ShowHide((WindowPtr)*wh, FALSE);
-					}
-				}
-			}
-#endif
-
 	}
 
 

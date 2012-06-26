@@ -103,38 +103,6 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 				MoveTo(cellRect.left+lMarg, cellRect.top+tMarg);
 				DrawChar(*p);
 				
-#if 0
-				GetPort(&oldPort);
-				SetPort(charPort);
-				GetPortBounds(charPort, &cpBounds);	
-				EraseRect(&cpBounds);
-//				MoveTo(0, 0+fontInfo.ascent);
-				MoveTo(0, cpBounds.bottom-cpBounds.top-fontInfo.descent);
-				DrawChar(*p);
-//				GetCharBBox(charPort, &charBBox);
-				SetPort(oldPort);
-				
-				cpHt = cpBounds.bottom-cpBounds.top;
-				cpWd = cpBounds.right-cpBounds.left;
-				
-				bounds = cellRect;
-				bounds.bottom = bounds.top + cpHt;
-				bounds.right = bounds.left + cpWd;
-				CenterInRect(&cellRect,&bounds);
-
-				const BitMap *charPortBits = GetPortBitMapForCopyBits(charPort);
-				const BitMap *oldPortBits = GetPortBitMapForCopyBits(oldPort);
-				CopyBits(charPortBits, oldPortBits, &cpBounds, &bounds, srcCopy, NULL);
-
-				charHt = charBBox.bottom - charBBox.top + 1;
-
-/* •••Still a problem for those few chars that have zero width */
-				leftDraw = lRect->left + ((cellWid - charWid)>>1);
-				topDraw = lRect->top + ((cellHt - charHt)>>1) + (fontInfo.ascent-charBBox.top);
-				
-				MoveTo(leftDraw, topDraw);
-				DrawChar(*p);
-#endif
 	  		}
 		
 			if (!lSelect)							/* otherwise, fall through to hilite */

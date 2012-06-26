@@ -471,11 +471,6 @@ static Boolean CopyPartRange(Document *doc, Document *newDoc, LINK srcStartL,
 		partMap[i].srcL = pL;	partMap[i].dstL = copyL;
 		prevL = copyL;
   	}
-#if 0
-InstallDoc(newDoc);
-DCheckSyncs(newDoc);
-InstallDoc(doc);
-#endif
 
 	FixCrossLinks(doc, newDoc, newDoc->headL, insertL);
 	CopyFixLinks(doc, newDoc, newDoc->headL, insertL, partMap, numObjs);

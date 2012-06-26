@@ -240,23 +240,6 @@ Boolean CmdKeyDown() {
 		return (KeyIsDown(55));
 	}
 
-#if 0
-Boolean OptionKeyDown() {
-		return (KeyIsDown(58));
-	}
-
-Boolean ShiftKeyDown() {
-		return (KeyIsDown(56));
-	}
-
-Boolean CapsLockKeyDown() {
-		return (KeyIsDown(57));
-	}
-
-Boolean ControlKeyDown() {
-		return (KeyIsDown(59));
-	}
-#else
 Boolean OptionKeyDown() {
 		return (GetCurrentKeyModifiers() & optionKey) != 0;
 	}
@@ -276,9 +259,6 @@ Boolean ControlKeyDown() {
 Boolean CommandKeyDown() {
 		 return (GetCurrentKeyModifiers() & cmdKey) != 0;
 	}
-
-#endif
-
 
 /*
  *	Outline the given item in the given dialog to show it's the default item, or

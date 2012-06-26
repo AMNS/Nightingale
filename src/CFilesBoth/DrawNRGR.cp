@@ -844,12 +844,6 @@ void DrawNoteheadGraph(Document *doc,
 	}
 	ForeColor(Voice2Color(doc, aNote->voice));				// ??TEMP
 
-#if 0
-	SetRect(&graphRect, xorg, yorg-14*d2p(dhalfLn),
-		xorg+1.5*graphLen, yorg-11*d2p(dhalfLn));				// ?? VERY TEMP! TEST PaintRoundLeftRect !!!!
-	if ((appearance & 0x1)==0) PaintRoundLeftRect(&graphRect, 2*rDiam, 2*rDiam);
-	else PaintRoundRightRect(&graphRect, 2*rDiam, 2*rDiam);
-#endif
 
 #else
 	switch (appearance) 

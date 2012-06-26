@@ -578,12 +578,6 @@ static void DrawInvalRects(Document *doc, LINK pL,
 	Rect2Window(doc, &newObjRect);
 	Rect2Window(doc, &oldObjRect);
 	UnionRect(&oldObjRect, &newObjRect, &updateRect);
-#if 0
-if (ShiftKeyDown()) {
-	FrameRect(&updateRect);				/* to debug update rect */
-	SleepTicks(60L);
-}
-#endif
 	if (optimize)
 		EraseAndInval(&oldObjRect);
 	else

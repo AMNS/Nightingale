@@ -108,11 +108,6 @@ static Boolean ParseMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
 	f = FSpOpenInputFile(fileName, fsSpec);
 	if (f==NULL) return FALSE;
 		
-#if 0 //MMPrintMidiMap
-	if ( !(CapsLockKeyDown() || OptionKeyDown()) )
-		printMidiMap = FALSE;
-#endif
-
 	ok = ProcessMidiMap(doc, f);
 	CloseInputFile(f);													/* done with input file */
 	if (!ok) goto MidiMapErr;

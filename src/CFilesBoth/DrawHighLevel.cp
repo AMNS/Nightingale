@@ -33,11 +33,7 @@ void FrameSysRect(
 					Boolean /*solid*/			/* unused */
 					)
 {
-#if 0
-	PenPat(solid? NGetQDGlobalsBlack() : diagonalDkGray);
-#else
 	PenPat(NGetQDGlobalsBlack());
-#endif
 	FrameRect(r);
 	PenNormal();
 }

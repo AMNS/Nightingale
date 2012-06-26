@@ -122,7 +122,6 @@
 		D03E70CF0D5FA5B2005FD177 /* NotelistConvert.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70880D5FA5B2005FD177 /* NotelistConvert.cp */; };
 		D03E70D00D5FA5B2005FD177 /* NotelistParse.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70890D5FA5B2005FD177 /* NotelistParse.cp */; };
 		D03E70D10D5FA5B2005FD177 /* NotelistSave.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708A0D5FA5B2005FD177 /* NotelistSave.cp */; };
-		D03E70D40D5FA5B2005FD177 /* OhioSlurs.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708D0D5FA5B2005FD177 /* OhioSlurs.cp */; };
 		D03E70D50D5FA5B2005FD177 /* PitchCmds.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708E0D5FA5B2005FD177 /* PitchCmds.cp */; };
 		D03E70D60D5FA5B2005FD177 /* PitchDialogs.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708F0D5FA5B2005FD177 /* PitchDialogs.cp */; };
 		D03E70D70D5FA5B2005FD177 /* PrefsDialog.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70900D5FA5B2005FD177 /* PrefsDialog.cp */; };
@@ -416,7 +415,6 @@
 		D03E70880D5FA5B2005FD177 /* NotelistConvert.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistConvert.cp; sourceTree = "<group>"; };
 		D03E70890D5FA5B2005FD177 /* NotelistParse.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistParse.cp; sourceTree = "<group>"; };
 		D03E708A0D5FA5B2005FD177 /* NotelistSave.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistSave.cp; sourceTree = "<group>"; };
-		D03E708D0D5FA5B2005FD177 /* OhioSlurs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = OhioSlurs.cp; sourceTree = "<group>"; };
 		D03E708E0D5FA5B2005FD177 /* PitchCmds.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PitchCmds.cp; sourceTree = "<group>"; };
 		D03E708F0D5FA5B2005FD177 /* PitchDialogs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PitchDialogs.cp; sourceTree = "<group>"; };
 		D03E70900D5FA5B2005FD177 /* PrefsDialog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PrefsDialog.cp; sourceTree = "<group>"; };
@@ -894,7 +892,6 @@
 				D03E70880D5FA5B2005FD177 /* NotelistConvert.cp */,
 				D03E70890D5FA5B2005FD177 /* NotelistParse.cp */,
 				D03E708A0D5FA5B2005FD177 /* NotelistSave.cp */,
-				D03E708D0D5FA5B2005FD177 /* OhioSlurs.cp */,
 				D03E708E0D5FA5B2005FD177 /* PitchCmds.cp */,
 				D03E708F0D5FA5B2005FD177 /* PitchDialogs.cp */,
 				D03E70900D5FA5B2005FD177 /* PrefsDialog.cp */,
@@ -1138,7 +1135,6 @@
 				D03E70CF0D5FA5B2005FD177 /* NotelistConvert.cp in Sources */,
 				D03E70D00D5FA5B2005FD177 /* NotelistParse.cp in Sources */,
 				D03E70D10D5FA5B2005FD177 /* NotelistSave.cp in Sources */,
-				D03E70D40D5FA5B2005FD177 /* OhioSlurs.cp in Sources */,
 				D03E70D50D5FA5B2005FD177 /* PitchCmds.cp in Sources */,
 				D03E70D60D5FA5B2005FD177 /* PitchDialogs.cp in Sources */,
 				D03E70D70D5FA5B2005FD177 /* PrefsDialog.cp in Sources */,

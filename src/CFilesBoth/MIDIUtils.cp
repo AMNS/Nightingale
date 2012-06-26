@@ -27,11 +27,7 @@ but trying to run results in a mysterious data segment overflow apparently resul
 from the fact that Symantec's ANSI—small library takes 600+ bytes more on those
 machines, even though the file containing the library appears to be identical! Comment
 the following kludge in to avoid it. */
-#if 0
-static MIDIEvent	eventList[10];
-#else
 static MIDIEvent	eventList[MAXEVENTLIST];
-#endif
 static CMMIDIEvent	cmEventList[MAXEVENTLIST];
 
 static short		lastEvent;

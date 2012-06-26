@@ -368,12 +368,7 @@ Boolean DoFileMenu(short choice)
 			case FM_PageSetup:
 #if TARGET_API_MAC_CARBON
 
-#if 0
-				if (doc) NDoCustomPageSetup(doc);
-#else
 				if (doc) NDoPageSetup(doc);
-#endif
-
 #else
 				if (doc) DoPageSetup(doc);
 #endif

@@ -309,16 +309,7 @@ Boolean AltInsTrackPitch(
 #if ACCELERATE
 						/* Extra bump(s) for maximum acceleration. */
 						if (accidentStep==1 && ABS(deltaV)>2) {
-#if 0
-							if      (ABS(deltaV)<5) halfLn -= direction;		/* jump by a second */
-							else if (ABS(deltaV)<8) halfLn -= direction*2;	/* jump by a third */
-							else if (ABS(deltaV)<10) halfLn -= direction*3;	/* etc. */
-							else if (ABS(deltaV)<15) halfLn -= direction*4;
-							else if (ABS(deltaV)<24) halfLn -= direction*5;
-							else							 halfLn -= direction*(ABS(deltaV)>>2);
-#else
 							halfLn -= direction*(ABS(deltaV)>>1);
-#endif
 							halfLnAccel = TRUE;
 						}
 						else halfLnAccel = FALSE;
@@ -601,12 +592,6 @@ void AltCalcAccidental(
 		if (accList[i]==SonataAcc[accident]) break;
 	locIndex = i;
 	
-#if 0 /* ???NECESSARY? */
-	/* For dragging, note may have dbl-acc even if inclDblAccs==FALSE */
-	if			(!inclDblAccs && locIndex==MAX_ACC_EXT) locIndex--;
-	else if	(!inclDblAccs && locIndex==MIN_ACC_EXT) locIndex++;
-#endif
-	
 	/* Bump index depending on direction. */
 	locIndex += direction;
 	
@@ -693,9 +678,6 @@ void SetMouse(short x, short y, Boolean updateCrs)
 	 CrsrNew = CrsrCouple;
 	 */
 	CGWarpMouseCursorPosition(newPt);
-	//#if 0
-	//	Delay(5, &dummy);				/* let cursor catch up (suggested by Mathew Mora) */
-	//#endif
 }
 
 #define CM_CHANNEL_BASE 1

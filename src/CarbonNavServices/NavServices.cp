@@ -451,19 +451,9 @@ static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUse
 				// If we were closing, we're not now.
 				pNSD->nsIsClosing = false;
 				pNSD->nsOpCancel = true;
-#if 0		
-				// If we were closing all, we're not now!
-				gMachineInfo.isClosing = false;
-				// If we were quitting, we're not now!!
-				gMachineInfo.isQuitting = false;
-#endif		
 				break;
 			
 			case kNavUserActionSaveChanges:
-#if 0		
-				// Do the save, which may or may not trigger the save dialog
-				status = DoCommand( pData->theWindow, cSave, 0, 0 );
-#endif		
 				break;
 			
 			case kNavUserActionDontSaveChanges:
@@ -484,75 +474,11 @@ static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUse
 				
 				status = NavDisposeReply(&reply);
 #endif
-#if 0		
-				{
-					if ( pData->pSaveTo )
-					{
-						OSStatus		completeStatus;
-						NavReplyRecord		reply;
-						FSRef			theRef;
-						status = BeginSave( inNavDialog, &reply, &theRef );
-						nrequire( status, BailSaveAs );
-
-						status = (*(pData->pSaveTo))( pData->theWindow, pData, &theRef, reply.isStationery );
-						completeStatus = CompleteSave( &reply, &theRef, status == noErr );
-						if ( status == noErr )
-						{
-							status = completeStatus;	// So it gets reported to user.
-						}
-						nrequire( status, BailSaveAs );
-
-						// Leave both forks open
-						if ( pData->dataRefNum == -1 )
-						{
-							status = FSOpenFork( &theRef, 0, NULL, fsRdWrPerm, &pData->dataRefNum );
-							nrequire( status, BailSaveAs );
-						}
-
-						if ( pData->resRefNum == -1 )
-						{
-							pData->resRefNum = FSOpenResFile( &theRef, fsRdWrPerm );
-							status = ResError();
-							nrequire( status, BailSaveAs );
-						}
-
-					}
-					
-BailSaveAs:
-				}
-#endif		
 				break;
 				
 			default:
 				break;
 		}
-#if 0		
-		// Now, close the window if it isClosing and
-		// everything got clean or was discarded
-		if ( status != noErr )
-		{
-			// Cancel all in-progress actions and alert user.
-			pData->isClosing = false;
-			gMachineInfo.isClosing = false;
-			gMachineInfo.isQuitting = false;
-			ConductErrorDialog( status, cSave, cancel );
-		}
-		else if ( pData->isClosing && ( discard || CanCloseWindow( pData->theWindow )))
-		{
-			status = DoCloseWindow( pData->theWindow, discard, 0 );
-
-			// If we are closing all then start the close
-			// process on the next window
-			if ( status == noErr && gMachineInfo.isClosing )
-			{
-				WindowPtr nextWindow = FrontWindow();
-				if ( nextWindow != NULL )
-				{
-					DoCloseWindow( nextWindow, false, 0 );
-				}
-			}
-		}
-#endif
 	}
 }
 

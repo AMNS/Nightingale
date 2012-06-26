@@ -2352,18 +2352,6 @@ LINK FirstInBeam(LINK beamL)
 
 LINK LastInBeam(LINK beamL)
 {
-#if 0
-	LINK aNoteBeamL;
-	PANOTEBEAM aNoteBeam;
-	short i, nInBeam;
-	
-	nInBeam = LinkNENTRIES(beamL);
-	aNoteBeamL = FirstSubLINK(beamL);
-	for (i=0; i<nInBeam; i++, aNoteBeamL = NextNOTEBEAML(aNoteBeamL))
-		aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
-	
-	return (aNoteBeam->bpSync);
-#else
 	LINK aNoteBeamL, theNoteBeamL;
 	short i, nInBeam;
 	
@@ -2373,7 +2361,6 @@ LINK LastInBeam(LINK beamL)
 		theNoteBeamL = aNoteBeamL;
 	
 	return (NoteBeamBPSYNC(theNoteBeamL));
-#endif
 }
 
 
