@@ -1719,10 +1719,8 @@ Boolean DCheckHeirarchy(Document *doc)
 				COMPLAIN("*DCheckHeirarchy: TIMESIG AT %u inMeasure FLAG DISAGREES WITH OBJECT ORDER.\n",
 								pL);				
 			break;
-#if 1
 		case ENDINGtype:
 			if (!CapsLockKeyDown()) break;
-#endif
 		default:
 			if (!foundMeasure)
 				COMPLAIN("¥DCheckHeirarchy: OBJECT AT %u PRECEDES ITS STAFF'S 1ST MEASURE.\n", pL);

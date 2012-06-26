@@ -198,9 +198,7 @@ static void EditHairpin(
 			}
 			UpdateTmpObjRect(doc, grip, hp, dh, dv);
 			
-#if 1
 			AutoScroll();						
-#endif
 			/* ??NB: There are some problems with autoscroll:
 			 *	1) It draws the original hairpin in black when it comes back into view after
 			 *		having been scrolled out of view. Can solve this by clearing hairpin's
@@ -295,9 +293,7 @@ void DragHairpin(Document	*doc, LINK pL)
 			thisHair.rightPt.h += dh;	thisHair.rightPt.v += dv;
 
 			UpdateTmpObjRect(doc, DRAGOBJ, &thisHair, dh, dv);
-#if 1
 			AutoScroll();					/* ??NB: See note in EditHairpin */					
-#endif
 			DoHairFeedback(doc, &thisHair);							/* draw new hairpin */
 			
 			oldPt = newPt;

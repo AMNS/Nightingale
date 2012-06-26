@@ -645,7 +645,6 @@ static void ClearMasterStfSel(Document *doc)
 
 static void ResetMasterFields(Document *doc)
 {
-#if 1
 	/*	JGG did this as part of lifting restrictions on deleting parts.
 		Old selection may no longer be in data structure. */
 	if (InDataStruct(doc, doc->oldSelStartL, MAIN_DSTR)
@@ -654,10 +653,6 @@ static void ResetMasterFields(Document *doc)
 		doc->selEndL = doc->oldSelEndL;
 	}
 	OptimizeSelection(doc);
-#else
-	doc->selStartL = doc->oldSelStartL;
-	doc->selEndL = doc->oldSelEndL;
-#endif
 
 	doc->masterChanged = FALSE;		/* Reset master changed flags */
 	doc->partChangedMP = FALSE;

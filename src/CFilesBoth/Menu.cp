@@ -510,8 +510,6 @@ DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);
 	}
 
 //#ifndef PUBLIC_VERSION
-#if 1
-
 
 /* Functions to delete selected objects from the score "stupidly", i.e., with almost
 no attempt to maintain consistency. This is intended to allow wizards to repair
@@ -588,8 +586,6 @@ void ResetAllMeasNumPos(Document *doc)
 	SetMeasNumPos(doc, doc->headL, doc->tailL, 0, 0);
 	InvalWindow(doc);
 }
-
-#endif /* PUBLIC_VERSION */
 
 /*
  *	Handle a choice from the Test Menu.
@@ -2087,7 +2083,6 @@ void InstallDocMenus(Document *doc)
 		 *	GetMenuHandle may give NULL for the new menu (if that menu was never installed?
 		 *	I dunno), so instead pass one of our stored menu handles to InsertMenu.
 		 */
-#if 1
 		if (doc->masterView)		  { mid = masterPgID; mh = masterPgMenu; }
 		else if (doc->showFormat) { mid = formatID; mh = formatMenu; }
 		else							  { mid = playRecID; mh = playRecMenu; }
@@ -2102,15 +2097,6 @@ void InstallDocMenus(Document *doc)
 			SleepTicks(1);
 			HiliteMenu(0);
 		}
-#else
-		if (doc->masterView)
-			InsertMenu(masterPgMenu,0);
-		 else if (doc->showFormat)
-			InsertMenu(formatMenu,0);
-		 else InsertMenu(playRecMenu,0);
-	
-		DrawMenuBar();
-#endif
 	}
 	
 static void InstallDebugMenuItems(Boolean installAll) 

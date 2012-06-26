@@ -184,7 +184,6 @@ void DrawMChar(
 
 		
 	if (dim) {
-#if 1
 		GetPen(&pt);
 
 		GetPenState(&pnState);
@@ -199,126 +198,6 @@ void DrawMChar(
 		
 		TextMode(oldTxMode);				
 		SetPenState(&pnState);
-#else
-		short oldFont,charHt; char smchar[10];
-		Rect srcRect, dstRect, r;
- 		FontInfo fInfo;
-		RgnHandle rgn; short lastCharWid, lastCharHt;
-						
-		GetPen(&pt);
-
-		GetPenState(&pnState);
-		PenNormal();
-
-		GetFontInfo(&fInfo);
-
-		/*
-		 * Switch ports to draw into an off-screen drawing environment, but using the
-		 *	same font as the previous port (probably the screen).
-		 */
-		GetPort(&oldPort);
-		SetPort(fontPort);
-		TextFont(oldFont=GetPortTextFont(oldPort));
-		TextSize(GetPortTextSize(oldPort));
-		TextFace(GetPortTextFace(oldPort));
-
-		/*
-		 * Erase our off-screen bitmap, then draw the character into it. The bitmap
-		 *	is pretty big, so for speed, we only erase whatever portion might have been
-		 *	occupied by the last char. we drew into it--or more precisely, a crude upper
-		 *	bound to that portion. This improves performance noticably.
-		 */
-		lastCharWid = UseRelMagnifiedSize(maxMCharWid, lastMagnify);
-		lastCharHt = UseRelMagnifiedSize(maxMCharHt, lastMagnify);
-		SetRect(&r, 0, 0, lastCharWid, lastCharHt);
-		EraseRect(&r);
-		
-		MoveTo(0, fInfo.ascent+TOP_OFFSET);
-
-		if (kludgeFontMgr && oldFont==doc->musicFontNum) {
-			strcpy(smchar, "X    ");										/* Need 4 blanks padding */
-			smchar[0] = mchar;
-			DrawCString(smchar);
-		}
-		else
-			DrawChar(mchar);
-		
-		/*
-		 * Overwrite black pixels with a gray pattern, then copy the result
-		 * back into the original port. We set the clipping region for copying
-		 * it back on the assumption the original port has standard horiz. and
-		 * vertical scrollbars.
-		 */
-
-		if (oldFont==doc->musicFontNum)
-			srcRect = charRectCache.charRect[mchar];
-		else {
-			charHt = fInfo.ascent+fInfo.descent+fInfo.leading;
-			SetRect(&srcRect, 0, 0, fInfo.widMax, charHt);
-		}
-		
-#ifdef USE_BLANKWIDTH
-		blankWidth = CharWidth(' ');
-		srcRect.right += 4*blankWidth;
-#else
-		srcRect.right += RIGHT_OFFSET;		/* Leave space for 4 "blanks" */
-#endif
-
-		srcRect.top -= TOP_OFFSET;
-		srcRect.bottom += BOTTOM_OFFSET;
-
-		dstRect = srcRect;
-
-		OffsetRect(&dstRect, pt.h, pt.v);
-		OffsetRect(&srcRect, 0, fInfo.ascent+TOP_OFFSET);
-
-		PenMode(notPatBic);
-		PenPat(NGetQDGlobalsGray());
-		PaintRect(&srcRect);
-
-//		rgn = oldPort->visRgn;
-//		(*rgn)->rgnBBox.bottom -= SCROLLBAR_WIDTH;
-//		(*rgn)->rgnBBox.right -= SCROLLBAR_WIDTH;
-		
-		rgn = NewRgn();
-		RgnHandle rectRgn = NewRgn();
-		RgnHandle dstRgn = NewRgn();
-		Rect bounds;
-		
-		GetPortVisibleRegion(oldPort,rgn);
-		
-		GetRegionBounds(rgn,&bounds);
-		bounds.bottom -= SCROLLBAR_WIDTH;
-		bounds.right -= SCROLLBAR_WIDTH;
-		RectRgn(rectRgn,&bounds);
-		SectRgn(rgn,rectRgn,dstRgn);
-	
-		/*
-		 * Caveat: If we're drawing on the screen, it doesn't seem to matter, but for
-		 * printing, we MUST make the printer port the current port before CopyBits!
-		 */
-		const BitMap *fontPortBits = GetPortBitMapForCopyBits(fontPort);
-		const BitMap *oldPortBits = GetPortBitMapForCopyBits(oldPort);
-		CopyBits(fontPortBits, oldPortBits, &srcRect, &dstRect, srcOr, dstRgn);
-
-//		CopyBits(&fontPort->portBits, &oldPort->portBits, &srcRect, &dstRect,
-//							srcOr, rgn);
-
-//		(*rgn)->rgnBBox.bottom += SCROLLBAR_WIDTH;
-//		(*rgn)->rgnBBox.right += SCROLLBAR_WIDTH;
-
-		DisposeRgn(rgn);
-		DisposeRgn(rectRgn);
-		DisposeRgn(dstRgn);
-		
-		SetPort(oldPort);
-		SetPenState(&pnState);
-
-		pt.h += CharWidth(mchar);
-		MoveTo(pt.h, pt.v);
-	
-		lastMagnify = doc->magnify;
-#endif
 	}
 	else {
 		if (kludgeFontMgr) DrawPaddedChar((unsigned char)mchar);

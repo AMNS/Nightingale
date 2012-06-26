@@ -1003,14 +1003,6 @@ static OSStatus TestDrawPage(PMPrintSession printSession, UInt32 pageNumber, Boo
         status = PMSessionPostScriptBegin(printSession);
         if (status == noErr)
         {
-#if 1
-//				PS_Handle();
-#else
-        		for (short j=0; j<42 && status==noErr; j++) {
-        			unsigned char *str = p1[j];
-            	status = PMSessionPostScriptData(printSession, (char *)&str[1], str[0]);
-        		}
-#endif
 				short font = GetPortTxFont();
 				short size = GetPortTxSize();
 				

@@ -1550,11 +1550,9 @@ Boolean MIDIDriverDialog(
 	Boolean		finished = FALSE;
 	GrafPtr		savePort;
 	DialogPtr	dlog;
-#if !TARGET_API_MAC_CARBON_MACHO
 	short			itemtype;
 	Rect			box;
 	Handle		onHdl;
-#endif
 	ModalFilterUPP	filterUPP;
 	 
 #ifndef PUBLIC_VERSION

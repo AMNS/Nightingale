@@ -499,7 +499,6 @@ void CalcAccBox(Document *doc, PCONTEXT pCont, Point *vCenterPt, Rect *accBoxR,
 	TextSize(*accSize);
 	GetFontInfo(&fInfo);
 
-#if 1
 	/* Assign box widths for various font sizes */
 	if (*accSize<=14)			{ accBoxWid = 12;	accBoxHt = 20; }
 	else if (*accSize<=18)	{ accBoxWid = 13;	accBoxHt = 22; }
@@ -513,14 +512,6 @@ void CalcAccBox(Document *doc, PCONTEXT pCont, Point *vCenterPt, Rect *accBoxR,
 	else if (*accSize<=72)	{ accBoxWid = 48;	accBoxHt = 84; }
 	else if (*accSize<=96)	{ accBoxWid = 56;	accBoxHt = 102; }
 	else							{ accBoxWid = 56;	accBoxHt = 118; }
-#else
-/* Might be able to perform a general calculation for both width and height.
- * NB: would be relative to fontSize, not magnify, since fontSize will never
- * be smaller than MIN_ACCSIZE, regardless of magnify.
- */
-	accBoxWid = *accSize-1;
-	accBoxHt = (fInfo.ascent+fInfo.descent)/3;
-#endif
 
 	accBoxR->left = ccrossbar.left-2-accBoxWid;		
 	accBoxR->right = ccrossbar.left-2;

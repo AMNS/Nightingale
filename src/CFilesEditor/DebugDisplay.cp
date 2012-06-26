@@ -215,7 +215,6 @@ void DisplayNode(Document *doc, LINK pL,
 /* Be careful with addresses provided by the following--they can change suddenly! */
 				if (OptionKeyDown())
 					DebugPrintf("@%lx:", aNote);
-#if 1	/* Standard version */
 				DebugPrintf(
 					"st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c%c%c%c%c%c%c%c\n",
 					aNote->staffn, aNote->voice,
@@ -235,28 +234,6 @@ void DisplayNode(Document *doc, LINK pL,
 					(aNote->slurredL? '>' : '.'),
 					(aNote->slurredR? '<' : '.'),
 					(aNote->inTuplet? 'T' : '.') );
-#else	/* Emphasizes performance info */
-				DebugPrintf(
-					"st=%d v=%d xd=%d yd=%d pdl=%ld pdur=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c%c%c%c%c%c%c%c\n",
-					aNote->staffn, aNote->voice,
-					aNote->xd, aNote->yd,
-					aNote->playTimeDelta, aNote->playDur,
-					aNote->subType,
-					aNote->ndots,
-					aNote->accident,
-					aNote->onVelocity,
-					(aNote->selected? 'S' : '.') ,
-					(aNote->visible? 'V' : '.') ,
-					(aNote->soft? 'S' : '.') ,
-					(aNote->inChord? 'I' : '.') ,
-					(aNote->rest? 'R' : '.'),
-					(aNote->beamed? 'B' : '.'),
-					(aNote->tiedL? ')' : '.'),
-					(aNote->tiedR? '(' : '.'),
-					(aNote->slurredL? '>' : '.'),
-					(aNote->slurredR? '<' : '.'),
-					(aNote->inTuplet? 'T' : '.') );
-#endif
 			}
 			break;
 		case GRSYNCtype:

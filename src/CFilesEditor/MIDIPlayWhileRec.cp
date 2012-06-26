@@ -8,12 +8,7 @@ recording - formerly in MIDIRecord.c.
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-//#if TARGET_API_MAC_CARBON_MACHO
 #include <CoreMIDI/MIDIServices.h>		/* for MIDIPacket */
-//#else
-//#include <midi.h>						/* for MIDIPacket */
-//#endif
-
 
 Boolean BIMIDINoteAtTime(short noteNum, short channel, short velocity, long time);
 

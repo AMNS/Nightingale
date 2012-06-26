@@ -341,12 +341,7 @@ void PrefsDialog(
 		GetMenuItemText(musFontPopup.menu, musFontPopup.currentChoice, mItemName);
 		Pstrcpy(doc->musFontName, mItemName);
 		InitDocMusicFont(doc);	// FIXME: this gives dumb error msgs for prefs dlog context...
-#if 1
 		InvalRange(doc->headL, doc->tailL);		/* Force recomputing of objRects. ??Doesn't work! */
-#else	/* This works, but is too distracting. */
-		SheetMagnify(doc, -1);
-		SheetMagnify(doc, 1);
-#endif
 		InvalWindow(doc);
 		doc->changed = TRUE;
 	}

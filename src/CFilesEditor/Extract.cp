@@ -32,7 +32,6 @@ static void		ExtCompactVoiceNums(Document *, short);
 
 
 #ifndef PUBLIC_VERSION
-#if 1
 void DCheckSyncs(Document *doc)
 {
 	LINK	pL, aNoteL, aModNRL;
@@ -67,7 +66,6 @@ void DCheckSyncs(Document *doc)
 	}
 	PopLock(NOTEheap);
 }
-#endif
 #endif
 
 
@@ -705,14 +703,12 @@ static Boolean MakeMultibarRest(Document *doc,
 	
 	measL = RightLINK(firstL);
 	DeleteRange(doc, measL, lastL);
-#if 1 // JGG: If not this, SetupNote will get garbage context next time.
 	if (nSysDel>0) {
 		LINK nextSysL = SSearch(lastL, SYSTEMtype, GO_RIGHT);
 		if (nextSysL==NILINK)
 			nextSysL = doc->tailL;
 		FixStructureLinks(doc, doc, lastL, nextSysL);
 	}
-#endif
 	return TRUE;
 }
 

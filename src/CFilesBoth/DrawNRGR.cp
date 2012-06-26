@@ -748,13 +748,7 @@ void DrawNoteheadGraph(Document *doc,
 
 	aNote = GetPANOTE(aNoteL);
 	resFact = RESFACTOR*(long)doc->spacePercent;
-#if 1
 	qdLen = noteHeadGraphWidth*4;
-#else
-	qdLen = IdealSpace(doc, aNote->playDur, resFact);
-	qdLen = (long)(config.pianorollLenFact*qdLen) / 100L;
-	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
-#endif
 	graphLen = d2p(qd2d(qdLen, pContext->staffHeight,
 							pContext->staffLines));
 
@@ -769,7 +763,6 @@ void DrawNoteheadGraph(Document *doc,
 	SetRect(&graphRect, xorg, yorg-d2p(dhalfLn),
 		xorg+graphLen, yorg+d2p(dhalfLn));
 	rDiam = UseMagnifiedSize(4, doc->magnify);
-#if 1
 	nSegs = 1;									// ??TEMP
 	switch (appearance) 
 	{
@@ -844,39 +837,6 @@ void DrawNoteheadGraph(Document *doc,
 	}
 	ForeColor(Voice2Color(doc, aNote->voice));				// ??TEMP
 
-
-#else
-	switch (appearance) 
-	{
-		case 1:
-			ForeColor(blueColor);									// ???TEMP
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
-			break;
-		case 2:
-			ForeColor(yellowColor);									// ???TEMP
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
-			break;
-		case 3:
-			segRect = graphRect;
-			segRect.right = segRect.left+graphLen/2;
-			ForeColor(magentaColor);								// ???TEMP
-			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&segRect, rDiam, rDiam); 
-			segRect = graphRect;
-			segRect.left = segRect.right-graphLen/2;
-			ForeColor(blueColor);								// ???TEMP
-			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&segRect, rDiam, rDiam); 
-			break;
-		default:
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
-			;
-	}
-	ForeColor(Voice2Color(doc, aNote->voice));				// ??TEMP
-#endif
 }
 
 /* ---------------------------------------------------------------------- DrawNote -- */
@@ -1643,7 +1603,6 @@ PushLock(NOTEheap);
 				/* ??The following #if/else/endif is a mess: the commented-out code looks
 					better, but it's been the way it is now for years, and I don't remember
 					anything about this. Clean up some day. -Don B., 11/96 */
-#if 1
 				switch (unmappedGlyph) {
 					case EIGHth:
 					case SIXTEENth:
@@ -1656,11 +1615,6 @@ PushLock(NOTEheap);
 					default:
 						break;
 				}
-#else
-				restInset = restObjRTweak[lDur-1];
-				InsetRect(&rSub, 0, 
-					d2p(std2d(restInset, pContext->staffHeight, pContext->staffLines)));
-#endif
 				OffsetRect(&rSub, restxp-pContext->paper.left, restyp-pContext->paper.top);
 			}
 		}

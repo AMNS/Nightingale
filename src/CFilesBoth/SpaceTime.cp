@@ -1574,10 +1574,8 @@ static long FixMeasTimeStamps(
 	Boolean measTooLong=FALSE;
 	char fmtStr[256];
 	
-#if 1
 	/* ??Experimental partial solution */
 	if (!CapsLockKeyDown() && !RhythmUnderstood(doc, measL, FALSE)) return 0L;
-#endif
 
 	endMeasL = EndMeasSearch(doc, measL);
 	last = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, FALSE);

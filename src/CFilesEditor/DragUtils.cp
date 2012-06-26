@@ -303,12 +303,7 @@ static void FixXStfNoteStems(Document *doc, LINK beamL)
 		baseL is undefined. Just make beam horizontal for now, as when cross-staff
 		beam is created. But this function is now working very hard to accomplish little.
 		What should it do? */
-#if 1
 	firstystem = lastystem = ystem;
-#else
-	GetBeamEndYStems(doc, nInBeam, bpSync, noteInSync, baseL, ystem, SINGLE_DI, upOrDown,
-								&firstystem, &lastystem);
-#endif
 
 	FillSlantBeam(doc, beamL, v, nInBeam, bpSync, noteInSync, firstystem,
 									lastystem, theRange, TRUE);

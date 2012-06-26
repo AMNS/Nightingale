@@ -371,12 +371,8 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 			eventData[2] = pChunkMF[locMF];
 			for (i = 1; i<=pChunkMF[locMF]; i++)
 				eventData[i+2] = pChunkMF[locMF+i];
-#if 1
 			locMF += pChunkMF[locMF];
 			locMF++;
-#else	// JGG: doesn't work right on CW PPC compiler:
-			locMF += pChunkMF[locMF++];
-#endif
 			opStatus = OP_COMPLETE;
 			break;
 		default:
@@ -1458,8 +1454,6 @@ static short CountSyncs(Document *doc)
 	return nSyncs;
 }
 
-#if 1
-
 static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *rawSyncTab, short rawTabSize) 
 {
 	short nSyncs = CountSyncs(doc);
@@ -1501,32 +1495,6 @@ static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *raw
 	return docSyncTab;
 }
 
-#else
-
-static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize) 
-{
-	short nSyncs = CountSyncs(doc);
-	long tLen = nSyncs * sizeof(LINKTIMEINFO);
-	LINKTIMEINFO *docSyncTab = (LINKTIMEINFO *)NewPtr(tLen);
-	if (!GoodNewPtr((Ptr)docSyncTab)) {
-		*tabSize = 0; return NULL;
-	}
-	*tabSize = nSyncs;
-	
-	int i = 0;
-	for (LINK pL = doc->headL; pL != doc->tailL; pL=RightLINK(pL)) {
-		if (SyncTYPE(pL)) {
-			LINKTIMEINFO info = docSyncTab[i];
-			info.link = pL;
-			info.time = LastEndTime(doc, doc->headL, pL);
-			docSyncTab[i++] = info;
-		}
-	}
-	
-	return docSyncTab;
-}
-
-#endif
 static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoInfo) 
 {
 	long timeStamp = tempoInfo.tStamp;

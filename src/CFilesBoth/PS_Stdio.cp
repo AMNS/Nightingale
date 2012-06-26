@@ -378,17 +378,12 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 			temp = 0;
 			temp++;
 		}
-#if 1
-
 		dPercent = percent/100.0;
 		dSdcf = dPercent * DDFact;
 		lPercent = dPercent;
 		sdcf = dSdcf;
 		//PS_Print("/SDCF %ld %ld mul def\r", lPercent);
 		PS_Print("/SDCF %ld 100 %ld div mul def\r",(long)DDFact,(long)percent);
-#else
-		PS_Print("/SDCF DCF 100 %ld div mul def\r",(long)percent);
-#endif
 		
 		/*
 		 *	Transformation matrix that we will multiply the current transformation
@@ -595,11 +590,7 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 		
 		PS_Print("/MFS %ld def\r",(long)musicPtSize);
 		PS_Print("/DCF %ld def\r",(long)DDFact);
-#if 1
 		PS_Print("/SDCF 16 def\r");
-#else
-		PS_Print("/SDCF DCF 100 %ld div mul def\r",(long)percent);
-#endif
 		/*
 		 *	Transformation matrix that we will multiply the current transformation
 		 *	matrix by.  After the multiplication, PostScript's user coordinate system
@@ -1605,13 +1596,8 @@ OSErr PS_Repeat(Document *doc, DDIST top, DDIST bot, DDIST botNorm, DDIST x,
 						want to do that now, full width is probably too wide in engraving
 						style, and the width should be under user control anyway. For
 						now, kludge. */
-#if 1
 					thickWidth = (7*thickWidth)/10;
 					x2 = x+INTERLNSPACE(lineSpace)+thickWidth/4;
-#else
-					thickWidth = (3*thickWidth)/4;
-					x2 = x+INTERLNSPACE(lineSpace)+thickWidth/2;
-#endif
 					PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x,(long)bot,
 													(long)x,(long)top,
 													(long)thickWidth);

@@ -3,7 +3,6 @@
 //#include "MIDI.h"
 #include <CoreMIDI/MidiServices.h>
 
-#if 1
 void MIDIWritePacket(short refNum, MMMIDIPacket *mPacket);		
 
 void MIDIStartTime(short refNum);
@@ -15,7 +14,6 @@ OSErr MIDISignIn(OSType clientId, long refCon, Handle iconHdl, Str255 str);
 void MIDISignOut(OSType);
 
 void MIDIPoll(short refnum, long timeOffset);
-#endif
 
 // From OMS.h
 
@@ -23,7 +21,6 @@ OMSAPI(short)	OMSUniqueIDToRefNum(OMSUniqueID uniqueID);
 
 // From FMData.h
 
-#if 1
 /* match levels for MatchFMSDestination() */
 enum {
 	deviceMatch = 0,		/* The same device was found (same uniqueID).  Other device attributes may have changed. */
@@ -32,53 +29,8 @@ enum {
 	locationMatch,			/* A device on the same port and cable was found. */
 	noMatch				/* No match was found.  A default device was selected. */
 };
-#endif
 
 // From MIDI.h
-
-#if TARGET_API_MAC_CARBON_MACHO
-
-typedef MMMIDIPacket *                    MMMIDIPacketPtr;
-typedef CALLBACK_API( short , MIDIReadHookProcPtr )(MMMIDIPacketPtr myPacket, long myRefCon);
-
-typedef STACK_UPP_TYPE(MIDIReadHookProcPtr)                     MIDIReadHookUPP;
-
-struct MIDIClkInfo {
-  short               syncType;               /*synchronization external/internal*/
-  long                curTime;                /*current value of port's clock*/
-  short               format;                 /*time code format*/
-};
-typedef struct MIDIClkInfo              MIDIClkInfo;
-struct MIDIIDRec {
-  OSType              clientID;
-  OSType              portID;
-};
-typedef struct MIDIIDRec                MIDIIDRec;
-struct MIDIPortInfo {
-  short               portType;               /*type of port*/
-  MIDIIDRec           timeBase;               /*MIDIIDRec for time base*/
-  short               numConnects;            /*number of connections*/
-  MIDIIDRec           cList[1];               /*ARRAY [1..numConnects] of MIDIIDRec*/
-};
-typedef struct MIDIPortInfo             MIDIPortInfo;
-typedef MIDIPortInfo *                  MIDIPortInfoPtr;
-typedef MIDIPortInfoPtr *               MIDIPortInfoHdl;
-typedef MIDIPortInfoPtr *               MIDIPortInfoHandle;
-
-struct MIDIPortParams {
-  OSType              portID;                 /*ID of port, unique within client*/
-  short               portType;               /*Type of port - input, output, time, etc.*/
-  short               timeBase;               /*refnum of time base, 0 if none*/
-  long                offsetTime;             /*offset for current time stamps*/
-  MIDIReadHookUPP     readHook;               /*routine to call when input data is valid*/
-  long                refCon;                 /*refcon for port (for client use)*/
-  MIDIClkInfo         initClock;              /*initial settings for a time base*/
-  Str255              name;                   /*name of the port, This is a real live string, not a ptr.*/
-};
-typedef struct MIDIPortParams           MIDIPortParams;
-typedef MIDIPortParams *                MIDIPortParamsPtr;
-
-#endif
 
 // MAS disabling; no MIDIReadHookUPP
 //EXTERN_API_C( MIDIReadHookUPP )

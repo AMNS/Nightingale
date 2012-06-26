@@ -386,19 +386,7 @@ void DoTEEdit(PEDITFIELD theField, short cmd)
 			scrapLen = TEGetScrapLength();
 			numSelChars = (long) ((**theField->teH).selEnd - (**theField->teH).selStart);
 			if ((scrapLen + teLen - numSelChars) > MAX_CHARS_IN_FIELD) {
-#if 1
 				SysBeep(10);
-#else
-				charsToPaste = MAX_CHARS_IN_FIELD - teLen;
-				scrapH = TEScrapHandle();
-				HLock(scrapH);
-/* ••••
-copy chars 0 through charsToPaste from scrapH
-"paste" them into teH. How?
-••••Use TEInsert.
-*/				
-				HUnlock(scrapH);
-#endif
 			}
 			else
 				TEPaste(theField->teH);

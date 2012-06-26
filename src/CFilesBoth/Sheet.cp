@@ -482,22 +482,7 @@ static short nestLevel = 0;
 
 void SetCurrentSheet(Document */*doc*/, short /*i*/, Rect */*paper*/)
 	{
-
-#if 1
 		MayErrMsg("Shouldn't be calling SetCurrentSheet");		/* ??WHY? Is this for overview? */
-#else		
-		if (nestLevel++ == 0) {
-			doc->currentSheet = i;
-			doc->currentPaper = *paper;
-			dx = doc->viewRect.left - paper->left;
-			dy = doc->viewRect.top - paper->top;
-			SetOrigin(dx,dy);
-			dx -= doc->origin.h;
-			dy -= doc->origin.v;
-			
-			OffsetRect(&(*(doc->theWindow)->clipRgn)->rgnBBox, dx, dy);
-			}
-#endif
 	}
 
 

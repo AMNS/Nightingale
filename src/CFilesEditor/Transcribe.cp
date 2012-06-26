@@ -1243,7 +1243,6 @@ Boolean RecTransMerge(Document *doc)
 		return FALSE;
 	}
 
-#if 1
 /* If the Measure where we're starting the merge begins with a time signature (other
 than in the reserved area), RTMQuantizeSelDurs has big problems, and has for a long
 time--this bug was already in Nightingale 2.0. Since as of this writing (2 Mar. 1996),
@@ -1257,7 +1256,6 @@ we're on the verge of shipping v. 3.0, just warn the poor user. Sigh. */
 			break;
 		}
 }
-#endif
 
 	staffn = doc->selStaff;
 

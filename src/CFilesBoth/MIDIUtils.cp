@@ -13,11 +13,7 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-//#if TARGET_API_MAC_CARBON_MACHO
 #include <CoreMIDI/MIDIServices.h>		/* for MIDIPacket */
-//#else
-//#include <midi.h>						/* for MIDIPacket */
-//#endif
 
 #include "MidiMap.h"
 #include "CarbonStubs.h"

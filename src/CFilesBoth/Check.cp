@@ -3131,14 +3131,8 @@ PushLock(OBJheap);
 			p->denomVis = tParam.denomVis;
 			p->brackVis = tParam.brackVis;
 			doc->changed = TRUE;
-#if 1
 			/* ??THIS IS EXCESSIVE */
 			InvalMeasure(pL, TupletSTAFF(pL));
-#else
-			/* ??THIS IS INADEQUATE--MUST INVAL UNION OF OLD AND accNum/denom AND BRACKET */
-			OffsetRect(&oldObjRect, doc->currentPaper.left, doc->currentPaper.top);
-			InvalWindowRect(doc->theWindow,&oldObjRect);
-#endif
 		}
 		break;
 	case SMDrag:

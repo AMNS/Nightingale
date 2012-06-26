@@ -24,7 +24,6 @@ long ReadCharsFromConsole(char */*buffer*/, long /*n*/)
 long		gmOMSBufferLength;	/* OMS MIDI Buffer size in bytes */
 Boolean	gOMSMIDIBufferFull;
 
-#if 1
 void SetOMSConfigMenuTitles(void)
 {}
 
@@ -174,8 +173,6 @@ OMSAPI(void)	SetOMSDeviceMenuSelection(OMSDeviceMenuH , unsigned char , OMSUniqu
 OMSAPI(short)	OMSUniqueIDToRefNum(OMSUniqueID)
 { return 0; }
 
-
-#endif
 			
 /* FreeMIDIUtils.h for Nightingale */
 
@@ -183,8 +180,6 @@ OMSAPI(short)	OMSUniqueIDToRefNum(OMSUniqueID)
 long gmFMSBufferLength;				/* Our FMSPacket buffer size in bytes */
 Boolean gFMSMIDIBufferFull;
 
-#if 1
-			
 MMMIDIPacket *GetFMSMIDIPacket(void) { return (MMMIDIPacket*)NULL; }
 MMMIDIPacket *PeekAtNextFMSMIDIPacket(Boolean first) { return (MMMIDIPacket*)NULL; }
 void DeletePeekedAtFMSMIDIPacket(void) {}
@@ -294,8 +289,6 @@ Boolean GetFMSPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[]
 void GetFMSNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 				Byte partChannel[], SignedByte partVelo[], fmsUniqueID partDevice[],
 				short *pUseNoteNum, short *pUseChan, short *pUseVelo, fmsUniqueID *puseDevice) {}
-
-#endif
 
 // -------------------------------------------------------------------------------
 

@@ -45,11 +45,7 @@
 
 #define TARGET_API_MAC_CARBON 1
 
-//#if TARGET_API_MAC_CARBON_MACHO
 #include <Carbon/Carbon.h>
-//#else
-//#include <Carbon.h>
-//#endif
 
 #include "SampleMDEF.h"
 

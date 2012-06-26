@@ -462,7 +462,6 @@ static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUse
 				break;
 			
 			case kNavUserActionSaveAs:
-#if 1
 				NavReplyRecord	reply;
 				OSStatus			status;
 				
@@ -473,7 +472,6 @@ static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUse
 				}
 				
 				status = NavDisposeReply(&reply);
-#endif
 				break;
 				
 			default:

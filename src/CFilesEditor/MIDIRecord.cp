@@ -2244,7 +2244,6 @@ Boolean StepRecord(
 			if (printDebug) PrintNBuffer(doc, nOnBuffer, nOnBufLen);
 			nowTime = GetMIDITime(0L);
 			nChord = FindDeflamGap(doc, nOnBuffer, nOnBufLen, nowTime-midiNow, 10);
-#if 1
 			if (nChord<=0) {
 				long tStamp = nOnBuffer[nOnBufLen-1].tStamp + midiNow;
 				//long endTime = tStamp+doc->deflamTime;
@@ -2259,7 +2258,6 @@ Boolean StepRecord(
 					DebugPrintf("midiNow %ld tStamp %ld nowTime %ld endTime %ld nOnBufLen %ld \n", midiNow, tStamp, nowTime, endTime, nOnBufLen);
 					
 			}
-#endif
 
 			if (nChord>0) {
 				int k = 0;

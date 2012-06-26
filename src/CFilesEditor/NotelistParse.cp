@@ -1937,21 +1937,12 @@ static short NotelistVersion(FILE *f)
 	DebugPrintf("Notelist header string='%s'\n", headerVerString);
 #endif
 
-#if 1
 	if (strncmp(gInBuf, COMMENT_NLHEADER0, strlen(COMMENT_NLHEADER0))==0)
 		return 0;
 	if (strncmp(gInBuf, COMMENT_NLHEADER1, strlen(COMMENT_NLHEADER1))==0)
 		return 1;
 	if (strncmp(gInBuf, COMMENT_NLHEADER2, strlen(COMMENT_NLHEADER2))==0)
 		return 2;
-#else
-	if (strncmp(gInBuf, COMMENT_NLHEADER, strlen(COMMENT_NLHEADER))) {
-		// more specific analysis?
-		goto Err;
-	}
-
-	return 1;
-#endif
 	
 Err:
 	/* There's something wrong with the Notelist header structured comment. Say so,
@@ -2024,22 +2015,13 @@ static short FSNotelistVersion(short refNum)
 	DebugPrintf("Notelist header string='%s'\n", headerVerString);
 #endif
 
-#if 1
 	if (strncmp(gInBuf, COMMENT_NLHEADER0, strlen(COMMENT_NLHEADER0))==0)
 		return 0;
 	if (strncmp(gInBuf, COMMENT_NLHEADER1, strlen(COMMENT_NLHEADER1))==0)
 		return 1;
 	if (strncmp(gInBuf, COMMENT_NLHEADER2, strlen(COMMENT_NLHEADER2))==0)
 		return 2;
-#else
-	if (strncmp(gInBuf, COMMENT_NLHEADER, strlen(COMMENT_NLHEADER))) {
-		// more specific analysis?
-		 { errStage = 7; goto Err; }
-	}
 
-	return 1;
-#endif
-	
 Err:
 	printf(gInBuf);
 	printf("error stage %d", errStage);
