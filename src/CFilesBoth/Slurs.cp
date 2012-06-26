@@ -987,11 +987,6 @@ void PrintSlurPoints(LINK aSlurL, char */*str*/)
 	PASLUR aSlur;
 	
 	aSlur = GetPASLUR(aSlurL);
-#ifdef SDEBUG
-	DebugPrintf("%s: startPt=%P endPt=%P kn0=%P kn1=%P c0=%P c1=%P\n",
-		str, &aSlur->startPt, &aSlur->endPt, &aSlur->seg.knot, &aSlur->endpoint,
-		&aSlur->seg.c0, &aSlur->seg.c1);
-#endif
 }
 
 /* ------------------------------------------------------------ SetSlurCtlPoints -- */
@@ -1080,9 +1075,6 @@ PrintSlurPoints(aSlurL, "SetSlurCtlPts: 1");
 	 else ;								/* Otherwise, (x0,y0) has the short slur offset already */
 
 	/* Now make left control point symmetric version of right */
-#ifdef SDEBUG
-DebugPrintf("Non-Ohio: c0=(%d,%d) c1=(%d,%d)\n",x0,curveUp ? -y0 : y0,-x0,curveUp?-y0:y0);
-#endif
 	aSlur = GetPASLUR(aSlurL);
 	aSlur->seg.c0.h = x0;
 	aSlur->seg.c0.v = curveUp ? -y0 : y0;
@@ -1107,9 +1099,6 @@ DebugPrintf("Non-Ohio: c0=(%d,%d) c1=(%d,%d)\n",x0,curveUp ? -y0 : y0,-x0,curveU
 
 	RotateSlurCtrlPts(aSlurL,x,y,1);
 
-#ifdef SDEBUG
-PrintSlurPoints(aSlurL, "SetSlurCtlPts: 2");
-#endif
 	return TRUE;
 }
 
@@ -1421,10 +1410,6 @@ void Antikink()
 					seg.c1.v = endpoint.v+scale*dist;
 					
 					aSlur->seg = seg;
-#ifdef SDEBUG
-DebugPrintf("Antikink: slur %d: oldLen=%d newLen=%d scale=%.3f dist=%d\n",
-slurInfo[i].link, slurInfo[i].len, newLen, scale, dist);
-#endif
 				}
 			}
 		}

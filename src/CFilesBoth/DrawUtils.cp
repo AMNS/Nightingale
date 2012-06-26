@@ -180,11 +180,6 @@ void DrawMChar(
 	
 	if (shape==NO_VIS) return;
 
-#ifdef NO_SYSENVREC
-	if (thisMac.machineType<envMacII)
-		kludgeFontMgr = FALSE;
-	else
-#endif
 		kludgeFontMgr = TRUE;	/* Maybe should be FALSE if System>=6.0.x for some x? */
 
 		

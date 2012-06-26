@@ -25,7 +25,7 @@
 		Pt2Paper					GlobalToPaper			RefreshScreen
 		InitSleepMS				SleepMS					SleepTicks
 		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
-		PlayResource			TrapAvailable			GetSN
+		PlayResource			TrapAvailable			
 /***************************************************************************/
 
 /*										NOTICE
@@ -1285,9 +1285,6 @@ void InitSleepMS()
 
 	loopCount = NORMAL_LOOP_COUNT;
 	/* If this is an early, slow CPU, reduce <loopCount> so it doesn't take too long. */ 
-#ifdef NO_SYSENVREC
-	if (thisMac.processor==env68000 || thisMac.processor==env68010) loopCount /= 5;
-#endif
 
 	startTicks = TickCount();
 	

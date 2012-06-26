@@ -18,7 +18,6 @@
 /* ================================================= AltInsTrackPitch and helpers == */
 
 #define NO_EMPTY_BOXES 0			/* always get rid of box when showing no accidental */
-#define ACCELERATE 1
 
 #define NO_ACCIDENTAL	0
 #define MIN_ACCSIZE		14		/* Feedback accidentals will be no smaller than this pt size */
@@ -284,7 +283,6 @@ Boolean AltInsTrackPitch(
 					
 				else {
 					if (accMode==CHROMATIC_MODE)	{
-#if ACCELERATE
 						/* Determine number of pixels mouse must move to change accidental.
 						 * The quicker the mouse moves, the fewer the number of pixels. */
 						thisTime = TickCount();
@@ -295,10 +293,6 @@ Boolean AltInsTrackPitch(
 						else if (deltaTime<10+extraTime) accidentStep = 2;
 						else if (deltaTime<20+extraTime) accidentStep = 3;
 						else										accidentStep = 4;
-/* say("%d\n", accidentStep); */
-#else
-						accidentStep = 2;
-#endif				
 						for (deltaV = 0; ABS(deltaV)<accidentStep && WaitMouseUp(); ) {
 							if (EventAvail(keyDownMask, &evt)) break;		/* in case user hits mode change key */
 							GetPaperMouse(&tempPt, &context.paper);
@@ -306,7 +300,6 @@ Boolean AltInsTrackPitch(
 						}
 						direction = deltaV>0? ACC_DOWN : ACC_UP;
 						
-#if ACCELERATE
 						/* Extra bump(s) for maximum acceleration. */
 						if (accidentStep==1 && ABS(deltaV)>2) {
 							halfLn -= direction*(ABS(deltaV)>>1);
@@ -315,7 +308,6 @@ Boolean AltInsTrackPitch(
 						else halfLnAccel = FALSE;
 
 						SleepTicks(1L);			/* Rein in fast machines. (??Where should this go?) */
-#endif
 
 						/* must test deltaV in case we're here due to mouseUp in prev. for loop */
 						if (ABS(deltaV)>=accidentStep) {
@@ -792,7 +784,6 @@ Boolean InsTrackPitch(
 	durIndex = *symIndex;
 	partn = Staff2Part(doc, staff);
 	
-//#ifndef TARGET_API_MAC_CARBON_MIDI
 	useChan = UseMIDIChannel(doc, partn) - CM_CHANNEL_BASE;			/* Set feedback channel no. */
 	partDevID = GetCMDeviceForPartn(doc, partn);
 
@@ -807,7 +798,6 @@ Boolean InsTrackPitch(
 		}
 		useFeedback = FALSE;
 	}
-//#endif
 
 	octTransp = (octType>0? noteOffset[octType-1] : 0);				/* Set feedback transposition */
 	partL = FindPartInfo(doc, partn);

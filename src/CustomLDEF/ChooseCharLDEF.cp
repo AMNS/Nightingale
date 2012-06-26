@@ -23,13 +23,8 @@ static GrafPtr charPort;
 
 /* main LDEF entry point */
 
-#if CODE_RESOURCE
-pascal void	main(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCell*/,
-				short lDataOffset, short lDataLen, ListHandle lHandle)
-#else
 pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCell*/,
 				short lDataOffset, short lDataLen, ListHandle lHandle)
-#endif
 {
 	FontInfo fontInfo;							/* font information (ascent/descent/etc) */
 	ListPtr listPtr;								/* pointer to store dereferenced list */
@@ -45,12 +40,6 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 	//Rect bounds,cpBounds;
 	//short cpHt,cpWd;
 	short lMarg,tMarg;
-		
-	
-#if CODE_RESOURCE
-	RememberA0();
-	SetUpA4();
-#endif	
 
 	/* lock and dereference list mgr handles */
 	hStateList = HGetState((Handle)lHandle);
@@ -121,9 +110,6 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 	HSetState(listPtr->cells, hStateCells);
 	HSetState((Handle)lHandle, hStateList);
 
-#if CODE_RESOURCE
-	RestoreA4();
-#endif
 }
 
 static void CenterInRect(Rect *r,Rect *cInR)

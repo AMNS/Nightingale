@@ -200,9 +200,6 @@ void AddDot(Document *doc,
 /* --------------------------------------------------------------------- AddNote -- */
 /* Add a note or rest to the object list at <doc->selStartL> */
 
-#define TIESUBTYPE ((short)TRUE)
-#define SLURSUBTYPE ((short)FALSE)
-
 LINK AddNote(Document *doc,
 				short	x,			/* >=0 means new Sync, and this is its horiz. position in pixels, */
 									/* <0  means add note/rest to the existing Sync <doc->selStartL>. */

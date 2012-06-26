@@ -68,7 +68,6 @@ In NoteView, the splash screen is purely for the user's benefit. */
 
 #define NAME_DI 1
 #define ABOUT_DI 2
-#define NO_SERIAL_NUM		/* we no longer show the registration stuff */
 
 static Boolean DoSplashScreen()
 {
@@ -85,25 +84,12 @@ static Boolean DoSplashScreen()
 
 	/* If the owner's name and organization aren't filled in, it's no big deal:
 		they should have the default values. */
-	
- #ifndef NO_SERIAL_NUM
-	GetIndCString(userName, 1000, 1);
-	GetIndCString(userOrg, 1000, 2);
-
-	GetIndCString(fmtStr, INITERRS_STRS, 14);			/* "This copy is registered to %s, %s" */
-	sprintf(strBuf, fmtStr, userName, userOrg); 
-	SetDialogItemCText(aHdl, strBuf);
- #endif
 
 	CenterWindow(GetDialogWindow(dlog), 65);
 	ShowWindow(GetDialogWindow(dlog));
 	UpdateDialogVisRgn(dlog);
 
- #ifdef NO_SERIAL_NUM	/* not as much to read */
 	SleepTicksWaitButton(120L);							/* So user has time to read it */
- #else
-	SleepTicksWaitButton(180L);							/* So user has time to read the message */
- #endif
 
 	HideWindow(GetDialogWindow(dlog));
 	DisposeDialog(dlog);										/* Free heap space */

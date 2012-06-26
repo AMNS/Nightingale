@@ -15,8 +15,6 @@
 
 /* ------------------------------------------------------------- DoAboutBox et al -- */
 
-#define NO_SERIAL_NUM
-
 #define	CR_LEADING				14		/* Vert. dist. between baselines of credit text */
 #define	PAUSE_CODE				'¹'	/* [opt-p] If line of TEXT resource begins with this,
 													animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
@@ -26,7 +24,6 @@
 #define	SCROLL_NORM_DELAY		4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
 #define	MAX_PAUSE_LINES		10		/* Max number of lines that can begin with PAUSE_CODE */
 
-static Boolean			GetSNAndOwner(char [], char [], char []);
 static pascal Boolean	AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static Boolean			SetupCredits(void);
 static void				AnimateCredits(DialogPtr dlog);
@@ -44,27 +41,6 @@ static enum {
 	STXT_HINT2,
 	STXT_VERS
 } E_AboutItems;
-
-
-/* Get information about this copy of Nightingale: its serial number and the
-name and organization of its owner. 
- Ignore serial number for now --chirgwin Mon May 28 16:02:01 PDT 2012
- */
-
-static Boolean GetSNAndOwner(char *serialStr, char *userName, char *userOrg)
-{
-	serialStr[0] = '\0';
-	userName[0] = '\0';
-	userOrg[0] = '\0';
-	
-	/* If the owner's name and organization aren't filled in, it's no big deal--
-		they should have the default values. */
-	
-	GetIndCString(userName, 1000, 1);
-	GetIndCString(userOrg, 1000, 2);
-
-	return TRUE;
-}
 
 static GrafPtr	fullTextPort;
 static Rect		creditRect, textSection;
@@ -89,8 +65,6 @@ void DoAboutBox(
 	/* Build dialog window and install its item values */
 	
 	GetPort(&oldPort);
-	
-	GetSNAndOwner(serialStr, userName, userOrg);
 
 	GetIndCString(fmtStr, DIALOG_STRS, 5);   		 		/* "Free memory (RAM): %ldK total, largest block = %ldK" */
 	sprintf(str, fmtStr, FreeMem()/1024L, MaxBlock()/1024L);
@@ -123,12 +97,7 @@ void DoAboutBox(
 	ShowDialogItem(dlog, PICT8_Confident);
 #endif
 
-#ifdef NO_SERIAL_NUM
-	HideDialogItem(dlog, STXT7_CopyNum);
-#else
 	ShowDialogItem(dlog, STXT7_CopyNum);
-#endif
-	
 	
 	/* Get version number string and display it in a static text item. */
 	unsigned char vstr[256], *vers_str;
@@ -147,9 +116,7 @@ void DoAboutBox(
 
 	GetDialogItem(dlog, BUT2_Special, &type, &hndl, &box);
 	HiliteControl((ControlHandle)hndl, CTL_INACTIVE);
-#ifdef NO_SERIAL_NUM
 	HideDialogItem(dlog, BUT2_Special);
-#endif
 
 	SetPort(GetDialogWindowPort(dlog));
 	TextFont(textFontNum);

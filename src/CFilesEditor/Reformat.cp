@@ -59,8 +59,6 @@ static short BuildMeasTable(Document *, LINK, LINK, MEASDATA []);
 static short BuildSysTable(Document *, LINK, LINK, SYSDATA []);
 static short LinkToSIndex(LINK sysL, SYSDATA *sysTable);
 
-static void DebugRfmtTable(MEASDATA measTable[], short mCount, DDIST sysWChecked[], 
-							DDIST staffLengthUse);
 static short NewSysNums(Document *, short, Boolean, MEASDATA [], short, LINK);
 static void FixMeasVis(Document *doc, MEASDATA [], short);
 static Boolean AddFinalMeasure(Document *, LINK, LINK, DDIST);
@@ -227,31 +225,6 @@ static short BuildSysTable(Document */*doc*/, LINK startSysL, LINK endL, SYSDATA
 	return CountObjects(startSysL, endL, SYSTEMtype);
 }
 
-/* -------------------------------------------------------------- DebugRfmtTable -- */
-
-#ifdef RFMTBUG
-static void DebugRfmtTable(MEASDATA measTable[], short mCount, DDIST sysWChecked[],
-									DDIST staffLengthUse)
-{
-	short m;
-
-	for (m = 0; m<mCount && m<MAX_MEAS_RFMT; m++) {
-		DebugPrintf("m[%d] measL=%d sysL=%d wid=%d (widChkd=%d lenUse=%d) TS=%ld",
-						m, measTable[m].measL, measTable[m].systemL,
-						measTable[m].width, sysWChecked[m], staffLengthUse,
-						measTable[m].lTimeStamp);
-		if (measTable[m].lastOfSys) DebugPrintf(" LAST");
-		if (measTable[m].secondPiece) DebugPrintf(" 2ND");
-		if (m==0 || (m>0 && measTable[m].newSysNum!=measTable[m-1].newSysNum))
-			DebugPrintf(" newSysN=%d", measTable[m].newSysNum);
-		DebugPrintf("\n");
-	}
-}
-#else
-static void DebugRfmtTable(MEASDATA [], short, DDIST [], DDIST)
-{}
-#endif
-
 /* ------------------------------------------------------------------ NewSysNums -- */
 /*	Fill in the new System number each Measure will have. Start a new System when
 the desired number of Measures per System is exceeded or, optionally, when the
@@ -355,8 +328,6 @@ static short NewSysNums(
 		if (measThisSys==1 && measTable[m].secondPiece)
 				measTable[m].secondPiece = FALSE;
 	}
-
-	DebugRfmtTable(measTable,mCount,sysWChecked,staffLengthUse);
 
 	/* If every Measure will stay in the same System, nothing really needs to be done. */
 	

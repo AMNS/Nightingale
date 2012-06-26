@@ -556,15 +556,6 @@ static void ConsidIPWidths(
 			fSpAfter[i] = STD2F(spNeeded);					
 		}
 
-#ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf("Final fSpBefores:");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5d", fSpBefore[i]);
-		DebugPrintf("\n");
-	}
-#endif
-
 	/* Move J_IT symbols where needed to leave room for preceding J_IP symbols. */
 	
 	for (s = 1; s<=doc->nstaves; s++)
@@ -632,15 +623,6 @@ static void ConsiderWidths(
 {
 	ConsidITWidths(doc, barTermL, nInMeasure, spaceTimeInfo, fSpBefore);
 
-#ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf("Inter.fSpBefores:");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5d", fSpBefore[i]);
-		DebugPrintf("\n");
-	}
-#endif
-	
 	ConsidIPWidths(doc, barTermL, nInMeasure, spaceTimeInfo, fSpBefore, position);
 	
 	/*
@@ -742,24 +724,6 @@ DDIST Respace1Bar(
 					fIdealSp);
 	}
 
-#ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf(  "Nodes: ---------");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5d", spaceTimeInfo[i].link);
-		DebugPrintf("\nTypes:          ");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf("  %4.4s", NameNodeType(spaceTimeInfo[i].link));
-		DebugPrintf("\nTimes:          ");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5ld", spaceTimeInfo[i].startTime);
-		DebugPrintf("\nIdeal fSpBefores:");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5d", fSpBefore[i]);
-		DebugPrintf("\n");
-	}
-#endif
-
 	/*
 	 *	Consider objects' widths (both to left and right of their origins) and
 	 *	increase spacing as needed to avoid overprinting. (People doing proportional
@@ -767,15 +731,6 @@ DDIST Respace1Bar(
 	 */
 	ConsiderWidths(doc, barTermL, nInMeasure, spaceTimeInfo, fSpBefore, position);
 
-#ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf("Final positions:");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5ld", position[i]);
-		DebugPrintf("\n");
-	}
-#endif
-	
 	/*
 	 *	Finally, go thru object list for the measure and fill in xd's from the values
 	 *	in the position table.

@@ -86,5 +86,3 @@ char *StdVerNumToStr(long verNum, char *verStr);
 short PlayResource(Handle, Boolean);
 Boolean TrapAvailable(short);
 
-Boolean GetSN(char *);
-
