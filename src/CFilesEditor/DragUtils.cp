@@ -631,12 +631,8 @@ Rect SDGetMeasRect(Document *doc, LINK pL, LINK measL)
 			break;
 		case TEMPOtype:
 		case GRAPHICtype:
-#ifdef WHAT_TO_DO_HERE
-			MeasRange(doc,pL,&firstMeasL,&lastMeasL);
-#else
 			firstMeasL = drag1stMeas;
 			lastMeasL = dragLastMeas;
-#endif
 			if (firstMeasL && lastMeasL && (firstMeasL != lastMeasL))
 				mRect = Get2MeasRect(doc, firstMeasL, lastMeasL);
 			else

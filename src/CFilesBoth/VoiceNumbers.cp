@@ -208,13 +208,6 @@ void BuildVoiceTable(Document *doc, Boolean defaults)
 		
 	FillVoiceTable(doc, dummy);
 
-#ifdef VDEBUG
-	for (v = 1; v<=MAXVOICES; v++)
-		if (doc->voiceTab[v].partn!=0)
-			DebugPrintf("%ciVoice %d in part %d relVoice=%d\n",
-							(v==1? '¥' : ' '),
-							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
-#endif
 }
 
 
@@ -314,13 +307,6 @@ void UpdateVoiceTable(Document *doc, Boolean defaults)
 		if (maybeEmpty[v]) doc->voiceTab[v].partn = 0;
 	CompactVoiceNums(doc);
 
-#ifdef VDEBUG
-	for (v = 1; v<=MAXVOICES; v++)
-		if (doc->voiceTab[v].partn!=0)
-			DebugPrintf("%ciVoice %d in part %d relVoice=%d\n",
-							(v==1? '¥' : ' '),
-							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
-#endif
 }
 
 

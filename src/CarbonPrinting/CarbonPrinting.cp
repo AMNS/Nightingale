@@ -69,7 +69,6 @@ static OSStatus SetupPrintDlogPages(Document *doc);
 static OSStatus GetPrintPageRange(Document *doc, UInt32 *firstPage, UInt32 *lastPage);
 static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPage);
 static Boolean IsRightJustOK(Document *doc, short firstSheet, short lastSheet);
-static void PrintDemoBanner(Document *doc, Boolean toPostScript);
 static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession);
 static short GetPrintDestination(Document *doc);
 static void NDoPrintLoop(Document *doc);
@@ -512,12 +511,6 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 	return status;
 }
 
-// --------------------------------------------------------------------------------------------------------------
-
-static void PrintDemoBanner(Document *doc, Boolean toPostScript)
-{
-}
-
 /* ------------------------------------------------------------------------------
  *   Function:	IncludePostScriptInSpoolFile
  *	
@@ -729,7 +722,6 @@ static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 				{
 					SetPort(printPort);
 					
-						PrintDemoBanner(doc, FALSE);
 						status = NDocDrawPage(doc,sheetNum);
 
 					SetPort(currPort);
@@ -752,8 +744,6 @@ static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 }
 
 // --------------------------------------------------------------------------------------------------------------
-
-#define TEST_DRAWPAGE 0
 
 static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet)
 {
@@ -822,9 +812,6 @@ static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 						 *	be thrown away, so we must recreate them every time, and imageRect
 						 *	is needed for defining the transformation matrix we're using.
 						 */
-#if TEST_DRAWPAGE
-						TestDrawPage(doc->docPrintInfo.docPrintSession, 1, TRUE);
-#else
 						PS_NewPage(doc,NULL,sheet+doc->firstPageNumber);
 						
 						PS_OutOfQD(doc,TRUE,&imageRect);
@@ -834,7 +821,6 @@ static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 						PS_IntoQD(doc,TRUE);
 						
 						PS_EndPage();
-#endif
 						SetPort(currPort);
 					}
 					

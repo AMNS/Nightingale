@@ -315,12 +315,7 @@ void QuickScroll(register Document *doc, register short dx, register short dy,
 				doc->showWaitCurs = FALSE;	/* Avoid distracting cursor changes when auto-scrolling */
 				DrawDocumentView(doc,nr);
 				}
-
-#ifdef DONT_KNOW_WHY
-			while (--nextRect >= updateRectTable)
-				DrawDocumentView(doc,nextRect);
-#endif
-						
+		
 			/*
 			 *	If window is on more than one screen, just invalidate everything
 			 *	not on the screen that has already been scrolled, and redraw

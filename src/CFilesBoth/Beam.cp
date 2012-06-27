@@ -1423,15 +1423,6 @@ short BuildBeamDrawTable(
 	Boolean fracGoLeft; char level[BEAMTABLEN];
 	short i, k, direction, curLevel, minUsedLev, maxUsedLev, prevNSecsA, prevNSecsB;
 	short iel, count;
-	
-#ifdef BDEBUG
-	if (ShiftKeyDown()) {
-		DebugPrintf(" nPrimary=%d nSecs", nPrimary);
-		for (iel = 0; iel<LinkNENTRIES(beamL); iel++)
-			DebugPrintf("[%d]=%d,%d ", iel, nSecsA[iel], nSecsB[iel]);
-		DebugPrintf("\n");
-	}
-#endif
 
 	noteBeamL = FirstSubLINK(beamL);
 	for (iel = 0; iel<LinkNENTRIES(beamL); iel++, noteBeamL=NextNOTEBEAML(noteBeamL)) {
@@ -1521,19 +1512,7 @@ short BuildBeamDrawTable(
 		}
 	}
 
-#ifdef BDEBUG
-	if (ShiftKeyDown()) {
-		for (i = 0; i<count; i++) {
-			if (i==0) DebugPrintf(" Beam at %d ", beamL);
-			else	    DebugPrintf("            ");
-			DebugPrintf("<seg %d: start=%d stop=%d level=%d fracGoLeft=%d\n",
-							i, beamTab[i].start, beamTab[i].stop,
-							level[i], beamTab[i].fracGoLeft);
-		}
-	}
-#endif
-
-		/* At this point, beam levels are relative to the top primary beam. For ease of
+	/* At this point, beam levels are relative to the top primary beam. For ease of
 			drawing, convert them to be relative to each stem end. */
 			
 		for (i = 0; i<count; i++) {
@@ -1549,18 +1528,6 @@ short BuildBeamDrawTable(
 				else if (stemUpDown[iel]>0 && nSecsA[iel]>0) beamTab[i].stopLev += nSecsA[iel];
 			}
 		}
-#ifdef BDEBUG
-	if (ShiftKeyDown()) {
-		for (i = 0; i<count; i++) {
-			if (i==0) DebugPrintf(" Beam at %d ", beamL);
-			else	    DebugPrintf("            ");
-			DebugPrintf(">seg %d: start=%d stop=%d startLev=%d stopLev=%d fracGoLeft=%d\n",
-							i, beamTab[i].start, beamTab[i].stop,
-							beamTab[i].startLev, beamTab[i].stopLev, beamTab[i].fracGoLeft);
-		}
-	}
-#endif
-
 
 	for (i = tabLen-1; i>=0; i--)
 		if (beamTab[i].stop>=0) return i+1;

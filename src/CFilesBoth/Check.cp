@@ -1534,13 +1534,7 @@ short CheckSPACE(Document *doc, LINK pL, CONTEXT context[],
 				}
 				break;
 			case SMSymDrag:
-#ifdef SYMDRAG_SPACE
-				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL))) {
-					HandleSymDrag(doc, pL, NILINK, *(Point *)ptr, dummy);
-					LinkSEL(pL) = !LinkSEL(pL);
-					HiliteRect(&r);
-				}
-#endif /* SYMDRAG_SPACE */
+
 				break;
 			case SMFind:
 				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL)))
@@ -1954,12 +1948,6 @@ short CheckSYNC(Document *doc, LINK pL, CONTEXT context[],
 PushLock(OBJheap);
 PushLock(NOTEheap);
 	oldtxSize = GetPortTxSize();
-	
-#ifdef USECOLORS
-	ForeColor(redColor);
-	FrameRect(&LinkOBJRECT(pL));			/* Wrong!  Has to be window-relative wSub */
-	ForeColor(blackColor);
-#endif
 
 	objSelected = FALSE;
 	noteFound = FALSE;
@@ -2020,11 +2008,6 @@ PushLock(NOTEheap);
 			}
 			wSub = rSub;
 			OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
-#ifdef USECOLORS
-			ForeColor(cyanColor);
-			FrameRect(&wSub);
-			ForeColor(blackColor);
-#endif
 
 			switch (mode) {
 			case SMClick:
@@ -2183,12 +2166,6 @@ short CheckGRSYNC(Document *doc, LINK pL, CONTEXT context[],
 PushLock(OBJheap);
 PushLock(GRNOTEheap);
 	oldtxSize = GetPortTxSize();
-	
-#ifdef USECOLORS
-	ForeColor(redColor);
-	FrameRect(&LinkOBJRECT(pL));		/* ??Wrong!  Has to be window-relative wSub */
-	ForeColor(blackColor);
-#endif
 
 	objSelected = FALSE;
 	noteFound = FALSE;
@@ -2228,12 +2205,7 @@ PushLock(GRNOTEheap);
 			}
 			wSub = rSub;
 			OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
-			
-#ifdef USECOLORS
-			ForeColor(cyanColor);
-			FrameRect(&wSub);
-			ForeColor(blackColor);
-#endif
+
 			switch (mode) {
 			case SMClick:
 				aRect = rSub;

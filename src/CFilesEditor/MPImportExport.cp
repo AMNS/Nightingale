@@ -202,20 +202,12 @@ void AddChangePart(Document *doc, short firstStf, short nadd, short nper, short 
 		CParamText(msg, "", "", "");
 		StopInform(ILLNSP_ALRT);
 	}
-#ifdef NOMORE_JGG
-	else if (nadd<=0 || (nadd*nper)+doc->nstavesMP>MAXSTAVES) {
-		sprintf(msg, "%d", MAXSTAVES);
-		CParamText(msg, "", "", "");
-		StopInform(ILLNS_ALRT);
-	}
-#else
 	/* Note that doc->nstavesMP has already been updated to reflect added staves.  -JGG */
 	else if (nadd<=0 || doc->nstavesMP>MAXSTAVES) {
 		sprintf(msg, "%d", MAXSTAVES);
 		CParamText(msg, "", "", "");
 		StopInform(ILLNS_ALRT);
 	}
-#endif
 	else {
 		if (TooManyChanges(doc)) return;
 

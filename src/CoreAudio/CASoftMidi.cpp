@@ -198,7 +198,6 @@ Boolean SetupSoftMIDI(Byte *activeChannel)
  	}
  	
 	OSStatus result = noErr;
-	char* bankPath = 0;	
 	UInt8 midiChannelInUse = 0; 									//we're using midi channel 1...
 	UInt8 midiChannel;
 	

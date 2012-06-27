@@ -449,10 +449,6 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	long count;
 	short  ioErr = noErr;
 	HEAP *myHeap;
-#ifdef N104_1TimeConvert	
-	short oldObjSize;
-#endif
-	
 	myHeap = Heap + heapIndex;
 
 	/* Write the total number of objects of type heapIndex */
@@ -460,21 +456,10 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	ioErr = FSWrite(refNum, &count, &objCount[heapIndex]);
 	if (ioErr) { SaveError(TRUE, refNum, ioErr, heapIndex); return(ioErr); }
 
-#ifdef N104_1TimeConvert	
-	if (heapIndex == HEADERtype) {
-		oldObjSize = myHeap->objSize;
-		myHeap->objSize += 2;
-	}
-#endif
 	/* Write the HEAP struct header */
 	count = sizeof(HEAP);
 	ioErr = FSWrite(refNum, &count, (Ptr)myHeap);
 	
-#ifdef N104_1TimeConvert	
-	if (heapIndex == HEADERtype) {
-		myHeap->objSize = oldObjSize;
-	}
-#endif
 
 #ifndef PUBLIC_VERSION
 		if (ShiftKeyDown() && OptionKeyDown()) {
@@ -610,13 +595,6 @@ static short WriteObject(short refNum, short heapIndex, LINK pL)
 	
 	p = LinkToPtr(myHeap, pL);
 	ioErr = FSWrite(refNum, &count, p);
-	
-#ifdef N104_1TimeConvert
-	if (heapIndex == HEADERtype) {
-		count = 2;
-		ioErr = FSWrite(refNum, &count, &temp);
-	}
-#endif
 
 	if (ioErr) SaveError(TRUE, refNum, ioErr, heapIndex);
 	return(ioErr);
@@ -988,16 +966,6 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 					}
 				}
 			}
-#ifdef DEBUG_MEAS
-			if (ShiftKeyDown() && OptionKeyDown() && i==MEASUREtype)
-				DisplayMeasures(p, nFObjs);
-#endif
-#ifdef DEBUG_BEAMS
-			if (ShiftKeyDown() && OptionKeyDown() && i==BEAMSETtype)
-				DisplayBeams(p, nFObjs);
-			if (ShiftKeyDown() && OptionKeyDown() && CapsLockKeyDown())
-				MemBrowser(p, count, i);
-#endif
 			PopLock(myHeap);
 
 			if (ioErr) 
@@ -1220,180 +1188,3 @@ all heaps. */
 static void PrepareClips()
 {
 }
-
-/* ====================== Debugging functions, normally unused ==================== */
-
-#ifdef DEBUG_MEAS
-/* -------------------------------------------------------------- DisplayMeasure -- */
-/* Show the fields of the given Measure subobject. The Measure subobject heap
-had better be locked when this function is called! */
-
-void DisplayMeasure(
-			char *measZero,				/* Address of Measure subobj 0 */
-			unsigned short num			/* Subobject number (link) */
-			)
-{
-	PAMEASURE aMeas; char s[256]; DRect mrect;
-
-	aMeas = (PAMEASURE)((long)measZero+(long)num*sizeof(AMEASURE));
-	
-	DebugPrintf("DisplayMeasure %u: addr=%lx stf=%d next=%d\n  ", num, aMeas,
-						aMeas->staffn, aMeas->next);
-	strcpy(s, "flags=");
-	if (aMeas->selected)
-		strcat(s, "SELECTED ");
-	if (aMeas->visible)
-		strcat(s, "VISIBLE ");
-	if (aMeas->soft)
-		strcat(s, "SOFT ");
-	if (aMeas->measureVisible)
-		strcat(s, "MEASUREVIS ");
-	if (aMeas->connAbove)
-		strcat(s, "CONNABOVE ");
-	DebugPrintf("%s\n  ", s);
-	mrect = aMeas->measureRect;
-	DebugPrintf("measureRect=%d %d %d %d ",
-			aMeas->measureRect.top,
-			aMeas->measureRect.left,
-			aMeas->measureRect.bottom,
-			aMeas->measureRect.right);
-	DebugPrintf(" measureNum=%hd", aMeas->measureNum);
-	DebugPrintf(" connStaff=%hd barlineType=%hd\n  ", aMeas->connStaff,
-						aMeas->subType);
-	DebugPrintf("clefType=%d", aMeas->clefType);
-	DebugPrintf(" nKSItems=%hd", aMeas->nKSItems);
-	DebugPrintf(" timeSigType,n/d=%hd,%hd/%hd",
-			aMeas->timeSigType,
-			aMeas->numerator,
-			aMeas->denominator);
-	DebugPrintf(" dynamicType=%hd\n", aMeas->dynamicType);
-}
-
-void DisplayMeasures(char *, unsigned short);
-void DisplayMeasures(char *p, unsigned short nObjs)
-{
-	DisplayMeasure(p, 1800);
-	DisplayMeasure(p, 1810);
-	DisplayMeasure(p, 1820);
-	DisplayMeasure(p, 1830);
-	DisplayMeasure(p, nObjs-1);
-}
-
-#endif
-
-#ifdef DEBUG_BEAMS
-
-/* ----------------------------------------------------------------- DisplayBeam -- */
-/* Show the fields of the given Beam subobject. The Beam subobject heap had
-better be locked when this function is called! Also, <num> should not be
-greater than the number of Beam subobjects! NB: The link numbers seem to
-be off by 1 from what ends up in the object list. I don't have time to check
-this now; this is plausible, but it may be a bug. */
-
-void DisplayBeam(char *, unsigned short);
-void DisplayBeam(
-				char *measZero,				/* Address of Beam subobj 0 */
-				unsigned short num			/* Subobject number (link) */
-				)
-{
-	PANOTEBEAM aBeam; DRect mrect;
-
-	aBeam = (PANOTEBEAM)((long)measZero+(long)num*sizeof(ANOTEBEAM));
-	
-	DebugPrintf("DisplayBeam %u: @%lx bpSync=%d next=%d\n", num, aBeam, aBeam->bpSync,
-					aBeam->next);
-	DebugPrintf("     startend=%d  fracs=%d fracGoLeft=%s\n", aBeam->startend,
-						aBeam->fracs, (aBeam->fracGoLeft ? "T" : "f"));
-}
-
-void DisplayBeams(char *p, unsigned short nObjs)
-{
-	/* Version for A. Black's PTB score */
-	DisplayBeam(p, 500);
-	DisplayBeam(p, 1000);
-	DisplayBeam(p, 1200);
-	DisplayBeam(p, nObjs-3);
-	DisplayBeam(p, nObjs-2);
-	DisplayBeam(p, nObjs-1);
-}
-
-#endif
-
-
-#ifdef CHECKNOTES
-/* -------------------------------------------------------- DCheckANOTE/ALLNOTES -- */
-/* Check legality of a note subobject without relying on any context. For
-emergency medium-level debugging use. N.B. To reduce danger of calls to this
-function moving memory and thereby disturbing the problem being studied, should
-reside in the file it's called from! But notice that the first versions of the
-ZCOMPLAIN macros call DebugPrintf; to further reduce danger of moving memory,
-use the less-informative second versions (which ignore their <v> params.) with
-MacsBug. */
-
-/* Is the staff number illegal? */
-#define ZSTAFFN_BAD(staff)	((staff)<1 || (staff)>nstaves)
-
-#define LINKN(addr)	( (short)((long)((char *)(addr)-noteBlock)/sizeof(ANOTE)) )
-
-#define MORE_INTRUSIVE
-#ifdef MORE_INTRUSIVE
-#define ZCOMPLAIN(f, v) { DebugPrintf((f),LINKN(v),(v)); SysBeep(8); }
-#define ZCOMPLAIN2(f, v1, v2) { DebugPrintf((f),LINKN(v1),(v1),(v2)); SysBeep(8); }
-#else
-#define ZCOMPLAIN(f, v) { strcpy(tmpStr,(f)); CtoPstr(tmpStr); DebugStr(tmpStr); }
-#define ZCOMPLAIN2(f, v1, v2) { strcpy(tmpStr,(f)); CtoPstr(tmpStr); DebugStr(tmpStr); }
-#endif
-
-void DCheckANOTE(PANOTE, short, char *);
-static void DCheckANOTE(PANOTE aNote, short nstaves, char *noteBlock)
-{
-	char		minl_dur;
-
-	if (ZSTAFFN_BAD(aNote->staffn))
-		ZCOMPLAIN2("NOTE %d AT %lx HAS BAD staffn %d.\n",
-						aNote, aNote->staffn);
-	if (VOICE_BAD(aNote->voice))
-		ZCOMPLAIN2("NOTE %d AT %lx HAS BAD voice %d.\n",
-						aNote, aNote->voice);
-	if (aNote->accident<0 || aNote->accident>5)
-		ZCOMPLAIN("NOTE %d AT %lx HAS BAD ACCIDENTAL.\n", aNote);
-	if (aNote->onVelocity<1 || aNote->onVelocity>MAX_VELOCITY)
-		ZCOMPLAIN("NOTE %d AT %lx HAS BAD onVelocity.\n", aNote);
-	if (aNote->offVelocity<1 || aNote->offVelocity>MAX_VELOCITY)
-		ZCOMPLAIN("NOTE %d AT %lx HAS BAD offVelocity.\n", aNote);
-	if (aNote->beamed) {
-		if (aNote->subType<=QTR_L_DUR)
-			ZCOMPLAIN("BEAMED QUARTER OR LONGER, NOTE %d AT %lx.\n", aNote);
-	}
-	minl_dur = (aNote->rest ? WHOLEMR_L_DUR : 0);
-	if (aNote->subType<minl_dur || aNote->subType>MAX_L_DUR)
-		ZCOMPLAIN2("NOTE %d AT %lx WITH ILLEGAL l_dur IN VOICE %d.\n",
-						 aNote, aNote->voice);
-	if (aNote->playDur<1 || aNote->playDur>9999)
-		ZCOMPLAIN2("NOTE %d AT %lx WITH ILLEGAL playDur IN VOICE %d.\n",
-						aNote, aNote->voice);
-	if (aNote->p_delay<0)
-		ZCOMPLAIN2("NOTE %d AT %lx WITH ILLEGAL p_delay IN VOICE %d.\n",
-						aNote, aNote->voice);
-
-	if (aNote->inChord && aNote->rest)
-		ZCOMPLAIN2("REST %d AT %lx IN VOICE %d IS inChord.\n",
-						aNote, aNote->voice);
-}
-
-static void DCheckALLNOTES(Document *doc)
-{
-	short k, nObjs;	HEAP *myHeap; 	char *p;
-	
-	myHeap = doc->Heap + SYNCtype;
-	PushLock(myHeap);
-	nObjs = myHeap->nObjs-myHeap->nFree;			
-	DebugPrintf("•START DCheckALLNOTES...\n");
-	p = *(myHeap->block); p += myHeap->objSize;
-	for (k = 1; k<nObjs; k++, p += myHeap->objSize)
-		DCheckANOTE((PANOTE)p, 6, *(myHeap->block));		/* CAVEAT: 2nd arg = nstaves */
-	DebugPrintf("END DCheckALLNOTES.\n");
-	PopLock(myHeap);
-}
-
-#endif /* CHECKNOTES */

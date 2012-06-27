@@ -1426,19 +1426,7 @@ Boolean DoPaste(Document *doc)
 	ClipCases(doc,&chasClef,&chasKS,&chasTS);
 	hasClef |= chasClef;  hasKS |= chasKS;  hasTS |= chasTS;
 
-#define NoDELRED
-#ifdef DELRED
-	/* If the last Copy to the clipboard added accidentals, decide whether to
-		delete redundant accidentals in the notes we're about to paste in. */
-		 
-	if (clipHasAddedAccs) {
-		ArrowCursor();
-		delRedAccs = PasteDelRedAccsDialog();
-		WaitCursor();
-	}
-#else
 	delRedAccs = FALSE;
-#endif
 
 	prevSelStartL = LeftLINK(doc->selStartL);
 	DeleteSelection(doc, TRUE, &dontResp);							/* Kill selection */
@@ -2619,13 +2607,6 @@ static void MapVoices(Document *doc, LINK startL, LINK endL, short stfDiff)
 	LINK pL;
 	
 	InitVMapTable(doc,stfDiff);
-#ifdef DEBUG_VMAPTABLE
-	for (v = 1; v<=MAXVOICES; v++)
-		if (clip2DocVoiceTab[v].partn!=0)
-			DebugPrintf("%ciVoice %d pastes to part %d relVoice=%d\n",
-							(v==1? '•' : ' '),
-							v, clip2DocVoiceTab[v].partn, clip2DocVoiceTab[v].relVoice);
-#endif
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
 		MapVoice(doc,pL,stfDiff);
 }
@@ -3344,9 +3325,6 @@ static void PasteFromClip(Document *doc, LINK insertL, short pasteType, Boolean
 		LeftLINK(copyL) = prevL;
 		prevL = copyL;
 		DeselectNode(copyL);
-#ifdef DELRED
-		SetTempFlags(doc, doc, copyL, RightLINK(copyL), TRUE);
-#endif
 		LinkVALID(copyL) = FALSE;
 		if (GraphicTYPE(copyL)) FixGraphicFont(doc, copyL);
   	}
@@ -3354,13 +3332,6 @@ static void PasteFromClip(Document *doc, LINK insertL, short pasteType, Boolean
 	stfDiff = PasteMapStaves(doc,doc,RightLINK(initL),succL,pasteType);	/* Map voices AND staves */
 	FixCrossLinks(doc, doc, initL, succL);						/* Structure and extended objects */
 	InstallDoc(doc);
-#ifdef DELRED
-	TempFlags2NotesSel(doc);
-DebugPrintf("<DelRedundantAccs: delRedAccs=%d\n", delRedAccs);
-	if (delRedAccs) DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
-DebugPrintf(">DelRedundantAccs.\n");
-	DeselAllNoHilite(doc);
-#endif
 
 	PasteFixMeasStruct(doc,RightLINK(initL),succL,fixMeas);
 	PasteUpdate(doc, initL, succL, systemWidth);				/* xds, rects, measNums */

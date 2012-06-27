@@ -491,12 +491,6 @@ static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK mo
 	PANOTE	aNote;
 	CONTEXT	context;
 	unsigned char glyph;
-#ifdef USE_BITMAP
-	GrafPtr	scrnPort, modPort;
-	Rect		destRect;
-	Point		grPortOrigin;
-	short		dh, dv, fontID;
-#endif
 	
 /* ??Do I really need to lock these? What about the modNR heaps? */
 PushLock(OBJheap);
@@ -552,32 +546,6 @@ PushLock(NOTEheap);
 	SetPt(&modOrigin, d2p(xdModOrig), d2p(ydModOrig + staffTop));
 	SetPt(&diffPt, pt.h - modOrigin.h, pt.v - modOrigin.v);	/* set from pt, before the search and drawing in gray, etc. */
 	
-#ifdef USE_BITMAP
-	modPort = NewGrafPort(origModNRbbox->right-origModNRbbox->left,
-									origModNRbbox->bottom-origModNRbbox->top);
-	if (modPort==NULL)
-		return;
-
-	GetPort(&scrnPort);
-	fontID = (qd.thePort)->txFont;
-	SetPort(modPort);
-	TextFont(fontID);
-	TextSize(useTxSize);
-
-	/* Fiddle with bitmap coordinate system so that Draw1ModNR will draw into our tiny rect. */
-	grPortOrigin = TOP_LEFT(*origModNRbbox);
-	Pt2Window(doc, &grPortOrigin);
-	SetOrigin(grPortOrigin.h, grPortOrigin.v);
-	ClipRect(&(*modPort).portBits.bounds);
-
-	Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context, sizePercent, FALSE);
-
-	SetPort(scrnPort);
-
-	destRect = *origModNRbbox;
-	Rect2Window(doc, &destRect);
-#endif
-
 	GetPaperMouse(&oldPt, &doc->currentPaper);
 
 	if (StillDown()) while (WaitMouseUp()) {
@@ -591,13 +559,8 @@ PushLock(NOTEheap);
 			firstLoop = FALSE;
 		}
 		
-#ifdef USE_BITMAP
-		CopyBits(&modPort->portBits, &scrnPort->portBits,		/* erase old modNR */
-		 			&(*modPort).portBits.bounds, &destRect, srcXor, NULL);
-#else
 		Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
 						&context, sizePercent, FALSE);		/* erase old modNR */
-#endif
 		
 		xd = p2d(newPt.h - diffPt.h);
 		xstd = d2std(xd - noteXD - ((LNSPACE(&context)/8)*xOffset),
@@ -642,22 +605,8 @@ PushLock(NOTEheap);
 		xdMod += MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 		ydMod += MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 
-#ifdef USE_BITMAP
-		/* shift on-screen destination rect */
-// Problem here is that this doesn't take into account the constraints applied
-// to the modNR position above.
-// Also, we're not able to flip a mod (e.g. fermata) when it crosses the staff midpoint!
-		dh = newPt.h - oldPt.h;
-		dv = newPt.v - oldPt.v;
-		destRect.top += dv;		destRect.bottom += dv;
-		destRect.left += dh;		destRect.right += dh;
-
-		CopyBits(&modPort->portBits, &scrnPort->portBits,		/* draw new modNR */
-		 			&(*modPort).portBits.bounds, &destRect, srcXor, NULL);
-#else
 		Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
 						&context, sizePercent, FALSE);	/* draw new modNR */
-#endif		
 
 		/* Draw new params in msg box. (Do this after drawing modNR at new pos to reduce flicker.) */
 		DrawModNRParams(doc, aModNR->xstd-XSTD_OFFSET, aModNR->ystdpit);
@@ -665,15 +614,9 @@ PushLock(NOTEheap);
 		oldPt = newPt;
 	}
 
-#ifdef USE_BITMAP
-	Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
-					&context, sizePercent, FALSE);			/* draw final black modNR */
-	DisposGrafPort(modPort);
-#else
 	TextMode(srcOr);
 	Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
 					&context, sizePercent, FALSE);			/* draw new modNR in normal mode */
-#endif		
 
 	TextMode(oldTxMode);
 	TextSize(oldTxSize);
@@ -692,10 +635,6 @@ PushLock(NOTEheap);
 		*aModNR = oldModNR;
 	MEHideCaret(doc);
 
-#ifdef USE_BITMAP
-	EraseAndInval(&destRect);
-#endif
-	
 Cleanup:
 PopLock(OBJheap);
 PopLock(NOTEheap);

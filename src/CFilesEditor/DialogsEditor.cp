@@ -310,16 +310,6 @@ short SpaceDialog(
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
 	char			fmtStr[256];
-#ifdef Nightmare95
-	ModalFilterUPP filterUPP;
-	
-	filterUPP = NewModalFilterUPP(NumberFilter);
-	if (filterUPP == NULL) {
-		MissingDialog(dlogID);
-		return CANCEL_INT;
-	}
-#else
-#endif
 
 	newspace = CANCEL_INT;
 	
@@ -360,11 +350,7 @@ short SpaceDialog(
 		
 		do {
 			while (TRUE) {
-#ifdef Nightmare95
-				ModalDialog(filterUPP, &ditem);
-#else
 				ModalDialog(&NumberFilter, &ditem);
-#endif
 				if (ditem == OK || ditem==Cancel) break;
 				}
 			if (ditem == OK) {
@@ -378,22 +364,10 @@ short SpaceDialog(
 				break;
 		} while (newspace<MINSPACE || newspace>MAXSPACE);
 	
-#ifdef Nightmare95
-		DisposeModalFilterUPP(filterUPP);
 		DisposeDialog(dlog);
-#else
-		DisposeDialog(dlog);
-#endif
 		}
-#ifdef Nightmare95
-	else {
-		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(dlogID);
-		}
-#else
 	else
 		MissingDialog(dlogID);
-#endif
 
 	SetPort(oldPort);
 	return newspace;
@@ -439,11 +413,7 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 	
 		do {
 			while (1) {
-#ifdef Nightmare95
-				ModalDialog(filterUPP, &ditem);
-#else
 				ModalDialog(&NumberFilter, &ditem);
-#endif
 				if (ditem==OK || ditem==Cancel) break;
 				}
 			if (ditem==OK) {
@@ -459,22 +429,10 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 				break;
 			} while (nslashes<minVal || nslashes>maxVal);
 			
-#ifdef Nightmare95
-		DisposeModalFilterUPP(filterUPP);
 		DisposeDialog(dlog);
-#else
-		DisposeDialog(dlog);
-#endif
 		}
-#ifdef Nightmare95
-	else {
-		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(TREMSLASHES_DLOG);
-		}
-#else
 	else
 		MissingDialog(TREMSLASHES_DLOG);
-#endif
 	
 	SetPort(oldPort);
 	return nslashes;
@@ -562,17 +520,6 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 	short			ditem, number, group1, n, strOffset;
 	GrafPtr		oldPort;
 	char			fmtStr[256], numStr[MAX_ENDING_STRLEN];
-#ifdef Nightmare95
-	ModalFilterUPP filterUPP;
-	
-	filterUPP = NewModalFilterUPP(EndingFilter);
-	if (filterUPP == NULL) {
-		MissingDialog(ENDING_DLOG);
-		return FALSE;
-	}
-#else
-#endif
-
 	number = CANCEL_INT;
 	
 	GetPort(&oldPort);
@@ -625,11 +572,7 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 	
 		do {
 			while (1) {
-#ifdef Nightmare95
-				ModalDialog(filterUPP, &ditem);
-#else
 				ModalDialog(&EndingFilter, &ditem);
-#endif
 				if (ditem==OK || ditem==Cancel)
 					break;
 				else if (ditem>=CLOSED_OPEN_DI && ditem<=OPEN_CLOSED_DI)
@@ -656,22 +599,10 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 				break;
 		} while (number<minVal || number>maxVal);
 			
-#ifdef Nightmare95
-		DisposeModalFilterUPP(filterUPP);
 		DisposeDialog(dlog);
-#else
-		DisposeDialog(dlog);
-#endif
 	}
-#ifdef Nightmare95
-	else {
-		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(ENDING_DLOG);
-		}
-#else
 	else
 		MissingDialog(ENDING_DLOG);
-#endif
 	
 Cleanup:
 	SetPort(oldPort);

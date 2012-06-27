@@ -31,14 +31,6 @@ void DragDynamic(Document *doc, LINK dynamL)
 	PDYNAMIC		thisDynObj;
 	ADYNAMIC		origDynSubObj;
 	PADYNAMIC	thisDynSubObj;
-#ifdef USE_BITMAP
-	GrafPtr		dynamPort, scrnPort;
-	Rect			destRect;
-	Point			grPortOrigin;
-	short			fontID;
-	const BitMap *dynamPortBits = NULL;
-	const BitMap *scrnPortBits = NULL;
-#endif
 	Rect			bounds;
 
 PushLock(OBJheap);
@@ -67,37 +59,7 @@ PushLock(DYNAMheap);
 
 	oldTxMode = GetPortTxMode();
 
-#ifdef USE_BITMAP
-
-	GetPort(&scrnPort);
-	fontID = GetPortTxFont();
-	
-	SaveGWorld();
-	
-	GWorldPtr gwPtr = MakeGWorld(oldObjRect.right-oldObjRect.left, oldObjRect.bottom-oldObjRect.top, TRUE);
-	SetGWorld(gwPtr, NULL);
-	dynamPort = gwPtr;
-
-	SetPort(dynamPort);
-	TextFont(fontID);
-
-	/* Fiddle with bitmap coordinate system so that DrawGRAPHIC will draw into our tiny rect. */
-	grPortOrigin = TOP_LEFT(oldObjRect);
-	Pt2Window(doc, &grPortOrigin);
-	SetOrigin(grPortOrigin.h, grPortOrigin.v);
-	GetPortBounds(dynamPort,&bounds);
-	ClipRect(&bounds);
-
-	DrawDYNAMIC(doc, dynamL, context, TRUE);			/* draw dynamic into bitmap */
-	
-	RestoreGWorld();
-	
-	destRect = oldObjRect;
-	Rect2Window(doc, &destRect);
-
-#else
 	TextMode(srcXor);
-#endif
 
 	FlushEvents(everyEvent, 0);
 
@@ -128,26 +90,10 @@ PushLock(DYNAMheap);
 		dh = (horiz? newPt.h - oldPt.h : 0);
 		dv = (vert? newPt.v - oldPt.v : 0);
 
-#ifdef USE_BITMAP
-		if (firstTime) {
-			firstTime = FALSE;
-		}
-		else {
-			dynamPortBits = GetPortBitMapForCopyBits(dynamPort);
-			scrnPortBits = GetPortBitMapForCopyBits(scrnPort);
-			GetPortBounds(dynamPort,&bounds);
-			
-			CopyBits(dynamPortBits, scrnPortBits, &bounds, &destRect, srcXor, NULL);
-
-//			CopyBits(&dynamPort->portBits, &scrnPort->portBits,		/* erase old dynamic */
-//		 				&(*dynamPort).portBits.bounds, &destRect, srcXor, NULL);
-		}
-#else
 		if (firstTime)							/* ???if we get it to draw in gray above, remove this firstTime business */
 			firstTime = FALSE;
 		else
 			DrawDYNAMIC(doc, dynamL, context, TRUE);				/* erase old dynamic */
-#endif
 
 		thisDynObj->xd += p2d(dh);
 		thisDynSubObj->yd += p2d(dv);
@@ -160,26 +106,9 @@ PushLock(DYNAMheap);
 		thisDynSubObj->visible = FALSE;
 		AutoScroll();
 		thisDynSubObj->visible = dynamVis;
-#ifndef USE_BITMAP
 		TextMode(srcXor);
-#endif
 
-#ifdef USE_BITMAP
-		/* shift on-screen destination rect */
-		destRect.top += dv;		destRect.bottom += dv;
-		destRect.left += dh;		destRect.right += dh;
-		
-		dynamPortBits = GetPortBitMapForCopyBits(dynamPort);
-		scrnPortBits = GetPortBitMapForCopyBits(scrnPort);
-		GetPortBounds(dynamPort,&bounds);
-		
-		CopyBits(dynamPortBits, scrnPortBits, &bounds, &destRect, srcXor, NULL);
-			
-//		CopyBits(&dynamPort->portBits, &scrnPort->portBits,		/* draw new dynamic */
-//		 			&(*dynamPort).portBits.bounds, &destRect, srcXor, NULL);
-#else
 		DrawDYNAMIC(doc, dynamL, context, TRUE);				/* draw new dynamic */
-#endif
 		
 		oldPt = newPt;
 	}
@@ -203,10 +132,6 @@ PushLock(DYNAMheap);
 	}
 	InsetRect(&newObjRect, -pt2p(5), -pt2p(3));
 	EraseAndInval(&newObjRect);					/* must do this even if no change, to keep hiliting in sync */
-
-#ifdef USE_BITMAP
-	DestroyGWorld(gwPtr);
-#endif
 
 	MEHideCaret(doc);
 	LinkSEL(dynamL) = TRUE;								/* so that dynamic will hilite after we're done dragging */

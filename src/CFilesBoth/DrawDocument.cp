@@ -151,19 +151,8 @@ void DrawDocumentView(Document *doc, Rect *updateRect)
 						 *	out from under the current clipping region,
 						 *	we temporarily ask it to follow as well.
 						 */
-#ifdef NOTUSED
-						SetOrigin(doc->origin.h - paper.left,doc->origin.v - paper.top);
-						OffsetRgn(w->clipRgn,-paper.left,-paper.top);
-						OffsetRect(&result,-paper.left,-paper.top);
-						OffsetRect(&doc->viewRect,-paper.left,-paper.top);
-#endif	
 						DrawSheet(doc,i,&paper,&result);
 						if (i == doc->currentSheet) MEUpdateCaret(doc);
-#ifdef NOTUSED
-						OffsetRgn(w->clipRgn,paper.left,paper.top);
-						OffsetRect(&doc->viewRect,paper.left,paper.top);
-						SetOrigin(doc->origin.h,doc->origin.v);
-#endif
 						}
 					}
 				 else

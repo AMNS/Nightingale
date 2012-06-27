@@ -1206,10 +1206,6 @@ static Boolean Clar1BelowMeas(
 
 	(*nNewSyncs)++;
 	newSyncTab[*nNewSyncs] = rawSyncInfo;
-#ifdef PROBABLY_UNNEEDED
-	round = quantum/2;
-	newSyncTab[*nNewSyncs].mult = (newSyncTab[*nNewSyncs].mult+round)/quantum;
-#endif
 
 	if (*m<0) tsEndTime = 0L;
 	timeUsed = newSyncTab[*nNewSyncs].time;

@@ -218,8 +218,6 @@ long CMTimeStampToMillis(MIDITimeStamp timeStamp)
 
 long CMGetHostTimeMillis()
 {
-	UInt64 tsNanos = AudioGetCurrentHostTime();
-
 	long hostMillis = CMTimeStampToMillis(AudioGetCurrentHostTime());
 	return hostMillis;
 }

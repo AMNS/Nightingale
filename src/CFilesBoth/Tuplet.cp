@@ -338,25 +338,6 @@ static Boolean ComputePlayDurs(Document *doc, SELRANGE selRange[], short tupleNu
 					}
 				notes++;
 			}
-
-#ifdef OPUS_BUG
-		/* Do not delete this code. Including it causes David Gottlieb's infamous
-			?? bug, but fixes the ?? bug. What to do?? (The preceding unhelpful
-			comment dates back at at least to Ngale 1.0; I've long since forgotten
-			what it referred to. --DB, 10/99) */
-
-		for (pL=selRange[v].endL; pL && pL!=endMeas; pL=RightLINK(pL))
-			if (SyncTYPE(pL)) {
-				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
-					if (MainNoteInVOICE(aNoteL, v)) {
-						aNote = GetPANOTE(aNoteL);
-						aNote->pTime -= stfTimeDiff[v];
-						(pDurArray + v*nInMeas+notes)->pTime -= stfTimeDiff[v];
-					}
-				notes++;
-			}
-#endif
-
 	}
 
 	/* Sort the pDurArray in order of increasing pTimes. */
