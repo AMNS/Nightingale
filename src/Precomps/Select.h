@@ -6,7 +6,7 @@ void DeselAll(Document *doc);
 void DeselAllNoHilite(Document *doc);
 void DeselRangeNoHilite(Document *, LINK, LINK);
 void DeselRange(Document *, LINK, LINK);
-Boolean DeselVoice(INT16 voiceNum, Boolean deselThis);
+Boolean DeselVoice(short voiceNum, Boolean deselThis);
 
 LINK DoOpenSymbol(Document *, Point);
 void DoSelect(Document *, Point, Boolean, Boolean, Boolean, short);
@@ -20,19 +20,19 @@ void SelectRange(Document *, LINK, LINK, short, short);
 
 void ExtendSelection(Document *);
 
-LINK ObjTypeSel(Document *doc, INT16, INT16);
+LINK ObjTypeSel(Document *doc, short, short);
 void BoundSelRange(Document *doc);
 void LimitSelRange(Document *doc);
 void GetOptSelEnds(Document *doc, LINK *startL, LINK *endL);
-void CountSelection(Document *, INT16 *, INT16 *);
-Boolean ChordSetSel(LINK, INT16);
+void CountSelection(Document *, short *, short *);
+Boolean ChordSetSel(LINK, short);
 Boolean ExtendSelChords(Document *);
-Boolean ChordHomoSel(LINK, INT16, Boolean);
+Boolean ChordHomoSel(LINK, short, Boolean);
 Boolean ContinSelection(Document *, Boolean);
 void OptimizeSelection(Document *);
 void UpdateSelection(Document *);
-void GetStfSelRange(Document *, INT16, LINK *, LINK *);
-void GetVSelRange(Document *, INT16, LINK *, LINK *);
-void GetNoteSelRange(Document *, INT16, LINK *, LINK *, Boolean);
+void GetStfSelRange(Document *, short, LINK *, LINK *);
+void GetVSelRange(Document *, short, LINK *, LINK *);
+void GetNoteSelRange(Document *, short, LINK *, LINK *, Boolean);
 Boolean BFSelClearable(Document *, Boolean);
 void XLoadSelectSeg(void);

@@ -8,25 +8,25 @@ SplineSeg	*IsSlurPoint(Point p, LINK aSlurL);
 void		StartSlurBounds(void);
 void		EndSlurBounds(Rect *paper, Rect *box);
 void		DrawSlursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
-						INT16 how, Boolean dashed);
+						short how, Boolean dashed);
 void		DrawTheSlursor(void);
 void 		CreateAllTies(Document *doc);
-void		RotateSlurCtrlPts(LINK, DDIST, DDIST, INT16);
+void		RotateSlurCtrlPts(LINK, DDIST, DDIST, short);
 
 /* Non-Doug Utilities */
 
 Boolean		TrackSlur(Rect *,DPoint,DPoint *,DPoint *,DPoint *,DPoint *,Boolean);
-void 		SetSlurPoints(LINK pL, LINK aSlurL, INT16 index);
+void 		SetSlurPoints(LINK pL, LINK aSlurL, short index);
 
-INT16		InfoCheckSlur(LINK);
-INT16		InvalSlurAcross(LINK);
+short		InfoCheckSlur(LINK);
+short		InvalSlurAcross(LINK);
 void		GetSlurContext(Document *, LINK, Point [], Point []);
-INT16		InvalSlurs(LINK, LINK);
-void		DoSlurEdit(Document *, LINK, LINK, INT16);
-void		GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, INT16 margin);
+short		InvalSlurs(LINK, LINK);
+void		DoSlurEdit(Document *, LINK, LINK, short);
+void		GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, short margin);
 void		HiliteSlurNodes(Document *, LINK pL);
 
-Boolean		SetSlurCtlPoints(Document *, LINK, LINK, LINK, LINK, INT16, INT16, CONTEXT,
+Boolean		SetSlurCtlPoints(Document *, LINK, LINK, LINK, LINK, short, short, CONTEXT,
 								Boolean);
 
 Boolean		FlipSelSlur(LINK);

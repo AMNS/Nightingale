@@ -40,42 +40,14 @@ static long theDelay;				/* No. of milliseconds to delay between "ticks" */
 static long theCount;				/* Current timer value */
 static Boolean timerRunning;
 
-//#if TARGET_CPU_PPC
-//#else
-//pascal TMInfoPtr GetTMInfo(void)	= 0x2E89;		/* 680x0 "MOVE.L A1,(SP)" */
-//#endif
-
-//#if TARGET_CPU_PPC
 static pascal void NTMTask(TMTaskPtr tmTaskPtr);
-//#else
-//static pascal void NTMTask(void);
-//#endif
 
-//#if TARGET_CPU_PPC
 static pascal void NTMTask(TMTaskPtr tmTaskPtr)
-//#else
-//static pascal void NTMTask()
-//#endif
 {
-//#if TARGET_CPU_PPC
-//#else
-//	TMInfoPtr	recPtr;
-//	long			oldA5;				/* A5 when task is called */
-//
-//	recPtr = GetTMInfo();								/* first get our record */
-//	oldA5 = SetA5(recPtr->tmRefCon);					/* set A5 to app's A5 world */
-//#endif
-
 	/* The heart of the task: just increment the count! */
 	if (timerRunning)	theCount++;
 
-//#if TARGET_CPU_PPC
 	PrimeTime((QElemPtr)tmTaskPtr, theDelay);		/* re-install task to repeat it indefinitely */
-//#else
-//	PrimeTime((QElemPtr)recPtr, theDelay);			/* re-install task to repeat it indefinitely */
-
-//	oldA5 = SetA5(oldA5);								/* restore original A5 and ignore result */
-//#endif
 }
 
 /* Initialize Nightingale Time Manager. */
@@ -85,11 +57,6 @@ void NTMInit()
 	theTMInfo.atmTask.tmAddr = NewTimerUPP(NTMTask);	/* get UPP for our task */
 	theTMInfo.atmTask.tmWakeUp = 0;
 	theTMInfo.atmTask.tmReserved = 0;
-//#if TARGET_CPU_PPC
-	/* nothing needed for PPC */
-//#else
-//	theTMInfo.tmRefCon = SetCurrentA5(); 			/* store A5 world address */
-//#endif
 	InsXTime((QElemPtr)&theTMInfo);					/* install the task record */
 }
 

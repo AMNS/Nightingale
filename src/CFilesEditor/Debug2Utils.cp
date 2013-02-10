@@ -42,12 +42,12 @@ We could also check other symbols with voice nos. */
 
 Boolean DCheckVoiceTable(Document *doc,
 				Boolean fullCheck,				/* FALSE=skip less important checks */
-				INT16 *pnVoicesUsed)
+				short *pnVoicesUsed)
 {
 	Boolean bad, foundEmptySlot;
 	LINK pL, aNoteL, aGRNoteL;
 	LINK voiceUseTab[MAXVOICES+1], partL;
-	INT16 v, stf, partn;
+	short v, stf, partn;
 	PPARTINFO pPart;
 	Boolean voiceInWrongPart;
 
@@ -226,7 +226,7 @@ Boolean DCheckRedundTS(Document *doc)
 {
 	LINK pL, aTSL;
 	Boolean haveTS[MAXSTAVES+1], bad;
-	INT16 s, nRedundant;
+	short s, nRedundant;
 	
 	bad = FALSE;
 		
@@ -316,7 +316,7 @@ Boolean DCheckMeasDur(Document *doc)
 
 Boolean DCheckUnisons(Document *doc)
 {
-	LINK pL; Boolean bad; INT16 voice;
+	LINK pL; Boolean bad; short voice;
 	
 	bad = FALSE;
 		
@@ -343,7 +343,7 @@ Boolean DCheck1NEntries(
 					Document */*doc*/,		/* unused */
 					LINK pL)
 {
-	LINK subL, tempL; Boolean bad; INT16 subCount;
+	LINK subL, tempL; Boolean bad; short subCount;
 	HEAP *myHeap;
 	
 	bad = FALSE;
@@ -505,15 +505,15 @@ Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 /* Given a Sync and a note in it, plus the current clef, octave sign, and accidental
 table: return the discrepancy in the note's MIDI note number (0 if none). */
 
-INT16 DBadNoteNum(
+short DBadNoteNum(
 				Document *doc,
-				INT16 clefType, INT16 octType,
+				short clefType, short octType,
 				SignedByte /*accTable*/[],
 				LINK syncL, LINK theNoteL)
 {
-	INT16 halfLn;							/* Relative to the top of the staff */
+	short halfLn;							/* Relative to the top of the staff */
 	SHORTQD yqpit;
-	INT16 midCHalfLn, effectiveAcc, noteNum;
+	short midCHalfLn, effectiveAcc, noteNum;
 	LINK firstSyncL, firstNoteL;
 
 	midCHalfLn = ClefMiddleCHalfLn(clefType);				/* Get middle C staff pos. */		
@@ -540,7 +540,7 @@ both grace notes and rests. */
 Boolean DCheckNoteNums(Document *doc)
 {
 	Boolean bad=FALSE, haveAccs;
-	INT16 staff, clefType, octType[MAXSTAVES+1], useOctType, nnDiff;
+	short staff, clefType, octType[MAXSTAVES+1], useOctType, nnDiff;
 	LINK pL, aNoteL, aClefL;
 	SignedByte accTable[MAX_STAFFPOS];
 

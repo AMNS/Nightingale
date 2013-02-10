@@ -8,12 +8,7 @@ recording - formerly in MIDIRecord.c.
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-//#if TARGET_API_MAC_CARBON_MACHO
 #include <CoreMIDI/MIDIServices.h>		/* for MIDIPacket */
-//#else
-//#include <midi.h>						/* for MIDIPacket */
-//#endif
-
 
 Boolean BIMIDINoteAtTime(short noteNum, short channel, short velocity, long time);
 
@@ -29,18 +24,17 @@ typedef struct {
 	short velocity;	
 } NOTEPLAYINFO;
 
-void ShellSortNPBuf(NOTEPLAYINFO notePlayBuf[], INT16 npBufInd);
-static Boolean BIMIDIAllocNoteBuffer(Document *doc, LINK recMeasL, LINK playToL);
-static void GetClickTimeInfo(Document *doc, LINK recMeasL, LINK playToL, INT16 nLeadInMeas,
-								TCONVERT tConvertTab[], INT16 tempoCount, long *pToffset,
+void ShellSortNPBuf(NOTEPLAYINFO notePlayBuf[], short npBufInd);
+static void GetClickTimeInfo(Document *doc, LINK recMeasL, LINK playToL, short nLeadInMeas,
+								TCONVERT tConvertTab[], short tempoCount, long *pToffset,
 								long *pClickLeadInDur, long *pLastStartTime);
 static Boolean RecPlayAddAllClicks(long msPerBeat, long lastStartTime);
 static Boolean BIMIDIAddNote(short noteNum, short channel, long startTime, long endTime,
 								short velocity);
 static void RecPlayAddAllNotes(Document *doc, LINK fromL, LINK toL, TCONVERT tConvertTab[],
-								INT16 tempoCount, long toffset);
-INT16 RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset);
-Boolean RecPlayNotes(unsigned INT16	outBufSize);
+								short tempoCount, long toffset);
+short RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset);
+Boolean RecPlayNotes(unsigned short	outBufSize);
 
 /* --------------------------------------------------------------- ShellSortNPBuf -- */
 /* ShellSortNPBuf does a Shell (diminishing increment) sort on <.times> of the
@@ -51,7 +45,7 @@ The Art of Computer Programming, vol. 2, pp. 84-95. */
 
 void ShellSortNPBuf(
 			NOTEPLAYINFO notePlayBuf[],
-			INT16 npBufInd)
+			short npBufInd)
 {
 	short nstep, ncheck, i, n; NOTEPLAYINFO temp;
 	
@@ -76,40 +70,9 @@ void ShellSortNPBuf(
 	}
 }
 
-static INT16 npBufInd;				/* Index of first free slot in notePlayBuf */
+static short npBufInd;				/* Index of first free slot in notePlayBuf */
 NOTEPLAYINFO *notePlayBuf;
-static INT16 npBufSize;				/* Size of notePlayBuf */
-
-/* Allocate a buffer for playing out of (while recording) with the built-in MIDI driver.
-The buffer is pointed to by <notePlayBuf>; set <npBufSize> to its size and <npBufInd> to
-mark it empty, and return TRUE. If we have trouble allocating it, give an error message
-and return FALSE. */
-
-static Boolean BIMIDIAllocNoteBuffer(Document *doc, LINK recMeasL, LINK playToL)
-{
-	INT16 noteCount, maxMetroClicks; CONTEXT context;
-	
-	/*
-	 * We need an event buffer with room for two events (Note On and Note Off) for
-	 * each note and "click" we might be playing. We'll count the notes, then
-	 * just add a fixed number large enough for all the clicks in any reasonable
-	 * situation.
-	 */
-	noteCount = CountNotes(ANYONE, recMeasL, playToL, FALSE);
-	GetContext(doc, recMeasL, 1, &context);
-	maxMetroClicks = (MAX_SAFE_MEASDUR/l2p_durs[context.denominator])+1;
-	npBufSize = 2*(noteCount+maxMetroClicks);
-
-	notePlayBuf = (NOTEPLAYINFO *)(NewPtr(npBufSize*sizeof(NOTEPLAYINFO)));
-	npBufInd = 0;
-	if (GoodNewPtr((Ptr)notePlayBuf))
-		return TRUE;
-	else {
-		OutOfMemory(npBufSize*sizeof(NOTEPLAYINFO));
-		return FALSE;
-	}
-}
-
+static short npBufSize;				/* Size of notePlayBuf */
 
 /* Return in a parameter the offset time, i.e., the absolute time since the beginning 
 of the score when playing clicks starts, in milliseconds: note that this time might be
@@ -119,9 +82,9 @@ static void GetClickTimeInfo(
 					Document *doc,
 					LINK recMeasL,
 					LINK playToL,
-					INT16 nLeadInMeas,
+					short nLeadInMeas,
 					TCONVERT tConvertTab[],
-					INT16 tempoCount,
+					short tempoCount,
 					long *pToffset,						/* output, in milliseconds: may be negative! */
 					long *pClickLeadInDur,				/* output, in milliseconds */
 					long *pLastStartTime)				/* output, in milliseconds */
@@ -192,8 +155,8 @@ static Boolean BIMIDIAddNote(short noteNum, short channel, long startTime, long 
 }
 
 #ifdef DEBUG_MIDIOUT
-pascal void DBGMidiOut(INT16 Midibyte, long TimeStamp, INT16 * Result);
-pascal void DBGMidiOut(INT16 Midibyte, long TimeStamp, INT16 * Result)
+pascal void DBGMidiOut(short Midibyte, long TimeStamp, short * Result);
+pascal void DBGMidiOut(short Midibyte, long TimeStamp, short * Result)
 {
 DebugPrintf("voidDBGMidiOut(0x%x, %ld)\n", Midibyte, TimeStamp);
 	MidiOut(Midibyte, TimeStamp, Result);
@@ -208,13 +171,13 @@ DebugPrintf("voidDBGMidiOut(0x%x, %ld)\n", Midibyte, TimeStamp);
 On) events for all the notes we might have to play. */
 
 static void RecPlayAddAllNotes(Document *doc, LINK fromL, LINK toL, TCONVERT tConvertTab[],
-										INT16 tempoCount, long toffset)
+										short tempoCount, long toffset)
 {
 	SignedByte	partVelo[MAXSTAVES];
 	Byte			partChannel[MAXSTAVES];
 	short			partTransp[MAXSTAVES];
 	Byte			channelPatch[MAXCHANNEL];
-	INT16			useNoteNum,
+	short			useNoteNum,
 					useChan, useVelo;
 	LINK			pL, measL, aNoteL;
 	long			playDur,										/* in PDUR ticks */
@@ -276,7 +239,7 @@ click. Return value is the size of the buffer, or -1 if there's a problem. */
 
 short RecPreparePlayback(Document *doc, long msPerBeat, long *ptLeadInOffset)
 {
-	INT16 i, measNum;
+	short i, measNum;
 	LINK recMeasL, playFromL, playToL;
 	long maxRecTime, toffset, lastStartTime;
 	TCONVERT tConvertTab[MAX_TCONVERT];
@@ -340,8 +303,8 @@ If we succeed, return TRUE; if not (probably not enough memory in the buffer), F
 
 Boolean RecPlayNotes(unsigned short outBufSize)
 {
-	unsigned INT16 outBufCount;
-	INT16 i; long time;
+	unsigned short outBufCount;
+	short i; long time;
 
 	for (i = 0; i<npBufInd; i++) {
 		switch (useWhichMIDI) {

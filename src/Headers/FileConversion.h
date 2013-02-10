@@ -14,9 +14,7 @@
 #define MAX_SCOREFONTS_N102	10
 #define MAX_COMMENT_LEN_N102	35
 
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
+#pragma options align=mac68k
 
 #define NIGHTSCOREHEADER_N102																				\
 	LINK 			headL,				/* links to header and tail objects */						\
@@ -24,7 +22,7 @@
 					selStartL,			/* currently selected range. */								\
 					selEndL;				/*		Also see the <selStaff> field. */					\
 																													\
-	INT16			nstaves,				/* number of staves in a system */							\
+	short			nstaves,				/* number of staves in a system */							\
 					nsystems;			/* number of systems in score */								\
 	unsigned char comment[MAX_COMMENT_LEN_N102+1]; /* User comment on score */				\
 	char			feedback:1;			/* TRUE if we want feedback on note insert */			\
@@ -36,7 +34,7 @@
 	char			lyricText:1;		/* (no longer used) TRUE if last text entered was lyric */	\
 	char			polyTimbral:1;		/* TRUE for one part per MIDI channel */					\
 	Byte			currentPage;		/* (no longer used) */											\
-	INT16			spacePercent,		/* Percentage of normal horizontal spacing used */		\
+	short			spacePercent,		/* Percentage of normal horizontal spacing used */		\
 					srastral,			/* Staff size rastral no.--score */							\
 					altsrastral,		/* (unused) Staff size rastral no.--parts */				\
 					tempo,				/* playback speed in beats per minute */					\
@@ -74,7 +72,7 @@
 	unsigned short	enclosureMN:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizeMN:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizeMN:7;	/* if relFSizeMN, small..large code, else point size */ \
-	INT16				fontStyleMN;																			\
+	short				fontStyleMN;																			\
 																													\
 	unsigned char fontNamePN[32];	/* PART NAME FONT: default name, size and style */		\
 	unsigned short	fillerPN:5;																				\
@@ -82,7 +80,7 @@
 	unsigned short	enclosurePN:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizePN:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizePN:7;	/* if relFSizePN, small..large code, else point size */ \
-	INT16				fontStylePN;																			\
+	short				fontStylePN;																			\
 																													\
 	unsigned char fontNameRM[32];	/* REHEARSAL MARK FONT: default name, size and style */	\
 	unsigned short	fillerRM:5;																				\
@@ -90,7 +88,7 @@
 	unsigned short	enclosureRM:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizeRM:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizeRM:7;	/* if relFSizeRM, small..large code, else point size */ \
-	INT16				fontStyleRM;																			\
+	short				fontStyleRM;																			\
 																													\
 	unsigned char fontName1[32];	/* REGULAR FONT 1: default name, size and style */		\
 	unsigned short	fillerR1:5;																				\
@@ -98,7 +96,7 @@
 	unsigned short	enclosure1:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize1:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize1:7;	/* if relFSize1, small..large code, else point size */ \
-	INT16				fontStyle1;																				\
+	short				fontStyle1;																				\
 																													\
 	unsigned char fontName2[32];	/* REGULAR FONT 2: default name, size and style */		\
 	unsigned short	fillerR2:5;																				\
@@ -106,7 +104,7 @@
 	unsigned short	enclosure2:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize2:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize2:7;	/* if relFSize2, small..large code, else point size */ \
-	INT16				fontStyle2;																				\
+	short				fontStyle2;																				\
 																													\
 	unsigned char fontName3[32];	/* REGULAR FONT 3: default name, size and style */		\
 	unsigned short	fillerR3:5;																				\
@@ -114,7 +112,7 @@
 	unsigned short	enclosure3:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize3:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize3:7;	/* if relFSize3, small..large code, else point size */ \
-	INT16				fontStyle3;																				\
+	short				fontStyle3;																				\
 																													\
 	unsigned char fontName4[32];	/* REGULAR FONT 4: default name, size and style */		\
 	unsigned short	fillerR4:5;																				\
@@ -122,7 +120,7 @@
 	unsigned short	enclosure4:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize4:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize4:7;	/* if relFSizeR4, small..large code, else point size */ \
-	INT16				fontStyle4;																				\
+	short				fontStyle4;																				\
 																													\
 	unsigned char fontNameTM[32];	/* TEMPO MARK FONT: default name, size and style */	\
 	unsigned short	fillerTM:5;																				\
@@ -130,7 +128,7 @@
 	unsigned short	enclosureTM:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizeTM:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizeTM:7;	/* if relFSizeTM, small..large code, else point size */ \
-	INT16				fontStyleTM;																			\
+	short				fontStyleTM;																			\
 																													\
 	unsigned char fontNameCS[32];	/* CHORD SYMBOL FONT: default name, size and style */	\
 	unsigned short	fillerCS:5;																				\
@@ -138,7 +136,7 @@
 	unsigned short	enclosureCS:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizeCS:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizeCS:7;	/* if relFSizeCS, small..large code, else point size */ \
-	INT16				fontStyleCS;																			\
+	short				fontStyleCS;																			\
 																													\
 	unsigned char fontNamePG[32];	/* PAGE HEADER/FOOTER/NO.FONT: default name, size and style */	\
 	unsigned short	fillerPG:5;																				\
@@ -146,7 +144,7 @@
 	unsigned short	enclosurePG:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizePG:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSizePG:7;	/* if relFSizePG, small..large code, else point size */ \
-	INT16				fontStylePG;																			\
+	short				fontStylePG;																			\
 																													\
 	unsigned char fontName5[32];	/* REGULAR FONT 5: default name, size and style */		\
 	unsigned short	fillerR5:5;																				\
@@ -154,11 +152,11 @@
 	unsigned short	enclosure5:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSize5:1;	/* TRUE if size is relative to staff size */				\
 	unsigned short	fontSize5:7;	/* if relFSize5, small..large code, else point size */ \
-	INT16				fontStyle5;																				\
+	short				fontStyle5;																				\
 																													\
 	/* End of TEXTSTYLE records */																		\
 																													\
-	INT16			nfontsUsed;			/* no. of entries in fontTable */							\
+	short			nfontsUsed;			/* no. of entries in fontTable */							\
 	FONTITEM		fontTable[MAX_SCOREFONTS_N102]; /* To convert stored to system font nos. */ \
 																													\
 	short			magnify,				/* Current reduce/enlarge magnification, 0=none */		\

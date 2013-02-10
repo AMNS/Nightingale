@@ -23,7 +23,7 @@ all 'chgd' resources, accordingly. */
 
 #include "GraphicMDEF.h"
 
-extern Boolean TranslatePalChar(INT16 *, INT16, Boolean);
+extern Boolean TranslatePalChar(short *, short, Boolean);
 
 static enum {			/* ASCII decimal for symbols in durPop font */
 	POP_BREVE_DOT = 33,
@@ -484,7 +484,7 @@ Boolean DurPopupKey(PGRAPHIC_POPUP p, POPKEY *pk, unsigned char theChar)
 	
 	/* remap theChar according to the 'PLMP' resource */
 	if (theChar!='?') {									/* because hard-wired below! */
-		INT16 intChar = (INT16)theChar;
+		short intChar = (short)theChar;
 		TranslatePalChar(&intChar, 0, FALSE);
 		theChar = (unsigned char) intChar;
 	}

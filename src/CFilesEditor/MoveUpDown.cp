@@ -27,10 +27,9 @@
 
 static Boolean InitMoveBars(Document *doc, LINK startL, LINK endL, LINK *startBarL,
 							LINK *endBarL);
-static void FixMeasOwners(LINK pL, LINK sysL, LINK staffL, LINK endL, LINK *firstBarL);
 static void FixStartContext(Document *doc, LINK pL, LINK startL, LINK endL);
 static void CleanupMoveBars(Document *doc, LINK startL, LINK endL);
-static void MoveUpDownErr(LINK pL, INT16 errNum);
+static void MoveUpDownErr(LINK pL, short errNum);
 
 /* ------------------------------------------------------------ Various Utilities -- */
 
@@ -57,26 +56,11 @@ static Boolean InitMoveBars(Document *doc, LINK startL, LINK endL, LINK *startBa
 }
 
 
-/* Fix owning-system and -staff and cross-measure pointers in measures in the range. */
-
-static void FixMeasOwners(LINK pL, LINK sysL, LINK staffL, LINK endL, LINK *firstBarL)
-{
-	LINK measL;
-
-	*firstBarL = LinkRMEAS(pL);
-	for (measL = *firstBarL; measL; measL = LinkRMEAS(measL)) { 			/* Fix owner-pointers */
-		MeasSYSL(measL) = sysL;
-		MeasSTAFFL(measL) = staffL;
-		if (measL==endL) return;
-	}
-}
-
-
 /* Fix up the context at the start of the page or system. */
 
 static void FixStartContext(Document *doc, LINK pL, LINK startL, LINK endL)
 {
-	INT16 s; KSINFO KSInfo; TSINFO TSInfo; CONTEXT context;
+	short s; KSINFO KSInfo; TSINFO TSInfo; CONTEXT context;
 
 /* Fix start-of-system (or page) contexts. */
 	for (s = 1; s<=doc->nstaves; s++) {
@@ -127,7 +111,7 @@ static void CleanupMoveBars(Document *doc, LINK startL, LINK endL)
 }
 
 
-static void MoveUpDownErr(LINK pL, INT16 errNum)
+static void MoveUpDownErr(LINK pL, short errNum)
 {
 	switch (errNum) {
 		case 1:
@@ -408,22 +392,8 @@ Boolean MoveBarsDown(Document *doc, LINK startL, LINK endL)
 			sys2L = CreateSystem(doc,prevL,sysTop,succSystem);
 		}
 		else {
-#ifdef LIGHT_VERSION
-			/* If we're on the last page user can have, put new sys on same page even
-				if it falls off the end of the page. */
-			if (doc->numSheets==MAXPAGES) {
-				sysRect = SystemRECT(sys1L);
-				sysTop = sysRect.bottom;
-				sys2L = CreateSystem(doc,prevL,sysTop,succSystem);
-			}
-			else {
-				CreatePage(doc, prevL);
-				sys2L = LinkRSYS(sys1L);
-			}
-#else
 			CreatePage(doc, prevL);
 			sys2L = LinkRSYS(sys1L);
-#endif
 		}
 		endBarL = RightLINK(prevL);
 	}

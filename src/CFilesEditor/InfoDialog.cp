@@ -23,8 +23,7 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean LegalStaff(Document *, INT16, Boolean);
-static Boolean LegalVert(Document *, INT16);
+static Boolean LegalVert(Document *, short);
 static void SyncInfoDialog(Document *, LINK, char []);
 static Boolean PageRelGraphic(LINK);
 static void GenInfoDialog(Document *, LINK, char []);
@@ -43,8 +42,8 @@ GRAF_ACCEPT for other possibly-graphics-related fields; GEN_ACCEPT for all other
 #define GEN_ACCEPT(field)	if (newval!=(field)) \
 									{ (field) = newval;  nodeDirty = TRUE; }
 
-static INT16	scaleShift, scaleRound;
-static INT16	lastEditField = 0, lastObjType = 0;
+static short	scaleShift, scaleRound;
+static short	lastEditField = 0, lastObjType = 0;
 
 /* Note: these dialogs are intended for use mostly by expert users. Accordingly, error
 checking is definitely on the permissive side! */
@@ -96,29 +95,7 @@ void InfoDialog(Document *doc)
 	}
 }
 
-
-/* -------------------------------------------------------------- LegalStaff/Vert -- */
-
-/* As of v. 3.1, LegalStaff is unused, since staff no. is always read only. */
-
-static Boolean LegalStaff(Document *doc, INT16 staff, Boolean noStaffOK)
-{
-	char fmtStr[256];
-
-	if ((staff<1 || staff>doc->nstaves) && !(noStaffOK && staff==NOONE))
-	{
-		GetIndCString(fmtStr, INFOERRS_STRS, 1);			/* "Staff number must be 1 to..." */
-		sprintf(strBuf, fmtStr, doc->nstaves);
-		CParamText(strBuf, "", "", "");
-		Inform(GINFO_ALRT);
-		return FALSE;
-	}
-	else
-		return TRUE;
-}
-
-
-static Boolean LegalVert(Document *doc, INT16 newval)
+static Boolean LegalVert(Document *doc, short newval)
 {
 	if (I2DD(newval)<ABOVE_VLIM(doc) || I2DD(newval)>BELOW_VLIM(doc))
 	{
@@ -177,9 +154,9 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	INT16			dialogOver;
+	short			dialogOver;
 	short			ditem, aShort;
-	INT16			newval, newval2, max_dots, staff,
+	short			newval, newval2, max_dots, staff,
 					minl_dur, userVoice;
 	Handle		twHdl, ulHdl;
 	Rect			tRect;
@@ -329,22 +306,6 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				case Cancel:
 					dialogOver = ditem;
 					break;
-#ifdef NOTYET
-				case UPDATE:
-					SetPort(doc->theWindow);
-					measureL = LSSearch(pL, MEASUREtype, ANYONE, TRUE, FALSE);
-					pMeasure = GetPMEASURE(measureL);
-					r = pMeasure->measureBBox;
-					if (LastMeasInSys(measureL)) r.right = doc->paperRect.right;
-					OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
-					EraseAndInval(&r);
-					/*
-					DrawRange(doc, measureL, pMeasure->rMeasure,&doc->viewRect);
-					*/
-					MayErrMsg("SyncInfoDialog: DrawRange expects the paper bounds\r");
-					SetPort(GetDialogWindowPort(dlog));
-					break;
-#endif
 			 	default:
 			 		;
 			}
@@ -678,9 +639,9 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	INT16			dialogOver;
+	short			dialogOver;
 	short			ditem, aShort;
-	INT16			newval, staff, userVoice;
+	short			newval, staff, userVoice;
 	Handle		tHdl, twHdl, ulHdl, p1Hdl, p2Hdl;
 	Rect			tRect, aRect;
 	PMEVENT		p;
@@ -1402,9 +1363,9 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	INT16			dialogOver;
+	short			dialogOver;
 	short			ditem, aShort;
-	INT16			newval, staff, userVoice;
+	short			newval, staff, userVoice;
 	Handle		tHdl, twHdl, ulHdl, p1Hdl, p2Hdl;
 	Rect			tRect, aRect;
 	POCTAVA		octavap;
@@ -1728,22 +1689,22 @@ static enum {
 
 static DialogPtr mDlog;
 static Rect modNRArea;
-static INT16 modCode, noteSubType;
+static short modCode, noteSubType;
 static Boolean noteSmall;
 static DDIST noteYD;
 static Boolean above, center, dirty;
 static short lastModEditField=0;
 
-static void MIDrawSlashes(INT16, INT16, INT16, DDIST);
+static void MIDrawSlashes(short, short, short, DDIST);
 static void InfoDrawModNR(void);
 static pascal void UserDrawModNR(DialogPtr, short);
 static void PrepDrawModNR(AMODNR, PCONTEXT);
 static Boolean GetModNRValues(PAMODNR);
 
-void MIDrawSlashes(INT16 xhead, INT16 ystem, INT16 nslashes, DDIST dEighthLn)
+void MIDrawSlashes(short xhead, short ystem, short nslashes, DDIST dEighthLn)
 {
 	DDIST		slashLeading, slashThick, slashWidth, slashHeight;
-	INT16		i, xslash, yslash;
+	short		i, xslash, yslash;
 	
 	slashLeading = 6*dEighthLn;
 	slashThick = 3*dEighthLn;
@@ -1766,7 +1727,7 @@ void MIDrawSlashes(INT16 xhead, INT16 ystem, INT16 nslashes, DDIST dEighthLn)
 static void InfoDrawModNR()
 {
 	short oldtxFont, oldtxSize;
-	INT16 xOffset, yOffset, sizePercent, width, height, lnSpace, yoff;
+	short xOffset, yOffset, sizePercent, width, height, lnSpace, yoff;
 	unsigned char glyph;
 	Rect portRect;
 	
@@ -1835,7 +1796,7 @@ static void PrepDrawModNR(AMODNR modNR, PCONTEXT pContext)
 
 static Boolean GetModNRValues(PAMODNR aModNR)
 {
-	INT16 newval;
+	short newval;
 	Boolean okay=TRUE;
 	
 	GetDlgWord(mDlog, HORIZ, &newval);
@@ -1878,9 +1839,9 @@ Boolean ModNRDialog(Document *doc)
 	LINK pL, aNoteL, aModNRL;
 	PANOTE aNote;
 	PAMODNR aModNR;
-	INT16 i, modCount, dialogOver;
+	short i, modCount, dialogOver;
 	short ditem, aShort;
-	INT16 curr;
+	short curr;
 	Handle aHdl;
 	ControlHandle prevHdl, nextHdl;
 	Rect aRect;

@@ -21,38 +21,38 @@
 
 static Rect bRect,objRect,oldObjRect,paperRect;
 static DRect systemRect;
-static INT16 linenum, showBPage;
+static short linenum, showBPage;
 static char s[300];			/* A bit more than 256 to protect against 255-char. Graphics, etc. */
 static char objList[16];
 static LINK subL;
 
 static void ShowObjRect(Document *);
-static void ChangeSelectObj(Document *, LINK, INT16, INT16, Boolean);
-static void ShowObject(Document *, LINK, INT16);
+static void ChangeSelectObj(Document *, LINK, short, short, Boolean);
+static void ShowObject(Document *, LINK, short);
 static void DrawLine(char *);
-static void BrowseHeader(Document *, LINK, INT16);
+static void BrowseHeader(Document *, LINK, short);
 static void BrowsePage(LINK);
 static void BrowseSystem(LINK);
-static void BrowseStaff(LINK, INT16);
-static void BrowseConnect(LINK, INT16);
-static void BrowseClef(LINK, INT16);
-static void BrowseKeySig(LINK, INT16);
-static void BrowseTimeSig(LINK, INT16);
-static void BrowseMeasure(LINK, INT16);
-static void BrowsePseudoMeas(LINK, INT16);
-static void BrowseSync(LINK, INT16);
-static void BrowseGRSync(LINK, INT16);
-static void BrowseBeamset(LINK, INT16);
-static void BrowseTuplet(LINK, INT16);
-static void BrowseOctava(LINK, INT16);
-static void BrowseDynamic(LINK, INT16);
-static void BrowseRptEnd(LINK, INT16);
-static void BrowseEnding(LINK, INT16);
+static void BrowseStaff(LINK, short);
+static void BrowseConnect(LINK, short);
+static void BrowseClef(LINK, short);
+static void BrowseKeySig(LINK, short);
+static void BrowseTimeSig(LINK, short);
+static void BrowseMeasure(LINK, short);
+static void BrowsePseudoMeas(LINK, short);
+static void BrowseSync(LINK, short);
+static void BrowseGRSync(LINK, short);
+static void BrowseBeamset(LINK, short);
+static void BrowseTuplet(LINK, short);
+static void BrowseOctava(LINK, short);
+static void BrowseDynamic(LINK, short);
+static void BrowseRptEnd(LINK, short);
+static void BrowseEnding(LINK, short);
 static void BrowseGraphic(LINK);
 static void BrowseTempo(LINK);
 static void BrowseSpace(LINK);
-static void BrowseSlur(LINK, INT16);
-static pascal Boolean BrowserFilter(DialogPtr, EventRecord *, INT16 *);
+static void BrowseSlur(LINK, short);
+static pascal Boolean BrowserFilter(DialogPtr, EventRecord *, short *);
 
 
 enum {
@@ -78,7 +78,7 @@ enum {
 	iShowMore		/* Fake item (not in the DITL) */
 };
 
-pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *item)
+pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
 		Boolean ans = FALSE;
 		short itype; Handle tHdl; Rect textRect; Point where;
@@ -135,10 +135,10 @@ but everything else will work as usual. */
 void Browser(Document *doc, LINK headL, LINK tailL)
 {
 	DialogPtr dlog;
-	short itype, ditem; INT16 type;
+	short itype, ditem; short type;
 	ControlHandle selHdl, deselHdl, tHdl;
 	Rect tRect;
-	INT16 index, oldIndex, oldShowBPage, goLoc;
+	short index, oldIndex, oldShowBPage, goLoc;
 	Boolean done;
 	GrafPtr oldPort;
 	LINK	pL, oldL;
@@ -389,7 +389,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 		if (scroll) {
 			GrafPtr oldPort; Rect box,portRect;
 			WindowPtr w; 
-			Point oldOrigin; INT16 dx,dy;
+			Point oldOrigin; short dx,dy;
 			ShowObjRect(doc);
 			
 			w = doc->theWindow;
@@ -493,14 +493,14 @@ situations resulting (most likely) from bugs in Nightingale, so it tries to
 work in the safest possible way. */
 
 static void ChangeSelectObj(Document *doc, LINK pL,
-							INT16	index,		/* Index of subobject currently displayed */
-							INT16	mode,
+							short	index,		/* Index of subobject currently displayed */
+							short	mode,
 							Boolean selSub	/* If SMSelect, TRUE=select only current subobject */
 							)
 {
 	CONTEXT	context[MAXSTAVES+1];
 	Boolean	found;
-	INT16		pIndex;
+	short		pIndex;
 	STFRANGE	stfRange={0,0};
 	
 	GetAllContexts(doc, context, pL);
@@ -554,7 +554,7 @@ static void ChangeSelectObj(Document *doc, LINK pL,
 
 /* ----------------------------------------------------------------- ShowObject -- */
 
-void ShowObject(Document *doc, LINK pL, INT16 index)
+void ShowObject(Document *doc, LINK pL, short index)
 {
 	PMEVENT p;
 	PSYSTEM pSystem;
@@ -696,10 +696,10 @@ void ShowObject(Document *doc, LINK pL, INT16 index)
 
 #define VOICEPAGESIZE 15
 
-void ShowVoicePage(Document *, INT16);
-void ShowVoicePage(Document *doc, INT16 startV)
+void ShowVoicePage(Document *, short);
+void ShowVoicePage(Document *doc, short startV)
 {
-	INT16 v; unsigned char ch;
+	short v; unsigned char ch;
 	
 	if (startV<1) startV = 1;				/* Avoid negative index in loop below */
 	
@@ -724,15 +724,15 @@ void ShowVoicePage(Document *doc, INT16 startV)
 
 /* --------------------------------------------------------------- BrowseHeader -- */
 
-void BrowseHeader(Document *doc, LINK pL, INT16 index)
+void BrowseHeader(Document *doc, LINK pL, short index)
 {
 	PPARTINFO q;
-	INT16 i, v;
+	short i, v;
 	LINK qL;
 	char string[256];
 	
 	if (index<0) {
-		INT16 startV; Boolean pageEmpty;
+		short startV; Boolean pageEmpty;
 		/*
 		 *	Show a "page" of the voice-mapping table. If the current page is empty
 		 * or it's past the end of the table, go back to the first page.
@@ -889,12 +889,12 @@ void BrowseSystem(LINK pL)
 
 /* ------------------------------------------------------------- BrowseStaff -- */
 
-void BrowseStaff(LINK pL, INT16 index)
+void BrowseStaff(LINK pL, short index)
 {
 	PSTAFF p;
 	PASTAFF q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPSTAFF(pL);
 	sprintf(s, "l/r Staff=%d/%d", p->lStaff, p->rStaff);
@@ -956,12 +956,12 @@ void BrowseStaff(LINK pL, INT16 index)
 
 /* ------------------------------------------------------------ BrowseConnect -- */
 
-void BrowseConnect(LINK pL, INT16 index)
+void BrowseConnect(LINK pL, short index)
 {
 	PCONNECT p;
 	PACONNECT q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPCONNECT(pL);
 	objRect = p->objRect;
@@ -1024,12 +1024,12 @@ void BrowseConnect(LINK pL, INT16 index)
 
 /* -------------------------------------------------------------- BrowseClef -- */
 
-void BrowseClef(LINK pL, INT16 index)
+void BrowseClef(LINK pL, short index)
 {
 	PCLEF p;
 	PACLEF q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPCLEF(pL);
 	objRect = p->objRect;
@@ -1068,12 +1068,12 @@ void BrowseClef(LINK pL, INT16 index)
 
 /* -------------------------------------------------------------- BrowseKeySig -- */
 
-void BrowseKeySig(LINK pL, INT16 index)
+void BrowseKeySig(LINK pL, short index)
 {
 	PKEYSIG p;
 	PAKEYSIG q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPKEYSIG(pL);
 	objRect = p->objRect;
@@ -1111,12 +1111,12 @@ void BrowseKeySig(LINK pL, INT16 index)
 
 /* ------------------------------------------------------------ BrowseTimeSig -- */
 
-void BrowseTimeSig(LINK pL, INT16 index)
+void BrowseTimeSig(LINK pL, short index)
 {
 	PTIMESIG p;
 	PATIMESIG q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPTIMESIG(pL);
 	objRect = p->objRect;
@@ -1157,12 +1157,12 @@ void BrowseTimeSig(LINK pL, INT16 index)
 
 /* ------------------------------------------------------------- BrowseMeasure -- */
 
-void BrowseMeasure(LINK pL, INT16 index)
+void BrowseMeasure(LINK pL, short index)
 {
 	PMEASURE p;
 	PAMEASURE q;
 	LINK qL;
-	INT16 i, xd;
+	short i, xd;
 	Rect bbox; DRect mrect;
 
 	p = GetPMEASURE(pL);
@@ -1235,12 +1235,12 @@ void BrowseMeasure(LINK pL, INT16 index)
 
 /* ---------------------------------------------------------- BrowsePseudoMeas -- */
 
-void BrowsePseudoMeas(LINK pL, INT16 index)
+void BrowsePseudoMeas(LINK pL, short index)
 {
 	PPSMEAS p;
 	PAPSMEAS q;
 	LINK qL;
-	INT16 i, xd;
+	short i, xd;
 
 	p = GetPPSMEAS(pL);
 	xd = p->xd;
@@ -1267,12 +1267,12 @@ void BrowsePseudoMeas(LINK pL, INT16 index)
 
 /* ---------------------------------------------------------------- BrowseSync -- */
 
-void BrowseSync(LINK pL, INT16 index)
+void BrowseSync(LINK pL, short index)
 {
 	PSYNC p;
 	PANOTE q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPSYNC(pL);
 	objRect = p->objRect;
@@ -1343,12 +1343,12 @@ void BrowseSync(LINK pL, INT16 index)
 
 /* ----------------------------------------------------------- BrowseGRSync -- */
 
-void BrowseGRSync(LINK pL, INT16 index)
+void BrowseGRSync(LINK pL, short index)
 {
 	PGRSYNC p;
 	PAGRNOTE	q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPGRSYNC(pL);
 	objRect = p->objRect;
@@ -1414,12 +1414,12 @@ void BrowseGRSync(LINK pL, INT16 index)
 
 /* ----------------------------------------------------------- BrowseBeamset -- */
 
-void BrowseBeamset(LINK pL, INT16 index)
+void BrowseBeamset(LINK pL, short index)
 {
 	PBEAMSET	p;
 	PANOTEBEAM	q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPBEAMSET(pL);
 	objRect = p->objRect;
@@ -1454,12 +1454,12 @@ void BrowseBeamset(LINK pL, INT16 index)
 
 /* --------------------------------------------------------------- BrowseTuplet -- */
 
-void BrowseTuplet(LINK pL, INT16 index)
+void BrowseTuplet(LINK pL, short index)
 {
 	PTUPLET p;
 	PANOTETUPLE	q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPTUPLET(pL);
 	objRect = p->objRect;
@@ -1493,12 +1493,12 @@ void BrowseTuplet(LINK pL, INT16 index)
 
 /* -------------------------------------------------------------- BrowseOctava -- */
 
-void BrowseOctava(LINK pL, INT16 index)
+void BrowseOctava(LINK pL, short index)
 {
 	POCTAVA p;
 	PANOTEOCTAVA q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPOCTAVA(pL);
 	objRect = p->objRect;
@@ -1527,12 +1527,12 @@ void BrowseOctava(LINK pL, INT16 index)
 
 /* ----------------------------------------------------------- BrowseDynamic -- */
 
-void BrowseDynamic(LINK pL, INT16 index)
+void BrowseDynamic(LINK pL, short index)
 {
 	PDYNAMIC p;
 	PADYNAMIC q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPDYNAMIC(pL);
 	objRect = p->objRect;
@@ -1575,12 +1575,12 @@ void BrowseDynamic(LINK pL, INT16 index)
 
 /* ----------------------------------------------------------- BrowseRptEnd -- */
 
-void BrowseRptEnd(LINK pL, INT16 index)
+void BrowseRptEnd(LINK pL, short index)
 {
 	PRPTEND p;
 	PARPTEND q;
 	LINK qL;
-	INT16 i;
+	short i;
 
 	p = GetPRPTEND(pL);
 	objRect = p->objRect;
@@ -1615,7 +1615,7 @@ void BrowseRptEnd(LINK pL, INT16 index)
 
 /* ---------------------------------------------------------------- BrowseEnding -- */
 
-void BrowseEnding(LINK pL, INT16 /*index*/)
+void BrowseEnding(LINK pL, short /*index*/)
 {
 	PENDING p;
 
@@ -1712,34 +1712,6 @@ void BrowseGraphic(LINK pL)
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	sprintf(s, "aGraphic->next=%d", aGraphic->next);
 	DrawLine (s);	p = GetPGRAPHIC(pL);
-
-#ifdef NOTYET
-	strcpy(s, "");
-	if (p->vConstrain) strcat(s, "VCONSTRAIN ");
-	if (p->hConstrain) strcat(s, "HCONSTRAIN ");
-	DrawLine(s);	p = GetPGRAPHIC(pL);
-	switch (p->justify) {
-		case GRJustLeft:
-			pStr = "JUSTIFYLEFT";
-			break;
-		case GRJustRight:
-			pStr = "JUSTIFYRIGHT";
-			break;
-		case GRJustBoth:
-			pStr = "JUSTIFYBOTH";
-			break;
-		case GRJustCenter:
-			pStr = "JUSTIFYCENTER";
-			break;
-		default:
-			sprintf(s2, "UNKNOWN JUSTIFY TYPE %d", p->justify);
-			pStr = s2;
-	}
-	sprintf(s, "justify=%s", pStr);
-	DrawLine(s);	p = GetPGRAPHIC(pL);
-	sprintf(s, "handle=0x%lx", p->handle);
-	DrawLine(s);	p = GetPGRAPHIC(pL);
-#endif
 
 	sprintf(s, "firstObj=%d lastObj=%d", p->firstObj, p->lastObj);
 	DrawLine(s);	p = GetPGRAPHIC(pL);
@@ -1879,12 +1851,12 @@ void BrowseSpace(LINK pL)
 
 /* ---------------------------------------------------------------- BrowseSlur -- */
 
-void BrowseSlur(LINK pL, INT16 index)
+void BrowseSlur(LINK pL, short index)
 {
 	PSLUR p;
 	PASLUR aSlur;
 	LINK	aSlurL;
-	INT16 i;
+	short i;
 	
 	p = GetPSLUR(pL);
 	objRect = p->objRect;
@@ -1952,7 +1924,7 @@ void ShowContext(Document *doc)
 	DialogPtr	dlog;
 	Handle		tHdl;
 	short			itype,ditem;
-	INT16			theStaff;
+	short			theStaff;
 	GrafPtr		oldPort;	
 
 /* Get LINK to and staff number of first selected object or of insertion point. */

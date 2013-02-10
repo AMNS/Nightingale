@@ -13,11 +13,10 @@
 #include "Nightingale.appl.h"
 
 static short FindAccModNR(Document *, Point, LINK *, LINK *, LINK *, Rect *);
-static LINK FindAccidental(Document *, Point, LINK *, Rect *);
 static void GetAccidentalBbox(Document *, LINK, LINK, Rect *);
 static void DoAccidentalDrag(Document *, Point, LINK, LINK, Rect *);
-static DDIST GetAccXOffset(PANOTE, INT16, PCONTEXT);
-static void DrawAccidentalParams(Document *doc, INT16);
+static DDIST GetAccXOffset(PANOTE, short, PCONTEXT);
+static void DrawAccidentalParams(Document *doc, short);
 static Boolean GetModNRbbox(Document *, LINK, LINK, LINK, Rect *);
 static void DoModNRDrag(Document *, Point, LINK, LINK, LINK, Rect *);
 static void DrawModNRParams(Document *doc, SHORTSTD, SHORTSTD);
@@ -179,7 +178,7 @@ Boolean DoAccModNRClick(Document *doc, Point pt)
 static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBBox)
 {
 	DDIST		noteXD, noteYD, accXOffset, xdNorm;
-	INT16		oldTxSize, useTxSize, sizePercent, charWid, baseLine;
+	short		oldTxSize, useTxSize, sizePercent, charWid, baseLine;
 	PANOTE	aNote;
 	CONTEXT	context;
 	Rect		accCharRect;
@@ -241,7 +240,7 @@ static void DoAccidentalDrag(Document *doc, Point pt, LINK syncL, LINK noteL,
 									Rect *origAccBBox)				/* in paper coords */
 {
 	DDIST		noteXD, noteYD, xdNorm, xdNormAdjusted, xOffset, accXOffset, dAccWidth;
-	INT16		accCode, oldTxMode, oldTxSize, useTxSize, 
+	short		accCode, oldTxMode, oldTxSize, useTxSize, 
 				sizePercent, diffH, accOriginH, xmoveAcc;
 	Point		oldPt, newPt;
 	Boolean	chordNoteToL, suppressRedraw = FALSE;
@@ -374,7 +373,7 @@ PopLock(NOTEheap);
 }
 
 
-DDIST GetAccXOffset(PANOTE aNote, INT16 sizePercent, PCONTEXT pContext)
+DDIST GetAccXOffset(PANOTE aNote, short sizePercent, PCONTEXT pContext)
 {
 	DDIST	accXOffset;
 	short	xmoveAcc;
@@ -388,7 +387,7 @@ DDIST GetAccXOffset(PANOTE aNote, INT16 sizePercent, PCONTEXT pContext)
 
 /* Draws the offset (negative) of the accidental from the notehead into the msg box. */
 
-static void DrawAccidentalParams(Document *doc, INT16 xmoveAcc)
+static void DrawAccidentalParams(Document *doc, short xmoveAcc)
 {
 	char str[256], fmtStr[256];
 	
@@ -406,7 +405,7 @@ static Boolean GetModNRbbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 										Rect *bbox)
 {
 	DDIST		noteXD, xdMod, ydMod, staffTop, xdNorm, lnSpace;
-	INT16		code, oldTxSize, useTxSize, sizePercent,
+	short		code, oldTxSize, useTxSize, sizePercent,
 				xOffset, yOffset, charWid, baseLine, wid, ht;
 	PAMODNR	aModNR;
 	PANOTE	aNote;
@@ -449,7 +448,7 @@ static Boolean GetModNRbbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 	charWid = CharWidth(glyph);			/* more accurate for screen fonts, especially when scaled */
 	TextSize(oldTxSize);
 
-	glyphRect = CharRect((INT16)glyph);
+	glyphRect = CharRect((short)glyph);
 
 	bbox->left = d2p(xdMod);
 	bbox->right = bbox->left + charWid;
@@ -483,7 +482,7 @@ static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK mo
 {
 	DDIST		noteXD, xdMod, ydMod, staffTop, xdNorm, xd, yd, xdModOrig, ydModOrig, lnSpace;
 	STDIST	xstd, ystdpit;
-	INT16		code, sizePercent, xOffset, yOffset, constrain = NOCONSTRAIN,
+	short		code, sizePercent, xOffset, yOffset, constrain = NOCONSTRAIN,
 				oldTxSize, useTxSize, oldTxMode;
 	Point		oldPt, newPt, modOrigin, diffPt;
 	Boolean	firstLoop = TRUE, suppressRedraw = FALSE;
@@ -492,12 +491,6 @@ static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK mo
 	PANOTE	aNote;
 	CONTEXT	context;
 	unsigned char glyph;
-#ifdef USE_BITMAP
-	GrafPtr	scrnPort, modPort;
-	Rect		destRect;
-	Point		grPortOrigin;
-	INT16		dh, dv, fontID;
-#endif
 	
 /* ??Do I really need to lock these? What about the modNR heaps? */
 PushLock(OBJheap);
@@ -553,32 +546,6 @@ PushLock(NOTEheap);
 	SetPt(&modOrigin, d2p(xdModOrig), d2p(ydModOrig + staffTop));
 	SetPt(&diffPt, pt.h - modOrigin.h, pt.v - modOrigin.v);	/* set from pt, before the search and drawing in gray, etc. */
 	
-#ifdef USE_BITMAP
-	modPort = NewGrafPort(origModNRbbox->right-origModNRbbox->left,
-									origModNRbbox->bottom-origModNRbbox->top);
-	if (modPort==NULL)
-		return;
-
-	GetPort(&scrnPort);
-	fontID = (qd.thePort)->txFont;
-	SetPort(modPort);
-	TextFont(fontID);
-	TextSize(useTxSize);
-
-	/* Fiddle with bitmap coordinate system so that Draw1ModNR will draw into our tiny rect. */
-	grPortOrigin = TOP_LEFT(*origModNRbbox);
-	Pt2Window(doc, &grPortOrigin);
-	SetOrigin(grPortOrigin.h, grPortOrigin.v);
-	ClipRect(&(*modPort).portBits.bounds);
-
-	Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context, sizePercent, FALSE);
-
-	SetPort(scrnPort);
-
-	destRect = *origModNRbbox;
-	Rect2Window(doc, &destRect);
-#endif
-
 	GetPaperMouse(&oldPt, &doc->currentPaper);
 
 	if (StillDown()) while (WaitMouseUp()) {
@@ -592,13 +559,8 @@ PushLock(NOTEheap);
 			firstLoop = FALSE;
 		}
 		
-#ifdef USE_BITMAP
-		CopyBits(&modPort->portBits, &scrnPort->portBits,		/* erase old modNR */
-		 			&(*modPort).portBits.bounds, &destRect, srcXor, NULL);
-#else
 		Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
 						&context, sizePercent, FALSE);		/* erase old modNR */
-#endif
 		
 		xd = p2d(newPt.h - diffPt.h);
 		xstd = d2std(xd - noteXD - ((LNSPACE(&context)/8)*xOffset),
@@ -632,20 +594,6 @@ PushLock(NOTEheap);
 		xdMod += (LNSPACE(&context)/8)*xOffset;
 		ydMod += (LNSPACE(&context)/8)*yOffset;
 		
-#if 0
-		/* To keep AutoScroll from leaving turds on the screen when it tries to
-		 * draw our modNR, temporarily set the modNR's code to an unused value,
-		 * so that Draw1ModNR won't do anything. For this purpose I put MOD_NULL
-		 * in the modCode enum (NTypes.h), and made DrawModNR ignore it.
-		 */
-		aModNR->modCode = MOD_NULL;
-		TextMode(srcOr);						/* so staff lines won't cut through notes */
-		AutoScroll();
-		TextMode(srcXor);
-		TextSize(useTxSize);					/* this might be changed in AutoScroll */
-		aModNR->modCode = code;
-#endif
-
 		/* Some symbols (like fermata) have different glyphs, depending on whether
 		 * modNR is above or below its note, so update glyph, etc. now.
 		 */
@@ -657,22 +605,8 @@ PushLock(NOTEheap);
 		xdMod += MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 		ydMod += MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 
-#ifdef USE_BITMAP
-		/* shift on-screen destination rect */
-// Problem here is that this doesn't take into account the constraints applied
-// to the modNR position above.
-// Also, we're not able to flip a mod (e.g. fermata) when it crosses the staff midpoint!
-		dh = newPt.h - oldPt.h;
-		dv = newPt.v - oldPt.v;
-		destRect.top += dv;		destRect.bottom += dv;
-		destRect.left += dh;		destRect.right += dh;
-
-		CopyBits(&modPort->portBits, &scrnPort->portBits,		/* draw new modNR */
-		 			&(*modPort).portBits.bounds, &destRect, srcXor, NULL);
-#else
 		Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
 						&context, sizePercent, FALSE);	/* draw new modNR */
-#endif		
 
 		/* Draw new params in msg box. (Do this after drawing modNR at new pos to reduce flicker.) */
 		DrawModNRParams(doc, aModNR->xstd-XSTD_OFFSET, aModNR->ystdpit);
@@ -680,15 +614,9 @@ PushLock(NOTEheap);
 		oldPt = newPt;
 	}
 
-#ifdef USE_BITMAP
-	Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
-					&context, sizePercent, FALSE);			/* draw final black modNR */
-	DisposGrafPort(modPort);
-#else
 	TextMode(srcOr);
 	Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
 					&context, sizePercent, FALSE);			/* draw new modNR in normal mode */
-#endif		
 
 	TextMode(oldTxMode);
 	TextSize(oldTxSize);
@@ -707,10 +635,6 @@ PushLock(NOTEheap);
 		*aModNR = oldModNR;
 	MEHideCaret(doc);
 
-#ifdef USE_BITMAP
-	EraseAndInval(&destRect);
-#endif
-	
 Cleanup:
 PopLock(OBJheap);
 PopLock(NOTEheap);

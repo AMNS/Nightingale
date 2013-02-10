@@ -18,8 +18,8 @@
 #include "Nightingale.appl.h"
 
 typedef struct {
-	INT16 firstStaff;
-	INT16 lastStaff;
+	short firstStaff;
+	short lastStaff;
 } PARTSTAFF;
 
 static enum {
@@ -36,18 +36,18 @@ static Boolean clipHasAddedAccs;
 
 static void FixClipBeams(Document *, LINK, LINK);
 static void FixClipTuplets(Document *, LINK, LINK);
-static void FixClipOctavas(Document *, LINK, LINK, COPYMAP *, INT16);
-static Boolean ChkSrcDocSlur(LINK slurL,COPYMAP *clipMap,INT16 numObjs);
-static Boolean SrcSlurInRange(Document *,LINK,Boolean,Boolean,COPYMAP *,INT16,
+static void FixClipOctavas(Document *, LINK, LINK, COPYMAP *, short);
+static Boolean ChkSrcDocSlur(LINK slurL,COPYMAP *clipMap,short numObjs);
+static Boolean SrcSlurInRange(Document *,LINK,Boolean,Boolean,COPYMAP *,short,
 									SearchParam *);
-static void FixClipLinks(Document *, Document *, LINK, LINK, COPYMAP *, INT16, INT16);
+static void FixClipLinks(Document *, Document *, LINK, LINK, COPYMAP *, short, short);
 
 static void UpdateClipContext(Document *);
 
 static DDIST SyncSpaceNeeded(Document *doc,LINK pL);
 static DDIST GetNeededSpace(Document *doc,LINK pL);
 
-static void SetupClip(Document *, LINK, LINK, COPYMAP **, INT16 *);
+static void SetupClip(Document *, LINK, LINK, COPYMAP **, short *);
 static void FixClipChords(Document *, LINK);
 static void CopyToClip(Document *, LINK, LINK);
 static void DelClip(Document *doc);
@@ -59,30 +59,30 @@ static void RecalcClipxds(Document *, LINK);
 static DDIST GetClipDiffxd(Document *,LINK,LINK,DDIST,DDIST);
 static DDIST PreparePaste(Document *, LINK, LINK *, LINK *);
 
-static INT16 BadStaffAlert(INT16, INT16);
-static void VeryBadStaffAlert(INT16, INT16);
-static INT16 CheckStaffMapping(Document *, LINK, LINK);
-static INT16 CountSpanSlurs(Document *doc, INT16 v, LINK slurL);
-static LINK GetSlurAcrRange(Document *doc, INT16 v, INT16 *numSlurs);
-static Boolean CheckSlurNest(Document *doc, INT16 stfDiff);
+static short BadStaffAlert(short, short);
+static void VeryBadStaffAlert(short, short);
+static short CheckStaffMapping(Document *, LINK, LINK);
+static short CountSpanSlurs(Document *doc, short v, LINK slurL);
+static LINK GetSlurAcrRange(Document *doc, short v, short *numSlurs);
+static Boolean CheckSlurNest(Document *doc, short stfDiff);
 
 static void UpdateMeasRects(LINK, LINK, DDIST);
 static void ClipMovexd(Document *, LINK);
 
-static INT16 OnlyMeasures(void);
-static Boolean ClipNoteInV(Document *doc, INT16 v);
-static INT16 GetFirstStf(Document *, LINK);
-static INT16 GetLastStf(Document *, LINK);
+static short OnlyMeasures(void);
+static Boolean ClipNoteInV(Document *doc, short v);
+static short GetFirstStf(Document *, LINK);
+static short GetLastStf(Document *, LINK);
 
-static INT16 GetAnyStfDiff(Document *, Document *, INT16, INT16 *, INT16 *);
+static short GetAnyStfDiff(Document *, Document *, short, short *, short *);
 
-static INT16 PasteMapStaves(Document *, Document *, LINK, LINK, INT16);
-static void PasteFixAllContexts(Document *, LINK, LINK, INT16, CONTEXT, CONTEXT);
+static short PasteMapStaves(Document *, Document *, LINK, LINK, short);
+static void PasteFixAllContexts(Document *, LINK, LINK, short, CONTEXT, CONTEXT);
 static void	PasteFixSysMeasContexts(Document *doc, LINK initL);
 
-static void PasteFromClip(Document *, LINK, INT16, Boolean);
+static void PasteFromClip(Document *, LINK, short, Boolean);
 
-static void FixOctNotes(Document *doc, LINK octL, INT16 s);
+static void FixOctNotes(Document *doc, LINK octL, short s);
 
 /* ---------------------------------------------------------------- FixClipBeams -- */
 /* Fix the  beam status for all notes in range [startL, endL). If a beamed
@@ -172,13 +172,13 @@ FixOctavaLinks will not set its tempFlag; fix the inOctava flag and pitch
 for such notes. */
 
 static void FixClipOctavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipMap,
-									INT16 numObjs)
+									short numObjs)
 {
 	LINK pL,aNoteL,qL,octavaL;
-	PANOTE aNote; INT16 i,staff;
+	PANOTE aNote; short i,staff;
 	CONTEXT context; DDIST yDelta;
 	Boolean stemDown, multiVoice;
-	INT16	stemLen, octType;
+	short	stemLen, octType;
 
 	InstallDoc(clipboard);
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
@@ -251,9 +251,9 @@ static void FixClipOctavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 /* If the slur exists and was selected in the src Doc, check to
 see if it was copied to the dst Doc. */
 
-static Boolean ChkSrcDocSlur(LINK slurL, COPYMAP *clipMap, INT16 numObjs)
+static Boolean ChkSrcDocSlur(LINK slurL, COPYMAP *clipMap, short numObjs)
 {
-	INT16 i;
+	short i;
 
 	if (slurL && LinkSEL(slurL)) 
 		for (i = 0; i<numObjs; i++)
@@ -268,7 +268,7 @@ static Boolean ChkSrcDocSlur(LINK slurL, COPYMAP *clipMap, INT16 numObjs)
 the range copied to the destination doc (currentDoc). */
 
 static Boolean SrcSlurInRange(Document *srcDoc, LINK qL, Boolean isTie,
-										Boolean slurredL, COPYMAP *clipMap, INT16 numObjs,
+										Boolean slurredL, COPYMAP *clipMap, short numObjs,
 										SearchParam *pbSearch)
 {
 	LINK slurL; Boolean inRange;
@@ -307,9 +307,9 @@ Calling function is responsible for insuring that the heaps it wants
 installed are actually installed after calling this function! */
 
 static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK endL,
-									COPYMAP *clipMap, INT16 numObjs, INT16 stfDiff)
+									COPYMAP *clipMap, short numObjs, short stfDiff)
 {
-	INT16 i;
+	short i;
 	LINK pL;
 	LINK lPage, rPage, lSystem, rSystem, lStaff, rStaff, lMeas, rMeas, qL, aNoteL;
 	Boolean inRange;
@@ -501,7 +501,7 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 
 static void UpdateClipContext(Document *doc)
 {
-	INT16 s,sharpsOrFlats; CONTEXT context; LINK firstClef, firstKSL, firstTSL;
+	short s,sharpsOrFlats; CONTEXT context; LINK firstClef, firstKSL, firstTSL;
 
 	InstallDoc(clipboard);
 	firstClef = LSSearch(clipboard->headL, CLEFtype, ANYONE, GO_RIGHT, FALSE);
@@ -537,7 +537,7 @@ static void UpdateClipContext(Document *doc)
 static DDIST SyncSpaceNeeded(Document *doc, LINK pL)
 {
 	LINK aNoteL; long maxLen,tempLen;
-	INT16 staff; CONTEXT context;
+	short staff; CONTEXT context;
 	STDIST symWidth,space;
 	
 	maxLen = tempLen = 0L;
@@ -561,7 +561,7 @@ static DDIST SyncSpaceNeeded(Document *doc, LINK pL)
 
 static DDIST GetNeededSpace(Document *doc, LINK pL)
 {
-	INT16 j; DDIST width=-32000; CONTEXT context;
+	short j; DDIST width=-32000; CONTEXT context;
 
 	if (SyncTYPE(pL))
 		return SyncSpaceNeeded(doc, pL);
@@ -582,7 +582,7 @@ static DDIST GetNeededSpace(Document *doc, LINK pL)
 parameters clipxd, clipBarxd. */
 
 static void SetupClip(Document *doc, LINK startL, LINK endL, COPYMAP **clipMap,
-								INT16 *objCount)
+								short *objCount)
 {
 	LINK pL,baseL,nextL; DDIST diff;
 
@@ -635,8 +635,8 @@ that voice's default. */
 
 static void FixClipChords(Document *doc, LINK syncL)
 {
-	INT16		v;
-	INT16		nInChord[MAXVOICES+1];
+	short		v;
+	short		nInChord[MAXVOICES+1];
 	PANOTE	aNote;
 	LINK		aNoteL, mainNoteL;
 	
@@ -689,7 +689,7 @@ is installed! */
 
 static void CopyToClip(Document *doc, LINK startL, LINK endL)
 {
-	LINK		pL, copyL, prevL; INT16 i, numObjs, v;
+	LINK		pL, copyL, prevL; short i, numObjs, v;
 	COPYMAP	*clipMap;
 	Boolean	addAccidentals, addAccsKnown;
 	
@@ -802,7 +802,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case BEAMSETtype: {
-					INT16			ncopy;
+					short			ncopy;
 					PANOTEBEAM	pSub;
 					LINK			pSubL;
 						pSubL = FirstSubLINK(pL);
@@ -820,7 +820,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 					}
 					break;
 				case TUPLETtype: {
-					INT16			ncopy;
+					short			ncopy;
 					PANOTETUPLE	pSub;
 					LINK			pSubL;
 						pSubL = FirstSubLINK(pL);
@@ -838,7 +838,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 					}
 					break;
 				case OCTAVAtype: {
-					INT16				ncopy;
+					short				ncopy;
 					PANOTEOCTAVA	pSub,sub;
 					LINK				pSubL,oPrevL,subL;
 					
@@ -996,7 +996,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 		
 	clipHasAddedAccs = FALSE;
 	if (addAccidentals) {
-		LINK endAddAccsL; Boolean addNaturals; INT16 s;
+		LINK endAddAccsL; Boolean addNaturals; short s;
 		CONTEXT	context[MAXSTAVES+1];
 	
 		endAddAccsL = LSUSearch(RightLINK(clipFirstMeas), MEASUREtype, ANYONE, GO_RIGHT, FALSE);
@@ -1014,19 +1014,10 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 	}
 	
 
-#ifdef NOTYET
-	// ??How can this really work? The whole problem is the accidental context may be wierd!
-	clipboard->selStartL = clipFirstMeas;
-	clipboard->selEndL = clipboard->tailL;
-	DelRedundantAccs(clipboard, ANYONE, DELSOFT_REDUNDANTACCS_DI);
-
-	InstallDoc(doc);
-#else
 	InstallDoc(doc);
 
 	clipboard->selStartL = clipFirstMeas;
 	clipboard->selEndL = clipboard->tailL;
-#endif
 }
 
 /*
@@ -1035,7 +1026,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 
 void CopyFontTable(Document *doc)
 {
-	INT16 i;
+	short i;
 	
 	for (i = 0; i<doc->nfontsUsed; i++)
 		clipboard->fontTable[i] = doc->fontTable[i];
@@ -1049,7 +1040,7 @@ void CopyFontTable(Document *doc)
 
 void SetupClipDoc(Document *doc, Boolean updContext)
 {
-	INT16 i;
+	short i;
 	
 	clipboard->nstaves = doc->nstaves;
 	clipboard->srastral = doc->srastral;
@@ -1184,7 +1175,7 @@ Boolean DeselPartlySelMeasSubobjs(Document *doc)
 	Boolean		didSomething=FALSE;
 	CONTEXT		context[MAXSTAVES+1];
 	Boolean		found;
-	INT16			pIndex;
+	short			pIndex;
 	STFRANGE	stfRange={0,0};
 	
 	GetAllContexts(doc, context, doc->selStartL);
@@ -1370,64 +1361,6 @@ static enum {
 	CHK3_Assume=5
 } E_PasteDRAItems;
 
-static Boolean PasteDelRedAccsDialog();
-Boolean PasteDelRedAccsDialog()
-{
-	static Boolean answer, assume=FALSE;
-	INT16 itemHit;
-	Boolean keepGoing=TRUE;
-	DialogPtr dlog; GrafPtr oldPort;
-	ModalFilterUPP	filterUPP;
-
-	if (assume) return answer;
-	
-	/* Build dialog window and install its item values */
-	
-	filterUPP = NewModalFilterUPP(OKButFilter);
-	if (filterUPP == NULL) {
-		MissingDialog(PASTE_DELREDACCS_DLOG);
-		return FALSE;
-	}
-	GetPort(&oldPort);
-	dlog = GetNewDialog(PASTE_DELREDACCS_DLOG, NULL, BRING_TO_FRONT);
-	if (dlog==NULL) {
-		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(PASTE_DELREDACCS_DLOG);
-		return FALSE;
-	}
-	SetPort(GetDialogWindowPort(dlog));
-
-	PlaceWindow(GetDialogWindow(dlog), (WindowPtr)NULL, 0, 80);
-	ShowWindow(GetDialogWindow(dlog));
-
-	/* Entertain filtered user events until dialog is dismissed */
-	
-	while (keepGoing) {
-		ModalDialog(filterUPP, &itemHit);
-		switch(itemHit) {
-			case BUT1_DelSoft:
-				keepGoing = FALSE;
-				if (GetDlgChkRadio(dlog, CHK3_Assume)) assume = TRUE;
-				answer = TRUE;
-				break;
-			case BUT2_DelNone:
-				keepGoing = FALSE;
-				answer = FALSE;
-				break;
-			case CHK3_Assume:
-				PutDlgChkRadio(dlog, CHK3_Assume, !GetDlgChkRadio(dlog, CHK3_Assume));
-				break;
-			}
-		}
-	
-	DisposeModalFilterUPP(filterUPP);
-	DisposeDialog(dlog);
-	SetPort(oldPort);
-	
-	return answer;
-}
-
-
 /* --------------------------------------------------------------------- DoPaste -- */
 /* Paste the clipboard into the selection range. */
 
@@ -1435,11 +1368,11 @@ Boolean DoPaste(Document *doc)
 {
 	Boolean	dontResp,delRedAccs;
 	LINK		prevSelStartL;
-	INT16		pasteType;
+	short		pasteType;
 	Boolean	hasClef,hasKS,hasTS,befFirst,hasPgRelGraphic,	/* for special cases */
 				chasClef,chasKS,chasTS;
 	LINK		tupletL;
-	INT16		stfDiff, v, userV, dummy1, dummy2;
+	short		stfDiff, v, userV, dummy1, dummy2;
 	LINK		partL;
 	PPARTINFO pPart;
 	char		partName[32]; 
@@ -1493,19 +1426,7 @@ Boolean DoPaste(Document *doc)
 	ClipCases(doc,&chasClef,&chasKS,&chasTS);
 	hasClef |= chasClef;  hasKS |= chasKS;  hasTS |= chasTS;
 
-#define NoDELRED
-#ifdef DELRED
-	/* If the last Copy to the clipboard added accidentals, decide whether to
-		delete redundant accidentals in the notes we're about to paste in. */
-		 
-	if (clipHasAddedAccs) {
-		ArrowCursor();
-		delRedAccs = PasteDelRedAccsDialog();
-		WaitCursor();
-	}
-#else
 	delRedAccs = FALSE;
-#endif
 
 	prevSelStartL = LeftLINK(doc->selStartL);
 	DeleteSelection(doc, TRUE, &dontResp);							/* Kill selection */
@@ -1513,8 +1434,6 @@ Boolean DoPaste(Document *doc)
 
 	InitAntikink(doc, prevSelStartL, doc->selEndL);
 	MEAdjustCaret(doc,FALSE);
-	/* NOTE: If we ever set the <doRfmt> flag to TRUE in this call to RespaceBars, we'll 
-		have to guard against having more than MAXPAGES in the LIGHT_VERSION.  -JGG */
 	if (doc->autoRespace) {
 		RespaceBars(doc,prevSelStartL,doc->selEndL,RESFACTOR*(long)doc->spacePercent,FALSE,FALSE);
 	}
@@ -1713,10 +1632,10 @@ static enum {
 /* Alert the user that they have attempted to paste something into a staff in the
 score which doesn't exist. */
 
-static INT16 BadStaffAlert(INT16 clipStaves, INT16 docStaves)
+static short BadStaffAlert(short clipStaves, short docStaves)
 {
 	DialogPtr	dialogp;
-	INT16			ditem;
+	short			ditem;
 	GrafPtr		oldPort;
 	char			str1[20],str2[20];
 	ModalFilterUPP	filterUPP;
@@ -1755,7 +1674,7 @@ static INT16 BadStaffAlert(INT16 clipStaves, INT16 docStaves)
 	return (ditem==PIN_DI? PastePin : PasteCancel);
 }
 
-static void VeryBadStaffAlert(INT16 clipStaves, INT16 docStaves)
+static void VeryBadStaffAlert(short clipStaves, short docStaves)
 {
 	char		str1[20],str2[20];
 
@@ -1772,9 +1691,9 @@ has subobjects on staves that, when offset by the current staff doc->selStaff, a
 illegal in the destination document, tell the user and return PastePin or
 PasteCancel; else return PasteOK. Assumes clipboard document is installed. */ 
 
-static INT16 CheckStaffMapping(Document *doc, LINK startL, LINK endL)
+static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 {
-	INT16		staff,stfDiff,partDiff,stfOff,pasteType=PasteOK,minStf,maxStf;
+	short		staff,stfDiff,partDiff,stfOff,pasteType=PasteOK,minStf,maxStf;
 	Boolean	staffOK=TRUE;
 	PMEVENT	p;
 	HEAP		*tmpHeap;
@@ -1861,15 +1780,15 @@ static INT16 CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 
 /* -------------------------------------------------- CrossStaff2CrossPart and ally -- */
 
-static INT16 GetTupletTopStaff(LINK);
-static Boolean CrossStaff2CrossPart(LINK, INT16, INT16 []);
+static short GetTupletTopStaff(LINK);
+static Boolean CrossStaff2CrossPart(LINK, short, short []);
 
 /* Get the upper staff of any note in the given, presumably cross-staff, Tuplet. */
 
-static INT16 GetTupletTopStaff(LINK tupL)
+static short GetTupletTopStaff(LINK tupL)
 {
 	LINK aNoteTupleL, syncL, aNoteL; PANOTETUPLE aNoteTuple;
-	INT16 i, voice, topStaff;
+	short i, voice, topStaff;
 
 	voice = TupletVOICE(tupL);
 	topStaff = 999;
@@ -1887,10 +1806,10 @@ static INT16 GetTupletTopStaff(LINK tupL)
 /* Return TRUE if pasting the given (potentially cross-staff) object with the given
 <staffDiff> would cross parts. */
 
-static Boolean CrossStaff2CrossPart(LINK pL, INT16 staffDiff, INT16 staffTab[])
+static Boolean CrossStaff2CrossPart(LINK pL, short staffDiff, short staffTab[])
 {
 
-	INT16 topStf;
+	short topStf;
 	
 	switch (ObjLType(pL)) {
 		case BEAMSETtype:
@@ -1921,7 +1840,7 @@ static Boolean CrossStaff2CrossPart(LINK pL, INT16 staffDiff, INT16 staffTab[])
 static Boolean MultipleVoicesInClip(void);
 static Boolean MultipleVoicesInClip()
 {
-	INT16 voice=NOONE;
+	short voice=NOONE;
 	LINK pL, aNoteL,aGRNoteL;
 	
 	for (pL=RightLINK(clipFirstMeas); pL!=clipboard->tailL; pL=RightLINK(pL)) {
@@ -1972,9 +1891,9 @@ by DeleteSelection(), before it actually is removed. */
 /* Count the number of slurs spanning doc's potential insertion point, given slurL
 returned by LVSearch. */
 
-static INT16 CountSpanSlurs(Document *doc, INT16 v, LINK slurL)
+static short CountSpanSlurs(Document *doc, short v, LINK slurL)
 {
-	INT16 nSlurs=0;
+	short nSlurs=0;
 
 	while (slurL && IsAfterIncl(doc->selEndL,SlurLASTSYNC(slurL))) {
 
@@ -1996,9 +1915,9 @@ Also returns number of slurs spanning insertion point. If one, can nest
 a tie; if 2, there is already a nest spanning, can paste no slurs in this
 voice; if more than 2, an error. */
 
-static LINK GetSlurAcrRange(Document *doc, INT16 v, INT16 *numSlurs)
+static LINK GetSlurAcrRange(Document *doc, short v, short *numSlurs)
 {
-	LINK slurL=NILINK; INT16 nSlurs=0; Boolean foundSlur=FALSE;
+	LINK slurL=NILINK; short nSlurs=0; Boolean foundSlur=FALSE;
 
 	slurL = LVSearch(LeftLINK(doc->selStartL),SLURtype,v,GO_LEFT,FALSE);
 	nSlurs = CountSpanSlurs(doc,v,slurL);
@@ -2023,9 +1942,9 @@ static LINK GetSlurAcrRange(Document *doc, INT16 v, INT16 *numSlurs)
 /* Check to see if paste will create illegal slur nesting; return TRUE if nesting is
 okay, FALSE if there's a problem. */
 
-static Boolean CheckSlurNest(Document *doc, INT16 stfDiff)
+static Boolean CheckSlurNest(Document *doc, short stfDiff)
 {
-	INT16 v,nSlurs; Boolean noSlur=FALSE; LINK firstMeasL,slurL,clipSlurL;
+	short v,nSlurs; Boolean noSlur=FALSE; LINK firstMeasL,slurL,clipSlurL;
 	
 	InstallDoc(doc);
 
@@ -2089,10 +2008,10 @@ Also check whether any cross-staff objects are to be pasted crossing part
 boundaries, since we can't handle that, and for bad situations involving Looking
 at a voice and slur/tie nesting. startL and endL are clipboard nodes. */
 
-INT16 CheckMainClip(Document *doc, LINK startL, LINK endL)
+short CheckMainClip(Document *doc, LINK startL, LINK endL)
 {
-	INT16 pasteType, s, staffDiff, partDiff, stfOff, anInt;
-	INT16 staffTab[MAXSTAVES+1];
+	short pasteType, s, staffDiff, partDiff, stfOff, anInt;
+	short staffTab[MAXSTAVES+1];
 	LINK pL, lookPartL, selPartL;
 
 	/* Determine type of mapping between staves.  */
@@ -2236,7 +2155,7 @@ are guaranteed to begin with a measure object. From that point on to the
 tail, if there are only measures or PSMeasures, return TRUE, else return
 FALSE. */
 
-static INT16 OnlyMeasures()
+static short OnlyMeasures()
 {
 	LINK measL;
 	
@@ -2251,7 +2170,7 @@ static INT16 OnlyMeasures()
 /* Return TRUE if the clipboard has any notes in v. Installs doc
 before returning. */
 
-static Boolean ClipNoteInV(Document *doc, INT16 v)
+static Boolean ClipNoteInV(Document *doc, short v)
 {
 	LINK pL,aNoteL;
 
@@ -2277,9 +2196,9 @@ static Boolean ClipNoteInV(Document *doc, INT16 v)
  * staffn of some range.
  */
 
-static INT16 GetFirstStf(Document *doc, LINK pL)
+static short GetFirstStf(Document *doc, LINK pL)
 {
-	INT16 minStf=1000; LINK subObjL;
+	short minStf=1000; LINK subObjL;
 	PMEVENT p; GenSubObj *subObj; HEAP *tmpHeap;
 
 	switch (ObjLType(pL)) {
@@ -2329,9 +2248,9 @@ static INT16 GetFirstStf(Document *doc, LINK pL)
  * installs the doc heaps of fixDoc. ??SHOULD PROBABLY TOSS THE PARAM AND USE <currentDoc>.
  */
 
-INT16 GetClipMinStf(Document *fixDoc)
+short GetClipMinStf(Document *fixDoc)
 {
-	LINK pL; INT16 minStf=1000;
+	LINK pL; short minStf=1000;
 	
 	InstallDoc(clipboard);
 	
@@ -2355,9 +2274,9 @@ INT16 GetClipMinStf(Document *fixDoc)
  * staffn of some range.
  */
 
-static INT16 GetLastStf(Document *doc, LINK pL)
+static short GetLastStf(Document *doc, LINK pL)
 {
-	INT16 maxStf=-1000; LINK subObjL;
+	short maxStf=-1000; LINK subObjL;
 	PMEVENT p; GenSubObj *subObj; HEAP *tmpHeap;
 
 	switch (ObjLType(pL)) {
@@ -2407,9 +2326,9 @@ static INT16 GetLastStf(Document *doc, LINK pL)
  * installs the doc heaps of fixdoc. ??SHOULD PROBABLY TOSS THE PARAM AND USE <currentDoc>.
  */
 
-INT16 GetClipMaxStf(Document *fixDoc)
+short GetClipMaxStf(Document *fixDoc)
 {
-	LINK pL; INT16 maxStf=-1000;
+	LINK pL; short maxStf=-1000;
 	
 	InstallDoc(clipboard);
 	
@@ -2433,9 +2352,9 @@ stfOff is set to the offset in the clipboard of minStaff in its part.
 partDiff is the difference in parts between minPart and selPart.  
 Returns the difference in staves of fixDoc->selStaff and minStaff. */
 
-INT16 GetStfDiff(Document *fixDoc, INT16 *partDiff, INT16 *stfOff)
+short GetStfDiff(Document *fixDoc, short *partDiff, short *stfOff)
 {
-	INT16 minStaff, minPart, staffDiff, selPart; LINK partL;
+	short minStaff, minPart, staffDiff, selPart; LINK partL;
 
 	minStaff = GetClipMinStf(fixDoc);				/* minStf of any subObj/obj in clip */
 
@@ -2456,10 +2375,10 @@ INT16 GetStfDiff(Document *fixDoc, INT16 *partDiff, INT16 *stfOff)
 /* -------------------------------------------------------------- GetAnyStfDiff -- */
 /* Like GetStfDiff, but it adjusts for <PastePin> . */
 
-static INT16 GetAnyStfDiff(Document *doc, Document *fixDoc, INT16 pasteType,
-									INT16 *partDiff, INT16 *stfOff)
+static short GetAnyStfDiff(Document *doc, Document *fixDoc, short pasteType,
+									short *partDiff, short *stfOff)
 {
-	INT16 staffDiff,minStf,maxStf,stfRange,overStf;
+	short staffDiff,minStf,maxStf,stfRange,overStf;
 
 	staffDiff = GetStfDiff(fixDoc,partDiff,stfOff);
 	if (pasteType==PastePin) {
@@ -2478,7 +2397,7 @@ static INT16 GetAnyStfDiff(Document *doc, Document *fixDoc, INT16 pasteType,
 /* ------------------------------------------------------------------- MapStaves -- */
 /* Translate the staff numbers of LINKs in the range [startL,endL) by staffDiff. */
 
-void MapStaves(Document *doc, LINK startL, LINK endL, INT16 staffDiff)
+void MapStaves(Document *doc, LINK startL, LINK endL, short staffDiff)
 {
 	LINK 			pL,subObjL;
 	PMEVENT		p;
@@ -2529,39 +2448,26 @@ void MapStaves(Document *doc, LINK startL, LINK endL, INT16 staffDiff)
 
 static VOICEINFO clip2DocVoiceTab[MAXVOICES+1];
 
-static LINK ClipStf2Part(INT16 stf,Document *doc,INT16 stfDiff,INT16 *partStf);
-static Boolean IsDefaultVoice(Document *doc,INT16 v,LINK partL);
-static INT16 Part2UserVoice(INT16 cIV,INT16 cUV,Document *doc,LINK dPartL);
-static void MapVoice(Document *doc,LINK pL,INT16 stfDiff);
-static void MapVoices(Document *doc,LINK startL,LINK endL,INT16 stfDiff);
+static LINK ClipStf2Part(short stf,Document *doc,short stfDiff,short *partStf);
+static short Part2UserVoice(short cIV,short cUV,Document *doc,LINK dPartL);
+static void MapVoice(Document *doc,LINK pL,short stfDiff);
+static void MapVoices(Document *doc,LINK startL,LINK endL,short stfDiff);
 
-static LINK ClipStf2Part(INT16 stf, Document *doc, INT16 stfDiff, INT16 *partStf)
+static LINK ClipStf2Part(short stf, Document *doc, short stfDiff, short *partStf)
 {
 	*partStf = stf+stfDiff;
 	return Staff2PartL(doc,doc->headL,*partStf);
 }
 
-#ifdef NOTYET
-static Boolean IsDefaultVoice(Document *doc, INT16 v, LINK partL)
-{
-	Boolean deflt;
-	
-	InstallDoc(clipboard);
-	deflt = (v>=PartFirstSTAFF(partL) && v<=PartLastSTAFF(partL));
-	InstallDoc(doc);
-	return deflt;
-}
-#endif
-
 /* Given clipboard internal voice no. and score part, if we have a user voice assigned
 in the document for pasting the clipboard voice into, return it; else add one to our
 table in that part and return it. */
 		
-static INT16 Part2UserVoice(
-					INT16 cIV, INT16 /*cUV*/,	/* clipboard internal and (unused) user voice nos. */
+static short Part2UserVoice(
+					short cIV, short /*cUV*/,	/* clipboard internal and (unused) user voice nos. */
 					Document *doc, LINK dPartL)
 {
-	INT16 v, partn, uV=-1;
+	short v, partn, uV=-1;
 
 	uV = clip2DocVoiceTab[cIV].relVoice;
 	if (clip2DocVoiceTab[cIV].partn>0) return uV;
@@ -2594,11 +2500,11 @@ is zero (e.g., copying both staves of a 2-staff part to another *or the same*
 equivalent function for Double does much better, and its technique should work fine
 here. Cf. DblSetupVMap. */
 
-INT16 NewVoice(Document *doc, INT16 stf,
-				INT16 cIV,					/* Internal voice no. in clipboard */
-				INT16 stfDiff)
+short NewVoice(Document *doc, short stf,
+				short cIV,					/* Internal voice no. in clipboard */
+				short stfDiff)
 {
-	LINK cPartL,dPartL; INT16 uV,partStf,cUV;
+	LINK cPartL,dPartL; short uV,partStf,cUV;
 
 	/* If we're Looking at a Voice, everything goes into that voice. */
 	
@@ -2622,9 +2528,9 @@ INT16 NewVoice(Document *doc, INT16 stf,
 /* If the given object has voice nos., update its voice no. or the voice nos. of all
 its subobjects for the given staff-number offset. */
 
-static void MapVoice(Document *doc, LINK pL, INT16 stfDiff)
+static void MapVoice(Document *doc, LINK pL, short stfDiff)
 {
-	LINK aNoteL,aGRNoteL; INT16 voice;
+	LINK aNoteL,aGRNoteL; short voice;
 
 	switch (ObjLType(pL)) {
 		case SYNCtype:
@@ -2673,9 +2579,9 @@ map to that voice.
 Requires doc's heaps to be installed and leaves same doc installed. NB: as of v.1.02,
 vMapTable and NewVoice function are used by Merge as well as Paste. */
 
-void InitVMapTable(Document *doc, INT16 stfDiff)	/* doc is target score for the paste */
+void InitVMapTable(Document *doc, short stfDiff)	/* doc is target score for the paste */
 {
-	INT16 v; LINK partL;
+	short v; LINK partL;
 	
 	for (v = 1; v<=MAXVOICES; v++)
 		clip2DocVoiceTab[v].partn = 0;
@@ -2696,18 +2602,11 @@ void InitVMapTable(Document *doc, INT16 stfDiff)	/* doc is target score for the 
 /* Translate the voice numbers of LINKs in the range [startL,endL) for a staff-
 number offset of stfDiff. */
 
-static void MapVoices(Document *doc, LINK startL, LINK endL, INT16 stfDiff)
+static void MapVoices(Document *doc, LINK startL, LINK endL, short stfDiff)
 {
 	LINK pL;
 	
 	InitVMapTable(doc,stfDiff);
-#ifdef DEBUG_VMAPTABLE
-	for (v = 1; v<=MAXVOICES; v++)
-		if (clip2DocVoiceTab[v].partn!=0)
-			DebugPrintf("%ciVoice %d pastes to part %d relVoice=%d\n",
-							(v==1? '•' : ' '),
-							v, clip2DocVoiceTab[v].partn, clip2DocVoiceTab[v].relVoice);
-#endif
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
 		MapVoice(doc,pL,stfDiff);
 }
@@ -2717,7 +2616,7 @@ static void MapVoices(Document *doc, LINK startL, LINK endL, INT16 stfDiff)
 /* Charlie's (nice) utilities for Voice maps, formerly in Merge.c. NB: these are
 currently used only by Merge, NOT by Paste Insert--though they should be! */
 
-void SetNewVoices(Document *doc, INT16 *vMap, LINK pL, INT16 stfDiff);
+void SetNewVoices(Document *doc, short *vMap, LINK pL, short stfDiff);
 
 /* Set up a mapping for any voices in which pL may participate, either the object
 	or the subObj: from that sub/Object's original voice v to the new voice contained
@@ -2725,9 +2624,9 @@ void SetNewVoices(Document *doc, INT16 *vMap, LINK pL, INT16 stfDiff);
 	here! By far the best solution would be to make NewVoice re-install the installed
 	doc; for now, just re-install clipboard immediately after each call to NewVoice. */
 
-void SetNewVoices(Document *doc, INT16 *vMap, LINK pL, INT16 stfDiff)
+void SetNewVoices(Document *doc, short *vMap, LINK pL, short stfDiff)
 {
-	LINK aNoteL,aGRNoteL; INT16 voice;
+	LINK aNoteL,aGRNoteL; short voice;
 
 	switch (ObjLType(pL)) {
 		case SYNCtype:
@@ -2787,9 +2686,9 @@ void SetNewVoices(Document *doc, INT16 *vMap, LINK pL, INT16 stfDiff)
 	has not yet been handled correctly(??what does this mean?). NB: this function leaves
 	doc's heaps installed when it returns. */
 
-void SetupVMap(Document *doc, INT16 *vMap, INT16 stfDiff)
+void SetupVMap(Document *doc, short *vMap, short stfDiff)
 {
-	INT16 v; LINK pL,clipFirstMeas;
+	short v; LINK pL,clipFirstMeas;
 
 	/* Initialize the vMap table: (internal) old voice -> new voice. A value of NOONE at
 		position v in the table indicates no mapping has been established for voice v. */
@@ -2826,10 +2725,10 @@ must be pasted in in entirety, and therefore they alone will not have any of
 their staffns re-numbered, and therefore also their connStaffs, etc will
 not be re-numbered. */
 
-static INT16 PasteMapStaves(Document *doc, Document *newDoc, LINK startL, LINK endL,
-										INT16 pasteType)
+static short PasteMapStaves(Document *doc, Document *newDoc, LINK startL, LINK endL,
+										short pasteType)
 {
-	INT16 staffDiff,partDiff,stfOff;
+	short staffDiff,partDiff,stfOff;
 
 	InstallDoc(newDoc);
 	staffDiff = GetAnyStfDiff(doc,newDoc,pasteType,&partDiff,&stfOff);
@@ -2956,7 +2855,7 @@ void PasteUpdate(Document *doc, LINK initL, LINK succL, DDIST systemWidth)
 /* Update v position and inOctava status for all notes on staff <s> in
 range [startL,endL). */
 
-void FixOctNotes(Document *doc,LINK octL,INT16 s);
+void FixOctNotes(Document *doc,LINK octL,short s);
 
 /* UnOctavaRange is overkill; want simplified version which just removes
 	a single octava; not all octavas in range.
@@ -2964,9 +2863,9 @@ void FixOctNotes(Document *doc,LINK octL,INT16 s);
 	This may leave the selection status of the newly created octava incorrect,
 	though it should still be consistent. */
 
-static void FixOctNotes(Document *doc, LINK octL, INT16 s)
+static void FixOctNotes(Document *doc, LINK octL, short s)
 {
-	LINK firstL,lastL; INT16 numNotes;
+	LINK firstL,lastL; short numNotes;
 	Byte octType = OctType(octL);
 
 	firstL = FirstInOctava(octL);
@@ -2993,7 +2892,7 @@ static void FixOctNotes(Document *doc, LINK octL, INT16 s)
 	and there is an octava in the L's cutout, into the middle of which notes
 	have been inserted. */
  
-void PasteFixOctavas(Document *doc, LINK startL, INT16 s)
+void PasteFixOctavas(Document *doc, LINK startL, short s)
 {
 	LINK octL;
 	
@@ -3006,14 +2905,14 @@ void PasteFixOctavas(Document *doc, LINK startL, INT16 s)
 /* Update v position and inBeam status for all notes in voice <v> in range
 [startL,endL). */
 
-static void PasteRebeam(Document *doc,LINK pL,INT16 nInRange);
-static void FixBeamNotes(Document *doc,LINK beamL,INT16 v);
+static void PasteRebeam(Document *doc,LINK pL,short nInRange);
+static void FixBeamNotes(Document *doc,LINK beamL,short v);
 
 /* Rebeam the notes beamed by <pL>. */
 
-static void PasteRebeam(Document *doc, LINK pL, INT16 nInRange)
+static void PasteRebeam(Document *doc, LINK pL, short nInRange)
 {
-	LINK firstSyncL,lastSyncL; Boolean graceBeam; INT16 v;
+	LINK firstSyncL,lastSyncL; Boolean graceBeam; short v;
 
 	graceBeam = GraceBEAM(pL); v = BeamVOICE(pL);
 	RemoveBeam(doc, pL, v, FALSE);
@@ -3040,16 +2939,16 @@ Similar to CountBeamable, except that function considers the range unbeamable if
 anything in it in the voice is currently beamed or has an unbeamable duration; this
 function doesn't care. */
 
-INT16 PFCountBeamable(Document *doc, LINK, LINK, INT16, Boolean, Boolean);
-INT16 PFCountBeamable(
+short PFCountBeamable(Document *doc, LINK, LINK, short, Boolean, Boolean);
+short PFCountBeamable(
 				Document *doc,
 				LINK startL, LINK endL,
-				INT16 voice,
+				short voice,
 				Boolean beamRests,		/* TRUE=treat rests like notes (as in doc->beamRests) */
 				Boolean /*needSelected*//* TRUE if we only want selected items */
 				)
 {
-	INT16		nbeamable;
+	short		nbeamable;
 	LINK		pL, aNoteL, firstNoteL, lastNoteL;
 
 	if (voice<1 || voice>MAXVOICES) return 0;
@@ -3083,11 +2982,11 @@ INT16 PFCountBeamable(
 }
 
 
-static INT16 GRBeamNotesInRange(
+static short GRBeamNotesInRange(
 						Document */*doc*/,							/* unused */
-						INT16 v, LINK startL, LINK endL)
+						short v, LINK startL, LINK endL)
 {
-	INT16 numNotes=0;
+	short numNotes=0;
 	LINK pL, aGRNoteL;
 
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
@@ -3123,10 +3022,10 @@ based on this setting as well.
 
 Grace-note beams can never contain rests, so they can't have this problem. */
 
-static void FixBeamNotes(Document *doc, LINK beamL, INT16 v)
+static void FixBeamNotes(Document *doc, LINK beamL, short v)
 {
 	LINK firstL,lastL;
-	INT16 numNotes,prevNumNotes;
+	short numNotes,prevNumNotes;
 
 	firstL = FirstInBeam(beamL);
 	lastL = LastInBeam(beamL);
@@ -3160,7 +3059,7 @@ static void FixBeamNotes(Document *doc, LINK beamL, INT16 v)
 	and there is an Beam in the L's cutout, into the middle of which notes
 	have been inserted. */
  
-void PasteFixBeams(Document *doc, LINK startL, INT16 v)
+void PasteFixBeams(Document *doc, LINK startL, short v)
 {
 	LINK beamL;
 
@@ -3173,7 +3072,7 @@ void PasteFixBeams(Document *doc, LINK startL, INT16 v)
 /* After pasting, fix up clef, keySig, timeSig, and dynamic contexts starting
 at <startL>, on staff <s>. */
 
-static void PasteFixAllContexts(Document *doc, LINK startL, LINK endL, INT16 s,
+static void PasteFixAllContexts(Document *doc, LINK startL, LINK endL, short s,
 											CONTEXT oldContext, CONTEXT newContext)
 {
 	KSINFO oldKSInfo, newKSInfo;
@@ -3215,7 +3114,7 @@ static void PasteFixSysMeasContexts(Document *doc, LINK initL)
 {
 	LINK sysL,measL,nextSysL,endMeasL,prevMeasL,aMeasL,aPrevMeasL,
 			clefL,aClefL,keySigL,aKSL,timeSigL,aTSL,dynamL;
-	INT16 i,k; SearchParam pbSearch;
+	short i,k; SearchParam pbSearch;
 	PAMEASURE aMeas,aPrevMeas; PAKEYSIG aKeySig; PATIMESIG aTimeSig;
 
 	InstallDoc(doc);
@@ -3299,9 +3198,9 @@ initL = LeftLINK(first node in range); succL = selEndL.
 Note: assumes doc->selStaff is set.
 Note: comment about the range seems wrong. (CER,2/91) */
 
-void PasteFixContext(Document *doc, LINK initL, LINK succL, INT16 staffDiff)
+void PasteFixContext(Document *doc, LINK initL, LINK succL, short staffDiff)
 {
-	INT16 s,v; CONTEXT oldContext, newContext;
+	short s,v; CONTEXT oldContext, newContext;
 	LINK clipMeasL;
 
 	/* If staffDiff, meas objs can have context establishing objects translated
@@ -3369,12 +3268,12 @@ void PasteFixContext(Document *doc, LINK initL, LINK succL, INT16 staffDiff)
 /* Paste the clipboard before <insertL>. After pasting, initL and succL bracket
 the pasted in range. */
 
-static void PasteFromClip(Document *doc, LINK insertL, INT16 pasteType, Boolean
+static void PasteFromClip(Document *doc, LINK insertL, short pasteType, Boolean
 									/*delRedAccs*/)
 {
 	LINK		pL, copyL, prevL, succL, initL, startL, endL;
 	DDIST		systemWidth;
-	INT16		i, numObjs,stfDiff,fixMeas=FALSE;
+	short		i, numObjs,stfDiff,fixMeas=FALSE;
 	COPYMAP	*clipMap;
 		
 	clipMap = NULL;
@@ -3426,9 +3325,6 @@ static void PasteFromClip(Document *doc, LINK insertL, INT16 pasteType, Boolean
 		LeftLINK(copyL) = prevL;
 		prevL = copyL;
 		DeselectNode(copyL);
-#ifdef DELRED
-		SetTempFlags(doc, doc, copyL, RightLINK(copyL), TRUE);
-#endif
 		LinkVALID(copyL) = FALSE;
 		if (GraphicTYPE(copyL)) FixGraphicFont(doc, copyL);
   	}
@@ -3436,13 +3332,6 @@ static void PasteFromClip(Document *doc, LINK insertL, INT16 pasteType, Boolean
 	stfDiff = PasteMapStaves(doc,doc,RightLINK(initL),succL,pasteType);	/* Map voices AND staves */
 	FixCrossLinks(doc, doc, initL, succL);						/* Structure and extended objects */
 	InstallDoc(doc);
-#ifdef DELRED
-	TempFlags2NotesSel(doc);
-DebugPrintf("<DelRedundantAccs: delRedAccs=%d\n", delRedAccs);
-	if (delRedAccs) DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
-DebugPrintf(">DelRedundantAccs.\n");
-	DeselAllNoHilite(doc);
-#endif
 
 	PasteFixMeasStruct(doc,RightLINK(initL),succL,fixMeas);
 	PasteUpdate(doc, initL, succL, systemWidth);				/* xds, rects, measNums */

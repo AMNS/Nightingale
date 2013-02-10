@@ -5,10 +5,10 @@ void CenterWholeMeasRests(Document *, LINK, LINK, DDIST);
 
 Boolean RemoveObjSpace(Document *doc, LINK pL);
 
-void RespaceAll(Document *, INT16);
-DDIST Respace1Bar(Document *, LINK, INT16, SPACETIMEINFO [], long);
-long GetJustProp(Document *, RMEASDATA [], INT16, INT16, CONTEXT);
-void PositionSysByTable(Document *, RMEASDATA *, INT16, INT16, long, CONTEXT);
+void RespaceAll(Document *, short);
+DDIST Respace1Bar(Document *, LINK, short, SPACETIMEINFO [], long);
+long GetJustProp(Document *, RMEASDATA [], short, short, CONTEXT);
+void PositionSysByTable(Document *, RMEASDATA *, short, short, long, CONTEXT);
 Boolean RespaceBars(Document *, LINK, LINK, long, Boolean, Boolean);
 
 Boolean StretchToSysEnd(Document *, LINK, LINK, long, DDIST, DDIST);

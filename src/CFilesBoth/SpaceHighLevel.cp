@@ -29,10 +29,6 @@
 #include <ctype.h>
 #include "Nightingale.appl.h"
 
-#if 0
-#define SPACEBUG
-#endif
-
 /* This was originally right above Respace1Bar, but I needed it for CenterWholeMeasRests. -JGG */
 #define STFHEIGHT drSize[doc->srastral]	/* For now, assume all staves are same height */
 
@@ -44,18 +40,17 @@ typedef struct {
 
 /* Prototypes for functions local to this file */
 
-static INT16 PrevITSym(Document *, INT16, INT16, SPACETIMEINFO []);
-static void LyricWidthLR(Document *, LINK, INT16, DDIST *, DDIST *);
-static void ArpWidthLR(Document *, LINK, INT16, STDIST *, STDIST *);
-static void SyncGraphicWidthLR(Document *, LINK, INT16, DDIST *, DDIST *);
-static STDIST IPGroupWidth(INT16, INT16, SPACETIMEINFO [], STDIST [], STDIST [], INT16 *);
-static STDIST IPMarginWidth(Document *, SPACETIMEINFO [], INT16, INT16);
-static STDIST IPSpaceNeeded(Document *, INT16, INT16, SPACETIMEINFO [], STDIST [], STDIST [],
+static short PrevITSym(Document *, short, short, SPACETIMEINFO []);
+static void LyricWidthLR(Document *, LINK, short, DDIST *, DDIST *);
+static void ArpWidthLR(Document *, LINK, short, STDIST *, STDIST *);
+static void SyncGraphicWidthLR(Document *, LINK, short, DDIST *, DDIST *);
+static STDIST IPGroupWidth(short, short, SPACETIMEINFO [], STDIST [], STDIST [], short *);
+static STDIST IPMarginWidth(Document *, SPACETIMEINFO [], short, short);
+static STDIST IPSpaceNeeded(Document *, short, short, SPACETIMEINFO [], STDIST [], STDIST [],
 							LONGSTDIST []);
-static void ConsidITWidths(Document *, LINK, INT16, SPACETIMEINFO [], STDIST []);
-static void ConsidIPWidths(Document *, LINK, INT16, SPACETIMEINFO [], STDIST [], LONGSTDIST []);
-static void ConsiderWidths(Document *, LINK, INT16, SPACETIMEINFO [], STDIST [], LONGSTDIST []);
-static Boolean RespBreakSystem(Document *, LINK, INT16, Boolean);
+static void ConsidITWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST []);
+static void ConsidIPWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST [], LONGSTDIST []);
+static void ConsiderWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST [], LONGSTDIST []);
 
 /* -------------------------------------------------------------------- CenterNR -- */
 /* Center the given note or rest (normally a whole-measure or multi-bar rest)
@@ -138,7 +133,7 @@ Boolean RemoveObjSpace(Document *doc, LINK pL)
 x-coordinates so each allows previous thing the correct space, scaled by a
 given percentage. */
 
-void RespaceAll(Document *doc, INT16 percent)
+void RespaceAll(Document *doc, short percent)
 {
 	LINK pL;
 	
@@ -153,9 +148,9 @@ void RespaceAll(Document *doc, INT16 percent)
 /* Given a SPACETIMEINFO array, staff number, and starting index, deliver the index
 of the previous J_IT object on the staff; if there is none, deliver -1. */
 
-static INT16 PrevITSym(Document */*doc*/, INT16 staff, INT16 ind, SPACETIMEINFO spaceTimeInfo[])
+static short PrevITSym(Document */*doc*/, short staff, short ind, SPACETIMEINFO spaceTimeInfo[])
 {
-	INT16 j;
+	short j;
 	
 	for (j = ind-1; j>=0; j--) {
 		if (spaceTimeInfo[j].justType==J_IT)
@@ -184,7 +179,7 @@ person's extender) or hard blank. ??Should use C string (via CCopy) instead of P
 static Boolean AllowOverlap(LINK);
 static Boolean AllowOverlap(LINK lyricL)
 {
-	Str255 string; unsigned char lastChar; INT16 i;
+	Str255 string; unsigned char lastChar; short i;
 
 	PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(lyricL))->string),
 				(StringPtr)string);
@@ -203,11 +198,11 @@ static Boolean AllowOverlap(LINK lyricL)
 /* Return the distance the given lyric Graphic needs to the left and to the right
 of the origin of the object it's attached to, to avoid overlap. */
 
-static void LyricWidthLR(Document *doc, LINK lyricL, INT16 staff, STDIST *pNeedLeft,
+static void LyricWidthLR(Document *doc, LINK lyricL, short staff, STDIST *pNeedLeft,
 									STDIST *pNeedRight)
 {
 	CONTEXT		context;
-	INT16			width;
+	short			width;
 	DDIST			dNeedLeft, dNeedRight;
 
 	GetContext(doc, lyricL, staff, &context);
@@ -225,7 +220,7 @@ static void LyricWidthLR(Document *doc, LINK lyricL, INT16 staff, STDIST *pNeedL
 /* Return the distance the given arpeggio sign Graphic needs to the left and to
 the right of the origin of the object it's attached to, to avoid overlap. */
 
-static void ArpWidthLR(Document *doc, LINK arpL, INT16 staff, STDIST *pNeedLeft,
+static void ArpWidthLR(Document *doc, LINK arpL, short staff, STDIST *pNeedLeft,
 								STDIST *pNeedRight)
 {
 	CONTEXT	context;
@@ -246,11 +241,11 @@ extra space in between as specified in the config struct. */
 
 void SyncGraphicWidthLR(Document *doc,
 								LINK syncL,
-								INT16 staff,				/* Number of staff to consider */
+								short staff,				/* Number of staff to consider */
 								STDIST *pNeedLeft,
 								STDIST *pNeedRight)
 {
-	INT16 voice; LINK pL, endL; DDIST needLeft, needRight;
+	short voice; LINK pL, endL; DDIST needLeft, needRight;
 	
 	*pNeedLeft = *pNeedRight = 0;
 	voice = SyncVoiceOnStaff(syncL, staff);
@@ -304,11 +299,11 @@ index into those arrays of a J_IP object, deliver the Fine STDIST width of a gro
 J_IP objects that ends there. Also return (in *pnInGroup) the number of objects in the
 group. */
 
-static STDIST IPGroupWidth(INT16 staff, INT16 ind, SPACETIMEINFO spaceTimeInfo[],
-										STDIST fSpBefore[], STDIST fSpAfter[], INT16 *pnInGroup)
+static STDIST IPGroupWidth(short staff, short ind, SPACETIMEINFO spaceTimeInfo[],
+										STDIST fSpBefore[], STDIST fSpAfter[], short *pnInGroup)
 {
 	STDIST	groupWidth;
-	INT16		count, j;
+	short		count, j;
 	
 	groupWidth = 0;
 	count = 0;
@@ -342,9 +337,9 @@ in positioning J_IP symbols, which are normally flush right against following J_
 objects, or, where consecutive J_IP objects have a common staff, J_IP ones. */
 
 static STDIST IPMarginWidth(Document *doc, SPACETIMEINFO spaceTimeInfo[],
-										INT16 iFirst, INT16 iSecond)
+										short iFirst, short iSecond)
 {
-	STDIST widthLeft; INT16 s;
+	STDIST widthLeft; short s;
 	
 	widthLeft = 0;	
 	for (s = 1; s<=doc->nstaves; s++) {
@@ -364,14 +359,14 @@ object. */
 
 static STDIST IPSpaceNeeded(
 						Document *doc,
-						INT16 staff, INT16 ind,
+						short staff, short ind,
 						SPACETIMEINFO spaceTimeInfo[],
 						STDIST fSpBefore[],
 						STDIST fSpAfter[],
 						LONGSTDIST fPosition[] 		/* Position table for J_IT & J_IP objs. for the measure */
 						)
 {
-	INT16 prevIT, nInGroup;
+	short prevIT, nInGroup;
 	STDIST groupWidth, prevRightEnd, needRight, availSp, needLeft, spNeeded;
 
 	groupWidth = IPGroupWidth(staff, ind-1, spaceTimeInfo, fSpBefore, fSpAfter, &nInGroup);
@@ -405,12 +400,12 @@ Handles one measure. */
 static void ConsidITWidths(
 					Document	*doc,
 					LINK /*barTermL*/,							/* Object ending the Measure */
-					INT16 nInMeasure,
+					short nInMeasure,
 					SPACETIMEINFO spaceTimeInfo[],
 					STDIST fSpBefore[]					/* Space-before table: only entries for J_IT objs are used */
 					)
 {
-	register INT16 i, s, t;
+	register short i, s, t;
 	STDIST needLeft, prevNeedRight[MAXSTAVES+1], gNeedLeft, gNeedRight;
 	LONGSTDIST fSpNeeded, fAvailSp[MAXSTAVES+1];
 	Boolean staffUsed[MAXSTAVES+1];
@@ -493,14 +488,14 @@ syncs, etc.) and adjust spacing accordingly. Handles one measure. */
 static void ConsidIPWidths(
 					register Document *doc,
 					LINK				/*barTermL*/,			/* Object ending the Measure */
-					INT16				nInMeasure,
+					short				nInMeasure,
 					SPACETIMEINFO	spaceTimeInfo[],
 					STDIST			fSpBefore[],		/* Space-before table: entries for J_IT & J_IP objs are used */
 					LONGSTDIST		position[] 			/* Position table for J_IT & J_IP objs. for the measure */
 					)
 {
-	register INT16 i;
-	INT16			s, j;
+	register short i;
+	short			s, j;
 	STDIST		spNeeded, xpos, fSpNeeded;
 	STDIST		fSpAfter[MAX_MEASNODES];	/* Fine STDIST space-after table for J_IP objs. for the measure */
 	
@@ -560,15 +555,6 @@ static void ConsidIPWidths(
 			fSpAfter[i] = STD2F(spNeeded);					
 		}
 
-#ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf("Final fSpBefores:");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5d", fSpBefore[i]);
-		DebugPrintf("\n");
-	}
-#endif
-
 	/* Move J_IT symbols where needed to leave room for preceding J_IP symbols. */
 	
 	for (s = 1; s<=doc->nstaves; s++)
@@ -589,7 +575,7 @@ static void ConsidIPWidths(
 	 */
 	for (i = nInMeasure-1; i>=0; i--)
 		if (spaceTimeInfo[i].justType==J_IP) {
-			INT16 iRef, iLeftmost; LONGSTDIST posRef;
+			short iRef, iLeftmost; LONGSTDIST posRef;
 			
 			iRef = i+1;
 			posRef = position[iRef];
@@ -615,45 +601,6 @@ static void ConsidIPWidths(
 	}
 }
 
-
-#ifdef NOTYET
-
-#define SpaceSPWIDTH(link)	( (GetPSPACE(link))->spWidth )
-
-/* -------------------------------------------------------------- ConsidSPWidths -- */
-/*	Consider widths of all J_SP objects (only Spacers) and adjust spacing accordingly.
-Handles one measure. */
-
-static void ConsidSPWidths(
-					Document *doc,
-					LINK barTermL,							/* Object ending the Measure */
-					INT16				nInMeasure,
-					SPACETIMEINFO	spaceTimeInfo[],
-					LONGSTDIST		position[] 			/* Position table for J_IT & J_IP objs. for the measure */
-					)
-{
-	register INT16 i,j;
-	STDIST		spWidth;
-	LINK			spaceL;
-
-	/*
-	 * Go thru the measure and, for each J_SP object, leave space for that object and
-	 *	move everything following to the right by its space.
-	 */
-
-	for (i = 0; i<=nInMeasure; i++)
-		if (spaceTimeInfo[i].justType==J_SP) {
-			spaceL = spaceTimeInfo[i].link;
-			spWidth = SpaceSPWIDTH(spaceL);
-			
-			for (j=i+1; j<=nInMeasure; j++)
-				position[j] += spWidth;
-		}
-}
-
-#endif
-
-
 /* -------------------------------------------------------------- ConsiderWidths -- */
 /* Consider objects' widths (both to left and right of their origins) and increase
 spacing as needed, not only to avoid overprinting, but to insure a separation of
@@ -667,7 +614,7 @@ syncs they're attached to. ConsiderWidths handles one measure per call. */
 static void ConsiderWidths(
 					register Document *doc,
 					LINK				barTermL,			/* Object ending the Measure */
-					INT16				nInMeasure,
+					short				nInMeasure,
 					SPACETIMEINFO	spaceTimeInfo[],
 					STDIST			fSpBefore[],
 					LONGSTDIST		position[]			/* Position table for J_IT & J_IP objs. for the measure */
@@ -675,15 +622,6 @@ static void ConsiderWidths(
 {
 	ConsidITWidths(doc, barTermL, nInMeasure, spaceTimeInfo, fSpBefore);
 
-#ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf("Inter.fSpBefores:");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5d", fSpBefore[i]);
-		DebugPrintf("\n");
-	}
-#endif
-	
 	ConsidIPWidths(doc, barTermL, nInMeasure, spaceTimeInfo, fSpBefore, position);
 	
 	/*
@@ -694,9 +632,6 @@ static void ConsiderWidths(
 	 *	only for IT objects. Either way, it could easily (I think) be done here...
 	 */
 	 
-#ifdef NOTYET
-	ConsidSPWidths(doc, barTermL, nInMeasure, spaceTimeInfo, position);
-#endif
 }
 
 
@@ -721,13 +656,13 @@ of MAX_MEASNODES J_IT and J_IP objects. */
 DDIST Respace1Bar(
 			Document			*doc,
 			LINK				barTermL,			/* Object ending the Measure */
-			INT16				nInMeasure,
+			short				nInMeasure,
 			SPACETIMEINFO	spaceTimeInfo[],
 			long				spaceProp 			/* Use spaceProp/(RESFACTOR*100) of normal spacing */
 			)
 {
 	LINK			pL, prevBarL;
-	INT16			i, prevIT,
+	short			i, prevIT,
 					fIdealSp; 							/* Multiple of STDIST/FIDEAL_RESOLVE */
 	STDIST		prevBarWidth,
 					fSpBefore[MAX_MEASNODES];		/* Fine STDIST space-before table for J_IT & J_IP objs. for the measure */
@@ -788,24 +723,6 @@ DDIST Respace1Bar(
 					fIdealSp);
 	}
 
-#ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf(  "Nodes: ---------");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5d", spaceTimeInfo[i].link);
-		DebugPrintf("\nTypes:          ");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf("  %4.4s", NameNodeType(spaceTimeInfo[i].link));
-		DebugPrintf("\nTimes:          ");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5ld", spaceTimeInfo[i].startTime);
-		DebugPrintf("\nIdeal fSpBefores:");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5d", fSpBefore[i]);
-		DebugPrintf("\n");
-	}
-#endif
-
 	/*
 	 *	Consider objects' widths (both to left and right of their origins) and
 	 *	increase spacing as needed to avoid overprinting. (People doing proportional
@@ -813,15 +730,6 @@ DDIST Respace1Bar(
 	 */
 	ConsiderWidths(doc, barTermL, nInMeasure, spaceTimeInfo, fSpBefore, position);
 
-#ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf("Final positions:");
-		for (i = 0; i<=nInMeasure; i++)
-			DebugPrintf(" %5ld", position[i]);
-		DebugPrintf("\n");
-	}
-#endif
-	
 	/*
 	 *	Finally, go thru object list for the measure and fill in xd's from the values
 	 *	in the position table.
@@ -847,7 +755,7 @@ first and last Measures of a single System, return a "justification proportion"
 in (100L*RESFACTOR)ths by which to multiply coordinates to squeeze the Measures
 into the System's width. If it doesn't need squeezing, return -1L. */
 
-long GetJustProp(Document *doc, RMEASDATA rmTable[], INT16 first, INT16 last,
+long GetJustProp(Document *doc, RMEASDATA rmTable[], short first, short last,
 						CONTEXT context)
 {
 	LINK			systemL;
@@ -887,12 +795,12 @@ xd's and widths according to the table, and set the Measures' spacePercent. */
 void PositionSysByTable(
 			Document *doc,
 			RMEASDATA *rmTable,
-			INT16 first, INT16 last,
+			short first, short last,
 			long spaceProp,			/* If >0, use spaceProp/(RESFACTOR*100) of normal spacing */
 			CONTEXT context
 			)
 {
-	INT16 m;
+	short m;
 	long temp, startChange, resUnit, newProp;
 	LINK pL, endMeasL, startL, endL, nextMeasL, measL;
 	DDIST lastMeasWidth, staffWidth;
@@ -958,10 +866,10 @@ void PositionSysByTable(
 /* ====================================================== RespaceBars and helpers == */
 
 static void	GetRespaceParams(Document *, LINK, LINK, LINK *, LINK *, LINK *, long *);
-static INT16	CountRespMeas(Document *, LINK, LINK);
-static INT16	RespWithinMeasures(Document *, LINK, LINK, LINK, LINK, long, RMEASDATA *,
-																				XDDATA *, unsigned INT16);
-static Boolean	PositionWholeMeasures(Document *, INT16, RMEASDATA *,  LINK, LINK, LINK *,
+static short	CountRespMeas(Document *, LINK, LINK);
+static short	RespWithinMeasures(Document *, LINK, LINK, LINK, LINK, long, RMEASDATA *,
+																				XDDATA *, unsigned short);
+static Boolean	PositionWholeMeasures(Document *, short, RMEASDATA *,  LINK, LINK, LINK *,
 				Boolean, Boolean);
 static void	InvalRespBars(LINK, LINK);
 
@@ -987,13 +895,13 @@ static void GetRespaceParams(
 	if (*spaceProp<=0) *spaceProp = MeasSpaceProp(startBarL);
 }
 
-static INT16 CountRespMeas(
+static short CountRespMeas(
 					Document */*doc*/,
 					LINK startMeasL,	/* First Measure to count, last Measure to count or tail */
 					LINK endMeasL
 					)
 {
-	INT16 mindex=0; LINK measL;
+	short mindex=0; LINK measL;
 	char fmtStr[256];
 
 	measL = startMeasL;
@@ -1010,9 +918,9 @@ static INT16 CountRespMeas(
 }
 
 
-static Boolean GetXDTabIndex(LINK pL, XDDATA *xdTable, unsigned INT16 tabLen, unsigned INT16 *id)
+static Boolean GetXDTabIndex(LINK pL, XDDATA *xdTable, unsigned short tabLen, unsigned short *id)
 {
-	unsigned INT16 i;
+	unsigned short i;
 
 	for (i = 0; i < tabLen; i++)
 		if (xdTable[i].link == pL) {
@@ -1029,9 +937,9 @@ static Boolean GetXDTabIndex(LINK pL, XDDATA *xdTable, unsigned INT16 tabLen, un
 /* If any hairpins in the given range are below the minimum length, move their right
 ends to make them the minimum length. Return the number of hairpins changed. */
 
-static INT16 FixHairpinLengths(Document *doc, LINK /*measL*/, LINK firstL, LINK lastL,
-								DDIST oldMWidth, DDIST newMWidth, XDDATA *xdTable, unsigned INT16);
-static INT16 FixHairpinLengths(
+static short FixHairpinLengths(Document *doc, LINK /*measL*/, LINK firstL, LINK lastL,
+								DDIST oldMWidth, DDIST newMWidth, XDDATA *xdTable, unsigned short);
+static short FixHairpinLengths(
 		Document			*doc,
 		LINK				/*measL*/,
 		LINK				firstL,
@@ -1039,14 +947,14 @@ static INT16 FixHairpinLengths(
 		DDIST				oldMWidth,
 		DDIST				newMWidth,
 		XDDATA			*xdTable,
-		unsigned INT16 xdTabLen)
+		unsigned short xdTabLen)
 {
 	LINK				pL, aDynamicL, firstSyncL, lastSyncL;
-	INT16				nChanged = 0;
+	short				nChanged = 0;
 	DDIST				dHairpinMinLen, xd, endxd, oldWid, newWid;
 	DDIST				dynamXD, oldFirstSyncXD, newFirstSyncXD, oldLastSyncXD, newLastSyncXD;
 	FASTFLOAT		oldFrac;
-	unsigned INT16	id;
+	unsigned short	id;
 
 	dHairpinMinLen = std2d(HAIRPIN_STD_MINLEN, STFHEIGHT, STFLINES);
 
@@ -1122,16 +1030,16 @@ in the area, whether in the selection or not and whether empty or not, to the rm
 array. We need the rmTable to extend to the System boundaries for the benefit of
 PositionWholeMeasures. */
 
-static INT16 RespWithinMeasures(
+static short RespWithinMeasures(
 		Document *doc,
 		LINK startBarL, LINK endBarL,
 		LINK startSysBarL, LINK endSysBarL,
 		long spaceProp,
 		RMEASDATA *rmTable,
 		XDDATA *xdTable,
-		unsigned INT16 xdTabLen)
+		unsigned short xdTabLen)
 {
-	INT16 mindex, inSel, nInMeasure;
+	short mindex, inSel, nInMeasure;
 	DDIST oldMWidth, newMWidth; SPACETIMEINFO *spTimeInfo=0L;
 	register LINK measL, firstL, lastL;		/* 1st obj in, obj ending current Measure */
 
@@ -1181,7 +1089,7 @@ without worrying about overlapping symbols that might result. */
  
 static Boolean PositionWholeMeasures(
 		Document *doc,
-		INT16 mCount,
+		short mCount,
 		RMEASDATA *rmTable,
 		LINK startBarL,
 		LINK endSysL,
@@ -1191,8 +1099,8 @@ static Boolean PositionWholeMeasures(
 		)
 {
 	LINK			startInvalL;
-	register INT16 m;
-	INT16			first; 
+	register short m;
+	short			first; 
 	Boolean		reformat, goAhead;
 	CONTEXT		context;
 	long			newSpProp;
@@ -1245,9 +1153,6 @@ static Boolean PositionWholeMeasures(
 		if (goAhead) {
 			Reformat(doc, startBarL, LeftLINK(endSysL), TRUE, 9999, FALSE, 999,
 							config.titleMargin);
-#ifdef LIGHT_VERSION
-			EnforcePageLimit(doc);
-#endif
 		}
 		else
 			return FALSE;
@@ -1302,7 +1207,7 @@ afterwards is not easy! */
 
 typedef struct {
 	LINK		link;
-	INT16		spacePercent;
+	short		spacePercent;
 	DDIST		width;
 } MSPDATA;
 
@@ -1324,8 +1229,8 @@ Boolean RespaceBars(
 				endSysBarL,						/* First Meas after the last System involved or tail*/
 				startInvalL, pL,
 				measL, aMeasL;
-	INT16		mindex, i; //??OR UNSIGNED?
-	unsigned INT16 objCount, measCount; 
+	short		mindex, i; //??OR UNSIGNED?
+	unsigned short objCount, measCount; 
 	register RMEASDATA *rmTable;
 	XDDATA *positionA;
 	MSPDATA *measA;
@@ -1432,12 +1337,6 @@ Boolean RespaceBars(
 
 		goto Done;
 	}
-#ifdef NOTYET
-	else {	/* center whole-measure rests */
-		/* we'd like to do this here, but measures may've been reformatted, so
-			how do we get the correct links -- rmTable? */
-	}
-#endif
 
 	InvalRespBars(startInvalL,endSysL);
 
@@ -1475,7 +1374,7 @@ Boolean StretchToSysEnd(
 	PMEASURE	pMeas;
 	LINK		pL, nextMeasL;
 	long		temp, startChange, resUnit;
-	INT16		tempPercent;
+	short		tempPercent;
 
 	if (startL==endL) return TRUE;
 	

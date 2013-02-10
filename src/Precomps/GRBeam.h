@@ -1,30 +1,30 @@
 /* GRBeam.h: header file for GRBeam.c for Nightingale */
 
-void CreateGRBeams(Document *, INT16);
+void CreateGRBeams(Document *, short);
 void FixXStfGRBeams(Document *);
 Boolean CheckSelGRBeam(Document *);
-INT16 CountGRBeamable(Document *, LINK, LINK, INT16, Boolean);
+short CountGRBeamable(Document *, LINK, LINK, short, Boolean);
 void GetGRBeamNotes(LINK , LINK[]);
-LINK CreateGRBEAMSET(Document *, LINK, LINK, INT16, INT16, Boolean, Boolean);
-void GRUnbeam(Document *, LINK, LINK, INT16);
-void FixGRBeamsInRange(Document *, LINK, LINK, INT16, Boolean);
-void GRUnbeamx(Document *, LINK, LINK, INT16);
-Boolean GRUnbeamRange(Document *, LINK, LINK, INT16);
+LINK CreateGRBEAMSET(Document *, LINK, LINK, short, short, Boolean, Boolean);
+void GRUnbeam(Document *, LINK, LINK, short);
+void FixGRBeamsInRange(Document *, LINK, LINK, short, Boolean);
+void GRUnbeamx(Document *, LINK, LINK, short);
+Boolean GRUnbeamRange(Document *, LINK, LINK, short);
 
 void GetBeamGRNotes(LINK, LINK []);
-DDIST CalcGRXStem(Document *, LINK, INT16, INT16, DDIST, PCONTEXT, Boolean);
+DDIST CalcGRXStem(Document *, LINK, short, short, DDIST, PCONTEXT, Boolean);
 DDIST GRNoteXStfYStem(LINK, STFRANGE, DDIST, DDIST, Boolean);
-INT16 AnalyzeGRBeamset(LINK, INT16 *, INT16 []);
-INT16 BuildGRBeamDrawTable(LINK, INT16, INT16, INT16 [], BEAMINFO [], INT16);
+short AnalyzeGRBeamset(LINK, short *, short []);
+short BuildGRBeamDrawTable(LINK, short, short, short [], BEAMINFO [], short);
 void DrawGRBEAMSET(Document *, LINK, CONTEXT []);
 
 LINK FirstInGRBeam(LINK);
 LINK LastInGRBeam(LINK);
-void RemoveGRBeam(Document *, LINK, INT16, Boolean);
-LINK VHasGRBeamAcross(LINK node, INT16 voice);
-LINK VHasGRBeamAcrossIncl(LINK node, INT16 voice);	
-LINK HasGRBeamAcross(LINK, INT16);	
-LINK VCheckGRBeamAcross(LINK, INT16);	
-LINK VCheckGRBeamAcrossIncl(LINK, INT16);	
-LINK HasGRBeamAcrossIncl(LINK, INT16);
-void RecomputeGRNoteStems(Document *, LINK, LINK, INT16);
+void RemoveGRBeam(Document *, LINK, short, Boolean);
+LINK VHasGRBeamAcross(LINK node, short voice);
+LINK VHasGRBeamAcrossIncl(LINK node, short voice);	
+LINK HasGRBeamAcross(LINK, short);	
+LINK VCheckGRBeamAcross(LINK, short);	
+LINK VCheckGRBeamAcrossIncl(LINK, short);	
+LINK HasGRBeamAcrossIncl(LINK, short);
+void RecomputeGRNoteStems(Document *, LINK, LINK, short);

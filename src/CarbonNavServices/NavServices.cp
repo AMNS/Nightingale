@@ -43,12 +43,7 @@ static Handle NewOpenHandle(OSType applicationSignature, short numTypes, OSType 
 static void NSGetOpenFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD);
 static void NSGetSaveFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD);
 
-static void TerminateOpenFileDialog(void);
-static void TerminateSaveFileDialog(void);
 static void TerminateDialog( NavDialogRef inDialog );
-
-static void NSNavDisposeDialog(NavCBRecPtr callbackParms);
-static Boolean AdjustMenus(WindowPtr pWindow, Boolean editDialogs, Boolean forceTitlesOn);
 
 // custom dialog item:
 #define kControlListID		1320
@@ -179,7 +174,6 @@ static NavEventUPP GetNavSaveFileEventUPP()
 void HandleNewButton(ControlHandle theButton, NavCBRecPtr callBackParms)
 {
 	OSErr 	theErr = noErr;
-	short 	selection = 0;
 
 	theErr = NavCustomControl(callBackParms->context,kNavCtlCancel,NULL);
 
@@ -300,7 +294,6 @@ static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSel
 		case kNavCBStart:
 			{
 				UInt16 firstItem = 0;	
-				short	realItem = 0;
 				OSStatus theErr = noErr;
 				
 				// add the rest of the custom controls via the DITL resource list:
@@ -433,8 +426,6 @@ static void NSHandleSaveEvent(NavCBRecPtr callbackParms)
 //
 static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUserAction, void *inContextData )
 {
-	OSStatus	status = noErr;
-
 	// We only have to handle the user action if the context data is non-NULL, which
 	// means it is an action that applies to a specific document.
 	if ( inContextData != NULL )
@@ -451,19 +442,9 @@ static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUse
 				// If we were closing, we're not now.
 				pNSD->nsIsClosing = false;
 				pNSD->nsOpCancel = true;
-#if 0		
-				// If we were closing all, we're not now!
-				gMachineInfo.isClosing = false;
-				// If we were quitting, we're not now!!
-				gMachineInfo.isQuitting = false;
-#endif		
 				break;
 			
 			case kNavUserActionSaveChanges:
-#if 0		
-				// Do the save, which may or may not trigger the save dialog
-				status = DoCommand( pData->theWindow, cSave, 0, 0 );
-#endif		
 				break;
 			
 			case kNavUserActionDontSaveChanges:
@@ -472,7 +453,6 @@ static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUse
 				break;
 			
 			case kNavUserActionSaveAs:
-#if 1
 				NavReplyRecord	reply;
 				OSStatus			status;
 				
@@ -483,76 +463,11 @@ static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUse
 				}
 				
 				status = NavDisposeReply(&reply);
-#endif
-#if 0		
-				{
-					if ( pData->pSaveTo )
-					{
-						OSStatus		completeStatus;
-						NavReplyRecord		reply;
-						FSRef			theRef;
-						status = BeginSave( inNavDialog, &reply, &theRef );
-						nrequire( status, BailSaveAs );
-
-						status = (*(pData->pSaveTo))( pData->theWindow, pData, &theRef, reply.isStationery );
-						completeStatus = CompleteSave( &reply, &theRef, status == noErr );
-						if ( status == noErr )
-						{
-							status = completeStatus;	// So it gets reported to user.
-						}
-						nrequire( status, BailSaveAs );
-
-						// Leave both forks open
-						if ( pData->dataRefNum == -1 )
-						{
-							status = FSOpenFork( &theRef, 0, NULL, fsRdWrPerm, &pData->dataRefNum );
-							nrequire( status, BailSaveAs );
-						}
-
-						if ( pData->resRefNum == -1 )
-						{
-							pData->resRefNum = FSOpenResFile( &theRef, fsRdWrPerm );
-							status = ResError();
-							nrequire( status, BailSaveAs );
-						}
-
-					}
-					
-BailSaveAs:
-				}
-#endif		
 				break;
 				
 			default:
 				break;
 		}
-#if 0		
-		// Now, close the window if it isClosing and
-		// everything got clean or was discarded
-		if ( status != noErr )
-		{
-			// Cancel all in-progress actions and alert user.
-			pData->isClosing = false;
-			gMachineInfo.isClosing = false;
-			gMachineInfo.isQuitting = false;
-			ConductErrorDialog( status, cSave, cancel );
-		}
-		else if ( pData->isClosing && ( discard || CanCloseWindow( pData->theWindow )))
-		{
-			status = DoCloseWindow( pData->theWindow, discard, 0 );
-
-			// If we are closing all then start the close
-			// process on the next window
-			if ( status == noErr && gMachineInfo.isClosing )
-			{
-				WindowPtr nextWindow = FrontWindow();
-				if ( nextWindow != NULL )
-				{
-					DoCloseWindow( nextWindow, false, 0 );
-				}
-			}
-		}
-#endif
 	}
 }
 
@@ -806,29 +721,6 @@ OSStatus CompleteSave( NavReplyRecord* inReply, FSRef* inFileRef, Boolean inDidW
 }
 
 
-//
-// TerminateOpenFileDialog
-//
-static void TerminateOpenFileDialog()
-{
-	if ( gOpenFileDialog != NULL )
-	{
-		TerminateDialog( gOpenFileDialog );
-	}
-}
-
-
-//
-// TerminateSaveFileDialog
-//
-static void TerminateSaveFileDialog()
-{
-	if ( gSaveFileDialog != NULL )
-	{
-		TerminateDialog( gSaveFileDialog );
-	}
-}
-
 
 //
 // TerminateDialog
@@ -841,34 +733,3 @@ static void TerminateDialog( NavDialogRef inDialog )
 //	NavCustomControl( inDialog, kNavCtlTerminate, NULL );
 	return;
 }
-
-
-static void NSNavDisposeDialog(NavCBRecPtr callbackParms)
-{
-
-	if ( callbackParms->context == gOpenFileDialog )
-	{
-		NavDialogDispose( gOpenFileDialog );
-		gOpenFileDialog = NULL;
-	}
-	else if (callbackParms->context == gSaveFileDialog )
-	{
-		NavDialogDispose( gSaveFileDialog );
-		gSaveFileDialog = NULL;
-	}
-	
-	// if after dismissing the dialog SimpleText has no windows open (so Activate event will not be sent) -
-	// call AdjustMenus ourselves to have at right menus enabled
-	if (FrontWindow() == nil) 
-		AdjustMenus(nil, true, false);
-}
-
-//
-// AdjustMenus
-//
-static Boolean AdjustMenus(WindowPtr /*pWindow*/, Boolean /*editDialogs*/, Boolean /*forceTitlesOn*/)
-{
-	return false;
-}
-
-

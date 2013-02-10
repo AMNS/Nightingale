@@ -24,7 +24,7 @@ SYNC objects was too large for 1MB machines. I've never changed the smaller valu
 used here because they seem to work fine. --DAB) */
 
 #ifdef LARGE_INITIAL_HEAPS
-static INT16 initialNumbers[LASTtype] = {
+static short initialNumbers[LASTtype] = {
 		32,		/* HEADERtype */
 		0,			/* TAILtype */
 		1024,		/* SYNCtype */
@@ -52,7 +52,7 @@ static INT16 initialNumbers[LASTtype] = {
 		256		/* OBJtype */
 		};
 #else
-static INT16 initialNumbers[LASTtype] = {
+static short initialNumbers[LASTtype] = {
 		8,			/* HEADERtype */
 		0,			/* TAILtype */
 		64,		/* SYNCtype */
@@ -106,9 +106,6 @@ char *LinkToPtr(HEAP *heap, LINK link)
 	 *	Rough C equivalent (this throws away high-order 16 bits, which we need to keep):
 	 *		return ( ((char *)(*(heap)->block)) + ((heap)->objSize*(link)) );
 	 */
-#ifndef OS_MAC
-#error MAC OS-ONLY CODE
-#else
 	asm {
 		MOVEA.L    heap,A0               
 		MOVE.W     OFFSET(HEAP,objSize)(A0),D0               
@@ -116,7 +113,6 @@ char *LinkToPtr(HEAP *heap, LINK link)
 		MOVEA.L    OFFSET(HEAP,block)(A0),A0                    
 		ADD.L      (A0),D0                    
 		}
-#endif                               
 }
 #endif /* LinkToPtrFUNCTION */
 
@@ -127,7 +123,7 @@ success or not. */
 
 Boolean InitAllHeaps(Document *doc)
 	{
-		INT16 i; HEAP *hp;
+		short i; HEAP *hp;
 		
 		/* For each heap in the document's heap array... */
 		
@@ -152,7 +148,7 @@ really shouldn't be) called more than once. */
 
 void DestroyAllHeaps(Document *doc)
 	{
-		INT16 i; HEAP *hp;
+		short i; HEAP *hp;
 		
 		/* For each heap in the document's heap array... */
 		
@@ -190,8 +186,8 @@ fails, it should return info as to the reason! */
 Boolean ExpandFreeList(HEAP *heap,
 								long deltaObjs)				/* <=0 = do nothing, else <MAX_HEAPSIZE */ 
 	{
-		long newSize; unsigned INT16 i;
-		char *p; INT16 err;
+		long newSize; unsigned short i;
+		char *p; short err;
 		
 		if (deltaObjs<=0 || heap->objSize<=0) return(TRUE);		/* Do nothing */
 		
@@ -259,7 +255,7 @@ from a given heap, or NILINK if no more memory.  nObjs must be positive! */
 
 #define GROWFACTOR 4		/* When more memory needed, get a chunk this many times as big */
 
-LINK HeapAlloc(HEAP *heap, unsigned INT16 nObjs)
+LINK HeapAlloc(HEAP *heap, unsigned short nObjs)
 	{
 		LINK link,head;
 		char *p,*start;
@@ -305,7 +301,7 @@ HeapFree() to head. */
 
 LINK HeapFree(HEAP *heap, LINK head)
 	{
-		INT16 count; LINK link;
+		short count; LINK link;
 		char *start,*p;
 		
 		if (head) {

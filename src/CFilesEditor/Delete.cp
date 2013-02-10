@@ -46,17 +46,16 @@ static void DSObjDelEnding(Document *, LINK, LINK);
 static void DSObjRemEnding(Document *, LINK);
 static void FixDynamicContext(Document *, LINK);
 static void DeleteOtherDynamic(Document *, LINK);
-static void DSRemoveDynamic(Document *, LINK, INT16);
+static void DSRemoveDynamic(Document *, LINK, short);
 
 static Boolean DeleteWhole(Document *, LINK);
 
-static void DeleteTie(Document *, LINK, LINK, LINK, Boolean);
 static void DeleteSlur(Document *, LINK, LINK, Boolean, Boolean);
 static void FixDelSlurs(Document *);
 static void DeleteOtherSlur(Document *, Boolean, Boolean, LINK);
 
-static LINK FindTheBeam(LINK, INT16);
-static LINK FindTheGRBeam(LINK, INT16);
+static LINK FindTheBeam(LINK, short);
+static LINK FindTheGRBeam(LINK, short);
 static void FixDelBeams(Document *);
 static void PostFixDelBeams(Document *);
 static void FixDelGRBeams(Document *);
@@ -66,11 +65,11 @@ static void DelTupletForSync(Document *, LINK, LINK);
 static void DelOctavaForSync(Document *, LINK, LINK);
 
 static void FixDelMeasures(Document *, LINK);
-static void FixDelAccidentals(Document *, INT16, LINK, LINK);
+static void FixDelAccidentals(Document *, short, LINK, LINK);
 static void FixDelContext(Document *);
 static void ExtendJDRange(Document *doc);
 
-static DDIST GetNewKSWidth(Document *,LINK,INT16);
+static DDIST GetNewKSWidth(Document *,LINK,short);
 static void FixStfBeforeFirst(Document *,LINK,LINK);
  
 static Boolean InvisifyBFClef(Document *,LINK);
@@ -88,8 +87,8 @@ static Boolean DelTimeSigBefFirst(Document *, LINK);
 static void FixDelChords(Document *, LINK, Boolean []);
 static void FixDelGRChords(Document *, LINK, Boolean []);
 
-static Boolean DelSelPrepare(Document *, LINK *, LINK *, LINK *, Boolean *, INT16 *, Boolean *);
-static void DelSelCleanup(Document *, LINK, LINK, LINK, LINK, Boolean, Boolean, INT16, Boolean);
+static Boolean DelSelPrepare(Document *, LINK *, LINK *, LINK *, Boolean *, short *, Boolean *);
+static void DelSelCleanup(Document *, LINK, LINK, LINK, LINK, Boolean, Boolean, short, Boolean);
 
 
 static LINK	beamStartL[MAXVOICES+1], beamEndL[MAXVOICES+1];
@@ -286,7 +285,7 @@ static void DSObjRemEnding(Document *doc, LINK pL)
 
 static void FixDynamicContext(Document *doc, LINK pL)
 {
-	LINK aDynamicL; INT16 staff; CONTEXT oldContext, newContext;
+	LINK aDynamicL; short staff; CONTEXT oldContext, newContext;
 
 	aDynamicL = FirstSubLINK(pL);
 	staff = DynamicSTAFF(aDynamicL);
@@ -305,7 +304,7 @@ a mismatched piece first, it sets dynamError TRUE and stops the traversal. */
 
 static void DeleteOtherDynamic(Document *doc, LINK pL)
 {
-	LINK aDynamicL,qL,firstSync,lastSync; PDYNAMIC p,q; INT16 dynamStaff;
+	LINK aDynamicL,qL,firstSync,lastSync; PDYNAMIC p,q; short dynamStaff;
 	Boolean isHairpin,crossSys,foundDynam=FALSE,haveDynam=TRUE,dynamError=FALSE;
 
 	isHairpin = IsHairpin(pL);
@@ -382,7 +381,7 @@ function.
 */
 
 static void DSRemoveDynamic(Document *doc, LINK pL,
-							INT16 staff)	/* staff of dynamic, or ANYONE for DeleteWhole */
+							short staff)	/* staff of dynamic, or ANYONE for DeleteWhole */
 {
 	LINK dynamicL, aDynamicL, objL, aNoteL, firstSyncL, lastSyncL;
 	PDYNAMIC pDynamic; Boolean hasNoteOnStf=FALSE;
@@ -585,100 +584,9 @@ static Boolean DeleteWhole(Document *doc, register LINK pL)
  *		ties a chord one (or more) of whose notes has been deleted. 
  *	3. case SLURtype performs the ordinary deletion of a slur which has been 
  *		selected by clicking or dragging and is to be explicitly deleted.
+ *
+ *  Note: DeleteTie removed by chirgwin Mon Jun 25 21:56:05 PDT 2012
  */
-
-
-/* ------------------------------------------------------------------ DeleteTie - */
-/* 1. DeleteTie is called with params pL & aNoteL, where pL is 
-		pFirst/LastSyncL of slurL, and aNoteL is the note selected for deletion, 
-		passed from FixDelSlurs as slurNoteL. aNoteL should be a subObj of pL, 
-		but we have no guarantee of this. 
-	2. slurL is the slur whose tie subobj is to be deleted; if slurL is not a
-		tie with multiple subobjects, we have an error condition.
-	3. goLeft is passed in order to tell us whether to use firstInd or lastInd 
-		of the slur subobject.
-	4. DeleteTie first gets the index of aNoteL in its chord, and the subobject 
-		of pL with that index in that chord; then it gets the slur subobject with
-		that index. Then it copies, ala DeleteSelection, every subobject of slurL
-		into qObLj except this one, and deletes slurL, linking qObjL back into the 
-		object list in its place.  */
-
-static void DeleteTie(
-					Document */*doc*/,
-					LINK pL,		/* First/LastSync of slurL */
-					LINK aNoteL,	/* subObj whose tie is to be deleted */
-					LINK slurL,		/* slur containing this tie */
-					Boolean goLeft	/* Direction of traversal of FixDelSlurs */
-					)
-{
-	PASLUR 	aSlur;
-	INT16 	i;
-	LINK		aSlurL, bNoteL;
-	
-	bNoteL = FirstSubLINK(pL);
-	for (i = 0; bNoteL; bNoteL=NextNOTEL(bNoteL))
-		if (NoteSTAFF(bNoteL)==NoteSTAFF(aNoteL)) {
-			if (aNoteL==bNoteL) break;		/* i gets the index of aNoteL in chord on staff */
-			i++;
-		}
-
-	if (aNoteL!=bNoteL)
-		MayErrMsg("DeleteTie: aNoteL %ld not equal to bNoteL %ld", 
-					(long)aNoteL, (long)bNoteL);
-	
-	aSlurL = FirstSubLINK(slurL);
-	for ( ; aSlurL; aSlurL=NextSLURL(aSlurL)) {
-		aSlur = GetPASLUR(aSlurL);
-		if (goLeft) {
-			aSlur = GetPASLUR(aSlurL);
-			if (aSlur->firstInd==i) break;	/* if aSlur has index i, keep it */
-		}
-		else if (aSlur->lastInd==i) break;
-	}
-
-	if (goLeft) {
-		if (aSlur->firstInd!=i) 
-			MayErrMsg("DeleteTie: aSlur->firstInd %ld not equal to i %ld",
-						 (long)aSlur->firstInd, (long)i);
-	}
-	else {
-		if (aSlur->lastInd!=i) 
-			MayErrMsg("DeleteTie: aSlur->lastInd %ld not equal to i %ld",
-						 (long)aSlur->lastInd, (long)i);
-	}
-		
-#ifdef NOTYET	
-	qL = NewNode(SLURtype, LinkNENTRIES(slurL)-1);
-	if (qL) {
-		qSlur = GetPSLUR(qL);
-		pSlur = GetPSLUR(slurL);
-		BlockMove(pSlur, qSlur, sizeof(SLUR));						/* Copy object header */
-		LinkNENTRIES(qL) = LinkNENTRIES(slurL)-1;
-		pSubL = FirstSubLINK(pL);
-		qSubL = FirstSubLINK(qL);
-		for ( ; pSubL && qSubL; pSubL=NextSLURL(pSubL), qSubL = nextL)
-			if (pSubL!=aSlurL) {
-				pSub = GetPASLUR(pSubL);
-				qSub = GetPASLUR(qSubL);
-				nextL = NextSLURL(qSubL);
-				BlockMove(pSub, qSub, sizeof(ASLUR));
-				NextSLURL(qSubL) = nextL;
-			}
-	
-		LeftLINK(qL) = LeftLINK(slurL);										
-		RightLINK(qL) = RightLINK(slurL);
-		LinkVALID(qL) = FALSE;
-		DeleteNode(doc, slurL);
-		qLeft = LeftLINK(qL);
-		qRight = RightLINK(qL);
-		RightLINK(qLeft) = LeftLINK(qRight) = qL;
-		}
-	 else
-		MayErrMsg("DeleteTie: Not enough memory");
-#else
-	MayErrMsg("For now, cannot delete notes in tied chords.");
-#endif
-}
 
 
 /* ----------------------------------------------------------------- DeleteSlur -- */
@@ -747,13 +655,7 @@ static void DeleteSlur(
 	if (firstIsMeas || lastIsSys)
 		DeleteOtherSlur(doc, firstIsMeas, lastIsSys, slurL);
 	
-#ifdef NOTYET
-	if (isTie && LinkNENTRIES(slurL)>1)
-			DeleteTie(doc, pL, slurNoteL, slurL, goLeft);
-	else	DeleteNode(doc, slurL);
-#else
 	DeleteNode(doc, slurL);
-#endif
 }
 
 
@@ -774,7 +676,7 @@ void FixDelSlurs(Document *doc)
 {
 	LINK					pL, aNoteL;
 	PANOTE				aNote;
-	INT16					voice;
+	short					voice;
 	SearchParam			pbSearch;
 	Boolean				voiceTiesDone;
 
@@ -860,7 +762,7 @@ void PPageFixDelSlurs(Document *doc)
 {
 	LINK					pL, aNoteL;
 	PANOTE				aNote;
-	INT16					voice;
+	short					voice;
 	SearchParam			pbSearch;
 	Boolean				voiceTiesDone;
 
@@ -982,7 +884,7 @@ static void DeleteOtherSlur(Document *doc,
 given sync, presumably because the slur object is being deleted. */
 
 void FixSyncForSlur(LINK pL,					/* Sync */
-					INT16 voice,
+					short voice,
 					Boolean isTie, Boolean right)
 {
 	LINK aNoteL; PANOTE aNote;
@@ -1066,7 +968,7 @@ void FixDelCrossSysBeams(register Document *doc)
 {
 	register LINK sysL, pL, firstL, lastL;
 	LINK nextBeamL, prevBeamL;
-	register INT16 v; register PBEAMSET pBeam;
+	register short v; register PBEAMSET pBeam;
 	Boolean invalSystems=FALSE;
 
 	firstL = lastL = NILINK;
@@ -1125,7 +1027,7 @@ void FixDelCrossSysBeams(register Document *doc)
 
 void FixDelCrossSysSlurs(register Document *doc)
 {
-	register INT16 v; PSLUR pSlur; Boolean invalSystems=FALSE;
+	register short v; PSLUR pSlur; Boolean invalSystems=FALSE;
 	register LINK sysL, pL;
 	LINK firstL, lastL, nextSlurL, prevSlurL, rightL;
 
@@ -1184,7 +1086,7 @@ void FixDelCrossSysSlurs(register Document *doc)
 
 void FixDelCrossSysHairpins(Document *doc)
 {
-	INT16 s; PDYNAMIC pDynamic; Boolean invalSystems=FALSE, isHairpin;
+	short s; PDYNAMIC pDynamic; Boolean invalSystems=FALSE, isHairpin;
 	LINK sysL, firstL, lastL, pL, nextDynamL, prevDynamL, firstSync, lastSync;
 
 	/* Get the system object from which to start the update operation. */
@@ -1235,7 +1137,7 @@ void FixDelCrossSysHairpins(Document *doc)
 
 /* ----------------------------------------------------------------- FindTheBeam -- */
 
-static LINK FindTheBeam(LINK startL, INT16 voice)
+static LINK FindTheBeam(LINK startL, short voice)
 {
 	LINK pL, lBeamL, aNBeamL; PANOTEBEAM aNBeam;
 	SearchParam pbSearch;
@@ -1261,7 +1163,7 @@ static LINK FindTheBeam(LINK startL, INT16 voice)
 
 /* -------------------------------------------------------------- FindTheGRBeam -- */
 
-static LINK FindTheGRBeam(LINK startL, INT16 voice)
+static LINK FindTheGRBeam(LINK startL, short voice)
 {
 	LINK pL, lBeamL, aNBeamL; PANOTEBEAM aNBeam;
 	SearchParam pbSearch;
@@ -1297,7 +1199,7 @@ static LINK FindTheGRBeam(LINK startL, INT16 voice)
 
 static void FixDelBeams(Document *doc)
 {
-	INT16			i, h, voice, v, nInBeam;
+	short			i, h, voice, v, nInBeam;
 	LINK			startL, endL, pL, qL, pFirstL, pLastL,
 					rStartL, rEndL, lBeamL, rBeamL, beamFirstL, newBeamL;
 	PBEAMSET		lBeam, rBeam, newBeam;
@@ -1439,7 +1341,7 @@ beam them. */
 
 static void PostFixDelBeams(Document *doc)
 {
-	INT16 v, nInBeam; 
+	short v, nInBeam; 
 	LINK newBeamL, nextBeamL, prevBeamL;
 	PBEAMSET newBeam, nextBeam, prevBeam;
 	SearchParam pbSearch;
@@ -1497,7 +1399,7 @@ static void PostFixDelBeams(Document *doc)
 
 static void FixDelGRBeams(Document *doc)
 {
-	INT16 v;
+	short v;
 	LINK startL, endL, lStartL, lEndL, rStartL, rEndL, lBeamL, rBeamL;
 
 	for (v = 1; v<=MAXVOICES; v++)
@@ -1537,7 +1439,7 @@ static void FixDelGRBeams(Document *doc)
 
 static void ClearInTupletFlags(LINK tupletL)
 {
-	PANOTETUPLE	aNoteTuple;	INT16 v;
+	PANOTETUPLE	aNoteTuple;	short v;
 	LINK aNoteTupleL, qL, aNoteL;
 
 	v = TupletVOICE(tupletL);
@@ -1724,13 +1626,13 @@ that affects the stuff after the delete may be the same as the last deleted one,
 but at worst we'll just end up wasting some CPU time.
 */
 
-static void FixDelAccidentals(Document *doc, INT16 staff, LINK stfSelStart, LINK stfSelEnd)
+static void FixDelAccidentals(Document *doc, short staff, LINK stfSelStart, LINK stfSelEnd)
 {
 	LINK			pL, fixFirstL, fixLastL, nextKSL,
 					nextSyncL, aNoteL, prevSyncL, firstSyncL, bNoteL;
 	PANOTE		aNote;
 	SignedByte	accTab[MAX_STAFFPOS], pitTab1[MAX_STAFFPOS], pitTab2[MAX_STAFFPOS];
-	INT16			halfLn, j;
+	short			halfLn, j;
 	SearchParam	pbSearch;
 
 	if (!ACC_IN_CONTEXT) return;
@@ -1814,8 +1716,8 @@ current defaults, so this is necessary to maintain consistency.
 This function can be called safely only if the selection range is entirely before
 the first Measure of the score. */
 
-static void PreFDContext(Document *, INT16, LINK);
-static void PreFDContext(Document *doc, INT16 stf, LINK firstStaffL)
+static void PreFDContext(Document *, short, LINK);
+static void PreFDContext(Document *doc, short stf, LINK firstStaffL)
 {
 	LINK aStaffL, pL; PASTAFF aStaff;
 	
@@ -1848,7 +1750,7 @@ static void PreFDContext(Document *doc, INT16 stf, LINK firstStaffL)
 
 static void FixDelContext(Document *doc)
 {
-	INT16		stf;
+	short		stf;
 	LINK	  	firstMeasL, firstStaffL, stSelStartL, stSelEndL, doneL, endL;
 	Boolean	beforeFirstMeas;
 	CONTEXT	oldContext,newContext;
@@ -1915,7 +1817,7 @@ static void FixDelContext(Document *doc)
 static void ExtendJDRange(Document *doc)
 {
 	LINK pL,qL,firstL,lastL,aNoteL,aGRNoteL;
-	INT16 v,nSel;
+	short v,nSel;
 	
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (BeamsetTYPE(pL) && !LinkSEL(pL)) {
@@ -1969,7 +1871,7 @@ void ChangeSpaceBefFirst(
 	InvalRange(pL, firstMeas);
 }
 
-static DDIST GetNewKSWidth(Document *doc, LINK keySigL, INT16 stf)
+static DDIST GetNewKSWidth(Document *doc, LINK keySigL, short stf)
 {
 	LINK aKeySigL; CONTEXT context; DDIST KSWidth=0;
 
@@ -1988,7 +1890,7 @@ Context is being updated */
 
 static void FixStfBeforeFirst(Document *doc, LINK keySigL, LINK aKSL)
 {
-	INT16 stf; LINK pL,sysKSL,rightL;
+	short stf; LINK pL,sysKSL,rightL;
 	DDIST haveWidth,needWidth,change;
 
 	stf = KeySigSTAFF(aKSL);
@@ -2220,8 +2122,8 @@ as indicated by voiceChanged[]. */
 
 static void FixDelChords(Document *doc, LINK syncL, Boolean voiceChanged[])
 {
-	register INT16 v;
-	INT16		nInChord[MAXVOICES+1];
+	register short v;
+	short		nInChord[MAXVOICES+1];
 	PANOTE	aNote;
 	LINK		aNoteL;
 	
@@ -2251,8 +2153,8 @@ deleted, as indicated by voiceChanged[]. */
 
 static void FixDelGRChords(Document *doc, LINK grSyncL, Boolean voiceChanged[])
 {
-	register INT16 v;
-	INT16		nInChord[MAXVOICES+1];
+	register short v;
+	short		nInChord[MAXVOICES+1];
 	PAGRNOTE	aGRNote;
 	LINK		aGRNoteL;
 	
@@ -2328,7 +2230,7 @@ static Boolean DelSelPrepare(
 				LINK *prevMeasL,	/* Measure just before doc->selStartL */
 				LINK *startL,		/* Link just before doc->selStartL */
 				Boolean *noResp,	/* Returns TRUE if nothing deleted that could need respacing */
-				INT16 *fixTimes,
+				short *fixTimes,
 				Boolean *noUpMeasNums
 				)
 {
@@ -2408,7 +2310,7 @@ static void DelSelCleanup(
 				LINK prevMeasL,			/* Measure before start of delete or NILINK */
 				Boolean content,
 				Boolean didAnything,
-				INT16 fixTimes,
+				short fixTimes,
 				Boolean noUpMeasNums
 				)
 {
@@ -2514,7 +2416,7 @@ void DeleteSelection(
 	LINK		newSelL, firstMeasL, rightL,
 				startL, firstSyncL, lastSyncL, prevMeasL;
 	register Boolean didAnything=FALSE;
-	INT16		fixTimes;
+	short		fixTimes;
 	Boolean 	noUpMeasNums;
 
 
@@ -2808,7 +2710,7 @@ void DeleteSelection(
 				break;
 
 			case SYNCtype: {
-				PANOTE pSub; LINK pSubL,qSubL,tempL; INT16 v;
+				PANOTE pSub; LINK pSubL,qSubL,tempL; short v;
 				Boolean delOct=TRUE, voiceChanged[MAXVOICES+1];
 
 					/* Get remaining nEntries of sync. If none, delete entire
@@ -2864,15 +2766,12 @@ void DeleteSelection(
 					/* Update aspects of any chords contained in pL. Fix tie indices for
 						chords tied with multiple ties, and fix stems, otherStemSides, etc.
 						of notes in chords with notes deleted. */
-#ifdef USEFIXTIEIND_NOTYET
-					FixTieIndices(pL);			/* OK because pL is still in object list. */
-#endif
 					FixDelChords(doc, pL, voiceChanged);
 				}
 				break;
 
 			case GRSYNCtype: {
-				PAGRNOTE pSub; LINK subL, tempL; INT16 v;
+				PAGRNOTE pSub; LINK subL, tempL; short v;
 				Boolean voiceChanged[MAXVOICES+1];
 
 					/* Get remaining nEntries of grSync. If none, delete entire object. */
@@ -2906,9 +2805,6 @@ void DeleteSelection(
 
 					/* Update aspects of any chords contained in pL. Fix stems, otherStemSides,
 						 etc., of grace notes in chords with grace notes deleted. */
-#ifdef USEFIXTIEIND_NOTYET
-					FixTieIndices(pL);			/* OK because pL is still in object list. */
-#endif
 					FixDelGRChords(doc, pL, voiceChanged);
 				}
 				break;

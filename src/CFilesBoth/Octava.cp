@@ -28,33 +28,25 @@ the "Octava". Unfortunately, there's no such word in Italian--the actual word is
 #include "Nightingale.appl.h"
 
 /* Prototypes for internal functions */
-static void CreateOctStfRange(Document *doc,INT16 s,LINK stfStartL,LINK stfEndL,Byte octType);
-static LINK GetOctStartL(LINK startL, INT16 staff, Boolean needSel);
-static DDIST GetNoteyd(LINK syncL,INT16 staff);
-static void UnOctava(Document *, LINK, LINK, INT16);
-static void UnOctavaS(Document *, LINK, LINK, INT16);
-static void UnOctavaSync(Document *, LINK,LINK,DDIST,INT16,CONTEXT);
-static void UnOctavaGRSync(Document *, LINK,LINK,DDIST,INT16,CONTEXT);
-static void RemoveItsOctava(Document *doc,LINK fromL, LINK toL,LINK pL,INT16 s);
-static LINK HasGROctAcross(LINK node,INT16 staff);
-static LINK HasOctAcrossPt(Document *, Point, INT16);
-static LINK HasGROctAcrossPt(Document *, Point, INT16);
+static void CreateOctStfRange(Document *doc,short s,LINK stfStartL,LINK stfEndL,Byte octType);
+static LINK GetOctStartL(LINK startL, short staff, Boolean needSel);
+static DDIST GetNoteyd(LINK syncL,short staff);
+static void UnOctava(Document *, LINK, LINK, short);
+static void UnOctavaS(Document *, LINK, LINK, short);
+static void UnOctavaSync(Document *, LINK,LINK,DDIST,short,CONTEXT);
+static void UnOctavaGRSync(Document *, LINK,LINK,DDIST,short,CONTEXT);
+static void RemoveItsOctava(Document *doc,LINK fromL, LINK toL,LINK pL,short s);
+static LINK HasGROctAcross(LINK node,short staff);
+static LINK HasOctAcrossPt(Document *, Point, short);
+static LINK HasGROctAcrossPt(Document *, Point, short);
 
 
 /* -------------------------------------------------------------------- DoOctava -- */
 /* Put an octave sign around the selection. */
 
-#ifdef VIEWER_VERSION
-
 void DoOctava(Document *doc)
 {
-}
-
-#else
-
-void DoOctava(Document *doc)
-{
-	INT16 staff;
+	short staff;
 	LINK staffStartL, staffEndL;
 	Byte octSignType;
 
@@ -68,15 +60,13 @@ void DoOctava(Document *doc)
 	}
 }
 
-#endif
-
 /* -------------------------------------------------------------- DoRemoveOctava -- */
 /* Remove the octave sign from the selection. */
 
 void DoRemoveOctava(Document *doc)
 {
 	LINK		startL, endL, staffStartL, staffEndL;
-	INT16		staff;
+	short		staff;
 	
 	GetOptSelEnds(doc, &startL, &endL);
 	PrepareUndo(doc, startL, U_UnOctava, 32);    				/* "Undo Remove Ottava" */
@@ -96,10 +86,10 @@ void DoRemoveOctava(Document *doc)
 /* Create octave sign for notes from stfStartL to stfEndL, excluding stfEndL,
 on staff <s>. */
 
-static void CreateOctStfRange(Document *doc, INT16 s, LINK stfStartL, LINK stfEndL,
+static void CreateOctStfRange(Document *doc, short s, LINK stfStartL, LINK stfEndL,
 								Byte octType)
 {
-	INT16 nInOctava; LINK octavaL;
+	short nInOctava; LINK octavaL;
 
 	nInOctava = OctCountNotesInRange(s, stfStartL, stfEndL, TRUE);
 
@@ -114,7 +104,7 @@ static void CreateOctStfRange(Document *doc, INT16 s, LINK stfStartL, LINK stfEn
 /* Get new startL in order to insert octave sign into object list before first
 sync or GRSync to right of <startL>. */
 
-static LINK GetOctStartL(LINK startL, INT16 staff, Boolean needSel)
+static LINK GetOctStartL(LINK startL, short staff, Boolean needSel)
 {
 	LINK octStartL,GRStartL;
 
@@ -137,7 +127,7 @@ there may be more than one such MainNote/GRMainNote: we just use the first one
 we find. */
 
 static DDIST GetNoteyd(LINK syncL,
-								INT16 staff)		/* Either Sync or GRSync */
+								short staff)		/* Either Sync or GRSync */
 {
 	LINK aNoteL,aGRNoteL;
 	PANOTE aNote; PAGRNOTE aGRNote;
@@ -178,7 +168,7 @@ look at all of its notes/chords, and not hard.) */
 void SetOctavaYPos(Document *doc, LINK octL)
 {
 	POCTAVA	pOct;
-	INT16		staff;
+	short		staff;
 	CONTEXT	context;
 	DDIST		firstyd, margin; 
 	DDIST		octydFirst,
@@ -234,7 +224,7 @@ void SetOctavaYPos(Document *doc, LINK octL)
 LINK CreateOCTAVA(
 				Document *doc,
 				LINK startL, LINK endL,
-				INT16 staff, INT16 nInOctava,
+				short staff, short nInOctava,
 				Byte octSignType,
 				Boolean needSelected,	/* TRUE if we only want selected items */
 				Boolean doOct				/* TRUE if we are explicitly octaving notes (so Octava will be selected) */
@@ -244,7 +234,7 @@ LINK CreateOCTAVA(
 	LINK			pL, octavaL, aNoteOctL, nextL, mainNoteL, beamL,
 					newBeamL, mainGRNoteL;
 	PANOTEOCTAVA aNoteOct;
-	INT16 		octElem, iOctElem,  v;
+	short 		octElem, iOctElem,  v;
 	PANOTE		aNote;
 	PAGRNOTE		aGRNote;
 	LINK			aNoteL,aGRNoteL;
@@ -253,7 +243,7 @@ LINK CreateOCTAVA(
 	DDIST			yDelta;
 	CONTEXT		context;
 	Boolean 		stemDown, multiVoice;
-	INT16			stemLen;
+	short			stemLen;
 	QDIST			qStemLen;
 	STDIST		dystd;	
 	char			fmtStr[256];
@@ -555,7 +545,7 @@ long GetOctTypeNum(LINK pL, Boolean *bassa)
 void DrawOCTAVA(Document *doc, LINK pL, CONTEXT context[])
 {
 	POCTAVA	p;
-	INT16		staff;
+	short		staff;
 	PCONTEXT	pContext;
 	DDIST		dTop, dLeft, firstxd, lastxd,
 				lastNoteWidth, yCutoffLen, dBrackMin; 
@@ -563,12 +553,11 @@ void DrawOCTAVA(Document *doc, LINK pL, CONTEXT context[])
 				lnSpace, dhalfLn;
 	DPoint	firstPt, lastPt;
 	LINK		firstSyncL, lastSyncL, firstMeas, lastMeas;
-	INT16		octxp, octyp;
+	short		octxp, octyp;
 	Rect		octRect;
 	unsigned char octavaStr[20];
 	Boolean  bassa;
 	long		number;
-	Point		enlarge = {0,0};
 	short		octaveNumSize;
 
 PushLock(OBJheap);
@@ -652,7 +641,7 @@ PopLock(OBJheap);
 /* Remove Octavas in range [stfStartL,stfEndL) on staff s and make selection range
 consistent. */
 
-void UnOctava(Document *doc, LINK stfStartL, LINK stfEndL, INT16 s)
+void UnOctava(Document *doc, LINK stfStartL, LINK stfEndL, short s)
 {
 	LINK newSelStart;
 
@@ -668,10 +657,10 @@ void UnOctava(Document *doc, LINK stfStartL, LINK stfEndL, INT16 s)
 
 /* Remove Octavas in range [fromL,toL) on staff s. */
  
-static void UnOctavaS(Document *doc, LINK fromL, LINK toL, INT16 s)
+static void UnOctavaS(Document *doc, LINK fromL, LINK toL, short s)
 {
 	LINK rOctL, lOctL, octToL, octFromL;
-	INT16 nInOctava;
+	short nInOctava;
 	
 	/* If any Octavas cross the endpoints of the range, remove them first and,
 		if possible, reOctava the portion outside the range. */
@@ -702,7 +691,7 @@ static void UnOctavaS(Document *doc, LINK fromL, LINK toL, INT16 s)
 	UnOctavaRange(doc, fromL, toL, s);
 }
 
-static void UnOctavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, INT16 s,
+static void UnOctavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short s,
 									CONTEXT context)
 {
 	LINK aNoteL; 
@@ -747,13 +736,13 @@ static void UnOctavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, INT16 
 	}
 }
 
-static void UnOctavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, INT16 s,
+static void UnOctavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short s,
 									CONTEXT context)
 {
 	LINK aGRNoteL; 
 	PAGRNOTE aGRNote;
 	Boolean stemDown=FALSE, multiVoice=FALSE;
-	INT16 stemLen;
+	short stemLen;
 	
 	/* Loop through the grace notes and set their yds and ystems. */
 	aGRNoteL = FirstSubLINK(pL);
@@ -793,7 +782,7 @@ accordingly. */
 
 void RemoveOctOnStf(Document *doc,
 							LINK octL, LINK fromL, LINK toL,
-							INT16 s)										/* staff no. */
+							short s)										/* staff no. */
 {
 	DDIST yDelta; CONTEXT context; LINK syncL, aNoteOctavaL;
 	PANOTEOCTAVA aNoteOctava;
@@ -822,7 +811,7 @@ void RemoveOctOnStf(Document *doc,
 
 /* Find the octave sign Sync or GRSync pL belongs to and remove it. */
 
-static void RemoveItsOctava(Document *doc, LINK fromL, LINK toL, LINK pL, INT16 s)
+static void RemoveItsOctava(Document *doc, LINK fromL, LINK toL, LINK pL, short s)
 {
 	LINK aNoteL,aGRNoteL,octavaL;
 	PANOTE aNote; PAGRNOTE aGRNote;
@@ -859,7 +848,7 @@ static void RemoveItsOctava(Document *doc, LINK fromL, LINK toL, LINK pL, INT16 
 
 /* Remove Octavas in the range from <from> to <toL> on <staff>. */
 
-void UnOctavaRange(Document *doc, LINK fromL, LINK toL, INT16 staff)
+void UnOctavaRange(Document *doc, LINK fromL, LINK toL, short staff)
 {
 	LINK pL;
 	
@@ -885,7 +874,7 @@ LINK LastInOctava(LINK octavaL)
 {
 	LINK aNoteOctL;
 	PANOTEOCTAVA aNoteOct;
-	INT16 i, nInOctava;	
+	short i, nInOctava;	
 	
 	nInOctava = LinkNENTRIES(octavaL);
 	aNoteOctL = FirstSubLINK(octavaL);
@@ -905,7 +894,7 @@ Syncs only. */
 
 LINK HasOctAcross(
 				LINK node,
-				INT16 staff,
+				short staff,
 				Boolean skipNode	/* TRUE=look for Octava status to right of <node> & skip <node> itself */
 				)	
 {
@@ -951,7 +940,7 @@ LINK HasOctAcross(
 which <node> is inserted. Returns NILINK if there is not, and the LINK to the 
 Octava, if there is. Looks for grace Syncs only. */
 
-LINK HasGROctAcross(LINK node, INT16 staff)	
+LINK HasGROctAcross(LINK node, short staff)	
 {
 	LINK lGRSyncL, rGRSyncL, lGRNoteL, rGRNoteL, octavaL;
 	PAGRNOTE lGRNote, rGRNote;
@@ -998,7 +987,7 @@ Octava, if there is. Handles both normal notes and grace notes--??but separately
 looks like it'll fail if there's an Octava with normal note on one side and
 grace note on the other. */
 
-LINK HasOctavaAcross(LINK node, INT16 staff)	
+LINK HasOctavaAcross(LINK node, short staff)	
 {
 	LINK octL;
 
@@ -1011,7 +1000,7 @@ LINK HasOctavaAcross(LINK node, INT16 staff)
 /* If the node is a sync, return the Octava if it has an inOctava note on <staff>,
 else return NILINK. */
 
-LINK OctOnStaff(LINK node, INT16 staff)	
+LINK OctOnStaff(LINK node, short staff)	
 {
 	LINK aNoteL; PANOTE aNote;
 	
@@ -1034,7 +1023,7 @@ LINK OctOnStaff(LINK node, INT16 staff)
 /* If the node is a GRsync, return the Octava if it has an inOctava GRnote on 
 <staff>, else return NILINK. */
 
-LINK GROctOnStaff(LINK node, INT16 staff)	
+LINK GROctOnStaff(LINK node, short staff)	
 {
 	LINK aGRNoteL; PANOTE aGRNote;
 	
@@ -1057,7 +1046,7 @@ LINK GROctOnStaff(LINK node, INT16 staff)
 which <node> is inserted. Returns NILINK if there is not, and the LINK to the 
 Octava if there is. */
 
-LINK HasOctavaAcrossIncl(LINK node, INT16 staff)	
+LINK HasOctavaAcrossIncl(LINK node, short staff)	
 {
 	if (node==NILINK) return NILINK;
 	if (SyncTYPE(node))
@@ -1071,7 +1060,7 @@ LINK HasOctavaAcrossIncl(LINK node, INT16 staff)
 /* Determines if there is a regular Octava across the location <pt> on <staff>. 
 Returns NILINK if there is not, and the LINK to the Octava if there is. */
 
-static LINK HasOctAcrossPt(Document *doc, Point pt, INT16 staff)
+static LINK HasOctAcrossPt(Document *doc, Point pt, short staff)
 {
 	LINK lSyncL, rSyncL, octL, octR;
 	
@@ -1090,7 +1079,7 @@ static LINK HasOctAcrossPt(Document *doc, Point pt, INT16 staff)
 /* Determines if there is a grace note Octava across the location <pt> on <staff>. 
 Returns NILINK if there is not, and the LINK to the Octava if there is. */
 
-static LINK HasGROctAcrossPt(Document *doc, Point pt, INT16 staff)
+static LINK HasGROctAcrossPt(Document *doc, Point pt, short staff)
 {
 	LINK lGRSyncL, rGRSyncL, octL, octR;
 	
@@ -1111,7 +1100,7 @@ NILINK if there is not, and the LINK to the Octava if there is. Handles both nor
 notes and grace notes--??but separately: looks like it'll fail if there's an octave
 sign with normal note on one side and grace note on the other. */
 
-LINK HasOctavaAcrossPt(Document *doc, Point pt, INT16 staff)
+LINK HasOctavaAcrossPt(Document *doc, Point pt, short staff)
 {
 	LINK octL;
 
@@ -1122,7 +1111,7 @@ LINK HasOctavaAcrossPt(Document *doc, Point pt, INT16 staff)
 
 /* ----------------------------------------------------------- SelRangeChkOctava -- */
 
-Boolean SelRangeChkOctava(INT16 staff, LINK staffStartL, LINK staffEndL)
+Boolean SelRangeChkOctava(short staff, LINK staffStartL, LINK staffEndL)
 {
 	LINK pL,aNoteL,aGRNoteL;
 	PANOTE aNote; PAGRNOTE aGRNote;
@@ -1153,11 +1142,11 @@ Boolean SelRangeChkOctava(INT16 staff, LINK staffStartL, LINK staffEndL)
 /* Return the total number of notes/chords on stf in the range from both Syncs and
 GRSyncs. Does NOT count rests. */
 
-INT16 OctCountNotesInRange(INT16 stf,
+short OctCountNotesInRange(short stf,
 									LINK startL, LINK endL,
 									Boolean selectedOnly)		/* TRUE=only selected notes/rests, FALSE=all */
 {
-	INT16 notesInRange;
+	short notesInRange;
 	
 	notesInRange = CountNotesInRange(stf, startL, endL, selectedOnly);
 	notesInRange += CountGRNotesInRange(stf, startL, endL, selectedOnly);
@@ -1171,9 +1160,9 @@ INT16 OctCountNotesInRange(INT16 stf,
 
 #define DASH_LEN		4
 
-void DashedLine(INT16 x1, INT16 y1, INT16 x2, INT16 /*y2*/)
+void DashedLine(short x1, short y1, short x2, short /*y2*/)
 {
-	INT16 i; Point pt;
+	short i; Point pt;
 	
 	MoveTo(x1, y1);
 	for (i = x1; i+DASH_LEN<x2; i+=2*DASH_LEN) {
@@ -1194,13 +1183,13 @@ For now, lastPt.v is ignored and the bracket is always horizontal. */
 
 void DrawOctBracket(
 		DPoint firstPt, DPoint lastPt,
-		INT16 octWidth,			/* in pixels--not good resolution: we really need DDIST */
+		short octWidth,			/* in pixels--not good resolution: we really need DDIST */
 		DDIST yCutoffLen,			/* unsigned length of cutoff line */
 		Boolean bassa,
 		PCONTEXT pContext
 		)
 {
-	INT16	firstx, firsty, lastx, yCutoff;
+	short	firstx, firsty, lastx, yCutoff;
 	DDIST	lnSpace;
 	
 	switch (outputTo) {

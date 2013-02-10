@@ -19,11 +19,11 @@ accidentals - MemMacroized version. */
 /* ------------------------------------------------ DelNoteRedAcc,DelGRNoteRedAcc -- */
 /* If the note's accidental is redundant, delete the accidental. */
 
-Boolean DelNoteRedAcc(Document *doc, INT16 code, LINK syncL, LINK aNoteL,
+Boolean DelNoteRedAcc(Document *doc, short code, LINK syncL, LINK aNoteL,
 								Boolean syncVChanged[])
 {
 	LINK prevSyncL, prevNoteL;
-	INT16 stf, halfLn, prevHalfLn;
+	short stf, halfLn, prevHalfLn;
 	Boolean didAnything;
 	
 	stf = NoteSTAFF(aNoteL);
@@ -61,10 +61,10 @@ Boolean DelNoteRedAcc(Document *doc, INT16 code, LINK syncL, LINK aNoteL,
 
 /* If the grace note's accidental is redundant, delete the accidental. */
 
-Boolean DelGRNoteRedAcc(Document *doc, INT16 code, LINK syncL, LINK aGRNoteL,
+Boolean DelGRNoteRedAcc(Document *doc, short code, LINK syncL, LINK aGRNoteL,
 								Boolean syncVChanged[])
 {
-	INT16 stf, halfLn;
+	short stf, halfLn;
 	Boolean didAnything;
 
 	stf = GRNoteSTAFF(aGRNoteL);
@@ -88,7 +88,7 @@ flags are set in <syncVChanged>. */
 void ArrangeSyncAccs(LINK syncL, Boolean syncVChanged[])
 {
 	CHORDNOTE	chordNote[MAXCHORD];
-	INT16			voice, noteCount;
+	short			voice, noteCount;
 	Boolean		stemDown;
 
 	for (voice = 1; voice<=MAXVOICES; voice++)
@@ -105,7 +105,7 @@ flags are set in <syncVChanged>. */
 void ArrangeGRSyncAccs(LINK grSyncL, Boolean syncVChanged[])
 {
 	CHORDNOTE	chordNote[MAXCHORD];
-	INT16			voice, noteCount;
+	short			voice, noteCount;
 	Boolean		stemDown;
 
 	for (voice = 1; voice<=MAXVOICES; voice++)
@@ -130,14 +130,14 @@ If ACC_IN_CONTEXT is FALSE, it should probably do nothing.
 
 Boolean DelRedundantAccs(
 				Document *doc,
-				INT16 stf,		/* Staff no. or ANYONE */
-				INT16 code
+				short stf,		/* Staff no. or ANYONE */
+				short code
 				)
 {
 	LINK pL, aNoteL;
 	LINK aGRNoteL;
 	Boolean didAnything, syncVChanged[MAXVOICES+1], anyStaff;
-	INT16 v;
+	short v;
 
 	if (code!=DELALL_REDUNDANTACCS_DI && code!=DELSOFT_REDUNDANTACCS_DI)
 		return FALSE;
@@ -197,15 +197,15 @@ actions, e.g., redrawing. */
 
 Boolean AddRedundantAccs(
 			Document	*doc,
-			INT16		stf,		/* Staff no. or ANYONE */
-			INT16		code,
+			short		stf,		/* Staff no. or ANYONE */
+			short		code,
 			Boolean	addTiedLeft
 			)
 {
 	LINK		pL, aNoteL;
 	LINK		aGRNoteL;
 	Boolean	didAnything, syncVChanged[MAXVOICES+1], anyStaff, addNaturals;
-	INT16		v, eAcc, acc;
+	short		v, eAcc, acc;
 
 	if (code!=NONAT_ADDREDUNDANTACCS_DI && code!=ALL_ADDREDUNDANTACCS_DI)
 		return FALSE;
@@ -271,16 +271,16 @@ accidental, based on comparing the notation to its MIDI note number. If the nota
 note number are so far apart they can't be reconciled with an accidental, return
 ERROR_INT. ??Could be generally useful: belongs in PitchUtils.c. */
 
-INT16 MIDI2EffectiveAcc(Document *doc, INT16 clefType, INT16 octType, LINK syncL, LINK theNoteL);
-INT16 MIDI2EffectiveAcc(
+short MIDI2EffectiveAcc(Document *doc, short clefType, short octType, LINK syncL, LINK theNoteL);
+short MIDI2EffectiveAcc(
 			Document */*doc*/,
-			INT16 clefType, INT16 octType,
+			short clefType, short octType,
 			LINK /*syncL*/, LINK theNoteL
 			)
 {
-	INT16 halfLn;							/* Relative to the top of the staff */
+	short halfLn;							/* Relative to the top of the staff */
 	SHORTQD yqpit;
-	INT16 midCHalfLn, noteNum, delta;
+	short midCHalfLn, noteNum, delta;
 
 	midCHalfLn = ClefMiddleCHalfLn(clefType);						/* Get middle C staff pos. */		
 	yqpit = NoteYQPIT(theNoteL)+halfLn2qd(midCHalfLn);
@@ -302,16 +302,16 @@ correct effective accidental, based on comparing the notation to its MIDI note n
 If the notation and note number are so far apart they can't be reconciled with an
 accidental, return ERROR_INT. ??Could be generally useful: belongs in PitchUtils.c. */
 
-INT16 MIDI2EffectiveGRAcc(Document *doc, INT16 clefType, INT16 octType, LINK syncL, LINK theGRNoteL);
-INT16 MIDI2EffectiveGRAcc(
+short MIDI2EffectiveGRAcc(Document *doc, short clefType, short octType, LINK syncL, LINK theGRNoteL);
+short MIDI2EffectiveGRAcc(
 			Document */*doc*/,
-			INT16 clefType, INT16 octType,
+			short clefType, short octType,
 			LINK /*syncL*/, LINK theGRNoteL
 			)
 {
-	INT16 halfLn;							/* Relative to the top of the staff */
+	short halfLn;							/* Relative to the top of the staff */
 	SHORTQD yqpit;
-	INT16 midCHalfLn, noteNum, delta;
+	short midCHalfLn, noteNum, delta;
 
 	midCHalfLn = ClefMiddleCHalfLn(clefType);						/* Get middle C staff pos. */		
 	yqpit = GRNoteYQPIT(theGRNoteL)+halfLn2qd(midCHalfLn);
@@ -356,8 +356,8 @@ Boolean AddMIDIRedundantAccs(
 {
 	LINK		pL, aNoteL, aGRNoteL, aClefL;
 	Boolean	didAnything, syncVChanged[MAXVOICES+1];
-	INT16		voice, eAcc, acc;
-	INT16		staff, clefType[MAXSTAVES+1], octType[MAXSTAVES+1];
+	short		voice, eAcc, acc;
+	short		staff, clefType[MAXSTAVES+1], octType[MAXSTAVES+1];
 		
 	/*
 	 * We'll need each note's clef and octave sign. Clefs are easy, since there are

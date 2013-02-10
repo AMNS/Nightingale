@@ -26,10 +26,10 @@ static enum {
 	ENDMEAS_DI=6
 } E_MeasFillItems;
 
-Boolean FillEmptyDialog(Document *doc, INT16 *startMN, INT16 *endMN)
+Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 {
 	register DialogPtr dlog; GrafPtr oldPort;
-	short ditem; INT16 dialogOver, value;
+	short ditem; short dialogOver, value;
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(OKButFilter);
@@ -94,9 +94,9 @@ Boolean FillEmptyDialog(Document *doc, INT16 *startMN, INT16 *endMN)
 voice, and the staff's default voice contains no notes or rests on any staff.
 Intended for use by the Fill Empty Measures command. */
 
-Boolean IsRangeEmpty(LINK, LINK, INT16, Boolean *);
+Boolean IsRangeEmpty(LINK, LINK, short, Boolean *);
 Boolean IsRangeEmpty(LINK startL, LINK endL,
-						INT16 staff,
+						short staff,
 						Boolean *pNonEmptyVoice)	/* Return TRUE = staff's default voice is on another staff */
 {
 	Boolean staffEmpty, voiceEmpty; LINK pL;
@@ -122,14 +122,14 @@ measure rest to each staff in the Measure that contains no notes or rests and wh
 default voice contains no notes or rests (they might be on another staff), and return
 TRUE. If the Measure already contains at least one Sync and we do add any whole-measure
 rests, we add all of them to the Measure's first Sync. ??Should return an error
-indication: probably should return INT16 FAILURE, NOTHING_TO_DO or OP_COMPLETE. */
+indication: probably should return short FAILURE, NOTHING_TO_DO or OP_COMPLETE. */
 
 static Boolean Fill1EmptyMeas(
 							Document *doc,
 							LINK barL, LINK barTermL,
 							Boolean *nonEmptyVoice)	 /* TRUE=found at least 1 empty staff w/default voice nonempty */
 {
-	LINK syncL, pL, aNoteL; INT16 staff; Boolean addRest, foundNonEmptyVoice;
+	LINK syncL, pL, aNoteL; short staff; Boolean addRest, foundNonEmptyVoice;
 	Boolean didSomething=FALSE;
 	
 	*nonEmptyVoice = FALSE;
@@ -249,11 +249,11 @@ Boolean FillEmptyMeas(
 
 /* ===================================================== Fill non-empty measures == */
 
-static LINK FindTStampInMeas(LINK, INT16, Boolean);
-static Boolean AddFillRest(Document *, LINK, INT16, INT16, INT16);
-static Boolean Fill1NonemptyMeas(Document *, LINK, LINK, INT16, INT16);
+static LINK FindTStampInMeas(LINK, short, Boolean);
+static Boolean AddFillRest(Document *, LINK, short, short, short);
+static Boolean Fill1NonemptyMeas(Document *, LINK, LINK, short, short);
 
-static LINK FindTStampInMeas(LINK pL, INT16 time, Boolean goLeft)
+static LINK FindTStampInMeas(LINK pL, short time, Boolean goLeft)
 {
 	LINK qL;
 
@@ -266,7 +266,7 @@ static LINK FindTStampInMeas(LINK pL, INT16 time, Boolean goLeft)
 	return NILINK;
 }
 
-LINK NewRestSync(Document *doc, LINK pL, INT16 time, LINK *pSyncL)
+LINK NewRestSync(Document *doc, LINK pL, short time, LINK *pSyncL)
 {
 	LINK syncL;
 	
@@ -288,9 +288,9 @@ LINK NewRestSync(Document *doc, LINK pL, INT16 time, LINK *pSyncL)
 /* Generate rest(s) to fill the given amount of time. Return TRUE normally, FALSE
 if there's an error. */
 
-static Boolean AddFillRest(Document *doc, LINK pL, INT16 voice, INT16 startTime, INT16 fillDur)
+static Boolean AddFillRest(Document *doc, LINK pL, short voice, short startTime, short fillDur)
 {
-	LINK syncL, newSyncL, aRestL; INT16 nPieces, n, prevEndTime;
+	LINK syncL, newSyncL, aRestL; short nPieces, n, prevEndTime;
 	
 	/* Look for a Sync at the time we want. If we find one, just add a subobject
 		to it. If not, if we find a Sync earlier than we want, add a new Sync after
@@ -340,10 +340,10 @@ static Boolean AddFillRest(Document *doc, LINK pL, INT16 voice, INT16 startTime,
 Otherwise, add any rests necessary to fill gaps in the voice within the Measure,
 putting them on the voice's default staff. */
 
-static Boolean Fill1NonemptyMeas(Document *doc, LINK barL, LINK barTermL, INT16 voice,
-											INT16 quantum)
+static Boolean Fill1NonemptyMeas(Document *doc, LINK barL, LINK barTermL, short voice,
+											short quantum)
 {
-	INT16 timeUsed; LINK pL, aNoteL, nextBarL; INT16 fillDur, measDur;
+	short timeUsed; LINK pL, aNoteL, nextBarL; short fillDur, measDur;
 	Boolean foundNotes=FALSE;
 	
 	timeUsed = 0;
@@ -387,7 +387,7 @@ rests/chords. Considers only the default voice on each staff. */
 
 Boolean FillNonemptyMeas(Document *doc,
 								LINK startMeasL, LINK endMeasL,	/* 1st and last Measures to fill or NILINK */
-								INT16 staff, INT16 quantum
+								short staff, short quantum
 								)
 {
 	LINK measL, lastL;

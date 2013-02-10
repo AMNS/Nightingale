@@ -237,7 +237,7 @@ LINK LStaffSearch(
 			SearchParam	*pbSearch 		/* Specify: id is staffn; inSystem */
 			)
 {
-	INT16		i;
+	short		i;
 	Boolean	anyStaff, anySystem;
 	LINK 		link, aStaffL;
 	
@@ -283,7 +283,7 @@ LINK RStaffSearch(
 			SearchParam	*pbSearch 		/* Specify: id is staffn; inSystem */
 			)
 {
-	INT16		i;
+	short		i;
 	Boolean	anyStaff, anySystem;
 	LINK		link, aStaffL;
 
@@ -329,7 +329,7 @@ LINK LMeasureSearch(
 			SearchParam	*pbSearch 		/* Specify: id is staffn; inSystem */
 			)
 {
-	INT16			i;
+	short			i;
 	Boolean		anyStaff, anySystem;
 	LINK			link, aMeasureL;
 
@@ -371,7 +371,7 @@ LINK RMeasureSearch(
 			)
 {
 	PAMEASURE	aMeasure;
-	INT16			i;
+	short			i;
 	Boolean		anyStaff, anySystem;
 	LINK			link, aMeasureL;
 
@@ -437,12 +437,12 @@ considered to match any voice. */
 
 LINK L_Search(
 			LINK			startL,					/* Place to start looking */
-			INT16			type,						/* target type (or ANYTYPE) */
+			short			type,						/* target type (or ANYTYPE) */
 			Boolean		goLeft,					/* TRUE if we should search left */
 			SearchParam	*pbSearch			 	/* ptr to parameter list */
 			)
 {
-	INT16			i;
+	short			i;
 	PMEVENT		p;
 	PPAGE			pPage;
 	PSYSTEM		pSystem;
@@ -695,8 +695,8 @@ LINK L_Search(
 
 LINK LSSearch(
 			LINK		startL,			/* Place to start looking */
-			INT16		type,				/* target type (or ANYTYPE) */
-			INT16		id,				/* target staff number (for Staff, Measure, Sync, etc) */
+			short		type,				/* target type (or ANYTYPE) */
+			short		id,				/* target staff number (for Staff, Measure, Sync, etc) */
 											/* or page number (for Page) */
 			Boolean	goLeft,			/* TRUE if we should search left */
 			Boolean	needSelected 	/* TRUE if we only want selected items */
@@ -723,8 +723,8 @@ called with startL = System obj, will return NILINK. */
 
 LINK LSISearch(
 			LINK		startL,			/* Place to start looking */
-			INT16		type,				/* target type (or ANYTYPE) */
-			INT16		id,				/* target staff number (for Staff, Measure, Sync, etc) */
+			short		type,				/* target type (or ANYTYPE) */
+			short		id,				/* target staff number (for Staff, Measure, Sync, etc) */
 											/* or page number (for Page) */
 			Boolean	goLeft,			/* TRUE if we should search left */
 			Boolean	needSelected 	/* TRUE if we only want selected items */
@@ -751,8 +751,8 @@ LINK LSISearch(
 
 LINK LVSearch(
 			LINK		startL,			/* Place to start looking */
-			INT16		type,				/* target type (or ANYTYPE) */
-			INT16		id,				/* target voice number (for Staff, Measure, Sync, etc) */
+			short		type,				/* target type (or ANYTYPE) */
+			short		id,				/* target voice number (for Staff, Measure, Sync, etc) */
 			Boolean	goLeft,			/* TRUE if we should search left */
 			Boolean	needSelected 	/* TRUE if we only want selected items */
 			)
@@ -778,8 +778,8 @@ LINK LVSearch(
 
 LINK LSUSearch(
 			LINK		startL,				/* Place to start looking */
-			INT16		type,					/* target type (or ANYTYPE) */
-			INT16		id,					/* target staff number (for Staff, Measure, Sync, etc) */
+			short		type,					/* target type (or ANYTYPE) */
+			short		id,					/* target staff number (for Staff, Measure, Sync, etc) */
 												/* or page number (for Page) */
 			Boolean	goLeft,				/* TRUE if we should search left */
 			Boolean	needSelected		/* TRUE if we only want selected items */
@@ -805,8 +805,8 @@ LINK LSUSearch(
 
 LINK LVUSearch(
 			LINK		startL,				/* Place to start looking */
-			INT16		type,					/* target type (or ANYTYPE) */
-			INT16		id,					/* target voice number (for Staff, Measure, Sync, etc) */
+			short		type,					/* target type (or ANYTYPE) */
+			short		id,					/* target voice number (for Staff, Measure, Sync, etc) */
 			Boolean	goLeft,				/* TRUE if we should search left */
 			Boolean	needSelected 		/* TRUE if we only want selected items */
 			)
@@ -836,14 +836,14 @@ left or right depending on the value of <goLeft>. */
 LINK GSearch(
 			Document		*doc,
 			Point			pt,						/* x coordinate from which to search */
-			INT16			type,						/* target type (or ANYTYPE) */
+			short			type,						/* target type (or ANYTYPE) */
 			Boolean		goLeft,					/* TRUE if we should search left */
 			Boolean		useJD,					/* TRUE if we should find type JD symbols */
 			Boolean		needVisible,			/* TRUE if only want visible symbols. */
 			SearchParam	*pbSearch 				/* ptr to parameter list */
 			)
 {
-	INT16			i;
+	short			i;
 	PMEVENT		p;
 	Boolean		anyType,			/* TRUE if they'll take any type */
 					anyStaff,		/* TRUE if they'll take any staff */
@@ -1029,8 +1029,8 @@ LINK GSearch(
 LINK GSSearch(
 			Document *doc,
 			Point		pt,				/* x position from which to search */
-			INT16		type,				/* target type (or ANYTYPE) */
-			INT16		id,				/* target staff number (for Staff, Measure, Sync, etc) */
+			short		type,				/* target type (or ANYTYPE) */
+			short		id,				/* target staff number (for Staff, Measure, Sync, etc) */
 											/* or page number (for Page) */
 			Boolean	goLeft,			/* TRUE if we should search left */
 			Boolean	needSelected,	/* TRUE if we only want selected items */
@@ -1051,38 +1051,9 @@ LINK GSSearch(
 	return foundL;
 }
 
-
-#ifdef NOTYET
-/* -------------------------------------------------------------------- LJSearch -- */
-/* Logical-order search for given justification type. */
-
-LINK LJSearch(
-			LINK		startL,				/* Place to start looking */
-			INT16		justType,			/* target type (or ANYTYPE) */
-			INT16		id,					/* target staff number */
-			Boolean	goLeft,				/* TRUE if we should search left */
-			Boolean	needSelected 		/* TRUE if we only want selected items */
-			)
-{
-	SearchParam	pbSearch;
-	LINK			foundL;
-
-	InitSearchParam(&pbSearch);
-	pbSearch.id = ANYONE;
-	pbSearch.needSelected = needSelected;
-	pbSearch.inSystem = FALSE;
-	pbSearch.subtype = ANYSUBTYPE;
-	pbSearch.voice = id;
-	pbSearch.needInMeasure = FALSE;
-	foundL = J_Search(startL, type, goLeft, &pbSearch);
-	return foundL;
-}
-#endif
-
-
 /* ----------------------------------------------------------- StaffFindSymRight -- */
 
-LINK StaffFindSymRight(Document *doc, Point pt, Boolean needVisible, INT16 staffn)
+LINK StaffFindSymRight(Document *doc, Point pt, Boolean needVisible, short staffn)
 {
 	LINK pL;
 	
@@ -1092,7 +1063,7 @@ LINK StaffFindSymRight(Document *doc, Point pt, Boolean needVisible, INT16 staff
 
 /* ---------------------------------------------------------- StaffFindSyncRight -- */
 
-LINK StaffFindSyncRight(Document *doc, Point pt, Boolean needVisible, INT16 staffn)
+LINK StaffFindSyncRight(Document *doc, Point pt, Boolean needVisible, short staffn)
 {
 	LINK pL;
 	
@@ -1105,7 +1076,7 @@ LINK StaffFindSyncRight(Document *doc, Point pt, Boolean needVisible, INT16 staf
 /* ??It's hard to believe the <if> statement is correct: surely it wants to skip
 ALL J_D objects, including tuplets, not just the listed ones! */
 
-LINK FindValidSymRight(Document *doc, LINK symRight, INT16 staffn)
+LINK FindValidSymRight(Document *doc, LINK symRight, short staffn)
 {
 	LINK pL;
 	
@@ -1120,7 +1091,7 @@ LINK FindValidSymRight(Document *doc, LINK symRight, INT16 staffn)
 
 /* ------------------------------------------------------------- StaffFindSymLeft -- */
 
-LINK StaffFindSymLeft(Document *doc, Point pt, Boolean needVisible, INT16 staffn)
+LINK StaffFindSymLeft(Document *doc, Point pt, Boolean needVisible, short staffn)
 {
 	LINK pL;
 	
@@ -1133,7 +1104,7 @@ LINK StaffFindSymLeft(Document *doc, Point pt, Boolean needVisible, INT16 staffn
 /* ----------------------------------------------------------- StaffFindSyncLeft -- */
 /* Return first sync whose objRect.left is to the left of pt.h.	*/
 
-LINK StaffFindSyncLeft(Document *doc, Point pt, Boolean needVisible, INT16 staffn)
+LINK StaffFindSyncLeft(Document *doc, Point pt, Boolean needVisible, short staffn)
 {
 	LINK pL;
 	
@@ -1149,7 +1120,7 @@ LINK StaffFindSyncLeft(Document *doc, Point pt, Boolean needVisible, INT16 staff
 
 /* ------------------------------------------------------------ FindValidSymLeft -- */
 
-LINK FindValidSymLeft(Document *doc, LINK symLeft, INT16 staffn)
+LINK FindValidSymLeft(Document *doc, LINK symLeft, short staffn)
 {
 	LINK qL;
 	
@@ -1167,7 +1138,7 @@ LINK FindValidSymLeft(Document *doc, LINK symLeft, INT16 staffn)
 
 LINK SyncInVoiceMeas(Document *doc,
 							LINK objL,
-							INT16 voice,
+							short voice,
 							Boolean other)	/* TRUE=need a Sync other than <objL> itself */
 {
 	LINK		pL, endL;
@@ -1249,7 +1220,7 @@ given type and Measure-relative time. */
 LINK TimeSearchRight(
 			Document		*doc,
 			LINK			startL,		/* Place to start looking */
-			INT16			type,			/* object type needed or ANYTYPE */
+			short			type,			/* object type needed or ANYTYPE */
 			long			lTime,		/* Logical time */
 			Boolean		exact 		/* TRUE means need time=lTime, else take any time>=lTime */
 			)
@@ -1319,7 +1290,7 @@ Return the Measure if it exists, else NILINK. Not optimized. */
 LINK MNSearch(
 			Document *doc,
 			LINK startL,
-			INT16 measNum,						/* Measure no. or ANYONE */
+			short measNum,						/* Measure no. or ANYONE */
 			Boolean goLeft,
 			Boolean preferNonFake
 			)
@@ -1384,7 +1355,7 @@ crossLinks of structural objects, and do not need to specify which staff, voice,
 system or page to search on nor to specify selected status: e.g. ANYONE,
 !needSelected. */
 
-LINK SSearch(LINK pL, INT16 type, Boolean goLeft)
+LINK SSearch(LINK pL, short type, Boolean goLeft)
 {
 	LINK qL;
 
@@ -1404,7 +1375,7 @@ in the <goLeft> direction, it looks in the other direction.
 style, calls to this generate different code! But surely not a significant
 difference--I think. */
 
-LINK EitherSearch(LINK pL,INT16 type,INT16 id,Boolean goLeft,Boolean needSel)
+LINK EitherSearch(LINK pL,short type,short id,Boolean goLeft,Boolean needSel)
 {
 	LINK qL;
 
@@ -1439,7 +1410,7 @@ other piece. If there is none or the Slur isn't cross-system, return NILINK. */
 
 LINK XSysSlurMatch(LINK slurL)
 {
-	Boolean slurTie, firstPiece; INT16 voice; LINK otherSlurL;
+	Boolean slurTie, firstPiece; short voice; LINK otherSlurL;
 	
 	if (!SlurCrossSYS(slurL)) return NILINK;
 	
@@ -1476,7 +1447,7 @@ this will require review. */
 
 LINK LeftSlurSearch(
 			LINK syncL,
-			INT16 v,
+			short v,
 			Boolean isTie)	/* TRUE, FALSE, or ANYSUBTYPE (??ugh--need enum for tie/slur to clean up!) */
 {
 	SearchParam pbSearch; LINK slurL;
@@ -1503,12 +1474,12 @@ in keysig at <pL>; this is useful to determine the limit of context propagation.
 LINK KSSearch(
 		Document *doc,
 		LINK pL,
-		INT16 staffn,						/* Staff no. or ANYONE */
+		short staffn,						/* Staff no. or ANYONE */
 		Boolean inMeas,
 		Boolean needSel					/* Find selected keysigs only? */
 		)
 {
-	SearchParam pbSearch; LINK ksL,lastksL; INT16 s;
+	SearchParam pbSearch; LINK ksL,lastksL; short s;
 
 	InitSearchParam(&pbSearch);
 	pbSearch.voice = ANYONE;
@@ -1545,12 +1516,12 @@ in clef at <pL>; this is useful to determine the limit of context propagation. *
 LINK ClefSearch(
 		Document *doc,
 		LINK pL,
-		INT16 staffn,						/* Staff no. or ANYONE */
+		short staffn,						/* Staff no. or ANYONE */
 		Boolean inMeas,
 		Boolean needSel					/* Find selected clefs only? */
 		)
 {
-	SearchParam pbSearch; LINK clefL,lastClefL; INT16 s;
+	SearchParam pbSearch; LINK clefL,lastClefL; short s;
 
 	InitSearchParam(&pbSearch);
 	pbSearch.voice = ANYONE;
@@ -1583,8 +1554,8 @@ the first one found; if there is none, return NILINK. */
 
 LINK FindNoteNum(
 		LINK syncL,
-		INT16 voice,			/* Voice no. or ANYONE */
-		INT16 noteNum
+		short voice,			/* Voice no. or ANYONE */
+		short noteNum
 		)
 {
 	LINK aNoteL; Boolean anyVoice;

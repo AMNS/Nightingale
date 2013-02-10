@@ -94,18 +94,18 @@ void GetPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 							Byte channelPatch[], SignedByte partVelo[]);
 void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 							Byte partChannel[], SignedByte partVelo[],
-							INT16 *pUseNoteNum, INT16 *pUseChan, INT16 *pUseVelo);
+							short *pUseNoteNum, short *pUseChan, short *pUseVelo);
 
-OSStatus	StartNoteNow(INT16 noteNum, SignedByte channel, SignedByte velocity, short ioRefNum);
-OSStatus	EndNoteNow(INT16 noteNum, SignedByte channel, short ioRefNum);
-Boolean	EndNoteLater(INT16 noteNum, SignedByte channel, long endTime, short ioRefNum);
-Boolean	CMEndNoteLater(INT16 noteNum, SignedByte channel, long endTime, long ioRefNum);
+OSStatus	StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity, short ioRefNum);
+OSStatus	EndNoteNow(short noteNum, SignedByte channel, short ioRefNum);
+Boolean	EndNoteLater(short noteNum, SignedByte channel, long endTime, short ioRefNum);
+Boolean	CMEndNoteLater(short noteNum, SignedByte channel, long endTime, long ioRefNum);
 
 Boolean AllocMPacketBuffer(void);
 Boolean MMInit(long *);
 Boolean MMClose(void);
 
-void MayInitBIMIDI(INT16 inBufSize, INT16 outBufSize);
+void MayInitBIMIDI(short inBufSize, short outBufSize);
 void MayResetBIMIDI(Boolean evenIfMIDIThru);
 void InitBIMIDITimer(void);
 
@@ -116,29 +116,29 @@ void CMKillEventList(void);
 
 /* Higher-level MIDI, MIDI-play, and MIDI-utility routines */
 
-LINK NoteNum2Note(LINK, INT16, INT16);
-INT16 UseMIDIChannel(Document *, INT16);
+LINK NoteNum2Note(LINK, short, short);
+short UseMIDIChannel(Document *, short);
 long TiedDur(Document *, LINK, LINK, Boolean);
-INT16 UseMIDINoteNum(Document *, LINK, INT16);
+short UseMIDINoteNum(Document *, LINK, short);
 Boolean GetModNREffects(LINK, short *, short *, short *);
 
 long Tempo2TimeScale(LINK);
 long GetTempo(Document *, LINK);
-long PDur2RealTime(long,TCONVERT [], INT16);
-INT16 MakeTConvertTable(Document *, LINK, LINK, TCONVERT [], INT16);
+long PDur2RealTime(long,TCONVERT [], short);
+short MakeTConvertTable(Document *, LINK, LINK, TCONVERT [], short);
 
 void StartMIDITime(void);
 long GetMIDITime(long pageTurnTOffset);
 void StopMIDITime(void);
 
-void MMStartNoteNow(INT16, SignedByte, SignedByte);
-void MMEndNoteAtTime(INT16, SignedByte, long);
+void MMStartNoteNow(short, SignedByte, SignedByte);
+void MMEndNoteAtTime(short, SignedByte, long);
 
 Boolean MIDIConnected(void);
 void MIDIFBOn(Document *);
 void MIDIFBOff(Document *);
-void MIDIFBNoteOn(Document *, INT16, INT16, short);
-void MIDIFBNoteOff(Document *, INT16, INT16, short);
+void MIDIFBNoteOn(Document *, short, short, short);
+void MIDIFBNoteOff(Document *, short, short, short);
 
 /* High (UI)-level MIDI play routines */
 

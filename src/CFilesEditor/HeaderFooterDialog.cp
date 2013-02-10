@@ -51,12 +51,12 @@ static enum {
 #define HEADERFOOTER_DELIM_CHAR	0x01
 #define MAX_HEADERFOOTER_STRLEN	253		/* 255 for Pascal string minus 2 delimiter chars */
 
-static INT16 showMoreOptions;
-static INT16 hPosGroup, vPosGroup;
-static INT16 cancelButLeft;
-static INT16 okButLeft;
-static INT16 okButMoreOptionsTop;
-static INT16 okButFewerOptionsTop;
+static short showMoreOptions;
+static short hPosGroup, vPosGroup;
+static short cancelButLeft;
+static short okButLeft;
+static short okButMoreOptionsTop;
+static short okButFewerOptionsTop;
 
 	
 /* ------------------------------------------------------- GetHeaderFooterStrings -- */
@@ -71,11 +71,11 @@ GetHeaderFooterStrings(
 		StringPtr	leftStr,
 		StringPtr	centerStr,
 		StringPtr	rightStr,
-		INT16			pageNum,
+		short			pageNum,
 		Boolean		usePageNum,
 		Boolean		isHeader)
 {
-	INT16				i, j, count;
+	short				i, j, count;
 	StringPtr		pSrc, pDst;
 	Str31				pageNumStr;
 	STRINGOFFSET	offset;
@@ -184,7 +184,7 @@ radio buttons). */
 
 static void SetOptionState(DialogPtr dlog)
 {
-	INT16		i, type, strID, top;
+	short		i, type, strID, top;
 	Handle	hndl;
 	Rect		box,portRect;
 	Str255	str;
@@ -206,25 +206,6 @@ static void SetOptionState(DialogPtr dlog)
 
 	/* Set visibility of Header/footer items. */
 	if (showMoreOptions) {
-#ifdef NOTYET
-		/* If all of the header/footer text items are empty, put pagenum symbol
-			into the right one. */
-		if (!GetDlgString(dlog, HDRLEFT_DI, str)
-				&& !GetDlgString(dlog, HDRCENTER_DI, str)
-				&& !GetDlgString(dlog, HDRRIGHT_DI, str)
-				&& !GetDlgString(dlog, FTRLEFT_DI, str)
-				&& !GetDlgString(dlog, FTRCENTER_DI, str)
-				&& !GetDlgString(dlog, FTRRIGHT_DI, str)) {
-			if (hPosGroup == LEFT_DI)
-				item = (vPosGroup==TOP_DI)? HDRLEFT_DI : FTRLEFT_DI;
-			else if (hPosGroup == CENTER_DI)
-				item = (vPosGroup==TOP_DI)? HDRCENTER_DI : FTRCENTER_DI;
-			else
-				item = (vPosGroup==TOP_DI)? HDRRIGHT_DI : FTRRIGHT_DI;
-			str[0] = 1; str[1] = PAGENUM_CHAR;
-			PutDlgString(dlog, item, str, TRUE);
-		}
-#endif
 		for (i = FIRST_HIDEABLE_ITEM; i <= LAST_HIDEABLE_ITEM; i++)
 			ShowDialogItem(dlog, i);
 	}
@@ -266,10 +247,10 @@ Cancel or error, TRUE on OK. */
 Boolean HeaderFooterDialog(Document *doc)
 {
 	DialogPtr	dlog;
-	INT16			showGroup, oldShowGroup, oldVPosGroup, oldHPosGroup,
+	short			showGroup, oldShowGroup, oldVPosGroup, oldHPosGroup,
 					topOffset, bottomOffset, leftOffset, rightOffset,
 					ditem, dialogOver, type;
-	INT16			firstNumber, alternate;
+	short			firstNumber, alternate;
 	GrafPtr		oldPort;
 	Handle		hndl;
 	Rect			box;
@@ -328,11 +309,6 @@ Boolean HeaderFooterDialog(Document *doc)
 
 	firstNumber = doc->firstPageNumber;
 	PutDlgWord(dlog, FIRSTNUM_DI, firstNumber, FALSE);
-	
-#ifdef LIGHT_VERSION
-	HideDialogItem(dlog, FIRSTNUM_DI - 1);	/* 1st page num label */
-	HideDialogItem(dlog, FIRSTNUM_DI);		/* 1st page num edit field */
-#endif
 
 	PutDlgWord(dlog, TOFFSET_DI, doc->headerFooterMargins.top, FALSE);
 	PutDlgWord(dlog, BOFFSET_DI, doc->headerFooterMargins.bottom, FALSE);
@@ -354,11 +330,7 @@ Boolean HeaderFooterDialog(Document *doc)
 	PutDlgString(dlog, FTRCENTER_DI, oldCenterFtrStr, FALSE);
 	PutDlgString(dlog, FTRRIGHT_DI, oldRightFtrStr, FALSE);
 
-#ifdef LIGHT_VERSION
-	SelectDialogItemText(dlog, TOFFSET_DI, 0, ENDTEXT);
-#else
 	SelectDialogItemText(dlog, FIRSTNUM_DI, 0, ENDTEXT);
-#endif
 
 	/* Set globals that help us toggle more/fewer options state of dlog. */
 	GetDialogItem(dlog, Cancel, &type, &hndl, &box);
@@ -493,10 +465,6 @@ Boolean HeaderFooterDialog(Document *doc)
 	
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
-	
-#ifdef LIGHT_VERSION
-	doc->firstPageNumber = 1;	/* Prevent using full version to bump number? Paranoid. */
-#endif
 
 	SetPort(oldPort);
 	return (dialogOver==OK);

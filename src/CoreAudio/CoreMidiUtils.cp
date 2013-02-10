@@ -156,25 +156,6 @@ MIDIPacket *PeekAtNextCMMIDIPacket(Boolean first)
 		
 	return gPeekedPkt;
 
-/*			
-	if (CMValidCurrentPacket()) {
-		if (first) {
-			gPeekedPkt = gCurrentPacket;
-		}
-		else if (!IsActiveSensingPacket(gPeekedPkt)) {
-			gPeekedPkt = MIDIPacketNext(gPeekedPkt);
-		}
-		else {
-			gPeekedPkt = NULL;
-		}
-		
-	}
-	else {
-		gPeekedPkt = NULL;
-	}
-		
-	return gPeekedPkt;
-*/
 }
 
 /* -------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
@@ -237,8 +218,6 @@ long CMTimeStampToMillis(MIDITimeStamp timeStamp)
 
 long CMGetHostTimeMillis()
 {
-	UInt64 tsNanos = AudioGetCurrentHostTime();
-
 	long hostMillis = CMTimeStampToMillis(AudioGetCurrentHostTime());
 	return hostMillis;
 }
@@ -312,7 +291,7 @@ void CMInitTimer(void)
 	NTMInit();                              /* initialize timer */
 }
 
-void CMLoadTimer(INT16 interruptPeriod)
+void CMLoadTimer(short interruptPeriod)
 {
 	if (appOwnsBITimer) {
 			;												/* There's nothing to do here. */
@@ -455,7 +434,7 @@ OSStatus CMWritePacket(MIDIUniqueID destDevID, MIDITimeStamp tStamp, UInt16 pktL
 	return err;
 }
 
-OSStatus CMEndNoteNow(MIDIUniqueID destDevID, INT16 noteNum, char channel)
+OSStatus CMEndNoteNow(MIDIUniqueID destDevID, short noteNum, char channel)
 {
 	Byte noteOff[] = { 0x90, 60, 0 };
 	MIDITimeStamp tStamp = 0;				// Indicates perform NOW.
@@ -467,7 +446,7 @@ OSStatus CMEndNoteNow(MIDIUniqueID destDevID, INT16 noteNum, char channel)
 	return err;
 }
 
-OSStatus CMStartNoteNow(MIDIUniqueID destDevID, INT16 noteNum, char channel, char velocity)
+OSStatus CMStartNoteNow(MIDIUniqueID destDevID, short noteNum, char channel, char velocity)
 {
 	Byte noteOn[] = { 0x90, 60, 64 };
 	MIDITimeStamp tStamp = 0;				// Indicates perform NOW.
@@ -484,8 +463,8 @@ OSStatus CMStartNoteNow(MIDIUniqueID destDevID, INT16 noteNum, char channel, cha
 
 //  ------------------------------------------------------------------------ CM Feedback 
 
-static void CMFBNoteOnDevID(Document *doc, INT16 noteNum, INT16 channel, MIDIUniqueID devID);
-static void CMFBNoteOffDevID(Document *doc, INT16 noteNum, INT16 channel, MIDIUniqueID devID);
+static void CMFBNoteOnDevID(Document *doc, short noteNum, short channel, MIDIUniqueID devID);
+static void CMFBNoteOffDevID(Document *doc, short noteNum, short channel, MIDIUniqueID devID);
 
 void CMFBOff(Document *doc)
 {
@@ -506,7 +485,7 @@ void CMFBOn(Document *doc)
 }
 
 
-void CMMIDIFBNoteOn(Document *doc, INT16 noteNum, INT16 channel, MIDIUniqueID devID)
+void CMMIDIFBNoteOn(Document *doc, short noteNum, short channel, MIDIUniqueID devID)
 {
 	if (doc->feedback) {
 		CMFBNoteOnDevID(doc, noteNum, channel, devID);
@@ -514,7 +493,7 @@ void CMMIDIFBNoteOn(Document *doc, INT16 noteNum, INT16 channel, MIDIUniqueID de
 	}
 }
 
-void CMMIDIFBNoteOff(Document *doc, INT16 noteNum, INT16 channel, MIDIUniqueID devID)
+void CMMIDIFBNoteOff(Document *doc, short noteNum, short channel, MIDIUniqueID devID)
 {
 	if (doc->feedback) {
 		CMFBNoteOffDevID(doc, noteNum, channel, devID);
@@ -527,7 +506,7 @@ void CMMIDIFBNoteOff(Document *doc, INT16 noteNum, INT16 channel, MIDIUniqueID d
 /* Start MIDI "feedback" note by sending a MIDI NoteOn command for the
 specified note and channel. */
 
-static void CMFBNoteOnDevID(Document *doc, INT16 noteNum, INT16 channel, MIDIUniqueID devID)
+static void CMFBNoteOnDevID(Document *doc, short noteNum, short channel, MIDIUniqueID devID)
 {
 	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 	
@@ -540,7 +519,7 @@ static void CMFBNoteOnDevID(Document *doc, INT16 noteNum, INT16 channel, MIDIUni
 /* End MIDI "feedback" note by sending a MIDI NoteOn command for the
 specified note and channel with velocity 0 (which acts as NoteOff). */
 
-static void CMFBNoteOffDevID(Document *doc, INT16 noteNum, INT16 channel, MIDIUniqueID devID)
+static void CMFBNoteOffDevID(Document *doc, short noteNum, short channel, MIDIUniqueID devID)
 {
 //	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 	
@@ -555,7 +534,7 @@ static void CMFBNoteOffDevID(Document *doc, INT16 noteNum, INT16 channel, MIDIUn
 /* Start MIDI "feedback" note by sending a MIDI NoteOn command for the
 specified note and channel. */
 
-void CMFBNoteOn(Document *doc, INT16 noteNum, INT16 channel, short ioRefNum)
+void CMFBNoteOn(Document *doc, short noteNum, short channel, short ioRefNum)
 {
 	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 	
@@ -568,7 +547,7 @@ void CMFBNoteOn(Document *doc, INT16 noteNum, INT16 channel, short ioRefNum)
 /* End MIDI "feedback" note by sending a MIDI NoteOn command for the
 specified note and channel with velocity 0 (which acts as NoteOff). */
 
-void CMFBNoteOff(Document *doc, INT16 noteNum, INT16 channel, short ioRefNum)
+void CMFBNoteOff(Document *doc, short noteNum, short channel, short ioRefNum)
 {
 	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
 	
@@ -588,10 +567,10 @@ void CMAllNotesOff()
 	long	 			noteOffChannelMap[MAXSTAVES];
 	MIDIUniqueID	*partDevicePtr, endPtID;
 	//long				channelMap;
-	INT16 			numNoteOffDevices;
-	INT16 			noteNum;
+	short 			numNoteOffDevices;
+	short 			noteNum;
 	Boolean			deviceFound;
-	INT16				i, j;
+	short				i, j;
 	OSStatus			err = noErr;
 	
 	if (currentDoc == NULL) return;
@@ -871,7 +850,6 @@ static void GetInitialDefaultOutputDevice()
 	
 	MIDIEndpointRef dest = NULL;
 	MIDIEndpointRef d = NULL;
-	OSStatus err = noErr;
 	
 	int n = MIDIGetNumberOfDestinations();
 	int i = 0;
@@ -949,25 +927,25 @@ static void CheckDefaultDevices()
 //
 // Does Core Midi have an IORefNum for its read proc that needs to do this?
 
-void CoreMidiSetSelectedInputDevice(MIDIUniqueID inputDevice, INT16 inputChannel)
+void CoreMidiSetSelectedInputDevice(MIDIUniqueID inputDevice, short inputChannel)
 {
 	gSelectedInputDevice = inputDevice;
 	gSelectedInputChannel = inputChannel;
 }
 
-void CoreMidiSetSelectedMidiThruDevice(MIDIUniqueID thruDevice, INT16 thruChannel)
+void CoreMidiSetSelectedMidiThruDevice(MIDIUniqueID thruDevice, short thruChannel)
 {
 	gSelectedThruDevice = thruDevice;
 	gSelectedThruChannel = thruChannel;
 }
 
-void CoreMidiSetSelectedOutputDevice(MIDIUniqueID outputDevice, INT16 outputChannel)
+void CoreMidiSetSelectedOutputDevice(MIDIUniqueID outputDevice, short outputChannel)
 {
 	gSelectedOutputDevice = outputDevice;
 	gSelectedOutputChannel = outputChannel;
 }
 
-MIDIUniqueID CoreMidiGetSelectedOutputDevice(INT16 *outputChannel)
+MIDIUniqueID CoreMidiGetSelectedOutputDevice(short *outputChannel)
 {
 	*outputChannel = gSelectedOutputChannel;
 	return gSelectedOutputDevice;
@@ -1073,7 +1051,7 @@ OMSDeviceMenuH CreateOMSInputMenu(Rect *menuBox)
 
 /* ---------------------------------------------------------- GetCMDeviceForPart -- */
 
-MIDIUniqueID GetCMDeviceForPartn(Document *doc, INT16 partn)
+MIDIUniqueID GetCMDeviceForPartn(Document *doc, short partn)
 {
 	if (!doc) doc = currentDoc;
 	return doc->cmPartDeviceList[partn];
@@ -1081,37 +1059,37 @@ MIDIUniqueID GetCMDeviceForPartn(Document *doc, INT16 partn)
 
 MIDIUniqueID GetCMDeviceForPartL(Document *doc, LINK partL)
 {
-	INT16 partn;
+	short partn;
 	
 	if (!doc) doc = currentDoc;
-	partn = (INT16)PartL2Partn(doc, partL);
+	partn = (short)PartL2Partn(doc, partL);
 	return doc->cmPartDeviceList[partn];
 }
 
 /* ---------------------------------------------------------- SetCMDeviceForPart -- */
 
-void SetCMDeviceForPartn(Document *doc, INT16 partn, MIDIUniqueID device)
+void SetCMDeviceForPartn(Document *doc, short partn, MIDIUniqueID device)
 {
 	if (!doc) doc = currentDoc;
 	doc->cmPartDeviceList[partn] = device;
 }
 
-void SetCMDeviceForPartL(Document *doc, LINK partL, INT16 partn, MIDIUniqueID device)
+void SetCMDeviceForPartL(Document *doc, LINK partL, short partn, MIDIUniqueID device)
 {
-	//INT16 partn;
+	//short partn;
 	
 	if (!doc) doc = currentDoc;
-	//partn = (INT16)PartL2Partn(doc, partL);
+	//partn = (short)PartL2Partn(doc, partL);
 	doc->cmPartDeviceList[partn] = device;
 }
 
 /* --------------------------------------------------------- InsertPartnCMDevice -- */
 /* Insert a null device in front of partn's device */
 
-void InsertPartnCMDevice(Document *doc, INT16 partn, INT16 numadd)
+void InsertPartnCMDevice(Document *doc, short partn, short numadd)
 {
-	register INT16 i, j;
-	INT16 curLastPartn;
+	register short i, j;
+	short curLastPartn;
 	
 	if (!doc) doc = currentDoc;
 	curLastPartn = LinkNENTRIES(doc->headL) - 1;
@@ -1122,22 +1100,22 @@ void InsertPartnCMDevice(Document *doc, INT16 partn, INT16 numadd)
 		doc->cmPartDeviceList[i++] = 0;
 }
 
-void InsertPartLCMDevice(Document *doc, LINK partL, INT16 numadd)
+void InsertPartLCMDevice(Document *doc, LINK partL, short numadd)
 {
-	INT16 partn;
+	short partn;
 	
 	if (!doc) doc = currentDoc;
-	partn = (INT16)PartL2Partn(doc, partL);
+	partn = (short)PartL2Partn(doc, partL);
 	InsertPartnCMDevice(doc, partn, numadd);
 }
 
 
 /* --------------------------------------------------------- DeletePartnCMDevice -- */
 
-void DeletePartnCMDevice(Document *doc, INT16 partn)
+void DeletePartnCMDevice(Document *doc, short partn)
 {
-	register INT16 i, j;
-	INT16 curLastPartn;
+	register short i, j;
+	short curLastPartn;
 	
 	if (!doc) doc = currentDoc;
 	curLastPartn = LinkNENTRIES(doc->headL) - 1;
@@ -1149,10 +1127,10 @@ void DeletePartnCMDevice(Document *doc, INT16 partn)
 
 void DeletePartLCMDevice(Document *doc, LINK partL)
 {
-	INT16 partn;
+	short partn;
 
 	if (!doc) doc = currentDoc;
-	partn = (INT16)PartL2Partn(doc, partL);
+	partn = (short)PartL2Partn(doc, partL);
 	DeletePartnCMDevice(doc, partn);
 }
 
@@ -1175,7 +1153,7 @@ void DeletePartLCMDevice(Document *doc, LINK partL)
  * Currently not using this, as both hardware and software are 0-based and use
  * CM_CHANNEL_BASE 1.
  
-static int CMGetChannelBase(Document *doc, INT16 partn)
+static int CMGetChannelBase(Document *doc, short partn)
 {
 	MIDIUniqueID destDevID = GetCMDeviceForPartn(doc, partn);
 	
@@ -1198,9 +1176,9 @@ static int CMGetChannelBase(Document *doc, INT16 partn)
  * The channel will be translated to its proper base when constructing the packet
  * either from CMMIDIProgram or using CMGetNotePlayInfo.
  
-INT16 UseMIDIChannel(Document *doc, INT16	partn)
+short UseMIDIChannel(Document *doc, short	partn)
 {
-	INT16				useChan;
+	short				useChan;
 	LINK				partL;
 	PPARTINFO		pPart;
 	
@@ -1219,8 +1197,8 @@ INT16 UseMIDIChannel(Document *doc, INT16	partn)
 
 OSErr CMMIDIProgram(Document *doc, unsigned char *partPatch, unsigned char *partChannel)
 {
-	INT16 i, channel, patch;
-	//INT16 channelBase;
+	short i, channel, patch;
+	//short channelBase;
 	Byte programChange[] = { 0xC0, 0x00 };
 	MIDITimeStamp tStamp = 0;				// Indicates perform NOW.
 	OSStatus err = noErr;
@@ -1254,9 +1232,9 @@ OSErr CMMIDIProgram(Document *doc, unsigned char *partPatch, unsigned char *part
 }
 
 /* ------------------------------------------------------------- CMGetUseChannel -- */
-INT16 CMGetUseChannel(Byte partChannel[], INT16 partn) 
+short CMGetUseChannel(Byte partChannel[], short partn) 
 {
-	INT16 useChan = partChannel[partn] - CM_CHANNEL_BASE;
+	short useChan = partChannel[partn] - CM_CHANNEL_BASE;
 	return useChan;
 }
 
@@ -1267,12 +1245,12 @@ limited to legal range. */
 
 void CMGetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 						Byte partChannel[], SignedByte partVelo[],
-						INT16 *pUseNoteNum, INT16 *pUseChan, INT16 *pUseVelo)
+						short *pUseNoteNum, short *pUseChan, short *pUseVelo)
 {
-	INT16 partn;
+	short partn;
 	PANOTE aNote;
 	//PPARTINFO pPart;
-	//INT16 channelBase;
+	//short channelBase;
 
 	partn = Staff2Part(doc,NoteSTAFF(aNoteL));
 	*pUseNoteNum = UseMIDINoteNum(doc, aNoteL, partTransp[partn]);
@@ -1293,7 +1271,7 @@ Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 							Byte partPatch[], SignedByte partVelo[], short partIORefNum[],
 							MIDIUniqueID partDevice[])
 {
-	INT16 i, channel; LINK partL; PARTINFO aPart;
+	short i, channel; LINK partL; PARTINFO aPart;
 	
 	partL = FirstSubLINK(doc->headL);
 	for (i = 0; i<=LinkNENTRIES(doc->headL)-1; i++, partL = NextPARTINFOL(partL)) {
@@ -1311,15 +1289,15 @@ Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 			partDevice[i] = doc->cmInputDevice;
 
 		/* Validate device / channel combination. */
-		if (!CMTransmitChannelValid(partDevice[i], (INT16)partChannel[i])) {
+		if (!CMTransmitChannelValid(partDevice[i], (short)partChannel[i])) {
 			partDevice[i] = CoreMidiGetSelectedOutputDevice(&channel);
 			//partDevice[i] = config.cmDefaultOutputDevice;
 		}
 
 		/* It's possible our device has changed, so validate again (and again, if necc.). */
-		if (!CMTransmitChannelValid(partDevice[i], (INT16)partChannel[i])) {
+		if (!CMTransmitChannelValid(partDevice[i], (short)partChannel[i])) {
 			partChannel[i] = config.defaultChannel;
-			if (!CMTransmitChannelValid(partDevice[i], (INT16)partChannel[i])) {
+			if (!CMTransmitChannelValid(partDevice[i], (short)partChannel[i])) {
 				if (CautionAdvise(NO_OMS_DEVS_ALRT)==1) return FALSE;			/* Cancel playback button (item 1 in this ALRT!) */
 			}
 		}
@@ -1343,9 +1321,9 @@ limited to legal range. Similar to the non-CM GetNotePlayInfo. */
 void GetCMNotePlayInfo(
 				Document *doc, LINK aNoteL, short partTransp[],
 				Byte partChannel[], SignedByte partVelo[], short partIORefNum[],
-				INT16 *pUseNoteNum, INT16 *pUseChan, INT16 *pUseVelo, short *puseIORefNum)
+				short *pUseNoteNum, short *pUseChan, short *pUseVelo, short *puseIORefNum)
 {
-	INT16 partn;
+	short partn;
 	PANOTE aNote;
 
 	partn = Staff2Part(doc,NoteSTAFF(aNoteL));
@@ -1358,35 +1336,6 @@ void GetCMNotePlayInfo(
 	if (*pUseVelo<1) *pUseVelo = 1;
 	if (*pUseVelo>MAX_VELOCITY) *pUseVelo = MAX_VELOCITY;
 	*puseIORefNum = partIORefNum[partn];
-}
-
-
-
-// --------------------------------------------------------------------------------------
-
-
-static void DisplayMidiDevices()
-{
-	CFStringRef pname, pmanuf, pmodel;
-	char name[64], manuf[64], model[64];
-	
-	int n = MIDIGetNumberOfDevices();
-	for (int i = 0; i < n; ++i) {
-		MIDIDeviceRef dev = MIDIGetDevice(i);
-		
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyName, &pname);
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyManufacturer, &pmanuf);
-		MIDIObjectGetStringProperty(dev, kMIDIPropertyModel, &pmodel);
-		
-		CFStringGetCString(pname, name, sizeof(name), 0);
-		CFStringGetCString(pmanuf, manuf, sizeof(manuf), 0);
-		CFStringGetCString(pmodel, model, sizeof(model), 0);
-		CFRelease(pname);
-		CFRelease(pmanuf);
-		CFRelease(pmodel);
-
-		printf("name=%s, manuf=%s, model=%s\n", name, manuf, model);
-	}
 }
 
 long FillCMSourcePopup(MenuHandle menu, vector<MIDIUniqueID> *vecDevices)

@@ -386,19 +386,7 @@ void DoTEEdit(PEDITFIELD theField, short cmd)
 			scrapLen = TEGetScrapLength();
 			numSelChars = (long) ((**theField->teH).selEnd - (**theField->teH).selStart);
 			if ((scrapLen + teLen - numSelChars) > MAX_CHARS_IN_FIELD) {
-#if 1
 				SysBeep(10);
-#else
-				charsToPaste = MAX_CHARS_IN_FIELD - teLen;
-				scrapH = TEScrapHandle();
-				HLock(scrapH);
-/* ••••
-copy chars 0 through charsToPaste from scrapH
-"paste" them into teH. How?
-••••Use TEInsert.
-*/				
-				HUnlock(scrapH);
-#endif
 			}
 			else
 				TEPaste(theField->teH);
@@ -632,25 +620,6 @@ Boolean DoTEFieldIdle(PEDITFIELD theField, EventRecord *event)
  */
 void ReadDeskScrap()
 {
-#ifdef CARBON_NOTYET
-	long			scrapLen, along;
-	OSErr			result;
-	PScrapStuff	Pscrap;
-
-	Pscrap = InfoScrap();
-	if (scrapCompare!=Pscrap->scrapCount) {
-		scrapLen = GetScrap(NIL, 'TEXT', &along);
-		if (scrapLen>=0) {
-			result = TEFromScrap();
-			if (result!=noErr)
-				scrapLen = result;
-		}
-		if (scrapLen<=0)
-			TESetScrapLength(0L);
-		Pscrap = InfoScrap();
-		scrapCompare = Pscrap->scrapCount;
-	}
-#endif
 }
 
 
@@ -659,14 +628,5 @@ void ReadDeskScrap()
  */
 void WriteDeskScrap()
 {
-#ifdef CARBON_NOTYET
-	OSErr	result;
-	
-	if (scrapDirty) {
-		scrapCompare = ClearCurrentScrap();
-		result = TEToScrap();
-		scrapDirty = FALSE;
-	}
-#endif
 }
 

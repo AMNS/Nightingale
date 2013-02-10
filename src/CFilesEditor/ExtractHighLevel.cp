@@ -17,16 +17,6 @@ static Boolean ExtractDialog(unsigned char *, Boolean *, Boolean *, Boolean *, s
 
 /* ------------------------------------------------- ExtractDialog and DoExtract -- */
 
-#ifdef VIEWER_VERSION
-
-Boolean DoExtract(doc)
-	Document *doc;
-	{
-		return FALSE;
-	}
-	
-#else
-
 static enum {
 	EXTRACTALL_DI=4,
 	EXTRACTONE_DI,
@@ -83,7 +73,7 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 										Boolean *pReformat, short *pSpacePercent)
 {	
 	DialogPtr dlog;
-	short ditem; INT16 radio1, radio2;
+	short ditem; short radio1, radio2;
 	GrafPtr oldPort;
 	short aShort; Handle aHdl; Rect spacePanelBox;
 	short newSpace;
@@ -135,7 +125,7 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
 			case OK:
-				GetDlgWord(dlog, SPACE_DI, (INT16 *)&newSpace);
+				GetDlgWord(dlog, SPACE_DI, (short *)&newSpace);
 				if (newSpace<MINSPACE || newSpace>MAXSPACE)
 					Inform(SPACE_ALRT);
 				else
@@ -167,7 +157,7 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 		*pAll = GetDlgChkRadio(dlog, EXTRACTALL_DI);
 		*pSave = GetDlgChkRadio(dlog, SAVE_DI);
 		*pReformat = GetDlgChkRadio(dlog, REFORMAT_DI);
-		GetDlgWord(dlog, SPACE_DI, (INT16 *)pSpacePercent);
+		GetDlgWord(dlog, SPACE_DI, (short *)pSpacePercent);
 	}
 	
 	DisposeDialog(dlog);
@@ -217,9 +207,9 @@ static void NormalizePartFormat(Document *doc)
 system positions and bounding boxes, reformat to update page breaks, and optionally
 reformat to update system breaks. */
 
-static void ReformatPart(Document *, short, Boolean, Boolean, INT16);
+static void ReformatPart(Document *, short, Boolean, Boolean, short);
 static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreaks,
-					Boolean careMeasPerSys, INT16 measPerSys)
+					Boolean careMeasPerSys, short measPerSys)
 {
 	LINK pL, firstDelL, lastDelL;
 	
@@ -235,10 +225,6 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 	Reformat(doc, RightLINK(doc->headL), doc->tailL,
 				changeSBreaks, (careMeasPerSys? measPerSys : 9999),
 				FALSE, 999, config.titleMargin);
-
-#ifdef LIGHT_VERSION
-	EnforcePageLimit(doc);
-#endif
 
 	(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
 }
@@ -257,7 +243,7 @@ Boolean DoExtract(Document *doc)
 		Boolean keepGoing=TRUE;
 		static Boolean allParts=TRUE, closeAndSave=FALSE, reformat=TRUE;
 		static Boolean firstCall=TRUE, careMeasPerSys;
-		static INT16 measPerSys;
+		static short measPerSys;
 		
 		GetSelPartList(doc, selPartList);
 
@@ -280,18 +266,6 @@ Boolean DoExtract(Document *doc)
 		}
 		
 		DeselAll(doc);
-
-#ifdef NOTYET
-		/* If not enough free documents to hold the new parts, consult with user */
-		
-		numDocs = NumFreeDocuments();
-		partL = FirstSubLINK(doc->headL);
-		if (allParts)
-			for (numParts=0,partL=NextPARTINFOL(partL); partL; partL=NextPARTINFOL(partL))
-				numParts++;
-		if (numDocs<numParts)
-			give caution alert("Not enough free documents for all parts; go ahead anyway?")
-#endif
 		
 		partL = FirstSubLINK(doc->headL);
 		for (partL=NextPARTINFOL(partL); partL && keepGoing; partL=NextPARTINFOL(partL)) {
@@ -317,17 +291,6 @@ Boolean DoExtract(Document *doc)
 					if (reformat) {
 						ReformatPart(partDoc, spacePercent, TRUE, careMeasPerSys,
 											measPerSys);
-#ifdef LIGHT_VERSION
-						if (partDoc->numSheets>MAXPAGES) {
-							/* Already given LIGHTVERS_MAXPAGES_ALRT in EnforcePageLimit. Unlikely
-								that we'll get a part that needs more pages than the score, but you
-								never know, if spacePercent is huge. */
-							partDoc->changed = FALSE;
-							DoCloseDocument(partDoc);
-							InstallDoc(doc);					/* See comment below about this. */
-							continue;
-						}
-#endif
 					}
 					else
 						NormalizePartFormat(partDoc);
@@ -368,6 +331,4 @@ Boolean DoExtract(Document *doc)
 Done:
 		return TRUE;
 	}
-
-#endif /* VIEWER_VERSION */
 

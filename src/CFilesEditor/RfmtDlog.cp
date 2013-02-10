@@ -54,18 +54,18 @@ static enum {								/* Dialog item numbers */
 #define MAXPERSYS 50						/* Maximum legal measures per system */
 
 Boolean ReformatDialog(
-				INT16 startSys, INT16 endSys,	/* Starting and ending system nos. (ending<0 => all systems) */
+				short startSys, short endSys,	/* Starting and ending system nos. (ending<0 => all systems) */
 				Boolean *pSBreaks,				/* Change system breaks? */
 				Boolean *pCareMPS,				/* Does user care about no. of meas. per system? */
 				Boolean *pExactMPS,				/* Does user want exactly the spec. no. of meas./system? */
-				INT16	*pNMPS,						/* Max. measures desired per system */
+				short	*pNMPS,						/* Max. measures desired per system */
 				Boolean *pJustify,				/* Justify afterwards? */
 				Boolean *pCareSPP,				/* Does user care about no. of systems per page? */
-				INT16	*pSPP, 						/* Max. systems desired per page */
-				INT16	*pTitleMargin				/* Extra margin at top of 1st page (points) */
+				short	*pSPP, 						/* Max. systems desired per page */
+				short	*pTitleMargin				/* Extra margin at top of 1st page (points) */
 				)
 {
-	INT16			ditem, itype, newMPS, newJustify, newSPP, newTitleMargin,
+	short			ditem, itype, newMPS, newJustify, newSPP, newTitleMargin,
 					group1, group2;
 	Handle		tHdl;
 	Rect			tRect, sysPanelBox, titleMarginPanelBox;

@@ -44,28 +44,28 @@ Boolean		ShiftKeyDown(void);
 Boolean		CapsLockKeyDown(void);
 Boolean		ControlKeyDown(void);
 
-void		FrameDefault(DialogPtr dlog, INT16 item, INT16 draw);
+void		FrameDefault(DialogPtr dlog, short item, short draw);
 void		BlinkCaret(DialogPtr dlog, EventRecord *evt);
 void		TextEditState(DialogPtr dlog, Boolean save);
 
-Handle		PutDlgWord(DialogPtr dlog, INT16 item, INT16 val, Boolean sel);
-Handle		PutDlgLong(DialogPtr dlog, INT16 item, long val, Boolean sel);
-Handle		PutDlgDouble(DialogPtr dlog, INT16 item, double val, Boolean sel);
-Handle		PutDlgType(DialogPtr dlog, INT16 item, ResType type, Boolean sel);
-Handle		PutDlgString(DialogPtr dlog, INT16 item, const unsigned char *str, Boolean sel);
-Handle		PutDlgChkRadio(DialogPtr dlog, INT16 item, INT16 val);
-INT16		GetDlgWord(DialogPtr dlog, INT16 item, INT16 *num);
-INT16		GetDlgLong(DialogPtr dlog, INT16 item, long *num);
-INT16		GetDlgDouble(DialogPtr dlog, INT16 item, double *val);
-INT16		GetDlgString(DialogPtr dlog, INT16 item, unsigned char *str);
-INT16		GetDlgChkRadio(DialogPtr dlog, INT16 item);
-INT16		GetDlgType(DialogPtr dlog, INT16 item, ResType *type);
+Handle		PutDlgWord(DialogPtr dlog, short item, short val, Boolean sel);
+Handle		PutDlgLong(DialogPtr dlog, short item, long val, Boolean sel);
+Handle		PutDlgDouble(DialogPtr dlog, short item, double val, Boolean sel);
+Handle		PutDlgType(DialogPtr dlog, short item, ResType type, Boolean sel);
+Handle		PutDlgString(DialogPtr dlog, short item, const unsigned char *str, Boolean sel);
+Handle		PutDlgChkRadio(DialogPtr dlog, short item, short val);
+short		GetDlgWord(DialogPtr dlog, short item, short *num);
+short		GetDlgLong(DialogPtr dlog, short item, long *num);
+short		GetDlgDouble(DialogPtr dlog, short item, double *val);
+short		GetDlgString(DialogPtr dlog, short item, unsigned char *str);
+short		GetDlgChkRadio(DialogPtr dlog, short item);
+short		GetDlgType(DialogPtr dlog, short item, ResType *type);
 
 short		AnyEmptyDlgItems(DialogPtr dlog, short fromItem, short toItem);
 void		ShowHideItem(DialogPtr dlog, short item, Boolean show);
 
 short		TextSelected(DialogPtr dlog);
-OSType		CanPaste(INT16 n, ...);
+OSType		CanPaste(short n, ...);
 void		DrawGrowBox(WindowPtr w, Point pt, Boolean drawit);
 void		GetGlobalPort(WindowPtr w, Rect *r);
 Boolean		ContainedRect(Rect *r, Rect *bounds);
@@ -78,7 +78,7 @@ void		PlaceAlert(short id, WindowPtr w, short left, short top);
 Boolean		PlaceWindow(WindowPtr w, WindowPtr inside, short left, short top);
 void 		CenterWindow(WindowPtr w, short top);
 void		ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp);
-void		XableItem(MenuHandle menu, INT16 item, INT16 enable);
+void		XableItem(MenuHandle menu, short item, short enable);
 void		UpdateMenu(MenuHandle menu, Boolean enable);
 void		UpdateMenuBar(void);
 void		EraseAndInval(Rect *r);
@@ -86,10 +86,10 @@ void		UseStandardType(OSType type);
 void		ClearStandardTypes(void);
 
 #if TARGET_API_MAC_CARBON
-INT16		GetInputName(char *prompt, Boolean newName, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
+short		GetInputName(char *prompt, Boolean newName, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
 Boolean		GetOutputName(short promptsID, short promptInd, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
 #else
-INT16		GetInputName(char *prompt, Boolean new, unsigned char *name, short *vrefnum);
+short		GetInputName(char *prompt, Boolean new, unsigned char *name, short *vrefnum);
 Boolean		GetOutputName(short promptsID, short promptInd, unsigned char *name, short *vrefnum);
 #endif
 

@@ -45,9 +45,9 @@ Rect SetStaffRect(LINK aStaffL, PCONTEXT pContext)
  * pixels.
  */
 
-INT16 AboveStfDist(LINK staffL)
+short AboveStfDist(LINK staffL)
 {
-	LINK aStaffL; INT16 firstStf;
+	LINK aStaffL; short firstStf;
 
 	firstStf = FirstStaffn(staffL);
 	aStaffL = FirstSubLINK(staffL);
@@ -60,9 +60,9 @@ INT16 AboveStfDist(LINK staffL)
 	return 0;
 }
 
-INT16 BelowStfDist(Document */*doc*/, LINK sysL, LINK staffL)
+short BelowStfDist(Document */*doc*/, LINK sysL, LINK staffL)
 {
-	LINK aStaffL; INT16 lastStf;
+	LINK aStaffL; short lastStf;
 	DRect systemRect; DDIST belowStf;
 
 	lastStf = LastStaffn(staffL);
@@ -164,7 +164,7 @@ If the system has no visible staves, return an empty Rect. */
 Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
 {
 	LINK staffL, aStaffL; Rect sysRect, aRect, emptyR = {0,0,0,0};
-	INT16 numStaves; Boolean rectSet = FALSE;
+	short numStaves; Boolean rectSet = FALSE;
 
 	numStaves = NumVisStaves(sysL);
 	if (numStaves<=0) return emptyR;
@@ -205,7 +205,6 @@ Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
  * system in question.
  */
 
-#ifndef VIEWER_VERSION
 
 Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr,
 								Rect sysObjRect, Rect sysRect, Rect r, PCONTEXT pContext)
@@ -257,7 +256,6 @@ Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr,
 	return FALSE;
 }
 
-#endif
 
 /* -------------------------------------------------------------------------------- */
 /* Utilities for CheckSTAFF */
@@ -269,9 +267,9 @@ Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr,
  * Returns the LINK to the part containing <staffn>.
  */
 
-LINK SelectStaff(Document *doc, LINK pL, INT16 staffn)
+LINK SelectStaff(Document *doc, LINK pL, short staffn)
 {
-	INT16 firstStaff,lastStaff;
+	short firstStaff,lastStaff;
 	LINK partL,aStfL;
 
 	firstStaff = lastStaff = NOONE;
@@ -306,11 +304,11 @@ LINK SelectStaff(Document *doc, LINK pL, INT16 staffn)
  * staff and on the bottom by the marginRect.bottom.
  */
 
-void SetLimitRect(Document *doc, LINK pL, INT16 staffn, Point dragPt,
+void SetLimitRect(Document *doc, LINK pL, short staffn, Point dragPt,
 							Rect wSub, Rect *limitR, CONTEXT context[])
 {
 	PCONTEXT pContext; LINK sysL; DRect sysRect;
-	INT16 firstVis,prevStaffn,nextStaffn;
+	short firstVis,prevStaffn,nextStaffn;
 	DDIST stfHeight,lnSpace;
 	
 	/* Set limit Rect for system drag */
@@ -373,7 +371,7 @@ void SetLimitRect(Document *doc, LINK pL, INT16 staffn, Point dragPt,
  * is rSub converted to window coordinates.
  */
 
-Boolean DragGrayStaffRect(Document *doc, LINK pL, LINK aStaffL, INT16 staffn, Ptr ptr,
+Boolean DragGrayStaffRect(Document *doc, LINK pL, LINK aStaffL, short staffn, Ptr ptr,
 										Rect rSub, Rect wSub, CONTEXT context[])
 {
 	PCONTEXT pContext; RgnHandle stfRgn; Point dragPt;
@@ -423,9 +421,9 @@ Boolean DragGrayStaffRect(Document *doc, LINK pL, LINK aStaffL, INT16 staffn, Pt
  * deselect pL.
  */
 
-void HiliteStaves(Document *doc, LINK pL, CONTEXT context[], INT16 doDeselect)
+void HiliteStaves(Document *doc, LINK pL, CONTEXT context[], short doDeselect)
 {
-	LINK aStaffL; INT16 staffn; PCONTEXT pContext;
+	LINK aStaffL; short staffn; PCONTEXT pContext;
 	DDIST dTop,dLeft,dBottom,dRight; Rect rSub,wSub;
 
 	if (VISIBLE(pL)) {
@@ -457,7 +455,7 @@ void HiliteStaves(Document *doc, LINK pL, CONTEXT context[], INT16 doDeselect)
  * deselect them.
  */
 
-void HiliteAllStaves(Document *doc, INT16 doDeselect)
+void HiliteAllStaves(Document *doc, short doDeselect)
 {
 	LINK staffL; CONTEXT context[MAXSTAVES+1];
 	
@@ -477,9 +475,9 @@ void HiliteAllStaves(Document *doc, INT16 doDeselect)
 /* Compute and return the StringWidth (in pixels) of the given Graphic in the
 current view. */
 
-INT16 GraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
+short GraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 {
-	INT16		font, fontSize, fontStyle;
+	short		font, fontSize, fontStyle;
 	PGRAPHIC	p;
 	Str255	string;
 	DDIST		lineSpace;
@@ -505,7 +503,7 @@ INT16 GraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 
 /* ----------------------------------------------------------------- SetSubRect -- */
 
-Rect SetSubRect(DDIST xd, DDIST dTop, INT16 width, PCONTEXT pContext)
+Rect SetSubRect(DDIST xd, DDIST dTop, short width, PCONTEXT pContext)
 {
 	Rect rSub;
 
@@ -557,7 +555,7 @@ possible values for <mode>. stfRange passes the staff parameters for SMStaffDrag
 mode. */
 
 LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT context[],
-						INT16 mode, INT16 *pIndex, STFRANGE stfRange)
+						short mode, short *pIndex, STFRANGE stfRange)
 {
 	Rect r; Point enlarge = {0,0}; Point enlargeNR;
 	
@@ -753,7 +751,7 @@ Boolean ObjectTest(Rect *paper, Point pt, LINK pL)
 and return its LINK, or just return NILINK if point is not within any
 object.  The calling routine is responsible for updating the selection range. */
 
-LINK FindObject(Document *doc, Point pt, INT16 *pIndex, INT16 checkMode)
+LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK				pL,firstMeas,endL;
 	CONTEXT			context[MAXSTAVES+1];
@@ -881,7 +879,7 @@ LINK FindObject(Document *doc, Point pt, INT16 *pIndex, INT16 checkMode)
 /* Version of FindObject called when we need to find a relative object, e.g., the
 firstObj of a GRAPHIC, etc. */
 
-LINK FindRelObject(Document *doc, Point pt, INT16 *pIndex, INT16 checkMode)
+LINK FindRelObject(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK				pL,qL,firstMeas,endL,sL;
 	CONTEXT			context[MAXSTAVES+1];
@@ -928,7 +926,7 @@ of possible values for <mode>. stfRange passes the staff parameters for SMStaffD
 mode. */
 
 LINK CheckMasterObject (Document *doc, LINK pL, Boolean *found, Ptr ptr,
-								CONTEXT context[], INT16 mode, INT16 *pIndex, STFRANGE stfRange)
+								CONTEXT context[], short mode, short *pIndex, STFRANGE stfRange)
 {
 	Point enlarge = {0,0};
 
@@ -1003,7 +1001,7 @@ with the net result that PAGEs mask everything. But a traversal from tailL to he
 will correctly find STAFFs before their enclosing SYSTEMs, and SYSTEMs before their
 enclosing PAGEs. */
 
-LINK FindMasterObject(Document *doc, Point pt, INT16 *pIndex, INT16 checkMode)
+LINK FindMasterObject(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK				pL,endL;
 	CONTEXT			context[MAXSTAVES+1];
@@ -1097,7 +1095,7 @@ net result that PAGEs mask everything. But a traversal from tailL to headL will
 correctly find STAFFs before their enclosing SYSTEMs, and SYSTEMs before their
 enclosing PAGEs. */
 
-LINK FindFormatObject(Document *doc, Point pt, INT16 *pIndex, INT16 checkMode)
+LINK FindFormatObject(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK				pL,endL;
 	CONTEXT			context[MAXSTAVES+1];

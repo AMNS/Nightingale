@@ -229,39 +229,39 @@ static UserPopUp	setPopups[HOW_MANY_POPS];		/* array of Popup structs */
 
 static MenuHandle	textOrLyricMenu;					/* handle to menu not currently in text style popup struct */
 
-static INT16	hilitedPop = -1;  		/* Array index of popup currently "hilited" with HilitePopUp by using arrow keys. If -1, no hilitedPop. */
-static INT16	currPropertyPop = -1;	/* Array index number of current Property popup. If -1, none visible. */
-static INT16	currValuePop = -1;		/* Array index number of current Value popup. If -1, none visible. */
+static short	hilitedPop = -1;  		/* Array index of popup currently "hilited" with HilitePopUp by using arrow keys. If -1, no hilitedPop. */
+static short	currPropertyPop = -1;	/* Array index number of current Property popup. If -1, none visible. */
+static short	currValuePop = -1;		/* Array index number of current Value popup. If -1, none visible. */
 
 /* Variables to hold sticky menu item choices and numeric values */
-static INT16	mainSetChoice = 1;
+static short	mainSetChoice = 1;
 
-static INT16	notePropertyChoice = 1;
-static INT16	textPropertyChoice = 1;
-static INT16	chordSymPropertyChoice = 1;
-static INT16	tempoPropertyChoice = 1;
-static INT16	tupletPropertyChoice = 1;
-static INT16	slurPropertyChoice = 1;
-static INT16	barlinePropertyChoice = 1;
-static INT16	dynamicPropertyChoice = 1;
-static INT16	beamsetPropertyChoice = 1;
-static INT16	patchChangeChoice = 1;
-static INT16	panChoice = 1;
+static short	notePropertyChoice = 1;
+static short	textPropertyChoice = 1;
+static short	chordSymPropertyChoice = 1;
+static short	tempoPropertyChoice = 1;
+static short	tupletPropertyChoice = 1;
+static short	slurPropertyChoice = 1;
+static short	barlinePropertyChoice = 1;
+static short	dynamicPropertyChoice = 1;
+static short	beamsetPropertyChoice = 1;
+static short	patchChangeChoice = 1;
+static short	panChoice = 1;
 
-static INT16	noteAppearanceChoice = 1;
-static INT16	noteSizeChoice = 1;
-static INT16	textStyleChoice = 1;
-static INT16	lyricStyleChoice = 1;
-static INT16	visibleChoice = 2;
-static INT16	accNumVisChoice = 1;
-static INT16	accParensChoice = 1;
-static INT16	slurAppearanceChoice = 1;
-static INT16	barlineTypeChoice = 1;
-static INT16	dynamicSizeChoice = 1;
-static INT16	beamsetThicknessChoice = 1;
+static short	noteAppearanceChoice = 1;
+static short	noteSizeChoice = 1;
+static short	textStyleChoice = 1;
+static short	lyricStyleChoice = 1;
+static short	visibleChoice = 2;
+static short	accNumVisChoice = 1;
+static short	accParensChoice = 1;
+static short	slurAppearanceChoice = 1;
+static short	barlineTypeChoice = 1;
+static short	dynamicSizeChoice = 1;
+static short	beamsetThicknessChoice = 1;
 
-static INT16	edit9Value = 1;
-static INT16	edit14Value = 0;
+static short	edit9Value = 1;
+static short	edit14Value = 0;
 
 /* For enabling/disabling items in the main popup */
 static Boolean haveSync, haveSlur, haveText, haveLyric, haveChordSym,
@@ -270,31 +270,31 @@ static Boolean haveSync, haveSlur, haveText, haveLyric, haveChordSym,
 
 /* ------------------------------------------------------------------- Prototypes -- */
 
-static pascal	Boolean SetFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHit);
+static pascal	Boolean SetFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static Boolean	AnyBadValues(DialogPtr, Document *);
-static Boolean	InitSetItems(Document *, INT16 *);
+static Boolean	InitSetItems(Document *, short *);
 static void		XableSetItems(Document *);
-static INT16	FindMainEnabledItem(INT16, Boolean, Boolean);
-static void		DoMainPopChoice(DialogPtr dlog,INT16 choice);
-static void		DoConstPropPopChoice(DialogPtr dlog,INT16 choice);
-static void		DoPropPopChoice(DialogPtr dlog,INT16 choice);
-static void 	DoSetArrowKey(DialogPtr dlog, INT16 whichKey);
+static short	FindMainEnabledItem(short, Boolean, Boolean);
+static void		DoMainPopChoice(DialogPtr dlog,short choice);
+static void		DoConstPropPopChoice(DialogPtr dlog,short choice);
+static void		DoPropPopChoice(DialogPtr dlog,short choice);
+static void 	DoSetArrowKey(DialogPtr dlog, short whichKey);
 
 /* ================================================================================= */
 
 static Point where;
-static INT16 modifiers;
+static short modifiers;
 
-static pascal Boolean SetFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHit)
+static pascal Boolean SetFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	{
 		Boolean ans=FALSE; WindowPtr w;
-		INT16 ch;	
+		short ch;	
 			
 		w = (WindowPtr)(evt->message);
 		switch(evt->what) {
 			case updateEvt:
 				if (w == GetDialogWindow(dlog)) {
-					INT16 index;
+					short index;
 					
 					SetPort(GetWindowPort(w));
 					BeginUpdate(GetDialogWindow(dlog));
@@ -308,7 +308,7 @@ static pascal Boolean SetFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHit
 				break;
 			case activateEvt:
 				if (w == GetDialogWindow(dlog)) {
-					INT16 activ = (evt->modifiers & activeFlag)!=0;
+					short activ = (evt->modifiers & activeFlag)!=0;
 					SetPort(GetWindowPort(w)); }
 				break;
 			case mouseDown:
@@ -365,10 +365,10 @@ static pascal Boolean SetFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHit
 
 /* -------------------------------------------------------------- AnyBadValues -- */
 
-static Boolean SetStfBadValues(Document *, INT16);
-static Boolean SetStfBadValues(Document *doc, INT16 staff)
+static Boolean SetStfBadValues(Document *, short);
+static Boolean SetStfBadValues(Document *doc, short staff)
 {
-	LINK partL, pL, aNoteL; PPARTINFO pPart; INT16 firstStaff, lastStaff, maxStaff;
+	LINK partL, pL, aNoteL; PPARTINFO pPart; short firstStaff, lastStaff, maxStaff;
 
 	/* Use the first selected note/rest to find the part, then check that every
 		selected note/rest is on one of that part's staves. */
@@ -407,7 +407,7 @@ static Boolean SetStfBadValues(Document *doc, INT16 staff)
 static Boolean AnyBadValues(DialogPtr dlog, Document *doc)
 {
 	Boolean	anError=FALSE;
-	INT16		badField, value;
+	short		badField, value;
 	
 	switch (setPopups[MAIN_SET].currentChoice) {
 		case noteITEM:
@@ -512,7 +512,7 @@ Boolean IsSetEnabled(Document *doc)
 type *pChoice is disabled, set it to the first one that's enabled. If any of the
 items are enabled, return TRUE, else return FALSE. */
 
-static Boolean InitSetItems(Document *doc, INT16 *pChoice)
+static Boolean InitSetItems(Document *doc, short *pChoice)
 {
 	LINK pL;
 	
@@ -596,7 +596,7 @@ static void XableSetItems(Document */*doc*/)		/* doc is no longer used */
 the enabled item's number, or -1 if none is found without wrapping. Assumes the
 <haveXXX> variables have been set, presumably by XableSetItems. */
 
-INT16 FindMainEnabledItem(INT16 currItem, Boolean up, Boolean wrap)
+short FindMainEnabledItem(short currItem, Boolean up, Boolean wrap)
 {
 	Boolean enabled[HOW_MANY_MAIN_ITEMS+1];
 	
@@ -644,12 +644,12 @@ occurs, returns FALSE. */
 
 Boolean SetDialog(
 				Document *doc,
-				INT16		*objType,			/* Type of object to be set (ttt) */
-				INT16		*param,				/* Property of object to be set (ppp) */
-				INT16		*finalVal 			/* Return value (vvv) */
+				short		*objType,			/* Type of object to be set (ttt) */
+				short		*param,				/* Property of object to be set (ppp) */
+				short		*finalVal 			/* Return value (vvv) */
 				)
 {
-	INT16 itemHit,type,okay=FALSE,dialogOver,value,index;
+	short itemHit,type,okay=FALSE,dialogOver,value,index;
 	Handle hndl; Rect box;
 	DialogPtr dlog; GrafPtr oldPort;		
 	ModalFilterUPP	filterUPP;
@@ -998,9 +998,9 @@ broken:
 
 /*	Sets up other items to correspond to the main Set popup choice. */	
 
-static void DoMainPopChoice(DialogPtr dlog, INT16 choice)
+static void DoMainPopChoice(DialogPtr dlog, short choice)
 {
-	INT16			type;
+	short			type;
 	Handle		hndl;
 	Rect			box;
 	Str255		str;
@@ -1062,10 +1062,10 @@ static void DoMainPopChoice(DialogPtr dlog, INT16 choice)
 	}	
 	
 	
-static void DoConstPropPopChoice(DialogPtr dlog, INT16 choice)
+static void DoConstPropPopChoice(DialogPtr dlog, short choice)
 {
-	register INT16 index;	
-	INT16			type;
+	register short index;	
+	short			type;
 	Handle		hndl;
 	Rect			box;
 	Str255		str;
@@ -1100,11 +1100,11 @@ static void DoConstPropPopChoice(DialogPtr dlog, INT16 choice)
 
 /*	Sets up other items to correspond to object property popup choice. */	
 
-static void DoPropPopChoice(DialogPtr dlog, INT16 choice)
+static void DoPropPopChoice(DialogPtr dlog, short choice)
 {
-	register INT16 	index;
+	register short 	index;
 	MenuHandle		tempMH;
-	INT16 currMainChoice = setPopups[MAIN_SET].currentChoice;
+	short currMainChoice = setPopups[MAIN_SET].currentChoice;
 	
 	HideDialogItem(dlog,STXT7_Property);
 	HideDialogItem(dlog,STXT10_Value);
@@ -1296,7 +1296,7 @@ static void DoPropPopChoice(DialogPtr dlog, INT16 choice)
 			HideDialogItem(dlog,STXT11_qtr);
 						
 			switch (choice)	{
-				INT16 type; Handle hndl; Rect box; Str255 str;
+				short type; Handle hndl; Rect box; Str255 str;
 				
 				case shapeposITEM:
 					GetDialogItem(dlog,STXT10_Value,&type,&hndl,&box);
@@ -1408,9 +1408,9 @@ disabled items in the main popup; otherwise, doesn't work if the menu has any
 disabled items, unless they are the '--------' kind and are not the first or last
 items. */
 
-void DoSetArrowKey(DialogPtr dlog, INT16 whichKey)
+void DoSetArrowKey(DialogPtr dlog, short whichKey)
 {
-	INT16 lastItemNum,newChoice,oldHilitedPop,newHilitedPop; UserPopUp *p;
+	short lastItemNum,newChoice,oldHilitedPop,newHilitedPop; UserPopUp *p;
 	Str255 str;
 					
 	switch (whichKey) {
@@ -1510,7 +1510,7 @@ void DoSetArrowKey(DialogPtr dlog, INT16 whichKey)
 
 void DoSet(Document *doc)
 	{
-		INT16 newTypeSet, newParamSet, newValSet, appearance, subtype;
+		short newTypeSet, newParamSet, newValSet, appearance, subtype;
 		register Boolean didAnything; 
 
 		if (SetDialog(doc, &newTypeSet, &newParamSet, &newValSet)) {
@@ -1573,7 +1573,7 @@ void DoSet(Document *doc)
 						case barlineTypeITEM:
 							{
 								/* BAR_HEAVYDBL isn't used, so it's not in the popup. */
-								INT16 measSubType = newValSet;
+								short measSubType = newValSet;
 								if (measSubType>=BAR_HEAVYDBL) measSubType++;
 								didAnything = SetSelMeasType(doc, measSubType);
 							}

@@ -17,21 +17,21 @@ clarifying rhythm of unknown-duration notes in existing scores - rev. for v.3.1.
 #define MERGE_TAB_SIZE 2500	/* Max. syncs in table for merging into */
 #define MAX_TSCHANGE 1000		/* Max. no. of time sig. changes in area */
 
-static INT16 measTabLen=0;
+static short measTabLen=0;
 static MEASINFO *measInfoTab;
 
 static Boolean InitQuantize(Document *, Boolean);
-static INT16 Voice2RTStructs(Document *,INT16,long,LINKTIMEINFO [],INT16,INT16 *,NOTEAUX [],INT16 *);
-static INT16 Voice2KnownDurs(Document *,INT16,INT16,INT16,LINKTIMEINFO [],INT16,INT16,NOTEAUX [],INT16,
+static short Voice2RTStructs(Document *,short,long,LINKTIMEINFO [],short,short *,NOTEAUX [],short *);
+static short Voice2KnownDurs(Document *,short,short,short,LINKTIMEINFO [],short,short,NOTEAUX [],short,
 							long,LINK,LINK,LINK *);
-static LINK QuantAllVoices(Document *, INT16, INT16, Boolean);
+static LINK QuantAllVoices(Document *, short, short, Boolean);
 
 static LINK GDNewMeasure(Document *, LINK);
 static void GDFixTStampsForTimeSigs(Document *, LINK, LINK);
 static LINK GDAddMeasures(Document *, LINK);
 static Boolean SyncOKToQuantize(LINK);
 static Boolean GDRespAndRfmt(Document *, short, short, Boolean);
-static Boolean QuantizeSelDurs(Document *, INT16, Boolean);
+static Boolean QuantizeSelDurs(Document *, short, Boolean);
 static Boolean QuantizeDialog(Document *, short *, Boolean *, Boolean *);
 
 /* ---------------------------------------------------------------- InitQuantize -- */
@@ -82,19 +82,19 @@ static Boolean InitQuantize(Document *doc, Boolean merge)
 
 #endif
 
-static INT16 Voice2RTStructs(
+static short Voice2RTStructs(
 					Document *doc,
-					INT16 voice,
+					short voice,
 					long startTime,
 					LINKTIMEINFO rawSyncTab[],		/* Output: raw (unquantized and unclarified) NCs */
-					INT16 maxRawSyncs,				/* Maximum size of rawSyncTab */
-					INT16 *pnSyncs,
+					short maxRawSyncs,				/* Maximum size of rawSyncTab */
+					short *pnSyncs,
 					NOTEAUX rawNoteAux[],			/* Output: auxiliary info on raw notes */
-					INT16 *pnAux
+					short *pnAux
 					)
 {
 	long prevStartTime, chordEndTime;
-	INT16 iSync, nAux, nInChord;
+	short iSync, nAux, nInChord;
 	LINK pL, aNoteL; PANOTE aNote;
 	
 	prevStartTime = -999999L;
@@ -160,10 +160,10 @@ static INT16 Voice2RTStructs(
 
 /* -------------------------------------------------------------- Voice2KnownDurs -- */
 
-static void CantHandleVoice(Document *, INT16, INT16);
-static void CantHandleVoice(Document *doc, INT16 voice, INT16 tVErr)
+static void CantHandleVoice(Document *, short, short);
+static void CantHandleVoice(Document *doc, short voice, short tVErr)
 {
-	INT16 userVoice; LINK partL; PPARTINFO pPart; char partName[256];
+	short userVoice; LINK partL; PPARTINFO pPart; char partName[256];
 	char fmtStr[256];
 	
 	if (Int2UserVoice(doc, voice, &userVoice, &partL)) {
@@ -184,16 +184,16 @@ rawSyncTab[] and rawNoteAux[], merge the results into <doc>, and add rests betwe
 notes. InitQuantize MUST be called before this! Returns FAILURE if there's a problem,
 else NOTHING_TO_DO or OP_COMPLETE.*/
 
-static INT16 Voice2KnownDurs(
+static short Voice2KnownDurs(
 					Document *doc,
-					INT16 voice,
-					INT16 quantum,						/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
-					INT16 tripletBias,				/* Percent bias towards quant. to triplets >= 2/3 quantum */
+					short voice,
+					short quantum,						/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+					short tripletBias,				/* Percent bias towards quant. to triplets >= 2/3 quantum */
 					LINKTIMEINFO rawSyncTab[],		/* Input: raw (unquantized and unclarified) NCs */
-					INT16 maxRawSyncs,				/* Maximum size of rawSyncTab */
-					INT16 nRawSyncs,					/* Current size of rawSyncTab */
+					short maxRawSyncs,				/* Maximum size of rawSyncTab */
+					short nRawSyncs,					/* Current size of rawSyncTab */
 					NOTEAUX rawNoteAux[],			/* Input: raw notes */
-					INT16 nAux,							/* Size of rawNoteAux */
+					short nAux,							/* Size of rawNoteAux */
 					long tOffset,						/* Offset time for quantized notes/chords, in PDUR ticks */
 					LINK qExtraMeasL, LINK qEndL,	/* The extra Measure, the end of the range to fill with rests */
 					LINK *pLastL 						/* The last LINK affected by the merge */
@@ -202,8 +202,8 @@ static INT16 Voice2KnownDurs(
 	LINKTIMEINFO *newSyncTab=NULL, *mergeObjs=NULL;
 	LINK newFirstSync, qStartMeasL;
 	LINK endMeasL, lastL, endFillL;
-	INT16 nNewSyncs, nMergeObjs, tVErr, i;
-	unsigned INT16 maxNewSyncs;
+	short nNewSyncs, nMergeObjs, tVErr, i;
+	unsigned short maxNewSyncs;
 	Boolean okay=FALSE;
 	char fmtStr[256];
 	
@@ -291,7 +291,7 @@ before <pL>. At the moment, virtually identical to MFNewMeasure. */
 
 static LINK GDNewMeasure(Document *doc, LINK pL)
 {
-	LINK measL; INT16 sym; CONTEXT context;
+	LINK measL; short sym; CONTEXT context;
 
 	doc->selStartL = doc->selEndL = pL;
 	NewObjInit(doc, MEASUREtype, &sym, singleBarInChar, ANYONE, &context);
@@ -362,7 +362,7 @@ state! */
 
 static LINK GDAddMeasures(Document *doc, LINK qEndL)
 {
-	INT16 count, m;
+	short count, m;
 	LINK measL, newMeasL, startFixL, endFixL;
 	Boolean okay=FALSE;
 	
@@ -441,19 +441,19 @@ The calling routine is responsible for respacing and reformatting, if appropriat
 
 static LINK QuantAllVoices(
 		Document *doc,
-		INT16 quantum,
-		INT16 tripletBias,					/* Percent bias towards quant. to triplets >= 2/3 quantum */
+		short quantum,
+		short tripletBias,					/* Percent bias towards quant. to triplets >= 2/3 quantum */
 		Boolean merge
 		)
 {
-	INT16 v, status, nSyncs, nNotes;
-	INT16 timeOffset=0;									/* BEFORE quantizing, in PDUR ticks: normally 0 */
+	short v, status, nSyncs, nNotes;
+	short timeOffset=0;									/* BEFORE quantizing, in PDUR ticks: normally 0 */
 	long startTime, len;
 	long postQTimeOffset;								/* AFTER quantizing, in PDUR ticks: normally 0 */
 	Boolean gotNotes=FALSE, okay=FALSE;
 	LINKTIMEINFO *rawSyncTab[MAXVOICES+1];			/* Arrays of pointers to tables */
 	NOTEAUX	*rawNoteAux[MAXVOICES+1];
-	INT16 maxSyncs[MAXVOICES+1], nRawSyncs[MAXVOICES+1], nAux[MAXVOICES+1];
+	short maxSyncs[MAXVOICES+1], nRawSyncs[MAXVOICES+1], nAux[MAXVOICES+1];
 	LINK prevMeasL, endExtraL, qStartL, qEndL, lastL;
 	
 	measInfoTab = NULL;
@@ -530,16 +530,7 @@ static LINK QuantAllVoices(
 	if (!endExtraL) goto Done;
 	qStartL = LinkLMEAS(endExtraL);
 
-#ifdef NOTYET
-	for (v = 1; v<=MAXVOICES; v++) {
-		if (nRawSyncs[v]<=0) continue;
-		firstSyncQTime = minimum quantized time of the 1st sync in any voice;
-	}
-	qStartMeasL = LinkRMEAS(qStartL);
-	postQTimeOffset = MeasureTIME(qStartMeasL)-firstSyncQTime;
-#else
 	postQTimeOffset = 0L;
-#endif
 
 #ifndef PUBLIC_VERSION
 		DebugPrintf("quantum=%d tripBias=%d tryLev=%d leastSq=%d\n",
@@ -596,10 +587,6 @@ static LINK QuantAllVoices(
 
 		doc->selStartL = qStartL;
 		doc->selEndL = qEndL;
-
-#ifdef NOTYET
-		if (contains empty measures and user asked) NMFillEmptyMeas(doc);	/* ??too high level? */
-#endif
 
 		okay = TRUE;
 	}
@@ -861,9 +848,9 @@ should call FixTimeStamps afterwards. */
 
 #define RESET_PLAYDURS TRUE
 
-Boolean QuantizeSelDurs(Document *doc, INT16 quantumDur, Boolean tuplets)
+Boolean QuantizeSelDurs(Document *doc, short quantumDur, Boolean tuplets)
 {
-	INT16			quantum, tripletBias;
+	short			quantum, tripletBias;
 	Boolean		didAnything;
 	LINK			startL, endL, pL, nextL, startMeasL, saveEndL;
 	char			fmtStr[256];
@@ -1014,7 +1001,7 @@ static pascal Boolean QuantFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			}
 			break;
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (INT16 *)itemHit, FALSE))
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, FALSE))
 				return TRUE;
 			ch = (unsigned char)evt->message;
 			ans = DurPopupKey(curPop, popKeys0dot, ch);
@@ -1082,14 +1069,7 @@ Boolean QuantizeDialog(Document *doc,
 	if (choice==NOMATCH) choice = 1;
 	SetGPopUpChoice(curPop, choice);
 
-#ifdef NOTYET
-/* For now, hide the Recognize Triplets option, except from people who know the secret
-	enabling key: someday we'll fix the bugs (sigh). */
-	if (!(ControlKeyDown()))
-		HideDialogItem(dlog,QTUPLET_DI);
-#else
 	PutDlgChkRadio(dlog,QTUPLET_DI,*tuplet);
-#endif
 	PutDlgChkRadio(dlog,AUTOBEAM_DI,*autoBeam);
 
 	CenterWindow(GetDialogWindow(dlog), 60);
@@ -1230,31 +1210,6 @@ static Boolean RTMQuantizeSelDurs(Document *doc, short quantumDur, Boolean tuple
 	return FALSE;		
 }
 
-
-#ifdef NOTYET
-/* If the Measure where we're starting the merge begins with a time signature (other
-than in the reserved area), RTMQuantizeSelDurs has big problems, and has for a long
-time--this bug was already in Nightingale 2.0. Since as of this writing (2 Mar. 1996),
-we're on the verge of shipping v. 3.0, do the easiest safe thing to avoid it: add a
-barline just after the time signature. Sigh. */
-
-void AvoidTimeSigBugKludge(Document doc);
-static void AvoidTimeSigBugKludge(Document doc)
-{
-	/* ??If we're not going to remove the new barline, give an alert here to tell user! */
-	
-	saveSelStartL = doc->selStartL
-	saveSelEndL = doc->selEndL;
-	
-	NewObjInit(doc, MEASUREtype, &sym, singleBarInChar, ANYONE, &context);
-	measL = CreateMeasure(doc, pL, -1, sym, context);
-	
-	/* Restore selection and selection range ???NOT SO EASY! */
-	doc->selStartL = saveSelStartL;
-	doc->selEndL = saveSelEndL;
-}
-#endif
-
 /* --------------------------------------------------------------- RecTransMerge -- */
 /* Record, Transcribe, and Merge: Record data from MIDI and generate Nightingale
 notes of unknown duration; transcribe them, i.e., identify their durations as
@@ -1288,7 +1243,6 @@ Boolean RecTransMerge(Document *doc)
 		return FALSE;
 	}
 
-#if 1
 /* If the Measure where we're starting the merge begins with a time signature (other
 than in the reserved area), RTMQuantizeSelDurs has big problems, and has for a long
 time--this bug was already in Nightingale 2.0. Since as of this writing (2 Mar. 1996),
@@ -1302,17 +1256,12 @@ we're on the verge of shipping v. 3.0, just warn the poor user. Sigh. */
 			break;
 		}
 }
-#endif
 
 	staffn = doc->selStaff;
 
 	if (!RTMRecord(doc)) return FALSE;
 
 	if (!QuantizeDialog(doc, &newDur, &tuplet, &autoBeam)) return FALSE;
-
-#ifdef NOTYET
-	AvoidTimeSigBugKludge(doc);
-#endif
 
 	if (!RTMQuantizeSelDurs(doc, newDur, tuplet, staffn)) return FALSE;
 

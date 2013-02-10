@@ -18,7 +18,7 @@
 #include "Nightingale.appl.h"
 
 static void FrameSysRect(Rect *, Boolean);
-static void DrawMasterSystem(Document *, LINK, LINK, CONTEXT [], Rect *, Rect *, INT16);
+static void DrawMasterSystem(Document *, LINK, LINK, CONTEXT [], Rect *, Rect *, short);
 static void DrawMasterRange(Document *, LINK, LINK, CONTEXT [], Rect *, Rect *);
 static void DrawFormatRange(Document *, LINK, LINK, CONTEXT [], Rect *, Rect *);
 static void DrawScoreRange(Document *, LINK, LINK, CONTEXT [], Rect *, Rect *);
@@ -33,11 +33,7 @@ void FrameSysRect(
 					Boolean /*solid*/			/* unused */
 					)
 {
-#if 0
-	PenPat(solid? NGetQDGlobalsBlack() : diagonalDkGray);
-#else
 	PenPat(NGetQDGlobalsBlack());
-#endif
 	FrameRect(r);
 	PenNormal();
 }
@@ -46,7 +42,7 @@ void FrameSysRect(
 /* -------------------------------------------------------------- DrawPageContent -- */
 /* Draw all objects in the specified page. */
 
-void DrawPageContent(Document *doc, INT16 sheetNum, Rect *paper, Rect *updateRect)
+void DrawPageContent(Document *doc, short sheetNum, Rect *paper, Rect *updateRect)
 {
 	PPAGE pPage; LINK	pageL;
 	
@@ -62,11 +58,11 @@ drawing the system the first time, the page object needs to be included in the
 range to be drawn. */
 
 static void DrawMasterSystem(Document *doc, LINK fromL, LINK toL, CONTEXT context[],
-Rect *paper, Rect *updateRect, INT16 sysNum)
+Rect *paper, Rect *updateRect, short sysNum)
 {
 	LINK pL; Rect r,result,paperUpdate;
 	PSYSTEM pSystem;
-	INT16 ground;
+	short ground;
 
 	paperUpdate = *updateRect;
 	OffsetRect(&paperUpdate,-paper->left,-paper->top);
@@ -111,7 +107,7 @@ static void DrawMasterRange(Document *doc, LINK /*fromL*/, LINK /*toL*/, CONTEXT
 {
 	LINK sysL, staffL; DRect oldSysRect; Rect r;
 	DDIST sysHeight, sysOffset;
-	INT16 sysNum=0;
+	short sysNum=0;
 
 	/* If the score has no parts, return without drawing anything. */
 
@@ -704,7 +700,7 @@ measure. */
 void DrawRange(Document *doc, LINK fromL, LINK toL, Rect *paper, Rect *updateRect)
 {
 	CONTEXT context[MAXSTAVES+1];
-	INT16 oldCurrSheet;
+	short oldCurrSheet;
 	Rect oldCurrPaper;
 	
 	SetMusicPort(doc);				/* Set the font, fontSize, and build the charRect cache. */

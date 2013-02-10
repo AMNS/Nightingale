@@ -88,8 +88,6 @@ void DoOpenApplication(Boolean askForFile)
 			DoFileMenu(FM_Open);
 		
 		AnalyzeWindows();
-#ifndef VIEWER_VERSION
 		if (TopDocument)
 			DoViewMenu(VM_SymbolPalette);
-#endif
 	}

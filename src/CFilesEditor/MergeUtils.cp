@@ -17,25 +17,25 @@
 
 /* --------------------------------------------------------------------------------- */
 /* Non-local prototypes. */
-Boolean AvoidUnisons(Document *, LINK, INT16, PCONTEXT);
+Boolean AvoidUnisons(Document *, LINK, short, PCONTEXT);
 
 /* --------------------------------------------------------------------------------- */
 /* Local prototypes. */
 
-static INT16 GetNumVNotes(LINK syncL,INT16 v);
-static void GetMrgdUnmrgd(LINK syncL,INT16 v,Boolean *merged,Boolean *unMerged);
-static void MFixOverlapSync(Document *doc, LINK syncL,INT16 v);
-static void MergeFixBeamRange(Document *doc, LINK startL,LINK endL,INT16 v);
+static short GetNumVNotes(LINK syncL,short v);
+static void GetMrgdUnmrgd(LINK syncL,short v,Boolean *merged,Boolean *unMerged);
+static void MFixOverlapSync(Document *doc, LINK syncL,short v);
+static void MergeFixBeamRange(Document *doc, LINK startL,LINK endL,short v);
 
-static void MUnOctavaSync(Document *,LINK,LINK,DDIST,INT16,CONTEXT,Boolean);
-static void MUnOctavaGRSync(Document *,LINK,LINK,DDIST,INT16,CONTEXT,Boolean);
-static void MRemoveOctOnStf(Document *doc,LINK octL,INT16 s,Boolean merged);
-static void MergeFixOctRange(Document *doc,LINK startL,LINK endL,VInfo *vInfo,INT16 v);
+static void MUnOctavaSync(Document *,LINK,LINK,DDIST,short,CONTEXT,Boolean);
+static void MUnOctavaGRSync(Document *,LINK,LINK,DDIST,short,CONTEXT,Boolean);
+static void MRemoveOctOnStf(Document *doc,LINK octL,short s,Boolean merged);
+static void MergeFixOctRange(Document *doc,LINK startL,LINK endL,VInfo *vInfo,short v);
 
-static void MEFixContForClef(Document *, LINK, LINK, INT16, SignedByte, SignedByte, CONTEXT);
-static void MFixAllAccidentals(LINK, LINK, INT16, Boolean);
-static void MEFixAccsForKeySig(Document *, LINK, LINK, INT16, KSINFO, KSINFO);
-static void MergeFixAllContexts(Document *, LINK, LINK, INT16, CONTEXT, CONTEXT);
+static void MEFixContForClef(Document *, LINK, LINK, short, SignedByte, SignedByte, CONTEXT);
+static void MFixAllAccidentals(LINK, LINK, short, Boolean);
+static void MEFixAccsForKeySig(Document *, LINK, LINK, short, KSINFO, KSINFO);
+static void MergeFixAllContexts(Document *, LINK, LINK, short, CONTEXT, CONTEXT);
 
 static void MFixOctavaLinks(Document *oldDoc,Document *fixDoc,LINK startL,LINK endL);
 static void MFixBeamLinks(Document *oldDoc,Document *fixDoc,LINK startL,LINK endL);
@@ -46,10 +46,10 @@ static void MFixAllBeamLinks(Document *oldDoc,Document *fixDoc,LINK startL,LINK 
 /* ---------------------------------------------------------------- GetNumVNotes -- */
 /* Return the number of notes in voice v in sync syncL. */
 
-static INT16 GetNumVNotes(LINK syncL, INT16 v)
+static short GetNumVNotes(LINK syncL, short v)
 {
 	LINK aNoteL;
-	INT16 vNotes=0;
+	short vNotes=0;
 
 	aNoteL=FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
@@ -59,7 +59,7 @@ static INT16 GetNumVNotes(LINK syncL, INT16 v)
 	return vNotes;
 }
 
-static void GetMrgdUnmrgd(LINK syncL, INT16 v, Boolean *merged, Boolean *unMerged)
+static void GetMrgdUnmrgd(LINK syncL, short v, Boolean *merged, Boolean *unMerged)
 {
 	LINK aNoteL;
 
@@ -81,11 +81,11 @@ are from either doc or clip they should be ok; they should only need fixing
 if they contain notes from both doc and clip. Final question: 
 What if the merged chord contains notes from more than one staff? */
 
-Boolean AvoidUnisons(Document *, LINK, INT16, PCONTEXT);
+Boolean AvoidUnisons(Document *, LINK, short, PCONTEXT);
 
-static void MFixOverlapSync(Document *doc, LINK syncL, INT16 v)
+static void MFixOverlapSync(Document *doc, LINK syncL, short v)
 {
-	INT16 vNotes=0,staff,noteDur,noteNDots; LINK aNoteL;
+	short vNotes=0,staff,noteDur,noteNDots; LINK aNoteL;
 	Boolean hasMerged=FALSE,hasUnmerged=FALSE,hadRest;
 	CONTEXT context; PANOTE aNote;
 
@@ -235,10 +235,10 @@ merged notes to the beamed status of the chords they entered in the doc. Then
 traverse the range again and fix up beams which remain and include notes that
 have been merged from the clipboard. */
 
-static void MergeFixBeamRange(Document *doc, LINK startL, LINK endL, INT16 v)
+static void MergeFixBeamRange(Document *doc, LINK startL, LINK endL, short v)
 {
 	LINK pL,qL,aNoteL,firstSyncL,lastSyncL,beamL,nextL; PANOTE aNote;
-	Boolean docBeamed,needRebeam; INT16 nInBeam;
+	Boolean docBeamed,needRebeam; short nInBeam;
 
 	/* Remove all merged beams, then fix the status of beamed flags in all
 		merged notes.
@@ -329,7 +329,7 @@ static void MergeFixBeamRange(Document *doc, LINK startL, LINK endL, INT16 v)
 /* Unoctava a Sync or GRSync of whose notes only those with merged status <merged>
 actually require un-Octava-ing. */
 
-static void MUnOctavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, INT16 s,
+static void MUnOctavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short s,
 									CONTEXT context, Boolean merged)
 {
 	LINK aNoteL; 
@@ -377,12 +377,12 @@ static void MUnOctavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, INT16
 }
 
 static void MUnOctavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
-									INT16 s, CONTEXT context, Boolean /*merged*/)
+									short s, CONTEXT context, Boolean /*merged*/)
 {
 	LINK aGRNoteL;
 	PAGRNOTE aGRNote;
 	Boolean stemDown=FALSE, multiVoice=FALSE;
-	INT16 stemLen;
+	short stemLen;
 	
 	/* Loop through the grace notes and set their yds and ystems. */
 	aGRNoteL = FirstSubLINK(pL);
@@ -420,7 +420,7 @@ static void MUnOctavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
 accordingly. Specifically for use by Merge. */
 
 static void MRemoveOctOnStf(Document *doc, LINK octL,
-								INT16 s,
+								short s,
 								Boolean merged			/* TRUE if removing merged-in Octava */
 								)
 {
@@ -456,10 +456,10 @@ necessary for octavas, but it is not clear how to distinguish the notes which
 would not need the pre-processing and in fact should not have it because they
 have already been processed for beams. */
 
-static void MergeFixOctRange(Document *doc, LINK startL, LINK endL, VInfo *vInfo, INT16 v)
+static void MergeFixOctRange(Document *doc, LINK startL, LINK endL, VInfo *vInfo, short v)
 {
 	LINK pL,qL,aNoteL,aNoteOctL,firstSyncL,lastSyncL;
-	INT16 firstStf,lastStf,s,nInOct,octType;
+	short firstStf,lastStf,s,nInOct,octType;
 	Boolean hasMerged,hasUnmerged;
 	PANOTE aNote;
 	PANOTEOCTAVA aNoteOct;
@@ -563,9 +563,9 @@ doneCheck1:
 /* ------------------------------------------------------------ MergeFixVOverlaps -- */
 /* Fix up all syncs in merged range for voices which had temporal overlaps. */
 
-void MergeFixVOverlaps(Document *doc, LINK initL, LINK succL, INT16 *vMap, VInfo *vInfo)
+void MergeFixVOverlaps(Document *doc, LINK initL, LINK succL, short *vMap, VInfo *vInfo)
 {
-	LINK pL; INT16 v,docV;
+	LINK pL; short v,docV;
 	
 	for (v=1; v<=MAXVOICES; v++) {
 		if (vInfo[v].overlap) {
@@ -593,12 +593,12 @@ may not. */
 
 void MEFixContForClef(Document *doc,
 								LINK startL, LINK doneL,
-								INT16 staffn,
+								short staffn,
 								SignedByte oldClef, SignedByte newClef,	/* Previously-effective and new clefTypes */
 								CONTEXT context
 								)
 {
-	INT16			voice, yPrev, yHere, qStemLen;
+	short			voice, yPrev, yHere, qStemLen;
 	DDIST			yDelta;
 	PANOTE		aNote;
 	PAGRNOTE		aGRNote;
@@ -696,14 +696,14 @@ Cleanup:
 /* ---------------------------------------------------------- MFixAllAccidentals -- */
 
 static void MFixAllAccidentals(LINK fixFirstL, LINK fixLastL,
-						INT16 staff,
+						short staff,
 						Boolean pitchMod	/* TRUE=<accTable> has pitch modifers, else accidentals */
 						)
 {
 	PANOTE	aNote;
 	PAGRNOTE aGRNote;
 	LINK		pL, aNoteL, aGRNoteL;
-	INT16		halfLn;
+	short		halfLn;
 
 	for (pL = fixFirstL; pL!=fixLastL; pL=RightLINK(pL))
 		switch(ObjLType(pL)) {
@@ -754,7 +754,7 @@ appropriate to keep notes' pitches the same. */
 
 static void MEFixAccsForKeySig(Document *doc,
 										LINK startL, LINK doneL,
-										INT16 staffn,					/* Desired staff no. */
+										short staffn,					/* Desired staff no. */
 										KSINFO oldKSInfo,				/* Previously-effective and new key sig. info */
 										KSINFO newKSInfo
 										)
@@ -793,7 +793,7 @@ at <startL>, on staff <s>. */
 
 static void MergeFixAllContexts(Document *doc,
 											LINK startL, LINK endL,
-											INT16 s,
+											short s,
 											CONTEXT oldContext, CONTEXT newContext)
 {
 	KSINFO oldKSInfo, newKSInfo;
@@ -830,10 +830,10 @@ initL = LeftLINK(first node in range); succL = selEndL.
 Note: assumes doc->selStaff is set.
 Note: comment about the range seems wrong. (CER,2/91) */
 
-void MergeFixContext(Document *doc, LINK initL, LINK succL, INT16 minStf, INT16 maxStf,
-							INT16 staffDiff)
+void MergeFixContext(Document *doc, LINK initL, LINK succL, short minStf, short maxStf,
+							short staffDiff)
 {
-	INT16 s,v; CONTEXT oldContext, newContext; LINK clipMeasL;
+	short s,v; CONTEXT oldContext, newContext; LINK clipMeasL;
 
 	InstallDoc(clipboard);
 	clipMeasL = LSSearch(clipboard->headL, MEASUREtype, ANYONE, FALSE, FALSE);
@@ -897,7 +897,7 @@ void MergeFixContext(Document *doc, LINK initL, LINK succL, INT16 minStf, INT16 
 
 static void MFixOctavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	INT16				i, k;
+	short				i, k;
 	PANOTE 			aNote;
 	PAGRNOTE			aGRNote;
 	PANOTEOCTAVA 	paNoteOct;
@@ -964,7 +964,7 @@ static void MFixOctavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LIN
 
 static void MFixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	INT16			i, k;
+	short			i, k;
 	PANOTE 		aNote;
 	PANOTEBEAM 	paNoteBeam;
 	LINK			pL, qL, aNoteL, aNoteBeamL;

@@ -9,8 +9,6 @@
 
 #include "ChooseCharLDEF.h"
 
-static void CenterInRect(Rect *r,Rect *cInR);
-
 void GetCharBBox(GrafPtr, Rect *);
 GrafPtr NewGrafPort(int, int);
 void DisposGrafPort(GrafPtr);
@@ -23,13 +21,8 @@ static GrafPtr charPort;
 
 /* main LDEF entry point */
 
-#if CODE_RESOURCE
-pascal void	main(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCell*/,
-				short lDataOffset, short lDataLen, ListHandle lHandle)
-#else
 pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCell*/,
 				short lDataOffset, short lDataLen, ListHandle lHandle)
-#endif
 {
 	FontInfo fontInfo;							/* font information (ascent/descent/etc) */
 	ListPtr listPtr;								/* pointer to store dereferenced list */
@@ -45,12 +38,6 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 	//Rect bounds,cpBounds;
 	//short cpHt,cpWd;
 	short lMarg,tMarg;
-		
-	
-#if CODE_RESOURCE
-	RememberA0();
-	SetUpA4();
-#endif	
 
 	/* lock and dereference list mgr handles */
 	hStateList = HGetState((Handle)lHandle);
@@ -103,38 +90,6 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 				MoveTo(cellRect.left+lMarg, cellRect.top+tMarg);
 				DrawChar(*p);
 				
-#if 0
-				GetPort(&oldPort);
-				SetPort(charPort);
-				GetPortBounds(charPort, &cpBounds);	
-				EraseRect(&cpBounds);
-//				MoveTo(0, 0+fontInfo.ascent);
-				MoveTo(0, cpBounds.bottom-cpBounds.top-fontInfo.descent);
-				DrawChar(*p);
-//				GetCharBBox(charPort, &charBBox);
-				SetPort(oldPort);
-				
-				cpHt = cpBounds.bottom-cpBounds.top;
-				cpWd = cpBounds.right-cpBounds.left;
-				
-				bounds = cellRect;
-				bounds.bottom = bounds.top + cpHt;
-				bounds.right = bounds.left + cpWd;
-				CenterInRect(&cellRect,&bounds);
-
-				const BitMap *charPortBits = GetPortBitMapForCopyBits(charPort);
-				const BitMap *oldPortBits = GetPortBitMapForCopyBits(oldPort);
-				CopyBits(charPortBits, oldPortBits, &cpBounds, &bounds, srcCopy, NULL);
-
-				charHt = charBBox.bottom - charBBox.top + 1;
-
-/* •••Still a problem for those few chars that have zero width */
-				leftDraw = lRect->left + ((cellWid - charWid)>>1);
-				topDraw = lRect->top + ((cellHt - charHt)>>1) + (fontInfo.ascent-charBBox.top);
-				
-				MoveTo(leftDraw, topDraw);
-				DrawChar(*p);
-#endif
 	  		}
 		
 			if (!lSelect)							/* otherwise, fall through to hilite */
@@ -153,25 +108,7 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 	HSetState(listPtr->cells, hStateCells);
 	HSetState((Handle)lHandle, hStateList);
 
-#if CODE_RESOURCE
-	RestoreA4();
-#endif
 }
-
-static void CenterInRect(Rect *r,Rect *cInR)
-{
-	short rWid = r->right-r->left;
-	short rHt = r->bottom-r->top;
-	
-	short cWid = cInR->right-cInR->left;
-	short cHt = cInR->bottom-cInR->top;
-	
-	short lMarg = (rWid - cWid)/2;
-	short tMarg = (rHt - cHt)/2;
-	
-	OffsetRect(cInR,lMarg,tMarg);	
-}
-
 
 /* •••so far, bbox.left & right undefined!! */
 void GetCharBBox(GrafPtr port, Rect *bbox)

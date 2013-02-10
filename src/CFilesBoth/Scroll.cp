@@ -22,9 +22,9 @@ multiple of 8 since this is the period of the background pattern being painted
 in behind sheets of paper in the document window, and if the coordinate system
 stays in sync with the pattern, it will appear stationary. */
 
-pascal void ScrollDocument(ControlHandle control, INT16 part)
+pascal void ScrollDocument(ControlHandle control, short part)
 	{
-		INT16 change,size,dx=0,dy=0;
+		short change,size,dx=0,dy=0;
 		register Document *theDoc = GetDocumentFromWindow(TopDocument);
 		
 		if (theDoc==NULL) return;
@@ -72,13 +72,12 @@ brings in 1 or 2 more rectangular areas to be updated.  Whether we should
 just go back to standard update regions or not depends on how the page-
 redrawing routines are when given this increasing number of of rectangles. */
 
-void QuickScroll(register Document *doc, register INT16 dx, register INT16 dy,
+void QuickScroll(register Document *doc, register short dx, register short dy,
 					Boolean rel, Boolean doCopy)
 	{
 		Rect src,dst,r,vRect,hRect,*nextRect,*nr,screen,portRect;
 		WindowPtr w; Point pt; GrafPtr oldPort;
-		INT16 width, height,cVal,cMax,cMin,nUpdates,i,nScreens;
-		static Rect empty = { 0, 0, 0, 0 };
+		short width, height,cVal,cMax,cMin,nUpdates,i,nScreens;
 		
 		w = doc->theWindow;
 		GetPort(&oldPort); SetPort(GetWindowPort(w));
@@ -316,12 +315,7 @@ void QuickScroll(register Document *doc, register INT16 dx, register INT16 dy,
 				doc->showWaitCurs = FALSE;	/* Avoid distracting cursor changes when auto-scrolling */
 				DrawDocumentView(doc,nr);
 				}
-
-#ifdef DONT_KNOW_WHY
-			while (--nextRect >= updateRectTable)
-				DrawDocumentView(doc,nextRect);
-#endif
-						
+		
 			/*
 			 *	If window is on more than one screen, just invalidate everything
 			 *	not on the screen that has already been scrolled, and redraw

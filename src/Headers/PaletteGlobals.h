@@ -36,9 +36,7 @@
  *	application.
  */
 
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
+#pragma options align=mac68k
 
 typedef struct {
 	short		currentItem;
@@ -64,6 +62,4 @@ typedef struct {
 	
 	} PaletteGlobals;
 
-//#if TARGET_CPU_PPC
-	#pragma options align=reset
-//#endif
+#pragma options align=reset

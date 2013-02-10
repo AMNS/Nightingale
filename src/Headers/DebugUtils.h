@@ -26,7 +26,7 @@ Boolean DCheck1NEntries(Document *, LINK);
 	Less & Least important: messages about problems have no prefix
 */
 
-extern INT16 nerr, errLim;
+extern short nerr, errLim;
 extern Boolean minDebugCheck;			/* TRUE=don't print Less & Least important checks */
 
 #ifdef DDB

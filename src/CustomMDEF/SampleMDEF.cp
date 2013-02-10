@@ -45,11 +45,7 @@
 
 #define TARGET_API_MAC_CARBON 1
 
-//#if TARGET_API_MAC_CARBON_MACHO
 #include <Carbon/Carbon.h>
-//#else
-//#include <Carbon.h>
-//#endif
 
 #include "SampleMDEF.h"
 
@@ -445,20 +441,6 @@ static void ReleaseMenuItemData( const MenuItemDataRec* itemData )
 	if ( itemData->cfText != NULL )
 		CFRelease( itemData->cfText );
 }
-
-#if 0	// not currently used
-/*--------------------------------------------------------------------------------------------------*/
-static ThemeMenuType GetThemeMenuType( MenuRef menu )
-{
-	ThemeMenuType menuType;
-	GetMenuType( menu, &menuType );
-	
-	if ( !IsMenuItemEnabled( menu, 0 ) )
-		menuType |= kThemeMenuTypeInactive;
-		
-	return menuType;
-}
-#endif
 
 /*--------------------------------------------------------------------------------------------------*/
 static ThemeMenuState GetItemState( MenuItemAttributes attr, Boolean hilite )

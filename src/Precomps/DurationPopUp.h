@@ -1,6 +1,4 @@
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
+#pragma options align=mac68k
 
 /* format of 'chgd' resource */
 typedef struct {
@@ -29,9 +27,7 @@ typedef struct {
 	char	numDots;
 } POPKEY;
 
-//#if TARGET_CPU_PPC
-	#pragma options align=reset
-//#endif
+#pragma options align=reset
 
 Boolean InitGPopUp(PGRAPHIC_POPUP, Point, short, short);
 void SetGPopUpChoice(PGRAPHIC_POPUP, short);

@@ -27,7 +27,6 @@
 
 /* Prototypes for private routines */
 
-static void		UnloadSomeSegs(void);
 static void		DoNullEvent(EventRecord *evt);
 static Boolean	DoMouseDown(EventRecord *evt);
 static void		DoContent(WindowPtr w, Point pt, short modifiers, long when);
@@ -54,7 +53,7 @@ Boolean DoEvent()
 	{
 		Boolean haveEvent,keepGoing = TRUE,activ;
 		long soon; short result;
-		static INT16 fixCount = 1;
+		static short fixCount = 1;
 		Point corner;
 		static long checkMemTime=BIGNUM, checkDSTime=BIGNUM;
 
@@ -295,7 +294,6 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 		WindowPtr w; short itemHit;
 		ScrapRef scrap;
 		static Boolean wasOurWindow;
-		static short lastCount;
 		WindowPtr curAct;
 		Document *doc;
 		DialogPtr d;
@@ -529,7 +527,7 @@ static Boolean DoMouseDown(EventRecord *event)
 
 static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 	{
-		short code,val,oldVal,change; INT16 index; GrafPtr oldPort;
+		short code,val,oldVal,change; short index; GrafPtr oldPort;
 		ControlHandle control;
 		Rect portRect;
 		short contrlHilite;
@@ -616,7 +614,7 @@ user pulls the mouse outside the viewRect of the window. */
 
 void AutoScroll()
 	{
-		Point pt; INT16 dx,dy; Document *theDoc = GetDocumentFromWindow(TopDocument);
+		Point pt; short dx,dy; Document *theDoc = GetDocumentFromWindow(TopDocument);
 		PenState pen;
 		
 		if (theDoc) {
@@ -643,7 +641,7 @@ selection rectangle with automatic scrolling if user drags mouse out of view. */
 static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 	{
 		Rect paper; Document *doc = GetDocumentFromWindow(w);
-		INT16 ans,doubleClick;
+		short ans,doubleClick;
 		Boolean didSomething;
 		
 		if (doc==NULL) return;
@@ -664,10 +662,6 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 					pt.h -= paper.left;
 					pt.v -= paper.top;
 					
-#ifdef VIEWER_VERSION
-					DoEditScore(doc,pt,modifiers,FALSE);
-					didSomething = FALSE;
-#else
 					if (doc->masterView) {
 						didSomething = DoEditMaster(doc,pt,modifiers,doubleClick);
 						if (didSomething) doc->masterChanged = TRUE;
@@ -681,7 +675,6 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 					}
 					else
 						didSomething = DoEditScore(doc,pt,modifiers,doubleClick);
-#endif
 
 #ifdef SHEETSSELECTION
 					if (didSomething)
@@ -716,10 +709,9 @@ with separately.  Routine delivers whether to continue event loop or not. */
 
 static Boolean DoKeyDown(EventRecord *event)
 	{
-		short ch,itemHit,key; INT16 nparts; WindowPtr wp;
-		Boolean keepGoing = TRUE,scoreView;
+		short ch,itemHit,key; short nparts; WindowPtr wp;
+		Boolean scoreView;
 		Document *doc = GetDocumentFromWindow(TopDocument);
-		MenuHandle hMenu = editMenu;
 		unsigned long cmdCode;
 		
 		ch = (unsigned)(event->message & charCodeMask);
@@ -747,7 +739,6 @@ static Boolean DoKeyDown(EventRecord *event)
 		 else
 			switch(ch) {
 				case CH_BS:							/* Handle backspace to delete */
-#ifndef VIEWER_VERSION
 					if (doc) {
 						if (scoreView && ContinSelection(doc, config.strictContin!=0)) {
 							if (BFSelClearable(doc, BeforeFirstMeas(doc->selStartL))) {
@@ -760,7 +751,6 @@ static Boolean DoKeyDown(EventRecord *event)
 							if (PartSel(doc)) MPDeletePart(doc);
 							}
 						}
-#endif
 					break;
 				case '\r':
 					if (doc) {
@@ -888,11 +878,7 @@ pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, /*u
 						DoCloseWindow(doc->theWindow);
 						}
 					else if (isFirst)
-#ifdef VIEWER_VERSION
-						;
-#else
 						DoViewMenu(VM_SymbolPalette);
-#endif
 					}
 				 else
 					break;					/* Couldn't open; error already reported */
@@ -924,14 +910,10 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			if (DoOpenDocument(theFile->name, theFile->vRefNum, FALSE, theFile)) break;
 			return NULL;
 		case 'TEXT':
-#ifndef VIEWER_VERSION
 			if (OpenNotelistFile(theFile->name, theFile)) break;
-#endif
 			return NULL;
 		case 'Midi':
-#ifndef VIEWER_VERSION
 			if (ImportMIDIFile(theFile)) break;			
-#endif
 			return NULL;
 		default:
 			/* ??We should give a specific, more helpful error message if it's a Help file. */		
@@ -979,14 +961,10 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			if (DoOpenDocument(theFile->name, wdRec.ioVRefNum, FALSE)) break;
 			return NULL;
 		case 'TEXT':
-#ifndef VIEWER_VERSION
 			if (OpenNotelistFile(theFile->name, wdRec.ioVRefNum)) break;
-#endif
 			return NULL;
 		case 'Midi':
-#ifndef VIEWER_VERSION
 			if (ImportMIDIFile(theFile->name, wdRec.ioVRefNum)) break;			
-#endif
 			return NULL;
 		default:
 			/* ??We should give a specific, more helpful error message if it's a Help file. */		
@@ -1024,7 +1002,7 @@ pascal OSErr HandlePDOC(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 pascal OSErr HandleQUIT(const AppleEvent */*appleEvent*/, AppleEvent */*reply*/, /*unsigned*/ long /*refcon*/)
 	{
-		INT16 keepGoing = DoFileMenu(FM_Quit);
+		short keepGoing = DoFileMenu(FM_Quit);
 		
 		return(keepGoing);	/* ??Return value is nonsense! But unused as of v. 3.1 */
 	}

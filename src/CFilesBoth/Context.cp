@@ -28,7 +28,7 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-LINK EFixAccsForKeySig(Document *, LINK, LINK, INT16, KSINFO, KSINFO);
+LINK EFixAccsForKeySig(Document *, LINK, LINK, short, KSINFO, KSINFO);
 
 
 /* ------------------------------------------------------------------ ContextClef -- */
@@ -53,7 +53,7 @@ void ContextKeySig(LINK pL, CONTEXT	context[])
 {
 	LINK		aKeySigL;
 	PCONTEXT	pContext;
-	INT16		k;
+	short		k;
 
 	aKeySigL = FirstSubLINK(pL);
 	for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL)) {
@@ -129,7 +129,7 @@ void ContextSystem(LINK pL, CONTEXT	context[])
 {
 	PSYSTEM	p;
 	PCONTEXT	pContext;
-	INT16		i;
+	short		i;
 
 	p = GetPSYSTEM(pL);
 	pContext = context;
@@ -167,7 +167,7 @@ void ContextTimeSig(LINK pL, CONTEXT context[])
 
 void ContextPage(Document *doc, LINK pL, CONTEXT context[])
 {
-	PPAGE	p; PCONTEXT pContext; INT16 i;
+	PPAGE	p; PCONTEXT pContext; short i;
 
 	p = GetPPAGE(pL);
 	doc->currentSheet = p->sheetNum;
@@ -186,7 +186,7 @@ This is done by searching backwards for a Staff or Measure object, taking note o
 any Clef, KeySig, TimeSig, or Dynamic objects found along the way. Warning: in
 general, context at an object before the first measure will have undefined fields! */
 
-void GetContext(Document *doc, LINK contextL, INT16 theStaff, PCONTEXT pContext)
+void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 {
 	register LINK pL;
 	PMEASURE		pMeasure;
@@ -195,7 +195,7 @@ void GetContext(Document *doc, LINK contextL, INT16 theStaff, PCONTEXT pContext)
 	PPAGE			pPage;
 	LINK			staffL,systemL,aMeasureL,aStaffL,aClefL,
 					aKeySigL,aTimeSigL,aDynamicL,pageL,headL;
-	INT16			k;
+	short			k;
 	Boolean		found,			/* FALSE till a Measure or Staff is found for theStaff */
 					foundClef,		/* TRUE if we found any of these objects */
 					foundKeySig,
@@ -430,7 +430,7 @@ void GetContext(Document *doc, LINK contextL, INT16 theStaff, PCONTEXT pContext)
 
 void GetAllContexts(Document *doc, CONTEXT context[], LINK pAtL)
 {
-	INT16 staff;
+	short staff;
 
 #ifdef MAYBE_SAFER
 	if (LinkBefFirstMeas(pAtL))
@@ -447,11 +447,11 @@ void GetAllContexts(Document *doc, CONTEXT context[], LINK pAtL)
 /* Remove and re-beam every beamset that has elements in the given range on the
 given staff, presumably to handle a change of clef context. */
 
-void ClefFixBeamContext(Document *doc, LINK startL, LINK doneL, INT16 staffn)
+void ClefFixBeamContext(Document *doc, LINK startL, LINK doneL, short staffn)
 {
 	LINK firstBeamL=NILINK, tempL, prevBeamL;
 	LINK pL, notes[MAXINBEAM];
-	INT16 v; PBEAMSET pBeam; STFRANGE stfRange;
+	short v; PBEAMSET pBeam; STFRANGE stfRange;
 
 #ifdef QUESTIONABLE
 	/* First, look to see if a crossStaff beam on another staff affecting the given staff
@@ -515,10 +515,10 @@ void ClefFixBeamContext(Document *doc, LINK startL, LINK doneL, INT16 staffn)
 /* -------------------------------------------------------- ToggleAugDotPosInRange -- */
 /* Toggle augmentation dot y-positions for all notes in the given range and staff. */
 
-static void ToggleAugDotPosInRange(Document *doc, LINK startL, LINK endL, INT16 staffn);
-static void ToggleAugDotPosInRange(Document *doc, LINK startL, LINK endL, INT16 staffn)
+static void ToggleAugDotPosInRange(Document *doc, LINK startL, LINK endL, short staffn);
+static void ToggleAugDotPosInRange(Document *doc, LINK startL, LINK endL, short staffn)
 {
-	LINK pL, mainNoteL, aNoteL; INT16 voice;
+	LINK pL, mainNoteL, aNoteL; short voice;
 	Boolean stemDown;
 	
 	for (pL = startL; pL!=endL; pL=RightLINK(pL)) {
@@ -553,12 +553,12 @@ vice-versa. ??MEFixContForClef should do the same thing. */
 
 void EFixContForClef(
 				Document *doc, LINK startL, LINK doneL,
-				INT16 staffn,
+				short staffn,
 				SignedByte oldClef, SignedByte newClef,	/* Previously-effective and new clefTypes */
 				CONTEXT context
 				)
 {
-	INT16			voice, yPrev, yHere, qStemLen;
+	short			voice, yPrev, yHere, qStemLen;
 	DDIST			yDelta;
 	LINK			pL, aClefL, aNoteL, aGRNoteL, aStaffL, aMeasureL;
 	Boolean		stemDown;
@@ -669,7 +669,7 @@ directions, and (4) beam positions to match the new note positions. Returns the
 first LINK after the range affected or, if nothing is affected, NILINK. */
 
 LINK FixContextForClef(
-				Document *doc, LINK startL, INT16 staffn,
+				Document *doc, LINK startL, short staffn,
 				SignedByte oldClef, SignedByte newClef)		/* Previously-effective and new clefTypes */
 {
 	LINK			doneL;
@@ -707,7 +707,7 @@ following STAFFs and MEASUREs for the given staff. If we find another key sig-
 nature on the staff before doneL, we stop at that point. */
 
 void EFixContForKeySig(LINK startL, LINK doneL,
-						INT16 staffn,								/* Desired staff no. */
+						short staffn,								/* Desired staff no. */
 						KSINFO /*oldKSInfo*/, KSINFO newKSInfo	/* Previously-effective and new key sig. info */
 						)
 {
@@ -757,7 +757,7 @@ fields of following STAFFs and MEASUREs for the given staff. Returns the first
 LINK after the range affected or, if nothing is affected, NILINK. */
 
 LINK FixContextForKeySig(Document *doc, LINK startL,
-						INT16 staffn,								/* Desired staff no. */
+						short staffn,								/* Desired staff no. */
 						KSINFO oldKSInfo, KSINFO newKSInfo	/* Previously-effective and new key sig. info */
 						)
 {
@@ -798,7 +798,7 @@ Problems with this: mild inefficiency; replaces <playDur>s of whole rests that m
 have been tweaked with vanilla ones (but rests don't play anyway, and never will). */
 
 void EFixContForTimeSig(LINK startL, LINK doneL,
-						INT16 staffn,			/* Desired staff no. */
+						short staffn,			/* Desired staff no. */
 						TSINFO newTSInfo		/* New time signature */
 						)
 {
@@ -859,7 +859,7 @@ a change of time sig.--it forges ahead regardless.  See comments on the (minor)
 problems with this in EFixContForTimeSig. */
 
 LINK FixContextForTimeSig(Document *doc, LINK startL,
-								INT16 staffn,			/* Desired staff no. */
+								short staffn,			/* Desired staff no. */
 								TSINFO newTSInfo		/* New time signature */
 								)
 {
@@ -891,12 +891,12 @@ preserving tweaking; otherwise it simply replaces velocities. How do we really
 want to do this? */
 
 void EFixContForDynamic(LINK startL, LINK doneL,
-				INT16 staffn,											/* Desired staff no. */
+				short staffn,											/* Desired staff no. */
 				SignedByte /*oldDynamic*/, SignedByte newDynamic	/* Previously-effective and new dynamicTypes */
 				)
 {
 	LINK			pL, aNoteL, aStaffL, aDynamicL, aMeasureL;
-	INT16			newVelocity;
+	short			newVelocity;
 
 #ifdef RELDYNCHANGE
 	veloChange = dynam2velo[newDynamic]-dynam2velo[oldDynamic];	/* Rel. change; preserve tweaking */
@@ -962,8 +962,8 @@ void EFixContForDynamic(LINK startL, LINK doneL,
 /* ------------------------------------------------------------- NonHPDynamSearch -- */
 /* Starting at <link>, search for the next non-hairpin dynamic. */
 
-LINK NonHPDynamSearch(LINK link, INT16 staffn);
-LINK NonHPDynamSearch(LINK link, INT16 staffn)
+LINK NonHPDynamSearch(LINK link, short staffn);
+LINK NonHPDynamSearch(LINK link, short staffn)
 {
 	if (DynamTYPE(link) && DynamType(link)>=FIRSTHAIRPIN_DYNAM)
 		return link;
@@ -981,7 +981,7 @@ following STAFFs and MEASUREs for the given staff, and (2) notes' On velocities.
 
 LINK FixContextForDynamic(
 				Document *doc, LINK startL,
-				INT16 staffn,
+				short staffn,
 				SignedByte oldDynamic, SignedByte newDynamic		/* Previous and new dynamTypes */
 				)
 {
@@ -1016,7 +1016,7 @@ LINK FixContextForDynamic(
 
 void FixMeasureContext(LINK aMeasureL, PCONTEXT pContext)
 {
-	INT16 k;
+	short k;
 
 	if (pContext->nKSItems > MAX_KSITEMS) {
 		MayErrMsg("FixMeasureContext: called w/ %ld nKSItems", (long)pContext->nKSItems);
@@ -1040,7 +1040,7 @@ void FixMeasureContext(LINK aMeasureL, PCONTEXT pContext)
 
 void FixStaffContext(LINK aStaffL, PCONTEXT pContext)
 {
-	INT16 k;
+	short k;
 	
 	if (pContext->nKSItems > MAX_KSITEMS) {
 		MayErrMsg("FixStaffContext: called w/ %ld nKSItems", (long)pContext->nKSItems);
@@ -1061,7 +1061,7 @@ void FixStaffContext(LINK aStaffL, PCONTEXT pContext)
 
 /* Utilities pulled out for the sake of PasteFixContext and FixDelContext. */
 
-LINK UpdateKSContext(Document *doc, LINK pL, INT16 stf, CONTEXT oldContext,
+LINK UpdateKSContext(Document *doc, LINK pL, short stf, CONTEXT oldContext,
 							CONTEXT newContext)
 {
 	KSINFO oldKS, newKS; LINK doneL;
@@ -1072,7 +1072,7 @@ LINK UpdateKSContext(Document *doc, LINK pL, INT16 stf, CONTEXT oldContext,
 	return doneL;
 }
 
-void UpdateTSContext(Document *doc, LINK pL, INT16 stf, CONTEXT newContext)
+void UpdateTSContext(Document *doc, LINK pL, short stf, CONTEXT newContext)
 {
 	TSINFO	timeSigInfo;
 
@@ -1089,7 +1089,7 @@ void UpdateTSContext(Document *doc, LINK pL, INT16 stf, CONTEXT newContext)
 
 void CombineTables(SignedByte oldKSTab[], SignedByte KSTab[])	/* Accidental tables */
 {
-	INT16 j;
+	short j;
 	
 	for (j = 0; j<MAX_STAFFPOS; j++)									/* Combine tables */
 		if (oldKSTab[j]==KSTab[j])										/* Entry the same? */
@@ -1100,7 +1100,7 @@ void CombineTables(SignedByte oldKSTab[], SignedByte KSTab[])	/* Accidental tabl
 
 void InitPitchModTable(SignedByte KSTab[], KSINFO *pKSInfo)
 {
-	INT16 j;
+	short j;
 
 	KeySig2AccTable(KSTab, pKSInfo);							/* Init. table from key sig. */
 	for (j = 0; j<MAX_STAFFPOS; j++)
@@ -1111,7 +1111,7 @@ void InitPitchModTable(SignedByte KSTab[], KSINFO *pKSInfo)
 
 void CopyTables(SignedByte KSTab[], SignedByte accTable[])
 {
-	INT16 j;
+	short j;
 
 	for (j = 0; j<MAX_STAFFPOS; j++)
 		accTable[j] = KSTab[j];
@@ -1137,7 +1137,7 @@ appropriate to keep notes' pitches the same, and return the next key signature
 or, if there is none, tailL. */
 
 LINK EFixAccsForKeySig(Document *doc, LINK startL, LINK doneL,
-						INT16 staffn,								/* Desired staff no. */
+						short staffn,								/* Desired staff no. */
 						KSINFO oldKSInfo, KSINFO newKSInfo	/* Previously-effective and new key sig. info */
 						)
 {
@@ -1183,7 +1183,7 @@ effective one, simply return NILINK. */
 
 LINK FixAccsForKeySig(Document *doc,
 						LINK keySigL,					/* New key signature */
-						INT16 staffn,					/* Desired staff no. */
+						short staffn,					/* Desired staff no. */
 						KSINFO oldKSInfo, KSINFO newKSInfo)	/* Previously-effective and new key sig. info */
 {
 	LINK nextKSL,lastFixL;

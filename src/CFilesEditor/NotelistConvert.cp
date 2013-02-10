@@ -237,11 +237,11 @@ Error:
 /* Get the note subtype code for the shortest duration of any note/chord in the given
 range in the given voice. */
 
-INT16 GetShortestDurCode(INT16 voice, LINK startL, LINK endL);
-INT16 GetShortestDurCode(INT16 voice, LINK startL, LINK endL)
+short GetShortestDurCode(short voice, LINK startL, LINK endL);
+short GetShortestDurCode(short voice, LINK startL, LINK endL)
 {
 	LINK pL, aNoteL;
-	INT16 maxDurCode;
+	short maxDurCode;
 	
 	maxDurCode = SHRT_MIN;
 	for (pL = startL; pL!= endL; pL = RightLINK(pL))
@@ -268,7 +268,7 @@ static Boolean NotelistToNight(Document *doc)
 	PNL_GENERIC	pG;
 	NLINK			itemL;
 	char			fmtStr[256];
-	INT16			shortestDurCode;
+	short			shortestDurCode;
 	
 	result = SetupNLScore(doc);
 	if (!result) return FALSE;
@@ -345,12 +345,6 @@ static Boolean NotelistToNight(Document *doc)
 		SelAllNoHilite(doc);
 		DelRedundantAccs(doc, ANYONE, DELALL_REDUNDANTACCS_DI);
 	}
-#ifdef NOTYET
-	/* Delete all redundant time signatures. */
-
-	(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
-
-#endif
 
 	/* Create slurs/ties before reformatting, so that we can get cross-sys & cross-pg slurs/ties. */
 	CreateAllTies(doc);
@@ -378,13 +372,6 @@ static Boolean NotelistToNight(Document *doc)
 	doc->spacePercent = spacePercent;
 	ok = RespaceBars(doc, firstMeasL, doc->tailL, RESFACTOR*spacePercent, FALSE, doReformat=TRUE);
 
-#ifdef LIGHT_VERSION
-	if (doc->numSheets>MAXPAGES) {
-		/* Already given LIGHTVERS_MAXPAGES_ALRT in Reformat. */
-		return FALSE;
-	}
-#endif
-
 	ProgressMsg(CONTINUENOTELIST_PMSTR, "");
 
 #if DOAUTOBEAM
@@ -398,13 +385,6 @@ static Boolean NotelistToNight(Document *doc)
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		if (TupletTYPE(pL))
 			SetTupletYPos(doc, pL);
-
-#ifdef NOTYET
-/* Delete all redundant time signatures. */
-
-	(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
-
-#endif
 
 	FIJustifyAll(doc);															/* Justify every system. */
 	
@@ -1030,10 +1010,6 @@ static Boolean SetDefaultCoords(Document *doc)
 				staffn = TempoSTAFF(pL);
 				yd = qd2d(DFLT_TEMPO_HEIGHT, staffHeight[staffn], staffLines[staffn]);
 				LinkYD(pL) = yd;
-#ifdef NOTYET // probably no need to change this
-				xd = foo;
-				LinkXD(pL) = xd;
-#endif
 				break;
 			case DYNAMtype:
 				/* NB: Dynamic coordinates are bizarre -- they use the object's 

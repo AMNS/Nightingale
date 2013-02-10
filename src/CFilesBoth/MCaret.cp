@@ -57,16 +57,7 @@ to hold the largest (tallest) caret. */
 
 Boolean MEInitCaretSystem()
 	{
-#ifndef COPYBITS_CARET
 		return TRUE;
-#else
-		/* Allocate an offscreen port to hold all background bits */
-		
-		/* !! THIS NEEDS TO BE A COLOR OFFSCREEN PORT FOR COLOR SYSTEMS !! */
-		
-		caretPort = NewGrafPort(CARET_WIDTH,MAX_CARET_HEIGHT);
-		if (caretPort==NULL) return(FALSE);
-#endif
 	}
 
 /*
@@ -91,11 +82,7 @@ void MEActivateCaret(Document *doc, Boolean active)
 void MEUpdateCaret(Document *doc)
 	{
 		if (doc->caretOn) {			/* Always FALSE if caret inactive */
-#ifndef COPYBITS_CARET
 			InvertRect(&doc->caret);
-#else
-			PaintRect(&doc->caret);
-#endif
 			}
 	}
 
@@ -129,35 +116,8 @@ static void METurnCaret(Document *doc, Boolean on)
 			
 			GetPort(&oldPort); SetPort(GetWindowPort(doc->theWindow));
 			
-#ifndef COPYBITS_CARET
 			InvertRect(&doc->caret);
 			doc->caretOn = on;
-#else
-			/* Get document's caret position in offscreen port's coord system */
-			caretBox = doc->caret;
-			OffsetRect(&caretBox,-caretBox.left,-caretBox.top);
-			
-			/* Temporarily convert to current sheet-relative coordinate system */
-			
-			if (doc->caretOn = on) {
-				/* Copy onscreen background bits into offscreen caret port */
-				CopyBits(&qd.thePort->portBits, &caretPort->portBits,
-				 			&doc->caret, &caretBox, srcCopy, NULL);
-				/* Draw caret over saved onscreen bits */
-				PaintRect(&doc->caret);
-				}
-			 else
-				/* Restore background bits */
-				CopyBits(&caretPort->portBits, &qd.thePort->portBits,
-				 			&caretBox, &doc->caret, srcCopy, NULL);
-			
-			/* Restore to background window coordinate system */
-			
-#ifdef SPASM
-			SetBackground(doc);
-#endif
-
-#endif
 			
 			SetPort(oldPort);
 			}

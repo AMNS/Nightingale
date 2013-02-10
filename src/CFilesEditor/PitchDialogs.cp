@@ -23,9 +23,9 @@
 
 /* --------------------------------------------- Transpose- and DTransposeDialog -- */
 
-static pascal Boolean TranspFilter(DialogPtr, EventRecord *, INT16 *);
+static pascal Boolean TranspFilter(DialogPtr, EventRecord *, short *);
 static void	CalcSemiTones(DialogPtr dlog);
-static void	DoTranspArrowKey(DialogPtr dlog, INT16 whichKey);
+static void	DoTranspArrowKey(DialogPtr dlog, short whichKey);
 static void	ShowPlusSign(DialogPtr dlog);
 
 static enum
@@ -44,11 +44,11 @@ static UserPopUp popupOctave;
 static char	hilitedItem = -1;  	/* ItemNum of item currently hilited by using arrow keys. If -1, none. */
 
 
-static pascal Boolean TranspFilter(DialogPtr dlog, EventRecord *evt, INT16 *itemHit)
+static pascal Boolean TranspFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	Point where;
 	Boolean ans=FALSE; WindowPtr w;
-	INT16 ch;
+	short ch;
 
 	w = (WindowPtr)(evt->message);
 	switch(evt->what) {
@@ -66,7 +66,7 @@ static pascal Boolean TranspFilter(DialogPtr dlog, EventRecord *evt, INT16 *item
 			break;
 		case activateEvt:
 			if (w == GetDialogWindow(dlog)) {
-				INT16 activ = (evt->modifiers & activeFlag)!=0;
+				short activ = (evt->modifiers & activeFlag)!=0;
 				SetPort(GetWindowPort(w));
 			}
 			break;
@@ -113,7 +113,7 @@ static pascal Boolean TranspFilter(DialogPtr dlog, EventRecord *evt, INT16 *item
 }
 
 /* For each entry in Octave pop-up menu, give {octaves, direction} (up:1 or down:0) */
-INT16 octaves[][2] = {
+short octaves[][2] = {
 	{99,99},	/* (unused) */
 	{4,1},	/* up 4 octaves */
 	{3,1},
@@ -130,7 +130,7 @@ INT16 octaves[][2] = {
 };
 
 /* For each entry in Transpose pop-up menu, give {diatonic steps,half-steps} */
-INT16 transp[][2] = {
+short transp[][2] = {
 	{99,99},	/* (unused) */
 	{0,0},	/* Perfect unison = no change */
 	{0,99},	/* (dividing line) */
@@ -154,13 +154,13 @@ INT16 transp[][2] = {
 	{-99,-99} /* (mark end of list) */
 };
 
-Boolean TransposeDialog(Boolean *pUp, INT16 *pOctaves, INT16 *pSteps, INT16 *pSemiChange,
+Boolean TransposeDialog(Boolean *pUp, short *pOctaves, short *pSteps, short *pSemiChange,
 								Boolean *pSlashes)
 {
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
-	INT16				dialogOver, ditem;
-	INT16				semiChoice, octChoice, k;
+	short				dialogOver, ditem;
+	short				semiChoice, octChoice, k;
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(TranspFilter);
@@ -251,7 +251,7 @@ void CalcSemiTones(DialogPtr dlog)
 }
 
 /* For each entry in Diatonic Transpose pop-up menu, give diatonic steps */
-INT16 dTransp[] = {
+short dTransp[] = {
 	99,		/* (unused) */
 	0,			/* Perfect unison = no change */
 	0,			/* (dividing line) */
@@ -264,12 +264,12 @@ INT16 dTransp[] = {
 	-99		/* (mark end of list) */
 };
 
-Boolean DTransposeDialog(Boolean *pUp, INT16 *pOctaves, INT16 *pSteps, Boolean *pSlashes)
+Boolean DTransposeDialog(Boolean *pUp, short *pOctaves, short *pSteps, Boolean *pSlashes)
 {
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
-	INT16				k;
-	INT16				dialogOver, ditem, stepChoice, octChoice;
+	short				k;
+	short				dialogOver, ditem, stepChoice, octChoice;
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(TranspFilter);
@@ -353,9 +353,9 @@ broken:
 any disabled items, unless they are the '--------' kind and are not the first or
 last items. */
 
-void DoTranspArrowKey(DialogPtr /*dlog*/, INT16 whichKey)
+void DoTranspArrowKey(DialogPtr /*dlog*/, short whichKey)
 {
-	INT16 lastItemNum, newChoice;
+	short lastItemNum, newChoice;
 	UserPopUp *p;
 					
 	switch (whichKey) {
@@ -418,14 +418,14 @@ static enum
 } E_TransKeyItems;
 
 
-Boolean TransKeyDialog(Boolean trStaff[], Boolean *pUp, INT16 *pOctaves, INT16 *pSteps,
-								INT16 *pSemiChange, Boolean *pSlashes, Boolean *pNotes,
+Boolean TransKeyDialog(Boolean trStaff[], Boolean *pUp, short *pOctaves, short *pSteps,
+								short *pSemiChange, Boolean *pSlashes, Boolean *pNotes,
 								Boolean *pChordSyms)
 {
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
-	INT16				dialogOver, ditem;
-	INT16				semiChoice, octChoice, k, staffCount, s;
+	short				dialogOver, ditem;
+	short				semiChoice, octChoice, k, staffCount, s;
 	char				str[32];
 	ModalFilterUPP	filterUPP;
 

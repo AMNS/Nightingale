@@ -1,8 +1,6 @@
 /*	Objects.h for Nightingale */
 
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
+#pragma options align=mac68k
 
 /*
  *	This is used to access fields that are found only in subobjects whose data
@@ -20,56 +18,51 @@ typedef struct {
 		
 } GenSubObj;
 
-//#if TARGET_CPU_PPC
-	#pragma options align=reset
-//#endif
-
+#pragma options align=reset
 
 LINK CopyModNRList(Document *, Document *, LINK);
-LINK DuplicateObject(INT16,LINK,Boolean,Document *src,Document *dst,Boolean keepGraphics);
-LINK DuplicNC(Document *, LINK, INT16);
+LINK DuplicateObject(short,LINK,Boolean,Document *src,Document *dst,Boolean keepGraphics);
+LINK DuplicNC(Document *, LINK, short);
 
 void InitObject(LINK, LINK, LINK, DDIST, DDIST, Boolean, Boolean, Boolean);
 void SetObject(LINK, DDIST, DDIST, Boolean, Boolean, Boolean);
-LINK GrowObject(Document *, LINK, INT16);
+LINK GrowObject(Document *, LINK, short);
 
 long SimplePlayDur(LINK);
-INT16 CalcPlayDur(LINK, LINK, char, Boolean, PCONTEXT);
+short CalcPlayDur(LINK, LINK, char, Boolean, PCONTEXT);
 
-LINK SetupNote(Document *, LINK, LINK, char, INT16, char, INT16, char, Boolean, INT16, INT16);
-LINK SetupGRNote(Document *, LINK, LINK, char, INT16, char, INT16, char, INT16, INT16);
-void InitPart(LINK, INT16, INT16);
-void InitStaff(LINK, INT16, INT16, INT16, INT16, DDIST, INT16, INT16);
-void InitClef(LINK, INT16, DDIST, INT16);
-void InitKeySig(LINK, INT16, DDIST, INT16);
-void SetupKeySig(LINK, INT16);
-void InitTimeSig(LINK, INT16, DDIST, INT16, INT16, INT16);
-void InitMeasure(LINK, INT16, INT16, INT16, INT16, INT16, Boolean, Boolean, INT16, INT16);
-void InitPSMeasure(LINK, INT16, Boolean, Boolean, INT16, char);
-void InitRptEnd(LINK, INT16, char, LINK);
-void InitDynamic(Document *, LINK, INT16, INT16, DDIST, INT16, PCONTEXT);
-void SetupHairpin(LINK, INT16, LINK, DDIST, INT16, Boolean);
-void InitGraphic(LINK, INT16, INT16, INT16, INT16, Boolean, INT16, INT16, INT16);
+LINK SetupNote(Document *, LINK, LINK, char, short, char, short, char, Boolean, short, short);
+LINK SetupGRNote(Document *, LINK, LINK, char, short, char, short, char, short, short);
+void InitPart(LINK, short, short);
+void InitStaff(LINK, short, short, short, short, DDIST, short, short);
+void InitClef(LINK, short, DDIST, short);
+void InitKeySig(LINK, short, DDIST, short);
+void SetupKeySig(LINK, short);
+void InitTimeSig(LINK, short, DDIST, short, short, short);
+void InitMeasure(LINK, short, short, short, short, short, Boolean, Boolean, short, short);
+void InitPSMeasure(LINK, short, Boolean, Boolean, short, char);
+void InitRptEnd(LINK, short, char, LINK);
+void InitDynamic(Document *, LINK, short, short, DDIST, short, PCONTEXT);
+void SetupHairpin(LINK, short, LINK, DDIST, short, Boolean);
+void InitGraphic(LINK, short, short, short, short, Boolean, short, short, short);
 
 void SetMeasVisible(LINK, Boolean);
 
-Boolean ChordHasUnison(LINK, INT16);
-Boolean ChordNoteToRight(LINK, INT16);
-Boolean ChordNoteToLeft(LINK, INT16);
+Boolean ChordHasUnison(LINK, short);
+Boolean ChordNoteToRight(LINK, short);
+Boolean ChordNoteToLeft(LINK, short);
 
-void FixTieIndices(LINK);
+DDIST GetNCYStem(Document *, LINK, short, short, Boolean, PCONTEXT);
+void FixChordForYStem(LINK, short, short, short);
+Boolean FixSyncForChord(Document *, LINK, short, Boolean, short, short, PCONTEXT);
+void FixSyncNote(Document *, LINK, short, PCONTEXT);
+void FixSyncForNoChord(Document *, LINK, short, PCONTEXT);
+void FixNoteForClef(Document *, LINK, LINK, short);
 
-DDIST GetNCYStem(Document *, LINK, INT16, INT16, Boolean, PCONTEXT);
-void FixChordForYStem(LINK, INT16, INT16, INT16);
-Boolean FixSyncForChord(Document *, LINK, INT16, Boolean, INT16, INT16, PCONTEXT);
-void FixSyncNote(Document *, LINK, INT16, PCONTEXT);
-void FixSyncForNoChord(Document *, LINK, INT16, PCONTEXT);
-void FixNoteForClef(Document *, LINK, LINK, INT16);
+void FixGRChordForYStem(LINK, short, short, short);
+Boolean FixGRSyncForChord(Document *, LINK, short, Boolean, short, short, PCONTEXT);
+void FixGRSyncNote(Document *, LINK, short, PCONTEXT);
+void FixGRSyncForNoChord(Document *, LINK, short, PCONTEXT);
 
-void FixGRChordForYStem(LINK, INT16, INT16, INT16);
-Boolean FixGRSyncForChord(Document *, LINK, INT16, Boolean, INT16, INT16, PCONTEXT);
-void FixGRSyncNote(Document *, LINK, INT16, PCONTEXT);
-void FixGRSyncForNoChord(Document *, LINK, INT16, PCONTEXT);
-
-void FixAugDotPos(Document *doc, LINK syncL, INT16 voice, Boolean lineOnly);
+void FixAugDotPos(Document *doc, LINK syncL, short voice, Boolean lineOnly);
 void ToggleAugDotPos(Document *, LINK, Boolean);

@@ -19,11 +19,11 @@
 
 /* Local prototypes */
 
-static void		InstallPrefsCard(DialogPtr, INT16, Boolean, Boolean);
-static pascal	Boolean PrefsFilter(DialogPtr, EventRecord *, INT16 *);
-static Boolean	AnyBadPrefs(DialogPtr, INT16);
-static INT16		BuildSpaceTblMenu(UserPopUp *);
-static INT16		BuildMusFontMenu(UserPopUp *);
+static void		InstallPrefsCard(DialogPtr, short, Boolean, Boolean);
+static pascal	Boolean PrefsFilter(DialogPtr, EventRecord *, short *);
+static Boolean	AnyBadPrefs(DialogPtr, short);
+static short		BuildSpaceTblMenu(UserPopUp *);
+static short		BuildMusFontMenu(UserPopUp *);
 static void		ChangeDlogFont(DialogPtr, Boolean);
 
 enum {								/* dialog item numbers */
@@ -100,24 +100,24 @@ static UserPopUp spaceTblPopup;	/* Select space table */
 static UserPopUp musFontPopup;	/* Select music font */
 
 static Rect	borderRect;				/* Store rect of USER5_Divider for drawing */
-static INT16 currEditField = 0;	/* Field selected when dlog last closed */
+static short currEditField = 0;	/* Field selected when dlog last closed */
 
 
 void PrefsDialog(
 			Document *doc,
 			Boolean	/*fileUsed*/,		/* (unused) Is there a score open that has any content? */
-			INT16		*section			/* The card showing first */
+			short		*section			/* The card showing first */
 			)
 {
 	register DialogPtr dlog;
 	GrafPtr		oldPort;
-	register INT16 dialogOver;
+	register short dialogOver;
 	short			ditem, itype;
-	INT16			tableID,oldSpaceTable, oldmShakeThresh, temp, saveResFile, musFontOrigChoice;
+	short			tableID,oldSpaceTable, oldmShakeThresh, temp, saveResFile, musFontOrigChoice;
 	Handle		beamrestHdl, tHdl;
 	Rect			tRect;
 	Boolean		oldAutoRespace, oldBeamRests;
-	register INT16 count;
+	register short count;
 	ResType		tType;
 	Str255		tableName, mItemName;
 	Handle		tableHndl;
@@ -341,12 +341,7 @@ void PrefsDialog(
 		GetMenuItemText(musFontPopup.menu, musFontPopup.currentChoice, mItemName);
 		Pstrcpy(doc->musFontName, mItemName);
 		InitDocMusicFont(doc);	// FIXME: this gives dumb error msgs for prefs dlog context...
-#if 1
 		InvalRange(doc->headL, doc->tailL);		/* Force recomputing of objRects. ??Doesn't work! */
-#else	/* This works, but is too distracting. */
-		SheetMagnify(doc, -1);
-		SheetMagnify(doc, 1);
-#endif
 		InvalWindow(doc);
 		doc->changed = TRUE;
 	}
@@ -403,7 +398,7 @@ broken:
 /* Given one of the choices from the Preference card popup menu, show or
 hide (as specified by <show>) all items that belong to that choice. */
 
-void InstallPrefsCard(DialogPtr dlog, INT16 choice, Boolean show, Boolean sel) 
+void InstallPrefsCard(DialogPtr dlog, short choice, Boolean show, Boolean sel) 
 {
 	short i;
 	
@@ -437,10 +432,10 @@ void InstallPrefsCard(DialogPtr dlog, INT16 choice, Boolean show, Boolean sel)
 /* Check values of edit fields on current card.  If any are bad, give an alert and
 and return TRUE. */
 
-static Boolean AnyBadPrefs(DialogPtr dlog, INT16 curCard)
+static Boolean AnyBadPrefs(DialogPtr dlog, short curCard)
 {
-	INT16 newval;
-	register INT16 badField, titleMargin; double fTemp; long maxMargin;
+	short newval;
+	register short badField, titleMargin; double fTemp; long maxMargin;
 	char fmtStr[256];
 	
 	switch (curCard) {
@@ -542,10 +537,10 @@ hadError:
 }
 
 
-pascal Boolean PrefsFilter(DialogPtr dlog, EventRecord *theEvent, INT16 *itemHit)
+pascal Boolean PrefsFilter(DialogPtr dlog, EventRecord *theEvent, short *itemHit)
 {
 	Point		where;
-	INT16		lastCard;
+	short		lastCard;
 	Boolean	ans = FALSE;
 
 	switch (theEvent->what) {
@@ -627,23 +622,12 @@ them from another file (very likely the application); anyway, there's no
 Get1Menu to make it easy to look only at the Prefs file. It'd be nice to store
 resource ID's in a struct to pass back, but we don't do that yet. */
 	
-static INT16 BuildSpaceTblMenu(UserPopUp *popup)
+static short BuildSpaceTblMenu(UserPopUp *popup)
 {
 	short		saveResFile;
 		
 	ReleaseResource((Handle)popup->menu);
 	popup->menu = GetMenu(SPACETBL_MENU);
-
-	
-#if 0
-	/* Better to just Release the menu then re-allocate, as above! */
-	/* make sure menu is empty before appending resource names to it */
-	numItems = CountMItems(popup->menu);
-	if (numItems) {
-		for (x = 1; x <= numItems; x++) {
-			DeleteMenuItem(popup->menu, 1); }
-	}
-#endif
 	
 	saveResFile = CurResFile();
 	UseResFile(setupFileRefNum);
@@ -659,7 +643,7 @@ static INT16 BuildSpaceTblMenu(UserPopUp *popup)
 /* BuildMusFontMenu() reads 'BBX#' resources in the application's rsrc fork and 
 puts their names in the popup menu. */
 	
-static INT16 BuildMusFontMenu(UserPopUp *popup)
+static short BuildMusFontMenu(UserPopUp *popup)
 {
 	short		saveResFile;
 		

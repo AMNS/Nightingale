@@ -109,7 +109,7 @@ void FixObjMeasureRect(Document *doc, LINK pL)
 Boolean SameTimeSigOnAllStaves(Document *doc, LINK timeSigL)
 {
 	LINK aTimeSigL; PATIMESIG aTimeSig;
-	INT16 subType, numerator, denominator;
+	short subType, numerator, denominator;
 	
 	if (LinkNENTRIES(timeSigL)!=doc->nstaves) return FALSE;
 	
@@ -146,7 +146,7 @@ Boolean DelRedTimeSigs(
 	LINK pL, aTimeSigL, prevTSL, firstDelL, lastDelL;
 	PATIMESIG aTimeSig;
 	char prevNumerator, prevDenominator;
-	INT16 measNum;
+	short measNum;
 	char fmtStr[256];
 	Boolean okay=TRUE;
 

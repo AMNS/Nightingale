@@ -26,13 +26,12 @@ static long 			*stfTimeDiff;
 /* Prototypes for internal functions */
 
 static void CVDisposeArrays(void);
-static PTIME *CVPrepareSelRange(Document *doc,LINK measL,INT16 *nInRange);
-static void CVShellSort(INT16 n, INT16 nvoices);
-static void CVSortPTimes(INT16 nInSelRange, INT16 nvoices);
-static void TuplePlayDurs(PTIME *, INT16, LINK, LINK);
-static Boolean CVComputePlayTimes(Document *doc, SELRANGE [], char[], INT16);
+static PTIME *CVPrepareSelRange(Document *doc,LINK measL,short *nInRange);
+static void CVShellSort(short n, short nvoices);
+static void CVSortPTimes(short nInSelRange, short nvoices);
+static Boolean CVComputePlayTimes(Document *doc, SELRANGE [], char[], short);
 
-static Boolean CVRearrangeNotes(Document *doc, SELRANGE [], INT16, LINK);
+static Boolean CVRearrangeNotes(Document *doc, SELRANGE [], short, LINK);
 
 static Boolean CheckCompactVoice(Document *);
 
@@ -40,7 +39,7 @@ static void InitSelRange(SELRANGE selRange[]);
 static void SetupSelRange(Document *doc,SELRANGE selRange[]);
 static void GetMeasVRange(Document *doc,LINK measL,SELRANGE selRange[],char measRange[]);
 
-static Boolean SDCVComputePlayTimes(Document *doc, SELRANGE [], char[], INT16);
+static Boolean SDCVComputePlayTimes(Document *doc, SELRANGE [], char[], short);
 
 /* -------------------------------------------------------------------------------- */
 /* Utilities for CompactVoices. */
@@ -65,9 +64,9 @@ static void CVDisposeArrays()
 /* ------------------------------------------------------------ CVPrepareSelRange -- */
 /* Prepare array for use by CompactVoices. */
 
-static PTIME *CVPrepareSelRange(Document *doc, LINK measL, INT16 *nInRange)
+static PTIME *CVPrepareSelRange(Document *doc, LINK measL, short *nInRange)
 {
-	INT16 nInMeas = 0, numNotes;
+	short nInMeas = 0, numNotes;
 	LINK pL;
 	
 	startMeas = measL;
@@ -96,9 +95,9 @@ static PTIME *CVPrepareSelRange(Document *doc, LINK measL, INT16 *nInRange)
 /* ------------------------------------------------------------------ CVShellSort -- */
 /* Sort the pDurArray (via Shell sort). */
 
-static void CVShellSort(INT16 n, INT16 nvoices)
+static void CVShellSort(short n, short nvoices)
 {
-	INT16 gap, i, j, arrLen;
+	short gap, i, j, arrLen;
 	PTIME t;
 
 	arrLen = n*nvoices;
@@ -117,7 +116,7 @@ static void CVShellSort(INT16 n, INT16 nvoices)
 /* ------------------------------------------------------------------- SortPTimes -- */
 /* Sort the pTime array pDurArray based on the pTime field. */
 
-static void CVSortPTimes(INT16 nInMeas, INT16 nvoices)
+static void CVSortPTimes(short nInMeas, short nvoices)
 {
 	CVShellSort(nInMeas, nvoices);
 }
@@ -127,9 +126,9 @@ static void CVSortPTimes(INT16 nInMeas, INT16 nvoices)
 /* Version of ComputePlayTimes for CompactVoices */
 
 static Boolean CVComputePlayTimes(Document *doc, SELRANGE /*selRange*/[], char measRange[],
-												INT16 nInMeas)
+												short nInMeas)
 {
-	INT16 v, notes, prevNotes; LINK pL,aNoteL,prevL,prevNoteL;
+	short v, notes, prevNotes; LINK pL,aNoteL,prevL,prevNoteL;
 	long currTime,totalGap,gapTime,prevTime,prevDur,prevNoteEnd;
 	Boolean firstNote;
 
@@ -216,10 +215,10 @@ broken:
 
 /* ------------------------------------------------------------- CVRearrangeNotes -- */
 
-static Boolean CVRearrangeNotes(Document *doc, SELRANGE /*selRange*/[], INT16 nNotes,
+static Boolean CVRearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nNotes,
 											LINK /*baseMeasL*/)
 {
-	INT16 i, v, notes, numNotes, subCount=0, arrBound;
+	short i, v, notes, numNotes, subCount=0, arrBound;
 	PTIME *pTime, *qTime;
 	LINK pL, firstSubObj, newObjL, subL, newSubL, tempNewSubL, newSelStart;
 	PMEVENT pObj, pNewObj;
@@ -426,7 +425,7 @@ static Boolean CheckCompactVoice(Document *doc)
 
 static void InitSelRange(SELRANGE selRange[])
 {
-	INT16 v;
+	short v;
 
 	for (v = 1; v<=MAXVOICES; v++)
 		selRange[v].startL = selRange[v].endL = NILINK;
@@ -435,7 +434,7 @@ static void InitSelRange(SELRANGE selRange[])
 
 static void SetupSelRange(Document *doc, SELRANGE selRange[])
 {
-	INT16 v; LINK vStartL,vEndL,startMeasL,endMeasL;
+	short v; LINK vStartL,vEndL,startMeasL,endMeasL;
 
 	InitSelRange(selRange);
 
@@ -454,7 +453,7 @@ static void SetupSelRange(Document *doc, SELRANGE selRange[])
 static void GetMeasVRange(Document */*doc*/, LINK measL, SELRANGE selRange[],
 									char measRange[])
 {
-	INT16 v;
+	short v;
 	
 	for (v=1; v<=MAXVOICES; v++)
 		measRange[v] = 0;
@@ -473,7 +472,7 @@ simply CompactVoices.) */
 
 void DoCompactVoices(Document *doc)
 {
-	INT16			nInMeas;
+	short			nInMeas;
 	char			measVRange[MAXVOICES+1];
 	SELRANGE		selRange[MAXVOICES+1];
 	LINK			measL,firstMeasL,lastMeasL,endL, selStartL;
@@ -541,9 +540,9 @@ broken:
 /* Version of ComputePlayTimes for SetDurCptV */
 
 static Boolean SDCVComputePlayTimes(Document *doc, SELRANGE  /*selRange*/[],
-												char measRange[], INT16 nInMeas)
+												char measRange[], short nInMeas)
 {
-	INT16 v, notes, prevNotes; LINK pL,aNoteL,prevL,prevNoteL;
+	short v, notes, prevNotes; LINK pL,aNoteL,prevL,prevNoteL;
 	long currTime,totalGap,gapTime,prevTime,prevDur,prevNoteEnd;
 	Boolean firstNote;
 
@@ -630,7 +629,7 @@ or similar operation. NB: destroys the selection range. */
 
 void SetDurCptV(Document *doc)
 {
-	INT16			nInMeas;
+	short			nInMeas;
 	char			measVRange[MAXVOICES+1];
 	SELRANGE		selRange[MAXVOICES+1];
 	LINK			measL,firstMeasL,lastMeasL,endL;
@@ -687,7 +686,7 @@ selected range of Measures. Makes no user-interface assumptions. */
 
 Boolean CompactVoices(Document *doc)
 {
-	INT16			nInMeas;
+	short			nInMeas;
 	char			measVRange[MAXVOICES+1];
 	SELRANGE		selRange[MAXVOICES+1];
 	LINK			measL,firstMeasL,lastMeasL,endL;

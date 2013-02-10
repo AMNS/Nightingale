@@ -28,16 +28,16 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static void FixNCStem(Document *, LINK, INT16, PCONTEXT);
-static Boolean SetSyncNoteDur(Document *, LINK, INT16, INT16, Boolean, Boolean *);
-static INT16 BeatStrength(INT16, INT16);
-static INT16 CalcBeatDur(INT16, Boolean);
-static INT16 MetricStrength(INT16, Boolean, INT16, INT16, Boolean, INT16);
-static long FindStrongPoint(long, long, INT16, INT16, Boolean, INT16, INT16 *);
-static Boolean NotatableDur(NOTEPIECE [], INT16 *, INT16, INT16);
+static void FixNCStem(Document *, LINK, short, PCONTEXT);
+static Boolean SetSyncNoteDur(Document *, LINK, short, short, Boolean, Boolean *);
+static short BeatStrength(short, short);
+static short CalcBeatDur(short, Boolean);
+static short MetricStrength(short, Boolean, short, short, Boolean, short);
+static long FindStrongPoint(long, long, short, short, Boolean, short, short *);
+static Boolean NotatableDur(NOTEPIECE [], short *, short, short);
 static LINK SyncAtTime(Document *, LINK, long, long *);
 static LINK MeasLastSync(Document *, LINK);
-static INT16 ClarifyNRCRhythm(Document *, LINK, LINK);
+static short ClarifyNRCRhythm(Document *, LINK, LINK);
 
 
 /* ----------------------------------------------------------------- CalcUNoteLDur -- */
@@ -69,7 +69,7 @@ static long CalcUNoteLDur(Document */*doc*/, LINK aNoteL, LINK syncL)
 
 /* ----------------------------------------------------------------- SetSyncPDur -- */
 
-Boolean SetSyncPDur(Document *doc, LINK syncL, INT16 pDurPct, Boolean needSel)
+Boolean SetSyncPDur(Document *doc, LINK syncL, short pDurPct, Boolean needSel)
 {
 	LINK aNoteL; long useLDur;
 	Boolean didAnything=FALSE;
@@ -96,7 +96,7 @@ Boolean SetSyncPDur(Document *doc, LINK syncL, INT16 pDurPct, Boolean needSel)
 selected or not, or of every selected note, to the given percentage of its logical
 duration. */
 
-void SetPDur(Document *doc, INT16 pDurPct, Boolean needSel)
+void SetPDur(Document *doc, short pDurPct, Boolean needSel)
 {
 	LINK pL; Boolean didAnything=FALSE;
 	
@@ -114,9 +114,9 @@ consistent, so it should be used only to change stem lengths while keeping their
 direction and everything else the same. Also, should not be used on beamed notes/
 chords. */
 
-static void FixNCStem(Document *doc, LINK syncL, INT16 voice, PCONTEXT pContext)
+static void FixNCStem(Document *doc, LINK syncL, short voice, PCONTEXT pContext)
 {
-	LINK aNoteL, mNoteL; INT16 stemUpDown; DDIST ystem;
+	LINK aNoteL, mNoteL; short stemUpDown; DDIST ystem;
 	
 	mNoteL = FindMainNote(syncL, voice);
 	stemUpDown = (NoteYSTEM(mNoteL)>NoteYD(mNoteL)? -1 : 1);
@@ -141,12 +141,12 @@ SimplePlayDur with CalcPlayDur, but maybe more. */
 Boolean SetSyncNoteDur(
 				Document *doc,
 				LINK syncL,
-				INT16 newDur, INT16 newDots,
+				short newDur, short newDots,
 				Boolean setPDur,
 				Boolean *warnedRests					/* Set performance durations? */
 				)
 {
-	INT16 v;
+	short v;
 	LINK aNoteL, mNoteL; PANOTE aNote;
 	Boolean didAnything=FALSE;
 	Boolean voiceChanged[MAXVOICES+1];
@@ -201,7 +201,7 @@ anything that is beamed or in a tuplet. */
 
 Boolean SetSelNoteDur(
 					Document *doc,
-					INT16 newDur, INT16 newDots,
+					short newDur, short newDots,
 					Boolean setPDur					/* Set performance durations? */
 					)
 {
@@ -235,7 +235,7 @@ Boolean SetDoubleHalveSelNoteDur(
 {
 	Boolean	didAnything, warnedRests;	// ??IGNORES <warnedRests>
 	LINK pL, aNoteL;
-	INT16 v, newDur, newDots, staff;
+	short v, newDur, newDots, staff;
 	char fmtStr[256];
 	CONTEXT context;
 
@@ -300,7 +300,7 @@ Boolean SetDoubleHalveSelNoteDur(
 /* Set all selected whole rests, whole-measure rests, or multibar rests to the given
 number of measures. */
 
-Boolean SetSelMBRest(Document *doc, INT16 newNMeas)
+Boolean SetSelMBRest(Document *doc, short newNMeas)
 {
 	Boolean	didAnything;
 	LINK		pL, aNoteL, startFixTimeL=NILINK, endFixTimeL;
@@ -333,14 +333,14 @@ Boolean SetSelMBRest(Document *doc, INT16 newNMeas)
 i.e., if necessary, divide it into a series of (tied, unless they're rests) NRCs for
 readability. If we succeed, return the number of NRCs, else FALSE. */
 
-INT16 SetAndClarifyDur(
+short SetAndClarifyDur(
 				Document *doc,
 				LINK syncL, LINK aNoteL,
-				INT16 lDur 					/* Logical duration in PDUR ticks */
+				short lDur 					/* Logical duration in PDUR ticks */
 				)
 {
 	CONTEXT context;
-	INT16 voice, staff, kount;
+	short voice, staff, kount;
 	Boolean compound;
 	long startTime;
 	NOTEPIECE piece[MAXPIECES];
@@ -392,7 +392,7 @@ of beat <beatNum> in a meter with <nBeats> beats. <beatNum>=0 is the downbeat.
 Consider <beatNum> modulo <nBeats>, i.e., in case the beat is past where the measure
 should end, act as if there are barlines at the intervals the meter indicates. */
 
-static INT16 BeatStrength(INT16 beatNum, INT16 nBeats)
+static short BeatStrength(short beatNum, short nBeats)
 {
 	beatNum = beatNum % nBeats;
 	if (beatNum==0) return SUPERBEAT;
@@ -405,9 +405,9 @@ static INT16 BeatStrength(INT16 beatNum, INT16 nBeats)
 
 /* ----------------------------------------------------------------- CalcBeatDur -- */
 
-INT16 CalcBeatDur(INT16 timeSigDenom, Boolean compound)
+short CalcBeatDur(short timeSigDenom, Boolean compound)
 {
-	INT16 wholeDur, beatDur;
+	short wholeDur, beatDur;
 	
 	wholeDur = Code2LDur(WHOLE_L_DUR, 0);
 	beatDur = wholeDur/timeSigDenom;
@@ -423,17 +423,17 @@ in Byrd's dissertation, Sec. 4.4.1. Essentially, the higher the value the strong
 and the weakest beat has a strength of 0. So positive values represent strong beats
 and negative values represent levels below the beat. */
 
-INT16 MetricStrength(
-			INT16		time,							/* Elapsed time in playDur units */
+short MetricStrength(
+			short		time,							/* Elapsed time in playDur units */
 			Boolean	tuplet,						/* Is it within a tuplet? */
-			INT16		timeSigNum,
-			INT16		timeSigDenom,
+			short		timeSigNum,
+			short		timeSigDenom,
 			Boolean	compound,					/* TRUE=compound meter ==> 3 denom.units/beat, etc. */
-			INT16		errMax 						/* Must be >0 */
+			short		errMax 						/* Must be >0 */
 			)
 {
-	INT16 beatDur, remainder, fracBeatDur;
-	INT16 beatNum, level;
+	short beatDur, remainder, fracBeatDur;
+	short beatNum, level;
 	
 	if (tuplet) return WIMP;
 	
@@ -466,13 +466,13 @@ its playDur elapsed time; if there is no point of either type, return -1. */
 
 long FindStrongPoint(
 			long startTime, long endTime,		/* PDUR times relative to beginning of measure */
-			INT16 timeSigNum, INT16 timeSigDenom,
+			short timeSigNum, short timeSigDenom,
 			Boolean compound,						/* TRUE=compound meter (6/8, 9/8, etc.) */
-			INT16 minStrength,
-			INT16 *pStrength
+			short minStrength,
+			short *pStrength
 			)
 {
-	INT16 durIncr, beatDur, strength;
+	short durIncr, beatDur, strength;
 	long time, timeSigDur, startMeasTime;
 	
 	/* Look for a strong enough point within the measure */
@@ -480,7 +480,7 @@ long FindStrongPoint(
 	beatDur = CalcBeatDur(timeSigDenom, compound);
 	durIncr = beatDur;
 	if (minStrength<0) {
-		INT16 s = minStrength;
+		short s = minStrength;
 		while (s++<0)
 			durIncr /= 2;
 	}
@@ -522,13 +522,13 @@ to represent the piece with an error of no more than MAX_ERR, return FALSE. */
 
 static Boolean NotatableDur(
 						NOTEPIECE piece[],
-						INT16 *pKount,					/* number of pieces */
-						INT16 iPiece,					/* index of piece to work on */
-						INT16 maxPieces
+						short *pKount,					/* number of pieces */
+						short iPiece,					/* index of piece to work on */
+						short maxPieces
 						)
 {
 	char	newDur, newDots;
-	INT16	i, thisDur;
+	short	i, thisDur;
 		
 	if (*pKount>=maxPieces) return FALSE;							/* Illegal call */
 
@@ -559,7 +559,7 @@ within tuplets or for whole-measure rests or unknown duration! */
 void SetNRCDur(
 				Document *doc,
 				LINK syncL,
-				INT16 voice,
+				short voice,
 				char durCode, char nDots,
 				PCONTEXT pContext,
 				Boolean setPDur
@@ -586,7 +586,7 @@ void SetNRCDur(
 
 /* ------------------------------------------------------------- ClearAccAndMods -- */
 
-void ClearAccAndMods(Document */*doc*/, LINK syncL, INT16 voice)
+void ClearAccAndMods(Document */*doc*/, LINK syncL, short voice)
 {
 	LINK aNoteL;
 	PANOTE aNote;
@@ -644,15 +644,15 @@ if it fails (due to an error). */
 
 Boolean MakeClarifyList(
 				long startTime,
-				INT16 lDur,
-				INT16 numerator, INT16 denominator,	/* of time signature */
+				short lDur,
+				short numerator, short denominator,	/* of time signature */
 				Boolean compound,							/* TRUE=compound meter (6/8, 9/8, etc.) */
 				NOTEPIECE piece[],
-				INT16 maxPieces,
-				INT16 *pKount
+				short maxPieces,
+				short *pKount
 				)
 {
-	INT16 startStrength, endStrength, strength, kount, k;
+	short startStrength, endStrength, strength, kount, k;
 	long endTime, searchFrom, strongerPoint;
 	long mayDivPoint;
 	Boolean keepGoing;
@@ -743,15 +743,15 @@ to point to the last segment.*/
 Boolean ClarifyFromList(
 				Document *doc,
 				LINK		syncL,
-				INT16		voice,
-				INT16		tieStaff,	/* Staff no. for ties, or <=0 for no ties (use with rests) */
+				short		voice,
+				short		tieStaff,	/* Staff no. for ties, or <=0 for no ties (use with rests) */
 				NOTEPIECE piece[],
-				INT16		kount,
+				short		kount,
 				PCONTEXT pContext
 				)
 {
 	LINK newL; LINK qL, matchL, lastSyncL, aNoteL, tieL, prevL;
-	INT16 k; long foundTime; SearchParam pbSearch;
+	short k; long foundTime; SearchParam pbSearch;
 	
 	/*
 	 *	Strategy: set the existing NRC's duration to the first segment's, and add
@@ -826,13 +826,13 @@ two or more tied notes/rests/chords. Return values are:
 	>1		NRC sucessfully divided into this many pieces
 */
 
-INT16 ClarifyNRCRhythm(Document *doc, LINK pL, LINK aNoteL)
+short ClarifyNRCRhythm(Document *doc, LINK pL, LINK aNoteL)
 {
 	long startTime;
 	NOTEPIECE piece[MAXPIECES];
 	CONTEXT context;
 	Boolean compound;
-	INT16 lDur, voice, staff, kount;
+	short lDur, voice, staff, kount;
 	
 	if (NoteINTUPLET(aNoteL)) return 0;
 
@@ -872,8 +872,8 @@ Boolean ClarifyRhythm(Document *doc)
 {
 	LINK pL, aNoteL;
 	Boolean didAnything=FALSE, warnedTuplets=FALSE, warnedBadDur=FALSE;
-	INT16 v;
-	INT16 clarified;
+	short v;
+	short clarified;
 	
 	/* Extend selection to incl. every note in every chord that has any note(s) selected. */
 

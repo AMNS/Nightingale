@@ -494,26 +494,9 @@ static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTr
       //if ( IsMenuItemEnabled( theMenu, newItem ) )
           trackingData->itemSelected = newItem;
 		
-#if 0
-		if (newItem != currentItem) {
-			char	*p;
-			LoadResource((Handle)gCharGridH);			/* just in case it's been purged */
-			p = (char *) *gCharGridH;						/* no need to lock handle here */
-			p += gItemCharsOffset;							/* point at beginning of item chars */
-			if (newItem <= gNumItems && p[newItem-1] != '\0')
-				InvertItem(newItem, TRUE, menuRect, theMenu);
-			else
-				newItem = 0;										/* it's a blank item */
-			InvertItem(currentItem, FALSE, menuRect, theMenu);
-			DebugPrintf("currItem=%d, newItem=%d\n", currentItem, newItem);
-		}
-#endif
 	}
 	else {
-#if 1
-//		InvertItem(currentItem, FALSE, menuRect, theMenu);
 		trackingData->itemSelected = currentItem;
-#endif
 	}
 }
 

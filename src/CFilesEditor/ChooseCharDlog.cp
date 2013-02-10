@@ -33,7 +33,6 @@ static short numColumns, numRows;
 static short lastChoice;
 
 /* local prototypes */
-static void DoDialogUpdate(DialogPtr dlog);
 static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static Boolean BuildList(DialogPtr dlog);
 

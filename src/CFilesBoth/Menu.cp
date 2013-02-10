@@ -23,17 +23,17 @@ static Boolean IsSafeToQuit(void);
 static Boolean SetTranspKeyStaves(Document *, Boolean []);
 static void EditPartMIDI(Document *doc);
 
-static void	DoAppleMenu(INT16 choice);
-static void	DoTestMenu(INT16 choice);
-static void	DoScoreMenu(INT16 choice);
-static void	DoNotesMenu(INT16 choice);
-static void	DoGroupsMenu(INT16 choice);
+static void	DoAppleMenu(short choice);
+static void	DoTestMenu(short choice);
+static void	DoScoreMenu(short choice);
+static void	DoNotesMenu(short choice);
+static void	DoGroupsMenu(short choice);
 
 static void MPInstrument(Document *);
 
-static void	DoMasterPgMenu(INT16 choice);
-static void	DoFormatMenu(INT16 choice);
-static void	DoMagnifyMenu(INT16 choice);
+static void	DoMasterPgMenu(short choice);
+static void	DoFormatMenu(short choice);
+static void	DoMagnifyMenu(short choice);
 
 static void	FMPreferences(Document *doc);
 
@@ -45,13 +45,12 @@ static void	SMRealign(Document *doc);
 static void	SMReformat(Document *doc);
 
 static void	NMSetDuration(Document *doc);
-static void NMDoubleHalveDurations(Document *doc, Boolean doubleDur);
 static void	NMInsertByPos(Document *doc);
 static void	NMSetMBRest(Document *doc);
 static void	NMFillEmptyMeas(Document *doc);
 static void 	NMAddModifiers(Document *doc);
 static void 	NMStripModifiers(Document *doc);
-static INT16 CountSelVoices(Document *);
+static short CountSelVoices(Document *);
 static void 	NMMultiVoice(Document *doc);
 
 static void	VMLookAt(void);
@@ -61,7 +60,7 @@ static void	VMShowSyncs(void);
 static void	VMShowInvisibles(void);
 static void	VMColorVoices(void);
 static void	VMPianoRoll(void);
-static void	VMActivate(INT16);
+static void	VMActivate(short);
 
 static void	PLRecord(Document *doc, Boolean merge);
 static void	PLStepRecord(Document *doc, Boolean merge);
@@ -71,36 +70,36 @@ static void	PLTransposeScore(Document *);
 
 static void InstallDebugMenuItems(Boolean installAll);
 
-static void	FixFileMenu(Document *doc, INT16 nSel);
-static void	FixEditMenu(Document *doc, INT16 nInSelRange, INT16 nSel, Boolean isDA);
-static void	FixTestMenu(Document *doc, INT16 nSel);
+static void	FixFileMenu(Document *doc, short nSel);
+static void	FixEditMenu(Document *doc, short nInSelRange, short nSel, Boolean isDA);
+static void	FixTestMenu(Document *doc, short nSel);
 static void	DisableSMMove(void);
 static void	FixMoveMeasSys(Document *doc);
-static void	FixScoreMenu(Document *doc, INT16 nSel);
+static void	FixScoreMenu(Document *doc, short nSel);
 static LINK	MBRestSel(Document *);
 static void	FixNotesMenu(Document *doc, Boolean continSel);
-static Boolean SelRangeChkOct(INT16 staff,LINK	staffStartL,LINK staffEndL);
+static Boolean SelRangeChkOct(short staff,LINK	staffStartL,LINK staffEndL);
 static void	FixGroupsMenu(Document *doc, Boolean continSel);
 static void	AddWindowList(void);
 static void	FixViewMenu(Document *doc);
-static void	FixPlayRecordMenu(Document *doc, INT16 nSel);
+static void	FixPlayRecordMenu(Document *doc, short nSel);
 static void	FixMasterPgMenu(Document *doc);
 static void	FixFormatMenu(Document *doc);
 
-INT16 NumOpenDocuments(void);
+short NumOpenDocuments(void);
 
 static Boolean cmdIsBeam, cmdIsTuplet, cmdIsOctava;
 
 static Boolean	goUp=TRUE;								/* For "Transpose" dialog */
-static INT16 octaves=0, steps=0, semiChange=0;
+static short octaves=0, steps=0, semiChange=0;
 static Boolean slashes=FALSE;
 
 static Boolean	dGoUp=TRUE;								/* For "Diatonic Transpose" dialog */
-static INT16 dOctaves=0, dSteps=0;
+static short dOctaves=0, dSteps=0;
 static Boolean dSlashes=FALSE;
 
 static Boolean	kGoUp=TRUE;								/* For "Transpose Key" dialog */
-static INT16 kOctaves=0, kSteps=0, kSemiChange=0;
+static short kOctaves=0, kSteps=0, kSemiChange=0;
 static Boolean	kSlashes=FALSE, kNotes=TRUE, kChordSyms=TRUE;
 
 static Boolean	beforeFirst;
@@ -115,8 +114,7 @@ void DeleteSelObjs(Document *);
 
 Boolean DoMenu(long menuChoice)
 	{
-		static Boolean copyProtProblem=FALSE;
-		register INT16 choice; INT16 menu;
+		register short choice; short menu;
 		Boolean keepGoing = TRUE;
 		
 		menu = HiWord(menuChoice); choice = LoWord(menuChoice);
@@ -170,7 +168,7 @@ Cleanup:
  *	Handle a choice from the Apple Menu.
  */
 
-static void DoAppleMenu(INT16 choice)
+static void DoAppleMenu(short choice)
 	{
 //		Str255 accName;
 		
@@ -259,14 +257,13 @@ static Boolean GetNotelistFile(Str255 macfName, short *vRefNum)
  *	Handle a choice from the File Menu.  Return FALSE if it's time to quit.
  */
 
-Boolean DoFileMenu(INT16 choice)
+Boolean DoFileMenu(short choice)
 	{
-		Boolean keepGoing = TRUE, doSymbol; short vrefnum; INT16 returnCode;
+		Boolean keepGoing = TRUE, doSymbol; short vrefnum; short returnCode;
 		register Document *doc=GetDocumentFromWindow(TopDocument); char str[256];
 		NSClientData nscd; FSSpec fsSpec;
 		
 		switch(choice) {
-#ifndef VIEWER_VERSION
 			case FM_New:
 				doSymbol = TopDocument == NULL;
 				DoOpenDocument(NULL,0,FALSE,NULL);
@@ -293,17 +290,11 @@ Boolean DoFileMenu(INT16 choice)
 						}
 					}
 				break;
-#endif
 			case FM_OpenReadOnly:
 				if (!FirstFreeDocument()) TooManyDocs();
 				 else {
 					UseStandardType(documentType);
-#ifdef VIEWER_VERSION
-					UseStandardType(DOCUMENT_TYPE_NORMAL);				/* Also accept Nightingale's <documentType> */
-					GetIndCString(str, MENUCMDMSGS_STRS, 4);			/* "Which score do you want to open?" */
-#else
 					GetIndCString(str, MENUCMDMSGS_STRS, 5);			/* "Which score do you want to open read-only?" */
-#endif
 					if (returnCode = GetInputName(str,FALSE,tmpStr,&vrefnum,&nscd))
 						fsSpec = nscd.nsFSSpec;
 						vrefnum = nscd.nsFSSpec.vRefNum;
@@ -316,7 +307,6 @@ Boolean DoFileMenu(INT16 choice)
 			case FM_CloseAll:
 				DoCloseAllDocWindows();
 				break;
-#ifndef VIEWER_VERSION
 			case FM_Save:
 				if (doc) DoSaveDocument(doc);
 				break;
@@ -343,13 +333,9 @@ Boolean DoFileMenu(INT16 choice)
 			case FM_Extract:
 				if (doc) DoExtract(doc);
 				break;
-#endif
-#ifndef LIGHT_VERSION
 			case FM_GetETF:
 				// ETF (Finale Enigma Transportable File) support removed, so do nothing
 				break;
-#endif
-#ifndef VIEWER_VERSION
 #ifdef JG_NOTELIST
 			case FM_GetNotelist:
 				NSClientData nsData;
@@ -360,8 +346,6 @@ Boolean DoFileMenu(INT16 choice)
 
 				break;
 #endif
-#endif
-#ifndef VIEWER_VERSION
 #ifdef USE_NL2XML
 			case FM_Notelist2XML:
 				NSClientData nsData;
@@ -372,7 +356,6 @@ Boolean DoFileMenu(INT16 choice)
 
 				break;
 #endif
-#endif
 			case FM_OpenMidiMap:
 				MidiMapInfo();
 				break;
@@ -380,16 +363,10 @@ Boolean DoFileMenu(INT16 choice)
 			case FM_SheetSetup:
 				if (doc) DoSheetSetup(doc);
 				break;
-#ifndef VIEWER_VERSION
 			case FM_PageSetup:
 #if TARGET_API_MAC_CARBON
 
-#if 0
-				if (doc) NDoCustomPageSetup(doc);
-#else
 				if (doc) NDoPageSetup(doc);
-#endif
-
 #else
 				if (doc) DoPageSetup(doc);
 #endif
@@ -425,7 +402,6 @@ Boolean DoFileMenu(INT16 choice)
 			case FM_Preferences:
 				if (doc) FMPreferences(doc);
 				break;
-#endif
 			case FM_Quit:
 				if (!IsSafeToQuit()) break;
 				if (!SaveToolPalette(TRUE)) break;
@@ -438,21 +414,11 @@ Boolean DoFileMenu(INT16 choice)
 		return(keepGoing);
 	}
 
-#ifdef VIEWER_VERSION
-
-void DoEditMenu(choice)
-	INT16 choice;
-	{
-		SysBeep(1);
-	}
-
-#else
-
 /*
  *	Handle a choice from the Edit Menu.
  */
 
-void DoEditMenu(INT16 choice)
+void DoEditMenu(short choice)
 	{
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
@@ -541,11 +507,7 @@ DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);
 		}
 	}
 
-#endif
-
 //#ifndef PUBLIC_VERSION
-#if 1
-
 
 /* Functions to delete selected objects from the score "stupidly", i.e., with almost
 no attempt to maintain consistency. This is intended to allow wizards to repair
@@ -570,7 +532,7 @@ void DeleteObj(Document *doc, LINK pL)
 
 void DeleteSelObjs(Document *doc)
 {
-	INT16 nInRange, nSelFlag; LINK pL, nextL, firstMeasL;
+	short nInRange, nSelFlag; LINK pL, nextL, firstMeasL;
 	
 	CountSelection(doc, &nInRange, &nSelFlag);
 	if (nSelFlag<=0) { SysBeep(1); return; }
@@ -593,12 +555,12 @@ void DeleteSelObjs(Document *doc)
 	}
 }
 
-void SetMeasNumPos(Document *doc, LINK startL, LINK endL, INT16 xOffset, INT16 yOffset);
+void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset);
 void ResetAllMeasNumPos(Document *doc);
 
 void SetMeasNumPos(Document *doc,
 							LINK startL, LINK endL,
-							INT16 xOffset, INT16 yOffset)
+							short xOffset, short yOffset)
 {
 	PAMEASURE	aMeasure;
 	LINK			pL, aMeasureL;
@@ -623,13 +585,11 @@ void ResetAllMeasNumPos(Document *doc)
 	InvalWindow(doc);
 }
 
-#endif /* PUBLIC_VERSION */
-
 /*
  *	Handle a choice from the Test Menu.
  */
 
-static void DoTestMenu(INT16 choice)
+static void DoTestMenu(short choice)
 	{
 #ifndef PUBLIC_VERSION
 		register Document *doc = GetDocumentFromWindow(TopDocument);			
@@ -701,36 +661,9 @@ static void DoTestMenu(INT16 choice)
  *	Handle a choice from the Score Menu.
  */
 
-#ifdef VIEWER_VERSION
-
-static void DoScoreMenu(INT16 choice)
+static void DoScoreMenu(short choice)
 	{
-		SysBeep(1);
-	}
-
-/*
- *	Handle a choice from the Notes Menu.
- */
-
-static void DoNotesMenu(INT16 choice)
-	{
-		SysBeep(1);
-	}
-
-/*
- *	Handle a choice from the Groups Menu.
- */
-
-void DoGroupsMenu(INT16 choice)
-	{
-		SysBeep(1);
-	}
-
-#else
-
-static void DoScoreMenu(INT16 choice)
-	{
-		register Document *doc=GetDocumentFromWindow(TopDocument); LINK insertL; INT16 where;
+		register Document *doc=GetDocumentFromWindow(TopDocument); LINK insertL; short where;
 		if (doc==NULL) return;
 		
 		switch(choice) {
@@ -811,7 +744,7 @@ to indicate Transpose Key shouldn't be allowed. */
 
 static Boolean SetTranspKeyStaves(Document *doc, Boolean trStaff[])
 	{
-		INT16 s; LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
+		short s; LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
 		
 		/* If anything is selected after the initial reserved area, don't allow
 			Transpose Key. */
@@ -853,10 +786,10 @@ static Boolean SetTranspKeyStaves(Document *doc, Boolean trStaff[])
  *	Handle a choice from the Notes Menu.
  */
 
-static void DoNotesMenu(INT16 choice)
+static void DoNotesMenu(short choice)
 	{
 		register Document *doc=GetDocumentFromWindow(TopDocument);
-		INT16 delAccCode;
+		short delAccCode;
 		Boolean canTranspKey, trStaff[MAXSTAVES+1];
 		short	addAccCode;
 		if (doc == NULL) return;
@@ -956,7 +889,7 @@ static void DoNotesMenu(INT16 choice)
  *	Handle a choice from the Groups Menu.
  */
 
-void DoGroupsMenu(INT16 choice)
+void DoGroupsMenu(short choice)
 	{
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		TupleParam tParam; Boolean okay;
@@ -1014,16 +947,14 @@ void DoGroupsMenu(INT16 choice)
 			}
 	}
 
-#endif
-
 /*
  *	Handle a choice from the View Menu.
  */
 
 
-void DoViewMenu(INT16 choice)
+void DoViewMenu(short choice)
 	{
-		register Document *doc=GetDocumentFromWindow(TopDocument); INT16 palIndex;
+		register Document *doc=GetDocumentFromWindow(TopDocument); short palIndex;
 		Rect screen, pal, docRect;
 		
 		switch(choice) {
@@ -1048,7 +979,6 @@ void DoViewMenu(INT16 choice)
 			case VM_LookAtAllV:
 				VMLookAtAll();
 				break;
-#ifndef VIEWER_VERSION
 			case VM_ShowDurProb:
 				VMShowDurProblems();
 				break;
@@ -1065,14 +995,12 @@ void DoViewMenu(INT16 choice)
 					InvalWindow(doc);
 					}
 				break;
-#endif
 			case VM_ColorVoices:
 				VMColorVoices();
 				break;
 			case VM_RedrawScr:
 				RefreshScreen();
 				break;
-#ifndef VIEWER_VERSION
 			case VM_PianoRoll:
 				VMPianoRoll();
 				break;
@@ -1110,7 +1038,6 @@ void DoViewMenu(INT16 choice)
 			case VM_ShowSearchPattern:
 				//Do nothing; Nigthingale Search has been removed
 				break;
-#endif
 			default:
 				VMActivate(choice);
 				break;
@@ -1123,11 +1050,7 @@ void DoViewMenu(INT16 choice)
 
 void PLMIDIDynPrefs(Document *doc)
 {
-#ifdef VIEWER_VERSION
-	static Boolean apply=TRUE;
-#else
 	static Boolean apply=FALSE;
-#endif
 	Boolean okay;
 	
 	okay = MIDIDynamDialog(doc, &apply);
@@ -1159,7 +1082,7 @@ void PLMIDIModPrefs(Document *doc)
 void PLTransposeScore(Document *doc)
 {
 	static Boolean warnedTransp = FALSE;
-	INT16 partn, nparts; LINK partL;
+	short partn, nparts; LINK partL;
 	PPARTINFO pPart;
 
 	if (!warnedTransp) {
@@ -1185,7 +1108,7 @@ void EditPartMIDI(Document *doc)
 {
 	LINK partL, pMPartL; PPARTINFO pPart, pMPart;
 	PARTINFO partInfo; short firstStaff;
-	INT16 partn;
+	short partn;
 	Boolean allParts = FALSE;
 
 	partL = GetSelPart(doc);
@@ -1194,7 +1117,7 @@ void EditPartMIDI(Document *doc)
 	partInfo = *pPart;
 	if (useWhichMIDI == MIDIDR_CM) {
 		MIDIUniqueID device;
-		partn = (INT16)PartL2Partn(doc, partL);
+		partn = (short)PartL2Partn(doc, partL);
 		device = GetCMDeviceForPartn(doc, partn);
 		if (CMPartMIDIDialog(doc, &partInfo, &device, &allParts)) {
 		
@@ -1207,7 +1130,7 @@ void EditPartMIDI(Document *doc)
 			doc->changed = TRUE;
 			
 			if (allParts) {
-				INT16 partNum;
+				short partNum;
 				
 				partL = FirstSubLINK(doc->headL);
 				for (partNum=0; partNum<=LinkNENTRIES(doc->headL)-1; partNum++, partL = NextPARTINFOL(partL)) 
@@ -1253,11 +1176,11 @@ static Boolean BIMIDIPortIsBusy()
  *	Handle a choice from the Play/Record Menu
  */
 
-void DoPlayRecMenu(INT16 choice)
+void DoPlayRecMenu(short choice)
 	{		
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 //		short newPortSetting, newInterfaceSpeed;
-//		INT16 oldMIDIThru;
+//		short oldMIDIThru;
 
 		switch(choice) {
 		
@@ -1276,7 +1199,6 @@ void DoPlayRecMenu(INT16 choice)
 				MEHideCaret(doc);
 				if (doc) PlaySequence(doc, doc->selStartL, doc->tailL, TRUE, FALSE);
 				break;
-#ifndef VIEWER_VERSION
 			case PL_RecordInsert:
 				if (BIMIDIPortIsBusy()) break;
 				if (doc) PLRecord(doc, FALSE);
@@ -1296,7 +1218,6 @@ void DoPlayRecMenu(INT16 choice)
 				if (BIMIDIPortIsBusy()) break;
 				if (doc) PLStepRecord(doc, TRUE);
 				break;
-#endif
 			case PL_AllNotesOff:
 				if (useWhichMIDI == MIDIDR_CM) {
 					CMAllNotesOff();
@@ -1307,7 +1228,6 @@ void DoPlayRecMenu(INT16 choice)
 //				oldMIDIThru = config.midiThru;
 				if (doc) MIDIDialog(doc);
 				break;
-#ifndef VIEWER_VERSION
 			case PL_Metronome:
 				if (useWhichMIDI==MIDIDR_CM)
 					CMMetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
@@ -1316,7 +1236,6 @@ void DoPlayRecMenu(INT16 choice)
 					MetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
 									&config.metroVelo, &config.metroDur);
 				break;
-#endif
 			case PL_MIDIThru:
 				break;
 			case PL_MIDIDynPrefs:
@@ -1337,23 +1256,9 @@ void DoPlayRecMenu(INT16 choice)
 			}
 	}
 
-#ifdef VIEWER_VERSION
-
-static void DoMasterPgMenu(INT16 choice)
-	{		
-		SysBeep(1);
-	}
-
-static void DoFormatMenu(INT16 choice)
-	{		
-		SysBeep(1);
-	}
-
-#else
-
 void MPInstrument(Document *doc)
 	{
-		LINK staffL, aStaffL; INT16 partStaffn;
+		LINK staffL, aStaffL; short partStaffn;
 		
 		staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
 	
@@ -1390,7 +1295,7 @@ void MPCombineParts(Document *doc)
  *	Handle a choice from the MasterPage Menu
  */
 
-static void DoMasterPgMenu(INT16 choice)
+static void DoMasterPgMenu(short choice)
 	{		
 		Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
@@ -1437,12 +1342,11 @@ static void DoMasterPgMenu(INT16 choice)
  *	Handle a choice from the Show Format Menu
  */
 
-static void DoFormatMenu(INT16 choice)
+static void DoFormatMenu(short choice)
 	{		
 		Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
 		
-#ifndef LIGHT_VERSION
 		switch(choice) {
 			case FT_Invisify:
 				SFInvisify(doc);
@@ -1453,23 +1357,21 @@ static void DoFormatMenu(INT16 choice)
 			default:
 				break;
 			}
-#endif
 	}
 
-#endif
 
 /*
  *	Handle a choice from the Reduce/Enlarge To (Magnify) Menu
  */
 
-static void DoMagnifyMenu(INT16 choice)
+static void DoMagnifyMenu(short choice)
 	{		
 		/*
 		 * Assume the menu simply contains a list of all possible <doc->magnify>
 		 * values, starting with the smallest (MIN_MAGNIFY).
 		 */
 		Document *doc=GetDocumentFromWindow(TopDocument);
-		INT16 newMagnify, magnifyDiff;
+		short newMagnify, magnifyDiff;
 
 		if (doc) {
 			newMagnify = MIN_MAGNIFY+(choice-1);
@@ -1521,15 +1423,13 @@ static void MovePalette(WindowPtr whichPalette, Point position)
 			}
 	}
 
-#ifndef VIEWER_VERSION
-
 /*
  *	Get user preferences from dialog.
  */
 
 void FMPreferences(Document *doc)
 	{
-		static INT16 section=1;			/* Initially show General preferences */
+		static short section=1;			/* Initially show General preferences */
 		
 		PrefsDialog(doc, doc->used, &section);
 		FillSpaceMap(doc, doc->spaceTable);
@@ -1542,8 +1442,8 @@ void FMPreferences(Document *doc)
  
 void SMLeftEnd(Document *doc)
 {
-	INT16	changeFirstIndent, changeOtherIndent;
-	INT16	firstNames, firstDist, otherNames, otherDist;
+	short	changeFirstIndent, changeOtherIndent;
+	short	firstNames, firstDist, otherNames, otherDist;
 	
 	firstNames = doc->firstNames;
 	firstDist = d2pt(doc->firstIndent);
@@ -1615,7 +1515,7 @@ static void SMMeasNum(Document *doc)
 
 static void SMRespace(Document *doc)
 	{
-		INT16 spMin, spMax, dval;
+		short spMin, spMax, dval;
 
 		GetMSpaceRange(doc, doc->selStartL, doc->selEndL, &spMin, &spMax);
 		dval = SpaceDialog(RESPACE_DLOG, spMin, spMax);
@@ -1657,9 +1557,9 @@ static void SMReformat(Document *doc)
 	{
 		static Boolean firstCall=TRUE, changeSBreaks, careMeasPerSys, exactMPS,
 							careSysPerPage, justify;
-		INT16 useMeasPerSys;
-		static INT16 measPerSys, sysPerPage, titleMargin;
-		INT16 endSysNum, status;
+		short useMeasPerSys;
+		static short measPerSys, sysPerPage, titleMargin;
+		short endSysNum, status;
 		LINK startSysL, endSysL;
 		
 		if (firstCall) {
@@ -1697,9 +1597,6 @@ static void SMReformat(Document *doc)
 				CParamText(strBuf, "", "", "");
 				NoteInform(GENERIC_ALRT);
 			}
-#ifdef LIGHT_VERSION
-			EnforcePageLimit(doc);
-#endif
 		}
 	}
 
@@ -1709,7 +1606,7 @@ static void SMReformat(Document *doc)
 static void NMAddModifiers(Document *doc)
 	{
 		LINK	pL, aNoteL, mainNoteL, aModNRL;
-		INT16	voice;
+		short	voice;
 		char	data = 0;
 		static Byte	modCode = MOD_STACCATO;
 		
@@ -1764,10 +1661,10 @@ static void NMStripModifiers(Document *doc)
 	}
 
 
-static INT16 CountSelVoices(Document *doc)
+static short CountSelVoices(Document *doc)
 	{
 		Boolean voiceUsed[MAXVOICES+1];
-		INT16 v, nSelVoices;
+		short v, nSelVoices;
 		LINK pL, aNoteL, aGRNoteL;
 		
 		for (v = 1; v<=MAXVOICES; v++)
@@ -1804,7 +1701,7 @@ static INT16 CountSelVoices(Document *doc)
 	
 static void NMMultiVoice(Document *doc)
 	{
-		static INT16 nSelVoices, voiceRole; static Boolean measMulti, assume;
+		static short nSelVoices, voiceRole; static Boolean measMulti, assume;
 
 		nSelVoices = CountSelVoices(doc);
 		if (MultivoiceDialog(nSelVoices, &voiceRole, &measMulti, &assume))
@@ -1818,7 +1715,7 @@ static void NMMultiVoice(Document *doc)
 	
 static void NMSetDuration(Document *doc)
 	{
-		static INT16 lDur=QTR_L_DUR, nDots=0, pDurPct=-1, lDurAction=SET_DURS_TO;
+		static short lDur=QTR_L_DUR, nDots=0, pDurPct=-1, lDurAction=SET_DURS_TO;
 		static Boolean setLDur=TRUE, setPDur=TRUE, cptV=TRUE;
 		Boolean unbeam, didAnything=FALSE;
 		
@@ -1874,7 +1771,7 @@ static void NMInsertByPos(Document *doc)
 	
 static void NMSetMBRest(Document *doc)
 	{
-		static INT16 newNMeas=4;
+		static short newNMeas=4;
 
 		if (SetMBRestDialog(doc, &newNMeas)) {
 			PrepareUndo(doc, doc->selStartL, U_SetDuration, 23);    	/* "Set Multibar Rest" */
@@ -1897,7 +1794,7 @@ static void NMSetMBRest(Document *doc)
 	
 static void NMFillEmptyMeas(Document *doc)
 	{
-		INT16 startMN, endMN; LINK measL, startL, endL; PAMEASURE aMeasure;
+		short startMN, endMN; LINK measL, startL, endL; PAMEASURE aMeasure;
 		
 		/* Default start and end measures are the first and last of the score. */
 		
@@ -1926,8 +1823,6 @@ static void NMFillEmptyMeas(Document *doc)
 		}
 	}
 
-#endif
-
 /*
  * Get voice to look at from dialog, initialized with voice and part of first selected
  * object or, if nothing is selected, default voice and part of the insertion point's
@@ -1937,7 +1832,7 @@ static void NMFillEmptyMeas(Document *doc)
  
 static void VMLookAt()
 	{
-		INT16			dval, newLookV, userVoice, saveStaff;
+		short			dval, newLookV, userVoice, saveStaff;
 		Document		*doc=GetDocumentFromWindow(TopDocument);
 		LINK			partL;
 		PPARTINFO 	pPart;
@@ -1986,8 +1881,6 @@ static void VMLookAtAll()
 			}
 	}
 
-#ifndef VIEWER_VERSION
-
 /*
  *	Toggle showing/hiding rhythm problems.
  */
@@ -2032,8 +1925,6 @@ static void VMShowInvisibles()
 			InvalWindow(doc);
 			}
 	}
-	
-#endif /* VIEWER_VERSION */
 
 /*
  *	Toggle coloring of voices: non-default voices in color or everything in black.
@@ -2057,8 +1948,6 @@ static void VMColorVoices()
 			}
 	}
 
-#ifndef VIEWER_VERSION
-
 /*
  * Toggle showing score in pianoroll or normal form.
  */
@@ -2074,14 +1963,12 @@ static void VMPianoRoll()
 			}
 	}
 
-	
-#endif /* VIEWER_VERSION */
 
 #define SPEC_DOC_COUNT 1	/* No. of special Documents (e.g., clipboard) at start of <documentTable> */
 
-static void VMActivate(INT16 choice)
+static void VMActivate(short choice)
 	{
-	INT16 itemNum; Document *doc;
+	short itemNum; Document *doc;
 	
 		/* The items at the end of the View menu (after the dividing line after
 		 *	VM_LastItem) correspond to Documents in documentTable. Search for the
@@ -2095,12 +1982,10 @@ static void VMActivate(INT16 choice)
 				}
 	}
 
-#ifndef VIEWER_VERSION
-
 static Boolean OKToRecord(Document *);
 static Boolean OKToRecord(Document *doc)
 {
-	INT16 anInt; LINK lookPartL, selPartL; char str[256];
+	short anInt; LINK lookPartL, selPartL; char str[256];
 	
 	if (HasSmthgAcross(doc, doc->selStartL, str)) {
 		CParamText(str, "", "", "");
@@ -2152,7 +2037,7 @@ static void PLRecord(Document *doc, Boolean merge)
 
 static void PLStepRecord(Document *doc, Boolean merge)
 	{
-		INT16 spaceProp;
+		short spaceProp;
 		
 		if (!OKToRecord(doc)) return;
 
@@ -2175,8 +2060,6 @@ static void PLStepRecord(Document *doc, Boolean merge)
 		}
 	}
 
-#endif
-
 /*
  *	When activating a document, ensure that the correct menu is installed for
  *	the current mode of viewing that document: Play/Record menu, Master Page
@@ -2185,7 +2068,7 @@ static void PLStepRecord(Document *doc, Boolean merge)
 
 void InstallDocMenus(Document *doc)
 	{
-		INT16 mid; MenuHandle oldMh, mh;
+		short mid; MenuHandle oldMh, mh;
 	
 		if (oldMh = GetMenuHandle(playRecID))
 			DeleteMenu(playRecID);
@@ -2198,17 +2081,11 @@ void InstallDocMenus(Document *doc)
 		 *	GetMenuHandle may give NULL for the new menu (if that menu was never installed?
 		 *	I dunno), so instead pass one of our stored menu handles to InsertMenu.
 		 */
-#if 1
 		if (doc->masterView)		  { mid = masterPgID; mh = masterPgMenu; }
 		else if (doc->showFormat) { mid = formatID; mh = formatMenu; }
 		else							  { mid = playRecID; mh = playRecMenu; }
 		
-#ifdef LIGHT_VERSION
-		if (!doc->showFormat)
-			InsertMenu(mh,0);
-#else
 		InsertMenu(mh,0);
-#endif
 		DrawMenuBar();
 
 		if (oldMh) {
@@ -2218,15 +2095,6 @@ void InstallDocMenus(Document *doc)
 			SleepTicks(1);
 			HiliteMenu(0);
 		}
-#else
-		if (doc->masterView)
-			InsertMenu(masterPgMenu,0);
-		 else if (doc->showFormat)
-			InsertMenu(formatMenu,0);
-		 else InsertMenu(playRecMenu,0);
-	
-		DrawMenuBar();
-#endif
 	}
 	
 static void InstallDebugMenuItems(Boolean installAll) 
@@ -2267,7 +2135,7 @@ void FixMenus()
 	{
 		Boolean isDA; WindowPtr w;
 		register Document *theDoc;
-		INT16 nInRange=0,nSel=0;
+		short nInRange=0,nSel=0;
 		LINK firstMeasL;
 		Boolean continSel=FALSE;
 		
@@ -2328,7 +2196,7 @@ void FixMenus()
 
 /* Enable or disable all items in the File menu */
 
-static void FixFileMenu(Document *doc, INT16 nSel)
+static void FixFileMenu(Document *doc, short nSel)
 	{
 		//always disable Finale ETF import until it has been removed from menu (rsrc) entirely
 		XableItem(fileMenu,FM_GetETF,FALSE);        
@@ -2336,13 +2204,10 @@ static void FixFileMenu(Document *doc, INT16 nSel)
 		XableItem(fileMenu,FM_Close,doc!=NULL);
 		XableItem(fileMenu,FM_CloseAll,doc!=NULL);
 
-#ifndef VIEWER_VERSION
 		XableItem(fileMenu,FM_Save,doc!=NULL && !doc->readOnly && doc->changed
 										&& doc!=clipboard && !doc->masterView);
 		XableItem(fileMenu,FM_SaveAs,doc!=NULL && doc!=clipboard && !doc->masterView);
 		XableItem(fileMenu,FM_Extract,doc!=NULL && doc!=clipboard);
-		INT16 numOpenDocs = NumOpenDocuments();
-		//XableItem(fileMenu,FM_Import,numOpenDocs == 0);
 
 		// always disable NoteScan import until it has been removed from menu (rsrc) entirely
 		XableItem(fileMenu,FM_GetScan,FALSE);
@@ -2355,15 +2220,12 @@ static void FixFileMenu(Document *doc, INT16 nSel)
 										!doc->converted);
 		XableItem(fileMenu,FM_Export,doc!=NULL && doc!=clipboard && !doc->masterView);
 		XableItem(fileMenu,FM_OpenMidiMap,doc!=NULL && doc!=clipboard);
-#endif
 		XableItem(fileMenu,FM_SheetSetup,doc!=NULL && doc!=clipboard && !doc->overview);
-#ifndef VIEWER_VERSION
 		XableItem(fileMenu,FM_PageSetup,doc!=NULL && doc!=clipboard);
 		XableItem(fileMenu,FM_Print,doc!=NULL && doc!=clipboard && !doc->showFormat);
 
 		XableItem(fileMenu,FM_Preferences,doc!=NULL && doc!=clipboard);
 		XableItem(fileMenu,FM_ScoreInfo,doc!=NULL);
-#endif
 		
 		//disable all Nightingale Search Menu items until they have been removed from menu (rsrc) entirely
 		XableItem(editMenu,EM_SearchMelody,FALSE);        
@@ -2377,7 +2239,7 @@ static void FixFileMenu(Document *doc, INT16 nSel)
 short CountSelPages(Document *);
 short CountSelPages(Document *doc)
 	{
-		Boolean selAcrossFirst; INT16 nPages; LINK pL;
+		Boolean selAcrossFirst; short nPages; LINK pL;
 		
 		if (!doc) return 0;
 		
@@ -2415,25 +2277,12 @@ static void GetUndoString(Document *doc, char undoMenuItem[])
 		sprintf(undoMenuItem, fmtStr, doc->undo.menuItem);
 	}
 
-#ifdef VIEWER_VERSION
-
-static void FixEditMenu(Document *doc, INT16 nInRange, INT16 nSel, Boolean isDA)
-	{
-		XableItem(editMenu,EM_Undo,isDA);
-		XableItem(editMenu,EM_Cut,isDA);
-		XableItem(editMenu,EM_Copy,isDA);
-		XableItem(editMenu,EM_Clear,isDA);
-		XableItem(editMenu,EM_Paste,isDA);
-	}
-	
-#else
-
 /*
  *	Enable or disable all items in the Edit menu; disable entire menu if the front
  * window isn't a DA and we're looking at the Master Page or Showing Format.
  */
 
-static void FixEditMenu(Document *doc, INT16 /*nInRange*/, INT16 nSel, Boolean isDA)
+static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean isDA)
 	{
 		Boolean mergeable,enablePaste,enableClearSys,enableClearPage;
 		char str[256], undoMenuItem[256], fmtStr[256];
@@ -2571,9 +2420,7 @@ static void FixEditMenu(Document *doc, INT16 /*nInRange*/, INT16 nSel, Boolean i
 		}
 	}
 
-#endif
-
-static void FixTestMenu(Document *doc, INT16 nSel)
+static void FixTestMenu(Document *doc, short nSel)
 	{
 #ifndef PUBLIC_VERSION
 		if (clickMode==ClickErase)
@@ -2666,32 +2513,15 @@ static void FixMoveMeasSys(Document *doc)
 			(LastSysInPage(sysL) && LinkRPAGE(pageL)!=NILINK));
 	}
 
-#ifdef VIEWER_VERSION
-
-static void FixScoreMenu(Document *doc, INT16 nSel)
-	{
-	}
-	
-static void FixNotesMenu(doc, continSel)
-	register Document *doc; Boolean continSel;
-	{
-	}
-	
-static void FixGroupsMenu(doc, continSel)
-	register Document *doc; Boolean continSel;
-	{
-	}
-
-#else
-
 /*
  *	Fix all items in the Score menu; disable it entirely if there is no score
  *	or it's the clipboard.
  */
 
-static void FixScoreMenu(Document *doc, INT16 nSel)
+static void FixScoreMenu(Document *doc, short nSel)
 	{
-		Boolean canAddSystem=FALSE; LINK insertL; INT16 where;
+		LINK insertL; 
+		short where;
 		Str255 str;
 	
 		UpdateMenu(scoreMenu, doc!=NULL && doc!=clipboard);
@@ -2810,7 +2640,7 @@ static void FixNotesMenu(Document *doc, Boolean /*continSel*/)
 	}
 
 
-static Boolean SelRangeChkOct(INT16 staff, LINK staffStartL, LINK staffEndL)
+static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 {
 	LINK pL,aNoteL,aGRNoteL;
 	PANOTE aNote; PAGRNOTE aGRNote;
@@ -2848,7 +2678,7 @@ static void FixOctavaCommands(Document *, Boolean);
 static void FixBeamCommands(Document *doc)
 {
 	Boolean hasBeam, hasGRBeam; LINK pL, aNoteL, aGRNoteL;
-	INT16 voice, nBeamable, nGRBeamable; Str255 str;
+	short voice, nBeamable, nGRBeamable; Str255 str;
 	
 	hasBeam = FALSE;			
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -2925,7 +2755,7 @@ knowGRBeamed:
 static void FixTupletCommands(Document *doc)
 {
 	Boolean hasTuplet; LINK pL, aNoteL, vStartL, vEndL;
-	INT16 voice, tupleNum; Str255 str;
+	short voice, tupleNum; Str255 str;
 	
 	hasTuplet = FALSE;
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -2988,7 +2818,7 @@ knowTupled:
 static void FixOctavaCommands(Document *doc, Boolean continSel)
 {
 	Boolean hasOctava; LINK pL, aNoteL, aGRNoteL, stfStartL, stfEndL;
-	INT16 staff, octavaNum; Str255 str;
+	short staff, octavaNum; Str255 str;
 
 	if (!continSel) {
 		DisableMenuItem(groupsMenu, GM_Octava);
@@ -3090,11 +2920,9 @@ static void FixGroupsMenu(Document *doc, Boolean continSel)
 		FixOctavaCommands(doc, continSel);
 	}
 
-#endif
-
 void AddWindowList()
 {
-	INT16 startItems, itemNum; Document *doc;
+	short startItems, itemNum; Document *doc;
 	
 	/* Delete any window names from the end of the View menu. */
 	
@@ -3130,14 +2958,8 @@ static void FixViewMenu(Document *doc)
 //		Boolean disableWholeMenu;
 		
 		AddWindowList();
-#ifdef NOTYET
-		disableWholeMenu = (doc==NULL);
-		UpdateMenu(viewMenu, !disableWholeMenu);
-		if (disableWholeMenu) return;
-#else
 		UpdateMenu(viewMenu, doc!=NULL);
 		/* ??If doc is NULL, we should return at this point--continuing is dangerous! */
-#endif
 		
 		XableItem(viewMenu,VM_GoTo,ENABLE_GOTO(doc));
 		XableItem(viewMenu,VM_GotoSel,ENABLE_GOTO(doc));
@@ -3147,7 +2969,6 @@ static void FixViewMenu(Document *doc)
 		
 		XableItem(viewMenu,VM_LookAtV,doc!=NULL && !doc->masterView && !doc->showFormat);
 		XableItem(viewMenu,VM_LookAtAllV,doc!=NULL && !doc->masterView && !doc->showFormat);
-#ifndef VIEWER_VERSION
 		XableItem(viewMenu,VM_ShowDurProb,doc!=NULL && !doc->masterView);
 		XableItem(viewMenu,VM_ShowSyncL,doc!=NULL && !doc->masterView);
 		XableItem(viewMenu,VM_ShowInvis,doc!=NULL && doc!=clipboard && !doc->masterView);
@@ -3159,23 +2980,19 @@ static void FixViewMenu(Document *doc)
 		
 		XableItem(viewMenu, VM_SymbolPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
 
-#endif
-
 		CheckMenuItem(viewMenu,VM_GoTo,doc!=NULL && doc->overview);
 		CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);
-#ifndef VIEWER_VERSION
 		CheckMenuItem(viewMenu,VM_ShowDurProb,doc!=NULL && doc->showDurProb);
 		CheckMenuItem(viewMenu,VM_ShowSyncL,doc!=NULL && doc->showSyncs);
 		CheckMenuItem(viewMenu,VM_ShowInvis,doc!=NULL && doc->showInvis);
 		CheckMenuItem(viewMenu, VM_ShowSystems, doc!=NULL && doc->frameSystems);
 		CheckMenuItem(viewMenu,VM_PianoRoll,doc!=NULL && doc->pianoroll);
-#endif
 	}
 
 /* Fix all items in Play/Record menu; disable entire menu if there's no score or
 we're looking at the Master Page. */
 
-static void FixPlayRecordMenu(Document *doc, INT16 nSel)
+static void FixPlayRecordMenu(Document *doc, short nSel)
 	{
 		Boolean disableWholeMenu, noteSel, haveMIDI=(useWhichMIDI!=MIDIDR_NONE);
 
@@ -3187,7 +3004,6 @@ static void FixPlayRecordMenu(Document *doc, INT16 nSel)
 			XableItem(playRecMenu, PL_PlayFromSelection, doc!=clipboard && haveMIDI);
 			XableItem(playRecMenu, PL_AllNotesOff, haveMIDI);
 	
-	#ifndef VIEWER_VERSION
 			noteSel = ObjTypeSel(doc, SYNCtype, 0)!=NILINK;
 			XableItem(playRecMenu, PL_Quantize, noteSel);
 	
@@ -3195,7 +3011,6 @@ static void FixPlayRecordMenu(Document *doc, INT16 nSel)
 			XableItem(playRecMenu, PL_RecordMerge, doc!=clipboard && haveMIDI);
 			XableItem(playRecMenu, PL_StepRecInsert, doc!=clipboard && haveMIDI);
 			XableItem(playRecMenu, PL_StepRecMerge, doc!=clipboard && haveMIDI);
-	#endif
 	 		XableItem(playRecMenu, PL_MIDISetup, doc!=clipboard);
 	 		XableItem(playRecMenu, PL_Metronome, haveMIDI);		/* Metro and thru are global options */
 			XableItem(playRecMenu, PL_MIDIDynPrefs, doc!=clipboard);
@@ -3208,16 +3023,12 @@ static void FixPlayRecordMenu(Document *doc, INT16 nSel)
 			XableItem(playRecMenu, PL_PlayEntire, FALSE);
 			XableItem(playRecMenu, PL_PlaySelection, FALSE);
 			XableItem(playRecMenu, PL_PlayFromSelection, FALSE);
-			XableItem(playRecMenu, PL_AllNotesOff, FALSE);
-	
-	#ifndef VIEWER_VERSION
+			XableItem(playRecMenu, PL_AllNotesOff, FALSE);	
 			XableItem(playRecMenu, PL_Quantize, FALSE);
 			XableItem(playRecMenu, PL_RecordInsert, FALSE);
 			XableItem(playRecMenu, PL_RecordMerge, FALSE);
 			XableItem(playRecMenu, PL_StepRecInsert, FALSE);
 			XableItem(playRecMenu, PL_StepRecMerge, FALSE);
-	#endif
-			
 	 		XableItem(playRecMenu, PL_MIDISetup, FALSE);
 	 		XableItem(playRecMenu, PL_Metronome, FALSE);
 	 		XableItem(playRecMenu, PL_MIDIThru, FALSE);
@@ -3229,24 +3040,12 @@ static void FixPlayRecordMenu(Document *doc, INT16 nSel)
 		}
 	}
 
-#ifdef VIEWER_VERSION
-
-static void FixMasterPgMenu(Document *doc)
-{
-}
-
-static void FixFormatMenu(Document *doc)
-{
-}
-
-#else
-
 /* Fix all items in Master Page menu. If no score or we're not in Master Page,
 this menu shouldn't be installed, so we don't even need to disable it. */
 
 static void FixMasterPgMenu(Document *doc)
 {
-	INT16 groupSel,nstavesMP, nparts; LINK staffL; Str255 str;
+	short groupSel,nstavesMP, nparts; LINK staffL; Str255 str;
 
 	if (doc==NULL || !doc->masterView) return;
 	
@@ -3283,7 +3082,7 @@ this menu shouldn't be installed, so we don't even need to disable it. */
 
 static void FixFormatMenu(Document *doc)
 {
-	INT16 nVis, nInvis; LINK pL, aStaffL;
+	short nVis, nInvis; LINK pL, aStaffL;
 
 	if (doc==NULL || !doc->showFormat) return;
 	
@@ -3299,5 +3098,3 @@ static void FixFormatMenu(Document *doc)
 	XableItem(formatMenu, FT_Invisify, nVis>=2);
 	XableItem(formatMenu, FT_ShowInvis, nInvis>=1);
 }
-
-#endif

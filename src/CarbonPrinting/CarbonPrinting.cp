@@ -48,458 +48,6 @@
 #include "UIFUtils.h"
 #include "CarbonPrinting.h"
 
-#if 0
-//#include "AppDrawing.h"
-//#include "UIHandling.h"
-
-// this setting determines whether there will be a printing status dialog when
-// saving to PDF
-#define NO_SAVE_STATUS_DIALOG	1
-
-// the following typedefs are defined so that our PrintingProcs structure
-// definition can be defined and used.
-typedef CALLBACK_API(OSStatus, PMSessionBeginDocumentProcPtr)
-							(PMPrintSession	printSession,
-							PMPrintSettings	printSettings,
-							PMPageFormat		pageFormat);
-typedef CALLBACK_API(OSStatus, PMSessionBeginPageProcPtr)
-							(PMPrintSession	printSession,
-							PMPageFormat 		pageFormat,
-							const PMRect		*pageFrame);
-typedef CALLBACK_API(OSStatus, PMSessionEndPageProcPtr)(PMPrintSession printSession);
-typedef CALLBACK_API(OSStatus, PMSessionEndDocumentProcPtr)(PMPrintSession printSession);
-
-typedef struct PrintingProcs{
-    PMSessionBeginDocumentProcPtr	BeginDocumentProc;
-    PMSessionBeginPageProcPtr			BeginPageProc;
-    PMSessionEndPageProcPtr 			EndPageProc;
-    PMSessionEndDocumentProcPtr 		EndDocumentProc;
-} PrintingProcs;
-
-/*
-    The routines PMSessionBeginDocumentNoDialog, PMSessionEndDocumentNoDialog,
-        PMSessionBeginPageNoDialog, PMSessionEndPageNoDialog are incorrectly
-        missing from the public header file PMCore.h and consequently also
-        from ApplicationServices.h. These routines have
-        the following availability:
-        
-    Availability:
-      Mac OS X:         in version 10.0 and later in ApplicationServices.framework
-      CarbonLib:        not available
-      Non-Carbon CFM:   not available
-
-    These routines are public and will appear in the PMCore.h header file in
-    a future release of Mac OS X.
-    
-    The functional difference between these routines and the matching routines
-    without the 'NoDialog' suffix is that there is not window or status narration
-    performed when these routines are used. This makes them suitable for our
-    save to PDF situation where we may want either no status narration or
-    an application might want to perform its own status narration.
-*/
-EXTERN_API( OSStatus )
-PMSessionBeginDocumentNoDialog  (PMPrintSession         printSession,
-                                 PMPrintSettings        printSettings,
-                                 PMPageFormat           pageFormat);
-
-EXTERN_API( OSStatus )
-PMSessionEndDocumentNoDialog    (PMPrintSession         printSession);
-
-EXTERN_API( OSStatus )
-PMSessionBeginPageNoDialog      (PMPrintSession         printSession,
-                                 PMPageFormat           pageFormat,
-                                 const PMRect *         pageFrame);
-
-EXTERN_API( OSStatus )
-PMSessionEndPageNoDialog        (PMPrintSession         printSession);
-
-
-static PMSheetDoneUPP gMyPageSetupDoneProc;
-static PMSheetDoneUPP gMyPrintDialogDoneProc;
-
-static pascal void MyPageSetupDoneProc(PMPrintSession printSession, WindowRef documentWindow, Boolean accepted);
-static pascal void MyPrintDialogDoneProc(PMPrintSession printSession, WindowRef documentWindow, Boolean accepted);
-
-static OSStatus MySetupPageFormatForPrinting(PMPrintSession printSession, 
-						void *docDataP, PMPageFormat *pageFormatP);
-
-static OSStatus MyDoPrintLoop(PMPrintSession printSession, PMPageFormat pageFormat, 
-				    PMPrintSettings printSettings, const void *docDataP,
-                                    const PrintingProcs *printingProcsP);
-                      
-/**** Global Data ****/
-static PrintingProcs gMyPrintingProcsNoStatusDialog = {PMSessionBeginDocumentNoDialog, 
-						PMSessionBeginPageNoDialog, 
-						PMSessionEndPageNoDialog,
-						PMSessionEndDocumentNoDialog 
-                                                };
-
-static PrintingProcs gMyPrintingProcsWithStatusDialog = {PMSessionBeginDocument, 
-						PMSessionBeginPage, 
-						PMSessionEndPage,
-                                                PMSessionEndDocument
-                                                };
-
-
-// --------------------------------------------------------------------------------------------------------------
-OSStatus CreateSheetDoneProcs(void)
-{
-    OSStatus err = noErr;
-    gMyPageSetupDoneProc = NewPMSheetDoneUPP(MyPageSetupDoneProc);
-    if(!gMyPageSetupDoneProc)
-        err = memFullErr;
-
-    if(!err){
-	gMyPrintDialogDoneProc = NewPMSheetDoneUPP(MyPrintDialogDoneProc);
-	if(!gMyPrintDialogDoneProc)
-	    err = memFullErr;
-    }
-        
-    return err;
-}
-
-// --------------------------------------------------------------------------------------------------------------
-static OSStatus MySetupPageFormatForPrinting(PMPrintSession printSession, void *docDataP, PMPageFormat *pageFormatP)
-{
-    OSStatus err = noErr;
-    PMPageFormat pageFormat = GetPageFormatFromPrivateData(docDataP);
-    if (pageFormat == NULL)
-    {
-        err = PMCreatePageFormat(&pageFormat);
-        if(err == noErr)
-        {
-            err = PMSessionDefaultPageFormat(printSession, pageFormat);
-            if (err == noErr)
-                SetPageFormatOnPrivateData(docDataP, pageFormat);
-            else{
-                (void)PMRelease(pageFormat);
-                pageFormat = NULL;
-            }
-        }
-    }else{
-	// we already have a page format so we'll validate it
-        err = PMSessionValidatePageFormat(printSession, pageFormat,
-                                        kPMDontWantBoolean);
-        if(err){	// if validate failed!
-	    SetPageFormatOnPrivateData(docDataP, NULL);
-            (void)PMRelease(pageFormat);
-            pageFormat = NULL;
-        }
-    }
-    
-    *pageFormatP = pageFormat;
-    return err;
-}
-
-// --------------------------------------------------------------------------------------------------------------
-OSStatus DoPageSetup(WindowRef window, void *docDataP)
-{
-    OSStatus		err = noErr;
-    if(docDataP){
-        PMPrintSession printSession;
-        PMPageFormat pageFormat = NULL;
-        err = PMCreateSession(&printSession);
-        if(!err){
-            Boolean accepted;
-            err = MySetupPageFormatForPrinting(printSession, docDataP, &pageFormat);
-            if(!err){
-		Boolean sheetsAreAvailable = true;
-                err = PMSessionUseSheets(printSession, window, gMyPageSetupDoneProc);             
-		if(err == kPMNotImplemented){
-		    // sheets are not available (aka, Mac OS 8/9)
-		    err = noErr;
-		    sheetsAreAvailable = false;
-		}
-                if(!err){
-                    err = PMSessionPageSetupDialog(printSession, pageFormat, &accepted);
-                    /*  when using sheets, the value of 'accepted' returned here is irrelevant
-			since it is our sheet done proc that is called when the dialog is dismissed.
-			Our dialog done proc will be called when the sheet is dismissed.
-		    
-			If sheets are NOT implemented then WE call our DialogDone proc here 
-			to complete the dialog.
-		    */
-		    if(err == noErr && !sheetsAreAvailable)
-                        MyPageSetupDoneProc(printSession, window, accepted);
-		}
-            }
-            if(err){	// only if there is an error do we release the session
-                        // otherwise we'll do that in our sheet done proc
-                (void)PMRelease(printSession);
-            }
-	}
-    }
-    DoErrorAlert(err, kMyPrintErrorFormatStrKey);
-    return err;
-} // DoPageSetup
-
-// --------------------------------------------------------------------------------------------------------------
-static pascal void MyPageSetupDoneProc(PMPrintSession printSession,
-                        WindowRef documentWindow,
-                        Boolean accepted)
-{
-#pragma unused(documentWindow, accepted)
-    // this sample doesn't do anything with the page format after page setup is done
-    
-    // now we release the session we created to do the page setup dialog
-    OSStatus err = PMRelease(printSession);	
-    if(err)
-        DoErrorAlert(err, kMyPrintErrorFormatStrKey);
-    return;
-}
-
-
-// --------------------------------------------------------------------------------------------------------------
-OSStatus DoPrint(WindowRef parentWindow, void *documentDataP, Boolean printOne)
-{
-    OSStatus err = noErr;
-    PMPrintSettings printSettings = NULL;
-    PMPageFormat pageFormat = NULL;
-
-    UInt32 minPage = 1, maxPage;
-    PMPrintSession printSession;
-    err = PMCreateSession(&printSession);
-    if(err == noErr){
-	err = MySetupPageFormatForPrinting(printSession, documentDataP, &pageFormat);
-        if (err == noErr)
-        {
-            err = PMCreatePrintSettings(&printSettings);
-            if(err == noErr)
-            {
-                err = PMSessionDefaultPrintSettings(printSession, printSettings);
-                if(err == noErr){
-                    CFStringRef windowTitleRef;
-                    err = CopyWindowTitleAsCFString(parentWindow, &windowTitleRef);
-                    if(err == noErr)
-                    {
-                        // set the job name before displaying the print dialog
-                        err = PMSetJobNameCFString (printSettings, windowTitleRef);
-                        CFRelease(windowTitleRef);
-                    }
-                }
-            }
-            if (err == noErr)
-            {
-                maxPage = MyGetDocumentNumPagesInDoc(documentDataP);
-                err = PMSetPageRange(printSettings, minPage, maxPage);
-            }
-
-            if (err == noErr)
-            {
-                Boolean accepted;
-		Boolean sheetsAreAvailable = true;
-                SetPrintSettingsOnPrivateData(documentDataP, printSettings);
-                err = PMSessionUseSheets(printSession, parentWindow, gMyPrintDialogDoneProc);
-		if(err == kPMNotImplemented){
-		    // we get here if sheets are not available, i.e. Mac OS 8/9
-		    err = noErr;
-		    sheetsAreAvailable = false;
-		}		
-                if(err == noErr && !printOne){
-                    err = PMSessionPrintDialog(printSession, printSettings, 
-                                    pageFormat,
-                                    &accepted);
-                    /*  when using sheets, the value of 'accepted' returned here is irrelevant
-			since it is our sheet done proc that is called when the dialog is dismissed.
-			Our dialog done proc will be called when the sheet is dismissed.
-		    
-			If sheets are NOT implemented then WE call our DialogDone proc here 
-			to complete the dialog.
-		    */
-		    if(err == noErr && !sheetsAreAvailable)
-                        MyPrintDialogDoneProc(printSession, parentWindow, accepted);
-                }else{
-                    // if we are doing print one we have no dialog, therefore
-                    // we have to call our dialog done proc since there is no
-                    // dialog to do so for us
-                    if(err == noErr)
-                        MyPrintDialogDoneProc(printSession, parentWindow, true);
-                }
-            }
-        }
-        if(err != noErr){
-            // if we got an error our dialog done proc will not be called so we need to clean up
-            if(printSettings){
-                SetPrintSettingsOnPrivateData(documentDataP, NULL);
-                (void)PMRelease(printSettings);	// ignoring error since we already have one
-            }
-            (void)PMRelease(printSession);   // ignoring error since we already have one 
-        }
-    }
-    DoErrorAlert(err, kMyPrintErrorFormatStrKey);
-    return err;
-}
-
-// --------------------------------------------------------------------------------------------------------------
-static pascal void MyPrintDialogDoneProc(PMPrintSession printSession,
-                            WindowRef documentWindow, Boolean accepted)
-{
-    OSStatus err = noErr, tempErr;
-    void *ourDataP = GetOurWindowProperty(documentWindow);
-    if(ourDataP)
-    {
-        PMPrintSettings printSettings = GetPrintSettingsFromPrivateData(ourDataP);
-	// only run the print loop if the user accepted the print dialog.
-        if(accepted){
-            err = MyDoPrintLoop(printSession, 
-                        GetPageFormatFromPrivateData(ourDataP),
-                        printSettings, ourDataP, &gMyPrintingProcsWithStatusDialog);
-	}
-
-        SetPrintSettingsOnPrivateData(ourDataP, NULL);
-        tempErr = PMRelease(printSettings);
-        if(err == noErr)
-            err = tempErr;
-    }// else Assert(...);
-    
-    // now we release the session we created to do the Print dialog
-    tempErr = PMRelease(printSession);
-    if(err == noErr)
-        err = tempErr;
-    
-    DoErrorAlert(err, kMyPrintErrorFormatStrKey);
-}
-
-// --------------------------------------------------------------------------------------------------------------
-static OSStatus MyDoPrintLoop(PMPrintSession printSession, PMPageFormat pageFormat, 
-				PMPrintSettings printSettings, const void *ourDataP,
-                                const PrintingProcs *printingProcsP)
-{
-    OSStatus err = noErr;
-    OSStatus tempErr = noErr;
-    UInt32 firstPage, lastPage, totalDocPages = MyGetDocumentNumPagesInDoc(ourDataP);
-    
-    if(!err)
-	err = PMGetFirstPage(printSettings, &firstPage);
-	
-    if (!err)
-        err = PMGetLastPage(printSettings, &lastPage);
-
-    if(!err && lastPage > totalDocPages){
-        // don't draw more than the number of pages in our document
-        lastPage = totalDocPages;
-    }
-
-    if (!err)		// tell the printing system the number of pages we are going to print
-        err = PMSetLastPage(printSettings, lastPage, false);
-
-    if (!err)
-    {
-        PageDrawProc *drawProc = GetMyDrawPageProc(ourDataP);
-        err = printingProcsP->BeginDocumentProc(printSession, printSettings, pageFormat);
-        if (!err){
-	    UInt32 pageNumber = firstPage;
-	    // need to check errors from our print loop and errors from the session for each
-	    // time around our print loop before calling our BeginPageProc
-            while(pageNumber <= lastPage && err == noErr && PMSessionError(printSession) == noErr)
-            {
-                err = printingProcsP->BeginPageProc(printSession, pageFormat, NULL);
-                if (!err){
-                    GrafPtr oldPort = NULL;
-                    void *printingContext = NULL;
-                    GetPort(&oldPort);	// preserve the existing port
-                
-                    err = PMSessionGetGraphicsContext(printSession, kPMGraphicsContextQuickdraw,
-                                                    (void **)&printingContext);
-                    if(!err){
-                        Rect pageRect;
-                        SetPort((CGrafPtr)printingContext);
-                        GetPortBounds(printingContext, &pageRect);
-                        err = drawProc(ourDataP, &pageRect, pageNumber);	// image the correct page
-                        SetPort(oldPort);	// restore the prior port
-                    }
-                    // we must call EndPage if BeginPage returned noErr
-		    tempErr = printingProcsP->EndPageProc(printSession);
-                        
-		    if(!err)err = tempErr;
-                }
-		pageNumber++;
-            }	// end while loop
-            
-            // we must call EndDocument if BeginDocument returned noErr
-	    tempErr = printingProcsP->EndDocumentProc(printSession);
-
-	    if(!err)err = tempErr;
-	    if(!err)
-		err = PMSessionError(printSession);
-        }
-    }
-    return err;
-}
-
-
-OSStatus MakePDFDocument(WindowRef parentWindow, void *documentDataP, CFURLRef saveURL)
-{
-    OSStatus err = noErr, tempErr;
-    PMPrintSettings printSettings = NULL;
-    PMPageFormat pageFormat = NULL;
-    PMPrintSession printSession;
-    err = PMCreateSession(&printSession);
-    if(err == noErr){
-	err = MySetupPageFormatForPrinting(printSession, documentDataP, &pageFormat);
-        if (err == noErr)
-        {
-            err = PMCreatePrintSettings(&printSettings);
-            if(err == noErr)
-            {
-                err = PMSessionDefaultPrintSettings(printSession, printSettings);
-                if(err == noErr){
-                    CFStringRef windowTitleRef;
-                    err = CopyWindowTitleAsCFString(parentWindow, &windowTitleRef);
-                    if(err == noErr)
-                    {
-                        // set the job name
-                        err = PMSetJobNameCFString (printSettings, windowTitleRef);
-                        CFRelease(windowTitleRef);
-                    }
-                }
-
-                if (err == noErr)
-                    err = PMSetPageRange(printSettings, 1, MyGetDocumentNumPagesInDoc(documentDataP));
-                
-                // set our destination to be our target URL and the format to be PDF
-                if(err == noErr){
-                    // this API exists ONLY in Mac OS X 10.1 and later only
-                    err = PMSessionSetDestination(printSession, printSettings,
-                                    kPMDestinationFile, kPMDocumentFormatPDF, 
-                                    saveURL);
-                }
-#if !NO_SAVE_STATUS_DIALOG
-                if(err == noErr){
-                    err = PMSessionUseSheets(printSession, parentWindow, NULL);             
-                }
-#endif
-            }
-
-            if (err == noErr)
-            {
-                err = MyDoPrintLoop(printSession, 
-                            pageFormat,
-                            printSettings, 
-                            documentDataP, 
-#if NO_SAVE_STATUS_DIALOG
-			    &gMyPrintingProcsNoStatusDialog
-#else
-                            &gMyPrintingProcsWithStatusDialog
-#endif
-                        );
-            }
-        }
-        if(printSettings){
-            tempErr = PMRelease(printSettings);
-            if(err == noErr)
-                err = tempErr;
-        }
-
-        tempErr = PMRelease(printSession);    
-        if(err == noErr)
-            err = tempErr;
-    }
-    DoErrorAlert(err, kMySaveAsPDFErrorFormatStrKey);
-    return err;
-}
-#endif
-
 enum {
   kPMNInvalidPageRange = -30901,
   kPMNSysJustifUserCancel = -30902  
@@ -508,8 +56,6 @@ enum {
 /*------------------------------------------------------------------------------
 	Globals
 ------------------------------------------------------------------------------*/
-static	Handle	gflatPageFormat = NULL;		// used in FlattenAndSavePageFormat
-
 static PMSheetDoneUPP gMyPageSetupDoneProc = NULL;
 static PMSheetDoneUPP gMyPrintDialogDoneProc = NULL;
 
@@ -522,17 +68,13 @@ static pascal void NPrintDialogDoneProc(PMPrintSession printSession, WindowRef d
 static OSStatus SetupPrintDlogPages(Document *doc);
 static OSStatus GetPrintPageRange(Document *doc, UInt32 *firstPage, UInt32 *lastPage);
 static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPage);
-static Boolean IsRightJustOK(Document *doc, INT16 firstSheet, INT16 lastSheet);
-static OSStatus SetupPagesToPrint(Document *doc);
-static void PrintDemoBanner(Document *doc, Boolean toPostScript);
+static Boolean IsRightJustOK(Document *doc, short firstSheet, short lastSheet);
 static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession);
-static INT16 GetPrintDestination(Document *doc);
+static short GetPrintDestination(Document *doc);
 static void NDoPrintLoop(Document *doc);
 static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet);
 static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet);
-static OSStatus DocFormatGetLandscape(Document *doc, Boolean *landscape);
 static OSStatus DocFormatGetAdjustedPaperRect(Document *doc, Rect *paperRect, Boolean xlateScale);
-static UInt32 NPagesInDoc(Document *doc);
 static OSStatus NDocDrawPage(Document *doc, UInt32 pageNum);
 static Boolean DocSessionOK(Document *doc, OSStatus status);
 static void DocReleasePrintSession(Document *doc);
@@ -542,7 +84,7 @@ static void DocSPFReleasePrintSession(Document *doc,PMPrintSession printSession,
 static void DocPostPrintingError(Document *doc,OSStatus status, CFStringRef errorFormatStringKey);
 
 static void FillFontUsedTbl(Document *doc);
-static INT16 PSTypeDialog(INT16, INT16);
+static short PSTypeDialog(short, short);
 
 
 // --------------------------------------------------------------------------------------------------------------
@@ -702,8 +244,8 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 			
 			OffsetRect(&rPaper,-rPaper.left,-rPaper.top);
 			if (!EqualRect(&doc->origPaperRect,&rPaper)) {
-				INT16 marginRight = doc->origPaperRect.right - doc->marginRect.right;
-				INT16 marginBottom = doc->origPaperRect.bottom - doc->marginRect.bottom;
+				short marginRight = doc->origPaperRect.right - doc->marginRect.right;
+				short marginBottom = doc->origPaperRect.bottom - doc->marginRect.bottom;
 				doc->marginRect.right = rPaper.right - marginRight;
 				doc->marginRect.bottom = rPaper.bottom - marginBottom;
 				doc->origPaperRect = rPaper;
@@ -847,8 +389,8 @@ static OSStatus SetupPrintDlogPages(Document *doc)
 {
 	OSStatus status = noErr;
 	
-	INT16 firstPage = doc->firstPageNumber;
-	INT16 lastPage = doc->firstPageNumber + doc->numSheets - 1;
+	short firstPage = doc->firstPageNumber;
+	short lastPage = doc->firstPageNumber + doc->numSheets - 1;
 	
 	status = PMSetPageRange(doc->docPrintInfo.docPrintSettings, firstPage, lastPage);
 	
@@ -892,7 +434,7 @@ static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPa
 #define JUSTSLOP .001
 
 static Boolean IsRightJustOK(Document *doc, 
-										INT16 firstSheet, INT16 lastSheet)	/* Inclusive range of sheet numbers */
+										short firstSheet, short lastSheet)	/* Inclusive range of sheet numbers */
 {
 	LINK startPageL, endPageL, pL, firstMeasL, termSysL, lastMeasL;
 	FASTFLOAT justFact;
@@ -934,7 +476,7 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 		firstSheet = firstPage - doc->firstPageNumber;
 		lastSheet  = lastPage - doc->firstPageNumber;
 		if (firstSheet > lastSheet)
-			{ INT16 sh = firstSheet; firstSheet = lastSheet; lastSheet = sh; }
+			{ short sh = firstSheet; firstSheet = lastSheet; lastSheet = sh; }
 		if (firstSheet < 0) firstSheet = 0;
 		if (lastSheet >= doc->numSheets) lastSheet = doc->numSheets-1;
 
@@ -967,59 +509,6 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 	}
 	
 	return status;
-}
-
-// --------------------------------------------------------------------------------------------------------------
-
-static void PrintDemoBanner(Document *doc, Boolean toPostScript)
-{
-#ifdef DOING_INITIAL_ENCODE
-	const unsigned char *banLine1 = "\pPrinted by Nightingale(R)";
-	const unsigned char *banLine2 = "\pAdvanced Music Notation Systems, Inc.";
-	const unsigned char *banLine3 = "\pfax: 413-268-7317  e-mail: info@ngale.com";
-#else
-	const unsigned char *banLine1 = "\p\33T+(/VAkD;f\25ZB#R+(<RI.Ž";  /* Ends in Option-e e */
-	const unsigned char *banLine2 = "\p\37C/64AD'\6\3%.ZQ2\6\02244WP(R1";
-	const unsigned char *banLine3 = "\ps\26rko\1\23f\24tqh\23\5k\6btk\5\b\177\20pkj\3\25|";
-#endif
- 
-#ifdef DOING_INITIAL_ENCODE
-	short i,k,len,klen;
-	/*
-	 * Include this paragraph to encrypt <banLine>s the first time so that you
-	 * can break below with the debugger in order to write down the encrypted
-	 * version for plugging in above.  The banKey string should be unreadable
-	 * garbage, and should be stored far away (in the global strings) from the
-	 * encrypted banner string.
-	 *
-	 * This should never be included in any working version of the program.
-	 * The purpose of all this is to avoid having the banner text easily findable
-	 * while looking at the program either statically (with a resource editor) or
-	 * dynamically (with a debugger), so it won't be too easy for a hacker to
-	 * disable--e.g., by replacing the text with blanks.
-	 */
-	len = *banLine1;
-	k = 1; klen = *banKey;
-	for (i=1; i<=len; i++) {						/* For each byte in banner text... */
-		banLine1[i] ^= banKey[k++];					/* XOR in the next key byte */
-		if (k > klen) k = 1;						/* Cycle through all key bytes */
-	}
-
-	len = *banLine2;
-	k = 1; klen = *banKey;
-	for (i=1; i<=len; i++) {						/* For each byte in banner text... */
-		banLine2[i] ^= banKey[k++];					/* XOR in the next key byte */
-		if (k > klen) k = 1;						/* Cycle through all key bytes */
-	}
-
-	len = *banLine3;
-	k = 1; klen = *banKey;
-	for (i=1; i<=len; i++) {						/* For each byte in banner text... */
-		banLine3[i] ^= banKey[k++];					/* XOR in the next key byte */
-		if (k > klen) k = 1;						/* Cycle through all key bytes */
-	}
-#endif
-
 }
 
 /* ------------------------------------------------------------------------------
@@ -1094,7 +583,7 @@ static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 
 // --------------------------------------------------------------------------------------------------------------
 
-static INT16 GetPrintDestination(Document *doc)
+static short GetPrintDestination(Document *doc)
 {
 	Boolean includePostScript = IncludePostScriptInSpoolFile(doc->docPrintInfo.docPrintSession);
 	
@@ -1109,50 +598,13 @@ static INT16 GetPrintDestination(Document *doc)
 
 #define USE_PREC103 1
 
-static Handle printDictHdl;
-
-static Handle PS_PreparePrintDictHdl(Document *doc, Rect *imageRect)
-	{
-		//Handle text; long size; 
-		Rect box;
-		short oldFile = CurResFile();
-		FSSpec fsSpec; OSErr thisError;
-		
-//		UseResFile(appRFRefNum);
-//		prec103 = Get1Resource('PREC',103);
-//		UseResFile(oldFile);
-		
-//		if (GoodResource(prec103)) {
-			//HNoPurge(prec103);
-			thisError = PS_Open(doc, NULL, 0, USING_HANDLE, 0L, &fsSpec);
-			//if (thisError) { ReleaseResource(prec103); return; }
-			if (thisError) { return NULL; }
-			
-			/* Now stuff prec103 with stuff from our resources */
-			
-			SetRect(&box,0,0,0,0);
-			PS_HeaderHdl(doc,"\p??",1,1.0,FALSE,TRUE,&box,imageRect);
-			//SetHandleSize(prec103,size=GetHandleSize(text = PS_GetTextHandle()));
-			//BlockMove(*text,*prec103,size);
-			return PS_GetTextHandle();
-#ifdef FOR_DEBUGGING_ONLY
-			ChangedResource(prec103);
-			WriteResource(prec103);
-			UpdateResFile(appRFRefNum);
-			ExitToShell();
-#endif
-//			}
-	}
-
 void PS_FinishPrintDictHdl()
 	{
 	}
 
-
-
 static void NDoPrintLoop(Document *doc)
 {
-	INT16		saveOutputTo;
+	short		saveOutputTo;
 	OSStatus status;
 	UInt32	firstPage,lastPage;
 	UInt32	firstSheet,lastSheet;
@@ -1189,18 +641,16 @@ static void NDoPrintLoop(Document *doc)
 	require(status==noErr,displayError);
 	
 	if (status == noErr) {
-//		for ( ; copies>0; copies--) {
-			switch (outputTo) {
-				case toImageWriter:
-					status = PrintImageWriter(doc,firstSheet,lastSheet);
-					if (status != noErr) copies = -1;
-					break;
-				case toPostScript:
-					status = PrintLaserWriter(doc,firstSheet,lastSheet);
-					if (status != noErr) copies = -1;
-					break;
-			}
-//		}
+		switch (outputTo) {
+			case toImageWriter:
+				status = PrintImageWriter(doc,firstSheet,lastSheet);
+				if (status != noErr) copies = -1;
+				break;
+			case toPostScript:
+				status = PrintLaserWriter(doc,firstSheet,lastSheet);
+				if (status != noErr) copies = -1;
+				break;
+		}
 	}
 	
 	outputTo = saveOutputTo;
@@ -1272,7 +722,6 @@ static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 				{
 					SetPort(printPort);
 					
-						PrintDemoBanner(doc, FALSE);
 						status = NDocDrawPage(doc,sheetNum);
 
 					SetPort(currPort);
@@ -1294,11 +743,7 @@ static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 	return status;
 }
 
-static OSStatus TestDrawPage(PMPrintSession printSession, UInt32 pageNumber, Boolean addPostScript);
-
 // --------------------------------------------------------------------------------------------------------------
-
-#define TEST_DRAWPAGE 0
 
 static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet)
 {
@@ -1326,16 +771,6 @@ static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 		status = DocFormatGetAdjustedPaperRect(doc, &imageRect, TRUE);
 
 		paper = doc->paperRect;
-
-#ifdef UNUSED_CODE_FROM_PRINT_C
-		frameRect = doc->marginRect;
-
-		if (status == noErr) {
-			status = DocFormatGetLandscape(doc, &landscape);
-			if (landscape)
-				scaleFactor = landScaleFactor;
-		}
-#endif
 		
 		if (status == noErr && PS_Open(doc,NULL,0,USING_PRINTER,'????',&fsSpec) == noErr) {
 
@@ -1377,9 +812,6 @@ static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 						 *	be thrown away, so we must recreate them every time, and imageRect
 						 *	is needed for defining the transformation matrix we're using.
 						 */
-#if TEST_DRAWPAGE
-						TestDrawPage(doc->docPrintInfo.docPrintSession, 1, TRUE);
-#else
 						PS_NewPage(doc,NULL,sheet+doc->firstPageNumber);
 						
 						PS_OutOfQD(doc,TRUE,&imageRect);
@@ -1389,7 +821,6 @@ static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 						PS_IntoQD(doc,TRUE);
 						
 						PS_EndPage();
-#endif
 						SetPort(currPort);
 					}
 					
@@ -1407,129 +838,6 @@ static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 	
 	return status;
 }
-/*------------------------------------------------------------------------------
-    Function:	DrawPage
-	
-    Parameters:
-        printSession	- current printing session
-        pageNumber	- the logical page number in the document
-        addPostScript	- flag to enable PostScript code
-	
-    Description:
-        Draws the contents of a single page.  If addPostScript is true, DrawPage
-        adds PostScript code into the spool file.  See the Printing chapter in
-        Inside Macintosh, Imaging with QuickDraw, for details about PostScript
-        PicComments.
-		
-------------------------------------------------------------------------------*/
-static OSStatus TestDrawPage(PMPrintSession printSession, UInt32 pageNumber, Boolean addPostScript)
-{
-	OSStatus status = noErr;
-	Str255 pageNumberString;
-	//	In this sample code we do some very simple text drawing.    
-	MoveTo(72,72);
-	TextFont(kFontIDHelvetica);
-	TextSize(24);
-	DrawString("\pDrawing Page Number ");
-	NumToString(pageNumber, pageNumberString);
-	DrawString(pageNumberString);
-
-	//	Conditionally insert PostScript into the spool file.
-	if (addPostScript)
-	{
-#if 0
-	 	Str255		p1[42] = {
-			"\puserdict /NightingaleDict 80 dict def\r",
-			"\pNightingaleDict begin\r",
-
-			"\p/BD {bind def}bind def\r",
-			"\p/XD {exch def} BD\r",
-			"\p/BP {/SV save def} BD\r",
-			"\p/EP {SV restore} BD\r",
-			"\p/MS {moveto show} BD\r",
-			"\p/MSI {moveto stringwidth rmoveto} BD\r",
-			"\p/XF {transform 0.25 sub round 0.25 add exch 0.25 sub round 0.25 add exch itransform} BD\r",
-			"\p/DXF {0 dtransform round exch round exch idtransform pop} BD\r",
-			"\p/MC {newpath moveto curveto} BD\r",
-			"\p/SL {curveto closepath fill} BD\r",
-			"\p/ML {setlinewidth XF moveto XF lineto stroke} BD\r",
-			"\p/stw 5 def\r",
-			"\p/blw 6 def\r",
-			"\p/ldw 8 def\r",
-			"\p/sfw 5 def\r",
-			"\p/STW {stw setlinewidth} BD\r",
-			"\p/BL {blw ML} BD\r",
-			"\p/SFL {sfw ML} BD\r",
-			"\p/LL {ldw ML} BD\r",
-			"\p/SDO {exch stw 2 div add exch XF} BD\r",
-			"\p/SUO {exch stw 2 div sub exch XF} BD\r",
-			"\p/SU {STW currentpoint qw 10 div sub 3 -1 roll add SUO moveto exch qw add exch SUO lineto stroke} BD\r",
-			"\p/Sd {STW SDO moveto dup 0 lt {pop pop XF moveto} {SDO lineto stroke XF moveto} ifelse} BD\r",
-			"\p/SD {Sd show} BD\r",
-			"\p/SDI {Sd qw 0 rmoveto} BD\r",
-			"\p/BM {/th XD newpath 2 copy XF moveto th add XF lineto 2 copy th add XF lineto XF lineto closepath fill} BD\r",
-			"\p/LHT {/th XD newpath 2 copy XF moveto exch th add exch XF lineto 2 copy exch th add exch XF lineto XF lineto closepath fill} BD\r",
-			"\p/BMU {BM} BD\r",
-			"\p/BMD {BM} BD\r",
-			"\p/BK {XF/y XD/x XD/h XD/bkw(\302)stringwidth pop .36275 mul def\r",
-			"\p     (\302)x y MS x y moveto x y h add lineto		% 302 = Â\r",
-			"\p     x bkw add y h add lineto x bkw add y lineto closepath fill\r",
-			"\p     (L)x y h add MS} BD\r",
-			"\p/CH {				%	char  --  top bottom\r",
-			"\p	gsave\r",
-			"\p		false charpath pathbbox			%  leaves   llx lly urx ury   on stack\r",
-			"\p		exch pop 3 -1 roll pop exch		%  leaves   ury lly	   on stack\r",
-			"\p	grestore\r",
-			"\p} BD\r",
-			"\pend\r" };
-#endif
-
-//	 	Str255		p2[4] = {
-//			"\puserdict /NightingaleDict 80 dict def\r",
-//			"\pNightingaleDict begin\r",
-//			"\p/BD {bind def}bind def\r",
-//			"\pend\r" };
-			
-        // The following PostScript code handles the transformation to QuickDraw's coordinate system
-        // assuming a letter size page.
-        Str255		postScriptStr1 = "\p0 792 translate 1 -1 scale \r";
-	    
-        // Set the current PostScript font to Times and draw some more text.
-        Str255		postScriptStr2 = "\p/Times-Roman findfont 12 scalefont setfont \r";
-        Str255		postScriptStr3 = "\p( and some PostScript text) show\r";
-       	    
-        status = PMSessionPostScriptBegin(printSession);
-        if (status == noErr)
-        {
-#if 1
-//				PS_Handle();
-#else
-        		for (short j=0; j<42 && status==noErr; j++) {
-        			unsigned char *str = p1[j];
-            	status = PMSessionPostScriptData(printSession, (char *)&str[1], str[0]);
-        		}
-#endif
-				short font = GetPortTxFont();
-				short size = GetPortTxSize();
-				
-            status = PMSessionPostScriptData(printSession, (char *)&postScriptStr1[1], postScriptStr1[0]);
-            if (status == noErr)
-                status = PMSessionPostScriptData(printSession, (char *)&postScriptStr2[1], postScriptStr2[0]);
-            if (status == noErr)
-                status = PMSessionPostScriptData(printSession, (char *)&postScriptStr3[1], postScriptStr3[0]);
-            if (status == noErr)
-                status = PMSessionPostScriptEnd(printSession);
-                
-        		TextFont(font);
-        		TextSize(size);
-        }
-    }   
-		
-    return status;
-}	//	DrawPage
-
-
-
 
 // --------------------------------------------------------------------------------------------------------------
 
@@ -1543,20 +851,6 @@ static OSStatus NDocDrawPage(Document *doc, UInt32 sheetNum)
 	return noErr;
 }
 
-// --------------------------------------------------------------------------------------------------------------
-
-static OSStatus DocFormatGetLandscape(Document *doc, Boolean *landscape)
-{
-	PMOrientation pmOrientation;
-	
-	OSStatus status = PMGetOrientation(doc->docPrintInfo.docPageFormat,&pmOrientation);
-	if (status == noErr)
-	{
-		*landscape = (pmOrientation == kPMLandscape || pmOrientation == kPMReverseLandscape);
-	}
-	
-	return status;
-}
 
 // --------------------------------------------------------------------------------------------------------------
 
@@ -1591,13 +885,6 @@ static OSStatus DocFormatGetAdjustedPaperRect(Document *doc, Rect *rPaper, Boole
 	}
 	
 	return status;
-}
-
-// --------------------------------------------------------------------------------------------------------------
-
-static UInt32 NPagesInDoc(Document *doc)
-{
-	return doc->numSheets;
 }
 
 // --------------------------------------------------------------------------------------------------------------
@@ -1780,7 +1067,7 @@ static void DocPostPrintingError (Document */*doc*/, OSStatus status, CFStringRe
 
 static void FillFontUsedTbl(Document *doc)
 	{
-		INT16	j, k, styleBits;
+		short	j, k, styleBits;
 		LINK pL;
 		PGRAPHIC p;
 	
@@ -1801,15 +1088,15 @@ static void FillFontUsedTbl(Document *doc)
 
 Boolean NDoPostScript(Document *doc)
 	{
-		INT16			saveOutputTo, saveMagnify, sheet, sufIndex;
-		INT16			len, vref, rfNum, suffixLen, ch, firstSheet, topSheet;
-		INT16			newType, anInt, pageNum, sheetNum;
+		short			saveOutputTo, saveMagnify, sheet, sufIndex;
+		short			len, vref, rfNum, suffixLen, ch, firstSheet, topSheet;
+		short			newType, anInt, pageNum, sheetNum;
 		Str255		outname;
 		PicHandle	picHdl;
 		RgnHandle	rgnHdl;
 		Rect			paperRect;
-		INT16			EPSFile;
-		static INT16	type=1;
+		short			EPSFile;
+		static short	type=1;
 		char				fmtStr[256];
 
 		NSClientData	nscd;
@@ -1855,20 +1142,12 @@ Boolean NDoPostScript(Document *doc)
 		
 		/* Ask user where to put this PostScript file */
 
-#if 0		
-		GetIndString(prompt, MiscStringsID, EPSFile? 7:9);
-		SFPutFile(SFPwhere, prompt, outname, NULL, &reply);
-		if (!reply.good) return FALSE;
-		PStrCopy(reply.fName, (StringPtr)outname);
-		vref = reply.vRefNum;
-#else
 		//Pstrcpy(outname,doc->name);
 		//PStrCat(outname,EPSFile? (StringPtr)"\p.eps":(StringPtr)"\p.txt");
 		keepGoing = GetOutputName(MiscStringsID,EPSFile? 7:9,outname,&vref,&nscd);
 		if (!keepGoing) return FALSE;
 		
 		rfSpec = nscd.nsFSSpec;
-#endif
 		
 		saveOutputTo = outputTo;					/* Save state */
 		outputTo = toPostScript;
@@ -1973,11 +1252,11 @@ static enum {
 	STXT6_Specify
 	} E_PSTypeItems;
 
-static INT16 group1;
+static short group1;
 
-static INT16 PSTypeDialog(INT16 oldType, INT16 pageNum)
+static short PSTypeDialog(short oldType, short pageNum)
 	{
-		INT16 itemHit,okay,type,keepGoing=TRUE;
+		short itemHit,okay,type,keepGoing=TRUE;
 		DialogPtr dlog; GrafPtr oldPort;
 		ModalFilterUPP	filterUPP;
 		Handle hndl;

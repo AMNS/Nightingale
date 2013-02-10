@@ -28,16 +28,15 @@ enum {
 	BMARG
 };
 
-static void sprintfInches(char *, INT16);
-static void DrawMarginParams(Document *doc, INT16 whichMarg, INT16 marg, INT16 d);
-static Boolean EditDocMargin(Document *doc, Point pt, INT16 modifiers, INT16 doubleClick);
-static Boolean EditDocPart(Document *doc, Point pt, INT16 modifiers, INT16 doubleClick);
-static void DoMasterDblClick(Document *doc, Point pt, INT16 modifiers);
+static void sprintfInches(char *, short);
+static void DrawMarginParams(Document *doc, short whichMarg, short marg, short d);
+static Boolean EditDocMargin(Document *doc, Point pt, short modifiers, short doubleClick);
+static void DoMasterDblClick(Document *doc, Point pt, short modifiers);
 static void SelectMasterRectangle(Document *doc, Point pt);
-static void DoMasterObject(Document *, Point, INT16 modifiers);
+static void DoMasterObject(Document *, Point, short modifiers);
 
 
-static void sprintfInches(char *label, INT16 points)
+static void sprintfInches(char *label, short points)
 {
 	long value;
 	char fmtStr[256];
@@ -51,12 +50,12 @@ static void sprintfInches(char *label, INT16 points)
 /* ------------------------------------------------------------ NSysOnMasterPage -- */
 /* Returns number of copies of the Master Page's system that fit on a page. */
 
-INT16 NSysOnMasterPage(Document *);
-INT16 NSysOnMasterPage(Document *doc)
+short NSysOnMasterPage(Document *);
+short NSysOnMasterPage(Document *doc)
 {
 	LINK sysL; DRect sysRect;
 	DDIST sysHeight, sysOffset;
-	INT16 count;
+	short count;
 
 	/* Count the single "real" master system. */
 	
@@ -90,7 +89,7 @@ INT16 NSysOnMasterPage(Document *doc)
 
 void MPDrawParams(Document *doc,
 						LINK obj, LINK /*subObj*/,
-						INT16 /*param*/, INT16 /*d*/)			/* Both unused */
+						short /*param*/, short /*d*/)			/* Both unused */
 	{
 		char fmtStr[256];
 				
@@ -109,8 +108,8 @@ void MPDrawParams(Document *doc,
 
 
 static void DrawMarginParams(Document *doc,
-										INT16 whichMarg, INT16 marg,
-										INT16 /*d*/)						/* Unused */
+										short whichMarg, short marg,
+										short /*d*/)						/* Unused */
 	{
 		char fmtStr[256];
 		
@@ -137,7 +136,7 @@ static void DrawMarginParams(Document *doc,
 /* If the user is editing the Master Page, find out here if she is editing the
 document margin; if so, edit it here, and return TRUE; otherwise return FALSE. */
 
-static Boolean EditDocMargin(Document *doc, Point pt, INT16 /*modifiers*/, INT16 /*doubleClick*/)
+static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short /*doubleClick*/)
 	{
 		Boolean didSomething = FALSE; Point oldPt;
 		Rect topMargin,leftMargin,rightMargin,bottomMargin,margin;		/* in pixels */
@@ -146,7 +145,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, INT16 /*modifiers*/, INT16
 		short *dragVal,oldVal,dx,dy,minVal,maxVal;
 		Boolean horiz=FALSE,vert=FALSE,moved;
 		Boolean inTop=FALSE,inBottom=FALSE,inRight=FALSE,inLeft=FALSE;
-		INT16 whichMarg, margv, margh, hdiff, vdiff;
+		short whichMarg, margv, margh, hdiff, vdiff;
 		
 		/*
 		 * Compute <margin> in paper-relative pixels. Use that to define the
@@ -322,41 +321,6 @@ static Boolean EditDocMargin(Document *doc, Point pt, INT16 /*modifiers*/, INT16
 	}
 
 
-/* We want to edit the parts of the score by clicking in the area to the left of
-the part. However, once we have found a mouse click in this region, there is no
-way to maintain the selection feedback, since parts have no selection flag to set. */
-
-#ifdef NOTYET
-static Boolean EditDocPart(Document *doc, Point pt, INT16 modifiers, INT16 doubleClick)
-	{		
-		return FALSE;		/* Nothing doing for now */
-		
-		INT16 firstStf,lastStf, left, right;
-		Rect partRect;
-		
-		measL = LSSearch(doc->headL,MEASUREtype,ANYONE,GO_RIGHT,FALSE);
-		GetAllContexts(doc,contextA,measL);
-		sysL = LSSearch(doc->headL,SYSTEMtype,ANYONE,GO_RIGHT,FALSE);
-
-		left = 0; right = d2p(SystemRECT(sysL).left);
-
-		partL = NextPARTINFOL(FirstSubLINK(doc->headL));
-		for ( ; partL; partL=NextPARTINFOL(partL)) {
-			pPart = GetPPARTINFO(partL);
-			firstStf = pPart->firstStaff;
-			lastStf = pPart->lastStaff;
-			SetRect(&partRect,left,d2p(contextA[firstStf].staffTop),
-				right,d2p(contextA[lastStf].staffTop+contextA[lastStf].staffHeight));
-				
-			if (PtInRect(pt,&partRect)) break;
-		}
-	}
-#else
-static Boolean EditDocPart(Document *, Point, INT16 , INT16 )
-	{ return FALSE; }
-#endif		
-
-
 /* Handle a double-click in Master Page: call FindMasterObject with selection
 mode SMDblClick to bring up InstrDialog to edit a part.
 
@@ -365,9 +329,9 @@ Page may be temporarily inconsistent with the number in the score, and
 intervening routines use doc->nstaves and need to know how many staves they
 are dealing with. */
 
-static void DoMasterDblClick(Document *doc, Point pt, INT16 /*modifiers*/)
+static void DoMasterDblClick(Document *doc, Point pt, short /*modifiers*/)
 {
-	INT16 oldnstaves,index;
+	short oldnstaves,index;
 
 	oldnstaves = doc->nstaves;
 	doc->nstaves = doc->nstavesMP;
@@ -384,7 +348,7 @@ Usage of doc->selStartL && doc->selEndL is handled by Enter/ExitMasterView. */
 
 void SelectMasterRectangle(Document *doc, Point pt)
 {
-	Boolean found;	INT16 pIndex; Rect selRect;
+	Boolean found;	short pIndex; Rect selRect;
 	CONTEXT context[MAXSTAVES+1]; STFRANGE stfRange={0,0};
 	LINK pL,oldSelStartL,oldSelEndL;
 	
@@ -430,10 +394,10 @@ void SelectMasterRectangle(Document *doc, Point pt)
 /* Select, and hilite, every staff subobject in the part that staff <staffn>
 belongs to. Similar to SelectStaff, except that function does no hiliting. */
 
-static LINK SelPartStaves(Document *, LINK, CONTEXT [], INT16);
-static LINK SelPartStaves(Document *doc, LINK staffL, CONTEXT context[], INT16 staffn)
+static LINK SelPartStaves(Document *, LINK, CONTEXT [], short);
+static LINK SelPartStaves(Document *doc, LINK staffL, CONTEXT context[], short staffn)
 {
-	INT16 firstStaff,lastStaff;
+	short firstStaff,lastStaff;
 	LINK partL; STFRANGE stfRange;
 	Point enlarge = {0,0};
 
@@ -457,9 +421,9 @@ static LINK SelPartStaves(Document *doc, LINK staffL, CONTEXT context[], INT16 s
 /* Handle clicking on objects in the Master Page: track dragging, when the object
 is draggable, and selection. */
 	
-void DoMasterObject(Document *doc, Point pt, INT16 modifiers)
+void DoMasterObject(Document *doc, Point pt, short modifiers)
 {
-	INT16 index, oldnstaves, lowStaffn, hiStaffn, stf;
+	short index, oldnstaves, lowStaffn, hiStaffn, stf;
 	LINK selStaffL, staffL, pL, aStaffL;
 
 	oldnstaves = doc->nstaves;
@@ -507,7 +471,7 @@ void DoMasterObject(Document *doc, Point pt, INT16 modifiers)
  *	clickable, return FALSE.  The pt provided is expected in paper-relative pixels.
  */
 
-Boolean DoEditMaster(Document *doc, Point pt, INT16 modifiers, INT16 doubleClick)
+Boolean DoEditMaster(Document *doc, Point pt, short modifiers, short doubleClick)
 	{
 		Boolean didSomething=FALSE;
 
@@ -515,11 +479,6 @@ Boolean DoEditMaster(Document *doc, Point pt, INT16 modifiers, INT16 doubleClick
 			didSomething = TRUE;
 			UpdateMasterMargins(doc);
 			}
-#ifdef NOTYET
-		 else if (EditDocPart(doc,pt,modifiers,doubleClick)) {
-			didSomething = TRUE;
-		 }
-#endif
 		 else {	
 			MEHideCaret(doc);
 			if (doubleClick)

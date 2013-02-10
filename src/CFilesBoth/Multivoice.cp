@@ -23,16 +23,14 @@ DESC:	Routines to handle multivoice notation rules.
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static pascal void UserDimItem(DialogPtr, INT16);
+static pascal void UserDimItem(DialogPtr, short);
 static void DimItem(DialogPtr, short);
 static void FindMultivoice(Document *, LINK, LINK, Boolean []);
-static void RebeamList(Document *, LINK [], INT16, INT16);
-static void SetNRCMultivoiceRole(Document *, LINK, LINK, CONTEXT, INT16);
-static void FixAugDots(Document *, LINK, INT16, CONTEXT, INT16);
-static void SetSelMultivoiceRules(Document *, LINK, LINK, INT16, CONTEXT, INT16);
-static LINK VoiceInSelection(Document *, INT16);
-static void UseMultivoiceRules(Document *, LINK, LINK, INT16, CONTEXT);
-
+static void RebeamList(Document *, LINK [], short, short);
+static void SetNRCMultivoiceRole(Document *, LINK, LINK, CONTEXT, short);
+static void FixAugDots(Document *, LINK, short, CONTEXT, short);
+static void SetSelMultivoiceRules(Document *, LINK, LINK, short, CONTEXT, short);
+static LINK VoiceInSelection(Document *, short);
 
 /* --------------------------------------------------------- DimItem, UserDimItem -- */
 /* If checkbox is disabled, dim the static text field that is the bottom line of
@@ -63,7 +61,7 @@ static void DimItem(register DialogPtr dlog, short item)
 }
 
 
-static pascal void UserDimItem(DialogPtr d, INT16 dItem)
+static pascal void UserDimItem(DialogPtr d, short dItem)
 {
 	DimItem(d, dItem);
 }
@@ -76,15 +74,15 @@ notation rules to the selection. Delivers TRUE if OKed, FALSE if Cancelled. */
 #define LAST_RBUT SINGLE_DI
 
 Boolean MultivoiceDialog(
-				INT16 nSelVoices,
-				INT16	*voiceRole,			/* Returns UPPER_DI,LOWER_DI,CROSS_DI or SINGLE_DI */
+				short nSelVoices,
+				short	*voiceRole,			/* Returns UPPER_DI,LOWER_DI,CROSS_DI or SINGLE_DI */
 				Boolean *measMulti,		/* Returns TRUE=only if measure has >=2 voices */
 				Boolean *assume 			/* Returns TRUE=assume this voiceRole from now on */
 				)
 {
 	DialogPtr	dialogp;
 	short			ditem, aShort;
-	INT16			radio, makeMulti;
+	short			radio, makeMulti;
 	Handle		only2vHdl, assumeHdl, aHdl;
 	Rect			aRect, assBotRect;
 	GrafPtr		oldPort;
@@ -190,7 +188,7 @@ static void FindMultivoice(Document *doc, LINK barFirstL, LINK barLastL,
 {
 	LINK		pL, aNoteL;
 	PANOTE	aNote;
-	INT16 	s,
+	short 	s,
 				voiceFound[MAXSTAVES+1];
 			
 	for (s = 0; s<=doc->nstaves; s++) {
@@ -219,11 +217,11 @@ at least from lack of memory: we should give up if it does! */
 static void RebeamList(
 		Document *doc,
 		LINK beamLA[],
-		INT16 nBeamsets,
-		INT16 voiceRole		/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+		short nBeamsets,
+		short voiceRole		/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
 		)
 {
-	INT16 i, nEntries;
+	short i, nEntries;
 	LINK startL, endL;
 	
 	for (i = 0; i<nBeamsets; i++) {
@@ -241,9 +239,9 @@ static void RebeamList(
 
 /* ------------------------------------------------------- GetRestMultivoiceRole -- */
 
-QDIST GetRestMultivoiceRole(PCONTEXT pContext, INT16 voiceRole, Boolean makeLower)
+QDIST GetRestMultivoiceRole(PCONTEXT pContext, short voiceRole, Boolean makeLower)
 {
-	INT16 halfSpPos;
+	short halfSpPos;
 
 	if (voiceRole==SINGLE_DI)
 		halfSpPos = (pContext->staffLines-1);
@@ -266,12 +264,12 @@ static void SetNRCMultivoiceRole(
 		LINK		syncL,
 		LINK		aNoteL,
 		CONTEXT	context,			/* current staff context */
-		INT16		voiceRole		/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+		short		voiceRole		/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
 		)
 {
 	register PANOTE aNote;
 	QDIST		yqpit;
-	INT16		staff, midCHalfLn, halfLn, stemLen;
+	short		staff, midCHalfLn, halfLn, stemLen;
 	DDIST		tempystem;
 	LINK		partL;
 	PPARTINFO	pPart;
@@ -338,12 +336,12 @@ Cf. FixAugDotPos: perhaps they should be combined somehow. */
 void FixAugDots(
 		Document *doc,
 		LINK		syncL,
-		INT16		staff,
+		short		staff,
 		CONTEXT	/*context*/,
-		INT16		voiceRole	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+		short		voiceRole	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
 		)
 {
-	LINK mainNoteL, aNoteL; INT16 v, halfLn; PANOTE aNote; Boolean stemDown;
+	LINK mainNoteL, aNoteL; short v, halfLn; PANOTE aNote; Boolean stemDown;
 	
 	for (v = 1; v<=MAXVOICES; v++)
 		if (VOICE_MAYBE_USED(doc, v)) {
@@ -372,13 +370,13 @@ in more than one voice are selected on that staff, is likely to mess up. */
 static void SetSelMultivoiceRules(
 		Document *doc,
 		LINK		barFirstL, LINK barLastL,
-		INT16		staff,
+		short		staff,
 		CONTEXT	context,				/* current staff context */
-		INT16		voiceRole			/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+		short		voiceRole			/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
 		)
 {
 	LINK		pL, aNoteL, startL, endL, owner;
-	INT16		i, nBeamsets=0;
+	short		i, nBeamsets=0;
 	Boolean	found;
 	LINK		beamLA[MAX_MEASNODES];	/* Enough for any reasonable but not any possible situation */
 			
@@ -433,7 +431,7 @@ static void SetSelMultivoiceRules(
 /* Return the first Sync or GRSync in the selection range that uses the given voice;
 return NILINK if there is none. */
 
-LINK VoiceInSelection(Document *doc, INT16 voice)
+LINK VoiceInSelection(Document *doc, short voice)
 {
 	LINK pL, aNoteL, aGRNoteL;
 	
@@ -465,7 +463,7 @@ etc. etc. */
 
 void DoMultivoiceRules(
 		Document *doc,
-		INT16		voiceRole,	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+		short		voiceRole,	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
 		Boolean	measMulti,	/* TRUE=do nothing if measure has only 1 voice */
 		Boolean	assume 		/* TRUE=make this voiceRole default for selected voices */
 		)
@@ -473,7 +471,7 @@ void DoMultivoiceRules(
 	LINK		startBarL, endBarL,
 				barFirstL, barLastL;
 	Boolean	done, multivoice[MAXSTAVES+1];
-	INT16		s, v;
+	short		s, v;
 	CONTEXT	context[MAXSTAVES+1];				/* current staff context table */
 
 	WaitCursor();

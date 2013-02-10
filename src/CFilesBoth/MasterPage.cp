@@ -24,7 +24,7 @@ static void UpdateSystemRects(Document *, LINK);
 
 static Boolean DanglingContents(Document *);
 
-static INT16 MaxSysOnPage(Document *);
+static short MaxSysOnPage(Document *);
 static Boolean DanglingSystems(Document *);
 static Boolean SysVChanged(Document *);
 static Boolean SysHChanged(Document *);
@@ -33,7 +33,6 @@ static Boolean MarginVChanged(Document *);
 static Boolean MarginHChanged(Document *);
 static Boolean IndentChanged(Document *);
 static Boolean RastralChanged(Document *);
-static Boolean GrpChanged(Document *);
 
 static void MPFixSystemRectYs(Document *);
 static void MPFixSystemRectXs(Document *);
@@ -45,16 +44,13 @@ static void ConformLeftEnds(Document *);
 static void FixSelStaff(Document *);
 
 static void ChangeStaffTops(Document *, LINK, LINK, long);
-static void RevertSysRects(Document *);
-static void RevertStfTops(Document *);
-static void RevertMasterPage(Document *);
 static void ResetMasterFields(Document *doc);
 static Boolean AnyMPChanged(Document *doc);
 static void ResetMasterPage(Document *doc);
-static INT16 GetExportAlert(Document *doc);
+static short GetExportAlert(Document *doc);
 static void DisposeMasterData(Document *doc);
 
-static Boolean MPChkSysHt(Document *doc,INT16 srastral,INT16 newRastral);
+static Boolean MPChkSysHt(Document *doc,short srastral,short newRastral);
 
 static LINK CopyMasterPage(Document *doc, LINK headL, LINK *newTailL);
 
@@ -145,7 +141,7 @@ void UpdateMPSysRectHeight(Document *doc, DDIST dv)
 
 static void UpdateSystemRects(Document *doc, LINK sysL)
 {
-	DDIST sysLeft; PSYSTEM pSystem; INT16 dv;
+	DDIST sysLeft; PSYSTEM pSystem; short dv;
 
 	/* Update the system left. */
 	sysLeft = MARGLEFT(doc) + doc->otherIndent;
@@ -204,7 +200,7 @@ static Boolean DanglingContents(Document *doc)
  * inside Master Page.
  */
 
-static INT16 MaxSysOnPage(Document *doc)
+static short MaxSysOnPage(Document *doc)
 {
 	return doc->nSysMP;		/* doc->nSysMP is maintained by drawing routines */
 }
@@ -217,7 +213,7 @@ static INT16 MaxSysOnPage(Document *doc)
 
 static Boolean DanglingSystems(Document *doc)
 {
-	INT16 maxOnPage; LINK pageL;
+	short maxOnPage; LINK pageL;
 
 	maxOnPage = MaxSysOnPage(doc);
 
@@ -291,12 +287,6 @@ static Boolean RastralChanged(Document *doc)
 	return (doc->srastral!=doc->srastralMP);
 }
 
-static Boolean GrpChanged(Document *doc)
-{
-	return doc->grpChangedMP;
-}
-
-
 /* Update systemRectYs of all Systems in doc's main object list according to
 the current Master Page settings. */
 
@@ -304,7 +294,6 @@ static void MPFixSystemRectYs(Document *doc)
 {
 	LINK sysL,masterSysL, firstSysL; PSYSTEM pSystem;
 	DDIST sysHeight, sysTop, topMargin, firstMargin;
-	Boolean firstSys=TRUE;
 	DDIST	masterSysTop, sysBottom, masterSysBottom;
 	DDIST lastSysBottom, yBetweenSys;
 	
@@ -380,15 +369,13 @@ static void MPFixSystemRectXs(Document *doc)
 
 void FixLedgerYSp(Document *doc)
 {
-	LINK staffL; INT16 hiPitchLim;
+	LINK staffL; short hiPitchLim;
 	
 	staffL = SSearch(doc->headL, STAFFtype, FALSE);
 	
 	hiPitchLim = GetPitchLim(doc, staffL, 1, TRUE);
 	doc->ledgerYSp = -hiPitchLim;
 }
-
-#ifndef VIEWER_VERSION
 
 /* Conform all ranges [system, connect] in the score to the Master Page
 object list. */
@@ -447,7 +434,7 @@ static void SetStaffSizeMP(Document *doc)
 
 static void SetStaffLinesMP(Document *doc)
 {
-	INT16	staffn, staffLines, showLines;
+	short	staffn, staffLines, showLines;
 	LINK	masterStaffL, aMasterStaffL, staffL, aStaffL;
 	DDIST	lnSpace, staffHeight;
 	Boolean	showLedgers;
@@ -490,7 +477,7 @@ static void ConformLeftEnds(Document *doc)
 
 static void FixSelStaff(Document *doc)
 {
-	LINK staffL; INT16 botStaff;
+	LINK staffL; short botStaff;
 	
 	if (doc->selStaff>doc->nstaves) {
 		/* doc->selStaff doesn't exist. Use the highest-numbered staff that's
@@ -543,8 +530,6 @@ void ExportMasterPage(Document *doc)
 	InvalRange(doc->headL, doc->tailL);
 }
 
-#endif
-
 
 /* ------------------------------------------------- MasterPage Editing Routines -- */
 
@@ -555,7 +540,7 @@ void ExportMasterPage(Document *doc)
 
 static void ChangeStaffTops(Document *doc, LINK /*pL*/, LINK aStaffL, long newPos)
 {
-	INT16 v;
+	short v;
 	
 	v = HiWord(newPos);
 	doc->staffTopMP[StaffSTAFF(aStaffL)] += p2d(v);
@@ -570,7 +555,7 @@ static void ChangeStaffTops(Document *doc, LINK /*pL*/, LINK aStaffL, long newPo
 void UpdateDraggedSystem(Document *doc, long newPos)
 {
 	LINK sysL,staffL,aStaffL; DRect sysRect;
-	INT16 v;
+	short v;
 	
 	sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
 	sysRect = SystemRECT(sysL);
@@ -595,7 +580,7 @@ void UpdateDraggedSystem(Document *doc, long newPos)
 
 void UpdateDraggedStaff(Document *doc, LINK pL, LINK aStaffL, long newPos)
 {
-	INT16 staffn;
+	short staffn;
 
 	staffn = StaffSTAFF(aStaffL);
 	ChangeStaffTops(doc, pL, aStaffL, newPos);
@@ -649,7 +634,6 @@ static void ClearMasterStfSel(Document *doc)
 
 static void ResetMasterFields(Document *doc)
 {
-#if 1
 	/*	JGG did this as part of lifting restrictions on deleting parts.
 		Old selection may no longer be in data structure. */
 	if (InDataStruct(doc, doc->oldSelStartL, MAIN_DSTR)
@@ -658,10 +642,6 @@ static void ResetMasterFields(Document *doc)
 		doc->selEndL = doc->oldSelEndL;
 	}
 	OptimizeSelection(doc);
-#else
-	doc->selStartL = doc->oldSelStartL;
-	doc->selEndL = doc->oldSelEndL;
-#endif
 
 	doc->masterChanged = FALSE;		/* Reset master changed flags */
 	doc->partChangedMP = FALSE;
@@ -724,7 +704,7 @@ static void ResetMasterPage(Document *doc)
 exporting changes made inside Master Page. If so, return EXPORTFMT_ALRT; otherwise,
 return EXPORT_ALRT. */
 
-static INT16 GetExportAlert(Document *doc)
+static short GetExportAlert(Document *doc)
 {
 	if (doc->locFmtChanged) {
 
@@ -750,73 +730,6 @@ static void DisposeMasterData(Document *doc)
 	doc->oldMasterHeadL =
 		doc->oldMasterTailL = NILINK;
 }
-
-#ifndef VIEWER_VERSION
-
-#ifdef LIGHT_VERSION
-/* MPPrepareUndo and MPEnforcePageLimit implement Undo when leaving Master Page
-just so that we can back out of a reformat that results in more pages than we let
-the user of NightLight have. This is a little tricky, since the normal Undo mechanism
-doesn't touch the header object, and the latter can have new subobjects added in
-ExportMasterPage. So we duplicate the current header object, and, if Reformat creates
-too many pages, use it to restore the header object that emerges from ExportMasterPage.
-Also, there are a number of doc fields that have to be restored in this case. Note that
-we prepare to undo the entire score range. -JGG */
-
-/*---------------------------------------------------------------- MPPrepareUndo -- */
-static Boolean MPPrepareUndo(Document *doc, Document *tmpDoc, LINK *tmpHeadL)
-{
-	doc->selStartL = doc->headL;  /* NB: PrepareUndo looks at sel range rather than its 2nd arg */
-	doc->selEndL = doc->tailL;
-	PrepareUndo(doc, RightLINK(doc->headL), U_Reformat, 20);		/* 20: "Reformat" */
-	*tmpHeadL = DuplicateObject(HEADERtype, doc->headL, FALSE, doc, doc, FALSE);
-	if (*tmpHeadL==NILINK)
-		return FALSE;
-	BlockMoveData(doc, tmpDoc, sizeof(Document));
-	return TRUE;
-}
-
-/*----------------------------------------------------------- MPEnforcePageLimit -- */
-static void MPEnforcePageLimit(Document *doc, Document *tmpDoc, LINK tmpHeadL)
-{
-	if (doc->numSheets>MAXPAGES) {
-		LINK firstSubL; PHEADER pTmpHead, pNewHead;
-
-		firstSubL = FirstSubLINK(doc->headL);
-		HeapFree(doc->Heap+HEADERtype, firstSubL);		/* Delete current part list. */
-
-		RightLINK(tmpHeadL) = RightLINK(doc->headL);
-		pTmpHead = GetPHEADER(tmpHeadL);
-		pNewHead = GetPHEADER(doc->headL);
-		BlockMoveData(pTmpHead, pNewHead, sizeof(SUPEROBJECT));
-
-		doc->numSheets = MAXPAGES + 1;			/* Force EnforcePageLimit to Undo */
-		EnforcePageLimit(doc);
-
-		ResetMasterPage(doc);
-
-		/* Restore some fields in <doc>. */
-		doc->nstaves = tmpDoc->nstaves;
-		doc->srastral = tmpDoc->srastral;
-		doc->altsrastral = tmpDoc->altsrastral;
-		doc->selStaff = tmpDoc->selStaff;
-		/* There's no telling what LINKs the previous selection endpoints now have
-		after the undo, so just set selection to tailL. Not great, but oh well.
-		We set oldSel* here, because ResetMasterFields will use these to set
-		selStartL and selEndL. */
-		doc->oldSelStartL = doc->tailL;
-		doc->oldSelEndL = doc->tailL;
-
-		/* Restore the old voice table. (UpdateVoiceTable wasn't sufficient here.) */
-		BlockMoveData(&tmpDoc->voiceTab, &doc->voiceTab, sizeof(doc->voiceTab));
-
-		RightLINK(tmpHeadL) = NILINK;
-		HeapFree(doc->Heap+OBJtype, tmpHeadL);		/* NOT including its subobj list, which doc->headL now uses */
-	}
-	else
-		DeleteNode(doc, tmpHeadL);					/* Including its subobj list */
-}
-#endif
 
 static enum {
 	RFMT_NONE=0,
@@ -845,7 +758,7 @@ Page object list, since Add/DeletePart may have altered it. */
 
 Boolean ExitMasterView(Document *doc)
 {
-	INT16 stayInMP, saveChanges, nstaves, exportAlertID, reformat;
+	short stayInMP, saveChanges, nstaves, exportAlertID, reformat;
 	LINK staffL;
 
  	if (doc->masterChanged) {
@@ -921,22 +834,7 @@ Boolean ExitMasterView(Document *doc)
  		saveChanges = CautionAdvise(exportAlertID);
  		WaitCursor();
  		if (saveChanges==OK) {
-#ifdef LIGHT_VERSION
-			LINK tmpHeadL = NILINK; Document tmpDoc;
-
-			if (reformat!=RFMT_NONE) {
-				if (!MPPrepareUndo(doc, &tmpDoc, &tmpHeadL)) {
-				/*	If we get here, it probably means there's not enough memory to undo.
-					An ALRT to this effect will have been given.  Fine, but for NightLight,
-					this means we can't afford to go ahead with a reformat, because it
-					might result in the page limit being exceeded.  ??Not sure what to do!  -JGG */
-
-					goto quit;
-				}
-			}
-#else
 			DisableUndo(doc, FALSE);			/* Since we can't Undo across a structural change */
-#endif
 			doc->changed = TRUE;
 			doc->locFmtChanged = FALSE;			/* Score has no local format changes */
 			ExportMasterPage(doc);				/* Export all editing changes to score */
@@ -945,9 +843,6 @@ Boolean ExitMasterView(Document *doc)
 							(reformat==RFMT_ChangeSBreaks),
 							(CARE_MEASPERSYS? MEASPERSYS : 9999), FALSE,
 							(CARE_SYSPERPAGE? SYSPERPAGE : 999), config.titleMargin);
-#ifdef LIGHT_VERSION
-				MPEnforcePageLimit(doc, &tmpDoc, tmpHeadL);
-#endif
 			}
 		}
 		else
@@ -961,8 +856,6 @@ quit:
 	DisposeMasterData(doc);
 	return TRUE;
 }
-
-#endif
 
 
 /* ------------------------------------------- Routines for setting up MasterPage -- */
@@ -1025,7 +918,7 @@ respacing". This check is necessary because if at least one system will fit, we
 can reformat to satisfaction upon exiting Master Page; otherwise, we will be
 unable to reformat, with error resulting. */
 
-static Boolean MPChkSysHt(Document *doc, INT16 srastral, INT16 newRastral)
+static Boolean MPChkSysHt(Document *doc, short srastral, short newRastral)
 {
 	LINK sysL; DRect sysRect;
 	double sysSize, sysOffset;
@@ -1049,26 +942,9 @@ static Boolean MPChkSysHt(Document *doc, INT16 srastral, INT16 newRastral)
 }
 
 
-#ifdef VIEWER_VERSION
-
 void DoMasterStfSize(Document *doc)
 {
-}
-
-void DoMasterStfLines(Document *doc)
-{
-}
-
-void MPEditMargins(Document *doc)
-{
-}
-
-#else
-
-
-void DoMasterStfSize(Document *doc)
-{
-	INT16			i, newRastral, srastral;
+	short			i, newRastral, srastral;
 	Boolean		propRespace, partsSelected;
 	LINK			sysL;
 	DDIST			ymove;
@@ -1079,22 +955,7 @@ void DoMasterStfSize(Document *doc)
 	static Boolean	selPartsOnly=TRUE;
 
 	partsSelected = PartSel(doc);
-#ifdef NOTYET
-	if (partsSelected) {					/* Init dlog with rastral of top staff. */
-		staffL = SSearch(doc->masterHeadL, STAFFtype, GO_RIGHT);
-		for (aStaffL = FirstSubLINK(staffL); aStaffL; aStaffL = NextSTAFFL(aStaffL))
-			if (StaffSEL(aStaffL))
-				break;						/* has to happen if partsSelected */
-		srastral = StaffRastral(aStaffL);
-		if (srastral==-1)
-			srastral = doc->srastralMP;
-	}
-	else {
-		srastral = doc->srastralMP;
-	}
-#else
 	srastral = doc->srastralMP;
-#endif
 
 	newRastral = RastralDialog(partsSelected, srastral, &propRespace, &selPartsOnly);
 	if (newRastral>CANCEL_INT && newRastral!=srastral)	{
@@ -1145,10 +1006,10 @@ void DoMasterStfSize(Document *doc)
 
 void DoMasterStfLines(Document *doc)
 {
-	INT16 showLines, staffLines;
+	short showLines, staffLines;
 	Boolean partsSelected;
 	LINK staffL, aStaffL;
-	static INT16 apparentStaffLines=STFLINES;
+	static short apparentStaffLines=STFLINES;
 	static Boolean showLedgers=TRUE, selPartsOnly=TRUE;
 
 	partsSelected = PartSel(doc);
@@ -1208,7 +1069,7 @@ void DoMasterStfLines(Document *doc)
 
 void MPEditMargins(Document *doc)
 {
-	INT16 lMarg,tMarg,rMarg,bMarg;
+	short lMarg,tMarg,rMarg,bMarg;
 
 	lMarg = doc->marginRect.left;
 	tMarg = doc->marginRect.top;
@@ -1227,9 +1088,6 @@ void MPEditMargins(Document *doc)
 		InvalWindowRect(doc->theWindow,&doc->viewRect);
  	}
 }
-
-#endif /* VIEWER_VERSION */
-
 
 /* -------------------------------------------------------------- SetupMasterMenu -- */
 /* Replace the play/record menu with the Master Page menu. */
@@ -1329,14 +1187,6 @@ void ReplaceMasterPage(Document *doc)
 EVER be invisible; this can be called whenever there's a chance they might be,
 e.g., after constructing a Master Page object list from an ordinary system. */
 
-#ifdef VIEWER_VERSION
-
-void VisifyMasterStaves(Document *doc)
-{
-}
-
-#else
-
 void VisifyMasterStaves(Document *doc)
 {
 	LINK pL,aStaffL;
@@ -1351,8 +1201,6 @@ void VisifyMasterStaves(Document *doc)
 			break;
 		}
 }
-
-#endif
 
 /*
  *	Create a new Master Page object list, and return TRUE if OK; FALSE if not.
@@ -1523,13 +1371,13 @@ static void SetMasterPParts(Document *doc)
 
 static LINK MakeNewStaff(Document *doc, LINK qL, LINK qSystemL, DDIST sysTop)
 {
-	LINK aStaffL; INT16 MPinitStfTop1,MPinitStfTop2,MPledgerYSp;
+	LINK aStaffL; short MPinitStfTop1,MPinitStfTop2,MPledgerYSp;
 	DDIST staffLength,sysHeight,indent;
 	PSYSTEM qSystem; PSTAFF pStaff;
 
 	MPledgerYSp = doc->ledgerYSp;
-	MPinitStfTop1 = (INT16)(MPledgerYSp*drSize[doc->srastral]/STFHALFLNS);
-	MPinitStfTop2 = (INT16)(2.5*drSize[doc->srastral]);
+	MPinitStfTop1 = (short)(MPledgerYSp*drSize[doc->srastral]/STFHALFLNS);
+	MPinitStfTop2 = (short)(2.5*drSize[doc->srastral]);
 
 	staffLength = MARGWIDTH(doc)-doc->otherIndent;
 	sysHeight = MEAS_BOTTOM(MPinitStfTop1+MPinitStfTop2, STHEIGHT);
@@ -1620,7 +1468,7 @@ must be PartLevel. */
 void StoreConnectPart(LINK headL, LINK aConnectL)
 {
 	LINK partL;
-	INT16 firstStf, lastStf;
+	short firstStf, lastStf;
 	
 	if (ConnectCONNLEVEL(aConnectL)!=PartLevel) return;
 

@@ -22,11 +22,10 @@ static void SetupFormatMenu(Document *doc);
 static void EnterShowFormat(Document *doc);
 static void ExitShowFormat(Document *doc);
 
-static Boolean SFStaffNonempty(LINK, INT16);
+static Boolean SFStaffNonempty(LINK, short);
 static Boolean CheckSFInvis(Document *doc);
 
 static Boolean SFVisPossible(Document *doc);
-static void ImposeMPSpacing(Document *doc);
 static Boolean SFCanVisify(Document *doc);
 
 static void OffsetStaves(Document *,LINK,DDIST,DDIST);
@@ -126,7 +125,7 @@ and time signature changes don't count, since the user presumably wouldn't mind
 hiding them. Nor do rests; perhaps rests other than whole-measure rests should
 count, though. */
 
-static Boolean SFStaffNonempty(LINK pL, INT16 staffn)
+static Boolean SFStaffNonempty(LINK pL, short staffn)
 {
 	LINK sysL, qL, aNoteL;
 	
@@ -160,14 +159,6 @@ static Boolean SFStaffNonempty(LINK pL, INT16 staffn)
 }
 
 
-#ifdef LIGHT_VERSION		/* Disable things related to invisifying staves. */
-
-DDIST SetStfInvis(Document *doc, LINK pL, LINK aStaffL) { return (DDIST)0; }
-void InvisifySelStaves(Document *doc) { ; }
-void SFInvisify(Document *doc) { ; }
-
-#else /* !LIGHT_VERSION */
-
 /* Check whether we want to invisify all selected staff subObjects; if so return TRUE.
 If there are any cross-staff objects (as of v.2.1, only beams or slurs) on the
 staff in the system, it can't be invisified. Otherwise, if the staff has any notes,
@@ -175,7 +166,7 @@ Tempo marks, Graphics, etc., on it, ask the user if they want to hide it anyway.
 
 static Boolean CheckSFInvis(Document *doc)
 {
-	LINK pL,aStaffL,partL; INT16 firstStf,lastStf,staffn;
+	LINK pL,aStaffL,partL; short firstStf,lastStf,staffn;
 	PPARTINFO pPart;
 	
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -219,7 +210,7 @@ DDIST SetStfInvis(Document *doc, LINK pL, LINK aStaffL)
 {
 	PASTAFF aStaff,bStaff;
 	LINK bStaffL,sysL;
-	DDIST vDiff,prevStfHt; INT16 staffn,prevBelowDist;
+	DDIST vDiff,prevStfHt; short staffn,prevBelowDist;
 
 	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	prevBelowDist = BelowStfDist(doc, sysL, pL);
@@ -344,16 +335,13 @@ void SFInvisify(Document *doc)
 	InvalWindow(doc);
 }
 
-#endif /* !LIGHT_VERSION */
-
-
 /* ------------------------------------------------------- VisifyStf and SFVisify -- */
 
 /* If the given staff subobject is invisible, visify it and move its systemRect.bottom
 and all staves in its system below it down by the space it now occupies. Return that
 space. If the staff is ALREADY visible, do nothing and return 0. */
 
-DDIST VisifyStf(LINK pL, LINK aStaffL, INT16 staffn)
+DDIST VisifyStf(LINK pL, LINK aStaffL, short staffn)
 {
 	DDIST vDiff; LINK sysL,bStaffL; PASTAFF aStaff,bStaff;
 
@@ -411,30 +399,6 @@ static Boolean SFVisPossible(Document *doc)
 	
 	return (d2pt(sysHt+vDiff) < doc->marginRect.bottom-doc->marginRect.top);
 }
-
-
-/* Impose Master Page spacing on all staff objects in doc's selection range.
-Go through the selection range, and for any selected staff object, set all
-subObject's staffTop to the staffTop of the Master Page staff's subObject on
-the corresponding staffn. Ignore aStaff->spaceBelow, which is ignored and not
-inited to 0 by VisifyStf. ??DOESN'T WORK so not used yet. */
-
-static void ImposeMPSpacing(Document *doc)
-{
-	LINK masterStfL,aStaffL,aMPStfL,pL;
-
-	masterStfL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,FALSE,FALSE);
-
-	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
-		if (StaffTYPE(pL) && LinkSEL(pL)) {
-			aStaffL = FirstSubLINK(pL);
-			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
-				aMPStfL = StaffOnStaff(masterStfL, StaffSTAFF(aStaffL));
-				StaffTOP(aStaffL) = StaffTOP(aMPStfL);
-			}
-		}
-}
-
 
 /* Return FALSE if visifying all staves will cause the bottom of the last system
 to go below the bottom margin of the page, to indicate reformatting necessary;
@@ -525,19 +489,11 @@ changing the call to VisifyAllObjs in SetStfInvis...DAB. */
 void SFVisify(Document *doc)
 {
 	LINK pL,sysL;
-	INT16 rfmt=Cancel;
+	short rfmt=Cancel;
 	
 	if (!SFVisPossible(doc)) {
-#ifdef NOTYET
-		imposeMP = CautionAdvise(SFVIS_ALL_ALRT1);
-		if (imposeMP==OK) {
-			ImposeMPSpacing(doc);
-		}
-		else return;
-#else
 		StopInform(SFVIS_ALL_ALRT1);
 		return;
-#endif
 	}
 	else if (!SFCanVisify(doc)) {
 		rfmt = CautionAdvise(SFVIS_ALL_ALRT);
@@ -596,7 +552,7 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 	Point			origPt;
 	Rect			topMargin, bottomMargin, leftMargin, rightMargin, margin, origMargin, sysRect;
 	CursHandle	cursorH;
-	INT16			oldVal, dy, dx, minVal, maxVal, xMove, yMove, staffn;
+	short			oldVal, dy, dx, minVal, maxVal, xMove, yMove, staffn;
 	LINK			lSys, rSys, staffL, aStaffL;
 	MarginType	marginType;
 	

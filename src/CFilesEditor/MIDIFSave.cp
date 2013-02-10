@@ -26,7 +26,7 @@ static Byte midiFileFormat;
 static Word nTracks, timeBase;
 			
 static MIDIEvent	eventList[MAXMFEVENTLIST];
-static INT16		lastEvent;
+static short		lastEvent;
 
 static long 		qtrNTicks,				/* Ticks per quarter in Nightingale */
 						trackLength,
@@ -37,8 +37,8 @@ static Boolean	WriteChunkStart(DoubleWord, DoubleWord);
 static Boolean	WriteVarLen(DoubleWord);
 Boolean	WriteDeltaTime(DoubleWord);
 
-void		StartNote(INT16, INT16, INT16, long);
-Boolean	EndNote(INT16, INT16, long);
+void		StartNote(short, short, short, long);
+Boolean	EndNote(short, short, long);
 
 
 /* -------------------------------------------------------------- WriteChunkStart -- */
@@ -125,7 +125,7 @@ static Boolean WriteHeader(Byte, Word, Word);
 static void WriteTrackEnd(void);
 static void WriteTempoEvent(unsigned long);
 static void WriteTextEvent(Byte, char []);
-static void WriteTSEvent(INT16, INT16, INT16);
+static void WriteTSEvent(short, short, short);
 
 static void FillInTrackLength(void);
 
@@ -192,7 +192,7 @@ static void WriteTempoEvent(
 	trackLength += byteCount;
 }	
 
-static void WriteTSEvent(INT16 numerator, INT16 denominator, INT16 clocksPerBeat)
+static void WriteTSEvent(short numerator, short denominator, short clocksPerBeat)
 {
 	long 	byteCount;
 	Byte	logDenom, thirtySeconds;
@@ -307,12 +307,12 @@ static void WriteControlChange(Byte channel, Byte ctrlNum, Byte ctrlValue)
 
 /* --------------------------------------------------------- Posting controllers -- */
 
-static Boolean MFSPostMidiSustain(Document *doc, LINK pL, INT16 staffn, Boolean susOn) 
+static Boolean MFSPostMidiSustain(Document *doc, LINK pL, short staffn, Boolean susOn) 
 {
 	Boolean posted = FALSE;
 						
 	PGRAPHIC pGraphic = GetPGRAPHIC(pL);
-	INT16 stf = GraphicSTAFF(pL);
+	short stf = GraphicSTAFF(pL);
 	if (stf > 0 && stf == staffn) 
 	{
 		if (susOn) {
@@ -327,12 +327,12 @@ static Boolean MFSPostMidiSustain(Document *doc, LINK pL, INT16 staffn, Boolean 
 	return posted;
 }
 
-static Boolean MFSPostMidiPan(Document *doc, LINK pL, INT16 staffn)
+static Boolean MFSPostMidiPan(Document *doc, LINK pL, short staffn)
 {
 	Boolean posted = FALSE;
 	
 	PGRAPHIC pGraphic = GetPGRAPHIC(pL);
-	INT16 stf = GraphicSTAFF(pL);
+	short stf = GraphicSTAFF(pL);
 	if (stf > 0 && stf == staffn) 
 	{
 		Byte panSetting = GraphicINFO(pL);
@@ -394,35 +394,7 @@ static Byte GetSustainCtrlVal(Boolean susOn)
 	return ctrlVal;
 }
 
-static void WriteAllMidiSustains(Document *doc, Byte *partChannel, Boolean susOn, long startTime) 
-{
-	Byte ctrlNum = MSUSTAIN;
-	Byte ctrlVal = GetSustainCtrlVal(susOn);
-	
-	DebugPrintf("Write: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
-	if (susOn) {
-		for (int j = 1; j<=MAXSTAVES; j++) {
-			if (cmFSSustainOn[j]) {
-				INT16 partn = Staff2Part(doc,j);
-				INT16 channel = partChannel[partn];
-				WriteDeltaTime(startTime);
-				WriteControlChange(channel, ctrlNum, ctrlVal);									
-			}
-		}
-	}
-	else {
-		for (int j = 1; j<=MAXSTAVES; j++) {
-			if (cmFSSustainOff[j]) {
-				INT16 partn = Staff2Part(doc,j);
-				INT16 channel = partChannel[partn];
-				WriteDeltaTime(startTime);
-				WriteControlChange(channel, ctrlNum, ctrlVal);									
-			}
-		}		
-	}
-}
-
-static void WriteMidiSustains(Document *doc, Byte *partChannel, Boolean susOn, long startTime, LINK pL, INT16 stf) 
+static void WriteMidiSustains(Document *doc, Byte *partChannel, Boolean susOn, long startTime, LINK pL, short stf) 
 {
 	LINK graphicL = LSSearch(pL, GRAPHICtype, stf, GO_LEFT, FALSE);
 	
@@ -436,8 +408,8 @@ static void WriteMidiSustains(Document *doc, Byte *partChannel, Boolean susOn, l
 			
 			DebugPrintf("Write: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
 			
-			INT16 partn = Staff2Part(doc,stf);
-			INT16 channel = partChannel[partn];
+			short partn = Staff2Part(doc,stf);
+			short channel = partChannel[partn];
 			WriteDeltaTime(startTime);
 			WriteControlChange(channel, ctrlNum, ctrlVal);		
 		}
@@ -446,7 +418,7 @@ static void WriteMidiSustains(Document *doc, Byte *partChannel, Boolean susOn, l
 	}
 }
 
-static void WriteAllMidiSustains(Document *doc, Byte *partChannel, Boolean susOn, long startTime, LINK pL, INT16 stf) 
+static void WriteAllMidiSustains(Document *doc, Byte *partChannel, Boolean susOn, long startTime, LINK pL, short stf) 
 {	
 	LINK aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) 
@@ -456,50 +428,7 @@ static void WriteAllMidiSustains(Document *doc, Byte *partChannel, Boolean susOn
 	}
 }
 
-// TODO: from MIDIPlay.c
-
-static Boolean ValidPanSetting(Byte panSetting) 
-{
-	SignedByte sbpanSetting = (SignedByte)panSetting;
-	
-	return sbpanSetting >= 0;
-}
-
-static void WriteAllMidiPans(Document *doc, Byte *partChannel, long startTime) 
-{	
-	Byte ctrlNum = MPAN;
-
-	for (int j = 1; j<=MAXSTAVES; j++) 
-	{
-		Byte ctrlVal = cmFSPanSetting[j];
-		if (ValidPanSetting(ctrlVal))
-		{
-			INT16 partn = Staff2Part(doc,j);
-			INT16 channel = partChannel[partn];
-			WriteDeltaTime(startTime);
-//			WriteDeltaTime(0);
-			WriteControlChange(channel, ctrlNum, ctrlVal);									
-		}
-	}
-}
-
-static void WriteMidiPans(Document *doc, Byte *partChannel, long startTime, INT16 stf) 
-{	
-	Byte ctrlNum = MPAN;
-
-	Byte ctrlVal = cmFSPanSetting[stf];
-	if (ValidPanSetting(ctrlVal))
-	{
-		INT16 partn = Staff2Part(doc,stf);
-		INT16 channel = partChannel[partn];
-		WriteDeltaTime(startTime);
-		WriteControlChange(channel, ctrlNum, ctrlVal);
-		SignedByte sbpanSetting = -1;
-		cmFSPanSetting[stf] = (Byte)sbpanSetting;
-	}
-}
-
-static void WriteMidiPans(Document *doc, Byte *partChannel, long startTime, LINK pL, INT16 stf) 
+static void WriteMidiPans(Document *doc, Byte *partChannel, long startTime, LINK pL, short stf) 
 {	
 	LINK graphicL = LSSearch(pL, GRAPHICtype, stf, GO_LEFT, FALSE);
 	while (graphicL != NILINK && GraphicFIRSTOBJ(graphicL) == pL) 
@@ -511,8 +440,8 @@ static void WriteMidiPans(Document *doc, Byte *partChannel, long startTime, LINK
 			
 			DebugPrintf("Write: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
 			
-			INT16 partn = Staff2Part(doc,stf);
-			INT16 channel = partChannel[partn];
+			short partn = Staff2Part(doc,stf);
+			short channel = partChannel[partn];
 			WriteDeltaTime(startTime);
 			WriteControlChange(channel, ctrlNum, ctrlVal);					
 		}
@@ -521,7 +450,7 @@ static void WriteMidiPans(Document *doc, Byte *partChannel, long startTime, LINK
 	}
 }
 
-static void WriteAllMidiPans(Document *doc, Byte *partChannel, long startTime, LINK pL, INT16 stf) 
+static void WriteAllMidiPans(Document *doc, Byte *partChannel, long startTime, LINK pL, short stf) 
 {	
 	LINK aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) 
@@ -544,7 +473,7 @@ static Boolean MFInsertEvent(
 						long endTime
 						)
 {
-	INT16			i;
+	short			i;
 	MIDIEvent	*pEvent;
 	char			fmtStr[256];
 
@@ -580,7 +509,7 @@ static Boolean MFCheckEventList(long time)
 {
 	Boolean		empty;
 	MIDIEvent	*pEvent;
-	INT16			i;
+	short			i;
 	
 	empty = TRUE;
 	for (i=0, pEvent = eventList; i<lastEvent; i++, pEvent++)
@@ -600,9 +529,9 @@ static Boolean MFCheckEventList(long time)
 /* ----------------------------------------------------------- StartNote, EndNote -- */
 
 void StartNote(
-				INT16	noteNum,
-				INT16	channel,			/* 1 to MAXCHANNEL */
-				INT16	velocity,
+				short	noteNum,
+				short	channel,			/* 1 to MAXCHANNEL */
+				short	velocity,
 				long	time
 				)
 {
@@ -613,8 +542,8 @@ void StartNote(
 }
 
 Boolean EndNote(
-				INT16	noteNum,
-				INT16	channel,			/* 1 to MAXCHANNEL */
+				short	noteNum,
+				short	channel,			/* 1 to MAXCHANNEL */
 				long	endTime
 				)
 {
@@ -625,12 +554,12 @@ Boolean EndNote(
 /* ------------------------------------------------------ WriteTrack and helpers -- */
 
 static Boolean WriteTiming(Document *, long);
-static INT16 WriteMFNotes(Document *, INT16, LINK, LINK, long);
-static Boolean WriteTrackName(Document *, INT16);
-static Boolean WriteTrack(Document *, INT16, long, INT16 *);
+static short WriteMFNotes(Document *, short, LINK, LINK, long);
+static Boolean WriteTrackName(Document *, short);
+static Boolean WriteTrack(Document *, short, long, short *);
 //static long LastEndTime(Document *, LINK, LINK);
 static Boolean WriteMIDIFile(Document *);
-static INT16 CheckMeasDur(Document *);
+static short CheckMeasDur(Document *);
 
 static Boolean WriteTSig(LINK, LINK, long);
 static Boolean WriteTSig(
@@ -640,7 +569,7 @@ static Boolean WriteTSig(
 						)
 {
 	PATIMESIG aTS;
-	INT16 numer, denom, tempDenom, clocksPerBeat;
+	short numer, denom, tempDenom, clocksPerBeat;
 
 	aTS = GetPATIMESIG(aTSL);
 	numer = aTS->numerator;
@@ -674,15 +603,6 @@ static Boolean WriteTiming(
 	
 	/* Write initial tempo, the tempo as of the score's first note. */
 	
-#if 0
-	firstSyncL = SSearch(doc->headL, SYNCtype, GO_RIGHT);
-	WriteDeltaTime(0L);
-	timeScale = GetTempo(doc, firstSyncL);
-	microbeats = TSCALE2MICROBEATS(timeScale);
-	WriteTempoEvent((long)microbeats*DFLT_BEATDUR);
-//DebugPrintf("WriteTiming: firstSyncL=%d timeScale=%ld\n", firstSyncL, timeScale);
-#endif
-
 	measureTime = 0L;
 	for (pL = doc->headL; pL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -736,9 +656,9 @@ this writes nonsense Note Ons--I have no idea why--resulting in tracks that our 
 Import MIDI File says are "damaged or incomplete". But this should never happen (though
 it did in v.998a20!), so don't worry about it. */
 
-static INT16 WriteMFNotes(
+static short WriteMFNotes(
 					Document *doc,
-					INT16		staffn,					/* Staff no. or ANYONE */
+					short		staffn,					/* Staff no. or ANYONE */
 					LINK		fromL, LINK toL,		/* range to be written */
 					long		lastEndTime				/* The latest ending time for any track */
 					)
@@ -746,8 +666,8 @@ static INT16 WriteMFNotes(
 	LINK			pL, aNoteL;
 	LINK			partL, measL, newMeasL;
 	PANOTE		aNote;
-	INT16			i, nZeroVel;
-	INT16			useNoteNum,
+	short			i, nZeroVel;
+	short			useNoteNum,
 					useChan, useVelo, partn;
 	long			t,
 					toffset,							/* PDUR start time of 1st note played */
@@ -900,20 +820,6 @@ static INT16 WriteMFNotes(
 			case GRAPHICtype:			
 				if (IsMidiController(pL)) 
 				{
-#if 0
-					Byte ctrlNum = GetMidiControlNum(pL);
-					Byte ctrlVal = GetMidiControlVal(pL);
-					INT16 stf = GraphicSTAFF(pL);
-					//if (anyStaff || stf == staffn) {
-					if (stf==staffn) {
-						INT16 partn = Staff2Part(doc,stf);
-						//INT16 channel = CMGetUseChannel(partChannel, partn);
-						INT16 channel = partChannel[partn];
-
-						WriteDeltaTime(startTime);
-						WriteControlChange(channel, ctrlNum, ctrlVal);						
-					}
-#else
 					if (useWhichMIDI==MIDIDR_CM) {
 									
 	//					if (IsMidiPatchChange(pL)) {
@@ -934,7 +840,6 @@ static INT16 WriteMFNotes(
 							panPosted = MFSPostMidiPan(doc, pL, staffn);
 						}					
 					}
-#endif
 				}
 				break;
 								
@@ -956,7 +861,7 @@ Done:
 }
 
 
-static Boolean WriteTrackName(Document *doc, INT16 staffn)
+static Boolean WriteTrackName(Document *doc, short staffn)
 {
 	LINK partL; char str[256]; PPARTINFO aPart;
 
@@ -973,12 +878,12 @@ static Boolean WriteTrackName(Document *doc, INT16 staffn)
 
 static Boolean WriteTrack(
 						Document *doc,
-						INT16 track,
+						short track,
 						long lastEndTime,			/* The latest ending time for any track */
-						INT16 *pnZeroVel
+						short *pnZeroVel
 						)
 {
-	INT16 nZeroVel;
+	short nZeroVel;
 	
 	trackLength = 0L;
 	curTime = 0L;
@@ -1058,7 +963,7 @@ long LastEndTime(Document *doc, LINK fromL, LINK toL)
 
 static Boolean WriteMIDIFile(Document *doc)
 {
-	INT16 t, nZeroVel;
+	short t, nZeroVel;
 	long lastEndTime;								/* The latest ending time for any track */
 
 	/* Write the MIDI file header, then the tracks, one for timing info plus one
@@ -1091,7 +996,7 @@ number of the first, else return -1. Identical to DCheckMeasDur, except this ret
 a measure number and doesn't give error messages if it finds problems, it ignores
 completely empty measures, and it doesn't check the very last measure. */
 
-static INT16 CheckMeasDur(Document *doc)
+static short CheckMeasDur(Document *doc)
 {
 	LINK pL, barTermL;
 	long measDurNotated, measDurActual;
@@ -1117,13 +1022,13 @@ static INT16 CheckMeasDur(Document *doc)
 cannot be written safely to a MIDI file. If any are found, return the number found as
 function value, plus info on where the offending notes were. */
 
-static INT16 AnyZeroVelNotes(Document *doc, LINK fromL, LINK toL, INT16 *pStartStaff,
-								INT16 *pEndStaff, INT16 *pStartMeasNum, INT16 *pEndMeasNum);
-static INT16 AnyZeroVelNotes(Document *doc, LINK fromL, LINK toL, INT16 *pStartStaff,
-								INT16 *pEndStaff, INT16 *pStartMeasNum, INT16 *pEndMeasNum)
+static short AnyZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStartStaff,
+								short *pEndStaff, short *pStartMeasNum, short *pEndMeasNum);
+static short AnyZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStartStaff,
+								short *pEndStaff, short *pStartMeasNum, short *pEndMeasNum)
 {
-	INT16 measNum, nZeroVel;
-	INT16 startStaff, endStaff, startMeasNum, endMeasNum;
+	short measNum, nZeroVel;
+	short startStaff, endStaff, startMeasNum, endMeasNum;
 	LINK pL, aNoteL;
 	PANOTE aNote;
 
@@ -1163,26 +1068,14 @@ static INT16 AnyZeroVelNotes(Document *doc, LINK fromL, LINK toL, INT16 *pStartS
 	return nZeroVel;
 }
 
-
-#ifdef DEMO_VERSION
-
-void SaveMIDIFile(Document *doc)
-{
-	GetIndCString(strBuf, MIDIFILE_STRS, 9);			/* "Sorry, this demo version of Nightingale can't Export MIDI files." */
-	CParamText(strBuf, "", "", "");
-	StopInform(GENERIC_ALRT);
-}
-
-#else
-
 #define SUFINDEX 13
 
 static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
 
 void SaveMIDIFile(Document *doc)
 {
-	INT16		firstBadMeas, len, vRefNum, suffixLen, ch;
-	INT16		totalZeroVel, startStaff, endStaff, startMeasNum, endMeasNum;
+	short		firstBadMeas, len, vRefNum, suffixLen, ch;
+	short		totalZeroVel, startStaff, endStaff, startMeasNum, endMeasNum;
 	Str255	filename/*, prompt*/;
 //	SFReply	reply;
 	char		strFirst[256], strLast[256], fmtStr[256];
@@ -1231,23 +1124,6 @@ void SaveMIDIFile(Document *doc)
 	*filename = (len + suffixLen);						/* And ensure new string knows new length */
 	
 	/* Ask user where to put this MIDI file */
-#ifdef CARBON_NOMORE	
-	GetIndString(prompt, MiscStringsID, 14);
-	SFPutFile(SFPwhere, prompt, filename, NULL, &reply);
-	if (!reply.good) return;
-	PStrCopy(reply.fName, (StringPtr)filename);
-	vRefNum = reply.vRefNum;
-	
-	errCode = FSDelete(filename, vRefNum);									/* Delete existing file */
-	if (errCode!=noErr && errCode!=fnfErr)									/* Ignore "file not found" */
-		{ ReportIOError(errCode, SAVEMF_ALRT); return; }
-		
-	errCode = Create(filename, vRefNum, creatorType, 'Midi'); 		/* Create new file */
-	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
-	
-	errCode = FSOpen(filename, vRefNum, &fRefNum);						/* Open it */
-	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
-#else
 	NSClientData	nscd;
 	Boolean			keepGoing;
 	FSSpec 			fsSpec;
@@ -1267,7 +1143,6 @@ void SaveMIDIFile(Document *doc)
 		
 	errCode = FSpOpenDF (&fsSpec, fsRdWrPerm, &fRefNum);				/* Open the file */
 	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
-#endif	
 
 	WaitCursor();
 	
@@ -1276,5 +1151,3 @@ void SaveMIDIFile(Document *doc)
 	ArrowCursor();
 	errCode = FSClose(fRefNum);
 }
-
-#endif

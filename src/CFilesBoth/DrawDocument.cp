@@ -47,8 +47,7 @@ void DrawDocumentControls(Document *doc)
 void DrawDocumentView(Document *doc, Rect *updateRect)
 	{
 		Rect updater,margin,paper,result;
-		WindowPtr w = doc->theWindow;
-		INT16 i;
+		short i;
 		
 		if (doc->showWaitCurs) WaitCursor();
 		doc->showWaitCurs = TRUE;
@@ -152,19 +151,8 @@ void DrawDocumentView(Document *doc, Rect *updateRect)
 						 *	out from under the current clipping region,
 						 *	we temporarily ask it to follow as well.
 						 */
-#ifdef NOTUSED
-						SetOrigin(doc->origin.h - paper.left,doc->origin.v - paper.top);
-						OffsetRgn(w->clipRgn,-paper.left,-paper.top);
-						OffsetRect(&result,-paper.left,-paper.top);
-						OffsetRect(&doc->viewRect,-paper.left,-paper.top);
-#endif	
 						DrawSheet(doc,i,&paper,&result);
 						if (i == doc->currentSheet) MEUpdateCaret(doc);
-#ifdef NOTUSED
-						OffsetRgn(w->clipRgn,paper.left,paper.top);
-						OffsetRect(&doc->viewRect,paper.left,paper.top);
-						SetOrigin(doc->origin.h,doc->origin.v);
-#endif
 						}
 					}
 				 else
@@ -190,7 +178,7 @@ extern Boolean magnifyOnly;			/* Secret message from SheetMagnify */
 void RecomputeView(Document *doc)
 	{
 		Rect r,rem,messageRect,portRect; WindowPtr w = doc->theWindow;
-		Point pt; INT16 width,height,x,y; Boolean changingView;
+		Point pt; short width,height,x,y; Boolean changingView;
 		Rect contrlRect;
 		
 		

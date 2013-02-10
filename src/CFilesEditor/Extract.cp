@@ -15,24 +15,23 @@
 
 /* Prototypes for private routines */
 
-static INT16		ExtMapStaves(Document *doc, Document *newDoc);
+static short		ExtMapStaves(Document *doc, Document *newDoc);
 static void		UpdateDocHeader(Document *newDoc);
 static void		SelectPart(Document *doc, LINK partL, Boolean extractAllGraphics);
 static Boolean	CopyPartInfo(Document *, Document *, LINK);
 static Boolean	CopyPartRange(Document *, Document *, LINK, LINK, LINK, LINK);
 static Boolean	CopyPart(Document *score, Document *part, LINK partL);
 static void		CopyDocFields(Document *part, Document *score);
-static INT16		ReadPart(Document *part, Document *score, LINK partL, Boolean *partOK);
-static Boolean	MakeMultibarRest(Document *, LINK, LINK, INT16, INT16, COPYMAP *, INT16);
-static void		SetupSysCopyMap(Document *, COPYMAP **, INT16 *);
-static void		ExtFixCrossSysSlurs(Document *, COPYMAP *, INT16);
-static Boolean	MultibarRests(Document *, INT16, Boolean);
+static short		ReadPart(Document *part, Document *score, LINK partL, Boolean *partOK);
+static Boolean	MakeMultibarRest(Document *, LINK, LINK, short, short, COPYMAP *, short);
+static void		SetupSysCopyMap(Document *, COPYMAP **, short *);
+static void		ExtFixCrossSysSlurs(Document *, COPYMAP *, short);
+static Boolean	MultibarRests(Document *, short, Boolean);
 static void		FixMeasures(Document *);
-static void		ExtCompactVoiceNums(Document *, INT16);
+static void		ExtCompactVoiceNums(Document *, short);
 
 
 #ifndef PUBLIC_VERSION
-#if 1
 void DCheckSyncs(Document *doc)
 {
 	LINK	pL, aNoteL, aModNRL;
@@ -49,7 +48,7 @@ void DCheckSyncs(Document *doc)
 				PAMODNR aModNR;
 				PANOTE aNote = GetPANOTE(aNoteL);
 				if (aNote->firstMod) {
-					unsigned INT16 nObjs = MODNRheap->nObjs;
+					unsigned short nObjs = MODNRheap->nObjs;
 					aModNRL = aNote->firstMod;
 					for ( ; aModNRL; aModNRL=NextMODNRL(aModNRL)) {
 						if (aModNRL >= nObjs)	/* very crude check on node validity  -JGG */
@@ -67,7 +66,6 @@ void DCheckSyncs(Document *doc)
 	}
 	PopLock(NOTEheap);
 }
-#endif
 #endif
 
 
@@ -131,10 +129,10 @@ void ExFixMeasAndSysRects(Document *doc)
 /* Re-index the staves in the extracted part so that the top staff is number 1.
 Return the change in staff numbers. */
  
-static INT16 ExtMapStaves(Document *doc, Document *newDoc)
+static short ExtMapStaves(Document *doc, Document *newDoc)
 {
 	LINK 		pL,subObjL,aStaffL,aConnectL,aMeasureL,aPseudoMeasL;
-	INT16		staffDiff;
+	short		staffDiff;
 	PMEVENT		p;
 	PPARTINFO	pPart;
 	PAMEASURE	aMeasure;
@@ -236,7 +234,7 @@ static INT16 ExtMapStaves(Document *doc, Document *newDoc)
  
 static void UpdateDocHeader(Document *newDoc)
 {
-	LINK pL,staffL,aStaffL; INT16 nPages=0, nSystems=0, nStaves=0;
+	LINK pL,staffL,aStaffL; short nPages=0, nSystems=0, nStaves=0;
 
 	InstallDoc(newDoc);
 	
@@ -269,7 +267,7 @@ static void SelectPart(
 	PASLUR		aSlur;
 	PMEVENT		p;
 	PPARTINFO	pPart;
-	INT16			firstStf, lastStf;
+	short			firstStf, lastStf;
 	PACONNECT	aConnect;
 	GenSubObj 	*subObj;
 	HEAP 			*tmpHeap;
@@ -387,7 +385,7 @@ to this copied node and fix up its cross links.
 
 static Boolean CopyPartInfo(Document *doc, Document *newDoc, LINK partL)
 {
-	LINK subL,tempL; PPARTINFO pSub, pPart; INT16 firstStaff; Boolean okay=FALSE;
+	LINK subL,tempL; PPARTINFO pSub, pPart; short firstStaff; Boolean okay=FALSE;
 
 	/* This must be done before installing newDoc's heaps. */
 	pPart = GetPPARTINFO(partL);
@@ -438,7 +436,7 @@ allocated from the heaps for that document. */
 static Boolean CopyPartRange(Document *doc, Document *newDoc, LINK srcStartL,
 										LINK srcEndL, LINK insertL, LINK partL)
 {
-	LINK pL,prevL,copyL,initL; INT16 i,numObjs; COPYMAP *partMap;
+	LINK pL,prevL,copyL,initL; short i,numObjs; COPYMAP *partMap;
 	Boolean okay=TRUE;
 
 	if (!SetupCopyMap(srcStartL, srcEndL, &partMap, &numObjs)) {
@@ -471,11 +469,6 @@ static Boolean CopyPartRange(Document *doc, Document *newDoc, LINK srcStartL,
 		partMap[i].srcL = pL;	partMap[i].dstL = copyL;
 		prevL = copyL;
   	}
-#if 0
-InstallDoc(newDoc);
-DCheckSyncs(newDoc);
-InstallDoc(doc);
-#endif
 
 	FixCrossLinks(doc, newDoc, newDoc->headL, insertL);
 	CopyFixLinks(doc, newDoc, newDoc->headL, insertL, partMap, numObjs);
@@ -527,9 +520,9 @@ static void RPDeselAll(Document *doc)
 
 /* Read the part <partL> from the score document into the part document. */
 
-static INT16 ReadPart(Document *part, Document *score, LINK partL, Boolean *partOK)
+static short ReadPart(Document *part, Document *score, LINK partL, Boolean *partOK)
 	{
-		LINK firstMeasL; INT16 staffDiff;
+		LINK firstMeasL; short staffDiff;
 		
 		/*
 		 * For the entire score, select just those subObjs which belong
@@ -665,12 +658,12 @@ links to Systems other than Systems are first pieces of cross-system slurs.) */
 static Boolean MakeMultibarRest(Document *doc,
 						LINK firstL,			/* Must be a Sync containing whole-measure rest(s) */
 						LINK lastL,
-						INT16 nMeas,
-						INT16 staffDiff,		/* Staff and default voice no. offset */
+						short nMeas,
+						short staffDiff,		/* Staff and default voice no. offset */
 						COPYMAP *sysMap,
-						INT16 nSys)
+						short nSys)
 {
-	PPARTINFO pPart; INT16 nStaves, nChange, s, nSysDel, startSys, i;
+	PPARTINFO pPart; short nStaves, nChange, s, nSysDel, startSys, i;
 	LINK subList, restL, measL, pL, firstSysDelL, newSysL;
 	
 	pPart = GetPPARTINFO(NextPARTINFOL(FirstSubLINK(doc->headL)));
@@ -710,14 +703,12 @@ static Boolean MakeMultibarRest(Document *doc,
 	
 	measL = RightLINK(firstL);
 	DeleteRange(doc, measL, lastL);
-#if 1 // JGG: If not this, SetupNote will get garbage context next time.
 	if (nSysDel>0) {
 		LINK nextSysL = SSearch(lastL, SYSTEMtype, GO_RIGHT);
 		if (nextSysL==NILINK)
 			nextSysL = doc->tailL;
 		FixStructureLinks(doc, doc, lastL, nextSysL);
 	}
-#endif
 	return TRUE;
 }
 
@@ -725,10 +716,10 @@ static Boolean MakeMultibarRest(Document *doc,
 
 #define EXTRAOBJS	4
 
-void SetupSysCopyMap(Document *doc, COPYMAP **sysMap, INT16 *objCount)
+void SetupSysCopyMap(Document *doc, COPYMAP **sysMap, short *objCount)
 {
 	LINK sysL;
-	INT16 i, numObjs=0;
+	short i, numObjs=0;
 
 	sysL = SSearch(doc->headL, SYSTEMtype, GO_RIGHT);
 	for ( ; sysL; sysL = LinkRSYS(sysL))
@@ -751,9 +742,9 @@ void SetupSysCopyMap(Document *doc, COPYMAP **sysMap, INT16 *objCount)
 /* Update according to the given COPYMAP lastSyncs that actually refer to Systems in
 first pieces of cross-system slurs. */
 
-static void ExtFixCrossSysSlurs(Document *doc, COPYMAP *sysMap, INT16 nSys)
+static void ExtFixCrossSysSlurs(Document *doc, COPYMAP *sysMap, short nSys)
 {
-	LINK pL; INT16 i;
+	LINK pL; short i;
 	
 	for (pL = doc->headL; pL; pL = RightLINK(pL))
 		if (SlurTYPE(pL))
@@ -772,14 +763,14 @@ the staff no. offset and <setVoiceRoles> TRUE (in which case we change the
 restore them: this should be OK since they may contain garbage anyway). */
  
 static Boolean MultibarRests(Document *doc,
-					INT16 staffDiff,						/* Staff and default voice no. offset */
+					short staffDiff,						/* Staff and default voice no. offset */
 					Boolean setVoiceRoles
 					)
 {
 	register LINK pL; LINK aMeasL, aNoteL, firstL, lastSyncL;
-	INT16 nMeasInSeries=0, nSys;
+	short nMeasInSeries=0, nSys;
 	Boolean allWMR, possibleMBR=TRUE, measStart, okay=FALSE;
-	PPARTINFO pPart; INT16 nStaves, s;	COPYMAP *sysMap;
+	PPARTINFO pPart; short nStaves, s;	COPYMAP *sysMap;
 	
 	SetupSysCopyMap(doc, &sysMap, &nSys);
 	if (!sysMap) goto Done;
@@ -964,9 +955,9 @@ static void FixMeasures(Document *doc)
 no gaps, and create a voice-mapping table that reflects the new situation. Does not
 assume the existing voice-mapping table is accurate. */
  
-static void ExtCompactVoiceNums(Document *doc, INT16 staffDiff)
+static void ExtCompactVoiceNums(Document *doc, short staffDiff)
 	{
-		INT16 newVoiceTab[MAXVOICES+1], v, vNew;
+		short newVoiceTab[MAXVOICES+1], v, vNew;
 		
 		/*
 		 *	First, offset voice numbers to reduce the lowest to 1. Then create the
@@ -1019,7 +1010,7 @@ part of the original.  Deliver the new Document, or NULL if we can't do it. */
 Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum, FSSpec *pfsSpec, LINK partL)
 	{
 		register Document *newDoc; WindowPtr w; long fileVersion;
-		INT16 staffDiff,palWidth,palHeight; Rect box,bounds; 
+		short staffDiff,palWidth,palHeight; Rect box,bounds; 
 		Boolean partOK;
 
 		newDoc = FirstFreeDocument();

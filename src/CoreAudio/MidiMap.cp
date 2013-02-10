@@ -19,12 +19,9 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-// MAS
-//#include <Fsp_fopen.h>
 #include "FileUtils.h"
 // MAS
 
-//#include "MidiGeneral.h"
 #include "MidiMap.h"
 
 
@@ -108,11 +105,6 @@ static Boolean ParseMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
 	f = FSpOpenInputFile(fileName, fsSpec);
 	if (f==NULL) return FALSE;
 		
-#if 0 //MMPrintMidiMap
-	if ( !(CapsLockKeyDown() || OptionKeyDown()) )
-		printMidiMap = FALSE;
-#endif
-
 	ok = ProcessMidiMap(doc, f);
 	CloseInputFile(f);													/* done with input file */
 	if (!ok) goto MidiMapErr;

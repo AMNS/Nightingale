@@ -15,9 +15,8 @@
 
 /* Prototypes for private routines */
 
-static Document *AlreadyInUse(unsigned char *name, short vrefnum);
-INT16 NumFreeDocuments(void);
-INT16 NumOpenDocuments(void);
+short NumFreeDocuments(void);
+short NumOpenDocuments(void);
 void PositionWindow(WindowPtr,Document *);
 
 /* ---------------------------------------------------- InstallDoc and associates -- */
@@ -62,7 +61,7 @@ void InstallMagnify(Document *doc)
 		
 #ifdef TEST_MAG
 		{
-			DDIST d; INT16 pxl, dummy;
+			DDIST d; short pxl, dummy;
 			pxl = d2p(160); d = p2d(pxl);
 			d = p2d(1); pxl = d2p(d);
 			d = p2d(2); pxl = d2p(d);
@@ -186,18 +185,18 @@ Document *AlreadyInUse(unsigned char *name, short /*vrefnum*/, FSSpec *pfsSpec)
 		return(NULL);
 	}
 
-INT16 NumFreeDocuments()
+short NumFreeDocuments()
 	{
-		Document *doc; INT16 n = 0;
+		Document *doc; short n = 0;
 		
 		for (doc=documentTable; doc<topTable; doc++)
 			if (!doc->inUse) n++;
 		return(n);
 	}
 	
-INT16 NumOpenDocuments()
+short NumOpenDocuments()
 	{
-		Document *doc; INT16 n = 0;
+		Document *doc; short n = 0;
 		
 		for (doc=documentTable; doc<topTable; doc++)
 			if (doc->inUse) n++;
@@ -292,7 +291,7 @@ void PositionWindow(WindowPtr w, Document *doc)
 Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec)
 	{
 		register WindowPtr w; register Document *doc, *d;
-		INT16 numNew; long fileVersion;
+		short numNew; long fileVersion;
 		static char ID = '0';
 		
 		/* If an existing file and already open, then just bring it to front */
@@ -385,7 +384,7 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec, Document **pDoc)
 	{
 		register WindowPtr w; register Document *doc, *d;
-		INT16 numNew; long fileVersion;
+		short numNew; long fileVersion;
 		static char ID = '0';
 		
 		*pDoc = NULL;
@@ -535,7 +534,7 @@ Boolean DoCloseDocument(register Document *doc)
 		return(keepGoing);
 	}
 
-void ActivateDocument(register Document *doc, INT16 activ)
+void ActivateDocument(register Document *doc, short activ)
 	{
 		Point pt; GrafPtr oldPort;
 		Rect portRect;
@@ -574,15 +573,6 @@ void ActivateDocument(register Document *doc, INT16 activ)
 				SetPort(oldPort);
 			}
 	}
-
-#ifdef VIEWER_VERSION
-
-Boolean DocumentSaved(Document *doc)
-	{
-		return TRUE;
-	}
-
-#else
 
 /* Ensure that a given document is ready to be closed.  Ask user if any changes
 should be saved, and save them if he does.  If user says to Cancel, then return
@@ -739,8 +729,6 @@ void DoRevertDocument(register Document *doc)
 			}
 	}
 
-#endif
-
 /* If all staves (of the first Staff object only!) are the same size and that size is
 not the score's <srastral>, offer user a change to set <srastral> accordingly.
 In all cases, return TRUE if all staves are the same size, else FALSE. */
@@ -787,7 +775,7 @@ of memory), give an error message and return FALSE, else TRUE. */
 
 Boolean InitDocFields(Document *doc)
 {
-	INT16 i;
+	short i;
 
 	SetRect(&doc->prevMargin, 0, 0, 0, 0);
 	doc->headerFooterMargins = config.pageNumMarg;
@@ -1048,14 +1036,12 @@ Boolean BuildDocument(
 				NewMasterPage(doc,sysTop,TRUE);
 				}
 			doc->nonstdStfSizes = FillRelStaffSizes(doc);
-#ifndef VIEWER_VERSION
 			if (doc->nonstdStfSizes)
 				if (!AllStavesSameSize(doc)) {
 				GetIndCString(strBuf, MISCERRS_STRS, 6);	/* "Not all staves are the std. size" */
 				CParamText(strBuf, "", "", "");
 				CautionInform(GENERIC_ALRT);
 				}
-#endif
 			}
 
 		if (!InitDocUndo(doc))

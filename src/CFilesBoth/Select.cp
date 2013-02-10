@@ -37,11 +37,11 @@
 static void DeselectCONNECT(LINK);
 static void DoAccumSelect(Document *, LINK, LINK);
 static Boolean SetInsPoint(Document *, Point);
-static void DoExtendSelect(Document *, LINK, LINK, INT16, short);
+static void DoExtendSelect(Document *, LINK, LINK, short, short);
 static void DoPageSelect(Document *, Point, LINK, LINK, Boolean, Boolean, short);
 static Boolean ContinSelChks(Document *doc);
-static void SetStfStatus(INT16 *stStatus, INT16 staff, Boolean sel);
-static INT16 NextEverSel(Document *doc, Boolean *stEverSel, INT16 s);
+static void SetStfStatus(short *stStatus, short staff, Boolean sel);
+static short NextEverSel(Document *doc, Boolean *stEverSel, short s);
 static Boolean CSChkSelRanges(LINK s1, LINK e1, LINK s2, LINK e2);
 static Boolean OldContinSel(Document *doc, Boolean strict);
 static Boolean NewContinSel(Document *doc);
@@ -117,7 +117,7 @@ void DeselRange(Document *doc, LINK startL, LINK endL)
 	LINK			pL;
 	CONTEXT		context[MAXSTAVES+1];
 	Boolean		found;
-	INT16			index,oldSheet;
+	short			index,oldSheet;
 	STFRANGE		stfRange={0,0};
 	Rect			oldPaper;
 	long			soon;
@@ -190,7 +190,7 @@ opened, or NILINK if no object found for mouse click. */
 
 LINK DoOpenSymbol(Document *doc, Point pt)
 {
-	INT16 index; LINK pL;
+	short index; LINK pL;
 
 	FindStaff(doc, pt);						/* Just to set doc->currentSystem */
 
@@ -232,14 +232,14 @@ static void DoExtendSelect(
 					Document	*doc,
 					LINK		oldSelStartL,
 					LINK		oldSelEndL,
-					INT16		oldSelStaff,
+					short		oldSelStaff,
 					short		mode 						/* SMSelect or SMThread */
 					)
 {
 	LINK		pL, selStartPageL, selStartSysL, selStartMeasL, firstMeasL;
 	Boolean	found;
 	short		sheet, oldSheet;
-	INT16		index;
+	short		index;
 	Rect		paper, oldPaper, selRect;
 	STFRANGE	stfRange;
 	CONTEXT	context[MAXSTAVES+1];
@@ -335,7 +335,7 @@ static void DoPageSelect(
 					)
 {
 	LINK			pL;
-	INT16			index;
+	short			index;
 		
 	pL = FindObject(doc, pt, &index, SMClick);		/* Look for PAGEs to which to attach GRAPHICs */
 	if (pL) {
@@ -361,7 +361,7 @@ with modifier keys) or move the caret. Ordinarily, use FixEmptySelection instead
 
 Boolean SetInsPoint(Document *doc, Point	pt)
 {
-	INT16 staffn;
+	short staffn;
 
 	staffn = FindStaff(doc, pt);						/* Also sets doc->currentSystem */
 	if (staffn==NOONE) return FALSE;					/* Click wasn't within any system */
@@ -385,7 +385,7 @@ void DoSelect(
 			)
 {
 	LINK		pL, oldSelStartL, oldSelEndL;
-	INT16		index, oldSelStaff;
+	short		index, oldSelStaff;
 
 	oldSelStartL = doc->selStartL;
 	oldSelEndL = doc->selEndL;
@@ -435,7 +435,7 @@ void SelectAll(register Document *doc)
 	LINK		pL, pageL;
 	Boolean	found;
 	CONTEXT	context[MAXSTAVES+1];	/* current context table */
-	INT16		index, oldCurrentSheet, sheet;
+	short		index, oldCurrentSheet, sheet;
 	Rect		paper,oldPaper;
 	STFRANGE	stfRange={0,0};
 
@@ -489,7 +489,7 @@ void SelRangeNoHilite(Document *doc, LINK startL, LINK endL)
 	LINK		pL;
 	Boolean	found;
 	CONTEXT	context[MAXSTAVES+1];	/* current context table */
-	INT16		index;
+	short		index;
 	STFRANGE	stfRange={0,0};
 
 	DeselAllNoHilite(doc);
@@ -519,7 +519,7 @@ void SelAllNoHilite(register Document *doc)
 	LINK		pL;
 	Boolean	found;
 	CONTEXT	context[MAXSTAVES+1];	/* current context table */
-	INT16		index;
+	short		index;
 	STFRANGE	stfRange={0,0};
 
 	DeselAllNoHilite(doc);
@@ -758,7 +758,7 @@ void ExtendSelection(Document *doc)
 	LINK			pL;
 	CONTEXT		context[MAXSTAVES+1];
 	Boolean		found;
-	INT16			index;
+	short			index;
 	STFRANGE		stfRange={0,0};
 
 	WaitCursor();
@@ -776,7 +776,7 @@ void ExtendSelection(Document *doc)
 /* If at least one object of the specified type is selected, deliver the first
 one's link, else deliver NILINK. */
 
-LINK ObjTypeSel(Document *doc, INT16 type, INT16 graphicSubType)
+LINK ObjTypeSel(Document *doc, short type, short graphicSubType)
 {
 	LINK	pL;
 	
@@ -858,10 +858,10 @@ void GetOptSelEnds(Document *doc, LINK *startL, LINK *endL)
 /* Scan the selection range and count the total number of objects and no. of objects
 with selection flags set. */
 
-void CountSelection(Document *doc, INT16 *nInRange, INT16 *nSelFlag)
+void CountSelection(Document *doc, short *nInRange, short *nSelFlag)
 {
 	LINK	pL;
-	register INT16 nIn, nSel;
+	register short nIn, nSel;
 	
 	nIn = nSel = 0;
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
@@ -885,7 +885,7 @@ them to be selected and return TRUE; if none is selected, just return FALSE. If
 the given Sync and voice does not contain a chord, i.e., it contains zero or one
 notes, does nothing, but may return either TRUE or FALSE. */
 
-Boolean ChordSetSel(LINK syncL, INT16 voice)
+Boolean ChordSetSel(LINK syncL, short voice)
 {
 	LINK aNoteL;
 	Boolean doSelect=FALSE, didAnything=FALSE;
@@ -932,7 +932,7 @@ Boolean ExtendSelChords(Document *doc)
 /* Return TRUE iff every note in the voice in <pL> (which must be a Sync) has the
 specified selection status. */
 
-Boolean ChordHomoSel(LINK pL, INT16 voice, Boolean selected)
+Boolean ChordHomoSel(LINK pL, short voice, Boolean selected)
 {
 	LINK 		aNoteL;
 	
@@ -966,7 +966,7 @@ static Boolean ContinSelChks(Document *doc)
 /* If this is the 1st subobject for this staff, just set staff's status to this
 object's; otherwise, unselected objects don't affect the staff's status. */
 
-static void SetStfStatus(INT16 *stStatus, INT16 staff, Boolean sel)
+static void SetStfStatus(short *stStatus, short staff, Boolean sel)
 {
 	if (stStatus[staff]<0)
 		stStatus[staff] = sel;
@@ -977,9 +977,9 @@ static void SetStfStatus(INT16 *stStatus, INT16 staff, Boolean sel)
 /* Return the staffn of the staff if there is a staff with non-empty selRange
 at or after staffn s. */
 
-static INT16 NextEverSel(Document *doc, Boolean *stEverSel, INT16 s)
+static short NextEverSel(Document *doc, Boolean *stEverSel, short s)
 {
-	INT16 i;
+	short i;
 	
 	for (i=s; i<=doc->nstaves; i++)
 		if (stEverSel[i]) return i;
@@ -1002,15 +1002,15 @@ static Boolean OldContinSel(Document *doc, Boolean strict)
 	PMEVENT		p;
 	register LINK pL;
 	LINK			subObjL, aMeasL, aPSMeasL;
-	register INT16 s;
+	register short s;
 	HEAP			*tmpHeap;
 	GenSubObj	*subObj;
 	Boolean		stEverSel[MAXSTAVES+1],				/* Found anything in the staff sel. yet? */
 					stPrevSel[MAXSTAVES+1],				/* Was the previous thing in staff sel.? */
 					stNowSel[MAXSTAVES+1];				/* Is this thing in staff sel.? */
-	INT16			stStatus[MAXSTAVES+1];				/* -1=this not in stf, 1= sel., 0= unsel. */
+	short			stStatus[MAXSTAVES+1];				/* -1=this not in stf, 1= sel., 0= unsel. */
 	LINK			startL1, endL1, startL2, endL2;	/* Chking stf selRange adjacency */
-	INT16			s1,s2;
+	short			s1,s2;
 	
 	if (!ContinSelChks(doc)) return FALSE;
 
@@ -1141,7 +1141,7 @@ static Boolean NewContinSel(Document *doc)
 	register LINK pL;
 	LINK			aNoteL;
 	PANOTE		aNote;
-	register INT16 v;
+	register short v;
 	Boolean		voiceEverSel[MAXVOICES+1],			/* Found anything in the voice sel. yet? */
 					voicePrevSel[MAXVOICES+1],			/* Was the previous thing in voice sel.? */
 					voiceNowSel[MAXVOICES+1];			/* Is this thing in voice sel.? */
@@ -1306,7 +1306,7 @@ Note: We could lump the last 8 cases into one by use of GetSubObjStaff(pL, 1).
 	want to risk breaking things by moving fields around in Graphics, etc.
 */
 
-void GetStfSelRange(Document *doc, INT16 staff, LINK *startL, LINK *endL)
+void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 {
 	PMEVENT	p;
 	LINK 		pL, subObjL;
@@ -1374,7 +1374,7 @@ void GetStfSelRange(Document *doc, INT16 staff, LINK *startL, LINK *endL)
 /*  Return the minimum range that includes everything selected in a voice. If
 nothing is selected in that voice, returns NILINKs. */
 
-void GetVSelRange(Document *doc, INT16 v, LINK *startL, LINK *endL)
+void GetVSelRange(Document *doc, short v, LINK *startL, LINK *endL)
 {
 	LINK 		pL;
 	
@@ -1396,7 +1396,7 @@ a voice. If nothing is selected in that voice, returns NILINKs. */
 
 void GetNoteSelRange(
 				Document *doc,
-				INT16 voice,
+				short voice,
 				LINK *startL, LINK *endL,
 				Boolean notesGraceNotes)	/* Notes/rests only, grace notes only, or both */
 {

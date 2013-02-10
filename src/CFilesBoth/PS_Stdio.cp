@@ -44,9 +44,9 @@ enum {
 
 static void	PS_InitGlobals(Document *doc);
 static void	PS_RestartPageVars(void);
-static Boolean PS_SetMusicFont(Document *doc, INT16 sizePercent);
-static void	PS_FontRunAround(Document *doc, INT16 fontNum, INT16 fontSize, INT16 fontStyle);
-static void	PS_Char(INT16 ch);
+static Boolean PS_SetMusicFont(Document *doc, short sizePercent);
+static void	PS_FontRunAround(Document *doc, short fontNum, short fontSize, short fontStyle);
+static void	PS_Char(short ch);
 static char	*PS_PrtLong(unsigned long arg, Boolean negArg, Boolean doSign,
 						Boolean noSign, short base, short width, short *len);
 static void	PS_Recompute(void);
@@ -70,8 +70,8 @@ static Boolean skipHeader;			/* TRUE if PS_Header has been used to build PREC */
 static Handle theTextHandle;
 static char *buffer,*bufTop,*bp;	/* For buffered output to file */
 static short thisFont;				/* Latest set font */
-static INT16 musicPtSize;			/* Latest point size of latest music font */
-static INT16 musicSizePercent;		/* Latest percent scaling of music font */
+static short musicPtSize;			/* Latest point size of latest music font */
+static short musicSizePercent;		/* Latest percent scaling of music font */
 static short numPages;				/* Number of pages to be printed */
 static Boolean pageEnded;			/* TRUE if we've not printing since last page */
 static Boolean doEscapes;			/* TRUE when outputting a PostScript string */
@@ -221,10 +221,10 @@ Handle PS_GetTextHandle()
  *	care of landscape, etc.
  */
 
-OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTFLOAT scaleFactor,
+OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTFLOAT scaleFactor,
 						Boolean landscape, Boolean doEncoding, Rect *bBox, Rect *paper)
 	{
-		INT16 percent,width,height,paperWidth,paperHeight,resID;
+		short percent,width,height,paperWidth,paperHeight,resID;
 		Rect box; unsigned long dateTime; Str255 dateTimeStr;
 		static Rect thisImageRect;
 		char fmtStr[256];
@@ -262,7 +262,7 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 		paperHeight= scaleFactor * (thisImageRect.bottom - thisImageRect.top);
 		
 		if (landscape) {
-			INT16 tmp;
+			short tmp;
 			tmp = paperHeight; paperHeight = paperWidth; paperWidth = tmp;
 			}
 		
@@ -279,7 +279,7 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 		box.right *= scaleFactor;
 		
 		if (landscape) {
-			INT16 t,l,r,b;
+			short t,l,r,b;
 			l = paperWidth - (height*scaleFactor);		/* Paper width minus image height */
 			r = paperWidth;
 			t = paperHeight;
@@ -378,17 +378,12 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, INT16 nPages, FASTF
 			temp = 0;
 			temp++;
 		}
-#if 1
-
 		dPercent = percent/100.0;
 		dSdcf = dPercent * DDFact;
 		lPercent = dPercent;
 		sdcf = dSdcf;
 		//PS_Print("/SDCF %ld %ld mul def\r", lPercent);
 		PS_Print("/SDCF %ld 100 %ld div mul def\r",(long)DDFact,(long)percent);
-#else
-		PS_Print("/SDCF DCF 100 %ld div mul def\r",(long)percent);
-#endif
 		
 		/*
 		 *	Transformation matrix that we will multiply the current transformation
@@ -453,10 +448,10 @@ PSRErr:
 
 	}
 	
-OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOAT scaleFactor,
+OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOAT scaleFactor,
 						Boolean landscape, Boolean doEncoding, Rect *bBox, Rect *paper)
 	{
-		INT16 percent,width,height,paperWidth,paperHeight,resID;
+		short percent,width,height,paperWidth,paperHeight,resID;
 		Rect box; unsigned long dateTime; Str255 dateTimeStr;
 		static Rect thisImageRect;
 		char fmtStr[256];
@@ -489,7 +484,7 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOA
 		paperHeight= scaleFactor * (thisImageRect.bottom - thisImageRect.top);
 		
 		if (landscape) {
-			INT16 tmp;
+			short tmp;
 			tmp = paperHeight; paperHeight = paperWidth; paperWidth = tmp;
 			}
 		
@@ -506,7 +501,7 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOA
 		box.right *= scaleFactor;
 		
 		if (landscape) {
-			INT16 t,l,r,b;
+			short t,l,r,b;
 			l = paperWidth - (height*scaleFactor);		/* Paper width minus image height */
 			r = paperWidth;
 			t = paperHeight;
@@ -595,11 +590,7 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOA
 		
 		PS_Print("/MFS %ld def\r",(long)musicPtSize);
 		PS_Print("/DCF %ld def\r",(long)DDFact);
-#if 1
 		PS_Print("/SDCF 16 def\r");
-#else
-		PS_Print("/SDCF DCF 100 %ld div mul def\r",(long)percent);
-#endif
 		/*
 		 *	Transformation matrix that we will multiply the current transformation
 		 *	matrix by.  After the multiplication, PostScript's user coordinate system
@@ -639,8 +630,6 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, INT16 nPages, FASTFLOA
 			get this name using the old Varityper ToolKit program. */
 		PS_Print("/MF {/%p findfont exch DCF mul dup neg FMX scale makefont setfont} BD\r",
 											musFontInfo[doc->musFontInfoIndex].postscriptFontName);
-#if 0		
-#endif
 		PS_Print("\rend         %% NightingaleDict\r\r");
 		//PS_Print("%%••••\r");
 
@@ -719,7 +708,7 @@ void PS_FinishPrintDict()
 
 typedef struct {
 	char	*macFont;
-	INT16	style;
+	short	style;
 	char	*postFont;
 } FontNameMap;
 
@@ -730,94 +719,7 @@ with the equivalent PostScript font name, based on information in the FOND resou
 For example, given useFont = "Helvetica Narrow" and style (bold + italic), deliver
 useFont as "Helvetica-Narrow-BoldOblique". */
 
-static Boolean Res2FontName(unsigned char *,INT16);
-
-#if 0
-static Boolean Res2FontName(unsigned char *useFont, INT16 style)
-	{
-	Handle resH; unsigned char *deFont;
-	
-		/*
-		 *  Get the suffixes for the desired style from the style-mapping table in the
-		 *	FOND resource. This is (poorly) documented in the LaserWriter Reference
-		 *	manual, p. 27ff.
-		 */
-		resH = GetNamedResource('FOND', useFont);
-		if (ResError()==noErr) {
-			short count,index,newStyle,nSuffices,state;
-			/* Careful: <suffix>, at least, points to a P string some of the time. */
-			Byte *p,*styleIndex,*suffix,*stringList;
-			unsigned char *baseName;
-			FamRec *fond;
-			
-			state = HGetState(resH);
-			HLock(resH);
-			fond = (FamRec *)(*resH);
-			
-			p = (Byte *)(*resH + fond->ffStylOff);		/* Start of style-mapping table */
-			p += sizeof(short) + 2*sizeof(long);		/* Past header to 48 style indices */
-			styleIndex = p; p += 48;					/* Save table start for later */
-			stringList = p;								/* Save start of string list */
-			count = *(short *)p; p += sizeof(short);	/* Get past string count */
-			baseName = p; p += 1 + *p;					/* Get font base name from 1st string */
-			
-			/* Convert from Mac style bits to 'FOND' style-mapping table style bits */
-			/* See p. 32, LaserWriter Reference Manual. */
-			
-			newStyle = 0;
-			if (style & bold) newStyle += bold;
-			if (style & italic) newStyle += italic;
-			
-			/* The FOND-brand style skips the underline bit, so we do too */
-
-			if (style & outline) newStyle += (outline>>1);
-			if (style & shadow) newStyle += (shadow>>1);
-			/*
-			 *	If both condense and extend are on, they would cancel out, and the FOND
-			 *	style-mapping table doesn't even have slots for styles that have both
-			 *	on, so avoid the situation.
-			 */
-			if ((style & (condense+extend)) == (condense+extend))
-				style &= ~(condense+extend);
-			if (style & condense) newStyle += (condense>>1);
-			if (style & extend) newStyle += (extend>>1);
-			
-			/* Now we can use newStyle as an index into the style index tables at styleIndex */
-			
-			index = styleIndex[newStyle];
-			/* Get pseudo-string that index points at in string list */
-			suffix = PS_NthString(stringList,index);
-			/* Each "character" in suffix is an index into stringList for appendage */
-			nSuffices = *suffix;
-
-			/* Start with base name */
-			
-			PStrCopy((StringPtr)baseName,useFont);
-			for (p=suffix+1; nSuffices>0; nSuffices--,p++) {
-				short lenSuff,lenName;
-				suffix = PS_NthString(stringList,*p);
-				lenName = *useFont;		/* What we've built so far */
-				lenSuff = *(unsigned char *)suffix;			/* What we're about to append */
-				if ((lenName+lenSuff) <= 255)
-					PStrCat(useFont,suffix);
-				 else
-					break;
-				}
-			HSetState(resH,state);
-			return TRUE;		
-			}
-			else {
-			
-			/* We couldn't get the FOND: use a default */
-			
-			if (style & bold) deFont = (unsigned char *)((style & italic) ? "\pTimes-BoldItalic" : "\pTimes-Bold");
-			 else			  deFont = (unsigned char *)((style & italic) ? "\pTimes-Italic" : "\pTimes-Roman");
-			 PStrCopy(deFont,useFont);
-			 return FALSE;
-			}
-	}
-	
-#else
+static Boolean Res2FontName(unsigned char *,short);
 
 OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle* oHandle) 
 {
@@ -904,7 +806,7 @@ FMGetFontFamilyName_Failed:
 } 
 
 
-static Boolean Res2FontName(unsigned char *useFont, INT16 style)
+static Boolean Res2FontName(unsigned char *useFont, short style)
 	{
 		Handle resH; 
 		unsigned char *deFont;
@@ -996,9 +898,6 @@ static Boolean Res2FontName(unsigned char *useFont, INT16 style)
 			 return FALSE;
 			}
 	}
-	
-#endif
-
 
 /* Given a Pascal string of the Mac font name, convert it to the PostScript version,
 with any style (usually italic or bold) modifications, and print the result as a
@@ -1008,8 +907,8 @@ The PostScript names appear in the style-mapping table at the end of FOND resour
 in a complex format. Returns (in *known) TRUE=font name known; FALSE=unknown, using
 the default. */
 
-static OSErr PS_PrintFontName(const unsigned char *font, INT16 style, Boolean *known);
-static OSErr PS_PrintFontName(const unsigned char *font, INT16 style, Boolean *known)
+static OSErr PS_PrintFontName(const unsigned char *font, short style, Boolean *known);
+static OSErr PS_PrintFontName(const unsigned char *font, short style, Boolean *known)
 	{
 		//FontNameMap *fnt; 
 		char *pn = NULL;
@@ -1050,10 +949,10 @@ static Byte *PS_NthString(Byte *stringList, short n)
  *	PostScript files only, not when using the Print Manager.
  */
 
-OSErr PS_Trailer(Document *doc, INT16 nfontsUsed, FONTUSEDITEM *fontUsedTbl, unsigned char *measNumFont,
+OSErr PS_Trailer(Document *doc, short nfontsUsed, FONTUSEDITEM *fontUsedTbl, unsigned char *measNumFont,
 					Rect */*bBox*/)
 	{
-		INT16	j, k;
+		short	j, k;
 		Boolean	fontKnown;
 		char	fmtStr[256];
 		
@@ -1104,7 +1003,7 @@ OSErr PS_Trailer(Document *doc, INT16 nfontsUsed, FONTUSEDITEM *fontUsedTbl, uns
  *	1 through n in an n-page document.
  */
 
-OSErr PS_NewPage(Document *doc, char *page, INT16 n)
+OSErr PS_NewPage(Document *doc, char *page, short n)
 	{
 		if (page==NULL || *page=='\0') page = "?";
 		
@@ -1119,25 +1018,6 @@ OSErr PS_NewPage(Document *doc, char *page, INT16 n)
 		return(thisError);
 	}
 
-
-static void PS_StrEncrypted(unsigned char *, unsigned char *);
-
-static void PS_StrEncrypted(unsigned char *string, unsigned char *key)
-	{
-	   	short i,k,len,klen;
-		/*
-		 *  Decrypt text string a character at a time, and then encrypt again
-		 *  after sending the character out to PostScript.  Because we're using
-		 *  a simple XOR, this leaves the string in the same state it was before.
-		 */
-		k = 1; klen = *key; len = *string;
-		for (i=1; i<=len; i++) {
-			string[i] ^= key[k];
-			PS_Char(string[i]);
-			string[i] ^= key[k++];
-			if (k > klen) k = 1;
-		}
-	}
 
 /*
  *	Do what needs to be done to end processing the current page.
@@ -1187,9 +1067,9 @@ OSErr PS_PString(unsigned char *str)
  *	resource file is searched first.
  */
 
-OSErr PS_Resource(INT16 resFile, ResType type, INT16 id)
+OSErr PS_Resource(short resFile, ResType type, short id)
 	{
-		INT16 thisResFile; Handle rsrc;
+		short thisResFile; Handle rsrc;
 		long len;
 		char *p;
 		
@@ -1564,7 +1444,7 @@ OSErr PS_StaffLine(DDIST height, DDIST x0, DDIST x1)
  *	to 0 and calling this).
  */
 
-OSErr PS_Staff(DDIST height, DDIST x0, DDIST x1, INT16 nLines, DDIST *dy)
+OSErr PS_Staff(DDIST height, DDIST x0, DDIST x1, short nLines, DDIST *dy)
 	{
 		DDIST y;
 		
@@ -1585,7 +1465,7 @@ OSErr PS_Staff(DDIST height, DDIST x0, DDIST x1, INT16 nLines, DDIST *dy)
 
 OSErr PS_BarLine(DDIST top, DDIST bot,DDIST x, char type)
 	{
-		INT16 thickWidth, thickx;
+		short thickWidth, thickx;
 
 		switch (type) {
 			case BAR_SINGLE:
@@ -1632,7 +1512,7 @@ OSErr PS_ConLine(DDIST top, DDIST bot, DDIST x)
  */
 
 OSErr PS_Repeat(Document *doc, DDIST top, DDIST bot, DDIST botNorm, DDIST x,
-										char type, INT16 sizePercent, Boolean dotsOnly)
+										char type, short sizePercent, Boolean dotsOnly)
 	{
 		short thickWidth, thickx, x2;
 		DDIST xLDots, xRDots, ydDots, dxGlyph;
@@ -1697,13 +1577,8 @@ OSErr PS_Repeat(Document *doc, DDIST top, DDIST bot, DDIST botNorm, DDIST x,
 						want to do that now, full width is probably too wide in engraving
 						style, and the width should be under user control anyway. For
 						now, kludge. */
-#if 1
 					thickWidth = (7*thickWidth)/10;
 					x2 = x+INTERLNSPACE(lineSpace)+thickWidth/4;
-#else
-					thickWidth = (3*thickWidth)/4;
-					x2 = x+INTERLNSPACE(lineSpace)+thickWidth/2;
-#endif
 					PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x,(long)bot,
 													(long)x,(long)top,
 													(long)thickWidth);
@@ -1741,7 +1616,7 @@ OSErr PS_LedgerLine(DDIST height, DDIST x0, DDIST dx)
  */
 
 OSErr PS_Beam(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST thick,
-												INT16 upOrDown0, INT16 upOrDown1)
+												short upOrDown0, short upOrDown1)
 	{
 		if (upOrDown0 > 0) x0 -= (wStem + 4);
 		if (upOrDown1 > 0) x1 -= wStem;
@@ -1781,7 +1656,7 @@ OSErr PS_NoteStem(
 	DDIST stemShorten,	/* Start notehead end of stem this far from normal position */
 	Boolean beamed,
 	Boolean headVisible,
-	INT16 sizePercent)
+	short sizePercent)
 	{
 		unsigned char str[2];						/* Pascal string */
 		DDIST dhalfLn, thick, xoff, yoff, yShorten=0;
@@ -1859,7 +1734,7 @@ OSErr PS_NoteStem(
  *	of normal size.
  */
  
-OSErr PS_ArpSign(Document *doc, DDIST x, DDIST y, DDIST height, INT16 sizePercent,
+OSErr PS_ArpSign(Document *doc, DDIST x, DDIST y, DDIST height, short sizePercent,
 														Byte glyph, DDIST /*lnSpace*/)
 	{
 		DDIST charHeight, yHere;
@@ -1893,9 +1768,9 @@ OSErr PS_ArpSign(Document *doc, DDIST x, DDIST y, DDIST height, INT16 sizePercen
  *	every page: if it's not, linewidths get reset to default.
  */
 
-OSErr PS_MusSize(Document *doc, INT16 ptSize)
+OSErr PS_MusSize(Document *doc, short ptSize)
 	{
-		static INT16 prevPtSize=-1;
+		static short prevPtSize=-1;
 		
 		if (ptSize<=0) {
 			prevPtSize = ptSize;				/* Re-initialize */
@@ -1944,7 +1819,7 @@ OSErr PS_MusSize(Document *doc, INT16 ptSize)
  *	at <sizePercent> of normal size.
  */
 
-OSErr PS_MusChar(Document *doc, DDIST x, DDIST y, char sym, Boolean visible, INT16 sizePercent)
+OSErr PS_MusChar(Document *doc, DDIST x, DDIST y, char sym, Boolean visible, short sizePercent)
 	{
 		unsigned char str[2];
 		
@@ -1966,9 +1841,9 @@ OSErr PS_MusChar(Document *doc, DDIST x, DDIST y, char sym, Boolean visible, INT
  */
 
 OSErr PS_FontString(Document *doc, DDIST x, DDIST y, const unsigned char *str, const unsigned char *font,
-					INT16 ptSize, INT16 style)
+					short ptSize, short style)
 	{
-		Boolean fontKnown; INT16 fontNum;
+		Boolean fontKnown; short fontNum;
 		
 		/*
 		 *	We treat Sonata differently from all other fonts because Sonata can't use
@@ -2007,7 +1882,7 @@ OSErr PS_FontString(Document *doc, DDIST x, DDIST y, const unsigned char *str, c
  *	music font at <sizePercent> of normal size.
  */
 
-OSErr PS_MusString(Document *doc, DDIST x, DDIST y, unsigned char *str, INT16 sizePercent)
+OSErr PS_MusString(Document *doc, DDIST x, DDIST y, unsigned char *str, short sizePercent)
 	{
 		PS_SetMusicFont(doc, sizePercent);
 		PS_Print("(%P)%ld %ld MS\r",str,(long)x,(long)y);
@@ -2019,7 +1894,7 @@ OSErr PS_MusString(Document *doc, DDIST x, DDIST y, unsigned char *str, INT16 si
  *	of normal size. Useful because Sonata has no colon character.
  */
 
-OSErr PS_MusColon(Document *doc, DDIST x, DDIST y, INT16 sizePercent, DDIST lnSpace, Boolean italic)
+OSErr PS_MusColon(Document *doc, DDIST x, DDIST y, short sizePercent, DDIST lnSpace, Boolean italic)
 	{
 		Byte glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
@@ -2168,12 +2043,12 @@ static void PS_Recompute()
  *	for cue or grace notes and such.
  */
 
-Boolean PS_SetMusicFont(Document *doc, INT16 sizePercent)
+Boolean PS_SetMusicFont(Document *doc, short sizePercent)
 	{
-		INT16 ptSize;
+		short ptSize;
 		
 		/* Add 50 before dividing by 100 in order to round. */
-		ptSize = (INT16)((sizePercent*(long)musicPtSize+50L)/100);
+		ptSize = (short)((sizePercent*(long)musicPtSize+50L)/100);
 		
 		if (sizePercent!=musicSizePercent || thisFont!=F_Music) {
 			if (usingFile) {
@@ -2197,7 +2072,7 @@ Boolean PS_SetMusicFont(Document *doc, INT16 sizePercent)
  *	font stuff in QuickDraw mode.
  */
 
-static void PS_FontRunAround(Document *doc, INT16 fontNum, INT16 fontSize, INT16 fontStyle)
+static void PS_FontRunAround(Document *doc, short fontNum, short fontSize, short fontStyle)
 	{
 		Point penLoc;
 //		short fontSz;
@@ -2232,7 +2107,7 @@ static void PS_FontRunAround(Document *doc, INT16 fontNum, INT16 fontSize, INT16
  *	first should be TRUE; otherwise FALSE.
  */
 
-OSErr PS_OutOfQD(Document *doc, INT16 /*first*/, Rect *imageRect)
+OSErr PS_OutOfQD(Document *doc, short /*first*/, Rect *imageRect)
 	{
 		Rect box;
 		
@@ -2290,7 +2165,7 @@ OSErr PS_OutOfQD(Document *doc, INT16 /*first*/, Rect *imageRect)
  *	If last is TRUE, then this is the last time we'll be called before the page ends.
  */
 
-OSErr PS_IntoQD(Document *doc,INT16 last)
+OSErr PS_IntoQD(Document *doc,short last)
 	{
 		if (!inQD) {
 		
@@ -2401,7 +2276,7 @@ void PS_Flush()
  *	recursively to output the sequence.
  */
 
-static void PS_Char(INT16 ch)
+static void PS_Char(short ch)
 	{
 		if (bp >= bufTop) PS_Flush();
 		

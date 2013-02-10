@@ -34,5 +34,5 @@ typedef struct {
 
 /* Prototypes */
 
-INT16 FillMergeBuffer(LINK, LINKTIMEINFO [], INT16, Boolean);
-Boolean MRMerge(Document *, INT16, LINKTIMEINFO *, INT16, LINKTIMEINFO *, INT16, LINK *);
+short FillMergeBuffer(LINK, LINKTIMEINFO [], short, Boolean);
+Boolean MRMerge(Document *, short, LINKTIMEINFO *, short, LINKTIMEINFO *, short, LINK *);

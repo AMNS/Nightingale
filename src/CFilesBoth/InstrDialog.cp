@@ -57,21 +57,21 @@ MIDI note no. 0 and C-natural are used instead--not good. */
 
 /* Local Prototypes */
 
-static char * 				strcut(char *, char *, INT16);
+static char * 				strcut(char *, char *, short);
 static rangeHandle			ReadInstr(ListHandle, short, short);
-static pascal Boolean		TheFilter(DialogPtr, EventRecord *, INT16 *);
-static pascal Boolean		TheCMPMFilter(DialogPtr, EventRecord *, INT16 *);
+static pascal Boolean		TheFilter(DialogPtr, EventRecord *, short *);
+static pascal Boolean		TheCMPMFilter(DialogPtr, EventRecord *, short *);
 static Boolean 				GetInstr(rangeHandle, char *);
 static Boolean				MpCheck(PARTINFO *);
-static void 					NoteErase(INT16, char, char, Boolean);
-static void 					NoteDraw(INT16, char, char, Boolean);
-static void					DrawTranspChar(Boolean, INT16);
+static void 					NoteErase(short, char, char, Boolean);
+static void 					NoteDraw(short, char, char, Boolean);
+static void					DrawTranspChar(Boolean, short);
 static void 					DrawStaves(void);
 static void 					DrawNoteNames(Boolean);
 static void 					InitRange(rangeMaster *);
 static void 					ShowInit(rangeMaster *);
-static void 					InstrMoveRange(struct range *, INT16, INT16);
-static void					ShowLSelect(DialogPtr, INT16);
+static void 					InstrMoveRange(struct range *, short, short);
+static void					ShowLSelect(DialogPtr, short);
 static void 					ClickEraseRange(void);
 
 
@@ -121,24 +121,20 @@ static struct instr_list
 	Rect				instr_box;
 	ListHandle		instr_name;
 	Rect				d_rect;
-	INT16				num_instr;
+	short				num_instr;
 	ControlHandle	text_scroll;
-	INT16				last_one;
+	short				last_one;
 } I;
 
 static rangeHandle rangeHdl;
 static rangeMaster master;	 
 struct scaleTblEnt *noteInfo[T_TRNS_B];
-static INT16 sLeft, sTop;
+static short sLeft, sTop;
 
 static Rect noteNameRect;					/* Valid in all cases, OMS or not */
-static OMSDeviceMenuH omsOutputMenuH;
 
 static unsigned long *origMPDevice;		/* can be either MIDIUniqueID, OMSUniqueID or fmsUniqueID */
-static Rect deviceMenuBox, patchMenuBox;
-static fmsUniqueID fmsDeviceID = noUniqueID;
-static short fmsChannel = 0;
-static Boolean fmsSendPatchChange = FALSE;
+static Rect deviceMenuBox;
 
 /* default for range */
 static rangeMaster dfault =
@@ -160,12 +156,9 @@ static rangeMaster dfault =
 
 const short 					kCMPopupID = 300;
 
-static Rect						outputDeviceMenuBox;
 static MenuHandle 			cmOutputMenuH;
 static UserPopUp				cmOutputPopup;
 static MIDIUniqueIDVector 	*cmVecDevices;
-
-static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MIDIUniqueID device);
 
 static Boolean ValidCMDeviceIndex(short idx) {
 	return (idx >= 0 && idx <cmVecDevices->size());
@@ -198,7 +191,7 @@ static MIDIUniqueID GetCMOutputDeviceID()
 	return kInvalidMIDIUniqueID;
 }
 
-static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MIDIUniqueID device, INT16 item)
+static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MIDIUniqueID device, short item)
 {
 
 	Boolean popupOk = InitPopUp(dlog, p,
@@ -227,10 +220,7 @@ static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MI
 
 // ---------------------------------------------------------------------------------
 
-
-#ifndef VIEWER_VERSION
-
-INT16 CMInstrDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice)
+short CMInstrDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice)
 {
 	origMPDevice = (unsigned long*)mpDevice;
 	return InstrDialog(doc, mp);
@@ -239,7 +229,7 @@ INT16 CMInstrDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice)
 
 /* InstrDialog returns 1 on OK, 0 on Cancel or if an error occurs. */
 
-INT16 InstrDialog(Document *doc, PARTINFO *mp)
+short InstrDialog(Document *doc, PARTINFO *mp)
 {
 	extern rangeHandle rangeHdl;	
 	extern rangeMaster master, dfault;
@@ -251,9 +241,9 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 	Str255		str, deviceStr;
 	Rect			list_rect, itemBox, radBox;
 	Point			cell_size;
-	INT16			itemHit, theType, scratch, val;
+	short			itemHit, theType, scratch, val;
 	short			saveResFile;
-	INT16			dialogOver;
+	short			dialogOver;
 	Boolean		gotValue;
 	ModalFilterUPP	filterUPP;
 	
@@ -296,7 +286,7 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 		goto broken;
 	}
 
-	I.num_instr = *(INT16 *)(*instruments);
+	I.num_instr = *(short *)(*instruments);
 	
 	GetDialogItem(theDialog, LIST_DITL, &scratch, &hndl, &I.instr_box);
 	InsetRect(&I.instr_box, 1, 1);
@@ -380,12 +370,12 @@ INT16 InstrDialog(Document *doc, PARTINFO *mp)
 			See code in GetOMSPartPlayInfo for a similar situation.  -JGG, 7/23/00 */
 		if (useWhichMIDI == MIDIDR_CM) {
 			/* Validate device / channel combination. */
-			if (CMTransmitChannelValid(*origMPDevice, (INT16)(mp->channel)))
+			if (CMTransmitChannelValid(*origMPDevice, (short)(mp->channel)))
 				master.cmDevice = *origMPDevice;
 			else
 				master.cmDevice = config.cmDefaultOutputDevice;
 			/* It's possible our device has changed, so validate again. */
-			if (CMTransmitChannelValid(master.cmDevice, (INT16)(mp->channel)))
+			if (CMTransmitChannelValid(master.cmDevice, (short)(mp->channel)))
 				master.channel = mp->channel;
 			else
 				master.channel = config.cmDefaultOutputChannel;
@@ -564,7 +554,7 @@ broken:
 }
 
 
-static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *itemHit)
+static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, short *itemHit)
 {		
 	GrafPtr			oldPort;
 	ControlHandle 	cntrlHndl;
@@ -574,8 +564,7 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, INT1
 	short			type, ans=0;
 	Boolean			filterVal = FALSE;
 	Cell 			lSelection;
-	INT16			range, part;
-	short			omsMenuItem;
+	short			range, part;
 	
 	switch(theEvent->what)
 	{
@@ -694,13 +683,13 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, INT1
 
 /* Set text boxes and range graphic to instrument from List selection */
 
-static void ShowLSelect(DialogPtr theDialog, INT16 cell)
+static void ShowLSelect(DialogPtr theDialog, short cell)
 {
 	extern rangeHandle rangeHdl;
 	extern rangeMaster master;
 	rangeMaster *selectedInstr;
-	Str255 theText, deviceStr;
-	INT16 r;
+	Str255 theText;
+	short r;
 	
 	if (cell < 0) return;								/* minimal sanity check */
 			
@@ -746,9 +735,6 @@ static void ShowLSelect(DialogPtr theDialog, INT16 cell)
 	HUnlock((Handle)rangeHdl);
 }
 
-#endif /* not VIEWER_VERSION */
-
-
 /* -------------------------- ( FORMERLY iDialogMove.c) -------------------------- */
 
 
@@ -788,13 +774,10 @@ static void ShowLSelect(DialogPtr theDialog, INT16 cell)
 #define TRANS_NOT_HT			5
 
 #define MIN_RANGE				3			/* minimum range in semitones */
-	
-
-#ifndef VIEWER_VERSION
 
 static void DrawStaves()
 {
-	INT16	staff, line, yStart;
+	short	staff, line, yStart;
 	
 	TextFont(sonataFontNum);
 	TextSize(MUSICFONT_SIZE);
@@ -855,17 +838,17 @@ static void DrawStaves()
 
 static void InstrMoveRange(
 							struct range *t,	/* where we find current range */	
-							INT16 i,				/* index into noteInfo[] */
-							INT16 direction	/* up == 1, down == -1 */
+							short i,				/* index into noteInfo[] */
+							short direction	/* up == 1, down == -1 */
 							)
 {
 
 	extern struct scaleTblEnt scaleTbl[];
 	extern struct scaleTblEnt *noteInfo[3];
 	extern rangeMaster master;
-	extern INT16 octTbl[];
+	extern short octTbl[];
 	struct scaleTblEnt *oldPtr;
-	INT16 oct, m;
+	short oct, m;
 		
 	/* Check range bounds and top/bottom overlap; return when reached.
 		Handles different number of ledger lines for transpose note. */	
@@ -937,12 +920,11 @@ static void InstrMoveRange(
 
 static void ClickEraseRange()
 {
-	extern struct scaleTblEnt scaleTbl[];
 	extern struct scaleTblEnt *noteInfo[3];
 	extern rangeMaster master;
-	extern INT16 octTbl[];
+	extern short octTbl[];
 	
-	INT16 oct, m;
+	short oct, m;
 
 	TextFont(sonataFontNum);
 	TextSize(MUSICFONT_SIZE);	
@@ -959,13 +941,13 @@ static void ClickEraseRange()
 
 
 static void NoteDraw(
-					INT16 v,
+					short v,
 					char /*noteChar*/,			/* ignored for now */
 					char accChar,
 					Boolean isTrans		/* for horiz. offsetting transpose note from extrema */
 					)
 {
-	INT16 h_pos;
+	short h_pos;
 	
 	h_pos = (isTrans ? sLeft+HORIZONTAL+TRANS_OFFSET : sLeft+HORIZONTAL);
 	TextMode(srcOr);
@@ -980,13 +962,13 @@ static void NoteDraw(
 
 
 void NoteErase(
-				INT16 v,
+				short v,
 				char /*noteChar*/,		/* ignored for now */
 				char accChar,
 				Boolean isTrans		/* for horiz. offsetting transpose note from extrema */
 				)
 {
-	INT16 h_pos;
+	short h_pos;
 	
 	h_pos = (isTrans ? sLeft+HORIZONTAL+TRANS_OFFSET : sLeft+HORIZONTAL);
 	TextMode(srcBic);
@@ -1003,7 +985,7 @@ void NoteErase(
 
 void DrawTranspChar(
 				Boolean draw,			/* TRUE: draw, FALSE: erase */
-				INT16 vPos)
+				short vPos)
 {
 	Rect trnspNoteRect;
 	
@@ -1017,8 +999,8 @@ void DrawTranspChar(
 static void ShowInit(rangeMaster *M)
 {
 	extern struct scaleTblEnt *noteInfo[3];
-	extern INT16 octTbl[];
-	INT16 oct, i;
+	extern short octTbl[];
+	short oct, i;
 	
 	TextFont(sonataFontNum);
 	TextSize(MUSICFONT_SIZE);
@@ -1049,7 +1031,7 @@ static void DrawNoteNames(
 	extern rangeMaster master;
 	static char acc[T_TRNS_B];		/* holds current accidentals */
 	static char name[T_TRNS_B];	/* holds current note names */
-	INT16 i;
+	short i;
 	long trans;
 	static char tranStr[20];
 	short nameHorizontal;
@@ -1125,15 +1107,13 @@ static void DrawNoteNames(
 	}
 }
 
-#endif /* not VIEWER_VERSION */
-
 /* -------------------------- ( FORMERLY iDialogRange.c) -------------------------- */
 
 /* 
  * This table gives the vertical position of C for a given octave.
  */
 
-INT16 octTbl[MAXOCT+1] = {	185,
+short octTbl[MAXOCT+1] = {	185,
 							170, /* -18= */
 							153, /* -18= */
 							135, /* -18= */
@@ -1180,7 +1160,7 @@ static rangeHandle ReadInstr(
 						)
 {
 	rangeMaster *tmpRngPtr;
-	INT16 i;
+	short i;
 	char anInstr[256];
 	Point theCell;
 	Boolean badInstr=FALSE;
@@ -1253,7 +1233,7 @@ there's a problem. */
 static Boolean GetInstr(rangeHandle rHdl, char *strPtr)
 {
 	char tmp_str[256];
-	INT16 i;
+	short i;
 	
 	/*
 	 * the record layout expected from the resource is as follows:
@@ -1344,9 +1324,9 @@ causes NULL ptr to be returned.
 
 char *strcut(char *r,		/* ptr to temp buffer where data will go */ 
 					char *s,		/* ptr to NULLendian C string (text)     */
-					INT16 size)	/* max length not counting NULL byte     */
+					short size)	/* max length not counting NULL byte     */
 {
-	INT16 i = 0;
+	short i = 0;
 	
 	if (s == NULL || r == NULL 
 		|| *s == (char)NULL || size <= 0 || size >= STRBUF_SIZE)
@@ -1397,9 +1377,6 @@ char *strcut(char *r,		/* ptr to temp buffer where data will go */
 	}		 
 }
 
-
-#ifndef VIEWER_VERSION
-
 void InitRange(
 			rangeMaster *M)	/* ptr to data we get copied from PARTINFO * or list */
 {	
@@ -1419,9 +1396,8 @@ void InitRange(
 	 * is currently displayed  by the drawing functions.
 	 */
 	 
-	extern INT16 octTbl[12];
 	struct scaleTblEnt *savedp;
-	INT16 r, i, pc, found;
+	short r, i, pc, found;
 	Boolean useDefault;
 	Boolean anyDefault=FALSE;
 	
@@ -1481,9 +1457,6 @@ void InitRange(
 	}
 	ShowInit(M);
 }
-
-#endif /* not VIEWER_VERSION */
-
 
 /* Return TRUE if p is not NULL and midinote values are safe and sane. */
 
@@ -1547,10 +1520,10 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 	GrafPtr		oldPort;
 	Handle		hndl;
 	Rect			itemBox;
-	INT16			itemHit, theType, val;
-	INT16			dialogOver;
+	short			itemHit, theType, val;
+	short			dialogOver;
 	Boolean		gotValue;
-	INT16			scratch;
+	short			scratch;
 	ModalFilterUPP	filterUPP;
 	
 	GetPort(&oldPort);
@@ -1604,12 +1577,12 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 			See code in GetOMSPartPlayInfo for a similar situation.  -JGG, 7/23/00 */
 		if (useWhichMIDI == MIDIDR_CM) {
 			/* Validate device / channel combination. */
-			if (CMTransmitChannelValid(*origMPDevice, (INT16)(mp->channel)))
+			if (CMTransmitChannelValid(*origMPDevice, (short)(mp->channel)))
 				master.cmDevice = *origMPDevice;
 			else
 				master.cmDevice = config.cmDefaultOutputDevice;
 			/* It's possible our device has changed, so validate again. */
-			if (CMTransmitChannelValid(master.cmDevice, (INT16)(mp->channel)))
+			if (CMTransmitChannelValid(master.cmDevice, (short)(mp->channel)))
 				master.channel = mp->channel;
 			else
 				master.channel = config.cmDefaultOutputChannel;
@@ -1794,13 +1767,12 @@ broken:
 }
 
 
-pascal Boolean TheOMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *itemHit)
+pascal Boolean TheOMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, short *itemHit)
 {		
 	GrafPtr		oldPort;
 	Point 		mouseLoc;
 	Boolean		filterVal = FALSE;
-	short			omsMenuItem;
-	INT16			type;
+	short			type;
 	Handle		hndl;
 	Rect			box;
 	
@@ -1843,12 +1815,12 @@ pascal Boolean TheOMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 
 	return(filterVal);
 }
 
-pascal Boolean TheCMPMFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *itemHit)
+pascal Boolean TheCMPMFilter(DialogPtr theDialog, EventRecord *theEvent, short *itemHit)
 {		
 	GrafPtr		oldPort;
 	Point 		mouseLoc;
 	Boolean		filterVal = FALSE;
-	INT16		type;
+	short		type;
 	Handle		hndl;
 	Rect		box;
 	short		ans = 0;

@@ -1,6 +1,6 @@
 /* Undo.h for Nightingale - header file for Undo.c */
 
 void DisableUndo(Document *, Boolean);
-void SetupUndo(Document *, INT16, char *);
-void PrepareUndo(Document *, LINK, INT16, short);
+void SetupUndo(Document *, short, char *);
+void PrepareUndo(Document *, LINK, short, short);
 void DoUndo(Document *);

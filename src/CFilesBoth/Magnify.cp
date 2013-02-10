@@ -100,12 +100,12 @@ our coordinate-conversion routines (d2p, d2px, p2d, etc.) when we're computing
 arguments for toolbox routines, e.g., to convert font size from points to pixels
 (which, as far as toolbox routines know, *are* points). */
 
-INT16 UseMagnifiedSize(
-				INT16 size,				/* Actual (unmagnified) size */
-				INT16 magnify
+short UseMagnifiedSize(
+				short size,				/* Actual (unmagnified) size */
+				short magnify
 				)
 {
-	INT16 powerOf2, magSize;
+	short powerOf2, magSize;
 	
 	powerOf2 = divby2(magnify);
 	if (magnify<0) {
@@ -124,12 +124,12 @@ INT16 UseMagnifiedSize(
 /* Given size for the maximum magnification, plus another magnification, get
 the size to use at the other magnification. */
 
-INT16 UseRelMagnifiedSize(
-			INT16 maxMagSize,				/* Size for magnification MAX_MAGNIFY */
-			INT16 magnify
+short UseRelMagnifiedSize(
+			short maxMagSize,				/* Size for magnification MAX_MAGNIFY */
+			short magnify
 			)
 {
-	INT16 magChange, powerOf2, magSize;
+	short magChange, powerOf2, magSize;
 	
 	magChange = MAX_MAGNIFY-magnify;
 	powerOf2 = magChange/2;
@@ -142,9 +142,9 @@ INT16 UseRelMagnifiedSize(
 /* ----------------------------------------------------------------- UseTextSize -- */
 /* Get the font size to use for the given magnification. */
 
-INT16 UseTextSize(
-			INT16 fontSize,			/* Actual (unmagnified) font size */
-			INT16 magnify
+short UseTextSize(
+			short fontSize,			/* Actual (unmagnified) font size */
+			short magnify
 			)
 {
 	/*
@@ -160,13 +160,13 @@ the silly names the Adobe screen sizes of Sonata have (Sonata 14 is "really" 16,
 etc.). ??NB: if the music font isn't Sonata, should probably do nothing! Cf.
 <doAdjust>.  */
 
-INT16 UseMTextSize(
-			INT16 fontSize,			/* Actual (unmagnified) font size */
-			INT16 magnify
+short UseMTextSize(
+			short fontSize,			/* Actual (unmagnified) font size */
+			short magnify
 			)
 {
-	static INT16 prevFontSize=-1, prevMagnify, size;
-	INT16 actualSize;
+	static short prevFontSize=-1, prevMagnify, size;
+	short actualSize;
 	Boolean doAdjust=TRUE;
 	
 	if (!doAdjust) return fontSize;

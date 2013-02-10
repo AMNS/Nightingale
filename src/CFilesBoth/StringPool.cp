@@ -84,8 +84,6 @@ static StringPoolRef *poolStack,			// Stack for pushing/popping pool contexts
 
 static OSErr	MoreStringMemory(long n, StringPoolRef pool);
 static void	DefaultNoMemory(OSErr err);
-static void	BadPoolHandle(void);
-
 
 /*
  *	Re-initialize the String Manager to use a push/pop context stack of given
@@ -916,39 +914,4 @@ StringRef PReadStringListInPool(short id, short i, StringPoolRef pool)
 		
 		return(PStoreInPool(str,pool));
 	}
-
-
-#ifdef ONHOLD
-
-/*
- *	Read and store in given pool a string from a given 'STR ' resource.
- *	Return its final resting place, or error code.
- */
-
-StringRef PReadStringInPool(short id, StringPoolRef pool)
-	{
-		Handle rsrc; Byte str[256]; long size; OSErr err;
-		StringPool *p;
-		
-		if (pool == nilpool)
-			pool = thePool;
-		p = *pool;
-				
-		rsrc = Get1Resource('STR ',id);
-		err = ResError();
-		if (err == memFullErr) {
-			NoStringMemoryFunc(noMemoryErrCode);
-			return(noMemoryStringRef);
-			}
-		if (rsrc==nil || *rsrc==nil || err!=noErr)
-			return(noResourceStringRef);
-		
-		size = 1 + *(Byte *)(*rsrc);
-		BlockMoveData(*rsrc,str,size);
-		ReleaseResource(rsrc);
-		
-		return(PStoreInPool(str,pool));
-	}
-
-#endif
 

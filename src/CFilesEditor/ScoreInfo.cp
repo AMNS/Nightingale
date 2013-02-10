@@ -18,14 +18,14 @@
 /* Display statistics for the score, including the no. of things of various types. */
 
 static void SIDrawLine(char *);
-static INT16 MeasCount(Document *);
-static INT16 SICheckMeasDur(Document *, INT16 *);
+static short MeasCount(Document *);
+static short SICheckMeasDur(Document *, short *);
 static long GetScoreDuration(Document *doc);
 
 #define LEADING 11			/* Vertical dist. between lines displayed (pixels) */
 
 static Rect textRect;
-static INT16 linenum;
+static short linenum;
 static char *s;
 
 /* Draw the specified C string on the next line in Score Info dialog */
@@ -37,7 +37,7 @@ static void SIDrawLine(char *s)
 	++linenum;
 }
 
-static INT16 MeasCount(Document *doc)
+static short MeasCount(Document *doc)
 {
 	LINK measL; PAMEASURE aMeasure;
 
@@ -56,11 +56,11 @@ way the Show Duration Problems command does. Return the no. of measures with "pr
 if the no. is non-zero, also set *pFirstBad to the measure no. of the first one that
 has a problem. */
 
-INT16 SICheckMeasDur(Document *doc, INT16 *pFirstBad)
+short SICheckMeasDur(Document *doc, short *pFirstBad)
 {
 	LINK pL, barTermL;
 	long measDurNotated, measDurActual;
-	INT16 nBad;
+	short nBad;
 
 	for (nBad = 0, pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 
@@ -126,11 +126,11 @@ void ScoreInfo()
 		DialogPtr dialogp; GrafPtr oldPort;
 		short ditem, aShort; Handle aHdl;
 		LINK pL; const char *ps; HEAP *theHeap;
-		unsigned INT16 h, count, objCount[LASTtype], objsTotal;
+		unsigned short h, count, objCount[LASTtype], objsTotal;
 		long lObjCount[LASTtype], totalCount;
 		long scoreDuration, qtrNTicks;
 		Document *doc=GetDocumentFromWindow(TopDocument);
-		INT16 nBad, firstBad;
+		short nBad, firstBad;
 		char fmtStr[256], commentOrig[256], commentNew[256];
 		Boolean keepGoing;
 		ModalFilterUPP	filterUPP;

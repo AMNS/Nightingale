@@ -1,22 +1,22 @@
 /* MPImportExport.h for Nightingale */
 
-INT16 SDAddPart(Document *, INT16, INT16);
-INT16 SDStaff2Part(Document *, INT16);
-Boolean SDDeletePart(Document *, INT16, INT16);
+short SDAddPart(Document *, short, short);
+short SDStaff2Part(Document *, short);
+Boolean SDDeletePart(Document *, short, short);
 Boolean AllocSDGlobals(Document *);
 void DisposeSDGlobals(Document *);
 void ImportEnvironment(Document *);
 void ExportEnvironment(Document *,DDIST *);
 void ExportPartList(Document *doc);
 
-INT16 SDInstrDialog(Document *doc, INT16 firstStf);
-void MPSDDeletePart(Document *doc, INT16 firstStf, INT16 lastStf);
+short SDInstrDialog(Document *doc, short firstStf);
+void MPSDDeletePart(Document *doc, short firstStf, short lastStf);
 
-void DelChangePart(Document *doc, INT16 firstStf, INT16 lastStf);
-void AddChangePart(Document *doc, INT16 firstStf,INT16 nadd, INT16 nper, INT16 showLines);
-void Make1StaffChangeParts(Document *doc, INT16 stf,INT16 nadd, INT16 showLines);
-void GroupChangeParts(Document *doc, INT16 firstStf, INT16 lastStf, Boolean connectBars,
-						INT16 connectType);
-void UngroupChangeParts(Document *doc, INT16 firstStf, INT16 lastStf);
+void DelChangePart(Document *doc, short firstStf, short lastStf);
+void AddChangePart(Document *doc, short firstStf,short nadd, short nper, short showLines);
+void Make1StaffChangeParts(Document *doc, short stf,short nadd, short showLines);
+void GroupChangeParts(Document *doc, short firstStf, short lastStf, Boolean connectBars,
+						short connectType);
+void UngroupChangeParts(Document *doc, short firstStf, short lastStf);
 
-INT16 ExportChanges(Document *doc);
+short ExportChanges(Document *doc);

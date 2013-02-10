@@ -24,20 +24,16 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#if 0
-#define RFMTBUG						/* Compile debugging code */
-#endif
-
 #define MAX_MEAS_RFMT 1000			/* For debugging, max. Measures reformatted we can print info on */
 #define RIGHTEND_SLOP pt2d(1)		/* Last usable position relative to end of System */
 
 typedef struct {
 	LINK		measL;
 	LINK		systemL;
-	INT16		firstOfSys:1;			/* TRUE=first Measure of System */
-	INT16		lastOfSys:1;			/* TRUE=last Measure of System */
-	INT16		secondPiece:1;			/* TRUE=2nd piece of split Measure: combine if possible */
-	INT16		newSysNum:13;
+	short		firstOfSys:1;			/* TRUE=first Measure of System */
+	short		lastOfSys:1;			/* TRUE=last Measure of System */
+	short		secondPiece:1;			/* TRUE=2nd piece of split Measure: combine if possible */
+	short		newSysNum:13;
 	DDIST		width;					/* Normal width of Measure */
 	DDIST		lastWidth;				/* Width of Measure if it's last in its System */
 	long		lTimeStamp;
@@ -48,59 +44,55 @@ typedef struct {
 typedef struct {
 	LINK		sysL;
 	LINK		pageL;
-	INT16		newSheetNum;
+	short		newSheetNum;
 	DDIST		height;
 } SYSDATA;
 
-static INT16 CountMeasures(Document *doc, LINK startSysL, LINK endSysL);
-static INT16 CountRealMeasures(Document *doc, LINK startSysL, LINK endSysL);
-static INT16 CountSystems(Document *doc, LINK startSysL);
+static short CountMeasures(Document *doc, LINK startSysL, LINK endSysL);
+static short CountRealMeasures(Document *doc, LINK startSysL, LINK endSysL);
+static short CountSystems(Document *doc, LINK startSysL);
 static MEASDATA *AllocMeasTable(Document *doc, LINK startSysL, LINK endSysL);
 static SYSDATA *AllocSysTable(Document *doc, LINK startSysL);
 
 static DDIST GetMWidth(Document *doc, LINK measL);
-static INT16 BuildMeasTable(Document *, LINK, LINK, MEASDATA []);
-static INT16 BuildSysTable(Document *, LINK, LINK, SYSDATA []);
-static INT16 LinkToSIndex(LINK sysL, SYSDATA *sysTable);
+static short BuildMeasTable(Document *, LINK, LINK, MEASDATA []);
+static short BuildSysTable(Document *, LINK, LINK, SYSDATA []);
 
-static void DebugRfmtTable(MEASDATA measTable[], INT16 mCount, DDIST sysWChecked[], 
-							DDIST staffLengthUse);
-static INT16 NewSysNums(Document *, INT16, Boolean, MEASDATA [], INT16, LINK);
-static void FixMeasVis(Document *doc, MEASDATA [], INT16);
+static short NewSysNums(Document *, short, Boolean, MEASDATA [], short, LINK);
+static void FixMeasVis(Document *doc, MEASDATA [], short);
 static Boolean AddFinalMeasure(Document *, LINK, LINK, DDIST);
-static INT16 GetSysWhere(LINK startSysL, LINK newSysL);
-static INT16 RfmtSystems(Document *, LINK, LINK, INT16, Boolean, LINK *);
-static INT16 NPrevSysInPage(LINK);
-static INT16 GetRfmtRange(Document *doc, SYSDATA sysTable[], INT16 sCount);
-static short CheckSysHeight(Document *doc, SYSDATA sysTable[], INT16 sCount, INT16 titleMargin);
-static void DebugSysTable(SYSDATA sysTable[],INT16 s,
-							DDIST pgHtUsed,DDIST pgHtAvail,INT16 pgSysNum);
-static Boolean NewSheetNums(Document *, LINK, INT16, SYSDATA [], INT16, INT16);
+static short GetSysWhere(LINK startSysL, LINK newSysL);
+static short RfmtSystems(Document *, LINK, LINK, short, Boolean, LINK *);
+static short NPrevSysInPage(LINK);
+static short GetRfmtRange(Document *doc, SYSDATA sysTable[], short sCount);
+static short CheckSysHeight(Document *doc, SYSDATA sysTable[], short sCount, short titleMargin);
+static void DebugSysTable(SYSDATA sysTable[],short s,
+							DDIST pgHtUsed,DDIST pgHtAvail,short pgSysNum);
+static Boolean NewSheetNums(Document *, LINK, short, SYSDATA [], short, short);
 static LINK RfmtResetSlurs(Document *doc, LINK startMoveL);
-static Boolean SFirstMeasInSys(LINK measL);
 static void MoveSysJDObjs(Document *doc, LINK sysL, LINK measL, LINK endL, LINK newMeasL);
 static Boolean PrepareMoveMeasJDObjs(Document *, LINK, LINK);
 static Boolean MoveMeasJDObjs(Document *, LINK, LINK);
-static INT16 GetTitleMargin(Document *doc);
-static INT16 RfmtPages(Document *, LINK, LINK, INT16, INT16);
+static short GetTitleMargin(Document *doc);
+static short RfmtPages(Document *, LINK, LINK, short, short);
 
-static INT16 nSysInScore,startSIndex;
+static short nSysInScore,startSIndex;
 
 /* ------------------------------------------- CountMeasures/RealMeasures/Systems -- */
 
 /* Return the number of Measure objects in the given range of LINKs. NB: does not
 distinguish real and "fake" Measures. */
 
-static INT16 CountMeasures(Document */*doc*/, LINK startL, LINK endL)
+static short CountMeasures(Document */*doc*/, LINK startL, LINK endL)
 {
 	return CountObjects(startL, endL, MEASUREtype);
 }
 
 /* Return the number of non-fake Measure objects in the given range of LINKs. */
 
-static INT16 CountRealMeasures(Document */*doc*/, LINK startL, LINK endL)
+static short CountRealMeasures(Document */*doc*/, LINK startL, LINK endL)
 {
-	INT16 count; LINK pL;
+	short count; LINK pL;
 	
 	for (count = 0, pL = startL; pL && pL!=endL; pL = RightLINK(pL))
 		if (ObjLType(pL)==MEASUREtype && !MeasISFAKE(pL))
@@ -111,7 +103,7 @@ static INT16 CountRealMeasures(Document */*doc*/, LINK startL, LINK endL)
 
 /* Return the number of System objects from the given LINK to the end. */
 
-static INT16 CountSystems(Document *doc, LINK startL)
+static short CountSystems(Document *doc, LINK startL)
 {
 	return CountObjects(startL, doc->tailL, SYSTEMtype);
 }
@@ -122,7 +114,7 @@ static INT16 CountSystems(Document *doc, LINK startL)
 
 static MEASDATA *AllocMeasTable(Document *doc, LINK startSysL, LINK endSysL)
 {
-	INT16 nMeasures; MEASDATA *measTable;
+	short nMeasures; MEASDATA *measTable;
 
 	nMeasures = CountMeasures(doc,startSysL,endSysL);
 
@@ -138,7 +130,7 @@ static MEASDATA *AllocMeasTable(Document *doc, LINK startSysL, LINK endSysL)
 static SYSDATA *AllocSysTable(Document *doc, LINK startSysL)
 {
 	SYSDATA *sysTable;
-	INT16 nSystems;
+	short nSystems;
 
 	nSystems = CountSystems(doc,startSysL);
 
@@ -170,10 +162,10 @@ static DDIST GetMWidth(Document *doc, LINK measL)
 reformatted, with a blank slot for the new System number of each Measure. Delivers
 the number of Measures in the table. */
 
-static INT16 BuildMeasTable(Document *doc, LINK startSysL, LINK endSysL,
+static short BuildMeasTable(Document *doc, LINK startSysL, LINK endSysL,
 									MEASDATA measTable[])
 {
-	INT16 mIndex;
+	short mIndex;
 	LINK measL, startMeasL, endMeasL;
 	DDIST mWidth, mLastWidth;
 	CONTEXT context;
@@ -210,9 +202,9 @@ a table for all systems in the score starting with startSysL. Returns the number
 of Systems in the range to be reformatted, which is the number of systems in
 the range from startSysL up to and not including endL. */
 
-static INT16 BuildSysTable(Document */*doc*/, LINK startSysL, LINK endL, SYSDATA sysTable[])
+static short BuildSysTable(Document */*doc*/, LINK startSysL, LINK endL, SYSDATA sysTable[])
 {
-	INT16 sIndex=0;
+	short sIndex=0;
 	LINK sysL;
 	DDIST sHeight;
 	DRect sysRect;
@@ -231,31 +223,6 @@ static INT16 BuildSysTable(Document */*doc*/, LINK startSysL, LINK endL, SYSDATA
 	return CountObjects(startSysL, endL, SYSTEMtype);
 }
 
-/* -------------------------------------------------------------- DebugRfmtTable -- */
-
-#ifdef RFMTBUG
-static void DebugRfmtTable(MEASDATA measTable[], INT16 mCount, DDIST sysWChecked[],
-									DDIST staffLengthUse)
-{
-	INT16 m;
-
-	for (m = 0; m<mCount && m<MAX_MEAS_RFMT; m++) {
-		DebugPrintf("m[%d] measL=%d sysL=%d wid=%d (widChkd=%d lenUse=%d) TS=%ld",
-						m, measTable[m].measL, measTable[m].systemL,
-						measTable[m].width, sysWChecked[m], staffLengthUse,
-						measTable[m].lTimeStamp);
-		if (measTable[m].lastOfSys) DebugPrintf(" LAST");
-		if (measTable[m].secondPiece) DebugPrintf(" 2ND");
-		if (m==0 || (m>0 && measTable[m].newSysNum!=measTable[m-1].newSysNum))
-			DebugPrintf(" newSysN=%d", measTable[m].newSysNum);
-		DebugPrintf("\n");
-	}
-}
-#else
-static void DebugRfmtTable(MEASDATA [], INT16, DDIST [], DDIST)
-{}
-#endif
-
 /* ------------------------------------------------------------------ NewSysNums -- */
 /*	Fill in the new System number each Measure will have. Start a new System when
 the desired number of Measures per System is exceeded or, optionally, when the
@@ -271,16 +238,16 @@ Since the System where we start may be the first System of the score and therefo
 have a different length (because of its indent), we use one "usable staff length"
 for the System we start with and another for all other Systems. */
 
-static INT16 NewSysNums(
+static short NewSysNums(
 					Document *doc,
-					INT16 measPerSys,
+					short measPerSys,
 					Boolean ignoreOver,			/* Ignore overflow (up to max.DDIST length) */
 					MEASDATA measTable[],
-					INT16 mCount,
+					short mCount,
 					LINK startSysL
 					)
 {
-	INT16 m,prevSysNum,measThisSys,startSysNum,oldSysNum;
+	short m,prevSysNum,measThisSys,startSysNum,oldSysNum;
 	LONGDDIST currWidth;
 	DDIST sysWidthUsed,
 			sysWChecked[MAX_MEAS_RFMT],			/* Just so we can DebugPrintf later */
@@ -360,8 +327,6 @@ static INT16 NewSysNums(
 				measTable[m].secondPiece = FALSE;
 	}
 
-	DebugRfmtTable(measTable,mCount,sysWChecked,staffLengthUse);
-
 	/* If every Measure will stay in the same System, nothing really needs to be done. */
 	
 	oldSysNum = startSysNum;
@@ -383,10 +348,10 @@ static INT16 NewSysNums(
 /* Given a "measure table" ala Reformat, make visible every Measure that used to be
 the first one in a System but isn't any more. */
 
-static void FixMeasVis(Document */*doc*/, MEASDATA measTable[], INT16 mCount)
+static void FixMeasVis(Document */*doc*/, MEASDATA measTable[], short mCount)
 {
 	LINK sysL;
-	INT16 m;
+	short m;
 	
 	sysL = measTable[0].systemL;		/* Reformat never touches the 1st Meas in table */
 	for (m = 0; m<mCount; m++)
@@ -436,7 +401,7 @@ preceding System is before startSysL's page, the newly created System will be
 the first on the page; otherwise, it's a "succeeding System". This code assumes
 that LinkLSYS(startSysL) is valid! */
 
-INT16 GetSysWhere(LINK startSysL, LINK newSysL)
+short GetSysWhere(LINK startSysL, LINK newSysL)
 {
 	LINK pageL;
 
@@ -463,11 +428,11 @@ destroy all the old Systems in the range and create new ones; this means that, w
 we're done, <startSysL> is no longer in the object list! Returns FAILURE,
 NOTHING_TO_DO, or OP_COMPLETE. */
 
-static INT16 RfmtSystems(
+static short RfmtSystems(
 					Document	*doc,
 					LINK		startSysL,
 					LINK		endSysL,
-					INT16		measPerSys,		/* Maximum no. of Measures allowed per System */
+					short		measPerSys,		/* Maximum no. of Measures allowed per System */
 					Boolean	ignoreOver,		/* Ignore overflow and consider only <measPerSys> */
 					LINK		*newStartSysL 	/* Output: the first newly-created System */
 					)
@@ -478,8 +443,8 @@ static INT16 RfmtSystems(
 	LINK		sysL, pL;
 	LINK		newSysL, startMoveL, endMoveL, stL, measL, moveSysL,
 				prevMeasL=NILINK, newMeasL;
-	INT16		mCount, m, mPostRfmt;
-	INT16		prevSysNum, sysWhere, status, returnCode;
+	short		mCount, m, mPostRfmt;
+	short		prevSysNum, sysWhere, status, returnCode;
 	Boolean	moveRJD, moveMJD;
 	CONTEXT	context;
 	long		timeMove;
@@ -729,7 +694,7 @@ Cleanup:
 /* Return the number of Systems in its Page preceding sysL, which must be a System:
 0=none (i.e., it's the first in the Page), etc. */
 
-INT16 NPrevSysInPage(LINK sysL)
+short NPrevSysInPage(LINK sysL)
 {
 	LINK pageL, firstSysL;
 	
@@ -744,9 +709,9 @@ INT16 NPrevSysInPage(LINK sysL)
 in the object list segment [startSysL,endL), plus all systems following the last
 system of the range which are on the same page as that last system. */
 
-static INT16 GetRfmtRange(Document *doc, SYSDATA sysTable[], INT16 sCount)
+static short GetRfmtRange(Document *doc, SYSDATA sysTable[], short sCount)
 {
-	INT16 s,nSystems,newSCount=sCount;
+	short s,nSystems,newSCount=sCount;
 	LINK pageL;
 	
 	nSystems = CountSystems(doc,sysTable[0].sysL);
@@ -773,10 +738,10 @@ enum {
 	NO_WAY
 };
 	
-static short CheckSysHeight(Document *doc, SYSDATA sysTable[], INT16 sCount, INT16 titleMargin)
+static short CheckSysHeight(Document *doc, SYSDATA sysTable[], short sCount, short titleMargin)
 {
 	DDIST topMargin,pageHeightUsed,pageHeightAvail,fullPgHeightUsed;
-	INT16 s=0;
+	short s=0;
 
 	pageHeightAvail = pt2d(doc->marginRect.bottom);				/* Must include top margin! */
 	
@@ -812,8 +777,8 @@ static short CheckSysHeight(Document *doc, SYSDATA sysTable[], INT16 sCount, INT
 /* --------------------------------------------------------------- DebugSysTable -- */
 
 #ifdef RFMTBUG
-static void DebugSysTable(SYSDATA sysTable[], INT16 s, DDIST pgHtUsed, DDIST pgHtAvail,
-									INT16 pgSysNum)
+static void DebugSysTable(SYSDATA sysTable[], short s, DDIST pgHtUsed, DDIST pgHtAvail,
+									short pgSysNum)
 {
 	DebugPrintf("sys[%d] sysL=%d pageL=%d height=%d (htUsed=%d Avail=%d)",
 		s, sysTable[s].sysL,sysTable[s].pageL,sysTable[s].height,
@@ -822,7 +787,7 @@ static void DebugSysTable(SYSDATA sysTable[], INT16 s, DDIST pgHtUsed, DDIST pgH
 	DebugPrintf("\n");
 }
 #else
-static void DebugSysTable(SYSDATA [], INT16, DDIST, DDIST, INT16)
+static void DebugSysTable(SYSDATA [], short, DDIST, DDIST, short)
 {}
 #endif
 
@@ -834,13 +799,13 @@ exceeded. Return TRUE if any System should be moved to another Page, else FALSE.
 static Boolean NewSheetNums(
 						Document *doc,
 						LINK startSysL,
-						INT16 sysPerPage,			/* Maximum no. of Systems allowed per Page */
+						short sysPerPage,			/* Maximum no. of Systems allowed per Page */
 						SYSDATA sysTable[],
-						INT16 sCount,				/* No. of Systems in <sysTable> */
-						INT16 titleMargin
+						short sCount,				/* No. of Systems in <sysTable> */
+						short titleMargin
 						)
 {
-	INT16 s, prevSheetNum,pgSysNum,oldSheetNum,startSheetNum;
+	short s, prevSheetNum,pgSysNum,oldSheetNum,startSheetNum;
 	DDIST pgHtUsed,pgHtAvail,topMargin,firstMargin,prevPgHtUsed;
 	Boolean tooManySys,doSomething=FALSE;
 	LINK pageL;
@@ -921,25 +886,6 @@ static LINK RfmtResetSlurs(Document *doc, LINK startMoveL)
 	return measL;
 }
 
-/* ------------------------------------------------------------- SFirstMeasInSys -- */
-/* Return TRUE if measL is the first Measure of its System. measL must be a
-Measure. */
-
-static Boolean SFirstMeasInSys(LINK measL)
-{
-	LINK sysL,lMeas;
-
-	lMeas = SSearch(LeftLINK(measL), MEASUREtype, GO_LEFT);
-	if (lMeas) {
-		sysL = SSearch(measL, SYSTEMtype, GO_LEFT);
-		if (sysL) 
-			return(IsAfter(lMeas, sysL));
-		return FALSE;										/* There's a Measure preceding but no System */
-	}
-	return TRUE;											/* This is first Measure of entire score */
-}
-
-
 /* ----------------------------------------------------- MoveXXXJDObjs functions -- */
 /* These functions are to update links in JD objects attached to objects that may
 disappear and be re-created by reformatting. The only objects that reformatting
@@ -965,7 +911,7 @@ static void MoveSysJDObjs(
 		)
 {
 	LINK newSysL,pL,firstObjL,newFirstObjL,nextL;
-	INT16 type;
+	short type;
 
 	newSysL = SSearch(LeftLINK(endL),SYSTEMtype,GO_LEFT);
 	if (!newSysL) {
@@ -1129,9 +1075,9 @@ static Boolean MoveMeasJDObjs(
 /* Return the size, in points, of the given score's extra margin at the top of its
 first page. */
 
-INT16 GetTitleMargin(Document *doc)
+short GetTitleMargin(Document *doc)
 {
-	LINK startSysL; DDIST topMargin; PSYSTEM pSystem; INT16 titleMargin;
+	LINK startSysL; DDIST topMargin; PSYSTEM pSystem; short titleMargin;
 	
 	startSysL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
 	pSystem = GetPSYSTEM(startSysL);
@@ -1149,16 +1095,16 @@ destroy all the old Pages in the range and create new ones, replacing some Syste
 along the way; this means that, when we're done, <startSysL> may no longer be in
 the object list! Returns FAILURE, NOTHING_TO_DO, or OP_COMPLETE. */
 
-static INT16 RfmtPages(Document *doc,
+static short RfmtPages(Document *doc,
 							LINK startSysL, LINK endSysL,
-							INT16 sysPerPage,					/* Max. no. of Systems allowed per Page */
-							INT16 titleMargin)
+							short sysPerPage,					/* Max. no. of Systems allowed per Page */
+							short titleMargin)
 {
 	SYSDATA	*sysTable;
 	LINK		newPageL, nextSysL, firstPageL=NILINK, lastObjL,
 				measL, startMoveL, endMoveL, newMeasL;
-	INT16		startSheetNum, sCount, prevSheetNum, returnCode;
-	INT16		s;
+	short		startSheetNum, sCount, prevSheetNum, returnCode;
+	short		s;
 	Boolean	sheetChange;
 
 	sysTable = AllocSysTable(doc, startSysL);
@@ -1309,8 +1255,8 @@ Cleanup:
 
 /* ------------------------------------------------------------ FixFirstSysRectY -- */
 
-static void FixFirstSysRectY(Document *doc, INT16 titleMargin);
-static void FixFirstSysRectY(Document *doc, INT16 titleMargin)
+static void FixFirstSysRectY(Document *doc, short titleMargin);
+static void FixFirstSysRectY(Document *doc, short titleMargin)
 {
 	LINK startSysL; DDIST topMargin, sysHeight; PSYSTEM pSystem;
 
@@ -1399,20 +1345,20 @@ Reformat returns FAILURE if there's an error, or if we tell the user about a pro
 else it returns NOTHING_TO_DO or OP_COMPLETE. Caveat: a return of FAILURE doesn't mean
 "no reformatting done": we may have reformatted Systems and been unable to do Pages.*/
 
-INT16 Reformat(
+short Reformat(
 			Document	*doc,
 			LINK		startL,
 			LINK		endL,
 			Boolean	changeSBreaks,			/* Change System breaks? */
-			INT16		measPerSys,				/* (Maximum) no. of Measures allowed per System */
+			short		measPerSys,				/* (Maximum) no. of Measures allowed per System */
 			Boolean	justify,					/* Justify afterwards? */
-			INT16 	sysPerPage, 			/* Maximum no. of Systems allowed per Page */
-			INT16		titleMargin				/* In points */
+			short 	sysPerPage, 			/* Maximum no. of Systems allowed per Page */
+			short		titleMargin				/* In points */
 			)
 {
 	LINK startSysL, endSysL, newStartSysL, firstMeasL, beforeL,
 			startPageL, endPageL, pageL, pL;
-	INT16 returnCode, nMeasures;
+	short returnCode, nMeasures;
 	Boolean didAnything=FALSE, fixFirstSys, didChangeSBreaks=FALSE, nothingToDo=TRUE;
 	Boolean exactMeasPerSys, foundHidden;
 	static Boolean alreadyWarned=FALSE;
@@ -1542,19 +1488,6 @@ INT16 Reformat(
 		
 		doc->changed = TRUE;
 	}
-	
-#ifdef NOTYET
-	/*
-	 * Delete redundant time signatures: presumably they're anticipatory timesigs
-	 * moved into redundant positions by changing system breaks. ??Good idea, but
-	 * untested in this context--and it'd be better to do this only in the part of
-	 * the score we actually reformatted!
-	 */
-	if (changeSBreaks) {
-		LINK firstDelL, lastDelL;
-		(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
-	}
-#endif
 
 	return (nothingToDo? NOTHING_TO_DO : OP_COMPLETE);
 }

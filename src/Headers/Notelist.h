@@ -43,7 +43,7 @@ enum {								/* used in NLOBJHEADER's objType field */
 	LAST_TYPE
 };
 
-typedef unsigned INT16 NLINK;
+typedef unsigned short NLINK;
 
 #define NLOBJHEADER			/* 8 bytes */																	\
 	long		lStartTime;			/* positive 32-bit integer */											\
@@ -303,7 +303,4 @@ NLINK NLSearch(NLINK startL, short type, char part, char staff, char uVoice, Boo
 Boolean FetchString(NLINK offset, char str[]);
 Boolean FetchModifier(NLINK modL, PNL_MOD pMod);
 void DisposNotelistMemory(void);
-
-/* in nlparse.c */
-//Boolean NL2XMLParseNotelistFile(Str255 fileName, NSClientDataPtr pNSD)
 

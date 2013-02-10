@@ -35,22 +35,21 @@ static void SDDrawMBRest(Document *doc,PCONTEXT pContext,LINK theRestL,DDIST xd,
 static void SDDrawRest(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawNote(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawGRNote(Document *doc, LINK pL, LINK subObjL, LINK measureL);
-static void SDDrawDynamic(Document *doc, LINK pL, LINK subObjL, unsigned char glyph, LINK measureL);
 static void SDDrawRptEnd(Document *doc, LINK pL, LINK subObjL, LINK measureL);
-static void MoveAndLineTo(INT16 x1, INT16 y1, INT16 x2, INT16 y2);
+static void MoveAndLineTo(short x1, short y1, short x2, short y2);
 static void SDDrawEnding(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawMeasure(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawPSMeas(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawTuplet(Document *doc, LINK pL, LINK measureL);
-static void SDDrawArpSign(Document *, DDIST, DDIST, DDIST, INT16, PCONTEXT);
-static void SDDrawGRDraw(Document *, DDIST, DDIST, DDIST, DDIST, INT16, PCONTEXT); 
+static void SDDrawArpSign(Document *, DDIST, DDIST, DDIST, short, PCONTEXT);
+static void SDDrawGRDraw(Document *, DDIST, DDIST, DDIST, DDIST, short, PCONTEXT); 
 static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL);
 static void SDDrawTempo(Document *doc, LINK pL, LINK measureL);
 static void SDDrawSpace(Document *doc, LINK pL, LINK measureL);
 static void SDDrawOctava(Document *doc, LINK pL, LINK measureL);
-static void SDDrawBeam(DDIST xl,DDIST yl,DDIST xr,DDIST yr,DDIST beamThick,INT16 upOrDown, PCONTEXT pContext);
+static void SDDrawBeam(DDIST xl,DDIST yl,DDIST xr,DDIST yr,DDIST beamThick,short upOrDown, PCONTEXT pContext);
 static void SDDrawGRBeamset(Document *doc, LINK pL, LINK measureL);
-static DDIST SDCalcXStem(LINK, INT16, INT16, DDIST, DDIST, Boolean);
+static DDIST SDCalcXStem(LINK, short, short, DDIST, DDIST, Boolean);
 static void SDDrawBeamset(Document *doc, LINK pL, LINK measureL);
 static void SDDrawSlur(Document *doc, LINK pL, LINK measureL);
 
@@ -102,7 +101,7 @@ static void SDDrawClef(Document *doc, LINK pL, LINK subObjL, unsigned char /*dum
 static void SDDrawKeySig(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 {
 	DDIST xd, yd, KSyd, dTop, height;
-	INT16 lines, width;
+	short lines, width;
 	CONTEXT context[MAXSTAVES+1], localContext;
 	Rect mRect;
 	
@@ -122,7 +121,7 @@ static void SDDrawKeySig(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 
 static void SDDrawTimeSig(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 {
-	INT16 xp,subType;
+	short xp,subType;
 	DDIST dTop, xd, xdN, xdD, ydN, ydD;
 	unsigned char nStr[20], dStr[20];
 	CONTEXT localContext;
@@ -155,7 +154,7 @@ static void SDDrawTimeSig(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 
 static void SDDrawAugDots(Document *doc, LINK aNoteL, DDIST xd, DDIST yd, DDIST dhalfLn)
 {
-	INT16 ndots; PANOTE aNote;
+	short ndots; PANOTE aNote;
 	Byte glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	aNote = GetPANOTE(aNoteL);
@@ -177,7 +176,7 @@ static void SDDrawMBRest(Document *doc, PCONTEXT pContext, LINK theRestL,
 									DDIST xd, DDIST yd)
 {
 	DDIST dTop, lnSpace, dhalfLn, xdNum, ydNum, endBottom, endTop;
-	DRect dRestBar; Rect restBar; INT16 numWidth;
+	DRect dRestBar; Rect restBar; short numWidth;
 	unsigned char numStr[20];
 	short face;
 
@@ -221,7 +220,7 @@ static void SDDrawMBRest(Document *doc, PCONTEXT pContext, LINK theRestL,
 
 static void SDDrawRest(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 {
-	INT16		ndots,ymovedots,glyph;
+	short		ndots,ymovedots,glyph;
 	CONTEXT	context;
 	DDIST		xd,yd,ydNorm,dTop,lnSpace,restxd,restyd;
 	PANOTE	aRest;
@@ -259,7 +258,7 @@ static void SDDrawRest(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 
 static void SDDrawNote(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 {
-	INT16		flagCount, xhead, yhead,
+	short		flagCount, xhead, yhead,
 				headWidth, ypStem,
 				octaveLength, useTxSize,
 				sizePercent, glyph, noteType;
@@ -273,7 +272,7 @@ static void SDDrawNote(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	PANOTE	aNote, extNote;
 	LINK		extNoteL;
 	Rect		headRect, mRect;
-	INT16		flagLeading, xadjhead, yadjhead, appearance, headRelSize, stemShorten;
+	short		flagLeading, xadjhead, yadjhead, appearance, headRelSize, stemShorten;
 	DDIST		offset, lnSpace, dStemLen;
 	unsigned char flagGlyph;
 
@@ -354,7 +353,7 @@ PushLock(NOTEheap);
 		xhead = xadjhead = d2p(xd);
 	offset = MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 	if (offset) {
-		INT16 yp = d2p(yd);
+		short yp = d2p(yd);
 		yhead = yp + fudgeHeadY + d2p(breveFudgeHeadY);
 		yp = d2p(yd+offset);
 		yadjhead = yp + fudgeHeadY + d2p(breveFudgeHeadY);
@@ -372,7 +371,7 @@ PushLock(NOTEheap);
 		/* HANDLE STEMMED NOTE. If the note is in a chord and is stemless,
 			skip the entire business of drawing the stem and flags. */
 		if (!aNote->inChord || MainNote(subObjL)) {
-			INT16 stemSpace;
+			short stemSpace;
 			
 			dStemLen = aNote->ystem-aNote->yd;
 			stemDown = (dStemLen>0);
@@ -436,7 +435,7 @@ PushLock(NOTEheap);
 					}
 				}
 				else {	/* fonts other than Sonata */
-					INT16 glyphWidth; DDIST xoff, yoff;
+					short glyphWidth; DDIST xoff, yoff;
 
 					if (MusFontUpstemFlagsHaveXOffset(doc->musFontInfoIndex))
 						stemSpace = 0;
@@ -462,7 +461,7 @@ PushLock(NOTEheap);
 						DrawChar(flagGlyph);
 					}
 					else {																/* Draw using multiple flag chars */
-						INT16 count = flagCount;
+						short count = flagCount;
 
 						/* Draw extension flag(s) */
 						if (stemDown) {
@@ -518,7 +517,7 @@ PopLock(NOTEheap);
 static void SDDrawGRNote(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 {
 	PAGRNOTE aGRNote;
-	INT16		flagCount,staffn,
+	short		flagCount,staffn,
 				xhead,yhead,headWidth,
 				ypStem, octaveLength,
 				glyph,useTxSize,oldtxSize,
@@ -532,7 +531,7 @@ static void SDDrawGRNote(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	PAGRNOTE	extGRNote;
 	LINK		extGRNoteL;
 	Rect		headRect,mRect;
-	INT16		flagLeading, xadjhead, yadjhead, appearance, headRelSize, stemShorten;
+	short		flagLeading, xadjhead, yadjhead, appearance, headRelSize, stemShorten;
 	DDIST		offset, lnSpace, dStemLen;
 	unsigned char flagGlyph;
 
@@ -611,7 +610,7 @@ PushLock(GRNOTEheap);
 		xhead = xadjhead = d2p(xd);
 	offset = MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 	if (offset) {
-		INT16 yp = d2p(yd);
+		short yp = d2p(yd);
 		yhead = yp + fudgeHeadY + d2p(breveFudgeHeadY);
 		yp = d2p(yd+offset);
 		yadjhead = yp + fudgeHeadY + d2p(breveFudgeHeadY);
@@ -629,7 +628,7 @@ PushLock(GRNOTEheap);
 		/* HANDLE STEMMED NOTE. If the grace note is in a chord and is stemless,
 			skip the entire business of drawing the stem and flags. */
 		if (!aGRNote->inChord || GRMainNote(subObjL)) {
-			INT16 stemSpace;
+			short stemSpace;
 			
 			dStemLen = aGRNote->ystem-aGRNote->yd;
 			stemDown = (dStemLen>0);
@@ -693,7 +692,7 @@ PushLock(GRNOTEheap);
 					}
 				}
 				else {	/* fonts other than Sonata */
-					INT16 glyphWidth; DDIST xoff, yoff;
+					short glyphWidth; DDIST xoff, yoff;
 
 					if (MusFontUpstemFlagsHaveXOffset(doc->musFontInfoIndex))
 						stemSpace = 0;
@@ -719,7 +718,7 @@ PushLock(GRNOTEheap);
 						DrawChar(flagGlyph);
 					}
 					else {																/* Draw using multiple flag chars */
-						INT16 count = flagCount;
+						short count = flagCount;
 
 						/* Draw extension flag(s) */
 						if (stemDown) {
@@ -772,70 +771,6 @@ PopLock(OBJheap);
 PopLock(GRNOTEheap);
 }
 
-
-/* -------------------------------------------------------------------------------- */
-
-/* No longer used: replaced by DragDynamic and DragHairpin. */
-
-static void SDDrawDynamic(Document *doc, LINK pL, LINK subObjL, unsigned char glyph,
-									LINK measureL)
-{
-	PDYNAMIC	 p;
-	PADYNAMIC aDynamic;
-	DDIST		 xd,yd,dTop,dLeft,lnSpace,rise,endxd;
-	LINK		 firstMeasL, lastMeasL;
-	CONTEXT	 context;
-	Rect 		 mRect;
-	
-	mRect = SDGetMeasRect(doc, pL, measureL);
-	
-	/* ??Should call GetDynamicDrawInfo instead of figuring position out itself! */
-	p = GetPDYNAMIC(pL);
-	aDynamic = GetPADYNAMIC(subObjL);
-	GetContext(doc, pL, aDynamic->staffn, &context);
-	aDynamic = GetPADYNAMIC(subObjL);
-	dTop = context.measureTop;
-	dLeft = context.measureLeft;
-	xd = LinkXD(DynamFIRSTSYNC(pL)) + LinkXD(pL) + aDynamic->xd;
-	xd = DragXD(xd);
-	yd = dTop + aDynamic->yd;
-
-	lnSpace = context.staffHeight/(context.staffLines-1);
-	if (IsHairpin(pL)) {
-		/* ??BUG: measDiff isn't defined yet! Looks like could just rearrange these lines! */
-		DDIST measDiff = 0;
-		endxd = measDiff+LinkXD(DynamLASTSYNC(pL))+aDynamic->endxd;
-		rise = qd2d(aDynamic->mouthWidth, context.staffHeight, context.staffLines)/2;
-		firstMeasL = LSSearch(DynamFIRSTSYNC(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-		lastMeasL = LSSearch(DynamLASTSYNC(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-		measDiff = LinkXD(lastMeasL) - LinkXD(firstMeasL);
-	}
-
-	switch (DynamType(pL)) {
-		case DIM_DYNAM:
-			yd -= p2d(mRect.top);
-			MoveTo(d2p(xd), d2p(yd+rise));
-			LineTo(d2p(endxd), d2p(yd));
-			MoveTo(d2p(xd), d2p(yd-rise));
-			LineTo(d2p(endxd), d2p(yd));
-			break;
-		case CRESC_DYNAM:
-			yd -= p2d(mRect.top);
-			MoveTo(d2p(xd), d2p(yd));
-			LineTo(d2p(endxd), d2p(yd+rise));
-			MoveTo(d2p(xd), d2p(yd));
-			LineTo(d2p(endxd), d2p(yd-rise));
-			break;
-		default:
-			yd -= p2d(mRect.top);
-			TextSize(UseMTextSize(context.fontSize, doc->magnify));
-			MoveTo(d2p(xd), d2p(yd));
-			DrawChar(glyph);
-			break;
-	}
-}
-
-
 static void SDDrawRptEnd(Document *doc, LINK pL, LINK /*subObjL*/, LINK measureL)
 {
 	LINK		aRptL;
@@ -858,7 +793,7 @@ static void SDDrawRptEnd(Document *doc, LINK pL, LINK /*subObjL*/, LINK measureL
 }
 
 
-static void MoveAndLineTo(INT16 x1, INT16 y1, INT16 x2, INT16 y2)
+static void MoveAndLineTo(short x1, short y1, short x2, short y2)
 {
 	MoveTo(x1,y1);
 	LineTo(x2,y2);
@@ -871,7 +806,7 @@ static void SDDrawEnding(Document *doc, LINK pL, LINK /*subObjL*/, LINK measureL
 	DDIST dTop,xd,yd,endxd,lnSpace,rise,measXD,xdNum,ydNum;
 	PENDING p;
 	char numStr[MAX_ENDING_STRLEN];
-	INT16 xp,yp,endxp, oldFont,oldSize,oldStyle,sysLeft,risePxl,
+	short xp,yp,endxp, oldFont,oldSize,oldStyle,sysLeft,risePxl,
 			endNum, fontSize, strOffset;
 	CONTEXT	context[MAXSTAVES+1];
 	PCONTEXT pContext;
@@ -946,7 +881,7 @@ static void SDDrawMeasure(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	LINK		prevMeasL;
 	PAMEASURE aMeasure;
 	CONTEXT	context, context2;
-	INT16 	mLeft;
+	short 	mLeft;
 	DDIST		dLeft, dTop, dBottom;
 	Rect 		mRect;
 	
@@ -978,7 +913,7 @@ static void SDDrawPSMeas(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	LINK		prevMeasL;
 	PAPSMEAS aPSMeas;
 	CONTEXT	context, context2;
-	INT16 	mLeft, xp, ypTop, ypBot;
+	short 	mLeft, xp, ypTop, ypBot;
 	DDIST		dLeft, dTop, dBottom;
 	Rect 		mRect;
 	
@@ -1011,11 +946,11 @@ static void SDDrawPSMeas(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 static void SDDrawTuplet(Document *doc, LINK pL, LINK measureL)
 {
 	PTUPLET	tup;
-	INT16		staff;
+	short		staff;
 	CONTEXT 	context;
 	DDIST		dTop, xd, yd, acnxd, acnyd, dTuplWidth;
 	DPoint	firstPt, lastPt;
-	INT16		xp, yp, xColon;
+	short		xp, yp, xColon;
 	Rect		tupleRect, mRect;
 	unsigned char tupleStr[20];
 
@@ -1045,7 +980,7 @@ static void SDDrawTuplet(Document *doc, LINK pL, LINK measureL)
 }
 
 
-static void SDDrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight, INT16 subType,
+static void SDDrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight, short subType,
 									PCONTEXT pContext)
 {
 	DDIST lnSpace = LNSPACE(pContext);
@@ -1061,9 +996,9 @@ static void SDDrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight, INT1
 }
 
 static void SDDrawGRDraw(Document */*doc*/, DDIST xd, DDIST yd, DDIST xd2, DDIST yd2,
-									INT16 lineLW, PCONTEXT pContext)
+									short lineLW, PCONTEXT pContext)
 {
-	INT16 xp, yp, yTop, xp2, yp2; DDIST lnSpace, thick;
+	short xp, yp, yTop, xp2, yp2; DDIST lnSpace, thick;
 	
 	lnSpace = LNSPACE(pContext);
 	/*
@@ -1086,8 +1021,8 @@ static void SDDrawGRDraw(Document */*doc*/, DDIST xd, DDIST yd, DDIST xd2, DDIST
 static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 {
 	DDIST xd,yd,dHeight,xd2,yd2;
-	INT16 staffn, lineLW;
-	INT16	oldFont, oldSize, oldStyle, fontID, fontSize, fontStyle;
+	short staffn, lineLW;
+	short	oldFont, oldSize, oldStyle, fontID, fontSize, fontStyle;
 	PGRAPHIC pGraphic;
 	CONTEXT relContext,context;
 	Rect mRect;
@@ -1104,22 +1039,12 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 
 	pGraphic = GetPGRAPHIC(pL);
 	if (pGraphic->firstObj) {
-#ifdef NOTYET
-		if (pGraphic->graphicType==GRPICT && pGraphic->gu.handle==NULL)
-			pGraphic->gu.handle = (Handle)GetPicture(pGraphic->info);
-#endif
 	}
 
 	yd -= p2d(mRect.top);
 	switch (pGraphic->graphicType) {
 		case GRPICT:
-#ifdef NOTYET
-			D2Rect(&pGraphic->graphicRect, &pGraphic->objRect);
-			DrawPicture(pGraphic->handle, &pGraphic->objRect);
-			pGraphic->valid = TRUE;
-#else
 			MayErrMsg("SDDragGraphic: sorry, GRPICTs are not implemented.");
-#endif
 			break;
 		case GRArpeggio:
 			dHeight = qd2d(pGraphic->info, context.staffHeight, context.staffLines);
@@ -1186,7 +1111,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 				STRINGOFFSET strOfset = GraphicSTRING(FirstSubLINK(pL));
 
 				if (pGraphic->multiLine) {
-					INT16 i, j, len, count, lineHt;
+					short i, j, len, count, lineHt;
 					FontInfo fInfo;
 					Byte *q = PCopy(strOfset);
 
@@ -1223,7 +1148,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 
 static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 {
-	INT16 oldFont,oldSize,oldStyle,theLineSpacing,theRelSize,
+	short oldFont,oldSize,oldStyle,theLineSpacing,theRelSize,
 			useTxSize,sonataWidth,beforeFirst;
 	PTEMPO p; DDIST xd,yd,dTop,firstxd; LINK contextL;
 	CONTEXT context; Rect mRect; FontInfo fInfo;
@@ -1299,7 +1224,7 @@ static void SDDrawSpace(Document */*doc*/, LINK /*pL*/, LINK /*measureL*/)
 static void SDDrawOctava(Document *doc, LINK pL, LINK measL)
 {
 	POCTAVA	p;
-	INT16		staff;
+	short		staff;
 	PCONTEXT	pContext;
 	CONTEXT  context;
 	DDIST		dTop, dLeft, firstxd, firstyd, lastxd, lastyd,
@@ -1308,12 +1233,12 @@ static void SDDrawOctava(Document *doc, LINK pL, LINK measL)
 	DPoint	firstPt, lastPt;
 	PANOTE	aNote;
 	LINK		aNoteL, firstSyncL, lastSyncL, firstMeas, lastMeas;
-	INT16		octWidth, firstx, firsty, lastx, yCutoff;
+	short		octWidth, firstx, firsty, lastx, yCutoff;
 	Rect		octRect, mRect;
 	unsigned char octavaStr[20];
 	Boolean  bassa;
 	long		number;
-	INT16 	useTxSize;		/* Insure font is correct size to draw numeral. */
+	short 	useTxSize;		/* Insure font is correct size to draw numeral. */
 				
 PushLock(OBJheap);
 	p = GetPOCTAVA(pL);
@@ -1414,11 +1339,11 @@ PopLock(OBJheap);
 void SDDrawBeam(
 		DDIST xl, DDIST yl, DDIST xr, DDIST yr,	/* Absolute left & right end pts. */
 		DDIST beamThick,
-		INT16 upOrDown,									/* -1 for down, 1 for up */
+		short upOrDown,									/* -1 for down, 1 for up */
 		PCONTEXT /*pContext*/
 		)
 {
-	INT16 pxlThick,
+	short pxlThick,
 			yoffset;					/* To compensate for QuickDraw pen hanging below its coords. */
 	
 	pxlThick = d2p(beamThick);
@@ -1443,7 +1368,7 @@ void SDDrawGRBeamset(Document *doc, LINK pL, LINK measL)
 	PANOTEBEAM pNoteBeam;
 	DDIST yBeam,ydelt,flagYDelta,beamThick,firstBeam,lastBeam, 
 			dTop,dLeft,dRight,xStemL,xStemR,firstStfTop,lastStfTop=0;
-	INT16 nBeams,upOrDown,staff,voice;
+	short nBeams,upOrDown,staff,voice;
 	Boolean crossStaff;
 	CONTEXT context,context1; PCONTEXT pContext;
 	LINK pNoteBeamL,firstSyncL,lastSyncL,aGRNoteL,firstGRNoteL,lastGRNoteL,
@@ -1520,7 +1445,7 @@ in case it turns out to be needed for some coordinate system adjustment. */
 
 #define STEMWIDTH (p2d(1))			/* Stem thickness. */
 
-DDIST SDCalcXStem(LINK syncL, INT16 voice, INT16 stemDir,
+DDIST SDCalcXStem(LINK syncL, short voice, short stemDir,
 					DDIST measLeft, DDIST headWidth,
 					Boolean left			/* TRUE=left end of beam, else right */
 					)
@@ -1557,7 +1482,7 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 					firstystem, lastystem, xStem,
 					xStemL, xStemR,
 					firstStfTop, lastStfTop; /* For cross staff beams */
-	INT16			nb_startend,						/* number of beams starting or ending at a Sync */
+	short			nb_startend,						/* number of beams starting or ending at a Sync */
 					nb_frac, nestLevel, upOrDown, iel,
 					stemDirL, stemDirR,				/* stem directions: +or-1 */
 					staff, voice, j;
@@ -1746,7 +1671,7 @@ static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 {
 	PSLUR p; PASLUR aSlur; LINK aSlurL;
 	Rect paper; CONTEXT localContext;
-	INT16	j,penThick;								/* vertical pen size in pixels */
+	short	j,penThick;								/* vertical pen size in pixels */
 	DDIST xdFirst,ydFirst,xdLast,ydLast,	/* DDIST positions of end notes */
 			slurDiff;								/* fudges for slurs */
 	Point startPt[MAXCHORD],endPt[MAXCHORD];
@@ -1841,7 +1766,7 @@ static Boolean SymDragLoop(
 	Rect			theRect, theClipRect, mRect, bounds,
 					accBox, saveBox;
 	Point			oldPt;
-	INT16			xp,yp,staff,halfLn,oldHalfLn,halfLnDiff,
+	short			xp,yp,staff,halfLn,oldHalfLn,halfLnDiff,
 					accy,noteLeft,newAcc,partn,useChan,octType,octTransp,
 					transp,prevAccident,middleCHalfLn,noteNum;
 	short			useIORefNum=0;		/* NB: both OMSUniqueID and fmsUniqueID are unsigned short */
@@ -1850,7 +1775,7 @@ static Boolean SymDragLoop(
 	CONTEXT		context;
 	Boolean 		horiz, vert, stillWithinSlop, vQuantize, isClef, isRest;
 	long			spaceFactor;			/* Amt. by which to respace dragged measures */
-	INT16 		dx, dy;
+	short 		dx, dy;
 	Point 		newPt;
 	Rect 			dstRect;
 	WindowPtr	w=doc->theWindow;
@@ -2402,7 +2327,7 @@ broken:
 
 noteDragDone:
 	{
-	INT16 pitchLev, acc, symIndex=-1;
+	short pitchLev, acc, symIndex=-1;
 	
 		if (InsTrackPitch(doc, pt, &symIndex, pL, staff, &pitchLev, &acc, octType)) {
 			SetForNewPitch(doc, pL, subObjL, context, pitchLev, acc);
@@ -2428,10 +2353,10 @@ drag it and regardless of whether anything went wrong. */
 
 Boolean DoSymbolDrag(Document *doc, Point pt)
 {
-	INT16 		index;
+	short 		index;
 	LINK			pL, measureL, startMeas, endMeas;
 	Boolean		found;
-	INT16			pIndex;
+	short			pIndex;
 	STFRANGE		stfRange={0,0};
 	
 	/* If there is no object, return, or if the object is before the first

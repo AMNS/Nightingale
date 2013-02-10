@@ -23,7 +23,7 @@ work with all the graphic popups, but no time for that now.  -- John Gibson, 8/4
 #include "Nightingale.appl.h"
 
 
-extern Boolean TranslatePalChar(INT16 *, INT16, Boolean);
+extern Boolean TranslatePalChar(short *, short, Boolean);
 
 /* ASCII decimal for the modNR symbols in popDynMod font */
 static enum {
@@ -213,10 +213,10 @@ equivalents. */
 Boolean ModNRPopupKey(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, unsigned char theChar)
 {
 	short	i, newItem, newModCode;
-	INT16	intChar;
+	short	intChar;
 	
 	/* remap theChar according to the 'PLMP' resource */
-	intChar = (INT16)theChar;
+	intChar = (short)theChar;
 	TranslatePalChar(&intChar, 0, FALSE);
 	theChar = (unsigned char) intChar;
 	
@@ -294,7 +294,7 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			}
 			break;
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (INT16 *)itemHit, FALSE))
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, FALSE))
 				return TRUE;
 			ch = (unsigned char)evt->message;
 			ans = ModNRPopupKey(curPop, popKeysModNR, ch);
@@ -314,7 +314,7 @@ Boolean SetModNRDialog(Byte *modCode)
 {	
 	DialogPtr dlog;
 	short ditem=Cancel,type,oldResFile;
-	INT16 choice;
+	short choice;
 	Boolean dialogOver;
 	Handle hndl; Rect box;
 	GrafPtr oldPort;
@@ -392,7 +392,7 @@ Boolean AddModNRDialog(Byte *modCode)
 {	
 	DialogPtr dlog;
 	short ditem=Cancel,type,oldResFile;
-	INT16 choice;
+	short choice;
 	Boolean dialogOver;
 	Handle hndl; Rect box;
 	GrafPtr oldPort;

@@ -56,7 +56,6 @@
 
 typedef char char5200[5200];
 
-#if 1
 
 Boolean IsDocPrintInfoInstalled(Document *doc);
 OSStatus InstallDocPrintInfo(Document *doc);
@@ -69,20 +68,5 @@ OSStatus FlattenAndSavePageFormat(Document *doc);
 OSStatus	LoadAndUnflattenPageFormat(Document *doc);
 
 Boolean NDoPostScript(Document *doc);
-
-#else
-
-/* ProtoTypes  */
-
-typedef OSStatus PageDrawProc(const void *refCon, const Rect *drawingRect, UInt32 pageNumber);
-
-OSStatus DoPageSetup(WindowRef w, void *docDataP);
-
-OSStatus DoPrint(WindowRef parentWindow, void *documentDataP, Boolean printOne);
-
-OSStatus CreateSheetDoneProcs(void);
-
-OSStatus MakePDFDocument(WindowRef parentWindow, void *documentDataP, CFURLRef saveURL);
-#endif
 
 #endif	// __MyCarbonPrinting__

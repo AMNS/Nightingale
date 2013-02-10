@@ -4,17 +4,8 @@
 
 /* A few additional limits are defined in defs.h. */
 
-/* The Light version has a much smaller MAXSTAVES limit. Note that MAXSTPART must not be
-greater than MAXSTAVES, or else we hit trouble in AddChangePart (and probably elsewhere). */
-#if defined(LIGHT_VERSION)
-#define MAXSTAVES 9			/* Maximum number of staves attached to a system */
-#define MAXSTPART	9			/* Maximum no. of staves in one part */
-#define MAXPAGES	4			/* Maximum number of pages allowed in score. */
-#else
 #define MAXSTAVES 64			/* Maximum number of staves attached to a system */
 #define MAXSTPART 16			/* Maximum no. of staves in one part */
-/* NOTE: no MAXPAGES limit outside of the light version */
-#endif
 
 #define MAX_STAFFPOS 76		/* Max. no. of staff lines/spaces, at 7/octave (MIDI covers <11 octaves) */
 #define MAXVOICES 100		/* Maximum voice no. in score */

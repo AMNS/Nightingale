@@ -1,7 +1,7 @@
 /* DSUtils.h for Nightingale */
 
-void InvalMeasure(LINK, INT16);
-void InvalMeasures(LINK, LINK, INT16);
+void InvalMeasure(LINK, short);
+void InvalMeasures(LINK, LINK, short);
 void InvalSystem(LINK);
 void InvalSystems(LINK, LINK);
 void InvalSysRange(LINK, LINK);
@@ -9,14 +9,14 @@ void InvalSelRange(Document *);
 void InvalRange(LINK, LINK);
 void EraseAndInvalRange(Document *, LINK, LINK);
 void InvalContent(LINK, LINK);
-void InvalObject(Document *doc, LINK pL, INT16 doErase);
+void InvalObject(Document *doc, LINK pL, short doErase);
 
-void FixMeasNums(LINK, INT16);
+void FixMeasNums(LINK, short);
 Boolean FakeMeasure(Document *, LINK);
 void UpdatePageNums(Document *);
 void UpdateSysNums(Document *, LINK);
 Boolean UpdateMeasNums(Document *, LINK);
-INT16 GetMeasNum(Document *, LINK);
+short GetMeasNum(Document *, LINK);
 
 Boolean PtInMeasure(Document *doc,Point pt,LINK sL);
 
@@ -39,7 +39,7 @@ Boolean RealignObj(LINK, Boolean);
 
 DDIST GetSysWidth(Document *);
 DDIST GetSysLeft(Document *);
-DDIST StaffHeight(Document *doc, LINK, INT16);
+DDIST StaffHeight(Document *doc, LINK, short);
 DDIST StaffLength(LINK);
 LINK GetLastMeasInSys(LINK sysL);
 void MeasRange(Document *doc,LINK pL,LINK *startMeas,LINK *endMeas);
@@ -56,9 +56,9 @@ Boolean WithinRange(LINK, LINK, LINK);
 Boolean IsOutside(LINK, LINK, LINK);
 Boolean SameSystem(LINK, LINK);
 Boolean SameMeasure(LINK, LINK);
-Boolean ConsecSync(LINK, LINK, INT16, INT16);
-INT16 LinkBefFirstMeas(LINK);
-INT16 BeforeFirstPageMeas(LINK);
+Boolean ConsecSync(LINK, LINK, short, short);
+short LinkBefFirstMeas(LINK);
+short BeforeFirstPageMeas(LINK);
 Boolean BeforeFirstMeas(LINK);
 
 LINK GetCurrentPage(Document *doc);
@@ -77,7 +77,7 @@ Boolean LastSysInPage(LINK);
 LINK GetLastSysInPage(LINK);
 Boolean FirstSysInPage(LINK);
 Boolean FirstSysInScore(LINK sysL);
-INT16 NSysOnPage(LINK);
+short NSysOnPage(LINK);
 LINK LastObjOnPage(Document *, LINK);
 Boolean RoomForSystem(Document *, LINK);
 Boolean MasterRoomForSystem(Document *, LINK);
@@ -99,48 +99,48 @@ void MoveTimeMeasures(LINK, LINK, long);
 
 Boolean ContentObj(LINK);
 
-unsigned INT16 CountNotesInRange(INT16 staff, LINK startL, LINK endL, Boolean selectedOnly);
-unsigned INT16 CountGRNotesInRange(INT16 staff, LINK startL, LINK endL, Boolean selectedOnly);
-unsigned INT16 CountNotes(INT16, LINK, LINK, Boolean);
-unsigned INT16 VCountNotes(INT16, LINK, LINK, Boolean);
-unsigned INT16 CountGRNotes(INT16, LINK, LINK, Boolean);
-unsigned INT16 SVCountNotes(INT16, INT16, LINK, LINK, Boolean);
-unsigned INT16 SVCountGRNotes(INT16, INT16, LINK, LINK, Boolean);
-unsigned INT16 CountObjects(LINK, LINK, INT16);
+unsigned short CountNotesInRange(short staff, LINK startL, LINK endL, Boolean selectedOnly);
+unsigned short CountGRNotesInRange(short staff, LINK startL, LINK endL, Boolean selectedOnly);
+unsigned short CountNotes(short, LINK, LINK, Boolean);
+unsigned short VCountNotes(short, LINK, LINK, Boolean);
+unsigned short CountGRNotes(short, LINK, LINK, Boolean);
+unsigned short SVCountNotes(short, short, LINK, LINK, Boolean);
+unsigned short SVCountGRNotes(short, short, LINK, LINK, Boolean);
+unsigned short CountObjects(LINK, LINK, short);
 
-void CountInHeaps(Document *, unsigned INT16 [], Boolean);
+void CountInHeaps(Document *, unsigned short [], Boolean);
 
-Boolean HasOtherStemSide(LINK, INT16);
+Boolean HasOtherStemSide(LINK, short);
 Boolean NoteLeftOfStem(LINK, LINK, Boolean);
 
-INT16 GetStemUpDown(LINK, INT16);
-INT16 GetGRStemUpDown(LINK, INT16);
-void GetExtremeNotes(LINK syncL, INT16 voice, LINK *pLowNoteL, LINK *pHiNoteL);
-void GetExtremeGRNotes(LINK syncL, INT16 voice, LINK *pLowNoteL, LINK *pHiNoteL);
-LINK FindMainNote(LINK, INT16);
-LINK FindGRMainNote(LINK, INT16);
+short GetStemUpDown(LINK, short);
+short GetGRStemUpDown(LINK, short);
+void GetExtremeNotes(LINK syncL, short voice, LINK *pLowNoteL, LINK *pHiNoteL);
+void GetExtremeGRNotes(LINK syncL, short voice, LINK *pLowNoteL, LINK *pHiNoteL);
+LINK FindMainNote(LINK, short);
+LINK FindGRMainNote(LINK, short);
 
-void GetObjectLimits(INT16, INT16 *, INT16 *, Boolean *);
-Boolean InDataStruct(Document *doc, LINK, INT16);
-INT16 GetSubObjStaff(LINK, INT16);
-INT16 GetSubObjVoice(LINK, INT16);
-Boolean ObjOnStaff(LINK, INT16, Boolean);
-INT16 CommonStaff(Document *, LINK, LINK);
+void GetObjectLimits(short, short *, short *, Boolean *);
+Boolean InDataStruct(Document *doc, LINK, short);
+short GetSubObjStaff(LINK, short);
+short GetSubObjVoice(LINK, short);
+Boolean ObjOnStaff(LINK, short, Boolean);
+short CommonStaff(Document *, LINK, LINK);
 Boolean ObjHasVoice(LINK pL);
-LINK ObjSelInVoice(LINK pL, INT16 v);
-LINK StaffOnStaff(LINK staffL, INT16 s);
-LINK ClefOnStaff(LINK pL, INT16 s);
-LINK KeySigOnStaff(LINK pL, INT16 s);
-LINK TimeSigOnStaff(LINK pL, INT16 s);
-LINK TempoOnStaff(LINK pL, INT16 s);
-LINK MeasOnStaff(LINK pL, INT16 s);
-LINK NoteOnStaff(LINK pL, INT16 s);
-LINK GRNoteOnStaff(LINK pL, INT16 s);
-LINK NoteInVoice(LINK pL, INT16 v, Boolean needSel);
-LINK GRNoteInVoice(LINK pL, INT16 v, Boolean needSel);
-Boolean SyncInVoice(LINK pL, INT16 voice);
-Boolean GRSyncInVoice(LINK pL, INT16 voice);
-INT16 SyncVoiceOnStaff(LINK, INT16);
+LINK ObjSelInVoice(LINK pL, short v);
+LINK StaffOnStaff(LINK staffL, short s);
+LINK ClefOnStaff(LINK pL, short s);
+LINK KeySigOnStaff(LINK pL, short s);
+LINK TimeSigOnStaff(LINK pL, short s);
+LINK TempoOnStaff(LINK pL, short s);
+LINK MeasOnStaff(LINK pL, short s);
+LINK NoteOnStaff(LINK pL, short s);
+LINK GRNoteOnStaff(LINK pL, short s);
+LINK NoteInVoice(LINK pL, short v, Boolean needSel);
+LINK GRNoteInVoice(LINK pL, short v, Boolean needSel);
+Boolean SyncInVoice(LINK pL, short voice);
+Boolean GRSyncInVoice(LINK pL, short voice);
+short SyncVoiceOnStaff(LINK, short);
 Boolean SyncInBEAMSET(LINK, LINK);
 Boolean SyncInOCTAVA(LINK, LINK);
 
@@ -149,29 +149,29 @@ Boolean FirstTiedNote(LINK, LINK, LINK *, LINK *);
 
 LINK ChordNextNR(LINK syncL, LINK theNoteL);
 
-Boolean GetCrossStaff(INT16, LINK[], STFRANGE *);
+Boolean GetCrossStaff(short, LINK[], STFRANGE *);
 
 Boolean InitialClefExists(LINK clefL);
 Boolean BFKeySigExists(LINK keySigL); 
 Boolean BFTimeSigExists(LINK timeSigL);
 
-char *StaffPartName(Document *doc, INT16 staff);
+char *StaffPartName(Document *doc, short staff);
 void SetTempFlags(Document *, Document *, LINK, LINK, Boolean);
 void SetSpareFlags(LINK, LINK, Boolean);
-Boolean GetMultiVoice(LINK pL, INT16 staff);
-INT16 GetSelectionStaff(Document *doc);
+Boolean GetMultiVoice(LINK pL, short staff);
+short GetSelectionStaff(Document *doc);
 void TweakSubRects(Rect *r, LINK aNoteL, CONTEXT *pContext);
-INT16 CompareScoreFormat(Document *doc1,Document *doc2,INT16 pasteType);
-LINK GetaMeasL(LINK measL,INT16 stf);
+short CompareScoreFormat(Document *doc1,Document *doc2,short pasteType);
+LINK GetaMeasL(LINK measL,short stf);
 void DisposeMODNRs(LINK, LINK);
 
-LINK Staff2PartL(Document *doc,LINK headL,INT16 stf);
-INT16 PartL2Partn(Document *doc, LINK partL);
-LINK Partn2PartL(Document *doc, INT16 partn);
+LINK Staff2PartL(Document *doc,LINK headL,short stf);
+short PartL2Partn(Document *doc, LINK partL);
+LINK Partn2PartL(Document *doc, short partn);
 
-LINK VHasTieAcross(LINK node,INT16 voice);
+LINK VHasTieAcross(LINK node,short voice);
 Boolean HasSmthgAcross(Document *, LINK, char *);
 
-INT16 LineSpace2Rastral(DDIST);
-DDIST Rastral2LineSpace(INT16);
-INT16 StaffRastral(LINK);
+short LineSpace2Rastral(DDIST);
+DDIST Rastral2LineSpace(short);
+short StaffRastral(LINK);

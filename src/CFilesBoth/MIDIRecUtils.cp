@@ -22,13 +22,13 @@ These functions have no user interface implications.
 #include "Nightingale.appl.h"
 
 
-static void SetupMIDINote(Document *, LINK, LINK, MNOTE, CONTEXT, SignedByte, INT16, INT16,
+static void SetupMIDINote(Document *, LINK, LINK, MNOTE, CONTEXT, SignedByte, short, short,
 							SignedByte, Boolean, long);
-static INT16 MIDI2HalfLn(Document *, Byte, INT16, Boolean, SignedByte *);
-static INT16 ObjTimeInTable(long, LINKTIMEINFO *, INT16);
-static void MRFixTieLinks(Document *, LINK, LINK, INT16);
-static void MRFixTupletLinks(Document *, LINK, LINK, INT16);
-Boolean AvoidUnisons(Document *, LINK, INT16, PCONTEXT);
+static short MIDI2HalfLn(Document *, Byte, short, Boolean, SignedByte *);
+static short ObjTimeInTable(long, LINKTIMEINFO *, short);
+static void MRFixTieLinks(Document *, LINK, LINK, short);
+static void MRFixTupletLinks(Document *, LINK, LINK, short);
+Boolean AvoidUnisons(Document *, LINK, short, PCONTEXT);
 
 
 /* ---------------------------------------------------------------- SetupMIDINote -- */
@@ -42,7 +42,7 @@ static void SetupMIDINote(Document *doc,
 									MNOTE MIDINote,
 									CONTEXT context,
 									SignedByte staffn,
-									INT16 lDur, INT16 ndots,
+									short lDur, short ndots,
 									SignedByte voice,
 									Boolean isRest,
 									long /*timeShift*/						/* obsolete and ignored */
@@ -50,7 +50,7 @@ static void SetupMIDINote(Document *doc,
 {
 	register PANOTE aNote;
 	SHORTQD		yqpit;
-	INT16      	halfLn, midCHalfLn, qStemLen;
+	short      	halfLn, midCHalfLn, qStemLen;
 	SignedByte	acc;
 	Boolean		stemDown;
 
@@ -136,7 +136,7 @@ LINK CreateSync(register Document *doc,
 						MNOTE MIDINote,
 						LINK *syncL,
 						SignedByte staffn,
-						INT16 lDur, INT16 ndots,
+						short lDur, short ndots,
 						SignedByte voice,
 						Boolean isRest,
 						long timeShift							/* startTime offset for timeStamp */
@@ -170,8 +170,8 @@ LINK CreateSync(register Document *doc,
 /* ---------------------------------------------------------------- AddNoteToSync -- */
 /* Add a note to the given Sync. */
 
-LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn, INT16 lDur,
-							INT16 ndots, SignedByte voice, Boolean isRest, long timeShift)
+LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn, short lDur,
+							short ndots, SignedByte voice, Boolean isRest, long timeShift)
 {
 	CONTEXT  context;
 	LINK		aNoteL;
@@ -199,15 +199,15 @@ LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn,
 <midCHalfLn>, return the note's half-line number as function value (where
 top line of staff = 0??) and the accidental in <*pAcc>. */
 
-static INT16 MIDI2HalfLn(Document */*doc*/, Byte noteNum, INT16 midCHalfLn,
+static short MIDI2HalfLn(Document */*doc*/, Byte noteNum, short midCHalfLn,
 								Boolean useFlats, SignedByte *pAcc)
 {
-	INT16		pitchClass,
+	short		pitchClass,
 				halfLines,
 				octave,
 				halfSteps;
 				
-	static INT16	hLinesTable[] =
+	static short	hLinesTable[] =
 		/* pitchclass	  C  C# D  D# E  F  F# G  G# A  A# B	*/				
 							{ 0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6 };	
 	
@@ -248,14 +248,14 @@ of objects.
 The objects always include Syncs, plus optionally Measures, but only Measures that
 don't begin Systems, since MRMerge may put Syncs before Measures. */
 
-INT16 FillMergeBuffer(
+short FillMergeBuffer(
 				LINK startL,
 				LINKTIMEINFO mergeObjs[],
-				INT16 maxObjs,
+				short maxObjs,
 				Boolean syncsOnly		/* TRUE=include Syncs only, else Syncs and Measures */
 				)
 {
-	INT16 i; LINK pL;
+	short i; LINK pL;
 	
 	for (i = 0, pL = startL; i<maxObjs && pL; pL = RightLINK(pL))
 		if (SyncTYPE(pL) || (!syncsOnly && IsMeasAndMergable(pL))) {
@@ -263,15 +263,6 @@ INT16 FillMergeBuffer(
 			mergeObjs[i].time = ( SyncTYPE(pL)? SyncAbsTime(pL) : MeasureTIME(pL) );
 			i++;
 		}
-#ifdef NOTYET
-	/* If we've reached <maxObjs>, see if there are even more. */
-	
-	if (i==maxObjs)
-		for (pL = RightLINK(pL); pL; pL = RightLINK(pL))
-			if (SyncTYPE(pL) || (!syncsOnly && IsMeasAndMergable(pL)))
-				i++;
-#endif
-
 	return i;
 }
 
@@ -283,9 +274,9 @@ several empty Measures, then a Measure containing several Syncs, all the Measure
 and the first Sync will have the same time but we want to merge with the Sync.) If
 everything in the table has time greater than <lTime>, return -1. */
 
-static INT16 ObjTimeInTable(long lTime, LINKTIMEINFO *mergeObjs, INT16 nObjs)
+static short ObjTimeInTable(long lTime, LINKTIMEINFO *mergeObjs, short nObjs)
 {
-	INT16 i;
+	short i;
 	
 	for (i = 0; i<nObjs; i++)
 		if (mergeObjs[i].time>lTime)
@@ -303,7 +294,7 @@ to the next Sync after that. */
 static void MRFixTieLinks(
 						Document */*doc*/,
 						LINK startL, LINK endL,			/* Range to fix */
-						INT16 voice
+						short voice
 						)
 {
 	LINK pL, firstSyncL, lastSyncL;
@@ -332,12 +323,12 @@ voice, the next tpSync to the next Sync after that, etc. */
 static void MRFixTupletLinks(
 						Document */*doc*/,
 						LINK startL, LINK endL,
-						INT16 voice)
+						short voice)
 {
 	LINK pL, syncL;
 	LINK aNoteTupleL;
 	PANOTETUPLE aNoteTuple;
-	INT16 i, nInTuplet;	
+	short i, nInTuplet;	
 	
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
 		if (TupletTYPE(pL) && TupletVOICE(pL)==voice) {
@@ -374,17 +365,17 @@ and mergeObjs[0].time should normally be identical. */
 
 Boolean MRMerge(
 			Document *doc,
-			INT16 voice,
+			short voice,
 			LINKTIMEINFO *newSyncs,		/* Info about range to merge (e.g., from FillMergeBuffer) */
-			INT16 nNewSyncs,
+			short nNewSyncs,
 			LINKTIMEINFO *mergeObjs,	/* Info about range to merge into (e.g, from FillMergeBuffer) */
-			INT16 nMergeObjs,
+			short nMergeObjs,
 			LINK *pLastL					/* Last affected LINK, if any */
 			)
 {
 	LINK startL, endL, beforeStartL, newL, matchL, copyL, insL, selEndL,
 			slurL, measL, pL, tupL, lastL;
-	INT16 match, i;
+	short match, i;
 	
 	*pLastL = NILINK;
 	if (nNewSyncs<=0) return TRUE;			/* If nothing to do */
@@ -496,11 +487,11 @@ if there's at least one unison it can't get rid of. Assumes the chord doesn't co
 tain any fancy spellings (see below).  Handles only chords of normal notes, not
 grace notes.*/
 
-Boolean AvoidUnisons(Document *doc, LINK syncL, INT16 voice, PCONTEXT pContext)
+Boolean AvoidUnisons(Document *doc, LINK syncL, short voice, PCONTEXT pContext)
 {
-	INT16			noteCount, i, unisonCount;
+	short			noteCount, i, unisonCount;
 	CHORDNOTE	chordNote[MAXCHORD];
-	INT16			halfSpTab[MAXCHORD+1];
+	short			halfSpTab[MAXCHORD+1];
 	PANOTE		aNote, bNote;
 	Boolean		thisChanged, anyChanged;
 
@@ -557,10 +548,10 @@ Boolean AvoidUnisons(Document *doc, LINK syncL, INT16 voice, PCONTEXT pContext)
 (perfect or augmented) in chords on the given staff. Handles only chords of normal
 notes, not grace notes. */
 
-void AvoidUnisonsInRange(Document *doc, LINK startL, LINK endL, INT16 staff)
+void AvoidUnisonsInRange(Document *doc, LINK startL, LINK endL, short staff)
 {
-	CONTEXT context; INT16 voice, relStaff; LINK pL, partL;
-	PPARTINFO pPart; INT16 nProblems=0;
+	CONTEXT context; short voice, relStaff; LINK pL, partL;
+	PPARTINFO pPart; short nProblems=0;
 	char fmtStr[256];
 	
 	/*

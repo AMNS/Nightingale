@@ -16,7 +16,7 @@ box, Message box, etc. - revised for v.99. */
 
 void DoCloseWindow(WindowPtr w)
 	{
-		INT16 kind; PaletteGlobals *pg;
+		short kind; PaletteGlobals *pg;
 		
 		kind = GetWindowKind(w);
 		if (kind < 0) {
@@ -78,10 +78,10 @@ void DoCloseWindow(WindowPtr w)
 /* Close all of our "normal" documents that have visible windows; leave special
 documents (e.g., clipboard) alone. Return the number of windows closed. */
 
-INT16 DoCloseAllDocWindows()
+short DoCloseAllDocWindows()
 {
 	WindowPtr w, next;
-	INT16 kind, nClosed;
+	short kind, nClosed;
 
 	/* Go thru the system window list and close our documents. NB: closing in this order
 	 * can cause a lot of unnecessary screen drawing for pieces of windows that get
@@ -93,21 +93,11 @@ INT16 DoCloseAllDocWindows()
 		next = GetNextWindow(w);
 		kind = GetWindowKind(w);
 		
-#ifdef CARBON_NOTYET
-#ifndef PUBLIC_VERSION
-		if (CapsLockKeyDown() && OptionKeyDown()) {
-			DebugPrintf("DoCloseAllDocWindows: w=%lx kind=%d ", w, kind);
-			DebugPrintf("%c ", (w==(WindowPeek)clipboard? 'C' : '-'));
-			Document *doc=GetDocumentFromWindow(w);
-			if (doc) DebugPrintf("%p\n", (kind==DOCUMENTKIND? doc->name : "\p "));
-		}
-#endif
-#endif
 		if (kind == DOCUMENTKIND) {
 #ifdef TEST_SEARCH_NG
-			if (w==clipboard->theWindow || w==searchPatDoc->theWindow) continue;
+                       if (w==clipboard->theWindow || w==searchPatDoc->theWindow) continue;
 #else
-			if (w==clipboard->theWindow) continue;
+				if (w==clipboard->theWindow) continue;
 #endif
 			if (DoCloseDocument(GetDocumentFromWindow(w)))
 				nClosed++;
@@ -146,32 +136,15 @@ multi-screen systems. */
 
 void SetZoomState(WindowPtr /*w*/)
 	{
-#ifdef CARBON_NOTYET
-		WStateData *rPair;
-		Rect r,scrn;
-		WindowPeek wp = (WindowPeek)w;
-		
-		if (!wp->dataHandle) return;								/* No state data being kept */
-		
-		/* Get global port rect for this window */
-		
-		GetGlobalPort(w,&r);
-		GetMyScreen(&r,&scrn);
-		scrn.top += 20;												/* Standard drag bar height */
-		InsetRect(&scrn,4,4);										/* What we want to zoom out to */
-		rPair = (WStateData *)(*wp->dataHandle);
-		rPair->stdState = scrn;
-		rPair->userState = r;
-#endif
 	}
 
 
 /*	Handle a user zoom box event */
 
-void DoZoom(WindowPtr w, INT16 part)
+void DoZoom(WindowPtr w, short part)
 	{
 		PaletteGlobals *pg;
-		GrafPtr oldPort; INT16 across,down,kind;
+		GrafPtr oldPort; short across,down,kind;
 		
 		GetPort(&oldPort); SetPort(GetWindowPort(w));
 		Document *doc;
@@ -317,7 +290,7 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 	{
 		Rect			messageRect;
 		LINK			partL;
-		INT16			measNum, pageNum, userVoice;
+		short			measNum, pageNum, userVoice;
 		GrafPtr		oldPort;
 		WindowPtr	w=doc->theWindow;
 		char			partName[256], strBuf2[256];
@@ -388,7 +361,7 @@ uses of FrontWindow() in the rest of the program. */
 	
 void AnalyzeWindows()
 	{
-		INT16 palettesFound; Boolean inOrder;
+		short palettesFound; Boolean inOrder;
 		WindowPtr next;
 		//WindowPtr bottom;
 				
@@ -438,7 +411,7 @@ void AnalyzeWindows()
 #else
 void AnalyzeWindows()
 	{
-		INT16 palettesFound; Boolean inOrder;
+		short palettesFound; Boolean inOrder;
 		WindowPtr next,bottom;
 		
 		/*
@@ -538,7 +511,7 @@ active. */
 
 Boolean ActiveWindow(WindowPtr w)
 	{
-		INT16 kind;
+		short kind;
 		
 		if (w) {
 			kind = GetWindowKind(TopWindow);
@@ -562,14 +535,6 @@ void DoDragWindow(WindowPtr w)
 			if (!ActiveWindow(w))
 				DoSelectWindow(w);
 			else {
-#ifdef CARBON_NOMORE
-				if (GetWindowKind(w)==PALETTEKIND && w!=TopPalette) {
-					BringToFront(w);
-					/* Force the palette to be updated before it is dragged. */
-					SetPort(GetWindowPort(w));
-					UpdatePalette(w);
-					}
-#endif
 				OurDragWindow(w);
 				}
 	}
@@ -627,43 +592,11 @@ some day. */
 
 void DoSelectWindow(WindowPtr w)
 	{
-		//RgnHandle updateRgn; INT16 dx,dy;
+		//RgnHandle updateRgn; short dx,dy;
 		
+		/* No Palettes, bring the document to the front and generate an activate event. */		
 		if (IsDocumentKind(w))
-
-#ifdef CARBON_NOMORE		
-			if (TopPalette) {
-				/* Calculate window area not visible that will need to be updated. */
-				CopyRgn(w->visRgn, updateRgn = NewRgn());
-				OffsetRgn(updateRgn,
-						dx=(*((WindowPeek) w)->contRgn)->rgnBBox.left,
-						dy=(*((WindowPeek) w)->contRgn)->rgnBBox.top);
-				DiffRgn(((WindowPeek) w)->strucRgn, updateRgn, updateRgn);
-				
-				/* Move the document below the BottomPalette */
-				
-				SendBehind(w, BottomPalette);
-				CalcVisBehind(w, updateRgn);
-				/* PaintOne(w, updateRgn); */
-				PaintOne(w, ((WindowPeek) w)->contRgn);
-				
-				DisposeRgn(updateRgn);
-				
-				if (TopPalette != TopWindow)
-					/* Bring all active application windows forward by generating an activate event. */
-					SelectWindow(TopPalette);
-				 else
-					/* Ensure w and its controls are hilited properly. */
-					ActivateDocument(GetDocumentFromWindow(w), TRUE);
-
-				/* Ensure w and its controls are unhilited properly. */
-				ActivateDocument(GetDocumentFromWindow(TopDocument), FALSE);
-				}
-			 else
-				/* No Palettes, bring the document to the front and generate an activate event. */
-#endif
-				SelectWindow(w);
-
+			SelectWindow(w);
 		 else
 		 	if (IsDocumentKind(TopWindow))
 				/* Bring the palette to the front but don't generate an activate event. */
@@ -682,7 +615,7 @@ void DoSelectWindow(WindowPtr w)
 
 void ShowHidePalettes(Boolean show)
 	{
-		INT16 *pv, index;
+		short *pv, index;
 		WindowPtr *wp;
 		
 		wp = palettes;
@@ -703,25 +636,6 @@ void ShowHidePalettes(Boolean show)
 				}
 				if (index == TOOL_PALETTE) break;
 			}
-#if 0
-		WindowRecord **wh;
-		wh = (WindowRecord **)palettes;
-		pv = palettesVisible;				/* ??This seems to be uninitialized, yet it works! */
-		for (index=0; index<TOTAL_PALETTES; index++, wh++, pv++) {
-			if (*wh) {
-				if (show) {
-					ShowHide((WindowPtr)*wh, *pv);
-					*pv = FALSE;
-					}
-				else {
-					*pv = ((*wh)->visible != 0);
-					if (*pv)
-						ShowHide((WindowPtr)*wh, FALSE);
-					}
-				}
-			}
-#endif
-
 	}
 
 

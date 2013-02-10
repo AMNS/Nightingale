@@ -19,7 +19,6 @@
 
 void 		InitNightingale(void);
 static Boolean	DoSplashScreen(void);
-static void		InitFinal(void);
 static Boolean	InitAllCursors(void);
 static void		InitNightFonts(void);
 static Boolean	InitNightGlobals(void);
@@ -68,55 +67,27 @@ In NoteView, the splash screen is purely for the user's benefit. */
 
 #define NAME_DI 1
 #define ABOUT_DI 2
-#define NO_SERIAL_NUM		/* we no longer show the registration stuff */
 
 static Boolean DoSplashScreen()
 {
 	DialogPtr dlog; GrafPtr oldPort;
 	short aShort; Handle aHdl; Rect aRect;
-	char serialStr[256];
 
 	GetPort(&oldPort);
 	dlog = GetNewDialog(OWNER_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) return FALSE;
 	SetPort(GetDialogWindowPort(dlog));
 
-#ifdef VIEWER_VERSION
-	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
-	CenterWindow(GetDialogWindow(dlog), 65);
-	ShowWindow(GetDialogWindow(dlog));
-	ArrowCursor();
-	ditem = OK-1;
-	do {
-		ModalDialog(OKButFilter, &ditem);				/* Handle dialog events */
-		if (ditem==ABOUT_DI) DoAboutBox(FALSE);
-	} while (ditem!=OK);
-	WaitCursor();
-#else
 	GetDialogItem(dlog, NAME_DI, &aShort, &aHdl, &aRect);
 
 	/* If the owner's name and organization aren't filled in, it's no big deal:
 		they should have the default values. */
-	
- #ifndef NO_SERIAL_NUM
-	GetIndCString(userName, 1000, 1);
-	GetIndCString(userOrg, 1000, 2);
-
-	GetIndCString(fmtStr, INITERRS_STRS, 14);			/* "This copy is registered to %s, %s" */
-	sprintf(strBuf, fmtStr, userName, userOrg); 
-	SetDialogItemCText(aHdl, strBuf);
- #endif
 
 	CenterWindow(GetDialogWindow(dlog), 65);
 	ShowWindow(GetDialogWindow(dlog));
 	UpdateDialogVisRgn(dlog);
 
- #ifdef NO_SERIAL_NUM	/* not as much to read */
 	SleepTicksWaitButton(120L);							/* So user has time to read it */
- #else
-	SleepTicksWaitButton(180L);							/* So user has time to read the message */
- #endif
-#endif
 
 	HideWindow(GetDialogWindow(dlog));
 	DisposeDialog(dlog);										/* Free heap space */
@@ -129,7 +100,7 @@ static Boolean DoSplashScreen()
 
 static Boolean InitAllCursors()
 {
-	INT16 i;
+	short i;
 
 	WaitCursor();
 
@@ -181,10 +152,10 @@ void InitNightFonts()
 /* Allocate <endingString> and get label strings for Endings into it. Return the
 number of strings found, or -1 if there's an error (probably out of memory). */
 
-static INT16 InitEndingStrings(void);
-static INT16 InitEndingStrings()
+static short InitEndingStrings(void);
+static short InitEndingStrings()
 {
-	char str[256]; INT16 n, strOffset;
+	char str[256]; short n, strOffset;
 	
 	endingString = NewPtr(MAX_ENDING_STRINGS*MAX_ENDING_STRLEN);
 	if (!GoodNewPtr(endingString)) return -1;
@@ -213,9 +184,8 @@ static INT16 InitEndingStrings()
 
 static Boolean InitNightGlobals()
 {
-	long		*locZero=0;
 	char		fmtStr[256];
-	INT16		j;
+	short		j;
 	
 	/*
 	 *	Since initialization routines can (and as of this writing do) use the coordinate-
@@ -271,7 +241,7 @@ example, "Petrucci" should have 'BBX#' 129, 'MCMp' 129 and 'MCOf' 129.
 static Boolean InitMusFontTables()
 {
 	short		i, nRes, resID, curResFile;
-	INT16		*w, ch, count, xw, xl, yt, xr, yb, index;
+	short		*w, ch, count, xw, xl, yt, xr, yb, index;
 	unsigned char *b;
 	Handle	resH;
 	Size		nBytes;
@@ -310,7 +280,7 @@ static Boolean InitMusFontTables()
 			musFontInfo[index].cBBox[ch].right = 
 			musFontInfo[index].cBBox[ch].bottom = 0;
 
-		w = (INT16 *)(*resH);
+		w = (short *)(*resH);
 		count = *w++;
 		while (count-- > 0) {
 			ch = *w++;
@@ -343,7 +313,7 @@ static Boolean InitMusFontTables()
 	for (i = 0; i < numMusFonts; i++) {
 		resH = Get1NamedResource('MCOf', musFontInfo[i].fontName);
 		if (!GoodResource(resH)) goto error;
-		w = (INT16 *)(*resH);
+		w = (short *)(*resH);
 		for (ch = 0; ch<256; ch++) {
 			musFontInfo[i].xd[ch] = *w++;
 			musFontInfo[i].yd[ch] = *w++;
@@ -355,7 +325,7 @@ static Boolean InitMusFontTables()
 	for (i = 0; i < numMusFonts; i++) {
 		resH = Get1NamedResource('MFEx', musFontInfo[i].fontName);
 		if (!GoodResource(resH)) goto error;
-		w = (INT16 *)(*resH);
+		w = (short *)(*resH);
 		musFontInfo[i].sonataFlagMethod = (*w++ != 0);
 		musFontInfo[i].has16thFlagChars = (*w++ != 0);
 		musFontInfo[i].hasCurlyBraceChars = (*w++ != 0);
@@ -389,7 +359,7 @@ static Boolean InitTables()
 {
 	MIDIPreferences **midiStuff;
 	MIDIModNRPreferences	**midiModNRH;
-	INT16 i;
+	short i;
 
 	l2p_durs[MAX_L_DUR] = PDURUNIT;						/* Set up lookup table to convert; assign 15 to 128th for tuplets */
 	for (i = MAX_L_DUR-1; i>0; i--)						/*   logical to physical durations */
@@ -493,7 +463,7 @@ Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
 
 static void CheckScrFonts()
 {
-	INT16		origLen, foundSizes=0;
+	short		origLen, foundSizes=0;
 	short		fontNum;
 
 	if (!GetFontNumber("\pSonata", &fontNum)) {
@@ -544,7 +514,7 @@ screen fonts. */
 
 void InitMusicFontStuff()
 {
-	INT16 maxPtSize, sonataFontNum;
+	short maxPtSize, sonataFontNum;
 	
 	/*
 	 *	We need a grafPort large enough for the largest Sonata character in the

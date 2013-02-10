@@ -20,10 +20,10 @@
 
 #define DDB
 
-static short DebugDialog(char *, INT16 *, INT16 *, INT16 *,
+static short DebugDialog(char *, short *, short *, short *,
 					Boolean *, Boolean *, Boolean *, Boolean *);
 
-INT16 nerr, errLim;
+short nerr, errLim;
 Boolean minDebugCheck;			/* Do only Most important checks? */
 
 
@@ -45,7 +45,7 @@ Boolean DCheckEverything(Document *doc,
 				)
 {
 	LINK		pL;
-	INT16		nInRange, nSel, nTotal, nvUsed;
+	short		nInRange, nSel, nTotal, nvUsed;
 	Boolean	strictCont, looseCont;
 
 	minDebugCheck = minCheck;
@@ -135,14 +135,6 @@ Boolean DCheckEverything(Document *doc,
 		}
 	InstallDoc(doc);
 
-#ifdef NOTYET			/* ??SKIP CHECKING UNDOCLIP, FOR NOW--HAS TOO MANY COMPLAINTS */
-#ifdef DDB
-	DebugPrintf(" Done.  CHK UNDOCLIP: ");
-#endif
-	for (pL = doc->undo.headL; pL!=doc->undo.tailL; pL = RightLINK(pL))
-		if (DCheckNode(doc, pL, UNDO_DSTR, maxCheck)<0) return TRUE;
-#endif
-
 #ifdef DDB
 	DebugPrintf(" Done.");
 	if (nerr>0) DebugPrintf(" %d ERRORS. ", nerr); 	
@@ -191,14 +183,14 @@ enum
 
 #define LAST_RBUTTON MEMORY
 
-static short DebugDialog(char *label, INT16 *what, INT16 *istart, INT16 *istop,
+static short DebugDialog(char *label, short *what, short *istart, short *istop,
 								Boolean *disp, Boolean *check, Boolean *links, Boolean *subs)
 {	
 	DialogPtr	dialogp;
 	GrafPtr		oldPort;
 	Boolean		dialogOver;
-	INT16			whatval;
-	INT16			ditem, itype, j;
+	short			whatval;
+	short			ditem, itype, j;
 	ControlHandle	whatHdl[LAST_RBUTTON+1],
 					dispHdl, checkHdl, linksHdl, subsHdl;
 	Rect			tRect;
@@ -366,8 +358,8 @@ Boolean DoDebug(
 				)
 {
 	LINK				pL, startL, stopL;
-	static INT16	what, istart, istop;
-	INT16				kount, inLine, nInRange, nSel, objList;
+	static short	what, istart, istop;
+	short				kount, inLine, nInRange, nSel, objList;
 	static Boolean	disp, check, showLinks, showSubs;
 	static Boolean firstCall = TRUE;
 	Boolean			selLinksBad;

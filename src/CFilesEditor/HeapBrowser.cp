@@ -19,28 +19,28 @@
 #define LEADING 11			/* Vertical dist. between lines displayed (pixels) */
 
 static Rect bRect;
-static INT16 linenum;
+static short linenum;
 static char s[256];
 
-static void ShowHeap(INT16, INT16);
+static void ShowHeap(short, short);
 static void HeapDrawLine(char * s);
-static void HeapBrowsePartInfo(INT16);
-static void HeapBrowseStaff(INT16);
-static void HeapBrowseConnect(INT16);
-static void HeapBrowseClef(INT16);
-static void HeapBrowseKeySig(INT16);
-static void HeapBrowseTimeSig(INT16);
-static void HeapBrowseMeasure(INT16);
-static void HeapBrowseSync(INT16);
-static void HeapBrowseBeamset(INT16);
-static void HeapBrowseDynamic(INT16);
-static void HeapBrowseMODNR(INT16);
-static void HeapBrowseRepeatEnd(INT16);
-static void HeapBrowseSlur(INT16);
-static void HeapBrowseTuplet(INT16);
-static void HeapBrowseOctava(INT16);
-static void HeapBrowseGRSync(INT16);
-static void HeapBrowseObject(INT16);
+static void HeapBrowsePartInfo(short);
+static void HeapBrowseStaff(short);
+static void HeapBrowseConnect(short);
+static void HeapBrowseClef(short);
+static void HeapBrowseKeySig(short);
+static void HeapBrowseTimeSig(short);
+static void HeapBrowseMeasure(short);
+static void HeapBrowseSync(short);
+static void HeapBrowseBeamset(short);
+static void HeapBrowseDynamic(short);
+static void HeapBrowseMODNR(short);
+static void HeapBrowseRepeatEnd(short);
+static void HeapBrowseSlur(short);
+static void HeapBrowseTuplet(short);
+static void HeapBrowseOctava(short);
+static void HeapBrowseGRSync(short);
+static void HeapBrowseObject(short);
 
 /* ------------------------------------------------------------------ HeapBrowser -- */
 
@@ -64,8 +64,8 @@ enum {
 	short ditem;
 	Boolean done;
 	GrafPtr oldPort;
-	register INT16 heapIndex, itemIndex;
-	INT16 oldHeapIndex, oldItemIndex;
+	register short heapIndex, itemIndex;
+	short oldHeapIndex, oldItemIndex;
 	
 /* --- 1. Create the dialog and initialize its contents. --- */
 
@@ -139,7 +139,7 @@ enum {
 
 /* --------------------------------------------------------------------- ShowHeap -- */
 
-static void ShowHeap(INT16 theHeap, register INT16 itemIndex)
+static void ShowHeap(short theHeap, register short itemIndex)
 {
 	const char *ps;
 	HEAP *myHeap;
@@ -232,7 +232,7 @@ static void HeapDrawLine(char *s)
 
 /* --------------------------------------------------------------- HeapBrowseXXXs -- */
 
-void HeapBrowsePartInfo(INT16 itemIndex)
+void HeapBrowsePartInfo(short itemIndex)
 {
 	LINK qL;
 	PPARTINFO q;
@@ -246,7 +246,7 @@ void HeapBrowsePartInfo(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseStaff(INT16 itemIndex)
+void HeapBrowseStaff(short itemIndex)
 {
 	register LINK qL;
 	register PASTAFF q;
@@ -287,7 +287,7 @@ void HeapBrowseStaff(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseConnect(INT16 itemIndex)
+void HeapBrowseConnect(short itemIndex)
 {
 	register LINK qL;
 	register PACONNECT q;
@@ -316,7 +316,7 @@ void HeapBrowseConnect(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseClef(INT16 itemIndex)
+void HeapBrowseClef(short itemIndex)
 {
 	LINK qL;
 	register PACLEF q;
@@ -340,7 +340,7 @@ void HeapBrowseClef(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseKeySig(INT16 itemIndex)
+void HeapBrowseKeySig(short itemIndex)
 {
 	LINK qL;
 	register PAKEYSIG q;
@@ -364,7 +364,7 @@ void HeapBrowseKeySig(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseTimeSig(INT16 itemIndex)
+void HeapBrowseTimeSig(short itemIndex)
 {
 	LINK qL;
 	register PATIMESIG q;
@@ -391,7 +391,7 @@ void HeapBrowseTimeSig(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseMeasure(INT16 itemIndex)
+void HeapBrowseMeasure(short itemIndex)
 {
 	LINK qL;
 	register PAMEASURE q;
@@ -437,7 +437,7 @@ void HeapBrowseMeasure(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseSync(INT16 itemIndex)
+void HeapBrowseSync(short itemIndex)
 {
 	LINK qL;
 	register PANOTE q;
@@ -485,7 +485,7 @@ void HeapBrowseSync(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseBeamset(INT16 itemIndex)
+void HeapBrowseBeamset(short itemIndex)
 {
 	LINK qL;
 	register PANOTEBEAM q;
@@ -504,7 +504,7 @@ void HeapBrowseBeamset(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseDynamic(INT16 itemIndex)
+void HeapBrowseDynamic(short itemIndex)
 {
 	LINK qL;
 	register PADYNAMIC q;
@@ -523,7 +523,7 @@ void HeapBrowseDynamic(INT16 itemIndex)
 	HeapDrawLine(s);	q = GetPADYNAMIC(qL);
 }
 
-void HeapBrowseMODNR(INT16 itemIndex)
+void HeapBrowseMODNR(short itemIndex)
 {
 	LINK qL;
 	PAMODNR q;
@@ -544,7 +544,7 @@ void HeapBrowseMODNR(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseRepeatEnd(INT16 itemIndex)
+void HeapBrowseRepeatEnd(short itemIndex)
 {
 	LINK qL;
 	register PARPTEND q;
@@ -563,7 +563,7 @@ void HeapBrowseRepeatEnd(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseSlur(INT16 itemIndex)
+void HeapBrowseSlur(short itemIndex)
 {
 	LINK qL;
 	register PASLUR q;
@@ -585,7 +585,7 @@ void HeapBrowseSlur(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseTuplet(INT16 itemIndex)
+void HeapBrowseTuplet(short itemIndex)
 {
 	LINK qL;
 	PANOTETUPLE q;
@@ -597,7 +597,7 @@ void HeapBrowseTuplet(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseOctava(INT16 itemIndex)
+void HeapBrowseOctava(short itemIndex)
 {
 	LINK qL;
 	PANOTEOCTAVA q;
@@ -609,7 +609,7 @@ void HeapBrowseOctava(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseGRSync(INT16 itemIndex)
+void HeapBrowseGRSync(short itemIndex)
 {
 	LINK qL;
 	PAGRNOTE q;
@@ -621,7 +621,7 @@ void HeapBrowseGRSync(INT16 itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseObject(INT16 itemIndex)
+void HeapBrowseObject(short itemIndex)
 {
 	LINK qL;
 	register PMEVENT q;

@@ -4,51 +4,51 @@
 #pragma once
 // MAS
 
-void HiliteInsertNode(Document *, LINK, INT16, Boolean);
-void HiliteTwoNodesOn(Document *, LINK, LINK, INT16);
-void HiliteAttPoints(Document *, LINK, LINK, INT16);
+void HiliteInsertNode(Document *, LINK, short, Boolean);
+void HiliteTwoNodesOn(Document *, LINK, LINK, short);
+void HiliteAttPoints(Document *, LINK, LINK, short);
 void FixCursor(void);
 void FlashRect(Rect *);
 Boolean SamePoint(Point, Point);
 
-INT16 Advise(INT16);
-INT16 NoteAdvise(INT16);
-INT16 CautionAdvise(INT16);
-INT16 StopAdvise(INT16);
-void Inform(INT16);
-void NoteInform(INT16);
-void CautionInform(INT16);
-void StopInform(INT16);
+short Advise(short);
+short NoteAdvise(short);
+short CautionAdvise(short);
+short StopAdvise(short);
+void Inform(short);
+void NoteInform(short);
+void CautionInform(short);
+void StopInform(short);
 
-Boolean ProgressMsg(INT16, char *);
+Boolean ProgressMsg(short, char *);
 
 Boolean UserInterrupt(void);
 Boolean UserInterruptAndSel(void);
 
-const char *NameHeapType(INT16, Boolean);
+const char *NameHeapType(short, Boolean);
 const char *NameNodeType(LINK);
 const char *NameGraphicType(LINK);
 
-INT16	ConvertQuote(TEHandle textH, INT16 ch);
+short	ConvertQuote(TEHandle textH, short ch);
 
-void DrawBox(Point pt,INT16 size);
+void DrawBox(Point pt,short size);
 void HiliteRect(Rect *);
 
-void Voice2UserStr(Document *doc, INT16 voice, char str[]);
-void Staff2UserStr(Document *doc, INT16 staffn, char str[]);
+void Voice2UserStr(Document *doc, short voice, char str[]);
+void Staff2UserStr(Document *doc, short staffn, char str[]);
 
 void    DrawPopUp(UserPopUp *popup);
 void    TruncPopUpString(UserPopUp *popup);
-INT16    InitPopUp(DialogPtr dlog, UserPopUp *p, INT16 item, INT16 pItem,
-					INT16 menuID, INT16 choice);
-INT16	DoUserPopUp(UserPopUp *p);
-void	ChangePopUpChoice(UserPopUp *p, INT16 choice);
+short    InitPopUp(DialogPtr dlog, UserPopUp *p, short item, short pItem,
+					short menuID, short choice);
+short	DoUserPopUp(UserPopUp *p);
+void	ChangePopUpChoice(UserPopUp *p, short choice);
 void	DisposePopUp(UserPopUp *p);
-void	HilitePopUp (UserPopUp *p,INT16 activ);
-INT16	ResizePopUp(UserPopUp *p);
-void	ShowPopUp(UserPopUp *p, INT16 vis);
+void	HilitePopUp (UserPopUp *p,short activ);
+short	ResizePopUp(UserPopUp *p);
+void	ShowPopUp(UserPopUp *p, short vis);
 
-void	HiliteArrowKey(DialogPtr, INT16, UserPopUp *, Boolean *);
+void	HiliteArrowKey(DialogPtr, short, UserPopUp *, Boolean *);
 
 Rect GetQDPortBounds(void);
 Rect GetQDScreenBitsBounds(void);

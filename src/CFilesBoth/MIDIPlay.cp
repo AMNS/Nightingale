@@ -32,7 +32,7 @@ powerful, and only six years old instead of nine (sigh). */
 
 static long			pageTurnTOffset;
 
-static void		PlayMessage(Document *, LINK, INT16);
+static void		PlayMessage(Document *, LINK, short);
 static Boolean	HiliteSyncRect(Document *doc, Rect *syncRect, Rect *rPaper, Boolean scroll);
 
 #define CMDEBUG 1
@@ -44,9 +44,9 @@ string from our error strings resource. */
 
 #define MIDIErrorStringsID 235
 
-static INT16 DoGeneralAlert(unsigned char *str);
+static short DoGeneralAlert(unsigned char *str);
 
-static void ErrorMsg(INT16 index)
+static void ErrorMsg(short index)
 	{
 		Str255 str;
 		
@@ -55,7 +55,7 @@ static void ErrorMsg(INT16 index)
 		(void)DoGeneralAlert(str);
 	}
 
-static INT16 DoGeneralAlert(unsigned char *str)
+static short DoGeneralAlert(unsigned char *str)
 	{
 		ParamText(str,"\p","\p","\p");
 		PlaceAlert(errorMsgID,NULL,0,40);
@@ -67,7 +67,7 @@ static INT16 DoGeneralAlert(unsigned char *str)
 /* Write a message into the message area saying what measure is playing. If <pL>
 is NILINK, use <measNum>, else use <pL>'s Measure. */
 
-static void PlayMessage(Document *doc, LINK pL, INT16 measNum)
+static void PlayMessage(Document *doc, LINK pL, short measNum)
 {
 	Rect			messageRect;
 
@@ -104,7 +104,7 @@ static Boolean HiliteSyncRect(
 						Rect *rPaper,				/* doc->currentPaper for r's page */
 						Boolean scroll)
 	{
-		Rect result; INT16 x,y; Boolean turnedPage=FALSE;
+		Rect result; short x,y; Boolean turnedPage=FALSE;
 		
 		/* Temporarily convert r to window coords. Normally, we do this by
 		 * offsetting by doc->currentPaper, but in this case, doc->currentPaper
@@ -144,7 +144,7 @@ Duplicate calls to AddBarline at the same link are ignored.*/
 #define MAX_BARS 300			/* Maximum no. of barlines we can add in one set */
 
 static LINK barBeforeL[MAX_BARS];
-static INT16 nBars;
+static short nBars;
 
 void InitAddBarlines(void);
 void AddBarline(LINK);
@@ -154,7 +154,6 @@ Boolean CloseAddBarlines(Document *);
 static void SendMidiSustainOn(Document *doc, MIDIUniqueID destDevID, char channel);
 static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channel);
 static void SendMidiPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting);
-static void SendMidiSustainOn(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
 static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
 static void SendMidiPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITimeStamp tStamp);
 
@@ -166,26 +165,6 @@ static Byte cmPanSetting[MAXSTAVES + 1];
 
 static Boolean cmAllSustainOn[MAXSTAVES + 1];
 static Byte cmAllPanSetting[MAXSTAVES + 1];
-
-#ifdef VIEWER_VERSION
-
-void InitAddBarlines()
-{
-}
-
-void AddBarline(LINK pL)
-{
-}
-
-static Boolean TupletProblem(Document *doc, LINK insL)
-{
-}
-
-Boolean CloseAddBarlines(Document *doc)
-{
-}
-
-#else
 
 void InitAddBarlines()
 {
@@ -286,9 +265,6 @@ Boolean CloseAddBarlines(Document *doc)
 	return okay;
 }
 
-#endif /* VIEWER_VERSION */
-
-
 /* ------------------------------------------------------------ SelAndHiliteSync -- */
 /* Select and hilite the given Sync, and set the document's scaleCenter (for
 magnification) to it. */
@@ -298,7 +274,7 @@ static void SelAndHiliteSync(Document *doc, LINK syncL)
 {
 	CONTEXT		context[MAXSTAVES+1];
 	Boolean		found;
-	INT16			index;
+	short			index;
 	STFRANGE		stfRange={0,0};
 	DDIST			xd, yd;
 	
@@ -336,7 +312,7 @@ Boolean CheckButton()
 #if DEBUG_KEEPTIMES
 #define MAXKEEPTIMES 20
 long kStartTime[MAXKEEPTIMES];
-INT16 nkt;
+short nkt;
 #endif
 
 // From CoreMidiUtils.c
@@ -346,9 +322,9 @@ INT16 nkt;
 
 /* ------------------------------------------------------------- GetPartPlayInfo -- */
 
-static void SetPartPatch(INT16 partn, Byte partPatch[], Byte partChannel[], Byte patchNum)
+static void SetPartPatch(short partn, Byte partPatch[], Byte partChannel[], Byte patchNum)
 {
-	INT16 patch = patchNum + CM_PATCHNUM_BASE;
+	short patch = patchNum + CM_PATCHNUM_BASE;
 
 	partPatch[partn] = patch;	
 }
@@ -384,11 +360,11 @@ static Boolean PostMidiProgramChange(Document *doc, LINK pL, unsigned char *part
 	PGRAPHIC p = GetPGRAPHIC(pL);
 	LINK firstL = p->firstObj;
 	if (ObjLType(firstL) == SYNCtype) {
-		INT16 patchNum = p->info;
-		INT16 stf = p->staffn;
+		short patchNum = p->info;
+		short stf = p->staffn;
 		if (stf > 0) {
 			LINK partL = Staff2PartL(doc, doc->headL, stf);
-			INT16 partn = PartL2Partn(doc, partL);
+			short partn = PartL2Partn(doc, partL);
 			SetPartPatch(partn, partPatch, partChannel, patchNum);
 			//CMMIDIProgram(doc, partPatch, partChannel);
 			posted = TRUE;
@@ -401,8 +377,7 @@ static Boolean PostMidiSustain(Document *doc, LINK pL, Boolean susOn)
 {
 	Boolean posted = FALSE;
 						
-	PGRAPHIC pGraphic = GetPGRAPHIC(pL);
-	INT16 stf = GraphicSTAFF(pL);
+	short stf = GraphicSTAFF(pL);
 	if (stf > 0) 
 	{
 		if (susOn) {
@@ -421,8 +396,7 @@ static Boolean PostMidiPan(Document *doc, LINK pL)
 {
 	Boolean posted = FALSE;
 	
-	PGRAPHIC pGraphic = GetPGRAPHIC(pL);
-	INT16 stf = GraphicSTAFF(pL);
+	short stf = GraphicSTAFF(pL);
 	if (stf > 0) 
 	{
 		Byte panSetting = GraphicINFO(pL);
@@ -496,16 +470,15 @@ static long long GetSustainSecs()
 
 static void ResetMidiSustain(Document *doc, unsigned char *partChannel) 
 {
-//	MIDITimeStamp tStamp = 5000L * kNanosToMillis;
 	
 	long long secs = GetSustainSecs();
 	MIDITimeStamp tStamp = TimeStampSecsFromNow(secs);
 	
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		if (cmAllSustainOn[j]) {
-			INT16 partn = Staff2Part(doc,j);
+			short partn = Staff2Part(doc,j);
 			MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
-			INT16 channel = CMGetUseChannel(partChannel, partn);
+			short channel = CMGetUseChannel(partChannel, partn);
 			SendMidiSustainOff(doc, partDevID, channel, tStamp);										
 		}
 	}
@@ -517,16 +490,14 @@ static void ResetMidiSustain(Document *doc, unsigned char *partChannel)
 
 static void ResetMidiPan(Document *doc, unsigned char *partChannel) 
 {
-//	MIDITimeStamp tStamp = 5000L * kNanosToMillis;
 
-	long long secs = GetSustainSecs();	
 	MIDITimeStamp tStamp = TimeStampSecsFromNow(0);
 	
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		if (ValidPanSetting(cmAllPanSetting[j])) {
-			INT16 partn = Staff2Part(doc,j);
+			short partn = Staff2Part(doc,j);
 			MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
-			INT16 channel = CMGetUseChannel(partChannel, partn);
+			short channel = CMGetUseChannel(partChannel, partn);
 			SendMidiPan(doc, partDevID, channel, PAN_EQUAL, tStamp);		
 		}
 	}
@@ -541,9 +512,9 @@ static void SendAllMidiSustains(Document *doc, unsigned char *partChannel, Boole
 	if (susOn) {
 		for (int j = 1; j<=MAXSTAVES; j++) {
 			if (cmSustainOn[j]) {
-				INT16 partn = Staff2Part(doc,j);
+				short partn = Staff2Part(doc,j);
 				MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
-				INT16 channel = CMGetUseChannel(partChannel, partn);
+				short channel = CMGetUseChannel(partChannel, partn);
 				SendMidiSustainOn(doc, partDevID, channel);							
 			}
 		}
@@ -551,9 +522,9 @@ static void SendAllMidiSustains(Document *doc, unsigned char *partChannel, Boole
 	else {
 		for (int j = 1; j<=MAXSTAVES; j++) {
 			if (cmSustainOff[j]) {
-				INT16 partn = Staff2Part(doc,j);
+				short partn = Staff2Part(doc,j);
 				MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
-				INT16 channel = CMGetUseChannel(partChannel, partn);
+				short channel = CMGetUseChannel(partChannel, partn);
 				SendMidiSustainOff(doc, partDevID, channel);							
 			}
 		}		
@@ -564,17 +535,12 @@ static void SendAllMidiPans(Document *doc, unsigned char *partChannel)
 {
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		if (ValidPanSetting(cmPanSetting[j])) {
-			INT16 partn = Staff2Part(doc,j);
+			short partn = Staff2Part(doc,j);
 			MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
-			INT16 channel = CMGetUseChannel(partChannel, partn);
+			short channel = CMGetUseChannel(partChannel, partn);
 			SendMidiPan(doc, partDevID, channel, cmPanSetting[j]);							
 		}
 	}		
-}
-
-static void SendMidiProgramChange(Document *doc, unsigned char *partPatch, unsigned char *partChannel) 
-{
-	CMMIDIProgram(doc, partPatch, partChannel);	
 }
 
 static Boolean IsMidiPatchChange(LINK pL) 
@@ -600,11 +566,6 @@ static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channe
 static void SendMidiPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting) 
 {
 	CMMIDIPan(destDevID, channel, panSetting);	
-}
-
-static void SendMidiSustainOn(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp) 
-{
-	CMMIDISustainOn(destDevID, channel, tStamp);	
 }
 
 static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp) 
@@ -712,8 +673,7 @@ void PlaySequence(
 	LINK			pL, oldL, showOldL, aNoteL;
 	LINK			systemL, pageL, measL, newMeasL;
 	CursHandle	playCursor;
-	INT16			i;
-	INT16			useNoteNum,
+	short			useNoteNum,
 					useChan, useVelo;
 	long			t,
 					toffset,										/* PDUR start time of 1st note played */
@@ -732,19 +692,16 @@ void PlaySequence(
 
 	short			useIORefNum;					/* NB: can be fmsUniqueID */
 	Byte			partPatch[MAXSTAVES];
-	Byte			partBankSel0[MAXSTAVES];	/* bank select for FreeMIDI only */
-	Byte			partBankSel32[MAXSTAVES];
 	short			partIORefNum[MAXSTAVES];
-	fmsUniqueID partDevice[MAXSTAVES];
 
-	INT16			oldCurrentSheet, tempoCount, barTapSlopMS;
+	short			oldCurrentSheet, tempoCount, barTapSlopMS;
 	EventRecord	theEvent;
 	char			theChar;
 	TCONVERT		tConvertTab[MAX_TCONVERT];
 	char			fmtStr[256];
 	short			velOffset, durFactor, timeFactor;
 	
-	INT16			 notePartn;
+	short			 notePartn;
 	MIDIUniqueID partDevID;
 	Boolean		patchChangePosted = FALSE;
 	Boolean		sustainOnPosted = FALSE;
@@ -1158,7 +1115,7 @@ done:
 	ArrowCursor();
 
 #if DEBUG_KEEPTIMES
-	{ INT16 nk; for (nk=0; nk<nkt; nk++)
+	{ short nk; for (nk=0; nk<nkt; nk++)
 		DebugPrintf("nk=%d kStartTime[]=%ld\n", nk, kStartTime[nk]-kStartTime[0]);
 	}
 #endif

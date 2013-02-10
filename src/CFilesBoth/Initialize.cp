@@ -31,9 +31,9 @@ static Boolean		InitMemory(short numMasters);
 static void			InstallCoreEventHandlers(void);
 static Boolean		NInitFloatingWindows(void);
 static void			SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
-static INT16		GetToolGrid(PaletteGlobals *whichPalette);
-static void			SetupPaletteRects(Rect *whichRects, INT16 across, INT16 down, INT16 width,
-								INT16 height);
+static short		GetToolGrid(PaletteGlobals *whichPalette);
+static void			SetupPaletteRects(Rect *whichRects, short across, short down, short width,
+								short height);
 static Boolean		PrepareClipDoc(void);
 void		InitNightingale(void);
 
@@ -44,12 +44,8 @@ this is platform-dependent. */
 
 void InitToolbox()
 {
-#ifndef OS_MAC
-#error MAC OS-ONLY CODE
-#else
 #if TARGET_API_MAC_CARBON
 	FlushEvents(everyEvent, 0);		// ?? DO WE NEED THIS?
-#endif
 #endif
 }
 		
@@ -100,13 +96,8 @@ void Initialize()
 	 *	version 5.0.4 (the last version we tried it with).
 	 */
 	
-#ifdef VIEWER_VERSION
-	creatorType = CREATOR_TYPE_VIEWER;
-	documentType = DOCUMENT_TYPE_VIEWER;
-#else
 	creatorType = CREATOR_TYPE_NORMAL;
 	documentType = DOCUMENT_TYPE_NORMAL;
-#endif
 	/*
 	 *	Figure out our machine environment before doing anything more. This
 	 *	can't be done until after the various ToolBox calls above.
@@ -170,9 +161,6 @@ void Initialize()
 	
 	if (!NInitFloatingWindows())
 		{ BadInit(); ExitToShell(); }
-#ifdef VIEWER_VERSION
-	ShowHidePalettes(FALSE);
-#endif
 	
 	InitCursor();
 	WaitCursor();
@@ -192,26 +180,6 @@ void Initialize()
 	if (!PreflightMem(400))
 		{ BadInit(); ExitToShell(); }
 }
-
-#if 0 // def TARGET_API_MAC_CARBON_FILEIO
-
-Boolean CreateSetupFile(void)
-{
-	return FALSE;
-}
-
-Boolean OpenSetupFile()
-{
-	return FALSE;
-}
-
-Boolean AddSetupResource(Handle resH)
-{
-	return FALSE;
-}
-
-#else
-
 
 static OSStatus FindThePreferencesFile(OSType fType, OSType fCreator, FSSpec *prefsSpec) 
 {
@@ -265,7 +233,7 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 {
 	Handle			resH;
 	OSType			theErr;
-	INT16				nSPTB, i;
+	short				nSPTB, i;
 	ScriptCode		scriptCode = smRoman;
 //	FSSpec			rfSpec;
 	
@@ -318,11 +286,7 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 		file it opens the current resource file. */
 		
 	//setupFileRefNum = OpenResFile(SETUP_FILE_NAME);
-#if 0
-	setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
-#else
 	setupFileRefNum = FSpOpenResFile(rfSpec, fsRdWrPerm);
-#endif
 	
 	theErr = ResError();
 	if (theErr!=noErr) return FALSE;				/* Otherwise we'll write in the app's resource fork! */
@@ -552,10 +516,6 @@ Boolean AddSetupResource(Handle resH)
 	return TRUE;
 }
 
-#endif // TARGET_API_MAC_CARBON_FILEIO
-
-
-
 /* Install our configuration data from the Prefs file; also check for, correct, and
 report any illegal values. Assumes the Prefs file is the current resource file. */
 
@@ -565,7 +525,7 @@ static Boolean GetConfig()
 {
 	Handle cnfgH;
 	Boolean gotCnfg;
-	INT16 nerr, firstErr;
+	short nerr, firstErr;
 	long cnfgSize;
 	char fmtStr[256];
 	
@@ -906,11 +866,6 @@ static Boolean GetConfig()
 			{ config.enlargeNRHiliteH = 1; ERR(99); }
 	if (config.enlargeNRHiliteV < 0 || config.enlargeNRHiliteV > 10)
 			{ config.enlargeNRHiliteV = 1; ERR(100); }
-#ifdef LIGHT_VERSION
-	/* We MUST have undo. It's the mechanism used to recover after exceeding
-	   page limit (e.g., by reformat). */
-	config.disableUndo = 0;
-#endif			
 	/* No validity check at this time for default or metro Devices, do it in InitOMS */
 
 	if (gotCnfg && nerr>0) {
@@ -937,25 +892,7 @@ and allocate as many Master Pointers as possible up to numMasters. Return TRUE i
 all went well, FALSE if not. */
 
 static Boolean InitMemory(short numMasters)
-{
-#ifdef CARBON_NOMORE
-	THz thisZone; long heapSize; short orig;
-	
-	/* Increase stack size by decreasing heap size (thanks to DBW for the method). */
-	heapSize = (long)GetApplLimit()-(long)GetZone();
-	heapSize -= 32000;
-	SetApplLimit((Ptr)ApplicationZone()+heapSize);
-
-	MaxApplZone();
-	thisZone = ApplicationZone();
-	orig = thisZone->moreMast;
-	thisZone->moreMast = numMasters;
-	do {
-		MoreMasters();
-	} while (MemError()!=noErr && (thisZone->moreMast=(numMasters >>= 1))!=0);
-	thisZone->moreMast = orig;
-#endif
-	
+{	
 	return(numMasters >= 64);
 }
 
@@ -1041,7 +978,7 @@ margin on all sides. */
 static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	{
 		PicHandle toolPicture; Rect picRect;
-		short curResFile; INT16 defaultToolItem;
+		short curResFile; short defaultToolItem;
 		
 		/* Allocate a grid of characters from the 'PLCH' resource. */
 		defaultToolItem = GetToolGrid(whichPalette);
@@ -1120,9 +1057,9 @@ are stored in the PLCH resource itself and should match the PICT that is being
 used to draw the palette.  Deliver the item number of the default tool (arrow),
 or 0 if problem. */
 
-static INT16 GetToolGrid(PaletteGlobals *whichPalette)
+static short GetToolGrid(PaletteGlobals *whichPalette)
 	{
-		INT16 maxRow, maxCol, row, col, item, defItem = 0; short curResFile;
+		short maxRow, maxCol, row, col, item, defItem = 0; short curResFile;
 		GridRec *pGrid; Handle hdl;
 		unsigned char *p;			/* Careful: contains both binary and char data! */
 		
@@ -1175,10 +1112,10 @@ static INT16 GetToolGrid(PaletteGlobals *whichPalette)
 
 /* Install the rectangles for the given pallete rects array and its dimensions */
 
-static void SetupPaletteRects(Rect *whichRects, INT16 itemsAcross, INT16 itemsDown,
-								INT16 itemWidth, INT16 itemHeight)
+static void SetupPaletteRects(Rect *whichRects, short itemsAcross, short itemsDown,
+								short itemWidth, short itemHeight)
 	{
-		INT16 across,down;
+		short across,down;
 		
 		whichRects->left = 0;
 		whichRects->top = 0;
@@ -1322,8 +1259,7 @@ Boolean InitGlobals()
 		testMenu = GetMenu(testID);		if (!testMenu) return FALSE;
 		InsertMenu(testMenu,0);
 #endif
-		
-#ifndef VIEWER_VERSION
+
 		scoreMenu = GetMenu(scoreID);		if (!scoreMenu) return FALSE;
 		InsertMenu(scoreMenu,0);
 		
@@ -1332,7 +1268,6 @@ Boolean InitGlobals()
 		
 		groupsMenu = GetMenu(groupsID);		if (!groupsMenu) return FALSE;
 		InsertMenu(groupsMenu,0);
-#endif
 		
 		viewMenu = GetMenu(viewID);			if (!viewMenu) return FALSE;
 		InsertMenu(viewMenu,0);

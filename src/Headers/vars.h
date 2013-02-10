@@ -71,7 +71,7 @@ GLOBAL SignedByte	accTable[MAX_STAFFPOS]; /* Acc./pitch modif. table, by staff l
 GLOBAL char			singleBarInChar,		/* Input character for single barline */
 						qtrNoteInChar;			/* Input character for quarter note */
 GLOBAL SignedByte	lastCopy;				/* = COPYTYPE_XXX; most recently copied objects */
-GLOBAL INT16		sonataFontNum,			/* font ID number of Sonata font */
+GLOBAL short		sonataFontNum,			/* font ID number of Sonata font */
 						textFontNum,			/* font ID number of normal (non-dialog) text font */
 						textFontSize,			/* "Normal" size */
 						textFontSmallSize,
@@ -79,30 +79,26 @@ GLOBAL INT16		sonataFontNum,			/* font ID number of Sonata font */
 						dynam2velo[LAST_DYNAM],	/* Dynamic-mark-to-MIDI-velocity table */
 						modNRVelOffsets[32],	/* Modifier MIDI velocity offset table (mod codes indices) */
 						modNRDurFactors[32],	/* Modifier duration factor (% of note's play duration) (mod codes indices) */
-					/*	modNRTimeFactors[32], */	/* (unused) Modifier time factor (% of ??) (mod codes indices) */
 						magShift,				/* Shift count for coord. conversion for TopDocument */
 						magRound,				/* Addend for rounding in coord. conversion for TopDocument */ 
 						magMagnify,				/* Copy of <doc->magnify> for coord. conversion for TopDocument */
 						outputTo,				/* Current output device: screen or printer type */
-// MAS : this does not need to be made global -- conflicts with actual declaration in Slurs.cp
-//						slurLeft, slurRight,	/* Bounds for latest series of splines */
-//		   			slurTop, slurBottom,
 		   			firstDynSys,lastDynSys; /* firstSys, lastSys for hairpins */
 
 GLOBAL DDIST		drSize[MAXRASTRAL+1];	/* Sizes for staff rastral nos. */
 GLOBAL GridRec		*grid;					/* Character grid for Tool Palette */
-GLOBAL INT16		maxMCharWid, maxMCharHt; /* Max. size of any Sonata char.in any view */
+GLOBAL short		maxMCharWid, maxMCharHt; /* Max. size of any Sonata char.in any view */
 GLOBAL GrafPtr		fontPort,				/* Offscreen bitmap to store image of a single Sonata char */
 						palPort;					/* Offscreen port to hold copy of tools picture */
 
 GLOBAL Rect			revertWinPosition;	/* Where to replace Document window */
-GLOBAL INT16		theSelectionType;		/* Current selection type (for autoscrolling) */
-GLOBAL INT16		dragOffset;				/* Diff between measureRect and portRect */
+GLOBAL short		theSelectionType;		/* Current selection type (for autoscrolling) */
+GLOBAL short		dragOffset;				/* Diff between measureRect and portRect */
 GLOBAL CONTEXT		*contextA;				/* Allocate context[MAXSTAVES+1] on the heap */
 GLOBAL Boolean		initedBIMIDI;			/* TRUE=hardware/interrupts set for MIDI use, FALSE=normal */
-GLOBAL INT16		portSettingBIMIDI;	/* Port to use for built-in MIDI */	
-GLOBAL INT16		interfaceSpeedBIMIDI; /* Interface speed for built-in MIDI */
-GLOBAL INT16		maxEndingNum;			/* Maximum Ending number available */
+GLOBAL short		portSettingBIMIDI;	/* Port to use for built-in MIDI */	
+GLOBAL short		interfaceSpeedBIMIDI; /* Interface speed for built-in MIDI */
+GLOBAL short		maxEndingNum;			/* Maximum Ending number available */
 
 GLOBAL long			appDirID;				/* directory ID of application */
 GLOBAL short		appVRefNum,				/* volume refNum of application (new style??) */
@@ -267,7 +263,7 @@ SYMDATA symtable[] = {
 			GENLDRAG_CURS,	0,	0,				'j',	0		/* General object dragging tool */
 };
 
-INT16 nsyms=(sizeof(symtable)/sizeof(SYMDATA));	/* Length of symtable */ 
+short nsyms=(sizeof(symtable)/sizeof(SYMDATA));	/* Length of symtable */ 
 
 /*	objTable gives information for each object type */
  
@@ -313,7 +309,7 @@ OBJDATA objTable[] = {
  * replaced by a value from the CNFG resource.
  */
 
-INT16 pdrSize[MAXRASTRAL+1] =									/* Sizes for staff rastral nos., */
+short pdrSize[MAXRASTRAL+1] =									/* Sizes for staff rastral nos., */
 	{ 28, 24, 20, 19, 18, 16, 14, 12, 10};					/*  in points */ 
 
 /* Sets of related characters in the Adobe music font, "Sonata" (individual
@@ -330,16 +326,16 @@ unsigned char MCH_rests[MAX_L_DUR] =
 	{ 0xE3, 0xB7, 0xEE, 0xCE, 0xE4, 0xC5, 0xA8, 0xF4, 0xE5 };
 
 /* Coarse correction to font for rest Y-positions (half-lines) */
-INT16 restYOffset[MAX_L_DUR+1] = 
+short restYOffset[MAX_L_DUR+1] = 
 					{ 0, 0, 0, 0, 0, -1, 1, 1, 3, 3 };
 
-INT16 noteOffset[] = { 7, 14, 21, -7, -14, -21 };			/* Offset for octavas in half-lines */
+short noteOffset[] = { 7, 14, 21, -7, -14, -21 };			/* Offset for octavas in half-lines */
 
 /*	Text sizes, relative to line space:
                                   Tiny VSmall Small Medium Large VLarge Jumbo -- StaffHt */
 FASTFLOAT relFSizeTab[] =  { 1.0, 1.5,  1.7,   2.0,  2.2,	2.5,	3.0,   3.6, 0,   4.0  };
 
-INT16 subObjLength[] = {
+short subObjLength[] = {
 		sizeof(PARTINFO),	/* HEADER subobject */
 		0,						/* No TAIL subobjects */
 		sizeof(ANOTE),		/* SYNC subobject */
@@ -367,7 +363,7 @@ INT16 subObjLength[] = {
 		sizeof(SUPEROBJECT)
 	};
 		
-INT16 objLength[] = {
+short objLength[] = {
 		sizeof(HEADER),
 		sizeof(TAIL),
 		sizeof(SYNC),
@@ -400,19 +396,19 @@ GLOBAL SignedByte threadableType=SYNCtype;
 #else
 
 GLOBAL SYMDATA symtable[];
-GLOBAL INT16 nsyms;
+GLOBAL short nsyms;
 GLOBAL OBJDATA objTable[];
-GLOBAL INT16 pdrSize[];
+GLOBAL short pdrSize[];
 GLOBAL unsigned char SonataAcc[];
 GLOBAL unsigned char MCH_idigits[];
 GLOBAL unsigned char MCH_notes[];
 GLOBAL unsigned char MCH_rests[];
-GLOBAL INT16 restYOffset[];
+GLOBAL short restYOffset[];
 
-GLOBAL INT16 noteOffset[];
+GLOBAL short noteOffset[];
 GLOBAL FASTFLOAT relFSizeTab[];
-GLOBAL INT16 subObjLength[];
-GLOBAL INT16 objLength[];
+GLOBAL short subObjLength[];
+GLOBAL short objLength[];
 
 GLOBAL SignedByte threadableType;
 

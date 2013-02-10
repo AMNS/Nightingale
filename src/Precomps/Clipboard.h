@@ -18,20 +18,20 @@ void DoClear(Document *);
 Boolean DoPaste(Document *);
 
 void CopyFontTable(Document *);
-INT16 CheckMainClip(Document *, LINK, LINK);
+short CheckMainClip(Document *, LINK, LINK);
 void PasteFixStfSize(Document *doc, LINK startL, LINK endL);
 void PasteFixMeasureRect(LINK, DDIST);
-INT16 GetClipMinStf(Document *);
-INT16 GetClipMaxStf(Document *);
-INT16 GetStfDiff(Document *, INT16 *, INT16 *);
-void MapStaves(Document *doc,LINK startL,LINK endL,INT16 staffDiff);
+short GetClipMinStf(Document *);
+short GetClipMaxStf(Document *);
+short GetStfDiff(Document *, short *, short *);
+void MapStaves(Document *doc,LINK startL,LINK endL,short staffDiff);
 
-INT16 NewVoice(Document *doc,INT16 stf,INT16 voice,INT16 stfDiff);
-void InitVMapTable(Document *doc, INT16 stfDiff);
-void SetupVMap(Document *doc, INT16 *vMap, INT16 stfDiff);
+short NewVoice(Document *doc,short stf,short voice,short stfDiff);
+void InitVMapTable(Document *doc, short stfDiff);
+void SetupVMap(Document *doc, short *vMap, short stfDiff);
 
 void PasteFixMeasStruct(Document *, LINK, LINK, Boolean);
-void PasteFixOctavas(Document *doc,LINK startL,INT16 s);
-void PasteFixBeams(Document *doc,LINK startL,INT16 v);
+void PasteFixOctavas(Document *doc,LINK startL,short s);
+void PasteFixBeams(Document *doc,LINK startL,short v);
 void PasteUpdate(Document *, LINK, LINK, DDIST);
-void PasteFixContext(Document *, LINK, LINK, INT16);
+void PasteFixContext(Document *, LINK, LINK, short);

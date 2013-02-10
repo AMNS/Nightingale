@@ -23,19 +23,19 @@ static enum {
 typedef struct {
 	Point	leftPt, rightPt;					/* paper coords */
 	Rect	objRect;								/* paper coords */
-	INT16	penThick;							/* pen thickness (pixels) */
-	INT16 centerOffset;						/* offset for vertical centering (pixels) */
+	short	penThick;							/* pen thickness (pixels) */
+	short centerOffset;						/* offset for vertical centering (pixels) */
 } DRAWOBJ;
 
 /* Local prototypes */
 
-static void EditDrawObj(Document *, LINK, INT16, DRAWOBJ *);
+static void EditDrawObj(Document *, LINK, short, DRAWOBJ *);
 static Boolean InitFeedback(Document *, PCONTEXT, LINK, DRAWOBJ *);
 static void InitGrips(Document *, PCONTEXT, LINK);
-static void InitDrawObjBounds(Document *, LINK, INT16, DRAWOBJ *, Point, Rect *);
+static void InitDrawObjBounds(Document *, LINK, short, DRAWOBJ *, Point, Rect *);
 static void DoDrawFeedback(Document *, DRAWOBJ *);
-static void UpdateTmpObjRect(Document *, INT16, DRAWOBJ *, INT16, INT16);
-static void DrawGrip(Document *, INT16);
+static void UpdateTmpObjRect(Document *, short, DRAWOBJ *, short, short);
+static void DrawGrip(Document *, short);
 static void DrawBothGrips(Document *);
 static void DrawInvalRects(Document *, LINK, DRAWOBJ *, Boolean);
 static void UpdateDrawObjData(Document *, PCONTEXT, LINK, DRAWOBJ *);
@@ -127,13 +127,13 @@ void DoDrawingEdit(Document *doc, LINK pL)
  */
 
 static void EditDrawObj(Document *doc, LINK pL,
-						INT16 grip,		/* Edit mode: LGRIP, RGRIP, DRAGOBJ */
+						short grip,		/* Edit mode: LGRIP, RGRIP, DRAGOBJ */
 						DRAWOBJ *pd)	
 {
 	Point		oldPt, newPt;
 	long		aLong;
 	Rect		boundsRect;				/* in paper coords */
-	INT16		dh, dv;
+	short		dh, dv;
 			
 	if (grip==DRAGOBJ)										/* Erase the boxes before dragging */
 		DrawBothGrips(doc);
@@ -183,9 +183,8 @@ static void EditDrawObj(Document *doc, LINK pL,
 			}
 			UpdateTmpObjRect(doc, grip, pd, dh, dv);
 			
-#if 1
 			AutoScroll();						
-#endif
+
 			/* ??NB: There are some problems with autoscroll:
 			 *	1. It draws the original hairpin in black when it comes back into view after
 			 *		having been scrolled scrolled out of view. Can solve this by clearing hairpin's
@@ -210,117 +209,11 @@ static void EditDrawObj(Document *doc, LINK pL,
 	}
 }
 
-
-#ifdef PROBABLY_NOT
-
-/* ----------------------------------------------------------------- DragDrawObj -- */
-/* Called from DoSymbolDrag. Similar to DoDrawingEdit using only DRAGOBJ grip. */
-
-void DragDrawObj(Document *doc, LINK pL)
-{
-	Point		oldPt, newPt, origPt;
-	long		aLong;
-	Rect		boundsRect;				/* in paper coords */
-	INT16		dh, dv, dhTotal, dvTotal;
-	CONTEXT	allContexts[MAXSTAVES+1];
-	CONTEXT	context;
-	STFRANGE	stfRange;
-	Point		enlarge = {0,0};
-	DRAWOBJ	oldHair, origHair, thisHair;
-	Boolean	stillWithinSlop, horiz, vert;
-	
-	FlushEvents(everyEvent, 0);
-	
-	GetContext(doc, pL, GraphicSTAFF(pL), &context);
-
-	/* Deselect hairpin to prevent flashing when user clicks outside of
-	 * hairpin, and to avoid hiliting original hairpin when autoscrolling.
-	 */	
-	DeselectNode(pL);
-
-	if (!InitFeedback(doc, &context, pL, &thisHair))
-		return;
-	oldHair = origHair = thisHair;
-	GetPaperMouse(&oldPt, &doc->currentPaper);
-	InitDrawObjBounds(doc, pL, DRAGOBJ, &thisHair, oldPt, &boundsRect);
-
-	PenMode(patXor);
-	DoDrawFeedback(doc, &thisHair);				/* erase black hairpin */
-	PenPat(NGetQDGlobalsGray());
-	DoDrawFeedback(doc, &thisHair);				/* draw it in gray */
-	PenPat(NGetQDGlobalsBlack());
-
-	origPt = newPt = oldPt;
-	stillWithinSlop = TRUE;
-	horiz = vert = TRUE;
-
-	if (StillDown()) {
-		while (WaitMouseUp()) {
-			GetPaperMouse(&newPt, &doc->currentPaper);
-
-			/* Force the code below to see the mouse as always within boundsRect. */
-			aLong = PinRect(&boundsRect, newPt);
-			newPt.v = HiWord(aLong);	newPt.h = LoWord(aLong);
-
-			if (EqualPt(newPt, oldPt)) continue;
-			if (stillWithinSlop) {
-				/* If mouse is still within slop bounds, don't do anything. Otherwise,
-					decide whether horizontally/vertically constrained. */
-				dhTotal = newPt.h - origPt.h;
-				dvTotal = newPt.v - origPt.v;
-				if (ABS(dhTotal)<2 && ABS(dvTotal)<2) continue;
-				if (ShiftKeyDown()) {
-					horiz = ABS(dhTotal) > ABS(dvTotal);		/* 45 degree movement => vertical */
-					vert = !horiz;
-				}
-				/* And don't ever come back, you hear! */
-				stillWithinSlop = FALSE;
-			}
-			dh = (horiz? newPt.h - oldPt.h : 0);
-			dv = (vert? newPt.v - oldPt.v : 0);
-		
-			DoDrawFeedback(doc, &thisHair);							/* erase old hairpin */
-			
-			thisHair.leftPt.h += dh;	thisHair.leftPt.v += dv;
-			thisHair.rightPt.h += dh;	thisHair.rightPt.v += dv;
-
-			UpdateTmpObjRect(doc, DRAGOBJ, &thisHair, dh, dv);
-#if 1
-			AutoScroll();					/* ??NB: See note in EditDrawObj */					
-#endif
-			DoDrawFeedback(doc, &thisHair);							/* draw new hairpin */
-			
-			oldPt = newPt;
-		}
-	}
-	/* Erase gray hairpin, in case it's outside system rect (thus not affected by inval below) */
-	PenMode(patXor);
-	DoDrawFeedback(doc, &oldHair);
-	PenPat(NGetQDGlobalsGray());
-	DoDrawFeedback(doc, &oldHair);				/* (must do this twice, because gray pat is misaligned ) */
-	PenNormal();
-
-	DoDrawFeedback(doc, &thisHair);						/* draw black hairpin */
-
-	/* Update hairpin in data structure and inval rect if it's changed. */
-	if (BlockCompare(&thisHair, &origHair, sizeof(DRAWOBJ))) {
-		UpdateHairData(doc, &context, pL, &thisHair);
-		doc->changed = TRUE;
-	}
-	DrawInvalRects(doc, pL, &thisHair, FALSE);			/* must do this even if hairpin not changed (affects hiliting) */
-	MEHideCaret(doc);	
-
-	LinkSEL(pL) = TRUE;								/* so that hairpin will hilite after we're done dragging */
-	doc->selStartL = pL;	doc->selEndL = RightLINK(pL);
-}
-
-#endif
-
 void LocateDrawObjEndPts(LINK pL, DDIST *pFirstXD, DDIST *pLastXD);
 void LocateDrawObjEndPts(LINK pL, DDIST *pFirstXD, DDIST *pLastXD)
 {
 	LINK firstL, lastL, aNoteL;
-	INT16 voice;
+	short voice;
 	
 	firstL = GraphicFIRSTOBJ(pL);
 	lastL = GraphicLASTOBJ(pL);
@@ -407,11 +300,11 @@ static void InitGrips(Document */*doc*/, PCONTEXT pContext, LINK pL)
 
 #define SYSHT_SLOP pt2d(8)
 
-static void InitDrawObjBounds(Document *doc, LINK pL, INT16 grip,
+static void InitDrawObjBounds(Document *doc, LINK pL, short grip,
 										DRAWOBJ *pd,
 										Point mousePt, Rect *bounds)	/* paper coords */
 {
-	INT16			staffn, mouseFromLeft, mouseFromRight;
+	short			staffn, mouseFromLeft, mouseFromRight;
 	CONTEXT		context;
 	PAMEASURE	aMeasP;
 	DDIST			sysLeft, sysTop, sysRight, sysBot, measWid;
@@ -513,7 +406,7 @@ static void DoDrawFeedback(Document *doc, DRAWOBJ *pd)
 
 /* ------------------------------------------------------------ UpdateTmpObjRect -- */
 
-static void UpdateTmpObjRect(Document */*doc*/, INT16 grip, DRAWOBJ *pd, INT16 dh, INT16 dv)
+static void UpdateTmpObjRect(Document */*doc*/, short grip, DRAWOBJ *pd, short dh, short dv)
 {	
 	if (grip == DRAGOBJ)
 		OffsetRect(&pd->objRect, dh, dv);
@@ -532,7 +425,7 @@ static void UpdateTmpObjRect(Document */*doc*/, INT16 grip, DRAWOBJ *pd, INT16 d
 /* Draw a small box for the left and right grips of the feedback object. */
 
 static void DrawGrip(Document *doc,
-							INT16 whichOne)		/* LGRIP or RGRIP */
+							short whichOne)		/* LGRIP or RGRIP */
 {
 	Point gripPt;
 
@@ -578,12 +471,6 @@ static void DrawInvalRects(Document *doc, LINK pL,
 	Rect2Window(doc, &newObjRect);
 	Rect2Window(doc, &oldObjRect);
 	UnionRect(&oldObjRect, &newObjRect, &updateRect);
-#if 0
-if (ShiftKeyDown()) {
-	FrameRect(&updateRect);				/* to debug update rect */
-	SleepTicks(60L);
-}
-#endif
 	if (optimize)
 		EraseAndInval(&oldObjRect);
 	else

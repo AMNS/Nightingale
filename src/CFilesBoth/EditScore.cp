@@ -19,7 +19,7 @@ coordinates with respect to the current sheet, and the window local coordinates 
 have already been set to reflect the current sheet as well. Always returns TRUE.
 This should be called by DoDocContent. */
 
-Boolean DoEditScore(Document *doc, Point pt, INT16 modifiers, INT16 dblClick)
+Boolean DoEditScore(Document *doc, Point pt, short modifiers, short dblClick)
 	{
 		Boolean shiftFlag,optionFlag,cmdFlag,capsLockFlag;
 
@@ -102,7 +102,7 @@ void DoClickErase(Document *doc, Point pt)
 
 void DoClickFrame(Document *doc, Point pt)
 	{
-		INT16 	clickStaff;
+		short 	clickStaff;
 		LINK	prevMeasL, pL, pLPIL;
 		
 		clickStaff = FindStaff(doc, pt);								/* Find staff clicked on... */
@@ -117,18 +117,9 @@ void DoClickFrame(Document *doc, Point pt)
 			}
 	}
 
-
-#ifdef VIEWER_VERSION
-
 void DoClickInsert(Document *doc, Point pt)
 	{
-	}
-	
-#else
-
-void DoClickInsert(Document *doc, Point pt)
-	{
-		INT16 index, subtype;
+		short index, subtype;
 		DDIST xd; CONTEXT context;
 		
 		DeselAll(doc);
@@ -223,8 +214,6 @@ void DoClickInsert(Document *doc, Point pt)
 		xd = PageRelxd(doc->selStartL, &context);
 		doc->scaleCenter.h = context.paper.left+d2p(xd);
 	}
-
-#endif
 
 /* Null routine to allow loading or unloading EditScore.c's segment. */
 

@@ -26,8 +26,8 @@ enum {
 static void ToggleUndo(Document *doc);
 
 static Boolean CheckCrossSys(LINK, LINK);
-static Boolean CheckClipUndo(Document *, INT16);
-static Boolean CheckBeamUndo(Document *, INT16);
+static Boolean CheckClipUndo(Document *, short);
+static Boolean CheckBeamUndo(Document *, short);
 static Boolean CheckInsertUndo(Document *);
 static Boolean CheckEditObj(Document *, LINK);
 static Boolean CheckInfoUndo(Document *, LINK);
@@ -36,11 +36,10 @@ static long ModNRListSIze(LINK aModNRL);
 static long GetRangeMemAlloc(LINK startL, LINK endL);
 static Boolean UndoChkMemory(Document *doc, LINK sysL, LINK lastL);
 static void UndoDeselRange(Document *, LINK, LINK);
-static Boolean IsBetween(LINK, LINK, LINK);
 static LINK UndoLastObjInSys(Document *, LINK);
 static LINK UndoGetStartSys(Document *doc);
-static void GetUndoRange(Document *, LINK, LINK *, LINK *, INT16);
-static Boolean CopyUndoRange(Document *, LINK, LINK, LINK, INT16);
+static void GetUndoRange(Document *, LINK, LINK *, LINK *, short);
+static Boolean CopyUndoRange(Document *, LINK, LINK, LINK, short);
 static void SwapSystems(Document *, LINK, LINK);
 
 
@@ -85,7 +84,7 @@ menuItem is a string.
 Ordinarily, this is called by higher-level Undo routines; it should rarely be called
 from outside of the Undo package. */
 
-void SetupUndo(Document *doc, INT16 command, char *menuItem)
+void SetupUndo(Document *doc, short command, char *menuItem)
 {	
 	doc->undo.lastCommand = command;
 
@@ -119,7 +118,7 @@ static Boolean CheckCrossSys(LINK startL, LINK endL)
 /* Check selRange and clipboard for cross-system objects; if either contains any,
 return FALSE to indicate the clipboard operation will not be undoable. */
 
-static Boolean CheckClipUndo(Document *doc, INT16 /*lastCommand*/)
+static Boolean CheckClipUndo(Document *doc, short /*lastCommand*/)
 {
 	Document *saveDoc; Boolean ok=TRUE;
 	
@@ -145,7 +144,7 @@ If the command in an Unbeam command, then check the range to see if any of
 the beamsets are cross-system; unbeaming cross-system beamsets is not
 currently undoable. Return FALSE indicates the operation won't be undoable. */
 
-static Boolean CheckBeamUndo(Document *doc, INT16 lastCommand)
+static Boolean CheckBeamUndo(Document *doc, short lastCommand)
 {
 	LINK pL;
 
@@ -332,21 +331,6 @@ static void UndoDeselRange(Document */*doc*/, LINK startL, LINK endL)
 			DeselectNode(pL);
 }
 
-
-/* Return TRUE if <link> belongs to range [pL, qL); else return FALSE. ??How does
-this differ from WithinRange, if at all? */
-
-static Boolean IsBetween(LINK pL, LINK qL, LINK link)
-{
-	LINK sL;
-
-	for (sL = pL; sL!=qL; sL = RightLINK(sL))
-		if (sL==link) return TRUE;
-
-	return FALSE;
-}
-
-
 /* Return the last Object of pL's System. If pL is a System, will return
 the last Object of the previous system. */
 
@@ -421,7 +405,7 @@ static void GetUndoRange(
 					Document *doc,
 					LINK insertL,
 					LINK *sysL, LINK *lastL,			/* Range: a System, last obj in System */
-					INT16 lastCommand
+					short lastCommand
 					)
 {
 	LINK pL, endSysL;
@@ -658,9 +642,9 @@ allocated from the heaps for that document. Return TRUE if successful, FALSE is
 there's a problem. */
 
 static Boolean CopyUndoRange(Document *doc, LINK srcStartL, LINK srcEndL, LINK insertL,
-										INT16 toRange)
+										short toRange)
 {
-	LINK pL,prevL,copyL,initL; INT16 i,numObjs; COPYMAP *copyMap;
+	LINK pL,prevL,copyL,initL; short i,numObjs; COPYMAP *copyMap;
 
 	initL = prevL = LeftLINK(insertL);
 	SetupCopyMap(srcStartL, srcEndL, &copyMap, &numObjs);
@@ -724,7 +708,7 @@ static Boolean CopyUndoRange(Document *doc, LINK srcStartL, LINK srcEndL, LINK i
 void PrepareUndo(
 			Document *doc,
 			LINK insertL,					/* But usually has nothing to do with insertion! */
-			INT16 lastCommand,
+			short lastCommand,
 			short stringInd				/* Index into the Undo stringlist */
 			)
 {

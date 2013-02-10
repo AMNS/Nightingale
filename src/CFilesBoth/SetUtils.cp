@@ -29,15 +29,14 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean HomogenizeSel(Document *, INT16);
-static void FixChordStatus(Document *, LINK);
-static Boolean SSVChkNote(Document *, LINK, LINK, INT16);
-static Boolean SSVCheck(Document *, LINK, INT16);
-static void FixSyncVoice(Document *, LINK, INT16);
-static LINK SSNoteOnStaff(LINK, INT16);
-static Boolean SSSObjCheck(Document *, LINK, INT16);
-static Boolean SSSCheck(Document *, LINK, LINK, INT16);
-static LINK ExtremeNote(LINK, INT16, Boolean);
+static Boolean HomogenizeSel(Document *, short);
+static Boolean SSVChkNote(Document *, LINK, LINK, short);
+static Boolean SSVCheck(Document *, LINK, short);
+static void FixSyncVoice(Document *, LINK, short);
+static LINK SSNoteOnStaff(LINK, short);
+static Boolean SSSObjCheck(Document *, LINK, short);
+static Boolean SSSCheck(Document *, LINK, LINK, short);
+static LINK ExtremeNote(LINK, short, Boolean);
 static Boolean SSGYCheck(Document *, LINK, DDIST);
 static Boolean SSTYCheck(Document *, LINK, DDIST);
 
@@ -52,7 +51,7 @@ happens. ??This belongs in Select.c or SelUtils.c. */
 
 Boolean HomogenizeSel(
 				Document *doc,
-				INT16 alertID 		/* 0=don't need permission */
+				short alertID 		/* 0=don't need permission */
 				)
 {
 	LINK pL, aNoteL; Boolean homoSel;
@@ -79,9 +78,9 @@ Boolean HomogenizeSel(
 }
 
 
-static Boolean SSVChkNote(Document *doc, LINK pL, LINK aNoteL, INT16 uVoice)
+static Boolean SSVChkNote(Document *doc, LINK pL, LINK aNoteL, short uVoice)
 {
-	PANOTE aNote; LINK partL, vNoteL; INT16 iVoice;
+	PANOTE aNote; LINK partL, vNoteL; short iVoice;
 
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->beamed
@@ -107,9 +106,9 @@ static Boolean SSVChkNote(Document *doc, LINK pL, LINK aNoteL, INT16 uVoice)
 	return TRUE;
 }
 
-Boolean SSVCheck(Document *doc, LINK syncL, INT16 uVoice)
+Boolean SSVCheck(Document *doc, LINK syncL, short uVoice)
 {
-	LINK aNoteL; INT16 np, durCode[MAXSTAVES+1]; Boolean haveRest[MAXSTAVES+1];
+	LINK aNoteL; short np, durCode[MAXSTAVES+1]; Boolean haveRest[MAXSTAVES+1];
 	
 	/* First context-independent checks of each note (really each voice, since some
 		notes may not be selected yet). */
@@ -160,13 +159,13 @@ Boolean SSVCheck(Document *doc, LINK syncL, INT16 uVoice)
 
 void FixSyncVoice(Document *doc,
 						LINK pL,				/* Sync */
-						INT16 voice)
+						short voice)
 {
 	LINK		aNoteL, vNoteL;
 	CONTEXT	context;
 	Boolean	stemDown;
 	QDIST		qStemLen;
-	INT16		notesInChord, voiceRole;
+	short		notesInChord, voiceRole;
 	
 	if (SyncTYPE(pL)) {
 		notesInChord = 0;
@@ -201,9 +200,9 @@ void FixSyncVoice(Document *doc,
 /* Set the voice number of every selected note or rest to the internal voice number
 for its part that's equivalent to the given user voice number. */
 
-Boolean SetSelVoice(Document *doc, INT16 uVoice)
+Boolean SetSelVoice(Document *doc, short uVoice)
 {
-	LINK partL, pL, aNoteL; INT16 v, tempV;
+	LINK partL, pL, aNoteL; short v, tempV;
 	Boolean didAnything, syncChanged, voiceChanged[MAXVOICES+1];
 	
 	didAnything = FALSE;
@@ -259,7 +258,7 @@ Boolean SetSelVoice(Document *doc, INT16 uVoice)
 /* If the given Sync has an UNSELECTED subobj (note or rest) on the given staff,
 return the first one found. */
 
-static LINK SSNoteOnStaff(LINK syncL, INT16 s)
+static LINK SSNoteOnStaff(LINK syncL, short s)
 {
 	LINK aNoteL;
 	
@@ -271,11 +270,11 @@ static LINK SSNoteOnStaff(LINK syncL, INT16 s)
 	return NILINK;
 }			
 
-static Boolean SSSObjCheck(Document *doc, LINK syncL, INT16 absStaff)
+static Boolean SSSObjCheck(Document *doc, LINK syncL, short absStaff)
 {
 	LINK dynamL, graphicL, tempoL, endingL;
 	Boolean movingAll[MAXSTAVES+1], syncHasGraphic;
-	INT16 s;
+	short s;
 	
 	/* Look for staff(s) other than <absStaff> containing notes/rests but all are
 	selected and therefore about to be moved to another staff. */
@@ -332,7 +331,7 @@ static Boolean SSSObjCheck(Document *doc, LINK syncL, INT16 absStaff)
 	return TRUE;
 }
 
-static Boolean SSSCheck(Document *doc, LINK /*syncL*/, LINK aNoteL, INT16 absStaff)
+static Boolean SSSCheck(Document *doc, LINK /*syncL*/, LINK aNoteL, short absStaff)
 {
 	PANOTE aNote;
 
@@ -359,12 +358,12 @@ static Boolean SSSCheck(Document *doc, LINK /*syncL*/, LINK aNoteL, INT16 absSta
 restriction to unbeamed notes could be eliminated simply by calling Unbeam. */
 
 Boolean SetSelStaff(Document *doc,
-							INT16 newStaff)		/* part-relative staff no. */
+							short newStaff)		/* part-relative staff no. */
 {
 	LINK		pL, aNoteL, partL;
 	PPARTINFO pPart;
 	Boolean	didAnything;
-	INT16		absStaff, halfLn, effAcc;
+	short		absStaff, halfLn, effAcc;
 	
 	/* Convert from part-relative to absolute staff number. */
 	
@@ -443,7 +442,7 @@ StaffFound:
 /* Return the note in the given Sync and voice that's closest to the stem, i.e.,
 furthest from the MainNote. */
 
-LINK ExtremeNote(LINK syncL, INT16 voice, Boolean stemDown)
+LINK ExtremeNote(LINK syncL, short voice, Boolean stemDown)
 {
 	LINK aNoteL, extNoteL=NILINK; DDIST extYD;
 	
@@ -470,7 +469,7 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 	DDIST		dStemlen, extend;
 	CONTEXT	context;
 	Boolean	didAnything;
-	INT16		voice, upDown;
+	short		voice, upDown;
 
 	didAnything = FALSE;
 	
@@ -542,7 +541,7 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 /* -------------------------------------------------------------- SetSelNRAppear -- */
 /* Set the appearance (shape and visibility) of every selected note or rest. */
 
-Boolean SetSelNRAppear(Document *doc, INT16 appearance)
+Boolean SetSelNRAppear(Document *doc, short appearance)
 {
 	PANOTE	aNote;
 	LINK		pL, aNoteL;
@@ -563,7 +562,7 @@ Boolean SetSelNRAppear(Document *doc, INT16 appearance)
 /* --------------------------------------------------------------- SetSelNRSmall -- */
 /* Set the <small> flag of every selected note or rest. */
 
-Boolean SetSelNRSmall(Document *doc, INT16 small)
+Boolean SetSelNRSmall(Document *doc, short small)
 {
 	PANOTE	aNote;
 	LINK		pL, aNoteL;
@@ -585,7 +584,7 @@ Boolean SetSelNRSmall(Document *doc, INT16 small)
 /* -------------------------------------------------------------- SetSelNRParens -- */
 /* Set the <courtesyAcc> flag of every selected note or rest. */
 
-Boolean SetSelNRParens(Document *doc, INT16 inParens)
+Boolean SetSelNRParens(Document *doc, short inParens)
 {
 	PANOTE	aNote;
 	LINK		pL, aNoteL;
@@ -611,7 +610,7 @@ all notes in the score or only on selected notes. */
 
 Boolean SetVelFromContext(Document *doc, Boolean selectedOnly)
 {
-	INT16 s;
+	short s;
 	CONTEXT context;
 	unsigned char curVelocity;
 	LINK pL, aNoteL, aDynamicL;
@@ -654,7 +653,7 @@ Boolean SetVelFromContext(Document *doc, Boolean selectedOnly)
 /* Set the On velocity of every selected note to a specific unsigned value. If the
 value specified is negative, does nothing. */
 
-Boolean SetSelVelocity(Document *doc, INT16 velocity)
+Boolean SetSelVelocity(Document *doc, short velocity)
 {
 	PANOTE	aNote;
 	LINK		pL, aNoteL;
@@ -714,7 +713,7 @@ height and number of staff lines. */
 Boolean SetSelGraphicX(
 				Document *doc,
 				STDIST	stx,
-				INT16		subtype					/* GRString, GRLyric, or GRChordSym */
+				short		subtype					/* GRString, GRLyric, or GRChordSym */
 				)
 {
 	PGRAPHIC	p;
@@ -790,7 +789,7 @@ height and number of staff lines. */
 Boolean SetSelGraphicY(
 				Document *doc,
 				STDIST	sty,
-				INT16		subtype,					/* GRString, GRLyric, or GRChordSym */
+				short		subtype,					/* GRString, GRLyric, or GRChordSym */
 				Boolean	above 					/* TRUE=above, FALSE=below */
 				)
 {
@@ -975,15 +974,15 @@ Boolean SetSelTempoY(
 
 Boolean SetSelGraphicStyle(
 				Document *doc,
-				INT16		styleChoice,
-				INT16		subtype 					/* GRString or GRLyric */
+				short		styleChoice,
+				short		subtype 					/* GRString or GRLyric */
 				)
 {
 	PGRAPHIC	pGraphic;
 	LINK		pL;
 	Boolean	didAnything=FALSE, toOrFromLyric;
 	TEXTSTYLE style;
-	INT16		fontInd, info;
+	short		fontInd, info;
 
 	if (styleChoice==TSRegular1STYLE) BlockMove(doc->fontName1,&style,sizeof(TEXTSTYLE));
 	else if (styleChoice==TSRegular2STYLE) BlockMove(doc->fontName2,&style,sizeof(TEXTSTYLE));
@@ -1083,7 +1082,7 @@ Boolean SetSelMeasVisible(Document *doc, Boolean visible)
 /* -------------------------------------------------------------- SetSelMeasType -- */
 /* Set "type" (the subType field) of every selected Measure subobject. */
 
-Boolean SetSelMeasType(Document *doc, INT16 subtype)
+Boolean SetSelMeasType(Document *doc, short subtype)
 {
 	PAMEASURE	aMeasure;
 	LINK			pL, aMeasureL;
@@ -1261,7 +1260,7 @@ enum {
 	NUM_VIS
 };
 
-Boolean SetSelTupNums(Document *doc, INT16 showWhich)
+Boolean SetSelTupNums(Document *doc, short showWhich)
 {
 	PTUPLET		pTuplet;
 	LINK			pL;
@@ -1292,7 +1291,7 @@ void SetAllSlursShape(
 	CONTEXT		context;
 	PASLUR		aSlur;
 	Point 		startPt[MAXCHORD], endPt[MAXCHORD];
-	INT16			j, staff, voice;
+	short			j, staff, voice;
 	Boolean 		curveUps[MAXCHORD];
 	
 	staff = SlurSTAFF(slurL);
@@ -1349,7 +1348,7 @@ Boolean SetSelSlurShape(Document *doc)
 	PSLUR			pSlur;
 	PASLUR		aSlur;
 	LINK			pL, aSlurL, aNoteL;
-	INT16			staff, voice, i;
+	short			staff, voice, i;
 	CONTEXT		context;
 	Boolean		curveUp, curveUps[MAXCHORD], didAnything;
 
@@ -1396,7 +1395,7 @@ Boolean SetSelSlurShape(Document *doc)
 /* ------------------------------------------------------------ SetSelSlurAppear -- */
 /* Set the appearance (line style) of every selected slur/tie. */
 
-Boolean SetSelSlurAppear(Document *doc, INT16 appearance)
+Boolean SetSelSlurAppear(Document *doc, short appearance)
 {
 	PASLUR	aSlur;
 	LINK		pL, aSlurL;
@@ -1418,7 +1417,7 @@ Boolean SetSelSlurAppear(Document *doc, INT16 appearance)
 /* ---------------------------------------------------------- SetSelLineThickness -- */
 /* Set the thickness of every selected GRDraw Graphic to a given value. */
 
-Boolean SetSelLineThickness(Document *doc, INT16 thickness)
+Boolean SetSelLineThickness(Document *doc, short thickness)
 {
 	PGRAPHIC pGraphic;
 	LINK		pL;

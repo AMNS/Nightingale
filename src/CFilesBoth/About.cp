@@ -15,8 +15,6 @@
 
 /* ------------------------------------------------------------- DoAboutBox et al -- */
 
-#define NO_SERIAL_NUM
-
 #define	CR_LEADING				14		/* Vert. dist. between baselines of credit text */
 #define	PAUSE_CODE				'¹'	/* [opt-p] If line of TEXT resource begins with this,
 													animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
@@ -26,7 +24,6 @@
 #define	SCROLL_NORM_DELAY		4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
 #define	MAX_PAUSE_LINES		10		/* Max number of lines that can begin with PAUSE_CODE */
 
-static Boolean			GetSNAndOwner(char [], char [], char []);
 static pascal Boolean	AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static Boolean			SetupCredits(void);
 static void				AnimateCredits(DialogPtr dlog);
@@ -45,30 +42,9 @@ static enum {
 	STXT_VERS
 } E_AboutItems;
 
-
-/* Get information about this copy of Nightingale: its serial number and the
-name and organization of its owner. 
- Ignore serial number for now --chirgwin Mon May 28 16:02:01 PDT 2012
- */
-
-static Boolean GetSNAndOwner(char *serialStr, char *userName, char *userOrg)
-{
-	serialStr[0] = '\0';
-	userName[0] = '\0';
-	userOrg[0] = '\0';
-	
-	/* If the owner's name and organization aren't filled in, it's no big deal--
-		they should have the default values. */
-	
-	GetIndCString(userName, 1000, 1);
-	GetIndCString(userOrg, 1000, 2);
-
-	return TRUE;
-}
-
 static GrafPtr	fullTextPort;
 static Rect		creditRect, textSection;
-static INT16	pauseLines[MAX_PAUSE_LINES];
+static short	pauseLines[MAX_PAUSE_LINES];
 static Boolean	firstAnimateCall;
 
 void DoAboutBox(
@@ -76,7 +52,7 @@ void DoAboutBox(
 	)
 {
 	short			type, itemHit, curResFile;
-	INT16			x, y;
+	short			x, y;
 	Rect			smallRect, bigRect;
 	Boolean		okay, keepGoing=TRUE;
 	DialogPtr	dlog;
@@ -89,8 +65,6 @@ void DoAboutBox(
 	/* Build dialog window and install its item values */
 	
 	GetPort(&oldPort);
-	
-	GetSNAndOwner(serialStr, userName, userOrg);
 
 	GetIndCString(fmtStr, DIALOG_STRS, 5);   		 		/* "Free memory (RAM): %ldK total, largest block = %ldK" */
 	sprintf(str, fmtStr, FreeMem()/1024L, MaxBlock()/1024L);
@@ -114,13 +88,8 @@ void DoAboutBox(
 	OffsetRect(&textSection, -creditRect.left, -creditRect.top);
 	if (!SetupCredits()) goto broken;
 
-#ifdef DEMO_VERSION
-	ShowDialogItem(dlog, STXT_DEMO);
-	ShowDialogItem(dlog, PICT_DEMO);
-#else
 	HideDialogItem(dlog, STXT_DEMO);
 	HideDialogItem(dlog, PICT_DEMO);
-#endif
 
 #ifdef PUBLIC_VERSION
 	HideDialogItem(dlog, PICT8_Confident);
@@ -128,16 +97,7 @@ void DoAboutBox(
 	ShowDialogItem(dlog, PICT8_Confident);
 #endif
 
-#ifdef VIEWER_VERSION
-	HideDialogItem(dlog, STXT7_CopyNum);
-#else
- #ifdef NO_SERIAL_NUM
-	HideDialogItem(dlog, STXT7_CopyNum);
- #else
 	ShowDialogItem(dlog, STXT7_CopyNum);
- #endif
-#endif
-	
 	
 	/* Get version number string and display it in a static text item. */
 	unsigned char vstr[256], *vers_str;
@@ -156,9 +116,7 @@ void DoAboutBox(
 
 	GetDialogItem(dlog, BUT2_Special, &type, &hndl, &box);
 	HiliteControl((ControlHandle)hndl, CTL_INACTIVE);
-#ifdef NO_SERIAL_NUM
 	HideDialogItem(dlog, BUT2_Special);
-#endif
 
 	SetPort(GetDialogWindowPort(dlog));
 	TextFont(textFontNum);
@@ -166,11 +124,7 @@ void DoAboutBox(
 
 	y = GetMBarHeight()+10; x = 25;
 	SetRect(&smallRect, x, y, x+2, y+2);
-#ifdef VIEWER_VERSION
-	CenterWindow(GetDialogWindow(dlog), 36);
-#else
 	CenterWindow(GetDialogWindow(dlog), 70);
-#endif
 	GetWindowPortBounds(GetDialogWindow(dlog),&bigRect);
 	LocalToGlobal(&TOP_LEFT(bigRect));
 	LocalToGlobal(&BOT_RIGHT(bigRect));
@@ -201,15 +155,7 @@ void DoAboutBox(
 				keepGoing = FALSE; okay = TRUE;
 				break;
 			case BUT2_Special:
-#ifdef NOTYET
-				{
-					Document *doc=GetDocumentFromWindow(TopDocument);
-					if (doc!=NULL)
-						DCheckEverything(doc, maxCheck, minCheck);	/* ??Requires Consolationª */
-				}
-#else
 				SysBeep(1);		/* For future use; maybe a simple "Debug Check" */
-#endif
 				break;
 		}
 	}
@@ -280,9 +226,9 @@ Boolean SetupCredits()
 {
 	Handle		creditText;
 	char			*textPtr, *strP, *thisStr;
-	INT16			numLines, lineNum, strWid, offset, pauseLineCount, i;
+	short			numLines, lineNum, strWid, offset, pauseLineCount, i;
 	long			textLen;
-	INT16			portWid;
+	short			portWid;
 	
 	/* Get credit text from TEXT resource. (Get1Resource isn't worth the trouble.) */
 	creditText = GetResource('TEXT', ABOUT_TEXT);
@@ -369,8 +315,8 @@ void AnimateCredits(DialogPtr dlog)
 {
 	long				thisTime;
 	static long		lastTime;
-	static INT16	pixelCount;
-	INT16				i, thisLineNum;
+	static short	pixelCount;
+	short				i, thisLineNum;
 	Boolean			doPause=FALSE;
 
 	thisTime = TickCount();
@@ -411,9 +357,6 @@ void AnimateCredits(DialogPtr dlog)
 	const BitMap *ftpPortBits = GetPortBitMapForCopyBits(fullTextPort);
 	const BitMap *dlogPortBits = GetPortBitMapForCopyBits(GetDialogWindowPort(dlog));
 	CopyBits(ftpPortBits, dlogPortBits, &textSection, &creditRect, srcCopy, NULL);
-
-//	CopyBits(&fullTextPort->portBits, &dlog->portBits,
-//					&textSection, &creditRect, srcCopy, NULL);
 					
 	textSection.top++; textSection.bottom++;
 	pixelCount++;

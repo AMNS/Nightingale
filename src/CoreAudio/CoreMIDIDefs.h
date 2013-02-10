@@ -90,7 +90,7 @@ MIDIEndpointRef			gDest = NULL;
 MIDIUniqueID				gDefaultInputDevID = 0;
 MIDIUniqueID				gDefaultOutputDevID = 0;
 MIDIUniqueID				gDefaultMetroDevID = 0;
-INT16							gDefaultChannel = 1;
+short							gDefaultChannel = 1;
 
 #else
 
@@ -104,7 +104,7 @@ extern MIDIEndpointRef	gDest;
 extern MIDIUniqueID		gDefaultInputDevID;
 extern MIDIUniqueID		gDefaultOutputDevID;
 extern MIDIUniqueID		gDefaultMetroDevID;
-extern INT16				gDefaultChannel;
+extern short				gDefaultChannel;
 
 #endif
 

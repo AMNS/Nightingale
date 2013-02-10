@@ -118,7 +118,7 @@ pages. Also update the header's numSheets field. */
 
 void UpdatePageNums(Document *doc)
 {
-	LINK pageL; INT16 sheetNum=0;
+	LINK pageL; short sheetNum=0;
 	
 	pageL = LSSearch(doc->headL, PAGEtype, ANYONE, FALSE, FALSE);
 	
@@ -136,7 +136,7 @@ systems. Also update the header's nsystems field. */
 
 void UpdateSysNums(Document *doc, LINK headL)
 {
-	LINK sysL; INT16 sysNum=1;
+	LINK sysL; short sysNum=1;
 	
 	sysL = LSSearch(headL, SYSTEMtype, ANYONE, FALSE, FALSE);
 	
@@ -162,7 +162,7 @@ Boolean UpdateMeasNums(Document *doc, LINK startL)
 	LINK stopFakeMeasL, sysL, stopFakeSysL, aMeasureL, aNoteL;
 	Boolean fakeMeas, didAnything=FALSE, updateFakeMeas;
 	PAMEASURE aMeasure;
-	INT16 measNum,									/* Zero-indexed number of the next measure */
+	short measNum,									/* Zero-indexed number of the next measure */
 			nMeasRest;
 
 	stopFakeMeasL = NILINK;
@@ -233,11 +233,11 @@ Boolean UpdateMeasNums(Document *doc, LINK startL)
 /* Get the (user) number of the Measure the given object is in, or of the object
 itself if it's a Measure. Does not assume cross-links are valid. */
 
-INT16 GetMeasNum(Document *doc, LINK pL)
+short GetMeasNum(Document *doc, LINK pL)
 {
 	LINK measL, aMeasureL;
 	PAMEASURE	aMeasure;
-	INT16			measNum;
+	short			measNum;
 	
 	measL = SSearch(pL, MEASUREtype, GO_LEFT);
 	if (!measL) return 0;								/* ??SHOULD GIVE doc->firstMNNumber */
@@ -531,7 +531,7 @@ DDIST ObjSpaceUsed(Document *doc, LINK pL)
 {
 	LINK		aNoteL;
 	long		maxLen,tempLen;
-	INT16		noteStaff;
+	short		noteStaff;
 	CONTEXT	context;
 	STDIST	symWidth,space;
 	
@@ -746,7 +746,7 @@ Boolean RealignObj(LINK pL,
 						)
 {
 	GenSubObj *subObj; LINK subObjL; DDIST subXD;
-	INT16 i; Boolean haveXD; PMEVENT p; HEAP *tmpHeap;
+	short i; Boolean haveXD; PMEVENT p; HEAP *tmpHeap;
 
 	if (useSel)
 		haveXD = FALSE;
@@ -819,7 +819,7 @@ DDIST GetSysLeft(Document *doc)
 done by searching backwards for a Staff object and getting the information from
 there. */
 
-DDIST StaffHeight(Document *doc, LINK pL, INT16 theStaff)
+DDIST StaffHeight(Document *doc, LINK pL, short theStaff)
 {
 	PASTAFF	aStaff;
 	LINK		staffL, aStaffL;
@@ -1017,7 +1017,7 @@ Boolean SetMeasWidth(LINK measL, DDIST	width)
 {
 	LINK			aMeasL;
 	PAMEASURE	aMeas;
-	INT16			j;
+	short			j;
 
 	if (width<=0) return FALSE;
 	
@@ -1169,7 +1169,7 @@ ConsecSync will find consecutive syncs in different systems, since LSSearch
 doesn't set inSystem TRUE for its search and initial system objects (System,
 Connect, etc.) are not checked for. */
 
-Boolean ConsecSync(LINK syncA, LINK syncB, INT16 staff, INT16 voice)
+Boolean ConsecSync(LINK syncA, LINK syncB, short staff, short voice)
 {
 	LINK pL;
 	SearchParam	pbSearch;
@@ -1200,7 +1200,7 @@ insertion point at the end of a system, it will be the following system object
 the system is before the first measure of its system. For selection range and
 insertion point, use BeforeFirstMeas(). */
  
-INT16 LinkBefFirstMeas(LINK pL)		/* ??should return Boolean */
+short LinkBefFirstMeas(LINK pL)		/* ??should return Boolean */
 {
 	LINK qL;
 
@@ -1224,7 +1224,7 @@ INT16 LinkBefFirstMeas(LINK pL)		/* ??should return Boolean */
 
 /* Return TRUE if pL is before the first measure of the first system of its page. */
 
-INT16 BeforeFirstPageMeas(LINK pL)
+short BeforeFirstPageMeas(LINK pL)
 {
 	LINK sysL;
 	
@@ -1333,7 +1333,7 @@ Boolean BeforeFirstMeas(LINK pL)
 
 LINK GetCurrentPage(Document *doc)
 {
-	INT16 sheetNum; LINK pL;
+	short sheetNum; LINK pL;
 	
 	sheetNum  = doc->currentSheet;
 	pL = doc->headL;
@@ -1578,9 +1578,9 @@ Boolean FirstSysInScore(LINK sysL)
 /* ------------------------------------------------------------------ NSysOnPage -- */
 /* Returns number of systems on page <pageL>. */
 
-INT16 NSysOnPage(LINK pageL)
+short NSysOnPage(LINK pageL)
 {
-	LINK sysL; INT16 nSys;
+	LINK sysL; short nSys;
 	
 	sysL = SSearch(pageL, SYSTEMtype, FALSE);
 
@@ -1897,9 +1897,9 @@ void MoveTimeMeasures(LINK startL, LINK endL, long diffTime)
 /* Counts notes in range [startL,endL) on staff <staff>, not including rests, and
 with each chord counting as 1 note. */
 
-unsigned INT16 CountNotesInRange(INT16 staff, LINK startL, LINK endL, Boolean selectedOnly)
+unsigned short CountNotesInRange(short staff, LINK startL, LINK endL, Boolean selectedOnly)
 {
-	unsigned INT16 numNotes;
+	unsigned short numNotes;
 	LINK pL, aNoteL;
 
 	for (numNotes = 0, pL = startL; pL!=endL; pL = RightLINK(pL))
@@ -1918,9 +1918,9 @@ unsigned INT16 CountNotesInRange(INT16 staff, LINK startL, LINK endL, Boolean se
 /* Counts GRNotes in range [startL,endL) on staff <staff> (there are no GRRrests),
 and with each chord counting as 1 GRNote. */
 
-unsigned INT16 CountGRNotesInRange(INT16 staff, LINK startL, LINK endL, Boolean selectedOnly)
+unsigned short CountGRNotesInRange(short staff, LINK startL, LINK endL, Boolean selectedOnly)
 {
-	unsigned INT16 numGRNotes;
+	unsigned short numGRNotes;
 	LINK pL, aGRNoteL;
 
 	for (numGRNotes = 0, pL = startL; pL!=endL; pL = RightLINK(pL))
@@ -1941,12 +1941,12 @@ different if there are multiple voices on the staff) optionally counting as 1 no
 Cf. CountNotesInRange: should perhaps be combined with it, but NB: that function ignores
 rests, and it gives a count of chords (not notes or Syncs). Also cf. SVCountNotes. */
 
-unsigned INT16 CountNotes(INT16 staff,
+unsigned short CountNotes(short staff,
 						LINK startL, LINK endL,
 						Boolean syncs						/* TRUE=each Sync counts as 1 note */
 						)
 {
-	unsigned INT16 noteCount;
+	unsigned short noteCount;
 	LINK		pL, aNoteL;
 	Boolean	anyStaff;
 	
@@ -1968,12 +1968,12 @@ unsigned INT16 CountNotes(INT16 staff,
 /* ---------------------------------------------------------------- VCountNotes -- */
 /* Counts notes/rests in range in voice. Cf. CountNotesInRange. */
 
-unsigned INT16 VCountNotes(INT16 v,
+unsigned short VCountNotes(short v,
 						LINK startL, LINK endL,
 						Boolean chords					/* TRUE=each chord counts as 1 note */
 						)
 {
-	unsigned INT16 noteCount;
+	unsigned short noteCount;
 	LINK		pL, aNoteL;
 	Boolean	anyVoice;
 	
@@ -1997,12 +1997,12 @@ unsigned INT16 VCountNotes(INT16 v,
 /* Counts grace notes in range on staff, with each GRSync (not chord: they can be
 different if there are multiple voices on the staff) optionally counting as 1 note. */
 
-unsigned INT16 CountGRNotes(INT16 staff, 
+unsigned short CountGRNotes(short staff, 
 						LINK startL, LINK endL,
 						Boolean syncs				/* TRUE=each GRSync counts as 1 note */
 						)
 {
-	unsigned INT16 noteCount;
+	unsigned short noteCount;
 	LINK		pL, aGRNoteL;
 	Boolean	anyStaff;
 	
@@ -2025,13 +2025,13 @@ unsigned INT16 CountGRNotes(INT16 staff,
 /* ---------------------------------------------------------------- SVCountNotes -- */
 /* Counts notes/rests in range in voice and staff. Cf. CountNotesInRange. */
 
-unsigned INT16 SVCountNotes(INT16 staff, INT16 v, LINK startL,
+unsigned short SVCountNotes(short staff, short v, LINK startL,
 							LINK endL,
 							Boolean chords			/* TRUE=each chord counts as 1 note */
 							)
 {
 	Boolean	anyVoice=(v<0);
-	unsigned INT16 noteCount;
+	unsigned short noteCount;
 	LINK		pL, aNoteL;
 	
 	noteCount = 0;
@@ -2050,13 +2050,13 @@ unsigned INT16 SVCountNotes(INT16 staff, INT16 v, LINK startL,
 /* --------------------------------------------------------------- SVCountGRNotes -- */
 /* Counts grace notes in range in voice and staff. Cf. CountNotesInRange. */
 
-unsigned INT16 SVCountGRNotes(INT16 staff, INT16 v,
+unsigned short SVCountGRNotes(short staff, short v,
 								LINK startL, LINK endL,
 								Boolean chords				/* TRUE=each chord counts as 1 note */
 								)
 {
 	Boolean	anyVoice=(v<0);
-	unsigned INT16 noteCount;
+	unsigned short noteCount;
 	LINK		pL, aGRNoteL;
 	
 	noteCount = 0;
@@ -2076,10 +2076,10 @@ unsigned INT16 SVCountGRNotes(INT16 staff, INT16 v,
 /* ---------------------------------------------------------------- CountObjects -- */
 /* Count objects in range of the given type or of all types. */
 
-unsigned INT16 CountObjects(LINK startL, LINK endL,
-							INT16 type)				/* Object type or ANYTYPE */
+unsigned short CountObjects(LINK startL, LINK endL,
+							short type)				/* Object type or ANYTYPE */
 {
-	unsigned INT16 count; LINK pL;
+	unsigned short count; LINK pL;
 	
 	for (count = 0, pL = startL; pL && pL!=endL; pL = RightLINK(pL))
 		if (type==ANYTYPE || ObjLType(pL)==type)
@@ -2093,11 +2093,11 @@ unsigned INT16 CountObjects(LINK startL, LINK endL,
 /* Count the objects in each heap of the given score. */
 
 void CountInHeaps(Document *doc,
-			unsigned INT16 objCount[],
+			unsigned short objCount[],
 			Boolean includeMP				/* TRUE=include Master Page object list */
 			)
 {
-	unsigned INT16 h, numMods=0;
+	unsigned short h, numMods=0;
 	LINK pL, aNoteL, aModNRL; PANOTE aNote;	
 
 	for (h = FIRSTtype; h<LASTtype; h++ )
@@ -2136,7 +2136,7 @@ void CountInHeaps(Document *doc,
 /* ------------------------------------------------------------ HasOtherStemSide -- */
 
 Boolean HasOtherStemSide(LINK syncL,
-									INT16 staff)			/* staff no. or ANYONE */
+									short staff)			/* staff no. or ANYONE */
 {
 	LINK aNoteL; PANOTE aNote;
 	
@@ -2168,7 +2168,7 @@ Boolean NoteLeftOfStem(LINK /*pL*/,			/* Sync note belongs to */
 /* Deliver 1 if the note/chord for the given voice and Sync is stem up, -1
 if stem down. If the voice and Sync has a rest or nothing, return 0. */
 
-INT16 GetStemUpDown(LINK syncL, INT16 voice)
+short GetStemUpDown(LINK syncL, short voice)
 {
 	LINK aNoteL;
 	PANOTE aNote;
@@ -2190,7 +2190,7 @@ INT16 GetStemUpDown(LINK syncL, INT16 voice)
 /* Deliver 1 if the note/chord for the given voice and GRSync is stem up, -1
 if stem down. If the voice and GRSync has nothing, return 0. */
 
-INT16 GetGRStemUpDown(LINK grSyncL, INT16 voice)
+short GetGRStemUpDown(LINK grSyncL, short voice)
 {
 	LINK aGRNoteL;
 	PAGRNOTE aGRNote;
@@ -2215,7 +2215,7 @@ return NILINK for each. ??FindExtremeNote should call it (and FindExtremeGRNote
 should call a similar function). */
 
 void GetExtremeNotes(LINK syncL,
-							INT16 voice,
+							short voice,
 							LINK *pLowNoteL,
 							LINK *pHiNoteL)
 {
@@ -2252,7 +2252,7 @@ GRSync/voice, return that note as both highest and lowest; if there are no grace
 in the GRSync/voice, return NILINK for each. ??FindExtremeGRNote should call it. */
 
 void GetExtremeGRNotes(LINK grSyncL,
-							INT16 voice,
+							short voice,
 							LINK *pLowGRNoteL,
 							LINK *pHiGRNoteL)
 {
@@ -2287,7 +2287,7 @@ void GetExtremeGRNotes(LINK grSyncL,
 Sync/GRSync. */
 
 LINK FindMainNote(LINK pL,			/* Sync or GRSync */
-						INT16 voice
+						short voice
 						)
 {
 	LINK aNoteL, aGRNoteL;
@@ -2315,7 +2315,7 @@ LINK FindMainNote(LINK pL,			/* Sync or GRSync */
 /* Return the GRMainNote (the one with a stem) in the given voice and GRSync. */
 
 LINK FindGRMainNote(LINK pL,		/* GRSync */
-							INT16 voice
+							short voice
 							)
 {
 	LINK aGRNoteL;
@@ -2331,12 +2331,12 @@ LINK FindGRMainNote(LINK pL,		/* GRSync */
 
 /* ------------------------------------------------------------- GetObjectLimits -- */
 
-void GetObjectLimits(INT16 type,
-							INT16 *minEntries, INT16 *maxEntries,
+void GetObjectLimits(short type,
+							short *minEntries, short *maxEntries,
 							Boolean *objRectOrdered	/* TRUE=objRect meaningful & its .left should be in order */
 							)
 {
-	INT16		i, loc;
+	short		i, loc;
 
 	for (loc = -1, i = FIRSTtype; i<LASTtype; i++)
 		if (objTable[i].objType==type)
@@ -2360,7 +2360,7 @@ void GetObjectLimits(INT16 type,
 /* See if pL is in data structure (object list) indicated by whichList. */
 
 Boolean InDataStruct(Document *doc, LINK pL,
-							INT16 whichList				/* Whether main, clipboard, or Undo */
+							short whichList				/* Whether main, clipboard, or Undo */
 							)
 {
 	LINK qL;
@@ -2393,9 +2393,9 @@ subobj corresponding to that index, or NOONE if no such subobj exists. For
 objects of type PEXTEND, ignores index and returns the staffn of the object
 as a whole. Default gives error message and returns NOONE. PAGEs return NOONE. */
 
-INT16 GetSubObjStaff(LINK pL, INT16 index)
+short GetSubObjStaff(LINK pL, short index)
 {
-	INT16			i;
+	short			i;
 	GenSubObj 	*subObj;
 	LINK			subObjL;
 	PMEVENT		p;
@@ -2447,9 +2447,9 @@ subobj corresponding to that index, or NOONE if no such subobj exists or if
 that type of object doesn't have voice numbers. Default gives error message and
 returns NOONE. */
 
-INT16 GetSubObjVoice(LINK pL, INT16 index)
+short GetSubObjVoice(LINK pL, short index)
 {
-	INT16		i;
+	short		i;
 	LINK		aNoteL, aGRNoteL;
 
 	switch (ObjLType(pL)) {
@@ -2497,7 +2497,7 @@ INT16 GetSubObjVoice(LINK pL, INT16 index)
 consider cross-staff objects: a cross-staff slur with staffn=3 is also (in some
 sense) on staff 4, but this function will not detect that. */
 
-Boolean ObjOnStaff(LINK pL, INT16 staff, Boolean selectedOnly)
+Boolean ObjOnStaff(LINK pL, short staff, Boolean selectedOnly)
 {
 	GenSubObj	*subObj;
 	LINK			subObjL;
@@ -2559,9 +2559,9 @@ Boolean ObjOnStaff(LINK pL, INT16 staff, Boolean selectedOnly)
 /* If there are any staves on which both objects have subobjects, return the
 lowest-numbered staff they have in common; otherwise return NOONE. */
 
-INT16 CommonStaff(Document *doc, LINK obj1, LINK obj2)
+short CommonStaff(Document *doc, LINK obj1, LINK obj2)
 {
-	INT16 s;
+	short s;
 	
 	for (s = 1; s<=doc->nstaves; s++)
 		if (ObjOnStaff(obj1, s, FALSE) && ObjOnStaff(obj2, s, FALSE)) return s;
@@ -2616,7 +2616,7 @@ Boolean ObjHasVoice(LINK pL)
 return the obj or subObj. ??Should make calling sequence analogous to ObjOnStaff
 and rename it ObjInVoice. */
 
-LINK ObjSelInVoice(LINK pL, INT16 v)
+LINK ObjSelInVoice(LINK pL, short v)
 {
 	LINK link,aNoteL;
 
@@ -2649,7 +2649,7 @@ LINK ObjSelInVoice(LINK pL, INT16 v)
 /* ---------------------------------------------------------------- StaffOnStaff -- */
 /* If staffL has a subobj on s, return it. staffL must be a Staff. */
 
-LINK StaffOnStaff(LINK staffL, INT16 s)
+LINK StaffOnStaff(LINK staffL, short s)
 {
 	LINK aStaffL;
 	
@@ -2663,7 +2663,7 @@ LINK StaffOnStaff(LINK staffL, INT16 s)
 /* ----------------------------------------------------------------- ClefOnStaff -- */
 /* If clefL has a subobject on s, return it. clefL must be a Clef. */
 
-LINK ClefOnStaff(LINK clefL, INT16 s)
+LINK ClefOnStaff(LINK clefL, short s)
 {
 	LINK aClefL;
 
@@ -2677,7 +2677,7 @@ LINK ClefOnStaff(LINK clefL, INT16 s)
 /* --------------------------------------------------------------- KeySigOnStaff -- */
 /* If ksL has a subobject on s, return it. ksL must be a KeySig. */
 
-LINK KeySigOnStaff(LINK ksL, INT16 s)
+LINK KeySigOnStaff(LINK ksL, short s)
 {
 	LINK aKeySigL;
 
@@ -2691,7 +2691,7 @@ LINK KeySigOnStaff(LINK ksL, INT16 s)
 /* -------------------------------------------------------------- TimeSigOnStaff -- */
 /* If tsL has a timeSig on s, return it. tsL must be a TimeSig. */
 
-LINK TimeSigOnStaff(LINK tsL, INT16 s)
+LINK TimeSigOnStaff(LINK tsL, short s)
 {
 	LINK aTimeSigL;
 
@@ -2706,7 +2706,7 @@ LINK TimeSigOnStaff(LINK tsL, INT16 s)
 /* ----------------------------------------------------------------- MeasOnStaff -- */
 /* If measL has a subobject on s, return it. measL must be a Measure. */
 
-LINK MeasOnStaff(LINK measL, INT16 s)
+LINK MeasOnStaff(LINK measL, short s)
 {
 	LINK aMeasL;
 
@@ -2720,7 +2720,7 @@ LINK MeasOnStaff(LINK measL, INT16 s)
 /* ----------------------------------------------------------------- NoteOnStaff -- */
 /* If pL has a subobj (note or rest) on s, return it. pL must be a Sync. */
 
-LINK NoteOnStaff(LINK pL, INT16 s)
+LINK NoteOnStaff(LINK pL, short s)
 {
 	LINK aNoteL;
 	
@@ -2734,7 +2734,7 @@ LINK NoteOnStaff(LINK pL, INT16 s)
 /* -------------------------------------------------------------- GRNoteOnStaff -- */
 /* If pL has a subobj (grace note) on s, return it. pL must be a GRSync. */
 
-LINK GRNoteOnStaff(LINK pL, INT16 s)
+LINK GRNoteOnStaff(LINK pL, short s)
 {
 	LINK aGRNoteL;
 	
@@ -2748,7 +2748,7 @@ LINK GRNoteOnStaff(LINK pL, INT16 s)
 /* ---------------------------------------------------------------- NoteInVoice -- */
 /* If syncL has a subobj (note or rest) in voice v, return it. */
 
-LINK NoteInVoice(LINK syncL, INT16 v, Boolean needSel)
+LINK NoteInVoice(LINK syncL, short v, Boolean needSel)
 {
 	LINK aNoteL;
 	
@@ -2762,7 +2762,7 @@ LINK NoteInVoice(LINK syncL, INT16 v, Boolean needSel)
 /* -------------------------------------------------------------- GRNoteInVoice -- */
 /* If grSyncL has a subobj (grace note) in voice v, return it. */
 
-LINK GRNoteInVoice(LINK grSyncL, INT16 v, Boolean needSel)
+LINK GRNoteInVoice(LINK grSyncL, short v, Boolean needSel)
 {
 	LINK aGRNoteL;
 	
@@ -2777,7 +2777,7 @@ LINK GRNoteInVoice(LINK grSyncL, INT16 v, Boolean needSel)
 /* ----------------------------------------------------------------- SyncInVoice -- */
 /* Return TRUE if pL (which must be a Sync) has a note/rest in the given voice. */
 
-Boolean SyncInVoice(LINK pL, INT16 voice)
+Boolean SyncInVoice(LINK pL, short voice)
 {
 	return (NoteInVoice(pL, voice, FALSE)!=NILINK);
 }			
@@ -2785,7 +2785,7 @@ Boolean SyncInVoice(LINK pL, INT16 voice)
 /* --------------------------------------------------------------- GRSyncInVoice -- */
 /* Return TRUE if pL (which must be a GRSync) has a grace note in the given voice. */
 
-Boolean GRSyncInVoice(LINK pL, INT16 voice)
+Boolean GRSyncInVoice(LINK pL, short voice)
 {
 	return (GRNoteInVoice(pL, voice, FALSE)!=NILINK);
 }			
@@ -2794,7 +2794,7 @@ Boolean GRSyncInVoice(LINK pL, INT16 voice)
 /* If the given Sync has one or more subobjects on the given staff, return the
 first one's voice number, otherwise return NOONE. */
 
-INT16 SyncVoiceOnStaff(LINK syncL, INT16 staff)
+short SyncVoiceOnStaff(LINK syncL, short staff)
 {
 	LINK aNoteL;
 	
@@ -2847,7 +2847,7 @@ preceding note it's tied to. */
 Boolean PrevTiedNote(LINK syncL, LINK aNoteL, LINK *pFirstSyncL,
 										LINK *pFirstNoteL)
 {
-	PANOTE aNote; INT16 noteNum, voice;
+	PANOTE aNote; short noteNum, voice;
 
 	aNote = GetPANOTE(aNoteL);
 	noteNum = aNote->noteNum;
@@ -2867,7 +2867,7 @@ series; if the given note isn't tiedL, return it unchanged. */
 Boolean FirstTiedNote(LINK syncL, LINK aNoteL,							/* Starting Sync/note */
 								LINK *pFirstSyncL, LINK *pFirstNoteL)		/* First Sync/note */
 {
-	INT16 noteNum, voice; LINK continL, continNoteL;
+	short noteNum, voice; LINK continL, continNoteL;
 	
 	noteNum = NoteNUM(aNoteL);
 	voice = NoteVOICE(aNoteL);
@@ -2898,7 +2898,7 @@ Boolean FirstTiedNote(LINK syncL, LINK aNoteL,							/* Starting Sync/note */
 
 LINK ChordNextNR(LINK syncL, LINK theNoteL)
 {
-	INT16 voice; LINK aNoteL; Boolean foundTheNote=FALSE;
+	short voice; LINK aNoteL; Boolean foundTheNote=FALSE;
 	
 	voice = NoteVOICE(theNoteL);
 	
@@ -2919,9 +2919,9 @@ LINK ChordNextNR(LINK syncL, LINK theNoteL)
 stfRange and return TRUE. In the latter case, we assume the notes are on only
 two different staves: we don't check this, nor that the staves are consecutive. */
 
-Boolean GetCrossStaff(INT16 nElem, LINK notes[], STFRANGE *stfRange)
+Boolean GetCrossStaff(short nElem, LINK notes[], STFRANGE *stfRange)
 {
-	INT16 i, firstStaff, stf; STFRANGE theRange; Boolean crossStaff=FALSE;
+	short i, firstStaff, stf; STFRANGE theRange; Boolean crossStaff=FALSE;
 	
 	firstStaff = NoteSTAFF(notes[0]);
 	theRange.topStaff = theRange.bottomStaff = firstStaff;
@@ -3033,12 +3033,12 @@ void SetSpareFlags(LINK startL, LINK endL, Boolean value)
 this is probably a bug, but as of v.3.0, this function is used only for octave
 signs, so might not be noticed much. */
 
-Boolean GetMultiVoice(LINK syncL, INT16 staff)
+Boolean GetMultiVoice(LINK syncL, short staff)
 {
 	LINK aNoteL;
 	PANOTE aNote;
 	Boolean multiVoice=FALSE;
-	INT16 lastVoice = -1;
+	short lastVoice = -1;
 
 	if (ObjLType(syncL) == SYNCtype) {
 		aNoteL = FirstSubLINK(syncL);
@@ -3063,10 +3063,10 @@ Boolean GetMultiVoice(LINK syncL, INT16 staff)
 /* If all selected notes/rests are on one staff, returns that staff, else
 returns NOONE. Ignores other selected objects. */
 
-INT16 GetSelectionStaff(Document *doc)
+short GetSelectionStaff(Document *doc)
 {
 	LINK pL, aNoteL;
-	INT16 firstStaff=NOONE;
+	short firstStaff=NOONE;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (ObjLType(pL)==SYNCtype) {
@@ -3113,9 +3113,9 @@ void TweakSubRects(Rect *r, LINK aNoteL, CONTEXT *pContext)
 /* --------------------------------------------------------- CompareScoreFormat --- */
 /* Return TRUE if doc1,doc2 have identical part-staff formats, else return FALSE. */
 
-INT16 CompareScoreFormat(Document *doc1,
+short CompareScoreFormat(Document *doc1,
 									Document *doc2,
-									INT16 /*type*/)			/* unused */
+									short /*type*/)			/* unused */
 {
 	LINK head1,head2,part1,part2; PPARTINFO pPart1,pPart2;
 
@@ -3169,7 +3169,7 @@ void DisposeMODNRs(LINK startL, LINK endL)
 /* Return the LINK to the part containing staff <stf> in the object list
 starting at headL. */
 
-LINK Staff2PartL(Document */*doc*/, LINK headL, INT16 stf)
+LINK Staff2PartL(Document */*doc*/, LINK headL, short stf)
 {
 	LINK partL;
 
@@ -3182,9 +3182,9 @@ LINK Staff2PartL(Document */*doc*/, LINK headL, INT16 stf)
 }
 
 
-INT16 PartL2Partn(Document *doc, LINK partL)
+short PartL2Partn(Document *doc, LINK partL)
 {
-	LINK pL; INT16 partn;
+	LINK pL; short partn;
 	
 	pL = FirstSubLINK(doc->headL);
 	for (partn = 1, pL = NextPARTINFOL(pL); pL; partn++, pL = NextPARTINFOL(pL))
@@ -3193,9 +3193,9 @@ INT16 PartL2Partn(Document *doc, LINK partL)
 	return NOONE;
 }
 
-LINK Partn2PartL(Document *doc, INT16 partn)
+LINK Partn2PartL(Document *doc, short partn)
 {
-	LINK partL; INT16 n;
+	LINK partL; short n;
 
 	partL = FirstSubLINK(doc->headL);
 	for (n = 1, partL = NextPARTINFOL(partL); n<=partn && partL;
@@ -3212,7 +3212,7 @@ LINK Partn2PartL(Document *doc, INT16 partn)
 /* Determines if there is a tie-subtype Slur in <voice> across the point just
 before <link>.  If so, returns the LINK to the Slur, else NILINK. */
 
-LINK VHasTieAcross(LINK link, INT16 voice)	
+LINK VHasTieAcross(LINK link, short voice)	
 {
 	LINK lSyncL, rSyncL, lNoteL, rNoteL, slurL;
 	
@@ -3254,7 +3254,7 @@ Boolean HasSmthgAcross(
 				LINK link,
 				char *str)		/* user-friendly string describing the problem voice or staff */
 {
-	INT16 voice, staff, number;
+	short voice, staff, number;
 	Boolean isVoice, foundSmthg=FALSE;
 	
 	/* Slurs are never a problem, and ties in voices other than the one we're
@@ -3294,9 +3294,9 @@ Finish:
 /* Given interline space in DDIST, return the rastral of a staff that
 would have this interline space, or return -1 if error.  -JGG, 7/31/00 */
 
-INT16 LineSpace2Rastral(DDIST lnSpace)
+short LineSpace2Rastral(DDIST lnSpace)
 {
-	INT16	i;
+	short	i;
 	DDIST	stfHeight;		/* for a 5-line staff */
 
 	stfHeight = lnSpace*(STFLINES-1);
@@ -3311,7 +3311,7 @@ INT16 LineSpace2Rastral(DDIST lnSpace)
 
 /* Given a rastral, return interline space in DDIST  -JGG, 7/31/00 */
 
-DDIST Rastral2LineSpace(INT16 rastral)
+DDIST Rastral2LineSpace(short rastral)
 {
 	return (drSize[rastral]/(STFLINES-1));
 }
@@ -3319,9 +3319,9 @@ DDIST Rastral2LineSpace(INT16 rastral)
 
 /* Given a staff subobject, return its rastral, or -1 if error.  -JGG, 7/31/01 */
 
-INT16 StaffRastral(LINK aStaffL)
+short StaffRastral(LINK aStaffL)
 {
-	INT16	staffLines;
+	short	staffLines;
 	DDIST	staffHeight, lnSpace;
 
 	staffHeight = StaffHEIGHT(aStaffL);

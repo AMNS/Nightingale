@@ -14,7 +14,7 @@
 #include <ctype.h>					/* for isdigit() */
 #include "Nightingale.appl.h"
 
-static INT16 oldItem;
+static short oldItem;
 
 /*
  *	Prototypes for local functions
@@ -23,9 +23,9 @@ static INT16 oldItem;
 static Boolean IsOnKeyPad(unsigned char);
 static Boolean IsDurKey(unsigned char, Boolean *);
 
-static INT16	GetPalItem(INT16 ch);
-static void	SwapTools(INT16 firstItem, INT16 lastItem);
-static void	PalCopy(GrafPtr dstPort, GrafPtr srcPort, INT16 dstItem, INT16 srcItem);
+static short	GetPalItem(short ch);
+static void	SwapTools(short firstItem, short lastItem);
+static void	PalCopy(GrafPtr dstPort, GrafPtr srcPort, short dstItem, short srcItem);
 static void	UpdateGridCoords(void);
 
 /* ------------------------------------------------- TranslatePalChar and friends -- */
@@ -77,8 +77,8 @@ static unsigned char shiftKeyPad[] = {
  */
 
 Boolean TranslatePalChar(
-				INT16 *theChar,					/* character code */
-				INT16 /*theKey*/,						/* key code */
+				short *theChar,					/* character code */
+				short /*theKey*/,						/* key code */
 				Boolean doNoteRestToggle 		/* allow a key to toggle between notes and rests */
 				)
 {
@@ -192,7 +192,7 @@ skipMapping:
 		}
 	}
 	
-	*theChar = ch;			/* convert back to INT16 */
+	*theChar = ch;			/* convert back to short */
 
 	HUnlock(resH);	
 	return TRUE;
@@ -234,7 +234,7 @@ static unsigned char durKeys[18] = {
 
 Boolean IsDurKey(register unsigned char ch, register Boolean *isNote)
 {
-	register INT16 i;
+	register short i;
 	
 	*isNote = FALSE;
 	
@@ -313,7 +313,7 @@ pascal void DrawToolMenu(Rect *r)
 
 pascal void HiliteToolItem(Rect *r, short item)
 	{
-		Rect hiliteRect; INT16 row,col;
+		Rect hiliteRect; short row,col;
 		
 		if (item) {
 		
@@ -358,9 +358,9 @@ pascal short FindToolItem(Point mousePt)
  *	as it passes over various items in the palette.
  */
 
-void DoToolContent(Point pt, INT16 modifiers)
+void DoToolContent(Point pt, short modifiers)
 	{
-		INT16 item = 0,firstItem=0, ch; WindowPtr w = palettes[TOOL_PALETTE];
+		short item = 0,firstItem=0, ch; WindowPtr w = palettes[TOOL_PALETTE];
 		GrafPtr oldPort; Rect frame,portRect,itemCell; Boolean doSwap;
 		
 		GetPort(&oldPort);
@@ -435,7 +435,7 @@ void DoToolContent(Point pt, INT16 modifiers)
  *	Given two items from the Tool Palette, swap them in their respective positions.
  */
 
-void SwapTools(INT16 firstItem, INT16 lastItem)
+void SwapTools(short firstItem, short lastItem)
 	{
 		char tmp; GrafPtr scratchPort,port;
 		
@@ -470,7 +470,7 @@ void SwapTools(INT16 firstItem, INT16 lastItem)
  *	a port is our temporary offscreen port, the corresponding item is 0.
  */
 
-static void PalCopy(GrafPtr dstPort, GrafPtr srcPort, INT16 dstItem, INT16 srcItem)
+static void PalCopy(GrafPtr dstPort, GrafPtr srcPort, short dstItem, short srcItem)
 	{
 		Rect srcRect,dstRect;
 		
@@ -499,9 +499,9 @@ static void PalCopy(GrafPtr dstPort, GrafPtr srcPort, INT16 dstItem, INT16 srcIt
  *	choices in palette (menu item code).
  */
 
-void HandleToolCursors(INT16 item)
+void HandleToolCursors(short item)
 	{
-		INT16 symIndex;
+		short symIndex;
 		
 		palChar = GetPalChar(item);
 		symIndex = GetSymTableIndex(palChar);
@@ -521,7 +521,7 @@ void HandleToolCursors(INT16 item)
 
 void PalKey(char ch)
 	{
-		INT16	item, numItems;
+		short	item, numItems;
 		
 		PaletteGlobals *toolGlobal; GrafPtr oldPort;
 		WindowPtr w = palettes[TOOL_PALETTE];
@@ -547,7 +547,7 @@ void PalKey(char ch)
  * Return the palette char corresponding to the item in the tool palette.
  */
  
-char GetPalChar(INT16 item)
+char GetPalChar(short item)
 	{
 		return grid[item-1].ch;
 	}
@@ -558,9 +558,9 @@ char GetPalChar(INT16 item)
  *	number as a menu item code (lowest item is 1).
  */
 
-INT16 GetPalItem(INT16 ch)
+short GetPalItem(short ch)
 	{
-		register INT16 item,n; INT16 maxRow,maxCol;
+		register short item,n; short maxRow,maxCol;
 		
 		maxRow = (*paletteGlobals[TOOL_PALETTE])->maxDown;
 		maxCol = (*paletteGlobals[TOOL_PALETTE])->maxAcross;
@@ -579,13 +579,13 @@ INT16 GetPalItem(INT16 ch)
  */
 
 void DoToolKeyDown(
-			INT16 ch,
-			INT16 key,				/* <0 means simulated key down so key is undef. and NO REMAPPING */
-			INT16 /*modifiers*/	/* <0 means simulated key down so modifiers are undefined */
+			short ch,
+			short key,				/* <0 means simulated key down so key is undef. and NO REMAPPING */
+			short /*modifiers*/	/* <0 means simulated key down so modifiers are undefined */
 			)
 	{
 		GrafPtr oldPort;
-		PaletteGlobals *toolGlobal; INT16 item;
+		PaletteGlobals *toolGlobal; short item;
 		WindowPtr w = palettes[TOOL_PALETTE];
 		Rect portRect;
 		
@@ -633,7 +633,7 @@ void DoToolKeyDown(
 void DoToolGrow(Point pt)
 	{
 		Rect oldRect,r; WindowPtr w = palettes[TOOL_PALETTE];
-		INT16 margin,x,y,across,down; long newSize;
+		short margin,x,y,across,down; long newSize;
 		PaletteGlobals *whichPalette = *paletteGlobals[TOOL_PALETTE];
 		
 		GetWindowPortBounds(w,&oldRect);
@@ -659,11 +659,11 @@ void DoToolGrow(Point pt)
  *	zoom in later.
  */
 
-void ChangeToolSize(INT16 across, INT16 down, Boolean doingZoom)
+void ChangeToolSize(short across, short down, Boolean doingZoom)
 	{
 		GrafPtr oldPort;
 		
-		INT16 margin = 2*TOOLS_MARGIN;
+		short margin = 2*TOOLS_MARGIN;
 		WindowPtr w = palettes[TOOL_PALETTE];
 		Rect portRect;
 		
@@ -693,7 +693,7 @@ void ChangeToolSize(INT16 across, INT16 down, Boolean doingZoom)
 
 void GetToolZoomBounds()
 	{
-		register INT16 r,c; INT16 rMax,cMax; register GridRec *g;
+		register short r,c; short rMax,cMax; register GridRec *g;
 		
 		PaletteGlobals *pg = *paletteGlobals[TOOL_PALETTE];
 		
@@ -723,7 +723,7 @@ void GetToolZoomBounds()
 
 Boolean SaveToolPalette(Boolean inquire)
 	{
-		INT16 itemHit, curResFile; PicHandle thePic,toolPicture;
+		short itemHit, curResFile; PicHandle thePic,toolPicture;
 		Rect picRect; long size; GrafPtr port,oldPort;
 		
 		if (!toolPalChanged) return(TRUE);
@@ -791,7 +791,7 @@ Boolean SaveToolPalette(Boolean inquire)
 static void UpdateGridCoords()
 	{
 		Handle hdl; register unsigned char *p;
-		GridRec *pGrid; INT16 row,col,curResFile;
+		GridRec *pGrid; short row,col,curResFile;
 		PaletteGlobals *pg = *paletteGlobals[TOOL_PALETTE];
 				
 		/* Get char map of palette from Nightingale Setup file */

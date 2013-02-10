@@ -45,7 +45,6 @@ struct BeamCounter *beamCounterPtr;
 Byte UserBeamBreaksAt[32];						/* initialized but unused so far */
 Byte CurrentBeamCondition = CROSSRESTS;
 
-static Byte denomtopH(Word);
 static void CreateNBeamBeatList(Byte, Byte);
 static Byte BeamNoteRelationship(LINK, Byte);
 static void CreateBEAMandResetBeamCounter(Document *, Byte, LINK);
@@ -54,7 +53,7 @@ static long GetAnyLTime(Document *, LINK);
 static void ExpandSelRange(Document *doc);
 static void CreateBeatList(Document *doc, LINK pL, LINK aNoteL);
 static Byte SetBeamCounter(Document *doc, LINK pL, LINK aNoteL);
-static void DoNextBeamState(Document *doc, LINK pL, INT16 voice, Byte nextBeamState);
+static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamState);
 
 
 /* begin: moved here from old OpcodeUtils.c by chirgwin Mon May 28 07:17:18 PDT 2012 
@@ -89,35 +88,14 @@ Variables whose names end in LCD are 480 to the quarter note.
 long BeamBeatListEX[5];
 long beatEX;
 
-/* negative exponent of denominator [as in NewNightingaleDefs.h]? */
-
-static Byte denomtopH(Word denom)
-{
-	Byte denompH;
-
-	denompH	= 0;
-	while (denom > 1) {
-		denompH++;
-		denom >>= 1;
-		}
-	return denompH;
-	}
-
 static void CreateNBeamBeatList(Byte num, Byte denom)
 {
 	Byte Index, SIndex, meterType;
-	DoubleWord Start128;
 	long breakDurEX, lTemp;
 	Boolean break4, breakMin;
 	
-#ifdef NOTYET
-	break4 = (config.autoBeamOptions % 10)==0;		/* Rightmost digit: break4 */
-	breakMinField = config.autoBeamOptions / 10;
-	breakMin = ((breakMinField % 10)==0? 2 : 3);		/* 2nd digit from right: breakMin */
-#else
 	break4 = (config.autoBeamOptions & 1)==0;
 	breakMin = ((config.autoBeamOptions & 2)==0? 2 : 3);
-#endif
 	
 	if (((num % 3) == 0) && (num >= 6)) 			/* dotted: 2 dotted-quarter = 6/8 */
 		meterType = Compound;
@@ -301,7 +279,7 @@ static Byte SetBeamCounter(Document *doc, LINK pL, LINK aNoteL)
 	return nextBeamState;
 }
 
-static void DoNextBeamState(Document *doc, LINK pL, INT16 voice, Byte nextBeamState)
+static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamState)
 {
 	switch (nextBeamState) {
 		case POSTULATED + DISCONTINUEBEAM:

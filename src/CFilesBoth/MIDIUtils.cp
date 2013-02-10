@@ -13,11 +13,7 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-//#if TARGET_API_MAC_CARBON_MACHO
 #include <CoreMIDI/MIDIServices.h>		/* for MIDIPacket */
-//#else
-//#include <midi.h>						/* for MIDIPacket */
-//#endif
 
 #include "MidiMap.h"
 #include "CarbonStubs.h"
@@ -27,27 +23,22 @@ but trying to run results in a mysterious data segment overflow apparently resul
 from the fact that Symantec's ANSI—small library takes 600+ bytes more on those
 machines, even though the file containing the library appears to be identical! Comment
 the following kludge in to avoid it. */
-#if 0
-static MIDIEvent	eventList[10];
-#else
 static MIDIEvent	eventList[MAXEVENTLIST];
-#endif
 static CMMIDIEvent	cmEventList[MAXEVENTLIST];
 
-static INT16		lastEvent;
+static short		lastEvent;
 
-static Boolean	InsertEvent(INT16 note, SignedByte channel, long endTime, short ioRefNum);
+static Boolean	InsertEvent(short note, SignedByte channel, long endTime, short ioRefNum);
 
 void		KillEventList(void);
-static void		WaitForQueue(void);
 void		SendAllNotesOff(void);
 
 /* -------------------------------------------------------------- UseMIDIChannel -- */
 /* Return the MIDI channel number to use for the given part. */
 
-INT16 UseMIDIChannel(Document *doc, INT16	partn)
+short UseMIDIChannel(Document *doc, short	partn)
 {
-	INT16				useChan;
+	short				useChan;
 	LINK				partL;
 	PPARTINFO		pPart;
 	
@@ -70,7 +61,7 @@ number, if there is one; else return NILINK. If the sync and voice have more tha
 one note with the same note number, finds the first one. Intended for finding ties'
 notes. */
 
-LINK NoteNum2Note(LINK syncL, INT16 voice, INT16 noteNum)
+LINK NoteNum2Note(LINK syncL, short voice, short noteNum)
 {
 	LINK aNoteL;
 	
@@ -92,7 +83,7 @@ duration for all the others. */
 long TiedDur(Document */*doc*/, LINK syncL, LINK aNoteL, Boolean selectedOnly)
 {
 	LINK			syncPrevL, aNotePrevL, continL, continNoteL;
-	INT16			voice;
+	short			voice;
 	long			dur, prevDur;
 	
 	voice = NoteVOICE(aNoteL);
@@ -125,9 +116,9 @@ considering transposition. If the "note" is a rest or the continuation of a
 tied note, or has velocity 0, it should not be played: indicate by returning
 -1. */
 
-INT16 UseMIDINoteNum(Document *doc, LINK aNoteL, INT16 transpose)
+short UseMIDINoteNum(Document *doc, LINK aNoteL, short transpose)
 {
-	INT16 midiNote;
+	short midiNote;
 	PANOTE aNote;
 	LINK partL;
 	PPARTINFO pPart;
@@ -237,9 +228,9 @@ If we can't convert it, return -1L. */
 long PDur2RealTime(
 				long t,						/* time in PDUR ticks */
 				TCONVERT	tConvertTab[],
-				INT16 tabSize)
+				short tabSize)
 {
-	INT16 i; long msAtPrevTempo, msSincePrevTempo;
+	short i; long msAtPrevTempo, msSincePrevTempo;
 	
 	/*
 	 * If the table is empty, just return zero. Otherwise, find the 1st entry in the
@@ -248,17 +239,9 @@ long PDur2RealTime(
 	 */	
 	if (tabSize<=0) return 0L;
 	
-#ifdef NOTYET
-	if (tConvertTab[tabSize-1].pDurTime<=t)
-		i = tabSize;
-	else
-		for (i = 1; i<tabSize; i++)
-			if (tConvertTab[i].pDurTime>t) break;
-#else
 	for (i = 1; i<tabSize; i++)
 		if (tConvertTab[i].pDurTime>t) break;
 	if (tConvertTab[i].pDurTime<=t) i = tabSize;	/* ??IS i GUARANTEED TO BE MEANINGFUL? */
-#endif
 	msAtPrevTempo = tConvertTab[i-1].realTime;
 	
 	msSincePrevTempo = PDUR2MS(t-tConvertTab[i-1].pDurTime, tConvertTab[i-1].microbeats);
@@ -272,14 +255,14 @@ long PDur2RealTime(
 Return value is the size of the table, or -1 if the table is too large. Intended to
 get information for changing tempo during playback. */
 
-INT16 MakeTConvertTable(
+short MakeTConvertTable(
 				Document *doc,
 				LINK fromL, LINK toL,			/* range to be played */
 				TCONVERT	tConvertTab[],
-				INT16 maxTabSize
+				short maxTabSize
 				)
 {
-	INT16		tempoCount;
+	short		tempoCount;
 	LINK		pL, measL, syncL, syncMeasL;
 	long		microbeats,							/* microsec. units per PDUR tick */
 				timeScale,							/* PDUR ticks per minute */
@@ -329,7 +312,7 @@ INT16 MakeTConvertTable(
 	}
 
 #ifdef TDEBUG
-{	INT16 i;
+{	short i;
 	for (i = 0; i<tempoCount; i++)
 		DebugPrintf("tConvertTab[%d].microbeats=%ld pDurTime=%ld realTime=%ld\n",
 			i, tConvertTab[i].microbeats, tConvertTab[i].pDurTime, tConvertTab[i].realTime);
@@ -404,9 +387,9 @@ void InitEventList()
 /*	Insert the specified note into the event list. If we succeed, return TRUE; if
 we fail (because the list is full), give an error message and return FALSE. */
 
-static Boolean InsertEvent(INT16 note, SignedByte channel, long endTime, short ioRefNum)
+static Boolean InsertEvent(short note, SignedByte channel, long endTime, short ioRefNum)
 {
-	INT16			i;
+	short			i;
 	MIDIEvent	*pEvent;
 	char			fmtStr[256];
 
@@ -437,9 +420,9 @@ static Boolean InsertEvent(INT16 note, SignedByte channel, long endTime, short i
 /*	Insert the specified note into the event list. If we succeed, return TRUE; if
 we fail (because the list is full), give an error message and return FALSE. */
 
-static Boolean CMInsertEvent(INT16 note, SignedByte channel, long endTime, long ioRefNum)
+static Boolean CMInsertEvent(short note, SignedByte channel, long endTime, long ioRefNum)
 {
-	INT16			i;
+	short			i;
 	CMMIDIEvent	*pEvent;
 	char			fmtStr[256];
 
@@ -475,7 +458,7 @@ Boolean CheckEventList(long pageTurnTOffset)
 {
 	Boolean		empty;
 	MIDIEvent	*pEvent;
-	INT16			i;
+	short			i;
 	long			t;
 	
 	t = GetMIDITime(pageTurnTOffset);
@@ -500,7 +483,7 @@ Boolean CMCheckEventList(long pageTurnTOffset)
 {
 	Boolean		empty;
 	CMMIDIEvent	*pEvent;
-	INT16			i;
+	short			i;
 	long			t;
 	
 	t = GetMIDITime(pageTurnTOffset);
@@ -522,7 +505,7 @@ Boolean CMCheckEventList(long pageTurnTOffset)
 void CMKillEventList()
 {
 	CMMIDIEvent	*pEvent;
-	INT16			i;
+	short			i;
 	
 	for (i = 0, pEvent = cmEventList; i<lastEvent; i++, pEvent++)
 		if (pEvent->note) {
@@ -539,7 +522,7 @@ void CMKillEventList()
 void KillEventList()
 {
 	MIDIEvent	*pEvent;
-	INT16			i;
+	short			i;
 	
 	for (i = 0, pEvent = eventList; i<lastEvent; i++, pEvent++)
 		if (pEvent->note) {
@@ -554,7 +537,7 @@ void KillEventList()
 void GetPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 							Byte channelPatch[], SignedByte partVelo[])
 {
-	INT16 i; LINK partL; PARTINFO aPart;
+	short i; LINK partL; PARTINFO aPart;
 
 	for (i = 1; i<=MAXCHANNEL; i++)
 		channelPatch[i] = MAXPATCHNUM+1;						/* Initialize to illegal value */
@@ -576,9 +559,9 @@ limited to legal range. */
 
 void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 						Byte partChannel[], SignedByte partVelo[],
-						INT16 *pUseNoteNum, INT16 *pUseChan, INT16 *pUseVelo)
+						short *pUseNoteNum, short *pUseChan, short *pUseVelo)
 {
-	INT16 partn;
+	short partn;
 	PANOTE aNote;
 
 	partn = Staff2Part(doc,NoteSTAFF(aNoteL));
@@ -601,7 +584,7 @@ void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 MIDI (MIDI Pascal or MacTutor driver). Caveat: EndNoteLater does not communicate with
 the MIDI system, it simply adds the note to our event-list routines' queue. */
 
-OSStatus StartNoteNow(INT16 noteNum, SignedByte channel, SignedByte velocity, short ioRefNum)
+OSStatus StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity, short ioRefNum)
 {
 #if DEBUG_KEEPTIMES
 	if (nkt<MAXKEEPTIMES) kStartTime[nkt++] = TickCount();
@@ -621,7 +604,7 @@ OSStatus StartNoteNow(INT16 noteNum, SignedByte channel, SignedByte velocity, sh
 	return err;
 }
 
-OSStatus EndNoteNow(INT16 noteNum, SignedByte channel, short ioRefNum)
+OSStatus EndNoteNow(short noteNum, SignedByte channel, short ioRefNum)
 {
 	OSStatus err = noErr;
 	
@@ -637,7 +620,7 @@ OSStatus EndNoteNow(INT16 noteNum, SignedByte channel, short ioRefNum)
 }
 
 Boolean EndNoteLater(
-				INT16 noteNum,
+				short noteNum,
 				SignedByte channel,			/* 1 to MAXCHANNEL */
 				long endTime,
 				short ioRefNum)
@@ -646,7 +629,7 @@ Boolean EndNoteLater(
 }
 
 Boolean CMEndNoteLater(
-				INT16 noteNum,
+				short noteNum,
 				SignedByte channel,			/* 1 to MAXCHANNEL */
 				long endTime,
 				long ioRefNum)
@@ -661,7 +644,7 @@ Boolean CMEndNoteLater(
 /* For MIDI Manager: start the note now, end the note at the given time. */
  
 void MMStartNoteNow(
-				INT16			noteNum,
+				short			noteNum,
 				SignedByte	channel,			/* 1 to MAXCHANNEL */
 				SignedByte	velocity
 				)
@@ -679,7 +662,7 @@ void MMStartNoteNow(
 }
 
 void MMEndNoteAtTime(
-				INT16			noteNum,
+				short			noteNum,
 				SignedByte	channel,			/* 1 to MAXCHANNEL */
 				long			endTime
 				)
@@ -705,25 +688,7 @@ Boolean MIDIConnected()
 {
 	Boolean	result;
 	
-#ifdef NOTYET
-	Document *doc = (Document *)TopDocument;
-	long		startTime;
-	result = TRUE;										/* Assume a connection */
-	MayInitBIMIDI(BIMIDI_SMALLBUFSIZE);
-	MIDIFBNoteOn(doc, 0, doc->channel);			/* Send note commands */
-	MIDIFBNoteOff(doc, 0, doc->channel);
-	MIDIFBNoteOn(doc, 0, doc->channel);
-	MIDIFBNoteOff(doc, 0, doc->channel);
-	startTime = TickCount();
-	SleepTicks(1L);
-	if (!QueueEmpty())								/* Are the commands gone from queue? */
-		result = FALSE;								/* No, assumption is false */
-	if (TickCount()-startTime > 5)
-		result = FALSE;
-	MayResetBIMIDI(FALSE);
-#else
 	result = FALSE;									/* ??ABOVE CODE ALWAYS SAYS "TRUE" */
-#endif
 	return result;
 }
 
@@ -772,7 +737,7 @@ note and channel. Exception: if the port is busy, do nothing. */
 
 void MIDIFBNoteOn(
 				Document *doc,
-				INT16	noteNum, INT16	channel,
+				short	noteNum, short	channel,
 				short	useIORefNum)			/* Ignored unless we're using OMS or FreeMIDI */
 {
 	if (doc->feedback) {
@@ -801,7 +766,7 @@ is busy, do nothing. */
 
 void MIDIFBNoteOff(
 				Document *doc,
-				INT16	noteNum, INT16	channel,
+				short	noteNum, short	channel,
 				short useIORefNum)			/* Ignored unless we're using OMS or FreeMIDI */
 {
 	if (doc->feedback) {

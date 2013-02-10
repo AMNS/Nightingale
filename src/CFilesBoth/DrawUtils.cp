@@ -17,39 +17,9 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static void DrawFlat(Document *, INT16, INT16, DDIST, DDIST, DDIST, INT16, INT16 *, PCONTEXT, INT16);
-static void DrawSharp(Document *, INT16, INT16, DDIST, DDIST, DDIST, INT16, INT16 *, PCONTEXT, INT16);
-static void DrawNatural(Document *, INT16, INT16, DDIST, DDIST, DDIST, INT16, INT16 *, PCONTEXT, INT16);
-
-static void DrawNChar(char glyph)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawChar(glyph);
-	TextFont(fontNum);
-#else
-	DrawChar(glyph);
-#endif
-}
-
-static void DrawNString(Str255 str)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawString(str);
-	TextFont(fontNum);
-#else
-	DrawString(str);
-#endif
-}
-
-#ifdef TARGET_API_MAC_CARBON
-//#define DrawChar DrawNChar
-//#define DrawString DrawNString
-#endif
-
+static void DrawFlat(Document *, short, short, DDIST, DDIST, DDIST, short, short *, PCONTEXT, short);
+static void DrawSharp(Document *, short, short, DDIST, DDIST, DDIST, short, short *, PCONTEXT, short);
+static void DrawNatural(Document *, short, short, DDIST, DDIST, DDIST, short, short *, PCONTEXT, short);
 
 /* ------------------------------------------------------------- GetSmallerRSize -- */
 /* Given a rastral size, get the next smaller "Preferred" rastral size, i.e., the
@@ -58,7 +28,7 @@ no. of pixels on screen at 100% magnification) between staff lines, if such a
 smaller size has at least 2 pixels between staff lines center-to-center. (1 pixel
 between staff lines isn't much use, since the staff line itself needs a pixel.) */
 
-INT16 GetSmallerRSize(INT16 rSize)
+short GetSmallerRSize(short rSize)
 {
 	switch (rSize) {
 		case 0:
@@ -79,7 +49,7 @@ INT16 GetSmallerRSize(INT16 rSize)
 
 /* ------------------------------------------------------------ ContextedObjRect -- */
 
-Rect ContextedObjRect(Document *doc, LINK pL, INT16 staff, PCONTEXT pContext)
+Rect ContextedObjRect(Document *doc, LINK pL, short staff, PCONTEXT pContext)
 {
 	LINK contextL; Rect r; 
 
@@ -139,17 +109,16 @@ Cf. our DrawPatString; perhaps this and that should somehow share code. */
 #define BOTTOM_OFFSET 10
 #define RIGHT_OFFSET 20
 
-extern INT16 gMCharTop;
-extern INT16 gMCharLeft;
+extern short gMCharTop;
+extern short gMCharLeft;
 
 void DrawMChar(
 		Document *doc,					/* Used to get maximum char. size */
-		INT16		mchar,
-		INT16		shape,				/* NO_VIS=invisible, any other=normal */
+		short		mchar,
+		short		shape,				/* NO_VIS=invisible, any other=normal */
 		Boolean	dim 					/* Should character be dimmed? */
 		)
 {
-	static INT16 lastMagnify=MAX_MAGNIFY;
 	Point pt;
 	GrafPtr oldPort; PenState pnState;
 
@@ -180,16 +149,10 @@ void DrawMChar(
 	
 	if (shape==NO_VIS) return;
 
-#ifdef NO_SYSENVREC
-	if (thisMac.machineType<envMacII)
-		kludgeFontMgr = FALSE;
-	else
-#endif
 		kludgeFontMgr = TRUE;	/* Maybe should be FALSE if System>=6.0.x for some x? */
 
 		
 	if (dim) {
-#if 1
 		GetPen(&pt);
 
 		GetPenState(&pnState);
@@ -197,133 +160,13 @@ void DrawMChar(
 		
 		GetPort(&oldPort);
 
-		INT16 oldTxMode = GetPortTextMode(oldPort);
+		short oldTxMode = GetPortTextMode(oldPort);
 		TextMode(grayishTextOr);
 		
 		DrawChar(mchar);
 		
 		TextMode(oldTxMode);				
 		SetPenState(&pnState);
-#else
-		INT16 oldFont,charHt; char smchar[10];
-		Rect srcRect, dstRect, r;
- 		FontInfo fInfo;
-		RgnHandle rgn; INT16 lastCharWid, lastCharHt;
-						
-		GetPen(&pt);
-
-		GetPenState(&pnState);
-		PenNormal();
-
-		GetFontInfo(&fInfo);
-
-		/*
-		 * Switch ports to draw into an off-screen drawing environment, but using the
-		 *	same font as the previous port (probably the screen).
-		 */
-		GetPort(&oldPort);
-		SetPort(fontPort);
-		TextFont(oldFont=GetPortTextFont(oldPort));
-		TextSize(GetPortTextSize(oldPort));
-		TextFace(GetPortTextFace(oldPort));
-
-		/*
-		 * Erase our off-screen bitmap, then draw the character into it. The bitmap
-		 *	is pretty big, so for speed, we only erase whatever portion might have been
-		 *	occupied by the last char. we drew into it--or more precisely, a crude upper
-		 *	bound to that portion. This improves performance noticably.
-		 */
-		lastCharWid = UseRelMagnifiedSize(maxMCharWid, lastMagnify);
-		lastCharHt = UseRelMagnifiedSize(maxMCharHt, lastMagnify);
-		SetRect(&r, 0, 0, lastCharWid, lastCharHt);
-		EraseRect(&r);
-		
-		MoveTo(0, fInfo.ascent+TOP_OFFSET);
-
-		if (kludgeFontMgr && oldFont==doc->musicFontNum) {
-			strcpy(smchar, "X    ");										/* Need 4 blanks padding */
-			smchar[0] = mchar;
-			DrawCString(smchar);
-		}
-		else
-			DrawChar(mchar);
-		
-		/*
-		 * Overwrite black pixels with a gray pattern, then copy the result
-		 * back into the original port. We set the clipping region for copying
-		 * it back on the assumption the original port has standard horiz. and
-		 * vertical scrollbars.
-		 */
-
-		if (oldFont==doc->musicFontNum)
-			srcRect = charRectCache.charRect[mchar];
-		else {
-			charHt = fInfo.ascent+fInfo.descent+fInfo.leading;
-			SetRect(&srcRect, 0, 0, fInfo.widMax, charHt);
-		}
-		
-#ifdef USE_BLANKWIDTH
-		blankWidth = CharWidth(' ');
-		srcRect.right += 4*blankWidth;
-#else
-		srcRect.right += RIGHT_OFFSET;		/* Leave space for 4 "blanks" */
-#endif
-
-		srcRect.top -= TOP_OFFSET;
-		srcRect.bottom += BOTTOM_OFFSET;
-
-		dstRect = srcRect;
-
-		OffsetRect(&dstRect, pt.h, pt.v);
-		OffsetRect(&srcRect, 0, fInfo.ascent+TOP_OFFSET);
-
-		PenMode(notPatBic);
-		PenPat(NGetQDGlobalsGray());
-		PaintRect(&srcRect);
-
-//		rgn = oldPort->visRgn;
-//		(*rgn)->rgnBBox.bottom -= SCROLLBAR_WIDTH;
-//		(*rgn)->rgnBBox.right -= SCROLLBAR_WIDTH;
-		
-		rgn = NewRgn();
-		RgnHandle rectRgn = NewRgn();
-		RgnHandle dstRgn = NewRgn();
-		Rect bounds;
-		
-		GetPortVisibleRegion(oldPort,rgn);
-		
-		GetRegionBounds(rgn,&bounds);
-		bounds.bottom -= SCROLLBAR_WIDTH;
-		bounds.right -= SCROLLBAR_WIDTH;
-		RectRgn(rectRgn,&bounds);
-		SectRgn(rgn,rectRgn,dstRgn);
-	
-		/*
-		 * Caveat: If we're drawing on the screen, it doesn't seem to matter, but for
-		 * printing, we MUST make the printer port the current port before CopyBits!
-		 */
-		const BitMap *fontPortBits = GetPortBitMapForCopyBits(fontPort);
-		const BitMap *oldPortBits = GetPortBitMapForCopyBits(oldPort);
-		CopyBits(fontPortBits, oldPortBits, &srcRect, &dstRect, srcOr, dstRgn);
-
-//		CopyBits(&fontPort->portBits, &oldPort->portBits, &srcRect, &dstRect,
-//							srcOr, rgn);
-
-//		(*rgn)->rgnBBox.bottom += SCROLLBAR_WIDTH;
-//		(*rgn)->rgnBBox.right += SCROLLBAR_WIDTH;
-
-		DisposeRgn(rgn);
-		DisposeRgn(rectRgn);
-		DisposeRgn(dstRgn);
-		
-		SetPort(oldPort);
-		SetPenState(&pnState);
-
-		pt.h += CharWidth(mchar);
-		MoveTo(pt.h, pt.v);
-	
-		lastMagnify = doc->magnify;
-#endif
 	}
 	else {
 		if (kludgeFontMgr) DrawPaddedChar((unsigned char)mchar);
@@ -333,9 +176,9 @@ void DrawMChar(
 
 /* Nightingale version of DrawString which calls DrawMChar for each char in the string. */
 
-void DrawMString(Document *doc, unsigned char *mstr, INT16 shape, Boolean dim)
+void DrawMString(Document *doc, unsigned char *mstr, short shape, Boolean dim)
 {
-	INT16 i;
+	short i;
 	
 	for (i=1; i<=mstr[0]; i++)
 		DrawMChar(doc, mstr[i], shape, dim);
@@ -350,7 +193,7 @@ bigger than a dot in a colon, so we also reduce the font size temporarily. */
 
 void DrawMColon(Document *doc, Boolean italic, Boolean dim, DDIST lnSpace)
 {
-	INT16		oldSize, colonSize, xoffset, yoffset;
+	short		oldSize, colonSize, xoffset, yoffset;
 	Point		pt;
 	Byte		glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
@@ -415,14 +258,14 @@ void GetClefDrawInfo(
 			LINK pL,
 			LINK aClefL,
 			CONTEXT context[],
-			INT16 sizePercent,			/* Percent of "normal" size for context to use (PostScript only) */
+			short sizePercent,			/* Percent of "normal" size for context to use (PostScript only) */
 			unsigned char *glyph,
 			DDIST *xd, DDIST *yd,
 			DDIST *xdOct, DDIST *ydOct	/* Position of attached "8": *xdOct=CANCEL_INT means none */
 			)
 {
 	PACLEF aClef;
-	INT16 staffn, txSize;
+	short staffn, txSize;
 	PCONTEXT pContext;
 	DDIST dTop, dLeft, dLnHeight, ydR, xdOctDelta, ydOctDelta;
 	Boolean small;
@@ -590,9 +433,6 @@ void GetClefDrawInfo(
 	if (xdOctDelta==(DDIST)CANCEL_INT)
 		*xdOct = *ydOct = (DDIST)CANCEL_INT;
 	else {
-#ifdef NOTYET
-		xdOctDelta = SizePercentSCALE(xdOctDelta);
-#endif
 		*xdOct = *xd+xdOctDelta;
 		ydOctDelta = SizePercentSCALE(ydOctDelta);
 		*ydOct = *yd+ydOctDelta;
@@ -608,7 +448,7 @@ void GetHairpinBBox(
 		DDIST yd, DDIST endyd,	/* page-relative */
 		DDIST rise,					/* half of hairpin <mouthWidth>, converted to DDIST */
 		DDIST offset,				/* half of hairpin <otherWidth>, converted to DDIST */
-		INT16 dynamType,			/* DIM_DYNAM or CRESC_DYNAM */
+		short dynamType,			/* DIM_DYNAM or CRESC_DYNAM */
 		Rect *bbox)					/* bounding box in pixels */
 {
 	DDIST top, bottom;
@@ -638,7 +478,7 @@ void GetDynamicDrawInfo(
 {
 	PDYNAMIC p;
 	PADYNAMIC aDynamic;
-	INT16 staffn;
+	short staffn;
 	PCONTEXT pContext;
 	DDIST dTop, dLeft;
 	
@@ -698,7 +538,7 @@ void GetRptEndDrawInfo(
 {
 	PRPTEND	p;
 	PARPTEND aRpt;
-	INT16 	staff, lWidth, rWidth;
+	short 	staff, lWidth, rWidth;
 	PCONTEXT pContext;
 	DDIST		dTop, dLeft, dBottom;
 	
@@ -748,20 +588,20 @@ void GetRptEndDrawInfo(
 
 void DrawRptBar(Document *doc,
 				LINK pL,
-				INT16 staff,
-				INT16 connStaff,
+				short staff,
+				short connStaff,
 				CONTEXT context[],
 				DDIST dLeft,
 				char subType,
-				INT16 mode,
+				short mode,
 				Boolean dotsOnly
 				)
 {
 	PCONTEXT pContext, pContext2;
 	DDIST dTop, dBottom, dBotNorm, staffBottom;
 	DDIST	xdDots, ydDots, lnSpace;
-	INT16 xp, ypTop, ypBot, xOffset, ypStfBottom;
-	INT16 xpDots, ypDots, sizePercent, oldTxSize, useTxSize;
+	short xp, ypTop, ypBot, xOffset, ypStfBottom;
+	short xpDots, ypDots, sizePercent, oldTxSize, useTxSize;
 	Rect  mBBox;
 	LINK prevMeasL;
 	Boolean hasRptDots;
@@ -889,7 +729,7 @@ void DrawRptBar(Document *doc,
 
 /* ---------------------------------------------------------------- GetKSYOffset -- */
 
-INT16 GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
+short GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
 {
 /* Octave-adjusted position for:	   F  E  D  C  B  A  G	(0=top staff line) */
 	static SignedByte trebleSharpPos[] = { 0, 1, 2, 3, 4, 5,-1 };
@@ -913,7 +753,7 @@ INT16 GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
 	static SignedByte bassSharpPos[]   = { 2, 3, 4, 5, 6, 7, 1 };
 	static SignedByte bassFlatPos[]    = { 9, 3, 4, 5, 6, 7, 8 };
 
-	INT16 letcode, halfLn;
+	short letcode, halfLn;
 
   	letcode = KSItem.letcode;
 	switch (pContext->clefType) {
@@ -963,18 +803,18 @@ INT16 GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
 
 static void DrawFlat(
 				Document *doc,
-				INT16		tab,				/* item sequence no. of this flat in key signature */
-				INT16		yPos,				/* vertical offset of this flat (half-lines) */
+				short		tab,				/* item sequence no. of this flat in key signature */
+				short		yPos,				/* vertical offset of this flat (half-lines) */
 				DDIST		xd, DDIST yd,	/* TOP_LEFT corner of key signature */
 				DDIST		staffHeight,	/* height of the staff */
-				INT16		staffLines,		/* number of staff lines in staff */
-				INT16		*width,			/* width of symbol drawn */
+				short		staffLines,		/* number of staff lines in staff */
+				short		*width,			/* width of symbol drawn */
 				PCONTEXT pContext,	
-				INT16		drawMode 		/* whether drawing to screen or bitmap for dragging */
+				short		drawMode 		/* whether drawing to screen or bitmap for dragging */
 				)
 {
 	DDIST	dWidth;
-	INT16	xp, yp,			/* pixel position or offset */
+	short	xp, yp,			/* pixel position or offset */
 			paperLeft,
 			paperTop;
 	Byte	glyph;
@@ -1012,18 +852,18 @@ static void DrawFlat(
 
 static void DrawSharp(
 		Document *doc,
-		INT16		tab,					/* item sequence no. of this sharp in key signature */
-		INT16		yPos,					/* vertical offset of this sharp (half-lines) */
+		short		tab,					/* item sequence no. of this sharp in key signature */
+		short		yPos,					/* vertical offset of this sharp (half-lines) */
 		DDIST		xd, DDIST yd,		/* TOP_LEFT corner of key signature */
 		DDIST		staffHeight,		/* height of the staff */
-		INT16		staffLines,			/* number of staff lines in staff */
-		INT16		*width,				/* width of symbol drawn */
+		short		staffLines,			/* number of staff lines in staff */
+		short		*width,				/* width of symbol drawn */
 		PCONTEXT pContext,		
-		INT16		drawMode 			/* whether drawing to screen or bitmap for dragging */
+		short		drawMode 			/* whether drawing to screen or bitmap for dragging */
 		)
 {
 	DDIST	dWidth;
-	INT16	xp, yp,			/* pixel position or offset */
+	short	xp, yp,			/* pixel position or offset */
 			paperLeft,
 			paperTop;
 	Byte	glyph;
@@ -1061,18 +901,18 @@ static void DrawSharp(
 
 static void DrawNatural(
 		Document *doc,
-		INT16		tab,					/* item sequence no. of this natural in (cancelling) key signature */
-		INT16		yPos,					/* vertical offset of this natural (half-lines) */
+		short		tab,					/* item sequence no. of this natural in (cancelling) key signature */
+		short		yPos,					/* vertical offset of this natural (half-lines) */
 		DDIST		xd, DDIST yd,		/* TOP_LEFT corner of key signature */
 		DDIST		staffHeight,		/* height of the staff */
-		INT16		staffLines,			/* number of staff lines in staff */
-		INT16		*width,				/* width of symbol drawn */
+		short		staffLines,			/* number of staff lines in staff */
+		short		*width,				/* width of symbol drawn */
 		PCONTEXT pContext,
-		INT16		drawMode 			/* whether drawing to screen or bitmap for dragging */
+		short		drawMode 			/* whether drawing to screen or bitmap for dragging */
 		)
 {
 	DDIST	dWidth;
-	INT16	xp, yp,			/* pixel position or offset */
+	short	xp, yp,			/* pixel position or offset */
 			paperLeft,
 			paperTop;
 	Byte	glyph;
@@ -1112,15 +952,15 @@ void DrawKSItems(Document *doc,
 		PCONTEXT pContext,
 		DDIST xd, DDIST yd,
 		DDIST height,
-		INT16 lines,
-		INT16 *totalWidth,			/* in pixels */
-		INT16 drawMode
+		short lines,
+		short *totalWidth,			/* in pixels */
+		short drawMode
 		)
 {
 	LINK prevKSL, aPrevKSL;
 	PKEYSIG prevKS;
 	PAKEYSIG aKeySig, aPrevKS;
-	INT16 staffn, k, yoffset, tab, width;
+	short staffn, k, yoffset, tab, width;
 	
 	aKeySig = GetPAKEYSIG(aKeySigL);
 	staffn = KeySigSTAFF(aKeySigL);
@@ -1170,13 +1010,13 @@ void GetKeySigDrawInfo(Document *doc,
 			DDIST *xd, DDIST *yd,
 			DDIST *dTop,
 			DDIST *height,
-			INT16 *lines
+			short *lines
 			)
 {
 	PMEVENT p;
 	PAKEYSIG aKeySig;
 	DDIST dLeft;
-	INT16 k;
+	short k;
 	CONTEXT localContext;
 	
 	p = GetPMEVENT(pL);
@@ -1208,7 +1048,7 @@ void GetKeySigDrawInfo(Document *doc,
 timeSig's subType. Also return x and y position for numerator and denominator.
 Return value is the timeSig's subType. */
 
-INT16  FillTimeSig(Document *doc,
+short  FillTimeSig(Document *doc,
 			LINK aTimeSigL,
 			PCONTEXT pContext,
 			unsigned char *nStr, unsigned char *dStr,
@@ -1218,7 +1058,7 @@ INT16  FillTimeSig(Document *doc,
 			DDIST *ydN, DDIST *ydD
 			)
 {
-	INT16 subType, staffPtHt, nWidth, dWidth, nWider;
+	short subType, staffPtHt, nWidth, dWidth, nWider;
 	PATIMESIG aTimeSig;
 	DDIST lnSpace = LNSPACE(pContext);
 	
@@ -1309,7 +1149,7 @@ void GetTimeSigDrawInfo(Document *doc,
 
 /* -------------------------------------------------------------- GetRestDrawInfo -- */
 
-INT16 GetRestDrawInfo(Document *doc,
+short GetRestDrawInfo(Document *doc,
 				LINK pL, LINK aRestL,
 				PCONTEXT pContext,
 				DDIST *xd, DDIST *yd,
@@ -1320,7 +1160,7 @@ INT16 GetRestDrawInfo(Document *doc,
 {
 	PANOTE aRest;
 	DDIST dLeft,lnSpace,dhalfLn;
-	INT16 useTxSize,glyph;
+	short useTxSize,glyph;
 	Boolean breveWholeMeasure;
 
 	/* Allow whole-measure rests in some time signatures to look like breve rests. */
@@ -1364,16 +1204,16 @@ values depending on <outputTo> (and the bitmapped circle is so small, that'd be 
 good idea for it). */
 
 Boolean GetModNRInfo(
-				INT16		code,
-				INT16		noteType,
+				short		code,
+				short		noteType,
 				Boolean	small,						/* TRUE=note/rest modNR is attached to is small */
 				Boolean	above,						/* TRUE=modNR is above its note/rest */
 				unsigned char *glyph,				/* Blank=not a char. in music font, else the char. */
-				INT16		*xOffset, INT16 *yOffset, /* in eighth-spaces */
-				INT16		*sizePct
+				short		*xOffset, short *yOffset, /* in eighth-spaces */
+				short		*sizePct
 				)
 {
-	INT16 xOff, yOff;
+	short xOff, yOff;
 	
 	xOff = yOff = 0;
 	*sizePct = (small? SMALLSIZE(100) : 100);
@@ -1556,11 +1396,11 @@ void NoteLedgers(
 			Boolean	stemDown,
 			DDIST		staffTop,		/* abs DDIST position of staff top */
 			PCONTEXT	pContext,		/* for staff height and paper */
-			INT16		sizePercent 	/* Percent of "normal" ledger length for the staff height */
+			short		sizePercent 	/* Percent of "normal" ledger length for the staff height */
 			)
 {
 	QDIST		lineqd, midlineqd, startqd;
-	INT16		leftNow, lenNow, ox, oy, nlines, showLines;
+	short		leftNow, lenNow, ox, oy, nlines, showLines;
 	DDIST		staffHt, dLLen, dLOtherLen, dShortLen, dLongLen,
 				dLLeft, dLSusLeft, dLeftNow, dLenNow, dSticksOut, dHeadWidth;
 	long		longDLLen;
@@ -1663,13 +1503,13 @@ symbols that are vertically positionable at the appropriate half-line number */
 
 void InsertLedgers(
 			DDIST		xd,				/* DDIST horizontal position of note rel. to page */
-			INT16		halfLine,		/* half-line number */
+			short		halfLine,		/* half-line number */
 			PCONTEXT	pContext 		/* current context */
 			)
 {
 	DDIST		staffTop,
 				staffHt;
-	INT16		l,						/* current half-line number */
+	short		l,						/* current half-line number */
 				staffLines,	
 				showLines,	
 				ledgerLeft,			/* left coordinate of ledger line */
@@ -1684,7 +1524,7 @@ void InsertLedgers(
 	ledgerLeft = pContext->paper.left + d2p(xd) - ledgerLen/2;
 	if (showLines!=SHOW_ALL_LINES) {		/* 5-line staff, but showing 0 or 1 lines */
 		if (halfLine<4) {
-			INT16 startLn = (showLines==0)? 4 : 2;
+			short startLn = (showLines==0)? 4 : 2;
 			for (l=startLn; l>=halfLine; l-=2) {
 				MoveTo(ledgerLeft,
 					pContext->paper.top+d2p(staffTop+halfLn2d(l, staffHt, staffLines)));
@@ -1692,7 +1532,7 @@ void InsertLedgers(
 			}
 		}
 		else {
-			INT16 startLn = (showLines==0)? 4 : 6;
+			short startLn = (showLines==0)? 4 : 6;
 			for (l=startLn; l<=halfLine; l+=2) {
 				MoveTo(ledgerLeft,
 					pContext->paper.top+d2p(staffTop+halfLn2d(l, staffHt, staffLines)));
@@ -1720,7 +1560,7 @@ void InsertLedgers(
 /* ----------------------------------------------------------------- GetMBRestBar -- */
 /* Get the bounding DRect of the horizontal bar for a multibar rest. */
 
-void GetMBRestBar(INT16 nMeasure, PCONTEXT pContext, DRect *pdBar)
+void GetMBRestBar(short nMeasure, PCONTEXT pContext, DRect *pdBar)
 {
 	DDIST dTop, dQuarterSp, dBarHt, dBarLen;
 
@@ -1735,12 +1575,12 @@ void GetMBRestBar(INT16 nMeasure, PCONTEXT pContext, DRect *pdBar)
 
 /* ---------------------------------------------------- VisStavesInRange/ForPart -- */
 
-static void VisStavesInRange(Document *, LINK, INT16, INT16, INT16 *, INT16 *);
+static void VisStavesInRange(Document *, LINK, short, short, short *, short *);
 static void VisStavesInRange(
 				Document *doc,
 				LINK staffL,
-				INT16 r1stStaff, INT16 rLastStaff,		/* Input: first and last staves of range */
-				INT16 *firstVisStf, INT16 *lastVisStf 	/* Output: first and last visible staves in range */
+				short r1stStaff, short rLastStaff,		/* Input: first and last staves of range */
+				short *firstVisStf, short *lastVisStf 	/* Output: first and last visible staves in range */
 				)
 {
 	*firstVisStf = NextStaffn(doc, staffL, TRUE, r1stStaff);
@@ -1758,7 +1598,7 @@ void VisStavesForPart(
 				Document *doc,
 				LINK staffL,
 				LINK partL,
-				INT16 *firstStaff, INT16 *lastStaff
+				short *firstStaff, short *lastStaff
 				)
 {
 	PPARTINFO pPart;
@@ -1781,7 +1621,7 @@ Boolean ShouldDrawConnect(
 				)
 {
 	LINK partL; Boolean drawThisOne; PACONNECT aConnect;
-	INT16 firstStaff,lastStaff;
+	short firstStaff,lastStaff;
 	
 	if (doc->masterView)
 		drawThisOne = TRUE;
@@ -1795,13 +1635,7 @@ Boolean ShouldDrawConnect(
 		switch (aConnect->connLevel) {
 			case SystemLevel:
 				/* Zero visible staves in the system should never happen. */
-#ifdef NOTYET
-				if (config.show1StfSysConn==2) drawThisOne = FALSE;
-				else if (config.show1StfSysConn==1) drawThisOne = TRUE;
-				else drawThisOne = (NumVisStaves(pL)>1);
-#else
 				drawThisOne = (NumVisStaves(pL)>1 || config.show1StfSysConn);
-#endif
 				break;
 			case GroupLevel:
 				VisStavesInRange(doc, staffL, aConnect->staffAbove, aConnect->staffBelow,
@@ -1829,7 +1663,7 @@ Boolean ShouldREDrawBarline(
 		Document *doc,
 		LINK rptEndObjL,			/* RptEnd object */
 		LINK theRptEndL,			/* RptEnd subobject */
-		INT16 *connStf 				/* If function returns TRUE, staff no. to draw down to */
+		short *connStf 				/* If function returns TRUE, staff no. to draw down to */
 		)
 {
 	PARPTEND theRptEnd, aRptEnd; LINK aRptEndL, topRptEndL;
@@ -1883,10 +1717,10 @@ Boolean ShouldDrawBarline(
 				Document *doc,
 				LINK measObjL,			/* Measure object */
 				LINK theMeasL,			/* Measure subobject */
-				INT16 *connStf 		/* If function returns TRUE, staff no. to draw down to */
+				short *connStf 		/* If function returns TRUE, staff no. to draw down to */
 				)
 {
-	PAMEASURE theMeas, aMeas; LINK aMeasL; INT16 theStf, gTopStf, gBottomStf;
+	PAMEASURE theMeas, aMeas; LINK aMeasL; short theStf, gTopStf, gBottomStf;
 	
 	theMeas = GetPAMEASURE(theMeasL);
 	if (!theMeas->visible && !doc->showInvis) return FALSE;
@@ -1939,10 +1773,10 @@ Boolean ShouldPSMDrawBarline(
 		Document *doc,
 		LINK measObjL,				/* Pseudomeasure object */
 		LINK thePSMeasL,			/* Pseudomeasure subobject */
-		INT16 *connStf 			/* If function returns TRUE, staff no. to draw down to */
+		short *connStf 			/* If function returns TRUE, staff no. to draw down to */
 		)
 {
-	PAPSMEAS thePSMeas, aPSMeas; LINK aPSMeasL; INT16 theStf, gTopStf, gBottomStf;
+	PAPSMEAS thePSMeas, aPSMeas; LINK aPSMeasL; short theStf, gTopStf, gBottomStf;
 	
 	/* If this the top staff of a group or not in a group, draw barline. */
 	
@@ -1998,7 +1832,7 @@ Boolean ShouldDrawMeasNum(
 		LINK			theMeasL 		/* Subobject */
 		)
 {
-	PAMEASURE aMeasure; INT16 measureNum, topVisStf, botVisStf; LINK staffL;
+	PAMEASURE aMeasure; short measureNum, topVisStf, botVisStf; LINK staffL;
 	
 	if (doc->numberMeas==0) return FALSE;	
 
@@ -2027,10 +1861,10 @@ Boolean ShouldDrawMeasNum(
 
 #define DASH_LEN 2	/* pixels */
 
-void DrawVDashedLine(INT16, INT16, INT16, INT16);
-void DrawVDashedLine(INT16 x1, INT16 y1, INT16 /*x2*/, INT16 y2)
+void DrawVDashedLine(short, short, short, short);
+void DrawVDashedLine(short x1, short y1, short /*x2*/, short y2)
 {
-	INT16 i;
+	short i;
 	
 	MoveTo(x1, y1);
 	for (i = y1; i+DASH_LEN<y2; i+=2*DASH_LEN) {
@@ -2044,15 +1878,11 @@ void DrawVDashedLine(INT16 x1, INT16 y1, INT16 /*x2*/, INT16 y2)
 /* --------------------------------------------------------------- DrawPSMSubType -- */
 /* Draw PseudoMeas subTypes (QuickDraw only). */
 
-void DrawPSMSubType(INT16 subType, INT16 xp, INT16 ypTop, INT16 ypBot)
+void DrawPSMSubType(short subType, short xp, short ypTop, short ypBot)
 {
-	INT16 betweenBars;
+	short betweenBars;
 	
-#ifdef NOTYET
-	(See code and comments in DrawBarline.)
-#else
 	betweenBars = 2;
-#endif
 	switch (subType) {
 		case PSM_DOTTED:
  			DrawVDashedLine(xp, ypTop, xp, ypBot);
@@ -2079,7 +1909,7 @@ void DrawPSMSubType(INT16 subType, INT16 xp, INT16 ypTop, INT16 ypBot)
 /* ------------------------------------------------------------------ DrawNonArp -- */
 /* Draw a non-arpeggio sign (QuickDraw only). */
 
-void DrawNonArp(INT16 xp, INT16 yp, DDIST dHeight, DDIST lnSpace)
+void DrawNonArp(short xp, short yp, DDIST dHeight, DDIST lnSpace)
 {
 	MoveTo(xp, yp);
 	Line(d2p(NONARP_CUTOFF_LEN(lnSpace)), 0);
@@ -2092,11 +1922,11 @@ void DrawNonArp(INT16 xp, INT16 yp, DDIST dHeight, DDIST lnSpace)
 /* Draw an arpeggio sign (QuickDraw only). Sonata has a nice arpeggio-section
 character we use.  */
 
-void DrawArp(Document *doc, INT16 xp, INT16 yTop, DDIST yd, DDIST dHeight, Byte glyph, PCONTEXT pContext)
+void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight, Byte glyph, PCONTEXT pContext)
 {
 
 	DDIST lnSpace,charHeight,ydHere;
-	short oldFont,oldStyle; INT16 yp;
+	short oldFont,oldStyle; short yp;
 
 	lnSpace = LNSPACE(pContext);
 	charHeight = 2*lnSpace;				/* Sonata arpeggio char. is 2 spaces high */
@@ -2157,10 +1987,10 @@ position of the object the Graphic or Tempo is attached to, not the subobject; f
 Graphics, it uses the position of the subobj in the Graphic's voice or on its staff
 to get the xd.  */
 
-INT16 GetGraphicDrawInfo(
+short GetGraphicDrawInfo(
 				Document *doc,
 				LINK pL, LINK relObjL,
-				INT16 staffn,
+				short staffn,
 				DDIST *xd, DDIST *yd,
 				PCONTEXT pRelContext					/* Context at <relObjL> */
 				)
@@ -2189,10 +2019,10 @@ INT16 GetGraphicDrawInfo(
 
 /* GetXXXDrawInfo function for the right end of GRDraw Graphics. */
 
-INT16 GetGRDrawLastDrawInfo(
+short GetGRDrawLastDrawInfo(
 				Document *doc,
 				LINK graphicL, LINK lastObjL,
-				INT16 staffn,
+				short staffn,
 				DDIST *xd2, DDIST *yd2
 				)
 {
@@ -2221,9 +2051,9 @@ void GetGraphicFontInfo(
 				Document *doc,
 				LINK pL,
 				PCONTEXT pRelContext,
-				INT16 *pFontID,
-				INT16 *pFontSize,					/* in points, ignoring magnification */
-				INT16 *pFontStyle
+				short *pFontID,
+				short *pFontSize,					/* in points, ignoring magnification */
+				short *pFontStyle
 				)
 {
 	DDIST lnSpace; PGRAPHIC p;
@@ -2253,11 +2083,11 @@ contrast are available (besides black and white). */
 
 #define COLOR_CYCLE_LEN 4
 
-short Voice2Color(Document *doc, INT16 iVoice)
+short Voice2Color(Document *doc, short iVoice)
 {
 	short colors[COLOR_CYCLE_LEN] = { redColor, greenColor, cyanColor, magentaColor };
 	LINK aPartL;
-	INT16 userVoice;
+	short userVoice;
 	short colorIndex, nPartStaves, extraVoice;
 	
 	if (doc->colorVoices==0 || iVoice<0)
@@ -2347,13 +2177,13 @@ i.e., if it might have staves in two or more sizes, set the PostScript staff siz
 void MaySetPSMusSize(Document *doc, PCONTEXT pContext)
 {
 	if (doc->nonstdStfSizes && outputTo==toPostScript) {
-		INT16 lines = pContext->staffLines;
+		short lines = pContext->staffLines;
 	
 		if (lines == 5) {
 			PS_MusSize(doc, d2pt(pContext->staffHeight)+config.musFontSizeOffset);
 		}
 		else {
-			INT16 stfHeight = drSize[doc->srastral];
+			short stfHeight = drSize[doc->srastral];
 			PS_MusSize(doc, d2pt(stfHeight)+config.musFontSizeOffset);			
 		}
 		

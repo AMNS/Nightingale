@@ -47,7 +47,7 @@ void OutlineOKButton(DialogPtr theDialog, Boolean wantBlack)
 /* ------------------------------------------------------------------ FlashButton -- */
 /* If the given item is a button, flash it to indicate it's been pressed. */
 
-void FlashButton(DialogPtr theDialog, INT16 item)
+void FlashButton(DialogPtr theDialog, short item)
 {
 	short type; Handle aHdl; Rect aRect;
  
@@ -64,7 +64,7 @@ void FlashButton(DialogPtr theDialog, INT16 item)
 /* This filter outlines the OK Button and performs standard key and command-
 key filtering. */
 
-pascal Boolean OKButFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *item)
+pascal Boolean OKButFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
 	switch (theEvent->what) {
 		case updateEvt:
@@ -89,7 +89,7 @@ pascal Boolean OKButFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *it
 filtering, and allows dragging the dialog, i.e., does the moving part of "movable
 modal" dialogs. */
 
-pascal Boolean OKButDragFilter(DialogPtr theDialog, EventRecord *theEvent, INT16 *item)
+pascal Boolean OKButDragFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
 	short part; WindowPtr wind; Rect bounds;
 
@@ -138,11 +138,11 @@ N.B. Command keys at the end of control title strings take precedence over the
 standard meanings of '.', 'X', 'C', and 'V'. */
 
 Boolean DlgCmdKey(register DialogPtr dlog, EventRecord *evt,
-				INT16 *item,
+				short *item,
 				Boolean hotKeys	/* TRUE=don't require cmd key to recognize keystrokes as ctl clicks */
 				)
 {
-	register INT16 i, key;
+	register short i, key;
 	short nitems, itemtype;
 	ControlHandle hc;
 	Rect box;
@@ -211,7 +211,7 @@ Boolean DlgCmdKey(register DialogPtr dlog, EventRecord *evt,
 /* ------------------------------------------------------------------ SwitchRadio -- */
 /* Change the state of a set of radio buttons, and set the variables accordingly. */
 
-void SwitchRadio(DialogPtr dialogp, INT16 *curButton, short newButton)
+void SwitchRadio(DialogPtr dialogp, short *curButton, short newButton)
 {
 	PutDlgChkRadio(dialogp,*curButton,FALSE);
 	PutDlgChkRadio(dialogp,newButton,TRUE);
@@ -227,7 +227,7 @@ void SwitchRadio(DialogPtr dialogp, INT16 *curButton, short newButton)
 ticks, and repeating every MOUSEREPEATTIME ticks thereafter, as long as the mouse is
 still down inside of <arrowRect>. Modified from DBW's TrackArrow. */
 
-void TrackNumberArrow(Rect *arrowRect, TrackNumberFunc actionProc, INT16 limit,
+void TrackNumberArrow(Rect *arrowRect, TrackNumberFunc actionProc, short limit,
 								DialogPtr dialogp)
 {
 	long	t;
@@ -257,26 +257,26 @@ void TrackNumberArrow(Rect *arrowRect, TrackNumberFunc actionProc, INT16 limit,
 
 /* Before using NumberFilter, caller must set these externals. ??It would be
 MUCH better to make these explicit, e.g., as parameters to UseNumberFilter. */
-INT16 minVal, maxVal;					/* Number range */
+short minVal, maxVal;					/* Number range */
 
 static Rect upRect, downRect;
-static INT16 locDurItem;
+static short locDurItem;
 
-static void ClickUp(INT16, DialogPtr);
-static void ClickDown(INT16, DialogPtr);
+static void ClickUp(short, DialogPtr);
+static void ClickDown(short, DialogPtr);
 
-static void ClickUp(INT16 maxVal, DialogPtr theDialog)
+static void ClickUp(short maxVal, DialogPtr theDialog)
 {
-	INT16		pcNum;
+	short		pcNum;
 	
 	GetDlgWord(theDialog, locDurItem, &pcNum);
 	if (pcNum<maxVal) pcNum++;
 	PutDlgWord(theDialog, locDurItem, pcNum, TRUE);
 }
 
-static void ClickDown(INT16 minVal, DialogPtr theDialog)
+static void ClickDown(short minVal, DialogPtr theDialog)
 {
-	INT16		pcNum;
+	short		pcNum;
 	
 	GetDlgWord(theDialog, locDurItem, &pcNum);
 	if (pcNum>minVal) pcNum--;
@@ -284,7 +284,7 @@ static void ClickDown(INT16 minVal, DialogPtr theDialog)
 }
 
 
-Boolean HandleKeyDown(EventRecord *theEvent, INT16 minVal, INT16 maxVal,
+Boolean HandleKeyDown(EventRecord *theEvent, short minVal, short maxVal,
 								DialogPtr theDialog)
 {
 	char	theChar;
@@ -303,7 +303,7 @@ Boolean HandleKeyDown(EventRecord *theEvent, INT16 minVal, INT16 maxVal,
 }
 
 
-Boolean HandleMouseDown(EventRecord *theEvent, INT16 minVal, INT16 maxVal,
+Boolean HandleMouseDown(EventRecord *theEvent, short minVal, short maxVal,
 								DialogPtr theDialog)
 {
 	Point	where;
@@ -330,7 +330,7 @@ Boolean HandleMouseDown(EventRecord *theEvent, INT16 minVal, INT16 maxVal,
  * down buttons.
  */
 
-void UseNumberFilter(DialogPtr dialogp, INT16 durItem, INT16 upItem, INT16 downItem)
+void UseNumberFilter(DialogPtr dialogp, short durItem, short upItem, short downItem)
 	{
 		short itype; Handle tHdl;
 		
@@ -340,7 +340,7 @@ void UseNumberFilter(DialogPtr dialogp, INT16 durItem, INT16 upItem, INT16 downI
 	}
 
 pascal Boolean NumberFilter(register DialogPtr theDialog, EventRecord *theEvent,
-										INT16 *itemHit)
+										short *itemHit)
 {
 	switch (theEvent->what) {
 		case updateEvt:
@@ -410,9 +410,9 @@ void InitDurStrings(void)
 /* Enable or disable a control item in the given dialog.  Assumes that <item>
 refers to a control!  JGG, 2/24/01 */
 
-void XableControl(DialogPtr dlog, INT16 item, Boolean enable)
+void XableControl(DialogPtr dlog, short item, Boolean enable)
 {
-	INT16 type, active; Handle hndl; Rect box;
+	short type, active; Handle hndl; Rect box;
 
 	GetDialogItem(dlog, item, &type, &hndl, &box);
 	active = enable? CTL_ACTIVE : CTL_INACTIVE;
@@ -424,9 +424,9 @@ void XableControl(DialogPtr dlog, INT16 item, Boolean enable)
 /* Move the control dialog item to the given <left>, <top> position, without
 changing its width or height.  JGG, 2/24/01 */
 
-void MoveDialogControl(DialogPtr dlog, INT16 item, INT16 left, INT16 top)
+void MoveDialogControl(DialogPtr dlog, short item, short left, short top)
 {
-	INT16 type, width, height; Handle hndl; Rect box;
+	short type, width, height; Handle hndl; Rect box;
 
 	GetDialogItem(dlog, item, &type, &hndl, &box);
 	width = box.right - box.left;

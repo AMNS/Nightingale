@@ -1,31 +1,31 @@
 /* Prototypes for CheckUtils.c */
 
 Rect SetStaffRect(LINK, PCONTEXT);
-INT16 AboveStfDist(LINK);
-INT16 BelowStfDist(Document *, LINK, LINK);
+short AboveStfDist(LINK);
+short BelowStfDist(Document *, LINK, LINK);
 Rect ComputeSysRect(LINK, Rect, PCONTEXT);
 Boolean DragGraySysRect(Document *, LINK, Ptr, Rect, Rect, Rect, PCONTEXT);
 
-LINK SelectStaff(Document *doc,LINK pL,INT16 staffn);
-void SetLimitRect(Document *, LINK, INT16, Point, Rect, Rect *, CONTEXT []);
-Boolean DragGrayStaffRect(Document *, LINK, LINK, INT16, Ptr, Rect, Rect, CONTEXT []);
-void HiliteStaves(Document *, LINK, CONTEXT [], INT16);
-void HiliteAllStaves(Document *, INT16);
+LINK SelectStaff(Document *doc,LINK pL,short staffn);
+void SetLimitRect(Document *, LINK, short, Point, Rect, Rect *, CONTEXT []);
+Boolean DragGrayStaffRect(Document *, LINK, LINK, short, Ptr, Rect, Rect, CONTEXT []);
+void HiliteStaves(Document *, LINK, CONTEXT [], short);
+void HiliteAllStaves(Document *, short);
 
-INT16 GraphicWidth(Document *, LINK, PCONTEXT);
-Rect SetSubRect(DDIST, DDIST, INT16, PCONTEXT);
+short GraphicWidth(Document *, LINK, PCONTEXT);
+Rect SetSubRect(DDIST, DDIST, short, PCONTEXT);
 
 void ContextObject(Document *, LINK, CONTEXT []);
-LINK CheckObject (Document *, LINK, Boolean *, Ptr, CONTEXT [], INT16, INT16 *, STFRANGE);
+LINK CheckObject (Document *, LINK, Boolean *, Ptr, CONTEXT [], short, short *, STFRANGE);
 Boolean ObjectTest(Rect *, Point, LINK);
-LINK FindObject(Document *, Point, INT16 *, INT16);
+LINK FindObject(Document *, Point, short *, short);
 
-LINK FindRelObject(Document *, Point, INT16 *, INT16);
+LINK FindRelObject(Document *, Point, short *, short);
 
-LINK CheckMasterObject (Document *, LINK, Boolean *, Ptr, CONTEXT [], INT16, INT16 *, STFRANGE);
+LINK CheckMasterObject (Document *, LINK, Boolean *, Ptr, CONTEXT [], short, short *, STFRANGE);
 Boolean MasterObjectTest(Rect *, Point, LINK);
-LINK FindMasterObject(Document *, Point, INT16 *, INT16);
+LINK FindMasterObject(Document *, Point, short *, short);
 
 Boolean FormatObjectTest(Rect *, Point, LINK);
-LINK FindFormatObject(Document *, Point, INT16 *, INT16);
+LINK FindFormatObject(Document *, Point, short *, short);
 

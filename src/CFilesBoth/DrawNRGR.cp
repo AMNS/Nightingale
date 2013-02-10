@@ -17,54 +17,21 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static void DrawSlashes(DDIST, DDIST, INT16, Boolean, Boolean, CONTEXT *, Boolean);
+static void DrawSlashes(DDIST, DDIST, short, Boolean, Boolean, CONTEXT *, Boolean);
 static void DrawAugDots(Document *, LINK, DDIST, DDIST, PCONTEXT, Boolean);
-static void DrawNCLedgers(LINK, PCONTEXT, LINK, DDIST, DDIST, INT16);
+static void DrawNCLedgers(LINK, PCONTEXT, LINK, DDIST, DDIST, short);
 static void DrawNotehead(Document *, unsigned char, Byte, Boolean, DDIST);
 static void GetNoteheadRect(unsigned char, Byte, DDIST, Rect *);
-static void DrawMBRest(Document *, PCONTEXT, LINK, DDIST, DDIST, INT16, Boolean, Rect *);
+static void DrawMBRest(Document *, PCONTEXT, LINK, DDIST, DDIST, short, Boolean, Rect *);
 static void ShowNGRSync(Document *, LINK, CONTEXT []);
-static void DrawGRAcc(Document *, PCONTEXT, LINK, DDIST, DDIST, Boolean, INT16);
-static void DrawGRNCLedgers(LINK, PCONTEXT, LINK, DDIST, DDIST, INT16);
-
-static void DrawNChar(char glyph);
-static void DrawNString(char glyph);
-
-static void DrawNChar(char glyph)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawChar(glyph);
-	TextFont(fontNum);
-#else
-	DrawChar(glyph);
-#endif
-}
-
-static void DrawNString(Str255 str)
-{
-#ifdef TARGET_API_MAC_CARBON
-	short fontNum = GetPortTxFont();
-	TextFont(systemFont);
-	DrawString(str);
-	TextFont(fontNum);
-#else
-	DrawString(str);
-#endif
-}
-
-#ifdef TARGET_API_MAC_CARBON
-//#define DrawChar DrawNChar
-//#define DrawString DrawNString
-#endif
-
+static void DrawGRAcc(Document *, PCONTEXT, LINK, DDIST, DDIST, Boolean, short);
+static void DrawGRNCLedgers(LINK, PCONTEXT, LINK, DDIST, DDIST, short);
 
 /* ----------------------------------------------------------------- DrawSlashes -- */
 /* Draw the specified number of tremolo slashes at the given position. */
 
 void DrawSlashes(DDIST xdh, DDIST ydh,
-					INT16 nslashes,
+					short nslashes,
 					Boolean noteCenter,		/* TRUE=horizontally center at note center, else at stem */
 					Boolean stemUp,
 					PCONTEXT pContext,
@@ -73,8 +40,8 @@ void DrawSlashes(DDIST xdh, DDIST ydh,
 {
 	DDIST slashLeading,slashWidth,slashHeight,dxpos,dypos,slashThick;
 	DDIST lnSpace, dEighthLn;
-	INT16 xp, yp;
-	INT16 i,xslash,yslash,slashLeadingp,dxposp,dyposp;
+	short xp, yp;
+	short i,xslash,yslash,slashLeadingp,dxposp,dyposp;
 	
 	lnSpace = LNSPACE(pContext);
 	dEighthLn = LNSPACE(pContext)/8;
@@ -129,11 +96,11 @@ void DrawSlashes(DDIST xdh, DDIST ydh,
 
 /* ------------------------------------------------------------------ Draw1ModNR -- */
 
-void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, INT16 code, unsigned char glyph,
-						CONTEXT *pContext, INT16 sizePercent, Boolean dim)
+void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char glyph,
+						CONTEXT *pContext, short sizePercent, Boolean dim)
 {
 	DDIST yd;
-	INT16 oldTxSize, useTxSize, xHead, yMod;
+	short oldTxSize, useTxSize, xHead, yMod;
 	
 	switch (outputTo) {
 		case toScreen:
@@ -229,7 +196,7 @@ void DrawModNR(Document *doc,
 	PAMODNR	aModNR;
 	DDIST		xdMod, ydMod, ydh, lnSpace;
 	unsigned char glyph;
-	INT16		code, sizePercent, xOffset, yOffset;
+	short		code, sizePercent, xOffset, yOffset;
 	Boolean	dim, noteCenter, stemUp;
 				
 	aNote = GetPANOTE(aNoteL);
@@ -272,13 +239,10 @@ void DrawModNR(Document *doc,
 }
 
 
-static INT16 noteHeadGraphWidth = 5;		/* Replace noteheads with tiny graphs? ??MUST BE GLOBAL; MOVE TO vars.h(?) */
+static short noteHeadGraphWidth = 5;		/* Replace noteheads with tiny graphs? ??MUST BE GLOBAL; MOVE TO vars.h(?) */
 
 /* ------------------------------------------------------------------- DrawAugDots -- */
 /* Draw all the augmentation dots for the given note or rest. */
-
-static DDIST AugDotXOffset(LINK theNoteL, DDIST yd, PCONTEXT pContext,
-				Boolean chordNoteToR,  Boolean doNoteheadGraphs);
 
 static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dots for */
 						   PCONTEXT pContext,
@@ -288,7 +252,6 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 {
 	PANOTE	theNote;
 	DDIST 	xdStart, xdDots, dhalfLn;
-	INT16		ndots;
 	char		lDur;
 
 	theNote = GetPANOTE(theNoteL);
@@ -341,10 +304,8 @@ static void DrawAugDots(Document *doc,
 {
 	PANOTE	theNote;
 	DDIST 	xdDots, ydDots, dhalfLn;
-	INT16		ndots, xpDots, yp;
-	char		lDur;
+	short		ndots, xpDots, yp;
 	Boolean	dim;				/* Should it be dimmed bcs in a voice not being looked at? */
-	Boolean doNoteheadGraphs;
 	Byte		glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	theNote = GetPANOTE(theNoteL);
@@ -393,7 +354,7 @@ static void DrawAugDots(Document *doc,
 
 /* ------------------------------------------------------------------- AccXOffset -- */
 
-DDIST AccXOffset(INT16 xmoveAcc, PCONTEXT pContext)
+DDIST AccXOffset(short xmoveAcc, PCONTEXT pContext)
 {
 	DDIST dAccWidth, xOffset;
 
@@ -417,13 +378,13 @@ void DrawAcc(Document *doc,
 				LINK theNoteL,					/* Subobject (note) to draw accidental for */
 				DDIST xdNorm, DDIST yd,		/* Notehead position, excluding effect of <otherStemSide> */
 				Boolean dim,					/* Ignored if outputTo==toPostScript */
-				INT16 sizePercent,
+				short sizePercent,
 				Boolean chordNoteToL			/* Note in a chord that's downstemmed w/notes to left of stem? */
 				)
 {
 	PANOTE theNote;
 	DDIST accXOffset, d8thSp, xdAcc, xdLParen, xdRParen, ydParens, lnSpace;
-	INT16 xmoveAcc, xp, yp, delta, scalePercent;
+	short xmoveAcc, xp, yp, delta, scalePercent;
 	Byte accGlyph, lparenGlyph, rparenGlyph;
 
 	theNote = GetPANOTE(theNoteL);
@@ -458,7 +419,7 @@ void DrawAcc(Document *doc,
 		/* ??These adjustments are probably not quite right, due to combination of 
 				sizePercent, scalePercent, and the various config tweaks. */
 
-		scalePercent = (INT16)(((long)config.courtesyAccSize*sizePercent)/100L);
+		scalePercent = (short)(((long)config.courtesyAccSize*sizePercent)/100L);
 
 		lparenGlyph = MapMusChar(doc->musFontInfoIndex, SCHAR_LPAREN);
 		rparenGlyph = MapMusChar(doc->musFontInfoIndex, SCHAR_RPAREN);
@@ -466,14 +427,14 @@ void DrawAcc(Document *doc,
 		xoffset = MusCharXOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);
 		xdRParen = xdAcc + ((DDIST)(((long)scalePercent*xoffset)/100L));
 
-		delta = (INT16)(((long)scalePercent*config.courtesyAccRXD)/100L);
+		delta = (short)(((long)scalePercent*config.courtesyAccRXD)/100L);
 		xdAcc = xdRParen-delta*d8thSp;
 
-		delta = (INT16)(((long)scalePercent*config.courtesyAccLXD)/100L);
+		delta = (short)(((long)scalePercent*config.courtesyAccLXD)/100L);
 		xdLParen = xdAcc-delta*d8thSp;
 
 		yoffset = MusCharYOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);	/* assuming both parens have same yoffset */
-		delta = (INT16)(((long)scalePercent*config.courtesyAccYD)/100L);
+		delta = (short)(((long)scalePercent*config.courtesyAccYD)/100L);
 		ydParens = yd + delta*d8thSp + ((DDIST)(((long)scalePercent*yoffset)/100L));;
 	}
 	xdAcc += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
@@ -522,9 +483,9 @@ from 100, the calling routine may have to adjust horizontal positions of upstems
 #define STEMSHORTEN_NOHEAD 6			/* in eighth-spaces */
 #define STEMSHORTEN_XSHAPEHEAD 3		/* in eighth-spaces */
 
-unsigned char GetNoteheadInfo(INT16 appearance, INT16 subType,
-							INT16 *sizePct,				/* percentage of normal size */
-							INT16 *stemShorten			/* in eighth-spaces */
+unsigned char GetNoteheadInfo(short appearance, short subType,
+							short *sizePct,				/* percentage of normal size */
+							short *stemShorten			/* in eighth-spaces */
 							)
 {
 	unsigned char glyph;
@@ -575,7 +536,7 @@ static void DrawNCLedgers(
 		LINK		aNoteL,
 		DDIST		xd,
 		DDIST		dTop,
-		INT16		ledgerSizePct
+		short		ledgerSizePct
 		)
 {
 	LINK		bNoteL, mainNoteL;
@@ -684,8 +645,8 @@ void GetNoteheadRect(unsigned char glyph, Byte appearance, DDIST dhalfLn,
 }
 
 
-static void PaintRoundLeftRect(Rect *paRect, INT16 ovalWidth, INT16 ovalHeight);
-void PaintRoundLeftRect(Rect *paRect, INT16 ovalWidth, INT16 ovalHeight)
+static void PaintRoundLeftRect(Rect *paRect, short ovalWidth, short ovalHeight);
+void PaintRoundLeftRect(Rect *paRect, short ovalWidth, short ovalHeight)
 {
 	Rect		leftEndRect, otherRect;
 
@@ -699,8 +660,8 @@ void PaintRoundLeftRect(Rect *paRect, INT16 ovalWidth, INT16 ovalHeight)
 }
 
 
-static void PaintRoundRightRect(Rect *paRect, INT16 ovalWidth, INT16 ovalHeight);
-void PaintRoundRightRect(Rect *paRect, INT16 ovalWidth, INT16 ovalHeight)
+static void PaintRoundRightRect(Rect *paRect, short ovalWidth, short ovalHeight);
+void PaintRoundRightRect(Rect *paRect, short ovalWidth, short ovalHeight)
 {
 	Rect		rightEndRect, otherRect;
 
@@ -712,9 +673,6 @@ void PaintRoundRightRect(Rect *paRect, INT16 ovalWidth, INT16 ovalHeight)
 	PaintRoundRect(&rightEndRect, ovalWidth, ovalHeight);
 	PaintRect(&otherRect);
 }
-
-
-static void DrawNoteheadGraph(Document *, unsigned char, Byte, Boolean, DDIST);
 
 /* QuickDraw only */
 /* Draw a little graph as a notehead: intended to be used to visualize changes during the note.
@@ -734,27 +692,20 @@ void DrawNoteheadGraph(Document *doc,
 					)
 {
 	PANOTE		aNote;
-	INT16		graphLen,
+	short		graphLen,
 				nSegs,
 				rDiam,					/* rounded corner diameter */
 				xorg, yorg,
 				yTop, yBottom;
 	QDIST		qdLen;
-	Rect		graphRect, segRect,
-				rSub;					/* bounding box for subobject */
+	Rect		graphRect, segRect;
 	long		resFact;
 	Point		pt;
-	INT16		segColor[50];
+	short		segColor[50];
 
 	aNote = GetPANOTE(aNoteL);
 	resFact = RESFACTOR*(long)doc->spacePercent;
-#if 1
 	qdLen = noteHeadGraphWidth*4;
-#else
-	qdLen = IdealSpace(doc, aNote->playDur, resFact);
-	qdLen = (long)(config.pianorollLenFact*qdLen) / 100L;
-	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
-#endif
 	graphLen = d2p(qd2d(qdLen, pContext->staffHeight,
 							pContext->staffLines));
 
@@ -769,7 +720,6 @@ void DrawNoteheadGraph(Document *doc,
 	SetRect(&graphRect, xorg, yorg-d2p(dhalfLn),
 		xorg+graphLen, yorg+d2p(dhalfLn));
 	rDiam = UseMagnifiedSize(4, doc->magnify);
-#if 1
 	nSegs = 1;									// ??TEMP
 	switch (appearance) 
 	{
@@ -844,45 +794,6 @@ void DrawNoteheadGraph(Document *doc,
 	}
 	ForeColor(Voice2Color(doc, aNote->voice));				// ??TEMP
 
-#if 0
-	SetRect(&graphRect, xorg, yorg-14*d2p(dhalfLn),
-		xorg+1.5*graphLen, yorg-11*d2p(dhalfLn));				// ?? VERY TEMP! TEST PaintRoundLeftRect !!!!
-	if ((appearance & 0x1)==0) PaintRoundLeftRect(&graphRect, 2*rDiam, 2*rDiam);
-	else PaintRoundRightRect(&graphRect, 2*rDiam, 2*rDiam);
-#endif
-
-#else
-	switch (appearance) 
-	{
-		case 1:
-			ForeColor(blueColor);									// ???TEMP
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
-			break;
-		case 2:
-			ForeColor(yellowColor);									// ???TEMP
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
-			break;
-		case 3:
-			segRect = graphRect;
-			segRect.right = segRect.left+graphLen/2;
-			ForeColor(magentaColor);								// ???TEMP
-			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&segRect, rDiam, rDiam); 
-			segRect = graphRect;
-			segRect.left = segRect.right-graphLen/2;
-			ForeColor(blueColor);								// ???TEMP
-			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&segRect, rDiam, rDiam); 
-			break;
-		default:
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
-			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
-			;
-	}
-	ForeColor(Voice2Color(doc, aNote->voice));				// ??TEMP
-#endif
 }
 
 /* ---------------------------------------------------------------------- DrawNote -- */
@@ -910,7 +821,7 @@ void DrawNote(Document *doc,
 	PANOTE	aNote;
 	PANOTE	bNote;
 	LINK		bNoteL;
-	INT16		flagCount,
+	short		flagCount,
 				staffn, ypStem,
 				xhead, yhead,	/* pixel coordinates */
 				appearance,
@@ -1075,7 +986,7 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 	 *	entire business of drawing the stem and flags.
 	 */
 				if (MainNote(aNoteL)) {
-					INT16 stemSpace;
+					short stemSpace;
 
 					stemDown = (dStemLen>0);
 					/*
@@ -1138,7 +1049,7 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 							}
 						}
 						else {	/* fonts other than Sonata */
-							INT16 glyphWidth; DDIST xoff, yoff;
+							short glyphWidth; DDIST xoff, yoff;
 
 							if (MusFontUpstemFlagsHaveXOffset(doc->musFontInfoIndex))
 								stemSpace = 0;
@@ -1164,7 +1075,7 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 								DrawMChar(doc, flagGlyph, NORMAL_VIS, dim);
 							}
 							else {																/* Draw using multiple flag chars */
-								INT16 count = flagCount;
+								short count = flagCount;
 
 								/* Draw extension flag(s) */
 								if (stemDown) {
@@ -1361,7 +1272,7 @@ EndQDrawing:
 							}
 							else {
 								DDIST ypos;
-								INT16 count = flagCount;
+								short count = flagCount;
 
 								/* Draw extension flag(s) */
 								if (stemDown) {
@@ -1432,13 +1343,13 @@ PopLock(NOTEheap);
 static void DrawMBRest(Document *doc, PCONTEXT pContext,
 						LINK theRestL,					/* Subobject (rest) to draw */
 						DDIST xd, DDIST yd,
-						INT16 appearance,
+						short appearance,
 						Boolean dim,					/* Ignored if outputTo==toPostScript */
 						Rect *prSub						/* Subobject selection/hiliting box */
 						)
 {
 	DDIST dTop, lnSpace, dhalfLn, xdNum, ydNum, endBottom, endTop, endThick;
-	DRect dRestBar; Rect restBar; INT16 numWidth;
+	DRect dRestBar; Rect restBar; short numWidth;
 	unsigned char numStr[20];
 
 	GetMBRestBar(-NoteType(theRestL), pContext, &dRestBar);
@@ -1522,7 +1433,7 @@ void DrawRest(Document *doc,
 				)
 {
 	PANOTE	aRest;
-	INT16		xp, yp,			/* pixel coordinates */
+	short		xp, yp,			/* pixel coordinates */
 				xpLedg, ypLedg,
 				appearance,
 				glyph,			/* rest symbol */
@@ -1633,7 +1544,7 @@ PushLock(NOTEheap);
 				/* If we're supposed to draw stemlets on beamed rests, do so. */
 				
 				if (aRest->beamed && STEMLET_LEN>=0 && config.drawStemlets) {
-					INT16 stemSpace = MusFontStemSpaceWidthPixels(doc, doc->musFontInfoIndex, lnSpace);
+					short stemSpace = MusFontStemSpaceWidthPixels(doc, doc->musFontInfoIndex, lnSpace);
 
 					qStemLen = 2*NFLAGS(aRest->subType)-1+STEMLET_LEN;
 					dStemLen = lnSpace*qStemLen/4;
@@ -1649,7 +1560,6 @@ PushLock(NOTEheap);
 				/* ??The following #if/else/endif is a mess: the commented-out code looks
 					better, but it's been the way it is now for years, and I don't remember
 					anything about this. Clean up some day. -Don B., 11/96 */
-#if 1
 				switch (unmappedGlyph) {
 					case EIGHth:
 					case SIXTEENth:
@@ -1662,11 +1572,6 @@ PushLock(NOTEheap);
 					default:
 						break;
 				}
-#else
-				restInset = restObjRTweak[lDur-1];
-				InsetRect(&rSub, 0, 
-					d2p(std2d(restInset, pContext->staffHeight, pContext->staffLines)));
-#endif
 				OffsetRect(&rSub, restxp-pContext->paper.left, restyp-pContext->paper.top);
 			}
 		}
@@ -1721,7 +1626,7 @@ non-J_STRUC object. */
 void ShowNGRSync(Document *doc, LINK pL, CONTEXT context[])
 {
 	Rect r;
-	INT16 ypTop, ypBottom;
+	short ypTop, ypBottom;
 	DDIST dhalfLn;
 	
 	r = LinkOBJRECT(pL);
@@ -1792,12 +1697,12 @@ static void DrawGRAcc(Document *doc,
 						LINK theGRNoteL,		/* Subobject (grace note) to draw accidental for */
 						DDIST xd, DDIST yd,	/* Notehead position, including effect of <otherStemSide> */
 						Boolean dim,			/* Ignored if outputTo==toPostScript */
-						INT16 sizePercent		/* Of normal note size */
+						short sizePercent		/* Of normal note size */
 						)
 {
 	PAGRNOTE theGRNote;
 	DDIST accXOffset, d8thSp, xdAcc, xdLParen, xdRParen, ydParens, lnSpace;
-	INT16 xmoveAcc, xp, yp, delta, scalePercent;
+	short xmoveAcc, xp, yp, delta, scalePercent;
 	Byte accGlyph, lparenGlyph, rparenGlyph;
 
 	theGRNote = GetPAGRNOTE(theGRNoteL);
@@ -1825,7 +1730,7 @@ static void DrawGRAcc(Document *doc,
 		/* ??These adjustments are probably not quite right, due to combination of 
 				sizePercent, scalePercent, and the various config tweaks. */
 
-		scalePercent = (INT16)(((long)config.courtesyAccSize*sizePercent)/100L);
+		scalePercent = (short)(((long)config.courtesyAccSize*sizePercent)/100L);
 
 		lparenGlyph = MapMusChar(doc->musFontInfoIndex, SCHAR_LPAREN);
 		rparenGlyph = MapMusChar(doc->musFontInfoIndex, SCHAR_RPAREN);
@@ -1833,14 +1738,14 @@ static void DrawGRAcc(Document *doc,
 		xoffset = MusCharXOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);
 		xdRParen = xdAcc + ((DDIST)(((long)scalePercent*xoffset)/100L));
 
-		delta = (INT16)(((long)scalePercent*config.courtesyAccRXD)/100L);
+		delta = (short)(((long)scalePercent*config.courtesyAccRXD)/100L);
 		xdAcc = xdRParen-delta*d8thSp;
 
-		delta = (INT16)(((long)scalePercent*config.courtesyAccLXD)/100L);
+		delta = (short)(((long)scalePercent*config.courtesyAccLXD)/100L);
 		xdLParen = xdAcc-delta*d8thSp;
 
 		yoffset = MusCharYOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);	/* assuming both parens have same yoffset */
-		delta = (INT16)(((long)scalePercent*config.courtesyAccYD)/100L);
+		delta = (short)(((long)scalePercent*config.courtesyAccYD)/100L);
 		ydParens = yd + delta*d8thSp + ((DDIST)(((long)scalePercent*yoffset)/100L));;
 	}
 	xdAcc += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
@@ -1886,7 +1791,7 @@ extreme notes on both sides of the staff; if it's not in a chord, just for itsel
 Should be called only once per chord. Assumes the GRNOTE and OBJECT heaps are locked! */
 
 static void DrawGRNCLedgers(LINK syncL, PCONTEXT pContext, LINK aGRNoteL, DDIST xd,
-										DDIST dTop, INT16 ledgerSizePct)
+										DDIST dTop, short ledgerSizePct)
 {
 	LINK		bGRNoteL, mainGRNoteL;
 	PAGRNOTE	aGRNote, bGRNote;
@@ -1939,10 +1844,10 @@ void DrawGRNote(Document *doc,
 						Boolean	*recalc)		/* TRUE if we need to recalc enclosing rectangle */
 {
 	PAGRNOTE	aGRNote;
-	INT16		flagCount,		/* number of flags on grace note */
+	short		flagCount,		/* number of flags on grace note */
 				staffn,
 				voice;
-	INT16		xhead, yhead,	/* pixel coordinates */
+	short		xhead, yhead,	/* pixel coordinates */
 				appearance,
 				ypStem, yp,
 				octaveLength,
@@ -2121,7 +2026,7 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 		 *	entire business of drawing the stem and flags.
 		 */
 				if (GRMainNote(aGRNoteL)) {
-					INT16 stemSpace;
+					short stemSpace;
 
 					if (stemDown)
 						stemSpace = 0;
@@ -2179,7 +2084,7 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 							}
 						}
 						else {	/* fonts other than Sonata */
-							INT16 glyphWidth; DDIST xoff, yoff;
+							short glyphWidth; DDIST xoff, yoff;
 
 							if (MusFontUpstemFlagsHaveXOffset(doc->musFontInfoIndex))
 								stemSpace = 0;
@@ -2205,7 +2110,7 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 								DrawMChar(doc, flagGlyph, NORMAL_VIS, dim);
 							}
 							else {																/* Draw using multiple flag chars */
-								INT16 count = flagCount;
+								short count = flagCount;
 
 								/* Draw extension flag(s) */
 								if (stemDown) {
@@ -2383,7 +2288,7 @@ EndQDrawing:
 							}
 							else {
 								DDIST ypos;
-								INT16 count = flagCount;
+								short count = flagCount;
 
 								/* Draw extension flag(s) */
 								if (stemDown) {
@@ -2456,7 +2361,6 @@ void DrawGRSYNC(Document *doc, LINK pL, CONTEXT context[])
 	PCONTEXT		pContext;
 	Boolean		drawn;			/* FALSE until a subobject has been drawn */
 	Boolean		recalc;			/* TRUE if we need to recalc enclosing rectangle */
-	Point			enlarge = {0,0};
 	
 	drawn = FALSE;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);

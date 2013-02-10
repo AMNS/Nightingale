@@ -25,7 +25,7 @@
 		Pt2Paper					GlobalToPaper			RefreshScreen
 		InitSleepMS				SleepMS					SleepTicks
 		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
-		PlayResource			TrapAvailable			GetSN
+		PlayResource			TrapAvailable			
 /***************************************************************************/
 
 /*										NOTICE
@@ -49,11 +49,11 @@
 DDIST CalcYStem(
 			Document *doc,
 			DDIST		yhead,			/* position of note head */
-			INT16		nflags,			/* number of flags or beams */
+			short		nflags,			/* number of flags or beams */
 			Boolean	stemDown,		/* TRUE if stem is down, else stem is up */
 			DDIST		staffHeight,	/* staff height */
-			INT16		staffLines,
-			INT16		qtrSp,			/* desired "normal" (w/2 or less flags) stem length (qtr-spaces) */
+			short		staffLines,
+			short		qtrSp,			/* desired "normal" (w/2 or less flags) stem length (qtr-spaces) */
 			Boolean	noExtend 		/* TRUE means don't extend stem to midline */
 			)
 {
@@ -131,7 +131,7 @@ stem; intended for use in 2-voice notation. */
 Boolean ShortenStem(LINK aNoteL, CONTEXT context, Boolean stemDown)
 {
 	PANOTE 	aNote;
-	INT16		halfLn, midCHalfLn;
+	short		halfLn, midCHalfLn;
 	QDIST		yqpit;
 	
 	midCHalfLn = ClefMiddleCHalfLn(context.clefType);				/* Get middle C staff pos. */		
@@ -152,10 +152,10 @@ function value) whether it should be stem down. Considers voice role but assumes
 note is not in a chord. */
 
 Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context, 
-							INT16 *qStemLen)
+							short *qStemLen)
 {
 	Byte voiceRole; PANOTE aNote;
-	INT16 halfLn, midCHalfLn; QDIST yqpit;
+	short halfLn, midCHalfLn; QDIST yqpit;
 	Boolean stemDown;
 	LINK partL; PPARTINFO pPart;
 	
@@ -195,7 +195,7 @@ Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context
 value) whether it should be stem down. Considers voice role but assumes the note
 is not in a chord. */
 
-Boolean GetStemInfo(Document *doc, LINK syncL, LINK aNoteL, INT16 *qStemLen)
+Boolean GetStemInfo(Document *doc, LINK syncL, LINK aNoteL, short *qStemLen)
 {
 	CONTEXT context;
 	
@@ -210,7 +210,7 @@ Boolean GetStemInfo(Document *doc, LINK syncL, LINK aNoteL, INT16 *qStemLen)
 the grace note is not in a chord. */
 
 Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /*context*/,
-								INT16 *qStemLen)
+								short *qStemLen)
 {
 	Byte voiceRole; Boolean stemDown;
 	LINK partL; PPARTINFO pPart;
@@ -242,7 +242,7 @@ Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /
 value) whether it should be stem down. Considers voice role but assumes the grace note
 is not in a chord. */
 
-Boolean GetGRStemInfo(Document *doc, LINK grSyncL, LINK aGRNoteL, INT16 *qStemLen)
+Boolean GetGRStemInfo(Document *doc, LINK grSyncL, LINK aGRNoteL, short *qStemLen)
 {
 	CONTEXT context;
 	
@@ -254,8 +254,8 @@ Boolean GetGRStemInfo(Document *doc, LINK grSyncL, LINK aGRNoteL, INT16 *qStemLe
 /* ------------------------------------------------------------ GetLineAugDotPos -- */
 /* Return the normal augmentation dot y-position for a note on a line. */
 							
-INT16 GetLineAugDotPos(
-			INT16		voiceRole,	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+short GetLineAugDotPos(
+			short		voiceRole,	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
 			Boolean	stemDown
 			)
 {
@@ -296,9 +296,9 @@ void ApplHeapCheck()
 /* -------------------------------------------------------------------- Char2Dur -- */
 /*	Convert input character to duration code */
 
-INT16 Char2Dur(char token)
+short Char2Dur(char token)
 {
-	INT16 j;
+	short j;
 	
 	for (j=0; j<nsyms; j++)
 		if (token==symtable[j].symcode)
@@ -310,9 +310,9 @@ INT16 Char2Dur(char token)
 /* -------------------------------------------------------------------- Dur2Char -- */
 /*	Convert duration code to input character */
 
-INT16 Dur2Char(INT16 dur)
+short Dur2Char(short dur)
 {
-	INT16 j;
+	short j;
 	
 	for (j=0; j<nsyms; j++)
 		if (dur==symtable[j].durcode)
@@ -324,9 +324,9 @@ INT16 Dur2Char(INT16 dur)
 /* ------------------------------------------------------------ GetSymTableIndex -- */
 /*	Return symtable index for CMN character token. */
 
-INT16 GetSymTableIndex(char token)
+short GetSymTableIndex(char token)
 {
-	INT16 j;
+	short j;
 	
 	for (j=0; j<nsyms; j++)
 		if (token==symtable[j].symcode)
@@ -338,9 +338,9 @@ INT16 GetSymTableIndex(char token)
 /* --------------------------------------------------------------------- SymType -- */
 /*	Return the symbol type for the specified character. */
 
-INT16 SymType(char ch)
+short SymType(char ch)
 {
-	INT16 index;
+	short index;
 
 	index = GetSymTableIndex(ch);
 	if (index==NOMATCH)
@@ -356,7 +356,7 @@ symtable. */
 
 char Objtype2Char(SignedByte objtype)
 {
-	INT16 j;
+	short j;
 	
 	for (j=0; j<nsyms; j++)
 		if (objtype==symtable[j].objtype)
@@ -370,7 +370,7 @@ char Objtype2Char(SignedByte objtype)
 
 Rect StrToObjRect(unsigned char *string)
 {
-	INT16		nchars;
+	short		nchars;
 	Rect		strRect, tempR;
 	Boolean  rectNotSet = TRUE;
 	
@@ -423,9 +423,9 @@ void GetNFontInfo(
 /* Compute and return the StringWidth (in pixels) of the given string in the
 given font, size and style. */
 
-INT16 NStringWidth(Document */*doc*/, const Str255 string, INT16 font, INT16 size, INT16 style)
+short NStringWidth(Document */*doc*/, const Str255 string, short font, short size, short style)
 {
-	INT16		oldFont, oldSize, oldStyle, width;
+	short		oldFont, oldSize, oldStyle, width;
 
 	oldFont = GetPortTxFont();
 	oldSize = GetPortTxSize();
@@ -459,14 +459,14 @@ discusses finding the width of a piece of text, and makes it clear that (in the 
 case) it's far more difficult than a reasonable person would expect, especially with
 bitmapped fonts. */
 
-INT16 NPtStringWidth(
+short NPtStringWidth(
 			Document *doc,
 			const Str255 string,
-			INT16 font,
-			INT16 size,			/* in points, i.e., pixels at 100% magnification */
-			INT16 style)
+			short font,
+			short size,			/* in points, i.e., pixels at 100% magnification */
+			short style)
 {
-	INT16 saveMagnify, width;
+	short saveMagnify, width;
 	
 	saveMagnify = doc->magnify;
 	doc->magnify = MAX_MAGNIFY;
@@ -486,9 +486,9 @@ INT16 NPtStringWidth(
 /* ------------------------------------------------------------- NPtGraphicWidth -- */
 /* Compute and return the StringWidth (in points) of the given Graphic. */
 
-INT16 NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
+short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 {
-	INT16		font, fontSize, fontStyle;
+	short		font, fontSize, fontStyle;
 	PGRAPHIC	p;
 	Str255	string;
 	DDIST		lineSpace;
@@ -522,19 +522,19 @@ the string's font differs from Sonata. */
 void GetNPtStringBBox(
 			Document *doc,
 			Str255 string,				/* Pascal string */
-			INT16 fontID,
-			INT16 size,					/* in points, i.e., pixels at 100% magnification */
-			INT16 style,
+			short fontID,
+			short size,					/* in points, i.e., pixels at 100% magnification */
+			short style,
 			Boolean multiLine,		/* has multiple lines, delimited by CH_CR */
 			Rect *bBox)					/* Bounding box for string, with TOP_LEFT at 0,0 and no margin */
 {
-	INT16 width, ascent, descent, nLines;
+	short width, ascent, descent, nLines;
 	FontInfo fInfo;
 
 	nLines = 0;
 
 	if (multiLine) {									/* Count lines; take width from longest line. */
-		INT16 i, j, len, count, wid;
+		short i, j, len, count, wid;
 		Str255 str;
 		Byte *p;
 
@@ -567,7 +567,7 @@ void GetNPtStringBBox(
 	if (fontID==doc->musicFontNum || fontID==sonataFontNum) {
 		GetMusicAscDesc(doc, string, size, &ascent, &descent);
 		if (multiLine) {
-			INT16 lineHt = ascent + descent;	// no leading?
+			short lineHt = ascent + descent;	// no leading?
 			bBox->top = -ascent;
 			bBox->bottom = descent + (lineHt * (nLines-1));
 		}
@@ -579,7 +579,7 @@ void GetNPtStringBBox(
 	else {
 		GetNFontInfo(fontID, size, style, &fInfo);
 		if (multiLine) {
-			INT16 lineHt = fInfo.ascent + fInfo.descent + fInfo.leading;
+			short lineHt = fInfo.ascent + fInfo.descent + fInfo.leading;
 			bBox->top = -fInfo.ascent;
 			bBox->bottom = fInfo.descent + (lineHt * (nLines-1));
 		}
@@ -595,14 +595,14 @@ void GetNPtStringBBox(
 /* For the given document and code for the form of part names, return the
 maximum width needed by any part name, in points. */
 
-INT16 MaxNameWidth(
+short MaxNameWidth(
 			Document *doc,
-			INT16 nameCode)			/* 0=show none, 1=show abbrev., 2=show full names */
+			short nameCode)			/* 0=show none, 1=show abbrev., 2=show full names */
 {
 	LINK measL, partL;
 	PPARTINFO pPart;
-	INT16 fontInd, font, fontSize;
-	INT16 nameWidth, maxWidth;
+	short fontInd, font, fontSize;
+	short nameWidth, maxWidth;
 	CONTEXT context;
 	Str255 string;
 
@@ -635,9 +635,9 @@ INT16 MaxNameWidth(
 
 double PartNameMargin(
 				Document *doc,
-				INT16 nameCode)			/* 0=show none, 1=show abbrev., 2=show full names */
+				short nameCode)			/* 0=show none, 1=show abbrev., 2=show full names */
 {
-	INT16 nameWidth;
+	short nameWidth;
 	double inchDist;
 	
 	if (nameCode>0) {
@@ -657,7 +657,7 @@ double PartNameMargin(
 /* --------------------------------------------------------------------- SetFont -- */
 /* Set one of Nightingale's standard fonts. Obsolescent. */
 
-void SetFont(INT16 which)
+void SetFont(short which)
 {
 	switch (which) {
 		default:
@@ -725,7 +725,7 @@ These make it easy to work with color images.  See Apple documentation
 the given dimensions.  If <lock> is TRUE, the PixMap of this GWorld will be
 locked on return.  Returns the new GWorldPtr, or NULL if error. */
 
-GWorldPtr MakeGWorld(INT16 width, INT16 height, Boolean lock)
+GWorldPtr MakeGWorld(short width, short height, Boolean lock)
 {
 	CGrafPtr			origGrafPtr;
 	GDHandle			origDevH;
@@ -829,7 +829,7 @@ current port.
 
 The GrafPort thus created should be disposed of with the DisposGrafPort function. */
 
-GrafPtr NewGrafPort(INT16 width, INT16 height)	/* required size of requested GrafPort */
+GrafPtr NewGrafPort(short width, short height)	/* required size of requested GrafPort */
 {
 
 	GrafPtr	oldPort,
@@ -963,9 +963,9 @@ void DMoveTo(DDIST xd, DDIST yd)
 /* ------------------------------------------------------------------------- GCD -- */
 /* Euclid's algorithm for GCD of two integers, from Knuth, v.1 p.2. */
 
-INT16 GCD(INT16 m, INT16 n)
+short GCD(short m, short n)
 {
-	INT16 r;
+	short r;
 		
 	if (!n) {
 		MayErrMsg("GCD called with n = 0");
@@ -999,9 +999,9 @@ double RoundDouble(double value, double quantum)
 /* Given a signed <value> and a non-zero <quantum>, round <value> to the nearest
 multiple of <quantum>. ??Not sure this will work if <quantum> is negative! */
 
-INT16 RoundSignedInt(INT16 value, INT16 quantum)
+short RoundSignedInt(short value, short quantum)
 {
-	INT16 uRound, sRound, multiple;
+	short uRound, sRound, multiple;
 	
 	uRound = quantum/2;
 	sRound = (value>0? uRound : -uRound);
@@ -1016,9 +1016,9 @@ INT16 RoundSignedInt(INT16 value, INT16 quantum)
 to (x1,y1) corresponding to x-coord. ptx. This is a fast version for integer
 coordinates, done in homebrew fixed-point arithmetic. */
 
-INT16 InterpY(INT16 x0, INT16 y0, INT16 x1, INT16 y1, INT16 ptx)
+short InterpY(short x0, short y0, short x1, short y1, short ptx)
 {
-	long prop, dyBig; INT16 y;
+	long prop, dyBig; short y;
 
 	if (x1==x0) return y1;												/* Avoid possible divide by 0 */
 
@@ -1034,7 +1034,7 @@ in the given string. If the string contains no digits, return -1. */
 
 long FindIntInString(unsigned char *string)
 {
-	long number, digit; INT16 i; Boolean foundDigits;
+	long number, digit; short i; Boolean foundDigits;
 	
 	number = 0L;
 	foundDigits = FALSE;
@@ -1059,7 +1059,7 @@ long FindIntInString(unsigned char *string)
 in which case we deliver 0, or until the first is less than or greater than
 the second, in which case we deliver -1 or 1 respectively. */
 
-INT16 BlockCompare(void *blk1, void *blk2, INT16 len)
+short BlockCompare(void *blk1, void *blk2, short len)
 	{
 		Byte *b1, *b2;
 		
@@ -1076,9 +1076,9 @@ INT16 BlockCompare(void *blk1, void *blk2, INT16 len)
 /*	Deliver the absolute size (in points) that the Tiny...Jumbo...StaffHeight
 menu item for text Graphics represents, or 0 if out of bounds. */
 
-INT16 RelIndexToSize(INT16 index, DDIST lineSpace)
+short RelIndexToSize(short index, DDIST lineSpace)
 	{
-		INT16 theRelSize = 0;
+		short theRelSize = 0;
 		
 		if (index>=GRTiny && index<=GRLastSize) {
 			theRelSize = relFSizeTab[index]*lineSpace;
@@ -1092,9 +1092,9 @@ INT16 RelIndexToSize(INT16 index, DDIST lineSpace)
 /* Given the relative/absolute size flag, nominal (Nightingale internal) size, and
 space between staff lines, return the point size to use. */
 
-INT16 GetTextSize(Boolean relFSize, INT16 fontSize, DDIST lineSpace)
+short GetTextSize(Boolean relFSize, short fontSize, DDIST lineSpace)
 {
-	INT16 pointSize;
+	short pointSize;
 	
 	if (relFSize)
 		pointSize = RelIndexToSize(fontSize, lineSpace);
@@ -1112,9 +1112,9 @@ INT16 GetTextSize(Boolean relFSize, INT16 fontSize, DDIST lineSpace)
 fontname doesn't appear in the table, add it. In all cases, return the index of the
 fontname. Exception: if the table overflows, return -1. */
 
-INT16 GetFontIndex(Document *doc, unsigned char *fontName)
+short GetFontIndex(Document *doc, unsigned char *fontName)
 {
-	INT16 i, nfontsUsed;
+	short i, nfontsUsed;
 
 	nfontsUsed = doc->nfontsUsed;
 
@@ -1141,7 +1141,7 @@ INT16 GetFontIndex(Document *doc, unsigned char *fontName)
 
 /* --------------------------------------- User2HeaderFontNum,Header2UserFontNum -- */
 
-INT16 User2HeaderFontNum(Document */*doc*/, INT16 styleChoice)
+short User2HeaderFontNum(Document */*doc*/, short styleChoice)
 {
 	switch (styleChoice) {
 		case TSRegular1STYLE:
@@ -1170,7 +1170,7 @@ INT16 User2HeaderFontNum(Document */*doc*/, INT16 styleChoice)
 	}
 }
 
-INT16 Header2UserFontNum(INT16 globalFontIndex)
+short Header2UserFontNum(short globalFontIndex)
 {
 	switch (globalFontIndex) {
 		case FONT_R1:
@@ -1283,26 +1283,8 @@ void InitSleepMS()
 {
 	long startTicks, elapsedTicks, countPerTick, loopCount, l;
 
-#ifdef NOTYET
-extern short TimeDBRA : 0x0D00;
-#define DBRA_TO_LOOP (1510.0/2619.0)	/* Based on SE/30 timings */
-
-	/*
-	 * Compute delay count from TimeDBRA (see IM V-352). This has a reasonable value
-	 * even on PowerPCs (where it must be the value for emulation). However, on Mac
-	 * Plus, TimeDBRA==0, so use this code only if it looks reasonable.
-	 */
-	if (TimeDBRA>500) {
-		oneMSDelayCount = TimeDBRA*DBRA_TO_LOOP;
-		if (oneMSDelayCount is reasonable??) return;
-	}
-	
-#endif
 	loopCount = NORMAL_LOOP_COUNT;
 	/* If this is an early, slow CPU, reduce <loopCount> so it doesn't take too long. */ 
-#ifdef NO_SYSENVREC
-	if (thisMac.processor==env68000 || thisMac.processor==env68010) loopCount /= 5;
-#endif
 
 	startTicks = TickCount();
 	
@@ -1465,9 +1447,9 @@ with sync==FALSE, then at some point in the future, it is the caller's responsib
 to call again with snd==NULL, to unlock the locked sound.  This probably ought to
 be done in a completion routine somewhere. */
 
-INT16 PlayResource(Handle snd, Boolean sync)
+short PlayResource(Handle snd, Boolean sync)
 	{
-		INT16 err = noErr;
+		short err = noErr;
 		static SndChannel *theChanPtr;		/* Channel storage must come from heap */
 		static Handle theSound;					/* Initially NULL */
 		

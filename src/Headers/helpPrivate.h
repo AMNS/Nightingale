@@ -64,27 +64,27 @@ typedef struct {
 
 /* Function prototypes */
 extern	void	Add_List_String( TopicStr *, ListHandle );
-extern	void	Bold_Button( DialogPtr, INT16 );
-extern	void	Center_Window( DialogPtr, INT16, Boolean );
+extern	void	Bold_Button( DialogPtr, short );
+extern	void	Center_Window( DialogPtr, short, Boolean );
 extern	Boolean Create_Help( short, long );
-extern	void	Display_Pict( INT16 );
+extern	void	Display_Pict( short );
 extern  void	Display_Text( void );
 extern	void	Do_Help( short, long );
 extern	void	Error_Message( ErrorTypes );
 extern	void	Help_Event_Loop( void );
-extern	void	Handle_List_Event( INT16 );
+extern	void	Handle_List_Event( short );
 extern	void	Handle_Update( void );
 extern	void	Init_Help( void );
 extern	void	Kill_Window( void );
-extern  pascal  void My_Scroll_Filter ( ControlHandle, INT16 );
-extern  INT16 	ParseInt( char ** );
+extern  pascal  void My_Scroll_Filter ( ControlHandle, short );
+extern  short 	ParseInt( char ** );
 extern	long	ParseOSType( char **);
 extern	void 	ParseString( char *, char ** );
 extern  void	pStrCat(const Str255, const Str255, Str255);
 extern	void	pStrCopy( char *, char * );
 extern 	void  	Refresh_Topics( void );
-extern  void	Scroll_Picture( INT16 );
-extern  void	Scroll_Text( INT16, INT16 );
-extern	void	Set_Button_State( INT16, Boolean );
+extern  void	Scroll_Picture( short );
+extern  void	Scroll_Text( short, short );
+extern	void	Set_Button_State( short, Boolean );
 extern  void	User_Message( const unsigned char * );
 extern	void	DrawBorder( void );

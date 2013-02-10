@@ -32,7 +32,7 @@
 /* Module globals */
 
 static Rect textRect;
-static INT16 linenum;
+static short linenum;
 static char *s;
 
 /* -------------------------------------------------------------------------------- */
@@ -113,7 +113,7 @@ static void PrintMidiMap(Document *doc)
 
 static void DrawMidiMapText(Document *doc)
 {
-	INT16 patchNum;
+	short patchNum;
 	char fmtStr[256];
 	
 	linenum = 1;

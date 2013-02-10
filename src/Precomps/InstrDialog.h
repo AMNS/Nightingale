@@ -1,15 +1,15 @@
 /* InstrDialog.h: Nightingale header file for InstrDialog.c */
 
-INT16 InstrDialog(Document *doc, PARTINFO *Mp);
+short InstrDialog(Document *doc, PARTINFO *Mp);
 Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts);
 
-INT16 OMSInstrDialog(Document *doc, PARTINFO *mp, OMSUniqueID *mpDevice);
+short OMSInstrDialog(Document *doc, PARTINFO *mp, OMSUniqueID *mpDevice);
 Boolean OMSPartMIDIDialog(Document *doc, PARTINFO *mp, OMSUniqueID *mpDevice);
 
-INT16 CMInstrDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice);
+short CMInstrDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice);
 Boolean CMPartMIDIDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice, Boolean *allParts);
 
-INT16 FMSInstrDialog(Document *doc, PARTINFO *mp, fmsUniqueID *mpDevice);
+short FMSInstrDialog(Document *doc, PARTINFO *mp, fmsUniqueID *mpDevice);
 Boolean FMSPartMIDIDialog(Document *doc, PARTINFO *mp, fmsUniqueID *mpDevice);
 
 void XLoadInstrDialogSeg(void);
@@ -32,9 +32,7 @@ void XLoadInstrDialogSeg(void);
 #define TWELVE				12
 #define RSIZE				3				/* max size of midinote value as string */
 
-//#if TARGET_CPU_PPC
-	#pragma options align=mac68k
-//#endif
+#pragma options align=mac68k
 
 struct range
 {
@@ -66,9 +64,7 @@ struct scaleTblEnt
 };
 
 
-//#if TARGET_CPU_PPC
-	#pragma options align=reset
-//#endif
+#pragma options align=reset
 
 #endif
 
