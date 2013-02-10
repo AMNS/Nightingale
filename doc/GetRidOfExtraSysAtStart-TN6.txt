@@ -1,0 +1,13 @@
+Nightingale Technical Note #6, November 1998
+Don Byrd
+
+To get rid of an extra system at the beginning of a score:
+
+1. Make sure the extra system (system 1) is completely empty.
+2. Make sure system 2 isn't right-justified, e.g., by Respace command, if needed.
+3. Reformat systems 1-2 with all default settings except for the appropriate extra
+	margin (ignore any warning about hidden staves).
+4. The first measure should be empty, so get rid of it by deleting the barline
+	ending it.
+5. If desired, Justify system 1.
+6. Fix title, headings, copyright notice, etc.

@@ -1,0 +1,57 @@
+The Nightingale "Debug" Command, Especially for Finding Accidental Problems
+Nightingale Technical Note #8
+Don Byrd, October 1999
+
+For related information, see Nightingale Technical Note #2: Nightingale Files, and
+Troubleshooting Files Nightingale CanÕt Open.
+
+NB: Nightingale's "Debug" command appears in the Test menu: that entire menu exists
+only in beta copies of Nightingale! If you don't have a Test menu, you don't have a
+beta copy.
+
+Here's some example output (with line numbers added) from Test>Debug option "Check
+Standard Things"
+
+1. DEBUG 'M'-Std: CHK MAIN:
+2. *DCheckNode: MEASURE AT 26 HAS ILLEGAL spacePercent 601.
+3. DCheckNode: NOTE IN SYNC AT 231 STAFF 1 noteNum 72 AND NOTATION DISAGREE: ACCIDENTAL?
+4. DCheckNode: NOTE IN SYNC AT 727 STAFF 7 noteNum 88 AND NOTATION DISAGREE.
+5. Strict contin. sel, 1 objs in range, 1 sel, 13 total.  1 voices.
+6.    CHK MASTER:  Done.    CHK CLIP:  Done. 2 ERRORS.
+
+1. Viewing and saving debug output. Debug output is displayed in the "Consolation"
+window; to show it, choose the Test>Show Debug Window command. You can save
+everything that appears in the window to a file by clicking the the little document
+icon at the bottom of the Consolation window (the third icon from the right), and
+giving it a filename to save it on.
+
+2. Debug output in general. The Debug "Check" options check the Master Page and
+Clipboard data structures as well as the score proper. In line 1, "CHK MAIN" means
+following messages are for the score; in this case, there are no messages about the
+Master Page ("CHK MASTER") or Clipboard ("CHK CLIP"). There are three levels of
+errors:
+	Most important: messages about problems are prefixed with '¥'
+	More important: messages about problems are prefixed with '*'
+	Less important: messages about problems have no prefix
+In general, if you see any messages with '¥' in front of them, you probably have a
+serious problem, for example, corrupt data structure: the file may be unusable or may
+become unusable at any time. Messages with no prefix are almost never serious in the
+sense of causing Nightingale to behave badly.
+
+Finding items referred to by Debug messages is not simple. Staff numbers are simply
+counted from the top of the score in the obvious way. The phrase "AT 26" means the
+item has link number 26. It's possible to find that item with the Test>Browser
+command. Be sure nothing is selected. Then type 26 into the numeric field, then
+click Go, then Select, then dismiss the Browser: at this point item 26 will be the
+only selected item in the score, and you use the normal Go To Selection command to
+find it. Debug "Display index" can also help find items, since it give a summary of
+link numbers for the entire score: before using it, note that editing the score can
+re-arrange link numbers, so it's much more helpful with a just-opened score.
+
+3. Debug messages about disagreement between MIDI note number ("noteNum") and
+notation. In the example output, both such messages say a note's MIDI note number
+disagrees with the notation. Nightingale suggests the problem is an accidental, as
+in the line 3, when the discrepancy is only a semitone; it does not suggest that if
+the discrepancy is larger than that. In practice, the "ACCIDENTAL?" form is far, far
+more common, and is usually due to a bug or bugs in Nightingale.
+

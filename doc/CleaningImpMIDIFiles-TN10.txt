@@ -1,0 +1,36 @@
+Cleaning Up MIDI files Imported Into Nightingale
+Nightingale Technical Note #10
+Don Byrd, June 2001; minor rev., March 2012
+
+The following procedure is very rough: there's too much variation from situation
+to situation for it to be otherwise. You may want to Save at almost any step,
+just in case.
+
+RC = specific to Bach "raw chorales".
+
+- (optional) In Master Page: Change staff size.
+- (optional) Select All, Respace (typically to 80-90%), and Reformat.
+- Scan for nonsense chords created by too-coarse quantization.
+- (RC) Remove notes/rests on top 2 staves.
+- In Master Page: remove any staves with no notes/rests. With RC, at this
+	point, the top 2 staves; with some MIDI files from Classical MIDI
+	Archive, the bottom 2 or more staves.
+- (optional) In Master Page: Group staves appropriately.
+- (optional) In Master Page: Change staff size.
+- Select All, Reformat.
+- Handle clef changes:
+	- Move any in the middle of tied notes/chords to left or right.
+	- Remove any nonsensical ones.
+- Handle key signature and accidentals:
+	- Add appropriate key signatures.
+	- (optional) Select All; Respell once or twice (depending on whether
+		it's a sharp or a flat key). (The second Respell is necessary for
+		flat keys because Nightingale's defaults to sharps if there's no
+		key signature.)
+	- Check for incorrect spelling, and Respell or (e.g., for E-sharp
+		notated as F-natural) otherwise correct as needed.
+	- Select All; Delete Redundant Accs.
+- Select All, Beam by Beat.
+- Select All, Respace (typically to 80-90%), and Reformat.
+- Save.
+- With beta copies (optional): Close, Open, Debug Check.

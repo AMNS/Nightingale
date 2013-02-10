@@ -1,0 +1,21 @@
+Nightingale Conventions for Use of Character Data Types
+Nightingale Technical Note #3
+Don Byrd, AMNS, 1997
+
+Declaration			OK?	Elements			Array Used For			Comments
+-----------			---	--------			--------------			--------
+
+Byte, [], *			+	binary data									=unsigned char (Apple)
+SignedByte, [], *	+	binary data									Unused; =(signed) char (Apple)
+
+char[], char *		-	Mac char. data		C str, NULL-terminated
+char				-	Mac char. data		(NA)
+
+unsigned char *		-	Mac char. data		Pascal str, len prefix
+Str255,63,31,15		+	Mac char. data		Pascal str, len prefix
+unsigned char		-	Mac char. data		(NA)
+
+
++ = all current usage of this type in Nightingale/NoteView is as described.
+
+NB: in Mac development systems (ours, at least!), chars are signed by default.

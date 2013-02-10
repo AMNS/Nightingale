@@ -1,0 +1,32 @@
+Nightingale Technical Note #7, December 1998; rev. Feb. 2001
+Don Byrd
+
+To get music from Nightingale into Microsoft Word with high graphic quality:
+
+1. In Nightingale, Save PostScript, in ESPF form.
+
+2. In MS Word, use the Insert Picture (not Paste) command to put the EPSF into a
+paragraph with single spacing.
+
+3. Put any character in the music font _above_ the EPSF, and not hidden. This is
+necessary to make sure Sonata is downloaded to the printer! Also, the character may
+need to be on the same page as the music (or the first page containing music, if
+there are several in the document): otherwise a mysterious PostScript error may
+occur. This is not nearly as odious as it sounds--a single tiny character (dot is a
+good choice) is enough. But it's a bit tricky because, with Sonata's huge ascender
+and descender heights, even a very small character can affect line spacing. A dot in
+Sonata 5 (say) generally does the trick without causing any problems other than a
+"flyspeck".
+
+4. To crop or scale the music, click to select it. Then:
+	With recent versions of Word: use the appropriate tool in the toolbar to drag
+		any of the handles.
+	With Word 6: to CROP, shift-drag a handle; to SCALE, drag without shift(?).
+	With Word 5.x for Mac: to CROP, drag either center handle; to SCALE, shift-drag. 
+
+Tip: for small examples, consider using the standard Nightingale templates
+(ShortExamplesTemplate1 thru ShortExamplesTemplate4).
+
+Note: the comment about getting Sonata downloaded to the printer apparently applies
+also to Quark, and probably also to other programs. In Quark, at least, making the
+music-font character white both does the job and avoids defacing the page.
