@@ -1,0 +1,41 @@
+NIGHTINGALE TECH NOTES - DAB, February 2013
+
+NB: These need a lot of work. At least one (#5) is probably completely obsolete; one
+(#2) is the Coding Guidelines, which are now in the AMNS/Nightingale GitHub repository
+in a more up-to-date form; one (NgaleEPSToGhostView) wants to be merged into #7; etc.
+And very few are really up-to-date.
+
+#	St	Title
+-------------
+NUMBERED
+
+1	OK?	Nightingale Programmer's Quick Reference (NgaleProgQuickRef-TN1.txt)
+2	Rep	Nightingale Coding Conventions (NCodingConventions-TN2.txt, NCodingConventions-TN2GFM.txt)
+3	OK?	Nightingale Conventions for Use of Character Data Types (CharTypeConventions-TN3.txt)
+4	Old	Nightingale Files and Troubleshooting Files Nightingale Can't Open (Files+Troubleshooting-TN4.RTF)
+5	OBS	Tips for Opcode Studio 5 Settings (OpcodeStudio5Settings-TN5.PICT)
+6	OK?	To get rid of an extra system at the beginning of a score (GetRidOfExtraSysAtStart-TN6.txt)
+7	OK?	To get music from Nightingale into MS Word (GettingMusicIntoMSWord-TN7.txt)
+8	OK?	The Nightingale "Debug" Command, Especially for Finding Accidental Problems (DebugAndAccPblms-TN8.txt)
+9	OK?	Nightingale Conventions for Modifier Keys (ModKeyConventions-TN9.txt)
+10	OK?	Cleaning Up MIDI files Imported Into Nightingale (CleaningImpMIDIFiles-TN10.txt)
+11	OK	Nightingale Coordinate Systems (CoordinateSystems-TN11.doc)
+
+UNNUMBERED
+
+	OK?	CleaningNotelistFiles.txt
+	?	coordCalcCode.t
+	OK	CoordinateSystemsDemo (.ngl and .png)
+	Old	HowToQASampleScores.t
+	M7	NgaleEPSToGhostView.txt
+	OK?	NgaleXDebugCommands.txt
+	OK?	QuickDrawAPIsUsedInNgale.xls
+
+
+St (Status) codes:
+
+OK?: probably OK with only minor problems
+OK: definitely OK; has only minor problems
+Rep: the current version is in the GitHub repository; the tech note version isn't up-to-date
+OBS: obsolete and probably of no use anymore
+Mn: should be merged into Tech Note #n
