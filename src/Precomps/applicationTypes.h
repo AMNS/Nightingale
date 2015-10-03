@@ -338,6 +338,7 @@ typedef struct {
 	SignedByte	tupletNumSize;		/* PostScript size of accessory numerals in tuplets (% of text size) */
 	SignedByte	tupletColonSize;	/* PostScript size of colons between tuplet numerals (% of text size) */
 	SignedByte	octaveNumSize;		/* PostScript size of number on octave signs (% of text size) */
+	SignedByte	noteScanEpsXD;		/* Open NoteScan File tolerance for combining subobjs (points) */
 	SignedByte	lineLW;				/* Linewidth of line Graphics (% of a space) */
 	SignedByte	ledgerLLen;			/* Length of ledger lines on notehead's side of stem (32nds of a space) */
 	SignedByte	ledgerLOtherLen;	/* Length of ledger lines on other side of stem (32nds of a space) */

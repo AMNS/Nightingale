@@ -293,6 +293,8 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 	Boolean	MIDIDynamDialog(Document *, Boolean *);
 	Boolean	MIDIModifierDialog(Document *);
+	Boolean	MIDIDriverDialog(short *pPortSetting, short *pInterfaceSpeed);
+	Boolean SetPlaySpeedDialog(void);
 
 /* MIDI File-handling files */
 
@@ -472,9 +474,10 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	void		PStrCat(StringPtr, ConstStringPtr);
 	void		PStrCopy(ConstStringPtr, StringPtr);
 	void		PStrnCopy(ConstStringPtr, StringPtr, short);
-	Boolean	PStrCmp(ConstStringPtr, ConstStringPtr);
-	Boolean	PStrnCmp(ConstStringPtr, ConstStringPtr, short);
+	Boolean		PStrCmp(ConstStringPtr, ConstStringPtr);
+	Boolean		PStrnCmp(ConstStringPtr, ConstStringPtr, short);
 	void		GoodStrncpy(char [256], char [256], unsigned long);
+	Boolean		ExpandString(unsigned char *dstStr, const unsigned char *srcStr, Boolean wider);
 
 /* SysPageEdit.c */
 

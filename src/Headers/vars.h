@@ -15,7 +15,7 @@
 
 /* ------------------------------- Without Initialization --------------------------- */
 
-GLOBAL SysEnvRec	thisMac;					/* Our machine environment info for the benefit of all */
+GLOBAL SysEnvRec	thisMac;				/* Our machine environment info */
 GLOBAL HEAP 		*Heap;					/* Pointer to current heap list */
 GLOBAL HEAP			*PARTINFOheap,			/* Precomputed pointers into above, indexed by type */
 						*TAILheap,
@@ -79,11 +79,12 @@ GLOBAL short		sonataFontNum,			/* font ID number of Sonata font */
 						dynam2velo[LAST_DYNAM],	/* Dynamic-mark-to-MIDI-velocity table */
 						modNRVelOffsets[32],	/* Modifier MIDI velocity offset table (mod codes indices) */
 						modNRDurFactors[32],	/* Modifier duration factor (% of note's play duration) (mod codes indices) */
+					/*	modNRTimeFactors[32], */	/* (unused) Modifier time factor (% of ??) (mod codes indices) */
 						magShift,				/* Shift count for coord. conversion for TopDocument */
 						magRound,				/* Addend for rounding in coord. conversion for TopDocument */ 
 						magMagnify,				/* Copy of <doc->magnify> for coord. conversion for TopDocument */
 						outputTo,				/* Current output device: screen or printer type */
-		   			firstDynSys,lastDynSys; /* firstSys, lastSys for hairpins */
+						firstDynSys,lastDynSys; /* firstSys, lastSys for hairpins */
 
 GLOBAL DDIST		drSize[MAXRASTRAL+1];	/* Sizes for staff rastral nos. */
 GLOBAL GridRec		*grid;					/* Character grid for Tool Palette */
@@ -123,6 +124,9 @@ GLOBAL long			mFirstTime;				/* For our MIDI Mgr readHook: time stamp of 1st dat
 GLOBAL long			mFinalTime;				/* For our MIDI Mgr readHook: time stamp of last data message */
 GLOBAL Boolean		recordingNow;			/* TRUE=MIDI recording in progress */
 GLOBAL Boolean		recordFlats;			/* Use flats for black key notes from MIDI, else sharps */
+GLOBAL short		playTempoPercent;		/* For "variable-speed playback": scale marked tempi by this */
+
+GLOBAL Boolean		doNoteheadGraphs;		/* Display noteheads as tiny graphs? */
 
 GLOBAL Boolean		thinLines;				/* On PostScript output, linewidth(s) set dangerously thin */
 
@@ -329,10 +333,10 @@ unsigned char MCH_rests[MAX_L_DUR] =
 short restYOffset[MAX_L_DUR+1] = 
 					{ 0, 0, 0, 0, 0, -1, 1, 1, 3, 3 };
 
-short noteOffset[] = { 7, 14, 21, -7, -14, -21 };			/* Offset for octavas in half-lines */
+short noteOffset[] = { 7, 14, 21, -7, -14, -21 };			/* Offset for ottavas in half-lines */
 
 /*	Text sizes, relative to line space:
-                                  Tiny VSmall Small Medium Large VLarge Jumbo -- StaffHt */
+                             Tiny VSmall Small Medium Large VLarge Jumbo -- StaffHt */
 FASTFLOAT relFSizeTab[] =  { 1.0, 1.5,  1.7,   2.0,  2.2,	2.5,	3.0,   3.6, 0,   4.0  };
 
 short subObjLength[] = {

@@ -96,10 +96,12 @@ void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 							Byte partChannel[], SignedByte partVelo[],
 							short *pUseNoteNum, short *pUseChan, short *pUseVelo);
 
-OSStatus	StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity, short ioRefNum);
-OSStatus	EndNoteNow(short noteNum, SignedByte channel, short ioRefNum);
-Boolean	EndNoteLater(short noteNum, SignedByte channel, long endTime, short ioRefNum);
-Boolean	CMEndNoteLater(short noteNum, SignedByte channel, long endTime, long ioRefNum);
+OSStatus StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity, short ioRefNum);
+OSStatus EndNoteNow(short noteNum, SignedByte channel, short ioRefNum);
+Boolean EndNoteLater(short noteNum, SignedByte channel, long endTime, short ioRefNum);
+Boolean CMEndNoteLater(short noteNum, SignedByte channel, long endTime, long ioRefNum);
+
+//chirgwin void MIDITriple(short, short, short);
 
 Boolean AllocMPacketBuffer(void);
 Boolean MMInit(long *);
@@ -139,6 +141,7 @@ void MIDIFBOn(Document *);
 void MIDIFBOff(Document *);
 void MIDIFBNoteOn(Document *, short, short, short);
 void MIDIFBNoteOff(Document *, short, short, short);
+void AllNotesOff(void);
 
 /* High (UI)-level MIDI play routines */
 

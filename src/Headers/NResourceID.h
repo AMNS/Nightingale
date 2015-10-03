@@ -205,6 +205,7 @@
 #define NSERRLIST_DLOG 920
 #define MIDIMAP_DLOG 940
 #define COMBINEPARTS_DLOG 985				/* Whether to save or open parts, etc. */
+#define PLAYSPEED_DLOG 1010
 #define DEBUG_DLOG 1024
 
 /* Menus: all pulldowns, and some popups (more popups appear in #defines below) */
@@ -420,6 +421,7 @@ enum {							/* Play/Record menu */
     PL_PlayEntire = 1,
 	PL_PlayFromSelection,
     PL_PlaySelection,
+	PL_PlayVarSpeed,
 	PL_AllNotesOff,
 	PL_____________1,
 	PL_RecordInsert,

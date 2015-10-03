@@ -17,6 +17,8 @@ Boolean SetSelGraphicX(Document *, STDIST, short);
 Boolean SetSelGraphicY(Document *, STDIST, short, Boolean);
 Boolean SetSelTempoX(Document *, STDIST);
 Boolean SetSelTempoY(Document *, STDIST, Boolean);
+Boolean SetSelTempoVisible(Document *, Boolean);
+
 Boolean SetSelGraphicStyle(Document *, short, short);
 
 Boolean SetSelMeasVisible(Document *, Boolean);
