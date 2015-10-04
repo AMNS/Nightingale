@@ -1,5 +1,6 @@
-/* defs.h for Nightingale - general global #defines - rev. for v. 2000. Most limits are
-in NLimits.h. Some other #defines, dependent on _VERSION, are in versionStrings.*/
+/* defs.h for Nightingale - general global #defines and enums - rev. for v. 2000. Most
+limits are in NLimits.h. Some other #defines, dependent on _VERSION, are in
+versionStrings. */
 
 /* ----------------------------------------------------- Miscellaneous global enums -- */
 
@@ -116,7 +117,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 
 
 /* --------------------------------------------------------------- MUSIC CHARACTERS -- */
-/* Characters in our music font, Adobe's "Sonata": */
+/* Characters in our music font, Adobe's "Sonata" and compatible fonts: */
 
 #define MCH_trebleclef '&'
 #define MCH_cclef 'B'
@@ -191,9 +192,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 
 #define BREVEYOFFSET 2				/* Correction for Sonata error in breve origin (half-lines) */
 
-/* -------------------------------------------------------- MISCELLANEOUS CONSTANTS -- */
-
-#define FIDEAL_RESOLVE 10				/* Fractional STDIST resolution in parts of an STDIST */
+/* -------------------------------------------------- OTHER CHARACTER AND KEY CODES -- */
 
 #define CH_ENTER 0x03					/* ASCII character code for enter key */
 #define CH_BS 0x08						/* ASCII character code for backspace (delete) */
@@ -207,6 +206,10 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define UPARROWKEY 30
 #define DOWNARROWKEY 31
 #define FWDDEL_KEY 127					/* Macintosh character code for forward delete key (on ext. kybds) */
+
+/* -------------------------------------------------------- MISCELLANEOUS CONSTANTS -- */
+
+#define FIDEAL_RESOLVE 10				/* Fractional STDIST resolution in parts of an STDIST */
 
 #define POINTSPERIN 72					/* Points per inch (really about 72.27) */
 
@@ -274,7 +277,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 /* Some MIDI parameters. Others are in the CNFG resource (and most of these should be
 moved there eventually). */
 
-#define MAXBPM 600							/* Maximum legal tempo (??really qtrs/min., not beats) */
+#define MAXBPM 1200							/* Maximum legal tempo (really qtrs/min., not beats) */
 
 /* When Importing MIDI files... */
 #define MIDI_BASS_TOP (MIDI_MIDDLE_C+4)		/* If avg. noteNum>this, change from bass to treble */
@@ -305,6 +308,8 @@ in the CNFG resource (and most of these should be moved there eventually). */
 
 #define ACC_IN_CONTEXT TRUE					/* Do accs. last to end of measure, as usual in CMN? */
 														/* NB: Value of FALSE is NOT fully implemented! */
+
+#define EXPAND_WIDER TRUE					/* Stretch text in style Expand with two blanks btn chars., else one */
 
 #define STD_ACCWIDTH (9*STD_LINEHT/8)		/* Width of common accidentals. A bit less than Ross, p.131, says. */
 
@@ -352,6 +357,8 @@ lines on rests. Lengths of note ledger lines are determined by <config> fields. 
 #define LedgerOtherLen(lnSp) (3*(lnSp)*4/32)		/* Length on side of stem away from notehead */
 
 #define InsLedgerLen(lnSp) ((lnSp)*4/4)			/* Note insert pseudo-ledger line length */
+
+#define NOTEHEAD_GRAPH_WIDTH 5					/* Width of tiny graphs drawn for noteheads (if <doNoteheadGraphs> */
 
 /* The following #defines are just abbreviations for convenience. */
 
