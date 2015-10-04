@@ -239,8 +239,6 @@ void DrawModNR(Document *doc,
 }
 
 
-static short noteHeadGraphWidth = 5;		/* Replace noteheads with tiny graphs? ??MUST BE GLOBAL; MOVE TO vars.h(?) */
-
 /* ------------------------------------------------------------------- DrawAugDots -- */
 /* Draw all the augmentation dots for the given note or rest. */
 
@@ -285,10 +283,10 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 	/* If we're drawing notehead graphs, move aug. dots to the right by the appropriate factor.
 	 * (At the moment, the graphs are a bit wider than expected, so move them a bit further.)
 	 */
-	if (noteHeadGraphWidth>0 && doNoteheadGraphs) 
+	if (doNoteheadGraphs) 
 	{
-		xdDots = xdDots*noteHeadGraphWidth;
-		// xdDots += 5*noteHeadGraphWidth;
+		xdDots = xdDots*NOTEHEAD_GRAPH_WIDTH;
+		// xdDots += 5*NOTEHEAD_GRAPH_WIDTH;
 		xdDots += (9*dhalfLn)/10;
 	}
 
@@ -312,13 +310,7 @@ static void DrawAugDots(Document *doc,
 	if (theNote->ndots==0 || theNote->ymovedots==0) return;	/* If no dots or dots invisible */
 
 	dhalfLn = LNSPACE(pContext)/2;
-#ifdef VISUALIZE_PERF
-	doNoteheadGraphs = doc->showDurProb;		//  ?? "showDurProb" IS A CRUDE TEMPORARY UI HACK!
 	xdDots = xdNorm + AugDotXOffset(theNoteL, pContext, chordNoteToR, doNoteheadGraphs);
-#else
-	xdDots = xdNorm + AugDotXOffset(theNoteL, pContext, chordNoteToR, FALSE);
-#endif
-
 	ydDots = yd+(theNote->ymovedots-2)*dhalfLn;
 	
 	ndots = theNote->ndots;
@@ -674,15 +666,18 @@ void PaintRoundRightRect(Rect *paRect, short ovalWidth, short ovalHeight)
 	PaintRect(&otherRect);
 }
 
-/* QuickDraw only */
-/* Draw a little graph as a notehead: intended to be used to visualize changes during the note.
-This version draws a series of colored bars side by side.
-??INSTEAD OF appearance, WHICH CAN'T BE MORE THAN 5 BITS (+ 8 IF I ALSO USE THE SPARE BYTE
-PER NOTE), HOW ABOUT USING A NOTE MODIFIER TO CONTROL WHAT'S DRAWN?? I THINK AMODNR HAS A LOT
-MORE THAN 13 BITS AVAILABLE, & IT SHOULD BE EASY TO GET THE INFO IN VIA NOTELIST! E.G., modCode =
-60 => draw graph, OR 61:80 => draw graph OF 1:20 SEGMENTS. */
 
-void DrawNoteheadGraph(Document *doc,
+static void DrawNoteheadGraph(Document *, unsigned char, Byte, Boolean, DDIST);
+
+/* QuickDraw only */
+/* Draw a little graph as a notehead: intended to be used to visualize changes during
+the note. This version draws a series of colored bars side by side. ??INSTEAD OF
+appearance, WHICH CAN'T BE MORE THAN 5 BITS (+ 8 IF I ALSO USE THE SPARE BYTE PER NOTE),
+HOW ABOUT USING A NOTE MODIFIER TO CONTROL WHAT'S DRAWN?? I THINK AMODNR HAS A LOT MORE
+THAN 13 BITS AVAILABLE, & IT SHOULD BE EASY TO GET THE INFO IN VIA NOTELIST! E.G.,
+modCode = 60 => draw graph, OR 61:80 => draw graph OF 1:20 SEGMENTS. */
+
+static void DrawNoteheadGraph(Document *doc,
 					unsigned char glyph,
 					Byte appearance,
 					Boolean dim,			/* Should notehead be dimmed? */
@@ -705,7 +700,13 @@ void DrawNoteheadGraph(Document *doc,
 
 	aNote = GetPANOTE(aNoteL);
 	resFact = RESFACTOR*(long)doc->spacePercent;
-	qdLen = noteHeadGraphWidth*4;
+#if 1
+	qdLen = NOTEHEAD_GRAPH_WIDTH*4;
+#else
+	qdLen = IdealSpace(doc, aNote->playDur, resFact);
+	qdLen = (long)(config.pianorollLenFact*qdLen) / 100L;
+	qdLen = n_max(qdLen, 4);								/* Insure at least one space wide */
+#endif
 	graphLen = d2p(qd2d(qdLen, pContext->staffHeight,
 							pContext->staffLines));
 
@@ -720,6 +721,7 @@ void DrawNoteheadGraph(Document *doc,
 	SetRect(&graphRect, xorg, yorg-d2p(dhalfLn),
 		xorg+graphLen, yorg+d2p(dhalfLn));
 	rDiam = UseMagnifiedSize(4, doc->magnify);
+#if 1
 	nSegs = 1;									// ??TEMP
 	switch (appearance) 
 	{
@@ -794,6 +796,45 @@ void DrawNoteheadGraph(Document *doc,
 	}
 	ForeColor(Voice2Color(doc, aNote->voice));				// ??TEMP
 
+#if 0
+	SetRect(&graphRect, xorg, yorg-14*d2p(dhalfLn),
+		xorg+1.5*graphLen, yorg-11*d2p(dhalfLn));				// ?? VERY TEMP! TEST PaintRoundLeftRect !!!!
+	if ((appearance & 0x1)==0) PaintRoundLeftRect(&graphRect, 2*rDiam, 2*rDiam);
+	else PaintRoundRightRect(&graphRect, 2*rDiam, 2*rDiam);
+#endif
+
+#else
+	switch (appearance) 
+	{
+		case 1:
+			ForeColor(blueColor);									// ???TEMP
+			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
+			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
+			break;
+		case 2:
+			ForeColor(yellowColor);									// ???TEMP
+			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
+			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
+			break;
+		case 3:
+			segRect = graphRect;
+			segRect.right = segRect.left+graphLen/2;
+			ForeColor(magentaColor);								// ???TEMP
+			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
+			else		PaintRoundRect(&segRect, rDiam, rDiam); 
+			segRect = graphRect;
+			segRect.left = segRect.right-graphLen/2;
+			ForeColor(blueColor);								// ???TEMP
+			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
+			else		PaintRoundRect(&segRect, rDiam, rDiam); 
+			break;
+		default:
+			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
+			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
+			;
+	}
+	ForeColor(Voice2Color(doc, aNote->voice));				// ??TEMP
+#endif
 }
 
 /* ---------------------------------------------------------------------- DrawNote -- */
@@ -1118,14 +1159,10 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 					}
 				}
 				MoveTo(xadjhead, yadjhead);									/* position to draw head */
-#ifdef VISUALIZE_PERF
-				if (noteHeadGraphWidth>0 && doc->showDurProb)	//  ?? "showDurProb" IS A CRUDE TEMPORARY UI HACK!
+				if (doNoteheadGraphs)
 					DrawNoteheadGraph(doc, glyph, appearance, dim, dhalfLn, aNoteL, pContext);	/* Finally, draw notehead */
 				else
 					DrawNotehead(doc, glyph, appearance, dim, dhalfLn);	/* Finally, draw notehead */
-#else
-				DrawNotehead(doc, glyph, appearance, dim, dhalfLn);	/* Finally, draw notehead */
-#endif
 			}
 
 			DrawModNR(doc, aNoteL, xd, pContext);						/* Draw all modifiers */
@@ -1560,6 +1597,7 @@ PushLock(NOTEheap);
 				/* ??The following #if/else/endif is a mess: the commented-out code looks
 					better, but it's been the way it is now for years, and I don't remember
 					anything about this. Clean up some day. -Don B., 11/96 */
+#if 1
 				switch (unmappedGlyph) {
 					case EIGHth:
 					case SIXTEENth:
@@ -1572,6 +1610,11 @@ PushLock(NOTEheap);
 					default:
 						break;
 				}
+#else
+				restInset = restObjRTweak[lDur-1];
+				InsetRect(&rSub, 0, 
+					d2p(std2d(restInset, pContext->staffHeight, pContext->staffLines)));
+#endif
 				OffsetRect(&rSub, restxp-pContext->paper.left, restyp-pContext->paper.top);
 			}
 		}

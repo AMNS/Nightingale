@@ -15,6 +15,7 @@
 		streql					strneql					Pstreql		
 		PStrCat					PStrCopy				PStrnCopy
 		PStrCmp					PStrnCmp				GoodStrncpy
+		ExpandString
 
 */
 
@@ -191,3 +192,35 @@ void GoodStrncpy(
 	strncpy(dstStr, srcStr, numChars);
 	dstStr[numChars] = '\0';
 }
+
+
+/* ----------------------------------------------------------------- ExpandString -- */
+/* Stretch the given string by adding one or two blanks between each pair of characters. */
+
+Boolean ExpandString(unsigned char *dstStr, const unsigned char *srcStr, Boolean wider)
+{
+	unsigned short in, out, origLen;
+	
+	origLen = *(unsigned char *)srcStr;
+	//DebugPrintf("ExpandString: origLen=%d\n", origLen);
+	if (origLen>127) return FALSE;
+	Pstrcpy(dstStr, srcStr);
+	PToCString(dstStr);
+	for (in = 1, out = 0; in<=origLen; in++) {
+		*(dstStr+out) = *(srcStr+in);
+		out++;
+		if (in==origLen) break;					/* don't add a blank at the end */
+		*(dstStr+out) = ' ';
+		out++;
+		if (wider) {
+			*(dstStr+out) = ' ';
+			out++;
+		}
+	}
+	
+	*(dstStr+out) = '\0';
+	CToPString((char *)dstStr);
+
+	return TRUE;
+}
+

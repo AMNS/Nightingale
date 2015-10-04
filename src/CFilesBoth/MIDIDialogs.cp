@@ -170,7 +170,7 @@ static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
 			mouseLoc = theEvent->where;
 			GlobalToLocal(&mouseLoc);
 			
-			/* If we've hit the OK or Cancel button, bypass the rest of the control stuff below. */
+			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
 			GetDialogItem (theDialog, OK, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	{*item = OK; break;};
 			GetDialogItem (theDialog, Cancel, &type, &hndl, &box);
@@ -1514,3 +1514,77 @@ Boolean MIDIModifierDialog(Document */*doc*/)
 
 	return (ditem==OK);
 }
+
+
+/* -------------------------------------------------------------- SetPlaySpeedDialog -- */
+
+extern short minVal, maxVal;
+
+static enum {
+	 SPS_PERCENT_DI=3,
+	 UP_SPS_DI=5,
+	 DOWN_SPS_DI
+} E_SetPlaySpeedItems; 
+
+Boolean SetPlaySpeedDialog(void)
+{
+	DialogPtr dlog;
+	GrafPtr oldPort;
+	short newPercent, ditem;
+	Boolean done;
+	ModalFilterUPP	filterUPP;
+
+	filterUPP = NewModalFilterUPP(NumberFilter);
+	if (filterUPP == NULL) {
+		MissingDialog(PLAYSPEED_DLOG);
+		return FALSE;
+	}
+
+	GetPort(&oldPort);
+	dlog = GetNewDialog(PLAYSPEED_DLOG, NULL, BRING_TO_FRONT);
+	if (dlog) {
+		SetPort(GetDialogWindowPort(dlog));
+		
+		newPercent = playTempoPercent;
+		PutDlgWord(dlog, SPS_PERCENT_DI, newPercent,TRUE);
+		
+		UseNumberFilter(dlog, SPS_PERCENT_DI, UP_SPS_DI, DOWN_SPS_DI);
+		minVal = 10;
+		maxVal = 500;
+		
+		CenterWindow(GetDialogWindow(dlog), 50);
+		ShowWindow(GetDialogWindow(dlog));
+		ArrowCursor();
+		
+		done = FALSE;
+		while (!done) {
+			ModalDialog(filterUPP, &ditem);
+			switch (ditem) {
+				case OK:
+					GetDlgWord(dlog, SPS_PERCENT_DI, &newPercent);
+					if (newPercent<minVal || newPercent>maxVal) {
+						GetIndCString(strBuf, DIALOGERRS_STRS, 22);			/* Play tempo percent must be between..." */
+						CParamText(strBuf, "", "", "");
+						StopInform(GENERIC_ALRT);
+					}
+					else {
+						playTempoPercent = newPercent;
+						done = TRUE;
+					}
+					break;
+				case Cancel:
+					done = TRUE;
+					break;
+			}
+		}
+		DisposeModalFilterUPP(filterUPP);
+		DisposeDialog(dlog);
+	}
+	else {
+		DisposeModalFilterUPP(filterUPP);
+		MissingDialog(PLAYSPEED_DLOG);
+	}
+	SetPort(oldPort);
+	return (ditem==OK);
+}
+

@@ -9,8 +9,7 @@
 	IPGroupWidth				IPMarginWidth				IPSpaceNeeded
 	ConsidITWidths				ConsidIPWidths				ConsiderWidths
 	Respace1Bar					GetJustProp					PositionSysByTable
-	RespaceBars					RespBreakSystem
-	StretchToSysEnd			SysJustFact
+	RespaceBars					StretchToSysEnd				SysJustFact
 	JustifySystem				JustifySystems
 ****************************************************************************/
 
@@ -28,6 +27,10 @@
 #include "Nightingale_Prefix.pch"
 #include <ctype.h>
 #include "Nightingale.appl.h"
+
+#if 1
+#define SPACEBUG
+#endif
 
 /* This was originally right above Respace1Bar, but I needed it for CenterWholeMeasRests. -JGG */
 #define STFHEIGHT drSize[doc->srastral]	/* For now, assume all staves are same height */
@@ -555,6 +558,16 @@ static void ConsidIPWidths(
 			fSpAfter[i] = STD2F(spNeeded);					
 		}
 
+#ifdef SPACEBUG
+	if (ShiftKeyDown() && OptionKeyDown()) {
+		short k;
+		DebugPrintf("Final fSpBefores:");
+		for (k = 0; k<=nInMeasure; k++)
+			DebugPrintf(" %5d", fSpBefore[k]);
+		DebugPrintf("\n");
+	}
+#endif
+
 	/* Move J_IT symbols where needed to leave room for preceding J_IP symbols. */
 	
 	for (s = 1; s<=doc->nstaves; s++)
@@ -601,6 +614,45 @@ static void ConsidIPWidths(
 	}
 }
 
+
+#ifdef NOTYET
+
+#define SpaceSPWIDTH(link)	( (GetPSPACE(link))->spWidth )
+
+/* -------------------------------------------------------------- ConsidSPWidths -- */
+/*	Consider widths of all J_SP objects (only Spacers) and adjust spacing accordingly.
+Handles one measure. */
+
+static void ConsidSPWidths(
+					Document *doc,
+					LINK barTermL,							/* Object ending the Measure */
+					short				nInMeasure,
+					SPACETIMEINFO	spaceTimeInfo[],
+					LONGSTDIST		position[] 			/* Position table for J_IT & J_IP objs. for the measure */
+					)
+{
+	register short i,j;
+	STDIST		spWidth;
+	LINK			spaceL;
+
+	/*
+	 * Go thru the measure and, for each J_SP object, leave space for that object and
+	 *	move everything following to the right by its space.
+	 */
+
+	for (i = 0; i<=nInMeasure; i++)
+		if (spaceTimeInfo[i].justType==J_SP) {
+			spaceL = spaceTimeInfo[i].link;
+			spWidth = SpaceSPWIDTH(spaceL);
+			
+			for (j=i+1; j<=nInMeasure; j++)
+				position[j] += spWidth;
+		}
+}
+
+#endif
+
+
 /* -------------------------------------------------------------- ConsiderWidths -- */
 /* Consider objects' widths (both to left and right of their origins) and increase
 spacing as needed, not only to avoid overprinting, but to insure a separation of
@@ -622,6 +674,16 @@ static void ConsiderWidths(
 {
 	ConsidITWidths(doc, barTermL, nInMeasure, spaceTimeInfo, fSpBefore);
 
+#ifdef SPACEBUG
+	if (ShiftKeyDown() && OptionKeyDown()) {
+		short k;
+		DebugPrintf("Inter.fSpBefores:");
+		for (k = 0; k<=nInMeasure; k++)
+			DebugPrintf(" %5d", fSpBefore[k]);
+		DebugPrintf("\n");
+	}
+#endif
+	
 	ConsidIPWidths(doc, barTermL, nInMeasure, spaceTimeInfo, fSpBefore, position);
 	
 	/*
@@ -632,6 +694,9 @@ static void ConsiderWidths(
 	 *	only for IT objects. Either way, it could easily (I think) be done here...
 	 */
 	 
+#ifdef NOTYET
+	ConsidSPWidths(doc, barTermL, nInMeasure, spaceTimeInfo, position);
+#endif
 }
 
 
@@ -723,6 +788,25 @@ DDIST Respace1Bar(
 					fIdealSp);
 	}
 
+#ifdef SPACEBUG
+	if (ShiftKeyDown() && OptionKeyDown()) {
+		short k;
+		DebugPrintf(  "Nodes: ---------");
+		for (k = 0; k<=nInMeasure; k++)
+			DebugPrintf(" %5d", spaceTimeInfo[k].link);
+		DebugPrintf("\nTypes:          ");
+		for (k = 0; k<=nInMeasure; k++)
+			DebugPrintf("  %4.4s", NameNodeType(spaceTimeInfo[k].link));
+		DebugPrintf("\nTimes:          ");
+		for (k = 0; k<=nInMeasure; k++)
+			DebugPrintf(" %5ld", spaceTimeInfo[k].startTime);
+		DebugPrintf("\nIdeal fSpBefores:");
+		for (k = 0; k<=nInMeasure; k++)
+			DebugPrintf(" %5d", fSpBefore[k]);
+		DebugPrintf("\n");
+	}
+#endif
+
 	/*
 	 *	Consider objects' widths (both to left and right of their origins) and
 	 *	increase spacing as needed to avoid overprinting. (People doing proportional
@@ -730,6 +814,15 @@ DDIST Respace1Bar(
 	 */
 	ConsiderWidths(doc, barTermL, nInMeasure, spaceTimeInfo, fSpBefore, position);
 
+#ifdef SPACEBUG
+	if (ShiftKeyDown() && OptionKeyDown()) {
+		DebugPrintf("Final positions:");
+		for (i = 0; i<=nInMeasure; i++)
+			DebugPrintf(" %5ld", position[i]);
+		DebugPrintf("\n");
+	}
+#endif
+	
 	/*
 	 *	Finally, go thru object list for the measure and fill in xd's from the values
 	 *	in the position table.
@@ -1337,6 +1430,12 @@ Boolean RespaceBars(
 
 		goto Done;
 	}
+#ifdef NOTYET
+	else {	/* center whole-measure rests */
+		/* we'd like to do this here, but measures may've been reformatted, so
+			how do we get the correct links -- rmTable? */
+	}
+#endif
 
 	InvalRespBars(startInvalL,endSysL);
 

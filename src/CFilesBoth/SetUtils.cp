@@ -19,7 +19,8 @@
 	FixSyncVoice				SetSelVoice					SetSelStaff
 	ExtremeNote					SetSelStemlen				SetSelNRAppear
 	SetSelNRSmall				SetVelFromContext			SetSelVelocity
-	SetSelGraphicY				SetSelTempoY
+	SetSelGraphicY				SetSelTempoX				SetSelTempoY				
+	SetSelTempoVisible
 	SetSelGraphicStyle		SetSelMeasVisible			SetSelMeasType
 	SetSelDynamVisible		SetSelTupBracket
 	SetSelTupNums				SetAllSlursShape			SetSelSlurShape
@@ -30,6 +31,7 @@
 #include "Nightingale.appl.h"
 
 static Boolean HomogenizeSel(Document *, short);
+static void FixChordStatus(Document *, LINK);
 static Boolean SSVChkNote(Document *, LINK, LINK, short);
 static Boolean SSVCheck(Document *, LINK, short);
 static void FixSyncVoice(Document *, LINK, short);
@@ -87,7 +89,7 @@ static Boolean SSVChkNote(Document *doc, LINK pL, LINK aNoteL, short uVoice)
 	||  aNote->tiedL || aNote->tiedR
 	||  aNote->slurredL || aNote->slurredR
 	||  aNote->inTuplet) {
-		GetIndCString(strBuf, SETERRS_STRS, 1);    /* "Set can't change the voice of beamed, slurred, tied, or tupleted notes." */
+		GetIndCString(strBuf, SETERRS_STRS, 1);    /* "Set can't change the voice of..." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		return FALSE;
@@ -472,9 +474,7 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 	short		voice, upDown;
 
 	didAnything = FALSE;
-	
-	if (stemlen<0) return FALSE;
-	
+		
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
 			for (voice = 1; voice<=MAXVOICES; voice++)
@@ -962,6 +962,26 @@ Boolean SetSelTempoY(
 		if (LinkSEL(pL) && TempoTYPE(pL)) {
 			p = GetPTEMPO(pL);
 			p->yd = dyd;
+			didAnything = TRUE;
+		}
+	}
+	return didAnything;
+}
+
+
+/* ---------------------------------------------------------- SetSelTempoVisible -- */
+/* Set visibility of every selected Tempo's M.M. */
+
+Boolean SetSelTempoVisible(Document *doc, Boolean visible)
+{
+	LINK		pL;
+	PTEMPO		pTempo;
+	Boolean		didAnything=FALSE;
+
+	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
+		if (LinkSEL(pL) && TempoTYPE(pL)) {
+			pTempo = GetPTEMPO(pL);
+			pTempo->hideMM = !visible;
 			didAnything = TRUE;
 		}
 	}

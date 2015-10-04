@@ -346,9 +346,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 		master.ttb[TRANS].midiNote = mp->transpose+MIDI_MIDDLE_C;			
 		master.ttb[BOT].midiNote = mp->loKeyNum;
 
-		/* initial note name and accidental set here, 
-		   sanity checked in InitRange() */
-
+		/* initial note name and accidental set here, sanity checked in InitRange() */
 		master.ttb[TOP].name = mp->hiKeyName;
 		master.ttb[TRANS].name = mp->tranName;			
 		master.ttb[BOT].name = mp->loKeyName;
@@ -396,6 +394,8 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 	ShowWindow(GetDialogWindow(theDialog));
 	ArrowCursor();
 	
+	PutDlgWord(theDialog, CHANNEL_DI, master.channel, FALSE);
+	PutDlgWord(theDialog, PATCH_DI, master.patchNum, FALSE);
 	PutDlgWord(theDialog, V_BALANCE, master.velBalance, FALSE);
 
 	CToPString(strcpy((char *)str, master.abbr));
@@ -486,11 +486,27 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 				}
 			}
 
+			/* Copy modified patch number, if valid. If not, loop back. */		
+			gotValue = GetDlgWord(theDialog, PATCH_DI, &val);
+				if (gotValue && val > 0 && val <= MAXPATCHNUM)
+					mp->patchNum = val;
+			else {
+				GetIndCString(strBuf, INSTRERRS_STRS, 5);		/* Patch no. must be between..." */
+				sprintf(strBuf, fmtStr, MAXPATCHNUM);
+				CParamText(strBuf, "", "", "");
+				DebugPrintf("Patch no. error: strBuf='%s'\n", strBuf);	// ??MESSAGE IS BLANK! ???
+				StopInform(GENERIC_ALRT);
+				GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
+				HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
+				dialogOver = 0;
+				continue;										/* Loop back for correction */
+			}
+
 			gotValue = GetDlgWord(theDialog, V_BALANCE, &val);
-			if (gotValue && val >= -127 && val <= 127)							/* MAX_VELOCITY */
+			if (gotValue && val >= -127 && val <= 127)				/* MAX_VELOCITY */
 				mp->partVelocity = val;
 			else {
-				GetIndCString(strBuf, INSTRERRS_STRS, 6);    /* "Velocity balance must be between -127 and 127." */
+				GetIndCString(strBuf, INSTRERRS_STRS, 6);		/* "Balance velocity must be between -127 and 127." */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
 				GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
@@ -1772,9 +1788,9 @@ pascal Boolean TheOMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 	GrafPtr		oldPort;
 	Point 		mouseLoc;
 	Boolean		filterVal = FALSE;
-	short			type;
+	short		type;
 	Handle		hndl;
-	Rect			box;
+	Rect		box;
 	
 	switch(theEvent->what)
 	{

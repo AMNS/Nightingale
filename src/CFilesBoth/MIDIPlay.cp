@@ -26,7 +26,7 @@ The latter, used here and in MIDIRecord.c, are Altech Systems' MIDI Pascal 3.0.
 We used to use a driver from Kirk Austin's articles in MacTutor, July and
 December 1987, but those routines became quite buggy--according to Jeremy Sagan,
 because they don't initialize enough registers. Anyway, MIDI Pascal is much more
-powerful, and only six years old instead of nine (sigh). */
+powerful, and slightly less ancient (sigh). */
 
 /* ================================== LOCAL STUFF ================================== */
 
@@ -34,10 +34,11 @@ static long			pageTurnTOffset;
 
 static void		PlayMessage(Document *, LINK, short);
 static Boolean	HiliteSyncRect(Document *doc, Rect *syncRect, Rect *rPaper, Boolean scroll);
+long			ScaleDurForVariableSpeed(long dur);
 
-#define CMDEBUG 1
+#define CMDEBUG 0
 #define TDEBUG 1
-#define PLDEBUG 1
+#define PLDEBUG 0
 
 /* Print an error message.  If index is non-zero, then retrieve the index'th
 string from our error strings resource. */
@@ -64,8 +65,9 @@ static short DoGeneralAlert(unsigned char *str)
 
 
 /* ------------------------------------------------------------------ PlayMessage -- */
-/* Write a message into the message area saying what measure is playing. If <pL>
-is NILINK, use <measNum>, else use <pL>'s Measure. */
+/* Write a message into the message area saying what measure is playing and, if not
+playing at the "correct" (marked) tempo, what the relative speed is. If <pL> is NILINK,
+use <measNum> as measure no., else get it from <pL>'s Measure. */
 
 static void PlayMessage(Document *doc, LINK pL, short measNum)
 {
@@ -75,11 +77,17 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 		measNum = GetMeasNum(doc, pL);
 
 	PrepareMessageDraw(doc,&messageRect, FALSE);
-	GetIndCString(strBuf, MIDIPLAY_STRS, 1);					/* "Playing measure " */
+	GetIndCString(strBuf, MIDIPLAY_STRS, 1);					/* "Playing m. " */
 	DrawCString(strBuf);					
 	sprintf(strBuf, "%d", measNum);
 	DrawCString(strBuf);
-	GetIndCString(strBuf, MIDIPLAY_STRS, 2);					/* "    CLICK OR CMD-. TO STOP" */
+	if (playTempoPercent!=100) {
+		TextFace(bold);
+		sprintf(strBuf, "  T%d%%", playTempoPercent);
+		DrawCString(strBuf);
+		TextFace(0);											/* Plain */
+	}
+	GetIndCString(strBuf, MIDIPLAY_STRS, 2);					/* "   CLICK OR CMD-. TO STOP" */
 	DrawCString(strBuf);					
 	FinishMessageDraw(doc);
 }
@@ -90,10 +98,9 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 window.  If it's not in view, "scroll" so its page is in the window (though r might
 still not be in the window!) and return TRUE; else return FALSE.
 
-Note that scrolling while playing screws up timing (simply by introducing a long
-break) unless interrupt-driven, but after all, Nightingale is a notation program,
-not a sequencer: the most important thing is that the music be in view while it's
-being played.
+Note that scrolling while playing screws up timing (simply by introducing a break)
+unless interrupt-driven, but after all, Nightingale is a notation program, not a
+sequencer: it's more important that the music being played is in view.
 
 NB: The "scrolling" code here can itself change doc->currentPaper. For this and
 other reasons, we expect the appropriate doc->currentPaper as a parameter. */
@@ -135,7 +142,8 @@ static Boolean HiliteSyncRect(
 
 
 /* -------------------------------------------------------- AddBarlines functions -- */
-/* Build up a list of places to add single barlines (actually Measure objects):
+/* For the "add barlines while playing" feature, build up a list of places to add
+single barlines (actually Measure objects):
 	InitAddBarlines() 		Initialize these functions
 	AddBarline(pL)				Request adding a barline before <pL>
 	CloseAddBarlines(doc)	Add the barlines at all requested places
@@ -151,20 +159,25 @@ void AddBarline(LINK);
 static Boolean TupletProblem(Document *, LINK);
 Boolean CloseAddBarlines(Document *);
 
-static void SendMidiSustainOn(Document *doc, MIDIUniqueID destDevID, char channel);
-static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channel);
-static void SendMidiPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting);
-static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
-static void SendMidiPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITimeStamp tStamp);
+#ifdef VIEWER_VERSION
 
-#define PAN_EQUAL 64
+void InitAddBarlines()
+{
+}
 
-static Boolean cmSustainOn[MAXSTAVES + 1];
-static Boolean cmSustainOff[MAXSTAVES + 1];
-static Byte cmPanSetting[MAXSTAVES + 1];
+void AddBarline(LINK pL)
+{
+}
 
-static Boolean cmAllSustainOn[MAXSTAVES + 1];
-static Byte cmAllPanSetting[MAXSTAVES + 1];
+static Boolean TupletProblem(Document *doc, LINK insL)
+{
+}
+
+Boolean CloseAddBarlines(Document *doc)
+{
+}
+
+#else
 
 void InitAddBarlines()
 {
@@ -265,6 +278,9 @@ Boolean CloseAddBarlines(Document *doc)
 	return okay;
 }
 
+#endif /* VIEWER_VERSION */
+
+
 /* ------------------------------------------------------------ SelAndHiliteSync -- */
 /* Select and hilite the given Sync, and set the document's scaleCenter (for
 magnification) to it. */
@@ -329,7 +345,25 @@ static void SetPartPatch(short partn, Byte partPatch[], Byte partChannel[], Byte
 	partPatch[partn] = patch;	
 }
 
-/* ------------------------------------------------------------- SendMidiProgramChange -- */
+
+
+static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel);
+static void SendMIDISustainOff(Document *doc,MIDIUniqueID destDevID, char channel);
+static void SendMIDIPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting);
+static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
+static void SendMIDISustainOff(Document *doc,MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp);
+static void SendMIDIPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITimeStamp tStamp);
+
+#define PAN_EQUAL 64
+
+static Boolean cmSustainOn[MAXSTAVES + 1];
+static Boolean cmSustainOff[MAXSTAVES + 1];
+static Byte cmPanSetting[MAXSTAVES + 1];
+
+static Boolean cmAllSustainOn[MAXSTAVES + 1];
+static Byte cmAllPanSetting[MAXSTAVES + 1];
+
+/* ------------------------------------------------------------- SendMIDIProgramChange -- */
 /* Steps:
 
 	1. Get the graphic
@@ -354,7 +388,7 @@ static Boolean ValidPanSetting(Byte panSetting)
 	return sbpanSetting >= 0;
 }
 
-static Boolean PostMidiProgramChange(Document *doc, LINK pL, unsigned char *partPatch, unsigned char *partChannel) 
+static Boolean PostMIDIProgramChange(Document *doc, LINK pL, unsigned char *partPatch, unsigned char *partChannel) 
 {
 	Boolean posted = FALSE;
 	PGRAPHIC p = GetPGRAPHIC(pL);
@@ -373,7 +407,7 @@ static Boolean PostMidiProgramChange(Document *doc, LINK pL, unsigned char *part
 	return posted;
 }
 
-static Boolean PostMidiSustain(Document *doc, LINK pL, Boolean susOn) 
+static Boolean PostMIDISustain(Document *doc, LINK pL, Boolean susOn) 
 {
 	Boolean posted = FALSE;
 						
@@ -392,7 +426,7 @@ static Boolean PostMidiSustain(Document *doc, LINK pL, Boolean susOn)
 	return posted;
 }
 
-static Boolean PostMidiPan(Document *doc, LINK pL)
+static Boolean PostMIDIPan(Document *doc, LINK pL)
 {
 	Boolean posted = FALSE;
 	
@@ -407,7 +441,7 @@ static Boolean PostMidiPan(Document *doc, LINK pL)
 	return posted;
 }
 
-static void ClearMidiSustain(Boolean susOn) 
+static void ClearMIDISustain(Boolean susOn) 
 {
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		if (susOn) {
@@ -419,21 +453,21 @@ static void ClearMidiSustain(Boolean susOn)
 	}	
 }
 
-static void ClearMidiPan() 
+static void ClearMIDIPan() 
 {
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		cmPanSetting[j] = -1;
 	}
 }
 
-static void ClearAllMidiSustainOn() 
+static void ClearAllMIDISustainOn() 
 {
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		cmAllSustainOn[j] = FALSE;
 	}
 }
 
-static void ClearAllMidiPan() 
+static void ClearAllMIDIPan() 
 {
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		cmAllPanSetting[j] = -1;
@@ -468,8 +502,9 @@ static long long GetSustainSecs()
 	return secs;
 }
 
-static void ResetMidiSustain(Document *doc, unsigned char *partChannel) 
+static void ResetMIDISustain(Document *doc, unsigned char *partChannel) 
 {
+//	MIDITimeStamp tStamp = 5000L * kNanosToMillis;
 	
 	long long secs = GetSustainSecs();
 	MIDITimeStamp tStamp = TimeStampSecsFromNow(secs);
@@ -479,7 +514,7 @@ static void ResetMidiSustain(Document *doc, unsigned char *partChannel)
 			short partn = Staff2Part(doc,j);
 			MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 			short channel = CMGetUseChannel(partChannel, partn);
-			SendMidiSustainOff(doc, partDevID, channel, tStamp);										
+			SendMIDISustainOff(doc, partDevID, channel, tStamp);										
 		}
 	}
 	
@@ -488,9 +523,8 @@ static void ResetMidiSustain(Document *doc, unsigned char *partChannel)
 	}
 }
 
-static void ResetMidiPan(Document *doc, unsigned char *partChannel) 
+static void ResetMIDIPan(Document *doc, unsigned char *partChannel) 
 {
-
 	MIDITimeStamp tStamp = TimeStampSecsFromNow(0);
 	
 	for (int j = 1; j<=MAXSTAVES; j++) {
@@ -498,7 +532,7 @@ static void ResetMidiPan(Document *doc, unsigned char *partChannel)
 			short partn = Staff2Part(doc,j);
 			MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 			short channel = CMGetUseChannel(partChannel, partn);
-			SendMidiPan(doc, partDevID, channel, PAN_EQUAL, tStamp);		
+			SendMIDIPan(doc, partDevID, channel, PAN_EQUAL, tStamp);		
 		}
 	}
 	
@@ -507,7 +541,7 @@ static void ResetMidiPan(Document *doc, unsigned char *partChannel)
 	}
 }
 
-static void SendAllMidiSustains(Document *doc, unsigned char *partChannel, Boolean susOn) 
+static void SendAllMIDISustains(Document *doc, unsigned char *partChannel, Boolean susOn) 
 {
 	if (susOn) {
 		for (int j = 1; j<=MAXSTAVES; j++) {
@@ -515,7 +549,7 @@ static void SendAllMidiSustains(Document *doc, unsigned char *partChannel, Boole
 				short partn = Staff2Part(doc,j);
 				MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 				short channel = CMGetUseChannel(partChannel, partn);
-				SendMidiSustainOn(doc, partDevID, channel);							
+				SendMIDISustainOn(doc, partDevID, channel);							
 			}
 		}
 	}
@@ -525,25 +559,30 @@ static void SendAllMidiSustains(Document *doc, unsigned char *partChannel, Boole
 				short partn = Staff2Part(doc,j);
 				MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 				short channel = CMGetUseChannel(partChannel, partn);
-				SendMidiSustainOff(doc, partDevID, channel);							
+				SendMIDISustainOff(doc, partDevID, channel);							
 			}
 		}		
 	}
 }
 
-static void SendAllMidiPans(Document *doc, unsigned char *partChannel) 
+static void SendAllMIDIPans(Document *doc, unsigned char *partChannel) 
 {
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		if (ValidPanSetting(cmPanSetting[j])) {
 			short partn = Staff2Part(doc,j);
 			MIDIUniqueID partDevID = GetCMDeviceForPartn(doc, partn);
 			short channel = CMGetUseChannel(partChannel, partn);
-			SendMidiPan(doc, partDevID, channel, cmPanSetting[j]);							
+			SendMIDIPan(doc, partDevID, channel, cmPanSetting[j]);							
 		}
 	}		
 }
 
-static Boolean IsMidiPatchChange(LINK pL) 
+static void SendMIDIProgramChange(Document *doc, unsigned char *partPatch, unsigned char *partChannel) 
+{
+	CMMIDIProgram(doc, partPatch, partChannel);	
+}
+
+static Boolean IsMIDIPatchChange(LINK pL) 
 {
 	if (ObjLType(pL) == GRAPHICtype) {
 		PGRAPHIC p = GetPGRAPHIC(pL);
@@ -553,27 +592,32 @@ static Boolean IsMidiPatchChange(LINK pL)
 	return FALSE;
 }
 
-static void SendMidiSustainOn(Document *doc, MIDIUniqueID destDevID, char channel) 
+static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel) 
 {
 	CMMIDISustainOn(destDevID, channel);	
 }
 
-static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channel) 
+static void SendMIDISustainOff(Document *doc,MIDIUniqueID destDevID, char channel) 
 {
 	CMMIDISustainOff(destDevID, channel);	
 }
 
-static void SendMidiPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting) 
+static void SendMIDIPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting) 
 {
 	CMMIDIPan(destDevID, channel, panSetting);	
 }
 
-static void SendMidiSustainOff(Document *doc,MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp) 
+static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp) 
+{
+	CMMIDISustainOn(destDevID, channel, tStamp);	
+}
+
+static void SendMIDISustainOff(Document *doc,MIDIUniqueID destDevID, char channel, MIDITimeStamp tStamp) 
 {
 	CMMIDISustainOff(destDevID, channel, tStamp);	
 }
 
-static void SendMidiPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITimeStamp tStamp) 
+static void SendMIDIPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte panSetting, MIDITimeStamp tStamp) 
 {
 	CMMIDIPan(destDevID, channel, panSetting, tStamp);	
 }
@@ -651,6 +695,18 @@ Byte GetMidiControlVal(LINK pL)
 #define ERR_STOPNOTE -1000000
 #define ERR_PLAYNOTE -1000001
 
+
+/* ----------------------------------------------------------------- ScaleDuration -- */
+/* Scale the given real-time duration by some factor. Intended to support playback at
+"variable speed", modifying the tempi marked in the score. */
+
+long ScaleDurForVariableSpeed(long rtDur)
+{
+	
+	return rtDur*(100.0/playTempoPercent);
+}
+
+
 /* ----------------------------------------------------------------- PlaySequence -- */
 /*	Play [fromL,toL) of the given score and, if user hits the correct keys while
 playing, add barlines.  While playing, we maintain a list of currently-playing notes,
@@ -664,7 +720,7 @@ scribed in the MIDI Manager manual.) */
 void PlaySequence(
 				Document *doc,
 				LINK fromL,	LINK toL,	/* range to be played */
-				Boolean showit,			/* TRUE if we want visual feedback */
+				Boolean showit,			/* TRUE to hilite notes as they're played */
 				Boolean selectedOnly		/* TRUE if we want to play selected notes only */
 				)
 {
@@ -673,13 +729,15 @@ void PlaySequence(
 	LINK			pL, oldL, showOldL, aNoteL;
 	LINK			systemL, pageL, measL, newMeasL;
 	CursHandle	playCursor;
+	short			i;
 	short			useNoteNum,
 					useChan, useVelo;
 	long			t,
 					toffset,										/* PDUR start time of 1st note played */
 					playDur,
-					plStartTime, plEndTime,					/* in PDUR ticks */
-					startTime, oldStartTime, endTime;	/* in milliseconds */
+					plStartTime, plEndTime,							/* in PDUR ticks */
+					startTimeNorm, endTimeNorm,						/* in millisec. at tempi marked */
+					startTime, oldStartTime, endTime;				/* in actual milliseconds */
 	long			tBeforeTurn, tElapsed;
 	Rect			syncRect, sysRect, r,
 					oldPaper, syncPaper, pagePaper;
@@ -725,12 +783,12 @@ void PlaySequence(
 
 	if (useWhichMIDI==MIDIDR_CM) {
 #if CMDEBUG
-		DebugPrintf("doc inputDev=%ld\n", doc->cmInputDevice);
+		DebugPrintf("PlaySequence (1): doc inputDev=%ld\n", doc->cmInputDevice);
 #endif
 		if (doc->cmInputDevice == kInvalidMIDIUniqueID)
 			doc->cmInputDevice = gSelectedInputDevice;
 #if CMDEBUG
-		DebugPrintf("doc inputDev=%ld\n", doc->cmInputDevice);
+		DebugPrintf("PlaySequence (2): doc inputDev=%ld\n", doc->cmInputDevice);
 #endif
 		MIDIUniqueID cmPartDevice[MAXSTAVES];
 		if (!GetCMPartPlayInfo(doc, partTransp, partChannel, partPatch, partVelo,
@@ -782,17 +840,17 @@ void PlaySequence(
 
 	for (pL = doc->headL; pL!=fromL; pL = RightLINK(pL)) 
 	{
-		if (IsMidiPatchChange(pL)) {
-			PostMidiProgramChange(doc, pL, partPatch, partChannel);
+		if (IsMIDIPatchChange(pL)) {
+			PostMIDIProgramChange(doc, pL, partPatch, partChannel);
 		}
 	}
 	
-	ClearMidiSustain(TRUE);
-	ClearMidiSustain(FALSE);
-	ClearMidiPan();
+	ClearMIDISustain(TRUE);
+	ClearMIDISustain(FALSE);
+	ClearMIDIPan();
 	
-	ClearAllMidiSustainOn();
-	ClearAllMidiPan();
+	ClearAllMIDISustainOn();
+	ClearAllMIDIPan();
 
 	/*
 	 *	If "play on instruments' parts" is set, send out program changes to the correct
@@ -842,12 +900,19 @@ void PlaySequence(
 			  			MayErrMsg("PlaySequence: pL=%ld has timeStamp=%ld", (long)pL,
 			  							(long)SyncTIME(pL));
 #ifdef TDEBUG
-					if (toffset<0L) DebugPrintf("toffset=%ld => %ld\n", toffset, MeasureTIME(measL)+SyncTIME(pL));
+					if (toffset<0L) DebugPrintf("PlaySequence: toffset=%ld => %ld playTempoPercent=%d\n",
+						toffset, MeasureTIME(measL)+SyncTIME(pL), playTempoPercent);
 #endif
 			  		plStartTime = MeasureTIME(measL)+SyncTIME(pL);
-					startTime = PDur2RealTime(plStartTime, tConvertTab, tempoCount);	/* Convert play time to millisecs. */
-			  		if (toffset<0L) toffset = startTime;
-					startTime -= toffset;
+					/* Convert play time to nominal millisecs. using tempi marked in the
+						score; then, to handle variable-speed playback, convert that 
+						time to actual millisec. . */
+					startTimeNorm = PDur2RealTime(plStartTime, tConvertTab, tempoCount);
+					//DebugPrintf("PlaySequence: plStartTime=%ld, startTimeNorm=%ld\n", plStartTime, startTimeNorm);
+			  		if (toffset<0L) toffset = startTimeNorm;
+					startTimeNorm -= toffset;
+					startTime = ScaleDurForVariableSpeed(startTimeNorm);
+					
 					aNoteL = FirstSubLINK(pL);
 		
 					/*
@@ -909,7 +974,7 @@ void PlaySequence(
 							syncRect.right = r.right;
 							syncPaper = pagePaper;
 							tBeforeTurn = GetMIDITime(pageTurnTOffset);
-#ifdef PLDEBUG
+#if PLDEBUG
 DebugPrintf("pL=%ld: rect.l=%ld,r=%ld paper.l=%ld,r=%ld\n",
 pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 #endif
@@ -927,18 +992,18 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 						patchChangePosted = FALSE;
 					}
 					if (sustainOnPosted) {
-						SendAllMidiSustains(doc, partChannel, TRUE);
-						ClearMidiSustain(TRUE);
+						SendAllMIDISustains(doc, partChannel, TRUE);
+						ClearMIDISustain(TRUE);
 						sustainOnPosted = FALSE;
 					}
 					if (sustainOffPosted) {
-						SendAllMidiSustains(doc, partChannel, FALSE);
-						ClearMidiSustain(FALSE);
+						SendAllMIDISustains(doc, partChannel, FALSE);
+						ClearMIDISustain(FALSE);
 						sustainOffPosted = FALSE;
 					}
 					if (panPosted) {
-						SendAllMidiPans(doc, partChannel);
-						ClearMidiPan();
+						SendAllMIDIPans(doc, partChannel);
+						ClearMIDIPan();
 						panPosted = FALSE;
 					}
 		
@@ -983,8 +1048,12 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 								else
 									err = StartNoteNow(useNoteNum, useChan, useVelo, useIORefNum);
 									
-								endTime = PDur2RealTime(plEndTime, tConvertTab, tempoCount);	/* Convert time to millisecs. */
-								endTime -= toffset;
+								/* Convert time to nominal millisecs. using tempi marked;
+									then convert that to actual millisec. to handle
+									variable-speed playback. */
+								endTimeNorm = PDur2RealTime(plEndTime, tConvertTab, tempoCount);	/* Convert time to millisecs. */
+								endTimeNorm -= toffset;
+								endTime = ScaleDurForVariableSpeed(endTimeNorm);
 								
 								if (useWhichMIDI==MIDIDR_CM) {
 									if (!CMEndNoteLater(useNoteNum, useChan, endTime, partDevID)) {
@@ -1010,20 +1079,20 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 				break;
 			case GRAPHICtype:
 				if (useWhichMIDI==MIDIDR_CM) {				
-					if (IsMidiPatchChange(pL)) {
-						patchChangePosted = PostMidiProgramChange(doc, pL, partPatch, partChannel);						
+					if (IsMIDIPatchChange(pL)) {
+						patchChangePosted = PostMIDIProgramChange(doc, pL, partPatch, partChannel);						
 					}
 					else if (IsMidiSustainOn(pL)) 
 					{
-						sustainOnPosted = PostMidiSustain(doc, pL, TRUE);
+						sustainOnPosted = PostMIDISustain(doc, pL, TRUE);
 					}
 					else if (IsMidiSustainOff(pL)) 
 					{
-						sustainOffPosted = PostMidiSustain(doc, pL, FALSE);
+						sustainOffPosted = PostMIDISustain(doc, pL, FALSE);
 					}
 					else if (IsMidiPan(pL)) 
 					{
-						panPosted = PostMidiPan(doc, pL);
+						panPosted = PostMIDIPan(doc, pL);
 					}					
 				}
 				break;
@@ -1074,8 +1143,8 @@ done:
 	// Sleep a half a second before turning off sustain and pan
 	
 	//SleepTicks(30L);
-	ResetMidiSustain(doc, partChannel);
-	ResetMidiPan(doc, partChannel);
+	ResetMIDISustain(doc, partChannel);
+	ResetMIDIPan(doc, partChannel);
 	
 	StopMIDI();
 	CloseAddBarlines(doc);
@@ -1098,7 +1167,6 @@ done:
 	 *	thing else in the range, otherwise we deselect absolutely everything.  Then
 	 *	we make sure that the correct notes in the Sync are selected.
 	 */
-
 		if (WithinRange(doc->selStartL, oldL, doc->selEndL)) {
 			DeselRange(doc, doc->selStartL, oldL);
 			DeselRange(doc, RightLINK(oldL), doc->selEndL);

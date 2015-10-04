@@ -199,6 +199,9 @@ static Boolean InitNightGlobals()
 	clickMode = ClickSelect;
 	lastCopy = COPYTYPE_CONTENT;
 
+	doNoteheadGraphs = FALSE;								/* Normal noteheads, not tiny graphs */
+	playTempoPercent = 100;									/* Play using the tempi as marked */
+
 	/* Initialize our high-resolution (??but very inaccurate!) delay function */
 	
 	InitSleepMS();

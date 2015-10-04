@@ -44,8 +44,12 @@ this is platform-dependent. */
 
 void InitToolbox()
 {
+#ifndef OS_MAC
+#error MAC OS-ONLY CODE
+#else
 #if TARGET_API_MAC_CARBON
 	FlushEvents(everyEvent, 0);		// ?? DO WE NEED THIS?
+#endif
 #endif
 }
 		
@@ -96,8 +100,13 @@ void Initialize()
 	 *	version 5.0.4 (the last version we tried it with).
 	 */
 	
+#ifdef VIEWER_VERSION
+	creatorType = CREATOR_TYPE_VIEWER;
+	documentType = DOCUMENT_TYPE_VIEWER;
+#else
 	creatorType = CREATOR_TYPE_NORMAL;
 	documentType = DOCUMENT_TYPE_NORMAL;
+#endif
 	/*
 	 *	Figure out our machine environment before doing anything more. This
 	 *	can't be done until after the various ToolBox calls above.
@@ -161,6 +170,9 @@ void Initialize()
 	
 	if (!NInitFloatingWindows())
 		{ BadInit(); ExitToShell(); }
+#ifdef VIEWER_VERSION
+	ShowHidePalettes(FALSE);
+#endif
 	
 	InitCursor();
 	WaitCursor();
@@ -181,6 +193,26 @@ void Initialize()
 		{ BadInit(); ExitToShell(); }
 }
 
+#if 0 // def TARGET_API_MAC_CARBON_FILEIO
+
+Boolean CreateSetupFile(void)
+{
+	return FALSE;
+}
+
+Boolean OpenSetupFile()
+{
+	return FALSE;
+}
+
+Boolean AddSetupResource(Handle resH)
+{
+	return FALSE;
+}
+
+#else
+
+
 static OSStatus FindThePreferencesFile(OSType fType, OSType fCreator, FSSpec *prefsSpec) 
 {
 	short pvol;
@@ -191,6 +223,7 @@ static OSStatus FindThePreferencesFile(OSType fType, OSType fCreator, FSSpec *pr
 	
 	// find the preferences folder
 	err = FindFolder( kOnSystemDisk, kPreferencesFolderType, true, &pvol, &pdir);
+	DebugPrintf("Prefs File: FindFolder: err=%d\n", err);
 	if (err != noErr) return err;
 	
 	// search the folder for the file
@@ -216,7 +249,8 @@ static OSStatus FindThePreferencesFile(OSType fType, OSType fCreator, FSSpec *pr
 	}
 	
 	err = FSMakeFSSpec(pvol, pdir, PREFS_PATH, prefsSpec);
-	return fnfErr;
+	DebugPrintf("Prefs File: FSMakeFSSpec: err=%d (fnfErr=%d)\n", err, fnfErr);
+	return fnfErr;		// ??HUH? ALWAYS RETURN AN ERROR? ISN'T THIS "FILE NOT FOUND"??
 } 
 
 
@@ -233,7 +267,7 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 {
 	Handle			resH;
 	OSType			theErr;
-	short				nSPTB, i;
+	short			nSPTB, i;
 	ScriptCode		scriptCode = smRoman;
 //	FSSpec			rfSpec;
 	
@@ -286,7 +320,11 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 		file it opens the current resource file. */
 		
 	//setupFileRefNum = OpenResFile(SETUP_FILE_NAME);
+#if 0
+	setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
+#else
 	setupFileRefNum = FSpOpenResFile(rfSpec, fsRdWrPerm);
+#endif
 	
 	theErr = ResError();
 	if (theErr!=noErr) return FALSE;				/* Otherwise we'll write in the app's resource fork! */
@@ -408,7 +446,8 @@ Boolean OpenSetupFile()
 {
 	OSErr result; Boolean okay=TRUE; Str63 volName;
 	StringHandle strHdl; char fmtStr[256];
-	
+	Str255 setupFileName;
+
 	short oldVRefNum; long oldDirID;
 	short vRefNum; long dirID;
 
@@ -433,6 +472,9 @@ Boolean OpenSetupFile()
 //	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, SETUP_FILE_NAME, &rfSpec);
 	
 	theErr = FindThePreferencesFile(prefsFileType, creatorType, &rfSpec);
+	Pstrcpy(setupFileName, SETUP_FILE_NAME);
+	DebugPrintf("OpenSetupFile: FindPrefsFile ('%s') returned theErr=%d\n",
+				PToCString(setupFileName), theErr);
 	if (theErr == noErr)
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
 	
@@ -516,10 +558,146 @@ Boolean AddSetupResource(Handle resH)
 	return TRUE;
 }
 
-/* Install our configuration data from the Prefs file; also check for, correct, and
-report any illegal values. Assumes the Prefs file is the current resource file. */
+#endif // TARGET_API_MAC_CARBON_FILEIO
 
-#define ERR(fn) { nerr++; if (firstErr==0) firstErr = fn; }
+
+static void DebugDisplayCnfg()
+{
+	DebugPrintf("Displaying CNFG:\n");
+	DebugPrintf("  (1)maxDocuments=%d", config.maxDocuments);
+	DebugPrintf("  (2)stemLenNormal=%d", config.stemLenNormal);
+	DebugPrintf("  (3)stemLen2v=%d", config.stemLen2v);
+	DebugPrintf("  (4)stemLenOutside=%d\n", config.stemLenOutside);
+	DebugPrintf("  (5)stemLenGrace=%d", config.stemLenGrace);
+
+	DebugPrintf("  (6)spAfterBar=%d", config.spAfterBar);
+	DebugPrintf("  (7)minSpBeforeBar=%d", config.minSpBeforeBar);
+	DebugPrintf("  (8)minRSpace=%d\n", config.minRSpace);
+	DebugPrintf("  (9)minLyricRSpace=%d", config.minLyricRSpace);
+	DebugPrintf("  (10)minRSpace_KSTS_N=%d", config.minRSpace_KSTS_N);
+
+	DebugPrintf("  (11)hAccStep=%d", config.hAccStep);
+
+	DebugPrintf("  (12)stemLW=%d\n", config.stemLW);
+	DebugPrintf("  (13)barlineLW=%d", config.barlineLW);
+	DebugPrintf("  (14)ledgerLW=%d", config.ledgerLW);
+	DebugPrintf("  (15)staffLW=%d", config.staffLW);
+	DebugPrintf("  (16)enclLW=%d\n", config.enclLW);
+
+	DebugPrintf("  (17)beamLW=%d", config.beamLW);
+	DebugPrintf("  (18)hairpinLW=%d", config.hairpinLW);
+	DebugPrintf("  (19)dottedBarlineLW=%d", config.dottedBarlineLW);
+	DebugPrintf("  (20)mbRestEndLW=%d\n", config.mbRestEndLW);
+	DebugPrintf("  (21)nonarpLW=%d", config.nonarpLW);
+
+	DebugPrintf("  (22)graceSlashLW=%d", config.graceSlashLW);
+	DebugPrintf("  (23)slurMidLW=%d", config.slurMidLW);
+	DebugPrintf("  (24)tremSlashLW=%d\n", config.tremSlashLW);
+	DebugPrintf("  (25)slurCurvature=%d", config.slurCurvature);
+	DebugPrintf("  (26)tieCurvature=%d", config.tieCurvature);
+	DebugPrintf("  (27)relBeamSlope=%d", config.relBeamSlope);
+
+	DebugPrintf("  (28)hairpinMouthWidth=%d\n", config.hairpinMouthWidth);
+	DebugPrintf("  (29)mbRestBaseLen=%d", config.mbRestBaseLen);
+	DebugPrintf("  (30)mbRestAddLen=%d", config.mbRestAddLen);
+	DebugPrintf("  (31)barlineDashLen=%d", config.barlineDashLen);
+	DebugPrintf("  (32)crossStaffBeamExt=%d\n", config.crossStaffBeamExt);
+	DebugPrintf("  (33)titleMargin=%d", config.titleMargin);
+
+	DebugPrintf("  (35)pageMarg.top=%d", config.pageMarg.top);
+	DebugPrintf("  .left=%d", config.pageMarg.left);
+	DebugPrintf("  .bottom=%d", config.pageMarg.bottom);
+	DebugPrintf("  .right=%d\n", config.pageMarg.right);
+
+	DebugPrintf("  (37)pageNumMarg.top=%d", config.pageNumMarg.top);
+	DebugPrintf("  .left=%d", config.pageNumMarg.left);
+	DebugPrintf("  .bottom=%d", config.pageNumMarg.bottom);
+	DebugPrintf("  .right=%d\n", config.pageNumMarg.right);
+
+	DebugPrintf("  (38)defaultLedgers=%d", config.defaultLedgers);
+	DebugPrintf("  (39)defaultTSNum=%d", config.defaultTSNum);
+	DebugPrintf("  (40)defaultTSDenom=%d", config.defaultTSDenom);
+	DebugPrintf("  (41)defaultRastral=%d\n", config.defaultRastral);
+	DebugPrintf("  (42)rastral0size=%d", config.rastral0size);
+
+	DebugPrintf("  (43)defaultTempo=%d", config.defaultTempo);
+	DebugPrintf("  (44)minRecVelocity=%d", config.minRecVelocity);
+	DebugPrintf("  (45)minRecDuration=%d\n", config.minRecDuration);
+	DebugPrintf("  (46)midiThru=%d", config.midiThru);
+
+	DebugPrintf("  (47)minMemory=%d", config.minMemory);
+	DebugPrintf("  (48)lowMemory=%d\n", config.lowMemory);
+
+	DebugPrintf("  (49)numRows=%d", config.numRows);
+	DebugPrintf("  (50)numCols=%d", config.numCols);
+	DebugPrintf("  (51)maxRows=%d", config.maxRows);
+	DebugPrintf("  (52)maxCols=%d\n", config.maxCols);
+	DebugPrintf("  (53)hPageSep=%d", config.hPageSep);
+	DebugPrintf("  (54)vPageSep=%d", config.vPageSep);
+	DebugPrintf("  (55)hScrollSlop=%d", config.hScrollSlop);
+	DebugPrintf("  (56)vScrollSlop=%d\n", config.vScrollSlop);
+
+	DebugPrintf("  (57)maxSyncTolerance=%d", config.maxSyncTolerance);
+	DebugPrintf("  (58)enlargeHilite=%d", config.enlargeHilite);
+	DebugPrintf("  (59)infoDistUnits=%d", config.infoDistUnits);
+	DebugPrintf("  (60)mShakeThresh=%d\n", config.mShakeThresh);
+	
+	DebugPrintf("  (61)numMasters=%d", config.numMasters);
+	DebugPrintf("  (62)indent1st=%d", config.indent1st);
+	DebugPrintf("  (63)chordSymMusSize=%d", config.chordSymMusSize);
+
+	DebugPrintf("  (64)legatoPct=%d\n", config.legatoPct);
+
+	DebugPrintf("  (65)defaultPatch=%d", config.defaultPatch);
+	DebugPrintf("  (66)whichMIDI=%d", config.whichMIDI);
+	DebugPrintf("  (67)enclMargin=%d", config.enclMargin);
+	DebugPrintf("  (68)mbRestHeight=%d\n", config.mbRestHeight);
+
+	DebugPrintf("  (69)musFontSizeOffset=%d", config.musFontSizeOffset);
+	DebugPrintf("  (70)restMVOffset=%d", config.restMVOffset);
+	DebugPrintf("  (71)autoBeamOptions=%d\n", config.autoBeamOptions);
+	
+	DebugPrintf("  (72)noteOffVel=%d", config.noteOffVel);
+	DebugPrintf("  (73)feedbackNoteOnVel=%d", config.feedbackNoteOnVel);
+	DebugPrintf("  (74)defaultChannel=%d\n", config.defaultChannel);
+	DebugPrintf("  (75)rainyDayMemory=%d", config.rainyDayMemory);
+	DebugPrintf("  (76)tryTupLevels=%d", config.tryTupLevels);
+	DebugPrintf("  (77)justifyWarnThresh=%d\n", config.justifyWarnThresh);
+
+	DebugPrintf("  (78)metroChannel=%d", config.metroChannel);
+	DebugPrintf("  (79)metroNote=%d", config.metroNote);
+	DebugPrintf("  (80)metroVelo=%d", config.metroVelo);
+	DebugPrintf("  (81)metroDur=%d\n", config.metroDur);
+
+	DebugPrintf("  (82)chordSymSmallSize=%d", config.chordSymSmallSize);
+	DebugPrintf("  (83)chordSymSuperscr=%d", config.chordSymSuperscr);
+	DebugPrintf("  (84)chordSymStkLead=%d\n", config.chordSymStkLead);
+
+	DebugPrintf("  (85)tupletNumSize=%d", config.tupletNumSize);
+	DebugPrintf("  (86)tupletColonSize=%d", config.tupletColonSize);
+	DebugPrintf("  (87)octaveNumSize=%d", config.octaveNumSize);
+	DebugPrintf("  (89)lineLW=%d\n", config.lineLW);
+	DebugPrintf("  (90)ledgerLLen=%d", config.ledgerLLen);
+	DebugPrintf("  (91)ledgerLOtherLen=%d", config.ledgerLOtherLen);
+	DebugPrintf("  (92)slurDashLen=%d", config.slurDashLen);
+	DebugPrintf("  (93)slurSpaceLen=%d\n", config.slurSpaceLen);
+
+	DebugPrintf("  (94)courtesyAccLXD=%d", config.courtesyAccLXD);
+	DebugPrintf("  (95)courtesyAccRXD=%d", config.courtesyAccRXD);
+	DebugPrintf("  (96)courtesyAccYD=%d", config.courtesyAccYD);
+	DebugPrintf("  (97)courtesyAccSize=%d\n", config.courtesyAccSize);
+
+	DebugPrintf("  (98)quantizeBeamYPos=%d", config.quantizeBeamYPos);
+	DebugPrintf("  (99)enlargeNRHiliteH=%d", config.enlargeNRHiliteH);
+	DebugPrintf("  (100)enlargeNRHiliteV=%d", config.enlargeNRHiliteV);
+	DebugPrintf("\n");
+}
+
+
+/* Install our configuration data from the Prefs file; also check for, report, and
+correct any illegal values. Assumes the Prefs file is the current resource file. */
+
+#define ERR(fn) { nerr++; DebugPrintf(" err #%d,", fn); if (firstErr==0) firstErr = fn; }
 
 static Boolean GetConfig()
 {
@@ -537,8 +715,9 @@ static Boolean GetConfig()
 		else							  gotCnfg = FALSE;
 		
 		/*
-		 * Set all checkable fields to illegal values so they'll be caught and
-		 * corrected below; set the few uncheckable ones to reasonable values.
+		 * Since we couldn't find the configuration data, set all checkable fields to
+		 * illegal values so they'll be caught and corrected below; set the few 
+		 * uncheckable ones to reasonable values.
 		 */
 		config.maxDocuments = -1;
 
@@ -673,12 +852,16 @@ static Boolean GetConfig()
 
 	}
 
+	DebugDisplayCnfg();
+
 	/*
 	 * Now do a reality check for values that might be bad. We can't easily check
 	 * origin, toolsPosition, musicFontID, or the fields that represent Boolean values.
-	 * All other fields are checked, though not all as strictly as possible.
+	 * All other fields are checked, though not all as strictly as possible (of
+	 * course there's often no well-defined limit); for each problem case we find,
+	 * give an error message and set it to a reasonable default value.
 	 */
-	 
+	DebugPrintf("Checking CNFG: ");
 	nerr = 0; firstErr = 0;
 
 	if (config.maxDocuments <= 0 || config.maxDocuments > 100)
@@ -800,9 +983,7 @@ static Boolean GetConfig()
 	if (config.defaultPatch < 1 || config.defaultPatch > MAXPATCHNUM)
 			{ config.defaultPatch = 1; ERR(65); }
 			
-	if (config.whichMIDI < 0 || config.whichMIDI > MIDISYS_NONE) {
-		ERR(66);
-	}
+	if (config.whichMIDI < 0 || config.whichMIDI > MIDISYS_NONE) { config.whichMIDI = MIDISYS_CM; ERR(66); }
 	
 	if (config.enclMargin < 0) { config.enclMargin = 2; ERR(67); }
 	if (config.mbRestHeight < 1) { config.mbRestHeight = 2; ERR(68); }
@@ -849,7 +1030,7 @@ static Boolean GetConfig()
 			{ config.tupletColonSize = 60; ERR(86); }
 	if (config.octaveNumSize < 0 || config.octaveNumSize > 127)
 			{ config.octaveNumSize = 110; ERR(87); }
-	if (config.lineLW < 1 || config.lineLW > 127) { config.lineLW = 25; ERR(89); }
+	if (config.lineLW < 5 || config.lineLW > 127) { config.lineLW = 25; ERR(89); }
 	if (config.ledgerLLen < 32) { config.ledgerLLen = 48; ERR(90); }
 	if (config.ledgerLOtherLen < 0) { config.ledgerLOtherLen = 12; ERR(91); }
 	if (config.slurDashLen < 1) { config.slurDashLen = 3; ERR(92); }
@@ -866,14 +1047,22 @@ static Boolean GetConfig()
 			{ config.enlargeNRHiliteH = 1; ERR(99); }
 	if (config.enlargeNRHiliteV < 0 || config.enlargeNRHiliteV > 10)
 			{ config.enlargeNRHiliteV = 1; ERR(100); }
+#ifdef LIGHT_VERSION
+	/* We MUST have undo. It's the mechanism used to recover after exceeding
+	   page limit (e.g., by reformat). */
+	config.disableUndo = 0;
+#endif			
 	/* No validity check at this time for default or metro Devices, do it in InitOMS */
 
 	if (gotCnfg && nerr>0) {
-		GetIndCString(fmtStr, INITERRS_STRS, 5);		/* "CNFG resource has illegal value(s)" */
+        DebugPrintf(" TOTAL OF %d ERROR(S) FOUND.\n", nerr);
+		GetIndCString(fmtStr, INITERRS_STRS, 5);		/* "CNFG resource in Prefs has [n] illegal value(s)" */
 		sprintf(strBuf, fmtStr, nerr, firstErr);
 		CParamText(strBuf, "", "", "");
 		if (CautionAdvise(CNFG_ALRT)==OK) ExitToShell();
 	}
+    else
+        DebugPrintf("(no errors)\n");
 	
 Finish:
 
@@ -892,7 +1081,25 @@ and allocate as many Master Pointers as possible up to numMasters. Return TRUE i
 all went well, FALSE if not. */
 
 static Boolean InitMemory(short numMasters)
-{	
+{
+#ifdef CARBON_NOMORE
+	THz thisZone; long heapSize; short orig;
+	
+	/* Increase stack size by decreasing heap size (thanks to DBW for the method). */
+	heapSize = (long)GetApplLimit()-(long)GetZone();
+	heapSize -= 32000;
+	SetApplLimit((Ptr)ApplicationZone()+heapSize);
+
+	MaxApplZone();
+	thisZone = ApplicationZone();
+	orig = thisZone->moreMast;
+	thisZone->moreMast = numMasters;
+	do {
+		MoreMasters();
+	} while (MemError()!=noErr && (thisZone->moreMast=(numMasters >>= 1))!=0);
+	thisZone->moreMast = orig;
+#endif
+	
 	return(numMasters >= 64);
 }
 
@@ -1259,7 +1466,8 @@ Boolean InitGlobals()
 		testMenu = GetMenu(testID);		if (!testMenu) return FALSE;
 		InsertMenu(testMenu,0);
 #endif
-
+		
+#ifndef VIEWER_VERSION
 		scoreMenu = GetMenu(scoreID);		if (!scoreMenu) return FALSE;
 		InsertMenu(scoreMenu,0);
 		
@@ -1268,6 +1476,7 @@ Boolean InitGlobals()
 		
 		groupsMenu = GetMenu(groupsID);		if (!groupsMenu) return FALSE;
 		InsertMenu(groupsMenu,0);
+#endif
 		
 		viewMenu = GetMenu(viewID);			if (!viewMenu) return FALSE;
 		InsertMenu(viewMenu,0);

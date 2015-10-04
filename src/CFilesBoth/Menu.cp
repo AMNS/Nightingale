@@ -1199,6 +1199,10 @@ void DoPlayRecMenu(short choice)
 				MEHideCaret(doc);
 				if (doc) PlaySequence(doc, doc->selStartL, doc->tailL, TRUE, FALSE);
 				break;
+			case PL_PlayVarSpeed:
+				MEHideCaret(doc);
+				if (doc) { SetPlaySpeedDialog(); }
+				break;
 			case PL_RecordInsert:
 				if (BIMIDIPortIsBusy()) break;
 				if (doc) PLRecord(doc, FALSE);
@@ -1219,9 +1223,8 @@ void DoPlayRecMenu(short choice)
 				if (doc) PLStepRecord(doc, TRUE);
 				break;
 			case PL_AllNotesOff:
-				if (useWhichMIDI == MIDIDR_CM) {
+				if (useWhichMIDI == MIDIDR_CM)
 					CMAllNotesOff();
-				}
 				break;
 			case PL_MIDISetup:
 				MEHideCaret(doc);
