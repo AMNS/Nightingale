@@ -166,8 +166,12 @@ MIDIPlay.cp: Change more instances of "Midi" in function names to "MIDI".
 
 -------------------------------------------------------------------------------
 
-2 - 3 October
+2 - 4 October
 
 Integrate my codebase with the codebase in the AMNS/Nightingale GitHub repository, which
 dates from late June 2012. Integrated ca. 7 .h's and 19 .cp's, but -- as a result of
 Geoff's large-scale cruft removal in 2012 -- almost all files changed.
+
+Update/simplify About box. Affects About.cp, .rsrc: DLOG 451.
+
+Change version number from 5.4 to 5.5! Affects Info.plist.

@@ -31,15 +31,11 @@ static void				AnimateCredits(DialogPtr dlog);
 static enum {
 	BUT1_OK = 1,
 	BUT2_Special,
-	CREDITS_BOX = 5,
-	STXT6_Memory,
-	STXT7_CopyNum,
-	PICT8_Confident = 8,
-	STXT_DEMO = 11,
-	PICT_DEMO,
+	CREDITS_BOX = 3,
 	STXT_HINT1,
 	STXT_HINT2,
-	STXT_VERS
+	STXT_VERS,
+	PICT_DEMO=10
 } E_AboutItems;
 
 static GrafPtr	fullTextPort;
@@ -88,16 +84,7 @@ void DoAboutBox(
 	OffsetRect(&textSection, -creditRect.left, -creditRect.top);
 	if (!SetupCredits()) goto broken;
 
-	HideDialogItem(dlog, STXT_DEMO);
 	HideDialogItem(dlog, PICT_DEMO);
-
-#ifdef PUBLIC_VERSION
-	HideDialogItem(dlog, PICT8_Confident);
-#else
-	ShowDialogItem(dlog, PICT8_Confident);
-#endif
-
-	ShowDialogItem(dlog, STXT7_CopyNum);
 	
 	/* Get version number string and display it in a static text item. */
 	unsigned char vstr[256], *vers_str;
