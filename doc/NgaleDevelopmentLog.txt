@@ -1,0 +1,837 @@
+DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 thru Sept. 2015
+
+(Most of the files in my Ngale Carbon code base have last modification dates of April or
+May 2012; a few files are 2 June 2012, and it looks like that's the last source code I
+share with David G. This document describes all changes to my own code base since then,
+the earliest of which are dated 4 March 2013. It also describes initial work on the
+"new" Cocoa Ngale -- I think.)
+
+* CoreMidiUtils.cp: make DebugPrintf output more readable.
+* Debug output is overwhelmed by messages of the form
+      pL=1461: rect.l=288,r=294 paper.l=-20860,r=-20248
+	...for every note (Sync?) played. Those messages shouldn't be written by default!! 
+	Affects MIDIPlay.cp: #define PLDEBUG as 0.
+* Fix horrible and dangerously confusing kludge for turning notehead graphs off/on:
+	add #define for NOTEHEAD_GRAPH_WIDTH; make doNoteheadGraphs a global. Affects
+	defs.h, vars.h, DrawNRGR, InitNightingale, SpaceTime.
+* Initialize.cp: display all CNFG field values & errors detected in them in log file;
+	if config.whichMIDI is illegal, set it to a legal value (like all other fields).
+* SpaceHighLevel.cp: improve debug print stmts.
+* Added "Set tempo to visible/invisible" to QuickChange. Affects Set.h, SetCommand.cp,
+	Nightingale.rsrc.
+* Increased the minimum legal value of config.lineLW from 1 to 5.
+* Added back into the declaration of the Configuration struct the _noteScanEpsXD_ field,
+	which had somehow been deleted, resulting in misalignment of fields read in,
+	nonsensical complaints about illegal CNFG values, ledger lines too long, etc.
+	Affects applicationTypes.h .
+* Debug output for playback is excessive; disable some. Affects MIDIPlay.cp: #define
+	CMDEBUG as 0.
+* Remove code to check expiration date. Affects InitNightingale
+
+===================================================================================
+
+* Have Xcode 3.2 running on my MacBook (OS 10.6.x); Xcode 2.5 on my G5 (OS 10.5.x).
+	What version was used for recent release versions? David says Xcode 2.5!
+
+With a 2008 copy of code I had lying around:
+
+* On MacBook: choose 10.5 Release as Active SDK & Configuration. Active Architecture is set
+to ppc, & it looks like there's no way to change it. ??  Anyway, Clean (w/ both options
+checked), Build => tries to compile 175 files; fails with:
+	10,327 warnings
+		99% for deprecated stuff, plus a few malformed '#pragma options', etc.
+	149 fatal errors
+		all are "Jump to case label", "Crosses initialization of" ...
+
+Redo: Build (w/o clean) => tries to compile 15 files; fails with 1703 warnings, 149 errors.
+
+/Developer/usr/bin/gcc-4.2 -x c++ -arch ppc -fmessage-length=0 -pipe -Wno-trigraphs -fpascal-strings
+	-Os -mdynamic-no-pic -isysroot /Developer/SDKs/MacOSX10.5.sdk -mtune=G4 -fvisibility=hidden
+	-fvisibility-inlines-hidden -mmacosx-version-min=10.5 -gdwarf-2
+	-I/Users/donbyrd/NgaleDev/ngale2xcodeSummer08/build/Nightingale.build/Release/Nightingale.build/Nightingale.hmap
+	-F/Users/donbyrd/NgaleDev/ngale2xcodeSummer08/build/Release -I/Users/donbyrd/NgaleDev/ngale2xcodeSummer08/build/Release/include
+	-I/Users/donbyrd/NgaleDev/ngale2xcodeSummer08/build/Nightingale.build/Release/Nightingale.build/DerivedSources/ppc
+	-I/Users/donbyrd/NgaleDev/ngale2xcodeSummer08/build/Nightingale.build/Release/Nightingale.build/DerivedSources
+	-c /Users/donbyrd/NgaleDev/NgaleXcodeApril2012/src/CFilesBothEd/EssentialTools.cp
+	-o /Users/donbyrd/NgaleDev/ngale2xcodeSummer08/build/Nightingale.build/Release/Nightingale.build/Objects-normal/ppc/EssentialTools.o
+
+
+* On G5: choose Release as Active Configuration, Build => fails with 8256 warnings,
+1 error ("pbxcp: EndianUtils.h: No such file or directory")
+
+To get started, I just want to get thru compilation quickly; maybe set compiler options
+to be less picky? But _how_ do I set them? I don't see any such thing in Xcode! ??
+Another idea: get a version of the code that's known to compile -- hey, maybe even the
+latest from David or Charlie! -- and compiler settings for it. Obviously the way to go,
+but see what I can do in the meantime w/ code I have.
+
+-----------------------------------------------------------------------------
+
+24 April
+
+For the moment, try to handle the only compile error on G5. Start with a different 2008
+copy of code, Ngale19Oct2008: it has changes to 34 files in both, plus 4 new files,
+incl. EndianUtils.h. Most of its differing files are dated May 2008, a few (e.g.
+CoreMidiUtils.cp) August 2008. Code changes include what looks like remembering the
+MIDI device setting :-) and adding to QuickChange setting beam thickness & dynamic size.
+
+Clean Nightingale (w/ options), build => nope; now it gets 2 errors in File.cp. ??
+
+-----------------------------------------------------------------------------
+
+25 April
+
+David sez:
+
+> I have lately been compiling ngale with xcode 2.5 on a Macbook Pro running Leopard.
+> Ngale runs fine on Snow Leopard, which will only run on intel macs.
+
+Obviously we need to compile with Xcode 3.x soon, so all 149 errors of those need to be
+dealt with, but we can get off the ground first! Concern about the Architecture option is
+premature; generating PPC code is fine for now.
+
+Back to compiling on my G5.
+Have 2 compilation errors in File.cp: lines 136 & 1127. Both involve calls to
+fix_end(param); one or both error messages (I can't tell!) are " 'fix_end' was not
+declared in this scope".  In EndianUtils.h (NB by Michel) are two #defines for
+fix_end(v), and numerous other calls to fix_end in File.cp are OK. What's wrong with
+these??
+
+Uh-oh: it looks like it stopped _trying_ to compile w/ File.cp (unlike Xcode 3.2 on my
+MacBook)! Yep: there's a Preference "Continue building after errors", and it's not
+checked, so maybe a lot more errors to be found  @#%&(#)%$$#% .  Check that Preference,
+Build (132 files to go)...
+
+Let's redo the whole thing. Quit & relaunch Xcode; Clean (w/ both options checked); 
+compiling 175 files => "Build failed (6 errors, 8278 warnings)"
+
+The errors are all " 'fix_end' was not declared in this scope":
+1 in File.cp
+3 in HeapFileIO.cp
+1 in StringPool.cp
+
+??
+
+The Xcode C compiler is gcc. I still don't see any way to set compiler options (to make
+it less picky, etc.) in Xcode, either 2.5 or 3.2; maybe directly via settings of gcc's,
+maybe in a dot file it looks at -- should say in the GCC manual, at least! But CER should
+know.
+
+-----------------------------------------------------------------------------
+
+Install Git & GitHub on G5... Following the instructions at http://help.github.com/mac-set-up-git/ :
+
+First: Download and Install Git.
+Git Installer 1.6.5 - OS X - Leopard - Universal Binary appears to be the most recent version
+that runs on a PPC. On my G5, download it (checksum de241004d35a9ef96e1339b78107d12b1c1fbd79).
+Unpack & run it => claims to have worked OK.
+
+(NB: At Michel S.' behest, I installed Git 1.5.x on one of my computers in Feb. 2008 --
+probably the G5: on it, /opt/local/bin contains ca. 140 files of form "git*, all created
+on 15 Feb. 2008 :) , while on the MacBook, there's not even a /opt directory. BUT most or
+all of those files are binaries of utilities, and most or all are Intel, not PowerPC! ??
+Cf. NgalePort_Feb2008.txt)
+
+Next: Set Up SSH Keys.
+1. Check for SSH keys. I have some, but only in file known_hosts; I don't have any id_rsa*
+	files.
+2. Backup and remove existing SSH keys. ??They only want you to do this for id_rsa* files,
+	so it seems I don't have anything to do here.
+3. Generate a new SSH key. ??I can't do it: 
+	DonDualG5:.ssh donbyrd$ ssh-keygen -t rsa -C "donbyrd@indiana.edu"
+	-bash: /opt/local/bin/ssh-keygen: Bad CPU type in executable
+
+I suspect I could find ssh-keygen for PPC on the Web, but is that really what I should do?
+
+etc. etc...  I give up.
+
+Install Git & GitHub on MacBook: all OK!
+
+-----------------------------------------------------------------------------
+
+- (NDAB, "") Respacing bug: in some situations, Respace leaves way too much space after
+a dotted note/chord. E.g., w/ long note on downbeat on one voice on a staff, adding
+note/rest to a 2nd voice on a staff, maybe as if the new note/rest follows the long note
+(I think). E.g., open respaceBug_5LTC.ngl; in m. 2, insert note in voice 2 on bottom
+staff => adds lots of space before it. ?? I can't reproduce this starting w/ New score.
+But compare FanfareRESPACE_BUG.ngl (dotted chords get way too much space) to the very
+similar FanfareRESPACE_NOBUG.ngl (dotted chords get a reasonable amount of space)! Could
+it somehow just be caused by the magnified view? No.
+
+(18 June)
+
+Cf. FanfareRespaceBug.ngl (has the bug) to the apparently-identical FRBNew_NoBug.ngl (no bug)!
+It looks like it's an issue for _old files_ only. ?!?
+
+(26 March 2013)
+
+SpaceHighLevel.c looks like where this is happening. If I #define SPACEBUG, then hold down
+shift & option while respacing, routines there (ConsidIPWidths, ConsiderWidths, Respace1Bar,
+etc.) will show copious debug info!
+
+(1 April 2013)
+
+The difference between the newly-simplified FanfareRESPACE_BUG.ngl and FanfareRESPACE_NOBUG.ngl
+is obvious: the former has Graphics (strings) and dynamics, and the latter doesn't -- BUT the
+difference between the _really_ simple FanfareRespaceBug.ngl & FRBNew_NoBug.ngl isn't at all
+obvious: neither has Graphics or dynamics. Each consists of the same 3 notes (dotted qtr,
+dotted qtr, qtr; none have accidentals) barline. ?? @#$%#$%$()_%#%
+
+Open FanfareRespaceBug; Respace m. 1 at 44%:
+(see RespaceBug.txt for lotsa details)
+
+(4 April 2013)
+
+Sigh. The bug resulted from my kludge to test notehead graphs, invoked when Show Duration
+Problems was selected! Oh well. Fixed, and notehead-graphs code cleaned up.
+
+-----------------------------------------------------------------------------
+
+- (New in "", BUT an early OS X version had a _very_ similar problem!) Launch built
+Ngale on MacBook => computer seems to be hung for a very long time -- several minutes;
+then all is fine! Launching Rosetta alone couldn't possibly make things _that_ bad, but
+could it be partly due to launching Rosetta? Even that seems unlikely, since I
+literally haven't seen it in years; for info about earlier problems of this kind, see
+comment of Dec. 2007 in NgaleXUserProblems+Annoyances2008.txt, of July 2008 in
+Ngale_XcodeProblems.txt.
+
+Test on my MacBook, 6 May: Launch at 9:18:00; menubar clock stopped (with arrow cursor)
+at 9:18:17; at (actual) 9:21:40, beachball appeared, disappeared, reappeared several
+times;  at 9:24:10, _started_ to get back to normal (menubar clock updated erratically,
+could switch apps); at 9:27, dot appeared in dock next to Ngale icon & could see palette
+frame); at 9:28, could open New score. On my G5: Ngale launches & is ready to use instantly.
+
+Re-test on MacBook: Launch at 14:29:00; splash screen appears at ca. 14:32:50; dot in
+dock at 14:33:40; at 14:35, ??  Well, it's not at all clear this is worthwhile,
+debugging problems with a PPC build on an Intel machine, when we pretty much want to
+forget the PPC anyway -- but PPC is the only choice for Active Architecture in Xcode 3.2
+on my MacBook. ?!?
+
+-----------------------------------------------------------------------------
+
+9 May 2012
+
+Set SDK to 10.5, Clean, build => OK, w/ 7152 warnings. Launch at 20:33:25 => computer
+seems hung w/ menubar clock frozen; splash screen appears at 20:35:20, disappears again;
+palette appears at 20:36:25; at 20:37:xx, can try to use the Open command -- but it takes
+a couple of min. to open a tiny score. ?!?
+
+-----------------------------------------------------------------------------
+
+Date:  	Sat, 12 May 2012 23:20:38 -0400 [05/12/2012 11:20:38 PM EDT]
+To:  	charles.e.rose@comcast.net...
+Subject:  	Re: [launching Ngale freezes the computer]
+
+I just tested this after rebooting, and Ngale launched in a reasonable amount of time. I
+don't know why it's so bad under other circumstances, but it looks like this is probably
+not a serious problem after all!... 
+
+-----------------------------------------------------------------------------
+
+15 May
+
+Date:  	Tue, 15 May 2012 11:24:34 -0400 [11:24:34 AM EDT]
+From:  	"Byrd, Donald A." <donbyrd@indiana.edu>
+To:  	Geoff Chirgwin <geoff@chirgwin.com>
+Cc:  	"Gottlieb, David" <ngale109@comcast.net>
+Subject:  	Re: [Have] Xcode 4.x for Snow Leopard, but...
+
+Downloaded and installed... However, when I open the project, it says "1 target, missing
+base SDK" (of course it was pointing to the 10.4 SDK), then says it has no files. Well,
+I assumed the project would be in the GitHub repository, so I threw away the project
+file. Then -- in Terminal -- I went to my root directory, Nightingale, and did "git
+pull"; that deleted 12 files, I think the ones you removed last week, but didn't give me
+a project file. Next, I'd kept 3.2.6 around by moving it from Developer > Applications
+to Developer > Xcode3p2p6, so it seems I ought to be able to use that to change the base
+SDK, but 3.2.6 wouldn't run from that location and I'd rather not screw around any more.
+Can you send me a 4.2-compatible project? Or, shouldn't it be in the repository? Put it
+there and I'll git it.
+
+-----------------------------------------------------------------------------
+
+22 May
+
+Set up Xcode ala RestorePPC+10p4+p5_SDKSupport2Xcode4.html, so 4.2 supports targeting OS 10.4
+& 10.5, GCC 4.0, etc.:
+
++ Uninstall Xcode
++ Step 1: Install Xcode 3.2 in new top-level directory Xcode3
++ Step 2: Install Xcode 4.2 in default location
++ Step 3: Restoring 10.4/10.5 SDK Support
+- Step 4: Restoring GCC 4.0 Support
+	?? "cd: /Developer/usr/libexec/gcc/powerpc-apple-darwin10: No such file or directory". ??
+- Step 5: Restoring PPC Support for GCC 4.2
+
+-----------------------------------------------------------------------------
+
+Early June
+
+Nightingale_Prefix.pch currently #define's: TARGET_API_MAC_CARBON,
+	TARGET_API_MAC_CARBON_FILEIO, TARGET_API_MAC_CARBON_MIDI, TARGET_API_MAC_CARBON_MACHO ?? .
+	For the time being, assume they're always #define'd.
+USE_GRAFPORT, USE_PROFILER, COPY_PROTECT, LIGHT_VERSION are currently _not_ #define'd; for
+	now, assume they're never #define'd.
+
+Code review status:
+* Done with all thru the last of 30 May. (Assume "Merge branch 'RemoveMidiCruft'" is okay
+w/o reviewing.)
+* Done with 7 June
+* Done with 10 June
+
+-----------------------------------------------------------------------------
+
+March-April 2013
+
+NB: Unless otherwise mentioned, all development below was done with Xcode 2.5 on my G5,
+running OS 10.5.8.
+
+Running Ngale inside Xcode, I can again see (and copy/save) DebugPrintf output
+via Xcode's Run Log! Hooray!
+
++ Change max. tempo from 600 to 1200 BPM. Affects defs.h
+
++ Print status of reading Prefs file, checking CNFG, etc. Affects Initialize.cp
+
++ Advance expiration date by a year. Affects InitNightingale.cp
+
++ Don't print info on every Sync as it's played. Affects MIDIPlay.cp
+
++ Display values of all CNFG fields in log; if any are bad, list all bad ones in error message.
+Affects Initialize.cp
+
++ Fix "Respace sometimes leaves way too much space, especially after a dotted
+note/chord" bug. Affects vars.h; DrawNRGR.c, InitNightingale.c, SpaceTime.c: add global
+<doNoteheadGraphs> to say whether to display noteheads as tiny graphs; defs.h:
+declaration of <NOTEHEAD_GRAPH_WIDTH>.
+
++ Minor cleanup. Affects SpaceHighLevel.c
+
+-----------------------------------------------------------------------------
+
+20 April - 13 Aug.
+
++ (G5B) Ledger lines (both above & below staff) are always the length for chords
+w/ 2nds, i.e., they go much too far on the "wrong" side of the stem if there aren't
+2nds. I don't think I'd seen this bug until the last month or two, i.e., it's not in
+NightingaleDAB or the "official" versions, but only in versions built recently on my G5.
+The CNFG ledgerLLen value is 48; could that be the cause? No: ledgerLOtherLen controls
+this. Besides, 48 isn't just a legal value, it's the value Ngale sets to replace illegal
+values -- e.g., the value of 20 in the default Nightingale Devel Prefs! 32 is the min.
+legal value; it's in 32nds of space between staff lines, so 48 = 1+1/2 spaces is about
+what it _should_ be. ??
+
+!! ledgerLOtherLen = 48, the same as ledgerLLen: that's almost certainly the problem! --
+in fact, 20 might be about right for this. What has it always been?? It looks about 1/2
+space => ledgerLOtherLen = 16 -- or maybe 20 :-) . RESOLUTION: This is caused by the
+default Devel Prefs (in ~/Library/Preferences/Nightingale\ Devel\ Prefs), which has
+ledgerLLen = 20 and ledgerLOtherLen = 48; it should be the other way around. It also has
+illegal values for whichMIDI (=4) and courtesyAccSize (=8). NEED TO FIX. Specifically
+("In rsrc" = Nightingale.rsrc of e.g. 30 Apr. 2012):
+
+ofst	Item		Now	In		Should
+						rsrc	be
+---------------------------------------------
+??	ledgerLLen		20	48		48
+??	ledgerLOtherLen	48	12		20
+??	whichMIDI		4	??		0 -- MIDISYS_NONE; prob. want 1 ??IS THIS MIDISYS OR MIDIDR?
+??	courtesyAccSize	8	??		>=20; prob. want 100	??Rezilla doesn't seem to list!
+
+Ah-hah! Resorcerer shows a field at offset 173, just after octaveNumSize, as "Open
+NoteScan File tolerance for combining subobjects"; it's followed by lineLW. But Ngale's
+config struct has nothing about NoteScan tolerance -- it goes directly from octaveNumSize
+to lineLW. Result: every field after that is off by one byte!!
+
+-----------------------------------------------------------------------------
+
+Early Aug.
+
+??For CNFG #128, Rezilla shows about 159 fields; Initialize.cp checks only 100, and
+comments claim there are only a few uncheckable ones! What about the other 50+ fields?
+They include:
+	slashGraceStems
+	bracketsForBraces
+	paperRect
+	toolsPosition
+	origin
+	powerUser
+	dblBarsBarlines
+	disableUndo, assumeTie, delRedundantAccs, strictContin, turnPagesInPlay
+	earlyMusic
+	chordSymDrawPar, endingHeight, drawStemlets, noTripletBias
+	ignoreRecVel
+	tempoMarkHGap
+	trebleVOffset, cClefVOffset, bassVOffset
+	...and lots more
+	
+Many of these, probably most, could be checked -- and ALL of their values could be
+displayed, of course.
+
+-----------------------------------------------------------------------------
+
+8-10 June
+
+- Both Sonata and BlueNotz on both my MacBook and G5 fail to display the "ff" dynamic on
+screen; change the font or double-click the "ff" and change to another dynamic => it
+appears. Exception: "ff" _is_ visible with Sonata in some very small displayed sizes,
+e.g., staff size 5 at magnifications 38% & 50% only! (It's never visible with BlueNotz,
+as far as I can see.) In every other respect including PostScript printing, "ff" behaves
+fine! It's no problem in Briard. All other dynamics display OK in all
+fonts/sizes/magnifications. David G. sez: "It works as it should in v.5.2.6, i.e. pre
+5.3.x. I went as far  back in 5.3 as 5.3.0b4 of September 2008, and the bug was there."
+So, what changed between 5.2.6 and 5.3? If the complete source code for both is available
+this might not be hard to fix!
+
+Non-hairpin dynamics are drawn in DrawObject.c/DrawDYNAMIC; it has helper function
+DrawUtils.c/GetDynamicDrawInfo.
+
+Add to DrawDYNAMIC		DebugPrintf("DrawDYNAMIC: glyph=%c\n", glyph);
+Invisible_ff_bug.ngl contains:
+	LINK	CHARCODE	WHAT
+	10		112			"p" attached to...
+	11		207			quarter note
+	12		196			"ff" attached to...
+	13		207			quarter note
+
+in staff size 1, using Sonata. Open it and draw several times at diferent sizes/magnifs. =>
+
+	DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=\304\304DrawDYNAMIC: glyph=p
+	DrawDYNAMIC: glyph=
+
+Why is \304 repeated and w/o newline? I dunno. Anyway,
+Change to		DebugPrintf("DrawDYNAMIC: glyph=%c pL=%d\n", glyph, pL);
+output for Invisible_ff_bug.ngl now, drawing it twice:
+
+	DrawDYNAMIC: glyph=p pL=10
+	DrawDYNAMIC: glyph=\304 pL=12
+	DrawDYNAMIC: glyph=p pL=10
+	DrawDYNAMIC: glyph=\304 pL=12
+	
+Output for DynamVisibleTest.ngl is:
+	DrawDYNAMIC: glyph=\354 pL=11
+	DrawDYNAMIC: glyph=\304 pL=13
+	DrawDYNAMIC: glyph=f pL=15
+	DrawDYNAMIC: glyph=F pL=17
+	DrawDYNAMIC: glyph=\270 pL=20
+	DrawDYNAMIC: glyph=\271 pL=22
+	DrawDYNAMIC: glyph=p pL=24
+	DrawDYNAMIC: glyph=P pL=26
+	DrawDYNAMIC: glyph=S pL=29
+
+Add more to the DebugPrintf. Output for Invisible_ff_bug.ngl at 100%:
+	DrawDYNAMIC: glyph=p pL=10 xp=153 yp=114 size=24 reallyDraw=1
+	DrawDYNAMIC: glyph=\304 pL=12 xp=182 yp=115 size=24 reallyDraw=1
+
+...at 75%:
+	DrawDYNAMIC: glyph=p pL=10 xp=115 yp=85 size=16 reallyDraw=1
+	DrawDYNAMIC: glyph=\304 pL=12 xp=136 yp=87 size=16 reallyDraw=1
+
+...at 50%:
+	DrawDYNAMIC: glyph=p pL=10 xp=77 yp=57 size=12 reallyDraw=1
+	DrawDYNAMIC: glyph=\304 pL=12 xp=91 yp=58 size=12 reallyDraw=1
+
+Nothing suspicious there! Change to staff size 5, still at 50%:
+	DrawDYNAMIC: glyph=p pL=10 xp=69 yp=44 size=7 reallyDraw=1
+	DrawDYNAMIC: glyph=\304 pL=12 xp=78 yp=44 size=7 reallyDraw=1
+
+Still nothing suspicious (and ff is now visible, as expected). Revert file; switch font
+to Briard, at 100% =>
+	DrawDYNAMIC: glyph=p pL=10 xp=153 yp=114 size=24 reallyDraw=1
+	DrawDYNAMIC: glyph=\304 pL=12 xp=182 yp=115 size=24 reallyDraw=1
+
+Exactly the same as with Sonata (and ff is now visible, as expected). @#%&(*)$%${?!?
+
+DrawDYNAMIC uses DrawUtils/DrawMChar to actually draw the char.  DrawMChar is pretty
+messy, e.g., it sometimes uses an offscreen bitmap, so it's not hard to believe it's the
+culprit... But apparently not. ????
+
+The inconsistency across staff sizes is most likely because the problem occurs
+with some screen font sizes and not others -- assuming "screen fonts" are still being
+used!
+
+
+-------------------------------------------------------------------------------
+
+3 July
+
+- Files often seem to forget their MIDI playback setting, so when I try to play, it
+either gives the "unable to play score, because a MIDI device isn't selected" error
+message, or (much more often) acts as if it's playing for a split second but plays
+nothing. Setting DLS_MIDI Controller for all parts fixes; but saving and re-opening
+the file after that changes nothing. This is a well-known, long-standing bug. I
+think it happens much more (or only?) with files created years ago, regardless of
+how much they've been edited recently.
+
+First, what does setting DLS_MIDI Controller actually do? The "Part MIDI Settings"
+dialog is handled by Menu.c/EditPartMIDI, which calls InstrDialog>PartMIDIDialog or
+CMPartMIDIDialog (which does almost nothing but call PartMIDIDialog).
+
+Playing is handled by MIDIPlay.c/PlaySequence
+
+-------------------------------------------------------------------------------
+
+9 Aug. ff.
+
+It's time to add to QuickChange "Set tempo M.M. visibility to visible/invisible"!
+...Done. Affects .rsrc: add "M.M. visibility" to Tempo popup; SetUtils.c: add
+SetSelTempoVisible; SetCommand.c: improve description of how to add features :- ) ;
+various.
+
+-------------------------------------------------------------------------------
+
+29 Aug.
+
+Want to make windows for newly-opened files wider: at least full page width instead
+of the current annoying width of ca. 560 pixels -- at 100% for US Letter pages,
+about 9/10 the width! Where is this set? Doesn't seem to be in the config.
+
+OpenFile() is called only from BuildDocument (in Documents.cp).  BuildDocument()
+declares
+
+	WindowPtr w = doc->theWindow
+
+and does
+
+	GetWindowPortBounds(w,&r);
+
+BuildDocument is called from DoOpenDocument (in Documents.cp). ??
+
+(21 July 2015
+
+Got it! In WIND resource 2000, just change right bound from 620 to 690.)
+ 
+-------------------------------------------------------------------------------
+
+1-2 Nov. 2014; 11 Aug.- 15 Sept. 2015
+
+Tempo changes in exported MIDI files are often ignored -- e.g., 6End1stMvmt.ngl of my
+violin concerto has 13 tempo marks. The first 6 or so seem to be there; the others,
+starting at m. 5-6 (ca. 10-12 sec. in) not. In 1LentoTheme, they're OK until about m.
+101 (4 min. in), i.e., the first 5 or so! Playing inside Ngale, all tempo changes are
+always followed. ?? Evidence of the bug: playback via QuickTime Player; confirmed by
+Importing the MIDI file back into Ngale. Output from DebugPrintf's for 6End1stMvmt.ngl
+starts:
+
+MThd len=6 format=1 nTracks=5 timeBase=480
+lastEvent=50353
+mergeTabSize=32767 oneTrackTabSize=32767
+ track=1 time=0 METAEVENT type=0x51
+ track=1 time=0 METAEVENT type=0x58
+ track=1 time=1914 METAEVENT type=0x51
+ track=1 time=5754 METAEVENT type=0x51
+ track=1 time=6714 METAEVENT type=0x51
+ track=1 time=7674 METAEVENT type=0x51
+ track=1 time=12432 METAEVENT type=0x51
+ track=1 time=12432 METAEVENT type=0x51
+ track=1 time=15360 METAEVENT type=0x58
+ track=1 time=16800 METAEVENT type=0x58
+ track=1 time=33137 METAEVENT type=0x3
+cStart/StopTime=0/50400 quantum=120 tripBias=-100 tryLev=21 leastSq=0 timeOff=0
+
+There are 7 tempo metaevents (type=0x51). The first 5 are each at 6 less than the
+expected times; the 6th and 7th are at the identical time, much too late. Cause: In
+MIDIFSave.cp, WriteTiming() gives a Tempo change the latest end time of any note
+preceding the one the Tempo is attached to (via LastEndTime() ); in this case, a
+preceding note is tied forward for a couple of measures! What to do? Why did we ever
+write the code this way instead of just using the onset time of the note the Tempo is
+attached to?? NB that playback inside Ngale seems to work perfectly!; how about making
+Export MIDI File do things the same way? Cf. MIDIPlay.cp > PlaySequence(). It uses a
+table built by MIDIUtils.cp: MakeTConvertTable(); try using that in Export MIDI File?
+Probably not, but use its logic for finding the Tempo's time => seems to still have
+problems. Output from DebugPrintf's for importing the MIDI file of 6End1stMvmt.ngl now
+starts:
+
+MThd len=6 format=1 nTracks=5 timeBase=480 (qtrNTicks=480)
+lastEvent=50353
+mergeTabSize=32767 oneTrackTabSize=32767
+ track=1 time=0 METAEVENT type=0x51 (TEMPO)
+ track=1 time=0 METAEVENT type=0x58
+ track=1 time=1920 METAEVENT type=0x51 (TEMPO)
+ track=1 time=5760 METAEVENT type=0x51 (TEMPO)
+ track=1 time=6720 METAEVENT type=0x51 (TEMPO)
+ track=1 time=7680 METAEVENT type=0x51 (TEMPO)
+ track=1 time=8640 METAEVENT type=0x51 (TEMPO)
+ track=1 time=9600 METAEVENT type=0x51 (TEMPO)
+ track=1 time=15360 METAEVENT type=0x58
+ track=1 time=16800 METAEVENT type=0x58
+ track=1 time=16800 METAEVENT type=0x51 (TEMPO)
+ track=1 time=19200 METAEVENT type=0x58
+ track=1 time=21120 METAEVENT type=0x58
+ track=1 time=23520 METAEVENT type=0x58
+ track=1 time=26400 METAEVENT type=0x58
+ track=1 time=27360 METAEVENT type=0x51 (TEMPO)
+ track=1 time=28800 METAEVENT type=0x51 (TEMPO)
+ track=1 time=30240 METAEVENT type=0x51 (TEMPO)
+ track=1 time=30720 METAEVENT type=0x51 (TEMPO)
+ track=1 time=31200 METAEVENT type=0x51 (TEMPO)
+ track=1 time=31200 METAEVENT type=0x58
+ track=1 time=50352 METAEVENT type=0x2f
+cStart/StopTime=0/50400 quantum=120 tripBias=-100 tryLev=21 leastSq=0 timeOff=0
+
+This shows all 13 tempo metaevents, and the times are all correct! Play the MIDI file
+back via QuickTime => it sounds correct; duration = 54.58 sec. Play the original back in
+Ngale => duration = ca. 54.45 sec. Looks like MIDI file export finally handles tempo
+changes properly!
+
+-------------------------------
+
+Early code changes for the above:
+MIDIPlay.cp: reword DebugPrintfs; disable some
+MIDIFSave.cp: WriteTiming(): add DebugPrintf
+MIDIFOpen.cp: comment out PUBLIC_VERSION_1 to enable debug prints; do debug prints
+if shift & control keys are down instead of shift & option (to make it possible to
+get debug prints from this module but avoid the voluminous output from rhythm
+conversion)
+
+-------------------------------------------------------------------------------
+
+23 Mar. 2015
+
+Get rid of the nonsensical statement about duration problems Score Info always gives
+following its correct statement about duration problems.
+
+ScoreInfo.c: ScoreInfo(): remove two redundant lines of code just before call to
+HasMidiMap().
+
+-------------------------------------------------------------------------------
+
+31 Mar.-3 Apr.
+
+Changes to Nightingale.rsrc:
+*	Change "Midi" to "MIDI" in the "Midi Map" menu command, the MIDI Map dialog, and
+	several error messages
+* Reduce size of the "MIDI Modifier Effects" dialog
+* Reduce size of the "Change Dynamic To" dialog
+* Remove phony politeness -- the word "Please" -- from various dialogs
+
+Increase max. play duration allowed in Set Duration dialog from 300% to 500%, mostly to
+handle the "logical 8th note with half-note head" situation (as in Brahms piano music).
+Affects .rsrc: STR# 240; DialogsEditor.cp.
+
+-------------------------------------------------------------------------------
+
+4-5 Apr.
+
+Initial Keysigs of systems with no sharps/flats usually (always?) have objRects of (0,
+0, 0, 0); that's fine, but Debug Check complains that they're "GARBAGE (UNSELECTABLE)".
+Fixed this. Affects DebugUtils.c: DCheckNode.
+
+-------------------------------------------------------------------------------
+
+11-17 May
+
+In various situations -- e.g., to facilitate working on my violin concerto with a
+violinist -- it'd be very useful to override tempo marks in the score, say slowing down
+by 25% or cutting the tempi in half. To do this, assuming we're changing the marked
+tempi by a constant factor, and leaving the user interface out, it looks like the only
+code changes it'd take would be to MIDIUtils.cp/PDur2RealTime(). It looks very low
+impact, too!
+
+Done => it works! But the factor is compiled in to MIDIUtils.cp; move it to vars.h and
+initialize it in InitNightingale: InitNightGlobals => done. To let user control it, need
+a new command in Play/Rec menu and either (1) a very simple dialog to set value to be
+used by all Play commands, or (2) a fairly simple one to set value _and_ play, with a
+choice of play command. I'll go with #1, "Change Playback Speed...", w/ feedback in
+message area in form "T80%" (e.g.) if speed isn't 100%. Affects .rsrc: STR# 240;
+NightTemplates.h, NResourceID.h, vars.h, InitNightingale, Menu, MIDIDialogs, MIDIPlay.
+
+Everything seems OK now, except the keyboard shortcut for the "Instrument MIDI Settings"
+command in the Play/Rec menu (option-cmd-M) has lost its modifier key #(#%_^&!:* -- I'm
+almost certain because of a bug/oversight in Resorcerer. General Edit Lite is useless for
+anything like this (actually, for almost anything, I think :-( ). For the moment, use
+Resorcerer to set the _command_ to option-M! This works fine on my G5 except it displays
+in the menu as option- command-mu instead of command-M with the "option" icon. But on my
+OS 10.6 MacBook, it doesn't work! I'm sure I've run into this before, & I think I found
+an ugly workaround involving copying another menu resource & (hex?) editing it; but how
+to do that or otherwise avoid the problem? One difficulty with that workaround:
+Resorcerer's hex editor seems to be completely disabled! -- at least for menu resources.
+
+-------------------------------------------------------------------------------
+
+19 May
+
+Change the default type for Save PostScript from EPSF for one page to PostScript
+text for entire file. Easy, & obviously very low impact.  Affects CarbonPrinting.cp .
+
+-------------------------------------------------------------------------------
+
+3-10 June
+
+Set keyboard shortcut for Change Playback Speed to command-8. (All letters and all
+other digits are already taken.)
+
+Another attempt to set the shortcut for Instrument MIDI Settings to option-command-M
+again:
+	With Resorcerer, change MDEF for MENU 8 (Play/Rec) from 19999 to 0.
+	With Rezilla, change shortcut for MIDI M?? from command-M to option-command-M.
+	(M = key 77.)
+	With Resorcerer, change MDEF for MENU 8 (Play/Rec) back to 19999.
+It works on my G5 inside Xcode; on my G5 as a normal app; and on my OS 10.6 MacBook!
+
+Change "Change Playback Speed" to "Relative Playback Speed".
+
+-------------------------------------------------------------------------------
+
+12-14 June
+
+Work on getting the instrument settings dialog (from Master Page) initialized with the
+instrument's current channel and patch number. Code is in InstrDialog.cp > InstrDialog().
+Balance velocity _is_ initialized; what's the difference? Ah, there's no PutDlgWord()
+to set CHANNEL_DI or PATCH_DI. How could this ever have worked!? Add PutDlgWord()s for
+them -> it works now!
+
+Also, PATCH_DI isn't checked for legality -- or its new value picked up => Fixed; a
+rough edge is the alert for illegal values is blank. !?  Oh well, good enough for now.
+
+-------------------------------------------------------------------------------
+
+21-24 June
+
+Feature to add: a way to mute a part, to facilitate working w/ a soloist (e.g.,
+violinist for my concerto). (Setting balance velocity to -127 already does it, but only
+in polyphonic mode; also, it's clumsy & unintuitive.) Simple solution:
+
+(1) add a command to Play/Rec menu to mute the (or the first) selected part, and
+unmute previous muted part; also need a way to unmute all.
+
+(2a) Store part no. of muted part in (a) an initialized but unused byte in a
+score-wide data structure, or (b) a global variable.
+
+(3) Of course have MIDIPlay() ignore notes in muted part. What about exporting MIDI files?
+
+For step 2, implementing 2b would be simpler than 2a, but would mean switching from one
+score to another would apply the muted part no. of the first score to the other; that's
+likely to be very confusing! So go with 2a.  Should it be saved with the score? Unclear.
+It might be ??
+
+In NIGHTSCOREHEADER (Ntypes.h), is expansion[] initialized? Looks like not! How
+about roomToGrow[] to MIDIPreferences (applicationTypes.h)?
+
+-------------------------------------------------------------------------------
+
+22 July
+
+The default window size is ridiculously narrow on a typical modern display, e.g., my
+20-in. monitor. Fix: in the resource WIND 2000, just change 620 to, say, 690. NB:
+Resorcerer on my G5 shows an empty window for the content of WIND 2000!?  Make the
+change on my old MacBook  => it works.
+
+-------------------------------------------------------------------------------
+
+9-10 Sept.
+
+I'm getting an awful lot of meaningless complaints from Debug these days, e.g., with the
+current LentoThemeCounterpoint.ngl:
+
+	DCheckNode: MEASURE AT 1088 BBOX DISAGREES WITH NEXT MEASURE BY 567.
+	DCheckNode: MEASURE AT 1109 HAS A GARBAGE BBOX.
+	DCheckNode: MEASURE AT 1109 BBOX DISAGREES WITH PREVIOUS MEASURE BY -567.
+
+...always in sets of three as above. And with the current TransitionTo+BACH+End.ngl:
+
+	*DCheckNode: SYSTEM AT 68 RECT PAST RIGHT MARGIN.
+
+Could the changes to DebugUtils.c: DCheckNode of 5 April to reduce meaningless
+complaints have actually made things worse? Compare old to current version of DebugUtils
+on LentoThemeCounterpoint.ngl & TransitionTo+BACH+End.ngl => nope; in both, the newer
+version of DebugUtils eliminated some complaints without adding any new ones.
+
+The "SYSTEM AT 68 RECT PAST RIGHT MARGIN" messages for TransitionTo+BACH+End.ngl never
+apply to the 1st system of a page... ??  Go into Master Page; decrease right margin a bit;
+save changes; back into Master Page; set right margin back to what it was => no more
+complaints! This is probably a good enough workaround :-| .
+
+For the "MEASURE BBOX" messages for LentoThemeCounterpoint.ngl, Go into Master Page;
+decrease right margin a bit; save changes => no more complaints! This is also probably
+a good enough workaround.
+
+-------------------------------------------------------------------------------
+
+12-16 Sept.
+
+MIDIFSave.cp: Clarify DebugPrintf's; minor cleanup.
+
+MIDIPlay.cp, MIDIFSave.cp: Change most instances of "Midi" in function names to "MIDI".
+
+MIDIFOpen.cp: In Debug prints for TEMPO metaevents, add "(TEMPO)"; rename the two
+versions of GetRelObj (with different calling sequences: this assumes a C++ compiler,
+a bad idea) to GetTempoRelObj and GetCtrlRelObj; clean up code.
+
+-------------------------------------------------------------------------------
+
+17-30 Sept.
+
+Text strings need an "extended" option. Easy UI implementation: in the text dialog,
+replace the hidden "Underline" check box and code to support it with "Extended", and
+make it visible. Easy functionality implementation: before drawing the string or
+computing its length, insert a blank between each pair of chars. :-) . This isn't _that_
+easy, partly because of our memory mgmt., partly becauase we have to give the ancient
+Mac toolbox Pascal strings, which have a max. length of 255 chars.; probably warn in the
+dialog if it's exceeded.
+
+In DrawObject.cp > DrawGRAPHIC(), see case GRString. Probably need to use Pstrcpy()
+to make a copy of *q to manipulate, i.e.: Str255 tempStr; Pstrcpy(q, tempStr);
+
+?? #ifdef TARGET_API_MAC_CARBON, DrawNChar() and DrawNString() seem to always use the
+system font! Huh? And it _is_ defined -- but DrawNChar() and DrawNString() are never
+called. It was already this way in 2006. Yeeech! Remove this junk... done.
+
+Add function ExtendString() => 1st 10 versions crash instantly & horribly; why? It
+looks like doing _anything_ with aGraphic->string directly is a disaster; _must_
+use PCopy() on it.
+
+To compute objRect, cf. GetNPtStringBBox(), called from GetGraphicDBox()... the
+functionality works both on screen and PostScript output!
+
+The UI changes now work in both TextDialog and the Define Text Styles dialog. But normal
+extended text is only a bit (25%?) wider than normal, but want to stretch a lot more
+than that! Let's call this "Expand" instead of "Extend". Must check for strings too
+long for Expand'ing (because of the Pascal string 255-char. limitation :-( )
+
+All seems to be okay! Affects .rsrc; defs.h; DrawObject, StringUtils, TextDialog.
+
+-------------------------------------------------------------------------------
+
+I'm now seeing consistent failures just trying to compress NightingaleG5Ver! I get the
+error message "An error occurred while adding “” [empty filename] to the archive".
+Experiments show the problem is in build/Nightingale.build/Release. Remove that
+directory, rebuild => all OK.
+
+-------------------------------------------------------------------------------
+
+27 Sept. - 3 Oct.
+
+??Implement muting a part?
+
+I'm _finally_ ready to use a version control system for Ngale!! A GitHub repository
+already has the last "AMNS" codebase (from David Gottlieb) with voluminous changes,
+mostly superficial and mostly by Geoff C. The vast majority of the changes appear to
+be replacing thousands of occurrences of "INT16" to "short"; to facilitate merging,
+change all instances of "INT16" in files I've changed since 2013 to "short".
+
+CarbonPrinting.cp: Geoff made loads of changes; I changed only one char., so use his
+version with my change.
+
+DrawUtils.cp: I'd made no non-trivial changes.
+
+OK, everything is integrated! Try to build => 9 errors. Looks like #defines are
+missing for: NOTEHEAD_GRAPH_WIDTH EXPAND_WIDER
+
+Both should be in defs.h; why aren't they? Because I overlooked defs.h when integrating
+all the changes. Correct that, rebuild => 1 error: OhioSlurs.cp is missing -- the ref.
+to it needs to be removed from the project file. Do that => it builds & runs!! Yippee!
