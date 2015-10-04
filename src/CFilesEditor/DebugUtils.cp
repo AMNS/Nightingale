@@ -9,7 +9,7 @@
  */
 
 /* File DebugUtils.c - debugging functions - rev. for Nightingale 99:
-	DBadLink				DCheckHeaps			DCheckHeadTail
+	DBadLink			DCheckHeaps			DCheckHeadTail
 	DCheckSyncSlurs			
 	DCheckMBBox			DCheckMeasSubobjs	DCheckNode
 	DCheckNodeSel		DCheckSel			DCheckHeirarchy
@@ -56,8 +56,10 @@ Boolean QDP(char *fmtStr)
 /* If we're looking at the Clipboard, Undo or Mstr Page, "flag" arg by adding a huge offset */
 #define FP(pL)	( abnormal ? 1000000L+(pL) : (pL) )
 
-/* Check whether a Rect is a valid 1st-quadrant rectangle with positive height
-(Nightingale uses rectangles of zero width for empty key signatures). */
+/* Check whether a Rect is a valid 1st-quadrant rectangle with positive height.
+NB: a comment here usd to say "Nightingale uses rectangles of zero width for empty
+key signatures." As far as I can see, that's not true anymore, so checking for
+positive height is probably pointless.  --DAB, April 2015 */
 #define GARBAGE_Q1RECT(r)	(  (r).left>(r).right || (r).top>=(r).bottom		\
 									|| (r).left<0 || (r).right<0							\
 									|| (r).top<0 || (r).bottom<0)
@@ -428,6 +430,7 @@ short DCheckNode(
 	PSYSTEM		pSystem;
 	PSTAFF		pStaff;
 	PMEASURE		pMeasure;
+	PKEYSIG		pKeySig;
 	PANOTE		aNote;
 	PASTAFF		aStaff;
 	PAPSMEAS		aPSMeas;
@@ -501,7 +504,7 @@ short DCheckNode(
 		if (LinkNENTRIES(pL)<minEntries || LinkNENTRIES(pL)>maxEntries)
 			COMPLAIN("¥DCheckNode: NODE AT %u HAS BAD nEntries FOR ITS TYPE.\n", pL);
 			
-/* CHECK object's absolute horizontal position (rather crudely). ---------- */
+/* CHECK object's absolute horizontal position (rather crudely) and objRect. ---------- */
 
 		if (!BeamsetTYPE(pL))						/* Beamset xd is unused */
 			if (LinkXD(pL)<LEFT_HLIM(doc, pL) || LinkXD(pL)>RIGHT_HLIM(doc))
@@ -509,7 +512,10 @@ short DCheckNode(
 
 		if (!abnormal && LinkVALID(pL)) {
 			if (GARBAGE_Q1RECT(p->objRect)) {
-				COMPLAIN("DCheckNode: NODE AT %u HAS A GARBAGE (UNSELECTABLE) objRect.\n", pL);
+				/* It's OK for initial keysigs to be unselectable. */
+				pKeySig = GetPKEYSIG(pL);		/* ?? OR USE KeySigINMEAS ?? */
+				if (!(KeySigTYPE(pL) && !pKeySig->inMeasure))
+					COMPLAIN("DCheckNode: NODE AT %u HAS A GARBAGE (UNSELECTABLE) objRect.\n", pL);
 			}
 			
 			/* Valid initial objects, e.g., "deleted", can have zero-width objRects. */
@@ -830,9 +836,15 @@ short DCheckNode(
 							DDIST lnHeight = aStaff->staffHeight/(aStaff->staffLines-1);
 							DDIST srLnHeight = drSize[doc->srastral]/(STFLINES-1);
 							DDIST altsrLnHeight = drSize[doc->altsrastral]/(STFLINES-1);
+#ifdef NOTYET
+							if (lnHeight!=srLnHeight && lnHeight!=altsrLnHeight)
+								COMPLAIN2("*DCheckNode: SUBOBJ IN FIRST STAFF, AT %u (staffn=%d), staffHeight DISAGREES WITH s/altsrastral.\n",
+												pL, aStaff->staffn);
+#else
 							if (lnHeight!=srLnHeight)
 								COMPLAIN2("*DCheckNode: SUBOBJ IN FIRST STAFF, AT %u (staffn=%d), staffHeight DISAGREES WITH srastral.\n",
 												pL, aStaff->staffn);
+#endif
 						}
 						if (aStaff->staffLeft<0 || aStaff->staffLeft>sysWidth)
 							COMPLAIN("*DCheckNode: SUBOBJ IN STAFF AT %u staffLeft IS ILLEGAL.\n", pL);
@@ -1719,8 +1731,10 @@ Boolean DCheckHeirarchy(Document *doc)
 				COMPLAIN("*DCheckHeirarchy: TIMESIG AT %u inMeasure FLAG DISAGREES WITH OBJECT ORDER.\n",
 								pL);				
 			break;
+#if 1
 		case ENDINGtype:
 			if (!CapsLockKeyDown()) break;
+#endif
 		default:
 			if (!foundMeasure)
 				COMPLAIN("¥DCheckHeirarchy: OBJECT AT %u PRECEDES ITS STAFF'S 1ST MEASURE.\n", pL);

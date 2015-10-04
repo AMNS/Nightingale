@@ -24,8 +24,10 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-/* The dialog looks like this:
+/* The "QuickChange" (originally called "Set") dialog looks like this:
+
   Change ttt ppp to vvv uuu
+
 The main variable things (ttt, ppp, vvv) are said to be the Main, Property, and Value
 items. Currently, these are left, middle, and right in a horizontal layout, but this
 has changed before and could change again, especially in future localized versions.
@@ -36,10 +38,10 @@ Speaking of localization, the entire UI design--building a command from words/ph
 --is questionable from the internationalization standpoint, but oh well.
 
 ttt = item type:	a popup menu containing Note/Rest, Text, Slur, etc.
-ppp = property:	usually a popup menu containing staff, voice, appearance, etc.,
-						but may be a static text string)
+ppp = property:		usually a popup menu containing staff, voice, appearance, etc.,
+					but may be a static text string
 vvv = value:		a popup menu, edittext field, or pair of radio buttons
-uuu:					static text giving units, e.g., "qtr-spaces"
+uuu:				static text giving units, e.g., "qtr-spaces"
 
 In the following description of how to add features, all changes are in SetCommand.c
 	unless otherwise stated.
@@ -48,7 +50,7 @@ To add an item to the Main menu:
 	(To be written.)
 
 To add a Property menu for a given Main-menu item:
-	1. Update resources: in the resource file, add the appropriate Property menu; in
+	1. Update resources. In the resource file, add the appropriate Property menu; in
 			NResourceID.h, add a name for the menu resource.
 	2. Add an enum labelled:
 			Property position: ppp Property Popup items
@@ -60,28 +62,35 @@ To add a Property menu for a given Main-menu item:
 
 To add an item to the (pre-existing) Property menu for a given Main-menu item:
 	1. Write a function SetSelPPP and add it to SetUtil.c.
-	2. Update resources: in the resource file, add ppp to the appropriate Property menu.
-	3. Add a name--say, pppITEM--for the item's index in that menu to the enum
-		labelled:
+	2. Update resources. In the resource file, add ppp to the appropriate Property
+		menu. Be sure it's enabled.
+	3. Look for an enum labelled:
 			Property position: ppp Property Popup items	
-	4. Add a variable for its current value, pppChoice, to the list:
+		If none exists, add it. In any case, now add a name--say, pppITEM--for the
+		item's index in that menu.
+	4. Be sure there's a variable for its current value, pppChoice, in the list:
 			Variables to hold sticky menu item choices and numeric values
 
-	The next step depends on what this item's Value item will be.
-	5. If this item's Value item will be a popup menu:
-		- Update resources: in the resource file, add the appropriate Value menu; in
-			NResourceID.h, add a name for the menu resource.
+	The next step depends on what the new item's Value item will be.
+	5a. If the new item's Value item will be a popup menu:
+		- Update resources. if there's already a Value menu with the choices you want,
+			skip to step 6. Otherwise, in the resource file, add the appropriate Value
+			menu; in NResourceID.h, add a name for the menu resource.
 		- Add a name for the item's own menu to the enum labelled:
 			Popup array indices
 		- Add to SetDialog a few lines to call InitPopup, etc.
-		If its Value item is a textedit field, illegal entries are possible;
+	5b. If its Value item will be a textedit field, illegal entries are possible;
 		to handle them, add checking to AnyBadValues. (Description of other changes
 		for textedit fields to be written.)
-	6. In SetDialog, in the case where dialogOver==BUT1_OK, add:
+	6. If different Properties of the (Main) type can have different widgets for the
+		Value item (i.e., more than one of popup menu, edittext field, or pair of
+		radio buttons), add code to DoPropPopChoice to change appropriately for the
+		new iem.
+	7. In SetDialog, in code for dialogOver==BUT1_OK: be sure there's
 			- a statement to set <pppChoice>
 			- a statement to set <*finalVal>
-	7. In DoPropPopChoice, add a case to handle pppITEM.
-	8. In DoSet, add a case to handle pppITEM by calling SetSelPPP.
+	8. In DoPropPopChoice, add a case to handle pppITEM.
+	9. In DoSet, add a case to handle pppITEM by calling SetSelPPP.
 */
 
 /* Main position: Main Set Popup items */	
@@ -116,14 +125,15 @@ static enum {
 	parenITEM
 	} E_NoteItems;
 
-/* Property position: Text Property Popup items (also used for Lyrics and Chord Symbols) */
+/* Property position: Text Property Popup items (also used for Lyrics, Chord Symbols, Tempos) */
 static enum {
-	vPosAboveITEM =1,
+	vPosAboveITEM = 1,
 	vPosBelowITEM,
 	hPosOffsetITEM,
-	styleITEM
+	styleITEM,
+	hideMM_ITEM=styleITEM
 	} E_PosItems;
-	
+
 /* Property position: Tuplet Property Popup items */
 static enum {
 	bracketITEM = 1,
@@ -874,7 +884,6 @@ Boolean SetDialog(
 	}
 
 	if (dialogOver==BUT1_OK) {
-
 		/* Save current menu choices and edit field value for next invocation
 		of dialog. */
 				
@@ -932,6 +941,8 @@ Boolean SetDialog(
 				break;
 			case tempoITEM:
 				*param = tempoPropertyChoice;
+				if (tempoPropertyChoice==hideMM_ITEM) *finalVal = visibleChoice;
+//DebugPrintf("tempoItem: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
 				break;
 			case barlineITEM:
 				*param = barlinePropertyChoice;
@@ -942,6 +953,7 @@ Boolean SetDialog(
 				*param = dynamicPropertyChoice;
 				if (dynamicPropertyChoice==dynamSmallITEM) *finalVal = dynamicSizeChoice;
 				else													  *finalVal = visibleChoice;
+//DebugPrintf("dynamicITEM: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
 				break;
 			case clefITEM:
 				*param = 1;
@@ -1251,10 +1263,24 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 			DrawPopUp(&setPopups[TEMPO_PROPERTY]);
 			currPropertyPop = TEMPO_PROPERTY;
 
-			currValuePop = -1;
-			ShowDialogItem(dlog,EDIT9);
-			SelectDialogItemText(dlog,EDIT9,0,ENDTEXT);
-			ShowDialogItem(dlog,STXT11_qtr);
+			switch (choice)	{
+				case vPosAboveITEM:
+				case vPosBelowITEM:
+				case hPosOffsetITEM:
+					currValuePop = -1;
+					ShowDialogItem(dlog,EDIT9);
+					SelectDialogItemText(dlog,EDIT9,0,ENDTEXT);
+					ShowDialogItem(dlog,STXT11_qtr);
+					break;
+				case hideMM_ITEM:
+					ShowPopUp(&setPopups[VISIBILITY],TRUE);
+					DrawPopUp(&setPopups[VISIBILITY]);
+					currValuePop = VISIBILITY;
+					HideDialogItem(dlog,EDIT9);
+					HideDialogItem(dlog,STXT11_qtr);
+					break;
+			}
+
 			break;
 
 		case tupletITEM:
@@ -1584,6 +1610,7 @@ void DoSet(Document *doc)
 					break;
 					
 				case dynamicITEM:
+//DebugPrintf("DoSet: dynamicITEM: newValSet=%d\n", newValSet);
 					switch (newParamSet) {
 						case dynamVisibleITEM:
 							didAnything = SetSelDynamVisible(doc, newValSet);
@@ -1661,6 +1688,7 @@ void DoSet(Document *doc)
 					break;
 					
 				case tempoITEM:
+//DebugPrintf("DoSet: tempoITEM: newValSet=%d\n", newValSet);
 					switch (newParamSet) {
 						case vPosAboveITEM:
 						case vPosBelowITEM:
@@ -1669,6 +1697,9 @@ void DoSet(Document *doc)
 							break;
 						case hPosOffsetITEM:
 							didAnything = SetSelTempoX(doc, qd2std(newValSet));
+							break;
+						case hideMM_ITEM:
+							didAnything = SetSelTempoVisible(doc, (newValSet==1));
 							break;
 						default:
 							;

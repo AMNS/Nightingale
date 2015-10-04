@@ -1096,14 +1096,14 @@ Boolean NDoPostScript(Document *doc)
 		RgnHandle	rgnHdl;
 		Rect			paperRect;
 		short			EPSFile;
-		static short	type=1;
-		char				fmtStr[256];
+		static short	type=2;						/* 1=EPSF, 2=PostScript */
+		char			fmtStr[256];
 
 		NSClientData	nscd;
 		Boolean			keepGoing;
 		FSSpec 			rfSpec;
 		ScriptCode		scriptCode = smRoman;
-		OSErr				theErr;
+		OSErr			theErr;
 		
 		
 		Sel2MeasPage(doc, &anInt, &pageNum);

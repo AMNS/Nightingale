@@ -1591,7 +1591,7 @@ static Boolean IsSelInTupletNotTotallySel(Document *doc)
 static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
 										short newLDurAction, short /*newnDots*/, short newpDurPct)
 {	
-	if (newpDurPct<1 || newpDurPct>300) {
+	if (newpDurPct<1 || newpDurPct>500) {
 		GetIndCString(strBuf, DIALOGERRS_STRS, 13);				/* "Play duration percent must be..." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);

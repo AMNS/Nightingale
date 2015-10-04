@@ -30,7 +30,7 @@ this. In step 2, we generate Nightingale data structure from the MIDNight data, 
 is much more difficult: see comments after the heading "MIDNight --> Nightingale".
 
 This file also contains some utility functions for use by MIDI-file-reading
-user-interface routines. */
+user-interface-level routines. */
 
 static short errCode;
 
@@ -67,9 +67,12 @@ Byte statusByteMF=0;					/* MIDI file track status in case of running status */
 
 /* --------------------------------------------------------------------------------- */
 
+
+#define DBG (ShiftKeyDown() && ControlKeyDown())
+
 short tempoWindow = 65;
 
-#define PUBLIC_VERSION_1
+//#define PUBLIC_VERSION_1
 
 /* ------------------------------------------------------------ Utility functions -- */
 
@@ -165,9 +168,8 @@ Boolean ReadMFHeader(Byte *pFormat, Word *pnTracks, Word *pTimeBase)
 	}
 
 #ifndef PUBLIC_VERSION_1
-	if (ShiftKeyDown() && OptionKeyDown())
-		DebugPrintf("MThd len=%ld format=%d nTracks=%d timeBase=%d\n",
-						len, *pFormat, *pnTracks, *pTimeBase);
+	if (DBG) DebugPrintf("MThd len=%ld format=%d nTracks=%d timeBase=%d (qtrNTicks=%d)\n",
+						len, *pFormat, *pnTracks, *pTimeBase, qtrNTicks);
 #endif
 	return TRUE;
 }
@@ -371,8 +373,12 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 			eventData[2] = pChunkMF[locMF];
 			for (i = 1; i<=pChunkMF[locMF]; i++)
 				eventData[i+2] = pChunkMF[locMF+i];
+#if 1
 			locMF += pChunkMF[locMF];
 			locMF++;
+#else	// JGG: doesn't work right on CW PPC compiler:
+			locMF += pChunkMF[locMF++];
+#endif
 			opStatus = OP_COMPLETE;
 			break;
 		default:
@@ -905,6 +911,7 @@ static Boolean MakeMNote(MFNote *, Byte, MNOTE *);
 static LINK MFNewMeasure(Document *, LINK);
 static void FixTStampsForTimeSigs(Document *, LINK);
 static Boolean MFAddMeasures(Document *, short, long *);
+static void DeleteAllMeasures(Document *, LINK, LINK);
 static Boolean DoMetaEvent(Document *, short, MFEvent *, short);
 
 static void InitTrack2Night(Document *, long *, long *);
@@ -1079,6 +1086,17 @@ Done:
 	return TRUE;
 }
 
+
+static void DeleteAllMeasures(Document *doc, LINK startL, LINK endL)
+{
+	LINK pL, nextL;
+	
+	for (pL = startL; pL!=endL; pL = nextL) {
+		nextL = RightLINK(pL);
+		if (MeasureTYPE(pL)) DeleteMeasure(doc, pL);
+	}
+}
+
 static unsigned long GetTempoMicrosecsPQ(MFEvent *p) 
 {
 	unsigned long microsecsPQ = 0L;
@@ -1135,14 +1153,11 @@ static Boolean DoMetaEvent(
 			return TRUE;
 
 		case ME_TEMPO:	
-			if (tempoTabLen >= MAX_TEMPOCHANGE)		
-				return FALSE;
+			if (tempoTabLen >= MAX_TEMPOCHANGE) return FALSE;
 			
 			unsigned long microsecsPQ = GetTempoMicrosecsPQ(p);
-			
 			tempoInfoTab[tempoTabLen].tStamp = timeNow;
 			tempoInfoTab[tempoTabLen].microsecPQ = microsecsPQ;
-			
 			tempoTabLen++;
 
 			return TRUE;
@@ -1213,6 +1228,18 @@ static Boolean DoMetaEvent(
 			return TRUE;
 
 		default:
+#ifdef NOTYET
+			if (track!=1
+			&& (p->data[1]!=ME_EOT
+				 && p->data[1]!=ME_SEQTRACKNAME && p->data[1]!=ME_INSTRNAME)) {
+				GetIndCString(fmtStr, MIDIFILE_STRS, 27);    /* "Found metaevent %d in track %d, but Nightingale can only handle this metaevent in the timing track." */
+				sprintf(strBuf, fmtStr, p->data[1], track); 
+				CParamText(strBuf, "", "", "");
+				StopInform(GENERIC_ALRT);
+				return FALSE;
+			}
+#endif
+		
 			return FALSE;
 	}
 }
@@ -1435,12 +1462,12 @@ static short CountSyncs(Document *doc)
 	short nSyncs = 0;
 	
 	for (LINK pL = doc->headL; pL != doc->tailL; pL=RightLINK(pL)) {
-		if (SyncTYPE(pL)) {
-			nSyncs++;
-		}
+		if (SyncTYPE(pL)) nSyncs++;
 	}
 	return nSyncs;
 }
+
+#if 1
 
 static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *rawSyncTab, short rawTabSize) 
 {
@@ -1456,9 +1483,10 @@ static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *raw
 	long dur = 0;
 	
 	int i = 0;
+	LINKTIMEINFO info;
 	for (LINK pL = doc->headL; pL != doc->tailL; pL=RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
-			LINKTIMEINFO info = docSyncTab[i];
+			info = docSyncTab[i];
 			info.link = pL;
 			if (i<rawTabSize) {
 				currTime = info.time = rawSyncTab[i].time;				
@@ -1474,7 +1502,7 @@ static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *raw
 	}
 	
 	if (*tabSize != rawTabSize) {
-		DebugPrintf("ERROR: rawSyncTab %ld wrong size docSyncTab %ld\n", rawTabSize, *tabSize);
+		DebugPrintf("ERROR: rawSyncTab size %ld disagrees with docSyncTab size of %ld\n", rawTabSize, *tabSize);
 	}
 //	if (*tabSize > rawTabSize) {
 //		*tabSize = rawTabSize;
@@ -1483,21 +1511,46 @@ static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *raw
 	return docSyncTab;
 }
 
-static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoInfo) 
+#else
+
+static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize) 
+{
+	short nSyncs = CountSyncs(doc);
+	long tLen = nSyncs * sizeof(LINKTIMEINFO);
+	LINKTIMEINFO *docSyncTab = (LINKTIMEINFO *)NewPtr(tLen);
+	if (!GoodNewPtr((Ptr)docSyncTab)) {
+		*tabSize = 0; return NULL;
+	}
+	*tabSize = nSyncs;
+	
+	int i = 0;
+	for (LINK pL = doc->headL; pL != doc->tailL; pL=RightLINK(pL)) {
+		if (SyncTYPE(pL)) {
+			LINKTIMEINFO info = docSyncTab[i];
+			info.link = pL;
+			info.time = LastEndTime(doc, doc->headL, pL);
+			docSyncTab[i++] = info;
+		}
+	}
+	
+	return docSyncTab;
+}
+
+#endif
+
+
+static LINK GetTempoRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoInfo) 
 {
 	long timeStamp = tempoInfo.tStamp;
 	
 	for (int j = 0; j<tabSize; j++) 
 	{
 		LINKTIMEINFO info = docSyncTab[j];
-		
 		if (info.time == timeStamp) {				// Should always be the case
 			return info.link;
 		}
 		if (info.time > timeStamp) {				// Timestamps not equal, first sync after the tempo
-			if (j>0) {									
-				info = docSyncTab[j-1];
-			}
+			if (j>0) info = docSyncTab[j-1];
 			return info.link;					
 		}
 	}
@@ -1505,12 +1558,7 @@ static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoIn
 }
 
 
-//static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, TEMPOINFO tempoInfo) 
-//{
-//	return GetRelObj(docSyncTab, tabSize, tempoInfo);	
-//}
-
-static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrlInfo) 
+static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrlInfo) 
 {
 	long timeStamp = ctrlInfo.tStamp;
 	
@@ -1538,13 +1586,13 @@ static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrlInfo
 
 static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize) 
 {
-	DebugPrintf("%s: %ld\n", tabname, tabSize);
+	DebugPrintf("PrintDocSyncTab: for %s, tabSize=%ld\n", tabname, tabSize);
 	
 	for (int j = 0; j<tabSize; j++) 
 	{
 		LINKTIMEINFO info = docSyncTab[j];
 		
-		DebugPrintf("j = %ld link = %ld time=%ld mult=%ld\n", j, info.link, info.time, info.mult);
+		if (DBG) DebugPrintf("j = %ld link = %ld time=%ld mult=%ld\n", j, info.link, info.time, info.mult);
 	}
 }
 
@@ -1562,13 +1610,6 @@ static void PrintDocSyncDurs(Document *doc)
 		}
 	}
 }
-
-
-//static LINK GetRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrlInfo) 
-//{
-//	long timeStamp = ctrlInfo.tStamp;
-//	return GetRelObj(docSyncTab, tabSize, timeStamp);	
-//}
 
 
 static Boolean CompactTempoTab() 
@@ -1621,8 +1662,8 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 	
 	for (int i = 0; i<tempoTabLen; i++) 
 	{
-		TEMPOINFO tempoInfo = tempoInfoTab[i];		
-		LINK relObj = GetRelObj(docSyncTab, tabSize, tempoInfo);
+		TEMPOINFO tempoInfo = tempoInfoTab[i];
+		LINK relObj = GetTempoRelObj(docSyncTab, tabSize, tempoInfo);
 		
 		// See Insert.c InsertTempo
 		
@@ -1636,16 +1677,17 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			
 			unsigned long microsecPQ = tempoInfo.microsecPQ;
 			long microbeats = microsecPQ/DFLT_BEATDUR;
-			
 			long tscale = MICROBEATS2TSCALE(microbeats);
 			long tscale1 = MICROBEATS2TSCALE(microsecPQ);
 			
 			short beatdur = DFLT_BEATDUR;
-			long tempo = tscale / beatdur;
+			long tempoValue = tscale / beatdur;
+			if (DBG) DebugPrintf("AddTempoChanges: adding Tempo %ld (time=%ld) at link %d\n",
+				tempoValue, tempoInfo.tStamp, relObj);
 			
 			short dur = QTR_L_DUR;
 			
-			NumToString(tempo, metroStr);
+			NumToString(tempoValue, metroStr);
 			PStrCopy((StringPtr)"\p", (StringPtr)tempoStr);
 			
 			doc->selEndL = doc->selStartL = relObj;
@@ -1655,9 +1697,8 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			pt.v = 164;
 			palChar = 'M';
 			
-			NewTempo(doc,pt,palChar,clickStaff,pitchLev,hideMM,dur,
-									dotted,tempoStr,metroStr);
-			
+			NewTempo(doc, pt, palChar, clickStaff, pitchLev, hideMM, dur, dotted,
+						tempoStr, metroStr);
 		}
 	}
 	
@@ -1665,14 +1706,14 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 }
 
 
-static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short tabSize) 
+static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short tabSize)
 {
 	PrintDocSyncTab("DocSyncTab", docSyncTab, tabSize);
 	
 	for (int i = 0; i<ctrlTabLen; i++) 
 	{
 		CTRLINFO ctrlInfo = ctrlInfoTab[i];		
-		LINK relObj = GetRelObj(docSyncTab, tabSize, ctrlInfo);
+		LINK relObj = GetCtrlRelObj(docSyncTab, tabSize, ctrlInfo);
 		
 		// See Insert.c InsertTempo
 		
@@ -1985,18 +2026,16 @@ static void InitTrack2Night(Document *doc, long *pMergeTabSize, long *pOneTrackT
 
 #else
 
-#define DEBUG_REST if (ShiftKeyDown() && OptionKeyDown())									\
-							DebugPrintf(" track=%d time=%ld REST fillTime=%ld mult=%d\n",	\
+#define DEBUG_REST if (DBG)	DebugPrintf(" track=%d time=%ld REST fillTime=%ld mult=%d\n",	\
 							track, theNote.startTime, fillTime, mult)
 
-#define DEBUG_NOTE if (ShiftKeyDown() && OptionKeyDown())									 \
-							DebugPrintf("%ctrack=%d time=%ld noteNum=%d dur=%ld mult=%d\n", \
+#define DEBUG_NOTE if (DBG)	DebugPrintf("%ctrack=%d time=%ld noteNum=%d dur=%ld mult=%d\n", \
 							(chordWithLast? '+' : ' '), track,										 \
 							theNote.startTime, theNote.noteNumber, theNote.duration, mult)
 
-#define DEBUG_META if (ShiftKeyDown() && OptionKeyDown())									\
-							DebugPrintf(" track=%d time=%ld METAEVENT type=0x%x\n",			\
-							track, MFTicks2NTicks(p->tStamp), p->data[1]);
+#define DEBUG_META if (DBG)	DebugPrintf(" track=%d time=%ld METAEVENT type=0x%x%s\n",			\
+							track, (long)(MFTicks2NTicks(p->tStamp)), p->data[1],			\
+							(p->data[1]==0x51? " (TEMPO)" : "") );
 							
 #endif
 
@@ -2030,12 +2069,6 @@ static short Track2RTStructs(
 	iSync = -1;
 	nAux = -1;
 	
-	/*
-	 * Look for a MIDNight note. If it starts at exactly the same time as the previous
-	 *	note in this track, put it in a chord with that note. Any further "deflamming"
-	 * has to wait until we know quantized times, and we can't do that till we decide
-	 * tuplets.
-	 */
 	while (loc<trackInfo[track].len) {
 	
 		/* Point p to the beginning of the next MFEvent */
@@ -2047,6 +2080,10 @@ static short Track2RTStructs(
 		if (!isTempoMap && p->tStamp<cStartTime) goto IncrementLoc;
 		if (!isTempoMap && p->tStamp>=cStopTime) break;
 		
+		/* Look for a MIDNight note or other interesting event. If a note starts at exactly
+			the same time as the previous note in this track, put it in a chord with that
+			note. Any further "deflamming" must wait until we know quantized times, and
+			we can't do that till we decide tuplets. */
 		switch (command) {
 			case MNOTEON:
 				if (p->data[2]==0) break;										/* Really a Note Off; should never get here */
@@ -2149,7 +2186,7 @@ IncrementLoc:
 without quantization. If quantization is requested, also clarify rhythm, i.e., break
 notes into tied sequences to improve readability.  Return OP_COMPLETE if we generate
 any notes/rests for the track, FAILURE if we try to generate notes/rests but can't, and
-NOTHING_TO_DO if we don't need to do anything. The first call for a given MIDI file MUST
+NOTHING_TO_DO if we don't need to do anything. The first call for a given MIDI file _must_
 be with track==1 (the timing track, which must not contain any notes, so we'll always
 return NOTHING_TO_DO for it).
 
@@ -2254,7 +2291,7 @@ static short Track2Night(
 		 *	merging into <newSyncTab> ??REWRITE.
 		 */
 #ifndef PUBLIC_VERSION_1
-		if (ShiftKeyDown() && OptionKeyDown())
+		if (DBG)
 			if (voice==1) { DPrintMeasTab("X", measInfoTab, measTabLen);
 				DebugPrintf("quantum=%d tripBias=%d timeOff=%d\n",
 								quantum, tripletBias, timeOffset); }
@@ -2414,6 +2451,9 @@ short MIDNight2Night(
 		
 		if (setPlayDurs && quantum>1) SetPDur(doc, config.legatoPct, FALSE);
 
+#ifdef NOTYET
+		if (contains empty measures and user asked) NMFillEmptyMeas(doc);	/* ??too high level? */
+#endif
 	}
 
 Done:

@@ -40,7 +40,7 @@ static enum {			/* Items for text editing and many for Define Text Style dialogs
 	CHK17_Plain,
 	CHK18_Bold,
 	CHK19_Italic,
-	CHK20_Underline,
+	CHK20_Expanded,
 	CHK21_Outline,
 	CHK22_Shadow,
 	STXT23_Style,
@@ -128,6 +128,7 @@ static Rect fontRect,sizeRect,faceRect,styleRect,dimRect;		/* Panel frames */
 static void DimStylePanels(DialogPtr dlog, Boolean dim);
 static pascal  Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 
+static void	DebugPrintFonts(Document *doc);
 static void	SetFontPopUp(unsigned char *fontName, unsigned char *strbuf);
 static void	SetAbsSizePopUp(short size, unsigned char *strbuf);
 static void	SetStyleBoxes(DialogPtr dlog, short style);
@@ -137,6 +138,7 @@ static void	SaveCurrentStyle(short currStyle);
 static void	SetCurrentStyle(short currStyle);
 static void	TSSetCurrentStyle(short currStyle);
 static short	TDRelIndexToSize(short index);
+static short	SizeToRelIndex(short size);
 static short	GetStrFontStyle(Document *doc, short styleChoice);
 static void	UpdateDocStyles(Document *doc);
 static Boolean ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style);
@@ -144,6 +146,42 @@ static void	GetRealSizes(void);
 static void	TuneRadioIn(DialogPtr dlog,short itemHit, short *radio);
 static void	DrawExampleText(DialogPtr dlog, unsigned char *string);
 static void	InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle);
+
+
+static void DebugPrintFonts(Document *doc)
+	{
+#ifndef PUBLIC_VERSION
+		DebugPrintf("fontName1=%p\n relFSize1=%d fontSize1=%d fontStyle1=%d\n",
+			doc->fontName1,doc->relFSize1,doc->fontSize1,doc->fontStyle1);
+		DebugPrintf("fontName2=%p\n relFSize2=%d fontSize2=%d fontStyle2=%d\n",
+			doc->fontName2,doc->relFSize2,doc->fontSize2,doc->fontStyle2);
+		DebugPrintf("fontName3=%p\n relFSize3=%d fontSize3=%d fontStyle3=%d\n",
+			doc->fontName3,doc->relFSize3,doc->fontSize3,doc->fontStyle3);
+		DebugPrintf("fontName4=%p\n relFSize4=%d fontSize4=%d fontStyle4=%d\n",
+			doc->fontName4,doc->relFSize4,doc->fontSize4,doc->fontStyle4);
+		DebugPrintf("fontName5=%p\n relFSize5=%d fontSize5=%d fontStyle5=%d\n",
+			doc->fontName5,doc->relFSize5,doc->fontSize5,doc->fontStyle5);
+		DebugPrintf("fontName6=%p\n relFSize6=%d fontSize6=%d fontStyle6=%d\n",
+			doc->fontName6,doc->relFSize6,doc->fontSize6,doc->fontStyle6);
+		DebugPrintf("fontName7=%p\n relFSize7=%d fontSize7=%d fontStyle7=%d\n",
+			doc->fontName7,doc->relFSize7,doc->fontSize7,doc->fontStyle7);
+		DebugPrintf("fontName8=%p\n relFSize8=%d fontSize8=%d fontStyle8=%d\n",
+			doc->fontName8,doc->relFSize8,doc->fontSize8,doc->fontStyle8);
+		DebugPrintf("fontName9=%p\n relFSize9=%d fontSize9=%d fontStyle9=%d\n",
+			doc->fontName9,doc->relFSize9,doc->fontSize9,doc->fontStyle9);
+			
+		DebugPrintf("fontNameTM=%p\n relFSizeTM=%d fontSizeTM=%d fontStyleTM=%d\n",
+			doc->fontNameTM,doc->relFSizeTM,doc->fontSizeTM,doc->fontStyleTM);
+
+		DebugPrintf("fontNameMN=%p\n relFSizeMN=%d fontSizeMN=%d fontStyleMN=%d\n",
+			doc->fontNameMN,doc->relFSizeMN,doc->fontSizeMN,doc->fontStyleMN);
+		DebugPrintf("fontNamePN=%p\n relFSizePN=%d fontSizePN=%d fontStylePN=%d\n",
+			doc->fontNamePN,doc->relFSizePN,doc->fontSizePN,doc->fontStylePN);
+		DebugPrintf("fontNameRM=%p\n relFSizeRM=%d fontSizeRM=%d fontStyleRM=%d\n",
+			doc->fontNameRM,doc->relFSizeRM,doc->fontSizeRM,doc->fontStyleRM);
+#endif
+	}
+
 
 /* Given the current state of the popups, determine from the font menu popup's
 current choice which sizes in the sizes menu are "real" ones and should
@@ -391,7 +429,7 @@ static void SetStyleBoxes(DialogPtr dlog, short style)
 		PutDlgChkRadio(dlog,CHK17_Plain,style == 0);
 		PutDlgChkRadio(dlog,CHK18_Bold,(style & bold)!=0);
 		PutDlgChkRadio(dlog,CHK19_Italic,(style & italic)!=0);
-		PutDlgChkRadio(dlog,CHK20_Underline,(style & underline)!=0);
+		PutDlgChkRadio(dlog,CHK20_Expanded,(style & extend)!=0);
 		PutDlgChkRadio(dlog,CHK21_Outline,(style & outline)!=0);
 		PutDlgChkRadio(dlog,CHK22_Shadow,(style & shadow)!=0);
 	}
@@ -430,7 +468,7 @@ static void DimStylePanels(DialogPtr dlog, Boolean dim)
 	HILITE_DITEM(CHK17_Plain, ctlActive);
 	HILITE_DITEM(CHK18_Bold, ctlActive);
 	HILITE_DITEM(CHK19_Italic, ctlActive);
-	HILITE_DITEM(CHK20_Underline, ctlActive);
+	HILITE_DITEM(CHK20_Expanded, ctlActive);
 	HILITE_DITEM(CHK21_Outline, ctlActive);
 	HILITE_DITEM(CHK22_Shadow, ctlActive);
 
@@ -650,6 +688,20 @@ static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle)
 			PutDlgChkRadio(dlog, CHK31_Lyric, theLyric);
 	}
 
+
+/* Deliver the index 1-9 of the Tiny...Jumbo...StaffHeight menu item, or 0 if the
+given size isn't any of the predefined sizes. */
+ 
+static short SizeToRelIndex(short size)
+	{
+		short index;
+		
+		for (index=GRTiny; index<=GRLastSize; index++)
+			if (size == TDRelIndexToSize(index)) return(index);
+		return(0);
+	}
+
+
 /* Determine which font style the string is in, and copy the relevant
 parameters into the global TEXTSTYLE record theCurrent. */
 
@@ -852,6 +904,53 @@ static void DrawExampleText(DialogPtr dlog, unsigned char *string)
 	}
 
 
+/* Check that the text string is okay, including compatibility with the style. */
+
+static Boolean AllIsWell(void);
+static Boolean AllIsWell(void)
+{
+	short expandedSetting, maxLenExpanded, type, i;
+	Handle hndl; Rect box;
+	DialogPtr dlog; GrafPtr oldPort;
+	unsigned char str[256];
+	char fmtStr[256];
+	Boolean strOkay = TRUE;
+
+	GetDialogItem(dlog,EDIT25_Text, &type, &hndl, &box);
+	GetDialogItemText(hndl, str);
+	GetDialogItem(dlog, CHK20_Expanded, &type, &hndl, &box);
+	expandedSetting = GetControlValue((ControlHandle)hndl);
+	if (expandedSetting!=0) {
+		maxLenExpanded = (EXPAND_WIDER? 255/3 : 255/2);
+		if (str[0]>maxLenExpanded) strOkay = FALSE;
+		else {
+			for (i = 1; i <= str[0]; i++)
+			if (str[i]==CH_CR) {
+				strOkay = FALSE;
+				break;
+			}
+		}
+	}
+	if (!strOkay) {
+		GetIndCString(fmtStr, TEXTERRS_STRS, 2);    /* "Multiline strings and strings of..." */
+		sprintf(strBuf, fmtStr, maxLenExpanded);
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		return FALSE;
+	}
+	else if (theSize<MIN_TEXT_SIZE || theSize>MAX_TEXT_SIZE) {
+		GetIndCString(fmtStr, TEXTERRS_STRS, 1);    /* "Text size must be between %d and %d points." */
+		sprintf(strBuf, fmtStr, MIN_TEXT_SIZE, MAX_TEXT_SIZE); 
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		return FALSE;
+	}
+	
+	return TRUE;
+}
+
+
+
 /* TextDialog takes a global style choice index; the name and attributes of an
 initial font; and the current text string to display, or the empty string if a
 new string is wanted. If user okays the dialog, TextDialog returns TRUE, and all
@@ -882,7 +981,7 @@ Boolean TextDialog(
 	
 	theDlog = TextDlog;
 
-	/* First load the eight style records from the score header */
+	/* First load the 12 style records from the score header */
 	BlockMove(doc->fontName1,&theRegular1,sizeof(TEXTSTYLE));
 	BlockMove(doc->fontName2,&theRegular2,sizeof(TEXTSTYLE));
 	BlockMove(doc->fontName3,&theRegular3,sizeof(TEXTSTYLE));
@@ -1013,13 +1112,7 @@ Boolean TextDialog(
 		GetDialogItem(dlog,itemHit,&type,&hndl,&box);
 		switch(itemHit) {
 			case BUT1_OK:
-				if (theSize<MIN_TEXT_SIZE || theSize>MAX_TEXT_SIZE) {
-					GetIndCString(fmtStr, TEXTERRS_STRS, 1);    /* "Text size must be between %d and %d points." */
-					sprintf(strBuf, fmtStr, MIN_TEXT_SIZE, MAX_TEXT_SIZE); 
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-				}
-				else {
+				if (AllIsWell()) {
 					keepGoing = FALSE;
 					okay = TRUE;
 				}
@@ -1097,9 +1190,9 @@ Boolean TextDialog(
 			case CHK17_Plain:
 			case CHK18_Bold:
 			case CHK19_Italic:
-			case CHK20_Underline:
+			case CHK20_Expanded:
 			case CHK21_Outline:
-			case CHK22_Shadow:
+			case CHK22_Shadow:				
 				if (itemHit == CHK17_Plain) {
 					/* Turn all others off */
 					for (i=CHK18_Bold; i<=CHK22_Shadow; i++) {
@@ -1109,10 +1202,14 @@ Boolean TextDialog(
 					theStyle = 0;
 					}
 				 else {
-					/* Add or subtract style bit from current style */
+					/* Add or subtract style bit from current style. NB: This code assumes
+						the style buttons are in the same order as the bits in fontStyle,
+						so bold = 1, italic = 2, etc., except for CHK20_Expanded. */
 					GetDialogItem(dlog,itemHit,&type,&hndl,&box);
-					SetControlValue((ControlHandle)hndl,val = !GetControlValue((ControlHandle)hndl));
-					i = 1 << (itemHit - CHK18_Bold);
+					val = !GetControlValue((ControlHandle)hndl);
+					SetControlValue((ControlHandle)hndl,val);
+					if (itemHit==CHK20_Expanded) i = extend;
+					else i = 1 << (itemHit - CHK18_Bold);
 					if (val) theStyle |=  i;
 					 else	 theStyle &= ~i;
 					}
@@ -1442,7 +1539,7 @@ Boolean DefineStyleDialog(Document *doc,
 			case CHK17_Plain:
 			case CHK18_Bold:
 			case CHK19_Italic:
-			case CHK20_Underline:
+			case CHK20_Expanded:
 			case CHK21_Outline:
 			case CHK22_Shadow:
 				if (itemHit == CHK17_Plain) {
@@ -1454,11 +1551,14 @@ Boolean DefineStyleDialog(Document *doc,
 					theStyle = 0;
 					}
 				 else {
-					/* Add or subtract style bit from current style */
+					/* Add or subtract style bit from current style. NB: This code assumes
+						the style buttons are in the same order as the bits in fontStyle,
+						so bold = 1, italic = 2, etc., except for CHK20_Expanded. */
 					GetDialogItem(dlog,itemHit,&type,&hndl,&box);
 					val = !GetControlValue((ControlHandle)hndl);
 					SetControlValue((ControlHandle)hndl,val);
-					i = 1 << (itemHit - CHK18_Bold);
+					if (itemHit==CHK20_Expanded) i = extend;
+					else i = 1 << (itemHit - CHK18_Bold);
 					if (val) theStyle |=  i;
 					 else	 theStyle &= ~i;
 					}
@@ -1505,6 +1605,15 @@ Boolean DefineStyleDialog(Document *doc,
 					}
 				theEncl = ENCL_NONE;
 				break;
+#ifdef NOTYET
+			case RAD25_Circular:
+				for (i=RAD24_None; i<=RAD26_Box; i++) {
+					GetDialogItem(dlog,i,&type,&hndl,&box);
+					SetControlValue((ControlHandle)hndl,i==RAD25_Circular);
+					}
+				theEncl = ENCL_CIRCLE;
+				break;
+#endif
 			case RAD26_Box:
 				for (i=RAD25_None; i<=RAD26_Box; i++) {
 					GetDialogItem(dlog,i,&type,&hndl,&box);

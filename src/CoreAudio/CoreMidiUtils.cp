@@ -29,7 +29,7 @@ static unsigned long defaultOutputDev;
 #define CMDEBUG 1			
 
 // -------------------------------------------------------------------------------------
-// Midi Callbacks
+// MIDI Callbacks
 
 /* -------------------------------------------------------------- NightCMReadProc -- */
 
@@ -156,6 +156,25 @@ MIDIPacket *PeekAtNextCMMIDIPacket(Boolean first)
 		
 	return gPeekedPkt;
 
+/*			
+	if (CMValidCurrentPacket()) {
+		if (first) {
+			gPeekedPkt = gCurrentPacket;
+		}
+		else if (!IsActiveSensingPacket(gPeekedPkt)) {
+			gPeekedPkt = MIDIPacketNext(gPeekedPkt);
+		}
+		else {
+			gPeekedPkt = NULL;
+		}
+		
+	}
+	else {
+		gPeekedPkt = NULL;
+	}
+		
+	return gPeekedPkt;
+*/
 }
 
 /* -------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
@@ -218,6 +237,8 @@ long CMTimeStampToMillis(MIDITimeStamp timeStamp)
 
 long CMGetHostTimeMillis()
 {
+	UInt64 tsNanos = AudioGetCurrentHostTime();
+
 	long hostMillis = CMTimeStampToMillis(AudioGetCurrentHostTime());
 	return hostMillis;
 }
@@ -653,7 +674,8 @@ void CMDebugPrintXMission()
 		for (long j=1; j<=kMaxChannels; j++) {
 			Boolean ok = CMRecvChannelValid(id, j);
 			long lOk = (long)ok;
-			DebugPrintf(" ch=%ld ok=%ld ", j, lOk);
+			DebugPrintf(" ch%ld:%s ", j, (lOk? "ok" : "BAD"));
+			if (j==kMaxChannels) DebugPrintf("\n");
 		}
 	}
 	
@@ -661,12 +683,13 @@ void CMDebugPrintXMission()
 	for (int i1 = 0; i1 < n1; ++i1) {
 		MIDIEndpointRef endpt1 = MIDIGetDestination(i1);
 		MIDIUniqueID id1 = GetMIDIObjectId(endpt1);
-		DebugPrintf("\nXMit dev=%ld\n", id1);
+		DebugPrintf("\nXmit dev=%ld\n", id1);
 		
 		for (long j1=1; j1<=kMaxChannels; j1++) {
 			Boolean ok1 = CMTransmitChannelValid(id1, j1);
 			long lOk1 = (long)ok1;
-			DebugPrintf(" ch=%ld ok=%ld ", j1, lOk1);
+			DebugPrintf(" ch%ld:%s ", j1, (lOk1? "ok" : "!OK"));
+			if (j1==kMaxChannels) DebugPrintf("\n");
 		}
 	}
 }
@@ -840,7 +863,7 @@ static void CheckDefaultInputDevice()
 		}
 	}
 	
-	DebugPrintf("Default input dev id: %ld\n", gDefaultInputDevID);
+	DebugPrintf("Default input dev ID: %ld\n", gDefaultInputDevID);
 	DebugPrintf("Default channel: %ld\n", gDefaultChannel);
 }
 
@@ -850,6 +873,7 @@ static void GetInitialDefaultOutputDevice()
 	
 	MIDIEndpointRef dest = NULL;
 	MIDIEndpointRef d = NULL;
+	OSStatus err = noErr;
 	
 	int n = MIDIGetNumberOfDestinations();
 	int i = 0;
@@ -895,7 +919,7 @@ static void CheckDefaultOutputDevice()
 		}
 	}
 	
-	DebugPrintf("Default output dev id: %ld\n", gDefaultOutputDevID);
+	DebugPrintf("Default output dev ID: %ld\n", gDefaultOutputDevID);
 	DebugPrintf("Default channel: %ld\n", gDefaultChannel);
 }
 
@@ -1338,6 +1362,35 @@ void GetCMNotePlayInfo(
 	*puseIORefNum = partIORefNum[partn];
 }
 
+
+
+// --------------------------------------------------------------------------------------
+
+
+static void DisplayMidiDevices()
+{
+	CFStringRef pname, pmanuf, pmodel;
+	char name[64], manuf[64], model[64];
+	
+	int n = MIDIGetNumberOfDevices();
+	for (int i = 0; i < n; ++i) {
+		MIDIDeviceRef dev = MIDIGetDevice(i);
+		
+		MIDIObjectGetStringProperty(dev, kMIDIPropertyName, &pname);
+		MIDIObjectGetStringProperty(dev, kMIDIPropertyManufacturer, &pmanuf);
+		MIDIObjectGetStringProperty(dev, kMIDIPropertyModel, &pmodel);
+		
+		CFStringGetCString(pname, name, sizeof(name), 0);
+		CFStringGetCString(pmanuf, manuf, sizeof(manuf), 0);
+		CFStringGetCString(pmodel, model, sizeof(model), 0);
+		CFRelease(pname);
+		CFRelease(pmanuf);
+		CFRelease(pmodel);
+
+		printf("name=%s, manuf=%s, model=%s\n", name, manuf, model);
+	}
+}
+
 long FillCMSourcePopup(MenuHandle menu, vector<MIDIUniqueID> *vecDevices)
 {
 	CFStringRef pname, pmanuf, pmodel;
@@ -1529,7 +1582,7 @@ Boolean InitCoreMIDI()
 			DebugPrintf("Error creating MIDI Client\n");
 		}
 		else {
-			DebugPrintf("Creating MIDI Client: gClient = %ld\n", gClient);
+			DebugPrintf("Created MIDI Client: gClient = %ld\n", gClient);
 		}
 		
 		stat = MIDIInputPortCreate(gClient, CFSTR("Input port"), NightCMReadProc, NULL, &gInPort);
@@ -1537,14 +1590,14 @@ Boolean InitCoreMIDI()
 			DebugPrintf("Error creating MIDI Input Port\n");
 		}
 		else {
-			DebugPrintf("Creating MIDI Input Port: gInPort = %ld\n", gInPort);
+			DebugPrintf("Created MIDI Input Port: gInPort = %ld\n", gInPort);
 		}
 		stat = MIDIOutputPortCreate(gClient, CFSTR("Output port"), &gOutPort);
 		if (stat != noErr || gOutPort == NULL) {
 			DebugPrintf("Error creating MIDI Output Port\n");
 		}
 		else {
-			DebugPrintf("Creating MIDI Output Port: gOutPort = %ld\n", gOutPort);
+			DebugPrintf("Created MIDI Output Port: gOutPort = %ld\n", gOutPort);
 		}
 		
 		if (config.cmDefaultOutputChannel > 0 && 

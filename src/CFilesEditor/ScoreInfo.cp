@@ -251,8 +251,6 @@ void ScoreInfo()
 				SIDrawLine(s);
 				ArrowCursor();
 			}
-			sprintf(s, fmtStr, scoreDuration/qtrNTicks); 
-			SIDrawLine(s);
 			
 			if (HasMidiMap(doc)) {
 				Str255 fName;
