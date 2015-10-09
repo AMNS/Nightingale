@@ -175,3 +175,11 @@ Geoff's large-scale cruft removal in 2012 -- almost all files changed.
 Update/simplify About box. Affects About.cp, .rsrc: DLOG 451.
 
 Change version number from 5.4 to 5.5! Affects Info.plist.
+
+-------------------------------------------------------------------------------
+
+27 Sept. - 9 Oct.
+
+Add "Mute Part" command to the Play/Rec menu. Affects .rsrc; applicationTypes.h,
+NightTemplates.h, NResourceID.h; Documents, Menu, MIDIDialogs, MIDIPlay, Part.
+
