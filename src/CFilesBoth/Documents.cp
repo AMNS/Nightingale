@@ -842,7 +842,7 @@ Boolean InitDocFields(Document *doc)
 	
 	doc->altsrastral = 2;								/* Default alternate staff rastral size */
 	
-	doc->numberMeas = -1;								/* Meas. no. on every system */
+	doc->numberMeas = -1;								/* Show measure nos. on every system */
 	doc->otherMNStaff = 0;
 	doc->firstMNNumber = 1;
 	doc->aboveMN = TRUE;
@@ -879,6 +879,8 @@ Boolean InitDocFields(Document *doc)
 		MayErrMsg("InitDocFields: couldn't allocate string pool for document");	/* ??CHG TO USER ERR MSG? */
 		return FALSE;
 		}
+
+	doc->mutedPartNum = 0;
 
 	if (config.musicFontID==0)
 		Pstrcpy(doc->musFontName, "\pSonata");

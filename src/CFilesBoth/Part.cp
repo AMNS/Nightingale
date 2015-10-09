@@ -2,9 +2,9 @@
 	FILE:	Part.c
 	PROJ:	Nightingale, minor rev. for v.3.1
 	DESC:	Part manipulation routines:
-		FixStaffNums				APFixVoiceNums		DPFixVoiceNums
-		AddPart						Staff2Part
-		SelPartRange				DeletePart
+		FixStaffNums				APFixVoiceNums			DPFixVoiceNums
+		AddPart						Staff2Part				Staff2PartLINK
+		Sel2Part					SelPartRange			DeletePart
 /***************************************************************************/
 
 /*											NOTICE
@@ -180,7 +180,7 @@ static void FixStaffNums(Document *doc,
 }
 
 
-Boolean APFixVoiceNums(Document *doc, short afterStf, short nDelta)
+static Boolean APFixVoiceNums(Document *doc, short afterStf, short nDelta)
 {
 	short tableLast, addPartn, v;
 
@@ -191,7 +191,6 @@ Boolean APFixVoiceNums(Document *doc, short afterStf, short nDelta)
 	 * numbers; then fill in entries for the new voices. Finally update the object
 	 * list to match.
 	 */
-	
 	for (tableLast = -1, v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn<=0)
 			{ tableLast = v-1; break; }
@@ -218,7 +217,7 @@ Boolean APFixVoiceNums(Document *doc, short afterStf, short nDelta)
 	return TRUE;
 }
 
-void DPFixVoiceNums(Document *doc, short afterStf, short nDelta, short delPartn)
+static void DPFixVoiceNums(Document *doc, short afterStf, short nDelta, short delPartn)
 {
 	short newAfterSt, v;
 
@@ -229,7 +228,6 @@ void DPFixVoiceNums(Document *doc, short afterStf, short nDelta, short delPartn)
 	 * the voice table and, if they belong to parts below the deleted part, subtract
 	 * 1 from their part numbers. Then update the object list to match.
 	 */
-	
 	for (v = newAfterSt; v<=MAXVOICES; v++)
 		if (v+nDelta<=MAXVOICES) {
 			doc->voiceTab[v] = doc->voiceTab[v+nDelta];
@@ -650,7 +648,9 @@ LINK AddPart(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ Staff2Part -- */
+/* ------------------------------------------- Get part corresponding to something -- */
+/* NB: There are several more utilities for doing this kind of thing in DSUtils.cp!
+they should probably be moved here, or maybe vice-versa. */
 
 /* Given staff number, returns number of part it belongs to. */
 
@@ -673,7 +673,6 @@ short Staff2Part(Document *doc, short nstaff)
 	return 0;
 }
 
-/* ------------------------------------------------------------------ Staff2Part -- */
 
 /* Given staff number, returns part link it belongs to. */
 
@@ -694,6 +693,28 @@ LINK Staff2PartLINK(Document *doc, short nstaff)
 	MayErrMsg("Staff2Part: staff no. %ld is not in any part.", (long)nstaff);
 	return NILINK;
 }
+
+
+/* Return the Part of the first selected object or, if nothing is selected, of the
+insertion point. DAB, Oct. 2015 */
+
+LINK Sel2Part(Document *doc)
+{
+	short voice, userVoice;
+	LINK partL;
+	
+	if (doc->selStartL!=doc->selEndL) {
+		voice = GetVoiceFromSel(doc);
+		if (!Int2UserVoice(doc, voice, &userVoice, &partL))
+			MayErrMsg("Sel2Part: Int2UserVoice(%ld) failed.", (long)voice);
+	}
+	else {
+		partL = FindPartInfo(doc, Staff2Part(doc, doc->selStaff));
+	}
+
+	return partL;
+}
+
 
 
 /* ================================================================================= */
@@ -881,7 +902,6 @@ Boolean DeletePart(Document *doc,
 	 * Fix up staff and voice numbers of everything on staves below the deleted
 	 *	part, and adjust the voice-mapping table to match.
 	 */
-	
 	FixStaffNums(doc, endStf, -deltaNStf, measConnStaff);
 	DPFixVoiceNums(doc, endStf, deltaNStf, thisPart);
 	

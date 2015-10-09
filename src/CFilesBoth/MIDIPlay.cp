@@ -34,7 +34,7 @@ static long			pageTurnTOffset;
 
 static void		PlayMessage(Document *, LINK, short);
 static Boolean	HiliteSyncRect(Document *doc, Rect *syncRect, Rect *rPaper, Boolean scroll);
-long			ScaleDurForVariableSpeed(long dur);
+static long		ScaleDurForVariableSpeed(long dur);
 
 #define CMDEBUG 0
 #define TDEBUG 1
@@ -700,10 +700,52 @@ Byte GetMidiControlVal(LINK pL)
 /* Scale the given real-time duration by some factor. Intended to support playback at
 "variable speed", modifying the tempi marked in the score. */
 
-long ScaleDurForVariableSpeed(long rtDur)
+static long ScaleDurForVariableSpeed(long rtDur)
 {
 	
 	return rtDur*(100.0/playTempoPercent);
+}
+
+
+/* ------------------------------------------------ AnyNoteToPlay, NoteToBePlayed -- */
+/* Given a Sync, is there at least one note to play? This depends on whether the
+note(s) is/are in a part that's not muted and (if we're playing only selected notes)
+is selected. */
+	
+static Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly);
+static Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly)
+{
+	LINK aNoteL;
+	INT16 notePartn;
+	
+	if (!LinkSEL(syncL) && selectedOnly) return FALSE;
+	if (doc->mutedPartNum==0) return TRUE;
+	
+	/* Is _any_ note in the Sync in an unmuted part? */
+	aNoteL = FirstSubLINK(syncL);
+	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+		if (NoteREST(aNoteL)) continue;
+		notePartn = Staff2Part(doc, NoteSTAFF(aNoteL));
+		if (notePartn!=doc->mutedPartNum && !NoteREST(aNoteL)) return TRUE;
+	}
+	
+	return FALSE;
+}
+
+
+/* Given a note, should it be played? */
+
+static Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly);
+static Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly)
+{
+	INT16 notePartn;
+
+	if (!NoteSEL(aNoteL) && selectedOnly) return FALSE;
+	if (NoteREST(aNoteL)) return FALSE;
+	notePartn = Staff2Part(doc, NoteSTAFF(aNoteL));
+	if (notePartn==doc->mutedPartNum) return FALSE;
+	
+	return TRUE;
 }
 
 
@@ -895,13 +937,13 @@ void PlaySequence(
 				newMeasL = measL = pL;
 				break;
 			case SYNCtype:
-			  	if (LinkSEL(pL) || !selectedOnly) {
+			  	if (AnyNoteToPlay(doc, pL, selectedOnly)) {
 			  		if (SyncTIME(pL)>MAX_SAFE_MEASDUR)
 			  			MayErrMsg("PlaySequence: pL=%ld has timeStamp=%ld", (long)pL,
 			  							(long)SyncTIME(pL));
 #ifdef TDEBUG
-					if (toffset<0L) DebugPrintf("PlaySequence: toffset=%ld => %ld playTempoPercent=%d\n",
-						toffset, MeasureTIME(measL)+SyncTIME(pL), playTempoPercent);
+					if (toffset<0L) DebugPrintf("PlaySequence: toffset=%ld => %ld playTempoPercent=%d mutedPart=%d\n",
+						toffset, MeasureTIME(measL)+SyncTIME(pL), playTempoPercent, doc->mutedPartNum);
 #endif
 			  		plStartTime = MeasureTIME(measL)+SyncTIME(pL);
 					/* Convert play time to nominal millisecs. using tempi marked in the
@@ -912,9 +954,7 @@ void PlaySequence(
 			  		if (toffset<0L) toffset = startTimeNorm;
 					startTimeNorm -= toffset;
 					startTime = ScaleDurForVariableSpeed(startTimeNorm);
-					
-					aNoteL = FirstSubLINK(pL);
-		
+							
 					/*
 					 * Wait 'til it's time to play pL. While waiting, check for notes
 					 * ending and take care of them. Also check for relevant keyboard
@@ -1007,11 +1047,11 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 						panPosted = FALSE;
 					}
 		
-		/* Play all the notes in <<pL> we're supposed to, adding them to <eventList[]> too */
+			/* Play all the notes in <<pL> we're supposed to, adding them to <eventList[]> too */
 		
 					aNoteL = FirstSubLINK(pL);
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-						if (NoteSEL(aNoteL) || !selectedOnly) {
+						if (NoteToBePlayed(doc, aNoteL, selectedOnly)) {
 							/*
 							 *	Get note's MIDI note number, including transposition; velocity,
 							 *	limited to legal range; channel number; and duration, includ-
@@ -1036,7 +1076,7 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 
 							plEndTime = plStartTime+playDur;						
 
-							/* If it's a real note (not rest or continuation), send it out */
+							/* If it's a "real" note (not rest or continuation), send it out */
 							
 							if (useNoteNum>=0) {
 								OSStatus err = noErr;

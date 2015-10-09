@@ -294,6 +294,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	Boolean	MIDIDynamDialog(Document *, Boolean *);
 	Boolean	MIDIModifierDialog(Document *);
 	Boolean	MIDIDriverDialog(short *pPortSetting, short *pInterfaceSpeed);
+	Boolean MutePartDialog(Document *);
 	Boolean SetPlaySpeedDialog(void);
 
 /* MIDI File-handling files */
@@ -374,6 +375,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	LINK		AddPart(Document *, short, short, short);
 	short		Staff2Part(Document *, short);
 	LINK 		Staff2PartLINK(Document *doc, short nstaff);
+	LINK		Sel2Part(Document *doc);
 	Boolean	DeletePart(Document *, short, short);
 
 /* PitchCmds.c */

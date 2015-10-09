@@ -1516,7 +1516,92 @@ Boolean MIDIModifierDialog(Document */*doc*/)
 }
 
 
-/* -------------------------------------------------------------- SetPlaySpeedDialog -- */
+/* ---------------------------------------------------------------- MutePartDialog -- */
+
+static enum {
+	RAD3_MutePart = 3,
+	RAD4_Unmute,
+	STXT6_PartName = 6,
+	} E_MutePartItems;
+
+static short group2;
+
+Boolean MutePartDialog(Document *doc)
+{
+	short itemHit, type, partNum;
+	Boolean okay, keepGoing=TRUE;
+	DialogPtr dlog; GrafPtr oldPort;
+	ModalFilterUPP	filterUPP;
+	Handle hndl;
+	Rect box;
+	LINK partL;
+	PPARTINFO pPart;
+	char partName[256];		/* Pascal string */
+
+	/* Build dialog window and install its item values */
+	
+	filterUPP = NewModalFilterUPP(OKButFilter);
+	if (filterUPP == NULL) {
+		MissingDialog(MUTEPART_DLOG);
+		return 0;
+	}
+	GetPort(&oldPort);
+	dlog = GetNewDialog(MUTEPART_DLOG,NULL,BRING_TO_FRONT);
+	if (dlog==NULL) {
+		DisposeRoutineDescriptor(filterUPP);
+		MissingDialog(MUTEPART_DLOG);
+		return(0);
+	}
+	SetPort(GetDialogPort(dlog));
+
+	/* Change static text item to name of the selected part */
+	partL = Sel2Part(doc);
+	pPart = GetPPARTINFO(partL);
+	strcpy(partName, (strlen(pPart->name)>14? pPart->shortName : pPart->name));
+	PutDlgString(dlog, STXT6_PartName, CToPString(partName), FALSE);
+
+	group2 = RAD3_MutePart;
+	PutDlgChkRadio(dlog, RAD3_MutePart, (group2==RAD3_MutePart));
+	PutDlgChkRadio(dlog, RAD4_Unmute, (group2==RAD4_Unmute));
+
+	PlaceWindow(GetDialogWindow(dlog),NULL,0,80);
+	ShowWindow(GetDialogWindow(dlog));
+
+	/* Entertain filtered user events until dialog is dismissed */
+	
+	while (keepGoing) {
+		ModalDialog(filterUPP,&itemHit);
+		switch(itemHit) {
+			case BUT1_OK:
+				if (group2==RAD3_MutePart) {
+					partNum = PartL2Partn(doc, partL);
+					doc->mutedPartNum = partNum;
+				}
+				else
+					doc->mutedPartNum = 0;
+				keepGoing = FALSE;
+				okay = TRUE;
+				break;
+			case BUT2_Cancel:
+				keepGoing = FALSE;
+				okay = FALSE;
+				break;
+			case RAD3_MutePart:
+			case RAD4_Unmute:
+				if (itemHit!=group2) SwitchRadio(dlog, &group2, itemHit);
+				break;
+		}
+	}
+	
+	DisposeRoutineDescriptor(filterUPP);
+	DisposeDialog(dlog);
+	SetPort(oldPort);
+	
+	return(okay);
+}
+
+
+/* ------------------------------------------------------------- SetPlaySpeedDialog -- */
 
 extern short minVal, maxVal;
 

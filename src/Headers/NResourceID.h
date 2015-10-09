@@ -206,6 +206,7 @@
 #define MIDIMAP_DLOG 940
 #define COMBINEPARTS_DLOG 985				/* Whether to save or open parts, etc. */
 #define PLAYSPEED_DLOG 1010
+#define MUTEPART_DLOG 1012
 #define DEBUG_DLOG 1024
 
 /* Menus: all pulldowns, and some popups (more popups appear in #defines below) */
@@ -263,7 +264,7 @@ enum {							/* File menu */
 	FM_SheetSetup,
 	FM_PageSetup,
 	FM_Print,
-	FM_SaveEPSF,
+	FM_SavePostScript,
 	FM_SaveText,
 	FM_____________3,
 	FM_ScoreInfo,
@@ -271,6 +272,7 @@ enum {							/* File menu */
 	FM_SearchInFiles,
 	FM_Quit
 	};
+
 // CER 5/17/2004
 // If the Edit Menu items are changed, make sure EM_LastItem still equals
 // the last menu item
@@ -421,6 +423,7 @@ enum {							/* Play/Record menu */
     PL_PlayEntire = 1,
 	PL_PlayFromSelection,
     PL_PlaySelection,
+	PL_MutePart,
 	PL_PlayVarSpeed,
 	PL_AllNotesOff,
 	PL_____________1,
@@ -541,10 +544,10 @@ enum {							/* Format menu */
 #define RHYTHMERRS_STRS 273				/* Rhythm-handling error strings */
 #define SETERRS_STRS 274				/* QuickChange (formerly Set) error strings */
 #define TEXTERRS_STRS 275				/* Text-edit dialog error strings */
-#define TUPLETERRS_STRS 276			/* Tuplet error strings */
+#define TUPLETERRS_STRS 276				/* Tuplet error strings */
 #define MEASFILLERRS_STRS 278			/* Fill Empty Measures error strings */
 #define MENUCMDMSGS_STRS 279			/* Misc. messages for menu commands */
-#define SET_STRS 280						/* QuickChange (formerly Set) non-error strings */
+#define SET_STRS 280					/* QuickChange (formerly Set) non-error strings */
 #define ENIGMA_STRS 285					/* Enigma converter strings */
 #define NOTELIST_STRS 286				/* Open Notelist strings */
 #define MPGENERAL_STRS 290				/* Master Page general (non-error) strings */
@@ -556,7 +559,7 @@ enum {							/* Format menu */
 #define COPYPROTECT_STRS 330			/* Messages related to copy protection */
 #define EXTOBJ_STRS 334					/* Strings naming truncated extended objects */
 #define SCOREINFO_STRS 340				/* Strings for the Score Info command */
-#define MESSAGEBOX_STRS 350			/* Strings that appear in the message box */
+#define MESSAGEBOX_STRS 350				/* Strings that appear in the message box */
 #define ENDING_STRS 360					/* Ending labels */
 #define MIDIMAPINFO_STRS 370			/* Strings for the Midi Map Info dialog */
 #define TEXTPREFS_STRS 380				/* Text prefs strings */

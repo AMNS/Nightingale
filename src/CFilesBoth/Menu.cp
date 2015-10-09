@@ -365,7 +365,6 @@ Boolean DoFileMenu(short choice)
 				break;
 			case FM_PageSetup:
 #if TARGET_API_MAC_CARBON
-
 				if (doc) NDoPageSetup(doc);
 #else
 				if (doc) DoPageSetup(doc);
@@ -378,7 +377,7 @@ Boolean DoFileMenu(short choice)
 				if (doc) DoPrintScore(doc);
 #endif
 				break;
-			case FM_SaveEPSF:
+			case FM_SavePostScript:
 #if TARGET_API_MAC_CARBON
 				if (doc) NDoPostScript(doc);
 #else
@@ -1199,9 +1198,13 @@ void DoPlayRecMenu(short choice)
 				MEHideCaret(doc);
 				if (doc) PlaySequence(doc, doc->selStartL, doc->tailL, TRUE, FALSE);
 				break;
+			case PL_MutePart:
+				MEHideCaret(doc);
+				if (doc) MutePartDialog(doc);
+				break;
 			case PL_PlayVarSpeed:
 				MEHideCaret(doc);
-				if (doc) { SetPlaySpeedDialog(); }
+				if (doc) SetPlaySpeedDialog();
 				break;
 			case PL_RecordInsert:
 				if (BIMIDIPortIsBusy()) break;
@@ -2214,7 +2217,7 @@ static void FixFileMenu(Document *doc, short nSel)
 
 		// always disable NoteScan import until it has been removed from menu (rsrc) entirely
 		XableItem(fileMenu,FM_GetScan,FALSE);
-		XableItem(fileMenu,FM_SaveEPSF,doc!=NULL && doc!=clipboard
+		XableItem(fileMenu,FM_SavePostScript,doc!=NULL && doc!=clipboard
 										&& !doc->masterView && !doc->showFormat);
 		XableItem(fileMenu,FM_SaveText,doc!=NULL && doc!=clipboard
 										&& !doc->masterView && !doc->showFormat && nSel>0);

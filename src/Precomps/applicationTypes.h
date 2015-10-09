@@ -7,6 +7,9 @@
 // MAS we want to /always/ use mac68k alignment
 #pragma options align=mac68k
 
+/* DOCUMENTHEADER is generic: it contains fields appropriate for any program that
+	displays pages of documents. */
+
 #define DOCUMENTHEADER	\
 	Point			origin;				/* Current origin of Document window */					\
 	Rect			paperRect;			/* Size of virtual paper sheet in current mag.(pixels) */ \
@@ -27,8 +30,8 @@
 																													\
 	Rect			headerFooterMargins; /* Header/footer/pagenum margins  */					\
 	Rect			currentPaper;		/* Paper rect in window coords for cur.sheet (pixels) */	\
-	SignedByte	landscape;			/* Unused; was "Paper wider than it is high" */			\
-	SignedByte	philler;				/* Unused */
+	SignedByte		landscape;			/* Unused; was "Paper wider than it is high" */			\
+	SignedByte		philler;			/* Unused */
 
 typedef struct {
 	DOCUMENTHEADER
@@ -129,27 +132,28 @@ typedef struct {
 	MIDIUniqueID cmInputDevice;  					/* CoreMIDI dev data for recording inputs */
 
 /* The remaining fields don't need to be saved. */
-	Rect			prevMargin;			/* doc->marginRect upon entering masterPage */
-	short			srastralMP;			/* srastral set inside masterPage */
+	Rect			prevMargin;			/* doc->marginRect upon entering Master Page */
+	short			srastralMP;			/* srastral set inside Master Page */
 	short			nSysMP;				/* Number of systems which can fit on a page */
 	DDIST			firstIndentMP,		/* Amount to indent first System */
 					otherIndentMP;		/* Amount to indent Systems other than first */	
-	SignedByte	firstNamesMP,		/* 0=show none, 1=show abbrev., 2=show full names */
+	SignedByte		firstNamesMP,		/* 0=show none, 1=show abbrev., 2=show full names */
 					otherNamesMP;		/* 0=show none, 1=show abbrev., 2=show full names */
-	short			nstavesMP;			/* Number of staves in masterPage */
-	DDIST			*staffTopMP;		/* staffTop array for masterPage. 1-based indexing (staffn-based indexing) */
+	short			nstavesMP;			/* Number of staves in Master Page */
+	DDIST			*staffTopMP;		/* staffTop array for Master Page. 1-based indexing (staffn-based indexing) */
 	MPCHANGEDFLAGS						/* partChangedMP,sysChangedMP,stfChangedMP,margVChangedMP,margHChangedMP,indentChangedMP. */
-	LINK			oldMasterHeadL,	/* masterPage data structure used to revert MasterPage */
+	LINK			oldMasterHeadL,		/* Master Page data structure used to revert Master Page */
 					oldMasterTailL;
 
+	short			mutedPartNum;		/* Number of currently-muted part, or 0 = none */
 	short			musicFontNum;		/* Font ID number of font to use for music chars */
 	short			musFontInfoIndex;	/* Index into <musFontInfo> of current music font */
 
-	PARTINFO 	*partFiller;		/* Unused; formerly <part>, used in MPImportExport.c */
-	DDIST 		*staffTopFiller;	/* Unused; formerly <staffTop>, used in MPImportExport.c */
+	PARTINFO		*partFiller;		/* Unused; formerly <part>, used in MPImportExport.c */
+	DDIST			*staffTopFiller;	/* Unused; formerly <staffTop>, used in MPImportExport.c */
 	short			nChangeMP,
 					npartsFiller,		/* Unused; formerly <nparts>, used in MPImportExport.c */
-					nstaves1Filler;	/* Unused; formerly <nstaves>, used in MPImportExport.c */
+					nstaves1Filler;		/* Unused; formerly <nstaves>, used in MPImportExport.c */
 	CHANGE_RECORD	change[MAX_CHANGES];
 
 	LINK			oldSelStartL,
@@ -160,8 +164,8 @@ typedef struct {
 	DocPrintInfo	docPrintInfo;
 	Handle			flatFormatHandle;
 	
-	Handle		midiMapFSSpecHdl;
-	Handle		midiMap;
+	Handle			midiMapFSSpecHdl;
+	Handle			midiMap;
 
 	} Document;
 
@@ -385,7 +389,7 @@ typedef struct {
 	SignedByte	thruChannel;			/* Channel and device (either FreeMIDI or OMS) for MIDI thru output */
 	fmsUniqueID	thruDevice;
 
-	/* Following fields were added after Nightingale 4.0 - N104. */
+	/* Following fields were added after Nightingale 4.0, file format version "N104". */
 	
 	MIDIUniqueID cmMetroDevice;				/* CoreMIDI identifier for metronome synth */
 	MIDIUniqueID cmDefaultInputDevice;		/* CoreMIDI identifier for default input synth */
