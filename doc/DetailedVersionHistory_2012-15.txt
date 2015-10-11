@@ -178,8 +178,10 @@ Change version number from 5.4 to 5.5! Affects Info.plist.
 
 -------------------------------------------------------------------------------
 
-27 Sept. - 9 Oct.
+27 Sept. - 10 Oct.
 
-Add "Mute Part" command to the Play/Rec menu. Affects .rsrc; applicationTypes.h,
-NightTemplates.h, NResourceID.h; Documents, Menu, MIDIDialogs, MIDIPlay, Part.
+Add a "Mute Part" command to the Play/Rec menu; notes for the muted part will neither
+be played nor written to an exported MIDI file. Affects .rsrc; applicationTypes.h,
+MIDIGeneral.h, NightTemplates.h, NResourceID.h; Documents, Menu, MIDIDialogs, MIDIPlay,
+MIDIFSave, MIDIUtils, Part.
 

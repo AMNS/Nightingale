@@ -814,9 +814,7 @@ directory, rebuild => all OK.
 
 -------------------------------------------------------------------------------
 
-27 Sept. - 3 Oct.
-
-??Implement muting a part?
+2 Oct. - 3 Oct.
 
 I'm _finally_ ready to use a version control system for Ngale!! A GitHub repository
 already has the last "AMNS" codebase (from David Gottlieb) with voluminous changes,
@@ -835,3 +833,29 @@ missing for: NOTEHEAD_GRAPH_WIDTH EXPAND_WIDER
 Both should be in defs.h; why aren't they? Because I overlooked defs.h when integrating
 all the changes. Correct that, rebuild => 1 error: OhioSlurs.cp is missing -- the ref.
 to it needs to be removed from the project file. Do that => it builds & runs!! Yippee!
+
+Call this version 5.5.
+
+-------------------------------------------------------------------------------
+
+27 Sept. - 10 Oct.
+
+Implement muting a part: at most one part at a time, per Document; not saved bcs when a
+file is opened, no part should ever be muted. To keep track, add a field (MAXSTAVES =
+64, so max. no. of parts = 64, so >=6 bits) _mutedPartNum_ to the Document declaration
+in applicationTypes.h ; 0 = no part, else the no. of the muted part. Add it where? The
+comments say fields both at the beginning and the end don't need to be saved; the end
+seems safer :-) . Test by opening a couple of good-size scores => seems OK! Initialize
+it where? Probably Documents.cp > InitDocFields().
+
+Write functions AnyNoteToPlay() and NoteToBePlayed(), to be called from MIDIPlay >
+PlaySequence() and MIDIFSave > WriteMFNotes().
+
+Add to .rsrc a "Mute Part" dialog, and add menu item "Mute Part..." to the Play/Rec
+menu; add a name for it to NResourceID.h; add code to handle it to Menu.c. Write
+handler for the Mute Part dialog => it works! Last details:
++ Put smthg in the "Playing" display to indicate muting. There's very little room,
+	so probably just boldface "M"
++ For Save MIDI File, could ask user if they want to omit the muted part, but it's
+	easier to always omit it (and warn user it'll be omitted).
++ If no file is open, need to disable Mute Part and Relative Playback Speed cmds!
