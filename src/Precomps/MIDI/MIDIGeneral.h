@@ -29,7 +29,7 @@
 #define MAXCHANNEL 16
 #define MAXPATCHNUM 128
 #define MAX_VELOCITY 127
-#define MIDI_MIDDLE_C 60				/* MIDI note number for middle C */
+#define MIDI_MIDDLE_C 60				/* MIDI note number for middle C (ISO C4) */
 #define MAX_NOTENUM 127
 #define NO_PATCHNUM 0xFF				/* FMS: Means no valid patch number current for this device & channel */
 #define NO_BANKSELECT 0xFF				/* Don't send this bank select value */
@@ -101,8 +101,6 @@ OSStatus EndNoteNow(short noteNum, SignedByte channel, short ioRefNum);
 Boolean EndNoteLater(short noteNum, SignedByte channel, long endTime, short ioRefNum);
 Boolean CMEndNoteLater(short noteNum, SignedByte channel, long endTime, long ioRefNum);
 
-//chirgwin void MIDITriple(short, short, short);
-
 Boolean AllocMPacketBuffer(void);
 Boolean MMInit(long *);
 Boolean MMClose(void);
@@ -141,7 +139,9 @@ void MIDIFBOn(Document *);
 void MIDIFBOff(Document *);
 void MIDIFBNoteOn(Document *, short, short, short);
 void MIDIFBNoteOff(Document *, short, short, short);
-void AllNotesOff(void);
+
+Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly);
+Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly);
 
 /* High (UI)-level MIDI play routines */
 

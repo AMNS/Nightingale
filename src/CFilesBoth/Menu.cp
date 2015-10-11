@@ -3008,6 +3008,8 @@ static void FixPlayRecordMenu(Document *doc, short nSel)
 			XableItem(playRecMenu, PL_PlayEntire, haveMIDI);
 			XableItem(playRecMenu, PL_PlaySelection, doc!=clipboard && nSel!=0 && haveMIDI);
 			XableItem(playRecMenu, PL_PlayFromSelection, doc!=clipboard && haveMIDI);
+			XableItem(playRecMenu, PL_MutePart, haveMIDI);
+			XableItem(playRecMenu, PL_PlayVarSpeed, haveMIDI);
 			XableItem(playRecMenu, PL_AllNotesOff, haveMIDI);
 	
 			noteSel = ObjTypeSel(doc, SYNCtype, 0)!=NILINK;
@@ -3029,6 +3031,8 @@ static void FixPlayRecordMenu(Document *doc, short nSel)
 			XableItem(playRecMenu, PL_PlayEntire, FALSE);
 			XableItem(playRecMenu, PL_PlaySelection, FALSE);
 			XableItem(playRecMenu, PL_PlayFromSelection, FALSE);
+			XableItem(playRecMenu, PL_MutePart, FALSE);
+			XableItem(playRecMenu, PL_PlayVarSpeed, FALSE);
 			XableItem(playRecMenu, PL_AllNotesOff, FALSE);	
 			XableItem(playRecMenu, PL_Quantize, FALSE);
 			XableItem(playRecMenu, PL_RecordInsert, FALSE);

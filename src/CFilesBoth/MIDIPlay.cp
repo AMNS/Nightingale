@@ -65,15 +65,16 @@ static short DoGeneralAlert(unsigned char *str)
 
 
 /* ------------------------------------------------------------------ PlayMessage -- */
-/* Write a message into the message area saying what measure is playing and, if not
-playing at the "correct" (marked) tempo, what the relative speed is. If <pL> is NILINK,
-use <measNum> as measure no., else get it from <pL>'s Measure. */
+/* Write a message into the message area saying what measure is playing; if not
+playing at the "correct" (marked) tempo, what the relative speed is; and, if a part
+is muted, saying that. If <pL> is NILINK, use <measNum> as measure no., else get it
+from <pL>'s Measure. */
 
 static void PlayMessage(Document *doc, LINK pL, short measNum)
 {
 	Rect			messageRect;
 
-	if (pL)
+	if (pL!=NILINK)
 		measNum = GetMeasNum(doc, pL);
 
 	PrepareMessageDraw(doc,&messageRect, FALSE);
@@ -81,6 +82,12 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 	DrawCString(strBuf);					
 	sprintf(strBuf, "%d", measNum);
 	DrawCString(strBuf);
+	if (doc->mutedPartNum!=0) {
+		TextFace(bold);
+		sprintf(strBuf, " M");
+		DrawCString(strBuf);
+		TextFace(0);											/* Plain */
+	}
 	if (playTempoPercent!=100) {
 		TextFace(bold);
 		sprintf(strBuf, "  T%d%%", playTempoPercent);
@@ -704,48 +711,6 @@ static long ScaleDurForVariableSpeed(long rtDur)
 {
 	
 	return rtDur*(100.0/playTempoPercent);
-}
-
-
-/* ------------------------------------------------ AnyNoteToPlay, NoteToBePlayed -- */
-/* Given a Sync, is there at least one note to play? This depends on whether the
-note(s) is/are in a part that's not muted and (if we're playing only selected notes)
-is selected. */
-	
-static Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly);
-static Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly)
-{
-	LINK aNoteL;
-	INT16 notePartn;
-	
-	if (!LinkSEL(syncL) && selectedOnly) return FALSE;
-	if (doc->mutedPartNum==0) return TRUE;
-	
-	/* Is _any_ note in the Sync in an unmuted part? */
-	aNoteL = FirstSubLINK(syncL);
-	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-		if (NoteREST(aNoteL)) continue;
-		notePartn = Staff2Part(doc, NoteSTAFF(aNoteL));
-		if (notePartn!=doc->mutedPartNum && !NoteREST(aNoteL)) return TRUE;
-	}
-	
-	return FALSE;
-}
-
-
-/* Given a note, should it be played? */
-
-static Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly);
-static Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly)
-{
-	INT16 notePartn;
-
-	if (!NoteSEL(aNoteL) && selectedOnly) return FALSE;
-	if (NoteREST(aNoteL)) return FALSE;
-	notePartn = Staff2Part(doc, NoteSTAFF(aNoteL));
-	if (notePartn==doc->mutedPartNum) return FALSE;
-	
-	return TRUE;
 }
 
 

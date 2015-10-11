@@ -787,3 +787,43 @@ void MIDIFBNoteOff(
 	}
 }
 
+
+/* ------------------------------------------------ AnyNoteToPlay, NoteToBePlayed -- */
+/* Given a Sync, should at least one note be played? For each note, this depends on
+whether it's really a note (not a rest); is in a part that's not muted; and (if we're
+interested only in selected notes) is selected. */
+	
+Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly)
+{
+	LINK aNoteL;
+	INT16 notePartn;
+	
+	if (!LinkSEL(syncL) && selectedOnly) return FALSE;
+	
+	/* Is _any_ real note in the Sync in an unmuted part? */
+	aNoteL = FirstSubLINK(syncL);
+	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+		if (NoteREST(aNoteL)) continue;
+		notePartn = Staff2Part(doc, NoteSTAFF(aNoteL));
+		if (notePartn!=doc->mutedPartNum && !NoteREST(aNoteL)) return TRUE;
+	}
+	
+	return FALSE;
+}
+
+
+/* Given a note, should it be played? */
+
+Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly)
+{
+	INT16 notePartn;
+
+	if (!NoteSEL(aNoteL) && selectedOnly) return FALSE;
+	
+	if (NoteREST(aNoteL)) return FALSE;
+	notePartn = Staff2Part(doc, NoteSTAFF(aNoteL));
+	if (notePartn==doc->mutedPartNum) return FALSE;
+	
+	return TRUE;
+}
+

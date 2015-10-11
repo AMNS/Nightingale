@@ -729,10 +729,11 @@ DebugPrintf("WriteTiming: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n", pL, tempoT
 
 #define USEPARTVELO FALSE
 
-/* Write all notes with nonzero On velocity, in the given range on <staffn> or all
-staves, to the current track of the open MIDI file. Analogous to PlaySequence, except
-PlaySequence always does all staves. Returns the number of notes skipped because they
-have zero On velocity.
+/* In the given range on <staffn> or all staves, write all notes with nonzero On
+velocity that aren't in a muted part to the current track of the open MIDI file.
+Analogous to PlaySequence, except PlaySequence plays either selected notes only
+or all notes in unmuted parts on all staves. Returns the number of notes skipped
+because they have zero On velocity.
 
 NB: if the measures/notes have inconsistent timestamps (as detected by DCheckNode),
 this writes nonsense Note Ons--I have no idea why--resulting in tracks that our own
@@ -802,6 +803,7 @@ static short WriteMFNotes(
 				newMeasL = measL = pL;
 				break;
 			case SYNCtype:
+			  	if (!AnyNoteToPlay(doc, pL, FALSE)) continue;
 		  		if (SyncTIME(pL)>MAX_SAFE_MEASDUR)
 		  			MayErrMsg("WriteMFNotes: pL=%ld has timeStamp=%ld", (long)pL,
 		  							(long)SyncTIME(pL));
@@ -853,14 +855,14 @@ static short WriteMFNotes(
 				WriteAllMIDISustains(doc, partChannel, FALSE, startTime, pL, staffn);
 				WriteAllMIDIPans(doc, partChannel, startTime, pL, staffn);
 				
-	/* Write all the notes on <staffn> in <pL>, adding them to <eventList[]> as well */
+	/* Write all the notes in <<pL> we're supposed to, adding them to <eventList[]> as well */
 	
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					if (anyStaff || NoteSTAFF(aNoteL)==staffn) {
-						if (NoteREST(aNoteL)) continue;
+						if (!NoteToBePlayed(doc, aNoteL, FALSE)) continue;
 						/*
-						 * If note has zero on velocity, it's wierd: skip it completely. If
+						 * If note has zero on velocity, it's wierd: skip writing it. If
 						 * it's a chord slash, it's not interesting, else count it.
 						 */
 						aNote = GetPANOTE(aNoteL);						
@@ -972,13 +974,14 @@ static Boolean WriteTrackName(Document *doc, short staffn)
 	return TRUE;
 }
 
+/* Write one track of a MIDI file, either the timing track or a normal track. */
 
 static Boolean WriteTrack(
-						Document *doc,
-						short track,
-						long trkLastEndTime,			/* The latest ending time for any track */
-						short *pnZeroVel
-						)
+					Document *doc,
+					short track,
+					long trkLastEndTime,			/* The latest ending time for any track */
+					short *pnZeroVel
+					)
 {
 	short nZeroVel;
 	
@@ -1037,7 +1040,7 @@ long LastEndTime(Document *doc, LINK fromL, LINK toL)
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 									
-					/* If it's a real note (not rest or continuation or vel. 0), consider it */
+					/* If it's a "real" note (not rest or continuation or vel. 0), consider it */
 					
 					aNote = GetPANOTE(aNoteL);
 					if (!aNote->rest && !aNote->tiedL &&  aNote->onVelocity!=0) {
@@ -1078,9 +1081,7 @@ static Boolean WriteMIDIFile(Document *doc)
 	
 	trkLastEndTime = LastEndTime(doc, doc->headL, doc->tailL);
 	
-	for (t = 1; t<=nTracks; t++)
-		/* Ignore any zero-velocity notes: assume the user has already been warned! */
-		
+	for (t = 1; t<=nTracks; t++)		
 		if (!WriteTrack(doc, t, trkLastEndTime, &nZeroVel)) return FALSE;
 	
 	return TRUE;
@@ -1166,34 +1167,28 @@ static short AnyZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStartS
 }
 
 
-#ifdef DEMO_VERSION
-
-void SaveMIDIFile(Document *doc)
-{
-	GetIndCString(strBuf, MIDIFILE_STRS, 9);			/* "Sorry, this demo version of Nightingale can't Export MIDI files." */
-	CParamText(strBuf, "", "", "");
-	StopInform(GENERIC_ALRT);
-}
-
-#else
-
 #define SUFINDEX 13
 
 static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
 
 void SaveMIDIFile(Document *doc)
 {
-	short		firstBadMeas, len, vRefNum, suffixLen, ch;
+	short		firstProblemMeas, len, vRefNum, suffixLen, ch;
 	short		totalZeroVel, startStaff, endStaff, startMeasNum, endMeasNum;
-	Str255	filename/*, prompt*/;
-//	SFReply	reply;
+	Str255	filename;
 	char		strFirst[256], strLast[256], fmtStr[256];
 
-	firstBadMeas = CheckMeasDur(doc);
-	if (firstBadMeas>=0) {
-		sprintf(strBuf, "%d", firstBadMeas);
+	firstProblemMeas = CheckMeasDur(doc);
+	if (firstProblemMeas>=0) {
+		sprintf(strBuf, "%d", firstProblemMeas);
 		CParamText(strBuf, "", "", "");
-		CautionInform(SAVEMF_TIMESIG_ALRT);
+		CautionInform(SAVEMF_TIMESIG_ALRT);				/* "Score contains measure(s) that have time sig. disagreements..." */
+	}
+
+	if (doc->mutedPartNum!=0) {
+		GetIndCString(strBuf, MIDIFILE_STRS, 42);		/* "A part is muted; its notes..." */
+		CParamText(strBuf, "", "", "");
+		CautionInform(GENERIC_ALRT);
 	}
 
 	totalZeroVel = AnyZeroVelNotes(doc, doc->headL, doc->tailL, &startStaff, &endStaff,
@@ -1214,7 +1209,6 @@ void SaveMIDIFile(Document *doc)
 	 *	be room to append the suffix, we truncate the file name before appending the
 	 *	suffix so that we don't run the risk of overwriting the original score file.
 	 */
-	
 	GetIndString(filename,MiscStringsID,SUFINDEX);	/* Get suffix length */
 	suffixLen = *filename;
 
@@ -1233,23 +1227,6 @@ void SaveMIDIFile(Document *doc)
 	*filename = (len + suffixLen);						/* And ensure new string knows new length */
 	
 	/* Ask user where to put this MIDI file */
-#ifdef CARBON_NOMORE	
-	GetIndString(prompt, MiscStringsID, 14);
-	SFPutFile(SFPwhere, prompt, filename, NULL, &reply);
-	if (!reply.good) return;
-	PStrCopy(reply.fName, (StringPtr)filename);
-	vRefNum = reply.vRefNum;
-	
-	errCode = FSDelete(filename, vRefNum);									/* Delete existing file */
-	if (errCode!=noErr && errCode!=fnfErr)									/* Ignore "file not found" */
-		{ ReportIOError(errCode, SAVEMF_ALRT); return; }
-		
-	errCode = Create(filename, vRefNum, creatorType, 'Midi'); 		/* Create new file */
-	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
-	
-	errCode = FSOpen(filename, vRefNum, &fRefNum);						/* Open it */
-	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
-#else
 	NSClientData	nscd;
 	Boolean			keepGoing;
 	FSSpec 			fsSpec;
@@ -1269,7 +1246,6 @@ void SaveMIDIFile(Document *doc)
 		
 	errCode = FSpOpenDF (&fsSpec, fsRdWrPerm, &fRefNum);				/* Open the file */
 	if (errCode!=noErr) { ReportIOError(errCode, SAVEMF_ALRT); return; }
-#endif	
 
 	WaitCursor();
 	
@@ -1279,4 +1255,3 @@ void SaveMIDIFile(Document *doc)
 	errCode = FSClose(fRefNum);
 }
 
-#endif
