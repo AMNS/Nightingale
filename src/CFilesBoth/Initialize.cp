@@ -35,7 +35,7 @@ static short		GetToolGrid(PaletteGlobals *whichPalette);
 static void			SetupPaletteRects(Rect *whichRects, short across, short down, short width,
 								short height);
 static Boolean		PrepareClipDoc(void);
-void		InitNightingale(void);
+void				InitNightingale(void);
 
 
 /* ----------------------------------------------------------- Initialize and ally -- */
@@ -100,18 +100,13 @@ void Initialize()
 	 *	version 5.0.4 (the last version we tried it with).
 	 */
 	
-#ifdef VIEWER_VERSION
-	creatorType = CREATOR_TYPE_VIEWER;
-	documentType = DOCUMENT_TYPE_VIEWER;
-#else
 	creatorType = CREATOR_TYPE_NORMAL;
 	documentType = DOCUMENT_TYPE_NORMAL;
-#endif
+
 	/*
 	 *	Figure out our machine environment before doing anything more. This
 	 *	can't be done until after the various ToolBox calls above.
-	 */
-	
+	 */	
 	thisMac.machineType = -1;
 	err = SysEnvirons(1,&thisMac);
 	if (err) thisMac.machineType = -1;
@@ -186,7 +181,7 @@ void Initialize()
 	/*
 	 * See if we have enough memory that the user should be able to do
 	 * SOMETHING useful--and enough to get back to the main event loop, where
-	 * we do our regular low-memory checking. As of v.999, 250K is enough, but
+	 * we do our regular low-memory checking. As of v.999, 250K was enough, but
 	 * make the minimum a little higher.
 	 */
 	if (!PreflightMem(400))

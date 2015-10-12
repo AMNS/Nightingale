@@ -89,8 +89,8 @@ static MIDIUniqueID GetCMInputDeviceID()
 	return kInvalidMIDIUniqueID;
 }
 
-static short GetCMInputDeviceIndex(MIDIUniqueID dev) {
-
+static short GetCMInputDeviceIndex(MIDIUniqueID dev)
+{
 	long j = 0;
 	
 	MIDIUniqueIDVector::iterator i = cmVecDevices->begin();
@@ -105,13 +105,12 @@ static short GetCMInputDeviceIndex(MIDIUniqueID dev) {
 
 static MenuHandle CreateCMInputMenu(Document *doc, DialogPtr dlog, UserPopUp *p, Rect *box)
 {
-
 	Boolean popupOk = InitPopUp(dlog, p,
-											INPUT_DEVICE_MENU,	/* Dialog item to set p->box from */
-											0,							/* Dialog item to set p->prompt from, or 0=set it empty */
-											kCMPopupID,				/* CoreMidi popup ID */
-											0							/* Initial choice, or 0=none */
-											);
+									INPUT_DEVICE_MENU,	/* Dialog item to set p->box from */
+									0,					/* Dialog item to set p->prompt from, or 0=set it empty */
+									kCMPopupID,			/* CoreMidi popup ID */
+									0					/* Initial choice, or 0=none */
+									);
 	if (!popupOk || p->menu==NULL)
 		return NULL;
 		
@@ -1536,7 +1535,7 @@ Boolean MutePartDialog(Document *doc)
 	Rect box;
 	LINK partL;
 	PPARTINFO pPart;
-	char partName[256];		/* Pascal string */
+	char partNameStr[256];		/* C string */
 
 	/* Build dialog window and install its item values */
 	
@@ -1554,11 +1553,13 @@ Boolean MutePartDialog(Document *doc)
 	}
 	SetPort(GetDialogPort(dlog));
 
-	/* Change static text item to name of the selected part */
+	/* Change static text item to number and name of the selected part */
 	partL = Sel2Part(doc);
 	pPart = GetPPARTINFO(partL);
-	strcpy(partName, (strlen(pPart->name)>14? pPart->shortName : pPart->name));
-	PutDlgString(dlog, STXT6_PartName, CToPString(partName), FALSE);
+	partNum = PartL2Partn(doc, partL);
+	sprintf(partNameStr, "part %d, %s", partNum, (strlen(pPart->name)>18?
+			pPart->shortName : pPart->name));
+	PutDlgString(dlog, STXT6_PartName, CToPString(partNameStr), FALSE);
 
 	group2 = RAD3_MutePart;
 	PutDlgChkRadio(dlog, RAD3_MutePart, (group2==RAD3_MutePart));

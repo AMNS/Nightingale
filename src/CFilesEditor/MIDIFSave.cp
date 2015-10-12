@@ -1185,10 +1185,22 @@ void SaveMIDIFile(Document *doc)
 		CautionInform(SAVEMF_TIMESIG_ALRT);				/* "Score contains measure(s) that have time sig. disagreements..." */
 	}
 
+	/* Do some error checking. NB that passing these checks does not guarantee that
+		anything useful will be written to the MIDI file; it could be that no part,
+		or no part other than a muted one, contains any notes of nonzero velocity.
+	 */
 	if (doc->mutedPartNum!=0) {
-		GetIndCString(strBuf, MIDIFILE_STRS, 42);		/* "A part is muted; its notes..." */
-		CParamText(strBuf, "", "", "");
-		CautionInform(GENERIC_ALRT);
+		if (LinkNENTRIES(doc->headL)<=2) {
+			GetIndCString(strBuf, MIDIFILE_STRS, 43);		/* "The only part is muted, so no notes..." */
+			CParamText(strBuf, "", "", "");
+			StopInform(GENERIC_ALRT);
+			return;
+		}
+		else {
+			GetIndCString(strBuf, MIDIFILE_STRS, 42);		/* "A part is muted; its notes..." */
+			CParamText(strBuf, "", "", "");
+			CautionInform(GENERIC_ALRT);
+		}
 	}
 
 	totalZeroVel = AnyZeroVelNotes(doc, doc->headL, doc->tailL, &startStaff, &endStaff,
@@ -1237,8 +1249,8 @@ void SaveMIDIFile(Document *doc)
 	
 	fsSpec = nscd.nsFSSpec;
 			
-	errCode = FSpDelete(&fsSpec);												/* Delete existing file */
-	if (errCode!=noErr && errCode!=fnfErr)									/* Ignore "file not found" */
+	errCode = FSpDelete(&fsSpec);										/* Delete existing file */
+	if (errCode!=noErr && errCode!=fnfErr)								/* Ignore "file not found" */
 		{ ReportIOError(errCode, SAVEMF_ALRT); return; }
 		
 	errCode = FSpCreate (&fsSpec, creatorType, 'Midi', scriptCode);
