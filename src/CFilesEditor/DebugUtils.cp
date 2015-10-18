@@ -786,8 +786,13 @@ short DCheckNode(
 
 					if (d2pt(pSystem->systemRect.bottom)>doc->marginRect.bottom)
 							COMPLAIN("*DCheckNode: SYSTEM AT %u RECT BELOW BOTTOM MARGIN.\n", pL);
-					if (d2pt(pSystem->systemRect.right-ExtraSysWidth(doc))>doc->marginRect.right)
+					/* The expression for checking systemRect.right has always involved subtracting
+						ExtraSysWidth(doc) , but that's not enough for documents that have had their
+						staff size reduced; I don't know why, but it's not important.  --DAB, 10/2015
+					 */
+					if (d2pt(pSystem->systemRect.right-2*ExtraSysWidth(doc))>doc->marginRect.right)
 							COMPLAIN("*DCheckNode: SYSTEM AT %u RECT PAST RIGHT MARGIN.\n", pL);
+//DebugPrintf("sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->systemRect.right, ExtraSysWidth(doc), doc->marginRect.right);
 
 					if (pSystem->lSystem) {
 						lSystem = GetPSYSTEM(pSystem->lSystem);				

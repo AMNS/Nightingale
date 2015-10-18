@@ -838,7 +838,7 @@ Call this version 5.5.
 
 -------------------------------------------------------------------------------
 
-27 Sept. - 10 Oct.
+27 Sept. - 12 Oct.
 
 Implement muting a part: at most one part at a time, per Document; not saved bcs when a
 file is opened, no part should ever be muted. To keep track, add a field (MAXSTAVES =
@@ -857,5 +857,26 @@ handler for the Mute Part dialog => it works! Last details:
 + Put smthg in the "Playing" display to indicate muting. There's very little room,
 	so probably just boldface "M"
 + For Save MIDI File, could ask user if they want to omit the muted part, but it's
-	easier to always omit it (and warn user it'll be omitted).
+	easier to always omit it (and warn user it'll be omitted). (If the muted part is
+	the only part, don't bother saving the file.)
 + If no file is open, need to disable Mute Part and Relative Playback Speed cmds!
+
+Clean up code a bit: remove last VIEWER_VERSION code; update comments in compilerFlags.h.
+
+-------------------------------------------------------------------------------
+
+13-14 Oct.
+
+With two voices on a staff, Ngale computes space needed based on the merged voices
+even if one is so far above the other that they don't interact, resulting in it
+sometimes allocating way too much space for a Sync. Cf. violin concerto, II,
+3VCBVariation, m. 9. A solution: add a flag to the ANote struct
+that says "when respacing, ignore this note", or, better, "ignore the chord this note
+belongs to"; add it to the note Get Info dialog.  Est. fix impact: low: there's a byte
+available to put this flag in, and it's been initialized to 0 for many years. Code
+changes would be in SpaceTime.cp > SymWidthLeft(). However, that function calls
+ChordNoteToLeft() with staff nos., while ChordNoteToLeft() expects voice nos.! This
+is a mess; may not be low-impact after all and may not be worth the effort.
+
+In code to display CNFG fields: add _musicFontID_; rearrange to come closer to the order
+of declarations in applicationTypes.h; minor cleanup.

@@ -33,7 +33,6 @@
  *	These are used to remember the type of last font used, so that we can optimize
  *	font changes.
  */
-
 enum {
 	F_None,
 	F_Music,
@@ -84,9 +83,8 @@ static DDIST oldBar,				/* For optimizing PostScript versions */
 
 static DDIST pageWidth,				/* Sizes of page in whatever coordinates */
 			 pageHeight,
-			 wStaff,wLedger,		/* Widths of various lines to be drawn */
-			 wBar,wStem,
-			 wConnect,
+			 wStaff,wLedger,		/* Widths of staff lines, ledger lines, */
+			 wBar,wStem,			/*   barlines, note stems */
 			 lineSpace,				/* Distance between adjacent staff lines */
 			 stemFudge;				/* For shortening stems at notehead end */
 
@@ -149,7 +147,6 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
  		 *	This may be a different call for MultiFinder, and could
  		 *	just as well be a locked handle somewhere high in memory.
  		 */
- 		
  		buffer = (char *)NewPtr(PSBUFSIZE);
  		if (thisError = MemError()) return(thisError);
  		
@@ -638,7 +635,6 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 		 *	state stack, to be restored and pushed again after every showpage.  This
 		 *	keeps it the same on every page, since showpage resets it.
 		 */
-		
 		if (usingFile)
 			PS_Print("%%%%EndProlog\r");
 
@@ -778,9 +774,8 @@ OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle* oHandle)
 
 	UseResFile(rsrcFRefNum);
 
-	/* On Mac OS X, the font family identifier may not
-		match the resource identifier after resolution of
-		conflicting and duplicate fonts. */
+	/* On Mac OS X, the font family identifier may not match the resource identifier
+		after resolution of conflicting and duplicate fonts. */
 	rsrcHandle = Get1NamedResource(FOUR_CHAR_CODE('FOND'), fontFamilyName);
 	require_action(rsrcHandle != NULL,
 		Get1NamedResource_Failed, status = ResError());
@@ -1756,7 +1751,7 @@ OSErr PS_ArpSign(Document *doc, DDIST x, DDIST y, DDIST height, short sizePercen
  * seem to be better.
  */
  
-#define MIN_LW 4	/* minimum "safe" linewidth */
+#define MIN_LINEWIDTH 4	/* minimum "safe" linewidth (DDIST) */
 
 
 /*
@@ -1771,6 +1766,7 @@ OSErr PS_ArpSign(Document *doc, DDIST x, DDIST y, DDIST height, short sizePercen
 OSErr PS_MusSize(Document *doc, short ptSize)
 	{
 		static short prevPtSize=-1;
+		static Boolean firstTime=TRUE;
 		
 		if (ptSize<=0) {
 			prevPtSize = ptSize;				/* Re-initialize */
@@ -1784,8 +1780,13 @@ OSErr PS_MusSize(Document *doc, short ptSize)
 			PS_SetMusicFont(doc, 100);
 			PS_Recompute();
 			
-			if (wStem<MIN_LW || wBar<MIN_LW || wLedger<MIN_LW || wStaff<MIN_LW)
+			if (wStem<MIN_LINEWIDTH || wBar<MIN_LINEWIDTH || wLedger<MIN_LINEWIDTH || wStaff<MIN_LINEWIDTH) {
+				if (firstTime)
+					DebugPrintf("PS_MusSize: some lines are very thin. MIN_LINEWIDTH=%d; wStem=%d, wBar=%d, wLedger=%d, wStaff=%d\n",
+						MIN_LINEWIDTH, wStem, wBar, wLedger, wStaff);
+				firstTime = FALSE;
 				thinLines = TRUE;
+			}
 				
 			if (wStem != oldStem) PS_Print("/stw %ld def\r",(long)wStem);
 			if (wBar  != oldBar)  PS_Print("/blw %ld def\r",(long)wBar);
@@ -2033,7 +2034,6 @@ static void PS_Recompute()
 		barlineLW = (config.barlineLW* lineSpLong) / 100L;		/* barline */
 					  
 		PS_SetWidths(staffLW, ledgerLW, stemLW, barlineLW);
-		wConnect = (DDIST)(lineSpace * 35.0/64.0);
 	}
 
 /*

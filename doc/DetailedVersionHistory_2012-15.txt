@@ -178,10 +178,17 @@ Change version number from 5.4 to 5.5! Affects Info.plist.
 
 -------------------------------------------------------------------------------
 
-27 Sept. - 10 Oct.
+27 Sept. - 18 Oct.
 
 Add a "Mute Part" command to the Play/Rec menu; notes for the muted part will neither
 be played nor written to an exported MIDI file. Affects .rsrc; applicationTypes.h,
 MIDIGeneral.h, NightTemplates.h, NResourceID.h; Documents, Menu, MIDIDialogs, MIDIPlay,
 MIDIFSave, MIDIUtils, Part.
 
+In code to display CNFG fields: add _musicFontID_; rearrange to come closer to the order
+of declarations; minor cleanup. Affects applicationTypes.h; Initialize.
+
+PS_Stdio: clarify comments; minor cleanup.
+
+Make Debug Check's checking for "SYSTEM AT xxx RECT PAST RIGHT MARGIN" less strict.
+Affects DebugUtils.
