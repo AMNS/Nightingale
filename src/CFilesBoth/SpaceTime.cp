@@ -60,6 +60,19 @@ Boolean FillRelStaffSizes(Document *doc)
 	return nonstandard;
 }		
 
+void FillIgnoreChordTable(Document *doc, LINK syncL, Boolean ignoreChord[])
+{
+	short i;
+	LINK aNoteL;
+
+	/* Fill in table of chords user doesn't want to affect spacing. */
+	for (i=1; i<=MAXVOICES; i++) {
+		ignoreChord[i] = FALSE;
+	}
+}
+
+
+
 /* -------------------------------------------------- SymWidthLeft, SymWidthRight -- */
 /* Return the horizontal space <pL> really occupies, i.e., the minimum required
 to avoid overwriting, for the given staff only or for all staves. SymWidthLeft
@@ -81,16 +94,19 @@ STDIST SymWidthLeft(
 	LINK 		aNoteL, aGRNoteL, aMeasL;
 	short		xmoveAcc, maxxmoveAcc, s;
 	Boolean	anyStaff, noteToLeft;
+	Boolean ignoreChord[MAXVOICES+1];
 	
 	anyStaff = (staff==ANYONE);
 	if (!anyStaff && STAFFN_BAD(doc, staff)) return 0;						/* Sanity check */
 
 	switch (ObjLType(pL)) {
 		case SYNCtype:
+			FillIgnoreChordTable(doc, pL, ignoreChord);
+			
 			noteToLeft = FALSE;
 			if (anyStaff) {
 				for (s = 1; s<=doc->nstaves; s++)
-					if (ChordNoteToLeft(pL,s)) { noteToLeft = TRUE; break; }
+					if (!ChordNoteToLeft(pL,s)) { noteToLeft = TRUE; break; }
 			}
 			else
 				if (ChordNoteToLeft(pL,staff)) noteToLeft = TRUE;

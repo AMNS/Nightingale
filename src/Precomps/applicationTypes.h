@@ -186,17 +186,17 @@ typedef struct {
  */
 
 typedef struct {
-	short			maxDocuments;		/* Size of Document table to allocate */
+	short		maxDocuments;		/* Size of Document table to allocate */
 
 	SignedByte	stemLenNormal;		/* Standard stem length (quarter-spaces) */
 	SignedByte	stemLen2v;			/* Standard stem length if >=2 voices/staff (qtr-spaces) */
-	SignedByte	stemLenOutside;	/* Standard stem length if entire stem outside of staff (qtr-spaces) */
+	SignedByte	stemLenOutside;		/* Standard stem length if entire stem outside of staff (qtr-spaces) */
 	SignedByte	stemLenGrace;		/* Standard grace note stem length (qtr-spaces) */
 
 	SignedByte	spAfterBar;			/* For Respace, "normal" space between barline and next symbol (eighth-spaces) */
-	SignedByte	minSpBeforeBar;	/* For Respace, min. space between barline and previous symbol (eighth-spaces) */
+	SignedByte	minSpBeforeBar;		/* For Respace, min. space between barline and previous symbol (eighth-spaces) */
 	SignedByte	minRSpace;			/* For Respace, minimum space between symbols (eighth-spaces) */
-	SignedByte	minLyricRSpace;	/* For Respace, minimum space between lyrics (eighth-spaces) */
+	SignedByte	minLyricRSpace;		/* For Respace, minimum space between lyrics (eighth-spaces) */
 	SignedByte	minRSpace_KSTS_N;	/* For Respace, min. space btwn keysig or timesig and note (eighth-spaces) */
 
 	SignedByte	hAccStep;			/* Step size for moving accidentals to avoid overlap */
@@ -204,7 +204,7 @@ typedef struct {
 	SignedByte	stemLW;				/* PostScript linewidth for note stems (% of a space) */
 	SignedByte	barlineLW;			/* PostScript linewidth for regular barlines (% of a space) */
 	SignedByte	ledgerLW;			/* PostScript linewidth for ledger lines (% of a space) */
-	SignedByte	staffLW;				/* PostScript linewidth for staff lines (% of a space) */
+	SignedByte	staffLW;			/* PostScript linewidth for staff lines (% of a space) */
 	SignedByte	enclLW;				/* PostScript linewidth for text/meas.no. enclosure (qtr-points) */
 
 	SignedByte	beamLW;				/* (+)PostScript linewidth for normal-note beams (% of a space) */
@@ -215,38 +215,37 @@ typedef struct {
 
 	SignedByte	graceSlashLW;		/* PostScript linewidth of slashes on grace-notes stems (% of a space) */
 	SignedByte	slurMidLW;			/* PostScript linewidth of middle of slurs and ties (% of a space) */
-
 	SignedByte	tremSlashLW;		/* +Linewidth of tremolo slashes (% of a space) */
 
 	SignedByte	slurCurvature;		/* Initial slur curvature (% of "normal") */
 	SignedByte	tieCurvature;		/* Initial tie curvature (% of "normal") */
 	SignedByte	relBeamSlope;		/* Relative slope for new beams (%) */
 
-	SignedByte	hairpinMouthWidth; /* Initial hairpin mouth width (quarter-spaces) */
+	SignedByte	hairpinMouthWidth;	/* Initial hairpin mouth width (quarter-spaces) */
 	SignedByte	mbRestBaseLen;		/* Length of 2-meas. multibar rest (qtr-spaces) */
 	SignedByte	mbRestAddLen;		/* Additional length per meas. of multibar rest (qtr-spaces) */
-	SignedByte	barlineDashLen;	/* Length of dashes in dotted barlines (eighth-spaces) */
-	SignedByte	crossStaffBeamExt; /* Dist. cross-staff beams extend past end stem (qtr-spaces) */
+	SignedByte	barlineDashLen;		/* Length of dashes in dotted barlines (eighth-spaces) */
+	SignedByte	crossStaffBeamExt;	/* Dist. cross-staff beams extend past end stem (qtr-spaces) */
 
 	SignedByte	slashGraceStems;	/* !0 = slash stems of (normally unbeammed 8th) grace notes */
-	SignedByte	bracketsForBraces; /* !0 = substitute square brackets for curly braces */
+	SignedByte	bracketsForBraces;	/* !0 = substitute square brackets for curly braces */
 
 	SignedByte	titleMargin;		/* Additional margin at top of first page, in points */
 	
-	Rect			paperRect;			/* Default paper size, in points */
-	Rect			pageMarg;			/* Default page top/left/bottom/right margins, in points */
-	Rect			pageNumMarg;		/* Page number top/left/bottom/right margins, in points */
+	Rect		paperRect;			/* Default paper size, in points */
+	Rect		pageMarg;			/* Default page top/left/bottom/right margins, in points */
+	Rect		pageNumMarg;		/* Page number top/left/bottom/right margins, in points */
 
-	SignedByte	defaultLedgers;	/* Default max. no. of ledger lines to position systems for */
+	SignedByte	defaultLedgers;		/* Default max. no. of ledger lines to position systems for */
 
 	SignedByte	defaultTSNum;		/* Default time signature numerator */
-	SignedByte	defaultTSDenom;	/* Default time signature denominator */
+	SignedByte	defaultTSDenom;		/* Default time signature denominator */
 
-	SignedByte	defaultRastral;	/* Default staff size rastral */
+	SignedByte	defaultRastral;		/* Default staff size rastral */
 	SignedByte	rastral0size;		/* Height of rastral 0 staff (points) */
 
-	SignedByte	minRecVelocity;	/* Softer (lower-velocity) recorded notes are ignored */
-	SignedByte	minRecDuration;	/* Shorter recorded notes are ignored (milliseconds) */
+	SignedByte	minRecVelocity;		/* Softer (lower-velocity) recorded notes are ignored */
+	SignedByte	minRecDuration;		/* Shorter recorded notes are ignored (milliseconds) */
 	SignedByte	midiThru;			/* MIDI Thru: 0 = off, 1 = to modem port */
 
 	short			defaultTempo;		/* Default tempo (quarters per min.) */
@@ -276,31 +275,31 @@ typedef struct {
 	SignedByte	strictContin; 		/* Use strict (old) rules for continous selections? */
 	SignedByte	turnPagesInPlay;	/* !0 = "turn pages" on screen during playback */
 	SignedByte	infoDistUnits;		/* Code for units for Get Info to display distances */
-	SignedByte	earlyMusic;			/* !0 = allow early music clefs */
+	SignedByte	earlyMusic;			/* !0 = allow early music clef positions */
 	SignedByte	mShakeThresh;		/* Max. number of ticks between connected mouse shakes */
 
-	short			musicFontID;		/* Font ID of music font (0=use Sonata) */
-	short			numMasters;			/* Size of extra MasterPtr blocks */
+	short		musicFontID;		/* Font ID of music font (0=use Sonata) */
+	short		numMasters;			/* Size of extra MasterPtr blocks */
 
 	SignedByte	indent1st;			/* Default 1st system indent (qtr-spaces) */
 	SignedByte	mbRestHeight;		/* In qtr-spaces: 2 for engraving, 4 for "manuscript" style */
-	short			chordSymMusSize;	/* Size of music chars. in chord syms. (% of text size) */
+	short		chordSymMusSize;	/* Size of music chars. in chord syms. (% of text size) */
 	SignedByte	enclMargin;			/* Margin between text bboxes and enclosures (points) */
-	SignedByte	musFontSizeOffset; /* Offset on PostScript size for music font (points) */
+	SignedByte	musFontSizeOffset;	/* Offset on PostScript size for music font (points) */
 	
 	SignedByte	fastScreenSlurs;	/* Code for faster-drawing but less beautiful slurs on screen */
 	SignedByte	legatoPct;			/* For notes, play duration/note duration (%) */
-	short			defaultPatch;		/* MIDI default patch number, 1 to MAXPATCHNUM */
+	short		defaultPatch;		/* MIDI default patch number, 1 to MAXPATCHNUM */
 	SignedByte	whichMIDI;			/* Use MIDI Mgr, built-in MIDI, or none: see InitMIDI */
 	SignedByte	restMVOffset; 		/* Rest multivoice offset from normal ht. (half-spaces) */
 	SignedByte	autoBeamOptions; 	/* Control beam breaks for Autobeam */
 	SignedByte	dontAsk; 			/* !0 = save Preference and palette changes without asking */
 	SignedByte	noteOffVel;			/* Default MIDI Note Off velocity */
-	SignedByte	feedbackNoteOnVel; /* Note On velocity to use for feedback on input, etc. */
-	SignedByte	defaultChannel;	/* MIDI default channel number, 1 to MAXCHANNEL */
+	SignedByte	feedbackNoteOnVel;	/* Note On velocity to use for feedback on input, etc. */
+	SignedByte	defaultChannel;		/* MIDI default channel number, 1 to MAXCHANNEL */
 	SignedByte	enclWidthOffset;	/* Offset on width of text enclosures (points) */
-	short			rainyDayMemory;	/* Number of Kbytes in "rainy day" memory fund */
-	short			tryTupLevels;		/* When quantizing, beat levels to look for tuplets at */
+	short		rainyDayMemory;		/* Number of Kbytes in "rainy day" memory fund */
+	short		tryTupLevels;		/* When quantizing, beat levels to look for tuplets at */
 	SignedByte	solidStaffLines;	/* !0 = (non-Master Page) staff lines are solid, else gray */
 	SignedByte	moveModNRs;			/* !0 = when notes move vertically, move modifiers too */
 	SignedByte	minSpAfterBar;		/* For Respace, min. space between barline and next symbol (eighth-spaces) */
@@ -335,9 +334,9 @@ typedef struct {
 	SignedByte	tempoMarkHGap;		/* Extra gap between tempo mark & metronome mark */
 	SignedByte	conFiller;
 
-	short			trebleVOffset;		/* Vertical offset on treble clef from Sonata pos. (% of a space) */
-	short			cClefVOffset;		/* Vertical offset on C clef from Sonata pos. (% of a space) */
-	short			bassVOffset;		/* Vertical offset on bass clef from Sonata pos. (% of a space) */
+	short		trebleVOffset;		/* Vertical offset on treble clef from Sonata pos. (% of a space) */
+	short		cClefVOffset;		/* Vertical offset on C clef from Sonata pos. (% of a space) */
+	short		bassVOffset;		/* Vertical offset on bass clef from Sonata pos. (% of a space) */
 
 	SignedByte	tupletNumSize;		/* PostScript size of accessory numerals in tuplets (% of text size) */
 	SignedByte	tupletColonSize;	/* PostScript size of colons between tuplet numerals (% of text size) */
@@ -370,7 +369,7 @@ typedef struct {
 	SignedByte	quantizeBeamYPos;		/* !0 = force beam vertical positions to sit, straddle, or hang */
 	SignedByte	makeBackup;				/* !0 = on Save, rename and keep old file as backup */
 
-	short			chordFrameFontID;		/* Font ID of chord-frame font (0=use Seville) */
+	short		chordFrameFontID;		/* Font ID of chord-frame font (0=use Seville) */
 	SignedByte	chordFrameRelFSize;	/* !0 = size is relative to staff size */ 
 	SignedByte	chordFrameFontSize;	/* if chordFrameRelFSize, small..large code, else point size */
 	SignedByte	notelistWriteBeams;	/* !0 = include beamsets in Notelist files */
@@ -378,7 +377,7 @@ typedef struct {
 
 	/* Following fields were added after Nightingale 3.5. */
 
-	Byte			maxHyphenDist;			/* For flow in text, max. space a hyphen can span (half-spaces; 0 = 1/2 in.) */
+	Byte		maxHyphenDist;			/* For flow in text, max. space a hyphen can span (half-spaces; 0 = 1/2 in.) */
 	SignedByte	enlargeNRHiliteH;		/* Further enlarge note/rest sel. hiliting area, horiz. (pixels) */
 	SignedByte	enlargeNRHiliteV;		/* Further enlarge note/rest sel. hiliting area, vertical (pixels) */
 	SignedByte	pianorollLenFact;		/* Relative length of note bars in pianoroll (%; 0 = just round blobs) */

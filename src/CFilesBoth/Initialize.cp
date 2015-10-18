@@ -615,13 +615,13 @@ static void DebugDisplayCnfg()
 	DebugPrintf("  (41)defaultRastral=%d\n", config.defaultRastral);
 	DebugPrintf("  (42)rastral0size=%d", config.rastral0size);
 
-	DebugPrintf("  (43)defaultTempo=%d", config.defaultTempo);
-	DebugPrintf("  (44)minRecVelocity=%d", config.minRecVelocity);
-	DebugPrintf("  (45)minRecDuration=%d\n", config.minRecDuration);
-	DebugPrintf("  (46)midiThru=%d", config.midiThru);
+	DebugPrintf("  (43)minRecVelocity=%d", config.minRecVelocity);
+	DebugPrintf("  (44)minRecDuration=%d\n", config.minRecDuration);
+	DebugPrintf("  (45)midiThru=%d", config.midiThru);
+	DebugPrintf("  (46)defaultTempo=%d", config.defaultTempo);
 
-	DebugPrintf("  (47)minMemory=%d", config.minMemory);
-	DebugPrintf("  (48)lowMemory=%d\n", config.lowMemory);
+	DebugPrintf("  (47)lowMemory=%d", config.lowMemory);
+	DebugPrintf("  (48)minMemory=%d\n", config.minMemory);
 
 	DebugPrintf("  (49)numRows=%d", config.numRows);
 	DebugPrintf("  (50)numCols=%d", config.numCols);
@@ -637,40 +637,41 @@ static void DebugDisplayCnfg()
 	DebugPrintf("  (59)infoDistUnits=%d", config.infoDistUnits);
 	DebugPrintf("  (60)mShakeThresh=%d\n", config.mShakeThresh);
 	
-	DebugPrintf("  (61)numMasters=%d", config.numMasters);
-	DebugPrintf("  (62)indent1st=%d", config.indent1st);
-	DebugPrintf("  (63)chordSymMusSize=%d", config.chordSymMusSize);
+	DebugPrintf("  (61)musicFontID=%d", config.musicFontID);
+	DebugPrintf("  (62)numMasters=%d", config.numMasters);
+	DebugPrintf("  (63)indent1st=%d", config.indent1st);
+	DebugPrintf("  (64)chordSymMusSize=%d\n", config.chordSymMusSize);
+	DebugPrintf("  (65)mbRestHeight=%d", config.mbRestHeight);
 
-	DebugPrintf("  (64)legatoPct=%d\n", config.legatoPct);
+	DebugPrintf("  (66)enclMargin=%d", config.enclMargin);
+	DebugPrintf("  (67)legatoPct=%d", config.legatoPct);
 
-	DebugPrintf("  (65)defaultPatch=%d", config.defaultPatch);
-	DebugPrintf("  (66)whichMIDI=%d", config.whichMIDI);
-	DebugPrintf("  (67)enclMargin=%d", config.enclMargin);
-	DebugPrintf("  (68)mbRestHeight=%d\n", config.mbRestHeight);
+	DebugPrintf("  (68)defaultPatch=%d\n", config.defaultPatch);
+	DebugPrintf("  (69)whichMIDI=%d", config.whichMIDI);
 
-	DebugPrintf("  (69)musFontSizeOffset=%d", config.musFontSizeOffset);
-	DebugPrintf("  (70)restMVOffset=%d", config.restMVOffset);
-	DebugPrintf("  (71)autoBeamOptions=%d\n", config.autoBeamOptions);
+	DebugPrintf("  (70)musFontSizeOffset=%d", config.musFontSizeOffset);
+	DebugPrintf("  (71)restMVOffset=%d\n", config.restMVOffset);
+	DebugPrintf("  (72)autoBeamOptions=%d", config.autoBeamOptions);
 	
-	DebugPrintf("  (72)noteOffVel=%d", config.noteOffVel);
-	DebugPrintf("  (73)feedbackNoteOnVel=%d", config.feedbackNoteOnVel);
-	DebugPrintf("  (74)defaultChannel=%d\n", config.defaultChannel);
-	DebugPrintf("  (75)rainyDayMemory=%d", config.rainyDayMemory);
-	DebugPrintf("  (76)tryTupLevels=%d", config.tryTupLevels);
-	DebugPrintf("  (77)justifyWarnThresh=%d\n", config.justifyWarnThresh);
+	DebugPrintf("  (73)noteOffVel=%d", config.noteOffVel);
+	DebugPrintf("  (74)feedbackNoteOnVel=%d", config.feedbackNoteOnVel);
+	DebugPrintf("  (75)defaultChannel=%d\n", config.defaultChannel);
+	DebugPrintf("  (76)rainyDayMemory=%d", config.rainyDayMemory);
+	DebugPrintf("  (77)tryTupLevels=%d", config.tryTupLevels);
+	DebugPrintf("  (78)justifyWarnThresh=%d\n", config.justifyWarnThresh);
 
-	DebugPrintf("  (78)metroChannel=%d", config.metroChannel);
-	DebugPrintf("  (79)metroNote=%d", config.metroNote);
-	DebugPrintf("  (80)metroVelo=%d", config.metroVelo);
-	DebugPrintf("  (81)metroDur=%d\n", config.metroDur);
+	DebugPrintf("  (79)metroChannel=%d", config.metroChannel);
+	DebugPrintf("  (80)metroNote=%d", config.metroNote);
+	DebugPrintf("  (81)metroVelo=%d", config.metroVelo);
+	DebugPrintf("  (82)metroDur=%d\n", config.metroDur);
 
-	DebugPrintf("  (82)chordSymSmallSize=%d", config.chordSymSmallSize);
-	DebugPrintf("  (83)chordSymSuperscr=%d", config.chordSymSuperscr);
-	DebugPrintf("  (84)chordSymStkLead=%d\n", config.chordSymStkLead);
+	DebugPrintf("  (83)chordSymSmallSize=%d", config.chordSymSmallSize);
+	DebugPrintf("  (84)chordSymSuperscr=%d", config.chordSymSuperscr);
+	DebugPrintf("  (85)chordSymStkLead=%d\n", config.chordSymStkLead);
 
-	DebugPrintf("  (85)tupletNumSize=%d", config.tupletNumSize);
-	DebugPrintf("  (86)tupletColonSize=%d", config.tupletColonSize);
-	DebugPrintf("  (87)octaveNumSize=%d", config.octaveNumSize);
+	DebugPrintf("  (86)tupletNumSize=%d", config.tupletNumSize);
+	DebugPrintf("  (87)tupletColonSize=%d", config.tupletColonSize);
+	DebugPrintf("  (88)octaveNumSize=%d", config.octaveNumSize);
 	DebugPrintf("  (89)lineLW=%d\n", config.lineLW);
 	DebugPrintf("  (90)ledgerLLen=%d", config.ledgerLLen);
 	DebugPrintf("  (91)ledgerLOtherLen=%d", config.ledgerLOtherLen);
@@ -936,22 +937,22 @@ static Boolean GetConfig()
 	if (config.rastral0size < 4 || config.rastral0size > 72)
 			{ config.rastral0size = pdrSize[0]; ERR(42); }
 
-	if (config.defaultTempo < 1 || config.defaultTempo > MAXBPM)
-			{ config.defaultTempo = 96; ERR(43); }
 	if (config.minRecVelocity < 1 || config.minRecVelocity > MAX_VELOCITY)
-			{ config.minRecVelocity = 10; ERR(44); }
-	if (config.minRecDuration < 1) { config.minRecDuration = 50; ERR(45); }
+			{ config.minRecVelocity = 10; ERR(43); }
+	if (config.minRecDuration < 1) { config.minRecDuration = 50; ERR(44); }
 #define MIDI_THRU
 #ifdef MIDI_THRU
 	/* ??MIDI THRU SHOULD WORK FOR OMS, BUT MAY FAIL OR EVEN BE DANGEROUS W/OTHER
 		DRIVERS! Needs thought/testing. */
-	if (config.midiThru < 0) { config.midiThru = 0; ERR(46); }
+	if (config.midiThru < 0) { config.midiThru = 0; ERR(45); }
 #else
 	config.midiThru = 0;
 #endif		
 
-	if (config.minMemory < 1) { config.minMemory = 1; ERR(47); }
-	if (config.lowMemory < config.minMemory) { config.lowMemory = config.minMemory; ERR(48); }
+	if (config.defaultTempo < 1 || config.defaultTempo > MAXBPM)
+			{ config.defaultTempo = 96; ERR(46); }
+	if (config.lowMemory < config.minMemory) { config.lowMemory = config.minMemory; ERR(47); }
+	if (config.minMemory < 1) { config.minMemory = 1; ERR(48); }
 
 	if (config.numRows < 1) { config.numRows = 4; ERR(49); }
 	if (config.numCols < 1) { config.numCols = 4; ERR(50); }
@@ -969,62 +970,62 @@ static Boolean GetConfig()
 			{ config.infoDistUnits = 0; ERR(59); }
 	if (config.mShakeThresh < 0) { config.mShakeThresh = 0; ERR(60); }
 
-	if (config.numMasters < 64) { config.numMasters = 64; ERR(61); }
+	if (config.numMasters < 64) { config.numMasters = 64; ERR(62); }
 	
-	if (config.indent1st < 0) { config.indent1st = 47; ERR(62); }
-	if (config.chordSymMusSize < 10) { config.chordSymMusSize = 150; ERR(63); }
+	if (config.indent1st < 0) { config.indent1st = 47; ERR(63); }
+	if (config.chordSymMusSize < 10) { config.chordSymMusSize = 150; ERR(64); }
+	
+	if (config.mbRestHeight < 1) { config.mbRestHeight = 2; ERR(65); }
+	if (config.enclMargin < 0) { config.enclMargin = 2; ERR(66); }
 
-	if (config.legatoPct < 1) { config.legatoPct = 95; ERR(64); }
+	if (config.legatoPct < 1) { config.legatoPct = 95; ERR(67); }
 	if (config.defaultPatch < 1 || config.defaultPatch > MAXPATCHNUM)
-			{ config.defaultPatch = 1; ERR(65); }
+			{ config.defaultPatch = 1; ERR(68); }
 			
-	if (config.whichMIDI < 0 || config.whichMIDI > MIDISYS_NONE) { config.whichMIDI = MIDISYS_CM; ERR(66); }
-	
-	if (config.enclMargin < 0) { config.enclMargin = 2; ERR(67); }
-	if (config.mbRestHeight < 1) { config.mbRestHeight = 2; ERR(68); }
+	if (config.whichMIDI < 0 || config.whichMIDI > MIDISYS_NONE) { config.whichMIDI = MIDISYS_CM; ERR(69); }
 	
 	/* Set min. for musFontSizeOffset so even if rastral 0 is 4 pts, will still give >0 PS size */
-	if (config.musFontSizeOffset < -3) { config.musFontSizeOffset = 0; ERR(69); }
+	if (config.musFontSizeOffset < -3) { config.musFontSizeOffset = 0; ERR(70); }
 
 	if (config.restMVOffset < 0 || config.restMVOffset > 20)
-			{ config.restMVOffset = 2; ERR(70); }
+			{ config.restMVOffset = 2; ERR(71); }
 	if (config.autoBeamOptions < 0 || config.autoBeamOptions > 3)
-			{ config.autoBeamOptions = 0; ERR(71); }
+			{ config.autoBeamOptions = 0; ERR(72); }
 	if (config.noteOffVel < 1 || config.noteOffVel > MAX_VELOCITY)
-			{ config.noteOffVel = 64; ERR(72); }
+			{ config.noteOffVel = 64; ERR(73); }
 	if (config.feedbackNoteOnVel < 1 || config.feedbackNoteOnVel > MAX_VELOCITY)
-			{ config.feedbackNoteOnVel = 64; ERR(73); }
+			{ config.feedbackNoteOnVel = 64; ERR(74); }
 	if (config.defaultChannel < 1 || config.defaultChannel > MAXCHANNEL)
-			{ config.defaultChannel = 1; ERR(74); }
+			{ config.defaultChannel = 1; ERR(75); }
 	if (config.rainyDayMemory < 32 || config.rainyDayMemory > 1024)
-			{ config.rainyDayMemory = 32; ERR(75); }
+			{ config.rainyDayMemory = 32; ERR(76); }
 	if (config.tryTupLevels < 1 || config.tryTupLevels > 321)
-			{ config.tryTupLevels = 21; ERR(76); }
+			{ config.tryTupLevels = 21; ERR(77); }
 	if (config.justifyWarnThresh < 10)
-			{ config.justifyWarnThresh = 15; ERR(77); }
+			{ config.justifyWarnThresh = 15; ERR(78); }
 
 	if (config.metroChannel < 1 || config.metroChannel > MAXCHANNEL)
-			{ config.metroChannel = 1; ERR(78); }
+			{ config.metroChannel = 1; ERR(79); }
 	if (config.metroNote < 1 || config.metroNote > MAX_NOTENUM)
-			{ config.metroNote = 77; ERR(79); }
+			{ config.metroNote = 77; ERR(80); }
 	if (config.metroVelo < 1 || config.metroVelo > MAX_VELOCITY)
-			{ config.metroVelo = 90; ERR(80); }
+			{ config.metroVelo = 90; ERR(81); }
 	if (config.metroDur < 1 || config.metroDur > 999)
-			{ config.metroDur = 50; ERR(81); }
+			{ config.metroDur = 50; ERR(82); }
 
 	if (config.chordSymSmallSize < 1 || config.chordSymSmallSize > 127)
-			{ config.chordSymSmallSize = 1; ERR(82); }
+			{ config.chordSymSmallSize = 1; ERR(83); }
 	if (config.chordSymSuperscr < 0 || config.chordSymSuperscr > 127)
-			{ config.chordSymSuperscr = 1; ERR(83); }
+			{ config.chordSymSuperscr = 1; ERR(84); }
 	if (config.chordSymStkLead < -20 || config.chordSymStkLead > 127)
-			{ config.chordSymStkLead = 10; ERR(84); }
+			{ config.chordSymStkLead = 10; ERR(85); }
 
 	if (config.tupletNumSize < 0 || config.tupletNumSize > 127)
-			{ config.tupletNumSize = 110; ERR(85); }
+			{ config.tupletNumSize = 110; ERR(86); }
 	if (config.tupletColonSize < 0 || config.tupletColonSize > 127)
-			{ config.tupletColonSize = 60; ERR(86); }
+			{ config.tupletColonSize = 60; ERR(87); }
 	if (config.octaveNumSize < 0 || config.octaveNumSize > 127)
-			{ config.octaveNumSize = 110; ERR(87); }
+			{ config.octaveNumSize = 110; ERR(88); }
 	if (config.lineLW < 5 || config.lineLW > 127) { config.lineLW = 25; ERR(89); }
 	if (config.ledgerLLen < 32) { config.ledgerLLen = 48; ERR(90); }
 	if (config.ledgerLOtherLen < 0) { config.ledgerLOtherLen = 12; ERR(91); }
