@@ -165,9 +165,6 @@ void Initialize()
 	
 	if (!NInitFloatingWindows())
 		{ BadInit(); ExitToShell(); }
-#ifdef VIEWER_VERSION
-	ShowHidePalettes(FALSE);
-#endif
 	
 	InitCursor();
 	WaitCursor();
@@ -640,8 +637,8 @@ static void DebugDisplayCnfg()
 	DebugPrintf("  (61)musicFontID=%d", config.musicFontID);
 	DebugPrintf("  (62)numMasters=%d", config.numMasters);
 	DebugPrintf("  (63)indent1st=%d", config.indent1st);
-	DebugPrintf("  (64)chordSymMusSize=%d\n", config.chordSymMusSize);
-	DebugPrintf("  (65)mbRestHeight=%d", config.mbRestHeight);
+	DebugPrintf("  (64)mbRestHeight=%d\n", config.mbRestHeight);
+	DebugPrintf("  (65)chordSymMusSize=%d", config.chordSymMusSize);
 
 	DebugPrintf("  (66)enclMargin=%d", config.enclMargin);
 	DebugPrintf("  (67)legatoPct=%d", config.legatoPct);
@@ -650,42 +647,44 @@ static void DebugDisplayCnfg()
 	DebugPrintf("  (69)whichMIDI=%d", config.whichMIDI);
 
 	DebugPrintf("  (70)musFontSizeOffset=%d", config.musFontSizeOffset);
-	DebugPrintf("  (71)restMVOffset=%d\n", config.restMVOffset);
-	DebugPrintf("  (72)autoBeamOptions=%d", config.autoBeamOptions);
+	DebugPrintf("  (71)fastScreenSlurs=%d", config.fastScreenSlurs);
+	DebugPrintf("  (72)restMVOffset=%d\n", config.restMVOffset);
+	DebugPrintf("  (73)autoBeamOptions=%d", config.autoBeamOptions);
 	
-	DebugPrintf("  (73)noteOffVel=%d", config.noteOffVel);
-	DebugPrintf("  (74)feedbackNoteOnVel=%d", config.feedbackNoteOnVel);
-	DebugPrintf("  (75)defaultChannel=%d\n", config.defaultChannel);
-	DebugPrintf("  (76)rainyDayMemory=%d", config.rainyDayMemory);
-	DebugPrintf("  (77)tryTupLevels=%d", config.tryTupLevels);
-	DebugPrintf("  (78)justifyWarnThresh=%d\n", config.justifyWarnThresh);
+	DebugPrintf("  (74)noteOffVel=%d", config.noteOffVel);
+	DebugPrintf("  (75)feedbackNoteOnVel=%d", config.feedbackNoteOnVel);
+	DebugPrintf("  (76)defaultChannel=%d\n", config.defaultChannel);
+	DebugPrintf("  (77)enclWidthOffset=%d", config.enclWidthOffset);	
+	DebugPrintf("  (78)rainyDayMemory=%d", config.rainyDayMemory);
+	DebugPrintf("  (79)tryTupLevels=%d", config.tryTupLevels);
+	DebugPrintf("  (80)justifyWarnThresh=%d\n", config.justifyWarnThresh);
 
-	DebugPrintf("  (79)metroChannel=%d", config.metroChannel);
-	DebugPrintf("  (80)metroNote=%d", config.metroNote);
-	DebugPrintf("  (81)metroVelo=%d", config.metroVelo);
-	DebugPrintf("  (82)metroDur=%d\n", config.metroDur);
+	DebugPrintf("  (81)metroChannel=%d", config.metroChannel);
+	DebugPrintf("  (82)metroNote=%d", config.metroNote);
+	DebugPrintf("  (83)metroVelo=%d", config.metroVelo);
+	DebugPrintf("  (84)metroDur=%d\n", config.metroDur);
 
-	DebugPrintf("  (83)chordSymSmallSize=%d", config.chordSymSmallSize);
-	DebugPrintf("  (84)chordSymSuperscr=%d", config.chordSymSuperscr);
-	DebugPrintf("  (85)chordSymStkLead=%d\n", config.chordSymStkLead);
+	DebugPrintf("  (85)chordSymSmallSize=%d", config.chordSymSmallSize);
+	DebugPrintf("  (86)chordSymSuperscr=%d", config.chordSymSuperscr);
+	DebugPrintf("  (87)chordSymStkLead=%d\n", config.chordSymStkLead);
 
-	DebugPrintf("  (86)tupletNumSize=%d", config.tupletNumSize);
-	DebugPrintf("  (87)tupletColonSize=%d", config.tupletColonSize);
-	DebugPrintf("  (88)octaveNumSize=%d", config.octaveNumSize);
-	DebugPrintf("  (89)lineLW=%d\n", config.lineLW);
-	DebugPrintf("  (90)ledgerLLen=%d", config.ledgerLLen);
-	DebugPrintf("  (91)ledgerLOtherLen=%d", config.ledgerLOtherLen);
-	DebugPrintf("  (92)slurDashLen=%d", config.slurDashLen);
-	DebugPrintf("  (93)slurSpaceLen=%d\n", config.slurSpaceLen);
+	DebugPrintf("  (88)tupletNumSize=%d", config.tupletNumSize);
+	DebugPrintf("  (89)tupletColonSize=%d", config.tupletColonSize);
+	DebugPrintf("  (90)octaveNumSize=%d", config.octaveNumSize);
+	DebugPrintf("  (91)lineLW=%d\n", config.lineLW);
+	DebugPrintf("  (92)ledgerLLen=%d", config.ledgerLLen);
+	DebugPrintf("  (93)ledgerLOtherLen=%d", config.ledgerLOtherLen);
+	DebugPrintf("  (94)slurDashLen=%d", config.slurDashLen);
+	DebugPrintf("  (95)slurSpaceLen=%d\n", config.slurSpaceLen);
 
-	DebugPrintf("  (94)courtesyAccLXD=%d", config.courtesyAccLXD);
-	DebugPrintf("  (95)courtesyAccRXD=%d", config.courtesyAccRXD);
-	DebugPrintf("  (96)courtesyAccYD=%d", config.courtesyAccYD);
-	DebugPrintf("  (97)courtesyAccSize=%d\n", config.courtesyAccSize);
+	DebugPrintf("  (96)courtesyAccLXD=%d", config.courtesyAccLXD);
+	DebugPrintf("  (97)courtesyAccRXD=%d", config.courtesyAccRXD);
+	DebugPrintf("  (98)courtesyAccYD=%d", config.courtesyAccYD);
+	DebugPrintf("  (99)courtesyAccSize=%d\n", config.courtesyAccSize);
 
-	DebugPrintf("  (98)quantizeBeamYPos=%d", config.quantizeBeamYPos);
-	DebugPrintf("  (99)enlargeNRHiliteH=%d", config.enlargeNRHiliteH);
-	DebugPrintf("  (100)enlargeNRHiliteV=%d", config.enlargeNRHiliteV);
+	DebugPrintf("  (100)quantizeBeamYPos=%d", config.quantizeBeamYPos);
+	DebugPrintf("  (101)enlargeNRHiliteH=%d", config.enlargeNRHiliteH);
+	DebugPrintf("  (102)enlargeNRHiliteV=%d", config.enlargeNRHiliteV);
 	DebugPrintf("\n");
 }
 
@@ -853,9 +852,9 @@ static Boolean GetConfig()
 	/*
 	 * Now do a reality check for values that might be bad. We can't easily check
 	 * origin, toolsPosition, musicFontID, or the fields that represent Boolean values.
-	 * All other fields are checked, though not all as strictly as possible (of
-	 * course there's often no well-defined limit); for each problem case we find,
-	 * give an error message and set it to a reasonable default value.
+	 * Almost all other fields are checked, though not all as strictly as possible (of
+	 * course there's often no well-defined limit). For each problem case we find,
+	 * give an error message and set the field to a reasonable default value.
 	 */
 	DebugPrintf("Checking CNFG: ");
 	nerr = 0; firstErr = 0;
@@ -973,9 +972,8 @@ static Boolean GetConfig()
 	if (config.numMasters < 64) { config.numMasters = 64; ERR(62); }
 	
 	if (config.indent1st < 0) { config.indent1st = 47; ERR(63); }
-	if (config.chordSymMusSize < 10) { config.chordSymMusSize = 150; ERR(64); }
-	
-	if (config.mbRestHeight < 1) { config.mbRestHeight = 2; ERR(65); }
+	if (config.mbRestHeight < 1) { config.mbRestHeight = 2; ERR(64); }
+	if (config.chordSymMusSize < 10) { config.chordSymMusSize = 150; ERR(65); }
 	if (config.enclMargin < 0) { config.enclMargin = 2; ERR(66); }
 
 	if (config.legatoPct < 1) { config.legatoPct = 95; ERR(67); }
@@ -988,66 +986,62 @@ static Boolean GetConfig()
 	if (config.musFontSizeOffset < -3) { config.musFontSizeOffset = 0; ERR(70); }
 
 	if (config.restMVOffset < 0 || config.restMVOffset > 20)
-			{ config.restMVOffset = 2; ERR(71); }
+			{ config.restMVOffset = 2; ERR(72); }
 	if (config.autoBeamOptions < 0 || config.autoBeamOptions > 3)
-			{ config.autoBeamOptions = 0; ERR(72); }
+			{ config.autoBeamOptions = 0; ERR(73); }
 	if (config.noteOffVel < 1 || config.noteOffVel > MAX_VELOCITY)
-			{ config.noteOffVel = 64; ERR(73); }
+			{ config.noteOffVel = 64; ERR(74); }
 	if (config.feedbackNoteOnVel < 1 || config.feedbackNoteOnVel > MAX_VELOCITY)
-			{ config.feedbackNoteOnVel = 64; ERR(74); }
+			{ config.feedbackNoteOnVel = 64; ERR(75); }
 	if (config.defaultChannel < 1 || config.defaultChannel > MAXCHANNEL)
-			{ config.defaultChannel = 1; ERR(75); }
+			{ config.defaultChannel = 1; ERR(76); }
 	if (config.rainyDayMemory < 32 || config.rainyDayMemory > 1024)
-			{ config.rainyDayMemory = 32; ERR(76); }
+			{ config.rainyDayMemory = 32; ERR(78); }
 	if (config.tryTupLevels < 1 || config.tryTupLevels > 321)
-			{ config.tryTupLevels = 21; ERR(77); }
+			{ config.tryTupLevels = 21; ERR(79); }
 	if (config.justifyWarnThresh < 10)
-			{ config.justifyWarnThresh = 15; ERR(78); }
+			{ config.justifyWarnThresh = 15; ERR(80); }
 
 	if (config.metroChannel < 1 || config.metroChannel > MAXCHANNEL)
-			{ config.metroChannel = 1; ERR(79); }
+			{ config.metroChannel = 1; ERR(81); }
 	if (config.metroNote < 1 || config.metroNote > MAX_NOTENUM)
-			{ config.metroNote = 77; ERR(80); }
+			{ config.metroNote = 77; ERR(82); }
 	if (config.metroVelo < 1 || config.metroVelo > MAX_VELOCITY)
-			{ config.metroVelo = 90; ERR(81); }
+			{ config.metroVelo = 90; ERR(83); }
 	if (config.metroDur < 1 || config.metroDur > 999)
-			{ config.metroDur = 50; ERR(82); }
+			{ config.metroDur = 50; ERR(84); }
 
 	if (config.chordSymSmallSize < 1 || config.chordSymSmallSize > 127)
-			{ config.chordSymSmallSize = 1; ERR(83); }
+			{ config.chordSymSmallSize = 1; ERR(85); }
 	if (config.chordSymSuperscr < 0 || config.chordSymSuperscr > 127)
-			{ config.chordSymSuperscr = 1; ERR(84); }
+			{ config.chordSymSuperscr = 1; ERR(86); }
 	if (config.chordSymStkLead < -20 || config.chordSymStkLead > 127)
-			{ config.chordSymStkLead = 10; ERR(85); }
+			{ config.chordSymStkLead = 10; ERR(87); }
 
 	if (config.tupletNumSize < 0 || config.tupletNumSize > 127)
-			{ config.tupletNumSize = 110; ERR(86); }
+			{ config.tupletNumSize = 110; ERR(88); }
 	if (config.tupletColonSize < 0 || config.tupletColonSize > 127)
-			{ config.tupletColonSize = 60; ERR(87); }
+			{ config.tupletColonSize = 60; ERR(89); }
 	if (config.octaveNumSize < 0 || config.octaveNumSize > 127)
-			{ config.octaveNumSize = 110; ERR(88); }
-	if (config.lineLW < 5 || config.lineLW > 127) { config.lineLW = 25; ERR(89); }
-	if (config.ledgerLLen < 32) { config.ledgerLLen = 48; ERR(90); }
-	if (config.ledgerLOtherLen < 0) { config.ledgerLOtherLen = 12; ERR(91); }
-	if (config.slurDashLen < 1) { config.slurDashLen = 3; ERR(92); }
-	if (config.slurSpaceLen < 1) { config.slurSpaceLen = 3; ERR(93); }
+			{ config.octaveNumSize = 110; ERR(90); }
+	if (config.lineLW < 5 || config.lineLW > 127) { config.lineLW = 25; ERR(91); }
+	if (config.ledgerLLen < 32) { config.ledgerLLen = 48; ERR(92); }
+	if (config.ledgerLOtherLen < 0) { config.ledgerLOtherLen = 12; ERR(93); }
+	if (config.slurDashLen < 1) { config.slurDashLen = 3; ERR(94); }
+	if (config.slurSpaceLen < 1) { config.slurSpaceLen = 3; ERR(95); }
 
-	if (config.courtesyAccLXD < 0) { config.courtesyAccLXD = 6; ERR(94); }
-	if (config.courtesyAccRXD < 0) { config.courtesyAccRXD = 8; ERR(95); }
-	if (config.courtesyAccYD < 0) { config.courtesyAccYD = 8; ERR(96); }
-	if (config.courtesyAccSize < 20) { config.courtesyAccSize = 100; ERR(97); }
+	if (config.courtesyAccLXD < 0) { config.courtesyAccLXD = 6; ERR(96); }
+	if (config.courtesyAccRXD < 0) { config.courtesyAccRXD = 8; ERR(97); }
+	if (config.courtesyAccYD < 0) { config.courtesyAccYD = 8; ERR(98); }
+	if (config.courtesyAccSize < 20) { config.courtesyAccSize = 100; ERR(99); }
 
-	if (config.quantizeBeamYPos<0) { config.quantizeBeamYPos = 3; ERR(98); };
+	if (config.quantizeBeamYPos<0) { config.quantizeBeamYPos = 3; ERR(100); };
 
 	if (config.enlargeNRHiliteH < 0 || config.enlargeNRHiliteH > 10)
-			{ config.enlargeNRHiliteH = 1; ERR(99); }
+			{ config.enlargeNRHiliteH = 1; ERR(101); }
 	if (config.enlargeNRHiliteV < 0 || config.enlargeNRHiliteV > 10)
-			{ config.enlargeNRHiliteV = 1; ERR(100); }
-#ifdef LIGHT_VERSION
-	/* We MUST have undo. It's the mechanism used to recover after exceeding
-	   page limit (e.g., by reformat). */
-	config.disableUndo = 0;
-#endif			
+			{ config.enlargeNRHiliteV = 1; ERR(102); }
+
 	/* No validity check at this time for default or metro Devices, do it in InitOMS */
 
 	if (gotCnfg && nerr>0) {
@@ -1061,9 +1055,6 @@ static Boolean GetConfig()
         DebugPrintf("(no errors)\n");
 	
 Finish:
-
-	//config.noExpire = 33;								/* For Emergency Use Only */
-
 	/* Make any final adjustments. N.B. Must undo these in UpdateSetupFile()! */
 	
 	config.maxDocuments++;								/* to allow for clipboard doc */
@@ -1463,7 +1454,6 @@ Boolean InitGlobals()
 		InsertMenu(testMenu,0);
 #endif
 		
-#ifndef VIEWER_VERSION
 		scoreMenu = GetMenu(scoreID);		if (!scoreMenu) return FALSE;
 		InsertMenu(scoreMenu,0);
 		
@@ -1472,7 +1462,6 @@ Boolean InitGlobals()
 		
 		groupsMenu = GetMenu(groupsID);		if (!groupsMenu) return FALSE;
 		InsertMenu(groupsMenu,0);
-#endif
 		
 		viewMenu = GetMenu(viewID);			if (!viewMenu) return FALSE;
 		InsertMenu(viewMenu,0);

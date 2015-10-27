@@ -34,7 +34,7 @@
 */
 
 extern short nerr, errLim;
-extern Boolean minDebugCheck;			/* TRUE=don't print Less and Least important checks */
+extern Boolean minDebugCheck;			/* TRUE = don't print Less and Least important checks */
 
 #ifdef DDB
 
@@ -787,8 +787,11 @@ short DCheckNode(
 					if (d2pt(pSystem->systemRect.bottom)>doc->marginRect.bottom)
 							COMPLAIN("*DCheckNode: SYSTEM AT %u RECT BELOW BOTTOM MARGIN.\n", pL);
 					/* The expression for checking systemRect.right has always involved subtracting
-						ExtraSysWidth(doc) , but that's not enough for documents that have had their
-						staff size reduced; I don't know why, but it's not important.  --DAB, 10/2015
+						ExtraSysWidth(doc) , the width of the widest barline (final double). That's
+						not enough for documents that have had their staff size reduced because
+						ExtraSysWidth() is smaller, but SetStaffSizeMP() doesn't shorten systemRects.
+						Probably not hard to fix, but subtracting 2*ExtraSysWidth(doc) should
+						sidestep the problem with negligible side effects. --DAB, 10/2015
 					 */
 					if (d2pt(pSystem->systemRect.right-2*ExtraSysWidth(doc))>doc->marginRect.right)
 							COMPLAIN("*DCheckNode: SYSTEM AT %u RECT PAST RIGHT MARGIN.\n", pL);
@@ -1736,10 +1739,8 @@ Boolean DCheckHeirarchy(Document *doc)
 				COMPLAIN("*DCheckHeirarchy: TIMESIG AT %u inMeasure FLAG DISAGREES WITH OBJECT ORDER.\n",
 								pL);				
 			break;
-#if 1
 		case ENDINGtype:
 			if (!CapsLockKeyDown()) break;
-#endif
 		default:
 			if (!foundMeasure)
 				COMPLAIN("¥DCheckHeirarchy: OBJECT AT %u PRECEDES ITS STAFF'S 1ST MEASURE.\n", pL);
