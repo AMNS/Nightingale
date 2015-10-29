@@ -100,7 +100,7 @@
 	Boolean	PanSettingDialog(unsigned char *);
 	Boolean	ChordFrameDialog(Document *, Boolean *, short *, short *, short *,
 						unsigned char *, unsigned char *);
-	Boolean	TempoDialog(Boolean *, short *, Boolean *, unsigned char *, unsigned char *);
+	Boolean	TempoDialog(Boolean *, short *, Boolean *, Boolean *, unsigned char *, unsigned char *);
 	Boolean	SymbolIsBarline(void);
 	Boolean	InsMeasUnkDurDialog(void);
 	void		XLoadDialogsSeg(void);
@@ -513,7 +513,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	void		XLoadTextDialogSeg(void);
 	
 	Boolean	TextDialog(Document *, short *, Boolean *, short *, short *, short *,
-					Boolean *, unsigned char *, unsigned char *, CONTEXT *);
+					Boolean *, Boolean *, unsigned char *, unsigned char *, CONTEXT *);
 	Boolean	DefineStyleDialog(Document *, unsigned char *, CONTEXT *);
 
 /* ToolPalette.c */

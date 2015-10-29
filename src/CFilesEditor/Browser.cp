@@ -1715,7 +1715,7 @@ void BrowseGraphic(LINK pL)
 
 	sprintf(s, "firstObj=%d lastObj=%d", p->firstObj, p->lastObj);
 	DrawLine(s);	p = GetPGRAPHIC(pL);
-	sprintf(s, "info=%d", p->info);
+	sprintf(s, "info=%d info2=%d", p->info, p->info2);
 	DrawLine(s);	p = GetPGRAPHIC(pL);
 	switch (p->graphicType) {
 		case GRString:
@@ -1755,7 +1755,7 @@ void BrowseGraphic(LINK pL)
 			DrawLine(s);
 			break;
 		case GRDraw:
-			sprintf(s, "info2=%d thick=%d", p->info2, p->gu.thickness);
+			sprintf(s, "thick=%d", p->gu.thickness);
 			DrawLine(s);
 			break;
 		default:
@@ -1801,7 +1801,7 @@ void BrowseTempo(LINK pL)
 	sprintf(s, "subType=%d (%s) dotted=%d", p->subType, t, p->dotted);
 	DrawLine(s); p = GetPTEMPO(pL);
 
-	sprintf(s, "hideMM=%d", p->hideMM);
+	sprintf(s, "hideMM=%d expanded=%d", p->hideMM, p->expanded);
 	DrawLine(s); p = GetPTEMPO(pL);
 
 	sprintf(s, "firstObjL=%d tempo=%d", p->firstObjL, p->tempo);
@@ -1811,7 +1811,7 @@ void BrowseTempo(LINK pL)
 	if (PCopy(p->string)==NULL) {
 		DrawLine(s);			
 		sprintf(s, "** PCopy(p->string) is NULL **");
-		DrawLine(s);			
+		DrawLine(s);
 	}
 	else {
 		Pstrcpy((unsigned char *)t, PCopy(p->string));

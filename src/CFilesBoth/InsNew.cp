@@ -8,7 +8,7 @@
 		NewArpSign				GetLineOffsets			NewLine
 		NewGraphic				NewMeasure
 		NewPseudoMeas			NewClef					NewKeySig
-		NewTimeSig				NewMODNR					NewDynamic				
+		NewTimeSig				NewMODNR				NewDynamic				
 		NewRptEnd				NewEnding				NewTempo
 		XLoadInsertSeg
 /***************************************************************************/
@@ -709,6 +709,7 @@ void NewGraphic(
 			short enclosure,
 			short	auxInfo,				/* currently only for chord symbol */
 			Boolean lyric,
+			Boolean expanded,
 			unsigned char font[],
 			unsigned char string[],
 			short styleChoice			/* Header (not user) index of global style choice */
@@ -797,6 +798,7 @@ PushLock(GRAPHICheap);
 					break;
 				}
 			pGraphic->info = styleChoice;
+			pGraphic->info2 = (expanded? 1 : 0);
 	}
 	else if (graphicType==GRChordSym) {
 		pGraphic->info = auxInfo;
@@ -1611,7 +1613,7 @@ void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clic
 /*	Add a Tempo mark to the object list. */
 
 void NewTempo(Document *doc, Point pt, char inchar, short staff, STDIST pitchLev,
-					Boolean hideMM, short dur, Boolean dotted,
+					Boolean hideMM, short dur, Boolean dotted, Boolean expanded,
 					unsigned char *tempoStr, unsigned char *metroStr)
 {
 	LINK pL;
@@ -1624,10 +1626,11 @@ void NewTempo(Document *doc, Point pt, char inchar, short staff, STDIST pitchLev
 PushLock(OBJheap);
 	pTempo = GetPTEMPO(pL);
 	pTempo->staffn = staff;
+	pTempo->expanded = 0;
 	pTempo->small = 0;
 	pTempo->yd = halfLn2d(pitchLev, context.staffHeight, context.staffLines);
-	pTempo->xd = 0;														/* same horiz position as note */
-	pTempo->subType = dur;												/* beat: same units as note's l_dur */
+	pTempo->xd = 0;												/* same horiz position as note */
+	pTempo->subType = dur;										/* beat: same units as note's l_dur */
 	pTempo->dotted = dotted;
 	pTempo->hideMM = hideMM;
 	pTempo->string = PStore((unsigned char *)tempoStr);		/* index return by String Manager */
@@ -1642,10 +1645,10 @@ PushLock(OBJheap);
 	beatsPM = FindIntInString(metroStr);
 	if (beatsPM<0L) beatsPM = config.defaultTempo;
 	pTempo->tempo = beatsPM;
-	pTempo->firstObjL = doc->selStartL;							/* tempo inserted relative to this obj */
+	pTempo->firstObjL = doc->selStartL;						/* tempo inserted relative to this obj */
 PopLock(OBJheap);
 
-	InvalObject(doc,pL,FALSE);
+	InvalObject(doc, pL, FALSE);
 	NewObjCleanup(doc, pL, staff);
 }
 

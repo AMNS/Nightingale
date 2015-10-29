@@ -195,17 +195,21 @@ void GoodStrncpy(
 
 
 /* ----------------------------------------------------------------- ExpandString -- */
-/* Stretch the given string by adding one or two blanks between each pair of characters. */
+/* Stretch the given Pascal string by adding one or two blanks between each pair of
+characters. */
 
 Boolean ExpandString(unsigned char *dstStr, const unsigned char *srcStr, Boolean wider)
 {
-	unsigned short in, out, origLen;
+	unsigned short in, out, origLen, maxLenExpanded;
 	
 	origLen = *(unsigned char *)srcStr;
-	//DebugPrintf("ExpandString: origLen=%d\n", origLen);
-	if (origLen>127) return FALSE;
 	Pstrcpy(dstStr, srcStr);
 	PToCString(dstStr);
+	//DebugPrintf("ExpandString: origLen=%d str='%s'\n", origLen, dstStr);
+	/* Pascal strings can't be longer than 255 chars. */
+	maxLenExpanded = (wider? 255/3 : 255/2);
+	if (origLen>maxLenExpanded) return FALSE;
+	
 	for (in = 1, out = 0; in<=origLen; in++) {
 		*(dstStr+out) = *(srcStr+in);
 		out++;

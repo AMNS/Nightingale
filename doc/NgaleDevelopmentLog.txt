@@ -880,3 +880,19 @@ is a mess; may not be low-impact after all and may not be worth the effort.
 
 In code to display CNFG fields: add _musicFontID_; rearrange to come closer to the order
 of declarations in applicationTypes.h; minor cleanup.
+
+-------------------------------------------------------------------------------
+
+18-28 Oct.
+
+Minor changes to Initialize, DebugUtils.
+
+.rsrc: tweak the Sync Info and General Info dialogs (DLOGs 596 & 598) for readability.
+
+Make the "extended" option for text strings an option independent of the style instead
+of part of the style definition. So a flag needs to be stored in the GRAPHIC struct;
+the _info2_ field looks like a good place, not used for GRStrings. Is it always
+initialized? It looks like it: cf. InitGraphic().
+
+It works! Do the same for tempo marks => that works!
+

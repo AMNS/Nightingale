@@ -1673,6 +1673,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			short clickStaff,pitchLev;
 			Boolean hideMM = FALSE;
 			Boolean dotted = FALSE;
+			Boolean expanded = FALSE;
 			Point pt;
 			
 			unsigned long microsecPQ = tempoInfo.microsecPQ;
@@ -1698,7 +1699,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			palChar = 'M';
 			
 			NewTempo(doc, pt, palChar, clickStaff, pitchLev, hideMM, dur, dotted,
-						tempoStr, metroStr);
+						expanded, tempoStr, metroStr);
 		}
 	}
 	
@@ -1722,7 +1723,7 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short 
 			short clickStaff,pitchLev,voice,hStyleChoice = 0;
 			short newSize,newStyle,newEncl;
 			Str63 newFont; Str255 string;
-			Boolean newRelSize, newLyric = FALSE;
+			Boolean newRelSize;
 			
 			doc->selEndL = doc->selStartL = relObj;
 			pitchLev = -2;
@@ -1774,7 +1775,7 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short 
 			clickStaff = ctrlInfo.track - 1;
 
 			NewGraphic(doc, pt, palChar, clickStaff, voice, 0, newRelSize, newSize, newStyle,
-							newEncl, 0, newLyric, newFont, string, hStyleChoice);
+							newEncl, 0, FALSE, FALSE, newFont, string, hStyleChoice);
 		}
 	}
 	

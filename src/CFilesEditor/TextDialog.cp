@@ -40,9 +40,9 @@ static enum {			/* Items for text editing and many for Define Text Style dialogs
 	CHK17_Plain,
 	CHK18_Bold,
 	CHK19_Italic,
-	CHK20_Expanded,
-	CHK21_Outline,
-	CHK22_Shadow,
+	CHK20_Outline,
+	CHK21_Shadow,
+	CHK22_Lyric,
 	STXT23_Style,
 	STXT24_Text,
 	EDIT25_Text,
@@ -51,7 +51,7 @@ static enum {			/* Items for text editing and many for Define Text Style dialogs
 	USER28,
 	USER29,
 	USER30,
-	CHK31_Lyric,
+	CHK31_Expanded,
 	BUT32_InsertChar
 	} E_TextDlogItems;
 	
@@ -102,6 +102,7 @@ text as it looks from within the Filter during an update event. */
 
 static short theFont;
 static short theLyric;
+static short theExpanded;
 static short theEncl;
 static short theSize;				/* Only of interest when isRelative is FALSE */
 static short theStyle;			/* plain, bold, etc. (as opposed to "stylechoice") */
@@ -131,7 +132,7 @@ static pascal  Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit
 static void	DebugPrintFonts(Document *doc);
 static void	SetFontPopUp(unsigned char *fontName, unsigned char *strbuf);
 static void	SetAbsSizePopUp(short size, unsigned char *strbuf);
-static void	SetStyleBoxes(DialogPtr dlog, short style);
+static void	SetStyleBoxes(DialogPtr dlog, short style, short lyric);
 static void	SetStylePopUp(short styleIndex);
 static short	GetStyleChoice(void);
 static void	SaveCurrentStyle(short currStyle);
@@ -145,7 +146,7 @@ static Boolean ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style);
 static void	GetRealSizes(void);
 static void	TuneRadioIn(DialogPtr dlog,short itemHit, short *radio);
 static void	DrawExampleText(DialogPtr dlog, unsigned char *string);
-static void	InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle);
+static void	InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpanded);
 
 
 static void DebugPrintFonts(Document *doc)
@@ -424,14 +425,14 @@ static void TSSetCurrentStyle(short currStyle)
 
 /* Install a given style into dialog items */
 
-static void SetStyleBoxes(DialogPtr dlog, short style)
+static void SetStyleBoxes(DialogPtr dlog, short style, short lyric)
 	{
 		PutDlgChkRadio(dlog,CHK17_Plain,style == 0);
 		PutDlgChkRadio(dlog,CHK18_Bold,(style & bold)!=0);
 		PutDlgChkRadio(dlog,CHK19_Italic,(style & italic)!=0);
-		PutDlgChkRadio(dlog,CHK20_Expanded,(style & extend)!=0);
-		PutDlgChkRadio(dlog,CHK21_Outline,(style & outline)!=0);
-		PutDlgChkRadio(dlog,CHK22_Shadow,(style & shadow)!=0);
+		PutDlgChkRadio(dlog,CHK20_Outline,(style & outline)!=0);
+		PutDlgChkRadio(dlog,CHK21_Shadow,(style & shadow)!=0);
+		PutDlgChkRadio(dlog,CHK22_Lyric,lyric!=0);
 	}
 
 
@@ -468,9 +469,9 @@ static void DimStylePanels(DialogPtr dlog, Boolean dim)
 	HILITE_DITEM(CHK17_Plain, ctlActive);
 	HILITE_DITEM(CHK18_Bold, ctlActive);
 	HILITE_DITEM(CHK19_Italic, ctlActive);
-	HILITE_DITEM(CHK20_Expanded, ctlActive);
-	HILITE_DITEM(CHK21_Outline, ctlActive);
-	HILITE_DITEM(CHK22_Shadow, ctlActive);
+	HILITE_DITEM(CHK20_Outline, ctlActive);
+	HILITE_DITEM(CHK21_Shadow, ctlActive);
+	HILITE_DITEM(CHK22_Lyric, ctlActive);
 
 	if (dim) {
 		PenPat(NGetQDGlobalsGray());	
@@ -650,7 +651,7 @@ static short TDRelIndexToSize(short index)
 /* Install all dialog items according to the given style, font size, etc., by
 setting our global variables and setting the dialog's controls accordingly. */
 
-static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle)
+static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpanded)
 	{
 		unsigned char str[256]; short tmpSize, i;
 
@@ -674,18 +675,21 @@ static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle)
 			}
 			
 		theStyle = aStyle->fontStyle;
-		SetStyleBoxes(dlog,theStyle);
+		theLyric = aStyle->lyric;
+		SetStyleBoxes(dlog,theStyle,theLyric);
+		
+		if (theDlog!=DefineStyleDlog)
+			PutDlgChkRadio(dlog, CHK31_Expanded, anExpanded);
 		
 		theEncl = aStyle->enclosure;
 		if (theDlog==DefineStyleDlog)
 			for (i=RAD25_None; i<=RAD26_Box; i++)
 				PutDlgChkRadio(dlog, i, i==(RAD25_None+theEncl));
 		
-		theLyric = aStyle->lyric;
 		if (theDlog==DefineStyleDlog)
 			PutDlgChkRadio(dlog, CHK23_Treat, theLyric);
 		else
-			PutDlgChkRadio(dlog, CHK31_Lyric, theLyric);
+			PutDlgChkRadio(dlog, CHK22_Lyric, theLyric);
 	}
 
 
@@ -846,12 +850,12 @@ static void TuneRadioIn(DialogPtr dlog, short itemHit, short *radio)
 
 
 /* Draw the current string from the edittext item into the example area, using
-given current font, size, and style.  If string is NULL, then look it up;
+given current font, size, and style.  If _string_ is NULL, then look it up;
 otherwise it is the string to draw. */
 
 static void DrawExampleText(DialogPtr dlog, unsigned char *string)
 	{
-		unsigned char str[256],*pStr;
+		unsigned char str1[256], str2[256];
 		short oldFont,oldSize,oldStyle,type,y,userItem,editText,i,tmpLen,oldLen;
 		Rect box; Handle hndl; RgnHandle oldClip;
 		
@@ -864,15 +868,26 @@ static void DrawExampleText(DialogPtr dlog, unsigned char *string)
 		
 		if (thePtSize > 0) {					/* Reality check */
 		
-			if (string) pStr = string;
-			 else	  { pStr = str; GetDlgString(dlog,editText,str); }
+			if (string) Pstrcpy(str1, string);
+			 else	  { GetDlgString(dlog,editText,str1); }
 			
-			tmpLen = oldLen = pStr[0];
-			for (i = 1; i <= pStr[0]; i++)
-				if (pStr[i] == CH_CR) {
-					tmpLen = i;					/* It's a multi-line string. */
+			/* If it's a multi-line string, truncate to the first line. */
+			tmpLen = oldLen = str1[0];
+			for (i = 1; i <= str1[0]; i++)
+				if (str1[i] == CH_CR) {
+					tmpLen = i;
 					break;
 				}
+			str1[0] = tmpLen;
+
+			if (theExpanded) {
+				if (!ExpandString(str2, str1, EXPAND_WIDER)) {
+					DebugPrintf("DrawExampleText: ExpandString failed.\n");
+					return;
+					}
+				}
+			else
+				Pstrcpy(str2, str1);
 
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
@@ -890,9 +905,7 @@ static void DrawExampleText(DialogPtr dlog, unsigned char *string)
 			
 			y = box.bottom - box.top;
 			MoveTo(box.left, (y/4) + (box.top+box.bottom)/2);
-			pStr[0] = tmpLen;
-			DrawString(pStr);
-			pStr[0] = oldLen;
+			DrawString(str2);
 			
 			if (oldClip) {
 				SetClip(oldClip);
@@ -918,7 +931,7 @@ static Boolean AllIsWell(void)
 
 	GetDialogItem(dlog,EDIT25_Text, &type, &hndl, &box);
 	GetDialogItemText(hndl, str);
-	GetDialogItem(dlog, CHK20_Expanded, &type, &hndl, &box);
+	GetDialogItem(dlog, CHK31_Expanded, &type, &hndl, &box);
 	expandedSetting = GetControlValue((ControlHandle)hndl);
 	if (expandedSetting!=0) {
 		maxLenExpanded = (EXPAND_WIDER? 255/3 : 255/2);
@@ -965,6 +978,7 @@ Boolean TextDialog(
 			short *style,			/* Standard style bits */
 			short *enclosure,		/* Enclosure code */
 			Boolean *lyric,			/* TRUE=lyric, FALSE=other */
+			Boolean *expanded,		/* TRUE=expanded */
 			unsigned char *name,	/* Fontname or empty */
 			unsigned char *string,	/* Current text string or empty */
 			CONTEXT *context
@@ -1000,7 +1014,6 @@ Boolean TextDialog(
 	 *	take our text characteristics from the last one created.  If string is
 	 *	non-empty, other arguments are presumed defined.
 	 */
-	
 	if (*string) {
 		/* Determine in which font's style this string is, if any */
 		currentStyle = GetStrFontStyle(doc, *styleChoice);
@@ -1012,15 +1025,18 @@ Boolean TextDialog(
 			theCurrent.enclosure = *enclosure;
 			theCurrent.lyric = *lyric;
 			}
+		theExpanded = *expanded;
 		}
 	 else {
 	 	currentStyle = Header2UserFontNum(doc->lastGlobalFont);
 	 	TSSetCurrentStyle(currentStyle);
 		PStrCopy((StringPtr)theCurrent.fontName, (StringPtr)name);
+		theExpanded = FALSE;
 		}
 
 	/* At this point, all arguments are defined whether it's a new or old string */
 	
+	DebugPrintf("TextDialog: *expanded=%d theExpanded=%d\n", *expanded, theExpanded);
 	theLineSpacing = LNSPACE(context);
 	
 	isRelative = theCurrent.relFSize;
@@ -1096,7 +1112,7 @@ Boolean TextDialog(
 	theFont = 0;
 	AppendResMenu(popup7.menu,'FONT');
 	
-	InstallTextStyle(dlog,&theCurrent);
+	InstallTextStyle(dlog,&theCurrent,theExpanded);
 	SetStylePopUp(currentStyle);
 
 	PutDlgString(dlog,EDIT25_Text,string,TRUE);		/* Leave string, if any, selected */
@@ -1140,7 +1156,7 @@ Boolean TextDialog(
 						TSSetCurrentStyle(currentStyle);
 					PStrCopy((StringPtr)theCurrent.fontName, (StringPtr)name);
 					TextEditState(dlog, TRUE);
-					InstallTextStyle(dlog,&theCurrent);
+					InstallTextStyle(dlog,&theCurrent,theExpanded);
 					TextEditState(dlog, FALSE);
 					DrawExampleText(dlog,NULL);
 					if (currentStyle!=TSThisItemOnlySTYLE)
@@ -1190,12 +1206,11 @@ Boolean TextDialog(
 			case CHK17_Plain:
 			case CHK18_Bold:
 			case CHK19_Italic:
-			case CHK20_Expanded:
-			case CHK21_Outline:
-			case CHK22_Shadow:				
+			case CHK20_Outline:
+			case CHK21_Shadow:				
 				if (itemHit == CHK17_Plain) {
 					/* Turn all others off */
-					for (i=CHK18_Bold; i<=CHK22_Shadow; i++) {
+					for (i=CHK18_Bold; i<=CHK21_Shadow; i++) {
 						GetDialogItem(dlog,i,&type,&hndl,&box);
 						SetControlValue((ControlHandle)hndl,FALSE);
 						}
@@ -1204,11 +1219,11 @@ Boolean TextDialog(
 				 else {
 					/* Add or subtract style bit from current style. NB: This code assumes
 						the style buttons are in the same order as the bits in fontStyle,
-						so bold = 1, italic = 2, etc., except for CHK20_Expanded. */
+						but skipping _extend_, so bold = 1, italic = 2, etc. */
 					GetDialogItem(dlog,itemHit,&type,&hndl,&box);
 					val = !GetControlValue((ControlHandle)hndl);
 					SetControlValue((ControlHandle)hndl,val);
-					if (itemHit==CHK20_Expanded) i = extend;
+					if (itemHit>=CHK20_Outline) i = 1 << (itemHit - CHK18_Bold - 1);
 					else i = 1 << (itemHit - CHK18_Bold);
 					if (val) theStyle |=  i;
 					 else	 theStyle &= ~i;
@@ -1220,12 +1235,17 @@ Boolean TextDialog(
 				currentStyle = TSThisItemOnlySTYLE;
 				ChangePopUpChoice(&popup4,currentStyle);
 				break;
-			case CHK31_Lyric:
-				PutDlgChkRadio(dlog,CHK31_Lyric,!GetDlgChkRadio(dlog,CHK31_Lyric));
+			case CHK22_Lyric:
+				PutDlgChkRadio(dlog,CHK22_Lyric,!GetDlgChkRadio(dlog,CHK22_Lyric));
 				currentStyle = TSThisItemOnlySTYLE;
 				ChangePopUpChoice(&popup4,currentStyle);
-				theLyric = GetDlgChkRadio(dlog,CHK31_Lyric);
+				theLyric = GetDlgChkRadio(dlog,CHK22_Lyric);
 				InvalWindowRect(GetDialogWindow(dlog),&dimRect);			/* force redrawing by DimStylePanels */
+				break;
+			case CHK31_Expanded:
+				PutDlgChkRadio(dlog,CHK31_Expanded,!GetDlgChkRadio(dlog,CHK31_Expanded));
+				theExpanded = GetDlgChkRadio(dlog,CHK31_Expanded);
+				DrawExampleText(dlog,NULL);
 				break;
 			case RAD9_Absolute:
 			case STXT10_Absolute:
@@ -1322,6 +1342,7 @@ Boolean TextDialog(
 		*style = theStyle;
 		*enclosure = theEncl;
 		*lyric = theLyric;
+		*expanded = theExpanded;
 		*styleChoice = popup4.currentChoice;
 
 		GetDialogItem(dlog,EDIT25_Text,&type,&hndl,&box);
@@ -1455,7 +1476,7 @@ Boolean DefineStyleDialog(Document *doc,
 	theFont = 0;
 	AppendResMenu(popup7.menu,'FONT');
 	
-	InstallTextStyle(dlog,&theCurrent);
+	InstallTextStyle(dlog,&theCurrent,FALSE);
 	SetStylePopUp(currentStyle);
 
 	PutDlgString(dlog,EDIT28_Text,(unsigned char *)string,FALSE);
@@ -1499,7 +1520,7 @@ Boolean DefineStyleDialog(Document *doc,
 					SetCurrentStyle(currentStyle);
 					PStrCopy((StringPtr)theCurrent.fontName, (StringPtr)name);
 					TextEditState(dlog, TRUE);
-					InstallTextStyle(dlog,&theCurrent);
+					InstallTextStyle(dlog,&theCurrent,FALSE);
 					TextEditState(dlog, FALSE);
 					DrawExampleText(dlog,NULL);
 #ifdef DEBUG_PRINTFONTS
@@ -1539,12 +1560,11 @@ Boolean DefineStyleDialog(Document *doc,
 			case CHK17_Plain:
 			case CHK18_Bold:
 			case CHK19_Italic:
-			case CHK20_Expanded:
-			case CHK21_Outline:
-			case CHK22_Shadow:
+			case CHK20_Outline:
+			case CHK21_Shadow:
 				if (itemHit == CHK17_Plain) {
 					/* Turn all others off */
-					for (i=CHK18_Bold; i<=CHK22_Shadow; i++) {
+					for (i=CHK18_Bold; i<=CHK21_Shadow; i++) {
 						GetDialogItem(dlog,i,&type,&hndl,&box);
 						SetControlValue((ControlHandle)hndl,FALSE);
 						}
@@ -1553,11 +1573,11 @@ Boolean DefineStyleDialog(Document *doc,
 				 else {
 					/* Add or subtract style bit from current style. NB: This code assumes
 						the style buttons are in the same order as the bits in fontStyle,
-						so bold = 1, italic = 2, etc., except for CHK20_Expanded. */
+						so bold = 1, italic = 2, etc., except for CHK31_Expanded. ??UPDATE! */
 					GetDialogItem(dlog,itemHit,&type,&hndl,&box);
 					val = !GetControlValue((ControlHandle)hndl);
 					SetControlValue((ControlHandle)hndl,val);
-					if (itemHit==CHK20_Expanded) i = extend;
+					if (itemHit==CHK31_Expanded) i = extend;		// ??UPDATE!!!!!!!
 					else i = 1 << (itemHit - CHK18_Bold);
 					if (val) theStyle |=  i;
 					 else	 theStyle &= ~i;

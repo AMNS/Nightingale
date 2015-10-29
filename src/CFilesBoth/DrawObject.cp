@@ -1850,19 +1850,14 @@ PushLock(GRAPHICheap);
  	
  	staffn = GetGraphicDrawInfo(doc,pL,p->firstObj,p->staffn,&xd,&yd,&relContext);
 	GetGraphicFontInfo(doc, pL, &relContext, &fontID, &fontSize, &fontStyle);
-	/* Apple's handling of extended style is pretty standard for normal text, but for text
-		in a score, we want to stretch things a lot more. So set our equivalent flag and
-		be sure Apple's is turned off. */
-	//DebugPrintf("fontStyle=%d extend flag=%d \n", fontStyle, extend);
-	expandN = (fontStyle & extend)!=0;
-	fontStyle &= ~extend;
-	//DebugPrintf("fontStyle=%d expandN=%d\n", fontStyle, expandN);
 	
 	if (staffn!=NOONE) {
 		pContext = &context[staffn];
 		if (!pContext->staffVisible && !PageTYPE(p->firstObj)) goto Cleanup;
 	}
 
+	expandN = 0;
+	if (p->graphicType==GRString) expandN = (p->info2!=0);
 	if (GetGraphicDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox))
 		OffsetDRect(&dEnclBox, xd, yd);
 
@@ -1917,9 +1912,11 @@ PushLock(GRAPHICheap);
  
 	/* Handle the remaining Graphic subtypes, all of which are some kind of text. */
 	
+	expandN = (p->info2!=0);
 	aGraphicL = FirstSubLINK(pL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	theStrOffset = aGraphic->string;
+	//DebugPrintf("DrawGraphic: expandN=%d str='%s'\n", expandN, PToCString(PCopy(aGraphic->string)));
 
 	switch (outputTo) {
 		case toScreen:
@@ -2134,8 +2131,7 @@ PopLock(GRAPHICheap);
 /* ------------------------------------------------------------------ DrawTEMPO -- */
 /* Draw a TEMPO object */
 
-void DrawTEMPO(
-				Document *doc,
+void DrawTEMPO(Document *doc,
 				LINK pL,
 				CONTEXT context[],
 				Boolean doDraw					/* TRUE=really draw, FALSE=just set objRect */
@@ -2145,6 +2141,7 @@ void DrawTEMPO(
 	PCONTEXT pContext; CONTEXT relContext;
 	short oldFont,useTxSize,oldSize,oldStyle, fontSize,xp,yp,noteWidth,staffn;
 	FontInfo fInfo; StringOffset theStrOffset;
+	unsigned char tempoStr[256];
 	char metroStr[256]; char noteChar;
 	DDIST xd,yd,extraGap; DDIST lineSpace,xdNote,xdDot,xdMM,ydNote,ydDot;
 	LINK firstObjL;
@@ -2167,6 +2164,14 @@ PushLock(TEMPOheap);
 	if (!pContext->staffVisible) goto Cleanup;
 	lineSpace = LNSPACE(pContext);
 
+	theStrOffset = p->string;
+	if (p->expanded) {
+		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
+			DebugPrintf("GetGraphicDBox: ExpandString failed.\n");
+	}
+	else PStrCopy((StringPtr)PCopy(theStrOffset), tempoStr);
+
+
 	noteChar = TempoGlyph(pL);
 	noteChar = MapMusChar(doc->musFontInfoIndex, noteChar);
 
@@ -2184,8 +2189,7 @@ PushLock(TEMPOheap);
 	
 	SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lineSpace);
 
-	theStrOffset = p->string;
-	xdNote = xd+p2d(StringWidth(PCopy(theStrOffset)))+lineSpace;
+	xdNote = xd+p2d(StringWidth(tempoStr))+lineSpace;
 
 	extraGap = qd2d(config.tempoMarkHGap, pContext->staffHeight, pContext->staffLines);
 	xdNote += extraGap;
@@ -2217,9 +2221,9 @@ PushLock(TEMPOheap);
 			MoveTo(pContext->paper.left+xp, pContext->paper.top+yp);
 			
 			GetFontInfo(&fInfo);
-			if (doDraw) DrawString(PCopy(theStrOffset));
+			if (doDraw) DrawString(tempoStr);
 			SetRect(&LinkOBJRECT(pL), xp, yp-fInfo.ascent, 
-						xp+StringWidth(PCopy(theStrOffset)), yp+fInfo.descent);
+						xp+StringWidth(tempoStr), yp+fInfo.descent);
 
 			/* ??Why go through all this setup if we might not draw the MM at all?  -JGG */
 			xdNote += MusCharXOffset(doc->musFontInfoIndex, noteChar, lineSpace);
@@ -2251,10 +2255,8 @@ PushLock(TEMPOheap);
 			
 			break;
 		case toPostScript:
-			theStrOffset = p->string;
 			fontSize = GetTextSize(doc->relFSizeTM, doc->fontSizeTM, lineSpace);
-			PS_FontString(doc, xd, yd, PCopy(theStrOffset),
-								doc->fontNameTM, fontSize, doc->fontStyleTM);
+			PS_FontString(doc, xd, yd, tempoStr, doc->fontNameTM, fontSize, doc->fontStyleTM);
 
 			if (doDrawMM) {
 				xdNote += MusCharXOffset(doc->musFontInfoIndex, noteChar, lineSpace);

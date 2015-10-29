@@ -185,10 +185,37 @@ be played nor written to an exported MIDI file. Affects .rsrc; applicationTypes.
 MIDIGeneral.h, NightTemplates.h, NResourceID.h; Documents, Menu, MIDIDialogs, MIDIPlay,
 MIDIFSave, MIDIUtils, Part.
 
-In code to display CNFG fields: add _musicFontID_; rearrange to come closer to the order
-of declarations; minor cleanup. Affects applicationTypes.h; Initialize.
+In code to display config fields: add _musicFontID_; rearrange to come closer to the
+order of declarations; minor cleanup. Affects applicationTypes.h; Initialize.
 
 PS_Stdio: clarify comments; minor cleanup.
 
 Make Debug Check's checking for "SYSTEM AT xxx RECT PAST RIGHT MARGIN" less strict.
 Affects DebugUtils.
+
+-------------------------------------------------------------------------------
+
+20 - 26 Oct.
+
+Add to the config fields displayed _fastScreenSlurs_ & _enclWidthOffset_; clarify
+comments; minor cleanup. Affects Initialize.
+
+Clarify a comment. Affects DebugUtils.
+
+Tweak the Sync Info and General Info dialogs (DLOGs 596 & 598) for readability.
+Affects .rsrc.
+
+-------------------------------------------------------------------------------
+
+27-28 Oct.
+
+Fix bug: ExpandString() doesn't check for excessively long strings correctly. Affects
+StringUtils.
+
+Make the "expanded" option for regular text strings an option independent of the style
+instead of part of the style definition. Affects .rsrc; Browser, Check, DrawObject,
+Insert, InsNew, InsNew.h, MIDIFOpen, NightTemplates.h, NTypes.h, TextDialog.
+
+Add an "expanded" option for text in tempo marks. Affects .rsrc; Browser, Check,
+DialogsEditor, DrawObject, Insert, InsNew, InsNew.h, MIDIFOpen, NightTemplates.h,
+NTypes.h.

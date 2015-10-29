@@ -1034,27 +1034,27 @@ typedef struct {
 typedef struct {
 	OBJECTHEADER
 	EXTOBJHEADER					/* N.B. staff number can be 0 here */
-	SignedByte	graphicType;	/* graphic class (subtype) */
-	SignedByte	voice;			/* Voice number (only with some types of relObjs) */
-	Byte			enclosure:2;	/* Enclosure type; see list below */
-	Byte			justify:3;		/* (unused) justify left/center/right */
-	Boolean		vConstrain:1;	/* (unused) TRUE if object is vertically constrained */
-	Boolean		hConstrain:1;	/* (unused) TRUE if object is horizontally constrained */
-	Byte			multiLine:1;	/* TRUE if string contains multiple lines of text (delimited by CR) */
-	short			info;				/* PICT res. ID (GRPICT); char (GRChar); length (GRArpeggio); */
-										/*   ref. to text style (FONT_R1, etc) (GRString,GRLyric); */
-										/*	  2nd x (GRDraw); draw extension parens (GRChordSym) */
+	SignedByte	graphicType;		/* graphic class (subtype) */
+	SignedByte	voice;				/* Voice number (only with some types of relObjs) */
+	Byte		enclosure:2;		/* Enclosure type; see list below */
+	Byte		justify:3;			/* (unused) justify left/center/right */
+	Boolean		vConstrain:1;		/* (unused) TRUE if object is vertically constrained */
+	Boolean		hConstrain:1;		/* (unused) TRUE if object is horizontally constrained */
+	Byte		multiLine:1;		/* TRUE if string contains multiple lines of text (delimited by CR) */
+	short		info;				/* PICT res. ID (GRPICT); char (GRChar); length (GRArpeggio); */
+									/*   ref. to text style (FONT_R1, etc) (GRString,GRLyric); */
+									/*	  2nd x (GRDraw); draw extension parens (GRChordSym) */
 	union {
-		Handle		handle;		/* handle to resource, or NULL */
-		short			thickness;
+		Handle		handle;			/* handle to resource, or NULL */
+		short		thickness;
 	} gu;
 	SignedByte	fontInd;			/* index into font name table (GRChar,GRString only) */
-	Byte			relFSize:1;		/* TRUE if size is relative to staff size (GRChar,GRString only) */ 
-	Byte			fontSize:7;		/* if relSize, small..large code, else point size (GRChar,GRString only) */
-	short			fontStyle;		/* (GRChar,GRString only) */
-	short			info2;			/* top bits=sub-subtype (GRArpeggio), 2nd y (GRDraw) */
-	LINK			firstObj;		/* link to object left end is relative to, or NULL */
-	LINK			lastObj;			/* link to object right end is relative to, or NULL */
+	Byte		relFSize:1;			/* TRUE if size is relative to staff size (GRChar,GRString only) */ 
+	Byte		fontSize:7;			/* if relSize, small..large code, else point size (GRChar,GRString only) */
+	short		fontStyle;			/* (GRChar,GRString only) */
+	short		info2;				/* sub-subtype (GRArpeggio), 2nd y (GRDraw), _expanded_ (GRString) */
+	LINK		firstObj;			/* link to object left end is relative to, or NULL */
+	LINK		lastObj;			/* link to object right end is relative to, or NULL */
 } GRAPHIC, *PGRAPHIC;
 
 #define ARPINFO(info2)	((unsigned short)(info2) >>13) 
@@ -1063,7 +1063,7 @@ enum {								/* graphicType values: */
 	GRPICT=1,						/* 	(unimplemented) PICT */
 	GRChar,							/* 	(unimplemented) single character */
 	GRString,						/* 	character string */
-	GRLyric,							/* 	lyric character string */
+	GRLyric,						/* 	lyric character string */
 	GRDraw,							/* 	Pure graphic: so far, only lines; someday, MiniDraw */
 	GRMIDIPatch,					/*		(unimplemented) MIDI program change */
 	GRRehearsal,					/* 	rehearsal mark */
@@ -1206,15 +1206,16 @@ typedef struct {
 typedef struct {
 	OBJECTHEADER
 	EXTOBJHEADER
-	SignedByte	subType;			/* beat: same units as note's l_dur */
-	char			small:2;			/* (unused so far) TRUE to show in small characters */
+	SignedByte		subType;		/* beat: same units as note's l_dur */
+	Boolean			expanded:1;
+	Boolean			small:1;		/* (unused so far) TRUE to show in small characters */
 	char			filler:4;
-	Boolean		dotted:1;
-	Boolean		hideMM:1;
+	Boolean			dotted:1;
+	Boolean			hideMM:1;
 	short			tempo;			/* new playback speed in beats per minute */	
-	STRINGOFFSET string;			/* "tempo" index return by String Manager */
+	STRINGOFFSET	string;			/* "tempo" string index return by String Manager */
 	LINK			firstObjL;		/* object tempo depends on */
-	STRINGOFFSET metroStr;		/* "metronome mark" index return by String Manager */
+	STRINGOFFSET	metroStr;		/* "metronome mark" index return by String Manager */
 } TEMPO, *PTEMPO;
 
 

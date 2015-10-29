@@ -18,13 +18,13 @@
 	LeftEndDialog & friends
 	SpaceDialog					TremSlashesDialog			EndingDialog
 	MeasNumDialog				PageNumDialog				OctavaDialog
-	TupletDialog & friends	SetDurDialog & friends	TempoDialog & friends
+	TupletDialog & friends		SetDurDialog & friends		TempoDialog & friends
 	SetMBRestDialog
-	DrawSampStaff				RLarger/RSmallerStaff	RHandleKeyDown
+	DrawSampStaff				RLarger/RSmallerStaff		RHandleKeyDown
 	RHandleMouseDown			RFilter						RastralDialog
-	MarginsDialog				KeySigDialog & friends	SetKSDialogGuts
-	TimeSigDialog & friends RehearsalMarkDialog
-	ChordFrameDialog			SymbolIsBarline			InsMeasUnkDurDialog		
+	MarginsDialog				KeySigDialog & friends		SetKSDialogGuts
+	TimeSigDialog & friends		RehearsalMarkDialog
+	ChordFrameDialog			SymbolIsBarline				InsMeasUnkDurDialog		
 */
 
 #include "Nightingale_Prefix.pch"
@@ -1929,7 +1929,8 @@ static enum
 	TDurPopDI,
 	MetroDI,
 	HideMMDI,
-	TDummyFldDI=11
+	TDummyFldDI=11,
+	ExpandDI
 } E_TempoItems;
 
 static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
@@ -2006,8 +2007,8 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 
 /* Dialog to get Tempo mark parameters from user. */
 
-Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted,
-							unsigned char *tempoStr, unsigned char *metroStr)
+Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expanded,
+						unsigned char *tempoStr, unsigned char *metroStr)
 {	
 	DialogPtr dlog;
 	short ditem=Cancel,type,oldResFile;
@@ -2053,7 +2054,9 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted,
 	oldLDur = *dur;
 	oldDotted = *dotted;
 
+	DebugPrintf("TempoDialog: *expanded=%d\n", *expanded);
 	PutDlgChkRadio(dlog, HideMMDI, *hideMM);
+	PutDlgChkRadio(dlog, ExpandDI, *expanded);
 	PutDlgString(dlog,VerbalDI,tempoStr,FALSE);
 	PutDlgString(dlog,MetroDI,metroStr,TRUE);
 
@@ -2103,8 +2106,11 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted,
 				oldDotted = (popKeys1dot[curPop->currentChoice].numDots>0);
 				break;
 			case HideMMDI:
-				PutDlgChkRadio(dlog,HideMMDI,!GetDlgChkRadio(dlog,HideMMDI));
-				break; 
+				PutDlgChkRadio(dlog, HideMMDI, !GetDlgChkRadio(dlog, HideMMDI));
+				break;
+			case ExpandDI:
+				PutDlgChkRadio(dlog, ExpandDI, !GetDlgChkRadio(dlog, ExpandDI));
+				break;
 			default:
 				;
 			}
@@ -2114,6 +2120,7 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted,
 		*dur = pk[curPop->currentChoice].durCode;
 		*dotted = (pk[curPop->currentChoice].numDots>0);
 		*hideMM = GetDlgChkRadio(dlog,HideMMDI);
+		*expanded = GetDlgChkRadio(dlog,ExpandDI);
 		GetDlgString(dlog,VerbalDI,tempoStr);
 		GetDlgString(dlog,MetroDI,metroStr);
 	}

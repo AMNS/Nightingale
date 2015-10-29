@@ -16,7 +16,8 @@ Boolean NewArpSign(Document *, Point, char, short, short);
 Boolean NewLine(Document *, short, short, char, short, short, LINK);
 
 void NewGraphic(Document *, Point, char, short, short, short, Boolean,
-						short, short, short, short, Boolean, unsigned char *, unsigned char *, short);
+					short, short, short, short, Boolean, Boolean, unsigned char *,
+					unsigned char *, short);
 void NewMeasure(Document *, Point, char);
 LINK CreateMeasure(Document *, LINK, short, short, CONTEXT);
 void AddToClef(Document *, char, short);
@@ -33,8 +34,8 @@ void NewTimeSig(Document *, short, char, short, short, short, short);
 void NewDynamic(Document *, short, short, char, short, short, LINK, Boolean);
 void NewEnding(Document *, short, short, char, short, STDIST, LINK, short, short);
 
-void NewTempo(Document *, Point, char, short, STDIST, Boolean, short, Boolean,
-					unsigned char *, unsigned char *);
+void NewTempo(Document *, Point, char, short, STDIST, Boolean, short, Boolean, Boolean,
+				unsigned char *, unsigned char *);
 void NewSpace(Document *, Point, char, short, short, STDIST);
 
 

@@ -518,7 +518,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 	short sym,pitchLev,clickStaff,voice,newSize,newStyle,newEncl,
 			hStyleChoice,uStyleChoice,staff,auxInfo;
 	Str63 newFont; Str255 string;
-	Boolean newRelSize, newLyric;
+	Boolean newRelSize, newLyric, newExpanded;
 	CONTEXT context;
 	char midiPatch[MPATCH_LEN];
 	char midiPanSetting[MPAN_LEN];
@@ -572,12 +572,12 @@ Boolean InsertGraphic(Document *doc, Point pt)
 		else {
 			uStyleChoice = Header2UserFontNum(doc->lastGlobalFont);
 			if (!TextDialog(doc,&uStyleChoice,&newRelSize,&newSize,&newStyle,
-									&newEncl,&newLyric,newFont,string,&context))
+							&newEncl,&newLyric,&newExpanded,newFont,string,&context))
 				goto Cancelled;
 			hStyleChoice = User2HeaderFontNum(doc, uStyleChoice);
 		}
 		NewGraphic(doc, pt, palChar, NOONE, voice, 0, newRelSize, newSize, newStyle,
-							newEncl, 0, newLyric, newFont, string, hStyleChoice);
+					newEncl, 0, newLyric, newExpanded, newFont, string, hStyleChoice);
 		return TRUE;
 	}
 
@@ -643,7 +643,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				*string = 0;
 				uStyleChoice = Header2UserFontNum(doc->lastGlobalFont);
 				if (!TextDialog(doc,&uStyleChoice,&newRelSize,&newSize,&newStyle,
-										&newEncl,&newLyric,newFont,string,&context))
+									&newEncl,&newLyric,&newExpanded,newFont,string,&context))
 					goto Cancelled;
 				hStyleChoice = User2HeaderFontNum(doc, uStyleChoice);
 				break;
@@ -698,7 +698,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 		}
 		
 		NewGraphic(doc, pt, palChar, clickStaff, voice, pitchLev, newRelSize, newSize,
-							newStyle, newEncl, auxInfo, newLyric, newFont, string, hStyleChoice);
+					newStyle, newEncl, auxInfo, newLyric, newExpanded, newFont, string, hStyleChoice);
 		return TRUE;
 	}
 	
@@ -787,7 +787,7 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 		if (*musicFontName==0)
 			PStrCopy((StringPtr)"\pSonata", (StringPtr)musicFontName);
 		NewGraphic(doc, pt, stringInchar, clickStaff, voice, pitchLev, TRUE, GRStaffHeight,
-							0, ENCL_NONE, 0, FALSE, musicFontName, string, FONT_THISITEMONLY);
+							0, ENCL_NONE, 0, FALSE, FALSE, musicFontName, string, FONT_THISITEMONLY);
 		return TRUE;
 	}
 
@@ -1303,8 +1303,10 @@ mousedown at the given point.	Handles feedback and allows cancelling. */
 
 Boolean InsertTempo(Document *doc, Point pt)
 {
-	short clickStaff,v,sym,pitchLev; static short dur,beatsPM; LINK pL;
-	static Boolean hideMM,dotted;
+	short clickStaff,v,sym,pitchLev;
+	static short dur,beatsPM;
+	LINK pL;
+	static Boolean hideMM, dotted, expanded;
 	static Str63 tempoStr;		/* limit length to save static var. space */
 	static Str63 metroStr;		/* limit length to save static var. space */
 	static Boolean firstCall=TRUE;
@@ -1322,20 +1324,22 @@ Boolean InsertTempo(Document *doc, Point pt)
 			beatsPM = config.defaultTempo;
 			NumToString(beatsPM, metroStr);
 			hideMM = FALSE;
+			expanded = FALSE;
 			PStrCopy((StringPtr)"\p", (StringPtr)tempoStr);
 			firstCall = FALSE;
 		}
 
 		Pstrcpy((unsigned char *)strBuf, (unsigned char *)tempoStr);
 		Pstrcpy((unsigned char *)tmpStr, (unsigned char *)metroStr);
-		if (TempoDialog(&hideMM, &dur, &dotted, (unsigned char *)strBuf, tmpStr)) {
+		DebugPrintf("InsertTempo: expanded=%d\n", expanded);
+		if (TempoDialog(&hideMM, &dur, &dotted, &expanded, (unsigned char *)strBuf, tmpStr)) {
 			doc->selEndL = doc->selStartL = pL;
 			if (strBuf[0]>63) strBuf[0] = 63;					/* Limit str. length (see above) */
 			Pstrcpy((unsigned char *)tempoStr, (unsigned char *)strBuf);
 			if (tmpStr[0]>63) tmpStr[0] = 63;					/* Limit str. length (see above) */
 			Pstrcpy((unsigned char *)metroStr, (unsigned char *)tmpStr);
-			NewTempo(doc,pt,palChar,clickStaff,pitchLev,hideMM,dur,
-									dotted,tempoStr,metroStr);
+			NewTempo(doc, pt, palChar, clickStaff, pitchLev, hideMM, dur, expanded,
+						dotted, tempoStr, metroStr);
 			return TRUE;
 		}
 	}

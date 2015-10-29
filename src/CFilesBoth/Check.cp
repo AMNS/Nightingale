@@ -1036,7 +1036,7 @@ short CheckGRAPHIC(Document *doc, LINK pL, CONTEXT /*context*/[],
 {
 	PGRAPHIC		p;
 	LINK			aGraphicL;
-	CONTEXT		context1;
+	CONTEXT			context1;
 	PCONTEXT		pContext;
 	short			result;			/* =NOMATCH unless object clicked in */
 	Rect			r,					/* object rectangle */
@@ -1044,15 +1044,14 @@ short CheckGRAPHIC(Document *doc, LINK pL, CONTEXT /*context*/[],
 					oldObjRect,		/* rects to inval after editing by dblclicking. */
 					tempR;
 	unsigned char dummy=0;
-	short 		fontSize, fontStyle, enclosure,
+	short			fontSize, fontStyle, enclosure,
 					newWidth, styleChoice,
 					staffn;
 	STRINGOFFSET offset;
 	Str63			newFont;
 	Str255		string;
 	Boolean 		change,
-					relFSize, lyric;
-	
+					relFSize, lyric, expanded;
 
 PushLock(OBJheap);
 	p = GetPGRAPHIC(pL);
@@ -1104,10 +1103,11 @@ PushLock(OBJheap);
 						fontStyle = p->fontStyle;
 						enclosure = p->enclosure;
 						lyric = (p->graphicType==GRLyric? TRUE : FALSE);
+						expanded = (p->info2!=0);
 						styleChoice = Header2UserFontNum(p->info);
 						change = TextDialog(doc, &styleChoice, &relFSize, &fontSize,
-													&fontStyle, &enclosure, &lyric, newFont,
-													string, pContext);
+												&fontStyle, &enclosure, &lyric, &expanded,
+												newFont, string, pContext);
 						if (change) {
 							short i, newFontIndex;
 							/*
@@ -1128,6 +1128,7 @@ PushLock(OBJheap);
 							p->enclosure = enclosure;
 							p->fontInd = newFontIndex;
 							p->info = User2HeaderFontNum(doc, styleChoice);
+							p->info2 = (expanded? 1 : 0);
 
 							p->multiLine = FALSE;
 							for (i = 1; i <= string[0]; i++)
@@ -1304,7 +1305,7 @@ short CheckTEMPO(Document *doc, LINK pL, CONTEXT context[],
 	Rect		r,aRect,oldObjRect,newObjRect,tempR;
 	short		newWidth,result,dur,staffn;
 	long		beatsPM;
-	Boolean	hideMM,ok,dotted;
+	Boolean		hideMM,ok,dotted,expanded;
 	Str63		tempoStr,metroStr;
 	unsigned char dummy=0;
 	PCONTEXT	pContext;
@@ -1343,8 +1344,10 @@ PushLock(OBJheap);
 				PStrCopy((StringPtr)PCopy(p->metroStr), (StringPtr)metroStr);
 				p = GetPTEMPO(pL);
 				hideMM = p->hideMM;
-				dur = p->subType; dotted = p->dotted;
-				ok = TempoDialog(&hideMM, &dur, &dotted, tempoStr, metroStr);
+				dur = p->subType;
+				dotted = p->dotted;
+				expanded = p->expanded;
+				ok = TempoDialog(&hideMM, &dur, &dotted, &expanded, tempoStr, metroStr);
 				if (tempoStr[0]>63) tempoStr[0] = 63;					/* Limit length for consistency with InsertTempo */
 				if (metroStr[0]>63) metroStr[0] = 63;					/* Limit length for consistency with InsertTempo */
 				p = GetPTEMPO(pL);
@@ -1365,6 +1368,7 @@ PushLock(OBJheap);
 					p->hideMM = hideMM;
 					p->subType = dur;
 					p->dotted = dotted;
+					p->expanded = expanded;
 					beatsPM = FindIntInString(metroStr);
 					if (beatsPM<0L) beatsPM = config.defaultTempo;
 					p->tempo = beatsPM;
