@@ -1,4 +1,4 @@
-NIGHTINGALE CHANGES (in DAB's version), AFTER JUNE 2012 THRU SEPT. 2015
+NIGHTINGALE CHANGES (in DAB's current version), AFTER JUNE 2012 THRU NOV. 2015
 
 (Most of the files in my Nightingale Carbon code base have last modification dates of
 April or May 2012; a few files are 2 June 2012, and it looks like that's the last source
@@ -120,7 +120,10 @@ InstrDialog.cp: InstrDialog().
 22 July - 12 August
 
 Increase the default window width, which is ridiculously narrow on a typical modern
-display. Affects .rsrc: in WIND 2000, change 620 to 690.
+display. Affects .rsrc: in WIND 2000, change 620 to 690. (This is still pretty narrow,
+but just right for one letter-size page at 100% magnification; if the window is any
+wider, it'll show a fraction of a second page, screwing up auto page turning on
+playback.)
 
 Do debug printing for the Import MIDI File command if the shift & control keys are down;
 minor cleanup. Affects MIDIFOpen.cp.
@@ -157,8 +160,8 @@ same time as a previous tempo change; minor cleanup.
 
 17 - 30 Sept.
 
-Add an "Expand" option to the text entry and Define Text Styles dialogs. Affects .rsrc;
-defs.h; DrawObject, StringUtils, TextDialog.
+Add an "Expanded" option to the text entry and Define Text Styles dialogs. Affects
+.rsrc; defs.h; DrawObject, StringUtils, TextDialog.
 
 StringToolbox.cp: minor cleanup.
 
@@ -202,8 +205,8 @@ comments; minor cleanup. Affects Initialize.
 
 Clarify a comment. Affects DebugUtils.
 
-Tweak the Sync Info and General Info dialogs (DLOGs 596 & 598) for readability.
-Affects .rsrc.
+Tweak the Info dialog for notes/rests and the one for most other symbols (DLOGs 596 and
+598) to make them more readable. Affects .rsrc.
 
 -------------------------------------------------------------------------------
 
@@ -212,10 +215,32 @@ Affects .rsrc.
 Fix bug: ExpandString() doesn't check for excessively long strings correctly. Affects
 StringUtils.
 
-Make the "expanded" option for regular text strings an option independent of the style
-instead of part of the style definition. Affects .rsrc; Browser, Check, DrawObject,
-Insert, InsNew, InsNew.h, MIDIFOpen, NightTemplates.h, NTypes.h, TextDialog.
+Make the "expanded" option for regular text strings independent of the style instead of
+part of the style definition; minor cleanup. Affects .rsrc; Browser, Check, DrawObject,
+Insert, InsNew, InsNew.h, MIDIFOpen, NightTemplates.h, NTypes.h, TextDialog. NB: This
+option is not entirely backwards compatible: some text in some old scores now comes out
+(incorrectly) as "expanded" -- I don't know why.
 
-Add an "expanded" option for text in tempo marks. Affects .rsrc; Browser, Check,
-DialogsEditor, DrawObject, Insert, InsNew, InsNew.h, MIDIFOpen, NightTemplates.h,
+Add an "expanded" option for text in tempo marks; minor cleanup. Affects .rsrc; Browser,
+Check, DialogsEditor, DrawObject, Insert, InsNew, InsNew.h, MIDIFOpen, NightTemplates.h,
 NTypes.h.
+
+-------------------------------------------------------------------------------
+
+3-15 Nov.
+
+Further tweak the Info dialog for notes/rests and the one for most other symbols (DLOGs
+596 and 598) to make them more readable. Affects .rsrc; InfoDialog.
+
+Clarify Browser display of the voice table. Affects Browser.
+
+Preliminary work towards letting user say "when respacing, ignore the chord this note
+belongs to". Affects .rsrc; Browser, InfoDialog, Objects, SpaceHighLevel, SpaceTime,
+VoiceNumbers, NightTemplates.h, NTypes.h, vars.h.
+
+Browser, InfoDialog, SpaceHighLevel, SpaceTime, VoiceNumbers, NTypes.h, vars.h: minor
+cleanup.
+
+Fix bug: when values are changed in many fields of the Sync Info and General Info
+dialogs (DLOGs 596 and 598), the chars. for the new values are truncated because they
+extend slightly below the boxes they're shown in. Affects .rsrc .
