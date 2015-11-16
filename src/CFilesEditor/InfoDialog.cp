@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	InfoDialog.c																		*
-*	PROJ:	Nightingale, rev. for v.2000													*
-*	DESC:	Handling routines for "Get Info" and "Modifier Info" dialogs		*
+*	FILE:	InfoDialog.c													*
+*	PROJ:	Nightingale, rev. for v.2000									*
+*	DESC:	Handling routines for "Get Info" and "Modifier Info" dialogs	*
 /***************************************************************************/
 
 /*											NOTICE
@@ -30,10 +30,10 @@ static void GenInfoDialog(Document *, LINK, char []);
 static void ExtendInfoDialog(Document *, LINK, char []);
 
 #define DD2I(num) (((num)+scaleRound)>>scaleShift)			/* Convert DDIST to Get Info */
-#define I2DD(num)	((num)<<scaleShift)							/* Convert Get Info to DDIST */
+#define I2DD(num)	((num)<<scaleShift)						/* Convert Get Info to DDIST */
 
 /* Macros for changing fields in the data structure: DIST_ACCEPT for DDIST distances;
-GRAF_ACCEPT for other possibly-graphics-related fields; GEN_ACCEPT for all others. */
+GRAF_ACCEPT for other fields that might immediately affect the display; GEN_ACCEPT for all others. */
 
 #define DIST_ACCEPT(field)	if (newval!=DD2I(field)) \
 									{ (field) = I2DD(newval);  graphicDirty = TRUE; }
@@ -147,26 +147,27 @@ static enum										/* Dialog item numbers */
 	OFF_VELOCITY=51,
 	UPDATE,
 	UNITLABEL_SYNC,
-	START_TIME=55
+	START_TIME=55,
+	RESPACE_IGNORES=57								/* Hidden & unused for now */
 } E_SyncInfoItems;
 
 static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	short			dialogOver;
-	short			ditem, aShort;
-	short			newval, newval2, max_dots, staff,
-					minl_dur, userVoice;
+	short		dialogOver;
+	short		ditem, aShort;
+	short		newval, newval2, max_dots, staff,
+				minl_dur, userVoice;
 	Handle		twHdl, ulHdl;
-	Rect			tRect;
+	Rect		tRect;
 	PANOTE		aNote;
-	PAGRNOTE		aGRNote;
-	LINK			aNoteL, aGRNoteL, partL;
-	Boolean		graphicDirty,								/* Anything graphic changed? */
-					nodeDirty;										/* Anything non-graphic changed? */
+	PAGRNOTE	aGRNote;
+	LINK		aNoteL, aGRNoteL, partL;
+	Boolean		graphicDirty,									/* Anything graphic changed? */
+				nodeDirty;										/* Anything non-graphic changed? */
 	Boolean		hasStem;
-	char			fmtStr[256];
+	char		fmtStr[256];
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(OKButDragFilter);
@@ -225,6 +226,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PutDlgWord(dlog, YMOVE_DOTS, aNote->ymovedots, FALSE);
 			PutDlgWord(dlog, HEAD_SHAPE, aNote->headShape, FALSE);
 			PutDlgLong(dlog, START_TIME, SyncAbsTime(pL), FALSE);
+			PutDlgWord(dlog, RESPACE_IGNORES, aNote->rspIgnore, FALSE);
 			
 			hasStem = (aNote->ystem!=aNote->yd);
 			
@@ -319,7 +321,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PopLock(NOTEheap);
 			PopLock(GRNOTEheap);
 			DisposeModalFilterUPP(filterUPP);
-			DisposeDialog(dlog);									/* Free heap space */
+			DisposeDialog(dlog);								/* Free heap space */
 			SetPort(oldPort);
 			return;
 		}
@@ -335,7 +337,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	
 			GetDlgWord(dlog, SUBOBJ_HORIZ, &newval);
 			if (newval<-1999 || newval>1999) {					/* ??MAGIC NOS!! */
-				GetIndCString(fmtStr, INFOERRS_STRS, 8);			/* "Note/rest horiz pos must be..." */
+				GetIndCString(fmtStr, INFOERRS_STRS, 8);		/* "Note/rest horiz pos must be..." */
 				sprintf(strBuf, fmtStr, -1999, 1999);
 				INFO_ERROR(strBuf);
 			}
@@ -372,15 +374,15 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 			if (SyncTYPE(pL)) {
 				GetDlgWord(dlog, P_TIME, &newval);
-				if (newval<0 || newval>32000) {						/* ??MAGIC NOS!! */
-					GetIndCString(fmtStr, INFOERRS_STRS, 13);		/* "Play time must be..." */
+				if (newval<0 || newval>32000) {					/* ??MAGIC NOS!! */
+					GetIndCString(fmtStr, INFOERRS_STRS, 13);	/* "Play time must be..." */
 					sprintf(strBuf, fmtStr, 0, 32000);
 					INFO_ERROR(strBuf);
 				}
 
 				GetDlgWord(dlog, P_DUR, &newval);
-				if (newval<1 || newval>32000) {						/* ??MAGIC NOS!! */
-					GetIndCString(fmtStr, INFOERRS_STRS, 14);		/* "Play duration must be..." */
+				if (newval<1 || newval>32000) {					/* ??MAGIC NOS!! */
+					GetIndCString(fmtStr, INFOERRS_STRS, 14);	/* "Play duration must be..." */
 					sprintf(strBuf, fmtStr, 1, 32000);
 					INFO_ERROR(strBuf);
 				}
@@ -389,27 +391,27 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				aNote = GetPANOTE(aNoteL);
 				max_dots = MAX_L_DUR-aNote->subType;
 				if (newval<0 || newval>max_dots) {
-					GetIndCString(fmtStr, INFOERRS_STRS, 15);		/* "Number of dots must be..." */
+					GetIndCString(fmtStr, INFOERRS_STRS, 15);	/* "Number of dots must be..." */
 					sprintf(strBuf, fmtStr, max_dots);
 					INFO_ERROR(strBuf);
 				}
 	
 				GetDlgWord(dlog, XMOVE_DOTS, &newval);
 				if (newval<0 || newval>7) {
-					GetIndCString(strBuf, INFOERRS_STRS, 16);		/* "Aug dot H offset must be..." */
+					GetIndCString(strBuf, INFOERRS_STRS, 16);	/* "Aug dot H offset must be..." */
 					INFO_ERROR(strBuf);
 				}
 	
 				GetDlgWord(dlog, YMOVE_DOTS, &newval);
 				if (newval<0 || newval>3) {
-					GetIndCString(strBuf, INFOERRS_STRS, 17);		/* "Aug dot V offset must be..." */
+					GetIndCString(strBuf, INFOERRS_STRS, 17);	/* "Aug dot V offset must be..." */
 					INFO_ERROR(strBuf);
 				}
 
 				if (!NoteREST(aNoteL)) {
 					GetDlgWord(dlog, DOUBLEDUR, &newval);
 					if (newval<0 || newval>1) {
-						GetIndCString(strBuf, INFOERRS_STRS, 18);		/* "Dbl duration val must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 18);	/* "Dbl duration val must be..." */
 						INFO_ERROR(strBuf);
 					}
 				}
@@ -420,52 +422,51 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			
 			GetDlgWord(dlog, ACCIDENT, &newval);
 			if (newval<0 || newval>5) {
-				GetIndCString(strBuf, INFOERRS_STRS, 19);			/* "Accidental must be..." */
+				GetIndCString(strBuf, INFOERRS_STRS, 19);		/* "Accidental must be..." */
 				INFO_ERROR(strBuf);
 			}
 
 			GetDlgWord(dlog, XMOVE_ACC, &newval);
 			if (newval<0 || newval>31) {
-				GetIndCString(strBuf, INFOERRS_STRS, 20);			/* "Accidental H offset must be..." */
+				GetIndCString(strBuf, INFOERRS_STRS, 20);		/* "Accidental H offset must be..." */
 				INFO_ERROR(strBuf);
 			}
 
 			GetDlgWord(dlog, COURTESY_ACC, &newval);
 			if (newval<0 || newval>1) {
-				GetIndCString(strBuf, INFOERRS_STRS, 46);			/* "Courtesy accidental must be..." */
+				GetIndCString(strBuf, INFOERRS_STRS, 46);		/* "Courtesy accidental must be..." */
 				INFO_ERROR(strBuf);
 			}
 
 			GetDlgWord(dlog, HEADSTEM_SIDE, &newval);
 			if (newval<0 || newval>1) {
-				GetIndCString(strBuf, INFOERRS_STRS, 21);			/* "Notehead's stem side must be..." */
+				GetIndCString(strBuf, INFOERRS_STRS, 21);		/* "Notehead's stem side must be..." */
 				INFO_ERROR(strBuf);
 			}
 
 			GetDlgWord(dlog, NOTENUM, &newval);
-			if (newval<0 || newval>127) {								/* MAX_NOTENUM */
-				GetIndCString(strBuf, INFOERRS_STRS, 22);			/* "MIDI note number must be..." */
+			if (newval<0 || newval>127) {						/* MAX_NOTENUM */
+				GetIndCString(strBuf, INFOERRS_STRS, 22);		/* "MIDI note number must be..." */
 				INFO_ERROR(strBuf);
 			}
 
 			GetDlgWord(dlog, STEM_VERT, &newval);
 			if (newval<ABOVE_VLIM(doc) || newval>BELOW_VLIM(doc)) {
-				GetIndCString(strBuf, INFOERRS_STRS, 23);			/* "Stem position out of bounds" */
+				GetIndCString(strBuf, INFOERRS_STRS, 23);		/* "Stem position out of bounds" */
 				INFO_ERROR(strBuf);
 			}
 
 			GetDlgWord(dlog, ON_VELOCITY, &newval);
-			if (newval<0 || newval>127) {								/* MAX_VELOCITY */
-				GetIndCString(strBuf, INFOERRS_STRS, 24);			/* "MIDI On velocity must be..." */
+			if (newval<0 || newval>127) {						/* MAX_VELOCITY */
+				GetIndCString(strBuf, INFOERRS_STRS, 24);		/* "MIDI On velocity must be..." */
 				INFO_ERROR(strBuf);
 			}
 
 			GetDlgWord(dlog, OFF_VELOCITY, &newval);
 			if (newval<0 || newval>127) {
-				GetIndCString(strBuf, INFOERRS_STRS, 25);			/* "MIDI Off velocity must be..." */
+				GetIndCString(strBuf, INFOERRS_STRS, 25);		/* "MIDI Off velocity must be..." */
 				INFO_ERROR(strBuf);
 			}
-
 		}
 	}
 	
@@ -493,7 +494,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			GRAF_ACCEPT(aNote->playTimeDelta);					/* Will affect graphics if pianoroll view */
 	
 			GetDlgWord(dlog, P_DUR, &newval);
-			GRAF_ACCEPT(aNote->playDur);							/* Will affect graphics if pianoroll view */
+			GRAF_ACCEPT(aNote->playDur);						/* Will affect graphics if pianoroll view */
 	
 			GetDlgWord(dlog, L_DUR, &newval);
 			GRAF_ACCEPT(aNote->subType);
@@ -538,6 +539,9 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	
 				GetDlgWord(dlog, OFF_VELOCITY, &newval);
 				GEN_ACCEPT(aNote->offVelocity);
+
+				GetDlgWord(dlog, RESPACE_IGNORES, &newval);
+				GEN_ACCEPT(aNote->rspIgnore);
 			}
 	
 		  	break;
@@ -716,7 +720,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		case RPTENDtype:
 		case ENDINGtype:
 			GetDialogItem(dlog, LBL_OBJ_HORIZ, &aShort, &tHdl, &aRect);
-			SetDialogItemCText(tHdl, "Symbol Horiz.*");
+			SetDialogItemCText(tHdl, "Symbol H*");
 			GetDialogItem(dlog, LBL_SUBOBJ_HORIZ, &aShort, &tHdl, &aRect);
 			SetDialogItemCText(tHdl, "(unused)");
 		default:
@@ -736,10 +740,10 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			SetDialogItemCText(p1Hdl, "Barline type");
 
 			GetDialogItem(dlog, LBL_SUBOBJ_HORIZ, &aShort, &tHdl, &aRect);
-			SetDialogItemCText(tHdl, "MeasNum Horiz.");
+			SetDialogItemCText(tHdl, "MeasNum H");
 
 			GetDialogItem(dlog, LBL_VERT, &aShort, &tHdl, &aRect);
-			SetDialogItemCText(tHdl, "MeasNum Vert.");
+			SetDialogItemCText(tHdl, "MeasNum V");
 
 			PushLock(MEASUREheap);
 		 	aMeas = GetPAMEASURE(aMeasL);
@@ -823,7 +827,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			
 			if (DynamType(pL)>=FIRSTHAIRPIN_DYNAM) {
 				GetDialogItem(dlog, LBL_SUBOBJ_HORIZ, &aShort, &tHdl, &aRect);
-				SetDialogItemCText(tHdl, "RightEnd Horiz.*");
+				SetDialogItemCText(tHdl, "RightEnd H*");
 				GetDialogItem(dlog, LBL_PARAM1, &aShort, &p1Hdl, &aRect);
 				SetDialogItemCText(p1Hdl, "Mouth width");
 				GetDialogItem(dlog, LBL_PARAM2, &aShort, &p2Hdl, &aRect);
@@ -926,7 +930,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			
 		case ENDINGtype:
 			GetDialogItem(dlog, LBL_PARAM1, &aShort, &p1Hdl, &aRect);
-			SetDialogItemCText(p1Hdl, "Right End Horiz.*");
+			SetDialogItemCText(p1Hdl, "Right End H*");
 			GetDialogItem(dlog, LBL_PARAM2, &aShort, &p2Hdl, &aRect);
 			SetDialogItemCText(p2Hdl, "String number");
 

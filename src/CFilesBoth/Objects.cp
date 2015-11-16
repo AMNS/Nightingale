@@ -830,9 +830,9 @@ PushLock(NOTEheap);
 		yqpit = GetRestMultivoiceRole(&context, voiceRole, makeLower);
 		aNote->yd = qd2d(yqpit, context.staffHeight, context.staffLines);
 		aNote->yqpit = -1;												/* No QDIST pitch */
-		aNote->accident = 0;												/* No accidental */
+		aNote->accident = 0;											/* No accidental */
 		aNote->noteNum = 0;												/* No MIDI note number */
-		aNote->ystem = 0;													/* No stem end pos. */
+		aNote->ystem = 0;												/* No stem end pos. */
 	}
 	else {
 		yqpit = halfLn2qd(halfLn);
@@ -884,12 +884,13 @@ PushLock(NOTEheap);
 	aNote->unpitched = FALSE;
 	aNote->beamed = FALSE;
 	aNote->otherStemSide = FALSE;
+	aNote->rspIgnore = FALSE;	
 	aNote->accSoft = FALSE;
 	aNote->micropitch = 0;
 	aNote->xmoveAcc = DFLT_XMOVEACC;
-	aNote->headShape = NORMAL_VIS;
 	aNote->courtesyAcc = 0;
 	aNote->doubleDur = FALSE;
+	aNote->headShape = NORMAL_VIS;
 	aNote->firstMod = NILINK;
 	aNote->tiedR = aNote->tiedL = FALSE;
 	aNote->slurredR = aNote->slurredL = FALSE;
@@ -1403,8 +1404,8 @@ Boolean ChordHasUnison(LINK syncL, short voice)
 
 /* ------------------------------------------------------------- ChordNoteToRight -- */
 /* Return TRUE if the given Sync and voice has a chord that is stem up but has at least
-one note to right of the stem. Works even if stem won't be drawn because, say, all notes
-are whole notes, etc. */
+one note to right of the stem. Works even if stem won't be drawn, probably because
+all notes are whole notes. */
 
 Boolean ChordNoteToRight(LINK syncL, short voice)
 {
@@ -1429,15 +1430,15 @@ Boolean ChordNoteToRight(LINK syncL, short voice)
 
 
 /* -------------------------------------------------------------- ChordNoteToLeft -- */
-/* Return TRUE if the given Sync and voice has a chord that is stem down but has at
-least one note to left of the stem. Works even if stem won't be drawn because, say, all
-notes are whole notes, etc. */
+/* Return TRUE if the given Sync and voice has a chord that is stem down and has at
+least one note to left of the stem. Works even if stem won't be drawn, probably because
+all notes are whole notes. */
 
 Boolean ChordNoteToLeft(LINK syncL, short voice)
 {
 	LINK		mainNoteL;
 	LINK		aNoteL;
-	Boolean	stemDown;
+	Boolean		stemDown;
 
 	mainNoteL = FindMainNote(syncL, voice);
 	if (mainNoteL) {

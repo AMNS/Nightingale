@@ -1,26 +1,26 @@
 /***************************************************************************
-*	FILE:	SpaceTime.c																			*
-*	PROJ:	Nightingale, rev. for v.3.1													*
-*	DESC:	Low- and medium-level space and time routines (welcome to the		*
-* 			Twilight Zone...). No user-interface assumptions.						*
-*																									*
+*	FILE:	SpaceTime.c														*
+*	PROJ:	Nightingale, rev. for v.3.1										*
+*	DESC:	Low- and medium-level space and time routines (welcome to the	*
+* 			Twilight Zone...). No user-interface assumptions.				*
+*																			*
 	FillRelStaffSizes
 	SymWidthLeft			SymWidthRight				SymLikelyWidthRight
 	SymDWidthLeft			SymDWidthRight				ConnectDWidth
 	GetClefSpace			GetTSWidth
-	GetKSWidth				KSDWidth						GetKeySigWidth
+	GetKSWidth				KSDWidth					GetKeySigWidth
 	FillSpaceMap
 	FIdealSpace				IdealSpace					CalcSpaceNeeded
-	MeasSpaceProp			SetMeasSpacePercent		GetMSpaceRange
+	MeasSpaceProp			SetMeasSpacePercent			GetMSpaceRange
 	LDur2Code				
 	Code2LDur				SimpleLDur					SimpleGRLDur
 	GetMinDur				TupletTotDir				GetDurUnit
 	GetMaxDurUnit
 	TimeSigDur				CalcNoteLDur				SyncMaxDur
-	SyncNeighborTime		GetLTime						GetSpaceInfo
+	SyncNeighborTime		GetLTime					GetSpaceInfo
 	FixStaffTime			FixVoiceTimes				GetSpTimeInfo
 	FixMeasTimeStamps		FixTimeStamps				GetLDur
-	GetVLDur					GetMeasDur					NotatedMeasDur
+	GetVLDur				GetMeasDur					NotatedMeasDur
 
 /***************************************************************************/
 
@@ -43,8 +43,10 @@
 static void GetSpaceInfo(Document *, LINK, LINK, short, SPACETIMEINFO []);
 
 
-/* ------------------------------------------------------------ FillRelStaffSizes -- */
+/* ------------------------------------------------------------ Fill various tables -- */
 
+/* Fill in doc's table of staff sizes. If any staff is not in its "standard" size,
+return TRUE, else return FALSE. */
 Boolean FillRelStaffSizes(Document *doc)
 {
 	LINK staffL, aStaffL; short stf; DDIST lnSpace; Boolean nonstandard=FALSE;
@@ -60,18 +62,6 @@ Boolean FillRelStaffSizes(Document *doc)
 	return nonstandard;
 }		
 
-void FillIgnoreChordTable(Document *doc, LINK syncL, Boolean ignoreChord[])
-{
-	short i;
-	LINK aNoteL;
-
-	/* Fill in table of chords user doesn't want to affect spacing. */
-	for (i=1; i<=MAXVOICES; i++) {
-		ignoreChord[i] = FALSE;
-	}
-}
-
-
 
 /* -------------------------------------------------- SymWidthLeft, SymWidthRight -- */
 /* Return the horizontal space <pL> really occupies, i.e., the minimum required
@@ -85,31 +75,36 @@ in STDIST units for the reference size, even if <staff> is a different size. */
 #define STF_SCALE(val, s)	(doc->staffSize[s]*(long)(val)/(long)drSize[doc->srastral])
 
 STDIST SymWidthLeft(
-				Document *doc,
-				LINK pL,
-				short staff)		/* Number of staff to consider or ANYONE for all staves */
+			Document *doc,
+			LINK pL,
+			short staff,		/* Number of staff to consider, or ANYONE for all staves */
+			short measNode)		/* Index into _ignoreChord_, or -1 = have no context info (unused) */ 
 {
-	STDIST	totWidth;
-	PAMEASURE aMeas;
+	STDIST		totWidth;
+	PAMEASURE	aMeas;
 	LINK 		aNoteL, aGRNoteL, aMeasL;
 	short		xmoveAcc, maxxmoveAcc, s;
-	Boolean	anyStaff, noteToLeft;
-	Boolean ignoreChord[MAXVOICES+1];
+	Boolean		anyStaff, noteToLeft;
 	
 	anyStaff = (staff==ANYONE);
 	if (!anyStaff && STAFFN_BAD(doc, staff)) return 0;						/* Sanity check */
 
 	switch (ObjLType(pL)) {
 		case SYNCtype:
-			FillIgnoreChordTable(doc, pL, ignoreChord);
-			
+			if (measNode>=0) DebugPrintf("(a) ignoreChord[1]=%d [2]=%d [3]=%d\n",
+					ignoreChord[measNode][1], ignoreChord[measNode][2], ignoreChord[measNode][3]);
+
 			noteToLeft = FALSE;
+			/* ??PROBLEM: We pass the staff no. to ChordNoteToLeft(), but it expects
+				voice no.! I tried to fix this, but the result waas a crash _every_
+				time Respacing was done. And giving it staff no. instead of voice no.
+				seems to work rather well! I dunno. */
 			if (anyStaff) {
 				for (s = 1; s<=doc->nstaves; s++)
-					if (!ChordNoteToLeft(pL,s)) { noteToLeft = TRUE; break; }
+					if (!ChordNoteToLeft(pL, s)) { noteToLeft = TRUE; break; }
 			}
 			else
-				if (ChordNoteToLeft(pL,staff)) noteToLeft = TRUE;
+				if (ChordNoteToLeft(pL, staff)) noteToLeft = TRUE;
 
 			maxxmoveAcc = -1;
 			aNoteL = FirstSubLINK(pL);
@@ -212,26 +207,26 @@ STDIST SymWidthLeft(
 
 
 STDIST SymWidthRight(
-				Document *doc,
-				LINK		pL,
-				short		staff,		/* Number of staff to consider or ANYONE for all staves */
-				Boolean	toHead 		/* For notes/grace notes, ignore stuff to right of head? */
-				)
+			Document *doc,
+			LINK	pL,
+			short	staff,		/* Number of staff to consider or ANYONE for all staves */
+			Boolean	toHead 		/* For notes/grace notes, ignore stuff to right of head? */
+			)
 {
 	STDIST		totWidth, width, nwidth, normWidth;
 	PANOTE		aNote;
-	PAGRNOTE		aGRNote;
+	PAGRNOTE	aGRNote;
 	PACLEF		aClef;
 	PAKEYSIG 	aKeySig;
 	PATIMESIG	aTimeSig;
 	PAMEASURE	aMeasure;
-	PAPSMEAS		aPSMeas;
+	PAPSMEAS	aPSMeas;
 	PSPACE		pSpace;
-	LINK			aNoteL, aClefL, aKeySigL, aTimeSigL, aMeasureL, aPSMeasL, aGRNoteL;
-	short			nChars, s;
+	LINK		aNoteL, aClefL, aKeySigL, aTimeSigL, aMeasureL, aPSMeasL, aGRNoteL;
+	short		nChars, s;
 	Boolean		anyStaff, wideChar, noteToRight;
 	CONTEXT		context;
-	DRect			dRestBar;
+	DRect		dRestBar;
 	
 	anyStaff = (staff==ANYONE);
 	if (!anyStaff && STAFFN_BAD(doc, staff)) return 0;						/* Sanity check */
@@ -485,8 +480,8 @@ STDIST SymLikelyWidthRight(
 
 DDIST SymDWidthLeft(Document *doc, LINK pL, short staff, CONTEXT context)
 {
-	return std2d(SymWidthLeft(doc, pL, staff),
-						context.staffHeight, context.staffLines);
+	return std2d(SymWidthLeft(doc, pL, staff, -1), context.staffHeight,
+								context.staffLines);
 }
 
 
@@ -1890,12 +1885,9 @@ should look like a whole rest, and return FALSE.
 
 There's no question that in 4/2, breve rests should be used for whole measures; in
 other long-duration meters, what authorities say is inconsistent and seems not always
-well-thought-out. For example, Read (Music Notation, 2nd ed., p.98) says that
-formerly breve rests were used only in 4/2 but now whole rests should be used in all
-cases. At the other extreme, Stone (p.136) says to use them whenever the total
-duration reaches a breve. Ross (p.173) is in the middle: he says to use breve rests
-in 4/2 and 8/4, but he doesn't mention other meters; but surely 2/1, at the very
-least, should be treated the same! */
+well-thought-out. But Gould's _Behind Bars_ says (p. 160) that breve rests should be
+used in 4/2 and 8/4 and all greater durations. Surely they should also be used in 2/1,
+16/8, etc.! */
 
 Boolean WholeMeasRestIsBreve(char numerator, char denominator)
 {

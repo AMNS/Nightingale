@@ -165,7 +165,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	}
 	SetPort(GetDialogWindowPort(dlog));
 	
-	SetDialogDefaultItem(dlog,OK);
+	SetDialogDefaultItem(dlog, OK);
 	
 	GetDialogItem(dlog, iText, &itype, (Handle *)&tHdl, &bRect);
 	GetDialogItem(dlog, iSelect, &itype, (Handle *)&selHdl, &tRect);
@@ -712,7 +712,7 @@ void ShowVoicePage(Document *doc, short startV)
 				case SINGLE_DI: ch = '.'; break;
 				default: ch = '?';
 			}
-			sprintf(s, "%c%ciVoice %d in part %d vcPos=%c relVc=%d",
+			sprintf(s, "%c%ciVoice %d in part %d Role=%c relVoice=%d",
 						(v==doc->lookVoice? 'L' : ' '),
 						(v>1 && doc->voiceTab[v-1].partn==0? '…' : ' '),
 						v, doc->voiceTab[v].partn, ch,
@@ -818,7 +818,7 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 	
 		if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-		for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextPARTINFOL(qL)) ;
+		for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextPARTINFOL(qL)) ;
 	
 		q = GetPPARTINFO(qL);
 		sprintf(s, "link=%u @%lx next=%d", qL, q, q->next);
@@ -907,7 +907,7 @@ void BrowseStaff(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;		/* since Master Page can have 0 staves */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextSTAFFL(qL))
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextSTAFFL(qL))
 		;
 	q = GetPASTAFF(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
@@ -972,7 +972,7 @@ void BrowseConnect(LINK pL, short index)
 	
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextCONNECTL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextCONNECTL(qL)) 
 		;
 	q = GetPACONNECT(qL);
 	sprintf(s, "link=%u @%lx next=%d", qL, q, q->next);
@@ -1043,7 +1043,7 @@ void BrowseClef(LINK pL, short index)
 	
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextCLEFL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextCLEFL(qL)) 
 		;
 	q = GetPACLEF(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
@@ -1087,7 +1087,7 @@ void BrowseKeySig(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextKEYSIGL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextKEYSIGL(qL)) 
 		;
 	q = GetPAKEYSIG(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
@@ -1130,7 +1130,7 @@ void BrowseTimeSig(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextTIMESIGL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextTIMESIGL(qL)) 
 		;
 	q = GetPATIMESIG(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
@@ -1187,7 +1187,7 @@ void BrowseMeasure(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextMEASUREL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextMEASUREL(qL)) 
 		;
 	q = GetPAMEASURE(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
@@ -1249,7 +1249,7 @@ void BrowsePseudoMeas(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextPSMEASL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextPSMEASL(qL)) 
 		;
 	q = GetPAPSMEAS(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
@@ -1286,7 +1286,7 @@ void BrowseSync(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextNOTEL(qL)) 
+	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEL(qL)) 
 		;
 	q = GetPANOTE(qL);
 	sprintf(s, "link=%u @%lx stf=%d v=%hd next=%d", qL, q,
@@ -1335,6 +1335,10 @@ void BrowseSync(LINK pL, short index)
 														q->noteNum);
 	DrawLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "on,offVelocity=%hd,%hd", q->onVelocity, q->offVelocity);
+
+	DrawLine(s);	q = GetPANOTE(qL);
+	sprintf(s, "rspIgnore=%hd", q->rspIgnore);
+
 	DrawLine(s);
 	
 	subL = qL;
@@ -1346,7 +1350,7 @@ void BrowseSync(LINK pL, short index)
 void BrowseGRSync(LINK pL, short index)
 {
 	PGRSYNC p;
-	PAGRNOTE	q;
+	PAGRNOTE q;
 	LINK qL;
 	short i;
 
@@ -1359,7 +1363,7 @@ void BrowseGRSync(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextGRNOTEL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextGRNOTEL(qL)) 
 		;
 	q = GetPAGRNOTE(qL);
 	sprintf(s, "link=%u @%lx stf=%d v=%hd next=%d", qL, q,
@@ -1438,7 +1442,7 @@ void BrowseBeamset(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextNOTEBEAML(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTEBEAML(qL)) 
 		;
 	q = GetPANOTEBEAM(qL);
 	sprintf(s, "link=%u @%lx bpSync=%d next=%d", qL, q, q->bpSync, q->next);
@@ -1483,7 +1487,7 @@ void BrowseTuplet(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextNOTETUPLEL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTETUPLEL(qL)) 
 		;
 	q = GetPANOTETUPLE(qL);
 	sprintf(s, "link=%u @%lx tpSync=%d next=%d", qL, q, q->tpSync, q->next);
@@ -1518,7 +1522,7 @@ void BrowseOctava(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextNOTEOCTAVAL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTEOCTAVAL(qL)) 
 		;
 	q = GetPANOTEOCTAVA(qL);
 	sprintf(s, "link=%u @%lx opSync=%d next=%d", qL, q, q->opSync, q->next);
@@ -1598,7 +1602,7 @@ void BrowseRptEnd(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL);i<index;i++,qL=NextRPTENDL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextRPTENDL(qL)) 
 		;
 	q = GetPARPTEND(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
@@ -1884,7 +1888,7 @@ void BrowseSlur(LINK pL, short index)
 	
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,aSlurL=FirstSubLINK(pL);i<index;i++,aSlurL=NextSLURL(aSlurL)) 
+	for (i=0,aSlurL=FirstSubLINK(pL); i<index; i++,aSlurL=NextSLURL(aSlurL)) 
 		;
 	aSlur = GetPASLUR(aSlurL);
 

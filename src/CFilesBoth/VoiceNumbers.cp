@@ -2,7 +2,7 @@
 *	FILE:	VoiceNumbers.c																		*
 *	PROJ:	Nightingale, revised for v. 1.4												*
 *	DESC:	Routines for manipulating the voice-mapping table						*
-		OffsetVoiceNums		FillVoiceTable			BuildVoiceTable
+		OffsetVoiceNums			FillVoiceTable			BuildVoiceTable
 		MapVoiceNums			CompactVoiceNums
 		UpdateVoiceTable		User2IntVoice			Int2UserVoice
 		NewVoiceNum
@@ -27,7 +27,7 @@
 voice numbers are in use and, for each one that is in use: what part it belongs to;
 its "voice position" or "role" (upper, lower, cross-staff, or single); and its
 user voice number, by which Nightingale lets the user refer to the voice. Internal
-voice numbers must be unique, but user voice numbers need not be--in fact, they start
+voice numbers must be unique, but user voice numbers need not be; in fact, they start
 with 1 for each part.
 
 The voice table, doc->voiceTab, is indexed by the internal voice number. Every staff
@@ -37,11 +37,11 @@ entries in the table always refer to the default voices. If the score consists o
 2-staff part and (below it) one 3-staff part, the beginning of the table looks like
 this:
 	slot (=internal voice)	1	2	3	4	5
-	part							1	1	2	2	2
-	user voice					1	2	1	2	3
+	part					1	1	2	2	2
+	user voice				1	2	1	2	3
 
-Finally, the table must always be compact, i.e., there can be no slots in use after
-the first empty slot. */
+A slot with partn==0 is empty. The table must always be compact, i.e., there can be no
+slots in use after the first empty slot. */
 
 /* Prototypes for internal functions */
 static void FillVoiceTable(Document *, Boolean []);
@@ -366,7 +366,7 @@ Boolean Int2UserVoice(Document *doc, short iVoice, short *puVoice, LINK *pPartL)
 
 /* ----------------------------------------------------------------- NewVoiceNum -- */
 /* Find a "new" voice number for the given part: the lowest unused voice number
-greater than the number of staves in that part (so we can reserve voice numbers 1
+greater than the number of staves in that part (since we reserve voice numbers 1
 thru n for default voice numbers on staves 1 thru n). */
 
 short NewVoiceNum(Document *doc, LINK partL)
@@ -388,3 +388,24 @@ short NewVoiceNum(Document *doc, LINK partL)
 	
 	return freeVoice;
 }
+
+
+/* --------------------------------------------------------------- CountVoices -- */
+
+/* Return the number of voices in use in the given document. */
+short CountVoices(Document *doc) 
+{
+	short nv = 0;
+	
+	/* If the voice table is legal, we could stop counting when we find the first
+		empty slot; but continuing to count all the way to the end might be more
+		robust. Anyway, it shouldn't hurt.
+	 */
+	for (int i = 0; i <= MAXVOICES; i++) {
+		if (doc->voiceTab[i].partn != 0) nv++;
+	}
+	
+	return nv;
+}
+
+

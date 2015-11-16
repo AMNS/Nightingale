@@ -220,13 +220,13 @@ typedef struct {
 
 typedef struct						/* A part (for an instrument or voice): */
 {
-	LINK			next;				/* index of next subobj */
-	SignedByte	partVelocity;	/* MIDI playback velocity offset */
-	SignedByte	firstStaff;		/* Index of first staff in the part */
+	LINK			next;			/* index of next subobj */
+	SignedByte	partVelocity;		/* MIDI playback velocity offset */
+	SignedByte	firstStaff;			/* Index of first staff in the part */
 	Byte			patchNum;		/* MIDI program no. */
-	SignedByte	lastStaff;		/* Index of last staff in the part (>= first staff) */
-	Byte			channel;			/* MIDI channel no. */
-	SignedByte	transpose;		/* Transposition, in semitones (0=none) */
+	SignedByte	lastStaff;			/* Index of last staff in the part (>= first staff) */
+	Byte			channel;		/* MIDI channel no. */
+	SignedByte	transpose;			/* Transposition, in semitones (0=none) */
 	short			loKeyNum;		/* MIDI note no. of lowest playable note */
 	short			hiKeyNum;		/* MIDI note no. of highest playable note  */
 	char			name[32];		/* Full name, e.g., to label 1st system (C string) */
@@ -241,7 +241,7 @@ typedef struct						/* A part (for an instrument or voice): */
 	/* New fields for N103 file format  -JGG, 8/4/01 */
 	Byte			bankNumber0;	/* If device uses cntl 0 for bank select msgs */
 	Byte			bankNumber32;	/* If device uses cntl 32 for bank select msgs */
-										/* NB: some devices use both cntl 0 and cntl 32 */
+									/* NB: some devices use both cntl 0 and cntl 32 */
 
 	/* The following are for FreeMIDI support. We use an fmsUniqueID to identify
 		the output device while running. We use a destinationMatch to allow FreeMIDI
@@ -265,58 +265,58 @@ typedef struct {
 } HEADER, *PHEADER;
 
 
-#define NIGHTSCOREHEADER																					\
+#define NIGHTSCOREHEADER																			\
 	LINK 			headL,				/* links to header and tail objects */						\
-					tailL,																						\
+					tailL,																			\
 					selStartL,			/* currently selected range. */								\
-					selEndL;				/*		Also see the <selStaff> field. */					\
-																													\
-	short			nstaves,				/* number of staves in a system */							\
-					nsystems;			/* number of systems in score */								\
-	unsigned char comment[MAX_COMMENT_LEN+1]; /* (unused) User comment on score */			\
-	char			feedback:1;			/* TRUE if we want feedback on note insert */			\
-	char			dontSendPatches:1; /* 0 = when playing, send patch changes for channels */	\
-	char			saved:1;				/* TRUE if score has been saved */							\
-	char			named:1;				/* TRUE if file has been named */							\
-	char 			used:1;				/* TRUE if score contains any nonstructural info */	\
+					selEndL;			/*		Also see the <selStaff> field. */					\
+																									\
+	short			nstaves,			/* number of staves in a system */							\
+					nsystems;			/* number of systems in score */							\
+	unsigned char comment[MAX_COMMENT_LEN+1]; /* (unused) User comment on score */					\
+	char			feedback:1;			/* TRUE if we want feedback on note insert */				\
+	char			dontSendPatches:1; /* 0 = when playing, send patch changes for channels */		\
+	char			saved:1;			/* TRUE if score has been saved */							\
+	char			named:1;			/* TRUE if file has been named */							\
+	char 			used:1;				/* TRUE if score contains any nonstructural info */			\
 	char			transposed:1;		/* TRUE if transposed score, else C score */				\
 	char			lyricText:1;		/* (no longer used) TRUE if last text entered was lyric */	\
 	char			polyTimbral:1;		/* TRUE for one part per MIDI channel */					\
-	Byte			currentPage;		/* (no longer used) */											\
-	short			spacePercent,		/* Percentage of normal horizontal spacing used */		\
-					srastral,			/* Staff size rastral no.--score */							\
-					altsrastral,		/* (unused) Staff size rastral no.--parts */				\
+	Byte			currentPage;		/* (no longer used) */										\
+	short			spacePercent,		/* Percentage of normal horizontal spacing used */			\
+					srastral,			/* Standard staff size rastral no. */						\
+					altsrastral,		/* (unused) Alternate staff size rastral no. */				\
 					tempo,				/* playback speed in beats per minute */					\
-					channel,				/* Basic MIDI channel number */								\
+					channel,			/* Basic MIDI channel number */								\
 					velocity;			/* global playback velocity offset */						\
-	STRINGOFFSET headerStr;			/* index returned by String Manager */	\
-	STRINGOFFSET footerStr;			/* index returned by String Manager */	\
-	char			topPGN:1;			/* TRUE=page numbers at top of page, else bottom */	\
-	char			hPosPGN:3;			/* 1=page numbers at left, 2=center, 3=at right */		\
-	char			alternatePGN:1;	/* TRUE=page numbers alternately left and right */		\
-	char			useHeaderFooter:1; /* TRUE=use header/footer text, not simple pagenum */\
-	char			fillerPGN:2;		/* unused */														\
-	SignedByte	fillerMB;			/* unused */														\
-	DDIST			filler2,				/* unused */														\
-					otherIndent;		/* Amount to indent Systems other than first */			\
-	SignedByte	firstNames,			/* Code for drawing part names: see enum above */		\
-					otherNames,			/* Code for drawing part names: see enum above */		\
-					lastGlobalFont,	/* Header index of most recent text style used */		\
-					xMNOffset,			/* Horiz. pos. offset for meas. nos. (half-spaces) */	\
-					yMNOffset,			/* Vert. pos. offset for meas. nos. (half-spaces) */	\
+	STRINGOFFSET headerStr;				/* index returned by String Manager */						\
+	STRINGOFFSET footerStr;				/* index returned by String Manager */						\
+	char			topPGN:1;			/* TRUE=page numbers at top of page, else bottom */			\
+	char			hPosPGN:3;			/* 1=page numbers at left, 2=center, 3=at right */			\
+	char			alternatePGN:1;		/* TRUE=page numbers alternately left and right */			\
+	char			useHeaderFooter:1;	/* TRUE=use header/footer text, not simple pagenum */		\
+	char			fillerPGN:2;		/* unused */												\
+	SignedByte	fillerMB;				/* unused */												\
+	DDIST			filler2,			/* unused */												\
+					otherIndent;		/* Amount to indent Systems other than first */				\
+	SignedByte	firstNames,				/* Code for drawing part names: see enum above */			\
+					otherNames,			/* Code for drawing part names: see enum above */			\
+					lastGlobalFont,		/* Header index of most recent text style used */			\
+					xMNOffset,			/* Horiz. pos. offset for meas. nos. (half-spaces) */		\
+					yMNOffset,			/* Vert. pos. offset for meas. nos. (half-spaces) */		\
 					xSysMNOffset;		/* Horiz. pos. offset for meas.nos.if 1st meas.in system */ \
-	short			aboveMN:1,			/* TRUE=measure numbers above staff, else below */		\
-					sysFirstMN:1,		/* TRUE=indent 1st meas. of system by xMNOffset */		\
-					startMNPrint1:1,	/* TRUE=First meas. number to print is 1, else 2 */	\
-					firstMNNumber:13;	/* Number of first measure */									\
+	short			aboveMN:1,			/* TRUE=measure numbers above staff, else below */			\
+					sysFirstMN:1,		/* TRUE=indent 1st meas. of system by xMNOffset */			\
+					startMNPrint1:1,	/* TRUE=First meas. number to print is 1, else 2 */			\
+					firstMNNumber:13;	/* Number of first measure */								\
 	LINK			masterHeadL,		/* Head of Master Page object list */						\
 					masterTailL;		/* Tail of Master Page object list */						\
-	SignedByte	filler1,																						\
-					nFontRecords;		/* Always 15 for now */											\
-	/* Fifteen identical TEXTSTYLE records. Fontnames are Pascal strings. */				\
-																													\
+	SignedByte	filler1,																			\
+					nFontRecords;		/* Always 15 for now */										\
+	/* Fifteen identical TEXTSTYLE records. Fontnames are Pascal strings. */						\
+																									\
 	unsigned char fontNameMN[32];	/* MEASURE NO. FONT: default name, size and style */	\
-	unsigned short	fillerMN:5;																				\
+	unsigned short	fillerMN:5;																		\
 	unsigned short	lyricMN:1;		/* TRUE if spacing like lyric (ignored) */				\
 	unsigned short	enclosureMN:2;	/* Enclosure: whether box, circular or none */			\
 	unsigned short	relFSizeMN:1;	/* TRUE if size is relative to staff size */				\
@@ -754,41 +754,42 @@ enum {									/* pseudomeasure types: codes follow those for MEASUREs */
 
 typedef struct {
 	SUBOBJHEADER					/* subType (l_dur): LG: <0=n measure rest, 0=unknown, >0=Logical (CMN) dur. code */
-	Boolean		inChord:1;		/* TRUE if note is part of a chord */
-	Boolean		rest:1;			/* LGP: TRUE=rest (=> ignore accident, ystem, etc.) */
-	Boolean		unpitched:1;	/* LGP: TRUE=unpitched note */
-	Boolean		beamed:1;		/* TRUE if beamed */
+	Boolean		inChord:1;			/* TRUE if note is part of a chord */
+	Boolean		rest:1;				/* LGP: TRUE=rest (=> ignore accident, ystem, etc.) */
+	Boolean		unpitched:1;		/* LGP: TRUE=unpitched note */
+	Boolean		beamed:1;			/* TRUE if beamed */
 	Boolean		otherStemSide:1;	/* G: TRUE if note goes on "wrong" side of stem */
-	SHORTQD		yqpit;			/* LG: clef-independent dist. below middle C ("pitch") (unused for rests) */
-	DDIST			xd, yd;			/* G: head position */
-	DDIST			ystem;			/* G: endpoint of stem (unused for rests) */
-	short			playTimeDelta;	/* P: PDURticks before/after timeStamp when note starts */
-	short			playDur;			/* P: PDURticks that note plays for */
-	short			pTime;			/* P: PDURticks play time; for internal use by Tuplet routines */
-	Byte			noteNum;			/* P: MIDI note number (unused for rests) */
-	Byte			onVelocity;		/* P: MIDI note-on velocity, normally loudness (unused for rests) */
-	Byte			offVelocity;	/* P: MIDI note-off (release) velocity (unused for rests) */
+	SHORTQD		yqpit;				/* LG: clef-independent dist. below middle C ("pitch") (unused for rests) */
+	DDIST		xd, yd;				/* G: head position */
+	DDIST		ystem;				/* G: endpoint of stem (unused for rests) */
+	short		playTimeDelta;		/* P: PDURticks before/after timeStamp when note starts */
+	short		playDur;			/* P: PDURticks that note plays for */
+	short		pTime;				/* P: PDURticks play time; for internal use by Tuplet routines */
+	Byte		noteNum;			/* P: MIDI note number (unused for rests) */
+	Byte		onVelocity;			/* P: MIDI note-on velocity, normally loudness (unused for rests) */
+	Byte		offVelocity;		/* P: MIDI note-off (release) velocity (unused for rests) */
 	Boolean		tiedL:1;			/* TRUE if tied to left */
 	Boolean		tiedR:1;			/* TRUE if tied to right */
-	Byte			ymovedots:2;	/* G: Y-offset on aug. dot pos. (halflines, 2=same as note, except 0=invisible) */
-	Byte			ndots:4;			/* LG: No. of aug. dots */
-	SignedByte	voice;			/* L: Voice number */
-	Byte			accident:4;		/* LG: 0=none, 1--5=dbl. flat--dbl. sharp (unused for rests) */
-	Boolean		accSoft : 1;	/* L: Was accidental generated by Nightingale? */
-	Byte			micropitch:3;	/* LP: Microtonal pitch modifier */
-	Byte			xmoveAcc:5;		/* G: X-offset to left on accidental position */
-	Byte			merged:1;		/* temporary flag for Merge functions */
-	Byte			courtesyAcc:1; /* G: Accidental is a "courtesy accidental" */
-	Byte			doubleDur:1;	/* G: Draw as if double the actual duration */
-	Byte			headShape:5;	/* G: Special notehead or rest shape; see list below */
-	Byte			xmovedots:3;	/* G: X-offset on aug. dot position */
-	LINK			firstMod;		/* LG: Note-related symbols (articulation, fingering, etc.) */
-	Byte			slurredL:2;		/* TRUE if endpoint of slur to left (extra bit for future use) */
-	Byte			slurredR:2;		/* TRUE if endpoint of slur to right (extra bit for future use) */
-	Byte			inTuplet:1;		/* TRUE if in a tuplet */
-	Byte			inOctava:1;		/* TRUE if in an octave sign */
-	Byte			small:1;			/* TRUE if a small (cue, etc.) note */
-	Byte			tempFlag:1;		/* temporary flag for benefit of functions that need it */
+	Byte		ymovedots:2;		/* G: Y-offset on aug. dot pos. (halflines, 2=same as note, except 0=invisible) */
+	Byte		ndots:4;			/* LG: No. of aug. dots */
+	SignedByte	voice;				/* L: Voice number */
+	Byte		rspIgnore:1;		/* TRUE if note's chord should not affect automatic spacing */
+	Byte		accident:3;			/* LG: 0=none, 1--5=dbl. flat--dbl. sharp (unused for rests) */
+	Boolean		accSoft : 1;		/* L: Was accidental generated by Nightingale? */
+	Byte		micropitch:3;		/* LP: Microtonal pitch modifier (unused as of v. 5.5) */
+	Byte		xmoveAcc:5;			/* G: X-offset to left on accidental position */
+	Byte		merged:1;			/* temporary flag for Merge functions */
+	Byte		courtesyAcc:1;		/* G: Accidental is a "courtesy accidental" */
+	Byte		doubleDur:1;		/* G: Draw as if double the actual duration */
+	Byte		headShape:5;		/* G: Special notehead or rest shape; see list below */
+	Byte		xmovedots:3;		/* G: X-offset on aug. dot position */
+	LINK		firstMod;			/* LG: Note-related symbols (articulation, fingering, etc.) */
+	Byte		slurredL:2;			/* TRUE if endpoint of slur to left (extra bit for future use) */
+	Byte		slurredR:2;			/* TRUE if endpoint of slur to right (extra bit for future use) */
+	Byte		inTuplet:1;			/* TRUE if in a tuplet */
+	Byte		inOctava:1;			/* TRUE if in an octave sign */
+	Byte		small:1;			/* TRUE if a small (cue, etc.) note */
+	Byte		tempFlag:1;			/* temporary flag for benefit of functions that need it */
 	SignedByte	fillerN;
 } ANOTE, *PANOTE;
 

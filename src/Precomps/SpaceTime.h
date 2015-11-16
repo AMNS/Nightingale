@@ -2,7 +2,7 @@
 
 Boolean FillRelStaffSizes(Document *);
 
-STDIST SymWidthLeft(Document *, LINK, short);
+STDIST SymWidthLeft(Document *, LINK, short, short);
 STDIST SymWidthRight(Document *, LINK, short, Boolean);
 STDIST SymLikelyWidthRight(Document *, LINK, long);
 DDIST SymDWidthLeft(Document *, LINK, short, CONTEXT);

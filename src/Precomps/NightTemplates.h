@@ -555,8 +555,9 @@ pascal short	FindToolItem(Point pt);
 	void		MapVoiceNums(Document *, short []);
 	void		UpdateVoiceTable(Document *, Boolean);
 	short		User2IntVoice(Document *, short, LINK);
-	Boolean	Int2UserVoice(Document *, short, short *, LINK *);
+	Boolean		Int2UserVoice(Document *, short, short *, LINK *);
 	short		NewVoiceNum(Document *, LINK);
+	short		CountVoices(Document *doc);
 
 /* Windows.c */
 
