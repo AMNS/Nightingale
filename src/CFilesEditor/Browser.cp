@@ -1922,13 +1922,14 @@ void BrowseSlur(LINK pL, short index)
 
 void ShowContext(Document *doc)
 {
-	LINK			pL;
+	LINK		pL, tempoL;
+	PTEMPO		pTempo;
 	Boolean		done;
 	CONTEXT		context;
 	DialogPtr	dlog;
 	Handle		tHdl;
-	short			itype,ditem;
-	short			theStaff;
+	short		itype, ditem;
+	short		theStaff;
 	GrafPtr		oldPort;	
 
 /* Get LINK to and staff number of first selected object or of insertion point. */
@@ -1971,66 +1972,58 @@ void ShowContext(Document *doc)
 	sprintf(s, "");
 	DrawLine(s);
 	strcpy(s, "flags=");
-	if (context.visible)
-		strcat(s, "VISIBLE ");
-	if (context.staffVisible)
-		strcat(s, "STAFFVIS ");
-	if (context.measureVisible)
-		strcat(s, "MEASUREVIS  ");
+	if (context.visible) strcat(s, "VISIBLE ");
+	if (context.staffVisible) strcat(s, "STAFFVIS ");
+	if (context.measureVisible) strcat(s, "MEASUREVIS  ");
 	DrawLine(s);
 	strcpy(s, "flags=");
-	if (context.inMeasure)
-		strcat(s, "IN MEASURE ");
-	else
-		strcat(s, "NOT IN MEASURE ");
+	if (context.inMeasure) strcat(s, "IN MEASURE ");
+	else strcat(s, "NOT IN MEASURE ");
 	DrawLine(s);
-	sprintf(s, "systemTop,Left,Bottom=%d,%d,%d",
-		context.systemTop,
-		context.systemLeft,
+	sprintf(s, "systemTop,Left,Bottom=%d,%d,%d", context.systemTop, context.systemLeft,
 		context.systemBottom);
 	DrawLine(s);
-	sprintf(s, "staffTop,Left,Right=%d,%d,%d",
-		context.staffTop,
-		context.staffLeft,
+	sprintf(s, "staffTop,Left,Right=%d,%d,%d", context.staffTop, context.staffLeft,
 		context.staffRight);
 	DrawLine(s);
-	sprintf(s, "staffHeight,HalfHeight=%d,%d",
-		context.staffHeight,
-		context.staffHalfHeight);
+	sprintf(s, "staffHeight,HalfHeight=%d,%d", context.staffHeight, context.staffHalfHeight);
 	DrawLine(s);
 	if (context.showLines==SHOW_ALL_LINES)
-		sprintf(s, "staffLines=%hd showLines=all",
-			context.staffLines);
+		sprintf(s, "staffLines=%hd showLines=all", context.staffLines);
 	else
-		sprintf(s, "staffLines=%hd showLines=%hd",
-			context.staffLines, context.showLines);
+		sprintf(s, "staffLines=%hd showLines=%hd", context.staffLines, context.showLines);
 	DrawLine(s);
-	sprintf(s, "showLedgers=%s fontSize=%d",
-			context.showLedgers? "yes" : "no", context.fontSize);
+	sprintf(s, "showLedgers=%s fontSize=%d", context.showLedgers? "yes" : "no",
+				context.fontSize);
 	DrawLine(s);
-	sprintf(s, "measureTop,Left=%d,%d",
-		context.measureTop,
-		context.measureLeft);
+	sprintf(s, "measureTop,Left=%d,%d", context.measureTop, context.measureLeft);
 	DrawLine(s);
-	sprintf(s, "clefType=%hd",
-		context.clefType);
+	sprintf(s, "clefType=%hd", context.clefType);
 	DrawLine(s);
-	sprintf(s, "nKSItems=%hd",
-		context.nKSItems);
+	sprintf(s, "nKSItems=%hd", context.nKSItems);
 	DrawLine(s);
-	sprintf(s, "timeSigType,n/d=%hd,%hd/%hd",
-		context.timeSigType,
-		context.numerator,
+	sprintf(s, "timeSigType,n/d=%hd,%hd/%hd", context.timeSigType, context.numerator,
 		context.denominator);
 	DrawLine(s);
 	sprintf(s, "dynamicType=%hd", context.dynamicType);
 	DrawLine(s);
+	
+	/* The current tempo is worth showing, but not part of the CONTEXT object. */
+	DrawLine("----------------------------");
+	tempoL = LSSearch(pL, TEMPOtype, ANYONE, GO_LEFT, FALSE);
+	if (tempoL==NILINK) {
+		DrawLine("** Couldn't find a TEMPO object. **");
+	}
+	else {
+		pTempo  = GetPTEMPO(tempoL);
+		sprintf(s, "tempoL=%d tempo=%d", tempoL, pTempo->tempo);
+		DrawLine(s);
+	}
 
 	done = FALSE;
 	do {
 		ModalDialog(NULL, &ditem);					/* Handle dialog events */
-		if (ditem==OK)
-		  	done = TRUE;
+		if (ditem==OK) done = TRUE;
 	} while (!done);
 	DisposeDialog(dlog);
 	SetPort(oldPort);

@@ -227,7 +227,7 @@ NTypes.h.
 
 -------------------------------------------------------------------------------
 
-3-15 Nov.
+3-16 Nov.
 
 Further tweak the Info dialog for notes/rests and the one for most other symbols (DLOGs
 596 and 598) to make them more readable. Affects .rsrc; InfoDialog.
@@ -244,3 +244,8 @@ cleanup.
 Fix bug: when values are changed in many fields of the Sync Info and General Info
 dialogs (DLOGs 596 and 598), the chars. for the new values are truncated because they
 extend slightly below the boxes they're shown in. Affects .rsrc .
+
+Tweak the Extended Info dialog (used for text strings, octave signs, and tuplets) to
+make it more reaable. Affects .rsrc.
+
+Display the tempo in effect in the Context window. Affects .rsrc; Browser.
