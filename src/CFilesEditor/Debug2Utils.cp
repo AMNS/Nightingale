@@ -1,11 +1,11 @@
 /* File Debug2Utils.c - debugging functions. This is the other part of the 
-"DebugUtils" source file, made into a separate file because DebugUtils.c
-was just too big--e.g., with certain Mac development systems, approaching
-or exceeding their 32K per module object code size limit.
+"DebugUtils" source file, made into a separate file long ago because DebugUtils.c
+was just too big -- e.g., with certain Mac development systems of the 1990's,
+approaching or exceeding their limit of 32K per module object code.
 
 	DCheckVoiceTable		DCheckRedundKS			DCheckRedundTS
 	DCheckMeasDur			DCheckUnisons
-	DCheck1NEntries		DCheckNEntries			DCheck1SubobjLinks	
+	DCheck1NEntries			DCheckNEntries			DCheck1SubobjLinks	
 	DBadNoteNum				DCheckNoteNums
 */
 
@@ -41,8 +41,8 @@ or exceeding their 32K per module object code size limit.
 We could also check other symbols with voice nos. */
 
 Boolean DCheckVoiceTable(Document *doc,
-				Boolean fullCheck,				/* FALSE=skip less important checks */
-				short *pnVoicesUsed)
+			Boolean fullCheck,				/* FALSE=skip less important checks */
+			short *pnVoicesUsed)
 {
 	Boolean bad, foundEmptySlot;
 	LINK pL, aNoteL, aGRNoteL;
@@ -135,8 +135,8 @@ Boolean DCheckVoiceTable(Document *doc,
 					v = NoteVOICE(aNoteL);
 					stf = NoteSTAFF(aNoteL);
 					if (doc->voiceTab[v].partn!=Staff2Part(doc, stf))
-						COMPLAIN2("*DCheckVoiceTable: NOTE IN SYNC AT %lu IN ANOTHER PART'S VOICE %ld.\n",
-										(ulong)pL, (long)v);
+						COMPLAIN3("*DCheckVoiceTable: NOTE IN SYNC AT %lu STAFF %d IN ANOTHER PART'S VOICE, %ld.\n",
+										(ulong)pL, stf, (long)v);
 				}
 				break;
 			case GRSYNCtype:
@@ -145,8 +145,8 @@ Boolean DCheckVoiceTable(Document *doc,
 					v = GRNoteVOICE(aGRNoteL);
 					stf = GRNoteSTAFF(aGRNoteL);
 					if (doc->voiceTab[v].partn!=Staff2Part(doc, stf))
-						COMPLAIN2("*DCheckVoiceTable: NOTE IN GRSYNC AT %lu IN ANOTHER PART'S VOICE %ld.\n",
-										(ulong)pL, (long)v);
+						COMPLAIN3("*DCheckVoiceTable: NOTE IN GRSYNC AT %lu STAFF %d IN ANOTHER PART'S VOICE, %ld.\n",
+										(ulong)pL, stf, (long)v);
 				}
 				break;
 			default:
@@ -340,8 +340,8 @@ Boolean DCheckUnisons(Document *doc)
 of subobjects. */
 
 Boolean DCheck1NEntries(
-					Document */*doc*/,		/* unused */
-					LINK pL)
+				Document */*doc*/,		/* unused */
+				LINK pL)
 {
 	LINK subL, tempL; Boolean bad; short subCount;
 	HEAP *myHeap;
@@ -506,10 +506,10 @@ Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 table: return the discrepancy in the note's MIDI note number (0 if none). */
 
 short DBadNoteNum(
-				Document *doc,
-				short clefType, short octType,
-				SignedByte /*accTable*/[],
-				LINK syncL, LINK theNoteL)
+			Document *doc,
+			short clefType, short octType,
+			SignedByte /*accTable*/[],
+			LINK syncL, LINK theNoteL)
 {
 	short halfLn;							/* Relative to the top of the staff */
 	SHORTQD yqpit;

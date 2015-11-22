@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	MIDIPlay.c																			*
-*	PROJ:	Nightingale, rev.for v.2000													*
-*	DESC:	MIDI playback routines															*
+*	FILE:	MIDIPlay.c														*
+*	PROJ:	Nightingale, rev.for v.2000										*
+*	DESC:	MIDI playback routines											*
 /***************************************************************************/
 
 /*											NOTICE
@@ -30,7 +30,7 @@ powerful, and slightly less ancient (sigh). */
 
 /* ================================== LOCAL STUFF ================================== */
 
-static long			pageTurnTOffset;
+static long		pageTurnTOffset;
 
 static void		PlayMessage(Document *, LINK, short);
 static Boolean	HiliteSyncRect(Document *doc, Rect *syncRect, Rect *rPaper, Boolean scroll);
@@ -113,12 +113,12 @@ NB: The "scrolling" code here can itself change doc->currentPaper. For this and
 other reasons, we expect the appropriate doc->currentPaper as a parameter. */
 
 static Boolean HiliteSyncRect(
-						Document *doc,
-						Rect *r,
-						Rect *rPaper,				/* doc->currentPaper for r's page */
-						Boolean scroll)
+					Document *doc,
+					Rect *r,
+					Rect *rPaper,				/* doc->currentPaper for r's page */
+					Boolean scroll)
 	{
-		Rect result; short x,y; Boolean turnedPage=FALSE;
+		Rect result; short x, y; Boolean turnedPage=FALSE;
 		
 		/* Temporarily convert r to window coords. Normally, we do this by
 		 * offsetting by doc->currentPaper, but in this case, doc->currentPaper
@@ -298,11 +298,7 @@ Boolean CheckButton()
 	
 	EventRecord evt; 
 
-#ifdef USE_GETOSEVENT		
-	if (!GetOSEvent(mDownMask,&evt)) return(button);	/* Not Wait/GetNextEvent so we do as little as possible */
-#else
 	if (!GetNextEvent(mDownMask,&evt)) return(button);	/* Not Wait/GetNextEvent so we do as little as possible */
-#endif
 
 	if (evt.what==mouseDown) button = TRUE;
 
@@ -352,18 +348,13 @@ static Byte cmAllPanSetting[MAXSTAVES + 1];
 /* Steps:
 
 	1. Get the graphic
-	
 	2. Check that the object it is hanging off of is a sync
-	
 	3. Get the partn from the graphic's staff
-
 	4. Update the part patch in the part patch array. See GetPartPlayInfo for this.
 		Updates channelPatch[].
-		
 	6. Send the program packet
- 		CMMIDIProgram(doc, partPatch, partChannel);
- 		
- 		with the progressively updated patch num.
+			CMMIDIProgram(doc, partPatch, partChannel);
+ 		with the progressively updated patch number.
 */
 
 static Boolean ValidPanSetting(Byte panSetting) 
@@ -703,48 +694,48 @@ scribed in the MIDI Manager manual.) */
 #define MAX_TCONVERT 100							/* Max. no. of tempo changes we handle */
 
 void PlaySequence(
-				Document *doc,
-				LINK fromL,	LINK toL,	/* range to be played */
-				Boolean showit,			/* TRUE to hilite notes as they're played */
-				Boolean selectedOnly		/* TRUE if we want to play selected notes only */
-				)
+			Document *doc,
+			LINK fromL,	LINK toL,		/* range to be played */
+			Boolean showit,				/* TRUE to hilite notes as they're played */
+			Boolean selectedOnly		/* TRUE if we want to play selected notes only */
+			)
 {
-	PPAGE			pPage;
+	PPAGE		pPage;
 	PSYSTEM		pSystem;
-	LINK			pL, oldL, showOldL, aNoteL;
-	LINK			systemL, pageL, measL, newMeasL;
+	LINK		pL, oldL, showOldL, aNoteL;
+	LINK		systemL, pageL, measL, newMeasL;
 	CursHandle	playCursor;
-	short			i;
-	short			useNoteNum,
-					useChan, useVelo;
-	long			t,
-					toffset,										/* PDUR start time of 1st note played */
-					playDur,
-					plStartTime, plEndTime,							/* in PDUR ticks */
-					startTimeNorm, endTimeNorm,						/* in millisec. at tempi marked */
-					startTime, oldStartTime, endTime;				/* in actual milliseconds */
-	long			tBeforeTurn, tElapsed;
-	Rect			syncRect, sysRect, r,
-					oldPaper, syncPaper, pagePaper;
+	short		i;
+	short		useNoteNum,
+				useChan, useVelo;
+	long		t,
+				toffset,									/* PDUR start time of 1st note played */
+				playDur,
+				plStartTime, plEndTime,						/* in PDUR ticks */
+				startTimeNorm, endTimeNorm,					/* in millisec. at tempi marked */
+				startTime, oldStartTime, endTime;			/* in actual milliseconds */
+	long		tBeforeTurn, tElapsed;
+	Rect		syncRect, sysRect, r,
+				oldPaper, syncPaper, pagePaper;
 	Boolean		paperOnDesktop, moveSel, newPage,
-					doScroll, tooManyTempi;
+				doScroll, tooManyTempi;
 	SignedByte	partVelo[MAXSTAVES];
-	Byte			partChannel[MAXSTAVES];
-	short			partTransp[MAXSTAVES];
-	Byte			channelPatch[MAXCHANNEL];
+	Byte		partChannel[MAXSTAVES];
+	short		partTransp[MAXSTAVES];
+	Byte		channelPatch[MAXCHANNEL];
 
-	short			useIORefNum;					/* NB: can be fmsUniqueID */
-	Byte			partPatch[MAXSTAVES];
-	short			partIORefNum[MAXSTAVES];
+	short		useIORefNum;								/* NB: can be fmsUniqueID */
+	Byte		partPatch[MAXSTAVES];
+	short		partIORefNum[MAXSTAVES];
 
-	short			oldCurrentSheet, tempoCount, barTapSlopMS;
+	short		oldCurrentSheet, tempoCount, barTapSlopMS;
 	EventRecord	theEvent;
-	char			theChar;
-	TCONVERT		tConvertTab[MAX_TCONVERT];
-	char			fmtStr[256];
-	short			velOffset, durFactor, timeFactor;
+	char		theChar;
+	TCONVERT	tConvertTab[MAX_TCONVERT];
+	char		fmtStr[256];
+	short		velOffset, durFactor, timeFactor;
 	
-	short			 notePartn;
+	short		notePartn;
 	MIDIUniqueID partDevID;
 	Boolean		patchChangePosted = FALSE;
 	Boolean		sustainOnPosted = FALSE;
@@ -916,25 +907,21 @@ void PlaySequence(
 						t = GetMIDITime(pageTurnTOffset);
 						
 						if (moveSel = UserInterruptAndSel()) goto done;	/* Check for Stop/Select */
-						if (moveSel = CheckButton()) goto done;		/* Check for Stop/Select */
+						if (moveSel = CheckButton()) goto done;			/* Check for Stop/Select */
 						if (UserInterrupt()) goto done;					/* Check for Cancel */
 						
-#ifdef USE_GETOSEVENT		
-						GetOSEvent(keyDownMask, &theEvent);				/* Not Wait/GetNextEvent so we do as little as possible */
-#else
 						GetNextEvent(keyDownMask, &theEvent);			/* Not Wait/GetNextEvent so we do as little as possible */
-#endif
 						theChar = (char)theEvent.message & charCodeMask;
-						if (theChar==CH_BARTAP)	{							/* Check for Insert Barline */
+						if (theChar==CH_BARTAP)	{						/* Check for Insert Barline */
 							LINK insL = (t-oldStartTime<barTapSlopMS? oldL : pL);
 							AddBarline(insL);
 						}
-						CheckEventList(pageTurnTOffset);					/* Check for, turn off any notes done */
+						CheckEventList(pageTurnTOffset);				/* Check for, turn off any notes done */
 								
 						if (useWhichMIDI==MIDIDR_CM)
-							CMCheckEventList(pageTurnTOffset);					/* Check for, turn off any notes done */
+							CMCheckEventList(pageTurnTOffset);			/* Check for, turn off any notes done */
 						else
-							CheckEventList(pageTurnTOffset);					/* Check for, turn off any notes done */
+							CheckEventList(pageTurnTOffset);			/* Check for, turn off any notes done */
 					} while (t<startTime);
 		
 					if (newMeasL) {
@@ -1085,18 +1072,14 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 	}
 
 	if (useWhichMIDI==MIDIDR_CM) {
-		while (!CMCheckEventList(pageTurnTOffset)) {				/* Wait til eventList[] empty... */
+		while (!CMCheckEventList(pageTurnTOffset)) {			/* Wait til eventList[] empty... */
 			if (moveSel = UserInterruptAndSel()) goto done;		/* Check for Stop/Select */
 			if (moveSel = CheckButton()) goto done;				/* Check for Stop/Select */
-			if (UserInterrupt()) goto done;							/* Check for Cancel */
+			if (UserInterrupt()) goto done;						/* Check for Cancel */
 
-	#ifdef USE_GETOSEVENT		
-			GetOSEvent(keyDownMask, &theEvent);						/* Not Wait/GetNextEvent so we do as little as possible */
-	#else
 			GetNextEvent(keyDownMask, &theEvent);
-	#endif
 			theChar = (char)theEvent.message & charCodeMask;
-			if (theChar==CH_BARTAP)										/* Check for Insert Barline */
+			if (theChar==CH_BARTAP)								/* Check for Insert Barline */
 			AddBarline(oldL);
 		}
 	}
@@ -1104,15 +1087,11 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 		while (!CheckEventList(pageTurnTOffset)) {				/* Wait til eventList[] empty... */
 			if (moveSel = UserInterruptAndSel()) goto done;		/* Check for Stop/Select */
 			if (moveSel = CheckButton()) goto done;				/* Check for Stop/Select */
-			if (UserInterrupt()) goto done;							/* Check for Cancel */
+			if (UserInterrupt()) goto done;						/* Check for Cancel */
 
-	#ifdef USE_GETOSEVENT		
-			GetOSEvent(keyDownMask, &theEvent);						/* Not Wait/GetNextEvent so we do as little as possible */
-	#else
 			GetNextEvent(keyDownMask, &theEvent);
-	#endif
 			theChar = (char)theEvent.message & charCodeMask;
-			if (theChar==CH_BARTAP)										/* Check for Insert Barline */
+			if (theChar==CH_BARTAP)								/* Check for Insert Barline */
 			AddBarline(oldL);
 		}
 	}

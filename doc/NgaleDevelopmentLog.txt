@@ -770,7 +770,8 @@ MIDIPlay.cp, MIDIFSave.cp: Change most instances of "Midi" in function names to 
 
 MIDIFOpen.cp: In Debug prints for TEMPO metaevents, add "(TEMPO)"; rename the two
 versions of GetRelObj (with different calling sequences: this assumes a C++ compiler,
-a bad idea) to GetTempoRelObj and GetCtrlRelObj; clean up code.
+a bad idea in a program that's virtually all straight C) to GetTempoRelObj and
+GetCtrlRelObj; clean up code.
 
 -------------------------------------------------------------------------------
 
@@ -828,7 +829,7 @@ version with my change.
 DrawUtils.cp: I'd made no non-trivial changes.
 
 OK, everything is integrated! Try to build => 9 errors. Looks like #defines are
-missing for: NOTEHEAD_GRAPH_WIDTH EXPAND_WIDER
+missing for NOTEHEAD_GRAPH_WIDTH and EXPAND_WIDER .
 
 Both should be in defs.h; why aren't they? Because I overlooked defs.h when integrating
 all the changes. Correct that, rebuild => 1 error: OhioSlurs.cp is missing -- the ref.
@@ -870,13 +871,16 @@ Clean up code a bit: remove last VIEWER_VERSION code; update comments in compile
 With two voices on a staff, Ngale computes space needed based on the merged voices
 even if one is so far above the other that they don't interact, resulting in it
 sometimes allocating way too much space for a Sync. Cf. violin concerto, II,
-3VCBVariation, m. 9. A solution: add a flag to the ANote struct
-that says "when respacing, ignore this note", or, better, "ignore the chord this note
-belongs to"; add it to the note Get Info dialog.  Est. fix impact: low: there's a byte
-available to put this flag in, and it's been initialized to 0 for many years. Code
-changes would be in SpaceTime.cp > SymWidthLeft(). However, that function calls
-ChordNoteToLeft() with staff nos., while ChordNoteToLeft() expects voice nos.! This
-is a mess; may not be low-impact after all and may not be worth the effort.
+3VCBVariation, m. 9. A solution: add a flag to the ANote struct that says "when
+respacing, ignore this note", or, better, "ignore the chord this note belongs to"; add
+it to the note Get Info dialog.  Est. fix impact: low: there's a byte available to put
+this flag in, and it looks like it's been initialized to 0 for many years. ??The byte is
+fillerN. Could also take the top bit of ndots:4 -- supporting up to 7 aug. dots is
+probably enough :-) . 
+
+Code changes would be in SpaceTime.cp > SymWidthLeft(). However, that function calls
+ChordNoteToLeft() with staff nos., while ChordNoteToLeft() expects voice nos.! This is a
+mess; it may not be low-impact after all, and may not be worth the effort :-( .
 
 In code to display CNFG fields: add _musicFontID_; rearrange to come closer to the order
 of declarations in applicationTypes.h; minor cleanup.
@@ -896,3 +900,78 @@ initialized? It looks like it: cf. InitGraphic().
 
 It works! Do the same for tempo marks => that works!
 
+-------------------------------------------------------------------------------
+
+3-10 Nov.
+
+Resume work on "ignore the chord this note belongs to" feature (cf. 13-14 Oct.).
+Change SymWidthLeft() to properly use voice nos. in calls to ChordNoteToLeft() (gasp).
+Add <noAutospace> flag to the ANOTE struct; in SymWidthLeft(), if main note has
+<noAutospace>, ignore the note's chord.; in BrowseSync(), display <noAutospace>.
+??
+
+Test:
+	SymWidthLeftTest.ngl: m.1, OK; m.2 both tests OK.
+	Spacing2VPerStaff2.ngl: m.1, to left OK, to right not; m.2, neither is OK.
+
+Part of the problem is we need more context in SymWidthLeft(), and, no doubt,
+SymWidthRight(). But the code is just too messy as it is! Let's precompute an
+<ignoreChord> matrix in SpaceHighLevel... done. But now Ngale crashes if I simply
+open a test file and try to respace one measure #%^&#)%#)% . Let's go back to the
+last known good version, the code in the Ngale 5.5 of 28 Oct. => yep, that still
+works :-) . Move towards the latest version. !! When I call SymWidthLeft() with
+measNode = -1, i.e., no <ignoreChord> info available, no problem. But when I call
+it with the correct values but setting measNode = -99 as the 1st stmt in
+SymWidthLeft(), it crashes :-( . In this excerpt from ConsidITWidths():
+
+			/*
+			 * We need more space here. Move this object to the right, and
+			 * increase the space available on all staves by the same amount.
+			 */
+**0 DebugPrintf("(Q) i=%d stf=%d gNeedLeft=%d needLeft=%d\n", i, s, gNeedLeft, needLeft);
+**1			fSpBefore[i] += fSpNeeded;
+			for (t = 1;t<=doc->nstaves; t++)
+				fAvailSp[t] += fSpNeeded;
+		}
+		
+		/*
+		 *	Re-initialize for the next J_IT object on this staff.
+		 */
+**2		prevNeedRight[s] = SymWidthRight(doc, spaceTimeInfo[i].link, s, FALSE);	/* Incl. stuff fllwng notehead */
+		if (prevNeedRight[s]<gNeedRight) prevNeedRight[s] = gNeedRight;
+
+Before adding line **0, it crashes w/ "EXC_BAD_ACCESS" at **1. After adding **0.
+it crashes at **2. ?!?
+
+Something very suspicious: The code has many instances of loops like this:
+
+	for (k = 0; k<=nInMeasure; k++)
+
+But that stmt covers nInMeasure+1 values of <k>! Is that correct?? ...Unfortunately,
+yes. <nInMeasure> is a misleading name; it's really <nLast>. OK, I give up! -- at
+least for the time being.
+
+-------------------------------------------------------------------------------
+
+11-18 Nov.
+
+Various fields in various Info dialogs are too narrow, truncating labels or even values.
+Make the fields and, in some cases, the dialogs wider.
+
+-------------------------------------------------------------------------------
+
+18 Nov.
+
+In the current 1stMovement_Part3.ngl, mm. 52-61, adding whole-measure rests to the
+solo violin part results in Ngale thinking mm. 57 & 59 are suddenly longer! Weird;
+don't think I've seen this before. Starting in m. 57, it's 4/4 => each measure dur.
+should be 1920 ticks. Onset times:
+
+m. 57: 111360
+m. 58: 114600 => dur. of m. 57 = 3240 = 1320 (5 eighths + 1 16th) too big
+m. 59: 116520 => dur. of m. 58 = 1920
+m. 60: 119160 => dur. of m. 59 = 2640 = 720 (3 eighths) too big
+m. 61: 121080 => dur. of m. 60 = 1920
+
+!! Deleting the whole-measure rests in the offending bars, then re-inserting them,
+fixes the problem. Oh well; it's not worth pursuing this now.
