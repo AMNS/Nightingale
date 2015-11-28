@@ -252,7 +252,7 @@ Display the tempo in effect in the Context window. Affects .rsrc; Browser.
 
 -------------------------------------------------------------------------------
 
-17-21 Nov.
+17-26 Nov.
 
 Add staff no. to the Debug messages about note or grace note in another part's voice.
 Affects Debug2Utils.
@@ -262,4 +262,9 @@ Remove useless #ifdef's; minor cleanup. Affects MIDIPlay, Debug.h, NTypes.h.
 Fix bug: in the Sync Info dialog and the General Info dialog (used for measures/barlines
 and text) some labels are truncated into unclarity; in Sync Info, the value of the Onset
 Time is truncated into incorrectness. Affects .rsrc.
+
+Make the Context command interpret dynamic level -- e.g., it now shows "3 (pp)", not
+just "3". Affects Browser.
+
+In error conditions, explain via DebugPrintf; minor cleanup. Affects Browser.
 

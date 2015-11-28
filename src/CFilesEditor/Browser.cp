@@ -265,8 +265,9 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 				index = 0;
 				break;
 			case iTail:
-				if (tailL) pL = tailL;
-				else       SysBeep(1);
+				/* If tailL is NILINK, it's not a disaster, but ignore user's action */
+				if (tailL==NILINK) SysBeep(1);
+				else pL = tailL;
 				index = 0;
 				break;
 			case iRightJump:
@@ -378,6 +379,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 						index = 0;
 						break;
 					}
+				/* User tried to go to a nonexistent linK: ignore their action */
 				SysBeep(1);
 				break;
 			case iShowMore:
@@ -482,6 +484,7 @@ static void SelSubObj(LINK pL, LINK subL)
 				SlurSEL(subL) = TRUE; break;
 			default:
 				SysBeep(1);
+				DebugPrintf("Browser/SelSubObj: can't select subobject of this type.");
 		}	
 }
 
@@ -1931,6 +1934,7 @@ void ShowContext(Document *doc)
 	short		itype, ditem;
 	short		theStaff;
 	GrafPtr		oldPort;	
+	char		str[256];
 
 /* Get LINK to and staff number of first selected object or of insertion point. */
 
@@ -1942,6 +1946,7 @@ void ShowContext(Document *doc)
 		theStaff = GetStaffFromSel(doc, &pL);
 		if (theStaff==NOONE) {
 			SysBeep(4);
+			DebugPrintf("Browser/ShowContext: can't get staff number.");
 			return;
 		}
 	}
@@ -2005,7 +2010,24 @@ void ShowContext(Document *doc)
 	sprintf(s, "timeSigType,n/d=%hd,%hd/%hd", context.timeSigType, context.numerator,
 		context.denominator);
 	DrawLine(s);
-	sprintf(s, "dynamicType=%hd", context.dynamicType);
+
+	if (context.dynamicType<PPP_DYNAM || context.dynamicType>FFF_DYNAM)
+		strcpy(str, "unknown");
+	else {
+		switch (context.dynamicType) {
+			case PPP_DYNAM: strcpy(str, "ppp"); break;
+			case PP_DYNAM: strcpy(str, "pp"); break;
+			case P_DYNAM: strcpy(str, "p"); break;
+			case MP_DYNAM: strcpy(str, "mp"); break;
+			case MF_DYNAM: strcpy(str, "mf"); break;
+			case F_DYNAM: strcpy(str, "f"); break;
+			case FF_DYNAM: strcpy(str, "ff"); break;
+			case FFF_DYNAM: strcpy(str, "fff"); break;
+			default: ;
+		}
+	}
+	
+	sprintf(s, "dynamicType=%hd (%s)", context.dynamicType, str);
 	DrawLine(s);
 	
 	/* The current tempo is worth showing, but not part of the CONTEXT object. */
@@ -2016,7 +2038,7 @@ void ShowContext(Document *doc)
 	}
 	else {
 		pTempo  = GetPTEMPO(tempoL);
-		sprintf(s, "tempoL=%d tempo=%d", tempoL, pTempo->tempo);
+		sprintf(s, "tempo link=%u tempo=%d", tempoL, pTempo->tempo);
 		DrawLine(s);
 	}
 
