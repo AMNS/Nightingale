@@ -975,3 +975,83 @@ m. 61: 121080 => dur. of m. 60 = 1920
 
 !! Deleting the whole-measure rests in the offending bars, then re-inserting them,
 fixes the problem. Oh well; it's not worth pursuing this now.
+
+-------------------------------------------------------------------------------
+
+26-27 Nov.
+
+- With a score of very many pages, you can't zoom in very far. E.g., with
+1stMovement_Part1FS.ngl's 37 pages, 200% is the limit before Ngale complains the score
+won't fit at the new magnification. This makes tweaking details very difficult. Changing
+to a larger "paper" size seems to do nothing at all. Changing Screen Page Layout to
+accomodate more pages works in that it's recorded in the file, but doesn't stop Ngale
+from complaining; cf. Sheet>SheetMagnify(). Either or both are probably worth fixing.
+
+Where do we check for screen layout overflowing? The complaint for score not fitting
+at new magnification is
+	#define SCREENOVERFLOW_DLOG 806
+But where is it referenced?? In Sheet>WarnScreenPagesOverflow(). Anyway, checking is
+done in Sheet>ScreenPagesCanOverflow()... which seems to check _separately_ for
+<numSheets> exceeding the layout's no. of rows or its no. of columns -- but I nearly
+always have no. of rows as 1, so why don't I have problems w/ any score of more than a
+page?? W/ my 37-page score, going from 150% to
+200% => 	magnify = 2, numSheets = 37, scale = 2.0;
+			doc->numRows = 1, maxRows = 66;
+			doc->numRCols = 86, maxCols = 86
+
+Trying to go from 300% to 300% =>
+		 	magnify = 3, numSheets = 37, scale = 3.0;
+			doc->numRows = 1, maxRows = 66??;
+			doc->numRCols = 86, maxCols = 86??
+		
+!! The problem really is exceeding the width or height of the available space, so
+just reducing the no. of columns from 86 to, say, 20 should do it... and it does!
+It'd be good to clarify the "score won't fit" error message, but maybe not worth the
+time now.
+
+-------------------------------------------------------------------------------
+
+28 Nov.
+
+- With reasonable spacing, only about 25 staves fit on a letter-size page even at staff
+size 8, so with a largish number -- e.g., 15 in my violin concerto -- you can get only
+one system on a page, Trying to change to a larger "paper" size seems to do absolutely
+nothing.
+
+After changing from default (U.S. letter) to U.S. legal, in CarbonPrinting>
+NPageSetupDoneProc(), it looks like
+
+	if (!EqualRect(&doc->origPaperRect,&rPaper)) ...
+
+isn't satisfied, i.e., doc->origPaperRect and rPaper are identical. Well, pmRPaper
+is still 612 x 792 points, i.e., 9-1/2 x 11 in. ?? Apple's PMGetAdjustedPaperRect()
+must be returning pmRPaper unchanged; I dunno what can I do about that.
+
+-------------------------------------------------------------------------------
+
+29 Nov. - 2 Dec.
+
+- DebugPrintf messages seem to go to /dev/null unless we're running inside Xcode, and
+chances to run inside Xcode (2.5!) are likely to gradually fade away. Solution:
+DebugPrintf is #define'd simply as printf. It should be trivial to #define it instead as
+the BSD function syslog(3) ...though it'd be nicer to continue to have messages go to
+Xcode _and_ send 'em to the log.
+
+Solution: call openlog(p1, LOG_PERROR, p3) before calls to syslog()!
+
+?? Does this work? I saw some Nightingale messages in the system log, but then nothing
+seemed to be there! Maybe it's just scrolled out of the viewable area... Where _is_
+the system log file? In /var/log . Try again => nope, nothing there!; anyway, what I
+see in Console brackets the time the message was issued. Try w/o calling
+openlog() => nope. I've been using level LOG_INFO; try w/ a higher level, LOG_ERR =>
+it works! So, contrary to documentation, it looks like the default doesn't send
+messages of all levels through. Add back call to openlog() => it still works.
+Change level filtering via setlogmask() => it _seemed_ to work... but now it's only
+accepting levels LOG_NOTICE and above, i.e., not LOG_INFO or LOG_DEBUG. OK, I can
+live with that.
+
+Add VLogPrint(), LogPrint(), InitLogPrint() to Utility; call InitLogPrint() from
+initialization code; change COMPLAINx macros in DebugUtils.h from using DebugPrintf()
+to LogPrint(LOG_NOTICE, ...) => it works! But probably should use priority level
+LOG_ERR.
+

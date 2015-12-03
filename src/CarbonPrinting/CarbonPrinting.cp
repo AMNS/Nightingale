@@ -1,8 +1,8 @@
 /*
-	File:		MyCarbonPrinting.c
+	File:		CarbonPrinting.c
 	
 	Contains:	Routines needed to perform printing. This example uses sheets and provides for
-                        save as PDF.
+                        save as PDF. Based on Apple's MyCarbonPrinting.c .
 
 	Disclaimer:	IMPORTANT:  This Apple software is supplied to you by Apple Computer, Inc.
 				("Apple") in consideration of your agreement to the following terms, and your
@@ -163,33 +163,23 @@ static OSStatus DocSetupPageFormat(Document *doc)
 	PMPrintSession printSession = NULL;
 	PMPageFormat pageFormat = kPMNoPageFormat;
 	
-	if (!IsDocPrintInfoInstalled(doc))
-		InstallDocPrintInfo(doc);
+	if (!IsDocPrintInfoInstalled(doc)) InstallDocPrintInfo(doc);
 	
 	status = PMCreateSession(&printSession);
-	
-	if (status != noErr)
-		return status;
+	if (status != noErr) return status;
 		
 	if (doc->docPrintInfo.docPageFormat == kPMNoPageFormat) {
-	
 		status = PMCreatePageFormat(&pageFormat);
-		
 		if (status == noErr && pageFormat != kPMNoPageFormat) {
-		
 			status = PMSessionDefaultPageFormat(printSession, pageFormat);
-			
-			if (status == noErr)
-				doc->docPrintInfo.docPageFormat = pageFormat;
+			if (status == noErr) doc->docPrintInfo.docPageFormat = pageFormat;
 			
 		}
-		else if (status == noErr)
-			status = kPMGeneralError;
+		else if (status == noErr) status = kPMGeneralError;
 	}
 	else {
 		status = PMSessionValidatePageFormat(printSession,
-															doc->docPrintInfo.docPageFormat,
-															kPMDontWantBoolean);
+					doc->docPrintInfo.docPageFormat, kPMDontWantBoolean);
 	}
 	
 	if (status == noErr) {
@@ -200,20 +190,18 @@ static OSStatus DocSetupPageFormat(Document *doc)
 	}
 	
 	return status;
-	
 }
 
 // --------------------------------------------------------------------------------------------------------------
 
 static pascal void NPageSetupDoneProc(PMPrintSession printSession,
-					                        WindowRef docWindow,
-					                        Boolean accepted)
+										WindowRef docWindow,
+										Boolean accepted)
 {
 	Document *doc = GetDocumentFromWindow(docWindow);
 	OSStatus status = noErr;
 	
-	if (doc!=NULL && doc->docPrintInfo.docPageFormat != kPMNoPageFormat && accepted)
-	{
+	if (doc!=NULL && doc->docPrintInfo.docPageFormat!=kPMNoPageFormat && accepted) {
 		/*
 		 *	Now if doc->paperRect is different from rPaper (user has chosen different
 		 *	size paper), we change to new size and inval everything.
@@ -223,13 +211,12 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 		PMOrientation pmOrientation;
 		double scale;
 		
-		status = PMGetAdjustedPaperRect(doc->docPrintInfo.docPageFormat,&pmRPaper);
+		status = PMGetAdjustedPaperRect(doc->docPrintInfo.docPageFormat, &pmRPaper);
 		
 		if (status == noErr)
-			status = PMGetScale(doc->docPrintInfo.docPageFormat,&scale);
+			status = PMGetScale(doc->docPrintInfo.docPageFormat, &scale);
 
-		if (status == noErr)
-		{
+		if (status == noErr) {
 			scale /= 100.0;
 			
 			pmRPaper.top *= scale;
@@ -242,28 +229,29 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 			rPaper.bottom = pmRPaper.bottom;
 			rPaper.right = pmRPaper.right;
 			
-			OffsetRect(&rPaper,-rPaper.left,-rPaper.top);
-			if (!EqualRect(&doc->origPaperRect,&rPaper)) {
+			OffsetRect(&rPaper, -rPaper.left, -rPaper.top);
+			DebugPrintf("NPageSetupDoneProc: origPaperRect= %d,%d,%d,%d\n", doc->origPaperRect.left,
+						doc->origPaperRect.top, doc->origPaperRect.right, doc->origPaperRect.bottom);
+			DebugPrintf("                    rPaper=        %d,%d,%d,%d\n", rPaper.left,
+							rPaper.top, rPaper.right, rPaper.bottom);
+			if (!EqualRect(&doc->origPaperRect, &rPaper)) {
 				short marginRight = doc->origPaperRect.right - doc->marginRect.right;
 				short marginBottom = doc->origPaperRect.bottom - doc->marginRect.bottom;
 				doc->marginRect.right = rPaper.right - marginRight;
 				doc->marginRect.bottom = rPaper.bottom - marginBottom;
 				doc->origPaperRect = rPaper;
-				MagnifyPaper(&doc->origPaperRect,&doc->paperRect,doc->magnify);
+				MagnifyPaper(&doc->origPaperRect, &doc->paperRect, doc->magnify);
 				doc->changed = TRUE;
 				InvalSheetView(doc);
 			}
 		}		
 
-		status = PMGetOrientation(doc->docPrintInfo.docPageFormat,&pmOrientation);
-		if (status == noErr)
-		{
+		status = PMGetOrientation(doc->docPrintInfo.docPageFormat, &pmOrientation);
+		if (status == noErr) {
 			SignedByte oldLandscape = doc->landscape;
 	
 			doc->landscape = (pmOrientation == kPMLandscape || pmOrientation == kPMReverseLandscape);
-			
-			if (doc->landscape != oldLandscape)
-				doc->changed = TRUE;
+			if (doc->landscape != oldLandscape) doc->changed = TRUE;
 		}
 	}
 	
@@ -276,8 +264,7 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 
 	if (status != noErr) {
 		CFStringRef cfFormatStr = CFSTR("Page Setup Dialog Done error. Error number: %d.");
-		
-		DocPostPrintingError(doc,status,cfFormatStr);
+		DocPostPrintingError(doc, status, cfFormatStr);
 	}
 }
 
@@ -291,29 +278,25 @@ void NDoPageSetup(Document *doc)
 	OSStatus status = DocSetupPageFormat(doc);
 	
 	if (status == noErr) {
-		PMSessionUseSheets(doc->docPrintInfo.docPrintSession,
-									w,
-									doc->docPrintInfo.docPageSetupDoneUPP);
-		
+		PMSessionUseSheets(doc->docPrintInfo.docPrintSession,  w,
+							doc->docPrintInfo.docPageSetupDoneUPP);
 		status = PMSessionPageSetupDialog(doc->docPrintInfo.docPrintSession,
-														doc->docPrintInfo.docPageFormat,
-														&accepted);
+											doc->docPrintInfo.docPageFormat,
+											&accepted);
 	}
 	
 	if (status != noErr) {
 		DocReleasePrintSession(doc);
-		
 		CFStringRef cfFormatStr = CFSTR("Page Setup Dialog error. Error number: %d.");
-		
-		DocPostPrintingError(doc,status,cfFormatStr);
+		DocPostPrintingError(doc, status, cfFormatStr);
 	}	
 }
 
 // --------------------------------------------------------------------------------------------------------------
 
 static pascal void NPrintDialogDoneProc(PMPrintSession /*printSession*/,
-						                        WindowRef docWindow,
-						                        Boolean accepted)
+											WindowRef docWindow,
+											Boolean accepted)
 {
 	Document *doc = GetDocumentFromWindow(docWindow);
 	
@@ -332,7 +315,6 @@ void NDoPrintScore(Document *doc)
 	CFStringRef wTitleRef;
 	
 	if (status == noErr) {
-		
 		status = PMCreatePrintSettings(&printSettings);
 	}
 	
@@ -348,7 +330,6 @@ void NDoPrintScore(Document *doc)
 	}
 	
 	if (status == noErr) {
-	
 		status = PMSessionDefaultPrintSettings(doc->docPrintInfo.docPrintSession, printSettings);
 	}
 	
