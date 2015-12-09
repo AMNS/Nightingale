@@ -169,7 +169,7 @@ MIDIPlay.cp: Change more instances of "Midi" in function names to "MIDI".
 
 -------------------------------------------------------------------------------
 
-2 - 4 October
+2 - 4 October	(*** Nightingale 5.5 ***)
 
 Integrate my codebase with the codebase in the AMNS/Nightingale GitHub repository, which
 dates from late June 2012. Integrated ca. 7 .h's and 19 .cp's, but -- as a result of
@@ -263,7 +263,7 @@ Fix bug: in the Sync Info dialog and the General Info dialog (used for measures/
 and text) some labels are truncated into unclarity; in Sync Info, the value of the Onset
 Time is truncated into incorrectness. Affects .rsrc.
 
-Make the Context command interpret dynamic level -- e.g., it now shows "3 (pp)", not
+Make the Context window interpret dynamic level -- e.g., it now shows "3 (pp)", not
 just "3". Affects Browser.
 
 In error conditions, explain via DebugPrintf; minor cleanup. Affects Browser.
@@ -279,7 +279,7 @@ allows. Affects .rsrc .
 
 -------------------------------------------------------------------------------
 
-29 Nov. - 7 Dec.
+29 Nov. - 8 Dec.
 
 Replace calls to DebugPrintf() -- which has simply been #define'd as printf -- with
 calls to new function LogPrintf(), which uses syslog(Section 3) so messages go to the
@@ -289,3 +289,9 @@ isn't running inside Xcode). Affects DebugUtils.h; about 60 files.
 In the project file, put precomp headers in proper alphabetical order.
 
 Minor cleanup. Affects many files.
+
+-------------------------------------------------------------------------------
+
+Make the Browser window interpret dynamic level for Dynamics -- e.g., it now shows
+"3 (pp)", not just "3". Affects Browser.
+

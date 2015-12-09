@@ -17,19 +17,21 @@
 
 #define BROWSER_DLOG 1900
 #define CONTEXT_DLOG 1901
-#define LEADING 11			/* Vertical space between lines displayed (pixels) */
+#define LEADING 11				/* Vertical space between lines displayed (pixels) */
 
 static Rect bRect,objRect,oldObjRect,paperRect;
 static DRect systemRect;
 static short linenum, showBPage;
-static char s[300];			/* A bit more than 256 to protect against 255-char. Graphics, etc. */
+static char s[300];				/* A bit more than 256 to protect against 255-char. Graphics, etc. */
+static char dynStr[20];			/* for dynamics only */
 static char objList[16];
 static LINK subL;
 
+static Boolean DynamicToString(short dynamicType);
+static void DrawLine(char *);
 static void ShowObjRect(Document *);
 static void ChangeSelectObj(Document *, LINK, short, short, Boolean);
 static void ShowObject(Document *, LINK, short);
-static void DrawLine(char *);
 static void BrowseHeader(Document *, LINK, short);
 static void BrowsePage(LINK);
 static void BrowseSystem(LINK);
@@ -53,6 +55,24 @@ static void BrowseTempo(LINK);
 static void BrowseSpace(LINK);
 static void BrowseSlur(LINK, short);
 static pascal Boolean BrowserFilter(DialogPtr, EventRecord *, short *);
+
+
+static Boolean DynamicToString(short dynamicType)
+{
+	switch (dynamicType) {
+		case PPP_DYNAM: strcpy(dynStr, "ppp"); return TRUE;
+		case PP_DYNAM: strcpy(dynStr, "pp"); return TRUE;
+		case P_DYNAM: strcpy(dynStr, "p"); return TRUE;
+		case MP_DYNAM: strcpy(dynStr, "mp"); return TRUE;
+		case MF_DYNAM: strcpy(dynStr, "mf"); return TRUE;
+		case F_DYNAM: strcpy(dynStr, "f"); return TRUE;
+		case FF_DYNAM: strcpy(dynStr, "ff"); return TRUE;
+		case FFF_DYNAM: strcpy(dynStr, "fff"); return TRUE;
+		case DIM_DYNAM: strcpy(dynStr, "hairpin dim."); return TRUE;
+		case CRESC_DYNAM: strcpy(dynStr, "hairpin cresc."); return TRUE;
+		default: strcpy(dynStr, "unknown"); return FALSE;
+	}
+}
 
 
 enum {
@@ -1549,7 +1569,9 @@ void BrowseDynamic(LINK pL, short index)
 	sprintf(s, "firstSyncL=%d lastSyncL=%d",
 					DynamFIRSTSYNC(pL), DynamLASTSYNC(pL));
 	DrawLine(s);
-	sprintf(s, "dynamicType=%d IsHairpin=%d", DynamType(pL),IsHairpin(pL));
+
+	DynamicToString(DynamType(pL));	
+	sprintf(s, "dynamicType=%d (%s) IsHairpin=%d", DynamType(pL), dynStr, IsHairpin(pL));
 	DrawLine(s);
 	p = GetPDYNAMIC(pL);
 	sprintf(s, "crossSys=%d ", p->crossSys);
@@ -1934,7 +1956,6 @@ void ShowContext(Document *doc)
 	short		itype, ditem;
 	short		theStaff;
 	GrafPtr		oldPort;	
-	char		str[256];
 
 /* Get LINK to and staff number of first selected object or of insertion point. */
 
@@ -2011,23 +2032,8 @@ void ShowContext(Document *doc)
 		context.denominator);
 	DrawLine(s);
 
-	if (context.dynamicType<PPP_DYNAM || context.dynamicType>FFF_DYNAM)
-		strcpy(str, "unknown");
-	else {
-		switch (context.dynamicType) {
-			case PPP_DYNAM: strcpy(str, "ppp"); break;
-			case PP_DYNAM: strcpy(str, "pp"); break;
-			case P_DYNAM: strcpy(str, "p"); break;
-			case MP_DYNAM: strcpy(str, "mp"); break;
-			case MF_DYNAM: strcpy(str, "mf"); break;
-			case F_DYNAM: strcpy(str, "f"); break;
-			case FF_DYNAM: strcpy(str, "ff"); break;
-			case FFF_DYNAM: strcpy(str, "fff"); break;
-			default: ;
-		}
-	}
-	
-	sprintf(s, "dynamicType=%hd (%s)", context.dynamicType, str);
+	DynamicToString(context.dynamicType);	
+	sprintf(s, "dynamicType=%hd (%s)", context.dynamicType, dynStr);
 	DrawLine(s);
 	
 	/* The current tempo is worth showing, but not part of the CONTEXT object. */
