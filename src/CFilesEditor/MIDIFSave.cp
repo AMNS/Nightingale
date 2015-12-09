@@ -388,7 +388,7 @@ static Byte GetSustainCtrlVal(Boolean susOn)
 		ctrlVal = 127;
 	}
 	else {
-		ctrlVal = 0;		
+		ctrlVal = 0;
 	}
 	return ctrlVal;
 }
@@ -398,7 +398,7 @@ static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn
 	Byte ctrlNum = MSUSTAIN;
 	Byte ctrlVal = GetSustainCtrlVal(susOn);
 	
-	DebugPrintf("WriteAllMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
+	LogPrintf(LOG_NOTICE, "WriteAllMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
 	if (susOn) {
 		for (int j = 1; j<=MAXSTAVES; j++) {
 			if (cmFSSustainOn[j]) {
@@ -433,7 +433,7 @@ static void WriteMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, l
 			Byte ctrlNum = MSUSTAIN;
 			Byte ctrlVal = GetSustainCtrlVal(susOn);
 			
-			DebugPrintf("WriteMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
+			LogPrintf(LOG_NOTICE, "WriteMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
 			
 			short partn = Staff2Part(doc,stf);
 			short channel = partChannel[partn];
@@ -508,7 +508,7 @@ static void WriteMIDIPans(Document *doc, Byte *partChannel, long startTime, LINK
 			Byte ctrlNum = MPAN;
 			Byte ctrlVal = GraphicINFO(graphicL);
 			
-			DebugPrintf("WriteMIDIPans: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
+			LogPrintf(LOG_NOTICE, "WriteMIDIPans: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
 			
 			short partn = Staff2Part(doc,stf);
 			short channel = partChannel[partn];
@@ -690,14 +690,14 @@ static Boolean WriteTiming(
 				tempoTime = MeasureTIME(syncMeasL)+SyncTIME(syncL);
 				if (tempoTime==prevTempoTime) {
 					measNum = GetMeasNum(doc, pL);
-					DebugPrintf("ERROR: Tempo change in measure %d at same time as a previous tempo change.\n",
+					LogPrintf(LOG_NOTICE, "ERROR: Tempo change in measure %d at same time as a previous tempo change.\n",
 						measNum);
 					}
 				WriteDeltaTime(tempoTime);
 				timeScale = GetTempo(doc, pL);
 				microbeats = TSCALE2MICROBEATS(timeScale);
 				WriteTempoEvent((long)microbeats*DFLT_BEATDUR);
-DebugPrintf("WriteTiming: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n", pL, tempoTime, timeScale);
+LogPrintf(LOG_NOTICE, "WriteTiming: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n", pL, tempoTime, timeScale);
 				prevTempoTime = tempoTime;
 				break;
 			case TIMESIGtype:
@@ -709,7 +709,7 @@ DebugPrintf("WriteTiming: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n", pL, tempoT
 					identical preparatory one at the end of the last system. */
 					
 				aTSL = TimeSigOnStaff(pL, 1);
-//DebugPrintf("WriteTiming: TIMESIG pL=%d aTSL=%d measureTime=%ld %c\n", pL, aTSL,
+//LogPrintf(LOG_NOTICE, "WriteTiming: TIMESIG pL=%d aTSL=%d measureTime=%ld %c\n", pL, aTSL,
 //measureTime, (measureTime!=prevTSTime? ' ' : 'S'));
 				if (aTSL && measureTime!=prevTSTime) {
 					WriteTSig(pL, aTSL, measureTime);		/* Assume time sig. at beginning of measure! */
@@ -808,7 +808,7 @@ static short WriteMFNotes(
 		  			MayErrMsg("WriteMFNotes: pL=%ld has timeStamp=%ld", (long)pL,
 		  							(long)SyncTIME(pL));
 #ifdef TDEBUG
-				if (toffset<0L) DebugPrintf("toffset=%ld => %ld\n", toffset, MeasureTIME(measL)+SyncTIME(pL));
+				if (toffset<0L) LogPrintf(LOG_NOTICE, "toffset=%ld => %ld\n", toffset, MeasureTIME(measL)+SyncTIME(pL));
 #endif
 		  		plStartTime = MeasureTIME(measL)+SyncTIME(pL);
 		  		startTime = plStartTime;

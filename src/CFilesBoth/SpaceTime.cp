@@ -91,7 +91,7 @@ STDIST SymWidthLeft(
 
 	switch (ObjLType(pL)) {
 		case SYNCtype:
-			if (measNode>=0) DebugPrintf("(a) ignoreChord[1]=%d [2]=%d [3]=%d\n",
+			if (measNode>=0) LogPrintf(LOG_NOTICE, "(a) ignoreChord[1]=%d [2]=%d [3]=%d\n",
 					ignoreChord[measNode][1], ignoreChord[measNode][2], ignoreChord[measNode][3]);
 
 			noteToLeft = FALSE;
@@ -1678,7 +1678,7 @@ static long FixMeasTimeStamps(
 		sprintf(strBuf, fmtStr, aMeasure->measureNum+doc->firstMNNumber);
 		CParamText(strBuf, "", "", "");
 #ifndef PUBLIC_VERSION
-		DebugPrintf(strBuf);
+		LogPrintf(LOG_NOTICE, strBuf);
 #endif
 		NoteInform(GENERIC_ALRT);
 	}

@@ -457,10 +457,10 @@ void DblSetupVMap(Document *doc, short vMap[], LINK startL, LINK endL, short src
 		DblSetNewVoices(doc, vMap, pL, srcStf, dstStf, sameRel);
 
 #ifdef DEBUG_VMAPTABLE
-	DebugPrintf("srcStf=%d dstStf=%d sameRel=%d\n", srcStf, dstStf, sameRel);
+	LogPrintf(LOG_NOTICE, "srcStf=%d dstStf=%d sameRel=%d\n", srcStf, dstStf, sameRel);
 	for (v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn!=0)
-			DebugPrintf("%ciVoice %d part %d relVoice=%d\n",
+			LogPrintf(LOG_NOTICE, "%ciVoice %d part %d relVoice=%d\n",
 							(v==1? '¥' : ' '),
 							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
 #endif	

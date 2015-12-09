@@ -48,10 +48,10 @@ static void	NMSetDuration(Document *doc);
 static void	NMInsertByPos(Document *doc);
 static void	NMSetMBRest(Document *doc);
 static void	NMFillEmptyMeas(Document *doc);
-static void 	NMAddModifiers(Document *doc);
-static void 	NMStripModifiers(Document *doc);
+static void NMAddModifiers(Document *doc);
+static void NMStripModifiers(Document *doc);
 static short CountSelVoices(Document *);
-static void 	NMMultiVoice(Document *doc);
+static void NMMultiVoice(Document *doc);
 
 static void	VMLookAt(void);
 static void	VMLookAtAll(void);
@@ -86,7 +86,7 @@ static void	FixPlayRecordMenu(Document *doc, short nSel);
 static void	FixMasterPgMenu(Document *doc);
 static void	FixFormatMenu(Document *doc);
 
-short NumOpenDocuments(void);
+short		NumOpenDocuments(void);
 
 static Boolean cmdIsBeam, cmdIsTuplet, cmdIsOctava;
 
@@ -422,7 +422,7 @@ void DoEditMenu(short choice)
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
 		
-DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);					
+//LogPrintf(LOG_NOTICE, "DoEditMenu: choice=%ld\n", (long)choice);					
 		switch(choice) {
 			case EM_Undo:
 				DoUndo(doc);
@@ -495,7 +495,7 @@ DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);
 				break;
 			case EM_Debug:
 				printf("printf: running debug command\n");
-				DebugPrintf("DebugPrintf: running debug command\n");
+				LogPrintf(LOG_NOTICE, "DebugPrintf: running debug command\n");
 				
 				DoDebug("M");
 				fflush(stdout);
@@ -518,15 +518,15 @@ void DeleteSelObjs(Document *);
 
 void DeleteObj(Document *doc, LINK pL)
 {
-	DebugPrintf("About to DeleteNode(%d) of type=%d...", pL, ObjLType(pL));
+	LogPrintf(LOG_NOTICE, "About to DeleteNode(%d) of type=%d...", pL, ObjLType(pL));
 
 	if (InDataStruct(doc, pL, MAIN_DSTR)) {
 		DeleteNode(doc, pL);
-		DebugPrintf("done.\n");
+		LogPrintf(LOG_NOTICE, "done.\n");
 		doc->changed = TRUE;
 	}
 	else
-		DebugPrintf("NODE NOT IN MAIN OBJECT LIST.\n");
+		LogPrintf(LOG_NOTICE, "NODE NOT IN MAIN OBJECT LIST.\n");
 }
 
 void DeleteSelObjs(Document *doc)
@@ -614,15 +614,15 @@ static void DoTestMenu(short choice)
 				break;
 			case TS_ClickErase:
 				clickMode = ClickErase;
-				DebugPrintf("ClickMode set to ClickErase\n");
+				LogPrintf(LOG_NOTICE, "ClickMode set to ClickErase\n");
 				break;
 			case TS_ClickSelect:
 				clickMode = ClickSelect;
-				DebugPrintf("ClickMode set to ClickSelect\n");
+				LogPrintf(LOG_NOTICE, "ClickMode set to ClickSelect\n");
 				break;
 			case TS_ClickFrame:
 				clickMode = ClickFrame;
-				DebugPrintf("ClickMode set to ClickFrame\n");
+				LogPrintf(LOG_NOTICE, "ClickMode set to ClickFrame\n");
 				break;
 			case TS_Debug:
 #ifndef PUBLIC_VERSION
@@ -634,7 +634,7 @@ static void DoTestMenu(short choice)
 				
 				if (showDbgWin = !showDbgWin) {
 //					ShowHideDebugWindow(TRUE);
-					DebugPrintf("Showing Debug Window\n");					
+					LogPrintf(LOG_NOTICE, "Showing Debug Window\n");					
 				}
 				else {				
 //					ShowHideDebugWindow(FALSE);
@@ -2022,7 +2022,7 @@ static void PLRecord(Document *doc, Boolean merge)
 	{
 		if (!OKToRecord(doc)) return;
 
-		DebugPrintf("0. Starting to record\n");
+		LogPrintf(LOG_NOTICE, "0. Starting to record\n");
 		
 		if (merge) {
 			PrepareUndo(doc, doc->selStartL, U_RecordMerge, 25);    	/* "Record Merge" */
@@ -2031,7 +2031,7 @@ static void PLRecord(Document *doc, Boolean merge)
 		else {
 			PrepareUndo(doc, doc->selStartL, U_Record, 26);    		/* "Record" */
 			
-			DebugPrintf("0.1. Ready to record\n");
+			LogPrintf(LOG_NOTICE, "0.1. Ready to record\n");
 			Record(doc);
 		}
 	}

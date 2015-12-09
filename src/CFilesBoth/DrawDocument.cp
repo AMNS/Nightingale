@@ -311,7 +311,7 @@ void RecomputeView(Document *doc)
 #ifdef DEBUG_RECOMPUTEVIEW
 			Rect paper;
 			GetSheetRect(doc,doc->currentSheet,&paper);
-			DebugPrintf("RecomputeView: viewRect(%R), currentPaper(%R)\r",
+			LogPrintf(LOG_NOTICE, "RecomputeView: viewRect(%R), currentPaper(%R)\r",
 						&doc->viewRect,&paper);
 #endif
 		}

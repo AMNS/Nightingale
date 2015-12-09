@@ -205,7 +205,6 @@ Boolean ExpandString(unsigned char *dstStr, const unsigned char *srcStr, Boolean
 	origLen = *(unsigned char *)srcStr;
 	Pstrcpy(dstStr, srcStr);
 	PToCString(dstStr);
-	//DebugPrintf("ExpandString: origLen=%d str='%s'\n", origLen, dstStr);
 	/* Pascal strings can't be longer than 255 chars. */
 	maxLenExpanded = (wider? 255/3 : 255/2);
 	if (origLen>maxLenExpanded) return FALSE;

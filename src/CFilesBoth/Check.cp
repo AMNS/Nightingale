@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	Check.c																				*
-*	PROJ:	Nightingale, rev. for v.99														*
-*	DESC:	Selection-related routines.													*
+*	FILE:	Check.c															*
+*	PROJ:	Nightingale, rev. for v.99										*
+*	DESC:	Selection-related routines.										*
 		CheckPAGE			CheckSYSTEM			CheckSTAFF
 		CheckCONNECT
 		CheckCLEF			CheckDYNAMIC		CheckRPTEND
@@ -2070,7 +2070,7 @@ PushLock(NOTEheap);
 #ifndef PUBLIC_VERSION
 					if (CapsLockKeyDown() && OptionKeyDown())
 						if (SUSPICIOUS_WREL_RECT(wSub))
-							DebugPrintf(" %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
+							LogPrintf(LOG_NOTICE, " %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
 								enlargeSpecial.h, enlargeSpecial.v);
 #endif
 					HiliteRect(&wSub);
@@ -2699,7 +2699,7 @@ PushLock(MEASUREheap);
 					if (CapsLockKeyDown() && OptionKeyDown())
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							if (!aMeasure->connAbove)
-						DebugPrintf(" %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+						LogPrintf(LOG_NOTICE, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 #endif
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 				}
@@ -3009,7 +3009,7 @@ PushLock(OBJheap);
 #ifndef PUBLIC_VERSION
 			if (CapsLockKeyDown() && OptionKeyDown())
 				if (SUSPICIOUS_WREL_RECT(wSub))
-					DebugPrintf(" %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+					LogPrintf(LOG_NOTICE, " %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 #endif
 			HiliteRect(&wSub);
 		}
@@ -3355,7 +3355,7 @@ PushLock(OBJheap);
 #ifndef PUBLIC_VERSION
 				if (CapsLockKeyDown() && OptionKeyDown())
 					if (SUSPICIOUS_WREL_RECT(wSub))
-						DebugPrintf(" %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+						LogPrintf(LOG_NOTICE, " %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 #endif
 				HiliteRect(&wSub);
 			}

@@ -124,6 +124,8 @@ void Initialize()
 		ExitToShell();
 	}
 
+	InitLogPrintf();
+
 	if (!OpenSetupFile())							/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
 	GetConfig();										/* needs the Prefs (Setup) file open */
@@ -215,7 +217,7 @@ static OSStatus FindThePreferencesFile(OSType fType, OSType fCreator, FSSpec *pr
 	
 	// find the preferences folder
 	err = FindFolder( kOnSystemDisk, kPreferencesFolderType, true, &pvol, &pdir);
-	DebugPrintf("Prefs File: FindFolder: err=%d\n", err);
+	LogPrintf(LOG_NOTICE, "Prefs File: FindFolder: err=%d\n", err);
 	if (err != noErr) return err;
 	
 	// search the folder for the file
@@ -241,7 +243,7 @@ static OSStatus FindThePreferencesFile(OSType fType, OSType fCreator, FSSpec *pr
 	}
 	
 	err = FSMakeFSSpec(pvol, pdir, PREFS_PATH, prefsSpec);
-	DebugPrintf("Prefs File: FSMakeFSSpec: err=%d (fnfErr=%d)\n", err, fnfErr);
+	LogPrintf(LOG_NOTICE, "Prefs File: FSMakeFSSpec: err=%d (fnfErr=%d)\n", err, fnfErr);
 	return fnfErr;		// ??HUH? ALWAYS RETURN AN ERROR? ISN'T THIS "FILE NOT FOUND"??
 } 
 
@@ -465,7 +467,7 @@ Boolean OpenSetupFile()
 	
 	theErr = FindThePreferencesFile(prefsFileType, creatorType, &rfSpec);
 	Pstrcpy(setupFileName, SETUP_FILE_NAME);
-	DebugPrintf("OpenSetupFile: FindPrefsFile ('%s') returned theErr=%d\n",
+	LogPrintf(LOG_NOTICE, "OpenSetupFile: FindPrefsFile ('%s') returned theErr=%d\n",
 				PToCString(setupFileName), theErr);
 	if (theErr == noErr)
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
@@ -555,144 +557,144 @@ Boolean AddSetupResource(Handle resH)
 
 static void DebugDisplayCnfg()
 {
-	DebugPrintf("Displaying CNFG:\n");
-	DebugPrintf("  (1)maxDocuments=%d", config.maxDocuments);
-	DebugPrintf("  (2)stemLenNormal=%d", config.stemLenNormal);
-	DebugPrintf("  (3)stemLen2v=%d", config.stemLen2v);
-	DebugPrintf("  (4)stemLenOutside=%d\n", config.stemLenOutside);
-	DebugPrintf("  (5)stemLenGrace=%d", config.stemLenGrace);
+	LogPrintf(LOG_NOTICE, "Displaying CNFG:\n");
+	LogPrintf(LOG_NOTICE, "  (1)maxDocuments=%d", config.maxDocuments);
+	LogPrintf(LOG_NOTICE, "  (2)stemLenNormal=%d", config.stemLenNormal);
+	LogPrintf(LOG_NOTICE, "  (3)stemLen2v=%d", config.stemLen2v);
+	LogPrintf(LOG_NOTICE, "  (4)stemLenOutside=%d\n", config.stemLenOutside);
+	LogPrintf(LOG_NOTICE, "  (5)stemLenGrace=%d", config.stemLenGrace);
 
-	DebugPrintf("  (6)spAfterBar=%d", config.spAfterBar);
-	DebugPrintf("  (7)minSpBeforeBar=%d", config.minSpBeforeBar);
-	DebugPrintf("  (8)minRSpace=%d\n", config.minRSpace);
-	DebugPrintf("  (9)minLyricRSpace=%d", config.minLyricRSpace);
-	DebugPrintf("  (10)minRSpace_KSTS_N=%d", config.minRSpace_KSTS_N);
+	LogPrintf(LOG_NOTICE, "  (6)spAfterBar=%d", config.spAfterBar);
+	LogPrintf(LOG_NOTICE, "  (7)minSpBeforeBar=%d", config.minSpBeforeBar);
+	LogPrintf(LOG_NOTICE, "  (8)minRSpace=%d\n", config.minRSpace);
+	LogPrintf(LOG_NOTICE, "  (9)minLyricRSpace=%d", config.minLyricRSpace);
+	LogPrintf(LOG_NOTICE, "  (10)minRSpace_KSTS_N=%d", config.minRSpace_KSTS_N);
 
-	DebugPrintf("  (11)hAccStep=%d", config.hAccStep);
+	LogPrintf(LOG_NOTICE, "  (11)hAccStep=%d", config.hAccStep);
 
-	DebugPrintf("  (12)stemLW=%d\n", config.stemLW);
-	DebugPrintf("  (13)barlineLW=%d", config.barlineLW);
-	DebugPrintf("  (14)ledgerLW=%d", config.ledgerLW);
-	DebugPrintf("  (15)staffLW=%d", config.staffLW);
-	DebugPrintf("  (16)enclLW=%d\n", config.enclLW);
+	LogPrintf(LOG_NOTICE, "  (12)stemLW=%d\n", config.stemLW);
+	LogPrintf(LOG_NOTICE, "  (13)barlineLW=%d", config.barlineLW);
+	LogPrintf(LOG_NOTICE, "  (14)ledgerLW=%d", config.ledgerLW);
+	LogPrintf(LOG_NOTICE, "  (15)staffLW=%d", config.staffLW);
+	LogPrintf(LOG_NOTICE, "  (16)enclLW=%d\n", config.enclLW);
 
-	DebugPrintf("  (17)beamLW=%d", config.beamLW);
-	DebugPrintf("  (18)hairpinLW=%d", config.hairpinLW);
-	DebugPrintf("  (19)dottedBarlineLW=%d", config.dottedBarlineLW);
-	DebugPrintf("  (20)mbRestEndLW=%d\n", config.mbRestEndLW);
-	DebugPrintf("  (21)nonarpLW=%d", config.nonarpLW);
+	LogPrintf(LOG_NOTICE, "  (17)beamLW=%d", config.beamLW);
+	LogPrintf(LOG_NOTICE, "  (18)hairpinLW=%d", config.hairpinLW);
+	LogPrintf(LOG_NOTICE, "  (19)dottedBarlineLW=%d", config.dottedBarlineLW);
+	LogPrintf(LOG_NOTICE, "  (20)mbRestEndLW=%d\n", config.mbRestEndLW);
+	LogPrintf(LOG_NOTICE, "  (21)nonarpLW=%d", config.nonarpLW);
 
-	DebugPrintf("  (22)graceSlashLW=%d", config.graceSlashLW);
-	DebugPrintf("  (23)slurMidLW=%d", config.slurMidLW);
-	DebugPrintf("  (24)tremSlashLW=%d\n", config.tremSlashLW);
-	DebugPrintf("  (25)slurCurvature=%d", config.slurCurvature);
-	DebugPrintf("  (26)tieCurvature=%d", config.tieCurvature);
-	DebugPrintf("  (27)relBeamSlope=%d", config.relBeamSlope);
+	LogPrintf(LOG_NOTICE, "  (22)graceSlashLW=%d", config.graceSlashLW);
+	LogPrintf(LOG_NOTICE, "  (23)slurMidLW=%d", config.slurMidLW);
+	LogPrintf(LOG_NOTICE, "  (24)tremSlashLW=%d\n", config.tremSlashLW);
+	LogPrintf(LOG_NOTICE, "  (25)slurCurvature=%d", config.slurCurvature);
+	LogPrintf(LOG_NOTICE, "  (26)tieCurvature=%d", config.tieCurvature);
+	LogPrintf(LOG_NOTICE, "  (27)relBeamSlope=%d", config.relBeamSlope);
 
-	DebugPrintf("  (28)hairpinMouthWidth=%d\n", config.hairpinMouthWidth);
-	DebugPrintf("  (29)mbRestBaseLen=%d", config.mbRestBaseLen);
-	DebugPrintf("  (30)mbRestAddLen=%d", config.mbRestAddLen);
-	DebugPrintf("  (31)barlineDashLen=%d", config.barlineDashLen);
-	DebugPrintf("  (32)crossStaffBeamExt=%d\n", config.crossStaffBeamExt);
-	DebugPrintf("  (33)titleMargin=%d", config.titleMargin);
+	LogPrintf(LOG_NOTICE, "  (28)hairpinMouthWidth=%d\n", config.hairpinMouthWidth);
+	LogPrintf(LOG_NOTICE, "  (29)mbRestBaseLen=%d", config.mbRestBaseLen);
+	LogPrintf(LOG_NOTICE, "  (30)mbRestAddLen=%d", config.mbRestAddLen);
+	LogPrintf(LOG_NOTICE, "  (31)barlineDashLen=%d", config.barlineDashLen);
+	LogPrintf(LOG_NOTICE, "  (32)crossStaffBeamExt=%d\n", config.crossStaffBeamExt);
+	LogPrintf(LOG_NOTICE, "  (33)titleMargin=%d", config.titleMargin);
 
-	DebugPrintf("  (35)pageMarg.top=%d", config.pageMarg.top);
-	DebugPrintf("  .left=%d", config.pageMarg.left);
-	DebugPrintf("  .bottom=%d", config.pageMarg.bottom);
-	DebugPrintf("  .right=%d\n", config.pageMarg.right);
+	LogPrintf(LOG_NOTICE, "  (35)pageMarg.top=%d", config.pageMarg.top);
+	LogPrintf(LOG_NOTICE, "  .left=%d", config.pageMarg.left);
+	LogPrintf(LOG_NOTICE, "  .bottom=%d", config.pageMarg.bottom);
+	LogPrintf(LOG_NOTICE, "  .right=%d\n", config.pageMarg.right);
 
-	DebugPrintf("  (37)pageNumMarg.top=%d", config.pageNumMarg.top);
-	DebugPrintf("  .left=%d", config.pageNumMarg.left);
-	DebugPrintf("  .bottom=%d", config.pageNumMarg.bottom);
-	DebugPrintf("  .right=%d\n", config.pageNumMarg.right);
+	LogPrintf(LOG_NOTICE, "  (37)pageNumMarg.top=%d", config.pageNumMarg.top);
+	LogPrintf(LOG_NOTICE, "  .left=%d", config.pageNumMarg.left);
+	LogPrintf(LOG_NOTICE, "  .bottom=%d", config.pageNumMarg.bottom);
+	LogPrintf(LOG_NOTICE, "  .right=%d\n", config.pageNumMarg.right);
 
-	DebugPrintf("  (38)defaultLedgers=%d", config.defaultLedgers);
-	DebugPrintf("  (39)defaultTSNum=%d", config.defaultTSNum);
-	DebugPrintf("  (40)defaultTSDenom=%d", config.defaultTSDenom);
-	DebugPrintf("  (41)defaultRastral=%d\n", config.defaultRastral);
-	DebugPrintf("  (42)rastral0size=%d", config.rastral0size);
+	LogPrintf(LOG_NOTICE, "  (38)defaultLedgers=%d", config.defaultLedgers);
+	LogPrintf(LOG_NOTICE, "  (39)defaultTSNum=%d", config.defaultTSNum);
+	LogPrintf(LOG_NOTICE, "  (40)defaultTSDenom=%d", config.defaultTSDenom);
+	LogPrintf(LOG_NOTICE, "  (41)defaultRastral=%d\n", config.defaultRastral);
+	LogPrintf(LOG_NOTICE, "  (42)rastral0size=%d", config.rastral0size);
 
-	DebugPrintf("  (43)minRecVelocity=%d", config.minRecVelocity);
-	DebugPrintf("  (44)minRecDuration=%d\n", config.minRecDuration);
-	DebugPrintf("  (45)midiThru=%d", config.midiThru);
-	DebugPrintf("  (46)defaultTempo=%d", config.defaultTempo);
+	LogPrintf(LOG_NOTICE, "  (43)minRecVelocity=%d", config.minRecVelocity);
+	LogPrintf(LOG_NOTICE, "  (44)minRecDuration=%d\n", config.minRecDuration);
+	LogPrintf(LOG_NOTICE, "  (45)midiThru=%d", config.midiThru);
+	LogPrintf(LOG_NOTICE, "  (46)defaultTempo=%d", config.defaultTempo);
 
-	DebugPrintf("  (47)lowMemory=%d", config.lowMemory);
-	DebugPrintf("  (48)minMemory=%d\n", config.minMemory);
+	LogPrintf(LOG_NOTICE, "  (47)lowMemory=%d", config.lowMemory);
+	LogPrintf(LOG_NOTICE, "  (48)minMemory=%d\n", config.minMemory);
 
-	DebugPrintf("  (49)numRows=%d", config.numRows);
-	DebugPrintf("  (50)numCols=%d", config.numCols);
-	DebugPrintf("  (51)maxRows=%d", config.maxRows);
-	DebugPrintf("  (52)maxCols=%d\n", config.maxCols);
-	DebugPrintf("  (53)hPageSep=%d", config.hPageSep);
-	DebugPrintf("  (54)vPageSep=%d", config.vPageSep);
-	DebugPrintf("  (55)hScrollSlop=%d", config.hScrollSlop);
-	DebugPrintf("  (56)vScrollSlop=%d\n", config.vScrollSlop);
+	LogPrintf(LOG_NOTICE, "  (49)numRows=%d", config.numRows);
+	LogPrintf(LOG_NOTICE, "  (50)numCols=%d", config.numCols);
+	LogPrintf(LOG_NOTICE, "  (51)maxRows=%d", config.maxRows);
+	LogPrintf(LOG_NOTICE, "  (52)maxCols=%d\n", config.maxCols);
+	LogPrintf(LOG_NOTICE, "  (53)hPageSep=%d", config.hPageSep);
+	LogPrintf(LOG_NOTICE, "  (54)vPageSep=%d", config.vPageSep);
+	LogPrintf(LOG_NOTICE, "  (55)hScrollSlop=%d", config.hScrollSlop);
+	LogPrintf(LOG_NOTICE, "  (56)vScrollSlop=%d\n", config.vScrollSlop);
 
-	DebugPrintf("  (57)maxSyncTolerance=%d", config.maxSyncTolerance);
-	DebugPrintf("  (58)enlargeHilite=%d", config.enlargeHilite);
-	DebugPrintf("  (59)infoDistUnits=%d", config.infoDistUnits);
-	DebugPrintf("  (60)mShakeThresh=%d\n", config.mShakeThresh);
+	LogPrintf(LOG_NOTICE, "  (57)maxSyncTolerance=%d", config.maxSyncTolerance);
+	LogPrintf(LOG_NOTICE, "  (58)enlargeHilite=%d", config.enlargeHilite);
+	LogPrintf(LOG_NOTICE, "  (59)infoDistUnits=%d", config.infoDistUnits);
+	LogPrintf(LOG_NOTICE, "  (60)mShakeThresh=%d\n", config.mShakeThresh);
 	
-	DebugPrintf("  (61)musicFontID=%d", config.musicFontID);
-	DebugPrintf("  (62)numMasters=%d", config.numMasters);
-	DebugPrintf("  (63)indent1st=%d", config.indent1st);
-	DebugPrintf("  (64)mbRestHeight=%d\n", config.mbRestHeight);
-	DebugPrintf("  (65)chordSymMusSize=%d", config.chordSymMusSize);
+	LogPrintf(LOG_NOTICE, "  (61)musicFontID=%d", config.musicFontID);
+	LogPrintf(LOG_NOTICE, "  (62)numMasters=%d", config.numMasters);
+	LogPrintf(LOG_NOTICE, "  (63)indent1st=%d", config.indent1st);
+	LogPrintf(LOG_NOTICE, "  (64)mbRestHeight=%d\n", config.mbRestHeight);
+	LogPrintf(LOG_NOTICE, "  (65)chordSymMusSize=%d", config.chordSymMusSize);
 
-	DebugPrintf("  (66)enclMargin=%d", config.enclMargin);
-	DebugPrintf("  (67)legatoPct=%d", config.legatoPct);
+	LogPrintf(LOG_NOTICE, "  (66)enclMargin=%d", config.enclMargin);
+	LogPrintf(LOG_NOTICE, "  (67)legatoPct=%d", config.legatoPct);
 
-	DebugPrintf("  (68)defaultPatch=%d\n", config.defaultPatch);
-	DebugPrintf("  (69)whichMIDI=%d", config.whichMIDI);
+	LogPrintf(LOG_NOTICE, "  (68)defaultPatch=%d\n", config.defaultPatch);
+	LogPrintf(LOG_NOTICE, "  (69)whichMIDI=%d", config.whichMIDI);
 
-	DebugPrintf("  (70)musFontSizeOffset=%d", config.musFontSizeOffset);
-	DebugPrintf("  (71)fastScreenSlurs=%d", config.fastScreenSlurs);
-	DebugPrintf("  (72)restMVOffset=%d\n", config.restMVOffset);
-	DebugPrintf("  (73)autoBeamOptions=%d", config.autoBeamOptions);
+	LogPrintf(LOG_NOTICE, "  (70)musFontSizeOffset=%d", config.musFontSizeOffset);
+	LogPrintf(LOG_NOTICE, "  (71)fastScreenSlurs=%d", config.fastScreenSlurs);
+	LogPrintf(LOG_NOTICE, "  (72)restMVOffset=%d\n", config.restMVOffset);
+	LogPrintf(LOG_NOTICE, "  (73)autoBeamOptions=%d", config.autoBeamOptions);
 	
-	DebugPrintf("  (74)noteOffVel=%d", config.noteOffVel);
-	DebugPrintf("  (75)feedbackNoteOnVel=%d", config.feedbackNoteOnVel);
-	DebugPrintf("  (76)defaultChannel=%d\n", config.defaultChannel);
-	DebugPrintf("  (77)enclWidthOffset=%d", config.enclWidthOffset);	
-	DebugPrintf("  (78)rainyDayMemory=%d", config.rainyDayMemory);
-	DebugPrintf("  (79)tryTupLevels=%d", config.tryTupLevels);
-	DebugPrintf("  (80)justifyWarnThresh=%d\n", config.justifyWarnThresh);
+	LogPrintf(LOG_NOTICE, "  (74)noteOffVel=%d", config.noteOffVel);
+	LogPrintf(LOG_NOTICE, "  (75)feedbackNoteOnVel=%d", config.feedbackNoteOnVel);
+	LogPrintf(LOG_NOTICE, "  (76)defaultChannel=%d\n", config.defaultChannel);
+	LogPrintf(LOG_NOTICE, "  (77)enclWidthOffset=%d", config.enclWidthOffset);	
+	LogPrintf(LOG_NOTICE, "  (78)rainyDayMemory=%d", config.rainyDayMemory);
+	LogPrintf(LOG_NOTICE, "  (79)tryTupLevels=%d", config.tryTupLevels);
+	LogPrintf(LOG_NOTICE, "  (80)justifyWarnThresh=%d\n", config.justifyWarnThresh);
 
-	DebugPrintf("  (81)metroChannel=%d", config.metroChannel);
-	DebugPrintf("  (82)metroNote=%d", config.metroNote);
-	DebugPrintf("  (83)metroVelo=%d", config.metroVelo);
-	DebugPrintf("  (84)metroDur=%d\n", config.metroDur);
+	LogPrintf(LOG_NOTICE, "  (81)metroChannel=%d", config.metroChannel);
+	LogPrintf(LOG_NOTICE, "  (82)metroNote=%d", config.metroNote);
+	LogPrintf(LOG_NOTICE, "  (83)metroVelo=%d", config.metroVelo);
+	LogPrintf(LOG_NOTICE, "  (84)metroDur=%d\n", config.metroDur);
 
-	DebugPrintf("  (85)chordSymSmallSize=%d", config.chordSymSmallSize);
-	DebugPrintf("  (86)chordSymSuperscr=%d", config.chordSymSuperscr);
-	DebugPrintf("  (87)chordSymStkLead=%d\n", config.chordSymStkLead);
+	LogPrintf(LOG_NOTICE, "  (85)chordSymSmallSize=%d", config.chordSymSmallSize);
+	LogPrintf(LOG_NOTICE, "  (86)chordSymSuperscr=%d", config.chordSymSuperscr);
+	LogPrintf(LOG_NOTICE, "  (87)chordSymStkLead=%d\n", config.chordSymStkLead);
 
-	DebugPrintf("  (88)tupletNumSize=%d", config.tupletNumSize);
-	DebugPrintf("  (89)tupletColonSize=%d", config.tupletColonSize);
-	DebugPrintf("  (90)octaveNumSize=%d", config.octaveNumSize);
-	DebugPrintf("  (91)lineLW=%d\n", config.lineLW);
-	DebugPrintf("  (92)ledgerLLen=%d", config.ledgerLLen);
-	DebugPrintf("  (93)ledgerLOtherLen=%d", config.ledgerLOtherLen);
-	DebugPrintf("  (94)slurDashLen=%d", config.slurDashLen);
-	DebugPrintf("  (95)slurSpaceLen=%d\n", config.slurSpaceLen);
+	LogPrintf(LOG_NOTICE, "  (88)tupletNumSize=%d", config.tupletNumSize);
+	LogPrintf(LOG_NOTICE, "  (89)tupletColonSize=%d", config.tupletColonSize);
+	LogPrintf(LOG_NOTICE, "  (90)octaveNumSize=%d", config.octaveNumSize);
+	LogPrintf(LOG_NOTICE, "  (91)lineLW=%d\n", config.lineLW);
+	LogPrintf(LOG_NOTICE, "  (92)ledgerLLen=%d", config.ledgerLLen);
+	LogPrintf(LOG_NOTICE, "  (93)ledgerLOtherLen=%d", config.ledgerLOtherLen);
+	LogPrintf(LOG_NOTICE, "  (94)slurDashLen=%d", config.slurDashLen);
+	LogPrintf(LOG_NOTICE, "  (95)slurSpaceLen=%d\n", config.slurSpaceLen);
 
-	DebugPrintf("  (96)courtesyAccLXD=%d", config.courtesyAccLXD);
-	DebugPrintf("  (97)courtesyAccRXD=%d", config.courtesyAccRXD);
-	DebugPrintf("  (98)courtesyAccYD=%d", config.courtesyAccYD);
-	DebugPrintf("  (99)courtesyAccSize=%d\n", config.courtesyAccSize);
+	LogPrintf(LOG_NOTICE, "  (96)courtesyAccLXD=%d", config.courtesyAccLXD);
+	LogPrintf(LOG_NOTICE, "  (97)courtesyAccRXD=%d", config.courtesyAccRXD);
+	LogPrintf(LOG_NOTICE, "  (98)courtesyAccYD=%d", config.courtesyAccYD);
+	LogPrintf(LOG_NOTICE, "  (99)courtesyAccSize=%d\n", config.courtesyAccSize);
 
-	DebugPrintf("  (100)quantizeBeamYPos=%d", config.quantizeBeamYPos);
-	DebugPrintf("  (101)enlargeNRHiliteH=%d", config.enlargeNRHiliteH);
-	DebugPrintf("  (102)enlargeNRHiliteV=%d", config.enlargeNRHiliteV);
-	DebugPrintf("\n");
+	LogPrintf(LOG_NOTICE, "  (100)quantizeBeamYPos=%d", config.quantizeBeamYPos);
+	LogPrintf(LOG_NOTICE, "  (101)enlargeNRHiliteH=%d", config.enlargeNRHiliteH);
+	LogPrintf(LOG_NOTICE, "  (102)enlargeNRHiliteV=%d", config.enlargeNRHiliteV);
+	LogPrintf(LOG_NOTICE, "\n");
 }
 
 
 /* Install our configuration data from the Prefs file; also check for, report, and
 correct any illegal values. Assumes the Prefs file is the current resource file. */
 
-#define ERR(fn) { nerr++; DebugPrintf(" err #%d,", fn); if (firstErr==0) firstErr = fn; }
+#define ERR(fn) { nerr++; LogPrintf(LOG_NOTICE, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
 
 static Boolean GetConfig()
 {
@@ -856,7 +858,7 @@ static Boolean GetConfig()
 	 * course there's often no well-defined limit). For each problem case we find,
 	 * give an error message and set the field to a reasonable default value.
 	 */
-	DebugPrintf("Checking CNFG: ");
+	LogPrintf(LOG_NOTICE, "Checking CNFG: ");
 	nerr = 0; firstErr = 0;
 
 	if (config.maxDocuments <= 0 || config.maxDocuments > 100)
@@ -1045,14 +1047,14 @@ static Boolean GetConfig()
 	/* No validity check at this time for default or metro Devices, do it in InitOMS */
 
 	if (gotCnfg && nerr>0) {
-        DebugPrintf(" TOTAL OF %d ERROR(S) FOUND.\n", nerr);
+        LogPrintf(LOG_NOTICE, " TOTAL OF %d ERROR(S) FOUND.\n", nerr);
 		GetIndCString(fmtStr, INITERRS_STRS, 5);		/* "CNFG resource in Prefs has [n] illegal value(s)" */
 		sprintf(strBuf, fmtStr, nerr, firstErr);
 		CParamText(strBuf, "", "", "");
 		if (CautionAdvise(CNFG_ALRT)==OK) ExitToShell();
 	}
     else
-        DebugPrintf("(no errors)\n");
+        LogPrintf(LOG_NOTICE, "(no errors)\n");
 	
 Finish:
 	/* Make any final adjustments. N.B. Must undo these in UpdateSetupFile()! */

@@ -7,7 +7,7 @@
 		TrkInsSync				TrkInsNote				TrkInsGRSync
 		TrkInsGRNote			InsertNote				InsertGRNote
 		InsertArpSign			InsertLine				InsertGraphic			
-		InsertMusicChar		InsertMODNR				InsertRptEnd
+		InsertMusicChar			InsertMODNR				InsertRptEnd
 		InsertEnding			InsertMeasure			InsertPseudoMeas
 		InsertClef				InsertKeySig			InsertTimeSig
 		InsertDynamic			InsertSlur				InsertTempo
@@ -1331,7 +1331,7 @@ Boolean InsertTempo(Document *doc, Point pt)
 
 		Pstrcpy((unsigned char *)strBuf, (unsigned char *)tempoStr);
 		Pstrcpy((unsigned char *)tmpStr, (unsigned char *)metroStr);
-		DebugPrintf("InsertTempo: expanded=%d\n", expanded);
+		LogPrintf(LOG_NOTICE, "InsertTempo: expanded=%d\n", expanded);
 		if (TempoDialog(&hideMM, &dur, &dotted, &expanded, (unsigned char *)strBuf, tmpStr)) {
 			doc->selEndL = doc->selStartL = pL;
 			if (strBuf[0]>63) strBuf[0] = 63;					/* Limit str. length (see above) */
@@ -1344,7 +1344,7 @@ Boolean InsertTempo(Document *doc, Point pt)
 		}
 	}
 
-	InvalMeasure(pL, clickStaff);									/* Just redraw the measure */
+	InvalMeasure(pL, clickStaff);								/* Just redraw the measure */
 	return FALSE;
 }
 
@@ -1358,14 +1358,14 @@ Boolean InsertSpace(Document *doc, Point pt)
 	short clickStaff,topStf,bottomStf; LINK pLPIL,measL; STDIST stdSpace=0;
 	Point newPt; CONTEXT context;
 	
-	clickStaff = FindStaff(doc, pt);										/* Find staff clicked on */
+	clickStaff = FindStaff(doc, pt);									/* Find staff clicked on */
 	if (clickStaff==NOONE) return FALSE;
 
 	measL = GSSearch(doc, pt, MEASUREtype, ANYONE, TRUE, FALSE, FALSE, FALSE); /* Need a LINK for GetContext */
 	if (!measL) return FALSE;
 	GetContext(doc, measL, clickStaff, &context);
 
-	newPt = InsertSpaceTrackStf(doc, pt, &topStf, &bottomStf);	/* Get user feedback */
+	newPt = InsertSpaceTrackStf(doc, pt, &topStf, &bottomStf);		/* Get user feedback */
 	if (newPt.h==CANCEL_INT)
 		return FALSE;
 	if (newPt.h-pt.h)															/* Don't divide by zero */

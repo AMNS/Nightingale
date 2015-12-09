@@ -17,18 +17,18 @@
 // MAS
 #include "CarbonTemplates.h"
 
-void 		InitNightingale(void);
+void			InitNightingale(void);
 static Boolean	DoSplashScreen(void);
 static Boolean	InitAllCursors(void);
 static void		InitNightFonts(void);
 static Boolean	InitNightGlobals(void);
 static Boolean	InitTables(void);
-static void 		PrintInfo(void);
+static void 	PrintInfo(void);
 static void		InitMusicFontStuff(void);
 static Boolean	InitMIDISystem(void);
-static void 		CheckScrFonts(void);
+static void 	CheckScrFonts(void);
 
-void NExitToShell(char *msg);
+void			NExitToShell(char *msg);
 
 /* ------------------------------------------------------------- InitNightingale -- */
 /* One-time initialization of Nightingale-specific stuff. Assumes the Macintosh
@@ -184,8 +184,8 @@ static short InitEndingStrings()
 
 static Boolean InitNightGlobals()
 {
-	char		fmtStr[256];
-	short		j;
+	char	fmtStr[256];
+	short	j;
 	
 	/*
 	 *	Since initialization routines can (and as of this writing do) use the coordinate-
@@ -243,11 +243,11 @@ example, "Petrucci" should have 'BBX#' 129, 'MCMp' 129 and 'MCOf' 129.
 
 static Boolean InitMusFontTables()
 {
-	short		i, nRes, resID, curResFile;
-	short		*w, ch, count, xw, xl, yt, xr, yb, index;
+	short	i, nRes, resID, curResFile;
+	short	*w, ch, count, xw, xl, yt, xr, yb, index;
 	unsigned char *b;
 	Handle	resH;
-	Size		nBytes;
+	Size	nBytes;
 	OSType	resType;
 	Str255	resName;
 
@@ -416,8 +416,6 @@ static Boolean InitTables()
 }
 
 
-
-
 /* Print various information for debugging. */
 
 static void PrintInfo()
@@ -425,17 +423,17 @@ static void PrintInfo()
 #ifndef PUBLIC_VERSION
 #ifdef IDEBUG
 
-	DebugPrintf("Size of PARTINFO=%ld\n", sizeof(PARTINFO));
+	LogPrintf(LOG_NOTICE, "Size of PARTINFO=%ld\n", sizeof(PARTINFO));
 	
-	DebugPrintf("Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
+	LogPrintf(LOG_NOTICE, "Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
 		sizeof(HEADER), sizeof(TAIL), sizeof(SYNC), sizeof(RPTEND), sizeof(PAGE));
-	DebugPrintf("Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
+	LogPrintf(LOG_NOTICE, "Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
 		sizeof(SYSTEM), sizeof(STAFF), sizeof(MEASURE), sizeof(CLEF), sizeof(KEYSIG));
-	DebugPrintf("Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
+	LogPrintf(LOG_NOTICE, "Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
 		sizeof(TIMESIG), sizeof(BEAMSET), sizeof(CONNECT), sizeof(DYNAMIC));
-	DebugPrintf("Size of GRAPHIC=%ld OCTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
+	LogPrintf(LOG_NOTICE, "Size of GRAPHIC=%ld OCTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
 		sizeof(GRAPHIC), sizeof(OCTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
-	DebugPrintf("Size of TEMPO=%ld SPACE=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
+	LogPrintf(LOG_NOTICE, "Size of TEMPO=%ld SPACE=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
 		sizeof(TEMPO), sizeof(SPACE), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
 #endif
 #endif

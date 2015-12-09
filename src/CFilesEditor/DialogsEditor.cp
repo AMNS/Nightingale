@@ -2054,7 +2054,7 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 	oldLDur = *dur;
 	oldDotted = *dotted;
 
-	DebugPrintf("TempoDialog: *expanded=%d\n", *expanded);
+	//LogPrintf(LOG_NOTICE, "TempoDialog: *expanded=%d\n", *expanded);
 	PutDlgChkRadio(dlog, HideMMDI, *hideMM);
 	PutDlgChkRadio(dlog, ExpandDI, *expanded);
 	PutDlgString(dlog,VerbalDI,tempoStr,FALSE);

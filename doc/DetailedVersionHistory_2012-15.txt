@@ -276,3 +276,16 @@ CarbonPrinting: minor cleanup.
 
 Clarify error message for attempt to zoom in further than the Screen Page Layout
 allows. Affects .rsrc .
+
+-------------------------------------------------------------------------------
+
+29 Nov. - 7 Dec.
+
+Replace calls to DebugPrintf() -- which has simply been #define'd as printf -- with
+calls to new function LogPrintf(), which uses syslog(Section 3) so messages go to the
+system log as well as to Xcode's Run Log window (which of course doesn't exist if Ngale
+isn't running inside Xcode). Affects DebugUtils.h; about 60 files.
+
+In the project file, put precomp headers in proper alphabetical order.
+
+Minor cleanup. Affects many files.

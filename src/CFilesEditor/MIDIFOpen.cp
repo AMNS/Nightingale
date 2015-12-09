@@ -168,7 +168,7 @@ Boolean ReadMFHeader(Byte *pFormat, Word *pnTracks, Word *pTimeBase)
 	}
 
 #ifndef PUBLIC_VERSION_1
-	if (DBG) DebugPrintf("MThd len=%ld format=%d nTracks=%d timeBase=%d (qtrNTicks=%d)\n",
+	if (DBG) LogPrintf(LOG_NOTICE, "MThd len=%ld format=%d nTracks=%d timeBase=%d (qtrNTicks=%d)\n",
 						len, *pFormat, *pnTracks, *pTimeBase, qtrNTicks);
 #endif
 	return TRUE;
@@ -1502,7 +1502,7 @@ static LINKTIMEINFO *DocSyncTab(Document *doc, short *tabSize, LINKTIMEINFO *raw
 	}
 	
 	if (*tabSize != rawTabSize) {
-		DebugPrintf("ERROR: rawSyncTab size %ld disagrees with docSyncTab size of %ld\n", rawTabSize, *tabSize);
+		LogPrintf(LOG_NOTICE, "ERROR: rawSyncTab size %ld disagrees with docSyncTab size of %ld\n", rawTabSize, *tabSize);
 	}
 //	if (*tabSize > rawTabSize) {
 //		*tabSize = rawTabSize;
@@ -1562,7 +1562,7 @@ static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrl
 {
 	long timeStamp = ctrlInfo.tStamp;
 	
-	DebugPrintf("track=%ld num=%ld val=%ld time=%ld\n", ctrlInfo.track, ctrlInfo.ctrlNum, ctrlInfo.ctrlVal, timeStamp);
+	LogPrintf(LOG_NOTICE, "track=%ld num=%ld val=%ld time=%ld\n", ctrlInfo.track, ctrlInfo.ctrlNum, ctrlInfo.ctrlVal, timeStamp);
 	
 	for (int j = 0; j<tabSize; j++) 
 	{
@@ -1586,13 +1586,13 @@ static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrl
 
 static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize) 
 {
-	DebugPrintf("PrintDocSyncTab: for %s, tabSize=%ld\n", tabname, tabSize);
+	LogPrintf(LOG_NOTICE, "PrintDocSyncTab: for %s, tabSize=%ld\n", tabname, tabSize);
 	
 	for (int j = 0; j<tabSize; j++) 
 	{
 		LINKTIMEINFO info = docSyncTab[j];
 		
-		if (DBG) DebugPrintf("j = %ld link = %ld time=%ld mult=%ld\n", j, info.link, info.time, info.mult);
+		if (DBG) LogPrintf(LOG_NOTICE, "j = %ld link = %ld time=%ld mult=%ld\n", j, info.link, info.time, info.mult);
 	}
 }
 
@@ -1606,7 +1606,7 @@ static void PrintDocSyncDurs(Document *doc)
 		if (SyncTYPE(pL)) {
 			dur = SyncSimpleLDur(pL);
 		
-			//DebugPrintf("syncL=%ld dur=%ld\n", pL, dur);
+			//LogPrintf(LOG_NOTICE, "syncL=%ld dur=%ld\n", pL, dur);
 		}
 	}
 }
@@ -1683,7 +1683,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			
 			short beatdur = DFLT_BEATDUR;
 			long tempoValue = tscale / beatdur;
-			if (DBG) DebugPrintf("AddTempoChanges: adding Tempo %ld (time=%ld) at link %d\n",
+			if (DBG) LogPrintf(LOG_NOTICE, "AddTempoChanges: adding Tempo %ld (time=%ld) at link %d\n",
 				tempoValue, tempoInfo.tStamp, relObj);
 			
 			short dur = QTR_L_DUR;
@@ -2027,14 +2027,14 @@ static void InitTrack2Night(Document *doc, long *pMergeTabSize, long *pOneTrackT
 
 #else
 
-#define DEBUG_REST if (DBG)	DebugPrintf(" track=%d time=%ld REST fillTime=%ld mult=%d\n",	\
+#define DEBUG_REST if (DBG)	LogPrintf(LOG_NOTICE, " track=%d time=%ld REST fillTime=%ld mult=%d\n",	\
 							track, theNote.startTime, fillTime, mult)
 
-#define DEBUG_NOTE if (DBG)	DebugPrintf("%ctrack=%d time=%ld noteNum=%d dur=%ld mult=%d\n", \
+#define DEBUG_NOTE if (DBG)	LogPrintf(LOG_NOTICE, "%ctrack=%d time=%ld noteNum=%d dur=%ld mult=%d\n", \
 							(chordWithLast? '+' : ' '), track,										 \
 							theNote.startTime, theNote.noteNumber, theNote.duration, mult)
 
-#define DEBUG_META if (DBG)	DebugPrintf(" track=%d time=%ld METAEVENT type=0x%x%s\n",			\
+#define DEBUG_META if (DBG)	LogPrintf(LOG_NOTICE, " track=%d time=%ld METAEVENT type=0x%x%s\n",			\
 							track, (long)(MFTicks2NTicks(p->tStamp)), p->data[1],			\
 							(p->data[1]==0x51? " (TEMPO)" : "") );
 							
@@ -2223,7 +2223,7 @@ static short Track2Night(
 	if (isTempoMap) InitTrack2Night(doc, &mergeTabSize, &oneTrackTabSize);
 #ifndef PUBLIC_VERSION_1
 	if (isTempoMap)
-		DebugPrintf("mergeTabSize=%ld oneTrackTabSize=%ld\n", mergeTabSize, oneTrackTabSize);
+		LogPrintf(LOG_NOTICE, "mergeTabSize=%ld oneTrackTabSize=%ld\n", mergeTabSize, oneTrackTabSize);
 #endif
 
 	len = oneTrackTabSize*sizeof(LINKTIMEINFO);
@@ -2266,7 +2266,7 @@ static short Track2Night(
 		if (!MFAddMeasures(doc, maxMeasures, &cStopTime)) goto Done;
 		cStopTime = NTicks2MFTicks(cStopTime);
 #ifndef PUBLIC_VERSION_1
-		DebugPrintf("cStart/StopTime=%ld/%ld quantum=%d tripBias=%d tryLev=%d leastSq=%d timeOff=%d\n",
+		LogPrintf(LOG_NOTICE, "cStart/StopTime=%ld/%ld quantum=%d tripBias=%d tryLev=%d leastSq=%d timeOff=%d\n",
 							cStartTime, cStopTime, quantum, tripletBias,
 							config.tryTupLevels, config.leastSquares, timeOffset);
 #endif
@@ -2294,13 +2294,13 @@ static short Track2Night(
 #ifndef PUBLIC_VERSION_1
 		if (DBG)
 			if (voice==1) { DPrintMeasTab("X", measInfoTab, measTabLen);
-				DebugPrintf("quantum=%d tripBias=%d timeOff=%d\n",
+				LogPrintf(LOG_NOTICE, "quantum=%d tripBias=%d timeOff=%d\n",
 								quantum, tripletBias, timeOffset); }
 #endif
 		
 		newFirstSync = TranscribeVoice(doc, voice, rawSyncTab, oneTrackTabSize, 
-									nRawSyncs, rawNoteAux, nAux, quantum, tripletBias, measInfoTab,
-									measTabLen, measL, newSyncTab, maxNewSyncs, &nNewSyncs, &tVErr);
+								nRawSyncs, rawNoteAux, nAux, quantum, tripletBias, measInfoTab,
+								measTabLen, measL, newSyncTab, maxNewSyncs, &nNewSyncs, &tVErr);
 		if (!newFirstSync) {
 			GetIndCString(fmtStr, MIDIFILE_STRS, 30);    /* "Couldn't transcribe rhythm in track %d (error code=%d)." */
 			sprintf(strBuf, fmtStr, track, tVErr); 
@@ -2359,13 +2359,13 @@ NB: Time resolution globals must be initialized first! See MFTicks2NTicks. */
 short MIDNight2Night(
 			Document *doc,
 			TRACKINFO trackInfo[],
-			short quantum,					/* For attacks and releases, in PDUR ticks, or 1=no quantize */
+			short quantum,				/* For attacks and releases, in PDUR ticks, or 1=no quantize */
 			short tripletBias,			/* Percent bias towards quant. to triplets >= 2/3 quantum */
 			Boolean delRedundantAccs,	/* Delete redundant accidentals? */
-			Boolean clefChanges,			/* Add clef changes to minimize ledger lines? */
-			Boolean setPlayDurs,			/* Set note playDurs according to logical durs.? */
+			Boolean clefChanges,		/* Add clef changes to minimize ledger lines? */
+			Boolean setPlayDurs,		/* Set note playDurs according to logical durs.? */
 			short maxMeasures,			/* Transcribe no more than this many measures */
-			long lastEvent					/* End-of-track time, in MIDI file (not PDUR!) ticks */
+			long lastEvent				/* End-of-track time, in MIDI file (not PDUR!) ticks */
 			)
 {
 	short t, status; long len, endTime; Boolean gotNotes=FALSE;

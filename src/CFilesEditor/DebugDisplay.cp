@@ -28,14 +28,14 @@ void DKSPrintf(PKSINFO KSInfo)
 	short	k;
 	
 	if (KSInfo->nKSItems>0)
-		DebugPrintf(" lets=%d:%c",
+		LogPrintf(LOG_NOTICE, " lets=%d:%c",
 			KSInfo->KSItem[0].letcode,
 			(KSInfo->KSItem[0].sharp? '#' : 'b') );
 	for (k = 1; k<KSInfo->nKSItems; k++) 			
-		DebugPrintf(" %d:%c",
+		LogPrintf(LOG_NOTICE, " %d:%c",
 			KSInfo->KSItem[k].letcode,
 			(KSInfo->KSItem[k].sharp? '#' : 'b') );
-	DebugPrintf("\n");
+	LogPrintf(LOG_NOTICE, "\n");
 }
 
 
@@ -81,12 +81,12 @@ void DisplayNode(Document *doc, LINK pL,
 		else if (pL==doc->selEndL)				 		  selFlag = '}';
 	}	
 
-	DebugPrintf("%c%d", selFlag, kount);
+	LogPrintf(LOG_NOTICE, "%c%d", selFlag, kount);
 	if (show_links)
-		DebugPrintf(" L%2d", pL);
+		LogPrintf(LOG_NOTICE, " L%2d", pL);
 
 	ps = NameNodeType(pL);
-	DebugPrintf(" xd=%d yd=%d %s %c%c%c%c%c oRect.l=p%d",
+	LogPrintf(LOG_NOTICE, " xd=%d yd=%d %s %c%c%c%c%c oRect.l=p%d",
 					p->xd, p->yd, ps,
 					(p->selected? 'S' : '.'),
 					(p->visible? 'V' : '.'),
@@ -98,7 +98,7 @@ void DisplayNode(Document *doc, LINK pL,
 	switch (ObjLType(pL)) {
 		case HEADERtype:
 			if (!abnormal)
-				DebugPrintf(" sr=%d mrRect=p%d,%d,%d,%d nst=%d nsys=%d",
+				LogPrintf(LOG_NOTICE, " sr=%d mrRect=p%d,%d,%d,%d nst=%d nsys=%d",
 					doc->srastral,
 					doc->marginRect.top, doc->marginRect.left,
 					doc->marginRect.bottom, doc->marginRect.right,
@@ -106,92 +106,92 @@ void DisplayNode(Document *doc, LINK pL,
 					doc->nsystems);
 			break;
 		case SYNCtype:
-			if (!abnormal) DebugPrintf(" TS=%u LT=%ld", SyncTIME(pL),
+			if (!abnormal) LogPrintf(LOG_NOTICE, " TS=%u LT=%ld", SyncTIME(pL),
 												GetLTime(doc, pL));
 			break;
 		case RPTENDtype:
-			DebugPrintf(" lRpt=%d rRpt=%d fObj=%d subTp=%hd",
+			LogPrintf(LOG_NOTICE, " lRpt=%d rRpt=%d fObj=%d subTp=%hd",
 								((PRPTEND)p)->startRpt, ((PRPTEND)p)->endRpt,
 								((PRPTEND)p)->firstObj, ((PRPTEND)p)->subType);
 			break;
 		case PAGEtype:
-			DebugPrintf(" p#=%d", ((PPAGE)p)->sheetNum);
+			LogPrintf(LOG_NOTICE, " p#=%d", ((PPAGE)p)->sheetNum);
 			break;
 		case SYSTEMtype:
-			DebugPrintf(" sRect=d%d,%d,%d,%d s#=%d",
+			LogPrintf(LOG_NOTICE, " sRect=d%d,%d,%d,%d s#=%d",
 				((PSYSTEM)p)->systemRect.top, ((PSYSTEM)p)->systemRect.left,
 				((PSYSTEM)p)->systemRect.bottom, ((PSYSTEM)p)->systemRect.right,
 								((PSYSTEM)p)->systemNum);
 			break;
 		case MEASUREtype:
-			DebugPrintf(" Box=p%d,%d,%d,%d s%%=%d TS=%ld",
+			LogPrintf(LOG_NOTICE, " Box=p%d,%d,%d,%d s%%=%d TS=%ld",
 				((PMEASURE)p)->measureBBox.top, ((PMEASURE)p)->measureBBox.left,
 				((PMEASURE)p)->measureBBox.bottom, ((PMEASURE)p)->measureBBox.right,
 				((PMEASURE)p)->spacePercent,
 				((PMEASURE)p)->lTimeStamp);
 			break;
 		case CLEFtype:
-			DebugPrintf(" %c", (((PCLEF)p)->inMeasure? 'M' : '.') );
+			LogPrintf(LOG_NOTICE, " %c", (((PCLEF)p)->inMeasure? 'M' : '.') );
 			break;
 		case KEYSIGtype:
-			DebugPrintf(" %c", (((PKEYSIG)p)->inMeasure? 'M' : '.') );
+			LogPrintf(LOG_NOTICE, " %c", (((PKEYSIG)p)->inMeasure? 'M' : '.') );
 			break;
 		case TIMESIGtype:
-			DebugPrintf(" %c", (((PTIMESIG)p)->inMeasure? 'M' : '.') );
+			LogPrintf(LOG_NOTICE, " %c", (((PTIMESIG)p)->inMeasure? 'M' : '.') );
 			break;
 		case BEAMSETtype:
-			DebugPrintf(" st=%d v=%d", ((PBEAMSET)p)->staffn, ((PBEAMSET)p)->voice);
+			LogPrintf(LOG_NOTICE, " st=%d v=%d", ((PBEAMSET)p)->staffn, ((PBEAMSET)p)->voice);
 			break;
 		case DYNAMtype:
-			DebugPrintf(" type=%d", ((PDYNAMIC)p)->dynamicType);
-			if (show_links) DebugPrintf(" 1stS=%d lastS=%d",
+			LogPrintf(LOG_NOTICE, " type=%d", ((PDYNAMIC)p)->dynamicType);
+			if (show_links) LogPrintf(LOG_NOTICE, " 1stS=%d lastS=%d",
 									((PDYNAMIC)p)->firstSyncL, ((PDYNAMIC)p)->lastSyncL);
 			break;
 		case GRAPHICtype:
-			DebugPrintf(" st=%d type=%d", ((PGRAPHIC)p)->staffn,
+			LogPrintf(LOG_NOTICE, " st=%d type=%d", ((PGRAPHIC)p)->staffn,
 								((PGRAPHIC)p)->graphicType);
 			if (show_links) {
-				DebugPrintf(" fObj=%d", ((PGRAPHIC)p)->firstObj);
+				LogPrintf(LOG_NOTICE, " fObj=%d", ((PGRAPHIC)p)->firstObj);
 				if (((PGRAPHIC)p)->graphicType==GRDraw)
-					DebugPrintf(" lObj=%d", ((PGRAPHIC)p)->lastObj);
+					LogPrintf(LOG_NOTICE, " lObj=%d", ((PGRAPHIC)p)->lastObj);
 			}
 			break;
 		case OCTAVAtype:
-			DebugPrintf(" st=%d octType=%d", ((POCTAVA)p)->staffn,
+			LogPrintf(LOG_NOTICE, " st=%d octType=%d", ((POCTAVA)p)->staffn,
 								((POCTAVA)p)->octSignType);
 			break;
 		case SLURtype:
-			DebugPrintf(" st=%d v=%d", ((PSLUR)p)->staffn, ((PSLUR)p)->voice);
-			if (((PSLUR)p)->tie) DebugPrintf(" Tie");
-			if (((PSLUR)p)->crossSystem) DebugPrintf(" xSys");
-			if (((PSLUR)p)->crossStaff) DebugPrintf(" xStf");
-			if (((PSLUR)p)->crossStfBack) DebugPrintf(" xStfBk");
-			if (show_links) DebugPrintf(" %d...%d", ((PSLUR)p)->firstSyncL,
+			LogPrintf(LOG_NOTICE, " st=%d v=%d", ((PSLUR)p)->staffn, ((PSLUR)p)->voice);
+			if (((PSLUR)p)->tie) LogPrintf(LOG_NOTICE, " Tie");
+			if (((PSLUR)p)->crossSystem) LogPrintf(LOG_NOTICE, " xSys");
+			if (((PSLUR)p)->crossStaff) LogPrintf(LOG_NOTICE, " xStf");
+			if (((PSLUR)p)->crossStfBack) LogPrintf(LOG_NOTICE, " xStfBk");
+			if (show_links) LogPrintf(LOG_NOTICE, " %d...%d", ((PSLUR)p)->firstSyncL,
 													((PSLUR)p)->lastSyncL);
 			break;
 		case TUPLETtype:
-			DebugPrintf(" st=%d v=%d num=%d denom=%d", ((PTUPLET)p)->staffn,
+			LogPrintf(LOG_NOTICE, " st=%d v=%d num=%d denom=%d", ((PTUPLET)p)->staffn,
 								((PTUPLET)p)->voice,
 								((PTUPLET)p)->accNum, ((PTUPLET)p)->accDenom);
 			break;
 		case TEMPOtype:
-			DebugPrintf(" st=%d", ((PTEMPO)p)->staffn);
-			if (show_links) DebugPrintf(" fObj=%d", ((PTEMPO)p)->firstObjL);
+			LogPrintf(LOG_NOTICE, " st=%d", ((PTEMPO)p)->staffn);
+			if (show_links) LogPrintf(LOG_NOTICE, " fObj=%d", ((PTEMPO)p)->firstObjL);
 			break;
 		case SPACEtype:
-			DebugPrintf(" spWidth=%d", ((PSPACE)p)->spWidth);
+			LogPrintf(LOG_NOTICE, " spWidth=%d", ((PSPACE)p)->spWidth);
 			break;
 		case ENDINGtype:
-			DebugPrintf(" st=%d num=%d", ((PENDING)p)->staffn, ((PENDING)p)->endNum);
-			if (show_links) DebugPrintf(" %d...%d", ((PENDING)p)->firstObjL,
+			LogPrintf(LOG_NOTICE, " st=%d num=%d", ((PENDING)p)->staffn, ((PENDING)p)->endNum);
+			if (show_links) LogPrintf(LOG_NOTICE, " %d...%d", ((PENDING)p)->firstObjL,
 												 				((PENDING)p)->lastObjL);
 			break;
 		default:
 			;
 	}
 	
-	if (p->nEntries!=0) DebugPrintf(" n=%d\n", p->nEntries);
-	else				     DebugPrintf("\n");
+	if (p->nEntries!=0) LogPrintf(LOG_NOTICE, " n=%d\n", p->nEntries);
+	else				     LogPrintf(LOG_NOTICE, "\n");
 
 	if (show_subs)
 		switch (ObjLType(pL))
@@ -199,7 +199,7 @@ void DisplayNode(Document *doc, LINK pL,
 		case HEADERtype:
 			for (partL = FirstSubLINK(pL); partL; partL = NextPARTINFOL(partL)) {
 				pPartInfo = GetPPARTINFO(partL);
-				DebugPrintf("     partL=%d next=%d firstst=%d lastst=%d velo=%d transp=%d name=%s\n",
+				LogPrintf(LOG_NOTICE, "     partL=%d next=%d firstst=%d lastst=%d velo=%d transp=%d name=%s\n",
 					partL, NextPARTINFOL(partL),
 					pPartInfo->firstStaff,
 					pPartInfo->lastStaff,
@@ -211,11 +211,11 @@ void DisplayNode(Document *doc, LINK pL,
 		case SYNCtype:
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
-				DebugPrintf("     ");
+				LogPrintf(LOG_NOTICE, "     ");
 /* Be careful with addresses provided by the following--they can change suddenly! */
 				if (OptionKeyDown())
-					DebugPrintf("@%lx:", aNote);
-				DebugPrintf(
+					LogPrintf(LOG_NOTICE, "@%lx:", aNote);
+				LogPrintf(LOG_NOTICE, 
 					"st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c%c%c%c%c%c%c%c\n",
 					aNote->staffn, aNote->voice,
 					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
@@ -239,7 +239,7 @@ void DisplayNode(Document *doc, LINK pL,
 		case GRSYNCtype:
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextGRNOTEL(aNoteL)) {
 				aNote = GetPAGRNOTE(aNoteL);
-				DebugPrintf(
+				LogPrintf(LOG_NOTICE, 
 					"     st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c%c%c%c\n",
 					aNote->staffn, aNote->voice,
 					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
@@ -259,7 +259,7 @@ void DisplayNode(Document *doc, LINK pL,
 		case STAFFtype:
 			for (aStaffL=FirstSubLINK(pL); aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 				aStaff = GetPASTAFF(aStaffL);
-				DebugPrintf("     st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
+				LogPrintf(LOG_NOTICE, "     st=%d top,left,ht,rt=d%d,%d,%d,%d lines=%d fontSz=%d %c%c TS=%d,%d/%d\n",
 					aStaff->staffn, aStaff->staffTop,
 					aStaff->staffLeft, aStaff->staffHeight,
 					aStaff->staffRight, aStaff->staffLines,
@@ -275,7 +275,7 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aMeasureL=FirstSubLINK(pL); aMeasureL; 
 					aMeasureL=NextMEASUREL(aMeasureL)) {
 				aMeasure = GetPAMEASURE(aMeasureL);
-				DebugPrintf(
+				LogPrintf(LOG_NOTICE, 
 					"     st=%d m#=%d barTp=%d cnst=%d clf=%d mR=d%d,%d,%d,%d %c%c%c%c%c nKS=%d TS=%d,%d/%d\n",
 					aMeasure->staffn, aMeasure->measureNum,
 					aMeasure->subType,
@@ -297,7 +297,7 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aPseudoMeasL=FirstSubLINK(pL); aPseudoMeasL; 
 					aPseudoMeasL=NextPSMEASL(aPseudoMeasL)) {
 				aPseudoMeas = GetPAPSMEAS(aPseudoMeasL);
-				DebugPrintf(
+				LogPrintf(LOG_NOTICE, 
 					"     st=%d subTp=%d cnst=%d\n",
 					aPseudoMeas->staffn,
 					aPseudoMeas->subType,
@@ -307,7 +307,7 @@ void DisplayNode(Document *doc, LINK pL,
 		case CLEFtype:
 			for (aClefL=FirstSubLINK(pL); aClefL; aClefL=NextCLEFL(aClefL)) {
 				aClef = GetPACLEF(aClefL);
-				DebugPrintf("     st=%d xd=%d clef=%d %c%c%c\n",
+				LogPrintf(LOG_NOTICE, "     st=%d xd=%d clef=%d %c%c%c\n",
 					aClef->staffn, aClef->xd, aClef->subType,
 					(aClef->selected? 'S' : '.'),
 					(aClef->visible? 'V' : '.'),
@@ -317,7 +317,7 @@ void DisplayNode(Document *doc, LINK pL,
 		case KEYSIGtype:
 			for (aKeySigL=FirstSubLINK(pL); aKeySigL; aKeySigL=NextKEYSIGL(aKeySigL)) {
 				aKeySig = GetPAKEYSIG(aKeySigL);
-				DebugPrintf("     st=%d xd=%d %c%c%c nKSItems=%d",
+				LogPrintf(LOG_NOTICE, "     st=%d xd=%d %c%c%c nKSItems=%d",
 					aKeySig->staffn, 
 					aKeySig->xd,
 					(aKeySig->selected? 'S' : '.'),
@@ -325,14 +325,14 @@ void DisplayNode(Document *doc, LINK pL,
 					(aKeySig->soft? 'S' : '.'),
 					aKeySig->nKSItems );
 				if (aKeySig->nKSItems==0)
-					DebugPrintf(" nNatItems=%d", aKeySig->subType);
+					LogPrintf(LOG_NOTICE, " nNatItems=%d", aKeySig->subType);
 				DKSPrintf((PKSINFO)(&aKeySig->KSItem[0]));
 			}
 			break;
 		case TIMESIGtype:
 			for (aTimeSigL=FirstSubLINK(pL); aTimeSigL; aTimeSigL=NextTIMESIGL(aTimeSigL)) {
 				aTimeSig = GetPATIMESIG(aTimeSigL);
-				DebugPrintf("     st=%d xd=%d type=%d,%d/%d %c%c%c\n",
+				LogPrintf(LOG_NOTICE, "     st=%d xd=%d type=%d,%d/%d %c%c%c\n",
 					aTimeSig->staffn, 
 					aTimeSig->xd, aTimeSig->subType,
 					aTimeSig->numerator, aTimeSig->denominator,
@@ -345,9 +345,9 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aNoteBeamL=FirstSubLINK(pL); aNoteBeamL; 
 					aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
 				aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
-				if (show_links) DebugPrintf("     bpSync=%d ", aNoteBeam->bpSync);
-				else				 DebugPrintf("     ");
-				DebugPrintf("startend=%d fracs=%d %c\n",
+				if (show_links) LogPrintf(LOG_NOTICE, "     bpSync=%d ", aNoteBeam->bpSync);
+				else				 LogPrintf(LOG_NOTICE, "     ");
+				LogPrintf(LOG_NOTICE, "startend=%d fracs=%d %c\n",
 					aNoteBeam->startend, aNoteBeam->fracs,
 					(aNoteBeam->fracGoLeft? 'L' : 'R') );
 			}
@@ -356,14 +356,14 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aNoteTupleL=FirstSubLINK(pL); aNoteTupleL; 
 					aNoteTupleL=NextNOTETUPLEL(aNoteTupleL)) {
 				aNoteTuple = GetPANOTETUPLE(aNoteTupleL);
-				if (show_links) DebugPrintf("     tpSync=%d\n", aNoteTuple->tpSync);
+				if (show_links) LogPrintf(LOG_NOTICE, "     tpSync=%d\n", aNoteTuple->tpSync);
 			}
 			break;
 		case OCTAVAtype:
 			for (aNoteOctL=FirstSubLINK(pL); aNoteOctL; 
 					aNoteOctL=NextNOTEOCTAVAL(aNoteOctL)) {
 				aNoteOct = GetPANOTEOCTAVA(aNoteOctL);
-				if (show_links) DebugPrintf("     opSync=%d\n", aNoteOct->opSync);
+				if (show_links) LogPrintf(LOG_NOTICE, "     opSync=%d\n", aNoteOct->opSync);
 			}
 			break;
 		case GRAPHICtype: {
@@ -375,8 +375,8 @@ void DisplayNode(Document *doc, LINK pL,
 				||  pGraphic->graphicType==GRChordSym) {
 					aGraphicL = FirstSubLINK(pL);
 					aGraphic = GetPAGRAPHIC(aGraphicL);
-					DebugPrintf("     '%p'", PCopy(aGraphic->string));
-					DebugPrintf("\n");								/* Protect newline from garbage strings */
+					LogPrintf(LOG_NOTICE, "     '%p'", PCopy(aGraphic->string));
+					LogPrintf(LOG_NOTICE, "\n");								/* Protect newline from garbage strings */
 				}
 			}
 			break;
@@ -384,7 +384,7 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aConnectL=FirstSubLINK(pL); aConnectL; 
 					aConnectL=NextCONNECTL(aConnectL)) {
 				aConnect = GetPACONNECT(aConnectL);
-				DebugPrintf("     xd=%d lev=%d type=%d stfA=%d stfB=%d firstPart=%d last=%d %c\n",
+				LogPrintf(LOG_NOTICE, "     xd=%d lev=%d type=%d stfA=%d stfB=%d firstPart=%d last=%d %c\n",
 					aConnect->xd,
 					aConnect->connLevel, aConnect->connectType,
 					aConnect->staffAbove, aConnect->staffBelow,
@@ -396,7 +396,7 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aDynamicL=FirstSubLINK(pL); aDynamicL; 
 					aDynamicL=NextDYNAMICL(aDynamicL)) {
 				aDynamic = GetPADYNAMIC(aDynamicL);
-				DebugPrintf("     st=%d xd=%d yd=%d endxd=%d %c%c%c\n",
+				LogPrintf(LOG_NOTICE, "     st=%d xd=%d yd=%d endxd=%d %c%c%c\n",
 					aDynamic->staffn, aDynamic->xd, aDynamic->yd,
 					aDynamic->endxd,
 					(aDynamic->selected? 'S' : '.'),
@@ -408,7 +408,7 @@ void DisplayNode(Document *doc, LINK pL,
 		case SLURtype:
 			for (aSlurL=FirstSubLINK(pL); aSlurL; aSlurL=NextSLURL(aSlurL)) {
 				aSlur = GetPASLUR(aSlurL);
-				DebugPrintf("     1stInd=%d lastInd=%d ctl pts=(%P %P %P %P) %c%c%c\n",
+				LogPrintf(LOG_NOTICE, "     1stInd=%d lastInd=%d ctl pts=(%P %P %P %P) %c%c%c\n",
 					aSlur->firstInd, aSlur->lastInd,
 					&aSlur->seg.knot, &aSlur->seg.c0,
 					&aSlur->seg.c1, &aSlur->endpoint,
@@ -442,14 +442,14 @@ void MemUsageStats(Document *doc)
 
 	CountInHeaps(doc, objCount, TRUE);
 
-	DebugPrintf("HEAP USAGE:\n");
+	LogPrintf(LOG_NOTICE, "HEAP USAGE:\n");
  	for (h = FIRSTtype; h<LASTtype; h++) {
  		theHeap = Heap + h;
 		if (theHeap->nObjs<=0) continue;
  		
 		ps = NameHeapType(h, FALSE);
  		if (!OptionKeyDown())
- 			DebugPrintf("  %s Heap: %u in use (%d bytes each)\n", ps, objCount[h],
+ 			LogPrintf(LOG_NOTICE, "  %s Heap: %u in use (%d bytes each)\n", ps, objCount[h],
  							subObjLength[h]);
 		/*
 		 * In memory, blocks of all types are of a constant size, but in files,
@@ -478,13 +478,13 @@ void MemUsageStats(Document *doc)
 	mTotal = subTotal+heapSize+objHeapMemSize;
 	fTotal = subTotal+heapSize+objHeapFileSize;
 
- 	DebugPrintf("Size of *=%ld DOCHDR=%ld SCOREHDR=%ld *=%ld strPool=%ld\n"
+ 	LogPrintf(LOG_NOTICE, "Size of *=%ld DOCHDR=%ld SCOREHDR=%ld *=%ld strPool=%ld\n"
 					"        *=%ld { heapHdrs=%ld HeapsMem/File=%ld/%ld }",
  					sizeof(long)+sizeof(long),
  					sizeof(DOCUMENTHDR), sizeof(SCOREHEADER),
  					sizeof(short), GetHandleSize((Handle)doc->stringPool), sizeof(long),
  					heapHdrSize, heapSize+objHeapMemSize, heapSize+objHeapFileSize);
- 	DebugPrintf(" TOTAL Mem/File=%ld/%ld\n", mTotal, fTotal);
+ 	LogPrintf(LOG_NOTICE, " TOTAL Mem/File=%ld/%ld\n", mTotal, fTotal);
 }
 
 
@@ -501,30 +501,30 @@ void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLin
 	else if (pL==doc->selStartL)					  selFlag = '{';
 	else if (pL==doc->selEndL)						  selFlag = '}';
 	else													  selFlag = ' ';
-	DebugPrintf("%c%d (L%2d) ", selFlag, kount, pL);
+	LogPrintf(LOG_NOTICE, "%c%d (L%2d) ", selFlag, kount, pL);
 	ps = NameNodeType(pL);
-	DebugPrintf("%s", ps);
+	LogPrintf(LOG_NOTICE, "%s", ps);
 	p = GetPMEVENT(pL);
 	switch (ObjLType(pL)) {
 		case HEADERtype:
-			DebugPrintf("\t");										/* Align since info printed is short */
+			LogPrintf(LOG_NOTICE, "\t");										/* Align since info printed is short */
 			break;
 		case PAGEtype:
-			DebugPrintf(" #%d", ((PPAGE)p)->sheetNum);
+			LogPrintf(LOG_NOTICE, " #%d", ((PPAGE)p)->sheetNum);
 			break;
 		case SYSTEMtype:
-			DebugPrintf(" #%d", ((PSYSTEM)p)->systemNum);
+			LogPrintf(LOG_NOTICE, " #%d", ((PSYSTEM)p)->systemNum);
 			break;
 		default:
 			;
 	}
 	(*inLinep)++;
 	if (*inLinep>=4 || ObjLType(pL)==TAILtype) {
-		DebugPrintf("\n");
+		LogPrintf(LOG_NOTICE, "\n");
 		*inLinep = 0;
 	}
 	else
-		DebugPrintf("\t");
+		LogPrintf(LOG_NOTICE, "\t");
 }
 
 
@@ -548,7 +548,7 @@ void DHexDump(unsigned char *pBuffer,
 		sprintf(&strBuf[strlen(strBuf)], "%x", pBuffer[l]); 
 		if ((l+1)%(long)nPerLine==0L) {
 			sprintf(&strBuf[strlen(strBuf)], "\n");
-			DebugPrintf("%s", strBuf);
+			LogPrintf(LOG_NOTICE, "%s", strBuf);
 			strBuf[0] = 0;
 		}
 		else if ((l+1)%(long)nPerGroup==0L) sprintf(&strBuf[strlen(strBuf)], "    ");
@@ -557,7 +557,7 @@ void DHexDump(unsigned char *pBuffer,
 	
 	if (l%(long)nPerLine!=0L) {
 		sprintf(&strBuf[strlen(strBuf)], "\n");
-		DebugPrintf("%s", strBuf);
+		LogPrintf(LOG_NOTICE, "%s", strBuf);
 		
 	}
 }

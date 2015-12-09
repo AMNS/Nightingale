@@ -33,9 +33,9 @@ extern Boolean minDebugCheck;			/* TRUE=don't print Less & Least important check
 
 Boolean QDP(char *fmtStr);
 
-#define COMPLAIN(f, v) { if (QDP(f)) { DebugPrintf((f), (v)); bad = TRUE; } }
-#define COMPLAIN2(f, v1, v2) { if (QDP(f)) { DebugPrintf((f), (v1), (v2)); bad = TRUE; } }
-#define COMPLAIN3(f, v1, v2, v3) { if (QDP(f)) { DebugPrintf((f), (v1), (v2), (v3)); bad = TRUE; } }
+#define COMPLAIN(f, v) { if (QDP(f)) { LogPrintf(LOG_WARNING, (f), (v)); bad = TRUE; } }
+#define COMPLAIN2(f, v1, v2) { if (QDP(f)) { LogPrintf(LOG_WARNING, (f), (v1), (v2)); bad = TRUE; } }
+#define COMPLAIN3(f, v1, v2, v3) { if (QDP(f)) { LogPrintf(LOG_WARNING, (f), (v1), (v2), (v3)); bad = TRUE; } }
 
 #else
 

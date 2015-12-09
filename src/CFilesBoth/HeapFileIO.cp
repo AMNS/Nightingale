@@ -468,7 +468,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 			
 			GetFPos(refNum, &position);
 			ps = NameHeapType(heapIndex, FALSE);
-			DebugPrintf("WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
+			LogPrintf(LOG_NOTICE, "WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
 							heapIndex, ps, objCount[heapIndex], myHeap->objSize, myHeap->type, position);
 		}
 #endif
@@ -1010,7 +1010,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 			const char *ps;
 			GetFPos(refNum, &position);
 			ps = NameHeapType(heapIndex, FALSE);
-			DebugPrintf("RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
+			LogPrintf(LOG_NOTICE, "RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
 							heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type, tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
 		}
 //#endif

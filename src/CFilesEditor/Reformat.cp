@@ -780,11 +780,11 @@ static short CheckSysHeight(Document *doc, SYSDATA sysTable[], short sCount, sho
 static void DebugSysTable(SYSDATA sysTable[], short s, DDIST pgHtUsed, DDIST pgHtAvail,
 									short pgSysNum)
 {
-	DebugPrintf("sys[%d] sysL=%d pageL=%d height=%d (htUsed=%d Avail=%d)",
+	LogPrintf(LOG_NOTICE, "sys[%d] sysL=%d pageL=%d height=%d (htUsed=%d Avail=%d)",
 		s, sysTable[s].sysL,sysTable[s].pageL,sysTable[s].height,
 		pgHtUsed, pgHtAvail);
-	if (pgSysNum<=1) DebugPrintf(" newShtNum=%d", sysTable[s].newSheetNum);
-	DebugPrintf("\n");
+	if (pgSysNum<=1) LogPrintf(LOG_NOTICE, " newShtNum=%d", sysTable[s].newSheetNum);
+	LogPrintf(LOG_NOTICE, "\n");
 }
 #else
 static void DebugSysTable(SYSDATA [], short, DDIST, DDIST, short)
@@ -1179,7 +1179,7 @@ static short RfmtPages(Document *doc,
 				returnCode = FAILURE; goto Cleanup;
 			}
 
-/* DebugPrintf("CP: newPageL=%d\n", newPageL); */
+//LogPrintf(LOG_NOTICE, "CP: newPageL=%d\n", newPageL);
 
 			/* Save the LINK of the first new Page created */
 			if (!firstPageL) firstPageL = newPageL;
@@ -1203,7 +1203,7 @@ static short RfmtPages(Document *doc,
 
 			MoveSysJDObjs(doc, sysTable[s].sysL,startMoveL,endSysL, newMeasL);
 			DeleteRange(doc, sysTable[s].sysL, startMoveL);
-/* DebugPrintf("DR: sysL=%d startMoveL=%d\n", sysTable[s].sysL,startMoveL); */
+//LogPrintf(LOG_NOTICE, "DR: sysL=%d startMoveL=%d\n", sysTable[s].sysL,startMoveL);
 
 			doc->nsystems--;
 			sysTable[s].sysL = NILINK;
@@ -1217,7 +1217,7 @@ static short RfmtPages(Document *doc,
 		 * We're finally ready: move the entire content of the System to its new home.
 		 */
 		MoveRange(startMoveL, endMoveL, endSysL);
-/* DebugPrintf("MR: startMoveL=%d endMoveL=%d endSysL=%d\n",startMoveL,endMoveL,endSysL); */
+//LogPrintf(LOG_NOTICE, "MR: startMoveL=%d endMoveL=%d endSysL=%d\n",startMoveL,endMoveL,endSysL);
 
 		/*
 		 * If there's a Page before the next System and this System is not the end of
@@ -1228,7 +1228,7 @@ static short RfmtPages(Document *doc,
 		if (PageTYPE(lastObjL) && s!=sCount-1) {
 			nextSysL = SSearch(lastObjL, SYSTEMtype, GO_RIGHT);
 			DeleteRange(doc, lastObjL, nextSysL);
-/* DebugPrintf("DR: lastObjL=%d nextSysL=%d\n",lastObjL,nextSysL); */
+//LogPrintf(LOG_NOTICE, "DR: lastObjL=%d nextSysL=%d\n",lastObjL,nextSysL); 
 		}
 
 		FixStructureLinks(doc, doc, doc->headL, doc->tailL);

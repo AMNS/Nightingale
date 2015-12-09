@@ -7,8 +7,8 @@
 			Nightingale) just assume it's Sonata, so results with other music
 			fonts are a bit strange.
 		SetTextSize				MusCharRect			BuildCharRectCache
-		CharRect											NumToSonataStr
-		GetMusicAscDesc		GetMNamedFontSize	Staff2MFontSize
+		CharRect									NumToSonataStr
+		GetMusicAscDesc			GetMNamedFontSize	Staff2MFontSize
 		GetMFontSizeIndex		GetActualFontSize	GetYHeadFudge
 		GetYRestFudge
 /***************************************************************************/
@@ -322,10 +322,10 @@ Rect CharRect(short ic)
 
 #ifdef MFDEBUG
 	if (qd.thePort->txFont!=charRectCache.fontNum)
-		DebugPrintf("CharRect: port's font is %ld but font cached is %ld.",
+		LogPrintf(LOG_NOTICE, "CharRect: port's font is %ld but font cached is %ld.",
 				(long)qd.thePort->txFont, (long)charRectCache.fontNum);
 	if (qd.thePort->txSize!=charRectCache.fontSize)
-		DebugPrintf("CharRect: port's font size is %ld but size cached is %ld.",
+		LogPrintf(LOG_NOTICE, "CharRect: port's font size is %ld but size cached is %ld.",
 				(long)qd.thePort->txSize, (long)charRectCache.fontSize);
 #endif
 	r = charRectCache.charRect[ic];

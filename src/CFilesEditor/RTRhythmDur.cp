@@ -1417,7 +1417,7 @@ void DPrintMeasTab(char *label, MEASINFO	measInfoTab[], short measTabLen)
 #ifndef PUBLIC_VERSION
 	short m, nInTimeSig; long tsStartTime, tsEndTime, measDur;
 
-	DebugPrintf("DPrintMeasTab '%s' measTabLen=%d:\n", label, measTabLen);
+	LogPrintf(LOG_NOTICE, "DPrintMeasTab '%s' measTabLen=%d:\n", label, measTabLen);
 
 	tsEndTime = 0L;
 	for (m = 0; m<measTabLen; m++) {
@@ -1427,7 +1427,7 @@ void DPrintMeasTab(char *label, MEASINFO	measInfoTab[], short measTabLen)
 		tsEndTime += measDur*measInfoTab[m].count;
 		nInTimeSig = (tsEndTime-tsStartTime)/measDur;
 		if (nInTimeSig*measDur<(tsEndTime-tsStartTime)) nInTimeSig++;			/* Round up */
-		DebugPrintf("  [%d] start=%ld end=%ld: %d bars of %d/%d\n", m, tsStartTime,
+		LogPrintf(LOG_NOTICE, "  [%d] start=%ld end=%ld: %d bars of %d/%d\n", m, tsStartTime,
 						tsEndTime, nInTimeSig,
 						measInfoTab[m].numerator, measInfoTab[m].denominator);
 	}
@@ -1441,16 +1441,16 @@ void DPrintLTIs(char *label, LINKTIMEINFO itemTab[], short nItems)
 #ifndef PUBLIC_VERSION
 	short i;
 	
-	DebugPrintf("DPrintLTIs '%s' nItems=%d:\n", label, nItems);
+	LogPrintf(LOG_NOTICE, "DPrintLTIs '%s' nItems=%d:\n", label, nItems);
 	
 	for (i = 0; i<nItems && i<(CapsLockKeyDown()? SHRT_MAX : PR_LIMIT); i++) {
-		DebugPrintf("  [%d] link=%u time=%ld mult=%u %s",
+		LogPrintf(LOG_NOTICE, "  [%d] link=%u time=%ld mult=%u %s",
 							i, itemTab[i].link, itemTab[i].time, itemTab[i].mult,
 							(itemTab[i].added? "added" : "")); 
 		if (itemTab[i].tupleNum)
-			DebugPrintf(" tupleNum=%d Time=%u Dur=%d", itemTab[i].tupleNum,
+			LogPrintf(LOG_NOTICE, " tupleNum=%d Time=%u Dur=%d", itemTab[i].tupleNum,
 								itemTab[i].tupleTime, itemTab[i].tupleDur);
-		DebugPrintf("\n");
+		LogPrintf(LOG_NOTICE, "\n");
 	}
 #endif
 }

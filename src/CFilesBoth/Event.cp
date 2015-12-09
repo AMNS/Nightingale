@@ -921,7 +921,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			sprintf(aStr, fmtStr, ACHAR(fndrInfo.fdType,3), ACHAR(fndrInfo.fdType,2),
 						 ACHAR(fndrInfo.fdType,1), ACHAR(fndrInfo.fdType,0));
 #ifndef PUBLIC_VERSION
-			DebugPrintf(aStr); DebugPrintf("\n");
+			LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
 #endif
 			CParamText(aStr, "", "", "");
 			StopInform(READ_ALRT);
@@ -972,7 +972,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			sprintf(aStr, fmtStr, ACHAR(fndrInfo.fdType,3), ACHAR(fndrInfo.fdType,2),
 						 ACHAR(fndrInfo.fdType,1), ACHAR(fndrInfo.fdType,0));
 #ifndef PUBLIC_VERSION
-			DebugPrintf(aStr); DebugPrintf("\n");
+			LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
 #endif
 			CParamText(aStr, "", "", "");
 			StopInform(READ_ALRT);

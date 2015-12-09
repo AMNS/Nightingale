@@ -15,14 +15,14 @@
 
 /* Prototypes for private routines */
 
-static short		ExtMapStaves(Document *doc, Document *newDoc);
+static short	ExtMapStaves(Document *doc, Document *newDoc);
 static void		UpdateDocHeader(Document *newDoc);
 static void		SelectPart(Document *doc, LINK partL, Boolean extractAllGraphics);
 static Boolean	CopyPartInfo(Document *, Document *, LINK);
 static Boolean	CopyPartRange(Document *, Document *, LINK, LINK, LINK, LINK);
 static Boolean	CopyPart(Document *score, Document *part, LINK partL);
 static void		CopyDocFields(Document *part, Document *score);
-static short		ReadPart(Document *part, Document *score, LINK partL, Boolean *partOK);
+static short	ReadPart(Document *part, Document *score, LINK partL, Boolean *partOK);
 static Boolean	MakeMultibarRest(Document *, LINK, LINK, short, short, COPYMAP *, short);
 static void		SetupSysCopyMap(Document *, COPYMAP **, short *);
 static void		ExtFixCrossSysSlurs(Document *, COPYMAP *, short);
@@ -37,7 +37,7 @@ void DCheckSyncs(Document *doc)
 	LINK	pL, aNoteL, aModNRL;
 	int	count;
 	
-	DebugPrintf("Checking Syncs...\n");
+	LogPrintf(LOG_NOTICE, "Checking Syncs...\n");
 
 //	DCheckNEntries(doc);
 
@@ -52,12 +52,12 @@ void DCheckSyncs(Document *doc)
 					aModNRL = aNote->firstMod;
 					for ( ; aModNRL; aModNRL=NextMODNRL(aModNRL)) {
 						if (aModNRL >= nObjs)	/* very crude check on node validity  -JGG */
-							DebugPrintf("DCheckSyncs: SUSPICIOUS MODNR LINK %d IN VOICE %d IN SYNC AT %u.\n",
+							LogPrintf(LOG_NOTICE, "DCheckSyncs: SUSPICIOUS MODNR LINK %d IN VOICE %d IN SYNC AT %u.\n",
 											aModNRL, aNote->voice, pL);
 						aModNR = GetPAMODNR(aModNRL);
 						if (!(aModNR->modCode>=MOD_FERMATA && aModNR->modCode<=MOD_LONG_INVMORDENT)
 						&&	 !(aModNR->modCode>=0 && aModNR->modCode<=5) )
-							DebugPrintf("DCheckSyncs: ILLEGAL MODNR CODE %d IN VOICE %d IN SYNC AT %u.\n",
+							LogPrintf(LOG_NOTICE, "DCheckSyncs: ILLEGAL MODNR CODE %d IN VOICE %d IN SYNC AT %u.\n",
 											aModNR->modCode, aNote->voice, pL);
 					}
 				}

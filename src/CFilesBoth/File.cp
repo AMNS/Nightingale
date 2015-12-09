@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	File.c																				*
-*	PROJ:	Nightingale, rev. for v.99														*
-*	DESC:	File-related routines															*
+*	FILE:	File.c															*
+*	PROJ:	Nightingale, rev. for v.99										*
+*	DESC:	File-related routines											*
 /***************************************************************************/
 
 /*											NOTICE
@@ -956,7 +956,7 @@ static Boolean ModifyScore(Document */*doc*/, long /*fileTime*/)
 	 
 	LINK sysL, staffL, aStaffL; DDIST topStaffTop; PASTAFF aStaff;
 
-	DebugPrintf("ModifyScore: fixing Master Page sysRects and staffTops...\n");
+	LogPrintf(LOG_NOTICE, "ModifyScore: fixing Master Page sysRects and staffTops...\n");
 	// Browser(doc,doc->masterHeadL, doc->masterTailL);
 	sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
 	SystemRECT(sysL).bottom = SystemRECT(sysL).top+pt2d(72);
@@ -989,7 +989,7 @@ static Boolean ModifyScore(Document */*doc*/, long /*fileTime*/)
    * be better to consider stem length and not do this for notes with very long
    * stems, but we don't consider that. */
 
-  DebugPrintf("ModifyScore: fixing augdot positions for unbeamed upstemmed notes with flags...\n");
+  LogPrintf(LOG_NOTICE, "ModifyScore: fixing augdot positions for unbeamed upstemmed notes with flags...\n");
   alteredCount = 0;
   for (pL = doc->headL; pL; pL = RightLINK(pL)) 
     if (ObjLType(pL)==SYNCtype) {
@@ -1116,7 +1116,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	
 	if (CapsLockKeyDown() && ShiftKeyDown() && OptionKeyDown() && CmdKeyDown()) {
 #ifndef PUBLIC_VERSION
-		DebugPrintf("IGNORING FILE'S VERSION CODE '%T'.\n", version);
+		LogPrintf(LOG_NOTICE, "IGNORING FILE'S VERSION CODE '%T'.\n", version);
 #endif
 
 		GetIndCString(strBuf, FILEIO_STRS, 6);		/* "IGNORING FILE'S VERSION CODE!" */
@@ -1134,7 +1134,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	if (version<FIRST_VERSION) { errCode = LOW_VERSION_ERR; goto Error; }
 	if (version>THIS_VERSION) { errCode = HI_VERSION_ERR; goto Error; }
 #ifndef PUBLIC_VERSION
-	if (version!=THIS_VERSION) DebugPrintf("CONVERTING VERSION '%T' FILE.\n", version);
+	if (version!=THIS_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%T' FILE.\n", version);
 #endif
 
 	count = sizeof(fileTime);										/* Time file was written */
@@ -1452,7 +1452,7 @@ void OpenError(Boolean fileOpened,
 				}
 		}
 #ifndef PUBLIC_VERSION
-		DebugPrintf(aStr); DebugPrintf("\n");
+		LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
 #endif
 		CParamText(aStr, "", "", "");
 		StopInform(READ_ALRT);
@@ -2123,7 +2123,7 @@ void SaveError(Boolean fileOpened,
 	}
 
 #ifndef PUBLIC_VERSION
-	DebugPrintf(aStr); DebugPrintf("\n");
+	LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
 #endif
 	CParamText(aStr, "", "", "");
 	StopInform(SAVE_ALRT);

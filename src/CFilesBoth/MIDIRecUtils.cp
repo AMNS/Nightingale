@@ -390,10 +390,10 @@ Boolean MRMerge(
 	
 #ifdef MRDEBUG
 for (i = 0; i<nNewSyncs; i++) {
-	DebugPrintf("newSyncs[%d].link=%d time=%ld\n",
+	LogPrintf(LOG_NOTICE, "newSyncs[%d].link=%d time=%ld\n",
 	i, newSyncs[i].link, newSyncs[i].time); }
 for (i = 0; i<n_min(nMergeObjs, 5); i++) {
-	DebugPrintf("mergeObjs[%d].link=%d time=%ld\n",
+	LogPrintf(LOG_NOTICE, "mergeObjs[%d].link=%d time=%ld\n",
 	i, mergeObjs[i].link, mergeObjs[i].time); }
 #endif
 

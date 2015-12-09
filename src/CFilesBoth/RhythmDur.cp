@@ -1,6 +1,6 @@
 /***************************************************************************
-*	FILE:	RhythmDur.c																			*
-*	PROJ:	Nightingale, revised for v.99													*
+*	FILE:	RhythmDur.c														*
+*	PROJ:	Nightingale, revised for v.99									*
 *	DESC:	Routines for handling rhythm and higher-level aspects of timing	*
 /***************************************************************************/
 
@@ -723,9 +723,9 @@ Boolean MakeClarifyList(
 	}
 #ifdef RDEBUG
 for (k=0; k<kount; k++)
-	DebugPrintf(">Piece %d time=%ld dur=%d dots=%d\n", k, piece[k].time,
+	LogPrintf(LOG_NOTICE, ">Piece %d time=%ld dur=%d dots=%d\n", k, piece[k].time,
 						(k>0? piece[k].lDur : -1), (k>0? piece[k].nDots : -1));
-DebugPrintf(">End     time=%ld dur=%d dots=%d\n", piece[kount].time,piece[kount].lDur,piece[kount].nDots);
+	LogPrintf(LOG_NOTICE, ">End     time=%ld dur=%d dots=%d\n", piece[kount].time,piece[kount].lDur,piece[kount].nDots);
 #endif
 
 	*pKount = kount;

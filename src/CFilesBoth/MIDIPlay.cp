@@ -759,12 +759,12 @@ void PlaySequence(
 
 	if (useWhichMIDI==MIDIDR_CM) {
 #if CMDEBUG
-		DebugPrintf("PlaySequence (1): doc inputDev=%ld\n", doc->cmInputDevice);
+		LogPrintf(LOG_NOTICE, "PlaySequence (1): doc inputDev=%ld\n", doc->cmInputDevice);
 #endif
 		if (doc->cmInputDevice == kInvalidMIDIUniqueID)
 			doc->cmInputDevice = gSelectedInputDevice;
 #if CMDEBUG
-		DebugPrintf("PlaySequence (2): doc inputDev=%ld\n", doc->cmInputDevice);
+		LogPrintf(LOG_NOTICE, "PlaySequence (2): doc inputDev=%ld\n", doc->cmInputDevice);
 #endif
 		MIDIUniqueID cmPartDevice[MAXSTAVES];
 		if (!GetCMPartPlayInfo(doc, partTransp, partChannel, partPatch, partVelo,
@@ -876,7 +876,7 @@ void PlaySequence(
 			  			MayErrMsg("PlaySequence: pL=%ld has timeStamp=%ld", (long)pL,
 			  							(long)SyncTIME(pL));
 #ifdef TDEBUG
-					if (toffset<0L) DebugPrintf("PlaySequence: toffset=%ld => %ld playTempoPercent=%d mutedPart=%d\n",
+					if (toffset<0L) LogPrintf(LOG_NOTICE, "PlaySequence: toffset=%ld => %ld playTempoPercent=%d mutedPart=%d\n",
 						toffset, MeasureTIME(measL)+SyncTIME(pL), playTempoPercent, doc->mutedPartNum);
 #endif
 			  		plStartTime = MeasureTIME(measL)+SyncTIME(pL);
@@ -884,7 +884,7 @@ void PlaySequence(
 						score; then, to handle variable-speed playback, convert that 
 						time to actual millisec. . */
 					startTimeNorm = PDur2RealTime(plStartTime, tConvertTab, tempoCount);
-					//DebugPrintf("PlaySequence: plStartTime=%ld, startTimeNorm=%ld\n", plStartTime, startTimeNorm);
+					//LogPrintf(LOG_NOTICE, "PlaySequence: plStartTime=%ld, startTimeNorm=%ld\n", plStartTime, startTimeNorm);
 			  		if (toffset<0L) toffset = startTimeNorm;
 					startTimeNorm -= toffset;
 					startTime = ScaleDurForVariableSpeed(startTimeNorm);
@@ -898,10 +898,10 @@ void PlaySequence(
 					 * before pL; otherwise assume they want it before the previous Sync.
 					 *
 					 * NB: it seems as if the comment in WriteMFNotes about having to write
-					 *	notes ending at a given time before those beginning at the same time
-					 *	should apply here too, but we're not doing that here and I haven't
+					 * notes ending at a given time before those beginning at the same time
+					 * should apply here too, but we're not doing that here and I haven't
 					 * noticed any problems. And doing it this way should help get notes
-					 *	started as close as possible to their correct times.
+					 * started as close as possible to their correct times.
 					 */
 					do {
 						t = GetMIDITime(pageTurnTOffset);
@@ -945,7 +945,7 @@ void PlaySequence(
 							syncPaper = pagePaper;
 							tBeforeTurn = GetMIDITime(pageTurnTOffset);
 #if PLDEBUG
-DebugPrintf("pL=%ld: rect.l=%ld,r=%ld paper.l=%ld,r=%ld\n",
+LogPrintf(LOG_NOTICE, "pL=%ld: rect.l=%ld,r=%ld paper.l=%ld,r=%ld\n",
 pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 #endif
 							HiliteSyncRect(doc,&syncRect,&syncPaper,newPage && doScroll); /* hilite new sync */
@@ -1146,7 +1146,7 @@ done:
 
 #if DEBUG_KEEPTIMES
 	{ short nk; for (nk=0; nk<nkt; nk++)
-		DebugPrintf("nk=%d kStartTime[]=%ld\n", nk, kStartTime[nk]-kStartTime[0]);
+		LogPrintf(LOG_NOTICE, "nk=%d kStartTime[]=%ld\n", nk, kStartTime[nk]-kStartTime[0]);
 	}
 #endif
 }

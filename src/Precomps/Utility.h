@@ -1,5 +1,7 @@
 /*	Utility.h for Nightingale */
 
+#include <syslog.h>
+
 DDIST CalcYStem(Document *, DDIST, short, Boolean, DDIST, short, short, Boolean);
 DDIST GetNoteYStem(Document *, LINK, LINK, CONTEXT);
 DDIST GetGRNoteYStem(LINK, CONTEXT);
@@ -85,4 +87,8 @@ char *StdVerNumToStr(long verNum, char *verStr);
 
 short PlayResource(Handle, Boolean);
 Boolean TrapAvailable(short);
+
+Boolean VLogPrintf(const char *fmt, va_list argp);
+Boolean LogPrintf(short priLevel, const char *fmt, ...);
+short InitLogPrintf();
 

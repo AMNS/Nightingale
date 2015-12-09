@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	SetCommand.c																		*
-*	PROJ:	Nightingale, rev. for v3.1														*
-*	DESC:	Set dialog-handling routines, by John Gibson and DAB					*
+*	FILE:	SetCommand.c
+*	PROJ:	Nightingale, rev. for v3.1
+*	DESC:	Set dialog-handling routines, by John Gibson and DAB
 /***************************************************************************/
 
 /*											NOTICE
@@ -15,10 +15,10 @@
  */
  
 /*
-		SetFilter				SetStfBadValues		AnyBadValues
+		SetFilter				SetStfBadValues			AnyBadValues
 		IsSetEnabled			InitSetItems			XableSetItems
-		FindMainEnabledItem	SetDialog				DoMainPopChoice
-		DoPropPopChoice		DoSetArrowKey			DoSet
+		FindMainEnabledItem		SetDialog				DoMainPopChoice
+		DoPropPopChoice			DoSetArrowKey			DoSet
  */
  
 #include "Nightingale_Prefix.pch"
@@ -942,7 +942,7 @@ Boolean SetDialog(
 			case tempoITEM:
 				*param = tempoPropertyChoice;
 				if (tempoPropertyChoice==hideMM_ITEM) *finalVal = visibleChoice;
-//DebugPrintf("tempoItem: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
+//LogPrintf(LOG_NOTICE, "tempoItem: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
 				break;
 			case barlineITEM:
 				*param = barlinePropertyChoice;
@@ -953,7 +953,7 @@ Boolean SetDialog(
 				*param = dynamicPropertyChoice;
 				if (dynamicPropertyChoice==dynamSmallITEM) *finalVal = dynamicSizeChoice;
 				else													  *finalVal = visibleChoice;
-//DebugPrintf("dynamicITEM: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
+//LogPrintf(LOG_NOTICE, "dynamicITEM: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
 				break;
 			case clefITEM:
 				*param = 1;
@@ -1610,7 +1610,7 @@ void DoSet(Document *doc)
 					break;
 					
 				case dynamicITEM:
-//DebugPrintf("DoSet: dynamicITEM: newValSet=%d\n", newValSet);
+//LogPrintf(LOG_NOTICE, "DoSet: dynamicITEM: newValSet=%d\n", newValSet);
 					switch (newParamSet) {
 						case dynamVisibleITEM:
 							didAnything = SetSelDynamVisible(doc, newValSet);
@@ -1688,7 +1688,7 @@ void DoSet(Document *doc)
 					break;
 					
 				case tempoITEM:
-//DebugPrintf("DoSet: tempoITEM: newValSet=%d\n", newValSet);
+//LogPrintf(LOG_NOTICE, "DoSet: tempoITEM: newValSet=%d\n", newValSet);
 					switch (newParamSet) {
 						case vPosAboveITEM:
 						case vPosBelowITEM:

@@ -14,7 +14,7 @@ clarifying rhythm of unknown-duration notes in existing scores - rev. for v.3.1.
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#define MERGE_TAB_SIZE 2500	/* Max. syncs in table for merging into */
+#define MERGE_TAB_SIZE 2500		/* Max. syncs in table for merging into */
 #define MAX_TSCHANGE 1000		/* Max. no. of time sig. changes in area */
 
 static short measTabLen=0;
@@ -76,9 +76,9 @@ static Boolean InitQuantize(Document *doc, Boolean merge)
 #else
 
 #define DEBUG_NOTE if (ShiftKeyDown() && OptionKeyDown())										\
-								DebugPrintf("iSync=%d %cvoice=%d [%d] noteNum=%d dur=%ld\n",	\
-								iSync, (nInChord>1? '+' : ' '), voice, nAux,							\
-								rawNoteAux[nAux].noteNumber, rawNoteAux[nAux].duration)
+						LogPrintf(LOG_NOTICE, "iSync=%d %cvoice=%d [%d] noteNum=%d dur=%ld\n",	\
+						iSync, (nInChord>1? '+' : ' '), voice, nAux,							\
+						rawNoteAux[nAux].noteNumber, rawNoteAux[nAux].duration)
 
 #endif
 
@@ -533,8 +533,8 @@ static LINK QuantAllVoices(
 	postQTimeOffset = 0L;
 
 #ifndef PUBLIC_VERSION
-		DebugPrintf("quantum=%d tripBias=%d tryLev=%d leastSq=%d\n",
-			quantum, tripletBias, config.tryTupLevels, config.leastSquares);
+	LogPrintf(LOG_NOTICE, "quantum=%d tripBias=%d tryLev=%d leastSq=%d\n",
+		quantum, tripletBias, config.tryTupLevels, config.leastSquares);
 #endif
 
 	/* The range [qStartL,qEndL) now starts one before and extends to the last newly-

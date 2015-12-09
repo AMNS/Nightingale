@@ -905,7 +905,7 @@ void DebugDurArray(short arrBound, PTIME *durArray)
 	short notes;
 
 	for (notes=0; notes<arrBound; notes++) {
-		DebugPrintf("notes=%d objL=%d newObjL=%d subL=%d newSubL=%d slurFirstL=%d tieFirstL=%d\n",
+		LogPrintf(LOG_NOTICE, "notes=%d objL=%d newObjL=%d subL=%d newSubL=%d slurFirstL=%d tieFirstL=%d\n",
 			notes, (durArray + notes)->objL,
 			(durArray + notes)->newObjL,
 			(durArray + notes)->subL,
@@ -913,13 +913,13 @@ void DebugDurArray(short arrBound, PTIME *durArray)
 			(durArray + notes)->slurFirstL,
 			(durArray + notes)->tieFirstL);
 		
-		DebugPrintf("beamL=%d mult=%d playDur=%ld pTime=%ld\n",
+		LogPrintf(LOG_NOTICE, "beamL=%d mult=%d playDur=%ld pTime=%ld\n",
 			(durArray + notes)->beamL,
 			(durArray + notes)->mult,
 			(durArray + notes)->playDur,
 			(durArray + notes)->pTime);
 	}
-	DebugPrintf("\n");
+	LogPrintf(LOG_NOTICE, "\n");
 }
 
 #endif

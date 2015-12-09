@@ -203,7 +203,7 @@ static void EMDebugPrintf(char *fmt, ... )
 	va_end(ap);
 	
 #ifndef PUBLIC_VERSION
-	DebugPrintf(fmt, args[0], args[1], args[2], args[3], args[4], args[5]);
+	LogPrintf(LOG_NOTICE, fmt, args[0], args[1], args[2], args[3], args[4], args[5]);
 #endif
 }
 

@@ -1,9 +1,9 @@
 /* MIDIRecord.c for Nightingale - from MIDI input to simple Syncs.
 By Donald Byrd, rev.for v. 3.5. FreeMIDI support added by John Gibson for v4.1.
-		SetRecordFlats				RecordMessage
+		SetRecordFlats			RecordMessage
 		RawMIDI2MMNote			RecordDlogMsg				OMSPrepareRecord
 		RecordDialog			SoundClickNow
-		FillMNote				RawMIDI2Packets			MIDI2Night
+		FillMNote				RawMIDI2Packets				MIDI2Night
 		RecordBuffer			Record						NoteOnDemon
 		Clocks2Dur				StepMIDI2Night				ShowNRCInBox
 		MRSetNRCDur				IsOurNoteOn					MPMIDIPoll
@@ -61,7 +61,7 @@ long		*rawBuffer;					/* Input buffer: word's 1st 3 bytes=time in ms., last byte
 short		transpose=0,				/* Amount to subtract from MIDI note nos. */
 			splitPoint=MIDI_MIDDLE_C,	/* MIDI note no. to split notes between staves */
 			otherStaff;					/* Staff no. for split-off notes */
-Boolean	printDebug=TRUE,			/* Show debug info in Current Events window? */
+Boolean		printDebug=TRUE,			/* Show debug info in Current Events window? */
 			split;						/* Split between selStaff & otherStaff (else evrythng on selStaff)? */
 			
 #define LAST_REC_MARGIN (4*PDURUNIT)	/* (Unused) Assumed silent time after last rec. note */
@@ -69,7 +69,7 @@ Boolean	printDebug=TRUE,			/* Show debug info in Current Events window? */
 /* If recording without an insertion pt is allowed, the ref's to a doc's selStaff
 	in USESTAFF must be changed--e.g., to GetSelStaff(), but that may be slow. */
 #define USESTAFF(doc, noteNum) 	((split && ((noteNum)<splitPoint==otherStaff>(doc)->selStaff))?	\
-												otherStaff : (doc)->selStaff )
+											otherStaff : (doc)->selStaff )
 
 typedef struct NotePacket {
 	long	tStamp;
@@ -220,7 +220,7 @@ static Boolean CMPrepareRecord(
 		*pUseChan = config.defaultChannel;
 		if (!CMRecvChannelValid(*pInputDevice, *pUseChan)) {
 #if CM_DEBUG
-			DebugPrintf("doc inputDevice=%ld cfg defltInputDev=%ld defltChannel=%ld\n", doc->cmInputDevice,  config.defaultInputDevice, config.defaultChannel);
+			LogPrintf(LOG_NOTICE, "doc inputDevice=%ld cfg defltInputDev=%ld defltChannel=%ld\n", doc->cmInputDevice,  config.defaultInputDevice, config.defaultChannel);
 #endif			
 			GetIndCString(errStr, MIDIERRS_STRS, 35);		/* "CoreMIDI Input Device not Connected." */
 			CParamText(errStr, "", "", "");
@@ -332,7 +332,7 @@ Boolean RecordDialog(
 			doc->cmInputDevice = gSelectedInputDevice;
 		if (!CMPrepareRecord(doc, partL, &useChan, &cmThruDevice, &cmInputDevice, &thruChannel)) {
 #if CM_DEBUG
-			DebugPrintf("doc inputDevice=%ld cfg defltInputDev=%ld defltChannel=%ld\n", doc->cmInputDevice,  config.defaultInputDevice, config.defaultChannel);
+			LogPrintf(LOG_NOTICE, "doc inputDevice=%ld cfg defltInputDev=%ld defltChannel=%ld\n", doc->cmInputDevice,  config.defaultInputDevice, config.defaultChannel);
 #endif			
 			return FALSE;
 		}
@@ -826,7 +826,7 @@ static long MIDI2Night(
 						timeShift = -firstTime;
 				}
 #ifndef PUBLIC_VERSION
-				if (printDebug) DebugPrintf("; start-shift=%ld ticks",
+				if (printDebug) LogPrintf(LOG_NOTICE, "; start-shift=%ld ticks",
 					theNote.startTime-timeShift);
 #endif
 				if (theNote.startTime-prevStartTime<doc->deflamTime)
@@ -843,7 +843,7 @@ static long MIDI2Night(
 												FALSE, timeShift);
 					lastEndTime = theNote.startTime+theNote.duration;
 #ifndef PUBLIC_VERSION
-					if (printDebug) DebugPrintf(" L%d", lSync);
+					if (printDebug) LogPrintf(LOG_NOTICE, " L%d", lSync);
 #endif
 				}
 				if (!firstSync) firstSync = lSync;
@@ -852,7 +852,7 @@ NextEvent:
 #ifdef PUBLIC_VERSION
 				;
 #else
-				if (printDebug) DebugPrintf("\n");
+				if (printDebug) LogPrintf(LOG_NOTICE, "\n");
 #endif
 			}
 
@@ -1095,7 +1095,7 @@ Boolean Record(Document *doc)
 	short partn, useChan;
 	LINK endMeasL;
 	
-	DebugPrintf("1. Starting to record\n");
+	LogPrintf(LOG_NOTICE, "1. Starting to record\n");
 	
 	if (doc->selStartL!=doc->selEndL) {
 		GetIndCString(strBuf, MIDIERRS_STRS, 6);		/* "Can't record without insertion pt" */
@@ -1115,7 +1115,7 @@ Boolean Record(Document *doc)
 		}
 	}
 		
-	DebugPrintf("2. CoreMIDI set up\n");
+	LogPrintf(LOG_NOTICE, "2. CoreMIDI set up\n");
 	
 	SetRecordFlats(doc);
 	
@@ -1124,23 +1124,23 @@ Boolean Record(Document *doc)
 	if (!RecordDialog(doc, doc->selStaff, partn, useChan, FALSE, FALSE, &otherStaff,
 							&metronome, &tLeadInOffset)) {
 #if CMDEBUG
-		DebugPrintf("doc inputDev=%ld useChan=%ld\n", doc->cmInputDevice, (long)useChan);
+		LogPrintf(LOG_NOTICE, "doc inputDev=%ld useChan=%ld\n", doc->cmInputDevice, (long)useChan);
 		CMDebugPrintXMission();
 #endif
 		goto Finished;
 	}
 	
-	DebugPrintf("3. Record Dialog done\n");
+	LogPrintf(LOG_NOTICE, "3. Record Dialog done\n");
 	
 	WaitCursor();
 	timeChange = MIDI2Night(doc, useChan-1, mRecIndex, -1L);	/* Build Nightingale object list */
 
-	DebugPrintf("3. Generating Nightingale data structure\n");
+	LogPrintf(LOG_NOTICE, "3. Generating Nightingale data structure\n");
 	
 	if (timeChange>=0L) {
 		WaitCursor();
 		
-		DebugPrintf("4. Fixing up Nightingale data structure\n");
+		LogPrintf(LOG_NOTICE, "4. Fixing up Nightingale data structure\n");
 	
 		
 		endMeasL = EndMeasSearch(doc, doc->selEndL);
@@ -1168,7 +1168,7 @@ Boolean Record(Document *doc)
 						MeasSpaceProp(doc->selStartL), FALSE, FALSE);
 	}
 	else {
-		DebugPrintf("4. No Nightingale objects created\n");
+		LogPrintf(LOG_NOTICE, "4. No Nightingale objects created\n");
 	}
 
 Finished:
@@ -1621,7 +1621,7 @@ short GetAllNoteOns(NotePacket nOnBuffer[],
 				for (i = 0; i<pCM->length; i++)
 					nOnBuffer[n].data[i] = pCM->data[i];
 					
-				DebugPrintf("kk %ld nOnBufPos %ld n %ld tstamp %ld\n", kk, nOnBufPos, n, nOnBuffer[n].tStamp);
+				LogPrintf(LOG_NOTICE, "kk %ld nOnBufPos %ld n %ld tstamp %ld\n", kk, nOnBufPos, n, nOnBuffer[n].tStamp);
 				
 				n++;
 			}
@@ -1659,7 +1659,7 @@ short FindDeflamGap(Document *doc, NotePacket nOnBuffer[], short nOnBufLen, long
 		else 
 			nChord = 0;
 		
-		DebugPrintf("jj %ld lastTimeStamp %ld startBufferTime %ld nowTime %ld nowGap %ld nChord %ld \n", 
+		LogPrintf(LOG_NOTICE, "jj %ld lastTimeStamp %ld startBufferTime %ld nowTime %ld nowGap %ld nChord %ld \n", 
 						 jj, lastTimeStamp, startBufferTime, nowTime, nowGap, nChord);
 		return nChord;
 	}
@@ -1995,25 +1995,25 @@ Boolean StepRecord(
 				long tStamp = nOnBuffer[nOnBufLen-1].tStamp + midiNow;
 				//long endTime = tStamp+doc->deflamTime;
 				long endTime = nowTime+doc->deflamTime + 100;
-				//DebugPrintf("timenow %ld endTime %ld\n", nowTime, endTime);
+				//LogPrintf(LOG_NOTICE, "timenow %ld endTime %ld\n", nowTime, endTime);
 				while (GetMIDITime(0L)<endTime)
 					//;
 				nOnBufLen = GetAllNoteOns(nOnBuffer, nOnBufLen, useChan-1, 2);
 				long nowTime1 = GetMIDITime(0L);
 				nChord = FindDeflamGap(doc, nOnBuffer, nOnBufLen, nowTime1-midiNow, 20);
 				if (nChord > 0)
-					DebugPrintf("midiNow %ld tStamp %ld nowTime %ld endTime %ld nOnBufLen %ld \n", midiNow, tStamp, nowTime, endTime, nOnBufLen);
+					LogPrintf(LOG_NOTICE, "midiNow %ld tStamp %ld nowTime %ld endTime %ld nOnBufLen %ld \n", midiNow, tStamp, nowTime, endTime, nOnBufLen);
 					
 			}
 
 			if (nChord>0) {
 				int k = 0;
 				
-				DebugPrintf("midiNow %ld nowTime %ld - ",midiNow, nowTime);
+				LogPrintf(LOG_NOTICE, "midiNow %ld nowTime %ld - ",midiNow, nowTime);
 				for ( ; k<nOnBufLen; k++) {
-					DebugPrintf("k %ld tstamp %ld   ",k,nOnBuffer[k].tStamp);
+					LogPrintf(LOG_NOTICE, "k %ld tstamp %ld   ",k,nOnBuffer[k].tStamp);
 				}
-				DebugPrintf("nOnBufLen %ld nChord %ld\n", nOnBufLen, nChord);
+				LogPrintf(LOG_NOTICE, "nOnBufLen %ld nChord %ld\n", nOnBufLen, nChord);
 				
 				if (!paused) {
 					syncL = StepMIDI2Night(doc, nOnBuffer, nChord, symIndex, noteDur, 1);
@@ -2189,10 +2189,10 @@ Finished:
 static void PrintNote(MNOTEPTR pMNote, Boolean newLine)
 {
 #ifndef PUBLIC_VERSION
-	DebugPrintf("note=%3d chan=%2d ",pMNote->noteNumber,pMNote->channel);
-	DebugPrintf("vel=%3d/%3d ",pMNote->onVelocity,pMNote->offVelocity);
-	DebugPrintf("start=%5ld,dur=%4ld ms",pMNote->startTime, pMNote->duration);
-	if (newLine) DebugPrintf("\n");
+	LogPrintf(LOG_NOTICE, "note=%3d chan=%2d ",pMNote->noteNumber,pMNote->channel);
+	LogPrintf(LOG_NOTICE, "vel=%3d/%3d ",pMNote->onVelocity,pMNote->offVelocity);
+	LogPrintf(LOG_NOTICE, "start=%5ld,dur=%4ld ms",pMNote->startTime, pMNote->duration);
+	if (newLine) LogPrintf(LOG_NOTICE, "\n");
 #endif
 }
 
@@ -2202,14 +2202,14 @@ static void PrintNBuffer(Document *doc, NotePacket nOnBuffer[], short nOnBufLen)
 #ifndef PUBLIC_VERSION
 	short n, i;
 	
-	DebugPrintf("PNB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d nOnBufLen=%d:\n",
+	LogPrintf(LOG_NOTICE, "PNB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d nOnBufLen=%d:\n",
 					"built-in MIDI",
 					doc->deflamTime, config.minRecVelocity, config.minRecDuration, nOnBufLen);
 	for (n = 0; n<nOnBufLen; n++) {
-		DebugPrintf("  %x TS=%ld data=", nOnBuffer[n].flags, nOnBuffer[n].tStamp);
+		LogPrintf(LOG_NOTICE, "  %x TS=%ld data=", nOnBuffer[n].flags, nOnBuffer[n].tStamp);
 		for (i = 0; i<3; i++)
-			DebugPrintf("%x ", nOnBuffer[n].data[i]);
-		DebugPrintf("\n");
+			LogPrintf(LOG_NOTICE, "%x ", nOnBuffer[n].data[i]);
+		LogPrintf(LOG_NOTICE, "\n");
 	}
 #endif
 }
@@ -2224,17 +2224,17 @@ static void PrintBuffer(Document *doc, long mBufLen)
 	MMMIDIPacket *p;
 	long loc; short i, len;
 	
-	DebugPrintf("PB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d mBufLen=%ld:\n",
-					"built-in MIDI",
-					doc->deflamTime, config.minRecVelocity, config.minRecDuration, mBufLen);
+	LogPrintf(LOG_NOTICE, "PB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d mBufLen=%ld:\n",
+				"built-in MIDI",
+				doc->deflamTime, config.minRecVelocity, config.minRecDuration, mBufLen);
 	loc = 0L;
 	while (loc<mBufLen) {
 		p = (MMMIDIPacket *)&mPacketBuffer[loc];
 		len = p->len;
-		DebugPrintf("  %x len=%d TS=%ld data=", p->flags, p->len, p->tStamp);
+		LogPrintf(LOG_NOTICE, "  %x len=%d TS=%ld data=", p->flags, p->len, p->tStamp);
 		for (i = 0; i<p->len-MM_HDR_SIZE; i++)
-			DebugPrintf("%x ", p->data[i]);
-		DebugPrintf("\n");
+			LogPrintf(LOG_NOTICE, "%x ", p->data[i]);
+		LogPrintf(LOG_NOTICE, "\n");
 		/* 
 		 * Increment position to the next MMMIDIPacket, making sure we move to an EVEN
 		 * (word) offset.

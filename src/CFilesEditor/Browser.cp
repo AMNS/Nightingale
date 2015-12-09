@@ -484,7 +484,7 @@ static void SelSubObj(LINK pL, LINK subL)
 				SlurSEL(subL) = TRUE; break;
 			default:
 				SysBeep(1);
-				DebugPrintf("Browser/SelSubObj: can't select subobject of this type.");
+				LogPrintf(LOG_NOTICE, "Browser/SelSubObj: can't select subobject of this type.");
 		}	
 }
 
@@ -496,10 +496,10 @@ situations resulting (most likely) from bugs in Nightingale, so it tries to
 work in the safest possible way. */
 
 static void ChangeSelectObj(Document *doc, LINK pL,
-							short	index,		/* Index of subobject currently displayed */
-							short	mode,
-							Boolean selSub	/* If SMSelect, TRUE=select only current subobject */
-							)
+				short	index,		/* Index of subobject currently displayed */
+				short	mode,
+				Boolean selSub	/* If SMSelect, TRUE=select only current subobject */
+				)
 {
 	CONTEXT	context[MAXSTAVES+1];
 	Boolean	found;
@@ -1946,7 +1946,7 @@ void ShowContext(Document *doc)
 		theStaff = GetStaffFromSel(doc, &pL);
 		if (theStaff==NOONE) {
 			SysBeep(4);
-			DebugPrintf("Browser/ShowContext: can't get staff number.");
+			LogPrintf(LOG_NOTICE, "Browser/ShowContext: can't get staff number.");
 			return;
 		}
 	}

@@ -1,7 +1,7 @@
 /* File Debug2Utils.c - debugging functions. This is the other part of the 
 "DebugUtils" source file, made into a separate file long ago because DebugUtils.c
 was just too big -- e.g., with certain Mac development systems of the 1990's,
-approaching or exceeding their limit of 32K per module object code.
+approaching or exceeding their limit of 32K per module object code. 
 
 	DCheckVoiceTable		DCheckRedundKS			DCheckRedundTS
 	DCheckMeasDur			DCheckUnisons
@@ -29,6 +29,7 @@ approaching or exceeding their limit of 32K per module object code.
 #define ulong unsigned long
 
 #define DDB
+
 
 /* ---------------------------------------------------------- DCheckVoiceTable -- */
 /* Check the voice-mapping table and its relationship to the object list:

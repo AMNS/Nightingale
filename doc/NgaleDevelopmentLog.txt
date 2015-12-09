@@ -1029,15 +1029,15 @@ must be returning pmRPaper unchanged; I dunno what can I do about that.
 
 -------------------------------------------------------------------------------
 
-29 Nov. - 2 Dec.
+29 Nov. - 7 Dec.
 
-- DebugPrintf messages seem to go to /dev/null unless we're running inside Xcode, and
-chances to run inside Xcode (2.5!) are likely to gradually fade away. Solution:
+DebugPrintf messages seem to go to /dev/null unless we're running inside Xcode, and
+chances to run inside Xcode (2.5!) are very likely to gradually fade away. Solution:
 DebugPrintf is #define'd simply as printf. It should be trivial to #define it instead as
 the BSD function syslog(3) ...though it'd be nicer to continue to have messages go to
 Xcode _and_ send 'em to the log.
 
-Solution: call openlog(p1, LOG_PERROR, p3) before calls to syslog()!
+Solution: call openlog(p1, LOG_PERROR, LOG_USER) before calls to syslog()!
 
 ?? Does this work? I saw some Nightingale messages in the system log, but then nothing
 seemed to be there! Maybe it's just scrolled out of the viewable area... Where _is_
@@ -1055,3 +1055,37 @@ initialization code; change COMPLAINx macros in DebugUtils.h from using DebugPri
 to LogPrint(LOG_NOTICE, ...) => it works! But probably should use priority level
 LOG_ERR.
 
+This has all been on my G5 running OS 10.5. Test on my old MacBook running OS 10.6 =>
+OK, and even levels LOG_INFO and LOG_DEBUG appear in the log.
+
+OK, but we often call DebugPrintf() with partial lines or occasionally with multiple
+lines. Add support for the former only, & rename xxxPrint functions to xxxPrintf =>
+?!? hangs/crashes! -- apparently in strlen(). Run log contains:
+
+1------inStr='A simple one-line LogPrintf.' fullLine=1 &inStr=184f78 pch=184f78 len=28
+Ngale: A simple one-line LogPrintf.
+1------inStr='Another one-line LogPrintf.' fullLine=1 &inStr=184f78 pch=184f78 len=27
+Ngale: Another one-line LogPrintf.
+1------inStr='This line is ' fullLine=0 &inStr=184f78 pch=184f78 len=13
+1------inStr='built from 2 pieces.' fullLine=1 &inStr=184f78 pch=184f78 len=20
+Ngale: This line is built from 2 pieces.
+1------inStr='This line was ' fullLine=0 &inStr=184f78 pch=184f78 len=14
+1------inStr='built from 3' fullLine=0 &inStr=184f78 pch=184f78 len=12
+1------inStr='pieces.' fullLine=1 &inStr=184f78 pch=184f78 len=7
+Ngale: This line was built from 3pieces.
+1------inStr='DEBUG 'M'-Std: ' fullLine=0 &inStr=184f78 pch=184f78 len=15
+1------inStr='CHK MAIN:' fullLine=0 &inStr=184f78 pch=184f78 len=9
+1------inStr='Discont. sel, 0 objs in range, 0 sel, 10 total.  0 voices.' fullLine=1 &inStr=184f78 pch=184f78 len=58
+Ngale: DEBUG 'M'-Std: CHK MAIN:Discont. sel, 0 objs in range, 0 sel, 10 total.  0 voices.
+1------inStr='    CHK MASTER: ' fullLine=0 &inStr=184f78 pch=184f78 len=16
+1------inStr=' Done.' fullLine=0 &inStr=184f78 pch=184f78 len=6
+1------inStr='    CHK CLIP: ' fullLine=0 &inStr=184f78 pch=184f78 len=14
+1------inStr=' Done.' fullLine=0 &inStr=184f78 pch=184f78 len=6
+ 
+!! It looks like strlen() and strcat() both crash if src is the null string, at least
+on my G5. It's really hard to believe such a horrendous bug exists _and_ I didn't know
+about it, but e.g. putting "if (pch!='\0')" in front of
+    	strcat(outStr, pch);
+definitely seems to make the problem go away.
+
+Replace ca. 300 instances of "" to "LogPrintf(LOG_NOTICE, "... done.

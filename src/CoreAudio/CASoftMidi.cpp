@@ -23,7 +23,7 @@ OSStatus CreateAUMIDIController()
 
 // This call creates the Graph and the Synth unit...
 
-OSStatus	CreateAUGraph (AUGraph &outGraph, AudioUnit &outSynth)
+OSStatus CreateAUGraph (AUGraph &outGraph, AudioUnit &outSynth)
 {
 	OSStatus result;
 	AUNode synthNode, limiterNode, outNode;	//create the nodes of the graph
@@ -82,7 +82,7 @@ int PlaySoftMIDI (int argc, const char * argv[]) {
 	OSStatus result;
 	char* bankPath = 0;
 	
-	UInt8 midiChannelInUse = 0; //we're using midi channel 1...
+	UInt8 midiChannelInUse = 0; //we're using MIDI channel 1...
 	
 		// this is the only option to main that we have...
 		// just the full path of the sample bank...
@@ -198,7 +198,7 @@ Boolean SetupSoftMIDI(Byte *activeChannel)
  	}
  	
 	OSStatus result = noErr;
-	UInt8 midiChannelInUse = 0; 									//we're using midi channel 1...
+	UInt8 midiChannelInUse = 0; 								// we're using MIDI channel 1...
 	UInt8 midiChannel;
 	
 	require_noerr (result = CreateAUMIDIController (), home);
@@ -206,7 +206,7 @@ Boolean SetupSoftMIDI(Byte *activeChannel)
 	require_noerr (result = CreateAUGraph (graph, synthUnit), home);
 	
 	if (debug) {
-		DebugPrintf("1. created AU graph\n");
+		LogPrintf(LOG_NOTICE, "1. created AU graph\n");
 	}	
 	
 		// ok we're set up to go - initialize and start the graph
@@ -225,7 +225,7 @@ Boolean SetupSoftMIDI(Byte *activeChannel)
 	require_noerr (result = MusicDeviceMIDIEvent(synthUnit, 
 								kMidiMessage_ControlChange << 4 | midiChannelInUse, 
 								kMidiMessage_BankMSBControl, 0,
-								0), 										//sample offset
+								0),										//sample offset
 								home);
 
 	// This will be reset
@@ -234,19 +234,19 @@ Boolean SetupSoftMIDI(Byte *activeChannel)
 								kMidiMessage_ProgramChange << 4 | midiChannelInUse, 
 								0, 										//prog change num
 								0,
-								0), 										//sample offset
+								0), 									//sample offset
 								home);
 
-	CAShow (graph); 													// prints out the graph so we can see what it looks like...
+	CAShow (graph); 										// prints out the graph so we can see what it looks like...
 
 	if (debug) {
-		DebugPrintf("2. set soundbank\n");
+		LogPrintf(LOG_NOTICE, "2. set soundbank\n");
 	}
 		
 	require_noerr (result = AUGraphStart (graph), home);
 	
 	if (debug) {
-		DebugPrintf("3. AU graph started. result = %ld\n", result);
+		LogPrintf(LOG_NOTICE, "3. AU graph started. result = %ld\n", result);
 	}
 	
 	if (debug) {
@@ -273,7 +273,7 @@ Boolean SetupSoftMIDI(const char *bankPath, Byte *activeChannel)
 {
 	OSStatus result;
 	
-	UInt8 midiChannelInUse = 0; 							//we're using midi channel 1...
+	UInt8 midiChannelInUse = 0; 							// we're using MIDI channel 1...
 	
 		// bankPath is the full path of the sample bank...
 		//		

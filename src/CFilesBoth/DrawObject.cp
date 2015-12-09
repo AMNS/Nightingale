@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	DrawObject.c																		*
-*	PROJ:	Nightingale, rev. for v.3.5													*
-*	DESC:	General object-drawing routines												*
+*	FILE:	DrawObject.c													*
+*	PROJ:	Nightingale, rev. for v.3.5										*
+*	DESC:	General object-drawing routines									*
 ****************************************************************************/
 
 /*											NOTICE
@@ -563,7 +563,7 @@ void Draw1Staff(Document *doc,
 			else
 				PS_MusSize(doc, 3);
 				
-//			DebugPrintf("Draw1Staff: ptSize %ld stfHt %ld fontSzOffst %ld lines %ld\n", 
+//			LogPrintf(LOG_NOTICE, "Draw1Staff: ptSize %ld stfHt %ld fontSzOffst %ld lines %ld\n", 
 //						ptSize, pContext->staffHeight, config.musFontSizeOffset, lines);
 			
 			if (showLines>0) {
@@ -1277,7 +1277,7 @@ PushLock(DYNAMheap);
 						xd += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace));
 						yd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace));
 						xp=d2p(xd); yp=d2p(yd);
-						//DebugPrintf("DrawDYNAMIC: glyph=%c pL=%d xp=%d yp=%d size=%d reallyDraw=%d\n",
+						//LogPrintf(LOG_NOTICE, "DrawDYNAMIC: glyph=%c pL=%d xp=%d yp=%d size=%d reallyDraw=%d\n",
 						//	glyph, pL, xp, yp, useTxSize, reallyDraw);
 						aDynamic = GetPADYNAMIC(aDynamicL);
 						if (reallyDraw) {
@@ -1626,7 +1626,7 @@ Boolean GetGraphicDBox(Document *doc,
 			
 			if (expandN) {
 				if (!ExpandString(string, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-					DebugPrintf("GetGraphicDBox: ExpandString failed.\n");
+					LogPrintf(LOG_NOTICE, "GetGraphicDBox: ExpandString failed.\n");
 			}
 			else PStrCopy((StringPtr)PCopy(theStrOffset), string);
 			pStr = string;
@@ -1916,7 +1916,7 @@ PushLock(GRAPHICheap);
 	aGraphicL = FirstSubLINK(pL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	theStrOffset = aGraphic->string;
-	//DebugPrintf("DrawGraphic: expandN=%d str='%s'\n", expandN, PToCString(PCopy(aGraphic->string)));
+	//LogPrintf(LOG_NOTICE, "DrawGraphic: expandN=%d str='%s'\n", expandN, PToCString(PCopy(aGraphic->string)));
 
 	switch (outputTo) {
 		case toScreen:
@@ -1978,7 +1978,7 @@ PushLock(GRAPHICheap);
 						else {
 							if (expandN) {
 								if (!ExpandString(strToDraw, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-									DebugPrintf("DrawGRAPHIC: ExpandString failed.\n");
+									LogPrintf(LOG_NOTICE, "DrawGRAPHIC: ExpandString failed.\n");
 							}
 							else PStrCopy((StringPtr)PCopy(theStrOffset), strToDraw);
 
@@ -2073,7 +2073,7 @@ PushLock(GRAPHICheap);
 					else {
 						if (expandN) {
 							if (!ExpandString(strToDraw, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-								DebugPrintf("DrawGRAPHIC: ExpandString failed.\n");
+								LogPrintf(LOG_NOTICE, "DrawGRAPHIC: ExpandString failed.\n");
 						}
 						else PStrCopy((StringPtr)PCopy(theStrOffset), strToDraw);
 					
@@ -2167,7 +2167,7 @@ PushLock(TEMPOheap);
 	theStrOffset = p->string;
 	if (p->expanded) {
 		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-			DebugPrintf("GetGraphicDBox: ExpandString failed.\n");
+			LogPrintf(LOG_NOTICE, "GetGraphicDBox: ExpandString failed.\n");
 	}
 	else PStrCopy((StringPtr)PCopy(theStrOffset), tempoStr);
 

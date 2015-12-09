@@ -314,7 +314,7 @@ short MakeTConvertTable(
 #ifdef TDEBUG
 {	short i;
 	for (i = 0; i<tempoCount; i++)
-		DebugPrintf("tConvertTab[%d].microbeats=%ld pDurTime=%ld realTime=%ld\n",
+		LogPrintf(LOG_NOTICE, "tConvertTab[%d].microbeats=%ld pDurTime=%ld realTime=%ld\n",
 			i, tConvertTab[i].microbeats, tConvertTab[i].pDurTime, tConvertTab[i].realTime);
 }
 #endif

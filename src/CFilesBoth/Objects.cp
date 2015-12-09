@@ -4,20 +4,20 @@
 	DESC:	Object-level routines, mostly for specific object types. Most
 			generic object-handling routines are in Copy.c, CrossLinks.c, and
 			DSUtils.c.
-		CopyModNRList			DuplicateObject		DuplicNC
+		CopyModNRList			DuplicateObject			DuplicNC
 		InitObject				SetObject				GrowObject
 		SimplePlayDur			CalcPlayDur
 		IsRestPosLower			SetupNote				SetupGRNote
-		InitPart					InitStaff				InitClef
+		InitPart				InitStaff				InitClef
 		InitKeySig				AddKSItem				SetupKeySig
 		InitTimeSig				InitMeasure				InitPSMeasure
 		InitRptEnd				InitDynamic				SetupHairpin
 		InitGraphic				SetMeasVisible			ChordHasUnison
-		ChordNoteToRight		ChordNoteToLeft		FixTieIndices
+		ChordNoteToRight		ChordNoteToLeft			FixTieIndices
 		NormalStemUpDown		GetNCYStem				FixChordForYStem
-		FixSyncForChord		FixSyncForNoChord		FixNoteForClef
-		GetGRCYStem				FixGRChordForYStem	FixGRSyncForChord
-		FixGRSyncNote			FixGRSyncForNoChord	FixAugDotPos
+		FixSyncForChord			FixSyncForNoChord		FixNoteForClef
+		GetGRCYStem				FixGRChordForYStem		FixGRSyncForChord
+		FixGRSyncNote			FixGRSyncForNoChord		FixAugDotPos
 		ToggleAugDotPos
 /***************************************************************************/
 
@@ -101,7 +101,7 @@ LINK DuplicateObject(short type, LINK objL, Boolean selectedOnly,
 	Boolean subsNeeded = TRUE;
 	
 #ifdef DODEBUG
-DebugPrintf("DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
+LogPrintf(LOG_NOTICE, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 #endif
 
 	if (objL==NILINK) {
@@ -255,8 +255,8 @@ DebugPrintf("DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 	
 #ifdef DODEBUG
 if (type==TEMPOtype) {
-DebugPrintf("\tSub-object list is %d long\n", subcount);
-DebugPrintf("\tsubsNeeded=%d\n", subsNeeded);
+LogPrintf(LOG_NOTICE, "\tSub-object list is %d long\n", subcount);
+LogPrintf(LOG_NOTICE, "\tsubsNeeded=%d\n", subsNeeded);
 }
 #endif
 	if (subcount<=0 && subsNeeded) return NILINK;
@@ -270,11 +270,11 @@ DebugPrintf("\tsubsNeeded=%d\n", subsNeeded);
 	if (newObjL == NILINK) return NILINK;
 	
 /*
-DebugPrintf("\tLINK of new Object = %d\n",newObjL);
-DebugPrintf("\tsizeof(SUPEROBJECT) = %ld\n",(long)sizeof(SUPEROBJECT));
-DebugPrintf("\tsizeof(Object from OBJheap) = %ld\n",(long)OBJheap->objSize);
-DebugPrintf("\tsizeof(ANOTE) = %ld\n",(long)sizeof(ANOTE));
-DebugPrintf("\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap->objSize);
+LogPrintf(LOG_NOTICE, "\tLINK of new Object = %d\n",newObjL);
+LogPrintf(LOG_NOTICE, "\tsizeof(SUPEROBJECT) = %ld\n",(long)sizeof(SUPEROBJECT));
+LogPrintf(LOG_NOTICE, "\tsizeof(Object from OBJheap) = %ld\n",(long)OBJheap->objSize);
+LogPrintf(LOG_NOTICE, "\tsizeof(ANOTE) = %ld\n",(long)sizeof(ANOTE));
+LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap->objSize);
 */
 
 	/* Copy obj's information into newObj's information */

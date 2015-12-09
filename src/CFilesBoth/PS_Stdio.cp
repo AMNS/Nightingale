@@ -1782,7 +1782,7 @@ OSErr PS_MusSize(Document *doc, short ptSize)
 			
 			if (wStem<MIN_LINEWIDTH || wBar<MIN_LINEWIDTH || wLedger<MIN_LINEWIDTH || wStaff<MIN_LINEWIDTH) {
 				if (firstTime)
-					DebugPrintf("PS_MusSize: some lines are very thin. MIN_LINEWIDTH=%d; wStem=%d, wBar=%d, wLedger=%d, wStaff=%d\n",
+					LogPrintf(LOG_NOTICE, "PS_MusSize: some lines are very thin. MIN_LINEWIDTH=%d; wStem=%d, wBar=%d, wLedger=%d, wStaff=%d\n",
 						MIN_LINEWIDTH, wStem, wBar, wLedger, wStaff);
 				firstTime = FALSE;
 				thinLines = TRUE;

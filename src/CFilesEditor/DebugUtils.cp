@@ -795,7 +795,7 @@ short DCheckNode(
 					 */
 					if (d2pt(pSystem->systemRect.right-2*ExtraSysWidth(doc))>doc->marginRect.right)
 							COMPLAIN("*DCheckNode: SYSTEM AT %u RECT PAST RIGHT MARGIN.\n", pL);
-//DebugPrintf("sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->systemRect.right, ExtraSysWidth(doc), doc->marginRect.right);
+//LogPrintf(LOG_NOTICE, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->systemRect.right, ExtraSysWidth(doc), doc->marginRect.right);
 
 					if (pSystem->lSystem) {
 						lSystem = GetPSYSTEM(pSystem->lSystem);				

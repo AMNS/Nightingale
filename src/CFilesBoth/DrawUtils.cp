@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	DrawUtils.c																			*
-*	PROJ:	Nightingale, rev. for v.3.5													*
-*	DESC:	Drawing utility routines														*
+*	FILE:	DrawUtils.c														*
+*	PROJ:	Nightingale, rev. for v.3.5										*
+*	DESC:	Drawing utility routines										*
 ****************************************************************************/
 
 /*											NOTICE
@@ -2187,7 +2187,7 @@ void MaySetPSMusSize(Document *doc, PCONTEXT pContext)
 			PS_MusSize(doc, d2pt(stfHeight)+config.musFontSizeOffset);			
 		}
 		
-		DebugPrintf("MaySetPSMusSize: calling PS_MusSize, stfHt %ld, musFontSzOffst %ld\n", pContext->staffHeight,
+		LogPrintf(LOG_NOTICE, "MaySetPSMusSize: calling PS_MusSize, stfHt %ld, musFontSzOffst %ld\n", pContext->staffHeight,
 																						config.musFontSizeOffset);		
 	}
 }

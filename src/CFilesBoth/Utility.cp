@@ -1,18 +1,18 @@
 /***************************************************************************
-*	FILE:	Utility.c																			*
-*	PROJ:	Nightingale, rev. for v. 3.5													*
-*	DESC:	Miscellaneous utility routines that needed a home						*
+*	FILE:	Utility.c														*
+*	PROJ:	Nightingale, rev. for v. 3.5									*
+*	DESC:	Miscellaneous utility routines that needed a home				*
 		CalcYStem				GetNoteYStem			GetGRNoteYStem
 		ShortenStem				GetCStemInfo			GetStemInfo
 		GetCGRStemInfo			GetGRStemInfo
 		GetLineAugDotPos		ExtraSysWidth			MyDebugPrintf
-		ApplHeapCheck			Char2Dur					Dur2Char
+		ApplHeapCheck			Char2Dur				Dur2Char
 		GetSymTableIndex		SymType					Objtype2Char
 		StrToObjRect			GetNFontInfo			NStringWidth
-		NPtStringWidth			NPtGraphicWidth		GetNPtStringBBox
+		NPtStringWidth			NPtGraphicWidth			GetNPtStringBBox
 		MaxNameWidth			PartNameMargin
 		SetFont					StringRect
-		AllocContext			AllocSpTimeInfo		NewGrafPort
+		AllocContext			AllocSpTimeInfo			NewGrafPort
 		DisposGrafPort			SamePoint
 		D2Rect					Rect2D					PtRect2D
 		AddDPt					SetDPt					SetDRect
@@ -20,9 +20,9 @@
 		GCD						RoundDouble				RoundSignedInt
 		InterpY					FindIntInString
 		BlockCompare			RelIndexToSize			GetTextSize
-		GetFontIndex			User2HeaderFontNum	Header2UserFontNum
+		GetFontIndex			User2HeaderFontNum		Header2UserFontNum
 		Rect2Window				Pt2Window
-		Pt2Paper					GlobalToPaper			RefreshScreen
+		Pt2Paper				GlobalToPaper			RefreshScreen
 		InitSleepMS				SleepMS					SleepTicks
 		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
 		PlayResource			TrapAvailable			
@@ -73,14 +73,14 @@ DDIST CalcYStem(
 		if (nflags>1) qtrSp += 4*(nflags-1);			/* Every flag after 1st adds a space */
 	}
 	dLen = qtrSp*staffHeight/(4*(staffLines-1));
-	ystem = (stemDown ? yhead+dLen : yhead-dLen);	/* Initially, set length to <qtrSp> */
+	ystem = (stemDown ? yhead+dLen : yhead-dLen);		/* Initially, set length to <qtrSp> */
 
 	if (!noExtend) {
 		/* ??If staffLines is even, extended stem end terminates in mid-space. OK? */
 		midline = staffHeight/2;
 		if (ABS(yhead-midline)>dLen &&					/* Would ending at midline lengthen */
 				ABS(ystem-midline)<ABS(yhead-midline))	/*   without changing direction? */
-			ystem = midline;									/* Yes, end there */
+			ystem = midline;							/* Yes, end there */
 	}
 	return ystem;
 }
@@ -97,9 +97,9 @@ DDIST GetNoteYStem(Document *doc, LINK syncL, LINK aNoteL, CONTEXT context)
 	
 	stemDown = GetStemInfo(doc, syncL, aNoteL, &qStemLen);
 	ystem = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
-								stemDown,
-								context.staffHeight, context.staffLines,
-								qStemLen, FALSE);
+							stemDown,
+							context.staffHeight, context.staffLines,
+							qStemLen, FALSE);
 	return ystem;
 }
 
@@ -131,15 +131,15 @@ stem; intended for use in 2-voice notation. */
 Boolean ShortenStem(LINK aNoteL, CONTEXT context, Boolean stemDown)
 {
 	PANOTE 	aNote;
-	short		halfLn, midCHalfLn;
-	QDIST		yqpit;
+	short	halfLn, midCHalfLn;
+	QDIST	yqpit;
 	
 	midCHalfLn = ClefMiddleCHalfLn(context.clefType);				/* Get middle C staff pos. */		
 	aNote = GetPANOTE(aNoteL);
 	yqpit = aNote->yqpit+halfLn2qd(midCHalfLn);						/* For notehead... */
-	halfLn = qd2halfLn(yqpit);												/* Half-lines below stftop */
+	halfLn = qd2halfLn(yqpit);										/* Half-lines below stftop */
 	
-	if (halfLn<(0+STRICT_SHORTSTEM) && !stemDown) return TRUE;				/* Above staff so shorten */
+	if (halfLn<(0+STRICT_SHORTSTEM) && !stemDown) return TRUE;			/* Above staff so shorten */
 	if (halfLn>(2*(context.staffLines-1)-STRICT_SHORTSTEM) && stemDown)	/* Below staff so shorten */
 		 return TRUE;
 	return FALSE;
@@ -152,7 +152,7 @@ function value) whether it should be stem down. Considers voice role but assumes
 note is not in a chord. */
 
 Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context, 
-							short *qStemLen)
+						short *qStemLen)
 {
 	Byte voiceRole; PANOTE aNote;
 	short halfLn, midCHalfLn; QDIST yqpit;
@@ -163,10 +163,10 @@ Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context
 
 	switch (voiceRole) {
 		case SINGLE_DI:
-			midCHalfLn = ClefMiddleCHalfLn(context.clefType);	/* Get middle C staff pos. */		
+			midCHalfLn = ClefMiddleCHalfLn(context.clefType);		/* Get middle C staff pos. */		
 			aNote = GetPANOTE(aNoteL);
 			yqpit = aNote->yqpit+halfLn2qd(midCHalfLn);
-			halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
+			halfLn = qd2halfLn(yqpit);								/* Number of half lines from stftop */
 			stemDown = (halfLn<=context.staffLines-1);
 			*qStemLen = QSTEMLEN(TRUE, ShortenStem(aNoteL, context, stemDown));
 			break;
@@ -210,7 +210,7 @@ Boolean GetStemInfo(Document *doc, LINK syncL, LINK aNoteL, short *qStemLen)
 the grace note is not in a chord. */
 
 Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /*context*/,
-								short *qStemLen)
+							short *qStemLen)
 {
 	Byte voiceRole; Boolean stemDown;
 	LINK partL; PPARTINFO pPart;
@@ -255,12 +255,12 @@ Boolean GetGRStemInfo(Document *doc, LINK grSyncL, LINK aGRNoteL, short *qStemLe
 /* Return the normal augmentation dot y-position for a note on a line. */
 							
 short GetLineAugDotPos(
-			short		voiceRole,	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+			short	voiceRole,	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
 			Boolean	stemDown
 			)
 {
 	if (voiceRole==SINGLE_DI) return 1;
-	else							  return (stemDown? 3 :1);
+	else					  return (stemDown? 3 : 1);
 }
 
 
@@ -361,7 +361,7 @@ char Objtype2Char(SignedByte objtype)
 	for (j=0; j<nsyms; j++)
 		if (objtype==symtable[j].objtype)
 			return symtable[j].symcode;						/* Found it */
-	return '\0';													/* Not found - illegal */
+	return '\0';											/* Not found - illegal */
 }
 
 
@@ -370,9 +370,9 @@ char Objtype2Char(SignedByte objtype)
 
 Rect StrToObjRect(unsigned char *string)
 {
-	short		nchars;
-	Rect		strRect, tempR;
-	Boolean  rectNotSet = TRUE;
+	short	nchars;
+	Rect	strRect, tempR;
+	Boolean	rectNotSet = TRUE;
 	
 	nchars = string[0];
 	while (nchars > 0) {
@@ -425,7 +425,7 @@ given font, size and style. */
 
 short NStringWidth(Document */*doc*/, const Str255 string, short font, short size, short style)
 {
-	short		oldFont, oldSize, oldStyle, width;
+	short	oldFont, oldSize, oldStyle, width;
 
 	oldFont = GetPortTxFont();
 	oldSize = GetPortTxSize();
@@ -490,7 +490,7 @@ short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 {
 	short		font, fontSize, fontStyle;
 	PGRAPHIC	p;
-	Str255	string;
+	Str255		string;
 	DDIST		lineSpace;
 	
 	PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->string),
@@ -525,7 +525,7 @@ void GetNPtStringBBox(
 			short fontID,
 			short size,					/* in points, i.e., pixels at 100% magnification */
 			short style,
-			Boolean multiLine,		/* has multiple lines, delimited by CH_CR */
+			Boolean multiLine,			/* has multiple lines, delimited by CH_CR */
 			Rect *bBox)					/* Bounding box for string, with TOP_LEFT at 0,0 and no margin */
 {
 	short width, ascent, descent, nLines;
@@ -533,7 +533,7 @@ void GetNPtStringBBox(
 
 	nLines = 0;
 
-	if (multiLine) {									/* Count lines; take width from longest line. */
+	if (multiLine) {							/* Count lines; take width from longest line. */
 		short i, j, len, count, wid;
 		Str255 str;
 		Byte *p;
@@ -634,8 +634,8 @@ short MaxNameWidth(
 /* -------------------------------------------------------------- PartNameMargin -- */
 
 double PartNameMargin(
-				Document *doc,
-				short nameCode)			/* 0=show none, 1=show abbrev., 2=show full names */
+			Document *doc,
+			short nameCode)			/* 0=show none, 1=show abbrev., 2=show full names */
 {
 	short nameWidth;
 	double inchDist;
@@ -663,7 +663,7 @@ void SetFont(short which)
 		default:
 			MayErrMsg("SetFont: illegal argument");	/* and drop thru to... */
 		case 0:	
-			TextFont(0);									/* Set to the system font */
+			TextFont(0);								/* Set to the system font */
 			TextSize(12);
 			break;
 		case 1:	
@@ -671,11 +671,11 @@ void SetFont(short which)
 			TextSize(textFontSmallSize);
 			break;
 		case 2:	
-			TextFont(128);									/* (Unused) Set to small Boston II */
+			TextFont(128);								/* (Unused) Set to small Boston II */
 			TextSize(8);
 			break;
 		case 3:	
-			TextFont(32401);								/* Set to tiny LittleNight (really about 7 pt.) */
+			TextFont(32401);							/* Set to tiny LittleNight (really about 7 pt.) */
 			TextSize(9);
 			break;
 		case 4:	
@@ -684,7 +684,7 @@ void SetFont(short which)
 			break;
 	}
 	
-	TextFace(0);											/* Plain */
+	TextFace(0);										/* Plain */
 }
 
 /* ------------------------------------------------ AllocContext,AllocSpTimeInfo -- */
@@ -727,13 +727,13 @@ locked on return.  Returns the new GWorldPtr, or NULL if error. */
 
 GWorldPtr MakeGWorld(short width, short height, Boolean lock)
 {
-	CGrafPtr			origGrafPtr;
-	GDHandle			origDevH;
+	CGrafPtr		origGrafPtr;
+	GDHandle		origDevH;
 	GWorldPtr		theGWorld;
 	PixMapHandle	pixMapH;
-	Rect				portRect;
+	Rect			portRect;
 	Boolean			result;
-	QDErr				err;
+	QDErr			err;
 
 	SetRect(&portRect, 0, 0, width, height);
 
@@ -833,8 +833,8 @@ GrafPtr NewGrafPort(short width, short height)	/* required size of requested Gra
 {
 
 	GrafPtr	oldPort,
-				ourPort;
-	Rect		ourPortRect;	/* enclosing rectangle for our GrafPort */
+			ourPort;
+	Rect	ourPortRect;		/* enclosing rectangle for our GrafPort */
 	
 	GetPort(&oldPort);
 	ourPort = CreateNewPort();
@@ -846,7 +846,7 @@ GrafPtr NewGrafPort(short width, short height)	/* required size of requested Gra
 	ClipRect(&ourPortRect);
 	EraseRect(&ourPortRect);
 	
-	SetPort(oldPort);													/* restore original GrafPort */
+	SetPort(oldPort);										/* restore original GrafPort */
 	return ourPort;
 }
 
@@ -1020,7 +1020,7 @@ short InterpY(short x0, short y0, short x1, short y1, short ptx)
 {
 	long prop, dyBig; short y;
 
-	if (x1==x0) return y1;												/* Avoid possible divide by 0 */
+	if (x1==x0) return y1;										/* Avoid possible divide by 0 */
 
 	prop = 10000L*(long)(ptx-x0)/(long)(x1-x0);
 	dyBig = prop*(y1-y0);
@@ -1040,14 +1040,14 @@ long FindIntInString(unsigned char *string)
 	foundDigits = FALSE;
 	for (i = 1; i<=string[0]; i++) {
 		if (isdigit(string[i])) {
-			if (number>BIGNUM/10L) return number;		/* Avoid overflow */
+			if (number>BIGNUM/10L) return number;			/* Avoid overflow */
 			digit = string[i]-'0';
 			number = (10L*number)+digit;
 			foundDigits = TRUE;
 		}
 		else if (foundDigits)
 			return number;
-		else ;													/* No digits found yet: keep going */
+		else ;												/* No digits found yet: keep going */
 	}
 	
 	return (foundDigits? number : -1L);
@@ -1296,7 +1296,7 @@ void InitSleepMS()
 	countPerTick = loopCount/elapsedTicks;
 	oneMSDelayCount = (60L*countPerTick)/1000L;	/* Convert "per tick" to "per ms." */
 #ifndef PUBLIC_VERSION
-	DebugPrintf("loopCount=%ld elapsedTicks=%ld oneMSDelayCount=%ld\n", loopCount,
+	LogPrintf(LOG_NOTICE, "loopCount=%ld elapsedTicks=%ld oneMSDelayCount=%ld\n", loopCount,
 						elapsedTicks, oneMSDelayCount);
 #endif
 }
@@ -1450,7 +1450,7 @@ be done in a completion routine somewhere. */
 short PlayResource(Handle snd, Boolean sync)
 	{
 		short err = noErr;
-		static SndChannel *theChanPtr;		/* Channel storage must come from heap */
+		static SndChannel *theChanPtr;			/* Channel storage must come from heap */
 		static Handle theSound;					/* Initially NULL */
 		
 		/* First turn any current sound off if we're called for any reason */
@@ -1462,7 +1462,7 @@ short PlayResource(Handle snd, Boolean sync)
 			}
 		if (snd==NULL || err!=noErr) return(err);
 		
-		MoveHHi(snd); HLock(snd);				/* Get data out of the way (may not be necessary) */
+		MoveHHi(snd); HLock(snd);							/* Get data out of the way (may not be necessary) */
 
 		if (sync) {
 			err = SndPlay(NULL,(SndListHandle)snd,FALSE);	/* Doesn't return until sound is finished */
@@ -1475,7 +1475,7 @@ short PlayResource(Handle snd, Boolean sync)
 		 	theChanPtr = (SndChannel *)NewPtr(sizeof(SndChannel));
 			if (!(err = SndNewChannel(&theChanPtr,0,0L,NULL))) {
 			
-				err = SndPlay(theChanPtr,(SndListHandle)snd,TRUE);			/* Channel initialized: start it up */
+				err = SndPlay(theChanPtr,(SndListHandle)snd,TRUE);	/* Channel initialized: start it up */
 				
 				/* Continues playing after we return: we'll unlock sound when channel is disposed */
 				
@@ -1485,3 +1485,87 @@ short PlayResource(Handle snd, Boolean sync)
 			}
 		return(err);
 	}
+
+/* ------------------------------------------------------------ Log-file handling -- */
+
+static Boolean HaveNewline(const char *str);
+
+char inStr[1000], outStr[1000];
+
+static Boolean HaveNewline(const char *str)
+{
+	while (*str!='\0') {
+		if (*str=='\n') return TRUE;
+		str++;
+	}
+	return FALSE;
+}
+
+
+Boolean VLogPrintf(const char *fmt, va_list argp)
+{
+	//if (strlen(inStr)+strlen(str)>=1000) return FALSE;	??How to check for buffer overflow?
+	vsprintf(inStr, fmt, argp);
+	return TRUE;
+}
+
+
+/* Display in the system log and maybe on stderr the message described by the second and
+following parameters. The message may contain at most one "\n". There are two cases:
+(1) It may be terminated by "\n", i.e., it may be a full line or a chunk ending a line.
+(2) If it's not terminated by "\n", it's a partial line, to be completed on a later call.
+In case #1, we send the complete line to syslog(); in case #2, just add it to a buffer.  */
+
+Boolean LogPrintf(short priLevel, const char *fmt, ...)
+{
+	Boolean okay, fullLine;
+	char *pch;
+	
+	va_list argp; 
+	va_start(argp, fmt); 
+	okay = VLogPrintf(fmt, argp); 
+	va_end(argp);
+	/* inStr now contains the results of this call. Handle both cases. */
+	fullLine = HaveNewline(inStr);
+	pch = strtok(inStr, "\n");
+	//LogPrintf(LOG_NOTICE, "1------inStr='%s' fullLine=%d &inStr=%x pch=%x\n",
+	//			inStr, fullLine, &inStr, pch);
+	if (pch!='\0') strcat(outStr, pch);
+	if (fullLine) {
+		syslog(priLevel, outStr);
+		outStr[0] = '\0';										/* Set <outStr> to empty */
+	}
+	
+	return okay;
+}
+
+short InitLogPrintf()
+{
+	openlog("Ngale", LOG_PERROR, LOG_USER);					/* Print to stderr as well as log */
+	int oldLevelMask = setlogmask(LOG_UPTO(LOG_DEBUG));
+	outStr[0] = '\0';										/* Set <outStr> to empty */
+
+#ifdef TEST_LOGGING_FUNCS
+LogPrintf(LOG_NOTICE, "A simple one-line LogPrintf.\n");
+LogPrintf(LOG_NOTICE, "Another one-line LogPrintf.\n");
+LogPrintf(LOG_NOTICE, "This line is ");
+LogPrintf(LOG_NOTICE, "built from 2 pieces.\n");
+LogPrintf(LOG_NOTICE, "This line was ");
+LogPrintf(LOG_NOTICE, "built from 3 ");
+LogPrintf(LOG_NOTICE, "pieces.\n");
+#endif
+
+#ifdef TEST_LOGGING_LEVELS
+LogPrintf(LOG_CRIT, "InitLogPrintf: oldLevelMask = %d\n", oldLevelMask);
+SysBeep(1);
+LogPrintf(LOG_ALERT, "InitLogPrintf: LogPrintf LOG_ALERT message. Magic no. %d", 1729);
+LogPrintf(LOG_CRIT, "InitLogPrintf: LogPrintf LOG_CRIT message. Magic no. %d", 1729);
+LogPrintf(LOG_ERR, "InitLogPrintf: LogPrintf LOG_ERR message. Magic no. %d", 1729);
+LogPrintf(LOG_WARNING, "InitLogPrintf: LogPrintf LOG_WARNING message. Magic nos. %d, %f", 1729, 3.14159265359);
+LogPrintf(LOG_NOTICE, "InitLogPrintf: LogPrintf LOG_NOTICE message. Magic no. %d", 1729);
+LogPrintf(LOG_INFO, "InitLogPrintf: LogPrintf LOG_INFO message. Magic no. %d", 1729);
+LogPrintf(LOG_DEBUG, "InitLogPrintf: LogPrintf LOG_DEBUG message. Magic no. %d\n", 1729);
+#endif
+
+	return oldLevelMask;
+}

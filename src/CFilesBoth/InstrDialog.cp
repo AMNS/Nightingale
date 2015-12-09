@@ -494,7 +494,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 				GetIndCString(strBuf, INSTRERRS_STRS, 5);		/* Patch no. must be between..." */
 				sprintf(strBuf, fmtStr, MAXPATCHNUM);
 				CParamText(strBuf, "", "", "");
-				DebugPrintf("Patch no. error: strBuf='%s'\n", strBuf);	// ??MESSAGE IS BLANK! ???
+				LogPrintf(LOG_NOTICE, "Patch no. error: strBuf='%s'\n", strBuf);	// ??MESSAGE IS BLANK! ???
 				StopInform(GENERIC_ALRT);
 				GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
 				HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */

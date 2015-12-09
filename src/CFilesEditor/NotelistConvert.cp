@@ -26,11 +26,11 @@
 
 /* Constants */
 
-/* Default qtr-space position relative to staff top of text, lyrics,	tempo marks and dynamics. */
+/* Default qtr-space position relative to staff top of text, lyrics, tempo marks and dynamics. */
 #define DFLT_TEMPO_HEIGHT		-24
 #define DFLT_LYRIC_HEIGHT		28
 #define DFLT_TEXT_HEIGHT		-10
-#define DFLT_DYNAMIC_HEIGHT	32
+#define DFLT_DYNAMIC_HEIGHT		32
 
 /* Default DDIST position of page-rel graphics, relative to origin (top,left) of page. */
 #define DFLT_PGRELGR_XD			250
@@ -264,8 +264,8 @@ static Boolean NotelistToNight(Document *doc)
 	short			v;
 	long			spacePercent;
 	LINK			firstMeasL, pL;
-	Boolean		ok, result, doReformat;
-	PNL_GENERIC	pG;
+	Boolean			ok, result, doReformat;
+	PNL_GENERIC		pG;
 	NLINK			itemL;
 	char			fmtStr[256];
 	short			shortestDurCode;
@@ -367,7 +367,7 @@ static Boolean NotelistToNight(Document *doc)
 	if (shortestDurCode==EIGHTH_L_DUR) spacePercent = 85L;
 	else if (shortestDurCode<EIGHTH_L_DUR && shortestDurCode!=UNKNOWN_L_DUR) spacePercent = 70L;
 #ifndef PUBLIC_VERSION
-	DebugPrintf("shortestDurCode=%d spacePercent=%ld\n", shortestDurCode, spacePercent);
+	LogPrintf(LOG_NOTICE, "shortestDurCode=%d spacePercent=%ld\n", shortestDurCode, spacePercent);
 #endif
 	doc->spacePercent = spacePercent;
 	ok = RespaceBars(doc, firstMeasL, doc->tailL, RESFACTOR*spacePercent, FALSE, doReformat=TRUE);
