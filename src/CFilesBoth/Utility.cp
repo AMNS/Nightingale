@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	Utility.c														*
-*	PROJ:	Nightingale, rev. for v. 3.5									*
-*	DESC:	Miscellaneous utility routines that needed a home				*
+*	FILE:	Utility.c
+*	PROJ:	Nightingale, rev. for v. 3.5
+*	DESC:	Miscellaneous utility routines that needed a home
 		CalcYStem				GetNoteYStem			GetGRNoteYStem
 		ShortenStem				GetCStemInfo			GetStemInfo
 		GetCGRStemInfo			GetGRStemInfo
@@ -25,7 +25,8 @@
 		Pt2Paper				GlobalToPaper			RefreshScreen
 		InitSleepMS				SleepMS					SleepTicks
 		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
-		PlayResource			TrapAvailable			
+		PlayResource			VLogPrintf				LogPrintf
+		InitLogPrintf	
 /***************************************************************************/
 
 /*										NOTICE
@@ -1539,9 +1540,14 @@ Boolean LogPrintf(short priLevel, const char *fmt, ...)
 	return okay;
 }
 
+
+#define LOG_TO_STDERR FALSE						/* Print to stderr as well as system log? */
+
 short InitLogPrintf()
 {
-	openlog("Ngale", LOG_PERROR, LOG_USER);					/* Print to stderr as well as log */
+	int logopt = 0;
+	if (LOG_TO_STDERR) logopt = LOG_PERROR;
+	openlog("Ngale", logopt, LOG_USER);
 	int oldLevelMask = setlogmask(LOG_UPTO(LOG_DEBUG));
 	outStr[0] = '\0';										/* Set <outStr> to empty */
 

@@ -23,7 +23,7 @@ static Rect bRect,objRect,oldObjRect,paperRect;
 static DRect systemRect;
 static short linenum, showBPage;
 static char s[300];				/* A bit more than 256 to protect against 255-char. Graphics, etc. */
-static char dynStr[20];			/* for dynamics only */
+static char dynStr[40];			/* for dynamics only */
 static char objList[16];
 static LINK subL;
 
@@ -1243,7 +1243,8 @@ void BrowseMeasure(LINK pL, short index)
 			q->numerator,
 			q->denominator);
 	DrawLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "dynamicType=%hd", q->dynamicType);
+	DynamicToString(q->dynamicType);	
+	sprintf(s, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
 	DrawLine(s);
 	
 	OffsetDRect(&mrect,xd,systemRect.top);
@@ -2040,7 +2041,7 @@ void ShowContext(Document *doc)
 	DrawLine("----------------------------");
 	tempoL = LSSearch(pL, TEMPOtype, ANYONE, GO_LEFT, FALSE);
 	if (tempoL==NILINK) {
-		DrawLine("** Couldn't find a TEMPO object. **");
+		DrawLine("No TEMPO object preceding this.");
 	}
 	else {
 		pTempo  = GetPTEMPO(tempoL);

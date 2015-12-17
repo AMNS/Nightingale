@@ -279,19 +279,17 @@ allows. Affects .rsrc .
 
 -------------------------------------------------------------------------------
 
-29 Nov. - 8 Dec.
+29 Nov. - 15 Dec.
 
 Replace calls to DebugPrintf() -- which has simply been #define'd as printf -- with
 calls to new function LogPrintf(), which uses syslog(Section 3) so messages go to the
-system log as well as to Xcode's Run Log window (which of course doesn't exist if Ngale
-isn't running inside Xcode). Affects DebugUtils.h; about 60 files.
+system log and (via compile time option) also to Xcode's Run Log window (which of course
+doesn't exist if Ngale isn't running inside Xcode). Affects DebugUtils.h; about 60 files.
 
 In the project file, put precomp headers in proper alphabetical order.
 
 Minor cleanup. Affects many files.
 
--------------------------------------------------------------------------------
-
-Make the Browser window interpret dynamic level for Dynamics -- e.g., it now shows
-"3 (pp)", not just "3". Affects Browser.
+Make the Browser window interpret dynamic level for Dynamics and Measures-- e.g., it
+now shows "3 (pp)", not just "3". Affects Browser.
 

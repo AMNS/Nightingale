@@ -120,7 +120,7 @@ Boolean DCheckEverything(Document *doc,
 #endif
 	for (pL = doc->masterHeadL; pL!=doc->masterTailL; pL = RightLINK(pL)) {
 		if (DCheckNode(doc, pL, MP_DSTR, maxCheck)<0) return TRUE;
-		DCheckNodeSel(doc, pL);		if (DErrLimit() || UserInterrupt()) return FALSE;
+		DCheckNodeSel(doc, pL);			if (DErrLimit() || UserInterrupt()) return FALSE;
 	}
 #ifdef DDB
 	LogPrintf(LOG_WARNING, " Done.");
@@ -137,7 +137,7 @@ Boolean DCheckEverything(Document *doc,
 
 #ifdef DDB
 	LogPrintf(LOG_WARNING, " Done.");
-	if (nerr>0) LogPrintf(LOG_WARNING, " %d ERRORS. ", nerr); 	
+	if (nerr>0) LogPrintf(LOG_WARNING, " %d ERROR(S). ", nerr); 	
 	LogPrintf(LOG_WARNING, "\n");
 #endif
 
@@ -213,7 +213,7 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 	strcat(strBuf, (char *)label);
 	strcat(strBuf, "\"");
 	CToPString(strBuf);
-	PutDlgString(dialogp,LABEL_DI,(unsigned char *)strBuf,FALSE);
+	PutDlgString(dialogp,LABEL_DI, (unsigned char *)strBuf, FALSE);
 
 	/* Initialize: get Handles to controls, set initial values, etc. */
 	for (j=FULL; j<=LAST_RBUTTON; j++)						/* Get Hdls to radio btns */
@@ -511,7 +511,7 @@ Boolean DoDebug(
 		kount++;
 	}
 
-	if (nerr>0) LogPrintf(LOG_WARNING, "%d ERRORS. ", nerr); 	
+	if (nerr>0) LogPrintf(LOG_WARNING, "%d ERROR(S). ", nerr); 	
 
 	if (what==CLIPBOARD) InstallDoc(doc);
 	return FALSE;
