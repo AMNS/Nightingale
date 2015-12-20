@@ -279,7 +279,7 @@ allows. Affects .rsrc .
 
 -------------------------------------------------------------------------------
 
-29 Nov. - 15 Dec.
+29 Nov. - 19 Dec.
 
 Replace calls to DebugPrintf() -- which has simply been #define'd as printf -- with
 calls to new function LogPrintf(), which uses syslog(Section 3) so messages go to the
@@ -292,4 +292,9 @@ Minor cleanup. Affects many files.
 
 Make the Browser window interpret dynamic level for Dynamics and Measures-- e.g., it
 now shows "3 (pp)", not just "3". Affects Browser.
+
+On MIDI playback, if multiple notes are simultaneously playing the same note number on
+the same channel but end at different times, either hold the note till the last one ends
+or (via compile-time option) stops playing that note when the first one ends, as Ngale
+has always done. Affects MIDIUtils; MIDIGeneral.h
 

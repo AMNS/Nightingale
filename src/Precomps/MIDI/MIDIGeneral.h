@@ -12,9 +12,9 @@
 #define MCHANPRES 0xD0
 #define MPITCHBEND 0xE0
 #define MSYSEX 0xF0
-#define MEOX 0xF7							/* End of System Exclusive data */
-#define MLOW_SYSREALTIME 0xF8			/* Lowest code for System Real Time command */
-#define MHI_SYSREALTIME 0xFF			/* Highest code for System Real Time command */
+#define MEOX 0xF7					/* End of System Exclusive data */
+#define MLOW_SYSREALTIME 0xF8		/* Lowest code for System Real Time command */
+#define MHI_SYSREALTIME 0xFF		/* Highest code for System Real Time command */
 #define MACTIVESENSE 0xFE
 
 #define MSTATUSMASK 0x80
@@ -29,10 +29,10 @@
 #define MAXCHANNEL 16
 #define MAXPATCHNUM 128
 #define MAX_VELOCITY 127
-#define MIDI_MIDDLE_C 60				/* MIDI note number for middle C (ISO C4) */
+#define MIDI_MIDDLE_C 60			/* MIDI note number for middle C (ISO C4) */
 #define MAX_NOTENUM 127
-#define NO_PATCHNUM 0xFF				/* FMS: Means no valid patch number current for this device & channel */
-#define NO_BANKSELECT 0xFF				/* Don't send this bank select value */
+#define NO_PATCHNUM 0xFF			/* FMS: Means no valid patch number current for this device & channel */
+#define NO_BANKSELECT 0xFF			/* Don't send this bank select value */
 
 /* Constants and utilities for use with Apple MIDI Manager */
 
@@ -57,7 +57,7 @@
 
 /* Constant and medium-level functions for use with "any" built-in MIDI driver */
 
-#define ONEMILLISEC 782					/* Timer constant for 1ms interrupts */
+#define ONEMILLISEC 782				/* Timer constant for 1ms interrupts */
 
 /* Datatypes and public prototypes */
 
@@ -68,13 +68,13 @@ typedef struct						/* Time conversion item: */
 	long		realTime;			/* time until this tempo begins (millisec.) */
 } TCONVERT;
 
-typedef struct myEvent			/* MIDI event list item: */
+typedef struct myEvent				/* MIDI event list item: */
 {
 	SignedByte	note;				/* MIDI note number, in range [0..MAX_NOTENUM]; 0=slot open */
 	SignedByte	channel;			/* MIDI channel number of note, in range [1..MAXCHANNEL] */
-	long	endTime;					/* ending time of note, in milliseconds */
-	SignedByte	offVel;			/* Note Off velocity */
-	short omsIORefNum;			/* used by OMS to identify device to receive packet */
+	long	endTime;				/* ending time of note, in milliseconds */
+	SignedByte	offVel;				/* Note Off velocity */
+	short omsIORefNum;				/* used by OMS to identify device to receive packet */
 } MIDIEvent;
 
 typedef struct myCMEvent			/* MIDI event list item: */
@@ -82,7 +82,7 @@ typedef struct myCMEvent			/* MIDI event list item: */
 	SignedByte	note;				/* MIDI note number, in range [0..MAX_NOTENUM]; 0=slot open */
 	SignedByte	channel;			/* MIDI channel number of note, in range [1..MAXCHANNEL] */
 	long	endTime;					/* ending time of note, in milliseconds */
-	SignedByte	offVel;			/* Note Off velocity */
+	SignedByte	offVel;				/* Note Off velocity */
 	long cmIORefNum;				/* used by CoreMIDI to identify device to receive packet */
 } CMMIDIEvent;
 
@@ -112,7 +112,6 @@ void InitBIMIDITimer(void);
 void InitEventList(void);
 Boolean CheckEventList(long pageTurnTOffset);
 Boolean CMCheckEventList(long pageTurnTOffset);
-void CMKillEventList(void);
 
 /* Higher-level MIDI, MIDI-play, and MIDI-utility routines */
 

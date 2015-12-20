@@ -26,6 +26,7 @@
 
 static void			InitToolbox(void);
 static Boolean		AddSetupResource(Handle);
+static OSStatus		FindPrefsFile(OSType fType, OSType fCreator, FSSpec *prefsSpec);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
 static void			InstallCoreEventHandlers(void);
@@ -207,7 +208,7 @@ Boolean AddSetupResource(Handle resH)
 #else
 
 
-static OSStatus FindThePreferencesFile(OSType fType, OSType fCreator, FSSpec *prefsSpec) 
+static OSStatus FindPrefsFile(OSType fType, OSType fCreator, FSSpec *prefsSpec) 
 {
 	short pvol;
 	long pdir;
@@ -215,25 +216,23 @@ static OSStatus FindThePreferencesFile(OSType fType, OSType fCreator, FSSpec *pr
 	CInfoPBRec cat;
 	OSStatus err;
 	
-	// find the preferences folder
-	err = FindFolder( kOnSystemDisk, kPreferencesFolderType, true, &pvol, &pdir);
+	// Find the preferences folder
+	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, true, &pvol, &pdir);
 	LogPrintf(LOG_NOTICE, "Prefs File: FindFolder: err=%d\n", err);
-	if (err != noErr) return err;
+	if (err!=noErr) return err;
 	
-	// search the folder for the file
+	// Search the folder for the file
 	BlockZero(&cat, sizeof(cat));
 	cat.hFileInfo.ioNamePtr = name;
 	cat.hFileInfo.ioVRefNum = pvol;
 	cat.hFileInfo.ioFDirIndex = 1;
 	cat.hFileInfo.ioDirID = pdir;
 	
-	while (PBGetCatInfoSync(&cat) == noErr) 
-	{
+	while (PBGetCatInfoSync(&cat) == noErr) {
 		if (( (cat.hFileInfo.ioFlAttrib & 16) == 0) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdType == fType) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdCreator == fCreator) &&
-				(PStrCmp(name, SETUP_FILE_NAME) == TRUE)) 
-		{
+				(PStrCmp(name, SETUP_FILE_NAME) == TRUE)) {
 			// make a fsspec referring to the file
 			return FSMakeFSSpec(pvol, pdir, name, prefsSpec);
 		}
@@ -465,11 +464,11 @@ Boolean OpenSetupFile()
 //	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, "\pNightingale 2001 Prefs", &rfSpec);
 //	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, SETUP_FILE_NAME, &rfSpec);
 	
-	theErr = FindThePreferencesFile(prefsFileType, creatorType, &rfSpec);
+	theErr = FindPrefsFile(prefsFileType, creatorType, &rfSpec);
 	Pstrcpy(setupFileName, SETUP_FILE_NAME);
-	LogPrintf(LOG_NOTICE, "OpenSetupFile: FindPrefsFile ('%s') returned theErr=%d\n",
+	LogPrintf(LOG_NOTICE, "OpenSetupFile: FindPrefsFile (filename '%s') returned theErr=%d\n",
 				PToCString(setupFileName), theErr);
-	if (theErr == noErr)
+	if (theErr==noErr)
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
 	
 	/* If we can't open it, create a new one using app's own CNFG and other resources. */
@@ -484,6 +483,7 @@ Boolean OpenSetupFile()
 		 * lousy--it should use SETUP_FILE_NAME, of course--but ProgressMsg() can't
 		 * handle that!
 		 */
+		LogPrintf(LOG_NOTICE, "Creating new '%s' (Prefs) file\n", PToCString(setupFileName));
 		ProgressMsg(CREATESETUP_PMSTR, "");
 		SleepTicks(60L);								/* Be sure user can read the msg */
 		if (!CreateSetupFile(&rfSpec)) {

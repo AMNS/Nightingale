@@ -1089,3 +1089,46 @@ about it, but e.g. putting "if (pch!='\0')" in front of
 definitely seems to make the problem go away.
 
 Replace ca. 300 instances of "" to "LogPrintf(LOG_NOTICE, "... done.
+
+-------------------------------------------------------------------------------
+
+16-17 Dec.
+
+- Courtesy accidentals are unusable: the parens are always way too low on the page. The
+displacement seems to be just because _courtesyAccYD_ on my G5 & my old MacBook is way
+too large: it's 100, but should be more like the config default of 8. But where is the
+#%&#)%$%=$)# Prefs file, "Nightingale Devel Prefs"?? It doesn't seem to be anywhere on the
+startup disk, and I can't tell from the code where we're looking -- but we seem to be
+finding it! Try changing the name to, e.g., "Nightingale 5-AMNF Prefs"?
+
+-------------------------------------------------------------------------------
+
+17-19 Dec.
+
+- On MIDI playback, if multiple notes are simultaneously playing the same note number on
+the same channel but end at different times, Ngale stops playing that note when the
+first one ends. It should at least hold it till the last one ends. It might be better to
+re-attack the note at a possibly different velocity, but that'd be more complicated and
+it's not clear it'd actually sound better.
+
+This is handled by an eventList; PlaySequence() calls EndNoteLater() which calls
+InsertEvent(). So should just check before calling EndNoteLater() (or in EndNoteLater()?),
+and if there's already an event w/ that note no. and channel w/ a later ending time,
+ignore the Note Off.
+
+Cf. MIDIUtils.cp/InsertEvent(), and, the equivalent for writing MIDI files,
+MIDIFSave.cp/MFCheckEventList().
+
+Add Boolean param. _playMaxDur_ to xxInsertEvent; if TRUE and we already have ??,
+ignore the call to xxInsertEvent. Add FALSE as actual parameter to calls (in xxEndNoteLater)
+value, so MIDI playback should behave the same as always => !#$^%&@$@# results in no
+Note Offs being sent at all! How?
+
+The 4th formal param. to CMEndNoteLater is now _long_ in the declaration, _short_ in
+the prototype, & _UniqueMIDIID_(?) as the actual parameter -- very suspicious. Change
+that to long in the prototype & declaraion of CMInsertEvent() => OK!! 
+
+It's OK now _if_ the longer note is encountered first. If a shorter duration is followed
+by a longer, it's not enough to add the longer one to the cmEventList: I have to remove
+the shorter one! ...best implemented simply by replacing it (duration and Off velocity).
+Do that => all OK.

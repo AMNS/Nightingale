@@ -114,7 +114,7 @@ static Boolean InitAllCursors()
 		return FALSE;
 	}
 	
-	for (i = 0;i<nsyms; i++)								/* Fill in list of cursor handles */
+	for (i = 0;i<nsyms; i++)							/* Fill in list of cursor handles */
 		if (symtable[i].cursorID>=100)
 			cursorList[i] = GetCursor(symtable[i].cursorID);
 		else
@@ -123,7 +123,7 @@ static Boolean InitAllCursors()
 	return TRUE;
 	
 Error:
-	GetIndCString(strBuf, INITERRS_STRS, 7);		/* "Can't find cursor resources" */
+	GetIndCString(strBuf, INITERRS_STRS, 7);			/* "Can't find cursor resources" */
 	CParamText(strBuf, "", "", "");
 	StopInform(GENERIC_ALRT);
 	return FALSE;
@@ -195,12 +195,12 @@ static Boolean InitNightGlobals()
 	magShift = 4;
 	magRound = 8;
 		
-	outputTo = toScreen;										/* Initial output device */
+	outputTo = toScreen;								/* Initial output device */
 	clickMode = ClickSelect;
 	lastCopy = COPYTYPE_CONTENT;
 
-	doNoteheadGraphs = FALSE;								/* Normal noteheads, not tiny graphs */
-	playTempoPercent = 100;									/* Play using the tempi as marked */
+	doNoteheadGraphs = FALSE;							/* Normal noteheads, not tiny graphs */
+	playTempoPercent = 100;								/* Play using the tempi as marked */
 
 	/* Initialize our high-resolution (??but very inaccurate!) delay function */
 	
@@ -547,12 +547,13 @@ void InitMusicFontStuff()
 
 static Boolean InitChosenMIDISystem()
 {
-	Boolean midiOk = TRUE;
+	Boolean midiOK = TRUE;
 	
 	if (useWhichMIDI == MIDIDR_CM)
-		midiOk = InitCoreMIDI();
+		midiOK = InitCoreMIDI();
 	
-	return midiOk;
+	LogPrintf(LOG_NOTICE, "useWhichMIDI=%d midiOK=%d\n", useWhichMIDI, midiOK);
+	return midiOK;
 }
 
 Boolean InitMIDISystem()

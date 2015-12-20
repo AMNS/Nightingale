@@ -11,27 +11,27 @@
 	displays pages of documents. */
 
 #define DOCUMENTHEADER	\
-	Point			origin;				/* Current origin of Document window */					\
-	Rect			paperRect;			/* Size of virtual paper sheet in current mag.(pixels) */ \
-	Rect			origPaperRect;		/* Size of paper sheet (points) */							\
-	Point			holdOrigin;			/* Holds position during pick mode */						\
-	Rect			marginRect;			/* Size of area within margins on sheet (points) */	\
-	Point			sheetOrigin;		/* Where in Quickdraw space to place sheet array */	\
-																													\
-	short			currentSheet;		/* Internal sheet [0, ..., numSheets) */					\
-	short			numSheets;			/* Number of sheets in Document (visible or not) */	\
-	short			firstSheet;			/* To be shown in upper left of sheet array */			\
-	short			firstPageNumber;	/* Page number of zero'th sheet */							\
-	short			startPageNumber;	/* First printed page number */								\
-	short			numRows;				/* Size of sheet array */										\
-	short			numCols;																						\
-	short			pageType;			/* Current standard/custom page size from popup menu */	\
-	short			measSystem;			/* Code for measurement system (from popup menu) */	\
-																													\
-	Rect			headerFooterMargins; /* Header/footer/pagenum margins  */					\
-	Rect			currentPaper;		/* Paper rect in window coords for cur.sheet (pixels) */	\
-	SignedByte		landscape;			/* Unused; was "Paper wider than it is high" */			\
-	SignedByte		philler;			/* Unused */
+	Point		origin;				/* Current origin of Document window */						\
+	Rect		paperRect;			/* Size of virtual paper sheet in current mag.(pixels) */	\
+	Rect		origPaperRect;		/* Size of paper sheet (points) */							\
+	Point		holdOrigin;			/* Holds position during pick mode */						\
+	Rect		marginRect;			/* Size of area within margins on sheet (points) */			\
+	Point		sheetOrigin;		/* Where in Quickdraw space to place sheet array */			\
+																								\
+	short		currentSheet;		/* Internal sheet [0, ..., numSheets) */					\
+	short		numSheets;			/* Number of sheets in Document (visible or not) */			\
+	short		firstSheet;			/* To be shown in upper left of sheet array */				\
+	short		firstPageNumber;	/* Page number of zero'th sheet */							\
+	short		startPageNumber;	/* First printed page number */								\
+	short		numRows;			/* Size of sheet array */									\
+	short		numCols;																		\
+	short		pageType;			/* Current standard/custom page size from popup menu */		\
+	short		measSystem;			/* Code for measurement system (from popup menu) */			\
+																								\
+	Rect		headerFooterMargins; /* Header/footer/pagenum margins  */						\
+	Rect		currentPaper;		/* Paper rect in window coords for cur.sheet (pixels) */	\
+	SignedByte	landscape;			/* Unused; was "Paper wider than it is high" */				\
+	SignedByte	philler;			/* Unused */
 
 typedef struct {
 	DOCUMENTHEADER
@@ -60,30 +60,30 @@ typedef struct {
 
 typedef struct {
 /* These first fields don't need to be saved. */
-	WindowPtr 	theWindow;			/* The window being used to show this doc */
-	unsigned char name[256];		/* File name */
+	WindowPtr		theWindow;			/* The window being used to show this doc */
+	unsigned char name[256];			/* File name */
 #if TARGET_API_MAC_CARBON
-	FSSpec		fsSpec;
+	FSSpec			fsSpec;
 #endif	
 	short			vrefnum;				/* Directory file name is local to */
 	Rect			viewRect;			/* Port rect minus scroll bars */
 	Rect			growRect;			/* Grow box */
 
 	Rect			allSheets;			/* Bounding box of all visible sheets */
-	RgnHandle	background;			/* Everything except sheets */
+	RgnHandle		background;			/* Everything except sheets */
 
-	ControlHandle vScroll;			/* Vertical scroll bar */
-	ControlHandle hScroll;			/* Horizontal scroll bar */
+	ControlHandle	vScroll;			/* Vertical scroll bar */
+	ControlHandle	hScroll;			/* Horizontal scroll bar */
 	DDIST			yBetweenSysMP;		/* (always 0) Vertical sp. between Systems for Master Page */
-	THPrint		hPrint;				/* Handle to Document print record */
-	StringPoolRef stringPool;		/* Strings for this Document */
+	THPrint			hPrint;				/* Handle to Document print record */
+	StringPoolRef	stringPool;			/* Strings for this Document */
 
 	Rect			caret;				/* Rect of Document's caret */
 	long			nextBlink;			/* When to blink the caret */
 
 	Point			scaleCenter;		/* Window coord of last mouse click to enlarge from */
 	
-	unsigned short inUse:1,			/* This slot in table is in use */
+	unsigned short inUse:1,				/* This slot in table is in use */
 					changed:1,			/* TRUE if Document should be saved on close */
 					canCutCopy:1,		/* TRUE if something is cuttable/copyiable */
 					active:1,			/* TRUE when Document is active window */
@@ -103,33 +103,33 @@ typedef struct {
 					readOnly:1,			/* TRUE if Document was opened Read Only */
 					masterChanged:1,	/* Always FALSE outside masterView */
 					showFormat:1;		/* TRUE when showing format rather than content */
-	unsigned short enterFormat:1, /* TRUE when entering show format */
+	unsigned short	enterFormat:1,		/* TRUE when entering show format */
 					converted:1,		/* TRUE if Document converted from older file format */
 					locFmtChanged:1,	/* TRUE if any "local" format changes (via Work on Format) */
 					nonstdStfSizes:1,	/* TRUE = not all staves are of size doc->srastral */
-					showWaitCurs:1,	/* TRUE means show "please wait" cursor while drawing */
+					showWaitCurs:1,		/* TRUE means show "please wait" cursor while drawing */
 					moreUnused:11;
-	UNDOREC		undo;					/* Undo record for the Document */
+	UNDOREC			undo;				/* Undo record for the Document */
 	
 /* Non-Nightingale-specific fields which need to be saved */
 	DOCUMENTHEADER
 
 /* Nightingale-specific fields which need to be saved */
-	HEAP 			Heap[LASTtype];	/* One HEAP for every type of object */
+	HEAP 			Heap[LASTtype];			/* One HEAP for every type of object */
 	NIGHTSCOREHEADER
 
 /* MIDI driver fields, for OMS and FreeMIDI support */
 	/* OMS */
 	OMSUniqueID omsPartDeviceList[MAXSTAVES];	/* OMS MIDI dev data for each part on MP, */
-															/* indexed by partn associated with PARTINFOheap */
-	OMSUniqueID	omsInputDevice;  					/* OMS MIDI dev data for recording inputs */
+												/* indexed by partn associated with PARTINFOheap */
+	OMSUniqueID	omsInputDevice;  				/* OMS MIDI dev data for recording inputs */
 	/* FreeMIDI */
 	fmsUniqueID	fmsInputDevice;					/* FreeMIDI dev data for recording inputs */
-	destinationMatch	fmsInputDestination;		/* (See comment at PARTINFO in NTypes.h.) */
+	destinationMatch	fmsInputDestination;	/* (See comment at PARTINFO in NTypes.h.) */
 	/* CoreMIDI */
-	MIDIUniqueID cmPartDeviceList[MAXSTAVES];	/* CoreMIDI dev data for each part on MP, */
-															/* indexed by partn associated with PARTINFOheap */
-	MIDIUniqueID cmInputDevice;  					/* CoreMIDI dev data for recording inputs */
+	MIDIUniqueID	cmPartDeviceList[MAXSTAVES];	/* CoreMIDI dev data for each part on MP, */
+													/* indexed by partn associated with PARTINFOheap */
+	MIDIUniqueID	cmInputDevice;  				/* CoreMIDI dev data for recording inputs */
 
 /* The remaining fields don't need to be saved. */
 	Rect			prevMargin;			/* doc->marginRect upon entering Master Page */
@@ -248,22 +248,22 @@ typedef struct {
 	SignedByte	minRecDuration;		/* Shorter recorded notes are ignored (milliseconds) */
 	SignedByte	midiThru;			/* MIDI Thru: 0 = off, 1 = to modem port */
 
-	short			defaultTempo;		/* Default tempo (quarters per min.) */
+	short		defaultTempo;		/* Default tempo (quarters per min.) */
 
-	short			lowMemory;			/* Number of Kbytes below which to warn once */
-	short			minMemory;			/* Number of Kbytes below which to warn always */
+	short		lowMemory;			/* Number of Kbytes below which to warn once */
+	short		minMemory;			/* Number of Kbytes below which to warn always */
 
-	Point			toolsPosition;		/* Palette offset from left/right of screen (plus/minus) */
+	Point		toolsPosition;		/* Palette offset from left/right of screen (plus/minus) */
 
-	short			numRows;				/* Initial layout of sheets */
-	short			numCols;				/* ditto */
-	short			maxRows;				/* No more than this number of rows in sheet array */
-	short			maxCols;				/* ditto */
-	short			vPageSep;			/* Amount to separate pages horizontally */
-	short			hPageSep;			/* And vertically */
-	short			vScrollSlop;		/* Amount of paper to keep in view, vertically */
-	short			hScrollSlop;		/* Amount of paper to keep in view, horizontally */
-	Point			origin;				/* Of upper left corner sheet in array */
+	short		numRows;				/* Initial layout of sheets */
+	short		numCols;				/* ditto */
+	short		maxRows;				/* No more than this number of rows in sheet array */
+	short		maxCols;				/* ditto */
+	short		vPageSep;			/* Amount to separate pages horizontally */
+	short		hPageSep;			/* And vertically */
+	short		vScrollSlop;		/* Amount of paper to keep in view, vertically */
+	short		hScrollSlop;		/* Amount of paper to keep in view, horizontally */
+	Point		origin;				/* Of upper left corner sheet in array */
 
 	SignedByte	powerUser;			/* Enable power user feature(s)? */
 	SignedByte	maxSyncTolerance;	/* Max. horiz. tolerance to sync on note insert (% of notehead width) */
@@ -317,7 +317,7 @@ typedef struct {
 	SignedByte	metroChannel;		/* MIDI metronome channel number, 1 to MAXCHANNEL */
 	SignedByte	metroNote;			/* MIDI metronome note number */
 	SignedByte	metroVelo;			/* MIDI metronome note velocity */
-	short			metroDur;			/* MIDI metronome note duration (millisec.) */
+	short		metroDur;			/* MIDI metronome note duration (millisec.) */
 						
 	SignedByte	chordSymSmallSize; /* Size of font used in all components of chord */
 											/* symbol except root string. (% of CS font size) */
@@ -351,29 +351,29 @@ typedef struct {
 	
 	SignedByte	slurDashLen;		/* PostScript length of dashes in dashed slurs (points) */	
 	SignedByte	slurSpaceLen;		/* PostScript length of spaces in dashed slurs (points) */	
-	SignedByte	courtesyAccLXD;	/* Left paren. H offset for courtesy accidentals (8th-spaces) */
-	SignedByte	courtesyAccRXD;	/* Right paren. H offset for courtesy accidentals (8th-spaces) */
+	SignedByte	courtesyAccLXD;		/* Left paren. H offset for courtesy accidentals (8th-spaces) */
+	SignedByte	courtesyAccRXD;		/* Right paren. H offset for courtesy accidentals (8th-spaces) */
 	SignedByte	courtesyAccYD;		/* Paren. V offset for courtesy accidentals (8th-spaces) */
 	SignedByte	courtesyAccSize;	/* Paren. size for courtesy accidentals (% of normal) */
 
 	/* Following fields were added after Nightingale 2.5. */
 	
 	OMSUniqueID metroDevice;			/* OMS identifier for metronome synth */
-	OMSUniqueID defaultInputDevice;	/* OMS identifier for default input synth */
+	OMSUniqueID defaultInputDevice;		/* OMS identifier for default input synth */
 	OMSUniqueID defaultOutputDevice;	/* OMS identifier for default output synth */
-	SignedByte	defaultOutputChannel; /* channel for dflt out device; input uses defaultChannel */
+	SignedByte	defaultOutputChannel;	/* channel for dflt out device; input uses defaultChannel */
 
 	/* Following fields were added after Nightingale 3.0. */
 
-	SignedByte	wholeMeasRestBreve;	/* !0 = whole-measure rests can look like breve rests */
+	SignedByte	wholeMeasRestBreve;		/* !0 = whole-measure rests can look like breve rests */
 	SignedByte	quantizeBeamYPos;		/* !0 = force beam vertical positions to sit, straddle, or hang */
 	SignedByte	makeBackup;				/* !0 = on Save, rename and keep old file as backup */
 
 	short		chordFrameFontID;		/* Font ID of chord-frame font (0=use Seville) */
-	SignedByte	chordFrameRelFSize;	/* !0 = size is relative to staff size */ 
-	SignedByte	chordFrameFontSize;	/* if chordFrameRelFSize, small..large code, else point size */
-	SignedByte	notelistWriteBeams;	/* !0 = include beamsets in Notelist files */
-	SignedByte	extractAllGraphics;	/* !0 = extract to all parts all Graphics attached to suitable objs */
+	SignedByte	chordFrameRelFSize;		/* !0 = size is relative to staff size */ 
+	SignedByte	chordFrameFontSize;		/* if chordFrameRelFSize, small..large code, else point size */
+	SignedByte	notelistWriteBeams;		/* !0 = include beamsets in Notelist files */
+	SignedByte	extractAllGraphics;		/* !0 = extract to all parts all Graphics attached to suitable objs */
 
 	/* Following fields were added after Nightingale 3.5. */
 

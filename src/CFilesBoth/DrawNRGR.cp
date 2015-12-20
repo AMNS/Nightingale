@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	DrawNRGR.c																			*
-*	PROJ:	Nightingale, rev. for v.2000													*
-*	DESC:	Routines to draw notes, rests, grace notes, and modifers				*	
+*	FILE:	DrawNRGR.c
+*	PROJ:	Nightingale, rev. for v.2000
+*	DESC:	Routines to draw notes, rests, grace notes, and modifers
 ***************************************************************************/
 
 /*											NOTICE
@@ -367,11 +367,11 @@ DDIST AccXOffset(short xmoveAcc, PCONTEXT pContext)
 
 void DrawAcc(Document *doc,
 				PCONTEXT pContext,
-				LINK theNoteL,					/* Subobject (note) to draw accidental for */
+				LINK theNoteL,				/* Subobject (note) to draw accidental for */
 				DDIST xdNorm, DDIST yd,		/* Notehead position, excluding effect of <otherStemSide> */
-				Boolean dim,					/* Ignored if outputTo==toPostScript */
+				Boolean dim,				/* Ignored if outputTo==toPostScript */
 				short sizePercent,
-				Boolean chordNoteToL			/* Note in a chord that's downstemmed w/notes to left of stem? */
+				Boolean chordNoteToL		/* Note in a chord that's downstemmed w/notes to left of stem? */
 				)
 {
 	PANOTE theNote;
@@ -413,7 +413,7 @@ void DrawAcc(Document *doc,
 
 		scalePercent = (short)(((long)config.courtesyAccSize*sizePercent)/100L);
 
-		lparenGlyph = MapMusChar(doc->musFontInfoIndex, SCHAR_LPAREN);
+		lparenGlyph = MapMusChar(doc->musFontInfoIndex, SCHAR_LPAREN);  
 		rparenGlyph = MapMusChar(doc->musFontInfoIndex, SCHAR_RPAREN);
 
 		xoffset = MusCharXOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);
@@ -427,7 +427,9 @@ void DrawAcc(Document *doc,
 
 		yoffset = MusCharYOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);	/* assuming both parens have same yoffset */
 		delta = (short)(((long)scalePercent*config.courtesyAccYD)/100L);
-		ydParens = yd + delta*d8thSp + ((DDIST)(((long)scalePercent*yoffset)/100L));;
+		ydParens = yd + delta*d8thSp + ((DDIST)(((long)scalePercent*yoffset)/100L));
+		LogPrintf(LOG_NOTICE, "DrawAcc: yd=%d, delta=%d, scalePercent=%d, yoffset=%d, ydParens=%d\n",
+					yd, delta, scalePercent, yoffset, ydParens);
 	}
 	xdAcc += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
 	yd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
@@ -443,8 +445,8 @@ void DrawAcc(Document *doc,
 
 			/* If it's a courtesy accidental, draw parentheses around it. */
 			if (theNote->courtesyAcc) {
-				yp = pContext->paper.top+d2p(ydParens);
 				xp = pContext->paper.left+d2p(xdLParen);
+				yp = pContext->paper.top+d2p(ydParens);
 				MoveTo(xp, yp);
 				DrawMChar(doc, lparenGlyph, NORMAL_VIS, dim);
 				xp = pContext->paper.left+d2p(xdRParen);

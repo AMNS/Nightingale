@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	MIDIPlay.c														*
-*	PROJ:	Nightingale, rev.for v.2000										*
-*	DESC:	MIDI playback routines											*
+*	FILE:	MIDIPlay.c
+*	PROJ:	Nightingale, rev.for v.2000
+*	DESC:	MIDI playback routines
 /***************************************************************************/
 
 /*											NOTICE
@@ -21,12 +21,14 @@
 
 #include "CoreMIDIDefs.h"
 
-/* Nightingale supports both MIDI Manager and its own "built-in" MIDI routines.
+/* Nightingale now supports Core MIDIT and I believe no other MIDI driver. The
+following comment dates back to versions from the 20th century:
+"Nightingale supports both MIDI Manager and its own "built-in" MIDI routines.
 The latter, used here and in MIDIRecord.c, are Altech Systems' MIDI Pascal 3.0.
 We used to use a driver from Kirk Austin's articles in MacTutor, July and
 December 1987, but those routines became quite buggy--according to Jeremy Sagan,
 because they don't initialize enough registers. Anyway, MIDI Pascal is much more
-powerful, and slightly less ancient (sigh). */
+powerful, and slightly less ancient (sigh)." */
 
 /* ================================== LOCAL STUFF ================================== */
 
@@ -151,9 +153,9 @@ static Boolean HiliteSyncRect(
 /* -------------------------------------------------------- AddBarlines functions -- */
 /* For the "add barlines while playing" feature, build up a list of places to add
 single barlines (actually Measure objects):
-	InitAddBarlines() 		Initialize these functions
+	InitAddBarlines()			Initialize these functions
 	AddBarline(pL)				Request adding a barline before <pL>
-	CloseAddBarlines(doc)	Add the barlines at all requested places
+	CloseAddBarlines(doc)		Add the barlines at all requested places
 Duplicate calls to AddBarline at the same link are ignored.*/
 
 #define MAX_BARS 300			/* Maximum no. of barlines we can add in one set */
@@ -291,8 +293,8 @@ static void SelAndHiliteSync(Document *doc, LINK syncL)
 
 /* ----------------------------------------------------------------- CheckButton -- */
 
-Boolean CheckButton(void);
-Boolean CheckButton()
+static Boolean CheckButton(void);
+static Boolean CheckButton()
 {
 	Boolean button = FALSE;
 	
@@ -312,8 +314,7 @@ long kStartTime[MAXKEEPTIMES];
 short nkt;
 #endif
 
-// From CoreMidiUtils.c
-
+/* From CoreMidiUtils.c */
 #define CM_PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
 #define CM_CHANNEL_BASE 1	
 
@@ -678,7 +679,6 @@ Byte GetMidiControlVal(LINK pL)
 
 static long ScaleDurForVariableSpeed(long rtDur)
 {
-	
 	return rtDur*(100.0/playTempoPercent);
 }
 
@@ -688,16 +688,16 @@ static long ScaleDurForVariableSpeed(long rtDur)
 playing, add barlines.  While playing, we maintain a list of currently-playing notes,
 which we use to decide when to stop playing each note. (With MIDI Manager v.2, it
 would probably be better to do this with invisible input and output ports, as de-
-scribed in the MIDI Manager manual.) */
+scribed in the MIDI Manager manual. Does this also apply to Core MIDI?) */
 
-#define CH_BARTAP 0x09								/* Character code for insert-barline key  */
-#define MAX_TCONVERT 100							/* Max. no. of tempo changes we handle */
+#define CH_BARTAP 0x09							/* Character code for insert-barline key  */
+#define MAX_TCONVERT 100						/* Max. no. of tempo changes we handle */
 
 void PlaySequence(
 			Document *doc,
-			LINK fromL,	LINK toL,		/* range to be played */
-			Boolean showit,				/* TRUE to hilite notes as they're played */
-			Boolean selectedOnly		/* TRUE if we want to play selected notes only */
+			LINK fromL,	LINK toL,			/* range to be played */
+			Boolean showit,					/* TRUE to hilite notes as they're played */
+			Boolean selectedOnly			/* TRUE if we want to play selected notes only */
 			)
 {
 	PPAGE		pPage;
@@ -709,11 +709,11 @@ void PlaySequence(
 	short		useNoteNum,
 				useChan, useVelo;
 	long		t,
-				toffset,									/* PDUR start time of 1st note played */
+				toffset,								/* PDUR start time of 1st note played */
 				playDur,
-				plStartTime, plEndTime,						/* in PDUR ticks */
-				startTimeNorm, endTimeNorm,					/* in millisec. at tempi marked */
-				startTime, oldStartTime, endTime;			/* in actual milliseconds */
+				plStartTime, plEndTime,					/* in PDUR ticks */
+				startTimeNorm, endTimeNorm,				/* in millisec. at tempi marked */
+				startTime, oldStartTime, endTime;		/* in actual milliseconds */
 	long		tBeforeTurn, tElapsed;
 	Rect		syncRect, sysRect, r,
 				oldPaper, syncPaper, pagePaper;
@@ -724,7 +724,7 @@ void PlaySequence(
 	short		partTransp[MAXSTAVES];
 	Byte		channelPatch[MAXCHANNEL];
 
-	short		useIORefNum;								/* NB: can be fmsUniqueID */
+	short		useIORefNum;							/* NB: can be fmsUniqueID */
 	Byte		partPatch[MAXSTAVES];
 	short		partIORefNum[MAXSTAVES];
 
@@ -787,7 +787,7 @@ void PlaySequence(
 	newMeasL = measL = SSearch(fromL, MEASUREtype, GO_LEFT);	/* starting measure */
 	playCursor = GetCursor(MIDIPLAY_CURS);
 	if (playCursor) SetCursor(*playCursor);
-	moveSel = FALSE;												/* init. "move the selection" flag */
+	moveSel = FALSE;											/* init. "move the selection" flag */
 	
 	pageL = LSSearch(fromL, PAGEtype, ANYONE, GO_LEFT, FALSE);
 	pPage = GetPPAGE(pageL);
@@ -814,8 +814,7 @@ void PlaySequence(
 			break;
 	}
 
-	for (pL = doc->headL; pL!=fromL; pL = RightLINK(pL)) 
-	{
+	for (pL = doc->headL; pL!=fromL; pL = RightLINK(pL)) {
 		if (IsMIDIPatchChange(pL)) {
 			PostMIDIProgramChange(doc, pL, partPatch, partChannel);
 		}
@@ -851,7 +850,7 @@ void PlaySequence(
 	 *	positive value but we want to start playing immediately, so we'll pick up
 	 *	the first Sync's play time and use it as an offset on all play times.
 	 */
-	toffset = -1L;															/* Init. time offset to unknown */
+	toffset = -1L;													/* Init. time offset to unknown */
 	newPage = FALSE;
 	for (pL = fromL; pL!=toL; pL = RightLINK(pL)) {
 		switch (ObjLType(pL)) {
@@ -863,7 +862,7 @@ void PlaySequence(
 				pagePaper = doc->currentPaper;
 				newPage = TRUE;
 				break;
-			case SYSTEMtype:												/* Remember system rectangles */
+			case SYSTEMtype:										/* Remember system rectangles */
 				pSystem = GetPSYSTEM(pL);
 				D2Rect(&pSystem->systemRect, &sysRect);
 				break;
@@ -951,7 +950,7 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 							HiliteSyncRect(doc,&syncRect,&syncPaper,newPage && doScroll); /* hilite new sync */
 							tElapsed = GetMIDITime(pageTurnTOffset)-tBeforeTurn;
 							pageTurnTOffset += tElapsed;
-							showOldL = pL;										/* remember this sync */
+							showOldL = pL;								/* remember this sync */
 							newPage = FALSE;
 							}
 						else showOldL = NILINK;
