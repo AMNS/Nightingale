@@ -201,6 +201,7 @@ static Boolean InitNightGlobals()
 
 	doNoteheadGraphs = FALSE;							/* Normal noteheads, not tiny graphs */
 	playTempoPercent = 100;								/* Play using the tempi as marked */
+	unisonsOK = TRUE;									/* Don't complain about perfect unisons */
 
 	/* Initialize our high-resolution (??but very inaccurate!) delay function */
 	

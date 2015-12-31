@@ -61,9 +61,9 @@ GLOBAL CursHandle	handCursor,				/* various cursors */
 					shook,					/* for "mouse shaking" */
 					cursorList[MAX_CURSORS];	/* Cursors for inserting music symbols (SIZE MUST BE >=nsyms!) */
 
-GLOBAL char 		palChar,					/* current palette character */
+GLOBAL char 		palChar,				/* current palette character */
 					oldKey,					/* for enter key arrow toggle */
-					*strBuf,					/* General temporary string buffer */
+					*strBuf,				/* General temporary string buffer */
 					applVerStr[16],			/* Application version no. (C string) */
 					*checkDrawStr,			/* Key equivs. for interrupting drawing */
 					*endingString;			/* Ending labels */
@@ -90,7 +90,7 @@ GLOBAL DDIST		drSize[MAXRASTRAL+1];	/* Sizes for staff rastral nos. */
 GLOBAL GridRec		*grid;					/* Character grid for Tool Palette */
 GLOBAL short		maxMCharWid, maxMCharHt; /* Max. size of any Sonata char.in any view */
 GLOBAL GrafPtr		fontPort,				/* Offscreen bitmap to store image of a single Sonata char */
-					palPort;					/* Offscreen port to hold copy of tools picture */
+					palPort;				/* Offscreen port to hold copy of tools picture */
 
 GLOBAL Rect			revertWinPosition;		/* Where to replace Document window */
 GLOBAL short		theSelectionType;		/* Current selection type (for autoscrolling) */
@@ -122,12 +122,11 @@ GLOBAL long			mPacketBufferLen;		/* Length of mPacketBuffer */
 GLOBAL long			mRecIndex;				/* For our MIDI Mgr readHook or built-in MIDI */		
 GLOBAL long			mFirstTime;				/* For our MIDI Mgr readHook: time stamp of 1st data message */
 GLOBAL long			mFinalTime;				/* For our MIDI Mgr readHook: time stamp of last data message */
-GLOBAL Boolean		recordingNow;			/* TRUE=MIDI recording in progress */
+GLOBAL Boolean		recordingNow;			/* TRUE = MIDI recording in progress */
 GLOBAL Boolean		recordFlats;			/* Use flats for black key notes from MIDI, else sharps */
 GLOBAL short		playTempoPercent;		/* For "variable-speed playback": scale marked tempi by this */
 
 GLOBAL Boolean		doNoteheadGraphs;		/* Display noteheads as tiny graphs? */
-
 GLOBAL Boolean		thinLines;				/* On PostScript output, linewidth(s) set dangerously thin */
 
 GLOBAL CharRectCache charRectCache;
@@ -151,6 +150,8 @@ GLOBAL short		numMusFonts;			/* Number of MusFontRec items in <musFontInfo> arra
 GLOBAL ScrapRef 	gNightScrap;
 
 GLOBAL Boolean		gCoreMIDIInited;
+
+GLOBAL Boolean		unisonsOK;				/* If TRUE, don't object to unisons (perfect or augmented) in a chord */
 
 GLOBAL Boolean		ignoreChord[MAX_MEASNODES][MAXVOICES+1];
 

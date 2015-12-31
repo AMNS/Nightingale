@@ -21,8 +21,9 @@
 
 #include "CoreMIDIDefs.h"
 
-/* Nightingale now supports Core MIDIT and I believe no other MIDI driver. The
-following comment dates back to versions from the 20th century:
+/* Nightingale now (2015) supports Core MIDI and, I believe, no other MIDI driver.
+The following comment dates back to versions from the 20th century:
+
 "Nightingale supports both MIDI Manager and its own "built-in" MIDI routines.
 The latter, used here and in MIDIRecord.c, are Altech Systems' MIDI Pascal 3.0.
 We used to use a driver from Kirk Austin's articles in MacTutor, July and
@@ -50,20 +51,20 @@ string from our error strings resource. */
 static short DoGeneralAlert(unsigned char *str);
 
 static void ErrorMsg(short index)
-	{
-		Str255 str;
-		
-		if (index > 0) GetIndString(str,MIDIErrorStringsID,index);
-		else		   	*str = 0;
-		(void)DoGeneralAlert(str);
-	}
+{
+	Str255 str;
+	
+	if (index > 0) GetIndString(str,MIDIErrorStringsID,index);
+	else		   	*str = 0;
+	(void)DoGeneralAlert(str);
+}
 
 static short DoGeneralAlert(unsigned char *str)
-	{
-		ParamText(str,"\p","\p","\p");
-		PlaceAlert(errorMsgID,NULL,0,40);
-		return(StopAlert(errorMsgID,NULL));
-	}
+{
+	ParamText(str,"\p","\p","\p");
+	PlaceAlert(errorMsgID,NULL,0,40);
+	return(StopAlert(errorMsgID,NULL));
+}
 
 
 /* ------------------------------------------------------------------ PlayMessage -- */
@@ -74,13 +75,13 @@ from <pL>'s Measure. */
 
 static void PlayMessage(Document *doc, LINK pL, short measNum)
 {
-	Rect			messageRect;
+	Rect	messageRect;
 
 	if (pL!=NILINK)
 		measNum = GetMeasNum(doc, pL);
 
 	PrepareMessageDraw(doc,&messageRect, FALSE);
-	GetIndCString(strBuf, MIDIPLAY_STRS, 1);					/* "Playing m. " */
+	GetIndCString(strBuf, MIDIPLAY_STRS, 1);				/* "Playing m. " */
 	DrawCString(strBuf);					
 	sprintf(strBuf, "%d", measNum);
 	DrawCString(strBuf);
@@ -88,15 +89,15 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 		TextFace(bold);
 		sprintf(strBuf, " M");
 		DrawCString(strBuf);
-		TextFace(0);											/* Plain */
+		TextFace(0);										/* Plain */
 	}
 	if (playTempoPercent!=100) {
 		TextFace(bold);
 		sprintf(strBuf, "  T%d%%", playTempoPercent);
 		DrawCString(strBuf);
-		TextFace(0);											/* Plain */
+		TextFace(0);										/* Plain */
 	}
-	GetIndCString(strBuf, MIDIPLAY_STRS, 2);					/* "   CLICK OR CMD-. TO STOP" */
+	GetIndCString(strBuf, MIDIPLAY_STRS, 2);				/* "   CLICK OR CMD-. TO STOP" */
 	DrawCString(strBuf);					
 	FinishMessageDraw(doc);
 }
@@ -119,35 +120,36 @@ static Boolean HiliteSyncRect(
 					Rect *r,
 					Rect *rPaper,				/* doc->currentPaper for r's page */
 					Boolean scroll)
-	{
-		Rect result; short x, y; Boolean turnedPage=FALSE;
-		
-		/* Temporarily convert r to window coords. Normally, we do this by
-		 * offsetting by doc->currentPaper, but in this case, doc->currentPaper
-		 * may have changed (if r's Sync was the last played on a page), so we
-		 * have to use the currentPaper for r's Sync. */
+{
+	Rect result; short x, y;
+	Boolean turnedPage=FALSE;
+	
+	/* Temporarily convert r to window coords. Normally, we do this by
+	 * offsetting by doc->currentPaper, but in this case, doc->currentPaper
+	 * may have changed (if r's Sync was the last played on a page), so we
+	 * have to use the currentPaper for r's Sync. */
 
-		OffsetRect(r,rPaper->left,rPaper->top);
-		
-		/*
-		 * Code to scroll while playing. See comment on timing above. */
-		if (scroll) {
-			if (!SectRect(r,&doc->viewRect,&result)) {
-				/* Rect to be hilited is outside of window's view, so scroll paper */
-				x = doc->currentPaper.left - config.hPageSep;
-				y = doc->currentPaper.top  - config.vPageSep;
-				QuickScroll(doc,x,y,FALSE,TRUE);
-				turnedPage = TRUE;
-				}
+	OffsetRect(r,rPaper->left,rPaper->top);
+	
+	/*
+	 * Code to scroll while playing. See comment on timing above. */
+	if (scroll) {
+		if (!SectRect(r,&doc->viewRect,&result)) {
+			/* Rect to be hilited is outside of window's view, so scroll paper */
+			x = doc->currentPaper.left - config.hPageSep;
+			y = doc->currentPaper.top  - config.vPageSep;
+			QuickScroll(doc,x,y,FALSE,TRUE);
+			turnedPage = TRUE;
 			}
-		
-		HiliteRect(r);
-		/* Convert back to paper coords */
+		}
+	
+	HiliteRect(r);
+	/* Convert back to paper coords */
 
-		OffsetRect(r,-rPaper->left,-rPaper->top);
-		
-		return turnedPage;
-	}
+	OffsetRect(r,-rPaper->left,-rPaper->top);
+	
+	return turnedPage;
+}
 
 
 /* -------------------------------------------------------- AddBarlines functions -- */
@@ -686,12 +688,12 @@ static long ScaleDurForVariableSpeed(long rtDur)
 /* ----------------------------------------------------------------- PlaySequence -- */
 /*	Play [fromL,toL) of the given score and, if user hits the correct keys while
 playing, add barlines.  While playing, we maintain a list of currently-playing notes,
-which we use to decide when to stop playing each note. (With MIDI Manager v.2, it
-would probably be better to do this with invisible input and output ports, as de-
-scribed in the MIDI Manager manual. Does this also apply to Core MIDI?) */
+which we use to decide when to stop playing each note. (With the old MIDI Manager v.2,
+it would probably be better to do this with invisible input and output ports, as de-
+scribed in the MIDI Manager manual. I don't know if this also applies to Core MIDI.) */
 
-#define CH_BARTAP 0x09							/* Character code for insert-barline key  */
-#define MAX_TCONVERT 100						/* Max. no. of tempo changes we handle */
+#define CH_BARTAP 0x09						/* Character code for insert-barline key  */
+#define MAX_TCONVERT 100					/* Max. no. of tempo changes we handle */
 
 void PlaySequence(
 			Document *doc,

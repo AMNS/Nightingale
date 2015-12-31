@@ -319,6 +319,8 @@ Boolean DCheckUnisons(Document *doc)
 {
 	LINK pL; Boolean bad; short voice;
 	
+	if (unisonsOK) return FALSE;
+	
 	bad = FALSE;
 		
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {

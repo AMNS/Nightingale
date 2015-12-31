@@ -112,31 +112,22 @@ void Initialize()
 	err = SysEnvirons(1,&thisMac);
 	if (err) thisMac.machineType = -1;
 			
-	appleEventsOK = (thisMac.systemVersion >= 0x0700);	/* ??Should be using Gestalt */
+	appleEventsOK = (thisMac.systemVersion >= 0x0700);	/* ??Pointless now (in 2015); should remove this! */
 
 	if (appleEventsOK)
 		InstallCoreEventHandlers();
 	
-	if (thisMac.systemVersion<0x0700) {
-		GetIndCString(strBuf, INITERRS_STRS, 1);	/* "requires System 7.0 or higher" */
-		CParamText(strBuf, "", "", "");
-		StopInform(GENERIC_ALRT);
-		BadInit();
-		ExitToShell();
-	}
-
 	InitLogPrintf();
 
 	if (!OpenSetupFile())							/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
-	GetConfig();										/* needs the Prefs (Setup) file open */
+	GetConfig();									/* needs the Prefs (Setup) file open */
 	if (!OpenTextSetupFile())						/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
-	GetTextConfig();									/* needs the Prefs (Setup) file open */
+	GetTextConfig();								/* needs the Prefs (Setup) file open */
 	
 //	char *foo = GetPrefsValue("foo");
 //	char *bazz = GetPrefsValue("bazz");
-//	char *biff = GetPrefsValue("biff");
 
 	if (!InitMemory(config.numMasters))				/* needs the CNFG resource */
 		{ BadInit(); ExitToShell(); }
@@ -182,7 +173,7 @@ void Initialize()
 	 * See if we have enough memory that the user should be able to do
 	 * SOMETHING useful--and enough to get back to the main event loop, where
 	 * we do our regular low-memory checking. As of v.999, 250K was enough, but
-	 * make the minimum a little higher.
+	 * make the minimum a lot higher.
 	 */
 	if (!PreflightMem(400))
 		{ BadInit(); ExitToShell(); }

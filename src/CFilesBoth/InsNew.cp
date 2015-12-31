@@ -203,29 +203,29 @@ void AddDot(Document *doc,
 LINK AddNote(Document *doc,
 				short	x,			/* >=0 means new Sync, and this is its horiz. position in pixels, */
 									/* <0  means add note/rest to the existing Sync <doc->selStartL>. */
-				char inchar,	/* Symbol to add */
-				short	staff,	/* Staff number */
-				short	pitchLev,/* Half-line pitch level */
+				char inchar,		/* Symbol to add */
+				short	staff,		/* Staff number */
+				short	pitchLev,	/* Half-line pitch level */
 				short	acc,		/* Accidental code */
-				short octType	/* -1 if not in Octava, else octSignType */
+				short octType		/* -1 if not in Octava, else octSignType */
 				)
 {
-	PANOTE	aNote;
+	PANOTE		aNote;
 	LINK		newL;
 	LINK		aNoteL=NILINK,measL;
 	short		sym, noteDur, noteNDots,
 				midCpitchLev, voice;
-	Boolean 	inChord,				/* whether added note will be in a chord or not */
+	Boolean 	inChord,					/* whether added note will be in a chord or not */
 				isRest,
 				beamed;
 	CONTEXT	context;
 	DDIST		xd, measWidth;
 
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);    		/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);				/* "Undo Insert" */
 	NewObjInit(doc, SYNCtype, &sym, inchar, staff, &context);
 
 	voice = USEVOICE(doc, staff);
-	isRest = (symtable[sym].subtype!=0);							/* Set note/rest flag */
+	isRest = (symtable[sym].subtype!=0);						/* Set note/rest flag */
 	noteDur = Char2Dur(inchar);
 	
 	/* If symbol is a whole rest and the measure has no other notes/rests in its voice,
@@ -233,15 +233,14 @@ LINK AddNote(Document *doc,
 	 *	whole-measure rest if the duration of the measure is extremely long, but that
 	 *	doesn't seem worth bothering with.
 	 */
-	
 	if (isRest && noteDur==WHOLE_L_DUR
 	&&  !SyncInVoiceMeas(doc, doc->selStartL, voice, FALSE))
 				noteDur = WHOLEMR_L_DUR;
 	noteNDots = 0;
 	
-	if (x>=0)																/* Adding note to an existing Sync? */
+	if (x>=0)													/* Adding note to an existing Sync? */
 		inChord = FALSE;
-	else {																	/* Yes */
+	else {														/* Yes */
 		if (LinkNENTRIES(doc->selStartL)>=MAXCHORD) {
 			GetIndCString(strBuf, INSERTERRS_STRS, 5);    		/* "The chord already contains the max no. of notes." */
 			CParamText(strBuf, "", "", "");
@@ -252,11 +251,11 @@ LINK AddNote(Document *doc,
 		inChord = FALSE;
 		aNoteL = FirstSubLINK(doc->selStartL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
-			if (NoteVOICE(aNoteL)==voice)	{							/* This note/rest in desired voice? */
+			if (NoteVOICE(aNoteL)==voice)	{					/* This note/rest in desired voice? */
 				inChord = TRUE;
 				midCpitchLev = pitchLev-ClefMiddleCHalfLn(context.clefType);
 				aNote = GetPANOTE(aNoteL);
-				if (midCpitchLev==qd2halfLn(aNote->yqpit) && !ControlKeyDown()) {
+				if (!unisonsOK && !ControlKeyDown() && midCpitchLev==qd2halfLn(aNote->yqpit) ) {
 					GetIndCString(strBuf, INSERTERRS_STRS, 6);    /* "Nightingale can't handle chords containing unisons." */
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
@@ -264,20 +263,20 @@ LINK AddNote(Document *doc,
 					return aNoteL;
 				}
 				aNote = GetPANOTE(aNoteL);
-				noteDur = aNote->subType;								/* Use chord's values for duration */
-				noteNDots = aNote->ndots;								/*   and no. of dots */
+				noteDur = aNote->subType;						/* Use chord's values for duration */
+				noteNDots = aNote->ndots;						/*   and no. of dots */
 			}
 	}
 
-	isRest = (symtable[sym].subtype!=0);							/* Set note/rest flag */
-	if (x>=0) {																	/* Create new Sync? */
+	isRest = (symtable[sym].subtype!=0);						/* Set note/rest flag */
+	if (x>=0) {																/* Create new Sync? */
 		newL = InsertNode(doc, doc->selStartL, symtable[sym].objtype, 1);	/* Add Sync to data struct. */
 		if (!newL) { NoMoreMemory(); return aNoteL; }
 		xd = p2d(x)-context.measureLeft;
 		NewObjSetup(doc, newL, staff, xd);
 		aNoteL = FirstSubLINK(newL);
 	}
-	else {																		/* Not new Sync, add to existing one */
+	else {															/* Not new Sync, add to existing one */
 		if (!ExpandNode(doc->selStartL, &aNoteL, 1)) {
 			NoMoreMemory();
 			return aNoteL;
@@ -290,7 +289,7 @@ LINK AddNote(Document *doc,
 	SetupNote(doc, newL, aNoteL, staff, pitchLev, noteDur, noteNDots,
 								voice, isRest, acc, octType);
 	aNote = GetPANOTE(aNoteL);
-	aNote->selected = TRUE;													/* Select the subobject */
+	aNote->selected = TRUE;											/* Select the subobject */
 	aNote->inChord = inChord;
 	if (inChord) aNote->ystem = aNote->yd;
 
@@ -313,8 +312,8 @@ LINK AddNote(Document *doc,
 		
 	if (!inChord) FixTimeStamps(doc, newL, newL);
 
-	doc->selStartL = newL;													/* Update selection first ptr */
-	doc->selEndL = RightLINK(newL);										/* ...and last ptr */
+	doc->selStartL = newL;										/* Update selection first ptr */
+	doc->selEndL = RightLINK(newL);								/* ...and last ptr */
 
 	LinkVALID(newL) = FALSE;
 	InsFixMeasNums(doc, newL);
@@ -335,7 +334,7 @@ LINK AddNote(Document *doc,
 			measWidth = MeasWidth(measL);
 			if (noteDur==WHOLEMR_L_DUR) CenterNR(doc, newL, aNoteL, measWidth/2);
 		}
-		InvalMeasure(newL, staff);										/* Always redraw the measure */
+		InvalMeasure(newL, staff);								/* Always redraw the measure */
 	}
 	
 	return aNoteL;
@@ -346,12 +345,12 @@ LINK AddNote(Document *doc,
 /* Add a grace note to the object list at doc->selStartL. */
 
 LINK AddGRNote(Document *doc,
-					short	x,				/* >=0 means new GRSync, and this is its horiz. position in pts., */	
-											/* <0  means add grace note to the existing GRSync <doc->selStartL>. */
+					short	x,			/* >=0 means new GRSync, and this is its horiz. position in pts., */	
+										/* <0  means add grace note to the existing GRSync <doc->selStartL>. */
 					char	inchar,		/* Symbol to add */
 					short	staff,		/* Staff number */
 					short	pitchLev,	/* Half-line pitch level */
-					short	acc,			/* Accidental code */
+					short	acc,		/* Accidental code */
 					short	octType		/* -1 if not in Octava, else octSignType */
 					)
 {
@@ -361,7 +360,7 @@ LINK AddGRNote(Document *doc,
 				midCpitchLev, voice;
 	Boolean 	inChord,				/* whether added grace note will be in a chord or not */
 				beamed;
-	CONTEXT	context;
+	CONTEXT		context;
 	DDIST		xd;
 
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);    	/* "Undo Insert" */
@@ -371,12 +370,12 @@ LINK AddGRNote(Document *doc,
 	noteNDots = 0;
 	voice = USEVOICE(doc, staff);
 	
-	if (x>=0)															/* Adding grace note to an existing Sync? */
+	if (x>=0)													/* Adding grace note to an existing Sync? */
 		inChord = FALSE;
 	else
-	{																		/* Yes */
+	{															/* Yes */
 		if (LinkNENTRIES(doc->selStartL)>=MAXCHORD) {
-			GetIndCString(strBuf, INSERTERRS_STRS, 5);    	/* "The chord already contains the max. no. of notes." */
+			GetIndCString(strBuf, INSERTERRS_STRS, 5);			/* "The chord already contains the max. no. of notes." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
 			InvalMeasure(doc->selStartL, staff);
@@ -385,11 +384,11 @@ LINK AddGRNote(Document *doc,
 		inChord = FALSE;
 		aNoteL = FirstSubLINK(doc->selStartL);
 		for ( ; aNoteL; aNoteL = NextGRNOTEL(aNoteL))
-			if (GRNoteVOICE(aNoteL)==voice)	{							/* This grace note in desired voice? */
+			if (GRNoteVOICE(aNoteL)==voice)	{					/* This grace note in desired voice? */
 				inChord = TRUE;
 				midCpitchLev = pitchLev-ClefMiddleCHalfLn(context.clefType);
 				aNote = GetPAGRNOTE(aNoteL);
-				if (midCpitchLev==qd2halfLn(aNote->yqpit)) {
+				if (!unisonsOK && !ControlKeyDown() && midCpitchLev==qd2halfLn(aNote->yqpit) ) {
 					GetIndCString(strBuf, INSERTERRS_STRS, 6);    	/* "Nightingale can't handle chords containing unisons." */
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
@@ -397,19 +396,19 @@ LINK AddGRNote(Document *doc,
 					return aNoteL;
 				}
 				aNote = GetPAGRNOTE(aNoteL);
-				noteDur = aNote->subType;									/* Use chord's values for duration */
-				noteNDots = aNote->ndots;									/*   and no. of dots */
+				noteDur = aNote->subType;							/* Use chord's values for duration */
+				noteNDots = aNote->ndots;							/*   and no. of dots */
 			}
 	}
 
-	if (x>=0) {																	/* Create new GRSync? */
+	if (x>=0) {														/* Create new GRSync? */
 		newL = InsertNode(doc, doc->selStartL, symtable[sym].objtype, 1); /* Add GRSync to data struct. */
 		if (!newL) { NoMoreMemory(); return aNoteL; }
 		xd = p2d(x)-context.measureLeft;
 		NewObjSetup(doc, newL, staff, xd);
 		aNoteL = FirstSubLINK(newL);
 	}
-	else {																		/* Not new Sync, add to existing one */
+	else {															/* Not new Sync, add to existing one */
 		if (!ExpandNode(doc->selStartL, &aNoteL, 1)) {
 			NoMoreMemory();
 			return aNoteL;
@@ -422,7 +421,7 @@ LINK AddGRNote(Document *doc,
 	SetupGRNote(doc, newL, aNoteL, staff, pitchLev, noteDur, noteNDots,
 								voice, acc, octType);
 	aNote = GetPAGRNOTE(aNoteL);
-	aNote->selected = TRUE;													/* Select the subobject */
+	aNote->selected = TRUE;											/* Select the subobject */
 	aNote->inChord = inChord;
 	if (inChord) aNote->ystem = aNote->yd;
 
@@ -436,8 +435,8 @@ LINK AddGRNote(Document *doc,
 	if (inChord) FixGRSyncForChord(doc, newL, voice, beamed, 0, TRUE, NULL);
 	if (beamed) AddGRNoteFixBeams(doc, newL, aNoteL);
 	
-	doc->selStartL = newL;														/* Update selection first ptr */
-	doc->selEndL = RightLINK(newL);											/* ...and last ptr */
+	doc->selStartL = newL;											/* Update selection first ptr */
+	doc->selEndL = RightLINK(newL);									/* ...and last ptr */
 
 	InsFixMeasNums(doc, newL);
 	UpdateVoiceTable(doc, TRUE);
@@ -445,7 +444,7 @@ LINK AddGRNote(Document *doc,
 	if (doc->autoRespace)
 		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, FALSE, FALSE);
 	else
-		InvalMeasure(newL, staff);										/* Just redraw the measure */
+		InvalMeasure(newL, staff);									/* Just redraw the measure */
 
 	return aNoteL;
 }

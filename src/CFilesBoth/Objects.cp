@@ -1364,7 +1364,7 @@ void InitGraphic(LINK graphicL, short graphicType, short staff, short voice,
 
 void SetMeasVisible(LINK measL, Boolean visible)
 {
-	LINK			aMeasureL;
+	LINK		aMeasureL;
 	PAMEASURE	aMeasure;
 	
 	LinkVIS(measL) = visible;
@@ -1377,13 +1377,15 @@ void SetMeasVisible(LINK measL, Boolean visible)
 
 
 /* -------------------------------------------------------------- ChordHasUnison -- */
-/* If the specified chord contains any unisons, return TRUE, else FALSE. */
+/* If the specified chord contains any unisons, return TRUE, else FALSE. We check
+by looking for notes with the same vertical position, so both perfect and augmented
+unisons are detected. */
 
 Boolean ChordHasUnison(LINK syncL, short voice)
 {
-	short			noteCount, i;
+	short		noteCount, i;
 	CHORDNOTE	chordNote[MAXCHORD];
-	QDIST			prevyqpit;
+	QDIST		prevyqpit;
 	PANOTE		aNote;
 	/*
 	 *	Get sorted notes and go thru them by y-position. For our purpose, it makes
