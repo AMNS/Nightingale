@@ -88,7 +88,7 @@ Boolean DCheckEverything(Document *doc,
 	(void)DCheckHeirarchy(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckJDOrder(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 
-	(void)DCheckBeams(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckBeams(doc, maxCheck);		if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckOctaves(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckSlurs(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckTuplets(doc, maxCheck);		if (DErrLimit() || UserInterrupt()) return FALSE;

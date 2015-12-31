@@ -75,7 +75,7 @@ static void FixStartContext(Document *doc, LINK pL, LINK startL, LINK endL)
 		TSInfo.denominator = context.denominator;					
 		EFixContForTimeSig(startL, endL, s, TSInfo);
 
-		EFixContForDynamic(startL, endL, s, context.dynamicType, context.dynamicType);
+		EFixContForDynamic(startL, endL, s, context.dynamicType);
 	}
 }
 

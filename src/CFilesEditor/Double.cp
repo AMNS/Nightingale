@@ -2,11 +2,11 @@
 
 /*										NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEÃˆ PROGRAM AND IS CONFIDENTIAL
+ * THIS FILE IS PART OF THE NIGHTINGALEé PROGRAM AND IS CONFIDENTIAL
  * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
  * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
  * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright Â© 1988-97 by Advanced Music Notation Systems, Inc.
+ * Copyright © 1988-97 by Advanced Music Notation Systems, Inc.
  * All Rights Reserved.
  *
  */
@@ -464,7 +464,7 @@ void DblSetupVMap(Document *doc, short vMap[], LINK startL, LINK endL, short src
 	for (v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn!=0)
 			LogPrintf(LOG_NOTICE, "%ciVoice %d part %d relVoice=%d\n",
-							(v==1? 'Â«' : ' '),
+							(v==1? 'Ç' : ' '),
 							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
 #endif	
 }
@@ -901,10 +901,10 @@ static void DblFixContext(Document *doc, short dstStf)
 		context-bearing objects (Measure and Staff) in the selection range, considering
 		Dynamics we encounter along the way. */
 
-LogPrintf(LOG_NOTICE, "DblFixContext0: doc->selStartL=%d dstStf=%d\n", doc->selStartL, dstStf);
+//LogPrintf(LOG_NOTICE, "DblFixContext0: doc->selStartL=%d dstStf=%d\n", doc->selStartL, dstStf);
 	GetContext(doc, doc->selStartL, dstStf, &context);
 	startDynamType = currentDynamType = context.dynamicType;
-LogPrintf(LOG_NOTICE, "DblFixContext1: currentDynamType=%d\n", currentDynamType);
+//LogPrintf(LOG_NOTICE, "DblFixContext1: currentDynamType=%d\n", currentDynamType);
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		switch (ObjLType(pL)) {
@@ -913,14 +913,12 @@ LogPrintf(LOG_NOTICE, "DblFixContext1: currentDynamType=%d\n", currentDynamType)
 					aDynamicL = FirstSubLINK(pL);
 					if (DynamicSTAFF(aDynamicL)==dstStf) {
 						currentDynamType = DynamType(pL);
-LogPrintf(LOG_NOTICE, "DblFixContext: Dynamic pL=%d dynam=%d\n",
-	pL, currentDynamType);
+//LogPrintf(LOG_NOTICE, "DblFixContext: Dynamic pL=%d dynam=%d\n", pL, currentDynamType);
 					}
 				}
 				continue;
 			case MEASUREtype:
-LogPrintf(LOG_NOTICE, "DblFixContext: Measure pL=%d dynam=%d\n",
-	pL, currentDynamType);
+//LogPrintf(LOG_NOTICE, "DblFixContext: Measure pL=%d dynam=%d\n", pL, currentDynamType);
 				dstMeasL = MeasOnStaff(pL, dstStf);
 				dstMeas = GetPAMEASURE(dstMeasL);
 				dstMeas->dynamicType = currentDynamType;
@@ -938,8 +936,8 @@ LogPrintf(LOG_NOTICE, "DblFixContext: Measure pL=%d dynam=%d\n",
 	/* Now update Dynamic context as if new Dynamics were just inserted at the beginning
 	of the selection range (to make things consistent before the first actual Dynamic
 	in the range) and at the end of the range, */
-	EFixContForDynamic(doc->selStartL, doc->selEndL, dstStf, 99 /* unused */, startDynamType);
-	EFixContForDynamic(doc->selEndL, doc->tailL, dstStf, 99 /* unused */, currentDynamType);
+	EFixContForDynamic(doc->selStartL, doc->selEndL, dstStf, startDynamType);
+	EFixContForDynamic(doc->selEndL, doc->tailL, dstStf, currentDynamType);
 }
 
 

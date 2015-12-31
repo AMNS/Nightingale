@@ -889,12 +889,12 @@ preserving tweaking; otherwise it simply replaces velocities. How do we really
 want to do this? */
 
 void EFixContForDynamic(LINK startL, LINK doneL,
-				short staffn,										/* Desired staff no. */
-				SignedByte /*oldDynamic*/, SignedByte newDynamic	/* Previously-effective and new dynamicTypes */
+				short staffn,									/* Desired staff no. */
+				SignedByte newDynamic							/* New dynamicTypes */
 				)
 {
-	LINK			pL, aNoteL, aStaffL, aDynamicL, aMeasureL;
-	short			newVelocity;
+	LINK		pL, aNoteL, aStaffL, aDynamicL, aMeasureL;
+	short		newVelocity;
 
 #ifdef RELDYNCHANGE
 	veloChange = dynam2velo[newDynamic]-dynam2velo[oldDynamic];	/* Rel. change; preserve tweaking */
@@ -904,10 +904,10 @@ void EFixContForDynamic(LINK startL, LINK doneL,
 					(long)newDynamic);
 		return;
 	}
-	newVelocity = dynam2velo[newDynamic];							/* Replace; discard tweaking */
+	newVelocity = dynam2velo[newDynamic];						/* Replace; discard tweaking */
 	if (newVelocity<1 || newVelocity>MAX_VELOCITY) {
-		MayErrMsg("EFixContForDynamic: velocity for dynamic type %ld = %ld",
-					(long)newDynamic, (long)newVelocity);
+		MayErrMsg("EFixContForDynamic: illegal velocity of %ld for dynamic type %ld",
+					(long)newVelocity), (long)newDynamic;
 		return;
 	}
 #endif
@@ -943,7 +943,7 @@ void EFixContForDynamic(LINK startL, LINK doneL,
 				for ( ; aDynamicL; aDynamicL = NextDYNAMICL(aDynamicL)) {
 					/* aDynamic = GetPADYNAMIC(aDynamicL); */
 					if (DynamicSTAFF(aDynamicL)==staffn)
-						if (DynamType(pL)<FIRSTHAIRPIN_DYNAM)		/* For now, ignore hairpins */
+						if (DynamType(pL)<FIRSTHAIRPIN_DYNAM)	/* For now, ignore hairpins */
 							return;
 				}
 				break;
@@ -965,8 +965,8 @@ void EFixContForDynamic(LINK startL, LINK doneL,
 /* ------------------------------------------------------------- NonHPDynamSearch -- */
 /* Starting at <link>, search for the next non-hairpin dynamic. */
 
-LINK NonHPDynamSearch(LINK link, short staffn);
-LINK NonHPDynamSearch(LINK link, short staffn)
+static LINK NonHPDynamSearch(LINK link, short staffn);
+static LINK NonHPDynamSearch(LINK link, short staffn)
 {
 	if (DynamTYPE(link) && DynamType(link)>=FIRSTHAIRPIN_DYNAM)
 		return link;
@@ -1008,7 +1008,7 @@ LINK FixContextForDynamic(
 	doneL = NonHPDynamSearch(startL,staffn);
 	if (!doneL) doneL = doc->tailL;
 
-	EFixContForDynamic(startL, doneL, staffn, oldDynamic, newDynamic);
+	EFixContForDynamic(startL, doneL, staffn, newDynamic);
 	
 	return doneL;
 }

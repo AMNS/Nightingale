@@ -3098,7 +3098,7 @@ static void PasteFixAllContexts(Document *doc, LINK startL, LINK endL, short s,
 	}
 
 	if (oldContext.dynamicType!=newContext.dynamicType)
-		EFixContForDynamic(startL, endL, s, oldContext.dynamicType, newContext.dynamicType);
+		EFixContForDynamic(startL, endL, s, newContext.dynamicType);
 }
 
 /* Fix up measure context for all measures in the system containing the pasted

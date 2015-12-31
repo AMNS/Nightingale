@@ -14,7 +14,7 @@ Boolean DCheckNodeSel(Document *, LINK);
 Boolean DCheckSel(Document *, short *, short *);
 Boolean DCheckHeirarchy(Document *);
 Boolean DCheckJDOrder(Document *);
-Boolean DCheckBeams(Document *);
+Boolean DCheckBeams(Document *, Boolean);
 Boolean DCheckOctaves(Document *);
 Boolean DCheckSlurs(Document *);
 Boolean DCheckTuplets(Document *, Boolean);

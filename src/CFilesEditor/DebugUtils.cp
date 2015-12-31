@@ -1797,15 +1797,18 @@ cross-system pair, the next non-grace Beamset in that voice is the second of a c
 system pair. Notes/rests are checked against their Beamset more carefully than
 grace notes are. */
  
-Boolean DCheckBeams(Document *doc)
+Boolean DCheckBeams(
+					Document *doc,
+					Boolean maxCheck		/* FALSE=skip less important checks */
+					)
 {
 	PANOTE				aNote, aGRNote;
-	LINK					pL, aNoteL, aGRNoteL;
-	LINK					syncL, measureL, noteBeamL, qL;
-	short					staff, voice, v, n, nEntries;
-	LINK					beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
+	LINK				pL, aNoteL, aGRNoteL;
+	LINK				syncL, measureL, noteBeamL, qL;
+	short				staff, voice, v, n, nEntries;
+	LINK				beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
 	Boolean				expect2ndPiece[MAXVOICES+1], beamNotesOkay;
-	PBEAMSET				pBS;
+	PBEAMSET			pBS;
 	PANOTEBEAM			pNoteBeam;
 	SearchParam 		pbSearch;
 	Boolean				foundRest, grace, bad;
@@ -1884,9 +1887,14 @@ Next:
 			 		 *	any error.
 					 */
 					if (pNoteBeam->bpSync!=syncL) {
-						COMPLAIN2("(*)DCheckBeams: BEAMSET %d SYNC LINK INCONSISTENT%s.\n", pL,
-										(foundRest? " (WITH RESTS;PROBABLY OK)" : "") );
-						beamNotesOkay = FALSE;
+						if (foundRest && maxCheck) {
+							COMPLAIN("DCheckBeams: BEAMSET %d SYNC LINK INCONSISTENT (WITH RESTS; PROBABLY OK).\n", pL);
+							beamNotesOkay = FALSE;
+						}
+						else if (!foundRest) {
+							COMPLAIN("*DCheckBeams: BEAMSET %d SYNC LINK INCONSISTENT.\n", pL);
+							beamNotesOkay = FALSE;
+						}
 					}
 			}
 

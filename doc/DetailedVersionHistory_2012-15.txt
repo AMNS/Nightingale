@@ -301,17 +301,20 @@ has always done. Affects MIDIUtils; MIDIGeneral.h.
 
 -------------------------------------------------------------------------------
 
-28-30 Dec.
+28-31 Dec.
 
 Add control (via compile time option) of whether Nightingale complains about unisons
 (whether perfect or augmented) in a chord, (1) when an attempt to create one is made
 and (2) in Debug command output. Affects vars.h; Debug2Utils, InitNightingale, InsNew.
 
-Minor cleanup; improve error checking slightly. Affects .rsrc; Context, Initialize,
-MIDIPlay, Objects.
-
 Fix bug: Double Selection often fails to update context in following objects correctly.
 Affects Double.
 
+Remove unused parameter to EFixContForDynamic(). Affects Context.h; Context, Double,
+MergeUtils, MoveUpDown.
+
 Update version number in About box to 5.6b1. Affects info.plist .
+
+Minor cleanup; improve error checking slightly. Affects .rsrc; Context, Initialize,
+MIDIPlay, Objects.
 

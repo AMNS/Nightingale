@@ -819,7 +819,7 @@ static void MergeFixAllContexts(Document *doc,
 	}
 
 	if (oldContext.dynamicType!=newContext.dynamicType)
-		EFixContForDynamic(startL, endL, s, oldContext.dynamicType, newContext.dynamicType);
+		EFixContForDynamic(startL, endL, s, newContext.dynamicType);
 }
 
 /* ------------------------------------------------------------- MergeFixContext -- */
