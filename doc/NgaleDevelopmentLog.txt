@@ -1101,6 +1101,8 @@ too large: it's 100, but should be more like the config default of 8. But where 
 startup disk, and I can't tell from the code where we're looking -- but we seem to be
 finding it! Try changing the name to, e.g., "Nightingale 5-AMNF Prefs"?
 
+??UNFINISHED!
+
 -------------------------------------------------------------------------------
 
 17-19 Dec.
@@ -1131,4 +1133,19 @@ that to long in the prototype & declaraion of CMInsertEvent() => OK!!
 It's OK now _if_ the longer note is encountered first. If a shorter duration is followed
 by a longer, it's not enough to add the longer one to the cmEventList: I have to remove
 the shorter one! ...best implemented simply by replacing it (duration and Off velocity).
-Do that => all OK.
+Do that => all OK!
+
+-------------------------------------------------------------------------------
+
+22-30 Dec.
+
+- Ngale doesn't handle unisons, even perfect unisons, at all well. It'd be helpful
+if user could say "unisons are OK". Then, (a) when they create a unison, (a) Ngale
+should automatically put the new note on "the other side of the stem", and (b) Debug
+Check shouldn't warn about perfect unisons. Fix est.impact: very low.
+
+!! CAVEAT: aking _any_ change to Double.cp is likely to turn it into "ill-formed UTF"
+(according to BBEdit); this is really nasty because Xcode doesn't complain, it just
+gives compilation errors. I'm sure this has happened before, probably with a different
+file. Sigh.
+

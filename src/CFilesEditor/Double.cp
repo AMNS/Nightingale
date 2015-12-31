@@ -2,11 +2,11 @@
 
 /*										NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL
+ * THIS FILE IS PART OF THE NIGHTINGALEÃˆ PROGRAM AND IS CONFIDENTIAL
  * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
  * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
  * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-97 by Advanced Music Notation Systems, Inc.
+ * Copyright Â© 1988-97 by Advanced Music Notation Systems, Inc.
  * All Rights Reserved.
  *
  */
@@ -23,6 +23,9 @@ static void FixChordsForClef(Document *, LINK, short, CONTEXT, CONTEXT);
 static short DupAndSetStaff(Document *, short [], LINK, short, short, short);
 static Boolean StfHasSmthgAcross(Document *, LINK, short, char []);
 static Boolean RangeHasUnmatchedSlurs(Document *, LINK, LINK, short);
+static LINK LSContextDynamicSearch(LINK, short, Boolean, Boolean);
+static void DblFixContext(Document *, short);
+static Boolean IsDoubleOK(Document *, short, short);
 
 /* =========================================================== DoubleDialog, etc. == */
 
@@ -96,16 +99,16 @@ static pascal Boolean DoubleFilter(DialogPtr dlog, EventRecord *evt, short *item
 
 
 static Boolean DoubleDialog(Document *doc,
-							short srcStf,		/* Staff no. containing material to be doubled */
-							short *pDstStf		/* Destination staff no. */
-							)
+						short srcStf,		/* Staff no. containing material to be doubled */
+						short *pDstStf		/* Destination staff no. */
+						)
 {
-	DialogPtr	dlog;
+	DialogPtr		dlog;
 	short			ditem = Cancel, staffn, partChoice, nPart, partMaxStf;
-	GrafPtr		oldPort;
-	Boolean		keepGoing = TRUE;
+	GrafPtr			oldPort;
+	Boolean			keepGoing = TRUE;
 	LINK			thePartL, partL;
-	PPARTINFO	pPart;
+	PPARTINFO		pPart;
 	char			partName[256], fmtStr[256];	
 	ModalFilterUPP	filterUPP;
 
@@ -461,7 +464,7 @@ void DblSetupVMap(Document *doc, short vMap[], LINK startL, LINK endL, short src
 	for (v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn!=0)
 			LogPrintf(LOG_NOTICE, "%ciVoice %d part %d relVoice=%d\n",
-							(v==1? '¥' : ' '),
+							(v==1? 'Â«' : ' '),
 							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
 #endif	
 }
@@ -851,12 +854,13 @@ Boolean RangeHasUnmatchedSlurs(Document */*doc*/, LINK startL, LINK endL, short 
 }
 
 
-LINK LSContextDynamicSearch(LINK, short, Boolean, Boolean);
-LINK LSContextDynamicSearch(
-				LINK startL,				/* Place to start looking */
-				short staff,				/* target staff number */
+/* Look for a Dynamic, ignoring hairpins. */
+
+static LINK LSContextDynamicSearch(
+				LINK startL,			/* Place to start looking */
+				short staff,			/* target staff number */
 				Boolean goLeft,			/* TRUE if we should search left */
-				Boolean needSelected		/* TRUE if we only want selected items */
+				Boolean needSelected	/* TRUE if we only want selected items */
 				)
 {
 	LINK dynL;
@@ -875,54 +879,71 @@ Search:
 	return NILINK;
 }
 
-void DblFixContext(Document *, short, short);
-void DblFixContext(Document *doc, short srcStf, short dstStf)
+
+/* Update Dynamic context on <dstStf> baseed on Dynamics in the selection range
+(whether actually selected or not) on that staff. Intended for use with Double().
+NB: Notes in the range in the original staff before the 1st Dynamic will have
+velocities based on the Dynamic in effect there, which is probably different from
+the Dynamic in effect at the beginning of the range in <dstStf>. This means that
+velocities of notes at the beginning of the range in <dstStf> won't be consistent
+with the context. The best solution might be ??MAKE THEM CONSISTENT! inserting an explicit
+Dynamic on <dstStf>. Some day. */
+ 
+static void DblFixContext(Document *doc, short dstStf)
 {
-	LINK dynL, pL, srcMeasL, dstMeasL, srcStaffL, dstStaffL, aDynamicL;
-	PAMEASURE srcMeas, dstMeas;
-	PASTAFF srcStaff, dstStaff;
+	LINK pL, dstMeasL, dstStaffL, aDynamicL;
+	PAMEASURE dstMeas;
+	PASTAFF dstStaff;
+	CONTEXT context;
+	short startDynamType, currentDynamType;
 	
-	/* Update dynamic context. Start with the first context-bearing obj (Measure or
-		Staff) after the first dynamic-context-affecting object (for now, non-hairpin
-		Dynamic) in <srcStf>; update until the first context-affecting object in
-		<dstStf>. Exception: if the the first dynamic context-affecting obj is after
-		the selection range, do nothing. */
+	/* Pick uo the Dynamic context from just before the selection range. Then update
+		context-bearing objects (Measure and Staff) in the selection range, considering
+		Dynamics we encounter along the way. */
 
-	dynL = LSContextDynamicSearch(doc->selStartL, srcStf, GO_RIGHT, FALSE);
-	if (IsAfter(LeftLINK(doc->selEndL), dynL)) return;
+LogPrintf(LOG_NOTICE, "DblFixContext0: doc->selStartL=%d dstStf=%d\n", doc->selStartL, dstStf);
+	GetContext(doc, doc->selStartL, dstStf, &context);
+	startDynamType = currentDynamType = context.dynamicType;
+LogPrintf(LOG_NOTICE, "DblFixContext1: currentDynamType=%d\n", currentDynamType);
 
-	if (dynL) {
-		for (pL = dynL; pL; pL = RightLINK(pL))
-			switch (ObjLType(pL)) {
-				case DYNAMtype:
-					if (DynamType(pL)<FIRSTHAIRPIN_DYNAM) {
-						aDynamicL = FirstSubLINK(pL);
-						if (DynamicSTAFF(aDynamicL)==dstStf)
-							return;
+	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
+		switch (ObjLType(pL)) {
+			case DYNAMtype:
+				if (DynamType(pL)<FIRSTHAIRPIN_DYNAM) {
+					aDynamicL = FirstSubLINK(pL);
+					if (DynamicSTAFF(aDynamicL)==dstStf) {
+						currentDynamType = DynamType(pL);
+LogPrintf(LOG_NOTICE, "DblFixContext: Dynamic pL=%d dynam=%d\n",
+	pL, currentDynamType);
 					}
-					break;
-				case MEASUREtype:
-					srcMeasL = MeasOnStaff(pL, srcStf);
-					dstMeasL = MeasOnStaff(pL, dstStf);
-					srcMeas = GetPAMEASURE(srcMeasL);
-					dstMeas = GetPAMEASURE(dstMeasL);
-					dstMeas->dynamicType = srcMeas->dynamicType;
-					break;
-				case STAFFtype:
-					srcStaffL = StaffOnStaff(pL, srcStf);
-					dstStaffL = StaffOnStaff(pL, dstStf);
-					srcStaff = GetPASTAFF(srcStaffL);
-					dstStaff = GetPASTAFF(dstStaffL);
-					dstStaff->dynamicType = srcStaff->dynamicType;
-					break;
-				default:
-					;
-			}
+				}
+				continue;
+			case MEASUREtype:
+LogPrintf(LOG_NOTICE, "DblFixContext: Measure pL=%d dynam=%d\n",
+	pL, currentDynamType);
+				dstMeasL = MeasOnStaff(pL, dstStf);
+				dstMeas = GetPAMEASURE(dstMeasL);
+				dstMeas->dynamicType = currentDynamType;
+				continue;
+			case STAFFtype:
+				dstStaffL = StaffOnStaff(pL, dstStf);
+				dstStaff = GetPASTAFF(dstStaffL);
+				dstStaff->dynamicType = currentDynamType;
+				continue;
+			default:
+				;
+		}
 	}
+		
+	/* Now update Dynamic context as if new Dynamics were just inserted at the beginning
+	of the selection range (to make things consistent before the first actual Dynamic
+	in the range) and at the end of the range, */
+	EFixContForDynamic(doc->selStartL, doc->selEndL, dstStf, 99 /* unused */, startDynamType);
+	EFixContForDynamic(doc->selEndL, doc->tailL, dstStf, 99 /* unused */, currentDynamType);
 }
 
-Boolean IsDoubleOK(Document *, short, short);
-Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
+
+static Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 {
 	Boolean hasSmthgAcross, crossStaff;
 	short srcPart, dstPart;
@@ -976,7 +997,7 @@ Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 				if (SlurCrossSTAFF(pL)) {
 					short slurPart = Staff2Part(doc, SlurSTAFF(pL));
 					if (slurPart==srcPart || slurPart==dstPart)
-						crossStaff = TRUE;	/* may not be possible but just in case */
+						crossStaff = TRUE;			/* may not be possible but just in case */
 				}
 				break;
 			case TUPLETtype:
@@ -1011,12 +1032,12 @@ NOTHING_TO_DO or OP_COMPLETE.
 
 The "everything" that's duplicated and "empty" destination need more explanation,
 especially as regards the objects that affect context:
-							Source staff						Destination staff
-							------------						-----------------
-	Clefs					not allowed (except gutter)	not allowed (except gutter)
-	Key signatures		not allowed (except gutter)	not allowed (except gutter)
-	Time signatures	ignored 								allowed, left alone
-	Dynamics				copied								not allowed
+						Source staff						Destination staff
+						------------						-----------------
+	Clefs				not allowed (except gutter)			not allowed (except gutter)
+	Key signatures		not allowed (except gutter)			not allowed (except gutter)
+	Time signatures		ignored 							allowed, left alone
+	Dynamics			copied								not allowed
 These rules let us keep the context consistent without too much trouble while (I
 hope) not being too restrictive. */
 
@@ -1062,7 +1083,7 @@ short Double(Document *doc)
 
 	if (didSomething) {
 		doc->changed = TRUE;
-		DblFixContext(doc, srcStf, dstStf);
+		DblFixContext(doc, dstStf);
 		/*
 		 * We may have newly-created beams and so on preceding the selection range. The
 		 * easiest way to fix it (though not the most efficient) is via OptimizeSelection.

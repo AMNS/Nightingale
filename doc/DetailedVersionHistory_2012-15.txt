@@ -169,7 +169,7 @@ MIDIPlay.cp: Change more instances of "Midi" in function names to "MIDI".
 
 -------------------------------------------------------------------------------
 
-2 - 4 October	(*** Nightingale 5.5 ***)
+2 - 4 October	*** NIGHTINGALE 5.5 ***
 
 Integrate my codebase with the codebase in the AMNS/Nightingale GitHub repository, which
 dates from late June 2012. Integrated ca. 7 .h's and 19 .cp's, but -- as a result of
@@ -279,12 +279,13 @@ allows. Affects .rsrc .
 
 -------------------------------------------------------------------------------
 
-29 Nov. - 19 Dec.
+29 Nov. - 28 Dec.
 
-Replace calls to DebugPrintf() -- which has simply been #define'd as printf -- with
-calls to new function LogPrintf(), which uses syslog(Section 3) so messages go to the
-system log and (via compile time option) also to Xcode's Run Log window (which of course
-doesn't exist if Ngale isn't running inside Xcode). Affects DebugUtils.h; about 60 files.
+Replace calls to DebugPrintf() -- which was simply #define'd as printf -- with calls to
+a new function LogPrintf(), which uses syslog(Section 3) so messages go to the system
+log and (optionally, via compile time option) also to stderr (which appears in Xcode's
+Run Log window if Nightingale is running inside Xcode). Affects DebugUtils.h; about 60
+files.
 
 In the project file, put precomp headers in proper alphabetical order.
 
@@ -295,6 +296,22 @@ now shows "3 (pp)", not just "3". Affects Browser.
 
 On MIDI playback, if multiple notes are simultaneously playing the same note number on
 the same channel but end at different times, either hold the note till the last one ends
-or (via compile-time option) stops playing that note when the first one ends, as Ngale
-has always done. Affects MIDIUtils; MIDIGeneral.h
+or (via compile-time option) stop playing that note when the first one ends, as Ngale
+has always done. Affects MIDIUtils; MIDIGeneral.h.
+
+-------------------------------------------------------------------------------
+
+28-30 Dec.
+
+Add control (via compile time option) of whether Nightingale complains about unisons
+(whether perfect or augmented) in a chord, (1) when an attempt to create one is made
+and (2) in Debug command output. Affects vars.h; Debug2Utils, InitNightingale, InsNew.
+
+Minor cleanup; improve error checking slightly. Affects .rsrc; Context, Initialize,
+MIDIPlay, Objects.
+
+Fix bug: Double Selection often fails to update context in following objects correctly.
+Affects Double.
+
+Update version number in About box to 5.6b1. Affects info.plist .
 
