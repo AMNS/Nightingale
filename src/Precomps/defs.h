@@ -38,16 +38,16 @@ enum {										/* Goto types */
 
 enum {
 	WHOLEMR_L_DUR=-1,						/* l_dur code (subType) for whole measure rest */
-	UNKNOWN_L_DUR=0,						/*								unknown CMN value */
-	BREVE_L_DUR=1,							/*								breve */
+	UNKNOWN_L_DUR=0,						/*							unknown CMN value */
+	BREVE_L_DUR=1,							/*							breve */
 	WHOLE_L_DUR,							/* 							whole note/rest */
 	HALF_L_DUR,								/* 							half note/rest */
 	QTR_L_DUR,								/* 							quarter note/rest */
-	EIGHTH_L_DUR,							/*								eighth note/rest */
-	SIXTEENTH_L_DUR,						/*								16th note/rest */
-	THIRTY2ND_L_DUR,						/*								32nd note/rest */
-	SIXTY4TH_L_DUR,						/*								64th note/rest */
-	ONE28TH_L_DUR,							/*								128th note/rest */
+	EIGHTH_L_DUR,							/*							eighth note/rest */
+	SIXTEENTH_L_DUR,						/*							16th note/rest */
+	THIRTY2ND_L_DUR,						/*							32nd note/rest */
+	SIXTY4TH_L_DUR,							/*							64th note/rest */
+	ONE28TH_L_DUR,							/*							128th note/rest */
 	NO_L_DUR	
 };
 
@@ -69,10 +69,10 @@ enum {										/* Output device types */
 
 enum {										/* Location for adding Systems and Measures: */
 	firstSystem,							/* Adding the very first System of the score, when it is created */
-	beforeFirstSys,						/* Adding before the first System of the score */
+	beforeFirstSys,							/* Adding before the first System of the score */
 	firstOnPage,							/* Adding a new first System to some page other than the first */
 	succSystem,								/* Adding a System following the first to any page */
-	succMeas									/* Adding a Measure following the first to any System */
+	succMeas								/* Adding a Measure following the first to any System */
 };
 
 enum {										/* DrawSTAFF foreground/background codes: */
@@ -106,7 +106,7 @@ enum {										/* MIDI Driver: */
 };
 
 enum {										/* MIDI Driver config settings */
-	MIDISYS_CM,								/* Core MIDI */
+	MIDISYS_CM=0,							/* Core MIDI */
 	MIDISYS_NONE
 };
 
@@ -128,7 +128,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define MCH_flat 'b'
 #define MCH_natural 'n'
 
-#define MCH_common 'c'							/* Time signatures */
+#define MCH_common 'c'						/* Time signatures */
 #define MCH_cut 'C'
 
 #define MCH_breveNoteHead 0xDD				/* =shift-option-4 */
@@ -148,7 +148,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define MCH_sxFlagDown 'K'
 #define MCH_extendFlagUp 0xFB				/* =option-K */
 #define MCH_extendFlagDown 0xF0				/* =shift-option-K */
-#define MCH_dot '.'								/* augmentation dot */
+#define MCH_dot '.'							/* augmentation dot */
 #define MCH_stemspace 0xCA					/* notehead minus stem width; =option-space */
 #define MCH_graceSlash 'G'
 
@@ -159,7 +159,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define MCH_heavyAccent '^'
 #define MCH_heavyAccentBelow 'v'
 #define MCH_staccato MCH_dot
-#define MCH_wedge 0xAE							/* =shift-option-' */
+#define MCH_wedge 0xAE						/* =shift-option-' */
 #define MCH_wedgeBelow '\''
 #define MCH_tenuto '-'
 #define MCH_mordent 'M'
@@ -167,13 +167,13 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define MCH_turn 'T'
 #define MCH_plus '+'
 #define MCH_circle 'o'
-#define MCH_upbow '²'
-#define MCH_downbow '³'
+#define MCH_upbow 'Â²'
+#define MCH_downbow 'Â³'
 #define MCH_heavyAccAndStaccato 0xAC		/* =option-u option-u */
 #define MCH_heavyAccAndStaccatoBelow 0xE8	/* =shift-option-u */
 #define MCH_longInvMordent 0xB5				/* =option-m */
 
-#define MCH_ppp 0xB8							/* Dynamic marks: */
+#define MCH_ppp 0xB8						/* Dynamic marks: */
 #define MCH_pp 0xB9
 #define MCH_p 'p'
 #define MCH_mp 'P'
@@ -181,7 +181,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define MCH_f 'f'
 #define MCH_ff 0xC4
 #define MCH_fff 0xEC
-#define MCH_sf 'S'								/* "sf" */
+#define MCH_sf 'S'							/* "sf" */
 
 #define MCH_topbracket 0xC2
 #define MCH_bottombracket 'L'
@@ -190,7 +190,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define MCH_rptDots 0x7B
 #define MCH_arpeggioSign 'g'
 
-#define BREVEYOFFSET 2				/* Correction for Sonata error in breve origin (half-lines) */
+#define BREVEYOFFSET 2						/* Correction for Sonata error in breve origin (half-lines) */
 
 /* -------------------------------------------------- OTHER CHARACTER AND KEY CODES -- */
 
@@ -201,7 +201,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 
 #define CLEARKEY 27						/* Macintosh character code for clear key */
 #define CMD_KEY 17						/* Macintosh character code for command key */
-#define LEFTARROWKEY	28					/* Macintosh character codes for arrow keys... */
+#define LEFTARROWKEY	28				/* Macintosh character codes for arrow keys... */
 #define RIGHTARROWKEY	29
 #define UPARROWKEY 30
 #define DOWNARROWKEY 31
@@ -217,7 +217,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 
 #define ACCTABLE_OFF 30					/* Staff half-line offset in accTable */
 
-#define CTL_ACTIVE 0						/* Standard HiliteControl codes */
+#define CTL_ACTIVE 0					/* Standard HiliteControl codes */
 #define CTL_INACTIVE 255
 
 #define ENDTEXT 999						/* "End of text" to SelIText */
@@ -230,13 +230,13 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define ANYTYPE -1
 #define ANYSUBTYPE -1
 
-#define ANYONE -1							/* passed to search routines if we just don't care */
+#define ANYONE -1						/* passed to search routines if we just don't care */
 
-#define NOONE -2							/* returned by FindStaff,GetStaffFromSel, etc. */
+#define NOONE -2						/* returned by FindStaff,GetStaffFromSel, etc. */
 
 #define NOMATCH -1
 
-#define GO_LEFT TRUE						/* used in calls to search routines */
+#define GO_LEFT TRUE					/* used in calls to search routines */
 #define GO_RIGHT FALSE
 
 #define EXACT_TIME TRUE					/* used in calls to TimeSearch routines */
@@ -268,23 +268,23 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define HILITE_TICKS	12					/* Minimum system ticks to show HiliteInsertNode hiliting */ 
 
 #define DOCUMENT_TYPE_NORMAL 'SCOR'
-#define CREATOR_TYPE_NORMAL 'BYRD'									/* "signature" */
+#define CREATOR_TYPE_NORMAL 'BYRD'			/* "signature" */
 #define DOCUMENT_TYPE_VIEWER 'SCOV'
-#define CREATOR_TYPE_VIEWER 'BYRV'									/* "signature" */
+#define CREATOR_TYPE_VIEWER 'BYRV'			/* "signature" */
 
 /* ------------------------------------------------------------ MIDI and real-time -- */
 
 /* Some MIDI parameters. Others are in the CNFG resource (and most of these should be
 moved there eventually). */
 
-#define MAXBPM 1200							/* Maximum legal tempo (really qtrs/min., not beats) */
+#define MAXBPM 1200								/* Maximum legal tempo (really qtrs/min., not beats) */
 
 /* When Importing MIDI files... */
-#define MIDI_BASS_TOP (MIDI_MIDDLE_C+4)		/* If avg. noteNum>this, change from bass to treble */
+#define MIDI_BASS_TOP (MIDI_MIDDLE_C+4)			/* If avg. noteNum>this, change from bass to treble */
 #define MIDI_TREBLE_BOTTOM (MIDI_MIDDLE_C-3)	/* If avg. noteNum<this, change from treble to bass */
 
-#define MAXEVENTLIST 128					/* Maximum no. of simultaneous notes for Play cmds */
-#define MAXMFEVENTLIST 128					/* Maximum no. of simultaneous notes in MIDI files */
+#define MAXEVENTLIST 128						/* Maximum no. of simultaneous notes for Play cmds */
+#define MAXMFEVENTLIST 128						/* Maximum no. of simultaneous notes in MIDI files */
 
 #define DFLT_BEATDUR (32L*PDURUNIT)				/* Quarter-note duration in PDUR ticks */
 
@@ -304,10 +304,10 @@ moved there eventually). */
 /* Some notation style parameters, for engravers and other fanatics. MANY others are
 in the CNFG resource (and most of these should be moved there eventually). */
 
-#define CLEF8_ITAL TRUE			/* Use italic digits (normal) instead of roman for clef '8's? */
+#define CLEF8_ITAL TRUE					/* Use italic digits (normal) instead of roman for clef '8's? */
 
 #define ACC_IN_CONTEXT TRUE					/* Do accs. last to end of measure, as usual in CMN? */
-														/* NB: Value of FALSE is NOT fully implemented! */
+											/* NB: Value of FALSE is NOT fully implemented! */
 
 #define EXPAND_WIDER TRUE					/* Stretch text in style Expand with two blanks btn chars., else one */
 
@@ -331,10 +331,10 @@ in the CNFG resource (and most of these should be moved there eventually). */
 #define OCT_THICK(lnSp)	((6*(lnSp))/50)			/* PostScript thickness of dotted lines in octavas (DDIST) */
 #define ENDING_THICK(lnSp)	((6*(lnSp))/50)		/* PostScript thickness of Ending's lines in octavas (DDIST) */
 
-#define TUPLE_CUTOFFLEN (STD_LINEHT/2)				/* Length of vertical cutoff line (STDIST, not DDIST) */
-#define OCT_CUTOFFLEN(lnSp) (lnSp)					/* Length of vertical cutoff line (DDIST) */
+#define TUPLE_CUTOFFLEN (STD_LINEHT/2)			/* Length of vertical cutoff line (STDIST, not DDIST) */
+#define OCT_CUTOFFLEN(lnSp) (lnSp)				/* Length of vertical cutoff line (DDIST) */
 #define NONARP_CUTOFF_LEN(lnSp) ((3*(lnSp))/4)	/* Nonarpeggio sign horiz. cutoff length (DDIST) */
-#define ENDING_CUTOFFLEN(lnSp) (2*(lnSp))			/* Length of Ending's vertical cutoff line (DDIST) */
+#define ENDING_CUTOFFLEN(lnSp) (2*(lnSp))		/* Length of Ending's vertical cutoff line (DDIST) */
 
 /* STRICT_SHORTSTEM is an offset, in half-spaces toward the center of staff, on where
 shortening kicks in. With STRICT_SHORTSTEM=0, any notes entirely outside the staff
@@ -349,12 +349,12 @@ change the "4" in "(lnSp)*4"; we're determining these values based on a
 
 #define FlagLeading(lnSp)	(3*(lnSp)*4/16)		/* Vert. dist. between flags */
 #define HeadWidth(lnSp)	(9*(lnSp)*4/32)			/* Width of common (beamable) note heads */
-#define FracBeamWidth(lnSp) ((lnSp)*4/4)			/* Fractional beam length */
+#define FracBeamWidth(lnSp) ((lnSp)*4/4)		/* Fractional beam length */
 
 /* LedgerLen and LedgerOtherLen are used only for insertion feedback and for ledger
 lines on rests. Lengths of note ledger lines are determined by <config> fields. */
-#define LedgerLen(lnSp) 	(12*(lnSp)*4/32)		/* Length on notehead's side of stem */
-#define LedgerOtherLen(lnSp) (3*(lnSp)*4/32)		/* Length on side of stem away from notehead */
+#define LedgerLen(lnSp) 	(12*(lnSp)*4/32)	/* Length on notehead's side of stem */
+#define LedgerOtherLen(lnSp) (3*(lnSp)*4/32)	/* Length on side of stem away from notehead */
 
 #define InsLedgerLen(lnSp) ((lnSp)*4/4)			/* Note insert pseudo-ledger line length */
 
@@ -362,28 +362,28 @@ lines on rests. Lengths of note ledger lines are determined by <config> fields. 
 
 /* The following #defines are just abbreviations for convenience. */
 
-#define SP_AFTERBAR (2*config.spAfterBar)	/* "Normal" space to leave after barlines (STDIST) */
-#define STHEIGHT drSize[doc->srastral]		/* initial staff height (DDIST) */
+#define SP_AFTERBAR (2*config.spAfterBar)		/* "Normal" space to leave after barlines (STDIST) */
+#define STHEIGHT drSize[doc->srastral]			/* initial staff height (DDIST) */
 
 
 /* ----------------------------------------------------------- MISCELLANEOUS MACROS -- */
 /* ??These should probably be in a new file, <genlMacros.h> or some such. */
 
 /* Arithmetic, etc. */
-#define ABS(a) ( (a)<0 ? -(a) : (a) )						/* absolute value function */
+#define ABS(a) ( (a)<0 ? -(a) : (a) )							/* absolute value function */
 #define odd(a) ((a) & 1)										/* TRUE if a is odd */
 
 // CER: 02.19.2003 changed min, max to n_min, n_max
-#define n_min(a,b) ( (a)<(b) ? (a) : (b) )					/* minimum functions */
+#define n_min(a,b)		( (a)<(b) ? (a) : (b) )					/* minimum functions */
 #define min3(a, b, c)	( n_min(n_min((a), (b)), (c)) )
-#define n_max(a,b) ( (a)>(b) ? (a) : (b) )					/* maximum functions */
+#define n_max(a,b)		( (a)>(b) ? (a) : (b) )					/* maximum functions */
 #define max3(a, b, c)	( n_max(n_max((a), (b)), (c)) )
 #define clamp(low, val, high)	( (val)<(low)?(low):((val)>(high)?(high):(val)) )
 
 #define divby2(num) 	( (num)>=0? (num)>>1 : (-(-(num)>>1)) )	/* num must be an integer */
 #define divby4(num) 	( (num)>=0? (num)>>2 : (-(-(num)>>2)) )	/* num must be an integer */
 
-#define LXOR(a, b)  (((a)!=0) ^ ((b)!=0))					/* Logical exclusive or */
+#define LXOR(a, b)  (((a)!=0) ^ ((b)!=0))						/* Logical exclusive or */
 
 /* Round <n> up to an even number, i.e., if <n> is odd, return <n+1>, else <n>. */
 #define ROUND_UP_EVEN(n) ((n) + ((n) & 1))
@@ -431,7 +431,7 @@ lines on rests. Lengths of note ledger lines are determined by <config> fields. 
 #define SizePercentSCALE(value)	((int)(((long)sizePercent*(value))/100L))
 
 /* For note with given CMN duration code (subType), wider-than-normal head value */
-#define WIDEHEAD(lDur)		( (lDur)==BREVE_L_DUR? 2 : ((lDur)==WHOLE_L_DUR? 1 : 0 ) )
+#define WIDEHEAD(lDur)			( (lDur)==BREVE_L_DUR? 2 : ((lDur)==WHOLE_L_DUR? 1 : 0 ) )
 
 /* Is rest with given dur. code wider than normal (at level of aug. dots)? */
 #define IS_WIDEREST(l_dur)		((l_dur)>EIGHTH_L_DUR)
@@ -449,7 +449,7 @@ lines on rests. Lengths of note ledger lines are determined by <config> fields. 
 #define VISIBLE(pL) (LinkVIS(pL) || doc->showInvis)
 
 #define ENABLE_REDUCE(doc)		((doc)!=NULL && (doc)->magnify>MIN_MAGNIFY)
-#define ENABLE_ENLARGE(doc)	((doc)!=NULL && (doc)->magnify<MAX_MAGNIFY)
+#define ENABLE_ENLARGE(doc)		((doc)!=NULL && (doc)->magnify<MAX_MAGNIFY)
 #define ENABLE_GOTO(doc)		((doc)!=NULL && (!(doc)->masterView))
 
 /* Get distance between staff lines for given PCONTEXT (DDIST) */
@@ -459,11 +459,11 @@ lines on rests. Lengths of note ledger lines are determined by <config> fields. 
 equiv. KSINFO is necessarily even, so BlockMove(ks1, ks2, sizeof(KSINFO)) doesn't work. */
 
 #define KEYSIG_COPY(ks1, ks2)						\
-{	int i;												\
-															\
-	(ks2)->nKSItems = (ks1)->nKSItems;			\
-	for (i = 0; i<(ks1)->nKSItems; i++)			\
-		(ks2)->KSItem[i] = (ks1)->KSItem[i];	\
+{	int i;											\
+													\
+	(ks2)->nKSItems = (ks1)->nKSItems;				\
+	for (i = 0; i<(ks1)->nKSItems; i++)				\
+		(ks2)->KSItem[i] = (ks1)->KSItem[i];		\
 }
 
 /* Simple compound-meter identifying heuristic. Better for fast tempi than slow ones! */
@@ -480,7 +480,7 @@ equiv. KSINFO is necessarily even, so BlockMove(ks1, ks2, sizeof(KSINFO)) doesn'
 #define STAFFN_BAD(doc, staff)	((staff)<1 || (staff)>doc->nstaves)
 
 /* Is the voice number illegal? */
-#define VOICE_BAD(voice)	((voice)<0 || (voice)>MAXVOICES)
+#define VOICE_BAD(voice)		((voice)<0 || (voice)>MAXVOICES)
 
 /* Is the object type illegal? */
 #define TYPE_BAD(pL)			(ObjLType((pL))<LOWtype || ObjLType((pL))>HIGHtype)
@@ -497,7 +497,7 @@ with MAX_TSDENOM, above! */
 #define ABOVE_VLIM(doc) 	(-pt2d((doc)->marginRect.bottom))
 #define BELOW_VLIM(doc) 	(pt2d((doc)->marginRect.bottom))
 #define RIGHT_HLIM(doc) 	(pt2d((doc)->marginRect.right-(doc)->marginRect.left))
-#define LEFT_HLIM(doc, pL) (J_DTYPE(pL)? -RIGHT_HLIM(doc) : 0)
+#define LEFT_HLIM(doc, pL)	(J_DTYPE(pL)? -RIGHT_HLIM(doc) : 0)
 
 /* ------------------------------------------------------------- CONVERSION MACROS -- */
 
@@ -530,12 +530,12 @@ with MAX_TSDENOM, above! */
 #define in2pt(i) ((i) * POINTSPERIN)
 
 /* Convert DDIST to pixels/points and back */
-#define d2p(d)		D2PFunc(d)								/* DDIST to pixels */
+#define d2p(d)	D2PFunc(d)								/* DDIST to pixels */
 #define d2px(d)	D2PXFunc(d)								/* DDIST to pixels, truncating */
-#define p2d(p)		P2DFunc(p)								/* pixels to DDIST */
+#define p2d(p)	P2DFunc(p)								/* pixels to DDIST */
 
 #define d2pt(d)	(((d)+8)>>4)							/* DDIST to points */
-#define pt2d(p)	((p)<<4)									/* points to DDIST */
+#define pt2d(p)	((p)<<4)								/* points to DDIST */
 #define p2pt(p)	d2pt(p2d(p))							/* pixels to points */
 #define pt2p(p)	d2p(pt2d(p))							/* points to pixels */
 
@@ -544,7 +544,7 @@ with MAX_TSDENOM, above! */
 
 /* Standard font names */
 
-#define SYSFONTID_SANSSERIF	kFontIDGeneva			/* Universal Interfaces 3.0.1 */
+#define SYSFONTID_SANSSERIF	kFontIDGeneva				/* Universal Interfaces 3.0.1 */
 #define SYSFONTID_MONOSPACED	kFontIDMonaco			/* Universal Interfaces 3.0.1 */
 
 /* Rect corners */

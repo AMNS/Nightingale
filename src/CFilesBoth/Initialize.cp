@@ -145,7 +145,6 @@ void Initialize()
 	 *	our having to crash or die prematurely except in the rarest occasions. (The
 	 *	"rainy day" memory fund.)
 	 */
-	 
 	memoryBuffer = NewHandle(config.rainyDayMemory*1024L);
 	if (!GoodNewHandle(memoryBuffer)) {
 		OutOfMemory(config.rainyDayMemory*1024L);
@@ -207,12 +206,12 @@ static OSStatus FindPrefsFile(OSType fType, OSType fCreator, FSSpec *prefsSpec)
 	CInfoPBRec cat;
 	OSStatus err;
 	
-	// Find the preferences folder
+	/* Find the preferences folder, normally ~/Library/Preferences */
 	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, true, &pvol, &pdir);
 	LogPrintf(LOG_NOTICE, "Prefs File: FindFolder: err=%d\n", err);
 	if (err!=noErr) return err;
 	
-	// Search the folder for the file
+	/* Search the folder for the file */
 	BlockZero(&cat, sizeof(cat));
 	cat.hFileInfo.ioNamePtr = name;
 	cat.hFileInfo.ioVRefNum = pvol;
@@ -255,15 +254,15 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	ScriptCode		scriptCode = smRoman;
 //	FSSpec			rfSpec;
 	
-	/* Create a new file in the Preferences folder of the System folder and give it a
-	resource fork. If there is no Preferences folder in the System folder, create it. */
+	/* Create a new file in the ~/Library/Preferences and give it a resource fork.
+		If there is no Preferences folder in ~/Library, create it. */
 	
 //	theErr = Create(, thisMac.sysVRefNum, creatorType, 'NSET'); /* Create new file */
 //	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, "\pNightingale 2001 Prefs", &rfSpec);
 
 #if 0
-	HParamBlockRec fInfo;
-	long				setupDirID;
+	HParamBlockRec	fInfo;
+	long			setupDirID;
 	
 	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, SETUP_FILE_NAME, &rfSpec);
 	if (theErr==dirNFErr) {
@@ -449,11 +448,8 @@ Boolean OpenSetupFile()
 	rfVRefNum = vRefNum;
 	rfVolDirID = dirID;
 	
-	/* Try to open the Prefs file in the System Folder. */
-	
-//	setupFileRefNum = OpenResFile(SETUP_FILE_NAME);
-//	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, "\pNightingale 2001 Prefs", &rfSpec);
-//	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, SETUP_FILE_NAME, &rfSpec);
+	/* Try to open the Prefs file. Under "classic" Mac OS (9 and before), it was normally
+	in  the System Folder; under OS X, it's in ~/Library/Preferences . */
 	
 	theErr = FindPrefsFile(prefsFileType, creatorType, &rfSpec);
 	Pstrcpy(setupFileName, SETUP_FILE_NAME);
@@ -476,7 +472,7 @@ Boolean OpenSetupFile()
 		 */
 		LogPrintf(LOG_NOTICE, "Creating new '%s' (Prefs) file\n", PToCString(setupFileName));
 		ProgressMsg(CREATESETUP_PMSTR, "");
-		SleepTicks(60L);								/* Be sure user can read the msg */
+		SleepTicks(120L);								/* Give user time to read the msg */
 		if (!CreateSetupFile(&rfSpec)) {
 			GetIndCString(strBuf, INITERRS_STRS, 2);	/* "Can't create Prefs file" */
 			CParamText(strBuf, "", "", "");
@@ -484,7 +480,7 @@ Boolean OpenSetupFile()
 			okay = FALSE;
 			goto done;
 		}
-		/* Try opening the brand-new one. */
+		/* Try opening the brand-new Prefs file. */
 //		setupFileRefNum = OpenResFile(SETUP_FILE_NAME);
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
 
