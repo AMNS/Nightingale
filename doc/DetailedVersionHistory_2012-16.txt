@@ -1,0 +1,334 @@
+NIGHTINGALE CHANGES (in DAB's current version), AFTER JUNE 2012 THRU JAN. 2016
+
+(Most of the files in my Nightingale Carbon code base have last modification dates of
+April or May 2012; a few files are 2 June 2012, and it looks like that's the last source
+code I share with David G. This document describes all changes to my own code base since
+then, the earliest of which are dated 4 March 2013.)
+
+
+March 2013 - ??
+
+* CoreMidiUtils.cp: make DebugPrintf output more readable.
+* Removed messages in log output for every note (or Sync?) played, e.g.:
+      pL=1461: rect.l=288,r=294 paper.l=-20860,r=-20248
+	The huge number of those messages overwhelmed everything else in the log. Affects
+	MIDIPlay.cp: #define PLDEBUG as 0.
+* Fixed a horrible and very confusing kludge for turning notehead graphs off and on that
+	resulted in measures often being respaced far too widely when Show Duration Problems
+	was on. Added #define for NOTEHEAD_GRAPH_WIDTH; made doNoteheadGraphs a global.
+	Affects defs.h, vars.h, DrawNRGR, InitNightingale, SpaceTime.
+* Initialize.cp: display all CNFG field values & errors detected in them in log file;
+	if config.whichMIDI is illegal, set it to a legal value (like all other fields).
+* SpaceHighLevel.cp: improve debug print output for respacing.
+* Added "Set tempo to visible/invisible" to QuickChange. Affects Set.h, SetCommand.cp,
+	Nightingale.rsrc.
+* Increased the minimum legal value of config.lineLW from 1 to 5.
+* Fixed bug: In the declaration of the Configuration struct, the _noteScanEpsXD_ field
+	had somehow been deleted, resulting in misalignment of fields read in, nonsensical
+	complaints about illegal CNFG values, ledger lines too long, etc. Affects
+	applicationTypes.h .
+* Debug output for playback is excessive; disable some. Affects MIDIPlay.cp: #define
+	CMDEBUG as 0.
+* Remove code to check expiration date. Affects InitNightingale.cp .
+
+-----------------------------------------------------------------------------
+
+March-June 2013
+
+* Change max. tempo from 600 to 1200 BPM. Affects defs.h
+
+* Print status of reading Prefs file, checking CNFG, etc. Affects Initialize.cp
+
+* Advance expiration date by a year. Affects InitNightingale.cp
+
+* Don't print info on every Sync as it's played. Affects MIDIPlay.cp
+
+* Display values of all CNFG fields in log; if any are bad, list all bad ones in error
+message. Affects Initialize.cp
+
+* Fix "Respace sometimes leaves way too much space, especially after a dotted
+note/chord" bug. Affects vars.h; DrawNRGR.c, InitNightingale.c, SpaceTime.c: add global
+<doNoteheadGraphs> to say whether to display noteheads as tiny graphs; defs.h:
+declaration of <NOTEHEAD_GRAPH_WIDTH>.
+
+* Minor cleanup. Affects SpaceHighLevel.c; DrawUtils.cp: DrawMChar: removed #if'd-out
+code
+
+-----------------------------------------------------------------------------
+
+mid-Aug. - Nov. 2013
+
+* Add to QuickChange "Set tempo M.M. visibility to visible/invisible". Affects .rsrc: add
+"M.M. visibility" to Tempo popup; SetUtils.c: add SetSelTempoVisible; SetCommand.c:
+improve description of how to add features; various.
+
+* DrawObject.cp: comment out DebugPrintf(s).
+
+-------------------------------------------------------------------------------
+
+23 Mar.- 5 Apr. 2015
+
+* Get rid of the nonsensical statement about duration problems Score Info always gives
+following its correct statement about duration problems. Affects ScoreInfo.c:
+ScoreInfo(): remove two redundant lines of code just before call to HasMidiMap().
+
+* Changes to Nightingale.rsrc:
+	* Change "Midi" to "MIDI" in the "Midi Map" menu command, the MIDI Map dialog, and
+		several error messages
+	* Reduce size of the "MIDI Modifier Effects" dialog
+	* Reduce size of the "Change Dynamic To" dialog
+	* Remove phony politeness -- the word "Please" -- from various dialogs
+
+* Increase max. play duration allowed in Set Duration dialog from 300% to 500%, mostly
+to handle better the "logical 8th note with half-note head" situation (as in Brahms
+piano music). NB: This doesn't help if the situation is "logical duration shorter than
+8th note with half-note head", but that seems to be much less common. Affects .rsrc:
+STR# 240; DialogsEditor.cp.
+
+* Fix bug in Debug output: Debug Check incorrectly complains about (most? all?)
+initial Keysigs of systems with no sharps/flats that their objRects are "GARBAGE
+(UNSELECTABLE)". Affects DebugUtils.c: DCheckNode.
+
+-------------------------------------------------------------------------------
+
+11 May - 14 June 2015
+
+* Add a "Relative Playback Speed..." command to the Play/Rec menu: it sets playback
+tempi to a percentage of the "correct" (marked) tempos. Make its keyboard shortcut
+command-8. (All letters and all other digits are already taken.) Set the shortcut for
+Instrument MIDI Settings back to option-command-M. Affects .rsrc: STR# 240;
+NightTemplates.h, NResourceID.h, vars.h, InitNightingale, Menu, MIDIDialogs, MIDIPlay.
+
+* Change the default type for Save PostScript from "EPSF for one page" to "PostScript
+text for entire file". Affects CarbonPrinting.cp .
+
+* Change two error messages saying a problem is "probably" because of insufficient
+memory to "perhaps" because of insufficient memory. Affects .rsrc: STR# 228.
+
+* Fix bug: the channel and patch number in the Instrument settings dialog (from Master
+Page) is initialized with illegal values instead of the instrument's current channel and
+patch number. Affects InstrDialog.cp: InstrDialog().
+
+* Add error check for patch no. in the Instrument settings dialog. Affects
+InstrDialog.cp: InstrDialog().
+
+* Correct wording of an error message from the Instrument settings dialog. Affects
+.rsrc: STR# 265.
+
+-------------------------------------------------------------------------------
+
+22 July - 12 August
+
+Increase the default window width, which is ridiculously narrow on a typical modern
+display. Affects .rsrc: in WIND 2000, change 620 to 690. (This is still pretty narrow,
+but just right for one letter-size page at 100% magnification; if the window is any
+wider, it'll show a fraction of a second page, screwing up auto page turning on
+playback.)
+
+Do debug printing for the Import MIDI File command if the shift & control keys are down;
+minor cleanup. Affects MIDIFOpen.cp.
+
+-------------------------------------------------------------------------------
+
+30 August - 9 Sept.
+
+Decrease the height of the "Change modifier" and "Add this modifier..." dialogs;
+change wording of the latter from "notes" to "notes/rests". Affects .rsrc.
+
+Change keyboard shortcut for Relative Playback Speed from command-8 (which was already
+taken by Create Octave Sign!) to shift-command-0; make its dialog slightly wider; make
+the MIDI Modifier Effects dialog slightly smaller. Affects .rsrc.
+
+-------------------------------------------------------------------------------
+
+12 - 16 Sept.
+
+Fix bug in MIDI file export where tempo changes after the first few are often ignored.
+Affects MIDIPlay.cp: PlaySequence().
+
+MIDIPlay.cp: Change most instances of "Midi" in function names to "MIDI"; improve
+comments; minor cleanup.
+
+MIDIFOpen.cp: In Debug prints for TEMPO metaevents, add "(TEMPO)"; rename the two
+versions of GetRelObj (with different calling sequences: this assumes a C++ compiler,
+a bad idea) to GetTempoRelObj and GetCtrlRelObj; clean up code.
+
+MIDIFSave.cp: Clarify DebugPrintf's; warn (via DebugPrintf) if tempo change is at the
+same time as a previous tempo change; minor cleanup.
+
+-------------------------------------------------------------------------------
+
+17 - 30 Sept.
+
+Add an "Expanded" option to the text entry and Define Text Styles dialogs. Affects
+.rsrc; defs.h; DrawObject, StringUtils, TextDialog.
+
+StringToolbox.cp: minor cleanup.
+
+MIDIPlay.cp: Change more instances of "Midi" in function names to "MIDI".
+
+-------------------------------------------------------------------------------
+
+2 - 4 October	*** NIGHTINGALE 5.5 ***
+
+Integrate my codebase with the codebase in the AMNS/Nightingale GitHub repository, which
+dates from late June 2012. Integrated ca. 7 .h's and 19 .cp's, but -- as a result of
+Geoff's large-scale cruft removal in 2012 -- almost all files changed.
+
+Update/simplify About box. Affects About.cp, .rsrc: DLOG 451.
+
+Change version number from 5.4 to 5.5! Affects Info.plist.
+
+-------------------------------------------------------------------------------
+
+27 Sept. - 18 Oct.
+
+Add a "Mute Part" command to the Play/Rec menu; notes for the muted part will neither
+be played nor written to an exported MIDI file. Affects .rsrc; applicationTypes.h,
+MIDIGeneral.h, NightTemplates.h, NResourceID.h; Documents, Menu, MIDIDialogs, MIDIPlay,
+MIDIFSave, MIDIUtils, Part.
+
+In code to display config fields: add _musicFontID_; rearrange to come closer to the
+order of declarations; minor cleanup. Affects applicationTypes.h; Initialize.
+
+PS_Stdio: clarify comments; minor cleanup.
+
+Make Debug Check's checking for "SYSTEM AT xxx RECT PAST RIGHT MARGIN" less strict.
+Affects DebugUtils.
+
+-------------------------------------------------------------------------------
+
+20 - 26 Oct.
+
+Add to the config fields displayed _fastScreenSlurs_ & _enclWidthOffset_; clarify
+comments; minor cleanup. Affects Initialize.
+
+Clarify a comment. Affects DebugUtils.
+
+Tweak the Info dialog for notes/rests and the one for most other symbols (DLOGs 596 and
+598) to make them more readable. Affects .rsrc.
+
+-------------------------------------------------------------------------------
+
+27-28 Oct.
+
+Fix bug: ExpandString() doesn't check for excessively long strings correctly. Affects
+StringUtils.
+
+Make the "expanded" option for regular text strings independent of the style instead of
+part of the style definition; minor cleanup. Affects .rsrc; Browser, Check, DrawObject,
+Insert, InsNew, InsNew.h, MIDIFOpen, NightTemplates.h, NTypes.h, TextDialog. NB: This
+option is not entirely backwards compatible: some text in some old scores now comes out
+(incorrectly) as "expanded" -- I don't know why.
+
+Add an "expanded" option for text in tempo marks; minor cleanup. Affects .rsrc; Browser,
+Check, DialogsEditor, DrawObject, Insert, InsNew, InsNew.h, MIDIFOpen, NightTemplates.h,
+NTypes.h.
+
+-------------------------------------------------------------------------------
+
+3-16 Nov.
+
+Further tweak the Info dialog for notes/rests and the one for most other symbols (DLOGs
+596 and 598) to make them more readable. Affects .rsrc; InfoDialog.
+
+Clarify Browser display of the voice table. Affects Browser.
+
+Preliminary work towards letting user say "when respacing, ignore the chord this note
+belongs to". Affects .rsrc; Browser, InfoDialog, Objects, SpaceHighLevel, SpaceTime,
+VoiceNumbers, NightTemplates.h, NTypes.h, vars.h.
+
+Browser, InfoDialog, SpaceHighLevel, SpaceTime, VoiceNumbers, NTypes.h, vars.h: minor
+cleanup.
+
+Fix bug: when values are changed in many fields of the Sync Info and General Info
+dialogs (DLOGs 596 and 598), the chars. for the new values are truncated because they
+extend slightly below the boxes they're shown in. Affects .rsrc .
+
+Tweak the Extended Info dialog (used for text strings, octave signs, and tuplets) to
+make it more reaable. Affects .rsrc.
+
+Display the tempo in effect in the Context window. Affects .rsrc; Browser.
+
+-------------------------------------------------------------------------------
+
+17-26 Nov.
+
+Add staff no. to the Debug messages about note or grace note in another part's voice.
+Affects Debug2Utils.
+
+Remove useless #ifdef's; minor cleanup. Affects MIDIPlay, Debug.h, NTypes.h.
+
+Fix bug: in the Sync Info dialog and the General Info dialog (used for measures/barlines
+and text) some labels are truncated into unclarity; in Sync Info, the value of the Onset
+Time is truncated into incorrectness. Affects .rsrc.
+
+Make the Context window interpret dynamic level -- e.g., it now shows "3 (pp)", not
+just "3". Affects Browser.
+
+In error conditions, explain via DebugPrintf; minor cleanup. Affects Browser.
+
+-------------------------------------------------------------------------------
+
+28 Nov.
+
+CarbonPrinting: minor cleanup.
+
+Clarify error message for attempt to zoom in further than the Screen Page Layout
+allows. Affects .rsrc .
+
+-------------------------------------------------------------------------------
+
+29 Nov. - 28 Dec.
+
+Replace calls to DebugPrintf() -- which was simply #define'd as printf -- with calls to
+a new function LogPrintf(), which uses syslog(Section 3) so messages go to the system
+log and (optionally, via compile time option) also to stderr (which appears in Xcode's
+Run Log window if Nightingale is running inside Xcode). Affects DebugUtils.h; about 60
+files.
+
+In the project file, put precomp headers in proper alphabetical order.
+
+Minor cleanup. Affects many files.
+
+Make the Browser window interpret dynamic level for Dynamics and Measures-- e.g., it
+now shows "3 (pp)", not just "3". Affects Browser.
+
+On MIDI playback, if multiple notes are simultaneously playing the same note number on
+the same channel but end at different times, either hold the note till the last one ends
+or (via compile-time option) stop playing that note when the first one ends, as Ngale
+has always done. Affects MIDIUtils; MIDIGeneral.h.
+
+-------------------------------------------------------------------------------
+
+28-31 Dec.
+
+Add control (via compile time option) of whether Nightingale complains about unisons
+(whether perfect or augmented) in a chord, (1) when an attempt to create one is made
+and (2) in Debug command output. Affects vars.h; Debug2Utils, InitNightingale, InsNew.
+
+Minor cleanup; improve error checking slightly. Affects .rsrc; Context, Initialize,
+MIDIPlay, Objects.
+
+Fix bug: Double Selection often fails to update context in following objects correctly.
+Affects Double.
+
+Have Debug skip error messages for inconsistent links in beams if rests are present.
+
+Remove unused parameter to EFixContForDynamic(). Affects Context.h; Context, Double,
+MergeUtils, MoveUpDown.
+
+Update version number in About box to 5.6b1. Affects info.plist .
+
+-------------------------------------------------------------------------------
+
+2 - 4 Jan. 2015
+
+Change the name of the Preferences file to "Nightingale AMNF Prefs". Affects .rsrc;
+VersionStrings.h; Initialize.
+
+Fix bug: the MIDI driver code in the default CNFG resource (used when creating a new
+"Nightingale AMNF Prefs" file) is illegal. Affects .rsrc .
+
+Minor cleanup. Affects defs.h; Initialize.
+
