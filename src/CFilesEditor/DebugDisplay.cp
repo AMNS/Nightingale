@@ -50,26 +50,26 @@ void DisplayNode(Document *doc, LINK pL,
 				)
 {
 	register PMEVENT	p;
-	PPARTINFO	pPartInfo;
+	PPARTINFO		pPartInfo;
 	register PANOTE aNote;
-	PASTAFF		aStaff;
-	PAMEASURE	aMeasure;
+	PASTAFF			aStaff;
+	PAMEASURE		aMeasure;
 	PAPSMEAS		aPseudoMeas;
-	PACLEF		aClef;
+	PACLEF			aClef;
 	PAKEYSIG		aKeySig;
-	PANOTEBEAM	aNoteBeam;
-	PANOTETUPLE aNoteTuple;
-	PATIMESIG	aTimeSig;
-	PADYNAMIC	aDynamic;
-	PACONNECT	aConnect;
-	PASLUR		aSlur;
+	PANOTEBEAM		aNoteBeam;
+	PANOTETUPLE		aNoteTuple;
+	PATIMESIG		aTimeSig;
+	PADYNAMIC		aDynamic;
+	PACONNECT		aConnect;
+	PASLUR			aSlur;
 	PANOTEOCTAVA	aNoteOct;
 	register LINK aNoteL;
 	LINK			aStaffL, aMeasureL, aPseudoMeasL, aClefL, aKeySigL, aNoteBeamL,
 					aNoteTupleL, aTimeSigL, aDynamicL, aConnectL, aSlurL, 
 					aNoteOctL, partL;
 	char			selFlag;
-	const char	*ps;
+	const char		*ps;
 
 #ifdef DDB
 	PushLock(OBJheap);
@@ -77,8 +77,8 @@ void DisplayNode(Document *doc, LINK pL,
 	selFlag = ' ';
 	if (!abnormal) {
 		if (pL==doc->selStartL && pL==doc->selEndL) selFlag = '&';
-		else if (pL==doc->selStartL)				 	  selFlag = '{';
-		else if (pL==doc->selEndL)				 		  selFlag = '}';
+		else if (pL==doc->selStartL)				selFlag = '{';
+		else if (pL==doc->selEndL)				 	selFlag = '}';
 	}	
 
 	LogPrintf(LOG_NOTICE, "%c%d", selFlag, kount);
@@ -384,11 +384,10 @@ void DisplayNode(Document *doc, LINK pL,
 			for (aConnectL=FirstSubLINK(pL); aConnectL; 
 					aConnectL=NextCONNECTL(aConnectL)) {
 				aConnect = GetPACONNECT(aConnectL);
-				LogPrintf(LOG_NOTICE, "     xd=%d lev=%d type=%d stfA=%d stfB=%d firstPart=%d last=%d %c\n",
+				LogPrintf(LOG_NOTICE, "     xd=%d lev=%d type=%d stfA=%d stfB=%d %c\n",
 					aConnect->xd,
 					aConnect->connLevel, aConnect->connectType,
 					aConnect->staffAbove, aConnect->staffBelow,
-					aConnect->firstPart, aConnect->lastPart,
 					(aConnect->selected? 'S' : '.'));
 			}
 			break;

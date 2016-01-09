@@ -717,12 +717,15 @@ void ShowObject(Document *doc, LINK pL, short index)
 
 /* -------------------------------------------------------------- ShowVoicePage -- */
 
-#define VOICEPAGESIZE 15
+#define VOICEPAGESIZE 20		/* Max. no. of lines (voices) that fit in Browser window */ 
 
 void ShowVoicePage(Document *, short);
 void ShowVoicePage(Document *doc, short startV)
 {
 	short v; unsigned char ch;
+	
+	sprintf(s, "Score uses %d voices.", CountVoices(doc));
+	DrawLine(s);
 	
 	if (startV<1) startV = 1;				/* Avoid negative index in loop below */
 	
@@ -852,7 +855,6 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 		DrawLine(s);	q = GetPPARTINFO(qL);
 		sprintf(s, "patch=%d chan=%d name=%s",
 			q->patchNum, q->channel, q->name);
-		DrawLine(s);
 		DrawLine(s);
 		sprintf(s, "fmsOutputDevice=%d",
 			q->fmsOutputDevice);

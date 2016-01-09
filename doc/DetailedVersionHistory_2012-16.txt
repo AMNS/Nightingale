@@ -169,7 +169,7 @@ MIDIPlay.cp: Change more instances of "Midi" in function names to "MIDI".
 
 -------------------------------------------------------------------------------
 
-2 - 4 October	*** NIGHTINGALE 5.5 ***
+2 - 4 October			====== NIGHTINGALE 5.5 ======
 
 Integrate my codebase with the codebase in the AMNS/Nightingale GitHub repository, which
 dates from late June 2012. Integrated ca. 7 .h's and 19 .cp's, but -- as a result of
@@ -322,7 +322,7 @@ Update version number in About box to 5.6b1. Affects info.plist .
 
 -------------------------------------------------------------------------------
 
-2 - 4 Jan. 2015
+2 - 8 Jan. 2015			=== NIGHTINGALE 5.6b1 ===
 
 Change the name of the Preferences file to "Nightingale AMNF Prefs". Affects .rsrc;
 VersionStrings.h; Initialize.
@@ -330,5 +330,11 @@ VersionStrings.h; Initialize.
 Fix bug: the MIDI driver code in the default CNFG resource (used when creating a new
 "Nightingale AMNF Prefs" file) is illegal. Affects .rsrc .
 
-Minor cleanup. Affects defs.h; Initialize.
+In Browser, improve display of the voice-mapping table. Affects Browser.
+
+Add hack code to swap staves in an existing score; it doesn't work for the intended
+purpose and it's #ifdef'd out, but it might be useful with a simpler score.
+
+Minor cleanup. Affects defs.h; Browser, DebugDisplay, DrawObject, File, Initialize,
+VoiceNumbers.
 

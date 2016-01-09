@@ -1,11 +1,11 @@
 /***************************************************************************
-*	FILE:	VoiceNumbers.c																		*
-*	PROJ:	Nightingale, revised for v. 1.4												*
-*	DESC:	Routines for manipulating the voice-mapping table						*
+*	FILE:	VoiceNumbers.c
+*	PROJ:	Nightingale, revised for v. 1.4
+*	DESC:	Routines for manipulating the voice-mapping table
 		OffsetVoiceNums			FillVoiceTable			BuildVoiceTable
 		MapVoiceNums			CompactVoiceNums
 		UpdateVoiceTable		User2IntVoice			Int2UserVoice
-		NewVoiceNum
+		NewVoiceNum				CountVoices
 /***************************************************************************/
 
 /*										NOTICE

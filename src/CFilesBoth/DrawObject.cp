@@ -686,21 +686,22 @@ void DrawCONNECT(Document *doc, LINK pL,
 				short ground			/* _STAFF foreground/background code; see enum */
 				)
 {
-	PACONNECT	aConnect;			/* ptr to current subobj */
-	LINK			aConnectL, staffL;
-	PCONTEXT		pContext;			/* ptr to current context[] entry */
-	Rect			r;						/* Rect of current staff */
-	short			width,				/* Width of curly brace */
-					xwidth, brackHt,
-					px,pyTop,pyBot,stf;
+	PACONNECT	aConnect;				/* ptr to current subobj */
+	LINK		aConnectL, staffL;
+	PCONTEXT	pContext;				/* ptr to current context[] entry */
+	Rect		r;						/* Rect of current staff */
+	short		width,					/* Width of curly brace */
+				xwidth, brackHt,
+				px, pyTop, pyBot,
+				stfA, stfB;
 	DDIST 		xd,
-					dTop, dBottom;		/* top of above staff and bottom of below staff */
-	DDIST			dLeft,				/* left edge of staff */
-					curlyWider;
-	Boolean		entire;				/* Does connect include the entire system? */
-	PicHandle	pictRsrc;			/* Handle to brace PICT */
-	STFRANGE		stfRange = {0,0};
-	Point			enlarge = {0,0};
+				dTop, dBottom;			/* top of above staff and bottom of below staff */
+	DDIST		dLeft,					/* left edge of staff */
+				curlyWider;
+	Boolean		entire;					/* Does connect include the entire system? */
+	PicHandle	pictRsrc;				/* Handle to brace PICT */
+	STFRANGE	stfRange = {0,0};
+	Point		enlarge = {0,0};
 
 PushLock(OBJheap);
 PushLock(CONNECTheap);
@@ -723,21 +724,23 @@ PushLock(CONNECTheap);
 
 		if (doc->masterView)
 			pContext = entire ? &context[FirstStaffn(pL)] :
-									&context[stf=aConnect->staffAbove];
+									&context[stfA=aConnect->staffAbove];
 		else
 			pContext = entire ? &context[FirstStaffn(pL)] :
-									&context[stf=NextStaffn(doc,pL,TRUE,aConnect->staffAbove)];
+									&context[stfA=NextStaffn(doc,pL,TRUE,aConnect->staffAbove)];
 		dLeft = pContext->staffLeft;
 		dTop = pContext->staffTop;
 
 		if (doc->masterView)
 			pContext = entire ? &context[LastStaffn(pL)] :
-									&context[stf=aConnect->staffBelow];	/* ?? */
+									&context[stfB=aConnect->staffBelow];	/* ?? */
 		else
 			pContext = entire ? &context[LastStaffn(pL)] :
-									&context[stf=NextStaffn(doc,pL,FALSE,aConnect->staffBelow)];
+									&context[stfB=NextStaffn(doc,pL,FALSE,aConnect->staffBelow)];
 		dBottom = pContext->staffTop + pContext->staffHeight;
 		xd = dLeft+aConnect->xd;
+		//LogPrintf(LOG_NOTICE, "mView=%d  aConnect->staffAbove, staffBelow=%d, %d  dTop, pC->staffTop, dBottom=%d, %d, %d\n",
+		//	doc->masterView, aConnect->staffAbove, aConnect->staffBelow, dTop, pContext->staffTop, dBottom);
 		
 		switch (aConnect->connectType) {
 			case CONNECTLINE:
@@ -1626,7 +1629,7 @@ Boolean GetGraphicDBox(Document *doc,
 			
 			if (expandN) {
 				if (!ExpandString(string, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-					LogPrintf(LOG_NOTICE, "GetGraphicDBox: ExpandString failed.\n");
+					LogPrintf(LOG_WARNING, "GetGraphicDBox: ExpandString failed.\n");
 			}
 			else PStrCopy((StringPtr)PCopy(theStrOffset), string);
 			pStr = string;
@@ -1978,7 +1981,7 @@ PushLock(GRAPHICheap);
 						else {
 							if (expandN) {
 								if (!ExpandString(strToDraw, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-									LogPrintf(LOG_NOTICE, "DrawGRAPHIC: ExpandString failed.\n");
+									LogPrintf(LOG_WARNING, "DrawGRAPHIC: ExpandString failed.\n");
 							}
 							else PStrCopy((StringPtr)PCopy(theStrOffset), strToDraw);
 
@@ -2073,7 +2076,7 @@ PushLock(GRAPHICheap);
 					else {
 						if (expandN) {
 							if (!ExpandString(strToDraw, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-								LogPrintf(LOG_NOTICE, "DrawGRAPHIC: ExpandString failed.\n");
+								LogPrintf(LOG_WARNING, "DrawGRAPHIC: ExpandString failed.\n");
 						}
 						else PStrCopy((StringPtr)PCopy(theStrOffset), strToDraw);
 					
@@ -2167,7 +2170,7 @@ PushLock(TEMPOheap);
 	theStrOffset = p->string;
 	if (p->expanded) {
 		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-			LogPrintf(LOG_NOTICE, "GetGraphicDBox: ExpandString failed.\n");
+			LogPrintf(LOG_WARNING, "DrawTEMPO: ExpandString failed.\n");
 	}
 	else PStrCopy((StringPtr)PCopy(theStrOffset), tempoStr);
 

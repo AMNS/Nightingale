@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	File.c															*
-*	PROJ:	Nightingale, rev. for v.99										*
-*	DESC:	File-related routines											*
+*	FILE:	File.c
+*	PROJ:	Nightingale, rev. for v.99
+*	DESC:	File-related routines
 /***************************************************************************/
 
 /*											NOTICE
@@ -333,13 +333,16 @@ static Boolean WritePrintHandle(Document *doc)
 
 /* --------------------------------------------------------- ConvertScore helpers -- */
 
-void OldGetSlurContext(Document *, LINK, Point [], Point []);
+static void OldGetSlurContext(Document *, LINK, Point [], Point []);
+static void ConvertChordSlurs(Document *);
+static void ConvertModNRVPositions(Document *, LINK);
+static void ConvertStaffLines(LINK startL);
 
 /* Given a Slur object, return arrays of the paper-relative starting and ending
 positions (expressed in points) of the notes delimiting its subobjects. This is
 an ancient version of GetSlurContext, from Nightingale .996. */
 
-void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
+static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
 	{
 		CONTEXT 	localContext;
 		DDIST		dFirstLeft, dFirstTop, dLastLeft, dLastTop,
@@ -462,7 +465,7 @@ void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
 		}
 	}
 
-static void ConvertChordSlurs(Document *);
+
 static void ConvertChordSlurs(Document *doc)
 {
 	LINK pL, aNoteL, aSlurL; PASLUR aSlur; Boolean foundChordSlur;
@@ -497,7 +500,6 @@ static void ConvertChordSlurs(Document *doc)
 	}
 }
 
-static void ConvertModNRVPositions(Document *, LINK);
 static void ConvertModNRVPositions(Document */*doc*/, LINK syncL)
 {
 	LINK aNoteL, aModNRL; PANOTE aNote; PAMODNR aModNR; short yOff; Boolean above;
@@ -566,7 +568,6 @@ new <showLedgers> field.
 <filler> was initialized to zero in InitStaff, so we can just see if showLines is
 non-zero. If it is, then the oneLine flag was set. 	-JGG, 7/22/01 */
 
-static void ConvertStaffLines(LINK startL);
 static void ConvertStaffLines(LINK startL)
 {
 	LINK pL, aStaffL;
@@ -590,12 +591,13 @@ static void ConvertStaffLines(LINK startL)
 	}
 }
 
+
 /* ----------------------------------------------------------------- ConvertScore -- */
-/* Any temporary file-format-tweaking code that doesn't affect the length of the
-header or lengths of objects should go here. This function should only be called
-after the header and entire object list have been read. (Tweaks that affect lengths
-must be done earlier: to the header, in OpenFile; to objects, in ReadObjHeap.)
-Return TRUE if all goes well, FALSE if not. */
+/* Any file-format-conversion code that doesn't affect the length of the header or
+lengths of objects should go here. This function should only be called after the
+header and entire object list have been read. (Tweaks that affect lengths must be
+done earlier: to the header, in OpenFile; to objects, in ReadObjHeap.) Return TRUE
+if all goes well, FALSE if not. */
 
 static Boolean ConvertScore(Document *doc, long fileTime)
 {
@@ -603,7 +605,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 	
 	SecondsToDate(fileTime, &date);
 
-	/* Put all dynamic horizontal position info into object xd */
+	/* Put all Dynamic horizontal position info into object xd */
 	
 	if (version<='N100') {
 		LINK aDynamicL; PADYNAMIC aDynamic;
@@ -617,7 +619,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 			}
 	}
 
-	/* Convert octava position info to new form: if nxd or nyd is nonzero, it's in the
+	/* Convert Octava position info to new form: if nxd or nyd is nonzero, it's in the
 		old form, so move values into xdFirst and ydFirst, and copy them into xdLast and
 		ydLast also. */
 		
@@ -657,7 +659,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 			}
 	}
 
-	/* Convert tuplet position info to new form: if acnxd or acnyd is nonzero, it's in the
+	/* Convert Tuplet position info to new form: if acnxd or acnyd is nonzero, it's in the
 		old form, so move values into xdFirst and ydFirst, and copy them into xdLast and
 		ydLast also. */
 	if (version<='N100') {
@@ -890,7 +892,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 				parentheses. This seems like the best way to get what the user expects.
 			2) Append the chord symbol delimiter character to the graphic string, to represent
 				an empty substring for the new "/bass" field.
-																								-JGG, 6/16/01 */
+																			-JGG, 6/16/01 */
 	#define CS_DELIMITER FWDDEL_KEY		/* MUST match DELIMITER in ChordSym.c! */
 
 	if (version<='N102') {
@@ -924,7 +926,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 	}
 
 	/* Make sure all staves are visible in Master Page. They should never be invisible,
-	but (as of v.997), they sometimes are, probably because not exporting changes to
+	but (as of v.997), they sometimes were, probably because not exporting changes to
 	Master Page was implemented by reconstructing it from the 1st system of the score.
 	That was fixed in about .998a10, so it should be safe to remove this call
 	before too long, but making them visible here shouldn't cause any problems. */
@@ -935,21 +937,245 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 }
 
 
+/* ----------------------------------------------------------------- ModifyScore -- */
 /* Any temporary file-content-updating code (a.k.a. hacking) that doesn't affect the
 length of the header or lengths of objects should go here. This function should only be
 called after the header and entire object list have been read. Return TRUE if all goes
 well, FALSE if not.
 
-NB: If code here ends up deciding to actually change something, it should
-  - call DebugPrintf to put an appropriate message in the debug window; and
-  - set doc->changed, probably, though this will make it easier for people to
-  	accidentally overwrite the original version.
+NB: If code here considers changing something, and especially if it ends up actually
+doing so, it should call LogPrintf to display at least one very prominent message
+in the console window, and SysBeep to draw attention to it. It should perhaps also
+set doc->changed, though this will make it easier for people to accidentally overwrite
+the original version.
 
-NB2: Be sure that all of this code is removed or commented out in ordinary versions! */
+NB2: Be sure that all of this code is removed or commented out in ordinary versions!
+To facilitate that, when done with hacking, add an "#error" line; cf. examples
+below. */
 
-static Boolean ModifyScore(Document */*doc*/, long /*fileTime*/)
+static void ShowTops(Document *doc, LINK pL, short staffN1, short staffN2);
+static void ShowTops(Document *doc, LINK pL, short staffN1, short staffN2)
 {
+	CONTEXT context; short staffTop1, staffTop2;
+	pL = SSearch(doc->headL, STAFFtype, FALSE);
+	GetContext(doc, pL, staffN1, &context);
+	staffTop1 =  context.staffTop;
+	GetContext(doc, pL, staffN2, &context);
+	staffTop2 =  context.staffTop;
+	LogPrintf(LOG_NOTICE, "ShowTops(%d): staffTop1=%d, staffTop2=%d\n", pL, staffTop1, staffTop2);
+}
+
+static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2);
+static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2)
+{
+	LINK aStaffL, aMeasureL, aPSMeasL, aClefL, aKeySigL, aTimeSigL, aNoteL,
+			aTupletL, aRptEndL, aDynamicL, aGRNoteL;
+	CONTEXT context;
+	short staffTop1, staffTop2;
+
+	switch (ObjLType(pL)) {
+		case HEADERtype:
+			break;
+
+		case PAGEtype:
+			break;
+
+		case SYSTEMtype:
+			break;
+
+		case STAFFtype:
+LogPrintf(LOG_NOTICE, "  Staff L%d\n", pL);
+			GetContext(doc, pL, staffN1, &context);
+			staffTop1 =  context.staffTop;
+			GetContext(doc, pL, staffN2, &context);
+			staffTop2 =  context.staffTop;
+LogPrintf(LOG_NOTICE, "    staffTop1, 2=%d, %d\n", staffTop1, staffTop2);
+			aStaffL = FirstSubLINK(pL);
+			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
+				if (StaffSTAFF(aStaffL)==staffN1) {
+					StaffSTAFF(aStaffL) = staffN2;
+					StaffTOP(aStaffL) = staffTop2;
+				}
+				else if (StaffSTAFF(aStaffL)==staffN2) {
+					StaffSTAFF(aStaffL) = staffN1;
+					StaffTOP(aStaffL) = staffTop1;
+				}
+//GetContext(doc, pL, staffN1, &context);
+//LogPrintf(LOG_NOTICE, "(1)    pL=%d staffTop1=%d\n", pL, staffTop1);
+			}
+//GetContext(doc, pL, staffN1, &context);
+//LogPrintf(LOG_NOTICE, "(2)    pL=%d staffTop1=%d\n", pL, staffTop1);
+//ShowTops(doc, pL, staffN1, staffN2);
+			break;
+
+		case CONNECTtype:
+			break;
+
+		case MEASUREtype:
+LogPrintf(LOG_NOTICE, "  Measure L%d\n", pL);
+			aMeasureL = FirstSubLINK(pL);
+			for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL)) {
+				if (MeasureSTAFF(aMeasureL)==staffN1) MeasureSTAFF(aMeasureL) = staffN2;
+				else if (MeasureSTAFF(aMeasureL)==staffN2) MeasureSTAFF(aMeasureL) = staffN1;
+			}
+			break;
+
+		case PSMEAStype:
+LogPrintf(LOG_NOTICE, "  PSMeas L%d\n", pL);
+			aPSMeasL = FirstSubLINK(pL);
+			for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
+				if (PSMeasSTAFF(aPSMeasL)==staffN1) PSMeasSTAFF(aPSMeasL) = staffN2;
+				else if (PSMeasSTAFF(aPSMeasL)==staffN2) PSMeasSTAFF(aPSMeasL) = staffN1;
+			}
+			break;
+
+		case CLEFtype:
+LogPrintf(LOG_NOTICE, "  Clef L%d\n", pL);
+			aClefL = FirstSubLINK(pL);
+			for ( ; aClefL; aClefL = NextCLEFL(aClefL)) {
+				if (ClefSTAFF(aClefL)==staffN1) ClefSTAFF(aClefL) = staffN2;
+				else if (ClefSTAFF(aClefL)==staffN2) ClefSTAFF(aClefL) = staffN1;
+			}
+			break;
+
+		case KEYSIGtype:
+LogPrintf(LOG_NOTICE, "  Keysig L%d\n", pL);
+			aKeySigL = FirstSubLINK(pL);
+			for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL)) {
+				if (KeySigSTAFF(aKeySigL)==staffN1) KeySigSTAFF(aKeySigL) = staffN2;
+				else if (KeySigSTAFF(aKeySigL)==staffN2) KeySigSTAFF(aKeySigL) = staffN1;
+			}
+			break;
+
+		case TIMESIGtype:
+LogPrintf(LOG_NOTICE, "  Timesig L%d\n", pL);
+			aTimeSigL = FirstSubLINK(pL);
+			for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL)) {
+				if (TimeSigSTAFF(aTimeSigL)==staffN1) TimeSigSTAFF(aTimeSigL) = staffN2;
+				else if (TimeSigSTAFF(aTimeSigL)==staffN2) TimeSigSTAFF(aTimeSigL) = staffN1;
+			}
+			break;
+
+		case SYNCtype:
+LogPrintf(LOG_NOTICE, "  Sync L%d\n", pL);
+			aNoteL = FirstSubLINK(pL);
+			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
+				if (NoteSTAFF(aNoteL)==staffN1) {
+					NoteSTAFF(aNoteL) = staffN2;
+					NoteVOICE(aNoteL) = staffN2;		/* Assumes only 1 voice on the staff */
+				}
+				else if (NoteSTAFF(aNoteL)==staffN2) {
+					NoteSTAFF(aNoteL) = staffN1;
+					NoteVOICE(aNoteL) = staffN1;		/* Assumes only 1 voice on the staff */
+				}
+			}
+			break;
+
+		case BEAMSETtype:
+LogPrintf(LOG_NOTICE, "  Beamset L%d\n", pL);
+			if (BeamSTAFF(pL)==staffN1) BeamSTAFF((pL)) = staffN2;
+			else if (BeamSTAFF((pL))==staffN2) BeamSTAFF((pL)) = staffN1;
+			break;
+
+		case TUPLETtype:
+LogPrintf(LOG_NOTICE, "  Tuplet L%d\n", pL);
+			if (TupletSTAFF(pL)==staffN1) TupletSTAFF((pL)) = staffN2;
+			else if (TupletSTAFF((pL))==staffN2) TupletSTAFF((pL)) = staffN1;
+			break;
+
+/*
+		case RPTENDtype:
+			?? = FirstSubLINK(pL);
+			for (??) {
+			}
+			break;
+
+		case ENDINGtype:
+			?!
+			break;
+*/
+		case DYNAMtype:
+LogPrintf(LOG_NOTICE, "  Dynamic L%d\n", pL);
+			aDynamicL = FirstSubLINK(pL);
+			for ( ; aDynamicL; aDynamicL=NextDYNAMICL(aDynamicL)) {
+				if (DynamicSTAFF(aDynamicL)==staffN1) DynamicSTAFF(aDynamicL) = staffN2;
+				else if (DynamicSTAFF(aDynamicL)==staffN2) DynamicSTAFF(aDynamicL) = staffN1;
+			}
+			break;
+
+		case GRAPHICtype:
+LogPrintf(LOG_NOTICE, "  Graphic L%d\n", pL);
+			if (GraphicSTAFF(pL)==staffN1) GraphicSTAFF((pL)) = staffN2;
+			else if (GraphicSTAFF((pL))==staffN2) GraphicSTAFF((pL)) = staffN1;
+			break;
+
+/*
+		case OCTAVAtype:
+			?!
+			break;
+*/
+		case SLURtype:
+LogPrintf(LOG_NOTICE, "  Slur L%d\n", pL);
+			if (SlurSTAFF(pL)==staffN1) SlurSTAFF((pL)) = staffN2;
+			else if (SlurSTAFF((pL))==staffN2) SlurSTAFF((pL)) = staffN1;
+			break;
+
+/*
+		case GRSYNCtype:
+			?? = FirstSubLINK(pL);
+			for (??) {
+			}
+			break;
+
+		case TEMPOtype:
+			?!
+			break;
+
+		case SPACEtype:
+			?!
+			break;
+*/
+
+		default:
+			break;	
+	}
+}
+
+
+static Boolean ModifyScore(Document *doc, long /*fileTime*/)
+{
+#ifdef SWAP_STAVES
+#error ModifyScore: ATTEMPTED TO COMPILE OLD HACKING CODE!
+	/* DAB carelessly put a lot of time into orchestrating his violin concerto with
+		a template having the trumpet staff above the horn; this is to correct that.
+		NB: To swap two staves, in addition to running this code, use Master Page to:
+			1. Fix the staves' vertical positions
+			2. If the staves are Grouped, un-Group and re-Group
+			3. Swap the Instrument info
+		NB2: If there's more than one voice on either of the staves, this is not
+		likely to work at all well :-( .
+																--DAB, Jan. 2016 */
+	
+	short staffN1 = 5, staffN2 = 6;
+	LINK pL;
+	
+	SysBeep(1);
+	LogPrintf(LOG_NOTICE, "ModifyScore: SWAPPING STAVES %d AND %d (of %d) IN MASTER PAGE....\n",
+				staffN1, staffN2, doc->nstaves);
+	for (pL = doc->masterHeadL; pL!=doc->masterTailL; pL = RightLINK(pL)) {
+		SwapStaves(doc, pL, staffN1, staffN2);
+	}
+	LogPrintf(LOG_NOTICE, "ModifyScore: SWAPPING STAVES %d AND %d (of %d) IN SCORE OBJECT LIST....\n",
+				staffN1, staffN2, doc->nstaves);
+	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
+		SwapStaves(doc, pL, staffN1, staffN2);
+	}
+  	doc->changed = TRUE;
+
+#endif
+
 #ifdef FIX_MASTERPAGE_SYSRECT
+#error ModifyScore: ATTEMPTED TO COMPILE OLD HACKING CODE!
 	/* This is to fix a score David Gottlieb is working on, in which Ngale draws
 	 * _completely_ blank pages. Nov. 1999.
 	 */
@@ -974,6 +1200,7 @@ static Boolean ModifyScore(Document */*doc*/, long /*fileTime*/)
 #endif
 
 #ifdef FIX_UNBEAMED_FLAGS_AUGDOT_PROB
+#error ModifyScore: ATTEMPTED TO COMPILE OLD HACKING CODE!
 	short alteredCount; LINK pL;
 
   /* From SetupNote in Objects.c:
@@ -1017,6 +1244,7 @@ static Boolean ModifyScore(Document */*doc*/, long /*fileTime*/)
 #endif
 
 #ifdef FIX_BLACK_SCORE
+#error ModifyScore: ATTEMPTED TO COMPILE OLD HACKING CODE!
 	/* Sample trashed-file-fixing hack: in this case, to fix an Arnie Black score. */
 	
 	for (pL = doc->headL; pL; pL = RightLINK(pL)) 
@@ -1072,20 +1300,20 @@ extern short StringPoolProblem(StringPoolRef pool);
 short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 					FSSpec *pfsSpec, long *fileVersion)
 {
-	short			errCode, refNum, strPoolErrCode;
+	short		errCode, refNum, strPoolErrCode;
 	short 		errInfo,				/* Type of object being read or other info on error */
-					lastType;
-	long			count, stringPoolSize,
-					fileTime;
+				lastType;
+	long		count, stringPoolSize,
+				fileTime;
 	Boolean		fileOpened;
 	OMSSignature omsDevHdr;
-	long			fmsDevHdr;
-	long			omsBufCount, omsDevSize;
-	short			i;
-	FInfo			fInfo;
+	long		fmsDevHdr;
+	long		omsBufCount, omsDevSize;
+	short		i;
+	FInfo		fInfo;
 	FSSpec 		fsSpec;
-	long			cmHdr;
-	long			cmBufCount, cmDevSize;
+	long		cmHdr;
+	long		cmBufCount, cmDevSize;
 	FSSpec		*pfsSpecMidiMap;
 
 	WaitCursor();
@@ -1356,7 +1584,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 
 	InitDocMusicFont(doc);
 
-	SetTimeStamps(doc);										/* Up to first meas. w/unknown durs. */
+	SetTimeStamps(doc);									/* Up to first meas. w/unknown durs. */
 
 
 	/*
@@ -1711,9 +1939,9 @@ static short WriteFile(Document *doc, short refNum)
 	short			errCode;
 	short			lastType=LASTtype;
 	long			count, blockSize, strHdlSize;
-	unsigned long fileTime;
-	Handle 		stringHdl;
-	OMSSignature omsDevHdr;
+	unsigned long	fileTime;
+	Handle			stringHdl;
+	OMSSignature	omsDevHdr;
 	long			omsDevSize, fmsDevHdr;
 	long			cmDevSize, cmHdr;
 
@@ -1926,10 +2154,10 @@ short SaveFile(
 			)
 {
 	Str255			filename, bkpName;
-	short				vRefNum;
-	short				errCode, refNum;
+	short			vRefNum;
+	short			errCode, refNum;
 	short 			errInfo=noErr;				/* Type of object being read or other info on error */
-	short				saveType;
+	short			saveType;
 	Boolean			fileOpened;
 	const unsigned char	*tempName;
 	ScriptCode		scriptCode = smRoman;
