@@ -322,7 +322,7 @@ Update version number in About box to 5.6b1. Affects info.plist .
 
 -------------------------------------------------------------------------------
 
-2 - 8 Jan. 2015			=== NIGHTINGALE 5.6b1 ===
+2 - 10 Jan. 2015			=== NIGHTINGALE 5.6b1 ===
 
 Change the name of the Preferences file to "Nightingale AMNF Prefs". Affects .rsrc;
 VersionStrings.h; Initialize.
@@ -335,6 +335,9 @@ In Browser, improve display of the voice-mapping table. Affects Browser.
 Add hack code to swap staves in an existing score; it doesn't work for the intended
 purpose and it's #ifdef'd out, but it might be useful with a simpler score.
 
-Minor cleanup. Affects defs.h; Browser, DebugDisplay, DrawObject, File, Initialize,
-VoiceNumbers.
+Make Debug stop complaining about the first Sync of a measure in the clipboard not
+being at time zero for the measure; make it stop complaining about valid bboxes of
+final measures of right-justified systems.
 
+Minor cleanup. Affects defs.h; Browser, DebugDisplay, DebugUtils, DrawObject, File,
+Initialize, SpaceHighLevel, VoiceNumbers.

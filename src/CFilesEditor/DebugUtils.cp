@@ -56,12 +56,12 @@ Boolean QDP(char *fmtStr)
 /* If we're looking at the Clipboard, Undo or Mstr Page, "flag" arg by adding a huge offset */
 #define FP(pL)	( abnormal ? 1000000L+(pL) : (pL) )
 
-/* Check whether a Rect is a valid 1st-quadrant rectangle with positive height.
-NB: a comment here usd to say "Nightingale uses rectangles of zero width for empty
-key signatures." As far as I can see, that's not true anymore, so checking for
+/* Check whether a Rect is a valid 1st-quadrant rectangle with non-negative height
+and width. NB: a comment here usd to say "Nightingale uses rectangles of zero width for
+empty key signatures." As far as I can see, that's not true anymore, so checking for
 positive height is probably pointless.  --DAB, April 2015 */
-#define GARBAGE_Q1RECT(r)	(  (r).left>(r).right || (r).top>=(r).bottom		\
-									|| (r).left<0 || (r).right<0							\
+#define GARBAGE_Q1RECT(r)	(  (r).left>(r).right || (r).top>(r).bottom				\
+									|| (r).left<0 || (r).right<0					\
 									|| (r).top<0 || (r).bottom<0)
 #define ZERODIM_RECT(r)		(  (r).left==(r).right || (r).top==(r).bottom	)
 
@@ -414,6 +414,9 @@ consistency checks on an individual node. Returns:
 	+1 if less serious problems are found.
 */
 
+/* Set arbitrary limit for likely duration of a legitimate score, in whole notes */
+#define MAX_WHOLES_DUR	6000L
+
 short DCheckNode(
 				Document *doc,
 				LINK pL,
@@ -421,36 +424,36 @@ short DCheckNode(
 				Boolean fullCheck	/* FALSE=skip less important checks */
 				)
 {
-	short			minEntries, maxEntries;
+	short		minEntries, maxEntries;
 	Boolean		bad;
 	Boolean		terrible, abnormal,
-					objRectOrdered, lRectOrdered, rRectOrdered;
+				objRectOrdered, lRectOrdered, rRectOrdered;
 	PMEVENT		p;
 	PMEVENT		apLeft, apRight, pLeft, pRight;
 	PSYSTEM		pSystem;
 	PSTAFF		pStaff;
-	PMEASURE		pMeasure;
+	PMEASURE	pMeasure;
 	PKEYSIG		pKeySig;
 	PANOTE		aNote;
 	PASTAFF		aStaff;
-	PAPSMEAS		aPSMeas;
-	PAKEYSIG		aKeySig;
+	PAPSMEAS	aPSMeas;
+	PAKEYSIG	aKeySig;
 	PATIMESIG	aTimeSig;
 	PANOTEBEAM	aNoteBeam;
 	PANOTETUPLE	aNoteTuple;
 	PANOTEOCTAVA	aNoteOct;
-	PDYNAMIC		pDynamic;
-	PSLUR			pSlur;
+	PDYNAMIC	pDynamic;
+	PSLUR		pSlur;
 	PASLUR		aSlur;
 	PACONNECT	aConnect;
 	PAMODNR		aModNR;
-	LINK			aNoteL;
-	LINK			apLeftL, apRightL, aStaffL;
-	LINK			aPSMeasL, aClefL, aKeySigL, aTimeSigL, aNoteBeamL, aNoteTupleL;
-	LINK			aNoteOctL, aDynamicL, aSlurL, aConnectL, aModNRL;
+	LINK		aNoteL;
+	LINK		apLeftL, apRightL, aStaffL;
+	LINK		aPSMeasL, aClefL, aKeySigL, aTimeSigL, aNoteBeamL, aNoteTupleL;
+	LINK		aNoteOctL, aDynamicL, aSlurL, aConnectL, aModNRL;
 	SignedByte	minLDur;
 
-	bad = terrible = FALSE;													/* I like it fine so far */
+	bad = terrible = FALSE;										/* I like it fine so far */
 	PushLock(OBJheap);
 
 	p = GetPMEVENT(pL);
@@ -488,7 +491,7 @@ short DCheckNode(
 			terrible = TRUE;
 		}
 		
-		if (terrible) return -1;												/* Give up now */
+		if (terrible) return -1;									/* Give up now */
 
 		if (TYPE_BAD(pL) || ObjLType(pL)==HEADERtype || ObjLType(pL)==TAILtype)
 			COMPLAIN2("¥DCheckNode: NODE AT %u HAS BAD type %d.\n", pL, ObjLType(pL));
@@ -498,7 +501,7 @@ short DCheckNode(
 
 		if (DCheck1NEntries(doc, pL)) bad = terrible = TRUE;
 
-		if (terrible) return -1;												/* Give up now */
+		if (terrible) return -1;									/* Give up now */
 
 		GetObjectLimits(ObjLType(pL), &minEntries, &maxEntries, &objRectOrdered);
 		if (LinkNENTRIES(pL)<minEntries || LinkNENTRIES(pL)>maxEntries)
@@ -506,14 +509,14 @@ short DCheckNode(
 			
 /* CHECK object's absolute horizontal position (rather crudely) and objRect. ---------- */
 
-		if (!BeamsetTYPE(pL))						/* Beamset xd is unused */
+		if (!BeamsetTYPE(pL))									/* Beamset xd is unused */
 			if (LinkXD(pL)<LEFT_HLIM(doc, pL) || LinkXD(pL)>RIGHT_HLIM(doc))
 				{ COMPLAIN("DCheckNode: NODE AT %u HAS BAD HORIZONTAL POSITION.\n", pL); }
 
 		if (!abnormal && LinkVALID(pL)) {
 			if (GARBAGE_Q1RECT(p->objRect)) {
 				/* It's OK for initial keysigs to be unselectable. */
-				pKeySig = GetPKEYSIG(pL);		/* ?? OR USE KeySigINMEAS ?? */
+				pKeySig = GetPKEYSIG(pL);			/* ?? OR USE KeySigINMEAS ?? */
 				if (!(KeySigTYPE(pL) && !pKeySig->inMeasure))
 					COMPLAIN("DCheckNode: NODE AT %u HAS A GARBAGE (UNSELECTABLE) objRect.\n", pL);
 			}
@@ -577,14 +580,14 @@ short DCheckNode(
 			case SYNCtype:
 			{
 				short v;
-				short	vNotes[MAXVOICES+1],							/* No. of notes in sync in voice */
-						vMainNotes[MAXVOICES+1],					/* No. of stemmed notes in sync in voice */
-						vlDur[MAXVOICES+1],							/* l_dur of voice's notes in sync */
-						vlDots[MAXVOICES+1],							/* Number of dots on voice's notes in sync */
-						vStaff[MAXVOICES+1],							/* Staff the voice is on */
-						vOct[MAXVOICES+1],							/* inOctava status for the voice */
+				short	vNotes[MAXVOICES+1],					/* No. of notes in sync in voice */
+						vMainNotes[MAXVOICES+1],				/* No. of stemmed notes in sync in voice */
+						vlDur[MAXVOICES+1],						/* l_dur of voice's notes in sync */
+						vlDots[MAXVOICES+1],					/* Number of dots on voice's notes in sync */
+						vStaff[MAXVOICES+1],					/* Staff the voice is on */
+						vOct[MAXVOICES+1],						/* inOctava status for the voice */
 						lDurCode;
-				Boolean vTuplet[MAXVOICES+1];						/* Is the voice in a tuplet? */
+				Boolean vTuplet[MAXVOICES+1];					/* Is the voice in a tuplet? */
 				long	timeStampHere, timeStampBefore, timeStampAfter;
 				LINK	tempL;
 
@@ -948,9 +951,9 @@ short DCheckNode(
 							}
 					}
 	
-					/* Arbitrarily assume no legitimate score is longer than 6000 whole notes. */
+					/* Arbitrarily assume no legitimate score is likely to be longer than a fixed length. */
 					if (pMeasure->lTimeStamp<0L
-					||  pMeasure->lTimeStamp>6000L*1920)
+					||  pMeasure->lTimeStamp>MAX_WHOLES_DUR*1920)
 							COMPLAIN2("DCheckNode: MEASURE AT %u HAS SUSPICIOUSLY LARGE lTimeStamp %ld.\n",
 											pL, pMeasure->lTimeStamp);
 
@@ -964,7 +967,7 @@ short DCheckNode(
 					syncL = SSearch(pL, SYNCtype, GO_RIGHT);
 					if (syncL) {
 						timeStamp = SyncTIME(syncL);
-						if (timeStamp!=0L)
+						if (timeStamp!=0L && where!=CLIP_DSTR)
 							COMPLAIN2("DCheckNode: SYNC AT %u IS FIRST OF MEASURE BUT ITS timeStamp IS %ld.\n",
 											syncL, timeStamp);
 					}

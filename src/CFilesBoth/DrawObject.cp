@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	DrawObject.c													*
-*	PROJ:	Nightingale, rev. for v.3.5										*
-*	DESC:	General object-drawing routines									*
+*	FILE:	DrawObject.c
+*	PROJ:	Nightingale, rev. for v.3.5
+*	DESC:	General object-drawing routines
 ****************************************************************************/
 
 /*											NOTICE
@@ -2545,31 +2545,30 @@ void DrawBarline(Document *doc,
 
 
 /* ----------------------------------------------------------------- DrawMEASURE -- */
-/* Draw a MEASURE object, i.e., all its barlines or repeat bars.
-
-We also update the MEASURE's <measureBBox> based on the <measureRect>s of the
-subobjects, but only if !LinkVALID(pL) and we're drawing to the screen. */
+/* Draw a MEASURE object, i.e., all its barlines or repeat bars. If !LinkVALID(pL)
+and we're drawing to the screen, also update the MEASURE's <measureBBox> based on
+the <measureRect>s of the subobjects. */
 
 void DrawMEASURE(Document *doc, LINK pL, CONTEXT context[])
 {
-	PMEASURE		p;
-	LINK			aMeasureL;
-	PAMEASURE	aMeasure;		/* ptr to current subitem */
-	PCONTEXT		pContext;		/* ptr to current context[] entry */
-	PCONTEXT		lastContext;
-	DRect			aDRect;			/* scratch */
-	Rect			measureRect,	/* Rect of current measure */
-					barlineRect;	/* Rect of current barline */
-	short			staff, connStaff,
-					k, measureNum;
-	DDIST			dTop,				/* top of above staff */
-					dLeft,			/* left edge of staff */
-					xdMN, ydMN, yOffset;
-	Boolean		drawn,			/* FALSE until a subobject has been drawn */
-					recalc,			/* TRUE if we need to recalc object's enclosing rectangle */
-					drawBar;			/* TRUE=draw barline proper as well as any repeat dots */
-	STFRANGE		stfRange = {0,0};
-	Point			enlarge = {0,0};
+	PMEASURE	p;
+	LINK		aMeasureL, prevL;
+	PAMEASURE	aMeasure;			/* ptr to current subitem */
+	PCONTEXT	pContext;			/* ptr to current context[] entry */
+	PCONTEXT	lastContext;
+	DRect		aDRect;				/* scratch */
+	Rect		measureRect,		/* Rect of current measure */
+				barlineRect;		/* Rect of current barline */
+	short		staff, connStaff,
+				k, measureNum, prevRight;
+	DDIST		dTop,				/* top of above staff */
+				dLeft,				/* left edge of staff */
+				xdMN, ydMN, yOffset;
+	Boolean		drawn,				/* FALSE until a subobject has been drawn */
+				recalc,				/* TRUE if we need to recalc object's enclosing rectangle */
+				drawBar;			/* TRUE=draw barline proper as well as any repeat dots */
+	STFRANGE	stfRange = {0,0};
+	Point		enlarge = {0,0};
 
 PushLock(OBJheap);
 PushLock(MEASUREheap);
@@ -2692,11 +2691,14 @@ PushLock(MEASUREheap);
 		}
 	}
 	
-/* If this is the last measure of a system, just set its measureBBox to
- *	end exactly at the end of the system. ??THIS IS WAY TOO COMPLICATED.
+/* If this is the last measure of a system, just set its measureBBox to end exactly
+ * at the end of the system. If in addition the previous measure ends at the same
+ * point, this measure's width is zero, and we set its measureBBox to start at that
+ * point as well.
  */
 	if (recalc) {
 		if (LastMeasInSys(pL)) {
+			/*  ??This code seems way more complicated than it should be. */
 			LINK sysL; DRect sysDRect; short sysLeft, boxRight;
 						
 			sysL = LSSearch(pL, SYSTEMtype, ANYONE, TRUE, FALSE);
@@ -2708,6 +2710,16 @@ PushLock(MEASUREheap);
 			else
 				boxRight -= d2pt(doc->otherIndent);
 			p->measureBBox.right = UseMagnifiedSize(boxRight, doc->magnify);
+			
+			prevL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+			if (prevL) {
+				prevRight = MeasureBBOX(prevL).right;
+				if (prevRight==p->measureBBox.right)
+					p->measureBBox.left = p->measureBBox.right;
+			}
+
+//LogPrintf(LOG_NOTICE, "DrawMEASURE: %d is last meas in system. measureBBox=%d %d %d %d\n",
+//		pL, p->measureBBox.top, p->measureBBox.left, p->measureBBox.bottom, p->measureBBox.right);
 		}
 	}
 

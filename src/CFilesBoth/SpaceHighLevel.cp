@@ -1502,11 +1502,11 @@ to keep symbols from overlapping. Returns TRUE if  OK or the range is empty, FAL
 it finds a problem. */
 
 Boolean StretchToSysEnd(
-				Document */*doc*/,
+				Document	*/*doc*/,
 				LINK		startL, LINK endL,		/* Starting and ending Measures */
 				long		spaceProp,
 				DDIST		staffWidth,
-				DDIST		lastMeasWidth 				/* Desired width of last Measure */
+				DDIST		lastMeasWidth 			/* Desired width of last Measure */
 				)
 {
 	PMEASURE	pMeas;
@@ -1551,7 +1551,6 @@ Boolean StretchToSysEnd(
 	 *	its subobject measureRects are in sync with Measures set above.  This
 	 *	loop excludes the last Measure now flush with the end of the System.
 	 */
-	
 	for (pL=startL; pL!=endL; pL=nextMeasL) {
 		nextMeasL = LinkRMEAS(pL);
 		SetMeasWidth(pL, LinkXD(nextMeasL) - LinkXD(pL));
@@ -1579,7 +1578,7 @@ FASTFLOAT SysJustFact(
 {
 	CONTEXT		context;
 	FASTFLOAT	justFact, inStaffWidth, curWidth;
-	DDIST			lastMeasWidth, staffWidth;
+	DDIST		lastMeasWidth, staffWidth;
 
 	/* Get distance from first (invisible) barline to end of System's staves. */
 	
@@ -1606,11 +1605,11 @@ Measure is <lastMeasL>. */
 
 void JustifySystem(Document *doc, LINK firstMeasL, LINK lastMeasL)
 {
-	LINK			endSysL;
+	LINK		endSysL;
 	FASTFLOAT	justFact;
-	long			justProp;
-	DDIST			lastMeasWidth, staffWidth;
-	char			fmtStr[256];
+	long		justProp;
+	DDIST		lastMeasWidth, staffWidth;
+	char		fmtStr[256];
 
 	justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
 	if (justFact*100L>MAXSPACE) {
