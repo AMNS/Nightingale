@@ -1,7 +1,7 @@
 /***************************************************************************
 *	FILE:	File.c
 *	PROJ:	Nightingale, rev. for v.99
-*	DESC:	File-related routines
+*	DESC:	File output, format conversion, and related routines
 /***************************************************************************/
 
 /*											NOTICE
@@ -15,7 +15,7 @@
  
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
-#include "FileConversion.h"		/* Must follow Nightingale.precomp.h! */
+#include "FileConversion.h"			/* Must follow Nightingale.precomp.h! */
 #include "CarbonPrinting.h"
 #include "MidiMap.h"
 
@@ -90,7 +90,7 @@ static void MissingFontsDialog(Document *doc, short nMissing)
 		CParamText(strBuf, "", "", "");
 		GetDialogItem(dialogp, TEXT_DI, &anInt, &aHdl, &textRect);
 	
-		CenterWindow(GetDialogWindow(dialogp),60);
+		CenterWindow(GetDialogWindow(dialogp), 60);
 		ShowWindow(GetDialogWindow(dialogp));
 						
 		ArrowCursor();
@@ -104,10 +104,10 @@ static void MissingFontsDialog(Document *doc, short nMissing)
 				MFDrawLine(doc->fontTable[j].fontName);
 			}
 	
-		ModalDialog(NULL, &ditem);									/* Wait for OK */
+		ModalDialog(NULL, &ditem);								/* Wait for OK */
 		HideWindow(GetDialogWindow(dialogp));
 		
-		DisposeDialog(dialogp);										/* Free heap space */
+		DisposeDialog(dialogp);									/* Free heap space */
 		SetPort(oldPort);
 	}
 	else
@@ -1146,14 +1146,16 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
 {
 #ifdef SWAP_STAVES
 #error ModifyScore: ATTEMPTED TO COMPILE OLD HACKING CODE!
-	/* DAB carelessly put a lot of time into orchestrating his violin concerto with
-		a template having the trumpet staff above the horn; this is to correct that.
+	/* DAB carelessly put a lot of time into orchestrating his violin concerto with a
+		template having the trumpet staff above the horn; this is intended to correct
+		that.
 		NB: To swap two staves, in addition to running this code, use Master Page to:
 			1. Fix the staves' vertical positions
 			2. If the staves are Grouped, un-Group and re-Group
 			3. Swap the Instrument info
 		NB2: If there's more than one voice on either of the staves, this is not
-		likely to work at all well :-( .
+		likely to work at all well. It never worked well enough to be useful for the
+		score I wrote it for.
 																--DAB, Jan. 2016 */
 	
 	short staffN1 = 5, staffN2 = 6;
@@ -1175,7 +1177,7 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
 #endif
 
 #ifdef FIX_MASTERPAGE_SYSRECT
-#error ModifyScore: ATTEMPTED TO COMPILE OLD HACKING CODE!
+#error ModifyScore: ATTEMPTED TO COMPILE OLD FILE-HACKING CODE!
 	/* This is to fix a score David Gottlieb is working on, in which Ngale draws
 	 * _completely_ blank pages. Nov. 1999.
 	 */
@@ -1200,7 +1202,7 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
 #endif
 
 #ifdef FIX_UNBEAMED_FLAGS_AUGDOT_PROB
-#error ModifyScore: ATTEMPTED TO COMPILE OLD HACKING CODE!
+#error ModifyScore: ATTEMPTED TO COMPILE OLD FILE-HACKING CODE!
 	short alteredCount; LINK pL;
 
   /* From SetupNote in Objects.c:
@@ -1244,7 +1246,7 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
 #endif
 
 #ifdef FIX_BLACK_SCORE
-#error ModifyScore: ATTEMPTED TO COMPILE OLD HACKING CODE!
+#error ModifyScore: ATTEMPTED TO COMPILE OLD FILE-HACKING CODE!
 	/* Sample trashed-file-fixing hack: in this case, to fix an Arnie Black score. */
 	
 	for (pL = doc->headL; pL; pL = RightLINK(pL)) 
@@ -1680,7 +1682,7 @@ void OpenError(Boolean fileOpened,
 				}
 		}
 #ifndef PUBLIC_VERSION
-		LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
+		LogPrintf(LOG_WARNING, aStr); LogPrintf(LOG_WARNING, "\n");
 #endif
 		CParamText(aStr, "", "", "");
 		StopInform(READ_ALRT);
@@ -2183,22 +2185,18 @@ TryAgain:
 		/* Create and open a temporary file */
 		tempName = TEMP_FILENAME;
 
-		//errCode = FSMakeFSSpec(vRefNum, 0, tempName, &tempFSSpec);
 		errCode = FSMakeFSSpec(vRefNum, fsSpec.parID, tempName, &tempFSSpec);
 		if (errCode && errCode!=fnfErr)
 			{ errInfo = MAKEFSSPECcall; goto Error; }
 		
 		/* Without the following, if TEMP_FILENAME exists, Safe Save gives an error. */
-		//errCode = FSDelete(tempName, vRefNum);					/* Delete old file */
 		errCode = FSpDelete(&tempFSSpec);							/* Delete any old temp file */
 		if (errCode && errCode!=fnfErr)								/* Ignore "file not found" */
 			{ errInfo = DELETEcall; goto Error; }
 
-		//errCode = Create(tempName, vRefNum, creatorType, documentType); /* Create new file */
 		errCode = FSpCreate (&tempFSSpec, creatorType, documentType, scriptCode);
 		if (errCode) { errInfo = CREATEcall; goto Error; }
 		
-		//errCode = FSOpen(tempName, vRefNum, &refNum);				/* Open it */
 		errCode = FSpOpenDF (&tempFSSpec, fsRdWrPerm, &refNum );	/* Open the temp file */
 		if (errCode) { errInfo = OPENcall; goto Error; }
 	}
@@ -2208,16 +2206,13 @@ TryAgain:
 		//	{ errInfo = MAKEFSSPECcall; goto Error; }
 		fsSpec = doc->fsSpec;
 		
-		//errCode = FSDelete(filename, vRefNum);						/* Delete old file */
-		errCode = FSpDelete(&fsSpec);									/* Delete old file */
+		errCode = FSpDelete(&fsSpec);								/* Delete old file */
 		if (errCode && errCode!=fnfErr)								/* Ignore "file not found" */
 			{ errInfo = DELETEcall; goto Error; }
 			
-		//errCode = Create(filename, vRefNum, creatorType, documentType); /* Create new file */
 		errCode = FSpCreate (&fsSpec, creatorType, documentType, scriptCode);
 		if (errCode) { errInfo = CREATEcall; goto Error; }
 		
-		//errCode = FSOpen(filename, vRefNum, &refNum);			/* Open it */
 		errCode = FSpOpenDF (&fsSpec, fsRdWrPerm, &refNum );	/* Open the file */
 		if (errCode) { errInfo = OPENcall; goto Error; }
 	}
@@ -2258,10 +2253,9 @@ TryAgain:
 		 * copy of the old version instead of a brand-new file; this would result in a
 		 * fair amount of extra I/O, but it might be the best solution.
 		 */
-
 		if (config.makeBackup) {
 			errCode = RenameAsBackup(filename,vRefNum,bkpName);
-			if (errCode && errCode!=fnfErr)								/* Ignore "file not found" */
+			if (errCode && errCode!=fnfErr)							/* Ignore "file not found" */
 				{ errInfo = BACKUPcall; goto Error; }
 		}
 		else {
@@ -2273,40 +2267,37 @@ TryAgain:
 			
 			oldFSSpec = fsSpec;
 		
-			//errCode = FSDelete(filename, vRefNum);						/* Delete old file */
-			errCode = FSpDelete(&oldFSSpec);									/* Delete old file */
-			if (errCode && errCode!=fnfErr)								/* Ignore "file not found" */
+			errCode = FSpDelete(&oldFSSpec);						/* Delete old file */
+			if (errCode && errCode!=fnfErr)							/* Ignore "file not found" */
 				{ errInfo = DELETEcall; goto Error; }
 		}
 
-		errCode = FSClose(refNum);										/* Close doc's file */
+		errCode = FSClose(refNum);									/* Close doc's file */
 		if (errCode) { errInfo = CLOSEcall; goto Error; }
 		
-		//errCode = Rename(tempName,vRefNum,filename);
 		errCode =  FSpRename (&tempFSSpec, filename);
-		if (errCode) { errInfo = RENAMEcall; goto Error; }		/* Rename temp to old filename */
+		if (errCode) { errInfo = RENAMEcall; goto Error; }			/* Rename temp to old filename */
 			
 	}
 	else if (saveType==SF_Replace) {
-		errCode = FSClose(refNum);										/* Close doc's file */
+		errCode = FSClose(refNum);									/* Close doc's file */
 		if (errCode) { errInfo = CLOSEcall; goto Error; }
 	}
 	else if (saveType==SF_SaveAs) {
-		errCode = FSClose(refNum);										/* Close the newly created file */
+		errCode = FSClose(refNum);									/* Close the newly created file */
 		if (errCode) { errInfo = CLOSEcall; goto Error; }
 	}
 
-	doc->changed = FALSE;												/* Score isn't dirty... */
-	doc->saved = TRUE;													/* ...and it's been saved */
+	doc->changed = FALSE;											/* Score isn't dirty... */
+	doc->saved = TRUE;												/* ...and it's been saved */
 
 	/* Save any print record or other resources in the resource fork */
 
-	WritePrintHandle(doc);												/* Ignore any errors */
+	WritePrintHandle(doc);											/* Ignore any errors */
 	
-	/* Save the midi map in the resource fork */
+	/* Save the MIDI map in the resource fork */
 
-	SaveMidiMap(doc);														/* Ignore any errors */
-	
+	SaveMidiMap(doc);												/* Ignore any errors */
 
 	FlushVol(NULL, vRefNum);
 	return 0;
@@ -2351,7 +2342,7 @@ void SaveError(Boolean fileOpened,
 	}
 
 #ifndef PUBLIC_VERSION
-	LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
+	LogPrintf(LOG_WARNING, aStr); LogPrintf(LOG_WARNING, "\n");
 #endif
 	CParamText(aStr, "", "", "");
 	StopInform(SAVE_ALRT);
