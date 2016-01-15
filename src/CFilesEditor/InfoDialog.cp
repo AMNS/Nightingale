@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	InfoDialog.c													*
-*	PROJ:	Nightingale, rev. for v.2000									*
-*	DESC:	Handling routines for "Get Info" and "Modifier Info" dialogs	*
+*	FILE:	InfoDialog.c
+*	PROJ:	Nightingale, rev. for v.2000
+*	DESC:	Handling routines for "Get Info" and "Modifier Info" dialogs
 /***************************************************************************/
 
 /*											NOTICE
@@ -643,29 +643,29 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	short			dialogOver;
-	short			ditem, aShort;
-	short			newval, staff, userVoice;
+	short		dialogOver;
+	short		ditem, aShort;
+	short		newval, staff, userVoice;
 	Handle		tHdl, twHdl, ulHdl, p1Hdl, p2Hdl;
-	Rect			tRect, aRect;
+	Rect		tRect, aRect;
 	PMEVENT		p;
-	PGRAPHIC		pGraphic;
+	PGRAPHIC	pGraphic;
 	PSPACE		pSpace;
 	PTEMPO		pTempo;
 	PENDING		pEnding;
 	PAMEASURE	aMeas;
 	PACLEF		aClef;
-	PAKEYSIG		aKeySig;
+	PAKEYSIG	aKeySig;
 	PATIMESIG	aTimeSig;
-	PBEAMSET		pBeamset;
+	PBEAMSET	pBeamset;
 	PACONNECT	aConnect;
 	PADYNAMIC	aDynamic;
 	PASLUR		aSlur;
-	LINK			aMeasL, aClefL, aKeySigL, aTimeSigL,
-					aConnectL, aDynamicL, aSlurL, partL;
+	LINK		aMeasL, aClefL, aKeySigL, aTimeSigL,
+				aConnectL, aDynamicL, aSlurL, partL;
 	Boolean		graphicDirty,									/* Anything graphic changed? */
-					nodeDirty;										/* Anything non-graphic changed? */
-	char			fmtStr[256];
+				nodeDirty;										/* Anything non-graphic changed? */
+	char		fmtStr[256];
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(OKButDragFilter);
@@ -676,11 +676,11 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				
 	GetPort(&oldPort);
 	ArrowCursor();
-	graphicDirty = nodeDirty = FALSE;									/* Nothing changed yet */
+	graphicDirty = nodeDirty = FALSE;								/* Nothing changed yet */
 
 /* --- 1. Create the dialog and initialize its contents. --- */
 
-	PrepareUndo(doc, pL, U_GetInfo, 12);    							/* "Undo Get Info" */
+	PrepareUndo(doc, pL, U_GetInfo, 12);    						/* "Undo Get Info" */
 
 	dlog = GetNewDialog(GENERALINFO_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
@@ -694,7 +694,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
 
 	if (GraphicTYPE(pL))
-		strcpy(strBuf, NameGraphicType(pL));
+		strcpy(strBuf, NameGraphicType(pL, TRUE));
 	else
 		strcpy(strBuf, NameNodeType(pL));
 	if (SlurTYPE(pL) && SlurTIE(pL))
@@ -1367,18 +1367,18 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	short			dialogOver;
-	short			ditem, aShort;
-	short			newval, staff, userVoice;
+	short		dialogOver;
+	short		ditem, aShort;
+	short		newval, staff, userVoice;
 	Handle		tHdl, twHdl, ulHdl, p1Hdl, p2Hdl;
-	Rect			tRect, aRect;
+	Rect		tRect, aRect;
 	POCTAVA		octavap;
 	PTUPLET		pTuplet;
 	Boolean		graphicDirty,									/* Anything graphic changed? */
-					nodeDirty;										/* Anything non-graphic changed? */
-	LINK			partL;
-	char			fmtStr[256];
-	PGRAPHIC		pGraphic;
+				nodeDirty;										/* Anything non-graphic changed? */
+	LINK		partL;
+	char		fmtStr[256];
+	PGRAPHIC	pGraphic;
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(OKButDragFilter);
@@ -1389,11 +1389,11 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 								
 	GetPort(&oldPort);
 	ArrowCursor();
-	graphicDirty = nodeDirty = FALSE;									/* Nothing changed yet */
+	graphicDirty = nodeDirty = FALSE;							/* Nothing changed yet */
 
 /* --- 1. Create the dialog and initialize its contents. --- */
 
-	PrepareUndo(doc, pL, U_GetInfo, 12);    							/* "Undo Get Info" */
+	PrepareUndo(doc, pL, U_GetInfo, 12);    					/* "Undo Get Info" */
 
 	dlog = GetNewDialog(EXTINFO_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
@@ -1406,7 +1406,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
 	if (GraphicTYPE(pL))
-		strcpy(strBuf, NameGraphicType(pL));
+		strcpy(strBuf, NameGraphicType(pL, TRUE));
 	else
 		strcpy(strBuf, NameNodeType(pL));
 	PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
@@ -1513,7 +1513,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		if (dialogOver==Cancel)
 		{
 			DisposeModalFilterUPP(filterUPP);
-			DisposeDialog(dlog);									/* Free heap space */
+			DisposeDialog(dlog);								/* Free heap space */
 			SetPort(oldPort);
 			return;
 		}
@@ -1536,15 +1536,15 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			GetDlgWord(dlog, LEFT_VERT, &newval);
 			if (!LegalVert(doc, newval)) dialogOver = 0;
 
-			switch (ObjLType(pL))										/* Check new values by type */
+			switch (ObjLType(pL))									/* Check new values by type */
 			{
-				case GRAPHICtype:												/* NB: only GRDraw now */
+				case GRAPHICtype:									/* NB: only GRDraw now */
 					GetDlgWord(dlog, RIGHT_VERT, &newval);
 					if (!LegalVert(doc, newval)) dialogOver = 0;
 
 					GetDlgWord(dlog, EXPARAM1, &newval);
 					if (newval<1 || newval>127) {
-						GetIndCString(strBuf, INFOERRS_STRS, 45);		/* "Line thickness must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 45);	/* "Line thickness must be..." */
 						INFO_ERROR(strBuf);
 					}
 					break;
@@ -1552,7 +1552,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				case OCTAVAtype:
 					GetDlgWord(dlog, EXPARAM1, &newval);
 					if (newval<0 || newval>1) {
-						GetIndCString(strBuf, INFOERRS_STRS, 42);		/* "noCutoff must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 42);	/* "noCutoff must be..." */
 						INFO_ERROR(strBuf);
 					}
 
@@ -1564,13 +1564,13 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 					GetDlgWord(dlog, EXPARAM1, &newval);
 					if (newval<0 || newval>1) {
-						GetIndCString(strBuf, INFOERRS_STRS, 43);		/* "accNum Visible must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 43);	/* "accNum Visible must be..." */
 						INFO_ERROR(strBuf);
 					}
 					
 					GetDlgWord(dlog, EXPARAM2, &newval);
 					if (newval<0 || newval>1) {
-						GetIndCString(strBuf, INFOERRS_STRS, 44);		/* "Bracket Visible must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 44);	/* "Bracket Visible must be..." */
 						INFO_ERROR(strBuf);
 					}
 	
@@ -1590,7 +1590,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	staff = 1;
 	switch (ObjLType(pL))										/* Get new values by type */
 	{
-		case GRAPHICtype:											/* NB: only GRDraw now */
+		case GRAPHICtype:										/* NB: only GRDraw now */
 			PushLock(OBJheap);
 		 	pGraphic = GetPGRAPHIC(pL);
 		 	
@@ -1659,12 +1659,12 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	}
 
 	SetPort(oldPort);
-	if (graphicDirty)	{										/* Was anything graphic changed? */
+	if (graphicDirty)	{									/* Was anything graphic changed? */
 		InvalMeasure(pL, staff);
 	}
-	if (graphicDirty || nodeDirty)						/* Was anything changed? */
+	if (graphicDirty || nodeDirty)							/* Was anything changed? */
 	{
-		doc->changed = TRUE;									/* Yes. */
+		doc->changed = TRUE;								/* Yes. */
 		LinkTWEAKED(pL) = TRUE;
 		LinkVALID(pL) = FALSE;								/* Force recalc. objRect */
 	}

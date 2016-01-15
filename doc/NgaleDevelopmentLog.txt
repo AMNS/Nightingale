@@ -1172,3 +1172,41 @@ Also, after creating (and using) a new Nightingale AMNF Prefs, Ngale complains t
 field 69 (whichMIDI) is illegal; its value is 4. I.e., the prototype in the .rsrc (CNFG
 resource) has it as 4, but the only legal values now are 0 and 1. Change that field in
 .rsrc to 0 => OK.
+
+-------------------------------------------------------------------------------
+
+11 - 15 Jan.
+
+Convert files encoded in Mac OS Roman to UTF-8; replace "sustain on" char. in code
+with 0xA1 (its codepoint in Sonata). Affects DrawObject, Menu, DebugUtils.
+
+Convert file with CRLF line endings to Unix. Affects defs.h.
+
+The pedal mark (SUSTAINON) is now displayed as a digit "5"! It was OK in Ngale 5.5.
+Cause: converting DrawObject.cp from Mac Roman to UTF8 screwed up the char. code;
+in Sonata, it's 0xA1. Replace the char. in source code with 0xA1 => all OK again.
+
+The standard "header" on Ngale .cp files says
+
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
+ * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
+ * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
+ * WRITTEN AUTHORIZATION FROM THE OWNER.
+ * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+
+According to SourceTree's display of changes, the update to Double.cp I'm ready to
+commit changes the char. after "NIGHTINGALE" from E-grave to TM, while the updates to
+DrawObject, Menu, & DebugUtils change it from TM to comma / N-tilde / cent sign, and
+add something like a "~" in front of the copyright symbol! Huh? Clearly related to
+encoding. Encodings (according to BBEdit; ** = "Incorrectly formed") and chars. displayed
+(BBEdit on my G5, default font; D-? = black diamond enclosing question mark):
+
+file		old enc.		new enc.		char. after "NIGHTINGALE": ST	:BBE
+Double		UTF8**			ISO Latin 1		E-grave => TM					D-? => super-a-underline
+DrawObject	Mac OS Roman	UTF-8			TM => comma/N-tilde/cent sign	TM => TM
+Menu		Mac OS Roman	UTF-8			TM => comma/N-tilde/cent sign	TM => TM
+DebugUtils	Mac OS Roman	UTF-8			TM => comma/N-tilde/cent sign	TM => TM
+
+It looks like BBEdit on Mac doesn't display Latin-1 properly (no surprise) and
+SourceTree on Mac doesn't display UTR-8 properly (weird). Anyway, almost certainly not
+evidence of a serious problem!

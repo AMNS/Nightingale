@@ -11,7 +11,7 @@
 		NameHeapType			NameNodeType			NameGraphicType	
 		ConvertQuote			DrawBox					HiliteRect
 		Voice2UserStr			Staff2UserStr
-		DrawPUpTriangle		DrawPopUp				TruncPopUpString
+		DrawPUpTriangle			DrawPopUp				TruncPopUpString
 		InitPopUp				DoUserPopUp				ChangePopUpChoice
 		DisposePopUp			HilitePopUp				ResizePopUp
 		ShowPopUp
@@ -38,10 +38,10 @@ static DDIST GetStaffLim(Document *doc,LINK pL,short s,Boolean top,PCONTEXT pCon
 bottom + 6 half-lines. */
 
 static DDIST GetStaffLim(
-						Document *doc, LINK pL,
-						short staffn,
-						Boolean top,			/* TRUE if getting top staff limit. */
-						PCONTEXT pContext)
+					Document *doc, LINK pL,
+					short staffn,
+					Boolean top,					/* TRUE if getting top staff limit. */
+					PCONTEXT pContext)
 {
 	DDIST blackTop, blackBottom,
 			dhalfLn;								/* Distance between staff half-lines */
@@ -70,14 +70,14 @@ void HiliteInsertNode(
 			Document *doc,
 			LINK		pL,
 			short		staffn,		/* No. of "special" staff to emphasize or NOONE */
-			Boolean	flash 		/* TRUE=flash to emphasize special staff */
+			Boolean	flash			/* TRUE=flash to emphasize special staff */
 			)
 {
-	short			xd, xp, ypTop, ypBot;
-	DDIST			blackTop, blackBottom;
+	short		xd, xp, ypTop, ypBot;
+	DDIST		blackTop, blackBottom;
 	CONTEXT		context;
 
-	if (!pL) return;															/* Just in case */
+	if (!pL) return;											/* Just in case */
 	
 	if (objTable[ObjLType(pL)].justType!=J_STRUC) {
 		if (staffn==NOONE)
@@ -86,17 +86,17 @@ void HiliteInsertNode(
 			blackTop = GetStaffLim(doc,pL,staffn,TRUE,&context);
 			blackBottom = GetStaffLim(doc,pL,staffn,FALSE,&context);
 		}
-		xd = SysRelxd(pL)+context.systemLeft;						/* abs. origin of object */
+		xd = SysRelxd(pL)+context.systemLeft;					/* abs. origin of object */
 		PenMode(patXor);
 		PenPat(NGetQDGlobalsGray());
 		xp = context.paper.left+d2p(xd);
 		ypTop = context.paper.top+d2p(context.systemTop)+1;
 		ypBot = context.paper.top+d2p(context.systemBottom)-1;
-		MoveTo(xp+1, ypTop);												/* Draw thru whole system */
+		MoveTo(xp+1, ypTop);									/* Draw thru whole system */
 		LineTo(xp+1, ypBot);
 		
 		if (staffn!=NOONE) {
-			PenSize(3, 1);													/* Draw thicker on special staff */
+			PenSize(3, 1);										/* Draw thicker on special staff */
 			MoveTo(xp, context.paper.top+d2p(blackTop));
 			LineTo(xp, context.paper.top+d2p(blackBottom));
 			
@@ -110,7 +110,7 @@ void HiliteInsertNode(
 				LineTo(xp, context.paper.top+d2p(blackBottom));
 			}
 		}
-		PenNormal();														/* Restore normal drawing */
+		PenNormal();											/* Restore normal drawing */
 	}
 }
 
@@ -149,37 +149,38 @@ void HiliteAttPoints(
 {
 	if (!firstL) return;
 	
-	if (lastL) HiliteTwoNodesOn(doc, firstL, lastL, staffn);							/* On */
-	else		  HiliteInsertNode(doc, firstL, staffn, TRUE);							/* On */
+	if (lastL) HiliteTwoNodesOn(doc, firstL, lastL, staffn);					/* On */
+	else		  HiliteInsertNode(doc, firstL, staffn, TRUE);					/* On */
 
 	SleepTicks(HILITE_TICKS);
 	while (Button()) ;
 	
-	HiliteInsertNode(doc, firstL, staffn, FALSE);										/* Off */
+	HiliteInsertNode(doc, firstL, staffn, FALSE);								/* Off */
 	if (lastL && firstL!=lastL) HiliteInsertNode(doc, lastL, staffn, FALSE);	/* Off */
 }
 
-static void logPrint(char *str) 
+static void DebugLogPrint(char *str);
+static void DebugLogPrint(char *str) 
 {
-	//printf(str);
+	//LogPrintf(LOG_NOTICE, str);
 }
 
 /* -------------------------------------------------------------------- FixCursor -- */
 /*	Set cursor shape based on window and mouse position. This version allows "shaking
 off the mode".	*/
 
-#define MAXSHAKES		4		/* Changes in X direction before a good shake */
-#define CHECKMIN		2		/* Number ticks before next dx check */
+#define MAXSHAKES	4		/* Changes in X direction before a good shake */
+#define CHECKMIN	2		/* Number ticks before next dx check */
 #define SWAPMIN		30		/* Number ticks between consecutive shakeoffs */
 
 void FixCursor()
 {
-	Point				mousept, globalpt;
+	Point			mousept, globalpt;
 	WindowPtr		wp;
 	CursHandle		newCursor;
-	Document			*doc;
-	static short	x,xOld,dx,dxOld,shaker,shookey;
-	static long 	now,soon,nextcheck;
+	Document		*doc;
+	static short	x, xOld, dx, dxOld, shaker, shookey;
+	static long 	now, soon, nextcheck;
 	PaletteGlobals *toolPalette;
 	char			message[256];
 	Boolean			foundPalette = FALSE;
@@ -193,14 +194,15 @@ void FixCursor()
 	 * key is down that forces a specific cursor temporarily--at the moment,
 	 * only the <genlDragCursor>.
 	 */
-	 
 	GetMouse(&mousept);
 	globalpt = mousept;
 	LocalToGlobal(&globalpt);
 	
 	/* If no windows at all, use arrow */
 	
-	if (TopWindow == NULL) { holdCursor = FALSE; logPrint("1. TopWindow is null\n"); ArrowCursor(); return; }
+	if (TopWindow == NULL) {
+		holdCursor = FALSE; DebugLogPrint("1. TopWindow is null\n"); ArrowCursor(); return;
+		}
 	
 	/* If mouse over any palette, use arrow unless a tool was just chosen */
 
@@ -224,29 +226,31 @@ void FixCursor()
 	
 	/* If no Documents, use arrow */
 	
-	if (TopDocument == NULL) { logPrint("3. TopDocument is null\n"); ArrowCursor(); return; }
+	if (TopDocument==NULL) { DebugLogPrint("3. TopDocument is null\n"); ArrowCursor(); return; }
 
 	/* If mouse over any kind of window other than a Document, use arrow */
 	
 	FindWindow(globalpt, (WindowPtr *)&wp);
 	
-	if (wp==NULL) { logPrint("3-1. FoundWindow is null\n"); ArrowCursor(); return; }
-	if (GetWindowKind(wp)==PALETTEKIND) { logPrint("3-2. FoundWindow is a palette\n"); return; }	
-	if (GetWindowKind(wp)!=DOCUMENTKIND) { logPrint("3-3. FoundWindow not our Document\n"); ArrowCursor(); return; }
+	if (wp==NULL) { DebugLogPrint("3-1. FoundWindow is null\n"); ArrowCursor(); return; }
+	if (GetWindowKind(wp)==PALETTEKIND) { DebugLogPrint("3-2. FoundWindow is a palette\n"); return; }	
+	if (GetWindowKind(wp)!=DOCUMENTKIND) {
+		DebugLogPrint("3-3. FoundWindow not our Document\n"); ArrowCursor(); return;
+		}
 	
 	doc = GetDocumentFromWindow(wp);
 	
-	if (doc == NULL) { ArrowCursor(); logPrint("4. FixCursor: doc is null\n"); return; }
+	if (doc==NULL) { ArrowCursor(); DebugLogPrint("4. FixCursor: doc is null\n"); return; }
 	sprintf(message, "4.1 found document %s\n", doc->name);
-	logPrint(message);
+	DebugLogPrint(message);
 	
 	/* If mouse not over the Document's viewRect, use arrow */
 	
-	if (!PtInRect(mousept,&doc->viewRect)) { logPrint("5. Not in viewRect\n");  ArrowCursor(); return; }
+	if (!PtInRect(mousept,&doc->viewRect)) { DebugLogPrint("5. Not in viewRect\n");  ArrowCursor(); return; }
 	
 	/* If Document showing Master Page or Work on Format, use arrow */
 	
-	if (doc->masterView || doc->showFormat) { logPrint("6. MasterPage or ShowFormat\n"); ArrowCursor(); return; }
+	if (doc->masterView || doc->showFormat) { DebugLogPrint("6. MasterPage or ShowFormat\n"); ArrowCursor(); return; }
 	
 	/*
 	 * Mouse is over the viewRect of a Document that is showing the "normal" (not
@@ -269,7 +273,6 @@ void FixCursor()
 	 *	don't allow consecutive shakeoffs to occur more often than SWAPMIN ticks.
 	 *	Yours truly, Doug McKenna.
 	 */
-	 
 	now = TickCount();
 	if (now > nextcheck) {
 		x = mousept.h;
@@ -281,7 +284,7 @@ void FixCursor()
 			if (shaker++ == 0)
 				soon = now + config.mShakeThresh;					/* Start timing */
 			 else
-				if (now < soon)											/* A quick-enough shake ? */
+				if (now < soon)										/* A quick-enough shake ? */
 					if (shaker >= MAXSHAKES) {
 						if (shookey==0 || currentCursor!=arrowCursor) {
 							shookey = GetPalChar((*paletteGlobals[TOOL_PALETTE])->currentItem);
@@ -315,7 +318,7 @@ void FixCursor()
 
 	if (OptionKeyDown() && !ShiftKeyDown()) newCursor = genlDragCursor;
 	
-	logPrint("7. Installing current cursor\n");
+	DebugLogPrint("7. Installing current cursor\n");
 	
 	/* Install the new cursor, whatever it may be. */
 	SetCursor(*newCursor);
@@ -434,7 +437,7 @@ window. If which!=0 and there's already a ProgressMsg window up, remove it befor
 putting up the new one. */
 
 Boolean ProgressMsg(short which,
-							char *moreInfo)				/* C string */
+						char *moreInfo)				/* C string */
 {
 	static short lastWhich=-999;
 	static DialogPtr dialogp=NULL; GrafPtr oldPort; char str[256];
@@ -505,7 +508,6 @@ Boolean UserInterruptAndSel()
 
 
 /* --------------------------------------------------- NameHeapType, NameNodeType -- */
-
 /* Given a "heap index" or object type, return the name of the corresponding object. */
 
 const char *NameHeapType(
@@ -516,13 +518,13 @@ const char *NameHeapType(
 
 	switch (heapIndex) {
 		case HEADERtype:	ps = "HEAD"; break;
-		case TAILtype: 	ps = "TAIL"; break;
-		case SYNCtype: 	ps = (friendly? "note and rest" : "SYNC"); break;
+		case TAILtype:		ps = "TAIL"; break;
+		case SYNCtype:		ps = (friendly? "note and rest" : "SYNC"); break;
 		case RPTENDtype:	ps = (friendly? "repeat bar/segno" : "REPEATEND"); break;
 		case ENDINGtype:	ps = (friendly? "ending" : "ENDING"); break;
 		case PAGEtype:		ps = (friendly? "page" : "PAGE"); break;
 		case SYSTEMtype:	ps = (friendly? "system" : "SYSTEM"); break;
-		case STAFFtype:	ps = (friendly? "staff" : "STAFF"); break;
+		case STAFFtype:		ps = (friendly? "staff" : "STAFF"); break;
 		case MEASUREtype:	ps = (friendly? "measure" : "MEASURE"); break;
 		case PSMEAStype:	ps = (friendly? "pseudomeasure" : "PSEUDOMEAS"); break;
 		case CLEFtype:		ps = (friendly? "clef" : "CLEF"); break;
@@ -531,17 +533,18 @@ const char *NameHeapType(
 		case BEAMSETtype:	ps = (friendly? "beamed group" : "BEAMSET"); break;
 		case TUPLETtype:	ps = (friendly? "tuplet" : "TUPLET"); break;
 		case CONNECTtype:	ps = (friendly? "staff bracket" : "CONNECT"); break;
-		case DYNAMtype:	ps = (friendly? "dynamic" : "DYNAMIC"); break;
-		case MODNRtype:	ps = (friendly? "note modifier" : "MODNR"); break;
+		case DYNAMtype:		ps = (friendly? "dynamic" : "DYNAMIC"); break;
+		case MODNRtype:		ps = (friendly? "note modifier" : "MODNR"); break;
 		case GRAPHICtype:	ps = (friendly? "Graphic" : "GRAPHIC"); break;
 		case OCTAVAtype:	ps = (friendly? "octave sign" : "OCTAVE"); break;
 		case SLURtype:		ps = (friendly? "slur and tie" : "SLUR"); break;
 		case GRSYNCtype:	ps = (friendly? "grace note" : "GRSYNC"); break;
-		case TEMPOtype:	ps = (friendly? "tempo mark" : "TEMPO"); break;
-		case SPACEtype:	ps = (friendly? "spacer" : "SPACER"); break;
+		case TEMPOtype:		ps = (friendly? "tempo mark" : "TEMPO"); break;
+		case SPACEtype:		ps = (friendly? "spacer" : "SPACER"); break;
 		case OBJtype:		ps = "OBJECT"; break;
-		default:				ps = "**UNKNOWN**";
+		default:			ps = "**UNKNOWN**";
 	}
+
 	return ps;
 }
 
@@ -555,32 +558,33 @@ const char *NameNodeType(LINK pL)
 
 
 /* -------------------------------------------------------------- NameGraphicType -- */
-
 /* Given an object of type GRAPHIC, return its subtype. */
 
-const char *NameGraphicType(LINK pL)
+const char *NameGraphicType(
+			LINK pL,
+			Boolean friendly)		/* TRUE=give user-friendly names, FALSE=give "real" names */
 {
-	char *ps;
+	const char *ps;
 
-	if (!GraphicTYPE(pL)) {														/* Just in case */
+	if (!GraphicTYPE(pL)) {											/* Just in case */
 		ps = "*NOT A GRAPHIC*";
 		return ps;
 	}
 
 	switch (GraphicSubType(pL)) {
-		case GRPICT:			ps = "PICT"; break;
-		case GRString:			ps = "TEXT"; break;
-		case GRLyric:			ps = "LYRIC"; break;
-		case GRDraw:			ps = "DRAW"; break;
-		case GRRehearsal:		ps = "REHEARSAL"; break;
-		case GRChordSym:		ps = "CHORDSYM"; break;
-		case GRArpeggio:		ps = "ARPEGGIO"; break;
-		case GRChordFrame:		ps = "CHORDFRAME"; break;
-		case GRMIDIPatch:		ps = "MIDIPATCH"; break;
-		case GRMIDISustainOn:	ps = "SUSTAINON"; break;
-		case GRMIDISustainOff:	ps = "SUSTAINOFF"; break;
-		case GRMIDIPan:			ps = "PAN"; break;
-		default:				ps = "*UNKNOWN*";
+		case GRPICT:			ps = (friendly? "PICT" : "GRPICT"); break;
+		case GRString:			ps = (friendly? "TEXT" : "GRString"); break;
+		case GRLyric:			ps = (friendly? "LYRIC" : "GRLyric"); break;
+		case GRDraw:			ps = (friendly? "DRAW" : "GRDraw"); break;
+		case GRRehearsal:		ps = (friendly? "REHEARSAL" : "GRRehearsal"); break;
+		case GRChordSym:		ps = (friendly? "CHORD SYM" : "GRChordSym"); break;
+		case GRArpeggio:		ps = (friendly? "ARPEGGIO" : "GRArpeggio"); break;
+		case GRChordFrame:		ps = (friendly? "CHORD FRAME" : "GRChordFrame"); break;
+		case GRMIDIPatch:		ps = (friendly? "MIDI PATCH" : "GRMIDIPatch"); break;
+		case GRMIDISustainOn:	ps = (friendly? "SUSTAIN ON" : "GRMIDISustainOn"); break;
+		case GRMIDISustainOff:	ps = (friendly? "SUSTAIN OFF" : "GRMIDISustainOff"); break;
+		case GRMIDIPan:			ps = (friendly? "PAN" : "GRMIDIPan"); break;
+		default:				ps = (friendly? "*UNKNOWN*" : "*UNKNOWN*");
 	}
 
 	return ps;
@@ -652,8 +656,8 @@ user-friendly format, e.g., "voice 2 of Piano".
 be replaced with calls to this. */
 
 void Voice2UserStr(Document *doc,
-								short voice,
-								char str[])			/* user-friendly string describing the voice */
+						short voice,
+						char str[])			/* user-friendly string describing the voice */
 {
 	short userVoice;
 	LINK partL; PPARTINFO pPart;
@@ -672,8 +676,8 @@ user-friendly format, e.g., "staff 3 (Clarinet)" or "staff 5 (staff 2 of Piano)"
 be replaced with calls to this. */
 
 void Staff2UserStr(Document *doc,
-								short staffn,
-								char str[])			/* user-friendly string describing the staff */
+						short staffn,
+						char str[])			/* user-friendly string describing the staff */
 {
 	short relStaff;
 	LINK partL; PPARTINFO pPart;

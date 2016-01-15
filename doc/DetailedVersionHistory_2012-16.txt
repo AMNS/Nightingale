@@ -337,7 +337,22 @@ purpose and it's #ifdef'd out, but it might be useful with a simpler score.
 
 Make Debug stop complaining about the first Sync of a measure in the clipboard not
 being at time zero for the measure; make it stop complaining about valid bboxes of
-final measures of right-justified systems.
+final measures of right-justified systems. Affects DebugDisplay, DebugUtils.
 
 Minor cleanup. Affects defs.h; Browser, DebugDisplay, DebugUtils, DrawObject, File,
 Initialize, SpaceHighLevel, VoiceNumbers.
+
+-------------------------------------------------------------------------------
+
+11-14 Jan.
+
+Convert files encoded in Mac OS Roman to UTF-8; replace "sustain on" char. in code
+with 0xA1 (its codepoint in Sonata). Affects DrawObject, Menu, DebugUtils.
+
+Convert file with CRLF line endings to Unix. Affects defs.h.
+
+Add a _friendly_ parameter to NameGraphicType() as in NameHeapType() & replace
+inline code in BrowseGraphic() with a call to NameGraphicType. Affects Browser,
+InfoDialog, UIFUtils.
+
+Minor cleanup. Affects Browser, Double, InfoDialog, UIFUtils.

@@ -504,7 +504,7 @@ static void SelSubObj(LINK pL, LINK subL)
 				SlurSEL(subL) = TRUE; break;
 			default:
 				SysBeep(1);
-				LogPrintf(LOG_NOTICE, "Browser/SelSubObj: can't select subobject of this type.");
+				LogPrintf(LOG_WARNING, "Browser/SelSubObj: can't select subobject of this type.");
 		}	
 }
 
@@ -1690,7 +1690,7 @@ void ChordSym2Print(unsigned char *str)					/* Pascal string */
 void BrowseGraphic(LINK pL)
 {
 	PGRAPHIC p;
-	char	*pStr, s2[256];
+	char s2[256];
 	LINK aGraphicL;
 	PAGRAPHIC aGraphic;
 
@@ -1700,43 +1700,8 @@ void BrowseGraphic(LINK pL)
 	
 	sprintf(s, "stf=%d voice=%d", p->staffn, p->voice);
 	DrawLine (s);
-	p = GetPGRAPHIC(pL);
-	switch (p->graphicType) {
-		case GRPICT:
-			pStr = "GRPICT";
-			break;
-		case GRChar:
-			pStr = "GRChar";
-			break;
-		case GRString:
-			pStr = "GRString";
-			break;
-		case GRLyric:
-			pStr = "GRLyric";
-			break;
-		case GRDraw:
-			pStr = "GRDraw";
-			break;
-		case GRRehearsal:
-			pStr = "GRRehearsal";
-			break;
-		case GRChordSym:
-			pStr = "GRChordSym";
-			break;
-		case GRArpeggio:
-			pStr = "GRArpeggio";
-			break;
-		case GRChordFrame:
-			pStr = "GRChordFrame";
-			break;
-		case GRMIDIPatch:
-			pStr = "GRMIDIPatch";
-			break;
-		default:
-			sprintf(s2, "UNKNOWN TYPE %d", p->graphicType);
-			pStr = s2;
-	}
-	sprintf(s, "graphicType=%s", pStr);
+	strcpy(strBuf, NameGraphicType(pL, FALSE));
+	sprintf(s, "graphicType=%s", strBuf);
 	DrawLine (s);
 
 	p = GetPGRAPHIC(pL);
@@ -1970,7 +1935,7 @@ void ShowContext(Document *doc)
 		theStaff = GetStaffFromSel(doc, &pL);
 		if (theStaff==NOONE) {
 			SysBeep(4);
-			LogPrintf(LOG_NOTICE, "Browser/ShowContext: can't get staff number.");
+			LogPrintf(LOG_WARNING, "Browser/ShowContext: can't get staff number.");
 			return;
 		}
 	}

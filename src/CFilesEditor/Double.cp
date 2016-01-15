@@ -2,7 +2,7 @@
 
 /*										NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEé PROGRAM AND IS CONFIDENTIAL
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL
  * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
  * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
  * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
@@ -99,16 +99,16 @@ static pascal Boolean DoubleFilter(DialogPtr dlog, EventRecord *evt, short *item
 
 
 static Boolean DoubleDialog(Document *doc,
-						short srcStf,		/* Staff no. containing material to be doubled */
-						short *pDstStf		/* Destination staff no. */
-						)
+							short srcStf,		/* Staff no. containing material to be doubled */
+							short *pDstStf		/* Destination staff no. */
+							)
 {
-	DialogPtr		dlog;
+	DialogPtr	dlog;
 	short			ditem = Cancel, staffn, partChoice, nPart, partMaxStf;
-	GrafPtr			oldPort;
-	Boolean			keepGoing = TRUE;
+	GrafPtr		oldPort;
+	Boolean		keepGoing = TRUE;
 	LINK			thePartL, partL;
-	PPARTINFO		pPart;
+	PPARTINFO	pPart;
 	char			partName[256], fmtStr[256];	
 	ModalFilterUPP	filterUPP;
 
@@ -464,7 +464,7 @@ void DblSetupVMap(Document *doc, short vMap[], LINK startL, LINK endL, short src
 	for (v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn!=0)
 			LogPrintf(LOG_NOTICE, "%ciVoice %d part %d relVoice=%d\n",
-							(v==1? 'Ç' : ' '),
+							(v==1? '¥' : ' '),
 							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
 #endif	
 }
@@ -857,10 +857,10 @@ Boolean RangeHasUnmatchedSlurs(Document */*doc*/, LINK startL, LINK endL, short 
 /* Look for a Dynamic, ignoring hairpins. */
 
 static LINK LSContextDynamicSearch(
-				LINK startL,			/* Place to start looking */
-				short staff,			/* target staff number */
+				LINK startL,				/* Place to start looking */
+				short staff,				/* target staff number */
 				Boolean goLeft,			/* TRUE if we should search left */
-				Boolean needSelected	/* TRUE if we only want selected items */
+				Boolean needSelected		/* TRUE if we only want selected items */
 				)
 {
 	LINK dynL;
@@ -907,30 +907,30 @@ static void DblFixContext(Document *doc, short dstStf)
 //LogPrintf(LOG_NOTICE, "DblFixContext1: currentDynamType=%d\n", currentDynamType);
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
-		switch (ObjLType(pL)) {
-			case DYNAMtype:
-				if (DynamType(pL)<FIRSTHAIRPIN_DYNAM) {
-					aDynamicL = FirstSubLINK(pL);
+			switch (ObjLType(pL)) {
+				case DYNAMtype:
+					if (DynamType(pL)<FIRSTHAIRPIN_DYNAM) {
+						aDynamicL = FirstSubLINK(pL);
 					if (DynamicSTAFF(aDynamicL)==dstStf) {
 						currentDynamType = DynamType(pL);
 //LogPrintf(LOG_NOTICE, "DblFixContext: Dynamic pL=%d dynam=%d\n", pL, currentDynamType);
 					}
 				}
 				continue;
-			case MEASUREtype:
+				case MEASUREtype:
 //LogPrintf(LOG_NOTICE, "DblFixContext: Measure pL=%d dynam=%d\n", pL, currentDynamType);
-				dstMeasL = MeasOnStaff(pL, dstStf);
-				dstMeas = GetPAMEASURE(dstMeasL);
-				dstMeas->dynamicType = currentDynamType;
-				continue;
-			case STAFFtype:
-				dstStaffL = StaffOnStaff(pL, dstStf);
-				dstStaff = GetPASTAFF(dstStaffL);
-				dstStaff->dynamicType = currentDynamType;
-				continue;
-			default:
-				;
-		}
+					dstMeasL = MeasOnStaff(pL, dstStf);
+					dstMeas = GetPAMEASURE(dstMeasL);
+					dstMeas->dynamicType = currentDynamType;
+					continue;
+				case STAFFtype:
+					dstStaffL = StaffOnStaff(pL, dstStf);
+					dstStaff = GetPASTAFF(dstStaffL);
+					dstStaff->dynamicType = currentDynamType;
+					continue;
+				default:
+					;
+			}
 	}
 		
 	/* Now update Dynamic context as if new Dynamics were just inserted at the beginning
@@ -995,7 +995,7 @@ static Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 				if (SlurCrossSTAFF(pL)) {
 					short slurPart = Staff2Part(doc, SlurSTAFF(pL));
 					if (slurPart==srcPart || slurPart==dstPart)
-						crossStaff = TRUE;			/* may not be possible but just in case */
+						crossStaff = TRUE;	/* may not be possible but just in case */
 				}
 				break;
 			case TUPLETtype:
@@ -1030,12 +1030,12 @@ NOTHING_TO_DO or OP_COMPLETE.
 
 The "everything" that's duplicated and "empty" destination need more explanation,
 especially as regards the objects that affect context:
-						Source staff						Destination staff
-						------------						-----------------
-	Clefs				not allowed (except gutter)			not allowed (except gutter)
-	Key signatures		not allowed (except gutter)			not allowed (except gutter)
-	Time signatures		ignored 							allowed, left alone
-	Dynamics			copied								not allowed
+							Source staff						Destination staff
+							------------						-----------------
+	Clefs					not allowed (except gutter)	not allowed (except gutter)
+	Key signatures		not allowed (except gutter)	not allowed (except gutter)
+	Time signatures	ignored 								allowed, left alone
+	Dynamics				copied								not allowed
 These rules let us keep the context consistent without too much trouble while (I
 hope) not being too restrictive. */
 

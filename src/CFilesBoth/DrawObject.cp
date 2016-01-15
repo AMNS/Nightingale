@@ -6,11 +6,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright Â© 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -1593,14 +1593,14 @@ Boolean GetGraphicDBox(Document *doc,
 					SetRect(&r, 0, 0, 2, 2);
 				else
 					r = (*(PicHandle)picH)->picFrame;
-				width = r.right - r.left;								/* calculate width and height */
+				width = r.right - r.left;					/* calculate width and height */
 				height = r.bottom - r.top;
 				SetDRect(dBox, 0, 0, pt2d(width), pt2d(height));
 			}
 			return TRUE;
 		case GRArpeggio:
 			dHeight = qd2d(p->info, pContext->staffHeight, pContext->staffLines);
-			SetDRect(dBox, 0, 0, pt2d(3), dHeight);	/* Width is crude but seems acceptable */
+			SetDRect(dBox, 0, 0, pt2d(3), dHeight);			/* Width is crude but seems acceptable */
 			return TRUE;
 		case GRChar:
 			string[0] = 1;
@@ -1609,19 +1609,19 @@ Boolean GetGraphicDBox(Document *doc,
 			break;
 		case GRMIDISustainOn:
 			string[0] = 1;
-			string[1] = '¡';			// Shift-option 8
+			string[1] = 0xA1;								// Mac OS Roman keys: shift-option 8
 			pStr = string;
 			fontID = doc->musicFontNum;
 			break;
 		case GRMIDISustainOff:
 			string[0] = 2;
-			string[1] = '*';			// Shift 8
+			string[1] = '*';								// Shift 8
 			string[2] = '*';
 			pStr = string;
 			fontID = doc->musicFontNum;
 			break;
 		case GRChordSym:
-			return FALSE;								/* Handled by DrawChordSym */
+			return FALSE;									/* Handled by DrawChordSym */
 		default:
 			aGraphicL = FirstSubLINK(pL);
 			aGraphic = GetPAGRAPHIC(aGraphicL);
@@ -2004,14 +2004,14 @@ PushLock(GRAPHICheap);
 						break;
 					case GRMIDISustainOn:
 						oneChar[0] = 1;
-						oneChar[1] = '¡';			// Shift-option 8
+						oneChar[1] = 0xA1;					// Mac OS Roman keys: shift-option 8
 						TextFace(normal);
 						TextFont(doc->musicFontNum);
 						DrawString(oneChar);
 						break;
 					case GRMIDISustainOff:
 						oneChar[0] = 1;
-						oneChar[1] = '*';			// Shift 8
+						oneChar[1] = '*';					// Shift 8
 						TextFace(normal);
 						TextFont(doc->musicFontNum);
 						DrawString(oneChar);
@@ -2098,14 +2098,14 @@ PushLock(GRAPHICheap);
 					break;
 				case GRMIDISustainOn:
 					oneChar[0] = 1;
-					oneChar[1] = '¡';			// Shift-option 8
+					oneChar[1] = 0xA1;						// Mac OS Roman keys: shift-option 8
 					PS_FontString(doc, xd, yd,oneChar,
 										doc->fontTable[p->fontInd].fontName,
 										fontSize, fontStyle);
 					break;
 				case GRMIDISustainOff:
 					oneChar[0] = 1;
-					oneChar[1] = '*';			// Shift 8
+					oneChar[1] = '*';						// Shift 8
 					PS_FontString(doc, xd, yd,oneChar,
 										doc->fontTable[p->fontInd].fontName,
 										fontSize, fontStyle);
