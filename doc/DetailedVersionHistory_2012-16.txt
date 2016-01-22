@@ -58,8 +58,8 @@ code
 
 mid-Aug. - Nov. 2013
 
-* Add to QuickChange "Set tempo M.M. visibility to visible/invisible". Affects .rsrc: add
-"M.M. visibility" to Tempo popup; SetUtils.c: add SetSelTempoVisible; SetCommand.c:
+* Add to QuickChange "Set tempo M.M. visibility to visible/invisible". Affects .rsrc:
+add "M.M. visibility" to Tempo popup; SetUtils.c: add SetSelTempoVisible; SetCommand.c:
 improve description of how to add features; various.
 
 * DrawObject.cp: comment out DebugPrintf(s).
@@ -169,7 +169,7 @@ MIDIPlay.cp: Change more instances of "Midi" in function names to "MIDI".
 
 -------------------------------------------------------------------------------
 
-2 - 4 October			====== NIGHTINGALE 5.5 ======
+2 - 4 October
 
 Integrate my codebase with the codebase in the AMNS/Nightingale GitHub repository, which
 dates from late June 2012. Integrated ca. 7 .h's and 19 .cp's, but -- as a result of
@@ -210,7 +210,7 @@ Tweak the Info dialog for notes/rests and the one for most other symbols (DLOGs 
 
 -------------------------------------------------------------------------------
 
-27-28 Oct.
+27-28 Oct.			====== NIGHTINGALE 5.5 ======
 
 Fix bug: ExpandString() doesn't check for excessively long strings correctly. Affects
 StringUtils.
@@ -225,7 +225,7 @@ Add an "expanded" option for text in tempo marks; minor cleanup. Affects .rsrc; 
 Check, DialogsEditor, DrawObject, Insert, InsNew, InsNew.h, MIDIFOpen, NightTemplates.h,
 NTypes.h.
 
--------------------------------------------------------------------------------
+===============================================================================
 
 3-16 Nov.
 
@@ -322,7 +322,7 @@ Update version number in About box to 5.6b1. Affects info.plist .
 
 -------------------------------------------------------------------------------
 
-2 - 10 Jan. 2015			=== NIGHTINGALE 5.6b1 ===
+2 - 10 Jan. 2015
 
 Change the name of the Preferences file to "Nightingale AMNF Prefs". Affects .rsrc;
 VersionStrings.h; Initialize.
@@ -344,7 +344,7 @@ Initialize, SpaceHighLevel, VoiceNumbers.
 
 -------------------------------------------------------------------------------
 
-11-14 Jan.
+11-14 Jan.			=== NIGHTINGALE 5.6b1 ===
 
 Convert files encoded in Mac OS Roman to UTF-8; replace "sustain on" char. in code
 with 0xA1 (its codepoint in Sonata). Affects DrawObject, Menu, DebugUtils.
@@ -356,3 +356,23 @@ inline code in BrowseGraphic() with a call to NameGraphicType. Affects Browser,
 InfoDialog, UIFUtils.
 
 Minor cleanup. Affects Browser, Double, InfoDialog, UIFUtils.
+
+===============================================================================
+
+18 - 22 Jan.
+
+Change some default CNFG & other settings: "Default staff rastral size" (1) from 1
+to 5; "Screen layout..." from vertical to horizontal; in MIDI Modifier values, increase
+velocity offset for normal accent (>) from 30 to 40. Affects .rsrc.
+
+Update version number in About box to 5.6b2. Affects info.plist .
+
+Rename VoiceNumbers.cp to VoiceTable.cp.
+
+Alphabetize precomp headers in the Xcode project.
+
+When a dynamic is double-clicked, hilight its attachment point, as with text graphics
+and tempo marks. Affects Check.c.
+
+defs.h, Check.c: clarify comments; minor cleanup.
+

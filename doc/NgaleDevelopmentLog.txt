@@ -1210,3 +1210,34 @@ DebugUtils	Mac OS Roman	UTF-8			TM => comma/N-tilde/cent sign	TM => TM
 It looks like BBEdit on Mac doesn't display Latin-1 properly (no surprise) and
 SourceTree on Mac doesn't display UTR-8 properly (weird). Anyway, almost certainly not
 evidence of a serious problem!
+
+-------------------------------------------------------------------------------
+
+21 Jan.
+
+Showing attaching point(s) of symbols isn't as good as it used to be. I'm pretty sure
+that formerly, double-click various symbols (at least dynamics, slurs, & GRString &
+GRLyric Graphics) & hold mouse button formerly => showed attachment point(s) (via
+vertical dotted lines, with call to UIFUtils.cp > HiliteAttPoints (or possibly
+HiliteInsertNode?)); anyway, I want it to! Currently, it does so only for Graphics and
+tempo marks, and only _after_ you release button on double-click, while the resulting
+dialog is on screen: that's OK -- and quite possibly what it's always done for Graphics.
+But it doesn't do it for dynamics and slurs at all. In fact, now that double-clicking
+dynamics brings up an edit dialog, it could behave the same as for Graphics and tempi.
+
+CheckDYNAMIC(), case SMDblClick, calls HiliteAttPoints():
+
+	if (IsHairpin(pL))
+		HiliteAttPoints(doc, firstSync, lastSync, staffn);
+	else
+		HiliteAttPoints(doc, firstSync, NILINK, staffn);
+
+It looks like this should work. But CheckGRAPHIC(), case SMDblClick, for text, calls
+HiliteInsertNode():
+
+	HiliteInsertNode(doc, p->firstObj, staffn, TRUE);		/* Hiliting on */
+
+...and so does CheckTEMPO(), case SMDblClick! It looks like HiliteInsertNode() works and
+HiliteAttPoints() doesn't.
+
+Change CheckDYNAMIC(), case SMDblClick, to use HiliteInsertNode => it works!
