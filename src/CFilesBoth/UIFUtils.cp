@@ -3,6 +3,7 @@
 *	PROJ:	Nightingale, rev. for v. 3.5
 *	DESC:	General-purpose utility routines for implementing the user interface.
 		GetStaffLim				HiliteInsertNode		HiliteTwoNodesOn
+		HiliteAttPoints
 		FixCursor				FlashRect				SamePoint
 		Advise					NoteAdvise				CautionAdvise
 		StopAdvise				Inform					NoteInform
@@ -64,12 +65,12 @@ static DDIST GetStaffLim(
 subobject is about to be inserted, or to which an object is or will be attached.
 The hiliting we do is a vertical dotted line thru the object, thickened slightly
 at the "special" staff if there is one. If pL is a structural element--SYSTEM, PAGE,
-STAFF, etc.--HiliteInsertNode does nothing. */
+STAFF, etc.--do nothing. */
 
 void HiliteInsertNode(
 			Document *doc,
-			LINK		pL,
-			short		staffn,		/* No. of "special" staff to emphasize or NOONE */
+			LINK	pL,
+			short	staffn,			/* No. of "special" staff to emphasize or NOONE */
 			Boolean	flash			/* TRUE=flash to emphasize special staff */
 			)
 {
@@ -87,6 +88,9 @@ void HiliteInsertNode(
 			blackBottom = GetStaffLim(doc,pL,staffn,FALSE,&context);
 		}
 		xd = SysRelxd(pL)+context.systemLeft;					/* abs. origin of object */
+		
+		/* Draw with gray pattern (to make dotted lines), in XOR mode (to invert the
+			pixels' existing colors). */
 		PenMode(patXor);
 		PenPat(NGetQDGlobalsGray());
 		xp = context.paper.left+d2p(xd);
@@ -150,7 +154,7 @@ void HiliteAttPoints(
 	if (!firstL) return;
 	
 	if (lastL) HiliteTwoNodesOn(doc, firstL, lastL, staffn);					/* On */
-	else		  HiliteInsertNode(doc, firstL, staffn, TRUE);					/* On */
+	else	   HiliteInsertNode(doc, firstL, staffn, TRUE);						/* On */
 
 	SleepTicks(HILITE_TICKS);
 	while (Button()) ;

@@ -1,5 +1,5 @@
 /***************************************************************************
-*	FILE:	VoiceNumbers.c
+*	FILE:	VoiceTable.c (formerly called VoiceNumbers.c)
 *	PROJ:	Nightingale, revised for v. 1.4
 *	DESC:	Routines for manipulating the voice-mapping table
 		OffsetVoiceNums			FillVoiceTable			BuildVoiceTable
@@ -10,11 +10,11 @@
 
 /*										NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL
  * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
  * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
  * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1991-97 by Advanced Music Notation Systems, Inc.
+ * Copyright Â© 1991-97 by Advanced Music Notation Systems, Inc.
  * All Rights Reserved.
  *
  */

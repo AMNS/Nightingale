@@ -252,8 +252,8 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define STFLINES 5						/* Number of lines in standard staff */
 #define STFHALFLNS (STFLINES+STFLINES-2)	/* Height of standard staff, in halflines */
 
-#define ENLARGE_NR_SELH 1				/* Enlarge note sel. rect. (horiz. pixels) */
-#define ENLARGE_NR_SELV 0				/* Enlarge note sel. rect. (vert. pixels) */
+#define ENLARGE_NR_SELH 1				/* Enlarge note selection rect. (horiz. pixels) */
+#define ENLARGE_NR_SELV 0				/* Enlarge note selection rect. (vert. pixels) */
 
 /* N.B. If (MAXSPACE*RESFACTOR) exceeds SHRT_MAX, the justification routines may
  *	have serious problems.  See especially RespaceBars and JustAddSpace. */
@@ -265,12 +265,12 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define MARGWIDTH(doc)	pt2d(doc->marginRect.right-doc->marginRect.left)
 #define MARGLEFT(doc)	pt2d(doc->marginRect.left)
 
-#define HILITE_TICKS	12					/* Minimum system ticks to show HiliteInsertNode hiliting */ 
+#define HILITE_TICKS	12				/* Minimum hiliting time to show user structural relationships */ 
 
 #define DOCUMENT_TYPE_NORMAL 'SCOR'
-#define CREATOR_TYPE_NORMAL 'BYRD'			/* "signature" */
+#define CREATOR_TYPE_NORMAL 'BYRD'		/* "signature" */
 #define DOCUMENT_TYPE_VIEWER 'SCOV'
-#define CREATOR_TYPE_VIEWER 'BYRV'			/* "signature" */
+#define CREATOR_TYPE_VIEWER 'BYRV'		/* "signature" */
 
 /* ------------------------------------------------------------ MIDI and real-time -- */
 

@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151D712F1C4FA1A900B49302 /* VoiceTable.cp */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
@@ -161,7 +162,6 @@
 		D088B8E40D5FB7710028C2BC /* ToolPalette.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B8DC0D5FB7710028C2BC /* ToolPalette.cp */; };
 		D088B8E50D5FB7710028C2BC /* Tuplet.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B8DD0D5FB7710028C2BC /* Tuplet.cp */; };
 		D088B8E60D5FB7710028C2BC /* Utility.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B8DE0D5FB7710028C2BC /* Utility.cp */; };
-		D088B8E70D5FB7710028C2BC /* VoiceNumbers.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B8DF0D5FB7710028C2BC /* VoiceNumbers.cp */; };
 		D088B8F40D5FB7CD0028C2BC /* MIDIRecUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B8F20D5FB7CD0028C2BC /* MIDIRecUtils.cp */; };
 		D088B8F50D5FB7CD0028C2BC /* MIDIUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B8F30D5FB7CD0028C2BC /* MIDIUtils.cp */; };
 		D088B9470D5FB9000028C2BC /* MidiMap.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B9460D5FB9000028C2BC /* MidiMap.cp */; };
@@ -204,6 +204,7 @@
 
 /* Begin PBXFileReference section */
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		32DBCF6D0370B57F00C91783 /* Nightingale_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nightingale_Prefix.pch; sourceTree = "<group>"; };
 		4A9504C8FFE6A3BC11CA0CBA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
@@ -461,7 +462,6 @@
 		D088B8DC0D5FB7710028C2BC /* ToolPalette.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ToolPalette.cp; sourceTree = "<group>"; };
 		D088B8DD0D5FB7710028C2BC /* Tuplet.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Tuplet.cp; sourceTree = "<group>"; };
 		D088B8DE0D5FB7710028C2BC /* Utility.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Utility.cp; sourceTree = "<group>"; };
-		D088B8DF0D5FB7710028C2BC /* VoiceNumbers.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceNumbers.cp; sourceTree = "<group>"; };
 		D088B8F20D5FB7CD0028C2BC /* MIDIRecUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIRecUtils.cp; sourceTree = "<group>"; };
 		D088B8F30D5FB7CD0028C2BC /* MIDIUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIUtils.cp; sourceTree = "<group>"; };
 		D088B9460D5FB9000028C2BC /* MidiMap.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MidiMap.cp; sourceTree = "<group>"; };
@@ -605,33 +605,11 @@
 		D03E69700D5F608F005FD177 /* Precomps */ = {
 			isa = PBXGroup;
 			children = (
-				D099DB1A0DB2FE0300C228DB /* EndianUtils.h */,
-				D03E6D3F0D5F92CD005FD177 /* Search.h */,
-				D03E6CA50D5F8E85005FD177 /* Set.h */,
-				D03E6BC10D5F78BF005FD177 /* Slurs.h */,
-				D03E6BC20D5F78BF005FD177 /* SpaceHighLevel.h */,
-				D03E6BC30D5F78BF005FD177 /* SpaceTime.h */,
-				D03E6BC40D5F78BF005FD177 /* Tuplet.h */,
-				D03E6BC50D5F78BF005FD177 /* Undo.h */,
-				D03E6BC60D5F78BF005FD177 /* Utility.h */,
-				D03E6BAF0D5F7870005FD177 /* MIDIGeneral.h */,
-				D03E6BB00D5F7870005FD177 /* ModNRPopUp.h */,
-				D03E6BB10D5F7870005FD177 /* MPImportExport.h */,
-				D03E6BB20D5F7870005FD177 /* Multivoice.h */,
-				D03E6BB30D5F7870005FD177 /* MusicFont.h */,
-				D03E6BB40D5F7870005FD177 /* Nodes.h */,
-				D03E6BB50D5F7870005FD177 /* Objects.h */,
-				D03E6BB60D5F7870005FD177 /* Octava.h */,
-				D03E6BB70D5F7870005FD177 /* PitchUtils.h */,
-				D03E6BB80D5F7870005FD177 /* PS_Stdio.h */,
-				D03E6BB90D5F7870005FD177 /* Reconstruct.h */,
-				D03E6BBA0D5F7870005FD177 /* RhythmDur.h */,
-				D03E6BBB0D5F7870005FD177 /* Score.h */,
-				D03E6BBC0D5F7870005FD177 /* Select.h */,
-				D03E6BBD0D5F7870005FD177 /* SelUtils.h */,
-				D03E6BBE0D5F7870005FD177 /* ShowFormat.h */,
+				D03E69730D5F60AB005FD177 /* applicationTypes.h */,
 				D03E6B8E0D5F7807005FD177 /* Beam.h */,
 				D03E6B8F0D5F7807005FD177 /* Browser.h */,
+				D03E69740D5F60AB005FD177 /* CarbonCompat.h */,
+				D03E69750D5F60AB005FD177 /* CarbonTemplates.h */,
 				D03E6B900D5F7807005FD177 /* Check.h */,
 				D03E6B910D5F7807005FD177 /* CheckUtils.h */,
 				D03E6B920D5F7807005FD177 /* Clipboard.h */,
@@ -639,6 +617,7 @@
 				D03E6B940D5F7807005FD177 /* Copy.h */,
 				D03E6B950D5F7807005FD177 /* CrossLinks.h */,
 				D03E6B960D5F7807005FD177 /* Debug.h */,
+				D03E6A530D5F6798005FD177 /* defs.h */,
 				D03E6B970D5F7807005FD177 /* Delete.h */,
 				D03E6B980D5F7807005FD177 /* DialogUtils.h */,
 				D03E6B990D5F7807005FD177 /* Dragging.h */,
@@ -647,6 +626,8 @@
 				D03E6B9C0D5F7807005FD177 /* DSUtils.h */,
 				D03E6B9D0D5F7807005FD177 /* DurationPopUp.h */,
 				D03E6B9E0D5F7807005FD177 /* DynamicPopUp.h */,
+				D099DB1A0DB2FE0300C228DB /* EndianUtils.h */,
+				D03E6A9E0D5F6B8A005FD177 /* EssentialTools.h */,
 				D03E6BA00D5F7807005FD177 /* File.h */,
 				D03E6BA10D5F7807005FD177 /* FileInput.h */,
 				D03E6BA20D5F7807005FD177 /* GRBeam.h */,
@@ -656,21 +637,40 @@
 				D03E6BA60D5F7807005FD177 /* InsNew.h */,
 				D03E6BA70D5F7807005FD177 /* InstrDialog.h */,
 				D03E6BA80D5F7807005FD177 /* InsUtils.h */,
+				D03E6BAF0D5F7870005FD177 /* MIDIGeneral.h */,
+				D03E6BB00D5F7870005FD177 /* ModNRPopUp.h */,
+				D03E6BB10D5F7870005FD177 /* MPImportExport.h */,
+				D03E6BB20D5F7870005FD177 /* Multivoice.h */,
+				D03E6BB30D5F7870005FD177 /* MusicFont.h */,
+				D03E6A670D5F69BE005FD177 /* NightTemplates.h */,
+				D03E6BB40D5F7870005FD177 /* Nodes.h */,
+				D03E6BB50D5F7870005FD177 /* Objects.h */,
+				D03E6BB60D5F7870005FD177 /* Octava.h */,
+				D03E69FA0D5F65DC005FD177 /* OpcodeNightingaleDefs.h */,
 				D03E6BA90D5F7807005FD177 /* MasterPage.h */,
 				D03E6BAA0D5F7807005FD177 /* MCaret.h */,
 				D03E6BAB0D5F7807005FD177 /* Merge.h */,
-				D03E6B1C0D5F7170005FD177 /* UIFUtils.h */,
-				D03E6A9E0D5F6B8A005FD177 /* EssentialTools.h */,
-				D03E6A670D5F69BE005FD177 /* NightTemplates.h */,
-				D03E6A530D5F6798005FD177 /* defs.h */,
-				D03E69FA0D5F65DC005FD177 /* OpcodeNightingaleDefs.h */,
 				D03E69A30D5F625D005FD177 /* MIDI */,
-				D03E69730D5F60AB005FD177 /* applicationTypes.h */,
-				D03E69740D5F60AB005FD177 /* CarbonCompat.h */,
-				D03E69750D5F60AB005FD177 /* CarbonTemplates.h */,
 				D03E69770D5F60AB005FD177 /* NLimits.h */,
 				D03E69780D5F60AB005FD177 /* NTypes.h */,
+				D03E6BB70D5F7870005FD177 /* PitchUtils.h */,
+				D03E6BB80D5F7870005FD177 /* PS_Stdio.h */,
+				D03E6BB90D5F7870005FD177 /* Reconstruct.h */,
+				D03E6BBA0D5F7870005FD177 /* RhythmDur.h */,
+				D03E6BBB0D5F7870005FD177 /* Score.h */,
+				D03E6D3F0D5F92CD005FD177 /* Search.h */,
+				D03E6BBC0D5F7870005FD177 /* Select.h */,
+				D03E6BBD0D5F7870005FD177 /* SelUtils.h */,
+				D03E6CA50D5F8E85005FD177 /* Set.h */,
+				D03E6BBE0D5F7870005FD177 /* ShowFormat.h */,
+				D03E6BC10D5F78BF005FD177 /* Slurs.h */,
+				D03E6BC20D5F78BF005FD177 /* SpaceHighLevel.h */,
+				D03E6BC30D5F78BF005FD177 /* SpaceTime.h */,
 				D03E697A0D5F60AB005FD177 /* StringPool.h */,
+				D03E6BC40D5F78BF005FD177 /* Tuplet.h */,
+				D03E6BC50D5F78BF005FD177 /* Undo.h */,
+				D03E6BC60D5F78BF005FD177 /* Utility.h */,
+				D03E6B1C0D5F7170005FD177 /* UIFUtils.h */,
 			);
 			name = Precomps;
 			path = src/Precomps;
@@ -776,7 +776,7 @@
 				D03E6DC50D5F9720005FD177 /* UIFUtils.cp */,
 				D03E6DC60D5F9720005FD177 /* Undo.cp */,
 				D088B8DE0D5FB7710028C2BC /* Utility.cp */,
-				D088B8DF0D5FB7710028C2BC /* VoiceNumbers.cp */,
+				151D712F1C4FA1A900B49302 /* VoiceTable.cp */,
 				D088B8BB0D5FB4F30028C2BC /* Windows.cp */,
 			);
 			name = CFilesBoth;
@@ -1160,7 +1160,6 @@
 				D088B8E40D5FB7710028C2BC /* ToolPalette.cp in Sources */,
 				D088B8E50D5FB7710028C2BC /* Tuplet.cp in Sources */,
 				D088B8E60D5FB7710028C2BC /* Utility.cp in Sources */,
-				D088B8E70D5FB7710028C2BC /* VoiceNumbers.cp in Sources */,
 				D088B8F40D5FB7CD0028C2BC /* MIDIRecUtils.cp in Sources */,
 				D088B8F50D5FB7CD0028C2BC /* MIDIUtils.cp in Sources */,
 				D088B9470D5FB9000028C2BC /* MidiMap.cp in Sources */,
@@ -1182,6 +1181,7 @@
 				D03AF8500D6F4F9C0018F558 /* Main.cp in Sources */,
 				15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */,
 				15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */,
+				151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -796,27 +796,28 @@ PushLock(DYNAMheap);
 						
 			if (IsHairpin(pL)) {
 				HiliteAttPoints(doc, firstSync, lastSync, staffn);
-				if (aDynamic->selected)							/* in case 1st click wasn't in rSub (case SMClick) */
-					HiliteRect(&wSub);
+				if (aDynamic->selected)	HiliteRect(&wSub);		/* in case 1st click wasn't in rSub (case SMClick) */
 				DoHairpinEdit(doc, pL);
 			}
 			else {
 				SignedByte oldDynamType, newDynamType;
 				Boolean change;
 
-				HiliteAttPoints(doc, firstSync, NILINK, staffn);
+				HiliteInsertNode(doc, firstSync, staffn, TRUE);		/* Hiliting on */
 				DisableUndo(doc, FALSE);
 				oldDynamType = newDynamType = DynamType(pL);
 				change = SetDynamicDialog(&newDynamType);
 				if (change && newDynamType!=oldDynamType) {
-// NB: objRects of dynamics aren't right in all cases, so the inval's here don't always work.
-// See comments in body of InvalObject. Use EraseAndInval on <wsub> instead?
-					InvalObject(doc, pL, TRUE);				/* inval old symbol */
+					/* FIXME: objRects of dynamics aren't right in all cases, so the inval's
+					here don't always work. See comments in body of InvalObject. Use
+					EraseAndInval on <wsub> instead? */
+					InvalObject(doc, pL, TRUE);					/* inval old symbol */
 					DynamType(pL) = newDynamType;
 					FixContextForDynamic(doc, RightLINK(pL), staffn, oldDynamType, newDynamType);
-					InvalObject(doc, pL, TRUE);				/* inval new symbol */
+					InvalObject(doc, pL, TRUE);					/* inval new symbol */
 					doc->changed = TRUE;
 				}
+				HiliteInsertNode(doc, firstSync, staffn, FALSE);		/* Hiliting off */
 			}
 			break;
 		case SMDrag:
@@ -1039,17 +1040,17 @@ short CheckGRAPHIC(Document *doc, LINK pL, CONTEXT /*context*/[],
 	CONTEXT			context1;
 	PCONTEXT		pContext;
 	short			result;			/* =NOMATCH unless object clicked in */
-	Rect			r,					/* object rectangle */
+	Rect			r,				/* object rectangle */
 					aRect,			/* scratch */
 					oldObjRect,		/* rects to inval after editing by dblclicking. */
 					tempR;
-	unsigned char dummy=0;
+	unsigned char	dummy=0;
 	short			fontSize, fontStyle, enclosure,
 					newWidth, styleChoice,
 					staffn;
-	STRINGOFFSET offset;
+	STRINGOFFSET	offset;
 	Str63			newFont;
-	Str255		string;
+	Str255			string;
 	Boolean 		change,
 					relFSize, lyric, expanded;
 
@@ -1074,14 +1075,14 @@ PushLock(OBJheap);
 				}
 				break;
 			case SMDblClick:
-				InvalObject(doc,pL,FALSE);											/* Insure objRect is correct */
+				InvalObject(doc,pL,FALSE);								/* Insure objRect is correct */
 				oldObjRect = p->objRect;
 				if (GraphicSubType(pL)==GRDraw) {
 					HiliteAttPoints(doc, p->firstObj, p->lastObj, staffn);
 					if (LinkSEL(pL)) HiliteRect(&r);
 				}
 				else
-					HiliteInsertNode(doc, p->firstObj, staffn, TRUE);		/* Hiliting on */
+					HiliteInsertNode(doc, p->firstObj, staffn, TRUE);		/* Hiliting on */
 				while (Button()) ;
 
 				/* Double-clicking all subtypes but GRArpeggio allows editing them. */
