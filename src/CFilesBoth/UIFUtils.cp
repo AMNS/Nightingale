@@ -487,7 +487,7 @@ Boolean ProgressMsg(short which,
 
 /* ---------------------------------------------------------------- UserInterrupt -- */
 /*	Returns TRUE if COMMAND and PERIOD (.) keys are both currently down; all other
-keys are ignored. ??Should be internationalized! */
+keys are ignored. FIXME: Should be internationalized! */
 
 Boolean UserInterrupt()
 {
@@ -500,7 +500,7 @@ Boolean UserInterrupt()
 
 /* ---------------------------------------------------------- UserInterruptAndSel -- */
 /* Returns TRUE if COMMAND and SLASH (/) keys are both currently down; all other
-keys are ignored. ??Should be internationalized! */
+keys are ignored. FIXME: Should be internationalized! */
 
 Boolean UserInterruptAndSel()
 {
@@ -656,7 +656,7 @@ void HiliteRect(Rect *r)
 
 /* Given an (internal) voice no., return its part and part-relative voice no. in
 user-friendly format, e.g., "voice 2 of Piano".
-??Based on code in HasSmthgAcross: that and similar code in 3-4 places should
+FIXME: Based on code in HasSmthgAcross: that and similar code in 3-4 places should
 be replaced with calls to this. */
 
 void Voice2UserStr(Document *doc,
@@ -676,7 +676,7 @@ void Voice2UserStr(Document *doc,
 
 /* Given an (internal) staff no., return its part and part-relative staff no. in
 user-friendly format, e.g., "staff 3 (Clarinet)" or "staff 5 (staff 2 of Piano)".
-??Based on code in StfHasSmthgAcross: that and similar code in 3-4 places should
+FIXME: Based on code in StfHasSmthgAcross: that and similar code in 3-4 places should
 be replaced with calls to this. */
 
 void Staff2UserStr(Document *doc,

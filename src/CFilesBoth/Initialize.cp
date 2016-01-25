@@ -49,7 +49,7 @@ void InitToolbox()
 #error MAC OS-ONLY CODE
 #else
 #if TARGET_API_MAC_CARBON
-	FlushEvents(everyEvent, 0);		// ?? DO WE NEED THIS?
+	FlushEvents(everyEvent, 0);		// FIXME: DO WE NEED THIS?
 #endif
 #endif
 }
@@ -82,7 +82,7 @@ void Initialize()
 		{ OutOfMemory(256L); ExitToShell(); }
 	
 	/*
-	 *	??The following comment describes a trick we used with THINK C that
+	 *	FIXME: The following comment describes a trick we used with THINK C that
 	 *  I suspect not only no longer works, but isn't even necessary as of
 	 *  v.6.0.1--I think starting with TC 6.0.1, we appear to have the correct
 	 *  creatorType even under TC. On the other hand, it shouldn't have any
@@ -112,10 +112,11 @@ void Initialize()
 	err = SysEnvirons(1,&thisMac);
 	if (err) thisMac.machineType = -1;
 			
-	appleEventsOK = (thisMac.systemVersion >= 0x0700);	/* ??Pointless now (in 2015); should remove this! */
+	/* FIXME: We formerly checked here to see if we're running on Mac OS 7.0 or later.
+		Rather pointless now (2016)!; this global should go away completely. */
+	appleEventsOK = TRUE;
 
-	if (appleEventsOK)
-		InstallCoreEventHandlers();
+	if (appleEventsOK) InstallCoreEventHandlers();
 	
 	InitLogPrintf();
 
@@ -233,7 +234,7 @@ static OSStatus FindPrefsFile(OSType fType, OSType fCreator, FSSpec *prefsSpec)
 	
 	err = FSMakeFSSpec(pvol, pdir, PREFS_PATH, prefsSpec);
 	LogPrintf(LOG_NOTICE, "Prefs File: FSMakeFSSpec: err=%d (fnfErr=%d)\n", err, fnfErr);
-	return fnfErr;		// ??HUH? ALWAYS RETURN AN ERROR? ISN'T THIS "FILE NOT FOUND"??
+	return fnfErr;		// FIXME: HUH? ALWAYS RETURN AN ERROR? ISN'T THIS "FILE NOT FOUND"?
 } 
 
 
@@ -810,7 +811,7 @@ static Boolean GetConfig()
 		config.courtesyAccYD = -127;
 		config.courtesyAccSize = -127;
 
-		/* ??What about OMS fields (metroDevice thru defaultOutputChannel)?? */
+		/* FIXME: What about OMS fields (metroDevice thru defaultOutputChannel)?? */
 		
 		config.quantizeBeamYPos = -1;
 
@@ -930,7 +931,7 @@ static Boolean GetConfig()
 	if (config.minRecDuration < 1) { config.minRecDuration = 50; ERR(44); }
 #define MIDI_THRU
 #ifdef MIDI_THRU
-	/* ??MIDI THRU SHOULD WORK FOR OMS, BUT MAY FAIL OR EVEN BE DANGEROUS W/OTHER
+	/* FIXME: MIDI THRU SHOULD WORK FOR OMS, BUT MAY FAIL OR EVEN BE DANGEROUS W/OTHER
 		DRIVERS! Needs thought/testing. */
 	if (config.midiThru < 0) { config.midiThru = 0; ERR(45); }
 #else

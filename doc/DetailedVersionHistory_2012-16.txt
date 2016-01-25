@@ -359,7 +359,7 @@ Minor cleanup. Affects Browser, Double, InfoDialog, UIFUtils.
 
 ===============================================================================
 
-18 - 22 Jan.
+18 - 24 Jan.
 
 Change some default CNFG & other settings: "Default staff rastral size" (1) from 1
 to 5; "Screen layout..." from vertical to horizontal; in MIDI Modifier values, increase
@@ -371,8 +371,8 @@ Rename VoiceNumbers.cp to VoiceTable.cp.
 
 Alphabetize precomp headers in the Xcode project.
 
-When a dynamic is double-clicked, hilight its attachment point, as with text graphics
-and tempo marks. Affects Check.c.
+When a (non-hairpin) dynamic is double-clicked, hilight its attachment point, as with
+text graphics and tempo marks. Affects Check.c.
 
-defs.h, Check.c: clarify comments; minor cleanup.
+Clarify comments; minor cleanup. Affects defs.h, Check.c, Initialize, UIFUtils.
 

@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	Check.c															*
-*	PROJ:	Nightingale, rev. for v.99										*
-*	DESC:	Selection-related routines.										*
+*	FILE:	Check.c
+*	PROJ:	Nightingale, rev. for v.99
+*	DESC:	Selection-related routines.
 		CheckPAGE			CheckSYSTEM			CheckSTAFF
 		CheckCONNECT
 		CheckCLEF			CheckDYNAMIC		CheckRPTEND
@@ -48,7 +48,7 @@
 	For objects with subobjects, in most cases, return value is either NOMATCH or the
 	subobject sequence number (NOT staff or voice number!) of the subobject found.
 
-	??These functions should check <valid> flags before doing a lot of their work--
+	FIXME: These functions should check <valid> flags before doing a lot of their work--
 	e.g., SMDeselect can clear flags but shouldn't HiliteRect if it's not <valid>. */
 
 
@@ -284,7 +284,7 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 	Boolean objSel=FALSE;
 	LINK partL;
 
-	/* In some cases, toggle hiliting and deselect staves first. ??This should either
+	/* In some cases, toggle hiliting and deselect staves first. FIXME: This should either
 		be moved out to the calling functions, or be controlled by a new parameter. */
 		
 	if (doc->showFormat && (mode!=SMHilite && mode!=SMSelectRange))
@@ -729,20 +729,20 @@ short CheckDYNAMIC(Document *doc, LINK pL, CONTEXT context[],
 							STFRANGE stfRange,
 							Point enlarge)
 {
-	PADYNAMIC	aDynamic;		/* ptr to current subobject */
+	PADYNAMIC	aDynamic;			/* ptr to current subobject */
 	LINK			aDynamicL,
 					firstSync, lastSync;
-	short			i,					/* scratch */
+	short			i,				/* scratch */
 					staffn;			/* staff number of current subobject */
 	PCONTEXT		pContext;
 	DDIST			xd, yd;			/* scratch DDIST coordinates */
-	unsigned char	glyph;		/* dynamic symbol */
+	unsigned char	glyph;			/* dynamic symbol */
 	short			result;			/* =NOMATCH unless object/subobject clicked in */
-	Boolean		objSelected;	/* FALSE unless something in the object is selected */
-	Rect			rSub,				/* bounding box for sub-object */
-					wSub,				/* window-relative of above */
+	Boolean			objSelected;	/* FALSE unless something in the object is selected */
+	Rect			rSub,			/* bounding box for sub-object */
+					wSub,			/* window-relative of above */
 					aRect;			/* scratch */
-	DDIST			lnSpace,			/* line height of staffLine */
+	DDIST			lnSpace,		/* line height of staffLine */
 					sysLeft;
 
 PushLock(OBJheap);
@@ -1017,7 +1017,7 @@ PopLock(RPTENDheap);
 }
 
 
-// ??BELONGS ELSEWHERE!
+// FIXME: BELONGS ELSEWHERE!
 
 Boolean ChordFrameDialog(Document *doc, Boolean *relFSize, short *size, short *style,
 				short *enclosure, unsigned char *fontname, unsigned char *pTheChar);
@@ -1374,7 +1374,7 @@ PushLock(OBJheap);
 					if (beatsPM<0L) beatsPM = config.defaultTempo;
 					p->tempo = beatsPM;
 
-					newWidth = StringWidth(tempoStr);			/* ??BUT MUST SET FONT FIRST! */
+					newWidth = StringWidth(tempoStr);		/* FIXME: BUT MUST SET FONT FIRST! */
 					LinkOBJRECT(pL).right = LinkOBJRECT(pL).left + newWidth;
 					doc->changed = TRUE;
 				}
@@ -2580,14 +2580,14 @@ PushLock(MEASUREheap);
 			xd = dLeft+LinkXD(pL);
 			/*		
 			 * Measure subobjects are unusual in that they may be grouped as indicated by
-			 *	connAbove and connStaff, and groups can only be selected as a whole. If this
-			 *	measure is the top one of a group, set rSub and groupTopStf/groupBottomStf
+			 * connAbove and connStaff, and groups can only be selected as a whole. If this
+			 * measure is the top one of a group, set rSub and groupTopStf/groupBottomStf
 			 * to include the entire group; if it's a lower one of a group, they will then
-			 *	already be set correctly. Notice that this code assumes that when a lower
-			 *	subobject of a group is encountered, we've already set rSub from the top one
-			 *	of the group; this is safe as long as we insert subobjects for all staves at
-			 * once and in order (??questionable--this should be checked!), and don't allow
-			 *	deleting anything but the entire object.
+			 * already be set correctly. Notice that this code assumes that when a lower
+			 * subobject of a group is encountered, we've already set rSub from the top one
+			 * of the group; this is safe as long as we insert subobjects for all staves at
+			 * once and in order (FIXME: questionable--this should be checked!), and don't
+			 * allow deleting anything but the entire object.
 			 */ 
 			if (!aMeasure->connAbove) {
 				groupTopStf = measureStf;
@@ -2611,7 +2611,7 @@ PushLock(MEASUREheap);
 						case BAR_RPT_L:
 						case BAR_RPT_R:
 						case BAR_RPT_LR:
-					/* ??TEMPORARY--NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
+					/* FIXME: NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
 							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
 										d2p(xd)+halfWidth+2, d2p(dBottom));
 							break;
@@ -2640,7 +2640,7 @@ PushLock(MEASUREheap);
 						case BAR_RPT_L:
 						case BAR_RPT_R:
 						case BAR_RPT_LR:
-					/* ??TEMPORARY--NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
+					/* ?FIXME: NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
 							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
 										d2p(xd)+halfWidth+2,
 										d2p(dTop+pContext->staffHeight));
@@ -3108,7 +3108,7 @@ PushLock(OBJheap);
 			p->denomVis = tParam.denomVis;
 			p->brackVis = tParam.brackVis;
 			doc->changed = TRUE;
-			/* ??THIS IS EXCESSIVE */
+			/* FIXME: THIS IS EXCESSIVE */
 			InvalMeasure(pL, TupletSTAFF(pL));
 		}
 		break;
