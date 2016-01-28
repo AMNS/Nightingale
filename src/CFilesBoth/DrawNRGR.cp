@@ -28,9 +28,11 @@ static void DrawGRAcc(Document *, PCONTEXT, LINK, DDIST, DDIST, Boolean, short);
 static void DrawGRNCLedgers(LINK, PCONTEXT, LINK, DDIST, DDIST, short);
 
 /* ----------------------------------------------------------------- DrawSlashes -- */
-/* Draw the specified number of tremolo slashes at the given position. */
+/* Draw the specified number of tremolo slashes at the given position. Some editions
+vary the angle of the slashes for beamed notes; Gould says that's OK (in _Behind Bars_),
+but she recommends a fixed angle, and that's what we do, */
 
-void DrawSlashes(DDIST xdh, DDIST ydh,
+static void DrawSlashes(DDIST xdh, DDIST ydh,
 					short nslashes,
 					Boolean noteCenter,		/* TRUE=horizontally center at note center, else at stem */
 					Boolean stemUp,
@@ -38,22 +40,28 @@ void DrawSlashes(DDIST xdh, DDIST ydh,
 					Boolean dim
 					)
 {
-	DDIST slashLeading,slashWidth,slashHeight,dxpos,dypos,slashThick;
+	DDIST slashLeading, slashWidth, slashHeight, dxpos, dypos, slashThick;
 	DDIST lnSpace, dEighthLn;
 	short xp, yp;
-	short i,xslash,yslash,slashLeadingp,dxposp,dyposp;
+	short i, xslash, yslash, slashLeadingp, dxposp, dyposp;
 	
 	lnSpace = LNSPACE(pContext);
 	dEighthLn = LNSPACE(pContext)/8;
 
+	/* Set the distance between slashes and their width, height, and thickness.
+	   According to Gould, they should fill the space between staff lines, but that's
+	   much too steep! */
 	slashLeading = (stemUp? 6*dEighthLn : -6*dEighthLn);
-	slashWidth = 10*dEighthLn;
-	slashHeight = 6*dEighthLn;
+	//slashWidth = 10*dEighthLn;
+	//slashHeight = 6*dEighthLn;
+	slashWidth = HeadWidth(lnSpace);
+	slashHeight = lnSpace/2;
+	slashThick = (long)(config.tremSlashLW*lnSpace) / 100L;
+	
 	if (noteCenter) dxpos = 0;
-	else				 dxpos = (stemUp? 3*dEighthLn : -5*dEighthLn);
+	else			dxpos = (stemUp? 3*dEighthLn : -5*dEighthLn);
 	dypos = (stemUp? 8*dEighthLn : -8*dEighthLn);
 	
-	slashThick = (long)(config.tremSlashLW*lnSpace) / 100L;
 
 	switch (outputTo) {
 		case toScreen:
@@ -294,11 +302,11 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 }
 
 static void DrawAugDots(Document *doc,
-						LINK theNoteL,				/* Subobject (note/rest) to draw dots for */
-						DDIST xdNorm, DDIST yd,	/* Notehead/rest origin, excluding effect of <otherStemSide> */
-						PCONTEXT pContext,
-						Boolean	chordNoteToR	/* Note in a chord that's upstemmed w/notes to right of stem? */
-						)
+					LINK theNoteL,				/* Subobject (note/rest) to draw dots for */
+					DDIST xdNorm, DDIST yd,	/* Notehead/rest origin, excluding effect of <otherStemSide> */
+					PCONTEXT pContext,
+					Boolean	chordNoteToR	/* Note in a chord that's upstemmed w/notes to right of stem? */
+					)
 {
 	PANOTE	theNote;
 	DDIST 	xdDots, ydDots, dhalfLn;
@@ -408,7 +416,7 @@ void DrawAcc(Document *doc,
 	if (theNote->courtesyAcc) {
 		DDIST xoffset, yoffset;
 
-		/* ??These adjustments are probably not quite right, due to combination of 
+		/* FIXME: These adjustments are probably not quite right, due to combination of 
 				sizePercent, scalePercent, and the various config tweaks. */
 
 		scalePercent = (short)(((long)config.courtesyAccSize*sizePercent)/100L);
@@ -504,7 +512,7 @@ unsigned char GetNoteheadInfo(short appearance, short subType,
 	}
 	
 	*sizePct = 100;
-	/* ??Changing sizePct fixes the head size, but makes a mess of upstems on
+	/* FIXME: Changing sizePct fixes the head size, but makes a mess of upstems on
 		notes with harmonic heads. Sigh. */
 //FIXME: Call a new function in MusicFont.c that tells us whether to enlarge the harmonic head for our music font?
 	if (glyph==MCH_harmonicHead && !(CapsLockKeyDown() && ShiftKeyDown()))
@@ -595,7 +603,7 @@ static void DrawNCLedgers(
 /* --------------------------------------------------------------- DrawNotehead -- */
 /* QuickDraw only */
 
-void DrawNotehead(Document *doc,
+static void DrawNotehead(Document *doc,
 					unsigned char glyph,
 					Byte appearance,
 					Boolean dim,				/* Should character be dimmed? */
@@ -622,7 +630,7 @@ void DrawNotehead(Document *doc,
 }
 
 
-void GetNoteheadRect(unsigned char glyph, Byte appearance, DDIST dhalfLn,
+static void GetNoteheadRect(unsigned char glyph, Byte appearance, DDIST dhalfLn,
 							Rect *pRect)
 {
 	DRect r;
@@ -673,32 +681,32 @@ static void DrawNoteheadGraph(Document *, unsigned char, Byte, Boolean, DDIST);
 
 /* QuickDraw only */
 /* Draw a little graph as a notehead: intended to be used to visualize changes during
-the note. This version draws a series of colored bars side by side. ??INSTEAD OF
+the note. This version draws a series of colored bars side by side. FIXME: INSTEAD OF
 appearance, WHICH CAN'T BE MORE THAN 5 BITS (+ 8 IF I ALSO USE THE SPARE BYTE PER NOTE),
 HOW ABOUT USING A NOTE MODIFIER TO CONTROL WHAT'S DRAWN?? I THINK AMODNR HAS A LOT MORE
 THAN 13 BITS AVAILABLE, & IT SHOULD BE EASY TO GET THE INFO IN VIA NOTELIST! E.G.,
 modCode = 60 => draw graph, OR 61:80 => draw graph OF 1:20 SEGMENTS. */
 
 static void DrawNoteheadGraph(Document *doc,
-					unsigned char glyph,
-					Byte appearance,
-					Boolean dim,			/* Should notehead be dimmed? */
-					DDIST dhalfLn,
-					LINK aNoteL,				
-					PCONTEXT pContext		/* Current context[] entry */
-					)
+				unsigned char glyph,
+				Byte appearance,
+				Boolean dim,			/* Should notehead be dimmed? */
+				DDIST dhalfLn,
+				LINK aNoteL,				
+				PCONTEXT pContext		/* Current context[] entry */
+				)
 {
-	PANOTE		aNote;
-	short		graphLen,
-				nSegs,
-				rDiam,					/* rounded corner diameter */
-				xorg, yorg,
-				yTop, yBottom;
-	QDIST		qdLen;
-	Rect		graphRect, segRect;
-	long		resFact;
-	Point		pt;
-	short		segColor[50];
+	PANOTE	aNote;
+	short	graphLen,
+			nSegs,
+			rDiam,						/* rounded corner diameter */
+			xorg, yorg,
+			yTop, yBottom;
+	QDIST	qdLen;
+	Rect	graphRect, segRect;
+	long	resFact;
+	Point	pt;
+	short	segColor[50];
 
 	aNote = GetPANOTE(aNoteL);
 	resFact = RESFACTOR*(long)doc->spacePercent;
@@ -841,7 +849,7 @@ static void DrawNoteheadGraph(Document *doc,
 
 /* ---------------------------------------------------------------------- DrawNote -- */
 
-#define STEMWIDTH (p2d(1))			/* QuickDraw stem thickness. ??Make a macro w/staff ht as arg.? */
+#define STEMWIDTH (p2d(1))			/* QuickDraw stem thickness. FIXME: Make a macro w/staff ht as arg.? */
 
 /* Adjust <width> for given WIDEHEAD code. NB: watch out for integer overflow! */
 #define WIDEHEAD_VALUE(whCode, width) (whCode==2? 160*(width)/100 : \
@@ -854,9 +862,9 @@ move it left or right so its right edge touches the stem. */
 	(!stemDn? ((headRSize-100L)*HeadWidth(lnSpace))/100L : 0L)
 
 void DrawNote(Document *doc,
-				LINK pL,						/* Sync note belongs to */
+				LINK	pL,				/* Sync note belongs to */
 				PCONTEXT pContext,		/* Current context[] entry */
-				LINK		aNoteL,			/* Subobject (note) to draw */
+				LINK	aNoteL,			/* Subobject (note) to draw */
 				Boolean	*drawn,			/* FALSE until a subobject has been drawn */
 				Boolean	*recalc			/* TRUE if we need to recalc enclosing rectangle */
 				)	
@@ -888,22 +896,22 @@ void DrawNote(Document *doc,
 				dStemLen, dStemShorten,
 				xdNorm,
 				dTop, dLeft,	/* abs DDIST origin */
-				dhalfLn,			/* Distance between staff half-lines */
+				dhalfLn,		/* Distance between staff half-lines */
 				fudgeHeadY,		/* Correction for roundoff in Sonata screen font head shape */
 				breveFudgeHeadY,	/* Correction for error in Sonata breve origin (screen & PS) */
 				offset, lnSpace;
 	QDIST		qdLen;
-	Boolean	stemDown,		/* Does note have a down-turned stem? */
-				dim,				/* Should it be dimmed bcs in a voice not being looked at? */
+	Boolean	stemDown,			/* Does note have a down-turned stem? */
+				dim,			/* Should it be dimmed bcs in a voice not being looked at? */
 				chordNoteToR, chordNoteToL;
 	Rect		spatialRect,
-				rSub;				/* bounding box for subobject */
+				rSub;			/* bounding box for subobject */
 	long		resFact;
 
 PushLock(OBJheap);
 PushLock(NOTEheap);
 	staffn = NoteSTAFF(aNoteL);
-	dLeft = pContext->measureLeft + LinkXD(pL);				/* abs. origin of object */
+	dLeft = pContext->measureLeft + LinkXD(pL);					/* abs. origin of object */
 	dTop = pContext->measureTop;
 
 	lnSpace = LNSPACE(pContext);
@@ -931,8 +939,8 @@ PushLock(NOTEheap);
 	if (aNote->small) useTxSize = SMALLSIZE(useTxSize);			/* A bit crude--cf. Ross */
 	sizePercent = (aNote->small? SMALLSIZE(100) : 100);
 
-/* ??INSTEAD OF <WIDEHEAD> & <IS_WIDEREST>, WE SHOULD USE SMTHG LIKE CharRect OF glyph
-TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
+/* FIXME: Instead of <WIDEHEAD> & <IS_WIDEREST>, we should use smthg like CharRect of
+the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 	ledgerSizePct = WIDEHEAD_VALUE(WIDEHEAD(noteType), sizePercent);
 
 	/*	Suppress flags if the note is beamed. */
@@ -956,9 +964,9 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 		 *	However, for unknown reasons, best results are obtained with NO correction.
 		 */ 
 		if (outputTo==toImageWriter && bestQualityPrint)
-			fudgeHeadY = 0;													/* No fine Y-offset for notehead */
+			fudgeHeadY = 0;											/* No fine Y-offset for notehead */
 		else
-			fudgeHeadY = GetYHeadFudge(useTxSize);						/* Get fine Y-offset for notehead */
+			fudgeHeadY = GetYHeadFudge(useTxSize);					/* Get fine Y-offset for notehead */
 		
 		/* xhead,yhead is position of notehead; xadjhead,yadjhead is position of notehead 
 			with any offset applied (might be true if music font is not Sonata). */
@@ -1003,8 +1011,8 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct); 
 
 				 
-		if (doc->pianoroll)	{												/* Handle pianoRoll notation */
-			MoveTo(xhead, yhead);												/* position to draw head */
+		if (doc->pianoroll)	{										/* Handle pianoRoll notation */
+			MoveTo(xhead, yhead);									/* position to draw head */
 			resFact = RESFACTOR*(long)doc->spacePercent;
 			qdLen = IdealSpace(doc, aNote->playDur, resFact);
 			qdLen = (long)(config.pianorollLenFact*qdLen) / 100L;
@@ -1020,7 +1028,7 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 		}
 		else
 		{
-			MoveTo(xadjhead, yadjhead);										/* position to draw head */
+			MoveTo(xadjhead, yadjhead);								/* position to draw head */
 			if (noteType<=WHOLE_L_DUR)
 	/* HANDLE UNKNOWN CMN DURATION/WHOLE/BREVE */
 				DrawNotehead(doc, glyph, appearance, dim, dhalfLn);
@@ -1053,9 +1061,9 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 					}
 					if (ABS(dStemLen)>pt2d(1)) {
 						Move(0, -1);
-						Line(0, d2p(dStemLen)+(stemDown? 0 : 1));					/* Draw stem */
+						Line(0, d2p(dStemLen)+(stemDown? 0 : 1));				/* Draw stem */
 					}
-					if (flagCount) {														/* Draw any flags */
+					if (flagCount) {											/* Draw any flags */
 						ypStem = yhead+d2p(dStemLen);
 
 						if (doc->musicFontNum==sonataFontNum) {
@@ -1064,17 +1072,17 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 								head was drawn. Unfortunately, the vertical position depends on the stem
 								length, which Adobe incorrectly assumed was always one octave. The "extend
 								flag" characters have their vertical origins set right where they go. */
-							MoveTo(xhead, ypStem);										/* Position x at head, y at stem end */
+							MoveTo(xhead, ypStem);								/* Position x at head, y at stem end */
 							octaveLength = d2p(7*SizePercentSCALE(dhalfLn));
 							Move(0, (stemDown? -octaveLength : octaveLength));	/* Adjust for flag origin */
-							if (flagCount==1)												/* Draw one (8th note) flag */
+							if (flagCount==1)									/* Draw one (8th note) flag */
 								DrawMChar(doc, (stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp),
 													NORMAL_VIS, dim);
-							else if (flagCount>1) {										/* Draw >=2 (16th & other) flags */
+							else if (flagCount>1) {								/* Draw >=2 (16th & other) flags */
 								DrawMChar(doc, (stemDown? MCH_sxFlagDown : MCH_sxFlagUp),
 													NORMAL_VIS, dim);
-								MoveTo(xhead, ypStem);									/* Position x at head, y at stem end */
-				/* ??N.B. SCALE FACTORS FOR FlagLeading BELOW ARE GUESSWORK. */
+								MoveTo(xhead, ypStem);							/* Position x at head, y at stem end */
+							/* FIXME: SCALE FACTORS FOR FlagLeading BELOW ARE GUESSWORK. */
 								if (stemDown)
 									Move(0, -d2p(13*FlagLeading(lnSpace)/4));
 								else
@@ -1097,9 +1105,9 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 							if (MusFontUpstemFlagsHaveXOffset(doc->musFontInfoIndex))
 								stemSpace = 0;
 
-							MoveTo(xhead+stemSpace, ypStem);								/* x, y of stem end */
+							MoveTo(xhead+stemSpace, ypStem);					/* x, y of stem end */
 
-							if (flagCount==1) {												/* Draw 8th flag. */
+							if (flagCount==1) {									/* Draw 8th flag. */
 								flagGlyph = MapMusChar(doc->musFontInfoIndex,
 																(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
@@ -1117,7 +1125,7 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 									Move(d2p(xoff), d2p(yoff));
 								DrawMChar(doc, flagGlyph, NORMAL_VIS, dim);
 							}
-							else {																/* Draw using multiple flag chars */
+							else {												/* Draw using multiple flag chars */
 								short count = flagCount;
 
 								/* Draw extension flag(s) */
@@ -1140,7 +1148,7 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 								}
 
 								/* Draw 8th flag */
-								MoveTo(xhead+stemSpace, ypStem);					/* start again from x,y of stem end */
+								MoveTo(xhead+stemSpace, ypStem);				/* start again from x,y of stem end */
 								Move(0, flagLeading*(flagCount-2));				/* flag leadings of all but one of prev flags */
 								if (stemDown) {
 									flagGlyph = MapMusChar(doc->musFontInfoIndex, MCH_eighthFlagDown);
@@ -1164,10 +1172,10 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 				if (doNoteheadGraphs)
 					DrawNoteheadGraph(doc, glyph, appearance, dim, dhalfLn, aNoteL, pContext);	/* Finally, draw notehead */
 				else
-					DrawNotehead(doc, glyph, appearance, dim, dhalfLn);	/* Finally, draw notehead */
+					DrawNotehead(doc, glyph, appearance, dim, dhalfLn);		/* Finally, draw notehead */
 			}
 
-			DrawModNR(doc, aNoteL, xd, pContext);						/* Draw all modifiers */
+			DrawModNR(doc, aNoteL, xd, pContext);							/* Draw all modifiers */
 			DrawAugDots(doc, aNoteL, xdNorm, yd, pContext, chordNoteToR);
 		}
 	
@@ -1217,7 +1225,7 @@ EndQDrawing:
 		if (doc->pianoroll)
 	/* HANDLE SPATIAL (PIANOROLL) NOTATION */
 		{
-			;						/* ??TO BE IMPLEMENTED */
+			;						/* FIXME: TO BE IMPLEMENTED */
 		}
 		else
 		{
@@ -1495,7 +1503,7 @@ void DrawRest(Document *doc,
 	Boolean	stemDown,
 				dim;				/* Should it be dimmed bcs in a voice not being looked at? */
 
-	if (doc->pianoroll) return;			/* ??REALLY DO NOTHING, E.G., WITH OBJRECT?? */
+	if (doc->pianoroll) return;			/* FIXME: REALLY DO NOTHING, E.G., WITH OBJRECT?? */
 
 PushLock(OBJheap);
 PushLock(NOTEheap);
@@ -1596,7 +1604,7 @@ PushLock(NOTEheap);
 
 			if (*recalc) {
 				rSub = charRectCache.charRect[glyph];
-				/* ??The following #if/else/endif is a mess: the commented-out code looks
+				/* FIXME: The following #if/else/endif is a mess: the commented-out code looks
 					better, but it's been the way it is now for years, and I don't remember
 					anything about this. Clean up some day. -Don B., 11/96 */
 #if 1
@@ -1664,11 +1672,10 @@ PopLock(NOTEheap);
 
 /* ----------------------------------------------------------------- ShowNGRSync -- */
 /* Draw a gray vertical line from near the bottom to near the top of the objRect
-of the objRect of the given object, but only if it's tall enough to help clarify
-what's related to what. Intended for Syncs and GRSyncs, but should work for any
-non-J_STRUC object. */
+of the given object, but only if it's tall enough to help clarify what's related to
+what. Intended for Syncs and GRSyncs, but should work for any non-J_STRUC object. */
 
-void ShowNGRSync(Document *doc, LINK pL, CONTEXT context[])
+static void ShowNGRSync(Document *doc, LINK pL, CONTEXT context[])
 {
 	Rect r;
 	short ypTop, ypBottom;
@@ -1686,7 +1693,7 @@ void ShowNGRSync(Document *doc, LINK pL, CONTEXT context[])
 		MoveTo(r.left+2, ypTop);
 		LineTo(r.left+2, ypBottom);
 	}
-	PenNormal();														/* Restore normal drawing */
+	PenNormal();													/* Restore normal drawing */
 }
 
 
@@ -1739,10 +1746,10 @@ void DrawSYNC(Document *doc, LINK pL, CONTEXT context[])
 
 static void DrawGRAcc(Document *doc,
 						PCONTEXT pContext,
-						LINK theGRNoteL,		/* Subobject (grace note) to draw accidental for */
+						LINK theGRNoteL,	/* Subobject (grace note) to draw accidental for */
 						DDIST xd, DDIST yd,	/* Notehead position, including effect of <otherStemSide> */
-						Boolean dim,			/* Ignored if outputTo==toPostScript */
-						short sizePercent		/* Of normal note size */
+						Boolean dim,		/* Ignored if outputTo==toPostScript */
+						short sizePercent	/* Of normal note size */
 						)
 {
 	PAGRNOTE theGRNote;
@@ -1772,7 +1779,7 @@ static void DrawGRAcc(Document *doc,
 	if (theGRNote->courtesyAcc) {
 		DDIST xoffset, yoffset;
 
-		/* ??These adjustments are probably not quite right, due to combination of 
+		/* FIXME: These adjustments are probably not quite right, due to combination of 
 				sizePercent, scalePercent, and the various config tweaks. */
 
 		scalePercent = (short)(((long)config.courtesyAccSize*sizePercent)/100L);
@@ -1842,7 +1849,7 @@ static void DrawGRNCLedgers(LINK syncL, PCONTEXT pContext, LINK aGRNoteL, DDIST 
 	PAGRNOTE	aGRNote, bGRNote;
 	QDIST		yqpitRel,				/* y QDIST position relative to staff top */
 				hiyqpit, lowyqpit;
-	Boolean	stemDown;
+	Boolean		stemDown;
 
 	if (!pContext->showLedgers)
 		return;
@@ -1967,11 +1974,11 @@ PushLock(GRNOTEheap);
 		slDiff = SLASH_YDELTA(slashLen);
 	}
 
-/* ??INSTEAD OF <WIDEHEAD> & <IS_WIDEREST>, WE SHOULD USE SMTHG LIKE CharRect OF glyph
-TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
+/* FIXME: INSTEAD OF <WIDEHEAD> & <IS_WIDEREST>, WE SHOULD USE SMTHG LIKE CharRect OF
+glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 	ledgerSizePct = (WIDEHEAD(aGRNote->subType)==2? 15*sizePercent/10 :
 							(WIDEHEAD(aGRNote->subType)==1? 13*sizePercent/10 :
-																			sizePercent) );		
+										sizePercent) );		
 
 	/*	Suppress flags if the grace note is beamed. */
 	flagCount = (aGRNote->beamed? 0 : NFLAGS(aGRNote->subType));
@@ -2092,7 +2099,7 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 						Line(d2p(slashLen), -d2p(slDiff));
 					}
 
-					if (flagCount) {														/* Draw any flags */
+					if (flagCount) {												/* Draw any flags */
 						ypStem = yhead+d2p(dStemLen);
 
 						if (doc->musicFontNum==sonataFontNum) {
@@ -2101,17 +2108,17 @@ TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 								head was drawn. Unfortunately, the vertical position depends on the stem
 								length, which Adobe incorrectly assumed was always one octave. The "extend
 								flag" characters have their vertical origins set right where they go. */
-							MoveTo(xhead, ypStem);										/* Position x at head, y at stem end */
+							MoveTo(xhead, ypStem);									/* Position x at head, y at stem end */
 							octaveLength = d2p(7*SizePercentSCALE(dhalfLn));
-							Move(0, (stemDown? -octaveLength : octaveLength));	/* Adjust for flag origin */
-							if (flagCount==1)												/* Draw one (8th note) flag */
+							Move(0, (stemDown? -octaveLength : octaveLength));		/* Adjust for flag origin */
+							if (flagCount==1)										/* Draw one (8th note) flag */
 								DrawMChar(doc, (stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp),
 													NORMAL_VIS, dim);
-							else if (flagCount>1) {										/* Draw >=2 (16th & other) flags */
+							else if (flagCount>1) {									/* Draw >=2 (16th & other) flags */
 								DrawMChar(doc, (stemDown? MCH_sxFlagDown : MCH_sxFlagUp),
 													NORMAL_VIS, dim);
-								MoveTo(xhead, ypStem);									/* Position x at head, y at stem end */
-				/* ??N.B. SCALE FACTORS FOR FlagLeading BELOW ARE GUESSWORK. */
+								MoveTo(xhead, ypStem);								/* Position x at head, y at stem end */
+				/* FIXME: SCALE FACTORS FOR FlagLeading BELOW ARE GUESSWORK. */
 								if (stemDown)
 									Move(0, -d2p(13*FlagLeading(lnSpace)/4));
 								else
@@ -2241,7 +2248,7 @@ EndQDrawing:
 		if (doc->pianoroll)
 	/* HANDLE SPATIAL (PIANOROLL) NOTATION */
 		{
-			;						/* ??TO BE IMPLEMENTED */
+			;						/* FIXME: TO BE IMPLEMENTED */
 		}
 		else
 		{

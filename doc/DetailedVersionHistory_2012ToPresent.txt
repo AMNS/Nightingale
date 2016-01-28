@@ -359,7 +359,7 @@ Minor cleanup. Affects Browser, Double, InfoDialog, UIFUtils.
 
 ===============================================================================
 
-18 - 24 Jan.
+18 - 26 Jan.
 
 Change some default CNFG & other settings: "Default staff rastral size" (1) from 1
 to 5; "Screen layout..." from vertical to horizontal; in MIDI Modifier values, increase
@@ -374,5 +374,9 @@ Alphabetize precomp headers in the Xcode project.
 When a (non-hairpin) dynamic is double-clicked, hilight its attachment point, as with
 text graphics and tempo marks. Affects Check.c.
 
-Clarify comments; minor cleanup. Affects defs.h, Check.c, Initialize, UIFUtils.
+For tremolo slashes, reduce the slope considerably and the width slightly. Affects
+DrawNRGR.
+
+Clarify comments; minor cleanup. Affects defs.h, Check.c, DrawNRGR, Initialize,
+UIFUtils.
 
