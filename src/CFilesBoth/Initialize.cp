@@ -26,24 +26,27 @@
 
 static void			InitToolbox(void);
 static Boolean		AddSetupResource(Handle);
-static OSStatus		FindPrefsFile(OSType fType, OSType fCreator, FSSpec *prefsSpec);
+static OSStatus		FindPrefsFile(unsigned char *name, OSType fType, OSType fCreator, FSSpec *prefsSpec);
+static void			DebugDisplayCnfg(void);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
-static void			InstallCoreEventHandlers(void);
 static Boolean		NInitFloatingWindows(void);
 static void			SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
 static short		GetToolGrid(PaletteGlobals *whichPalette);
 static void			SetupPaletteRects(Rect *whichRects, short across, short down, short width,
 								short height);
 static Boolean		PrepareClipDoc(void);
-void				InitNightingale(void);
+static void			AddSampleItems(MenuRef menu);
+static void			InstallCoreEventHandlers(void);
+
+void				InitNightingale(void);	// FIXME: non-static, so should be in a header
 
 
 /* ----------------------------------------------------------- Initialize and ally -- */
 /* Do everything that must be done prior to entering main event loop. A great deal of
 this is platform-dependent. */
 
-void InitToolbox()
+static void InitToolbox()
 {
 #ifndef OS_MAC
 #error MAC OS-ONLY CODE
@@ -54,8 +57,6 @@ void InitToolbox()
 #endif
 }
 		
-
-//#include <Traps.h>
 
 static GrowZoneUPP growZoneUPP;			/* permanent GZ UPP */
 
@@ -179,27 +180,8 @@ void Initialize()
 		{ BadInit(); ExitToShell(); }
 }
 
-#if 0 // def TARGET_API_MAC_CARBON_FILEIO
 
-Boolean CreateSetupFile(void)
-{
-	return FALSE;
-}
-
-Boolean OpenSetupFile()
-{
-	return FALSE;
-}
-
-Boolean AddSetupResource(Handle resH)
-{
-	return FALSE;
-}
-
-#else
-
-
-static OSStatus FindPrefsFile(OSType fType, OSType fCreator, FSSpec *prefsSpec) 
+static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCreator, FSSpec *prefsSpec) 
 {
 	short pvol;
 	long pdir;
@@ -223,7 +205,7 @@ static OSStatus FindPrefsFile(OSType fType, OSType fCreator, FSSpec *prefsSpec)
 		if (( (cat.hFileInfo.ioFlAttrib & 16) == 0) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdType == fType) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdCreator == fCreator) &&
-				(PStrCmp(name, SETUP_FILE_NAME) == TRUE)) {
+				(PStrCmp(name, fileName) == TRUE)) {
 			// make a fsspec referring to the file
 			return FSMakeFSSpec(pvol, pdir, name, prefsSpec);
 		}
@@ -261,54 +243,20 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 //	theErr = Create(, thisMac.sysVRefNum, creatorType, 'NSET'); /* Create new file */
 //	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, "\pNightingale 2001 Prefs", &rfSpec);
 
-#if 0
-	HParamBlockRec	fInfo;
-	long			setupDirID;
-	
-	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, SETUP_FILE_NAME, &rfSpec);
-	if (theErr==dirNFErr) {
-		fInfo.fileParam.ioResult = noErr;
-		fInfo.fileParam.ioVRefNum = rfVRefNum;
-		fInfo.fileParam.ioDirID = 0;
-		fInfo.fileParam.ioNamePtr = (StringPtr)"\p:Preferences:";
-		PBDirCreate(&fInfo,FALSE);
-		
-		theErr = fInfo.fileParam.ioResult;
-		if (theErr) return FALSE;
-
-		setupDirID = fInfo.fileParam.ioDirID;
-		//theErr = Create(SETUP_FILE_NAME, thisMac.sysVRefNum, creatorType, 'NSET'); /* Create new file */
-		theErr = FSMakeFSSpec(rfVRefNum, setupDirID, SETUP_FILE_NAME, &rfSpec);
-		if (theErr == noErr) {
-			FSpCreateResFile(&rfSpec, creatorType, 'NSET', scriptCode);
-			theErr = ResError();
-		}
-
-	}
-	else {
-		FSpCreateResFile(&rfSpec, creatorType, 'NSET', scriptCode);
-		theErr = ResError();
-	}
-#else
 	Pstrcpy(rfSpec->name, SETUP_FILE_PATH);	
 	FSpCreateResFile(rfSpec, creatorType, 'NSET', scriptCode);
 	theErr = ResError();
-#endif
 	if (theErr) return FALSE;
 
 //	CreateResFile(SETUP_FILE_NAME);
 //	theErr = ResError();
 	if (theErr!=noErr) return FALSE;
 	
-	/* Open it, setting global setupFileRefNum.  NB: HOpenResFile makes the
-		file it opens the current resource file. */
+	/* Open it, setting global setupFileRefNum.  NB: HOpenResFile makes the file it
+		opens the current resource file. */
 		
 	//setupFileRefNum = OpenResFile(SETUP_FILE_NAME);
-#if 0
-	setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
-#else
 	setupFileRefNum = FSpOpenResFile(rfSpec, fsRdWrPerm);
-#endif
 	
 	theErr = ResError();
 	if (theErr!=noErr) return FALSE;				/* Otherwise we'll write in the app's resource fork! */
@@ -444,7 +392,7 @@ Boolean OpenSetupFile()
 	theErr = FindFolder(kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder, &vRefNum, &dirID);
 	
 	HGetVol(volName,&oldVRefNum,&oldDirID);
-	HSetVol(volName,vRefNum,dirID);		// Need to specify a location for setup file
+	HSetVol(volName,vRefNum,dirID);					// Need to specify a location for setup file
 
 	rfVRefNum = vRefNum;
 	rfVolDirID = dirID;
@@ -452,8 +400,8 @@ Boolean OpenSetupFile()
 	/* Try to open the Prefs file. Under "classic" Mac OS (9 and before), it was normally
 	in  the System Folder; under OS X, it's in ~/Library/Preferences . */
 	
-	theErr = FindPrefsFile(prefsFileType, creatorType, &rfSpec);
 	Pstrcpy(setupFileName, SETUP_FILE_NAME);
+	theErr = FindPrefsFile(setupFileName, prefsFileType, creatorType, &rfSpec);
 	LogPrintf(LOG_NOTICE, "OpenSetupFile: FindPrefsFile (filename '%s') returned theErr=%d\n",
 				PToCString(setupFileName), theErr);
 	if (theErr==noErr)
@@ -471,9 +419,9 @@ Boolean OpenSetupFile()
 		 * lousy--it should use SETUP_FILE_NAME, of course--but ProgressMsg() can't
 		 * handle that!
 		 */
-		LogPrintf(LOG_NOTICE, "Creating new '%s' (Prefs) file\n", PToCString(setupFileName));
+		LogPrintf(LOG_NOTICE, "Can\'t find a '%s' (Preferences) file: creating a new one.\n", PToCString(setupFileName));
 		ProgressMsg(CREATESETUP_PMSTR, "");
-		SleepTicks(120L);								/* Give user time to read the msg */
+		SleepTicks((unsigned)(5*60L));						/* Give user time to read the msg */
 		if (!CreateSetupFile(&rfSpec)) {
 			GetIndCString(strBuf, INITERRS_STRS, 2);	/* "Can't create Prefs file" */
 			CParamText(strBuf, "", "", "");
@@ -482,7 +430,6 @@ Boolean OpenSetupFile()
 			goto done;
 		}
 		/* Try opening the brand-new Prefs file. */
-//		setupFileRefNum = OpenResFile(SETUP_FILE_NAME);
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
 
 		ProgressMsg(0, "");
@@ -513,7 +460,7 @@ done:
 /* Adds the resource pointed to by resH to the current resource file. Returns
 TRUE if OK, FALSE if error. */
 
-Boolean AddSetupResource(Handle resH)
+static Boolean AddSetupResource(Handle resH)
 {
 	Handle	tempH;
 	OSType	type;
@@ -539,8 +486,6 @@ Boolean AddSetupResource(Handle resH)
 	UseResFile(appRFRefNum);
 	return TRUE;
 }
-
-#endif // TARGET_API_MAC_CARBON_FILEIO
 
 
 static void DebugDisplayCnfg()
@@ -1360,24 +1305,24 @@ Boolean BuildEmptyDoc(Document *doc)
 //#define TEST_MDEF_CODE
 #ifdef TEST_MDEF_CODE
 // add some interesting sample items
-static void AddSampleItems( MenuRef menu )
+static void AddSampleItems(MenuRef menu)
 {
 	MenuItemIndex	item;
 	
-	AppendMenuItemTextWithCFString( menu, CFSTR("Checkmark"), 0, 0, &item );
-	CheckMenuItem( menu, item, true );
-	AppendMenuItemTextWithCFString( menu, CFSTR("Dash"), 0, 0, &item );
-	SetItemMark( menu, item, '-' );
-	AppendMenuItemTextWithCFString( menu, CFSTR("Diamond"), 0, 0, &item );
-	SetItemMark( menu, item, kDiamondCharCode );
-	AppendMenuItemTextWithCFString( menu, CFSTR("Bullet"), 0, 0, &item );
-	SetItemMark( menu, item, kBulletCharCode );
-	AppendMenuItemTextWithCFString( menu, NULL, kMenuItemAttrSeparator, 0, NULL );
-	AppendMenuItemTextWithCFString( menu, CFSTR("Section Header"), kMenuItemAttrSectionHeader, 0, NULL );
-	AppendMenuItemTextWithCFString( menu, CFSTR("Indented item 1"), 0, 0, &item );
-	SetMenuItemIndent( menu, item, 1 );
-	AppendMenuItemTextWithCFString( menu, CFSTR("Indented item 2"), 0, 0, &item );
-	SetMenuItemIndent( menu, item, 1 );
+	AppendMenuItemTextWithCFString(menu, CFSTR("Checkmark"), 0, 0, &item);
+	CheckMenuItem(menu, item, true);
+	AppendMenuItemTextWithCFString(menu, CFSTR("Dash"), 0, 0, &item);
+	SetItemMark(menu, item, '-');
+	AppendMenuItemTextWithCFString(menu, CFSTR("Diamond"), 0, 0, &item);
+	SetItemMark(menu, item, kDiamondCharCode);
+	AppendMenuItemTextWithCFString(menu, CFSTR("Bullet"), 0, 0, &item);
+	SetItemMark(menu, item, kBulletCharCode);
+	AppendMenuItemTextWithCFString(menu, NULL, kMenuItemAttrSeparator, 0, NULL);
+	AppendMenuItemTextWithCFString(menu, CFSTR("Section Header"), kMenuItemAttrSectionHeader, 0, NULL);
+	AppendMenuItemTextWithCFString(menu, CFSTR("Indented item 1"), 0, 0, &item);
+	SetMenuItemIndent(menu, item, 1);
+	AppendMenuItemTextWithCFString(menu, CFSTR("Indented item 2"), 0, 0, &item);
+	SetMenuItemIndent(menu, item, 1);
 }
 #endif
 

@@ -1241,3 +1241,16 @@ HiliteInsertNode():
 HiliteAttPoints() doesn't.
 
 Change CheckDYNAMIC(), case SMDblClick, to use HiliteInsertNode => it works!
+
+-------------------------------------------------------------------------------
+
+2-31 Jan.
+
+Can I make spacers more useful, e.g., for my projected double-stop crossing tremolo glissandi
+w/ multiple open strings? Maybe.
+
+Want to make the "Can't find Prefs file: creating a new one" message stay on the screen
+longer, say for 5 sec. It _should_ just be a matter of increasing the argument to
+SleepTicks() in Initialize.cp/OpenSetupFile, but that doesn't seem to have any effect?!?
+Well, Initialize.cp is a mess, anyway; clean it up => now the message _does_ stay for
+the time I specify! Weird.

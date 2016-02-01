@@ -322,7 +322,7 @@ Update version number in About box to 5.6b1. Affects info.plist .
 
 -------------------------------------------------------------------------------
 
-2 - 10 Jan. 2015
+2 - 10 Jan. 2016
 
 Change the name of the Preferences file to "Nightingale AMNF Prefs". Affects .rsrc;
 VersionStrings.h; Initialize.
@@ -359,7 +359,7 @@ Minor cleanup. Affects Browser, Double, InfoDialog, UIFUtils.
 
 ===============================================================================
 
-18 - 26 Jan.
+18 - 31 Jan.
 
 Change some default CNFG & other settings: "Default staff rastral size" (1) from 1
 to 5; "Screen layout..." from vertical to horizontal; in MIDI Modifier values, increase
@@ -377,6 +377,8 @@ text graphics and tempo marks. Affects Check.c.
 For tremolo slashes, reduce the slope considerably and the width slightly. Affects
 DrawNRGR.
 
-Clarify comments; minor cleanup. Affects defs.h, Check.c, DrawNRGR, Initialize,
-UIFUtils.
+Make the "Can't find Prefs file: creating a new one" message stay on the screen longer.
+Affects Initialize.
 
+Clarify comments; minor (in Initialize, not so minor) cleanup. Affects defs.h, Check.c,
+DrawNRGR, Initialize, UIFUtils.
