@@ -2,7 +2,7 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALE» PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
@@ -39,9 +39,9 @@ enum {					/* Indices of error strings in Error Strings STR# resource */
 
 /* Prototypes for local routines */
 
-static void	ErrorMsg(short index);
-static void	ErrorNumber(short index, long num);
-static void	ErrorString(short index, unsigned char *msg);
+static void		ErrorMsg(short index);
+static void		ErrorNumber(short index, long num);
+static void		ErrorString(short index, unsigned char *msg);
 static short	DoGeneralAlert(unsigned char *str);
 
 
@@ -97,17 +97,20 @@ static short DoGeneralAlert(unsigned char *str)
 	{
 		ParamText(str,"\p","\p","\p");
 		PlaceAlert(errorMsgID,NULL,0,40);
-		return(StopAlert(errorMsgID,NULL));
+		return (StopAlert(errorMsgID,NULL));
 	}
 
-/*
- *	Given a string, str, an argument string, msg, and the index, n,
- *	for the argument of the form ÇnÈ to be found in str, substitute.
- *	str is expected to be 256 bytes in length.  This currently only
- *	works for n=0,1,...9.  All strings are Pascal.  This routine
- *	can be called repeatedly to substitute different strings into the
- *	given str.
- */
+/* Given a string, _str_, an argument string, _msg_, and an index _n_, look for
+a three-character string of the form double-< n double-> in str, and substitute
+msg for it. (NB: The double-< and -> are really guillemets.) str is expected to
+be 256 bytes in length. All strings are Pascal. This routine can be called
+repeatedly to substitute different strings into the given str. It currently only
+works for n=0,1,...9.  FIXME: Actually, I'm not sure it works at all! This file
+was originally encoded in Macintosh Roman; I converted it to Latin-1 in 2015, and
+the compiled-in guillemet chars. look like they've been garbled. Presumably it'd
+be easy to fix, but in heavy use of Nightingale for the last six or ten months,
+I'm not sure I've ever seen it used, so it's (1) low priority and (2) hard to test.
+--DAB, Feb. 2016 */
 
 void InstallArg(unsigned char *str, unsigned char *msg, short n)
 	{
@@ -118,21 +121,21 @@ void InstallArg(unsigned char *str, unsigned char *msg, short n)
 		msgLen = *msg;
 		n += '0';
 		
-		/* Scan backwards from last character for Ç */
+		/* Scan backwards from last character for ‚ */
 		
 		dst = str+strLen;
 		while (dst > str)
-			if (*dst-- == (unsigned char)'È')
+			if (*dst-- == (unsigned char)'é')
 				if (dst>str && *dst-- == n)
-					if (dst>str && *dst==(unsigned char)'Ç') {
+					if (dst>str && *dst==(unsigned char)'‚') {
 						/* Found start of arg insertion point */
 						if (msgLen > 3) {
 							if (strLen + msgLen - 3 <= 255) {
 								/* Make room for argument string */
-								dst += 3;			/* 3 = sizeof "ÇnÈ" */
+								dst += 3;			/* 3 = sizeof "‚né" */
 								src = str+strLen+1;
 								while (--src >= dst) *(src+msgLen-3) = *src;
-								/* Overwrite the ÇnÈ */
+								/* Overwrite the ‚né */
 								dst -= 3;
 								src = msg+1;
 								*str += msgLen-3;
@@ -142,7 +145,7 @@ void InstallArg(unsigned char *str, unsigned char *msg, short n)
 						 else {
 							/* String is getting smaller */
 							*str += msgLen-3;
-							/* Overwrite ÇnÈ with message */
+							/* Overwrite ‚né with message */
 							src = msg+1;
 							len = msgLen;
 							while (msgLen-- > 0) *dst++ = *src++;
@@ -161,25 +164,25 @@ Eventually, all these routines can be consolidated into a few small generic
 routines, and we can redefine their names as macros, to avoid so many
 functions. */
 
-void CannotPrint()								{ ErrorMsg(cannotPrint); }
+void CannotPrint()							{ ErrorMsg(cannotPrint); }
 
 void NotOurs(unsigned char *name)			{ ErrorString(notOurDocument,name); }
 
-void BadInit()										{ ErrorMsg(badInit); }
+void BadInit()								{ ErrorMsg(badInit); }
 
-void TooManyDocs()								{ ErrorMsg(tooManyDocs); }
+void TooManyDocs()							{ ErrorMsg(tooManyDocs); }
 
 void TooManyPages(short limit)			 	{ ErrorNumber(tooManyPages,(long)limit); }
 
-void TooManyRows(short limit)		 			{ ErrorNumber(tooManyRows,(long)limit); }
+void TooManyRows(short limit)		 		{ ErrorNumber(tooManyRows,(long)limit); }
 	
-void TooManyColumns(short limit)		 		{ ErrorNumber(tooManyColumns,(long)limit); }
+void TooManyColumns(short limit)		 	{ ErrorNumber(tooManyColumns,(long)limit); }
 
-void PageTooSmall()								{ ErrorMsg(pageTooSmall); }
+void PageTooSmall()							{ ErrorMsg(pageTooSmall); }
 
-void PageTooLarge()								{ ErrorMsg(pageTooLarge); }
+void PageTooLarge()							{ ErrorMsg(pageTooLarge); }
 
-void MissingValue()								{ ErrorMsg(missingValue); }
+void MissingValue()							{ ErrorMsg(missingValue); }
 
 void NoMoreMemory()							{ ErrorMsg(noMoreMemory); }
 
@@ -203,7 +206,7 @@ static void EMDebugPrintf(char *fmt, ... )
 	va_end(ap);
 	
 #ifndef PUBLIC_VERSION
-	LogPrintf(LOG_NOTICE, fmt, args[0], args[1], args[2], args[3], args[4], args[5]);
+	LogPrintf(LOG_WARNING, fmt, args[0], args[1], args[2], args[3], args[4], args[5]);
 #endif
 }
 
@@ -235,7 +238,6 @@ void MayErrMsg(char *fmt, ...)
 	EMDebugPrintf("\n");
 
 	if (CmdKeyDown() && ShiftKeyDown() && OptionKeyDown()) DebugStr("\pBREAK IN MayErrMsg");
-	
 }
 
 void AlwaysErrMsg(char *fmt, ...)
@@ -262,7 +264,6 @@ void AlwaysErrMsg(char *fmt, ...)
 	EMDebugPrintf("\n");
 
 	if (CmdKeyDown() && ShiftKeyDown() && OptionKeyDown()) DebugStr("\pBREAK IN AlwaysErrMsg");
-	
 }
 
 
@@ -294,8 +295,8 @@ Boolean ReportIOError(short errCode, short dlog)
 /* Check for a Resource Manager error and alert user to it, if there is one. Return
 TRUE if there's an error, FALSE if not. NB: Calling this after, e.g., GetResource
 is not good enough: even if the GetResource failed, ResError() can return noErr!
-(Cf. Inside Macintosh, I-119.) To check validity of newly-allocated resources,
-use ReportBadResource. */
+(Cf. Inside Macintosh, I-119.) To check validity of newly-allocated resources, use
+ReportBadResource. */
 
 Boolean ReportResError()
 {
@@ -334,13 +335,14 @@ Boolean ReportBadResource(Handle resH)
 }
 
 /* --------------------------------------------------------------- MissingDialog -- */
-/* Alert user when a dialog resource cannot be found. For now, just beep: we could
-also give a compiled-in error message, but it's probably too dangerous to try to get
-one from a resource in this situation. */
+/* Alert user when a dialog resource cannot be found. For now, just beep and put a
+complied-in message in the log. We could also give a compiled-in error message, but
+it's probably too dangerous to try to get one from a resource in this situation. */
 
 void MissingDialog(short /*dlogID*/)
 {
 	SysBeep(1);
+	LogPrintf(LOG_WARNING, "MissingDialog: can't find a dialog resource.\n");
 }
 
 /* ------------------------------------------------------------- AppleEventError -- */

@@ -40,17 +40,16 @@ static Boolean InsertHairpin(Document *,Point,LINK,short);
 /* Utility to add new GRSync before an object found by TimeSearchRight in AddGRNote. */
 
 static Boolean AddNewGRSync(Document *doc,
-									LINK baseL,		/* base link */
-									Point	pt,
-									short sym,
-									short voice, short clickStaff
-									)
+								LINK baseL,		/* base link */
+								Point pt,
+								short sym,
+								short voice, short clickStaff
+								)
 {
 	LINK addToGRSyncL;
 
-	/* Look for a GRSync immediately prior to the start link. If it
-		exists, and has a note	in the voice, create a new GRSync before
-		it; else add to it. */
+	/* Look for a GRSync immediately prior to the start link. If it exists and
+		as a note	in the voice, create a new GRSync before it; else add to it. */
 
 	if (addToGRSyncL = FindGRSync(doc, pt, TRUE, clickStaff))	{	/* Does it already have note/rest in this voice? */
 		if (GRSyncInVoice(addToGRSyncL, voice))
@@ -226,7 +225,7 @@ static LINK FindJIP(LINK startL, LINK endL)
 /* Insert a note (or rest) at a place in the object list suitable for a
 mousedown at the given point. Handles feedback and allows cancelling. (This
 also handles chord slashes: the insertion user interface distinguishes chord
-slashes, but they're really just funny notes.)
+slashes, but they're really just funny-looking notes.)
 
 A special note on object order...
 Several types of objects have links that connect them to Syncs, and, to
@@ -266,7 +265,7 @@ Boolean InsertNote(
 					)
 {
 	short			clickStaff,		/* staff user clicked in */
-					sym,				/* index of current palChar in symtable[] */
+					sym,			/* index of current palChar in symtable[] */
 					voice;			/* voice to insert in */
 	LINK			addToSyncL,		/* sync to add note/rest to */
 					nodeRightL,		/* node to right of insertion pt */
@@ -314,7 +313,7 @@ Boolean InsertNote(
 		to insert it. In graphic mode, get first node to the right of pt.h, and
 		insert a new sync in first valid slot in object list before this node.
 		In temporal mode, determine if there is a sync simultaneous with the
-		location of the click ??LOOKS LIKE THIS ALWAYS SAYS "NO"; if so, add the
+		location of the click FIXME: LOOKS LIKE THIS ALWAYS SAYS "NO"; if so, add the
 		note to this sync, else add a new sync at the correct temporal location. */
 
 	if (isGraphic)	{														/* Get noteRightL directly */
@@ -1274,13 +1273,13 @@ Boolean InsertSlur(Document *doc, Point pt)
 	LINK		pL, pLPIL;
 	Point		localPt;
 
-	FindStaff(doc, pt);												/* Sets doc->currentSystem */
+	FindStaff(doc, pt);										/* Sets doc->currentSystem */
 
 	/* Correct "optical illusion" (CER's term) problem with slur cursor, which
 		cannot be fixed by moving down hotspot, which is moved down
 		all it can be. */
 
-	localPt = pt; localPt.v += 1;									/* Correct for "optical illusion" */
+	localPt = pt; localPt.v += 1;							/* Correct for "optical illusion" */
 	pL = FindObject(doc, localPt, &index, SMFindNote);
 	if (!pL) return FALSE;
 	if (!SyncTYPE(pL)) return FALSE;
@@ -1289,10 +1288,10 @@ Boolean InsertSlur(Document *doc, Point pt)
 	staff = GetNoteStfVoice(pL,index,&voice);
 	if (staff==NOONE) return FALSE;
 
-	/* ??Should NOT call FindLPI; pL should be what we want. */
+	/* FIXME: Should NOT call FindLPI; pL should be what we want. */
 	pLPIL = FindLPI(doc, pt, staff, ANYONE, FALSE);
 	doc->selEndL = doc->selStartL = RightLINK(pLPIL);		/* Selection is insertion point */
-	NewSlur(doc, staff, voice, pt);								/* Add sym. to object list */
+	NewSlur(doc, staff, voice, pt);							/* Add sym. to object list */
 	return TRUE;
 }
 
@@ -1331,7 +1330,7 @@ Boolean InsertTempo(Document *doc, Point pt)
 
 		Pstrcpy((unsigned char *)strBuf, (unsigned char *)tempoStr);
 		Pstrcpy((unsigned char *)tmpStr, (unsigned char *)metroStr);
-		LogPrintf(LOG_NOTICE, "InsertTempo: expanded=%d\n", expanded);
+		//LogPrintf(LOG_NOTICE, "InsertTempo: expanded=%d\n", expanded);
 		if (TempoDialog(&hideMM, &dur, &dotted, &expanded, (unsigned char *)strBuf, tmpStr)) {
 			doc->selEndL = doc->selStartL = pL;
 			if (strBuf[0]>63) strBuf[0] = 63;					/* Limit str. length (see above) */
@@ -1358,7 +1357,7 @@ Boolean InsertSpace(Document *doc, Point pt)
 	short clickStaff,topStf,bottomStf; LINK pLPIL,measL; STDIST stdSpace=0;
 	Point newPt; CONTEXT context;
 	
-	clickStaff = FindStaff(doc, pt);									/* Find staff clicked on */
+	clickStaff = FindStaff(doc, pt);								/* Find staff clicked on */
 	if (clickStaff==NOONE) return FALSE;
 
 	measL = GSSearch(doc, pt, MEASUREtype, ANYONE, TRUE, FALSE, FALSE, FALSE); /* Need a LINK for GetContext */
@@ -1368,7 +1367,7 @@ Boolean InsertSpace(Document *doc, Point pt)
 	newPt = InsertSpaceTrackStf(doc, pt, &topStf, &bottomStf);		/* Get user feedback */
 	if (newPt.h==CANCEL_INT)
 		return FALSE;
-	if (newPt.h-pt.h)															/* Don't divide by zero */
+	if (newPt.h-pt.h)												/* Don't divide by zero */
 		stdSpace = d2std(p2d(ABS(newPt.h-pt.h)), context.staffHeight, context.staffLines);
 
 	if (pt.h>newPt.h) pt = newPt;

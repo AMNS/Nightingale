@@ -1016,9 +1016,7 @@ time now.
 - With reasonable spacing, only about 25 staves fit on a letter-size page even at staff
 size 8, so with a largish number -- e.g., 15 in my violin concerto -- you can get only
 one system on a page, Trying to change to a larger "paper" size seems to do absolutely
-nothing.
-
-After changing from default (U.S. letter) to U.S. legal, in CarbonPrinting>
+nothing. More precissely, after changing from default (U.S. letter) to U.S. legal, in CarbonPrinting>
 NPageSetupDoneProc(), it looks like
 
 	if (!EqualRect(&doc->origPaperRect,&rPaper)) ...
@@ -1026,6 +1024,8 @@ NPageSetupDoneProc(), it looks like
 isn't satisfied, i.e., doc->origPaperRect and rPaper are identical. Well, pmRPaper
 is still 612 x 792 points, i.e., 9-1/2 x 11 in. ?? Apple's PMGetAdjustedPaperRect()
 must be returning pmRPaper unchanged; I dunno what can I do about that.
+
+Changing from portrait to landscape format _does_ ??
 
 -------------------------------------------------------------------------------
 

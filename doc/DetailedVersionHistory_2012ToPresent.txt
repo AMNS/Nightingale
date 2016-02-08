@@ -210,7 +210,7 @@ Tweak the Info dialog for notes/rests and the one for most other symbols (DLOGs 
 
 -------------------------------------------------------------------------------
 
-27-28 Oct.			====== NIGHTINGALE 5.5 ======
+27-28 Oct.			======== NIGHTINGALE 5.5 ========
 
 Fix bug: ExpandString() doesn't check for excessively long strings correctly. Affects
 StringUtils.
@@ -344,7 +344,7 @@ Initialize, SpaceHighLevel, VoiceNumbers.
 
 -------------------------------------------------------------------------------
 
-11-14 Jan.			=== NIGHTINGALE 5.6b1 ===
+11-14 Jan.			==== NIGHTINGALE 5.6b1 ====
 
 Convert files encoded in Mac OS Roman to UTF-8; replace "sustain on" char. in code
 with 0xA1 (its codepoint in Sonata). Affects DrawObject, Menu, DebugUtils.
@@ -385,3 +385,8 @@ Check.c, DrawNRGR, Initialize, UIFUtils.
 
 Update long version no. to 5.6. Affects info.plist.
 
+-------------------------------------------------------------------------------
+
+5 Feb.			==== NIGHTINGALE 5.6b2 ====
+
+Clarify comments; minor cleanup. Affects Error, Insert.
