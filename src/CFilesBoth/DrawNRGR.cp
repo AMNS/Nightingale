@@ -34,7 +34,7 @@ but she recommends a fixed angle, and that's what we do, */
 
 static void DrawSlashes(DDIST xdh, DDIST ydh,
 					short nslashes,
-					Boolean noteCenter,		/* TRUE=horizontally center at note center, else at stem */
+					Boolean centerAroundNote,	/* TRUE=horizontally center at note center, else at stem */
 					Boolean stemUp,
 					PCONTEXT pContext,
 					Boolean dim
@@ -58,8 +58,8 @@ static void DrawSlashes(DDIST xdh, DDIST ydh,
 	slashHeight = lnSpace/2;
 	slashThick = (long)(config.tremSlashLW*lnSpace) / 100L;
 	
-	if (noteCenter) dxpos = 0;
-	else			dxpos = (stemUp? 3*dEighthLn : -5*dEighthLn);
+	if (centerAroundNote) dxpos = 0;
+	else				  dxpos = (stemUp? 4*dEighthLn : -5*dEighthLn);
 	dypos = (stemUp? 8*dEighthLn : -8*dEighthLn);
 	
 
@@ -199,13 +199,13 @@ void DrawModNR(Document *doc,
 						DDIST xd,			/* Note/rest position */
 						CONTEXT	*pContext)
 {
-	PANOTE	aNote;
+	PANOTE		aNote;
 	LINK		aModNRL;
-	PAMODNR	aModNR;
+	PAMODNR		aModNR;
 	DDIST		xdMod, ydMod, ydh, lnSpace;
 	unsigned char glyph;
 	short		code, sizePercent, xOffset, yOffset;
-	Boolean	dim, noteCenter, stemUp;
+	Boolean		dim, centerAroundNote, stemUp;
 				
 	aNote = GetPANOTE(aNoteL);
 
@@ -235,9 +235,9 @@ void DrawModNR(Document *doc,
 
 			if (code>=MOD_TREMOLO1 && code<=MOD_TREMOLO6) {
 				ydh = pContext->staffTop+NoteYSTEM(aNoteL)+ydMod;
-				noteCenter = (NoteType(aNoteL)<=WHOLE_L_DUR);
+				centerAroundNote = (NoteType(aNoteL)<=WHOLE_L_DUR);
 				stemUp = (NoteYD(aNoteL)>NoteYSTEM(aNoteL));
-				DrawSlashes(xdMod, ydh, code-MOD_TREMOLO1+1, noteCenter, stemUp,
+				DrawSlashes(xdMod, ydh, code-MOD_TREMOLO1+1, centerAroundNote, stemUp,
 								pContext, dim);
 			}
 			else
@@ -733,8 +733,7 @@ static void DrawNoteheadGraph(Document *doc,
 	rDiam = UseMagnifiedSize(4, doc->magnify);
 #if 1
 	nSegs = 1;									// ??TEMP
-	switch (appearance) 
-	{
+	switch (appearance) {
 		case 1:
 			segColor[1] = blueColor;					// ???TEMP
 			break;
@@ -759,8 +758,7 @@ static void DrawNoteheadGraph(Document *doc,
 			;
 	}
 
-	switch (nSegs) 
-	{
+	switch (nSegs) {
 		case 1:
 			ForeColor(segColor[1]);
 			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
@@ -814,8 +812,7 @@ static void DrawNoteheadGraph(Document *doc,
 #endif
 
 #else
-	switch (appearance) 
-	{
+	switch (appearance) {
 		case 1:
 			ForeColor(blueColor);									// ???TEMP
 			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
@@ -869,43 +866,42 @@ void DrawNote(Document *doc,
 				Boolean	*recalc			/* TRUE if we need to recalc enclosing rectangle */
 				)	
 {
-	PANOTE	aNote;
-	PANOTE	bNote;
+	PANOTE		aNote, bNote;
 	LINK		bNoteL;
 	short		flagCount,
 				staffn, ypStem,
-				xhead, yhead,	/* pixel coordinates */
+				xhead, yhead,		/* pixel coordinates */
 				appearance,
 				octaveLength,
 				spatialLen,
-				rDiam,			/* rounded corner diameter for pianoroll */
+				rDiam,				/* rounded corner diameter for pianoroll */
 				useTxSize,
-				oldTxSize,		/* To restore port after small or magnified notes drawn */
-				sizePercent,	/* Percent of "normal" size to draw in (for small notes) */
+				oldTxSize,			/* To restore port after small or magnified notes drawn */
+				sizePercent,		/* Percent of "normal" size to draw in (for small notes) */
 				headRelSize,
 				headSizePct,
-				ledgerSizePct,	/* Percent of "normal" size for ledger lines */
+				ledgerSizePct,		/* Percent of "normal" size for ledger lines */
 				yp, noteType,
 				stemShorten,
 				flagLeading,
 				xadjhead, yadjhead;
-	unsigned char glyph,		/* notehead symbol actually drawn */
+	unsigned char glyph,			/* notehead symbol actually drawn */
 				flagGlyph;
 	DDIST		xd, yd,
 				xdAdj,
 				dStemLen, dStemShorten,
 				xdNorm,
-				dTop, dLeft,	/* abs DDIST origin */
-				dhalfLn,		/* Distance between staff half-lines */
-				fudgeHeadY,		/* Correction for roundoff in Sonata screen font head shape */
+				dTop, dLeft,		/* abs DDIST origin */
+				dhalfLn,			/* Distance between staff half-lines */
+				fudgeHeadY,			/* Correction for roundoff in Sonata screen font head shape */
 				breveFudgeHeadY,	/* Correction for error in Sonata breve origin (screen & PS) */
 				offset, lnSpace;
 	QDIST		qdLen;
-	Boolean	stemDown,			/* Does note have a down-turned stem? */
-				dim,			/* Should it be dimmed bcs in a voice not being looked at? */
+	Boolean	stemDown,				/* Does note have a down-turned stem? */
+				dim,				/* Should it be dimmed bcs in a voice not being looked at? */
 				chordNoteToR, chordNoteToL;
 	Rect		spatialRect,
-				rSub;			/* bounding box for subobject */
+				rSub;				/* bounding box for subobject */
 	long		resFact;
 
 PushLock(OBJheap);
@@ -1704,12 +1700,12 @@ modifiers, and accidentals. */
 void DrawSYNC(Document *doc, LINK pL, CONTEXT context[])
 {
 	PANOTE		aNote;
-	LINK			aNoteL;
-	PCONTEXT		pContext;
-	Boolean		drawn;			/* FALSE until a subobject has been drawn */
-	Boolean		recalc;			/* TRUE if we need to recalc enclosing rectangle */
-	STFRANGE		stfRange = {0,0};
-	Point			enlarge = {0,0};
+	LINK		aNoteL;
+	PCONTEXT	pContext;
+	Boolean		drawn;				/* FALSE until a subobject has been drawn */
+	Boolean		recalc;				/* TRUE if we need to recalc enclosing rectangle */
+	STFRANGE	stfRange = {0,0};
+	Point		enlarge = {0,0};
 	
 	drawn = FALSE;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);

@@ -49,7 +49,7 @@ static Boolean AddNewGRSync(Document *doc,
 	LINK addToGRSyncL;
 
 	/* Look for a GRSync immediately prior to the start link. If it exists and
-		as a note	in the voice, create a new GRSync before it; else add to it. */
+		has a note in the voice, create a new GRSync before it; else add to it. */
 
 	if (addToGRSyncL = FindGRSync(doc, pt, TRUE, clickStaff))	{	/* Does it already have note/rest in this voice? */
 		if (GRSyncInVoice(addToGRSyncL, voice))
@@ -67,7 +67,7 @@ static Boolean AddNewGRSync(Document *doc,
 		return FALSE;
 	}
 	
-	return TrkInsGRSync(doc, baseL, pt, &sym, clickStaff);	/* Create a new GRSync */
+	return TrkInsGRSync(doc, baseL, pt, &sym, clickStaff);			/* Create a new GRSync */
 }
 
 

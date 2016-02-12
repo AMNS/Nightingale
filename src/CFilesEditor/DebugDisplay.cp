@@ -40,13 +40,14 @@ void DKSPrintf(PKSINFO KSInfo)
 
 
 /* ------------------------------------------------------------------ DisplayNode -- */
-/* Show information about the given object (node). If <abnormal>, ignores <doc>. */
+/* Show information about the given object (node), and optionally its subobjects. If
+<abnormal>, ignores <doc>. */
 
 void DisplayNode(Document *doc, LINK pL,
-				short kount,						/* Label to print for node */
+				short kount,					/* Label to print for node */
 				Boolean show_links,				/* Show node addr., links, size? */
 				Boolean show_subs,				/* Show subobjects? */
-				Boolean abnormal					/* Somewhere besides doc's main object list? */
+				Boolean abnormal				/* Somewhere besides doc's main object list? */
 				)
 {
 	register PMEVENT	p;
@@ -64,7 +65,7 @@ void DisplayNode(Document *doc, LINK pL,
 	PACONNECT		aConnect;
 	PASLUR			aSlur;
 	PANOTEOCTAVA	aNoteOct;
-	register LINK aNoteL;
+	register LINK	aNoteL;
 	LINK			aStaffL, aMeasureL, aPseudoMeasL, aClefL, aKeySigL, aNoteBeamL,
 					aNoteTupleL, aTimeSigL, aDynamicL, aConnectL, aSlurL, 
 					aNoteOctL, partL;
@@ -215,32 +216,32 @@ void DisplayNode(Document *doc, LINK pL,
 /* Be careful with addresses provided by the following--they can change suddenly! */
 				if (OptionKeyDown())
 					LogPrintf(LOG_NOTICE, "@%lx:", aNote);
-				LogPrintf(LOG_NOTICE, 
-					"st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c%c%c%c%c%c%c%c\n",
-					aNote->staffn, aNote->voice,
-					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
-					aNote->subType,
-					aNote->ndots,
-					aNote->accident,
-					aNote->onVelocity,
-					(aNote->selected? 'S' : '.') ,
-					(aNote->visible? 'V' : '.') ,
-					(aNote->soft? 'S' : '.') ,
-					(aNote->inChord? 'I' : '.') ,
-					(aNote->rest? 'R' : '.'),
-					(aNote->beamed? 'B' : '.'),
-					(aNote->tiedL? ')' : '.'),
-					(aNote->tiedR? '(' : '.'),
-					(aNote->slurredL? '>' : '.'),
-					(aNote->slurredR? '<' : '.'),
-					(aNote->inTuplet? 'T' : '.') );
+					LogPrintf(LOG_NOTICE, 
+						"st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c %c%c%c%c %c%c%c\n",
+						aNote->staffn, aNote->voice,
+						aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
+						aNote->subType,
+						aNote->ndots,
+						aNote->accident,
+						aNote->onVelocity,
+						(aNote->selected? 'S' : '.') ,
+						(aNote->visible? 'V' : '.') ,
+						(aNote->soft? 'S' : '.') ,
+						(aNote->inChord? 'I' : '.') ,
+						(aNote->rest? 'R' : '.'),
+						(aNote->beamed? 'B' : '.'),
+						(aNote->tiedL? ')' : '.'),
+						(aNote->tiedR? '(' : '.'),
+						(aNote->slurredL? '>' : '.'),
+						(aNote->slurredR? '<' : '.'),
+						(aNote->inTuplet? 'T' : '.') );
 			}
 			break;
 		case GRSYNCtype:
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextGRNOTEL(aNoteL)) {
 				aNote = GetPAGRNOTE(aNoteL);
 				LogPrintf(LOG_NOTICE, 
-					"     st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c%c%c%c\n",
+					"     st=%d v=%d xd=%d yd=%d ystm=%d yqpit=%d ldur=%d .s=%d ac=%d onV=%d %c%c%c%c %c%c%c\n",
 					aNote->staffn, aNote->voice,
 					aNote->xd, aNote->yd, aNote->ystem, aNote->yqpit,
 					aNote->subType,
@@ -376,7 +377,7 @@ void DisplayNode(Document *doc, LINK pL,
 					aGraphicL = FirstSubLINK(pL);
 					aGraphic = GetPAGRAPHIC(aGraphicL);
 					LogPrintf(LOG_NOTICE, "     '%p'", PCopy(aGraphic->string));
-					LogPrintf(LOG_NOTICE, "\n");								/* Protect newline from garbage strings */
+					LogPrintf(LOG_NOTICE, "\n");				/* Protect newline from garbage strings */
 				}
 			}
 			break;
@@ -492,21 +493,21 @@ void MemUsageStats(Document *doc)
 void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLinep)
 {
 	PMEVENT		p;
-	char			selFlag;
+	char		selFlag;
 	const char 	*ps;
 
 	p = GetPMEVENT(pL);
-	if (pL==doc->selStartL && pL==doc->selEndL) selFlag = '&';
-	else if (pL==doc->selStartL)					  selFlag = '{';
-	else if (pL==doc->selEndL)						  selFlag = '}';
-	else													  selFlag = ' ';
+	if (pL==doc->selStartL && pL==doc->selEndL)	selFlag = '&';
+	else if (pL==doc->selStartL)				selFlag = '{';
+	else if (pL==doc->selEndL)					selFlag = '}';
+	else										selFlag = ' ';
 	LogPrintf(LOG_NOTICE, "%c%d (L%2d) ", selFlag, kount, pL);
 	ps = NameNodeType(pL);
 	LogPrintf(LOG_NOTICE, "%s", ps);
 	p = GetPMEVENT(pL);
 	switch (ObjLType(pL)) {
 		case HEADERtype:
-			LogPrintf(LOG_NOTICE, "\t");										/* Align since info printed is short */
+			LogPrintf(LOG_NOTICE, "\t");						/* Align since info printed is short */
 			break;
 		case PAGEtype:
 			LogPrintf(LOG_NOTICE, " #%d", ((PPAGE)p)->sheetNum);

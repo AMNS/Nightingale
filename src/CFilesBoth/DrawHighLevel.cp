@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	DrawHighLevel.c																	*
-*	PROJ:	Nightingale, rev. for v.99														*
-*	DESC:	Routines	for drawing object-list ranges									*
+*	FILE:	DrawHighLevel.c
+*	PROJ:	Nightingale, rev. for v.99
+*	DESC:	Routines	for drawing object-list ranges
 ***************************************************************************/
 
 /*											NOTICE
@@ -29,9 +29,9 @@ static void SetMusicPort(Document *);
 /* ---------------------------------------------------------------- FrameSysRect -- */
 
 void FrameSysRect(
-					Rect *r,
-					Boolean /*solid*/			/* unused */
-					)
+			Rect *r,
+			Boolean /*solid*/			/* unused */
+			)
 {
 	PenPat(NGetQDGlobalsBlack());
 	FrameRect(r);
@@ -210,7 +210,7 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 														|| outputTo!=toScreen)
 					drawAll = TRUE;
 				else
-					drawAll = FALSE;		/* draw only spanning objects in this measure */
+					drawAll = FALSE;					/* Draw only spanning objects in this measure */
 				break;
 			case PSMEAStype:
 				if (VISIBLE(pL) && drawAll) DrawPSMEAS(doc, pL, context);
@@ -344,14 +344,14 @@ grayPage:
 
 
 static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[],
-									Rect *paper, Rect *updateRect)
+								Rect *paper, Rect *updateRect)
 {
 	LINK		pL, measL;
 	PSYSTEM 	pSystem;
-	PMEASURE pMeasure;
+	PMEASURE	pMeasure;
 	Rect 		r,result,
 				paperUpdate;			/* Paper-relative update rect */
-	Boolean	drawAll=TRUE;			/* FALSE if we're only drawing measure-spanning objects */
+	Boolean		drawAll=TRUE;			/* FALSE if we're drawing only measure-spanning objects */
 	
 	paperUpdate = *updateRect;
 	OffsetRect(&paperUpdate,-paper->left,-paper->top);
@@ -397,7 +397,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				drawAll = TRUE;
 				break;
 			case CONNECTtype:
-				if (VISIBLE(pL)) DrawCONNECT(doc, pL, context, TOPSYS_STAFF);	/* ??BACKGROUND_STAFF?? */
+				if (VISIBLE(pL)) DrawCONNECT(doc, pL, context, TOPSYS_STAFF);	/* FIXME: BACKGROUND_STAFF?? */
 				break;
 			case MEASUREtype:
 				if (CheckZoom(doc)) return;				/* Each measure, look for zoom box hit */
@@ -408,7 +408,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 														|| outputTo!=toScreen)
 					drawAll = TRUE;
 				else
-					drawAll = FALSE;		/* draw only spanning objects in this measure */	
+					drawAll = FALSE;					/* Draw only spanning objects in this measure */	
 				break;
 			case PSMEAStype:
 				if (VISIBLE(pL) && drawAll) DrawPSMEAS(doc, pL, context);
@@ -423,6 +423,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				if (VISIBLE(pL) && drawAll) DrawTIMESIG(doc, pL, context);
 				break;
 			case SYNCtype:
+				//LogPrintf(LOG_NOTICE, "DrawScoreRange <DrawSYNC: pL=%d visible=%d drawAll=%d\n", pL, VISIBLE(pL), drawAll);
 				if (VISIBLE(pL) && drawAll) DrawSYNC(doc, pL, context);
 				break;
 			case GRSYNCtype:
@@ -561,7 +562,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 				pMeas = GetPMEASURE(pL);
 				if (SectRect(&pMeas->measureBBox,&paperUpdate,&result) || outputTo!=toScreen)
 						drawAll = TRUE;
-				else	drawAll = FALSE;						/* draw only spanning objects in this measure */
+				else	drawAll = FALSE;				/* Draw only spanning objects in this measure */
 				break;
 			case PSMEAStype:
 				if (VISIBLE(pL) && drawAll)

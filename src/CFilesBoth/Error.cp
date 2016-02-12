@@ -88,9 +88,9 @@ static void ErrorNumber(short index, long num)
 	}
 
 /*
- *	Install a given string into the single ParamText argument in the
- *	given alert.  This routine is broken out in case we want to get
- *	fancy and choose different alerts based on the size of the string.
+ *	Install a given string into the single ParamText argument in the given
+ *	alert.  This routine is broken out in case we want to get fancy and choose
+ *	different alerts based on the size of the string.
  */
 
 static short DoGeneralAlert(unsigned char *str)
@@ -100,16 +100,16 @@ static short DoGeneralAlert(unsigned char *str)
 		return (StopAlert(errorMsgID,NULL));
 	}
 
-/* Given a string, _str_, an argument string, _msg_, and an index _n_, look for
-a three-character string of the form double-< n double-> in str, and substitute
-msg for it. (NB: The double-< and -> are really guillemets.) str is expected to
-be 256 bytes in length. All strings are Pascal. This routine can be called
-repeatedly to substitute different strings into the given str. It currently only
-works for n=0,1,...9.  FIXME: Actually, I'm not sure it works at all! This file
-was originally encoded in Macintosh Roman; I converted it to Latin-1 in 2015, and
-the compiled-in guillemet chars. look like they've been garbled. Presumably it'd
-be easy to fix, but in heavy use of Nightingale for the last six or ten months,
-I'm not sure I've ever seen it used, so it's (1) low priority and (2) hard to test.
+/* Given a string, _str_, an argument string, _msg_, and an index _n_, look for a
+three-character string of the form double-< n double-> in str, and substitute msg
+for it. (NB: The double-< and -> are really guillemets.) str is expected to be 256
+bytes in length. All strings are Pascal. This routine can be called repeatedly to
+substitute different strings into the given str. It currently works only for n =
+0,1,...9.  FIXME: Actually, I'm not sure it works at all any more! This file was
+originally encoded in Macintosh Roman; I converted it to Latin-1 in 2015, and the
+compiled-in guillemet chars. look like they got garbled in the process. It'd probably
+be easy to fix, but in heavy use of Nightingale for the last six or ten months, I'm
+not sure I've ever seen it used, so it's low priority; besides, it'd be hard to test.
 --DAB, Feb. 2016 */
 
 void InstallArg(unsigned char *str, unsigned char *msg, short n)

@@ -390,3 +390,16 @@ Update long version no. to 5.6. Affects info.plist.
 5 Feb.			==== NIGHTINGALE 5.6b2 ====
 
 Clarify comments; minor cleanup. Affects Error, Insert.
+
+-------------------------------------------------------------------------------
+
+9-10 Feb.
+
+Improve output format for readability; minor cleanup. Affects DebugDisplay.
+
+Move tremolo slashes on upstemmed notes slightly to the right so they're centered
+around the notes' stems. Affects DrawNRGR.
+
+Minor cleanup. Affects DebugDisplay, DrawHighLvel, DrawNRGR.
+
+Change version no. to 5.6b3. Affects .rsrc, Info.plist.
