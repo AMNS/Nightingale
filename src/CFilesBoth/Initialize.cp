@@ -603,23 +603,28 @@ static void DebugDisplayCnfg()
 	LogPrintf(LOG_NOTICE, "  (86)chordSymSuperscr=%d", config.chordSymSuperscr);
 	LogPrintf(LOG_NOTICE, "  (87)chordSymStkLead=%d\n", config.chordSymStkLead);
 
-	LogPrintf(LOG_NOTICE, "  (88)tupletNumSize=%d", config.tupletNumSize);
-	LogPrintf(LOG_NOTICE, "  (89)tupletColonSize=%d", config.tupletColonSize);
-	LogPrintf(LOG_NOTICE, "  (90)octaveNumSize=%d", config.octaveNumSize);
-	LogPrintf(LOG_NOTICE, "  (91)lineLW=%d\n", config.lineLW);
-	LogPrintf(LOG_NOTICE, "  (92)ledgerLLen=%d", config.ledgerLLen);
-	LogPrintf(LOG_NOTICE, "  (93)ledgerLOtherLen=%d", config.ledgerLOtherLen);
-	LogPrintf(LOG_NOTICE, "  (94)slurDashLen=%d", config.slurDashLen);
-	LogPrintf(LOG_NOTICE, "  (95)slurSpaceLen=%d\n", config.slurSpaceLen);
+	LogPrintf(LOG_NOTICE, "  (88)tempoMarkHGap=%d", config.tempoMarkHGap);
+	LogPrintf(LOG_NOTICE, "  (89)trebleVOffset=%d", config.trebleVOffset);
+	LogPrintf(LOG_NOTICE, "  (90)trebleVOffset=%d", config.trebleVOffset);
+	LogPrintf(LOG_NOTICE, "  (91)trebleVOffset=%d\n", config.trebleVOffset);
 
-	LogPrintf(LOG_NOTICE, "  (96)courtesyAccLXD=%d", config.courtesyAccLXD);
-	LogPrintf(LOG_NOTICE, "  (97)courtesyAccRXD=%d", config.courtesyAccRXD);
-	LogPrintf(LOG_NOTICE, "  (98)courtesyAccYD=%d", config.courtesyAccYD);
-	LogPrintf(LOG_NOTICE, "  (99)courtesyAccSize=%d\n", config.courtesyAccSize);
+	LogPrintf(LOG_NOTICE, "  (92)tupletNumSize=%d", config.tupletNumSize);
+	LogPrintf(LOG_NOTICE, "  (93)tupletColonSize=%d", config.tupletColonSize);
+	LogPrintf(LOG_NOTICE, "  (94)octaveNumSize=%d", config.octaveNumSize);
+	LogPrintf(LOG_NOTICE, "  (95)lineLW=%d\n", config.lineLW);
+	LogPrintf(LOG_NOTICE, "  (96)ledgerLLen=%d", config.ledgerLLen);
+	LogPrintf(LOG_NOTICE, "  (97)ledgerLOtherLen=%d", config.ledgerLOtherLen);
+	LogPrintf(LOG_NOTICE, "  (98)slurDashLen=%d", config.slurDashLen);
+	LogPrintf(LOG_NOTICE, "  (99)slurSpaceLen=%d\n", config.slurSpaceLen);
 
-	LogPrintf(LOG_NOTICE, "  (100)quantizeBeamYPos=%d", config.quantizeBeamYPos);
-	LogPrintf(LOG_NOTICE, "  (101)enlargeNRHiliteH=%d", config.enlargeNRHiliteH);
-	LogPrintf(LOG_NOTICE, "  (102)enlargeNRHiliteV=%d", config.enlargeNRHiliteV);
+	LogPrintf(LOG_NOTICE, "  (100)courtesyAccLXD=%d", config.courtesyAccLXD);
+	LogPrintf(LOG_NOTICE, "  (101)courtesyAccRXD=%d", config.courtesyAccRXD);
+	LogPrintf(LOG_NOTICE, "  (102)courtesyAccYD=%d", config.courtesyAccYD);
+	LogPrintf(LOG_NOTICE, "  (103)courtesyAccSize=%d\n", config.courtesyAccSize);
+
+	LogPrintf(LOG_NOTICE, "  (104)quantizeBeamYPos=%d", config.quantizeBeamYPos);
+	LogPrintf(LOG_NOTICE, "  (105)enlargeNRHiliteH=%d", config.enlargeNRHiliteH);
+	LogPrintf(LOG_NOTICE, "  (106)enlargeNRHiliteV=%d", config.enlargeNRHiliteV);
 	LogPrintf(LOG_NOTICE, "\n");
 }
 
@@ -934,8 +939,7 @@ static Boolean GetConfig()
 			{ config.rainyDayMemory = 32; ERR(78); }
 	if (config.tryTupLevels < 1 || config.tryTupLevels > 321)
 			{ config.tryTupLevels = 21; ERR(79); }
-	if (config.justifyWarnThresh < 10)
-			{ config.justifyWarnThresh = 15; ERR(80); }
+	if (config.justifyWarnThresh < 10) { config.justifyWarnThresh = 15; ERR(80); }
 
 	if (config.metroChannel < 1 || config.metroChannel > MAXCHANNEL)
 			{ config.metroChannel = 1; ERR(81); }
@@ -943,8 +947,7 @@ static Boolean GetConfig()
 			{ config.metroNote = 77; ERR(82); }
 	if (config.metroVelo < 1 || config.metroVelo > MAX_VELOCITY)
 			{ config.metroVelo = 90; ERR(83); }
-	if (config.metroDur < 1 || config.metroDur > 999)
-			{ config.metroDur = 50; ERR(84); }
+	if (config.metroDur < 1 || config.metroDur > 999) { config.metroDur = 50; ERR(84); }
 
 	if (config.chordSymSmallSize < 1 || config.chordSymSmallSize > 127)
 			{ config.chordSymSmallSize = 1; ERR(85); }
@@ -954,28 +957,28 @@ static Boolean GetConfig()
 			{ config.chordSymStkLead = 10; ERR(87); }
 
 	if (config.tupletNumSize < 0 || config.tupletNumSize > 127)
-			{ config.tupletNumSize = 110; ERR(88); }
+			{ config.tupletNumSize = 110; ERR(92); }
 	if (config.tupletColonSize < 0 || config.tupletColonSize > 127)
-			{ config.tupletColonSize = 60; ERR(89); }
+			{ config.tupletColonSize = 60; ERR(93); }
 	if (config.octaveNumSize < 0 || config.octaveNumSize > 127)
-			{ config.octaveNumSize = 110; ERR(90); }
-	if (config.lineLW < 5 || config.lineLW > 127) { config.lineLW = 25; ERR(91); }
-	if (config.ledgerLLen < 32) { config.ledgerLLen = 48; ERR(92); }
-	if (config.ledgerLOtherLen < 0) { config.ledgerLOtherLen = 12; ERR(93); }
-	if (config.slurDashLen < 1) { config.slurDashLen = 3; ERR(94); }
-	if (config.slurSpaceLen < 1) { config.slurSpaceLen = 3; ERR(95); }
+			{ config.octaveNumSize = 110; ERR(94); }
+	if (config.lineLW < 5 || config.lineLW > 127) { config.lineLW = 25; ERR(95); }
+	if (config.ledgerLLen < 32) { config.ledgerLLen = 48; ERR(96); }
+	if (config.ledgerLOtherLen < 0) { config.ledgerLOtherLen = 12; ERR(97); }
+	if (config.slurDashLen < 1) { config.slurDashLen = 3; ERR(98); }
+	if (config.slurSpaceLen < 1) { config.slurSpaceLen = 3; ERR(99); }
 
-	if (config.courtesyAccLXD < 0) { config.courtesyAccLXD = 6; ERR(96); }
-	if (config.courtesyAccRXD < 0) { config.courtesyAccRXD = 8; ERR(97); }
-	if (config.courtesyAccYD < 0) { config.courtesyAccYD = 8; ERR(98); }
-	if (config.courtesyAccSize < 20) { config.courtesyAccSize = 100; ERR(99); }
+	if (config.courtesyAccLXD < 0) { config.courtesyAccLXD = 6; ERR(100); }
+	if (config.courtesyAccRXD < 0) { config.courtesyAccRXD = 8; ERR(101); }
+	if (config.courtesyAccYD < 0) { config.courtesyAccYD = 8; ERR(102); }
+	if (config.courtesyAccSize < 20) { config.courtesyAccSize = 100; ERR(103); }
 
-	if (config.quantizeBeamYPos<0) { config.quantizeBeamYPos = 3; ERR(100); };
+	if (config.quantizeBeamYPos<0) { config.quantizeBeamYPos = 3; ERR(104); };
 
 	if (config.enlargeNRHiliteH < 0 || config.enlargeNRHiliteH > 10)
-			{ config.enlargeNRHiliteH = 1; ERR(101); }
+			{ config.enlargeNRHiliteH = 1; ERR(105); }
 	if (config.enlargeNRHiliteV < 0 || config.enlargeNRHiliteV > 10)
-			{ config.enlargeNRHiliteV = 1; ERR(102); }
+			{ config.enlargeNRHiliteV = 1; ERR(106); }
 
 	/* No validity check at this time for default or metro Devices, do it in InitOMS */
 

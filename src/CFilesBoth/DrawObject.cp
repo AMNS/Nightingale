@@ -6,11 +6,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright Â© 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -2132,7 +2132,7 @@ PopLock(GRAPHICheap);
 
 
 /* ------------------------------------------------------------------ DrawTEMPO -- */
-/* Draw a TEMPO object */
+/* Draw a TEMPO object: verbal tempo string and/or metronome mark. */
 
 void DrawTEMPO(Document *doc,
 				LINK pL,
@@ -2142,14 +2142,14 @@ void DrawTEMPO(Document *doc,
 {
 	PTEMPO p;
 	PCONTEXT pContext; CONTEXT relContext;
-	short oldFont,useTxSize,oldSize,oldStyle, fontSize,xp,yp,noteWidth,staffn;
+	short oldFont, useTxSize, oldSize, oldStyle,  fontSize, xp, yp, noteWidth, staffn;
 	FontInfo fInfo; StringOffset theStrOffset;
 	unsigned char tempoStr[256];
-	char metroStr[256]; char noteChar;
-	DDIST xd,yd,extraGap; DDIST lineSpace,xdNote,xdDot,xdMM,ydNote,ydDot;
+	char metroStr[256], noteChar;
+	DDIST xd, yd, extraGap, lineSpace, xdNote, xdDot, xdMM, ydNote, ydDot;
 	LINK firstObjL;
 	Boolean doDrawMM;
-	Byte dotChar = MapMusChar(doc->musFontInfoIndex, MCH_dot);
+	Byte dotChar = MapMusChar(doc->musFontInfoIndex,  MCH_dot);
 
 PushLock(OBJheap);
 PushLock(TEMPOheap);
