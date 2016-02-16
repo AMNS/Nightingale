@@ -605,8 +605,8 @@ static void DebugDisplayCnfg()
 
 	LogPrintf(LOG_NOTICE, "  (88)tempoMarkHGap=%d", config.tempoMarkHGap);
 	LogPrintf(LOG_NOTICE, "  (89)trebleVOffset=%d", config.trebleVOffset);
-	LogPrintf(LOG_NOTICE, "  (90)trebleVOffset=%d", config.trebleVOffset);
-	LogPrintf(LOG_NOTICE, "  (91)trebleVOffset=%d\n", config.trebleVOffset);
+	LogPrintf(LOG_NOTICE, "  (90)cClefVOffset=%d", config.cClefVOffset);
+	LogPrintf(LOG_NOTICE, "  (91)bassVOffset=%d\n", config.bassVOffset);
 
 	LogPrintf(LOG_NOTICE, "  (92)tupletNumSize=%d", config.tupletNumSize);
 	LogPrintf(LOG_NOTICE, "  (93)tupletColonSize=%d", config.tupletColonSize);

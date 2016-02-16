@@ -1,4 +1,5 @@
-NIGHTINGALE CHANGES (in DAB's current version), AFTER JUNE 2012 THRU JAN. 2016
+NIGHTINGALE CHANGES (in DAB's current version and GitHub repository)
+June 2012 to Present
 
 (Most of the files in my Nightingale Carbon code base have last modification dates of
 April or May 2012; a few files are 2 June 2012, and it looks like that's the last source
