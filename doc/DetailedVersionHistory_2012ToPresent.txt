@@ -394,7 +394,7 @@ Clarify comments; minor cleanup. Affects Error, Insert.
 
 ===============================================================================
 
-9-15 Feb.
+9-17 Feb.
 
 Improve output format for readability; minor cleanup. Affects DebugDisplay.
 
@@ -408,3 +408,6 @@ Change version no. to 5.6b3. Affects .rsrc, Info.plist.
 Display four more CNFG field values in log. Affects Initialize.
 
 Add units to _tempoMarkHGap_ in the CNFG Resorcerer template. Affects .rsrc.
+
+Rename SPACE objects to SPACER. Affects MemMacros.h, NTypes.h, vars.h, and
+about 40 C files,

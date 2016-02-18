@@ -265,7 +265,7 @@ SYMDATA symtable[] = {
 			301,	MEASUREtype, BAR_RPT_R,		']',	0,		/* right repeat */
 			302,	MEASUREtype, BAR_RPT_LR,	'{',	0,		/* two-headed repeat monster */
 			310,	TEMPOtype,	0,				'M',	0,		/* Tempo/metronome mark */
-			320,	SPACEtype,	0,				'O',	0,		/* Insert space tool: symcode is capital 'o', not zero */
+			320,	SPACERtype,	0,				'O',	0,		/* Insert space tool: symcode is capital 'o', not zero */
 			330,	ENDINGtype,	0,				'!',	0,		/* Ending */
 			THREAD_CURS, 0,		0,				'd',	0,		/* Threader tool */
 			GENLDRAG_CURS, 0,	0,				'j',	0		/* General object dragging tool */
@@ -301,7 +301,7 @@ OBJDATA objTable[] = {
 	TUPLETtype,	J_D,		2,			127,		FALSE,
 	GRSYNCtype,	J_IP,		1,			255,		TRUE,
 	TEMPOtype,	J_D,		0,			0,			FALSE,
-	SPACEtype,	J_IT,		0,			0,			TRUE,	
+	SPACERtype,	J_IT,		0,			0,			TRUE,	
 	ENDINGtype,	J_D,		0,			0,			FALSE,
 	PSMEAStype, J_IT,		1,			MAXSTAVES,	TRUE,	
 	OBJtype,	J_STRUC,	0,			0,			FALSE
@@ -393,7 +393,7 @@ short objLength[] = {
 		sizeof(TUPLET),
 		sizeof(GRSYNC),
 		sizeof(TEMPO),
-		sizeof(SPACE),
+		sizeof(SPACER),
 		sizeof(ENDING),
 		sizeof(PSMEAS),
 		sizeof(SUPEROBJECT)

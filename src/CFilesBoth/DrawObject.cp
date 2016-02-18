@@ -2288,15 +2288,15 @@ PopLock(TEMPOheap);
 }
 
 
-/* --------------------------------------------------------------------- DrawSPACE -- */
-/* Draw a SPACE object */
+/* --------------------------------------------------------------------- DrawSPACER -- */
+/* Draw a SPACER object */
 
-void DrawSPACE(Document *doc, LINK pL, CONTEXT context[])
+void DrawSPACER(Document *doc, LINK pL, CONTEXT context[])
 {
-	DDIST dLeft,dTop,xd,yd; short xp,yp,staffHeight,spaceWidth; PSPACE p;
+	DDIST dLeft,dTop,xd,yd; short xp,yp,staffHeight,spaceWidth; PSPACER p;
 	PCONTEXT pContext; Rect r;
 
- 	p = GetPSPACE(pL);
+ 	p = GetPSPACER(pL);
 	pContext = &context[p->staffn];
 	if (!pContext->staffVisible) return;
 

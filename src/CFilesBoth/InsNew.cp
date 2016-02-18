@@ -1656,15 +1656,15 @@ PopLock(OBJheap);
 /*	Add a Space mark to the object list. */
 
 void NewSpace(Document *doc, Point pt, char inchar, short topStaff, short bottomStaff,
-					STDIST stdSpace)
+				STDIST stdSpace)
 {
-	LINK pL; PSPACE pSpace; CONTEXT context; short sym;
+	LINK pL; PSPACER pSpace; CONTEXT context; short sym;
 	
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  				/* "Undo Insert" */
-	pL = NewObjPrepare(doc, SPACEtype, &sym, inchar, topStaff, pt.h, &context);
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
+	pL = NewObjPrepare(doc, SPACERtype, &sym, inchar, topStaff, pt.h, &context);
 
 	FirstSubLINK(pL) = NILINK;
-	pSpace = GetPSPACE(pL);
+	pSpace = GetPSPACER(pL);
 	pSpace->spWidth = stdSpace;						/* Amount of space to leave in STDISTs */
 	pSpace->staffn = topStaff;
 	pSpace->bottomStaff = bottomStaff;

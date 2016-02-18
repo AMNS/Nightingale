@@ -797,8 +797,8 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 					copyL = DuplicateObject(TEMPOtype, pL, FALSE, doc, clipboard, FALSE);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
-				case SPACEtype:
-					copyL = DuplicateObject(SPACEtype, pL, FALSE, doc, clipboard, FALSE);
+				case SPACERtype:
+					copyL = DuplicateObject(SPACERtype, pL, FALSE, doc, clipboard, FALSE);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case BEAMSETtype: {
@@ -1742,9 +1742,9 @@ static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 				if (TempoSTAFF(pL)+stfDiff>doc->nstaves)
 					{ staffOK = FALSE; staff = TempoSTAFF(pL); }
 				break;
-			case SPACEtype:
-				if (SpaceSTAFF(pL)+stfDiff>doc->nstaves)
-					{ staffOK = FALSE; staff = SpaceSTAFF(pL); }
+			case SPACERtype:
+				if (SpacerSTAFF(pL)+stfDiff>doc->nstaves)
+					{ staffOK = FALSE; staff = SpacerSTAFF(pL); }
 				break;
 			default:
 				;
@@ -2234,7 +2234,7 @@ static short GetFirstStf(Document *doc, LINK pL)
 		case GRAPHICtype:
 		case ENDINGtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 			p = GetPMEVENT(pL);
 			return ((PEXTEND)p)->staffn;
 		
@@ -2312,7 +2312,7 @@ static short GetLastStf(Document *doc, LINK pL)
 		case GRAPHICtype:
 		case ENDINGtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 			p = GetPMEVENT(pL);
 			return ((PEXTEND)p)->staffn;
 		
@@ -2435,7 +2435,7 @@ void MapStaves(Document *doc, LINK startL, LINK endL, short staffDiff)
 			case GRAPHICtype:
 			case ENDINGtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 				p = GetPMEVENT(pL);
 				((PEXTEND)p)->staffn += staffDiff;
 				break;

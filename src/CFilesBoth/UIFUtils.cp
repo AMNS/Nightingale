@@ -544,7 +544,7 @@ const char *NameHeapType(
 		case SLURtype:		ps = (friendly? "slur and tie" : "SLUR"); break;
 		case GRSYNCtype:	ps = (friendly? "grace note" : "GRSYNC"); break;
 		case TEMPOtype:		ps = (friendly? "tempo mark" : "TEMPO"); break;
-		case SPACEtype:		ps = (friendly? "spacer" : "SPACER"); break;
+		case SPACERtype:		ps = (friendly? "spacer" : "SPACER"); break;
 		case OBJtype:		ps = "OBJECT"; break;
 		default:			ps = "**UNKNOWN**";
 	}

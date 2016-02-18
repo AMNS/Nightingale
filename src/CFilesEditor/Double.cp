@@ -2,7 +2,7 @@
 
 /*										NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL
+ * THIS FILE IS PART OF THE NIGHTINGALE» PROGRAM AND IS CONFIDENTIAL
  * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
  * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
  * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
@@ -265,7 +265,7 @@ static Boolean DblDstStaffOK(LINK startL, LINK endL, short staffn)
 			case OCTAVAtype:
 			case GRAPHICtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case ENDINGtype:
 				if (ObjOnStaff(pL, staffn, FALSE)) return FALSE;
 				break;
@@ -464,7 +464,7 @@ void DblSetupVMap(Document *doc, short vMap[], LINK startL, LINK endL, short src
 	for (v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn!=0)
 			LogPrintf(LOG_NOTICE, "%ciVoice %d part %d relVoice=%d\n",
-							(v==1? '¥' : ' '),
+							(v==1? '´' : ' '),
 							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
 #endif	
 }
@@ -787,7 +787,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			TempoSTAFF(copyL) = dstStf;
 			break;
 		
-		case SPACEtype:
+		case SPACERtype:
 			break;
 			
 		default:

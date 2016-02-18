@@ -594,7 +594,7 @@ void DeselectNode(LINK pL)
 		case OCTAVAtype:
 		case GRAPHICtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			break;
 			
@@ -664,7 +664,7 @@ void SelAllSubObjs(LINK pL)
 		case TUPLETtype:
 		case GRAPHICtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			break;
 		default:
@@ -729,7 +729,7 @@ void SelectRange(Document *doc, LINK startL, LINK endL, short firstStf, short la
 			case TUPLETtype:
 			case OCTAVAtype:
 			case ENDINGtype:
-			case SPACEtype:
+			case SPACERtype:
 			case GRAPHICtype:
 			case TEMPOtype:
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf)
@@ -1062,8 +1062,8 @@ static Boolean OldContinSel(Document *doc, Boolean strict)
 			case ENDINGtype:
 				if (strict) stStatus[EndingSTAFF(pL)] = LinkSEL(pL);
 				break;
-			case SPACEtype:
-				stStatus[SpaceSTAFF(pL)] = LinkSEL(pL);
+			case SPACERtype:
+				stStatus[SpacerSTAFF(pL)] = LinkSEL(pL);
 				break;
 			/*
 			 *	Treat Measures specially. It is possible for a wipe selection, in a part
@@ -1353,8 +1353,8 @@ void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 				if (TempoSTAFF(pL)==staff)
 					SetSelEnds(pL,startL,endL);
 				break;
-			case SPACEtype:
-				if (SpaceSTAFF(pL)==staff)
+			case SPACERtype:
+				if (SpacerSTAFF(pL)==staff)
 					SetSelEnds(pL,startL,endL);
 				break;
 			case ENDINGtype:

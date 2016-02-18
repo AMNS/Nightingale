@@ -288,7 +288,7 @@ DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 		case SYNCtype:
 		case GRSYNCtype:
 		case RPTENDtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			return pContext->measureLeft + objXD;
 		case CLEFtype:
@@ -374,7 +374,7 @@ DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 		case MEASUREtype:
 		case PSMEAStype:
 		case RPTENDtype:
-		case SPACEtype:
+		case SPACERtype:
 			return pContext->measureTop;
 		case ENDINGtype:
 		case SYNCtype:
@@ -479,7 +479,7 @@ DDIST GraphicPageRelxd(Document */*doc*/,					/* unused */
 			aGRNoteL = FindGRMainNote(relObjL, voice);
 			return xd+GRNoteXD(aGRNoteL);
 		case RPTENDtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			return xd;
 		case CLEFtype:
@@ -2431,7 +2431,7 @@ short GetSubObjStaff(LINK pL, short index)
 		case GRAPHICtype:
 		case ENDINGtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 			return ((PEXTEND)p)->staffn;
 		default:
 			MayErrMsg("GetSubObjStaff: can't handle object type %ld at %ld",
@@ -2463,7 +2463,7 @@ short GetSubObjVoice(LINK pL, short index)
 		case RPTENDtype:
 		case ENDINGtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case OCTAVAtype:
 			return NOONE;
 		case SYNCtype:
@@ -2530,7 +2530,7 @@ Boolean ObjOnStaff(LINK pL, short staff, Boolean selectedOnly)
 		case OCTAVAtype:
 		case GRAPHICtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			if (!LinkSEL(pL) && selectedOnly)
 				return FALSE;
@@ -2592,7 +2592,7 @@ Boolean ObjHasVoice(LINK pL)
 		case MODNRtype:
 		case RPTENDtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			return FALSE;
 

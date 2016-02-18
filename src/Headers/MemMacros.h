@@ -101,7 +101,7 @@
 #define TupletSTAFF(link)	( (GetPTUPLET(link))->staffn )
 #define GraphicSTAFF(link)	( (GetPGRAPHIC(link))->staffn )
 #define TempoSTAFF(link)	( (GetPTEMPO(link))->staffn )
-#define SpaceSTAFF(link)	( (GetPSPACE(link))->staffn )
+#define SpacerSTAFF(link)	( (GetPSPACER(link))->staffn )
 #define OctavaSTAFF(link)	( (GetPOCTAVA(link))->staffn )
 #define SlurSTAFF(link)		( (GetPSLUR(link))->staffn )
 #define EndingSTAFF(link) 	( (GetPENDING(link))->staffn )
@@ -148,13 +148,13 @@
 #define SyncTIME(link)		( (GetPSYNC(link))->timeStamp )
 
 /*
- *	The data structure is a doubly-linked list of objects, each of which can have
- *	a singly-linked list of subobjects dangling from it.  The objects in the
- *	backbone can have different types, but are all the same size (that of a
- *	SUPEROBJECT, which is the union of all objects).  The subobjects in each
- *	object's list are all of the same type, which depends on the owning object's
- *	type.  All lists are linked via LINKs (indices into the respective heaps).
- *	We have two macros for converting a link to the pointer to its sub/object,
+ *	The main data structure, a.k.a. object list, is a doubly-linked list of objects,
+ *	each of which can have a singly-linked list of subobjects dangling from it. 
+ *	The objects in the backbone can have different types, but are all the same size:
+ *	that of a SUPEROBJECT, which is the union of all objects).  The subobjects in
+ *	each object's list are all of the same type, which depends on the owning
+ *	object's type.  All lists are linked via LINKs (indices into the respective
+ *	heaps). We have two macros for converting a link to the pointer to its sub/object,
  *	one to access objects from the backbone list, and the other for subobjects.
  */
 
@@ -236,7 +236,7 @@
 #define GetPSLUR(link)		(PSLUR)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPTUPLET(link)	(PTUPLET)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPTEMPO(link)		(PTEMPO)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
-#define GetPSPACE(link)		(PSPACE)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
+#define GetPSPACER(link)	(PSPACER)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPEXTEND(link)	(PEXTEND)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 
 /* Type-specific macros for getting at subobjects in their respective heaps */
@@ -479,7 +479,7 @@
 #define SlurTYPE(link)		 	 ( (ObjLType(link)==SLURtype) )
 #define GraphicTYPE(link)		 ( (ObjLType(link)==GRAPHICtype) )
 #define RptEndTYPE(link)		 ( (ObjLType(link)==RPTENDtype) )
-#define SpaceTYPE(link)		 	 ( (ObjLType(link)==SPACEtype) )
+#define SpaceTYPE(link)		 	 ( (ObjLType(link)==SPACERtype) )
 #define TempoTYPE(link)		 	 ( (ObjLType(link)==TEMPOtype) )
 #define EndingTYPE(link)		 ( (ObjLType(link)==ENDINGtype) )
 #define SameTYPE(link1,link2)	 ( (ObjLType(link1)==ObjLType(link2)) )

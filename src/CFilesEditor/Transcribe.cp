@@ -692,7 +692,7 @@ static void SelectRange2(Document *doc, LINK startL, LINK endL, short firstStf,
 			case TUPLETtype:
 			case OCTAVAtype:
 			case ENDINGtype:
-			case SPACEtype:
+			case SPACERtype:
 			case GRAPHICtype:
 			case TEMPOtype:
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf)

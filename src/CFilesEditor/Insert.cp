@@ -1349,7 +1349,7 @@ Boolean InsertTempo(Document *doc, Point pt)
 
 
 /* ------------------------------------------------------------------- InsertSpace -- */
-/* Insert a space object at a place in the object list suitable for a
+/* Insert a SPACER object at a place in the object list suitable for a
 mousedown at the given point. Handles feedback and allows cancelling. */
 
 Boolean InsertSpace(Document *doc, Point pt)

@@ -2944,7 +2944,7 @@ void DeleteSelection(
 				DeleteNode(doc, pL);
 				break;
 
-			case SPACEtype:
+			case SPACERtype:
 				DSRemoveGraphic(doc, pL);
 				didAnything = TRUE;
 				newSelL = RightLINK(pL);

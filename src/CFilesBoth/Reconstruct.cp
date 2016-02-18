@@ -560,8 +560,8 @@ void LocateJITObj(Document */*doc*/, LINK pL, LINK nextL, LINK endMeasL, PTIME *
 			if (pTime->objL==nextL) {
 	
 				switch (ObjLType(pL)) {
-					case SPACEtype:
-						if (SpaceSTAFF(pL)==NoteSTAFF(pTime->newSubL))
+					case SPACERtype:
+						if (SpacerSTAFF(pL)==NoteSTAFF(pTime->newSubL))
 							newObjL = pTime->newObjL;
 						break;
 					case RPTENDtype:
@@ -938,7 +938,7 @@ void RelocateObjs(Document *doc, LINK headL, LINK tailL, LINK startMeas, LINK en
 		switch (JustTYPE(pL)) {
 			case J_IT:
 				objType = ObjLType(pL);
-				if (objType==SPACEtype || objType==RPTENDtype || objType==PSMEAStype) {
+				if (objType==SPACERtype || objType==RPTENDtype || objType==PSMEAStype) {
 					for (nextSync=NILINK, qL=pL; qL; qL=RightLINK(qL))
 						if (SyncTYPE(qL)) 
 							{ nextSync = qL; break; }
@@ -1160,7 +1160,7 @@ vMap for the LocateCl functions allows determination of new voice for objects
 translated by stfDiff. */
 
 static void LocateClJITObj(Document *doc, LINK pL, LINK nextL, LINK endMeasL,
-									PTIME *durArray, short stfDiff, COPYMAP *mergeMap, short *vMap)
+							PTIME *durArray, short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
 	PTIME *pTime; LINK newObjL=NILINK,copyL;
 	
@@ -1169,8 +1169,8 @@ static void LocateClJITObj(Document *doc, LINK pL, LINK nextL, LINK endMeasL,
 			if (pTime->objL==nextL) {
 	
 				switch (ObjLType(pL)) {
-					case SPACEtype:
-						if (SpaceSTAFF(pL)+stfDiff==DNoteSTAFF(doc,pTime->newSubL))
+					case SPACERtype:
+						if (SpacerSTAFF(pL)+stfDiff==DNoteSTAFF(doc,pTime->newSubL))
 							newObjL = pTime->newObjL;
 						break;
 					case RPTENDtype:
@@ -1534,7 +1534,7 @@ void RelocateClObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startM
 		switch (JustTYPE(pL)) {
 			case J_IT:
 				objType = ObjLType(pL);
-				if (objType==SPACEtype || objType==RPTENDtype || objType==PSMEAStype) {
+				if (objType==SPACERtype || objType==RPTENDtype || objType==PSMEAStype) {
 					for (nextSync=NILINK, qL=pL; qL && qL!=endClMeas; qL=RightLINK(qL))
 						if (SyncTYPE(qL))
 							{ nextSync = qL; break; }
@@ -1990,8 +1990,8 @@ static void FixStaffn(LINK pL, short stfDiff)
 		case OCTAVAtype:
 			OctavaSTAFF(pL) += stfDiff;
 			break;
-		case SPACEtype:
-			SpaceSTAFF(pL) += stfDiff;
+		case SPACERtype:
+			SpacerSTAFF(pL) += stfDiff;
 			break;
 		case TEMPOtype:
 			TempoSTAFF(pL) += stfDiff;

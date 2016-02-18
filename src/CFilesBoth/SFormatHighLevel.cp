@@ -146,7 +146,7 @@ static Boolean SFStaffNonempty(LINK pL, short staffn)
 			case OCTAVAtype:
 			case GRAPHICtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case ENDINGtype:
 				if (ObjOnStaff(qL, staffn, FALSE)) return TRUE;
 				break;

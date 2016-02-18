@@ -27,7 +27,7 @@ short CheckDYNAMIC(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
 short CheckRPTEND(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
 short CheckGRAPHIC(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
 short CheckTEMPO(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
-short CheckSPACE(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
+short CheckSPACER(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
 short CheckENDING(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
 short CheckKEYSIG(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
 short CheckSYNC(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point, Point);

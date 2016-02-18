@@ -172,7 +172,7 @@ void MEAdjustCaret(Document *doc, Boolean moveNow)
 			case TIMESIGtype:
 			case GRAPHICtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case RPTENDtype:
 			case ENDINGtype:
 			case PSMEAStype:

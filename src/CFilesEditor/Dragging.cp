@@ -1984,7 +1984,7 @@ static Boolean SymDragLoop(
 			SDDrawTempo(doc, pL, measureL);
 			break;
 
-		case SPACEtype:
+		case SPACERtype:
 			SDDrawSpace(doc, pL, measureL);
 			break;
 
@@ -2297,7 +2297,7 @@ setAccDone:
 			SetTempoFields(pL, xdDiff, ydDiff, xp, yp);
 			break;
 
-		case SPACEtype:
+		case SPACERtype:
 			SetSpaceFields(pL, xdDiff, ydDiff, xp, yp);
 			break;
 

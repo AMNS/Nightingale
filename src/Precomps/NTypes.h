@@ -122,7 +122,7 @@ enum								/* Object types: */
 			GRSYNCtype,				/* Grace note sync */
 	
 /* 20 */	TEMPOtype,
-			SPACEtype,
+			SPACERtype,
 			ENDINGtype,
 			PSMEAStype,
 			OBJtype,				/* Object heap MUST be the last heap. */
@@ -1220,14 +1220,14 @@ typedef struct {
 } TEMPO, *PTEMPO;
 
 
-/* ------------------------------------------------------------------------ SPACE -- */
+/* ----------------------------------------------------------------------- SPACER -- */
 
 typedef struct {
 	OBJECTHEADER
 	EXTOBJHEADER
 	SignedByte	bottomStaff;		/* Last staff on which space to be left */
 	STDIST		spWidth;			/* Amount of blank space to leave */
-} SPACE, *PSPACE;
+} SPACER, *PSPACER;
 
 
 /* --------------------------------------------------------------------- SUPEROBJ -- */
@@ -1255,7 +1255,7 @@ typedef union uSUPEROBJ {
 		TUPLET		tuplet;
 		GRSYNC		grSync;
 		TEMPO		tempo;
-		SPACE		space;
+		SPACER		spacer;
 		} SUPEROBJ;
 
 typedef struct {

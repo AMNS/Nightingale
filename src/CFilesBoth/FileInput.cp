@@ -1073,7 +1073,7 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 	-----------------------------------------------------------
 	DYNAMtype					SYNCtype
 	GRAPHICtype					SYNCtype, RPTENDtype, PAGEtype, MEASUREtype, CLEFtype,
-									KEYSIGtype, TIMESIGtype, SPACEtype, PSMEAStype
+									KEYSIGtype, TIMESIGtype, SPACERtype, PSMEAStype
 	OCTAVAtype					SYNCtype, GRSYNCtype
 [	SLURtype						SYNCtype, SYSTEMtype --slurs and tuplets not handled here]
 [	TUPLETtype					SYNCtype ]
@@ -1163,8 +1163,8 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 				if (dType==OCTAVAtype && GRNoteOnStaff(pL, staff))
 					return pL;
 				break;
-			case SPACEtype:
-				if (dType==GRAPHICtype && SpaceSTAFF(pL)==staff)
+			case SPACERtype:
+				if (dType==GRAPHICtype && SpacerSTAFF(pL)==staff)
 					return pL;
 				break;
 			case PSMEAStype:

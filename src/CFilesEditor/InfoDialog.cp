@@ -650,7 +650,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	Rect		tRect, aRect;
 	PMEVENT		p;
 	PGRAPHIC	pGraphic;
-	PSPACE		pSpace;
+	PSPACER		pSpace;
 	PTEMPO		pTempo;
 	PENDING		pEnding;
 	PAMEASURE	aMeas;
@@ -716,7 +716,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		case SLURtype:
 		case TEMPOtype:
 		case DYNAMtype:				/* Dynamics have subobjs., but subobj. xd is unused */
-		case SPACEtype:
+		case SPACERtype:
 		case RPTENDtype:
 		case ENDINGtype:
 			GetDialogItem(dlog, LBL_OBJ_HORIZ, &aShort, &tHdl, &aRect);
@@ -920,11 +920,11 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PopLock(OBJheap);
 			break;
 
-		case SPACEtype:
+		case SPACERtype:
 			GetDialogItem(dlog, LBL_PARAM1, &aShort, &p1Hdl, &aRect);
 			SetDialogItemCText(p1Hdl, "Space width");
 			
-			pSpace = GetPSPACE(pL);
+			pSpace = GetPSPACER(pL);
 			PutDlgWord(dlog, PARAM1, pSpace->spWidth, FALSE);
 		 	break;
 			
@@ -1130,7 +1130,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 					
 					break;
 					
-				case SPACEtype:
+				case SPACERtype:
 					GetDlgWord(dlog, PARAM1, &newval);
 					if (newval<1 || newval>999) {
 						GetIndCString(strBuf, INFOERRS_STRS, 38);	/* "Space width must be..." */
@@ -1307,9 +1307,9 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			DIST_ACCEPT(p->yd);
 		  	break;
 	
-		case SPACEtype:
+		case SPACERtype:
 			GetDlgWord(dlog, PARAM1, &newval);
-			pSpace = GetPSPACE(pL);
+			pSpace = GetPSPACER(pL);
 			GRAF_ACCEPT(pSpace->spWidth);
 		  	break;
 
@@ -1327,21 +1327,21 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	}
 
 	SetPort(oldPort);
-	if (graphicDirty)	{										/* Was anything graphic changed? */
+	if (graphicDirty)	{								/* Was anything graphic changed? */
 		InvalMeasure(pL, staff);
 	}
 	if (graphicDirty || nodeDirty)						/* Was anything changed? */
 	{
-		doc->changed = TRUE;									/* Yes. */
+		doc->changed = TRUE;							/* Yes. */
 		LinkTWEAKED(pL) = TRUE;
-		LinkVALID(pL) = FALSE;								/* Force recalc. objrect */
+		LinkVALID(pL) = FALSE;							/* Force recalc. objrect */
 	}
 	
-	lastEditField = GetDialogKeyboardFocusItem(dlog); /* Save itemNum of last edit field */
+	lastEditField = GetDialogKeyboardFocusItem(dlog);	/* Save itemNum of last edit field */
 	lastObjType = ObjLType(pL);
 
 	DisposeModalFilterUPP(filterUPP);
-	DisposeDialog(dlog);									/* Free heap space */
+	DisposeDialog(dlog);								/* Free heap space */
 	return; 
 }
 

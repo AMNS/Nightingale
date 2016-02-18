@@ -206,7 +206,7 @@ LogPrintf(LOG_NOTICE, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			if (DLinkSEL(srcDoc,objL) || !selectedOnly)
 				subcount++;
 			break;
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			subsNeeded = FALSE;
 			break;
@@ -507,7 +507,7 @@ PopLock(dstDoc->Heap+OBJtype);
 			break;
 		}
 		
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			break;
 

@@ -558,7 +558,7 @@ static void ChangeSelectObj(Document *doc, LINK pL,
 		case TUPLETtype:
 		case GRAPHICtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 		case OCTAVAtype:
 			CheckObject(doc, pL, &found, NULL, context, mode, &pIndex, stfRange);
@@ -704,7 +704,7 @@ void ShowObject(Document *doc, LINK pL, short index)
 	case TEMPOtype:
 		BrowseTempo(pL);
 		break;
-	case SPACEtype:
+	case SPACERtype:
 		BrowseSpace(pL);
 		break;
 	case SLURtype:
@@ -1837,11 +1837,11 @@ void BrowseTempo(LINK pL)
 
 void BrowseSpace(LINK pL)
 {
-	PSPACE p;
+	PSPACER p;
 
-	p = GetPSPACE(pL);
+	p = GetPSPACER(pL);
 	sprintf(s, "stf=%d spWidth=%d", p->staffn,p->spWidth);
-	DrawLine(s); p = GetPSPACE(pL);
+	DrawLine(s); p = GetPSPACER(pL);
 	sprintf(s, "bottomStf=%d", p->bottomStaff);
 	DrawLine(s);
 }

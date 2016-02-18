@@ -282,8 +282,8 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTEMPO(doc, pL, context, TRUE);
 				break;
-			case SPACEtype:
-				if (VISIBLE(pL) && drawAll) DrawSPACE(doc, pL, context);
+			case SPACERtype:
+				if (VISIBLE(pL) && drawAll) DrawSPACER(doc, pL, context);
 				break;
 			case SLURtype:
 				if (VISIBLE(pL))
@@ -481,13 +481,13 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTEMPO(doc, pL, context, TRUE);
 				break;
-			case SPACEtype:
-				if (VISIBLE(pL) && drawAll) DrawSPACE(doc, pL, context);
+			case SPACERtype:
+				if (VISIBLE(pL) && drawAll) DrawSPACER(doc, pL, context);
 				break;
 			case SLURtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-											|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawSLUR(doc, pL, context);
 				break;
 			default:
@@ -653,10 +653,10 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 						if (LinkSEL(pL))
 							CheckTEMPO(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 				break;
-			case SPACEtype:
+			case SPACERtype:
 				if (VISIBLE(pL) && drawAll)
 					if (LinkSEL(pL))
-						CheckSPACE(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
+						CheckSPACER(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 				break;
 			case SLURtype:
 				if (VISIBLE(pL))

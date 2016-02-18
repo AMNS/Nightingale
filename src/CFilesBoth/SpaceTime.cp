@@ -1,9 +1,9 @@
 /***************************************************************************
-*	FILE:	SpaceTime.c														*
-*	PROJ:	Nightingale, rev. for v.3.1										*
-*	DESC:	Low- and medium-level space and time routines (welcome to the	*
-* 			Twilight Zone...). No user-interface assumptions.				*
-*																			*
+*	FILE:	SpaceTime.c
+*	PROJ:	Nightingale, rev. for v.3.1
+*	DESC:	Low- and medium-level space and time routines (welcome to the
+* 			Twilight Zone...). No user-interface assumptions.
+*
 	FillRelStaffSizes
 	SymWidthLeft			SymWidthRight				SymLikelyWidthRight
 	SymDWidthLeft			SymDWidthRight				ConnectDWidth
@@ -198,7 +198,7 @@ STDIST SymWidthLeft(
 		case CLEFtype:
 		case KEYSIGtype:
 		case TIMESIGtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 		default:
 			return 0;
@@ -221,7 +221,7 @@ STDIST SymWidthRight(
 	PATIMESIG	aTimeSig;
 	PAMEASURE	aMeasure;
 	PAPSMEAS	aPSMeas;
-	PSPACE		pSpace;
+	PSPACER		pSpace;
 	LINK		aNoteL, aClefL, aKeySigL, aTimeSigL, aMeasureL, aPSMeasL, aGRNoteL;
 	short		nChars, s;
 	Boolean		anyStaff, wideChar, noteToRight;
@@ -431,8 +431,8 @@ STDIST SymWidthRight(
 		if (doc->nonstdStfSizes) nwidth = STF_SCALE(nwidth, aTimeSig->staffn);
 		return nwidth;
 
-	 case SPACEtype:
-	 	pSpace = GetPSPACE(pL);
+	 case SPACERtype:
+	 	pSpace = GetPSPACER(pL);
 	 	return pSpace->spWidth;
 
 	 default:
@@ -793,7 +793,7 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 		case KEYSIGtype:
 		case TIMESIGtype:
 		case GRSYNCtype:
-		case SPACEtype:
+		case SPACERtype:
 		case PSMEAStype:
 			return (SymWidthRight(doc, beforeL, ANYONE, FALSE));
 		default:
@@ -1557,7 +1557,7 @@ short GetSpTimeInfo(
 			case SLURtype:
 			case GRAPHICtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case ENDINGtype:
 				break;
 				

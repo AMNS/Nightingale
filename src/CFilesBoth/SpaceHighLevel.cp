@@ -662,7 +662,7 @@ static void ConsidIPWidths(
 
 #ifdef NOTYET
 
-#define SpaceSPWIDTH(link)	( (GetPSPACE(link))->spWidth )
+#define SpaceSPWIDTH(link)	( (GetPSPACER(link))->spWidth )
 
 /* -------------------------------------------------------------- ConsidSPWidths -- */
 /*	Consider widths of all J_SP objects (only Spacers) and adjust spacing accordingly.

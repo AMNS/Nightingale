@@ -1095,7 +1095,7 @@ LINK FindLPI(Document *doc,
 			case PAGEtype:
 			case SYSTEMtype:
 			case STAFFtype:
-			case SPACEtype:		/* Behave as if they're on all staves */
+			case SPACERtype:		/* Behave as if they're on all staves */
 				pLPIL = pL;
 				break;
 			case SYNCtype:
@@ -1950,7 +1950,7 @@ Boolean ChkGraphicRelObj(LINK pL,
 		case CLEFtype:
 		case KEYSIGtype:
 		case TIMESIGtype:
-		case SPACEtype:
+		case SPACERtype:
 		case RPTENDtype:
 			break;
 		default:
@@ -2150,7 +2150,7 @@ LINK NewObjPrepare(Document *doc, short type, short *sym, char inchar, short sta
 	if (type==KEYSIGtype || type==RPTENDtype) insertType = type;
 	else													insertType = symtable[*sym].objtype;
 	
-	if (type==TEMPOtype || type==SPACEtype || type==ENDINGtype)
+	if (type==TEMPOtype || type==SPACERtype || type==ENDINGtype)
 		newpL = InsertNode(doc, doc->selStartL, insertType, 0);
 	else if (staff!=ANYONE)
 		newpL = InsertNode(doc, doc->selStartL, insertType, 1);
@@ -2163,7 +2163,7 @@ LINK NewObjPrepare(Document *doc, short type, short *sym, char inchar, short sta
 			case TIMESIGtype:
 			case RPTENDtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case ENDINGtype:
 				xd = p2d(x)-context->measureLeft; 				/* relative to measure */
 				break;

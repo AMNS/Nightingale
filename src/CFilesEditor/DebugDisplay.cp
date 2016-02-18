@@ -179,8 +179,8 @@ void DisplayNode(Document *doc, LINK pL,
 			LogPrintf(LOG_NOTICE, " st=%d", ((PTEMPO)p)->staffn);
 			if (show_links) LogPrintf(LOG_NOTICE, " fObj=%d", ((PTEMPO)p)->firstObjL);
 			break;
-		case SPACEtype:
-			LogPrintf(LOG_NOTICE, " spWidth=%d", ((PSPACE)p)->spWidth);
+		case SPACERtype:
+			LogPrintf(LOG_NOTICE, " spWidth=%d", ((PSPACER)p)->spWidth);
 			break;
 		case ENDINGtype:
 			LogPrintf(LOG_NOTICE, " st=%d num=%d", ((PENDING)p)->staffn, ((PENDING)p)->endNum);

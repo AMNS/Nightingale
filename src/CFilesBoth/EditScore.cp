@@ -198,7 +198,7 @@ void DoClickInsert(Document *doc, Point pt)
 			case TEMPOtype:
 				InsertTempo(doc, pt);
 				break;
-			case SPACEtype:
+			case SPACERtype:
 				InsertSpace(doc, pt);
 				break;
 			default:

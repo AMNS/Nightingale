@@ -850,7 +850,7 @@ void SetStaffSize(Document */*doc*/, LINK headL, LINK tailL, short oldRastral, s
 				SCALE(((PTUPLET)p)->ydLast);
 				break;
 				
-			case SPACEtype:
+			case SPACERtype:
 				break;
 				
 			default:

@@ -212,7 +212,7 @@ static short ExtMapStaves(Document *doc, Document *newDoc)
 			case GRAPHICtype:
 			case ENDINGtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 				p = GetPMEVENT(pL);
 				((PEXTEND)p)->staffn -= staffDiff;
 				/* 
@@ -330,7 +330,7 @@ static void SelectPart(
 			case TUPLETtype:
 			case OCTAVAtype:
 			case ENDINGtype:
-			case SPACEtype:
+			case SPACERtype:
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf)
 					LinkSEL(pL) = TRUE;
 				break;

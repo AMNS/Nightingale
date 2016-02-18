@@ -46,7 +46,7 @@ static short initialNumbers[LASTtype] = {
 		256,		/* TUPLETtype */
 		128,		/* GRSYNCtype */
 		8,			/* TEMPOtype */
-		8,			/* SPACEtype */
+		8,			/* SPACERtype */
 		8,			/* ENDINGtype */
 		16,		/* PSMEAStype */
 		256		/* OBJtype */
@@ -74,7 +74,7 @@ static short initialNumbers[LASTtype] = {
 		8,			/* TUPLETtype */
 		12,		/* GRSYNCtype */
 		8,			/* TEMPOtype */
-		8,			/* SPACEtype */
+		8,			/* SPACERtype */
 		8,			/* ENDINGtype */
 		8,			/* PSMEAStype */
 		64			/* OBJtype */

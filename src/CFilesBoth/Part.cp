@@ -164,7 +164,7 @@ static void FixStaffNums(Document *doc,
 		case SLURtype:
 		case TUPLETtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			p = GetPMEVENT(pL);
 			if (((PEXTEND)p)->staffn>=afterStf)
@@ -793,7 +793,7 @@ static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
 			case SLURtype:
 			case TUPLETtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case ENDINGtype:
 				p = GetPMEVENT(pL);
 				if (((PEXTEND)p)->staffn>=startStf && ((PEXTEND)p)->staffn<=endStf)

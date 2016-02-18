@@ -197,7 +197,7 @@ void ScoreInfo()
 		 			case OCTAVAtype:
 		 			case TUPLETtype:
 		 			case TEMPOtype:
-		 			case SPACEtype:
+		 			case SPACERtype:
 		 			case ENDINGtype:
 						count = 0;
 		 				for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))

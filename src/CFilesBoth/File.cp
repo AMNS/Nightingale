@@ -1131,7 +1131,7 @@ LogPrintf(LOG_NOTICE, "  Slur L%d\n", pL);
 			?!
 			break;
 
-		case SPACEtype:
+		case SPACERtype:
 			?!
 			break;
 */

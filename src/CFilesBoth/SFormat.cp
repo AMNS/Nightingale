@@ -477,8 +477,8 @@ static void VisifySubObjs(LINK pL, short staffn, short vis)
 			if (TempoSTAFF(pL)==staffn)
 				LinkVIS(pL) = vis;
 			break;
-		case SPACEtype:
-			if (SpaceSTAFF(pL)==staffn)
+		case SPACERtype:
+			if (SpacerSTAFF(pL)==staffn)
 				LinkVIS(pL) = vis;
 			break;
 		default:

@@ -663,8 +663,8 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 				return pL;
 			}
 			break;
-		case SPACEtype:
-			if (*pIndex = CheckSPACE(doc, pL, context, ptr, mode, stfRange, enlarge)!=NOMATCH) {
+		case SPACERtype:
+			if (*pIndex = CheckSPACER(doc, pL, context, ptr, mode, stfRange, enlarge)!=NOMATCH) {
 				*found = TRUE;
 				return pL;
 			}
@@ -717,7 +717,7 @@ Boolean ObjectTest(Rect *paper, Point pt, LINK pL)
 		case PSMEAStype:
 		case GRSYNCtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case DYNAMtype:
 		case GRAPHICtype:
 		case RPTENDtype:
@@ -831,8 +831,8 @@ LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 						if ((*pIndex=CheckTEMPO(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;
-					case SPACEtype:
-						if ((*pIndex=CheckSPACE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					case SPACERtype:
+						if ((*pIndex=CheckSPACER(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;
 					case DYNAMtype:

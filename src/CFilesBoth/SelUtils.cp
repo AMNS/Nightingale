@@ -124,9 +124,9 @@ short GetStaffFromSel(Document *doc, LINK *pSelL)
 			case TEMPOtype:
 				*pSelL = pL;
 				return TempoSTAFF(pL);
-			case SPACEtype:
+			case SPACERtype:
 				*pSelL = pL;
-				return SpaceSTAFF(pL);
+				return SpacerSTAFF(pL);
 			case ENDINGtype:
 				*pSelL = pL;
 				return EndingSTAFF(pL);
@@ -220,7 +220,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 					case GRAPHICtype:
 					case OCTAVAtype:
 					case TEMPOtype:
-					case SPACEtype:
+					case SPACERtype:
 					case ENDINGtype:
 						p = GetPMEVENT(pL);
 						
@@ -365,8 +365,8 @@ short GetVoiceFromSel(Document *doc)
 					return 1;							/* Page-rel. Graphic, so be arbitrary */
 			case TEMPOtype:
 				return TempoSTAFF(pL);
-			case SPACEtype:
-				return SpaceSTAFF(pL);
+			case SPACERtype:
+				return SpacerSTAFF(pL);
 			case ENDINGtype:
 				return EndingSTAFF(pL);
 			case RPTENDtype:
@@ -445,7 +445,7 @@ void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 				case GRAPHICtype:
 				case OCTAVAtype:
 				case TEMPOtype:
-				case SPACEtype:
+				case SPACERtype:
 				case ENDINGtype:
 					p = GetPMEVENT(pL);
 					

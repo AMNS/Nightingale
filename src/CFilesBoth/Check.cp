@@ -5,7 +5,7 @@
 		CheckPAGE			CheckSYSTEM			CheckSTAFF
 		CheckCONNECT
 		CheckCLEF			CheckDYNAMIC		CheckRPTEND
-		CheckGRAPHIC		CheckTEMPO			CheckSPACE
+		CheckGRAPHIC		CheckTEMPO			CheckSPACER
 		CheckENDING
 		CheckKEYSIG			CheckSYNC			CheckGRSYNC
 		CheckTIMESIG		CheckMEASURE		CheckBEAMSET
@@ -1461,22 +1461,22 @@ PopLock(OBJheap);
 }
 
 
-/* ----------------------------------------------------------------- CheckSPACE -- */
-/* SPACE object selecter/highliter.  Does different things depending on the value of
+/* ----------------------------------------------------------------- CheckSPACER -- */
+/* SPACER object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-short CheckSPACE(Document *doc, LINK pL, CONTEXT context[],
+short CheckSPACER(Document *doc, LINK pL, CONTEXT context[],
 					Ptr ptr,
 					short mode,
 					STFRANGE stfRange,
 					Point enlarge)
 {
-	PSPACE	p;
+	PSPACER		p;
 	Rect		r,aRect,tempR;
 	short		result;
 	PCONTEXT	pContext;
 
-	p = GetPSPACE(pL);
+	p = GetPSPACER(pL);
 	result = NOMATCH;
 	r = LinkOBJRECT(pL);
 	

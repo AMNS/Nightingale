@@ -667,8 +667,8 @@ LINK L_Search(
 						if (anySelected || pSel)
 	  						return pL;
 					break;
-				case SPACEtype:
-	  				if (anyStaff || ((PSPACE)p)->staffn==pbSearch->id)
+				case SPACERtype:
+	  				if (anyStaff || ((PSPACER)p)->staffn==pbSearch->id)
 						if (anySelected || pSel)
 	  						return pL;
 					break;
@@ -992,9 +992,9 @@ LINK GSearch(
 		  						return pL;
 		  			}
 					break;
-				case SPACEtype:
+				case SPACERtype:
 					if (beyond) {
-		  				if (anyStaff || ((PSPACE)p)->staffn==pbSearch->id)
+		  				if (anyStaff || ((PSPACER)p)->staffn==pbSearch->id)
 							if (anySelected || pSel)
 		  						return pL;
 		  			}

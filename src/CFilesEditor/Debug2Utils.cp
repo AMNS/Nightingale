@@ -488,7 +488,7 @@ Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 
 		case GRAPHICtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			break;
 			

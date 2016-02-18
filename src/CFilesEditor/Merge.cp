@@ -473,10 +473,10 @@ static long GetStartTime(Document *doc, VInfo *vInfo, short v, short vStfDiff)
 
 /* Call this to get a staffn to pass to GetLDur.
 Given an obj with subObj in voice v, return the staff of that subObj.
-Have nothing reasonable to return for PAGEtype through CONNECTtype and
+We have nothing reasonable to return for PAGEtype through CONNECTtype
 and MEASUREtype through ENDINGtype; but SYNCs are the only meaningful
-objects to pass to GetLDur, so it doesn't make any difference.
-If wish to call this for any other reason, will have to review this. */
+objects to pass to GetLDur, so it doesn't make any difference. If we
+wish to call this for any other reason, will have to review this. */
  
 static short Obj2Stf(LINK link, short v)
 {
@@ -494,7 +494,7 @@ static short Obj2Stf(LINK link, short v)
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 				if (NoteVOICE(aNoteL)==v)
 					return NoteSTAFF(aNoteL);
-			return v;												/* Have no reasonable default */
+			return v;										/* Have no reasonable default */
 		case GRSYNCtype:
 			aGRNoteL = FirstSubLINK(link);
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
@@ -524,8 +524,8 @@ static short Obj2Stf(LINK link, short v)
 			return TupletSTAFF(link);
 		case OCTAVAtype:
 			return OctavaSTAFF(link);
-		case SPACEtype:
-			return SpaceSTAFF(link);
+		case SPACERtype:
+			return SpacerSTAFF(link);
 		default:
 			return 1;
 	}
