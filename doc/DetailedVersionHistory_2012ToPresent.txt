@@ -410,4 +410,13 @@ Display four more CNFG field values in log. Affects Initialize.
 Add units to _tempoMarkHGap_ in the CNFG Resorcerer template. Affects .rsrc.
 
 Rename SPACE objects to SPACER. Affects MemMacros.h, NTypes.h, vars.h, and
-about 40 C files,
+about 40 C files.
+
+-------------------------------------------------------------------------------
+
+25-26 Feb.			==== NIGHTINGALE 5.6b3 ====
+
+Add to Debug Check a check for Measures of zero width that nonetheless contain
+something. Affects DebugUtils.
+
+===============================================================================

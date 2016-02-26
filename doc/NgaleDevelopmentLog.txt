@@ -1258,7 +1258,7 @@ the time I specify! Weird, but not worth worrying about.
 
 -------------------------------------------------------------------------------
 
-8-10 Feb.
+8-25 Feb.
 
 - In some very recent scores -- my SpacerTest_InvisibleNotesBug.ngl &
 3rdMovementFS_??.ngl and something of Glenn Gass' -- inserted notes aren't drawn at
@@ -1280,8 +1280,10 @@ for the invisible notes! For Measure objects,
 
 ...then drawAll is set to FALSE. Clearly  outputTo==toScreen, so the problem is Ngale
 thinks the intersetion of the measureBBox and the update area is empty. Why? Because the
-measureBBox.left = measureBBox.right = 850, which I suspect is the right end of the
-System. Why? ??
+measureBBox.left = measureBBox.right = 850, which I'm pretty sure is the right end of the
+System! Why? I dunno, but let's add to Debug Check a check for Measures with zero-width bbox
+that aren't immediately followed by a Page or System, or that have something other than a
+Page before the next System. Add code to DCheckMBBox() => done.
 
 -------------------------------------------------------------------------------
 

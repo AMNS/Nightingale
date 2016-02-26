@@ -72,9 +72,9 @@ FALSE if it's OK. Checks whether the LINK is larger than the heap currently allo
 and if LINK is on the freelist: in either case, it's not valid. */
 
 Boolean DBadLink(
-				Document *doc, short type,
-				LINK pL,
-				Boolean allowNIL)				/* TRUE=NILINK is an acceptable value */
+			Document *doc, short type,
+			LINK pL,
+			Boolean allowNIL)				/* TRUE=NILINK is an acceptable value */
 {
 	HEAP *heap; LINK link;
 	Byte *p,*start;
@@ -120,14 +120,15 @@ Boolean DCheckHeaps(Document *doc)
 /* Do consistency check on head or tail of data structure. */
 
 Boolean DCheckHeadTail(
-				Document *doc, LINK pL,
+				Document *doc,
+				LINK pL,
 				Boolean /*fullCheck*/			/* FALSE=skip less important checks (unused) */
 				)
 {
 	Boolean		bad;
-	LINK			partL;
+	LINK		partL;
 	PPARTINFO	pPartInfo;
-	short			nextStaff;
+	short		nextStaff;
 
 	bad = FALSE;
 
@@ -143,7 +144,7 @@ Boolean DCheckHeadTail(
 			if (doc->nstaves<1 || doc->nstaves>MAXSTAVES)
 				COMPLAIN("•DCheckHeadTail: HEADER (AT %u) HAS BAD nstaves.\n", pL);
 
-			partL = FirstSubLINK(pL);												/* Skip zeroth part */
+			partL = FirstSubLINK(pL);										/* Skip zeroth part */
 			nextStaff = 1;
 			for (partL = NextPARTINFOL(partL); partL; partL = NextPARTINFOL(partL)) {
 				pPartInfo = GetPPARTINFO(partL);
@@ -181,17 +182,17 @@ the "other" Sync. */
 Boolean DCheckSyncSlurs(LINK syncL, LINK aNoteL)
 {
 	SearchParam pbSearch;
-	LINK			prevSyncL, slurL, searchL, otherSyncL;
-	short			voice;
+	LINK		prevSyncL, slurL, searchL, otherSyncL;
+	short		voice;
 	Boolean		bad;
 
 	bad = FALSE;
 
 	InitSearchParam(&pbSearch);
-	pbSearch.id = ANYONE;										/* Prepare for search */
+	pbSearch.id = ANYONE;									/* Prepare for search */
 	voice = pbSearch.voice = NoteVOICE(aNoteL);
 
-	pbSearch.subtype = FALSE;									/* Slur, not tieset */
+	pbSearch.subtype = FALSE;								/* Slur, not tieset */
 
 	if (NoteSLURREDL(aNoteL)) {
 		/* If we start searching for the slur here, we may find one that starts with this
@@ -306,11 +307,11 @@ Boolean DCheckSyncSlurs(LINK syncL, LINK aNoteL)
 /* -------------------------------------------------------------------- DCheckMBBox -- */
 
 Boolean DCheckMBBox(
-					LINK pL,
-					Boolean /*abnormal*/		/* Node in clipboard, Undo or Mstr Page? */
-					)
+				LINK pL,
+				Boolean /*abnormal*/		/* Node in clipboard, Undo or Mstr Page? */
+				)
 {
-	LINK systemL;
+	LINK systemL, checkL;
 	PSYSTEM pSystem;
 	Rect mBBox, sysRect, unRect;
 	PMEASURE pMeasure;
@@ -322,6 +323,19 @@ Boolean DCheckMBBox(
 	D2Rect(&pSystem->systemRect, &sysRect);
 	pMeasure = GetPMEASURE(pL);
 	mBBox = pMeasure->measureBBox;
+
+	/* If Measure is of width zero, it can't contain anything, nor can it be followed by
+		another Measure until we've started a new System. */
+	if (mBBox.right<=mBBox.left) {
+		for (checkL = pL; !SystemTYPE(checkL); checkL = RightLINK(checkL)) {
+			if (SystemTYPE(checkL) || TailTYPE(checkL)) break;
+			if (!PageTYPE(checkL)) {
+				COMPLAIN("DCheckMBBox: MEASURE AT %u IS NON-EMPTY BUT HAS WIDTH ZERO.\n", pL);
+				break;
+			}
+		}
+	}
+
 	UnionRect(&mBBox, &sysRect, &unRect);
 	if (!EqualRect(&sysRect, &unRect)) {
 		sprintf(str, "(%s%s%s%s)\n",
@@ -329,7 +343,7 @@ Boolean DCheckMBBox(
 			(mBBox.left<sysRect.left? "left " : ""),
 			(mBBox.bottom>sysRect.bottom? "bottom " : ""),
 			(mBBox.right>sysRect.right? "right" : "") );
-		COMPLAIN2("DCheckMBBox: MEASURE AT %u BBOX NOT IN SYSTEMRECT %s", pL, str);
+		COMPLAIN2("DCheckMBBox: MEASURE AT %u BBOX GOES BEYOND SYSTEMRECT %s.\n", pL, str);
 	}
 	return bad;
 }
@@ -418,11 +432,11 @@ consistency checks on an individual node. Returns:
 #define MAX_WHOLES_DUR	6000L
 
 short DCheckNode(
-				Document *doc,
-				LINK pL,
-				short where,		/* Which object list: MAIN_DSTR,CLIP_DSTR,UNDO_DSTR,or MP_DSTR */
-				Boolean fullCheck	/* FALSE=skip less important checks */
-				)
+			Document *doc,
+			LINK pL,
+			short where,		/* Which object list: MAIN_DSTR,CLIP_DSTR,UNDO_DSTR,or MP_DSTR */
+			Boolean fullCheck	/* FALSE=skip less important checks */
+			)
 {
 	short		minEntries, maxEntries;
 	Boolean		bad;
@@ -516,7 +530,7 @@ short DCheckNode(
 		if (!abnormal && LinkVALID(pL)) {
 			if (GARBAGE_Q1RECT(p->objRect)) {
 				/* It's OK for initial keysigs to be unselectable. */
-				pKeySig = GetPKEYSIG(pL);			/* ?? OR USE KeySigINMEAS ?? */
+				pKeySig = GetPKEYSIG(pL);				/* FIXME: OR USE KeySigINMEAS? */
 				if (!(KeySigTYPE(pL) && !pKeySig->inMeasure))
 					COMPLAIN("DCheckNode: NODE AT %u HAS A GARBAGE (UNSELECTABLE) objRect.\n", pL);
 			}
@@ -700,7 +714,7 @@ short DCheckNode(
 					if (VOICE_BAD(aNote->voice))
 						COMPLAIN2("*DCheckNode: NOTE/REST IN SYNC AT %u HAS BAD voice %d.\n",
 										pL, aNote->voice);
-					if (aNote->accident<0 || aNote->accident>5)
+					if (aNote->accident>5)
 						COMPLAIN("*DCheckNode: NOTE/REST IN SYNC AT %u HAS BAD ACCIDENTAL.\n", pL);
 
 					if (!aNote->rest) {
@@ -715,10 +729,10 @@ short DCheckNode(
 											pL, aNote->noteNum);
 						}
 
-						if (aNote->onVelocity<0 || aNote->onVelocity>MAX_VELOCITY)
+						if (aNote->onVelocity>MAX_VELOCITY)
 							COMPLAIN2("*DCheckNode: NOTE IN SYNC AT %u HAS BAD onVelocity %d.\n",
 											pL, aNote->onVelocity);
-						if (aNote->offVelocity<0 || aNote->offVelocity>MAX_VELOCITY)
+						if (aNote->offVelocity>MAX_VELOCITY)
 							COMPLAIN2("*DCheckNode: NOTE IN SYNC AT %u HAS BAD offVelocity %d.\n",
 											pL, aNote->offVelocity);
 						if (fullCheck) {
@@ -760,7 +774,7 @@ short DCheckNode(
 							}
 							aModNR = GetPAMODNR(aModNRL);
 							if (!(aModNR->modCode>=MOD_FERMATA && aModNR->modCode<=MOD_LONG_INVMORDENT)
-							&&	 !(aModNR->modCode>=0 && aModNR->modCode<=5) )
+							&&	 aModNR->modCode>5)
 								COMPLAIN3("DCheckNode: ILLEGAL MODNR CODE %d IN VOICE %d IN SYNC AT %u.\n",
 												aModNR->modCode, aNote->voice, pL);
 						}
@@ -1446,9 +1460,9 @@ should be. Returns TRUE if it finds a problem. */
 
 Boolean DCheckNodeSel(Document *doc, LINK pL)
 {
-	LINK			aNoteL, aMeasL, aClefL, aKeySigL, aTimeSigL, aDynamicL,
-					aStaffL, aConnectL, aSlurL;
-	Boolean		bad;
+	LINK	aNoteL, aMeasL, aClefL, aKeySigL, aTimeSigL, aDynamicL,
+			aStaffL, aConnectL, aSlurL;
+	Boolean	bad;
 
 	if (pL==doc->headL || pL==doc->tailL) return FALSE;
 	if (pL==doc->masterHeadL || pL==doc->masterTailL) return FALSE;
@@ -1519,7 +1533,7 @@ Boolean DCheckNodeSel(Document *doc, LINK pL)
 				if (SlurSEL(aSlurL))
 					COMPLAIN("DCheckNodeSel: SELECTED ITEM IN UNSELECTED SLUR AT %u.\n", pL);
 			break;
-/* ??REPEATEND ALSO NEEDS CHECKING */
+/* FIXME: REPEATEND ALSO NEEDS CHECKING */
 		default:
 			;
 	}
@@ -1759,8 +1773,8 @@ Boolean DCheckHeirarchy(Document *doc)
 
 
 /* ------------------------------------------------------------------ DCheckJDOrder -- */
-/* Should eventually check that every JD object is in the "slot" preceding its
-relObj or firstObj. For now, checks only Graphics. */
+/* For now, checks only Graphics. FIXME: Should eventually check that every JD object is 
+n the "slot" preceding its relObj or firstObj. */
 
 Boolean DCheckJDOrder(Document *doc)
 {
