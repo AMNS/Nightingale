@@ -140,7 +140,7 @@ static Boolean CVComputePlayTimes(Document *doc, SELRANGE /*selRange*/[], char m
 	if (!GoodNewPtr((Ptr)stfTimeDiff)) goto broken;
 	
 	/* Set playDur values and pTime values for the pDurArray, and set link values
-		for owning beams, octavas and tuplets. */
+		for owning beams, ottavas and tuplets. */
 
 	SetPlayDurs(doc,pDurArray,nInMeas,startMeas,endMeas);
 	SetPTimes(doc,pDurArray,nInMeas,spTimeInfo,startMeas,endMeas);
@@ -512,11 +512,11 @@ void DoCompactVoices(Document *doc)
 		CVDisposeArrays();
 	}
 
-	/* We need these calls to fix up links for Beams and Octavas which extend
+	/* We need these calls to fix up links for Beams and Ottavas which extend
 		outside the compacted measure. */
 
 	FixAllBeamLinks(doc,doc,doc->headL,doc->tailL);
-	FixOctavaLinks(doc,doc,doc->headL,doc->tailL);
+	FixOttavaLinks(doc,doc,doc->headL,doc->tailL);
 
 	if (doc->autoRespace)
 		RespaceBars(doc, firstMeasL, endL, 0L, FALSE, FALSE);
@@ -554,7 +554,7 @@ static Boolean SDCVComputePlayTimes(Document *doc, SELRANGE  /*selRange*/[],
 	if (!GoodNewPtr((Ptr)stfTimeDiff)) goto broken;
 	
 	/* Set playDur values and pTime values for the pDurArray, and set link values
-		for owning beams, octavas and tuplets. */
+		for owning beams, ottavas and tuplets. */
 
 	SetPlayDurs(doc,pDurArray,nInMeas,startMeas,endMeas);
 	SetPTimes(doc,pDurArray,nInMeas,spTimeInfo,startMeas,endMeas);
@@ -670,11 +670,11 @@ void SetDurCptV(Document *doc)
 		CVDisposeArrays();
 	}
 
-	/* We need these calls to fix up links for Beams and Octavas which extend
+	/* We need these calls to fix up links for Beams and Ottavas which extend
 		outside the compacted measure. */
 
 	FixAllBeamLinks(doc,doc,doc->headL,doc->tailL);
-	FixOctavaLinks(doc,doc,doc->headL,doc->tailL);
+	FixOttavaLinks(doc,doc,doc->headL,doc->tailL);
 
 broken:
 	CVDisposeArrays();
@@ -716,11 +716,11 @@ Boolean CompactVoices(Document *doc)
 		CVDisposeArrays();
 	}
 
-	/* We need these calls to fix up links for Beams and Octavas which extend
+	/* We need these calls to fix up links for Beams and Ottavas which extend
 		outside the compacted measure. */
 
 	FixAllBeamLinks(doc,doc,doc->headL,doc->tailL);
-	FixOctavaLinks(doc,doc,doc->headL,doc->tailL);
+	FixOttavaLinks(doc,doc,doc->headL,doc->tailL);
 
 	FixTimeStamps(doc,firstMeasL,endL);
 	

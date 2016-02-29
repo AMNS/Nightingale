@@ -422,7 +422,7 @@ Here are the object-specific features ("ign" = ignored).
 	TimeSig		no			staffNum or ANYONE		ign		ign		Used		Used	
 	Beamset		no			staffNum or ANYONE		Used		Used		Used		ign	
 	Tuplet		no			staffNum or ANYONE		ign		Used		Used		ign	
-	Octava		no			staffNum or ANYONE		ign		ign		Used		ign	
+	Ottava		no			staffNum or ANYONE		ign		ign		Used		ign	
 	Sync			no			staffNum or ANYONE		ign		Used		Used		ign	
 	GRSync		no			staffNum or ANYONE		ign		Used		Used		ign	
 	Dynamic		no			staffNum or ANYONE		ign		ign		Used		ign	
@@ -645,8 +645,8 @@ LINK L_Search(
 							if (anySelected || pSel)
 	  							return pL;
 					break;
-				case OCTAVAtype:
-	  				if (anyStaff || ((POCTAVA)p)->staffn==pbSearch->id)
+				case OTTAVAtype:
+	  				if (anyStaff || ((POTTAVA)p)->staffn==pbSearch->id)
 						if (anySelected || pSel)
 	  						return pL;
 					break;
@@ -964,9 +964,9 @@ LINK GSearch(
 		  							return pL;
 		  			}
 					break;
-				case OCTAVAtype:
+				case OTTAVAtype:
 					if (beyond) {
-		  				if (anyStaff || ((POCTAVA)p)->staffn==pbSearch->id)
+		  				if (anyStaff || ((POTTAVA)p)->staffn==pbSearch->id)
 							if (anySelected || pSel)
 		  						return pL;
 		  			}

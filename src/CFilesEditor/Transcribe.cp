@@ -425,7 +425,7 @@ static void DelAndMoveMeasure(Document *doc, LINK measL)
 	- Between doc->selStartL and selEndL, there can only be Syncs and Measures.
 	- Every Sync in the range must be selected.
 	- The Syncs can contain only unknown-duration notes, all of them selected.
-	- The notes may not have any modifers or be beamed, slurred, tied, or in Octavas.
+	- The notes may not have any modifers or be beamed, slurred, tied, or in Ottavas.
 	- If !merge, doc->selStartL must be the first obj in a Measure, and selEndL must
 		end a Measure.
 The quantized notes will have redundant accidentals; call DelRedundantAccs to remove
@@ -690,7 +690,7 @@ static void SelectRange2(Document *doc, LINK startL, LINK endL, short firstStf,
 				break;
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case ENDINGtype:
 			case SPACERtype:
 			case GRAPHICtype:

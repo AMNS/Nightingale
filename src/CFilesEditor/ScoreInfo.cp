@@ -194,7 +194,7 @@ void ScoreInfo()
 		 			 * For these types, users are interested in the numbers of objects.
 		 			 */
 		 			case BEAMSETtype:
-		 			case OCTAVAtype:
+		 			case OTTAVAtype:
 		 			case TUPLETtype:
 		 			case TEMPOtype:
 		 			case SPACERtype:

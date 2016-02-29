@@ -864,7 +864,7 @@ short ClarifyNRCRhythm(Document *doc, LINK pL, LINK aNoteL)
 /* --------------------------------------------------------------- ClarifyRhythm -- */
 /* Extend the selection to include every note in every chord that has any note(s)
 selected; then clarify the rhythm of all selected notes/rests/chords.
-Comment in FixExtCrossLinks if fixing up ptrs for Beams, Octavas and Tuplets is
+Comment in FixExtCrossLinks if fixing up ptrs for Beams, Ottavas and Tuplets is
 needed.
 */
 

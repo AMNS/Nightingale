@@ -46,7 +46,7 @@ static void BrowseSync(LINK, short);
 static void BrowseGRSync(LINK, short);
 static void BrowseBeamset(LINK, short);
 static void BrowseTuplet(LINK, short);
-static void BrowseOctava(LINK, short);
+static void BrowseOttava(LINK, short);
 static void BrowseDynamic(LINK, short);
 static void BrowseRptEnd(LINK, short);
 static void BrowseEnding(LINK, short);
@@ -332,7 +332,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 					case CONNECTtype:
 					case BEAMSETtype:
 					case TUPLETtype:
-					case OCTAVAtype:
+					case OTTAVAtype:
 					case RPTENDtype:
 					case SLURtype:
 						if (OptionKeyDown())
@@ -358,7 +358,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 					case CONNECTtype:
 					case BEAMSETtype:
 					case TUPLETtype:
-					case OCTAVAtype:
+					case OTTAVAtype:
 					case RPTENDtype:
 					case SLURtype:
 						if (OptionKeyDown())
@@ -560,7 +560,7 @@ static void ChangeSelectObj(Document *doc, LINK pL,
 		case TEMPOtype:
 		case SPACERtype:
 		case ENDINGtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 			CheckObject(doc, pL, &found, NULL, context, mode, &pIndex, stfRange);
 			break;
 		default:
@@ -686,8 +686,8 @@ void ShowObject(Document *doc, LINK pL, short index)
 	case TUPLETtype:
 		BrowseTuplet(pL, index);
 		break;
-	case OCTAVAtype:
-		BrowseOctava(pL, index);
+	case OTTAVAtype:
+		BrowseOttava(pL, index);
 		break;
 	case DYNAMtype:
 		BrowseDynamic(pL, index);
@@ -1341,7 +1341,7 @@ void BrowseSync(LINK pL, short index)
 
 	strcpy(s, "flags=");
 	if (q->inTuplet)			strcat(s, "INTUPLET ");
-	if (q->inOctava)			strcat(s, "INOCTAVA ");
+	if (q->inOttava)			strcat(s, "INOTTAVA ");
 	if (q->small)				strcat(s, "SMALL ");
 	if (q->tempFlag)			strcat(s, "TEMPFLAG");
 	DrawLine(s);	q = GetPANOTE(qL);
@@ -1419,7 +1419,7 @@ void BrowseGRSync(LINK pL, short index)
 
 	strcpy(s, "flags=");
 	if (q->inTuplet)			strcat(s, "INTUPLET ");
-	if (q->inOctava)			strcat(s, "INOCTAVA ");
+	if (q->inOttava)			strcat(s, "INOTTAVA ");
 	if (q->small)				strcat(s, "SMALL");
 	DrawLine(s);	q = GetPAGRNOTE(qL);
 	
@@ -1521,26 +1521,26 @@ void BrowseTuplet(LINK pL, short index)
 }
 
 
-/* -------------------------------------------------------------- BrowseOctava -- */
+/* -------------------------------------------------------------- BrowseOttava -- */
 
-void BrowseOctava(LINK pL, short index)
+void BrowseOttava(LINK pL, short index)
 {
-	POCTAVA p;
-	PANOTEOCTAVA q;
+	POTTAVA p;
+	PANOTEOTTAVA q;
 	LINK qL;
 	short i;
 
-	p = GetPOCTAVA(pL);
+	p = GetPOTTAVA(pL);
 	objRect = p->objRect;
 	OffsetRect(&objRect,paperRect.left,paperRect.top);
 	
 	sprintf(s, "staff=%d", p->staffn);
-	DrawLine(s);	p = GetPOCTAVA(pL);
+	DrawLine(s);	p = GetPOTTAVA(pL);
 	sprintf(s, "nxd=%d nyd=%d", p->nxd, p->nyd);
-	DrawLine(s);	p = GetPOCTAVA(pL);
+	DrawLine(s);	p = GetPOTTAVA(pL);
 	sprintf(s, "xd1st=%d yd1st=%d xdLast=%d ydLast=%d", p->xdFirst, p->ydFirst,
 				p->xdLast, p->ydLast);
-	DrawLine(s);	p = GetPOCTAVA(pL);
+	DrawLine(s);	p = GetPOTTAVA(pL);
 	sprintf(s, "octSignType=%d noCutoff=%d", p->octSignType, p->noCutoff);
 	DrawLine(s);
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
@@ -1548,9 +1548,9 @@ void BrowseOctava(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTEOCTAVAL(qL)) 
+	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextNOTEOTTAVAL(qL)) 
 		;
-	q = GetPANOTEOCTAVA(qL);
+	q = GetPANOTEOTTAVA(qL);
 	sprintf(s, "link=%u @%lx opSync=%d next=%d", qL, q, q->opSync, q->next);
 	DrawLine(s);
 }

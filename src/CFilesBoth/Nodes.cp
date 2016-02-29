@@ -213,7 +213,7 @@ void InitNode(short type, LINK subList)
 			case GRAPHICtype:
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case TEMPOtype:
 			case SPACERtype:
 			case ENDINGtype:
@@ -515,7 +515,7 @@ LINK NewNode(Document *doc, short type, short subCount)
 					case SPACERtype:
 					case BEAMSETtype:
 					case TUPLETtype:
-					case OCTAVAtype:
+					case OTTAVAtype:
 					case ENDINGtype:
 						break;
 					default:

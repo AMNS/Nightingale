@@ -80,7 +80,7 @@ void InfoDialog(Document *doc)
 		case GRSYNCtype:
 			SyncInfoDialog(doc, pL, unitLabel);
 			break;
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case TUPLETtype:
 			ExtendInfoDialog(doc, pL, unitLabel);
 			break;
@@ -1372,7 +1372,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	short		newval, staff, userVoice;
 	Handle		tHdl, twHdl, ulHdl, p1Hdl, p2Hdl;
 	Rect		tRect, aRect;
-	POCTAVA		octavap;
+	POTTAVA		ottavap;
 	PTUPLET		pTuplet;
 	Boolean		graphicDirty,									/* Anything graphic changed? */
 				nodeDirty;										/* Anything non-graphic changed? */
@@ -1442,18 +1442,18 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PopLock(OBJheap);
 			break;
 
-		case OCTAVAtype:
+		case OTTAVAtype:
 			GetDialogItem(dlog, LBL_EXPARAM1, &aShort, &tHdl, &aRect);
 			SetDialogItemCText(tHdl, "noCutoff");
 			GetDialogItem(dlog, LBL_RIGHT_VERT, &aShort, &tHdl, &aRect);
 			SetDialogItemCText(tHdl, "(unused)");
 
-			octavap = GetPOCTAVA(pL);
-			PutDlgWord(dlog, STAFF_NO, octavap->staffn, FALSE);
-			PutDlgWord(dlog, LEFT_HORIZ, DD2I(octavap->xdFirst), FALSE);
-			PutDlgWord(dlog, LEFT_VERT, DD2I(octavap->ydFirst), FALSE);
-			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(octavap->xdLast), FALSE);
-			PutDlgWord(dlog, EXPARAM1, octavap->noCutoff, FALSE);
+			ottavap = GetPOTTAVA(pL);
+			PutDlgWord(dlog, STAFF_NO, ottavap->staffn, FALSE);
+			PutDlgWord(dlog, LEFT_HORIZ, DD2I(ottavap->xdFirst), FALSE);
+			PutDlgWord(dlog, LEFT_VERT, DD2I(ottavap->ydFirst), FALSE);
+			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(ottavap->xdLast), FALSE);
+			PutDlgWord(dlog, EXPARAM1, ottavap->noCutoff, FALSE);
 			break;
 
 		case TUPLETtype:
@@ -1549,7 +1549,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 					}
 					break;
 
-				case OCTAVAtype:
+				case OTTAVAtype:
 					GetDlgWord(dlog, EXPARAM1, &newval);
 					if (newval<0 || newval>1) {
 						GetIndCString(strBuf, INFOERRS_STRS, 42);	/* "noCutoff must be..." */
@@ -1609,22 +1609,22 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PopLock(OBJheap);
 			break;
 
-		case OCTAVAtype:
+		case OTTAVAtype:
 			PushLock(OBJheap);
-			octavap = GetPOCTAVA(pL);
+			ottavap = GetPOTTAVA(pL);
 
 			GetDlgWord(dlog, LEFT_HORIZ, &newval);
-			DIST_ACCEPT(octavap->xdFirst);
+			DIST_ACCEPT(ottavap->xdFirst);
 
 			GetDlgWord(dlog, LEFT_VERT, &newval);
-			DIST_ACCEPT(octavap->ydFirst);
-			octavap->ydLast = octavap->ydFirst;				/* We don't support diagonal octave signs yet */
+			DIST_ACCEPT(ottavap->ydFirst);
+			ottavap->ydLast = ottavap->ydFirst;				/* We don't support diagonal octave signs yet */
 
 			GetDlgWord(dlog, EXPARAM1, &newval);
-			GRAF_ACCEPT(octavap->noCutoff);
+			GRAF_ACCEPT(ottavap->noCutoff);
 
 			GetDlgWord(dlog, RIGHT_HORIZ, &newval);
-			DIST_ACCEPT(octavap->xdLast);
+			DIST_ACCEPT(ottavap->xdLast);
 
 			PopLock(OBJheap);
 		  	break;

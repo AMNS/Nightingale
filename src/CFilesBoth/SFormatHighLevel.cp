@@ -143,7 +143,7 @@ static Boolean SFStaffNonempty(LINK pL, short staffn)
 			case SLURtype:
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case GRAPHICtype:
 			case TEMPOtype:
 			case SPACERtype:

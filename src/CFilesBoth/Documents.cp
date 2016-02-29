@@ -103,7 +103,7 @@ void InstallDocHeaps(Document *doc)
 		DYNAMheap = hp++;
 		MODNRheap = hp++;
 		GRAPHICheap = hp++;
-		NOTEOCTAVAheap = hp++;
+		NOTEOTTAVAheap = hp++;
 		SLURheap = hp++;
 		NOTETUPLEheap = hp++;
 		GRNOTEheap = hp++;

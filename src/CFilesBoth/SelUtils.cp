@@ -111,9 +111,9 @@ short GetStaffFromSel(Document *doc, LINK *pSelL)
 				if (DynamicSEL(aDynamicL))
 					{ *pSelL = pL; return DynamicSTAFF(aDynamicL); }
 				break;
-			case OCTAVAtype:
+			case OTTAVAtype:
 				*pSelL = pL;
-				return OctavaSTAFF(pL);
+				return OttavaSTAFF(pL);
 			case TUPLETtype:
 				*pSelL = pL;
 				return TupletSTAFF(pL);
@@ -218,7 +218,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 					case TUPLETtype:
 					case SLURtype:
 					case GRAPHICtype:
-					case OCTAVAtype:
+					case OTTAVAtype:
 					case TEMPOtype:
 					case SPACERtype:
 					case ENDINGtype:
@@ -352,8 +352,8 @@ short GetVoiceFromSel(Document *doc)
 				for ( ; aDynamicL; aDynamicL = NextDYNAMICL(aDynamicL))
 					if (DynamicSEL(aDynamicL)) return DynamicSTAFF(aDynamicL);
 				break;
-			case OCTAVAtype:
-				return OctavaSTAFF(pL);
+			case OTTAVAtype:
+				return OttavaSTAFF(pL);
 			case TUPLETtype:
 				return TupletVOICE(pL);
 			case GRAPHICtype:
@@ -443,7 +443,7 @@ void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 				case TUPLETtype:
 				case SLURtype:
 				case GRAPHICtype:
-				case OCTAVAtype:
+				case OTTAVAtype:
 				case TEMPOtype:
 				case SPACERtype:
 				case ENDINGtype:

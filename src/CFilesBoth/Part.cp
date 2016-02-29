@@ -160,7 +160,7 @@ static void FixStaffNums(Document *doc,
 
 		case BEAMSETtype:
 		case GRAPHICtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case SLURtype:
 		case TUPLETtype:
 		case TEMPOtype:
@@ -788,7 +788,7 @@ static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
 				break;
 
 			case BEAMSETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case GRAPHICtype:
 			case SLURtype:
 			case TUPLETtype:

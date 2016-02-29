@@ -202,7 +202,7 @@ void MEAdjustCaret(Document *doc, Boolean moveNow)
 		  	case BEAMSETtype:
 		  	case SLURtype:
 		  	case TUPLETtype:
-		  	case OCTAVAtype:
+		  	case OTTAVAtype:
 				pL = FirstValidxd(RightLINK(doc->selStartL), FALSE);
 				GetContext(doc, pL, doc->selStaff, &context);
 				xObj = PageRelxd(pL, &context);

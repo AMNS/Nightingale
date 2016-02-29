@@ -327,10 +327,11 @@ Boolean DCheckMBBox(
 	/* If Measure is of width zero, it can't contain anything, nor can it be followed by
 		another Measure until we've started a new System. */
 	if (mBBox.right<=mBBox.left) {
-		for (checkL = pL; !SystemTYPE(checkL); checkL = RightLINK(checkL)) {
+		for (checkL = RightLINK(pL); !SystemTYPE(checkL); checkL = RightLINK(checkL)) {
 			if (SystemTYPE(checkL) || TailTYPE(checkL)) break;
 			if (!PageTYPE(checkL)) {
-				COMPLAIN("DCheckMBBox: MEASURE AT %u IS NON-EMPTY BUT HAS WIDTH ZERO.\n", pL);
+				COMPLAIN2("DCheckMBBox: MEASURE AT %u IS NON-EMPTY (AT %u) BUT HAS WIDTH ZERO.\n",
+							pL, checkL);
 				break;
 			}
 		}
@@ -455,7 +456,7 @@ short DCheckNode(
 	PATIMESIG	aTimeSig;
 	PANOTEBEAM	aNoteBeam;
 	PANOTETUPLE	aNoteTuple;
-	PANOTEOCTAVA	aNoteOct;
+	PANOTEOTTAVA	aNoteOct;
 	PDYNAMIC	pDynamic;
 	PSLUR		pSlur;
 	PASLUR		aSlur;
@@ -599,7 +600,7 @@ short DCheckNode(
 						vlDur[MAXVOICES+1],						/* l_dur of voice's notes in sync */
 						vlDots[MAXVOICES+1],					/* Number of dots on voice's notes in sync */
 						vStaff[MAXVOICES+1],					/* Staff the voice is on */
-						vOct[MAXVOICES+1],						/* inOctava status for the voice */
+						vOct[MAXVOICES+1],						/* inOttava status for the voice */
 						lDurCode;
 				Boolean vTuplet[MAXVOICES+1];					/* Is the voice in a tuplet? */
 				long	timeStampHere, timeStampBefore, timeStampAfter;
@@ -645,7 +646,7 @@ short DCheckNode(
 					vStaff[aNote->voice] = aNote->staffn;
 					vlDur[aNote->voice] = aNote->subType;
 					vlDots[aNote->voice] = aNote->ndots;
-					vOct[aNote->voice] = aNote->inOctava;
+					vOct[aNote->voice] = aNote->inOttava;
 					if (aNote->inTuplet) vTuplet[aNote->voice] = TRUE;
 				}
 
@@ -696,8 +697,8 @@ short DCheckNode(
 				/* Check consistency of octave signs in chords, but complain about each no more than once. */
 				for (aNoteL = FirstSubLINK(pL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
-					if (vOct[aNote->voice]!=-999 && aNote->inOctava!=vOct[aNote->voice]) {
-						COMPLAIN2("DCheckNode: *VOICE %d IN SYNC AT %u HAS VARYING inOctava FLAGS.\n",
+					if (vOct[aNote->voice]!=-999 && aNote->inOttava!=vOct[aNote->voice]) {
+						COMPLAIN2("DCheckNode: *VOICE %d IN SYNC AT %u HAS VARYING inOttava FLAGS.\n",
 										aNote->voice, pL);
 						vOct[aNote->voice] = -999;
 						}
@@ -1106,24 +1107,24 @@ short DCheckNode(
 				PopLock(NOTETUPLEheap);
 				break;
 			
-			case OCTAVAtype:
-				PushLock(NOTEOCTAVAheap);
-				if (STAFFN_BAD(doc, ((POCTAVA)p)->staffn))
-					COMPLAIN("*DCheckNode: OCTAVA AT %u HAS BAD staffn.\n", pL);
+			case OTTAVAtype:
+				PushLock(NOTEOTTAVAheap);
+				if (STAFFN_BAD(doc, ((POTTAVA)p)->staffn))
+					COMPLAIN("*DCheckNode: OTTAVA AT %u HAS BAD staffn.\n", pL);
 
 				for (aNoteOctL=FirstSubLINK(pL);	aNoteOctL;
-						aNoteOctL=NextNOTEOCTAVAL(aNoteOctL)) {
-					aNoteOct = GetPANOTEOCTAVA(aNoteOctL);
+						aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
+					aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 					if (DBadLink(doc, OBJtype, aNoteOct->opSync, TRUE)) {
-						COMPLAIN2("•DCheckNode: OCTAVA AT %u HAS GARBAGE SYNC LINK %d.\n",
+						COMPLAIN2("•DCheckNode: OTTAVA AT %u HAS GARBAGE SYNC LINK %d.\n",
 										pL, aNoteOct->opSync);
 					}
 					else if (!SyncTYPE(aNoteOct->opSync) && !GRSyncTYPE(aNoteOct->opSync))
-						COMPLAIN2("•DCheckNode: OCTAVA AT %u HAS BAD SYNC LINK %d.\n",
+						COMPLAIN2("•DCheckNode: OTTAVA AT %u HAS BAD SYNC LINK %d.\n",
 										pL, aNoteOct->opSync);
 				}
 				
-				PopLock(NOTEOCTAVAheap);
+				PopLock(NOTEOTTAVAheap);
 				break;
 
 			case CONNECTtype:
@@ -1686,7 +1687,7 @@ Boolean DCheckHeirarchy(Document *doc)
 				goto ChkPageSysStaff;
 			case BEAMSETtype:
 			case DYNAMtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 	ChkAll:
 				if (!foundClef || !foundKeySig || !foundTimeSig)
 					COMPLAIN("•DCheckHeirarchy: NODE AT %u PRECEDES CLEF, KEYSIG, OR TIMESIG.\n", pL);
@@ -2018,7 +2019,7 @@ short CountSyncVoicesOnStaff(LINK syncL, short staff)
 should be referring to.
 
 Note that we don't keep track of when the octave signs end: therefore, adding
-checking that Notes that don't have <inOctava> flags really shouldn't isn't as
+checking that Notes that don't have <inOttava> flags really shouldn't isn't as
 easy as it might look. */
  
 Boolean DCheckOctaves(Document *doc)
@@ -2026,43 +2027,43 @@ Boolean DCheckOctaves(Document *doc)
 	PANOTE				aNote;
 	LINK					pL, aNoteL, syncL, measureL, noteOctL;
 	short					staff, s, nVoice, j;
-	LINK					octavaL[MAXSTAVES+1];
-	POCTAVA				pOct;
-	PANOTEOCTAVA		pNoteOct;
+	LINK					ottavaL[MAXSTAVES+1];
+	POTTAVA				pOct;
+	PANOTEOTTAVA		pNoteOct;
 	Boolean				bad;
 
 	bad = FALSE;
 	
 	for (s = 1; s<=doc->nstaves; s++)
-		octavaL[s] = NILINK;
+		ottavaL[s] = NILINK;
 		
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
 
-		 case OCTAVAtype:		 	
-			staff = OctavaSTAFF(pL);
+		 case OTTAVAtype:		 	
+			staff = OttavaSTAFF(pL);
 			if (STAFFN_BAD(doc, staff))
-				COMPLAIN2("*DCheckOctaves: OCTAVA AT %u HAS BAD staff %d.\n", pL, staff)
+				COMPLAIN2("*DCheckOctaves: OTTAVA AT %u HAS BAD staff %d.\n", pL, staff)
 			else
-				octavaL[staff] = pL;
+				ottavaL[staff] = pL;
 
 			measureL = LSSearch(pL, MEASUREtype, staff,	GO_RIGHT, FALSE);
 			if (measureL) {
-		 		pOct = GetPOCTAVA(pL);
-				pNoteOct = GetPANOTEOCTAVA(pOct->firstSubObj);
+		 		pOct = GetPOTTAVA(pL);
+				pNoteOct = GetPANOTEOTTAVA(pOct->firstSubObj);
 				if (IsAfter(measureL, pNoteOct->opSync))
-					COMPLAIN("*DCheckOctaves: OCTAVA AT %u IN DIFFERENT MEASURE FROM ITS 1ST SYNC.\n", pL);
+					COMPLAIN("*DCheckOctaves: OTTAVA AT %u IN DIFFERENT MEASURE FROM ITS 1ST SYNC.\n", pL);
 			}
 			
-		 	pOct = GetPOCTAVA(pL);
+		 	pOct = GetPOTTAVA(pL);
 			noteOctL = pOct->firstSubObj;
 
 			syncL = pL;
-			for ( ; noteOctL; noteOctL = NextNOTEOCTAVAL(noteOctL))	{	/* For each SYNC with a note in OCTAVA... */
+			for ( ; noteOctL; noteOctL = NextNOTEOTTAVAL(noteOctL))	{	/* For each SYNC with a note in OTTAVA... */
 Next:
 				syncL = FindNextSyncGRSync(RightLINK(syncL), staff);
 				if (DBadLink(doc, OBJtype, syncL, TRUE)) {
-					COMPLAIN("*DCheckOctaves: OCTAVA %d: TROUBLE FINDING SYNCS/GRSYNCS.\n", pL);
+					COMPLAIN("*DCheckOctaves: OTTAVA %d: TROUBLE FINDING SYNCS/GRSYNCS.\n", pL);
 					break;
 				}
 				
@@ -2077,10 +2078,10 @@ Next:
 				 */
 				nVoice = CountSyncVoicesOnStaff(syncL, staff);
 				for (j = 1; j<=nVoice; j++) {
-					if (j>1) noteOctL = NextNOTEOCTAVAL(noteOctL);
-					pNoteOct = GetPANOTEOCTAVA(noteOctL);
+					if (j>1) noteOctL = NextNOTEOTTAVAL(noteOctL);
+					pNoteOct = GetPANOTEOTTAVA(noteOctL);
 					if (pNoteOct->opSync!=syncL)
-						COMPLAIN("*DCheckOctaves: OCTAVA %d SYNC/GRSYNC LINK INCONSISTENT.\n", pL);
+						COMPLAIN("*DCheckOctaves: OTTAVA %d SYNC/GRSYNC LINK INCONSISTENT.\n", pL);
 				}
 			}
 			break;
@@ -2088,13 +2089,13 @@ Next:
 		 case SYNCtype:
 		 	for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 		 		aNote = GetPANOTE(aNoteL);
-				if (aNote->inOctava) {
-					if (!octavaL[aNote->staffn]) {
-						COMPLAIN2("*DCheckOctaves: OCTAVA'D NOTE IN SYNC %d STAFF %d WITHOUT OCTAVA.\n",
+				if (aNote->inOttava) {
+					if (!ottavaL[aNote->staffn]) {
+						COMPLAIN2("*DCheckOctaves: OTTAVA'D NOTE IN SYNC %d STAFF %d WITHOUT OTTAVA.\n",
 										pL, aNote->staffn);
 					}
-					else if (!SyncInOCTAVA(pL, octavaL[aNote->staffn]))
-						COMPLAIN2("*DCheckOctaves: OCTAVA'D NOTE IN SYNC %d STAFF %d NOT IN OCTAVA.\n",
+					else if (!SyncInOTTAVA(pL, ottavaL[aNote->staffn]))
+						COMPLAIN2("*DCheckOctaves: OTTAVA'D NOTE IN SYNC %d STAFF %d NOT IN OTTAVA.\n",
 										pL, aNote->staffn);
 				}
 			}

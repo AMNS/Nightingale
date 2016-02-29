@@ -38,7 +38,7 @@
 		KeySigOnStaff			TimeSigOnStaff			MeasOnStaff
 		NoteOnStaff				GRNoteOnStaff			NoteInVoice
 		GRNoteInVoice			SyncInVoice				GRSyncInVoice
-		SyncVoiceOnStaff		SyncInBEAMSET			SyncInOCTAVA
+		SyncVoiceOnStaff		SyncInBEAMSET			SyncInOTTAVA
 		PrevTiedNote			FirstTiedNote			ChordNextNR
 		GetCrossStaff			SetTempFlags			SetSpareFlags
 		GetMultiVoice			TweakSubRects
@@ -326,8 +326,8 @@ DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 				return xd+objXD;
 			}
 			return objXD;
-		case OCTAVAtype:
-			firstL = FirstInOctava(pL);
+		case OTTAVAtype:
+			firstL = FirstInOttava(pL);
 			xd = PageRelxd(firstL, pContext);
 			return xd+objXD;
 		case SLURtype:
@@ -415,8 +415,8 @@ DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 				return yd+objYD;
 			}
 			return objYD;
-		case OCTAVAtype:
-			firstL = FirstInOctava(pL);
+		case OTTAVAtype:
+			firstL = FirstInOttava(pL);
 			yd = PageRelyd(firstL, pContext);
 			return yd+objYD;
 		case SLURtype:
@@ -494,7 +494,7 @@ DDIST GraphicPageRelxd(Document */*doc*/,					/* unused */
 		case BEAMSETtype:
 		case DYNAMtype:
 		case GRAPHICtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case SLURtype:
 		case TUPLETtype:
 		case TEMPOtype:
@@ -2427,7 +2427,7 @@ short GetSubObjStaff(LINK pL, short index)
 		case SLURtype:
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case GRAPHICtype:
 		case ENDINGtype:
 		case TEMPOtype:
@@ -2464,7 +2464,7 @@ short GetSubObjVoice(LINK pL, short index)
 		case ENDINGtype:
 		case TEMPOtype:
 		case SPACERtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 			return NOONE;
 		case SYNCtype:
 			aNoteL = FirstSubLINK(pL);
@@ -2527,7 +2527,7 @@ Boolean ObjOnStaff(LINK pL, short staff, Boolean selectedOnly)
 		case SLURtype:
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case GRAPHICtype:
 		case TEMPOtype:
 		case SPACERtype:
@@ -2587,7 +2587,7 @@ Boolean ObjHasVoice(LINK pL)
 		case CLEFtype:
 		case KEYSIGtype:
 		case TIMESIGtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case DYNAMtype:
 		case MODNRtype:
 		case RPTENDtype:
@@ -2823,18 +2823,18 @@ Boolean SyncInBEAMSET(LINK syncL, LINK beamSetL)
 }
 
 
-/* ---------------------------------------------------------------- SyncInOCTAVA -- */
-/* Is the given Sync or GRSync in the given Octava? */
+/* ---------------------------------------------------------------- SyncInOTTAVA -- */
+/* Is the given Sync or GRSync in the given Ottava? */
 
-Boolean SyncInOCTAVA(LINK syncL, LINK octavaL)
+Boolean SyncInOTTAVA(LINK syncL, LINK ottavaL)
 {
-	PANOTEOCTAVA	pNoteOctava;		/* ptr to current OCTAVA subobject */
+	PANOTEOTTAVA	pNoteOttava;		/* ptr to current OTTAVA subobject */
 	LINK				noteOctL;
 
-	noteOctL = FirstSubLINK(octavaL);
-	for (; noteOctL; noteOctL = NextNOTEOCTAVAL(noteOctL)) {
-		pNoteOctava = GetPANOTEOCTAVA(noteOctL);
-		if (pNoteOctava->opSync==syncL) return TRUE;
+	noteOctL = FirstSubLINK(ottavaL);
+	for (; noteOctL; noteOctL = NextNOTEOTTAVAL(noteOctL)) {
+		pNoteOttava = GetPANOTEOTTAVA(noteOctL);
+		if (pNoteOttava->opSync==syncL) return TRUE;
 	}
 	return FALSE;
 }
@@ -3271,7 +3271,7 @@ Boolean HasSmthgAcross(
 	for (staff = 1; staff<=doc->nstaves && !foundSmthg; staff++) {
 		if (HasBeamAcross(link, staff)
 		||  HasTupleAcross(link, staff)
-		||  HasOctavaAcross(link, staff) ) {
+		||  HasOttavaAcross(link, staff) ) {
 			isVoice = FALSE;
 			number = staff;
 			foundSmthg = TRUE;

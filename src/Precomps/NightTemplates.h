@@ -81,7 +81,7 @@
 	Boolean	EndingDialog(short, short *, short, short *);
 	Boolean	MeasNumDialog(Document *);
 	Boolean	PageNumDialog(Document *);
-	Boolean	OctavaDialog(Document *, Byte *);
+	Boolean	OttavaDialog(Document *, Byte *);
 	short		LookAtDialog(Document *, short, LINK);
 	short		GoToDialog(Document *, short *, short *, LINK *);
 	Boolean	FTupletCheck(Document *, TupleParam *);

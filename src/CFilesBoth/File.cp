@@ -619,20 +619,20 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 			}
 	}
 
-	/* Convert Octava position info to new form: if nxd or nyd is nonzero, it's in the
+	/* Convert Ottava position info to new form: if nxd or nyd is nonzero, it's in the
 		old form, so move values into xdFirst and ydFirst, and copy them into xdLast and
 		ydLast also. */
 		
 	if (version<='N100') {
-		POCTAVA octavap;
+		POTTAVA ottavap;
 	
 		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==OCTAVAtype) {
-				octavap = GetPOCTAVA(pL);
-				if (octavap->nxd!=0 || octavap->nyd!=0) {
-					octavap->xdFirst = octavap->xdLast = octavap->nxd;
-					octavap->ydFirst = octavap->ydLast = octavap->nyd;
-					octavap->nxd = octavap->nyd = 0;
+			if (ObjLType(pL)==OTTAVAtype) {
+				ottavap = GetPOTTAVA(pL);
+				if (ottavap->nxd!=0 || ottavap->nyd!=0) {
+					ottavap->xdFirst = ottavap->xdLast = ottavap->nxd;
+					ottavap->ydFirst = ottavap->ydLast = ottavap->nyd;
+					ottavap->nxd = ottavap->nyd = 0;
 				}
 			}
 	}
@@ -744,8 +744,8 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 	
 	if (version<='N100') {
 		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
-			if (ObjLType(pL)==OCTAVAtype) {
-				SetOctavaYPos(doc, pL);
+			if (ObjLType(pL)==OTTAVAtype) {
+				SetOttavaYPos(doc, pL);
 			}
 	}
 
@@ -1110,7 +1110,7 @@ LogPrintf(LOG_NOTICE, "  Graphic L%d\n", pL);
 			break;
 
 /*
-		case OCTAVAtype:
+		case OTTAVAtype:
 			?!
 			break;
 */

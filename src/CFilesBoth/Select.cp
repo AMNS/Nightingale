@@ -591,7 +591,7 @@ void DeselectNode(LINK pL)
 		/* These types either have no subobjects, or the subobjects can't be selected */
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case GRAPHICtype:
 		case TEMPOtype:
 		case SPACERtype:
@@ -611,7 +611,7 @@ void DeselectNode(LINK pL)
 user-interface assumptions. Doesn't select the object itself; for that, call
 SelectObject instead.
 
-??Problem: tuplets and octavas should be handled the same way as beamsets, which
+??Problem: tuplets and ottavas should be handled the same way as beamsets, which
 currently leave the data structure in an  inconsistent state: the code will select
 the sync object without selecting any of its subobjects, and without choosing the
 correct subobject to select. */
@@ -660,7 +660,7 @@ void SelAllSubObjs(LINK pL)
 			}
 			break;
 		case BEAMSETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case TUPLETtype:
 		case GRAPHICtype:
 		case TEMPOtype:
@@ -727,7 +727,7 @@ void SelectRange(Document *doc, LINK startL, LINK endL, short firstStf, short la
 				break;
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case ENDINGtype:
 			case SPACERtype:
 			case GRAPHICtype:
@@ -1047,8 +1047,8 @@ static Boolean OldContinSel(Document *doc, Boolean strict)
 			case GRAPHICtype:
 				if (strict) stStatus[GraphicSTAFF(pL)] = LinkSEL(pL);
 				break;
-			case OCTAVAtype:
-				if (strict) stStatus[OctavaSTAFF(pL)] = LinkSEL(pL);
+			case OTTAVAtype:
+				if (strict) stStatus[OttavaSTAFF(pL)] = LinkSEL(pL);
 				break;
 			case SLURtype:
 				if (strict) stStatus[SlurSTAFF(pL)] = LinkSEL(pL);
@@ -1340,7 +1340,7 @@ void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 			case BEAMSETtype:
 			case TUPLETtype:
 			case SLURtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 				p = GetPMEVENT(pL);
 				if (((PEXTEND)p)->staffn==staff)
 					SetSelEnds(pL,startL,endL);

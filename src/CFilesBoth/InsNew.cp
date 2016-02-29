@@ -207,7 +207,7 @@ LINK AddNote(Document *doc,
 				short	staff,		/* Staff number */
 				short	pitchLev,	/* Half-line pitch level */
 				short	acc,		/* Accidental code */
-				short octType		/* -1 if not in Octava, else octSignType */
+				short octType		/* -1 if not in Ottava, else octSignType */
 				)
 {
 	PANOTE		aNote;
@@ -297,8 +297,8 @@ LINK AddNote(Document *doc,
 
 	AddNoteFixTuplets(doc, newL, aNoteL, voice);
 
-	if (!AddNoteFixOctavas(newL, aNoteL))
-		MayErrMsg("AddNote: AddNoteFixOctava couldn't allocate Octava subobject.");
+	if (!AddNoteFixOttavas(newL, aNoteL))
+		MayErrMsg("AddNote: AddNoteFixOttava couldn't allocate Ottava subobject.");
 	beamed = (VCheckBeamAcrossIncl(newL, voice)!=NILINK);
 
 	if (inChord) FixSyncForChord(doc, newL, voice, beamed, 0, 0, NULL);
@@ -351,7 +351,7 @@ LINK AddGRNote(Document *doc,
 					short	staff,		/* Staff number */
 					short	pitchLev,	/* Half-line pitch level */
 					short	acc,		/* Accidental code */
-					short	octType		/* -1 if not in Octava, else octSignType */
+					short	octType		/* -1 if not in Ottava, else octSignType */
 					)
 {
 	PAGRNOTE	aNote;
@@ -426,9 +426,9 @@ LINK AddGRNote(Document *doc,
 	if (inChord) aNote->ystem = aNote->yd;
 
 	/* N.B. The order of the following "Fix" calls is significant: change only with care. */
-#ifdef ADDGRNOTE_FIXOCTAVAS
-	if (!AddNoteFixOctavas(newL, aNoteL))
-		MayErrMsg("AddGRNote: AddNoteFixOctava couldn't allocate octava subobject.");
+#ifdef ADDGRNOTE_FIXOTTAVAS
+	if (!AddNoteFixOttavas(newL, aNoteL))
+		MayErrMsg("AddGRNote: AddNoteFixOttava couldn't allocate ottava subobject.");
 #endif
 
 	beamed = (Boolean)VCheckGRBeamAcrossIncl(newL, voice);

@@ -328,8 +328,8 @@ in the CNFG resource (and most of these should be moved there eventually). */
 /* The following assume <lnSp> is DDIST staff interline space, e.g., LNSPACE(pContext). */
 
 #define TUPLE_BRACKTHICK(lnSp) ((6*(lnSp))/50)	/* PostScript thickness of lines in tuplet bracket (DDIST) */
-#define OCT_THICK(lnSp)	((6*(lnSp))/50)			/* PostScript thickness of dotted lines in octavas (DDIST) */
-#define ENDING_THICK(lnSp)	((6*(lnSp))/50)		/* PostScript thickness of Ending's lines in octavas (DDIST) */
+#define OCT_THICK(lnSp)	((6*(lnSp))/50)			/* PostScript thickness of dotted lines in ottavas (DDIST) */
+#define ENDING_THICK(lnSp)	((6*(lnSp))/50)		/* PostScript thickness of Ending's lines in ottavas (DDIST) */
 
 #define TUPLE_CUTOFFLEN (STD_LINEHT/2)			/* Length of vertical cutoff line (STDIST, not DDIST) */
 #define OCT_CUTOFFLEN(lnSp) (lnSp)				/* Length of vertical cutoff line (DDIST) */

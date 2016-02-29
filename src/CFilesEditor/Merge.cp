@@ -522,8 +522,8 @@ static short Obj2Stf(LINK link, short v)
 			return BeamSTAFF(link);
 		case TUPLETtype:
 			return TupletSTAFF(link);
-		case OCTAVAtype:
-			return OctavaSTAFF(link);
+		case OTTAVAtype:
+			return OttavaSTAFF(link);
 		case SPACERtype:
 			return SpacerSTAFF(link);
 		default:
@@ -1015,7 +1015,7 @@ static LINK MCopyClipRange(Document *doc, LINK startL, LINK endL, LINK insertL,
 	firstMeasL = SSearch(doc->headL,MEASUREtype,GO_RIGHT);
 
 	FixAllBeamLinks(doc, doc, firstMeasL, insertL);
-	FixOctavaLinks(doc, doc, firstMeasL, insertL);
+	FixOttavaLinks(doc, doc, firstMeasL, insertL);
 	FixTupletLinks(doc, doc, firstMeasL, insertL);
 	
 	PasteFixStfSize(doc, RightLINK(initL), insertL);
@@ -1487,7 +1487,7 @@ static Boolean MComputePlayTimes(Document *doc, short nInMeas)
 	if (!GoodNewPtr((Ptr)stfTimeDiff)) goto broken;
 	
 	/* Set playDur values and pTime values for the pDurArray, and
-		set link values for owning beams, octavas and tuplets. */
+		set link values for owning beams, ottavas and tuplets. */
 
 	SetPlayDurs(doc,pDurArray,nInMeas,startMeas,endMeas);
 	SetPTimes(doc,pDurArray,nInMeas,spTimeInfo,startMeas,endMeas);
@@ -1515,7 +1515,7 @@ static Boolean MComputeClipPlayTimes(Document *doc, short nInMeas)
 	if (!GoodNewPtr((Ptr)clStfTimeDiff)) goto broken;
 	
 	/* Set playDur values and pTime values for the pDurArray, and
-		set link values for owning beams, octavas and tuplets. */
+		set link values for owning beams, ottavas and tuplets. */
 
 	SetPlayDurs(doc,pClDurArray,nInMeas,startClMeas,endClMeas);
 	SetPTimes(clipboard,pClDurArray,nInMeas,clSpTimeInfo,startClMeas,endClMeas);
@@ -2156,7 +2156,7 @@ static Boolean MRearrangeNotes(
 
 	GetMergeRange(startMeas,endMeas,prevL1,lastL1,first);
 
-	/* Beams, octavas and tuplets can be updated without reference
+	/* Beams, ottavas and tuplets can be updated without reference
 		to their origin. - Not true anymore, because of overlapping voices.
 		NBJD objects are distinguished as to their origin by setting
 		spareFlags of those in score FALSE, those in clip TRUE. qDurArray
@@ -2318,7 +2318,7 @@ static LINK MergeFromClip(Document *doc, LINK insertL, short *vMap, VInfo *vInfo
 	}
 
 	/* Fix NBJD objects: Non-Beamlike-J_D objects, J_D objects other than
-		Beams,Tuplets & Octavas. */
+		Beams,Tuplets & Ottavas. */
 
 	FixMergeLinks(clipboard, doc, prevL, lastL, mergeMap, numObjs);
 

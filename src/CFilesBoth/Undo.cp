@@ -499,8 +499,8 @@ static void GetUndoRange(
 		case U_Unbeam:
 		case U_Tuple:
 		case U_Untuple:
-		case U_Octava:
-		case U_UnOctava:
+		case U_Ottava:
+		case U_UnOttava:
 		case U_AddMods:
 		case U_StripMods:
 		case U_MultiVoice:
@@ -800,8 +800,8 @@ void PrepareUndo(
 		case U_Unbeam:
 		case U_Tuple:
 		case U_Untuple:
-		case U_Octava:
-		case U_UnOctava:
+		case U_Ottava:
+		case U_UnOttava:
 		case U_AddMods:
 		case U_StripMods:
 		case U_MultiVoice:

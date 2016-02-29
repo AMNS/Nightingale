@@ -98,9 +98,9 @@ static void InvalObjRanges(Document *doc, LINK startL, LINK endL, Boolean after)
 				if (after || IsBetween(LastInTuplet(pL),doc->selStartL,doc->selEndL))
 					InvalMeasures(FirstInTuplet(pL),LastInTuplet(pL),ANYONE);
 				break;
-			case OCTAVAtype:
-				if (after || IsBetween(LastInOctava(pL),doc->selStartL,doc->selEndL))
-					InvalMeasures(FirstInOctava(pL),LastInOctava(pL),ANYONE);
+			case OTTAVAtype:
+				if (after || IsBetween(LastInOttava(pL),doc->selStartL,doc->selEndL))
+					InvalMeasures(FirstInOttava(pL),LastInOttava(pL),ANYONE);
 				break;
 			case DYNAMtype:
 				if (IsHairpin(pL)) {

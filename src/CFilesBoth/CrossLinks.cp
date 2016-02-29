@@ -150,40 +150,40 @@ void FixTupletLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 }
 
 
-/* ------------------------------------------------------------- FixOctavaLinks -- */
-/* Update opSync links for all Octava objects in range. */
+/* ------------------------------------------------------------- FixOttavaLinks -- */
+/* Update opSync links for all Ottava objects in range. */
 
-void FixOctavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
+void FixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
 	short				i, k;
 	PANOTE 			aNote;
 	PAGRNOTE			aGRNote;
-	PANOTEOCTAVA 	paNoteOct;
+	PANOTEOTTAVA 	paNoteOct;
 	LINK				pL, qL, aNoteL, aNoteOctL, aGRNoteL;
 	
 	InstallDoc(fixDoc);
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
-		if (OctavaTYPE(pL)) {
+		if (OttavaTYPE(pL)) {
 			for (i=0, qL=RightLINK(pL); i<LinkNENTRIES(pL) && qL!=endL; qL=RightLINK(qL))
 				if (SyncTYPE(qL)) {
 					aNoteL = FirstSubLINK(qL);
 					for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 						aNote = GetPANOTE(aNoteL);
-						if (NoteSTAFF(aNoteL)==OctavaSTAFF(pL) && MainNote(aNoteL) && !NoteREST(aNoteL)) {
-							if (aNote->inOctava) {
+						if (NoteSTAFF(aNoteL)==OttavaSTAFF(pL) && MainNote(aNoteL) && !NoteREST(aNoteL)) {
+							if (aNote->inOttava) {
 								aNoteOctL = FirstSubLINK(pL);
-								for (k=0; k<=i; k++,aNoteOctL=NextNOTEOCTAVAL(aNoteOctL))
+								for (k=0; k<=i; k++,aNoteOctL=NextNOTEOTTAVAL(aNoteOctL))
 									if (k==i) {
-										paNoteOct = GetPANOTEOCTAVA(aNoteOctL);
+										paNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 										paNoteOct->opSync = qL;
 									}
 							}
 							else 
-								MayErrMsg("FixOctavaLinks: Unoctavad note in sync %ld where inOctava note expected",
+								MayErrMsg("FixOttavaLinks: Unottavad note in sync %ld where inOttava note expected",
 										(long)qL);
 							i++;
 						}
-						if (NoteSTAFF(aNoteL)==OctavaSTAFF(pL) && aNote->inOctava)
+						if (NoteSTAFF(aNoteL)==OttavaSTAFF(pL) && aNote->inOttava)
 							aNote->tempFlag = TRUE;
 					}
 				}
@@ -191,21 +191,21 @@ void FixOctavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 					aGRNoteL = FirstSubLINK(qL);
 					for ( ; aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL)) {
 						aGRNote = GetPAGRNOTE(aGRNoteL);
-						if (GRNoteSTAFF(aGRNoteL)==OctavaSTAFF(pL) && GRMainNote(aGRNoteL)) {
-							if (aGRNote->inOctava) {
+						if (GRNoteSTAFF(aGRNoteL)==OttavaSTAFF(pL) && GRMainNote(aGRNoteL)) {
+							if (aGRNote->inOttava) {
 								aNoteOctL = FirstSubLINK(pL);
-								for (k=0; k<=i; k++,aNoteOctL=NextNOTEOCTAVAL(aNoteOctL))
+								for (k=0; k<=i; k++,aNoteOctL=NextNOTEOTTAVAL(aNoteOctL))
 									if (k==i) {
-										paNoteOct = GetPANOTEOCTAVA(aNoteOctL);
+										paNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 										paNoteOct->opSync = qL;
 									}
 							}
 							else 
-								MayErrMsg("FixOctavaLinks: Unoctavad note in sync %ld where inOctava note expected",
+								MayErrMsg("FixOttavaLinks: Unottavad note in sync %ld where inOttava note expected",
 										(long)qL);
 							i++;
 						}
-						if (NoteSTAFF(aGRNoteL)==OctavaSTAFF(pL) && aGRNote->inOctava)
+						if (NoteSTAFF(aGRNoteL)==OttavaSTAFF(pL) && aGRNote->inOttava)
 							aGRNote->tempFlag = TRUE;
 					}
 				}
@@ -318,7 +318,7 @@ void FixCrossLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 	FixStructureLinks(doc, fixDoc, startL, endL);		/* PAGE, SYSTEM, STAFF, MEASURE */
 	FixAllBeamLinks(doc, fixDoc, startL, endL);
 	FixTupletLinks(doc, fixDoc, startL, endL);
-	FixOctavaLinks(doc, fixDoc, startL, endL);
+	FixOttavaLinks(doc, fixDoc, startL, endL);
 	SetTempFlags(doc, fixDoc, startL, endL, FALSE);
 }
 
@@ -331,5 +331,5 @@ void FixExtCrossLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL)
 {
 	FixAllBeamLinks(doc, fixDoc, startL, endL);
 	FixTupletLinks(doc, fixDoc, startL, endL);
-	FixOctavaLinks(doc, fixDoc, startL, endL);
+	FixOttavaLinks(doc, fixDoc, startL, endL);
 }

@@ -262,7 +262,7 @@ static Boolean DblDstStaffOK(LINK startL, LINK endL, short staffn)
 			case SLURtype:
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case GRAPHICtype:
 			case TEMPOtype:
 			case SPACERtype:
@@ -737,11 +737,11 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			DblMapVoices(doc, voiceMap, copyL, dstStf);
 			break;
 			
-		case OCTAVAtype:
-			copyL = DuplicateObject(OCTAVAtype, pL, FALSE, doc, doc, FALSE);
+		case OTTAVAtype:
+			copyL = DuplicateObject(OTTAVAtype, pL, FALSE, doc, doc, FALSE);
 			if (!copyL) return FAILURE;
 			InsNodeIntoSlot(copyL, pL);
-			OctavaSTAFF(copyL) = dstStf;
+			OttavaSTAFF(copyL) = dstStf;
 			break;
 		
 		case DYNAMtype:
@@ -815,7 +815,7 @@ Boolean StfHasSmthgAcross(
 	
 	if (HasBeamAcross(link, staff)
 	||  HasTupleAcross(link, staff)
-	||  HasOctavaAcross(link, staff) ) {
+	||  HasOttavaAcross(link, staff) ) {
 		isVoice = FALSE;
 		number = staff;
 		foundSmthg = TRUE;

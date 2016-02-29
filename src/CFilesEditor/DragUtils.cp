@@ -605,9 +605,9 @@ Rect SDGetMeasRect(Document *doc, LINK pL, LINK measL)
 			else
 				mRect = GetMeasRect(doc, measL);
 			break;
-		case OCTAVAtype:
-			firstMeasL = LSSearch(FirstInOctava(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-			lastMeasL = LSSearch(LastInOctava(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+		case OTTAVAtype:
+			firstMeasL = LSSearch(FirstInOttava(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+			lastMeasL = LSSearch(LastInOttava(pL), MEASUREtype, 1, GO_LEFT, FALSE);
 			if (firstMeasL!=lastMeasL)
 				mRect = Get2MeasRect(doc, firstMeasL, lastMeasL);
 			else
@@ -973,9 +973,9 @@ void SDCleanUp(
 			case BEAMSETtype:
 				InvalMeasures(FirstInBeam(pL), LastInBeam(pL), ANYONE);
 				break;
-			case OCTAVAtype:
+			case OTTAVAtype:
 				SDInvalObjRects(doc, pL, xdDiff, ydDiff, 1);
-				InvalMeasures(FirstInOctava(pL), LastInOctava(pL), ANYONE);
+				InvalMeasures(FirstInOttava(pL), LastInOttava(pL), ANYONE);
 				break;
 			case TUPLETtype:
 				SDInvalObjRects(doc, pL, xdDiff, ydDiff, 1);

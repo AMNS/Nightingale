@@ -1066,7 +1066,7 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 
 
 /* ----------------------------------------------------------------- AnchorSearch -- */
-/*	Given a Dynamic, Graphic, Octava, Tempo or Ending, return the closest 
+/*	Given a Dynamic, Graphic, Ottava, Tempo or Ending, return the closest 
 	(in the data structure) eligible anchor symbol, else return NILINK.
 	
 	<dependentL> type			eligible anchor types
@@ -1074,7 +1074,7 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 	DYNAMtype					SYNCtype
 	GRAPHICtype					SYNCtype, RPTENDtype, PAGEtype, MEASUREtype, CLEFtype,
 									KEYSIGtype, TIMESIGtype, SPACERtype, PSMEAStype
-	OCTAVAtype					SYNCtype, GRSYNCtype
+	OTTAVAtype					SYNCtype, GRSYNCtype
 [	SLURtype						SYNCtype, SYSTEMtype --slurs and tuplets not handled here]
 [	TUPLETtype					SYNCtype ]
 	TEMPOtype					SYNCtype, RPTENDtype, MEASUREtype, CLEFtype, KEYSIGtype,
@@ -1112,8 +1112,8 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 			if (staff==NOONE && iVoice==NOONE)
 				return SSearch(LeftLINK(dependentL), PAGEtype, GO_LEFT);
 			break;
-		case OCTAVAtype:
-			staff = OctavaSTAFF(dependentL);
+		case OTTAVAtype:
+			staff = OttavaSTAFF(dependentL);
 			break;
 		case TEMPOtype:
 			staff = TempoSTAFF(dependentL);
@@ -1160,7 +1160,7 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 						return pL;
 				break;
 			case GRSYNCtype:
-				if (dType==OCTAVAtype && GRNoteOnStaff(pL, staff))
+				if (dType==OTTAVAtype && GRNoteOnStaff(pL, staff))
 					return pL;
 				break;
 			case SPACERtype:

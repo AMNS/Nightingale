@@ -75,7 +75,7 @@ Boolean AltInsTrackPitch(
 				short		staff,
 				short		*pHalfLn,		/* pitch level return value */
 				short		*pAccident,		/* accidental return value */
-				short		octType,			/* type of octava note is to be inserted into. */
+				short		octType,			/* type of ottava note is to be inserted into. */
 				Boolean	inclDblAccs 	/* include dbl-sharp and dbl-flat in acc. sequence? */
 				)
 {

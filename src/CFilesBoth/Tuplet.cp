@@ -257,7 +257,7 @@ static Boolean ComputePlayDurs(Document *doc, SELRANGE selRange[], short tupleNu
 
 	SetPlayDurs(doc,pDurArray,nInMeas,startMeas,endMeas);
 
-	/* Set link values for owning beams, octavas & tuplets. */
+	/* Set link values for owning beams, ottavas & tuplets. */
 
 	SetLinkOwners(pDurArray,nInMeas,startMeas,endMeas);
 
@@ -688,11 +688,11 @@ void DoTuple(Document *doc, TupleParam *tParam)
 	else
 		InvalMeasures(doc->selStartL, doc->selEndL, ANYONE);						/* Force redrawing all affected measures */
 		
-	/* Need these calls to fix up links for Beams and Octavas which extend
+	/* Need these calls to fix up links for Beams and Ottavas which extend
 		outside the tupleted measure. */
 
 	FixAllBeamLinks(doc,doc,doc->headL,doc->tailL);
-	FixOctavaLinks(doc,doc,doc->headL,doc->tailL);
+	FixOttavaLinks(doc,doc,doc->headL,doc->tailL);
 
 broken:
 	DisableUndo(doc,TRUE);
@@ -1002,7 +1002,7 @@ static Boolean RecomputePlayDurs(
 
 	SetPlayDurs(doc,pDurArray,nInMeas,startMeas,endMeas);
 
-	/* Set link values for owning beams, octavas, tuplets and slurs. */
+	/* Set link values for owning beams, ottavas, tuplets and slurs. */
 	
 	SetLinkOwners(pDurArray,nInMeas,startMeas,endMeas);
 

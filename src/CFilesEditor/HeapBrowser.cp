@@ -38,7 +38,7 @@ static void HeapBrowseMODNR(short);
 static void HeapBrowseRepeatEnd(short);
 static void HeapBrowseSlur(short);
 static void HeapBrowseTuplet(short);
-static void HeapBrowseOctava(short);
+static void HeapBrowseOttava(short);
 static void HeapBrowseGRSync(short);
 static void HeapBrowseObject(short);
 
@@ -206,8 +206,8 @@ static void ShowHeap(short theHeap, register short itemIndex)
 	case TUPLETtype:
 		HeapBrowseTuplet(itemIndex);
 		break;
-	case OCTAVAtype:
-		HeapBrowseOctava(itemIndex);
+	case OTTAVAtype:
+		HeapBrowseOttava(itemIndex);
 		break;
 	case GRSYNCtype:
 		HeapBrowseGRSync(itemIndex);
@@ -478,8 +478,8 @@ void HeapBrowseSync(short itemIndex)
 	sprintf(s, "beamed=%s otherStemSide==%s", q->beamed ? "TRUE" : "false",
 															q->otherStemSide ? "TRUE" : "false");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "inTuplet=%s inOctava=%s", q->inTuplet ? "TRUE" : "false",
-														 q->inOctava ? "TRUE" : "false");
+	sprintf(s, "inTuplet=%s inOttava=%s", q->inTuplet ? "TRUE" : "false",
+														 q->inOttava ? "TRUE" : "false");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "firstMod=%d", q->firstMod);
 	HeapDrawLine(s);
@@ -597,14 +597,14 @@ void HeapBrowseTuplet(short itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseOctava(short itemIndex)
+void HeapBrowseOttava(short itemIndex)
 {
 	LINK qL;
-	PANOTEOCTAVA q;
+	PANOTEOTTAVA q;
 	
 	qL = itemIndex;
 	
-	q = GetPANOTEOCTAVA(qL);
+	q = GetPANOTEOTTAVA(qL);
 	sprintf(s, "link=%d @%lx opSync=%d next=%d", qL, q, q->opSync, q->next);
 	HeapDrawLine(s);
 }

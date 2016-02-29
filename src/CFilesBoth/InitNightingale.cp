@@ -432,8 +432,8 @@ static void PrintInfo()
 		sizeof(SYSTEM), sizeof(STAFF), sizeof(MEASURE), sizeof(CLEF), sizeof(KEYSIG));
 	LogPrintf(LOG_NOTICE, "Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
 		sizeof(TIMESIG), sizeof(BEAMSET), sizeof(CONNECT), sizeof(DYNAMIC));
-	LogPrintf(LOG_NOTICE, "Size of GRAPHIC=%ld OCTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
-		sizeof(GRAPHIC), sizeof(OCTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
+	LogPrintf(LOG_NOTICE, "Size of GRAPHIC=%ld OTTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
+		sizeof(GRAPHIC), sizeof(OTTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
 	LogPrintf(LOG_NOTICE, "Size of TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
 		sizeof(TEMPO), sizeof(SPACER), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
 #endif

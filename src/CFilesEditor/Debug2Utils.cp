@@ -465,11 +465,11 @@ Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 			}
 			break;
 		}
-		case OCTAVAtype: {
+		case OTTAVAtype: {
 			LINK aNoteOctL;
 			
 			aNoteOctL = FirstSubLINK(pL);
-			for ( ; aNoteOctL; aNoteOctL=NextNOTEOCTAVAL(aNoteOctL)) {
+			for ( ; aNoteOctL; aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
 				if (DBadLink(doc, ObjLType(pL), aNoteOctL, FALSE))
 					{ badLink = aNoteOctL; bad = TRUE; break; }
 			}
@@ -550,7 +550,7 @@ Boolean DCheckNoteNums(Document *doc)
 	/*
 	 * We keep track of where octave signs begin. But keeping track of where they end
 	 * is a bit messy: to avoid doing that, we'll just rely on each Note subobj's
-	 * inOctava flag to say whether it's in one.
+	 * inOttava flag to say whether it's in one.
 	 */
 	for (staff = 1; staff<=doc->nstaves; staff++)
 		octType[staff] = 0;											/* Initially, no octave sign */
@@ -570,7 +570,7 @@ Boolean DCheckNoteNums(Document *doc)
 								haveAccs = TRUE;
 							}
 
-							useOctType = (NoteINOCTAVA(aNoteL)? octType[staff] : 0);
+							useOctType = (NoteINOTTAVA(aNoteL)? octType[staff] : 0);
 							nnDiff = DBadNoteNum(doc, clefType, useOctType, accTable, pL, aNoteL);
 							if (nnDiff!=0) {
 								if (abs(nnDiff)<=2) {
@@ -588,8 +588,8 @@ Boolean DCheckNoteNums(Document *doc)
 					aClefL = ClefOnStaff(pL, staff);
 					if (aClefL) clefType = ClefType(aClefL);
 					break;
-				case OCTAVAtype:
-					if (OctavaSTAFF(pL)==staff)
+				case OTTAVAtype:
+					if (OttavaSTAFF(pL)==staff)
 						octType[staff] = OctType(pL);
 					break;
 				default:

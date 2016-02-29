@@ -9,7 +9,7 @@
 		CheckENDING
 		CheckKEYSIG			CheckSYNC			CheckGRSYNC
 		CheckTIMESIG		CheckMEASURE		CheckBEAMSET
-		CheckTUPLET			CheckOCTAVA			CheckSLUR
+		CheckTUPLET			CheckOTTAVA			CheckSLUR
 /***************************************************************************/
 
 /*										NOTICE
@@ -3172,17 +3172,17 @@ PopLock(OBJheap);
 }
 
 
-/* ----------------------------------------------------------------- CheckOCTAVA -- */
-/* OCTAVA object selecter/highliter.  Does different things depending on the value of
+/* ----------------------------------------------------------------- CheckOTTAVA -- */
+/* OTTAVA object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-short CheckOCTAVA(Document *doc, LINK pL, CONTEXT context[],
+short CheckOTTAVA(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
 						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
-	POCTAVA		p;
+	POTTAVA		p;
 	short			result;			/* =NOMATCH unless object/subobject clicked in */
 	Rect			rSub,				/* bounding box for sub-object */
 					wSub,				/* window-relative of above */
@@ -3190,7 +3190,7 @@ short CheckOCTAVA(Document *doc, LINK pL, CONTEXT context[],
 	CONTEXT		*pContext;
 
 PushLock(OBJheap);
-	p = GetPOCTAVA(pL);
+	p = GetPOTTAVA(pL);
 	result = NOMATCH;
 	rSub = LinkOBJRECT(pL);
 	pContext = &context[p->staffn];
@@ -3206,7 +3206,7 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMDblClick:
-		HiliteAttPoints(doc, FirstInOctava(pL), LastInOctava(pL), p->staffn);
+		HiliteAttPoints(doc, FirstInOttava(pL), LastInOttava(pL), p->staffn);
 		break;
 	case SMDrag:
 		UnionRect(&rSub, (Rect *)ptr, &aRect);				/* does (Rect *)ptr enclose rSub? */

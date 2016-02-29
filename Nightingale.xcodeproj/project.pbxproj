@@ -10,6 +10,7 @@
 		151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151D712F1C4FA1A900B49302 /* VoiceTable.cp */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
+		15E4B7751C823507001279A2 /* Ottava.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E4B7741C823507001279A2 /* Ottava.cp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
 		D03AF8500D6F4F9C0018F558 /* Main.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03AF84F0D6F4F9C0018F558 /* Main.cp */; };
@@ -73,7 +74,6 @@
 		D03E6F030D5FA2F8005FD177 /* Nodes.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EFB0D5FA2F8005FD177 /* Nodes.cp */; };
 		D03E6F040D5FA2F8005FD177 /* NTimeMgr.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EFC0D5FA2F8005FD177 /* NTimeMgr.cp */; };
 		D03E6F050D5FA2F8005FD177 /* Objects.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EFD0D5FA2F8005FD177 /* Objects.cp */; };
-		D03E6F060D5FA2F8005FD177 /* Octava.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EFE0D5FA2F8005FD177 /* Octava.cp */; };
 		D03E709C0D5FA5B2005FD177 /* AccModNRMouse.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70550D5FA5B2005FD177 /* AccModNRMouse.cp */; };
 		D03E709D0D5FA5B2005FD177 /* BeamBreak.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70560D5FA5B2005FD177 /* BeamBreak.cp */; };
 		D03E709E0D5FA5B2005FD177 /* Browser.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70570D5FA5B2005FD177 /* Browser.cp */; };
@@ -205,6 +205,7 @@
 /* Begin PBXFileReference section */
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
+		15E4B7741C823507001279A2 /* Ottava.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Ottava.cp; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		32DBCF6D0370B57F00C91783 /* Nightingale_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nightingale_Prefix.pch; sourceTree = "<group>"; };
 		4A9504C8FFE6A3BC11CA0CBA /* ApplicationServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ApplicationServices.framework; path = /System/Library/Frameworks/ApplicationServices.framework; sourceTree = "<absolute>"; };
@@ -364,7 +365,6 @@
 		D03E6EFB0D5FA2F8005FD177 /* Nodes.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Nodes.cp; sourceTree = "<group>"; };
 		D03E6EFC0D5FA2F8005FD177 /* NTimeMgr.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NTimeMgr.cp; sourceTree = "<group>"; };
 		D03E6EFD0D5FA2F8005FD177 /* Objects.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Objects.cp; sourceTree = "<group>"; };
-		D03E6EFE0D5FA2F8005FD177 /* Octava.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Octava.cp; sourceTree = "<group>"; };
 		D03E70550D5FA5B2005FD177 /* AccModNRMouse.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AccModNRMouse.cp; sourceTree = "<group>"; };
 		D03E70560D5FA5B2005FD177 /* BeamBreak.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = BeamBreak.cp; sourceTree = "<group>"; };
 		D03E70570D5FA5B2005FD177 /* Browser.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Browser.cp; sourceTree = "<group>"; };
@@ -747,7 +747,7 @@
 				D03E6EFB0D5FA2F8005FD177 /* Nodes.cp */,
 				D03E6EFC0D5FA2F8005FD177 /* NTimeMgr.cp */,
 				D03E6EFD0D5FA2F8005FD177 /* Objects.cp */,
-				D03E6EFE0D5FA2F8005FD177 /* Octava.cp */,
+				15E4B7741C823507001279A2 /* Ottava.cp */,
 				D088B9800D5FBA100028C2BC /* Part.cp */,
 				D088B9810D5FBA100028C2BC /* PitchUtils.cp */,
 				D088B9820D5FBA100028C2BC /* Preferences.cp */,
@@ -1082,7 +1082,6 @@
 				D03E6F030D5FA2F8005FD177 /* Nodes.cp in Sources */,
 				D03E6F040D5FA2F8005FD177 /* NTimeMgr.cp in Sources */,
 				D03E6F050D5FA2F8005FD177 /* Objects.cp in Sources */,
-				D03E6F060D5FA2F8005FD177 /* Octava.cp in Sources */,
 				D03E709C0D5FA5B2005FD177 /* AccModNRMouse.cp in Sources */,
 				D03E709D0D5FA5B2005FD177 /* BeamBreak.cp in Sources */,
 				D03E709E0D5FA5B2005FD177 /* Browser.cp in Sources */,
@@ -1182,6 +1181,7 @@
 				15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */,
 				15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */,
 				151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */,
+				15E4B7751C823507001279A2 /* Ottava.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

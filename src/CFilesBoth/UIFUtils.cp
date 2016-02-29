@@ -540,7 +540,7 @@ const char *NameHeapType(
 		case DYNAMtype:		ps = (friendly? "dynamic" : "DYNAMIC"); break;
 		case MODNRtype:		ps = (friendly? "note modifier" : "MODNR"); break;
 		case GRAPHICtype:	ps = (friendly? "Graphic" : "GRAPHIC"); break;
-		case OCTAVAtype:	ps = (friendly? "octave sign" : "OCTAVE"); break;
+		case OTTAVAtype:	ps = (friendly? "octave sign" : "OCTAVE"); break;
 		case SLURtype:		ps = (friendly? "slur and tie" : "SLUR"); break;
 		case GRSYNCtype:	ps = (friendly? "grace note" : "GRSYNC"); break;
 		case TEMPOtype:		ps = (friendly? "tempo mark" : "TEMPO"); break;

@@ -142,7 +142,7 @@ Boolean SyncInVoice(LINK pL, short voice);
 Boolean GRSyncInVoice(LINK pL, short voice);
 short SyncVoiceOnStaff(LINK, short);
 Boolean SyncInBEAMSET(LINK, LINK);
-Boolean SyncInOCTAVA(LINK, LINK);
+Boolean SyncInOTTAVA(LINK, LINK);
 
 Boolean PrevTiedNote(LINK, LINK, LINK *, LINK *);
 Boolean FirstTiedNote(LINK, LINK, LINK *, LINK *);

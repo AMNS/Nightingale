@@ -669,8 +669,8 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 				return pL;
 			}
 			break;
-		case OCTAVAtype:
-			if (*pIndex = CheckOCTAVA(doc, pL, context, ptr, mode, stfRange, enlarge)!=NOMATCH) {
+		case OTTAVAtype:
+			if (*pIndex = CheckOTTAVA(doc, pL, context, ptr, mode, stfRange, enlarge)!=NOMATCH) {
 				*found = TRUE;
 				return pL;
 			}
@@ -724,7 +724,7 @@ Boolean ObjectTest(Rect *paper, Point pt, LINK pL)
 		case ENDINGtype:
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 			tempRect = LinkOBJRECT(pL);
 			InsetRect(&tempRect, -1, -1);
 			return(PtInRect(pt, &tempRect));
@@ -855,8 +855,8 @@ LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 						if ((*pIndex=CheckTUPLET(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;					
-					case OCTAVAtype: 
-						if ((*pIndex=CheckOCTAVA(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					case OTTAVAtype: 
+						if ((*pIndex=CheckOTTAVA(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;	
 					case SLURtype: 

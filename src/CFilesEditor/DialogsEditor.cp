@@ -17,7 +17,7 @@
 /*
 	LeftEndDialog & friends
 	SpaceDialog					TremSlashesDialog			EndingDialog
-	MeasNumDialog				PageNumDialog				OctavaDialog
+	MeasNumDialog				PageNumDialog				OttavaDialog
 	TupletDialog & friends		SetDurDialog & friends		TempoDialog & friends
 	SetMBRestDialog
 	DrawSampStaff				RLarger/RSmallerStaff		RHandleKeyDown
@@ -37,7 +37,7 @@ static void DrawSampStaff(void);
 static pascal Boolean LeftEndFilter(DialogPtr, EventRecord *, short *);
 static Boolean LeftEndBadValues(Document *, short, short);
 
-static Boolean GetOctavaAlta(Document *, short);
+static Boolean GetOttavaAlta(Document *, short);
 static void RLargerStaff(void);
 static void RSmallerStaff(void);
 static Boolean RHandleKeyDown(EventRecord *);
@@ -930,7 +930,7 @@ Boolean PageNumDialog(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------- OctavaDialog -- */
+/* ----------------------------------------------------------------- OttavaDialog -- */
 
 static enum 
 {
@@ -940,13 +940,13 @@ static enum
 	OCT8vaBassa_DI,
 	OCT15maBassa_DI,
 	OCT22maBassa_DI
-} E_OctavaItems;
+} E_OttavaItems;
 
-/* Determine whether to initialize the octava dialog with OCT8va or
+/* Determine whether to initialize the ottava dialog with OCT8va or
 OCT8vaBassa. Returns true if the average position of all notes on <selStf>
 in the selection range is above the staffTop. */
 
-Boolean GetOctavaAlta(Document *doc, short selStf)
+Boolean GetOttavaAlta(Document *doc, short selStf)
 {
 	LINK pL, aNoteL;
 	PANOTE	aNote;
@@ -968,10 +968,10 @@ Boolean GetOctavaAlta(Document *doc, short selStf)
 	return (yd <= 0);
 }
 
-/* Dialog to get Octava type.  Returns FALSE for Cancel, TRUE for OK; also return in
+/* Dialog to get Ottava type.  Returns FALSE for Cancel, TRUE for OK; also return in
 a parameter the type of octave sign. */
 
-Boolean OctavaDialog(Document *doc, Byte *octSignType)
+Boolean OttavaDialog(Document *doc, Byte *octSignType)
 {	
 	DialogPtr	dlog;
 	short			ditem, radio, selStf;
@@ -981,16 +981,16 @@ Boolean OctavaDialog(Document *doc, Byte *octSignType)
 
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
-		MissingDialog(OCTAVA_DLOG);
+		MissingDialog(OTTAVA_DLOG);
 		return FALSE;
 	}
 	
 	GetPort(&oldPort);
-	dlog = GetNewDialog(OCTAVA_DLOG, NULL, BRING_TO_FRONT);
+	dlog = GetNewDialog(OTTAVA_DLOG, NULL, BRING_TO_FRONT);
 	if (dlog) {
 		SetPort(GetDialogWindowPort(dlog));
 		selStf = GetSelectionStaff(doc);
-		alta = (selStf == NOONE) ? TRUE : GetOctavaAlta(doc, selStf);
+		alta = (selStf == NOONE) ? TRUE : GetOttavaAlta(doc, selStf);
 		radio = alta ? OCT8va_DI : OCT8vaBassa_DI;
 		PutDlgChkRadio(dlog,radio,TRUE);
 	
@@ -1012,7 +1012,7 @@ Boolean OctavaDialog(Document *doc, Byte *octSignType)
 		}
 	else {
 		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(OCTAVA_DLOG);
+		MissingDialog(OTTAVA_DLOG);
 		ditem = Cancel;
 		}
 	

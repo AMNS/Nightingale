@@ -41,7 +41,7 @@ void RelocateClGenlJDObjs(Document *,LINK,LINK,LINK,LINK,PTIME *,short,COPYMAP *
 
 LINK GetFirstBeam(LINK syncL);
 LINK GetFirstTuplet(LINK syncL);
-LINK GetFirstOctava(LINK syncL);
+LINK GetFirstOttava(LINK syncL);
 LINK GetFirstSlur(PTIME *);
 LINK GetBaseLink(Document *doc, short type, LINK startMeasL);
 

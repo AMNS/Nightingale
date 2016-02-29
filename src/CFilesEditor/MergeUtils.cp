@@ -27,8 +27,8 @@ static void GetMrgdUnmrgd(LINK syncL,short v,Boolean *merged,Boolean *unMerged);
 static void MFixOverlapSync(Document *doc, LINK syncL,short v);
 static void MergeFixBeamRange(Document *doc, LINK startL,LINK endL,short v);
 
-static void MUnOctavaSync(Document *,LINK,LINK,DDIST,short,CONTEXT,Boolean);
-static void MUnOctavaGRSync(Document *,LINK,LINK,DDIST,short,CONTEXT,Boolean);
+static void MUnOttavaSync(Document *,LINK,LINK,DDIST,short,CONTEXT,Boolean);
+static void MUnOttavaGRSync(Document *,LINK,LINK,DDIST,short,CONTEXT,Boolean);
 static void MRemoveOctOnStf(Document *doc,LINK octL,short s,Boolean merged);
 static void MergeFixOctRange(Document *doc,LINK startL,LINK endL,VInfo *vInfo,short v);
 
@@ -37,7 +37,7 @@ static void MFixAllAccidentals(LINK, LINK, short, Boolean);
 static void MEFixAccsForKeySig(Document *, LINK, LINK, short, KSINFO, KSINFO);
 static void MergeFixAllContexts(Document *, LINK, LINK, short, CONTEXT, CONTEXT);
 
-static void MFixOctavaLinks(Document *oldDoc,Document *fixDoc,LINK startL,LINK endL);
+static void MFixOttavaLinks(Document *oldDoc,Document *fixDoc,LINK startL,LINK endL);
 static void MFixBeamLinks(Document *oldDoc,Document *fixDoc,LINK startL,LINK endL);
 static void MFixAllBeamLinks(Document *oldDoc,Document *fixDoc,LINK startL,LINK endL);
 
@@ -325,11 +325,11 @@ static void MergeFixBeamRange(Document *doc, LINK startL, LINK endL, short v)
 }
 
 
-/* ----------------------------------------------- MUnOctavaSync,MUnOctavaGRSync -- */
-/* Unoctava a Sync or GRSync of whose notes only those with merged status <merged>
-actually require un-Octava-ing. */
+/* ----------------------------------------------- MUnOttavaSync,MUnOttavaGRSync -- */
+/* Unottava a Sync or GRSync of whose notes only those with merged status <merged>
+actually require un-Ottava-ing. */
 
-static void MUnOctavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short s,
+static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short s,
 									CONTEXT context, Boolean merged)
 {
 	LINK aNoteL; 
@@ -345,8 +345,8 @@ static void MUnOctavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 	aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
-		if (aNote->staffn==s && aNote->inOctava && aNote->merged==merged) {
-			aNote->inOctava = FALSE;
+		if (aNote->staffn==s && aNote->inOttava && aNote->merged==merged) {
+			aNote->inOttava = FALSE;
 			aNote->yd -= yDelta;
 			aNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
 
@@ -376,7 +376,7 @@ static void MUnOctavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 	}
 }
 
-static void MUnOctavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
+static void MUnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
 									short s, CONTEXT context, Boolean /*merged*/)
 {
 	LINK aGRNoteL;
@@ -388,8 +388,8 @@ static void MUnOctavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
 	aGRNoteL = FirstSubLINK(pL);
 	for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 		aGRNote = GetPAGRNOTE(aGRNoteL);
-		if (aGRNote->staffn==s && aGRNote->inOctava) {
-			aGRNote->inOctava = FALSE;
+		if (aGRNote->staffn==s && aGRNote->inOttava) {
+			aGRNote->inOttava = FALSE;
 			aGRNote->yd -= yDelta;
 			aGRNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
 			stemLen = QSTEMLEN(!multiVoice, ShortenStem(aGRNoteL, context, stemDown));
@@ -421,26 +421,26 @@ accordingly. Specifically for use by Merge. */
 
 static void MRemoveOctOnStf(Document *doc, LINK octL,
 								short s,
-								Boolean merged			/* TRUE if removing merged-in Octava */
+								Boolean merged			/* TRUE if removing merged-in Ottava */
 								)
 {
-	DDIST yDelta; CONTEXT context; LINK syncL, aNoteOctavaL;
-	PANOTEOCTAVA aNoteOctava;
+	DDIST yDelta; CONTEXT context; LINK syncL, aNoteOttavaL;
+	PANOTEOTTAVA aNoteOttava;
 
 	/* Update note's y position. */
 	GetContext(doc, octL, s, &context);
 	yDelta = halfLn2d(noteOffset[OctType(octL)-1],context.staffHeight,context.staffLines);
 							
-	aNoteOctavaL = FirstSubLINK(octL);
-	for ( ; aNoteOctavaL; aNoteOctavaL = NextNOTEOCTAVAL(aNoteOctavaL)) {
-		aNoteOctava = GetPANOTEOCTAVA(aNoteOctavaL);
-		syncL = aNoteOctava->opSync;
+	aNoteOttavaL = FirstSubLINK(octL);
+	for ( ; aNoteOttavaL; aNoteOttavaL = NextNOTEOTTAVAL(aNoteOttavaL)) {
+		aNoteOttava = GetPANOTEOTTAVA(aNoteOttavaL);
+		syncL = aNoteOttava->opSync;
 
 		if (SyncTYPE(syncL)) {
-			MUnOctavaSync(doc,octL,syncL,yDelta,s,context,merged);
+			MUnOttavaSync(doc,octL,syncL,yDelta,s,context,merged);
 		}
 		else if (GRSyncTYPE(syncL)) {
-			MUnOctavaGRSync(doc,octL,syncL,yDelta,s,context,merged);
+			MUnOttavaGRSync(doc,octL,syncL,yDelta,s,context,merged);
 		}
 	}
 	
@@ -452,7 +452,7 @@ static void MRemoveOctOnStf(Document *doc, LINK octL,
 In order to rebeam properly, it appears necessary to pre-process notes
 merged into a beamset from the score, by: i. setting aNote->ystem = aNote->yd
 and ii. setting the inChord flag. Similar pre-processing would appear
-necessary for octavas, but it is not clear how to distinguish the notes which
+necessary for ottavas, but it is not clear how to distinguish the notes which
 would not need the pre-processing and in fact should not have it because they
 have already been processed for beams. */
 
@@ -462,7 +462,7 @@ static void MergeFixOctRange(Document *doc, LINK startL, LINK endL, VInfo *vInfo
 	short firstStf,lastStf,s,nInOct,octType;
 	Boolean hasMerged,hasUnmerged;
 	PANOTE aNote;
-	PANOTEOCTAVA aNoteOct;
+	PANOTEOTTAVA aNoteOct;
 	
 	if (vInfo[v].singleStf)
 		firstStf = lastStf = v;
@@ -474,24 +474,24 @@ static void MergeFixOctRange(Document *doc, LINK startL, LINK endL, VInfo *vInfo
 	/*
 	 * An additional problem with the following tests beyond that described in the
 	 * body of the loops is that the MainNote(aNoteL) test is the standard way to
-	 * traverse the octavas, and this information has already been wiped out by the
+	 * traverse the ottavas, and this information has already been wiped out by the
 	 * process of fixing up beams. If we call MergeFixOctRange before fixing up beams,
 	 * it will interfere with the function to fix up beams.
 	 */
 	for (s=firstStf; s<=lastStf; s++) {
 		for (pL=startL; pL!=endL; pL=RightLINK(pL)) {
-			if (OctavaTYPE(pL) && OctavaSTAFF(pL)==s) {
+			if (OttavaTYPE(pL) && OttavaSTAFF(pL)==s) {
 				if (LinkSPAREFLAG(pL)) {
 					hasUnmerged = FALSE;
 					aNoteOctL = FirstSubLINK(pL);
-					for ( ; aNoteOctL; aNoteOctL=NextNOTEOCTAVAL(aNoteOctL)) {
-						aNoteOct = GetPANOTEOCTAVA(aNoteOctL);
+					for ( ; aNoteOctL; aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
+						aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 						qL = aNoteOct->opSync;
 						aNoteL = FirstSubLINK(qL);
 						for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 							aNote = GetPANOTE(aNoteL);
-							if (NoteSTAFF(aNoteL)==OctavaSTAFF(pL) && !NoteREST(aNoteL)) {
-								if (aNote->inOctava) {
+							if (NoteSTAFF(aNoteL)==OttavaSTAFF(pL) && !NoteREST(aNoteL)) {
+								if (aNote->inOttava) {
 									if (!NoteMERGED(aNoteL))
 										hasUnmerged = TRUE;
 										goto doneCheck;
@@ -502,7 +502,7 @@ static void MergeFixOctRange(Document *doc, LINK startL, LINK endL, VInfo *vInfo
 
 doneCheck:
 					/* This is a merged octave. If hasUnmerged is TRUE, we have problems,
-						and must remove the Octava, taking into account that its internal
+						and must remove the Ottava, taking into account that its internal
 						structure may be inconsistent at this point due to the presence of
 						unmerged notes. */
 				
@@ -517,18 +517,18 @@ doneCheck:
 
 	for (s=firstStf; s<=lastStf; s++) {
 		for (pL=startL; pL!=endL; pL=RightLINK(pL)) {
-			if (OctavaTYPE(pL) && OctavaSTAFF(pL)==s) {
+			if (OttavaTYPE(pL) && OttavaSTAFF(pL)==s) {
 				if (!LinkSPAREFLAG(pL)) {
 					hasMerged = FALSE;
 					aNoteOctL = FirstSubLINK(pL);
-					for ( ; aNoteOctL; aNoteOctL=NextNOTEOCTAVAL(aNoteOctL)) {
-						aNoteOct = GetPANOTEOCTAVA(aNoteOctL);
+					for ( ; aNoteOctL; aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
+						aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 						qL = aNoteOct->opSync;
 						aNoteL = FirstSubLINK(qL);
 						for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 							aNote = GetPANOTE(aNoteL);
-							if (NoteSTAFF(aNoteL)==OctavaSTAFF(pL) && !NoteREST(aNoteL)) {
-								if (aNote->inOctava) {
+							if (NoteSTAFF(aNoteL)==OttavaSTAFF(pL) && !NoteREST(aNoteL)) {
+								if (aNote->inOttava) {
 									if (NoteMERGED(aNoteL))
 										hasMerged = TRUE;
 										goto doneCheck1;
@@ -539,19 +539,19 @@ doneCheck:
 
 doneCheck1:
 					/* This is an octave from the score. If hasMerged is TRUE, we have
-						problems; we must remove and recreate the Octava, taking into
+						problems; we must remove and recreate the Ottava, taking into
 						account that its internal structure may be inconsistent at this
-						point due to the presence of merged notes. To recreate the Octava,
+						point due to the presence of merged notes. To recreate the Ottava,
 						note: first & last syncs and nEntries are unchanged, because
 						merging with overlapping voices does not change 'syncage'. */
 
 					if (hasMerged) {
-						firstSyncL = FirstInOctava(pL);
-						lastSyncL = LastInOctava(pL);
+						firstSyncL = FirstInOttava(pL);
+						lastSyncL = LastInOttava(pL);
 						nInOct = LinkNENTRIES(pL);
 						octType = OctType(pL);
 						MRemoveOctOnStf(doc, pL, s, FALSE);
-						CreateOCTAVA(doc,firstSyncL,lastSyncL,s,nInOct,octType,FALSE,FALSE);
+						CreateOTTAVA(doc,firstSyncL,lastSyncL,s,nInOct,octType,FALSE,FALSE);
 					}
 				
 				}
@@ -882,7 +882,7 @@ void MergeFixContext(Document *doc, LINK initL, LINK succL, short minStf, short 
 	}
 	
 	for (s = minStf+staffDiff; s<=maxStf+staffDiff; s++)
-		PasteFixOctavas(doc,RightLINK(initL),s);
+		PasteFixOttavas(doc,RightLINK(initL),s);
 
 	/* This should be constrained to only those voices on staves in range
 		[minStf+staffDiff,maxStf+staffDiff] */
@@ -892,42 +892,42 @@ void MergeFixContext(Document *doc, LINK initL, LINK succL, short minStf, short 
 			PasteFixBeams(doc,RightLINK(initL),v);
 }
 
-/* -------------------------------------------------------------- MFixOctavaLinks -- */
-/* Update opSync links for all Octava objects in range. */
+/* -------------------------------------------------------------- MFixOttavaLinks -- */
+/* Update opSync links for all Ottava objects in range. */
 
-static void MFixOctavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
+static void MFixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
 	short				i, k;
 	PANOTE 			aNote;
 	PAGRNOTE			aGRNote;
-	PANOTEOCTAVA 	paNoteOct;
+	PANOTEOTTAVA 	paNoteOct;
 	LINK				pL, qL, aNoteL, aNoteOctL, aGRNoteL;
 	Boolean			needMerged;
 
 	InstallDoc(fixDoc);
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
-		if (OctavaTYPE(pL)) {
+		if (OttavaTYPE(pL)) {
 			needMerged = LinkSPAREFLAG(pL);
 			for (i=0, qL=RightLINK(pL); i<LinkNENTRIES(pL) && qL!=endL; qL=RightLINK(qL))
 				if (SyncTYPE(qL)) {
 					aNoteL = FirstSubLINK(qL);
 					for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 						aNote = GetPANOTE(aNoteL);
-						if (NoteSTAFF(aNoteL)==OctavaSTAFF(pL) && MainNote(aNoteL) && !NoteREST(aNoteL) && needMerged==aNote->merged) {
-							if (aNote->inOctava) {
+						if (NoteSTAFF(aNoteL)==OttavaSTAFF(pL) && MainNote(aNoteL) && !NoteREST(aNoteL) && needMerged==aNote->merged) {
+							if (aNote->inOttava) {
 								aNoteOctL = FirstSubLINK(pL);
-								for (k=0; k<=i; k++,aNoteOctL=NextNOTEOCTAVAL(aNoteOctL))
+								for (k=0; k<=i; k++,aNoteOctL=NextNOTEOTTAVAL(aNoteOctL))
 									if (k==i) {
-										paNoteOct = GetPANOTEOCTAVA(aNoteOctL);
+										paNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 										paNoteOct->opSync = qL;
 									}
 							}
 							else 
-								MayErrMsg("FixOctavaLinks: Unoctavad note in sync %ld where inOctava note expected",
+								MayErrMsg("FixOttavaLinks: Unottavad note in sync %ld where inOttava note expected",
 										(long)qL);
 							i++;
 						}
-						if (NoteSTAFF(aNoteL)==OctavaSTAFF(pL) && aNote->inOctava)
+						if (NoteSTAFF(aNoteL)==OttavaSTAFF(pL) && aNote->inOttava)
 							aNote->tempFlag = TRUE;
 					}
 				}
@@ -935,21 +935,21 @@ static void MFixOctavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LIN
 					aGRNoteL = FirstSubLINK(qL);
 					for ( ; aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL)) {
 						aGRNote = GetPAGRNOTE(aGRNoteL);
-						if (GRNoteSTAFF(aGRNoteL)==OctavaSTAFF(pL) && GRMainNote(aGRNoteL) && needMerged==aNote->merged) {
-							if (aGRNote->inOctava) {
+						if (GRNoteSTAFF(aGRNoteL)==OttavaSTAFF(pL) && GRMainNote(aGRNoteL) && needMerged==aNote->merged) {
+							if (aGRNote->inOttava) {
 								aNoteOctL = FirstSubLINK(pL);
-								for (k=0; k<=i; k++,aNoteOctL=NextNOTEOCTAVAL(aNoteOctL))
+								for (k=0; k<=i; k++,aNoteOctL=NextNOTEOTTAVAL(aNoteOctL))
 									if (k==i) {
-										paNoteOct = GetPANOTEOCTAVA(aNoteOctL);
+										paNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 										paNoteOct->opSync = qL;
 									}
 							}
 							else 
-								MayErrMsg("FixOctavaLinks: Unoctavad note in sync %ld where inOctava note expected",
+								MayErrMsg("FixOttavaLinks: Unottavad note in sync %ld where inOttava note expected",
 										(long)qL);
 							i++;
 						}
-						if (NoteSTAFF(aGRNoteL)==OctavaSTAFF(pL) && aGRNote->inOctava)
+						if (NoteSTAFF(aGRNoteL)==OttavaSTAFF(pL) && aGRNote->inOttava)
 							aGRNote->tempFlag = TRUE;
 					}
 				}
@@ -1018,7 +1018,7 @@ static void MFixAllBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LI
 /* ---------------------------------------------------------------- MFixCrossPtrs -- */
 /* Update all cross links after reconstructing the data structure. Version for
 merge which fixes up selectively depending on origin of object to update. Needed
-for overlapped voices, which can superimpose beams, octavas in the same voice. */
+for overlapped voices, which can superimpose beams, ottavas in the same voice. */
 
 void MFixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray)
 {
@@ -1032,12 +1032,12 @@ void MFixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray)
 
 	MFixAllBeamLinks(doc, doc, firstSysL, endMeas);
 	
-	/* Rules are not clearly stated in FixGroupsMenu,NTypes.h, or DoOctava
-		for Octavas. Assuming we do not have crossSys Octavas. Must update
-		all Octavas which can have octNotes in the measure; Octavas located
+	/* Rules are not clearly stated in FixGroupsMenu,NTypes.h, or DoOttava
+		for Ottavas. Assuming we do not have crossSys Ottavas. Must update
+		all Ottavas which can have octNotes in the measure; Ottavas located
 		after endMeas are guaranteed to have none. */
 	
-	MFixOctavaLinks(doc, doc, sysL, endMeas);
+	MFixOttavaLinks(doc, doc, sysL, endMeas);
 
 	/* Tuplets must begin and end in the same measure. */
 

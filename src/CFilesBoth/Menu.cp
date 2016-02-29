@@ -88,7 +88,7 @@ static void	FixFormatMenu(Document *doc);
 
 short		NumOpenDocuments(void);
 
-static Boolean cmdIsBeam, cmdIsTuplet, cmdIsOctava;
+static Boolean cmdIsBeam, cmdIsTuplet, cmdIsOttava;
 
 static Boolean	goUp=TRUE;								/* For "Transpose" dialog */
 static short octaves=0, steps=0, semiChange=0;
@@ -933,12 +933,12 @@ void DoGroupsMenu(short choice)
 				DCheckNEntries(doc);
 #endif
 				break;
-			case GM_Octava:
-				if (cmdIsOctava) {
-					DoOctava(doc);
+			case GM_Ottava:
+				if (cmdIsOttava) {
+					DoOttava(doc);
 				}
 				else {
-					DoRemoveOctava(doc);
+					DoRemoveOttava(doc);
 				}
 				break;
 			default:
@@ -2657,7 +2657,7 @@ static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
 					if (NoteSTAFF(aNoteL)==staff) {
 						aNote = GetPANOTE(aNoteL);
-						if (aNote->inOctava) return TRUE;
+						if (aNote->inOttava) return TRUE;
 						else break;
 					}
 				}
@@ -2665,7 +2665,7 @@ static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 				for (aGRNoteL=FirstSubLINK(pL); aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL))
 					if (GRNoteSTAFF(aGRNoteL)==staff) {
 						aGRNote = GetPAGRNOTE(aGRNoteL);
-						if (aGRNote->inOctava) return TRUE;
+						if (aGRNote->inOttava) return TRUE;
 						else break;
 					}
 			}
@@ -2675,7 +2675,7 @@ static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 
 static void FixBeamCommands(Document *);
 static void FixTupletCommands(Document *);
-static void FixOctavaCommands(Document *, Boolean);
+static void FixOttavaCommands(Document *, Boolean);
 
 /*
  *	Handle menu command Enable/Disable for Beams
@@ -2821,34 +2821,34 @@ knowTupled:
  *	Handle menu command Enable/Disable for octave signs.
  */
 
-static void FixOctavaCommands(Document *doc, Boolean continSel)
+static void FixOttavaCommands(Document *doc, Boolean continSel)
 {
-	Boolean hasOctava; LINK pL, aNoteL, aGRNoteL, stfStartL, stfEndL;
-	short staff, octavaNum; Str255 str;
+	Boolean hasOttava; LINK pL, aNoteL, aGRNoteL, stfStartL, stfEndL;
+	short staff, ottavaNum; Str255 str;
 
 	if (!continSel) {
-		DisableMenuItem(groupsMenu, GM_Octava);
+		DisableMenuItem(groupsMenu, GM_Ottava);
 		return;
 	}
 	
-	hasOctava = FALSE;		
+	hasOttava = FALSE;		
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && SyncTYPE(pL))
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
-				if (NoteSEL(aNoteL) && NoteINOCTAVA(aNoteL))
-					{ hasOctava = TRUE; goto knowOctavad; }
+				if (NoteSEL(aNoteL) && NoteINOTTAVA(aNoteL))
+					{ hasOttava = TRUE; goto knowOttavad; }
 		if (LinkSEL(pL) && GRSyncTYPE(pL))
 			for (aGRNoteL=FirstSubLINK(pL); aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL))
-				if (GRNoteSEL(aGRNoteL) && GRNoteINOCTAVA(aGRNoteL))
-					{ hasOctava = TRUE; goto knowOctavad; }				
+				if (GRNoteSEL(aGRNoteL) && GRNoteINOTTAVA(aGRNoteL))
+					{ hasOttava = TRUE; goto knowOttavad; }				
 	}
 					
-knowOctavad:
-	if (hasOctava) {
-		cmdIsOctava = FALSE;
+knowOttavad:
+	if (hasOttava) {
+		cmdIsOttava = FALSE;
 		GetIndString(str, MENUCMD_STRS, 17);							/* "Remove Octave Sign" */
-		SetMenuItemText(groupsMenu, GM_Octava, str);
-		EnableMenuItem(groupsMenu, GM_Octava);
+		SetMenuItemText(groupsMenu, GM_Ottava, str);
+		EnableMenuItem(groupsMenu, GM_Ottava);
 		return;
 	}
 
@@ -2857,30 +2857,30 @@ knowOctavad:
 	 * sign. Is it possible to create one?
 	 */
 
-	octavaNum = 0;
+	ottavaNum = 0;
 		
 	if (!beforeFirst) {
 		for (staff=1; staff<=doc->nstaves; staff++) {
 			GetStfSelRange(doc,staff,&stfStartL,&stfEndL);
 			if (stfStartL && stfEndL)
-				octavaNum = OctCountNotesInRange(staff, stfStartL, stfEndL, FALSE);
+				ottavaNum = OctCountNotesInRange(staff, stfStartL, stfEndL, FALSE);
 			else
-				octavaNum = 0;
-			if (octavaNum > 0) {
+				ottavaNum = 0;
+			if (ottavaNum > 0) {
 				if (!SelRangeChkOct(staff, stfStartL, stfEndL)) break;
-				octavaNum = 0;
+				ottavaNum = 0;
 				}
 		}
 	}
 
-	if (octavaNum>0) {
-		cmdIsOctava = TRUE;
+	if (ottavaNum>0) {
+		cmdIsOttava = TRUE;
 		GetIndString(str, MENUCMD_STRS, 18);							/* "Create Octave Sign" */
-		SetMenuItemText(groupsMenu, GM_Octava, str);
-		EnableMenuItem(groupsMenu, GM_Octava);
+		SetMenuItemText(groupsMenu, GM_Ottava, str);
+		EnableMenuItem(groupsMenu, GM_Ottava);
 	}
 	else
-		DisableMenuItem(groupsMenu, GM_Octava);
+		DisableMenuItem(groupsMenu, GM_Ottava);
 }
 
 /*
@@ -2914,16 +2914,16 @@ static void FixGroupsMenu(Document *doc, Boolean continSel)
 				DisableMenuItem(groupsMenu, GM_BreakBeam);	 	/* Can't break any. */
 				DisableMenuItem(groupsMenu, GM_FlipFractional); /* Can't flip any. */
 
-				DisableMenuItem(groupsMenu, GM_Octava); 		/* Can't remove or add any octavas. */
+				DisableMenuItem(groupsMenu, GM_Ottava); 		/* Can't remove or add any ottavas. */
 				return;
 				}
 			}
 		
-		/* Finish handling menu Enable/Disable for Beams, Tuplets, Octavas. */
+		/* Finish handling menu Enable/Disable for Beams, Tuplets, Ottavas. */
 
 		FixBeamCommands(doc);
 		FixTupletCommands(doc);
-		FixOctavaCommands(doc, continSel);
+		FixOttavaCommands(doc, continSel);
 	}
 
 void AddWindowList()

@@ -1552,7 +1552,7 @@ short GetSpTimeInfo(
 			case CONNECTtype:
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case DYNAMtype:
 			case SLURtype:
 			case GRAPHICtype:

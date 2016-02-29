@@ -112,7 +112,7 @@ PushLock(NOTEheap);
 	aNote->tiedR = aNote->tiedL = FALSE;
 	aNote->slurredR = aNote->slurredL = FALSE;
 	aNote->inTuplet = FALSE;
-	aNote->inOctava = FALSE;
+	aNote->inOttava = FALSE;
 	aNote->small = FALSE;
 	aNote->tempFlag = FALSE;
 	aNote->fillerN = 0;

@@ -255,18 +255,18 @@ void FixNoteAugDotPos(
 }
 
 
-/* Return the Octava object that the given Sync or GRSync belongs to on the given
+/* Return the Ottava object that the given Sync or GRSync belongs to on the given
 staff. If none, return NILINK. */
 
-LINK FindOctava(LINK pL, short staffn);
-LINK FindOctava(LINK pL, short staffn)
+LINK FindOttava(LINK pL, short staffn);
+LINK FindOttava(LINK pL, short staffn)
 {
 	LINK octL;
 	
-	octL = LSSearch(pL, OCTAVAtype, staffn, GO_LEFT, FALSE);
+	octL = LSSearch(pL, OTTAVAtype, staffn, GO_LEFT, FALSE);
 	if (!octL) return NILINK;
 	
-	if (SyncInOCTAVA(pL, octL))
+	if (SyncInOTTAVA(pL, octL))
 		return octL;
 	else
 		return NILINK;
@@ -331,7 +331,7 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 
 			/* Update MIDI note number, considering effect of octave signs. */
 			effectiveAcc = EffectiveAcc(doc, pL, subObjL);
-			octL = FindOctava(pL, staffn);
+			octL = FindOttava(pL, staffn);
 			octType = (octL? OctType(octL) : -1);
 			aNote = GetPANOTE(subObjL);
 			if (octType>0)
@@ -504,7 +504,7 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 		
 		/* Update MIDI note number, considering effect of octave signs. */
 		effectiveAcc = EffectiveGRAcc(doc, pL, subObjL);
-		octL = FindOctava(pL, staffn);
+		octL = FindOttava(pL, staffn);
 		octType = (octL? OctType(octL) : -1);
 		aGRNote = GetPAGRNOTE(subObjL);
 		if (octType>0)
@@ -704,13 +704,13 @@ void SetTupletFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 }
 
 
-/* -------------------------------------------------------------- SetOctavaFields -- */
+/* -------------------------------------------------------------- SetOttavaFields -- */
 
-void SetOctavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
+void SetOttavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 {
-	POCTAVA p;
+	POTTAVA p;
 
-	p = GetPOCTAVA(pL);
+	p = GetPOTTAVA(pL);
 	p->xdFirst += xdDiff;
 	p->xdLast += xdDiff;
 	p->ydFirst += ydDiff;

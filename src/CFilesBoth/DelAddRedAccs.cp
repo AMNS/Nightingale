@@ -364,7 +364,7 @@ Boolean AddMIDIRedundantAccs(
 	 * always clefs for all staves at the beginning of the object list, and a new clef
 	 * affects all notes on its staff. We keep track of where octave signs begin, but keeping
 	 * track of where they end is messy: to avoid doing that, we just rely on each Note
-	 * subobj's inOctava flag to say whether it's in one.
+	 * subobj's inOttava flag to say whether it's in one.
 	 */
 	for (staff = 1; staff<=doc->nstaves; staff++)
 		octType[staff] = 0;											/* Initially, no octave sign */
@@ -430,8 +430,8 @@ Boolean AddMIDIRedundantAccs(
 					clefType[staff] = ClefType(aClefL);
 				}
 				break;
-			case OCTAVAtype:
-				if (OctavaSTAFF(pL)==staff) octType[staff] = OctType(pL);
+			case OTTAVAtype:
+				if (OttavaSTAFF(pL)==staff) octType[staff] = OctType(pL);
 				break;
 			default:
 				;

@@ -117,9 +117,9 @@ static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, short *sym, shor
 	qL = LocateInsertPt(rightL);
 	doc->selStartL = doc->selEndL = qL;
 
-	/* Check if the note is being added into an octava'd range; if so, get the octava
+	/* Check if the note is being added into an ottava'd range; if so, get the ottava
 	 	type to correct for it when adding the note. */
-	if (octL = HasOctavaAcrossPt(doc, pt, staff))
+	if (octL = HasOttavaAcrossPt(doc, pt, staff))
 		octType = OctType(octL);
 
 	/* Track the note insertion and if possible, add the new note to the data
@@ -175,7 +175,7 @@ static Boolean TrkInsGRSync(Document *doc, LINK rightL, Point pt, short *sym, sh
 	qL = LocateInsertPt(rightL);
 
 	doc->selStartL = doc->selEndL = qL;
-	if (octL = HasOctavaAcrossPt(doc, pt, staff))
+	if (octL = HasOttavaAcrossPt(doc, pt, staff))
 		octType = OctType(octL);
 
 	if (InsTrackPitch(doc, pt, sym, doc->selStartL, staff, &pitchLev, &acc, octType)) {
@@ -233,7 +233,7 @@ simplify things, Nightingale makes assumptions about their order in the
 object list. Specifically:
 1. After a Beamset with n elements, the next n Syncs with notes/rests in
 	the Beamset's voice must be in the Beamset.
-2. Tuplets and Octavas have the same requirements as Beamsets.
+2. Tuplets and Ottavas have the same requirements as Beamsets.
 3.	After a Slur (including ties), the first Sync in the Slur's voice must be
 	 the Slur's firstSync.
 4.	The first note after a non-hairpin Dynamic on the Dynamic's staff must
@@ -289,7 +289,7 @@ Boolean InsertNote(
 
 	/* Determine if the note is to be added to an already existing sync. If so,
 		check the sync for validity, set the selection range to equal this sync,
-		determine if it is in an octava, track the new note, and add it to the sync. */
+		determine if it is in an ottava, track the new note, and add it to the sync. */
 
 	addToSyncL = FindSync(doc, pt, isGraphic, clickStaff);
 	if (addToSyncL) {
@@ -301,7 +301,7 @@ Boolean InsertNote(
 			doc->selStartL = addToSyncL;
 			doc->selEndL = RightLINK(doc->selStartL);
 	
-			/* Determine if the new note is to be added into an existing octava'd range,
+			/* Determine if the new note is to be added into an existing ottava'd range,
 				track the note, and add it to the sync. */
 			if (TrkInsNote(doc, pt, &sym, clickStaff))
 				return TRUE;

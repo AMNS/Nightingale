@@ -46,7 +46,7 @@ static void SDDrawGRDraw(Document *, DDIST, DDIST, DDIST, DDIST, short, PCONTEXT
 static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL);
 static void SDDrawTempo(Document *doc, LINK pL, LINK measureL);
 static void SDDrawSpace(Document *doc, LINK pL, LINK measureL);
-static void SDDrawOctava(Document *doc, LINK pL, LINK measureL);
+static void SDDrawOttava(Document *doc, LINK pL, LINK measureL);
 static void SDDrawBeam(DDIST xl,DDIST yl,DDIST xr,DDIST yr,DDIST beamThick,short upOrDown, PCONTEXT pContext);
 static void SDDrawGRBeamset(Document *doc, LINK pL, LINK measureL);
 static DDIST SDCalcXStem(LINK, short, short, DDIST, DDIST, Boolean);
@@ -1221,9 +1221,9 @@ static void SDDrawSpace(Document */*doc*/, LINK /*pL*/, LINK /*measureL*/)
 }
 
 
-static void SDDrawOctava(Document *doc, LINK pL, LINK measL)
+static void SDDrawOttava(Document *doc, LINK pL, LINK measL)
 {
-	POCTAVA	p;
+	POTTAVA	p;
 	short		staff;
 	PCONTEXT	pContext;
 	CONTEXT  context;
@@ -1235,20 +1235,20 @@ static void SDDrawOctava(Document *doc, LINK pL, LINK measL)
 	LINK		aNoteL, firstSyncL, lastSyncL, firstMeas, lastMeas;
 	short		octWidth, firstx, firsty, lastx, yCutoff;
 	Rect		octRect, mRect;
-	unsigned char octavaStr[20];
+	unsigned char ottavaStr[20];
 	Boolean  bassa;
 	long		number;
 	short 	useTxSize;		/* Insure font is correct size to draw numeral. */
 				
 PushLock(OBJheap);
-	p = GetPOCTAVA(pL);
+	p = GetPOTTAVA(pL);
 	staff = p->staffn;
 	GetContext(doc, pL, staff, &context);
 	pContext = &context;
 	dTop = pContext->measureTop;
 	dLeft = pContext->measureLeft;
-	firstSyncL = FirstInOctava(pL);
-	lastSyncL = LastInOctava(pL);
+	firstSyncL = FirstInOttava(pL);
+	lastSyncL = LastInOttava(pL);
 	firstxd = LinkXD(firstSyncL);
 	lastxd = LinkXD(lastSyncL);
 	
@@ -1277,9 +1277,9 @@ PushLock(OBJheap);
 	number = GetOctTypeNum(pL, &bassa);
 
 	/* xdFirst & ydFirst are initialized to zero, and used for re-positioning the
-		octava when it it dragged (or potentially for Get Info, etc.). */
+		ottava when it it dragged (or potentially for Get Info, etc.). */
 
-	p = GetPOCTAVA(pL);
+	p = GetPOTTAVA(pL);
 
 	octxdFirst = firstxd+p->xdFirst;
 	octydFirst = dTop+p->ydFirst-p2d(mRect.top);
@@ -1292,10 +1292,10 @@ PushLock(OBJheap);
 	useTxSize = UseTextSize(pContext->fontSize, doc->magnify);
 	TextSize(useTxSize);
 
-	NumToSonataStr(number, octavaStr);
-	octRect = StrToObjRect(octavaStr);
+	NumToSonataStr(number, ottavaStr);
+	octRect = StrToObjRect(ottavaStr);
 	MoveTo(d2p(DragXD(octxdFirst)), d2p(octydFirst));
-	DrawString(octavaStr);
+	DrawString(ottavaStr);
 
 	firstPt.h = DragXD(firstPt.h);
 	lastPt.h = DragXD(lastPt.h);
@@ -1318,7 +1318,7 @@ PushLock(OBJheap);
 		octWidth = octRect.right-octRect.left;
 	
 		/* Start octWidth to right of firstPt. Draw a dotted line to the end
-			of the octava, and a solid line up or down yCutoff. */
+			of the ottava, and a solid line up or down yCutoff. */
 	
 		MoveTo(firstx+octWidth+XFUDGE, firsty);
 		DashedLine(firstx+octWidth+XFUDGE, firsty, lastx, firsty);
@@ -1988,8 +1988,8 @@ static Boolean SymDragLoop(
 			SDDrawSpace(doc, pL, measureL);
 			break;
 
-		case OCTAVAtype:
-			SDDrawOctava(doc, pL, measureL);
+		case OTTAVAtype:
+			SDDrawOttava(doc, pL, measureL);
 			break;
 
 		case BEAMSETtype:
@@ -2285,8 +2285,8 @@ setAccDone:
 			SetTupletFields(pL, xdDiff, ydDiff, xp, yp);
 			break;
 
-		case OCTAVAtype:
-			SetOctavaFields(pL, xdDiff, ydDiff, xp, yp);
+		case OTTAVAtype:
+			SetOttavaFields(pL, xdDiff, ydDiff, xp, yp);
 			break;
 
 		case GRAPHICtype:
@@ -2419,8 +2419,8 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 				return TRUE;
 			}
 			break;
-		case OCTAVAtype:
-			if (!SetupNMeasPorts(doc, FirstInOctava(pL), LastInOctava(pL))) {
+		case OTTAVAtype:
+			if (!SetupNMeasPorts(doc, FirstInOttava(pL), LastInOttava(pL))) {
 				ErrDisposPorts();
 				return TRUE;
 			}

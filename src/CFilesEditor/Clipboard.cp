@@ -36,7 +36,7 @@ static Boolean clipHasAddedAccs;
 
 static void FixClipBeams(Document *, LINK, LINK);
 static void FixClipTuplets(Document *, LINK, LINK);
-static void FixClipOctavas(Document *, LINK, LINK, COPYMAP *, short);
+static void FixClipOttavas(Document *, LINK, LINK, COPYMAP *, short);
 static Boolean ChkSrcDocSlur(LINK slurL,COPYMAP *clipMap,short numObjs);
 static Boolean SrcSlurInRange(Document *,LINK,Boolean,Boolean,COPYMAP *,short,
 									SearchParam *);
@@ -165,16 +165,16 @@ static void FixClipTuplets(Document *doc, LINK startL, LINK endL)
 }
 
 
-/* -------------------------------------------------------------- FixClipOctavas -- */
-/* Fix the octava status for all notes in range [startL, endL). If an octavad
-note is copied to the clipboard without its associated octava, then 
-FixOctavaLinks will not set its tempFlag; fix the inOctava flag and pitch
+/* -------------------------------------------------------------- FixClipOttavas -- */
+/* Fix the ottava status for all notes in range [startL, endL). If an ottavad
+note is copied to the clipboard without its associated ottava, then 
+FixOttavaLinks will not set its tempFlag; fix the inOttava flag and pitch
 for such notes. */
 
-static void FixClipOctavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipMap,
+static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipMap,
 									short numObjs)
 {
-	LINK pL,aNoteL,qL,octavaL;
+	LINK pL,aNoteL,qL,ottavaL;
 	PANOTE aNote; short i,staff;
 	CONTEXT context; DDIST yDelta;
 	Boolean stemDown, multiVoice;
@@ -186,11 +186,11 @@ static void FixClipOctavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
-				if (aNote->inOctava && !aNote->tempFlag) {
-					aNote->inOctava = FALSE;
+				if (aNote->inOttava && !aNote->tempFlag) {
+					aNote->inOttava = FALSE;
 					staff = aNote->staffn;
 					
-					/* Get octava in score for note that was copied to
+					/* Get ottava in score for note that was copied to
 						the clipboard */
 
 					for (i=0,qL=NILINK; i<numObjs; i++)
@@ -202,8 +202,8 @@ static void FixClipOctavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 
 					InstallDoc(doc);
 
-					octavaL = LSSearch(qL,OCTAVAtype,staff,GO_LEFT,FALSE);
-					octType = OctType(octavaL);
+					ottavaL = LSSearch(qL,OTTAVAtype,staff,GO_LEFT,FALSE);
+					octType = OctType(ottavaL);
 
 					/* Update note's y position. */
 					GetContext(doc, qL, staff, &context);
@@ -837,39 +837,39 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 							;
 					}
 					break;
-				case OCTAVAtype: {
+				case OTTAVAtype: {
 					short				ncopy;
-					PANOTEOCTAVA	pSub,sub;
+					PANOTEOTTAVA	pSub,sub;
 					LINK				pSubL,oPrevL,subL;
 					
 					/* An octave sign is the only extended object where, if not all its
 					attached items are selected, we copy the extended object anyway.
 					
-					If the octava extends past the end of the selection, keep track
-					of how many opSyncs are selected, copy the octava object, cut off
-					the subObj list of the copied octava at the first unselected opSync,
+					If the ottava extends past the end of the selection, keep track
+					of how many opSyncs are selected, copy the ottava object, cut off
+					the subObj list of the copied ottava at the first unselected opSync,
 					and set its nEntries to be the number of selected opSyncs. We
 					assume that at least the first opSync is selected!
 					
-					NB: It appears that, for octavas, DuplicateObject with <selectedOnly>
-					looks at, not the octava subobjs' selection status, but that of the
+					NB: It appears that, for ottavas, DuplicateObject with <selectedOnly>
+					looks at, not the ottava subobjs' selection status, but that of the
 					Syncs it refers to! That means that much of the code below is
 					unnecessary. On the other hand, I'm not at all sure DuplicateObject
 					should be left this way...sigh. */
 	
 						pSubL = FirstSubLINK(pL);
-						for (ncopy=0; pSubL; ncopy++,pSubL=NextNOTEOCTAVAL(pSubL)) {
-							pSub = GetPANOTEOCTAVA(pSubL);
+						for (ncopy=0; pSubL; ncopy++,pSubL=NextNOTEOTTAVAL(pSubL)) {
+							pSub = GetPANOTEOTTAVA(pSubL);
 							if (!LinkSEL(pSub->opSync))			/* ??But may be sel. on another stf! */
 								if (ncopy) {
-									copyL = DuplicateObject(OCTAVAtype, pL, TRUE, doc, clipboard, FALSE);
+									copyL = DuplicateObject(OTTAVAtype, pL, TRUE, doc, clipboard, FALSE);
 									InstallDoc(clipboard);
 									subL = FirstSubLINK(copyL);
-									for ( ; subL; oPrevL=subL,subL=NextNOTEOCTAVAL(subL)) {
-										sub = GetPANOTEOCTAVA(subL);
+									for ( ; subL; oPrevL=subL,subL=NextNOTEOTTAVAL(subL)) {
+										sub = GetPANOTEOTTAVA(subL);
 										if (!DLinkSEL(doc, sub->opSync)) {
-											NextNOTEOCTAVAL(oPrevL) = NILINK;
-											HeapFree(NOTEOCTAVAheap, subL);
+											NextNOTEOTTAVAL(oPrevL) = NILINK;
+											HeapFree(NOTEOTTAVAheap, subL);
 											LinkNENTRIES(copyL) = ncopy+1;
 											InstallDoc(doc);
 											goto ODone;
@@ -879,7 +879,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 								InstallDoc(doc);
 								}
 						}
-						copyL = DuplicateObject(OCTAVAtype, pL, TRUE, doc, clipboard, FALSE);
+						copyL = DuplicateObject(OTTAVAtype, pL, TRUE, doc, clipboard, FALSE);
 						clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 						ODone:
 							;
@@ -948,7 +948,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 		need fixing up because they are in beamsets not completely copied, then
 		fix up beam ptrs for notes in beamsets completely copied, then fix up notes
 		whose beamsets are not copied to the clipboard. Do the same for tuplets &
-		octavas. */
+		ottavas. */
 	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, FALSE);
 	FixAllBeamLinks(doc, clipboard, clipboard->headL, clipboard->tailL);
 	FixClipBeams(doc, clipboard->headL, clipboard->tailL);
@@ -958,8 +958,8 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 	FixClipTuplets(doc, clipboard->headL, clipboard->tailL);
 	
 	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, FALSE);
-	FixOctavaLinks(doc, clipboard, clipboard->headL, clipboard->tailL);
-	FixClipOctavas(doc, clipboard->headL, clipboard->tailL, clipMap, numObjs);
+	FixOttavaLinks(doc, clipboard, clipboard->headL, clipboard->tailL);
+	FixClipOttavas(doc, clipboard->headL, clipboard->tailL, clipMap, numObjs);
 	
 	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, FALSE);
 	FixClipLinks(doc,clipboard,clipboard->headL,clipboard->tailL,clipMap,numObjs,0);
@@ -1731,7 +1731,7 @@ static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 			case SLURtype:
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case GRAPHICtype:
 			case ENDINGtype:
 				p = GetPMEVENT(pL);
@@ -2230,7 +2230,7 @@ static short GetFirstStf(Document *doc, LINK pL)
 		case SLURtype:
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case GRAPHICtype:
 		case ENDINGtype:
 		case TEMPOtype:
@@ -2308,7 +2308,7 @@ static short GetLastStf(Document *doc, LINK pL)
 		case SLURtype:
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case GRAPHICtype:
 		case ENDINGtype:
 		case TEMPOtype:
@@ -2431,7 +2431,7 @@ void MapStaves(Document *doc, LINK startL, LINK endL, short staffDiff)
 			case SLURtype:
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case GRAPHICtype:
 			case ENDINGtype:
 			case TEMPOtype:
@@ -2851,16 +2851,16 @@ void PasteUpdate(Document *doc, LINK initL, LINK succL, DDIST systemWidth)
 }
 
 
-/* ------------------------------------------------------- PasteFixOctavas et al -- */
-/* Update v position and inOctava status for all notes on staff <s> in
+/* ------------------------------------------------------- PasteFixOttavas et al -- */
+/* Update v position and inOttava status for all notes on staff <s> in
 range [startL,endL). */
 
 void FixOctNotes(Document *doc,LINK octL,short s);
 
-/* UnOctavaRange is overkill; want simplified version which just removes
-	a single octava; not all octavas in range.
+/* UnOttavaRange is overkill; want simplified version which just removes
+	a single ottava; not all ottavas in range.
 	Problem: needSelected and doOct parameters are unclear in their application.
-	This may leave the selection status of the newly created octava incorrect,
+	This may leave the selection status of the newly created ottava incorrect,
 	though it should still be consistent. */
 
 static void FixOctNotes(Document *doc, LINK octL, short s)
@@ -2868,35 +2868,35 @@ static void FixOctNotes(Document *doc, LINK octL, short s)
 	LINK firstL,lastL; short numNotes;
 	Byte octType = OctType(octL);
 
-	firstL = FirstInOctava(octL);
-	lastL = LastInOctava(octL);
+	firstL = FirstInOttava(octL);
+	lastL = LastInOttava(octL);
 	numNotes = OctCountNotesInRange(s,firstL,RightLINK(lastL), FALSE);
 	
 	if (numNotes!=LinkNENTRIES(octL)) {
-		UnOctavaRange(doc,firstL,RightLINK(lastL),s);
-		CreateOCTAVA(doc,firstL,RightLINK(lastL),s,numNotes,octType,FALSE,FALSE);
+		UnOttavaRange(doc,firstL,RightLINK(lastL),s);
+		CreateOTTAVA(doc,firstL,RightLINK(lastL),s,numNotes,octType,FALSE,FALSE);
 	}
 }
 
-/* Don't need to process every octava in the range, since the only possible case
-	requiring updating of the octava is that in which notes have been inserted
-	inbetween FirstInOctava and LastInOctava; the single octava on any staff for
+/* Don't need to process every ottava in the range, since the only possible case
+	requiring updating of the ottava is that in which notes have been inserted
+	inbetween FirstInOttava and LastInOttava; the single ottava on any staff for
 	this case will be the one gotten by searching from startL to the left for
-	an octava.
+	an ottava.
 	Problem: we want to call GetStfSelRange(doc,s,&stfStartL,&stfEndL); and
 	search to the left from stfStartL. But by the time we get here, the selRange
 	is empty (either initially an insertion pt or deleted by DeleteSelection),
 	so GetStfSelRange delivers NILINKs. Need to search right from clipStfStartL,
 	but such a node is not immediately available. This will only affect obscure
 	cases where the selRange is backwards (or upside-down backwards) L-shaped,
-	and there is an octava in the L's cutout, into the middle of which notes
+	and there is an ottava in the L's cutout, into the middle of which notes
 	have been inserted. */
  
-void PasteFixOctavas(Document *doc, LINK startL, short s)
+void PasteFixOttavas(Document *doc, LINK startL, short s)
 {
 	LINK octL;
 	
-	octL = LSSearch(startL,OCTAVAtype,s,GO_LEFT,FALSE);
+	octL = LSSearch(startL,OTTAVAtype,s,GO_LEFT,FALSE);
 	
 	if (octL) FixOctNotes(doc,octL,s);
 }
@@ -3256,7 +3256,7 @@ void PasteFixContext(Document *doc, LINK initL, LINK succL, short staffDiff)
 	}
 	
 	for (s = 1; s<=doc->nstaves; s++)
-		PasteFixOctavas(doc,RightLINK(initL),s);
+		PasteFixOttavas(doc,RightLINK(initL),s);
 
 	for (v = 1; v<=MAXVOICES; v++)
 		if (VOICE_MAYBE_USED(doc,v))

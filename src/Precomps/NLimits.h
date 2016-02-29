@@ -11,7 +11,7 @@
 #define MAXVOICES 100		/* Maximum voice no. in score */
 #define MAXCHORD 88			/* Maximum no. of notes in a chord */
 #define MAXINBEAM 127		/* Maximum no. of notes/chords in a beamset */
-#define MAXINOCTAVA	127	/* Maximum no. of notes/chords in an octava */
+#define MAXINOTTAVA	127	/* Maximum no. of notes/chords in an ottava */
 #define MAXINTUPLET	50		/* Maximum no. of notes/chords in an tuplet */
 #define MAX_TUPLENUM 255	/* Maximum possible numerator/denominator in a tuplet */
 #define MAX_MEASNODES 250	/* Maximum no. of nodes in a measure */

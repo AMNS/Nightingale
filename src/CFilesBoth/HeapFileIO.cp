@@ -491,7 +491,7 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 	PANOTE 		aNote;
 	PANOTEBEAM 	aNoteBeam;
 	PANOTETUPLE aNoteTuple;
-	PANOTEOCTAVA aNoteOct;
+	PANOTEOTTAVA aNoteOct;
 	short			ioErr=noErr, count;
 	
 	/* The links are now being allocated sequentially, so that the <next> link
@@ -535,8 +535,8 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 				tupleSyncL = aNoteTuple->tpSync;
 				aNoteTuple->tpSync = objA[aNoteTuple->tpSync];
 				break;
-			case OCTAVAtype:
-				aNoteOct = GetPANOTEOCTAVA(subL);
+			case OTTAVAtype:
+				aNoteOct = GetPANOTEOTTAVA(subL);
 				octSyncL = aNoteOct->opSync;
 				aNoteOct->opSync = objA[aNoteOct->opSync];
 				break;
@@ -558,8 +558,8 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 				aNoteTuple = GetPANOTETUPLE(subL);
 				aNoteTuple->tpSync = tupleSyncL;
 				break;
-			case OCTAVAtype:
-				aNoteOct = GetPANOTEOCTAVA(subL);
+			case OTTAVAtype:
+				aNoteOct = GetPANOTEOTTAVA(subL);
 				aNoteOct->opSync = octSyncL;
 				break;
 		}

@@ -210,17 +210,17 @@ LogPrintf(LOG_NOTICE, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 		case ENDINGtype:
 			subsNeeded = FALSE;
 			break;
-		case OCTAVAtype: {
+		case OTTAVAtype: {
 			LINK aNoteOctL, opSyncL, aNoteL;
-			PANOTEOCTAVA aNoteOct;
+			PANOTEOTTAVA aNoteOct;
 			
 			aNoteOctL = DFirstSubLINK(srcDoc,objL);
-			for ( ; aNoteOctL; aNoteOctL=DNextNOTEOCTAVAL(srcDoc,aNoteOctL)) {
-				aNoteOct = DGetPANOTEOCTAVA(srcDoc,aNoteOctL);
+			for ( ; aNoteOctL; aNoteOctL=DNextNOTEOTTAVAL(srcDoc,aNoteOctL)) {
+				aNoteOct = DGetPANOTEOTTAVA(srcDoc,aNoteOctL);
 				opSyncL = aNoteOct->opSync;
 				aNoteL = DFirstSubLINK(srcDoc,opSyncL);
 				for ( ; aNoteL; aNoteL = DNextNOTEL(srcDoc,aNoteL))
-					if (DNoteSTAFF(srcDoc,aNoteL)==DOctavaSTAFF(srcDoc,objL)) {
+					if (DNoteSTAFF(srcDoc,aNoteL)==DOttavaSTAFF(srcDoc,objL)) {
 						if (DNoteSEL(srcDoc,aNoteL) || !selectedOnly) 
 							{ subcount++; break; }
 					}
@@ -511,26 +511,26 @@ PopLock(dstDoc->Heap+OBJtype);
 		case ENDINGtype:
 			break;
 
-		case OCTAVAtype: {
+		case OTTAVAtype: {
 			LINK opSyncL, aNoteL;
-			PANOTEOCTAVA aNoteOct, newNoteOct;
+			PANOTEOTTAVA aNoteOct, newNoteOct;
 			
 			while (subL) {
-				aNoteOct = DGetPANOTEOCTAVA(srcDoc,subL);
-				newNoteOct = DGetPANOTEOCTAVA(dstDoc,newSubL);
+				aNoteOct = DGetPANOTEOTTAVA(srcDoc,subL);
+				newNoteOct = DGetPANOTEOTTAVA(dstDoc,newSubL);
 
 				opSyncL = aNoteOct->opSync;
 				aNoteL = DFirstSubLINK(srcDoc,opSyncL);
 				for ( ; aNoteL; aNoteL = DNextNOTEL(srcDoc,aNoteL))
-					if (DNoteSTAFF(srcDoc,aNoteL)==DOctavaSTAFF(srcDoc,objL)) {
+					if (DNoteSTAFF(srcDoc,aNoteL)==DOttavaSTAFF(srcDoc,objL)) {
 						if (DNoteSEL(srcDoc,aNoteL) || !selectedOnly) {
-							tmpL = DNextNOTEOCTAVAL(dstDoc,newSubL);		/* Save it before it gets wiped out */
+							tmpL = DNextNOTEOTTAVAL(dstDoc,newSubL);		/* Save it before it gets wiped out */
 							BlockMove(aNoteOct, newNoteOct, (long)subObjLength[type]);
 							newNoteOct->next = newSubL = tmpL;		/* Restore and move on */
 							break;
 						}
 					}
-				subL = DNextNOTEOCTAVAL(srcDoc,subL);
+				subL = DNextNOTEOTTAVAL(srcDoc,subL);
 			}
 			break;
 		}
@@ -895,7 +895,7 @@ PushLock(NOTEheap);
 	aNote->tiedR = aNote->tiedL = FALSE;
 	aNote->slurredR = aNote->slurredL = FALSE;
 	aNote->inTuplet = FALSE;
-	aNote->inOctava = FALSE;
+	aNote->inOttava = FALSE;
 	aNote->small = FALSE;
 	aNote->tempFlag = FALSE;
 	aNote->fillerN = 0;
@@ -982,7 +982,7 @@ PushLock(GRNOTEheap);
 	aGRNote->tiedR = aGRNote->tiedL = FALSE;
 	aGRNote->slurredR = aGRNote->slurredL = FALSE;
 	aGRNote->inTuplet = FALSE;
-	aGRNote->inOctava = FALSE;
+	aGRNote->inOttava = FALSE;
 	aGRNote->small = FALSE;
 	aGRNote->tempFlag = FALSE;
 	aGRNote->fillerN = 0;

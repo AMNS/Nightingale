@@ -37,7 +37,7 @@ short CheckMEASURE(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
 short CheckPSMEAS(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
 short CheckBEAMSET(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE);
 short CheckTUPLET(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
-short CheckOCTAVA(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
+short CheckOTTAVA(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE, Point);
 short CheckSLUR(Document *, LINK, CONTEXT [], Ptr, short, STFRANGE);
 
 void XLoadCheckSeg(void);

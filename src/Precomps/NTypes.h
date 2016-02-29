@@ -116,7 +116,7 @@ enum								/* Object types: */
 			MODNRtype,
 
 /* 15 */	GRAPHICtype,
-			OCTAVAtype,
+			OTTAVAtype,
 			SLURtype,				/* Slur or set of ties */
 			TUPLETtype,
 			GRSYNCtype,				/* Grace note sync */
@@ -787,7 +787,7 @@ typedef struct {
 	Byte		slurredL:2;			/* TRUE if endpoint of slur to left (extra bit for future use) */
 	Byte		slurredR:2;			/* TRUE if endpoint of slur to right (extra bit for future use) */
 	Byte		inTuplet:1;			/* TRUE if in a tuplet */
-	Byte		inOctava:1;			/* TRUE if in an octave sign */
+	Byte		inOttava:1;			/* TRUE if in an octave sign */
 	Byte		small:1;			/* TRUE if a small (cue, etc.) note */
 	Byte		tempFlag:1;			/* temporary flag for benefit of functions that need it */
 	SignedByte	fillerN;
@@ -1114,12 +1114,12 @@ enum {								/* GRArpeggio sub-subtypes */
 };
 
 
-/* ----------------------------------------------------------------------- OCTAVA -- */
+/* ----------------------------------------------------------------------- OTTAVA -- */
 
 typedef struct {
 	LINK		next;						/* index of next subobj */
 	LINK		opSync;					/* link to Sync containing note/chord (not rest) */
-} ANOTEOCTAVA, *PANOTEOCTAVA;
+} ANOTEOTTAVA, *PANOTEOTTAVA;
 
 typedef struct {
 	OBJECTHEADER
@@ -1136,15 +1136,15 @@ typedef struct {
 	DDIST		nxd, nyd;				/* DDIST position of number */
 	DDIST		xdFirst, ydFirst,		/* DDIST position of bracket */
 				xdLast, ydLast;
-} OCTAVA, *POCTAVA;
+} OTTAVA, *POTTAVA;
 
 enum {
-	OCTAVA8va = 1,
-	OCTAVA15ma,
-	OCTAVA22ma,
-	OCTAVA8vaBassa,
-	OCTAVA15maBassa,
-	OCTAVA22maBassa
+	OTTAVA8va = 1,
+	OTTAVA15ma,
+	OTTAVA22ma,
+	OTTAVA8vaBassa,
+	OTTAVA15maBassa,
+	OTTAVA22maBassa
 };
 
 
@@ -1250,7 +1250,7 @@ typedef union uSUPEROBJ {
 		CONNECT		connect;
 		DYNAMIC		dynamic;
 		GRAPHIC		graphic;
-		OCTAVA		octava;
+		OTTAVA		ottava;
 		SLUR		slur;
 		TUPLET		tuplet;
 		GRSYNC		grSync;
@@ -1512,8 +1512,8 @@ enum									/* Undo op codes */
 	U_GRUnbeam,
 	U_Tuple,
 	U_Untuple,
-	U_Octava,
-	U_UnOctava,
+	U_Ottava,
+	U_UnOttava,
 	U_AddMods,
 	U_StripMods,
 	U_MultiVoice,

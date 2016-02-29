@@ -102,7 +102,7 @@
 #define GraphicSTAFF(link)	( (GetPGRAPHIC(link))->staffn )
 #define TempoSTAFF(link)	( (GetPTEMPO(link))->staffn )
 #define SpacerSTAFF(link)	( (GetPSPACER(link))->staffn )
-#define OctavaSTAFF(link)	( (GetPOCTAVA(link))->staffn )
+#define OttavaSTAFF(link)	( (GetPOTTAVA(link))->staffn )
 #define SlurSTAFF(link)		( (GetPSLUR(link))->staffn )
 #define EndingSTAFF(link) 	( (GetPENDING(link))->staffn )
 
@@ -139,7 +139,7 @@
 #define PSMeasType(link)	( (GetPAPSMEAS(link))->subType )
 #define DynamType(link) 	( (GetPDYNAMIC(link))->dynamicType )
 #define RptType(link) 		( (GetPRPTEND(link))->subType )
-#define OctType(link)		( (GetPOCTAVA(link))->octSignType )
+#define OctType(link)		( (GetPOTTAVA(link))->octSignType )
 #define ClefType(link)		( (GetPACLEF(link))->subType )
 #define NoteType(link)		( (GetPANOTE(link))->subType )
 #define GRNoteType(link)	( (GetPAGRNOTE(link))->subType )
@@ -232,7 +232,7 @@
 #define GetPRPTEND(link) 	(PRPTEND)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPENDING(link) 	(PENDING)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPGRAPHIC(link)	(PGRAPHIC)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
-#define GetPOCTAVA(link)	(POCTAVA)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
+#define GetPOTTAVA(link)	(POTTAVA)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPSLUR(link)		(PSLUR)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPTUPLET(link)	(PTUPLET)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetPTEMPO(link)		(PTEMPO)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
@@ -257,7 +257,7 @@
 #define GetPAGRAPHIC(link) 	GetObjectPtr(GRAPHICheap,link,PAGRAPHIC)
 #define GetPASLUR(link) 		GetObjectPtr(SLURheap,link,PASLUR)
 #define GetPANOTETUPLE(link) 	GetObjectPtr(NOTETUPLEheap,link,PANOTETUPLE)
-#define GetPANOTEOCTAVA(link) GetObjectPtr(NOTEOCTAVAheap,link,PANOTEOCTAVA)
+#define GetPANOTEOTTAVA(link) GetObjectPtr(NOTEOTTAVAheap,link,PANOTEOTTAVA)
 #define GetPAGRNOTE(link) 		GetObjectPtr(GRNOTEheap,link,PAGRNOTE)
 
 #define GetANOTE(link)			GetObject(NOTEheap,link,PANOTE)
@@ -316,7 +316,7 @@
 #define NextRPTENDL(aRptL) 			NextLink(RPTENDheap,(aRptL))
 #define NextSLURL(aSlurL) 				NextLink(SLURheap,(aSlurL))
 #define NextNOTETUPLEL(aNoteTupleL) 	NextLink(NOTETUPLEheap,(aNoteTupleL))
-#define NextNOTEOCTAVAL(aNoteOctavaL) 	NextLink(NOTEOCTAVAheap,(aNoteOctavaL))
+#define NextNOTEOTTAVAL(aNoteOttavaL) 	NextLink(NOTEOTTAVAheap,(aNoteOttavaL))
 
 /* For certain frequently accessed object and subobject fields, we use these macros */
 
@@ -393,7 +393,7 @@
 #define RptEndCONNSTAFF(link)	 ( (GetPARPTEND(link))->connStaff )
 
 #define NoteBEAMED(link)		 ( (GetPANOTE(link))->beamed )
-#define NoteINOCTAVA(link)		 ( (GetPANOTE(link))->inOctava )
+#define NoteINOTTAVA(link)		 ( (GetPANOTE(link))->inOttava )
 #define NoteINTUPLET(link)		 ( (GetPANOTE(link))->inTuplet )
 #define NoteXD(link)		 		 ( (GetPANOTE(link))->xd )
 #define NoteYD(link)				 ( (GetPANOTE(link))->yd )
@@ -419,7 +419,7 @@
 #define NoteXMOVEDOTS(link)	 (	(GetPANOTE(link))->xmovedots )
 
 #define GRNoteBEAMED(link)		 ( (GetPAGRNOTE(link))->beamed )
-#define GRNoteINOCTAVA(link)	 ( (GetPAGRNOTE(link))->inOctava )
+#define GRNoteINOTTAVA(link)	 ( (GetPAGRNOTE(link))->inOttava )
 #define GRNoteXD(link)		 	 ( (GetPAGRNOTE(link))->xd )
 #define GRNoteYD(link)			 ( (GetPAGRNOTE(link))->yd )
 #define GRNoteYQPIT(link)		 ( (GetPAGRNOTE(link))->yqpit )
@@ -475,7 +475,7 @@
 #define DynamTYPE(link)		 	 ( (ObjLType(link)==DYNAMtype) )
 #define BeamsetTYPE(link)		 ( (ObjLType(link)==BEAMSETtype) )
 #define TupletTYPE(link)		 ( (ObjLType(link)==TUPLETtype) )
-#define OctavaTYPE(link)		 ( (ObjLType(link)==OCTAVAtype) )
+#define OttavaTYPE(link)		 ( (ObjLType(link)==OTTAVAtype) )
 #define SlurTYPE(link)		 	 ( (ObjLType(link)==SLURtype) )
 #define GraphicTYPE(link)		 ( (ObjLType(link)==GRAPHICtype) )
 #define RptEndTYPE(link)		 ( (ObjLType(link)==RPTENDtype) )
@@ -520,7 +520,7 @@
 #define DNextNOTEL(doc,aNoteL) 					NextLink((doc)->Heap+SYNCtype,(aNoteL))
 #define DNextGRNOTEL(doc,aGRNoteL) 				NextLink((doc)->Heap+GRSYNCtype,(aGRNoteL))
 #define DNextNOTETUPLEL(doc,aNoteTupleL) 		NextLink((doc)->Heap+TUPLETtype,(aNoteTupleL))
-#define DNextNOTEOCTAVAL(doc,aNoteOctavaL) 	NextLink((doc)->Heap+OCTAVAtype,(aNoteOctavaL))
+#define DNextNOTEOTTAVAL(doc,aNoteOttavaL) 	NextLink((doc)->Heap+OTTAVAtype,(aNoteOttavaL))
 #define DNextNOTEBEAML(doc,aNoteBeamL) 		NextLink((doc)->Heap+BEAMSETtype,(aNoteBeamL))
 #define DNextMODNRL(doc,aModNRL)		 			NextLink((doc)->Heap+MODNRtype,(aModNRL))
 
@@ -532,7 +532,7 @@
 #define DGetPASLUR(doc,link) 			GetObjectPtr((doc)->Heap+SLURtype,link,PASLUR)
 #define DGetPAGRAPHIC(doc,link) 		GetObjectPtr((doc)->Heap+GRAPHICtype,link,PAGRAPHIC)
 #define DGetPANOTETUPLE(doc,link) 	GetObjectPtr((doc)->Heap+TUPLETtype,link,PANOTETUPLE)
-#define DGetPANOTEOCTAVA(doc,link)	GetObjectPtr((doc)->Heap+OCTAVAtype,link,PANOTEOCTAVA)
+#define DGetPANOTEOTTAVA(doc,link)	GetObjectPtr((doc)->Heap+OTTAVAtype,link,PANOTEOTTAVA)
 #define DGetPANOTEBEAM(doc,link)		GetObjectPtr((doc)->Heap+BEAMSETtype,link,PANOTEBEAM)
 
 #define DLinkYD(doc,link)			 	( (DGetPMEVENT(doc,link))->yd )
@@ -551,11 +551,11 @@
 #define DSlurSEL(doc,link)				( (DGetPASLUR(doc,link))->selected )
 
 #define DGetPTUPLET(doc,link)			(PTUPLET)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
-#define DGetPOCTAVA(doc,link)			(POCTAVA)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
+#define DGetPOTTAVA(doc,link)			(POTTAVA)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
 #define DGetPBEAMSET(doc,link)		(PBEAMSET)GetObjectPtr((doc)->Heap+OBJtype,link,PSUPEROBJECT)
 
 #define DTupletSTAFF(doc,link)	( (DGetPTUPLET(doc,link))->staffn )
-#define DOctavaSTAFF(doc,link)	( (DGetPOCTAVA(doc,link))->staffn )
+#define DOttavaSTAFF(doc,link)	( (DGetPOTTAVA(doc,link))->staffn )
 #define DNoteSTAFF(doc,link) 		( (DGetPANOTE(doc,link))->staffn )
 
 #define DBeamVOICE(doc,link)		( (DGetPBEAMSET(doc,link))->voice )
@@ -680,7 +680,7 @@
 #define ClefYD(link)		 	 			( (GetPACLEF(link))->yd )
 #define DynamicYD(link)		 	 		( (GetPADYNAMIC(link))->yd )
 
-#define NoteOctavaOPSYNC(link)		( (GetPANOTEOCTAVA(link))->opSync) 
+#define NoteOttavaOPSYNC(link)		( (GetPANOTEOTTAVA(link))->opSync) 
 #define SlurLASTIND(link)				( (GetPASLUR(link))->lastInd)
 #define SlurFIRSTIND(link)				( (GetPASLUR(link))->firstInd)
 #define ModNRYSTDPIT(link)				( (GetPAMODNR(link))->ystdpit)

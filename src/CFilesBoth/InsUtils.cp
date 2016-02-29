@@ -16,7 +16,7 @@
 	GetPitchLim				CalcPitchLevel			FindStaff
 	SetCurrentSystem		GetCurrentSystem		AddGRNoteUnbeam
 	AddNoteFixBeams	
-	AddNoteFixTuplets 	AddNoteFixOctavas		AddNoteFixSlurs
+	AddNoteFixTuplets 	AddNoteFixOttavas		AddNoteFixSlurs
 	AddNoteFixGraphics	FixWholeRests			FixNewMeasAccs
 	InsFixMeasNums			FindGraphicObject		ChkGraphicRelObj
 	FindTempoObject		FindEndingObject
@@ -1634,17 +1634,17 @@ void AddNoteFixTuplets(Document *doc,
 }
 
 
-/* ----------------------------------------------------------- AddNoteFixOctavas -- */
-/* Given a note that's being inserted into an octava'd range, set its inOctava
+/* ----------------------------------------------------------- AddNoteFixOttavas -- */
+/* Given a note that's being inserted into an ottava'd range, set its inOttava
 flag TRUE and adjust its yd and ystem. If the note is not being chorded with an
-existing note, also insert a subobject into the octava object for its Sync.
+existing note, also insert a subobject into the ottava object for its Sync.
 
 Return TRUE if all OK, FALSE if there's a problem (probably out of memory). */
 
-Boolean AddNoteFixOctavas(LINK newL, LINK newNoteL)	/* Sync and new note (in that Sync) */
+Boolean AddNoteFixOttavas(LINK newL, LINK newNoteL)	/* Sync and new note (in that Sync) */
 {
-	LINK octavaL, newNoteOctavaL, aNoteOctavaL, octavaSyncL, nextSyncL;
-	PANOTEOCTAVA aNoteOctava, newNoteOctava;
+	LINK ottavaL, newNoteOttavaL, aNoteOttavaL, ottavaSyncL, nextSyncL;
+	PANOTEOTTAVA aNoteOttava, newNoteOttava;
 	PANOTE aNote;
 	short staff;
 	
@@ -1656,30 +1656,30 @@ Boolean AddNoteFixOctavas(LINK newL, LINK newNoteL)	/* Sync and new note (in tha
 	one note at a time, we have to add only one subobject. InsertLink requires that we
 	update the firstSubLink field of the object if we are going to add the subObj to
 	the head of the list; however, this cannot happen for this would be adding the
-	note before the first note in the octave sign, so HasOctavaAcross would return
+	note before the first note in the octave sign, so HasOttavaAcross would return
 	NILINK. */
 
-	if (octavaL = HasOctAcross(newL, staff, TRUE)) {
+	if (ottavaL = HasOctAcross(newL, staff, TRUE)) {
 		aNote = GetPANOTE(newNoteL);
-		if (!aNote->rest) aNote->inOctava = TRUE;
+		if (!aNote->rest) aNote->inOttava = TRUE;
 	
 		nextSyncL = LSSearch(RightLINK(newL), SYNCtype, ANYONE, GO_RIGHT, FALSE);
 		if (!NoteINCHORD(newNoteL))
-			if (newNoteOctavaL = HeapAlloc(NOTEOCTAVAheap, 1)) {
+			if (newNoteOttavaL = HeapAlloc(NOTEOTTAVAheap, 1)) {
 			
 				/* Subobjects must be in order: find the place to insert the new one. */
-				aNoteOctavaL = FirstSubLINK(octavaL);
-				for ( ; aNoteOctavaL; aNoteOctavaL = NextNOTEOCTAVAL(aNoteOctavaL)) {
-					aNoteOctava = GetPANOTEOCTAVA(aNoteOctavaL);
-					octavaSyncL = aNoteOctava->opSync;
-					if (octavaSyncL==nextSyncL) {
-						newNoteOctava = GetPANOTEOCTAVA(newNoteOctavaL);
-						newNoteOctava->opSync = newL;
-						InsertLink(NOTEOCTAVAheap, FirstSubLINK(octavaL), aNoteOctavaL, 
-							newNoteOctavaL);
+				aNoteOttavaL = FirstSubLINK(ottavaL);
+				for ( ; aNoteOttavaL; aNoteOttavaL = NextNOTEOTTAVAL(aNoteOttavaL)) {
+					aNoteOttava = GetPANOTEOTTAVA(aNoteOttavaL);
+					ottavaSyncL = aNoteOttava->opSync;
+					if (ottavaSyncL==nextSyncL) {
+						newNoteOttava = GetPANOTEOTTAVA(newNoteOttavaL);
+						newNoteOttava->opSync = newL;
+						InsertLink(NOTEOTTAVAheap, FirstSubLINK(ottavaL), aNoteOttavaL, 
+							newNoteOttavaL);
 					}
 				}
-				LinkNENTRIES(octavaL)++;
+				LinkNENTRIES(ottavaL)++;
 				return TRUE;
 			}
 			else

@@ -246,11 +246,11 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTUPLET(doc, pL, context);
 				break;
-			case OCTAVAtype:
+			case OTTAVAtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
-						DrawOCTAVA(doc, pL, context);
+						DrawOTTAVA(doc, pL, context);
 				break;
 			case DYNAMtype:
 				if (VISIBLE(pL))
@@ -445,11 +445,11 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTUPLET(doc, pL, context);
 				break;
-			case OCTAVAtype:
+			case OTTAVAtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
-						DrawOCTAVA(doc, pL, context);
+						DrawOTTAVA(doc, pL, context);
 				break;
 			case DYNAMtype:
 				if (VISIBLE(pL))
@@ -611,12 +611,12 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 						if (LinkSEL(pL))
 							CheckTUPLET(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 				break;
-			case OCTAVAtype:
+			case OTTAVAtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL) ||
 							SectRect(&LinkOBJRECT(pL),&paperUpdate,&result))
 						if (LinkSEL(pL))
-							CheckOCTAVA(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
+							CheckOTTAVA(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 				break;
 			case DYNAMtype:
 				if (VISIBLE(pL))

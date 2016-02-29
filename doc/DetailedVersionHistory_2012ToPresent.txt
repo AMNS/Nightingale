@@ -420,3 +420,12 @@ Add to Debug Check a check for Measures of zero width that nonetheless contain
 something. Affects DebugUtils.
 
 ===============================================================================
+
+27-29 Feb.
+
+Change the name of the OCTAVA object to OTTAVA; change comments, identifiers, etc.
+accordingly. Affects about 70 files.
+
+Update version number in About box to 5.6b4. Affects info.plist .
+
+Restore mysteriously lost code changes; minor changes. Affects DebugUtils.

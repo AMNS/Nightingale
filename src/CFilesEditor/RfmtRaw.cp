@@ -234,7 +234,7 @@ there's not enough room in the System, it will create new Systems and possibly P
 to put the material into; since Nightingale always starts a new Measure on every System,
 this may well have the effect of breaking the Measure containing the range up into two
 or more Measures. The range should be "raw" in that it cannot contain anything but
-Syncs. Furthermore, no "extended objects"--slurs, beams, octavas, tuplets, hairpins--
+Syncs. Furthermore, no "extended objects"--slurs, beams, ottavas, tuplets, hairpins--
 can start before the range and end after it.
 
 Intended for use on notes that were either played-in or read from a MIDI file or

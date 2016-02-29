@@ -208,7 +208,7 @@ static short ExtMapStaves(Document *doc, Document *newDoc)
 			case SLURtype:
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case GRAPHICtype:
 			case ENDINGtype:
 			case TEMPOtype:
@@ -328,7 +328,7 @@ static void SelectPart(
 				break;
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case ENDINGtype:
 			case SPACERtype:
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf)

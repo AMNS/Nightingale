@@ -279,8 +279,8 @@ void SetLinkOwners(PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas)
 							if (beamL)
 								(durArray + v*nInMeas+notes)->beamL = beamL;
 						}
-						if (NoteINOCTAVA(aNoteL)) {
-							octL = LSSearch(pL,OCTAVAtype,NoteSTAFF(aNoteL),TRUE,FALSE);
+						if (NoteINOTTAVA(aNoteL)) {
+							octL = LSSearch(pL,OTTAVAtype,NoteSTAFF(aNoteL),TRUE,FALSE);
 							if (octL)
 								(durArray + v*nInMeas+notes)->octL = octL;
 						}
@@ -794,10 +794,10 @@ void LocateJDObj(Document */*doc*/, LINK pL, LINK baseMeasL, PTIME *durArray)
 				InsertJDBefore(pL, newObjL);
 			}
 			break;
-		case OCTAVAtype:
+		case OTTAVAtype:
 			for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 				if (pTime->octL==pL) {
-					if (NoteSTAFF(pTime->newSubL)==OctavaSTAFF(pL)) {
+					if (NoteSTAFF(pTime->newSubL)==OttavaSTAFF(pL)) {
 						newObjL = pTime->newObjL;
 						break;
 					}
@@ -1404,10 +1404,10 @@ static void LocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durArra
 				InstallDoc(clipboard);
 			}
 			break;
-		case OCTAVAtype:
+		case OTTAVAtype:
 			for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 				if (pTime->octL==pL) {
-					if (DNoteSTAFF(doc,pTime->newSubL)==OctavaSTAFF(pL)+stfDiff) {
+					if (DNoteSTAFF(doc,pTime->newSubL)==OttavaSTAFF(pL)+stfDiff) {
 						newObjL = pTime->newObjL;
 						break;
 					}
@@ -1591,7 +1591,7 @@ void RelocateClGenlJDObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK 
 	InstallDoc(doc);
 }
 
-/* --------------------------------------------------- GetFirstBeam/Tuplet/Octava -- */
+/* --------------------------------------------------- GetFirstBeam/Tuplet/Ottava -- */
 /* The following functions return the first owning object in the object list for
 any of the notes in the sync argument. */
 
@@ -1629,14 +1629,14 @@ LINK GetFirstTuplet(LINK syncL)
 	return firstTuplet;
 }
 
-LINK GetFirstOctava(LINK syncL)
+LINK GetFirstOttava(LINK syncL)
 {
 	LINK octL, firstOct=NILINK, aNoteL;
 	
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
-		if (NoteINOCTAVA(aNoteL)) {
-			octL = LSSearch(syncL, OCTAVAtype, NoteSTAFF(aNoteL), TRUE, FALSE);
+		if (NoteINOTTAVA(aNoteL)) {
+			octL = LSSearch(syncL, OTTAVAtype, NoteSTAFF(aNoteL), TRUE, FALSE);
 			if (firstOct) {
 				if (IsAfterIncl(octL, firstOct))
 					firstOct = octL;
@@ -1690,7 +1690,7 @@ LINK GetFirstSlur(PTIME *durArray)
 
 /* ----------------------------------------------------------------- GetBaseLink -- */
 /* Get the correct base link from which to fix up pointers at the end of 
-RearrangeNotes. If the first sync in the selection range is beamed/in Octava/
+RearrangeNotes. If the first sync in the selection range is beamed/in Ottava/
 in Tuplet, the owning object could be anywhere prior to the selection range; 
 find it and return it; else return the startMeas. As of v. 3.0, this is unused. */
 
@@ -1720,10 +1720,10 @@ LINK GetBaseLink(Document *doc, short type, LINK startMeasL)
 						return startMeasL;
 				}
 			return startMeasL;
-		case OCTAVAtype:
+		case OTTAVAtype:
 			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
-				if (NoteINOCTAVA(aNoteL)) {
-					if (octL = GetFirstOctava(syncL))
+				if (NoteINOTTAVA(aNoteL)) {
+					if (octL = GetFirstOttava(syncL))
 						return (IsAfterIncl(octL, startMeasL) ? octL : startMeasL);
 					else
 						return startMeasL;
@@ -1879,12 +1879,12 @@ void FixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray,
 
 	FixAllBeamLinks(doc, doc, firstSysL, endMeas);
 	
-	/* Rules are not clearly stated in FixGroupsMenu,NTypes.h, or DoOctava
-		for Octavas. Assuming we do not have crossSys Octavas. Must update
-		all Octavas which can have octNotes in the measure; Octavas located
+	/* Rules are not clearly stated in FixGroupsMenu,NTypes.h, or DoOttava
+		for Ottavas. Assuming we do not have crossSys Ottavas. Must update
+		all Ottavas which can have octNotes in the measure; Ottavas located
 		after endMeas are guaranteed to have none. */
 	
-	FixOctavaLinks(doc, doc, sysL, endMeas);
+	FixOttavaLinks(doc, doc, sysL, endMeas);
 
 	/* Tuplets must begin and end in the same measure. */
 
@@ -1987,8 +1987,8 @@ static void FixStaffn(LINK pL, short stfDiff)
 		case TUPLETtype:
 			TupletSTAFF(pL) += stfDiff;
 			break;
-		case OCTAVAtype:
-			OctavaSTAFF(pL) += stfDiff;
+		case OTTAVAtype:
+			OttavaSTAFF(pL) += stfDiff;
 			break;
 		case SPACERtype:
 			SpacerSTAFF(pL) += stfDiff;

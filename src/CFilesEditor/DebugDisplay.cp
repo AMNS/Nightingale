@@ -64,7 +64,7 @@ void DisplayNode(Document *doc, LINK pL,
 	PADYNAMIC		aDynamic;
 	PACONNECT		aConnect;
 	PASLUR			aSlur;
-	PANOTEOCTAVA	aNoteOct;
+	PANOTEOTTAVA	aNoteOct;
 	register LINK	aNoteL;
 	LINK			aStaffL, aMeasureL, aPseudoMeasL, aClefL, aKeySigL, aNoteBeamL,
 					aNoteTupleL, aTimeSigL, aDynamicL, aConnectL, aSlurL, 
@@ -157,9 +157,9 @@ void DisplayNode(Document *doc, LINK pL,
 					LogPrintf(LOG_NOTICE, " lObj=%d", ((PGRAPHIC)p)->lastObj);
 			}
 			break;
-		case OCTAVAtype:
-			LogPrintf(LOG_NOTICE, " st=%d octType=%d", ((POCTAVA)p)->staffn,
-								((POCTAVA)p)->octSignType);
+		case OTTAVAtype:
+			LogPrintf(LOG_NOTICE, " st=%d octType=%d", ((POTTAVA)p)->staffn,
+								((POTTAVA)p)->octSignType);
 			break;
 		case SLURtype:
 			LogPrintf(LOG_NOTICE, " st=%d v=%d", ((PSLUR)p)->staffn, ((PSLUR)p)->voice);
@@ -360,10 +360,10 @@ void DisplayNode(Document *doc, LINK pL,
 				if (show_links) LogPrintf(LOG_NOTICE, "     tpSync=%d\n", aNoteTuple->tpSync);
 			}
 			break;
-		case OCTAVAtype:
+		case OTTAVAtype:
 			for (aNoteOctL=FirstSubLINK(pL); aNoteOctL; 
-					aNoteOctL=NextNOTEOCTAVAL(aNoteOctL)) {
-				aNoteOct = GetPANOTEOCTAVA(aNoteOctL);
+					aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
+				aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 				if (show_links) LogPrintf(LOG_NOTICE, "     opSync=%d\n", aNoteOct->opSync);
 			}
 			break;

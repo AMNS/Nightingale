@@ -466,7 +466,7 @@ static void VisifySubObjs(LINK pL, short staffn, short vis)
 		case SLURtype:
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case GRAPHICtype:
 		case ENDINGtype:
 			p = GetPMEVENT(pL);
