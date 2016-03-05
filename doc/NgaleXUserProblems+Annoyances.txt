@@ -19,8 +19,6 @@ RELATIVELY SERIOUS
 
 - Tempo marks don't always get make it into extracted parts. One situation is where they're attached to a note (necessarily in one part); another when attached to time sigs., which normally have subobjs in every part. From comment in ExtMapStaves(), it looks like we try to always put tempo marks into every part, but clearly we don't succeed.
 
-- Piano pedal up and down symbols don't come out in a music font, at least if Sonata is the current music font. However, the same chars. as part of a text Graphic _are_ rendered in a music font.
-
 - If a two-voice unison on a chromatic black-key note involves certain combinations of durations, esp. if at least one is a whole note, both noteheads must be visible. That's a problem because then there are likely to be two accidentals much too close together... unless I cheat and omit the accidental from one, but in that case either the MIDI note no. will be inconsistent with the "logical" pitch, or the notes will play back as an augmented unison. The best simple solution is probably to be able to make the accidental invisible, probably via Get Info.
 
 - With two voices on a staff, Ngale computes space needed based on the merged voices even if one is so far above the other that they don't interact, resulting in it sometimes allocating way too much space for a Sync. Cf. violin concerto, II, 3VCBVariation, m. 9. An acceptable (to me!) solution: add a flag to the ANote struct that says "when respacing, ignore the chord this note belongs to"; add it to the note Get Info dialog.  Fix est. difficulty & impact: high & low (there's a byte available to put this flag in, and it's been initialized to 0 for many years).
@@ -137,3 +135,5 @@ not just "3". Fix est. difficulty & impact: easy & very low.
 + Tremolo slashes are probably at too steep an angle. Fix est. difficulty & impact: easy & very low.
 
 + Tremolo slashes on upstemmed notes aren't horizontally centered around the stem. Fix est. difficulty & impact: low & low.
+
++ On PostScript output, piano pedal up and down symbols don't come out in a music font. However, the same chars. as part of a text Graphic _are_ rendered in a music font.

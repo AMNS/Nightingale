@@ -1306,11 +1306,13 @@ size works! So it looks like this is OS dependent.
 
 -------------------------------------------------------------------------------
 
-4 Mar.
+4-5 Mar.
 
-- Piano pedal up and down symbols don't come out in a music font, at least if Sonata is
-the current music font. However, the same chars. as part of a text Graphic _are_
-rendered in a music font.  Cf. PedalSymbolsFontBug.ps to PedalSymbolsFontKludge.ps: the
-former, using Ngale's official pedal symbols, switches to Helvetica for them! The latter,
-using text with the proper chars. in the Sonata font, does _not_ switch. ??
-
+- Piano pedal up and down symbols don't come out in a music font. However, the same
+chars. as part of a text Graphic _are_ rendered in a music font.  Cf.
+PedalSymbolsFontBug.ps to PedalSymbolsFontKludge.ps: the former, using Ngale's official
+pedal symbols, switches to Helvetica for them! The latter, using text with the proper
+chars. in the Sonata font, does _not_ switch. Why does Ngale switch to Helvetica instead
+of using the music font? Because the calls to PS_FontString() in DrawGRAPHIC() for
+GRMIDISustainOn and GRMIDISustainOff specify as the font
+doc->fontTable[p->fontInd].fontName ; it should be just  doc->musFontName :-) .

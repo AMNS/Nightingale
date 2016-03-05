@@ -6,11 +6,11 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALE� PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright � 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -179,9 +179,9 @@ static void DrawHeaderFooter(Document *doc,
 /* Draw a page number. */
 
 static void DrawPageNum(Document *doc,
-								LINK pL,					/* PAGE object */
-								Rect *paper,
-								CONTEXT context[])
+							LINK pL,					/* PAGE object */
+							Rect *paper,
+							CONTEXT context[])
 {
 	PPAGE		p;
 	short		pageNum, fontSize, oldFont, oldSize, oldStyle,
@@ -262,20 +262,20 @@ void DrawPAGE(Document *doc, LINK pL, Rect *paper, CONTEXT context[])
 	are specified in paper.  */
 
 void DrawSYSTEM(Document *doc,
-						LINK pL,							/* SYSTEM object */
-						Rect *paper,					/* window coordinates of page */
-						CONTEXT context[])
+					LINK pL,						/* SYSTEM object */
+					Rect *paper,					/* window coordinates of page */
+					CONTEXT context[])
 {
-	short			i;
-	Rect			r,temp;
-	PCONTEXT		pContext;			/* ptr to current context[] entry */
+	short		i;
+	Rect		r,temp;
+	PCONTEXT	pContext;			/* ptr to current context[] entry */
 	PSYSTEM		p;
-	STFRANGE		stfRange={0,0};
-	Point			enlarge = {0,0};
+	STFRANGE	stfRange={0,0};
+	Point		enlarge = {0,0};
 
 	p = GetPSYSTEM(pL);
 	pContext = &context[1];
-	for (i=1; i<=MAXSTAVES; i++, pContext++) {		/* update context */
+	for (i=1; i<=MAXSTAVES; i++, pContext++) {			/* update context */
 		pContext->paper = *paper;
 		pContext->systemTop = p->systemRect.top;
 		pContext->systemLeft = p->systemRect.left;
@@ -331,12 +331,12 @@ static void DrawPartName(Document *doc, LINK staffL,
 						CONTEXT	context[]
 						)
 {
-	short			oldFont, oldSize, oldStyle, firstStaff, lastStaff,
-					xname, yname, fontInd, fontID, fontSize, nameWidth;
-	DDIST			ydTop, ydBot, xd, yd, connWidth;
-	LINK			partL;
+	short		oldFont, oldSize, oldStyle, firstStaff, lastStaff,
+				xname, yname, fontInd, fontID, fontSize, nameWidth;
+	DDIST		ydTop, ydBot, xd, yd, connWidth;
+	LINK		partL;
 	PPARTINFO	pPart;
-	PCONTEXT		pContext;
+	PCONTEXT	pContext;
 	Str255		str;
 	
 	if (nameCode==NONAMES) return;
@@ -363,7 +363,7 @@ static void DrawPartName(Document *doc, LINK staffL,
 		}
 		else {
 			/* Get position to horizontally center the part name in the left indent area. */
-			fontInd = GetFontIndex(doc, doc->fontNamePN);					/* Should never fail */
+			fontInd = GetFontIndex(doc, doc->fontNamePN);				/* Should never fail */
 			fontID = doc->fontTable[fontInd].fontID;
 			nameWidth = NPtStringWidth(doc, str, fontID, fontSize, doc->fontStylePN);
 			connWidth = ConnectDWidth(doc->srastral, CONNECTCURLY);
@@ -415,12 +415,12 @@ information across the left end of the staff. Intended for use in Master Page. *
 
 static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT context[])
 {
-	short			oldFont, oldSize, oldStyle, xname, yname, staffHtPixels, fontSize;
-	DDIST			xd, yd;
-	LINK			partL;
+	short		oldFont, oldSize, oldStyle, xname, yname, staffHtPixels, fontSize;
+	DDIST		xd, yd;
+	LINK		partL;
 	PPARTINFO	pPart;
-	PCONTEXT		pContext;
-	char			fmtStrCP[256], fmtStrB[256], fmtStrT[256];
+	PCONTEXT	pContext;
+	char		fmtStrCP[256], fmtStrB[256], fmtStrT[256];
 	
 	pContext = &context[staffn];
 	partL = Staff2PartL(doc,doc->masterHeadL,staffn);
@@ -593,12 +593,12 @@ void DrawSTAFF(Document *doc, LINK pL, Rect *paper,
 				)
 {
 	PASTAFF		aStaff;			/* ptr to current sub item */
-	LINK			aStaffL;
+	LINK		aStaffL;
 	PSYSTEM		pSystem;
-	PCONTEXT		pContext;		/* ptr to current context[] entry */
-	short			staffn;			/* current staff number */
-	STFRANGE		stfRange = {0,0};
-	Point			enlarge = {0,0};
+	PCONTEXT	pContext;		/* ptr to current context[] entry */
+	short		staffn;			/* current staff number */
+	STFRANGE	stfRange = {0,0};
+	Point		enlarge = {0,0};
 
 PushLock(OBJheap);
 PushLock(STAFFheap);
@@ -777,7 +777,7 @@ PushLock(CONNECTheap);
 							width = ((r.right-r.left)*(UseTextSize(pContext->fontSize, doc->magnify)))/36;
 							SetRect(&r,d2p(xd),d2p(dTop),d2p(xd)+width,d2p(dBottom));
 							OffsetRect(&r,pContext->paper.left,pContext->paper.top);
-							/* ??DrawPicture OVERWRITES ANYTHING ALREADY THERE--SHOULD BE OR'ED
+							/* FIXME: DrawPicture OVERWRITES ANYTHING ALREADY THERE--SHOULD BE OR'ED
 								IN, PROBABLY VIA DrawPicture TO BITMAP, THEN CopyBits. */
 							DrawPicture(pictRsrc,&r);
 							HUnlock((Handle)pictRsrc); HPurge((Handle)pictRsrc);
@@ -789,7 +789,7 @@ PushLock(CONNECTheap);
 							}
 							break;
 						case toPostScript:
-							width = pt2d(5);	/* ??WRONG: needs to track current fontsize */
+							width = pt2d(5);	/* FIXME: WRONG: needs to track current fontsize */
 							PS_Brace(doc, xd,dTop,dBottom);
 							break;
 					}
@@ -849,23 +849,23 @@ PopLock(CONNECTheap);
 
 void DrawCLEF(Document *doc, LINK pL, CONTEXT context[])
 {
-	PACLEF		aClef;			/* ptr to current subobject */
-	LINK			aClefL;
-	short			i;					/* scratch */
-	PCONTEXT		pContext;		/* ptr to current context[] entry */
-	DDIST			xd, yd,			/* scratch DDIST coordinates */
-					xdOct, ydOct,
-					lnSpace;
-	short			xp, yp, yp2,	/* pixel coordinates */
-					xpObj, ypObj,
-					xp2Obj, yp2Obj,
-		 			oldTxSize,
-					sizePercent;	/* Percent of "normal" size to draw in */
+	PACLEF		aClef;				/* ptr to current subobject */
+	LINK		aClefL;
+	short		i;					/* scratch */
+	PCONTEXT	pContext;			/* ptr to current context[] entry */
+	DDIST		xd, yd,				/* scratch DDIST coordinates */
+				xdOct, ydOct,
+				lnSpace;
+	short		xp, yp, yp2,		/* pixel coordinates */
+				xpObj, ypObj,
+				xp2Obj, yp2Obj,
+		 		oldTxSize,
+				sizePercent;		/* Percent of "normal" size to draw in */
 	unsigned char glyph;			/* clef symbol */
-	Boolean		drawn,			/* FALSE until a subobject has been drawn */
-					clefVisible;	/* TRUE if clef contains a visible subobject */
-	Point			pt;
-	Byte			octGlyph;
+	Boolean		drawn,				/* FALSE until a subobject has been drawn */
+				clefVisible;		/* TRUE if clef contains a visible subobject */
+	Point		pt;
+	Byte		octGlyph;
 
 PushLock(OBJheap);
 PushLock(CLEFheap);
@@ -963,15 +963,15 @@ PopLock(CLEFheap);
 
 void DrawKEYSIG(Document *doc, LINK pL, CONTEXT context[])
 {
-	LINK			aKeySigL;
-	PAKEYSIG		aKeySig;
-	PCONTEXT		pContext;		/* ptr to current context[] entry */
-	short			width,			/* pixel width of entire key signature */
-					lines;			/* number of lines in current staff */
-	DDIST			xd, yd,			/* scratch DDIST coordinates */
-					dTop,
-					height;			/* height of current staff */
-	Rect			subRect;			/* enclosing rect for key signature */
+	LINK		aKeySigL;
+	PAKEYSIG	aKeySig;
+	PCONTEXT	pContext;		/* ptr to current context[] entry */
+	short		width,			/* pixel width of entire key signature */
+				lines;			/* number of lines in current staff */
+	DDIST		xd, yd,			/* scratch DDIST coordinates */
+				dTop,
+				height;			/* height of current staff */
+	Rect		subRect;		/* enclosing rect for key signature */
 	Boolean		drawn;			/* FALSE until something's drawn */
 
 PushLock(OBJheap);
@@ -1573,7 +1573,7 @@ Boolean GetGraphicDBox(Document *doc,
 				 * (to be fixed, deleted, etc.) but won't cause any problems.
 				 */
 #ifdef NOTYET
-				/* ??There are two problems with using GetPicture here. First, if the PICT
+				/* FIXME: There are two problems with using GetPicture here. First, if the PICT
 				isn't in the score, it will try to get it from the app or from system
 				resources. This is not necessarily bad, but a way to avoid that would be
 				this. Just after opening the score, do:
@@ -1660,7 +1660,7 @@ void DrawGRPICT(Document */*doc*/,
 				short picID,			/* PICT resource ID */
 				Handle picH,			/* handle to PICT resource, or NULL */
 				PCONTEXT pContext,
-				Boolean /*dim*/				/* ignored */
+				Boolean /*dim*/			/* ignored */
 				)
 {
 	Rect r; short width, height;
@@ -1696,7 +1696,7 @@ void DrawGRPICT(Document */*doc*/,
 /* Draw an arpeggio or non-arpeggio sign. */
 
 void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
-						short subType, PCONTEXT pContext, Boolean /*dim*/)	/* <dim> is ignored */
+					short subType, PCONTEXT pContext, Boolean /*dim*/)	/* <dim> is ignored */
 {
 	short xp, yp, yTop; DDIST lnSpace, nonarpThick; Byte glyph;
 	
@@ -1747,7 +1747,7 @@ void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
 DDIST DrawGRDraw(Document */*doc*/,
 				DDIST xd, DDIST yd,		/* Center position of endpt */
 				DDIST xd2, DDIST yd2,	/* Center position of endpt */
-				short lineLW,				/* in percent of linespace */
+				short lineLW,			/* in percent of linespace */
 				PCONTEXT pContext,
 				Boolean dim,
 				Boolean doDraw,			/* TRUE=really draw, FALSE=just return value */
@@ -1762,7 +1762,7 @@ DDIST DrawGRDraw(Document */*doc*/,
 	 * If the line is much closer to vertical than horizontal, we thicken horizontally
 	 * only; otherwise we thicken vertically only. This won't give the desired
 	 * thickness unless the line is nearly vertical or horizontal, or thickness is small
-	 * enough that it doesn't matter. ??AT THE MOMENT, QD ONLY.
+	 * enough that it doesn't matter. FIXME: AT THE MOMENT, QD ONLY.
 	 */
 	dThick = (long)(lineLW*lnSpace) / 100L;
 	if (!doDraw) goto Done;
@@ -1823,8 +1823,8 @@ void DrawGRAPHIC(Document *doc,
 {
 	PGRAPHIC		p;
 	LINK			aGraphicL;
-	PAGRAPHIC	aGraphic;
-	CONTEXT		relContext;				/* context of relative object */
+	PAGRAPHIC		aGraphic;
+	CONTEXT			relContext;				/* context of relative object */
 	PCONTEXT		pContext;				/* ptr to context of this object */
 	DRect			dEnclBox;
 	Rect			objRect;
@@ -1835,18 +1835,17 @@ void DrawGRAPHIC(Document *doc,
 					fontID, fontSize, fontStyle,
 					xp, yp, staffn,
 					lineLW;
-	unsigned char strToDraw[256];
-	unsigned char oneChar[2];			/* Pascal string of a char */
-	StringOffset theStrOffset;
-	Boolean		expandN;				/* Stretch string out? */
-	Boolean		dim=FALSE;
+	unsigned char	strToDraw[256];
+	unsigned char	oneChar[2];				/* Pascal string of a char */
+	StringOffset	theStrOffset;
+	Boolean			expandN;				/* Stretch string out? */
+	Boolean			dim=FALSE;
 
 	/*
 	 *	Compute Graphic's absolute position from its relative object's position.
 	 *	NOTE: For the time being, with PICTs, we ignore the firstObj field and
 	 *	position them relative to the page.
 	 */
- 
 PushLock(OBJheap);
 PushLock(GRAPHICheap);
  	p = GetPGRAPHIC(pL);
@@ -1878,7 +1877,7 @@ PushLock(GRAPHICheap);
 		case GRArpeggio:
 			if (doDraw) {
 				dHeight = qd2d(p->info, relContext.staffHeight, relContext.staffLines);
-				/* ??It looks as if we should set the TextSize before drawing. */
+				/* FIXME: It looks as if we should set the TextSize before drawing. */
 				DrawArpSign(doc, xd, yd, dHeight, ARPINFO(p->info2), &relContext, dim);
 			}
 			if (outputTo==toScreen) D2ObjRect(&dEnclBox, &objRect);
@@ -2040,11 +2039,11 @@ PushLock(GRAPHICheap);
 					break;
 				case GRChordSym:
 					DrawChordSym(doc, xd, yd, PCopy(theStrOffset), p->info, pContext, dim, &dEnclBox);
-					objRect = LinkOBJRECT(pL);				/* ??Why do this if <toPostScript>? */
+					objRect = LinkOBJRECT(pL);				/* FIXME: Why do this if <toPostScript>? */
 					break;
 				case GRChordFrame:
 					PS_FontString(doc, xd, yd, PCopy(theStrOffset),
-										"\pSeville",							// ??TEMPORARY
+										"\pSeville",						// FIXME: TEMPORARY
 										fontSize, fontStyle);
 					break;
 				case GRLyric:
@@ -2096,18 +2095,19 @@ PushLock(GRAPHICheap);
 										doc->fontTable[p->fontInd].fontName,
 										fontSize, fontStyle);
 					break;
+				/* For sustain on/off (=pedal down/up), always use the document's music font. */
 				case GRMIDISustainOn:
 					oneChar[0] = 1;
 					oneChar[1] = 0xA1;						// Mac OS Roman keys: shift-option 8
 					PS_FontString(doc, xd, yd,oneChar,
-										doc->fontTable[p->fontInd].fontName,
+										doc->musFontName,
 										fontSize, fontStyle);
 					break;
 				case GRMIDISustainOff:
 					oneChar[0] = 1;
 					oneChar[1] = '*';						// Shift 8
 					PS_FontString(doc, xd, yd,oneChar,
-										doc->fontTable[p->fontInd].fontName,
+										doc->musFontName,
 										fontSize, fontStyle);
 					break;
 			}
@@ -2228,7 +2228,7 @@ PushLock(TEMPOheap);
 			SetRect(&LinkOBJRECT(pL), xp, yp-fInfo.ascent, 
 						xp+StringWidth(tempoStr), yp+fInfo.descent);
 
-			/* ??Why go through all this setup if we might not draw the MM at all?  -JGG */
+			/* FIXME: Why go through all this setup if we might not draw the MM at all?  -JGG */
 			xdNote += MusCharXOffset(doc->musFontInfoIndex, noteChar, lineSpace);
 			ydNote = yd + MusCharYOffset(doc->musFontInfoIndex, noteChar, lineSpace);
 			MoveTo(pContext->paper.left+d2p(xdNote), pContext->paper.top+d2p(ydNote));
@@ -2473,7 +2473,7 @@ void DrawBarline(Document *doc,
 			ypBot = pContext->paper.top + d2p(dBottom);
 
 #ifdef NOTYET
-			/* The "-1"s below are purely empirical and to be conservative. ??Changing
+			/* The "-1"s below are purely empirical and to be conservative. FIXME: Changing
 				this also requires changing code in CheckMEASURE for hit-testing and
 				hiliting. We should also make the analogous changes to repeat bars. */
 			betweenBars = d2p(lnSpace/2)-1;
@@ -2607,7 +2607,7 @@ PushLock(MEASUREheap);
 			OffsetDRect(&aDRect, pContext->measureLeft, pContext->systemTop);
 			D2Rect(&aDRect, &measureRect);
 
-/* ??SHOULD WE DO objRect STUFF IF STAFF ISN'T VISIBLE?? */
+/* FIXME: SHOULD WE DO objRect STUFF IF STAFF ISN'T VISIBLE? */
 			SetRect(&barlineRect, measureRect.left-2, measureRect.top,
 											measureRect.left,	measureRect.bottom);
 			switch (aMeasure->subType) {
@@ -2623,7 +2623,7 @@ PushLock(MEASUREheap);
 				case BAR_RPT_L:
 				case BAR_RPT_R:
 				case BAR_RPT_LR:
-					/* ??TEMPORARY--NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
+					/* FIXME: TEMPORARY--NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
 					barlineRect.right += 4;
 					break;
 			}
@@ -2698,7 +2698,7 @@ PushLock(MEASUREheap);
  */
 	if (recalc) {
 		if (LastMeasInSys(pL)) {
-			/*  ??This code seems way more complicated than it should be. */
+			/*  FIXME: This code seems way more complicated than it should be. */
 			LINK sysL; DRect sysDRect; short sysLeft, boxRight;
 						
 			sysL = LSSearch(pL, SYSTEMtype, ANYONE, TRUE, FALSE);
