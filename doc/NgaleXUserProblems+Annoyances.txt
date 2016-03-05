@@ -11,8 +11,6 @@ My MacBook is running OS 10.6.x, my G5 10.5.x.
 
 RELATIVELY SERIOUS
 
-- In some very recent scores (as of February 2016) -- e.g., my InvisibleNotesBug.ngl and 3rdMovementFS_InvisibleNotesBug.ngl, and something of Glenn Gass' -- inserted notes on some systems aren't drawn at all, and nothing I've tried makes them reappear except adding barlines on those systems! The reason appears to be that Nightingale thinks those systems aren't on the screen.
-
 - Paste Merge sometimes fails to update the context of following measures, mostly for dynamics, leading to numerous Debug messages of the form
 
 	DCheckContext: dynamicType FOR STAFF 12 IN MEAS AT 413 INCONSISTENCY
@@ -21,7 +19,9 @@ RELATIVELY SERIOUS
 
 - Tempo marks don't always get make it into extracted parts. One situation is where they're attached to a note (necessarily in one part); another when attached to time sigs., which normally have subobjs in every part. From comment in ExtMapStaves(), it looks like we try to always put tempo marks into every part, but clearly we don't succeed.
 
-- If a two-voice unison on a chromatic black-key note involves some combinations of durations, esp. if at least one is a whole note, both noteheads must be visible. That's a problem because then there are likely to be two accidentals much too close together... unless I cheat and omit the accidental from one, but in that case either the MIDI note no. will be inconsistent with the "logical" pitch, or the notes will play back as an augmented unison. The best simple solution is probably to be able to make the accidental invisible, probably via Get Info.
+- Piano pedal up and down symbols don't come out in a music font, at least if Sonata is the current music font. However, the same chars. as part of a text Graphic _are_ rendered in a music font.
+
+- If a two-voice unison on a chromatic black-key note involves certain combinations of durations, esp. if at least one is a whole note, both noteheads must be visible. That's a problem because then there are likely to be two accidentals much too close together... unless I cheat and omit the accidental from one, but in that case either the MIDI note no. will be inconsistent with the "logical" pitch, or the notes will play back as an augmented unison. The best simple solution is probably to be able to make the accidental invisible, probably via Get Info.
 
 - With two voices on a staff, Ngale computes space needed based on the merged voices even if one is so far above the other that they don't interact, resulting in it sometimes allocating way too much space for a Sync. Cf. violin concerto, II, 3VCBVariation, m. 9. An acceptable (to me!) solution: add a flag to the ANote struct that says "when respacing, ignore the chord this note belongs to"; add it to the note Get Info dialog.  Fix est. difficulty & impact: high & low (there's a byte available to put this flag in, and it's been initialized to 0 for many years).
 
@@ -31,15 +31,21 @@ RELATIVELY SERIOUS
 
 - There's no reasonable way to do tempo equations, e.g., "quarter note = quarter note". Need to extend the Tempo/Metronome dialog: smthg like add radio buttons for normal and "duration = duration", and if the latter is selected, show a popup for the right side similar or identical to that for the left side.
 
+- In some very recent scores (as of February 2016) -- e.g., my InvisibleNotesBug.ngl and 3rdMovementFS_InvisibleNotesBug.ngl, and something of Glenn Gass' -- inserted notes on some systems aren't drawn at all, and nothing I've tried makes them reappear except adding barlines on those systems! The reason appears to be that Nightingale thinks those systems aren't on the screen. Just inserting a barline on the system fixes it, so this isn't _that_ serious.
+
 
 MOSTLY JUST ANNOYING
 
 - Tremolo slashes are often too close to the closest note head (with three or more slashes), & sometimes too close to the end of the stem (when flags are present). Fix est. difficulty & impact: low-medium & low.
 
+- It'd be helpful if Fill Empty Measures reported how many whole-measure rests it added. Fix est. difficulty & impact: low & low.
+
 - Space objects aren't very useful because they tend to add far more space than the width of the space object. This is probably because they're justification type J_IT; they should be J_IP. Fix est. difficulty & impact: low & low.
 
-- In tempo/metronome marks, there's usually not enough space between the tempo char. string and the note beginning the metronome mark. Fix est. difficulty & impact: very low & very low.
-
+- Paste Merge of even just a few notes often causes error messages of the form
+	FixGRDrawLinks: firstObj=1111 or lastObj=1115 isn't a Sync or a GRSync.
+...but works perfectly otherwise, and it doesn't look like the LINKs given (1111 and 1115 here) have anything to do with the situation!
+	
 - With reasonable spacing, only about 25 staves fit on a letter-size page even at staff size 8, so with a largish number -- e.g., 15 in my violin concerto -- you can get only one system on a page. I need a larger "paper" size, but trying to change to one seems to do absolutely nothing on my G5 running OS 10.5. On my old MacBook running 10.6.8, it works okay!?
 
 - (all) When I open a file, it often forgets its MIDI playback setting, so when I try to play, it either gives the "unable to play score, because a MIDI device isn't selected" error message, or acts as if it's playing for a split second but plays nothing. Setting DLS_MIDI Controller for all parts fixes; but saving and re-opening the file after that changes nothing. This is a well-known, long-standing bug. It happens much more (or only?) with files created years ago, regardless of how much they've been edited recently. Cf. Menu>EditPartMIDI().
@@ -56,10 +62,10 @@ other stem side flag. Fix est. impact: very low.
 - From Nov. 2007: "On my G4 & laptop, _very_ often has the wrong cursor, esp. wait cursor when it should be a symbol, or a symbol when it should be the selection arrow." As of April 2012, this is still a problem in all recent versions of Ngale with both of my computers -- isn't it?
 
 +- Some of the default CNFG & other settings are silly, or at least suboptimal. E.g.:
-	- In tempo/metronome marks, there's usually not enough space between the tempo char. string and the note beginning the metronome mark. Default for extra space is currently 0; it should be around 3 (in eighth-spaces).
-	- All the memory settings are ridiculously low -- though I'm not sure any of them are meaningful on any system Ngale 5.x runs on (Mac OS 10.0 thru 10.6).
+	- In tempo/metronome marks, there's usually not enough space between the tempo char. string and the note beginning the metronome mark. Default for extra space is currently 0 (in eighth-spaces); it should be around 3.
+	- All three memory settings are ridiculously low -- though I'm not sure any of them are meaningful on any system Ngale 5.x runs on (Mac OS 10.0 thru 10.6). Still, maybe multiply them by five or six?
 	- "Additional top margin on 1st page" (default 0) should probably be nonzero: at least 18 pts, say, but somewhere from 36 to 72 would probably be better.
-	- "Min. space between lyrics" (6) is probably too large; cf. LyricConstrainedSpacing.ngl .
+	- "Min. space between lyrics" (6 eighth-spaces) is probably too large; cf. LyricConstrainedSpacing.ngl .
 	+ "Default staff rastral size" (1) should probably be 5; certainly not 1.
 	+ "Screen layout..." should be horiz., not vertical.
 	+ Some MIDI Modifier values are questionable. E.g., 90 for > vel. offset is ridiculously high!; it should probably be 50 or so.

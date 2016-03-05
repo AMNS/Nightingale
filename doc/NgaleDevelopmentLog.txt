@@ -1,4 +1,4 @@
-DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 thru Jan. 2016
+DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 thru Feb. 2016
 
 (Most of the files in my Ngale Carbon code base have last modification dates of April or
 May 2012; a few files are 2 June 2012, and it looks like that's the last source code I
@@ -1258,7 +1258,7 @@ the time I specify! Weird, but not worth worrying about.
 
 -------------------------------------------------------------------------------
 
-8-25 Feb.
+8 Feb. - 1 March
 
 - In some very recent scores -- my SpacerTest_InvisibleNotesBug.ngl &
 3rdMovementFS_??.ngl and something of Glenn Gass' -- inserted notes aren't drawn at
@@ -1280,10 +1280,18 @@ for the invisible notes! For Measure objects,
 
 ...then drawAll is set to FALSE. Clearly  outputTo==toScreen, so the problem is Ngale
 thinks the intersetion of the measureBBox and the update area is empty. Why? Because the
-measureBBox.left = measureBBox.right = 850, which I'm pretty sure is the right end of the
-System! Why? I dunno, but let's add to Debug Check a check for Measures with zero-width bbox
-that aren't immediately followed by a Page or System, or that have something other than a
-Page before the next System. Add code to DCheckMBBox() => done.
+measureBBox.left = measureBBox.right = 850, which I'm pretty sure is the right end of
+the System! Why? I dunno, but let's add to Debug Check a check for Measures with
+zero-width bbox that aren't immediately followed by a Page or System, or that have
+something other than a Page before the next System. Add code to DCheckMBBox() => done.
+
+On my G5, just adding a barline in the offending systems fixes everything in all test
+scores, and in Glenn's score (filename _stems_), only the 2nd system is a problem
+anyway. On Glenn's system, _none_ of the noteheads are drawn in either system, and
+adding a barline does nothing! The apparent cause: he's using Sonata, and it doesn't
+show up in Font Book, so it's evidently not installed properly -- and he doesn't have
+Briard or Blue Notz. ??
+
 
 -------------------------------------------------------------------------------
 
@@ -1295,4 +1303,14 @@ the paper size is unchanged !*(!*@&(. Changing from portrait to landscape format
 work. This is with Ngale 5.5 or 5.6b2 on my G5. But Opus says it works for him!; he's
 running Ngale 5.3.0 b10m on OS 10.6.8. Try Ngale 5.5 on my old MacBook => changing paper
 size works! So it looks like this is OS dependent.
+
+-------------------------------------------------------------------------------
+
+4 Mar.
+
+- Piano pedal up and down symbols don't come out in a music font, at least if Sonata is
+the current music font. However, the same chars. as part of a text Graphic _are_
+rendered in a music font.  Cf. PedalSymbolsFontBug.ps to PedalSymbolsFontKludge.ps: the
+former, using Ngale's official pedal symbols, switches to Helvetica for them! The latter,
+using text with the proper chars. in the Sonata font, does _not_ switch. ??
 

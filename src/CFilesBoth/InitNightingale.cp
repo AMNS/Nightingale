@@ -12,7 +12,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-//#include <MIDI.h>
 #include <CoreMIDI/MidiServices.h>
 // MAS
 #include "CarbonTemplates.h"
@@ -24,9 +23,9 @@ static void		InitNightFonts(void);
 static Boolean	InitNightGlobals(void);
 static Boolean	InitTables(void);
 static void 	PrintInfo(void);
+static void 	CheckScreenFonts(void);
 static void		InitMusicFontStuff(void);
 static Boolean	InitMIDISystem(void);
-static void 	CheckScrFonts(void);
 
 void			NExitToShell(char *msg);
 
@@ -57,13 +56,12 @@ void NExitToShell(char *msg)
 	ExitToShell();
 }
 
+
 /* Display splash screen. If all OK, return TRUE; if there's a problem, return FALSE.
 
-In Nightingale, the splash screen we display shows the owner's name and organization,
-to discourage illegal copying. We also check (but don't display) the copy serial number:
-if it's wrong, return FALSE.
-
-In NoteView, the splash screen is purely for the user's benefit. */
+In commercial versions of Nightingale, the splash screen we displayed shows the owner's
+name and organization, to discourage illegal copying. We also checked (but didn't display)
+the copy serial number: if it's wrong, return FALSE. */
 
 #define NAME_DI 1
 #define ABOUT_DI 2
@@ -95,6 +93,7 @@ static Boolean DoSplashScreen()
 
 	return TRUE;
 }
+
 
 /* Initialize the cursor globals and the cursor list. */
 
@@ -137,8 +136,9 @@ void InitNightFonts()
 	textFontNum = applFont;
 	
 	/*
+	 * NB: The following comment is pre-OS X.
 	 * The "magic no." in next line should theoretically go away: we should get the
-	 * system font size from the Script Manager if it's present (and it should always be). However,
+	 * system font size from the Script Manager if it's present (and it should always be).
 	 * However, in every system I've seen, the system font size is 12, so I doubt it's
 	 * a big deal.
 	 */
@@ -235,6 +235,7 @@ static Boolean InitNightGlobals()
 	return TRUE;
 }
 
+
 /* Read 'BBX#', 'MCMp' and 'MCOf' resources for alternative music fonts, and store
 their information in newly allocated musFontInfo[]. Return TRUE if OK; FALSE if error.
 Assumes that each font, including Sonata, has one of all three types of resource
@@ -301,7 +302,7 @@ static Boolean InitMusFontTables()
 
 	/* NOTE: For the other resources, we use Get1NamedResource instead of 
 		Count1Resources, because we can't rely on the order of resources in
-		the resource map to be the same as with the 'BBX#' resource. */
+		the resource map being the same as with the 'BBX#' resource. */
 
 	/* Read 'MCMp' (music character mapping) info. */
 	for (i = 0; i < numMusFonts; i++) {
@@ -362,15 +363,15 @@ there's a serious problem, return FALSE, else TRUE. */
 static Boolean InitTables()
 {
 	MIDIPreferences **midiStuff;
-	MIDIModNRPreferences	**midiModNRH;
+	MIDIModNRPreferences **midiModNRH;
 	short i;
 
-	l2p_durs[MAX_L_DUR] = PDURUNIT;						/* Set up lookup table to convert; assign 15 to 128th for tuplets */
-	for (i = MAX_L_DUR-1; i>0; i--)						/*   logical to physical durations */
+	l2p_durs[MAX_L_DUR] = PDURUNIT;					/* Set up lookup table to convert; assign 15 to 128th for tuplets */
+	for (i = MAX_L_DUR-1; i>0; i--)					/*   logical to physical durations */
 		l2p_durs[i] = 2*l2p_durs[i+1];
 		
 	pdrSize[0] = config.rastral0size;
-	for (i = 0; i<=MAXRASTRAL; i++)						/* Set up DDIST table of rastral sizes */
+	for (i = 0; i<=MAXRASTRAL; i++)					/* Set up DDIST table of rastral sizes */
 		drSize[i] = pt2d(pdrSize[i]);
 		
 	if (LAST_DYNAM!=24) {
@@ -379,7 +380,7 @@ static Boolean InitTables()
 	}
 	midiStuff = (MIDIPreferences **)GetResource('MIDI',PREFS_MIDI);
 	if (midiStuff==NULL || *midiStuff==NULL) {
-		GetIndCString(strBuf, INITERRS_STRS, 8);		/* "Can't find MIDI resource" */
+		GetIndCString(strBuf, INITERRS_STRS, 8);	/* "Can't find MIDI resource" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		return FALSE;
@@ -463,10 +464,10 @@ Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
 
 /* Check to see if all the desirable screen fonts are actually present. */
 
-static void CheckScrFonts()
+static void CheckScreenFonts()
 {
-	short		origLen, foundSizes=0;
-	short		fontNum;
+	short	origLen, foundSizes=0;
+	short	fontNum;
 
 	if (!GetFontNumber("\pSonata", &fontNum)) {
 		if (CautionAdvise(MUSFONT_ALRT)==Cancel)
@@ -475,7 +476,9 @@ static void CheckScrFonts()
 			return;
 	}
 
-	/* ??Under System 7, it seems that only the first call to RealFont is meaningful:
+	/* FIXME: The following comment obviously predates OS X. What's the situation now?
+		--DAB, Mar. 2016
+		Under System 7, it seems that only the first call to RealFont is meaningful:
 		following calls for any size always return TRUE! So it's not obvious how to find
 		out what sizes are really present without looking at the FONTs or NFNTs. */
 		
@@ -507,6 +510,10 @@ static void CheckScrFonts()
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 	}
+
+	if (strlen(strBuf)<=origLen) LogPrintf(LOG_NOTICE,
+		"CheckScreenFonts: found all %d screen sizes of the Sonata music font.\n", foundSizes);
+	else LogPrintf(LOG_WARNING, "CheckScreenFonts: %s\n", strBuf);
 }
 
 
@@ -527,7 +534,6 @@ void InitMusicFontStuff()
 	 *	we find the largest possible point size (either rastral 0 or 1) and scale it by
 	 *	60/28, then magnify.
 	 */
-	 
 	maxPtSize = n_max(config.rastral0size, pdrSize[1]);
 	maxMCharWid = (60.0/28.0)*maxPtSize;
 	maxMCharWid = UseMagnifiedSize(maxMCharWid, MAX_MAGNIFY);
@@ -539,12 +545,11 @@ void InitMusicFontStuff()
 	fontPort = NewGrafPort(maxMCharWid, maxMCharHt);
 #endif
 	GetFNum("\pSonata", &sonataFontNum);				/* Get ID of standard music font */
-	CheckScrFonts();
+	CheckScreenFonts();
 }
 
 
 #ifdef TARGET_API_MAC_CARBON_MIDI
-
 
 static Boolean InitChosenMIDISystem()
 {

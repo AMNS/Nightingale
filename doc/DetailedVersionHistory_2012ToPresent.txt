@@ -429,3 +429,12 @@ accordingly. Affects about 70 files.
 Update version number in About box to 5.6b4. Affects info.plist .
 
 Restore mysteriously lost code changes; minor changes. Affects DebugUtils.
+
+-------------------------------------------------------------------------------
+
+2-3 Mar.
+
+Improve feedback on screen font availability; minor cleanup. Affects InitNightinale.
+
+Make the Browser & Context commands show clef type as string as well as code. Affects
+Browser.
