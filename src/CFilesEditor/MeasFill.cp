@@ -15,6 +15,7 @@ the notes/rests/chords. */
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
+static Boolean IsRangeEmpty(LINK, LINK, short, Boolean *);
 static Boolean Fill1EmptyMeas(Document *, LINK, LINK, Boolean *);
 
 /* ========================================================= Fill empty measures == */
@@ -94,8 +95,7 @@ Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 voice, and the staff's default voice contains no notes or rests on any staff.
 Intended for use by the Fill Empty Measures command. */
 
-Boolean IsRangeEmpty(LINK, LINK, short, Boolean *);
-Boolean IsRangeEmpty(LINK startL, LINK endL,
+static Boolean IsRangeEmpty(LINK startL, LINK endL,
 						short staff,
 						Boolean *pNonEmptyVoice)	/* Return TRUE = staff's default voice is on another staff */
 {
@@ -107,7 +107,7 @@ Boolean IsRangeEmpty(LINK startL, LINK endL,
 			if (NoteOnStaff(pL, staff)) {
 				staffEmpty = FALSE; break;
 			}
-			if (NoteInVoice(pL, staff, FALSE))	/* Is this staff's dflt voice on ANY staff? */
+			if (NoteInVoice(pL, staff, FALSE))		/* Is this staff's dflt voice on ANY staff? */
 				voiceEmpty = FALSE;					/* can't break bcs staff might not be empty */
 		}
 
@@ -121,13 +121,13 @@ Boolean IsRangeEmpty(LINK startL, LINK endL,
 measure rest to each staff in the Measure that contains no notes or rests and whose
 default voice contains no notes or rests (they might be on another staff), and return
 TRUE. If the Measure already contains at least one Sync and we do add any whole-measure
-rests, we add all of them to the Measure's first Sync. ??Should return an error
+rests, we add all of them to the Measure's first Sync. FIXME: Should return an error
 indication: probably should return short FAILURE, NOTHING_TO_DO or OP_COMPLETE. */
 
 static Boolean Fill1EmptyMeas(
-							Document *doc,
-							LINK barL, LINK barTermL,
-							Boolean *nonEmptyVoice)	 /* TRUE=found at least 1 empty staff w/default voice nonempty */
+					Document *doc,
+					LINK barL, LINK barTermL,
+					Boolean *nonEmptyVoice)	 /* TRUE=found at least 1 empty staff w/default voice nonempty */
 {
 	LINK syncL, pL, aNoteL; short staff; Boolean addRest, foundNonEmptyVoice;
 	Boolean didSomething=FALSE;
@@ -154,7 +154,7 @@ static Boolean Fill1EmptyMeas(
 					return didSomething;
 				}
 
-				/* ??Maybe we should initialize object YD and <tweaked> in NewNode? */
+				/* FIXME: Maybe we should initialize object YD and <tweaked> in NewNode? */
 				SetObject(syncL, 0, 0, FALSE, TRUE, FALSE);
 				LinkTWEAKED(syncL) = FALSE;
 				didSomething = TRUE;
@@ -172,7 +172,7 @@ static Boolean Fill1EmptyMeas(
 			 * accomplish this by just setting the rest's yd after SetupNote).
 			 */
 			{	short saveVRole;
-				saveVRole = doc->voiceTab[staff].voiceRole;					/* Dflt voice = staff */
+				saveVRole = doc->voiceTab[staff].voiceRole;				/* Dflt voice = staff */
 				doc->voiceTab[staff].voiceRole = SINGLE_DI;
 				SetupNote(doc, syncL, aNoteL, staff, 0, WHOLEMR_L_DUR, 0, staff, TRUE, 0, 0);
 				doc->voiceTab[staff].voiceRole = saveVRole;

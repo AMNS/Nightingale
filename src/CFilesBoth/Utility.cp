@@ -77,7 +77,7 @@ DDIST CalcYStem(
 	ystem = (stemDown ? yhead+dLen : yhead-dLen);		/* Initially, set length to <qtrSp> */
 
 	if (!noExtend) {
-		/* ??If staffLines is even, extended stem end terminates in mid-space. OK? */
+		/* FIXME: If staffLines is even, extended stem end terminates in mid-space. OK? */
 		midline = staffHeight/2;
 		if (ABS(yhead-midline)>dLen &&					/* Would ending at midline lengthen */
 				ABS(ystem-midline)<ABS(yhead-midline))	/*   without changing direction? */
@@ -775,7 +775,7 @@ void DestroyGWorld(GWorldPtr theGWorld)
 	PixMapHandle pixMapH;
 
 	pixMapH = GetGWorldPixMap(theGWorld);
-	UnlockPixels(pixMapH);		/* ??Presumably this is OK even if PixMap is unlocked. */
+	UnlockPixels(pixMapH);		/* Presumably this is OK even if PixMap is unlocked. */
 	DisposeGWorld(theGWorld);
 }
 
@@ -998,7 +998,7 @@ double RoundDouble(double value, double quantum)
 
 /* --------------------------------------------------------------- RoundSignedInt -- */
 /* Given a signed <value> and a non-zero <quantum>, round <value> to the nearest
-multiple of <quantum>. ??Not sure this will work if <quantum> is negative! */
+multiple of <quantum>. FIXME: Not sure this will work if <quantum> is negative! */
 
 short RoundSignedInt(short value, short quantum)
 {
@@ -1488,6 +1488,16 @@ short PlayResource(Handle snd, Boolean sync)
 	}
 
 /* ------------------------------------------------------------ Log-file handling -- */
+/* NB: LOG_DEBUG is the lowest level (=highest internal code), so -- according to the
+man page for syslog(3) -- the call to setlogmask in InitLogPrintf() _should_ cause all
+messages to go to the log regardless of level; but on my G5, I rarely if ever get
+anything below LOG_NOTICE. To avoid this problem, LogPrintf() can change anything with
+a lower level(=higher code) to a given level, MIN_LOG_LEVEL. To disable that,
+set MIN_LOG_LEVEL to a large number, say 999. */
+
+#define MIN_LOG_LEVEL LOG_NOTICE			/* Force lower levels to this */
+
+#define LOG_TO_STDERR FALSE					/* Print to stderr as well as system log? */
 
 static Boolean HaveNewline(const char *str);
 
@@ -1505,7 +1515,7 @@ static Boolean HaveNewline(const char *str)
 
 Boolean VLogPrintf(const char *fmt, va_list argp)
 {
-	//if (strlen(inStr)+strlen(str)>=1000) return FALSE;	??How to check for buffer overflow?
+	//if (strlen(inStr)+strlen(str)>=1000) return FALSE;	FIXME: How to check for buffer overflow?
 	vsprintf(inStr, fmt, argp);
 	return TRUE;
 }
@@ -1522,6 +1532,8 @@ Boolean LogPrintf(short priLevel, const char *fmt, ...)
 	Boolean okay, fullLine;
 	char *pch;
 	
+	if (priLevel>MIN_LOG_LEVEL) priLevel = LOG_NOTICE;
+	
 	va_list argp; 
 	va_start(argp, fmt); 
 	okay = VLogPrintf(fmt, argp); 
@@ -1534,20 +1546,24 @@ Boolean LogPrintf(short priLevel, const char *fmt, ...)
 	if (pch!='\0') strcat(outStr, pch);
 	if (fullLine) {
 		syslog(priLevel, outStr);
-		outStr[0] = '\0';										/* Set <outStr> to empty */
+		outStr[0] = '\0';									/* Set <outStr> to empty */
 	}
 	
 	return okay;
 }
 
 
-#define LOG_TO_STDERR FALSE						/* Print to stderr as well as system log? */
-
 short InitLogPrintf()
 {
 	int logopt = 0;
 	if (LOG_TO_STDERR) logopt = LOG_PERROR;
 	openlog("Ngale", logopt, LOG_USER);
+	
+	/* LOG_DEBUG is the lowest level (=highest internal code), so the call to setlogmask
+		below _should_ cause all messages to go to the log regardless of level. But on
+		my G5 running OS 10.5.x, I rarely if ever get anything below LOG_NOTICE; I have
+		no idea why. --DAB, March 2016 */
+
 	int oldLevelMask = setlogmask(LOG_UPTO(LOG_DEBUG));
 	outStr[0] = '\0';										/* Set <outStr> to empty */
 
@@ -1561,16 +1577,17 @@ LogPrintf(LOG_NOTICE, "built from 3 ");
 LogPrintf(LOG_NOTICE, "pieces.\n");
 #endif
 
+LogPrintf(LOG_NOTICE, "InitLogPrintf: oldLevelMask = %d, MIN_LOG_LEVEL=%d\n", oldLevelMask, MIN_LOG_LEVEL);
+
 #ifdef TEST_LOGGING_LEVELS
-LogPrintf(LOG_CRIT, "InitLogPrintf: oldLevelMask = %d\n", oldLevelMask);
 SysBeep(1);
-LogPrintf(LOG_ALERT, "InitLogPrintf: LogPrintf LOG_ALERT message. Magic no. %d", 1729);
-LogPrintf(LOG_CRIT, "InitLogPrintf: LogPrintf LOG_CRIT message. Magic no. %d", 1729);
-LogPrintf(LOG_ERR, "InitLogPrintf: LogPrintf LOG_ERR message. Magic no. %d", 1729);
-LogPrintf(LOG_WARNING, "InitLogPrintf: LogPrintf LOG_WARNING message. Magic nos. %d, %f", 1729, 3.14159265359);
-LogPrintf(LOG_NOTICE, "InitLogPrintf: LogPrintf LOG_NOTICE message. Magic no. %d", 1729);
-LogPrintf(LOG_INFO, "InitLogPrintf: LogPrintf LOG_INFO message. Magic no. %d", 1729);
-LogPrintf(LOG_DEBUG, "InitLogPrintf: LogPrintf LOG_DEBUG message. Magic no. %d\n", 1729);
+LogPrintf(LOG_ALERT, "InitLogPrintf: LogPrintf LOG_ALERT message. Magic no. %d\n", 1729);
+LogPrintf(LOG_CRIT, "InitLogPrintf: LogPrintf LOG_CRIT message. Magic no. %d\n", 1729);
+LogPrintf(LOG_ERR, "InitLogPrintf: LogPrintf LOG_ERR message. Magic no. %d\n", 1729);
+LogPrintf(LOG_WARNING, "InitLogPrintf: LogPrintf LOG_WARNING message. Magic nos. %d, %f%d.\n", 1729, 3.14159265359);
+LogPrintf(LOG_NOTICE, "InitLogPrintf: LogPrintf LOG_NOTICE message. Magic no. %d\n", 1729);
+LogPrintf(LOG_INFO, "InitLogPrintf: LogPrintf LOG_INFO message. Magic no. %d\n", 1729);
+LogPrintf(LOG_DEBUG, "InitLogPrintf: LogPrintf LOG_DEBUG message. Magic no. %d\n\n", 1729);
 #endif
 
 	return oldLevelMask;

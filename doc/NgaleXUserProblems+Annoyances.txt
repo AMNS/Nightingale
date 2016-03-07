@@ -1,5 +1,5 @@
 NGALE X CURRENT ANNOYANCES AND PROBLEMS (from user's view)
-Don Byrd, rev. early June 2013 - late Feb. 2016
+Don Byrd, rev. early June 2013 - early March 2016
 
 Ngale versions:
 * "NDAB" = "NightingaleDAB", a version I compiled in Nov. 2009; I think it's the 5.3.0b5 source code -- at least that's what the About box says.
@@ -38,13 +38,19 @@ MOSTLY JUST ANNOYING
 
 - It'd be helpful if Fill Empty Measures reported how many whole-measure rests it added. Fix est. difficulty & impact: low & low.
 
+- The Check Range command seems to work, but it's hard to see the out-of-range notes it finds. Maybe add a check to Debug Check?
+
+- It'd be helpful to have a check for instruments that come in after a long rest without a dynamic mark.
+
 - Space objects aren't very useful because they tend to add far more space than the width of the space object. This is probably because they're justification type J_IT; they should be J_IP. Fix est. difficulty & impact: low & low.
 
 - Paste Merge of even just a few notes often causes error messages of the form
 	FixGRDrawLinks: firstObj=1111 or lastObj=1115 isn't a Sync or a GRSync.
 ...but works perfectly otherwise, and it doesn't look like the LINKs given (1111 and 1115 here) have anything to do with the situation!
+
+- (all) Message (STR 271 = PRINTERRS_STRS, #2) "Some line(s) are so thin that they may not reproduce well" could/should be much more specific; probably should change to "Some line(s) are thinner than 0.xxx in. and may not reproduce well."; preferably also say how to thicken 'em. Affects CarbonPrinting: NDoPostScript(); PS_Stdio. Fix est. impact: very low.
 	
-- With reasonable spacing, only about 25 staves fit on a letter-size page even at staff size 8, so with a largish number -- e.g., 15 in my violin concerto -- you can get only one system on a page. I need a larger "paper" size, but trying to change to one seems to do absolutely nothing on my G5 running OS 10.5. On my old MacBook running 10.6.8, it works okay!?
+- With reasonable spacing, only about 25 staves fit on a letter-size page even at staff size 8, so with a largish number -- e.g., 15 in my violin concerto -- you can get only one system on a page. A larger "paper" size would be nice, but trying to change to one seems to do absolutely nothing on my G5 running OS 10.5. On my old MacBook running 10.6.8, it works okay!?
 
 - (all) When I open a file, it often forgets its MIDI playback setting, so when I try to play, it either gives the "unable to play score, because a MIDI device isn't selected" error message, or acts as if it's playing for a split second but plays nothing. Setting DLS_MIDI Controller for all parts fixes; but saving and re-opening the file after that changes nothing. This is a well-known, long-standing bug. It happens much more (or only?) with files created years ago, regardless of how much they've been edited recently. Cf. Menu>EditPartMIDI().
 
@@ -69,8 +75,6 @@ other stem side flag. Fix est. impact: very low.
 	+ Some MIDI Modifier values are questionable. E.g., 90 for > vel. offset is ridiculously high!; it should probably be 50 or so.
 
 - When I Save (not Save as) a file, occasionally says "Can't write blah blah: file is already open".
-
-- (all) Message (STR 271 = PRINTERRS_STRS, #2) "Some line(s) are so thin that they may not reproduce well" could/should be much more specific; probably should change to "Some line(s) are thinner than 0.xxx in. and may not reproduce well."; preferably also say how to thicken 'em. Affects CarbonPrinting: NDoPostScript(); PS_Stdio. Fix est. impact: very low.
 
 - Some source files, e.g., Error.cp, contain non-ASCII chars.; these mostly date back to when everything was encoded in Macintosh Roman, and converting them to the current (mostly UTF-8, some Latin-1) is likely to have garbled them, causing bugs.
 
@@ -137,3 +141,5 @@ not just "3". Fix est. difficulty & impact: easy & very low.
 + Tremolo slashes on upstemmed notes aren't horizontally centered around the stem. Fix est. difficulty & impact: low & low.
 
 + On PostScript output, piano pedal up and down symbols don't come out in a music font. However, the same chars. as part of a text Graphic _are_ rendered in a music font.
+
++ Fill Empty Measures should set its default measure range from the selection. Fix est. difficulty & impact: low & low.

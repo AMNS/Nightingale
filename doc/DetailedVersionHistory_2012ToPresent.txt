@@ -123,7 +123,7 @@ InstrDialog.cp: InstrDialog().
 Increase the default window width, which is ridiculously narrow on a typical modern
 display. Affects .rsrc: in WIND 2000, change 620 to 690. (This is still pretty narrow,
 but just right for one letter-size page at 100% magnification; if the window is any
-wider, it'll show a fraction of a second page, screwing up auto page turning on
+wider, it'll show a fraction of a second page, screwing up automatic page turning on
 playback.)
 
 Do debug printing for the Import MIDI File command if the shift & control keys are down;
@@ -396,7 +396,7 @@ Clarify comments; minor cleanup. Affects Error, Insert.
 
 9-17 Feb.
 
-Improve output format for readability; minor cleanup. Affects DebugDisplay.
+Improve Debug output format for readability; minor cleanup. Affects DebugDisplay.
 
 Move tremolo slashes on upstemmed notes slightly to the right so they're centered
 around the notes' stems. Affects DrawNRGR.
@@ -432,13 +432,22 @@ Restore mysteriously lost code changes; minor changes. Affects DebugUtils.
 
 -------------------------------------------------------------------------------
 
-2-5 Mar.			==== NIGHTINGALE 5.6b4 ====
+2-7 Mar.			==== NIGHTINGALE 5.6b4 ====
 
 Improve feedback on screen font availability; minor cleanup. Affects InitNightinale.
 
 Make the Browser & Context commands show clef type as string as well as code. Affects
 Browser.
 
-Fix bug: On PostScript output, piano pedal up and down symbols are nonsense because
-they're not drawn in a music font.
+Fix bug: On PostScript output, piano pedal up and down symbols are unintelligible
+because they're not drawn in a music font.
+
+Add code to LogPrintf() to make it raise the level of messages below a given threshhold
+before calling syslog(); this is to work around the odd fact that on my G5, messages
+below LOG_NOTICE never go into the log, regardless of setlogmask(().
+
+Make the Empty Measures command set its default measure range from the selection.
+Affects Menu.
+
+Minor cleanup. Affects DrawObject, MeasFill, Menu.
 

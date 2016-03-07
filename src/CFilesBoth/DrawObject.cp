@@ -563,7 +563,7 @@ void Draw1Staff(Document *doc,
 			else
 				PS_MusSize(doc, 3);
 				
-//			LogPrintf(LOG_NOTICE, "Draw1Staff: ptSize %ld stfHt %ld fontSzOffst %ld lines %ld\n", 
+//			LogPrintf(LOG_DEBUG, "Draw1Staff: ptSize %ld stfHt %ld fontSzOffst %ld lines %ld\n", 
 //						ptSize, pContext->staffHeight, config.musFontSizeOffset, lines);
 			
 			if (showLines>0) {
@@ -739,7 +739,7 @@ PushLock(CONNECTheap);
 									&context[stfB=NextStaffn(doc,pL,FALSE,aConnect->staffBelow)];
 		dBottom = pContext->staffTop + pContext->staffHeight;
 		xd = dLeft+aConnect->xd;
-		//LogPrintf(LOG_NOTICE, "mView=%d  aConnect->staffAbove, staffBelow=%d, %d  dTop, pC->staffTop, dBottom=%d, %d, %d\n",
+		//LogPrintf(LOG_DEBUG, "mView=%d  aConnect->staffAbove, staffBelow=%d, %d  dTop, pC->staffTop, dBottom=%d, %d, %d\n",
 		//	doc->masterView, aConnect->staffAbove, aConnect->staffBelow, dTop, pContext->staffTop, dBottom);
 		
 		switch (aConnect->connectType) {
@@ -1280,7 +1280,7 @@ PushLock(DYNAMheap);
 						xd += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace));
 						yd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace));
 						xp=d2p(xd); yp=d2p(yd);
-						//LogPrintf(LOG_NOTICE, "DrawDYNAMIC: glyph=%c pL=%d xp=%d yp=%d size=%d reallyDraw=%d\n",
+						//LogPrintf(LOG_DEBUG, "DrawDYNAMIC: glyph=%c pL=%d xp=%d yp=%d size=%d reallyDraw=%d\n",
 						//	glyph, pL, xp, yp, useTxSize, reallyDraw);
 						aDynamic = GetPADYNAMIC(aDynamicL);
 						if (reallyDraw) {
@@ -1918,7 +1918,7 @@ PushLock(GRAPHICheap);
 	aGraphicL = FirstSubLINK(pL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	theStrOffset = aGraphic->string;
-	//LogPrintf(LOG_NOTICE, "DrawGraphic: expandN=%d str='%s'\n", expandN, PToCString(PCopy(aGraphic->string)));
+	//LogPrintf(LOG_DEBUG, "DrawGraphic: expandN=%d str='%s'\n", expandN, PToCString(PCopy(aGraphic->string)));
 
 	switch (outputTo) {
 		case toScreen:
@@ -2718,8 +2718,8 @@ PushLock(MEASUREheap);
 					p->measureBBox.left = p->measureBBox.right;
 			}
 
-//LogPrintf(LOG_NOTICE, "DrawMEASURE: %d is last meas in system. measureBBox=%d %d %d %d\n",
-//		pL, p->measureBBox.top, p->measureBBox.left, p->measureBBox.bottom, p->measureBBox.right);
+			//LogPrintf(LOG_DEBUG, "DrawMEASURE: %d is last meas in system. measureBBox=%d %d %d %d\n",
+			//		pL, p->measureBBox.top, p->measureBBox.left, p->measureBBox.bottom, p->measureBBox.right);
 		}
 	}
 
@@ -2743,7 +2743,7 @@ PopLock(MEASUREheap);
 
 void DrawPSMEAS(Document *doc, LINK pL, CONTEXT context[])
 {
-	PAPSMEAS		aPSMeas;			/* ptr to current sub item */
+	PAPSMEAS		aPSMeas;		/* ptr to current sub item */
 	LINK			aPSMeasL;
 	PCONTEXT		pContext,		/* ptr to relevant context[] entries */
 					pContext2;
@@ -2753,7 +2753,7 @@ void DrawPSMEAS(Document *doc, LINK pL, CONTEXT context[])
 	DDIST			dTop, dBottom,	/* top of above staff and bottom of below staff */
 					dLeft,			/* left edge of staff */
 					lnSpace;
-	Boolean		drawn,			/* FALSE until a subobject has been drawn */
+	Boolean			drawn,			/* FALSE until a subobject has been drawn */
 					recalc;			/* TRUE if we need to recalc object's enclosing rectangle */
 	STFRANGE		stfRange = {0,0};
 	Point			enlarge = {0,0};

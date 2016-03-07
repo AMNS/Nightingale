@@ -85,21 +85,24 @@ static void	FixViewMenu(Document *doc);
 static void	FixPlayRecordMenu(Document *doc, short nSel);
 static void	FixMasterPgMenu(Document *doc);
 static void	FixFormatMenu(Document *doc);
+				
+static void DeleteObj(Document *, LINK);
+static void DeleteSelObjs(Document *);
 
 short		NumOpenDocuments(void);
 
 static Boolean cmdIsBeam, cmdIsTuplet, cmdIsOttava;
 
 static Boolean	goUp=TRUE;								/* For "Transpose" dialog */
-static short octaves=0, steps=0, semiChange=0;
-static Boolean slashes=FALSE;
+static short	octaves=0, steps=0, semiChange=0;
+static Boolean	slashes=FALSE;
 
 static Boolean	dGoUp=TRUE;								/* For "Diatonic Transpose" dialog */
-static short dOctaves=0, dSteps=0;
-static Boolean dSlashes=FALSE;
+static short	dOctaves=0, dSteps=0;
+static Boolean	dSlashes=FALSE;
 
 static Boolean	kGoUp=TRUE;								/* For "Transpose Key" dialog */
-static short kOctaves=0, kSteps=0, kSemiChange=0;
+static short	kOctaves=0, kSteps=0, kSemiChange=0;
 static Boolean	kSlashes=FALSE, kNotes=TRUE, kChordSyms=TRUE;
 
 static Boolean	beforeFirst;
@@ -107,9 +110,6 @@ static Boolean	beforeFirst;
 static Boolean showDbgWin = FALSE;
 
 static Boolean debugItemsNeedInstall = TRUE;
-				
-void DeleteObj(Document *, LINK);
-void DeleteSelObjs(Document *);
 
 
 Boolean DoMenu(long menuChoice)
@@ -170,8 +170,6 @@ Cleanup:
 
 static void DoAppleMenu(short choice)
 	{
-//		Str255 accName;
-		
 		switch(choice) {
 			case AM_About:
 #ifdef PUBLIC_VERSION
@@ -388,10 +386,11 @@ Boolean DoFileMenu(short choice)
 				if (doc) SaveNotelist(doc, ANYONE, TRUE);
 				break;
 			case FM_ScoreInfo:
-				printf("File Menu: Score Info\n");
+				//LogPrintf(LOG_DEBUG, "File Menu: Score Info\n");
 				
+				/* For users of public versions that don't have the Test menu, provide
+					a way to access our debugging and emergency-repair facilities. */
 				if (OptionKeyDown()) {
-				//if (1) {
 					InstallDebugMenuItems(ControlKeyDown());
 				}
 				else {					
@@ -494,9 +493,6 @@ void DoEditMenu(short choice)
 					Browser(doc,doc->headL, doc->tailL);
 				break;
 			case EM_Debug:
-				printf("printf: running debug command\n");
-				LogPrintf(LOG_NOTICE, "DebugPrintf: running debug command\n");
-				
 				DoDebug("M");
 				fflush(stdout);
 				break;
@@ -513,10 +509,7 @@ no attempt to maintain consistency. This is intended to allow wizards to repair
 messed-up files and to help debug Nightingale, but it's obviously very dangerous:
 ordinary users should never be allowed to do it! */
  
-void DeleteObj(Document *, LINK);
-void DeleteSelObjs(Document *);
-
-void DeleteObj(Document *doc, LINK pL)
+static void DeleteObj(Document *doc, LINK pL)
 {
 	LogPrintf(LOG_NOTICE, "About to DeleteNode(%d) of type=%d...", pL, ObjLType(pL));
 
@@ -529,7 +522,7 @@ void DeleteObj(Document *doc, LINK pL)
 		LogPrintf(LOG_NOTICE, "NODE NOT IN MAIN OBJECT LIST.\n");
 }
 
-void DeleteSelObjs(Document *doc)
+static void DeleteSelObjs(Document *doc)
 {
 	short nInRange, nSelFlag; LINK pL, nextL, firstMeasL;
 	
@@ -562,7 +555,7 @@ void SetMeasNumPos(Document *doc,
 							short xOffset, short yOffset)
 {
 	PAMEASURE	aMeasure;
-	LINK			pL, aMeasureL;
+	LINK		pL, aMeasureL;
 
 	for (pL = startL; pL!=endL; pL=RightLINK(pL)) {
 		if (MeasureTYPE(pL)) {
@@ -1800,16 +1793,32 @@ static void NMSetMBRest(Document *doc)
 	
 static void NMFillEmptyMeas(Document *doc)
 	{
-		short startMN, endMN; LINK measL, startL, endL; PAMEASURE aMeasure;
+		short startMN, endMN;
+		LINK startMeasL, endMeasL, aMeasureL, startL, endL;
 		
-		/* Default start and end measures are the first and last of the score. */
+		/* Default start and end measures are from the selection. */
 		
+#if 1
+		startMeasL = SSearch(doc->selStartL, MEASUREtype, GO_LEFT);	/* starting measure */
+		if (startMeasL==NILINK) SSearch(doc->selStartL, MEASUREtype, GO_RIGHT);
+		aMeasureL = FirstSubLINK(startMeasL);
+		startMN = MeasMEASURENUM(aMeasureL)+doc->firstMNNumber;
+		
+		endMeasL = SSearch(doc->selEndL, MEASUREtype, GO_LEFT);		/* ending measure */
+		aMeasureL = FirstSubLINK(endMeasL);
+		endMN = MeasMEASURENUM(aMeasureL)+doc->firstMNNumber;
+		LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMeasL=%d endMeasL=%d firstMNNumber=%d startMN=%d endMN=%d\n",
+					startMeasL, endMeasL, doc->firstMNNumber, startMN, endMN);
+#else
 		startMN = doc->firstMNNumber;
 		measL = MNSearch(doc, doc->tailL, ANYONE, GO_LEFT, TRUE);
 		aMeasure = GetPAMEASURE(FirstSubLINK(measL));
 		endMN = aMeasure->measureNum+doc->firstMNNumber;
+#endif
 
 		if (FillEmptyDialog(doc, &startMN, &endMN)) {
+			LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMN=%d endMN=%d firstMNNumber=%d startL=%d endL=%d\n",
+						startMN, endMN, doc->firstMNNumber, startMeasL, endMeasL);
 			startL = MNSearch(doc, doc->headL, startMN-doc->firstMNNumber, GO_RIGHT, TRUE);
 			endL = MNSearch(doc, doc->headL, endMN-doc->firstMNNumber, GO_RIGHT, TRUE);
 			if (startL && endL) {
@@ -2103,23 +2112,19 @@ void InstallDocMenus(Document *doc)
 		}
 	}
 	
-static void InstallDebugMenuItems(Boolean installAll) 
+static void InstallDebugMenuItems(Boolean installAll)
 	{
-		printf("installing debug menu items..\n");
-		
-		if (debugItemsNeedInstall)
-		{
-			printf("installing .. \n");
+		if (debugItemsNeedInstall) {
+			LogPrintf(LOG_DEBUG, "InstallDebugMenuItems: installing debug menu items...\n");
 			AppendMenu(editMenu, "\p(-");
 			AppendMenu(editMenu, "\pBrowser");
 			if (installAll) {
 				AppendMenu(editMenu, "\pDebug...");
-//				AppendMenu(editMenu, "\pShow Debug Window");
 				AppendMenu(editMenu, "\pDelete Objects");
 			}
 		}
 		else {
-			printf("removing .. \n");
+			LogPrintf(LOG_DEBUG, "InstallDebugMenuItems: removing debug menu items...\n");
 			DeleteMenuItem(editMenu, EM_DeleteObjs);			
 			DeleteMenuItem(editMenu, EM_Debug);
 			DeleteMenuItem(editMenu, EM_Browser);
@@ -2371,7 +2376,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 			mergeable = (lastCopy==COPYTYPE_CONTENT);
 			
 			XableItem(editMenu,EM_Merge,(doc!=NULL && doc!=clipboard && mergeable &&
-													clipboard->canCutCopy && !beforeFirst));
+												clipboard->canCutCopy && !beforeFirst));
 
 			XableItem(editMenu,EM_Double,
 				(doc!=NULL && doc!=clipboard && !beforeFirst && nSel>0));
@@ -2965,7 +2970,7 @@ static void FixViewMenu(Document *doc)
 		
 		AddWindowList();
 		UpdateMenu(viewMenu, doc!=NULL);
-		/* ??If doc is NULL, we should return at this point--continuing is dangerous! */
+		/* FIXME: If doc is NULL, we should return at this point--continuing is dangerous! */
 		
 		XableItem(viewMenu,VM_GoTo,ENABLE_GOTO(doc));
 		XableItem(viewMenu,VM_GotoSel,ENABLE_GOTO(doc));
