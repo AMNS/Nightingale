@@ -386,8 +386,6 @@ Boolean DoFileMenu(short choice)
 				if (doc) SaveNotelist(doc, ANYONE, TRUE);
 				break;
 			case FM_ScoreInfo:
-				//LogPrintf(LOG_DEBUG, "File Menu: Score Info\n");
-				
 				/* For users of public versions that don't have the Test menu, provide
 					a way to access our debugging and emergency-repair facilities. */
 				if (OptionKeyDown()) {
@@ -519,7 +517,7 @@ static void DeleteObj(Document *doc, LINK pL)
 		doc->changed = TRUE;
 	}
 	else
-		LogPrintf(LOG_NOTICE, "NODE NOT IN MAIN OBJECT LIST.\n");
+		LogPrintf(LOG_WARNING, "NODE NOT IN MAIN OBJECT LIST.\n");
 }
 
 static void DeleteSelObjs(Document *doc)
@@ -627,7 +625,7 @@ static void DoTestMenu(short choice)
 				
 				if (showDbgWin = !showDbgWin) {
 //					ShowHideDebugWindow(TRUE);
-					LogPrintf(LOG_NOTICE, "Showing Debug Window\n");					
+					LogPrintf(LOG_WARNING, "Show Debug Window isn't implemented.\n");					
 				}
 				else {				
 //					ShowHideDebugWindow(FALSE);
@@ -1807,8 +1805,8 @@ static void NMFillEmptyMeas(Document *doc)
 		endMeasL = SSearch(doc->selEndL, MEASUREtype, GO_LEFT);		/* ending measure */
 		aMeasureL = FirstSubLINK(endMeasL);
 		endMN = MeasMEASURENUM(aMeasureL)+doc->firstMNNumber;
-		LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMeasL=%d endMeasL=%d firstMNNumber=%d startMN=%d endMN=%d\n",
-					startMeasL, endMeasL, doc->firstMNNumber, startMN, endMN);
+		//LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMeasL=%d endMeasL=%d firstMNNumber=%d startMN=%d endMN=%d\n",
+		//		startMeasL, endMeasL, doc->firstMNNumber, startMN, endMN);
 #else
 		startMN = doc->firstMNNumber;
 		measL = MNSearch(doc, doc->tailL, ANYONE, GO_LEFT, TRUE);

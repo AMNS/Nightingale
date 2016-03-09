@@ -2,39 +2,39 @@
 
 /* AccModNRClick.c */
 
-	Boolean DoOpenModNR(Document *, Point);
-	Boolean DoAccModNRClick(Document *, Point);
+	Boolean		DoOpenModNR(Document *, Point);
+	Boolean		DoAccModNRClick(Document *, Point);
 
 /* ChooseCharDlog.c */
 
-	Boolean	ChooseCharDlog(short, short, unsigned char *);
+	Boolean		ChooseCharDlog(short, short, unsigned char *);
 
 /* ChordSym.c */
 
 	void		DrawChordSym(Document *, DDIST, DDIST, unsigned char [], short, PCONTEXT, Boolean, DRect *);
-	Boolean	ChordSymDialog(Document *, unsigned char *, short *);
+	Boolean		ChordSymDialog(Document *, unsigned char *, short *);
 
 /* CompactVoices.c */
 
 	void		DoCompactVoices(Document *doc);
 	void		SetDurCptV(Document *doc);
-	Boolean	CompactVoices(Document *doc);
+	Boolean		CompactVoices(Document *doc);
 
 
 /* DelAddRedAccs.c */
 
-	Boolean	DelNoteRedAcc(Document *, short, LINK, LINK, Boolean []);
-	Boolean	DelGRNoteRedAcc(Document *, short, LINK, LINK, Boolean []);
+	Boolean		DelNoteRedAcc(Document *, short, LINK, LINK, Boolean []);
+	Boolean		DelGRNoteRedAcc(Document *, short, LINK, LINK, Boolean []);
 	void		ArrangeSyncAccs(LINK, Boolean []);
 	void		ArrangeGRSyncAccs(LINK, Boolean []);
-	Boolean	DelRedundantAccs(Document *, short, short);
-	Boolean	AddRedundantAccs(Document *, short, short, Boolean);
-	Boolean	AddMIDIRedundantAccs(Document *doc, LINK endAddAccsL, Boolean
+	Boolean		DelRedundantAccs(Document *, short, short);
+	Boolean		AddRedundantAccs(Document *, short, short, Boolean);
+	Boolean		AddMIDIRedundantAccs(Document *doc, LINK endAddAccsL, Boolean
 							addTiedLeft, Boolean addNaturals);
 
 /* DelRedTimeSigs.c */
 
-	Boolean	DelRedTimeSigs(Document *doc, Boolean respace, LINK *pFirstDelL,
+	Boolean		DelRedTimeSigs(Document *doc, Boolean respace, LINK *pFirstDelL,
 						LINK *pLastDelL);
 
 /* DialogsEditor.c */
@@ -75,53 +75,53 @@
 		SET_DURS_TO
 	};
 
-	Boolean	LeftEndDialog(short *, short *, short *, short *);
+	Boolean		LeftEndDialog(short *, short *, short *, short *);
 	short		SpaceDialog(short, short, short);
 	short		TremSlashesDialog(short);
-	Boolean	EndingDialog(short, short *, short, short *);
-	Boolean	MeasNumDialog(Document *);
-	Boolean	PageNumDialog(Document *);
-	Boolean	OttavaDialog(Document *, Byte *);
+	Boolean		EndingDialog(short, short *, short, short *);
+	Boolean		MeasNumDialog(Document *);
+	Boolean		PageNumDialog(Document *);
+	Boolean		OttavaDialog(Document *, Byte *);
 	short		LookAtDialog(Document *, short, LINK);
 	short		GoToDialog(Document *, short *, short *, LINK *);
-	Boolean	FTupletCheck(Document *, TupleParam *);
-	Boolean	TupletDialog(Document *, TupleParam *, Boolean);
-	Boolean	SetDurDialog(Document *, Boolean *, short *, short *, short *, Boolean *, 
+	Boolean		FTupletCheck(Document *, TupleParam *);
+	Boolean		TupletDialog(Document *, TupleParam *, Boolean);
+	Boolean		SetDurDialog(Document *, Boolean *, short *, short *, short *, Boolean *, 
 						short *, Boolean *, Boolean *);
-	Boolean	SetMBRestDialog(Document *, short *);
+	Boolean		SetMBRestDialog(Document *, short *);
 	short		RastralDialog(Boolean, short, Boolean *, Boolean *);
 	short		StaffLinesDialog(Boolean, short *, Boolean *, Boolean *);
-	Boolean	MarginsDialog(Document *, short *,short *,short *,short *);
-	Boolean	KeySigDialog(short *, short *, Boolean *, Boolean);
-	Boolean	SetKSDialogGuts(short, short *, short *, Boolean *);
-	Boolean	TimeSigDialog(short *, short *, short *, Boolean *, Boolean);
-	Boolean	RehearsalMarkDialog(unsigned char *);
+	Boolean		MarginsDialog(Document *, short *,short *,short *,short *);
+	Boolean		KeySigDialog(short *, short *, Boolean *, Boolean);
+	Boolean		SetKSDialogGuts(short, short *, short *, Boolean *);
+	Boolean		TimeSigDialog(short *, short *, short *, Boolean *, Boolean);
+	Boolean		RehearsalMarkDialog(unsigned char *);
 	Boolean 	PatchChangeDialog(unsigned char *);
-	Boolean	PanSettingDialog(unsigned char *);
-	Boolean	ChordFrameDialog(Document *, Boolean *, short *, short *, short *,
+	Boolean		PanSettingDialog(unsigned char *);
+	Boolean		ChordFrameDialog(Document *, Boolean *, short *, short *, short *,
 						unsigned char *, unsigned char *);
-	Boolean	TempoDialog(Boolean *, short *, Boolean *, Boolean *, unsigned char *, unsigned char *);
-	Boolean	SymbolIsBarline(void);
-	Boolean	InsMeasUnkDurDialog(void);
+	Boolean		TempoDialog(Boolean *, short *, Boolean *, Boolean *, unsigned char *, unsigned char *);
+	Boolean		SymbolIsBarline(void);
+	Boolean		InsMeasUnkDurDialog(void);
 	void		XLoadDialogsSeg(void);
 
 /* Documents.c */
 
 	void		ActivateDocument(Document *doc, short activ);
-	Boolean	DoCloseDocument(Document *doc);
-	Boolean	DocumentSaved(Document *doc);
-	Boolean	DoExtract(Document *doc);
-	Boolean	DoCombineParts(Document *doc);
-	Boolean	DoOpenDocument(unsigned char *fileName, short vrefnum, Boolean readOnly, FSSpec *pfsSpec);
-	Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec, Document **pDoc);
+	Boolean		DoCloseDocument(Document *doc);
+	Boolean		DocumentSaved(Document *doc);
+	Boolean		DoExtract(Document *doc);
+	Boolean		DoCombineParts(Document *doc);
+	Boolean		DoOpenDocument(unsigned char *fileName, short vrefnum, Boolean readOnly, FSSpec *pfsSpec);
+	Boolean		DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec, Document **pDoc);
 	void		DoRevertDocument(Document *doc);
-	Boolean	DoSaveDocument(Document *doc);
-	Boolean	DoSaveAs(Document *doc);
+	Boolean		DoSaveDocument(Document *doc);
+	Boolean		DoSaveAs(Document *doc);
 	Document*	FirstFreeDocument(void);
 	Document*	GetDocumentFromWindow(WindowPtr w);
-	Boolean EqualFSSpec(FSSpec *fs1, FSSpec *fs2);
-	Boolean	InitDocFields(Document *doc);
-	Boolean	InitDocUndo(Document *doc);
+	Boolean		EqualFSSpec(FSSpec *fs1, FSSpec *fs2);
+	Boolean		InitDocFields(Document *doc);
+	Boolean		InitDocUndo(Document *doc);
 	void		InstallDoc(Document *doc);
 	void		InstallDocHeaps(Document *doc);
 	void		InstallMagnify(Document *doc);
@@ -230,16 +230,16 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 /* InfoDialog.c */
 
 	void		InfoDialog(Document *);
-	Boolean	ModNRDialog(Document *);
+	Boolean		ModNRDialog(Document *);
 	void		XLoadInfoDialogSeg(void);
 
 /* Initialize.c */
 
-	Boolean	CreateSetupFile(void);
-	Boolean	InitGlobals(void);
+	Boolean		CreateSetupFile(void);
+	Boolean		InitGlobals(void);
 	void		Initialize(void);
-	Boolean	OpenSetupFile(void);
-	Boolean BuildEmptyDoc(Document *doc);
+	Boolean		OpenSetupFile(void);
+	Boolean		BuildEmptyDoc(Document *doc);
 
 /* Magnify.c */
 
@@ -254,14 +254,15 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* main.c */
 
-	int		main(void);
+	int			main(void);
 	void		DoOpenApplication(Boolean askForFile);
 
 /* MeasFill.c */
 
-	Boolean	FillEmptyDialog(Document *, short *, short *);
-	Boolean	FillEmptyMeas(Document *, LINK, LINK);
-	Boolean	FillNonemptyMeas(Document *,LINK, LINK, short, short);
+	Boolean		FillEmptyDialog(Document *, short *, short *);
+	Boolean		IsRangeEmpty(LINK, LINK, short, Boolean *);
+	Boolean		FillEmptyMeas(Document *, LINK, LINK);
+	Boolean		FillNonemptyMeas(Document *,LINK, LINK, short, short);
 
 /* Menu.c */
 

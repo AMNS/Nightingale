@@ -20,6 +20,7 @@
 static void SIDrawLine(char *);
 static short MeasCount(Document *);
 static short SICheckMeasDur(Document *, short *);
+static short SICheckEmptyMeas(Document *, short *);
 static long GetScoreDuration(Document *doc);
 
 #define LEADING 11			/* Vertical dist. between lines displayed (pixels) */
@@ -56,7 +57,7 @@ way the Show Duration Problems command does. Return the no. of measures with "pr
 if the no. is non-zero, also set *pFirstBad to the measure no. of the first one that
 has a problem. */
 
-short SICheckMeasDur(Document *doc, short *pFirstBad)
+static short SICheckMeasDur(Document *doc, short *pFirstBad)
 {
 	LINK pL, barTermL;
 	long measDurNotated, measDurActual;
@@ -87,6 +88,37 @@ short SICheckMeasDur(Document *doc, short *pFirstBad)
 }
 
 
+/* Check for empty measures in the same way the Fill Empty Measures command does,
+on a staff-by-staff basis. Return the no. of empty measures; if the number is
+non-zero, also set *pFirstEmpty to the measure no. of the first one. */
+
+static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty)
+{
+	LINK barFirstL, barTermL, barL;
+	short staff;
+	Boolean foundNonEmptyVoice;
+	short nEmpty;
+
+	nEmpty = 0;
+	barL = SSearch(doc->headL, MEASUREtype, FALSE);
+	for ( ; barL && barL!=NILINK; barL = LinkRMEAS(barL)) {
+		if (MeasISFAKE(barL)) continue;
+		barFirstL = RightLINK(barL);
+		barTermL = EndMeasSearch(doc, barL);
+
+		for (staff = 1; staff<=doc->nstaves; staff++) {
+			if (IsRangeEmpty(barL, barTermL, staff, &foundNonEmptyVoice)) {
+						nEmpty++;
+						if (nEmpty==1) *pFirstEmpty = GetMeasNum(doc, barL);
+			}
+		}
+	//LogPrintf(LOG_DEBUG, "SICheckEmptyMeas >: barL=%d nEmpty=%d\n", barL, nEmpty);
+	}
+		
+	return nEmpty;
+}
+
+
 /* Return the approximate (see comments) duration of the score. */
 
 long GetScoreDuration(Document *doc)
@@ -98,9 +130,9 @@ long GetScoreDuration(Document *doc)
 		switch (ObjLType(pL)) {
 			case SYNCtype:
 				lastSyncTime = SyncTIME(pL);
-				/* Assume the score ends when the first note of the Sync stops
-				 * sounding: this may not be correct, but it'll be close, and
-				 * good enough for the purpose.
+				/* Assume the score ends when the first note of the last Sync stops
+				 * sounding: this may not be correct, but it'll be close, and good
+				 * enough for the purpose.
 				 */
 				lastSyncTime += NotePLAYDUR(FirstSubLINK(pL));
 				lastMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
@@ -130,7 +162,7 @@ void ScoreInfo()
 		long lObjCount[LASTtype], totalCount;
 		long scoreDuration, qtrNTicks;
 		Document *doc=GetDocumentFromWindow(TopDocument);
-		short nBad, firstBad;
+		short nBad, firstBad, nEmpty, firstEmpty;
 		char fmtStr[256], commentOrig[256], commentNew[256];
 		Boolean keepGoing;
 		ModalFilterUPP	filterUPP;
@@ -240,17 +272,32 @@ void ScoreInfo()
 			if (!ShiftKeyDown()) {
 				WaitCursor();
 				nBad = SICheckMeasDur(doc, &firstBad);
-				if (nBad) {
-					GetIndCString(fmtStr, SCOREINFO_STRS, 5);   	/* "    Duration problems in %d meas. (first=%d)." */
+				if (nBad>0) {
+					GetIndCString(fmtStr, SCOREINFO_STRS, 5);   /* "    Duration problems in %d meas. (first=%d)." */
 			 		sprintf(s, fmtStr, nBad, firstBad);
 				}
 				else {
-					GetIndCString(fmtStr, SCOREINFO_STRS, 6);   	/* "    No measures have duration problems." */
+					GetIndCString(fmtStr, SCOREINFO_STRS, 6);   /* "    No measures have duration problems." */
 			 		sprintf(s, fmtStr);
 			 	}
 				SIDrawLine(s);
+
+				nEmpty = SICheckEmptyMeas(doc, &firstEmpty);
+				if (nEmpty>0) {
+					GetIndCString(fmtStr, SCOREINFO_STRS, 9);   /* "    Found %d empty measure(s) (first in measure %d)." */
+			 		sprintf(s, fmtStr, nEmpty, firstEmpty);
+			 		//sprintf(s, "    Found %d empty measures (first in measure %d).", nEmpty, firstEmpty);
+				}
+				else {
+					GetIndCString(fmtStr,  SCOREINFO_STRS, 10);   /* "    No empty measures found." */
+			 		sprintf(s, fmtStr);
+			 		//sprintf(s, "    No empty measures found.");
+			 	}
+				SIDrawLine(s);
+
 				ArrowCursor();
 			}
+			
 			
 			if (HasMidiMap(doc)) {
 				Str255 fName;
@@ -269,7 +316,7 @@ void ScoreInfo()
 			PutDlgString(dialogp, COMMENT_DI, (unsigned char *)commentNew, TRUE);
 		}
 		else {
-			GetIndCString(fmtStr, SCOREINFO_STRS, 7);   			/* "    No score is open." */
+			GetIndCString(fmtStr, SCOREINFO_STRS, 7);   		/* "    No score is open." */
 			sprintf(s, fmtStr);
 			SIDrawLine(s);
 		}

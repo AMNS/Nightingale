@@ -630,14 +630,6 @@ PushLock(STAFFheap);
 				if (doc->masterView) {
 					if (ground==TOPSYS_STAFF)
 						DrawInstrInfo(doc, staffn, paper, context);
-#ifdef NOMORE_2NDSYSBOX
-					if (staffn==1) allStavesBox.top = d2p(pContext->staffTop);
-					if (staffn==doc->nstaves) {
-						allStavesBox.bottom = d2p(pContext->staffTop+pContext->staffHeight)+1;
-						allStavesBox.left = d2p(pContext->staffLeft);
-						allStavesBox.right = d2p(pContext->staffRight);
-					}
-#endif
 				}
 				else if (pSystem->systemNum==1)
 					DrawPartName(doc, pL, staffn, doc->firstNames, doc->firstIndent,
@@ -658,14 +650,6 @@ PushLock(STAFFheap);
 				break;
 		}
 	}
-
-#ifdef NOMORE_2NDSYSBOX
-	if (ground==SECONDSYS_STAFF) {
-		OffsetRect(&allStavesBox, paper->left, paper->top);
-		InsetRect(&allStavesBox, 1, -1);
-		FrameRect(&allStavesBox);
-	}
-#endif
 
 	if (doc->showFormat && LinkSEL(pL) && hilite)
 		CheckSTAFF(doc, pL, context, NULL, SMHilite, stfRange, enlarge);

@@ -432,7 +432,7 @@ Restore mysteriously lost code changes; minor changes. Affects DebugUtils.
 
 -------------------------------------------------------------------------------
 
-2-7 Mar.			==== NIGHTINGALE 5.6b4 ====
+2-7 Mar.
 
 Improve feedback on screen font availability; minor cleanup. Affects InitNightinale.
 
@@ -451,3 +451,10 @@ Affects Menu.
 
 Minor cleanup. Affects DrawObject, MeasFill, Menu.
 
+-------------------------------------------------------------------------------
+
+8 Mar.			       ==== NIGHTINGALE 5.6b4 ====
+
+Score Info now reports how many empty measures the score contains and the measure no.
+of the first. Affects NightTemplates.h, MeasFill, ScoreInfo; .rsrc: enlarge DLOG &
+add strings to STR#.

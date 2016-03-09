@@ -15,7 +15,6 @@ the notes/rests/chords. */
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean IsRangeEmpty(LINK, LINK, short, Boolean *);
 static Boolean Fill1EmptyMeas(Document *, LINK, LINK, Boolean *);
 
 /* ========================================================= Fill empty measures == */
@@ -95,7 +94,7 @@ Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 voice, and the staff's default voice contains no notes or rests on any staff.
 Intended for use by the Fill Empty Measures command. */
 
-static Boolean IsRangeEmpty(LINK startL, LINK endL,
+Boolean IsRangeEmpty(LINK startL, LINK endL,
 						short staff,
 						Boolean *pNonEmptyVoice)	/* Return TRUE = staff's default voice is on another staff */
 {
