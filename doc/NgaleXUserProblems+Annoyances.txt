@@ -1,5 +1,5 @@
 NGALE X CURRENT ANNOYANCES AND PROBLEMS (from user's view)
-Don Byrd, rev. early June 2013 - early March 2016
+Don Byrd, rev. early June 2013 - mid March 2016
 
 Ngale versions:
 * "NDAB" = "NightingaleDAB", a version I compiled in Nov. 2009; I think it's the 5.3.0b5 source code -- at least that's what the About box says.
@@ -11,6 +11,14 @@ My MacBook is running OS 10.6.x, my G5 10.5.x.
 
 RELATIVELY SERIOUS
 
+- Trying to Extract the piano part of 1stMovement_Part1FS.ngl, with default settings, crashes on the call to InitMeasure() at the end of MakeMeasure(), called from InitMeasure() -- if, when I give the Extract command, the cursor is on the lower piano staff; if it's on the upper, no problem!
+
+- If a two-voice unison on a chromatic black-key note involves certain combinations of durations, esp. if at least one is a whole note, both noteheads must be visible. That's a problem because then there are likely to be two accidentals much too close together... unless I cheat and omit the accidental from one, but in that case either the MIDI note no. will be inconsistent with the "logical" pitch, or the notes will play back as an augmented unison. The best simple solution is probably to be able to make the accidental invisible, probably via Get Info.
+
+- With two voices on a staff, Ngale computes space needed based on the merged voices even if one is so far above the other that they don't interact, resulting in it sometimes allocating way too much space for a Sync. Cf. violin concerto, II, 3VCBVariation, m. 9. An acceptable (to me!) solution: add a flag to the ANote struct that says "when respacing, ignore the chord this note belongs to"; add it to the note Get Info dialog.  Fix est. difficulty & impact: high & low (there's a byte available to put this flag in, and it's been initialized to 0 for many years).
+
+- There's no reasonable way to do tempo equations, e.g., "quarter note = quarter note". Need to extend the Tempo/Metronome dialog: smthg like add radio buttons for normal and "duration = duration", and if the latter is selected, show a popup for the right side similar or identical to that for the left side.
+
 - Paste Merge sometimes fails to update the context of following measures, mostly for dynamics, leading to numerous Debug messages of the form
 
 	DCheckContext: dynamicType FOR STAFF 12 IN MEAS AT 413 INCONSISTENCY
@@ -19,15 +27,9 @@ RELATIVELY SERIOUS
 
 - Tempo marks don't always get make it into extracted parts. One situation is where they're attached to a note (necessarily in one part); another when attached to time sigs., which normally have subobjs in every part. From comment in ExtMapStaves(), it looks like we try to always put tempo marks into every part, but clearly we don't succeed.
 
-- If a two-voice unison on a chromatic black-key note involves certain combinations of durations, esp. if at least one is a whole note, both noteheads must be visible. That's a problem because then there are likely to be two accidentals much too close together... unless I cheat and omit the accidental from one, but in that case either the MIDI note no. will be inconsistent with the "logical" pitch, or the notes will play back as an augmented unison. The best simple solution is probably to be able to make the accidental invisible, probably via Get Info.
-
-- With two voices on a staff, Ngale computes space needed based on the merged voices even if one is so far above the other that they don't interact, resulting in it sometimes allocating way too much space for a Sync. Cf. violin concerto, II, 3VCBVariation, m. 9. An acceptable (to me!) solution: add a flag to the ANote struct that says "when respacing, ignore the chord this note belongs to"; add it to the note Get Info dialog.  Fix est. difficulty & impact: high & low (there's a byte available to put this flag in, and it's been initialized to 0 for many years).
-
 - (all) Both Sonata and BlueNotz on both my MacBook and G5 fail to display the "ff" dynamic on screen; change the font or double-click the "ff" and change to another dynamic => it appears. Exception: "ff" _is_ visible with Sonata in some very small displayed sizes, e.g., staff size 5 at magnification 38% & 50%. (Maybe with BlueNotz also but I'm not sure.) In every other respect including PostScript printing, "ff" behaves fine! It's no problem in Briard. All other dynamics display OK. David G. sez: "It works as it should in v.5.2.6, i.e. pre 5.3.x. I went as far  back in 5.3 as 5.3.0b4 of September 2008, and the bug was there." Cf. Don's NgaleDevelopmentLog.txt for more. If the complete source code for 5.2.6 and 5.3 exist and can be identified as such, this shouldn't be hard to fix! But, if the code exists, it doesn't seem possible to identify.  :-(
 
 - Ngale has no way to set staves to two different sizes, though I think (based on the days of NightStaffSizer, pre-OS X) it does a fair job of actually handling two different staff sizes. (Two sizes would be very helpful e.g. for the piano reduction and maybe also the full score of my concerto.)
-
-- There's no reasonable way to do tempo equations, e.g., "quarter note = quarter note". Need to extend the Tempo/Metronome dialog: smthg like add radio buttons for normal and "duration = duration", and if the latter is selected, show a popup for the right side similar or identical to that for the left side.
 
 - In some very recent scores (as of February 2016) -- e.g., my InvisibleNotesBug.ngl and 3rdMovementFS_InvisibleNotesBug.ngl, and something of Glenn Gass' -- inserted notes on some systems aren't drawn at all, and nothing I've tried makes them reappear except adding barlines on those systems! The reason appears to be that Nightingale thinks those systems aren't on the screen. Just inserting a barline on the system fixes it, so this isn't _that_ serious.
 
@@ -38,26 +40,28 @@ MOSTLY JUST ANNOYING
 
 - It'd be helpful if Fill Empty Measures reported how many whole-measure rests it added. Fix est. difficulty & impact: low & low.
 
-- The Check Range command seems to work, but it's hard to see the out-of-range notes it finds. Maybe add a check to Debug Check?
+- The Check Range command seems to work, but it's hard to see the out-of-range notes it finds. Maybe add to Debug Check to list them -- or report how many & location of the first in Score Info, as we do w/ duration problems & empty measures. Cf. PitchCmds.cp > CheckRange().
 
-- It'd be helpful to have a check for instruments that come in after a long rest without a dynamic mark.
+- It'd be helpful to have a check for instruments that come in after a long rest without a dynamic mark. Probably add to Debug Check (list occurrences), or report how many & location of the first in Score Info
 
 - Space objects aren't very useful because they tend to add far more space than the width of the space object. This is probably because they're justification type J_IT; they should be J_IP. Fix est. difficulty & impact: low & low.
+
+- HiliteAttPoints() and HiliteInsertNode() (in UIFUtils.cp) are a real mess.
 
 - Paste Merge of even just a few notes often causes error messages of the form
 	FixGRDrawLinks: firstObj=1111 or lastObj=1115 isn't a Sync or a GRSync.
 ...but works perfectly otherwise, and it doesn't look like the LINKs given (1111 and 1115 here) have anything to do with the situation!
 
 - (all) Message (STR 271 = PRINTERRS_STRS, #2) "Some line(s) are so thin that they may not reproduce well" could/should be much more specific; probably should change to "Some line(s) are thinner than 0.xxx in. and may not reproduce well."; preferably also say how to thicken 'em. Affects CarbonPrinting: NDoPostScript(); PS_Stdio. Fix est. impact: very low.
-	
-- With reasonable spacing, only about 25 staves fit on a letter-size page even at staff size 8, so with a largish number -- e.g., 15 in my violin concerto -- you can get only one system on a page. A larger "paper" size would be nice, but trying to change to one seems to do absolutely nothing on my G5 running OS 10.5. On my old MacBook running 10.6.8, it works okay!?
-
-- (all) When I open a file, it often forgets its MIDI playback setting, so when I try to play, it either gives the "unable to play score, because a MIDI device isn't selected" error message, or acts as if it's playing for a split second but plays nothing. Setting DLS_MIDI Controller for all parts fixes; but saving and re-opening the file after that changes nothing. This is a well-known, long-standing bug. It happens much more (or only?) with files created years ago, regardless of how much they've been edited recently. Cf. Menu>EditPartMIDI().
-
-+- Showing attaching point(s) of symbols isn't as good as it used to be. I'm pretty sure that formerly, double-click various symbols (at least dynamics, slurs, & GRString & GRLyric Graphics) & hold mouse button formerly => showed attachment point(s) (via vertical dotted lines, with call to UIFUtils.cp > HiliteAttPoints (or possibly HiliteInsertNode?)); anyway, I want it to! Currently, it does so only for Graphics and tempo marks, and only _after_ you release button on double-click, while the resulting dialog is on screen: that's OK -- and quite possibly what it's always done for Graphics. But it doesn't do it for dynamics and slurs at all. In fact, now that double-clicking dynamics brings up an edit dialog, it could behave the same as for Graphics and tempi.
 
 - (a) Copying & pasting chords containing unisons should preserve the "other stem side" flags, and (b) inserting a note that creates a unison should set its
 other stem side flag. Fix est. impact: very low.
+	
+- With reasonable spacing, only about 25 staves fit on a letter-size page even at staff size 8, so with a largish number -- e.g., 15 in my violin concerto -- you can get only one system on a page. A larger "paper" size would be nice, but trying to change to one seems to do absolutely nothing on my G5 running OS 10.5. On my old MacBook running 10.6.8, it works okay!?
+
+- (all) Ngale sometimes forgets MIDI playback settings of scores, so when I open one and try to play, it either gives the "unable to play score, because a MIDI device isn't selected" error message, or (much more often) acts as if it's playing for a split second but plays nothing. Setting DLS_MIDI Controller for all parts fixes; but saving and re-opening the file after that changes nothing. This is a well-known, long-standing bug. It happens only with files originally created many years ago, regardless of how much they've been edited recently. Simple test scores: VCA.5, VCB.8. Cf. Menu>EditPartMIDI().
+
++- Showing attaching point(s) of symbols isn't as good as it used to be. I'm pretty sure that formerly, double-click various symbols (at least dynamics, slurs, & GRString & GRLyric Graphics) & hold mouse button formerly => showed attachment point(s) (via vertical dotted lines, with call to UIFUtils.cp > HiliteAttPoints (or possibly HiliteInsertNode?)); anyway, I want it to! Currently, it does so only for Graphics and tempo marks, and only _after_ you release button on double-click, while the resulting dialog is on screen: that's OK -- and quite possibly what it's always done for Graphics. But it doesn't do it for dynamics and slurs at all. In fact, now that double-clicking dynamics brings up an edit dialog, it could behave the same as for Graphics and tempi.
 
 - High-quality (PostScript) printing is STILL very clumsy. In about July '08, someone suggested a simple improvement, I forget what; David objected on some grounds I thought were very weak, I forget what :-) .
 
@@ -66,15 +70,17 @@ other stem side flag. Fix est. impact: very low.
 - From Nov. 2007: "On my G4 & laptop, _very_ often has the wrong cursor, esp. wait cursor when it should be a symbol, or a symbol when it should be the selection arrow." As of April 2012, this is still a problem in all recent versions of Ngale with both of my computers -- isn't it?
 
 +- Some of the default CNFG & other settings are silly, or at least suboptimal. E.g.:
-	- In tempo/metronome marks, there's usually not enough space between the tempo char. string and the note beginning the metronome mark. Default for extra space is currently 0 (in eighth-spaces); it should be around 3.
 	- All three memory settings are ridiculously low -- though I'm not sure any of them are meaningful on any system Ngale 5.x runs on (Mac OS 10.0 thru 10.6). Still, maybe multiply them by five or six?
-	- "Additional top margin on 1st page" (default 0) should probably be nonzero: at least 18 pts, say, but somewhere from 36 to 72 would probably be better.
-	- "Min. space between lyrics" (6 eighth-spaces) is probably too large; cf. LyricConstrainedSpacing.ngl .
+	+- In tempo/metronome marks, there's usually not enough space between the tempo char. string and the note beginning the metronome mark. Default for extra space is currently 0 (in eighth-spaces); it should be around 3.
+	+- "Additional top margin on 1st page" (default 0) should probably be nonzero: at least 36 pts, say, but something like 72 would probably be better.
+	+- "Min. space between lyrics" (6 eighth-spaces) is probably too large; cf. LyricConstrainedSpacing.ngl .
 	+ "Default staff rastral size" (1) should probably be 5; certainly not 1.
 	+ "Screen layout..." should be horiz., not vertical.
 	+ Some MIDI Modifier values are questionable. E.g., 90 for > vel. offset is ridiculously high!; it should probably be 50 or so.
 
 - When I Save (not Save as) a file, occasionally says "Can't write blah blah: file is already open".
+
+- The loop count for timed delays business is embarassing; it's been obsolete for 15 years, if not longer.
 
 - Some source files, e.g., Error.cp, contain non-ASCII chars.; these mostly date back to when everything was encoded in Macintosh Roman, and converting them to the current (mostly UTF-8, some Latin-1) is likely to have garbled them, causing bugs.
 

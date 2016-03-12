@@ -265,6 +265,8 @@ void ScoreInfo()
 
 			scoreDuration = GetScoreDuration(doc);
 			qtrNTicks = Code2LDur(QTR_L_DUR, 0);
+			sprintf(s, "    --------------------------------");
+			SIDrawLine(s);
 			GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "    Duration: approx. %ld quarters." */
 			sprintf(s, fmtStr, scoreDuration/qtrNTicks); 
 			SIDrawLine(s);
@@ -286,12 +288,10 @@ void ScoreInfo()
 				if (nEmpty>0) {
 					GetIndCString(fmtStr, SCOREINFO_STRS, 9);   /* "    Found %d empty measure(s) (first in measure %d)." */
 			 		sprintf(s, fmtStr, nEmpty, firstEmpty);
-			 		//sprintf(s, "    Found %d empty measures (first in measure %d).", nEmpty, firstEmpty);
 				}
 				else {
 					GetIndCString(fmtStr,  SCOREINFO_STRS, 10);   /* "    No empty measures found." */
 			 		sprintf(s, fmtStr);
-			 		//sprintf(s, "    No empty measures found.");
 			 	}
 				SIDrawLine(s);
 

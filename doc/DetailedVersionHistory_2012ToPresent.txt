@@ -453,8 +453,16 @@ Minor cleanup. Affects DrawObject, MeasFill, Menu.
 
 -------------------------------------------------------------------------------
 
-8 Mar.			       ==== NIGHTINGALE 5.6b4 ====
+8-11 Mar.			       ==== NIGHTINGALE 5.6b4 ====
 
-Score Info now reports how many empty measures the score contains and the measure no.
-of the first. Affects NightTemplates.h, MeasFill, ScoreInfo; .rsrc: enlarge DLOG &
-add strings to STR#.
+The Score Info dialog is larger, and it now reports how many empty measures the score
+contains and the measure no. of the first. Affects NightTemplates.h, MeasFill,
+ScoreInfo; .rsrc: enlarge DLOG & add strings to STR#.
+
+Change CNFG defaults:
+	* In tempo/metronome marks, increase space between the tempo char. string and the
+		note beginning the metronome mark from 0 eighth-spaces to 4
+	* Increase "Additional top margin on 1st page" from 0 to 36 pts
+	* Decrease "Min. space between lyrics" from 6 eighth-spaces to 4
+
+Minor cleanup. Affects PitchCmds, ScoreInfo.

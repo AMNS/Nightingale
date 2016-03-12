@@ -1,9 +1,9 @@
-NIGHTINGALE TECH NOTES - DAB, February 2013
+NIGHTINGALE TECH NOTES - Don Byrd, rev. mid March 2016
 
 NB: These need a lot of work. At least one (#5) is probably completely obsolete; one
-(#2) is the Coding Guidelines, which are now in the AMNS/Nightingale GitHub repository
-in a more up-to-date form; one (NgaleEPSToGhostView) wants to be merged into #7; etc.
-And very few are really up-to-date.
+(#2), the Coding Guidelines, is now in the AMNS/Nightingale GitHub repository in a
+more up-to-date form; one (NgaleEPSToGhostView) wants to be merged into #7; etc. And
+very few are really up-to-date.
 
 #	St	Title
 -------------
@@ -19,23 +19,26 @@ NUMBERED
 8	OK?	The Nightingale "Debug" Command, Especially for Finding Accidental Problems (DebugAndAccPblms-TN8.txt)
 9	OK?	Nightingale Conventions for Modifier Keys (ModKeyConventions-TN9.txt)
 10	OK?	Cleaning Up MIDI files Imported Into Nightingale (CleaningImpMIDIFiles-TN10.txt)
-11	OK	Nightingale Coordinate Systems (CoordinateSystems-TN11.doc)
+11	OK	Nightingale Coordinate Systems and Page Layout (CoordinateSystems-TN11.doc)
+12	OK	Installing Music Fonts for Nightingale (InstallingNightingaleFonts-TN12.rtfd)
 
 UNNUMBERED
 
 	OK?	CleaningNotelistFiles.txt
+	OK	CNFGFields+Info.txt
 	?	coordCalcCode.t
 	OK	CoordinateSystemsDemo (.ngl and .png)
 	Old	HowToQASampleScores.t
 	M7	NgaleEPSToGhostView.txt
 	OK?	NgaleXDebugCommands.txt
 	OK?	QuickDrawAPIsUsedInNgale.xls
+	OK	LineWidthsForSmallPrinting.txt
 
 
 St (Status) codes:
 
-OK?: probably OK with only minor problems
 OK: definitely OK; has only minor problems
+OK?: probably OK with only minor problems
 Rep: the current version is in the GitHub repository; the tech note version isn't up-to-date
-OBS: obsolete and probably of no use anymore
+OBS: obsolete and probably of no interest anymore
 Mn: should be merged into Tech Note #n
