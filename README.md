@@ -4,11 +4,11 @@ Nightingale
 Development environment requirements
 ------------------------------------
 * MacOS version 10.5 
- - should work on version 10.4, too, but only version 10.5 has been tested
+ - should work on version 10.4 too, but only 10.5 has been tested
  - might work on 10.6: see below
- - will not work on versions >= 10.7, due to PPC / Rosetta dependencies
+ - will not work on versions >= 10.7, due to PowerPC / Rosetta dependencies
 * On OS 10.5: Xcode version 2.5
-- should work with version 2.4 or better, but only
+ - should work with version 2.4 or better, but only 2.5 has been tested
 * On OS 10.6 (maybe): Xcode version 4.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added 
  - Specifically, this is a hybrid of [Xcode 4.2 for MacOS 10.6] (http://adcdownload.apple.com//Developer_Tools/xcode_4.2_for_snow_leopard/xcode_4.2_for_snow_leopard.dmg)
  with [Xcode 3.2's for MacOS 10.6](http://adcdownload.apple.com//Developer_Tools/xcode_3.2.6_and_ios_sdk_4.3__final/xcode_3.2.6_and_ios_sdk_4.3.dmg) SDKs.
