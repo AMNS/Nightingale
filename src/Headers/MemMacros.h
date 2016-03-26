@@ -357,7 +357,7 @@
 #define DynamLASTSYNC(link)	 ( (GetPDYNAMIC(link))->lastSyncL )
 #define GraphicFIRSTOBJ(link)	 ( (GetPGRAPHIC(link))->firstObj )
 #define GraphicLASTOBJ(link)	 ( (GetPGRAPHIC(link))->lastObj )
-#define GraphicSTRING(link)	 ( (GetPAGRAPHIC(link))->string )
+#define GraphicSTRING(link)	 ( (GetPAGRAPHIC(link))->strOffset )
 #define TempoFIRSTOBJ(link)	 ( (GetPTEMPO(link))->firstObjL )
 #define TempoSTRING(link)	 	 ( (GetPTEMPO(link))->string )
 #define TempoMETROSTR(link)	 ( (GetPTEMPO(link))->metroStr )
@@ -764,7 +764,7 @@
 #define NoteBeamFILLER(link)			( (GetPANOTEBEAM(link))->filler)
 #define StaffSTAFFLINES(link)			( (GetPASTAFF(link))->staffLines )
 
-#define FirstGraphicSTRING(link)		( (GetPAGRAPHIC(FirstSubLINK(link)))->string )
+#define FirstGraphicSTRING(link)		( (GetPAGRAPHIC(FirstSubLINK(link)))->strOffset )
 #define TimeSigType(link)				( (GetPATIMESIG(link))->subType )
 #define MeasKSITEM(link)				( (GetPAMEASURE(link))->KSItem)
 #define MeasureMEASUREVIS(link)		( (GetPAMEASURE(link))->measureVisible )

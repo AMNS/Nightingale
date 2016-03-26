@@ -182,7 +182,7 @@ static Boolean AllowOverlap(LINK lyricL)
 {
 	Str255 string; unsigned char lastChar; short i;
 
-	PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(lyricL))->string),
+	PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(lyricL))->strOffset),
 				(StringPtr)string);
 	
 	/* Skip trailing white space or punctuation marks before checking. */

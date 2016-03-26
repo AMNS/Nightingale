@@ -1338,7 +1338,7 @@ LINK RMSearch(Document *doc, LINK startL, const unsigned char *rMark, Boolean go
 			pGraphic = GetPGRAPHIC(pL);
 			if (pGraphic->graphicType==GRRehearsal) {
 				if (rMark[0]) {
-					if (PStrCmp((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->string),
+					if (PStrCmp((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset),
 									(StringPtr)rMark))
 						return pL;
 				}

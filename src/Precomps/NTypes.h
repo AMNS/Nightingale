@@ -176,7 +176,7 @@ other fields as well. */
 	Boolean		soft:1;				/* TRUE if subobject is program-generated */
 
 #define EXTOBJHEADER \
-	SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff ??except tuplets! */
+	SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff FIXME: except tuplets! */
 
 
 /* ----------------------------------------------------------------------- MEVENT -- */
@@ -273,7 +273,7 @@ typedef struct {
 																								\
 	short		nstaves,			/* number of staves in a system */							\
 				nsystems;			/* number of systems in score */							\
-	unsigned char comment[MAX_COMMENT_LEN+1]; /* (unused) User comment on score */				\
+	unsigned char comment[MAX_COMMENT_LEN+1]; /* User comment on score */						\
 	char		feedback:1;			/* TRUE if we want feedback on note insert */				\
 	char		dontSendPatches:1; /* 0 = when playing, send patch changes for channels */		\
 	char		saved:1;			/* TRUE if score has been saved */							\
@@ -542,11 +542,10 @@ typedef struct {
 				denominator;
 	unsigned char filler:3,			/* unused */
 				showLedgers:1,		/* TRUE if drawing ledger lines of notes on this staff (the default if showLines>0) */
-// ??maybe use just 2 bits, since we only need 3 vals
 				showLines:4;		/* 0=show 0 staff lines, 1=only middle line (of 5-line staff), 2-14 unused,
 										15=show all lines (default) (use SHOW_ALL_LINES for this) */
 #ifdef STAFFRASTRAL
-// ??maybe this should be drSize (DDIST) for the staff's current rastral?
+// FIXME: maybe this should be drSize (DDIST) for the staff's current rastral?
 	short			srastral;		/* rastral for this staff */
 #endif
 } ASTAFF, *PASTAFF;
@@ -952,7 +951,7 @@ typedef struct {
 	LINK			lastSyncL;		/* Sync hairpin end is attached to or NILINK */
 } DYNAMIC, *PDYNAMIC;
 
-enum {								/* ??NEED MODIFIER BIT(S), E.G. FOR mpp, poco piu f */
+enum {								/* FIXME: NEED MODIFIER BIT(S), E.G. FOR mpp, poco piu f */
 	PPPP_DYNAM=1,
 	PPP_DYNAM,
 	PP_DYNAM,
@@ -990,7 +989,7 @@ typedef struct {
 	Boolean		selected:1;				/* TRUE if subobject is selected */
 	Boolean		visible:1;				/* TRUE if subobject is visible */
 	Boolean		soft:1;					/* TRUE if subobject is program-generated */
-	unsigned char xstd:5;				/* ??use "Byte"? Note-relative position (really signed STDIST: see below) */
+	unsigned char xstd:5;				/* FIXME: use "Byte"? Note-relative position (really signed STDIST: see below) */
 	Byte		modCode;				/* Which note modifier */
 	SignedByte	data;					/* Modifier-dependent */
 	SHORTSTD	ystdpit;				/* Clef-independent dist. below middle C ("pitch") */
@@ -1029,7 +1028,7 @@ enum {								/* modCode values */
 
 typedef struct {
 	LINK next;
-	STRINGOFFSET string;			/* index return by String Manager library. */
+	STRINGOFFSET strOffset;			/* index return by String Manager library. */
 } AGRAPHIC, *PAGRAPHIC;
 
 typedef struct {
@@ -1066,18 +1065,18 @@ enum {								/* graphicType values: */
 	GRString,						/* 	character string */
 	GRLyric,						/* 	lyric character string */
 	GRDraw,							/* 	Pure graphic: so far, only lines; someday, MiniDraw */
-	GRMIDIPatch,					/*		(unimplemented) MIDI program change */
+	GRMIDIPatch,					/*	(unimplemented) MIDI program change */
 	GRRehearsal,					/* 	rehearsal mark */
 	GRChordSym,						/* 	chord symbol */
-	GRArpeggio,						/*		arpeggio or non-arpeggio sign */
-	GRChordFrame,					/*		chord frame (for guitar, etc.) */
+	GRArpeggio,						/*	arpeggio or non-arpeggio sign */
+	GRChordFrame,					/*	chord frame (for guitar, etc.) */
 	GRMIDIPan,
 	GRMIDISustainOn,
 	GRMIDISustainOff,
 	GRLastType=GRMIDISustainOff
 };
 
-// Should these be here or in a MIDI header file?
+// FIXME: Should these be here or in a MIDI header file?
 
 #define MIDISustainOn	127
 #define MIDISustainOff	0

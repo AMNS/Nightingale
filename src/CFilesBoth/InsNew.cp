@@ -526,7 +526,7 @@ PushLock(OBJheap);
 	aGraphicL = FirstSubLINK(newL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	aGraphic->next = NILINK;
-	aGraphic->string = 0;
+	aGraphic->strOffset = 0;
 
 	pGraphic->justify = GRJustLeft;
 
@@ -677,7 +677,7 @@ PushLock(GRAPHICheap);
 	aGraphicL = FirstSubLINK(newL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	aGraphic->next = NILINK;
-	aGraphic->string = 0;
+	aGraphic->strOffset = 0;
 
 	pGraphic->justify = GRJustLeft;
 
@@ -781,11 +781,11 @@ PushLock(GRAPHICheap);
 		aGraphicL = FirstSubLINK(newL);
 		aGraphic = GetPAGRAPHIC(aGraphicL);
 		aGraphic->next = NILINK;
-		aGraphic->string = PStore((unsigned char *)string);
-		if (aGraphic->string<0L)
+		aGraphic->strOffset = PStore((unsigned char *)string);
+		if (aGraphic->strOffset<0L)
 			NoMoreMemory();
-		else if (aGraphic->string>GetHandleSize((Handle)doc->stringPool))
-			MayErrMsg("NewGraphic: PStore error. string=%ld", aGraphic->string);
+		else if (aGraphic->strOffset>GetHandleSize((Handle)doc->stringPool))
+			MayErrMsg("NewGraphic: PStore error. string=%ld", aGraphic->strOffset);
 	}
 
 	if (graphicType==GRLyric || graphicType==GRString) {

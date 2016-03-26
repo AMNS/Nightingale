@@ -463,12 +463,12 @@ LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap
 				BlockMove(aGraphic, newGraphic, (long)subObjLength[type]);
 				
 				InstallStrPool(srcDoc);
-				graphicString = PCopy(aGraphic->string);
+				graphicString = PCopy(aGraphic->strOffset);
 				InstallStrPool(dstDoc);
 				stringOff = PStore(graphicString);
 				if (stringOff<0L) return NILINK;
 				newGraphic = DGetPAGRAPHIC(dstDoc,newSubL);
-				newGraphic->string = stringOff;
+				newGraphic->strOffset = stringOff;
 				
 				SetStringPool(currentPool);
 			}

@@ -321,7 +321,7 @@ Boolean ProcessGraphic(Document *doc, LINK graphicL)
 	}
 	aGraphicL = FirstSubLINK(graphicL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
-	theStrOffset = aGraphic->string;
+	theStrOffset = aGraphic->strOffset;
 	pStr = PCopy(theStrOffset);									/* ??following would be simpler with CCopy */
 	if (!pStr) return FALSE;										/* should never happen */
 	

@@ -485,7 +485,7 @@ short NPtStringWidth(
 
 
 /* ------------------------------------------------------------- NPtGraphicWidth -- */
-/* Compute and return the StringWidth (in points) of the given Graphic. */
+/* Compute and return the StringWidth (in points) of the given Graphic. */	
 
 short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 {
@@ -494,7 +494,7 @@ short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 	Str255		string;
 	DDIST		lineSpace;
 	
-	PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->string),
+	PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset),
 				(StringPtr)string);
 
 	p = GetPGRAPHIC(pL);

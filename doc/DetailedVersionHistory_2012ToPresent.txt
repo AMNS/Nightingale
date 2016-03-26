@@ -466,3 +466,28 @@ Change CNFG defaults:
 	* Decrease "Min. space between lyrics" from 6 eighth-spaces to 4
 
 Minor cleanup. Affects PitchCmds, ScoreInfo.
+
+===============================================================================
+
+21-25 Mar.
+
+Update version number in About box to 5.6b5. Affects info.plist .
+
+The default sizes of the three memory values in the CNFG were ridiculously low; increase
+them by a factor of 10. (They're probably meaningless under any OS Ngale 5.x runs on,
+but just in case.)
+
+Fix bug: for tempo/metronome marks where tempo isn't given, the metronome mark is drawn
+slightly to the right of where it should be. Affects DrawObject.
+
+In feedback for dragging tempo/metronome marks, fix bug: the "expanded" attribute is
+ignored; improve spacing between tempo and metronome mark (it still isn't quite
+correct). Affects Dragging.
+
+Rename the _string_ field of the Graphic object to _strOffset_. Affects NTypes.h; about
+15 C files.
+
+In the Context dialog, show the last previous Graphic for the staff, if there is one.
+Affects Context.
+
+Minor cleanup. Affects Dragging, Context, etc.

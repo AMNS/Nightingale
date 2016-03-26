@@ -256,10 +256,10 @@ static long GetRangeMemAlloc(LINK startL, LINK endL)
 				break;
 			case GRAPHICtype:
 
-				/* This is ridiculous; isn't there a better way to get the
+				/* FIXME: This is ridiculous; isn't there a better way to get the
 					string size? */
 
-				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->string), string);
+				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset), string);
 				memAlloc += string[0];
 							
 				break;

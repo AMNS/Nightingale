@@ -376,7 +376,7 @@ void DisplayNode(Document *doc, LINK pL,
 				||  pGraphic->graphicType==GRChordSym) {
 					aGraphicL = FirstSubLINK(pL);
 					aGraphic = GetPAGRAPHIC(aGraphicL);
-					LogPrintf(LOG_NOTICE, "     '%p'", PCopy(aGraphic->string));
+					LogPrintf(LOG_NOTICE, "     '%p'", PCopy(aGraphic->strOffset));
 					LogPrintf(LOG_NOTICE, "\n");				/* Protect newline from garbage strings */
 				}
 			}

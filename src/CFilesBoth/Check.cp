@@ -1093,7 +1093,7 @@ PushLock(OBJheap);
 				
 				PStrnCopy((StringPtr)doc->fontTable[p->fontInd].fontName, 
 							(StringPtr)newFont, 32);
-				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->string),
+				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset),
 							(StringPtr)string);
 							
 				switch (p->graphicType) {
@@ -1194,7 +1194,7 @@ PushLock(OBJheap);
 				if (change) {
 					EraseAndInval(&oldObjRect);
 					aGraphicL = FirstSubLINK(pL);
-					offset = PReplace(GraphicSTRING(aGraphicL),string);
+					offset = PReplace(GraphicSTRING(aGraphicL), string);
 					if (offset<0L)
 						{ NoMoreMemory(); goto Cleanup; }
 					else

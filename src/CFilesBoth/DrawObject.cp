@@ -1609,7 +1609,7 @@ Boolean GetGraphicDBox(Document *doc,
 		default:
 			aGraphicL = FirstSubLINK(pL);
 			aGraphic = GetPAGRAPHIC(aGraphicL);
-			theStrOffset = aGraphic->string;
+			theStrOffset = aGraphic->strOffset;
 			
 			if (expandN) {
 				if (!ExpandString(string, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
@@ -1901,8 +1901,8 @@ PushLock(GRAPHICheap);
 	expandN = (p->info2!=0);
 	aGraphicL = FirstSubLINK(pL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
-	theStrOffset = aGraphic->string;
-	//LogPrintf(LOG_DEBUG, "DrawGraphic: expandN=%d str='%s'\n", expandN, PToCString(PCopy(aGraphic->string)));
+	theStrOffset = aGraphic->strOffset;
+	//LogPrintf(LOG_DEBUG, "DrawGraphic: expandN=%d str='%s'\n", expandN, PToCString(PCopy(aGraphic->strOffset)));
 
 	switch (outputTo) {
 		case toScreen:
@@ -2126,7 +2126,8 @@ void DrawTEMPO(Document *doc,
 {
 	PTEMPO p;
 	PCONTEXT pContext; CONTEXT relContext;
-	short oldFont, useTxSize, oldSize, oldStyle,  fontSize, xp, yp, noteWidth, staffn;
+	short oldFont, oldSize, oldStyle, useTxSize, fontSize, xp, yp, noteWidth, staffn,
+			tempoStrlen;
 	FontInfo fInfo; StringOffset theStrOffset;
 	unsigned char tempoStr[256];
 	char metroStr[256], noteChar;
@@ -2158,7 +2159,9 @@ PushLock(TEMPOheap);
 	}
 	else PStrCopy((StringPtr)PCopy(theStrOffset), tempoStr);
 
-
+	//tempoStrlen = strlen(PToCString(PCopy(tempoStr)));
+	tempoStrlen = tempoStr[0];
+//LogPrintf(LOG_DEBUG, "tempoStrlen=%d\n", tempoStrlen);
 	noteChar = TempoGlyph(pL);
 	noteChar = MapMusChar(doc->musFontInfoIndex, noteChar);
 
@@ -2176,10 +2179,13 @@ PushLock(TEMPOheap);
 	
 	SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lineSpace);
 
-	xdNote = xd+p2d(StringWidth(tempoStr))+lineSpace;
-
-	extraGap = qd2d(config.tempoMarkHGap, pContext->staffHeight, pContext->staffLines);
-	xdNote += extraGap;
+	extraGap = 0;
+	xdNote = xd;
+	if (tempoStrlen>0) {
+		extraGap = qd2d(config.tempoMarkHGap, pContext->staffHeight, pContext->staffLines);
+		xdNote = xd+p2d(StringWidth(tempoStr))+lineSpace+extraGap;
+	}
+//LogPrintf(LOG_DEBUG, "tempoStrlen=%d extraGap=%d\n", tempoStrlen, extraGap);
 	
 	/*
 	 *	We'll cheat and get the width of the note and dot in the current font/size/style
@@ -2190,7 +2196,6 @@ PushLock(TEMPOheap);
 	noteWidth = CharWidth(noteChar);
 	if (p->dotted) {
 		noteWidth += pt2p(2);
-		xdDot = xdNote+p2d(noteWidth);
 		noteWidth += CharWidth(dotChar);
 	}
 	else if (NFLAGS(p->subType)>0)
@@ -2226,8 +2231,11 @@ PushLock(TEMPOheap);
 				if (doDrawMM) {
 					DrawChar(noteChar);
 					if (p->dotted) {
+						xdDot = xdNote+p2d(noteWidth);
 						xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lineSpace);
 						ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lineSpace);
+LogPrintf(LOG_DEBUG, "xdDot, ydDot=%d. %d  pap.left=%d pap.top=%d\n", xdDot, ydDot,
+			pContext->paper.left, pContext->paper.top);
 						MoveTo(pContext->paper.left+d2p(xdDot), pContext->paper.top+d2p(ydDot));
 						DrawChar(dotChar);
 					}

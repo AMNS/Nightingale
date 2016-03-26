@@ -133,7 +133,7 @@ static enum
 } E_GoToItems;
 
 #define ANYMARK "\p"
-#define RMARKSTR(rMark)		( PCopy(GetPAGRAPHIC(FirstSubLINK(rMark))->string) )
+#define RMARKSTR(rMark)		( PCopy(GetPAGRAPHIC(FirstSubLINK(rMark))->strOffset) )
 
 static UserPopUp gotoPopUp8;				/* popup8 is for TransposeDialog ??WHAT? */
 static short currPage, currMeas;

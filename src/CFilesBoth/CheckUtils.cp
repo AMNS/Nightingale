@@ -479,11 +479,10 @@ short GraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 {
 	short		font, fontSize, fontStyle;
 	PGRAPHIC	p;
-	Str255	string;
+	Str255		string;
 	DDIST		lineSpace;
 	
-	PStrCopy((StringPtr)PCopy(FirstGraphicSTRING(pL)),
-				(StringPtr)string);
+	PStrCopy((StringPtr)PCopy(FirstGraphicSTRING(pL)), (StringPtr)string);
 
 	p = GetPGRAPHIC(pL);
 	font = doc->fontTable[p->fontInd].fontID;
