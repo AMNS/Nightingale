@@ -1,5 +1,5 @@
 NGALE X CURRENT ANNOYANCES AND PROBLEMS (from user's view)
-Don Byrd, rev. early June 2013 - mid March 2016
+Don Byrd, rev. early June 2013 - late March 2016
 
 Ngale versions:
 * "NDAB" = "NightingaleDAB", a version I compiled in Nov. 2009; I think it's the 5.3.0b5 source code -- at least that's what the About box says.
@@ -10,6 +10,10 @@ My MacBook is running OS 10.6.x, my G5 10.5.x.
 
 
 RELATIVELY SERIOUS
+
+- Check Range isn't that useful, a big reason being that it doesn't take into
+account the "Transpose MIDI" command, i.e., it acts as if scores are always
+transposed.
 
 - If a two-voice unison on a chromatic black-key note involves certain combinations of durations, esp. if at least one is a whole note, both noteheads must be visible. That's a problem because then there are likely to be two accidentals much too close together... unless I cheat and omit the accidental from one, but in that case either the MIDI note no. will be inconsistent with the "logical" pitch, or the notes will play back as an augmented unison. The best simple solution is probably to be able to make the accidental invisible, probably via Get Info.
 
@@ -147,6 +151,8 @@ not just "3". Fix est. difficulty & impact: easy & very low.
 
 + Tremolo slashes on upstemmed notes aren't horizontally centered around the stem. Fix est. difficulty & impact: low & low.
 
-+ On PostScript output, piano pedal up and down symbols don't come out in a music font. However, the same chars. as part of a text Graphic _are_ rendered in a music font.
++ On PostScript output, piano pedal up and down symbols don't come out in a music font. However, the same chars. as part of a text Graphic _are_ rendered in a music font. !?
 
 + Fill Empty Measures should set its default measure range from the selection. Fix est. difficulty & impact: low & low.
+
++ Default ranges for violin & clarinet are too conservative (at the top). Fix est. difficulty & impact: low & low.

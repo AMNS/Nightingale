@@ -1384,20 +1384,20 @@ short DCheckNode(
 	
 					/* A Tempo's <string> can be empty, but its <metroStr> can't be. */
 					 
-					if (pTempo->string<0L
-					|| pTempo->string>=GetHandleSize((Handle)doc->stringPool)) {
+					if (pTempo->strOffset<0L
+					|| pTempo->strOffset>=GetHandleSize((Handle)doc->stringPool)) {
 						COMPLAIN("*DCheckNode: TEMPO AT %u string IS BAD.\n", pL);
 					}
 
-					if (pTempo->metroStr<0L
-					|| pTempo->metroStr>=GetHandleSize((Handle)doc->stringPool)) {
+					if (pTempo->metroStrOffset<0L
+					|| pTempo->metroStrOffset>=GetHandleSize((Handle)doc->stringPool)) {
 						COMPLAIN("*DCheckNode: TEMPO AT %u metroStr IS BAD.\n", pL);
 					}
-					else if (!pTempo->metroStr || PCopy(pTempo->metroStr)==NULL) {
+					else if (!pTempo->metroStrOffset || PCopy(pTempo->metroStrOffset)==NULL) {
 						COMPLAIN("*DCheckNode: TEMPO AT %u HAS NO metroStr.\n", pL);
 					}
 					else {
-						len = (Byte)(*PCopy(pTempo->metroStr));
+						len = (Byte)(*PCopy(pTempo->metroStrOffset));
 						if (len==0) COMPLAIN("*DCheckNode: TEMPO AT %u HAS AN EMPTY metroStr.\n",
 													pL);
 					}

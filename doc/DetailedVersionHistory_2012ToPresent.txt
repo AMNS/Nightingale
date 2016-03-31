@@ -491,3 +491,23 @@ In the Context dialog, show the last previous Graphic for the staff, if there is
 Affects Context.
 
 Minor cleanup. Affects Dragging, Context, etc.
+
+-------------------------------------------------------------------------------
+
+27-31 Mar.
+
+Rename the string and _metroStr_ fields of the Tempo object to _strOffset_ and
+_metroStrOffset_. Affects NTypes.h, MemMacros.h; about 10 C files.
+
+The Score Info dialog now reports how many out-of-range notes the score contains and
+the measure no. of the first. Affects ScoreInfo; .rsrc: add strings to STR#.
+
+Fix bug: In a C score ("Transpose MIDI" unchecked), some notes are incorrectly considered
+out of range because we were assuming the notation was transposed. Affects ScoreInfo,
+PitchCmds.
+
+Make the default top of the clarinet and violin ranges less conservative; change the
+heading on the Instrument dialog from "Transposition and Range" to "Transposition and
+Written Range".
+
+Minor cleanup. Affects InstrDialog, Menu.c, MIDIUtils, ScoreInfo

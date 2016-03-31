@@ -6,7 +6,7 @@
 
 /*											NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEÈ PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEé PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
@@ -1071,7 +1071,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			oldStyle = GetPortTxFace();
 			
 			oneChar[0] = 1;
-			oneChar[1] = 'ç';						// Shift-option 8
+			oneChar[1] = '';						// Shift-option 8
 			TextFont(doc->musicFontNum);
 			TextSize(UseTextSize(fontSize, doc->magnify));
 			MoveTo(d2p(DragXD(xd)), d2p(yd));
@@ -1191,7 +1191,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	MoveTo(d2p(xd), d2p(yd));
 
 	GetFontInfo(&fInfo);
-	theStrOffset = p->string;
+	theStrOffset = p->strOffset;
 	if (p->expanded) {
 		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
 			LogPrintf(LOG_WARNING, "DrawTEMPO: ExpandString failed.\n");
@@ -1239,7 +1239,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 #endif
 		
 		SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lineSpace);
-		sprintf(metroStr," = %s", PtoCstr(PCopy(p->metroStr)));
+		sprintf(metroStr, " = %s", PtoCstr(PCopy(p->metroStrOffset)));
 		DrawCString(metroStr);
 	}
 	TextFont(oldFont);

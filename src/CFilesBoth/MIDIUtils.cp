@@ -21,11 +21,6 @@
 /* Thus far, the event list maintained herein contains only one type of event -- Note Off
 -- so there's no need for a code for the event type. */
 
-/* With THINK C 7 on my PowerBook 540 and my PowerBook G3/400, Nightingale links okay,
-but trying to run results in a mysterious data segment overflow apparently resulting
-from the fact that Symantec's ANSI—small library takes 600+ bytes more on those
-machines, even though the file containing the library appears to be identical! Comment
-the following kludge in to avoid it. */
 static MIDIEvent	eventList[MAXEVENTLIST];
 static CMMIDIEvent	cmEventList[MAXEVENTLIST];
 
@@ -46,9 +41,9 @@ static void		SendAllNotesOff(void);
 
 short UseMIDIChannel(Document *doc, short	partn)
 {
-	short				useChan;
-	LINK				partL;
-	PPARTINFO		pPart;
+	short		useChan;
+	LINK		partL;
+	PPARTINFO	pPart;
 	
 	if (doc->polyTimbral) {
 		partL = FindPartInfo(doc, partn);
@@ -90,9 +85,9 @@ duration for all the others. */
 
 long TiedDur(Document */*doc*/, LINK syncL, LINK aNoteL, Boolean selectedOnly)
 {
-	LINK			syncPrevL, aNotePrevL, continL, continNoteL;
-	short			voice;
-	long			dur, prevDur;
+	LINK		syncPrevL, aNotePrevL, continL, continNoteL;
+	short		voice;
+	long		dur, prevDur;
 	
 	voice = NoteVOICE(aNoteL);
 	
@@ -133,12 +128,12 @@ short UseMIDINoteNum(Document *doc, LINK aNoteL, short transpose)
 	Byte patchNum;
 
 	aNote = GetPANOTE(aNoteL);
-	if (aNote->rest || aNote->tiedL					/* Don't play rests and continuations */
-	||  aNote->onVelocity==0)							/* ...and notes w/velocity 0 */
+	if (aNote->rest || aNote->tiedL						/* Don't play rests and continuations */
+	||  aNote->onVelocity==0)							/* ...and notes w/ on velocity 0 */
 		midiNote = -1;
 	else {
 		midiNote = aNote->noteNum;
-		if (doc->transposed)								/* Handle "transposed score" */
+		if (doc->transposed)							/* Handle "transposed score" */
 			midiNote += transpose;
 		if (midiNote<1) midiNote = 1;					/* Clip to legal range */
 		if (midiNote>MAX_NOTENUM) midiNote = MAX_NOTENUM;
@@ -249,7 +244,7 @@ long PDur2RealTime(
 	
 	for (i = 1; i<tabSize; i++)
 		if (tConvertTab[i].pDurTime>t) break;
-	if (tConvertTab[i].pDurTime<=t) i = tabSize;	/* ??IS i GUARANTEED TO BE MEANINGFUL? */
+	if (tConvertTab[i].pDurTime<=t) i = tabSize;	/* FIXME: IS i GUARANTEED TO BE MEANINGFUL? */
 	msAtPrevTempo = tConvertTab[i-1].realTime;
 	
 	msSincePrevTempo = PDUR2MS(t-tConvertTab[i-1].pDurTime, tConvertTab[i-1].microbeats);
@@ -270,11 +265,11 @@ short MakeTConvertTable(
 			short maxTabSize
 			)
 {
-	short		tempoCount;
-	LINK		pL, measL, syncL, syncMeasL;
-	long		microbeats,							/* microsec. units per PDUR tick */
-				timeScale,							/* PDUR ticks per minute */
-				pDurTime;							/* in PDUR ticks */
+	short	tempoCount;
+	LINK	pL, measL, syncL, syncMeasL;
+	long	microbeats,							/* microsec. units per PDUR tick */
+			timeScale,							/* PDUR ticks per minute */
+			pDurTime;							/* in PDUR ticks */
 
 	tempoCount = 0;
 
@@ -288,7 +283,7 @@ short MakeTConvertTable(
 			  	
 			  	if (tempoCount==0) {
 					syncL = LSSearch(fromL, SYNCtype, ANYONE, GO_RIGHT, FALSE);
-					timeScale = GetTempo(doc, syncL);				/* OK even if syncL is NILINK */
+					timeScale = GetTempo(doc, syncL);			/* OK even if syncL is NILINK */
 					microbeats = TSCALE2MICROBEATS(timeScale);
 					tConvertTab[0].microbeats = microbeats;
 					tConvertTab[0].pDurTime = 0L;
@@ -310,8 +305,8 @@ short MakeTConvertTable(
 				/* It's OK to call PDur2RealTime here: the part of the table it needs
 					already exists. */
 					 
-				tConvertTab[tempoCount].realTime = PDur2RealTime(pDurTime,
-																				 tConvertTab, tempoCount);
+				tConvertTab[tempoCount].realTime = PDur2RealTime(pDurTime, tConvertTab,
+													tempoCount);
 				tempoCount++;
 				break;
 			default:
@@ -331,7 +326,7 @@ short MakeTConvertTable(
 
 
 /* ------------------------------------------- MIDI Manager/Driver glue functions -- */
-/* The following functions support Apple Core MIDI */
+/* The following functions support Apple Core MIDI. */
 
 void StartMIDITime()
 {
@@ -412,10 +407,10 @@ LogPrintf(LOG_NOTICE,
 }
 
 
-/*	Insert the specified note into the event list. Exception ??NOT IMPLEMENTED! : if _playMaxDur_ and
-there's already an event for that note no. on the same channel with a later end time,
-do nothing. If we succeed, return TRUE; if we fail (because the list is full),
-give an error message and return FALSE. */
+/*	Insert the specified note into the event list. Exception FIXME: NOT IMPLEMENTED! :
+if _playMaxDur_ and there's already an event for that note no. on the same channel
+with a later end time, do nothing. If we succeed, return TRUE; if we fail (because the
+list is full), give an error message and return FALSE. */
 
 static Boolean InsertEvent(short note, SignedByte channel, long endTime, Boolean playMaxDur,
 					short ioRefNum)
@@ -533,9 +528,9 @@ Boolean CheckEventList(long pageTurnTOffset)
 	for (i=0, pEvent = eventList; i<lastEvent; i++, pEvent++)
 		if (pEvent->note) {
 			empty = FALSE;
-			if (pEvent->endTime<=t) {								/* note is done, t = now */
+			if (pEvent->endTime<=t) {							/* note is done, t = now */
 				EndNoteNow(pEvent->note, pEvent->channel, pEvent->omsIORefNum);
-				pEvent->note = 0;									/* slot available now */
+				pEvent->note = 0;								/* slot available now */
 			}
 		}
 
@@ -559,9 +554,9 @@ Boolean CMCheckEventList(long pageTurnTOffset)
 		if (pEvent->note) {
 //LogPrintf(LOG_NOTICE, "CMCheckEventList pEvent-note=%d\n", pEvent->note);
 			empty = FALSE;
-			if (pEvent->endTime<=t) {								/* note is done, t = now */
+			if (pEvent->endTime<=t) {							/* note is done, t = now */
 				CMEndNoteNow(pEvent->cmIORefNum, pEvent->note, pEvent->channel);
-				pEvent->note = 0;									/* slot available now */
+				pEvent->note = 0;								/* slot available now */
 			}
 		}
 
@@ -602,12 +597,12 @@ static void KillEventList()
 /* ------------------------------------------------------------- GetPartPlayInfo -- */
 
 void GetPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
-							Byte channelPatch[], SignedByte partVelo[])
+						Byte channelPatch[], SignedByte partVelo[])
 {
 	short i; LINK partL; PARTINFO aPart;
 
 	for (i = 1; i<=MAXCHANNEL; i++)
-		channelPatch[i] = MAXPATCHNUM+1;						/* Initialize to illegal value */
+		channelPatch[i] = MAXPATCHNUM+1;					/* Initialize to illegal value */
 	
 	partL = FirstSubLINK(doc->headL);
 	for (i = 0; i<=LinkNENTRIES(doc->headL)-1; i++, partL = NextPARTINFOL(partL)) {
@@ -648,8 +643,9 @@ void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 
 /* ---------------------------------------- StartNoteNow,EndNoteNow,EndNoteLater -- */
 /* Functions to start and end notes; handle OMS, FreeMIDI, MIDI Manager, and built-in
-MIDI (MIDI Pascal or MacTutor driver). Caveat: EndNoteLater does not communicate with
-the MIDI system, it simply adds the note to our event-list routines' queue. */
+MIDI (MIDI Pascal or MacTutor driver). ??NOT ANY MORE! Caveat: EndNoteLater does not
+communicate with the MIDI system, it simply adds the note to our event-list routines'
+queue. */
 
 OSStatus StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity, short ioRefNum)
 {
@@ -689,19 +685,19 @@ OSStatus EndNoteNow(short noteNum, SignedByte channel, short ioRefNum)
 #define MULTNOTES_PLAYMAXDUR TRUE
 
 Boolean EndNoteLater(
-				short noteNum,
-				SignedByte channel,			/* 1 to MAXCHANNEL */
-				long endTime,
-				short ioRefNum)
+			short noteNum,
+			SignedByte channel,			/* 1 to MAXCHANNEL */
+			long endTime,
+			short ioRefNum)
 {
 	return InsertEvent(noteNum, channel, endTime, MULTNOTES_PLAYMAXDUR, ioRefNum);
 }
 
 Boolean CMEndNoteLater(
-				short noteNum,
-				SignedByte channel,			/* 1 to MAXCHANNEL */
-				long endTime,
-				long ioRefNum)
+			short noteNum,
+			SignedByte channel,			/* 1 to MAXCHANNEL */
+			long endTime,
+			long ioRefNum)
 {
 	return CMInsertEvent(noteNum, channel, endTime, MULTNOTES_PLAYMAXDUR, ioRefNum);
 }
@@ -712,10 +708,10 @@ Boolean CMEndNoteLater(
 /* For MIDI Manager: start the note now, end the note at the given time. */
  
 void MMStartNoteNow(
-				short noteNum,
-				SignedByte channel,			/* 1 to MAXCHANNEL */
-				SignedByte velocity
-				)
+			short noteNum,
+			SignedByte channel,			/* 1 to MAXCHANNEL */
+			SignedByte velocity
+			)
 {
 	MMMIDIPacket mPacket;
 
@@ -730,10 +726,10 @@ void MMStartNoteNow(
 }
 
 void MMEndNoteAtTime(
-				short noteNum,
-				SignedByte channel,			/* 1 to MAXCHANNEL */
-				long endTime
-				)
+			short noteNum,
+			SignedByte channel,			/* 1 to MAXCHANNEL */
+			long endTime
+			)
 {
 	MMMIDIPacket mPacket;
 	
@@ -756,7 +752,7 @@ Boolean MIDIConnected()
 {
 	Boolean	result;
 	
-	result = FALSE;									/* ??ABOVE CODE ALWAYS SAYS "TRUE" */
+	result = FALSE;								/* FIXME: ABOVE CODE ALWAYS SAYS "TRUE" ?HUH? */
 	return result;
 }
 
@@ -804,9 +800,9 @@ void MIDIFBOff(Document *doc)
 note and channel. Exception: if the port is busy, do nothing. */
 
 void MIDIFBNoteOn(
-				Document *doc,
-				short noteNum, short channel,
-				short useIORefNum)			/* Ignored unless we're using OMS or FreeMIDI */
+			Document *doc,
+			short noteNum, short channel,
+			short useIORefNum)			/* Ignored unless we're using OMS or FreeMIDI */
 {
 	if (doc->feedback) {
 		switch (useWhichMIDI) {
@@ -833,9 +829,9 @@ note and channel with velocity 0 (which acts as NoteOff).  Exception: if the por
 is busy, do nothing. */
 
 void MIDIFBNoteOff(
-				Document *doc,
-				short	noteNum, short	channel,
-				short useIORefNum)			/* Ignored unless we're using OMS or FreeMIDI */
+			Document *doc,
+			short	noteNum, short	channel,
+			short useIORefNum)			/* Ignored unless we're using OMS or FreeMIDI */
 {
 	if (doc->feedback) {
 		switch (useWhichMIDI) {
@@ -858,8 +854,8 @@ void MIDIFBNoteOff(
 
 /* ------------------------------------------------ AnyNoteToPlay, NoteToBePlayed -- */
 /* Given a Sync, should at least one "note" be played? A given "note" should be played
-if it's really a note (not a rest); is in a part that's not muted; and (if we're
-interested only in selected notes) is selected. */
+if it's really a note (not a rest); is in a part that's not muted; and, if we're
+interested only in selected notes, is selected. */
 	
 Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly)
 {

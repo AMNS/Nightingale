@@ -2,11 +2,11 @@
 
 /*									NOTICE
  *
- * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS CONFIDENTIAL PROP-
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
  * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
  * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
  * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright Â© 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
  *
  */
 
@@ -1737,7 +1737,7 @@ static void NMSetDuration(Document *doc)
 						break;
 				}
 				if (didAnything) {
-					if (cptV) SetDurCptV(doc);		/* ??Bug: this changes sel range, screwing up FixTimeStamps! */
+					if (cptV) SetDurCptV(doc);		/* FIXME: Bug: this changes sel range, screwing up FixTimeStamps! */
 					FixTimeStamps(doc, doc->selStartL, doc->selEndL);
 					if (doc->autoRespace)
 						RespaceBars(doc, doc->selStartL, doc->selEndL,
@@ -2341,7 +2341,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 				GetIndCString(str, MENUCMD_STRS, 22);						/* "Clear Page" */
 			SetMenuItemCText(editMenu, EM_ClearPage, str);
 
-			/* ??How can you "Paste Insert" anything into a DA? (CER asks?) */
+			/* FIXME: How can you "Paste Insert" anything into a DA? (CER asks?) */
 
 			switch (lastCopy) {
 				case COPYTYPE_CONTENT:
@@ -2433,15 +2433,15 @@ static void FixTestMenu(Document *doc, short nSel)
 	{
 #ifndef PUBLIC_VERSION
 		if (clickMode==ClickErase)
-			SetItemMark(testMenu, TS_ClickErase, 'â€¢');
+			SetItemMark(testMenu, TS_ClickErase, '¥');
 		else
 			SetItemMark(testMenu, TS_ClickErase, noMark);
 		if (clickMode==ClickSelect)
-			SetItemMark(testMenu, TS_ClickSelect, 'â€¢');
+			SetItemMark(testMenu, TS_ClickSelect, '¥');
 		else
 			SetItemMark(testMenu, TS_ClickSelect, noMark);
 		if (clickMode==ClickFrame)
-			SetItemMark(testMenu, TS_ClickFrame, 'â€¢');
+			SetItemMark(testMenu, TS_ClickFrame, '¥');
 		else
 			SetItemMark(testMenu, TS_ClickFrame, noMark);
 

@@ -1340,9 +1340,9 @@ PushLock(OBJheap);
 				HiliteInsertNode(doc, p->firstObjL, staffn, TRUE);		/* Hiliting on */
 				while (Button()) ;
 				p = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(p->string), (StringPtr)tempoStr);
+				PStrCopy((StringPtr)PCopy(p->strOffset), (StringPtr)tempoStr);
 				p = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(p->metroStr), (StringPtr)metroStr);
+				PStrCopy((StringPtr)PCopy(p->metroStrOffset), (StringPtr)metroStr);
 				p = GetPTEMPO(pL);
 				hideMM = p->hideMM;
 				dur = p->subType;
@@ -1354,17 +1354,17 @@ PushLock(OBJheap);
 				p = GetPTEMPO(pL);
 				HiliteInsertNode(doc, p->firstObjL, staffn, FALSE);	/* Hiliting off */
 				if (ok) {
-					offset = PReplace(p->string,tempoStr);
+					offset = PReplace(p->strOffset,tempoStr);
 					if (offset<0L)
 						{ NoMoreMemory(); goto Cleanup; }
 					else
-						p->string = offset;
+						p->strOffset = offset;
 
-					offset = PReplace(p->metroStr,metroStr);
+					offset = PReplace(p->metroStrOffset,metroStr);
 					if (offset<0L)
 						{ NoMoreMemory(); goto Cleanup; }
 					else
-						p->metroStr = offset;
+						p->metroStrOffset = offset;
 
 					p->hideMM = hideMM;
 					p->subType = dur;

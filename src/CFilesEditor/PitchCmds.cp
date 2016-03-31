@@ -838,8 +838,9 @@ FIXME: Questions:
 void CheckRange(Document *doc)
 {
 	LINK pL, partL, aNoteL; PPARTINFO pPart; PANOTE aNote;
-	short firstStaff, lastStaff, hiKeyNum, loKeyNum;
-	Boolean noteFound=FALSE;
+	short firstStaff, lastStaff, hiKeyNum, loKeyNum, nOutOfRange;
+	short transposition, writtenNoteNum;
+	Boolean problemFound=FALSE;
 	
 	DeselAll(doc);
 	partL = FirstSubLINK(doc->headL);
@@ -849,23 +850,27 @@ void CheckRange(Document *doc)
 		lastStaff = pPart->lastStaff;
 		hiKeyNum = pPart->hiKeyNum;
 		loKeyNum = pPart->loKeyNum;
+		transposition = pPart->transpose;
 		for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
 			if (SyncTYPE(pL))
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
 					if (NoteSTAFF(aNoteL)>=firstStaff && NoteSTAFF(aNoteL)<=lastStaff
 					&&	!NoteREST(aNoteL)) {
 						aNote = GetPANOTE(aNoteL);
-						if (aNote->noteNum>hiKeyNum || aNote->noteNum<loKeyNum) {
+						/* hiKeyNum and loKeyNumIf are written pitches, but if the score
+							isn't transposed, it contains sounding pitches; convert. */
+						writtenNoteNum = aNote->noteNum;
+						if (!doc->transposed) writtenNoteNum -= transposition;
+						if (writtenNoteNum>hiKeyNum || writtenNoteNum<loKeyNum) {
 							LinkSEL(pL) = TRUE;
 							NoteSEL(aNoteL) = TRUE;
-							noteFound = TRUE;
+							problemFound = TRUE;
 						}
 					}
 		}
 	}
 
-	if (noteFound) {
-
+	if (problemFound) {
 		doc->selStartL = doc->selEndL = NILINK;
 		for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL))
 			if (LinkSEL(pL) && !doc->selStartL)

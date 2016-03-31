@@ -41,18 +41,18 @@ Boolean WriteScoreHeader(Document *doc, LINK);
 
 /* Formats of lines in a Notelist file:
 
-Note				N t=%ld v=%d npt=%d stf=%d dur=%d dots=%d nn=%d acc=%d eAcc=%d pDur=%d vel=%d %s appear=%d
-Rest				R t=%ld v=%d npt=%d stf=%d dur=%d dots=%d %s appear=%d
+Note			N t=%ld v=%d npt=%d stf=%d dur=%d dots=%d nn=%d acc=%d eAcc=%d pDur=%d vel=%d %s appear=%d
+Rest			R t=%ld v=%d npt=%d stf=%d dur=%d dots=%d %s appear=%d
 Grace note		G t=-1 v=%d npt=%d stf=%d dur=%d dots=%d nn=%d acc=%d eAcc=%d pDur=%d vel=%d %c appear=%d
 Barline			/ t=%ld type=%d
-Clef				C stf=%d type=%d
+Clef			C stf=%d type=%d
 Key signature	K stf=%d KS=%d %c
 Time signature	T stf=%d num=%d denom=%d
 Dynamic			D stf=%d dType=%d
-Text				A v=%d npt=%d stf=%d %c%c '%s'
+Text			A v=%d npt=%d stf=%d %c%c '%s'
 Tempo mark		M stf=%d '%s' %c=%s
 Tuplet			P v=%d npt=%d num=%d denom=%d appear=%d
-Beam				B v=%d npt=%d count=%d
+Beam			B v=%d npt=%d count=%d
 Comment			% (anything)
 
 The only forms of text included now are GRStrings and GRLyrics.
@@ -99,7 +99,7 @@ Boolean ProcessNRGR(
 	char rCode, mCode; PANOTE aNote; PAGRNOTE aGRNote;
 	short userVoice, np, i, effAcc;
 	LINK thePartL, aModNRL; PAMODNR aModNR;
-	LINK	firstSyncL, bNoteL;
+	LINK firstSyncL, bNoteL;
 	
 	/* Handle notes and rests */
 	
@@ -322,8 +322,8 @@ Boolean ProcessGraphic(Document *doc, LINK graphicL)
 	aGraphicL = FirstSubLINK(graphicL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	theStrOffset = aGraphic->strOffset;
-	pStr = PCopy(theStrOffset);									/* ??following would be simpler with CCopy */
-	if (!pStr) return FALSE;										/* should never happen */
+	pStr = PCopy(theStrOffset);						/* FIXME: following would be simpler with CCopy */
+	if (!pStr) return FALSE;						/* should never happen */
 	
 	Pstrcpy((StringPtr)str, pStr);
 	PToCString((StringPtr)str);
@@ -347,13 +347,13 @@ Boolean ProcessTempo(Document *doc, LINK tempoL)
 PushLock(OBJheap);
  	p = GetPTEMPO(tempoL);
 	/* Avoid writing out the Tempo if there's no text string and MM is hidden. */
-	if (!p->string && p->hideMM && !doc->showInvis) {
+	if (!p->strOffset && p->hideMM && !doc->showInvis) {
 		PopLock(OBJheap);
 		return TRUE;
 	}
 
 	sprintf(strBuf, "%c stf=%d '%s'", METRONOME_CHAR, TempoSTAFF(tempoL),
-				PtoCstr(PCopy(p->string)) );											/* ??WANT CCopy */
+				PtoCstr(PCopy(p->strOffset)) );							/* FIXME: WANT CCopy */
 
 #ifdef JG_NOTELIST
 	noteChar = gTempoCode[p->subType];
@@ -363,7 +363,7 @@ PushLock(OBJheap);
 	if (!p->hideMM || doc->showInvis) {
 		sprintf(&strBuf[strlen(strBuf)], " %c", noteChar);
 		if (p->dotted) sprintf(&strBuf[strlen(strBuf)], ".");
-		sprintf(&strBuf[strlen(strBuf)], "=%s", PtoCstr(PCopy(p->metroStr)) );	/* ??WANT CCopy */
+		sprintf(&strBuf[strlen(strBuf)], "=%s", PtoCstr(PCopy(p->metroStrOffset)) );	/* FIXME: WANT CCopy */
 	}
 
 PopLock(OBJheap);
@@ -613,21 +613,21 @@ void SaveNotelist(
 	 */
 	
 	sufIndex = 11;
-	GetIndString(filename,MiscStringsID,sufIndex);						/* Get suffix length */
+	GetIndString(filename,MiscStringsID,sufIndex);			/* Get suffix length */
 	suffixLen = *(StringPtr)filename;
 
 	/* Get current name and its length, and truncate name to make room for suffix */
 	
 	if (doc->named) PStrCopy((StringPtr)doc->name,(StringPtr)filename);
-	else				 GetIndString(filename,MiscStringsID,1);			/* "Untitled" */
+	else				 GetIndString(filename,MiscStringsID,1);		/* "Untitled" */
 	len = *(StringPtr)filename;
 	if (len >= (64-suffixLen)) len = (64-suffixLen);			/* 64 is max file name size */
 	
-	/* Finally append suffix ??with unreadable low-level code: change to PStrCat! */
+	/* Finally append suffix FIXME: with unreadable low-level code: change to PStrCat! */
 	
-	ch = filename[len];											/* Hold last character of name */
-	GetIndString(filename+len,MiscStringsID,sufIndex);	/* Append suffix, obliterating last char */
-	filename[len] = ch;											/* Overwrite length byte with saved char */
+	ch = filename[len];										/* Hold last character of name */
+	GetIndString(filename+len,MiscStringsID,sufIndex);		/* Append suffix, obliterating last char */
+	filename[len] = ch;										/* Overwrite length byte with saved char */
 	*filename = (len + suffixLen);							/* And ensure new string knows new length */
 	
 	/* Ask user where to put this notelist file */
@@ -640,14 +640,14 @@ void SaveNotelist(
 	if (anErr == noErr && !nsData.nsOpCancel) {
 		FSSpec fsSpec = nsData.nsFSSpec;
 		
-		errCode = FSpDelete(&fsSpec);												/* Delete old file */
-		if (errCode && errCode!=fnfErr)											/* Ignore "file not found" */
+		errCode = FSpDelete(&fsSpec);									/* Delete old file */
+		if (errCode && errCode!=fnfErr)									/* Ignore "file not found" */
 			{ MayErrMsg("SaveNotelist: FSDelete error"); return; }
 			
 		errCode = FSpCreate (&fsSpec, creatorType, 'TEXT', smRoman);	/* Create new file */
 		if (errCode) { MayErrMsg("SaveNotelist: Create error"); return; }
 
-		errCode = FSpOpenDF (&fsSpec, fsRdWrPerm, &fRefNum );				/* Open the temp file */
+		errCode = FSpOpenDF (&fsSpec, fsRdWrPerm, &fRefNum );			/* Open the temp file */
 		if (errCode) { MayErrMsg("SaveNotelist: FSOpen error"); return; }
 
 		WaitCursor();
@@ -668,11 +668,11 @@ void SaveNotelist(
 			Boolean rests 		/* (ignored) TRUE=include rests */
 			)
 {
-	short		sufIndex;
-	short		len, suffixLen, ch;
-	short		vRefNum;
+	short	sufIndex;
+	short	len, suffixLen, ch;
+	short	vRefNum;
 	Str255	filename, prompt;
-	Rect		paperRect;
+	Rect	paperRect;
 	SFReply	reply;
 
 	/*
@@ -683,21 +683,21 @@ void SaveNotelist(
 	 */
 	
 	sufIndex = 11;
-	GetIndString(filename,MiscStringsID,sufIndex);						/* Get suffix length */
+	GetIndString(filename,MiscStringsID,sufIndex);			/* Get suffix length */
 	suffixLen = *(StringPtr)filename;
 
 	/* Get current name and its length, and truncate name to make room for suffix */
 	
 	if (doc->named) PStrCopy((StringPtr)doc->name,(StringPtr)filename);
-	else				 GetIndString(filename,MiscStringsID,1);			/* "Untitled" */
+	else				 GetIndString(filename,MiscStringsID,1);		/* "Untitled" */
 	len = *(StringPtr)filename;
-	if (len >= (64-suffixLen)) len = (64-suffixLen);			/* 64 is max file name size */
+	if (len >= (64-suffixLen)) len = (64-suffixLen);		/* 64 is max file name size */
 	
-	/* Finally append suffix ??with unreadable low-level code: change to PStrCat! */
+	/* Finally append suffix FIXME: with unreadable low-level code: change to PStrCat! */
 	
-	ch = filename[len];											/* Hold last character of name */
+	ch = filename[len];										/* Hold last character of name */
 	GetIndString(filename+len,MiscStringsID,sufIndex);	/* Append suffix, obliterating last char */
-	filename[len] = ch;											/* Overwrite length byte with saved char */
+	filename[len] = ch;										/* Overwrite length byte with saved char */
 	*filename = (len + suffixLen);							/* And ensure new string knows new length */
 	
 	/* Ask user where to put this notelist file */
@@ -708,14 +708,14 @@ void SaveNotelist(
 	PStrCopy(reply.fName, (StringPtr)filename);
 	vRefNum = reply.vRefNum;
 	
-	errCode = FSDelete(filename, vRefNum);									/* Delete old file */
-	if (errCode && errCode!=fnfErr)											/* Ignore "file not found" */
+	errCode = FSDelete(filename, vRefNum);							/* Delete old file */
+	if (errCode && errCode!=fnfErr)									/* Ignore "file not found" */
 		{ MayErrMsg("SaveNotelist: FSDelete error"); return; }
 		
 	errCode = Create(filename, vRefNum, creatorType, 'TEXT'); 		/* Create new file */
 	if (errCode) { MayErrMsg("SaveNotelist: Create error"); return; }
 	
-	errCode = FSOpen(filename, vRefNum, &fRefNum);						/* Open it */
+	errCode = FSOpen(filename, vRefNum, &fRefNum);					/* Open it */
 	if (errCode) { MayErrMsg("SaveNotelist: FSOpen error"); return; }
 
 	WaitCursor();

@@ -689,19 +689,19 @@ PushLock(OBJheap);
 	pTempo->firstObjL = anchorL;
 	
 	CToPString(tempoStr);
-	pTempo->string = PStore((unsigned char *)tempoStr);
+	pTempo->strOffset = PStore((unsigned char *)tempoStr);
 
 	CToPString(metroStr);	
-	pTempo->metroStr = PStore((unsigned char *)metroStr);
+	pTempo->metroStrOffset = PStore((unsigned char *)metroStr);
 	
-	if (pTempo->string<0L || pTempo->metroStr<0L) {
+	if (pTempo->strOffset<0L || pTempo->metroStrOffset<0L) {
 		NoMoreMemory();
 		tempoL = NILINK;
 	}
-	else if (pTempo->string>GetHandleSize((Handle)doc->stringPool)
-		  || pTempo->metroStr>GetHandleSize((Handle)doc->stringPool)) {
-		MayErrMsg("FIInsertTempo: PStore error. string=%ld metroStr=%ld",
-					pTempo->string, pTempo->metroStr);
+	else if (pTempo->strOffset>GetHandleSize((Handle)doc->stringPool)
+		  || pTempo->metroStrOffset>GetHandleSize((Handle)doc->stringPool)) {
+		MayErrMsg("FIInsertTempo: PStore error. strOffset=%ld metroStrOffset=%ld",
+					pTempo->strOffset, pTempo->metroStrOffset);
 		tempoL = NILINK;
 	}
 	beatsPM = FindIntInString((unsigned char *)metroStr);

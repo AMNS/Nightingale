@@ -1831,28 +1831,28 @@ void BrowseTempo(LINK pL)
 	sprintf(s, "firstObjL=%d tempo=%d", p->firstObjL, p->tempo);
 	DrawTextLine(s); p = GetPTEMPO(pL);
 
-	sprintf(s, "p->string=%ld ", p->string);
-	if (PCopy(p->string)==NULL) {
+	sprintf(s, "p->strOffset=%ld ", p->strOffset);
+	if (PCopy(p->strOffset)==NULL) {
 		DrawTextLine(s);			
-		sprintf(s, "** PCopy(p->string) is NULL **");
+		sprintf(s, "** PCopy(p->strOffset) is NULL **");
 		DrawTextLine(s);
 	}
 	else {
-		Pstrcpy((unsigned char *)t, PCopy(p->string));
+		Pstrcpy((unsigned char *)t, PCopy(p->strOffset));
 		sprintf(&s[strlen(s)], "char count=%d", (unsigned char)t[0]);
 		DrawTextLine(s);			
 		sprintf(s, "str='%s'", PToCString((unsigned char *)t));
 		DrawTextLine(s);
 	}
 
-	sprintf(s, "p->metroStr=%ld ", p->metroStr);
-	if (PCopy(p->metroStr)==NULL) {
+	sprintf(s, "p->metroStrOffset=%ld ", p->metroStrOffset);
+	if (PCopy(p->metroStrOffset)==NULL) {
 		DrawTextLine(s);			
-		sprintf(s, "** PCopy(p->metroStr) is NULL **");
+		sprintf(s, "** PCopy(p->metroStrOffset) is NULL **");
 		DrawTextLine(s);			
 	}
 	else {
-		Pstrcpy((unsigned char *)t, PCopy(p->metroStr));
+		Pstrcpy((unsigned char *)t, PCopy(p->metroStrOffset));
 		sprintf(&s[strlen(s)], "char count=%d", (unsigned char)t[0]);
 		DrawTextLine(s);
 		sprintf(s, "str='%s'", PToCString((unsigned char *)t));

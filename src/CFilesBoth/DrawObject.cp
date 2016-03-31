@@ -2152,7 +2152,7 @@ PushLock(TEMPOheap);
 	if (!pContext->staffVisible) goto Cleanup;
 	lineSpace = LNSPACE(pContext);
 
-	theStrOffset = p->string;
+	theStrOffset = p->strOffset;
 	if (p->expanded) {
 		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
 			LogPrintf(LOG_WARNING, "DrawTEMPO: ExpandString failed.\n");
@@ -2165,7 +2165,7 @@ PushLock(TEMPOheap);
 	noteChar = TempoGlyph(pL);
 	noteChar = MapMusChar(doc->musFontInfoIndex, noteChar);
 
-	sprintf(metroStr," = %s", PToCString(PCopy(p->metroStr)));
+	sprintf(metroStr," = %s", PToCString(PCopy(p->metroStrOffset)));
 
 	/*
 	 *	We save the port's current font and set it for the tempo mark here regardless

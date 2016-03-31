@@ -1213,9 +1213,9 @@ typedef struct {
 	Boolean			dotted:1;
 	Boolean			hideMM:1;
 	short			tempo;			/* new playback speed in beats per minute */	
-	STRINGOFFSET	string;			/* "tempo" string index return by String Manager */
+	STRINGOFFSET	strOffset;		/* "tempo" string index return by String Manager */
 	LINK			firstObjL;		/* object tempo depends on */
-	STRINGOFFSET	metroStr;		/* "metronome mark" index return by String Manager */
+	STRINGOFFSET	metroStrOffset;	/* "metronome mark" index return by String Manager */
 } TEMPO, *PTEMPO;
 
 

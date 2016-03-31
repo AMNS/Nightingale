@@ -1316,3 +1316,41 @@ chars. in the Sonata font, does _not_ switch. Why does Ngale switch to Helvetica
 of using the music font? Because the calls to PS_FontString() in DrawGRAPHIC() for
 GRMIDISustainOn and GRMIDISustainOff specify as the font
 doc->fontTable[p->fontInd].fontName ; it should be just  doc->musFontName :-) .
+
+-------------------------------------------------------------------------------
+
+25-28 Mar.
+
+Rename the _string_ field of the Graphic object to _strOffset_.
+
+Getting the string stored in a Graphic object is extremely error prone! Does the
+FirstGraphicSTRING macro handle this?
+
+Rename the Tempo object fields containing STRINGOFFSETs to _xxxOffset_.
+
+-------------------------------------------------------------------------------
+
+28-29 Mar.
+
+Check Range complains about double-bass notes that are indeed below its specified range
+_if_ sounding pitch is interpreted as an octave below written -- but I'm using sounding
+= written, and it plays back that way. Does it depend on if "Play from parts' settings"
+is in effect? No. Cf. UseMIDINoteNum(), which is called from GetNotePlayInfo().
+
+Want to support pure C scores (e.g., my violin concerto  and conventional
+transposed scores and play either w/ specified patches (multi-channel) or all on one
+channel =>  Ngale needs an explicit indication of whether it's a C score or not! !!
+Oops: it already has one!!: the "Transpose" MIDI command. Maybe rename it to "C Score"?
+Anyway, the problem with Check Range results from it not paying attenion to that
+setting. Cause: for transposing instruments, the parts' _hiKeyNum_ and _loKeyNum_ are
+the MIDI note numbers of the written pitches, not the sounding pitches! Ugh. So, leave
+that as is and change the Check Range code, or make them the note nos. of the sounding
+pitches? The latter is obviously the correct fix; it's also obviously harder. Need to
+change the instrument descriptions, in STR# 130. That won't help existing scores!, but
+they can be fixed one part at a time, and it won't make things any worse if they
+aren't fixed.
+
+Edit STR# 130... the format is obscure, and Ngale is very picky! Cf. MPImportExport >
+SDInstrDialog(). But where is it read in? Ah, in InstrDialog, which also documents
+the format.
+

@@ -1628,18 +1628,18 @@ PushLock(OBJheap);
 	pTempo->expanded = 0;
 	pTempo->small = 0;
 	pTempo->yd = halfLn2d(pitchLev, context.staffHeight, context.staffLines);
-	pTempo->xd = 0;												/* same horiz position as note */
-	pTempo->subType = dur;										/* beat: same units as note's l_dur */
+	pTempo->xd = 0;											/* same horiz position as note */
+	pTempo->subType = dur;									/* beat: same units as note's l_dur */
 	pTempo->dotted = dotted;
 	pTempo->hideMM = hideMM;
-	pTempo->string = PStore((unsigned char *)tempoStr);		/* index return by String Manager */
-	pTempo->metroStr = PStore((unsigned char *)metroStr); 	/* index return by String Manager */
-	if (pTempo->string<0L || pTempo->metroStr<0L)
+	pTempo->strOffset = PStore((unsigned char *)tempoStr);	/* index return by String Manager */
+	pTempo->metroStrOffset = PStore((unsigned char *)metroStr);	/* index return by String Manager */
+	if (pTempo->strOffset<0L || pTempo->metroStrOffset<0L)
 		NoMoreMemory();
-	else if (pTempo->string>GetHandleSize((Handle)doc->stringPool)
-		  || pTempo->metroStr>GetHandleSize((Handle)doc->stringPool))
-		MayErrMsg("NewTempo: PStore error. string=%ld metroStr=%ld",
-					pTempo->string, pTempo->metroStr);
+	else if (pTempo->strOffset>GetHandleSize((Handle)doc->stringPool)
+		  || pTempo->metroStrOffset>GetHandleSize((Handle)doc->stringPool))
+		MayErrMsg("NewTempo: PStore error. strOffset=%ld metroStrOffset=%ld",
+					pTempo->strOffset, pTempo->metroStrOffset);
 
 	beatsPM = FindIntInString(metroStr);
 	if (beatsPM<0L) beatsPM = config.defaultTempo;

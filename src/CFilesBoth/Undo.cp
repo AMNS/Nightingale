@@ -265,11 +265,11 @@ static long GetRangeMemAlloc(LINK startL, LINK endL)
 				break;
 			case TEMPOtype:
 				pTempo = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(pTempo->string), string);
+				PStrCopy((StringPtr)PCopy(pTempo->strOffset), string);
 				memAlloc += string[0];
 							
 				pTempo = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(pTempo->metroStr), string);
+				PStrCopy((StringPtr)PCopy(pTempo->metroStrOffset), string);
 				memAlloc += string[0];
 
 				break;

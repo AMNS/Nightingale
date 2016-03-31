@@ -494,12 +494,12 @@ PushLock(dstDoc->Heap+OBJtype);
 			newTempo = (PTEMPO)pNewObj;
 			
 			InstallStrPool(srcDoc);
-			tempoString = PCopy(pTempo->string);
-			metroStr = PCopy(pTempo->metroStr);
+			tempoString = PCopy(pTempo->strOffset);
+			metroStr = PCopy(pTempo->metroStrOffset);
 			InstallStrPool(dstDoc);
-			newTempo->string = PStore(tempoString);
-			newTempo->metroStr = PStore(metroStr);
-			if (newTempo->string<0L || newTempo->metroStr<0L) return NILINK;
+			newTempo->strOffset = PStore(tempoString);
+			newTempo->metroStrOffset = PStore(metroStr);
+			if (newTempo->strOffset<0L || newTempo->metroStrOffset<0L) return NILINK;
 			
 			SetStringPool(currentPool);
 PopLock(srcDoc->Heap+OBJtype);
