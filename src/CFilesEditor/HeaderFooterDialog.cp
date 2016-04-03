@@ -47,7 +47,7 @@ static enum {
 	LAST_HIDEABLE_ITEM = PNHINT_DI
 } E_HeaderFooterItems;
 
-#define PAGENUM_CHAR		'%'	// FIXME: should read this from GetIndString((StringPtr)str, HEADERFOOTER_STRS, 3);
+#define PAGENUM_CHAR '%'				// FIXME: should read this from GetIndString((StringPtr)str, HEADERFOOTER_STRS, 3);
 #define HEADERFOOTER_DELIM_CHAR	0x01
 #define MAX_HEADERFOOTER_STRLEN	253		/* 255 for Pascal string minus 2 delimiter chars */
 
@@ -65,8 +65,7 @@ into left, center, and right strings.  <leftStr>, <centerStr>, and <rightStr> ar
 Pascal strings allocated by the caller.  (The data structure's Pascal string has
 either zero chars or exactly two delimiter chars with other chars interspersed.) */
 
-Boolean
-GetHeaderFooterStrings(
+Boolean GetHeaderFooterStrings(
 		Document		*doc,
 		StringPtr	leftStr,
 		StringPtr	centerStr,
@@ -82,7 +81,7 @@ GetHeaderFooterStrings(
 	
 	leftStr[0] = centerStr[0] = rightStr[0] = 0;
 	
-	offset = isHeader? doc->headerStr : doc->footerStr;
+	offset = (isHeader? doc->headerStrOffset : doc->footerStrOffset);
 	pSrc = PCopy(offset);
 	if (pSrc[0] == 0)
 		return TRUE;										/* not an error for string to be empty */
@@ -126,8 +125,7 @@ GetHeaderFooterStrings(
 /* Pack the given strings into a single Pascal string, separated by a delimiter char.
 Store this string in the string pool, and store the resulting string offset into <doc>. */
 
-static Boolean
-StoreHeaderFooterStrings(
+static Boolean StoreHeaderFooterStrings(
 		Document	*doc,
 		Str255	leftStr,
 		Str255	centerStr,
@@ -153,7 +151,7 @@ StoreHeaderFooterStrings(
 //say("storing: %p\n", string);
 
 	/* Store in string pool. */
-	offset = isHeader? doc->headerStr : doc->footerStr;
+	offset = (isHeader? doc->headerStrOffset : doc->footerStrOffset);
 	if (offset > 0)
 		newOffset = PReplace(offset, string);
 	else
@@ -163,9 +161,9 @@ StoreHeaderFooterStrings(
 		return FALSE;
 	}
 	if (isHeader)
-		doc->headerStr = newOffset;
+		doc->headerStrOffset = newOffset;
 	else
-		doc->footerStr = newOffset;
+		doc->footerStrOffset = newOffset;
 
 	return TRUE;
 }

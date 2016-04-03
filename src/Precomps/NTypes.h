@@ -289,8 +289,8 @@ typedef struct {
 				tempo,				/* playback speed in beats per minute */					\
 				channel,			/* Basic MIDI channel number */								\
 				velocity;			/* global playback velocity offset */						\
-	STRINGOFFSET headerStr;			/* index returned by String Manager */						\
-	STRINGOFFSET footerStr;			/* index returned by String Manager */						\
+	STRINGOFFSET headerStrOffset;	/* index returned by String Manager */						\
+	STRINGOFFSET footerStrOffset;	/* index returned by String Manager */						\
 	char		topPGN:1;			/* TRUE=page numbers at top of page, else bottom */			\
 	char		hPosPGN:3;			/* 1=page numbers at left, 2=center, 3=at right */			\
 	char		alternatePGN:1;		/* TRUE=page numbers alternately left and right */			\
@@ -444,32 +444,32 @@ typedef struct {
 																								\
 	short			magnify,			/* Current reduce/enlarge magnification, 0=none */		\
 					selStaff;			/* If sel. is empty, insertion pt's staff, else undefined */ \
-	SignedByte	otherMNStaff,			/* (not yet used) staff no. for meas. nos. besides stf 1 */ \
+	SignedByte		otherMNStaff,			/* (not yet used) staff no. for meas. nos. besides stf 1 */ \
 					numberMeas;			/* Show measure nos.: -=every system, 0=never, n=every nth meas. */ \
 	short			currentSystem,		/* systemNum of system which contains caret or, if non-empty sel, selStartL (but currently not defined) */	\
 					spaceTable,			/* ID of 'SPTB' resource having spacing table to use */ \
-					htight,				/* Percent tightness */										\
-					fillerInt,			/* unused */												\
-					lookVoice,			/* Voice to look at, or -1 for all voices */				\
-					fillerHP,			/* (unused) */												\
-					fillerLP,			/* (unused) */												\
+					htight,				/* Percent tightness */									\
+					fillerInt,			/* unused */											\
+					lookVoice,			/* Voice to look at, or -1 for all voices */			\
+					fillerHP,			/* (unused) */											\
+					fillerLP,			/* (unused) */											\
 					ledgerYSp,			/* Extra space above/below staff for max. ledger lines (half-spaces) */ \
 					deflamTime;			/* Maximum time between consec. attacks in a chord (millsec.) */ \
-																									\
-	Boolean		autoRespace,			/* Respace on symbol insert, or leave things alone? */		\
+																								\
+	Boolean			autoRespace,		/* Respace on symbol insert, or leave things alone? */	\
 					insertMode,			/* Graphic insertion logic (else temporal)? */			\
 					beamRests,			/* In beam handling, treat rests like notes? */			\
-					pianoroll,			/* Display everything in pianoroll, not CMN, form? */		\
-					showSyncs,			/* Show (w/HiliteInsertNode) lines on every sync? */		\
-					frameSystems,		/* Frame systemRects (for debugging)? */					\
-					fillerEM:4,			/* unused */												\
+					pianoroll,			/* Display everything in pianoroll, not CMN, form? */	\
+					showSyncs,			/* Show (w/HiliteInsertNode) lines on every sync? */	\
+					frameSystems,		/* Frame systemRects (for debugging)? */				\
+					fillerEM:4,			/* unused */											\
 					colorVoices:2,		/* 0=normal, 1=show non-dflt voices in color */			\
-					showInvis:1,		/* Display invisible objects? */							\
+					showInvis:1,		/* Display invisible objects? */						\
 					showDurProb:1,		/* Show measures with duration/time sig. problems? */	\
 					recordFlats;		/* TRUE if black-key notes recorded should use flats */ \
 																									\
 	long			spaceMap[MAX_L_DUR];	/* Ideal spacing of basic (undotted, non-tuplet) durs. */ \
-	DDIST			firstIndent,		/* Amount to indent first System */							\
+	DDIST			firstIndent,		/* Amount to indent first System */						\
 					yBetweenSys;		/* obsolete, was vert. "dead" space btwn Systems */		\
 	VOICEINFO	voiceTab[MAXVOICES+1];	/* Descriptions of voices in use */						\
 	short			expansion[256-(MAXVOICES+1)];
@@ -491,11 +491,11 @@ typedef struct {
 
 typedef struct sPAGE {
 	OBJECTHEADER
-	LINK		lPage,			/* Links to left and right Pages */
+	LINK		lPage,				/* Links to left and right Pages */
 				rPage;
-	short		sheetNum;		/* Sheet number: indexed from 0 */
-	StringPtr	headerStr,		/* (unused; when used, should be STRINGOFFSETs) */
-				footerStr;
+	short		sheetNum;			/* Sheet number: indexed from 0 */
+	StringPtr	headerStrOffset,	/* (unused; when used, should be STRINGOFFSETs) */
+				footerStroffset;
 } PAGE, *PPAGE;
 
 
@@ -505,10 +505,10 @@ typedef struct sSYSTEM {
 	OBJECTHEADER
 	LINK		lSystem,			/* Links to left and right Systems */
 				rSystem;
-	LINK		pageL;			/* Link to previous (enclosing) Page */
-	short		systemNum;		/* System number: indexed from 1 */
-	DRect		systemRect;		/* DRect enclosing entire system, rel to Page */
-	Ptr			sysDescPtr;		/* (unused) ptr to data describing left edge of System */
+	LINK		pageL;				/* Link to previous (enclosing) Page */
+	short		systemNum;			/* System number: indexed from 1 */
+	DRect		systemRect;			/* DRect enclosing entire system, rel to Page */
+	Ptr			sysDescPtr;			/* (unused) ptr to data describing left edge of System */
 } SYSTEM, *PSYSTEM;
 
 
@@ -578,13 +578,13 @@ typedef struct {
 	LINK			connFiller;
 } CONNECT, *PCONNECT;
 
-enum {									/* Codes for connectType */
+enum {								/* Codes for connectType */
 	CONNECTLINE=1,
 	CONNECTBRACKET,
 	CONNECTCURLY
 };
 
-enum {									/* Codes for connLevel */
+enum {								/* Codes for connLevel */
 	SystemLevel=0,
 	GroupLevel,
 	PartLevel=7
@@ -603,7 +603,7 @@ typedef struct {
 
 typedef struct {
 	OBJECTHEADER
-	Boolean	inMeasure:1;		/* TRUE if object is in a Measure, FALSE if not */
+	Boolean	inMeasure:1;			/* TRUE if object is in a Measure, FALSE if not */
 } CLEF, *PCLEF;
 
 enum {								/* clef subTypes: */
@@ -628,18 +628,18 @@ enum {								/* clef subTypes: */
 /* ----------------------------------------------------------------------- KEYSIG -- */
 
 typedef struct {
-	SUBOBJHEADER						/* subType=no. of naturals, if nKSItems==0 */
-	Byte			nonstandard:1;		/* TRUE if not a standard CMN key sig. */
+	SUBOBJHEADER					/* subType=no. of naturals, if nKSItems==0 */
+	Byte			nonstandard:1;	/* TRUE if not a standard CMN key sig. */
 	Byte			filler1:2;
-	Byte			small:2;			/* (unused so far) TRUE to draw in small characters */
+	Byte			small:2;		/* (unused so far) TRUE to draw in small characters */
 	SignedByte		filler2;
-	DDIST			xd;					/* DDIST horizontal position */
+	DDIST			xd;				/* DDIST horizontal position */
 	WHOLE_KSINFO
 } AKEYSIG, *PAKEYSIG;
 
 typedef struct {
 	OBJECTHEADER
-	Boolean	inMeasure:1;				/* TRUE if object is in a Measure, FALSE if not */
+	Boolean	inMeasure:1;			/* TRUE if object is in a Measure, FALSE if not */
 } KEYSIG, *PKEYSIG;
 
 
@@ -702,22 +702,22 @@ typedef struct {
 typedef struct sMEASURE	{
 	OBJECTHEADER
 	SignedByte	fillerM;
-	LINK			lMeasure,			/* links to left and right Measures */
+	LINK			lMeasure,		/* links to left and right Measures */
 					rMeasure;
-	LINK			systemL;			/* link to owning System */
-	LINK			staffL;				/* link to owning Staff */
-	short			fakeMeas:1,			/* TRUE=not really a measure (i.e., barline ending system) */
+	LINK			systemL;		/* link to owning System */
+	LINK			staffL;			/* link to owning Staff */
+	short			fakeMeas:1,		/* TRUE=not really a measure (i.e., barline ending system) */
 					spacePercent:15;	/* Percentage of normal horizontal spacing used */
-	Rect			measureBBox;		/* enclosing Rect of all measure subObjs, in pixels, paper-rel. */
-	long			lTimeStamp;			/* P: PDURticks since beginning of score */
+	Rect			measureBBox;	/* enclosing Rect of all measure subObjs, in pixels, paper-rel. */
+	long			lTimeStamp;		/* P: PDURticks since beginning of score */
 } MEASURE, *PMEASURE;
 
-enum {									/* barline types */
+enum {								/* barline types */
 	BAR_SINGLE=1,
 	BAR_DOUBLE,
 	BAR_FINALDBL,
-	BAR_HEAVYDBL,						/* (unused) */
-	BAR_RPT_L,							/* Codes must be the same as equivalent RPTENDs! */
+	BAR_HEAVYDBL,					/* (unused) */
+	BAR_RPT_L,						/* Codes must be the same as equivalent RPTENDs! */
 	BAR_RPT_R,
 	BAR_RPT_LR,
 	BAR_LAST=BAR_RPT_LR
@@ -741,10 +741,10 @@ typedef struct 	{
 	SignedByte	filler;
 } PSMEAS, *PPSMEAS;
 
-enum {									/* pseudomeasure types: codes follow those for MEASUREs */
+enum {								/* pseudomeasure types: codes follow those for MEASUREs */
 	PSM_DOTTED=BAR_LAST+1,
 	PSM_DOUBLE,
-	PSM_FINALDBL						/* unused */
+	PSM_FINALDBL					/* unused */
 };
 
 
@@ -855,9 +855,9 @@ typedef struct {
 /* This struct is used to get information from TupletDialog. */
 
 typedef struct {
-	Byte			accNum;				/* Accessory numeral (numerator) for Tuplet */
-	Byte			accDenom;			/* Accessory denominator */
-	short			durUnit;			/* Duration units of denominator */
+	Byte			accNum;			/* Accessory numeral (numerator) for Tuplet */
+	Byte			accDenom;		/* Accessory denominator */
+	short			durUnit;		/* Duration units of denominator */
 	Boolean			numVis:1,
 					denomVis:1,
 					brackVis:1,
@@ -865,22 +865,22 @@ typedef struct {
 } TupleParam;
 
 typedef struct {
-	LINK			next;				/* index of next subobj */
-	LINK			tpSync;				/* link to Sync containing note/chord */
+	LINK			next;			/* index of next subobj */
+	LINK			tpSync;			/* link to Sync containing note/chord */
 } ANOTETUPLE, *PANOTETUPLE;
 
 typedef struct sTuplet {
 	OBJECTHEADER
 	EXTOBJHEADER
-	Byte			accNum;				/* Accessory numeral (numerator) for Tuplet */
-	Byte			accDenom;			/* Accessory denominator */
-	SignedByte		voice;				/* Voice number */
+	Byte			accNum;			/* Accessory numeral (numerator) for Tuplet */
+	Byte			accDenom;		/* Accessory denominator */
+	SignedByte		voice;			/* Voice number */
 	Byte			numVis:1,
 					denomVis:1,
 					brackVis:1,
-					small:2,			/* (unused so far) TRUE to draw in small characters */
+					small:2,		/* (unused so far) TRUE to draw in small characters */
 					filler:3;
-	DDIST			acnxd, acnyd;		/* DDIST position of accNum (now unused) */
+	DDIST			acnxd, acnyd;	/* DDIST position of accNum (now unused) */
 	DDIST			xdFirst, ydFirst,	/* DDIST position of bracket */
 					xdLast, ydLast;
 } TUPLET, *PTUPLET;
@@ -947,8 +947,8 @@ typedef struct {
 	SignedByte	dynamicType;		/* Code for dynamic marking (see enum below) */
 	Boolean		filler:7;
 	Boolean		crossSys:1;			/* (unused) Whether crossSystem */
-	LINK			firstSyncL;		/* Sync dynamic or hairpin start is attached to */
-	LINK			lastSyncL;		/* Sync hairpin end is attached to or NILINK */
+	LINK		firstSyncL;			/* Sync dynamic or hairpin start is attached to */
+	LINK		lastSyncL;			/* Sync hairpin end is attached to or NILINK */
 } DYNAMIC, *PDYNAMIC;
 
 enum {								/* FIXME: NEED MODIFIER BIT(S), E.G. FOR mpp, poco piu f */
@@ -1266,7 +1266,7 @@ typedef struct {
 
 typedef struct {
 	Boolean		visible:1;			/* TRUE if (staffVisible && measureVisible) */
-	Boolean		staffVisible:1;	/* TRUE if staff is visible */
+	Boolean		staffVisible:1;		/* TRUE if staff is visible */
 	Boolean		measureVisible:1;	/* TRUE if measure is visible */
 	Boolean		inMeasure:1;		/* TRUE if currently in measure */
 	Rect		paper;				/* SHEET:	paper rect in window coords */ 
@@ -1325,7 +1325,7 @@ typedef struct {
 typedef struct {
 	long		startTime;				/* Start time in this voice */
 	short		firstStf,				/* First staff occupied by objs in this voice */
-				lastStf;					/* Last staff occupied by objs in this voice */
+				lastStf;				/* Last staff occupied by objs in this voice */
 	unsigned short singleStf:1,			/* Whether voice in this sys is on more than 1 stf */
 				hasV:1,
 				vOK:1,					/* TRUE if there is enough space in voice to merge */
@@ -1412,16 +1412,16 @@ typedef struct {
 typedef struct {
 	LINK objL;
 	LINK subL;
-	LINK newObjL;				/* New objects for updating cross links */
+	LINK newObjL;					/* New objects for updating cross links */
 	LINK newSubL;
-	LINK beamL;					/* Owning links */
+	LINK beamL;						/* Owning links */
 	LINK octL;
 	LINK tupletL;
-	LINK slurFirstL;			/* slurL if sync is first sync */
-	LINK slurLastL;				/* slurL if sync is last sync */
-	LINK tieFirstL;				/* tieL if sync is first sync */
-	LINK tieLastL;				/* tieL if sync is last sync */
-	short	mult;				/* The number of notes in a staff (voice) */
+	LINK slurFirstL;				/* slurL if sync is first sync */
+	LINK slurLastL;					/* slurL if sync is last sync */
+	LINK tieFirstL;					/* tieL if sync is first sync */
+	LINK tieLastL;					/* tieL if sync is last sync */
+	short mult;						/* The number of notes in a staff (voice) */
 	long playDur;
 	long pTime;
 } PTIME;
