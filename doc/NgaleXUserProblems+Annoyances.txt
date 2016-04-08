@@ -1,5 +1,5 @@
 NGALE X CURRENT ANNOYANCES AND PROBLEMS (from user's view)
-Don Byrd, rev. early June 2013 - late March 2016
+Don Byrd, rev. early June 2013 - early April 2016
 
 Ngale versions:
 * "NDAB" = "NightingaleDAB", a version I compiled in Nov. 2009; I think it's the 5.3.0b5 source code -- at least that's what the About box says.
@@ -10,10 +10,6 @@ My MacBook is running OS 10.6.x, my G5 10.5.x.
 
 
 RELATIVELY SERIOUS
-
-- Check Range isn't that useful, a big reason being that it doesn't take into
-account the "Transpose MIDI" command, i.e., it acts as if scores are always
-transposed.
 
 - If a two-voice unison on a chromatic black-key note involves certain combinations of durations, esp. if at least one is a whole note, both noteheads must be visible. That's a problem because then there are likely to be two accidentals much too close together... unless I cheat and omit the accidental from one, but in that case either the MIDI note no. will be inconsistent with the "logical" pitch, or the notes will play back as an augmented unison. The best simple solution is probably to be able to make the accidental invisible, probably via Get Info.
 
@@ -39,6 +35,11 @@ transposed.
 
 
 MOSTLY JUST ANNOYING
+
+- Inasmuch as we have no rights to the Adobe Sonata PostScript font, it
+shouldn't be the default and required font! -- Briard should be.
+
+- Default filenames for files Ngale writes (MIDI, extracted parts, PostScript) should take extensions seriously: instead of "Blah.ngl-Harp", "Blah-Harp.ngl". Fix est. difficulty & impact: low & low.
 
 - Tremolo slashes are often too close to the closest note head (with three or more slashes), & sometimes too close to the end of the stem (when flags are present). Fix est. difficulty & impact: low-medium & low.
 
@@ -156,3 +157,7 @@ not just "3". Fix est. difficulty & impact: easy & very low.
 + Fill Empty Measures should set its default measure range from the selection. Fix est. difficulty & impact: low & low.
 
 + Default ranges for violin & clarinet are too conservative (at the top). Fix est. difficulty & impact: low & low.
+
++ Check Range isn't that useful, a big reason being that it doesn't take into
+account the "Transpose MIDI" command, i.e., it acts as if scores are always
+transposed.

@@ -66,7 +66,7 @@ static void DrawHeaderFooter(Document *doc,
 				xp, yp;
 	short		lxpt, chxpt, rhxpt, cfxpt, rfxpt, hypt, fypt;
 	DDIST		lnSpace;
-	Str255	lhStr, chStr, rhStr, lfStr, cfStr, rfStr;
+	Str255		lhStr, chStr, rhStr, lfStr, cfStr, rfStr;
 
 	p = GetPPAGE(pL);
 	pageNum = p->sheetNum + doc->firstPageNumber;
@@ -179,15 +179,15 @@ static void DrawHeaderFooter(Document *doc,
 /* Draw a page number. */
 
 static void DrawPageNum(Document *doc,
-							LINK pL,					/* PAGE object */
-							Rect *paper,
-							CONTEXT context[])
+						LINK pL,					/* PAGE object */
+						Rect *paper,
+						CONTEXT context[])
 {
-	PPAGE		p;
-	short		pageNum, fontSize, oldFont, oldSize, oldStyle,
-				xpt, ypt, xp, yp, hPosPgn;
-	DDIST		lnSpace;
-	Str31		pageNumStr;
+	PPAGE	p;
+	short	pageNum, fontSize, oldFont, oldSize, oldStyle,
+			xpt, ypt, xp, yp, hPosPgn;
+	DDIST	lnSpace;
+	Str31	pageNumStr;
 
 	p = GetPPAGE(pL);
 	pageNum = p->sheetNum+doc->firstPageNumber;
@@ -212,7 +212,7 @@ static void DrawPageNum(Document *doc,
 		if (doc->alternatePGN && odd(p->sheetNum))
 			hPosPgn = (LEFT_SIDE+RIGHT_SIDE-hPosPgn);
 		if (hPosPgn==LEFT_SIDE) xpt = doc->headerFooterMargins.left;
-		else							xpt = doc->origPaperRect.right-doc->headerFooterMargins.right;
+		else					xpt = doc->origPaperRect.right-doc->headerFooterMargins.right;
 	}
 
 	switch (outputTo) {
@@ -262,13 +262,13 @@ void DrawPAGE(Document *doc, LINK pL, Rect *paper, CONTEXT context[])
 	are specified in paper.  */
 
 void DrawSYSTEM(Document *doc,
-					LINK pL,						/* SYSTEM object */
-					Rect *paper,					/* window coordinates of page */
-					CONTEXT context[])
+				LINK pL,					/* SYSTEM object */
+				Rect *paper,				/* window coordinates of page */
+				CONTEXT context[])
 {
 	short		i;
 	Rect		r,temp;
-	PCONTEXT	pContext;			/* ptr to current context[] entry */
+	PCONTEXT	pContext;					/* ptr to current context[] entry */
 	PSYSTEM		p;
 	STFRANGE	stfRange={0,0};
 	Point		enlarge = {0,0};
@@ -305,7 +305,7 @@ void SetFontFromTEXTSTYLE(Document *doc, TEXTSTYLE *pTextStyle, DDIST lineSpace)
 {
 	short fontInd, fontSize;
 	
-	fontInd = GetFontIndex(doc, pTextStyle->fontName);					/* Should never fail */
+	fontInd = GetFontIndex(doc, pTextStyle->fontName);			/* Should never fail */
 	TextFont(doc->fontTable[fontInd].fontID);
 	
 	fontSize = GetTextSize(pTextStyle->relFSize, pTextStyle->fontSize, lineSpace);
@@ -430,11 +430,11 @@ static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT cont
 		xd = pContext->systemLeft+pt2d(10);
 		yd = context[staffn].staffTop+context[staffn].staffHeight;
 
-		GetIndCString(fmtStrCP, MPGENERAL_STRS, 9);						/* " %s: channel %d patch %d" */
+		GetIndCString(fmtStrCP, MPGENERAL_STRS, 9);				/* " %s: channel %d patch %d" */
 		sprintf(strBuf, fmtStrCP, pPart->name, pPart->channel,
 					pPart->patchNum);
-		GetIndCString(fmtStrB, MPGENERAL_STRS, 7);						/* ", balance %d" */
-		GetIndCString(fmtStrT, MPGENERAL_STRS, 8);						/* ", transpose %d" */
+		GetIndCString(fmtStrB, MPGENERAL_STRS, 7);				/* ", balance %d" */
+		GetIndCString(fmtStrT, MPGENERAL_STRS, 8);				/* ", transpose %d" */
 		if (pPart->partVelocity!=0) sprintf(&strBuf[strlen(strBuf)], fmtStrB,
 					pPart->partVelocity);
 		if (pPart->transpose!=0) sprintf(&strBuf[strlen(strBuf)], fmtStrT,
@@ -468,7 +468,7 @@ static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT cont
 						fontSize = staffHtPixels-3;
 						if (fontSize<1) fontSize = 1;
 						TextSize(fontSize);
-						TextFace(0);											/* Plain */
+						TextFace(0);									/* Plain */
 					}
 					TextMode(srcCopy);
 					
@@ -503,10 +503,10 @@ void Draw1Staff(Document *doc,
 				short ground			/* _STAFF foreground/background code; see enum */
 				)
 {
-	DDIST		yd;
-	short		lines,		/* Number of lines in the staff */
-				line,
-				showLines;
+	DDIST	yd;
+	short	lines,		/* Number of lines in the staff */
+			line,
+			showLines;
 
 	lines = pContext->staffLines;
 	showLines = pContext->showLines;
@@ -592,11 +592,11 @@ void DrawSTAFF(Document *doc, LINK pL, Rect *paper,
 				short hilite
 				)
 {
-	PASTAFF		aStaff;			/* ptr to current sub item */
+	PASTAFF		aStaff;				/* ptr to current sub item */
 	LINK		aStaffL;
 	PSYSTEM		pSystem;
-	PCONTEXT	pContext;		/* ptr to current context[] entry */
-	short		staffn;			/* current staff number */
+	PCONTEXT	pContext;			/* ptr to current context[] entry */
+	short		staffn;				/* current staff number */
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 
@@ -717,7 +717,7 @@ PushLock(CONNECTheap);
 
 		if (doc->masterView)
 			pContext = entire ? &context[LastStaffn(pL)] :
-									&context[stfB=aConnect->staffBelow];	/* ?? */
+									&context[stfB=aConnect->staffBelow];	/* FIXME: ?? */
 		else
 			pContext = entire ? &context[LastStaffn(pL)] :
 									&context[stfB=NextStaffn(doc,pL,FALSE,aConnect->staffBelow)];
@@ -898,10 +898,10 @@ PushLock(CLEFheap);
 				yp = d2p(pContext->staffTop - pContext->staffHalfHeight);
 				yp2=d2p(pContext->staffTop+pContext->staffHeight+pContext->staffHalfHeight);
 				if (drawn) {
-					if (xp<xpObj)		xpObj = xp;
-					if (pt.h>xp2Obj)	xp2Obj = pt.h;
-					if (yp<ypObj)		ypObj = yp;
-					if (yp2>yp2Obj)	yp2Obj = yp2;
+					if (xp<xpObj) xpObj = xp;
+					if (pt.h>xp2Obj) xp2Obj = pt.h;
+					if (yp<ypObj) ypObj = yp;
+					if (yp2>yp2Obj) yp2Obj = yp2;
 				}
 				else {
 					xpObj = xp;
@@ -1003,21 +1003,21 @@ PopLock(KEYSIGheap);
 void DrawTIMESIG(Document *doc, LINK pL, CONTEXT context[])
 {
 	PATIMESIG	aTimeSig;
-	LINK			aTimeSigL;
-	PCONTEXT		pContext;
-	short			subType,
-					npLeft, npRight,		/* left and right pixel coordinates, numerator & denominator */
-					dpLeft, dpRight,
-					npTop, dpTop,
-					left, right,			/* enclosing positions of current subobject */
-					top, bottom;
-	DDIST			xd, yd, xdN, xdD,
-					ydN, ydD;
-	Str31			nStr, dStr;				/* numerator & denominator */
+	LINK		aTimeSigL;
+	PCONTEXT	pContext;
+	short		subType,
+				npLeft, npRight,		/* left and right pixel coordinates, numerator & denominator */
+				dpLeft, dpRight,
+				npTop, dpTop,
+				left, right,			/* enclosing positions of current subobject */
+				top, bottom;
+	DDIST		xd, yd, xdN, xdD,
+				ydN, ydD;
+	Str31		nStr, dStr;				/* numerator & denominator */
 	Boolean		drawn,					/* FALSE until a subobject has been drawn */
-					recalc;					/* TRUE if we need to recalculate object rectangles */
-	Rect			rObj;						/* bounding box */
-	Point			pt;						/* scratch point */
+				recalc;					/* TRUE if we need to recalculate object rectangles */
+	Rect		rObj;					/* bounding box */
+	Point		pt;						/* scratch point */
 
 PushLock(OBJheap);
 PushLock(TIMESIGheap);
@@ -1118,7 +1118,7 @@ void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DDIST yd,
 	DDIST		lnSpace, offset, rise,
 				endxd, endyd, hairThick,
 				sysLeft; 					/* left margin of current system */
-	PADYNAMIC aDynamic;
+	PADYNAMIC	aDynamic;
 	short		xp, yp, endxp, endyp, papyp, papendyp,
 				penThick;					/* vertical pen size in pixels */
 
@@ -1163,7 +1163,7 @@ void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DDIST yd,
 					}
 					if (!LinkVALID(pL) && outputTo==toScreen)
 						GetHairpinBBox(xd, endxd, yd, endyd, rise, offset, DIM_DYNAM,
-																					&LinkOBJRECT(pL));
+																		&LinkOBJRECT(pL));
 					break;
 				case CRESC_DYNAM:
 					xp = d2p(xd); yp = d2p(yd); endxp = d2p(endxd); endyp = d2p(endyd);
@@ -1178,7 +1178,7 @@ void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DDIST yd,
 					}
 					if (!LinkVALID(pL) && outputTo==toScreen)
 						GetHairpinBBox(xd, endxd, yd, endyd, rise, offset, CRESC_DYNAM,
-																					&LinkOBJRECT(pL));
+																		&LinkOBJRECT(pL));
 					break;
 				default:
 					;
@@ -1217,16 +1217,16 @@ void DrawDYNAMIC(
 			Boolean doDraw)		/* TRUE=draw if dynam. is visible, FALSE=never draw */
 {
 	PADYNAMIC	aDynamic;
-	LINK			aDynamicL;
-	short			oldTxSize, useTxSize,
-					sizePercent;	/* Percent of "normal" size to draw in */
-	DDIST			xd, yd,
-					lnSpace;
-	short			xp, yp;			/* pixel coordinates */
-	unsigned char glyph;			/* dynamic symbol */
+	LINK		aDynamicL;
+	short		oldTxSize, useTxSize,
+				sizePercent;	/* Percent of "normal" size to draw in */
+	DDIST		xd, yd,
+				lnSpace;
+	short		xp, yp;			/* pixel coordinates */
+	unsigned char glyph;		/* dynamic symbol */
 	Boolean		drawn;			/* FALSE until a subobject has been drawn */
-	Rect			rSub;				/* bounding boxes for subobject and entire object */
-	PCONTEXT		pContext;
+	Rect		rSub;			/* bounding boxes for subobject and entire object */
+	PCONTEXT	pContext;
 	Boolean		reallyDraw;
 
 PushLock(OBJheap);
@@ -1318,15 +1318,14 @@ PopLock(DYNAMheap);
 
 void DrawRPTEND(Document *doc, LINK pL, CONTEXT context[])
 {
-	DDIST			xd, yd;
-	STFRANGE		stfRange = {0,0};
+	DDIST		xd, yd;
 	Boolean		drawn,
-					dotsOnly;		/* TRUE=don't draw barline proper, only repeat dots */
-	LINK			aRptL;
-	PARPTEND		aRpt;
-	Rect			rSub;
-	PCONTEXT		pContext;
-	short			connStaff;
+				dotsOnly;		/* TRUE=don't draw barline proper, only repeat dots */
+	LINK		aRptL;
+	PARPTEND	aRpt;
+	Rect		rSub;
+	PCONTEXT	pContext;
+	short		connStaff;
 
 PushLock(OBJheap);
 
@@ -1446,7 +1445,7 @@ PushLock(OBJheap);
 
 					TextFont(SYSFONTID_SANSSERIF);
 					TextSize(UseMTextSize(fontSize, doc->magnify));
-					TextFace(0);											/* Plain */
+					TextFace(0);										/* Plain */
 		
 					MoveTo(papLeft+d2p(xdNum), papTop+d2p(ydNum));
 					DrawCString(numStr);
@@ -1469,7 +1468,8 @@ PushLock(OBJheap);
 			if (!p->noRCutoff) PS_Line(endxd, yd, endxd, yd+rise, endThick);
 			if (endNum!=0) {
 				CToPString(numStr);
-				PS_FontString(doc, xdNum, ydNum, (unsigned char *)numStr, "\pTimes", fontSize, 0);
+				PS_FontString(doc, xdNum, ydNum, (unsigned char *)numStr, "\pTimes",
+								fontSize, 0);
 			}
 			break;
 	}
@@ -1487,9 +1487,9 @@ static void DrawEnclosure(Document */*doc*/,
 							PCONTEXT pContext
 							)
 {
-	DDIST		dEnclMargin, dEnclWidthOffset, dEnclThick;
-	short		enclMargin, enclThick;
-	Rect		boxRect;
+	DDIST	dEnclMargin, dEnclWidthOffset, dEnclThick;
+	short	enclMargin, enclThick;
+	Rect	boxRect;
 	
 	dEnclMargin = pt2d(config.enclMargin);
 	dEnclWidthOffset = pt2d(config.enclWidthOffset);
@@ -1522,7 +1522,6 @@ static void DrawEnclosure(Document */*doc*/,
 			}
 			break;
 	}
-			
 }
 
 
@@ -1569,7 +1568,7 @@ Boolean GetGraphicDBox(Document *doc,
 					UseResFile(oldResFile);
 				However, that brings up the second problem. I'm pretty sure that code won't
 				work because the score file isn't actually open at this point! Therefore,
-				the code as written now will _never_ draw a PICT from the score file. ?? */
+				the code as written now will _never_ draw a PICT from the score file. */
 #else
 				picH = (Handle)GetPicture(p->info);
 #endif
@@ -1663,10 +1662,10 @@ void DrawGRPICT(Document */*doc*/,
 			xp = pContext->paper.left + d2p(xd);
 			yp = yTop + d2p(yd);
 			r = (*(PicHandle)picH)->picFrame;
-			width = r.right - r.left;								/* calculate width and height */
+			width = r.right - r.left;						/* calculate width and height */
 			height = r.bottom - r.top;
 			SetRect(&r, 0, 0, width, height);
-			OffsetRect(&r, xp, yp);									/* move into position */
+			OffsetRect(&r, xp, yp);							/* move into position */
 			DrawPicture((PicHandle)picH,  &r);
 			break;
 		case toPostScript:
@@ -1797,7 +1796,7 @@ also recompute its objRect. (I'm not sure if this is documented anywhere, but ou
 UI doesn't support entering strings over 255 chars., so we don't need to support
 longer strings here.  --DAB, Sept. 2015) */
 
-#define SWAP(a, b)	{	short temp; temp = (a); (a) = (b); (b) = temp; }
+#define SWAP(a, b)	{ short temp; temp = (a); (a) = (b); (b) = temp; }
 
 void DrawGRAPHIC(Document *doc,
 				LINK pL,
@@ -2364,7 +2363,7 @@ static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 		fontID = doc->fontTable[fontInd].fontID;
 		fontSize = GetTextSize(doc->relFSizeMN, doc->fontSizeMN, LNSPACE(pContext));
 		GetNPtStringBBox(doc, nStr, fontID, fontSize, doc->fontStyleMN, FALSE, &measNumBox);
-		measNumBox.right += fontSize/4;										/* Pure fudgery */
+		measNumBox.right += fontSize/4;									/* Pure fudgery */
 		PtRect2D(&measNumBox, &dEnclBox);
 		OffsetDRect(&dEnclBox, xdMN, ydMN);
 		DrawEnclosure(doc, doc->enclosureMN, &dEnclBox, pContext);
@@ -2426,12 +2425,12 @@ void DrawBarline(Document *doc,
 					SignedByte subType
 					)
 {
-	PCONTEXT		pContext,		/* ptr to relevant context[] entries */
-					pContext2;
-	short			xp, ypTop, ypBot, betweenBars, thickBarWidth;
-	DDIST			dLeft, dTop, dBottom,	/* top of above staff and bottom of below staff */
-					lnSpace, dashLen,
-					barThick;
+	PCONTEXT	pContext,				/* ptr to relevant context[] entries */
+				pContext2;
+	short		xp, ypTop, ypBot, betweenBars, thickBarWidth;
+	DDIST		dLeft, dTop, dBottom,	/* top of above staff and bottom of below staff */
+				lnSpace, dashLen,
+				barThick;
 	
 	pContext = &context[staff];
 	lnSpace = LNSPACE(pContext);
@@ -2446,7 +2445,7 @@ void DrawBarline(Document *doc,
 	}
 
 	if (connStaff==0) {
-		dBottom = dTop + pContext->staffHeight;						/* Not connected below */
+		dBottom = dTop + pContext->staffHeight;					/* Not connected below */
 		if (pContext->showLines==1) dBottom -= lnSpace;			
 	}
 	else {
@@ -2574,7 +2573,7 @@ PushLock(MEASUREheap);
 		staff = MeasureSTAFF(aMeasureL);
 		pContext = &context[staff];
 		lastContext = pContext;
-		pContext->measureVisible =	pContext->visible = 			/* update context */
+		pContext->measureVisible =	pContext->visible = 		/* update context */
 			(aMeasure->measureVisible && pContext->staffVisible);
 
 		dTop = pContext->measureTop = pContext->staffTop;
@@ -2583,8 +2582,8 @@ PushLock(MEASUREheap);
 		pContext->inMeasure = TRUE;
 
 		pContext->clefType = aMeasure->clefType;
-		pContext->nKSItems = aMeasure->nKSItems;					/* Copy this key sig. */
-		for (k = 0; k<aMeasure->nKSItems; k++)						/*    into the context */
+		pContext->nKSItems = aMeasure->nKSItems;				/* Copy this key sig. */
+		for (k = 0; k<aMeasure->nKSItems; k++)					/*    into the context */
 			pContext->KSItem[k] = aMeasure->KSItem[k];
 		pContext->timeSigType = aMeasure->timeSigType;
 		pContext->numerator = aMeasure->numerator;
@@ -2662,8 +2661,8 @@ PushLock(MEASUREheap);
 				measureNum = aMeasure->measureNum+doc->firstMNNumber;
 				if (FirstMeasInSys(pL) && doc->sysFirstMN)
 					xdMN = pContext->staffLeft+halfLn2d(doc->xSysMNOffset,
-																	pContext->staffHeight,
-																	pContext->staffLines);
+															pContext->staffHeight,
+															pContext->staffLines);
 				else
 					xdMN = dLeft+halfLn2d(doc->xMNOffset, pContext->staffHeight,
 													pContext->staffLines);
@@ -2735,20 +2734,20 @@ PopLock(MEASUREheap);
 
 void DrawPSMEAS(Document *doc, LINK pL, CONTEXT context[])
 {
-	PAPSMEAS		aPSMeas;		/* ptr to current sub item */
-	LINK			aPSMeasL;
-	PCONTEXT		pContext,		/* ptr to relevant context[] entries */
-					pContext2;
-	DRect			aDRect;			/* scratch */
-	Rect			barlineRect;	/* Rect of current barline */
-	short			connStaff;
-	DDIST			dTop, dBottom,	/* top of above staff and bottom of below staff */
-					dLeft,			/* left edge of staff */
-					lnSpace;
-	Boolean			drawn,			/* FALSE until a subobject has been drawn */
-					recalc;			/* TRUE if we need to recalc object's enclosing rectangle */
-	STFRANGE		stfRange = {0,0};
-	Point			enlarge = {0,0};
+	PAPSMEAS	aPSMeas;		/* ptr to current sub item */
+	LINK		aPSMeasL;
+	PCONTEXT	pContext,		/* ptr to relevant context[] entries */
+				pContext2;
+	DRect		aDRect;			/* scratch */
+	Rect		barlineRect;	/* Rect of current barline */
+	short		connStaff;
+	DDIST		dTop, dBottom,	/* top of above staff and bottom of below staff */
+				dLeft,			/* left edge of staff */
+				lnSpace;
+	Boolean		drawn,			/* FALSE until a subobject has been drawn */
+				recalc;			/* TRUE if we need to recalc object's enclosing rectangle */
+	STFRANGE	stfRange = {0,0};
+	Point		enlarge = {0,0};
 
 PushLock(OBJheap);
 PushLock(PSMEASheap);
@@ -2822,23 +2821,23 @@ PopLock(PSMEASheap);
 
 void DrawSLUR(Document *doc, LINK pL, CONTEXT context[])
 {
-	PSLUR			p;
+	PSLUR		p;
 	CONTEXT		localContext;
-	short			j,
-					penThick;				/* vertical pen size in pixels */
-	DDIST			xdFirst, ydFirst,		/* DDIST positions of end notes */
-					xdLast, ydLast,
-					xdCtl0, ydCtl0,		/* and control points */
-					xdCtl1, ydCtl1,
-					lnSpace;
+	short		j,
+				penThick;				/* vertical pen size in pixels */
+	DDIST		xdFirst, ydFirst,		/* DDIST positions of end notes */
+				xdLast, ydLast,
+				xdCtl0, ydCtl0,			/* and control points */
+				xdCtl1, ydCtl1,
+				lnSpace;
 	Point 		startPt[MAXCHORD], endPt[MAXCHORD];
 	DPoint		start, end, c0, c1;
 	PASLUR		aSlur;
-	LINK			aSlurL;
+	LINK		aSlurL;
 	Boolean		drawn,					/* FALSE until a subobject has been drawn */
-					dim;						/* Should it be dimmed bcs in a voice not being looked at? */
-	STFRANGE		stfRange = {0,0};
-	Rect			paper;
+				dim;					/* Should it be dimmed bcs in a voice not being looked at? */
+	STFRANGE	stfRange = {0,0};
+	Rect		paper;
 
 PushLock(OBJheap);
 PushLock(SLURheap);
@@ -2847,7 +2846,7 @@ PushLock(SLURheap);
 	if (!localContext.staffVisible) goto Cleanup;
 	MaySetPSMusSize(doc, &localContext);
 
-	GetSlurContext(doc, pL, startPt, endPt);						/* Get absolute positions, in DPoints */
+	GetSlurContext(doc, pL, startPt, endPt);			/* Get absolute positions, in DPoints */
 	drawn = FALSE;
 	
 	paper = localContext.paper;
@@ -2860,9 +2859,9 @@ PushLock(SLURheap);
 		xdFirst = p2d(aSlur->startPt.h); xdLast = p2d(aSlur->endPt.h);
 		ydFirst = p2d(aSlur->startPt.v); ydLast = p2d(aSlur->endPt.v);
 	
-		xdFirst += aSlur->seg.knot.h;							/* abs. position of slur start */
+		xdFirst += aSlur->seg.knot.h;					/* abs. position of slur start */
 		ydFirst += aSlur->seg.knot.v;
-		xdLast += aSlur->endpoint.h;							/* abs. position of slur end */
+		xdLast += aSlur->endpoint.h;					/* abs. position of slur end */
 		ydLast += aSlur->endpoint.v;
 		
 		switch (outputTo) {

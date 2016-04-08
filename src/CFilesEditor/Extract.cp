@@ -35,7 +35,7 @@ static void		ExtCompactVoiceNums(Document *, short);
 void DCheckSyncs(Document *doc)
 {
 	LINK	pL, aNoteL, aModNRL;
-	int	count;
+	int		count;
 	
 	LogPrintf(LOG_NOTICE, "Checking Syncs...\n");
 
@@ -73,7 +73,7 @@ void DCheckSyncs(Document *doc)
 both in the main object list and in the Master System, to be the same and consistent
 with their contents. This will not work right unless all staves are visible!
 
-The previous version of this function worked much harder to set the heights of the
+An earlier version of this function worked much harder to set the heights of the
 Systems and the Staff and Measure Tops to be consistent with their particular contents.
 This didn't work very well, and there's not much point to it anyway, because the user
 is likely to want to change system breaks--and therefore staff spacing--throughout
@@ -85,9 +85,9 @@ the newly-created part. */
 void ExFixMeasAndSysRects(Document *doc)
 {
 	LINK	staffL, aStaffL, sysL;
-	DDIST staffTop[MAXSTAVES+1];
+	DDIST	staffTop[MAXSTAVES+1];
 	DDIST	topMeasTop, staffTopDiff, oldSysRectBottom, sysRectDiff;
-	short s;
+	short	s;
 
 	/*
 	 * Fill staffTop[] with the current staves' Master Page positions, then adjust all
@@ -97,9 +97,9 @@ void ExFixMeasAndSysRects(Document *doc)
 	FillStaffTopArray(doc, doc->masterHeadL, staffTop);
 	
 	staffL = SSearch(doc->masterHeadL, STAFFtype, GO_RIGHT);
-	aStaffL = FirstSubLINK(staffL);											/* Any staff should work */
+	aStaffL = FirstSubLINK(staffL);									/* Any staff should work */
 	topMeasTop = MEAS_TOP(StaffHEIGHT(aStaffL));
-	topMeasTop += StaffHEIGHT(aStaffL)/STFHALFLNS;						/* Allow a bit extra */
+	topMeasTop += StaffHEIGHT(aStaffL)/STFHALFLNS;					/* Allow a bit extra */
 	staffTopDiff = staffTop[1]-topMeasTop;
 	for (s = 1; s<=doc->nstaves; s++) {
 		staffTop[s] -= staffTopDiff;
@@ -118,7 +118,7 @@ void ExFixMeasAndSysRects(Document *doc)
 	
 	/*
 	 * Adjust Master Page's Staff positions and System height to agree with the
-	 * main object list. ??But we started with Master Page! Surely this is mostly,
+	 * main object list. FIXME: But we started with Master Page! Surely this is mostly,
 	 * perhaps entirely, redundant.
 	 */
 	UpdateStaffTops(doc, doc->masterHeadL, doc->masterTailL, staffTop);
@@ -126,17 +126,18 @@ void ExFixMeasAndSysRects(Document *doc)
 	
 }
 
+
 /* Re-index the staves in the extracted part so that the top staff is number 1.
 Return the change in staff numbers. */
  
 static short ExtMapStaves(Document *doc, Document *newDoc)
 {
-	LINK 		pL,subObjL,aStaffL,aConnectL,aMeasureL,aPseudoMeasL;
+	LINK 		pL, subObjL, aStaffL, aConnectL, aMeasureL, aPseudoMeasL;
 	short		staffDiff;
 	PMEVENT		p;
 	PPARTINFO	pPart;
 	PAMEASURE	aMeasure;
-	PAPSMEAS		aPseudoMeas;
+	PAPSMEAS	aPseudoMeas;
 	PACONNECT	aConnect;
 	GenSubObj 	*subObj;
 	HEAP 		*tmpHeap;
@@ -230,11 +231,13 @@ static short ExtMapStaves(Document *doc, Document *newDoc)
 	return staffDiff;
 }
 
+
 /* Update values in the document header for the part document. */
  
 static void UpdateDocHeader(Document *newDoc)
 {
-	LINK pL,staffL,aStaffL; short nPages=0, nSystems=0, nStaves=0;
+	LINK pL, staffL, aStaffL;
+	short nPages=0, nSystems=0, nStaves=0;
 
 	InstallDoc(newDoc);
 	
@@ -252,25 +255,26 @@ static void UpdateDocHeader(Document *newDoc)
 	newDoc->nsystems = nSystems;
 	newDoc->nstaves = nStaves;
 }
-	
+
+
 /* Select all subobjects in the document that belong to the part, plus others that we
 want in the part even though they "belong" to other parts--for example, some rehearsal
 marks and tempo marks. */
 	
 static void SelectPart(
-					Document *doc,
-					LINK partL,
-					Boolean extractAllGraphics		/* TRUE=put all "appropriate" Graphics in part */
-					)
+				Document *doc,
+				LINK partL,
+				Boolean extractAllGraphics		/* TRUE=put all "appropriate" Graphics in part */
+				)
 {
-	LINK 			pL,subObjL,aStaffL,aConnectL,aSlurL,firstL;
+	LINK 		pL,subObjL,aStaffL,aConnectL,aSlurL,firstL;
 	PASLUR		aSlur;
 	PMEVENT		p;
 	PPARTINFO	pPart;
-	short			firstStf, lastStf;
+	short		firstStf, lastStf;
 	PACONNECT	aConnect;
 	GenSubObj 	*subObj;
-	HEAP 			*tmpHeap;
+	HEAP 		*tmpHeap;
 
 	pPart = GetPPARTINFO(partL);
 	firstStf = pPart->firstStaff;
@@ -340,7 +344,6 @@ static void SelectPart(
 			 *	they're attached to has a subobject in the part.
 			 */
 			case GRAPHICtype:
-
 				/* Page relative graphics go into every part. */
 				if (PageTYPE(GraphicFIRSTOBJ(pL)))
 					LinkSEL(pL) = TRUE;
@@ -375,7 +378,8 @@ static void SelectPart(
 		}
 	}
 }
-	
+
+
 /*
 Delete the initial range (head to first invisible measure) of the new part
 document. Duplicate the head of the score document and then remove all parts
@@ -429,6 +433,7 @@ Done:
 	return okay;
 }
 
+
 /* Copy range from srcStartL to srcEndL into object list at insertL. All copying
 is done from heaps in doc to heaps in doc; the nodes from the part system are all
 allocated from the heaps for that document. */
@@ -478,6 +483,7 @@ Done:
 	return okay;
 }
 
+
 /* Given a score in which all objects and subobjects belonging to the part have
 been selected, copy just those objects and subobjects into the part document. */
 	
@@ -485,6 +491,7 @@ static Boolean CopyPart(Document *score, Document *part, LINK partL)
 {
 	return CopyPartRange(score, part, score->headL, score->tailL, part->tailL, partL);
 }
+
 
 /* Just deselect the entire document. Don't do any unhiliting or anything else. */
 
@@ -518,47 +525,49 @@ static void RPDeselAll(Document *doc)
 		}
 }
 
+
 /* Read the part <partL> from the score document into the part document. */
 
 static short ReadPart(Document *part, Document *score, LINK partL, Boolean *partOK)
-	{
-		LINK firstMeasL; short staffDiff;
-		
-		/*
-		 * For the entire score, select just those subObjs which belong
-		 * to the part to be read, and then copy them.
-		 */
-		InstallDoc(score);
-		
-		/* Avoid problems if, e.g., any Connect subobjs for other parts are selected. */
-		RPDeselAll(score);
-		SelectPart(score,partL, config.extractAllGraphics);
-		*partOK = TRUE;
+{
+	LINK firstMeasL; short staffDiff;
+	
+	/*
+	 * For the entire score, select just those subObjs which belong
+	 * to the part to be read, and then copy them.
+	 */
+	InstallDoc(score);
+	
+	/* Avoid problems if, e.g., any Connect subobjs for other parts are selected. */
+	RPDeselAll(score);
+	SelectPart(score,partL, config.extractAllGraphics);
+	*partOK = TRUE;
 
-		/* If CopyPart fails, return with partOK FALSE. */
-		if (!CopyPart(score,part,partL)) {
-			*partOK = FALSE; return 0;
-		}
-		
-		UpdateDocHeader(part);
-		InstallDoc(score);
-		staffDiff = ExtMapStaves(score,part);
-		InstallDoc(part);
-		InvalRange(part->headL, part->tailL);
-		InstallDoc(score);
-		RPDeselAll(score);
-		
-		firstMeasL = LSSearch(score->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
-		score->selStartL = score->selEndL = firstMeasL;
-
-		InstallDoc(part);
-		RPDeselAll(part);
-
-		firstMeasL = LSSearch(part->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
-		part->selStartL = part->selEndL = firstMeasL;
-		
-		return staffDiff;
+	/* If CopyPart fails, return with partOK FALSE. */
+	if (!CopyPart(score,part,partL)) {
+		*partOK = FALSE; return 0;
 	}
+	
+	UpdateDocHeader(part);
+	InstallDoc(score);
+	staffDiff = ExtMapStaves(score,part);
+	InstallDoc(part);
+	InvalRange(part->headL, part->tailL);
+	InstallDoc(score);
+	RPDeselAll(score);
+	
+	firstMeasL = LSSearch(score->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	score->selStartL = score->selEndL = firstMeasL;
+
+	InstallDoc(part);
+	RPDeselAll(part);
+
+	firstMeasL = LSSearch(part->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	part->selStartL = part->selEndL = firstMeasL;
+	
+	return staffDiff;
+}
+
 	
 /* Copy those fields which should be preserved in the extracted part from the score
 Document into the part Document. */
@@ -887,7 +896,7 @@ static Boolean MultibarRests(Document *doc,
 	okay = TRUE;
 	
 Done:
-	/* ??Is it okay to call FixStructureLinks if arrived from sysMap==NULL failure? */
+	/*  FIXME: Is it okay to call FixStructureLinks if arrived from sysMap==NULL failure? */
 	FixStructureLinks(doc, doc, doc->headL, doc->tailL);
 	if (sysMap) {
 		ExtFixCrossSysSlurs(doc, sysMap, nSys);

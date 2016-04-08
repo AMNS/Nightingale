@@ -29,16 +29,16 @@ static MIDIEvent	eventList[MAXMFEVENTLIST];
 static short		lastEvent;
 
 static long 		qtrNTicks,				/* Ticks per quarter in Nightingale */
-						trackLength,
-						lenPosition;			/* File pos. of length field of current chunk */
-static DoubleWord curTime;
+					trackLength,
+					lenPosition;			/* File pos. of length field of current chunk */
+static DoubleWord	curTime;
 
 static Boolean	WriteChunkStart(DoubleWord, DoubleWord);
 static Boolean	WriteVarLen(DoubleWord);
-Boolean	WriteDeltaTime(DoubleWord);
+Boolean			WriteDeltaTime(DoubleWord);
 
-void		StartNote(short, short, short, long);
-Boolean	EndNote(short, short, long);
+void			StartNote(short, short, short, long);
+Boolean			EndNote(short, short, long);
 
 
 /* -------------------------------------------------------------- WriteChunkStart -- */
@@ -73,20 +73,19 @@ static Boolean WriteVarLen(DoubleWord value)
 
 	buffer = value & 0x7F;
 	while ((value >>= 7) > 0) {
-		buffer <<=8;					/* move byte up one place */
-		buffer |= 0x80;				/* set MSB of lowest byte, next byte of delta value */
-		buffer += (value & 0x7F);	/* put 7-bit value in buffer */
+		buffer <<=8;						/* move byte up one place */
+		buffer |= 0x80;						/* set MSB of lowest byte, next byte of delta value */
+		buffer += (value & 0x7F);			/* put 7-bit value in buffer */
 	}
 
 	byteCount = 1;	
-	while (TRUE)
-	{
-		b = (Byte)buffer;				/* truncate to lowest byte */
+	while (TRUE) {
+		b = (Byte)buffer;					/* truncate to lowest byte */
 		errCode = FSWrite(fRefNum, &byteCount, &b); 
 		trackLength += byteCount;
 		   
 		if (buffer & 0x80) buffer >>= 8;
-		else					 break;
+		else				break;
 	}
 	
 	return (errCode==noError);
@@ -173,7 +172,7 @@ static void WriteTrackEnd()
 }	
 
 static void WriteTempoEvent(
-					unsigned long microsecPQ)	/* tempo in microseconds per quarter-note */
+				unsigned long microsecPQ)	/* tempo in microseconds per quarter-note */
 {
 	long 	byteCount; 
 	Byte	buffer[6];
@@ -220,11 +219,11 @@ static void WriteTSEvent(short numerator, short denominator, short clocksPerBeat
 
 
 static void WriteTextEvent(Byte mEventType,
-									char text[])			/* C string: must be <=255 chars! */
+							char text[])			/* C string: must be <=255 chars! */
 {
-	long 				byteCount; 
+	long 			byteCount; 
 	unsigned char	buffer[259];	/* Be careful: Mixture of binary and char. data! */
-	short				i;
+	short			i;
 	
 	/* Write meta byte, 2 bytes identifying text event subtype, text */
 	buffer[0] = METAEVENT;
@@ -276,9 +275,9 @@ static void WriteNoteOn(Byte channel, Byte noteNum, Byte velocity)
 	WriteNote(MNOTEON+channel-1, noteNum, velocity);
 }
 
-/* Instead of writing Note Offs with default velocity , it would be much better
-to use the note-off velocity Nightingale has stored for each note! Should be
-easy but requires adding off-velocity to the MIDIEvent struct. */
+/* FIXME: Instead of writing Note Offs with default velocity, it would be much better
+to use the note-off velocity Nightingale has stored for each note! Should be easy,
+but requires adding off-velocity to the MIDIEvent struct. */
 
 static void WriteNoteOff(Byte channel, Byte noteNum)
 {
@@ -310,10 +309,8 @@ static Boolean MFSPostMIDISustain(Document *doc, LINK pL, short staffn, Boolean 
 {
 	Boolean posted = FALSE;
 						
-	PGRAPHIC pGraphic = GetPGRAPHIC(pL);
 	short stf = GraphicSTAFF(pL);
-	if (stf > 0 && stf == staffn) 
-	{
+	if (stf > 0 && stf == staffn) {
 		if (susOn) {
 			cmFSSustainOn[stf] = cmFSAllSustainOn[stf] = TRUE;
 		}		
@@ -330,10 +327,8 @@ static Boolean MFSPostMIDIPan(Document *doc, LINK pL, short staffn)
 {
 	Boolean posted = FALSE;
 	
-	PGRAPHIC pGraphic = GetPGRAPHIC(pL);
 	short stf = GraphicSTAFF(pL);
-	if (stf > 0 && stf == staffn) 
-	{
+	if (stf > 0 && stf == staffn) {
 		Byte panSetting = GraphicINFO(pL);
 		cmFSPanSetting[stf] = cmFSAllPanSetting[stf] = panSetting;
 		posted = TRUE;
@@ -398,7 +393,7 @@ static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn
 	Byte ctrlNum = MSUSTAIN;
 	Byte ctrlVal = GetSustainCtrlVal(susOn);
 	
-	LogPrintf(LOG_NOTICE, "WriteAllMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
+	LogPrintf(LOG_NOTICE, "WriteAllMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n", ctrlNum, ctrlVal, startTime);
 	if (susOn) {
 		for (int j = 1; j<=MAXSTAVES; j++) {
 			if (cmFSSustainOn[j]) {
@@ -425,11 +420,9 @@ static void WriteMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, l
 {
 	LINK graphicL = LSSearch(pL, GRAPHICtype, stf, GO_LEFT, FALSE);
 	
-	while (graphicL != NILINK && GraphicFIRSTOBJ(graphicL) == pL) 
-	{
+	while (graphicL != NILINK && GraphicFIRSTOBJ(graphicL) == pL) {
 		if (susOn == TRUE && IsMidiSustainOn(graphicL) ||
-			 susOn == FALSE && IsMidiSustainOff(graphicL)) 
-		{
+			 susOn == FALSE && IsMidiSustainOff(graphicL)) {
 			Byte ctrlNum = MSUSTAIN;
 			Byte ctrlVal = GetSustainCtrlVal(susOn);
 			
@@ -448,8 +441,7 @@ static void WriteMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, l
 static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, long startTime, LINK pL, short stf) 
 {	
 	LINK aNoteL = FirstSubLINK(pL);
-	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) 
-	{
+	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		if (NoteSTAFF(aNoteL) == stf)
 			WriteMIDISustains(doc, partChannel, susOn, startTime, pL, NoteSTAFF(aNoteL));
 	}
@@ -468,11 +460,9 @@ static void WriteAllMIDIPans(Document *doc, Byte *partChannel, long startTime)
 {	
 	Byte ctrlNum = MPAN;
 
-	for (int j = 1; j<=MAXSTAVES; j++) 
-	{
+	for (int j = 1; j<=MAXSTAVES; j++) {
 		Byte ctrlVal = cmFSPanSetting[j];
-		if (ValidPanSetting(ctrlVal))
-		{
+		if (ValidPanSetting(ctrlVal)) {
 			short partn = Staff2Part(doc,j);
 			short channel = partChannel[partn];
 			WriteDeltaTime(startTime);
@@ -487,8 +477,7 @@ static void WriteMIDIPans(Document *doc, Byte *partChannel, long startTime, shor
 	Byte ctrlNum = MPAN;
 
 	Byte ctrlVal = cmFSPanSetting[stf];
-	if (ValidPanSetting(ctrlVal))
-	{
+	if (ValidPanSetting(ctrlVal)) {
 		short partn = Staff2Part(doc,stf);
 		short channel = partChannel[partn];
 		WriteDeltaTime(startTime);
@@ -501,10 +490,8 @@ static void WriteMIDIPans(Document *doc, Byte *partChannel, long startTime, shor
 static void WriteMIDIPans(Document *doc, Byte *partChannel, long startTime, LINK pL, short stf) 
 {	
 	LINK graphicL = LSSearch(pL, GRAPHICtype, stf, GO_LEFT, FALSE);
-	while (graphicL != NILINK && GraphicFIRSTOBJ(graphicL) == pL) 
-	{
-		if (IsMidiPan(graphicL)) 
-		{
+	while (graphicL != NILINK && GraphicFIRSTOBJ(graphicL) == pL) {
+		if (IsMidiPan(graphicL)) {
 			Byte ctrlNum = MPAN;
 			Byte ctrlVal = GraphicINFO(graphicL);
 			
@@ -523,8 +510,7 @@ static void WriteMIDIPans(Document *doc, Byte *partChannel, long startTime, LINK
 static void WriteAllMIDIPans(Document *doc, Byte *partChannel, long startTime, LINK pL, short stf) 
 {	
 	LINK aNoteL = FirstSubLINK(pL);
-	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) 
-	{
+	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		if (NoteSTAFF(aNoteL) == stf)
 			WriteMIDIPans(doc, partChannel, startTime, pL, NoteSTAFF(aNoteL));
 	}
@@ -538,14 +524,14 @@ static Boolean	MFCheckEventList(long);
 /*	Insert the specified note into the event list. */
 
 static Boolean MFInsertEvent(
-						char note,
-						char channel,		/* 1 to MAXCHANNEL */
-						long endTime
-						)
+					char note,
+					char channel,		/* 1 to MAXCHANNEL */
+					long endTime
+					)
 {
-	short			i;
+	short		i;
 	MIDIEvent	*pEvent;
-	char			fmtStr[256];
+	char		fmtStr[256];
 
 	/* Find first free slot in list, which may be at lastEvent (end of list) */
 	
@@ -562,7 +548,7 @@ static Boolean MFInsertEvent(
 	}
 	else {
 		lastEvent--;			
-		GetIndCString(fmtStr, MIDIFILE_STRS, 33);			/* "Nightingale can't save MIDI files with more than %d notes playing at once." */
+		GetIndCString(fmtStr, MIDIFILE_STRS, 33);	/* "Nightingale can't save MIDI files with more than %d notes playing at once." */
 		sprintf(strBuf, fmtStr, MAXMFEVENTLIST); 
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
@@ -579,16 +565,16 @@ static Boolean MFCheckEventList(long time)
 {
 	Boolean		empty;
 	MIDIEvent	*pEvent;
-	short			i;
+	short		i;
 	
 	empty = TRUE;
 	for (i=0, pEvent = eventList; i<lastEvent; i++, pEvent++)
 		if (pEvent->note) {
 			empty = FALSE;
-			if (pEvent->endTime<=time) {											/* note is done */
+			if (pEvent->endTime<=time) {						/* note is done */
 					WriteDeltaTime(time);
 					WriteNoteOff(pEvent->channel, pEvent->note);
-				pEvent->note = 0;													/* slot available now */
+				pEvent->note = 0;								/* slot available now */
 			}
 		}
 
@@ -599,11 +585,11 @@ static Boolean MFCheckEventList(long time)
 /* ----------------------------------------------------------- StartNote, EndNote -- */
 
 void StartNote(
-				short	noteNum,
-				short	channel,			/* 1 to MAXCHANNEL */
-				short	velocity,
-				long	time
-				)
+			short	noteNum,
+			short	channel,			/* 1 to MAXCHANNEL */
+			short	velocity,
+			long	time
+			)
 {
 	if (noteNum>=0) {
 		WriteDeltaTime(time);
@@ -612,10 +598,10 @@ void StartNote(
 }
 
 Boolean EndNote(
-				short	noteNum,
-				short	channel,			/* 1 to MAXCHANNEL */
-				long	endTime
-				)
+			short	noteNum,
+			short	channel,			/* 1 to MAXCHANNEL */
+			long	endTime
+			)
 {
 	return MFInsertEvent(noteNum, channel, endTime);
 }
@@ -632,10 +618,10 @@ static short CheckMeasDur(Document *);
 
 static Boolean WriteTSig(LINK, LINK, long);
 static Boolean WriteTSig(
-						LINK /*timeSigL*/,	/* Time signature object (unused) */
-						LINK aTSL,				/* Time sig. subobject */
-						long absTime
-						)
+					LINK /*timeSigL*/,	/* Time signature object (unused) */
+					LINK aTSL,				/* Time sig. subobject */
+					long absTime
+					)
 {
 	PATIMESIG aTS;
 	short numer, denom, tempDenom, clocksPerBeat;
@@ -645,7 +631,7 @@ static Boolean WriteTSig(
 	denom = aTS->denominator;
 
 	tempDenom = denom;
-	clocksPerBeat = 24*4;								/* 24 is standard/qtr, and 4 qtrs/whole */
+	clocksPerBeat = 24*4;							/* 24 is standard/qtr, and 4 qtrs/whole */
 	while (!odd(tempDenom)) {
 		clocksPerBeat /= 2; tempDenom /= 2;
 	}
@@ -661,17 +647,17 @@ static Boolean WriteTSig(
 /* Write out all timing information, presumably for the timing track. */
 
 static Boolean WriteTiming(
-						Document *doc,
-						long trkLastEndTime		/* The latest ending time for any track */
-						)
+					Document *doc,
+					long trkLastEndTime		/* The latest ending time for any track */
+					)
 {
-	long		prevTSTime=-1L;
-	LINK		pL, aTSL, syncL, syncMeasL;
-	long		measureTime,
-				microbeats,							/* microsec. units per PDUR tick */
-				timeScale,							/* PDUR ticks per minute */
-				tempoTime, prevTempoTime;
-	short 		measNum;
+	long	prevTSTime=-1L;
+	LINK	pL, aTSL, syncL, syncMeasL;
+	long	measureTime,
+			microbeats,							/* microsec. units per PDUR tick */
+			timeScale,							/* PDUR ticks per minute */
+			tempoTime, prevTempoTime;
+	short 	measNum;
 
 	
 	measureTime = 0L;
@@ -746,24 +732,23 @@ static short WriteMFNotes(
 					long		trkLastEndTime			/* The latest ending time for any track */
 					)
 {
-	LINK			pL, aNoteL;
-	LINK			partL, measL, newMeasL;
+	LINK		pL, aNoteL;
+	LINK		partL, measL, newMeasL;
 	PANOTE		aNote;
-	short			i, nZeroVel;
-	short			useNoteNum,
-					useChan, useVelo, partn;
-	long			t,
-					toffset,							/* PDUR start time of 1st note played */
-					playDur,
-					plStartTime, plEndTime,		/* in PDUR ticks */
-					startTime, endTime;
-	PARTINFO		aPart;
-	char			partVelo[MAXSTAVES];
-	Byte			partChannel[MAXSTAVES];
-	short			partTransp[MAXSTAVES];
+	short		i, nZeroVel;
+	short		useNoteNum,
+				useChan, useVelo, partn;
+	long		t,
+				toffset,							/* PDUR start time of 1st note played */
+				playDur,
+				plStartTime, plEndTime,		/* in PDUR ticks */
+				startTime, endTime;
+	PARTINFO	aPart;
+	char		partVelo[MAXSTAVES];
+	Byte		partChannel[MAXSTAVES];
+	short		partTransp[MAXSTAVES];
 	Boolean		anyStaff;
 	
-	Boolean		patchChangePosted = FALSE;
 	Boolean		sustainOnPosted = FALSE;
 	Boolean		sustainOffPosted = FALSE;
 	Boolean		panPosted = FALSE;
@@ -1167,22 +1152,20 @@ static short AnyZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStartS
 }
 
 
-#define SUFINDEX 13
-
-static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
+#define MF_SUFINDEX 13
 
 void SaveMIDIFile(Document *doc)
 {
-	short		firstProblemMeas, len, vRefNum, suffixLen, ch;
-	short		totalZeroVel, startStaff, endStaff, startMeasNum, endMeasNum;
+	short	firstProblemMeas, len, vRefNum, suffixLen, ch;
+	short	totalZeroVel, startStaff, endStaff, startMeasNum, endMeasNum;
 	Str255	filename;
-	char		strFirst[256], strLast[256], fmtStr[256];
+	char	strFirst[256], strLast[256], fmtStr[256];
 
 	firstProblemMeas = CheckMeasDur(doc);
 	if (firstProblemMeas>=0) {
 		sprintf(strBuf, "%d", firstProblemMeas);
 		CParamText(strBuf, "", "", "");
-		CautionInform(SAVEMF_TIMESIG_ALRT);				/* "Score contains measure(s) that have time sig. disagreements..." */
+		CautionInform(SAVEMF_TIMESIG_ALRT);			/* "Score contains measure(s) that have time sig. disagreements..." */
 	}
 
 	/* Do some error checking. NB that passing these checks does not guarantee that
@@ -1221,7 +1204,7 @@ void SaveMIDIFile(Document *doc)
 	 *	be room to append the suffix, we truncate the file name before appending the
 	 *	suffix so that we don't run the risk of overwriting the original score file.
 	 */
-	GetIndString(filename,MiscStringsID,SUFINDEX);	/* Get suffix length */
+	GetIndString(filename,MiscStringsID,MF_SUFINDEX);	/* Get suffix length */
 	suffixLen = *filename;
 
 	/* Get current name and its length, and truncate name to make room for suffix */
@@ -1234,9 +1217,9 @@ void SaveMIDIFile(Document *doc)
 	/* Finally append suffix */
 	
 	ch = filename[len];										/* Hold last character of name */
-	GetIndString(filename+len,MiscStringsID,SUFINDEX);	/* Append suffix, obliterating last char */
+	GetIndString(filename+len,MiscStringsID,MF_SUFINDEX);	/* Append suffix, obliterating last char */
 	filename[len] = ch;										/* Overwrite length byte with saved char */
-	*filename = (len + suffixLen);						/* And ensure new string knows new length */
+	*filename = (len + suffixLen);							/* And ensure new string knows new length */
 	
 	/* Ask user where to put this MIDI file */
 	NSClientData	nscd;
