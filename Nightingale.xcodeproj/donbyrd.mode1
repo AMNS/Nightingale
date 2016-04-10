@@ -185,53 +185,7 @@
 	<key>Notifications</key>
 	<array/>
 	<key>OpenEditors</key>
-	<array>
-		<dict>
-			<key>Content</key>
-			<dict>
-				<key>PBXProjectModuleGUID</key>
-				<string>15CA79251CB6F5D8000A52D1</string>
-				<key>PBXProjectModuleLabel</key>
-				<string>Extract.cp</string>
-				<key>PBXSplitModuleInNavigatorKey</key>
-				<dict>
-					<key>Split0</key>
-					<dict>
-						<key>PBXProjectModuleGUID</key>
-						<string>15CA79281CB6F60B000A52D1</string>
-						<key>PBXProjectModuleLabel</key>
-						<string>Extract.cp</string>
-						<key>_historyCapacity</key>
-						<integer>0</integer>
-						<key>bookmark</key>
-						<string>15B92FAD1CB7EE9900C09AF5</string>
-						<key>history</key>
-						<array>
-							<string>15B92F9E1CB7065E00C09AF5</string>
-							<string>15B92FA31CB71CC000C09AF5</string>
-						</array>
-						<key>prevStack</key>
-						<array>
-							<string>15B92F9F1CB7065E00C09AF5</string>
-						</array>
-					</dict>
-					<key>SplitCount</key>
-					<string>1</string>
-				</dict>
-				<key>StatusBarVisibility</key>
-				<true/>
-			</dict>
-			<key>Geometry</key>
-			<dict>
-				<key>Frame</key>
-				<string>{{0, 20}, {805, 765}}</string>
-				<key>PBXModuleWindowStatusBarHidden2</key>
-				<false/>
-				<key>RubberWindowFrame</key>
-				<string>416 177 805 806 0 0 1920 1058 </string>
-			</dict>
-		</dict>
-	</array>
+	<array/>
 	<key>PerspectiveWidths</key>
 	<array>
 		<integer>-1</integer>
@@ -265,6 +219,8 @@
 			<key>Layout</key>
 			<array>
 				<dict>
+					<key>BecomeActive</key>
+					<true/>
 					<key>ContentConfiguration</key>
 					<dict>
 						<key>PBXBottomSmartGroupGIDs</key>
@@ -309,14 +265,14 @@
 							<key>PBXSmartGroupTreeModuleOutlineStateSelectionKey</key>
 							<array>
 								<array>
-									<integer>42</integer>
+									<integer>74</integer>
 									<integer>15</integer>
 									<integer>3</integer>
 									<integer>0</integer>
 								</array>
 							</array>
 							<key>PBXSmartGroupTreeModuleOutlineStateVisibleRectKey</key>
-							<string>{{0, 0}, {202, 850}}</string>
+							<string>{{0, 833}, {202, 850}}</string>
 						</dict>
 						<key>PBXTopSmartGroupGIDs</key>
 						<array/>
@@ -351,7 +307,7 @@
 								<key>PBXProjectModuleGUID</key>
 								<string>1CE0B20306471E060097A5F4</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>Extract.cp</string>
+								<string>ExtractHighLevel.cp</string>
 								<key>PBXSplitModuleInNavigatorKey</key>
 								<dict>
 									<key>Split0</key>
@@ -359,11 +315,11 @@
 										<key>PBXProjectModuleGUID</key>
 										<string>1CE0B20406471E060097A5F4</string>
 										<key>PBXProjectModuleLabel</key>
-										<string>Extract.cp</string>
+										<string>ExtractHighLevel.cp</string>
 										<key>_historyCapacity</key>
 										<integer>0</integer>
 										<key>bookmark</key>
-										<string>15B92FAC1CB7EE9900C09AF5</string>
+										<string>15B92FC61CB8954C00C09AF5</string>
 										<key>history</key>
 										<array>
 											<string>15CF12CC1BB45C94006FFD1C</string>
@@ -574,9 +530,9 @@
 											<string>15CA79021CB5FD8C000A52D1</string>
 											<string>15CA79031CB5FD8C000A52D1</string>
 											<string>15CA79151CB6F532000A52D1</string>
-											<string>15B92F971CB7065E00C09AF5</string>
 											<string>15B92F981CB7065E00C09AF5</string>
-											<string>15B92FA61CB71CE500C09AF5</string>
+											<string>15B92FB81CB845C700C09AF5</string>
+											<string>15B92FC21CB84A2400C09AF5</string>
 										</array>
 										<key>prevStack</key>
 										<array>
@@ -789,6 +745,7 @@
 											<string>15B92F9A1CB7065E00C09AF5</string>
 											<string>15B92F9B1CB7065E00C09AF5</string>
 											<string>15B92F9C1CB7065E00C09AF5</string>
+											<string>15B92FB91CB845C700C09AF5</string>
 										</array>
 									</dict>
 									<key>SplitCount</key>
@@ -810,8 +767,6 @@
 							<string>578pt</string>
 						</dict>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -963,7 +918,7 @@
 	<key>PerspectivesBarVisible</key>
 	<false/>
 	<key>PinnedNavigatorIdentifier</key>
-	<string>15CA79251CB6F5D8000A52D1</string>
+	<string>15B92FC51CB8951500C09AF5</string>
 	<key>ShelfIsVisible</key>
 	<false/>
 	<key>SourceDescription</key>
@@ -991,7 +946,6 @@
 		<string>15B92F7D1CB6F9AE00C09AF5</string>
 		<string>1C0AD2B3069F1EA900FABCE6</string>
 		<string>1CD10A99069EF8BA00B06720</string>
-		<string>15CA79251CB6F5D8000A52D1</string>
 		<string>/Users/donbyrd/NgaleDev/NightingaleG5Ver/Nightingale.xcodeproj</string>
 	</array>
 	<key>WindowString</key>
@@ -1011,14 +965,12 @@
 					<key>Dock</key>
 					<array>
 						<dict>
-							<key>BecomeActive</key>
-							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
 								<string>1CD0528F0623707200166675</string>
 								<key>PBXProjectModuleLabel</key>
-								<string>Extract.cp</string>
+								<string>ExtractHighLevel.cp</string>
 								<key>StatusBarVisibility</key>
 								<true/>
 							</dict>
@@ -1035,6 +987,8 @@
 							<string>600pt</string>
 						</dict>
 						<dict>
+							<key>BecomeActive</key>
+							<true/>
 							<key>ContentConfiguration</key>
 							<dict>
 								<key>PBXProjectModuleGUID</key>
@@ -1214,12 +1168,14 @@
 							<key>Dock</key>
 							<array>
 								<dict>
+									<key>BecomeActive</key>
+									<true/>
 									<key>ContentConfiguration</key>
 									<dict>
 										<key>PBXProjectModuleGUID</key>
 										<string>1CDD528C0622207200134675</string>
 										<key>PBXProjectModuleLabel</key>
-										<string></string>
+										<string>ExtractHighLevel.cp</string>
 										<key>StatusBarVisibility</key>
 										<true/>
 									</dict>

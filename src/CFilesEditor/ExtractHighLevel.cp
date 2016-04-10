@@ -28,17 +28,18 @@ static enum {
 	SPACEBOX_DI=14
 } E_ExtractItems;
 
+
 /* Maintain state of items subordinate to the Respace and Reformat checkbox. If that
 checkbox is not checked, hide its subordinate edit field, and dim the whole area.
 Otherwise, do the  opposite. We should set the userItems' handle to be a pointer to
 this procedure so it'll be called automatically by the dialog filter. */
 		
 static void DimSpacePanel(DialogPtr dlog,
-									short item)		/* the userItem number */
+							short item)		/* the userItem number */
 {
-	short			type;
+	short		type;
 	Handle		hndl;
-	Rect			box, tempR;
+	Rect		box, tempR;
 	Boolean		checked;
 	
 	checked = GetDlgChkRadio(dlog, REFORMAT_DI);
@@ -55,10 +56,11 @@ static void DimSpacePanel(DialogPtr dlog,
 		PenPat(NGetQDGlobalsGray());
 		PenMode(patBic);	
 		GetDialogItem(dlog, item, &type, &hndl, &box);
-		PaintRect(&box);													/* Dim everything within userItem rect */
+		PaintRect(&box);								/* Dim everything within userItem rect */
 		PenNormal();
 	}
 }
+
 
 /* User Item-drawing procedure to dim subordinate check boxes and text items */
 
@@ -70,7 +72,7 @@ static pascal void UserDimPanel(DialogPtr d, short dItem)
 
 
 static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pSave,
-										Boolean *pReformat, short *pSpacePercent)
+									Boolean *pReformat, short *pSpacePercent)
 {	
 	DialogPtr dlog;
 	short ditem; short radio1, radio2;
@@ -83,7 +85,7 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 	
 	userDimUPP = NewUserItemUPP(UserDimPanel);
 	if (userDimUPP==NULL) {
-		MissingDialog((long)EXTRACT_DLOG);  /* Missleading, but this isn't likely to happen. */
+		MissingDialog((long)EXTRACT_DLOG);  /* Misleading, but this isn't likely to happen. */
 		return FALSE;
 	}
 	filterUPP = NewModalFilterUPP(OKButFilter);
@@ -136,7 +138,7 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 				break;
 			case REFORMAT_DI:
 				PutDlgChkRadio(dlog,REFORMAT_DI,!GetDlgChkRadio(dlog,REFORMAT_DI));
-				InvalWindowRect(GetDialogWindow(dlog),&spacePanelBox);					/* force filter to call DimSpacePanel */
+				InvalWindowRect(GetDialogWindow(dlog),&spacePanelBox);	/* Force filter to call DimSpacePanel */
 				break;
 			case EXTRACTALL_DI:
 			case EXTRACTONE_DI:
@@ -199,7 +201,7 @@ static void NormalizePartFormat(Document *doc)
 	 * for the original score. Now we need to correct staff positions, measureRects
 	 * and systemRects.
 	 */
-	ExFixMeasAndSysRects(doc);												/* OK since all staves are visible */
+	ExFixMeasAndSysRects(doc);									/* OK since all staves are visible */
 }
 					
 
@@ -218,9 +220,9 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 	InitAntikink(doc, doc->headL, doc->tailL);
 	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, FALSE); /* Start at first measure */
 	RespaceBars(doc, pL, doc->tailL,
-					RESFACTOR*(long)spacePercent, FALSE, FALSE);		/* Don't reformat! */
+					RESFACTOR*(long)spacePercent, FALSE, FALSE);	/* Don't reformat! */
 	doc->spacePercent = spacePercent;
-	Antikink();															/* ??SHOULD BE AFTER Reformat! */
+	Antikink();														/* FIXME: SHOULD BE AFTER Reformat! */
 
 	Reformat(doc, RightLINK(doc->headL), doc->tailL,
 				changeSBreaks, (careMeasPerSys? measPerSys : 9999),
@@ -273,7 +275,7 @@ Boolean DoExtract(Document *doc)
 			if (allParts || IsSelPart(partL, selPartList)) {
 				if (CheckAbort()) {
 					ProgressMsg(SKIPPARTS_PMSTR, "");
-					SleepTicks(90L);										/* So user can read the msg */
+					SleepTicks(90L);								/* So user can read the msg */
 					ProgressMsg(0, "");
 					goto Done;
 				}
@@ -284,7 +286,7 @@ Boolean DoExtract(Document *doc)
 				CToPString((char *)name);
 	
 				WaitCursor();
-				/* ??If <doc> has been saved, <doc->vrefnum> seems to be correct, but if
+				/* FIXME: If <doc> has been saved, <doc->vrefnum> seems to be correct, but if
 				it hasn't been, <doc->vrefnum> seems to be zero; I'm not sure if that's safe. */
 				partDoc = CreatePartDoc(doc,name,doc->vrefnum,&doc->fsSpec,partL);
 				if (partDoc) {
@@ -296,12 +298,12 @@ Boolean DoExtract(Document *doc)
 						NormalizePartFormat(partDoc);
 
 					/* Finally, set empty selection just after the first Measure and put caret there.
-						??Will this necessarily be on the screen? */
+						FIXME: Will this necessarily be on the screen? */
 					
 					SetDefaultSelection(partDoc);
 					partDoc->selStaff = 1;
 					
-					MEAdjustCaret(partDoc, FALSE);		// ??AND REMOVE CALL IN CreatePartDoc!
+					MEAdjustCaret(partDoc, FALSE);		// FIXME: AND REMOVE CALL IN CreatePartDoc!
 					AnalyzeWindows();
 					if (closeAndSave)
 						{ if (!DoCloseDocument(partDoc)) keepGoing = FALSE; }

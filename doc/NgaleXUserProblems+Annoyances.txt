@@ -45,8 +45,6 @@ shouldn't be the default and required font! -- Briard should be.
 
 - It'd be helpful if Fill Empty Measures reported how many whole-measure rests it added. Fix est. difficulty & impact: low & low.
 
-- The Check Range command seems to work, but it's hard to see the out-of-range notes it finds. Maybe add to Debug Check to list them -- or report how many & location of the first in Score Info, as we do w/ duration problems & empty measures. Cf. PitchCmds.cp > CheckRange().
-
 - HiliteAttPoints() and HiliteInsertNode() (in UIFUtils.cp) are a real mess.
 Fix est. difficulty & impact: low & low.
 
@@ -156,8 +154,10 @@ not just "3". Fix est. difficulty & impact: easy & very low.
 
 + Fill Empty Measures should set its default measure range from the selection. Fix est. difficulty & impact: low & low.
 
-+ Default ranges for violin & clarinet are too conservative (at the top). Fix est. difficulty & impact: low & low.
-
 + Check Range isn't that useful, a big reason being that it doesn't take into
 account the "Transpose MIDI" command, i.e., it acts as if scores are always
 transposed.
+
++ The Check Range command seems to work, but it's hard to see the out-of-range notes it finds. Report how many & location of the first in Score Info, as we do w/ duration problems & empty measures. Cf. PitchCmds.cp > CheckRange().
+
++ Change default ranges of: +bassoon: top down to Eb; +trumpet in A, Bb, C: top up to D; +cello: top up to C; +double bass: top up to G, bottom down to C.

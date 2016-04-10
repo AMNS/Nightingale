@@ -494,7 +494,7 @@ Minor cleanup. Affects Dragging, Context, etc.
 
 -------------------------------------------------------------------------------
 
-27 Mar.-3 Apr.
+27 Mar.-9 Apr.
 
 Rename the string and _metroStr_ fields of the Tempo object to _strOffset_ and
 _metroStrOffset_. Rename _headerStr_ and _footerStr_ to  _headerStrOffset_ and
@@ -507,9 +507,11 @@ Fix bug: In a C score ("Transpose MIDI" unchecked), some notes are incorrectly c
 out of range because we were assuming the notation was transposed. Affects ScoreInfo,
 PitchCmds.
 
-Make the default top of the clarinet and violin ranges less conservative; change the
-heading on the Instrument dialog from "Transposition and Range" to "Transposition and
-Written Range".
+Make the default top of the cello, double bass and trumpet ranges less conservative; the
+default bottom of the double bass range less conservative; and the default top of the
+bassoon range _more_ conservative. Change the heading on the Instrument dialog from
+"Transposition and Range" to "Transposition and Written Range". Affects .rsrc.
 
-Minor cleanup. Affects HeaderFiooterDialog, InstrDialog, Menu.c, MIDIUtils, ScoreInfo
+Minor cleanup. Affects About, DrawObject, Extract, ExtractHighLevel, HeaderFooterDialog,
+InstrDialog, Menu, MIDIFSave, MIDIUtils, ScoreInfo.
 

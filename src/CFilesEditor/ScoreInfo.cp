@@ -338,7 +338,7 @@ void ScoreInfo()
 				SIDrawLine(s);
 
 				nOutOfRange = SICheckRange(doc, &firstOutOfRange);
-				if (firstOutOfRange>0) {
+				if (nOutOfRange>0) {
 					GetIndCString(fmtStr, SCOREINFO_STRS, 11);   /* "Found %d out-of-range notes (first in measure %d)." */
 			 		sprintf(s, fmtStr, nOutOfRange, firstOutOfRange);
 				}
