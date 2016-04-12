@@ -14,23 +14,23 @@ list (based on time?), e.g., Remove Gaps in Voices, Merge, Create/Remove Tuplet.
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean Check1ContinVoice(Document *,LINK,Boolean [],SPACETIMEINFO *);
+static Boolean Check1ContinVoice(Document *, LINK, Boolean [], SPACETIMEINFO *);
 static void FixObjStfSize(Document *, LINK);
 
-static LINK InsertClJITBefore(Document *doc,LINK pL,LINK newObjL,COPYMAP *mergeMap);
-static LINK InsertClJIPBefore(Document *doc,LINK pL,LINK newObjL,COPYMAP *mergeMap);
-static LINK InsertClJDBefore(Document *doc,LINK pL,LINK newObjL,COPYMAP *mergeMap);
+static LINK InsertClJITBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mergeMap);
+static LINK InsertClJIPBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mergeMap);
+static LINK InsertClJDBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mergeMap);
 
-static void LocateClJITObj(Document *, LINK, LINK, LINK, PTIME *,short,COPYMAP *,short *);
-static void LocateClJIPObj(Document *, LINK, LINK, LINK, PTIME *,short,COPYMAP *,short *);
-static void LocateClGenlJDObj(Document *, LINK, LINK, LINK, LINK, LINK, PTIME *,short,COPYMAP *,
+static void LocateClJITObj(Document *, LINK, LINK, LINK, PTIME *, short, COPYMAP *, short *);
+static void LocateClJIPObj(Document *, LINK, LINK, LINK, PTIME *, short, COPYMAP *, short *);
+static void LocateClGenlJDObj(Document *, LINK, LINK, LINK, LINK, LINK, PTIME *, short,COPYMAP *,
 								short *);
-static void LocateClJDObj(Document *, LINK, LINK, PTIME *,short,COPYMAP *,short *);
+static void LocateClJDObj(Document *, LINK, LINK, PTIME *, short, COPYMAP *, short *);
 
-static void FixSlurLinks(LINK slurL,PTIME *durArray);
-static void FixDynamLinks(LINK dynamL,PTIME *durArray);
-static void FixEndingLinks(LINK endingL,PTIME *durArray);
-static void FixGRDrawLinks(LINK graphicL,PTIME *durArray);
+static void FixSlurLinks(LINK slurL, PTIME *durArray);
+static void FixDynamLinks(LINK dynamL, PTIME *durArray);
+static void FixEndingLinks(LINK endingL, PTIME *durArray);
+static void FixGRDrawLinks(LINK graphicL, PTIME *durArray);
 
 /* --------------------------------------------------------------------------------- */
 /* Reconstruction utilities */
@@ -52,9 +52,9 @@ time of notes in those voices in the given measure; if so, return FALSE. */
 Boolean Check1ContinVoice(Document *doc, LINK measL, Boolean vInSel[],
 									SPACETIMEINFO *spTimeInfo)
 {
-	LINK link,endMeasL; short i,lastNode,v;
+	LINK link, endMeasL; short i, lastNode, v;
 	Boolean first;
-	long startTime,nextlTime;
+	long startTime, nextlTime;
 
 	endMeasL = LinkRMEAS(measL) ? LinkRMEAS(measL) : LeftLINK(doc->tailL);
 	lastNode = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, FALSE);
@@ -197,11 +197,11 @@ void SetPlayDurs(Document */*doc*/, PTIME *durArray, short nInMeas, LINK startMe
 
 /* Set playDur values for the pDurArray from the note's logical duration. */
 
-void SetLDurs(Document *doc,PTIME *durArray,short nInMeas,LINK startMeas,LINK endMeas);
+void SetLDurs(Document *doc, PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas);
 void SetLDurs(Document *doc, PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas)
 {
-	short v,notes;
-	LINK pL,aNoteL;
+	short v, notes;
+	LINK pL, aNoteL;
 	PANOTE aNote;
 	PTIME *pTime;
 
@@ -229,8 +229,8 @@ void SetLDurs(Document *doc, PTIME *durArray, short nInMeas, LINK startMeas, LIN
 short SetPTimes(Document *doc, PTIME *durArray, short nInMeas, SPACETIMEINFO *spTimeInfo,
 													LINK startMeas, LINK endMeas)
 {
-	short j,v,notes,nInMeasure;
-	LINK pL,aNoteL,barLastL;
+	short j, v, notes, nInMeasure;
+	LINK pL, aNoteL, barLastL;
 	PANOTE aNote;
 
 	barLastL = EndMeasSearch(doc, startMeas);
@@ -263,7 +263,8 @@ void SetLinkOwners(PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas)
 	SearchParam pbSearch;
 
 	for (v = 1; v<=MAXVOICES; v++)
-		/* ??Skipping voices that aren't in use could save a lot of time here! */
+		/* Skipping voices that aren't in use could save a lot of time here, but it's
+			probably not worth the trouble. */
 		for (notes=0, pL=startMeas; pL!=endMeas; pL=RightLINK(pL))
 			if (SyncTYPE(pL)) {
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
@@ -1817,8 +1818,8 @@ static void FixGRDrawLinks(LINK graphicL, PTIME *durArray)
 	lastL = GraphicLASTOBJ(graphicL);
 	if (!(SyncTYPE(firstL) || GRSyncTYPE(firstL))
 	||  !(SyncTYPE(lastL) || GRSyncTYPE(lastL)) )
-		MayErrMsg("FixGRDrawLinks: firstObj=%ld or lastObj=%ld isn't a Sync or a GRSync.",
-					(long)firstL, (long)lastL);
+		MayErrMsg("FixGRDrawLinks: for %d, firstObj=%d and/or lastObj=%d isn't a Sync or a GRSync.",
+					graphicL, firstL, lastL);
 	
 	for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 		if (firstL==pTime->objL)
@@ -1831,14 +1832,14 @@ static void FixGRDrawLinks(LINK graphicL, PTIME *durArray)
 				{ lastL = pTime->newObjL; break; }
 }
 
-/* ----------------------------------------------------------------- FixNBJDPtrs -- */
-/* Use the durArray to update slur's firstSyncL and lastSyncL fields for
-all slurs in the range [startL, endL). Really deals with links, not "ptrs"!
-If the spareFlag of the object is set, then the object was copied from the
-clipboard; mergeMap will be used to update its ptrs after all measures are
-copied in. ??I SERIOUSLY DOUBT THIS COMMENT IS ACCURATE. */
 
-void FixNBJDPtrs(LINK startL, LINK endL, PTIME *durArray)
+/* ----------------------------------------------------------------- FixNBJDLinks -- */
+/* Use the durArray to update slur's firstSyncL and lastSyncL fields for all slurs
+in the range [startL, endL). If the spareFlag of the object is set, then the object
+was copied from the clipboard; mergeMap will be used to update its ptrs after all
+measures are copied in. FIXME: I SERIOUSLY DOUBT THAT COMMENT IS ACCURATE.  --DAB */
+
+void FixNBJDLinks(LINK startL, LINK endL, PTIME *durArray)
 {
 	LINK pL;
 	
@@ -1892,11 +1893,11 @@ void FixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray,
 
 	/* NBJD objects which start before and end in the measure being processed
 		will remain in place in the object list, and their firstSyncL/firstObjL
-		will remain valid across the operation. This call to FixNBJDPtrs will
+		will remain valid across the operation. This call to FixNBJDLinks will
 		properly update their lastSyncL/lastObjL field. */
 
 	firstMeasL = SSearch(doc->headL,MEASUREtype,GO_RIGHT);
-	FixNBJDPtrs(firstMeasL, doc->tailL, durArray);
+	FixNBJDLinks(firstMeasL, doc->tailL, durArray);
 }
 
 

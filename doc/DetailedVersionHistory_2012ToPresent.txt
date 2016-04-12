@@ -515,3 +515,15 @@ bassoon range _more_ conservative. Change the heading on the Instrument dialog f
 Minor cleanup. Affects About, DrawObject, Extract, ExtractHighLevel, HeaderFooterDialog,
 InstrDialog, Menu, MIDIFSave, MIDIUtils, ScoreInfo.
 
+-------------------------------------------------------------------------------
+
+11-12 Apr.
+
+Get the string "selected parts" from a resource instead of compiling it in. Affects
+.rsrc; ExtractHighLevel.
+
+Move definition of FILENAME_MAXLEN to a header; use it in SaveNotelist() as well as
+previous use. Affects NLimits.h; NotelistSave.
+
+Minor cleanup. Affects NLimits.h, Reconstruct.h; ExtractHighLevel, File, Menu,
+MergeUtils, NotelistSave, Reconstruct, SelUtils.

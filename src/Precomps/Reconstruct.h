@@ -45,7 +45,7 @@ LINK GetFirstOttava(LINK syncL);
 LINK GetFirstSlur(PTIME *);
 LINK GetBaseLink(Document *doc, short type, LINK startMeasL);
 
-void FixNBJDPtrs(LINK startL, LINK endL, PTIME *durArray);
+void FixNBJDLinks(LINK startL, LINK endL, PTIME *durArray);
 void FixCrossPtrs(Document *, LINK, LINK, PTIME *, PTIME *);
 
 void FixStfAndVoice(LINK pL,short stfDiff,short *vMap);

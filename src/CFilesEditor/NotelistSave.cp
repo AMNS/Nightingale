@@ -592,14 +592,17 @@ static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
 
 #ifdef TARGET_API_MAC_CARBON_FILEIO
 
+/* NB: While the <voice> and <rests> parameters are currently ignored, handling them
+should simply be a matter of passing them on to ProcessScore. */
+
 void SaveNotelist(
 			Document *doc,
-			short /*voice*/,			/* (ignored) voice number, or ANYONE to include all voices */
-			Boolean /*rests*/	 		/* (ignored) TRUE=include rests */
+			short /*voice*/,		/* (ignored) voice number, or ANYONE to include all voices */
+			Boolean /*rests*/	 	/* (ignored) TRUE=include rests */
 			)
 {
-	short		sufIndex;
-	short		len, suffixLen, ch;
+	short sufIndex;
+	short len, suffixLen, ch;
 	Str255	filename, prompt;
 	CFStringRef	nlFileName;
 	NSClientData nsData;
@@ -611,29 +614,28 @@ void SaveNotelist(
 	 *	be room to append the suffix, we truncate the file name before appending the
 	 *	suffix so that we don't run the risk of overwriting the original score file.
 	 */
-	
 	sufIndex = 11;
-	GetIndString(filename,MiscStringsID,sufIndex);			/* Get suffix length */
+	GetIndString(filename, MiscStringsID, sufIndex);				/* Get suffix length */
 	suffixLen = *(StringPtr)filename;
 
 	/* Get current name and its length, and truncate name to make room for suffix */
 	
-	if (doc->named) PStrCopy((StringPtr)doc->name,(StringPtr)filename);
-	else				 GetIndString(filename,MiscStringsID,1);		/* "Untitled" */
+	if (doc->named) PStrCopy((StringPtr)doc->name, (StringPtr)filename);
+	else				 GetIndString(filename, MiscStringsID, 1);		/* "Untitled" */
 	len = *(StringPtr)filename;
-	if (len >= (64-suffixLen)) len = (64-suffixLen);			/* 64 is max file name size */
+	if (len >= (FILENAME_MAXLEN-suffixLen)) len = (FILENAME_MAXLEN-suffixLen);
 	
 	/* Finally append suffix FIXME: with unreadable low-level code: change to PStrCat! */
 	
 	ch = filename[len];										/* Hold last character of name */
-	GetIndString(filename+len,MiscStringsID,sufIndex);		/* Append suffix, obliterating last char */
+	GetIndString(filename+len, MiscStringsID, sufIndex);	/* Append suffix, obliterating last char */
 	filename[len] = ch;										/* Overwrite length byte with saved char */
 	*filename = (len + suffixLen);							/* And ensure new string knows new length */
 	
 	/* Ask user where to put this notelist file */
 	
 	GetIndString(prompt, MiscStringsID, 12);
-	nlFileName = CFStringCreateWithPascalString(NULL,filename,smRoman);
+	nlFileName = CFStringCreateWithPascalString(NULL, filename, smRoman);
 
 	anErr = SaveFileDialog( NULL, nlFileName, 'TEXT', creatorType, &nsData );
 	
@@ -681,7 +683,6 @@ void SaveNotelist(
 	 *	be room to append the suffix, we truncate the file name before appending the
 	 *	suffix so that we don't run the risk of overwriting the original score file.
 	 */
-	
 	sufIndex = 11;
 	GetIndString(filename,MiscStringsID,sufIndex);			/* Get suffix length */
 	suffixLen = *(StringPtr)filename;
@@ -691,12 +692,12 @@ void SaveNotelist(
 	if (doc->named) PStrCopy((StringPtr)doc->name,(StringPtr)filename);
 	else				 GetIndString(filename,MiscStringsID,1);		/* "Untitled" */
 	len = *(StringPtr)filename;
-	if (len >= (64-suffixLen)) len = (64-suffixLen);		/* 64 is max file name size */
+	if (len >= (FILENAME_MAXLEN-suffixLen)) len = (FILENAME_MAXLEN-suffixLen);
 	
 	/* Finally append suffix FIXME: with unreadable low-level code: change to PStrCat! */
 	
 	ch = filename[len];										/* Hold last character of name */
-	GetIndString(filename+len,MiscStringsID,sufIndex);	/* Append suffix, obliterating last char */
+	GetIndString(filename+len, MiscStringsID, sufIndex);	/* Append suffix, obliterating last char */
 	filename[len] = ch;										/* Overwrite length byte with saved char */
 	*filename = (len + suffixLen);							/* And ensure new string knows new length */
 	

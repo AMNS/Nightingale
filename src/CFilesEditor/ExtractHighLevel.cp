@@ -13,7 +13,12 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
+static void DimSpacePanel(DialogPtr dlog, short item);
+static pascal void UserDimPanel(DialogPtr d, short dItem);
 static Boolean ExtractDialog(unsigned char *, Boolean *, Boolean *, Boolean *, short *);
+static void NormalizePartFormat(Document *doc);
+static void ReformatPart(Document *, short, Boolean, Boolean, short);
+static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *name);
 
 /* ------------------------------------------------- ExtractDialog and DoExtract -- */
 
@@ -64,7 +69,6 @@ static void DimSpacePanel(DialogPtr dlog,
 
 /* User Item-drawing procedure to dim subordinate check boxes and text items */
 
-static pascal void UserDimPanel(DialogPtr d, short dItem);
 static pascal void UserDimPanel(DialogPtr d, short dItem)
 {
 	DimSpacePanel(d, dItem);
@@ -177,7 +181,6 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 the same dimensions. For details of what we do to measure and system positions and
 bounding boxes, see comments in ExFixMeasAndSysRects. */
 
-static void NormalizePartFormat(Document *doc);
 static void NormalizePartFormat(Document *doc)
 {
 	LINK pL;
@@ -209,7 +212,6 @@ static void NormalizePartFormat(Document *doc)
 system positions and bounding boxes, reformat to update page breaks, and optionally
 reformat to update system breaks. */
 
-static void ReformatPart(Document *, short, Boolean, Boolean, short);
 static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreaks,
 					Boolean careMeasPerSys, short measPerSys)
 {
@@ -232,12 +234,29 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 }
 
 
-/* Extract parts into separate documents and optionally reformat and/or save them.
-If all goes well, return TRUE; if there's a problem, return FALSE. */
+/* Construct a suitable filename for the given part. */
+
+static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *name)
+{
+	short len;
+	PPARTINFO pPart;
+
+	PToCString(Pstrcpy(name, doc->name));
+	len = strlen((char *)name);
+	strcat((char *)name, "-");
+	pPart = GetPPARTINFO(partL);
+	strcat((char *)name, pPart->name);
+	CToPString((char *)name);
+	return TRUE;						/* For now, always return true */
+}
+
+
+/* Extract part(s) into separate document(s) and optionally reformat and/or save
+it/them. If all goes well, return TRUE; if there's a problem, return FALSE. */
 
 Boolean DoExtract(Document *doc)
 	{
-		Str255 partName, name;
+		Str255 partName, name, str;
 		short spacePercent, numParts;
 		LINK partL; PPARTINFO pPart;
 		LINK selPartList[MAXSTAVES+1];
@@ -246,23 +265,26 @@ Boolean DoExtract(Document *doc)
 		static Boolean allParts=TRUE, closeAndSave=FALSE, reformat=TRUE;
 		static Boolean firstCall=TRUE, careMeasPerSys;
 		static short measPerSys;
-		
-		GetSelPartList(doc, selPartList);
 
+		/* Prepare and run the Extract dialog to find out what user wants */
+		GetSelPartList(doc, selPartList);
 		numParts = CountSelParts(selPartList);
 		if (numParts==1) {
 			partL = selPartList[0];
 			pPart = GetPPARTINFO(partL);
 			strcpy((char *)partName, (strlen(pPart->name)>16? pPart->shortName : pPart->name));
+			CToPString((char *)partName);
 		}
-		else
-			strcpy((char *)partName, "selected parts");		// FIXME: put in STR# rsrc
-		CToPString((char *)partName);
-
+		else {
+			GetIndString(str, MiscStringsID, 18);				/* "selected parts" */
+			Pstrcpy(partName, str);
+		}
 		spacePercent = doc->spacePercent;
 		if (!ExtractDialog(partName, &allParts, &closeAndSave, &reformat, &spacePercent))
 			return FALSE;
 
+		/* Dialog was OK'd: the user really wants one or more parts exxtracted. */
+		
 		if (firstCall) {
 			careMeasPerSys = FALSE; measPerSys = 4; firstCall = FALSE;
 		}
@@ -271,7 +293,6 @@ Boolean DoExtract(Document *doc)
 		
 		partL = FirstSubLINK(doc->headL);
 		for (partL=NextPARTINFOL(partL); partL && keepGoing; partL=NextPARTINFOL(partL)) {
-			
 			if (allParts || IsSelPart(partL, selPartList)) {
 				if (CheckAbort()) {
 					ProgressMsg(SKIPPARTS_PMSTR, "");
@@ -279,16 +300,14 @@ Boolean DoExtract(Document *doc)
 					ProgressMsg(0, "");
 					goto Done;
 				}
-				PToCString(Pstrcpy(name,doc->name));
-				strcat((char *)name,"-");
-				pPart = GetPPARTINFO(partL);
-				strcat((char *)name,pPart->name);
-				CToPString((char *)name);
+				
+				/* Construct filename for the part. */
+				BuildPartFilename(doc, partL, name);
 	
 				WaitCursor();
 				/* FIXME: If <doc> has been saved, <doc->vrefnum> seems to be correct, but if
 				it hasn't been, <doc->vrefnum> seems to be zero; I'm not sure if that's safe. */
-				partDoc = CreatePartDoc(doc,name,doc->vrefnum,&doc->fsSpec,partL);
+				partDoc = CreatePartDoc(doc, name, doc->vrefnum, &doc->fsSpec,partL);
 				if (partDoc) {
 					if (reformat) {
 						ReformatPart(partDoc, spacePercent, TRUE, careMeasPerSys,
@@ -297,8 +316,8 @@ Boolean DoExtract(Document *doc)
 					else
 						NormalizePartFormat(partDoc);
 
-					/* Finally, set empty selection just after the first Measure and put caret there.
-						FIXME: Will this necessarily be on the screen? */
+					/* Finally, set empty selection just after the first Measure, and put
+						caret there, on the top staff if the part has multiple staves. */
 					
 					SetDefaultSelection(partDoc);
 					partDoc->selStaff = 1;
@@ -315,7 +334,7 @@ Boolean DoExtract(Document *doc)
 	
 				/*
 				 *	Installation of correct heaps here is not yet understood. This
-				 *	seems to leave the heaps in the correct state, yet a call to
+				 *	seems always to leave the heaps in the correct state, yet a call to
 				 *	InstallDoc in DoCloseDocument when deleting the undo data
 				 *	structure is required as of implementing this to prevent crashing.
 				 *	It is totally unclear what this code has to do with deleting the undo

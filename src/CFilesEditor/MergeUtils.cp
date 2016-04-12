@@ -1045,9 +1045,9 @@ void MFixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray)
 
 	/* NBJD objects which start before and end in the measure being processed
 		will remain in place in the data structure, and their firstSyncL/firstObjL
-		will remain valid across the operation. This call to FixNBJDPtrs will
+		will remain valid across the operation. This call to FixNBJDLinks will
 		properly update their lastSyncL/lastObjL field. */
 
 	firstMeasL = SSearch(doc->headL,MEASUREtype,GO_RIGHT);
-	FixNBJDPtrs(firstMeasL, doc->tailL, durArray);
+	FixNBJDLinks(firstMeasL, doc->tailL, durArray);
 }

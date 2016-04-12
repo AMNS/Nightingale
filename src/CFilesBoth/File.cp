@@ -121,8 +121,6 @@ font numbers for the Macintosh system we're running on so we can call TextFont. 
 
 extern void EnumerateFonts(Document *doc);
 
-#define MAX_SHORT	32767
-
 static void FillFontTable(Document *doc)
 {
 	short		j;
@@ -965,6 +963,7 @@ static void ShowTops(Document *doc, LINK pL, short staffN1, short staffN2)
 	LogPrintf(LOG_NOTICE, "ShowTops(%d): staffTop1=%d, staffTop2=%d\n", pL, staffTop1, staffTop2);
 }
 
+#ifdef SWAP_STAVES
 static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2);
 static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2)
 {
@@ -1140,6 +1139,7 @@ LogPrintf(LOG_NOTICE, "  Slur L%d\n", pL);
 			break;	
 	}
 }
+#endif
 
 
 static Boolean ModifyScore(Document *doc, long /*fileTime*/)
@@ -2091,11 +2091,7 @@ the extension, though even here some disagree. For other systems, like MacOS and
 it's really unclear what to do: this is particularly unfortunate because if a file
 exists with the resulting name, the calling routine may be planning to overwrite it!
 Return TRUE if we can do the job without truncating the given filename, FALSE if we
-have to truncate (this is the more dangerous case).
-
-??This should be used elsewhere, e.g., DoPostScript, SaveNotelist, NameMFScore. */
-
-#define FILENAME_MAXLEN 31		/* MacOS Finder's limit is 31 */
+have to truncate (this is the more dangerous case). */
 
 Boolean MakeVariantFilename(Str255 filename, char *suffix, Str255 bkpName);
 Boolean MakeVariantFilename(
