@@ -1,6 +1,5 @@
-/* defs.h for Nightingale - general global #defines and enums - rev. for v. 2000. Most
-limits are in NLimits.h. Some other #defines, dependent on _VERSION, are in
-versionStrings. */
+/* defs.h for Nightingale - general global #defines and enums. Limits are in NLimits.h.
+Some other #defines, dependent on _VERSION, are in versionStrings. */
 
 /* ----------------------------------------------------- Miscellaneous global enums -- */
 
@@ -267,6 +266,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 
 #define HILITE_TICKS	12				/* Minimum hiliting time to show user structural relationships */ 
 
+/* Document info for the Mac OS Finder. These are mostly ignored by OS X, so obsolescent. */
 #define DOCUMENT_TYPE_NORMAL 'SCOR'
 #define CREATOR_TYPE_NORMAL 'BYRD'		/* "signature" */
 #define DOCUMENT_TYPE_VIEWER 'SCOV'
@@ -277,18 +277,11 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 /* Some MIDI parameters. Others are in the CNFG resource (and most of these should be
 moved there eventually). */
 
-#define MAXBPM 1200								/* Maximum legal tempo (really qtrs/min., not beats) */
-
 /* When Importing MIDI files... */
 #define MIDI_BASS_TOP (MIDI_MIDDLE_C+4)			/* If avg. noteNum>this, change from bass to treble */
 #define MIDI_TREBLE_BOTTOM (MIDI_MIDDLE_C-3)	/* If avg. noteNum<this, change from treble to bass */
 
-#define MAXEVENTLIST 128						/* Maximum no. of simultaneous notes for Play cmds */
-#define MAXMFEVENTLIST 128						/* Maximum no. of simultaneous notes in MIDI files */
-
 #define DFLT_BEATDUR (32L*PDURUNIT)				/* Quarter-note duration in PDUR ticks */
-
-#define MAX_SAFE_MEASDUR 65500L					/* in PDURticks: cf. ANOTE timeStamp field */
 
 /* Convert PDUR ticks to milliseconds at constant tempo */
 #define PDUR2MS(t, mbeats)	(long)((FASTFLOAT)(mbeats)*(FASTFLOAT)(t)/1000L) 

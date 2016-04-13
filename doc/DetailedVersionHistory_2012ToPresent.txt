@@ -517,13 +517,15 @@ InstrDialog, Menu, MIDIFSave, MIDIUtils, ScoreInfo.
 
 -------------------------------------------------------------------------------
 
-11-12 Apr.
+11-13 Apr.
 
 Get the string "selected parts" from a resource instead of compiling it in. Affects
 .rsrc; ExtractHighLevel.
 
 Move definition of FILENAME_MAXLEN to a header; use it in SaveNotelist() as well as
 previous use. Affects NLimits.h; NotelistSave.
+
+Move definitions of four limits from defs.h to NLimits.h.
 
 Minor cleanup. Affects NLimits.h, Reconstruct.h; ExtractHighLevel, File, Menu,
 MergeUtils, NotelistSave, Reconstruct, SelUtils.

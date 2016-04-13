@@ -1,6 +1,4 @@
-/* NLimits.h for Nightingale - rev. for v. 99
-	A few additional limits related to MIDI are defined in defs.h.
- */
+/* NLimits.h for Nightingale */
 
 /* MacOS 9's limit on filename length was 31 characters; OS X's limit is 255, but
 problems have often been reported with anything over 31 chars. FIXME: FILENAME_MAXLEN
@@ -57,3 +55,7 @@ should be used in several more places, e.g., DoPostScript, SaveNotelist, NameMFS
 
 #define MAX_COMMENT_LEN 255		/* One less than length of <comment> header field */
 
+#define MAXEVENTLIST 128		/* Maximum no. of simultaneous notes for Play cmds */
+#define MAXMFEVENTLIST 128		/* Maximum no. of simultaneous notes in MIDI files */
+#define MAXBPM 1200				/* Maximum legal tempo (really qtrs/min., not beats) */
+#define MAX_SAFE_MEASDUR 65500L	/* in PDURticks: cf. ANOTE timeStamp field */
