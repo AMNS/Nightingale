@@ -136,8 +136,8 @@
 	
 /* DragBeam.c */
 
-	Boolean	FixStemLengths(LINK, DDIST, short);
-	Boolean	FixGRStemLengths(LINK, DDIST, short);
+	Boolean		FixStemLengths(LINK, DDIST, short);
+	Boolean		FixGRStemLengths(LINK, DDIST, short);
 
 	void		DoBeamEdit(Document *, LINK);
 
@@ -173,9 +173,9 @@
 	
 	void		MayErrMsg(char *, ...);
 	void		AlwaysErrMsg(char *, ...);
-	Boolean	ReportIOError(short, short);
-	Boolean	ReportResError(void);
-	Boolean	ReportBadResource(Handle);
+	Boolean		ReportIOError(short, short);
+	Boolean		ReportResError(void);
+	Boolean		ReportBadResource(Handle);
 	void		MissingDialog(short);
 	void		AppleEventError(char *, short);
 
@@ -201,13 +201,13 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* Finalize.c */
 
-	Boolean	CloseSetupFile(void);
+	Boolean		CloseSetupFile(void);
 	void		Finalize(void);
 
 /* FlowInText.c */
 
 	void		DoTextFlowIn(Document *doc);
-	Boolean	SetFlowInText(Ptr pText);
+	Boolean		SetFlowInText(Ptr pText);
 
 /* HairpinEdit.c, DragDynamic.c */
 
@@ -218,9 +218,9 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* HeaderFooterDialog.c */
 
-	Boolean	GetHeaderFooterStrings(Document *, StringPtr, StringPtr, StringPtr,
+	Boolean		GetHeaderFooterStrings(Document *, StringPtr, StringPtr, StringPtr,
 										short, Boolean, Boolean);
-	Boolean	HeaderFooterDialog(Document *);
+	Boolean		HeaderFooterDialog(Document *);
 
 /* HeapFileIO.c */
 
@@ -266,9 +266,9 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* Menu.c */
 
-	Boolean	DoMenu(long menuChoice);
+	Boolean		DoMenu(long menuChoice);
 	void		DoEditMenu(short choice);
-	Boolean	DoFileMenu(short choice);
+	Boolean		DoFileMenu(short choice);
 	void 		DoPlayRecMenu(short choice);
 	void		DoViewMenu(short choice);
 	void		FixMenus(void);
@@ -277,43 +277,39 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 /* MIDIDialogs.c */
 
 	void		MIDIDialog(Document *);
-	Boolean	MIDIThruDialog(void);
+	Boolean		MIDIThruDialog(void);
 	
-	Boolean	MetroDialog(SignedByte *viaMIDI, SignedByte *channel,
-						SignedByte *note, SignedByte *velocity,
-						short *duration);
-	Boolean	FMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel,
-						SignedByte *note, SignedByte *velocity,
-						short *duration, fmsUniqueID *device);
-	Boolean	OMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel,
-						SignedByte *note, SignedByte *velocity,
-						short *duration, OMSUniqueID *device);
-	Boolean	CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel,
-						SignedByte *note, SignedByte *velocity,
-						short *duration, MIDIUniqueID *device);
+	Boolean		MetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
+						SignedByte *velocity, short *duration);
+	Boolean		FMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
+						SignedByte *velocity, short *duration, fmsUniqueID *device);
+	Boolean		OMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
+						SignedByte *velocity, short *duration, OMSUniqueID *device);
+	Boolean		CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
+						SignedByte *velocity, short *duration, MIDIUniqueID *device);
 
-	Boolean	MIDIDynamDialog(Document *, Boolean *);
-	Boolean	MIDIModifierDialog(Document *);
-	Boolean	MIDIDriverDialog(short *pPortSetting, short *pInterfaceSpeed);
-	Boolean MutePartDialog(Document *);
-	Boolean SetPlaySpeedDialog(void);
+	Boolean		MIDIDynamDialog(Document *, Boolean *);
+	Boolean		MIDIModifierDialog(Document *);
+	Boolean		MIDIDriverDialog(short *pPortSetting, short *pInterfaceSpeed);
+	Boolean		MutePartDialog(Document *);
+	Boolean		SetPlaySpeedDialog(void);
 
 /* MIDI File-handling files */
 
 	Boolean	GetTimingTrackInfo(short *, short *, short *, long *);
 	Boolean	GetTrackInfo(short *, short *, Boolean [], short *, Boolean *, long *);
 	Boolean	MFRespAndRfmt(Document *, short);
-	Word		MF2MIDNight(Byte **);
-	short		MIDNight2Night(Document *, TRACKINFO [], short, short, Boolean, Boolean, Boolean,
+	Word	MF2MIDNight(Byte **);
+	short	MIDNight2Night(Document *, TRACKINFO [], short, short, Boolean, Boolean, Boolean,
 			short, long);
-	LINK		NewRestSync(Document *, LINK, short, LINK *);
+	LINK	NewRestSync(Document *, LINK, short, LINK *);
 	Boolean	ReadMFHeader(Byte *, unsigned short *, unsigned short *);
-	Word		ReadTrack(Byte **);
+	Word	ReadTrack(Byte **);
 	Boolean	SetBracketsVis(Document *, LINK, LINK);
 	
 	Boolean	AddTies(Document *, short, LINKTIMEINFO [], short);
 	Boolean	AddTuplets(Document *, short, LINKTIMEINFO [], short);
-	LINK		BuildSyncs(Document *, short, LINKTIMEINFO [], short, NOTEAUX [], short, LINK);
+	LINK	BuildSyncs(Document *, short, LINKTIMEINFO [], short, NOTEAUX [], short, LINK);
 	Boolean	ChooseAllTuplets(Document *, LINKTIMEINFO [], short, short , short, short,
 						MEASINFO [], short);
 	Boolean	ChooseChords(Document *, short, LINKTIMEINFO [], short, short *, NOTEAUX [],
@@ -323,13 +319,13 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	Boolean	ClarAllToTuplets(Document *, short, LINKTIMEINFO [], short, short *, short);
 	Boolean	ClarAllBelowMeas(Document *, short, LINKTIMEINFO [], short, MEASINFO [], short,
 						LINKTIMEINFO [], unsigned short, short *);
-	void		QuantizeAndClip(Document *, short, LINKTIMEINFO [], short *, short);
-	LINK		TranscribeVoice(Document *, short, LINKTIMEINFO [], short, short, NOTEAUX [],
+	void	QuantizeAndClip(Document *, short, LINKTIMEINFO [], short *, short);
+	LINK	TranscribeVoice(Document *, short, LINKTIMEINFO [], short, short, NOTEAUX [],
 						short, short, short, MEASINFO [], short, LINK,
 						LINKTIMEINFO [], unsigned short, short *, short *);
 	
-	void		DPrintMeasTab(char *, MEASINFO [], short);
-	void		DPrintLTIs(char *, LINKTIMEINFO [], short);
+	void	DPrintMeasTab(char *, MEASINFO [], short);
+	void	DPrintLTIs(char *, LINKTIMEINFO [], short);
 
 /* MidiMap.c */
 
@@ -346,7 +342,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	
 /* MIDIRecord.c */
 
-	void		AvoidUnisonsInRange(Document *, LINK, LINK, short);
+	void AvoidUnisonsInRange(Document *, LINK, LINK, short);
 	Boolean	Record(Document *);
 	Boolean	StepRecord(Document *, Boolean);
 	
@@ -377,16 +373,16 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	short		Staff2Part(Document *, short);
 	LINK 		Staff2PartLINK(Document *doc, short nstaff);
 	LINK		Sel2Part(Document *doc);
-	Boolean	DeletePart(Document *, short, short);
+	Boolean		DeletePart(Document *, short, short);
 
 /* PitchCmds.c */
 
 	void		CheckRange(Document *);
-	Boolean	DTranspose(Document *, Boolean, short, short, Boolean);
+	Boolean		DTranspose(Document *, Boolean, short, short, Boolean);
 	void		FlipSelDirection(Document *);
-	Boolean	Respell(Document *);
-	Boolean	Transpose(Document *, Boolean, short, short, short, Boolean);
-	Boolean	TransposeKey(Document *, Boolean, short, short, short, Boolean [],
+	Boolean		Respell(Document *);
+	Boolean		Transpose(Document *, Boolean, short, short, short, Boolean);
+	Boolean		TransposeKey(Document *, Boolean, short, short, short, Boolean [],
 						Boolean, Boolean, Boolean);
 						
 /* Preferences.c */
@@ -409,10 +405,10 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 /* Reformat.c and RfmtDlog.c */
 
 	LINK		BreakSystem(Document *, LINK);
-	Boolean	ReformatDialog(short, short, Boolean *, Boolean *, Boolean *, short *,
+	Boolean		ReformatDialog(short, short, Boolean *, Boolean *, Boolean *, short *,
 						Boolean *, Boolean *, short *, short *);
 	short		Reformat(Document *, LINK, LINK, Boolean, short, Boolean, short, short);
-	Boolean	RespAndRfmtRaw(Document *, LINK, LINK, long);
+	Boolean		RespAndRfmtRaw(Document *, LINK, LINK, long);
 
 /* ScoreInfo.c */
 
@@ -428,7 +424,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 	void		DoMasterSheet(Document *doc);
 	void		DrawSheet(Document *doc, short i, Rect *paper, Rect *vis);
-	Boolean	FindSheet(Document *doc, Point pt, short *sheet);
+	Boolean		FindSheet(Document *doc, Point pt, short *sheet);
 	void		GetAllSheets(Document *doc);
 	short		GetSheetRect(Document *doc, short nSheet, Rect *paper);
 	void		GotoSheet(Document *doc, short i, short drawIt);
@@ -437,8 +433,8 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	void		MagnifyPaper(Rect *paper, Rect *magPaper, short magnify);
 	void		UnmagnifyPaper(Rect *magPaper, Rect *paper, short magnify);
 	void		PickSheetMode(Document *doc, Boolean fromMenu, short sheet);
-	Boolean	ScreenPagesCanOverflow(Document *doc, short magnify, short numSheets);
-	Boolean	ScreenPagesExceedView(Document *doc);
+	Boolean		ScreenPagesCanOverflow(Document *doc, short magnify, short numSheets);
+	Boolean		ScreenPagesExceedView(Document *doc);
 	void		SetCurrentSheet(Document *doc, short sheet, Rect *paper);
 	void		SheetMagnify(Document *doc, short inc);
 	void		WarnScreenPagesOverflow(Document *doc);
@@ -470,9 +466,9 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	char		*PToCString(unsigned char *str);
 	unsigned char *CToPString(char *str);
 	unsigned char *Pstrcpy(unsigned char *dst, const unsigned char *src);
-	Boolean	streql(char *s, char *t);
-	Boolean	Pstreql(unsigned char *s, unsigned char *t);
-	Boolean	strneql(char *s, char *t, short len);
+	Boolean		streql(char *s, char *t);
+	Boolean		Pstreql(unsigned char *s, unsigned char *t);
+	Boolean		strneql(char *s, char *t, short len);
 
 	void		PStrCat(StringPtr, ConstStringPtr);
 	void		PStrCopy(ConstStringPtr, StringPtr);
@@ -481,6 +477,8 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	Boolean		PStrnCmp(ConstStringPtr, ConstStringPtr, short);
 	void		GoodStrncpy(char [256], char [256], unsigned long);
 	Boolean		ExpandString(unsigned char *dstStr, const unsigned char *srcStr, Boolean wider);
+	Boolean		GetFinalSubstring(char *str, char *substr, char delimChar);
+	Boolean		GetInitialSubstring(char *str, char *substr, short len);
 
 /* SysPageEdit.c */
 
@@ -513,13 +511,13 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	
 	void		XLoadTextDialogSeg(void);
 	
-	Boolean	TextDialog(Document *, short *, Boolean *, short *, short *, short *,
-					Boolean *, Boolean *, unsigned char *, unsigned char *, CONTEXT *);
-	Boolean	DefineStyleDialog(Document *, unsigned char *, CONTEXT *);
+	Boolean		TextDialog(Document *, short *, Boolean *, short *, short *, short *,
+						Boolean *, Boolean *, unsigned char *, unsigned char *, CONTEXT *);
+	Boolean		DefineStyleDialog(Document *, unsigned char *, CONTEXT *);
 
 /* ToolPalette.c */
 
-	Boolean	TranslatePalChar(short *, short, Boolean);
+	Boolean		TranslatePalChar(short *, short, Boolean);
 pascal void		DrawToolMenu(Rect *r);
 pascal void		HiliteToolItem(Rect *r, short item);
 pascal short	FindToolItem(Point pt);
@@ -531,17 +529,17 @@ pascal short	FindToolItem(Point pt);
 	void		DoToolGrow(Point pt);
 	void		ChangeToolSize(short across, short down, Boolean doingZoom);
 	void		GetToolZoomBounds(void);
-	Boolean	SaveToolPalette(Boolean inquire);
+	Boolean		SaveToolPalette(Boolean inquire);
 
 /* Transcribe.c (formerly GuessDurs.c) */
 
-	Boolean	AnyOverfullMeasure(Document *);
+	Boolean		AnyOverfullMeasure(Document *);
 	void		DoQuantize(Document *);
 
 /* TrackVMove.c */
 
-	Boolean	InsTrackPitch(Document *, Point, short *, LINK, short, short *, short *,
-						short);
+	Boolean		InsTrackPitch(Document *, Point, short *, LINK, short, short *, short *,
+								short);
 	short		InsTrackUpDown(Document *, Point, short *, LINK, short, short *);
 	void		SetCrossbar(short, short, PCONTEXT);
 	void		InvertCrossbar(Document *);
@@ -562,7 +560,7 @@ pascal short	FindToolItem(Point pt);
 
 /* Windows.c */
 
-	Boolean	ActiveWindow(WindowPtr w);
+	Boolean		ActiveWindow(WindowPtr w);
 	void		AnalyzeWindows(void);
 	short		DoCloseAllDocWindows(void);
 	void		DoCloseWindow(WindowPtr w);
@@ -587,8 +585,8 @@ pascal short	FindToolItem(Point pt);
 
 	LINK		AddNoteToSync(Document *, MNOTE, LINK, SignedByte, short, short, SignedByte,
 						Boolean, long);
-	Boolean	AutoBeam(Document *);
-	Boolean	BuildDocument(Document *doc, unsigned char *fileName, short vRefNum, FSSpec *pfsSpec, long *version, Boolean isNew);
+	Boolean		AutoBeam(Document *);
+	Boolean		BuildDocument(Document *doc, unsigned char *fileName, short vRefNum, FSSpec *pfsSpec, long *version, Boolean isNew);
 	LINK		CreateSync(Document *, MNOTE, LINK *, SignedByte, short, short, SignedByte,
 						Boolean, long);
 	void		DoAboutBox(Boolean first);
@@ -596,20 +594,20 @@ pascal short	FindToolItem(Point pt);
 	void		DoClickErase(Document *doc, Point pt);
 	void		DoClickFrame(Document *doc, Point pt);
 	void		DoClickInsert(Document *doc, Point pt);
-	Boolean	DoEditMaster(Document *doc, Point pt, short modifiers, short dblClick);
-	Boolean	DoEditScore(Document *doc, Point pt, short modifiers, short dblClick);
+	Boolean		DoEditMaster(Document *doc, Point pt, short modifiers, short dblClick);
+	Boolean		DoEditScore(Document *doc, Point pt, short modifiers, short dblClick);
 	void		DoPageSetup(Document *doc);
 	void		DoPrint(Document *doc);
 	void		DoPrintScore(Document *doc);
-	Boolean	DoPostScript(Document *doc);
+	Boolean		DoPostScript(Document *doc);
 	void		DrawDocumentControls(Document *doc);
 	void		DrawDocumentView(Document *doc, Rect *updateRect);
 	void		ExportDeskScrap(void);
-	Boolean	ClipboardChanged(ScrapRef scrap);
+	Boolean		ClipboardChanged(ScrapRef scrap);
 	void		FillMem(Byte, void *, DoubleWord);
 	void		FixCrossSysObjects(Document *, LINK, LINK);
 	void		ImportDeskScrap(void);
-	Boolean	ImportMIDIFile(FSSpec *);
+	Boolean		ImportMIDIFile(FSSpec *);
 	void		MPDrawParams(Document *doc, LINK obj, LINK subObj, short param, short d);
 	void		NSInvisify(Document *doc);
 	void		OffsetSystem(LINK sysL, short dh, short dv);

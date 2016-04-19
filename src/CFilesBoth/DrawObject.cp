@@ -717,7 +717,7 @@ PushLock(CONNECTheap);
 
 		if (doc->masterView)
 			pContext = entire ? &context[LastStaffn(pL)] :
-									&context[stfB=aConnect->staffBelow];	/* FIXME: ?? */
+									&context[stfB=aConnect->staffBelow];
 		else
 			pContext = entire ? &context[LastStaffn(pL)] :
 									&context[stfB=NextStaffn(doc,pL,FALSE,aConnect->staffBelow)];

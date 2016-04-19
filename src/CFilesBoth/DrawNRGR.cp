@@ -683,7 +683,7 @@ static void DrawNoteheadGraph(Document *, unsigned char, Byte, Boolean, DDIST);
 /* Draw a little graph as a notehead: intended to be used to visualize changes during
 the note. This version draws a series of colored bars side by side. FIXME: INSTEAD OF
 appearance, WHICH CAN'T BE MORE THAN 5 BITS (+ 8 IF I ALSO USE THE SPARE BYTE PER NOTE),
-HOW ABOUT USING A NOTE MODIFIER TO CONTROL WHAT'S DRAWN?? I THINK AMODNR HAS A LOT MORE
+HOW ABOUT USING A NOTE MODIFIER TO CONTROL WHAT'S DRAWN? I THINK AMODNR HAS A LOT MORE
 THAN 13 BITS AVAILABLE, & IT SHOULD BE EASY TO GET THE INFO IN VIA NOTELIST! E.G.,
 modCode = 60 => draw graph, OR 61:80 => draw graph OF 1:20 SEGMENTS. */
 
@@ -724,31 +724,34 @@ static void DrawNoteheadGraph(Document *doc,
 //		LineTo(pt.h+12, pt.v+12);
 	xorg = pt.h;
 	yorg = pt.v;
-//		SetRect(&graphRect, xorg, yorg-20, xorg+80, yorg+10);  // ???TESTING
-//		PaintRoundRect(&graphRect, 4, 4);								  // ???TESTING
+//		SetRect(&graphRect, xorg, yorg-20, xorg+80, yorg+10);  // ??TESTING
+//		PaintRoundRect(&graphRect, 4, 4);
 	yTop = yorg-d2p(dhalfLn);
 	yBottom = yorg+d2p(dhalfLn);
 	SetRect(&graphRect, xorg, yorg-d2p(dhalfLn),
 		xorg+graphLen, yorg+d2p(dhalfLn));
 	rDiam = UseMagnifiedSize(4, doc->magnify);
+	
+	/* Code below should all be considered provisional and subject to change for
+		customization or whatever reason. */
 #if 1
-	nSegs = 1;									// ??TEMP
+	nSegs = 1;
 	switch (appearance) {
 		case 1:
-			segColor[1] = blueColor;					// ???TEMP
+			segColor[1] = blueColor;
 			break;
 		case 2:
-			segColor[1] = yellowColor;					// ???TEMP
+			segColor[1] = yellowColor;
 			break;
 		case 3:
-			nSegs = 2;									// ??TEMP
+			nSegs = 2;
 			segColor[1] = magentaColor;
 			segColor[2] = blueColor;
 			break;
 		case 4:
-			segColor[1] = magentaColor;					// ???TEMP
+			segColor[1] = magentaColor;
 		case 5:
-			nSegs = 3;									// ??TEMP
+			nSegs = 3;
 			segColor[1] = magentaColor;
 			segColor[2] = yellowColor;
 			segColor[3] = blueColor;
@@ -802,7 +805,7 @@ static void DrawNoteheadGraph(Document *doc,
 			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam);		
 	}
-	ForeColor(Voice2Color(doc, aNote->voice));				// ??TEMP
+	ForeColor(Voice2Color(doc, aNote->voice));
 
 #if 0
 	SetRect(&graphRect, xorg, yorg-14*d2p(dhalfLn),
@@ -814,24 +817,24 @@ static void DrawNoteheadGraph(Document *doc,
 #else
 	switch (appearance) {
 		case 1:
-			ForeColor(blueColor);									// ???TEMP
+			ForeColor(blueColor);
 			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
 			break;
 		case 2:
-			ForeColor(yellowColor);									// ???TEMP
+			ForeColor(yellowColor);
 			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
 			break;
 		case 3:
 			segRect = graphRect;
 			segRect.right = segRect.left+graphLen/2;
-			ForeColor(magentaColor);								// ???TEMP
+			ForeColor(magentaColor);
 			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&segRect, rDiam, rDiam); 
 			segRect = graphRect;
 			segRect.left = segRect.right-graphLen/2;
-			ForeColor(blueColor);								// ???TEMP
+			ForeColor(blueColor);
 			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&segRect, rDiam, rDiam); 
 			break;
@@ -840,7 +843,7 @@ static void DrawNoteheadGraph(Document *doc,
 			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
 			;
 	}
-	ForeColor(Voice2Color(doc, aNote->voice));				// ??TEMP
+	ForeColor(Voice2Color(doc, aNote->voice));
 #endif
 }
 
@@ -1040,8 +1043,8 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 					 *	In order for stems to line up with any beamsets that have already been
 					 *	drawn, we have to make sure that the order of computation is the same
 					 *	here as when we drew the beams, since we are not depending on any explicit
-					 *	data to enforce registration.  ??CUT NEXT In particular, the conversion from
-					 *	DDISTs to pixels should be done *after* adding the stemspace to the
+					 *	data to enforce registration.  FIXME: CUT NEXT In particular, the conversion
+					 *	from DDISTs to pixels should be done *after* adding the stemspace to the
 					 *	note's left edge position, rather than before, so that we don't get
 					 *	double round-off errors.  This seems to fix the ancient plague of
 					 *	misregistration problems between note stems and their beams at different
@@ -1086,11 +1089,11 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 								while (flagCount-- > 2) {
 									if (stemDown) {
 										DrawMChar(doc, MCH_extendFlagDown, NORMAL_VIS, dim);
-										Move(0, -d2p(FlagLeading(lnSpace))); /* ??HUH? */
+										Move(0, -d2p(FlagLeading(lnSpace))); /* FIXME: HUH? */
 									}
 									else {
 										DrawMChar(doc, MCH_extendFlagUp, NORMAL_VIS, dim);
-										Move(0, d2p(FlagLeading(lnSpace))); /* ??HUH? */
+										Move(0, d2p(FlagLeading(lnSpace))); /* FIXME: HUH? */
 									}
 								}
 							}
@@ -1496,10 +1499,10 @@ void DrawRest(Document *doc,
 				restxd, restyd;
 	Rect		rSub;				/* bounding box for subobject */
 	char		lDur;
-	Boolean	stemDown,
+	Boolean		stemDown,
 				dim;				/* Should it be dimmed bcs in a voice not being looked at? */
 
-	if (doc->pianoroll) return;			/* FIXME: REALLY DO NOTHING, E.G., WITH OBJRECT?? */
+	if (doc->pianoroll) return;			/* FIXME: REALLY DO NOTHING, E.G., WITH OBJRECT? */
 
 PushLock(OBJheap);
 PushLock(NOTEheap);
@@ -2122,11 +2125,11 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 								while (flagCount-- > 2) {
 									if (stemDown) {
 										DrawMChar(doc, MCH_extendFlagDown, NORMAL_VIS, dim);
-										Move(0, -d2p(FlagLeading(lnSpace))); /* ??HUH? */
+										Move(0, -d2p(FlagLeading(lnSpace))); /* FIXME: HUH? */
 									}
 									else {
 										DrawMChar(doc, MCH_extendFlagUp, NORMAL_VIS, dim);
-										Move(0, d2p(FlagLeading(lnSpace))); /* ??HUH? */
+										Move(0, d2p(FlagLeading(lnSpace))); /* FIXME: HUH? */
 									}
 								}
 							}
@@ -2137,9 +2140,9 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 							if (MusFontUpstemFlagsHaveXOffset(doc->musFontInfoIndex))
 								stemSpace = 0;
 
-							MoveTo(xhead+stemSpace, ypStem);								/* x, y of stem end */
+							MoveTo(xhead+stemSpace, ypStem);						/* x, y of stem end */
 
-							if (flagCount==1) {												/* Draw 8th flag. */
+							if (flagCount==1) {										/* Draw 8th flag. */
 								flagGlyph = MapMusChar(doc->musFontInfoIndex,
 																(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
@@ -2157,7 +2160,7 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 									Move(d2p(xoff), d2p(yoff));
 								DrawMChar(doc, flagGlyph, NORMAL_VIS, dim);
 							}
-							else {																/* Draw using multiple flag chars */
+							else {													/* Draw using multiple flag chars */
 								short count = flagCount;
 
 								/* Draw extension flag(s) */
@@ -2404,9 +2407,9 @@ and accidentals. */
 
 void DrawGRSYNC(Document *doc, LINK pL, CONTEXT context[])
 {
-	PAGRNOTE		aGRNote;
-	LINK			aGRNoteL;
-	PCONTEXT		pContext;
+	PAGRNOTE	aGRNote;
+	LINK		aGRNoteL;
+	PCONTEXT	pContext;
 	Boolean		drawn;			/* FALSE until a subobject has been drawn */
 	Boolean		recalc;			/* TRUE if we need to recalc enclosing rectangle */
 	

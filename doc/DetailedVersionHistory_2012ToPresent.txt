@@ -529,3 +529,13 @@ Move definitions of four limits from defs.h to NLimits.h.
 
 Minor cleanup. Affects NLimits.h, Reconstruct.h; ExtractHighLevel, File, Menu,
 MergeUtils, NotelistSave, Reconstruct, SelUtils.
+
+-------------------------------------------------------------------------------
+
+14-18 Apr.
+
+Get with 21st-century conventions by taking filename extensions seriously: put the
+part name in default filenames of extracted parts before the dot instead of at the
+very end. Affects NightTemplates.h; ExtractHighLevel, StringUtils.
+
+Minor cleanup. Affects MemMacros.h; DebugUtils; DrawNRGR; DrawObject, StringUtils.

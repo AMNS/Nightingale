@@ -1,13 +1,9 @@
 /* ExtractHighLevel.c for Nightingale - high-level routines for extracting parts */
 
-/*									NOTICE
- *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Copyright © 2016 by Avian Music Notation Foundation.
+ * All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -234,20 +230,33 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 }
 
 
-/* Construct a suitable filename for the given part. */
-
-static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *name)
+static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *partFName)
 {
-	short len;
-	PPARTINFO pPart;
+	int wantLen;
+	char tmpStr[256], nameStr[256], extStr[32];
+	Boolean okay, tooLong;
 
-	PToCString(Pstrcpy(name, doc->name));
-	len = strlen((char *)name);
-	strcat((char *)name, "-");
-	pPart = GetPPARTINFO(partL);
-	strcat((char *)name, pPart->name);
-	CToPString((char *)name);
-	return TRUE;						/* For now, always return true */
+	/* Convert Pascal to C strings; manipulate C strings, and convert back at the end. */
+	PToCString(Pstrcpy((unsigned char *)tmpStr, doc->name));
+
+	GetFinalSubstring(tmpStr, extStr, '.');
+    wantLen = strlen(tmpStr)-strlen(extStr)-1;				/* -1 to leave out the "." */
+    okay = GetInitialSubstring(tmpStr, nameStr, wantLen);
+LogPrintf(LOG_DEBUG, "1.tmpStr='%s' extStr='%s' nameStr='%s'\n", tmpStr, extStr, nameStr);
+    if (okay) {
+        printf("OK. wantLen=%d name='%s' ext='%s'\n", wantLen, nameStr, extStr);
+    } else
+        printf("Not OK. wantLen=%d.\n", wantLen);
+	strcat(nameStr, "-");
+	strcat(nameStr, PartNAME(partL));
+	strcat(nameStr, ".");
+	strcat(nameStr, extStr);
+LogPrintf(LOG_DEBUG, "2.tmpStr='%s' extStr='%s' nameStr='%s'\n", tmpStr, extStr, nameStr);
+	tooLong = (strlen(nameStr)>FILENAME_MAXLEN);
+	CToPString(nameStr);
+	Pstrcpy(partFName, (unsigned char *)nameStr);
+	
+	return tooLong;
 }
 
 
