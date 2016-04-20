@@ -1,15 +1,11 @@
-/* ScoreInfo.c for Nightingale - rev. for v. 2000 */
+/* ScoreInfo.c for Nightingale */
 
-/*									NOTICE
- *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Copyright © 2016 by Avian Music Notation Foundation.
+ * All Rights Reserved.
  */
-
+ 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
@@ -128,9 +124,10 @@ static short SICheckRange(Document *doc, short *pFirstOutOfRange)
 {
 	LINK pL, partL, aNoteL; PPARTINFO pPart; PANOTE aNote;
 	short firstStaff, lastStaff, hiKeyNum, loKeyNum, nOutOfRange;
-	short transposition, writtenNoteNum;
+	short transposition, writtenNoteNum, firstOutOfRangeMNum, thisMNum;
 	
 	nOutOfRange = 0;
+	firstOutOfRangeMNum = SHRT_MAX;
 	partL = FirstSubLINK(doc->headL);
 	for ( ; partL; partL = NextPARTINFOL(partL)) {
 		pPart = GetPPARTINFO(partL);
@@ -139,7 +136,7 @@ static short SICheckRange(Document *doc, short *pFirstOutOfRange)
 		hiKeyNum = pPart->hiKeyNum;
 		loKeyNum = pPart->loKeyNum;
 		transposition = pPart->transpose;
-LogPrintf(LOG_DEBUG, "SICheckRange: firstStaff=%d loKeyNum=%d hiKeyNum=%d\n", firstStaff, loKeyNum, hiKeyNum);
+		//LogPrintf(LOG_DEBUG, "SICheckRange: firstStaff=%d loKeyNum=%d hiKeyNum=%d\n", firstStaff, loKeyNum, hiKeyNum);
 		for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
 			if (SyncTYPE(pL))
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
@@ -152,7 +149,9 @@ LogPrintf(LOG_DEBUG, "SICheckRange: firstStaff=%d loKeyNum=%d hiKeyNum=%d\n", fi
 						if (!doc->transposed) writtenNoteNum -= transposition;
 						if (writtenNoteNum>hiKeyNum || writtenNoteNum<loKeyNum) {
 							nOutOfRange++;
-							if (nOutOfRange==1) *pFirstOutOfRange = GetMeasNum(doc, pL);
+							thisMNum = GetMeasNum(doc, pL);
+							if (thisMNum<firstOutOfRangeMNum)
+								*pFirstOutOfRange = firstOutOfRangeMNum = thisMNum;
 						}
 					}
 		}
@@ -328,18 +327,18 @@ void ScoreInfo()
 
 				nEmpty = SICheckEmptyMeas(doc, &firstEmpty);
 				if (nEmpty>0) {
-					GetIndCString(fmtStr, SCOREINFO_STRS, 9);   /* "Found %d empty measure(s) (first in measure %d)." */
+					GetIndCString(fmtStr, SCOREINFO_STRS, 9);   /* "%d empty staff-measure(s) (first in measure %d)." */
 			 		sprintf(s, fmtStr, nEmpty, firstEmpty);
 				}
 				else {
-					GetIndCString(fmtStr,  SCOREINFO_STRS, 10);   /* "No empty measures found." */
+					GetIndCString(fmtStr,  SCOREINFO_STRS, 10);   /* "No empty staff-measures found." */
 			 		sprintf(s, fmtStr);
 			 	}
 				SIDrawLine(s);
 
 				nOutOfRange = SICheckRange(doc, &firstOutOfRange);
 				if (nOutOfRange>0) {
-					GetIndCString(fmtStr, SCOREINFO_STRS, 11);   /* "Found %d out-of-range notes (first in measure %d)." */
+					GetIndCString(fmtStr, SCOREINFO_STRS, 11);   /* "%d out-of-range notes (first in measure %d)." */
 			 		sprintf(s, fmtStr, nOutOfRange, firstOutOfRange);
 				}
 				else {
@@ -355,7 +354,7 @@ void ScoreInfo()
 				Str255 fName;
 				FSSpec *fsSpec = (FSSpec *)*doc->midiMapFSSpecHdl;
 				Pstrcpy(fName, fsSpec->name);
-				sprintf(s, "MidiMap %s",PtoCstr(fName));
+				sprintf(s, "MidiMap %s", PtoCstr(fName));
 				SIDrawLine(s);
 			}
 			else {

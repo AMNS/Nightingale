@@ -532,10 +532,16 @@ MergeUtils, NotelistSave, Reconstruct, SelUtils.
 
 -------------------------------------------------------------------------------
 
-14-18 Apr.
+14-20 Apr.
 
 Get with 21st-century conventions by taking filename extensions seriously: put the
 part name in default filenames of extracted parts before the dot instead of at the
 very end. Affects NightTemplates.h; ExtractHighLevel, StringUtils.
 
+Fix bug: For first measure with an out-of-range note, Score Info often gives the wrong
+number. Affects ScoreInfo.
+
+Reword a few of Score Info's messages. Affects .rsrc; ScoreInfo.
+
 Minor cleanup. Affects MemMacros.h; DebugUtils; DrawNRGR; DrawObject, StringUtils.
+
