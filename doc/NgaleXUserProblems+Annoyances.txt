@@ -1,5 +1,5 @@
 NGALE X CURRENT ANNOYANCES AND PROBLEMS (from user's view)
-Don Byrd, rev. early June 2013 - early April 2016
+Don Byrd, rev. early June 2013 - late April 2016
 
 Ngale versions:
 * "NDAB" = "NightingaleDAB", a version I compiled in Nov. 2009; I think it's the 5.3.0b5 source code -- at least that's what the About box says.
@@ -10,6 +10,8 @@ My MacBook is running OS 10.6.x, my G5 10.5.x.
 
 
 RELATIVELY SERIOUS
+
+- It'd be very helpful to be able to set a staff size for extracted parts. Currently they're the same size as the score, but they should usually be larger. This could be a CNFG setting.
 
 - If a two-voice unison on a chromatic black-key note involves certain combinations of durations, esp. if at least one is a whole note, both noteheads must be visible. That's a problem because then there are likely to be two accidentals much too close together... unless I cheat and omit the accidental from one, but in that case either the MIDI note no. will be inconsistent with the "logical" pitch, or the notes will play back as an augmented unison. The best simple solution is probably to be able to make the accidental invisible, probably via Get Info.
 
@@ -25,7 +27,7 @@ RELATIVELY SERIOUS
 
 - Text strings need an optional right-end attachment point; if one has such an attachment point, an extender should go out to it. Not easy, though! Would be especially nice if handled across system breaks, but that'd be even less easy.
 
-- Tempo marks don't always get make it into extracted parts. One situation is where they're attached to a note (necessarily in one part); another when attached to time sigs., which normally have subobjs in every part. From comment in ExtMapStaves(), it looks like we try to always put tempo marks into every part, but clearly we don't succeed.
+- Tempo marks don't always get make it into extracted parts. One situation is where they're attached to a note (necessarily in one part); another when attached to time sigs., which normally have subobjs in every part, or measures, which always do. From comment in ExtMapStaves(), it looks like we try to always put tempo marks into every part, but clearly we don't succeed.
 
 - (all) Both Sonata and BlueNotz on both my MacBook and G5 fail to display the "ff" dynamic on screen; change the font or double-click the "ff" and change to another dynamic => it appears. Exception: "ff" _is_ visible with Sonata in some very small displayed sizes, e.g., staff size 5 at magnification 38% & 50%. (Maybe with BlueNotz also but I'm not sure.) In every other respect including PostScript printing, "ff" behaves fine! It's no problem in Briard. All other dynamics display OK. David G. sez: "It works as it should in v.5.2.6, i.e. pre 5.3.x. I went as far  back in 5.3 as 5.3.0b4 of September 2008, and the bug was there." Cf. Don's NgaleDevelopmentLog.txt for more. If the complete source code for 5.2.6 and 5.3 exist and can be identified as such, this shouldn't be hard to fix! But, if the code exists, it doesn't seem possible to identify.  :-(
 
@@ -39,8 +41,6 @@ MOSTLY JUST ANNOYING
 - Inasmuch as we have no rights to the Adobe Sonata PostScript font, it
 shouldn't be the default and required font! -- Briard should be.
 
-- Default filenames for files Ngale writes (MIDI, extracted parts, PostScript) should take extensions seriously: instead of "Blah.ngl-Harp", "Blah-Harp.ngl". Fix est. difficulty & impact: low & low.
-
 - Tremolo slashes are often too close to the closest note head (with three or more slashes), & sometimes too close to the end of the stem (when flags are present). Fix est. difficulty & impact: low-medium & low.
 
 - It'd be helpful if Fill Empty Measures reported how many whole-measure rests it added. Fix est. difficulty & impact: low & low.
@@ -48,13 +48,13 @@ shouldn't be the default and required font! -- Briard should be.
 - HiliteAttPoints() and HiliteInsertNode() (in UIFUtils.cp) are a real mess.
 Fix est. difficulty & impact: low & low.
 
-- It'd be helpful to have a check for instruments that come in after a long rest without a dynamic mark. Probably add to Debug Check (list occurrences), or report how many & location of the first in Score Info
+- It'd be helpful to have a check for instruments that come in after a long rest without a dynamic mark. Probably add to Debug Check (list occurrences), or report how many & location of the first in Score Info .
 
 - Space objects aren't very useful because they tend to add far more space than the width of the space object. This is probably because they're justification type J_IT; they should be J_IP. Fix est. difficulty & impact: low & low.
 
-- Paste Merge of even just a few notes often causes error messages of the form
+- Paste Merge of even just a few notes sometimes causes error messages of the form
 	FixGRDrawLinks: firstObj=1111 or lastObj=1115 isn't a Sync or a GRSync.
-...but works perfectly otherwise, and it doesn't look like the LINKs given (1111 and 1115 here) have anything to do with the situation!
+...but it works perfectly otherwise, and it doesn't look like the LINKs given (1111 and 1115 here) have anything to do with the situation!
 
 - (all) Message (STR 271 = PRINTERRS_STRS, #2) "Some line(s) are so thin that they may not reproduce well" could/should be much more specific; probably should change to "Some line(s) are thinner than 0.xxx in. and may not reproduce well."; preferably also say how to thicken 'em. Affects CarbonPrinting: NDoPostScript(); PS_Stdio. Fix est. impact: very low.  Cf. LineWidthsForSmallPrinting.txt.
 
@@ -161,3 +161,5 @@ transposed.
 + The Check Range command seems to work, but it's hard to see the out-of-range notes it finds. Report how many & location of the first in Score Info, as we do w/ duration problems & empty measures. Cf. PitchCmds.cp > CheckRange().
 
 + Change default ranges of: +bassoon: top down to Eb; +trumpet in A, Bb, C: top up to D; +cello: top up to C; +double bass: top up to G, bottom down to C.
+
++ Default filenames for files Ngale writes (mostly extracted parts) should take extensions seriously: instead of "Blah.ngl-Harp", "Blah-Harp.ngl". Fix est. difficulty & impact: low & low.

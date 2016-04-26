@@ -1,4 +1,4 @@
-DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 thru Feb. 2016
+DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 thru April 2016
 
 (Most of the files in my Ngale Carbon code base have last modification dates of April or
 May 2012; a few files are 2 June 2012, and it looks like that's the last source code I
@@ -1363,3 +1363,16 @@ a chord for piano in 3rdMovementFS.ngl, m. 32 => "FixGRDrawLinks: for 1155,
 firstObj=1157 or lastObj=1161 isn't a Sync or a GRSync." True, while 1157 is a Sync,
 1161 is a Measure. Still, this makes no sense! The GRDraw Graphic w/ LINK 1155 is in
 m. 89. ??
+
+-------------------------------------------------------------------------------
+
+20-21 April
+
+We want extracted parts to have a different staff size from the score; staves in parts
+should usually be larger! UI could be a new Config field, or -- probably better and
+definitely lower impact -- entered in the Extract dialog. (Having both would be useful,
+but low priority.) Re functionality, cf. Extract > CopyDocFields(); is it just a matter
+of setting part->srastral to a different value? Nope! That doesn't result in updating
+the actual size of each staff, H and V coords. of everything, etc. Ah, MasterPage >
+DoMasterStfSize() seems to do everything needed.
+

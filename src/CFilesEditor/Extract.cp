@@ -1,13 +1,9 @@
 /* Extract.c for Nightingale - Extract parts - revised for v.3.5  */
 
-/*									NOTICE
- *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Copyright © 2016 by Avian Music Notation Foundation.
+ * All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -22,6 +18,7 @@ static Boolean	CopyPartInfo(Document *, Document *, LINK);
 static Boolean	CopyPartRange(Document *, Document *, LINK, LINK, LINK, LINK);
 static Boolean	CopyPart(Document *score, Document *part, LINK partL);
 static void		CopyDocFields(Document *part, Document *score);
+static void		RPDeselAll(Document *);
 static short	ReadPart(Document *part, Document *score, LINK partL, Boolean *partOK);
 static Boolean	MakeMultibarRest(Document *, LINK, LINK, short, short, COPYMAP *, short);
 static void		SetupSysCopyMap(Document *, COPYMAP **, short *);
@@ -29,6 +26,7 @@ static void		ExtFixCrossSysSlurs(Document *, COPYMAP *, short);
 static Boolean	MultibarRests(Document *, short, Boolean);
 static void		FixMeasures(Document *);
 static void		ExtCompactVoiceNums(Document *, short);
+static void		FixConnects(Document *);
 
 
 #ifndef PUBLIC_VERSION
@@ -202,7 +200,7 @@ static short ExtMapStaves(Document *doc, Document *newDoc)
 				p = GetPMEVENT(pL);
 				
 				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
-					subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
+					subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 					subObj->staffn -= staffDiff;
 				}	
 				break;
@@ -219,7 +217,7 @@ static short ExtMapStaves(Document *doc, Document *newDoc)
 				/* 
 				 * Some objects (e.g., tempo marks) go into the part regardless of whether
 				 * they belong to any of its staves, but we have to be careful that they
-				 * end up with a legal staff number in the part--say, 1.
+				 * end up with a legal staff number in the part -- say, 1.
 				 */
 				if (((PEXTEND)p)->staffn<1 || ((PEXTEND)p)->staffn>pPart->lastStaff)
 					((PEXTEND)p)->staffn = 1;
@@ -323,7 +321,7 @@ static void SelectPart(
 				tmpHeap = doc->Heap + ObjLType(pL);
 				
 				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
-					subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
+					subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 					if (subObj->staffn>=firstStf && subObj->staffn<=lastStf) {
 						LinkSEL(pL) = TRUE;
 						subObj->selected = TRUE;
@@ -441,7 +439,7 @@ allocated from the heaps for that document. */
 static Boolean CopyPartRange(Document *doc, Document *newDoc, LINK srcStartL,
 										LINK srcEndL, LINK insertL, LINK partL)
 {
-	LINK pL,prevL,copyL,initL; short i,numObjs; COPYMAP *partMap;
+	LINK pL, prevL, copyL, initL; short i, numObjs; COPYMAP *partMap;
 	Boolean okay=TRUE;
 
 	if (!SetupCopyMap(srcStartL, srcEndL, &partMap, &numObjs)) {
@@ -495,7 +493,6 @@ static Boolean CopyPart(Document *score, Document *part, LINK partL)
 
 /* Just deselect the entire document. Don't do any unhiliting or anything else. */
 
-static void RPDeselAll(Document *);
 static void RPDeselAll(Document *doc)
 {
 	LINK pL;
@@ -573,82 +570,82 @@ static short ReadPart(Document *part, Document *score, LINK partL, Boolean *part
 Document into the part Document. */
 
 void CopyDocFields(register Document *score, register Document *part)
-	{
-		short s;
-		
-		/*	fields in DOCUMENTHEADER */
+{
+	short s;
+	
+	/*	fields in DOCUMENTHEADER */
 
-		part->paperRect = score->paperRect;
-		part->origPaperRect = score->origPaperRect;
-		part->holdOrigin = score->holdOrigin;
-		part->marginRect = score->marginRect;
-		part->headerFooterMargins = score->headerFooterMargins;
-		part->currentSheet = score->currentSheet;
+	part->paperRect = score->paperRect;
+	part->origPaperRect = score->origPaperRect;
+	part->holdOrigin = score->holdOrigin;
+	part->marginRect = score->marginRect;
+	part->headerFooterMargins = score->headerFooterMargins;
+	part->currentSheet = score->currentSheet;
 
-		part->firstSheet = score->firstSheet;
-		part->firstPageNumber = score->firstPageNumber;
-		part->startPageNumber = score->startPageNumber;
-		part->numRows = score->numRows;
-		part->numCols = score->numCols;
-		part->pageType = score->pageType;
-		part->measSystem = score->measSystem;
-		part->currentPaper = score->currentPaper;
-		part->landscape = score->landscape;
+	part->firstSheet = score->firstSheet;
+	part->firstPageNumber = score->firstPageNumber;
+	part->startPageNumber = score->startPageNumber;
+	part->numRows = score->numRows;
+	part->numCols = score->numCols;
+	part->pageType = score->pageType;
+	part->measSystem = score->measSystem;
+	part->currentPaper = score->currentPaper;
+	part->landscape = score->landscape;
 
-		/* From NIGHTSCOREHEADER */
+	/* From NIGHTSCOREHEADER */
 
-		part->feedback = score->feedback;
-		part->polyTimbral = score->polyTimbral;
-		part->spacePercent = score->spacePercent;
-		part->srastral = score->srastral;
-		part->tempo = score->tempo;
-		part->channel = score->channel;
-		part->velocity = score->velocity;
-		part->otherIndent = score->otherIndent;
-		part->firstNames = score->firstNames;
-		part->otherNames = score->otherNames;
-		part->lastGlobalFont = score->lastGlobalFont;
-		part->xMNOffset = score->xMNOffset;
-		part->yMNOffset = score->yMNOffset;
-		part->xSysMNOffset = score->xSysMNOffset;
-		part->aboveMN = score->aboveMN;
-		part->sysFirstMN = score->sysFirstMN;
-		part->firstMNNumber = score->firstMNNumber;
+	part->feedback = score->feedback;
+	part->polyTimbral = score->polyTimbral;
+	part->spacePercent = score->spacePercent;
+	part->srastral = score->srastral;
+	part->tempo = score->tempo;
+	part->channel = score->channel;
+	part->velocity = score->velocity;
+	part->otherIndent = score->otherIndent;
+	part->firstNames = score->firstNames;
+	part->otherNames = score->otherNames;
+	part->lastGlobalFont = score->lastGlobalFont;
+	part->xMNOffset = score->xMNOffset;
+	part->yMNOffset = score->yMNOffset;
+	part->xSysMNOffset = score->xSysMNOffset;
+	part->aboveMN = score->aboveMN;
+	part->sysFirstMN = score->sysFirstMN;
+	part->firstMNNumber = score->firstMNNumber;
 
-		/* Copy font information & fontTable from score header. */
+	/* Copy font information & fontTable from score header. */
 
-		part->nFontRecords = score->nFontRecords;
-		BlockMove(score->fontNameMN,part->fontNameMN,
-						(Size)score->nFontRecords*sizeof(TEXTSTYLE));
+	part->nFontRecords = score->nFontRecords;
+	BlockMove(score->fontNameMN,part->fontNameMN,
+					(Size)score->nFontRecords*sizeof(TEXTSTYLE));
 
-		BlockMove(score->fontTable,part->fontTable,
-						(Size)MAX_SCOREFONTS*sizeof(FONTITEM));
+	BlockMove(score->fontTable,part->fontTable,
+					(Size)MAX_SCOREFONTS*sizeof(FONTITEM));
 
-		part->magnify = score->magnify;
-		part->nfontsUsed = score->nfontsUsed;
-		part->numberMeas = score->numberMeas;
-		part->spaceTable = score->spaceTable;
-		part->htight = score->htight;
-		part->deflamTime = score->deflamTime;
-		part->autoRespace = score->autoRespace;
-		part->insertMode = score->insertMode;
+	part->magnify = score->magnify;
+	part->nfontsUsed = score->nfontsUsed;
+	part->numberMeas = score->numberMeas;
+	part->spaceTable = score->spaceTable;
+	part->htight = score->htight;
+	part->deflamTime = score->deflamTime;
+	part->autoRespace = score->autoRespace;
+	part->insertMode = score->insertMode;
 
-		part->beamRests = score->beamRests;
-		part->pianoroll = score->pianoroll;
-		part->showSyncs = score->showSyncs;
-		part->frameSystems = score->frameSystems;
-		part->colorVoices = score->colorVoices;
-		part->showInvis = score->showInvis;
-		part->recordFlats = score->recordFlats;
-		
-		BlockMove(score->spaceMap,part->spaceMap,(Size)MAX_L_DUR*sizeof(long));
+	part->beamRests = score->beamRests;
+	part->pianoroll = score->pianoroll;
+	part->showSyncs = score->showSyncs;
+	part->frameSystems = score->frameSystems;
+	part->colorVoices = score->colorVoices;
+	part->showInvis = score->showInvis;
+	part->recordFlats = score->recordFlats;
+	
+	BlockMove(score->spaceMap,part->spaceMap,(Size)MAX_L_DUR*sizeof(long));
 
-		part->firstIndent = score->firstIndent;
-		part->yBetweenSys = score->yBetweenSys;
+	part->firstIndent = score->firstIndent;
+	part->yBetweenSys = score->yBetweenSys;
 
-		for (s = 0; s<=MAXSTAVES; s++)
-			part->staffSize[s] = score->staffSize[s];
-	}
+	for (s = 0; s<=MAXSTAVES; s++)
+		part->staffSize[s] = score->staffSize[s];
+}
 
 
 /* Replace the range [firstL, lastL), which should contain no content objects other
@@ -911,196 +908,195 @@ Done:
 they actually connect to in the part. */
 
 static void FixMeasures(Document *doc)
-	{
-		LINK pL, aMeasureL, aPSMeasL, aRptEndL;
-		
-		for (pL = doc->headL; pL; pL = RightLINK(pL))
-			switch (ObjLType(pL)) {
-				case MEASUREtype:
-					aMeasureL = FirstSubLINK(pL);
-					for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
-						if (MeasureSTAFF(aMeasureL)<=1) {
-							MeasCONNABOVE(aMeasureL) = FALSE;
-							MeasCONNSTAFF(aMeasureL) = (doc->nstaves>1? doc->nstaves : 0);
-							}
-						else {
-							MeasCONNABOVE(aMeasureL) = TRUE;
-							MeasCONNSTAFF(aMeasureL) = 0;
-							}
-					}
-					break;
-				case PSMEAStype:
-					aPSMeasL = FirstSubLINK(pL);
-					for ( ; aPSMeasL; aPSMeasL=NextPSMEASL(aPSMeasL)) {
-						if (PSMeasSTAFF(aPSMeasL)<=1) {
-							PSMeasCONNABOVE(aPSMeasL) = FALSE;
-							PSMeasCONNSTAFF(aPSMeasL) = (doc->nstaves>1? doc->nstaves : 0);
-							}
-						else {
-							PSMeasCONNABOVE(aPSMeasL) = TRUE;
-							PSMeasCONNSTAFF(aPSMeasL) = 0;
-							}
-					}
-					break;
-				case RPTENDtype:
-					aRptEndL = FirstSubLINK(pL);
-					for ( ; aRptEndL; aRptEndL=NextRPTENDL(aRptEndL)) {
-						if (RptEndSTAFF(aRptEndL)<=1) {
-							RptEndCONNABOVE(aRptEndL) = FALSE;
-							RptEndCONNSTAFF(aRptEndL) = (doc->nstaves>1? doc->nstaves : 0);
-							}
-						else {
-							RptEndCONNABOVE(aRptEndL) = TRUE;
-							RptEndCONNSTAFF(aRptEndL) = 0;
-							}
-					}
-					break;
-				default:
-					;
-			}
-	}
+{
+	LINK pL, aMeasureL, aPSMeasL, aRptEndL;
+	
+	for (pL = doc->headL; pL; pL = RightLINK(pL))
+		switch (ObjLType(pL)) {
+			case MEASUREtype:
+				aMeasureL = FirstSubLINK(pL);
+				for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
+					if (MeasureSTAFF(aMeasureL)<=1) {
+						MeasCONNABOVE(aMeasureL) = FALSE;
+						MeasCONNSTAFF(aMeasureL) = (doc->nstaves>1? doc->nstaves : 0);
+						}
+					else {
+						MeasCONNABOVE(aMeasureL) = TRUE;
+						MeasCONNSTAFF(aMeasureL) = 0;
+						}
+				}
+				break;
+			case PSMEAStype:
+				aPSMeasL = FirstSubLINK(pL);
+				for ( ; aPSMeasL; aPSMeasL=NextPSMEASL(aPSMeasL)) {
+					if (PSMeasSTAFF(aPSMeasL)<=1) {
+						PSMeasCONNABOVE(aPSMeasL) = FALSE;
+						PSMeasCONNSTAFF(aPSMeasL) = (doc->nstaves>1? doc->nstaves : 0);
+						}
+					else {
+						PSMeasCONNABOVE(aPSMeasL) = TRUE;
+						PSMeasCONNSTAFF(aPSMeasL) = 0;
+						}
+				}
+				break;
+			case RPTENDtype:
+				aRptEndL = FirstSubLINK(pL);
+				for ( ; aRptEndL; aRptEndL=NextRPTENDL(aRptEndL)) {
+					if (RptEndSTAFF(aRptEndL)<=1) {
+						RptEndCONNABOVE(aRptEndL) = FALSE;
+						RptEndCONNSTAFF(aRptEndL) = (doc->nstaves>1? doc->nstaves : 0);
+						}
+					else {
+						RptEndCONNABOVE(aRptEndL) = TRUE;
+						RptEndCONNSTAFF(aRptEndL) = 0;
+						}
+				}
+				break;
+			default:
+				;
+		}
+}
 
 /* Update voice numbers of objects in the Document so they start at 1 and there are
 no gaps, and create a voice-mapping table that reflects the new situation. Does not
 assume the existing voice-mapping table is accurate. */
  
 static void ExtCompactVoiceNums(Document *doc, short staffDiff)
-	{
-		short newVoiceTab[MAXVOICES+1], v, vNew;
-		
-		/*
-		 *	First, offset voice numbers to reduce the lowest to 1. Then create the
-		 *	standard (internal-to-user) voice-mapping table and use it to construct
-		 *	a special table that maps existing to desired voice numbers, closing up
-		 *	any gaps. If we do close any gaps, that will make the standard voice-mapping
-		 *	table wrong, so we update it again at the end of the end of this function.
-		 */
-		OffsetVoiceNums(doc, 1, -staffDiff);
-		BuildVoiceTable(doc, TRUE);
-		for (vNew = v = 1; v<=MAXVOICES; v++)
-			newVoiceTab[v] = (doc->voiceTab[v].partn>0? vNew++ : 0);
-				
-		/* Use the special table to change voice numbers throughout the object list. */
-		MapVoiceNums(doc, newVoiceTab);
-		
-		/* Could call UpdateVoiceTable again but this should be faster & maybe more robust. */
-		for (v = 1; v<=MAXVOICES; v++)
-			if (newVoiceTab[v]>0 && newVoiceTab[v]!=v) {
-				doc->voiceTab[newVoiceTab[v]] = doc->voiceTab[v];
-				doc->voiceTab[v].partn = 0;							/* Mark the old slot as empty */
-			}
-	}
+{
+	short newVoiceTab[MAXVOICES+1], v, vNew;
+	
+	/*
+	 *	First, offset voice numbers to reduce the lowest to 1. Then create the
+	 *	standard (internal-to-user) voice-mapping table and use it to construct
+	 *	a special table that maps existing to desired voice numbers, closing up
+	 *	any gaps. If we do close any gaps, that will make the standard voice-mapping
+	 *	table wrong, so we update it again at the end of the end of this function.
+	 */
+	OffsetVoiceNums(doc, 1, -staffDiff);
+	BuildVoiceTable(doc, TRUE);
+	for (vNew = v = 1; v<=MAXVOICES; v++)
+		newVoiceTab[v] = (doc->voiceTab[v].partn>0? vNew++ : 0);
+			
+	/* Use the special table to change voice numbers throughout the object list. */
+	MapVoiceNums(doc, newVoiceTab);
+	
+	/* Could call UpdateVoiceTable again but this should be faster & maybe more robust. */
+	for (v = 1; v<=MAXVOICES; v++)
+		if (newVoiceTab[v]>0 && newVoiceTab[v]!=v) {
+			doc->voiceTab[newVoiceTab[v]] = doc->voiceTab[v];
+			doc->voiceTab[v].partn = 0;							/* Mark the old slot as empty */
+		}
+}
 
 
 /* Correct positions of part brackets in Connect subobjects, since grouping in the
 score might have positioned them further to the left than the part needs. */
 
-static void FixConnects(Document *);
 static void FixConnects(Document *doc)
-	{
-		LINK pL, aConnectL; PACONNECT aConnect;
-		
-		for (pL = doc->headL; pL; pL = RightLINK(pL))
-			if (ConnectTYPE(pL)) {
-				aConnectL = FirstSubLINK(pL);
-				for ( ; aConnectL; aConnectL=NextCONNECTL(aConnectL)) {
-					/* Assume the PartLevel subobj is the only one besides the SystemLevel. */
-					aConnect = GetPACONNECT(aConnectL);					
-					if (aConnect->connLevel==PartLevel)
-						aConnect->xd = -ConnectDWidth(doc->srastral, CONNECTCURLY);
-				}
+{
+	LINK pL, aConnectL; PACONNECT aConnect;
+	
+	for (pL = doc->headL; pL; pL = RightLINK(pL))
+		if (ConnectTYPE(pL)) {
+			aConnectL = FirstSubLINK(pL);
+			for ( ; aConnectL; aConnectL=NextCONNECTL(aConnectL)) {
+				/* Assume the PartLevel subobj is the only one besides the SystemLevel. */
+				aConnect = GetPACONNECT(aConnectL);					
+				if (aConnect->connLevel==PartLevel)
+					aConnect->xd = -ConnectDWidth(doc->srastral, CONNECTCURLY);
 			}
-	}
+		}
+}
 
 
 /* Given a Document, create a new Document whose contents are taken from the given
 part of the original.  Deliver the new Document, or NULL if we can't do it. */
 
 Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum, FSSpec *pfsSpec, LINK partL)
-	{
-		register Document *newDoc; WindowPtr w; long fileVersion;
-		short staffDiff,palWidth,palHeight; Rect box,bounds; 
-		Boolean partOK;
+{
+	register Document *newDoc; WindowPtr w; long fileVersion;
+	short staffDiff, palWidth, palHeight; Rect box,bounds; 
+	Boolean partOK;
 
-		newDoc = FirstFreeDocument();
-		if (newDoc == NULL) { TooManyDocs(); return(NULL); }
-		
-		w = GetNewWindow(docWindowID,NULL,BottomPalette);
-		if (!w) return(NULL);
-		
-		newDoc->theWindow = w;
-		SetDocumentKind(w);
-		//((WindowPeek)w)->spareFlag = TRUE;
-		ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
-		
-		newDoc->inUse = TRUE;
-		Pstrcpy(newDoc->name,fileName);
-		newDoc->vrefnum = vRefNum;
-		newDoc->fsSpec = *pfsSpec;
+	newDoc = FirstFreeDocument();
+	if (newDoc == NULL) { TooManyDocs(); return(NULL); }
+	
+	w = GetNewWindow(docWindowID,NULL,BottomPalette);
+	if (!w) return(NULL);
+	
+	newDoc->theWindow = w;
+	SetDocumentKind(w);
+	//((WindowPeek)w)->spareFlag = TRUE;
+	ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
+	
+	newDoc->inUse = TRUE;
+	Pstrcpy(newDoc->name,fileName);
+	newDoc->vrefnum = vRefNum;
+	newDoc->fsSpec = *pfsSpec;
 
-		/* Create <newDoc>, the basic part Document, and add the part's data to it. */
-		
-		if (!BuildDocument(newDoc,fileName,vRefNum,pfsSpec,&fileVersion,TRUE)) {
-			DoCloseDocument(newDoc);
-			return(NULL);
-			}
-		
-		/* If the creation of newDoc's main data structure (object list) failed, close
-			the new document and return. */
+	/* Create <newDoc>, the basic part Document, and add the part's data to it. */
+	
+	if (!BuildDocument(newDoc,fileName,vRefNum,pfsSpec,&fileVersion,TRUE)) {
+		DoCloseDocument(newDoc);
+		return(NULL);
+		}
+	
+	/* If the creation of newDoc's main data structure (object list) failed, close
+		the new document and return. */
 
-		staffDiff = ReadPart(newDoc,doc,partL,&partOK);
-		if (!partOK) {
-			DoCloseDocument(newDoc);
-			return(NULL);
-			}
+	staffDiff = ReadPart(newDoc,doc,partL,&partOK);
+	if (!partOK) {
+		DoCloseDocument(newDoc);
+		return(NULL);
+		}
 
-		/* We now have a Document with the part data in it, but it needs a lot of
-			fixing up. */
-		CopyDocFields(doc,newDoc);
-		MultibarRests(newDoc, staffDiff, TRUE);
-		UpdateDocHeader(newDoc);						/* Since MultibarRests can remove systems and pages */
-		FixMeasures(newDoc);
-		UpdateMeasNums(newDoc, NILINK);
-		FixConnects(newDoc);
-		ExtCompactVoiceNums(newDoc,staffDiff);
-		
-		/* Replace the Master Page: delete the old Master Page object list
-			here and replace it with a new structure to reflect the part-staff
-			structure of the extracted part. */
+	/* We now have a Document with the part data in it, but it needs a lot of
+		fixing up. */
+	CopyDocFields(doc,newDoc);
+	MultibarRests(newDoc, staffDiff, TRUE);
+	UpdateDocHeader(newDoc);						/* Since MultibarRests can remove systems and pages */
+	FixMeasures(newDoc);
+	UpdateMeasNums(newDoc, NILINK);
+	FixConnects(newDoc);
+	ExtCompactVoiceNums(newDoc,staffDiff);
+	
+	/* Replace the Master Page: delete the old Master Page object list
+		here and replace it with a new structure to reflect the part-staff
+		structure of the extracted part. */
 
-		Score2MasterPage(newDoc);
-		newDoc->docNew = newDoc->changed = TRUE;		/* Has to be set after BuildDocument */
-		newDoc->readOnly = FALSE;
-		
-		/* Place new document window in a non-conflicting position */
+	Score2MasterPage(newDoc);
+	newDoc->docNew = newDoc->changed = TRUE;		/* Has to be set after BuildDocument */
+	newDoc->readOnly = FALSE;
+	
+	/* Place new document window in a non-conflicting position */
 
-		WindowPtr palPtr = (*paletteGlobals[TOOL_PALETTE])->paletteWindow;
-		GetWindowPortBounds(palPtr,&box);
-		palWidth = box.right - box.left;
-		palHeight = box.bottom - box.top;
-		GetGlobalPort(w,&box);					/* set bottom of window near screen bottom */
-		bounds = GetQDScreenBitsBounds();
-		if (box.left < bounds.left+4) box.left = bounds.left+4;
-		if (palWidth < palHeight)
-			box.left += palWidth;
-		MoveWindow(newDoc->theWindow,box.left,box.top,FALSE);
-		AdjustWinPosition(w);
-		GetGlobalPort(w,&box);
-		bounds = GetQDScreenBitsBounds();
-		box.bottom = bounds.bottom - 4;
-		if (box.right > bounds.right-4) box.right = bounds.right - 4;
-		SizeWindow(newDoc->theWindow,box.right-box.left,box.bottom-box.top,FALSE);
+	WindowPtr palPtr = (*paletteGlobals[TOOL_PALETTE])->paletteWindow;
+	GetWindowPortBounds(palPtr,&box);
+	palWidth = box.right - box.left;
+	palHeight = box.bottom - box.top;
+	GetGlobalPort(w,&box);					/* set bottom of window near screen bottom */
+	bounds = GetQDScreenBitsBounds();
+	if (box.left < bounds.left+4) box.left = bounds.left+4;
+	if (palWidth < palHeight)
+		box.left += palWidth;
+	MoveWindow(newDoc->theWindow,box.left,box.top,FALSE);
+	AdjustWinPosition(w);
+	GetGlobalPort(w,&box);
+	bounds = GetQDScreenBitsBounds();
+	box.bottom = bounds.bottom - 4;
+	if (box.right > bounds.right-4) box.right = bounds.right - 4;
+	SizeWindow(newDoc->theWindow,box.right-box.left,box.bottom-box.top,FALSE);
 
-		SetOrigin(newDoc->origin.h,newDoc->origin.v);
-		GetAllSheets(newDoc);
-		RecomputeView(newDoc);
-		SetControlValue(newDoc->hScroll,newDoc->origin.h);
-		SetControlValue(newDoc->vScroll,newDoc->origin.v);
-		SetWTitle(w,newDoc->name);
-		
-		MEAdjustCaret(newDoc,FALSE);
-		InstallMagnify(newDoc);
-		ShowDocument(newDoc);
+	SetOrigin(newDoc->origin.h,newDoc->origin.v);
+	GetAllSheets(newDoc);
+	RecomputeView(newDoc);
+	SetControlValue(newDoc->hScroll,newDoc->origin.h);
+	SetControlValue(newDoc->vScroll,newDoc->origin.v);
+	SetWTitle(w,newDoc->name);
+	
+	MEAdjustCaret(newDoc,FALSE);
+	InstallMagnify(newDoc);
+	ShowDocument(newDoc);
 
-		return(newDoc);
-	}
+	return(newDoc);
+}

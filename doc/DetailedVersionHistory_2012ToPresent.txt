@@ -532,7 +532,7 @@ MergeUtils, NotelistSave, Reconstruct, SelUtils.
 
 -------------------------------------------------------------------------------
 
-14-20 Apr.
+14-25 Apr.
 
 Get with 21st-century conventions by taking filename extensions seriously: put the
 part name in default filenames of extracted parts before the dot instead of at the
@@ -543,5 +543,7 @@ number. Affects ScoreInfo.
 
 Reword a few of Score Info's messages. Affects .rsrc; ScoreInfo.
 
-Minor cleanup. Affects MemMacros.h; DebugUtils; DrawNRGR; DrawObject, StringUtils.
+Replace corrupted (empty) Nightingale 2004 Help file with the correct version (I think).
 
+Minor cleanup. Affects MemMacros.h; DebugUtils, DrawNRGR, DrawObject, Extract,
+MasterPage, StringUtils.
