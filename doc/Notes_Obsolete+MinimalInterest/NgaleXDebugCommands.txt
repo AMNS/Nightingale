@@ -1,0 +1,54 @@
+NIGHTINGALE DEBUGGING COMMANDS & OUTPUT - notes by DAB
+
+(Nov. 2009)
+
+Nightingale X no longer uses the Consolation window; instead, output from DebugPrintf
+(including the Debug command) can be viewed with the Console utility, "under console
+messages in log database queries" ?? -- actually in system.log . To see only
+Nightingale DebugPrintf output, filter on "com.amns".
+
+Caveat: (1) On Leopard (OS 10.5), console output is not flushed until Nightingale
+quits -- pretty clumsy. (2) If Console is already running and displaying system.log,
+you won't see the Ngale output until you Reload. ???MORE ACCURATE:
+you may not see the Ngale output immediately! On my Intel MacBook, it didn't show
+up for another 15 sec.; Reload doesn't seem to help.
+
+(May 2012)
+
+In Console, on my MacBook (Snow Leopard), messsages from Ngale may show up with Sender =
+(1) edu.indiana.Nightingale ("AudioUnitGraph" info);
+(2) com.amns.nightingale (DebugPrintf, "pL=bleh rect.l=blah... paper.l=bluh...", etc.);
+or, at least once, (3) just Nightingale!
+
+(June 2012)
+
+Geoff sez, if you do ??, something gets written to stderr, which by default goes to
+terminal window.
+
+On my MacBook, I can't see DebugPrintf output in Console at all. ?!?
+
+(Oct. 2012)
+
+On my MacBook, I still can't see DebugPrintf output in Console at all, no matter what
+I do. Could it be the version of Ngale I'm running?!? In any case, at this point,
+Ngale should probably just write Debug messages to stderr!
+
+In Debug.h:
+
+	#define DebugPrintf printf
+
+(Mar. 2016)
+
+Ngale 5.5 and later calls LogPrintf() instead of DebugPrintf(). Output from it
+(including the Debug command) can be viewed with the Console utility, in system.log .
+To see only Nightingale output, filter on "com.amns".
+
+-----------------------------------------------------------------------------
+
+According to Charlie (Mar. '07), hidden debugging commands in Ngale X. (Of course this
+is irrelevant for beta versions, since they have the Test menu.)
+
+Use the Score Info command to toggle...
+
+	Option - Score Info: shows the browser.
+	Control - Option - Score Info: shows the browser and some other commands.

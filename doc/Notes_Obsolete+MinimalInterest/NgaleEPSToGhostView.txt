@@ -1,0 +1,53 @@
+Making Nightingale EPS Files Work with GhostView
+Anonymous, Oct. 2000; revised by Don Byrd, Jan. 2001
+
+(This should be cleaned up and combined with Nightingale Technical Note #7 to make
+a more general document about printing high-quality music samples with apps other
+than Nightingale.)
+
+It's relatively easy to hack Nightingale-created EPS or PostScript files to work
+with MacGS (GhostView for Macintosh) or GhostView for Windows; this should also work
+with GhostView for Unix but we haven't tested it. (In principle it shouldn't need
+any hacking; you should be able to simply use Apple's Print Manager to create .ps or
+.eps files with the "include all but the standard 13" fonts option, but for some
+reason GhostView doesn't like them - this may be because I am using my own hacked
+TrueType version of Sonata - hmmm.)
+
+A. The more complex but guaranteed-legal way:
+
+1. Create an EPS or PostScript file in the normal way, using Nightingale's built-in
+'Save as PostScript' command. (We'll call this file 'file.EPSF'.)
+
+2. In addition, print the page to a PostScript file using the Print Manager. This
+time don't use Nightingale's 'Save as PostScript' command, but the "Print ..."
+command. Somewhere in the print dialog (depending on the Mac OS version) there is a
+print-to-file option; choose the option "include all but the standard 13 fonts":
+this will copy the PostScript Sonata font - which you must have installed on the
+Mac, of course! - into this file. NOTE: this doesn't work on all systems: for
+unknown reasons, on Don's PowerBook running OS 8.6, it fails. We'll call this file
+'fileApple.PS'.
+
+3. Open 'fileApple.PS' as _text_ in a text editor (BBEdit is recommended, as usual),
+and copy the definition of Sonata, all lines from "%%BeginFont" to "%%EndFont".
+Paste this into your original 'file.EPSF' immediately after the %%EndComments line
+and save 'file.EPSF'.
+
+4. GhostView will then read/display 'file.EPSF' with no problem. (I'm fairly sure
+Word will display/print it too.)
+
+
+B. The simpler way (NB: illegal unless you own the PostScript version of Sonata):
+
+1. As above.
+
+2. Paste the text file SonataPS.txt (the Sonata PostScript font) into 'file.EPSF'
+immediately after the %%EndComments line, and save 'file.EPSF'.
+
+3. GhostView will then read/display 'file.EPSF' with no problem. (I'm fairly sure
+Word will display/print it too.)
+
+
+CAVEAT! You'd think that you could Insert an EPSF created with the above method to
+a Word document and display that document in GhostView, and see Sonata displayed
+correctly. Nope: in that situation, GhostView uses Courier for music characters
+_unless_ you first display an EPSF containing music!

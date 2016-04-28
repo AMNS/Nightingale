@@ -1,0 +1,17 @@
+HOW TO QA SAMPLE SCORES - DAB, 1998; rev. April 2016
+
+1. Open the file
+
+2. Launch Console, and show system.log
+
+3. Do Debug Check Standard (cmd-0, cmd-2) and look for anything nasty/surprising.
+
+4. Play for a while (cmd-1): click to stop. NB: BachEbSonata plays each
+	instrument on a different channel; the other standard Ngale 3.5 demo
+	scores all play on one channel.
+
+5. Print at least a page or two via Save PostScript > PostScript Text for Entire File
+
+6. Select All (cmd-A) or some, and give any command in the Notes/Rests menu.
+
+7. Close the file; if Ngale asks if you want to save changes, click _Don't Save_.
