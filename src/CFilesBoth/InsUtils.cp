@@ -1,38 +1,36 @@
 /***************************************************************************
-*	FILE:	InsUtils.c																			*
-*	PROJ:	Nightingale, rev. for v.99														*
-*	DESC:	Utility routines for inserting symbols.									*
+*	FILE:	InsUtils.c
+*	PROJ:	Nightingale, rev. for v.99
+*	DESC:	Utility routines for inserting symbols.
 
 	GetPaperMouse
 	ForceInMeasure			GetInsRect				IDrawHairpin
 	TrackHairpin			GetCrossStatus			TrackAndAddHairpin
-	IDrawEndingBracket	TrackEnding				TrackAndAddEnding
+	IDrawEndingBracket		TrackEnding				TrackAndAddEnding
 	IDrawLine				TrackLine				InsFindNRG
-	TrackAndAddLine		FindSync
-	AddCheckVoiceTable	AddNoteCheck
+	TrackAndAddLine			FindSync
+	AddCheckVoiceTable		AddNoteCheck
 	FindGRSync				AddGRNoteCheck			FindSyncRight			
-	FindSyncLeft			FindGRSyncRight		FindGRSyncLeft
+	FindSyncLeft			FindGRSyncRight			FindGRSyncLeft
 	FindSymRight			FindLPI					ObjAtEndTime
 	GetPitchLim				CalcPitchLevel			FindStaff
 	SetCurrentSystem		GetCurrentSystem		AddGRNoteUnbeam
 	AddNoteFixBeams	
-	AddNoteFixTuplets 	AddNoteFixOttavas		AddNoteFixSlurs
-	AddNoteFixGraphics	FixWholeRests			FixNewMeasAccs
+	AddNoteFixTuplets		AddNoteFixOttavas		AddNoteFixSlurs
+	AddNoteFixGraphics		FixWholeRests			FixNewMeasAccs
 	InsFixMeasNums			FindGraphicObject		ChkGraphicRelObj
-	FindTempoObject		FindEndingObject
+	FindTempoObject			FindEndingObject
 	UpdateTailxd			CenterTextGraphic
 	NewObjInit				NewObjSetup				NewObjPrepare			 	
 	NewObjCleanup			XLoadInsUtilsSeg
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"

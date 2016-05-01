@@ -1,34 +1,31 @@
-/*	PitchUtils.c, rev. for Nightingale 3.0
+/*	PitchUtils.c
 	Utilities for handling pitches of notes and grace notes. Includes nothing at
 	user-interface level.
 		
 	GetSharpsOrFlats		KeySigEqual				KeySigCopy				
-	ClefMiddleCHalfLn		Char2Acc					Acc2Char
+	ClefMiddleCHalfLn		Char2Acc				Acc2Char
 	EffectiveAcc			EffectiveGRAcc			Pitch2MIDI
-	Pitch2PC					PCDiff					GetRespell
+	Pitch2PC				PCDiff					GetRespell
 	FixRespelledVoice		Char2LetName			LetName2Char
-	RespellChordSym		RespellNote				GetTranspSpell
+	RespellChordSym			RespellNote				GetTranspSpell
 	TranspChordSym			TranspNote				TranspGRNote
-	DTranspChordSym		DTranspNote				DTranspGRNote
-	TranspKS					TranspKeySig
+	DTranspChordSym			DTranspNote				DTranspGRNote
+	TranspKS				TranspKeySig
 	CompareNCNotes			CompareNCNoteNums
-	PSortNotes				PSortChordNotes		GSortNotes
-	GSortChordNotes		GSortChordGRNotes		ArrangeNCAccs
-	ArrangeChordNotes		ArrangeGRNCAccs		ArrangeChordGRNotes
+	PSortNotes				PSortChordNotes			GSortNotes
+	GSortChordNotes			GSortChordGRNotes		ArrangeNCAccs
+	ArrangeChordNotes		ArrangeGRNCAccs			ArrangeChordGRNotes
 	FixAccidental			FixAllAccidentals
-	GetAccTable				KeySig2AccTable		GetPitchTable
+	GetAccTable				KeySig2AccTable			GetPitchTable
 	DelNoteFixAccs			InsNoteFixAccs
 */
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-97 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"

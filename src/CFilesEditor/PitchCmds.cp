@@ -1,6 +1,6 @@
 /***************************************************************************
 	FILE:	PitchCmds.c
-	PROJ:	Nightingale, rev. for v.99
+	PROJ:	Nightingale
 	DESC:	Commands that affect or check pitch or pitch notation, plus
 			Flip Direction.
 		
@@ -10,15 +10,12 @@
 	CheckRange	
 /***************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1992-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -35,8 +32,8 @@ static void FlipBeamList(Document *, LINK [], short);
 /* --------------------------------------------------------- FindExtreme(GR)Note -- */
 
 LINK FindExtremeNote(LINK syncL,
-							short voice,
-							short stemUpDown)			/* 1=up, -1=down */
+						short voice,
+						short stemUpDown)			/* 1=up, -1=down */
 {
 	LINK lowNoteL, hiNoteL;
 

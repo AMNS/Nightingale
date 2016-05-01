@@ -1,14 +1,12 @@
-/*									NOTICE
- *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
- */
+/* About.c: routines for the About box, including animating the credits, etc. */
 
-/* About.c: routines for the About box, animating the credits, etc. */
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
+ *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"

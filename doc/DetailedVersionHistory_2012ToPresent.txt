@@ -532,7 +532,7 @@ MergeUtils, NotelistSave, Reconstruct, SelUtils.
 
 -------------------------------------------------------------------------------
 
-14-28 Apr.
+14-30 Apr.
 
 Get with 21st-century conventions by taking filename extensions seriously: put the
 part name in default filenames of extracted parts before the dot instead of at the
@@ -545,7 +545,11 @@ Reword a few of Score Info's messages. Affects .rsrc; ScoreInfo.
 
 Replace corrupted (empty) Nightingale 2004 Help file with the correct version (I think).
 
-Minor cleanup. Affects MemMacros.h; DebugUtils, DrawNRGR, DrawObject, Extract,
-MasterPage, StringUtils.
-
 Re-organize Tech Notes, and update the file NightingaleTechNotes.txt .
+
+Replace the header on ca. 160 files referring to Advanced Music Notation Systems with
+a less scary one referring to Avian Music Notation Foundation.
+
+Minor cleanup. Affects MemMacros.h; DebugUtils, DrawNRGR, DrawObject, Extract, File,
+MasterPage, StringUtils, and a few others.
+

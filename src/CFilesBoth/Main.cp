@@ -1,38 +1,37 @@
-/*									NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1986-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /*
  * 						  (*)   N I G H T I N G A L E ®   (*)
  * 
- *	Donald Byrd, Charles Rose, Douglas McKenna, Dave Winzler, and John Gibson
+ *	by Donald Byrd, Charles Rose, Douglas McKenna, Dave Winzler, and John Gibson
  *							Advanced Music Notation Systems, Inc.
- *                					Version 3.1
- * 									May 1986-Sept. 1997
+ *							   Adept Music Notation Solutions
+ *							   Avian Music Notation Foundation
+ *                					
  *
- * Also incorporates OMS code by Ken Brockman, a very small amount of code by each of
- * Ray Spears and Jim Carr, and a help system by Joe Pillera.
+ * Nightingale also incorporates OMS code by Ken Brockman, a help system by Joe Pillera,
+ * and work by Jim Carr, Geoff Chirgwin, Michel Salim, and Ray Spears.
  *
- *	Thanks to Bill Brinkley, Mike Brockman, Bill Buxton, John Davis, Ric Ford,
- *	John Gibson, David Gottlieb, Doug Hofstadter, Scott Kim, Jan Knoefel, Paul Lansky,
- *	Katharine McKenna, Malcolm and Priscilla McKenna, Scott McCormick, Jef Raskin, Steve
+ * Thanks to Bill Brinkley, Mike Brockman, Bill Buxton, John Davis, Ric Ford,
+ * John Gibson, David Gottlieb, Doug Hofstadter, Scott Kim, Jan Knoefel, Paul Lansky,
+ * Katharine McKenna, Malcolm and Priscilla McKenna, Scott McCormick, Jef Raskin, Steve
  * Sacco, Paul Sadowski, Kim Stickney, and Christopher Yavelow. Special thanks to John
  * Maxwell and Severo Ornstein, without whom I could not have imagined this program. And
  * very special thanks to my father, Eugene Byrd, and my wife, Susan Schneider, without
- * whom it certainly would never have been finished...
+ * whom version 1.0 certainly would never have existed...
  *
- *	Nightingale is very loosely based on several earlier programs. The approach owes
- *	a great deal to John Maxwell and Severo Ornstein's Mockingbird; to the Macintosh
+ * Nightingale is very loosely based on several earlier programs. The approach owes
+ * a great deal to John Maxwell and Severo Ornstein's Mockingbird; to the Macintosh
  * standard user interface and its implementation in various earlier programs; and, to
- *	a lesser extent, Donald Byrd's SMUT. A few of the algorithms are from SMUT, as doc-
- *	umented in Byrd's dissertation "Music Notation by Computer" (Indiana University,
- *	1984; UMI number 8506091).
+ * a lesser extent, Donald Byrd's SMUT. A few of the algorithms are from SMUT, as doc-
+ * umented in Byrd's dissertation "Music Notation by Computer" (Indiana University,
+ * 1984; UMI number 8506091).
  */
 
 

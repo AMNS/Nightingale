@@ -1,20 +1,16 @@
-/*								NOTICE
+/* MPImportExport.c - functions for importing/exporting editing done in Master
+Page, built on the ancient Score Dialog. */
+ 
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
-/* MPImportExport.c - functions for importing/exporting editing done in
-Master Page, built on the old Score Dialog - rev. for v.3.1. */
- 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
-
-
 
 
 /* Prototypes for internal functions. */

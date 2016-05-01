@@ -1,6 +1,6 @@
 /***************************************************************************
 *	FILE:	SpaceHighLevel.c
-*	PROJ:	Nightingale, rev. for v.99
+*	PROJ:	Nightingale
 *	DESC:	High-level spacing routines, including justifying.
 *
 	CenterNR					CenterWholeMeasRests		RemoveObjSpace
@@ -13,15 +13,12 @@
 	JustifySystem				JustifySystems
 ****************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"

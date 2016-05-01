@@ -1,12 +1,11 @@
 /* DragDynamic for Nightingale, by John Gibson - drag non-hairpin dynamics */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1992-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -19,19 +18,19 @@ static void InitDynamicBounds(Document *, LINK, Point, Rect *);
 
 void DragDynamic(Document *doc, LINK dynamL)
 {
-	Point			oldPt, newPt, origPt;
-	long			aLong;
-	short			staffn, dh, dv, dhTotal, dvTotal, oldTxMode;
-	Rect			oldObjRect, newObjRect, boundsRect;		/* in paper coords */
+	Point		oldPt, newPt, origPt;
+	long		aLong;
+	short		staffn, dh, dv, dhTotal, dvTotal, oldTxMode;
+	Rect		oldObjRect, newObjRect, boundsRect;		/* in paper coords */
 	Boolean		dynamVis, firstTime = TRUE, suppressRedraw = FALSE,
-					stillWithinSlop, horiz, vert;
+				stillWithinSlop, horiz, vert;
 	CONTEXT		context[MAXSTAVES+1];
-	LINK			dynSubL, measL;
+	LINK		dynSubL, measL;
 	DYNAMIC		origDynObj;
-	PDYNAMIC		thisDynObj;
-	ADYNAMIC		origDynSubObj;
+	PDYNAMIC	thisDynObj;
+	ADYNAMIC	origDynSubObj;
 	PADYNAMIC	thisDynSubObj;
-	Rect			bounds;
+	Rect		bounds;
 
 PushLock(OBJheap);
 PushLock(DYNAMheap);

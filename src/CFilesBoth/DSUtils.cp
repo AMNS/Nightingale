@@ -7,16 +7,16 @@
 		NRGRInMeasure			FakeMeasure				UpdatePageNums
 		UpdateSysNums			UpdateMeasNums			GetMeasNum
 		PtInMeasure				PageRelxd				PageRelyd
-		GraphicPageRelxd		LinkToPt					SysRelxd
-		Sysxd						PMDist					HasValidxd
+		GraphicPageRelxd		LinkToPt				SysRelxd
+		Sysxd					PMDist					HasValidxd
 		FirstValidxd			DFirstValidxd			ObjWithValidxd
-		GetSubXD					ZeroXD					RealignObj
+		GetSubXD				ZeroXD					RealignObj
 		GetSysWidth				GetSysLeft
 		StaffHeight				StaffLength				MeasWidth
 		MeasOccupiedWidth		MeasJustWidth			SetMeasWidth
 		MeasFillSystem
 		IsAfter					IsAfterIncl				BetweenIncl
-		WithinRange				SamePage					SameSystem
+		WithinRange				SamePage				SameSystem
 		SameMeasure
 		ConsecSync				BeforeFirstMeas		FirstMeasInSys	
 		LastMeasInSys			LastUsedMeasInSys		LastOnPrevSys
@@ -30,7 +30,7 @@
 		VCountNotes				CountGRNotes			SVCountNotes
 		SVCountGRNotes			CountObjects			CountInHeaps
 		HasOtherStemSide		NoteLeftOfStem			GetStemUpDown
-		GetGRStemUpDown		GetExtremeNotes		GetExtremeGRNotes
+		GetGRStemUpDown			GetExtremeNotes			GetExtremeGRNotes
 		FindMainNote			FindGRMainNote			GetObjectLimits
 		InDataStruct			GetSubObjStaff			GetSubObjVoice
 		ObjOnStaff				CommonStaff				ObjHasVoice
@@ -42,19 +42,16 @@
 		PrevTiedNote			FirstTiedNote			ChordNextNR
 		GetCrossStaff			SetTempFlags			SetSpareFlags
 		GetMultiVoice			TweakSubRects
-		CompareScoreFormat	DisposeMODNRs			Staff2PartL
+		CompareScoreFormat		DisposeMODNRs			Staff2PartL
 		PartL2Partn				VHasTieAcross			HasSmthgAcross
 *****************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"

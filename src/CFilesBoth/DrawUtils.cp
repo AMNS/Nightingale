@@ -1,17 +1,15 @@
 /***************************************************************************
-*	FILE:	DrawUtils.c														*
-*	PROJ:	Nightingale, rev. for v.3.5										*
-*	DESC:	Drawing utility routines										*
+*	FILE:	DrawUtils.c
+*	PROJ:	Nightingale
+*	DESC:	Drawing utility routines
 ****************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -32,7 +30,7 @@ short GetSmallerRSize(short rSize)
 {
 	switch (rSize) {
 		case 0:
-			return 1;	/* ??Incorrect if rastral 0 has been defined <= to rastral 1! */
+			return 1;	/* FIXME: Incorrect if rastral 0 has been defined <= to rastral 1! */
 		case 1:
 			return 2;
 		case 2:

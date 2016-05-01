@@ -1,6 +1,6 @@
 /***************************************************************************
 *	FILE:	Inval.c
-*	PROJ:	Nightingale, revised for v.1.4
+*	PROJ:	Nightingale
 *	DESC:	User-interface-level "Inval" functions of two types: the regular
 			QuickDraw type, which applies to pixels (as in InvalRect), and
 			our own, which applies to Nightingale objects.
@@ -11,15 +11,12 @@
 		InvalObject
 /***************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-97 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"

@@ -1,9 +1,11 @@
 /* MasterPage.c for Nightingale
-   Functions for creating and manipulating the Master Page - OMRAS MemMacroized.
-
-   THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
-   NOTATION FOUNDATION. Copyright © 2016 by Avian Music Notation Foundation.
-   All Rights Reserved.
+ * Functions for creating and manipulating the Master Page - OMRAS MemMacroized.
+ * 
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
+ *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"

@@ -1,4 +1,4 @@
-/* NotelistSave.c for Nightingale - write Notelist file, rev. for v.2000 */
+/* NotelistSave.c for Nightingale - write Notelist file */
 
 /* Besides doing something, useful, this file is intended as a model for user-
 written functions. Hence, (1) the overly-generic name, and (2) the exceptionally
@@ -7,14 +7,12 @@ detailed comments that refer to what "you" might do.
 NB: The compiled-in English words are not an internationalization problem, since
 the Notelist format should not change with locale. */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1992-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"

@@ -1,16 +1,15 @@
 /***************************************************************************
 *	FILE:	File.c
-*	PROJ:	Nightingale, rev. for v.99
+*	PROJ:	Nightingale
 *	DESC:	File output, format conversion, and related routines
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -377,7 +376,7 @@ static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point end
 			firstSyncL = LSSearch(p->firstSyncL, SYNCtype, firstStaff, GO_RIGHT, FALSE);
 			GetContext(doc, firstSyncL, firstStaff, &localContext);
 		}
-		dFirstLeft = localContext.measureLeft;									/* abs. origin of left end coords. */
+		dFirstLeft = localContext.measureLeft;							/* abs. origin of left end coords. */
 		dFirstTop = localContext.measureTop;
 		
 		/* Handle special cases for crossSystem slurs. If p->lastSyncL not a sync,
@@ -385,7 +384,7 @@ static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point end
 		left of RSYS to get the context from. */
 		p = GetPSLUR(pL);
 		if (SyncTYPE(p->lastSyncL))
-			GetContext(doc, p->lastSyncL, lastStaff, &localContext);		/* Get right end context */
+			GetContext(doc, p->lastSyncL, lastStaff, &localContext);	/* Get right end context */
 		else {
 			if (SystemTYPE(p->lastSyncL) && LinkRSYS(p->lastSyncL)) {
 				lastSYS = TRUE;
@@ -397,7 +396,7 @@ static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point end
 								(long)pL, (long)p->lastSyncL);
 		}
 		if (!lastSYS)
-			dLastLeft = localContext.measureLeft;							/* abs. origin of right end coords. */
+			dLastLeft = localContext.measureLeft;						/* abs. origin of right end coords. */
 		else {
 			pSystem = GetPSYSTEM(pSystemL);
 			dLastLeft = pSystem->systemRect.right;
@@ -868,7 +867,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 		for ( ; partL; partL = NextPARTINFOL(partL)) {
 			pPart = GetPPARTINFO(partL);
 			pPart->fmsOutputDevice = noUniqueID;
-			/* ??We're probably not supposed to play with these fields... */
+			/* FIXME: We're probably not supposed to play with these fields... */
 			pPart->fmsOutputDestination.basic.destinationType = 0,
 			pPart->fmsOutputDestination.basic.name[0] = 0;
 		}
@@ -877,7 +876,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 		for ( ; partL; partL = NextPARTINFOL(partL)) {
 			pPart = GetPPARTINFO(partL);
 			pPart->fmsOutputDevice = noUniqueID;
-			/* ??We're probably not supposed to play with these fields... */
+			/* FIXME: We're probably not supposed to play with these fields... */
 			pPart->fmsOutputDestination.basic.destinationType = 0,
 			pPart->fmsOutputDestination.basic.name[0] = 0;
 		}
@@ -1530,7 +1529,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 
 	/* Read the FreeMIDI input device data. */
 	doc->fmsInputDevice = noUniqueID;
-	/* ??We're probably not supposed to play with these fields... */
+	/* FIXME: We're probably not supposed to play with these fields... */
 	doc->fmsInputDestination.basic.destinationType = 0,
 	doc->fmsInputDestination.basic.name[0] = 0;
 	count = sizeof(long);
@@ -1711,7 +1710,7 @@ static Boolean GetOutputFile(Document *doc);
 /* Return, in bytes, the physical size of the file in which doc was previously
 saved: physical length of data fork + physical length of resource fork.
 
-??This does not quite give the information needed to tell how much disk space the
+FIXME: This does not quite give the information needed to tell how much disk space the
 file takes: the relevant thing is numbers of allocation blocks, not bytes, and
 that number must be computed independently for the data fork and resource fork.
 PreflightFileCopySpace in FileCopy.c in Apple DTS' More Files package appears
@@ -1876,9 +1875,9 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 	if (doc->docNew || saveAs)
 		oldFileSize = 0L;
 	else {
-		/* Get the amount of space physically allocated to the old file,
-			and the amount of space available on doc's volume. Return value
-			< 0 indicates FS Error: should forget safe saving. ??GetOldFileSize
+		/* Get the amount of space physically allocated to the old file, and
+			the amount of space available on doc's volume. Return value <0
+			indicates FS Error: should forget safe saving. FIXME: GetOldFileSize
 			doesn't do a very good job: see comments on it. */
 	
 		oldFileSize = GetOldFileSize(doc);
@@ -2241,7 +2240,7 @@ TryAgain:
 		 * filename and vRefNum. Note that, from the user's standpoint, this replaces
 		 * the file's creation date with the current date--unfortunate.
 		 * 
-		 * ??Inside Mac VI, 25-9ff, points out that System 7 introduces FSpExchangeFiles
+		 * FIXME: Inside Mac VI, 25-9ff, points out that System 7 introduces FSpExchangeFiles
 		 * and PBExchangeFiles, which simplify a safe save by altering the catalog entries
 		 * for two files to swap their contents. However, if we're keeping a backup copy,
 		 * this would result in the backup having the current date as its creation date!
@@ -2318,21 +2317,21 @@ void SaveError(Boolean fileOpened,
 	if (fileOpened) FSClose(refNum);
 
 	/*
-	 * We expect descriptions of the common errors stored by code (negative
-	 * values, for system errors; positive ones for our own I/O errors) in
-	 * individual 'STR ' resources. If we find one for this error, print it,
-	 * else just print the raw code.
+	 * We expect descriptions of the common errors stored by code (negative values,
+	 * for system errors; positive ones for our own I/O errors) in individual 'STR '
+	 * resources. If we find one for this error, print it, else just print the
+	 * raw code.
 	 */
 	strHdl = GetString(errCode);
 	if (strHdl) {
 		Pstrcpy((unsigned char *)strBuf, (unsigned char *)*strHdl);
 		PToCString((unsigned char *)strBuf);
-		strNum = (errInfo>0? 15 : 16);	/* "%s (heap object type=%d)." : "%s (error code=%d)." */
+		strNum = (errInfo>0? 15 : 16);		/* "%s (heap object type=%d)." : "%s (error code=%d)." */
 		GetIndCString(fmtStr, FILEIO_STRS, strNum);
 		sprintf(aStr, fmtStr, strBuf, errInfo);
 	}
 	else {
-		strNum = (errInfo>0? 17 : 18);	/* "Error ID=%d (heap object type=%d)." : "Error ID=%d (error code=%d)." */
+		strNum = (errInfo>0? 17 : 18);		/* "Error ID=%d (heap object type=%d)." : "Error ID=%d (error code=%d)." */
 		GetIndCString(fmtStr, FILEIO_STRS, strNum);
 		sprintf(aStr, fmtStr, errCode, errInfo);
 	}

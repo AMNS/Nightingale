@@ -1,17 +1,15 @@
 /***************************************************************************
 *	FILE:	Dragging.c
-*	PROJ:	Nightingale, rev. for v.3.5
+*	PROJ:	Nightingale
 *	DESC:	Bitmap dragging routines
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALEé PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1992-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright Â© 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -1071,7 +1069,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			oldStyle = GetPortTxFace();
 			
 			oneChar[0] = 1;
-			oneChar[1] = '';						// Shift-option 8
+			oneChar[1] = 'Â';						// Shift-option 8
 			TextFont(doc->musicFontNum);
 			TextSize(UseTextSize(fontSize, doc->magnify));
 			MoveTo(d2p(DragXD(xd)), d2p(yd));

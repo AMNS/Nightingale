@@ -1,17 +1,15 @@
 /***************************************************************************
-*	FILE:	DragBeam.c																			*
-*	PROJ:	Nightingale, by John Gibson; rev. for v.3.1								*
-*	DESC:	Beam dragging routines															*
+*	FILE:	DragBeam.c
+*	PROJ:	Nightingale, by John Gibson
+*	DESC:	Beam dragging routines
 ***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1986-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -19,9 +17,9 @@
 
 
 static enum {
-	LGRIP=1,										/* Dragging the left "grip" (handle) */
+	LGRIP=1,									/* Dragging the left "grip" (handle) */
 	RGRIP,										/* Dragging the right "grip" (handle) */
-	DRAGBEAM										/* Dragging the entire beam */
+	DRAGBEAM									/* Dragging the entire beam */
 } E_DragBeamItems;
 
 #define BOXSIZE	4
@@ -29,10 +27,10 @@ static enum {
 #define STEM_DOWN	-1
 
 typedef struct {
-	Point			leftPt, rightPt;			/* paper coords */
-	SignedByte	leftUOD, rightUOD;		/* 1: upstem, -1: downstem */
-	short			thickness;					/* pixels */
-	Rect			objRect;						/* paper coords. For updating purposes only */
+	Point		leftPt, rightPt;			/* paper coords */
+	SignedByte	leftUOD, rightUOD;			/* 1: upstem, -1: downstem */
+	short		thickness;					/* pixels */
+	Rect		objRect;					/* paper coords. For updating purposes only */
 } BEAMFEEDBACK;
 
 /* Local Prototypes */

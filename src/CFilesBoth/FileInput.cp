@@ -1,18 +1,16 @@
 /***************************************************************************
-*	FILE:	FileInput.c																			*
-*	PROJ:	Nightingale, small rev. for v 3.5											*
-*	DESC:	Routines for creating Nightingale objects via file input or			*
-*			AppleScript, rather than mouse input. Written by John Gibson.		*
+*	FILE:	FileInput.c
+*	PROJ:	Nightingale
+*	DESC:	Routines for creating Nightingale objects via file input or
+*			AppleScript, rather than mouse input. Written by John Gibson.
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1996-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"

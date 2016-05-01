@@ -1,8 +1,9 @@
 /***************************************************************************
 *	FILE:	SelUtils.c
-*	PROJ:	Nightingale, rev. for v.3.1
+*	PROJ:	Nightingale
 *	DESC:	Routines to handle the user interface for selection, get info
 	about the selection, etc.
+	
 	GetSelStaff				GetStaffFromSel			GetSelPart
 	GetVoiceFromSel			GetStfRangeOfSel		Sel2MeasPage
 	GetSelMIDIRange			FindSelAcc
@@ -13,15 +14,12 @@
 	NotesSel2TempFlags		TempFlags2NotesSel
 /***************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-97 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"

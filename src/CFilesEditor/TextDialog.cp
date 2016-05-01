@@ -1,17 +1,15 @@
 /***************************************************************************
-*	FILE:	TextDialog.c													*
-*	PROJ:	Nightingale, rev. for v.3.5										*
-*	DESC:	Routines to handle text editing and Define Text Style dialogs	*
+*	FILE:	TextDialog.c
+*	PROJ:	Nightingale
+*	DESC:	Routines to handle text editing and Define Text Style dialogs
 /***************************************************************************/
 
-/*								NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"

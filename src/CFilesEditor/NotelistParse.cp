@@ -1,6 +1,6 @@
 /***************************************************************************
 	FILE:	NotelistParse.c
-	PROJ:	Nightingale, rev. for v.2000
+	PROJ:	Nightingale
 	DESC:	Routines for parsing files in Nightingale's Notelist format into
 			a temporary data structure. Written by John Gibson.
 			For a full description of the original Notelist format, see "The
@@ -11,14 +11,12 @@
 			for details.
 ***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1986-2002 by Adept Music Notation Solutions, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"

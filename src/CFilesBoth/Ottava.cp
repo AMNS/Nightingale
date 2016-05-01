@@ -1,15 +1,12 @@
-/* File Ottava.c - octave-sign-related functions - rev. for v.3.5. */
-
-/*											NOTICE
- *
- * THIS FILE IS PART OF THE NIGHTINGALEÂª PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright Â© 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- */
+/* File Ottava.c - octave-sign-related functions. */
 
 /*
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
+ *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+
 	DoOttava				DoRemoveOttava			GetNoteyd
 	SetOttavaYPos			CreateOTTAVA			UnOttava
 	UnOttavaS

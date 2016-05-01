@@ -1,32 +1,29 @@
 /***************************************************************************
-*	FILE:	Select.c																				*
-*	PROJ:	Nightingale, rev. for v.3.5													*
-*	DESC:	Selection-related routines.													*
+*	FILE:	Select.c
+*	PROJ:	Nightingale
+*	DESC:	Selection-related routines.
 		
-	DeselectSTAFF			DeselectCONNECT		SetDefaultSelection
-	DeselAll					DeselRange
-	DeselAllNoHilite		DeselRangeNoHilite	DoOpenSymbol
+	DeselectSTAFF			DeselectCONNECT			SetDefaultSelection
+	DeselAll				DeselRange
+	DeselAllNoHilite		DeselRangeNoHilite		DoOpenSymbol
 	DoAccumSelect			DoExtendSelect			DoPageSelect
 	SetInsPoint				DeselVoice				DoSelect
 	SelectAll				SelAllNoHilite			DeselectNode
 	SelAllSubObjs			SelectObject			SelectRange
-	ExtendSelection		ObjTypeSel
+	ExtendSelection			ObjTypeSel
 	BoundSelRange			GetOptSelEnds			CountSelection
-	ChordSetSel				ExtendSelChords		ChordHomoSel
-	ContinSelection		OptimizeSelection		UpdateSelection	
+	ChordSetSel				ExtendSelChords			ChordHomoSel
+	ContinSelection			OptimizeSelection		UpdateSelection	
 	GetStfSelRange			GetVSelRange			GetNoteSelRange
 	BFSelClearable			XLoadSelectSeg
 /***************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1992-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"

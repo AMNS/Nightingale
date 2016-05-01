@@ -1,4 +1,4 @@
-/* StringUtils.c for Nightingale - string-handling utilities - new for v.3.1 */
+/* StringUtils.c for Nightingale - string-handling utilities - new in v.3.1 */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC

@@ -1,13 +1,11 @@
-/* MIDIUtils.c for Nightingale - rev. for v.2000 */
+/* MIDIUtils.c for Nightingale */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1997-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -28,9 +26,9 @@ static short	lastEvent;
 
 static Boolean	CMHaveLaterEnding(short note, SignedByte channel, long endTime);
 static Boolean	InsertEvent(short note, SignedByte channel, long endTime, Boolean playMaxDur,
-					short ioRefNum);
+								short ioRefNum);
 static Boolean	CMInsertEvent(short note, SignedByte channel, long endTime, Boolean playMaxDur,
-					long ioRefNum);
+								long ioRefNum);
 static void		KillEventList(void);
 static void		CMKillEventList(void);
 static void		SendAllNotesOff(void);

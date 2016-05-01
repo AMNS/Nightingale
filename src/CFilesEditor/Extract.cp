@@ -1,4 +1,4 @@
-/* Extract.c for Nightingale - Extract parts - revised for v.3.5  */
+/* Extract.c for Nightingale - Extract parts  */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC

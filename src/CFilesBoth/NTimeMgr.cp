@@ -1,13 +1,11 @@
 /* NTimeMgr.c - simple Nightingale Time Manager package - D. Byrd, AMNS, 2/96 */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1996 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /* This code is heavily Macintosh-dependent. More specifically, it requires the
@@ -28,9 +26,9 @@ gestaltAnswer = 3 (gestaltExtendedTimeMgr) for the extended Time Manager. */
 #define FALSE 0
 #endif
 
-typedef struct {						/* Time Manager information record */
-	TMTask	atmTask;					/* original and revised TMTask record */
-	long		tmRefCon;				/* space to pass address of A5 world */
+typedef struct {					/* Time Manager information record */
+	TMTask	atmTask;				/* original and revised TMTask record */
+	long	tmRefCon;				/* space to pass address of A5 world */
 } TMInfo;
 
 typedef TMInfo *TMInfoPtr;
