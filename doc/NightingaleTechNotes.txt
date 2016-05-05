@@ -1,8 +1,13 @@
-NIGHTINGALE TECH NOTES - Don Byrd, rev. late April 2016
+NIGHTINGALE TECH NOTES - Don Byrd, rev. early May 2016
 
-NB: These need a lot of work. One (#2), the Coding Guidelines, is now in the
-AMNS/Nightingale GitHub repository in a more up-to-date form. And very few are really
-up-to-date.
+As compared to earlier versions of this list (through early 2016), I've added numbers to
+several of the formerly unnumbered tech notes, and re-organized the full collection into
+three categories: "User Oriented", "Mostly for Developers", and "Obsolete and/or Of
+Minimal Interest."
+
+NB: These still need a lot of work. One (#2), the Coding Guidelines, is now in the
+AMNS/Nightingale GitHub repository in a somewhat more up-to-date form. And very few are
+really up-to-date.
 
 #	St	Title
 -------------
@@ -28,17 +33,18 @@ MOSTLY FOR DEVELOPERS
 13	OK?	Sample Code For Computing Coordinates (CoordCalcSampleCode-TN13.txt)
 15	OK?	QuickDrawAPIsUsedInNgale.xls
 
-OBSOLETE & OF MINIMAL INTEREST
+OBSOLETE AND/OR OF MINIMAL INTEREST
 
 5	OBS	Tips for Opcode Studio 5 Settings (OpcodeStudio5Settings-TN5.PICT)
-	OBS	NgaleEPSToGhostView.txt
-	Old	HowToQASampleScores.txt
-	OK?	NgaleXDebugCommands.txt
+--	OBS	NgaleEPSToGhostView.txt
+--	Old	HowToQASampleScores.txt
+--	Old	NgaleXDebugCommands.txt
 
 
 Key to St (Status) codes:
 
-OK: definitely OK; has only minor problems
+OK: definitely OK
 OK?: probably OK with only minor problems
+Old: obsolescent and of little interest anymore (but worth keeping)
+OBS: obsolete and probably of no interest anymore (but worth keeping just in case)
 Rep: the current version is in the GitHub repository; the tech note version isn't up-to-date
-OBS: obsolete and probably of no interest anymore

@@ -532,7 +532,7 @@ MergeUtils, NotelistSave, Reconstruct, SelUtils.
 
 -------------------------------------------------------------------------------
 
-14-30 Apr.
+14 Apr. - 5 May
 
 Get with 21st-century conventions by taking filename extensions seriously: put the
 part name in default filenames of extracted parts before the dot instead of at the
@@ -543,13 +543,16 @@ number. Affects ScoreInfo.
 
 Reword a few of Score Info's messages. Affects .rsrc; ScoreInfo.
 
-Replace corrupted (empty) Nightingale 2004 Help file with the correct version (I think).
+Replace corrupted (empty) Nightingale 2004 Help file with (what I think is) the correct
+version.
 
 Re-organize Tech Notes, and update the file NightingaleTechNotes.txt .
 
-Replace the header on ca. 160 files referring to Advanced Music Notation Systems with
-a less scary one referring to Avian Music Notation Foundation.
+Replace the commercially-oriented header on ca. 160 files referring to Advanced Music
+Notation Systems with a kinder, gentler one referring to Avian Music Notation
+Foundation; change the splash screen to name Avian Music Notation Foundation instead of
+Adept Music Notation Solutions.
 
-Minor cleanup. Affects MemMacros.h; DebugUtils, DrawNRGR, DrawObject, Extract, File,
-MasterPage, StringUtils, and a few others.
+Minor cleanup. Affects MemMacros.h; DebugHighLevel, DebugUtils, DrawNRGR, DrawObject,
+Extract, File, MasterPage, StringUtils, and a few others.
 

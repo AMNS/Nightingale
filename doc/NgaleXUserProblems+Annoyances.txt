@@ -1,5 +1,5 @@
 NGALE X CURRENT ANNOYANCES AND PROBLEMS (from user's view)
-Don Byrd, rev. early June 2013 - late April 2016
+Don Byrd, rev. early June 2013 - early May 2016
 
 Ngale versions:
 * "NDAB" = "NightingaleDAB", a version I compiled in Nov. 2009; I think it's the 5.3.0b5 source code -- at least that's what the About box says.
@@ -11,6 +11,9 @@ My MacBook is running OS 10.6.x, my G5 10.5.x.
 
 RELATIVELY SERIOUS
 
+- The Print command produces low-resolution output with bitmap fonts; currently you have to use Save PostScript to get high quality results. Very confusing to new users, and
+it gives a very bad impression of Ngale.
+
 - It'd be very helpful to be able to set a staff size for extracted parts. Currently they're the same size as the score, but they should usually be larger. This could be a CNFG setting.
 
 - If a two-voice unison on a chromatic black-key note involves certain combinations of durations, esp. if at least one is a whole note, both noteheads must be visible. That's a problem because then there are likely to be two accidentals much too close together... unless I cheat and omit the accidental from one, but in that case either the MIDI note no. will be inconsistent with the "logical" pitch, or the notes will play back as an augmented unison. The best simple solution is probably to be able to make the accidental invisible, probably via Get Info.
@@ -18,8 +21,6 @@ RELATIVELY SERIOUS
 - With two voices on a staff, Ngale computes space needed based on the merged voices even if one is so far above the other that they don't interact, resulting in it sometimes allocating way too much space for a Sync. Cf. violin concerto, II, 3VCBVariation, m. 9. An acceptable (to me!) solution: add a flag to the ANote struct that says "when respacing, ignore the chord this note belongs to"; add it to the note Get Info dialog.  Fix est. difficulty & impact: high & low (there's a byte available to put this flag in, and it's been initialized to 0 for many years).
 
 - There's no reasonable way to do tempo equations, e.g., "quarter note = quarter note". Need to extend the Tempo/Metronome dialog: smthg like add radio buttons for normal and "duration = duration", and if the latter is selected, show a popup for the right side similar or identical to that for the left side.
-
-- Trying to Extract the piano part of 1stMovement_Part1FS.ngl, with default settings, crashes on the call to InitMeasure() at the end of MakeMeasure(), called from InitMeasure() -- if, when I give the Extract command, the cursor is on the lower piano staff; if it's on the upper, no problem!
 
 - Paste Merge sometimes fails to update the context of following measures, mostly for dynamics, leading to numerous Debug messages of the form
 
@@ -38,15 +39,20 @@ RELATIVELY SERIOUS
 
 MOSTLY JUST ANNOYING
 
-- Inasmuch as we have no rights to the Adobe Sonata PostScript font, it
-shouldn't be the default and required font! -- Briard should be.
+- Inasmuch as we have no rights to the Adobe Sonata PostScript font, it shouldn't be the
+default and only required font! -- Briard should be. Unfortunately, several places in
+the code _assume_ Sonata is available.
+
+- defs.h contains #defines for FINGERING_SIZEPCT, CIRCLE_SIZEPCT, and OCTNUM_SIZEPCT. The user should be able to change these, e.g., via the Config, especially because they're highly font-dependent. Fix est. difficulty & impact: low-medium (if UI is via Config fields) & low.
 
 - Tremolo slashes are often too close to the closest note head (with three or more slashes), & sometimes too close to the end of the stem (when flags are present). Fix est. difficulty & impact: low-medium & low.
 
-- It'd be helpful if Fill Empty Measures reported how many whole-measure rests it added. Fix est. difficulty & impact: low & low.
-
 - HiliteAttPoints() and HiliteInsertNode() (in UIFUtils.cp) are a real mess.
 Fix est. difficulty & impact: low & low.
+
+- Extracting just the piano part of 1stMovement_Part1FS.ngl, with default settings, sometimes crashes on the call to InitMeasure() at the end of MakeMeasure(), called from InitMeasure() -- if, when I give the Extract command, the cursor is on the lower piano staff; if it's on the upper, no problem!  Also, Extracting all parts crashes when it gets to piano.
+
+- It'd be helpful if Fill Empty Measures reported how many whole-measure rests it added. Fix est. difficulty & impact: low & low.
 
 - It'd be helpful to have a check for instruments that come in after a long rest without a dynamic mark. Probably add to Debug Check (list occurrences), or report how many & location of the first in Score Info .
 
@@ -73,20 +79,11 @@ other stem side flag. Fix est. impact: very low.
 
 - From Nov. 2007: "On my G4 & laptop, _very_ often has the wrong cursor, esp. wait cursor when it should be a symbol, or a symbol when it should be the selection arrow." As of April 2012, this is still a problem in all recent versions of Ngale with both of my computers -- isn't it?
 
-+- Some of the default CNFG & other settings are silly, or at least suboptimal. E.g.:
-	+ "Default staff rastral size" (1) should probably be 5; certainly not 1.
-	+ "Screen layout..." should be horiz., not vertical.
-	+ Some MIDI Modifier values are questionable. E.g., 90 for > vel. offset is ridiculously high!; it should probably be 50 or so.
-	+ "Min. space between lyrics" (6 eighth-spaces) is probably too large; cf. LyricConstrainedSpacing.ngl .
-	+ In tempo/metronome marks, there's usually not enough space between the tempo char. string and the note beginning the metronome mark. Default for extra space is currently 0 (in eighth-spaces); it should be around 3.
-	+ "Additional top margin on 1st page" (default 0) should probably be nonzero: at least 36 pts, say, but something like 72 would probably be better.
-	+ All three memory settings are ridiculously low -- though I doubt any of them are meaningful on any system Ngale 5.x runs on (Mac OS 10.0 thru 10.6)! Still, maybe multiply them by, say, 10.
-
 - When I Save (not Save as) a file, occasionally says "Can't write blah blah: file is already open".
 
 - The loop count for timed delays business is embarassing; it's been obsolete for 15 years, if not longer.
 
-- Some source files, e.g., Error.cp, contain non-ASCII chars.; these mostly date back to when everything was encoded in Macintosh Roman, and converting them to the current (mostly UTF-8, some Latin-1) is likely to have garbled them, causing bugs.
+- Some source files, e.g., Error.cp and DebugXXX.cp, contain non-ASCII chars.; these mostly date back to when everything was encoded in Macintosh Roman, and converting them to the encoding we're using now (mostly UTF-8, some Latin-1) is likely to have garbled them, causing bugs.
 
 
 RESOLVED:
@@ -163,3 +160,12 @@ transposed.
 + Change default ranges of: +bassoon: top down to Eb; +trumpet in A, Bb, C: top up to D; +cello: top up to C; +double bass: top up to G, bottom down to C.
 
 + Default filenames for files Ngale writes (mostly extracted parts) should take extensions seriously: instead of "Blah.ngl-Harp", "Blah-Harp.ngl". Fix est. difficulty & impact: low & low.
+
++ Some of the default CNFG & other settings are silly, or at least suboptimal. E.g.:
+	+ "Default staff rastral size" (1) should probably be 5; certainly not 1.
+	+ "Screen layout..." should be horiz., not vertical.
+	+ Some MIDI Modifier values are questionable. E.g., 90 for > vel. offset is ridiculously high!; it should probably be 50 or so.
+	+ "Min. space between lyrics" (6 eighth-spaces) is probably too large; cf. LyricConstrainedSpacing.ngl .
+	+ In tempo/metronome marks, there's usually not enough space between the tempo char. string and the note beginning the metronome mark. Default for extra space is currently 0 (in eighth-spaces); it should be around 3.
+	+ "Additional top margin on 1st page" (default 0) should probably be nonzero: at least 36 pts, say, but something like 72 would probably be better.
+	+ All three memory settings are ridiculously low -- though I doubt any of them are meaningful on any system Ngale 5.x runs on (Mac OS 10.0 thru 10.6)! Still, maybe multiply them by, say, 10.
