@@ -530,9 +530,9 @@ Move definitions of four limits from defs.h to NLimits.h.
 Minor cleanup. Affects NLimits.h, Reconstruct.h; ExtractHighLevel, File, Menu,
 MergeUtils, NotelistSave, Reconstruct, SelUtils.
 
--------------------------------------------------------------------------------
+-------------------------------------------------------------------------------	
 
-14 Apr. - 5 May
+14 Apr. - 5 May			       ==== NIGHTINGALE 5.6b5 ====
 
 Get with 21st-century conventions by taking filename extensions seriously: put the
 part name in default filenames of extracted parts before the dot instead of at the
@@ -556,3 +556,15 @@ Adept Music Notation Solutions.
 Minor cleanup. Affects MemMacros.h; DebugHighLevel, DebugUtils, DrawNRGR, DrawObject,
 Extract, File, MasterPage, StringUtils, and a few others.
 
+===============================================================================
+
+9-10 May
+
+Update version number in About box to 5.6b6. Affects info.plist .
+
+Show the measure's time (from the beginning of the score) in the Info dialog for
+measures. Affects .rsrc; InfoDialog.
+
+Change wording of a hint in the About box.
+
+Minor cleanup. Affects InfoDialog.

@@ -202,8 +202,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	GetDialogItem(dlog, UNITLABEL_SYNC, &aShort, &ulHdl, &tRect);
 	SetDialogItemCText(ulHdl, unitLabel);
 
-	switch (ObjLType(pL))													/* Initialize by type... */
-	{
+	switch (ObjLType(pL)) {													/* Initialize by type... */
 		case SYNCtype:
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
@@ -474,8 +473,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	DIST_ACCEPT(LinkXD(pL));
 
 	staff = 1;
-	switch (ObjLType(pL))										/* Get new values by type */
-	{
+	switch (ObjLType(pL)) {										/* Get new values by type */
 		case SYNCtype:
 			aNote = GetPANOTE(aNoteL);
 	
@@ -634,7 +632,9 @@ static enum {
 	PARAM1,
 	LBL_PARAM2,
 	PARAM2,
-	UNITLABEL_GEN=21
+	UNITLABEL_GEN=21,
+	LBL_MEASTIME,
+	MEASTIME
 } E_GenInfoItems;
 
 static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
@@ -703,11 +703,14 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	SetDialogItemCText(twHdl, (char *)(LinkTWEAKED(pL)? "T" : " "));
 	GetDialogItem(dlog, UNITLABEL_GEN, &aShort, &ulHdl, &tRect);
 	SetDialogItemCText(ulHdl, unitLabel);
+	if (ObjLType(pL)!=MEASUREtype) {
+		HideDialogItem(dlog, LBL_MEASTIME);
+		HideDialogItem(dlog, MEASTIME);
+	}
 
 	/* For objects without subobjects, change labels appropriately. */
 	
-	switch (ObjLType(pL))
-	{
+	switch (ObjLType(pL)) {
 		case MEASUREtype:
 		case BEAMSETtype:
 		case GRAPHICtype:
@@ -730,6 +733,8 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	switch (ObjLType(pL))
 	{
 		case MEASUREtype:
+			PutDlgLong(dlog, MEASTIME, MeasureTIME(pL), FALSE);
+
 		 	aMeasL = FirstSubLINK(pL);
 		 	for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL))
 		 		if (MeasureSEL(aMeasL)) break;

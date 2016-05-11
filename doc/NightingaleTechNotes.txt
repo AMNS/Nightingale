@@ -19,9 +19,9 @@ USER ORIENTED
 8	OK?	The Nightingale "Debug" Command, Especially for Finding Accidental Problems (DebugAndAccPblms-TN8.txt)
 10	OK?	Cleaning Up MIDI files Imported Into Nightingale (CleaningImpMIDIFiles-TN10.txt)
 12	OK	Installing Music Fonts for Nightingale (InstallingNightingaleFonts-TN12.pdf)
-14	OK?	CleaningNotelistFiles.txt
-16	OK	CNFGFields+Info.txt
-17	OK	LineWidthsForSmallPrinting.txt
+14	OK?	Cleaning Up Notelist files in Nightingale (CleaningNotelistFiles-TN14.txt)
+16	OK	Nightingale 5.X "CNFG" Resource Fields and Values (CNFGFields+Info-TN16.txt)
+17	OK	Linewidths For Printing and Display in Small Sizes (LineWidthsForSmallPrinting-TN17.txt)
 
 MOSTLY FOR DEVELOPERS
 
@@ -31,7 +31,7 @@ MOSTLY FOR DEVELOPERS
 9	OK?	Nightingale Conventions for Modifier Keys (ModKeyConventions-TN9.txt)
 11	OK	Nightingale Coordinate Systems and Page Layout (CoordinateSystems-TN11.doc)
 13	OK?	Sample Code For Computing Coordinates (CoordCalcSampleCode-TN13.txt)
-15	OK?	QuickDrawAPIsUsedInNgale.xls
+15	OK?	QuickDraw APIs Nightingale code depends on (QuickDrawAPIsUsedInNgale-TN15.xls)
 
 OBSOLETE AND/OR OF MINIMAL INTEREST
 
