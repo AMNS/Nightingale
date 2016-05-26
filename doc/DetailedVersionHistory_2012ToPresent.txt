@@ -530,7 +530,7 @@ Move definitions of four limits from defs.h to NLimits.h.
 Minor cleanup. Affects NLimits.h, Reconstruct.h; ExtractHighLevel, File, Menu,
 MergeUtils, NotelistSave, Reconstruct, SelUtils.
 
--------------------------------------------------------------------------------	
+-------------------------------------------------------------------------------
 
 14 Apr. - 5 May			       ==== NIGHTINGALE 5.6b5 ====
 
@@ -558,13 +558,23 @@ Extract, File, MasterPage, StringUtils, and a few others.
 
 ===============================================================================
 
-9-10 May
+9 - 25 May
 
 Update version number in About box to 5.6b6. Affects info.plist .
 
-Show the measure's time (from the beginning of the score) in the Info dialog for
-measures. Affects .rsrc; InfoDialog.
+Show the measure's time (in ticks from the beginning of the score) in the Info dialog
+for measures. Affects .rsrc; InfoDialog.
 
-Change wording of a hint in the About box.
+Pull a new header for notation style definitions, style.h, out of defs.h. Also affects
+Nightingale_Prefix.pch.
 
-Minor cleanup. Affects InfoDialog.
+Try to keep default filenames of extracted parts from exceeding the (Mac Classic)
+length limit of 31 chars. Affects ExtractHighLevel.
+
+Don't let the default respacing percent in the Extract Parts dialog exceed 100. Affects
+ExtractHighLevel.
+
+Increase default max. no. of documents (in the CNFG resource) from 20 to 30; for one
+thing, this makes extracting parts from a large score less awkward. Affects .rsrc.
+
+Minor cleanup. Affects CarbonPrinting, InfoDialog.

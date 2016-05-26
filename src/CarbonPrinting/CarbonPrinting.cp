@@ -72,8 +72,8 @@ static Boolean IsRightJustOK(Document *doc, short firstSheet, short lastSheet);
 static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession);
 static short GetPrintDestination(Document *doc);
 static void NDoPrintLoop(Document *doc);
-static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet);
-static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet);
+static OSStatus PrintBitmap(Document *doc, UInt32 firstSheet, UInt32 lastSheet);
+static OSStatus PrintPostScript(Document *doc, UInt32 firstSheet, UInt32 lastSheet);
 static OSStatus DocFormatGetAdjustedPaperRect(Document *doc, Rect *paperRect, Boolean xlateScale);
 static OSStatus NDocDrawPage(Document *doc, UInt32 pageNum);
 static Boolean DocSessionOK(Document *doc, OSStatus status);
@@ -118,6 +118,7 @@ static OSStatus DocCreatePrintSessionProcs(PMSheetDoneUPP *pageSetupDoneUPP,
 	return err;
 }
 
+
 // --------------------------------------------------------------------------------------------------------------
 // Create DocPrintInfo record for the document.
 
@@ -131,9 +132,9 @@ Boolean IsDocPrintInfoInstalled(Document *doc)
 
 OSStatus InstallDocPrintInfo(Document *doc)
 {
-	PMSheetDoneUPP		pageSetupDoneUPP;
-	PMSheetDoneUPP		printDialogDoneUPP;
-	OSStatus				err = noErr;
+	PMSheetDoneUPP	pageSetupDoneUPP;
+	PMSheetDoneUPP	printDialogDoneUPP;
+	OSStatus		err = noErr;
 	
 	doc->docPrintInfo.docPrintSession = NULL;
 	doc->docPrintInfo.docPageFormat = kPMNoPageFormat;
@@ -141,8 +142,7 @@ OSStatus InstallDocPrintInfo(Document *doc)
 	
 	err = DocCreatePrintSessionProcs(&pageSetupDoneUPP, &printDialogDoneUPP);
 	
-	if (err == noErr)
-	{
+	if (err == noErr) {
 		doc->docPrintInfo.docPageSetupDoneUPP = pageSetupDoneUPP;
 		doc->docPrintInfo.docPrintDialogDoneUPP = printDialogDoneUPP;
 	}
@@ -191,6 +191,7 @@ static OSStatus DocSetupPageFormat(Document *doc)
 	
 	return status;
 }
+
 
 // --------------------------------------------------------------------------------------------------------------
 
@@ -268,6 +269,7 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 	}
 }
 
+
 // --------------------------------------------------------------------------------------------------------------
 
 void NDoPageSetup(Document *doc)
@@ -292,6 +294,7 @@ void NDoPageSetup(Document *doc)
 	}	
 }
 
+
 // --------------------------------------------------------------------------------------------------------------
 
 static pascal void NPrintDialogDoneProc(PMPrintSession /*printSession*/,
@@ -304,6 +307,7 @@ static pascal void NPrintDialogDoneProc(PMPrintSession /*printSession*/,
 		if (accepted)
 			NDoPrintLoop(doc);
 }
+
 
 // --------------------------------------------------------------------------------------------------------------
 
@@ -318,13 +322,11 @@ void NDoPrintScore(Document *doc)
 		status = PMCreatePrintSettings(&printSettings);
 	}
 	
-	if (status == noErr && printSettings != kPMNoPrintSettings)
-	{	
+	if (status == noErr && printSettings != kPMNoPrintSettings) {	
 		status = CopyWindowTitleAsCFString(doc->theWindow,&wTitleRef);		
 	}
 	
-	if (status == noErr)
-	{	
+	if (status == noErr) {	
 		status = PMSetJobNameCFString(printSettings, wTitleRef);
 		CFRelease(wTitleRef);
 	}
@@ -360,9 +362,10 @@ void NDoPrintScore(Document *doc)
 		
 		CFStringRef cfFormatStr = CFSTR("Print Dialog error. Error number: %d.");
 		
-		DocPostPrintingError(doc,status,cfFormatStr);
+		DocPostPrintingError(doc, status, cfFormatStr);
 	}
 }
+
 
 // --------------------------------------------------------------------------------------------------------------
 
@@ -378,6 +381,7 @@ static OSStatus SetupPrintDlogPages(Document *doc)
 	return status;
 }
 
+
 // --------------------------------------------------------------------------------------------------------------
 
 static OSStatus GetPrintPageRange(Document *doc, UInt32 *firstPage, UInt32 *lastPage)
@@ -390,6 +394,7 @@ static OSStatus GetPrintPageRange(Document *doc, UInt32 *firstPage, UInt32 *last
 	return status;
 }
 
+
 // --------------------------------------------------------------------------------------------------------------
 
 static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPage)
@@ -401,6 +406,7 @@ static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPa
 				
 	return status;
 }
+
 
 // --------------------------------------------------------------------------------------------------------------
 
@@ -415,7 +421,7 @@ static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPa
 #define JUSTSLOP .001
 
 static Boolean IsRightJustOK(Document *doc, 
-										short firstSheet, short lastSheet)	/* Inclusive range of sheet numbers */
+								short firstSheet, short lastSheet)	/* Inclusive range of sheet numbers */
 {
 	LINK startPageL, endPageL, pL, firstMeasL, termSysL, lastMeasL;
 	FASTFLOAT justFact;
@@ -428,6 +434,7 @@ static Boolean IsRightJustOK(Document *doc,
 		MayErrMsg("IsRightJustOK: can't find startPageL.");
 		return TRUE;
 	}
+	
 	for (pL = startPageL; pL!=endPageL; pL = RightLINK(pL))
 		if (SystemTYPE(pL)) {
 			firstMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
@@ -492,6 +499,7 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 	return status;
 }
 
+
 /* ------------------------------------------------------------------------------
  *   Function:	IncludePostScriptInSpoolFile
  *	
@@ -505,10 +513,10 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 
 static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 {
-	Boolean	includePostScript = false;
+	Boolean		includePostScript = false;
 	OSStatus	status;
 	CFArrayRef	supportedFormats = NULL;
-	SInt32	i, numSupportedFormats;
+	SInt32		i, numSupportedFormats;
 
 	// Get the list of spool file formats supported by the current driver.
 	// PMSessionGetDocumentFormatGeneration returns the list of formats which can be generated
@@ -517,32 +525,28 @@ static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 	// by the despooler.
 
 	status = PMSessionGetDocumentFormatGeneration(printSession, &supportedFormats);
-	if (status == noErr)
-	{
+	if (status == noErr) {
 		// Check if PICT w/ PS is in the list of supported formats.
 		numSupportedFormats = CFArrayGetCount(supportedFormats);
 
-		for (i=0; i < numSupportedFormats; i++)
-		{
+		for (i=0; i < numSupportedFormats; i++) {
 			if ( CFStringCompare((CFStringRef)CFArrayGetValueAtIndex(supportedFormats, i),
-										kPMDocumentFormatPICTPS, kCFCompareCaseInsensitive) == kCFCompareEqualTo )
-			{
+										kPMDocumentFormatPICTPS, kCFCompareCaseInsensitive) == kCFCompareEqualTo ) {
 				// PICT w/ PS is supported, so tell the Printing Mgr to generate a PICT w/ PS spool file
 
 				// Build an array of graphics contexts containing just one type, Quickdraw,
 				// meaning that we will be using a QD port to image our pages in the print loop.
 				CFStringRef	strings[1];
-				CFArrayRef		arrayOfGraphicsContexts;
+				CFArrayRef arrayOfGraphicsContexts;
 
 				strings[0] = kPMGraphicsContextQuickdraw;
 				arrayOfGraphicsContexts = CFArrayCreate(kCFAllocatorDefault,
-																		(const void **)strings, 1, &kCFTypeArrayCallBacks);
+														(const void **)strings, 1, &kCFTypeArrayCallBacks);
 
-				if (arrayOfGraphicsContexts != NULL)
-				{
+				if (arrayOfGraphicsContexts != NULL) {
 					// Request a PICT w/ PS spool file
 					status = PMSessionSetDocumentFormatGeneration(printSession, kPMDocumentFormatPICTPS, 
-																					arrayOfGraphicsContexts, NULL);
+																	arrayOfGraphicsContexts, NULL);
 
 					if (status == noErr)
 						includePostScript = true;	// Enable use of PS PicComments in DrawPage.
@@ -580,8 +584,9 @@ static short GetPrintDestination(Document *doc)
 #define USE_PREC103 1
 
 void PS_FinishPrintDictHdl()
-	{
-	}
+{
+}
+
 
 static void NDoPrintLoop(Document *doc)
 {
@@ -611,10 +616,10 @@ static void NDoPrintLoop(Document *doc)
 	
 #if USE_PREC103
 	if (status == noErr)
-		PS_PreparePrintDict(doc,&imageRect);			/* Create 'PREC' 103 */
+		PS_PreparePrintDict(doc,&imageRect);					/* Create 'PREC' 103 */
 #else
 	if (status == noErr)
-		printDictHdl = PS_PreparePrintDictHdl(doc,&imageRect);			/* Create 'PREC' 103 */
+		printDictHdl = PS_PreparePrintDictHdl(doc,&imageRect);	/* Create 'PREC' 103 */
 #endif
 		
 	if (status == noErr)
@@ -624,11 +629,11 @@ static void NDoPrintLoop(Document *doc)
 	if (status == noErr) {
 		switch (outputTo) {
 			case toImageWriter:
-				status = PrintImageWriter(doc,firstSheet,lastSheet);
+				status = PrintBitmap(doc, firstSheet, lastSheet);
 				if (status != noErr) copies = -1;
 				break;
 			case toPostScript:
-				status = PrintLaserWriter(doc,firstSheet,lastSheet);
+				status = PrintPostScript(doc, firstSheet, lastSheet);
 				if (status != noErr) copies = -1;
 				break;
 		}
@@ -673,38 +678,32 @@ displayError:
 
 // --------------------------------------------------------------------------------------------------------------
 
-static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet)
+static OSStatus PrintBitmap(Document *doc, UInt32 firstSheet, UInt32 lastSheet)
 {
 	OSStatus err = noErr,status = noErr;
 	UInt32 sheetNum;
 	GrafPtr	currPort,printPort;
 	
 	status = PMSessionBeginDocument(doc->docPrintInfo.docPrintSession,
-												doc->docPrintInfo.docPrintSettings,
-												doc->docPrintInfo.docPageFormat);
+										doc->docPrintInfo.docPrintSettings,
+										doc->docPrintInfo.docPageFormat);
 												
 	if (status == noErr) {
 		sheetNum = firstSheet;
 		
-		while (sheetNum <= lastSheet && DocSessionOK(doc,status))
-		{
+		while (sheetNum <= lastSheet && DocSessionOK(doc,status)) {
 			status = PMSessionBeginPage(doc->docPrintInfo.docPrintSession,
-													doc->docPrintInfo.docPageFormat,
-													NULL);
+											doc->docPrintInfo.docPageFormat,
+											NULL);
 													
-			if (status == noErr)
-			{
+			if (status == noErr) {
 				GetPort(&currPort);
-				
 				status = PMSessionGetGraphicsContext(doc->docPrintInfo.docPrintSession,
-																	kPMGraphicsContextQuickdraw,
-																	(void**)&printPort);					
-				if (status == noErr)
-				{
+														kPMGraphicsContextQuickdraw,
+														(void**)&printPort);					
+				if (status == noErr) {
 					SetPort(printPort);
-					
-						status = NDocDrawPage(doc,sheetNum);
-
+					status = NDocDrawPage(doc,sheetNum);
 					SetPort(currPort);
 				}
 				
@@ -724,21 +723,21 @@ static OSStatus PrintImageWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 	return status;
 }
 
+
 // --------------------------------------------------------------------------------------------------------------
 
-static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSheet)
+static OSStatus PrintPostScript(Document *doc, UInt32 firstSheet, UInt32 lastSheet)
 {
-	OSStatus	err = noErr,status = noErr;
-	UInt32	sheet;
-//	Boolean	landscape;
-//	Rect 		printRect,frameRect;
-	GrafPtr	currPort,printPort;
-	Rect		imageRect,paper;
-	FSSpec	fsSpec;
+	OSStatus	err = noErr, status = noErr;
+	UInt32		sheet;
+//	Rect		printRect, frameRect;
+	GrafPtr		currPort, printPort;
+	Rect		imageRect, paper;
+	FSSpec		fsSpec;
 	
 	status = PMSessionBeginDocument(doc->docPrintInfo.docPrintSession,
-												doc->docPrintInfo.docPrintSettings,
-												doc->docPrintInfo.docPageFormat);
+									doc->docPrintInfo.docPrintSettings,
+									doc->docPrintInfo.docPageFormat);
 												
 	if (status == noErr) {
 	
@@ -746,7 +745,6 @@ static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 		 * Get physical size of paper (topleft should be (0,0)) and imageable area
 		 * (topleft should be something like (-31,-30))
 		 */
-		 	
 		//printRect = (**hPrint).prInfo.rPage;
 		//imageRect = (*hPrint)->rPaper;		
 		status = DocFormatGetAdjustedPaperRect(doc, &imageRect, TRUE);
@@ -758,18 +756,16 @@ static OSStatus PrintLaserWriter(Document *doc, UInt32 firstSheet, UInt32 lastSh
 			for (sheet=firstSheet; sheet<=lastSheet && DocSessionOK(doc,status); sheet++) {
 			
 				status = PMSessionBeginPage(doc->docPrintInfo.docPrintSession,
-														doc->docPrintInfo.docPageFormat,
-														NULL);
+												doc->docPrintInfo.docPageFormat,
+												NULL);
 														
-				if (status == noErr)
-				{
+				if (status == noErr) {
 					GetPort(&currPort);
 					
 					status = PMSessionGetGraphicsContext(doc->docPrintInfo.docPrintSession,
-																		kPMGraphicsContextQuickdraw,
-																		(void**)&printPort);					
-					if (status == noErr)
-					{
+															kPMGraphicsContextQuickdraw,
+															(void**)&printPort);					
+					if (status == noErr) {
 						SetPort(printPort);
 						
 						/*
@@ -868,6 +864,7 @@ static OSStatus DocFormatGetAdjustedPaperRect(Document *doc, Rect *rPaper, Boole
 	return status;
 }
 
+
 // --------------------------------------------------------------------------------------------------------------
 
 static Boolean DocSessionOK(Document *doc, OSStatus status)
@@ -877,6 +874,7 @@ static Boolean DocSessionOK(Document *doc, OSStatus status)
 	
 	return (PMSessionError(doc->docPrintInfo.docPrintSession) == noErr);
 }
+
 
 // --------------------------------------------------------------------------------------------------------------
 
@@ -889,8 +887,6 @@ static void DocReleasePrintSession(Document *doc)
 }
 
 
-// --------------------------------------------------------------------------------------------------------------
-
 static void DocReleasePageFormat(Document *doc)
 {
 	if (doc->docPrintInfo.docPageFormat != kPMNoPageFormat) {
@@ -899,7 +895,6 @@ static void DocReleasePageFormat(Document *doc)
 	}
 }
 
-// --------------------------------------------------------------------------------------------------------------
 
 static void DocReleasePrintSettings(Document *doc)
 {
@@ -909,7 +904,9 @@ static void DocReleasePrintSettings(Document *doc)
 	}
 }
 
+
 // --------------------------------------------------------------------------------------------------------------
+
 static void DocSPFReleasePrintSession(Document *doc,PMPrintSession printSession,PMPageFormat pageFormat)
 {
 	if (doc->docPrintInfo.docPageFormat != pageFormat) {
@@ -926,6 +923,7 @@ static void DocSPFReleasePrintSession(Document *doc,PMPrintSession printSession,
 
 	DocReleasePrintSession(doc);
 }
+
 /*------------------------------------------------------------------------------
 	Function:
 		FlattenAndSavePageFormat
@@ -938,10 +936,11 @@ static void DocSPFReleasePrintSession(Document *doc,PMPrintSession printSession,
 		Assumes caller passes a validated PageFormat object.
 		
 ------------------------------------------------------------------------------*/
+
 OSStatus FlattenAndSavePageFormat(Document *doc)
 {
-	OSStatus	status;
-	Handle	flatFormatHandle = NULL;
+	OSStatus status;
+	Handle flatFormatHandle = NULL;
 
 	//	Flatten the PageFormat object to memory.
 	status = PMFlattenPageFormat(doc->docPrintInfo.docPageFormat, &flatFormatHandle);
@@ -954,7 +953,6 @@ OSStatus FlattenAndSavePageFormat(Document *doc)
 
 	return status;
 }	//	FlattenAndSavePageFormat
-
 
 
 /*------------------------------------------------------------------------------
@@ -970,6 +968,7 @@ OSStatus FlattenAndSavePageFormat(Document *doc)
         will need to retrieve PageFormat data saved with documents.
 		
 ------------------------------------------------------------------------------*/
+
 OSStatus	LoadAndUnflattenPageFormat(Document *doc)
 {
 	OSStatus	status = noErr;
@@ -1000,9 +999,7 @@ OSStatus	LoadAndUnflattenPageFormat(Document *doc)
 		doc->docPrintInfo.docPageFormat = kPMNoPageFormat;			
 
 	return status;
-}	//	LoadAndUnflattenPageFormat
-
-
+}
 
 
 // --------------------------------------------------------------------------------------------------------------
@@ -1010,22 +1007,18 @@ OSStatus	LoadAndUnflattenPageFormat(Document *doc)
 static void DocPostPrintingError (Document */*doc*/, OSStatus status, CFStringRef errorFormatStringKey)
 {   
 	CFStringRef formatStr = NULL, 
-					printErrorMsg = NULL;
+				printErrorMsg = NULL;
 	SInt16      alertItemHit = 0;
 	Str255      stringBuf;
 
-	if ((status != noErr) && (status != kPMCancel)) 
-	{
+	if ((status != noErr) && (status != kPMCancel)) {
 		formatStr =  CFCopyLocalizedString (errorFormatStringKey, NULL);
-		if (formatStr != NULL)
-		{
+		if (formatStr != NULL) {
 			printErrorMsg = CFStringCreateWithFormat(NULL, NULL, formatStr, status);
-			if (printErrorMsg != NULL)
-			{
+			if (printErrorMsg != NULL) {
 				if (CFStringGetPascalString (printErrorMsg,    
 														stringBuf, sizeof (stringBuf), 
-														GetApplicationTextEncoding()))
-				{
+														GetApplicationTextEncoding())) {
 					StandardAlert(kAlertStopAlert, stringBuf, NULL, NULL, &alertItemHit);
 				}
 				
@@ -1042,29 +1035,29 @@ static void DocPostPrintingError (Document */*doc*/, OSStatus status, CFStringRe
 // Save as EPSF routines.
 
 /*
- *	Go thru the entire data structure and make a list of what font/style comb-
- *	inations are actually used.
+ *	Go thru the entire data structure and make a list of what font/style combinations
+ *	are actually used.
  */
 
 static void FillFontUsedTbl(Document *doc)
-	{
-		short	j, k, styleBits;
-		LINK pL;
-		PGRAPHIC p;
-	
-		for (j = 0; j<doc->nfontsUsed; j++) {
-			PStrCopy((StringPtr)doc->fontTable[j].fontName,
-						(StringPtr)fontUsedTbl[j].fontName);
-			for (k = 0; k<4; k++)
-				fontUsedTbl[j].style[k] = FALSE;
+{
+	short j, k, styleBits;
+	LINK pL;
+	PGRAPHIC p;
+
+	for (j = 0; j<doc->nfontsUsed; j++) {
+		PStrCopy((StringPtr)doc->fontTable[j].fontName,
+					(StringPtr)fontUsedTbl[j].fontName);
+		for (k = 0; k<4; k++)
+			fontUsedTbl[j].style[k] = FALSE;
+		}
+	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
+		if (GraphicTYPE(pL)) {
+			p = GetPGRAPHIC(pL);
+			styleBits = p->fontStyle % 4;
+			fontUsedTbl[p->fontInd].style[styleBits] = TRUE;
 			}
-		for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
-			if (GraphicTYPE(pL)) {
-				p = GetPGRAPHIC(pL);
-				styleBits = p->fontStyle % 4;
-				fontUsedTbl[p->fontInd].style[styleBits] = TRUE;
-				}
-	}
+}
 
 
 Boolean NDoPostScript(Document *doc)
@@ -1072,9 +1065,9 @@ Boolean NDoPostScript(Document *doc)
 		short			saveOutputTo, saveMagnify, sheet, sufIndex;
 		short			len, vref, rfNum, suffixLen, ch, firstSheet, topSheet;
 		short			newType, anInt, pageNum, sheetNum;
-		Str255		outname;
-		PicHandle	picHdl;
-		RgnHandle	rgnHdl;
+		Str255			outname;
+		PicHandle		picHdl;
+		RgnHandle		rgnHdl;
 		Rect			paperRect;
 		short			EPSFile;
 		static short	type=2;						/* 1=EPSF, 2=PostScript */
@@ -1085,7 +1078,6 @@ Boolean NDoPostScript(Document *doc)
 		FSSpec 			rfSpec;
 		ScriptCode		scriptCode = smRoman;
 		OSErr			theErr;
-		
 		
 		Sel2MeasPage(doc, &anInt, &pageNum);
 		newType = PSTypeDialog(type, pageNum);
@@ -1102,59 +1094,57 @@ Boolean NDoPostScript(Document *doc)
 		 *	be room to append the suffix, we truncate the file name before appending the
 		 *	suffix so that we don't run the risk of overwriting the original score file.
 		 */
-		
 		sufIndex = EPSFile ? 4 : 8;
 		GetIndString(outname,MiscStringsID,sufIndex);		/* Get suffix (".EPSF" or ".ps") length */
 		suffixLen = *(unsigned char *)outname;
 	
 		/* Get current name and its length, and truncate name to make room for suffix */
 		
-		if (doc->named)	PStrCopy((StringPtr)doc->name,(StringPtr)outname);
-		 else			GetIndString(outname,MiscStringsID,1);		/* "Untitled" */
+		if (doc->named)	PStrCopy((StringPtr)doc->name, (StringPtr)outname);
+		 else			GetIndString(outname, MiscStringsID,1);		/* "Untitled" */
 		len = *(unsigned char *)outname;
 		if (len >= (64-suffixLen)) len = (64-suffixLen);	/* 64 is max file name size */
 		
 		/* Finally append suffix */
 		
-		ch = outname[len];							/* Hold last character of name */
-		GetIndString(outname+len,MiscStringsID,sufIndex);	/* Append suffix, obliterating last char */
-		outname[len] = ch;							/* Overwrite length byte with saved char */
-		*outname = (len + suffixLen);				/* And ensure new string knows new length */
+		ch = outname[len];								/* Hold last character of name */
+		GetIndString(outname+len, MiscStringsID,sufIndex);	/* Append suffix, obliterating last char */
+		outname[len] = ch;								/* Overwrite length byte with saved char */
+		*outname = (len + suffixLen);					/* And ensure new string knows new length */
 		
 		/* Ask user where to put this PostScript file */
 
 		//Pstrcpy(outname,doc->name);
 		//PStrCat(outname,EPSFile? (StringPtr)"\p.eps":(StringPtr)"\p.txt");
-		keepGoing = GetOutputName(MiscStringsID,EPSFile? 7:9,outname,&vref,&nscd);
+		keepGoing = GetOutputName(MiscStringsID,EPSFile? 7:9, outname, &vref, &nscd);
 		if (!keepGoing) return FALSE;
 		
 		rfSpec = nscd.nsFSSpec;
 		
-		saveOutputTo = outputTo;					/* Save state */
+		saveOutputTo = outputTo;						/* Save state */
 		outputTo = toPostScript;
 		
 		WaitCursor();
 		theErr = PS_Open(doc, outname, vref, USING_FILE, EPSFile? 'EPSF':'TEXT',&rfSpec);
 		if (theErr == noErr) {
-			
 			paperRect = doc->origPaperRect;
 			
-			PS_Header(doc,outname,EPSFile?1:doc->numSheets,1.0,FALSE,TRUE,&paperRect,&paperRect);
+			PS_Header(doc, outname, (EPSFile? 1:doc->numSheets), 1.0, FALSE, TRUE, &paperRect, &paperRect);
 			
 			if (EPSFile) {
-				firstSheet = sheetNum;				/* Do current sheet only */
+				firstSheet = sheetNum;					/* Do current sheet only */
 				topSheet = firstSheet + 1;
-				}
-			 else {
-				firstSheet = 0;						/* Do all sheets */
+			}
+			else {
+				firstSheet = 0;							/* Do all sheets */
 				topSheet = doc->numSheets;
-				}
+			}
 			
 			for (sheet=firstSheet; sheet<topSheet; sheet++) {
 				PS_NewPage(doc,NULL,sheet+doc->firstPageNumber);
 				DrawPageContent(doc, sheet, &paperRect, &doc->viewRect);
 				PS_EndPage();
-				}
+			}
 			
 			if (EPSFile) {
 				/*
@@ -1162,28 +1152,27 @@ Boolean NDoPostScript(Document *doc)
 				 *	fonts used and the image's bounding box; in the resource fork of the same
 				 *	file, a PICT of the page image.
 				 */
-				
-				rgnHdl = NewRgn();					/* Save current clipping region */
+				rgnHdl = NewRgn();						/* Save current clipping region */
 				GetClip(rgnHdl);
 				
-				saveMagnify = doc->magnify;			/* Save current magnification, and reset to none */
+				saveMagnify = doc->magnify;				/* Save current magnification, and reset to none */
 				doc->magnify = 0;
 		 		
-		 		outputTo = toPICT;					/* Draw page contents into a PICT */
+		 		outputTo = toPICT;						/* Draw page contents into a PICT */
 		 		ClipRect(&paperRect);
 				picHdl = OpenPicture(&paperRect);
 				DrawPageContent(doc, sheetNum, &paperRect, &doc->viewRect);
 				FrameRect(&paperRect);
 				ClosePicture();
 				
-				doc->magnify = saveMagnify;			/* Restore environment */
+				doc->magnify = saveMagnify;				/* Restore environment */
 				InstallMagnify(doc);
 				
 				SetClip(rgnHdl);
 				outputTo = toPostScript;
-				}
+			}
 
-			FillFontUsedTbl(doc);					/* Make list of font/style combinations used */
+			FillFontUsedTbl(doc);							/* Make list of font/style combinations used */
 	
 			PS_Trailer(doc, doc->nfontsUsed, fontUsedTbl,
 						(doc->numberMeas!=0? doc->fontNameMN : NULL),
@@ -1193,7 +1182,7 @@ Boolean NDoPostScript(Document *doc)
 				GetIndCString(strBuf, PRINTERRS_STRS, 2);    /* "Some line(s) are so thin that they may not reproduce well." */
 				CParamText(strBuf, "", "", "");
 				CautionInform(GENERIC_ALRT);
-				}
+			}
 				
 			if (EPSFile) {
 				/* Postscript text file is closed: add PICT to resource fork of new EPSF file */
@@ -1213,17 +1202,18 @@ Boolean NDoPostScript(Document *doc)
 				 else {
 					AddResource((Handle)picHdl, 'PICT', 256, "\p");
 					CloseResFile(rfNum);
-					UseResFile(appRFRefNum);				/* a precaution */
-					}
+					UseResFile(appRFRefNum);					/* a precaution */
 				}
 			}
+		}
 
 		outputTo = saveOutputTo;
 		ArrowCursor();
 
 		return TRUE;
 	}
-	
+
+
 static enum {
 	BUT1_OK = 1,
 	BUT2_Cancel,
@@ -1237,9 +1227,9 @@ static short group1;
 
 static short PSTypeDialog(short oldType, short pageNum)
 	{
-		short itemHit,okay,type,keepGoing=TRUE;
+		short itemHit, okay, type, keepGoing=TRUE;
 		DialogPtr dlog; GrafPtr oldPort;
-		ModalFilterUPP	filterUPP;
+		ModalFilterUPP filterUPP;
 		Handle hndl;
 		Rect box;
 		char fmtStr[256], str[256];
@@ -1252,7 +1242,7 @@ static short PSTypeDialog(short oldType, short pageNum)
 			return 0;
 		}
 		GetPort(&oldPort);
-		dlog = GetNewDialog(PSTYPE_DLOG,NULL,BRING_TO_FRONT);
+		dlog = GetNewDialog(PSTYPE_DLOG, NULL, BRING_TO_FRONT);
 		if (dlog==NULL) {
 			DisposeRoutineDescriptor(filterUPP);
 			MissingDialog(PSTYPE_DLOG);
@@ -1277,7 +1267,7 @@ static short PSTypeDialog(short oldType, short pageNum)
 		/* Entertain filtered user events until dialog is dismissed */
 		
 		while (keepGoing) {
-			ModalDialog(filterUPP,&itemHit);
+			ModalDialog(filterUPP, &itemHit);
 			switch(itemHit) {
 				case BUT1_OK:
 					keepGoing = FALSE;

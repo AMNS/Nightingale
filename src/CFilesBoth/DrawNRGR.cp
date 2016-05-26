@@ -431,11 +431,11 @@ void DrawAcc(Document *doc,
 		delta = (short)(((long)scalePercent*config.courtesyAccLXD)/100L);
 		xdLParen = xdAcc-delta*d8thSp;
 
-		yoffset = MusCharYOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);	/* assuming both parens have same yoffset */
+		yoffset = MusCharYOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);	/* assume both parens have same yoffset */
 		delta = (short)(((long)scalePercent*config.courtesyAccYD)/100L);
 		ydParens = yd + delta*d8thSp + ((DDIST)(((long)scalePercent*yoffset)/100L));
-		LogPrintf(LOG_NOTICE, "DrawAcc: yd=%d, delta=%d, scalePercent=%d, yoffset=%d, ydParens=%d\n",
-					yd, delta, scalePercent, yoffset, ydParens);
+		//LogPrintf(LOG_NOTICE, "DrawAcc: yd=%d, delta=%d, scalePercent=%d, yoffset=%d, ydParens=%d\n",
+		//			yd, delta, scalePercent, yoffset, ydParens);
 	}
 	xdAcc += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
 	yd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, accGlyph, lnSpace));

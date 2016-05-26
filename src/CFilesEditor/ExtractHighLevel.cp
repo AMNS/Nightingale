@@ -242,19 +242,34 @@ static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *partF
 	GetFinalSubstring(tmpStr, extStr, '.');
     wantLen = strlen(tmpStr)-strlen(extStr)-1;				/* -1 to leave out the "." */
     okay = GetInitialSubstring(tmpStr, nameStr, wantLen);
-	//LogPrintf(LOG_DEBUG, "1.tmpStr='%s' extStr='%s' nameStr='%s'\n", tmpStr, extStr, nameStr);
     if (okay) {
-        LogPrintf(LOG_DEBUG, "BuildPartFilename: OK. tmpStr=%s wantLen=%d name='%s' ext='%s'\n",
-					tmpStr, wantLen, nameStr, extStr);
+        //LogPrintf(LOG_DEBUG, "BuildPartFilename: OK. tmpStr='%s' wantLen=%d name='%s' ext='%s'\n",
+		//			tmpStr, wantLen, nameStr, extStr);
     } else {
-        LogPrintf(LOG_DEBUG, "BuildPartFilename: Not OK. tmpStr=%s wantLen=%d.\n", tmpStr, wantLen);
+        //LogPrintf(LOG_DEBUG, "BuildPartFilename: Not OK. tmpStr=%s wantLen=%d.\n", tmpStr, wantLen);
 		return FALSE;
 	}
 	strcat(nameStr, "-");
-	strcat(nameStr, PartNAME(partL));
+	
+	/* With the Carbon toolkit, filenames can't be longer than the modest length MacOS 9
+		allows; if we're going to exceed it, shorten the part name. NB: This won't handle
+		every case: in fact, the score filename might already have the maximum length.
+		But if worst comes to worst, the file I/O library and/or OS will shorten it to
+		the legal limit. And since we might exceed the limit regardless, always keep at
+		least 2 chars. of the part name to increase the odds of getting a meaningful
+		default name. FIXME: But there's still a good chance of getting meaningless
+		default names, or, worse, two parts getting the same default name! It'd be
+		better to shorten both the score filename _and_ the part name, or let the
+		user replace the score filename with a (presumably shorter) name, e.g., in the
+		Extract dialog. */
+	short maxNameLen = FILENAME_MAXLEN-strlen(nameStr)-strlen(extStr)-1;
+	if (maxNameLen<2) maxNameLen = 2;
+	strncat(nameStr, PartNAME(partL), maxNameLen);
 	strcat(nameStr, ".");
 	strcat(nameStr, extStr);
-	//LogPrintf(LOG_DEBUG, "2.tmpStr='%s' extStr='%s' nameStr='%s'\n", tmpStr, extStr, nameStr);
+	LogPrintf(LOG_DEBUG, "BuildPartFilename: tmpStr='%s' extStr='%s' maxNameLen=%d nameStr='%s' len=%d\n",
+			tmpStr, extStr, maxNameLen, nameStr, strlen(nameStr));
+
 	tooLong = (strlen(nameStr)>FILENAME_MAXLEN);
 	CToPString(nameStr);
 	Pstrcpy(partFName, (unsigned char *)nameStr);
@@ -291,7 +306,10 @@ Boolean DoExtract(Document *doc)
 			GetIndString(str, MiscStringsID, 18);				/* "selected parts" */
 			Pstrcpy(partName, str);
 		}
+
+		/* It's not easy to guess what a reasonable amount of squeezing is, but we'll try. */
 		spacePercent = doc->spacePercent;
+		if (spacePercent>100) spacePercent = 100;
 		if (!ExtractDialog(partName, &allParts, &closeAndSave, &reformat, &spacePercent))
 			return FALSE;
 

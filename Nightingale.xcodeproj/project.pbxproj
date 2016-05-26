@@ -8,7 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151D712F1C4FA1A900B49302 /* VoiceTable.cp */; };
+		1526D3831CF5D3A600704DF0 /* style.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1526D3821CF5D3A600704DF0 /* style.h */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
+		156E300B1CF5C88F001712B1 /* style.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 156E300A1CF5C88F001712B1 /* style.h */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
 		15E4B7751C823507001279A2 /* Ottava.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E4B7741C823507001279A2 /* Ottava.cp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
@@ -197,6 +199,8 @@
 			files = (
 				D06D06F90D7287960055C107 /* Nightingale 2004 Help in CopyFiles */,
 				D099DB1B0DB2FE0300C228DB /* EndianUtils.h in CopyFiles */,
+				156E300B1CF5C88F001712B1 /* style.h in CopyFiles */,
+				1526D3831CF5D3A600704DF0 /* style.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -205,6 +209,8 @@
 /* Begin PBXFileReference section */
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
+		1526D3821CF5D3A600704DF0 /* style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = style.h; sourceTree = "<group>"; };
+		156E300A1CF5C88F001712B1 /* style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = style.h; sourceTree = "<group>"; };
 		15E4B7741C823507001279A2 /* Ottava.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Ottava.cp; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		32DBCF6D0370B57F00C91783 /* Nightingale_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nightingale_Prefix.pch; sourceTree = "<group>"; };
@@ -237,7 +243,7 @@
 		D03E69CE0D5F643B005FD177 /* FMData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMData.h; sourceTree = "<group>"; };
 		D03E69FA0D5F65DC005FD177 /* OpcodeNightingaleDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpcodeNightingaleDefs.h; sourceTree = "<group>"; };
 		D03E6A370D5F6680005FD177 /* Nightingale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nightingale.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		D03E6A530D5F6798005FD177 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
+		D03E6A530D5F6798005FD177 /* defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = defs.h; sourceTree = "<group>"; };
 		D03E6A670D5F69BE005FD177 /* NightTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NightTemplates.h; sourceTree = "<group>"; };
 		D03E6A690D5F69E8005FD177 /* MIDIRecUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDIRecUtils.h; sourceTree = "<group>"; };
 		D03E6A9E0D5F6B8A005FD177 /* EssentialTools.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EssentialTools.h; sourceTree = "<group>"; };
@@ -605,6 +611,7 @@
 		D03E69700D5F608F005FD177 /* Precomps */ = {
 			isa = PBXGroup;
 			children = (
+				156E300A1CF5C88F001712B1 /* style.h */,
 				D03E69730D5F60AB005FD177 /* applicationTypes.h */,
 				D03E6B8E0D5F7807005FD177 /* Beam.h */,
 				D03E6B8F0D5F7807005FD177 /* Browser.h */,
@@ -667,6 +674,7 @@
 				D03E6BC20D5F78BF005FD177 /* SpaceHighLevel.h */,
 				D03E6BC30D5F78BF005FD177 /* SpaceTime.h */,
 				D03E697A0D5F60AB005FD177 /* StringPool.h */,
+				1526D3821CF5D3A600704DF0 /* style.h */,
 				D03E6BC40D5F78BF005FD177 /* Tuplet.h */,
 				D03E6BC50D5F78BF005FD177 /* Undo.h */,
 				D03E6BC60D5F78BF005FD177 /* Utility.h */,

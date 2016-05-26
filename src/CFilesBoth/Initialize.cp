@@ -47,12 +47,8 @@ this is platform-dependent. */
 
 static void InitToolbox()
 {
-#ifndef OS_MAC
-#error MAC OS-ONLY CODE
-#else
 #if TARGET_API_MAC_CARBON
 	FlushEvents(everyEvent, 0);		// FIXME: DO WE NEED THIS?
-#endif
 #endif
 }
 		
@@ -760,7 +756,7 @@ static Boolean GetConfig()
 		config.courtesyAccYD = -127;
 		config.courtesyAccSize = -127;
 
-		/* FIXME: What about OMS fields (metroDevice thru defaultOutputChannel)?? */
+		/* FIXME: What about OMS fields (metroDevice thru defaultOutputChannel)? */
 		
 		config.quantizeBeamYPos = -1;
 
