@@ -1,8 +1,8 @@
 /*
 	style.h for Nightingale
 	Some notation style parameters, for engravers and other fanatics. Numerous others
-	are kept in the CNFG resource -- and most of these should be moved there eventually
-	so they can be overridden by users.
+	are kept in the CNFG resource. (Most of these should perhaps be moved there eventually;
+	anyway, it should be possible for users to override them.)
 	
 	Created by donbyrd on 25 May 2016.
  */

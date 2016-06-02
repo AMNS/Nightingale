@@ -443,9 +443,6 @@ void DoEditMenu(short choice)
 				break;
 			case EM_Merge:
 				DoMerge(doc);
-#ifdef CURE_MACKEYS_DISEASE
-				DCheckNEntries(doc);
-#endif
 				break;
 			case EM_Double:
 				Double(doc);
@@ -788,9 +785,6 @@ static void DoNotesMenu(short choice)
 				break;
 			case NM_CompactV:
 				DoCompactVoices(doc);
-#ifdef CURE_MACKEYS_DISEASE
-				DCheckNEntries(doc);
-#endif
 				break;
 			case NM_InsertByPos:
 				NMInsertByPos(doc);
@@ -901,15 +895,9 @@ void DoGroupsMenu(short choice)
 				if (cmdIsTuplet) {
 					tParam.isFancy = FALSE;
 					DoTuple(doc, &tParam);
-#ifdef CURE_MACKEYS_DISEASE
-					DCheckNEntries(doc);
-#endif
 					}
 				else {
 					DoUntuple(doc);
-#ifdef CURE_MACKEYS_DISEASE
-					DCheckNEntries(doc);
-#endif
 					}
 				break;
 			case GM_FancyTuplet:
@@ -918,9 +906,6 @@ void DoGroupsMenu(short choice)
 					okay = TupletDialog(doc, &tParam, TRUE);
 					if (okay) DoTuple(doc, &tParam);
 					}
-#ifdef CURE_MACKEYS_DISEASE
-				DCheckNEntries(doc);
-#endif
 				break;
 			case GM_Ottava:
 				if (cmdIsOttava) {

@@ -1,10 +1,10 @@
 NIGHTINGALE CHANGES (in DAB's current version and GitHub repository)
-June 2012 to Present
+March 2013 to Present
 
-(Most of the files in my Nightingale Carbon code base have last modification dates of
+Most of the files in my Nightingale Carbon code base have last modification dates of
 April or May 2012; a few files are 2 June 2012, and it looks like that's the last source
-code I share with David G. This document describes all changes to my own code base since
-then, the earliest of which are dated 4 March 2013.)
+code I share with David Gottlieb's AMNS version. This document describes all changes to
+the AMNF code base since then, the earliest of which are dated 4 March 2013.  --DAB
 
 
 March 2013 - ??
@@ -18,11 +18,10 @@ March 2013 - ??
 	resulted in measures often being respaced far too widely when Show Duration Problems
 	was on. Added #define for NOTEHEAD_GRAPH_WIDTH; made doNoteheadGraphs a global.
 	Affects defs.h, vars.h, DrawNRGR, InitNightingale, SpaceTime.
-* Initialize.cp: display all CNFG field values & errors detected in them in log file;
-	if config.whichMIDI is illegal, set it to a legal value (like all other fields).
+* Initialize.cp: display most CNFG field values & all errors detected in them in log
+	file; if config.whichMIDI is illegal, set it to a legal value (like most other
+	fields).
 * SpaceHighLevel.cp: improve debug print output for respacing.
-* Added "Set tempo to visible/invisible" to QuickChange. Affects Set.h, SetCommand.cp,
-	Nightingale.rsrc.
 * Increased the minimum legal value of config.lineLW from 1 to 5.
 * Fixed bug: In the declaration of the Configuration struct, the _noteScanEpsXD_ field
 	had somehow been deleted, resulting in misalignment of fields read in, nonsensical
@@ -558,7 +557,7 @@ Extract, File, MasterPage, StringUtils, and a few others.
 
 ===============================================================================
 
-9 - 25 May
+9 - 31 May
 
 Update version number in About box to 5.6b6. Affects info.plist .
 
@@ -574,7 +573,16 @@ length limit of 31 chars. Affects ExtractHighLevel.
 Don't let the default respacing percent in the Extract Parts dialog exceed 100. Affects
 ExtractHighLevel.
 
-Increase default max. no. of documents (in the CNFG resource) from 20 to 30; for one
-thing, this makes extracting parts from a large score less awkward. Affects .rsrc.
+Increase default max. no. of documents (in the CNFG resource) from 20 to 30; this should
+be helpful mostly to make extracting parts from a large score more convenient. Affects
+.rsrc.
 
-Minor cleanup. Affects CarbonPrinting, InfoDialog.
+Have all XXXAdvise() and XXXInform() functions call LogPrintf(), so something (including
+the alert ID but not the actual message) appears in the system log.
+
+Move LogPrintf and related functions from Utility to UIFUtils.
+
+Remove #ifdef'd-out code & comments re "Mackey's disease". Affects Event, File, Menu.
+
+Minor cleanup. Affects CarbonPrinting, DialogsEditor, DrawNRGR, InfoDialog, Initialize,
+MasterPage.

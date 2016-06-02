@@ -512,7 +512,8 @@ unsigned char GetNoteheadInfo(short appearance, short subType,
 	*sizePct = 100;
 	/* FIXME: Changing sizePct fixes the head size, but makes a mess of upstems on
 		notes with harmonic heads. Sigh. */
-//FIXME: Call a new function in MusicFont.c that tells us whether to enlarge the harmonic head for our music font?
+	/* FIXME: Call a new function in MusicFont.c to tell us whether to enlarge the harmonic
+		head for our music font? */
 	if (glyph==MCH_harmonicHead && !(CapsLockKeyDown() && ShiftKeyDown()))
 		*sizePct =  115;
 

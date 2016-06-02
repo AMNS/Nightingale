@@ -1911,23 +1911,13 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 	return AskSaveType(canContinue);
 }
 
-/* Check validity of doc about to be saved to avoid disasterous problems, mostly
-the danger of overwriting a valid file with a bad one. Originally written
-specifically to check nEntries fields in object list because of "Mackey's Disease",
-which made it impossible to open some saved files! */
+/* To avoid disasterous problems, mostly overwriting a valid file with a bad one, do
+any validity checks we want on the oc about tothe  be saved. Originally written to call
+DCheckNEntries(), to check nEntries fields in object list, because of "Mackey's Disease",
+which made it impossible to open some saved files. */
 
 static Boolean SFChkScoreOK(Document */*doc*/)
 {
-#ifndef PUBLIC_VERSION
-#ifdef CURE_MACKEYS_DISEASE
-	if (DCheckNEntries(doc)) {
-		SysBeep(30);
-		AlwaysErrMsg("INCONSISTENT SUBOBJ COUNT: can't write a readable file! FILE NOT SAVED. Call Don Byrd at 413-268-7313.");
-		return FALSE;
-	}
-#endif
-#endif
-
 	return TRUE;
 }
 

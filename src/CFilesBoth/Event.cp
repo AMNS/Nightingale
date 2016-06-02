@@ -140,27 +140,7 @@ Boolean DoEvent()
 					CheckMemory();
 					checkMemTime = TickCount();
 					}
-#ifndef PUBLIC_VERSION
-				/*
-				 *	Check the entire object list for Mackey's disease if enough time has
-				 *	passed since the last mousedown or keydown event. (Related code else-
-				 *	where in Nightingale is controlled by "#ifdef CURE_MACKEYS_DISEASE").
-				 * FIXME: Seems to do the checking every time it gets here, at least in some
-				 * circumstances! But it only gets here if there's nothing else to do, and
-				 * I don't think it's causing any problems; anyway, this code is compiled
-				 * only in non-public versions.
-				 */
-				if (TopDocument) {
-					if (TickCount()-checkDSTime > DSCHECK_INTVL) {
-						Document *doc=GetDocumentFromWindow(TopDocument);
-						if (doc!=NULL) DCheckNEntries(doc);
-						checkDSTime = BIGNUM;
-						SleepTicks(1L);								/* So cursor change is visible */
-						FixCursor();
-						}
-				}
-#endif
-				DoNullEvent(&theEvent);
+				 DoNullEvent(&theEvent);
 				}
 		
 		return(keepGoing);

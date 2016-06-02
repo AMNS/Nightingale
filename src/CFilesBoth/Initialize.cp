@@ -679,9 +679,9 @@ static Boolean GetConfig()
 
 		config.titleMargin = -1;
 
-		SetRect(&config.paperRect,0,0,0,0);
-		SetRect(&config.pageMarg,0,0,0,0);
-		SetRect(&config.pageNumMarg, 0,0,0,0);
+		SetRect(&config.paperRect,0, 0, 0, 0);
+		SetRect(&config.pageMarg, 0, 0, 0, 0);
+		SetRect(&config.pageNumMarg, 0, 0, 0, 0);
 		
 		config.defaultLedgers = 0;
 		config.defaultTSNum = config.defaultTSDenom = -1;
@@ -825,8 +825,8 @@ static Boolean GetConfig()
 	if (config.graceSlashLW < 0) { config.graceSlashLW = 12; ERR(22); }
 	if (config.slurMidLW < 0) { config.slurMidLW = 30; ERR(23); }
 	if (config.tremSlashLW < 0) { config.tremSlashLW = 38; ERR(24); }
-	if (config.slurCurvature <= 0) { config.slurCurvature = 100; ERR(25); }
-	if (config.tieCurvature <= 0) { config.tieCurvature = 100; ERR(26); }
+	if (config.slurCurvature < 1) { config.slurCurvature = 100; ERR(25); }
+	if (config.tieCurvature < 1) { config.tieCurvature = 100; ERR(26); }
 	if (config.relBeamSlope < 0) { config.relBeamSlope = 25; ERR(27); }
 
 	if (config.hairpinMouthWidth < 0 || config.hairpinMouthWidth > 31)
@@ -839,12 +839,12 @@ static Boolean GetConfig()
 	if (config.titleMargin < 0) { config.titleMargin = in2pt(1);  ERR(33); };
 
 	if (EmptyRect(&config.paperRect))
-		{ SetRect(&config.paperRect,0,0,in2pt(17)/2,in2pt(11)); ERR(34); }
+		{ SetRect(&config.paperRect, 0, 0, in2pt(17)/2, in2pt(11)); ERR(34); }
 
-	if (config.pageMarg.top<=0) { config.pageMarg.top = in2pt(1)/2; ERR(35); }
-	if (config.pageMarg.left<=0) { config.pageMarg.left = in2pt(1)/2; ERR(35); }
-	if (config.pageMarg.bottom<=0) { config.pageMarg.bottom = in2pt(1)/2; ERR(35); }
-	if (config.pageMarg.right<=0) { config.pageMarg.right = in2pt(1)/2; ERR(35); }
+	if (config.pageMarg.top<<1) { config.pageMarg.top = in2pt(1)/2; ERR(35); }
+	if (config.pageMarg.left<<1) { config.pageMarg.left = in2pt(1)/2; ERR(35); }
+	if (config.pageMarg.bottom<<1) { config.pageMarg.bottom = in2pt(1)/2; ERR(35); }
+	if (config.pageMarg.right<<1) { config.pageMarg.right = in2pt(1)/2; ERR(35); }
 	/* Crudely try to insure that even for smallest paper size, margins don't cross */
 	if (config.pageMarg.top+config.pageMarg.bottom>in2pt(6)) {
 		config.pageMarg.top = in2pt(1)/2;
@@ -857,10 +857,10 @@ static Boolean GetConfig()
 		ERR(36);
 	}
 
-	if (config.pageNumMarg.top<=0) { config.pageNumMarg.top = in2pt(1)/2; ERR(37); }
-	if (config.pageNumMarg.left<=0) { config.pageNumMarg.left = in2pt(1)/2; ERR(37); }
-	if (config.pageNumMarg.bottom<=0) { config.pageNumMarg.bottom = in2pt(1)/2; ERR(37); }
-	if (config.pageNumMarg.right<=0) { config.pageNumMarg.right = in2pt(1)/2; ERR(37); }
+	if (config.pageNumMarg.top<<1) { config.pageNumMarg.top = in2pt(1)/2; ERR(37); }
+	if (config.pageNumMarg.left<<1) { config.pageNumMarg.left = in2pt(1)/2; ERR(37); }
+	if (config.pageNumMarg.bottom<<1) { config.pageNumMarg.bottom = in2pt(1)/2; ERR(37); }
+	if (config.pageNumMarg.right<<1) { config.pageNumMarg.right = in2pt(1)/2; ERR(37); }
 	
 	if (config.defaultLedgers < 1 || config.defaultLedgers > MAX_LEDGERS)
 			{ config.defaultLedgers = 6; ERR(38); }

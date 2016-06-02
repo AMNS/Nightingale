@@ -818,10 +818,10 @@ directory, rebuild => all OK.
 2 Oct. - 3 Oct.
 
 I'm _finally_ ready to use a version control system for Ngale!! A GitHub repository
-already has the last "AMNS" codebase (from David Gottlieb) with voluminous changes,
-mostly superficial and mostly by Geoff C. The vast majority of the changes appear to
-be replacing thousands of occurrences of "INT16" to "short"; to facilitate merging,
-change all instances of "INT16" in files I've changed since 2013 to "short".
+already has the last "AMNS" codebase (from David Gottlieb, ca. 2012) with voluminous
+changes, mostly superficial and mostly by Geoff C. The vast majority of the changes
+appear to be replacing thousands of occurrences of "INT16" to "short"; to facilitate
+merging, change all instances of "INT16" in files I've changed since 2013 to "short".
 
 CarbonPrinting.cp: Geoff made loads of changes; I changed only one char., so use his
 version with my change.
@@ -1339,13 +1339,14 @@ is in effect? No. Cf. UseMIDINoteNum(), which is called from GetNotePlayInfo().
 
 Want to support pure C scores (e.g., my violin concerto  and conventional
 transposed scores and play either w/ specified patches (multi-channel) or all on one
-channel =>  Ngale needs an explicit indication of whether it's a C score or not! !!
-Oops: it already has one!!: the "Transpose" MIDI command. Maybe rename it to "C Score"?
+channel =>  Ngale needs an explicit indication of whether it's a C score or not! Oops: 
+it already has one!!: the "Transpose" MIDI command. Maybe rename it to "C Score"?
 Anyway, the problem with Check Range results from it not paying attenion to that
 setting. Cause: for transposing instruments, the parts' _hiKeyNum_ and _loKeyNum_ are
 the MIDI note numbers of the written pitches, not the sounding pitches! Ugh. So, leave
 that as is and change the Check Range code, or make them the note nos. of the sounding
-pitches? The latter is obviously the correct fix; it's also obviously harder. Need to
+pitches? The latter is obviously the correct fix; it's also obviously harder, and will
+make the existing UI a bit clumsier (in terms of clefs displayed).. Need to
 change the instrument descriptions, in STR# 130. That won't help existing scores!, but
 they can be fixed one part at a time, and it won't make things any worse if they
 aren't fixed.
