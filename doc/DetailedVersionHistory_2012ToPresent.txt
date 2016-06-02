@@ -586,3 +586,11 @@ Remove #ifdef'd-out code & comments re "Mackey's disease". Affects Event, File, 
 
 Minor cleanup. Affects CarbonPrinting, DialogsEditor, DrawNRGR, InfoDialog, Initialize,
 MasterPage.
+
+-------------------------------------------------------------------------------
+
+2 June
+
+Make error checking of CNFG values count just one error each for page margin and page
+number margin, no matter how many of their fields are out of bounds. Affects Initialize.
+

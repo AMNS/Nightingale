@@ -3,13 +3,20 @@ Nightingale
 
 Development environment requirements
 ------------------------------------
-* MacOS version 10.5 
- - should work on version 10.4 too, but only 10.5 has been tested
- - might work on 10.6: see below
- - will not work on versions >= 10.7, due to PowerPC / Rosetta dependencies
-* On OS 10.5: Xcode version 2.5
- - should work with version 2.4 or better, but only 2.5 has been tested
-* On OS 10.6 (maybe): Xcode version 4.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added 
+Downloads require an Apple Developer account; they should not require a paid iOS or MacOS subscription.
+ - NB: when installing Xcode/Developer Tools, be sure the MacOS 10.4 SDK installation option is selected; it may not be selected by default.
+
+* MacOS version 10.5
+ - Xcode version 4.2 with MacOS 10.4 SDK and GCC version 4.0 support added
+ - should work on version 10.4 too, but only version 10.6 has been tested
+
+* MacOS version 10.6
+ - will not work on versions >= 10.7, due to PPC / Rosetta dependencies
+ - Xcode version 3.2 with MacOS 10.4 SDK and GCC version 4.0 support added
+
+* The following environment _may_ work; it did for one person, but failed for another:
+
+* Xcode version 4.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added 
  - Specifically, this is a hybrid of [Xcode 4.2 for MacOS 10.6] (http://adcdownload.apple.com//Developer_Tools/xcode_4.2_for_snow_leopard/xcode_4.2_for_snow_leopard.dmg)
  with [Xcode 3.2's for MacOS 10.6](http://adcdownload.apple.com//Developer_Tools/xcode_3.2.6_and_ios_sdk_4.3__final/xcode_3.2.6_and_ios_sdk_4.3.dmg) SDKs.
  Following [these instructions] (http://stackoverflow.com/questions/5333490/how-can-we-restore-ppc-ppc64-as-well-as-full-10-4-10-5-sdk-support-to-xcode-4
@@ -22,12 +29,8 @@ chmod 744 restore-with-xcode3.sh
 curl -O https://raw.github.com/thinkyhead/Legacy-XCode-Scripts/master/restore-with-xcode4.sh
 ```
 
-The last "curl" may fail, but it seems to result in Xcode 4.2 doing what we want.
+The last "curl" may fail, but (for one person) resulted in Xcode 4.2 doing what we want.
 
-Downloads require an Apple Developer account; they may also require either a paid iOS or MacOS subscription.
- - also works with Xcode version 3.2.2
- - should work with version 2.4 or better, but only versions 4.2 and 3.2.2 have been tested
- - NB: when installing Xcode/Developer Tools, be sure MacOS 10.4 SDK installation option is selected; it may not be selected by default.
 
 Debugging
 ---------
@@ -50,5 +53,3 @@ or simply:
 `Nightingale.app/Contents/MacOS/Nightingale`
 
 The latter is helpful, since stderr/out will be printed to the command line.
-
-

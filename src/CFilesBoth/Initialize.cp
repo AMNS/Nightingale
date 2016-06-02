@@ -841,10 +841,14 @@ static Boolean GetConfig()
 	if (EmptyRect(&config.paperRect))
 		{ SetRect(&config.paperRect, 0, 0, in2pt(17)/2, in2pt(11)); ERR(34); }
 
-	if (config.pageMarg.top<<1) { config.pageMarg.top = in2pt(1)/2; ERR(35); }
-	if (config.pageMarg.left<<1) { config.pageMarg.left = in2pt(1)/2; ERR(35); }
-	if (config.pageMarg.bottom<<1) { config.pageMarg.bottom = in2pt(1)/2; ERR(35); }
-	if (config.pageMarg.right<<1) { config.pageMarg.right = in2pt(1)/2; ERR(35); }
+	if (config.pageMarg.top<1 || config.pageMarg.left<1 || config.pageMarg.bottom<1
+		|| config.pageMarg.right<1) {
+		if (config.pageMarg.top<1) { config.pageMarg.top = in2pt(1)/2; }
+		if (config.pageMarg.left<1) { config.pageMarg.left = in2pt(1)/2; }
+		if (config.pageMarg.bottom<1) { config.pageMarg.bottom = in2pt(1)/2; }
+		if (config.pageMarg.right<1) { config.pageMarg.right = in2pt(1)/2; }
+		ERR(35);
+	}
 	/* Crudely try to insure that even for smallest paper size, margins don't cross */
 	if (config.pageMarg.top+config.pageMarg.bottom>in2pt(6)) {
 		config.pageMarg.top = in2pt(1)/2;
@@ -857,10 +861,14 @@ static Boolean GetConfig()
 		ERR(36);
 	}
 
-	if (config.pageNumMarg.top<<1) { config.pageNumMarg.top = in2pt(1)/2; ERR(37); }
-	if (config.pageNumMarg.left<<1) { config.pageNumMarg.left = in2pt(1)/2; ERR(37); }
-	if (config.pageNumMarg.bottom<<1) { config.pageNumMarg.bottom = in2pt(1)/2; ERR(37); }
-	if (config.pageNumMarg.right<<1) { config.pageNumMarg.right = in2pt(1)/2; ERR(37); }
+	if (config.pageNumMarg.top<1 || config.pageNumMarg.left<1 || config.pageNumMarg.bottom<1
+		|| config.pageNumMarg.right<1) {
+		if (config.pageNumMarg.top<1) { config.pageNumMarg.top = in2pt(1)/2; }
+		if (config.pageNumMarg.left<1) { config.pageNumMarg.left = in2pt(1)/2; }
+		if (config.pageNumMarg.bottom<1) { config.pageNumMarg.bottom = in2pt(1)/2; }
+		if (config.pageNumMarg.right<1) { config.pageNumMarg.right = in2pt(1)/2; }
+		ERR(37);
+	}
 	
 	if (config.defaultLedgers < 1 || config.defaultLedgers > MAX_LEDGERS)
 			{ config.defaultLedgers = 6; ERR(38); }
