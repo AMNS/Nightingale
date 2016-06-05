@@ -13,7 +13,7 @@ Downloads require an Apple Developer account; they should not require a paid iOS
 * MacOS version 10.6
  - will not work on versions >= 10.7, due to PPC / Rosetta dependencies
  - Xcode version 3.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added
-* The following environment _may_ work; it did for one person, but failed for another:
+* The following environment _may_ work; it did for one person (Geoff C.), but another (Don B.) was unable to set it up (note the kludgy instructions!):
 
 * MacOS version 10.6; Xcode version 4.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added 
  - Specifically, this is a hybrid of [Xcode 4.2 for MacOS 10.6] (http://adcdownload.apple.com//Developer_Tools/xcode_4.2_for_snow_leopard/xcode_4.2_for_snow_leopard.dmg)
@@ -33,17 +33,23 @@ The last "curl" may fail, but (for one person) resulted in Xcode 4.2 doing what 
 
 Debugging
 ---------
-It's not currently possible to attach a debugger on an Intel machine (due to Rosetta translation requirements).  It should be possible to debug on a PPC machine.
+It's probably not possible to attach a debugger on an Intel machine (due to Rosetta translation requirements).  It should be possible to debug on a PPC machine.
 
-XCode puts debug build products in a directory like:
+Xcode 2.x and 3.x put debug build products in a directory like:
+
+~/NightingaleDev/build/Debug
+
+XCode 4.x and above puts debug build products in a directory like:
 
 `~/Library/Developer/Xcode/DerivedData/Nightingale-dghtzivoyrfkjudiupfaqdqicrev/Build/Products/Debug/`
 
-This can be found using:
+(The latter can be found (in a terminal window, of course) using:
 
 `find ~/* -name Nightingale.app`
 
-And run like:
+...or -- probably much faster! -- by command-clicking on "Nightingale" at the bottom in the folder view (leftmost icon(?)) of the project, then using the path to that directory in a "cd" command.)
+
+It can be run like:
 
 `open -a ~/Library/.../Build/Products/Debug/Nightingale.app`
 
@@ -51,4 +57,7 @@ or simply:
 
 `Nightingale.app/Contents/MacOS/Nightingale`
 
-The latter is helpful, since stderr/out will be printed to the command line.
+The latter is somewhat helpful, since stderr/out will be printed to the command line. But either way, logging information will be written to system.log, which can be viewed with the Console utility.
+
+NB: The same logging information will appear in system.log even when a normal (non-debug) build of Nightingale is run in the standard way, via opening the icon in the Finder.
+
