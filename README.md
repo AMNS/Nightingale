@@ -8,7 +8,7 @@ Downloads require an Apple Developer account; they should not require a paid iOS
 
 * MacOS version 10.5
  - Xcode version 2.5 with MacOS 10.4 SDK and GCC version 4.0 support added
- - should work on version 10.4 too, but only version 10.6 has been tested
+ - should work on version 10.4 too, but only version 10.5 has been tested
 
 * MacOS version 10.6
  - will not work on versions >= 10.7, due to PPC / Rosetta dependencies

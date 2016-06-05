@@ -278,108 +278,183 @@ static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *partF
 }
 
 
+/* Copy the header or footer strings from one document to another. */
+
+Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerStr[], Boolean isHeader);
+Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerStr[], Boolean isHeader)
+{
+	STRINGOFFSET hOffset, fOffset, newOffset;
+	StringPtr pSrc, pDst;
+	Str255 string;
+	
+	if (isHeader) {
+		strcpy((char *)string, headerStr);
+		CToPString((char *)string);
+		hOffset = dstDoc->headerStrOffset;
+		if (hOffset > 0)
+			newOffset = PReplace(hOffset, string);
+		else
+			newOffset = PStore(string);
+LogPrintf(LOG_DEBUG, "CopyHeaderFooter: hOffset=%d newOffset=%d\n", hOffset, newOffset);
+		if (newOffset < 0L) {
+			NoMoreMemory();
+			return FALSE;
+		}
+		dstDoc->headerStrOffset = newOffset;
+	}
+	else {
+		strcpy((char *)string, footerStr);
+		CToPString((char *)string);
+		fOffset = dstDoc->footerStrOffset;
+		if (fOffset > 0)
+			newOffset = PReplace(fOffset, string);
+		else
+			newOffset = PStore(string);
+LogPrintf(LOG_DEBUG, "CopyHeaderFooter: fOffset=%d newOffset=%d\n", fOffset, newOffset);
+		if (newOffset < 0L) {
+			NoMoreMemory();
+			return FALSE;
+		}
+		dstDoc->footerStrOffset = newOffset;
+	}
+
+	return TRUE;
+}
+
+
 /* Extract part(s) into separate document(s) and optionally reformat and/or save
 it/them. If all goes well, return TRUE; if there's a problem, return FALSE. */
 
 Boolean DoExtract(Document *doc)
-	{
-		Str255 partName, name, str;
-		short spacePercent, numParts;
-		LINK partL; PPARTINFO pPart;
-		LINK selPartList[MAXSTAVES+1];
-		Document *partDoc;
-		Boolean keepGoing=TRUE;
-		static Boolean allParts=TRUE, closeAndSave=FALSE, reformat=TRUE;
-		static Boolean firstCall=TRUE, careMeasPerSys;
-		static short measPerSys;
+{
+	Str255 partName, name, str;
+	short spacePercent, numParts;
+	LINK partL; PPARTINFO pPart;
+	LINK selPartList[MAXSTAVES+1];
+	Document *partDoc;
+	Boolean useHeaderFooter;
+	Boolean keepGoing=TRUE;
+	static Boolean allParts=TRUE, closeAndSave=FALSE, reformat=TRUE;
+	static Boolean firstCall=TRUE, careMeasPerSys;
+	static short measPerSys;
 
-		/* Prepare and run the Extract dialog to find out what user wants */
-		GetSelPartList(doc, selPartList);
-		numParts = CountSelParts(selPartList);
-		if (numParts==1) {
-			partL = selPartList[0];
-			pPart = GetPPARTINFO(partL);
-			strcpy((char *)partName, (strlen(pPart->name)>16? pPart->shortName : pPart->name));
-			CToPString((char *)partName);
-		}
-		else {
-			GetIndString(str, MiscStringsID, 18);				/* "selected parts" */
-			Pstrcpy(partName, str);
-		}
-
-		/* It's not easy to guess what a reasonable amount of squeezing is, but we'll try. */
-		spacePercent = doc->spacePercent;
-		if (spacePercent>100) spacePercent = 100;
-		if (!ExtractDialog(partName, &allParts, &closeAndSave, &reformat, &spacePercent))
-			return FALSE;
-
-		/* Dialog was OK'd: the user really wants one or more parts exxtracted. */
-		
-		if (firstCall) {
-			careMeasPerSys = FALSE; measPerSys = 4; firstCall = FALSE;
-		}
-		
-		DeselAll(doc);
-		
-		partL = FirstSubLINK(doc->headL);
-		for (partL=NextPARTINFOL(partL); partL && keepGoing; partL=NextPARTINFOL(partL)) {
-			if (allParts || IsSelPart(partL, selPartList)) {
-				if (CheckAbort()) {
-					ProgressMsg(SKIPPARTS_PMSTR, "");
-					SleepTicks(90L);								/* So user can read the msg */
-					ProgressMsg(0, "");
-					goto Done;
-				}
-				
-				/* Construct filename for the part. */
-				BuildPartFilename(doc, partL, name);
-	
-				WaitCursor();
-				/* FIXME: If <doc> has been saved, <doc->vrefnum> seems to be correct, but if
-				it hasn't been, <doc->vrefnum> seems to be zero; I'm not sure if that's safe. */
-				partDoc = CreatePartDoc(doc, name, doc->vrefnum, &doc->fsSpec,partL);
-				if (partDoc) {
-					if (reformat) {
-						ReformatPart(partDoc, spacePercent, TRUE, careMeasPerSys,
-											measPerSys);
-					}
-					else
-						NormalizePartFormat(partDoc);
-
-					/* Finally, set empty selection just after the first Measure, and put
-						caret there, on the top staff if the part has multiple staves. */
-					
-					SetDefaultSelection(partDoc);
-					partDoc->selStaff = 1;
-					
-					MEAdjustCaret(partDoc, FALSE);		// FIXME: AND REMOVE CALL IN CreatePartDoc!
-					AnalyzeWindows();
-					if (closeAndSave)
-						{ if (!DoCloseDocument(partDoc)) keepGoing = FALSE; }
-					 else
-						DoUpdate(partDoc->theWindow);
-					}
-				 else
-					keepGoing = FALSE;
-	
-				/*
-				 *	Installation of correct heaps here is not yet understood. This
-				 *	seems always to leave the heaps in the correct state, yet a call to
-				 *	InstallDoc in DoCloseDocument when deleting the undo data
-				 *	structure is required as of implementing this to prevent crashing.
-				 *	It is totally unclear what this code has to do with deleting the undo
-				 *	data structure when closing documents, or how the incorrect state of
-				 *	heap installation is connected with this.
-				 *
-				 *	We require this call to insure that the for (partL= ... ) loop
-				 *	correctly traverses the score's partinfo list, since SaveParts
-				 *	must leave the parts heaps installed in order to display the
-				 *	part document.
-				 */
-				InstallDoc(doc);
-				}
-			}
-Done:
-		return TRUE;
+	/* Prepare and run the Extract dialog to find out what user wants */
+	GetSelPartList(doc, selPartList);
+	numParts = CountSelParts(selPartList);
+	if (numParts==1) {
+		partL = selPartList[0];
+		pPart = GetPPARTINFO(partL);
+		strcpy((char *)partName, (strlen(pPart->name)>16? pPart->shortName : pPart->name));
+		CToPString((char *)partName);
 	}
+	else {
+		GetIndString(str, MiscStringsID, 18);				/* "selected parts" */
+		Pstrcpy(partName, str);
+	}
+
+	/* It's not easy to guess what a reasonable amount of squeezing is, but we'll try. */
+	spacePercent = doc->spacePercent;
+	if (spacePercent>100) spacePercent = 100;
+	if (!ExtractDialog(partName, &allParts, &closeAndSave, &reformat, &spacePercent))
+		return FALSE;
+
+	/* Dialog was OK'd: the user really wants one or more parts exxtracted. */
+	
+	if (firstCall) {
+		careMeasPerSys = FALSE; measPerSys = 4; firstCall = FALSE;
+	}
+	
+	char headerStr[256], footerStr[256];
+	STRINGOFFSET hOffset, fOffset;
+	StringPtr pStr;
+
+	/* Save the score's header and footer strings (as C strings), if any, for later use. */
+	useHeaderFooter = doc->useHeaderFooter;
+	if (doc->useHeaderFooter) {
+		hOffset = doc->headerStrOffset;
+		pStr = PCopy(hOffset);
+		if (pStr[0]!=0) {
+			PStrCopy((StringPtr)pStr, (StringPtr)headerStr);
+			PToCString((StringPtr)headerStr);
+			LogPrintf(LOG_DEBUG, "page header='%s'\n", headerStr);
+		}
+
+		fOffset = doc->footerStrOffset;
+		pStr = PCopy(fOffset);
+		if (pStr[0]!=0) {
+			PStrCopy((StringPtr)pStr, (StringPtr)footerStr);
+			PToCString((StringPtr)footerStr);
+			LogPrintf(LOG_DEBUG, "page footer='%s'\n", footerStr);
+		}
+	}
+
+	DeselAll(doc);
+	
+	partL = FirstSubLINK(doc->headL);
+	for (partL=NextPARTINFOL(partL); partL && keepGoing; partL=NextPARTINFOL(partL)) {
+		if (allParts || IsSelPart(partL, selPartList)) {
+			if (CheckAbort()) {
+				ProgressMsg(SKIPPARTS_PMSTR, "");
+				SleepTicks(150L);								/* So user can read the msg */
+				ProgressMsg(0, "");
+				goto Done;
+			}
+			
+			/* Construct filename for the part. */
+			BuildPartFilename(doc, partL, name);
+
+			WaitCursor();
+			/* FIXME: If <doc> has been saved, <doc->vrefnum> seems to be correct, but if
+			it hasn't been, <doc->vrefnum> seems to be zero; I'm not sure if that's safe. */
+			partDoc = CreatePartDoc(doc, name, doc->vrefnum, &doc->fsSpec,partL);
+			if (partDoc) {
+				if (reformat) {
+					ReformatPart(partDoc, spacePercent, TRUE, careMeasPerSys,
+										measPerSys);
+				}
+				else
+					NormalizePartFormat(partDoc);
+
+				if (useHeaderFooter) {
+					CopyHeaderFooter(partDoc, headerStr, footerStr, TRUE);
+					CopyHeaderFooter(partDoc, headerStr, footerStr, FALSE);
+					partDoc->useHeaderFooter = TRUE;
+				}
+
+				/* Finally, set empty selection just after the first Measure, and put
+					caret there, on the top staff if the part has multiple staves. */
+				
+				SetDefaultSelection(partDoc);
+				partDoc->selStaff = 1;
+				
+				MEAdjustCaret(partDoc, FALSE);		// FIXME: AND REMOVE CALL IN CreatePartDoc!
+				AnalyzeWindows();
+				if (closeAndSave)
+					{ if (!DoCloseDocument(partDoc)) keepGoing = FALSE; }
+				 else
+					DoUpdate(partDoc->theWindow);
+				}
+			 else
+				keepGoing = FALSE;
+
+			/*
+			 *	Installation of correct heaps here is not yet understood. This
+			 *	seems always to leave the heaps in the correct state, yet a call to
+			 *	InstallDoc in DoCloseDocument when deleting the undo data
+			 *	structure is required as of implementing this to prevent crashing.
+			 *	It is totally unclear what this code has to do with deleting the undo
+			 *	data structure when closing documents, or how the incorrect state of
+			 *	heap installation is connected with this.
+			 *
+			 *	We require this call to insure that the for (partL= ... ) loop
+			 *	correctly traverses the score's partinfo list, since SaveParts
+			 *	must leave the parts heaps installed in order to display the
+			 *	part document.
+			 */
+			InstallDoc(doc);
+		}
+	}
+Done:
+	return TRUE;
+}
 

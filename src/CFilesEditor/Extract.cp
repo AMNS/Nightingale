@@ -240,10 +240,8 @@ static void UpdateDocHeader(Document *newDoc)
 	InstallDoc(newDoc);
 	
 	for (pL=newDoc->headL; pL!=newDoc->tailL; pL=RightLINK(pL)) {
-		if (PageTYPE(pL))
-			nPages++;
-		if (SystemTYPE(pL))
-			nSystems++;
+		if (PageTYPE(pL)) nPages++;
+		if (SystemTYPE(pL)) nSystems++;
 	}
 	staffL = SSearch(newDoc->headL, STAFFtype, FALSE);
 	for (aStaffL=FirstSubLINK(staffL); aStaffL; aStaffL=NextSTAFFL(aStaffL))
@@ -615,10 +613,10 @@ void CopyDocFields(register Document *score, register Document *part)
 	/* Copy font information & fontTable from score header. */
 
 	part->nFontRecords = score->nFontRecords;
-	BlockMove(score->fontNameMN,part->fontNameMN,
+	BlockMove(score->fontNameMN, part->fontNameMN,
 					(Size)score->nFontRecords*sizeof(TEXTSTYLE));
 
-	BlockMove(score->fontTable,part->fontTable,
+	BlockMove(score->fontTable, part->fontTable,
 					(Size)MAX_SCOREFONTS*sizeof(FONTITEM));
 
 	part->magnify = score->magnify;
@@ -638,7 +636,7 @@ void CopyDocFields(register Document *score, register Document *part)
 	part->showInvis = score->showInvis;
 	part->recordFlats = score->recordFlats;
 	
-	BlockMove(score->spaceMap,part->spaceMap,(Size)MAX_L_DUR*sizeof(long));
+	BlockMove(score->spaceMap, part->spaceMap, (Size)MAX_L_DUR*sizeof(long));
 
 	part->firstIndent = score->firstIndent;
 	part->yBetweenSys = score->yBetweenSys;
@@ -1036,7 +1034,7 @@ Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum, F
 
 	/* Create <newDoc>, the basic part Document, and add the part's data to it. */
 	
-	if (!BuildDocument(newDoc,fileName,vRefNum,pfsSpec,&fileVersion,TRUE)) {
+	if (!BuildDocument(newDoc, fileName, vRefNum, pfsSpec, &fileVersion, TRUE)) {
 		DoCloseDocument(newDoc);
 		return(NULL);
 		}
@@ -1044,25 +1042,25 @@ Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum, F
 	/* If the creation of newDoc's main data structure (object list) failed, close
 		the new document and return. */
 
-	staffDiff = ReadPart(newDoc,doc,partL,&partOK);
+	staffDiff = ReadPart(newDoc, doc, partL, &partOK);
 	if (!partOK) {
 		DoCloseDocument(newDoc);
 		return(NULL);
 		}
 
-	/* We now have a Document with the part data in it, but it needs a lot of
-		fixing up. */
+	/* We now have a Document with the part data in it, but it needs a lot of fixing up. */
+
 	CopyDocFields(doc,newDoc);
 	MultibarRests(newDoc, staffDiff, TRUE);
 	UpdateDocHeader(newDoc);						/* Since MultibarRests can remove systems and pages */
 	FixMeasures(newDoc);
 	UpdateMeasNums(newDoc, NILINK);
 	FixConnects(newDoc);
-	ExtCompactVoiceNums(newDoc,staffDiff);
+	ExtCompactVoiceNums(newDoc, staffDiff);
 	
-	/* Replace the Master Page: delete the old Master Page object list
-		here and replace it with a new structure to reflect the part-staff
-		structure of the extracted part. */
+	/* Replace the Master Page: delete the old Master Page object list here and
+		replace it with a new structure to reflect the part-staff structure of the
+		extracted part. */
 
 	Score2MasterPage(newDoc);
 	newDoc->docNew = newDoc->changed = TRUE;		/* Has to be set after BuildDocument */
@@ -1074,27 +1072,26 @@ Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum, F
 	GetWindowPortBounds(palPtr,&box);
 	palWidth = box.right - box.left;
 	palHeight = box.bottom - box.top;
-	GetGlobalPort(w,&box);					/* set bottom of window near screen bottom */
+	GetGlobalPort(w,&box);							/* set bottom of window near screen bottom */
 	bounds = GetQDScreenBitsBounds();
 	if (box.left < bounds.left+4) box.left = bounds.left+4;
-	if (palWidth < palHeight)
-		box.left += palWidth;
-	MoveWindow(newDoc->theWindow,box.left,box.top,FALSE);
+	if (palWidth < palHeight) box.left += palWidth;
+	MoveWindow(newDoc->theWindow, box.left, box.top, FALSE);
 	AdjustWinPosition(w);
-	GetGlobalPort(w,&box);
+	GetGlobalPort(w, &box);
 	bounds = GetQDScreenBitsBounds();
 	box.bottom = bounds.bottom - 4;
 	if (box.right > bounds.right-4) box.right = bounds.right - 4;
-	SizeWindow(newDoc->theWindow,box.right-box.left,box.bottom-box.top,FALSE);
+	SizeWindow(newDoc->theWindow, box.right-box.left, box.bottom-box.top, FALSE);
 
-	SetOrigin(newDoc->origin.h,newDoc->origin.v);
+	SetOrigin(newDoc->origin.h, newDoc->origin.v);
 	GetAllSheets(newDoc);
 	RecomputeView(newDoc);
-	SetControlValue(newDoc->hScroll,newDoc->origin.h);
-	SetControlValue(newDoc->vScroll,newDoc->origin.v);
-	SetWTitle(w,newDoc->name);
+	SetControlValue(newDoc->hScroll, newDoc->origin.h);
+	SetControlValue(newDoc->vScroll, newDoc->origin.v);
+	SetWTitle(w, newDoc->name);
 	
-	MEAdjustCaret(newDoc,FALSE);
+	MEAdjustCaret(newDoc, FALSE);
 	InstallMagnify(newDoc);
 	ShowDocument(newDoc);
 

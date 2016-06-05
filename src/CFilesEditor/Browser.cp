@@ -232,7 +232,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 
 /*--- 2. Interact with user til they push OK or Cancel. --- */
 
-	SetRect(&oldObjRect,0,0,0,0);
+	SetRect(&oldObjRect, 0, 0, 0, 0);
 	
 	index = 0;
 	showBPage = 0;
@@ -470,7 +470,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	SetPort(oldPort);
 	InstallDoc(saveDoc);
 	InvertRect(&objRect);
-	SetRect(&objRect,0,0,0,0);
+	SetRect(&objRect, 0, 0, 0, 0);
 	return; 
 }
 
@@ -650,7 +650,7 @@ void ShowObject(Document *doc, LINK pL, short index)
 		systemRect = pSystem->systemRect;
 		}
 	 else
-		SetDRect(&systemRect,0,0,0,0);
+		SetDRect(&systemRect,0, 0, 0, 0);
 	
 	/* Get sheet this object is on so we can mark object's bounding box while browsing */
 	pageL = pL;
@@ -738,14 +738,14 @@ void ShowObject(Document *doc, LINK pL, short index)
 
 /* -------------------------------------------------------------- ShowVoicePage -- */
 
-#define VOICEPAGESIZE 20		/* Max. no. of lines (voices) that fit in Browser window */ 
+#define VOICEPAGESIZE 24		/* Max. no. of lines (voices) that fit in Browser window */ 
 
 void ShowVoicePage(Document *, short);
 void ShowVoicePage(Document *doc, short startV)
 {
 	short v; unsigned char ch;
 	
-	sprintf(s, "Score uses %d voices.", CountVoices(doc));
+	sprintf(s, "The score uses %d voices.", CountVoices(doc));
 	DrawTextLine(s);
 	
 	if (startV<1) startV = 1;				/* Avoid negative index in loop below */
@@ -777,6 +777,8 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 	short i, v;
 	LINK qL;
 	char string[256];
+	STRINGOFFSET hOffset, fOffset;
+	StringPtr pStr;
 	
 	if (index<0) {
 		short startV; Boolean pageEmpty;
@@ -808,7 +810,25 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 		sprintf(s, "s/altsrastral=%d,%d transp=%d lastGlFont=%d", doc->srastral, 
 					doc->altsrastral, doc->transposed, doc->lastGlobalFont);
 		DrawTextLine(s);
-	
+
+		hOffset = doc->headerStrOffset;
+		pStr = PCopy(hOffset);
+		if (pStr[0]!=0) {
+			PStrCopy((StringPtr)pStr, (StringPtr)string);
+			PToCString((StringPtr)string);
+			sprintf(s, "page header='%s'", string);
+			DrawTextLine(s);
+		}
+
+		fOffset = doc->footerStrOffset;
+		pStr = PCopy(fOffset);
+		if (pStr[0]!=0) {
+			PStrCopy((StringPtr)pStr, (StringPtr)string);
+			PToCString((StringPtr)string);
+			sprintf(s, "page footer='%s'", string);
+			DrawTextLine(s);
+		}
+
 		sprintf(s, "pprRect=p%d,%d,%d,%d marg=p%d,%d,%d,%d",
 			doc->paperRect.top, doc->paperRect.left,
 			doc->paperRect.bottom, doc->paperRect.right,
@@ -842,6 +862,7 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 		sprintf(s, "strPool=%lx size=%ld nfontsUsed=%d:", doc->stringPool,
 						GetHandleSize((Handle)doc->stringPool), doc->nfontsUsed);
 		DrawTextLine(s);
+		
 	/* Show a max. of the first 10 fonts used because of dialog space limitations, but
 	 * actually, as of v. 99b6, that's all there can be anyway.
 	 */
@@ -874,7 +895,7 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 			q->firstStaff, q->lastStaff,
 			q->partVelocity, q->transpose);
 		DrawTextLine(s);	q = GetPPARTINFO(qL);
-		sprintf(s, "patch=%d chan=%d name=%s",
+		sprintf(s, "patch=%d chan=%d name='%s'",
 			q->patchNum, q->channel, q->name);
 		DrawTextLine(s);
 		sprintf(s, "fmsOutputDevice=%d",
@@ -886,7 +907,7 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 		DrawTextLine(s);
 	}
 	
-	SetRect(&objRect,0,0,0,0);
+	SetRect(&objRect, 0, 0, 0, 0);
 }
 
 

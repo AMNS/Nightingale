@@ -205,6 +205,7 @@
 /* Begin PBXFileReference section */
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
+		15C015D21CFFB0C200A5BD97 /* style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = style.h; sourceTree = "<group>"; };
 		15E4B7741C823507001279A2 /* Ottava.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Ottava.cp; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		32DBCF6D0370B57F00C91783 /* Nightingale_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nightingale_Prefix.pch; sourceTree = "<group>"; };
@@ -667,6 +668,7 @@
 				D03E6BC20D5F78BF005FD177 /* SpaceHighLevel.h */,
 				D03E6BC30D5F78BF005FD177 /* SpaceTime.h */,
 				D03E697A0D5F60AB005FD177 /* StringPool.h */,
+				15C015D21CFFB0C200A5BD97 /* style.h */,
 				D03E6BC40D5F78BF005FD177 /* Tuplet.h */,
 				D03E6BC50D5F78BF005FD177 /* Undo.h */,
 				D03E6BC60D5F78BF005FD177 /* Utility.h */,

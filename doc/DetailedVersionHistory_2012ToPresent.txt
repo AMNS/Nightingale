@@ -589,8 +589,14 @@ MasterPage.
 
 -------------------------------------------------------------------------------
 
-2 June
+2-4 June
 
 Make error checking of CNFG values count just one error each for page margin and page
 number margin, no matter how many of their fields are out of bounds. Affects Initialize.
 
+Show page header and footer in the Browser window; make the window wider and taller to
+accomodate them. Affects .rsrc; Browser.
+
+When parts are extracted, they now inherit page headers and footers from the score.
+
+Minor cleanup. Affects Extract, ExtractHighLevel, HeaderFooterDialog.
