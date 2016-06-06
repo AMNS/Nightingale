@@ -50,12 +50,12 @@ void DCheckSyncs(Document *doc)
 					aModNRL = aNote->firstMod;
 					for ( ; aModNRL; aModNRL=NextMODNRL(aModNRL)) {
 						if (aModNRL >= nObjs)	/* very crude check on node validity  -JGG */
-							LogPrintf(LOG_NOTICE, "DCheckSyncs: SUSPICIOUS MODNR LINK %d IN VOICE %d IN SYNC AT %u.\n",
+							LogPrintf(LOG_WARNING, "DCheckSyncs: SUSPICIOUS MODNR LINK %d IN VOICE %d IN SYNC AT %u.\n",
 											aModNRL, aNote->voice, pL);
 						aModNR = GetPAMODNR(aModNRL);
 						if (!(aModNR->modCode>=MOD_FERMATA && aModNR->modCode<=MOD_LONG_INVMORDENT)
 						&&	 !(aModNR->modCode>=0 && aModNR->modCode<=5) )
-							LogPrintf(LOG_NOTICE, "DCheckSyncs: ILLEGAL MODNR CODE %d IN VOICE %d IN SYNC AT %u.\n",
+							LogPrintf(LOG_WARNING, "DCheckSyncs: ILLEGAL MODNR CODE %d IN VOICE %d IN SYNC AT %u.\n",
 											aModNR->modCode, aNote->voice, pL);
 					}
 				}
@@ -254,8 +254,8 @@ static void UpdateDocHeader(Document *newDoc)
 
 
 /* Select all subobjects in the document that belong to the part, plus others that we
-want in the part even though they "belong" to other parts--for example, some rehearsal
-marks and tempo marks. */
+want in the part even though they "belong" to other parts--for example, rehearsal amrks
+and tempo marks. */
 	
 static void SelectPart(
 				Document *doc,
@@ -263,7 +263,7 @@ static void SelectPart(
 				Boolean extractAllGraphics		/* TRUE=put all "appropriate" Graphics in part */
 				)
 {
-	LINK 		pL,subObjL,aStaffL,aConnectL,aSlurL,firstL;
+	LINK 		pL, subObjL, aStaffL, aConnectL, aSlurL, firstL;
 	PASLUR		aSlur;
 	PMEVENT		p;
 	PPARTINFO	pPart;
@@ -318,7 +318,7 @@ static void SelectPart(
 			case RPTENDtype:
 				tmpHeap = doc->Heap + ObjLType(pL);
 				
-				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
+				for (subObjL=FirstSubObjPtr(p, pL); subObjL; subObjL = NextLink(tmpHeap, subObjL)) {
 					subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 					if (subObj->staffn>=firstStf && subObj->staffn<=lastStf) {
 						LinkSEL(pL) = TRUE;
@@ -376,16 +376,14 @@ static void SelectPart(
 }
 
 
-/*
-Delete the initial range (head to first invisible measure) of the new part
+/* Delete the initial range (head to first invisible measure) of the new part
 document. Duplicate the head of the score document and then remove all parts
 except the one currently being extracted. Set the head of the new part document
-to this copied node and fix up its cross links.
- */
+to this copied node and fix up its cross links. */
 
 static Boolean CopyPartInfo(Document *doc, Document *newDoc, LINK partL)
 {
-	LINK subL,tempL; PPARTINFO pSub, pPart; short firstStaff; Boolean okay=FALSE;
+	LINK subL, tempL; PPARTINFO pSub, pPart; short firstStaff; Boolean okay=FALSE;
 
 	/* This must be done before installing newDoc's heaps. */
 	pPart = GetPPARTINFO(partL);
@@ -527,20 +525,22 @@ static short ReadPart(Document *part, Document *score, LINK partL, Boolean *part
 {
 	LINK firstMeasL; short staffDiff;
 	
-	/*
-	 * For the entire score, select just those subObjs which belong
-	 * to the part to be read, and then copy them.
-	 */
+	/* For the entire score, select just those subObjs that we want to put into the
+		part to be read, and then copy them. */
+	
 	InstallDoc(score);
 	
 	/* Avoid problems if, e.g., any Connect subobjs for other parts are selected. */
+	
 	RPDeselAll(score);
 	SelectPart(score,partL, config.extractAllGraphics);
 	*partOK = TRUE;
 
 	/* If CopyPart fails, return with partOK FALSE. */
+	
 	if (!CopyPart(score,part,partL)) {
-		*partOK = FALSE; return 0;
+		*partOK = FALSE;
+		return 0;
 	}
 	
 	UpdateDocHeader(part);
@@ -695,7 +695,7 @@ static Boolean MakeMultibarRest(Document *doc,
 			if (!firstSysDelL) firstSysDelL = pL;
 			nSysDel++;
 		}
-	if (nSysDel>0) {												/* If no Sys in range, nthg to do */
+	if (nSysDel>0) {											/* If no Sys in range, nthg to do */
 		newSysL = SSearch(firstL, SYSTEMtype, GO_LEFT);
 		for (startSys = 0; startSys<nSys; startSys++)
 			if (sysMap[startSys].srcL==firstSysDelL) break;

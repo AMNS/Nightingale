@@ -273,11 +273,13 @@ Boolean DoFileMenu(short choice)
 				 else {
 					UseStandardType(documentType);
 					GetIndCString(str, MENUCMDMSGS_STRS, 4);			/* "Which score do you want to open?" */
-					if (returnCode = GetInputName(str,TRUE,tmpStr,&vrefnum,&nscd)) {
+					returnCode = GetInputName(str,TRUE,tmpStr,&vrefnum,&nscd);
+					if (returnCode) {
 						if (returnCode == OP_OpenFile) {
 							fsSpec = nscd.nsFSSpec;
 							vrefnum = nscd.nsFSSpec.vRefNum;
-   						DoOpenDocument(tmpStr,vrefnum,FALSE,&fsSpec);
+							DoOpenDocument(tmpStr,vrefnum,FALSE,&fsSpec);
+							LogPrintf(LOG_DEBUG, "Opened file '%s'.\n", PToCString(tmpStr));
 						 }
 						 else if (returnCode == OP_NewFile)
 						 	keepGoing = DoFileMenu(FM_New);
@@ -291,10 +293,12 @@ Boolean DoFileMenu(short choice)
 				 else {
 					UseStandardType(documentType);
 					GetIndCString(str, MENUCMDMSGS_STRS, 5);			/* "Which score do you want to open read-only?" */
-					if (returnCode = GetInputName(str,FALSE,tmpStr,&vrefnum,&nscd))
+					returnCode = GetInputName(str,FALSE,tmpStr,&vrefnum,&nscd);
+					if (returnCode)
 						fsSpec = nscd.nsFSSpec;
 						vrefnum = nscd.nsFSSpec.vRefNum;
 						DoOpenDocument(tmpStr,vrefnum,TRUE, &fsSpec);
+						LogPrintf(LOG_DEBUG, "Opened read-only file '%s'.\n", PToCString(tmpStr));
 					}
 				break;
 			case FM_Close:

@@ -295,7 +295,7 @@ Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerStr[], B
 			newOffset = PReplace(hOffset, string);
 		else
 			newOffset = PStore(string);
-LogPrintf(LOG_DEBUG, "CopyHeaderFooter: hOffset=%d newOffset=%d\n", hOffset, newOffset);
+//LogPrintf(LOG_DEBUG, "CopyHeaderFooter: hOffset=%d newOffset=%d\n", hOffset, newOffset);
 		if (newOffset < 0L) {
 			NoMoreMemory();
 			return FALSE;
@@ -310,7 +310,7 @@ LogPrintf(LOG_DEBUG, "CopyHeaderFooter: hOffset=%d newOffset=%d\n", hOffset, new
 			newOffset = PReplace(fOffset, string);
 		else
 			newOffset = PStore(string);
-LogPrintf(LOG_DEBUG, "CopyHeaderFooter: fOffset=%d newOffset=%d\n", fOffset, newOffset);
+//LogPrintf(LOG_DEBUG, "CopyHeaderFooter: fOffset=%d newOffset=%d\n", fOffset, newOffset);
 		if (newOffset < 0L) {
 			NoMoreMemory();
 			return FALSE;
@@ -406,7 +406,7 @@ Boolean DoExtract(Document *doc)
 			WaitCursor();
 			/* FIXME: If <doc> has been saved, <doc->vrefnum> seems to be correct, but if
 			it hasn't been, <doc->vrefnum> seems to be zero; I'm not sure if that's safe. */
-			partDoc = CreatePartDoc(doc, name, doc->vrefnum, &doc->fsSpec,partL);
+			partDoc = CreatePartDoc(doc, name, doc->vrefnum, &doc->fsSpec, partL);
 			if (partDoc) {
 				if (reformat) {
 					ReformatPart(partDoc, spacePercent, TRUE, careMeasPerSys,

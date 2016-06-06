@@ -589,7 +589,7 @@ MasterPage.
 
 -------------------------------------------------------------------------------
 
-2-4 June
+2-5 June
 
 Make error checking of CNFG values count just one error each for page margin and page
 number margin, no matter how many of their fields are out of bounds. Affects Initialize.
@@ -599,4 +599,10 @@ accomodate them. Affects .rsrc; Browser.
 
 When parts are extracted, they now inherit page headers and footers from the score.
 
+Move DelAddRedAccs from CFilesBoth to CFilesEditor.
+
+When a file is opened normally or read-only via menu command, or opened via Apple Event,
+send a message saying so to the log file. Affects Event, Menu.
+
 Minor cleanup. Affects Extract, ExtractHighLevel, HeaderFooterDialog.
+

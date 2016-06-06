@@ -885,7 +885,10 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 
 	switch (fndrInfo.fdType) {
 		case DOCUMENT_TYPE_NORMAL:
-			if (DoOpenDocument(theFile->name, theFile->vRefNum, FALSE, theFile)) break;
+			if (DoOpenDocument(theFile->name, theFile->vRefNum, FALSE, theFile)) {
+				LogPrintf(LOG_DEBUG, "Opened file '%s'.\n", PToCString(theFile->name));
+				break;
+			}
 			return NULL;
 		case 'TEXT':
 			if (OpenNotelistFile(theFile->name, theFile)) break;

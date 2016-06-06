@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151D712F1C4FA1A900B49302 /* VoiceTable.cp */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
+		157437C51D05153300C5A4DF /* DelAddRedAccs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157437C41D05153300C5A4DF /* DelAddRedAccs.cp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
 		15E4B7751C823507001279A2 /* Ottava.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E4B7741C823507001279A2 /* Ottava.cp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
@@ -34,7 +35,6 @@
 		D03E6DFF0D5F986D005FD177 /* CheckUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD90D5F986D005FD177 /* CheckUtils.cp */; };
 		D03E6E000D5F986D005FD177 /* ChordSym.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDA0D5F986D005FD177 /* ChordSym.cp */; };
 		D03E6E010D5F986D005FD177 /* CompactVoices.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDB0D5F986D005FD177 /* CompactVoices.cp */; };
-		D03E6E020D5F986D005FD177 /* DelAddRedAccs.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDC0D5F986D005FD177 /* DelAddRedAccs.cp */; };
 		D03E6E030D5F986D005FD177 /* DialogsBoth.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDD0D5F986D005FD177 /* DialogsBoth.cp */; };
 		D03E6E040D5F986D005FD177 /* DialogUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDE0D5F986D005FD177 /* DialogUtils.cp */; };
 		D03E6E050D5F986D005FD177 /* DrawDocument.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDF0D5F986D005FD177 /* DrawDocument.cp */; };
@@ -205,6 +205,7 @@
 /* Begin PBXFileReference section */
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
+		157437C41D05153300C5A4DF /* DelAddRedAccs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedAccs.cp; sourceTree = "<group>"; };
 		15C015D21CFFB0C200A5BD97 /* style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = style.h; sourceTree = "<group>"; };
 		15E4B7741C823507001279A2 /* Ottava.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Ottava.cp; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -319,7 +320,6 @@
 		D03E6DD90D5F986D005FD177 /* CheckUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckUtils.cp; sourceTree = "<group>"; };
 		D03E6DDA0D5F986D005FD177 /* ChordSym.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = ChordSym.cp; sourceTree = "<group>"; };
 		D03E6DDB0D5F986D005FD177 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
-		D03E6DDC0D5F986D005FD177 /* DelAddRedAccs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedAccs.cp; sourceTree = "<group>"; };
 		D03E6DDD0D5F986D005FD177 /* DialogsBoth.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogsBoth.cp; sourceTree = "<group>"; };
 		D03E6DDE0D5F986D005FD177 /* DialogUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogUtils.cp; sourceTree = "<group>"; };
 		D03E6DDF0D5F986D005FD177 /* DrawDocument.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawDocument.cp; sourceTree = "<group>"; };
@@ -705,7 +705,6 @@
 				D03E6DAF0D5F9644005FD177 /* Context.cp */,
 				D03E6DB00D5F9644005FD177 /* Copy.cp */,
 				D03E6DC10D5F9720005FD177 /* CrossLinks.cp */,
-				D03E6DDC0D5F986D005FD177 /* DelAddRedAccs.cp */,
 				D03E6DDD0D5F986D005FD177 /* DialogsBoth.cp */,
 				D03E6DDE0D5F986D005FD177 /* DialogUtils.cp */,
 				D03E6DC20D5F9720005FD177 /* Documents.cp */,
@@ -856,6 +855,7 @@
 				D03E705F0D5FA5B2005FD177 /* DebugDisplay.cp */,
 				D03E70600D5FA5B2005FD177 /* DebugHighLevel.cp */,
 				D03E70610D5FA5B2005FD177 /* DebugUtils.cp */,
+				157437C41D05153300C5A4DF /* DelAddRedAccs.cp */,
 				D03E70620D5FA5B2005FD177 /* Delete.cp */,
 				D03E70630D5FA5B2005FD177 /* DelRedTimeSigs.cp */,
 				D03E70640D5FA5B2005FD177 /* DialogsEditor.cp */,
@@ -1044,7 +1044,6 @@
 				D03E6DFF0D5F986D005FD177 /* CheckUtils.cp in Sources */,
 				D03E6E000D5F986D005FD177 /* ChordSym.cp in Sources */,
 				D03E6E010D5F986D005FD177 /* CompactVoices.cp in Sources */,
-				D03E6E020D5F986D005FD177 /* DelAddRedAccs.cp in Sources */,
 				D03E6E030D5F986D005FD177 /* DialogsBoth.cp in Sources */,
 				D03E6E040D5F986D005FD177 /* DialogUtils.cp in Sources */,
 				D03E6E050D5F986D005FD177 /* DrawDocument.cp in Sources */,
@@ -1184,6 +1183,7 @@
 				15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */,
 				151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */,
 				15E4B7751C823507001279A2 /* Ottava.cp in Sources */,
+				157437C51D05153300C5A4DF /* DelAddRedAccs.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
