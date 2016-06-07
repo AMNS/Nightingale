@@ -148,28 +148,28 @@ object header, which must not be re-positioned. In the future, this may apply to
 other fields as well. */
 
 #define OBJECTHEADER \
-	LINK		right, left;		/* links to left and right objects */			\
-	LINK		firstSubObj;		/* link to first subObject */						\
-	DDIST		xd, yd;				/* position of object */							\
-	SignedByte	type;				/* (.+#10) object type */							\
-	Boolean		selected:1;			/* TRUE if any part of object selected */		\
-	Boolean		visible:1;			/* TRUE if any part of object is visible */	\
-	Boolean		soft:1;				/* TRUE if object is program-generated */		\
+	LINK		right, left;		/* links to left and right objects */					\
+	LINK		firstSubObj;		/* link to first subObject */							\
+	DDIST		xd, yd;				/* position of object */								\
+	SignedByte	type;				/* (.+#10) object type */								\
+	Boolean		selected:1;			/* TRUE if any part of object selected */				\
+	Boolean		visible:1;			/* TRUE if any part of object is visible */				\
+	Boolean		soft:1;				/* TRUE if object is program-generated */				\
 	Boolean		valid:1;			/* TRUE if objRect (for Measures, measureBBox also) valid. */ \
 	Boolean		tweaked:1;			/* TRUE if object dragged or position edited with Get Info */ \
-	Boolean		spareFlag:1;		/* available for general use */					\
-	char		ohdrFiller1:2;		/* unused; could use for specific "tweak" flags */ \
-	Rect		objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ \
-	SignedByte	relSize;			/* (unused) size rel. to normal for object & context */ \
+	Boolean		spareFlag:1;		/* available for general use */							\
+	char		ohdrFiller1:2;		/* unused; could use for specific "tweak" flags */		\
+	Rect		objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ 	\
+	SignedByte	relSize;			/* (unused) size rel. to normal for object & context */	\
 	SignedByte	ohdrFiller2;		/* unused */											\
 	Byte		nEntries;			/* (.+#22) number of subobjects in object */
 	
 #define SUBOBJHEADER \
-	LINK		next;				/* index of next subobj */							\
+	LINK		next;				/* index of next subobj */								\
 	SignedByte	staffn;				/* staff number. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
-	SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */	\
-	Boolean		selected:1;			/* TRUE if subobject is selected */				\
-	Boolean		visible:1;			/* TRUE if subobject is visible */				\
+	SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */		\
+	Boolean		selected:1;			/* TRUE if subobject is selected */						\
+	Boolean		visible:1;			/* TRUE if subobject is visible */						\
 	Boolean		soft:1;				/* TRUE if subobject is program-generated */
 
 #define EXTOBJHEADER \

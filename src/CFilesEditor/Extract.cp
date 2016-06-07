@@ -271,10 +271,13 @@ static void SelectPart(
 	PACONNECT	aConnect;
 	GenSubObj 	*subObj;
 	HEAP 		*tmpHeap;
+	Boolean		inTempoSeries;
 
 	pPart = GetPPARTINFO(partL);
 	firstStf = pPart->firstStaff;
 	lastStf = pPart->lastStaff;
+
+	inTempoSeries = FALSE;
 
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		p = GetPMEVENT(pL);
@@ -314,6 +317,7 @@ static void SelectPart(
 			case TIMESIGtype:
 			case SYNCtype:
 			case GRSYNCtype:
+				inTempoSeries = FALSE;								/* drop through */
 			case DYNAMtype:
 			case RPTENDtype:
 				tmpHeap = doc->Heap + ObjLType(pL);
@@ -324,7 +328,8 @@ static void SelectPart(
 						LinkSEL(pL) = TRUE;
 						subObj->selected = TRUE;
 					}
-				}	
+				}
+				inTempoSeries = FALSE;
 				break;
 			case BEAMSETtype:
 			case TUPLETtype:
@@ -351,13 +356,22 @@ static void SelectPart(
 						LinkSEL(pL) = TRUE;
 				}
 				break;
+			/* If, in a series of TEMPO object, there's more than one relevant to this
+				part, we assume they're identical, e.g., for an orchestra score where
+				the tempo appears above the top staff and somewhere in the middle, so
+				we want only the first one. */
 			case TEMPOtype:
-				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf)
+				if (inTempoSeries) break;
+				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf) {
 					LinkSEL(pL) = TRUE;
+					inTempoSeries = TRUE;
+				}
 				else {
 					firstL = TempoFIRSTOBJ(pL);
-					if (LinkBefFirstMeas(firstL) || MeasureTYPE(firstL))
+					if (LinkBefFirstMeas(firstL) || MeasureTYPE(firstL)) {
 						LinkSEL(pL) = TRUE;
+						inTempoSeries = TRUE;
+					}
 				}
 				break;
 
