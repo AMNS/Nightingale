@@ -252,7 +252,7 @@ typedef struct {
 	SignedByte	minRecDuration;		/* P: Shorter recorded notes are ignored (milliseconds) */
 	SignedByte	midiThru;			/* P: MIDI Thru: 0 = off, 1 = to modem port */
 
-	short		defaultTempo;		/* P: Default tempo (quarters per min.) */
+	short		defaultTempoMM;		/* P: Default tempo (quarters per min.) */
 
 	short		lowMemory;			/* S: Number of free Kbytes below which to warn once */
 	short		minMemory;			/* S: Number of free Kbytes below which to warn always */

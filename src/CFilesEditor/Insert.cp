@@ -1300,15 +1300,15 @@ mousedown at the given point.	Handles feedback and allows cancelling. */
 
 Boolean InsertTempo(Document *doc, Point pt)
 {
-	short clickStaff,v,sym,pitchLev;
-	static short dur,beatsPM;
+	short clickStaff, v, sym, pitchLev;
+	static short dur, beatsPM;
 	LINK pL;
-	static Boolean hideMM, dotted, expanded;
-	static Str63 tempoStr;		/* limit length to save static var. space */
-	static Str63 metroStr;		/* limit length to save static var. space */
+	static Boolean useMM, showMM, dotted, expanded;
+	static Str63 tempoStr;			/* limit length to save static var. space */
+	static Str63 metroStr;			/* limit length to save static var. space */
 	static Boolean firstCall=TRUE;
 
-	pL = FindTempoObject(doc, pt, &clickStaff, &v);			
+	pL = FindTempoObject(doc, pt, &clickStaff, &v);
 	if (pL==NILINK) return FALSE;
 	if (MeasureTYPE(pL)) clickStaff = FindStaff(doc, pt);
 	
@@ -1318,9 +1318,10 @@ Boolean InsertTempo(Document *doc, Point pt)
 		if (firstCall) {
 			dur = QTR_L_DUR;
 			dotted = FALSE;
-			beatsPM = config.defaultTempo;
+			beatsPM = config.defaultTempoMM;
 			NumToString(beatsPM, metroStr);
-			hideMM = FALSE;
+			useMM = TRUE;
+			showMM = TRUE;
 			expanded = FALSE;
 			PStrCopy((StringPtr)"\p", (StringPtr)tempoStr);
 			firstCall = FALSE;
@@ -1328,15 +1329,15 @@ Boolean InsertTempo(Document *doc, Point pt)
 
 		Pstrcpy((unsigned char *)strBuf, (unsigned char *)tempoStr);
 		Pstrcpy((unsigned char *)tmpStr, (unsigned char *)metroStr);
-		//LogPrintf(LOG_NOTICE, "InsertTempo: expanded=%d\n", expanded);
-		if (TempoDialog(&hideMM, &dur, &dotted, &expanded, (unsigned char *)strBuf, tmpStr)) {
+		if (TempoDialog(&useMM, &showMM, &dur, &dotted, &expanded, (unsigned char *)strBuf, tmpStr)) {
 			doc->selEndL = doc->selStartL = pL;
 			if (strBuf[0]>63) strBuf[0] = 63;					/* Limit str. length (see above) */
 			Pstrcpy((unsigned char *)tempoStr, (unsigned char *)strBuf);
 			if (tmpStr[0]>63) tmpStr[0] = 63;					/* Limit str. length (see above) */
 			Pstrcpy((unsigned char *)metroStr, (unsigned char *)tmpStr);
-			NewTempo(doc, pt, palChar, clickStaff, pitchLev, hideMM, dur, expanded,
-						dotted, tempoStr, metroStr);
+//LogPrintf(LOG_DEBUG, "InsertTempo 1: expanded=%d\n", expanded);
+			NewTempo(doc, pt, palChar, clickStaff, pitchLev, useMM, showMM, dur,dotted,
+						expanded, tempoStr, metroStr);
 			return TRUE;
 		}
 	}

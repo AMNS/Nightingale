@@ -1157,11 +1157,11 @@ void NewTimeSig(Document *doc,
 					short	denominator			/* Numerator and denominator of timesig */
 					)
 {
-	short			sym, i, stfCount, useStaff;
-	PTIMESIG		newp;
-	LINK 			newL, aTimeSigL;
+	short		sym, i, stfCount, useStaff;
+	PTIMESIG	newp;
+	LINK 		newL, aTimeSigL;
 	PATIMESIG	aTimeSig;
-	CONTEXT		context;											/* current context */
+	CONTEXT		context;									/* current context */
 	TSINFO		timeSigInfo;
 	
 	if (inchar==' ') inchar = TIMESIG_PALCHAR;
@@ -1178,7 +1178,7 @@ void NewTimeSig(Document *doc,
 		InitTimeSig(aTimeSigL, useStaff, 0, type, numerator, denominator);
 		aTimeSig = GetPATIMESIG(aTimeSigL);
 		aTimeSig->soft = FALSE;
-		aTimeSig->selected = TRUE;								/* Select the subobj */
+		aTimeSig->selected = TRUE;							/* Select the subobj */
 		timeSigInfo.TSType = aTimeSig->subType;
 		timeSigInfo.numerator = aTimeSig->numerator;
 		timeSigInfo.denominator = aTimeSig->denominator;
@@ -1192,46 +1192,46 @@ void NewTimeSig(Document *doc,
 
 /* --------------------------------------------------------------- ModNRPitchLev -- */
 typedef struct {
-	Byte		canBeInStaff;	/* can put modifier inside staff, if note head pos. allows (boolean) */
-	Byte		alwaysAbove;	/* if only 1 voice on staff, put modifier above staff, even if stem is up (boolean) */
+	Byte	canBeInStaff;	/* can put modifier inside staff, if note head pos. allows (boolean) */
+	Byte	alwaysAbove;	/* if only 1 voice on staff, put modifier above staff, even if stem is up (boolean) */
 	SHORTQD	yOffsetBelow;	/* mod below notehead: rel. to default pos. for staccato; in qtr-lines */
 	SHORTQD	yOffsetAbove;	/* mod above notehead: rel. to default pos. for staccato; in qtr-lines */
 } MODINFO;
 
 static MODINFO modInfoTable[] = {
-/* canBeInStaff	alwaysAbove	yOffsetBelow	yOffsetAbove		[modCode indices] */
-	0,					0,				2,					-2,					/* '0' */
-	0,					0,				2,					-2,					/* '1' */
-	0,					0,				2,					-2,					/* '2' */
-	0,					0,				2,					-2,					/* '3' */
-	0,					0,				2,					-2,					/* '4' */
-	0,					0,				2,					-2,					/* '5' */
-	0,					0,				2,					-2,					/* '6' */
-	0,					0,				2,					-2,					/* '7' */
-	0,					0,				2,					-2,					/* '8' */
-	0,					0,				2,					-2,					/* '9' */
-	0,					1,				0,					-2,					/*	MOD_FERMATA */
-	0,					1,				0,					-2,					/*	MOD_TRILL */
-	0,					0,				2,					-1,					/*	MOD_ACCENT */
-	0,					0,				3,					-2,					/*	MOD_HEAVYACCENT */
-	1,					0,				0,					0,						/*	MOD_STACCATO */
-	1,					0,				0,					0,						/*	MOD_WEDGE */
-	1,					0,				0,					0,						/*	MOD_TENUTO */
-	0,					1,				0,					-3,					/*	MOD_MORDENT */
-	0,					1,				0,					-2,					/*	MOD_INV_MORDENT */
-	0,					1,				0,					-2,					/*	MOD_TURN */
-	0,					1,				0,					-2,					/*	MOD_PLUS */
-	1,					0,				0,					0,						/*	MOD_CIRCLE */
-	0,					1,				0,					-3,					/*	MOD_UPBOW */
-	0,					1,				0,					-3,					/*	MOD_DOWNBOW */
-	1,					0,				0,					0,						/*	MOD_TREMOLO1 - don't think trems are even used here */
-	1,					0,				0,					0,						/*	MOD_TREMOLO2 */
-	1,					0,				0,					0,						/*	MOD_TREMOLO3 */
-	1,					0,				0,					0,						/*	MOD_TREMOLO4 */
-	1,					0,				0,					0,						/*	MOD_TREMOLO5 */
-	1,					0,				0,					0,						/*	MOD_TREMOLO6 */
-	0,					0,				3,					-2,					/*	MOD_HEAVYACC_STACC */
-	0,					1,				0,					-2						/*	MOD_LONG_INVMORDENT */
+/* canBeInStaff	alwaysAbove		yOffsetBelow	yOffsetAbove	[modCode indices] */
+	0,				0,				2,				-2,				/* '0' */
+	0,				0,				2,				-2,				/* '1' */
+	0,				0,				2,				-2,				/* '2' */
+	0,				0,				2,				-2,				/* '3' */
+	0,				0,				2,				-2,				/* '4' */
+	0,				0,				2,				-2,				/* '5' */
+	0,				0,				2,				-2,				/* '6' */
+	0,				0,				2,				-2,				/* '7' */
+	0,				0,				2,				-2,				/* '8' */
+	0,				0,				2,				-2,				/* '9' */
+	0,				1,				0,				-2,				/*	MOD_FERMATA */
+	0,				1,				0,				-2,				/*	MOD_TRILL */
+	0,				0,				2,				-1,				/*	MOD_ACCENT */
+	0,				0,				3,				-2,				/*	MOD_HEAVYACCENT */
+	1,				0,				0,				0,				/*	MOD_STACCATO */
+	1,				0,				0,				0,				/*	MOD_WEDGE */
+	1,				0,				0,				0,				/*	MOD_TENUTO */
+	0,				1,				0,				-3,				/*	MOD_MORDENT */
+	0,				1,				0,				-2,				/*	MOD_INV_MORDENT */
+	0,				1,				0,				-2,				/*	MOD_TURN */
+	0,				1,				0,				-2,				/*	MOD_PLUS */
+	1,				0,				0,				0,				/*	MOD_CIRCLE */
+	0,				1,				0,				-3,				/*	MOD_UPBOW */
+	0,				1,				0,				-3,				/*	MOD_DOWNBOW */
+	1,				0,				0,				0,				/*	MOD_TREMOLO1 - don't think trems are even used here */
+	1,				0,				0,				0,				/*	MOD_TREMOLO2 */
+	1,				0,				0,				0,				/*	MOD_TREMOLO3 */
+	1,				0,				0,				0,				/*	MOD_TREMOLO4 */
+	1,				0,				0,				0,				/*	MOD_TREMOLO5 */
+	1,				0,				0,				0,				/*	MOD_TREMOLO6 */
+	0,				0,				3,				-2,				/*	MOD_HEAVYACC_STACC */
+	0,				1,				0,				-2				/*	MOD_LONG_INVMORDENT */
 };
 static short modInfoLen = (sizeof(modInfoTable) / sizeof(MODINFO));	/* Length of modInfoTable */ 
 
@@ -1248,10 +1248,10 @@ short ModNRPitchLev(Document *doc,
 						LINK theNoteL
 						)
 {
-	short		voice, midCHalfLn, modQPit, stfTopQtrLn, stfBotQtrLn;
-	LINK		mainNoteL;
+	short	voice, midCHalfLn, modQPit, stfTopQtrLn, stfBotQtrLn;
+	LINK	mainNoteL;
 	Boolean	stemDown, canBeInStaff, alwaysAbove, alwaysBelow, putModAbove, useStemEnd, hasMod;
-	QDIST		yqpit, yqstem, yOffsetAbove, yOffsetBelow;
+	QDIST	yqpit, yqstem, yOffsetAbove, yOffsetBelow;
 	CONTEXT	context;
 		
 	voice = NoteVOICE(theNoteL);
@@ -1309,58 +1309,58 @@ short ModNRPitchLev(Document *doc,
 	if (putModAbove) {
 		if (!stemDown) {
 			useStemEnd = TRUE;
-			yqpit = yqstem;								/* substitute stem end pos. for note head */
+			yqpit = yqstem;							/* substitute stem end pos. for note head */
 		}
-		if (canBeInStaff) {								/* allow mod placement in staff */
-			if (yqpit>stfTopQtrLn) {					/* note/stem is in the staff */
-				if (useStemEnd && odd(yqpit))			/* If yqpit is really stem end, it might not fall on a halfLn */
+		if (canBeInStaff) {							/* allow mod placement in staff */
+			if (yqpit>stfTopQtrLn) {				/* note/stem is in the staff */
+				if (useStemEnd && odd(yqpit))		/* If yqpit is really stem end, it might not fall on a halfLn */
 					yqpit++;
 				modQPit = yqpit - 4;
-				if (!(yqpit % 4))							/* note/stem is on a staff line */
+				if (!(yqpit % 4))					/* note/stem is on a staff line */
 					modQPit -= 2;
 			}
 			else {
 				if (useStemEnd)
-					modQPit = yqpit - 3;					/* 3 instead of 4; doesn't need as much room as w/ notehead */
+					modQPit = yqpit - 3;			/* 3 instead of 4; doesn't need as much room as w/ notehead */
 				else
 					modQPit = yqpit - 4;
 			}
 		}
 		else {
-			if (yqpit>stfTopQtrLn)						/* note/stem is inside staff */
-				modQPit = stfTopQtrLn - 3;				/* 3 instead of 4; doesn't need as much room as when snug against notehead */
+			if (yqpit>stfTopQtrLn)					/* note/stem is inside staff */
+				modQPit = stfTopQtrLn - 3;			/* 3 instead of 4; doesn't need as much room as when snug against notehead */
 			else
 				modQPit = yqpit - 4;
 		}
-		modQPit += yOffsetAbove;						/* offset from staccato position */
+		modQPit += yOffsetAbove;					/* offset from staccato position */
 	}
 	else {
 		if (stemDown) {
 			useStemEnd = TRUE;
-			yqpit = yqstem;								/* substitute stem end pos. for note head */
+			yqpit = yqstem;							/* substitute stem end pos. for note head */
 		}
-		if (canBeInStaff) {								/* allow mod placement in staff */
-			if (yqpit<stfBotQtrLn) {					/* note/stem is in the staff */
-				if (useStemEnd && odd(yqpit))			/* If yqpit is really stem end, it might not fall on a halfLn */
+		if (canBeInStaff) {							/* allow mod placement in staff */
+			if (yqpit<stfBotQtrLn) {				/* note/stem is in the staff */
+				if (useStemEnd && odd(yqpit))		/* If yqpit is really stem end, it might not fall on a halfLn */
 					yqpit--;
 				modQPit = yqpit + 4;
-				if (!(yqpit % 4))							/* note/stem is on a staff line */
+				if (!(yqpit % 4))					/* note/stem is on a staff line */
 					modQPit += 2;
 			}
 			else {
 				if (useStemEnd)
-					modQPit = yqpit + 3;					/* 3 instead of 4; doesn't need as much room as w/ notehead */
+					modQPit = yqpit + 3;			/* 3 instead of 4; doesn't need as much room as w/ notehead */
 				else
 					modQPit = yqpit + 4;
 			}
 		}
 		else {
-			if (yqpit<stfBotQtrLn)						/* note/stem is inside staff */
-				modQPit = stfBotQtrLn + 3;				/* 3 instead of 4; doesn't need as much room as when snug against notehead */
+			if (yqpit<stfBotQtrLn)					/* note/stem is inside staff */
+				modQPit = stfBotQtrLn + 3;			/* 3 instead of 4; doesn't need as much room as when snug against notehead */
 			else
 				modQPit = yqpit + 4;
 		}
-		modQPit += yOffsetBelow;						/* offset from staccato position */
+		modQPit += yOffsetBelow;					/* offset from staccato position */
 	}
 
 	/* Try to avoid a collision with an existing modifier.  This is very crude, and it only
@@ -1385,20 +1385,20 @@ short ModNRPitchLev(Document *doc,
 /*	Add a note/rest modifier. */
 
 void NewMODNR(Document *doc,
-				char	inchar,				/* Symbol code: symcode field from symTable */
+				char	inchar,			/* Symbol code: symcode field from symTable */
 				short	slashes,
 				short	staff,
-				short	qPitchLev,			/* "Pitch level", i.e., vertical position (qtr-lines) */
-				LINK syncL,					/* Sync to which MODNR attached */
+				short	qPitchLev,		/* "Pitch level", i.e., vertical position (qtr-lines) */
+				LINK syncL,				/* Sync to which MODNR attached */
 				LINK aNoteL
 				)
 {
-	short			sym;
+	short		sym;
 	PAMODNR		aModNR;
-	LINK			aModNRL, lastModNRL;
+	LINK		aModNRL, lastModNRL;
 	PANOTE		aNote;
 	
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  				/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
 
 	/* Insert the current note modifier into the note's linked modifier list. 
 		If the list exists, traverse to the end, & insert the new MODNR LINK
@@ -1432,7 +1432,7 @@ void NewMODNR(Document *doc,
 	aModNR->ystdpit = qd2std(qPitchLev);
 	aModNR->data = 0;
 	doc->changed = TRUE;
-	InvalMeasure(syncL, staff);										/* Redraw the measure */
+	InvalMeasure(syncL, staff);									/* Redraw the measure */
 	MEAdjustCaret(doc, TRUE);
 }
 
@@ -1442,7 +1442,7 @@ void NewMODNR(Document *doc,
 effort to avoid passing one more parameter. */
 
 LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
-									char inchar, short *sym, PCONTEXT pContext, Boolean crossSys)
+						char inchar, short *sym, PCONTEXT pContext, Boolean crossSys)
 {
 	LINK sysL, measL, newL; PSYSTEM pSystem; PDYNAMIC newp; short dtype;
 
@@ -1458,7 +1458,7 @@ LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
 				GetIndCString(strBuf, INSERTERRS_STRS, 8);			/* "Hairpin cannot start in a different measure from its first note." */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
-				InvalMeasures(doc->selStartL, measL, staff);			/* Force redrawing the measure */
+				InvalMeasures(doc->selStartL, measL, staff);		/* Force redrawing the measure */
 				return NILINK;
 		}
 	}
@@ -1476,13 +1476,13 @@ LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
 
 void NewDynamic(
 				Document *doc,
-				short		x,						/* Horiz. position in pixels */
-				short		endx,					/* For hairpins, horiz. right endpt in pixels */
-				char		inchar,				/* Symbol code: symcode field from symtable */
-				short		staff,				/* Staff number */
-				short		pitchLev,			/* Vertical position in halflines */
-				LINK  	lastSyncL,			/* For hairpins, sync right end is attached to */
-				Boolean	crossSys				/* (Ignored for now) Whether cross system */
+				short	x,				/* Horiz. position in pixels */
+				short	endx,			/* For hairpins, horiz. right endpt in pixels */
+				char	inchar,			/* Symbol code: symcode field from symtable */
+				short	staff,			/* Staff number */
+				short	pitchLev,		/* Vertical position in halflines */
+				LINK  	lastSyncL,		/* For hairpins, sync right end is attached to */
+				Boolean	crossSys		/* (Ignored for now) Whether cross system */
 				)
 {
 	short	sym; LINK newL; CONTEXT context; DDIST sysLeft;
@@ -1510,17 +1510,17 @@ void NewDynamic(
 /*	Add a Repeat/End to the object list. */
 
 void NewRptEnd(Document *doc,
-					short	x,						/* Horizontal position (pixels) */
-					char	inchar,				/* Input char. code for symbol to add */
-					short	staff					/* Staff number */
+					short	x,				/* Horizontal position (pixels) */
+					char	inchar,			/* Input char. code for symbol to add */
+					short	staff			/* Staff number */
 					)
 {
-	short			sym;
+	short		sym;
 	PRPTEND		newp;
-	LINK			newL, pL, prevMeasL;
-	CONTEXT		context;										/* current context */
+	LINK		newL, pL, prevMeasL;
+	CONTEXT		context;									/* current context */
 	
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  					/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  		/* "Undo Insert" */
 
 	/* ANYONE allows one subObj for each staff; assumes that there will likewise
 		be one meas subObj for each staff for the immed. preceding meas. */
@@ -1573,7 +1573,7 @@ void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clic
 	short sym;
 	DDIST firstRelxd,lastRelxd;
 	
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  						/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  					/* "Undo Insert" */
 	pL = NewObjPrepare(doc, ENDINGtype, &sym, inchar, clickStaff, firstx, &context);
 
 	firstL = doc->selStartL;
@@ -1607,29 +1607,32 @@ void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clic
 }
 
 /* -------------------------------------------------------------------- NewTempo -- */
-/*	Add a Tempo mark to the object list. */
+/*	Add a Tempo/metronome mark to the object list. One slightly tricky thing: if _noMM_
+is FALSE, the metronome mark is to be ignored. */
 
 void NewTempo(Document *doc, Point pt, char inchar, short staff, STDIST pitchLev,
-					Boolean hideMM, short dur, Boolean dotted, Boolean expanded,
-					unsigned char *tempoStr, unsigned char *metroStr)
+				Boolean useMM, Boolean showMM, short dur, Boolean dotted, Boolean expanded,
+				unsigned char *tempoStr, unsigned char *metroStr)
 {
 	LINK pL;
 	PTEMPO pTempo;
 	CONTEXT context; short sym; long beatsPM;
 	
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  		/* "Undo Insert" */
 	pL = NewObjPrepare(doc, TEMPOtype, &sym, inchar, staff, pt.h, &context);
 
 PushLock(OBJheap);
 	pTempo = GetPTEMPO(pL);
 	pTempo->staffn = staff;
-	pTempo->expanded = 0;
-	pTempo->small = 0;
+	pTempo->expanded = expanded;
+//LogPrintf(LOG_DEBUG, "NewTempo: expanded=%d, pTempo->expanded=%d\n", expanded, pTempo->expanded);
 	pTempo->yd = halfLn2d(pitchLev, context.staffHeight, context.staffLines);
 	pTempo->xd = 0;											/* same horiz position as note */
+	pTempo->filler = 0;										/* Added in v. 5.6. --DAB */
 	pTempo->subType = dur;									/* beat: same units as note's l_dur */
 	pTempo->dotted = dotted;
-	pTempo->hideMM = hideMM;
+	pTempo->noMM = !useMM;
+	pTempo->hideMM = !showMM;
 	pTempo->strOffset = PStore((unsigned char *)tempoStr);	/* index return by String Manager */
 	pTempo->metroStrOffset = PStore((unsigned char *)metroStr);	/* index return by String Manager */
 	if (pTempo->strOffset<0L || pTempo->metroStrOffset<0L)
@@ -1639,9 +1642,12 @@ PushLock(OBJheap);
 		MayErrMsg("NewTempo: PStore error. strOffset=%ld metroStrOffset=%ld",
 					pTempo->strOffset, pTempo->metroStrOffset);
 
-	beatsPM = FindIntInString(metroStr);
-	if (beatsPM<0L) beatsPM = config.defaultTempo;
-	pTempo->tempo = beatsPM;
+	if (!useMM) pTempo->tempoMM = 0;
+	else {
+		beatsPM = FindIntInString(metroStr);
+		if (beatsPM<0L) beatsPM = config.defaultTempoMM;
+		pTempo->tempoMM = beatsPM;
+	}
 	pTempo->firstObjL = doc->selStartL;						/* tempo inserted relative to this obj */
 PopLock(OBJheap);
 

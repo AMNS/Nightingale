@@ -1200,7 +1200,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	SetRect(&LinkOBJRECT(pL), d2p(xd), d2p(yd)-fInfo.ascent, 
 				d2p(xd)+StringWidth(PCopy(theStrOffset)), d2p(yd)+fInfo.descent);
 
-	if (!p->hideMM || doc->showInvis) {
+	if (!TempoNOMM(pL) && (!p->hideMM || doc->showInvis)) {
 		//DrawChar(' ');
 		tempoStrlen = tempoStr[0];
 		if (tempoStrlen>0) {

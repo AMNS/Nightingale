@@ -100,7 +100,7 @@
 	Boolean		PanSettingDialog(unsigned char *);
 	Boolean		ChordFrameDialog(Document *, Boolean *, short *, short *, short *,
 						unsigned char *, unsigned char *);
-	Boolean		TempoDialog(Boolean *, short *, Boolean *, Boolean *, unsigned char *, unsigned char *);
+	Boolean		TempoDialog(Boolean *, Boolean *, short *, Boolean *, Boolean *, unsigned char *, unsigned char *);
 	Boolean		SymbolIsBarline(void);
 	Boolean		InsMeasUnkDurDialog(void);
 	void		XLoadDialogsSeg(void);

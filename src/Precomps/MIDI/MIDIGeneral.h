@@ -122,7 +122,7 @@ short UseMIDINoteNum(Document *, LINK, short);
 Boolean GetModNREffects(LINK, short *, short *, short *);
 
 long Tempo2TimeScale(LINK);
-long GetTempo(Document *, LINK);
+long GetTempoMM(Document *, LINK);
 long PDur2RealTime(long,TCONVERT [], short);
 short MakeTConvertTable(Document *, LINK, LINK, TCONVERT [], short);
 

@@ -1299,15 +1299,15 @@ short CheckTEMPO(Document *doc, LINK pL, CONTEXT context[],
 					STFRANGE stfRange,
 					Point enlarge)
 {
-	PTEMPO	p;
-	Rect		r,aRect,oldObjRect,newObjRect,tempR;
-	short		newWidth,result,dur,staffn;
-	long		beatsPM;
-	Boolean		hideMM,ok,dotted,expanded;
-	Str63		tempoStr,metroStr;
-	unsigned char dummy=0;
-	PCONTEXT	pContext;
-	STRINGOFFSET offset;
+	PTEMPO			p;
+	Rect			r, aRect, oldObjRect, newObjRect, tempR;
+	short			newWidth, result, dur, staffn;
+	long			beatsPM;
+	Boolean			useMM, showMM, ok, dotted, expanded;
+	Str63			tempoStr, metroStr;
+	unsigned char	dummy=0;
+	PCONTEXT		pContext;
+	STRINGOFFSET	offset;
 
 PushLock(OBJheap);
 
@@ -1341,11 +1341,12 @@ PushLock(OBJheap);
 				p = GetPTEMPO(pL);
 				PStrCopy((StringPtr)PCopy(p->metroStrOffset), (StringPtr)metroStr);
 				p = GetPTEMPO(pL);
-				hideMM = p->hideMM;
+				useMM = !(p->noMM);
+				showMM = !(p->hideMM);
 				dur = p->subType;
 				dotted = p->dotted;
 				expanded = p->expanded;
-				ok = TempoDialog(&hideMM, &dur, &dotted, &expanded, tempoStr, metroStr);
+				ok = TempoDialog(&useMM, &showMM, &dur, &dotted, &expanded, tempoStr, metroStr);
 				if (tempoStr[0]>63) tempoStr[0] = 63;					/* Limit length for consistency with InsertTempo */
 				if (metroStr[0]>63) metroStr[0] = 63;					/* Limit length for consistency with InsertTempo */
 				p = GetPTEMPO(pL);
@@ -1363,13 +1364,14 @@ PushLock(OBJheap);
 					else
 						p->metroStrOffset = offset;
 
-					p->hideMM = hideMM;
+					p->noMM = !useMM;
+					p->hideMM = !showMM;
 					p->subType = dur;
 					p->dotted = dotted;
 					p->expanded = expanded;
 					beatsPM = FindIntInString(metroStr);
-					if (beatsPM<0L) beatsPM = config.defaultTempo;
-					p->tempo = beatsPM;
+					if (beatsPM<0L) beatsPM = config.defaultTempoMM;
+					p->tempoMM = beatsPM;
 
 					newWidth = StringWidth(tempoStr);		/* FIXME: BUT MUST SET FONT FIRST! */
 					LinkOBJRECT(pL).right = LinkOBJRECT(pL).left + newWidth;

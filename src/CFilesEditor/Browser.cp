@@ -1844,10 +1844,10 @@ void BrowseTempo(LINK pL)
 	sprintf(s, "subType=%d (%s) dotted=%d", p->subType, t, p->dotted);
 	DrawTextLine(s); p = GetPTEMPO(pL);
 
-	sprintf(s, "hideMM=%d expanded=%d", p->hideMM, p->expanded);
+	sprintf(s, "noMM=%d hideMM=%d expanded=%d", p->noMM, p->hideMM, p->expanded);
 	DrawTextLine(s); p = GetPTEMPO(pL);
 
-	sprintf(s, "firstObjL=%d tempo=%d", p->firstObjL, p->tempo);
+	sprintf(s, "firstObjL=%d tempoMM=%d", p->firstObjL, p->tempoMM);
 	DrawTextLine(s); p = GetPTEMPO(pL);
 
 	sprintf(s, "p->strOffset=%ld ", p->strOffset);
@@ -2063,7 +2063,7 @@ void ShowContext(Document *doc)
 	}
 	else {
 		pTempo  = GetPTEMPO(tempoL);
-		sprintf(s, "Last previous Tempo link=%u tempo=%d", tempoL, pTempo->tempo);
+		sprintf(s, "Last previous Tempo link=%u tempoMM=%d", tempoL, pTempo->tempoMM);
 		DrawTextLine(s);
 	}
 

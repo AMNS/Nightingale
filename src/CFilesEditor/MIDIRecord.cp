@@ -284,17 +284,17 @@ Boolean RecordDialog(
 				long *ptLeadInOffset	/* Time occupied by playback lead-in (PDUR ticks) */ 
 				)
 {
-	DialogPtr	dlog;
-	GrafPtr		oldPort;
-	short			ditem, anInt, dialogOver, newval, partTranspose, tempo;
+	DialogPtr		dlog;
+	GrafPtr			oldPort;
+	short			ditem, anInt, dialogOver, newval, partTranspose, tempoMM;
 	ControlHandle	debugHdl, instTranspHdl, noTranspHdl,
 					splitHdl, recordHdl, reRecordHdl;
 	char			param1[256], param2[256], param3[256];
 	Rect			aRect, flashRect;
 	LINK			partL, tempoL;
-	PPARTINFO	pPart;
-	PTEMPO		pTempo;
-	Boolean		metro;
+	PPARTINFO		pPart;
+	PTEMPO			pTempo;
+	Boolean			metro;
 	long			timeScale;
 	OMSUniqueID thruDevice, inputDevice;
 	MIDIUniqueID cmThruDevice, cmInputDevice;
@@ -313,15 +313,15 @@ Boolean RecordDialog(
 
 	GetPort(&oldPort);
 
-	tempo = config.defaultTempo;
-	timeScale = tempo*DFLT_BEATDUR;					/* Default in case no tempo marks found */
+	tempoMM = config.defaultTempoMM;
+	timeScale = tempoMM*DFLT_BEATDUR;				/* Default in case no tempo marks found */
 	tempoL = LSSearch(doc->selStartL, TEMPOtype, ANYONE, GO_LEFT, FALSE);
 	if (tempoL) {
 		pTempo = GetPTEMPO(tempoL);
-		tempo = pTempo->tempo;
+		tempoMM = pTempo->tempoMM;
 		if (tempoL) timeScale = Tempo2TimeScale(tempoL);
 	}
-	sprintf(param3, "%d", tempo);
+	sprintf(param3, "%d", tempoMM);
 
 	partL = FindPartInfo(doc, partn);
 	pPart = GetPPARTINFO(partL);
@@ -443,7 +443,7 @@ Boolean RecordDialog(
 			  	case RERECORD_DI:
 					metro = GetDlgChkRadio(dlog, METRONOME_DI);
 			  		RecordDlogMsg(1, &flashRect);
-			  		RecordBuffer(doc, playAlong, metro, tempo, flashRect, timeScale,
+			  		RecordBuffer(doc, playAlong, metro, tempoMM, flashRect, timeScale,
 			  							ptLeadInOffset);
 			  		RecordDlogMsg(0, &flashRect);
 					HiliteControl(recordHdl, CTL_INACTIVE);
@@ -752,7 +752,7 @@ static long MIDI2Night(
 	loc = 0L;
 	ignored = 0L;
 	
-	timeScale = GetTempo(doc, doc->selStartL);
+	timeScale = GetTempoMM(doc, doc->selStartL);
 	timeScale /= TIME_SCALEFACTOR;							/* To avoid overflow: see comment above */
 	if (tLeadInOffset<0L)
 		scaledTLeadInOffset = 0L;
@@ -899,23 +899,23 @@ Boolean RecPlayNotes(unsigned short	outBufSize);
 or internal sound, and plays back the existing content of the score. */
 
 static void RecordBuffer(
-					Document *doc,
-					Boolean playAlong,
-					Boolean metronome,
-					short tempo,			/* in beats per minute */
-					Rect flashRect,
-					long timeScale,		/* tempo in PDUR ticks per minute */
-					long *ptLeadInOffset	/* output: duration of lead-in time (PDUR ticks); -1L=to 1st note */
-					)
+				Document *doc,
+				Boolean playAlong,
+				Boolean metronome,
+				short tempoMM,			/* in beats per minute */
+				Rect flashRect,
+				long timeScale,			/* tempo in PDUR ticks per minute */
+				long *ptLeadInOffset	/* output: duration of lead-in time (PDUR ticks); -1L=to 1st note */
+				)
 {
-	long				msPerBeat, ignoredRTM, microbeats, maxMS, elapsedMS;
-	long				oldRecIndex, timeMS, nextClickMS, startClickMS,
-						beatCount;
+	long			msPerBeat, ignoredRTM, microbeats, maxMS, elapsedMS;
+	long			oldRecIndex, timeMS, nextClickMS, startClickMS,
+					beatCount;
 	register long	r;
 	Boolean			done;
-	char				fmtStr[256];
+	char			fmtStr[256];
 
-	msPerBeat = (1000*60L)/tempo;
+	msPerBeat = (1000*60L)/tempoMM;
 	beatCount = 0L;
 	nextClickMS = 0L;
 	microbeats = TSCALE2MICROBEATS(timeScale);

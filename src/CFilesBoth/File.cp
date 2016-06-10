@@ -755,7 +755,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
 			if (ObjLType(pL)==TEMPOtype) {
 				pTempo = GetPTEMPO(pL);
-				beatsPM = pTempo->tempo;
+				beatsPM = pTempo->tempoMM;
 				NumToString(beatsPM, string);
 				offset = PStore(string);
 				if (offset<0L)

@@ -1668,10 +1668,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 		if (relObj != NILINK) {
 			Str63 tempoStr;
 			Str63 metroStr;
-			short clickStaff,pitchLev;
-			Boolean hideMM = FALSE;
-			Boolean dotted = FALSE;
-			Boolean expanded = FALSE;
+			short clickStaff, pitchLev;
 			Point pt;
 			
 			unsigned long microsecPQ = tempoInfo.microsecPQ;
@@ -1681,7 +1678,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			
 			short beatdur = DFLT_BEATDUR;
 			long tempoValue = tscale / beatdur;
-			if (DBG) LogPrintf(LOG_NOTICE, "AddTempoChanges: adding Tempo %ld (time=%ld) at link %d\n",
+			if (DBG) LogPrintf(LOG_DEBUG, "AddTempoChanges: adding Tempo %ld (time=%ld) at link %d\n",
 				tempoValue, tempoInfo.tStamp, relObj);
 			
 			short dur = QTR_L_DUR;
@@ -1696,8 +1693,8 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			pt.v = 164;
 			palChar = 'M';
 			
-			NewTempo(doc, pt, palChar, clickStaff, pitchLev, hideMM, dur, dotted,
-						expanded, tempoStr, metroStr);
+			NewTempo(doc, pt, palChar, clickStaff, pitchLev, TRUE, TRUE, dur, FALSE,
+						FALSE, tempoStr, metroStr);
 		}
 	}
 	
@@ -1979,7 +1976,7 @@ static void InitTrack2Night(Document *doc, long *pMergeTabSize, long *pOneTrackT
 	 * From MIDIFSave.c, WriteTiming, under comment 
 	 * Write initial tempo ..
 	 */
-	long timeScale = (long)config.defaultTempo*DFLT_BEATDUR;
+	long timeScale = (long)config.defaultTempoMM*DFLT_BEATDUR;
 	long microbeats = TSCALE2MICROBEATS(timeScale);
 	
 	tempoTabLen = 0;					// No initial tempo; will be overwritten

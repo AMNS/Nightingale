@@ -876,7 +876,7 @@ static Boolean ParseTempoMark()
 	else {													/* Assign a default tempo and hide it. */
 		Str255	metroStr;
 
-		NumToString(config.defaultTempo, metroStr);
+		NumToString(config.defaultTempoMM, metroStr);
 		PtoCstr(metroStr);
 		offset = StoreString((char *)metroStr);
 		if (offset)

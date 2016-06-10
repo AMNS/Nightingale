@@ -1914,16 +1914,18 @@ broken:
 }
 
 
-/* ----------------------------------------------- Tempo Dialog & assoc. functions -- */
+/* ----------------------------------------------- Tempo Dialog & helper functions -- */
 
 static pascal Boolean TempoFilter(DialogPtr, EventRecord *, short *);
+static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr);
 
 static enum
 {
 	VerbalDI=3,
 	TDurPopDI,
 	MetroDI,
-	HideMMDI,
+	ShowMMDI,
+	UseMMDI=9,
 	TDummyFldDI=11,
 	ExpandDI
 } E_TempoItems;
@@ -2000,19 +2002,48 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 }
 
 
+/* Disable and dim the number-entry field and fields subordinate to it, or enable and
+undim them. */
+
+static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr)
+{
+	short	type, newType;
+	Handle	hndl;
+	Rect	box;
+
+	newType = (undim? editText : statText+itemDisable);
+	//LogPrintf(LOG_DEBUG, "DimOrUndimMMNumberEntry: newType=%d\n", newType);
+	GetDialogItem(dlog, MetroDI, &type, &hndl, &box);
+	SetDialogItem(dlog, MetroDI, newType, hndl, &box);
+
+	if (undim) {
+		PutDlgString(dlog, MetroDI, metroStr, TRUE);
+		XableControl(dlog, ShowMMDI, TRUE);
+	}
+	else {
+		PenPat(NGetQDGlobalsGray());	
+		PenMode(patBic);	
+		PaintRect(&box);
+		PenNormal();
+		XableControl(dlog, ShowMMDI, FALSE);
+	}
+}
+
+
 /* Dialog to get Tempo and metronome mark parameters from user. */
 
-Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expanded,
+Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted, Boolean *expanded,
 						unsigned char *tempoStr, unsigned char *metroStr)
 {	
 	DialogPtr dlog;
-	short ditem=Cancel,type,oldResFile;
-	short choice,newLDur, oldLDur;
+	short ditem=Cancel, type, oldResFile;
+	short choice, newLDur, oldLDur;
 	long beatsPM; Boolean dialogOver, oldDotted;
 	Handle hndl; Rect box;
 	GrafPtr oldPort; POPKEY *pk;
 	char fmtStr[256];
-	ModalFilterUPP	filterUPP;
+	unsigned char str[256];
+	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(TempoFilter);
 	if (filterUPP == NULL) {
@@ -2049,11 +2080,15 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 	oldLDur = *dur;
 	oldDotted = *dotted;
 
-	//LogPrintf(LOG_NOTICE, "TempoDialog: *expanded=%d\n", *expanded);
-	PutDlgChkRadio(dlog, HideMMDI, *hideMM);
+	//LogPrintf(LOG_DEBUG, "TempoDialog: *expanded=%d\n", *expanded);
+	PutDlgChkRadio(dlog, UseMMDI, *useMM);
+	PutDlgChkRadio(dlog, ShowMMDI, *showMM);
 	PutDlgChkRadio(dlog, ExpandDI, *expanded);
 	PutDlgString(dlog, VerbalDI, tempoStr, FALSE);
 	PutDlgString(dlog, MetroDI, metroStr, TRUE);
+	
+	/* If the M.M. option isn't chosen, disable and dim the number-entry field */
+	DimOrUndimMMNumberEntry(dlog, *useMM, metroStr);
 
 	SelectDialogItemText(dlog, (popUpHilited? TDummyFldDI : VerbalDI), 0, ENDTEXT);
 
@@ -2069,13 +2104,23 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 				dialogOver = TRUE;
 				GetDlgString(dlog,MetroDI,metroStr);
 				beatsPM = FindIntInString(metroStr);
-				if (beatsPM<1L || beatsPM>MAXBPM) {
+				if (beatsPM<10L || beatsPM>MAXBPM) {
 					if (beatsPM<0L)
 						GetIndCString(strBuf, DIALOGERRS_STRS, 17); 	/* "M.M. field must contain a number" */ 
 					else {
 						GetIndCString(fmtStr, DIALOGERRS_STRS, 18);		/* "%ld beats per minute is illegal" */
 						sprintf(strBuf, fmtStr, beatsPM, MAXBPM);
 					}
+					CParamText(strBuf, "", "", "");
+					StopInform(GENERIC_ALRT);
+					SelectDialogItemText(dlog, MetroDI, 0, ENDTEXT);	/* Select field so user knows which one is bad. */
+					dialogOver = FALSE;
+				}
+				
+				GetDlgString(dlog, VerbalDI, str);
+				LogPrintf(LOG_DEBUG, "OK: str[0]=%d\n", str[9]);
+				if (str[0]==0 && !GetDlgChkRadio(dlog, UseMMDI)) {
+					GetIndCString(strBuf, DIALOGERRS_STRS,23);			/* "No tempo string and no M.M. is illegal" */ 
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
 					SelectDialogItemText(dlog, MetroDI, 0, ENDTEXT);	/* Select field so user knows which one is bad. */
@@ -2100,8 +2145,12 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 				oldLDur = newLDur;
 				oldDotted = (popKeys1dot[curPop->currentChoice].numDots>0);
 				break;
-			case HideMMDI:
-				PutDlgChkRadio(dlog, HideMMDI, !GetDlgChkRadio(dlog, HideMMDI));
+			case UseMMDI:
+				PutDlgChkRadio(dlog, UseMMDI, !GetDlgChkRadio(dlog, UseMMDI));
+				DimOrUndimMMNumberEntry(dlog, GetDlgChkRadio(dlog, UseMMDI), metroStr);
+				break;
+			case ShowMMDI:
+				PutDlgChkRadio(dlog, ShowMMDI, !GetDlgChkRadio(dlog, ShowMMDI));
 				break;
 			case ExpandDI:
 				PutDlgChkRadio(dlog, ExpandDI, !GetDlgChkRadio(dlog, ExpandDI));
@@ -2114,7 +2163,8 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 		pk = popKeys1dot;
 		*dur = pk[curPop->currentChoice].durCode;
 		*dotted = (pk[curPop->currentChoice].numDots>0);
-		*hideMM = GetDlgChkRadio(dlog, HideMMDI);
+		*useMM = GetDlgChkRadio(dlog, UseMMDI);
+		*showMM = GetDlgChkRadio(dlog, ShowMMDI);
 		*expanded = GetDlgChkRadio(dlog, ExpandDI);
 		GetDlgString(dlog, VerbalDI, tempoStr);
 		GetDlgString(dlog, MetroDI, metroStr);
@@ -2419,16 +2469,16 @@ CANCEL_INT for Cancel. */
 #define STAFFBOX_BOTTOM (STAFFBOX_TOP+76)
 
 short RastralDialog(
-			Boolean	/*canChoosePart*/,/* TRUE: enable "Sel parts/All parts" radio buttons */
-			short		initval,				/* Initial (default) value */
+			Boolean	/*canChoosePart*/,		/* TRUE: enable "Sel parts/All parts" radio buttons */
+			short	initval,				/* Initial (default) value */
 			Boolean	*rsp,					/* Respace staves proportionally? */
-			Boolean	*selPartsOnly		/* set only if canChoosePart is TRUE */
-			)	
+			Boolean	*selPartsOnly			/* set only if canChoosePart is TRUE */
+			)
 {
-	char		msg[16];
+	char	msg[16];
 	short 	dialogOver, ditem, anInt, newval, radio;
 	Handle 	rspHdl, aHdl;
-	Rect 		aRect;
+	Rect 	aRect;
 	GrafPtr	oldPort;
 	ModalFilterUPP filterUPP;
 	

@@ -591,7 +591,7 @@ MasterPage.
 
 -------------------------------------------------------------------------------
 
-2-6 June			       ==== NIGHTINGALE 5.6 ====
+2-9 June			       ==== NIGHTINGALE 5.6 ====
 
 Make error checking of CNFG values count just one error each for page margin and page
 number margin, no matter how many of their fields are out of bounds. Affects Initialize.
@@ -606,12 +606,21 @@ Move DelAddRedAccs from CFilesBoth to CFilesEditor.
 When a file is opened normally or read-only via menu command, or opened via Apple Event,
 send a message saying so to the log file. Affects Event, Menu.
 
-When extracting parts, in a series of TEMPO objects there's more than one relevant to a
-part, we assume they're identical, e.g., for an orchestra score where the tempo appears
-above the top staff and somewhere in the middle, so we extract only the first one.
-Affects Extract.
-
-Minor cleanup. Affects Extract, ExtractHighLevel, HeaderFooterDialog, NTypes.h.
+When extracting parts, if in a series of TEMPO objects there's more than one relevant to
+a part, we assume they're identical (e.g., for an orchestra score where the tempo mark
+appears above the top staff and somewhere in the middle), so we extract only the first
+one. Affects Extract.
 
 Rename screen font files so all have the extension .bmap .
 
+Rename the TEMPO object _tempo_ field to _tempoMM_; rename the Config _defaultTempo_
+to _defaultTempoMM_. Affects ApplicationTypes.h, NTypes.h; Browser, Check, File, FileInput,
+Initialize, Insert, InsNew, MIDIFOpen, MIDIFSave, MIDIRecord, MIDIUtils, NotelistParse.
+
+Add to tempo/metronome mark dialog an option to have no M.M., so it has no effect on
+playback timing. Affects MemMacros.h; Browser, Check, DialogsEditor, Dragging,
+DrawObject, InsNew, MIDIPlay, MIDIRecord, MIDIFSave, MIDIUtils, .rsrc.
+
+Increase minimum legal tempo from 1 to 10 BPM. Affects DialogsEditor.
+
+Minor cleanup. Affects Extract, ExtractHighLevel, HeaderFooterDialog, NTypes.h.

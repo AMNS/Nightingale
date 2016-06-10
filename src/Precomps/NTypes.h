@@ -1205,11 +1205,11 @@ typedef struct {
 	EXTOBJHEADER
 	SignedByte		subType;		/* beat: same units as note's l_dur */
 	Boolean			expanded:1;
-	Boolean			small:1;		/* (unused so far) TRUE to show in small characters */
+	Boolean			noMM:1;			/* FALSE = play at _tempoMM_ BPM, TRUE = ignore it */
 	char			filler:4;
 	Boolean			dotted:1;
 	Boolean			hideMM:1;
-	short			tempo;			/* new playback speed in beats per minute */	
+	short			tempoMM;		/* new playback speed in beats per minute */	
 	STRINGOFFSET	strOffset;		/* "tempo" string index return by String Manager */
 	LINK			firstObjL;		/* object tempo depends on */
 	STRINGOFFSET	metroStrOffset;	/* "metronome mark" index return by String Manager */

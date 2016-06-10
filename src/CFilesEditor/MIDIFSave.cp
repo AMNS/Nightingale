@@ -666,6 +666,8 @@ static Boolean WriteTiming(
 				measureTime = MeasureTIME(pL);
 				break;
 			case TEMPOtype:
+				if (TempoNOMM(pL)) break;			/* Skip Tempo objects with no M.M. */
+				
 				/* Calculate its effective time and write initial tempo or tempo change. NB:
 					if there are no notes following -- very unlikely, but possible -- this
 					is likely to do something bad! */
@@ -678,7 +680,7 @@ static Boolean WriteTiming(
 						measNum);
 					}
 				WriteDeltaTime(tempoTime);
-				timeScale = GetTempo(doc, pL);
+				timeScale = GetTempoMM(doc, pL);
 				microbeats = TSCALE2MICROBEATS(timeScale);
 				WriteTempoEvent((long)microbeats*DFLT_BEATDUR);
 LogPrintf(LOG_NOTICE, "WriteTiming: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n", pL, tempoTime, timeScale);

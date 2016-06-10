@@ -191,31 +191,38 @@ Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 
 long Tempo2TimeScale(LINK tempoL)
 {
-	PTEMPO pTempo; long tempo, beatDur, timeScale;
+	PTEMPO pTempo; long tempoMM, beatDur, timeScale;
 	
 	pTempo = GetPTEMPO(tempoL);
-	tempo = pTempo->tempo;
+	tempoMM = pTempo->tempoMM;
 	beatDur = Code2LDur(pTempo->subType, (pTempo->dotted? 1 : 0));
-	timeScale = tempo*beatDur;
+	timeScale = tempoMM*beatDur;
 	return timeScale;
 }
 
 
 /* Return the tempo in effect at the given LINK, if any. The tempo is computed from the
-last preceding tempo mark; if there is no preceding tempo mark, it's computed from the
-default tempo. In any case, the tempo is expressed as a "timeScale", i.e., in PDUR ticks
-per minute. */
+last preceding metronome mark; if there is no preceding metronome mark, it's computed
+from the default tempo. In any case, the tempo is expressed as a "timeScale", i.e., in
+PDUR ticks per minute. */
 
-long GetTempo(
+long GetTempoMM(
 		Document */*doc*/,		/* unused */
 		LINK startL)
 {
-	LINK tempoL; long timeScale;
+	LINK tmpL, tempoL; long timeScale;
 
-	timeScale = (long)config.defaultTempo*DFLT_BEATDUR;	/* Default in case no tempo marks found */
+	timeScale = (long)config.defaultTempoMM*DFLT_BEATDUR;	/* Default in case no tempo marks found */
 
 	if (startL) {
-		tempoL = LSSearch(startL, TEMPOtype, ANYONE, GO_LEFT, FALSE);
+		tempoL = NILINK;
+		tmpL = startL;
+		while (tempoL==NILINK) {
+			tmpL = LSSearch(tmpL, TEMPOtype, ANYONE, GO_LEFT, FALSE);
+			if (!tmpL) break;
+			if (TempoNOMM(tmpL)==FALSE) tempoL = tmpL;
+			tmpL = LeftLINK(tmpL);
+		}
 		if (tempoL) timeScale = Tempo2TimeScale(tempoL);
 	}
 
@@ -252,14 +259,14 @@ long PDur2RealTime(
 }
 
 
-/* Build a table of tempi in effect in the given range, sorted by increasing time.
-Return value is the size of the table, or -1 if the table is too large. Intended to
-get information for changing tempo during playback. */
+/* Build a table of metronome marks in effect in the given range, sorted by increasing
+time. Return value is the size of the table, or -1 if the table is too large. Intended
+to get information for changing tempo during playback. */
 
 short MakeTConvertTable(
 			Document *doc,
 			LINK fromL, LINK toL,					/* range to be played */
-			TCONVERT	tConvertTab[],
+			TCONVERT tConvertTab[],
 			short maxTabSize
 			)
 {
@@ -277,11 +284,11 @@ short MakeTConvertTable(
 				measL = pL;
 				break;
 			case SYNCtype:
-			  	/* If no tempo found yet, initial tempo is the last previous one. */
+			  	/* If no tempo found yet, our initial tempo is the last previous one. */
 			  	
 			  	if (tempoCount==0) {
 					syncL = LSSearch(fromL, SYNCtype, ANYONE, GO_RIGHT, FALSE);
-					timeScale = GetTempo(doc, syncL);			/* OK even if syncL is NILINK */
+					timeScale = GetTempoMM(doc, syncL);			/* OK even if syncL is NILINK */
 					microbeats = TSCALE2MICROBEATS(timeScale);
 					tConvertTab[0].microbeats = microbeats;
 					tConvertTab[0].pDurTime = 0L;
@@ -290,6 +297,7 @@ short MakeTConvertTable(
 				}
 				break;
 			case TEMPOtype:
+				if (TempoNOMM(pL)) break;			/* Skip Tempo objects with no M.M. */
 				if (tempoCount>=maxTabSize) return -1;
 
 				timeScale = Tempo2TimeScale(pL);

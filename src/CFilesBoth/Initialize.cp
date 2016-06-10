@@ -545,7 +545,7 @@ static void DebugDisplayCnfg()
 	LogPrintf(LOG_NOTICE, "  (43)minRecVelocity=%d", config.minRecVelocity);
 	LogPrintf(LOG_NOTICE, "  (44)minRecDuration=%d\n", config.minRecDuration);
 	LogPrintf(LOG_NOTICE, "  (45)midiThru=%d", config.midiThru);
-	LogPrintf(LOG_NOTICE, "  (46)defaultTempo=%d", config.defaultTempo);
+	LogPrintf(LOG_NOTICE, "  (46)defaultTempoMM=%d", config.defaultTempoMM);
 
 	LogPrintf(LOG_NOTICE, "  (47)lowMemory=%d", config.lowMemory);
 	LogPrintf(LOG_NOTICE, "  (48)minMemory=%d\n", config.minMemory);
@@ -688,7 +688,7 @@ static Boolean GetConfig()
 		config.defaultRastral = -1;
 		config.rastral0size = 0;
 		
-		config.defaultTempo = 0;
+		config.defaultTempoMM = 0;
 		config.minRecVelocity = 0;
 		config.minRecDuration = 0;
 		config.midiThru = -1;
@@ -891,8 +891,8 @@ static Boolean GetConfig()
 	config.midiThru = 0;
 #endif		
 
-	if (config.defaultTempo < 1 || config.defaultTempo > MAXBPM)
-			{ config.defaultTempo = 96; ERR(46); }
+	if (config.defaultTempoMM < 1 || config.defaultTempoMM > MAXBPM)
+			{ config.defaultTempoMM = 96; ERR(46); }
 	if (config.lowMemory < config.minMemory) { config.lowMemory = config.minMemory; ERR(47); }
 	if (config.minMemory < 1) { config.minMemory = 1; ERR(48); }
 

@@ -5,11 +5,11 @@
 ****************************************************************************/
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright Â© 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -2198,7 +2198,10 @@ PushLock(TEMPOheap);
 	else if (NFLAGS(p->subType)>0)
 		noteWidth += d2p(lineSpace);							/* maybe a bit too small */
 	xdMM = xdNote+p2d(noteWidth);
-	doDrawMM = ((!p->hideMM || doc->showInvis) && doDraw);
+	
+	/* Never draw the metronome mark if there isn't one! */
+	if (p->noMM) doDrawMM = FALSE;
+	else doDrawMM = ((!p->hideMM || doc->showInvis) && doDraw);
 
 	switch (outputTo) {
 		case toScreen:
@@ -2231,8 +2234,8 @@ PushLock(TEMPOheap);
 						xdDot = xdNote+p2d(noteWidth);
 						xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lineSpace);
 						ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lineSpace);
-LogPrintf(LOG_DEBUG, "xdDot, ydDot=%d. %d  pap.left=%d pap.top=%d\n", xdDot, ydDot,
-			pContext->paper.left, pContext->paper.top);
+//LogPrintf(LOG_DEBUG, "xdDot, ydDot=%d. %d  pap.left=%d pap.top=%d\n", xdDot, ydDot,
+//			pContext->paper.left, pContext->paper.top);
 						MoveTo(pContext->paper.left+d2p(xdDot), pContext->paper.top+d2p(ydDot));
 						DrawChar(dotChar);
 					}

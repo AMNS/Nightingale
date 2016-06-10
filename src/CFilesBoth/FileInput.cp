@@ -681,7 +681,7 @@ PushLock(OBJheap);
 	pTempo->staffn = staffn;
 	pTempo->subType = durCode;
 	pTempo->dotted = dotted;
-	pTempo->small = FALSE;
+	pTempo->noMM = FALSE;
 	pTempo->filler = 0;
 	pTempo->hideMM = hideMM;
 	pTempo->firstObjL = anchorL;
@@ -703,8 +703,8 @@ PushLock(OBJheap);
 		tempoL = NILINK;
 	}
 	beatsPM = FindIntInString((unsigned char *)metroStr);
-	if (beatsPM<0L) beatsPM = config.defaultTempo;
-	pTempo->tempo = beatsPM;
+	if (beatsPM<0L) beatsPM = config.defaultTempoMM;
+	pTempo->tempoMM = beatsPM;
 PopLock(OBJheap);
 	
 	return tempoL;
