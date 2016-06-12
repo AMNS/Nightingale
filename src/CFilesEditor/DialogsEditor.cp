@@ -1748,9 +1748,13 @@ Boolean SetDurDialog(
 	SetPort(GetDialogWindowPort(dlog));
 
 	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);											/* popup code uses Get1Resource */
+	UseResFile(appRFRefNum);							/* popup code uses Get1Resource */
 
-	if (*nDots>2) { SysBeep(1); *nDots = 2; }						/* popup has 2 dots maximum */
+	if (*nDots>2) {
+		SysBeep(1);										/* popup has 2 dots maximum */
+		LogPrintf(LOG_WARNING, "SetDurDialog: can't handle %d dots.\n", *nDots);
+		 *nDots = 2;
+	}
 
 	*doUnbeam = FALSE;
 	beamed = (SelBeamedNote(doc)!=NILINK);
@@ -1760,9 +1764,9 @@ Boolean SetDurDialog(
 	newpDurPct = *pDurPct;
 	if (newnDots>1) show2dots = TRUE;
 	
-	if (*lDurAction==HALVE_DURS)			setDurGroup = HALVEDURS_DI;
+	if (*lDurAction==HALVE_DURS)		setDurGroup = HALVEDURS_DI;
 	else if (*lDurAction==DOUBLE_DURS)	setDurGroup = DOUBLEDURS_DI;
-	else											setDurGroup = SETDURSTO_DI;
+	else								setDurGroup = SETDURSTO_DI;
 	PutDlgChkRadio(dlog, setDurGroup, TRUE);
 
 	durPop1dot.menu = durPop2dot.menu = NULL;					/* NULL makes any goto broken safe */
@@ -1926,6 +1930,7 @@ static enum
 	MetroDI,
 	ShowMMDI,
 	UseMMDI=9,
+	EqualsDI,
 	TDummyFldDI=11,
 	ExpandDI
 } E_TempoItems;
@@ -2017,14 +2022,15 @@ static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char
 	SetDialogItem(dlog, MetroDI, newType, hndl, &box);
 
 	if (undim) {
-		PutDlgString(dlog, MetroDI, metroStr, TRUE);
+		ShowDialogItem(dlog, TDurPopDI);
+		ShowDialogItem(dlog, EqualsDI);
+		ShowDialogItem(dlog, MetroDI);
 		XableControl(dlog, ShowMMDI, TRUE);
 	}
 	else {
-		PenPat(NGetQDGlobalsGray());	
-		PenMode(patBic);	
-		PaintRect(&box);
-		PenNormal();
+		HideDialogItem(dlog, TDurPopDI);
+		HideDialogItem(dlog, EqualsDI);
+		HideDialogItem(dlog, MetroDI);
 		XableControl(dlog, ShowMMDI, FALSE);
 	}
 }
@@ -2132,7 +2138,7 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 				break;
 			case TDurPopDI:
 	 			/*
-	 			 *	If user just set the popup to unknown duruation, which makes no sense in a
+	 			 *	If user just set the popup to unknown duration, which makes no sense in a
 	 			 * metronome mark, change it back to what it was.
 	 			 */
 				newLDur = popKeys1dot[curPop->currentChoice].durCode;

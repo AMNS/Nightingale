@@ -210,7 +210,7 @@ Tweak the Info dialog for notes/rests and the one for most other symbols (DLOGs 
 
 -------------------------------------------------------------------------------
 
-27-28 Oct.			======== NIGHTINGALE 5.5 ========
+27-28 Oct.			======== NIGHTINGALE 5.5 (28 Oct. 2015) ========
 
 Fix bug: ExpandString() doesn't check for excessively long strings correctly. Affects
 StringUtils.
@@ -591,7 +591,7 @@ MasterPage.
 
 -------------------------------------------------------------------------------
 
-2-9 June			       ==== NIGHTINGALE 5.6 ====
+2-11 June			       ==== NIGHTINGALE 5.6 (11 June 2016) ====
 
 Make error checking of CNFG values count just one error each for page margin and page
 number margin, no matter how many of their fields are out of bounds. Affects Initialize.
@@ -623,4 +623,5 @@ DrawObject, InsNew, MIDIPlay, MIDIRecord, MIDIFSave, MIDIUtils, .rsrc.
 
 Increase minimum legal tempo from 1 to 10 BPM. Affects DialogsEditor.
 
-Minor cleanup. Affects Extract, ExtractHighLevel, HeaderFooterDialog, NTypes.h.
+Minor cleanup. Affects DialogsEditor, Error, Extract, ExtractHighLevel,
+HeaderFooterDialog, NTypes.h.

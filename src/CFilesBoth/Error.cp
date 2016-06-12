@@ -314,6 +314,7 @@ Boolean ReportResError()
 	return FALSE;
 }
 
+
 /* ------------------------------------------------------------ ReportBadResource -- */
 /* Check for validity of the given resource, presumably just allocated, and alert
 user if there is a problem. Return TRUE if there's an error, FALSE if not. */
@@ -334,16 +335,18 @@ Boolean ReportBadResource(Handle resH)
 	return FALSE;
 }
 
+
 /* --------------------------------------------------------------- MissingDialog -- */
 /* Alert user when a dialog resource cannot be found. For now, just beep and put a
 complied-in message in the log. We could also give a compiled-in error message, but
 it's probably too dangerous to try to get one from a resource in this situation. */
 
-void MissingDialog(short /*dlogID*/)
+void MissingDialog(short dlogID)
 {
 	SysBeep(1);
-	LogPrintf(LOG_WARNING, "MissingDialog: can't find a dialog resource.\n");
+	LogPrintf(LOG_WARNING, "MissingDialog: can't find dialog resource %d.\n", dlogID);
 }
+
 
 /* ------------------------------------------------------------- AppleEventError -- */
 /* Alert user when an Apple event handler gets an error code. */
