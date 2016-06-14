@@ -891,7 +891,7 @@ static Boolean GetConfig()
 	config.midiThru = 0;
 #endif		
 
-	if (config.defaultTempoMM < 1 || config.defaultTempoMM > MAXBPM)
+	if (config.defaultTempoMM < MIN_BPM || config.defaultTempoMM > MAX_BPM)
 			{ config.defaultTempoMM = 96; ERR(46); }
 	if (config.lowMemory < config.minMemory) { config.lowMemory = config.minMemory; ERR(47); }
 	if (config.minMemory < 1) { config.minMemory = 1; ERR(48); }

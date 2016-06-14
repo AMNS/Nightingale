@@ -591,7 +591,7 @@ MasterPage.
 
 -------------------------------------------------------------------------------
 
-2-12 June			       ==== NIGHTINGALE 5.6 (12 June 2016) ====
+2-9 June
 
 Make error checking of CNFG values count just one error each for page margin and page
 number margin, no matter how many of their fields are out of bounds. Affects Initialize.
@@ -623,7 +623,15 @@ DrawObject, InsNew, MIDIPlay, MIDIRecord, MIDIFSave, MIDIUtils, .rsrc.
 
 Increase minimum legal tempo from 1 to 10 BPM. Affects DialogsEditor.
 
-Make the Browser, Context, and Score Info windows wider. Affects .rsrc.
-
 Minor cleanup. Affects Extract, ExtractHighLevel, HeaderFooterDialog, NTypes.h.
 
+-------------------------------------------------------------------------------
+
+12-14 June			       ==== NIGHTINGALE 5.6 (14 June 2016) ====
+
+Make the Browser, Context, and Score Info windows wider. Affects .rsrc.
+
+Change inconsistent definitions of min. tempo M.M. to MIN_BPM (currently 10); rename
+MAXBPM to MAX_BPM. Affects NLimits.h; DialogsEditor, Initialize; .rsrc.
+
+Minor cleanup. Affects DialogsEditor.

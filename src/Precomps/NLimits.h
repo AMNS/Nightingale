@@ -44,8 +44,8 @@ should be used in several more places, e.g., DoPostScript, SaveNotelist, NameMFS
 /* N.B. If (MAXSPACE*RESFACTOR) exceeds SHRT_MAX, the justification routines may
  *	have serious problems.  See especially RespaceBars and JustAddSpace. */
  
-#define MINSPACE 10				/* Minimum legal <spacePercent> */
-#define MAXSPACE 500			/* Maximum legal <spacePercent> */
+#define MINSPACE 10				/* Minimum legal <spacePercent> for respacing */
+#define MAXSPACE 500			/* Maximum legal <spacePercent> for respacing */
 
 #define MIN_TEXT_SIZE 4			/* Minimum text size, in points */
 #define MAX_TEXT_SIZE 127		/* Maximum text size, in points */
@@ -55,7 +55,9 @@ should be used in several more places, e.g., DoPostScript, SaveNotelist, NameMFS
 
 #define MAX_COMMENT_LEN 255		/* One less than length of <comment> header field */
 
+#define MIN_BPM 10				/* Minimum legal tempo, in beats per min.  */
+#define MAX_BPM 1200			/* Maximum legal tempo, in beats per min. */
+
 #define MAXEVENTLIST 128		/* Maximum no. of simultaneous notes for Play cmds */
 #define MAXMFEVENTLIST 128		/* Maximum no. of simultaneous notes in MIDI files */
-#define MAXBPM 1200				/* Maximum legal tempo (really qtrs/min., not beats) */
 #define MAX_SAFE_MEASDUR 65500L	/* in PDURticks: cf. ANOTE timeStamp field */
