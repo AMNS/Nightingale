@@ -1377,3 +1377,24 @@ of setting part->srastral to a different value? Nope! That doesn't result in upd
 the actual size of each staff, H and V coords. of everything, etc. Ah, MasterPage >
 DoMasterStfSize() seems to do everything needed.
 
+-------------------------------------------------------------------------------
+
+14 June
+
+For adding cues to parts, I need a way to change the number of measures on a multibar
+rest... Oops, it can already be done via Get Info; not too obvious, but if Dur is
+negative, it's the no. of measures!
+
+-------------------------------------------------------------------------------
+
+15 June
+
+During MIDI playback, I recall Ngale draws the "next" page only if virtually none of
+that page is in view yet; if even a tiny sliver of the page is already on the screen, it
+doesn't "turn the page". This seems to be backwards! That might have made sense 15 years
+ago when screens were much smaller and computers much slower, but now, Ngale should turn
+the page if more than a tiny sliver is _not_ on the screen. This _should_ just be a
+matter of changing the test, presumably in MIDIPlay.cp>PlaySequence(). The variables
+_pageTurnTOffset_, _tBeforeTurn_, _newPage_ must have something to do with it. Ah,
+_doScroll_ is the key! Scrolling is actually in HiliteSyncRect().
+
