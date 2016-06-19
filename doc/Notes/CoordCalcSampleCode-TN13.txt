@@ -1,0 +1,55 @@
+SAMPLE CODE FOR COMPUTING COORDINATES IN NIGHTINGALE - Don Byrd, July 2001
+
+void GetTimeSigDrawInfo(Document *doc,
+				LINK pL, LINK aTimeSigL,
+				PCONTEXT pContext,
+				DDIST *xd, DDIST *yd)
+{
+	PTIMESIG p;
+	PATIMESIG aTimeSig;
+	DDIST dLeft, dTop;
+	
+	p = GetPTIMESIG(pL);
+	if (p->inMeasure) {
+		dTop = pContext->measureTop;
+		dLeft = pContext->measureLeft;
+	}
+	else
+		...
+	aTimeSig = GetPATIMESIG(aTimeSigL);
+	...
+
+	*xd = dLeft + LinkXD(pL) + aTimeSig->xd;
+	*yd = dTop + p->yd + aTimeSig->yd;
+	...
+}
+
+
+void DrawTIMESIG(Document *doc, LINK pL, CONTEXT context[])
+{
+	...
+	GetTimeSigDrawInfo(doc, pL, aTimeSigL, pContext, &xd, &yd);
+	subType = FillTimeSig(doc,aTimeSigL,pContext,nStr,dStr,xd,&xdN,&xdD,yd,&ydN,&ydD);
+		/* In the most common case, sets
+			*xdN = *xdD = xd;
+		   and
+			*ydN = dTop + halfLn2d(2, pContext->staffHeight, pContext->staffLines);
+		 */
+		
+	/*
+	 *	At this point, xdN is the "numerator" left edge, ydN is the numerator
+	 * y-baseline, and nStr the numerator character string. Also, if subType is
+	 * N_OVER_D, xdD, ydD, and dStr are the same for the "denominator".
+	 */
+	switch (outputTo) {
+		case toScreen:
+		case toImageWriter:
+		case toPICT:
+			npLeft = d2p(xdN);
+			dpLeft = d2p(xdD);
+			npTop = d2p(ydN);
+			MoveTo(pContext->paper.left+npLeft, pContext->paper.top+npTop);
+			if (aTimeSig->visible)
+				DrawString(nStr);
+				...
+}

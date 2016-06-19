@@ -1,19 +1,18 @@
 /***************************************************************************
 	FILE:	Part.c
-	PROJ:	Nightingale, minor rev. for v.3.1
+	PROJ:	Nightingale
 	DESC:	Part manipulation routines:
 		FixStaffNums				APFixVoiceNums			DPFixVoiceNums
 		AddPart						Staff2Part				Staff2PartLINK
 		Sel2Part					SelPartRange			DeletePart
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -160,11 +159,11 @@ static void FixStaffNums(Document *doc,
 
 		case BEAMSETtype:
 		case GRAPHICtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case SLURtype:
 		case TUPLETtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			p = GetPMEVENT(pL);
 			if (((PEXTEND)p)->staffn>=afterStf)
@@ -788,12 +787,12 @@ static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
 				break;
 
 			case BEAMSETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case GRAPHICtype:
 			case SLURtype:
 			case TUPLETtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case ENDINGtype:
 				p = GetPMEVENT(pL);
 				if (((PEXTEND)p)->staffn>=startStf && ((PEXTEND)p)->staffn<=endStf)

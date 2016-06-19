@@ -4,30 +4,30 @@
 	DESC:	Object-level routines, mostly for specific object types. Most
 			generic object-handling routines are in Copy.c, CrossLinks.c, and
 			DSUtils.c.
-		CopyModNRList			DuplicateObject		DuplicNC
+		
+		CopyModNRList			DuplicateObject			DuplicNC
 		InitObject				SetObject				GrowObject
 		SimplePlayDur			CalcPlayDur
 		IsRestPosLower			SetupNote				SetupGRNote
-		InitPart					InitStaff				InitClef
+		InitPart				InitStaff				InitClef
 		InitKeySig				AddKSItem				SetupKeySig
 		InitTimeSig				InitMeasure				InitPSMeasure
 		InitRptEnd				InitDynamic				SetupHairpin
 		InitGraphic				SetMeasVisible			ChordHasUnison
-		ChordNoteToRight		ChordNoteToLeft		FixTieIndices
+		ChordNoteToRight		ChordNoteToLeft			FixTieIndices
 		NormalStemUpDown		GetNCYStem				FixChordForYStem
-		FixSyncForChord		FixSyncForNoChord		FixNoteForClef
-		GetGRCYStem				FixGRChordForYStem	FixGRSyncForChord
-		FixGRSyncNote			FixGRSyncForNoChord	FixAugDotPos
+		FixSyncForChord			FixSyncForNoChord		FixNoteForClef
+		GetGRCYStem				FixGRChordForYStem		FixGRSyncForChord
+		FixGRSyncNote			FixGRSyncForNoChord		FixAugDotPos
 		ToggleAugDotPos
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -101,7 +101,7 @@ LINK DuplicateObject(short type, LINK objL, Boolean selectedOnly,
 	Boolean subsNeeded = TRUE;
 	
 #ifdef DODEBUG
-DebugPrintf("DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
+LogPrintf(LOG_NOTICE, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 #endif
 
 	if (objL==NILINK) {
@@ -206,21 +206,21 @@ DebugPrintf("DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 			if (DLinkSEL(srcDoc,objL) || !selectedOnly)
 				subcount++;
 			break;
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			subsNeeded = FALSE;
 			break;
-		case OCTAVAtype: {
+		case OTTAVAtype: {
 			LINK aNoteOctL, opSyncL, aNoteL;
-			PANOTEOCTAVA aNoteOct;
+			PANOTEOTTAVA aNoteOct;
 			
 			aNoteOctL = DFirstSubLINK(srcDoc,objL);
-			for ( ; aNoteOctL; aNoteOctL=DNextNOTEOCTAVAL(srcDoc,aNoteOctL)) {
-				aNoteOct = DGetPANOTEOCTAVA(srcDoc,aNoteOctL);
+			for ( ; aNoteOctL; aNoteOctL=DNextNOTEOTTAVAL(srcDoc,aNoteOctL)) {
+				aNoteOct = DGetPANOTEOTTAVA(srcDoc,aNoteOctL);
 				opSyncL = aNoteOct->opSync;
 				aNoteL = DFirstSubLINK(srcDoc,opSyncL);
 				for ( ; aNoteL; aNoteL = DNextNOTEL(srcDoc,aNoteL))
-					if (DNoteSTAFF(srcDoc,aNoteL)==DOctavaSTAFF(srcDoc,objL)) {
+					if (DNoteSTAFF(srcDoc,aNoteL)==DOttavaSTAFF(srcDoc,objL)) {
 						if (DNoteSEL(srcDoc,aNoteL) || !selectedOnly) 
 							{ subcount++; break; }
 					}
@@ -255,8 +255,8 @@ DebugPrintf("DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 	
 #ifdef DODEBUG
 if (type==TEMPOtype) {
-DebugPrintf("\tSub-object list is %d long\n", subcount);
-DebugPrintf("\tsubsNeeded=%d\n", subsNeeded);
+LogPrintf(LOG_NOTICE, "\tSub-object list is %d long\n", subcount);
+LogPrintf(LOG_NOTICE, "\tsubsNeeded=%d\n", subsNeeded);
 }
 #endif
 	if (subcount<=0 && subsNeeded) return NILINK;
@@ -270,11 +270,11 @@ DebugPrintf("\tsubsNeeded=%d\n", subsNeeded);
 	if (newObjL == NILINK) return NILINK;
 	
 /*
-DebugPrintf("\tLINK of new Object = %d\n",newObjL);
-DebugPrintf("\tsizeof(SUPEROBJECT) = %ld\n",(long)sizeof(SUPEROBJECT));
-DebugPrintf("\tsizeof(Object from OBJheap) = %ld\n",(long)OBJheap->objSize);
-DebugPrintf("\tsizeof(ANOTE) = %ld\n",(long)sizeof(ANOTE));
-DebugPrintf("\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap->objSize);
+LogPrintf(LOG_NOTICE, "\tLINK of new Object = %d\n",newObjL);
+LogPrintf(LOG_NOTICE, "\tsizeof(SUPEROBJECT) = %ld\n",(long)sizeof(SUPEROBJECT));
+LogPrintf(LOG_NOTICE, "\tsizeof(Object from OBJheap) = %ld\n",(long)OBJheap->objSize);
+LogPrintf(LOG_NOTICE, "\tsizeof(ANOTE) = %ld\n",(long)sizeof(ANOTE));
+LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap->objSize);
 */
 
 	/* Copy obj's information into newObj's information */
@@ -463,12 +463,12 @@ DebugPrintf("\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap->objSize)
 				BlockMove(aGraphic, newGraphic, (long)subObjLength[type]);
 				
 				InstallStrPool(srcDoc);
-				graphicString = PCopy(aGraphic->string);
+				graphicString = PCopy(aGraphic->strOffset);
 				InstallStrPool(dstDoc);
 				stringOff = PStore(graphicString);
 				if (stringOff<0L) return NILINK;
 				newGraphic = DGetPAGRAPHIC(dstDoc,newSubL);
-				newGraphic->string = stringOff;
+				newGraphic->strOffset = stringOff;
 				
 				SetStringPool(currentPool);
 			}
@@ -494,12 +494,12 @@ PushLock(dstDoc->Heap+OBJtype);
 			newTempo = (PTEMPO)pNewObj;
 			
 			InstallStrPool(srcDoc);
-			tempoString = PCopy(pTempo->string);
-			metroStr = PCopy(pTempo->metroStr);
+			tempoString = PCopy(pTempo->strOffset);
+			metroStr = PCopy(pTempo->metroStrOffset);
 			InstallStrPool(dstDoc);
-			newTempo->string = PStore(tempoString);
-			newTempo->metroStr = PStore(metroStr);
-			if (newTempo->string<0L || newTempo->metroStr<0L) return NILINK;
+			newTempo->strOffset = PStore(tempoString);
+			newTempo->metroStrOffset = PStore(metroStr);
+			if (newTempo->strOffset<0L || newTempo->metroStrOffset<0L) return NILINK;
 			
 			SetStringPool(currentPool);
 PopLock(srcDoc->Heap+OBJtype);
@@ -507,30 +507,30 @@ PopLock(dstDoc->Heap+OBJtype);
 			break;
 		}
 		
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			break;
 
-		case OCTAVAtype: {
+		case OTTAVAtype: {
 			LINK opSyncL, aNoteL;
-			PANOTEOCTAVA aNoteOct, newNoteOct;
+			PANOTEOTTAVA aNoteOct, newNoteOct;
 			
 			while (subL) {
-				aNoteOct = DGetPANOTEOCTAVA(srcDoc,subL);
-				newNoteOct = DGetPANOTEOCTAVA(dstDoc,newSubL);
+				aNoteOct = DGetPANOTEOTTAVA(srcDoc,subL);
+				newNoteOct = DGetPANOTEOTTAVA(dstDoc,newSubL);
 
 				opSyncL = aNoteOct->opSync;
 				aNoteL = DFirstSubLINK(srcDoc,opSyncL);
 				for ( ; aNoteL; aNoteL = DNextNOTEL(srcDoc,aNoteL))
-					if (DNoteSTAFF(srcDoc,aNoteL)==DOctavaSTAFF(srcDoc,objL)) {
+					if (DNoteSTAFF(srcDoc,aNoteL)==DOttavaSTAFF(srcDoc,objL)) {
 						if (DNoteSEL(srcDoc,aNoteL) || !selectedOnly) {
-							tmpL = DNextNOTEOCTAVAL(dstDoc,newSubL);		/* Save it before it gets wiped out */
+							tmpL = DNextNOTEOTTAVAL(dstDoc,newSubL);		/* Save it before it gets wiped out */
 							BlockMove(aNoteOct, newNoteOct, (long)subObjLength[type]);
 							newNoteOct->next = newSubL = tmpL;		/* Restore and move on */
 							break;
 						}
 					}
-				subL = DNextNOTEOCTAVAL(srcDoc,subL);
+				subL = DNextNOTEOTTAVAL(srcDoc,subL);
 			}
 			break;
 		}
@@ -895,7 +895,7 @@ PushLock(NOTEheap);
 	aNote->tiedR = aNote->tiedL = FALSE;
 	aNote->slurredR = aNote->slurredL = FALSE;
 	aNote->inTuplet = FALSE;
-	aNote->inOctava = FALSE;
+	aNote->inOttava = FALSE;
 	aNote->small = FALSE;
 	aNote->tempFlag = FALSE;
 	aNote->fillerN = 0;
@@ -982,7 +982,7 @@ PushLock(GRNOTEheap);
 	aGRNote->tiedR = aGRNote->tiedL = FALSE;
 	aGRNote->slurredR = aGRNote->slurredL = FALSE;
 	aGRNote->inTuplet = FALSE;
-	aGRNote->inOctava = FALSE;
+	aGRNote->inOttava = FALSE;
 	aGRNote->small = FALSE;
 	aGRNote->tempFlag = FALSE;
 	aGRNote->fillerN = 0;
@@ -1364,7 +1364,7 @@ void InitGraphic(LINK graphicL, short graphicType, short staff, short voice,
 
 void SetMeasVisible(LINK measL, Boolean visible)
 {
-	LINK			aMeasureL;
+	LINK		aMeasureL;
 	PAMEASURE	aMeasure;
 	
 	LinkVIS(measL) = visible;
@@ -1377,13 +1377,15 @@ void SetMeasVisible(LINK measL, Boolean visible)
 
 
 /* -------------------------------------------------------------- ChordHasUnison -- */
-/* If the specified chord contains any unisons, return TRUE, else FALSE. */
+/* If the specified chord contains any unisons, return TRUE, else FALSE. We check
+by looking for notes with the same vertical position, so both perfect and augmented
+unisons are detected. */
 
 Boolean ChordHasUnison(LINK syncL, short voice)
 {
-	short			noteCount, i;
+	short		noteCount, i;
 	CHORDNOTE	chordNote[MAXCHORD];
-	QDIST			prevyqpit;
+	QDIST		prevyqpit;
 	PANOTE		aNote;
 	/*
 	 *	Get sorted notes and go thru them by y-position. For our purpose, it makes

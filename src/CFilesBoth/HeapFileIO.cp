@@ -1,17 +1,15 @@
 /***************************************************************************
 *	FILE:	HeapFileIO.c
-*	PROJ:	Nightingale, rev. for v.2000
+*	PROJ:	Nightingale
 *	DESC:	Routines to read and write object and subobject heaps
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -468,7 +466,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 			
 			GetFPos(refNum, &position);
 			ps = NameHeapType(heapIndex, FALSE);
-			DebugPrintf("WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
+			LogPrintf(LOG_NOTICE, "WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
 							heapIndex, ps, objCount[heapIndex], myHeap->objSize, myHeap->type, position);
 		}
 #endif
@@ -491,7 +489,7 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 	PANOTE 		aNote;
 	PANOTEBEAM 	aNoteBeam;
 	PANOTETUPLE aNoteTuple;
-	PANOTEOCTAVA aNoteOct;
+	PANOTEOTTAVA aNoteOct;
 	short			ioErr=noErr, count;
 	
 	/* The links are now being allocated sequentially, so that the <next> link
@@ -535,8 +533,8 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 				tupleSyncL = aNoteTuple->tpSync;
 				aNoteTuple->tpSync = objA[aNoteTuple->tpSync];
 				break;
-			case OCTAVAtype:
-				aNoteOct = GetPANOTEOCTAVA(subL);
+			case OTTAVAtype:
+				aNoteOct = GetPANOTEOTTAVA(subL);
 				octSyncL = aNoteOct->opSync;
 				aNoteOct->opSync = objA[aNoteOct->opSync];
 				break;
@@ -558,8 +556,8 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 				aNoteTuple = GetPANOTETUPLE(subL);
 				aNoteTuple->tpSync = tupleSyncL;
 				break;
-			case OCTAVAtype:
-				aNoteOct = GetPANOTEOCTAVA(subL);
+			case OTTAVAtype:
+				aNoteOct = GetPANOTEOTTAVA(subL);
 				aNoteOct->opSync = octSyncL;
 				break;
 		}
@@ -1010,7 +1008,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 			const char *ps;
 			GetFPos(refNum, &position);
 			ps = NameHeapType(heapIndex, FALSE);
-			DebugPrintf("RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
+			LogPrintf(LOG_NOTICE, "RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
 							heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type, tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
 		}
 //#endif

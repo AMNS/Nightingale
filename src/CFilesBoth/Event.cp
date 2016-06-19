@@ -1,17 +1,15 @@
 /***************************************************************************
-*	FILE:	Event.c																				*
-*	PROJ:	Nightingale, rev. for v.99														*
-*	DESC:	Event-related routines															*
+*	FILE:	Event.c
+*	PROJ:	Nightingale
+*	DESC:	Event-related routines
 /***************************************************************************/
 
-/*									NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1990-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -22,8 +20,8 @@
 #define mouseMovedEvt			0xFA
 #define suspResumeEvt			0x01
 #define isResume(e)				( ((e)->message & 1) != 0 )
-#define isSuspend(e)				( ((e)->message & 1) == 0 )
-#define clipboardChanged(e)	( ((e)->message & 2) != 0 )
+#define isSuspend(e)			( ((e)->message & 1) == 0 )
+#define clipboardChanged(e)		( ((e)->message & 2) != 0 )
 
 /* Prototypes for private routines */
 
@@ -37,7 +35,7 @@ static void		DoKeyUp(EventRecord *event);
 static void		CheckMemory(void);
 
 static void		DoHighLevelEvent(EventRecord *evt);
-static OSErr		MyGotRequiredParams(const AppleEvent *appleEvent);
+static OSErr	MyGotRequiredParams(const AppleEvent *appleEvent);
 
 static Boolean printOnly;
 static ControlActionUPP	actionUPP = NULL;
@@ -142,27 +140,7 @@ Boolean DoEvent()
 					CheckMemory();
 					checkMemTime = TickCount();
 					}
-#ifndef PUBLIC_VERSION
-				/*
-				 *	Check the entire object list for Mackey's disease if enough time has
-				 *	passed since the last mousedown or keydown event. (Related code else-
-				 *	where in Nightingale is controlled by "#ifdef CURE_MACKEYS_DISEASE").
-				 * ??Seems to do the checking every time it gets here, at least in some
-				 * circumstances! But it only gets here if there's nothing else to do, and
-				 * I don't think it's causing any problems; anyway, this code is compiled
-				 * only in non-public versions.
-				 */
-				if (TopDocument) {
-					if (TickCount()-checkDSTime > DSCHECK_INTVL) {
-						Document *doc=GetDocumentFromWindow(TopDocument);
-						if (doc!=NULL) DCheckNEntries(doc);
-						checkDSTime = BIGNUM;
-						SleepTicks(1L);								/* So cursor change is visible */
-						FixCursor();
-						}
-				}
-#endif
-				DoNullEvent(&theEvent);
+				 DoNullEvent(&theEvent);
 				}
 		
 		return(keepGoing);
@@ -747,7 +725,7 @@ static Boolean DoKeyDown(EventRecord *event)
 								}
 							}
 						else if (doc && doc->masterView) {
-							nparts = LinkNENTRIES(doc->masterHeadL);	/* ??nparts isn't used! */
+							nparts = LinkNENTRIES(doc->masterHeadL);	/* FIXME: nparts isn't used! */
 							if (PartSel(doc)) MPDeletePart(doc);
 							}
 						}
@@ -873,7 +851,7 @@ pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, /*u
 				if (doc) {
 					if (printOnly) {
 						UpdateAllWindows();
-						/* ??Is TopDocument the right way to get the document just opened? */
+						/* FIXME: Is TopDocument the right way to get the document just opened? */
 						NDoPrintScore(doc);
 						DoCloseWindow(doc->theWindow);
 						}
@@ -907,7 +885,10 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 
 	switch (fndrInfo.fdType) {
 		case DOCUMENT_TYPE_NORMAL:
-			if (DoOpenDocument(theFile->name, theFile->vRefNum, FALSE, theFile)) break;
+			if (DoOpenDocument(theFile->name, theFile->vRefNum, FALSE, theFile)) {
+				LogPrintf(LOG_DEBUG, "Opened file '%s'.\n", PToCString(theFile->name));
+				break;
+			}
 			return NULL;
 		case 'TEXT':
 			if (OpenNotelistFile(theFile->name, theFile)) break;
@@ -916,12 +897,12 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			if (ImportMIDIFile(theFile)) break;			
 			return NULL;
 		default:
-			/* ??We should give a specific, more helpful error message if it's a Help file. */		
+			/* FIXME: We should give a specific, more helpful error message if it's a Help file. */		
 			GetIndCString(fmtStr, FILEIO_STRS, 7);			/* "file version is illegal" */
 			sprintf(aStr, fmtStr, ACHAR(fndrInfo.fdType,3), ACHAR(fndrInfo.fdType,2),
 						 ACHAR(fndrInfo.fdType,1), ACHAR(fndrInfo.fdType,0));
 #ifndef PUBLIC_VERSION
-			DebugPrintf(aStr); DebugPrintf("\n");
+			LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
 #endif
 			CParamText(aStr, "", "", "");
 			StopInform(READ_ALRT);
@@ -967,12 +948,12 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			if (ImportMIDIFile(theFile->name, wdRec.ioVRefNum)) break;			
 			return NULL;
 		default:
-			/* ??We should give a specific, more helpful error message if it's a Help file. */		
+			/* FIXME: We should give a specific, more helpful error message if it's a Help file. */		
 			GetIndCString(fmtStr, FILEIO_STRS, 7);			/* "file version is illegal" */
 			sprintf(aStr, fmtStr, ACHAR(fndrInfo.fdType,3), ACHAR(fndrInfo.fdType,2),
 						 ACHAR(fndrInfo.fdType,1), ACHAR(fndrInfo.fdType,0));
 #ifndef PUBLIC_VERSION
-			DebugPrintf(aStr); DebugPrintf("\n");
+			LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
 #endif
 			CParamText(aStr, "", "", "");
 			StopInform(READ_ALRT);
@@ -1004,7 +985,7 @@ pascal OSErr HandleQUIT(const AppleEvent */*appleEvent*/, AppleEvent */*reply*/,
 	{
 		short keepGoing = DoFileMenu(FM_Quit);
 		
-		return(keepGoing);	/* ??Return value is nonsense! But unused as of v. 3.1 */
+		return(keepGoing);	/* FIXME: Return value is nonsense! But unused as of v. 3.1 */
 	}
 
 
@@ -1016,8 +997,8 @@ static OSErr MyGotRequiredParams(const AppleEvent *appleEvent)
 		Size actualSize;
 		OSErr err;
 		
-		err = AEGetAttributePtr(appleEvent,keyMissedKeywordAttr,typeWildCard,
-												&returnedType,NULL,0,&actualSize);
+		err = AEGetAttributePtr(appleEvent, keyMissedKeywordAttr, typeWildCard,
+										&returnedType, NULL, 0, &actualSize);
 		if (err == errAEDescNotFound) return(noErr);
 		if (!err) err = errAEEventNotHandled;
 		

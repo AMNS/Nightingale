@@ -1,24 +1,22 @@
 /***************************************************************************
-*	FILE:	SetCommand.c																		*
-*	PROJ:	Nightingale, rev. for v3.1														*
-*	DESC:	Set dialog-handling routines, by John Gibson and DAB					*
+*	FILE:	SetCommand.c
+*	PROJ:	Nightingale
+*	DESC:	Set dialog-handling routines, by John Gibson and DAB
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 /*
-		SetFilter				SetStfBadValues		AnyBadValues
+		SetFilter				SetStfBadValues			AnyBadValues
 		IsSetEnabled			InitSetItems			XableSetItems
-		FindMainEnabledItem	SetDialog				DoMainPopChoice
-		DoPropPopChoice		DoSetArrowKey			DoSet
+		FindMainEnabledItem		SetDialog				DoMainPopChoice
+		DoPropPopChoice			DoSetArrowKey			DoSet
  */
  
 #include "Nightingale_Prefix.pch"
@@ -942,7 +940,7 @@ Boolean SetDialog(
 			case tempoITEM:
 				*param = tempoPropertyChoice;
 				if (tempoPropertyChoice==hideMM_ITEM) *finalVal = visibleChoice;
-//DebugPrintf("tempoItem: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
+//LogPrintf(LOG_NOTICE, "tempoItem: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
 				break;
 			case barlineITEM:
 				*param = barlinePropertyChoice;
@@ -953,7 +951,7 @@ Boolean SetDialog(
 				*param = dynamicPropertyChoice;
 				if (dynamicPropertyChoice==dynamSmallITEM) *finalVal = dynamicSizeChoice;
 				else													  *finalVal = visibleChoice;
-//DebugPrintf("dynamicITEM: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
+//LogPrintf(LOG_NOTICE, "dynamicITEM: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
 				break;
 			case clefITEM:
 				*param = 1;
@@ -1610,7 +1608,7 @@ void DoSet(Document *doc)
 					break;
 					
 				case dynamicITEM:
-//DebugPrintf("DoSet: dynamicITEM: newValSet=%d\n", newValSet);
+//LogPrintf(LOG_NOTICE, "DoSet: dynamicITEM: newValSet=%d\n", newValSet);
 					switch (newParamSet) {
 						case dynamVisibleITEM:
 							didAnything = SetSelDynamVisible(doc, newValSet);
@@ -1688,7 +1686,7 @@ void DoSet(Document *doc)
 					break;
 					
 				case tempoITEM:
-//DebugPrintf("DoSet: tempoITEM: newValSet=%d\n", newValSet);
+//LogPrintf(LOG_NOTICE, "DoSet: tempoITEM: newValSet=%d\n", newValSet);
 					switch (newParamSet) {
 						case vPosAboveITEM:
 						case vPosBelowITEM:

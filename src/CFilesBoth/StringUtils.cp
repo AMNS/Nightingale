@@ -1,13 +1,9 @@
-/* StringUtils.c for Nightingale - string-handling utilities - new for v.3.1 */
+/* StringUtils.c for Nightingale - string-handling utilities - new in v.3.1 */
 
-/*									NOTICE
- *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-96 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Copyright © 2016 by Avian Music Notation Foundation.
+ * All Rights Reserved.
  */
 
 /*
@@ -15,15 +11,14 @@
 		streql					strneql					Pstreql		
 		PStrCat					PStrCopy				PStrnCopy
 		PStrCmp					PStrnCmp				GoodStrncpy
-		ExpandString
-
+		ExpandString			GetFinalSubstring		GetInitialSubstring
 */
 
 #include "Nightingale_Prefix.pch"
 #include <ctype.h>
 #include "Nightingale.appl.h"
 
-/* -------------------------------------------------------- PToCString,CToPString -- */
+/* ------------------------------------------------------- PToCString, CToPString -- */
 /* Convert C to Pascal style strings and vice-versa. Very similar, quite possibly
 identical, to Symantec's PtoCstr and CtoPstr. */
 
@@ -73,7 +68,7 @@ unsigned char *Pstrcpy(unsigned char *dst, const unsigned char *src)
 
 Boolean streql(char *s1, char *s2)
 {
-	/* ??It would be best to replace this body with a call to strcmp. */
+	/* FIXME: It would be best to replace this body with a call to strcmp. */
 	
 	while (*s1) if (*s1++ != *s2++) return(FALSE);
 	return(*s1 == *s2);
@@ -84,7 +79,7 @@ Boolean streql(char *s1, char *s2)
 
 Boolean strneql(char *s1, char *s2, short n)
 {
-	/* ??It would be best to replace this body with a call to strncmp. */
+	/* FIXME: It would be best to replace this body with a call to strncmp. */
 	if (n++ == 0) return(TRUE);
 	
 	while (*s1 && --n>0) if (*s1++ != *s2++) return(FALSE);
@@ -205,7 +200,6 @@ Boolean ExpandString(unsigned char *dstStr, const unsigned char *srcStr, Boolean
 	origLen = *(unsigned char *)srcStr;
 	Pstrcpy(dstStr, srcStr);
 	PToCString(dstStr);
-	//DebugPrintf("ExpandString: origLen=%d str='%s'\n", origLen, dstStr);
 	/* Pascal strings can't be longer than 255 chars. */
 	maxLenExpanded = (wider? 255/3 : 255/2);
 	if (origLen>maxLenExpanded) return FALSE;
@@ -225,6 +219,37 @@ Boolean ExpandString(unsigned char *dstStr, const unsigned char *srcStr, Boolean
 	*(dstStr+out) = '\0';
 	CToPString((char *)dstStr);
 
+	return TRUE;
+}
+
+
+/* ----------------------------------------------------------- Substring functions -- */
+/* C's standard string functions don't handle substrings well, especially if you don't
+want to do pointer arithmetic. Here are a couple of functions designed for handling
+filenames but potentially useful for other purposes. */
+
+Boolean GetFinalSubstring(char *str, char *substr, char delimChar) {
+    const char *delim = strrchr(str, delimChar);
+    if (!delim || delim == str) {
+        strcpy(substr, "");
+        return FALSE;
+    }
+    else {
+        strcpy(substr, delim+1);
+        return TRUE;
+    }
+}
+
+
+Boolean GetInitialSubstring(char *str, char *substr, short len)
+{
+	if (len>strlen(str)) {
+		*substr = '\0';
+		return FALSE;
+	}
+	
+	strcpy(substr, str);
+	*(substr+len) = '\0';
 	return TRUE;
 }
 

@@ -1,34 +1,31 @@
 /* File Debug2Utils.c - debugging functions. This is the other part of the 
-"DebugUtils" source file, made into a separate file because DebugUtils.c
-was just too big--e.g., with certain Mac development systems, approaching
-or exceeding their 32K per module object code size limit.
+"DebugUtils" source file, made into a separate file long ago because DebugUtils.c
+was just too big for certain Mac development systems of the 1990's, which had a
+limit of 32K per module object code.
 
 	DCheckVoiceTable		DCheckRedundKS			DCheckRedundTS
 	DCheckMeasDur			DCheckUnisons
-	DCheck1NEntries		DCheckNEntries			DCheck1SubobjLinks	
+	DCheck1NEntries			DCheckNEntries			DCheck1SubobjLinks	
 	DBadNoteNum				DCheckNoteNums
 */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
-
-//#ifndef PUBLIC_VERSION		/* If public, skip this file completely! */
 
 #include "DebugUtils.h"
 
 #define ulong unsigned long
 
 #define DDB
+
 
 /* ---------------------------------------------------------- DCheckVoiceTable -- */
 /* Check the voice-mapping table and its relationship to the object list:
@@ -41,8 +38,8 @@ or exceeding their 32K per module object code size limit.
 We could also check other symbols with voice nos. */
 
 Boolean DCheckVoiceTable(Document *doc,
-				Boolean fullCheck,				/* FALSE=skip less important checks */
-				short *pnVoicesUsed)
+			Boolean fullCheck,				/* FALSE=skip less important checks */
+			short *pnVoicesUsed)
 {
 	Boolean bad, foundEmptySlot;
 	LINK pL, aNoteL, aGRNoteL;
@@ -135,8 +132,8 @@ Boolean DCheckVoiceTable(Document *doc,
 					v = NoteVOICE(aNoteL);
 					stf = NoteSTAFF(aNoteL);
 					if (doc->voiceTab[v].partn!=Staff2Part(doc, stf))
-						COMPLAIN2("*DCheckVoiceTable: NOTE IN SYNC AT %lu IN ANOTHER PART'S VOICE %ld.\n",
-										(ulong)pL, (long)v);
+						COMPLAIN3("*DCheckVoiceTable: NOTE IN SYNC AT %lu STAFF %d IN ANOTHER PART'S VOICE, %ld.\n",
+										(ulong)pL, stf, (long)v);
 				}
 				break;
 			case GRSYNCtype:
@@ -145,8 +142,8 @@ Boolean DCheckVoiceTable(Document *doc,
 					v = GRNoteVOICE(aGRNoteL);
 					stf = GRNoteSTAFF(aGRNoteL);
 					if (doc->voiceTab[v].partn!=Staff2Part(doc, stf))
-						COMPLAIN2("*DCheckVoiceTable: NOTE IN GRSYNC AT %lu IN ANOTHER PART'S VOICE %ld.\n",
-										(ulong)pL, (long)v);
+						COMPLAIN3("*DCheckVoiceTable: NOTE IN GRSYNC AT %lu STAFF %d IN ANOTHER PART'S VOICE, %ld.\n",
+										(ulong)pL, stf, (long)v);
 				}
 				break;
 			default:
@@ -318,6 +315,8 @@ Boolean DCheckUnisons(Document *doc)
 {
 	LINK pL; Boolean bad; short voice;
 	
+	if (unisonsOK) return FALSE;
+	
 	bad = FALSE;
 		
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
@@ -340,8 +339,8 @@ Boolean DCheckUnisons(Document *doc)
 of subobjects. */
 
 Boolean DCheck1NEntries(
-					Document */*doc*/,		/* unused */
-					LINK pL)
+				Document */*doc*/,		/* unused */
+				LINK pL)
 {
 	LINK subL, tempL; Boolean bad; short subCount;
 	HEAP *myHeap;
@@ -462,11 +461,11 @@ Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 			}
 			break;
 		}
-		case OCTAVAtype: {
+		case OTTAVAtype: {
 			LINK aNoteOctL;
 			
 			aNoteOctL = FirstSubLINK(pL);
-			for ( ; aNoteOctL; aNoteOctL=NextNOTEOCTAVAL(aNoteOctL)) {
+			for ( ; aNoteOctL; aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
 				if (DBadLink(doc, ObjLType(pL), aNoteOctL, FALSE))
 					{ badLink = aNoteOctL; bad = TRUE; break; }
 			}
@@ -485,7 +484,7 @@ Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 
 		case GRAPHICtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			break;
 			
@@ -506,10 +505,10 @@ Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 table: return the discrepancy in the note's MIDI note number (0 if none). */
 
 short DBadNoteNum(
-				Document *doc,
-				short clefType, short octType,
-				SignedByte /*accTable*/[],
-				LINK syncL, LINK theNoteL)
+			Document *doc,
+			short clefType, short octType,
+			SignedByte /*accTable*/[],
+			LINK syncL, LINK theNoteL)
 {
 	short halfLn;							/* Relative to the top of the staff */
 	SHORTQD yqpit;
@@ -547,7 +546,7 @@ Boolean DCheckNoteNums(Document *doc)
 	/*
 	 * We keep track of where octave signs begin. But keeping track of where they end
 	 * is a bit messy: to avoid doing that, we'll just rely on each Note subobj's
-	 * inOctava flag to say whether it's in one.
+	 * inOttava flag to say whether it's in one.
 	 */
 	for (staff = 1; staff<=doc->nstaves; staff++)
 		octType[staff] = 0;											/* Initially, no octave sign */
@@ -567,7 +566,7 @@ Boolean DCheckNoteNums(Document *doc)
 								haveAccs = TRUE;
 							}
 
-							useOctType = (NoteINOCTAVA(aNoteL)? octType[staff] : 0);
+							useOctType = (NoteINOTTAVA(aNoteL)? octType[staff] : 0);
 							nnDiff = DBadNoteNum(doc, clefType, useOctType, accTable, pL, aNoteL);
 							if (nnDiff!=0) {
 								if (abs(nnDiff)<=2) {
@@ -585,8 +584,8 @@ Boolean DCheckNoteNums(Document *doc)
 					aClefL = ClefOnStaff(pL, staff);
 					if (aClefL) clefType = ClefType(aClefL);
 					break;
-				case OCTAVAtype:
-					if (OctavaSTAFF(pL)==staff)
+				case OTTAVAtype:
+					if (OttavaSTAFF(pL)==staff)
 						octType[staff] = OctType(pL);
 					break;
 				default:
@@ -597,5 +596,3 @@ Boolean DCheckNoteNums(Document *doc)
 
 	return bad;
 }
-
-//#endif /* PUBLIC_VERSION */

@@ -1,13 +1,11 @@
 /* Menu.c for Nightingale - general menu routines */
 
-/*									NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright Â© 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -48,10 +46,10 @@ static void	NMSetDuration(Document *doc);
 static void	NMInsertByPos(Document *doc);
 static void	NMSetMBRest(Document *doc);
 static void	NMFillEmptyMeas(Document *doc);
-static void 	NMAddModifiers(Document *doc);
-static void 	NMStripModifiers(Document *doc);
+static void NMAddModifiers(Document *doc);
+static void NMStripModifiers(Document *doc);
 static short CountSelVoices(Document *);
-static void 	NMMultiVoice(Document *doc);
+static void NMMultiVoice(Document *doc);
 
 static void	VMLookAt(void);
 static void	VMLookAtAll(void);
@@ -85,21 +83,24 @@ static void	FixViewMenu(Document *doc);
 static void	FixPlayRecordMenu(Document *doc, short nSel);
 static void	FixMasterPgMenu(Document *doc);
 static void	FixFormatMenu(Document *doc);
+				
+static void DeleteObj(Document *, LINK);
+static void DeleteSelObjs(Document *);
 
-short NumOpenDocuments(void);
+short		NumOpenDocuments(void);
 
-static Boolean cmdIsBeam, cmdIsTuplet, cmdIsOctava;
+static Boolean cmdIsBeam, cmdIsTuplet, cmdIsOttava;
 
 static Boolean	goUp=TRUE;								/* For "Transpose" dialog */
-static short octaves=0, steps=0, semiChange=0;
-static Boolean slashes=FALSE;
+static short	octaves=0, steps=0, semiChange=0;
+static Boolean	slashes=FALSE;
 
 static Boolean	dGoUp=TRUE;								/* For "Diatonic Transpose" dialog */
-static short dOctaves=0, dSteps=0;
-static Boolean dSlashes=FALSE;
+static short	dOctaves=0, dSteps=0;
+static Boolean	dSlashes=FALSE;
 
 static Boolean	kGoUp=TRUE;								/* For "Transpose Key" dialog */
-static short kOctaves=0, kSteps=0, kSemiChange=0;
+static short	kOctaves=0, kSteps=0, kSemiChange=0;
 static Boolean	kSlashes=FALSE, kNotes=TRUE, kChordSyms=TRUE;
 
 static Boolean	beforeFirst;
@@ -107,9 +108,6 @@ static Boolean	beforeFirst;
 static Boolean showDbgWin = FALSE;
 
 static Boolean debugItemsNeedInstall = TRUE;
-				
-void DeleteObj(Document *, LINK);
-void DeleteSelObjs(Document *);
 
 
 Boolean DoMenu(long menuChoice)
@@ -170,8 +168,6 @@ Cleanup:
 
 static void DoAppleMenu(short choice)
 	{
-//		Str255 accName;
-		
 		switch(choice) {
 			case AM_About:
 #ifdef PUBLIC_VERSION
@@ -277,11 +273,13 @@ Boolean DoFileMenu(short choice)
 				 else {
 					UseStandardType(documentType);
 					GetIndCString(str, MENUCMDMSGS_STRS, 4);			/* "Which score do you want to open?" */
-					if (returnCode = GetInputName(str,TRUE,tmpStr,&vrefnum,&nscd)) {
+					returnCode = GetInputName(str,TRUE,tmpStr,&vrefnum,&nscd);
+					if (returnCode) {
 						if (returnCode == OP_OpenFile) {
 							fsSpec = nscd.nsFSSpec;
 							vrefnum = nscd.nsFSSpec.vRefNum;
-   						DoOpenDocument(tmpStr,vrefnum,FALSE,&fsSpec);
+							DoOpenDocument(tmpStr,vrefnum,FALSE,&fsSpec);
+							LogPrintf(LOG_DEBUG, "Opened file '%s'.\n", PToCString(tmpStr));
 						 }
 						 else if (returnCode == OP_NewFile)
 						 	keepGoing = DoFileMenu(FM_New);
@@ -295,10 +293,12 @@ Boolean DoFileMenu(short choice)
 				 else {
 					UseStandardType(documentType);
 					GetIndCString(str, MENUCMDMSGS_STRS, 5);			/* "Which score do you want to open read-only?" */
-					if (returnCode = GetInputName(str,FALSE,tmpStr,&vrefnum,&nscd))
+					returnCode = GetInputName(str,FALSE,tmpStr,&vrefnum,&nscd);
+					if (returnCode)
 						fsSpec = nscd.nsFSSpec;
 						vrefnum = nscd.nsFSSpec.vRefNum;
 						DoOpenDocument(tmpStr,vrefnum,TRUE, &fsSpec);
+						LogPrintf(LOG_DEBUG, "Opened read-only file '%s'.\n", PToCString(tmpStr));
 					}
 				break;
 			case FM_Close:
@@ -388,10 +388,9 @@ Boolean DoFileMenu(short choice)
 				if (doc) SaveNotelist(doc, ANYONE, TRUE);
 				break;
 			case FM_ScoreInfo:
-				printf("File Menu: Score Info\n");
-				
+				/* For users of public versions that don't have the Test menu, provide
+					a way to access our debugging and emergency-repair facilities. */
 				if (OptionKeyDown()) {
-				//if (1) {
 					InstallDebugMenuItems(ControlKeyDown());
 				}
 				else {					
@@ -422,7 +421,7 @@ void DoEditMenu(short choice)
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
 		
-DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);					
+//LogPrintf(LOG_NOTICE, "DoEditMenu: choice=%ld\n", (long)choice);					
 		switch(choice) {
 			case EM_Undo:
 				DoUndo(doc);
@@ -448,9 +447,6 @@ DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);
 				break;
 			case EM_Merge:
 				DoMerge(doc);
-#ifdef CURE_MACKEYS_DISEASE
-				DCheckNEntries(doc);
-#endif
 				break;
 			case EM_Double:
 				Double(doc);
@@ -494,9 +490,6 @@ DebugPrintf("DoEditMenu: choice=%ld\n", (long)choice);
 					Browser(doc,doc->headL, doc->tailL);
 				break;
 			case EM_Debug:
-				printf("printf: running debug command\n");
-				DebugPrintf("DebugPrintf: running debug command\n");
-				
 				DoDebug("M");
 				fflush(stdout);
 				break;
@@ -513,23 +506,20 @@ no attempt to maintain consistency. This is intended to allow wizards to repair
 messed-up files and to help debug Nightingale, but it's obviously very dangerous:
 ordinary users should never be allowed to do it! */
  
-void DeleteObj(Document *, LINK);
-void DeleteSelObjs(Document *);
-
-void DeleteObj(Document *doc, LINK pL)
+static void DeleteObj(Document *doc, LINK pL)
 {
-	DebugPrintf("About to DeleteNode(%d) of type=%d...", pL, ObjLType(pL));
+	LogPrintf(LOG_NOTICE, "About to DeleteNode(%d) of type=%d...", pL, ObjLType(pL));
 
 	if (InDataStruct(doc, pL, MAIN_DSTR)) {
 		DeleteNode(doc, pL);
-		DebugPrintf("done.\n");
+		LogPrintf(LOG_NOTICE, "done.\n");
 		doc->changed = TRUE;
 	}
 	else
-		DebugPrintf("NODE NOT IN MAIN OBJECT LIST.\n");
+		LogPrintf(LOG_WARNING, "NODE NOT IN MAIN OBJECT LIST.\n");
 }
 
-void DeleteSelObjs(Document *doc)
+static void DeleteSelObjs(Document *doc)
 {
 	short nInRange, nSelFlag; LINK pL, nextL, firstMeasL;
 	
@@ -562,7 +552,7 @@ void SetMeasNumPos(Document *doc,
 							short xOffset, short yOffset)
 {
 	PAMEASURE	aMeasure;
-	LINK			pL, aMeasureL;
+	LINK		pL, aMeasureL;
 
 	for (pL = startL; pL!=endL; pL=RightLINK(pL)) {
 		if (MeasureTYPE(pL)) {
@@ -614,15 +604,15 @@ static void DoTestMenu(short choice)
 				break;
 			case TS_ClickErase:
 				clickMode = ClickErase;
-				DebugPrintf("ClickMode set to ClickErase\n");
+				LogPrintf(LOG_NOTICE, "ClickMode set to ClickErase\n");
 				break;
 			case TS_ClickSelect:
 				clickMode = ClickSelect;
-				DebugPrintf("ClickMode set to ClickSelect\n");
+				LogPrintf(LOG_NOTICE, "ClickMode set to ClickSelect\n");
 				break;
 			case TS_ClickFrame:
 				clickMode = ClickFrame;
-				DebugPrintf("ClickMode set to ClickFrame\n");
+				LogPrintf(LOG_NOTICE, "ClickMode set to ClickFrame\n");
 				break;
 			case TS_Debug:
 #ifndef PUBLIC_VERSION
@@ -634,7 +624,7 @@ static void DoTestMenu(short choice)
 				
 				if (showDbgWin = !showDbgWin) {
 //					ShowHideDebugWindow(TRUE);
-					DebugPrintf("Showing Debug Window\n");					
+					LogPrintf(LOG_WARNING, "Show Debug Window isn't implemented.\n");					
 				}
 				else {				
 //					ShowHideDebugWindow(FALSE);
@@ -799,9 +789,6 @@ static void DoNotesMenu(short choice)
 				break;
 			case NM_CompactV:
 				DoCompactVoices(doc);
-#ifdef CURE_MACKEYS_DISEASE
-				DCheckNEntries(doc);
-#endif
 				break;
 			case NM_InsertByPos:
 				NMInsertByPos(doc);
@@ -912,15 +899,9 @@ void DoGroupsMenu(short choice)
 				if (cmdIsTuplet) {
 					tParam.isFancy = FALSE;
 					DoTuple(doc, &tParam);
-#ifdef CURE_MACKEYS_DISEASE
-					DCheckNEntries(doc);
-#endif
 					}
 				else {
 					DoUntuple(doc);
-#ifdef CURE_MACKEYS_DISEASE
-					DCheckNEntries(doc);
-#endif
 					}
 				break;
 			case GM_FancyTuplet:
@@ -929,16 +910,13 @@ void DoGroupsMenu(short choice)
 					okay = TupletDialog(doc, &tParam, TRUE);
 					if (okay) DoTuple(doc, &tParam);
 					}
-#ifdef CURE_MACKEYS_DISEASE
-				DCheckNEntries(doc);
-#endif
 				break;
-			case GM_Octava:
-				if (cmdIsOctava) {
-					DoOctava(doc);
+			case GM_Ottava:
+				if (cmdIsOttava) {
+					DoOttava(doc);
 				}
 				else {
-					DoRemoveOctava(doc);
+					DoRemoveOttava(doc);
 				}
 				break;
 			default:
@@ -1746,7 +1724,7 @@ static void NMSetDuration(Document *doc)
 						break;
 				}
 				if (didAnything) {
-					if (cptV) SetDurCptV(doc);		/* ??Bug: this changes sel range, screwing up FixTimeStamps! */
+					if (cptV) SetDurCptV(doc);		/* FIXME: Bug: this changes sel range, screwing up FixTimeStamps! */
 					FixTimeStamps(doc, doc->selStartL, doc->selEndL);
 					if (doc->autoRespace)
 						RespaceBars(doc, doc->selStartL, doc->selEndL,
@@ -1800,16 +1778,32 @@ static void NMSetMBRest(Document *doc)
 	
 static void NMFillEmptyMeas(Document *doc)
 	{
-		short startMN, endMN; LINK measL, startL, endL; PAMEASURE aMeasure;
+		short startMN, endMN;
+		LINK startMeasL, endMeasL, aMeasureL, startL, endL;
 		
-		/* Default start and end measures are the first and last of the score. */
+		/* Default start and end measures are from the selection. */
 		
+#if 1
+		startMeasL = SSearch(doc->selStartL, MEASUREtype, GO_LEFT);	/* starting measure */
+		if (startMeasL==NILINK) SSearch(doc->selStartL, MEASUREtype, GO_RIGHT);
+		aMeasureL = FirstSubLINK(startMeasL);
+		startMN = MeasMEASURENUM(aMeasureL)+doc->firstMNNumber;
+		
+		endMeasL = SSearch(doc->selEndL, MEASUREtype, GO_LEFT);		/* ending measure */
+		aMeasureL = FirstSubLINK(endMeasL);
+		endMN = MeasMEASURENUM(aMeasureL)+doc->firstMNNumber;
+		//LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMeasL=%d endMeasL=%d firstMNNumber=%d startMN=%d endMN=%d\n",
+		//		startMeasL, endMeasL, doc->firstMNNumber, startMN, endMN);
+#else
 		startMN = doc->firstMNNumber;
 		measL = MNSearch(doc, doc->tailL, ANYONE, GO_LEFT, TRUE);
 		aMeasure = GetPAMEASURE(FirstSubLINK(measL));
 		endMN = aMeasure->measureNum+doc->firstMNNumber;
+#endif
 
 		if (FillEmptyDialog(doc, &startMN, &endMN)) {
+			LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMN=%d endMN=%d firstMNNumber=%d startL=%d endL=%d\n",
+						startMN, endMN, doc->firstMNNumber, startMeasL, endMeasL);
 			startL = MNSearch(doc, doc->headL, startMN-doc->firstMNNumber, GO_RIGHT, TRUE);
 			endL = MNSearch(doc, doc->headL, endMN-doc->firstMNNumber, GO_RIGHT, TRUE);
 			if (startL && endL) {
@@ -2022,7 +2016,7 @@ static void PLRecord(Document *doc, Boolean merge)
 	{
 		if (!OKToRecord(doc)) return;
 
-		DebugPrintf("0. Starting to record\n");
+		LogPrintf(LOG_NOTICE, "0. Starting to record\n");
 		
 		if (merge) {
 			PrepareUndo(doc, doc->selStartL, U_RecordMerge, 25);    	/* "Record Merge" */
@@ -2031,7 +2025,7 @@ static void PLRecord(Document *doc, Boolean merge)
 		else {
 			PrepareUndo(doc, doc->selStartL, U_Record, 26);    		/* "Record" */
 			
-			DebugPrintf("0.1. Ready to record\n");
+			LogPrintf(LOG_NOTICE, "0.1. Ready to record\n");
 			Record(doc);
 		}
 	}
@@ -2103,23 +2097,19 @@ void InstallDocMenus(Document *doc)
 		}
 	}
 	
-static void InstallDebugMenuItems(Boolean installAll) 
+static void InstallDebugMenuItems(Boolean installAll)
 	{
-		printf("installing debug menu items..\n");
-		
-		if (debugItemsNeedInstall)
-		{
-			printf("installing .. \n");
+		if (debugItemsNeedInstall) {
+			LogPrintf(LOG_DEBUG, "InstallDebugMenuItems: installing debug menu items...\n");
 			AppendMenu(editMenu, "\p(-");
 			AppendMenu(editMenu, "\pBrowser");
 			if (installAll) {
 				AppendMenu(editMenu, "\pDebug...");
-//				AppendMenu(editMenu, "\pShow Debug Window");
 				AppendMenu(editMenu, "\pDelete Objects");
 			}
 		}
 		else {
-			printf("removing .. \n");
+			LogPrintf(LOG_DEBUG, "InstallDebugMenuItems: removing debug menu items...\n");
 			DeleteMenuItem(editMenu, EM_DeleteObjs);			
 			DeleteMenuItem(editMenu, EM_Debug);
 			DeleteMenuItem(editMenu, EM_Browser);
@@ -2338,7 +2328,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 				GetIndCString(str, MENUCMD_STRS, 22);						/* "Clear Page" */
 			SetMenuItemCText(editMenu, EM_ClearPage, str);
 
-			/* ??How can you "Paste Insert" anything into a DA? (CER asks?) */
+			/* FIXME: How can you "Paste Insert" anything into a DA? (CER asks?) */
 
 			switch (lastCopy) {
 				case COPYTYPE_CONTENT:
@@ -2371,7 +2361,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 			mergeable = (lastCopy==COPYTYPE_CONTENT);
 			
 			XableItem(editMenu,EM_Merge,(doc!=NULL && doc!=clipboard && mergeable &&
-													clipboard->canCutCopy && !beforeFirst));
+												clipboard->canCutCopy && !beforeFirst));
 
 			XableItem(editMenu,EM_Double,
 				(doc!=NULL && doc!=clipboard && !beforeFirst && nSel>0));
@@ -2430,15 +2420,15 @@ static void FixTestMenu(Document *doc, short nSel)
 	{
 #ifndef PUBLIC_VERSION
 		if (clickMode==ClickErase)
-			SetItemMark(testMenu, TS_ClickErase, '¥');
+			SetItemMark(testMenu, TS_ClickErase, 'â€¢');
 		else
 			SetItemMark(testMenu, TS_ClickErase, noMark);
 		if (clickMode==ClickSelect)
-			SetItemMark(testMenu, TS_ClickSelect, '¥');
+			SetItemMark(testMenu, TS_ClickSelect, 'â€¢');
 		else
 			SetItemMark(testMenu, TS_ClickSelect, noMark);
 		if (clickMode==ClickFrame)
-			SetItemMark(testMenu, TS_ClickFrame, '¥');
+			SetItemMark(testMenu, TS_ClickFrame, 'â€¢');
 		else
 			SetItemMark(testMenu, TS_ClickFrame, noMark);
 
@@ -2657,7 +2647,7 @@ static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
 					if (NoteSTAFF(aNoteL)==staff) {
 						aNote = GetPANOTE(aNoteL);
-						if (aNote->inOctava) return TRUE;
+						if (aNote->inOttava) return TRUE;
 						else break;
 					}
 				}
@@ -2665,7 +2655,7 @@ static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 				for (aGRNoteL=FirstSubLINK(pL); aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL))
 					if (GRNoteSTAFF(aGRNoteL)==staff) {
 						aGRNote = GetPAGRNOTE(aGRNoteL);
-						if (aGRNote->inOctava) return TRUE;
+						if (aGRNote->inOttava) return TRUE;
 						else break;
 					}
 			}
@@ -2675,7 +2665,7 @@ static Boolean SelRangeChkOct(short staff, LINK staffStartL, LINK staffEndL)
 
 static void FixBeamCommands(Document *);
 static void FixTupletCommands(Document *);
-static void FixOctavaCommands(Document *, Boolean);
+static void FixOttavaCommands(Document *, Boolean);
 
 /*
  *	Handle menu command Enable/Disable for Beams
@@ -2821,34 +2811,34 @@ knowTupled:
  *	Handle menu command Enable/Disable for octave signs.
  */
 
-static void FixOctavaCommands(Document *doc, Boolean continSel)
+static void FixOttavaCommands(Document *doc, Boolean continSel)
 {
-	Boolean hasOctava; LINK pL, aNoteL, aGRNoteL, stfStartL, stfEndL;
-	short staff, octavaNum; Str255 str;
+	Boolean hasOttava; LINK pL, aNoteL, aGRNoteL, stfStartL, stfEndL;
+	short staff, ottavaNum; Str255 str;
 
 	if (!continSel) {
-		DisableMenuItem(groupsMenu, GM_Octava);
+		DisableMenuItem(groupsMenu, GM_Ottava);
 		return;
 	}
 	
-	hasOctava = FALSE;		
+	hasOttava = FALSE;		
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && SyncTYPE(pL))
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
-				if (NoteSEL(aNoteL) && NoteINOCTAVA(aNoteL))
-					{ hasOctava = TRUE; goto knowOctavad; }
+				if (NoteSEL(aNoteL) && NoteINOTTAVA(aNoteL))
+					{ hasOttava = TRUE; goto knowOttavad; }
 		if (LinkSEL(pL) && GRSyncTYPE(pL))
 			for (aGRNoteL=FirstSubLINK(pL); aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL))
-				if (GRNoteSEL(aGRNoteL) && GRNoteINOCTAVA(aGRNoteL))
-					{ hasOctava = TRUE; goto knowOctavad; }				
+				if (GRNoteSEL(aGRNoteL) && GRNoteINOTTAVA(aGRNoteL))
+					{ hasOttava = TRUE; goto knowOttavad; }				
 	}
 					
-knowOctavad:
-	if (hasOctava) {
-		cmdIsOctava = FALSE;
+knowOttavad:
+	if (hasOttava) {
+		cmdIsOttava = FALSE;
 		GetIndString(str, MENUCMD_STRS, 17);							/* "Remove Octave Sign" */
-		SetMenuItemText(groupsMenu, GM_Octava, str);
-		EnableMenuItem(groupsMenu, GM_Octava);
+		SetMenuItemText(groupsMenu, GM_Ottava, str);
+		EnableMenuItem(groupsMenu, GM_Ottava);
 		return;
 	}
 
@@ -2857,30 +2847,30 @@ knowOctavad:
 	 * sign. Is it possible to create one?
 	 */
 
-	octavaNum = 0;
+	ottavaNum = 0;
 		
 	if (!beforeFirst) {
 		for (staff=1; staff<=doc->nstaves; staff++) {
 			GetStfSelRange(doc,staff,&stfStartL,&stfEndL);
 			if (stfStartL && stfEndL)
-				octavaNum = OctCountNotesInRange(staff, stfStartL, stfEndL, FALSE);
+				ottavaNum = OctCountNotesInRange(staff, stfStartL, stfEndL, FALSE);
 			else
-				octavaNum = 0;
-			if (octavaNum > 0) {
+				ottavaNum = 0;
+			if (ottavaNum > 0) {
 				if (!SelRangeChkOct(staff, stfStartL, stfEndL)) break;
-				octavaNum = 0;
+				ottavaNum = 0;
 				}
 		}
 	}
 
-	if (octavaNum>0) {
-		cmdIsOctava = TRUE;
+	if (ottavaNum>0) {
+		cmdIsOttava = TRUE;
 		GetIndString(str, MENUCMD_STRS, 18);							/* "Create Octave Sign" */
-		SetMenuItemText(groupsMenu, GM_Octava, str);
-		EnableMenuItem(groupsMenu, GM_Octava);
+		SetMenuItemText(groupsMenu, GM_Ottava, str);
+		EnableMenuItem(groupsMenu, GM_Ottava);
 	}
 	else
-		DisableMenuItem(groupsMenu, GM_Octava);
+		DisableMenuItem(groupsMenu, GM_Ottava);
 }
 
 /*
@@ -2914,16 +2904,16 @@ static void FixGroupsMenu(Document *doc, Boolean continSel)
 				DisableMenuItem(groupsMenu, GM_BreakBeam);	 	/* Can't break any. */
 				DisableMenuItem(groupsMenu, GM_FlipFractional); /* Can't flip any. */
 
-				DisableMenuItem(groupsMenu, GM_Octava); 		/* Can't remove or add any octavas. */
+				DisableMenuItem(groupsMenu, GM_Ottava); 		/* Can't remove or add any ottavas. */
 				return;
 				}
 			}
 		
-		/* Finish handling menu Enable/Disable for Beams, Tuplets, Octavas. */
+		/* Finish handling menu Enable/Disable for Beams, Tuplets, Ottavas. */
 
 		FixBeamCommands(doc);
 		FixTupletCommands(doc);
-		FixOctavaCommands(doc, continSel);
+		FixOttavaCommands(doc, continSel);
 	}
 
 void AddWindowList()
@@ -2965,7 +2955,7 @@ static void FixViewMenu(Document *doc)
 		
 		AddWindowList();
 		UpdateMenu(viewMenu, doc!=NULL);
-		/* ??If doc is NULL, we should return at this point--continuing is dangerous! */
+		/* FIXME: If doc is NULL, we should return at this point--continuing is dangerous! */
 		
 		XableItem(viewMenu,VM_GoTo,ENABLE_GOTO(doc));
 		XableItem(viewMenu,VM_GotoSel,ENABLE_GOTO(doc));

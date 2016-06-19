@@ -36,7 +36,7 @@ void AddNoteFixBeams(Document *, LINK, LINK);
 void AddGRNoteFixBeams(Document *, LINK, LINK);
 void UntupleObj(Document *, LINK, LINK, LINK, short);
 void AddNoteFixTuplets(Document *, LINK, LINK, short);
-Boolean AddNoteFixOctavas(LINK, LINK);
+Boolean AddNoteFixOttavas(LINK, LINK);
 void AddNoteFixSlurs(Document *, LINK, short);
 void AddNoteFixGraphics(LINK, LINK);
 

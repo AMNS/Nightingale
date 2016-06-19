@@ -1,14 +1,12 @@
 /*	SFormat.c for Nightingale: lower-level routines for showing/hiding/dragging staves,
 as in Work on Format mode. */
 
-/*									NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -466,7 +464,7 @@ static void VisifySubObjs(LINK pL, short staffn, short vis)
 		case SLURtype:
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case GRAPHICtype:
 		case ENDINGtype:
 			p = GetPMEVENT(pL);
@@ -477,8 +475,8 @@ static void VisifySubObjs(LINK pL, short staffn, short vis)
 			if (TempoSTAFF(pL)==staffn)
 				LinkVIS(pL) = vis;
 			break;
-		case SPACEtype:
-			if (SpaceSTAFF(pL)==staffn)
+		case SPACERtype:
+			if (SpacerSTAFF(pL)==staffn)
 				LinkVIS(pL) = vis;
 			break;
 		default:

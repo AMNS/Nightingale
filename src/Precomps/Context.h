@@ -18,7 +18,7 @@ void EFixContForKeySig(LINK, LINK, short, KSINFO, KSINFO);
 LINK FixContextForKeySig(Document *, LINK, short, KSINFO, KSINFO);
 void EFixContForTimeSig(LINK, LINK, short, TSINFO);
 LINK FixContextForTimeSig(Document *, LINK, short, TSINFO);
-void EFixContForDynamic(LINK, LINK, short, SignedByte, SignedByte);
+void EFixContForDynamic(LINK, LINK, short, SignedByte);
 LINK FixContextForDynamic(Document *, LINK, short, SignedByte, SignedByte);
 
 void FixMeasureContext(LINK, PCONTEXT);

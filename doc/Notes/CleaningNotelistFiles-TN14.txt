@@ -1,0 +1,36 @@
+Cleaning Up Notelist files in Nightingale
+Donald Byrd, October 2002
+
+The following procedure is very rough: there's too much variation from
+situation to situation for it to be otherwise. You may want to Save at
+almost any step, just in case. NB: in many ways this is similar to the
+procedure for cleaning up imported MIDI files (Nightingale Tech Note
+#10).
+
+
+- (optional) In Master Page: Change staff size.
+- (optional) Select All, Respace (typically to 80-90%), and Reformat.
+- Remove measures of all voices resting at the beginning, if any.
+- (optional) In Master Page: Change staff size.
+- (optional) In Master Page: Give parts their proper names. This can make
+	following steps considerably easier.
+- (optional) In Master Page: Group staves appropriately.
+- Select All, Reformat.
+- Handle transposing instruments:
+	- Select each transposed staff (click the initial clef).
+	- Transpose Key.
+- Handle key signature and accidentals:
+	- Add appropriate key signatures.
+	- (optional) Select All; Respell once or twice (depending on whether
+		it's a sharp or a flat key).
+	- Check for incorrect spelling, and Respell or (e.g., for E-sharp
+		notated as F-natural) otherwise correct as needed.
+	- Select All; Delete Redundant Accs.
+- Consider adding clef changes, either for entire staves or in the middle.
+- Handle time signatures:
+	- Replace time signatures as appropriate.
+	- On each staff where you replaced them, Select everything, Beam by Beat.
+- Select All, Respace (typically to 80-90%), and Reformat.
+- (optional) Add a tempo mark at the beginning.
+- Save.
+- With beta copies (optional): Close, Open, Debug Check.

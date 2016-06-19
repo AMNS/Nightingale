@@ -1,14 +1,9 @@
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1986-95 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
- * These are private interfaces for the two "DebugUtil" files, which had
- * to be broken into two files because of a code overflow.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 
@@ -33,9 +28,9 @@ extern Boolean minDebugCheck;			/* TRUE=don't print Less & Least important check
 
 Boolean QDP(char *fmtStr);
 
-#define COMPLAIN(f, v) { if (QDP(f)) { DebugPrintf((f), (v)); bad = TRUE; } }
-#define COMPLAIN2(f, v1, v2) { if (QDP(f)) { DebugPrintf((f), (v1), (v2)); bad = TRUE; } }
-#define COMPLAIN3(f, v1, v2, v3) { if (QDP(f)) { DebugPrintf((f), (v1), (v2), (v3)); bad = TRUE; } }
+#define COMPLAIN(f, v) { if (QDP(f)) { LogPrintf(LOG_WARNING, (f), (v)); bad = TRUE; } }
+#define COMPLAIN2(f, v1, v2) { if (QDP(f)) { LogPrintf(LOG_WARNING, (f), (v1), (v2)); bad = TRUE; } }
+#define COMPLAIN3(f, v1, v2, v3) { if (QDP(f)) { LogPrintf(LOG_WARNING, (f), (v1), (v2), (v3)); bad = TRUE; } }
 
 #else
 

@@ -1,4 +1,6 @@
-/* The app's res fork must contain a 'chgd' resource having same ID as
+/* GraphicMDEF.c
+ *
+ * The app's res fork must contain a 'chgd' resource having same ID as
  * a 'MENU' that uses this defproc.
  * NB: If you want a special background color for a popup menu, specify 
  * it as a menu bar color, rather than a menu title color. Because of
@@ -13,12 +15,12 @@
 
 /* Turn these off to reduce size of code and static data (c.800 bytes for color). */
 /* N.B. If you turn off color, make sure the menu doesn't have a 'mctb'! */
-#define USE_COLOR			1			/* compile (lengthy) code that handles color menus */
+#define USE_COLOR		1				/* compile (lengthy) code that handles color menus */
 
 #define POP_FROM_EDGE	4
 #define ARROWRECT_WID	14
 #define SICN_ID			128
-#define SICN_WID			16			/* number of horiz. and vert. bits in any sicn */
+#define SICN_WID		16				/* number of horiz. and vert. bits in any sicn */
 
 	/* Returns 1 if entire menu is enabled */
 #define MenuEnabled(menuH) IsMenuItemEnabled(menuH,0)
@@ -48,8 +50,8 @@ void RestoreColors(void);
 #endif
 static void SetGrayPat(void);
 
-static HCHARGRID		gCharGridH;			/* handle to 'chgd' resource */
-static short			gItemCharsOffset;	/* offset from a PCHARGRID to start of its variable length array */
+static HCHARGRID		gCharGridH;				/* handle to 'chgd' resource */
+static short			gItemCharsOffset;		/* offset from a PCHARGRID to start of its variable length array */
 													/* of item chars. Offset is dependent on length of fontName. */
 static short			gArrowRectWid;
 static long				gScrollTicks;
@@ -64,7 +66,7 @@ static short			gNumRows;
 static short			gPopFontNum;
 static short			gItemHt;
 static short			gItemWid;
-static Boolean			gIsAPopUp;			/* If this MDEF is used for a popup AND a normal menu, you */
+static Boolean			gIsAPopUp;				/* If this MDEF is used for a popup AND a normal menu, you */
 													/* must call CalcMenuSize for the normal menu EVERY time */
 													/* the user clicks in menu bar. This generates a mSizeMsg */
 													/* for the MDEF, giving it a chance to reset gIsAPopUp to FALSE. */
@@ -124,15 +126,15 @@ static Boolean gHasColorQD=FALSE;
  * In both cases, only SizeMenu and any functions it calls can NOT rely on
  * my globals having been initialized.
  *
- * Msg			theMenu		menuRect				hitPt			whichItem
+ * Msg			theMenu		menuRect			hitPt			whichItem
  * ------------------------------------------------------------------------------------------
  * mDrawMsg		handle		entry: ptr to		not used		not used
- * 								return: no chg		
+ * 							return: no chg		
  * mChooseMsg	handle		entry: ptr to		mouse pt		entry: ptr to currently selected item
- * 								return: no chg						return: newly selected item
- * mSizeMsg		handle		not used				not used		not used
+ * 							return: no chg						return: newly selected item
+ * mSizeMsg		handle		not used			not used		not used
  * mPopUpMsg	handle		entry: none			top/left		entry: CrsrItem to be placed at HitPt
- * 								return: menu rect					return: TopMenuItem
+ * 							return: menu rect					return: TopMenuItem
  */
 
 pascal void MyMDefProc(short message, MenuHandle theMenu, Rect *menuRect, Point hitPt, short *whichItem)
@@ -515,7 +517,7 @@ static void HiliteMenuItem( MenuRef theMenu, const Rect* menuRect, HiliteMenuIte
 		else
 			newItem = 0;										/* it's a blank item */
 		InvertItem(previousItem, FALSE, (Rect *)menuRect, theMenu);
-		//DebugPrintf("currItem=%d, newItem=%d\n", previousItem, newItem);
+		//LogPrintf(LOG_NOTICE, "currItem=%d, newItem=%d\n", previousItem, newItem);
 	}
 }
 

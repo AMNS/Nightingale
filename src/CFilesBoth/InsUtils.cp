@@ -1,38 +1,36 @@
 /***************************************************************************
-*	FILE:	InsUtils.c																			*
-*	PROJ:	Nightingale, rev. for v.99														*
-*	DESC:	Utility routines for inserting symbols.									*
+*	FILE:	InsUtils.c
+*	PROJ:	Nightingale, rev. for v.99
+*	DESC:	Utility routines for inserting symbols.
 
 	GetPaperMouse
 	ForceInMeasure			GetInsRect				IDrawHairpin
 	TrackHairpin			GetCrossStatus			TrackAndAddHairpin
-	IDrawEndingBracket	TrackEnding				TrackAndAddEnding
+	IDrawEndingBracket		TrackEnding				TrackAndAddEnding
 	IDrawLine				TrackLine				InsFindNRG
-	TrackAndAddLine		FindSync
-	AddCheckVoiceTable	AddNoteCheck
+	TrackAndAddLine			FindSync
+	AddCheckVoiceTable		AddNoteCheck
 	FindGRSync				AddGRNoteCheck			FindSyncRight			
-	FindSyncLeft			FindGRSyncRight		FindGRSyncLeft
+	FindSyncLeft			FindGRSyncRight			FindGRSyncLeft
 	FindSymRight			FindLPI					ObjAtEndTime
 	GetPitchLim				CalcPitchLevel			FindStaff
 	SetCurrentSystem		GetCurrentSystem		AddGRNoteUnbeam
 	AddNoteFixBeams	
-	AddNoteFixTuplets 	AddNoteFixOctavas		AddNoteFixSlurs
-	AddNoteFixGraphics	FixWholeRests			FixNewMeasAccs
+	AddNoteFixTuplets		AddNoteFixOttavas		AddNoteFixSlurs
+	AddNoteFixGraphics		FixWholeRests			FixNewMeasAccs
 	InsFixMeasNums			FindGraphicObject		ChkGraphicRelObj
-	FindTempoObject		FindEndingObject
+	FindTempoObject			FindEndingObject
 	UpdateTailxd			CenterTextGraphic
 	NewObjInit				NewObjSetup				NewObjPrepare			 	
 	NewObjCleanup			XLoadInsUtilsSeg
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -1095,7 +1093,7 @@ LINK FindLPI(Document *doc,
 			case PAGEtype:
 			case SYSTEMtype:
 			case STAFFtype:
-			case SPACEtype:		/* Behave as if they're on all staves */
+			case SPACERtype:		/* Behave as if they're on all staves */
 				pLPIL = pL;
 				break;
 			case SYNCtype:
@@ -1634,17 +1632,17 @@ void AddNoteFixTuplets(Document *doc,
 }
 
 
-/* ----------------------------------------------------------- AddNoteFixOctavas -- */
-/* Given a note that's being inserted into an octava'd range, set its inOctava
+/* ----------------------------------------------------------- AddNoteFixOttavas -- */
+/* Given a note that's being inserted into an ottava'd range, set its inOttava
 flag TRUE and adjust its yd and ystem. If the note is not being chorded with an
-existing note, also insert a subobject into the octava object for its Sync.
+existing note, also insert a subobject into the ottava object for its Sync.
 
 Return TRUE if all OK, FALSE if there's a problem (probably out of memory). */
 
-Boolean AddNoteFixOctavas(LINK newL, LINK newNoteL)	/* Sync and new note (in that Sync) */
+Boolean AddNoteFixOttavas(LINK newL, LINK newNoteL)	/* Sync and new note (in that Sync) */
 {
-	LINK octavaL, newNoteOctavaL, aNoteOctavaL, octavaSyncL, nextSyncL;
-	PANOTEOCTAVA aNoteOctava, newNoteOctava;
+	LINK ottavaL, newNoteOttavaL, aNoteOttavaL, ottavaSyncL, nextSyncL;
+	PANOTEOTTAVA aNoteOttava, newNoteOttava;
 	PANOTE aNote;
 	short staff;
 	
@@ -1656,30 +1654,30 @@ Boolean AddNoteFixOctavas(LINK newL, LINK newNoteL)	/* Sync and new note (in tha
 	one note at a time, we have to add only one subobject. InsertLink requires that we
 	update the firstSubLink field of the object if we are going to add the subObj to
 	the head of the list; however, this cannot happen for this would be adding the
-	note before the first note in the octave sign, so HasOctavaAcross would return
+	note before the first note in the octave sign, so HasOttavaAcross would return
 	NILINK. */
 
-	if (octavaL = HasOctAcross(newL, staff, TRUE)) {
+	if (ottavaL = HasOctAcross(newL, staff, TRUE)) {
 		aNote = GetPANOTE(newNoteL);
-		if (!aNote->rest) aNote->inOctava = TRUE;
+		if (!aNote->rest) aNote->inOttava = TRUE;
 	
 		nextSyncL = LSSearch(RightLINK(newL), SYNCtype, ANYONE, GO_RIGHT, FALSE);
 		if (!NoteINCHORD(newNoteL))
-			if (newNoteOctavaL = HeapAlloc(NOTEOCTAVAheap, 1)) {
+			if (newNoteOttavaL = HeapAlloc(NOTEOTTAVAheap, 1)) {
 			
 				/* Subobjects must be in order: find the place to insert the new one. */
-				aNoteOctavaL = FirstSubLINK(octavaL);
-				for ( ; aNoteOctavaL; aNoteOctavaL = NextNOTEOCTAVAL(aNoteOctavaL)) {
-					aNoteOctava = GetPANOTEOCTAVA(aNoteOctavaL);
-					octavaSyncL = aNoteOctava->opSync;
-					if (octavaSyncL==nextSyncL) {
-						newNoteOctava = GetPANOTEOCTAVA(newNoteOctavaL);
-						newNoteOctava->opSync = newL;
-						InsertLink(NOTEOCTAVAheap, FirstSubLINK(octavaL), aNoteOctavaL, 
-							newNoteOctavaL);
+				aNoteOttavaL = FirstSubLINK(ottavaL);
+				for ( ; aNoteOttavaL; aNoteOttavaL = NextNOTEOTTAVAL(aNoteOttavaL)) {
+					aNoteOttava = GetPANOTEOTTAVA(aNoteOttavaL);
+					ottavaSyncL = aNoteOttava->opSync;
+					if (ottavaSyncL==nextSyncL) {
+						newNoteOttava = GetPANOTEOTTAVA(newNoteOttavaL);
+						newNoteOttava->opSync = newL;
+						InsertLink(NOTEOTTAVAheap, FirstSubLINK(ottavaL), aNoteOttavaL, 
+							newNoteOttavaL);
 					}
 				}
-				LinkNENTRIES(octavaL)++;
+				LinkNENTRIES(ottavaL)++;
 				return TRUE;
 			}
 			else
@@ -1950,7 +1948,7 @@ Boolean ChkGraphicRelObj(LINK pL,
 		case CLEFtype:
 		case KEYSIGtype:
 		case TIMESIGtype:
-		case SPACEtype:
+		case SPACERtype:
 		case RPTENDtype:
 			break;
 		default:
@@ -2150,7 +2148,7 @@ LINK NewObjPrepare(Document *doc, short type, short *sym, char inchar, short sta
 	if (type==KEYSIGtype || type==RPTENDtype) insertType = type;
 	else													insertType = symtable[*sym].objtype;
 	
-	if (type==TEMPOtype || type==SPACEtype || type==ENDINGtype)
+	if (type==TEMPOtype || type==SPACERtype || type==ENDINGtype)
 		newpL = InsertNode(doc, doc->selStartL, insertType, 0);
 	else if (staff!=ANYONE)
 		newpL = InsertNode(doc, doc->selStartL, insertType, 1);
@@ -2163,7 +2161,7 @@ LINK NewObjPrepare(Document *doc, short type, short *sym, char inchar, short sta
 			case TIMESIGtype:
 			case RPTENDtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case ENDINGtype:
 				xd = p2d(x)-context->measureLeft; 				/* relative to measure */
 				break;

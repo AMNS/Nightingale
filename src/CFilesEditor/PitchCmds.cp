@@ -1,24 +1,21 @@
 /***************************************************************************
 	FILE:	PitchCmds.c
-	PROJ:	Nightingale, rev. for v.99
+	PROJ:	Nightingale
 	DESC:	Commands that affect or check pitch or pitch notation, plus
 			Flip Direction.
 		
-	FindExtremeNote		SetNRCStem				FlipBeamList
+	FindExtremeNote			SetNRCStem				FlipBeamList
 	FlipSelDirection		Respell
 	Transpose				DTranspose				TransposeKey
 	CheckRange	
 /***************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1992-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -35,8 +32,8 @@ static void FlipBeamList(Document *, LINK [], short);
 /* --------------------------------------------------------- FindExtreme(GR)Note -- */
 
 LINK FindExtremeNote(LINK syncL,
-							short voice,
-							short stemUpDown)		/* 1=up, -1=down */
+						short voice,
+						short stemUpDown)			/* 1=up, -1=down */
 {
 	LINK lowNoteL, hiNoteL;
 
@@ -161,7 +158,7 @@ void FlipSelDirection(Document *doc)
 	LINK pL, aNoteL, startL, endL, beamL, aGRNoteL;
 	short v; DDIST stemLen;
 	short i, nBeamsets=0; Boolean found;
-	LINK beamLA[MAX_MEASNODES];	/* Enough for any reasonable but not any possible situation */
+	LINK beamLA[MAX_MEASNODES];		/* Enough for any reasonable but not any possible situation */
 	
 	PrepareUndo(doc, doc->selStartL, U_FlipSlurs, 33);			/* "Undo Flip Direction" */
 	
@@ -270,9 +267,9 @@ Boolean Respell(Document *doc)
 	LINK		pL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
 	short		v, s;
-	CONTEXT	context[MAXSTAVES+1];
+	CONTEXT		context[MAXSTAVES+1];
 	PCONTEXT	pContext;
-	Boolean	changedNotes, changedChords, voiceChanged[MAXVOICES+1];
+	Boolean		changedNotes, changedChords, voiceChanged[MAXVOICES+1];
 	
 	WaitCursor();
 
@@ -329,7 +326,7 @@ Boolean Respell(Document *doc)
 			FixBeamsInRange(doc, doc->selStartL, doc->selEndL, s, TRUE);
 	}
 	if (changedNotes || changedChords) {
-		InvalRange(doc->selStartL, doc->selEndL);							/* Update objRects */
+		InvalRange(doc->selStartL, doc->selEndL);					/* Update objRects */
 		doc->changed = TRUE;
 		return TRUE;
 	}
@@ -347,23 +344,23 @@ pitches the same, as described in comments on the Respell function above. Return
 TRUE if we actually change anything, else FALSE. */
 
 Boolean Transpose(
-				Document *doc,
-				Boolean	goUp,					/* TRUE=transpose up, else down */
-				short		octaves,				/* Unsigned no. of octaves transposition */
-				short		steps,				/* Unsigned no. of diatonic steps transposition */
-				short		semiChange,			/*	Unsigned total transposition in semitones */
-				Boolean	slashes 				/* Transpose notes with slash-appearance heads? */
-				)
+			Document *doc,
+			Boolean goUp,				/* TRUE=transpose up, else down */
+			short octaves,				/* Unsigned no. of octaves transposition */
+			short steps,				/* Unsigned no. of diatonic steps transposition */
+			short semiChange,			/*	Unsigned total transposition in semitones */
+			Boolean	slashes 			/* Transpose notes with slash-appearance heads? */
+			)
 {
 	LINK		pL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
 	short		semiChangeOct,							/* Including octave change */
 				v, s,
 				spellingBad, chordSpellingBad, lowMIDINum, hiMIDINum;
-	CONTEXT	context[MAXSTAVES+1];
-	Boolean	changedNotes, changedChords,
+	CONTEXT		context[MAXSTAVES+1];
+	Boolean		changedNotes, changedChords,
 				voiceChanged[MAXVOICES+1];
-	char fmtStr[256];
+	char		fmtStr[256];
 	
 	if (octaves==0 && steps==0 && semiChange==0) return FALSE;
 	
@@ -376,7 +373,7 @@ Boolean Transpose(
 	 */
 	if (steps==0 && semiChange==1)
 		if (FindSelAcc(doc, AC_DBLSHARP)) {
-			GetIndCString(strBuf, PITCHERRS_STRS, 1);			/* "Nightingale can't transpose double-sharps up an augmented unison." */
+			GetIndCString(strBuf, PITCHERRS_STRS, 1);		/* "Nightingale can't transpose double-sharps up an augmented unison." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
 			return FALSE;
@@ -384,8 +381,8 @@ Boolean Transpose(
 
 	GetSelMIDIRange(doc, &lowMIDINum, &hiMIDINum);
 	if (lowMIDINum+semiChangeOct<1
-	||   hiMIDINum+semiChangeOct>127) {							/* 127=MAX_NOTENUM */
-		GetIndCString(strBuf, PITCHERRS_STRS, 2);				/* "Transposing would lead to MIDI note number(s) below 1 or above 127." */
+	||   hiMIDINum+semiChangeOct>127) {						/* 127=MAX_NOTENUM */
+		GetIndCString(strBuf, PITCHERRS_STRS, 2);			/* "Transposing would lead to MIDI note number(s) below 1 or above 127." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		return FALSE;
@@ -463,7 +460,7 @@ Boolean Transpose(
 	}
 
 	if (changedNotes || changedChords) {
-		InvalRange(doc->selStartL, doc->selEndL);							/* Update objRects */
+		InvalRange(doc->selStartL, doc->selEndL);					/* Update objRects */
 		doc->changed = TRUE;
 		return TRUE;
 	}
@@ -487,19 +484,19 @@ accidentals.
 */
 
 Boolean DTranspose(
-				Document *doc,
-				Boolean	goUp,					/* TRUE=transpose up, else down */
-				short		octaves,				/* Unsigned no. of octaves transposition */
-				short		steps,				/* Unsigned no. of diatonic steps transposition */
-				Boolean	slashes 				/* Transpose notes with slash-appearance heads? */
-				)
+			Document *doc,
+			Boolean goUp,				/* TRUE=transpose up, else down */
+			short octaves,				/* Unsigned no. of octaves transposition */
+			short steps,				/* Unsigned no. of diatonic steps transposition */
+			Boolean	slashes 			/* Transpose notes with slash-appearance heads? */
+			)
 {
 	LINK		pL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
 	short		v, s;
 	//short		lowMIDINum, hiMIDINum;
-	CONTEXT	context[MAXSTAVES+1];
-	Boolean	changedNotes, changedChords,
+	CONTEXT		context[MAXSTAVES+1];
+	Boolean		changedNotes, changedChords,
 				voiceChanged[MAXVOICES+1];
 	
 	if (octaves==0 && steps==0) return FALSE;
@@ -583,8 +580,8 @@ This assumes standard CMN accidental-carrying rules including ties across barlin
 If ACC_IN_CONTEXT is FALSE, it should probably do nothing.
 */
 
-Boolean StfDelRedundantAccs(Document *, short, Boolean []);
-Boolean StfDelRedundantAccs(Document *doc, short code, Boolean trStaff[])
+static Boolean StfDelRedundantAccs(Document *, short, Boolean []);
+static Boolean StfDelRedundantAccs(Document *doc, short code, Boolean trStaff[])
 {
 	LINK pL, aNoteL;
 	LINK aGRNoteL;
@@ -614,7 +611,7 @@ Boolean StfDelRedundantAccs(Document *doc, short code, Boolean trStaff[])
 					if (trStaff[GRNoteSTAFF(aGRNoteL)])
 						if (DelGRNoteRedAcc(doc, code, pL, aGRNoteL, syncVChanged))
 							didAnything = TRUE;						
-				/* ArrangeGRSyncAccs(pL, syncVChanged); ??NOT WRITTEN YET */
+				/* ArrangeGRSyncAccs(pL, syncVChanged); FIXME: NOT WRITTEN YET */
 				break;
 		default:
 			;
@@ -623,7 +620,6 @@ Boolean StfDelRedundantAccs(Document *doc, short code, Boolean trStaff[])
 
 	if (didAnything) doc->changed = TRUE;
 	return didAnything;
-
 }
 
 
@@ -637,24 +633,24 @@ comments on the Respell function above. Return TRUE if we actually change anythi
 else FALSE. */
 
 Boolean TransposeKey(
-				Document *doc,
-				Boolean	goUp,					/* TRUE=transpose up, else down */
-				short		octaves,				/* Unsigned no. of octaves transposition */
-				short		steps,				/* Unsigned no. of diatonic steps transposition */
-				short		semiChange,			/*	Unsigned total transposition in semitones */
-				Boolean	trStaff[],			/* Staff nos. to be transposed */
-				Boolean	slashes,				/* Transpose notes with slash-appearance heads? */
-				Boolean	notes,				/* Transpose other (non-slash-appearance) notes? */
-				Boolean	chordSyms 			/* Transpose chord symbols? */
-				)
+			Document *doc,
+			Boolean goUp,				/* TRUE=transpose up, else down */
+			short octaves,				/* Unsigned no. of octaves transposition */
+			short steps,				/* Unsigned no. of diatonic steps transposition */
+			short semiChange,			/*	Unsigned total transposition in semitones */
+			Boolean	trStaff[],			/* Staff nos. to be transposed */
+			Boolean	slashes,			/* Transpose notes with slash-appearance heads? */
+			Boolean	notes,				/* Transpose other (non-slash-appearance) notes? */
+			Boolean	chordSyms 			/* Transpose chord symbols? */
+			)
 {
 	LINK		pL, aKeySigL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
 	short		semiChangeOct,							/* Including octave change */
 				v, s, spaceProp,
 				ksSpellingBad, spellingBad, chordSpellingBad, lowMIDINum, hiMIDINum;
-	CONTEXT	context[MAXSTAVES+1];
-	Boolean	changedKeys, changedNotes, changedChords,
+	CONTEXT		context[MAXSTAVES+1];
+	Boolean		changedKeys, changedNotes, changedChords,
 				voiceChanged[MAXVOICES+1];
 	char		fmtStr[256];
 	
@@ -672,7 +668,7 @@ Boolean TransposeKey(
 		return FALSE;
 	}
 	
-	/* ??Following checking is wrong, since notes are affected even if they're not selected! */
+	/* FIXME: Following checking is wrong, since notes are affected even if they're not selected! */
 	if (steps==0 && semiChange==1)
 		if (FindSelAcc(doc, AC_DBLSHARP)) {
 			GetIndCString(strBuf, PITCHERRS_STRS, 5);    /* "Nightingale can't transpose double-sharps up an augmented unison." */
@@ -700,7 +696,7 @@ Boolean TransposeKey(
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
 			case KEYSIGtype:
-				if (!KeySigINMEAS(pL))								/* Initial keysigs already updated */
+				if (!KeySigINMEAS(pL))							/* Initial keysigs already updated */
 					if (SSearch(pL, MEASUREtype, GO_LEFT))		/* ...except the very first */
 						break;
 				
@@ -832,15 +828,16 @@ Boolean TransposeKey(
 /* Check MIDI noteNums for all notes in the score against the ranges of the
 instruments assigned to their parts. Any out-of-range notes are left selected;
 everything else is deselected. Assumes doc is in the active window.
-??Questions:
+FIXME: Questions:
 1. firstStaff and lastStaff: is index (cf comment in NTypes.h) the staffn?
 2. are the staves numbered consecutively or at least monotonically? */
 
 void CheckRange(Document *doc)
 {
 	LINK pL, partL, aNoteL; PPARTINFO pPart; PANOTE aNote;
-	short firstStaff, lastStaff, hiKeyNum, loKeyNum;
-	Boolean noteFound=FALSE;
+	short firstStaff, lastStaff, hiKeyNum, loKeyNum, nOutOfRange;
+	short transposition, writtenNoteNum;
+	Boolean problemFound=FALSE;
 	
 	DeselAll(doc);
 	partL = FirstSubLINK(doc->headL);
@@ -850,23 +847,27 @@ void CheckRange(Document *doc)
 		lastStaff = pPart->lastStaff;
 		hiKeyNum = pPart->hiKeyNum;
 		loKeyNum = pPart->loKeyNum;
+		transposition = pPart->transpose;
 		for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
 			if (SyncTYPE(pL))
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
 					if (NoteSTAFF(aNoteL)>=firstStaff && NoteSTAFF(aNoteL)<=lastStaff
 					&&	!NoteREST(aNoteL)) {
 						aNote = GetPANOTE(aNoteL);
-						if (aNote->noteNum>hiKeyNum || aNote->noteNum<loKeyNum) {
+						/* hiKeyNum and loKeyNumIf are written pitches, but if the score
+							isn't transposed, it contains sounding pitches; convert. */
+						writtenNoteNum = aNote->noteNum;
+						if (!doc->transposed) writtenNoteNum -= transposition;
+						if (writtenNoteNum>hiKeyNum || writtenNoteNum<loKeyNum) {
 							LinkSEL(pL) = TRUE;
 							NoteSEL(aNoteL) = TRUE;
-							noteFound = TRUE;
+							problemFound = TRUE;
 						}
 					}
 		}
 	}
 
-	if (noteFound) {
-
+	if (problemFound) {
 		doc->selStartL = doc->selEndL = NILINK;
 		for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL))
 			if (LinkSEL(pL) && !doc->selStartL)

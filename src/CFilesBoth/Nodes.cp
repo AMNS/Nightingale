@@ -1,13 +1,11 @@
 /* Nodes.c for Nightingale */
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- *	THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROPERTY OF
- *	ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE SECRET AND IS
- *	NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED WRITTEN
- *	AUTHORIZATION FROM THE OWNER.
- *
- *	Copyright © 1989-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  *
  *	Routines in this file implement various mid-level Nightingale generic object methods.
  *	"Nodes" are objects, often with sub-object lists attached, that are doubly-linked
@@ -17,7 +15,7 @@
  *
  *  NOTE: Appearances to the contrary notwithstanding (i.e., the presence of <doc>
  *	parameters), most if not all of these functions assume the correct document's
- *	heaps are installed. Caveat!
+ *	heaps are already installed. Caveat!
  */
 
 #include "Nightingale_Prefix.pch"
@@ -213,9 +211,9 @@ void InitNode(short type, LINK subList)
 			case GRAPHICtype:
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case ENDINGtype:
 			default:
 				break;
@@ -512,10 +510,10 @@ LINK NewNode(Document *doc, short type, short subCount)
 						break;
 					case GRAPHICtype:
 					case TEMPOtype:
-					case SPACEtype:
+					case SPACERtype:
 					case BEAMSETtype:
 					case TUPLETtype:
-					case OCTAVAtype:
+					case OTTAVAtype:
 					case ENDINGtype:
 						break;
 					default:

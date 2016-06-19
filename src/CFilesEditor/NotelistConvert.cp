@@ -1,20 +1,19 @@
 /***************************************************************************
 *	FILE:	NotelistConvert.c
-*	PROJ:	Nightingale, rev. for v.2000
+*	PROJ:	Nightingale,
 *	DESC:	Routines for creating a native Nightingale file from a temporary
 *			data structure representing a Nightingale Notelist file.
 *			Written by John Gibson with help from Tim Crawford.
 ***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1986-2002 by Adept Music Notation Solutions, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
+ 
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -26,11 +25,11 @@
 
 /* Constants */
 
-/* Default qtr-space position relative to staff top of text, lyrics,	tempo marks and dynamics. */
+/* Default qtr-space position relative to staff top of text, lyrics, tempo marks and dynamics. */
 #define DFLT_TEMPO_HEIGHT		-24
 #define DFLT_LYRIC_HEIGHT		28
 #define DFLT_TEXT_HEIGHT		-10
-#define DFLT_DYNAMIC_HEIGHT	32
+#define DFLT_DYNAMIC_HEIGHT		32
 
 /* Default DDIST position of page-rel graphics, relative to origin (top,left) of page. */
 #define DFLT_PGRELGR_XD			250
@@ -264,8 +263,8 @@ static Boolean NotelistToNight(Document *doc)
 	short			v;
 	long			spacePercent;
 	LINK			firstMeasL, pL;
-	Boolean		ok, result, doReformat;
-	PNL_GENERIC	pG;
+	Boolean			ok, result, doReformat;
+	PNL_GENERIC		pG;
 	NLINK			itemL;
 	char			fmtStr[256];
 	short			shortestDurCode;
@@ -367,7 +366,7 @@ static Boolean NotelistToNight(Document *doc)
 	if (shortestDurCode==EIGHTH_L_DUR) spacePercent = 85L;
 	else if (shortestDurCode<EIGHTH_L_DUR && shortestDurCode!=UNKNOWN_L_DUR) spacePercent = 70L;
 #ifndef PUBLIC_VERSION
-	DebugPrintf("shortestDurCode=%d spacePercent=%ld\n", shortestDurCode, spacePercent);
+	LogPrintf(LOG_NOTICE, "shortestDurCode=%d spacePercent=%ld\n", shortestDurCode, spacePercent);
 #endif
 	doc->spacePercent = spacePercent;
 	ok = RespaceBars(doc, firstMeasL, doc->tailL, RESFACTOR*spacePercent, FALSE, doReformat=TRUE);

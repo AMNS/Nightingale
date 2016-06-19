@@ -162,7 +162,7 @@
 #define PAGENUM_DLOG 735
 #define HEADERFOOTER_DLOG 736
 #define FANCYTUPLET_DLOG 741
-#define OCTAVA_DLOG 745
+#define OTTAVA_DLOG 745
 #define MULTIVOICE_DLOG 750
 #define SETDUR_DLOG 761
 #define SETDYN_DLOG 762
@@ -391,7 +391,7 @@ enum {							/* Groups menu */
     GM_Tuplet,
     GM_FancyTuplet,
     GM_______________2,
-    GM_Octava
+    GM_Ottava
 };
 
 enum {							/* View menu */

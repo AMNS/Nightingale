@@ -1,32 +1,29 @@
 /***************************************************************************
-*	FILE:	Select.c																				*
-*	PROJ:	Nightingale, rev. for v.3.5													*
-*	DESC:	Selection-related routines.													*
+*	FILE:	Select.c
+*	PROJ:	Nightingale
+*	DESC:	Selection-related routines.
 		
-	DeselectSTAFF			DeselectCONNECT		SetDefaultSelection
-	DeselAll					DeselRange
-	DeselAllNoHilite		DeselRangeNoHilite	DoOpenSymbol
+	DeselectSTAFF			DeselectCONNECT			SetDefaultSelection
+	DeselAll				DeselRange
+	DeselAllNoHilite		DeselRangeNoHilite		DoOpenSymbol
 	DoAccumSelect			DoExtendSelect			DoPageSelect
 	SetInsPoint				DeselVoice				DoSelect
 	SelectAll				SelAllNoHilite			DeselectNode
 	SelAllSubObjs			SelectObject			SelectRange
-	ExtendSelection		ObjTypeSel
+	ExtendSelection			ObjTypeSel
 	BoundSelRange			GetOptSelEnds			CountSelection
-	ChordSetSel				ExtendSelChords		ChordHomoSel
-	ContinSelection		OptimizeSelection		UpdateSelection	
+	ChordSetSel				ExtendSelChords			ChordHomoSel
+	ContinSelection			OptimizeSelection		UpdateSelection	
 	GetStfSelRange			GetVSelRange			GetNoteSelRange
 	BFSelClearable			XLoadSelectSeg
 /***************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1992-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -591,10 +588,10 @@ void DeselectNode(LINK pL)
 		/* These types either have no subobjects, or the subobjects can't be selected */
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case GRAPHICtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			break;
 			
@@ -611,7 +608,7 @@ void DeselectNode(LINK pL)
 user-interface assumptions. Doesn't select the object itself; for that, call
 SelectObject instead.
 
-??Problem: tuplets and octavas should be handled the same way as beamsets, which
+??Problem: tuplets and ottavas should be handled the same way as beamsets, which
 currently leave the data structure in an  inconsistent state: the code will select
 the sync object without selecting any of its subobjects, and without choosing the
 correct subobject to select. */
@@ -660,11 +657,11 @@ void SelAllSubObjs(LINK pL)
 			}
 			break;
 		case BEAMSETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case TUPLETtype:
 		case GRAPHICtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			break;
 		default:
@@ -727,9 +724,9 @@ void SelectRange(Document *doc, LINK startL, LINK endL, short firstStf, short la
 				break;
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case ENDINGtype:
-			case SPACEtype:
+			case SPACERtype:
 			case GRAPHICtype:
 			case TEMPOtype:
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf)
@@ -1047,8 +1044,8 @@ static Boolean OldContinSel(Document *doc, Boolean strict)
 			case GRAPHICtype:
 				if (strict) stStatus[GraphicSTAFF(pL)] = LinkSEL(pL);
 				break;
-			case OCTAVAtype:
-				if (strict) stStatus[OctavaSTAFF(pL)] = LinkSEL(pL);
+			case OTTAVAtype:
+				if (strict) stStatus[OttavaSTAFF(pL)] = LinkSEL(pL);
 				break;
 			case SLURtype:
 				if (strict) stStatus[SlurSTAFF(pL)] = LinkSEL(pL);
@@ -1062,8 +1059,8 @@ static Boolean OldContinSel(Document *doc, Boolean strict)
 			case ENDINGtype:
 				if (strict) stStatus[EndingSTAFF(pL)] = LinkSEL(pL);
 				break;
-			case SPACEtype:
-				stStatus[SpaceSTAFF(pL)] = LinkSEL(pL);
+			case SPACERtype:
+				stStatus[SpacerSTAFF(pL)] = LinkSEL(pL);
 				break;
 			/*
 			 *	Treat Measures specially. It is possible for a wipe selection, in a part
@@ -1340,7 +1337,7 @@ void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 			case BEAMSETtype:
 			case TUPLETtype:
 			case SLURtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 				p = GetPMEVENT(pL);
 				if (((PEXTEND)p)->staffn==staff)
 					SetSelEnds(pL,startL,endL);
@@ -1353,8 +1350,8 @@ void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 				if (TempoSTAFF(pL)==staff)
 					SetSelEnds(pL,startL,endL);
 				break;
-			case SPACEtype:
-				if (SpaceSTAFF(pL)==staff)
+			case SPACERtype:
+				if (SpacerSTAFF(pL)==staff)
 					SetSelEnds(pL,startL,endL);
 				break;
 			case ENDINGtype:

@@ -1,23 +1,21 @@
 /***************************************************************************
 *	FILE:	Dialogs.c
-*	PROJ:	Nightingale, rev. for v.99
+*	PROJ:	Nightingale
 *	DESC:	Dialog-handling routines for miscellaneous dialogs
 ***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /*
 	LeftEndDialog & friends
 	SpaceDialog					TremSlashesDialog			EndingDialog
-	MeasNumDialog				PageNumDialog				OctavaDialog
+	MeasNumDialog				PageNumDialog				OttavaDialog
 	TupletDialog & friends		SetDurDialog & friends		TempoDialog & friends
 	SetMBRestDialog
 	DrawSampStaff				RLarger/RSmallerStaff		RHandleKeyDown
@@ -37,7 +35,7 @@ static void DrawSampStaff(void);
 static pascal Boolean LeftEndFilter(DialogPtr, EventRecord *, short *);
 static Boolean LeftEndBadValues(Document *, short, short);
 
-static Boolean GetOctavaAlta(Document *, short);
+static Boolean GetOttavaAlta(Document *, short);
 static void RLargerStaff(void);
 static void RSmallerStaff(void);
 static Boolean RHandleKeyDown(EventRecord *);
@@ -57,7 +55,7 @@ static void TrackArrow(Rect *, TrackArrowFunc func);
 /* --------------------------------- Declarations for simple "set number" Dialogs -- */
 
 #define NUMBER_DI 	3				/* DITL index of number to be adjusted */
-#define UpRect_DI		5				/* DITL index of up button rect */
+#define UpRect_DI	5				/* DITL index of up button rect */
 #define DownRect_DI	6				/* DITL index of down button rect */
 
 extern short minVal, maxVal;
@@ -69,7 +67,7 @@ extern short minVal, maxVal;
 Rect firstRect, otherRect;
 
 static pascal Boolean LeftEndFilter(DialogPtr theDialog, EventRecord *theEvent,
-												short *item)
+										short *item)
 {
 	switch (theEvent->what) {
 		case updateEvt:
@@ -78,7 +76,7 @@ static pascal Boolean LeftEndFilter(DialogPtr theDialog, EventRecord *theEvent,
 			FrameRect(&firstRect);
 			FrameRect(&otherRect);
 			UpdateDialogVisRgn(theDialog);
-			FrameDefault(theDialog,OK,TRUE);
+			FrameDefault(theDialog, OK, TRUE);
 			EndUpdate(GetDialogWindow(theDialog));
 			*item = 0;
 			return TRUE;
@@ -92,7 +90,7 @@ static pascal Boolean LeftEndFilter(DialogPtr theDialog, EventRecord *theEvent,
 }
 
 static Boolean LeftEndBadValues(Document *doc,
-						short newFirstDist, short newOtherDist)	/* in points */
+					short newFirstDist, short newOtherDist)	/* in points */
 {
 	DDIST sysWidth;
 
@@ -176,16 +174,16 @@ Boolean LeftEndDialog(short *pFirstNames,
 	/* Get the background panel rectangles, as defined by some user items, and
 		get them out of the way so they don't hide any items underneath */
 	
-	GetDialogItem(dlog,USER5,&type,&hndl,&firstRect);
-	GetDialogItem(dlog,USER16,&type,&hndl,&otherRect);		
+	GetDialogItem(dlog, USER5, &type, &hndl, &firstRect);
+	GetDialogItem(dlog, USER16, &type, &hndl, &otherRect);		
 	HideDialogItem(dlog,USER5);
 	HideDialogItem(dlog,USER16);
 
 	/* Set up radio button group, needed and actual indents for "First system". */
 	
-	if (*pFirstNames==NONAMES)				group1 = NONE_FIRST_DI;
+	if (*pFirstNames==NONAMES)			group1 = NONE_FIRST_DI;
 	else if (*pFirstNames==ABBREVNAMES) group1 = ABBREVNAMES_FIRST_DI;
-	else											group1 = FULLNAMES_FIRST_DI;
+	else								group1 = FULLNAMES_FIRST_DI;
 	PutDlgChkRadio(dlog, group1, TRUE);
 
 	inchNFDist = PartNameMargin(doc, *pFirstNames);
@@ -197,13 +195,13 @@ Boolean LeftEndDialog(short *pFirstNames,
 
 	/* Set up radio button group, needed and actual indents for "Other systems". */
 	
-	if (*pOtherNames==NONAMES)				group2 = NONE_OTHER_DI;
+	if (*pOtherNames==NONAMES)			group2 = NONE_OTHER_DI;
 	else if (*pOtherNames==ABBREVNAMES) group2 = ABBREVNAMES_OTHER_DI;
-	else											group2 = FULLNAMES_OTHER_DI;
+	else								group2 = FULLNAMES_OTHER_DI;
 	PutDlgChkRadio(dlog, group2, TRUE);
 
 	inchNODist = PartNameMargin(doc, *pOtherNames);
-	PutDlgDouble(dlog,NEED_OTHER_DI,inchNODist,FALSE);
+	PutDlgDouble(dlog, NEED_OTHER_DI, inchNODist, FALSE);
 	
 	inchDODist = pt2in(*pOtherDist);
 	inchDODist = RoundDouble(inchDODist, .01);
@@ -242,9 +240,9 @@ Boolean LeftEndDialog(short *pFirstNames,
 			case NONE_FIRST_DI:
 				if (ditem!=group1) {
 					SwitchRadio(dlog, &group1, ditem);
-					if (group1==NONE_FIRST_DI)					nameCode = NONAMES;
-					else if (group1==ABBREVNAMES_FIRST_DI) nameCode = ABBREVNAMES;
-					else												nameCode = FULLNAMES;
+					if (group1==NONE_FIRST_DI)				nameCode = NONAMES;
+					else if (group1==ABBREVNAMES_FIRST_DI)	nameCode = ABBREVNAMES;
+					else									nameCode = FULLNAMES;
 					inchTemp = PartNameMargin(doc, nameCode);
 					PutDlgDouble(dlog,NEED_FIRST_DI,inchTemp,FALSE);
 				}
@@ -254,9 +252,9 @@ Boolean LeftEndDialog(short *pFirstNames,
 			case NONE_OTHER_DI:
 				if (ditem!=group2) {
 					SwitchRadio(dlog, &group2, ditem);
-					if (group2==NONE_OTHER_DI)					nameCode = NONAMES;
-					else if (group2==ABBREVNAMES_OTHER_DI) nameCode = ABBREVNAMES;
-					else												nameCode = FULLNAMES;
+					if (group2==NONE_OTHER_DI)				nameCode = NONAMES;
+					else if (group2==ABBREVNAMES_OTHER_DI)	nameCode = ABBREVNAMES;
+					else									nameCode = FULLNAMES;
 					inchTemp = PartNameMargin(doc, nameCode);
 					PutDlgDouble(dlog,NEED_OTHER_DI,inchTemp,FALSE);
 				}
@@ -267,16 +265,16 @@ Boolean LeftEndDialog(short *pFirstNames,
 	}
 	
 	if (dialogOver==OK) {
-		if (group1==NONE_FIRST_DI)					*pFirstNames = NONAMES;
-		else if (group1==ABBREVNAMES_FIRST_DI) *pFirstNames = ABBREVNAMES;
-		else												*pFirstNames = FULLNAMES;
-		if (GetDlgDouble(dlog,DIST_FIRST_DI,&inchTemp))
+		if (group1==NONE_FIRST_DI)				*pFirstNames = NONAMES;
+		else if (group1==ABBREVNAMES_FIRST_DI)	*pFirstNames = ABBREVNAMES;
+		else									*pFirstNames = FULLNAMES;
+		if (GetDlgDouble(dlog, DIST_FIRST_DI, &inchTemp))
 			*pFirstDist = in2pt(inchTemp)+.5;
 
-		if (group2==NONE_OTHER_DI)					*pOtherNames = NONAMES;
-		else if (group2==ABBREVNAMES_OTHER_DI) *pOtherNames = ABBREVNAMES;
-		else												*pOtherNames = FULLNAMES;
-		if (GetDlgDouble(dlog,DIST_OTHER_DI,&inchTemp))
+		if (group2==NONE_OTHER_DI)				*pOtherNames = NONAMES;
+		else if (group2==ABBREVNAMES_OTHER_DI)	*pOtherNames = ABBREVNAMES;
+		else									*pOtherNames = FULLNAMES;
+		if (GetDlgDouble(dlog, DIST_OTHER_DI, &inchTemp))
 			*pOtherDist = in2pt(inchTemp)+.5;
 	}
 	
@@ -299,17 +297,17 @@ minPercent!=maxPercent or either is below MINSPACE or above MAXSPACE.*/
 #define Range_DI 10
 
 short SpaceDialog(
-		short	dlogID,								/* ID of DLOG resource to use */
-		short	minPercent,							/* Minimum percentage in score range now */
-		short	maxPercent 							/* Maximum percentage in score range now */
+		short	dlogID,						/* ID of DLOG resource to use */
+		short	minPercent,					/* Minimum percentage in score range now */
+		short	maxPercent 					/* Maximum percentage in score range now */
 		)
 {	
-	short			ditem, newspace, itype, showPercent;
-	Rect			tRect;
+	short		ditem, newspace, itype, showPercent;
+	Rect		tRect;
 	Handle		tHdl;
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	char			fmtStr[256];
+	char		fmtStr[256];
 
 	newspace = CANCEL_INT;
 	
@@ -382,9 +380,9 @@ result, or CANCEL_INT for Cancel. */
 short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 {
 	DialogPtr	dlog;
-	short			ditem, nslashes;
+	short		ditem, nslashes;
 	GrafPtr		oldPort;
-	char			fmtStr[256];
+	char		fmtStr[256];
 #ifdef Nightmare95
 	ModalFilterUPP filterUPP;
 	
@@ -517,9 +515,10 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 {
 	static Boolean firstCall = TRUE;
 	DialogPtr	dlog;
-	short			ditem, number, group1, n, strOffset;
+	short		ditem, number, group1, n, strOffset;
 	GrafPtr		oldPort;
-	char			fmtStr[256], numStr[MAX_ENDING_STRLEN];
+	char		fmtStr[256], numStr[MAX_ENDING_STRLEN];
+
 	number = CANCEL_INT;
 	
 	GetPort(&oldPort);
@@ -559,9 +558,9 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 		ChangePopUpChoice(&endingPopup, initNumber+1);
 		hilitedItem = FALSE;
 
-		if (initCutoffs==1)		 group1 = CLOSED_OPEN_DI;
-		else if (initCutoffs==2) group1 = OPEN_CLOSED_DI;
-		else							 group1 = CLOSED_CLOSED_DI;
+		if (initCutoffs==1)			group1 = CLOSED_OPEN_DI;
+		else if (initCutoffs==2)	group1 = OPEN_CLOSED_DI;
+		else						group1 = CLOSED_CLOSED_DI;
 		PutDlgChkRadio(dlog, group1, TRUE);
 
 		ShowWindow(GetDialogWindow(dlog));
@@ -634,9 +633,9 @@ static enum
 Boolean MeasNumDialog(Document *doc)
 {	
 	DialogPtr	dlog;
-	short			ditem, group1, group2, group3, dialogOver;
+	short		ditem, group1, group2, group3, dialogOver;
 	GrafPtr		oldPort;
-	short			numberMeas, xOffset, xSysOffset, yOffset, firstNumber;
+	short		numberMeas, xOffset, xSysOffset, yOffset, firstNumber;
 	Boolean		above, sysFirst, startPrint1;
 	ModalFilterUPP	filterUPP;
 
@@ -667,15 +666,15 @@ Boolean MeasNumDialog(Document *doc)
 	
 	/* Set up radio button groups */
 	
-	if (numberMeas>0)			group1 = EVERYN_DI;								/* First group */
+	if (numberMeas>0)		group1 = EVERYN_DI;							/* First group */
 	else if (numberMeas<0)	group1 = EVERYSYS_DI;
-	else							group1 = NONE_DI;
+	else					group1 = NONE_DI;
 	PutDlgChkRadio(dlog, group1, TRUE);
 		
-	group2 = (above? ABOVE_DI : BELOW_DI);										/* Second group */	
+	group2 = (above? ABOVE_DI : BELOW_DI);								/* Second group */	
 	PutDlgChkRadio(dlog, group2, TRUE);
 	
-	group3 = (startPrint1? STARTPRINT1_DI : STARTPRINT2_DI);				/* Third group */	
+	group3 = (startPrint1? STARTPRINT1_DI : STARTPRINT2_DI);			/* Third group */	
 	PutDlgChkRadio(dlog, group3, TRUE);
 	
 	PutDlgWord(dlog,NMEAS_DI, numberMeas>0 ? numberMeas : 1, FALSE);
@@ -692,10 +691,8 @@ Boolean MeasNumDialog(Document *doc)
 	minVal = 0;
 	maxVal = 100;
 	dialogOver = 0;
-	while (dialogOver==0)
-	{
-		do
-		{
+	while (dialogOver==0) {
+		do {
 			ModalDialog(filterUPP, &ditem);
 			switch (ditem) {
 				case OK:
@@ -704,7 +701,7 @@ Boolean MeasNumDialog(Document *doc)
 					else if (GetDlgChkRadio(dlog,EVERYSYS_DI))
 						numberMeas = -1;
 					else if (!GetDlgWord(dlog,NMEAS_DI,&numberMeas)
-											|| (numberMeas<1 || numberMeas>100)) {
+								|| (numberMeas<1 || numberMeas>100)) {
 							GetIndCString(strBuf, DIALOGERRS_STRS, 6);		/* "Measure numbering interval..." */
 							CParamText(strBuf, "", "", "");
 							StopInform(GENERIC_ALRT);
@@ -802,12 +799,12 @@ static enum
 
 Boolean PageNumDialog(Document *doc)
 {
-	DialogPtr	dlog;
+	DialogPtr		dlog;
 	short			showGroup, oldShowGroup,
 					vPosGroup, oldVPosGroup,
 					hPosGroup, oldHPosGroup,
 					ditem, dialogOver;
-	GrafPtr		oldPort;
+	GrafPtr			oldPort;
 	short			firstNumber, alternate;
 	ModalFilterUPP	filterUPP;
 
@@ -831,9 +828,9 @@ Boolean PageNumDialog(Document *doc)
 	 *	value of doc->startPageNumber, we just distinguish 3 relationships between
 	 *	it and doc->firstPageNumber.
 	 */
-	if		  (doc->firstPageNumber>=doc->startPageNumber)	 showGroup = PNEVERY_DI;
-	else if (doc->firstPageNumber+1==doc->startPageNumber) showGroup = PNEVERYBUT_DI;
-	else																	 showGroup = PNNONE_DI;
+	if		(doc->firstPageNumber>=doc->startPageNumber)	showGroup = PNEVERY_DI;
+	else if (doc->firstPageNumber+1==doc->startPageNumber)	showGroup = PNEVERYBUT_DI;
+	else													showGroup = PNNONE_DI;
 	PutDlgChkRadio(dlog, showGroup, TRUE);
 	oldShowGroup = showGroup;
 	
@@ -859,10 +856,8 @@ Boolean PageNumDialog(Document *doc)
 	ArrowCursor();
 
 	dialogOver = 0;
-	while (dialogOver==0)
-	{
-		do
-		{
+	while (dialogOver==0) {
+		do {
 			ModalDialog(filterUPP, &ditem);
 			switch (ditem) {
 				case OK:
@@ -883,14 +878,14 @@ Boolean PageNumDialog(Document *doc)
 
 						doc->topPGN = (vPosGroup==TOP_DI);
 
-						if (hPosGroup==LEFT_DI)			 doc->hPosPGN = LEFT_SIDE;
-						else if (hPosGroup==CENTER_DI) doc->hPosPGN = CENTER;
-						else									 doc->hPosPGN = RIGHT_SIDE;
+						if (hPosGroup==LEFT_DI)			doc->hPosPGN = LEFT_SIDE;
+						else if (hPosGroup==CENTER_DI)	doc->hPosPGN = CENTER;
+						else							doc->hPosPGN = RIGHT_SIDE;
 						
 						doc->alternatePGN = GetDlgChkRadio(dlog,ALTERNATE_DI);
 
 						doc->changed = TRUE;
-					}																		/* drop thru... */
+					}													/* drop thru... */
 				case Cancel:
 					dialogOver = ditem;
 					break;
@@ -930,7 +925,7 @@ Boolean PageNumDialog(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------- OctavaDialog -- */
+/* ----------------------------------------------------------------- OttavaDialog -- */
 
 static enum 
 {
@@ -940,13 +935,13 @@ static enum
 	OCT8vaBassa_DI,
 	OCT15maBassa_DI,
 	OCT22maBassa_DI
-} E_OctavaItems;
+} E_OttavaItems;
 
-/* Determine whether to initialize the octava dialog with OCT8va or
+/* Determine whether to initialize the ottava dialog with OCT8va or
 OCT8vaBassa. Returns true if the average position of all notes on <selStf>
 in the selection range is above the staffTop. */
 
-Boolean GetOctavaAlta(Document *doc, short selStf)
+Boolean GetOttavaAlta(Document *doc, short selStf)
 {
 	LINK pL, aNoteL;
 	PANOTE	aNote;
@@ -968,10 +963,10 @@ Boolean GetOctavaAlta(Document *doc, short selStf)
 	return (yd <= 0);
 }
 
-/* Dialog to get Octava type.  Returns FALSE for Cancel, TRUE for OK; also return in
+/* Dialog to get Ottava type.  Returns FALSE for Cancel, TRUE for OK; also return in
 a parameter the type of octave sign. */
 
-Boolean OctavaDialog(Document *doc, Byte *octSignType)
+Boolean OttavaDialog(Document *doc, Byte *octSignType)
 {	
 	DialogPtr	dlog;
 	short			ditem, radio, selStf;
@@ -981,16 +976,16 @@ Boolean OctavaDialog(Document *doc, Byte *octSignType)
 
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
-		MissingDialog(OCTAVA_DLOG);
+		MissingDialog(OTTAVA_DLOG);
 		return FALSE;
 	}
 	
 	GetPort(&oldPort);
-	dlog = GetNewDialog(OCTAVA_DLOG, NULL, BRING_TO_FRONT);
+	dlog = GetNewDialog(OTTAVA_DLOG, NULL, BRING_TO_FRONT);
 	if (dlog) {
 		SetPort(GetDialogWindowPort(dlog));
 		selStf = GetSelectionStaff(doc);
-		alta = (selStf == NOONE) ? TRUE : GetOctavaAlta(doc, selStf);
+		alta = (selStf == NOONE) ? TRUE : GetOttavaAlta(doc, selStf);
 		radio = alta ? OCT8va_DI : OCT8vaBassa_DI;
 		PutDlgChkRadio(dlog,radio,TRUE);
 	
@@ -1012,7 +1007,7 @@ Boolean OctavaDialog(Document *doc, Byte *octSignType)
 		}
 	else {
 		DisposeModalFilterUPP(filterUPP);
-		MissingDialog(OCTAVA_DLOG);
+		MissingDialog(OTTAVA_DLOG);
 		ditem = Cancel;
 		}
 	
@@ -1134,16 +1129,16 @@ static enum	{
 	TDUMMY_ITEM
 } E_TupletDlgItems;
 
-#define BREVE_DUR			3840
-#define WHOLE_DUR			1920
-#define HALF_DUR			960
+#define BREVE_DUR		3840
+#define WHOLE_DUR		1920
+#define HALF_DUR		960
 #define QUARTER_DUR		480
 #define EIGHTH_DUR		240
 #define SIXTEENTH_DUR	120
 #define THIRTY2ND_DUR	60
-#define SIXTY4TH_DUR		30
+#define SIXTY4TH_DUR	30
 #define ONE28TH_DUR		15
-#define NO_DUR				0
+#define NO_DUR			0
 
 short tupleDur;						/* Used to index duration strings. */
 short tupleDenomItem;
@@ -1160,13 +1155,13 @@ static void DrawTupletItems(DialogPtr, short);
 static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	WindowPtr		w;
-	short				ch, field, ans;
-	Point				where;
+	short			ch, field, ans;
+	Point			where;
 	GrafPtr			oldPort;
-	short				anInt;
+	short			anInt;
 	Handle			aHdl;
-	Rect				tdRect;
-	Boolean denomItemVisible;
+	Rect			tdRect;
+	Boolean			denomItemVisible;
 	
 	w = (WindowPtr)(evt->message);
 	switch (evt->what) {
@@ -1238,10 +1233,10 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 
 static void DrawTupletItems(DialogPtr dlog, short /*ditem*/)
 {
-	short			xp, yp, itype, nchars, tupleLen, xColon;
-	short			oldTxFont, oldTxSize, tupleWidth;
+	short		xp, yp, itype, nchars, tupleLen, xColon;
+	short		oldTxFont, oldTxSize, tupleWidth;
 	Handle		tHdl;
-	Rect			userRect;
+	Rect		userRect;
 	unsigned	char tupleStr[30],denomStr[20];
 	DPoint		firstPt, lastPt;
 	Document 	*doc=GetDocumentFromWindow(TopDocument);
@@ -1256,7 +1251,7 @@ static void DrawTupletItems(DialogPtr dlog, short /*ditem*/)
 	if (numVis) {
 		oldTxFont = GetPortTxFont();
 		oldTxSize = GetPortTxSize();
-		TextFont(sonataFontNum);						/* Set to Sonata font */
+		TextFont(sonataFontNum);					/* Set to Sonata font */
 		TextSize(Staff2MFontSize(drSize[1]));		/* Nice and big for readability */	
 
 		NumToSonataStr((long)accNum, tupleStr);
@@ -1313,12 +1308,12 @@ Boolean TupletDialog(
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	short			ditem, type, i, logDenom, tempNum, maxChange, evenNum, radio;
-	short			oldResFile;
-	short			choice, newLDur, oldLDur, deltaLDur;
-	Rect			staffRect;
+	short		ditem, type, i, logDenom, tempNum, maxChange, evenNum, radio;
+	short		oldResFile;
+	short		choice, newLDur, oldLDur, deltaLDur;
+	Rect		staffRect;
 	Handle		tHdl, hndl;
-	Rect			box;
+	Rect		box;
 	ModalFilterUPP filterUPP;
 		
 	filterUPP = NewModalFilterUPP(TupleFilter);
@@ -1402,7 +1397,6 @@ Boolean TupletDialog(
 	PutDlgWord(dlog,TUPLE_NUM,accNum,FALSE);
 	PutDlgWord(dlog,tupleDenomItem,accDenom,tupletNew);
 
-
 	/* logDenom is the log2 of the accessory denominator; (tupleDur-logDenom+1) is the max.
 	 *	duration at which the denominator is at least 2. evenNum is the number of times the
 	 * numerator can be divided by 2 exactly. The minimum of these two can be subtracted
@@ -1417,9 +1411,9 @@ Boolean TupletDialog(
 	GetDialogItem(dlog, SAMPLE_ITEM, &type, &tHdl, &staffRect);
 	/* Sample is a user Item */
 
-	if (denomVis)	  radio = BOTH_VIS;
+	if (denomVis) radio = BOTH_VIS;
 	else if (numVis) radio = NUM_VIS;
-	else				  radio = NEITHER_VIS;
+	else radio = NEITHER_VIS;
 	PutDlgChkRadio(dlog,BOTH_VIS,radio==BOTH_VIS);
 	PutDlgChkRadio(dlog,NUM_VIS,radio==NUM_VIS);
 	PutDlgChkRadio(dlog,NEITHER_VIS,radio==NEITHER_VIS);
@@ -1519,6 +1513,7 @@ broken:
 static Boolean IsSelInTuplet(Document *doc);
 static Boolean IsSelInTupletNotTotallySel(Document *doc);
 static Boolean SDAnyBadValues(Document *, DialogPtr, Boolean, short, short, short);
+static pascal Boolean SetDurFilter(DialogPtr, EventRecord *, short *);
 
 static enum
 {
@@ -1552,8 +1547,8 @@ static Boolean IsSelInTuplet(Document *doc)
 }
 
 
-/* Return TRUE if any selected notes (or rests) are in a tuplet, but not
-	all the notes of the tuplet are selected. */
+/* Return TRUE if any selected notes (or rests) are in a tuplet, but not all the
+	notes of the tuplet are selected. */
 
 static Boolean IsSelInTupletNotTotallySel(Document *doc)
 {
@@ -1589,7 +1584,7 @@ static Boolean IsSelInTupletNotTotallySel(Document *doc)
 
 
 static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
-										short newLDurAction, short /*newnDots*/, short newpDurPct)
+								short newLDurAction, short /*newnDots*/, short newpDurPct)
 {	
 	if (newpDurPct<1 || newpDurPct>500) {
 		GetIndCString(strBuf, DIALOGERRS_STRS, 13);				/* "Play duration percent must be..." */
@@ -1622,13 +1617,12 @@ static Boolean SDAnyBadValues(Document *doc, DialogPtr dlog, Boolean newSetLDur,
 }
 
 
-static pascal Boolean SetDurFilter(DialogPtr, EventRecord *, short *);
 static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
-	WindowPtr		w;
-	short				ch, field, ans;
-	Point				where;
-	GrafPtr			oldPort;
+	WindowPtr	w;
+	short		ch, field, ans;
+	Point		where;
+	GrafPtr		oldPort;
 	
 	w = (WindowPtr)(evt->message);
 	switch (evt->what) {
@@ -1685,8 +1679,8 @@ static pascal Boolean SetDurFilter(DialogPtr dlog, EventRecord *evt, short *item
 					HiliteGPopUp(curPop, TRUE);
 					if (setDurGroup!=SETDURSTO_DI)
 						SwitchRadio(dlog, &setDurGroup, SETDURSTO_DI);
-					return TRUE;							/* so no chars get through to DUMMYFLD_DI edit field */
-				}												/* NB: however, DlgCmdKey will let you paste into DUMMYFLD_DI! */
+					return TRUE;					/* so no chars get through to DUMMYFLD_DI edit field */
+				}									/* NB: however, DlgCmdKey will let you paste into DUMMYFLD_DI! */
 			}
 			break;
 	}
@@ -1715,24 +1709,24 @@ static void XableLDurPanel(DialogPtr dlog, Boolean enable)
 
 Boolean SetDurDialog(
 				Document *doc,
-				Boolean *setLDur,				/* Set "notated" (logical) durations? */
+				Boolean *setLDur,			/* Set "notated" (logical) durations? */
 				short *lDurAction,			/* HALVE_DURS, DOUBLE_DURS, or SET_DURS_TO */
 				short *lDur, short *nDots,
-				Boolean *setPDur,				/* Set play durations? */
+				Boolean *setPDur,			/* Set play durations? */
 				short *pDurPct,
-				Boolean *cptV,					/* Compact Voices afterwards? */
-				Boolean *doUnbeam				/* Unbeam selection first? */
+				Boolean *cptV,				/* Compact Voices afterwards? */
+				Boolean *doUnbeam			/* Unbeam selection first? */
 				)	
 {
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
-	short				newnDots, newSetLDur,
-						oldResFile, newLDur, choice;
-	short				ditem=0;
-	short				type, newpDurPct;
+	short			newnDots, newSetLDur,
+					oldResFile, newLDur, choice;
+	short			ditem=0;
+	short			type, newpDurPct;
 	Handle			hndl;
 	POPKEY			*pk;
-	Rect				box;
+	Rect			box;
 	Boolean			beamed, done;
 	ModalFilterUPP	filterUPP;
 
@@ -1753,9 +1747,13 @@ Boolean SetDurDialog(
 	SetPort(GetDialogWindowPort(dlog));
 
 	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);											/* popup code uses Get1Resource */
+	UseResFile(appRFRefNum);							/* popup code uses Get1Resource */
 
-	if (*nDots>2) { SysBeep(1); *nDots = 2; }						/* popup has 2 dots maximum */
+	if (*nDots>2) {
+		SysBeep(1);										/* popup has 2 dots maximum */
+		LogPrintf(LOG_WARNING, "SetDurDialog: can't handle %d dots.\n", *nDots);
+		 *nDots = 2;
+	}
 
 	*doUnbeam = FALSE;
 	beamed = (SelBeamedNote(doc)!=NILINK);
@@ -1765,9 +1763,9 @@ Boolean SetDurDialog(
 	newpDurPct = *pDurPct;
 	if (newnDots>1) show2dots = TRUE;
 	
-	if (*lDurAction==HALVE_DURS)			setDurGroup = HALVEDURS_DI;
+	if (*lDurAction==HALVE_DURS)		setDurGroup = HALVEDURS_DI;
 	else if (*lDurAction==DOUBLE_DURS)	setDurGroup = DOUBLEDURS_DI;
-	else											setDurGroup = SETDURSTO_DI;
+	else								setDurGroup = SETDURSTO_DI;
 	PutDlgChkRadio(dlog, setDurGroup, TRUE);
 
 	durPop1dot.menu = durPop2dot.menu = NULL;					/* NULL makes any goto broken safe */
@@ -1919,26 +1917,29 @@ broken:
 }
 
 
-/* ----------------------------------------------- Tempo Dialog & assoc. functions -- */
+/* ----------------------------------------------- Tempo Dialog & helper functions -- */
 
 static pascal Boolean TempoFilter(DialogPtr, EventRecord *, short *);
+static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr);
 
 static enum
 {
 	VerbalDI=3,
 	TDurPopDI,
 	MetroDI,
-	HideMMDI,
+	ShowMMDI,
+	UseMMDI=9,
+	EqualsDI,
 	TDummyFldDI=11,
 	ExpandDI
 } E_TempoItems;
 
 static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
-	WindowPtr		w;
-	short				ch, field, ans;
-	Point				where;
-	GrafPtr			oldPort;
+	WindowPtr	w;
+	short		ch, field, ans;
+	Point		where;
+	GrafPtr		oldPort;
 	
 	w = (WindowPtr)(evt->message);
 	switch (evt->what) {
@@ -1995,8 +1996,8 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 					ans = DurPopupKey(curPop, popKeys1dot, ch);
 					*itemHit = ans? TDurPopDI : 0;
 					HiliteGPopUp(curPop, TRUE);
-					return TRUE;							/* so no chars get through to TDummyFldDI edit field */
-				}												/* NB: however, DlgCmdKey will let you paste into TDummyFldDI! */
+					return TRUE;					/* so no chars get through to TDummyFldDI edit field */
+				}									/* NB: however, DlgCmdKey will let you paste into TDummyFldDI! */
 			}
 			break;
 	}
@@ -2005,19 +2006,49 @@ static pascal Boolean TempoFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 }
 
 
-/* Dialog to get Tempo mark parameters from user. */
+/* Disable and dim the number-entry field and fields subordinate to it, or enable and
+undim them. */
 
-Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expanded,
+static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr)
+{
+	short	type, newType;
+	Handle	hndl;
+	Rect	box;
+
+	newType = (undim? editText : statText+itemDisable);
+	//LogPrintf(LOG_DEBUG, "DimOrUndimMMNumberEntry: newType=%d\n", newType);
+	GetDialogItem(dlog, MetroDI, &type, &hndl, &box);
+	SetDialogItem(dlog, MetroDI, newType, hndl, &box);
+
+	if (undim) {
+		ShowDialogItem(dlog, TDurPopDI);
+		ShowDialogItem(dlog, EqualsDI);
+		ShowDialogItem(dlog, MetroDI);
+		XableControl(dlog, ShowMMDI, TRUE);
+	}
+	else {
+		HideDialogItem(dlog, TDurPopDI);
+		HideDialogItem(dlog, EqualsDI);
+		HideDialogItem(dlog, MetroDI);
+		XableControl(dlog, ShowMMDI, FALSE);
+	}
+}
+
+
+/* Dialog to get Tempo and metronome mark parameters from user. */
+
+Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted, Boolean *expanded,
 						unsigned char *tempoStr, unsigned char *metroStr)
 {	
 	DialogPtr dlog;
-	short ditem=Cancel,type,oldResFile;
-	short choice,newLDur, oldLDur;
+	short ditem=Cancel, type, oldResFile;
+	short choice, newLDur, oldLDur;
 	long beatsPM; Boolean dialogOver, oldDotted;
 	Handle hndl; Rect box;
 	GrafPtr oldPort; POPKEY *pk;
 	char fmtStr[256];
-	ModalFilterUPP	filterUPP;
+	unsigned char str[256];
+	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(TempoFilter);
 	if (filterUPP == NULL) {
@@ -2036,9 +2067,9 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 	SetPort(GetDialogWindowPort(dlog));
 
 	oldResFile = CurResFile();
-	UseResFile(appRFRefNum);									/* popup code uses Get1Resource */
+	UseResFile(appRFRefNum);								/* popup code uses Get1Resource */
 
-	durPop1dot.menu = NULL;										/* NULL makes any goto broken safe */
+	durPop1dot.menu = NULL;									/* NULL makes any goto broken safe */
 	durPop1dot.itemChars = NULL;
 	popKeys1dot = NULL;
 
@@ -2054,11 +2085,15 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 	oldLDur = *dur;
 	oldDotted = *dotted;
 
-	DebugPrintf("TempoDialog: *expanded=%d\n", *expanded);
-	PutDlgChkRadio(dlog, HideMMDI, *hideMM);
+	//LogPrintf(LOG_DEBUG, "TempoDialog: *expanded=%d\n", *expanded);
+	PutDlgChkRadio(dlog, UseMMDI, *useMM);
+	PutDlgChkRadio(dlog, ShowMMDI, *showMM);
 	PutDlgChkRadio(dlog, ExpandDI, *expanded);
-	PutDlgString(dlog,VerbalDI,tempoStr,FALSE);
-	PutDlgString(dlog,MetroDI,metroStr,TRUE);
+	PutDlgString(dlog, VerbalDI, tempoStr, FALSE);
+	PutDlgString(dlog, MetroDI, metroStr, TRUE);
+	
+	/* If the M.M. option isn't chosen, disable and dim the number-entry field */
+	DimOrUndimMMNumberEntry(dlog, *useMM, metroStr);
 
 	SelectDialogItemText(dlog, (popUpHilited? TDummyFldDI : VerbalDI), 0, ENDTEXT);
 
@@ -2074,13 +2109,23 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 				dialogOver = TRUE;
 				GetDlgString(dlog,MetroDI,metroStr);
 				beatsPM = FindIntInString(metroStr);
-				if (beatsPM<1L || beatsPM>MAXBPM) {
+				if (beatsPM<MIN_BPM || beatsPM>MAX_BPM) {
 					if (beatsPM<0L)
-						GetIndCString(strBuf, DIALOGERRS_STRS, 17); 		/* "M.M. field must contain a number" */ 
+						GetIndCString(strBuf, DIALOGERRS_STRS, 17); 	/* "M.M. field must contain a number" */ 
 					else {
 						GetIndCString(fmtStr, DIALOGERRS_STRS, 18);		/* "%ld beats per minute is illegal" */
-						sprintf(strBuf, fmtStr, beatsPM, MAXBPM);
+						sprintf(strBuf, fmtStr, beatsPM, MIN_BPM, MAX_BPM);
 					}
+					CParamText(strBuf, "", "", "");
+					StopInform(GENERIC_ALRT);
+					SelectDialogItemText(dlog, MetroDI, 0, ENDTEXT);	/* Select field so user knows which one is bad. */
+					dialogOver = FALSE;
+				}
+				
+				GetDlgString(dlog, VerbalDI, str);
+				LogPrintf(LOG_DEBUG, "OK: str[0]=%d\n", str[9]);
+				if (str[0]==0 && !GetDlgChkRadio(dlog, UseMMDI)) {
+					GetIndCString(strBuf, DIALOGERRS_STRS,23);			/* "No tempo string and no M.M. is illegal" */ 
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
 					SelectDialogItemText(dlog, MetroDI, 0, ENDTEXT);	/* Select field so user knows which one is bad. */
@@ -2092,7 +2137,7 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 				break;
 			case TDurPopDI:
 	 			/*
-	 			 *	If user just set the popup to unknown dur., which makes no sense in a
+	 			 *	If user just set the popup to unknown duration, which makes no sense in a
 	 			 * metronome mark, change it back to what it was.
 	 			 */
 				newLDur = popKeys1dot[curPop->currentChoice].durCode;
@@ -2105,8 +2150,12 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 				oldLDur = newLDur;
 				oldDotted = (popKeys1dot[curPop->currentChoice].numDots>0);
 				break;
-			case HideMMDI:
-				PutDlgChkRadio(dlog, HideMMDI, !GetDlgChkRadio(dlog, HideMMDI));
+			case UseMMDI:
+				PutDlgChkRadio(dlog, UseMMDI, !GetDlgChkRadio(dlog, UseMMDI));
+				DimOrUndimMMNumberEntry(dlog, GetDlgChkRadio(dlog, UseMMDI), metroStr);
+				break;
+			case ShowMMDI:
+				PutDlgChkRadio(dlog, ShowMMDI, !GetDlgChkRadio(dlog, ShowMMDI));
 				break;
 			case ExpandDI:
 				PutDlgChkRadio(dlog, ExpandDI, !GetDlgChkRadio(dlog, ExpandDI));
@@ -2119,10 +2168,11 @@ Boolean TempoDialog(Boolean *hideMM, short *dur, Boolean *dotted, Boolean *expan
 		pk = popKeys1dot;
 		*dur = pk[curPop->currentChoice].durCode;
 		*dotted = (pk[curPop->currentChoice].numDots>0);
-		*hideMM = GetDlgChkRadio(dlog,HideMMDI);
-		*expanded = GetDlgChkRadio(dlog,ExpandDI);
-		GetDlgString(dlog,VerbalDI,tempoStr);
-		GetDlgString(dlog,MetroDI,metroStr);
+		*useMM = GetDlgChkRadio(dlog, UseMMDI);
+		*showMM = GetDlgChkRadio(dlog, ShowMMDI);
+		*expanded = GetDlgChkRadio(dlog, ExpandDI);
+		GetDlgString(dlog, VerbalDI, tempoStr);
+		GetDlgString(dlog, MetroDI, metroStr);
 	}
 		
 broken:
@@ -2235,12 +2285,12 @@ Handle ptHdl;
 
 static void DrawSampStaff()
 {
-	short			line, rastral, yp, mPoints,
-					oldtxFont, oldtxSize;
-	Point			pt;
-	long			value;
-	char			fmtStr[256];
-	Rect			portRect;
+	short		line, rastral, yp, mPoints,
+				oldtxFont, oldtxSize;
+	Point		pt;
+	long		value;
+	char		fmtStr[256];
+	Rect		portRect;
 	
 	GetDlgWord(rDialogp, SizeITM, &rastral);			/* Get new staff size value */
 	if (rastral<0 || rastral>MAXRASTRAL) return;		/* Ignore temporary illegal values */
@@ -2424,16 +2474,16 @@ CANCEL_INT for Cancel. */
 #define STAFFBOX_BOTTOM (STAFFBOX_TOP+76)
 
 short RastralDialog(
-			Boolean	/*canChoosePart*/,/* TRUE: enable "Sel parts/All parts" radio buttons */
-			short		initval,				/* Initial (default) value */
+			Boolean	/*canChoosePart*/,		/* TRUE: enable "Sel parts/All parts" radio buttons */
+			short	initval,				/* Initial (default) value */
 			Boolean	*rsp,					/* Respace staves proportionally? */
-			Boolean	*selPartsOnly		/* set only if canChoosePart is TRUE */
-			)	
+			Boolean	*selPartsOnly			/* set only if canChoosePart is TRUE */
+			)
 {
-	char		msg[16];
+	char	msg[16];
 	short 	dialogOver, ditem, anInt, newval, radio;
 	Handle 	rspHdl, aHdl;
-	Rect 		aRect;
+	Rect 	aRect;
 	GrafPtr	oldPort;
 	ModalFilterUPP filterUPP;
 	
@@ -2520,14 +2570,14 @@ short RastralDialog(
 				sprintf(msg, "%d", MAXRASTRAL);
 				CParamText(msg, "", "", "");
 				StopInform(RASTRAL_ALRT);
-				dialogOver = 0;											/* Keep dialog on screen */
+				dialogOver = 0;									/* Keep dialog on screen */
 			}
 		}
 	}
 
 	GetDialogItem(rDialogp, RspITM, &anInt, &rspHdl, &aRect);
 	*rsp = GetControlValue((ControlHandle)rspHdl);				/* Pick up "respace" flag */
-	DisposeDialog(rDialogp);											/* Free heap space */
+	DisposeDialog(rDialogp);									/* Free heap space */
 	DisposeModalFilterUPP(filterUPP);
 	SetPort(oldPort);
 	return newval; 
@@ -2623,13 +2673,13 @@ static short MenuItemNum2StaffLines(short itemNum)
 	switch (itemNum) {
 		case ZERO_LINES:	return 0;
 		case ONE_LINE:		return 1;
-		case TWO_LINES:	return 2;
+		case TWO_LINES:		return 2;
 		case THREE_LINES:	return 3;
 		case FOUR_LINES:	return 4;
 		case FIVE_LINES:	return 5;
-		case SIX_LINES:	return 6;
+		case SIX_LINES:		return 6;
 		default:
-			AlwaysErrMsg("MenuItemNum2StaffLines: itemNum invalid");
+			AlwaysErrMsg("MenuItemNum2StaffLines: itemNum is invalid");
 			return 5;
 	}
 }
@@ -2668,7 +2718,7 @@ short StaffLinesDialog(
 
 	staffLinesPopUp.currentChoice = StaffLines2MenuItemNum(*staffLines);
 	if (!InitPopUp(dlog, &staffLinesPopUp, STAFFLINES_DI, 0, STAFFLINES_MENU,
-																staffLinesPopUp.currentChoice)) {
+													staffLinesPopUp.currentChoice)) {
 		AlwaysErrMsg("StaffLinesDialog: failure initializing popup menu");
 		goto broken;
 	}
@@ -2748,9 +2798,9 @@ Boolean MarginsDialog(Document *doc,
 {	
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	short			value, ditem, papHeight, papWidth;
-	double		inchLMarg,inchTMarg,inchRMarg,inchBMarg,inchPapHeight,inchPapWidth,
-					fTemp;
+	short		value, ditem, papHeight, papWidth;
+	double		inchLMarg, inchTMarg, inchRMarg, inchBMarg, inchPapHeight, inchPapWidth,
+				fTemp;
 	Boolean		stillGoing=TRUE;
 	ModalFilterUPP	filterUPP;
 
@@ -2887,10 +2937,10 @@ static enum {									/* Key Signature Dialog items */
 	iKSReplaceIt
 } E_KSItems;
 
-short				sharps, flats;
-Rect				ksStaffRect, ksUpRect, ksDownRect;
+short			sharps, flats;
+Rect			ksStaffRect, ksUpRect, ksDownRect;
 static short	sharpList[8] = {0, 9, 6, 10, 7, 4, 8, 5},
-					flatList[8] = {0, 5, 8, 4, 7, 3, 6, 2};
+				flatList[8] = {0, 5, 8, 4, 7, 3, 6, 2};
 
 static pascal Boolean KSFilter(DialogPtr, EventRecord *, short *);
 static void KSDrawStaff(void);
@@ -2912,12 +2962,12 @@ Created: 4/28/87, dbw. */
 Boolean KeySigDialog(short *sharpParam, short *flatParam, Boolean *onAllStaves,
 								Boolean insert)
 {
-	DialogPtr	theDialog;
+	DialogPtr		theDialog;
 	short			aShort, itemHit;
 	short			radio;
-	Handle		tHdl;
-	GrafPtr		oldPort;
-	Boolean		done, result;
+	Handle			tHdl;
+	GrafPtr			oldPort;
+	Boolean			done, result;
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(KSFilter);
@@ -3002,11 +3052,11 @@ static enum {
 Boolean SetKSDialogGuts(short staffn, short *sharpParam, short *flatParam,
 								Boolean *pCanChange)
 {
-	DialogPtr	dlog;
+	DialogPtr		dlog;
 	short			aShort, itemHit;
-	Handle		tHdl;
-	GrafPtr		oldPort;
-	Boolean		done, result;
+	Handle			tHdl;
+	GrafPtr			oldPort;
+	Boolean			done, result;
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(KSFilter);
@@ -3028,7 +3078,7 @@ Boolean SetKSDialogGuts(short staffn, short *sharpParam, short *flatParam,
 		PutDlgWord(dlog, STAFFN_DI, staffn, FALSE);
 		PutDlgChkRadio(dlog,ALLOW_CHANGES_DI,*pCanChange);
 	
-		PlaceWindow(GetDialogWindow(dlog),(WindowPtr)NULL,0,80);
+		PlaceWindow(GetDialogWindow(dlog), (WindowPtr)NULL, 0, 80);
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 	
@@ -3088,7 +3138,7 @@ static void KSDrawStaff()
 		Line(ksStaffRect.right - ksStaffRect.left - 10, 0);
 	}
 	PenNormal();
-	TextFont(sonataFontNum);						/* Set to Sonata font */
+	TextFont(sonataFontNum);							/* Set to Sonata font */
 	TextSize(18);
 	MoveTo(ksStaffRect.left, LineV(1));
 	DrawChar(MCH_trebleclef);							/* Treble clef */
@@ -3231,21 +3281,21 @@ Rect tsStaffRect, tsNumUpRect,tsNumDownRect, tsDenomUpRect, tsDenomDownRect;
 ControlHandle cTimeHdl, cutTimeHdl;
 
 /* ---------------------------------------------------------------- TimeSigDialog -- */
-/*	Handle dialog box to get time signature from user.  Returns TRUE if
-user accepts dialog via OK, or FALSE if they CANCEL. All parameters are
-both inputs and outputs. If <insert> is TRUE, user is inserting a new
-timesig; else they're modifying an existing timesig.
+/*	Handle dialog box to get time signature from user.  Returns TRUE if user
+accepts dialog via OK, or FALSE if they CANCEL. All parameters are both inputs
+and outputs. If <insert> is TRUE, user is inserting a new timesig; else they're
+modifying an existing timesig.
 Created: 4/28/87, dbw. */
 
 Boolean TimeSigDialog(short *type, short *numParam, short *denomParam,
 								Boolean *onAllStaves, Boolean insert)
 {
-	DialogPtr	theDialog;
+	DialogPtr		theDialog;
 	short			aShort, itemHit;
-	Handle		item;
+	Handle			item;
 	Rect			aRect;
-	GrafPtr		oldPort;
-	Boolean		done, result;
+	GrafPtr			oldPort;
+	Boolean			done, result;
 	char			fmtStr[256];
 	ModalFilterUPP	filterUPP;
 
@@ -3290,10 +3340,10 @@ Boolean TimeSigDialog(short *type, short *numParam, short *denomParam,
 	radio1 = (*onAllStaves? iTSAllStaves : iTSThisStaff);
 	PutDlgChkRadio(theDialog,radio1,TRUE);
 
-	if (*type==N_OVER_D)		  radio2 = iTSNormal;
-	else if (*type==C_TIME)	  radio2 = iTSC;
-	else if (*type==CUT_TIME) radio2 = iTSCut;
-	else							  radio2 = iTSNOnly;
+	if (*type==N_OVER_D)		radio2 = iTSNormal;
+	else if (*type==C_TIME)		radio2 = iTSC;
+	else if (*type==CUT_TIME)	radio2 = iTSCut;
+	else						radio2 = iTSNOnly;
 	PutDlgChkRadio(theDialog,radio2,TRUE);
 	
 	numerator = *numParam;
@@ -3319,7 +3369,7 @@ Boolean TimeSigDialog(short *type, short *numParam, short *denomParam,
 				if (radio2==iTSNormal)	 *type = N_OVER_D;
 				else if (radio2==iTSC)	 *type = C_TIME;
 				else if (radio2==iTSCut) *type = CUT_TIME;
-				else							 *type = N_ONLY;
+				else					 *type = N_ONLY;
 				*numParam = numerator;
 				*denomParam = denominator;
 				*onAllStaves = (radio1==iTSAllStaves);
@@ -3361,8 +3411,8 @@ Boolean TimeSigDialog(short *type, short *numParam, short *denomParam,
 
 static void TSDrawStaff()
 {
-	char		s[20];
-	short		i, left, right;
+	char	s[20];
+	short	i, left, right;
 
 	left = tsStaffRect.left;
 	right = tsStaffRect.right;
@@ -3419,8 +3469,8 @@ static pascal Boolean TSFilter(DialogPtr theDialog, EventRecord *theEvent,
 					HiliteControl(cTimeHdl, cTimeActive ? CTL_ACTIVE : CTL_INACTIVE);
 					HiliteControl(cutTimeHdl, cutTimeActive ? CTL_ACTIVE : CTL_INACTIVE);
 					if ( (radio2==iTSC && !cTimeActive)
-					||	  (radio2==iTSCut && !cutTimeActive) )
-								SwitchRadio(theDialog, &radio2, iTSNormal);
+					||	 (radio2==iTSCut && !cutTimeActive) )
+							SwitchRadio(theDialog, &radio2, iTSNormal);
 				*itemHit = 0;
 				return TRUE;
 			}
@@ -3555,8 +3605,8 @@ static enum {
 Boolean RehearsalMarkDialog(unsigned char *string)
 {
 	short			ditem;
-	DialogPtr	dlog;
-	GrafPtr		oldPort;
+	DialogPtr		dlog;
+	GrafPtr			oldPort;
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(OKButFilter);
@@ -3613,11 +3663,11 @@ static Boolean CheckPatchVal(unsigned char *string)
 
 Boolean PatchChangeDialog(unsigned char *string)
 {
-	short		ditem;
-	DialogPtr	dlog;
-	GrafPtr		oldPort;
+	short			ditem;
+	DialogPtr		dlog;
+	GrafPtr			oldPort;
 	ModalFilterUPP	filterUPP;
-	Boolean		keepGoing = TRUE;
+	Boolean			keepGoing = TRUE;
 
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
@@ -3676,11 +3726,11 @@ static Boolean CheckPanVal(unsigned char *string)
 
 Boolean PanSettingDialog(unsigned char *string)
 {
-	short		ditem;
-	DialogPtr	dlog;
-	GrafPtr		oldPort;
+	short			ditem;
+	DialogPtr		dlog;
+	GrafPtr			oldPort;
 	ModalFilterUPP	filterUPP;
-	Boolean		keepGoing = TRUE;
+	Boolean			keepGoing = TRUE;
 
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
@@ -3726,9 +3776,9 @@ Boolean PanSettingDialog(unsigned char *string)
 
 Boolean ChordFrameDialog(Document *doc,
 				Boolean *relFSize,			/* TRUE means size=1...9 for Tiny...StaffHeight */
-				short *size,					/* If *relFSize, Tiny...StaffHeight index, else in points */
-				short *style,					/* Standard style bits */
-				short *enclosure,				/* Enclosure code */
+				short *size,				/* If *relFSize, Tiny...StaffHeight index, else in points */
+				short *style,				/* Standard style bits */
+				short *enclosure,			/* Enclosure code */
 				unsigned char *fontname,	/* Fontname or empty */
 				unsigned char *pTheChar
 				)
@@ -3736,7 +3786,7 @@ Boolean ChordFrameDialog(Document *doc,
 	short fontNum, theSize;
 	
 	fontNum = config.chordFrameFontID;
-	if (fontNum==0) fontNum = 123;	// ??Seville is default, but shouldn't be set here!?
+	if (fontNum==0) fontNum = 123;	// FIXME: Seville is default, but shouldn't be set here!?
 	/* Don't try to use the actual font size: just make it big, but cf. ChooseCharDlog's limit. */
 	theSize = 48;
 	
@@ -3778,7 +3828,7 @@ Boolean SymbolIsBarline()
 	if (firstCall) {
 		if (config.dblBarsBarlines==1)		assumeBarline = BARLINE_DI;
 		else if (config.dblBarsBarlines==2) assumeBarline = NOT_BARLINE_DI;
-		else											assumeBarline = 0;
+		else								assumeBarline = 0;
 		firstCall = FALSE;
 	}
 	
@@ -3795,7 +3845,7 @@ Boolean SymbolIsBarline()
 		}
 
 		GetPort(&oldPort);
-		dlog = GetNewDialog(DBLBAR_IS_BARLINE_DLOG,NULL,BRING_TO_FRONT);
+		dlog = GetNewDialog(DBLBAR_IS_BARLINE_DLOG, NULL, BRING_TO_FRONT);
 		if (dlog==NULL) {
 			DisposeModalFilterUPP(filterUPP);
 			MissingDialog(DBLBAR_IS_BARLINE_DLOG);
@@ -3860,7 +3910,7 @@ Boolean InsMeasUnkDurDialog()
 	static Boolean assumeOK=FALSE;
 	short itemHit, okay, keepGoing=TRUE;
 	DialogPtr dlog; GrafPtr oldPort;
-	ModalFilterUPP	filterUPP;
+	ModalFilterUPP filterUPP;
 
 	if (assumeOK) return TRUE;
 	

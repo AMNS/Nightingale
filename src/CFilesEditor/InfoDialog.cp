@@ -1,17 +1,15 @@
 /***************************************************************************
-*	FILE:	InfoDialog.c													*
-*	PROJ:	Nightingale, rev. for v.2000									*
-*	DESC:	Handling routines for "Get Info" and "Modifier Info" dialogs	*
+*	FILE:	InfoDialog.c
+*	PROJ:	Nightingale
+*	DESC:	Handling routines for "Get Info" and "Modifier Info" dialogs
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /* File InfoDialog.c - "Get Info" dialog routines:
@@ -80,7 +78,7 @@ void InfoDialog(Document *doc)
 		case GRSYNCtype:
 			SyncInfoDialog(doc, pL, unitLabel);
 			break;
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case TUPLETtype:
 			ExtendInfoDialog(doc, pL, unitLabel);
 			break;
@@ -204,8 +202,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	GetDialogItem(dlog, UNITLABEL_SYNC, &aShort, &ulHdl, &tRect);
 	SetDialogItemCText(ulHdl, unitLabel);
 
-	switch (ObjLType(pL))													/* Initialize by type... */
-	{
+	switch (ObjLType(pL)) {													/* Initialize by type... */
 		case SYNCtype:
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
@@ -476,8 +473,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	DIST_ACCEPT(LinkXD(pL));
 
 	staff = 1;
-	switch (ObjLType(pL))										/* Get new values by type */
-	{
+	switch (ObjLType(pL)) {										/* Get new values by type */
 		case SYNCtype:
 			aNote = GetPANOTE(aNoteL);
 	
@@ -636,36 +632,38 @@ static enum {
 	PARAM1,
 	LBL_PARAM2,
 	PARAM2,
-	UNITLABEL_GEN=21
+	UNITLABEL_GEN=21,
+	LBL_MEASTIME,
+	MEASTIME
 } E_GenInfoItems;
 
 static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	short			dialogOver;
-	short			ditem, aShort;
-	short			newval, staff, userVoice;
+	short		dialogOver;
+	short		ditem, aShort;
+	short		newval, staff, userVoice;
 	Handle		tHdl, twHdl, ulHdl, p1Hdl, p2Hdl;
-	Rect			tRect, aRect;
+	Rect		tRect, aRect;
 	PMEVENT		p;
-	PGRAPHIC		pGraphic;
-	PSPACE		pSpace;
+	PGRAPHIC	pGraphic;
+	PSPACER		pSpace;
 	PTEMPO		pTempo;
 	PENDING		pEnding;
 	PAMEASURE	aMeas;
 	PACLEF		aClef;
-	PAKEYSIG		aKeySig;
+	PAKEYSIG	aKeySig;
 	PATIMESIG	aTimeSig;
-	PBEAMSET		pBeamset;
+	PBEAMSET	pBeamset;
 	PACONNECT	aConnect;
 	PADYNAMIC	aDynamic;
 	PASLUR		aSlur;
-	LINK			aMeasL, aClefL, aKeySigL, aTimeSigL,
-					aConnectL, aDynamicL, aSlurL, partL;
+	LINK		aMeasL, aClefL, aKeySigL, aTimeSigL,
+				aConnectL, aDynamicL, aSlurL, partL;
 	Boolean		graphicDirty,									/* Anything graphic changed? */
-					nodeDirty;										/* Anything non-graphic changed? */
-	char			fmtStr[256];
+				nodeDirty;										/* Anything non-graphic changed? */
+	char		fmtStr[256];
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(OKButDragFilter);
@@ -676,11 +674,11 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				
 	GetPort(&oldPort);
 	ArrowCursor();
-	graphicDirty = nodeDirty = FALSE;									/* Nothing changed yet */
+	graphicDirty = nodeDirty = FALSE;								/* Nothing changed yet */
 
 /* --- 1. Create the dialog and initialize its contents. --- */
 
-	PrepareUndo(doc, pL, U_GetInfo, 12);    							/* "Undo Get Info" */
+	PrepareUndo(doc, pL, U_GetInfo, 12);    						/* "Undo Get Info" */
 
 	dlog = GetNewDialog(GENERALINFO_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
@@ -694,7 +692,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
 
 	if (GraphicTYPE(pL))
-		strcpy(strBuf, NameGraphicType(pL));
+		strcpy(strBuf, NameGraphicType(pL, TRUE));
 	else
 		strcpy(strBuf, NameNodeType(pL));
 	if (SlurTYPE(pL) && SlurTIE(pL))
@@ -705,18 +703,21 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	SetDialogItemCText(twHdl, (char *)(LinkTWEAKED(pL)? "T" : " "));
 	GetDialogItem(dlog, UNITLABEL_GEN, &aShort, &ulHdl, &tRect);
 	SetDialogItemCText(ulHdl, unitLabel);
+	if (ObjLType(pL)!=MEASUREtype) {
+		HideDialogItem(dlog, LBL_MEASTIME);
+		HideDialogItem(dlog, MEASTIME);
+	}
 
 	/* For objects without subobjects, change labels appropriately. */
 	
-	switch (ObjLType(pL))
-	{
+	switch (ObjLType(pL)) {
 		case MEASUREtype:
 		case BEAMSETtype:
 		case GRAPHICtype:
 		case SLURtype:
 		case TEMPOtype:
 		case DYNAMtype:				/* Dynamics have subobjs., but subobj. xd is unused */
-		case SPACEtype:
+		case SPACERtype:
 		case RPTENDtype:
 		case ENDINGtype:
 			GetDialogItem(dlog, LBL_OBJ_HORIZ, &aShort, &tHdl, &aRect);
@@ -732,6 +733,8 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	switch (ObjLType(pL))
 	{
 		case MEASUREtype:
+			PutDlgLong(dlog, MEASTIME, MeasureTIME(pL), FALSE);
+
 		 	aMeasL = FirstSubLINK(pL);
 		 	for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL))
 		 		if (MeasureSEL(aMeasL)) break;
@@ -920,11 +923,11 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PopLock(OBJheap);
 			break;
 
-		case SPACEtype:
+		case SPACERtype:
 			GetDialogItem(dlog, LBL_PARAM1, &aShort, &p1Hdl, &aRect);
 			SetDialogItemCText(p1Hdl, "Space width");
 			
-			pSpace = GetPSPACE(pL);
+			pSpace = GetPSPACER(pL);
 			PutDlgWord(dlog, PARAM1, pSpace->spWidth, FALSE);
 		 	break;
 			
@@ -1130,7 +1133,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 					
 					break;
 					
-				case SPACEtype:
+				case SPACERtype:
 					GetDlgWord(dlog, PARAM1, &newval);
 					if (newval<1 || newval>999) {
 						GetIndCString(strBuf, INFOERRS_STRS, 38);	/* "Space width must be..." */
@@ -1307,9 +1310,9 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			DIST_ACCEPT(p->yd);
 		  	break;
 	
-		case SPACEtype:
+		case SPACERtype:
 			GetDlgWord(dlog, PARAM1, &newval);
-			pSpace = GetPSPACE(pL);
+			pSpace = GetPSPACER(pL);
 			GRAF_ACCEPT(pSpace->spWidth);
 		  	break;
 
@@ -1327,21 +1330,21 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	}
 
 	SetPort(oldPort);
-	if (graphicDirty)	{										/* Was anything graphic changed? */
+	if (graphicDirty)	{								/* Was anything graphic changed? */
 		InvalMeasure(pL, staff);
 	}
 	if (graphicDirty || nodeDirty)						/* Was anything changed? */
 	{
-		doc->changed = TRUE;									/* Yes. */
+		doc->changed = TRUE;							/* Yes. */
 		LinkTWEAKED(pL) = TRUE;
-		LinkVALID(pL) = FALSE;								/* Force recalc. objrect */
+		LinkVALID(pL) = FALSE;							/* Force recalc. objrect */
 	}
 	
-	lastEditField = GetDialogKeyboardFocusItem(dlog); /* Save itemNum of last edit field */
+	lastEditField = GetDialogKeyboardFocusItem(dlog);	/* Save itemNum of last edit field */
 	lastObjType = ObjLType(pL);
 
 	DisposeModalFilterUPP(filterUPP);
-	DisposeDialog(dlog);									/* Free heap space */
+	DisposeDialog(dlog);								/* Free heap space */
 	return; 
 }
 
@@ -1367,18 +1370,18 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
-	short			dialogOver;
-	short			ditem, aShort;
-	short			newval, staff, userVoice;
+	short		dialogOver;
+	short		ditem, aShort;
+	short		newval, staff, userVoice;
 	Handle		tHdl, twHdl, ulHdl, p1Hdl, p2Hdl;
-	Rect			tRect, aRect;
-	POCTAVA		octavap;
+	Rect		tRect, aRect;
+	POTTAVA		ottavap;
 	PTUPLET		pTuplet;
 	Boolean		graphicDirty,									/* Anything graphic changed? */
-					nodeDirty;										/* Anything non-graphic changed? */
-	LINK			partL;
-	char			fmtStr[256];
-	PGRAPHIC		pGraphic;
+				nodeDirty;										/* Anything non-graphic changed? */
+	LINK		partL;
+	char		fmtStr[256];
+	PGRAPHIC	pGraphic;
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(OKButDragFilter);
@@ -1389,11 +1392,11 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 								
 	GetPort(&oldPort);
 	ArrowCursor();
-	graphicDirty = nodeDirty = FALSE;									/* Nothing changed yet */
+	graphicDirty = nodeDirty = FALSE;							/* Nothing changed yet */
 
 /* --- 1. Create the dialog and initialize its contents. --- */
 
-	PrepareUndo(doc, pL, U_GetInfo, 12);    							/* "Undo Get Info" */
+	PrepareUndo(doc, pL, U_GetInfo, 12);    					/* "Undo Get Info" */
 
 	dlog = GetNewDialog(EXTINFO_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
@@ -1406,7 +1409,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
 	if (GraphicTYPE(pL))
-		strcpy(strBuf, NameGraphicType(pL));
+		strcpy(strBuf, NameGraphicType(pL, TRUE));
 	else
 		strcpy(strBuf, NameNodeType(pL));
 	PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
@@ -1442,18 +1445,18 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PopLock(OBJheap);
 			break;
 
-		case OCTAVAtype:
+		case OTTAVAtype:
 			GetDialogItem(dlog, LBL_EXPARAM1, &aShort, &tHdl, &aRect);
 			SetDialogItemCText(tHdl, "noCutoff");
 			GetDialogItem(dlog, LBL_RIGHT_VERT, &aShort, &tHdl, &aRect);
 			SetDialogItemCText(tHdl, "(unused)");
 
-			octavap = GetPOCTAVA(pL);
-			PutDlgWord(dlog, STAFF_NO, octavap->staffn, FALSE);
-			PutDlgWord(dlog, LEFT_HORIZ, DD2I(octavap->xdFirst), FALSE);
-			PutDlgWord(dlog, LEFT_VERT, DD2I(octavap->ydFirst), FALSE);
-			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(octavap->xdLast), FALSE);
-			PutDlgWord(dlog, EXPARAM1, octavap->noCutoff, FALSE);
+			ottavap = GetPOTTAVA(pL);
+			PutDlgWord(dlog, STAFF_NO, ottavap->staffn, FALSE);
+			PutDlgWord(dlog, LEFT_HORIZ, DD2I(ottavap->xdFirst), FALSE);
+			PutDlgWord(dlog, LEFT_VERT, DD2I(ottavap->ydFirst), FALSE);
+			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(ottavap->xdLast), FALSE);
+			PutDlgWord(dlog, EXPARAM1, ottavap->noCutoff, FALSE);
 			break;
 
 		case TUPLETtype:
@@ -1513,7 +1516,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		if (dialogOver==Cancel)
 		{
 			DisposeModalFilterUPP(filterUPP);
-			DisposeDialog(dlog);									/* Free heap space */
+			DisposeDialog(dlog);								/* Free heap space */
 			SetPort(oldPort);
 			return;
 		}
@@ -1536,23 +1539,23 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			GetDlgWord(dlog, LEFT_VERT, &newval);
 			if (!LegalVert(doc, newval)) dialogOver = 0;
 
-			switch (ObjLType(pL))										/* Check new values by type */
+			switch (ObjLType(pL))									/* Check new values by type */
 			{
-				case GRAPHICtype:												/* NB: only GRDraw now */
+				case GRAPHICtype:									/* NB: only GRDraw now */
 					GetDlgWord(dlog, RIGHT_VERT, &newval);
 					if (!LegalVert(doc, newval)) dialogOver = 0;
 
 					GetDlgWord(dlog, EXPARAM1, &newval);
 					if (newval<1 || newval>127) {
-						GetIndCString(strBuf, INFOERRS_STRS, 45);		/* "Line thickness must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 45);	/* "Line thickness must be..." */
 						INFO_ERROR(strBuf);
 					}
 					break;
 
-				case OCTAVAtype:
+				case OTTAVAtype:
 					GetDlgWord(dlog, EXPARAM1, &newval);
 					if (newval<0 || newval>1) {
-						GetIndCString(strBuf, INFOERRS_STRS, 42);		/* "noCutoff must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 42);	/* "noCutoff must be..." */
 						INFO_ERROR(strBuf);
 					}
 
@@ -1564,13 +1567,13 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 					GetDlgWord(dlog, EXPARAM1, &newval);
 					if (newval<0 || newval>1) {
-						GetIndCString(strBuf, INFOERRS_STRS, 43);		/* "accNum Visible must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 43);	/* "accNum Visible must be..." */
 						INFO_ERROR(strBuf);
 					}
 					
 					GetDlgWord(dlog, EXPARAM2, &newval);
 					if (newval<0 || newval>1) {
-						GetIndCString(strBuf, INFOERRS_STRS, 44);		/* "Bracket Visible must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 44);	/* "Bracket Visible must be..." */
 						INFO_ERROR(strBuf);
 					}
 	
@@ -1590,7 +1593,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	staff = 1;
 	switch (ObjLType(pL))										/* Get new values by type */
 	{
-		case GRAPHICtype:											/* NB: only GRDraw now */
+		case GRAPHICtype:										/* NB: only GRDraw now */
 			PushLock(OBJheap);
 		 	pGraphic = GetPGRAPHIC(pL);
 		 	
@@ -1609,22 +1612,22 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PopLock(OBJheap);
 			break;
 
-		case OCTAVAtype:
+		case OTTAVAtype:
 			PushLock(OBJheap);
-			octavap = GetPOCTAVA(pL);
+			ottavap = GetPOTTAVA(pL);
 
 			GetDlgWord(dlog, LEFT_HORIZ, &newval);
-			DIST_ACCEPT(octavap->xdFirst);
+			DIST_ACCEPT(ottavap->xdFirst);
 
 			GetDlgWord(dlog, LEFT_VERT, &newval);
-			DIST_ACCEPT(octavap->ydFirst);
-			octavap->ydLast = octavap->ydFirst;				/* We don't support diagonal octave signs yet */
+			DIST_ACCEPT(ottavap->ydFirst);
+			ottavap->ydLast = ottavap->ydFirst;				/* We don't support diagonal octave signs yet */
 
 			GetDlgWord(dlog, EXPARAM1, &newval);
-			GRAF_ACCEPT(octavap->noCutoff);
+			GRAF_ACCEPT(ottavap->noCutoff);
 
 			GetDlgWord(dlog, RIGHT_HORIZ, &newval);
-			DIST_ACCEPT(octavap->xdLast);
+			DIST_ACCEPT(ottavap->xdLast);
 
 			PopLock(OBJheap);
 		  	break;
@@ -1659,12 +1662,12 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	}
 
 	SetPort(oldPort);
-	if (graphicDirty)	{										/* Was anything graphic changed? */
+	if (graphicDirty)	{									/* Was anything graphic changed? */
 		InvalMeasure(pL, staff);
 	}
-	if (graphicDirty || nodeDirty)						/* Was anything changed? */
+	if (graphicDirty || nodeDirty)							/* Was anything changed? */
 	{
-		doc->changed = TRUE;									/* Yes. */
+		doc->changed = TRUE;								/* Yes. */
 		LinkTWEAKED(pL) = TRUE;
 		LinkVALID(pL) = FALSE;								/* Force recalc. objRect */
 	}

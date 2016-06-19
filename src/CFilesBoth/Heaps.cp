@@ -1,18 +1,16 @@
 /* Heaps.c - low-level heap functions for Nightingale */
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- *	THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROPERTY OF
- *	ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE SECRET AND IS
- *	NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED WRITTEN
- *	AUTHORIZATION FROM THE OWNER.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  *
- *	Copyright © 1989-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
- *	Routines in this file implement various low-level Nightingale generic heap methods.
- *	A heap is where we store and allocate "objects": fixed-length records for all
- *	the various objects kept in a score.  Each heap is associated with one type of
- *	object (since different types have different lengths).
+ * Routines in this file implement various low-level Nightingale generic heap methods.
+ * A heap is where we store and allocate "objects": fixed-length records for all
+ * the various objects kept in a score.  Each heap is associated with one type of
+ * object (since different types have different lengths).
  */
 
 #include "Nightingale_Prefix.pch"
@@ -26,72 +24,73 @@ used here because they seem to work fine. --DAB) */
 #ifdef LARGE_INITIAL_HEAPS
 static short initialNumbers[LASTtype] = {
 		32,		/* HEADERtype */
-		0,			/* TAILtype */
-		1024,		/* SYNCtype */
-		8,			/* RPTENDtype */
-		0,			/* PAGEtype */
-		0,			/* SYSTEMtype */
-		128,		/* STAFFtype */
-		512,		/* MEASUREtype */
+		0,		/* TAILtype */
+		1024,	/* SYNCtype */
+		8,		/* RPTENDtype */
+		0,		/* PAGEtype */
+		0,		/* SYSTEMtype */
+		128,	/* STAFFtype */
+		512,	/* MEASUREtype */
 		64,		/* CLEFtype */
 		64,		/* KEYSIGtype */
 		64,		/* TIMESIGtype */
-		512,		/* BEAMSETtype */
+		512,	/* BEAMSETtype */
 		64,		/* CONNECTtype */
-		256,		/* DYNAMtype */
+		256,	/* DYNAMtype */
 		64,		/* MODNRtype */
-		128,		/* GRAPHICtype */
-		64,		/* OCTAVAtype */
-		256,		/* SLURtype */
-		256,		/* TUPLETtype */
-		128,		/* GRSYNCtype */
-		8,			/* TEMPOtype */
-		8,			/* SPACEtype */
-		8,			/* ENDINGtype */
+		128,	/* GRAPHICtype */
+		64,		/* OTTAVAtype */
+		256,	/* SLURtype */
+		256,	/* TUPLETtype */
+		128,	/* GRSYNCtype */
+		8,		/* TEMPOtype */
+		8,		/* SPACERtype */
+		8,		/* ENDINGtype */
 		16,		/* PSMEAStype */
 		256		/* OBJtype */
 		};
 #else
 static short initialNumbers[LASTtype] = {
-		8,			/* HEADERtype */
-		0,			/* TAILtype */
+		8,		/* HEADERtype */
+		0,		/* TAILtype */
 		64,		/* SYNCtype */
-		8,			/* RPTENDtype */
-		0,			/* PAGEtype */
-		0,			/* SYSTEMtype */
-		8,			/* STAFFtype */
+		8,		/* RPTENDtype */
+		0,		/* PAGEtype */
+		0,		/* SYSTEMtype */
+		8,		/* STAFFtype */
 		12,		/* MEASUREtype */
-		8,			/* CLEFtype */
-		8,			/* KEYSIGtype */
-		8,			/* TIMESIGtype */
+		8,		/* CLEFtype */
+		8,		/* KEYSIGtype */
+		8,		/* TIMESIGtype */
 		12,		/* BEAMSETtype */
-		8,			/* CONNECTtype */
-		8,			/* DYNAMtype */
-		8,			/* MODNRtype */
-		8,			/* GRAPHICtype */
-		8,			/* OCTAVAtype */
-		8,			/* SLURtype */
-		8,			/* TUPLETtype */
+		8,		/* CONNECTtype */
+		8,		/* DYNAMtype */
+		8,		/* MODNRtype */
+		8,		/* GRAPHICtype */
+		8,		/* OTTAVAtype */
+		8,		/* SLURtype */
+		8,		/* TUPLETtype */
 		12,		/* GRSYNCtype */
-		8,			/* TEMPOtype */
-		8,			/* SPACEtype */
-		8,			/* ENDINGtype */
-		8,			/* PSMEAStype */
-		64			/* OBJtype */
+		8,		/* TEMPOtype */
+		8,		/* SPACERtype */
+		8,		/* ENDINGtype */
+		8,		/* PSMEAStype */
+		64		/* OBJtype */
 		};
 #endif
 
 
 #ifdef LinkToPtrFUNCTION
 
-/* LinkToPtr(heap,link) delivers the address of the 0'th byte of the link'th
+/* FIXME: CUT ALL THIS PLUS ALL REFERENCES TO _LinkToPtrFUNCTION_ ELSEWHERE!
+LinkToPtr(heap,link) delivers the address of the 0'th byte of the link'th
 object kept in a given heap.  This address is determined without typing
 information by using the heap's own idea of how large the object is in bytes.
 The pointer so delivered is only valid as long as the heap block doesn't get
 relocated! This is a generic routine that should be avoided whenever it's
-possible to use one of the specific ones in MemMacros.h (??IS THIS STILL TRUE?).
+possible to use one of the specific ones in MemMacros.h .
 
-N.B. This assembly language function replaces the C macro of the same name.
+N.B. This function, in 68K assembly language, replaces the C macro of the same name.
 LinkToPtr is/was called in over 3,000 places (mostly by other macros). Using a
 function saves a lot of memory, since it only takes 14 bytes to call (2 MOVEs
 to push arguments on stack, JSR, MOVEQ to pop stack), while the macro takes 30

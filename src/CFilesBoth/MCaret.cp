@@ -1,13 +1,11 @@
 /* MCaret.c for Nightingale */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -172,7 +170,7 @@ void MEAdjustCaret(Document *doc, Boolean moveNow)
 			case TIMESIGtype:
 			case GRAPHICtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case RPTENDtype:
 			case ENDINGtype:
 			case PSMEAStype:
@@ -202,7 +200,7 @@ void MEAdjustCaret(Document *doc, Boolean moveNow)
 		  	case BEAMSETtype:
 		  	case SLURtype:
 		  	case TUPLETtype:
-		  	case OCTAVAtype:
+		  	case OTTAVAtype:
 				pL = FirstValidxd(RightLINK(doc->selStartL), FALSE);
 				GetContext(doc, pL, doc->selStaff, &context);
 				xObj = PageRelxd(pL, &context);

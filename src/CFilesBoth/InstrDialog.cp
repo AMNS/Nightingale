@@ -1,12 +1,11 @@
-/* InstrDialog.c for Nightingale, by Jim Carr, revised by John Gibson, rev. for v.3.5 */
+/* InstrDialog.c for Nightingale, by Jim Carr, revised by John Gibson */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1987-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /* The Instrument Dialog displays a List Manager list of instruments; selecting
@@ -63,16 +62,16 @@ static pascal Boolean		TheFilter(DialogPtr, EventRecord *, short *);
 static pascal Boolean		TheCMPMFilter(DialogPtr, EventRecord *, short *);
 static Boolean 				GetInstr(rangeHandle, char *);
 static Boolean				MpCheck(PARTINFO *);
-static void 					NoteErase(short, char, char, Boolean);
-static void 					NoteDraw(short, char, char, Boolean);
+static void 				NoteErase(short, char, char, Boolean);
+static void 				NoteDraw(short, char, char, Boolean);
 static void					DrawTranspChar(Boolean, short);
-static void 					DrawStaves(void);
-static void 					DrawNoteNames(Boolean);
-static void 					InitRange(rangeMaster *);
-static void 					ShowInit(rangeMaster *);
-static void 					InstrMoveRange(struct range *, short, short);
+static void 				DrawStaves(void);
+static void 				DrawNoteNames(Boolean);
+static void 				InitRange(rangeMaster *);
+static void 				ShowInit(rangeMaster *);
+static void 				InstrMoveRange(struct range *, short, short);
 static void					ShowLSelect(DialogPtr, short);
-static void 					ClickEraseRange(void);
+static void 				ClickEraseRange(void);
 
 
 /* -------------------------- ( FORMERLY iDialogModal.c) -------------------------- */
@@ -80,15 +79,15 @@ static void 					ClickEraseRange(void);
 /* Dialog item numbers */
 #define OKBTN			OK
 #define CANCELBTN		Cancel
-#define TOP_RAD		4
+#define TOP_RAD			4
 #define TRANS_RAD		5
-#define BOT_RAD		6
+#define BOT_RAD			6
 #define INSTRNAME		8
 #define INSTRABRV		10
 #define LIST_DITL		11
 #define UPBTN			12
-#define DOWNBTN		13
-#define CHANNEL_DI	16
+#define DOWNBTN			13
+#define CHANNEL_DI		16
 #define PATCH_DI		17
 #define V_BALANCE		18
 #define STAFF_BOX		22
@@ -108,7 +107,7 @@ static void 					ClickEraseRange(void);
 #define UP				1
 #define DOWN			-1
 
-/* set of radio buttons ??There's no need for this struct; simplify some day! */
+/* set of radio buttons FIXME: There's no need for this struct; simplify some day! */
 static struct radSet 
 {
 	unsigned char	defaultOn;
@@ -233,18 +232,18 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 {
 	extern rangeHandle rangeHdl;	
 	extern rangeMaster master, dfault;
-	char fmtStr[256];
+	char fmtStr[256], errStr[256];
 	
-	DialogPtr	theDialog;
-	GrafPtr		oldPort;
-	Handle		instruments, hndl, itemHdl, radHdl;
-	Str255		str, deviceStr;
+	DialogPtr		theDialog;
+	GrafPtr			oldPort;
+	Handle			instruments, hndl, itemHdl, radHdl;
+	Str255			str, deviceStr;
 	Rect			list_rect, itemBox, radBox;
 	Point			cell_size;
 	short			itemHit, theType, scratch, val;
 	short			saveResFile;
 	short			dialogOver;
-	Boolean		gotValue;
+	Boolean			gotValue;
 	ModalFilterUPP	filterUPP;
 	
 	GetPort(&oldPort);
@@ -337,8 +336,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 	sLeft = itemBox.left;
 	sTop = itemBox.top;
 	 
-	if (MpCheck(mp))
-	{
+	if (MpCheck(mp)) {
 		/* Assign MIDInote data. Notice this code assumes MIDI_MIDDLE_C is an integral
 		 * number of octaves, i.e., a multiple of 12--a pretty safe assumption! */
 		
@@ -383,6 +381,8 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 		}
 	}
 	else {
+		GoodStrncpy(errStr, mp->name, (unsigned long)NM_SIZE - 1);
+		LogPrintf(LOG_WARNING, "Illegal instrument description; name '%s'\n", errStr);
 		GetIndCString(strBuf, INSTRERRS_STRS, 1);					/* "Illegal instrument description; will use default." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
@@ -494,7 +494,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 				GetIndCString(strBuf, INSTRERRS_STRS, 5);		/* Patch no. must be between..." */
 				sprintf(strBuf, fmtStr, MAXPATCHNUM);
 				CParamText(strBuf, "", "", "");
-				DebugPrintf("Patch no. error: strBuf='%s'\n", strBuf);	// ??MESSAGE IS BLANK! ???
+				LogPrintf(LOG_NOTICE, "Patch no. error: strBuf='%s'\n", strBuf);	// FIXME: MESSAGE IS BLANK!?!
 				StopInform(GENERIC_ALRT);
 				GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
 				HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
@@ -1176,10 +1176,10 @@ static rangeHandle ReadInstr(
 						)
 {
 	rangeMaster *tmpRngPtr;
-	short i;
+	short i, firstBad;
 	char anInstr[256];
 	Point theCell;
-	Boolean badInstr=FALSE;
+	short nBad=0;
 	
 	/*
 	 * Allocate array of rangeMaster structs for data from resource.
@@ -1190,45 +1190,44 @@ static rangeHandle ReadInstr(
 	 * The handle is then locked until all initializing is done.
 	 */
 	 
-	rangeHdl = (rangeHandle)
-						NewHandle(i_tot * (sizeof(rangeMaster)));
+	rangeHdl = (rangeHandle)NewHandle(i_tot * (sizeof(rangeMaster)));
 	
-	if (rangeHdl == (rangeHandle)NULL)
-		return((rangeHandle)NULL);
+	if (rangeHdl == (rangeHandle)NULL) return ((rangeHandle)NULL);
 		
 	MoveHHi((Handle)rangeHdl);
-	HLock((Handle)rangeHdl);								/* remember to unlock!! */
+	HLock((Handle)rangeHdl);							/* remember to unlock!! */
 		
-	tmpRngPtr = *rangeHdl;									/* save start of struct array */
+	tmpRngPtr = *rangeHdl;								/* save start of struct array */
 	
 	/*
 	 * For each instrument in the resource, get a string from the resource and
 	 * convert it to a C string. If we can parse it, store in struct array.
 	 * Then set it in list and move on to next available (blank) struct in array.
 	 */
-		 
-	for (i = 0; i < i_tot; i++) 
-	{
+	for (i = 0; i < i_tot; i++) {
 		GetIndCString(anInstr, rsrc_num, i + 1);
-	 	if (GetInstr(rangeHdl, (char *)anInstr)) 
-	 	{
+	 	if (GetInstr(rangeHdl, (char *)anInstr)) {
 			SetPt(&theCell, 0, i);
 			LSetCell((*rangeHdl)->name, strlen((*rangeHdl)->name),
 						theCell, iList);
-			(*rangeHdl)++;										/* incr to next struct */
+			(*rangeHdl)++;								/* incr to next struct */
 		}
-		else badInstr = TRUE;
+		else {
+			nBad++;
+			if (nBad==1) firstBad = i+1;
+		}
 	}
 	
-	if (badInstr) {
+	if (nBad>0) {
+		LogPrintf(LOG_WARNING, "%d llegal instrument description(s); first is no. %d\n", nBad, firstBad);
 		GetIndCString(strBuf, INSTRERRS_STRS, 2);    /* "One or more illegal instrument description(s) in list; will ignore them." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 	}
 	
-	*rangeHdl = tmpRngPtr;									/* restore master pointer to start of array */
+	*rangeHdl = tmpRngPtr;								/* restore master pointer to start of array */
 	
-	HUnlock((Handle)rangeHdl);								/* unlock it */
+	HUnlock((Handle)rangeHdl);							/* unlock it */
 	
 	/*
 	 * No List item selected at first unless this is turned on...Don says no.
@@ -1236,7 +1235,6 @@ static rangeHandle ReadInstr(
 	 * SetPt(&theCell, 0, 0);
 	 * LSetSelect((Boolean)TRUE, theCell, iList); 
 	 */
-	
 	LSetDrawingMode((Boolean)TRUE, iList);
 	return(rangeHdl);
 }
@@ -1288,7 +1286,7 @@ static Boolean GetInstr(rangeHandle rHdl, char *strPtr)
 	{
 		/* range */
 		if ((strPtr = strcut(tmp_str, strPtr, RSIZE)) != NULL)	
-			/* ??With improper input, atoi can crash. We should use strtol instead. */
+			/* FIXME: With improper input, atoi can crash. We should use strtol instead. */
 			(*rHdl)->ttb[i].midiNote = (char)atoi(tmp_str);
 		else
 			return(FALSE);
@@ -1336,11 +1334,11 @@ static Boolean GetInstr(rangeHandle rHdl, char *strPtr)
 next substring head. Initial NULL ptr or NULL byte or size >= STRBUF_SIZE || size <= 0
 causes NULL ptr to be returned.
 
-??Should probably use strtok instead. */
+FIXME: Should probably use strtok instead. */
 
-char *strcut(char *r,		/* ptr to temp buffer where data will go */ 
-					char *s,		/* ptr to NULLendian C string (text)     */
-					short size)	/* max length not counting NULL byte     */
+char *strcut(char *r,			/* ptr to temp buffer where data will go */ 
+				char *s,		/* ptr to NULLendian C string (text)     */
+				short size)		/* max length not counting NULL byte     */
 {
 	short i = 0;
 	

@@ -1,13 +1,11 @@
-/* Merge.c for Nightingale, minor rev. for v.3.1 */
+/* Merge.c for Nightingale */
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- *	THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROPERTY OF
- *	ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE SECRET AND IS
- *	NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED WRITTEN
- *	AUTHORIZATION FROM THE OWNER.
- *
- *	Copyright © 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -473,10 +471,10 @@ static long GetStartTime(Document *doc, VInfo *vInfo, short v, short vStfDiff)
 
 /* Call this to get a staffn to pass to GetLDur.
 Given an obj with subObj in voice v, return the staff of that subObj.
-Have nothing reasonable to return for PAGEtype through CONNECTtype and
+We have nothing reasonable to return for PAGEtype through CONNECTtype
 and MEASUREtype through ENDINGtype; but SYNCs are the only meaningful
-objects to pass to GetLDur, so it doesn't make any difference.
-If wish to call this for any other reason, will have to review this. */
+objects to pass to GetLDur, so it doesn't make any difference. If we
+wish to call this for any other reason, will have to review this. */
  
 static short Obj2Stf(LINK link, short v)
 {
@@ -494,7 +492,7 @@ static short Obj2Stf(LINK link, short v)
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 				if (NoteVOICE(aNoteL)==v)
 					return NoteSTAFF(aNoteL);
-			return v;												/* Have no reasonable default */
+			return v;										/* Have no reasonable default */
 		case GRSYNCtype:
 			aGRNoteL = FirstSubLINK(link);
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
@@ -522,10 +520,10 @@ static short Obj2Stf(LINK link, short v)
 			return BeamSTAFF(link);
 		case TUPLETtype:
 			return TupletSTAFF(link);
-		case OCTAVAtype:
-			return OctavaSTAFF(link);
-		case SPACEtype:
-			return SpaceSTAFF(link);
+		case OTTAVAtype:
+			return OttavaSTAFF(link);
+		case SPACERtype:
+			return SpacerSTAFF(link);
 		default:
 			return 1;
 	}
@@ -1015,7 +1013,7 @@ static LINK MCopyClipRange(Document *doc, LINK startL, LINK endL, LINK insertL,
 	firstMeasL = SSearch(doc->headL,MEASUREtype,GO_RIGHT);
 
 	FixAllBeamLinks(doc, doc, firstMeasL, insertL);
-	FixOctavaLinks(doc, doc, firstMeasL, insertL);
+	FixOttavaLinks(doc, doc, firstMeasL, insertL);
 	FixTupletLinks(doc, doc, firstMeasL, insertL);
 	
 	PasteFixStfSize(doc, RightLINK(initL), insertL);
@@ -1487,7 +1485,7 @@ static Boolean MComputePlayTimes(Document *doc, short nInMeas)
 	if (!GoodNewPtr((Ptr)stfTimeDiff)) goto broken;
 	
 	/* Set playDur values and pTime values for the pDurArray, and
-		set link values for owning beams, octavas and tuplets. */
+		set link values for owning beams, ottavas and tuplets. */
 
 	SetPlayDurs(doc,pDurArray,nInMeas,startMeas,endMeas);
 	SetPTimes(doc,pDurArray,nInMeas,spTimeInfo,startMeas,endMeas);
@@ -1515,7 +1513,7 @@ static Boolean MComputeClipPlayTimes(Document *doc, short nInMeas)
 	if (!GoodNewPtr((Ptr)clStfTimeDiff)) goto broken;
 	
 	/* Set playDur values and pTime values for the pDurArray, and
-		set link values for owning beams, octavas and tuplets. */
+		set link values for owning beams, ottavas and tuplets. */
 
 	SetPlayDurs(doc,pClDurArray,nInMeas,startClMeas,endClMeas);
 	SetPTimes(clipboard,pClDurArray,nInMeas,clSpTimeInfo,startClMeas,endClMeas);
@@ -2156,7 +2154,7 @@ static Boolean MRearrangeNotes(
 
 	GetMergeRange(startMeas,endMeas,prevL1,lastL1,first);
 
-	/* Beams, octavas and tuplets can be updated without reference
+	/* Beams, ottavas and tuplets can be updated without reference
 		to their origin. - Not true anymore, because of overlapping voices.
 		NBJD objects are distinguished as to their origin by setting
 		spareFlags of those in score FALSE, those in clip TRUE. qDurArray
@@ -2318,7 +2316,7 @@ static LINK MergeFromClip(Document *doc, LINK insertL, short *vMap, VInfo *vInfo
 	}
 
 	/* Fix NBJD objects: Non-Beamlike-J_D objects, J_D objects other than
-		Beams,Tuplets & Octavas. */
+		Beams,Tuplets & Ottavas. */
 
 	FixMergeLinks(clipboard, doc, prevL, lastL, mergeMap, numObjs);
 

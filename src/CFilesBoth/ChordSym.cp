@@ -1,19 +1,17 @@
 /* ChordSym.c for Nightingale, by John Gibson */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 #include <ctype.h>					/* for isdigit() */
-#include <math.h>						/* for rint() */
+#include <math.h>					/* for rint() */
 
 static Boolean ParseChordSym(unsigned char *, char *, char *, char *, char *, char *, char *, char *);
 static Boolean IsCSAcc(char *, unsigned char *);
@@ -49,18 +47,18 @@ static ModalFilterUPP	filterUPP;
 
 Boolean ParseChordSym(
 				unsigned char *csStr,	/* Pascal string stored by chord symbol graphic */
-				char *rootStr,				/* receives note name C string (e.g., "C", "Bb") */
-				char *qualStr,				/* receives quality C string (e.g., "Maj", "min", "dim") */
-				char *extStr,				/* receives extension C string (e.g., "7", "Æ7", "+6", "7#9") */
-				char *extStk1Str,			/* receives (bottom) extension stack C string */
-				char *extStk2Str,			/* receives (middle) extension stack C string */
-				char *extStk3Str,			/* receives (top) extension stack C string */
-				char *bassStr				/* receives bass note C string (e.g., "Cm7/Eb") */
+				char *rootStr,			/* receives note name C string (e.g., "C", "Bb") */
+				char *qualStr,			/* receives quality C string (e.g., "Maj", "min", "dim") */
+				char *extStr,			/* receives extension C string (e.g., "7", "Æ7", "+6", "7#9") */
+				char *extStk1Str,		/* receives (bottom) extension stack C string */
+				char *extStk2Str,		/* receives (middle) extension stack C string */
+				char *extStk3Str,		/* receives (top) extension stack C string */
+				char *bassStr			/* receives bass note C string (e.g., "Cm7/Eb") */
 				)
 {
 	register Size	len;
 	register char	*p, *q;
-	char				tmpStr[256];
+	char			tmpStr[256];
 	
 	*rootStr = *qualStr = *extStr = *extStk1Str = *extStk2Str = *extStk3Str = *bassStr = 0;
 
@@ -72,21 +70,21 @@ Boolean ParseChordSym(
 	tmpStr[len] = 0;
 	
 	q = tmpStr;
-	p = strchr(tmpStr, DELIMITER);		/* p will point to first delimiter */
-	if (p==NULL) {								/* if there's not one, it's an old-style chord symbol */
+	p = strchr(tmpStr, DELIMITER);			/* p will point to first delimiter */
+	if (p==NULL) {							/* if there's not one, it's an old-style chord symbol */
 		strcpy(rootStr, tmpStr);
-		return TRUE;							/* old-style is ok */
+		return TRUE;						/* old-style is ok */
 	}
-	*p = 0;										/* terminate first chunk (replace delim with null) */
+	*p = 0;									/* terminate first chunk (replace delim with null) */
 	strcpy(rootStr, q);						/* copy first chunk into rootStr */
 
-	q = p+1;										/* q points to start of next chunk */
+	q = p+1;								/* q points to start of next chunk */
 	p = strchr(q, DELIMITER);				/* p will point to next delimiter */
 	if (p==NULL) return FALSE;				/* wrong number of delimiters */
-	*p = 0;										/* terminate second chunk */
+	*p = 0;									/* terminate second chunk */
 	strcpy(qualStr, q);
 	
-	q = p+1;										/* same for the other strings */
+	q = p+1;								/* same for the other strings */
 	p = strchr(q, DELIMITER);
 	if (p==NULL) return FALSE;
 	*p = 0;

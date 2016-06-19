@@ -1,14 +1,12 @@
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
-/* DebugHighLevel.c - Debug command and high-level functions - rev. for Nightingale 3.5:
+/* DebugHighLevel.c - Debug command and high-level functions:
 	DCheckEverything			DebugDialog				DErrLimit
 	DoDebug
  */
@@ -16,7 +14,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-//#ifndef PUBLIC_VERSION		/* If public, skip this file completely! */
 
 #define DDB
 
@@ -40,18 +37,18 @@ There are four levels of checks:
 */
 
 Boolean DCheckEverything(Document *doc,
-				Boolean maxCheck,	/* TRUE=do even Least important checks */
-				Boolean minCheck	/* TRUE=print only results of More & Most important checks */
-				)
+			Boolean maxCheck,	/* TRUE=do even Least important checks */
+			Boolean minCheck	/* TRUE=print only results of More & Most important checks */
+			)
 {
-	LINK		pL;
-	short		nInRange, nSel, nTotal, nvUsed;
+	LINK	pL;
+	short	nInRange, nSel, nTotal, nvUsed;
 	Boolean	strictCont, looseCont;
 
 	minDebugCheck = minCheck;
 	 
 #ifdef DDB
-	DebugPrintf("CHK MAIN:");
+	LogPrintf(LOG_WARNING, "--CHK MAIN:\n");
 #endif
 	if (DCheckHeaps(doc)) return TRUE;
 	/*
@@ -86,47 +83,47 @@ Boolean DCheckEverything(Document *doc,
 	}
 
 	(void)DCheckHeirarchy(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckJDOrder(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckJDOrder(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 
-	(void)DCheckBeams(doc);						if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckOctaves(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckSlurs(doc);						if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckBeams(doc, maxCheck);		if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckOctaves(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckSlurs(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckTuplets(doc, maxCheck);		if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckPlayDurs(doc, maxCheck);	if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckHairpins(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckHairpins(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 
-	(void)DCheckContext(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckRedundKS(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckRedundTS(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckContext(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckRedundKS(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckRedundTS(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 	if (maxCheck) {
-		(void)DCheckMeasDur(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+		(void)DCheckMeasDur(doc);			if (DErrLimit() || UserInterrupt()) return FALSE;
 	}
-	(void)DCheckUnisons(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckNoteNums(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckUnisons(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckNoteNums(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 
 	if (DCheckSel(doc, &nInRange, &nSel)) return TRUE;
 	
 #ifdef DDB
 	strictCont = ContinSelection(doc, TRUE);
 	if (!strictCont) looseCont = ContinSelection(doc, FALSE);
-	DebugPrintf("%s sel, %d objs in range, %d sel, %d total. %c%d voices.\n",
+	LogPrintf(LOG_WARNING, "%s sel, %d objs in range, %d sel, %d total. %c%d voices.\n",
 					 (strictCont? "Strict contin." : (looseCont? "Loose contin." : "Discont.")),
 					 nInRange, nSel, nTotal,
 					 (nvUsed>doc->nstaves? '*' : ' '), nvUsed);
 	
 	/* Now check all nodes in the Master Page, Clipboard and the Undo Clipboard. */
 
-	DebugPrintf("    CHK MASTER: ");
+	LogPrintf(LOG_WARNING, "--CHK MASTER: ");
 #endif
 	for (pL = doc->masterHeadL; pL!=doc->masterTailL; pL = RightLINK(pL)) {
 		if (DCheckNode(doc, pL, MP_DSTR, maxCheck)<0) return TRUE;
-		DCheckNodeSel(doc, pL);		if (DErrLimit() || UserInterrupt()) return FALSE;
+		DCheckNodeSel(doc, pL);			if (DErrLimit() || UserInterrupt()) return FALSE;
 	}
 #ifdef DDB
-	DebugPrintf(" Done.");
+	LogPrintf(LOG_WARNING, " Done.");
 #endif
 	
-	DebugPrintf("    CHK CLIP: ");
+	LogPrintf(LOG_WARNING, "    --CHK CLIP: ");
 	InstallDoc(clipboard);
 	for (pL = clipboard->headL; pL!=clipboard->tailL; pL = RightLINK(pL))
 		if (DCheckNode(clipboard, pL, CLIP_DSTR, maxCheck)<0) {
@@ -136,9 +133,9 @@ Boolean DCheckEverything(Document *doc,
 	InstallDoc(doc);
 
 #ifdef DDB
-	DebugPrintf(" Done.");
-	if (nerr>0) DebugPrintf(" %d ERRORS. ", nerr); 	
-	DebugPrintf("\n");
+	LogPrintf(LOG_WARNING, " Done.");
+	if (nerr>0) LogPrintf(LOG_WARNING, " %d ERROR(S). ", nerr); 	
+	LogPrintf(LOG_WARNING, "\n");
 #endif
 
 	return FALSE;
@@ -184,11 +181,11 @@ enum
 #define LAST_RBUTTON MEMORY
 
 static short DebugDialog(char *label, short *what, short *istart, short *istop,
-								Boolean *disp, Boolean *check, Boolean *links, Boolean *subs)
+							Boolean *disp, Boolean *check, Boolean *links, Boolean *subs)
 {	
-	DialogPtr	dialogp;
-	GrafPtr		oldPort;
-	Boolean		dialogOver;
+	DialogPtr		dialogp;
+	GrafPtr			oldPort;
+	Boolean			dialogOver;
 	short			whatval;
 	short			ditem, itype, j;
 	ControlHandle	whatHdl[LAST_RBUTTON+1],
@@ -213,7 +210,7 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 	strcat(strBuf, (char *)label);
 	strcat(strBuf, "\"");
 	CToPString(strBuf);
-	PutDlgString(dialogp,LABEL_DI,(unsigned char *)strBuf,FALSE);
+	PutDlgString(dialogp,LABEL_DI, (unsigned char *)strBuf, FALSE);
 
 	/* Initialize: get Handles to controls, set initial values, etc. */
 	for (j=FULL; j<=LAST_RBUTTON; j++)						/* Get Hdls to radio btns */
@@ -238,7 +235,7 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 	SetControlValue(subsHdl, (*subs? 1 : 0));
 	SelectDialogItemText(dialogp, STOP, 0, ENDTEXT);					/* Hilite stop no. */
 	if (*what>=EVERYTHING) DISABLE_CONTROLS
-	else						  ENABLE_CONTROLS;
+	else				   ENABLE_CONTROLS;
 	dialogOver = FALSE;
 	GetPort(&oldPort);
 	SetPort(GetDialogWindowPort(dialogp));
@@ -337,7 +334,7 @@ Boolean DErrLimit()
 		if (CautionAdvise(DEBUGERR_ALRT)==OK) {
 			alreadyAsked = userSaidQuit = FALSE;
 			if (errLim==FIRST_ERRLIM) errLim = SECOND_ERRLIM;
-			else							  errLim = 31999;				/* To disable limit checking */
+			else							  errLim = 31999;		/* To disable limit checking */
 			return FALSE;
 		}
 		else {
@@ -354,17 +351,17 @@ Boolean DErrLimit()
 TRUE if things are so badly screwed up that quitting immediately is desirable. */
 
 Boolean DoDebug(
-				char *label			/* Identifying string to display */
-				)
+			char *label			/* Identifying string to display */
+			)
 {
-	LINK				pL, startL, stopL;
+	LINK			pL, startL, stopL;
 	static short	what, istart, istop;
-	short				kount, inLine, nInRange, nSel, objList;
+	short			kount, inLine, nInRange, nSel, objList;
 	static Boolean	disp, check, showLinks, showSubs;
 	static Boolean firstCall = TRUE;
 	Boolean			selLinksBad;
 	Document 		*doc=GetDocumentFromWindow(TopDocument);
-	char				fullLabel[256];			/* Starting with close single quote */
+	char			fullLabel[256];			/* Starting with close single quote */
 	
 	if (firstCall) {
 		what = 0;
@@ -377,12 +374,12 @@ Boolean DoDebug(
 	}
 	
 	if (doc==NULL) {
-		DebugPrintf("•DoDebug: doc NULL");
+		LogPrintf(LOG_WARNING, "•DoDebug: doc NULL");
 		return TRUE;
 	}
 	if (DebugDialog(label, &what, &istart, &istop, &disp, &check,	/* What does the */
-							&showLinks, &showSubs)==Cancel)					/*   user want? */
-		return FALSE;																/* Nothing? Quit */
+							&showLinks, &showSubs)==Cancel)			/*   user want? */
+		return FALSE;												/* If nothing, quit */
 
 	WaitCursor();
 
@@ -400,7 +397,7 @@ Boolean DoDebug(
 		default:
 			strcat(fullLabel, "'");
 	}
-	DebugPrintf("DEBUG '%s: ", fullLabel);
+	LogPrintf(LOG_WARNING, "DEBUG '%s: ", fullLabel);
 
 	switch (what) {
 		case EVERYTHING:
@@ -408,7 +405,7 @@ Boolean DoDebug(
 		case MIN_THINGS:
 			if (DCheckEverything(doc, what==EVERYTHING, what==MIN_THINGS)) {
 					/* Things are in a disasterous state. Quit before we crash! */
-					DebugPrintf("•DoDebug: CAN'T FINISH CHECKING.\n"); 					
+					LogPrintf(LOG_WARNING, "•DoDebug: CAN'T FINISH CHECKING.\n"); 					
 					return TRUE;							
 			}
 			else
@@ -416,7 +413,7 @@ Boolean DoDebug(
 				
 #ifdef DDB
 		case INDEX:
-			DebugPrintf("INDEX: doc->headL=%d tailL=%d\n",
+			LogPrintf(LOG_WARNING, "INDEX: doc->headL=%d tailL=%d\n",
 						doc->headL, doc->tailL);
 			kount = inLine = 0;
 			ResetDErrLimit();
@@ -438,7 +435,7 @@ Boolean DoDebug(
 			return FALSE;
 			
 		case FULL:
-			DebugPrintf("FULL%s: headL=%d tailL=%d",
+			LogPrintf(LOG_WARNING, "FULL%s: headL=%d tailL=%d",
 						(check? "/CHK" : " "),
 						doc->headL, doc->tailL);
 			startL = doc->headL;
@@ -446,7 +443,7 @@ Boolean DoDebug(
 			break;
 			
 		case CLIPBOARD:
-			DebugPrintf("CLIP%s: clipboard->headL=%d clipboard->tailL=%d",
+			LogPrintf(LOG_WARNING, "CLIP%s: clipboard->headL=%d clipboard->tailL=%d",
 						(check? "/CHK" : " "),
 						clipboard->headL, clipboard->tailL);
 			startL = clipboard->headL;
@@ -454,7 +451,7 @@ Boolean DoDebug(
 			break;
 			
 		case UNDODSTR:
-			DebugPrintf("UNDO%s: undo.headL=%d undo.tailL=%d",
+			LogPrintf(LOG_WARNING, "UNDO%s: undo.headL=%d undo.tailL=%d",
 						(check? "/CHK" : " "),
 						doc->undo.headL, doc->undo.headL);
 			startL = doc->undo.headL;
@@ -462,7 +459,7 @@ Boolean DoDebug(
 			break;
 			
 		default:
-			DebugPrintf("SELECT%s: selStartL=%d End=%d ",
+			LogPrintf(LOG_WARNING, "SELECT%s: selStartL=%d End=%d ",
 						(check? "/CHK" : " "),
 						doc->selStartL, doc->selEndL);
 			if (check) {
@@ -471,7 +468,7 @@ Boolean DoDebug(
 				DCheckHeirarchy(doc);
 				if (selLinksBad) {
 					/* Things are in a disasterous state. Quit before we crash! */
-					DebugPrintf("•DoDebug: CAN'T DISPLAY THE SELECTION.\n"); 	
+					LogPrintf(LOG_WARNING, "•DoDebug: CAN'T DISPLAY THE SELECTION.\n"); 	
 					return TRUE;
 				}
 			}
@@ -479,12 +476,12 @@ Boolean DoDebug(
 			stopL = doc->selEndL;
 	}
 	
-	if (disp && startL!=stopL) DebugPrintf(" (Obj flags: SelVisSoftValidTwkd)");
-	DebugPrintf("\n");
+	if (disp && startL!=stopL) LogPrintf(LOG_WARNING, " (Obj flags: SelVisSoftValidTwkd)");
+	LogPrintf(LOG_WARNING, "\n");
 	kount = 0;
 	ResetDErrLimit();
 
-	if (DCheckHeaps(doc)) return FALSE;								/* Situation bad but maybe not hopeless */				
+	if (DCheckHeaps(doc)) return FALSE;							/* Situation is bad but maybe not hopeless */				
 
 	switch (what) {
 		case CLIPBOARD:
@@ -511,12 +508,10 @@ Boolean DoDebug(
 		kount++;
 	}
 
-	if (nerr>0) DebugPrintf("%d ERRORS. ", nerr); 	
+	if (nerr>0) LogPrintf(LOG_WARNING, "%d ERROR(S). ", nerr); 	
 
 	if (what==CLIPBOARD) InstallDoc(doc);
 	return FALSE;
 #endif
 
 }
-
-//#endif /* PUBLIC_VERSION */

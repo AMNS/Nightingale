@@ -1,27 +1,25 @@
 /***************************************************************************
-*	FILE:	SelUtils.c																			*
-*	PROJ:	Nightingale, rev. for v.3.1													*
+*	FILE:	SelUtils.c
+*	PROJ:	Nightingale
 *	DESC:	Routines to handle the user interface for selection, get info
 	about the selection, etc.
-	GetSelStaff				GetStaffFromSel		GetSelPart
-	GetVoiceFromSel		GetStfRangeOfSel		Sel2MeasPage
-	GetSelMIDIRange		FindSelAcc
+	
+	GetSelStaff				GetStaffFromSel			GetSelPart
+	GetVoiceFromSel			GetStfRangeOfSel		Sel2MeasPage
+	GetSelMIDIRange			FindSelAcc
 	ShellSort				UnemptyRect
-	GetStaff					TrackStaffRect			ChangeInvRect
+	GetStaff				TrackStaffRect			ChangeInvRect
 	FixEmptySelection		GetStaffLimits			SelectStaffRect
 	DoThreadSelect			InsertSpaceTrackStf
-	NotesSel2TempFlags	TempFlags2NotesSel
+	NotesSel2TempFlags		TempFlags2NotesSel
 /***************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-97 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -111,9 +109,9 @@ short GetStaffFromSel(Document *doc, LINK *pSelL)
 				if (DynamicSEL(aDynamicL))
 					{ *pSelL = pL; return DynamicSTAFF(aDynamicL); }
 				break;
-			case OCTAVAtype:
+			case OTTAVAtype:
 				*pSelL = pL;
-				return OctavaSTAFF(pL);
+				return OttavaSTAFF(pL);
 			case TUPLETtype:
 				*pSelL = pL;
 				return TupletSTAFF(pL);
@@ -124,9 +122,9 @@ short GetStaffFromSel(Document *doc, LINK *pSelL)
 			case TEMPOtype:
 				*pSelL = pL;
 				return TempoSTAFF(pL);
-			case SPACEtype:
+			case SPACERtype:
 				*pSelL = pL;
-				return SpaceSTAFF(pL);
+				return SpacerSTAFF(pL);
 			case ENDINGtype:
 				*pSelL = pL;
 				return EndingSTAFF(pL);
@@ -173,12 +171,12 @@ Note: This code is derived from GetStfRangeOfSel.  -JGG */
 
 void GetSelPartList(Document *doc, LINK partL[])
 {
-	short			i, j;
-	short			selStaves[MAXSTAVES+1];
-	short			selParts[MAXSTAVES+1];
+	short		i, j;
+	short		selStaves[MAXSTAVES+1];
+	short		selParts[MAXSTAVES+1];
 	PMEVENT		p;
-	LINK 			pL, subObjL;
-	HEAP			*tmpHeap;
+	LINK 		pL, subObjL;
+	HEAP		*tmpHeap;
 	GenSubObj	*subObj;
 	
 	for (i = 0; i<=MAXSTAVES; i++) {
@@ -189,7 +187,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 
 	/* Determine which staves have any selected items. */
 
-	if (doc->selStartL==doc->selEndL) {					/* insertion pt */
+	if (doc->selStartL==doc->selEndL) {						/* insertion pt */
 		selStaves[doc->selStaff] = TRUE;
 	}
 	else {
@@ -208,7 +206,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 						tmpHeap = Heap + ObjLType(pL);
 						
 						for (subObjL = FirstSubObjPtr(p, pL); subObjL;
-																	subObjL = NextLink(tmpHeap, subObjL)) {
+												subObjL = NextLink(tmpHeap, subObjL)) {
 							subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 							if (subObj->selected)
 								selStaves[subObj->staffn] = TRUE;
@@ -218,9 +216,9 @@ void GetSelPartList(Document *doc, LINK partL[])
 					case TUPLETtype:
 					case SLURtype:
 					case GRAPHICtype:
-					case OCTAVAtype:
+					case OTTAVAtype:
 					case TEMPOtype:
-					case SPACEtype:
+					case SPACERtype:
 					case ENDINGtype:
 						p = GetPMEVENT(pL);
 						
@@ -239,8 +237,8 @@ void GetSelPartList(Document *doc, LINK partL[])
 		}
 	}
 
-	/* Gather the part links whose staves have selected items. (More
-		than one staff number can point to the same part.) */
+	/* Gather the part links whose staves have selected items. (More than one staff
+		number can point to the same part.) */
 
 	for (i = 1; i<=MAXSTAVES; i++)
 		if (selStaves[i]) {
@@ -311,7 +309,7 @@ default voice number for the staff). If nothing is selected, returns NOONE. */
 
 short GetVoiceFromSel(Document *doc)
 {
-	register LINK pL;
+	register LINK	pL;
 	LINK			aNoteL, aGRNoteL, aClefL, aKeySigL, aTimeSigL, aDynamicL,
 					aRptEndL, aMeasureL, aPSMeasL;
 	
@@ -352,8 +350,8 @@ short GetVoiceFromSel(Document *doc)
 				for ( ; aDynamicL; aDynamicL = NextDYNAMICL(aDynamicL))
 					if (DynamicSEL(aDynamicL)) return DynamicSTAFF(aDynamicL);
 				break;
-			case OCTAVAtype:
-				return OctavaSTAFF(pL);
+			case OTTAVAtype:
+				return OttavaSTAFF(pL);
 			case TUPLETtype:
 				return TupletVOICE(pL);
 			case GRAPHICtype:
@@ -365,8 +363,8 @@ short GetVoiceFromSel(Document *doc)
 					return 1;							/* Page-rel. Graphic, so be arbitrary */
 			case TEMPOtype:
 				return TempoSTAFF(pL);
-			case SPACEtype:
-				return SpaceSTAFF(pL);
+			case SPACERtype:
+				return SpacerSTAFF(pL);
 			case ENDINGtype:
 				return EndingSTAFF(pL);
 			case RPTENDtype:
@@ -403,10 +401,10 @@ doc->selEndL. */
 void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 {
 	PMEVENT		p;
-	LINK 			pL, subObjL;
-	HEAP			*tmpHeap;
+	LINK 		pL, subObjL;
+	HEAP		*tmpHeap;
 	GenSubObj	*subObj;
-	short			topStaffn, botStaffn;
+	short		topStaffn, botStaffn;
 	
 	if (doc->selStartL==doc->selEndL) {					/* insertion pt */
 		stfRange->topStaff = stfRange->bottomStaff = doc->selStaff;
@@ -443,9 +441,9 @@ void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 				case TUPLETtype:
 				case SLURtype:
 				case GRAPHICtype:
-				case OCTAVAtype:
+				case OTTAVAtype:
 				case TEMPOtype:
-				case SPACEtype:
+				case SPACERtype:
 				case ENDINGtype:
 					p = GetPMEVENT(pL);
 					
@@ -577,8 +575,8 @@ static void ShellSort(short array[], short nsize)
 /* Sort <nstep> subarrays by simple insertion */
 		for (i = 0; i<nstep; i++)
 		{
-			for (n = i+nstep; n<nsize; n += nstep) {			/* Look for item <n>'s place */
-				temp = array[n];										/* Save it */
+			for (n = i+nstep; n<nsize; n += nstep) {		/* Look for item <n>'s place */
+				temp = array[n];							/* Save it */
 				for (ncheck = n-nstep; ncheck>=0;
 					  ncheck -= nstep)
 					if (temp<array[ncheck])
@@ -634,7 +632,7 @@ static short GetStaff(Document *doc, Point pt)
 	for (i = doc->nstaves; i>=1; i--)
 		if (staffInfo[i].visible) return i;
 
-	return 1;														/* Should never get here */
+	return 1;													/* Should never get here */
 }
 
 
@@ -675,18 +673,18 @@ more staves in an arbitrary horizontal extent. */
 to three rects, which need to be available to DrawTheSweepRects() below as well as
 as here.  For single-system sweeps, though (all we allow now), we only use topRect. */
 
-static Rect topRect,midRect,botRect;
+static Rect topRect;
 
 static Point TrackStaffRect(
-						Document *doc,
-						Point startPt,								/* mousedown point */
-						short	*topStf, short *bottomStf,		/* Top and bottom staves of selection (inclusive) */
-						Rect	*paper
-						)
+					Document *doc,
+					Point startPt,						/* mousedown point */
+					short *topStf, short *bottomStf,	/* Top and bottom staves of selection (inclusive) */
+					Rect *paper
+					)
 {
-	Point		pt; long ans;
-	Rect		aR, oldR,paperOrig;
-	short		startStf, topStartStf, stf;
+	Point	pt; long ans;
+	Rect	aR, oldR,paperOrig;
+	short	startStf, topStartStf, stf;
 	Boolean	cancelThis;
 	
 	GrafPtr	oldPort;
@@ -699,12 +697,11 @@ static Point TrackStaffRect(
 	theSelectionType = SWEEPING_RECTS;
 	
 	topStartStf = GetStaff(doc, startPt);
-	SetRect(&oldR, 0, 0, 0, 0);								/* Nothing hilited yet */
+	SetRect(&oldR, 0, 0, 0, 0);							/* Nothing hilited yet */
 	cancelThis = TRUE;
 	paperOrig = *paper;
 	OffsetRect(&paperOrig,-paperOrig.left,-paperOrig.top);
-	while (Button())
-	{
+	while (Button()) {
 		GetPaperMouse(&pt,paper);
 		if (ABS(pt.h-startPt.h)>=2) {
 			cancelThis = FALSE;
@@ -715,7 +712,7 @@ static Point TrackStaffRect(
 		stf = GetStaff(doc, pt);									/* Staff boundary above pt */
 		startStf = topStartStf;										/* Staff boundary above startPt */
 		if (stf<startStf)	startStf = GetNextStaffn(doc, startStf, TRUE);	/* We want the inclusive */
-		else					stf = GetNextStaffn(doc, stf, TRUE);				/*   range of staves */
+		else					stf = GetNextStaffn(doc, stf, TRUE);		/*   range of staves */
 		SetRect(&aR, startPt.h, staffInfo[startStf].top, pt.h,
 							staffInfo[stf].top);
 		OffsetRect(&aR,paper->left,paper->top);
@@ -755,8 +752,8 @@ static void ChangeInvRect(Rect *pr1, Rect *pr2)
 	r1 = *pr1;	r2 = *pr2;
 	UnemptyRect(&r1);	UnemptyRect(&r2);			/* If needed, reverse axes to make nonempty */
 	topRect = r2;
-	hBound[0] = r1.left;		hBound[1] = r1.right;
-	hBound[2] = r2.left;		hBound[3] = r2.right;
+	hBound[0] = r1.left;	hBound[1] = r1.right;
+	hBound[2] = r2.left;	hBound[3] = r2.right;
 	ShellSort(hBound, 4);
 	vBound[0] = r1.top;		vBound[1] = r1.bottom;
 	vBound[2] = r2.top;		vBound[3] = r2.bottom;
@@ -807,7 +804,7 @@ void FixEmptySelection(Document *doc, Point	pt)
 		which doesn't conflict graphically with any symbol of most types. */
 
 	if (doc->selStartL==doc->selEndL) {						
-		staffn = FindStaff(doc, pt);							/* Also sets doc->currentSystem */
+		staffn = FindStaff(doc, pt);						/* Also sets doc->currentSystem */
 		if (staffn==NOONE) return;							/* Click wasn't on any staff; return */
 
 		doc->selStaff = staffn;
@@ -816,7 +813,7 @@ void FixEmptySelection(Document *doc, Point	pt)
 		if (JustTYPE(maySectL)!=J_D) {
 			r = LinkOBJRECT(maySectL);
 			if (pt.h>=r.left &&  pt.h<=r.right)
-				pt.h = r.right+1;									/* Move caret if in middle of symbol */
+				pt.h = r.right+1;							/* Move caret if in middle of symbol */
 		}
 
 		/* Make sure the insertion point is after the system's first measure. */
@@ -834,21 +831,22 @@ void FixEmptySelection(Document *doc, Point	pt)
 	}
 }
 
+
 /* --------------------------------------------------------------- GetStaffLimits -- */
 /* Fills in the staffInfo array with pixel vertical coordinates of the points
 halfway between corresponding staves in the system enclosing <pt> and visibility
 flags for the staves. */
 
 static void GetStaffLimits(Document *doc, Point pt, STAFFINFO staffInfo[],
-									CONTEXT context[])
+								CONTEXT context[])
 {
 	short 	staff, s, staffAbove;
-	LINK		systemL, staffL;
-	DDIST		temp;
+	LINK	systemL, staffL;
+	DDIST	temp;
 	PSYSTEM	pSystem;
-	Rect		sysRect;
+	Rect	sysRect;
 
-	staff = FindStaff(doc, pt);									/* FindStaff also sets currentSystem */
+	staff = FindStaff(doc, pt);								/* FindStaff also sets currentSystem */
 	if (staff==NOONE) MayErrMsg("GetStaffLimits: couldn't find staff");
 
 	/* Find the staff and system objects enclosing <pt>. */
@@ -887,17 +885,17 @@ the horizontal area, and (when the button is released) select enclosed symbols.
 Intended for "wipe" (one-dimensional) selection. Returns FALSE if the mouse was
 never moved horizontally more than a couple pixels. */
 
-Boolean SelectStaffRect(Document *doc, Point	pt)
+Boolean SelectStaffRect(Document *doc, Point pt)
 {
 	LINK		pL,firstMeasL,sysL,pageL,lastL,lastPageL;
 	Point		endPt;
 	Rect		selRect, aRect;
 	short		index, topStf, bottomStf;
-	Boolean	found;
-	CONTEXT	context[MAXSTAVES+1];
-	STFRANGE stfRange;												/* Range of staves to pass to ContextObject */
+	Boolean		found;
+	CONTEXT		context[MAXSTAVES+1];
+	STFRANGE	stfRange;									/* Range of staves to pass to ContextObject */
 
-	GetStaffLimits(doc, pt, staffInfo, context);				/* and set doc->currentSystem */
+	GetStaffLimits(doc, pt, staffInfo, context);			/* and set doc->currentSystem */
 
 	pageL = GetCurrentPage(doc);
 	pL = sysL = LSSearch(pageL, SYSTEMtype, doc->currentSystem, GO_RIGHT, FALSE);
@@ -944,7 +942,7 @@ Boolean SelectStaffRect(Document *doc, Point	pt)
 				found = FALSE;
 				CheckObject(doc, pL, &found, (Ptr)&selRect, context, SMStaffDrag, &index, stfRange);
 				if (found) {
-					LinkSEL(pL) = TRUE;									/* update selection */
+					LinkSEL(pL) = TRUE;						/* update selection */
 					if (!doc->selStartL)
 						doc->selStartL = pL;
 					doc->selEndL = RightLINK(pL);
@@ -956,7 +954,7 @@ Boolean SelectStaffRect(Document *doc, Point	pt)
 
 	FixEmptySelection(doc, pt);
 	if (doc->selStartL==NILINK || doc->selEndL==NILINK) {
-		GetIndCString(strBuf, MISCERRS_STRS, 11);					/* "Nightingale is confused" */
+		GetIndCString(strBuf, MISCERRS_STRS, 11);			/* "Nightingale is confused" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		doc->selStartL = doc->selEndL = RightLINK(firstMeasL);
@@ -985,12 +983,12 @@ void DoThreadSelect(Document *doc,
 	register LINK pL;
 	LINK		pageL, systemL, endL;
 	Point		newPt, newPtW;
-	Boolean	found, overSheet;
-	CONTEXT	context[MAXSTAVES+1];
+	Boolean		found, overSheet;
+	CONTEXT		context[MAXSTAVES+1];
 	short		index, sheetNum, type;
-	STFRANGE stfRange = {0,0};
+	STFRANGE	stfRange = {0,0};
 	
-#define KLUDGE		/* ??THE CRUDEST POSSIBLE INTERFACE! */
+#define KLUDGE		/* FIXME: THE CRUDEST POSSIBLE INTERFACE! */
 #ifdef KLUDGE
 	threadableType = (CapsLockKeyDown() && ShiftKeyDown()? GRAPHICtype : SYNCtype);
 #endif
@@ -1036,7 +1034,7 @@ void DoThreadSelect(Document *doc,
 		if (!found) StartThread();
 	}
 	
-	/* Set the selection range. ??Better to set sel. wide open and call OptimizeSelection. */
+	/* Set the selection range. FIXME: Better to set sel. wide open and call OptimizeSelection. */
 	
 	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL)) {

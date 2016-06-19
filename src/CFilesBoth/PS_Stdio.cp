@@ -1,13 +1,11 @@
-/*	PS_Stdio.c for Nightingale - medium- and low-level PostScript output, rev. for v.2000. */
+/*	PS_Stdio.c for Nightingale - medium- and low-level PostScript output. */
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- *	THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROPERTY OF
- *	ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE SECRET AND IS
- *	NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED WRITTEN
- *	AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -1782,7 +1780,7 @@ OSErr PS_MusSize(Document *doc, short ptSize)
 			
 			if (wStem<MIN_LINEWIDTH || wBar<MIN_LINEWIDTH || wLedger<MIN_LINEWIDTH || wStaff<MIN_LINEWIDTH) {
 				if (firstTime)
-					DebugPrintf("PS_MusSize: some lines are very thin. MIN_LINEWIDTH=%d; wStem=%d, wBar=%d, wLedger=%d, wStaff=%d\n",
+					LogPrintf(LOG_NOTICE, "PS_MusSize: some lines are very thin. MIN_LINEWIDTH=%d; wStem=%d, wBar=%d, wLedger=%d, wStaff=%d\n",
 						MIN_LINEWIDTH, wStem, wBar, wLedger, wStaff);
 				firstTime = FALSE;
 				thinLines = TRUE;

@@ -1,22 +1,20 @@
-/* HeapBrowser.c - Heap Browser functions for Nightingale - small rev. for v.2.1 */
+/* HeapBrowser.c - Heap Browser functions for Nightingale */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#ifndef PUBLIC_VERSION		/* If public, skip this file completely! */
+#ifndef PUBLIC_VERSION			/* If public, skip this file completely! */
 
 #define HEAPBROWSER_DLOG 1910
-#define LEADING 11			/* Vertical dist. between lines displayed (pixels) */
+#define LEADING 11				/* Vertical dist. between lines displayed (pixels) */
 
 static Rect bRect;
 static short linenum;
@@ -38,7 +36,7 @@ static void HeapBrowseMODNR(short);
 static void HeapBrowseRepeatEnd(short);
 static void HeapBrowseSlur(short);
 static void HeapBrowseTuplet(short);
-static void HeapBrowseOctava(short);
+static void HeapBrowseOttava(short);
 static void HeapBrowseGRSync(short);
 static void HeapBrowseObject(short);
 
@@ -206,8 +204,8 @@ static void ShowHeap(short theHeap, register short itemIndex)
 	case TUPLETtype:
 		HeapBrowseTuplet(itemIndex);
 		break;
-	case OCTAVAtype:
-		HeapBrowseOctava(itemIndex);
+	case OTTAVAtype:
+		HeapBrowseOttava(itemIndex);
 		break;
 	case GRSYNCtype:
 		HeapBrowseGRSync(itemIndex);
@@ -478,8 +476,8 @@ void HeapBrowseSync(short itemIndex)
 	sprintf(s, "beamed=%s otherStemSide==%s", q->beamed ? "TRUE" : "false",
 															q->otherStemSide ? "TRUE" : "false");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "inTuplet=%s inOctava=%s", q->inTuplet ? "TRUE" : "false",
-														 q->inOctava ? "TRUE" : "false");
+	sprintf(s, "inTuplet=%s inOttava=%s", q->inTuplet ? "TRUE" : "false",
+														 q->inOttava ? "TRUE" : "false");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "firstMod=%d", q->firstMod);
 	HeapDrawLine(s);
@@ -597,14 +595,14 @@ void HeapBrowseTuplet(short itemIndex)
 	HeapDrawLine(s);
 }
 
-void HeapBrowseOctava(short itemIndex)
+void HeapBrowseOttava(short itemIndex)
 {
 	LINK qL;
-	PANOTEOCTAVA q;
+	PANOTEOTTAVA q;
 	
 	qL = itemIndex;
 	
-	q = GetPANOTEOCTAVA(qL);
+	q = GetPANOTEOTTAVA(qL);
 	sprintf(s, "link=%d @%lx opSync=%d next=%d", qL, q, q->opSync, q->next);
 	HeapDrawLine(s);
 }

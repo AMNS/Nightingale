@@ -1,19 +1,17 @@
 /***************************************************************************
 *	FILE:	DialogsBoth.c
-*	PROJ:	Nightingale, tiny rev. for v.3.5
+*	PROJ:	Nightingale
 *	DESC:	Dialog-handling routines for misc. dialogs needed in "viewer version"
 *			("viewer version" removed by chirgwin at Mon Jun 25 15:57:30 PDT 2012)
 *			as well as the full version.
 ***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /*
@@ -26,9 +24,9 @@
 
 /* --------------------------------- Declarations for simple "set number" Dialogs -- */
 
-#define NUMBER_DI 	3				/* DITL index of number to be adjusted */
-#define UpRect_DI		5				/* DITL index of up button rect */
-#define DownRect_DI	6				/* DITL index of down button rect */
+#define NUMBER_DI 	3			/* DITL index of number to be adjusted */
+#define UpRect_DI	5			/* DITL index of up button rect */
+#define DownRect_DI	6			/* DITL index of down button rect */
 
 extern short minVal, maxVal;
 
@@ -43,15 +41,16 @@ static enum
 	NEW_DI
 } E_LookAtItems;
 
+
 short LookAtDialog(Document *doc, short initVoice, LINK partL)
 {	
-	DialogPtr	dlog;
+	DialogPtr		dlog;
 	short			ditem, itype;
 	short			voice, oldVoice;
-	Handle		newHdl;
+	Handle			newHdl;
 	Rect			tRect;
-	GrafPtr		oldPort;
-	PPARTINFO 	pPart;
+	GrafPtr			oldPort;
+	PPARTINFO		pPart;
 	char			partName[256];		/* Pascal string */
 	char			fmtStr[256];
 	ModalFilterUPP	filterUPP;
@@ -133,7 +132,7 @@ static enum
 } E_GoToItems;
 
 #define ANYMARK "\p"
-#define RMARKSTR(rMark)		( PCopy(GetPAGRAPHIC(FirstSubLINK(rMark))->string) )
+#define RMARKSTR(rMark)		( PCopy(GetPAGRAPHIC(FirstSubLINK(rMark))->strOffset) )
 
 static UserPopUp gotoPopUp8;				/* popup8 is for TransposeDialog ??WHAT? */
 static short currPage, currMeas;
@@ -203,19 +202,19 @@ static Boolean RMHandleKeyDown(EventRecord *theEvent, LINK firstMark, LINK lastM
 static Rect upRect, downRect;
 
 static Boolean RMHandleMouseDown(EventRecord *theEvent, LINK firstMark, LINK lastMark,
-											DialogPtr theDialog)
+									DialogPtr theDialog)
 {
 	Point	where;
 
 	where = theEvent->where;
 	GlobalToLocal(&where);
 	if (PtInRect(where, &upRect)) {
-		SelectDialogItemText(theDialog, NUMBER_DI, 0, ENDTEXT);						/* Select & unhilite number */
+		SelectDialogItemText(theDialog, NUMBER_DI, 0, ENDTEXT);			/* Select & unhilite number */
 		TrackNumberArrow(&upRect, &RMClickUp, lastMark, theDialog);
 		return TRUE;
 	}
 	else if (PtInRect(where, &downRect)) {
-		SelectDialogItemText(theDialog, NUMBER_DI, 0, ENDTEXT);						/* Select & unhilite number */
+		SelectDialogItemText(theDialog, NUMBER_DI, 0, ENDTEXT);			/* Select & unhilite number */
 		TrackNumberArrow(&downRect, &RMClickDown, firstMark, theDialog);
 		return TRUE;
 	}

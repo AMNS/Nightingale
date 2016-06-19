@@ -1,6 +1,6 @@
 /***************************************************************************
 *	FILE:	SpaceHighLevel.c
-*	PROJ:	Nightingale, rev. for v.99
+*	PROJ:	Nightingale
 *	DESC:	High-level spacing routines, including justifying.
 *
 	CenterNR					CenterWholeMeasRests		RemoveObjSpace
@@ -13,15 +13,12 @@
 	JustifySystem				JustifySystems
 ****************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -182,7 +179,7 @@ static Boolean AllowOverlap(LINK lyricL)
 {
 	Str255 string; unsigned char lastChar; short i;
 
-	PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(lyricL))->string),
+	PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(lyricL))->strOffset),
 				(StringPtr)string);
 	
 	/* Skip trailing white space or punctuation marks before checking. */
@@ -398,10 +395,10 @@ static void DebugPrintSpacing(short nLast, STDIST fSpBefore[]);
 static void DebugPrintSpacing(short nLast, STDIST fSpBefore[])
 {
 	short k;
-	DebugPrintf("fSpBefores:");
+	LogPrintf(LOG_NOTICE, "fSpBefores:");
 	for (k = 0; k<=nLast; k++)
-		DebugPrintf(" %5d", fSpBefore[k]);
-	DebugPrintf("\n");
+		LogPrintf(LOG_NOTICE, " %5d", fSpBefore[k]);
+	LogPrintf(LOG_NOTICE, "\n");
 }
 
 
@@ -423,7 +420,7 @@ static void FillIgnoreChordTable(Document *doc, short nLast, SPACETIMEINFO space
 				if (aNoteL!=NILINK) {
 					aNote = GetPANOTE(aNoteL);
 					if (aNote->rspIgnore!=0) ignoreChord[i][v] = TRUE;
-if (aNote->rspIgnore!=0) DebugPrintf("FillIgnoreChordTable: i=%d v=%d: rspIgnore=%hd ignoreChord[]=%d\n",
+if (aNote->rspIgnore!=0) LogPrintf(LOG_NOTICE, "FillIgnoreChordTable: i=%d v=%d: rspIgnore=%hd ignoreChord[]=%d\n",
 	i, v, aNote->rspIgnore, ignoreChord[i][v]);
 				}
 			} 
@@ -480,7 +477,7 @@ static void ConsidITWidths(
 
 #ifdef SPACEBUG
 	if (ShiftKeyDown() && OptionKeyDown()) {
-	//	DebugPrintf("CIT2. "); DebugPrintSpacing(nLast, fSpBefore);
+	//	LogPrintf(LOG_NOTICE, "CIT2. "); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
 				if (ObjOnStaff(spaceTimeInfo[i].link, s, FALSE)) {
@@ -489,7 +486,7 @@ static void ConsidITWidths(
 					else
 						gNeedLeft = gNeedRight = 0;
 					needLeft = SymWidthLeft(doc, spaceTimeInfo[i].link, s, -1);
-					//DebugPrintf("i=%d stf=%d gNeedLeft=%d needLeft=%d\n", i, s, gNeedLeft, needLeft);
+					//LogPrintf(LOG_NOTICE, "i=%d stf=%d gNeedLeft=%d needLeft=%d\n", i, s, gNeedLeft, needLeft);
 					if (needLeft<gNeedLeft) needLeft = gNeedLeft;
 
 					/*
@@ -609,7 +606,7 @@ static void ConsidIPWidths(
 
 #ifdef SPACEBUG
 	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf("Final "); DebugPrintSpacing(nLast, fSpBefore);
+		LogPrintf(LOG_NOTICE, "Final "); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
 
@@ -662,7 +659,7 @@ static void ConsidIPWidths(
 
 #ifdef NOTYET
 
-#define SpaceSPWIDTH(link)	( (GetPSPACE(link))->spWidth )
+#define SpaceSPWIDTH(link)	( (GetPSPACER(link))->spWidth )
 
 /* -------------------------------------------------------------- ConsidSPWidths -- */
 /*	Consider widths of all J_SP objects (only Spacers) and adjust spacing accordingly.
@@ -720,7 +717,7 @@ static void ConsiderWidths(
 
 #ifdef SPACEBUG
 	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf("Inter."); DebugPrintSpacing(nLast, fSpBefore);
+		LogPrintf(LOG_NOTICE, "Inter."); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
 	
@@ -830,19 +827,19 @@ DDIST Respace1Bar(
 #ifdef SPACEBUG
 	if (ShiftKeyDown() && OptionKeyDown()) {
 		short k;
-		DebugPrintf(  "Nodes: ---------");
+		LogPrintf(LOG_NOTICE,   "Nodes: ---------");
 		for (k = 0; k<=nLast; k++)
-			DebugPrintf(" %5d", spaceTimeInfo[k].link);
-		DebugPrintf("\nTypes:          ");
+			LogPrintf(LOG_NOTICE, " %5d", spaceTimeInfo[k].link);
+		LogPrintf(LOG_NOTICE, "\nTypes:          ");
 		for (k = 0; k<=nLast; k++)
-			DebugPrintf("  %4.4s", NameNodeType(spaceTimeInfo[k].link));
-		DebugPrintf("\nTimes:          ");
+			LogPrintf(LOG_NOTICE, "  %4.4s", NameNodeType(spaceTimeInfo[k].link));
+		LogPrintf(LOG_NOTICE, "\nTimes:          ");
 		for (k = 0; k<=nLast; k++)
-			DebugPrintf(" %5ld", spaceTimeInfo[k].startTime);
-		DebugPrintf("\nIdeal fSpBefores:");
+			LogPrintf(LOG_NOTICE, " %5ld", spaceTimeInfo[k].startTime);
+		LogPrintf(LOG_NOTICE, "\nIdeal fSpBefores:");
 		for (k = 0; k<=nLast; k++)
-			DebugPrintf(" %5d", fSpBefore[k]);
-		DebugPrintf("\n");
+			LogPrintf(LOG_NOTICE, " %5d", fSpBefore[k]);
+		LogPrintf(LOG_NOTICE, "\n");
 	}
 #endif
 
@@ -855,10 +852,10 @@ DDIST Respace1Bar(
 
 #ifdef SPACEBUG
 	if (ShiftKeyDown() && OptionKeyDown()) {
-		DebugPrintf("Final positions:");
+		LogPrintf(LOG_NOTICE, "Final positions:");
 		for (i = 0; i<=nLast; i++)
-			DebugPrintf(" %5ld", position[i]);
-		DebugPrintf("\n");
+			LogPrintf(LOG_NOTICE, " %5ld", position[i]);
+		LogPrintf(LOG_NOTICE, "\n");
 	}
 #endif
 	
@@ -1502,11 +1499,11 @@ to keep symbols from overlapping. Returns TRUE if  OK or the range is empty, FAL
 it finds a problem. */
 
 Boolean StretchToSysEnd(
-				Document */*doc*/,
+				Document	*/*doc*/,
 				LINK		startL, LINK endL,		/* Starting and ending Measures */
 				long		spaceProp,
 				DDIST		staffWidth,
-				DDIST		lastMeasWidth 				/* Desired width of last Measure */
+				DDIST		lastMeasWidth 			/* Desired width of last Measure */
 				)
 {
 	PMEASURE	pMeas;
@@ -1551,7 +1548,6 @@ Boolean StretchToSysEnd(
 	 *	its subobject measureRects are in sync with Measures set above.  This
 	 *	loop excludes the last Measure now flush with the end of the System.
 	 */
-	
 	for (pL=startL; pL!=endL; pL=nextMeasL) {
 		nextMeasL = LinkRMEAS(pL);
 		SetMeasWidth(pL, LinkXD(nextMeasL) - LinkXD(pL));
@@ -1579,7 +1575,7 @@ FASTFLOAT SysJustFact(
 {
 	CONTEXT		context;
 	FASTFLOAT	justFact, inStaffWidth, curWidth;
-	DDIST			lastMeasWidth, staffWidth;
+	DDIST		lastMeasWidth, staffWidth;
 
 	/* Get distance from first (invisible) barline to end of System's staves. */
 	
@@ -1606,11 +1602,11 @@ Measure is <lastMeasL>. */
 
 void JustifySystem(Document *doc, LINK firstMeasL, LINK lastMeasL)
 {
-	LINK			endSysL;
+	LINK		endSysL;
 	FASTFLOAT	justFact;
-	long			justProp;
-	DDIST			lastMeasWidth, staffWidth;
-	char			fmtStr[256];
+	long		justProp;
+	DDIST		lastMeasWidth, staffWidth;
+	char		fmtStr[256];
 
 	justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
 	if (justFact*100L>MAXSPACE) {

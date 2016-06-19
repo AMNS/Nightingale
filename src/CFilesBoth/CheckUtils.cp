@@ -1,13 +1,11 @@
 /* CheckUtils.c for Nightingale -  MemMacroized version. */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -479,11 +477,10 @@ short GraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 {
 	short		font, fontSize, fontStyle;
 	PGRAPHIC	p;
-	Str255	string;
+	Str255		string;
 	DDIST		lineSpace;
 	
-	PStrCopy((StringPtr)PCopy(FirstGraphicSTRING(pL)),
-				(StringPtr)string);
+	PStrCopy((StringPtr)PCopy(FirstGraphicSTRING(pL)), (StringPtr)string);
 
 	p = GetPGRAPHIC(pL);
 	font = doc->fontTable[p->fontInd].fontID;
@@ -663,14 +660,14 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 				return pL;
 			}
 			break;
-		case SPACEtype:
-			if (*pIndex = CheckSPACE(doc, pL, context, ptr, mode, stfRange, enlarge)!=NOMATCH) {
+		case SPACERtype:
+			if (*pIndex = CheckSPACER(doc, pL, context, ptr, mode, stfRange, enlarge)!=NOMATCH) {
 				*found = TRUE;
 				return pL;
 			}
 			break;
-		case OCTAVAtype:
-			if (*pIndex = CheckOCTAVA(doc, pL, context, ptr, mode, stfRange, enlarge)!=NOMATCH) {
+		case OTTAVAtype:
+			if (*pIndex = CheckOTTAVA(doc, pL, context, ptr, mode, stfRange, enlarge)!=NOMATCH) {
 				*found = TRUE;
 				return pL;
 			}
@@ -717,14 +714,14 @@ Boolean ObjectTest(Rect *paper, Point pt, LINK pL)
 		case PSMEAStype:
 		case GRSYNCtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case DYNAMtype:
 		case GRAPHICtype:
 		case RPTENDtype:
 		case ENDINGtype:
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 			tempRect = LinkOBJRECT(pL);
 			InsetRect(&tempRect, -1, -1);
 			return(PtInRect(pt, &tempRect));
@@ -831,8 +828,8 @@ LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 						if ((*pIndex=CheckTEMPO(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;
-					case SPACEtype:
-						if ((*pIndex=CheckSPACE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					case SPACERtype:
+						if ((*pIndex=CheckSPACER(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;
 					case DYNAMtype:
@@ -855,8 +852,8 @@ LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 						if ((*pIndex=CheckTUPLET(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;					
-					case OCTAVAtype: 
-						if ((*pIndex=CheckOCTAVA(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
+					case OTTAVAtype: 
+						if ((*pIndex=CheckOTTAVA(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;	
 					case SLURtype: 

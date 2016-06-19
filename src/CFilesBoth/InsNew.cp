@@ -1,6 +1,6 @@
 /***************************************************************************
 *	FILE:	InsNew.c
-*	PROJ:   Nightingale, rev. for v.3.5
+*	PROJ:   Nightingale
 *	DESC:   Lower-level routines to add music symbols that actually modify
 *	the object list.
 		ClefBeforeBar			KeySigBeforeBar		TimeSigBeforeBar     
@@ -13,14 +13,12 @@
 		XLoadInsertSeg
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -203,29 +201,29 @@ void AddDot(Document *doc,
 LINK AddNote(Document *doc,
 				short	x,			/* >=0 means new Sync, and this is its horiz. position in pixels, */
 									/* <0  means add note/rest to the existing Sync <doc->selStartL>. */
-				char inchar,	/* Symbol to add */
-				short	staff,	/* Staff number */
-				short	pitchLev,/* Half-line pitch level */
+				char inchar,		/* Symbol to add */
+				short	staff,		/* Staff number */
+				short	pitchLev,	/* Half-line pitch level */
 				short	acc,		/* Accidental code */
-				short octType	/* -1 if not in Octava, else octSignType */
+				short octType		/* -1 if not in Ottava, else octSignType */
 				)
 {
-	PANOTE	aNote;
+	PANOTE		aNote;
 	LINK		newL;
 	LINK		aNoteL=NILINK,measL;
 	short		sym, noteDur, noteNDots,
 				midCpitchLev, voice;
-	Boolean 	inChord,				/* whether added note will be in a chord or not */
+	Boolean 	inChord,					/* whether added note will be in a chord or not */
 				isRest,
 				beamed;
 	CONTEXT	context;
 	DDIST		xd, measWidth;
 
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);    		/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);				/* "Undo Insert" */
 	NewObjInit(doc, SYNCtype, &sym, inchar, staff, &context);
 
 	voice = USEVOICE(doc, staff);
-	isRest = (symtable[sym].subtype!=0);							/* Set note/rest flag */
+	isRest = (symtable[sym].subtype!=0);						/* Set note/rest flag */
 	noteDur = Char2Dur(inchar);
 	
 	/* If symbol is a whole rest and the measure has no other notes/rests in its voice,
@@ -233,15 +231,14 @@ LINK AddNote(Document *doc,
 	 *	whole-measure rest if the duration of the measure is extremely long, but that
 	 *	doesn't seem worth bothering with.
 	 */
-	
 	if (isRest && noteDur==WHOLE_L_DUR
 	&&  !SyncInVoiceMeas(doc, doc->selStartL, voice, FALSE))
 				noteDur = WHOLEMR_L_DUR;
 	noteNDots = 0;
 	
-	if (x>=0)																/* Adding note to an existing Sync? */
+	if (x>=0)													/* Adding note to an existing Sync? */
 		inChord = FALSE;
-	else {																	/* Yes */
+	else {														/* Yes */
 		if (LinkNENTRIES(doc->selStartL)>=MAXCHORD) {
 			GetIndCString(strBuf, INSERTERRS_STRS, 5);    		/* "The chord already contains the max no. of notes." */
 			CParamText(strBuf, "", "", "");
@@ -252,11 +249,11 @@ LINK AddNote(Document *doc,
 		inChord = FALSE;
 		aNoteL = FirstSubLINK(doc->selStartL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
-			if (NoteVOICE(aNoteL)==voice)	{							/* This note/rest in desired voice? */
+			if (NoteVOICE(aNoteL)==voice)	{					/* This note/rest in desired voice? */
 				inChord = TRUE;
 				midCpitchLev = pitchLev-ClefMiddleCHalfLn(context.clefType);
 				aNote = GetPANOTE(aNoteL);
-				if (midCpitchLev==qd2halfLn(aNote->yqpit) && !ControlKeyDown()) {
+				if (!unisonsOK && !ControlKeyDown() && midCpitchLev==qd2halfLn(aNote->yqpit) ) {
 					GetIndCString(strBuf, INSERTERRS_STRS, 6);    /* "Nightingale can't handle chords containing unisons." */
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
@@ -264,20 +261,20 @@ LINK AddNote(Document *doc,
 					return aNoteL;
 				}
 				aNote = GetPANOTE(aNoteL);
-				noteDur = aNote->subType;								/* Use chord's values for duration */
-				noteNDots = aNote->ndots;								/*   and no. of dots */
+				noteDur = aNote->subType;						/* Use chord's values for duration */
+				noteNDots = aNote->ndots;						/*   and no. of dots */
 			}
 	}
 
-	isRest = (symtable[sym].subtype!=0);							/* Set note/rest flag */
-	if (x>=0) {																	/* Create new Sync? */
+	isRest = (symtable[sym].subtype!=0);						/* Set note/rest flag */
+	if (x>=0) {																/* Create new Sync? */
 		newL = InsertNode(doc, doc->selStartL, symtable[sym].objtype, 1);	/* Add Sync to data struct. */
 		if (!newL) { NoMoreMemory(); return aNoteL; }
 		xd = p2d(x)-context.measureLeft;
 		NewObjSetup(doc, newL, staff, xd);
 		aNoteL = FirstSubLINK(newL);
 	}
-	else {																		/* Not new Sync, add to existing one */
+	else {															/* Not new Sync, add to existing one */
 		if (!ExpandNode(doc->selStartL, &aNoteL, 1)) {
 			NoMoreMemory();
 			return aNoteL;
@@ -290,7 +287,7 @@ LINK AddNote(Document *doc,
 	SetupNote(doc, newL, aNoteL, staff, pitchLev, noteDur, noteNDots,
 								voice, isRest, acc, octType);
 	aNote = GetPANOTE(aNoteL);
-	aNote->selected = TRUE;													/* Select the subobject */
+	aNote->selected = TRUE;											/* Select the subobject */
 	aNote->inChord = inChord;
 	if (inChord) aNote->ystem = aNote->yd;
 
@@ -298,8 +295,8 @@ LINK AddNote(Document *doc,
 
 	AddNoteFixTuplets(doc, newL, aNoteL, voice);
 
-	if (!AddNoteFixOctavas(newL, aNoteL))
-		MayErrMsg("AddNote: AddNoteFixOctava couldn't allocate Octava subobject.");
+	if (!AddNoteFixOttavas(newL, aNoteL))
+		MayErrMsg("AddNote: AddNoteFixOttava couldn't allocate Ottava subobject.");
 	beamed = (VCheckBeamAcrossIncl(newL, voice)!=NILINK);
 
 	if (inChord) FixSyncForChord(doc, newL, voice, beamed, 0, 0, NULL);
@@ -313,8 +310,8 @@ LINK AddNote(Document *doc,
 		
 	if (!inChord) FixTimeStamps(doc, newL, newL);
 
-	doc->selStartL = newL;													/* Update selection first ptr */
-	doc->selEndL = RightLINK(newL);										/* ...and last ptr */
+	doc->selStartL = newL;										/* Update selection first ptr */
+	doc->selEndL = RightLINK(newL);								/* ...and last ptr */
 
 	LinkVALID(newL) = FALSE;
 	InsFixMeasNums(doc, newL);
@@ -335,7 +332,7 @@ LINK AddNote(Document *doc,
 			measWidth = MeasWidth(measL);
 			if (noteDur==WHOLEMR_L_DUR) CenterNR(doc, newL, aNoteL, measWidth/2);
 		}
-		InvalMeasure(newL, staff);										/* Always redraw the measure */
+		InvalMeasure(newL, staff);								/* Always redraw the measure */
 	}
 	
 	return aNoteL;
@@ -346,13 +343,13 @@ LINK AddNote(Document *doc,
 /* Add a grace note to the object list at doc->selStartL. */
 
 LINK AddGRNote(Document *doc,
-					short	x,				/* >=0 means new GRSync, and this is its horiz. position in pts., */	
-											/* <0  means add grace note to the existing GRSync <doc->selStartL>. */
+					short	x,			/* >=0 means new GRSync, and this is its horiz. position in pts., */	
+										/* <0  means add grace note to the existing GRSync <doc->selStartL>. */
 					char	inchar,		/* Symbol to add */
 					short	staff,		/* Staff number */
 					short	pitchLev,	/* Half-line pitch level */
-					short	acc,			/* Accidental code */
-					short	octType		/* -1 if not in Octava, else octSignType */
+					short	acc,		/* Accidental code */
+					short	octType		/* -1 if not in Ottava, else octSignType */
 					)
 {
 	PAGRNOTE	aNote;
@@ -361,7 +358,7 @@ LINK AddGRNote(Document *doc,
 				midCpitchLev, voice;
 	Boolean 	inChord,				/* whether added grace note will be in a chord or not */
 				beamed;
-	CONTEXT	context;
+	CONTEXT		context;
 	DDIST		xd;
 
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);    	/* "Undo Insert" */
@@ -371,12 +368,12 @@ LINK AddGRNote(Document *doc,
 	noteNDots = 0;
 	voice = USEVOICE(doc, staff);
 	
-	if (x>=0)															/* Adding grace note to an existing Sync? */
+	if (x>=0)													/* Adding grace note to an existing Sync? */
 		inChord = FALSE;
 	else
-	{																		/* Yes */
+	{															/* Yes */
 		if (LinkNENTRIES(doc->selStartL)>=MAXCHORD) {
-			GetIndCString(strBuf, INSERTERRS_STRS, 5);    	/* "The chord already contains the max. no. of notes." */
+			GetIndCString(strBuf, INSERTERRS_STRS, 5);			/* "The chord already contains the max. no. of notes." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
 			InvalMeasure(doc->selStartL, staff);
@@ -385,11 +382,11 @@ LINK AddGRNote(Document *doc,
 		inChord = FALSE;
 		aNoteL = FirstSubLINK(doc->selStartL);
 		for ( ; aNoteL; aNoteL = NextGRNOTEL(aNoteL))
-			if (GRNoteVOICE(aNoteL)==voice)	{							/* This grace note in desired voice? */
+			if (GRNoteVOICE(aNoteL)==voice)	{					/* This grace note in desired voice? */
 				inChord = TRUE;
 				midCpitchLev = pitchLev-ClefMiddleCHalfLn(context.clefType);
 				aNote = GetPAGRNOTE(aNoteL);
-				if (midCpitchLev==qd2halfLn(aNote->yqpit)) {
+				if (!unisonsOK && !ControlKeyDown() && midCpitchLev==qd2halfLn(aNote->yqpit) ) {
 					GetIndCString(strBuf, INSERTERRS_STRS, 6);    	/* "Nightingale can't handle chords containing unisons." */
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
@@ -397,19 +394,19 @@ LINK AddGRNote(Document *doc,
 					return aNoteL;
 				}
 				aNote = GetPAGRNOTE(aNoteL);
-				noteDur = aNote->subType;									/* Use chord's values for duration */
-				noteNDots = aNote->ndots;									/*   and no. of dots */
+				noteDur = aNote->subType;							/* Use chord's values for duration */
+				noteNDots = aNote->ndots;							/*   and no. of dots */
 			}
 	}
 
-	if (x>=0) {																	/* Create new GRSync? */
+	if (x>=0) {														/* Create new GRSync? */
 		newL = InsertNode(doc, doc->selStartL, symtable[sym].objtype, 1); /* Add GRSync to data struct. */
 		if (!newL) { NoMoreMemory(); return aNoteL; }
 		xd = p2d(x)-context.measureLeft;
 		NewObjSetup(doc, newL, staff, xd);
 		aNoteL = FirstSubLINK(newL);
 	}
-	else {																		/* Not new Sync, add to existing one */
+	else {															/* Not new Sync, add to existing one */
 		if (!ExpandNode(doc->selStartL, &aNoteL, 1)) {
 			NoMoreMemory();
 			return aNoteL;
@@ -422,22 +419,22 @@ LINK AddGRNote(Document *doc,
 	SetupGRNote(doc, newL, aNoteL, staff, pitchLev, noteDur, noteNDots,
 								voice, acc, octType);
 	aNote = GetPAGRNOTE(aNoteL);
-	aNote->selected = TRUE;													/* Select the subobject */
+	aNote->selected = TRUE;											/* Select the subobject */
 	aNote->inChord = inChord;
 	if (inChord) aNote->ystem = aNote->yd;
 
 	/* N.B. The order of the following "Fix" calls is significant: change only with care. */
-#ifdef ADDGRNOTE_FIXOCTAVAS
-	if (!AddNoteFixOctavas(newL, aNoteL))
-		MayErrMsg("AddGRNote: AddNoteFixOctava couldn't allocate octava subobject.");
+#ifdef ADDGRNOTE_FIXOTTAVAS
+	if (!AddNoteFixOttavas(newL, aNoteL))
+		MayErrMsg("AddGRNote: AddNoteFixOttava couldn't allocate ottava subobject.");
 #endif
 
 	beamed = (Boolean)VCheckGRBeamAcrossIncl(newL, voice);
 	if (inChord) FixGRSyncForChord(doc, newL, voice, beamed, 0, TRUE, NULL);
 	if (beamed) AddGRNoteFixBeams(doc, newL, aNoteL);
 	
-	doc->selStartL = newL;														/* Update selection first ptr */
-	doc->selEndL = RightLINK(newL);											/* ...and last ptr */
+	doc->selStartL = newL;											/* Update selection first ptr */
+	doc->selEndL = RightLINK(newL);									/* ...and last ptr */
 
 	InsFixMeasNums(doc, newL);
 	UpdateVoiceTable(doc, TRUE);
@@ -445,7 +442,7 @@ LINK AddGRNote(Document *doc,
 	if (doc->autoRespace)
 		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, FALSE, FALSE);
 	else
-		InvalMeasure(newL, staff);										/* Just redraw the measure */
+		InvalMeasure(newL, staff);									/* Just redraw the measure */
 
 	return aNoteL;
 }
@@ -527,7 +524,7 @@ PushLock(OBJheap);
 	aGraphicL = FirstSubLINK(newL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	aGraphic->next = NILINK;
-	aGraphic->string = 0;
+	aGraphic->strOffset = 0;
 
 	pGraphic->justify = GRJustLeft;
 
@@ -678,7 +675,7 @@ PushLock(GRAPHICheap);
 	aGraphicL = FirstSubLINK(newL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	aGraphic->next = NILINK;
-	aGraphic->string = 0;
+	aGraphic->strOffset = 0;
 
 	pGraphic->justify = GRJustLeft;
 
@@ -782,11 +779,11 @@ PushLock(GRAPHICheap);
 		aGraphicL = FirstSubLINK(newL);
 		aGraphic = GetPAGRAPHIC(aGraphicL);
 		aGraphic->next = NILINK;
-		aGraphic->string = PStore((unsigned char *)string);
-		if (aGraphic->string<0L)
+		aGraphic->strOffset = PStore((unsigned char *)string);
+		if (aGraphic->strOffset<0L)
 			NoMoreMemory();
-		else if (aGraphic->string>GetHandleSize((Handle)doc->stringPool))
-			MayErrMsg("NewGraphic: PStore error. string=%ld", aGraphic->string);
+		else if (aGraphic->strOffset>GetHandleSize((Handle)doc->stringPool))
+			MayErrMsg("NewGraphic: PStore error. string=%ld", aGraphic->strOffset);
 	}
 
 	if (graphicType==GRLyric || graphicType==GRString) {
@@ -1160,11 +1157,11 @@ void NewTimeSig(Document *doc,
 					short	denominator			/* Numerator and denominator of timesig */
 					)
 {
-	short			sym, i, stfCount, useStaff;
-	PTIMESIG		newp;
-	LINK 			newL, aTimeSigL;
+	short		sym, i, stfCount, useStaff;
+	PTIMESIG	newp;
+	LINK 		newL, aTimeSigL;
 	PATIMESIG	aTimeSig;
-	CONTEXT		context;											/* current context */
+	CONTEXT		context;									/* current context */
 	TSINFO		timeSigInfo;
 	
 	if (inchar==' ') inchar = TIMESIG_PALCHAR;
@@ -1181,7 +1178,7 @@ void NewTimeSig(Document *doc,
 		InitTimeSig(aTimeSigL, useStaff, 0, type, numerator, denominator);
 		aTimeSig = GetPATIMESIG(aTimeSigL);
 		aTimeSig->soft = FALSE;
-		aTimeSig->selected = TRUE;								/* Select the subobj */
+		aTimeSig->selected = TRUE;							/* Select the subobj */
 		timeSigInfo.TSType = aTimeSig->subType;
 		timeSigInfo.numerator = aTimeSig->numerator;
 		timeSigInfo.denominator = aTimeSig->denominator;
@@ -1195,46 +1192,46 @@ void NewTimeSig(Document *doc,
 
 /* --------------------------------------------------------------- ModNRPitchLev -- */
 typedef struct {
-	Byte		canBeInStaff;	/* can put modifier inside staff, if note head pos. allows (boolean) */
-	Byte		alwaysAbove;	/* if only 1 voice on staff, put modifier above staff, even if stem is up (boolean) */
+	Byte	canBeInStaff;	/* can put modifier inside staff, if note head pos. allows (boolean) */
+	Byte	alwaysAbove;	/* if only 1 voice on staff, put modifier above staff, even if stem is up (boolean) */
 	SHORTQD	yOffsetBelow;	/* mod below notehead: rel. to default pos. for staccato; in qtr-lines */
 	SHORTQD	yOffsetAbove;	/* mod above notehead: rel. to default pos. for staccato; in qtr-lines */
 } MODINFO;
 
 static MODINFO modInfoTable[] = {
-/* canBeInStaff	alwaysAbove	yOffsetBelow	yOffsetAbove		[modCode indices] */
-	0,					0,				2,					-2,					/* '0' */
-	0,					0,				2,					-2,					/* '1' */
-	0,					0,				2,					-2,					/* '2' */
-	0,					0,				2,					-2,					/* '3' */
-	0,					0,				2,					-2,					/* '4' */
-	0,					0,				2,					-2,					/* '5' */
-	0,					0,				2,					-2,					/* '6' */
-	0,					0,				2,					-2,					/* '7' */
-	0,					0,				2,					-2,					/* '8' */
-	0,					0,				2,					-2,					/* '9' */
-	0,					1,				0,					-2,					/*	MOD_FERMATA */
-	0,					1,				0,					-2,					/*	MOD_TRILL */
-	0,					0,				2,					-1,					/*	MOD_ACCENT */
-	0,					0,				3,					-2,					/*	MOD_HEAVYACCENT */
-	1,					0,				0,					0,						/*	MOD_STACCATO */
-	1,					0,				0,					0,						/*	MOD_WEDGE */
-	1,					0,				0,					0,						/*	MOD_TENUTO */
-	0,					1,				0,					-3,					/*	MOD_MORDENT */
-	0,					1,				0,					-2,					/*	MOD_INV_MORDENT */
-	0,					1,				0,					-2,					/*	MOD_TURN */
-	0,					1,				0,					-2,					/*	MOD_PLUS */
-	1,					0,				0,					0,						/*	MOD_CIRCLE */
-	0,					1,				0,					-3,					/*	MOD_UPBOW */
-	0,					1,				0,					-3,					/*	MOD_DOWNBOW */
-	1,					0,				0,					0,						/*	MOD_TREMOLO1 - don't think trems are even used here */
-	1,					0,				0,					0,						/*	MOD_TREMOLO2 */
-	1,					0,				0,					0,						/*	MOD_TREMOLO3 */
-	1,					0,				0,					0,						/*	MOD_TREMOLO4 */
-	1,					0,				0,					0,						/*	MOD_TREMOLO5 */
-	1,					0,				0,					0,						/*	MOD_TREMOLO6 */
-	0,					0,				3,					-2,					/*	MOD_HEAVYACC_STACC */
-	0,					1,				0,					-2						/*	MOD_LONG_INVMORDENT */
+/* canBeInStaff	alwaysAbove		yOffsetBelow	yOffsetAbove	[modCode indices] */
+	0,				0,				2,				-2,				/* '0' */
+	0,				0,				2,				-2,				/* '1' */
+	0,				0,				2,				-2,				/* '2' */
+	0,				0,				2,				-2,				/* '3' */
+	0,				0,				2,				-2,				/* '4' */
+	0,				0,				2,				-2,				/* '5' */
+	0,				0,				2,				-2,				/* '6' */
+	0,				0,				2,				-2,				/* '7' */
+	0,				0,				2,				-2,				/* '8' */
+	0,				0,				2,				-2,				/* '9' */
+	0,				1,				0,				-2,				/*	MOD_FERMATA */
+	0,				1,				0,				-2,				/*	MOD_TRILL */
+	0,				0,				2,				-1,				/*	MOD_ACCENT */
+	0,				0,				3,				-2,				/*	MOD_HEAVYACCENT */
+	1,				0,				0,				0,				/*	MOD_STACCATO */
+	1,				0,				0,				0,				/*	MOD_WEDGE */
+	1,				0,				0,				0,				/*	MOD_TENUTO */
+	0,				1,				0,				-3,				/*	MOD_MORDENT */
+	0,				1,				0,				-2,				/*	MOD_INV_MORDENT */
+	0,				1,				0,				-2,				/*	MOD_TURN */
+	0,				1,				0,				-2,				/*	MOD_PLUS */
+	1,				0,				0,				0,				/*	MOD_CIRCLE */
+	0,				1,				0,				-3,				/*	MOD_UPBOW */
+	0,				1,				0,				-3,				/*	MOD_DOWNBOW */
+	1,				0,				0,				0,				/*	MOD_TREMOLO1 - don't think trems are even used here */
+	1,				0,				0,				0,				/*	MOD_TREMOLO2 */
+	1,				0,				0,				0,				/*	MOD_TREMOLO3 */
+	1,				0,				0,				0,				/*	MOD_TREMOLO4 */
+	1,				0,				0,				0,				/*	MOD_TREMOLO5 */
+	1,				0,				0,				0,				/*	MOD_TREMOLO6 */
+	0,				0,				3,				-2,				/*	MOD_HEAVYACC_STACC */
+	0,				1,				0,				-2				/*	MOD_LONG_INVMORDENT */
 };
 static short modInfoLen = (sizeof(modInfoTable) / sizeof(MODINFO));	/* Length of modInfoTable */ 
 
@@ -1251,10 +1248,10 @@ short ModNRPitchLev(Document *doc,
 						LINK theNoteL
 						)
 {
-	short		voice, midCHalfLn, modQPit, stfTopQtrLn, stfBotQtrLn;
-	LINK		mainNoteL;
+	short	voice, midCHalfLn, modQPit, stfTopQtrLn, stfBotQtrLn;
+	LINK	mainNoteL;
 	Boolean	stemDown, canBeInStaff, alwaysAbove, alwaysBelow, putModAbove, useStemEnd, hasMod;
-	QDIST		yqpit, yqstem, yOffsetAbove, yOffsetBelow;
+	QDIST	yqpit, yqstem, yOffsetAbove, yOffsetBelow;
 	CONTEXT	context;
 		
 	voice = NoteVOICE(theNoteL);
@@ -1312,58 +1309,58 @@ short ModNRPitchLev(Document *doc,
 	if (putModAbove) {
 		if (!stemDown) {
 			useStemEnd = TRUE;
-			yqpit = yqstem;								/* substitute stem end pos. for note head */
+			yqpit = yqstem;							/* substitute stem end pos. for note head */
 		}
-		if (canBeInStaff) {								/* allow mod placement in staff */
-			if (yqpit>stfTopQtrLn) {					/* note/stem is in the staff */
-				if (useStemEnd && odd(yqpit))			/* If yqpit is really stem end, it might not fall on a halfLn */
+		if (canBeInStaff) {							/* allow mod placement in staff */
+			if (yqpit>stfTopQtrLn) {				/* note/stem is in the staff */
+				if (useStemEnd && odd(yqpit))		/* If yqpit is really stem end, it might not fall on a halfLn */
 					yqpit++;
 				modQPit = yqpit - 4;
-				if (!(yqpit % 4))							/* note/stem is on a staff line */
+				if (!(yqpit % 4))					/* note/stem is on a staff line */
 					modQPit -= 2;
 			}
 			else {
 				if (useStemEnd)
-					modQPit = yqpit - 3;					/* 3 instead of 4; doesn't need as much room as w/ notehead */
+					modQPit = yqpit - 3;			/* 3 instead of 4; doesn't need as much room as w/ notehead */
 				else
 					modQPit = yqpit - 4;
 			}
 		}
 		else {
-			if (yqpit>stfTopQtrLn)						/* note/stem is inside staff */
-				modQPit = stfTopQtrLn - 3;				/* 3 instead of 4; doesn't need as much room as when snug against notehead */
+			if (yqpit>stfTopQtrLn)					/* note/stem is inside staff */
+				modQPit = stfTopQtrLn - 3;			/* 3 instead of 4; doesn't need as much room as when snug against notehead */
 			else
 				modQPit = yqpit - 4;
 		}
-		modQPit += yOffsetAbove;						/* offset from staccato position */
+		modQPit += yOffsetAbove;					/* offset from staccato position */
 	}
 	else {
 		if (stemDown) {
 			useStemEnd = TRUE;
-			yqpit = yqstem;								/* substitute stem end pos. for note head */
+			yqpit = yqstem;							/* substitute stem end pos. for note head */
 		}
-		if (canBeInStaff) {								/* allow mod placement in staff */
-			if (yqpit<stfBotQtrLn) {					/* note/stem is in the staff */
-				if (useStemEnd && odd(yqpit))			/* If yqpit is really stem end, it might not fall on a halfLn */
+		if (canBeInStaff) {							/* allow mod placement in staff */
+			if (yqpit<stfBotQtrLn) {				/* note/stem is in the staff */
+				if (useStemEnd && odd(yqpit))		/* If yqpit is really stem end, it might not fall on a halfLn */
 					yqpit--;
 				modQPit = yqpit + 4;
-				if (!(yqpit % 4))							/* note/stem is on a staff line */
+				if (!(yqpit % 4))					/* note/stem is on a staff line */
 					modQPit += 2;
 			}
 			else {
 				if (useStemEnd)
-					modQPit = yqpit + 3;					/* 3 instead of 4; doesn't need as much room as w/ notehead */
+					modQPit = yqpit + 3;			/* 3 instead of 4; doesn't need as much room as w/ notehead */
 				else
 					modQPit = yqpit + 4;
 			}
 		}
 		else {
-			if (yqpit<stfBotQtrLn)						/* note/stem is inside staff */
-				modQPit = stfBotQtrLn + 3;				/* 3 instead of 4; doesn't need as much room as when snug against notehead */
+			if (yqpit<stfBotQtrLn)					/* note/stem is inside staff */
+				modQPit = stfBotQtrLn + 3;			/* 3 instead of 4; doesn't need as much room as when snug against notehead */
 			else
 				modQPit = yqpit + 4;
 		}
-		modQPit += yOffsetBelow;						/* offset from staccato position */
+		modQPit += yOffsetBelow;					/* offset from staccato position */
 	}
 
 	/* Try to avoid a collision with an existing modifier.  This is very crude, and it only
@@ -1388,20 +1385,20 @@ short ModNRPitchLev(Document *doc,
 /*	Add a note/rest modifier. */
 
 void NewMODNR(Document *doc,
-				char	inchar,				/* Symbol code: symcode field from symTable */
+				char	inchar,			/* Symbol code: symcode field from symTable */
 				short	slashes,
 				short	staff,
-				short	qPitchLev,			/* "Pitch level", i.e., vertical position (qtr-lines) */
-				LINK syncL,					/* Sync to which MODNR attached */
+				short	qPitchLev,		/* "Pitch level", i.e., vertical position (qtr-lines) */
+				LINK syncL,				/* Sync to which MODNR attached */
 				LINK aNoteL
 				)
 {
-	short			sym;
+	short		sym;
 	PAMODNR		aModNR;
-	LINK			aModNRL, lastModNRL;
+	LINK		aModNRL, lastModNRL;
 	PANOTE		aNote;
 	
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  				/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
 
 	/* Insert the current note modifier into the note's linked modifier list. 
 		If the list exists, traverse to the end, & insert the new MODNR LINK
@@ -1435,7 +1432,7 @@ void NewMODNR(Document *doc,
 	aModNR->ystdpit = qd2std(qPitchLev);
 	aModNR->data = 0;
 	doc->changed = TRUE;
-	InvalMeasure(syncL, staff);										/* Redraw the measure */
+	InvalMeasure(syncL, staff);									/* Redraw the measure */
 	MEAdjustCaret(doc, TRUE);
 }
 
@@ -1445,7 +1442,7 @@ void NewMODNR(Document *doc,
 effort to avoid passing one more parameter. */
 
 LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
-									char inchar, short *sym, PCONTEXT pContext, Boolean crossSys)
+						char inchar, short *sym, PCONTEXT pContext, Boolean crossSys)
 {
 	LINK sysL, measL, newL; PSYSTEM pSystem; PDYNAMIC newp; short dtype;
 
@@ -1461,7 +1458,7 @@ LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
 				GetIndCString(strBuf, INSERTERRS_STRS, 8);			/* "Hairpin cannot start in a different measure from its first note." */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
-				InvalMeasures(doc->selStartL, measL, staff);			/* Force redrawing the measure */
+				InvalMeasures(doc->selStartL, measL, staff);		/* Force redrawing the measure */
 				return NILINK;
 		}
 	}
@@ -1479,13 +1476,13 @@ LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
 
 void NewDynamic(
 				Document *doc,
-				short		x,						/* Horiz. position in pixels */
-				short		endx,					/* For hairpins, horiz. right endpt in pixels */
-				char		inchar,				/* Symbol code: symcode field from symtable */
-				short		staff,				/* Staff number */
-				short		pitchLev,			/* Vertical position in halflines */
-				LINK  	lastSyncL,			/* For hairpins, sync right end is attached to */
-				Boolean	crossSys				/* (Ignored for now) Whether cross system */
+				short	x,				/* Horiz. position in pixels */
+				short	endx,			/* For hairpins, horiz. right endpt in pixels */
+				char	inchar,			/* Symbol code: symcode field from symtable */
+				short	staff,			/* Staff number */
+				short	pitchLev,		/* Vertical position in halflines */
+				LINK  	lastSyncL,		/* For hairpins, sync right end is attached to */
+				Boolean	crossSys		/* (Ignored for now) Whether cross system */
 				)
 {
 	short	sym; LINK newL; CONTEXT context; DDIST sysLeft;
@@ -1513,17 +1510,17 @@ void NewDynamic(
 /*	Add a Repeat/End to the object list. */
 
 void NewRptEnd(Document *doc,
-					short	x,						/* Horizontal position (pixels) */
-					char	inchar,				/* Input char. code for symbol to add */
-					short	staff					/* Staff number */
+					short	x,				/* Horizontal position (pixels) */
+					char	inchar,			/* Input char. code for symbol to add */
+					short	staff			/* Staff number */
 					)
 {
-	short			sym;
+	short		sym;
 	PRPTEND		newp;
-	LINK			newL, pL, prevMeasL;
-	CONTEXT		context;										/* current context */
+	LINK		newL, pL, prevMeasL;
+	CONTEXT		context;									/* current context */
 	
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  					/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  		/* "Undo Insert" */
 
 	/* ANYONE allows one subObj for each staff; assumes that there will likewise
 		be one meas subObj for each staff for the immed. preceding meas. */
@@ -1576,7 +1573,7 @@ void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clic
 	short sym;
 	DDIST firstRelxd,lastRelxd;
 	
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  						/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  					/* "Undo Insert" */
 	pL = NewObjPrepare(doc, ENDINGtype, &sym, inchar, clickStaff, firstx, &context);
 
 	firstL = doc->selStartL;
@@ -1610,41 +1607,47 @@ void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clic
 }
 
 /* -------------------------------------------------------------------- NewTempo -- */
-/*	Add a Tempo mark to the object list. */
+/*	Add a Tempo/metronome mark to the object list. One slightly tricky thing: if _noMM_
+is FALSE, the metronome mark is to be ignored. */
 
 void NewTempo(Document *doc, Point pt, char inchar, short staff, STDIST pitchLev,
-					Boolean hideMM, short dur, Boolean dotted, Boolean expanded,
-					unsigned char *tempoStr, unsigned char *metroStr)
+				Boolean useMM, Boolean showMM, short dur, Boolean dotted, Boolean expanded,
+				unsigned char *tempoStr, unsigned char *metroStr)
 {
 	LINK pL;
 	PTEMPO pTempo;
 	CONTEXT context; short sym; long beatsPM;
 	
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  		/* "Undo Insert" */
 	pL = NewObjPrepare(doc, TEMPOtype, &sym, inchar, staff, pt.h, &context);
 
 PushLock(OBJheap);
 	pTempo = GetPTEMPO(pL);
 	pTempo->staffn = staff;
-	pTempo->expanded = 0;
-	pTempo->small = 0;
+	pTempo->expanded = expanded;
+//LogPrintf(LOG_DEBUG, "NewTempo: expanded=%d, pTempo->expanded=%d\n", expanded, pTempo->expanded);
 	pTempo->yd = halfLn2d(pitchLev, context.staffHeight, context.staffLines);
-	pTempo->xd = 0;												/* same horiz position as note */
-	pTempo->subType = dur;										/* beat: same units as note's l_dur */
+	pTempo->xd = 0;											/* same horiz position as note */
+	pTempo->filler = 0;										/* Added in v. 5.6. --DAB */
+	pTempo->subType = dur;									/* beat: same units as note's l_dur */
 	pTempo->dotted = dotted;
-	pTempo->hideMM = hideMM;
-	pTempo->string = PStore((unsigned char *)tempoStr);		/* index return by String Manager */
-	pTempo->metroStr = PStore((unsigned char *)metroStr); 	/* index return by String Manager */
-	if (pTempo->string<0L || pTempo->metroStr<0L)
+	pTempo->noMM = !useMM;
+	pTempo->hideMM = !showMM;
+	pTempo->strOffset = PStore((unsigned char *)tempoStr);	/* index return by String Manager */
+	pTempo->metroStrOffset = PStore((unsigned char *)metroStr);	/* index return by String Manager */
+	if (pTempo->strOffset<0L || pTempo->metroStrOffset<0L)
 		NoMoreMemory();
-	else if (pTempo->string>GetHandleSize((Handle)doc->stringPool)
-		  || pTempo->metroStr>GetHandleSize((Handle)doc->stringPool))
-		MayErrMsg("NewTempo: PStore error. string=%ld metroStr=%ld",
-					pTempo->string, pTempo->metroStr);
+	else if (pTempo->strOffset>GetHandleSize((Handle)doc->stringPool)
+		  || pTempo->metroStrOffset>GetHandleSize((Handle)doc->stringPool))
+		MayErrMsg("NewTempo: PStore error. strOffset=%ld metroStrOffset=%ld",
+					pTempo->strOffset, pTempo->metroStrOffset);
 
-	beatsPM = FindIntInString(metroStr);
-	if (beatsPM<0L) beatsPM = config.defaultTempo;
-	pTempo->tempo = beatsPM;
+	if (!useMM) pTempo->tempoMM = 0;
+	else {
+		beatsPM = FindIntInString(metroStr);
+		if (beatsPM<0L) beatsPM = config.defaultTempoMM;
+		pTempo->tempoMM = beatsPM;
+	}
 	pTempo->firstObjL = doc->selStartL;						/* tempo inserted relative to this obj */
 PopLock(OBJheap);
 
@@ -1657,15 +1660,15 @@ PopLock(OBJheap);
 /*	Add a Space mark to the object list. */
 
 void NewSpace(Document *doc, Point pt, char inchar, short topStaff, short bottomStaff,
-					STDIST stdSpace)
+				STDIST stdSpace)
 {
-	LINK pL; PSPACE pSpace; CONTEXT context; short sym;
+	LINK pL; PSPACER pSpace; CONTEXT context; short sym;
 	
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  				/* "Undo Insert" */
-	pL = NewObjPrepare(doc, SPACEtype, &sym, inchar, topStaff, pt.h, &context);
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
+	pL = NewObjPrepare(doc, SPACERtype, &sym, inchar, topStaff, pt.h, &context);
 
 	FirstSubLINK(pL) = NILINK;
-	pSpace = GetPSPACE(pL);
+	pSpace = GetPSPACER(pL);
 	pSpace->spWidth = stdSpace;						/* Amount of space to leave in STDISTs */
 	pSpace->staffn = topStaff;
 	pSpace->bottomStaff = bottomStaff;

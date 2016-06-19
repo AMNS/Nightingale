@@ -1,23 +1,20 @@
 /***************************************************************************
 	FILE:	RfmtRaw.c
-	PROJ:	Nightingale, rev. for v.3.5
+	PROJ:	Nightingale
 	DESC:	Routines for "raw" reformatting: respaces and assumes a very simple
 		range. Intended for use by recording routines. Cf. Reformat.c.
 
-	UMoveInMeasure				UMoveMeasures				UMoveRestOfSystem
-	USysRelxd					AddSysMaybePage
-	RespaceRaw					BreakSystem					RespAndRfmtRaw
+	UMoveInMeasure			UMoveMeasures			UMoveRestOfSystem
+	USysRelxd				AddSysMaybePage
+	RespaceRaw				BreakSystem				RespAndRfmtRaw
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -32,7 +29,7 @@ DDIST RespaceRaw(Document *, LINK, LINK, long);
 
 /* ----------------------------------------------- UMoveInMeasure, UMoveMeasures -- */
 
-#define LinkUXD(link)			( *(unsigned DDIST *)((3*sizeof(LINK)) + LinkToPtr(OBJheap,link)) )
+#define LinkUXD(link)		( *(unsigned DDIST *)((3*sizeof(LINK)) + LinkToPtr(OBJheap,link)) )
 
 /* UMoveInMeasure moves objects [startL,endL) by diffxd. If endL is not in the
 same Measure as startL, it'll stop moving at the end of the Measure. Identical to
@@ -234,7 +231,7 @@ there's not enough room in the System, it will create new Systems and possibly P
 to put the material into; since Nightingale always starts a new Measure on every System,
 this may well have the effect of breaking the Measure containing the range up into two
 or more Measures. The range should be "raw" in that it cannot contain anything but
-Syncs. Furthermore, no "extended objects"--slurs, beams, octavas, tuplets, hairpins--
+Syncs. Furthermore, no "extended objects"--slurs, beams, ottavas, tuplets, hairpins--
 can start before the range and end after it.
 
 Intended for use on notes that were either played-in or read from a MIDI file or

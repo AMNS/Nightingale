@@ -1,17 +1,16 @@
-/* File Tuplet.c - tuplet-related functions for Nightingale - tiny rev. for v.99 */
+/* File Tuplet.c - tuplet-related functions for Nightingale */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /*
-DisposeArrays			VoiceInSelRange		CheckContinVoice
-CheckMaxTupleNum		PrepareSelRange		ShellSort
+DisposeArrays			VoiceInSelRange			CheckContinVoice
+CheckMaxTupleNum		PrepareSelRange			ShellSort
 SortPTimes				GetTupleDenom			ComputePlayDurs
 RearrangeNotes			DoTuple
 GetBracketVis			InitTuplet				SetTupletYPos
@@ -257,7 +256,7 @@ static Boolean ComputePlayDurs(Document *doc, SELRANGE selRange[], short tupleNu
 
 	SetPlayDurs(doc,pDurArray,nInMeas,startMeas,endMeas);
 
-	/* Set link values for owning beams, octavas & tuplets. */
+	/* Set link values for owning beams, ottavas & tuplets. */
 
 	SetLinkOwners(pDurArray,nInMeas,startMeas,endMeas);
 
@@ -688,11 +687,11 @@ void DoTuple(Document *doc, TupleParam *tParam)
 	else
 		InvalMeasures(doc->selStartL, doc->selEndL, ANYONE);						/* Force redrawing all affected measures */
 		
-	/* Need these calls to fix up links for Beams and Octavas which extend
+	/* Need these calls to fix up links for Beams and Ottavas which extend
 		outside the tupleted measure. */
 
 	FixAllBeamLinks(doc,doc,doc->headL,doc->tailL);
-	FixOctavaLinks(doc,doc,doc->headL,doc->tailL);
+	FixOttavaLinks(doc,doc,doc->headL,doc->tailL);
 
 broken:
 	DisableUndo(doc,TRUE);
@@ -1002,7 +1001,7 @@ static Boolean RecomputePlayDurs(
 
 	SetPlayDurs(doc,pDurArray,nInMeas,startMeas,endMeas);
 
-	/* Set link values for owning beams, octavas, tuplets and slurs. */
+	/* Set link values for owning beams, ottavas, tuplets and slurs. */
 	
 	SetLinkOwners(pDurArray,nInMeas,startMeas,endMeas);
 

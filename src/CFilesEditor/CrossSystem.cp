@@ -1,21 +1,19 @@
 /***************************************************************************
 	FILE:	CrossSystem.c
-	PROJ:	Nightingale, rev. for v.99
+	PROJ:	Nightingale
 	DESC:	Routines for handling the cross-systemness of objects, either
-			making cross-system objects no-cross-system or vice-versa.
-	FixCrossSysSlurs			FixCrossSysBeams			FixCrossSysHairpins
-	FixCrossSysOctavas		FixCrossSysEndings		FixCrossSysObjects
+			making cross-system objects non-cross-system or vice-versa.
+			
+	FixCrossSysSlurs		FixCrossSysBeams		FixCrossSysHairpins
+	FixCrossSysOttavas		FixCrossSysEndings		FixCrossSysObjects
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -31,7 +29,7 @@ static short FixCrossSysBeams(Document *, LINK, LINK, short *, short *);
 static short FixCrossSysHairpins(Document *, LINK, LINK, short *, short *);
 static short FixCrossSysDrawObjs(Document *, LINK, LINK, short *, short *);
 static void MakeOctCrossSys(Document *, LINK, LINK, LINK);
-static short FixCrossSysOctavas(Document *, LINK, LINK, short *, short *);
+static short FixCrossSysOttavas(Document *, LINK, LINK, short *, short *);
 static short FixCrossSysEndings(Document *, LINK, LINK, short *, short *);
 
 /* ------------------------------------------------- MakeSlurCrossSys/NoncrossSys -- */
@@ -586,62 +584,62 @@ static void MakeOctCrossSys(Document *doc, LINK octL, LINK firstSys,
 										)
 {
 	LINK qL,prevL,firstSyncL,lastSyncL,noteOctL;
-	short i,s,octType,nInOctava1; PANOTEOCTAVA anoteOct;
+	short i,s,octType,nInOttava1; PANOTEOTTAVA anoteOct;
 	
-	firstSyncL = FirstInOctava(octL);
-	lastSyncL = LastInOctava(octL);
-	s = OctavaSTAFF(octL);
+	firstSyncL = FirstInOttava(octL);
+	lastSyncL = LastInOttava(octL);
+	s = OttavaSTAFF(octL);
 	octType = OctType(octL);
 
 	noteOctL = FirstSubLINK(octL);
 	prevL = qL = firstSyncL;
 
-	for (i=0; i<LinkNENTRIES(octL); i++, noteOctL=NextNOTEOCTAVAL(noteOctL)) {
-		anoteOct = GetPANOTEOCTAVA(noteOctL);
+	for (i=0; i<LinkNENTRIES(octL); i++, noteOctL=NextNOTEOTTAVAL(noteOctL)) {
+		anoteOct = GetPANOTEOTTAVA(noteOctL);
 		prevL = qL;
 		qL = anoteOct->opSync;
 		if (!SameSystem(qL,firstSys)) break;
 	}
-	nInOctava1 = i;
+	nInOttava1 = i;
 
 	RemoveOctOnStf(doc, octL, firstSyncL, RightLINK(lastSyncL), s);
 
-	if (nInOctava1>0) CreateOCTAVA(doc, firstSyncL, RightLINK(prevL), s,
-												nInOctava1, octType, FALSE, FALSE);
+	if (nInOttava1>0) CreateOTTAVA(doc, firstSyncL, RightLINK(prevL), s,
+												nInOttava1, octType, FALSE, FALSE);
 }
 
 
-/* ---------------------------------------------------------- FixCrossSysOctavas -- */
-/* In the range [startL,endL), fix "cross-system-ness" of all Octavas. We'd like to
+/* ---------------------------------------------------------- FixCrossSysOttavas -- */
+/* In the range [startL,endL), fix "cross-system-ness" of all Ottavas. We'd like to
 do it as described in FixCrossSysObjects, but Nightingale does not allow cross-system
-Octavas yet, so we just clip them to keep them on one system. It might be better to
-also add a second piece of the Octava on the following system, even though they
+Ottavas yet, so we just clip them to keep them on one system. It might be better to
+also add a second piece of the Ottava on the following system, even though they
 can't be linked the way pieces of cross-system slurs and beams are.
 
-Return value is the number of Octavas truncated. */
+Return value is the number of Ottavas truncated. */
 
-short FixCrossSysOctavas(Document *doc, LINK startL, LINK endL, short *pTruncFirstMeas,
+short FixCrossSysOttavas(Document *doc, LINK startL, LINK endL, short *pTruncFirstMeas,
 									short *pTruncLastMeas)
 {
 	LINK pL, firstSys, lastSys;
 	short nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
-	POCTAVA pOctava;
+	POTTAVA pOttava;
 	
 	for (nTrunc = 0, pL = startL; pL!=endL; pL = RightLINK(pL)) {
-		if (ObjLType(pL)==OCTAVAtype) {
+		if (ObjLType(pL)==OTTAVAtype) {
 			/*
-			 *	If this Octava crosses systems, clip it at the end of its first system.
+			 *	If this Ottava crosses systems, clip it at the end of its first system.
 			 */
-			firstSys = LSSearch(FirstInOctava(pL), SYSTEMtype, ANYONE, GO_LEFT, FALSE);
-			lastSys = LSSearch(LastInOctava(pL), SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+			firstSys = LSSearch(FirstInOttava(pL), SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+			lastSys = LSSearch(LastInOttava(pL), SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 			if (firstSys!=lastSys) {
 				MakeOctCrossSys(doc, pL, firstSys, lastSys);
 				thisMeas = GetMeasNum(doc, pL);
 				truncFirstMeas = n_min(thisMeas, truncFirstMeas);
 				truncLastMeas = n_max(thisMeas, truncLastMeas);
 				nTrunc++;
-				pOctava = GetPOCTAVA(pL);
-				pOctava->noCutoff = TRUE;
+				pOttava = GetPOTTAVA(pL);
+				pOttava->noCutoff = TRUE;
 			}
 		}
 	}
@@ -760,7 +758,7 @@ void FixCrossSysObjects(Document *doc, LINK startL, LINK endL)
 	truncVeryFirstMeas = n_min(truncFirstMeas, truncVeryFirstMeas);
 	truncVeryLastMeas = n_max(truncLastMeas,truncVeryLastMeas);
 
-	nOctTrunc = FixCrossSysOctavas(doc, startL, endL, &truncFirstMeas, &truncLastMeas);
+	nOctTrunc = FixCrossSysOttavas(doc, startL, endL, &truncFirstMeas, &truncLastMeas);
 	truncVeryFirstMeas = n_min(truncFirstMeas, truncVeryFirstMeas);
 	truncVeryLastMeas = n_max(truncLastMeas,truncVeryLastMeas);
 

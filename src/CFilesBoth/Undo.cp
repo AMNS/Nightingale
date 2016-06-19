@@ -1,17 +1,15 @@
-/* Undo.c for Nightingale, slightly revised for v.2000.
+/* Undo.c for Nightingale.
 Routines in this module are intended to be called before undoable operations
 to prepare for possible undoing, before non-undoable operations to reset the
 machinery, and when user selects the Undo command to undo the previous operation.
 */
 
-/*									NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -256,20 +254,20 @@ static long GetRangeMemAlloc(LINK startL, LINK endL)
 				break;
 			case GRAPHICtype:
 
-				/* This is ridiculous; isn't there a better way to get the
+				/* FIXME: This is ridiculous; isn't there a better way to get the
 					string size? */
 
-				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->string), string);
+				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset), string);
 				memAlloc += string[0];
 							
 				break;
 			case TEMPOtype:
 				pTempo = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(pTempo->string), string);
+				PStrCopy((StringPtr)PCopy(pTempo->strOffset), string);
 				memAlloc += string[0];
 							
 				pTempo = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(pTempo->metroStr), string);
+				PStrCopy((StringPtr)PCopy(pTempo->metroStrOffset), string);
 				memAlloc += string[0];
 
 				break;
@@ -499,8 +497,8 @@ static void GetUndoRange(
 		case U_Unbeam:
 		case U_Tuple:
 		case U_Untuple:
-		case U_Octava:
-		case U_UnOctava:
+		case U_Ottava:
+		case U_UnOttava:
 		case U_AddMods:
 		case U_StripMods:
 		case U_MultiVoice:
@@ -800,8 +798,8 @@ void PrepareUndo(
 		case U_Unbeam:
 		case U_Tuple:
 		case U_Untuple:
-		case U_Octava:
-		case U_UnOctava:
+		case U_Ottava:
+		case U_UnOttava:
 		case U_AddMods:
 		case U_StripMods:
 		case U_MultiVoice:

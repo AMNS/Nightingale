@@ -1,34 +1,29 @@
 /***************************************************************************
 	FILE:	Context.c
-	PROJ:	Nightingale, small rev. for v.3.1; MemMacroized version.
+	PROJ:	Nightingale; MemMacroized version.
 	DESC:	Context-related routines. There should be no user-interface effects;
 	at the moment, some routines can Inval, which should be changed.
 		ContextKeySig				ContextMeasure				Context1Staff
 		ContextStaff				ContextSystem				ContextTimeSig				
 		GetContext					GetAllContexts
-		ClefFixBeamContext		EFixContForClef			FixContextForClef
-		EFixContForKeySig			FixContextForKeySig		EFixContForTimeSig
+		ClefFixBeamContext			EFixContForClef				FixContextForClef
+		EFixContForKeySig			FixContextForKeySig			EFixContForTimeSig
 		FixContextForTimeSig		FixContextForDynamic		FixMeasureContext
-		FixStaffContext			UpdateKSContext			UpdateTSContext
+		FixStaffContext				UpdateKSContext				UpdateTSContext
 		CombineTables				InitPitchModTable			CopyTables
-		EndMeasRangeSearch		EFixAccsForKeySig			FixAccsForKeySig
+		EndMeasRangeSearch			EFixAccsForKeySig			FixAccsForKeySig
 /***************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
-
-LINK EFixAccsForKeySig(Document *, LINK, LINK, short, KSINFO, KSINFO);
 
 
 /* ------------------------------------------------------------------ ContextClef -- */
@@ -36,7 +31,7 @@ LINK EFixAccsForKeySig(Document *, LINK, LINK, short, KSINFO, KSINFO);
 
 void ContextClef(LINK pL, CONTEXT context[])
 {
-	LINK		aClefL;
+	LINK	aClefL;
 
 	for (aClefL=FirstSubLINK(pL); aClefL; aClefL=NextCLEFL(aClefL)) {
 		/* aClef = GetPACLEF(aClefL); */
@@ -885,26 +880,31 @@ LINK FixContextForTimeSig(Document *doc, LINK startL,
 /* In the range [startL,doneL), update (1) the dynamic in context fields of
 following STAFFs and MEASUREs for the given staff, and (2) notes' On velocities. 
 If we find another non-hairpin dynamic on the staff before doneL, we stop at that
-point.
+point; this is on the assumption that contexts after that are already correct. 
 ??If RELDYNCHANGE is defined, it adds a constant to existing velocities,
 preserving tweaking; otherwise it simply replaces velocities. How do we really
 want to do this? */
 
 void EFixContForDynamic(LINK startL, LINK doneL,
-				short staffn,											/* Desired staff no. */
-				SignedByte /*oldDynamic*/, SignedByte newDynamic	/* Previously-effective and new dynamicTypes */
+				short staffn,									/* Desired staff no. */
+				SignedByte newDynamic							/* New dynamicTypes */
 				)
 {
-	LINK			pL, aNoteL, aStaffL, aDynamicL, aMeasureL;
-	short			newVelocity;
+	LINK		pL, aNoteL, aStaffL, aDynamicL, aMeasureL;
+	short		newVelocity;
 
 #ifdef RELDYNCHANGE
 	veloChange = dynam2velo[newDynamic]-dynam2velo[oldDynamic];	/* Rel. change; preserve tweaking */
 #else
-	newVelocity = dynam2velo[newDynamic];								/* Replace; discard tweaking */
+	if (newDynamic<1 || newDynamic>=FIRSTHAIRPIN_DYNAM) {
+		MayErrMsg("EFixContForDynamic: dynamic type %ld is a hairpin or illegal.",
+					(long)newDynamic);
+		return;
+	}
+	newVelocity = dynam2velo[newDynamic];						/* Replace; discard tweaking */
 	if (newVelocity<1 || newVelocity>MAX_VELOCITY) {
-		MayErrMsg("EFixContForDynamic: velocity for dynamic %ld=%ld",
-					(long)newDynamic, (long)newVelocity);
+		MayErrMsg("EFixContForDynamic: illegal velocity of %ld for dynamic type %ld",
+					(long)newVelocity), (long)newDynamic;
 		return;
 	}
 #endif
@@ -940,7 +940,7 @@ void EFixContForDynamic(LINK startL, LINK doneL,
 				for ( ; aDynamicL; aDynamicL = NextDYNAMICL(aDynamicL)) {
 					/* aDynamic = GetPADYNAMIC(aDynamicL); */
 					if (DynamicSTAFF(aDynamicL)==staffn)
-						if (DynamType(pL)<FIRSTHAIRPIN_DYNAM)			/* For now, ignore hairpins */
+						if (DynamType(pL)<FIRSTHAIRPIN_DYNAM)	/* For now, ignore hairpins */
 							return;
 				}
 				break;
@@ -962,8 +962,8 @@ void EFixContForDynamic(LINK startL, LINK doneL,
 /* ------------------------------------------------------------- NonHPDynamSearch -- */
 /* Starting at <link>, search for the next non-hairpin dynamic. */
 
-LINK NonHPDynamSearch(LINK link, short staffn);
-LINK NonHPDynamSearch(LINK link, short staffn)
+static LINK NonHPDynamSearch(LINK link, short staffn);
+static LINK NonHPDynamSearch(LINK link, short staffn)
 {
 	if (DynamTYPE(link) && DynamType(link)>=FIRSTHAIRPIN_DYNAM)
 		return link;
@@ -1005,7 +1005,7 @@ LINK FixContextForDynamic(
 	doneL = NonHPDynamSearch(startL,staffn);
 	if (!doneL) doneL = doc->tailL;
 
-	EFixContForDynamic(startL, doneL, staffn, oldDynamic, newDynamic);
+	EFixContForDynamic(startL, doneL, staffn, newDynamic);
 	
 	return doneL;
 }
@@ -1137,7 +1137,7 @@ appropriate to keep notes' pitches the same, and return the next key signature
 or, if there is none, tailL. */
 
 LINK EFixAccsForKeySig(Document *doc, LINK startL, LINK doneL,
-						short staffn,								/* Desired staff no. */
+						short staffn,						/* Desired staff no. */
 						KSINFO oldKSInfo, KSINFO newKSInfo	/* Previously-effective and new key sig. info */
 						)
 {
@@ -1160,8 +1160,8 @@ LINK EFixAccsForKeySig(Document *doc, LINK startL, LINK doneL,
 	barLastL = EndMeasSearch(doc, RightLINK(startL));
 	if (IsAfter(doneL, barLastL)) barLastL = doneL;
 
-	while (IsAfter(barFirstL, barLastL))							/* Till next key sig... */
-	{																			/* Fix accs. in 1 measure */
+	while (IsAfter(barFirstL, barLastL))						/* Till next key sig... */
+	{															/* Fix accs. in 1 measure */
 		/* Initialize accTable for each bar, since (ugh) FixAllAccidentals destroys it! */
 		CopyTables(oldKSTab,accTable);
 	

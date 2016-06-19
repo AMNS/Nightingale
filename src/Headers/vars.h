@@ -33,7 +33,7 @@ GLOBAL HEAP			*PARTINFOheap,			/* Precomputed pointers into above, indexed by ty
 					*DYNAMheap,
 					*MODNRheap,
 					*GRAPHICheap,
-					*NOTEOCTAVAheap,
+					*NOTEOTTAVAheap,
 					*SLURheap,
 					*NOTETUPLEheap,
 					*GRNOTEheap,
@@ -61,9 +61,9 @@ GLOBAL CursHandle	handCursor,				/* various cursors */
 					shook,					/* for "mouse shaking" */
 					cursorList[MAX_CURSORS];	/* Cursors for inserting music symbols (SIZE MUST BE >=nsyms!) */
 
-GLOBAL char 		palChar,					/* current palette character */
+GLOBAL char 		palChar,				/* current palette character */
 					oldKey,					/* for enter key arrow toggle */
-					*strBuf,					/* General temporary string buffer */
+					*strBuf,				/* General temporary string buffer */
 					applVerStr[16],			/* Application version no. (C string) */
 					*checkDrawStr,			/* Key equivs. for interrupting drawing */
 					*endingString;			/* Ending labels */
@@ -90,7 +90,7 @@ GLOBAL DDIST		drSize[MAXRASTRAL+1];	/* Sizes for staff rastral nos. */
 GLOBAL GridRec		*grid;					/* Character grid for Tool Palette */
 GLOBAL short		maxMCharWid, maxMCharHt; /* Max. size of any Sonata char.in any view */
 GLOBAL GrafPtr		fontPort,				/* Offscreen bitmap to store image of a single Sonata char */
-					palPort;					/* Offscreen port to hold copy of tools picture */
+					palPort;				/* Offscreen port to hold copy of tools picture */
 
 GLOBAL Rect			revertWinPosition;		/* Where to replace Document window */
 GLOBAL short		theSelectionType;		/* Current selection type (for autoscrolling) */
@@ -122,12 +122,11 @@ GLOBAL long			mPacketBufferLen;		/* Length of mPacketBuffer */
 GLOBAL long			mRecIndex;				/* For our MIDI Mgr readHook or built-in MIDI */		
 GLOBAL long			mFirstTime;				/* For our MIDI Mgr readHook: time stamp of 1st data message */
 GLOBAL long			mFinalTime;				/* For our MIDI Mgr readHook: time stamp of last data message */
-GLOBAL Boolean		recordingNow;			/* TRUE=MIDI recording in progress */
+GLOBAL Boolean		recordingNow;			/* TRUE = MIDI recording in progress */
 GLOBAL Boolean		recordFlats;			/* Use flats for black key notes from MIDI, else sharps */
 GLOBAL short		playTempoPercent;		/* For "variable-speed playback": scale marked tempi by this */
 
 GLOBAL Boolean		doNoteheadGraphs;		/* Display noteheads as tiny graphs? */
-
 GLOBAL Boolean		thinLines;				/* On PostScript output, linewidth(s) set dangerously thin */
 
 GLOBAL CharRectCache charRectCache;
@@ -151,6 +150,8 @@ GLOBAL short		numMusFonts;			/* Number of MusFontRec items in <musFontInfo> arra
 GLOBAL ScrapRef 	gNightScrap;
 
 GLOBAL Boolean		gCoreMIDIInited;
+
+GLOBAL Boolean		unisonsOK;				/* If TRUE, don't object to unisons (perfect or augmented) in a chord */
 
 GLOBAL Boolean		ignoreChord[MAX_MEASNODES][MAXVOICES+1];
 
@@ -264,7 +265,7 @@ SYMDATA symtable[] = {
 			301,	MEASUREtype, BAR_RPT_R,		']',	0,		/* right repeat */
 			302,	MEASUREtype, BAR_RPT_LR,	'{',	0,		/* two-headed repeat monster */
 			310,	TEMPOtype,	0,				'M',	0,		/* Tempo/metronome mark */
-			320,	SPACEtype,	0,				'O',	0,		/* Insert space tool: symcode is capital 'o', not zero */
+			320,	SPACERtype,	0,				'O',	0,		/* Insert space tool: symcode is capital 'o', not zero */
 			330,	ENDINGtype,	0,				'!',	0,		/* Ending */
 			THREAD_CURS, 0,		0,				'd',	0,		/* Threader tool */
 			GENLDRAG_CURS, 0,	0,				'j',	0		/* General object dragging tool */
@@ -295,12 +296,12 @@ OBJDATA objTable[] = {
 	MODNRtype,	0,			0,			0,			FALSE,
 
 	GRAPHICtype,J_D,		1,			255,		FALSE,
-	OCTAVAtype,	J_D,		1,			MAXINOCTAVA,TRUE,
+	OTTAVAtype,	J_D,		1,			MAXINOTTAVA,TRUE,
 	SLURtype,	J_D,		1,			MAXCHORD,	FALSE,
 	TUPLETtype,	J_D,		2,			127,		FALSE,
 	GRSYNCtype,	J_IP,		1,			255,		TRUE,
 	TEMPOtype,	J_D,		0,			0,			FALSE,
-	SPACEtype,	J_IT,		0,			0,			TRUE,	
+	SPACERtype,	J_IT,		0,			0,			TRUE,	
 	ENDINGtype,	J_D,		0,			0,			FALSE,
 	PSMEAStype, J_IT,		1,			MAXSTAVES,	TRUE,	
 	OBJtype,	J_STRUC,	0,			0,			FALSE
@@ -359,7 +360,7 @@ short subObjLength[] = {
 		sizeof(ADYNAMIC),
 		sizeof(AMODNR),
 		sizeof(AGRAPHIC),
-		sizeof(ANOTEOCTAVA),
+		sizeof(ANOTEOTTAVA),
 		sizeof(ASLUR),
 		sizeof(ANOTETUPLE),
 		sizeof(AGRNOTE),
@@ -387,12 +388,12 @@ short objLength[] = {
 		sizeof(DYNAMIC),
 		0, 							/* No MODNR objects */
 		sizeof(GRAPHIC),
-		sizeof(OCTAVA),
+		sizeof(OTTAVA),
 		sizeof(SLUR),
 		sizeof(TUPLET),
 		sizeof(GRSYNC),
 		sizeof(TEMPO),
-		sizeof(SPACE),
+		sizeof(SPACER),
 		sizeof(ENDING),
 		sizeof(PSMEAS),
 		sizeof(SUPEROBJECT)

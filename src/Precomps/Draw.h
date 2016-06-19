@@ -47,7 +47,7 @@ void DrawDYNAMIC(Document *, LINK, CONTEXT [], Boolean);
 void DrawRPTEND(Document *, LINK, CONTEXT []);
 void DrawENDING(Document *, LINK, CONTEXT []);
 void DrawGRAPHIC(Document *, LINK, CONTEXT [], Boolean);
-void DrawSPACE(Document *, LINK, CONTEXT []);
+void DrawSPACER(Document *, LINK, CONTEXT []);
 void DrawTEMPO(Document *, LINK, CONTEXT [], Boolean);
 void DrawMEASURE(Document *, LINK, CONTEXT []);
 void DrawPSMEAS(Document *, LINK, CONTEXT []);

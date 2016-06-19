@@ -1,14 +1,11 @@
-/* Double.c for Nightingale: revised for v.3.1 */
+/* Double.c for Nightingale */
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-97 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -23,6 +20,9 @@ static void FixChordsForClef(Document *, LINK, short, CONTEXT, CONTEXT);
 static short DupAndSetStaff(Document *, short [], LINK, short, short, short);
 static Boolean StfHasSmthgAcross(Document *, LINK, short, char []);
 static Boolean RangeHasUnmatchedSlurs(Document *, LINK, LINK, short);
+static LINK LSContextDynamicSearch(LINK, short, Boolean, Boolean);
+static void DblFixContext(Document *, short);
+static Boolean IsDoubleOK(Document *, short, short);
 
 /* =========================================================== DoubleDialog, etc. == */
 
@@ -259,10 +259,10 @@ static Boolean DblDstStaffOK(LINK startL, LINK endL, short staffn)
 			case SLURtype:
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case GRAPHICtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case ENDINGtype:
 				if (ObjOnStaff(pL, staffn, FALSE)) return FALSE;
 				break;
@@ -457,11 +457,11 @@ void DblSetupVMap(Document *doc, short vMap[], LINK startL, LINK endL, short src
 		DblSetNewVoices(doc, vMap, pL, srcStf, dstStf, sameRel);
 
 #ifdef DEBUG_VMAPTABLE
-	DebugPrintf("srcStf=%d dstStf=%d sameRel=%d\n", srcStf, dstStf, sameRel);
+	LogPrintf(LOG_NOTICE, "srcStf=%d dstStf=%d sameRel=%d\n", srcStf, dstStf, sameRel);
 	for (v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn!=0)
-			DebugPrintf("%ciVoice %d part %d relVoice=%d\n",
-							(v==1? '¥' : ' '),
+			LogPrintf(LOG_NOTICE, "%ciVoice %d part %d relVoice=%d\n",
+							(v==1? '«' : ' '),
 							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
 #endif	
 }
@@ -734,11 +734,11 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			DblMapVoices(doc, voiceMap, copyL, dstStf);
 			break;
 			
-		case OCTAVAtype:
-			copyL = DuplicateObject(OCTAVAtype, pL, FALSE, doc, doc, FALSE);
+		case OTTAVAtype:
+			copyL = DuplicateObject(OTTAVAtype, pL, FALSE, doc, doc, FALSE);
 			if (!copyL) return FAILURE;
 			InsNodeIntoSlot(copyL, pL);
-			OctavaSTAFF(copyL) = dstStf;
+			OttavaSTAFF(copyL) = dstStf;
 			break;
 		
 		case DYNAMtype:
@@ -784,7 +784,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			TempoSTAFF(copyL) = dstStf;
 			break;
 		
-		case SPACEtype:
+		case SPACERtype:
 			break;
 			
 		default:
@@ -812,7 +812,7 @@ Boolean StfHasSmthgAcross(
 	
 	if (HasBeamAcross(link, staff)
 	||  HasTupleAcross(link, staff)
-	||  HasOctavaAcross(link, staff) ) {
+	||  HasOttavaAcross(link, staff) ) {
 		isVoice = FALSE;
 		number = staff;
 		foundSmthg = TRUE;
@@ -851,8 +851,9 @@ Boolean RangeHasUnmatchedSlurs(Document */*doc*/, LINK startL, LINK endL, short 
 }
 
 
-LINK LSContextDynamicSearch(LINK, short, Boolean, Boolean);
-LINK LSContextDynamicSearch(
+/* Look for a Dynamic, ignoring hairpins. */
+
+static LINK LSContextDynamicSearch(
 				LINK startL,				/* Place to start looking */
 				short staff,				/* target staff number */
 				Boolean goLeft,			/* TRUE if we should search left */
@@ -875,54 +876,69 @@ Search:
 	return NILINK;
 }
 
-void DblFixContext(Document *, short, short);
-void DblFixContext(Document *doc, short srcStf, short dstStf)
+
+/* Update Dynamic context on <dstStf> baseed on Dynamics in the selection range
+(whether actually selected or not) on that staff. Intended for use with Double().
+NB: Notes in the range in the original staff before the 1st Dynamic will have
+velocities based on the Dynamic in effect there, which is probably different from
+the Dynamic in effect at the beginning of the range in <dstStf>. This means that
+velocities of notes at the beginning of the range in <dstStf> won't be consistent
+with the context. The best solution might be ??MAKE THEM CONSISTENT! inserting an explicit
+Dynamic on <dstStf>. Some day. */
+ 
+static void DblFixContext(Document *doc, short dstStf)
 {
-	LINK dynL, pL, srcMeasL, dstMeasL, srcStaffL, dstStaffL, aDynamicL;
-	PAMEASURE srcMeas, dstMeas;
-	PASTAFF srcStaff, dstStaff;
+	LINK pL, dstMeasL, dstStaffL, aDynamicL;
+	PAMEASURE dstMeas;
+	PASTAFF dstStaff;
+	CONTEXT context;
+	short startDynamType, currentDynamType;
 	
-	/* Update dynamic context. Start with the first context-bearing obj (Measure or
-		Staff) after the first dynamic-context-affecting object (for now, non-hairpin
-		Dynamic) in <srcStf>; update until the first context-affecting object in
-		<dstStf>. Exception: if the the first dynamic context-affecting obj is after
-		the selection range, do nothing. */
+	/* Pick uo the Dynamic context from just before the selection range. Then update
+		context-bearing objects (Measure and Staff) in the selection range, considering
+		Dynamics we encounter along the way. */
 
-	dynL = LSContextDynamicSearch(doc->selStartL, srcStf, GO_RIGHT, FALSE);
-	if (IsAfter(LeftLINK(doc->selEndL), dynL)) return;
+//LogPrintf(LOG_NOTICE, "DblFixContext0: doc->selStartL=%d dstStf=%d\n", doc->selStartL, dstStf);
+	GetContext(doc, doc->selStartL, dstStf, &context);
+	startDynamType = currentDynamType = context.dynamicType;
+//LogPrintf(LOG_NOTICE, "DblFixContext1: currentDynamType=%d\n", currentDynamType);
 
-	if (dynL) {
-		for (pL = dynL; pL; pL = RightLINK(pL))
+	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 			switch (ObjLType(pL)) {
 				case DYNAMtype:
 					if (DynamType(pL)<FIRSTHAIRPIN_DYNAM) {
 						aDynamicL = FirstSubLINK(pL);
-						if (DynamicSTAFF(aDynamicL)==dstStf)
-							return;
+					if (DynamicSTAFF(aDynamicL)==dstStf) {
+						currentDynamType = DynamType(pL);
+//LogPrintf(LOG_NOTICE, "DblFixContext: Dynamic pL=%d dynam=%d\n", pL, currentDynamType);
 					}
-					break;
+				}
+				continue;
 				case MEASUREtype:
-					srcMeasL = MeasOnStaff(pL, srcStf);
+//LogPrintf(LOG_NOTICE, "DblFixContext: Measure pL=%d dynam=%d\n", pL, currentDynamType);
 					dstMeasL = MeasOnStaff(pL, dstStf);
-					srcMeas = GetPAMEASURE(srcMeasL);
 					dstMeas = GetPAMEASURE(dstMeasL);
-					dstMeas->dynamicType = srcMeas->dynamicType;
-					break;
+					dstMeas->dynamicType = currentDynamType;
+					continue;
 				case STAFFtype:
-					srcStaffL = StaffOnStaff(pL, srcStf);
 					dstStaffL = StaffOnStaff(pL, dstStf);
-					srcStaff = GetPASTAFF(srcStaffL);
 					dstStaff = GetPASTAFF(dstStaffL);
-					dstStaff->dynamicType = srcStaff->dynamicType;
-					break;
+					dstStaff->dynamicType = currentDynamType;
+					continue;
 				default:
 					;
 			}
 	}
+		
+	/* Now update Dynamic context as if new Dynamics were just inserted at the beginning
+	of the selection range (to make things consistent before the first actual Dynamic
+	in the range) and at the end of the range, */
+	EFixContForDynamic(doc->selStartL, doc->selEndL, dstStf, startDynamType);
+	EFixContForDynamic(doc->selEndL, doc->tailL, dstStf, currentDynamType);
 }
 
-Boolean IsDoubleOK(Document *, short, short);
-Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
+
+static Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 {
 	Boolean hasSmthgAcross, crossStaff;
 	short srcPart, dstPart;
@@ -1062,7 +1078,7 @@ short Double(Document *doc)
 
 	if (didSomething) {
 		doc->changed = TRUE;
-		DblFixContext(doc, srcStf, dstStf);
+		DblFixContext(doc, dstStf);
 		/*
 		 * We may have newly-created beams and so on preceding the selection range. The
 		 * easiest way to fix it (though not the most efficient) is via OptimizeSelection.

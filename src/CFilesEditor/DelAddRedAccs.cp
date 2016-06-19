@@ -1,15 +1,12 @@
-/* DelAddRedAccs.c for Nightingale, rev. for v.99 - routines for deleting and adding
-accidentals - MemMacroized version. */
+/* DelAddRedAccs.c for Nightingale - routines for deleting and adding accidentals -
+MemMacroized version. */
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1996-9 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -27,8 +24,8 @@ Boolean DelNoteRedAcc(Document *doc, short code, LINK syncL, LINK aNoteL,
 	Boolean didAnything;
 	
 	stf = NoteSTAFF(aNoteL);
-	GetPitchTable(doc, accTable, syncL, stf);							/* Get pitch modif. situation */
-	halfLn = qd2halfLn(NoteYQPIT(aNoteL));								/* Half-lines below middle C */
+	GetPitchTable(doc, accTable, syncL, stf);						/* Get pitch modif. situation */
+	halfLn = qd2halfLn(NoteYQPIT(aNoteL));							/* Half-lines below middle C */
 
 	/*
 	 * If the note is tied to the left, always remove its accidental unless it
@@ -39,7 +36,7 @@ Boolean DelNoteRedAcc(Document *doc, short code, LINK syncL, LINK aNoteL,
 		&& (NoteACCSOFT(aNoteL) || code==DELALL_REDUNDANTACCS_DI)) {
 			if (PrevTiedNote(syncL, aNoteL, &prevSyncL, &prevNoteL)) {
 				/* prevNote = GetPANOTE(prevNoteL); */
-				prevHalfLn = qd2halfLn(NoteYQPIT(prevNoteL));				/* Half-lines below middle C */
+				prevHalfLn = qd2halfLn(NoteYQPIT(prevNoteL));		/* Half-lines below middle C */
 				if (halfLn==prevHalfLn) {
 					NoteACC(aNoteL) = 0;
 					didAnything = syncVChanged[NoteVOICE(aNoteL)] = TRUE;
@@ -69,8 +66,8 @@ Boolean DelGRNoteRedAcc(Document *doc, short code, LINK syncL, LINK aGRNoteL,
 
 	stf = GRNoteSTAFF(aGRNoteL);
 	GetPitchTable(doc, accTable, syncL, stf);						/* Get pitch modif. situation */
-	halfLn = qd2halfLn(GRNoteYQPIT(aGRNoteL));					/* Half-lines below middle C */
-	if (GRNoteACC(aGRNoteL)!=0 &&										/* Is grace note's acc. a change from prev.? */
+	halfLn = qd2halfLn(GRNoteYQPIT(aGRNoteL));						/* Half-lines below middle C */
+	if (GRNoteACC(aGRNoteL)!=0 &&									/* Is grace note's acc. a change from prev.? */
 		 GRNoteACC(aGRNoteL)==accTable[halfLn+ACCTABLE_OFF])
 		 if (GRNoteACCSOFT(aGRNoteL) || code==DELALL_REDUNDANTACCS_DI)	{ /* No */
 			GRNoteACC(aGRNoteL) = 0;
@@ -88,7 +85,7 @@ flags are set in <syncVChanged>. */
 void ArrangeSyncAccs(LINK syncL, Boolean syncVChanged[])
 {
 	CHORDNOTE	chordNote[MAXCHORD];
-	short			voice, noteCount;
+	short		voice, noteCount;
 	Boolean		stemDown;
 
 	for (voice = 1; voice<=MAXVOICES; voice++)
@@ -105,7 +102,7 @@ flags are set in <syncVChanged>. */
 void ArrangeGRSyncAccs(LINK grSyncL, Boolean syncVChanged[])
 {
 	CHORDNOTE	chordNote[MAXCHORD];
-	short			voice, noteCount;
+	short		voice, noteCount;
 	Boolean		stemDown;
 
 	for (voice = 1; voice<=MAXVOICES; voice++)
@@ -129,10 +126,10 @@ If ACC_IN_CONTEXT is FALSE, it should probably do nothing.
 */
 
 Boolean DelRedundantAccs(
-				Document *doc,
-				short stf,		/* Staff no. or ANYONE */
-				short code
-				)
+			Document *doc,
+			short stf,		/* Staff no. or ANYONE */
+			short code
+			)
 {
 	LINK pL, aNoteL;
 	LINK aGRNoteL;
@@ -348,23 +345,23 @@ If any accidentals were added, return TRUE, else FALSE. Takes no user-interface
 actions, e.g., redrawing. */
 
 Boolean AddMIDIRedundantAccs(
-			Document		*doc,
-			LINK			endAddAccsL,
+			Document	*doc,
+			LINK		endAddAccsL,
 			Boolean		addTiedLeft,
 			Boolean		addNaturals
 			)
 {
-	LINK		pL, aNoteL, aGRNoteL, aClefL;
+	LINK	pL, aNoteL, aGRNoteL, aClefL;
 	Boolean	didAnything, syncVChanged[MAXVOICES+1];
-	short		voice, eAcc, acc;
-	short		staff, clefType[MAXSTAVES+1], octType[MAXSTAVES+1];
+	short	voice, eAcc, acc;
+	short	staff, clefType[MAXSTAVES+1], octType[MAXSTAVES+1];
 		
 	/*
 	 * We'll need each note's clef and octave sign. Clefs are easy, since there are
 	 * always clefs for all staves at the beginning of the object list, and a new clef
 	 * affects all notes on its staff. We keep track of where octave signs begin, but keeping
 	 * track of where they end is messy: to avoid doing that, we just rely on each Note
-	 * subobj's inOctava flag to say whether it's in one.
+	 * subobj's inOttava flag to say whether it's in one.
 	 */
 	for (staff = 1; staff<=doc->nstaves; staff++)
 		octType[staff] = 0;											/* Initially, no octave sign */
@@ -383,7 +380,7 @@ Boolean AddMIDIRedundantAccs(
 			 		staff = NoteSTAFF(aNoteL);
 #ifndef PUBLIC_VERSION
 					if (CapsLockKeyDown() && OptionKeyDown())
-						DebugPrintf("AddMIDIRedundantAccs: pL=%d aNoteL=%d stf=%d clf=%d oct=%d\n",
+						LogPrintf(LOG_NOTICE, "AddMIDIRedundantAccs: pL=%d aNoteL=%d stf=%d clf=%d oct=%d\n",
 							pL, aNoteL, staff, clefType[staff], octType[staff]);
 #endif
 				   eAcc = MIDI2EffectiveAcc(doc, clefType[staff], octType[staff], pL, aNoteL);
@@ -430,8 +427,8 @@ Boolean AddMIDIRedundantAccs(
 					clefType[staff] = ClefType(aClefL);
 				}
 				break;
-			case OCTAVAtype:
-				if (OctavaSTAFF(pL)==staff) octType[staff] = OctType(pL);
+			case OTTAVAtype:
+				if (OttavaSTAFF(pL)==staff) octType[staff] = OctType(pL);
 				break;
 			default:
 				;

@@ -34,8 +34,8 @@ void NewTimeSig(Document *, short, char, short, short, short, short);
 void NewDynamic(Document *, short, short, char, short, short, LINK, Boolean);
 void NewEnding(Document *, short, short, char, short, STDIST, LINK, short, short);
 
-void NewTempo(Document *, Point, char, short, STDIST, Boolean, short, Boolean, Boolean,
-				unsigned char *, unsigned char *);
+void NewTempo(Document *, Point, char, short, STDIST, Boolean, Boolean, short, Boolean,
+				Boolean, unsigned char *, unsigned char *);
 void NewSpace(Document *, Point, char, short, short, STDIST);
 
 

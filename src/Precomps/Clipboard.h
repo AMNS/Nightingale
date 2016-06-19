@@ -31,7 +31,7 @@ void InitVMapTable(Document *doc, short stfDiff);
 void SetupVMap(Document *doc, short *vMap, short stfDiff);
 
 void PasteFixMeasStruct(Document *, LINK, LINK, Boolean);
-void PasteFixOctavas(Document *doc,LINK startL,short s);
+void PasteFixOttavas(Document *doc,LINK startL,short s);
 void PasteFixBeams(Document *doc,LINK startL,short v);
 void PasteUpdate(Document *, LINK, LINK, DDIST);
 void PasteFixContext(Document *, LINK, LINK, short);

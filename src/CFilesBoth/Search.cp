@@ -5,26 +5,24 @@
 		LPageSearch				RPageSearch			LSystemSearch
 		RSystemSearch			LStaffSearch		RStaffSearch
 		LMeasureSearch			RMeasureSearch		L_Search
-		LSSearch					LVSearch				LSSearch
+		LSSearch				LVSearch			LSSearch
 		LVUSearch				GSearch				GSSearch
-		LJSearch					StaffFindSymRight	StaffFindSyncRight
+		LJSearch				StaffFindSymRight	StaffFindSyncRight
 		FindValidSymRight		StaffFindSymLeft	StaffFindSyncLeft
-		FindValidSymLeft		SyncInVoiceMeas	EndMeasSearch
-		EndSystemSearch		EndPageSearch		TimeSearchRight
+		FindValidSymLeft		SyncInVoiceMeas		EndMeasSearch
+		EndSystemSearch			EndPageSearch		TimeSearchRight
 		AbsTimeSearchRight
-		MNSearch					RMSearch				SSearch
+		MNSearch				RMSearch			SSearch
 		EitherSearch			FindUnknownDur		XSysSlurMatch
-		KSSearch					FindNoteNum
+		KSSearch				FindNoteNum
 /***************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1987-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -410,27 +408,27 @@ criteria, the first one is returned.
 
 Here are the object-specific features ("ign" = ignored).
 																																																																									*
-	Object	Optimized?				id					subtype	voice		needSel	needInMeas
+	Object	Optimized?			id				subtype	voice	needSel	needInMeas
 	------	----------	-------------------		-------	-------	-------	----------
-	Page			yes		sheetNum or ANYONE		ign		ign		ign		ign
+	Page		yes		sheetNum or ANYONE		ign		ign		ign		ign
 	System		yes		systemNum or ANYONE		ign		ign		ign		ign
-	Staff			yes		staffNum or ANYONE		ign		ign		Used		ign
+	Staff		yes		staffNum or ANYONE		ign		ign		Used	ign
 	Measure		yes		staffNum or ANYONE		ign		ign		ign		ign	
-	Connect		no			ignored						ign		ign		ign		ign	
-	Clef			no			staffNum or ANYONE		ign		ign		Used		Used	
-	KeySig		no			staffNum or ANYONE		ign		ign		Used		Used	
-	TimeSig		no			staffNum or ANYONE		ign		ign		Used		Used	
-	Beamset		no			staffNum or ANYONE		Used		Used		Used		ign	
-	Tuplet		no			staffNum or ANYONE		ign		Used		Used		ign	
-	Octava		no			staffNum or ANYONE		ign		ign		Used		ign	
-	Sync			no			staffNum or ANYONE		ign		Used		Used		ign	
-	GRSync		no			staffNum or ANYONE		ign		Used		Used		ign	
-	Dynamic		no			staffNum or ANYONE		ign		ign		Used		ign	
-	Slur			no			staffNum or ANYONE		Used		Used		ign		ign	
-	RptEnd		no			ANYONE only					ign		ign		Used		ign	
-	Graphic		no			staffNum or ANYONE		Used		Used(*)	Used		ign	
-	Tempo			no			staffNum or ANYONE		ign		ign		Used		ign	
-	Spacer		no			staffNum or ANYONE		ign		ign		Used		ign	
+	Connect		no		ignored					ign		ign		ign		ign	
+	Clef		no		staffNum or ANYONE		ign		ign		Used	Used	
+	KeySig		no		staffNum or ANYONE		ign		ign		Used	Used	
+	TimeSig		no		staffNum or ANYONE		ign		ign		Used	Used	
+	Beamset		no		staffNum or ANYONE		Used	Used	Used	ign	
+	Tuplet		no		staffNum or ANYONE		ign		Used	Used	ign	
+	Ottava		no		staffNum or ANYONE		ign		ign		Used	ign	
+	Sync		no		staffNum or ANYONE		ign		Used	Used	ign	
+	GRSync		no		staffNum or ANYONE		ign		Used	Used	ign	
+	Dynamic		no		staffNum or ANYONE		ign		ign		Used	ign	
+	Slur		no		staffNum or ANYONE		Used	Used	ign		ign	
+	RptEnd		no		ANYONE only				ign		ign		Used	ign	
+	Graphic		no		staffNum or ANYONE		Used	Used(*)	Used	ign	
+	Tempo		no		staffNum or ANYONE		ign		ign		Used	ign	
+	Spacer		no		staffNum or ANYONE		ign		ign		Used	ign	
 
 (*)Some Graphics don't a voice, i.e., they have voice==NOONE : those Graphics are
 considered to match any voice. */
@@ -645,8 +643,8 @@ LINK L_Search(
 							if (anySelected || pSel)
 	  							return pL;
 					break;
-				case OCTAVAtype:
-	  				if (anyStaff || ((POCTAVA)p)->staffn==pbSearch->id)
+				case OTTAVAtype:
+	  				if (anyStaff || ((POTTAVA)p)->staffn==pbSearch->id)
 						if (anySelected || pSel)
 	  						return pL;
 					break;
@@ -667,8 +665,8 @@ LINK L_Search(
 						if (anySelected || pSel)
 	  						return pL;
 					break;
-				case SPACEtype:
-	  				if (anyStaff || ((PSPACE)p)->staffn==pbSearch->id)
+				case SPACERtype:
+	  				if (anyStaff || ((PSPACER)p)->staffn==pbSearch->id)
 						if (anySelected || pSel)
 	  						return pL;
 					break;
@@ -964,9 +962,9 @@ LINK GSearch(
 		  							return pL;
 		  			}
 					break;
-				case OCTAVAtype:
+				case OTTAVAtype:
 					if (beyond) {
-		  				if (anyStaff || ((POCTAVA)p)->staffn==pbSearch->id)
+		  				if (anyStaff || ((POTTAVA)p)->staffn==pbSearch->id)
 							if (anySelected || pSel)
 		  						return pL;
 		  			}
@@ -992,9 +990,9 @@ LINK GSearch(
 		  						return pL;
 		  			}
 					break;
-				case SPACEtype:
+				case SPACERtype:
 					if (beyond) {
-		  				if (anyStaff || ((PSPACE)p)->staffn==pbSearch->id)
+		  				if (anyStaff || ((PSPACER)p)->staffn==pbSearch->id)
 							if (anySelected || pSel)
 		  						return pL;
 		  			}
@@ -1338,7 +1336,7 @@ LINK RMSearch(Document *doc, LINK startL, const unsigned char *rMark, Boolean go
 			pGraphic = GetPGRAPHIC(pL);
 			if (pGraphic->graphicType==GRRehearsal) {
 				if (rMark[0]) {
-					if (PStrCmp((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->string),
+					if (PStrCmp((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset),
 									(StringPtr)rMark))
 						return pL;
 				}

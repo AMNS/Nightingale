@@ -1,4 +1,4 @@
-DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 thru Sept. 2015
+DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 thru April 2016
 
 (Most of the files in my Ngale Carbon code base have last modification dates of April or
 May 2012; a few files are 2 June 2012, and it looks like that's the last source code I
@@ -770,7 +770,8 @@ MIDIPlay.cp, MIDIFSave.cp: Change most instances of "Midi" in function names to 
 
 MIDIFOpen.cp: In Debug prints for TEMPO metaevents, add "(TEMPO)"; rename the two
 versions of GetRelObj (with different calling sequences: this assumes a C++ compiler,
-a bad idea) to GetTempoRelObj and GetCtrlRelObj; clean up code.
+a bad idea in a program that's virtually all straight C) to GetTempoRelObj and
+GetCtrlRelObj; clean up code.
 
 -------------------------------------------------------------------------------
 
@@ -817,10 +818,10 @@ directory, rebuild => all OK.
 2 Oct. - 3 Oct.
 
 I'm _finally_ ready to use a version control system for Ngale!! A GitHub repository
-already has the last "AMNS" codebase (from David Gottlieb) with voluminous changes,
-mostly superficial and mostly by Geoff C. The vast majority of the changes appear to
-be replacing thousands of occurrences of "INT16" to "short"; to facilitate merging,
-change all instances of "INT16" in files I've changed since 2013 to "short".
+already has the last "AMNS" codebase (from David Gottlieb, ca. 2012) with voluminous
+changes, mostly superficial and mostly by Geoff C. The vast majority of the changes
+appear to be replacing thousands of occurrences of "INT16" to "short"; to facilitate
+merging, change all instances of "INT16" in files I've changed since 2013 to "short".
 
 CarbonPrinting.cp: Geoff made loads of changes; I changed only one char., so use his
 version with my change.
@@ -828,7 +829,7 @@ version with my change.
 DrawUtils.cp: I'd made no non-trivial changes.
 
 OK, everything is integrated! Try to build => 9 errors. Looks like #defines are
-missing for: NOTEHEAD_GRAPH_WIDTH EXPAND_WIDER
+missing for NOTEHEAD_GRAPH_WIDTH and EXPAND_WIDER .
 
 Both should be in defs.h; why aren't they? Because I overlooked defs.h when integrating
 all the changes. Correct that, rebuild => 1 error: OhioSlurs.cp is missing -- the ref.
@@ -870,13 +871,16 @@ Clean up code a bit: remove last VIEWER_VERSION code; update comments in compile
 With two voices on a staff, Ngale computes space needed based on the merged voices
 even if one is so far above the other that they don't interact, resulting in it
 sometimes allocating way too much space for a Sync. Cf. violin concerto, II,
-3VCBVariation, m. 9. A solution: add a flag to the ANote struct
-that says "when respacing, ignore this note", or, better, "ignore the chord this note
-belongs to"; add it to the note Get Info dialog.  Est. fix impact: low: there's a byte
-available to put this flag in, and it's been initialized to 0 for many years. Code
-changes would be in SpaceTime.cp > SymWidthLeft(). However, that function calls
-ChordNoteToLeft() with staff nos., while ChordNoteToLeft() expects voice nos.! This
-is a mess; may not be low-impact after all and may not be worth the effort.
+3VCBVariation, m. 9. A solution: add a flag to the ANote struct that says "when
+respacing, ignore this note", or, better, "ignore the chord this note belongs to"; add
+it to the note Get Info dialog.  Est. fix impact: low: there's a byte available to put
+this flag in, and it looks like it's been initialized to 0 for many years. ??The byte is
+fillerN. Could also take the top bit of ndots:4 -- supporting up to 7 aug. dots is
+probably enough :-) . 
+
+Code changes would be in SpaceTime.cp > SymWidthLeft(). However, that function calls
+ChordNoteToLeft() with staff nos., while ChordNoteToLeft() expects voice nos.! This is a
+mess; it may not be low-impact after all, and may not be worth the effort :-( .
 
 In code to display CNFG fields: add _musicFontID_; rearrange to come closer to the order
 of declarations in applicationTypes.h; minor cleanup.
@@ -895,4 +899,502 @@ the _info2_ field looks like a good place, not used for GRStrings. Is it always
 initialized? It looks like it: cf. InitGraphic().
 
 It works! Do the same for tempo marks => that works!
+
+-------------------------------------------------------------------------------
+
+3-10 Nov.
+
+Resume work on "ignore the chord this note belongs to" feature (cf. 13-14 Oct.).
+Change SymWidthLeft() to properly use voice nos. in calls to ChordNoteToLeft() (gasp).
+Add <noAutospace> flag to the ANOTE struct; in SymWidthLeft(), if main note has
+<noAutospace>, ignore the note's chord.; in BrowseSync(), display <noAutospace>.
+??
+
+Test:
+	SymWidthLeftTest.ngl: m.1, OK; m.2 both tests OK.
+	Spacing2VPerStaff2.ngl: m.1, to left OK, to right not; m.2, neither is OK.
+
+Part of the problem is we need more context in SymWidthLeft(), and, no doubt,
+SymWidthRight(). But the code is just too messy as it is! Let's precompute an
+<ignoreChord> matrix in SpaceHighLevel... done. But now Ngale crashes if I simply
+open a test file and try to respace one measure #%^&#)%#)% . Let's go back to the
+last known good version, the code in the Ngale 5.5 of 28 Oct. => yep, that still
+works :-) . Move towards the latest version. !! When I call SymWidthLeft() with
+measNode = -1, i.e., no <ignoreChord> info available, no problem. But when I call
+it with the correct values but setting measNode = -99 as the 1st stmt in
+SymWidthLeft(), it crashes :-( . In this excerpt from ConsidITWidths():
+
+			/*
+			 * We need more space here. Move this object to the right, and
+			 * increase the space available on all staves by the same amount.
+			 */
+**0 DebugPrintf("(Q) i=%d stf=%d gNeedLeft=%d needLeft=%d\n", i, s, gNeedLeft, needLeft);
+**1			fSpBefore[i] += fSpNeeded;
+			for (t = 1;t<=doc->nstaves; t++)
+				fAvailSp[t] += fSpNeeded;
+		}
+		
+		/*
+		 *	Re-initialize for the next J_IT object on this staff.
+		 */
+**2		prevNeedRight[s] = SymWidthRight(doc, spaceTimeInfo[i].link, s, FALSE);	/* Incl. stuff fllwng notehead */
+		if (prevNeedRight[s]<gNeedRight) prevNeedRight[s] = gNeedRight;
+
+Before adding line **0, it crashes w/ "EXC_BAD_ACCESS" at **1. After adding **0.
+it crashes at **2. ?!?
+
+Something very suspicious: The code has many instances of loops like this:
+
+	for (k = 0; k<=nInMeasure; k++)
+
+But that stmt covers nInMeasure+1 values of <k>! Is that correct?? ...Unfortunately,
+yes. <nInMeasure> is a misleading name; it's really <nLast>. OK, I give up! -- at
+least for the time being.
+
+-------------------------------------------------------------------------------
+
+11-18 Nov.
+
+Various fields in various Info dialogs are too narrow, truncating labels or even values.
+Make the fields and, in some cases, the dialogs wider.
+
+-------------------------------------------------------------------------------
+
+18 Nov.
+
+In the current 1stMovement_Part3.ngl, mm. 52-61, adding whole-measure rests to the
+solo violin part results in Ngale thinking mm. 57 & 59 are suddenly longer! Weird;
+don't think I've seen this before. Starting in m. 57, it's 4/4 => each measure dur.
+should be 1920 ticks. Onset times:
+
+m. 57: 111360
+m. 58: 114600 => dur. of m. 57 = 3240 = 1320 (5 eighths + 1 16th) too big
+m. 59: 116520 => dur. of m. 58 = 1920
+m. 60: 119160 => dur. of m. 59 = 2640 = 720 (3 eighths) too big
+m. 61: 121080 => dur. of m. 60 = 1920
+
+!! Deleting the whole-measure rests in the offending bars, then re-inserting them,
+fixes the problem. Oh well; it's not worth pursuing this now.
+
+-------------------------------------------------------------------------------
+
+26-27 Nov.
+
+- With a score of very many pages, you can't zoom in very far. E.g., with
+1stMovement_Part1FS.ngl's 37 pages, 200% is the limit before Ngale complains the score
+won't fit at the new magnification. This makes tweaking details very difficult. Changing
+to a larger "paper" size via Page Setup seems to do nothing at all. Changing Screen Page
+Layout to accomodate more pages works in that it's recorded in the file, but doesn't
+stop Ngale from complaining; cf. Sheet>SheetMagnify(). Either or both are probably worth
+fixing.
+
+Where do we check for screen layout overflowing? The complaint for score not fitting
+at new magnification is
+	#define SCREENOVERFLOW_DLOG 806
+But where is it referenced?? In Sheet>WarnScreenPagesOverflow(). Anyway, checking is
+done in Sheet>ScreenPagesCanOverflow()... which seems to check _separately_ for
+<numSheets> exceeding the layout's no. of rows or its no. of columns -- but I nearly
+always have no. of rows as 1, so why don't I have problems w/ any score of more than a
+page?? W/ my 37-page score, going from 150% to
+200% => 	magnify = 2, numSheets = 37, scale = 2.0;
+			doc->numRows = 1, maxRows = 66;
+			doc->numRCols = 86, maxCols = 86
+
+Trying to go from 300% to 300% =>
+		 	magnify = 3, numSheets = 37, scale = 3.0;
+			doc->numRows = 1, maxRows = 66??;
+			doc->numRCols = 86, maxCols = 86??
+		
+!! The problem really is exceeding the width or height of the available space, so
+just reducing the no. of columns from 86 to, say, 20 should do it... and it does!
+It'd be good to clarify the "score won't fit" error message, but maybe not worth the
+time now.
+
+-------------------------------------------------------------------------------
+
+28 Nov.
+
+- With reasonable spacing, only about 25 staves fit on a letter-size page even at staff
+size 8, so with a largish number -- e.g., 15 in my violin concerto -- you can get only
+one system on a page, Trying to change to a larger "paper" size seems to do absolutely
+nothing. More precissely, after changing from default (U.S. letter) to U.S. legal, in CarbonPrinting>
+NPageSetupDoneProc(), it looks like
+
+	if (!EqualRect(&doc->origPaperRect,&rPaper)) ...
+
+isn't satisfied, i.e., doc->origPaperRect and rPaper are identical. Well, pmRPaper
+is still 612 x 792 points, i.e., 9-1/2 x 11 in. ?? Apple's PMGetAdjustedPaperRect()
+must be returning pmRPaper unchanged; I dunno what can I do about that.
+
+Changing from portrait to landscape format _does_ ??
+
+-------------------------------------------------------------------------------
+
+29 Nov. - 7 Dec.
+
+DebugPrintf messages seem to go to /dev/null unless we're running inside Xcode, and
+chances to run inside Xcode (2.5!) are very likely to gradually fade away. Solution:
+DebugPrintf is #define'd simply as printf. It should be trivial to #define it instead as
+the BSD function syslog(3) ...though it'd be nicer to continue to have messages go to
+Xcode _and_ send 'em to the log.
+
+Solution: call openlog(p1, LOG_PERROR, LOG_USER) before calls to syslog()!
+
+?? Does this work? I saw some Nightingale messages in the system log, but then nothing
+seemed to be there! Maybe it's just scrolled out of the viewable area... Where _is_
+the system log file? In /var/log . Try again => nope, nothing there!; anyway, what I
+see in Console brackets the time the message was issued. Try w/o calling
+openlog() => nope. I've been using level LOG_INFO; try w/ a higher level, LOG_ERR =>
+it works! So, contrary to documentation, it looks like the default doesn't send
+messages of all levels through. Add back call to openlog() => it still works.
+Change level filtering via setlogmask() => it _seemed_ to work... but now it's only
+accepting levels LOG_NOTICE and above, i.e., not LOG_INFO or LOG_DEBUG. OK, I can
+live with that.
+
+Add VLogPrint(), LogPrint(), InitLogPrint() to Utility; call InitLogPrint() from
+initialization code; change COMPLAINx macros in DebugUtils.h from using DebugPrintf()
+to LogPrint(LOG_NOTICE, ...) => it works! But probably should use priority level
+LOG_ERR.
+
+This has all been on my G5 running OS 10.5. Test on my old MacBook running OS 10.6 =>
+OK, and even levels LOG_INFO and LOG_DEBUG appear in the log.
+
+OK, but we often call DebugPrintf() with partial lines or occasionally with multiple
+lines. Add support for the former only, & rename xxxPrint functions to xxxPrintf =>
+?!? hangs/crashes! -- apparently in strlen(). Run log contains:
+
+1------inStr='A simple one-line LogPrintf.' fullLine=1 &inStr=184f78 pch=184f78 len=28
+Ngale: A simple one-line LogPrintf.
+1------inStr='Another one-line LogPrintf.' fullLine=1 &inStr=184f78 pch=184f78 len=27
+Ngale: Another one-line LogPrintf.
+1------inStr='This line is ' fullLine=0 &inStr=184f78 pch=184f78 len=13
+1------inStr='built from 2 pieces.' fullLine=1 &inStr=184f78 pch=184f78 len=20
+Ngale: This line is built from 2 pieces.
+1------inStr='This line was ' fullLine=0 &inStr=184f78 pch=184f78 len=14
+1------inStr='built from 3' fullLine=0 &inStr=184f78 pch=184f78 len=12
+1------inStr='pieces.' fullLine=1 &inStr=184f78 pch=184f78 len=7
+Ngale: This line was built from 3pieces.
+1------inStr='DEBUG 'M'-Std: ' fullLine=0 &inStr=184f78 pch=184f78 len=15
+1------inStr='CHK MAIN:' fullLine=0 &inStr=184f78 pch=184f78 len=9
+1------inStr='Discont. sel, 0 objs in range, 0 sel, 10 total.  0 voices.' fullLine=1 &inStr=184f78 pch=184f78 len=58
+Ngale: DEBUG 'M'-Std: CHK MAIN:Discont. sel, 0 objs in range, 0 sel, 10 total.  0 voices.
+1------inStr='    CHK MASTER: ' fullLine=0 &inStr=184f78 pch=184f78 len=16
+1------inStr=' Done.' fullLine=0 &inStr=184f78 pch=184f78 len=6
+1------inStr='    CHK CLIP: ' fullLine=0 &inStr=184f78 pch=184f78 len=14
+1------inStr=' Done.' fullLine=0 &inStr=184f78 pch=184f78 len=6
+ 
+!! It looks like strlen() and strcat() both crash if src is the null string, at least
+on my G5. It's really hard to believe such a horrendous bug exists _and_ I didn't know
+about it, but e.g. putting "if (pch!='\0')" in front of
+    	strcat(outStr, pch);
+definitely seems to make the problem go away.
+
+Replace ca. 300 instances of "" to "LogPrintf(LOG_NOTICE, "... done.
+
+-------------------------------------------------------------------------------
+
+16-17 Dec.
+
+- Explicit courtesy accidentals are unusable: the parens are always way too low on the
+page. I was thinking most of the displacement was because they're off by one staff, and
+the rest because the tops are where the bottoms should be. But actually it seems to be
+just because _courtesyAccYD_ -- read from the Prefs file -- on my G5 & my old MacBook is
+way too large: it's 100, but should be more like the config default of 8. But where _is_
+the #%&#)%$%=$)# Prefs file, "Nightingale Devel Prefs"?? It doesn't seem to be anywhere
+on the startup disk, and I can't tell from the code where we're looking, but we
+certainly seem to be finding it!
+
+Try changing the name to, e.g., "Nightingale 5-AMNF Prefs"? That's probably a good
+idea anyway.
+
+??UNFINISHED!
+
+-------------------------------------------------------------------------------
+
+17-19 Dec.
+
+- On MIDI playback, if multiple notes are simultaneously playing the same note number on
+the same channel but end at different times, Ngale stops playing that note when the
+first one ends. It should at least hold it till the last one ends. It might be better to
+re-attack the note at a possibly different velocity, but that'd be more complicated and
+it's not clear it'd actually sound better.
+
+This is handled by an eventList; PlaySequence() calls EndNoteLater() which calls
+InsertEvent(). So should just check before calling EndNoteLater() (or in EndNoteLater()?),
+and if there's already an event w/ that note no. and channel w/ a later ending time,
+ignore the Note Off.
+
+Cf. MIDIUtils.cp/InsertEvent(), and, the equivalent for writing MIDI files,
+MIDIFSave.cp/MFCheckEventList().
+
+Add Boolean param. _playMaxDur_ to xxInsertEvent; if TRUE and we already have ??,
+ignore the call to xxInsertEvent. Add FALSE as actual parameter to calls (in xxEndNoteLater)
+value, so MIDI playback should behave the same as always => !#$^%&@$@# results in no
+Note Offs being sent at all! How?
+
+The 4th formal param. to CMEndNoteLater is now _long_ in the declaration, _short_ in
+the prototype, & _UniqueMIDIID_(?) as the actual parameter -- very suspicious. Change
+that to long in the prototype & declaraion of CMInsertEvent() => OK!! 
+
+It's OK now _if_ the longer note is encountered first. If a shorter duration is followed
+by a longer, it's not enough to add the longer one to the cmEventList: I have to remove
+the shorter one! ...best implemented simply by replacing it (duration and Off velocity).
+Do that => all OK!
+
+-------------------------------------------------------------------------------
+
+22-30 Dec.
+
+- Ngale doesn't handle unisons, even perfect unisons, at all well. It'd be helpful
+if user could say "unisons are OK". Then, (a) when they create a unison, (a) Ngale
+should automatically put the new note on "the other side of the stem", and (b) Debug
+Check shouldn't warn about perfect unisons. Fix est.impact: very low.
+
+!! CAVEAT: aking _any_ change to Double.cp is likely to turn it into "ill-formed UTF"
+(according to BBEdit); this is really nasty because Xcode doesn't complain, it just
+gives compilation errors. I'm sure this has happened before, probably with a different
+file. Sigh.
+
+-------------------------------------------------------------------------------
+
+2 - 3 Jan. 2016
+
+Change name of the Preferences file from "Nightingale Devel Prefs" to "Nightingale AMNF
+Prefs" (see entry for 16-17 Dec.) => gives the "Creating a new one" progress message,
+but where is it? Finder's Search sez no "Nightingale AMNF Prefs" anywhere... Ah, unless
+it's in a hidden folder!! Check w/ Terminal => success! Specifically:
+
+  DonDualG5:~ donbyrd$ find . -name 'Nightingale A*' -print
+  ./Library/Preferences/Nightingale AMNF Prefs
+
+..right where it should be :-| .
+
+Also, after creating (and using) a new Nightingale AMNF Prefs, Ngale complains that
+field 69 (whichMIDI) is illegal; its value is 4. I.e., the prototype in the .rsrc (CNFG
+resource) has it as 4, but the only legal values now are 0 and 1. Change that field in
+.rsrc to 0 => OK.
+
+-------------------------------------------------------------------------------
+
+11 - 15 Jan.
+
+Convert files encoded in Mac OS Roman to UTF-8; replace "sustain on" char. in code
+with 0xA1 (its codepoint in Sonata). Affects DrawObject, Menu, DebugUtils.
+
+Convert file with CRLF line endings to Unix. Affects defs.h.
+
+The pedal mark (SUSTAINON) is now displayed as a digit "5"! It was OK in Ngale 5.5.
+Cause: converting DrawObject.cp from Mac Roman to UTF8 screwed up the char. code;
+in Sonata, it's 0xA1. Replace the char. in source code with 0xA1 => all OK again.
+
+The standard "header" on Ngale .cp files says
+
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
+ * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
+ * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
+ * WRITTEN AUTHORIZATION FROM THE OWNER.
+ * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+
+According to SourceTree's display of changes, the update to Double.cp I'm ready to
+commit changes the char. after "NIGHTINGALE" from E-grave to TM, while the updates to
+DrawObject, Menu, & DebugUtils change it from TM to comma / N-tilde / cent sign, and
+add something like a "~" in front of the copyright symbol! Huh? Clearly related to
+encoding. Encodings (according to BBEdit; ** = "Incorrectly formed") and chars. displayed
+(BBEdit on my G5, default font; D-? = black diamond enclosing question mark):
+
+file		old enc.		new enc.		char. after "NIGHTINGALE": ST	:BBE
+Double		UTF8**			ISO Latin 1		E-grave => TM					D-? => super-a-underline
+DrawObject	Mac OS Roman	UTF-8			TM => comma/N-tilde/cent sign	TM => TM
+Menu		Mac OS Roman	UTF-8			TM => comma/N-tilde/cent sign	TM => TM
+DebugUtils	Mac OS Roman	UTF-8			TM => comma/N-tilde/cent sign	TM => TM
+
+It looks like BBEdit on Mac doesn't display Latin-1 properly (no surprise) and
+SourceTree on Mac doesn't display UTR-8 properly (weird). Anyway, almost certainly not
+evidence of a serious problem!
+
+-------------------------------------------------------------------------------
+
+21 Jan.
+
+Showing attaching point(s) of symbols isn't as good as it used to be. I'm pretty sure
+that formerly, double-click various symbols (at least dynamics, slurs, & GRString &
+GRLyric Graphics) & hold mouse button formerly => showed attachment point(s) (via
+vertical dotted lines, with call to UIFUtils.cp > HiliteAttPoints (or possibly
+HiliteInsertNode?)); anyway, I want it to! Currently, it does so only for Graphics and
+tempo marks, and only _after_ you release button on double-click, while the resulting
+dialog is on screen: that's OK -- and quite possibly what it's always done for Graphics.
+But it doesn't do it for dynamics and slurs at all. In fact, now that double-clicking
+dynamics brings up an edit dialog, it could behave the same as for Graphics and tempi.
+
+CheckDYNAMIC(), case SMDblClick, calls HiliteAttPoints():
+
+	if (IsHairpin(pL))
+		HiliteAttPoints(doc, firstSync, lastSync, staffn);
+	else
+		HiliteAttPoints(doc, firstSync, NILINK, staffn);
+
+It looks like this should work. But CheckGRAPHIC(), case SMDblClick, for text, calls
+HiliteInsertNode():
+
+	HiliteInsertNode(doc, p->firstObj, staffn, TRUE);		/* Hiliting on */
+
+...and so does CheckTEMPO(), case SMDblClick! It looks like HiliteInsertNode() works and
+HiliteAttPoints() doesn't.
+
+Change CheckDYNAMIC(), case SMDblClick, to use HiliteInsertNode => it works!
+
+-------------------------------------------------------------------------------
+
+2-31 Jan.
+
+Can I make spacers more useful, e.g., for my projected double-stop crossing tremolo glissandi
+w/ multiple open strings? Maybe.
+
+Want to make the "Can't find Prefs file: creating a new one" message stay on the screen
+longer, say for 5 sec. It _should_ just be a matter of increasing the argument to
+SleepTicks() in Initialize.cp/OpenSetupFile, but that doesn't seem to have any effect?!?
+Well, Initialize.cp is a mess, anyway; clean it up => now the message _does_ stay for
+the time I specify! Weird, but not worth worrying about.
+
+-------------------------------------------------------------------------------
+
+8 Feb. - 1 March
+
+- In some very recent scores -- my SpacerTest_InvisibleNotesBug.ngl &
+3rdMovementFS_??.ngl and something of Glenn Gass' -- inserted notes aren't drawn at
+all! With SpacerTest_InvisibleNotesBug, I tried redrawing, changing system spacing and
+staff size (in Master Page); nothing makes the notes appear, and Debug has no
+complaints. The invisible notes can't be selected graphically, but Select All highlights
+what look like their correct positions. Save, re-Open it => no change. Strip it down to
+InvisibleNotesBug.ngl => no change. ?!? Play => the invisible notes are played.
+
+Dump InvisibleNotesBug.ngl => objRect.left is 0 iff note is invisible! Why? DrawSYNC()
+is never called for the invisible notes. Why? Ihe Syncs' _visible_ flags are set, but
+their _valid_ flags aren't! Why? Notes currently are invisible iff they're on the 2nd or
+4th system; inserting new notes => the same thing. Insert a barline on sytem 2 or 4 =>
+all notes on the system suddenly appear! Ah, in DrawScoreRange(), _drawAll_ is FALSE
+for the invisible notes! For Measure objects, 
+
+	if (SectRect(&pMeasure->measureBBox, &paperUpdate, &result)
+											|| outputTo!=toScreen)
+
+...then drawAll is set to FALSE. Clearly  outputTo==toScreen, so the problem is Ngale
+thinks the intersetion of the measureBBox and the update area is empty. Why? Because the
+measureBBox.left = measureBBox.right = 850, which I'm pretty sure is the right end of
+the System! Why? I dunno, but let's add to Debug Check a check for Measures with
+zero-width bbox that aren't immediately followed by a Page or System, or that have
+something other than a Page before the next System. Add code to DCheckMBBox() => done.
+
+On my G5, just adding a barline in the offending systems fixes everything in all test
+scores, and in Glenn's score (filename _stems_), only the 2nd system is a problem
+anyway. On Glenn's system, _none_ of the noteheads are drawn in either system, and
+adding a barline does nothing! The apparent cause: he's using Sonata, and it doesn't
+show up in Font Book, so it's evidently not installed properly -- and he doesn't have
+Briard or Blue Notz. ??
+
+
+-------------------------------------------------------------------------------
+
+11 Feb.
+
+Changing to a larger "paper" size via Page Setup seems to do nothing at all. I don't see
+anything in Ngale code that explains this; info returned from the Page Setup dialog indicates
+the paper size is unchanged !*(!*@&(. Changing from portrait to landscape format _does_
+work. This is with Ngale 5.5 or 5.6b2 on my G5. But Opus says it works for him!; he's
+running Ngale 5.3.0 b10m on OS 10.6.8. Try Ngale 5.5 on my old MacBook => changing paper
+size works! So it looks like this is OS dependent.
+
+-------------------------------------------------------------------------------
+
+4-5 Mar.
+
+- Piano pedal up and down symbols don't come out in a music font. However, the same
+chars. as part of a text Graphic _are_ rendered in a music font.  Cf.
+PedalSymbolsFontBug.ps to PedalSymbolsFontKludge.ps: the former, using Ngale's official
+pedal symbols, switches to Helvetica for them! The latter, using text with the proper
+chars. in the Sonata font, does _not_ switch. Why does Ngale switch to Helvetica instead
+of using the music font? Because the calls to PS_FontString() in DrawGRAPHIC() for
+GRMIDISustainOn and GRMIDISustainOff specify as the font
+doc->fontTable[p->fontInd].fontName ; it should be just  doc->musFontName :-) .
+
+-------------------------------------------------------------------------------
+
+25-28 Mar.
+
+Rename the _string_ field of the Graphic object to _strOffset_.
+
+Getting the string stored in a Graphic object is extremely error prone! Does the
+FirstGraphicSTRING macro handle this?
+
+Rename the Tempo object fields containing STRINGOFFSETs to _xxxOffset_.
+
+-------------------------------------------------------------------------------
+
+28-29 Mar.
+
+Check Range complains about double-bass notes that are indeed below its specified range
+_if_ sounding pitch is interpreted as an octave below written -- but I'm using sounding
+= written, and it plays back that way. Does it depend on if "Play from parts' settings"
+is in effect? No. Cf. UseMIDINoteNum(), which is called from GetNotePlayInfo().
+
+Want to support pure C scores (e.g., my violin concerto  and conventional
+transposed scores and play either w/ specified patches (multi-channel) or all on one
+channel =>  Ngale needs an explicit indication of whether it's a C score or not! Oops: 
+it already has one!!: the "Transpose" MIDI command. Maybe rename it to "C Score"?
+Anyway, the problem with Check Range results from it not paying attenion to that
+setting. Cause: for transposing instruments, the parts' _hiKeyNum_ and _loKeyNum_ are
+the MIDI note numbers of the written pitches, not the sounding pitches! Ugh. So, leave
+that as is and change the Check Range code, or make them the note nos. of the sounding
+pitches? The latter is obviously the correct fix; it's also obviously harder, and will
+make the existing UI a bit clumsier (in terms of clefs displayed).. Need to
+change the instrument descriptions, in STR# 130. That won't help existing scores!, but
+they can be fixed one part at a time, and it won't make things any worse if they
+aren't fixed.
+
+Edit STR# 130... the format is obscure, and Ngale is very picky! Cf. MPImportExport >
+SDInstrDialog(). But where is it read in? Ah, in InstrDialog, which also documents
+the format.
+
+-------------------------------------------------------------------------------
+
+12 April
+
+Paste Merge and Set Duration sometimes give a strange error message. E.g., Paste Merge
+a chord for piano in 3rdMovementFS.ngl, m. 32 => "FixGRDrawLinks: for 1155,
+firstObj=1157 or lastObj=1161 isn't a Sync or a GRSync." True, while 1157 is a Sync,
+1161 is a Measure. Still, this makes no sense! The GRDraw Graphic w/ LINK 1155 is in
+m. 89. ??
+
+-------------------------------------------------------------------------------
+
+20-21 April
+
+We want extracted parts to have a different staff size from the score; staves in parts
+should usually be larger! UI could be a new Config field, or -- probably better and
+definitely lower impact -- entered in the Extract dialog. (Having both would be useful,
+but low priority.) Re functionality, cf. Extract > CopyDocFields(); is it just a matter
+of setting part->srastral to a different value? Nope! That doesn't result in updating
+the actual size of each staff, H and V coords. of everything, etc. Ah, MasterPage >
+DoMasterStfSize() seems to do everything needed.
+
+-------------------------------------------------------------------------------
+
+14 June
+
+For adding cues to parts, I need a way to change the number of measures on a multibar
+rest... Oops, it can already be done via Get Info; not too obvious, but if Dur is
+negative, it's the no. of measures!
+
+-------------------------------------------------------------------------------
+
+15 June
+
+During MIDI playback, I recall Ngale draws the "next" page only if virtually none of
+that page is in view yet; if even a tiny sliver of the page is already on the screen, it
+doesn't "turn the page". This seems to be backwards! That might have made sense 15 years
+ago when screens were much smaller and computers much slower, but now, Ngale should turn
+the page if more than a tiny sliver is _not_ on the screen. This _should_ just be a
+matter of changing the test, presumably in MIDIPlay.cp>PlaySequence(). The variables
+_pageTurnTOffset_, _tBeforeTurn_, _newPage_ must have something to do with it. Ah,
+_doScroll_ is the key! Scrolling is actually in HiliteSyncRect().
 

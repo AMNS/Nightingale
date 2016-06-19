@@ -1,15 +1,13 @@
-/* Notelist.h for Nightingale, rev. for v 3.5
+/* Notelist.h for Nightingale
 Definitions and prototypes for routines that read and convert files from
 Nightingale's Notelist format to its native format. Written by John Gibson. */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1986-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #define DOAUTOBEAM					1
@@ -18,8 +16,8 @@ Nightingale's Notelist format to its native format. Written by John Gibson. */
 #else
 	#define PRINTNOTELIST			1
 #endif
-#define CNTLKEYFORPRINTNOTELIST	1
-#define CONVERTSCORE					1
+#define CNTLKEYFORPRINTNOTELIST		1
+#define CONVERTSCORE				1
 
 
 /* --------------------------------------------------------------------------------- */
@@ -45,11 +43,11 @@ enum {								/* used in NLOBJHEADER's objType field */
 
 typedef unsigned short NLINK;
 
-#define NLOBJHEADER			/* 8 bytes */																	\
-	long		lStartTime;			/* positive 32-bit integer */											\
-	char		objType;				/* see enum above */														\
+#define NLOBJHEADER					/* 8 bytes: */												\
+	long		lStartTime;			/* positive 32-bit integer */								\
+	char		objType;			/* see enum above */										\
 	char		uVoice;				/* part-relative ("user") voice: 1-31, or -2 (NOONE) */		\
-	char		part;					/* 1-64, or -2 (NOONE) */												\
+	char		part;				/* 1-64, or -2 (NOONE) */									\
 	char		staff;				/* 1-64, or -2 (NOONE) */
 
 

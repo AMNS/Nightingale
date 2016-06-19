@@ -1,15 +1,11 @@
-/* ScoreInfo.c for Nightingale - rev. for v. 2000 */
+/* ScoreInfo.c for Nightingale */
 
-/*									NOTICE
- *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Copyright © 2016 by Avian Music Notation Foundation.
+ * All Rights Reserved.
  */
-
+ 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
@@ -19,7 +15,9 @@
 
 static void SIDrawLine(char *);
 static short MeasCount(Document *);
-static short SICheckMeasDur(Document *, short *);
+static short SICheckMeasDur(Document *doc, short *pFirstBad);
+static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty);
+static short SICheckRange(Document *doc, short *pFirstOutOfRange);
 static long GetScoreDuration(Document *doc);
 
 #define LEADING 11			/* Vertical dist. between lines displayed (pixels) */
@@ -56,7 +54,7 @@ way the Show Duration Problems command does. Return the no. of measures with "pr
 if the no. is non-zero, also set *pFirstBad to the measure no. of the first one that
 has a problem. */
 
-short SICheckMeasDur(Document *doc, short *pFirstBad)
+static short SICheckMeasDur(Document *doc, short *pFirstBad)
 {
 	LINK pL, barTermL;
 	long measDurNotated, measDurActual;
@@ -87,6 +85,82 @@ short SICheckMeasDur(Document *doc, short *pFirstBad)
 }
 
 
+/* Check for empty measures in the same way the Fill Empty Measures command does,
+on a staff-by-staff basis. Return the no. of empty measures; if the number is
+non-zero, also set *pFirstEmpty to the measure no. of the first one. */
+
+static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty)
+{
+	LINK barFirstL, barTermL, barL;
+	short staff;
+	Boolean foundNonEmptyVoice;
+	short nEmpty;
+
+	nEmpty = 0;
+	barL = SSearch(doc->headL, MEASUREtype, FALSE);
+	for ( ; barL && barL!=NILINK; barL = LinkRMEAS(barL)) {
+		if (MeasISFAKE(barL)) continue;
+		barFirstL = RightLINK(barL);
+		barTermL = EndMeasSearch(doc, barL);
+
+		for (staff = 1; staff<=doc->nstaves; staff++) {
+			if (IsRangeEmpty(barL, barTermL, staff, &foundNonEmptyVoice)) {
+						nEmpty++;
+						if (nEmpty==1) *pFirstEmpty = GetMeasNum(doc, barL);
+			}
+		}
+	//LogPrintf(LOG_DEBUG, "SICheckEmptyMeas >: barL=%d nEmpty=%d\n", barL, nEmpty);
+	}
+		
+	return nEmpty;
+}
+
+
+/* Check MIDI noteNums for all notes in the score against the ranges of the
+instruments assigned to their parts the same way the CheckRange command does:
+cf. CheckRange(). */
+
+static short SICheckRange(Document *doc, short *pFirstOutOfRange)
+{
+	LINK pL, partL, aNoteL; PPARTINFO pPart; PANOTE aNote;
+	short firstStaff, lastStaff, hiKeyNum, loKeyNum, nOutOfRange;
+	short transposition, writtenNoteNum, firstOutOfRangeMNum, thisMNum;
+	
+	nOutOfRange = 0;
+	firstOutOfRangeMNum = SHRT_MAX;
+	partL = FirstSubLINK(doc->headL);
+	for ( ; partL; partL = NextPARTINFOL(partL)) {
+		pPart = GetPPARTINFO(partL);
+		firstStaff = pPart->firstStaff;
+		lastStaff = pPart->lastStaff;
+		hiKeyNum = pPart->hiKeyNum;
+		loKeyNum = pPart->loKeyNum;
+		transposition = pPart->transpose;
+		//LogPrintf(LOG_DEBUG, "SICheckRange: firstStaff=%d loKeyNum=%d hiKeyNum=%d\n", firstStaff, loKeyNum, hiKeyNum);
+		for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
+			if (SyncTYPE(pL))
+				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
+					if (NoteSTAFF(aNoteL)>=firstStaff && NoteSTAFF(aNoteL)<=lastStaff
+					&&	!NoteREST(aNoteL)) {
+						aNote = GetPANOTE(aNoteL);
+						/* hiKeyNum and loKeyNumIf are written pitches, but if the score
+							isn't transposed, it contains sounding pitches; convert. */
+						writtenNoteNum = aNote->noteNum;
+						if (!doc->transposed) writtenNoteNum -= transposition;
+						if (writtenNoteNum>hiKeyNum || writtenNoteNum<loKeyNum) {
+							nOutOfRange++;
+							thisMNum = GetMeasNum(doc, pL);
+							if (thisMNum<firstOutOfRangeMNum)
+								*pFirstOutOfRange = firstOutOfRangeMNum = thisMNum;
+						}
+					}
+		}
+	}
+	
+	return nOutOfRange;
+}
+
+
 /* Return the approximate (see comments) duration of the score. */
 
 long GetScoreDuration(Document *doc)
@@ -98,9 +172,9 @@ long GetScoreDuration(Document *doc)
 		switch (ObjLType(pL)) {
 			case SYNCtype:
 				lastSyncTime = SyncTIME(pL);
-				/* Assume the score ends when the first note of the Sync stops
-				 * sounding: this may not be correct, but it'll be close, and
-				 * good enough for the purpose.
+				/* Assume the score ends when the first note of the last Sync stops
+				 * sounding: this may not be correct, but it'll be close, and good
+				 * enough for the purpose.
 				 */
 				lastSyncTime += NotePLAYDUR(FirstSubLINK(pL));
 				lastMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
@@ -127,13 +201,12 @@ void ScoreInfo()
 		short ditem, aShort; Handle aHdl;
 		LINK pL; const char *ps; HEAP *theHeap;
 		unsigned short h, count, objCount[LASTtype], objsTotal;
-		long lObjCount[LASTtype], totalCount;
-		long scoreDuration, qtrNTicks;
+		long lObjCount[LASTtype], totalCount, scoreDuration, qtrNTicks;
 		Document *doc=GetDocumentFromWindow(TopDocument);
-		short nBad, firstBad;
+		short nBad, firstBad, nEmpty, firstEmpty, nOutOfRange, firstOutOfRange;
 		char fmtStr[256], commentOrig[256], commentNew[256];
 		Boolean keepGoing;
-		ModalFilterUPP	filterUPP;
+		ModalFilterUPP filterUPP;
 
 		filterUPP = NewModalFilterUPP(OKButFilter);
 		if (filterUPP==NULL) {
@@ -167,11 +240,11 @@ void ScoreInfo()
 		sprintf(s, fmtStr);
 		SIDrawLine(s);
 		if (doc) {
-			GetIndCString(fmtStr, SCOREINFO_STRS, 2);   		/* "    %d pages, %d systems, %d measures." */
+			GetIndCString(fmtStr, SCOREINFO_STRS, 2);   		/* "%d pages, %d systems, %d measures." */
 			sprintf(s, fmtStr, doc->numSheets,
 							doc->nsystems, MeasCount(doc));
 			SIDrawLine(s);
-			GetIndCString(fmtStr, SCOREINFO_STRS, 3);   		/* "        A system contains %d staves." */
+			GetIndCString(fmtStr, SCOREINFO_STRS, 3);   		/* "    A system contains %d staves." */
 			sprintf(s, fmtStr, doc->nstaves);
 			SIDrawLine(s);
 	
@@ -194,10 +267,10 @@ void ScoreInfo()
 		 			 * For these types, users are interested in the numbers of objects.
 		 			 */
 		 			case BEAMSETtype:
-		 			case OCTAVAtype:
+		 			case OTTAVAtype:
 		 			case TUPLETtype:
 		 			case TEMPOtype:
-		 			case SPACEtype:
+		 			case SPACERtype:
 		 			case ENDINGtype:
 						count = 0;
 		 				for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
@@ -227,36 +300,61 @@ void ScoreInfo()
 			for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 				objsTotal++;
 			objsTotal++;
-			GetIndCString(fmtStr, SCOREINFO_STRS, 4);   		/* "    %ld total symbols (%d objects)." */
+			GetIndCString(fmtStr, SCOREINFO_STRS, 4);   		/* "%ld total symbols (%d objects)." */
 			sprintf(s, fmtStr, totalCount, objsTotal);
 			SIDrawLine(s);
 
 			scoreDuration = GetScoreDuration(doc);
 			qtrNTicks = Code2LDur(QTR_L_DUR, 0);
-			GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "    Duration: approx. %ld quarters." */
+			sprintf(s, "----------------------------------");
+			SIDrawLine(s);
+			GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "Duration: approx. %ld quarters." */
 			sprintf(s, fmtStr, scoreDuration/qtrNTicks); 
 			SIDrawLine(s);
 
 			if (!ShiftKeyDown()) {
 				WaitCursor();
 				nBad = SICheckMeasDur(doc, &firstBad);
-				if (nBad) {
-					GetIndCString(fmtStr, SCOREINFO_STRS, 5);   	/* "    Duration problems in %d meas. (first=%d)." */
+				if (nBad>0) {
+					GetIndCString(fmtStr, SCOREINFO_STRS, 5);   /* "Duration problems in %d measure(s) (first=%d)." */
 			 		sprintf(s, fmtStr, nBad, firstBad);
 				}
 				else {
-					GetIndCString(fmtStr, SCOREINFO_STRS, 6);   	/* "    No measures have duration problems." */
+					GetIndCString(fmtStr, SCOREINFO_STRS, 6);   /* "No measures have duration problems." */
+			 		sprintf(s, fmtStr);
+			 	}
+				SIDrawLine(s);
+
+				nEmpty = SICheckEmptyMeas(doc, &firstEmpty);
+				if (nEmpty>0) {
+					GetIndCString(fmtStr, SCOREINFO_STRS, 9);   /* "%d empty staff-measure(s) (first in measure %d)." */
+			 		sprintf(s, fmtStr, nEmpty, firstEmpty);
+				}
+				else {
+					GetIndCString(fmtStr,  SCOREINFO_STRS, 10);   /* "No empty staff-measures found." */
+			 		sprintf(s, fmtStr);
+			 	}
+				SIDrawLine(s);
+
+				nOutOfRange = SICheckRange(doc, &firstOutOfRange);
+				if (nOutOfRange>0) {
+					GetIndCString(fmtStr, SCOREINFO_STRS, 11);   /* "%d out-of-range notes (first in measure %d)." */
+			 		sprintf(s, fmtStr, nOutOfRange, firstOutOfRange);
+				}
+				else {
+					GetIndCString(fmtStr,  SCOREINFO_STRS, 12);   /* "No out-of-range notes found." */
 			 		sprintf(s, fmtStr);
 			 	}
 				SIDrawLine(s);
 				ArrowCursor();
 			}
 			
+			
 			if (HasMidiMap(doc)) {
 				Str255 fName;
 				FSSpec *fsSpec = (FSSpec *)*doc->midiMapFSSpecHdl;
 				Pstrcpy(fName, fsSpec->name);
-				sprintf(s, "MidiMap %s",PtoCstr(fName));
+				sprintf(s, "MidiMap %s", PtoCstr(fName));
 				SIDrawLine(s);
 			}
 			else {
@@ -269,7 +367,7 @@ void ScoreInfo()
 			PutDlgString(dialogp, COMMENT_DI, (unsigned char *)commentNew, TRUE);
 		}
 		else {
-			GetIndCString(fmtStr, SCOREINFO_STRS, 7);   			/* "    No score is open." */
+			GetIndCString(fmtStr, SCOREINFO_STRS, 7);   		/* "No score is open." */
 			sprintf(s, fmtStr);
 			SIDrawLine(s);
 		}
@@ -301,6 +399,6 @@ void ScoreInfo()
 		
 		DisposePtr((Ptr)s);
 		DisposeModalFilterUPP(filterUPP);
-		DisposeDialog(dialogp);										/* Free heap space */
+		DisposeDialog(dialogp);									/* Free heap space */
 		SetPort(oldPort);
 	}

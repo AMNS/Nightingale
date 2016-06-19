@@ -1,14 +1,13 @@
-/*											NOTICE
- *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- */
-
 /* File AutoBeam.c - automatic beaming functions, original versions by Ray Spears,
-rewritten by CER and DAB, slight rev. for v.3.1. MemMacroized version. */
+rewritten by CER and DAB. MemMacroized version. */
+
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Copyright © 2016 by Avian Music Notation Foundation.
+ * All Rights Reserved.
+ *  
+ *  Nightingale is an open-source project, hosted at github.com/AMNS/Nightingale .
+ */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"

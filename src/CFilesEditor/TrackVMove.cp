@@ -1,13 +1,11 @@
-/* TrackVMove.c for Nightingale - rev. for v.3.1 */
+/* TrackVMove.c for Nightingale */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1990-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -19,14 +17,14 @@
 
 #define NO_ACCIDENTAL	0
 #define MIN_ACCSIZE		14		/* Feedback accidentals will be no smaller than this pt size */
-#define CH_MODE_CHNG		'\t'	/* Character code that will change note insertion mode. */
-		/* ??? NB: belongs in NTypes.h, since accMode should be global. */
+#define CH_MODE_CHNG	'\t'	/* Character code that will change note insertion mode. */
+		/* FIXME: belongs in NTypes.h, since accMode should be global. */
 
 #define INCL_DBL_ACCS FALSE
 
 #define ACC_DOWN			-1
 #define ACC_UP				1
-#define MAX_INDEX			5		/* same for local and global (SonataAcc[]) lists of accidentals */
+#define MAX_INDEX			5	/* same for local and global (SonataAcc[]) lists of accidentals */
 
 static enum {
 	DIATONIC_MODE,
@@ -75,7 +73,7 @@ Boolean AltInsTrackPitch(
 				short		staff,
 				short		*pHalfLn,		/* pitch level return value */
 				short		*pAccident,		/* accidental return value */
-				short		octType,			/* type of octava note is to be inserted into. */
+				short		octType,			/* type of ottava note is to be inserted into. */
 				Boolean	inclDblAccs 	/* include dbl-sharp and dbl-flat in acc. sequence? */
 				)
 {

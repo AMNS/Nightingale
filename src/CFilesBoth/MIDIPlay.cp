@@ -1,17 +1,15 @@
 /***************************************************************************
-*	FILE:	MIDIPlay.c																			*
-*	PROJ:	Nightingale, rev.for v.2000													*
-*	DESC:	MIDI playback routines															*
+*	FILE:	MIDIPlay.c
+*	PROJ:	Nightingale
+*	DESC:	MIDI playback routines
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -21,16 +19,19 @@
 
 #include "CoreMIDIDefs.h"
 
-/* Nightingale supports both MIDI Manager and its own "built-in" MIDI routines.
+/* Nightingale now (2015) supports Core MIDI and, I believe, no other MIDI driver.
+The following comment dates back to versions from the 20th century:
+
+"Nightingale supports both MIDI Manager and its own "built-in" MIDI routines.
 The latter, used here and in MIDIRecord.c, are Altech Systems' MIDI Pascal 3.0.
 We used to use a driver from Kirk Austin's articles in MacTutor, July and
 December 1987, but those routines became quite buggy--according to Jeremy Sagan,
 because they don't initialize enough registers. Anyway, MIDI Pascal is much more
-powerful, and slightly less ancient (sigh). */
+powerful, and slightly less ancient (sigh)." */
 
 /* ================================== LOCAL STUFF ================================== */
 
-static long			pageTurnTOffset;
+static long		pageTurnTOffset;
 
 static void		PlayMessage(Document *, LINK, short);
 static Boolean	HiliteSyncRect(Document *doc, Rect *syncRect, Rect *rPaper, Boolean scroll);
@@ -48,20 +49,20 @@ string from our error strings resource. */
 static short DoGeneralAlert(unsigned char *str);
 
 static void ErrorMsg(short index)
-	{
-		Str255 str;
-		
-		if (index > 0) GetIndString(str,MIDIErrorStringsID,index);
-		else		   	*str = 0;
-		(void)DoGeneralAlert(str);
-	}
+{
+	Str255 str;
+	
+	if (index > 0) GetIndString(str,MIDIErrorStringsID,index);
+	else		   	*str = 0;
+	(void)DoGeneralAlert(str);
+}
 
 static short DoGeneralAlert(unsigned char *str)
-	{
-		ParamText(str,"\p","\p","\p");
-		PlaceAlert(errorMsgID,NULL,0,40);
-		return(StopAlert(errorMsgID,NULL));
-	}
+{
+	ParamText(str,"\p","\p","\p");
+	PlaceAlert(errorMsgID,NULL,0,40);
+	return(StopAlert(errorMsgID,NULL));
+}
 
 
 /* ------------------------------------------------------------------ PlayMessage -- */
@@ -72,13 +73,13 @@ from <pL>'s Measure. */
 
 static void PlayMessage(Document *doc, LINK pL, short measNum)
 {
-	Rect			messageRect;
+	Rect	messageRect;
 
 	if (pL!=NILINK)
 		measNum = GetMeasNum(doc, pL);
 
 	PrepareMessageDraw(doc,&messageRect, FALSE);
-	GetIndCString(strBuf, MIDIPLAY_STRS, 1);					/* "Playing m. " */
+	GetIndCString(strBuf, MIDIPLAY_STRS, 1);				/* "Playing m. " */
 	DrawCString(strBuf);					
 	sprintf(strBuf, "%d", measNum);
 	DrawCString(strBuf);
@@ -86,15 +87,15 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 		TextFace(bold);
 		sprintf(strBuf, " M");
 		DrawCString(strBuf);
-		TextFace(0);											/* Plain */
+		TextFace(0);										/* Plain */
 	}
 	if (playTempoPercent!=100) {
 		TextFace(bold);
 		sprintf(strBuf, "  T%d%%", playTempoPercent);
 		DrawCString(strBuf);
-		TextFace(0);											/* Plain */
+		TextFace(0);										/* Plain */
 	}
-	GetIndCString(strBuf, MIDIPLAY_STRS, 2);					/* "   CLICK OR CMD-. TO STOP" */
+	GetIndCString(strBuf, MIDIPLAY_STRS, 2);				/* "   CLICK OR CMD-. TO STOP" */
 	DrawCString(strBuf);					
 	FinishMessageDraw(doc);
 }
@@ -113,47 +114,48 @@ NB: The "scrolling" code here can itself change doc->currentPaper. For this and
 other reasons, we expect the appropriate doc->currentPaper as a parameter. */
 
 static Boolean HiliteSyncRect(
-						Document *doc,
-						Rect *r,
-						Rect *rPaper,				/* doc->currentPaper for r's page */
-						Boolean scroll)
-	{
-		Rect result; short x,y; Boolean turnedPage=FALSE;
-		
-		/* Temporarily convert r to window coords. Normally, we do this by
-		 * offsetting by doc->currentPaper, but in this case, doc->currentPaper
-		 * may have changed (if r's Sync was the last played on a page), so we
-		 * have to use the currentPaper for r's Sync. */
+					Document *doc,
+					Rect *r,
+					Rect *rPaper,				/* doc->currentPaper for r's page */
+					Boolean scroll)
+{
+	Rect result; short x, y;
+	Boolean turnedPage=FALSE;
+	
+	/* Temporarily convert r to window coords. Normally, we do this by
+	 * offsetting by doc->currentPaper, but in this case, doc->currentPaper
+	 * may have changed (if r's Sync was the last played on a page), so we
+	 * have to use the currentPaper for r's Sync. */
 
-		OffsetRect(r,rPaper->left,rPaper->top);
-		
-		/*
-		 * Code to scroll while playing. See comment on timing above. */
-		if (scroll) {
-			if (!SectRect(r,&doc->viewRect,&result)) {
-				/* Rect to be hilited is outside of window's view, so scroll paper */
-				x = doc->currentPaper.left - config.hPageSep;
-				y = doc->currentPaper.top  - config.vPageSep;
-				QuickScroll(doc,x,y,FALSE,TRUE);
-				turnedPage = TRUE;
-				}
+	OffsetRect(r,rPaper->left,rPaper->top);
+	
+	/*
+	 * Code to scroll while playing. See comment on timing above. */
+	if (scroll) {
+		if (!SectRect(r,&doc->viewRect,&result)) {
+			/* Rect to be hilited is outside of window's view, so scroll paper */
+			x = doc->currentPaper.left - config.hPageSep;
+			y = doc->currentPaper.top  - config.vPageSep;
+			QuickScroll(doc,x,y,FALSE,TRUE);
+			turnedPage = TRUE;
 			}
-		
-		HiliteRect(r);
-		/* Convert back to paper coords */
+		}
+	
+	HiliteRect(r);
+	/* Convert back to paper coords */
 
-		OffsetRect(r,-rPaper->left,-rPaper->top);
-		
-		return turnedPage;
-	}
+	OffsetRect(r,-rPaper->left,-rPaper->top);
+	
+	return turnedPage;
+}
 
 
 /* -------------------------------------------------------- AddBarlines functions -- */
 /* For the "add barlines while playing" feature, build up a list of places to add
 single barlines (actually Measure objects):
-	InitAddBarlines() 		Initialize these functions
+	InitAddBarlines()			Initialize these functions
 	AddBarline(pL)				Request adding a barline before <pL>
-	CloseAddBarlines(doc)	Add the barlines at all requested places
+	CloseAddBarlines(doc)		Add the barlines at all requested places
 Duplicate calls to AddBarline at the same link are ignored.*/
 
 #define MAX_BARS 300			/* Maximum no. of barlines we can add in one set */
@@ -291,18 +293,14 @@ static void SelAndHiliteSync(Document *doc, LINK syncL)
 
 /* ----------------------------------------------------------------- CheckButton -- */
 
-Boolean CheckButton(void);
-Boolean CheckButton()
+static Boolean CheckButton(void);
+static Boolean CheckButton()
 {
 	Boolean button = FALSE;
 	
 	EventRecord evt; 
 
-#ifdef USE_GETOSEVENT		
-	if (!GetOSEvent(mDownMask,&evt)) return(button);	/* Not Wait/GetNextEvent so we do as little as possible */
-#else
 	if (!GetNextEvent(mDownMask,&evt)) return(button);	/* Not Wait/GetNextEvent so we do as little as possible */
-#endif
 
 	if (evt.what==mouseDown) button = TRUE;
 
@@ -316,8 +314,7 @@ long kStartTime[MAXKEEPTIMES];
 short nkt;
 #endif
 
-// From CoreMidiUtils.c
-
+/* From CoreMidiUtils.c */
 #define CM_PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
 #define CM_CHANNEL_BASE 1	
 
@@ -352,18 +349,13 @@ static Byte cmAllPanSetting[MAXSTAVES + 1];
 /* Steps:
 
 	1. Get the graphic
-	
 	2. Check that the object it is hanging off of is a sync
-	
 	3. Get the partn from the graphic's staff
-
 	4. Update the part patch in the part patch array. See GetPartPlayInfo for this.
 		Updates channelPatch[].
-		
 	6. Send the program packet
- 		CMMIDIProgram(doc, partPatch, partChannel);
- 		
- 		with the progressively updated patch num.
+			CMMIDIProgram(doc, partPatch, partChannel);
+ 		with the progressively updated patch number.
 */
 
 static Boolean ValidPanSetting(Byte panSetting) 
@@ -687,7 +679,6 @@ Byte GetMidiControlVal(LINK pL)
 
 static long ScaleDurForVariableSpeed(long rtDur)
 {
-	
 	return rtDur*(100.0/playTempoPercent);
 }
 
@@ -695,56 +686,56 @@ static long ScaleDurForVariableSpeed(long rtDur)
 /* ----------------------------------------------------------------- PlaySequence -- */
 /*	Play [fromL,toL) of the given score and, if user hits the correct keys while
 playing, add barlines.  While playing, we maintain a list of currently-playing notes,
-which we use to decide when to stop playing each note. (With MIDI Manager v.2, it
-would probably be better to do this with invisible input and output ports, as de-
-scribed in the MIDI Manager manual.) */
+which we use to decide when to stop playing each note. (With the old MIDI Manager v.2,
+it would probably be better to do this with invisible input and output ports, as de-
+scribed in the MIDI Manager manual. I don't know if this also applies to Core MIDI.) */
 
-#define CH_BARTAP 0x09								/* Character code for insert-barline key  */
-#define MAX_TCONVERT 100							/* Max. no. of tempo changes we handle */
+#define CH_BARTAP 0x09						/* Character code for insert-barline key  */
+#define MAX_TCONVERT 100					/* Max. no. of tempo changes we handle */
 
 void PlaySequence(
-				Document *doc,
-				LINK fromL,	LINK toL,	/* range to be played */
-				Boolean showit,			/* TRUE to hilite notes as they're played */
-				Boolean selectedOnly		/* TRUE if we want to play selected notes only */
-				)
+			Document *doc,
+			LINK fromL,	LINK toL,			/* range to be played */
+			Boolean showit,					/* TRUE to hilite notes as they're played */
+			Boolean selectedOnly			/* TRUE if we want to play selected notes only */
+			)
 {
-	PPAGE			pPage;
+	PPAGE		pPage;
 	PSYSTEM		pSystem;
-	LINK			pL, oldL, showOldL, aNoteL;
-	LINK			systemL, pageL, measL, newMeasL;
+	LINK		pL, oldL, showOldL, aNoteL;
+	LINK		systemL, pageL, measL, newMeasL;
 	CursHandle	playCursor;
-	short			i;
-	short			useNoteNum,
-					useChan, useVelo;
-	long			t,
-					toffset,										/* PDUR start time of 1st note played */
-					playDur,
-					plStartTime, plEndTime,							/* in PDUR ticks */
-					startTimeNorm, endTimeNorm,						/* in millisec. at tempi marked */
-					startTime, oldStartTime, endTime;				/* in actual milliseconds */
-	long			tBeforeTurn, tElapsed;
-	Rect			syncRect, sysRect, r,
-					oldPaper, syncPaper, pagePaper;
+	short		i;
+	short		useNoteNum,
+				useChan, useVelo;
+	long		t,
+				toffset,								/* PDUR start time of 1st note played */
+				playDur,
+				plStartTime, plEndTime,					/* in PDUR ticks */
+				startTimeNorm, endTimeNorm,				/* in millisec. at tempi marked */
+				startTime, oldStartTime, endTime;		/* in actual milliseconds */
+	long		tBeforeTurn, tElapsed;
+	Rect		syncRect, sysRect, r,
+				oldPaper, syncPaper, pagePaper;
 	Boolean		paperOnDesktop, moveSel, newPage,
-					doScroll, tooManyTempi;
+				doScroll, tooManyTempi;
 	SignedByte	partVelo[MAXSTAVES];
-	Byte			partChannel[MAXSTAVES];
-	short			partTransp[MAXSTAVES];
-	Byte			channelPatch[MAXCHANNEL];
+	Byte		partChannel[MAXSTAVES];
+	short		partTransp[MAXSTAVES];
+	Byte		channelPatch[MAXCHANNEL];
 
-	short			useIORefNum;					/* NB: can be fmsUniqueID */
-	Byte			partPatch[MAXSTAVES];
-	short			partIORefNum[MAXSTAVES];
+	short		useIORefNum;							/* NB: can be fmsUniqueID */
+	Byte		partPatch[MAXSTAVES];
+	short		partIORefNum[MAXSTAVES];
 
-	short			oldCurrentSheet, tempoCount, barTapSlopMS;
+	short		oldCurrentSheet, tempoCount, barTapSlopMS;
 	EventRecord	theEvent;
-	char			theChar;
-	TCONVERT		tConvertTab[MAX_TCONVERT];
-	char			fmtStr[256];
-	short			velOffset, durFactor, timeFactor;
+	char		theChar;
+	TCONVERT	tConvertTab[MAX_TCONVERT];
+	char		fmtStr[256];
+	short		velOffset, durFactor, timeFactor;
 	
-	short			 notePartn;
+	short		notePartn;
 	MIDIUniqueID partDevID;
 	Boolean		patchChangePosted = FALSE;
 	Boolean		sustainOnPosted = FALSE;
@@ -768,12 +759,12 @@ void PlaySequence(
 
 	if (useWhichMIDI==MIDIDR_CM) {
 #if CMDEBUG
-		DebugPrintf("PlaySequence (1): doc inputDev=%ld\n", doc->cmInputDevice);
+		LogPrintf(LOG_NOTICE, "PlaySequence (1): doc inputDev=%ld\n", doc->cmInputDevice);
 #endif
 		if (doc->cmInputDevice == kInvalidMIDIUniqueID)
 			doc->cmInputDevice = gSelectedInputDevice;
 #if CMDEBUG
-		DebugPrintf("PlaySequence (2): doc inputDev=%ld\n", doc->cmInputDevice);
+		LogPrintf(LOG_NOTICE, "PlaySequence (2): doc inputDev=%ld\n", doc->cmInputDevice);
 #endif
 		MIDIUniqueID cmPartDevice[MAXSTAVES];
 		if (!GetCMPartPlayInfo(doc, partTransp, partChannel, partPatch, partVelo,
@@ -796,7 +787,7 @@ void PlaySequence(
 	newMeasL = measL = SSearch(fromL, MEASUREtype, GO_LEFT);	/* starting measure */
 	playCursor = GetCursor(MIDIPLAY_CURS);
 	if (playCursor) SetCursor(*playCursor);
-	moveSel = FALSE;												/* init. "move the selection" flag */
+	moveSel = FALSE;											/* init. "move the selection" flag */
 	
 	pageL = LSSearch(fromL, PAGEtype, ANYONE, GO_LEFT, FALSE);
 	pPage = GetPPAGE(pageL);
@@ -823,8 +814,7 @@ void PlaySequence(
 			break;
 	}
 
-	for (pL = doc->headL; pL!=fromL; pL = RightLINK(pL)) 
-	{
+	for (pL = doc->headL; pL!=fromL; pL = RightLINK(pL)) {
 		if (IsMIDIPatchChange(pL)) {
 			PostMIDIProgramChange(doc, pL, partPatch, partChannel);
 		}
@@ -860,7 +850,7 @@ void PlaySequence(
 	 *	positive value but we want to start playing immediately, so we'll pick up
 	 *	the first Sync's play time and use it as an offset on all play times.
 	 */
-	toffset = -1L;															/* Init. time offset to unknown */
+	toffset = -1L;													/* Init. time offset to unknown */
 	newPage = FALSE;
 	for (pL = fromL; pL!=toL; pL = RightLINK(pL)) {
 		switch (ObjLType(pL)) {
@@ -872,7 +862,7 @@ void PlaySequence(
 				pagePaper = doc->currentPaper;
 				newPage = TRUE;
 				break;
-			case SYSTEMtype:												/* Remember system rectangles */
+			case SYSTEMtype:										/* Remember system rectangles */
 				pSystem = GetPSYSTEM(pL);
 				D2Rect(&pSystem->systemRect, &sysRect);
 				break;
@@ -885,7 +875,7 @@ void PlaySequence(
 			  			MayErrMsg("PlaySequence: pL=%ld has timeStamp=%ld", (long)pL,
 			  							(long)SyncTIME(pL));
 #ifdef TDEBUG
-					if (toffset<0L) DebugPrintf("PlaySequence: toffset=%ld => %ld playTempoPercent=%d mutedPart=%d\n",
+					if (toffset<0L) LogPrintf(LOG_NOTICE, "PlaySequence: toffset=%ld => %ld playTempoPercent=%d mutedPart=%d\n",
 						toffset, MeasureTIME(measL)+SyncTIME(pL), playTempoPercent, doc->mutedPartNum);
 #endif
 			  		plStartTime = MeasureTIME(measL)+SyncTIME(pL);
@@ -893,7 +883,7 @@ void PlaySequence(
 						score; then, to handle variable-speed playback, convert that 
 						time to actual millisec. . */
 					startTimeNorm = PDur2RealTime(plStartTime, tConvertTab, tempoCount);
-					//DebugPrintf("PlaySequence: plStartTime=%ld, startTimeNorm=%ld\n", plStartTime, startTimeNorm);
+					//LogPrintf(LOG_NOTICE, "PlaySequence: plStartTime=%ld, startTimeNorm=%ld\n", plStartTime, startTimeNorm);
 			  		if (toffset<0L) toffset = startTimeNorm;
 					startTimeNorm -= toffset;
 					startTime = ScaleDurForVariableSpeed(startTimeNorm);
@@ -907,34 +897,30 @@ void PlaySequence(
 					 * before pL; otherwise assume they want it before the previous Sync.
 					 *
 					 * NB: it seems as if the comment in WriteMFNotes about having to write
-					 *	notes ending at a given time before those beginning at the same time
-					 *	should apply here too, but we're not doing that here and I haven't
+					 * notes ending at a given time before those beginning at the same time
+					 * should apply here too, but we're not doing that here and I haven't
 					 * noticed any problems. And doing it this way should help get notes
-					 *	started as close as possible to their correct times.
+					 * started as close as possible to their correct times.
 					 */
 					do {
 						t = GetMIDITime(pageTurnTOffset);
 						
 						if (moveSel = UserInterruptAndSel()) goto done;	/* Check for Stop/Select */
-						if (moveSel = CheckButton()) goto done;		/* Check for Stop/Select */
+						if (moveSel = CheckButton()) goto done;			/* Check for Stop/Select */
 						if (UserInterrupt()) goto done;					/* Check for Cancel */
 						
-#ifdef USE_GETOSEVENT		
-						GetOSEvent(keyDownMask, &theEvent);				/* Not Wait/GetNextEvent so we do as little as possible */
-#else
 						GetNextEvent(keyDownMask, &theEvent);			/* Not Wait/GetNextEvent so we do as little as possible */
-#endif
 						theChar = (char)theEvent.message & charCodeMask;
-						if (theChar==CH_BARTAP)	{							/* Check for Insert Barline */
+						if (theChar==CH_BARTAP)	{						/* Check for Insert Barline */
 							LINK insL = (t-oldStartTime<barTapSlopMS? oldL : pL);
 							AddBarline(insL);
 						}
-						CheckEventList(pageTurnTOffset);					/* Check for, turn off any notes done */
+						CheckEventList(pageTurnTOffset);				/* Check for, turn off any notes done */
 								
 						if (useWhichMIDI==MIDIDR_CM)
-							CMCheckEventList(pageTurnTOffset);					/* Check for, turn off any notes done */
+							CMCheckEventList(pageTurnTOffset);			/* Check for, turn off any notes done */
 						else
-							CheckEventList(pageTurnTOffset);					/* Check for, turn off any notes done */
+							CheckEventList(pageTurnTOffset);			/* Check for, turn off any notes done */
 					} while (t<startTime);
 		
 					if (newMeasL) {
@@ -958,13 +944,13 @@ void PlaySequence(
 							syncPaper = pagePaper;
 							tBeforeTurn = GetMIDITime(pageTurnTOffset);
 #if PLDEBUG
-DebugPrintf("pL=%ld: rect.l=%ld,r=%ld paper.l=%ld,r=%ld\n",
+LogPrintf(LOG_NOTICE, "pL=%ld: rect.l=%ld,r=%ld paper.l=%ld,r=%ld\n",
 pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 #endif
 							HiliteSyncRect(doc,&syncRect,&syncPaper,newPage && doScroll); /* hilite new sync */
 							tElapsed = GetMIDITime(pageTurnTOffset)-tBeforeTurn;
 							pageTurnTOffset += tElapsed;
-							showOldL = pL;										/* remember this sync */
+							showOldL = pL;								/* remember this sync */
 							newPage = FALSE;
 							}
 						else showOldL = NILINK;
@@ -1085,18 +1071,14 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 	}
 
 	if (useWhichMIDI==MIDIDR_CM) {
-		while (!CMCheckEventList(pageTurnTOffset)) {				/* Wait til eventList[] empty... */
+		while (!CMCheckEventList(pageTurnTOffset)) {			/* Wait til eventList[] empty... */
 			if (moveSel = UserInterruptAndSel()) goto done;		/* Check for Stop/Select */
 			if (moveSel = CheckButton()) goto done;				/* Check for Stop/Select */
-			if (UserInterrupt()) goto done;							/* Check for Cancel */
+			if (UserInterrupt()) goto done;						/* Check for Cancel */
 
-	#ifdef USE_GETOSEVENT		
-			GetOSEvent(keyDownMask, &theEvent);						/* Not Wait/GetNextEvent so we do as little as possible */
-	#else
 			GetNextEvent(keyDownMask, &theEvent);
-	#endif
 			theChar = (char)theEvent.message & charCodeMask;
-			if (theChar==CH_BARTAP)										/* Check for Insert Barline */
+			if (theChar==CH_BARTAP)								/* Check for Insert Barline */
 			AddBarline(oldL);
 		}
 	}
@@ -1104,15 +1086,11 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 		while (!CheckEventList(pageTurnTOffset)) {				/* Wait til eventList[] empty... */
 			if (moveSel = UserInterruptAndSel()) goto done;		/* Check for Stop/Select */
 			if (moveSel = CheckButton()) goto done;				/* Check for Stop/Select */
-			if (UserInterrupt()) goto done;							/* Check for Cancel */
+			if (UserInterrupt()) goto done;						/* Check for Cancel */
 
-	#ifdef USE_GETOSEVENT		
-			GetOSEvent(keyDownMask, &theEvent);						/* Not Wait/GetNextEvent so we do as little as possible */
-	#else
 			GetNextEvent(keyDownMask, &theEvent);
-	#endif
 			theChar = (char)theEvent.message & charCodeMask;
-			if (theChar==CH_BARTAP)										/* Check for Insert Barline */
+			if (theChar==CH_BARTAP)								/* Check for Insert Barline */
 			AddBarline(oldL);
 		}
 	}
@@ -1167,7 +1145,7 @@ done:
 
 #if DEBUG_KEEPTIMES
 	{ short nk; for (nk=0; nk<nkt; nk++)
-		DebugPrintf("nk=%d kStartTime[]=%ld\n", nk, kStartTime[nk]-kStartTime[0]);
+		LogPrintf(LOG_NOTICE, "nk=%d kStartTime[]=%ld\n", nk, kStartTime[nk]-kStartTime[0]);
 	}
 #endif
 }

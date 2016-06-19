@@ -1,26 +1,23 @@
 /***************************************************************************
-*	FILE:	Check.c																				*
-*	PROJ:	Nightingale, rev. for v.99														*
-*	DESC:	Selection-related routines.													*
+*	FILE:	Check.c
+*	PROJ:	Nightingale
+*	DESC:	Selection-related routines.
 		CheckPAGE			CheckSYSTEM			CheckSTAFF
 		CheckCONNECT
 		CheckCLEF			CheckDYNAMIC		CheckRPTEND
-		CheckGRAPHIC		CheckTEMPO			CheckSPACE
+		CheckGRAPHIC		CheckTEMPO			CheckSPACER
 		CheckENDING
 		CheckKEYSIG			CheckSYNC			CheckGRSYNC
 		CheckTIMESIG		CheckMEASURE		CheckBEAMSET
-		CheckTUPLET			CheckOCTAVA			CheckSLUR
+		CheckTUPLET			CheckOTTAVA			CheckSLUR
 /***************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -48,7 +45,7 @@
 	For objects with subobjects, in most cases, return value is either NOMATCH or the
 	subobject sequence number (NOT staff or voice number!) of the subobject found.
 
-	??These functions should check <valid> flags before doing a lot of their work--
+	FIXME: These functions should check <valid> flags before doing a lot of their work--
 	e.g., SMDeselect can clear flags but shouldn't HiliteRect if it's not <valid>. */
 
 
@@ -284,7 +281,7 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 	Boolean objSel=FALSE;
 	LINK partL;
 
-	/* In some cases, toggle hiliting and deselect staves first. ??This should either
+	/* In some cases, toggle hiliting and deselect staves first. FIXME: This should either
 		be moved out to the calling functions, or be controlled by a new parameter. */
 		
 	if (doc->showFormat && (mode!=SMHilite && mode!=SMSelectRange))
@@ -729,20 +726,20 @@ short CheckDYNAMIC(Document *doc, LINK pL, CONTEXT context[],
 							STFRANGE stfRange,
 							Point enlarge)
 {
-	PADYNAMIC	aDynamic;		/* ptr to current subobject */
+	PADYNAMIC	aDynamic;			/* ptr to current subobject */
 	LINK			aDynamicL,
 					firstSync, lastSync;
-	short			i,					/* scratch */
+	short			i,				/* scratch */
 					staffn;			/* staff number of current subobject */
 	PCONTEXT		pContext;
 	DDIST			xd, yd;			/* scratch DDIST coordinates */
-	unsigned char	glyph;		/* dynamic symbol */
+	unsigned char	glyph;			/* dynamic symbol */
 	short			result;			/* =NOMATCH unless object/subobject clicked in */
-	Boolean		objSelected;	/* FALSE unless something in the object is selected */
-	Rect			rSub,				/* bounding box for sub-object */
-					wSub,				/* window-relative of above */
+	Boolean			objSelected;	/* FALSE unless something in the object is selected */
+	Rect			rSub,			/* bounding box for sub-object */
+					wSub,			/* window-relative of above */
 					aRect;			/* scratch */
-	DDIST			lnSpace,			/* line height of staffLine */
+	DDIST			lnSpace,		/* line height of staffLine */
 					sysLeft;
 
 PushLock(OBJheap);
@@ -796,27 +793,28 @@ PushLock(DYNAMheap);
 						
 			if (IsHairpin(pL)) {
 				HiliteAttPoints(doc, firstSync, lastSync, staffn);
-				if (aDynamic->selected)							/* in case 1st click wasn't in rSub (case SMClick) */
-					HiliteRect(&wSub);
+				if (aDynamic->selected)	HiliteRect(&wSub);		/* in case 1st click wasn't in rSub (case SMClick) */
 				DoHairpinEdit(doc, pL);
 			}
 			else {
 				SignedByte oldDynamType, newDynamType;
 				Boolean change;
 
-				HiliteAttPoints(doc, firstSync, NILINK, staffn);
+				HiliteInsertNode(doc, firstSync, staffn, TRUE);		/* Hiliting on */
 				DisableUndo(doc, FALSE);
 				oldDynamType = newDynamType = DynamType(pL);
 				change = SetDynamicDialog(&newDynamType);
 				if (change && newDynamType!=oldDynamType) {
-// NB: objRects of dynamics aren't right in all cases, so the inval's here don't always work.
-// See comments in body of InvalObject. Use EraseAndInval on <wsub> instead?
-					InvalObject(doc, pL, TRUE);				/* inval old symbol */
+					/* FIXME: objRects of dynamics aren't right in all cases, so the inval's
+					here don't always work. See comments in body of InvalObject. Use
+					EraseAndInval on <wsub> instead? */
+					InvalObject(doc, pL, TRUE);					/* inval old symbol */
 					DynamType(pL) = newDynamType;
 					FixContextForDynamic(doc, RightLINK(pL), staffn, oldDynamType, newDynamType);
-					InvalObject(doc, pL, TRUE);				/* inval new symbol */
+					InvalObject(doc, pL, TRUE);					/* inval new symbol */
 					doc->changed = TRUE;
 				}
+				HiliteInsertNode(doc, firstSync, staffn, FALSE);		/* Hiliting off */
 			}
 			break;
 		case SMDrag:
@@ -1016,7 +1014,7 @@ PopLock(RPTENDheap);
 }
 
 
-// ??BELONGS ELSEWHERE!
+// FIXME: BELONGS ELSEWHERE!
 
 Boolean ChordFrameDialog(Document *doc, Boolean *relFSize, short *size, short *style,
 				short *enclosure, unsigned char *fontname, unsigned char *pTheChar);
@@ -1039,17 +1037,17 @@ short CheckGRAPHIC(Document *doc, LINK pL, CONTEXT /*context*/[],
 	CONTEXT			context1;
 	PCONTEXT		pContext;
 	short			result;			/* =NOMATCH unless object clicked in */
-	Rect			r,					/* object rectangle */
+	Rect			r,				/* object rectangle */
 					aRect,			/* scratch */
 					oldObjRect,		/* rects to inval after editing by dblclicking. */
 					tempR;
-	unsigned char dummy=0;
+	unsigned char	dummy=0;
 	short			fontSize, fontStyle, enclosure,
 					newWidth, styleChoice,
 					staffn;
-	STRINGOFFSET offset;
+	STRINGOFFSET	offset;
 	Str63			newFont;
-	Str255		string;
+	Str255			string;
 	Boolean 		change,
 					relFSize, lyric, expanded;
 
@@ -1074,14 +1072,14 @@ PushLock(OBJheap);
 				}
 				break;
 			case SMDblClick:
-				InvalObject(doc,pL,FALSE);											/* Insure objRect is correct */
+				InvalObject(doc,pL,FALSE);								/* Insure objRect is correct */
 				oldObjRect = p->objRect;
 				if (GraphicSubType(pL)==GRDraw) {
 					HiliteAttPoints(doc, p->firstObj, p->lastObj, staffn);
 					if (LinkSEL(pL)) HiliteRect(&r);
 				}
 				else
-					HiliteInsertNode(doc, p->firstObj, staffn, TRUE);		/* Hiliting on */
+					HiliteInsertNode(doc, p->firstObj, staffn, TRUE);		/* Hiliting on */
 				while (Button()) ;
 
 				/* Double-clicking all subtypes but GRArpeggio allows editing them. */
@@ -1092,7 +1090,7 @@ PushLock(OBJheap);
 				
 				PStrnCopy((StringPtr)doc->fontTable[p->fontInd].fontName, 
 							(StringPtr)newFont, 32);
-				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->string),
+				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset),
 							(StringPtr)string);
 							
 				switch (p->graphicType) {
@@ -1193,7 +1191,7 @@ PushLock(OBJheap);
 				if (change) {
 					EraseAndInval(&oldObjRect);
 					aGraphicL = FirstSubLINK(pL);
-					offset = PReplace(GraphicSTRING(aGraphicL),string);
+					offset = PReplace(GraphicSTRING(aGraphicL), string);
 					if (offset<0L)
 						{ NoMoreMemory(); goto Cleanup; }
 					else
@@ -1301,15 +1299,15 @@ short CheckTEMPO(Document *doc, LINK pL, CONTEXT context[],
 					STFRANGE stfRange,
 					Point enlarge)
 {
-	PTEMPO	p;
-	Rect		r,aRect,oldObjRect,newObjRect,tempR;
-	short		newWidth,result,dur,staffn;
-	long		beatsPM;
-	Boolean		hideMM,ok,dotted,expanded;
-	Str63		tempoStr,metroStr;
-	unsigned char dummy=0;
-	PCONTEXT	pContext;
-	STRINGOFFSET offset;
+	PTEMPO			p;
+	Rect			r, aRect, oldObjRect, newObjRect, tempR;
+	short			newWidth, result, dur, staffn;
+	long			beatsPM;
+	Boolean			useMM, showMM, ok, dotted, expanded;
+	Str63			tempoStr, metroStr;
+	unsigned char	dummy=0;
+	PCONTEXT		pContext;
+	STRINGOFFSET	offset;
 
 PushLock(OBJheap);
 
@@ -1339,41 +1337,43 @@ PushLock(OBJheap);
 				HiliteInsertNode(doc, p->firstObjL, staffn, TRUE);		/* Hiliting on */
 				while (Button()) ;
 				p = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(p->string), (StringPtr)tempoStr);
+				PStrCopy((StringPtr)PCopy(p->strOffset), (StringPtr)tempoStr);
 				p = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(p->metroStr), (StringPtr)metroStr);
+				PStrCopy((StringPtr)PCopy(p->metroStrOffset), (StringPtr)metroStr);
 				p = GetPTEMPO(pL);
-				hideMM = p->hideMM;
+				useMM = !(p->noMM);
+				showMM = !(p->hideMM);
 				dur = p->subType;
 				dotted = p->dotted;
 				expanded = p->expanded;
-				ok = TempoDialog(&hideMM, &dur, &dotted, &expanded, tempoStr, metroStr);
+				ok = TempoDialog(&useMM, &showMM, &dur, &dotted, &expanded, tempoStr, metroStr);
 				if (tempoStr[0]>63) tempoStr[0] = 63;					/* Limit length for consistency with InsertTempo */
 				if (metroStr[0]>63) metroStr[0] = 63;					/* Limit length for consistency with InsertTempo */
 				p = GetPTEMPO(pL);
 				HiliteInsertNode(doc, p->firstObjL, staffn, FALSE);	/* Hiliting off */
 				if (ok) {
-					offset = PReplace(p->string,tempoStr);
+					offset = PReplace(p->strOffset,tempoStr);
 					if (offset<0L)
 						{ NoMoreMemory(); goto Cleanup; }
 					else
-						p->string = offset;
+						p->strOffset = offset;
 
-					offset = PReplace(p->metroStr,metroStr);
+					offset = PReplace(p->metroStrOffset,metroStr);
 					if (offset<0L)
 						{ NoMoreMemory(); goto Cleanup; }
 					else
-						p->metroStr = offset;
+						p->metroStrOffset = offset;
 
-					p->hideMM = hideMM;
+					p->noMM = !useMM;
+					p->hideMM = !showMM;
 					p->subType = dur;
 					p->dotted = dotted;
 					p->expanded = expanded;
 					beatsPM = FindIntInString(metroStr);
-					if (beatsPM<0L) beatsPM = config.defaultTempo;
-					p->tempo = beatsPM;
+					if (beatsPM<0L) beatsPM = config.defaultTempoMM;
+					p->tempoMM = beatsPM;
 
-					newWidth = StringWidth(tempoStr);			/* ??BUT MUST SET FONT FIRST! */
+					newWidth = StringWidth(tempoStr);		/* FIXME: BUT MUST SET FONT FIRST! */
 					LinkOBJRECT(pL).right = LinkOBJRECT(pL).left + newWidth;
 					doc->changed = TRUE;
 				}
@@ -1460,22 +1460,22 @@ PopLock(OBJheap);
 }
 
 
-/* ----------------------------------------------------------------- CheckSPACE -- */
-/* SPACE object selecter/highliter.  Does different things depending on the value of
+/* ----------------------------------------------------------------- CheckSPACER -- */
+/* SPACER object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-short CheckSPACE(Document *doc, LINK pL, CONTEXT context[],
+short CheckSPACER(Document *doc, LINK pL, CONTEXT context[],
 					Ptr ptr,
 					short mode,
 					STFRANGE stfRange,
 					Point enlarge)
 {
-	PSPACE	p;
+	PSPACER		p;
 	Rect		r,aRect,tempR;
 	short		result;
 	PCONTEXT	pContext;
 
-	p = GetPSPACE(pL);
+	p = GetPSPACER(pL);
 	result = NOMATCH;
 	r = LinkOBJRECT(pL);
 	
@@ -2070,7 +2070,7 @@ PushLock(NOTEheap);
 #ifndef PUBLIC_VERSION
 					if (CapsLockKeyDown() && OptionKeyDown())
 						if (SUSPICIOUS_WREL_RECT(wSub))
-							DebugPrintf(" %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
+							LogPrintf(LOG_NOTICE, " %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
 								enlargeSpecial.h, enlargeSpecial.v);
 #endif
 					HiliteRect(&wSub);
@@ -2579,14 +2579,14 @@ PushLock(MEASUREheap);
 			xd = dLeft+LinkXD(pL);
 			/*		
 			 * Measure subobjects are unusual in that they may be grouped as indicated by
-			 *	connAbove and connStaff, and groups can only be selected as a whole. If this
-			 *	measure is the top one of a group, set rSub and groupTopStf/groupBottomStf
+			 * connAbove and connStaff, and groups can only be selected as a whole. If this
+			 * measure is the top one of a group, set rSub and groupTopStf/groupBottomStf
 			 * to include the entire group; if it's a lower one of a group, they will then
-			 *	already be set correctly. Notice that this code assumes that when a lower
-			 *	subobject of a group is encountered, we've already set rSub from the top one
-			 *	of the group; this is safe as long as we insert subobjects for all staves at
-			 * once and in order (??questionable--this should be checked!), and don't allow
-			 *	deleting anything but the entire object.
+			 * already be set correctly. Notice that this code assumes that when a lower
+			 * subobject of a group is encountered, we've already set rSub from the top one
+			 * of the group; this is safe as long as we insert subobjects for all staves at
+			 * once and in order (FIXME: questionable--this should be checked!), and don't
+			 * allow deleting anything but the entire object.
 			 */ 
 			if (!aMeasure->connAbove) {
 				groupTopStf = measureStf;
@@ -2610,7 +2610,7 @@ PushLock(MEASUREheap);
 						case BAR_RPT_L:
 						case BAR_RPT_R:
 						case BAR_RPT_LR:
-					/* ??TEMPORARY--NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
+					/* FIXME: NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
 							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
 										d2p(xd)+halfWidth+2, d2p(dBottom));
 							break;
@@ -2639,7 +2639,7 @@ PushLock(MEASUREheap);
 						case BAR_RPT_L:
 						case BAR_RPT_R:
 						case BAR_RPT_LR:
-					/* ??TEMPORARY--NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
+					/* ?FIXME: NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
 							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
 										d2p(xd)+halfWidth+2,
 										d2p(dTop+pContext->staffHeight));
@@ -2699,7 +2699,7 @@ PushLock(MEASUREheap);
 					if (CapsLockKeyDown() && OptionKeyDown())
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							if (!aMeasure->connAbove)
-						DebugPrintf(" %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+						LogPrintf(LOG_NOTICE, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 #endif
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 				}
@@ -3009,7 +3009,7 @@ PushLock(OBJheap);
 #ifndef PUBLIC_VERSION
 			if (CapsLockKeyDown() && OptionKeyDown())
 				if (SUSPICIOUS_WREL_RECT(wSub))
-					DebugPrintf(" %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+					LogPrintf(LOG_NOTICE, " %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 #endif
 			HiliteRect(&wSub);
 		}
@@ -3107,7 +3107,7 @@ PushLock(OBJheap);
 			p->denomVis = tParam.denomVis;
 			p->brackVis = tParam.brackVis;
 			doc->changed = TRUE;
-			/* ??THIS IS EXCESSIVE */
+			/* FIXME: THIS IS EXCESSIVE */
 			InvalMeasure(pL, TupletSTAFF(pL));
 		}
 		break;
@@ -3171,17 +3171,17 @@ PopLock(OBJheap);
 }
 
 
-/* ----------------------------------------------------------------- CheckOCTAVA -- */
-/* OCTAVA object selecter/highliter.  Does different things depending on the value of
+/* ----------------------------------------------------------------- CheckOTTAVA -- */
+/* OTTAVA object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
-short CheckOCTAVA(Document *doc, LINK pL, CONTEXT context[],
+short CheckOTTAVA(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
 						short mode,
 						STFRANGE stfRange,
 						Point enlarge)
 {
-	POCTAVA		p;
+	POTTAVA		p;
 	short			result;			/* =NOMATCH unless object/subobject clicked in */
 	Rect			rSub,				/* bounding box for sub-object */
 					wSub,				/* window-relative of above */
@@ -3189,7 +3189,7 @@ short CheckOCTAVA(Document *doc, LINK pL, CONTEXT context[],
 	CONTEXT		*pContext;
 
 PushLock(OBJheap);
-	p = GetPOCTAVA(pL);
+	p = GetPOTTAVA(pL);
 	result = NOMATCH;
 	rSub = LinkOBJRECT(pL);
 	pContext = &context[p->staffn];
@@ -3205,7 +3205,7 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMDblClick:
-		HiliteAttPoints(doc, FirstInOctava(pL), LastInOctava(pL), p->staffn);
+		HiliteAttPoints(doc, FirstInOttava(pL), LastInOttava(pL), p->staffn);
 		break;
 	case SMDrag:
 		UnionRect(&rSub, (Rect *)ptr, &aRect);				/* does (Rect *)ptr enclose rSub? */
@@ -3355,7 +3355,7 @@ PushLock(OBJheap);
 #ifndef PUBLIC_VERSION
 				if (CapsLockKeyDown() && OptionKeyDown())
 					if (SUSPICIOUS_WREL_RECT(wSub))
-						DebugPrintf(" %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+						LogPrintf(LOG_NOTICE, " %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 #endif
 				HiliteRect(&wSub);
 			}

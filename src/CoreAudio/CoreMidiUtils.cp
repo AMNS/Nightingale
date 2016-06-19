@@ -669,13 +669,13 @@ void CMDebugPrintXMission()
 	for (int i = 0; i < n; ++i) {
 		MIDIEndpointRef endpt = MIDIGetSource(i);
 		MIDIUniqueID id = GetMIDIObjectId(endpt);
-		DebugPrintf("Recv dev=%ld\n", id);
+		LogPrintf(LOG_NOTICE, "Recv dev=%ld\n", id);
 		
 		for (long j=1; j<=kMaxChannels; j++) {
 			Boolean ok = CMRecvChannelValid(id, j);
 			long lOk = (long)ok;
-			DebugPrintf(" ch%ld:%s ", j, (lOk? "ok" : "BAD"));
-			if (j==kMaxChannels) DebugPrintf("\n");
+			LogPrintf(LOG_NOTICE, " ch%ld:%s ", j, (lOk? "ok" : "BAD"));
+			if (j==kMaxChannels) LogPrintf(LOG_NOTICE, "\n");
 		}
 	}
 	
@@ -683,13 +683,13 @@ void CMDebugPrintXMission()
 	for (int i1 = 0; i1 < n1; ++i1) {
 		MIDIEndpointRef endpt1 = MIDIGetDestination(i1);
 		MIDIUniqueID id1 = GetMIDIObjectId(endpt1);
-		DebugPrintf("\nXmit dev=%ld\n", id1);
+		LogPrintf(LOG_NOTICE, "\nXmit dev=%ld\n", id1);
 		
 		for (long j1=1; j1<=kMaxChannels; j1++) {
 			Boolean ok1 = CMTransmitChannelValid(id1, j1);
 			long lOk1 = (long)ok1;
-			DebugPrintf(" ch%ld:%s ", j1, (lOk1? "ok" : "!OK"));
-			if (j1==kMaxChannels) DebugPrintf("\n");
+			LogPrintf(LOG_NOTICE, " ch%ld:%s ", j1, (lOk1? "ok" : "BAD"));
+			if (j1==kMaxChannels) LogPrintf(LOG_NOTICE, "\n");
 		}
 	}
 }
@@ -863,8 +863,8 @@ static void CheckDefaultInputDevice()
 		}
 	}
 	
-	DebugPrintf("Default input dev ID: %ld\n", gDefaultInputDevID);
-	DebugPrintf("Default channel: %ld\n", gDefaultChannel);
+	LogPrintf(LOG_NOTICE, "Default input dev ID=%ld, ", gDefaultInputDevID);
+	LogPrintf(LOG_NOTICE, "channel=%ld\n", gDefaultChannel);
 }
 
 static void GetInitialDefaultOutputDevice()
@@ -919,8 +919,8 @@ static void CheckDefaultOutputDevice()
 		}
 	}
 	
-	DebugPrintf("Default output dev ID: %ld\n", gDefaultOutputDevID);
-	DebugPrintf("Default channel: %ld\n", gDefaultChannel);
+	LogPrintf(LOG_NOTICE, "Default output dev ID=%ld, ", gDefaultOutputDevID);
+	LogPrintf(LOG_NOTICE, "channel=%ld\n", gDefaultChannel);
 }
 
 static void CheckDefaultMetroDevice()
@@ -1327,7 +1327,7 @@ Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 		}
 		
 #ifdef CMDEBUG			
-//		DebugPrintf("GetCMPartPlayInfo: i=%ld partChannel[i]=%ld partDevice[i]=%ld\n", 
+//		LogPrintf(LOG_NOTICE, "GetCMPartPlayInfo: i=%ld partChannel[i]=%ld partDevice[i]=%ld\n", 
 //			i, partChannel[i], partDevice[i]);
 #endif
 
@@ -1556,7 +1556,7 @@ Boolean InitCoreMIDI()
 	
 		if (FALSE && OptionKeyDown()) {
 			long lgDefaultChannel = (long)gDefaultChannel;
-			DebugPrintf("gDefaultChannel = %ld %ld %ld\n", gDefaultChannel, (long)gDefaultChannel, lgDefaultChannel);
+			LogPrintf(LOG_NOTICE, "gDefaultChannel = %ld %ld %ld\n", gDefaultChannel, (long)gDefaultChannel, lgDefaultChannel);
 		}
 			
 					
@@ -1567,37 +1567,37 @@ Boolean InitCoreMIDI()
 		gCMSoftMIDIActive = FALSE;
 
 		if (!AllocCMPacketList()) {
-			DebugPrintf("Out of memory allocating global packet list\n");
+			LogPrintf(LOG_NOTICE, "Out of memory allocating global packet list\n");
 			return FALSE;
 		}
 			
 		if (!AllocCMWritePacketList()) {
-			DebugPrintf("Out of memory allocating playNote packet list\n");
+			LogPrintf(LOG_NOTICE, "Out of memory allocating playNote packet list\n");
 			return FALSE;		
 		}	
 			
 		// create client and ports
 		OSStatus stat = MIDIClientCreate(CFSTR("MIDI Nightingale"), NULL, NULL, &gClient);
 		if (stat != noErr || gClient == NULL) {
-			DebugPrintf("Error creating MIDI Client\n");
+			LogPrintf(LOG_NOTICE, "Error creating MIDI Client\n");
 		}
 		else {
-			DebugPrintf("Created MIDI Client: gClient = %ld\n", gClient);
+			LogPrintf(LOG_NOTICE, "Created MIDI Client: gClient = %ld\n", gClient);
 		}
 		
 		stat = MIDIInputPortCreate(gClient, CFSTR("Input port"), NightCMReadProc, NULL, &gInPort);
 		if (stat != noErr || gInPort == NULL) {
-			DebugPrintf("Error creating MIDI Input Port\n");
+			LogPrintf(LOG_NOTICE, "Error creating MIDI Input Port\n");
 		}
 		else {
-			DebugPrintf("Created MIDI Input Port: gInPort = %ld\n", gInPort);
+			LogPrintf(LOG_NOTICE, "Created MIDI Input Port: gInPort = %ld\n", gInPort);
 		}
 		stat = MIDIOutputPortCreate(gClient, CFSTR("Output port"), &gOutPort);
 		if (stat != noErr || gOutPort == NULL) {
-			DebugPrintf("Error creating MIDI Output Port\n");
+			LogPrintf(LOG_NOTICE, "Error creating MIDI Output Port\n");
 		}
 		else {
-			DebugPrintf("Created MIDI Output Port: gOutPort = %ld\n", gOutPort);
+			LogPrintf(LOG_NOTICE, "Created MIDI Output Port: gOutPort = %ld\n", gOutPort);
 		}
 		
 		if (config.cmDefaultOutputChannel > 0 && 
@@ -1605,10 +1605,10 @@ Boolean InitCoreMIDI()
 			gDefaultChannel = config.cmDefaultOutputChannel;
 		}
 		else {
-			DebugPrintf("No config setting for default channel; using: gDefaultChannel = %ld\n", gDefaultChannel);
+			LogPrintf(LOG_NOTICE, "No config setting for default channel; using: gDefaultChannel = %ld\n", gDefaultChannel);
 			
 			config.cmDefaultOutputChannel = 1;
-			DebugPrintf("Setting config val for default channel to 1\n");
+			LogPrintf(LOG_NOTICE, "Setting config val for default channel to 1\n");
 		}
 
 		// Set up the DLS Synth audio unit and its Midi controller here with virtual endpoint
@@ -1631,28 +1631,28 @@ Boolean InitCoreMIDI()
 		
 		n = MIDIGetNumberOfSources();
 		//printf("%d sources\n", n);
-		DebugPrintf("%ld sources\t\t", n);
+		LogPrintf(LOG_NOTICE, "%ld sources\t\t", n);
 		for (i = 0; i < n && stat==noErr; ++i) {
 			src = MIDIGetSource(i);
 			stat = MIDIPortConnectSource(gInPort, src, NULL);
 		}
 		
 		if (stat!=noErr) {
-			DebugPrintf("Error connecting source: src = %ld \n", src);
+			LogPrintf(LOG_NOTICE, "Error connecting source: src = %ld \n", src);
 		}	
 		
 		// find the first destination
 		n = MIDIGetNumberOfDestinations();
-		DebugPrintf("%ld destinations\n", n);
+		LogPrintf(LOG_NOTICE, "%ld destinations\n", n);
 		if (n > 0) {
 			gDest = MIDIGetDestination(0);
 			
-			DebugPrintf("Got MIDI Destination: gDest = %ld\n", gDest);
+			LogPrintf(LOG_NOTICE, "Got MIDI Destination: gDest = %ld\n", gDest);
 		}
 		else {
 			gCMNoDestinations = TRUE;
 
-			DebugPrintf("No available MIDI Destinations\n");
+			LogPrintf(LOG_NOTICE, "No available MIDI Destinations\n");
 		}
 		
 		GetDLSControllerID();

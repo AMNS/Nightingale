@@ -1,9 +1,9 @@
 /***************************************************************************
-*	FILE:	SpaceTime.c														*
-*	PROJ:	Nightingale, rev. for v.3.1										*
-*	DESC:	Low- and medium-level space and time routines (welcome to the	*
-* 			Twilight Zone...). No user-interface assumptions.				*
-*																			*
+*	FILE:	SpaceTime.c
+*	PROJ:	Nightingale
+*	DESC:	Low- and medium-level space and time routines (welcome to the
+* 			Twilight Zone...). No user-interface assumptions.
+*
 	FillRelStaffSizes
 	SymWidthLeft			SymWidthRight				SymLikelyWidthRight
 	SymDWidthLeft			SymDWidthRight				ConnectDWidth
@@ -24,15 +24,12 @@
 
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -91,7 +88,7 @@ STDIST SymWidthLeft(
 
 	switch (ObjLType(pL)) {
 		case SYNCtype:
-			if (measNode>=0) DebugPrintf("(a) ignoreChord[1]=%d [2]=%d [3]=%d\n",
+			if (measNode>=0) LogPrintf(LOG_NOTICE, "(a) ignoreChord[1]=%d [2]=%d [3]=%d\n",
 					ignoreChord[measNode][1], ignoreChord[measNode][2], ignoreChord[measNode][3]);
 
 			noteToLeft = FALSE;
@@ -198,7 +195,7 @@ STDIST SymWidthLeft(
 		case CLEFtype:
 		case KEYSIGtype:
 		case TIMESIGtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 		default:
 			return 0;
@@ -221,7 +218,7 @@ STDIST SymWidthRight(
 	PATIMESIG	aTimeSig;
 	PAMEASURE	aMeasure;
 	PAPSMEAS	aPSMeas;
-	PSPACE		pSpace;
+	PSPACER		pSpace;
 	LINK		aNoteL, aClefL, aKeySigL, aTimeSigL, aMeasureL, aPSMeasL, aGRNoteL;
 	short		nChars, s;
 	Boolean		anyStaff, wideChar, noteToRight;
@@ -431,8 +428,8 @@ STDIST SymWidthRight(
 		if (doc->nonstdStfSizes) nwidth = STF_SCALE(nwidth, aTimeSig->staffn);
 		return nwidth;
 
-	 case SPACEtype:
-	 	pSpace = GetPSPACE(pL);
+	 case SPACERtype:
+	 	pSpace = GetPSPACER(pL);
 	 	return pSpace->spWidth;
 
 	 default:
@@ -793,7 +790,7 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 		case KEYSIGtype:
 		case TIMESIGtype:
 		case GRSYNCtype:
-		case SPACEtype:
+		case SPACERtype:
 		case PSMEAStype:
 			return (SymWidthRight(doc, beforeL, ANYONE, FALSE));
 		default:
@@ -1552,12 +1549,12 @@ short GetSpTimeInfo(
 			case CONNECTtype:
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case DYNAMtype:
 			case SLURtype:
 			case GRAPHICtype:
 			case TEMPOtype:
-			case SPACEtype:
+			case SPACERtype:
 			case ENDINGtype:
 				break;
 				
@@ -1678,7 +1675,7 @@ static long FixMeasTimeStamps(
 		sprintf(strBuf, fmtStr, aMeasure->measureNum+doc->firstMNNumber);
 		CParamText(strBuf, "", "", "");
 #ifndef PUBLIC_VERSION
-		DebugPrintf(strBuf);
+		LogPrintf(LOG_NOTICE, strBuf);
 #endif
 		NoteInform(GENERIC_ALRT);
 	}

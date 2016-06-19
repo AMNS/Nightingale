@@ -1,33 +1,30 @@
 /***************************************************************************
-*	FILE:	Delete.c																				*
-*	PROJ:	Nightingale, rev. for v.3.1													*
-*	DESC:	Deletion-related routines.														*
-		DSRemoveGraphic	DSRemoveTempo			DSRemoveEnding
-		DeleteOtherDynamic	FixDynamicContext
-		DSRemoveDynamic	DeleteMeasure			DeleteWhole
-		DeleteTie			DeleteSlur				FixDelSlurs		
-		DeleteOtherSlur	FixSyncForSlur
-		DeleteXSysSlur		FixDelCrossSysObjs	FixDelBeams
-		PostFixDelBeams	FixDelMeasures
-		PrevTiedNote		FirstTiedNote			FixDelAccidentals	
-		DelTupletForSync	DelOctavaForSync		DelModsForSync
-		FixDelContext		ExtendJDRange
-		DelClefBefFirst	DelKeySigBefFirst		DelTimeSigBefFirst
-		FixDelChords		FixDelGRChords			FixAccsForNoTie
-		DelSelPrepare		DelSelCleanup
-		DeleteSelection	DelNoteRedAcc			DelGRNoteRedAcc
-		ArrangeSyncAccs	DelRedundantAccs
+*	FILE:	Delete.c
+*	PROJ:	Nightingale
+*	DESC:	Deletion-related routines.
+		DSRemoveGraphic			DSRemoveTempo			DSRemoveEnding
+		DeleteOtherDynamic		FixDynamicContext
+		DSRemoveDynamic			DeleteMeasure			DeleteWhole
+		DeleteTie				DeleteSlur				FixDelSlurs		
+		DeleteOtherSlur			FixSyncForSlur
+		DeleteXSysSlur			FixDelCrossSysObjs		FixDelBeams
+		PostFixDelBeams			FixDelMeasures
+		PrevTiedNote			FirstTiedNote			FixDelAccidentals	
+		DelTupletForSync		DelOttavaForSync		DelModsForSync
+		FixDelContext			ExtendJDRange
+		DelClefBefFirst			DelKeySigBefFirst		DelTimeSigBefFirst
+		FixDelChords			FixDelGRChords			FixAccsForNoTie
+		DelSelPrepare			DelSelCleanup
+		DeleteSelection			DelNoteRedAcc			DelGRNoteRedAcc
+		ArrangeSyncAccs			DelRedundantAccs
 ****************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -62,7 +59,7 @@ static void FixDelGRBeams(Document *);
 
 static void ClearInTupletFlags(LINK tupletL);
 static void DelTupletForSync(Document *, LINK, LINK);
-static void DelOctavaForSync(Document *, LINK, LINK);
+static void DelOttavaForSync(Document *, LINK, LINK);
 
 static void FixDelMeasures(Document *, LINK);
 static void FixDelAccidentals(Document *, short, LINK, LINK);
@@ -493,7 +490,7 @@ static Boolean DeleteWhole(Document *doc, register LINK pL)
 		for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 			aNote = GetPANOTE(aNoteL);
 			if (aNote->inTuplet) DelTupletForSync(doc, pL, aNoteL);
-			if (aNote->inOctava) DelOctavaForSync(doc, pL, aNoteL);
+			if (aNote->inOttava) DelOttavaForSync(doc, pL, aNoteL);
 			if (aNote->firstMod) DelModsForSync(pL, aNoteL);
 		}
 		DSRemoveDynamic(doc, pL, ANYONE);
@@ -1481,25 +1478,25 @@ static void DelTupletForSync(Document *doc, LINK pL, LINK aNoteL)
 }
 
 
-/* ------------------------------------------------------------ DelOctavaForSync - */
-/* Assuming the given note is to be deleted and is inOctava, remove its subObject
-from its octava object, and decrement the octava's nEntries. If that leaves
-nothing in the octava, remove it, too. */
+/* ------------------------------------------------------------ DelOttavaForSync - */
+/* Assuming the given note is to be deleted and is inOttava, remove its subObject
+from its ottava object, and decrement the ottava's nEntries. If that leaves
+nothing in the ottava, remove it, too. */
 
-static void DelOctavaForSync(Document *doc, LINK pL, LINK aNoteL)
+static void DelOttavaForSync(Document *doc, LINK pL, LINK aNoteL)
 {
-	PANOTEOCTAVA	aNoteOctava;
+	PANOTEOTTAVA	aNoteOttava;
 	LINK				octL, aNoteOctL, nextOctL;
 	
-	octL = LSSearch(pL, OCTAVAtype, NoteSTAFF(aNoteL), GO_LEFT, FALSE);
+	octL = LSSearch(pL, OTTAVAtype, NoteSTAFF(aNoteL), GO_LEFT, FALSE);
 	if (octL) {
 		aNoteOctL = FirstSubLINK(octL);
 		for ( ; aNoteOctL; aNoteOctL = nextOctL) {
-			nextOctL = NextNOTEOCTAVAL(aNoteOctL);
-			aNoteOctava = GetPANOTEOCTAVA(aNoteOctL);
-			if (aNoteOctava->opSync==pL) { 							/* octL is the one */
-				RemoveLink(octL, NOTEOCTAVAheap, FirstSubLINK(octL), aNoteOctL);
-				HeapFree(NOTEOCTAVAheap, aNoteOctL);
+			nextOctL = NextNOTEOTTAVAL(aNoteOctL);
+			aNoteOttava = GetPANOTEOTTAVA(aNoteOctL);
+			if (aNoteOttava->opSync==pL) { 							/* octL is the one */
+				RemoveLink(octL, NOTEOTTAVAheap, FirstSubLINK(octL), aNoteOctL);
+				HeapFree(NOTEOTTAVAheap, aNoteOctL);
 				LinkNENTRIES(octL)--;
 				if (LinkNENTRIES(octL)==0) {
 					DeleteNode(doc, octL); return;
@@ -1508,7 +1505,7 @@ static void DelOctavaForSync(Document *doc, LINK pL, LINK aNoteL)
 		}
 	}
 	else
-		MayErrMsg("DelOctavaForSync: can't find Octava for note %ld in Sync %ld",
+		MayErrMsg("DelOttavaForSync: can't find Ottava for note %ld in Sync %ld",
 					(long)aNoteL, (long)pL);
 }
 
@@ -2726,7 +2723,7 @@ void DeleteSelection(
 						{ didAnything = DeleteWhole(doc, pL); break; }
 
 					/* If any subObjs left, traverse the subList and delete
-						selected subObjects. Check each note for tuplets, octavas,
+						selected subObjects. Check each note for tuplets, ottavas,
 						note modifiers and dynamics, handling any associated with
 						the note. */
 
@@ -2740,7 +2737,7 @@ void DeleteSelection(
 							voiceChanged[pSub->voice] = TRUE;						
 							if (pSub->inTuplet)
 								DelTupletForSync(doc, pL, pSubL);
-							if (pSub->inOctava) {
+							if (pSub->inOttava) {
 								if (pSub->inChord) {
 									qSubL = FirstSubLINK(pL);
 									for ( ; qSubL ; qSubL = NextNOTEL(qSubL))
@@ -2748,7 +2745,7 @@ void DeleteSelection(
 											delOct = FALSE;
 								}
 								if (delOct)
-									DelOctavaForSync(doc, pL, pSubL);
+									DelOttavaForSync(doc, pL, pSubL);
 							}
 							if (pSub->firstMod)
 								DelModsForSync(pL, pSubL);
@@ -2812,7 +2809,7 @@ void DeleteSelection(
 			case BEAMSETtype:
 			/* When we have the actual beam object, UnbeamRange should be called
 				rather than Unbeam, since we do not need to check the endpoints for
-				beams across them. Same for octavas and tuplets. */
+				beams across them. Same for ottavas and tuplets. */
 
 				didAnything = TRUE;
 				newSelL = RightLINK(pL);
@@ -2824,12 +2821,12 @@ void DeleteSelection(
 					UnbeamRange(doc, firstSyncL, RightLINK(lastSyncL), BeamVOICE(pL));
 				break;
 
-			case OCTAVAtype:
+			case OTTAVAtype:
 				didAnything = TRUE;
 				newSelL = RightLINK(pL);
-				firstSyncL = FirstInOctava(pL);
-				lastSyncL = LastInOctava(pL);
-				UnOctavaRange(doc, firstSyncL, RightLINK(lastSyncL), OctavaSTAFF(pL));
+				firstSyncL = FirstInOttava(pL);
+				lastSyncL = LastInOttava(pL);
+				UnOttavaRange(doc, firstSyncL, RightLINK(lastSyncL), OttavaSTAFF(pL));
 				break;
 
 			case TUPLETtype:
@@ -2944,7 +2941,7 @@ void DeleteSelection(
 				DeleteNode(doc, pL);
 				break;
 
-			case SPACEtype:
+			case SPACERtype:
 				DSRemoveGraphic(doc, pL);
 				didAnything = TRUE;
 				newSelL = RightLINK(pL);

@@ -7,16 +7,16 @@
 		NRGRInMeasure			FakeMeasure				UpdatePageNums
 		UpdateSysNums			UpdateMeasNums			GetMeasNum
 		PtInMeasure				PageRelxd				PageRelyd
-		GraphicPageRelxd		LinkToPt					SysRelxd
-		Sysxd						PMDist					HasValidxd
+		GraphicPageRelxd		LinkToPt				SysRelxd
+		Sysxd					PMDist					HasValidxd
 		FirstValidxd			DFirstValidxd			ObjWithValidxd
-		GetSubXD					ZeroXD					RealignObj
+		GetSubXD				ZeroXD					RealignObj
 		GetSysWidth				GetSysLeft
 		StaffHeight				StaffLength				MeasWidth
 		MeasOccupiedWidth		MeasJustWidth			SetMeasWidth
 		MeasFillSystem
 		IsAfter					IsAfterIncl				BetweenIncl
-		WithinRange				SamePage					SameSystem
+		WithinRange				SamePage				SameSystem
 		SameMeasure
 		ConsecSync				BeforeFirstMeas		FirstMeasInSys	
 		LastMeasInSys			LastUsedMeasInSys		LastOnPrevSys
@@ -30,7 +30,7 @@
 		VCountNotes				CountGRNotes			SVCountNotes
 		SVCountGRNotes			CountObjects			CountInHeaps
 		HasOtherStemSide		NoteLeftOfStem			GetStemUpDown
-		GetGRStemUpDown		GetExtremeNotes		GetExtremeGRNotes
+		GetGRStemUpDown			GetExtremeNotes			GetExtremeGRNotes
 		FindMainNote			FindGRMainNote			GetObjectLimits
 		InDataStruct			GetSubObjStaff			GetSubObjVoice
 		ObjOnStaff				CommonStaff				ObjHasVoice
@@ -38,23 +38,20 @@
 		KeySigOnStaff			TimeSigOnStaff			MeasOnStaff
 		NoteOnStaff				GRNoteOnStaff			NoteInVoice
 		GRNoteInVoice			SyncInVoice				GRSyncInVoice
-		SyncVoiceOnStaff		SyncInBEAMSET			SyncInOCTAVA
+		SyncVoiceOnStaff		SyncInBEAMSET			SyncInOTTAVA
 		PrevTiedNote			FirstTiedNote			ChordNextNR
 		GetCrossStaff			SetTempFlags			SetSpareFlags
 		GetMultiVoice			TweakSubRects
-		CompareScoreFormat	DisposeMODNRs			Staff2PartL
+		CompareScoreFormat		DisposeMODNRs			Staff2PartL
 		PartL2Partn				VHasTieAcross			HasSmthgAcross
 *****************************************************************************/
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -288,7 +285,7 @@ DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 		case SYNCtype:
 		case GRSYNCtype:
 		case RPTENDtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			return pContext->measureLeft + objXD;
 		case CLEFtype:
@@ -326,8 +323,8 @@ DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 				return xd+objXD;
 			}
 			return objXD;
-		case OCTAVAtype:
-			firstL = FirstInOctava(pL);
+		case OTTAVAtype:
+			firstL = FirstInOttava(pL);
 			xd = PageRelxd(firstL, pContext);
 			return xd+objXD;
 		case SLURtype:
@@ -374,7 +371,7 @@ DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 		case MEASUREtype:
 		case PSMEAStype:
 		case RPTENDtype:
-		case SPACEtype:
+		case SPACERtype:
 			return pContext->measureTop;
 		case ENDINGtype:
 		case SYNCtype:
@@ -415,8 +412,8 @@ DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 				return yd+objYD;
 			}
 			return objYD;
-		case OCTAVAtype:
-			firstL = FirstInOctava(pL);
+		case OTTAVAtype:
+			firstL = FirstInOttava(pL);
 			yd = PageRelyd(firstL, pContext);
 			return yd+objYD;
 		case SLURtype:
@@ -479,7 +476,7 @@ DDIST GraphicPageRelxd(Document */*doc*/,					/* unused */
 			aGRNoteL = FindGRMainNote(relObjL, voice);
 			return xd+GRNoteXD(aGRNoteL);
 		case RPTENDtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			return xd;
 		case CLEFtype:
@@ -494,7 +491,7 @@ DDIST GraphicPageRelxd(Document */*doc*/,					/* unused */
 		case BEAMSETtype:
 		case DYNAMtype:
 		case GRAPHICtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case SLURtype:
 		case TUPLETtype:
 		case TEMPOtype:
@@ -2427,11 +2424,11 @@ short GetSubObjStaff(LINK pL, short index)
 		case SLURtype:
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case GRAPHICtype:
 		case ENDINGtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 			return ((PEXTEND)p)->staffn;
 		default:
 			MayErrMsg("GetSubObjStaff: can't handle object type %ld at %ld",
@@ -2463,8 +2460,8 @@ short GetSubObjVoice(LINK pL, short index)
 		case RPTENDtype:
 		case ENDINGtype:
 		case TEMPOtype:
-		case SPACEtype:
-		case OCTAVAtype:
+		case SPACERtype:
+		case OTTAVAtype:
 			return NOONE;
 		case SYNCtype:
 			aNoteL = FirstSubLINK(pL);
@@ -2527,10 +2524,10 @@ Boolean ObjOnStaff(LINK pL, short staff, Boolean selectedOnly)
 		case SLURtype:
 		case BEAMSETtype:
 		case TUPLETtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case GRAPHICtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			if (!LinkSEL(pL) && selectedOnly)
 				return FALSE;
@@ -2587,12 +2584,12 @@ Boolean ObjHasVoice(LINK pL)
 		case CLEFtype:
 		case KEYSIGtype:
 		case TIMESIGtype:
-		case OCTAVAtype:
+		case OTTAVAtype:
 		case DYNAMtype:
 		case MODNRtype:
 		case RPTENDtype:
 		case TEMPOtype:
-		case SPACEtype:
+		case SPACERtype:
 		case ENDINGtype:
 			return FALSE;
 
@@ -2823,18 +2820,18 @@ Boolean SyncInBEAMSET(LINK syncL, LINK beamSetL)
 }
 
 
-/* ---------------------------------------------------------------- SyncInOCTAVA -- */
-/* Is the given Sync or GRSync in the given Octava? */
+/* ---------------------------------------------------------------- SyncInOTTAVA -- */
+/* Is the given Sync or GRSync in the given Ottava? */
 
-Boolean SyncInOCTAVA(LINK syncL, LINK octavaL)
+Boolean SyncInOTTAVA(LINK syncL, LINK ottavaL)
 {
-	PANOTEOCTAVA	pNoteOctava;		/* ptr to current OCTAVA subobject */
+	PANOTEOTTAVA	pNoteOttava;		/* ptr to current OTTAVA subobject */
 	LINK				noteOctL;
 
-	noteOctL = FirstSubLINK(octavaL);
-	for (; noteOctL; noteOctL = NextNOTEOCTAVAL(noteOctL)) {
-		pNoteOctava = GetPANOTEOCTAVA(noteOctL);
-		if (pNoteOctava->opSync==syncL) return TRUE;
+	noteOctL = FirstSubLINK(ottavaL);
+	for (; noteOctL; noteOctL = NextNOTEOTTAVAL(noteOctL)) {
+		pNoteOttava = GetPANOTEOTTAVA(noteOctL);
+		if (pNoteOttava->opSync==syncL) return TRUE;
 	}
 	return FALSE;
 }
@@ -3271,7 +3268,7 @@ Boolean HasSmthgAcross(
 	for (staff = 1; staff<=doc->nstaves && !foundSmthg; staff++) {
 		if (HasBeamAcross(link, staff)
 		||  HasTupleAcross(link, staff)
-		||  HasOctavaAcross(link, staff) ) {
+		||  HasOttavaAcross(link, staff) ) {
 			isVoice = FALSE;
 			number = staff;
 			foundSmthg = TRUE;

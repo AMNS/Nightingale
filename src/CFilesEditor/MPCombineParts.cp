@@ -1,13 +1,11 @@
 /* ExtractHighLevel.c for Nightingale - high-level routines for extracting parts */
 
-/*									NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -33,11 +31,11 @@ Otherwise, do the  opposite. We should set the userItems' handle to be a pointer
 this procedure so it'll be called automatically by the dialog filter. */
 		
 static void DimSpacePanel(DialogPtr dlog,
-									short item)		/* the userItem number */
+								short item)		/* the userItem number */
 {
-	short			type;
+	short		type;
 	Handle		hndl;
-	Rect			box, tempR;
+	Rect		box, tempR;
 	Boolean		checked;
 	
 	checked = GetDlgChkRadio(dlog, REFORMAT_DI);

@@ -1,34 +1,32 @@
-/* InitNightingale.c for Nightingale, rev. for v.99 */
+/* InitNightingale.c for Nightingale */
 
-/*									NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-//#include <MIDI.h>
 #include <CoreMIDI/MidiServices.h>
 // MAS
 #include "CarbonTemplates.h"
 
-void 		InitNightingale(void);
+void			InitNightingale(void);
 static Boolean	DoSplashScreen(void);
 static Boolean	InitAllCursors(void);
 static void		InitNightFonts(void);
 static Boolean	InitNightGlobals(void);
 static Boolean	InitTables(void);
-static void 		PrintInfo(void);
+static void 	PrintInfo(void);
+static void 	CheckScreenFonts(void);
 static void		InitMusicFontStuff(void);
 static Boolean	InitMIDISystem(void);
-static void 		CheckScrFonts(void);
 
-void NExitToShell(char *msg);
+void			NExitToShell(char *msg);
 
 /* ------------------------------------------------------------- InitNightingale -- */
 /* One-time initialization of Nightingale-specific stuff. Assumes the Macintosh
@@ -57,13 +55,12 @@ void NExitToShell(char *msg)
 	ExitToShell();
 }
 
+
 /* Display splash screen. If all OK, return TRUE; if there's a problem, return FALSE.
 
-In Nightingale, the splash screen we display shows the owner's name and organization,
-to discourage illegal copying. We also check (but don't display) the copy serial number:
-if it's wrong, return FALSE.
-
-In NoteView, the splash screen is purely for the user's benefit. */
+In commercial versions of Nightingale, the splash screen we displayed shows the owner's
+name and organization, to discourage illegal copying. We also checked (but didn't display)
+the copy serial number: if it's wrong, return FALSE. */
 
 #define NAME_DI 1
 #define ABOUT_DI 2
@@ -96,6 +93,7 @@ static Boolean DoSplashScreen()
 	return TRUE;
 }
 
+
 /* Initialize the cursor globals and the cursor list. */
 
 static Boolean InitAllCursors()
@@ -114,7 +112,7 @@ static Boolean InitAllCursors()
 		return FALSE;
 	}
 	
-	for (i = 0;i<nsyms; i++)								/* Fill in list of cursor handles */
+	for (i = 0;i<nsyms; i++)							/* Fill in list of cursor handles */
 		if (symtable[i].cursorID>=100)
 			cursorList[i] = GetCursor(symtable[i].cursorID);
 		else
@@ -123,7 +121,7 @@ static Boolean InitAllCursors()
 	return TRUE;
 	
 Error:
-	GetIndCString(strBuf, INITERRS_STRS, 7);		/* "Can't find cursor resources" */
+	GetIndCString(strBuf, INITERRS_STRS, 7);			/* "Can't find cursor resources" */
 	CParamText(strBuf, "", "", "");
 	StopInform(GENERIC_ALRT);
 	return FALSE;
@@ -137,8 +135,9 @@ void InitNightFonts()
 	textFontNum = applFont;
 	
 	/*
+	 * NB: The following comment is pre-OS X.
 	 * The "magic no." in next line should theoretically go away: we should get the
-	 * system font size from the Script Manager if it's present (and it should always be). However,
+	 * system font size from the Script Manager if it's present (and it should always be).
 	 * However, in every system I've seen, the system font size is 12, so I doubt it's
 	 * a big deal.
 	 */
@@ -184,8 +183,8 @@ static short InitEndingStrings()
 
 static Boolean InitNightGlobals()
 {
-	char		fmtStr[256];
-	short		j;
+	char	fmtStr[256];
+	short	j;
 	
 	/*
 	 *	Since initialization routines can (and as of this writing do) use the coordinate-
@@ -195,12 +194,13 @@ static Boolean InitNightGlobals()
 	magShift = 4;
 	magRound = 8;
 		
-	outputTo = toScreen;										/* Initial output device */
+	outputTo = toScreen;								/* Initial output device */
 	clickMode = ClickSelect;
 	lastCopy = COPYTYPE_CONTENT;
 
-	doNoteheadGraphs = FALSE;								/* Normal noteheads, not tiny graphs */
-	playTempoPercent = 100;									/* Play using the tempi as marked */
+	doNoteheadGraphs = FALSE;							/* Normal noteheads, not tiny graphs */
+	playTempoPercent = 100;								/* Play using the tempi as marked */
+	unisonsOK = TRUE;									/* Don't complain about perfect unisons */
 
 	/* Initialize our high-resolution (??but very inaccurate!) delay function */
 	
@@ -234,6 +234,7 @@ static Boolean InitNightGlobals()
 	return TRUE;
 }
 
+
 /* Read 'BBX#', 'MCMp' and 'MCOf' resources for alternative music fonts, and store
 their information in newly allocated musFontInfo[]. Return TRUE if OK; FALSE if error.
 Assumes that each font, including Sonata, has one of all three types of resource
@@ -243,11 +244,11 @@ example, "Petrucci" should have 'BBX#' 129, 'MCMp' 129 and 'MCOf' 129.
 
 static Boolean InitMusFontTables()
 {
-	short		i, nRes, resID, curResFile;
-	short		*w, ch, count, xw, xl, yt, xr, yb, index;
+	short	i, nRes, resID, curResFile;
+	short	*w, ch, count, xw, xl, yt, xr, yb, index;
 	unsigned char *b;
 	Handle	resH;
-	Size		nBytes;
+	Size	nBytes;
 	OSType	resType;
 	Str255	resName;
 
@@ -300,7 +301,7 @@ static Boolean InitMusFontTables()
 
 	/* NOTE: For the other resources, we use Get1NamedResource instead of 
 		Count1Resources, because we can't rely on the order of resources in
-		the resource map to be the same as with the 'BBX#' resource. */
+		the resource map being the same as with the 'BBX#' resource. */
 
 	/* Read 'MCMp' (music character mapping) info. */
 	for (i = 0; i < numMusFonts; i++) {
@@ -361,15 +362,15 @@ there's a serious problem, return FALSE, else TRUE. */
 static Boolean InitTables()
 {
 	MIDIPreferences **midiStuff;
-	MIDIModNRPreferences	**midiModNRH;
+	MIDIModNRPreferences **midiModNRH;
 	short i;
 
-	l2p_durs[MAX_L_DUR] = PDURUNIT;						/* Set up lookup table to convert; assign 15 to 128th for tuplets */
-	for (i = MAX_L_DUR-1; i>0; i--)						/*   logical to physical durations */
+	l2p_durs[MAX_L_DUR] = PDURUNIT;					/* Set up lookup table to convert; assign 15 to 128th for tuplets */
+	for (i = MAX_L_DUR-1; i>0; i--)					/*   logical to physical durations */
 		l2p_durs[i] = 2*l2p_durs[i+1];
 		
 	pdrSize[0] = config.rastral0size;
-	for (i = 0; i<=MAXRASTRAL; i++)						/* Set up DDIST table of rastral sizes */
+	for (i = 0; i<=MAXRASTRAL; i++)					/* Set up DDIST table of rastral sizes */
 		drSize[i] = pt2d(pdrSize[i]);
 		
 	if (LAST_DYNAM!=24) {
@@ -378,7 +379,7 @@ static Boolean InitTables()
 	}
 	midiStuff = (MIDIPreferences **)GetResource('MIDI',PREFS_MIDI);
 	if (midiStuff==NULL || *midiStuff==NULL) {
-		GetIndCString(strBuf, INITERRS_STRS, 8);		/* "Can't find MIDI resource" */
+		GetIndCString(strBuf, INITERRS_STRS, 8);	/* "Can't find MIDI resource" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		return FALSE;
@@ -416,8 +417,6 @@ static Boolean InitTables()
 }
 
 
-
-
 /* Print various information for debugging. */
 
 static void PrintInfo()
@@ -425,18 +424,18 @@ static void PrintInfo()
 #ifndef PUBLIC_VERSION
 #ifdef IDEBUG
 
-	DebugPrintf("Size of PARTINFO=%ld\n", sizeof(PARTINFO));
+	LogPrintf(LOG_NOTICE, "Size of PARTINFO=%ld\n", sizeof(PARTINFO));
 	
-	DebugPrintf("Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
+	LogPrintf(LOG_NOTICE, "Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
 		sizeof(HEADER), sizeof(TAIL), sizeof(SYNC), sizeof(RPTEND), sizeof(PAGE));
-	DebugPrintf("Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
+	LogPrintf(LOG_NOTICE, "Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
 		sizeof(SYSTEM), sizeof(STAFF), sizeof(MEASURE), sizeof(CLEF), sizeof(KEYSIG));
-	DebugPrintf("Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
+	LogPrintf(LOG_NOTICE, "Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
 		sizeof(TIMESIG), sizeof(BEAMSET), sizeof(CONNECT), sizeof(DYNAMIC));
-	DebugPrintf("Size of GRAPHIC=%ld OCTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
-		sizeof(GRAPHIC), sizeof(OCTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
-	DebugPrintf("Size of TEMPO=%ld SPACE=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
-		sizeof(TEMPO), sizeof(SPACE), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
+	LogPrintf(LOG_NOTICE, "Size of GRAPHIC=%ld OTTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
+		sizeof(GRAPHIC), sizeof(OTTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
+	LogPrintf(LOG_NOTICE, "Size of TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
+		sizeof(TEMPO), sizeof(SPACER), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
 #endif
 #endif
 }
@@ -464,10 +463,10 @@ Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
 
 /* Check to see if all the desirable screen fonts are actually present. */
 
-static void CheckScrFonts()
+static void CheckScreenFonts()
 {
-	short		origLen, foundSizes=0;
-	short		fontNum;
+	short	origLen, foundSizes=0;
+	short	fontNum;
 
 	if (!GetFontNumber("\pSonata", &fontNum)) {
 		if (CautionAdvise(MUSFONT_ALRT)==Cancel)
@@ -476,7 +475,9 @@ static void CheckScrFonts()
 			return;
 	}
 
-	/* ??Under System 7, it seems that only the first call to RealFont is meaningful:
+	/* FIXME: The following comment obviously predates OS X. What's the situation now?
+		--DAB, Mar. 2016
+		Under System 7, it seems that only the first call to RealFont is meaningful:
 		following calls for any size always return TRUE! So it's not obvious how to find
 		out what sizes are really present without looking at the FONTs or NFNTs. */
 		
@@ -508,6 +509,10 @@ static void CheckScrFonts()
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 	}
+
+	if (strlen(strBuf)<=origLen) LogPrintf(LOG_NOTICE,
+		"CheckScreenFonts: found all %d screen sizes of the Sonata music font.\n", foundSizes);
+	else LogPrintf(LOG_WARNING, "CheckScreenFonts: %s\n", strBuf);
 }
 
 
@@ -528,7 +533,6 @@ void InitMusicFontStuff()
 	 *	we find the largest possible point size (either rastral 0 or 1) and scale it by
 	 *	60/28, then magnify.
 	 */
-	 
 	maxPtSize = n_max(config.rastral0size, pdrSize[1]);
 	maxMCharWid = (60.0/28.0)*maxPtSize;
 	maxMCharWid = UseMagnifiedSize(maxMCharWid, MAX_MAGNIFY);
@@ -540,21 +544,21 @@ void InitMusicFontStuff()
 	fontPort = NewGrafPort(maxMCharWid, maxMCharHt);
 #endif
 	GetFNum("\pSonata", &sonataFontNum);				/* Get ID of standard music font */
-	CheckScrFonts();
+	CheckScreenFonts();
 }
 
 
 #ifdef TARGET_API_MAC_CARBON_MIDI
 
-
 static Boolean InitChosenMIDISystem()
 {
-	Boolean midiOk = TRUE;
+	Boolean midiOK = TRUE;
 	
 	if (useWhichMIDI == MIDIDR_CM)
-		midiOk = InitCoreMIDI();
+		midiOK = InitCoreMIDI();
 	
-	return midiOk;
+	LogPrintf(LOG_NOTICE, "useWhichMIDI=%d midiOK=%d\n", useWhichMIDI, midiOK);
+	return midiOK;
 }
 
 Boolean InitMIDISystem()

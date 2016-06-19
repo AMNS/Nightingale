@@ -1,36 +1,34 @@
 /* Reconstruct.c for Nightingale. Used for functions that re-arrange the object
 list (based on time?), e.g., Remove Gaps in Voices, Merge, Create/Remove Tuplet. */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean Check1ContinVoice(Document *,LINK,Boolean [],SPACETIMEINFO *);
+static Boolean Check1ContinVoice(Document *, LINK, Boolean [], SPACETIMEINFO *);
 static void FixObjStfSize(Document *, LINK);
 
-static LINK InsertClJITBefore(Document *doc,LINK pL,LINK newObjL,COPYMAP *mergeMap);
-static LINK InsertClJIPBefore(Document *doc,LINK pL,LINK newObjL,COPYMAP *mergeMap);
-static LINK InsertClJDBefore(Document *doc,LINK pL,LINK newObjL,COPYMAP *mergeMap);
+static LINK InsertClJITBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mergeMap);
+static LINK InsertClJIPBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mergeMap);
+static LINK InsertClJDBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mergeMap);
 
-static void LocateClJITObj(Document *, LINK, LINK, LINK, PTIME *,short,COPYMAP *,short *);
-static void LocateClJIPObj(Document *, LINK, LINK, LINK, PTIME *,short,COPYMAP *,short *);
-static void LocateClGenlJDObj(Document *, LINK, LINK, LINK, LINK, LINK, PTIME *,short,COPYMAP *,
+static void LocateClJITObj(Document *, LINK, LINK, LINK, PTIME *, short, COPYMAP *, short *);
+static void LocateClJIPObj(Document *, LINK, LINK, LINK, PTIME *, short, COPYMAP *, short *);
+static void LocateClGenlJDObj(Document *, LINK, LINK, LINK, LINK, LINK, PTIME *, short,COPYMAP *,
 								short *);
-static void LocateClJDObj(Document *, LINK, LINK, PTIME *,short,COPYMAP *,short *);
+static void LocateClJDObj(Document *, LINK, LINK, PTIME *, short, COPYMAP *, short *);
 
-static void FixSlurLinks(LINK slurL,PTIME *durArray);
-static void FixDynamLinks(LINK dynamL,PTIME *durArray);
-static void FixEndingLinks(LINK endingL,PTIME *durArray);
-static void FixGRDrawLinks(LINK graphicL,PTIME *durArray);
+static void FixSlurLinks(LINK slurL, PTIME *durArray);
+static void FixDynamLinks(LINK dynamL, PTIME *durArray);
+static void FixEndingLinks(LINK endingL, PTIME *durArray);
+static void FixGRDrawLinks(LINK graphicL, PTIME *durArray);
 
 /* --------------------------------------------------------------------------------- */
 /* Reconstruction utilities */
@@ -52,9 +50,9 @@ time of notes in those voices in the given measure; if so, return FALSE. */
 Boolean Check1ContinVoice(Document *doc, LINK measL, Boolean vInSel[],
 									SPACETIMEINFO *spTimeInfo)
 {
-	LINK link,endMeasL; short i,lastNode,v;
+	LINK link, endMeasL; short i, lastNode, v;
 	Boolean first;
-	long startTime,nextlTime;
+	long startTime, nextlTime;
 
 	endMeasL = LinkRMEAS(measL) ? LinkRMEAS(measL) : LeftLINK(doc->tailL);
 	lastNode = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, FALSE);
@@ -197,11 +195,11 @@ void SetPlayDurs(Document */*doc*/, PTIME *durArray, short nInMeas, LINK startMe
 
 /* Set playDur values for the pDurArray from the note's logical duration. */
 
-void SetLDurs(Document *doc,PTIME *durArray,short nInMeas,LINK startMeas,LINK endMeas);
+void SetLDurs(Document *doc, PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas);
 void SetLDurs(Document *doc, PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas)
 {
-	short v,notes;
-	LINK pL,aNoteL;
+	short v, notes;
+	LINK pL, aNoteL;
 	PANOTE aNote;
 	PTIME *pTime;
 
@@ -229,8 +227,8 @@ void SetLDurs(Document *doc, PTIME *durArray, short nInMeas, LINK startMeas, LIN
 short SetPTimes(Document *doc, PTIME *durArray, short nInMeas, SPACETIMEINFO *spTimeInfo,
 													LINK startMeas, LINK endMeas)
 {
-	short j,v,notes,nInMeasure;
-	LINK pL,aNoteL,barLastL;
+	short j, v, notes, nInMeasure;
+	LINK pL, aNoteL, barLastL;
 	PANOTE aNote;
 
 	barLastL = EndMeasSearch(doc, startMeas);
@@ -263,7 +261,8 @@ void SetLinkOwners(PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas)
 	SearchParam pbSearch;
 
 	for (v = 1; v<=MAXVOICES; v++)
-		/* ??Skipping voices that aren't in use could save a lot of time here! */
+		/* Skipping voices that aren't in use could save a lot of time here, but it's
+			probably not worth the trouble. */
 		for (notes=0, pL=startMeas; pL!=endMeas; pL=RightLINK(pL))
 			if (SyncTYPE(pL)) {
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
@@ -279,8 +278,8 @@ void SetLinkOwners(PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas)
 							if (beamL)
 								(durArray + v*nInMeas+notes)->beamL = beamL;
 						}
-						if (NoteINOCTAVA(aNoteL)) {
-							octL = LSSearch(pL,OCTAVAtype,NoteSTAFF(aNoteL),TRUE,FALSE);
+						if (NoteINOTTAVA(aNoteL)) {
+							octL = LSSearch(pL,OTTAVAtype,NoteSTAFF(aNoteL),TRUE,FALSE);
 							if (octL)
 								(durArray + v*nInMeas+notes)->octL = octL;
 						}
@@ -560,8 +559,8 @@ void LocateJITObj(Document */*doc*/, LINK pL, LINK nextL, LINK endMeasL, PTIME *
 			if (pTime->objL==nextL) {
 	
 				switch (ObjLType(pL)) {
-					case SPACEtype:
-						if (SpaceSTAFF(pL)==NoteSTAFF(pTime->newSubL))
+					case SPACERtype:
+						if (SpacerSTAFF(pL)==NoteSTAFF(pTime->newSubL))
 							newObjL = pTime->newObjL;
 						break;
 					case RPTENDtype:
@@ -794,10 +793,10 @@ void LocateJDObj(Document */*doc*/, LINK pL, LINK baseMeasL, PTIME *durArray)
 				InsertJDBefore(pL, newObjL);
 			}
 			break;
-		case OCTAVAtype:
+		case OTTAVAtype:
 			for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 				if (pTime->octL==pL) {
-					if (NoteSTAFF(pTime->newSubL)==OctavaSTAFF(pL)) {
+					if (NoteSTAFF(pTime->newSubL)==OttavaSTAFF(pL)) {
 						newObjL = pTime->newObjL;
 						break;
 					}
@@ -905,7 +904,7 @@ void DebugDurArray(short arrBound, PTIME *durArray)
 	short notes;
 
 	for (notes=0; notes<arrBound; notes++) {
-		DebugPrintf("notes=%d objL=%d newObjL=%d subL=%d newSubL=%d slurFirstL=%d tieFirstL=%d\n",
+		LogPrintf(LOG_NOTICE, "notes=%d objL=%d newObjL=%d subL=%d newSubL=%d slurFirstL=%d tieFirstL=%d\n",
 			notes, (durArray + notes)->objL,
 			(durArray + notes)->newObjL,
 			(durArray + notes)->subL,
@@ -913,13 +912,13 @@ void DebugDurArray(short arrBound, PTIME *durArray)
 			(durArray + notes)->slurFirstL,
 			(durArray + notes)->tieFirstL);
 		
-		DebugPrintf("beamL=%d mult=%d playDur=%ld pTime=%ld\n",
+		LogPrintf(LOG_NOTICE, "beamL=%d mult=%d playDur=%ld pTime=%ld\n",
 			(durArray + notes)->beamL,
 			(durArray + notes)->mult,
 			(durArray + notes)->playDur,
 			(durArray + notes)->pTime);
 	}
-	DebugPrintf("\n");
+	LogPrintf(LOG_NOTICE, "\n");
 }
 
 #endif
@@ -938,7 +937,7 @@ void RelocateObjs(Document *doc, LINK headL, LINK tailL, LINK startMeas, LINK en
 		switch (JustTYPE(pL)) {
 			case J_IT:
 				objType = ObjLType(pL);
-				if (objType==SPACEtype || objType==RPTENDtype || objType==PSMEAStype) {
+				if (objType==SPACERtype || objType==RPTENDtype || objType==PSMEAStype) {
 					for (nextSync=NILINK, qL=pL; qL; qL=RightLINK(qL))
 						if (SyncTYPE(qL)) 
 							{ nextSync = qL; break; }
@@ -1160,7 +1159,7 @@ vMap for the LocateCl functions allows determination of new voice for objects
 translated by stfDiff. */
 
 static void LocateClJITObj(Document *doc, LINK pL, LINK nextL, LINK endMeasL,
-									PTIME *durArray, short stfDiff, COPYMAP *mergeMap, short *vMap)
+							PTIME *durArray, short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
 	PTIME *pTime; LINK newObjL=NILINK,copyL;
 	
@@ -1169,8 +1168,8 @@ static void LocateClJITObj(Document *doc, LINK pL, LINK nextL, LINK endMeasL,
 			if (pTime->objL==nextL) {
 	
 				switch (ObjLType(pL)) {
-					case SPACEtype:
-						if (SpaceSTAFF(pL)+stfDiff==DNoteSTAFF(doc,pTime->newSubL))
+					case SPACERtype:
+						if (SpacerSTAFF(pL)+stfDiff==DNoteSTAFF(doc,pTime->newSubL))
 							newObjL = pTime->newObjL;
 						break;
 					case RPTENDtype:
@@ -1404,10 +1403,10 @@ static void LocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durArra
 				InstallDoc(clipboard);
 			}
 			break;
-		case OCTAVAtype:
+		case OTTAVAtype:
 			for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 				if (pTime->octL==pL) {
-					if (DNoteSTAFF(doc,pTime->newSubL)==OctavaSTAFF(pL)+stfDiff) {
+					if (DNoteSTAFF(doc,pTime->newSubL)==OttavaSTAFF(pL)+stfDiff) {
 						newObjL = pTime->newObjL;
 						break;
 					}
@@ -1534,7 +1533,7 @@ void RelocateClObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startM
 		switch (JustTYPE(pL)) {
 			case J_IT:
 				objType = ObjLType(pL);
-				if (objType==SPACEtype || objType==RPTENDtype || objType==PSMEAStype) {
+				if (objType==SPACERtype || objType==RPTENDtype || objType==PSMEAStype) {
 					for (nextSync=NILINK, qL=pL; qL && qL!=endClMeas; qL=RightLINK(qL))
 						if (SyncTYPE(qL))
 							{ nextSync = qL; break; }
@@ -1591,7 +1590,7 @@ void RelocateClGenlJDObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK 
 	InstallDoc(doc);
 }
 
-/* --------------------------------------------------- GetFirstBeam/Tuplet/Octava -- */
+/* --------------------------------------------------- GetFirstBeam/Tuplet/Ottava -- */
 /* The following functions return the first owning object in the object list for
 any of the notes in the sync argument. */
 
@@ -1629,14 +1628,14 @@ LINK GetFirstTuplet(LINK syncL)
 	return firstTuplet;
 }
 
-LINK GetFirstOctava(LINK syncL)
+LINK GetFirstOttava(LINK syncL)
 {
 	LINK octL, firstOct=NILINK, aNoteL;
 	
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
-		if (NoteINOCTAVA(aNoteL)) {
-			octL = LSSearch(syncL, OCTAVAtype, NoteSTAFF(aNoteL), TRUE, FALSE);
+		if (NoteINOTTAVA(aNoteL)) {
+			octL = LSSearch(syncL, OTTAVAtype, NoteSTAFF(aNoteL), TRUE, FALSE);
 			if (firstOct) {
 				if (IsAfterIncl(octL, firstOct))
 					firstOct = octL;
@@ -1690,7 +1689,7 @@ LINK GetFirstSlur(PTIME *durArray)
 
 /* ----------------------------------------------------------------- GetBaseLink -- */
 /* Get the correct base link from which to fix up pointers at the end of 
-RearrangeNotes. If the first sync in the selection range is beamed/in Octava/
+RearrangeNotes. If the first sync in the selection range is beamed/in Ottava/
 in Tuplet, the owning object could be anywhere prior to the selection range; 
 find it and return it; else return the startMeas. As of v. 3.0, this is unused. */
 
@@ -1720,10 +1719,10 @@ LINK GetBaseLink(Document *doc, short type, LINK startMeasL)
 						return startMeasL;
 				}
 			return startMeasL;
-		case OCTAVAtype:
+		case OTTAVAtype:
 			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
-				if (NoteINOCTAVA(aNoteL)) {
-					if (octL = GetFirstOctava(syncL))
+				if (NoteINOTTAVA(aNoteL)) {
+					if (octL = GetFirstOttava(syncL))
 						return (IsAfterIncl(octL, startMeasL) ? octL : startMeasL);
 					else
 						return startMeasL;
@@ -1817,8 +1816,8 @@ static void FixGRDrawLinks(LINK graphicL, PTIME *durArray)
 	lastL = GraphicLASTOBJ(graphicL);
 	if (!(SyncTYPE(firstL) || GRSyncTYPE(firstL))
 	||  !(SyncTYPE(lastL) || GRSyncTYPE(lastL)) )
-		MayErrMsg("FixGRDrawLinks: firstObj=%ld or lastObj=%ld isn't a Sync or a GRSync.",
-					(long)firstL, (long)lastL);
+		MayErrMsg("FixGRDrawLinks: for %d, firstObj=%d and/or lastObj=%d isn't a Sync or a GRSync.",
+					graphicL, firstL, lastL);
 	
 	for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 		if (firstL==pTime->objL)
@@ -1831,14 +1830,14 @@ static void FixGRDrawLinks(LINK graphicL, PTIME *durArray)
 				{ lastL = pTime->newObjL; break; }
 }
 
-/* ----------------------------------------------------------------- FixNBJDPtrs -- */
-/* Use the durArray to update slur's firstSyncL and lastSyncL fields for
-all slurs in the range [startL, endL). Really deals with links, not "ptrs"!
-If the spareFlag of the object is set, then the object was copied from the
-clipboard; mergeMap will be used to update its ptrs after all measures are
-copied in. ??I SERIOUSLY DOUBT THIS COMMENT IS ACCURATE. */
 
-void FixNBJDPtrs(LINK startL, LINK endL, PTIME *durArray)
+/* ----------------------------------------------------------------- FixNBJDLinks -- */
+/* Use the durArray to update slur's firstSyncL and lastSyncL fields for all slurs
+in the range [startL, endL). If the spareFlag of the object is set, then the object
+was copied from the clipboard; mergeMap will be used to update its ptrs after all
+measures are copied in. FIXME: I SERIOUSLY DOUBT THAT COMMENT IS ACCURATE.  --DAB */
+
+void FixNBJDLinks(LINK startL, LINK endL, PTIME *durArray)
 {
 	LINK pL;
 	
@@ -1879,12 +1878,12 @@ void FixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray,
 
 	FixAllBeamLinks(doc, doc, firstSysL, endMeas);
 	
-	/* Rules are not clearly stated in FixGroupsMenu,NTypes.h, or DoOctava
-		for Octavas. Assuming we do not have crossSys Octavas. Must update
-		all Octavas which can have octNotes in the measure; Octavas located
+	/* Rules are not clearly stated in FixGroupsMenu,NTypes.h, or DoOttava
+		for Ottavas. Assuming we do not have crossSys Ottavas. Must update
+		all Ottavas which can have octNotes in the measure; Ottavas located
 		after endMeas are guaranteed to have none. */
 	
-	FixOctavaLinks(doc, doc, sysL, endMeas);
+	FixOttavaLinks(doc, doc, sysL, endMeas);
 
 	/* Tuplets must begin and end in the same measure. */
 
@@ -1892,11 +1891,11 @@ void FixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray,
 
 	/* NBJD objects which start before and end in the measure being processed
 		will remain in place in the object list, and their firstSyncL/firstObjL
-		will remain valid across the operation. This call to FixNBJDPtrs will
+		will remain valid across the operation. This call to FixNBJDLinks will
 		properly update their lastSyncL/lastObjL field. */
 
 	firstMeasL = SSearch(doc->headL,MEASUREtype,GO_RIGHT);
-	FixNBJDPtrs(firstMeasL, doc->tailL, durArray);
+	FixNBJDLinks(firstMeasL, doc->tailL, durArray);
 }
 
 
@@ -1987,11 +1986,11 @@ static void FixStaffn(LINK pL, short stfDiff)
 		case TUPLETtype:
 			TupletSTAFF(pL) += stfDiff;
 			break;
-		case OCTAVAtype:
-			OctavaSTAFF(pL) += stfDiff;
+		case OTTAVAtype:
+			OttavaSTAFF(pL) += stfDiff;
 			break;
-		case SPACEtype:
-			SpaceSTAFF(pL) += stfDiff;
+		case SPACERtype:
+			SpacerSTAFF(pL) += stfDiff;
 			break;
 		case TEMPOtype:
 			TempoSTAFF(pL) += stfDiff;

@@ -1,17 +1,15 @@
 /***************************************************************************
-*	FILE:	DrawUtils.c																			*
-*	PROJ:	Nightingale, rev. for v.3.5													*
-*	DESC:	Drawing utility routines														*
+*	FILE:	DrawUtils.c
+*	PROJ:	Nightingale
+*	DESC:	Drawing utility routines
 ****************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -32,7 +30,7 @@ short GetSmallerRSize(short rSize)
 {
 	switch (rSize) {
 		case 0:
-			return 1;	/* ??Incorrect if rastral 0 has been defined <= to rastral 1! */
+			return 1;	/* FIXME: Incorrect if rastral 0 has been defined <= to rastral 1! */
 		case 1:
 			return 2;
 		case 2:
@@ -64,11 +62,8 @@ Rect ContextedObjRect(Document *doc, LINK pL, short staff, PCONTEXT pContext)
 }
 
 
-/* In the following functions, character and string argument types are certainly not
-what you'd expect or like. On the other hand, the Mac toolbox routines aren't either:
-according to QuickdrawText.h in Universal Interfaces 2.1, DrawChar takes a short;
-DrawString takes a ConstStr255Param--and THINK Reference gives other types! ??This
-all works, so I guess it's OK for now. */
+/* Beware: In the following functions, character and string argument types are certainly
+not all what you'd expect or like. */
 
 /* -------------------------------------------------------------- DrawPaddedChar -- */
 /* Draw the given character with several blanks of padding. This is to alleviate
@@ -193,9 +188,9 @@ bigger than a dot in a colon, so we also reduce the font size temporarily. */
 
 void DrawMColon(Document *doc, Boolean italic, Boolean dim, DDIST lnSpace)
 {
-	short		oldSize, colonSize, xoffset, yoffset;
-	Point		pt;
-	Byte		glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
+	short	oldSize, colonSize, xoffset, yoffset;
+	Point	pt;
+	Byte	glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	oldSize = GetPortTxSize();
 	colonSize = oldSize/2;
@@ -387,7 +382,7 @@ void GetClefDrawInfo(
 			break;
 	}
 		
-	/* ?? Note that these are obsolete with new music font scheme.   -JGG */
+	/* FIXME: Note that these are obsolete with new music font scheme.   -JGG */
 	switch (aClef->subType) {
 		case TREBLE8_CLEF:
 		case TREBLE_CLEF:
@@ -521,7 +516,7 @@ is contained in subObject; LinkXD(pL) is set to 0 inside NewObjPrepare. */
 						(long)DynamType(pL), pL);
 	}
 	
-/* ??Is this really necessary? See DrawDYNAMIC. */
+/* FIXME: Is this really necessary? See DrawDYNAMIC. */
 	if (outputTo!=toPostScript)
 		TextSize(UseMTextSize(pContext->fontSize, doc->magnify));
 }
@@ -533,14 +528,14 @@ void GetRptEndDrawInfo(
 			LINK aRptL,
 			CONTEXT context[],
 			DDIST *xd, DDIST *yd,
-			Rect	*rSub
+			Rect *rSub
 			)
 {
 	PRPTEND	p;
 	PARPTEND aRpt;
-	short 	staff, lWidth, rWidth;
+	short staff, lWidth, rWidth;
 	PCONTEXT pContext;
-	DDIST		dTop, dLeft, dBottom;
+	DDIST dTop, dLeft, dBottom;
 	
 	p = GetPRPTEND(pL);
 	switch (p->subType) {
@@ -1197,20 +1192,21 @@ short GetRestDrawInfo(Document *doc,
 provides information necessary to draw a specififed note modifier. Returns TRUE if
 <code> is legal, else FALSE.
 
-N.B. The PostScript fingerings are smaller than the bitmapped ones; the PostScript
-circle is larger than the minute bitmapped one. Check both PostScript and bitmapped
-chars. before adjusting sizes! Of course, this procedure could also return different
-values depending on <outputTo> (and the bitmapped circle is so small, that'd be a
-good idea for it). */
+NB: In the Sonata font, The PostScript fingerings are smaller than the bitmapped ones;
+the PostScript circle is larger than the tiny bitmapped one. Check both PostScript and
+bitmapped chars. before adjusting sizes! Of course, this procedure could also return
+different values depending on <outputTo> (and the bitmapped circle is so small, that
+might be a good idea for it). But none of this may be true for other fonts, even
+Sonata compatible fonts. Oh well. */
 
 Boolean GetModNRInfo(
-				short		code,
-				short		noteType,
+				short code,
+				short noteType,
 				Boolean	small,						/* TRUE=note/rest modNR is attached to is small */
 				Boolean	above,						/* TRUE=modNR is above its note/rest */
 				unsigned char *glyph,				/* Blank=not a char. in music font, else the char. */
-				short		*xOffset, short *yOffset, /* in eighth-spaces */
-				short		*sizePct
+				short *xOffset, short *yOffset,		/* in eighth-spaces */
+				short *sizePct
 				)
 {
 	short xOff, yOff;
@@ -2187,7 +2183,7 @@ void MaySetPSMusSize(Document *doc, PCONTEXT pContext)
 			PS_MusSize(doc, d2pt(stfHeight)+config.musFontSizeOffset);			
 		}
 		
-		DebugPrintf("MaySetPSMusSize: calling PS_MusSize, stfHt %ld, musFontSzOffst %ld\n", pContext->staffHeight,
+		LogPrintf(LOG_NOTICE, "MaySetPSMusSize: calling PS_MusSize, stfHt %ld, musFontSzOffst %ld\n", pContext->staffHeight,
 																						config.musFontSizeOffset);		
 	}
 }

@@ -1,17 +1,15 @@
 /***************************************************************************
-*	FILE:	DrawHighLevel.c																	*
-*	PROJ:	Nightingale, rev. for v.99														*
-*	DESC:	Routines	for drawing object-list ranges									*
+*	FILE:	DrawHighLevel.c
+*	PROJ:	Nightingale
+*	DESC:	Routines for drawing object-list ranges
 ***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -29,9 +27,9 @@ static void SetMusicPort(Document *);
 /* ---------------------------------------------------------------- FrameSysRect -- */
 
 void FrameSysRect(
-					Rect *r,
-					Boolean /*solid*/			/* unused */
-					)
+			Rect *r,
+			Boolean /*solid*/			/* unused */
+			)
 {
 	PenPat(NGetQDGlobalsBlack());
 	FrameRect(r);
@@ -210,7 +208,7 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 														|| outputTo!=toScreen)
 					drawAll = TRUE;
 				else
-					drawAll = FALSE;		/* draw only spanning objects in this measure */
+					drawAll = FALSE;					/* Draw only spanning objects in this measure */
 				break;
 			case PSMEAStype:
 				if (VISIBLE(pL) && drawAll) DrawPSMEAS(doc, pL, context);
@@ -246,11 +244,11 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTUPLET(doc, pL, context);
 				break;
-			case OCTAVAtype:
+			case OTTAVAtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
-						DrawOCTAVA(doc, pL, context);
+						DrawOTTAVA(doc, pL, context);
 				break;
 			case DYNAMtype:
 				if (VISIBLE(pL))
@@ -282,8 +280,8 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTEMPO(doc, pL, context, TRUE);
 				break;
-			case SPACEtype:
-				if (VISIBLE(pL) && drawAll) DrawSPACE(doc, pL, context);
+			case SPACERtype:
+				if (VISIBLE(pL) && drawAll) DrawSPACER(doc, pL, context);
 				break;
 			case SLURtype:
 				if (VISIBLE(pL))
@@ -344,14 +342,14 @@ grayPage:
 
 
 static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[],
-									Rect *paper, Rect *updateRect)
+								Rect *paper, Rect *updateRect)
 {
 	LINK		pL, measL;
 	PSYSTEM 	pSystem;
-	PMEASURE pMeasure;
+	PMEASURE	pMeasure;
 	Rect 		r,result,
 				paperUpdate;			/* Paper-relative update rect */
-	Boolean	drawAll=TRUE;			/* FALSE if we're only drawing measure-spanning objects */
+	Boolean		drawAll=TRUE;			/* FALSE if we're drawing only measure-spanning objects */
 	
 	paperUpdate = *updateRect;
 	OffsetRect(&paperUpdate,-paper->left,-paper->top);
@@ -397,7 +395,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				drawAll = TRUE;
 				break;
 			case CONNECTtype:
-				if (VISIBLE(pL)) DrawCONNECT(doc, pL, context, TOPSYS_STAFF);	/* ??BACKGROUND_STAFF?? */
+				if (VISIBLE(pL)) DrawCONNECT(doc, pL, context, TOPSYS_STAFF);	/* FIXME: BACKGROUND_STAFF?? */
 				break;
 			case MEASUREtype:
 				if (CheckZoom(doc)) return;				/* Each measure, look for zoom box hit */
@@ -408,7 +406,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 														|| outputTo!=toScreen)
 					drawAll = TRUE;
 				else
-					drawAll = FALSE;		/* draw only spanning objects in this measure */	
+					drawAll = FALSE;					/* Draw only spanning objects in this measure */	
 				break;
 			case PSMEAStype:
 				if (VISIBLE(pL) && drawAll) DrawPSMEAS(doc, pL, context);
@@ -423,6 +421,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				if (VISIBLE(pL) && drawAll) DrawTIMESIG(doc, pL, context);
 				break;
 			case SYNCtype:
+				//LogPrintf(LOG_NOTICE, "DrawScoreRange <DrawSYNC: pL=%d visible=%d drawAll=%d\n", pL, VISIBLE(pL), drawAll);
 				if (VISIBLE(pL) && drawAll) DrawSYNC(doc, pL, context);
 				break;
 			case GRSYNCtype:
@@ -444,11 +443,11 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTUPLET(doc, pL, context);
 				break;
-			case OCTAVAtype:
+			case OTTAVAtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
-						DrawOCTAVA(doc, pL, context);
+						DrawOTTAVA(doc, pL, context);
 				break;
 			case DYNAMtype:
 				if (VISIBLE(pL))
@@ -480,13 +479,13 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTEMPO(doc, pL, context, TRUE);
 				break;
-			case SPACEtype:
-				if (VISIBLE(pL) && drawAll) DrawSPACE(doc, pL, context);
+			case SPACERtype:
+				if (VISIBLE(pL) && drawAll) DrawSPACER(doc, pL, context);
 				break;
 			case SLURtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-											|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawSLUR(doc, pL, context);
 				break;
 			default:
@@ -561,7 +560,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 				pMeas = GetPMEASURE(pL);
 				if (SectRect(&pMeas->measureBBox,&paperUpdate,&result) || outputTo!=toScreen)
 						drawAll = TRUE;
-				else	drawAll = FALSE;						/* draw only spanning objects in this measure */
+				else	drawAll = FALSE;				/* Draw only spanning objects in this measure */
 				break;
 			case PSMEAStype:
 				if (VISIBLE(pL) && drawAll)
@@ -610,12 +609,12 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 						if (LinkSEL(pL))
 							CheckTUPLET(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 				break;
-			case OCTAVAtype:
+			case OTTAVAtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL) ||
 							SectRect(&LinkOBJRECT(pL),&paperUpdate,&result))
 						if (LinkSEL(pL))
-							CheckOCTAVA(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
+							CheckOTTAVA(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 				break;
 			case DYNAMtype:
 				if (VISIBLE(pL))
@@ -652,10 +651,10 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 						if (LinkSEL(pL))
 							CheckTEMPO(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 				break;
-			case SPACEtype:
+			case SPACERtype:
 				if (VISIBLE(pL) && drawAll)
 					if (LinkSEL(pL))
-						CheckSPACE(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
+						CheckSPACER(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 				break;
 			case SLURtype:
 				if (VISIBLE(pL))

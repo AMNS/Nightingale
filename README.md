@@ -3,10 +3,19 @@ Nightingale
 
 Development environment requirements
 ------------------------------------
-* MacOS version 10.6 
- - should work on version 10.4 or 10.5, too, but only version 10.6 has been tested
+Downloads require an Apple Developer account; they should not require a paid iOS or MacOS subscription.
+ - NB: when installing Xcode/Developer Tools, be sure the MacOS 10.4 SDK installation option is selected; it may not be selected by default.
+
+* MacOS version 10.5
+ - Xcode version 2.5 with MacOS 10.4 SDK and GCC version 4.0 support added
+ - should work on version 10.4 too, but only version 10.5 has been tested
+
+* MacOS version 10.6
  - will not work on versions >= 10.7, due to PPC / Rosetta dependencies
-* Xcode version 4.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added 
+ - Xcode version 3.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added
+* The following environment _may_ work; it did for one person (Geoff C.), but another (Don B.) was unable to set it up (note the kludgy instructions!):
+
+* MacOS version 10.6; Xcode version 4.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added 
  - Specifically, this is a hybrid of [Xcode 4.2 for MacOS 10.6] (http://adcdownload.apple.com//Developer_Tools/xcode_4.2_for_snow_leopard/xcode_4.2_for_snow_leopard.dmg)
  with [Xcode 3.2's for MacOS 10.6](http://adcdownload.apple.com//Developer_Tools/xcode_3.2.6_and_ios_sdk_4.3__final/xcode_3.2.6_and_ios_sdk_4.3.dmg) SDKs.
  Following [these instructions] (http://stackoverflow.com/questions/5333490/how-can-we-restore-ppc-ppc64-as-well-as-full-10-4-10-5-sdk-support-to-xcode-4
@@ -19,26 +28,28 @@ chmod 744 restore-with-xcode3.sh
 curl -O https://raw.github.com/thinkyhead/Legacy-XCode-Scripts/master/restore-with-xcode4.sh
 ```
 
-The last "curl" may fail, but it seems to result in Xcode 4.2 doing what we want.
+The last "curl" may fail, but (for one person) resulted in Xcode 4.2 doing what we want.
 
-Downloads require an Apple Developer account; they may also require either a paid iOS or MacOS subscription.
- - also works with Xcode version 3.2.2
- - should work with version 2.4 or better, but only versions 4.2 and 3.2.2 have been tested
- - NB: when installing Xcode/Developer Tools, be sure MacOS 10.4 SDK installation option is selected; it may not be selected by default.
 
 Debugging
 ---------
-It's not currently possible to attach a debugger on an Intel machine (due to Rosetta translation requirements).  It should be possible to debug on a PPC machine.
+It's probably not possible to attach a debugger on an Intel machine (due to Rosetta translation requirements).  It should be possible to debug on a PPC machine.
 
-XCode puts debug build products in a directory like:
+Xcode 2.x and 3.x put debug build products in a directory like:
+
+~/NightingaleDev/build/Debug
+
+XCode 4.x and above puts debug build products in a directory like:
 
 `~/Library/Developer/Xcode/DerivedData/Nightingale-dghtzivoyrfkjudiupfaqdqicrev/Build/Products/Debug/`
 
-This can be found using:
+(The latter can be found (in a terminal window, of course) using:
 
 `find ~/* -name Nightingale.app`
 
-And run like:
+...or -- probably much faster! -- by command-clicking on "Nightingale" at the bottom in the folder view (leftmost icon(?)) of the project, then using the path to that directory in a "cd" command.)
+
+It can be run like:
 
 `open -a ~/Library/.../Build/Products/Debug/Nightingale.app`
 
@@ -46,6 +57,7 @@ or simply:
 
 `Nightingale.app/Contents/MacOS/Nightingale`
 
-The latter is helpful, since stderr/out will be printed to the command line.
+The latter is somewhat helpful, since stderr/out will be printed to the command line. But either way, logging information will be written to system.log, which can be viewed with the Console utility.
 
+NB: The same logging information will appear in system.log even when a normal (non-debug) build of Nightingale is run in the standard way, via opening the icon in the Finder.
 

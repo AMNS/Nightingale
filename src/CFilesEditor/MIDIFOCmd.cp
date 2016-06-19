@@ -1,13 +1,11 @@
 /*	MIDIFOCmd.c for Nightingale: user interface for opening Standard MIDI Files */
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- *	THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROPERTY OF
- *	ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE SECRET AND IS
- *	NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED WRITTEN
- *	AUTHORIZATION FROM THE OWNER.
- *
- *	Copyright ©1992-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -22,18 +20,17 @@ extern long eofpos;
 #define MAXTRACKS (MAXSTAVES+1)			/* So we can open any file we save: need 1 extra for timing track */
 
 extern Word nTracks, timeBase;
-extern long qtrNTicks;						/* Ticks per quarter in Nightingale (NOT in the file!) */
+extern long qtrNTicks;					/* Ticks per quarter in Nightingale (NOT in the file!) */
 
-extern Byte *pChunkMF;						/* MIDI file track pointer */
-extern Word lenMF;							/* MIDI file track length */
-extern DoubleWord locMF;					/* MIDI file track current position */
+extern Byte *pChunkMF;					/* MIDI file track pointer */
+extern Word lenMF;						/* MIDI file track length */
+extern DoubleWord locMF;				/* MIDI file track current position */
 
 #ifndef MAXINPUTTYPE
 #define MAXINPUTTYPE	4
 #endif
 
 static OSType typelist[MAXINPUTTYPE] = {'MIDD','MID2', '    ', '    '};
-//static SFReply reply;						/*  filename points to reply, always a P string */
 static Word vRefNum;
 static unsigned char *filename;
 
@@ -80,7 +77,7 @@ static void DMFDrawLine(char *s)
 			*q = (*p=='\t'? ' ' : *p);
 			p++; q++;
 		}
-		*q = '\0'; DebugPrintf(aStr); DebugPrintf("\n");
+		*q = '\0'; LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
 	}
 #endif
 
@@ -713,7 +710,7 @@ Boolean GetMIDIFileInfo(
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
 #ifndef PUBLIC_VERSION
-DebugPrintf("Problem note (track %d, after %d notes): note no.=track[%ld]=%d\n",
+LogPrintf(LOG_NOTICE, "Problem note (track %d, after %d notes): note no.=track[%ld]=%d\n",
 t, nTrackNotes[t], locMF-2, pChunkMF[locMF-2]);
 #endif
 		}
@@ -780,7 +777,7 @@ static Boolean CheckAndConsult(
 	/* Tell user what we found and ask them what to do now. */
 	
 #ifndef PUBLIC_VERSION
-DebugPrintf("lastEvent=%ld\n", *pLastEvent);
+LogPrintf(LOG_NOTICE, "lastEvent=%ld\n", *pLastEvent);
 #endif
 	return TranscribeMFDialog(trackInfo, nTrackNotes, nTooLong, chanUsed, qTrLDur,
 										qTrTriplets, lastTrEvent, nNotes, nGoodTrs, qAllLDur,
@@ -860,7 +857,7 @@ static Boolean OpenMIDIFile()
 			}
 #ifndef PUBLIC_VERSION
 			if (ShiftKeyDown() && CmdKeyDown()) {
-				DebugPrintf("MTrk(%d) lenMF=%d:\n", t, lenMF);
+				LogPrintf(LOG_NOTICE, "MTrk(%d) lenMF=%d:\n", t, lenMF);
 				DHexDump(pChunkMF, (lenMF>50L? 50L : lenMF), 5, 20);
 			}
 #endif
@@ -869,7 +866,7 @@ static Boolean OpenMIDIFile()
 				len = MF2MIDNight(&pChunk);
 #ifndef PUBLIC_VERSION
 				if (ShiftKeyDown() && CmdKeyDown()) {
-					DebugPrintf("MTrk(%d) MIDNightLen=%d:\n", t, len);
+					LogPrintf(LOG_NOTICE, "MTrk(%d) MIDNightLen=%d:\n", t, len);
 					DHexDump(pChunk, (len>50L? 50L : len), 5, 20);
 				}
 #endif

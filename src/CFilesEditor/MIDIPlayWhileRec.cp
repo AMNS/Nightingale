@@ -5,6 +5,14 @@ recording - formerly in MIDIRecord.c.
 		RecPlayNotes
 */
 
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
+ *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ */
+
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
@@ -158,20 +166,20 @@ static Boolean BIMIDIAddNote(short noteNum, short channel, long startTime, long 
 pascal void DBGMidiOut(short Midibyte, long TimeStamp, short * Result);
 pascal void DBGMidiOut(short Midibyte, long TimeStamp, short * Result)
 {
-DebugPrintf("voidDBGMidiOut(0x%x, %ld)\n", Midibyte, TimeStamp);
+LogPrintf(LOG_NOTICE, "voidDBGMidiOut(0x%x, %ld)\n", Midibyte, TimeStamp);
 	MidiOut(Midibyte, TimeStamp, Result);
 }
 #define MidiOut DBGMidiOut
 #endif
 
-#define MAX_TCONVERT 100							/* Max. no. of tempo changes we handle */
+#define MAX_TCONVERT 100						/* Max. no. of tempo changes we handle */
 #define PLAY_CRITERION TRUE						/* Someday may change for, e.g., punch in/out */
 
 /* Add to the play-while-recording buffer Note On and Note Off (or velocity zero Note
 On) events for all the notes we might have to play. */
 
 static void RecPlayAddAllNotes(Document *doc, LINK fromL, LINK toL, TCONVERT tConvertTab[],
-										short tempoCount, long toffset)
+									short tempoCount, long toffset)
 {
 	SignedByte	partVelo[MAXSTAVES];
 	Byte			partChannel[MAXSTAVES];
@@ -180,13 +188,13 @@ static void RecPlayAddAllNotes(Document *doc, LINK fromL, LINK toL, TCONVERT tCo
 	short			useNoteNum,
 					useChan, useVelo;
 	LINK			pL, measL, aNoteL;
-	long			playDur,										/* in PDUR ticks */
+	long			playDur,								/* in PDUR ticks */
 					plStartTime, plEndTime,					/* in PDUR ticks */
 					startTime, endTime;						/* in milliseconds */
 	
 	GetPartPlayInfo(doc, partTransp, partChannel, channelPatch, partVelo);
 
-	measL = SSearch(fromL, MEASUREtype, GO_LEFT);						/* starting measure */
+	measL = SSearch(fromL, MEASUREtype, GO_LEFT);					/* starting measure */
 
 	for (pL = fromL; pL!=toL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {

@@ -1,18 +1,16 @@
 /***************************************************************************
-*	FILE:	FileInput.c																			*
-*	PROJ:	Nightingale, small rev. for v 3.5											*
-*	DESC:	Routines for creating Nightingale objects via file input or			*
-*			AppleScript, rather than mouse input. Written by John Gibson.		*
+*	FILE:	FileInput.c
+*	PROJ:	Nightingale
+*	DESC:	Routines for creating Nightingale objects via file input or
+*			AppleScript, rather than mouse input. Written by John Gibson.
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1996-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -683,30 +681,30 @@ PushLock(OBJheap);
 	pTempo->staffn = staffn;
 	pTempo->subType = durCode;
 	pTempo->dotted = dotted;
-	pTempo->small = FALSE;
+	pTempo->noMM = FALSE;
 	pTempo->filler = 0;
 	pTempo->hideMM = hideMM;
 	pTempo->firstObjL = anchorL;
 	
 	CToPString(tempoStr);
-	pTempo->string = PStore((unsigned char *)tempoStr);
+	pTempo->strOffset = PStore((unsigned char *)tempoStr);
 
 	CToPString(metroStr);	
-	pTempo->metroStr = PStore((unsigned char *)metroStr);
+	pTempo->metroStrOffset = PStore((unsigned char *)metroStr);
 	
-	if (pTempo->string<0L || pTempo->metroStr<0L) {
+	if (pTempo->strOffset<0L || pTempo->metroStrOffset<0L) {
 		NoMoreMemory();
 		tempoL = NILINK;
 	}
-	else if (pTempo->string>GetHandleSize((Handle)doc->stringPool)
-		  || pTempo->metroStr>GetHandleSize((Handle)doc->stringPool)) {
-		MayErrMsg("FIInsertTempo: PStore error. string=%ld metroStr=%ld",
-					pTempo->string, pTempo->metroStr);
+	else if (pTempo->strOffset>GetHandleSize((Handle)doc->stringPool)
+		  || pTempo->metroStrOffset>GetHandleSize((Handle)doc->stringPool)) {
+		MayErrMsg("FIInsertTempo: PStore error. strOffset=%ld metroStrOffset=%ld",
+					pTempo->strOffset, pTempo->metroStrOffset);
 		tempoL = NILINK;
 	}
 	beatsPM = FindIntInString((unsigned char *)metroStr);
-	if (beatsPM<0L) beatsPM = config.defaultTempo;
-	pTempo->tempo = beatsPM;
+	if (beatsPM<0L) beatsPM = config.defaultTempoMM;
+	pTempo->tempoMM = beatsPM;
 PopLock(OBJheap);
 	
 	return tempoL;
@@ -1066,15 +1064,15 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 
 
 /* ----------------------------------------------------------------- AnchorSearch -- */
-/*	Given a Dynamic, Graphic, Octava, Tempo or Ending, return the closest 
+/*	Given a Dynamic, Graphic, Ottava, Tempo or Ending, return the closest 
 	(in the data structure) eligible anchor symbol, else return NILINK.
 	
 	<dependentL> type			eligible anchor types
 	-----------------------------------------------------------
 	DYNAMtype					SYNCtype
 	GRAPHICtype					SYNCtype, RPTENDtype, PAGEtype, MEASUREtype, CLEFtype,
-									KEYSIGtype, TIMESIGtype, SPACEtype, PSMEAStype
-	OCTAVAtype					SYNCtype, GRSYNCtype
+									KEYSIGtype, TIMESIGtype, SPACERtype, PSMEAStype
+	OTTAVAtype					SYNCtype, GRSYNCtype
 [	SLURtype						SYNCtype, SYSTEMtype --slurs and tuplets not handled here]
 [	TUPLETtype					SYNCtype ]
 	TEMPOtype					SYNCtype, RPTENDtype, MEASUREtype, CLEFtype, KEYSIGtype,
@@ -1112,8 +1110,8 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 			if (staff==NOONE && iVoice==NOONE)
 				return SSearch(LeftLINK(dependentL), PAGEtype, GO_LEFT);
 			break;
-		case OCTAVAtype:
-			staff = OctavaSTAFF(dependentL);
+		case OTTAVAtype:
+			staff = OttavaSTAFF(dependentL);
 			break;
 		case TEMPOtype:
 			staff = TempoSTAFF(dependentL);
@@ -1160,11 +1158,11 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 						return pL;
 				break;
 			case GRSYNCtype:
-				if (dType==OCTAVAtype && GRNoteOnStaff(pL, staff))
+				if (dType==OTTAVAtype && GRNoteOnStaff(pL, staff))
 					return pL;
 				break;
-			case SPACEtype:
-				if (dType==GRAPHICtype && SpaceSTAFF(pL)==staff)
+			case SPACERtype:
+				if (dType==GRAPHICtype && SpacerSTAFF(pL)==staff)
 					return pL;
 				break;
 			case PSMEAStype:

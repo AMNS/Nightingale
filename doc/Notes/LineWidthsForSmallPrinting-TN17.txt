@@ -1,0 +1,15 @@
+LINEWIDTHS FOR PRINTING AND DISPLAY IN SMALL SIZES
+DAB, mid March 2016
+
+Nightingale's standard (default) PostScript printing line widths are too thin to reproduce well when the page is reproduced in a very small size -- for example, to fit in one column of a two-column page on letter-size or A4 paper, where a page is reduced in width to about 3 inches. These line widths can be set via the Engraver Prefs dialog. The defaults and reasonable values for a 3-inch wide page are:
+
+				Default	For small
+----------------------------------
+Stems			8		12
+Barlines		10		15
+Ledger lines	13		20
+Staff lines		8		12		
+Slurs/ties		30		40
+
+A number of other PostScript printing line widths may need adjusting, but can be
+only by editing the "Nightingale AMNF Prefs" file, not with the Engraver Prefs dialog.

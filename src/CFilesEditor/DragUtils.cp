@@ -1,17 +1,15 @@
 /***************************************************************************
-*	FILE:	DragUtils.c																			*
-*	PROJ:	Nightingale, rev. for v.3.1													*
-*	DESC:	Bitmap dragging utilities														*
+*	FILE:	DragUtils.c
+*	PROJ:	Nightingale
+*	DESC:	Bitmap dragging utilities
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1992-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -605,9 +603,9 @@ Rect SDGetMeasRect(Document *doc, LINK pL, LINK measL)
 			else
 				mRect = GetMeasRect(doc, measL);
 			break;
-		case OCTAVAtype:
-			firstMeasL = LSSearch(FirstInOctava(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-			lastMeasL = LSSearch(LastInOctava(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+		case OTTAVAtype:
+			firstMeasL = LSSearch(FirstInOttava(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+			lastMeasL = LSSearch(LastInOttava(pL), MEASUREtype, 1, GO_LEFT, FALSE);
 			if (firstMeasL!=lastMeasL)
 				mRect = Get2MeasRect(doc, firstMeasL, lastMeasL);
 			else
@@ -973,9 +971,9 @@ void SDCleanUp(
 			case BEAMSETtype:
 				InvalMeasures(FirstInBeam(pL), LastInBeam(pL), ANYONE);
 				break;
-			case OCTAVAtype:
+			case OTTAVAtype:
 				SDInvalObjRects(doc, pL, xdDiff, ydDiff, 1);
-				InvalMeasures(FirstInOctava(pL), LastInOctava(pL), ANYONE);
+				InvalMeasures(FirstInOttava(pL), LastInOttava(pL), ANYONE);
 				break;
 			case TUPLETtype:
 				SDInvalObjRects(doc, pL, xdDiff, ydDiff, 1);

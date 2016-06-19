@@ -1,25 +1,22 @@
 /***************************************************************************
 	FILE:	NotelistParse.c
-	PROJ:	Nightingale, rev. for v.2000
+	PROJ:	Nightingale
 	DESC:	Routines for parsing files in Nightingale's Notelist format into
-			a temporary data structure.
-			Written by John Gibson.
+			a temporary data structure. Written by John Gibson.
 			For a full description of the original Notelist format, see "The
 			Nightingale Notelist" by Tim Crawford et al, in E. Selfridge-Field,
 			ed., Beyond MIDI: The Handbook of Musical Codes (MIT Press, 1997).
-			The format documented there is as of v. 3.0A. As of v. 2001, changes
-			have been relatively minor: see the document NotelistTechUpdate02.txt
+			The format documented there is as of v. 3.0A. Changes since then
+			have been relatively minor: see the document NotelistTechUpdate05.txt
 			for details.
 ***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1986-2002 by Adept Music Notation Solutions, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -78,8 +75,8 @@ static Boolean AllocNotelistMemory(void);
 /* Globals */
 
 PNL_NODE	gNodeList;						/* list of notelist objects, dynamically allocated */
-HNL_MOD	gHModList;						/* relocatable 1-based array of note modifiers */
-Handle	gHStringPool;					/* relocatable block of null-terminated strings */
+HNL_MOD		gHModList;						/* relocatable 1-based array of note modifiers */
+Handle		gHStringPool;					/* relocatable block of null-terminated strings */
 
 /*
 	Each string in <gHStringPool> must begin at an even address, so that we won't
@@ -90,16 +87,16 @@ Handle	gHStringPool;					/* relocatable block of null-terminated strings */
 	if not the fastest, way.)
 */
 
-NLINK			gNumNLItems;					/* number of items in notelist, not including HEAD */
-NLINK			gNextEmptyNode;				/* index into gNodeList of next empty node; advanced by each parser */
-long			gLastTime;						/* value of time field in last Notelist record */
-SignedByte	gPartStaves[MAXSTAVES+1];	/* 1-based array giving number of staves (value) in each part (index) */
+NLINK		gNumNLItems;					/* number of items in notelist, not including HEAD */
+NLINK		gNextEmptyNode;					/* index into gNodeList of next empty node; advanced by each parser */
+long		gLastTime;						/* value of time field in last Notelist record */
+SignedByte	gPartStaves[MAXSTAVES+1];		/* 1-based array giving number of staves (value) in each part (index) */
 SignedByte	gNumNLStaves;					/* number of staves in Notelist system */
-short			gFirstMNNumber;				/* number of first measure */
+short		gFirstMNNumber;					/* number of first measure */
 Boolean		gDelAccs;						/* delete redundant accidentals? */
-short			gHairpinCount;					/* number of hairpins found (and ignored) */
+short		gHairpinCount;					/* number of hairpins found (and ignored) */
 
-short			gNotelistVersion;				/* notelist format version number (>=0) */
+short		gNotelistVersion;				/* notelist format version number (>=0) */
 
 /* Codes for tempo marks. We want to restrict notelist files to ASCII characters, so
 some of these are different from the internal codes: cf. TempoGlyph(). */
@@ -303,7 +300,7 @@ static Boolean FSProcessNotelist(short refNum)
 	}
 	
 #ifndef PUBLIC_VERSION
-	DebugPrintf("Notelist file read: %ld lines.\n", gLineCount);
+	LogPrintf(LOG_NOTICE, "Notelist file read: %ld lines.\n", gLineCount);
 #endif
 	return TRUE;
 }
@@ -879,7 +876,7 @@ static Boolean ParseTempoMark()
 	else {													/* Assign a default tempo and hide it. */
 		Str255	metroStr;
 
-		NumToString(config.defaultTempo, metroStr);
+		NumToString(config.defaultTempoMM, metroStr);
 		PtoCstr(metroStr);
 		offset = StoreString((char *)metroStr);
 		if (offset)
@@ -1329,27 +1326,26 @@ see comments below), else return TRUE. */
 
 #define MAX_MODNRS 50		/* Max. modifiers per note/rest we can handle */
 
-static Boolean ExtractNoteMods(char			*modStr,
-										 PNL_NRGR	pNRGR)
+static Boolean ExtractNoteMods(char	*modStr, PNL_NRGR pNRGR)
 {
-	char		*p, *q;
-	short		modCount=0, ashort;
-	NLINK		offset = NILINK;
+	char	*p, *q;
+	short	modCount=0, ashort;
+	NLINK	offset = NILINK;
 	NL_MOD	tmpMod;
 	
-	if (strncmp(modStr, "mods=", (size_t)5))	/* it's not a mod string */
+	if (strncmp(modStr, "mods=", (size_t)5))		/* it's not a mod string */
 		return FALSE;
 	
 	pNRGR->firstMod = NILINK;
 	
 	p = strchr(modStr, '=');						/* p will point to '=' */
 	if (!p) goto broken;
-	p++;													/* advance pointer to character following '=' */
+	p++;											/* advance pointer to character following '=' */
 	
 	p = strtok(p, ",");
 	do {
 		q = strchr(p, ':');
-		if (q) {											/* there's a data field */
+		if (q) {									/* there's a data field */
 			*q++ = 0;
 			errno = 0;
 			ashort = atoi(p);
@@ -1371,7 +1367,7 @@ static Boolean ExtractNoteMods(char			*modStr,
 		tmpMod.next = NILINK;
 		
 		offset = StoreModifier(&tmpMod);
-		if (!offset) return FALSE;									/* Error message already given */
+		if (!offset) return FALSE;					/* Error message already given */
 		
 		/* If this is the first modifier, store its index (into gHModList) into
 			the owning note. Otherwise, store its index into the <next> field of the
@@ -1384,7 +1380,7 @@ static Boolean ExtractNoteMods(char			*modStr,
 		
 		p = strtok(NULL, ",");
 		modCount++;
-		if (modCount==MAX_MODNRS) break;									/* not likely */
+		if (modCount==MAX_MODNRS) break;			/* not likely */
 	} while (p);
 
 	return TRUE;
@@ -1834,7 +1830,7 @@ static short FSNotelistVersion(short refNum)
 	
 #ifndef PUBLIC_VERSION
 	GoodStrncpy(headerVerString, gInBuf, strlen(COMMENT_NLHEADER2));
-	DebugPrintf("Notelist header string='%s'\n", headerVerString);
+	LogPrintf(LOG_NOTICE, "Notelist header string='%s'\n", headerVerString);
 #endif
 
 	if (strncmp(gInBuf, COMMENT_NLHEADER0, strlen(COMMENT_NLHEADER0))==0)

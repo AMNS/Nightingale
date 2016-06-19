@@ -1,23 +1,20 @@
 /***************************************************************************
 	FILE:	MoveUpDown.c
-	PROJ:	Nightingale, rev. for v.3.1
+	PROJ:	Nightingale
 	DESC:	Routines for moving Measures and Systems logically "up" and
 			"down", i.e, from System to System or Page to Page.
 
-	InitMoveBars				FixMeasOwners			FixStartContext
+	InitMoveBars			FixMeasOwners			FixStartContext
 	CleanupMoveBars			MoveBarsUp				MoveBarsDown
-	MoveSystemUp				MoveSystemDown
+	MoveSystemUp			MoveSystemDown
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL
- * PROPERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A
- * TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE
- * NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-97 by Advanced Music Notation Systems, Inc.
- * All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -75,7 +72,7 @@ static void FixStartContext(Document *doc, LINK pL, LINK startL, LINK endL)
 		TSInfo.denominator = context.denominator;					
 		EFixContForTimeSig(startL, endL, s, TSInfo);
 
-		EFixContForDynamic(startL, endL, s, context.dynamicType, context.dynamicType);
+		EFixContForDynamic(startL, endL, s, context.dynamicType);
 	}
 }
 

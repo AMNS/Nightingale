@@ -1,20 +1,19 @@
 /*	Transcribe.c (formerly GuessDurs.c) for Nightingale - routines for quantizing and
-clarifying rhythm of unknown-duration notes in existing scores - rev. for v.3.1. */
+clarifying rhythm of unknown-duration notes in existing scores. */
 
-/*										NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- *	THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROPERTY OF
- *	ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE SECRET AND IS
- *	NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED WRITTEN
- *	AUTHORIZATION FROM THE OWNER.
- *
- *	Copyright ©1993-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
+
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#define MERGE_TAB_SIZE 2500	/* Max. syncs in table for merging into */
+#define MERGE_TAB_SIZE 2500		/* Max. syncs in table for merging into */
 #define MAX_TSCHANGE 1000		/* Max. no. of time sig. changes in area */
 
 static short measTabLen=0;
@@ -33,6 +32,7 @@ static Boolean SyncOKToQuantize(LINK);
 static Boolean GDRespAndRfmt(Document *, short, short, Boolean);
 static Boolean QuantizeSelDurs(Document *, short, Boolean);
 static Boolean QuantizeDialog(Document *, short *, Boolean *, Boolean *);
+
 
 /* ---------------------------------------------------------------- InitQuantize -- */
 /* Initialize for Voice2KnownDurs: build measInfoTab[]. */
@@ -76,9 +76,9 @@ static Boolean InitQuantize(Document *doc, Boolean merge)
 #else
 
 #define DEBUG_NOTE if (ShiftKeyDown() && OptionKeyDown())										\
-								DebugPrintf("iSync=%d %cvoice=%d [%d] noteNum=%d dur=%ld\n",	\
-								iSync, (nInChord>1? '+' : ' '), voice, nAux,							\
-								rawNoteAux[nAux].noteNumber, rawNoteAux[nAux].duration)
+						LogPrintf(LOG_NOTICE, "iSync=%d %cvoice=%d [%d] noteNum=%d dur=%ld\n",	\
+						iSync, (nInChord>1? '+' : ' '), voice, nAux,							\
+						rawNoteAux[nAux].noteNumber, rawNoteAux[nAux].duration)
 
 #endif
 
@@ -425,7 +425,7 @@ static void DelAndMoveMeasure(Document *doc, LINK measL)
 	- Between doc->selStartL and selEndL, there can only be Syncs and Measures.
 	- Every Sync in the range must be selected.
 	- The Syncs can contain only unknown-duration notes, all of them selected.
-	- The notes may not have any modifers or be beamed, slurred, tied, or in Octavas.
+	- The notes may not have any modifers or be beamed, slurred, tied, or in Ottavas.
 	- If !merge, doc->selStartL must be the first obj in a Measure, and selEndL must
 		end a Measure.
 The quantized notes will have redundant accidentals; call DelRedundantAccs to remove
@@ -533,8 +533,8 @@ static LINK QuantAllVoices(
 	postQTimeOffset = 0L;
 
 #ifndef PUBLIC_VERSION
-		DebugPrintf("quantum=%d tripBias=%d tryLev=%d leastSq=%d\n",
-			quantum, tripletBias, config.tryTupLevels, config.leastSquares);
+	LogPrintf(LOG_NOTICE, "quantum=%d tripBias=%d tryLev=%d leastSq=%d\n",
+		quantum, tripletBias, config.tryTupLevels, config.leastSquares);
 #endif
 
 	/* The range [qStartL,qEndL) now starts one before and extends to the last newly-
@@ -690,9 +690,9 @@ static void SelectRange2(Document *doc, LINK startL, LINK endL, short firstStf,
 				break;
 			case BEAMSETtype:
 			case TUPLETtype:
-			case OCTAVAtype:
+			case OTTAVAtype:
 			case ENDINGtype:
-			case SPACEtype:
+			case SPACERtype:
 			case GRAPHICtype:
 			case TEMPOtype:
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf)

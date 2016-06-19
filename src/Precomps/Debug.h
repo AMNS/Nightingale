@@ -14,7 +14,7 @@ Boolean DCheckNodeSel(Document *, LINK);
 Boolean DCheckSel(Document *, short *, short *);
 Boolean DCheckHeirarchy(Document *);
 Boolean DCheckJDOrder(Document *);
-Boolean DCheckBeams(Document *);
+Boolean DCheckBeams(Document *, Boolean);
 Boolean DCheckOctaves(Document *);
 Boolean DCheckSlurs(Document *);
 Boolean DCheckTuplets(Document *, Boolean);
@@ -41,4 +41,10 @@ void MemUsageStats(Document *);
 void DisplayIndexNode(Document *, LINK, short, short *);
 void DHexDump(unsigned char *, long, short, short);
 
+/* If we're running inside Xcode, #define'ing _DebugPrintf_ as simply _printf_ is OK:
+	then DebugPrintf output will appear in the Run Log window. But if we're not in
+	Xcode, its output seems to disappear without a trace. A better alternative is
+	the BSD function syslog(3), but using it will require some rethinking, including
+	in all probability modifying every call.
+*/
 #define DebugPrintf printf

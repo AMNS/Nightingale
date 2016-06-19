@@ -1,27 +1,25 @@
-/*									NOTICE
- *
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1989-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
- */
+/* About.c: routines for the About box, including animating the credits, etc. */
 
-/* About.c: routines for the About box, animating the credits, etc. */
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
+ *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
 /* ------------------------------------------------------------- DoAboutBox et al -- */
 
-#define	CR_LEADING				14		/* Vert. dist. between baselines of credit text */
-#define	PAUSE_CODE				'¹'	/* [opt-p] If line of TEXT resource begins with this,
-													animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
-#define	BOLD_CODE				'º'	/* [opt-b] If this begins a line of TEXT resource, or follows
-													PAUSE_CODE, that line will be drawn in bold. */
-#define	SCROLL_PAUSE_DELAY	210	/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
-#define	SCROLL_NORM_DELAY		4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
+#define	CR_LEADING			14		/* Vert. dist. between baselines of credit text */
+#define	PAUSE_CODE			'¹'		/* [opt-p] If line of TEXT resource begins with this,
+											animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
+#define	BOLD_CODE			'º'		/* [opt-b] If this begins a line of TEXT resource, or follows
+											PAUSE_CODE, that line will be drawn in bold. */
+#define	SCROLL_PAUSE_DELAY	210		/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
+#define	SCROLL_NORM_DELAY	4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
 #define	MAX_PAUSE_LINES		10		/* Max number of lines that can begin with PAUSE_CODE */
 
 static pascal Boolean	AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
@@ -47,13 +45,13 @@ void DoAboutBox(
 	Boolean /*first*/			/* Currently unused */
 	)
 {
-	short			type, itemHit, curResFile;
+	short			type, itemHit;
 	short			x, y;
 	Rect			smallRect, bigRect;
-	Boolean		okay, keepGoing=TRUE;
-	DialogPtr	dlog;
-	GrafPtr		oldPort;
-	Handle		hndl;
+	Boolean			okay, keepGoing=TRUE;
+	DialogPtr		dlog;
+	GrafPtr			oldPort;
+	Handle			hndl;
 	Rect			box;
 	char			fmtStr[256], str[256], serialStr[256], userName[256], userOrg[256];
 	ModalFilterUPP	filterUPP;
@@ -112,7 +110,7 @@ void DoAboutBox(
 	y = GetMBarHeight()+10; x = 25;
 	SetRect(&smallRect, x, y, x+2, y+2);
 	CenterWindow(GetDialogWindow(dlog), 70);
-	GetWindowPortBounds(GetDialogWindow(dlog),&bigRect);
+	GetWindowPortBounds(GetDialogWindow(dlog), &bigRect);
 	LocalToGlobal(&TOP_LEFT(bigRect));
 	LocalToGlobal(&BOT_RIGHT(bigRect));
 	//ZoomRect(&smallRect, &bigRect, TRUE);
@@ -160,10 +158,10 @@ broken:
 
 static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
-	Boolean ans=FALSE;
-	WindowPtr		w;
-	GrafPtr			oldPort;
-	int				ch;
+	Boolean		ans=FALSE;
+	WindowPtr	w;
+	GrafPtr		oldPort;
+	int			ch;
 	
 	AnimateCredits(dlog);
 	
@@ -212,10 +210,10 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 Boolean SetupCredits()
 {
 	Handle		creditText;
-	char			*textPtr, *strP, *thisStr;
-	short			numLines, lineNum, strWid, offset, pauseLineCount, i;
-	long			textLen;
-	short			portWid;
+	char		*textPtr, *strP, *thisStr;
+	short		numLines, lineNum, strWid, offset, pauseLineCount, i;
+	long		textLen;
+	short		portWid;
 	
 	/* Get credit text from TEXT resource. (Get1Resource isn't worth the trouble.) */
 	creditText = GetResource('TEXT', ABOUT_TEXT);
@@ -233,13 +231,13 @@ Boolean SetupCredits()
 	for (i=0, numLines=0; i<textLen; i++, textPtr++) {
 		if (*textPtr == CH_CR) numLines++;
 	}
-	textPtr = (char *) *creditText;						/* reset ptr */
+	textPtr = (char *) *creditText;								/* reset ptr */
 
 	SaveGWorld();
 	
 	/* Create offscreen port to hold formatted text */
 
-	portWid = creditRect.right - creditRect.left;					/* creditRect is static global declared above */
+	portWid = creditRect.right - creditRect.left;				/* creditRect is static global declared above */
 	GWorldPtr gwPtr = MakeGWorld(portWid, numLines * CR_LEADING, TRUE);
 	SetGWorld(gwPtr, NULL);
 	
@@ -259,7 +257,7 @@ Boolean SetupCredits()
 	thisStr = strP = textPtr;
 	for (i=0, lineNum=1, pauseLineCount=0; i<textLen; i++) {
 		if (*textPtr == CH_CR) {
-			*strP = '\0';													/* this string complete */
+			*strP = '\0';										/* this string complete */
 			/* Parse next line for codes */
 			if (*thisStr==PAUSE_CODE) {
 				if (pauseLineCount<=MAX_PAUSE_LINES)
@@ -267,15 +265,15 @@ Boolean SetupCredits()
 				thisStr++;
 			}
 			if (*thisStr==BOLD_CODE) {
-				TextFace(bold);											/* style is bold */
+				TextFace(bold);									/* style is bold */
 				thisStr++;
 			}
-			else TextFace(0);												/* style is plain */
+			else TextFace(0);									/* style is plain */
 			strWid = TextWidth(thisStr, 0, strlen(thisStr));	/* compute position for centered text */
 			offset = (portWid - strWid) / 2;
-			MoveTo(offset, lineNum * CR_LEADING);					/* draw text */
+			MoveTo(offset, lineNum * CR_LEADING);				/* draw text */
 			DrawText(thisStr, 0, strlen(thisStr));
-			lineNum++;														/* advance line number */
+			lineNum++;											/* advance line number */
 			thisStr = strP = ++textPtr;
 		}
 		else *strP++ = *textPtr++;
@@ -300,10 +298,10 @@ Boolean SetupCredits()
 		
 void AnimateCredits(DialogPtr dlog)
 {
-	long				thisTime;
+	long			thisTime;
 	static long		lastTime;
 	static short	pixelCount;
-	short				i, thisLineNum;
+	short			i, thisLineNum;
 	Boolean			doPause=FALSE;
 
 	thisTime = TickCount();

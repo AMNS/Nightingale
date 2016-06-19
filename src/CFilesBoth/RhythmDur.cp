@@ -1,17 +1,15 @@
 /***************************************************************************
-*	FILE:	RhythmDur.c																			*
-*	PROJ:	Nightingale, revised for v.99													*
-*	DESC:	Routines for handling rhythm and higher-level aspects of timing	*
+*	FILE:	RhythmDur.c
+*	PROJ:	Nightingale
+*	DESC:	Routines for handling rhythm and higher-level aspects of timing
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1990-99 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 /*
@@ -19,9 +17,9 @@
 	SetSelNoteDur
 	SetSelMBRest			SetAndClarifyDur		QuantizeSelDurs
 	BeatStrength			CalcBeatDur
-	MetricStrength			FindStrongPoint		NotatableDur
-	SetNRCDur				ClearAccAndMods		SyncAtTime
-	MeasLastSync			MakeClarifyList		ClarifyFromList
+	MetricStrength			FindStrongPoint			NotatableDur
+	SetNRCDur				ClearAccAndMods			SyncAtTime
+	MeasLastSync			MakeClarifyList			ClarifyFromList
 	ClarifyNRCRhythm		ClarifyRhythm
  */
 
@@ -723,9 +721,9 @@ Boolean MakeClarifyList(
 	}
 #ifdef RDEBUG
 for (k=0; k<kount; k++)
-	DebugPrintf(">Piece %d time=%ld dur=%d dots=%d\n", k, piece[k].time,
+	LogPrintf(LOG_NOTICE, ">Piece %d time=%ld dur=%d dots=%d\n", k, piece[k].time,
 						(k>0? piece[k].lDur : -1), (k>0? piece[k].nDots : -1));
-DebugPrintf(">End     time=%ld dur=%d dots=%d\n", piece[kount].time,piece[kount].lDur,piece[kount].nDots);
+	LogPrintf(LOG_NOTICE, ">End     time=%ld dur=%d dots=%d\n", piece[kount].time,piece[kount].lDur,piece[kount].nDots);
 #endif
 
 	*pKount = kount;
@@ -864,7 +862,7 @@ short ClarifyNRCRhythm(Document *doc, LINK pL, LINK aNoteL)
 /* --------------------------------------------------------------- ClarifyRhythm -- */
 /* Extend the selection to include every note in every chord that has any note(s)
 selected; then clarify the rhythm of all selected notes/rests/chords.
-Comment in FixExtCrossLinks if fixing up ptrs for Beams, Octavas and Tuplets is
+Comment in FixExtCrossLinks if fixing up ptrs for Beams, Ottavas and Tuplets is
 needed.
 */
 

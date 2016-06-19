@@ -1,5 +1,5 @@
 /***************************************************************************
-	PROJ:   Nightingale, rev. for v.3.5
+	PROJ:   Nightingale
 	DESC:   Higher-level routines to add music symbols to the score via mouse,
 				including deciding where the inserted symbol should go, tracking,
 				cancelling, etc.
@@ -7,21 +7,19 @@
 		TrkInsSync				TrkInsNote				TrkInsGRSync
 		TrkInsGRNote			InsertNote				InsertGRNote
 		InsertArpSign			InsertLine				InsertGraphic			
-		InsertMusicChar		InsertMODNR				InsertRptEnd
+		InsertMusicChar			InsertMODNR				InsertRptEnd
 		InsertEnding			InsertMeasure			InsertPseudoMeas
 		InsertClef				InsertKeySig			InsertTimeSig
 		InsertDynamic			InsertSlur				InsertTempo
 		InsertSpace				XLoadInsertSeg
 /***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1988-98 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -40,17 +38,16 @@ static Boolean InsertHairpin(Document *,Point,LINK,short);
 /* Utility to add new GRSync before an object found by TimeSearchRight in AddGRNote. */
 
 static Boolean AddNewGRSync(Document *doc,
-									LINK baseL,		/* base link */
-									Point	pt,
-									short sym,
-									short voice, short clickStaff
-									)
+								LINK baseL,		/* base link */
+								Point pt,
+								short sym,
+								short voice, short clickStaff
+								)
 {
 	LINK addToGRSyncL;
 
-	/* Look for a GRSync immediately prior to the start link. If it
-		exists, and has a note	in the voice, create a new GRSync before
-		it; else add to it. */
+	/* Look for a GRSync immediately prior to the start link. If it exists and
+		has a note in the voice, create a new GRSync before it; else add to it. */
 
 	if (addToGRSyncL = FindGRSync(doc, pt, TRUE, clickStaff))	{	/* Does it already have note/rest in this voice? */
 		if (GRSyncInVoice(addToGRSyncL, voice))
@@ -68,7 +65,7 @@ static Boolean AddNewGRSync(Document *doc,
 		return FALSE;
 	}
 	
-	return TrkInsGRSync(doc, baseL, pt, &sym, clickStaff);	/* Create a new GRSync */
+	return TrkInsGRSync(doc, baseL, pt, &sym, clickStaff);			/* Create a new GRSync */
 }
 
 
@@ -118,9 +115,9 @@ static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, short *sym, shor
 	qL = LocateInsertPt(rightL);
 	doc->selStartL = doc->selEndL = qL;
 
-	/* Check if the note is being added into an octava'd range; if so, get the octava
+	/* Check if the note is being added into an ottava'd range; if so, get the ottava
 	 	type to correct for it when adding the note. */
-	if (octL = HasOctavaAcrossPt(doc, pt, staff))
+	if (octL = HasOttavaAcrossPt(doc, pt, staff))
 		octType = OctType(octL);
 
 	/* Track the note insertion and if possible, add the new note to the data
@@ -176,7 +173,7 @@ static Boolean TrkInsGRSync(Document *doc, LINK rightL, Point pt, short *sym, sh
 	qL = LocateInsertPt(rightL);
 
 	doc->selStartL = doc->selEndL = qL;
-	if (octL = HasOctavaAcrossPt(doc, pt, staff))
+	if (octL = HasOttavaAcrossPt(doc, pt, staff))
 		octType = OctType(octL);
 
 	if (InsTrackPitch(doc, pt, sym, doc->selStartL, staff, &pitchLev, &acc, octType)) {
@@ -226,7 +223,7 @@ static LINK FindJIP(LINK startL, LINK endL)
 /* Insert a note (or rest) at a place in the object list suitable for a
 mousedown at the given point. Handles feedback and allows cancelling. (This
 also handles chord slashes: the insertion user interface distinguishes chord
-slashes, but they're really just funny notes.)
+slashes, but they're really just funny-looking notes.)
 
 A special note on object order...
 Several types of objects have links that connect them to Syncs, and, to
@@ -234,7 +231,7 @@ simplify things, Nightingale makes assumptions about their order in the
 object list. Specifically:
 1. After a Beamset with n elements, the next n Syncs with notes/rests in
 	the Beamset's voice must be in the Beamset.
-2. Tuplets and Octavas have the same requirements as Beamsets.
+2. Tuplets and Ottavas have the same requirements as Beamsets.
 3.	After a Slur (including ties), the first Sync in the Slur's voice must be
 	 the Slur's firstSync.
 4.	The first note after a non-hairpin Dynamic on the Dynamic's staff must
@@ -266,7 +263,7 @@ Boolean InsertNote(
 					)
 {
 	short			clickStaff,		/* staff user clicked in */
-					sym,				/* index of current palChar in symtable[] */
+					sym,			/* index of current palChar in symtable[] */
 					voice;			/* voice to insert in */
 	LINK			addToSyncL,		/* sync to add note/rest to */
 					nodeRightL,		/* node to right of insertion pt */
@@ -290,7 +287,7 @@ Boolean InsertNote(
 
 	/* Determine if the note is to be added to an already existing sync. If so,
 		check the sync for validity, set the selection range to equal this sync,
-		determine if it is in an octava, track the new note, and add it to the sync. */
+		determine if it is in an ottava, track the new note, and add it to the sync. */
 
 	addToSyncL = FindSync(doc, pt, isGraphic, clickStaff);
 	if (addToSyncL) {
@@ -302,7 +299,7 @@ Boolean InsertNote(
 			doc->selStartL = addToSyncL;
 			doc->selEndL = RightLINK(doc->selStartL);
 	
-			/* Determine if the new note is to be added into an existing octava'd range,
+			/* Determine if the new note is to be added into an existing ottava'd range,
 				track the note, and add it to the sync. */
 			if (TrkInsNote(doc, pt, &sym, clickStaff))
 				return TRUE;
@@ -314,7 +311,7 @@ Boolean InsertNote(
 		to insert it. In graphic mode, get first node to the right of pt.h, and
 		insert a new sync in first valid slot in object list before this node.
 		In temporal mode, determine if there is a sync simultaneous with the
-		location of the click ??LOOKS LIKE THIS ALWAYS SAYS "NO"; if so, add the
+		location of the click FIXME: LOOKS LIKE THIS ALWAYS SAYS "NO"; if so, add the
 		note to this sync, else add a new sync at the correct temporal location. */
 
 	if (isGraphic)	{														/* Get noteRightL directly */
@@ -1274,13 +1271,13 @@ Boolean InsertSlur(Document *doc, Point pt)
 	LINK		pL, pLPIL;
 	Point		localPt;
 
-	FindStaff(doc, pt);												/* Sets doc->currentSystem */
+	FindStaff(doc, pt);										/* Sets doc->currentSystem */
 
 	/* Correct "optical illusion" (CER's term) problem with slur cursor, which
 		cannot be fixed by moving down hotspot, which is moved down
 		all it can be. */
 
-	localPt = pt; localPt.v += 1;									/* Correct for "optical illusion" */
+	localPt = pt; localPt.v += 1;							/* Correct for "optical illusion" */
 	pL = FindObject(doc, localPt, &index, SMFindNote);
 	if (!pL) return FALSE;
 	if (!SyncTYPE(pL)) return FALSE;
@@ -1289,10 +1286,10 @@ Boolean InsertSlur(Document *doc, Point pt)
 	staff = GetNoteStfVoice(pL,index,&voice);
 	if (staff==NOONE) return FALSE;
 
-	/* ??Should NOT call FindLPI; pL should be what we want. */
+	/* FIXME: Should NOT call FindLPI; pL should be what we want. */
 	pLPIL = FindLPI(doc, pt, staff, ANYONE, FALSE);
 	doc->selEndL = doc->selStartL = RightLINK(pLPIL);		/* Selection is insertion point */
-	NewSlur(doc, staff, voice, pt);								/* Add sym. to object list */
+	NewSlur(doc, staff, voice, pt);							/* Add sym. to object list */
 	return TRUE;
 }
 
@@ -1303,15 +1300,15 @@ mousedown at the given point.	Handles feedback and allows cancelling. */
 
 Boolean InsertTempo(Document *doc, Point pt)
 {
-	short clickStaff,v,sym,pitchLev;
-	static short dur,beatsPM;
+	short clickStaff, v, sym, pitchLev;
+	static short dur, beatsPM;
 	LINK pL;
-	static Boolean hideMM, dotted, expanded;
-	static Str63 tempoStr;		/* limit length to save static var. space */
-	static Str63 metroStr;		/* limit length to save static var. space */
+	static Boolean useMM, showMM, dotted, expanded;
+	static Str63 tempoStr;			/* limit length to save static var. space */
+	static Str63 metroStr;			/* limit length to save static var. space */
 	static Boolean firstCall=TRUE;
 
-	pL = FindTempoObject(doc, pt, &clickStaff, &v);			
+	pL = FindTempoObject(doc, pt, &clickStaff, &v);
 	if (pL==NILINK) return FALSE;
 	if (MeasureTYPE(pL)) clickStaff = FindStaff(doc, pt);
 	
@@ -1321,9 +1318,10 @@ Boolean InsertTempo(Document *doc, Point pt)
 		if (firstCall) {
 			dur = QTR_L_DUR;
 			dotted = FALSE;
-			beatsPM = config.defaultTempo;
+			beatsPM = config.defaultTempoMM;
 			NumToString(beatsPM, metroStr);
-			hideMM = FALSE;
+			useMM = TRUE;
+			showMM = TRUE;
 			expanded = FALSE;
 			PStrCopy((StringPtr)"\p", (StringPtr)tempoStr);
 			firstCall = FALSE;
@@ -1331,26 +1329,26 @@ Boolean InsertTempo(Document *doc, Point pt)
 
 		Pstrcpy((unsigned char *)strBuf, (unsigned char *)tempoStr);
 		Pstrcpy((unsigned char *)tmpStr, (unsigned char *)metroStr);
-		DebugPrintf("InsertTempo: expanded=%d\n", expanded);
-		if (TempoDialog(&hideMM, &dur, &dotted, &expanded, (unsigned char *)strBuf, tmpStr)) {
+		if (TempoDialog(&useMM, &showMM, &dur, &dotted, &expanded, (unsigned char *)strBuf, tmpStr)) {
 			doc->selEndL = doc->selStartL = pL;
 			if (strBuf[0]>63) strBuf[0] = 63;					/* Limit str. length (see above) */
 			Pstrcpy((unsigned char *)tempoStr, (unsigned char *)strBuf);
 			if (tmpStr[0]>63) tmpStr[0] = 63;					/* Limit str. length (see above) */
 			Pstrcpy((unsigned char *)metroStr, (unsigned char *)tmpStr);
-			NewTempo(doc, pt, palChar, clickStaff, pitchLev, hideMM, dur, expanded,
-						dotted, tempoStr, metroStr);
+//LogPrintf(LOG_DEBUG, "InsertTempo 1: expanded=%d\n", expanded);
+			NewTempo(doc, pt, palChar, clickStaff, pitchLev, useMM, showMM, dur,dotted,
+						expanded, tempoStr, metroStr);
 			return TRUE;
 		}
 	}
 
-	InvalMeasure(pL, clickStaff);									/* Just redraw the measure */
+	InvalMeasure(pL, clickStaff);								/* Just redraw the measure */
 	return FALSE;
 }
 
 
 /* ------------------------------------------------------------------- InsertSpace -- */
-/* Insert a space object at a place in the object list suitable for a
+/* Insert a SPACER object at a place in the object list suitable for a
 mousedown at the given point. Handles feedback and allows cancelling. */
 
 Boolean InsertSpace(Document *doc, Point pt)
@@ -1358,17 +1356,17 @@ Boolean InsertSpace(Document *doc, Point pt)
 	short clickStaff,topStf,bottomStf; LINK pLPIL,measL; STDIST stdSpace=0;
 	Point newPt; CONTEXT context;
 	
-	clickStaff = FindStaff(doc, pt);										/* Find staff clicked on */
+	clickStaff = FindStaff(doc, pt);								/* Find staff clicked on */
 	if (clickStaff==NOONE) return FALSE;
 
 	measL = GSSearch(doc, pt, MEASUREtype, ANYONE, TRUE, FALSE, FALSE, FALSE); /* Need a LINK for GetContext */
 	if (!measL) return FALSE;
 	GetContext(doc, measL, clickStaff, &context);
 
-	newPt = InsertSpaceTrackStf(doc, pt, &topStf, &bottomStf);	/* Get user feedback */
+	newPt = InsertSpaceTrackStf(doc, pt, &topStf, &bottomStf);		/* Get user feedback */
 	if (newPt.h==CANCEL_INT)
 		return FALSE;
-	if (newPt.h-pt.h)															/* Don't divide by zero */
+	if (newPt.h-pt.h)												/* Don't divide by zero */
 		stdSpace = d2std(p2d(ABS(newPt.h-pt.h)), context.staffHeight, context.staffLines);
 
 	if (pt.h>newPt.h) pt = newPt;

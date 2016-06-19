@@ -54,7 +54,7 @@ void SetEndingFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST y
 long SetMeasureFields(Document *doc, LINK pL, DDIST xdDiff);
 void SetPSMeasFields(Document *doc, LINK pL, DDIST xdDiff);
 void SetTupletFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
-void SetOctavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
+void SetOttavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
 void SetGraphicFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
 void SetTempoFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);
 void SetSpaceFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp);

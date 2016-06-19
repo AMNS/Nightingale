@@ -1,19 +1,17 @@
 /***************************************************************************
-*	FILE:	NotelistConvert.c
-*	PROJ:	Nightingale, rev. for v.2000
+*	FILE:	MidiMap.c
+*	PROJ:	Nightingale
 *	DESC:	Routines for creating a native Nightingale file from a temporary
 *			data structure representing a Nightingale Notelist file.
 *			Written by John Gibson with help from Tim Crawford.
 ***************************************************************************/
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- *
- * Copyright © 1986-2002 by Adept Music Notation Solutions, Inc. All Rights Reserved.
+ * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -28,7 +26,7 @@
 /* --------------------------------------------------------------------------------- */
 /* Constants */
 
-#define MMLINELEN		256		/* Aside from lyrics, the longest line we've seen is 61 chars. */
+#define MMLINELEN	256			/* Aside from lyrics, the longest line we've seen is 61 chars. */
 
 #define MMRESTYPE 	'mmap'
 #define MMRESID		1
