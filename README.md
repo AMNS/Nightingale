@@ -8,11 +8,14 @@ Downloads require an Apple Developer account; they should not require a paid iOS
 
 * MacOS version 10.5
  - Xcode version 2.5 with MacOS 10.4 SDK and GCC version 4.0 support added
- - should work on version 10.4 too, but only version 10.5 has been tested
+ - should work on OS 10.4 too, but only 10.5 has been tested
 
 * MacOS version 10.6
- - will not work on versions >= 10.7, due to PPC / Rosetta dependencies
  - Xcode version 3.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added
+ - will not work on OS >= 10.7, due to PPC / Rosetta dependencies
+
+It will probably work with GCC 4.2 as well.
+
 * The following environment _may_ work; it did for one person (Geoff C.), but another (Don B.) was unable to set it up (note the kludgy instructions!):
 
 * MacOS version 10.6; Xcode version 4.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added 
@@ -47,7 +50,7 @@ XCode 4.x and above puts debug build products in a directory like:
 
 `find ~/* -name Nightingale.app`
 
-...or -- probably much faster! -- by command-clicking on "Nightingale" at the bottom in the folder view (leftmost icon(?)) of the project, then using the path to that directory in a "cd" command.)
+...or -- much faster! -- by command-clicking on "Nightingale" at the bottom in the folder view (leftmost icon(?)) of the project, then using the path to that directory in a "cd" command.)
 
 It can be run like:
 

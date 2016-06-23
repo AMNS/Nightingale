@@ -1357,13 +1357,24 @@ the format.
 
 -------------------------------------------------------------------------------
 
-12 April
+12 April - 23 June
 
-Paste Merge and Set Duration sometimes give a strange error message. E.g., Paste Merge
-a chord for piano in 3rdMovementFS.ngl, m. 32 => "FixGRDrawLinks: for 1155,
-firstObj=1157 or lastObj=1161 isn't a Sync or a GRSync." True, while 1157 is a Sync,
-1161 is a Measure. Still, this makes no sense! The GRDraw Graphic w/ LINK 1155 is in
-m. 89. ??
+Paste Merge, Set Duration, and Remove Rhythmic Gaps/Resynchronize sometimes give a
+strange error message. E.g., Paste Merge a chord for piano in 3rdMovementFS.ngl, m. 32
+=> "FixGRDrawLinks: for 1155, firstObj=1157 or lastObj=1161 isn't a Sync or a GRSync."
+True, while 1157 is a Sync, 1161 is a Measure. Still, this makes no sense! Typically the
+GRDraw Graphic in question is nowhere near the where I'm Paste Merging. In this case,
+GRDraw Graphic w/ LINK 1155 is in m. 89. ?? Reconstruct/FixGRDrawLinks() is called only
+from FixNBJDLinks(). ??
+
+A similar case: "FixGRDrawLinks: for 1248, firstObj=1251 or lastObj=1255 isn't a Sync or
+a GRSync."  1255 is a Measure. Ah, FixGRDrawLinks() is called from FixNBJDLinks() from
+FixCrossPtrs(), and the latter has it work on the entire score! -- huge overkill. More
+important, is there really a problem with these GRDraw objects? The only GRDraw objs we
+have are lines, and they can be inserted only w/ Syncs or GRSyncs on both ends -- but if
+one crosses a barline, Reformat can truncate it and attach the right end to a Measure! I
+don't think this causes any problems, but maybe Debug Check should complain about it;
+anyway, Paste Merge etc. probably shouldn't.
 
 -------------------------------------------------------------------------------
 

@@ -106,7 +106,7 @@
 	<key>CFBundleExecutable</key>
 	<string>${EXECUTABLE_NAME}</string>
 	<key>CFBundleGetInfoString</key>
-	<string>Nightingale version 5.6, Copyright © 2016 by AMNF.  All rights reserved.</string>
+	<string>Nightingale version 5.7, Copyright © 2016 by AMNF.  All rights reserved.</string>
 	<key>CFBundleIconFile</key>
 	<string>APPL.icns</string>
 	<key>CFBundleIdentifier</key>
@@ -124,7 +124,7 @@
 	<key>CFBundleSignature</key>
 	<string>BYRD</string>
 	<key>CFBundleVersion</key>
-	<string>5.6</string>
+	<string>5.7b1</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
 </dict>

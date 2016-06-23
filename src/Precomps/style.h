@@ -1,8 +1,8 @@
 /*
 	style.h for Nightingale
 	Some notation style parameters, for engravers and other fanatics. Numerous others
-	are kept in the CNFG resource. (Most of these should perhaps be moved there eventually;
-	anyway, it should be possible for users to override them.)
+	are kept in the CNFG resource. (Those of these that are constants should eventually
+	be moved there, or somewhere that lets users override them.)
 	
 	Created by donbyrd on 25 May 2016.
  */
@@ -20,7 +20,7 @@
 /* Relative sizes for various types of symbols */
 
 #define GRACESIZE(size)		(3*(size)/4)		/* For grace notes */
-#define SMALLSIZE(size)		(3*(size)/4)		/* For "small" syms: notes/rests, clefs, dynamics, etc. */
+#define SMALLSIZE(size)		(3*(size)/4)		/* For "small" symbols: notes/rests, clefs, dynamics, etc. */
 #define MEDIUMSIZE(size)	(9*(size)/10)		/* For tempo marks */
 
 /* Caveat: see the comment on GetModNRInfo before adjusting note modifier sizes. */
@@ -47,9 +47,9 @@ with stems away from the staff are shortened. */
 #define STRICT_SHORTSTEM 0
 
 /* Notation style macros. These used to be based on staff height, not staff
-interline space: the expression "(lnSp)*4" replaced "(stfHt)".  NB: Don't
-change the "4" in "(lnSp)*4"! We're determining these values based on a 5-line
-staff, even if a staff doesn't have 5 lines. */
+interline space: the expression "(lnSp)*4" replaced "(stfHt)".  NB: Don't change
+the "4" in "(lnSp)*4"! We're determining these values based on a 5-line staff,
+regardless of the actual number of lines in a staff. */
 
 #define FlagLeading(lnSp)	(3*(lnSp)*4/16)		/* Vert. dist. between flags */
 #define HeadWidth(lnSp)	(9*(lnSp)*4/32)			/* Width of common (beamable) note heads */

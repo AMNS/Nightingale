@@ -638,7 +638,7 @@ Minor cleanup. Affects DialogsEditor.
 
 -------------------------------------------------------------------------------
 
-16 June			       ==== NIGHTINGALE 5.6 (14 June 2016) ====
+16 June			       ==== NIGHTINGALE 5.6 (16 June 2016) ====
 
 In the Info dialog for notes and rests, make the Dur field wider, to accomodate values
 like "-47" for a 47-bar rest. Affects .rsrc.
@@ -648,3 +648,16 @@ standard terminology, but it's what the related alert calls the command. Affects
 
 Make the "MIDI Dynamic Prefs" and "Instrument MIDI Settings" dialogs a little prettier.
 Affects .rsrc.
+
+===============================================================================
+
+23 June
+
+Change version number from 5.6 to 5.7b1. Affects Info.plist.
+
+Fix bug: Paste Merge, Set Duration, and Remove Rhythmic Gaps/Resynchronize give a
+strange error message for GRDraws (lines) anywhere in the score, e.g., =>
+"FixGRDrawLinks: for 1155, firstObj=1157 or lastObj=1161 isn't a Sync or a GRSync.",
+when lastObj is a Measure, which is actually legal. Affects Reconstruct.
+
+Minor cleanup. Affects style.h, Reconstruct.

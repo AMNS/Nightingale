@@ -1199,7 +1199,7 @@ on different staves. Even with this situation, could run into problems if try to
 tuple heterogeneous overlapping ranges in 2 separate voices on the same staff. */
 
 static void LocateClJIPObj(Document *doc, LINK pL, LINK nextL, LINK endMeasL,
-									PTIME *durArray, short stfDiff, COPYMAP *mergeMap, short *vMap)
+							PTIME *durArray, short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
 	PTIME *pTime; LINK newObjL=NILINK,aClefL,aTimeSigL,aKeySigL,aGRNoteL,copyL;
 
@@ -1252,8 +1252,8 @@ have been re-inserted in the object list, so that we can be sure to have the
 link relative to which to re-insert the J_D object. */
 
 static void LocateClGenlJDObj(Document *doc, LINK pL, LINK startClMeas, LINK endClMeas,
-										LINK startMeas, LINK endMeas, PTIME *durArray,
-										short stfDiff, COPYMAP *mergeMap, short *vMap)
+								LINK startMeas, LINK endMeas, PTIME *durArray,
+								short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
 	LINK firstL,newObjL,lastL,newLastL,copyL,qL;
 	PTIME *pTime; short numObjs=0;
@@ -1382,7 +1382,7 @@ can only be relative to SYNCs.
 the clipboard.*/
 
 static void LocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durArray,
-									short stfDiff, COPYMAP *mergeMap, short *vMap)
+								short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
 	LINK firstL,newObjL,lastL,newLastL,copyL;
 	PTIME *pTime;
@@ -1520,10 +1520,10 @@ static void LocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durArra
 from the clipboard which can only be relative to SYNCs. */
 
 void RelocateClObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startMeas,
-							LINK endMeas, PTIME *durArray, short stfDiff, COPYMAP *mergeMap,
-							short *vMap)
+						LINK endMeas, PTIME *durArray, short stfDiff, COPYMAP *mergeMap,
+						short *vMap)
 {
-	LINK pL,nextL,nextSync,qL; short objType;
+	LINK pL, nextL, nextSync,qL; short objType;
 	
 	InstallDoc(clipboard);
 
@@ -1802,10 +1802,10 @@ static void FixEndingLinks(LINK endingL, PTIME *durArray)
 }
 
 /* -------------------------------------------------------------- FixGRDrawLinks -- */
-/* Use durArray to update GRDraw Graphic's firstObj and lastObj fields.
-#1. If a sync with notes in more than one voice is split into more than one object
+/* Use durArray to update a GRDraw Graphic's firstObj and lastObj fields.
+#1. If a Sync with notes in more than one voice is split into more than one object
 by the operation we're reconstructing for, then, without this check, we could find
-the old sync for a note in a voice which is mapped to a new sync different than
+the old Sync for a note in a voice which is mapped to a new Sync different than
 the one to which the note with the attached Graphic belongs. */
 
 static void FixGRDrawLinks(LINK graphicL, PTIME *durArray)
@@ -1815,8 +1815,8 @@ static void FixGRDrawLinks(LINK graphicL, PTIME *durArray)
 	firstL = GraphicFIRSTOBJ(graphicL);
 	lastL = GraphicLASTOBJ(graphicL);
 	if (!(SyncTYPE(firstL) || GRSyncTYPE(firstL))
-	||  !(SyncTYPE(lastL) || GRSyncTYPE(lastL)) )
-		MayErrMsg("FixGRDrawLinks: for %d, firstObj=%d and/or lastObj=%d isn't a Sync or a GRSync.",
+	||  !(SyncTYPE(lastL) || GRSyncTYPE(lastL) || MeasureTYPE(lastL)) )
+		MayErrMsg("FixGRDrawLinks: for GRDraw %d, firstObj=%d and/or lastObj=%d is an illegal type.",
 					graphicL, firstL, lastL);
 	
 	for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
@@ -1868,7 +1868,7 @@ NB: clDurArray is unused and should be removed from calling sequence. */
 void FixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray,
 						PTIME */*clDurArray*/)
 {
-	LINK sysL,firstSysL,firstMeasL;
+	LINK sysL, firstSysL, firstMeasL;
 
 	sysL = SSearch(startMeas,SYSTEMtype,GO_LEFT);
 	firstSysL = LinkLSYS(sysL) ? LinkLSYS(sysL) : sysL;
@@ -1892,9 +1892,10 @@ void FixCrossPtrs(Document *doc, LINK startMeas, LINK endMeas, PTIME *durArray,
 	/* NBJD objects which start before and end in the measure being processed
 		will remain in place in the object list, and their firstSyncL/firstObjL
 		will remain valid across the operation. This call to FixNBJDLinks will
-		properly update their lastSyncL/lastObjL field. */
+		properly update their lastSyncL/lastObjL field. NB: As written, this is
+		way overkill: it operates on the entire score! */
 
-	firstMeasL = SSearch(doc->headL,MEASUREtype,GO_RIGHT);
+	firstMeasL = SSearch(doc->headL, MEASUREtype, GO_RIGHT);
 	FixNBJDLinks(firstMeasL, doc->tailL, durArray);
 }
 
