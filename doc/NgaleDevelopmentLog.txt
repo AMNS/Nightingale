@@ -1390,6 +1390,21 @@ DoMasterStfSize() seems to do everything needed.
 
 -------------------------------------------------------------------------------
 
+10 - 26 June
+
+This is utterly bizarre, but for a long time, Xcode 2.5 on my G5 has been unable to save
+about three source-code files: Browser.cp, Dragging.cp, DebugUtils.cp; maybe others?
+They're not locked. I've been opening them in BBEdit (not copying and pasting,
+though that'd surely work as well) and editing and saving them with it for months, with
+no problems at all.
+
+I haven't tried on another machine or with Xcode 3.2 yet. Maybe it's a problem with the
+Xcode project, and removing them from the project and re-adding them would fix this? No,
+it doesn't help... but when you a file, Xcode asks what the encoding is. Maybe it's
+confused about that? Yes!! -- Re-add them and specify correct encoding => all OK!
+
+-------------------------------------------------------------------------------
+
 14 June
 
 For adding cues to parts, I need a way to change the number of measures on a multibar
@@ -1408,4 +1423,5 @@ the page if more than a tiny sliver is _not_ on the screen. This _should_ just b
 matter of changing the test, presumably in MIDIPlay.cp>PlaySequence(). The variables
 _pageTurnTOffset_, _tBeforeTurn_, _newPage_ must have something to do with it. Ah,
 _doScroll_ is the key! Scrolling is actually in HiliteSyncRect().
+
 

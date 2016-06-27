@@ -651,7 +651,7 @@ Affects .rsrc.
 
 ===============================================================================
 
-23 June
+23-24 June
 
 Change version number from 5.6 to 5.7b1. Affects Info.plist.
 
@@ -660,4 +660,22 @@ strange error message for GRDraws (lines) anywhere in the score, e.g., =>
 "FixGRDrawLinks: for 1155, firstObj=1157 or lastObj=1161 isn't a Sync or a GRSync.",
 when lastObj is a Measure, which is actually legal. Affects Reconstruct.
 
-Minor cleanup. Affects style.h, Reconstruct.
+Minor cleanup. Affects style.h, DebugUtils, Reconstruct.
+
+-------------------------------------------------------------------------------
+
+26-27 June
+
+Fix problem with Xcode project: Xcode 2.5 (at least) can't save certain source-code
+files -- Browser, DebugUtils, Dragging -- because it doesn't know what their
+encoding is.
+
+Now that the Browser window is slightly larger, have it show the first 25 voices of
+the voice-mapping table instead of 24. Affects Browser.
+
+Have the Debug command check note play durations for "Check standard things", not just
+"Check all possible"; fix a bug in its checking resulting in complaints about notes
+that are really okay. Affects DebugUtils.
+
+Minor cleanup. Affects Browser, Clipboard, DebugUtils, Dragging.
+

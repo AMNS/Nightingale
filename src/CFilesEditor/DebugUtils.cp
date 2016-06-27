@@ -111,7 +111,7 @@ Boolean DCheckHeaps(Document *doc)
 
 
 /* ----------------------------------------------------------------- DCheckHeadTail -- */
-/* Do consistency check on head or tail of data structure. */
+/* Do consistency check on head or tail of data structure (object list). */
 
 Boolean DCheckHeadTail(
 				Document *doc,
@@ -1540,8 +1540,8 @@ Boolean DCheckNodeSel(Document *doc, LINK pL)
 /* ---------------------------------------------------------------------- DCheckSel -- */
 /* Do consistency checks on the selection: check selection start/end links,
 that no node outside the range they describe has its selected flag set, etc.
-Returns TRUE if the selection start or end link is garbage or not even
-in the data structure. */
+Returns TRUE if the selection start or end link is garbage or not even in the
+data structure (object list). */
  
 Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 {
@@ -1559,11 +1559,11 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 
 	if (!doc->masterView) {
 		if (!InDataStruct(doc, doc->selStartL, MAIN_DSTR))
-			COMPLAIN("�DCheckSel: selStartL=%d NOT IN MAIN DATA STRUCTURE.\n",
+			COMPLAIN("�DCheckSel: selStartL=%d NOT IN MAIN OBJECT LIST.\n",
 						doc->selStartL);
 	
 		if (!InDataStruct(doc, doc->selEndL, MAIN_DSTR)) {
-			COMPLAIN("�DCheckSel: selEndL=%d NOT IN MAIN DATA STRUCTURE.\n",
+			COMPLAIN("�DCheckSel: selEndL=%d NOT IN MAIN OBJECT LIST.\n",
 						doc->selEndL);
 			return TRUE;
 		}
@@ -1784,7 +1784,7 @@ Boolean DCheckJDOrder(Document *doc)
 			for (qL = RightLINK(pL); qL!=attL; qL = RightLINK(qL))
 				if (!J_DTYPE(qL)) {
 					if (!InDataStruct(doc, attL, MAIN_DSTR)) {
-						COMPLAIN3("�DCheckJDOrder: GRAPHIC ON STAFF %d AT %u firstObj=%d NOT IN MAIN DATA STRUCTURE.\n",
+						COMPLAIN3("�DCheckJDOrder: GRAPHIC ON STAFF %d AT %u firstObj=%d NOT IN MAIN OBJECT LIST.\n",
 									GraphicSTAFF(pL), pL, attL);
 					}
 					else {
@@ -2286,16 +2286,16 @@ error in their durations, since that can easily cause problems in syncing. Final
 check that total durations make sense for the numerators. */
 
 Boolean DCheckTuplets(
-					Document *doc,
-					Boolean maxCheck		/* FALSE=skip less important checks */
-					)
+				Document *doc,
+				Boolean maxCheck		/* FALSE=skip less important checks */
+				)
 {
-	register LINK		pL, syncL;
-	LINK					measureL, noteTupL;
-	PTUPLET				pTuplet;
-	PANOTETUPLE			noteTup;
-	Boolean				bad;
-	short					staff, voice, tupUnit, tupledUnit, totalDur;
+	register LINK	pL, syncL;
+	LINK			measureL, noteTupL;
+	PTUPLET			pTuplet;
+	PANOTETUPLE		noteTup;
+	Boolean			bad;
+	short			staff, voice, tupUnit, tupledUnit, totalDur;
 
 	bad = FALSE;
 
@@ -2363,9 +2363,9 @@ Boolean DCheckTuplets(
 /* Check that playDurs of notes appear reasonable for their logical durations. */
 
 Boolean DCheckPlayDurs(
-					Document *doc,
-					Boolean maxCheck		/* FALSE=skip less important checks */
-					)
+				Document *doc,
+				Boolean maxCheck		/* FALSE=skip less important checks */
+				)
 {
 	register LINK pL, aNoteL;
 	PANOTE aNote; PTUPLET pTuplet;
@@ -2399,13 +2399,14 @@ Boolean DCheckPlayDurs(
 											aNote->voice, pL);
 						}
 						else {
-							if (maxCheck) {	/* bcs Create Tuplet bug makes this VERY common right now (v.998a4) */
-								lDur = SimpleLDur(aNoteL);
-								if (aNote->inTuplet) lDur = (lDur*tupletDenom[v])/tupletNum[v];
-								if (aNote->playDur>lDur)
-									COMPLAIN2("DCheckPlayDurs: NOTE IN VOICE %d IN SYNC AT %u HAS playDur LONGER THAN LOGICAL DUR.\n",
-													aNote->voice, pL);
+							lDur = SimpleLDur(aNoteL);
+							if (aNote->inTuplet) {
+								v = aNote->voice;
+								lDur = (lDur*tupletDenom[v])/tupletNum[v];
 							}
+							if (aNote->playDur>lDur)
+								COMPLAIN3("DCheckPlayDurs: NOTE IN VOICE %d IN SYNC AT %u playDur IS LONGER THAN FULL DUR. OF %d\n",
+											aNote->voice, pL, lDur);
 						}
 					}
 				}
@@ -2426,8 +2427,8 @@ appear in the correct order in the data structure. */
 
 Boolean DCheckHairpins(Document *doc)
 {
-	register LINK		pL;
-	Boolean				bad;
+	register LINK	pL;
+	Boolean			bad;
 
 	bad = FALSE;
 	
@@ -2436,9 +2437,9 @@ Boolean DCheckHairpins(Document *doc)
 
 		if (ObjLType(pL)==DYNAMtype && IsHairpin(pL)) {
 			
-/* Check that the hairpin and its first and last objects are in the correct order. 
-They should be in the order <hairpin, first, last>, except <first> and <last> can be
-identical. */
+			/* Check that the hairpin and its first and last objects are in the correct order. 
+			They should be in the order <hairpin, first, last>, except <first> and <last> can be
+			identical. */
 			if (!IsAfter(pL, DynamFIRSTSYNC(pL)))
 				COMPLAIN("*DCheckHairpins: HAIRPIN AT %u AND ITS firstSyncL ARE IN WRONG ORDER.\n",
 								pL);			 
@@ -2461,26 +2462,26 @@ with appearances of actual CLEF, KEYSIG, TIMESIG and DYNAM objects. */
 Boolean DCheckContext(Document *doc)
 {
 	register short	i;
-	register PASTAFF aStaff;
-	register PAMEASURE aMeas;
-	PACLEF		aClef;
+	register PASTAFF	aStaff;
+	register PAMEASURE	aMeas;
+	PACLEF			aClef;
 	PAKEYSIG		aKeySig;
-	PATIMESIG	aTimeSig;
-	PADYNAMIC	aDynamic;
+	PATIMESIG		aTimeSig;
+	PADYNAMIC		aDynamic;
 	PCLEF			pClef;
-	PKEYSIG		pKeySig;
-	register LINK pL;
+	PKEYSIG			pKeySig;
+	register LINK	pL;
 	LINK			aStaffL, aMeasL, aClefL, aKeySigL,
 					aTimeSigL, aDynamicL;
-	SignedByte	clefType[MAXSTAVES+1];			/* Current context: clef, */
+	SignedByte		clefType[MAXSTAVES+1];			/* Current context: clef, */
 	short			nKSItems[MAXSTAVES+1];			/*   sharps & flats in key sig., */
-	SignedByte	timeSigType[MAXSTAVES+1],		/*   time signature, */
+	SignedByte		timeSigType[MAXSTAVES+1],		/*   time signature, */
 					numerator[MAXSTAVES+1],
 					denominator[MAXSTAVES+1],
 					dynamicType[MAXSTAVES+1];		/*		dynamic mark */
-	Boolean		aStaffFound[MAXSTAVES+1],
+	Boolean			aStaffFound[MAXSTAVES+1],
 					aMeasureFound[MAXSTAVES+1];
-	register Boolean bad;
+	register Boolean	bad;
 
 	bad = FALSE;
 		
@@ -2507,7 +2508,7 @@ Boolean DCheckContext(Document *doc)
 						dynamicType[aStaff->staffn] = aStaff->dynamicType;
 						aStaffFound[aStaff->staffn] = TRUE;
 					}
-					else {																/* Check staff info */
+					else {														/* Check staff info */
 						if (clefType[aStaff->staffn]!=aStaff->clefType) {
 							COMPLAIN2("*DCheckContext: clefType FOR STAFF %d IN STAFF AT %u INCONSISTENCY.\n",
 											aStaff->staffn, pL);
@@ -2564,9 +2565,9 @@ Boolean DCheckContext(Document *doc)
 				for (aClefL=FirstSubLINK(pL); aClefL; aClefL=NextCLEFL(aClefL)) {
 					aClef = GetPACLEF(aClefL);
 					pClef = GetPCLEF(pL);
-					if (!pClef->inMeasure										/* System initial clef? */
-					&& aMeasureFound[aClef->staffn]							/* After the 1st System? */
-					&&  clefType[aClef->staffn]!=aClef->subType)			/* Yes, check the clef */
+					if (!pClef->inMeasure								/* System initial clef? */
+					&& aMeasureFound[aClef->staffn]						/* After the 1st System? */
+					&&  clefType[aClef->staffn]!=aClef->subType)		/* Yes, check the clef */
 						COMPLAIN2("*DCheckContext: clefType FOR STAFF %d IN CLEF AT %u INCONSISTENCY.\n",
 										aClef->staffn, pL);
 					clefType[aClef->staffn] = aClef->subType;
@@ -2578,8 +2579,8 @@ Boolean DCheckContext(Document *doc)
 						aKeySigL = NextKEYSIGL(aKeySigL))  {
 					aKeySig = GetPAKEYSIG(aKeySigL);
 					pKeySig = GetPKEYSIG(pL);
-					if (!pKeySig->inMeasure										/* System initial key sig.? */
-					&& aMeasureFound[aKeySig->staffn]						/* After the 1st System? */
+					if (!pKeySig->inMeasure								/* System initial key sig.? */
+					&& aMeasureFound[aKeySig->staffn]					/* After the 1st System? */
 					&&  nKSItems[aKeySig->staffn]!=aKeySig->nKSItems)	/* Yes, check it */
 						COMPLAIN2("*DCheckContext: nKSItems FOR STAFF %d IN KEYSIG AT %u INCONSISTENCY.\n",
 										aKeySig->staffn, pL);
@@ -2598,7 +2599,7 @@ Boolean DCheckContext(Document *doc)
 				break;
 				
 			case DYNAMtype:
-				aDynamicL = FirstSubLINK(pL);									/* Only one subobj, so far */
+				aDynamicL = FirstSubLINK(pL);							/* Only one subobj, so far */
 				aDynamic = GetPADYNAMIC(aDynamicL);
 				if (DynamType(pL)<FIRSTHAIRPIN_DYNAM)
 					dynamicType[aDynamic->staffn] = DynamType(pL);

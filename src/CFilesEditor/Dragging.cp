@@ -66,14 +66,14 @@ static DDIST GetXDDiff(Document *doc, LINK pL, PCONTEXT pContext)
 	return pContext->measureLeft;
 }
 
-static void SDDrawClef(Document *doc, LINK pL, LINK subObjL, unsigned char /*dummyglyph*/,	/* remove this arg soon */
+static void SDDrawClef(Document *doc, LINK pL, LINK subObjL, unsigned char /*dummyglyph*/,	/* FIXME: remove this arg soon */
 								LINK measureL)
 {
-	DDIST 	xd,yd,xdOct,ydOct,lnSpace;
-	short 	oldtxSize;
+	DDIST		xd, yd, xdOct, ydOct, lnSpace;
+	short		oldtxSize;
 	unsigned char glyph;
 	CONTEXT 	context[MAXSTAVES+1], localContext;
-	Rect 		mRect;
+	Rect		mRect;
 	
 	GetContext(doc, pL, ClefSTAFF(subObjL), &localContext);
 	context[ClefSTAFF(subObjL)] = localContext;
