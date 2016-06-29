@@ -15,13 +15,13 @@ Page, built on the ancient Score Dialog. */
 
 /* Prototypes for internal functions. */
 
-static void GroupMeas(Document *doc,LINK measL,short firstStf,short lastStf);
-static void UngroupMeas(Document *doc,LINK measL,short firstStf,short lastStf);
-static void GroupPart(Document *doc,short firstStf,short lastStf,Boolean connectBars,
+static void GroupMeas(Document *doc, LINK measL, short firstStf, short lastStf);
+static void UngroupMeas(Document *doc, LINK measL, short firstStf, short lastStf);
+static void GroupPart(Document *doc, short firstStf, short lastStf, Boolean connectBars,
 					short connectType);
-static void UngroupPart(Document *doc,short firstStf,short lastStf);
+static void UngroupPart(Document *doc, short firstStf, short lastStf);
 
-static void StoreConnectGroup(LINK,LINK);
+static void StoreConnectGroup(LINK, LINK);
 static void StoreAllConnects(LINK);
 static void DelConnGroup(Document *, LINK, LINK);
 static void DelBadGroupConnects(Document *);
@@ -38,7 +38,7 @@ insertion and deletion of parts. */
 
 void ExportPartList(Document *doc)
 {
-	LINK partL,mPartL,tempL;
+	LINK partL, mPartL, tempL;
 	PPARTINFO pPart, pmPart;
 
 	if (LinkNENTRIES(doc->masterHeadL)!=LinkNENTRIES(doc->headL))
@@ -63,13 +63,13 @@ void ExportPartList(Document *doc)
 }
 
 
-/* Export the Master Page environment: the only things this needs to export any more
+/* Export the Master Page environment. The only things this needs to export any more
 are Master Page's Parts and staffTops. */
 
 void ExportEnvironment(Document *doc,
 						DDIST */*staffTop*/)		/* no longer used */
 {	
-	LINK		staffL, aStaffL, mStaffL, maStaffL;
+	LINK	staffL, aStaffL, mStaffL, maStaffL;
 	
 	ExportPartList(doc);
 	
@@ -94,9 +94,9 @@ void ExportEnvironment(Document *doc,
 static short MPStaff2Part(Document *, short);
 static short MPStaff2Part(Document *doc, short nstaff)
 {
-	short			np;
+	short		np;
 	PPARTINFO	pPart;
-	LINK			partL;
+	LINK		partL;
 	
 	if (nstaff<=0) return 0;
 	partL = NextPARTINFOL(FirstSubLINK(doc->masterHeadL));
@@ -154,7 +154,7 @@ short SDInstrDialog(Document *doc, short firstStf)
 
 /* ============================================== Functions to add change records == */
 /* Strategy: as the user is working in Master Page, giving commands that change the
-structure of the score--Add Parts, Group Parts, etc.--we update the Master Page
+structure of the score -- Add Parts, Group Parts, etc. -- we update the Master Page
 object list immediately, but we don't want to touch the main object list till they're
 done, since they might cancel. So we just make a list of "change records" describing
 the changes to be made; then, if they tell us to keep the changes, we go thru the
@@ -173,7 +173,7 @@ static Boolean TooManyChanges(Document *doc)
 	return FALSE;
 }
 
-/* Delete a part in Master Page. */
+/* Add change record to delete a part. */
 
 void DelChangePart(Document *doc, short firstStf, short lastStf)
 {
@@ -186,7 +186,7 @@ void DelChangePart(Document *doc, short firstStf, short lastStf)
 	doc->masterChanged = doc->partChangedMP = TRUE;
 }
 
-/* Add a part in Master Page. */
+/* Add change record to add a part. */
 
 void AddChangePart(Document *doc, short firstStf, short nadd, short nper, short showLines)
 {
@@ -233,13 +233,13 @@ void Make1StaffChangeParts(Document *doc, short stf, short nadd, short showLines
 }
 
 
-/* Add a change record of type SDGroup to export a part grouping from Master Page. */
+/* Add a change record of type SDGroup to group parts. */
 
 void GroupChangeParts(Document *doc,
-							short firstStf, short lastStf,
-							Boolean connectBars,				/* TRUE=extend barlines to connect staves */ 
-							short connectType					/* CONNECTBRACKET or CONNECTCURLY */
-							)
+						short firstStf, short lastStf,
+						Boolean connectBars,			/* TRUE=extend barlines to connect staves */ 
+						short connectType				/* CONNECTBRACKET or CONNECTCURLY */
+						)
 {
 	if (TooManyChanges(doc)) return;
 
@@ -252,7 +252,7 @@ void GroupChangeParts(Document *doc,
 	doc->masterChanged = doc->grpChangedMP = TRUE;
 }
 
-/* Add a change record of type SDUngroup to export a part ungrouping from Master Page. */
+/* Add a change record of type SDUngroup to ungroup parts. */
 
 void UngroupChangeParts(Document *doc, short firstStf, short lastStf)
 {
@@ -267,9 +267,10 @@ void UngroupChangeParts(Document *doc, short firstStf, short lastStf)
 }
 
 
-/* ================================================================================= */
+/* ================================================= Functions to export changes === */
+
 /* Change the connStaff and connAbove fields of measure subobjects of measL on
-staves [firstStf,lastStf] to reflect the grouping or ungrouping parts in that
+staves [firstStf,lastStf] to reflect the grouping or ungrouping of parts in that
 range. */
 
 static void GroupMeas(Document */*doc*/, LINK measL, short firstStf, short lastStf)
@@ -334,11 +335,11 @@ extend across the group. To make things easier on the calling routines, we leave
 new Connect subobject's firstPart and lastPart blank; these must be filled in before
 exiting Master Page. */
 
-#define CONNECT_GROUP CONNECTBRACKET	/* ??MPImportExport.c and MPCommands must agree! */
+#define CONNECT_GROUP CONNECTBRACKET	/* NB: MPImportExport.c and MPCommands must agree! */
 
 static void GroupPart(Document *doc,
 							short firstStf, short lastStf,
-							Boolean connectBars,				/* TRUE=extend barlines to connect staves */ 
+							Boolean connectBars,			/* TRUE=extend barlines to connect staves */ 
 							short connectType
 							)
 {
@@ -563,7 +564,7 @@ static Boolean Add1StaffParts(Document *doc, LINK prevPartL, short nadd, short /
 	partList = HeapAlloc(PARTINFOheap,nadd);
 	if (!partList) { NoMoreMemory(); return FALSE; }
 
-	nextPartL = NextPARTINFOL(prevPartL);								/* OK if it's NILINK */
+	nextPartL = NextPARTINFOL(prevPartL);							/* OK if it's NILINK */
 
 	aPartL = partList;
 	for ( ; aPartL; aPartL = NextPARTINFOL(aPartL))
@@ -591,7 +592,7 @@ static Boolean Add1StaffParts(Document *doc, LINK prevPartL, short nadd, short /
 	return TRUE;
 }
 	
-#define CONNECT_GROUP CONNECTBRACKET	/* Default type ??must agree with MPImportExport.c! */
+#define CONNECT_GROUP CONNECTBRACKET	/* Default type. NB: must agree with MPImportExport.c! */
 
 /* Finish converting an n-staff part into n 1-staff parts: replace the original part's
 multistaff-part Connects with group Connects, and build a new voice table. */
@@ -640,12 +641,13 @@ static void Make1StaffParts(Document *doc, short staff, short nStavesAdd, short 
 		Finish1StaffParts(doc, thePartL, lastPartL);
 }
 
+
 /* Export changes (Add/Delete Part, Group/Ungroup Parts, Make 1-staff Parts) from
 Master Page to the main object list. Should be called when exiting Master Page. */
  
 short ExportChanges(Document *doc)
 {
-	short i,cstaff,npa, savedAutoRespace;
+	short i, cstaff, npa, savedAutoRespace;
 
  	if (doc->nChangeMP>=MAX_CHANGES) {
  		MayErrMsg("ExportChanges: Too many changes: doc->nChangeMP=%ld.", (long)doc->nChangeMP);
@@ -658,38 +660,38 @@ short ExportChanges(Document *doc)
 	doc->autoRespace = FALSE;
 
 	for (i = 0; i<doc->nChangeMP; i++) {
-   	switch (doc->change[i].oper) {
-   		case SDAdd:
+		switch (doc->change[i].oper) {
+			case SDAdd:
 				cstaff = doc->change[i].staff;
 				for (npa = 1; npa<=doc->change[i].p2; npa++) {
 					if (!AddPart(doc, cstaff, doc->change[i].p1, doc->change[i].p3)) break;
 					cstaff += doc->change[i].p1;
 				}
-  				break;
-	 		case SDDelete:
+				break;
+			case SDDelete:
 				DeletePart(doc, doc->change[i].staff, doc->change[i].p1);
-   			break;
-   		case SDGroup:
+				break;
+			case SDGroup:
 				GroupPart(doc, doc->change[i].staff, doc->change[i].p1, doc->change[i].p2,
 								doc->change[i].p3);
-  				break;
-   		case SDUngroup:
+				break;
+			case SDUngroup:
 				UngroupPart(doc, doc->change[i].staff, doc->change[i].p1);
 				break;
 			case SDMake1:
 				Make1StaffParts(doc, doc->change[i].staff, doc->change[i].p1,
-										doc->change[i].p2);  
+									doc->change[i].p2);  
 				break;
-			default:
-				;
-   	}
+				default:
+					;
+			}
 	}
 	doc->autoRespace = savedAutoRespace;
 
  	if (doc->masterChanged) {
 		WaitCursor();
 		if (doc->masterChanged || doc->partChangedMP)
-			ExportEnvironment(doc,doc->staffTopMP);				/* Export local version of score format */
+			ExportEnvironment(doc, doc->staffTopMP);			/* Export local version of score format */
 	 	StoreAllConnects(doc->headL);
 		/*
 		 * As a result of deleting parts, there may be Connect GroupLevel subobjs

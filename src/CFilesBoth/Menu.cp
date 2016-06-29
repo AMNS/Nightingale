@@ -3054,10 +3054,10 @@ static void FixMasterPgMenu(Document *doc)
 
 	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
 	GetIndString(str, MENUCMD_STRS,
-		LinkSEL(staffL)? 19 : 20);							/* "Add Part/Staff Above/at Bottom" */
+		LinkSEL(staffL)? 19 : 20);							/* "Add Parts Above/at Bottom" */
 	SetMenuItemText(masterPgMenu, MP_AddPart, str);
 
-	/* Disable all menu items except Add Part if score has no parts. */
+	/* Disable all menu items except Add Parts if score has no parts. */
 
 	nparts = LinkNENTRIES(doc->masterHeadL);
 	XableItem(masterPgMenu, MP_DeletePart, PartSel(doc));

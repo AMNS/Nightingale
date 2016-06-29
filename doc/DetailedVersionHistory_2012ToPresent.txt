@@ -679,3 +679,14 @@ that are really okay. Affects DebugUtils.
 
 Minor cleanup. Affects Browser, Clipboard, DebugUtils, Dragging.
 
+-------------------------------------------------------------------------------
+
+28 June
+
+Discard alert resources (ALRTs 194 and 255) related to hardware copy protection and
+serial numbers. Affects .rsrc; NResources.h.
+
+Rename the Master Page commands "Add Part/Staff" and "Delete Part/Staff" to "Add Parts"
+and "Delete Part", respectively. Affects .rsrc.
+
+Minor cleanup. Affects MPCommands, MPImportExport.

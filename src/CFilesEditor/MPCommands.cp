@@ -13,17 +13,17 @@
 
 /* Local prototypes */
 
-static Boolean CanDeletePart(Document *doc,short minStf,short maxStf);
-static Boolean OnlyOnePart(Document *doc,short minStf,short maxStf);
+static Boolean CanDeletePart(Document *doc, short minStf, short maxStf);
+static Boolean OnlyOnePart(Document *doc, short minStf, short maxStf);
 static void MPRemovePart(Document *, LINK);
-static void MPDeleteSelRange(Document *doc,LINK partL);
+static void MPDeleteSelRange(Document *doc, LINK partL);
 
 static void MPDefltStfCtxt(LINK aStaffL);
-static Boolean ChkStfHt(Document *doc,short nadd,short nper);
-static Boolean MPAddChkVars(Document *,short nadd,short nper);
+static Boolean ChkStfHt(Document *doc, short nadd, short nper);
+static Boolean MPAddChkVars(Document *, short nadd, short nper);
 static Boolean MPAddPartDialog(short *, short *);
 
-static void InsertPartMP(Document *doc,LINK partL,short nadd,short nper,short showLines);
+static void InsertPartMP(Document *doc, LINK partL, short nadd, short nper, short showLines);
 
 
 #define DELETE_PART_DI	2			/* Delete Part button in DELPART_ANYWAY_ALRT */
@@ -148,23 +148,23 @@ change record to the array of changes. */
 
 void MPDeletePart(Document *doc)
 {
-	LINK staffL,aStaffL,partL;
-	short nparts,minStf,maxStf,origMinStf,origMaxStf;
+	LINK staffL, aStaffL, partL;
+	short nparts, minStf, maxStf, origMinStf, origMaxStf;
 
 	nparts = LinkNENTRIES(doc->masterHeadL);
-	if (nparts<=2) {													/* There's always a dummy part */
-		GetIndCString(strBuf, MPERRS_STRS, 5);					/* "can't delete the only part" */
+	if (nparts<=2) {										/* There's always a dummy part */
+		GetIndCString(strBuf, MPERRS_STRS, 5);				/* "can't delete the only part" */
 		CParamText(strBuf,	"", "", "");
 		StopInform(GENERIC_ALRT);
 		return;
 	}
 
-	staffL = SSearch(doc->masterHeadL,STAFFtype,GO_RIGHT);
-	GetSelStaves(staffL,&minStf,&maxStf);
+	staffL = SSearch(doc->masterHeadL, STAFFtype, GO_RIGHT);
+	GetSelStaves(staffL, &minStf, &maxStf);
 
 	/* Prevent deleting more than one part at a time. */
 
-	if (!OnlyOnePart(doc,minStf,maxStf)) {
+	if (!OnlyOnePart(doc, minStf, maxStf)) {
 		StopInform(DELPART_ALRT);
 		return;
 	}
@@ -172,7 +172,7 @@ void MPDeletePart(Document *doc)
 	/* Prevent deleting parts that have any content. */
 
 	Map2OrigStaves(doc, minStf, maxStf, &origMinStf, &origMaxStf);
-	if (!CanDeletePart(doc,origMinStf,origMaxStf))
+	if (!CanDeletePart(doc, origMinStf, origMaxStf))
 		return;
 
 	doc->partChangedMP = TRUE;
@@ -189,8 +189,8 @@ void MPDeletePart(Document *doc)
 			break;
 		}
 
-	DelChangePart(doc,PartFirstSTAFF(partL),PartLastSTAFF(partL));
-	MPRemovePart(doc,partL);
+	DelChangePart(doc, PartFirstSTAFF(partL), PartLastSTAFF(partL));
+	MPRemovePart(doc, partL);
 }
 
 
@@ -199,8 +199,8 @@ has been deleted. */
 
 short CountConnParts(Document */*doc*/, LINK headL, LINK connectL, LINK aConnectL, LINK partL)
 {
-	short firstStf,lastStf,nParts=0,staffAbove,staffBelow;
-	LINK aConnL,aPartL;
+	short firstStf, lastStf, nParts=0, staffAbove, staffBelow;
+	LINK aConnL, aPartL;
 	PACONNECT aConnect;
 
 	firstStf = PartFirstSTAFF(partL);
@@ -241,8 +241,7 @@ the part. staffns of staves have already been updated. The first loop
 updates staffns of connects; lastStf, however, is the PartLASTSTAFF of the
 part deleted before any staffns are updated. */
 
-void UpdateConnFields(LINK connectL,
-						short stfDiff, short lastStf)
+void UpdateConnFields(LINK connectL, short stfDiff, short lastStf)
 {
 	LINK aConnectL;
 	PACONNECT aConnect;
@@ -264,7 +263,7 @@ void UpdateConnFields(LINK connectL,
 	}
 
  	/* If part deleted is removed from inside an already existing group,
-		update the Connect field of that group here.	If the staffBelow field
+		update the Connect field of that group here. If the staffBelow field
 		is >= lastStf, & the staffAbove field is <lastStf, a GroupLevel
 		Connect spans the part deleted. Handle this case here. */
 
@@ -294,9 +293,9 @@ void UpdateConnFields(LINK connectL,
 
 static void MPRemovePart(Document *doc, LINK partL)
 {
-	LINK pL,aStaffL,aConnectL,firstStfL,lastStfL,nextStfL,
-		finalStfL,staffL,thePartL, connectL;
-	short i,firstStf, lastStf, stfDiff, startStf,connParts;
+	LINK pL, aStaffL, aConnectL, firstStfL, lastStfL, nextStfL, finalStfL, staffL,
+		thePartL,  connectL;
+	short i, firstStf, lastStf, stfDiff, startStf, connParts;
 	DDIST newPos; PACONNECT aConnect;
 	DDIST staffTops[MAXSTAVES+1];
 
@@ -331,9 +330,8 @@ static void MPRemovePart(Document *doc, LINK partL)
 				break;
 				
 			case CONNECTtype:
-
 				/* Select PartLevel Connects to be deleted if they fall within the
-					range.
+					range of the part's staves.
 					Select GroupLevel Connects to be deleted if the remaining
 					number of parts for the Connect is < 2, the minimum number
 					of parts which can be grouped. connParts < 0 indicates that
@@ -362,13 +360,12 @@ static void MPRemovePart(Document *doc, LINK partL)
 	}
 
 	if (lastStfL == finalStfL) {
-		newPos = StaffTOP(firstStfL) -
-						(StaffTOP(lastStfL)+5*StaffHEIGHT(lastStfL)/2);
+		newPos = StaffTOP(firstStfL) - (StaffTOP(lastStfL)+5*StaffHEIGHT(lastStfL)/2);
 	}
 	else
 		newPos = StaffTOP(firstStfL) - StaffTOP(nextStfL);
 
-	MPDeleteSelRange(doc,partL);
+	MPDeleteSelRange(doc, partL);
 
 	/* Move down staffns and staffTopMPs */
 
@@ -399,7 +396,7 @@ static void MPRemovePart(Document *doc, LINK partL)
 			doc->staffTopMP[StaffSTAFF(aStaffL)] += newPos;
 	}
 
-	UpdateConnFields(connectL,stfDiff,lastStf);
+	UpdateConnFields(connectL, stfDiff, lastStf);
 
 	MPUpdateStaffTops(doc, doc->masterHeadL, doc->masterTailL);
 	UpdateMPSysRectHeight(doc, newPos);
@@ -1437,17 +1434,17 @@ static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 	GetIndCString(cantSplitPartStr, MPERRS_STRS, 7);			/* "can't Split this Part:" */
 
 	if (!OnlyOnePart(doc,minStf,maxStf)) { 
-		GetIndCString(strBuf, MPERRS_STRS, 6);						/* "can Split only one Part at a time" */
+		GetIndCString(strBuf, MPERRS_STRS, 6);					/* "can Split only one Part at a time" */
 		CParamText(strBuf,	"", "", "");
 		okay = FALSE;
 	}
 	else if (maxStf-minStf+1<2) {
-		GetIndCString(strBuf, MPERRS_STRS, 8);						/* "has only one staff" */
+		GetIndCString(strBuf, MPERRS_STRS, 8);					/* "has only one staff" */
 		CParamText(cantSplitPartStr, strBuf, "", "");
 		okay = FALSE;
 	}
 	else if (GroupSel(doc)) {
-		GetIndCString(strBuf, MPERRS_STRS, 9);						/* "it's within a group" */
+		GetIndCString(strBuf, MPERRS_STRS, 9);					/* "it's within a group" */
 		CParamText(cantSplitPartStr, strBuf, "", "");
 		okay = FALSE;
 	}
@@ -1552,7 +1549,7 @@ void MPDistributeStaves(Document *doc)
 				vertDisplacement = ((i-minStf)*displacementFactor)-StaffTOP(aStaffL);
 				if (vertDisplacement) {
 					staffTopPos = d2pt(vertDisplacement+topStaffHeight);
-					staffTopPos <<= 16; /* value needs to be in high word of number */
+					staffTopPos <<= 16;			/* value needs to be in high word of number */
 					UpdateDraggedStaff(doc, staffL, aStaffL, staffTopPos);
 					i++;
 				}

@@ -6,7 +6,6 @@
 #define NOTJUST_ALRT 180
 #define HIDDENSTAVES_ALRT 184
 #define STFSIZE_ALRT 190				/* Staves aren't the same size as the standard size */
-#define COPY_PROTECT_ALRT 194			/* Problem with copy protection */
 #define MANYPAGES_ALRT 200				/* More pages than can be viewed w/just scroll bar */
 #define NO_OMS_DEVS_ALRT 201			/* With OMS, no devices avail. for playback */
 #define EXPORT_ALRT 202					/* Export master page changes to score? */
@@ -29,7 +28,6 @@
 #define SETSTAFF_ALRT 245
 #define CNFG_ALRT 250
 #define CNFGSIZE_ALRT 252
-#define SERIALNO_ALRT 255
 #define RFMT_EXACT_ALRT 258
 #define RFMT_XSYS1_ALRT 260
 #define RFMT_XSYS2_ALRT 261
