@@ -387,7 +387,7 @@ short NewVoiceNum(Document *doc, LINK partL)
 }
 
 
-/* --------------------------------------------------------------- CountVoices -- */
+/* ---------------------------------------------------------------- CountVoices -- */
 
 /* Return the number of voices in use in the given document. */
 short CountVoices(Document *doc) 
@@ -405,4 +405,30 @@ short CountVoices(Document *doc)
 	return nv;
 }
 
+/* ------------------------------------------------------------ GetVoiceTableLine -- */
+
+/* Get the content of the given line of the voice table in human-readable form. */
+
+void GetVoiceTableLine(Document *doc, short vNum, char *str)
+{
+	unsigned char ch;
+	
+	*str = '\0';
+	if (vNum<1 || vNum>MAXVOICES) return;
+
+	if (doc->voiceTab[vNum].partn!=0) {
+		switch (doc->voiceTab[vNum].voiceRole) {
+			case UPPER_DI: ch = 'U'; break;
+			case LOWER_DI: ch = 'L'; break;
+			case CROSS_DI: ch = 'C'; break;
+			case SINGLE_DI: ch = '.'; break;
+			default: ch = '?';
+		}
+		sprintf(str, "%c%ciVoice %d in part %d Role=%c relVoice=%d",
+					(vNum==doc->lookVoice? 'L' : ' '),
+					(vNum>1 && doc->voiceTab[vNum-1].partn==0? '�' : ' '),
+					vNum, doc->voiceTab[vNum].partn, ch,
+					doc->voiceTab[vNum].relVoice);
+	}
+}
 

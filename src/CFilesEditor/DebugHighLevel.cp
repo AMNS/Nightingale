@@ -17,8 +17,8 @@
 
 #define DDB
 
-static short DebugDialog(char *, short *, short *, short *,
-					Boolean *, Boolean *, Boolean *, Boolean *);
+static short DebugDialog(char *, short *, short *, short *, Boolean *, Boolean *,
+						Boolean *, Boolean *);
 
 short nerr, errLim;
 Boolean minDebugCheck;			/* Do only Most important checks? */
@@ -48,7 +48,7 @@ Boolean DCheckEverything(Document *doc,
 	minDebugCheck = minCheck;
 	 
 #ifdef DDB
-	LogPrintf(LOG_WARNING, "--CHK MAIN:\n");
+	LogPrintf(LOG_INFO, "--CHK MAIN:\n");
 #endif
 	if (DCheckHeaps(doc)) return TRUE;
 	/*
@@ -106,24 +106,24 @@ Boolean DCheckEverything(Document *doc,
 #ifdef DDB
 	strictCont = ContinSelection(doc, TRUE);
 	if (!strictCont) looseCont = ContinSelection(doc, FALSE);
-	LogPrintf(LOG_WARNING, "%s sel, %d objs in range, %d sel, %d total. %c%d voices.\n",
+	LogPrintf(LOG_INFO, "%s sel, %d objs in range, %d sel, %d total. %c%d voices.\n",
 					 (strictCont? "Strict contin." : (looseCont? "Loose contin." : "Discont.")),
 					 nInRange, nSel, nTotal,
 					 (nvUsed>doc->nstaves? '*' : ' '), nvUsed);
 	
 	/* Now check all nodes in the Master Page, Clipboard and the Undo Clipboard. */
 
-	LogPrintf(LOG_WARNING, "--CHK MASTER: ");
+	LogPrintf(LOG_INFO, "--CHK MASTER: ");
 #endif
 	for (pL = doc->masterHeadL; pL!=doc->masterTailL; pL = RightLINK(pL)) {
 		if (DCheckNode(doc, pL, MP_DSTR, maxCheck)<0) return TRUE;
 		DCheckNodeSel(doc, pL);			if (DErrLimit() || UserInterrupt()) return FALSE;
 	}
 #ifdef DDB
-	LogPrintf(LOG_WARNING, " Done.");
+	LogPrintf(LOG_INFO, " Done.");
 #endif
 	
-	LogPrintf(LOG_WARNING, "    --CHK CLIP: ");
+	LogPrintf(LOG_INFO, "    --CHK CLIP: ");
 	InstallDoc(clipboard);
 	for (pL = clipboard->headL; pL!=clipboard->tailL; pL = RightLINK(pL))
 		if (DCheckNode(clipboard, pL, CLIP_DSTR, maxCheck)<0) {
@@ -133,9 +133,9 @@ Boolean DCheckEverything(Document *doc,
 	InstallDoc(doc);
 
 #ifdef DDB
-	LogPrintf(LOG_WARNING, " Done.");
-	if (nerr>0) LogPrintf(LOG_WARNING, " %d ERROR(S). ", nerr); 	
-	LogPrintf(LOG_WARNING, "\n");
+	LogPrintf(LOG_INFO, " Done.");
+	if (nerr>0) LogPrintf(LOG_INFO, " %d ERROR(S). ", nerr); 	
+	LogPrintf(LOG_INFO, "\n");
 #endif
 
 	return FALSE;
@@ -169,16 +169,17 @@ enum
 	MIN_THINGS,
 	INDEX,
 	MEMORY,
-	START=13,
-	STOP=15,
+	VOICETBL_DI,
+	STARTNUM_DI=14,
+	STOPNUM_DI=16,
 	DISPLAY,
 	CHECK,
 	LINKS,
 	SUBENTRIES,
-	LABEL_DI=21
+	LABEL_DI=22
 };
 
-#define LAST_RBUTTON MEMORY
+#define LAST_RBUTTON VOICETBL_DI
 
 static short DebugDialog(char *label, short *what, short *istart, short *istop,
 							Boolean *disp, Boolean *check, Boolean *links, Boolean *subs)
@@ -223,8 +224,8 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 		SetControlValue(whatHdl[*what], 1);		  	
 		whatval = *what;
 	}
-	PutDlgWord(dialogp, START, *istart, FALSE);
-	PutDlgWord(dialogp, STOP, *istop, FALSE);
+	PutDlgWord(dialogp, STARTNUM_DI, *istart, FALSE);
+	PutDlgWord(dialogp, STOPNUM_DI, *istop, FALSE);
 	GetDialogItem(dialogp, DISPLAY, &itype, (Handle *)&dispHdl, &tRect);
 	SetControlValue(dispHdl, (*disp? 1 : 0));
 	GetDialogItem(dialogp, CHECK, &itype, (Handle *)&checkHdl, &tRect);
@@ -233,7 +234,7 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 	SetControlValue(linksHdl, (*links? 1 : 0));
 	GetDialogItem(dialogp, SUBENTRIES, &itype, (Handle *)&subsHdl, &tRect);
 	SetControlValue(subsHdl, (*subs? 1 : 0));
-	SelectDialogItemText(dialogp, STOP, 0, ENDTEXT);					/* Hilite stop no. */
+	SelectDialogItemText(dialogp, STOPNUM_DI, 0, ENDTEXT);					/* Hilite stop no. */
 	if (*what>=EVERYTHING) DISABLE_CONTROLS
 	else				   ENABLE_CONTROLS;
 	dialogOver = FALSE;
@@ -262,6 +263,7 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 			case MIN_THINGS:
 			case INDEX:
 			case MEMORY:
+			case VOICETBL_DI:
 				SetControlValue(whatHdl[whatval], 0);				/* Clear old radio button, */
 				SetControlValue(whatHdl[ditem], 1);					/*   set this one */		  	
 				DISABLE_CONTROLS;
@@ -287,8 +289,8 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 	if (ditem==OK)
 	{
 		*what = whatval;
-		GetDlgWord(dialogp,START,istart);
-		GetDlgWord(dialogp,STOP,istop);
+		GetDlgWord(dialogp,STARTNUM_DI,istart);
+		GetDlgWord(dialogp,STOPNUM_DI,istop);
 		GetDialogItem(dialogp, DISPLAY, &itype, (Handle *)&dispHdl, &tRect);
 		*disp = GetControlValue(dispHdl);
 		GetDialogItem(dialogp, CHECK, &itype, (Handle *)&checkHdl, &tRect);
@@ -397,7 +399,7 @@ Boolean DoDebug(
 		default:
 			strcat(fullLabel, "'");
 	}
-	LogPrintf(LOG_WARNING, "DEBUG '%s: ", fullLabel);
+	LogPrintf(LOG_INFO, "DEBUG '%s: ", fullLabel);
 
 	switch (what) {
 		case EVERYTHING:
@@ -413,7 +415,7 @@ Boolean DoDebug(
 				
 #ifdef DDB
 		case INDEX:
-			LogPrintf(LOG_WARNING, "INDEX: doc->headL=%d tailL=%d\n",
+			LogPrintf(LOG_INFO, "INDEX: doc->headL=%d tailL=%d\n",
 						doc->headL, doc->tailL);
 			kount = inLine = 0;
 			ResetDErrLimit();
@@ -434,16 +436,26 @@ Boolean DoDebug(
 			MemUsageStats(doc);
 			return FALSE;
 			
+		case VOICETBL_DI:
+			short v; char str[300];
+
+			LogPrintf(LOG_INFO, "VOICE TABLE:\n");
+			for (v = 1; v<=CountVoices(doc); v++) {
+				GetVoiceTableLine(doc, v, str);
+				strcat(str, "\n");
+				LogPrintf(LOG_INFO, str);
+			}
+			return FALSE;
+			
 		case FULL:
-			LogPrintf(LOG_WARNING, "FULL%s: headL=%d tailL=%d",
-						(check? "/CHK" : " "),
+			LogPrintf(LOG_INFO, "FULL%s: headL=%d tailL=%d", (check? "/CHK" : " "),
 						doc->headL, doc->tailL);
 			startL = doc->headL;
 			stopL = NILINK;
 			break;
 			
 		case CLIPBOARD:
-			LogPrintf(LOG_WARNING, "CLIP%s: clipboard->headL=%d clipboard->tailL=%d",
+			LogPrintf(LOG_INFO, "CLIP%s: clipboard->headL=%d clipboard->tailL=%d",
 						(check? "/CHK" : " "),
 						clipboard->headL, clipboard->tailL);
 			startL = clipboard->headL;
@@ -451,7 +463,7 @@ Boolean DoDebug(
 			break;
 			
 		case UNDODSTR:
-			LogPrintf(LOG_WARNING, "UNDO%s: undo.headL=%d undo.tailL=%d",
+			LogPrintf(LOG_INFO, "UNDO%s: undo.headL=%d undo.tailL=%d",
 						(check? "/CHK" : " "),
 						doc->undo.headL, doc->undo.headL);
 			startL = doc->undo.headL;
@@ -459,7 +471,7 @@ Boolean DoDebug(
 			break;
 			
 		default:
-			LogPrintf(LOG_WARNING, "SELECT%s: selStartL=%d End=%d ",
+			LogPrintf(LOG_INFO, "SELECT%s: selStartL=%d End=%d ",
 						(check? "/CHK" : " "),
 						doc->selStartL, doc->selEndL);
 			if (check) {
@@ -476,8 +488,8 @@ Boolean DoDebug(
 			stopL = doc->selEndL;
 	}
 	
-	if (disp && startL!=stopL) LogPrintf(LOG_WARNING, " (Obj flags: SelVisSoftValidTwkd)");
-	LogPrintf(LOG_WARNING, "\n");
+	if (disp && startL!=stopL) LogPrintf(LOG_INFO, " (Obj flags: SelVisSoftValidTwkd)");
+	LogPrintf(LOG_INFO, "\n");
 	kount = 0;
 	ResetDErrLimit();
 

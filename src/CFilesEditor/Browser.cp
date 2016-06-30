@@ -743,29 +743,17 @@ void ShowObject(Document *doc, LINK pL, short index)
 
 static void ShowVoicePage(Document *doc, short startV)
 {
-	short v; unsigned char ch;
+	short v;
 	
 	sprintf(s, "The score uses %d voices.", CountVoices(doc));
 	DrawTextLine(s);
 	
 	if (startV<1) startV = 1;				/* Avoid negative index in loop below */
 	
-	for (v = startV; v<startV+VOICEPAGESIZE && v<=MAXVOICES; v++)
-		if (doc->voiceTab[v].partn!=0) {
-			switch (doc->voiceTab[v].voiceRole) {
-				case UPPER_DI: ch = 'U'; break;
-				case LOWER_DI: ch = 'L'; break;
-				case CROSS_DI: ch = 'C'; break;
-				case SINGLE_DI: ch = '.'; break;
-				default: ch = '?';
-			}
-			sprintf(s, "%c%ciVoice %d in part %d Role=%c relVoice=%d",
-						(v==doc->lookVoice? 'L' : ' '),
-						(v>1 && doc->voiceTab[v-1].partn==0? '�' : ' '),
-						v, doc->voiceTab[v].partn, ch,
-						doc->voiceTab[v].relVoice);
-			DrawTextLine(s);
-		}
+	for (v = startV; v<startV+VOICEPAGESIZE && v<=MAXVOICES; v++) {
+		GetVoiceTableLine(doc, v, s);
+		DrawTextLine(s);
+	}
 }
 
 

@@ -681,7 +681,7 @@ Minor cleanup. Affects Browser, Clipboard, DebugUtils, Dragging.
 
 -------------------------------------------------------------------------------
 
-28 June
+28-29 June
 
 Discard alert resources (ALRTs 194 and 255) related to hardware copy protection and
 serial numbers. Affects .rsrc; NResources.h.
@@ -689,4 +689,9 @@ serial numbers. Affects .rsrc; NResources.h.
 Rename the Master Page commands "Add Part/Staff" and "Delete Part/Staff" to "Add Parts"
 and "Delete Part", respectively. Affects .rsrc.
 
-Minor cleanup. Affects MPCommands, MPImportExport.
+Pull GetVoiceTableLine() out of ShowVoicePage(). Affects Browser, VoiceTable.
+
+Add to the Debug dialog an option to display the voice table; enlarge the dialog.
+Affects .rsrc; DebugHighLevel.
+
+Minor cleanup. Affects DebugHighLevel.

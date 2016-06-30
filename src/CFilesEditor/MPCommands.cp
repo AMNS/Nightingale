@@ -1428,7 +1428,8 @@ LINK DefaultVoiceOnOtherStaff(Document *doc, LINK startL, LINK endL, short minSt
 
 static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 {
-	Boolean okay=TRUE; LINK badL; short firstBad;
+	Boolean okay=TRUE, proceed;
+	LINK badL; short firstBad;
 	char cantSplitPartStr[256], fmtStr[256];
 	
 	GetIndCString(cantSplitPartStr, MPERRS_STRS, 7);			/* "can't Split this Part:" */
@@ -1457,10 +1458,18 @@ static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 	}
 	else if (badL = DefaultVoiceOnOtherStaff(doc,doc->headL,doc->tailL,minStf,maxStf)) {
 		firstBad = GetMeasNum(doc, badL);
+#if 1
+		GetIndCString(fmtStr, MPERRS_STRS, 11);					/* "This part has notes in a default voice..." */
+		sprintf(strBuf, fmtStr, firstBad);
+		CParamText(strBuf, "", "", "");
+		proceed = CautionAdvise(GENERIC3_ALRT);
+		return (proceed!=Cancel);
+#else
 		GetIndCString(fmtStr, MPERRS_STRS, 11);					/* "has notes in a default voice..." */
 		sprintf(strBuf, fmtStr, firstBad);
 		CParamText(cantSplitPartStr, strBuf, "", "");
 		okay = FALSE;
+#endif
 	}
 
 	if (!okay) StopInform(GENERIC2_ALRT);	
