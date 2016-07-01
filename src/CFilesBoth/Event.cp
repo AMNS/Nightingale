@@ -726,7 +726,7 @@ static Boolean DoKeyDown(EventRecord *event)
 							}
 						else if (doc && doc->masterView) {
 							nparts = LinkNENTRIES(doc->masterHeadL);	/* FIXME: nparts isn't used! */
-							if (PartSel(doc)) MPDeletePart(doc);
+							if (PartIsSel(doc)) MPDeletePart(doc);
 							}
 						}
 					break;

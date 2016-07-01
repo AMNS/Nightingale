@@ -909,7 +909,7 @@ short GetPartSelRange(Document *doc, LINK *firstPartL, LINK *lastPartL)
 	
 	*firstPartL = *lastPartL = NILINK;
 	
-	if (!PartSel(doc)) {
+	if (!PartIsSel(doc)) {
 		return FALSE;
 	}	
 
@@ -940,9 +940,9 @@ short GetPartSelRange(Document *doc, LINK *firstPartL, LINK *lastPartL)
 	return FALSE;
 }
 
-/* Return TRUE if a range of >1 parts in the Master Page is selected. */
+/* Return TRUE if a range of more than one part in the Master Page is selected. */
 
-short PartRangeSel(Document *doc)
+short PartRangeIsSel(Document *doc)
 {
 	LINK staffL,aStaffL,partL,minPartL,maxPartL;
 	short minStf,maxStf;
@@ -973,7 +973,7 @@ short PartRangeSel(Document *doc)
 /* Return TRUE if any group exists in the selection range, which in this
 case is the range of selected staff subObjects. Otherwise, return FALSE. */
 
-short GroupSel(Document *doc)
+short GroupIsSel(Document *doc)
 {
 	LINK staffL,connectL,aConnectL;
 	short minStf,maxStf;
@@ -1005,7 +1005,7 @@ short GroupSel(Document *doc)
 /* Return TRUE if any staves (and therefore parts) are selected. Otherwise, return
 FALSE. Will correctly return FALSE if score has no parts. */
 
-short PartSel(Document *doc)
+short PartIsSel(Document *doc)
 {
 	LINK staffL,aStaffL;
 
@@ -1274,7 +1274,8 @@ static Boolean MPAdd1StaffParts(Document *, LINK, short, short);
 static void MPFinish1StaffParts(Document *, LINK, LINK);
 static Boolean IsTupletCrossStaff(LINK);
 static LINK XStfObjInRange(LINK, LINK, short, short);
-static LINK DefaultVoiceOnOtherStaff(Document *,LINK,LINK,short,short);
+static Boolean HasVoiceOnMultipleStaves(LINK, LINK, short, short);
+static LINK DefaultVoiceOnOtherStaff(Document *, LINK, LINK, short, short);
 static Boolean OKMake1StaffParts(Document *, short, short);
 
 /* Add <nadd> parts of one staff each AFTER prevPartL to doc's Master Page object
@@ -1348,7 +1349,7 @@ static void MPFinish1StaffParts(Document *doc, LINK origPartL, LINK lastPartL)
 }
 
 
-/* ??Should discard this and call IsTupletCrossStf instead. */
+/* FIXME: Should discard this and call IsTupletCrossStf instead. */
 
 Boolean IsTupletCrossStaff(LINK tupletL)
 {
@@ -1372,10 +1373,10 @@ Boolean IsTupletCrossStaff(LINK tupletL)
 /* If there are any cross-staff object in the given range of LINKs and staves, return
 the first one, else NILINK. NB: For Beamsets, Slurs, and Tuplets, checks only the
 object's staff, so Beamsets and Slurs on staff minStf-1 won't be found. But this can't
-be a problem if minStf is the top staff of a part. ??Comment assumes staff no. is top
-staff of object: wrong for Tuplets! */
+be a problem if minStf is the top staff of a part. FIXME: Comment assumes staff no. is
+top staff of object: wrong for Tuplets! */
 
-LINK XStfObjInRange(LINK startL, LINK endL, short minStf, short maxStf)
+static LINK XStfObjInRange(LINK startL, LINK endL, short minStf, short maxStf)
 {
 	LINK pL;
 	
@@ -1400,6 +1401,42 @@ LINK XStfObjInRange(LINK startL, LINK endL, short minStf, short maxStf)
 	
 	return NILINK;
 }
+
+
+static Boolean HasVoiceOnMultipleStaves(LINK startL, LINK endL, short minStf, short maxStf)
+{
+	LINK pL, aNoteL;
+	short voiceUsedStf[MAXVOICES+1], v, stf, uv;
+	
+	for (v = 1; v<=MAXVOICES; v++)
+		voiceUsedStf[v] = -1;
+		
+	for (pL = startL; pL!=endL; pL = RightLINK(pL))
+		switch (ObjLType(pL)) {
+			case SYNCtype:
+				aNoteL = FirstSubLINK(pL);
+				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+					stf = NoteSTAFF(aNoteL);
+					if (stf>=minStf && stf<=maxStf) {
+						/* Note/rest is on a staff we care about. If its voice has
+							already been used on another staff. we're done. */
+						uv = NoteVOICE(aNoteL);
+						if (voiceUsedStf[uv]>=0) {
+							if (stf!=voiceUsedStf[uv]) return TRUE;
+						}
+						else
+							voiceUsedStf[uv] = stf;
+					}
+				}
+			case GRSYNCtype:
+				break;
+			default:
+				;
+	}
+	
+	return FALSE;
+}
+
 
 LINK DefaultVoiceOnOtherStaff(Document *doc, LINK startL, LINK endL, short minStf,
 										short maxStf)
@@ -1444,28 +1481,37 @@ static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 		CParamText(cantSplitPartStr, strBuf, "", "");
 		okay = FALSE;
 	}
-	else if (GroupSel(doc)) {
+	else if (GroupIsSel(doc)) {
 		GetIndCString(strBuf, MPERRS_STRS, 9);					/* "it's within a group" */
 		CParamText(cantSplitPartStr, strBuf, "", "");
 		okay = FALSE;
 	}
-	else if (badL = XStfObjInRange(doc->headL,doc->tailL,minStf,maxStf)) {
+	else if (badL = XStfObjInRange(doc->headL, doc->tailL, minStf, maxStf)) {
 		firstBad = GetMeasNum(doc, badL);
 		GetIndCString(fmtStr, MPERRS_STRS, 10);					/* "contains cross-staff..." */
 		sprintf(strBuf, fmtStr, firstBad);
 		CParamText(cantSplitPartStr, strBuf, "", "");
 		okay = FALSE;
 	}
-	else if (badL = DefaultVoiceOnOtherStaff(doc,doc->headL,doc->tailL,minStf,maxStf)) {
+	else if (HasVoiceOnMultipleStaves(doc->headL, doc->tailL, minStf, maxStf)) {
+		GetIndCString(fmtStr, MPERRS_STRS, 11);					/* "has a voice in use on two or more staves" */
+		CParamText(cantSplitPartStr, fmtStr, "", "");
+		okay = FALSE;
+	}
+	else if (badL = DefaultVoiceOnOtherStaff(doc, doc->headL, doc->tailL, minStf, maxStf)) {
+	/* This part has at least one default voice with notes/rests on at least one staff
+		other than its "native" staff. If that voice appears on just one staff,
+		splitting it shouldn't be too difficult; if it appears on multiple staves,
+		it'd be very difficult. */
 		firstBad = GetMeasNum(doc, badL);
-#if 1
-		GetIndCString(fmtStr, MPERRS_STRS, 11);					/* "This part has notes in a default voice..." */
+#ifdef NOTYET
+		GetIndCString(fmtStr, MPERRS_STRS, 13);					/* "This part has notes in a default voice..." */
 		sprintf(strBuf, fmtStr, firstBad);
 		CParamText(strBuf, "", "", "");
 		proceed = CautionAdvise(GENERIC3_ALRT);
 		return (proceed!=Cancel);
 #else
-		GetIndCString(fmtStr, MPERRS_STRS, 11);					/* "has notes in a default voice..." */
+		GetIndCString(fmtStr, MPERRS_STRS, 13);					/* "has notes in a default voice..." */
 		sprintf(strBuf, fmtStr, firstBad);
 		CParamText(cantSplitPartStr, strBuf, "", "");
 		okay = FALSE;

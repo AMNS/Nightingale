@@ -975,7 +975,7 @@ void DoMasterStfSize(Document *doc)
 	char			fmtStr[256];
 	static Boolean	selPartsOnly=TRUE;
 
-	partsSelected = PartSel(doc);
+	partsSelected = PartIsSel(doc);
 	srastral = doc->srastralMP;
 
 	newRastral = RastralDialog(partsSelected, srastral, &propRespace, &selPartsOnly);
@@ -1033,7 +1033,7 @@ void DoMasterStfLines(Document *doc)
 	static short apparentStaffLines=STFLINES;
 	static Boolean showLedgers=TRUE, selPartsOnly=TRUE;
 
-	partsSelected = PartSel(doc);
+	partsSelected = PartIsSel(doc);
 	if (partsSelected) {
 		staffL = SSearch(doc->masterHeadL, STAFFtype, GO_RIGHT);
 		for (aStaffL = FirstSubLINK(staffL); aStaffL; aStaffL = NextSTAFFL(aStaffL))

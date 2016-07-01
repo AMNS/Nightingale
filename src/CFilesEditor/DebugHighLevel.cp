@@ -48,7 +48,7 @@ Boolean DCheckEverything(Document *doc,
 	minDebugCheck = minCheck;
 	 
 #ifdef DDB
-	LogPrintf(LOG_INFO, "--CHK MAIN:\n");
+	LogPrintf(LOG_INFO, "--CHECK MAIN:\n");
 #endif
 	if (DCheckHeaps(doc)) return TRUE;
 	/*
@@ -113,7 +113,7 @@ Boolean DCheckEverything(Document *doc,
 	
 	/* Now check all nodes in the Master Page, Clipboard and the Undo Clipboard. */
 
-	LogPrintf(LOG_INFO, "--CHK MASTER: ");
+	LogPrintf(LOG_INFO, "--CHECK MASTER: ");
 #endif
 	for (pL = doc->masterHeadL; pL!=doc->masterTailL; pL = RightLINK(pL)) {
 		if (DCheckNode(doc, pL, MP_DSTR, maxCheck)<0) return TRUE;
@@ -123,7 +123,7 @@ Boolean DCheckEverything(Document *doc,
 	LogPrintf(LOG_INFO, " Done.");
 #endif
 	
-	LogPrintf(LOG_INFO, "    --CHK CLIP: ");
+	LogPrintf(LOG_INFO, "    --CHECK CLIPBOARD: ");
 	InstallDoc(clipboard);
 	for (pL = clipboard->headL; pL!=clipboard->tailL; pL = RightLINK(pL))
 		if (DCheckNode(clipboard, pL, CLIP_DSTR, maxCheck)<0) {

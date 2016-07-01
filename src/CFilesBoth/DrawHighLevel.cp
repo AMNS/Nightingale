@@ -32,7 +32,9 @@ void FrameSysRect(
 			)
 {
 	PenPat(NGetQDGlobalsBlack());
+	ForeColor(blueColor);
 	FrameRect(r);
+	//ForeColor(blackColor);
 	PenNormal();
 }
 

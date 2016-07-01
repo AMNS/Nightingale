@@ -36,9 +36,9 @@ void StoreConnectPart(LINK headL,LINK aConnectL);
 void MPAddPart(Document *doc);
 
 short GetPartSelRange(Document *doc, LINK *firstPart, LINK *lastPart);
-short PartRangeSel(Document *doc);
-short GroupSel(Document *doc);
-short PartSel(Document *doc);
+short PartRangeIsSel(Document *doc);
+short GroupIsSel(Document *doc);
+short PartIsSel(Document *doc);
 
 void MPSetInstr(Document *doc, PPARTINFO pPart);
 void GetSelStaves(LINK staffL,short *minStf,short *maxStf);

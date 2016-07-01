@@ -3045,11 +3045,11 @@ this menu shouldn't be installed, so we don't even need to disable it. */
 
 static void FixMasterPgMenu(Document *doc)
 {
-	short groupSel,nstavesMP, nparts; LINK staffL; Str255 str;
+	short groupIsSel, nstavesMP, nparts; LINK staffL; Str255 str;
 
 	if (doc==NULL || !doc->masterView) return;
 	
-	groupSel = GroupSel(doc);
+	groupIsSel = GroupIsSel(doc);
 	nstavesMP = doc->nstavesMP;
 
 	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
@@ -3060,20 +3060,20 @@ static void FixMasterPgMenu(Document *doc)
 	/* Disable all menu items except Add Parts if score has no parts. */
 
 	nparts = LinkNENTRIES(doc->masterHeadL);
-	XableItem(masterPgMenu, MP_DeletePart, PartSel(doc));
+	XableItem(masterPgMenu, MP_DeletePart, PartIsSel(doc));
 
-	XableItem(masterPgMenu, MP_GroupParts, !groupSel && PartRangeSel(doc) && nstavesMP>0);
-	XableItem(masterPgMenu, MP_UngroupParts, groupSel && nstavesMP>0);
-	XableItem(masterPgMenu, MP_SplitPart, PartSel(doc));
-	XableItem(masterPgMenu, MP_DistributeStaves, PartSel(doc));
+	XableItem(masterPgMenu, MP_GroupParts, !groupIsSel && PartRangeIsSel(doc) && nstavesMP>0);
+	XableItem(masterPgMenu, MP_UngroupParts, groupIsSel && nstavesMP>0);
+	XableItem(masterPgMenu, MP_SplitPart, PartIsSel(doc));
+	XableItem(masterPgMenu, MP_DistributeStaves, PartIsSel(doc));
 	
 	XableItem(masterPgMenu, MP_StaffSize, nstavesMP>0);
 	XableItem(masterPgMenu, MP_StaffLines, nstavesMP>0);
 	XableItem(masterPgMenu, MP_EditMargins, nstavesMP>0);
 
-	XableItem(masterPgMenu, MP_Instrument, nstavesMP>0 && PartSel(doc));
+	XableItem(masterPgMenu, MP_Instrument, nstavesMP>0 && PartIsSel(doc));
 	
-//	XableItem(masterPgMenu, MP_CombineParts, nstavesMP>0 && PartRangeSel(doc));
+//	XableItem(masterPgMenu, MP_CombineParts, nstavesMP>0 && PartRangeIsSel(doc));
 }
 
 
