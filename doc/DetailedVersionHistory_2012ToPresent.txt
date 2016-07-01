@@ -681,7 +681,7 @@ Minor cleanup. Affects Browser, Clipboard, DebugUtils, Dragging.
 
 -------------------------------------------------------------------------------
 
-28-29 June
+28 June - 1 July
 
 Discard alert resources (ALRTs 194 and 255) related to hardware copy protection and
 serial numbers. Affects .rsrc; NResources.h.
@@ -694,4 +694,14 @@ Pull GetVoiceTableLine() out of ShowVoicePage(). Affects Browser, VoiceTable.
 Add to the Debug dialog an option to display the voice table; enlarge the dialog.
 Affects .rsrc; DebugHighLevel.
 
-Minor cleanup. Affects DebugHighLevel.
+For the "Split Part" command, distinguish between the cases where a default voice is
+on one staff other than its "native" staff (should be able to handle it soon) and
+where it's on multiple staves (much more difficult; unlikely we'll handle it any time
+soon). Affects .rsrc; MPCommands.
+
+Rename Boolean functions PartSel, PartRangeSel, & GroupSel to PartIsSel, PartRangeIsSel,
+& GroupIsSel, respectively. Affects MasterPage.h; Event, MasterPage, Menu, MPCommands.
+
+Make "Frame System Boxes" frame them in blue instead of black. Affects DrawHighLevel.
+
+Minor cleanup. Affects DebugHighLevel, MPCommands.
