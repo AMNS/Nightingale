@@ -1,6 +1,9 @@
-NIGHTINGALE PROGRAMMER'S QUICK REFERENCE as of v.2000
+NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.6)
 Nightingale Technical Note #1
-Don Byrd, minor rev. December 2012
+Don Byrd, rev. early July 2016
+
+NB: Everything in this document applies to versions of Nightingale at least as far back as
+v. 2000.
 
 Also see the important header files:
 
@@ -15,6 +18,9 @@ Also see the important header files:
 		MemMacros.h: macros for the memory-management layer
 		vars.h: global variables and tables including the symbol table (symtable), the
 						object-properties table (objTable), staff sizes, and subObjLength[].
+
+The voice-mapping table -- for the document _doc_, _doc->voiceTab[]_ -- is described in
+comments at the beginning of VoiceTable.c.
 
 ---------------------------------------------------------------------------------------
 
@@ -76,67 +82,67 @@ object header, which must not be re-positioned. In the future, this may apply to
 other fields as well. */
 
 #define OBJECTHEADER \
-	LINK			right, left;	/* links to left and right objects */			\
-	LINK			firstSubObj;	/* link to first subObject */						\
-	DDIST			xd, yd;			/* position of object */							\
-	SignedByte	type;				/* (.+#10) object type */							\
-	Boolean		selected:1;		/* TRUE if any part of object selected */		\
-	Boolean		visible:1;		/* TRUE if any part of object is visible */	\
-	Boolean		soft:1;			/* TRUE if object is program-generated */		\
+	LINK		right, left;		/* links to left and right objects */					\
+	LINK		firstSubObj;		/* link to first subObject */							\
+	DDIST		xd, yd;				/* position of object */								\
+	SignedByte	type;				/* (.+#10) object type */								\
+	Boolean		selected:1;			/* TRUE if any part of object selected */				\
+	Boolean		visible:1;			/* TRUE if any part of object is visible */				\
+	Boolean		soft:1;				/* TRUE if object is program-generated */				\
 	Boolean		valid:1;			/* TRUE if objRect (for Measures, measureBBox also) valid. */ \
-	Boolean		tweaked:1;		/* TRUE if object dragged or position edited with Get Info */ \
-	Boolean		spareFlag:1;	/* available for general use */					\
-	char			ohdrFiller1:2;	/* unused; could use for specific "tweak" flags */ \
-	Rect			objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ \
-	SignedByte	relSize;			/* (unused) size rel. to normal for object & context */ \
-	SignedByte	ohdrFiller2;	/* unused */											\
-	Byte			nEntries;		/* (.+#22) number of subobjects in object */
+	Boolean		tweaked:1;			/* TRUE if object dragged or position edited with Get Info */ \
+	Boolean		spareFlag:1;		/* available for general use */							\
+	char		ohdrFiller1:2;		/* unused; could use for specific "tweak" flags */		\
+	Rect		objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ 	\
+	SignedByte	relSize;			/* (unused) size rel. to normal for object & context */	\
+	SignedByte	ohdrFiller2;		/* unused */											\
+	Byte		nEntries;			/* (.+#22) number of subobjects in object */
 	
 #define SUBOBJHEADER \
-	LINK			next;				/* index of next subobj */							\
-	SignedByte	staffn;			/* staff number. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
-	SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */	\
-	Boolean		selected:1;		/* TRUE if subobject is selected */				\
-	Boolean		visible:1;		/* TRUE if subobject is visible */				\
-	Boolean		soft:1;			/* TRUE if subobject is program-generated */
+	LINK		next;				/* index of next subobj */								\
+	SignedByte	staffn;				/* staff number. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
+	SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */		\
+	Boolean		selected:1;			/* TRUE if subobject is selected */						\
+	Boolean		visible:1;			/* TRUE if subobject is visible */						\
+	Boolean		soft:1;				/* TRUE if subobject is program-generated */
 
 #define EXTOBJHEADER \
-	SignedByte	staffn;			/* staff number: for cross-staff objs, of top staff ??except tuplets! */
+	SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff FIXME: except tuplets! */
 
 ---------------------------------------------------------------------------------------
 
 Object table (from vars.h)
 
 OBJDATA objTable[] = {
-	/*	objtype  justType	minEnt		maxEnt		objRectOrd */
+	/*	objtype  justType	minEnt	maxEnt	objRectOrd */
 	HEADERtype,	0,			2,			MAXSTAVES+1,FALSE,
-	TAILtype,	J_IT,		0,			0,				FALSE,
-	SYNCtype,	J_IT,		1,			255,			TRUE,
+	TAILtype,	J_IT,		0,			0,			FALSE,
+	SYNCtype,	J_IT,		1,			255,		TRUE,
 	RPTENDtype,	J_IT,		1,			MAXSTAVES,	TRUE,
-	PAGEtype,	J_STRUC,	0,			0,				FALSE,
+	PAGEtype,	J_STRUC,	0,			0,			FALSE,
 
-	SYSTEMtype,	J_STRUC,	0,			0,				FALSE,
+	SYSTEMtype,	J_STRUC,	0,			0,			FALSE,
 	STAFFtype,	J_STRUC,	1,			MAXSTAVES,	FALSE,
 	MEASUREtype,J_IT,		1,			MAXSTAVES,	TRUE,
 	CLEFtype,	J_IP,		1,			MAXSTAVES,	TRUE,
 	KEYSIGtype,	J_IP,		1,			MAXSTAVES,	TRUE,
 
 	TIMESIGtype,J_IP,		1,			MAXSTAVES,	TRUE,
-	BEAMSETtype,J_D,		2,			127,			FALSE,
+	BEAMSETtype,J_D,		2,			127,		FALSE,
 	CONNECTtype,J_D,		1,			MAXSTAVES,	TRUE,
 	DYNAMtype,	J_D,		1,			MAXSTAVES,	FALSE,
-	MODNRtype,	0,			0,			0,				FALSE,
+	MODNRtype,	0,			0,			0,			FALSE,
 
-	GRAPHICtype,J_D,		1,			255,			FALSE,
-	OCTAVAtype,	J_D,		1,			MAXINOCTAVA,TRUE,
+	GRAPHICtype,J_D,		1,			255,		FALSE,
+	OTTAVAtype,	J_D,		1,			MAXINOTTAVA,TRUE,
 	SLURtype,	J_D,		1,			MAXCHORD,	FALSE,
-	TUPLETtype,	J_D,		2,			127,			FALSE,
-	GRSYNCtype,	J_IP,		1,			255,			TRUE,
-	TEMPOtype,	J_D,		0,			0,				FALSE,
-	SPACEtype,	J_IT,		0,			0,				TRUE,	
-	ENDINGtype,	J_D,		0,			0,				FALSE,
+	TUPLETtype,	J_D,		2,			127,		FALSE,
+	GRSYNCtype,	J_IP,		1,			255,		TRUE,
+	TEMPOtype,	J_D,		0,			0,			FALSE,
+	SPACERtype,	J_IT,		0,			0,			TRUE,	
+	ENDINGtype,	J_D,		0,			0,			FALSE,
 	PSMEAStype, J_IT,		1,			MAXSTAVES,	TRUE,	
-	OBJtype,		J_STRUC,	0,			0,				FALSE
+	OBJtype,	J_STRUC,	0,			0,			FALSE
 };
 
 ---------------------------------------------------------------------------------------
@@ -156,14 +162,14 @@ Document *doc; LINK headL, tailL;
 TRUE if things are so badly screwed up that quitting immediately is desirable. */
 
 Boolean DoDebug(label, showWind)
-char		*label;						/* Identifying string to display */
+char	*label;						/* Identifying string to display */
 Boolean	showWind;					/* Bring info display window to front? */
 
 ----------------------------------------------------------------------------------------
 
-Results of "Display memory usage" on a New score in version 2.1b20+:
+Results of "Display memory usage" on a New score in Nightingale 5.6:
 
-  HEAD Heap: 4 in use (62 bytes each)
+  HEAD Heap: 4 in use (346 bytes each)
   SYNC Heap: 0 in use (30 bytes each)
   REPEATEND Heap: 0 in use (6 bytes each)
   STAFF Heap: 4 in use (50 bytes each)
@@ -173,7 +179,7 @@ Results of "Display memory usage" on a New score in version 2.1b20+:
   TIMESIG Heap: 2 in use (12 bytes each)
   BEAMSET Heap: 0 in use (6 bytes each)
   CONNECT Heap: 4 in use (12 bytes each)
-  DYNAMIC Heap: 0 in use (12 bytes each)
+  DYNAMIC Heap: 0 in use (14 bytes each)
   MODNR Heap: 0 in use (6 bytes each)
   GRAPHIC Heap: 0 in use (6 bytes each)
   OCTAVE Heap: 0 in use (4 bytes each)
@@ -182,14 +188,14 @@ Results of "Display memory usage" on a New score in version 2.1b20+:
   GRSYNC Heap: 0 in use (30 bytes each)
   PSEUDOMEAS Heap: 0 in use (6 bytes each)
   OBJECT Heap: 0 in use (46 bytes each)
-Size of *=8 DOCHDR=72 SCOREHDR=1412 *=2 strPool=50
-        *=4 { heapHdrs=468 HeapsMem/File=1404/1158 } TOTAL Mem/File=3424/3178
+Size of *=8 DOCHDR=72 SCOREHDR=2148 *=2 strPool=306
+ TOTAL Mem/File=5552/5306
 
-NB: File size given is slightly different from the actual size, I don't know why.
+"Mem/File=xxx/yyy" means size in memory is xxx, in a file yyy.
 
-NB: In versions of Ngale going back for years now, SCOREHDR is much larger: TN #4
-says 2148 bytes, and I have no reason to doubt that, though I haven't checked.
---DAB, Dec. 2012
+NB: According to Finder on OS 10.5.8, the file size is actually 5984, about 600
+bytes larger than the number given above.
+
 
 -----------------------------------------------------------------------------------------
 
@@ -203,12 +209,12 @@ This header, like all headers, takes 16 bytes. In hexadecimal:
 Offset
 	Contents
 0	01C3 3CA0	Handle block;					/* Handle to floating array of objects */
-4	001E			INT16 objSize;				/* Size in bytes of each object in array */
-6	0002			INT16 type;					/* Type of object for this heap */
-8	0894			LINK firstFree;				/* Index of head of free list */
-10	0909			unsigned INT16 nObjs;		/* Maximum number of objects in heap block */
-12	0607			unsigned INT16 nFree;		/* Size of the free list */
-14	0000			INT16 lockLevel;			/* Nesting lock level: >0 ==> locked */
+4	001E		INT16 objSize;					/* Size in bytes of each object in array */
+6	0002		INT16 type;						/* Type of object for this heap */
+8	0894		LINK firstFree;					/* Index of head of free list */
+10	0909		unsigned INT16 nObjs;			/* Maximum number of objects in heap block */
+12	0607		unsigned INT16 nFree;			/* Size of the free list */
+14	0000		INT16 lockLevel;				/* Nesting lock level: >0 ==> locked */
 
 
 A Typical Simple Note, byte-by-byte
@@ -217,15 +223,15 @@ This is an 8th-note F#5 (treble clef top line, MIDI notenum=78=0x4E); not in a c
 beam, tie, slur, tuplet, or octave sign; no modifiers; play duration=228=0xE4 ticks;
 On Velocity=75=0x4B; Off Velocity=64=0x40.
 
-A Sync subobject, whether note or rest, takes 30 bytes. In hexadecimal:
+Every Sync subobject, whether note or rest, takes 30 bytes. In hexadecimal:
 0000 0105 40EC 0000 0000 0150 0000 00E4 0000 4E4B 4010 0140 280B 0000 0000 
 
 Offset
 	Contents
 	(SUBOBJHEADER:)
-0	0000	LINK			next;				/* index of next subobj */
+0	0000	LINK		next;			/* index of next subobj */
 2	01		SignedByte	staffn;			/* staff number */
-3	05		SignedByte	subType;			/* subType (l_dur): LG: <0=n measure rest, 0=unknown, >0=Logical (CMN) dur. code */
+3	05		SignedByte	subType;		/* subType (l_dur): LG: <0=n measure rest, 0=unknown, >0=Logical (CMN) dur. code */
 4	40		Boolean		selected:1;		/* (.+4) TRUE if subobject is selected */
 			Boolean		visible:1;		/* TRUE if subobject is visible */
 			Boolean		soft:1;			/* TRUE if subobject is program-generated */
@@ -237,35 +243,35 @@ Offset
 			Boolean		otherStemSide:1;	/* G: TRUE if note goes on "wrong" side of stem */
 	    
 5	EC		SHORTQD		yqpit;			/* LG: clef-independent dist. below middle C ("pitch") (unused for rests) */
-6	0000	DDIST			xd, yd;			/* G: head position */
+6	0000	DDIST		xd, yd;			/* G: head position */
 8	0000
-10	0150	DDIST			ystem;			/* (.+10) G: endpoint of stem (unused for rests) */
-12	0000	INT16			playTimeDelta;	/* P: PDURticks before/after timeStamp when note starts */
-14	00E4	INT16			playDur;			/* P: PDURticks that note plays for */
-16	0000	INT16			pTime;			/* P: PDURticks play time; for internal use by Tuplet routines */
-18	4E		Byte			noteNum;			/* P: MIDI note number (unused for rests) */
-19	4B		Byte			onVelocity;		/* P: MIDI note-on velocity, normally loudness (unused for rests) */
-20	40		Byte			offVelocity;	/* (.+20) P: MIDI note-off (release) velocity (unused for rests) */
-21	10		Boolean		tiedL:1;			/* TRUE if tied to left */
-			Boolean		tiedR:1;			/* TRUE if tied to right */
-			Byte			ymovedots:2;	/* G: Y-offset on dot pos. (halflines, 2=same as note, except 0=invisible) */
-			Byte			ndots:4;			/* LG: No. of dots */
+10	0150	DDIST		ystem;			/* (.+10) G: endpoint of stem (unused for rests) */
+12	0000	INT16		playTimeDelta;	/* P: PDURticks before/after timeStamp when note starts */
+14	00E4	INT16		playDur;		/* P: PDURticks that note plays for */
+16	0000	INT16		pTime;			/* P: PDURticks play time; for internal use by Tuplet routines */
+18	4E		Byte		noteNum;		/* P: MIDI note number (unused for rests) */
+19	4B		Byte		onVelocity;		/* P: MIDI note-on velocity, normally loudness (unused for rests) */
+20	40		Byte		offVelocity;	/* (.+20) P: MIDI note-off (release) velocity (unused for rests) */
+21	10		Boolean		tiedL:1;		/* TRUE if tied to left */
+			Boolean		tiedR:1;		/* TRUE if tied to right */
+			Byte		ymovedots:2;	/* G: Y-offset on dot pos. (halflines, 2=same as note, except 0=invisible) */
+			Byte		ndots:4;		/* LG: No. of dots */
 22	01		SignedByte	voice;			/* L: Voice number */
-23	40		Byte			accident:4;		/* LG: 0=none, 1--5=dbl. flat--dbl. sharp (unused for rests) */
+23	40		Byte		accident:4;		/* LG: 0=none, 1--5=dbl. flat--dbl. sharp (unused for rests) */
 			Boolean		accSoft : 1;	/* L: Was accidental generated by Nightingale? */
-			Byte			micropitch:3;	/* LP: Microtonal pitch modifier */
-24	28		Byte			xmoveAcc:5;		/* G: X-offset to left on accidental position */
-			Byte			merged:1;		/* temporary flag for Merge functions */
-			Byte			filler:1;
-			Byte			doubleDur:1;	/* G: Draw as if double the actual duration */
-25	0B		Byte			headShape:5;	/* G: Special notehead or rest shape; see list below */
-			Byte			xmovedots:3;	/* G: x-offset on dot position (4=normal??) */
-26	0000	LINK			firstMod;		/* LG: Note-related symbols (articulation, fingering, etc.) */
-28	00		Byte			slurredL:2;		/* TRUE if endpoint of slur to left (extra bit for future use) */
-			Byte			slurredR:2;		/* TRUE if endpoint of slur to right (extra bit for future use) */
-			Byte			inTuplet:1;		/* TRUE if in a tuplet */
-			Byte			inOctava:1;		/* TRUE if in an octava */
-			Byte			small:1;			/* TRUE if a small (cue, etc.) note */
-			Byte			tempFlag:1;		/* temporary flag for benefit of functions that need it */
+			Byte		micropitch:3;	/* LP: Microtonal pitch modifier */
+24	28		Byte		xmoveAcc:5;		/* G: X-offset to left on accidental position */
+			Byte		merged:1;		/* temporary flag for Merge functions */
+			Byte		filler:1;
+			Byte		doubleDur:1;	/* G: Draw as if double the actual duration */
+25	0B		Byte		headShape:5;	/* G: Special notehead or rest shape; see list below */
+			Byte		xmovedots:3;	/* G: x-offset on dot position (4=normal??) */
+26	0000	LINK		firstMod;		/* LG: Note-related symbols (articulation, fingering, etc.) */
+28	00		Byte		slurredL:2;		/* TRUE if endpoint of slur to left (extra bit for future use) */
+			Byte		slurredR:2;		/* TRUE if endpoint of slur to right (extra bit for future use) */
+			Byte		inTuplet:1;		/* TRUE if in a tuplet */
+			Byte		inOctava:1;		/* TRUE if in an octava */
+			Byte		small:1;		/* TRUE if a small (cue, etc.) note */
+			Byte		tempFlag:1;		/* temporary flag for benefit of functions that need it */
 29	00		SignedByte	fillerN;
 
