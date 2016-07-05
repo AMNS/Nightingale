@@ -1274,8 +1274,8 @@ static Boolean MPAdd1StaffParts(Document *, LINK, short, short);
 static void MPFinish1StaffParts(Document *, LINK, LINK);
 static Boolean IsTupletCrossStaff(LINK);
 static LINK XStfObjInRange(LINK, LINK, short, short);
-static Boolean HasVoiceOnMultipleStaves(LINK, LINK, short, short);
-static LINK DefaultVoiceOnOtherStaff(Document *, LINK, LINK, short, short);
+static LINK HasVoiceOnMultipleStaves(LINK, LINK, short, short);
+static LINK DefaultVoiceOnOtherStaff(Document *, LINK, LINK, short, short, short *);
 static Boolean OKMake1StaffParts(Document *, short, short);
 
 /* Add <nadd> parts of one staff each AFTER prevPartL to doc's Master Page object
@@ -1351,7 +1351,7 @@ static void MPFinish1StaffParts(Document *doc, LINK origPartL, LINK lastPartL)
 
 /* FIXME: Should discard this and call IsTupletCrossStf instead. */
 
-Boolean IsTupletCrossStaff(LINK tupletL)
+static Boolean IsTupletCrossStaff(LINK tupletL)
 {
 	short tupStaff, tupVoice; LINK aNoteTupleL, aNoteL; PANOTETUPLE aNoteTuple;
 	
@@ -1403,7 +1403,10 @@ static LINK XStfObjInRange(LINK startL, LINK endL, short minStf, short maxStf)
 }
 
 
-static Boolean HasVoiceOnMultipleStaves(LINK startL, LINK endL, short minStf, short maxStf)
+/* In the given object list in the given range of staves, if any voices have notes/rests
+on more than staff, return the Sync containing first detected; else return NILINK. */
+
+static LINK HasVoiceOnMultipleStaves(LINK startL, LINK endL, short minStf, short maxStf)
 {
 	LINK pL, aNoteL;
 	short voiceUsedStf[MAXVOICES+1], v, stf, uv;
@@ -1418,11 +1421,11 @@ static Boolean HasVoiceOnMultipleStaves(LINK startL, LINK endL, short minStf, sh
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					stf = NoteSTAFF(aNoteL);
 					if (stf>=minStf && stf<=maxStf) {
-						/* Note/rest is on a staff we care about. If its voice has
-							already been used on another staff. we're done. */
+						/* This note/rest is on a staff we care about. If its voice has
+							already been used on another staff, we're done. */
 						uv = NoteVOICE(aNoteL);
 						if (voiceUsedStf[uv]>=0) {
-							if (stf!=voiceUsedStf[uv]) return TRUE;
+							if (stf!=voiceUsedStf[uv]) return pL;
 						}
 						else
 							voiceUsedStf[uv] = stf;
@@ -1434,12 +1437,15 @@ static Boolean HasVoiceOnMultipleStaves(LINK startL, LINK endL, short minStf, sh
 				;
 	}
 	
-	return FALSE;
+	return NILINK;
 }
 
+/* In the given object list in the given range of staves, if there are any default
+voices with notes/rests on a staff other than their "native" staff, return the
+object they occur in and (in the last parameter) the user voice no. of the first. */
 
-LINK DefaultVoiceOnOtherStaff(Document *doc, LINK startL, LINK endL, short minStf,
-										short maxStf)
+static LINK DefaultVoiceOnOtherStaff(Document *doc, LINK startL, LINK endL, short minStf,
+										short maxStf, short *problemVoice)
 {
 	LINK pL, aNoteL, partL; short stf, uVoice;
 	
@@ -1451,8 +1457,10 @@ LINK DefaultVoiceOnOtherStaff(Document *doc, LINK startL, LINK endL, short minSt
 					stf = NoteSTAFF(aNoteL);
 					if (stf>=minStf && stf<=maxStf) {
 						Int2UserVoice(doc, NoteVOICE(aNoteL), &uVoice, &partL);
-						if (uVoice<=maxStf-minStf+1 && uVoice!=stf-minStf+1)
+						if (uVoice<=maxStf-minStf+1 && uVoice!=stf-minStf+1) {
+							*problemVoice = uVoice;
 							return pL;
+						}
 					}
 				}
 				break;
@@ -1466,7 +1474,8 @@ LINK DefaultVoiceOnOtherStaff(Document *doc, LINK startL, LINK endL, short minSt
 static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 {
 	Boolean okay=TRUE, proceed;
-	LINK badL; short firstBad;
+	LINK badL;
+	short firstBad, problemV;
 	char cantSplitPartStr[256], fmtStr[256];
 	
 	GetIndCString(cantSplitPartStr, MPERRS_STRS, 7);			/* "can't Split this Part:" */
@@ -1493,29 +1502,24 @@ static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 		CParamText(cantSplitPartStr, strBuf, "", "");
 		okay = FALSE;
 	}
-	else if (HasVoiceOnMultipleStaves(doc->headL, doc->tailL, minStf, maxStf)) {
-		GetIndCString(fmtStr, MPERRS_STRS, 11);					/* "has a voice in use on two or more staves" */
-		CParamText(cantSplitPartStr, fmtStr, "", "");
-		okay = FALSE;
-	}
-	else if (badL = DefaultVoiceOnOtherStaff(doc, doc->headL, doc->tailL, minStf, maxStf)) {
-	/* This part has at least one default voice with notes/rests on at least one staff
-		other than its "native" staff. If that voice appears on just one staff,
-		splitting it shouldn't be too difficult; if it appears on multiple staves,
-		it'd be very difficult. */
+	else if (badL = HasVoiceOnMultipleStaves(doc->headL, doc->tailL, minStf, maxStf)) {
 		firstBad = GetMeasNum(doc, badL);
-#ifdef NOTYET
-		GetIndCString(fmtStr, MPERRS_STRS, 13);					/* "This part has notes in a default voice..." */
-		sprintf(strBuf, fmtStr, firstBad);
-		CParamText(strBuf, "", "", "");
-		proceed = CautionAdvise(GENERIC3_ALRT);
-		return (proceed!=Cancel);
-#else
-		GetIndCString(fmtStr, MPERRS_STRS, 13);					/* "has notes in a default voice..." */
+		GetIndCString(fmtStr, MPERRS_STRS, 11);					/* "has a voice in use on two or more staves..." */
 		sprintf(strBuf, fmtStr, firstBad);
 		CParamText(cantSplitPartStr, strBuf, "", "");
 		okay = FALSE;
-#endif
+	}
+	else if (badL = DefaultVoiceOnOtherStaff(doc, doc->headL, doc->tailL, minStf, maxStf, &problemV)) {
+	/* This part has at least one default voice with notes/rests on at least one staff
+		other than its "native" staff. That requires special attention, but we know from
+		the above tests that every voice appears on just one staff, and in such a case
+		splitting the part shouldn't be too difficult. But I don't have the time now.
+		--DAB, 7/2016 */
+		firstBad = GetMeasNum(doc, badL);
+		GetIndCString(fmtStr, MPERRS_STRS, 13);					/* "has notes in a default voice..." */
+		sprintf(strBuf, fmtStr, problemV, problemV, firstBad);
+		CParamText(cantSplitPartStr, strBuf, "", "");
+		okay = FALSE;
 	}
 
 	if (!okay) StopInform(GENERIC2_ALRT);	
@@ -1523,18 +1527,19 @@ static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 	return okay;
 }
 
-/* Replace the selected n-staff part with n 1-staff parts. */
+
+/* Split the the selected n-staff part, i.e., replace it with n 1-staff parts. */
 
 Boolean DoMake1StaffParts(Document *doc)
 {
-	LINK staffL,aStaffL,partL,thePartL,newPartL; PASTAFF aStaff;
-	short minStf,maxStf,firstStf,lastStf,nStavesAdd;
+	LINK staffL, aStaffL, partL, thePartL, newPartL; PASTAFF aStaff;
+	short minStf, maxStf, firstStf, lastStf, nStavesAdd;
 
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
 	if (!LinkSEL(staffL)) return FALSE;
 
-	GetSelStaves(staffL,&minStf,&maxStf);
-	if (!OKMake1StaffParts(doc,minStf,maxStf)) return FALSE;
+	GetSelStaves(staffL, &minStf, &maxStf);
+	if (!OKMake1StaffParts(doc, minStf, maxStf)) return FALSE;
 	
 	partL = FirstSubLINK(doc->masterHeadL);
 	for (partL = NextPARTINFOL(partL); partL; partL = NextPARTINFOL(partL)) {
@@ -1561,7 +1566,7 @@ Boolean DoMake1StaffParts(Document *doc)
 		(if the user saves changes when they leave Master Page) will make the same
 		changes to the main score object list. */
 	
-	if (newPartL = MPAdd1StaffParts(doc,thePartL,nStavesAdd,aStaff->showLines)) {	/* ??FALSE leaves doc in inconsistent state! */
+	if (newPartL = MPAdd1StaffParts(doc,thePartL,nStavesAdd,aStaff->showLines)) {
 		MPFinish1StaffParts(doc,thePartL, newPartL);
 		
 		Make1StaffChangeParts(doc,firstStf,nStavesAdd,aStaff->showLines);

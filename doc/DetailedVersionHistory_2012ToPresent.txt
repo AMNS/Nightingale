@@ -674,14 +674,14 @@ Now that the Browser window is slightly larger, have it show the first 25 voices
 the voice-mapping table instead of 24. Affects Browser.
 
 Have the Debug command check note play durations for "Check standard things", not just
-"Check all possible"; fix a bug in its checking resulting in complaints about notes
+"Check all possible"; fix a bug in its checking that results in complaints about notes
 that are really okay. Affects DebugUtils.
 
 Minor cleanup. Affects Browser, Clipboard, DebugUtils, Dragging.
 
 -------------------------------------------------------------------------------
 
-28 June - 1 July
+28 - 30 June
 
 Discard alert resources (ALRTs 194 and 255) related to hardware copy protection and
 serial numbers. Affects .rsrc; NResources.h.
@@ -695,13 +695,19 @@ Add to the Debug dialog an option to display the voice table; enlarge the dialog
 Affects .rsrc; DebugHighLevel.
 
 For the "Split Part" command, distinguish between the cases where a default voice is
-on one staff other than its "native" staff (should be able to handle it soon) and
+on one staff other than its "native" staff (may be able to handle it soon) and
 where it's on multiple staves (much more difficult; unlikely we'll handle it any time
 soon). Affects .rsrc; MPCommands.
 
 Rename Boolean functions PartSel, PartRangeSel, & GroupSel to PartIsSel, PartRangeIsSel,
 & GroupIsSel, respectively. Affects MasterPage.h; Event, MasterPage, Menu, MPCommands.
 
+-------------------------------------------------------------------------------
+
+1 - 5 July
+
 Make "Frame System Boxes" frame them in blue instead of black. Affects DrawHighLevel.
+
+Improve error messages for the Split Part command. Affects .rsrc; MPCommands.
 
 Minor cleanup. Affects DebugHighLevel, MPCommands.

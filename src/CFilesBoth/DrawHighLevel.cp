@@ -34,7 +34,6 @@ void FrameSysRect(
 	PenPat(NGetQDGlobalsBlack());
 	ForeColor(blueColor);
 	FrameRect(r);
-	//ForeColor(blackColor);
 	PenNormal();
 }
 
@@ -60,12 +59,12 @@ range to be drawn. */
 static void DrawMasterSystem(Document *doc, LINK fromL, LINK toL, CONTEXT context[],
 Rect *paper, Rect *updateRect, short sysNum)
 {
-	LINK pL; Rect r,result,paperUpdate;
+	LINK pL; Rect r, result, paperUpdate;
 	PSYSTEM pSystem;
 	short ground;
 
 	paperUpdate = *updateRect;
-	OffsetRect(&paperUpdate,-paper->left,-paper->top);
+	OffsetRect(&paperUpdate, -paper->left, -paper->top);
 	ground = (sysNum==1? TOPSYS_STAFF :
 					(sysNum==2? SECONDSYS_STAFF :
 						OTHERSYS_STAFF ));
@@ -82,7 +81,7 @@ Rect *paper, Rect *updateRect, short sysNum)
 				/* Convert systemRect to paper-relative pixels */
 				D2Rect(&pSystem->systemRect, &r);
 				/* Convert to window-relative and check for intersection with update area */
-				OffsetRect(&r,paper->left,paper->top);
+				OffsetRect(&r, paper->left,paper->top);
 				
 				if (VISIBLE(pL) && SectRect(&r,updateRect,&result) || outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
@@ -111,13 +110,13 @@ static void DrawMasterRange(Document *doc, LINK /*fromL*/, LINK /*toL*/, CONTEXT
 
 	/* If the score has no parts, return without drawing anything. */
 
-	staffL = SSearch(doc->masterHeadL,STAFFtype,GO_RIGHT);
+	staffL = SSearch(doc->masterHeadL, STAFFtype, GO_RIGHT);
 	if (LinkNENTRIES(staffL)==0) return;
 
 	/* Draw the single "real" master system. */
 	
-	DrawMasterSystem(doc,doc->masterHeadL,doc->masterTailL,context,paper,
-							updateRect,++sysNum);
+	DrawMasterSystem(doc, doc->masterHeadL, doc->masterTailL, context, paper,
+							updateRect, ++sysNum);
 
 	sysL = LSSearch(doc->masterHeadL, SYSTEMtype, ANYONE, FALSE, FALSE);
 	oldSysRect = SystemRECT(sysL);
@@ -131,8 +130,8 @@ static void DrawMasterRange(Document *doc, LINK /*fromL*/, LINK /*toL*/, CONTEXT
 	 */
 	if ((long)SystemRECT(sysL).bottom+(long)sysOffset<=32767L) {
 		OffsetDRect(&SystemRECT(sysL), 0, sysOffset);
-		while (MasterRoomForSystem(doc,sysL)) {
-			DrawMasterSystem(doc,sysL,doc->masterTailL,context,paper,updateRect,++sysNum);
+		while (MasterRoomForSystem(doc, sysL)) {
+			DrawMasterSystem(doc, sysL, doc->masterTailL, context, paper, updateRect, ++sysNum);
 			if ((long)SystemRECT(sysL).bottom+(long)sysOffset>32767L) break;
 			OffsetDRect(&SystemRECT(sysL), 0, sysOffset);
 		}
@@ -154,13 +153,13 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 {
 	LINK		pL, measL;
 	PSYSTEM 	pSystem;
-	PMEASURE pMeasure;
-	Rect 		r,result,
-				paperUpdate;			/* Paper-relative update rect */
+	PMEASURE	pMeasure;
+	Rect 		r, result,
+				paperUpdate;		/* Paper-relative update rect */
 	Boolean	drawAll=TRUE;			/* FALSE if we're only drawing measure-spanning objects */
 	
 	paperUpdate = *updateRect;
-	OffsetRect(&paperUpdate,-paper->left,-paper->top);
+	OffsetRect(&paperUpdate, -paper->left, -paper->top);
 	if (doc->enterFormat) goto grayPage;
 	
 	for (pL=fromL; pL!=toL; pL=RightLINK(pL))
@@ -178,10 +177,10 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				/* Convert systemRect to paper-relative pixels */
 				D2Rect(&pSystem->systemRect, &r);
 				/* Convert to window-relative and check for intersection with update area */
-				OffsetRect(&r,paper->left,paper->top);
+				OffsetRect(&r, paper->left, paper->top);
 				
 				if (VISIBLE(pL) && SectRect(&r, updateRect, &result)
-														|| outputTo!=toScreen) {
+													|| outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
 					if (doc->frameSystems) FrameSysRect(&r, TRUE);
 				}
@@ -505,9 +504,9 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 {
 	LINK		pL, measL;
 	PSYSTEM 	pSystem;
-	PMEASURE pMeas;
-	Rect 		r,result,
-				paperUpdate;			/* Paper-relative update rect */
+	PMEASURE	pMeas;
+	Rect 		r, result,
+				paperUpdate;		/* Paper-relative update rect */
 	Boolean	drawAll=TRUE;			/* FALSE if we're only drawing measure-spanning objects */
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
@@ -516,7 +515,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 	SetPt(&enlargeNR, config.enlargeNRHiliteH, config.enlargeNRHiliteV);
 
 	paperUpdate = *updateRect;
-	OffsetRect(&paperUpdate,-paper->left,-paper->top);
+	OffsetRect(&paperUpdate, -paper->left, -paper->top);
 	
 	for (pL=fromL; pL!=toL; pL=RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -560,7 +559,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 					CheckMEASURE(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 
 				pMeas = GetPMEASURE(pL);
-				if (SectRect(&pMeas->measureBBox,&paperUpdate,&result) || outputTo!=toScreen)
+				if (SectRect(&pMeas->measureBBox, &paperUpdate, &result) || outputTo!=toScreen)
 						drawAll = TRUE;
 				else	drawAll = FALSE;				/* Draw only spanning objects in this measure */
 				break;

@@ -1,4 +1,4 @@
-DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 thru April 2016
+DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 thru early July 2016
 
 (Most of the files in my Ngale Carbon code base have last modification dates of April or
 May 2012; a few files are 2 June 2012, and it looks like that's the last source code I
@@ -1386,7 +1386,7 @@ definitely lower impact -- entered in the Extract dialog. (Having both would be 
 but low priority.) Re functionality, cf. Extract > CopyDocFields(); is it just a matter
 of setting part->srastral to a different value? Nope! That doesn't result in updating
 the actual size of each staff, H and V coords. of everything, etc. Ah, MasterPage >
-DoMasterStfSize() seems to do everything needed.
+DoMasterStfSize() seems to do everything needed. To be continued.
 
 -------------------------------------------------------------------------------
 
@@ -1422,6 +1422,48 @@ ago when screens were much smaller and computers much slower, but now, Ngale sho
 the page if more than a tiny sliver is _not_ on the screen. This _should_ just be a
 matter of changing the test, presumably in MIDIPlay.cp>PlaySequence(). The variables
 _pageTurnTOffset_, _tBeforeTurn_, _newPage_ must have something to do with it. Ah,
-_doScroll_ is the key! Scrolling is actually in HiliteSyncRect().
+_doScroll_ is the key! Scrolling is actually in HiliteSyncRect(). To be continued.
 
+-------------------------------------------------------------------------------
+
+28 June - 4 July
+
+The cadenza of my Violin Concerto has two staves for the soloist, one for the viola
+obbligato. I now have all the violin notes on one staff, so
+want to delete the 2nd staff of the violin -- but I can't, because the only way to do
+that is to Split Part, then delete the new part that contains the 2nd staff, and I can't
+Split Part because (the error message says) there are notes in the default voice for the
+2nd staff on the 1st staff. Huh??
+Make Ngale allow Split Part in that situation => the voice table changes from
+
+   iVoice 1 in part 1 Role=L relVoice=1
+   iVoice 2 in part 1 Role=U relVoice=2
+   iVoice 3 in part 2 Role=. relVoice=1
+
+to
+
+   iVoice 1 in part 1 Role=. relVoice=1
+   iVoice 2 in part 2 Role=. relVoice=1
+   iVoice 3 in part 3 Role=. relVoice=1
+
+This looks correct, but it's not: iVoice 2 still belongs to part 1! ...I see.
+
+If a multistaff part has default voice(s) in use -- with notes, rests, or grace notes --
+on staves other than their "native" staves, splitting requires creating a new voice for
+each such voice. But if a multistaff part has _any_ voice in use on two or more staves,
+splitting it would be very messy; not worth supporting, at least for the near future.
+OK, but if the part doesn't have that feature and it's split, should we (1) change the
+internal voice no. of the default voice in use on a non-native staff and keep iVoice
+always = staff no., or (2) keep the iVoice of the voice in use and accept iVoice may not
+= staff no.? Either way could be difficult. Ah, comments in VoiceTable.cp make it clear
+iVoice must always = staff no.!
+
+So the voice table for the Cadenza _must_ end up (except for the roles)
+
+   iVoice 1 in part 1 Role=. relVoice=1
+   iVoice 2 in part 2 Role=. relVoice=1
+   iVoice 3 in part 3 Role=. relVoice=1
+   iVoice 4 in part 1 Role=U relVoice=2
+
+...and everything in iVoice 2 must change to iVoice 4.
 
