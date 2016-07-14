@@ -410,9 +410,9 @@ PushLock(NOTEheap);
 					}
 					else if (flagCount>1) {								/* Draw >=2 (16th & other) flags */
 						if (stemDown)
-							DrawChar(MCH_sxFlagDown);
+							DrawChar(MCH_16thFlagDown);
 						else
-							DrawChar(MCH_sxFlagUp);
+							DrawChar(MCH_16thFlagUp);
 						MoveTo(xhead, ypStem);							/* Position x at head, y at stem end */
 						
 						/* Scale Factors for FlagLeading are guesswork. */
@@ -451,7 +451,7 @@ PushLock(NOTEheap);
 					}
 					else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 						flagGlyph = MapMusChar(doc->musFontInfoIndex, 
-															(stemDown? MCH_sxFlagDown : MCH_sxFlagUp));
+															(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 						yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
 						if (xoff || yoff)
@@ -667,9 +667,9 @@ PushLock(GRNOTEheap);
 					}
 					else if (flagCount>1) {								/* Draw >=2 (16th & other) flags */
 						if (stemDown)
-							DrawChar(MCH_sxFlagDown);
+							DrawChar(MCH_16thFlagDown);
 						else
-							DrawChar(MCH_sxFlagUp);
+							DrawChar(MCH_16thFlagUp);
 						MoveTo(xhead, ypStem);							/* Position x at head, y at stem end */
 						
 						/* Scale Factors for FlagLeading are guesswork. */
@@ -708,7 +708,7 @@ PushLock(GRNOTEheap);
 					}
 					else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 						flagGlyph = MapMusChar(doc->musFontInfoIndex, 
-															(stemDown? MCH_sxFlagDown : MCH_sxFlagUp));
+															(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 						yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
 						if (xoff || yoff)

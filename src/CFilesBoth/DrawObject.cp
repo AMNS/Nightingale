@@ -265,10 +265,10 @@ void DrawSYSTEM(Document *doc,
 				CONTEXT context[])
 {
 	short		i;
-	Rect		r,temp;
+	Rect		r, temp;
 	PCONTEXT	pContext;					/* ptr to current context[] entry */
 	PSYSTEM		p;
-	STFRANGE	stfRange={0,0};
+	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 
 	p = GetPSYSTEM(pL);
@@ -285,7 +285,7 @@ void DrawSYSTEM(Document *doc,
 		case toImageWriter:
 		case toPICT:
 			D2ObjRect(&p->systemRect, &r);
-			temp = r; OffsetRect(&r,paper->left,paper->top);
+			temp = r; OffsetRect(&r, paper->left, paper->top);
 			LinkOBJRECT(pL) = temp;
 			break;
 		case toPostScript:
@@ -569,7 +569,7 @@ void Draw1Staff(Document *doc,
 					yd = pContext->staffTop + 
 							halfLn2d(2*line, pContext->staffHeight, lines);
 					if (showLines!=1 || line==(lines-1)/2)
-						PS_StaffLine(yd,pContext->staffLeft,pContext->staffRight);
+						PS_StaffLine(yd, pContext->staffLeft, pContext->staffRight);
 				}
 			}
 			// Leave the routine with pt size as before calculated.
@@ -755,10 +755,10 @@ PushLock(CONNECTheap);
 							if (!GoodResource((Handle)pictRsrc))
 								goto Cleanup;								
 							r = (*pictRsrc)->picFrame;
-							/* PICT 200 was created from Sonata 36 brace */
+							/* PICT 200 was created from the Sonata 36 brace */
 							width = ((r.right-r.left)*(UseTextSize(pContext->fontSize, doc->magnify)))/36;
-							SetRect(&r,d2p(xd),d2p(dTop),d2p(xd)+width,d2p(dBottom));
-							OffsetRect(&r,pContext->paper.left,pContext->paper.top);
+							SetRect(&r, d2p(xd), d2p(dTop), d2p(xd)+width, d2p(dBottom));
+							OffsetRect(&r, pContext->paper.left, pContext->paper.top);
 							/* FIXME: DrawPicture OVERWRITES ANYTHING ALREADY THERE--SHOULD BE OR'ED
 								IN, PROBABLY VIA DrawPicture TO BITMAP, THEN CopyBits. */
 							DrawPicture(pictRsrc,&r);
@@ -1113,12 +1113,12 @@ PopLock(TIMESIGheap);
 void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DDIST yd,
 						Boolean reallyDraw)
 {
-	DDIST		lnSpace, offset, rise,
+	DDIST		lnSpace, offset, rise,	
 				endxd, endyd, hairThick,
-				sysLeft; 					/* left margin of current system */
+				sysLeft;						/* left margin of current system */
 	PADYNAMIC	aDynamic;
 	short		xp, yp, endxp, endyp, papyp, papendyp,
-				penThick;					/* vertical pen size in pixels */
+				penThick;						/* vertical pen size in pixels */
 
 	lnSpace = LNSPACE(pContext);
 	sysLeft = pContext->systemLeft;
@@ -1375,10 +1375,10 @@ PopLock(OBJheap);
 
 void DrawENDING(Document *doc, LINK pL, CONTEXT context[])
 {
-	DDIST dTop,xd,yd,endxd,lnSpace,rise,endThick,xdNum,ydNum;
+	DDIST dTop, xd, yd, endxd, lnSpace, rise, endThick, xdNum, ydNum;
 	PENDING p;
 	char numStr[MAX_ENDING_STRLEN];
-	short xp,yp,endxp, oldFont,oldSize,oldStyle,sysLeft,risePxl,
+	short xp, yp, endxp,  oldFont, oldSize, oldStyle, sysLeft, risePxl,
 			endNum, fontSize, papLeft, papTop, strOffset;
 	PCONTEXT pContext;
 	CONTEXT firstContext;
@@ -1431,10 +1431,10 @@ PushLock(OBJheap);
 				papLeft = pContext->paper.left;
 				papTop = pContext->paper.top;
 				if (!p->noLCutoff) MOVE_AND_LINE(papLeft+xp, papTop+yp+risePxl, papLeft+xp,
-																			papTop+yp);
+																	papTop+yp);
 				MOVE_AND_LINE(papLeft+xp, papTop+yp, papLeft+endxp, papTop+yp);
 				if (!p->noRCutoff) MOVE_AND_LINE(papLeft+endxp, papTop+yp, papLeft+endxp,
-																			papTop+yp+risePxl);
+																	papTop+yp+risePxl);
 
 				if (endNum!=0 && endNum<maxEndingNum) {
 					oldFont = GetPortTxFont();
@@ -2143,7 +2143,7 @@ PushLock(TEMPOheap);
 		goto Cleanup;
 	}
 
-	staffn = GetGraphicDrawInfo(doc,pL,firstObjL,p->staffn,&xd,&yd,&relContext);
+	staffn = GetGraphicDrawInfo(doc, pL, firstObjL, p->staffn, &xd, &yd, &relContext);
 		
 	pContext = &context[staffn];
 	if (!pContext->staffVisible) goto Cleanup;
@@ -2503,7 +2503,7 @@ void DrawBarline(Document *doc,
 				case PSM_DOTTED:
 				case PSM_DOUBLE:
 				case PSM_FINALDBL:
-					DrawPSMSubType(subType,xp,ypTop,ypBot);
+					DrawPSMSubType(subType, xp, ypTop, ypBot);
 					break;
 				default:
 					;
@@ -2514,19 +2514,19 @@ void DrawBarline(Document *doc,
 				case BAR_SINGLE:
 				case BAR_DOUBLE:
 				case BAR_FINALDBL:
-					PS_BarLine(dTop,dBottom,dLeft,subType);
+					PS_BarLine(dTop, dBottom, dLeft, subType);
 					break;
 				case PSM_DOTTED:
 					dashLen = std2d(config.barlineDashLen, pContext->staffHeight,
 										pContext->staffLines);
 					barThick = (long)(config.dottedBarlineLW*lnSpace) / 100L;
-					PS_VDashedLine(dLeft,dTop,dBottom,barThick,dashLen);
+					PS_VDashedLine(dLeft, dTop, dBottom, barThick, dashLen);
 					break;
 				case PSM_DOUBLE:
-					PS_BarLine(dTop,dBottom,dLeft,BAR_DOUBLE);
+					PS_BarLine(dTop, dBottom, dLeft, BAR_DOUBLE);
 					break;
 				case PSM_FINALDBL:
-					PS_BarLine(dTop,dBottom,dLeft,BAR_FINALDBL);
+					PS_BarLine(dTop, dBottom, dLeft, BAR_FINALDBL);
 					break;
 				default:
 					;

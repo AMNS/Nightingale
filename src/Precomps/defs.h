@@ -143,8 +143,9 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 
 #define MCH_eighthFlagUp 'j'
 #define MCH_eighthFlagDown 'J'
-#define MCH_sxFlagUp 'k'
-#define MCH_sxFlagDown 'K'
+#define MCH_16thFlagUp 'k'
+#define MCH_16thFlagDown 'K'
+#define MCH_16thNoteStemDown 'X'			/* complete stem-down 16th note */
 #define MCH_extendFlagUp 0xFB				/* =option-K */
 #define MCH_extendFlagDown 0xF0				/* =shift-option-K */
 #define MCH_dot '.'							/* augmentation dot */

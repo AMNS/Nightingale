@@ -18,7 +18,7 @@
 	MeasNumDialog				PageNumDialog				OttavaDialog
 	TupletDialog & friends		SetDurDialog & friends		TempoDialog & friends
 	SetMBRestDialog
-	DrawSampStaff				RLarger/RSmallerStaff		RHandleKeyDown
+	DrawSampleStaff				RLarger/RSmallerStaff		RHandleKeyDown
 	RHandleMouseDown			RFilter						RastralDialog
 	MarginsDialog				KeySigDialog & friends		SetKSDialogGuts
 	TimeSigDialog & friends		RehearsalMarkDialog
@@ -30,7 +30,7 @@
 
 #include <ctype.h>					/* for isdigit() */
 
-static void DrawSampStaff(void);
+static void DrawSampleStaff(void);
 
 static pascal Boolean LeftEndFilter(DialogPtr, EventRecord *, short *);
 static Boolean LeftEndBadValues(Document *, short, short);
@@ -187,11 +187,11 @@ Boolean LeftEndDialog(short *pFirstNames,
 	PutDlgChkRadio(dlog, group1, TRUE);
 
 	inchNFDist = PartNameMargin(doc, *pFirstNames);
-	PutDlgDouble(dlog,NEED_FIRST_DI,inchNFDist,FALSE);
+	PutDlgDouble(dlog, NEED_FIRST_DI, inchNFDist, FALSE);
 	
 	inchDFDist = pt2in(*pFirstDist);
 	inchDFDist = RoundDouble(inchDFDist, .01);
-	PutDlgDouble(dlog,DIST_FIRST_DI,inchDFDist,FALSE);
+	PutDlgDouble(dlog, DIST_FIRST_DI, inchDFDist, FALSE);
 
 	/* Set up radio button group, needed and actual indents for "Other systems". */
 	
@@ -205,9 +205,9 @@ Boolean LeftEndDialog(short *pFirstNames,
 	
 	inchDODist = pt2in(*pOtherDist);
 	inchDODist = RoundDouble(inchDODist, .01);
-	PutDlgDouble(dlog,DIST_OTHER_DI,inchDODist,FALSE);
+	PutDlgDouble(dlog, DIST_OTHER_DI, inchDODist, FALSE);
 
-	SelectDialogItemText(dlog,DIST_FIRST_DI,0,ENDTEXT);
+	SelectDialogItemText(dlog, DIST_FIRST_DI, 0, ENDTEXT);
 
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
@@ -244,7 +244,7 @@ Boolean LeftEndDialog(short *pFirstNames,
 					else if (group1==ABBREVNAMES_FIRST_DI)	nameCode = ABBREVNAMES;
 					else									nameCode = FULLNAMES;
 					inchTemp = PartNameMargin(doc, nameCode);
-					PutDlgDouble(dlog,NEED_FIRST_DI,inchTemp,FALSE);
+					PutDlgDouble(dlog, NEED_FIRST_DI, inchTemp, FALSE);
 				}
 				break;
 			case FULLNAMES_OTHER_DI:
@@ -256,7 +256,7 @@ Boolean LeftEndDialog(short *pFirstNames,
 					else if (group2==ABBREVNAMES_OTHER_DI)	nameCode = ABBREVNAMES;
 					else									nameCode = FULLNAMES;
 					inchTemp = PartNameMargin(doc, nameCode);
-					PutDlgDouble(dlog,NEED_OTHER_DI,inchTemp,FALSE);
+					PutDlgDouble(dlog, NEED_OTHER_DI, inchTemp, FALSE);
 				}
 				break;
 			default:
@@ -291,8 +291,6 @@ broken:
 OKed, CANCEL_INT if Cancelled. N.B. Tightness should really be handled by a separate
 routine, since this contains some code that could misbehave for it, e.g., if
 minPercent!=maxPercent or either is below MINSPACE or above MAXSPACE.*/
-
-#define Nightmare95		// ??TEST POWERPC PORT
 
 #define Range_DI 10
 
@@ -383,7 +381,6 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 	short		ditem, nslashes;
 	GrafPtr		oldPort;
 	char		fmtStr[256];
-#ifdef Nightmare95
 	ModalFilterUPP filterUPP;
 	
 	filterUPP = NewModalFilterUPP(NumberFilter);
@@ -391,8 +388,6 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 		MissingDialog(TREMSLASHES_DLOG);
 		return CANCEL_INT;
 	}
-#else
-#endif
 	
 	nslashes = CANCEL_INT;
 	
@@ -400,8 +395,8 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 	dlog = GetNewDialog(TREMSLASHES_DLOG, NULL, BRING_TO_FRONT);
 	if (dlog) {
 		SetPort(GetDialogWindowPort(dlog));
-		PutDlgWord(dlog,NUMBER_DI,initSlashes,TRUE);
-		UseNumberFilter(dlog,NUMBER_DI,UpRect_DI,DownRect_DI);
+		PutDlgWord(dlog, NUMBER_DI, initSlashes, TRUE);
+		UseNumberFilter(dlog, NUMBER_DI, UpRect_DI, DownRect_DI);
 
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
@@ -410,12 +405,12 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 		maxVal = 6;
 	
 		do {
-			while (1) {
+			while (TRUE) {
 				ModalDialog(&NumberFilter, &ditem);
 				if (ditem==OK || ditem==Cancel) break;
 				}
 			if (ditem==OK) {
-				GetDlgWord(dlog,NUMBER_DI,&nslashes);
+				GetDlgWord(dlog, NUMBER_DI, &nslashes);
 				if (nslashes>=minVal && nslashes<=maxVal) break;
 				GetIndCString(fmtStr, DIALOGERRS_STRS, 4);				/* "Number of slashes..." */
 				sprintf(strBuf, fmtStr, minVal, maxVal);
@@ -467,7 +462,7 @@ static pascal Boolean EndingFilter(DialogPtr dlog, EventRecord *evt, short *item
 				BeginUpdate(GetDialogWindow(dlog));
 				UpdateDialogVisRgn(dlog);
 				DrawPopUp(&endingPopup);
-				OutlineOKButton(dlog,TRUE);
+				OutlineOKButton(dlog, TRUE);
 				EndUpdate(GetDialogWindow(dlog));
 				ans = TRUE; *itemHit = 0;
 			}
@@ -483,7 +478,7 @@ static pascal Boolean EndingFilter(DialogPtr dlog, EventRecord *evt, short *item
 			where = evt->where;
 			choice = endingPopup.currentChoice;
 			GlobalToLocal(&where);
-			if (PtInRect(where,&endingPopup.shadow)) {
+			if (PtInRect(where, &endingPopup.shadow)) {
 				*itemHit = (DoUserPopUp(&endingPopup) ? ENDINGNUM_POP_DI : 0);
 				ans = TRUE;
 				break;
@@ -570,7 +565,7 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 		maxVal = maxEndingNum;
 	
 		do {
-			while (1) {
+			while (TRUE) {
 				ModalDialog(&EndingFilter, &ditem);
 				if (ditem==OK || ditem==Cancel)
 					break;
@@ -696,11 +691,11 @@ Boolean MeasNumDialog(Document *doc)
 			ModalDialog(filterUPP, &ditem);
 			switch (ditem) {
 				case OK:
-					if (GetDlgChkRadio(dlog,NONE_DI)) 
+					if (GetDlgChkRadio(dlog, NONE_DI)) 
 						numberMeas = 0;
-					else if (GetDlgChkRadio(dlog,EVERYSYS_DI))
+					else if (GetDlgChkRadio(dlog, EVERYSYS_DI))
 						numberMeas = -1;
-					else if (!GetDlgWord(dlog,NMEAS_DI,&numberMeas)
+					else if (!GetDlgWord(dlog, NMEAS_DI, &numberMeas)
 								|| (numberMeas<1 || numberMeas>100)) {
 							GetIndCString(strBuf, DIALOGERRS_STRS, 6);		/* "Measure numbering interval..." */
 							CParamText(strBuf, "", "", "");
@@ -709,7 +704,7 @@ Boolean MeasNumDialog(Document *doc)
 							break;
 						}
 						
-					if (!GetDlgWord(dlog,FIRSTMNUM_DI,&firstNumber)
+					if (!GetDlgWord(dlog, FIRSTMNUM_DI, &firstNumber)
 										|| firstNumber<0 || firstNumber>8000) {
 						GetIndCString(strBuf, DIALOGERRS_STRS, 7);			/* "First measure number..." */
 						CParamText(strBuf, "", "", "");
@@ -718,13 +713,13 @@ Boolean MeasNumDialog(Document *doc)
 						break;
 					}
 					
-					GetDlgWord(dlog,XOFFSET_DI,&xOffset);
-					GetDlgWord(dlog,XSYSOFFSET_DI,&xSysOffset);
-					GetDlgWord(dlog,YOFFSET_DI,&yOffset);
-					above = GetDlgChkRadio(dlog,ABOVE_DI);
-					sysFirst = GetDlgChkRadio(dlog,SYSFIRST_DI);
-					GetDlgWord(dlog,FIRSTMNUM_DI,&firstNumber);
-					startPrint1 = GetDlgChkRadio(dlog,STARTPRINT1_DI);
+					GetDlgWord(dlog, XOFFSET_DI, &xOffset);
+					GetDlgWord(dlog, XSYSOFFSET_DI, &xSysOffset);
+					GetDlgWord(dlog, YOFFSET_DI, &yOffset);
+					above = GetDlgChkRadio(dlog, ABOVE_DI);
+					sysFirst = GetDlgChkRadio(dlog, SYSFIRST_DI);
+					GetDlgWord(dlog, FIRSTMNUM_DI, &firstNumber);
+					startPrint1 = GetDlgChkRadio(dlog, STARTPRINT1_DI);
 					if (doc->numberMeas!=numberMeas
 							||  doc->xMNOffset!=xOffset
 							||  doc->sysFirstMN!=sysFirst
@@ -763,7 +758,7 @@ Boolean MeasNumDialog(Document *doc)
 						SwitchRadio(dlog, &group3, ditem);
 					break;
 				case SYSFIRST_DI:
-				 	PutDlgChkRadio(dlog,SYSFIRST_DI,sysFirst=!sysFirst);
+				 	PutDlgChkRadio(dlog, SYSFIRST_DI, sysFirst=!sysFirst);
 					break;
 				default:
 					;
@@ -838,16 +833,16 @@ Boolean PageNumDialog(Document *doc)
 	PutDlgChkRadio(dlog, vPosGroup, TRUE);
 	oldVPosGroup = vPosGroup;
 	
-	if (doc->hPosPGN==LEFT_SIDE)	 hPosGroup = LEFT_DI;
-	else if (doc->hPosPGN==CENTER) hPosGroup = CENTER_DI;
-	else									 hPosGroup = RIGHT_DI;
+	if (doc->hPosPGN==LEFT_SIDE)	hPosGroup = LEFT_DI;
+	else if (doc->hPosPGN==CENTER)	hPosGroup = CENTER_DI;
+	else							hPosGroup = RIGHT_DI;
 	PutDlgChkRadio(dlog, hPosGroup, TRUE);
 	oldHPosGroup = hPosGroup;	
 
 	/* Initialize other dialog controls. */
 	
 	firstNumber = doc->firstPageNumber;
-	PutDlgWord(dlog,FIRSTNUM_DI,firstNumber,TRUE);
+	PutDlgWord(dlog, FIRSTNUM_DI, firstNumber, TRUE);
 
 	PutDlgChkRadio(dlog, ALTERNATE_DI, doc->alternatePGN);
 
@@ -861,20 +856,20 @@ Boolean PageNumDialog(Document *doc)
 			ModalDialog(filterUPP, &ditem);
 			switch (ditem) {
 				case OK:
-					GetDlgWord(dlog,FIRSTNUM_DI,&firstNumber);
+					GetDlgWord(dlog, FIRSTNUM_DI, &firstNumber);
 					if (showGroup!=oldShowGroup
 					|| firstNumber!=doc->firstPageNumber
 					|| vPosGroup!=oldVPosGroup
 					|| hPosGroup!=oldHPosGroup
-					|| GetDlgChkRadio(dlog,ALTERNATE_DI)!=doc->alternatePGN) {
+					|| GetDlgChkRadio(dlog, ALTERNATE_DI)!=doc->alternatePGN) {
 						doc->firstPageNumber = firstNumber;
 						if (doc->firstPageNumber>999) doc->firstPageNumber = 999;
-						if		  (showGroup==PNEVERY_DI)
-										doc->startPageNumber = doc->firstPageNumber;
+						if (showGroup==PNEVERY_DI)
+							doc->startPageNumber = doc->firstPageNumber;
 						else if (showGroup==PNEVERYBUT_DI)
-										doc->startPageNumber = doc->firstPageNumber+1;
+							doc->startPageNumber = doc->firstPageNumber+1;
 						else
-										doc->startPageNumber = SHRT_MAX;
+							doc->startPageNumber = SHRT_MAX;
 
 						doc->topPGN = (vPosGroup==TOP_DI);
 
@@ -882,7 +877,7 @@ Boolean PageNumDialog(Document *doc)
 						else if (hPosGroup==CENTER_DI)	doc->hPosPGN = CENTER;
 						else							doc->hPosPGN = RIGHT_SIDE;
 						
-						doc->alternatePGN = GetDlgChkRadio(dlog,ALTERNATE_DI);
+						doc->alternatePGN = GetDlgChkRadio(dlog, ALTERNATE_DI);
 
 						doc->changed = TRUE;
 					}													/* drop thru... */
@@ -902,12 +897,12 @@ Boolean PageNumDialog(Document *doc)
 				case CENTER_DI:
 				case RIGHT_DI:
 					if (ditem!=hPosGroup) SwitchRadio(dlog, &hPosGroup, ditem);
-					if (GetDlgChkRadio(dlog,ALTERNATE_DI) && hPosGroup==CENTER_DI)
-						PutDlgChkRadio(dlog,ALTERNATE_DI,FALSE);	
+					if (GetDlgChkRadio(dlog, ALTERNATE_DI) && hPosGroup==CENTER_DI)
+						PutDlgChkRadio(dlog, ALTERNATE_DI, FALSE);	
 					break;
 				case ALTERNATE_DI:
-					alternate = !GetDlgChkRadio(dlog,ALTERNATE_DI);
-					PutDlgChkRadio(dlog,ALTERNATE_DI,alternate);	
+					alternate = !GetDlgChkRadio(dlog, ALTERNATE_DI);
+					PutDlgChkRadio(dlog, ALTERNATE_DI, alternate);	
 					if (alternate && hPosGroup==CENTER_DI)
 						SwitchRadio(dlog, &hPosGroup, LEFT_DI);
 					break;
@@ -944,8 +939,8 @@ in the selection range is above the staffTop. */
 Boolean GetOttavaAlta(Document *doc, short selStf)
 {
 	LINK pL, aNoteL;
-	PANOTE	aNote;
-	DDIST		yd=0;
+	PANOTE aNote;
+	DDIST yd=0;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (ObjLType(pL)==SYNCtype) {
@@ -954,12 +949,12 @@ Boolean GetOttavaAlta(Document *doc, short selStf)
 				if (NoteSTAFF(aNoteL)==selStf && NoteSEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					yd += aNote->yd;
-/* If huge selection range, avoid overflow. ??A better way: use long DDIST for yd. */
+/* If huge selection range, avoid overflow. FIXME: A better way: use long DDIST for yd. */
 					if (yd > 32000 || yd < -32000) goto done;
 				}
 		}
-	done: 
-	
+
+	done: 	
 	return (yd <= 0);
 }
 
@@ -969,7 +964,7 @@ a parameter the type of octave sign. */
 Boolean OttavaDialog(Document *doc, Byte *octSignType)
 {	
 	DialogPtr	dlog;
-	short			ditem, radio, selStf;
+	short		ditem, radio, selStf;
 	GrafPtr		oldPort;
 	Boolean		alta;
 	ModalFilterUPP	filterUPP;
@@ -987,13 +982,13 @@ Boolean OttavaDialog(Document *doc, Byte *octSignType)
 		selStf = GetSelectionStaff(doc);
 		alta = (selStf == NOONE) ? TRUE : GetOttavaAlta(doc, selStf);
 		radio = alta ? OCT8va_DI : OCT8vaBassa_DI;
-		PutDlgChkRadio(dlog,radio,TRUE);
+		PutDlgChkRadio(dlog, radio, TRUE);
 	
 		CenterWindow(GetDialogWindow(dlog), 70);
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 	
-		while (1) {
+		while (TRUE) {
 			ModalDialog(filterUPP, &ditem);
 			if (ditem==OK || ditem==Cancel) break;
 			if (ditem>=OCT8va_DI && ditem<=OCT22maBassa_DI && ditem!=radio)
@@ -2104,10 +2099,11 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 	dialogOver = FALSE;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
+		LogPrintf(LOG_DEBUG, "TempoDialog: ditem=%d OK=%d\n", ditem, OK);
 		switch (ditem) {
 			case OK:
 				dialogOver = TRUE;
-				GetDlgString(dlog,MetroDI,metroStr);
+				GetDlgString(dlog, MetroDI, metroStr);
 				beatsPM = FindIntInString(metroStr);
 				if (beatsPM<MIN_BPM || beatsPM>MAX_BPM) {
 					if (beatsPM<0L)
@@ -2201,7 +2197,7 @@ Boolean SetMBRestDialog(Document */*doc*/, short *nMeas)
 	GrafPtr oldPort;
 	short newNMeas, ditem;
 	Boolean done;
-	ModalFilterUPP	filterUPP;
+	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(NumberFilter);
 	if (filterUPP == NULL) {
@@ -2277,13 +2273,11 @@ DialogPtr rDialogp;								/* Dialog pointer for Rastral dialog */
 Rect staffArea, rUpRect, rDownRect;
 Handle ptHdl;
 
-/* --------------------------------------------------------------- DrawSampStaff -- */
+/* --------------------------------------------------------------- DrawSampleStaff -- */
 
 #define GOOD_SCREENSIZE(r) ((r)==1 || (r)==2 || (r)==5 || (r)==7)
 
-#define MCH_sixteenthNote 'X'							/* Sonata stem-down sixteenth note ??belongs in defs.h */
-
-static void DrawSampStaff()
+static void DrawSampleStaff()
 {
 	short		line, rastral, yp, mPoints,
 				oldtxFont, oldtxSize;
@@ -2316,7 +2310,7 @@ static void DrawSampStaff()
 	DrawChar(MCH_trebleclef);
 	GetPen(&pt);
 	MoveTo(pt.h+5, staffArea.top+STAFF_DOWN+(pdrSize[rastral]/4));
-	DrawChar(MCH_sixteenthNote);
+	DrawChar(MCH_16thNoteStemDown);
 	portRect = GetQDPortBounds();
 	ClipRect(&portRect);
 
@@ -2358,7 +2352,7 @@ static void RLargerStaff()
 	if (rNum>0) {
 		rNum--;
 		PutDlgWord(rDialogp, SizeITM, rNum, TRUE);
-		DrawSampStaff();
+		DrawSampleStaff();
 	}
 }
 
@@ -2370,7 +2364,7 @@ static void RSmallerStaff()
 	if (rNum<MAXRASTRAL) {
 		rNum++;
 		PutDlgWord(rDialogp, SizeITM, rNum, TRUE);
-		DrawSampStaff();
+		DrawSampleStaff();
 	}
 }
 
@@ -2390,7 +2384,7 @@ static Boolean RHandleKeyDown(EventRecord *theEvent)
 		return TRUE;
 	}
 	else {
-		DrawSampStaff();
+		DrawSampleStaff();
 		return FALSE;
 	}
 }
@@ -2429,7 +2423,7 @@ static pascal Boolean RFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(theDialog));
 				BeginUpdate(GetDialogWindow(theDialog));
 				UpdateDialogVisRgn(theDialog);
-				DrawSampStaff();
+				DrawSampleStaff();
 				OutlineOKButton(theDialog,TRUE);
 				EndUpdate(GetDialogWindow(theDialog));
 				SetPort(oldPort);
@@ -2544,7 +2538,7 @@ short RastralDialog(
 				case StSampITM:
 					GetDlgWord(rDialogp, SizeITM, &newval);
 					if (newval<0 || newval>MAXRASTRAL) SysBeep(1);
-					else										  DrawSampStaff();
+					else							   DrawSampleStaff();
 					break;
 				case SelPartsITM:
 				case AllPartsITM:
@@ -3626,7 +3620,7 @@ Boolean RehearsalMarkDialog(unsigned char *string)
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 
-		while (1) {
+		while (TRUE) {
 			ModalDialog(filterUPP, &ditem);	
 			if (ditem == OK || ditem==Cancel) break;
 		}

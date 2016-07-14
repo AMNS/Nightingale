@@ -1077,7 +1077,7 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 								DrawMChar(doc, (stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp),
 													NORMAL_VIS, dim);
 							else if (flagCount>1) {								/* Draw >=2 (16th & other) flags */
-								DrawMChar(doc, (stemDown? MCH_sxFlagDown : MCH_sxFlagUp),
+								DrawMChar(doc, (stemDown? MCH_16thFlagDown : MCH_16thFlagUp),
 													NORMAL_VIS, dim);
 								MoveTo(xhead, ypStem);							/* Position x at head, y at stem end */
 							/* FIXME: SCALE FACTORS FOR FlagLeading BELOW ARE GUESSWORK. */
@@ -1116,7 +1116,7 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 							}
 							else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 								flagGlyph = MapMusChar(doc->musFontInfoIndex,
-																(stemDown? MCH_sxFlagDown : MCH_sxFlagUp));
+																(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
 								if (xoff || yoff)
@@ -1274,7 +1274,7 @@ EndQDrawing:
 												TRUE, sizePercent);
 									break;
 								case 2:
-									PS_MusChar(doc, xd, ypStem, stemDown? MCH_sxFlagDown : MCH_sxFlagUp, TRUE, sizePercent);
+									PS_MusChar(doc, xd, ypStem, stemDown? MCH_16thFlagDown : MCH_16thFlagUp, TRUE, sizePercent);
 									break;
 								default:
 									if (stemDown) {
@@ -1310,7 +1310,7 @@ EndQDrawing:
 							}
 							else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 								flagGlyph = MapMusChar(doc->musFontInfoIndex, 
-																	(stemDown? MCH_sxFlagDown : MCH_sxFlagUp));
+																	(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
 								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, TRUE, sizePercent);
@@ -2113,7 +2113,7 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 								DrawMChar(doc, (stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp),
 													NORMAL_VIS, dim);
 							else if (flagCount>1) {									/* Draw >=2 (16th & other) flags */
-								DrawMChar(doc, (stemDown? MCH_sxFlagDown : MCH_sxFlagUp),
+								DrawMChar(doc, (stemDown? MCH_16thFlagDown : MCH_16thFlagUp),
 													NORMAL_VIS, dim);
 								MoveTo(xhead, ypStem);								/* Position x at head, y at stem end */
 				/* FIXME: SCALE FACTORS FOR FlagLeading BELOW ARE GUESSWORK. */
@@ -2152,7 +2152,7 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 							}
 							else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 								flagGlyph = MapMusChar(doc->musFontInfoIndex,
-																(stemDown? MCH_sxFlagDown : MCH_sxFlagUp));
+																(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
 								if (xoff || yoff)
@@ -2295,7 +2295,7 @@ EndQDrawing:
 												TRUE, sizePercent);
 									break;
 								case 2:
-									PS_MusChar(doc, xd, ypStem, stemDown? MCH_sxFlagDown : MCH_sxFlagUp, TRUE, sizePercent);
+									PS_MusChar(doc, xd, ypStem, stemDown? MCH_16thFlagDown : MCH_16thFlagUp, TRUE, sizePercent);
 									break;
 								default:
 									if (stemDown) {
@@ -2331,7 +2331,7 @@ EndQDrawing:
 							}
 							else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 								flagGlyph = MapMusChar(doc->musFontInfoIndex, 
-																	(stemDown? MCH_sxFlagDown : MCH_sxFlagUp));
+																	(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
 								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, TRUE, sizePercent);

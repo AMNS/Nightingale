@@ -711,3 +711,16 @@ Make "Frame System Boxes" frame them in blue instead of black. Affects DrawHighL
 Improve error messages for the Split Part command. Affects .rsrc; MPCommands.
 
 Minor cleanup. Affects DebugHighLevel, MPCommands.
+
+===============================================================================
+
+7 - 14 July
+
+Change version number from 5.7b1 to 5.7b2. Affects Info.plist.
+
+Fix problem with Xcode project: Xcode 2.5 (at least) can't open DrawObject because it's
+damaged UTF-8, and it can't save defs.h because it's confused about its encoding.
+
+Minor cleanup. Affects defs.h; DialogsEditor, DrawNRGR, DrawObject, Dragging,
+MPCommands, TextDialog.
+

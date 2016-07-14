@@ -102,49 +102,49 @@ static short theFont;
 static short theLyric;
 static short theExpanded;
 static short theEncl;
-static short theSize;				/* Only of interest when isRelative is FALSE */
+static short theSize;			/* Only of interest when isRelative is FALSE */
 static short theStyle;			/* plain, bold, etc. (as opposed to "stylechoice") */
 static Boolean isRelative;
-static short theRelIndex;			/* Only of interest when isRelative is TRUE */
+static short theRelIndex;		/* Only of interest when isRelative is TRUE */
 static short thePtSize;			/* The actual point size for either relative or absolute */
 static DDIST theLineSpacing;	/* Between staff lines for this given context */
 static short radioChoice;
-static short theDlog;				/* Which dialog (text or Define Text Styles) being used */
+static short theDlog;			/* Which dialog (text or Define Text Styles) being used */
 
 static TEXTSTYLE	theRegular1, theRegular2, theRegular3, theRegular4, theRegular5,
-						theRegular6, theRegular7, theRegular8, theRegular9, theMeasNum,
-						thePartName, theRehearsalMark, theTempoMark, theChordSymbol,
-						thePageNumber, theCurrent;
-static Boolean	theRegular1Changed, theRegular2Changed, theRegular3Changed, theRegular4Changed,
+					theRegular6, theRegular7, theRegular8, theRegular9, theMeasNum,
+					thePartName, theRehearsalMark, theTempoMark, theChordSymbol,
+					thePageNumber, theCurrent;
+static Boolean		theRegular1Changed, theRegular2Changed, theRegular3Changed, theRegular4Changed,
 					theRegular5Changed, theRegular6Changed, theRegular7Changed, theRegular8Changed,
 					theRegular9Changed, theRehearsalMarkChanged, theChordSymbolChanged;
 
-static Rect fontRect,sizeRect,faceRect,styleRect,dimRect;		/* Panel frames */
+static Rect fontRect, sizeRect, faceRect, styleRect, dimRect;		/* Panel frames */
 
 
 /* Prototypes for local routines */
 
-static void DimStylePanels(DialogPtr dlog, Boolean dim);
-static pascal  Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
+static void		DimStylePanels(DialogPtr dlog, Boolean dim);
+static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 
-static void	DebugPrintFonts(Document *doc);
-static void	SetFontPopUp(unsigned char *fontName, unsigned char *strbuf);
-static void	SetAbsSizePopUp(short size, unsigned char *strbuf);
-static void	SetStyleBoxes(DialogPtr dlog, short style, short lyric);
-static void	SetStylePopUp(short styleIndex);
+static void		DebugPrintFonts(Document *doc);
+static void		SetFontPopUp(unsigned char *fontName, unsigned char *strbuf);
+static void		SetAbsSizePopUp(short size, unsigned char *strbuf);
+static void		SetStyleBoxes(DialogPtr dlog, short style, short lyric);
+static void		SetStylePopUp(short styleIndex);
 static short	GetStyleChoice(void);
-static void	SaveCurrentStyle(short currStyle);
-static void	SetCurrentStyle(short currStyle);
-static void	TSSetCurrentStyle(short currStyle);
+static void		SaveCurrentStyle(short currStyle);
+static void		SetCurrentStyle(short currStyle);
+static void		TSSetCurrentStyle(short currStyle);
 static short	TDRelIndexToSize(short index);
 static short	SizeToRelIndex(short size);
 static short	GetStrFontStyle(Document *doc, short styleChoice);
-static void	UpdateDocStyles(Document *doc);
-static Boolean ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style);
-static void	GetRealSizes(void);
-static void	TuneRadioIn(DialogPtr dlog,short itemHit, short *radio);
-static void	DrawExampleText(DialogPtr dlog, unsigned char *string);
-static void	InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpanded);
+static void		UpdateDocStyles(Document *doc);
+static Boolean	ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style);
+static void		GetRealSizes(void);
+static void		TuneRadioIn(DialogPtr dlog,short itemHit, short *radio);
+static void		DrawExampleText(DialogPtr dlog, unsigned char *string);
+static void		InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpanded);
 
 
 static void DebugPrintFonts(Document *doc)
@@ -192,14 +192,14 @@ static void GetRealSizes()
 		
 		if (popup7.currentChoice) {
 			/* Pull non-truncated menu item back into popup str storage */
-			GetMenuItemText(popup7.menu,popup7.currentChoice,popup7.str);
+			GetMenuItemText(popup7.menu, popup7.currentChoice, popup7.str);
 			/* Convert to font number */
-			GetFNum(popup7.str,&theFont);
+			GetFNum(popup7.str, &theFont);
 			/* Set item style for each item in size popup's menu according to real font */
 			nitems = CountMenuItems(popup11.menu);
 			for (i=1; i<=nitems; i++) {
-				GetMenuItemText(popup11.menu,i,str);
-				StringToNum(str,&num);
+				GetMenuItemText(popup11.menu, i, str);
+				StringToNum(str, &num);
 				SetItemStyle(popup11.menu, i, RealFont(theFont,(short)num) ? outline : 0);
 				}
 			/* Restore font name popup string to truncated version, if any */
@@ -214,7 +214,7 @@ if it exists. */
 
 static void SetFontPopUp(unsigned char *fontName, unsigned char *strbuf)
 	{
-		short nitems,i;
+		short nitems, i;
 		
 		nitems = CountMenuItems(popup7.menu);
 		for (i=1; i<=nitems; i++) {
@@ -234,14 +234,14 @@ if it exists. */
 
 static void SetAbsSizePopUp(short size, unsigned char *strbuf)
 	{
-		short nitems,i; long num;
+		short nitems, i; long num;
 		
 		nitems = CountMenuItems(popup11.menu);
 		for (i=1; i<=nitems; i++) {
-			GetMenuItemText(popup11.menu,i,strbuf);
-			StringToNum(strbuf,&num);
+			GetMenuItemText(popup11.menu, i, strbuf);
+			StringToNum(strbuf, &num);
 			if (num == size) {
-				ChangePopUpChoice(&popup11,i);
+				ChangePopUpChoice(&popup11, i);
 				return;
 				}
 			}
@@ -253,7 +253,7 @@ static void SetAbsSizePopUp(short size, unsigned char *strbuf)
 
 static void SetStylePopUp(short styleIndex)
 	{
-		ChangePopUpChoice(&popup4,styleIndex);
+		ChangePopUpChoice(&popup4, styleIndex);
 	}
 
 
@@ -263,7 +263,7 @@ static short GetStyleChoice()
 	{
 		if (popup4.currentChoice) {
 			/* Pull non-truncated menu item back into popup str storage */
-			GetMenuItemText(popup4.menu,popup4.currentChoice,popup4.str);
+			GetMenuItemText(popup4.menu, popup4.currentChoice, popup4.str);
 			}
 		return popup4.currentChoice;
 	}
@@ -425,12 +425,12 @@ static void TSSetCurrentStyle(short currStyle)
 
 static void SetStyleBoxes(DialogPtr dlog, short style, short lyric)
 	{
-		PutDlgChkRadio(dlog,CHK17_Plain,style == 0);
-		PutDlgChkRadio(dlog,CHK18_Bold,(style & bold)!=0);
-		PutDlgChkRadio(dlog,CHK19_Italic,(style & italic)!=0);
-		PutDlgChkRadio(dlog,CHK20_Outline,(style & outline)!=0);
-		PutDlgChkRadio(dlog,CHK21_Shadow,(style & shadow)!=0);
-		PutDlgChkRadio(dlog,CHK22_Lyric,lyric!=0);
+		PutDlgChkRadio(dlog, CHK17_Plain, style == 0);
+		PutDlgChkRadio(dlog, CHK18_Bold, (style & bold)!=0);
+		PutDlgChkRadio(dlog, CHK19_Italic, (style & italic)!=0);
+		PutDlgChkRadio(dlog, CHK20_Outline, (style & outline)!=0);
+		PutDlgChkRadio(dlog, CHK21_Shadow, (style & shadow)!=0);
+		PutDlgChkRadio(dlog, CHK22_Lyric, lyric!=0);
 	}
 
 
@@ -449,15 +449,15 @@ static void DimStylePanels(DialogPtr dlog, Boolean dim)
 	
 	newType = (dim? statText+itemDisable : statText);
 	
-	GetDialogItem(dlog,STXT10_Absolute,&type,&hndl,&box);
-	SetDialogItem(dlog,STXT10_Absolute,newType,hndl,&box);
-	GetDialogItem(dlog,STXT15_Relative,&type,&hndl,&box);
-	SetDialogItem(dlog,STXT15_Relative,newType,hndl,&box);
+	GetDialogItem(dlog, STXT10_Absolute, &type, &hndl, &box);
+	SetDialogItem(dlog, STXT10_Absolute, newType, hndl, &box);
+	GetDialogItem(dlog, STXT15_Relative, &type, &hndl, &box);
+	SetDialogItem(dlog, STXT15_Relative, newType, hndl, &box);
 
 	newType = (dim? statText+itemDisable : editText);
 
-	GetDialogItem(dlog,EDIT12_Points,&type,&hndl,&box);
-	SetDialogItem(dlog,EDIT12_Points,newType,hndl,&box);
+	GetDialogItem(dlog, EDIT12_Points, &type, &hndl, &box);
+	SetDialogItem(dlog, EDIT12_Points, newType, hndl, &box);
 
 	ctlActive = (dim? CTL_INACTIVE : CTL_ACTIVE);
 
@@ -499,13 +499,14 @@ static void DrawMyItems(DialogPtr /*dlog*/)
 
 
 /* Modal dialog filter has to consider disabling the "style panels" of the text
-insertion dialog and look for popup items and convert to itemHits, as well
-as the usual cutting/pasting and default button stuff. */
+insertion dialog, look for popup items and convert to itemHits, and handle the Enter
+and Return keys specially, as well as the usual cutting/pasting and default button
+stuff. */
 
 static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	{
-		Boolean ans=FALSE,doHilite=FALSE; WindowPtr w;
-		short type,ch, currentStyle; Handle hndl;
+		Boolean ans=FALSE, doHilite=FALSE; WindowPtr w;
+		short type, ch, currentStyle; Handle hndl;
 		Rect box; Point where; unsigned char str[256];
 		
 		w = (WindowPtr)(evt->message);
@@ -520,16 +521,19 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 					/* Perhaps gray out everything */
 					if (theDlog==TextDlog)
 						DimStylePanels(dlog, (currentStyle!=TSThisItemOnlySTYLE));
-					OutlineOKButton(dlog,TRUE);
-					DrawExampleText(dlog,NULL);
+					OutlineOKButton(dlog, TRUE);
+					DrawExampleText(dlog, NULL);
 					EndUpdate(GetDialogWindow(dlog));
 					ans = TRUE;
 					*itemHit = 0;
 					}
-#ifdef TRULY_ANNOYING_FOR_LARGE_SCORES
+#ifdef MAYBE_ANNOYING_FOR_LARGE_SCORES
 				/*
-				 * In case the ChooseChar dlog has left holes in score. Unfortunately,
-				 * can be slow enough to be very annoying.
+				 * In case the ChooseChar dlog has left holes in score. FIXME: A comment
+				 * here said "Unfortunately, can be slow enough to be very annoying."
+				 * That comment probably dates from ca. 2000 or earlier; it's unlikely
+				 * it'd be a problem now, so this code probably should be activated.
+				 * --DAB, July 2016
 				 */
 				else if (IsDocumentKind(w) || IsPaletteKind(w)) {
 					DoUpdate(w);
@@ -548,23 +552,23 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				GlobalToLocal(&where);
 				popupAns = FALSE;
 				
-				if (PtInRect(where,&popup4.shadow)) {
+				if (PtInRect(where, &popup4.shadow)) {
 					popupAns = ans = DoUserPopUp(&popup4);
-					*itemHit = ans ? POP4_StyleChoice : 0;
+					*itemHit = (ans ? POP4_StyleChoice : 0);
 					}
 				else {
 					/* If TextDlog and using a predefined style, ignore other popups */
 					currentStyle = GetStyleChoice();
 					if (theDlog!=TextDlog || currentStyle==TSThisItemOnlySTYLE) {
-						 if (PtInRect(where,&popup7.shadow)) {
+						 if (PtInRect(where, &popup7.shadow)) {
 							popupAns = ans = DoUserPopUp(&popup7);
 							*itemHit = ans ? POP7_Name : 0;
 							}
-						 else if (PtInRect(where,&popup11.shadow)) {
+						 else if (PtInRect(where, &popup11.shadow)) {
 							popupAns = ans = DoUserPopUp(&popup11);
 							*itemHit = ans ? POP11_Absolute : 0;
 							}
-						 else if (PtInRect(where,&popup16.shadow)) {
+						 else if (PtInRect(where, &popup16.shadow)) {
 							popupAns = ans = DoUserPopUp(&popup16);
 							*itemHit = ans ? POP16_Relative : 0;
 							}
@@ -599,8 +603,8 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 							*itemHit = Cancel;
 							return TRUE;
 						}
-					GetDlgString(dlog,EDIT25_Text,str);
-					GetDialogItem(dlog,BUT1_OK,&type,&hndl,&box);
+					GetDlgString(dlog, EDIT25_Text, str);
+					GetDialogItem(dlog, BUT1_OK, &type, &hndl, &box);
 					HiliteControl((ControlHandle)hndl, (*str==0 ? CTL_INACTIVE : CTL_ACTIVE));
 					/*
 					 * Convert command-quote/-double-quote to std ASCII quotes so
@@ -608,12 +612,12 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 					 */
 					ans = (ch!='"' && ch!='\'');
 					}
-				/* Let Enter key confirm dlog. Let Return key insert a CR in string  
-					for Text dlog, and confirm Define Style dlog. */
+				/* Let Enter key confirm (and dismiss) the dlog. Let Return key insert a
+					CR in the string for Text dlog, and confirm Define Style dlog. */
 				else if (ch==CH_ENTER || (theDlog==DefineStyleDlog && ch==CH_CR)) {
-					GetDlgString(dlog,EDIT25_Text,str);
+					GetDlgString(dlog, EDIT25_Text, str);
 					if (*str != 0) {
-						GetDialogItem(dlog,BUT1_OK,&type,&hndl,&box);
+						GetDialogItem(dlog, BUT1_OK, &type, &hndl, &box);
 						*itemHit = BUT1_OK;
 						doHilite = TRUE;
 						}
@@ -630,8 +634,8 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				break;
 			}
 		if (doHilite) {
-			GetDialogItem(dlog,*itemHit,&type,&hndl,&box);
-			/* if (type == (btnCtrl+ctrlItem)) */ HiliteControl((ControlHandle)hndl,1);
+			GetDialogItem(dlog, *itemHit, &type, &hndl, &box);
+			/* if (type == (btnCtrl+ctrlItem)) */ HiliteControl((ControlHandle)hndl, 1);
 			}
 		return(ans);
 	}
@@ -642,7 +646,7 @@ or 0 if out of bounds */
 
 static short TDRelIndexToSize(short index)
 	{
-		return(RelIndexToSize(index,theLineSpacing));
+		return(RelIndexToSize(index, theLineSpacing));
 	}
 
 
@@ -662,19 +666,19 @@ static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpand
 		 else 			thePtSize = tmpSize;
 
 		theSize = thePtSize;
-		TuneRadioIn(dlog,isRelative?RAD14_Relative:RAD9_Absolute,&radioChoice);
+		TuneRadioIn(dlog, isRelative?RAD14_Relative:RAD9_Absolute, &radioChoice);
 		if (isRelative) {
-			PutDlgString(dlog,EDIT12_Points,"\p",FALSE);
-			ChangePopUpChoice(&popup16,theRelIndex);
+			PutDlgString(dlog, EDIT12_Points, "\p", FALSE);
+			ChangePopUpChoice(&popup16, theRelIndex);
 			}
 		 else {
-			PutDlgWord(dlog,EDIT12_Points,theSize,TRUE);
-			SetAbsSizePopUp(theSize,str);
+			PutDlgWord(dlog, EDIT12_Points, theSize, TRUE);
+			SetAbsSizePopUp(theSize, str);
 			}
 			
 		theStyle = aStyle->fontStyle;
 		theLyric = aStyle->lyric;
-		SetStyleBoxes(dlog,theStyle,theLyric);
+		SetStyleBoxes(dlog, theStyle, theLyric);
 		
 		if (theDlog!=DefineStyleDlog)
 			PutDlgChkRadio(dlog, CHK31_Expanded, anExpanded);
@@ -704,8 +708,8 @@ static short SizeToRelIndex(short size)
 	}
 
 
-/* Determine which font style the string is in, and copy the relevant
-parameters into the global TEXTSTYLE record theCurrent. */
+/* Determine which font style the string is in, and copy the relevant parameters
+into the global TEXTSTYLE record theCurrent. */
 
 static short GetStrFontStyle(Document *doc, short styleChoice)
 {
@@ -805,14 +809,14 @@ static Boolean ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style)
 	short		newFontIndex;
 	PGRAPHIC	pGraphic;
 	
-	/* Get the new font's index, adding it to the table if necessary.
-		But if the table overflows, give up. */
+	/* Get the new font's index, adding it to the table if necessary. But if
+		the table overflows, give up. */
 	newFontIndex = GetFontIndex(doc, style->fontName);
 	if (newFontIndex < 0)
 		return FALSE;
 
-	/* Consider changing GRLyrics to GRStrings and vice-versa, based
-		on the lyric flag for the style. */
+	/* Consider changing GRLyrics to GRStrings and vice-versa, based on the lyric
+		flag for the style. */
 	if (GraphicSubType(pL)==GRLyric || GraphicSubType(pL)==GRString)
 		GraphicSubType(pL) = (style->lyric? GRLyric : GRString);
 
@@ -922,7 +926,7 @@ static Boolean AllIsWell(void)
 {
 	short expandedSetting, maxLenExpanded, type, i;
 	Handle hndl; Rect box;
-	DialogPtr dlog; GrafPtr oldPort;
+	DialogPtr dlog;
 	unsigned char str[256];
 	char fmtStr[256];
 	Boolean strOkay = TRUE;
@@ -984,33 +988,32 @@ Boolean TextDialog(
 {
 	short tmpSize,itemHit,type;
 	Boolean okay=FALSE,keepGoing=TRUE;
-	short val,i,currentStyle;
+	short val, i, currentStyle;
 	Handle hndl; Rect box; long num;
 	DialogPtr dlog; GrafPtr oldPort;
 	unsigned char str[256];
-	char fmtStr[256];
 	ModalFilterUPP filterUPP;
 	
 	theDlog = TextDlog;
 
 	/* First load the 12 style records from the score header */
-	BlockMove(doc->fontName1,&theRegular1,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontName2,&theRegular2,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontName3,&theRegular3,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontName4,&theRegular4,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontName5,&theRegular5,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontName6,&theRegular6,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontName7,&theRegular7,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontName8,&theRegular8,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontName9,&theRegular9,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontNameMN,&theMeasNum,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontNamePN,&thePartName,sizeof(TEXTSTYLE));
-	BlockMove(doc->fontNameRM,&theRehearsalMark,sizeof(TEXTSTYLE));
+	BlockMove(doc->fontName1, &theRegular1, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontName2, &theRegular2, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontName3, &theRegular3, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontName4, &theRegular4, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontName5, &theRegular5, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontName6, &theRegular6, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontName7, &theRegular7, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontName8, &theRegular8, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontName9, &theRegular9, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontNameMN, &theMeasNum, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontNamePN, &thePartName, sizeof(TEXTSTYLE));
+	BlockMove(doc->fontNameRM, &theRehearsalMark, sizeof(TEXTSTYLE));
 	
 	/*
 	 *	If string is empty, then we are creating a new graphic text object, so
 	 *	take our text characteristics from the last one created.  If string is
-	 *	non-empty, other arguments are presumed defined.
+	 *	non-empty, we presume other arguments are defined.
 	 */
 	if (*string) {
 		/* Determine in which font's style this string is, if any */
@@ -1061,14 +1064,14 @@ Boolean TextDialog(
 
 	GetPort(&oldPort);
 
-	dlog = GetNewDialog(NEW_TEXT_DLOG,NULL,BRING_TO_FRONT);
+	dlog = GetNewDialog(NEW_TEXT_DLOG, NULL, BRING_TO_FRONT);
 	if (dlog == NULL) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(NEW_TEXT_DLOG);
 		return FALSE;
 	}
 
-	CenterWindow(GetDialogWindow(dlog),0);
+	CenterWindow(GetDialogWindow(dlog), 0);
 	SetPort(GetDialogWindowPort(dlog));
 	
 	ArrowCursor();
@@ -1077,17 +1080,17 @@ Boolean TextDialog(
 
 	/* Get the background panel rectangles, as defined by some user items */
 	
-	GetDialogItem(dlog,USER27,&type,&hndl,&fontRect);
-	GetDialogItem(dlog,USER28,&type,&hndl,&sizeRect);
-	GetDialogItem(dlog,USER29,&type,&hndl,&faceRect);
-	GetDialogItem(dlog,USER30,&type,&hndl,&styleRect);
+	GetDialogItem(dlog, USER27, &type, &hndl, &fontRect);
+	GetDialogItem(dlog, USER28, &type, &hndl, &sizeRect);
+	GetDialogItem(dlog, USER29, &type, &hndl, &faceRect);
+	GetDialogItem(dlog, USER30, &type, &hndl, &styleRect);
 	
 	/* Get them out of the way so they don't hide any items underneath */
 		
-	HideDialogItem(dlog,USER27);
-	HideDialogItem(dlog,USER28);
-	HideDialogItem(dlog,USER29);
-	HideDialogItem(dlog,USER30);
+	HideDialogItem(dlog, USER27);
+	HideDialogItem(dlog, USER28);
+	HideDialogItem(dlog, USER29);
+	HideDialogItem(dlog, USER30);
 	
 	dimRect = styleRect;
 	dimRect.top -= 6;									/* Since a label extends above top panel */
@@ -1101,29 +1104,29 @@ Boolean TextDialog(
 	
 	radioChoice = (!isRelative) ? RAD14_Relative : RAD9_Absolute;
 	
-	if (!InitPopUp(dlog,&popup4,POP4_StyleChoice,STXT3_Text, TEXTSTYLE_POPUP, 0)) goto broken;
-	if (!InitPopUp(dlog,&popup7,POP7_Name,STXT6_Name, FONT_POPUP, 0)) goto broken;
-	if (!InitPopUp(dlog,&popup11,POP11_Absolute,STXT10_Absolute,SIZE_POPUP,0)) goto broken;
-	if (!InitPopUp(dlog,&popup16,POP16_Relative,STXT15_Relative,
+	if (!InitPopUp(dlog, &popup4, POP4_StyleChoice, STXT3_Text, TEXTSTYLE_POPUP, 0)) goto broken;
+	if (!InitPopUp(dlog, &popup7, POP7_Name, STXT6_Name, FONT_POPUP, 0)) goto broken;
+	if (!InitPopUp(dlog, &popup11, POP11_Absolute, STXT10_Absolute, SIZE_POPUP, 0)) goto broken;
+	if (!InitPopUp(dlog, &popup16, POP16_Relative, STXT15_Relative,
 								STAFFREL_POPUP,isRelative?theRelIndex:0)) goto broken;
 	
 	theFont = 0;
-	AppendResMenu(popup7.menu,'FONT');
+	AppendResMenu(popup7.menu, 'FONT');
 	
-	InstallTextStyle(dlog,&theCurrent,theExpanded);
+	InstallTextStyle(dlog, &theCurrent, theExpanded);
 	SetStylePopUp(currentStyle);
 
-	PutDlgString(dlog,EDIT25_Text,string,TRUE);		/* Leave string, if any, selected */
+	PutDlgString(dlog, EDIT25_Text, string, TRUE);		/* Leave string, if any, selected */
 
-	GetDialogItem(dlog,BUT1_OK,&type,&hndl,&box);
+	GetDialogItem(dlog, BUT1_OK, &type, &hndl, &box);
 	HiliteControl((ControlHandle)hndl, *string==0 ? CTL_INACTIVE : CTL_ACTIVE);
 	
 	ShowWindow(GetDialogWindow(dlog));
 
 	while (keepGoing) {
-		ModalDialog(filterUPP,&itemHit);
+		ModalDialog(filterUPP, &itemHit);
 		if (itemHit <= 0) continue;
-		GetDialogItem(dlog,itemHit,&type,&hndl,&box);
+		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
 		switch(itemHit) {
 			case BUT1_OK:
 				if (AllIsWell()) {
@@ -1146,21 +1149,21 @@ Boolean TextDialog(
 						theCurrent.enclosure = theEncl;
 						theCurrent.lyric = theLyric;
 						if (popup7.currentChoice) {
-							GetMenuItemText(popup7.menu,popup7.currentChoice,name);
-							PStrnCopy((StringPtr)name,(StringPtr)theCurrent.fontName,63);
+							GetMenuItemText(popup7.menu, popup7.currentChoice, name);
+							PStrnCopy((StringPtr)name, (StringPtr)theCurrent.fontName, 63);
 							}
 						}
 					 else
 						TSSetCurrentStyle(currentStyle);
 					PStrCopy((StringPtr)theCurrent.fontName, (StringPtr)name);
 					TextEditState(dlog, TRUE);
-					InstallTextStyle(dlog,&theCurrent,theExpanded);
+					InstallTextStyle(dlog, &theCurrent, theExpanded);
 					TextEditState(dlog, FALSE);
-					DrawExampleText(dlog,NULL);
+					DrawExampleText(dlog, NULL);
 					if (currentStyle!=TSThisItemOnlySTYLE)
 						DimStylePanels(dlog, TRUE);
 					else
-						InvalWindowRect(GetDialogWindow(dlog),&dimRect);		/* force redrawing by DimStylePanels */
+						InvalWindowRect(GetDialogWindow(dlog), &dimRect);		/* force redrawing by DimStylePanels */
 #ifdef DEBUG_PRINTFONTS
 					DebugPrintFonts(doc);
 #endif
@@ -1169,36 +1172,36 @@ Boolean TextDialog(
 			case POP7_Name:
 				if (popupAns) {
 					GetRealSizes();
-					DrawExampleText(dlog,NULL);
+					DrawExampleText(dlog, NULL);
 					currentStyle = TSThisItemOnlySTYLE;
-					ChangePopUpChoice(&popup4,currentStyle);
+					ChangePopUpChoice(&popup4, currentStyle);
 					}
 				break;
 			case POP11_Absolute:
 				if (popupAns) {
-					StringToNum(popup11.str,&num); theSize = num;
-					TextEditState(dlog,TRUE);
-					PutDlgWord(dlog,EDIT12_Points,theSize,FALSE);
-					TextEditState(dlog,FALSE);
-					TuneRadioIn(dlog,RAD9_Absolute,&radioChoice);
+					StringToNum(popup11.str, &num); theSize = num;
+					TextEditState(dlog, TRUE);
+					PutDlgWord(dlog, EDIT12_Points, theSize, FALSE);
+					TextEditState(dlog, FALSE);
+					TuneRadioIn(dlog, RAD9_Absolute, &radioChoice);
 					thePtSize = theSize;
-					SetAbsSizePopUp(theSize,str);
-					DrawExampleText(dlog,NULL);
+					SetAbsSizePopUp(theSize, str);
+					DrawExampleText(dlog, NULL);
 					currentStyle = TSThisItemOnlySTYLE;
-					ChangePopUpChoice(&popup4,currentStyle);
+					ChangePopUpChoice(&popup4, currentStyle);
 					}
 				break;
 			case POP16_Relative:
 				if (popupAns) {
-					TextEditState(dlog,TRUE);
-					PutDlgString(dlog,EDIT12_Points,"\p",FALSE);
-					TextEditState(dlog,FALSE);
-					TuneRadioIn(dlog,RAD14_Relative,&radioChoice);
+					TextEditState(dlog, TRUE);
+					PutDlgString(dlog, EDIT12_Points, "\p", FALSE);
+					TextEditState(dlog, FALSE);
+					TuneRadioIn(dlog, RAD14_Relative, &radioChoice);
 					theRelIndex = popup16.currentChoice;
 					thePtSize = TDRelIndexToSize(theRelIndex);
-					DrawExampleText(dlog,NULL);
+					DrawExampleText(dlog, NULL);
 					currentStyle = TSThisItemOnlySTYLE;
-					ChangePopUpChoice(&popup4,currentStyle);
+					ChangePopUpChoice(&popup4, currentStyle);
 					}
 				break;
 			case CHK17_Plain:
@@ -1209,8 +1212,8 @@ Boolean TextDialog(
 				if (itemHit == CHK17_Plain) {
 					/* Turn all others off */
 					for (i=CHK18_Bold; i<=CHK21_Shadow; i++) {
-						GetDialogItem(dlog,i,&type,&hndl,&box);
-						SetControlValue((ControlHandle)hndl,FALSE);
+						GetDialogItem(dlog, i, &type, &hndl, &box);
+						SetControlValue((ControlHandle)hndl, FALSE);
 						}
 					theStyle = 0;
 					}
@@ -1218,83 +1221,83 @@ Boolean TextDialog(
 					/* Add or subtract style bit from current style. NB: This code assumes
 						the style buttons are in the same order as the bits in fontStyle,
 						but skipping _extend_, so bold = 1, italic = 2, etc. */
-					GetDialogItem(dlog,itemHit,&type,&hndl,&box);
+					GetDialogItem(dlog, itemHit, &type, &hndl, &box);
 					val = !GetControlValue((ControlHandle)hndl);
-					SetControlValue((ControlHandle)hndl,val);
+					SetControlValue((ControlHandle)hndl, val);
 					if (itemHit>=CHK20_Outline) i = 1 << (itemHit - CHK18_Bold - 1);
 					else i = 1 << (itemHit - CHK18_Bold);
 					if (val) theStyle |=  i;
 					 else	 theStyle &= ~i;
 					}
 				/* And force Plain on/off accordingly */
-				GetDialogItem(dlog,CHK17_Plain,&type,&hndl,&box);
-				SetControlValue((ControlHandle)hndl,theStyle==0);
-				DrawExampleText(dlog,NULL);
+				GetDialogItem(dlog, CHK17_Plain, &type, &hndl, &box);
+				SetControlValue((ControlHandle)hndl, theStyle==0);
+				DrawExampleText(dlog, NULL);
 				currentStyle = TSThisItemOnlySTYLE;
-				ChangePopUpChoice(&popup4,currentStyle);
+				ChangePopUpChoice(&popup4, currentStyle);
 				break;
 			case CHK22_Lyric:
-				PutDlgChkRadio(dlog,CHK22_Lyric,!GetDlgChkRadio(dlog,CHK22_Lyric));
+				PutDlgChkRadio(dlog, CHK22_Lyric, !GetDlgChkRadio(dlog, CHK22_Lyric));
 				currentStyle = TSThisItemOnlySTYLE;
-				ChangePopUpChoice(&popup4,currentStyle);
-				theLyric = GetDlgChkRadio(dlog,CHK22_Lyric);
-				InvalWindowRect(GetDialogWindow(dlog),&dimRect);			/* force redrawing by DimStylePanels */
+				ChangePopUpChoice(&popup4, currentStyle);
+				theLyric = GetDlgChkRadio(dlog, CHK22_Lyric);
+				InvalWindowRect(GetDialogWindow(dlog), &dimRect);			/* force redrawing by DimStylePanels */
 				break;
 			case CHK31_Expanded:
-				PutDlgChkRadio(dlog,CHK31_Expanded,!GetDlgChkRadio(dlog,CHK31_Expanded));
-				theExpanded = GetDlgChkRadio(dlog,CHK31_Expanded);
-				DrawExampleText(dlog,NULL);
+				PutDlgChkRadio(dlog, CHK31_Expanded, !GetDlgChkRadio(dlog, CHK31_Expanded));
+				theExpanded = GetDlgChkRadio(dlog, CHK31_Expanded);
+				DrawExampleText(dlog, NULL);
 				break;
 			case RAD9_Absolute:
 			case STXT10_Absolute:
 				if (radioChoice != RAD9_Absolute) {
 					if (theSize == 0) theSize = thePtSize;
-					TuneRadioIn(dlog,RAD9_Absolute,&radioChoice);
-					TextEditState(dlog,TRUE);
-					PutDlgWord(dlog,EDIT12_Points,theSize,FALSE);
-					TextEditState(dlog,FALSE);
-					SetAbsSizePopUp(theSize,str);
+					TuneRadioIn(dlog, RAD9_Absolute, &radioChoice);
+					TextEditState(dlog, TRUE);
+					PutDlgWord(dlog, EDIT12_Points, theSize, FALSE);
+					TextEditState(dlog, FALSE);
+					SetAbsSizePopUp(theSize, str);
 					thePtSize = theSize;
-					DrawExampleText(dlog,NULL);
+					DrawExampleText(dlog, NULL);
 					}
 				break;
 			case RAD14_Relative:
 			case STXT15_Relative:
 				if (radioChoice != RAD14_Relative) {
 					if (theRelIndex == 0) theRelIndex = GRMedium;
-					TextEditState(dlog,TRUE);
-					PutDlgString(dlog,EDIT12_Points,"\p",FALSE);
-					TextEditState(dlog,FALSE);
-					TuneRadioIn(dlog,RAD14_Relative,&radioChoice);
-					ChangePopUpChoice(&popup16,theRelIndex);
+					TextEditState(dlog, TRUE);
+					PutDlgString(dlog, EDIT12_Points, "\p", FALSE);
+					TextEditState(dlog, FALSE);
+					TuneRadioIn(dlog, RAD14_Relative, &radioChoice);
+					ChangePopUpChoice(&popup16, theRelIndex);
 					thePtSize = TDRelIndexToSize(theRelIndex);
-					DrawExampleText(dlog,NULL);
+					DrawExampleText(dlog, NULL);
 					}
 				break;
 			case EDIT12_Points:
-				GetDlgWord(dlog,itemHit,&tmpSize);
+				GetDlgWord(dlog, itemHit, &tmpSize);
 				if (tmpSize!=theSize && tmpSize>0) {
 					theSize = tmpSize;
-					TuneRadioIn(dlog,RAD9_Absolute,&radioChoice);
+					TuneRadioIn(dlog, RAD9_Absolute, &radioChoice);
 					thePtSize = theSize;
-					DrawExampleText(dlog,NULL);
-					SetAbsSizePopUp(theSize,str);
+					DrawExampleText(dlog, NULL);
+					SetAbsSizePopUp(theSize, str);
 					}
 				break;
 			case EDIT25_Text:
-				GetDlgString(dlog,itemHit,str);
-				GetDialogItem(dlog,BUT1_OK,&type,&hndl,&box);
+				GetDlgString(dlog, itemHit, str);
+				GetDialogItem(dlog, BUT1_OK, &type, &hndl, &box);
 				HiliteControl((ControlHandle)hndl, (*str==0 ? CTL_INACTIVE : CTL_ACTIVE));
-				DrawExampleText(dlog,str);
+				DrawExampleText(dlog, str);
 				break;
-/* ???Warning: list allocation moves memory! Do we need to lock anything? */
+/* FIXME: list allocation moves memory! Do we need to lock anything? */
 			case BUT32_InsertChar:
 				{
 					unsigned char theChar[2];
 					char str1[512], str2[512];
 					short selStart, selEnd, len;
 					
-					/* ??If EDIT25_Text isn't the current edit field, selStart
+					/* FIXME: If EDIT25_Text isn't the current edit field, selStart
 					 * and selEnd probably won't be correct!
 					 */
 					if (ChooseCharDlog(theFont, thePtSize, &theChar[0])) {
@@ -1302,7 +1305,7 @@ Boolean TextDialog(
 						TEHandle textH = GetDialogTextEditHandle(dlog);
 						selStart = (*textH)->selStart;
 						selEnd = (*textH)->selEnd;
-						GetDlgString(dlog,EDIT25_Text,str);
+						GetDlgString(dlog, EDIT25_Text, str);
 						len = *str;
 						strcpy(str1, (char *)PtoCstr(str));
 						str1[selStart] = theChar[0];
@@ -1310,11 +1313,11 @@ Boolean TextDialog(
 						strcpy(str2, (char *)&str[selEnd]);
 						str2[len-selEnd] = '\0';
 						strcat(str1, str2);
-						PutDlgString(dlog,EDIT25_Text,CtoPstr((StringPtr)str1),FALSE);
+						PutDlgString(dlog, EDIT25_Text, CtoPstr((StringPtr)str1), FALSE);
 						textH = GetDialogTextEditHandle(dlog);
 						(*textH)->selStart = selStart+1;
 						(*textH)->selEnd = selStart+1;
-						DrawExampleText(dlog,(unsigned char *)str1);
+						DrawExampleText(dlog, (unsigned char *)str1);
 						HILITE_DITEM(BUT1_OK, CTL_ACTIVE);
 					}
 				}
@@ -1330,7 +1333,7 @@ Boolean TextDialog(
 		/* Pull chosen font name out of menu into name to be returned */
 
 		if (popup7.currentChoice)
-			GetMenuItemText(popup7.menu,popup7.currentChoice,name);
+			GetMenuItemText(popup7.menu, popup7.currentChoice, name);
 		
 		/* And return the other dialog values, and set <lastGlobalFont> */
 		
@@ -1343,8 +1346,8 @@ Boolean TextDialog(
 		*expanded = theExpanded;
 		*styleChoice = popup4.currentChoice;
 
-		GetDialogItem(dlog,EDIT25_Text,&type,&hndl,&box);
-		GetDialogItemText(hndl,string);
+		GetDialogItem(dlog, EDIT25_Text, &type, &hndl, &box);
+		GetDialogItemText(hndl, string);
 
 		doc->lastGlobalFont = User2HeaderFontNum(doc, currentStyle);
 		}
@@ -1373,15 +1376,15 @@ Boolean DefineStyleDialog(Document *doc,
 {
 	LINK			pL;
 	short			i, tmpSize, itemHit, type, val;
-	Boolean		okay=FALSE, keepGoing=TRUE, tooManyFonts=FALSE;
-	Handle		hndl;
+	Boolean			okay=FALSE, keepGoing=TRUE, tooManyFonts=FALSE;
+	Handle			hndl;
 	Rect			box;
 	long			num;
-	DialogPtr	dlog;
-	GrafPtr		oldPort;
-	unsigned char name[256], str[256];
+	DialogPtr		dlog;
+	GrafPtr			oldPort;
+	unsigned char	name[256], str[256];
 	char			fmtStr[256];
-	ModalFilterUPP filterUPP;
+	ModalFilterUPP	filterUPP;
 	static short currentStyle = Regular1STYLE;
 
 	theDlog = DefineStyleDlog;

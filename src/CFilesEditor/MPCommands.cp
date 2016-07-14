@@ -1404,7 +1404,8 @@ static LINK XStfObjInRange(LINK startL, LINK endL, short minStf, short maxStf)
 
 
 /* In the given object list in the given range of staves, if any voices have notes/rests
-on more than staff, return the Sync containing first detected; else return NILINK. */
+on more than one staff, return the Sync containing the first one detected; else return
+NILINK. */
 
 static LINK HasVoiceOnMultipleStaves(LINK startL, LINK endL, short minStf, short maxStf)
 {
@@ -1473,7 +1474,7 @@ static LINK DefaultVoiceOnOtherStaff(Document *doc, LINK startL, LINK endL, shor
 
 static Boolean OKMake1StaffParts(Document *doc, short minStf, short maxStf)
 {
-	Boolean okay=TRUE, proceed;
+	Boolean okay=TRUE;
 	LINK badL;
 	short firstBad, problemV;
 	char cantSplitPartStr[256], fmtStr[256];

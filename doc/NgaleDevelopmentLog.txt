@@ -1426,14 +1426,15 @@ _doScroll_ is the key! Scrolling is actually in HiliteSyncRect(). To be continue
 
 -------------------------------------------------------------------------------
 
-28 June - 4 July
+28 June - 5 July
 
 The cadenza of my Violin Concerto has two staves for the soloist, one for the viola
-obbligato. I now have all the violin notes on one staff, so
-want to delete the 2nd staff of the violin -- but I can't, because the only way to do
-that is to Split Part, then delete the new part that contains the 2nd staff, and I can't
-Split Part because (the error message says) there are notes in the default voice for the
-2nd staff on the 1st staff. Huh??
+obbligato. I now have all the violin notes on one staff, so want to delete the 2nd staff
+of the violin -- but I can't, because the only way to do that is to Split Part, then
+delete the new part that contains the 2nd staff, and I can't Split Part because (the
+error message says) there are notes in the default voice for the 2nd staff on the 1st
+staff. Huh??
+
 Make Ngale allow Split Part in that situation => the voice table changes from
 
    iVoice 1 in part 1 Role=L relVoice=1
@@ -1467,3 +1468,15 @@ So the voice table for the Cadenza _must_ end up (except for the roles)
 
 ...and everything in iVoice 2 must change to iVoice 4.
 
+But experiments aren't encouraging. This still might take a lot of work to get right --
+and actually it shouldn't take long to move everything in violin voice 2 to voice 3
+(after removing slurs/ties & beams); Split; and move everything in violin voice 3 back
+to 2!  To be continued.
+
+-------------------------------------------------------------------------------
+
+9-10 July
+
+For Issue #98, it'd be great if the Tempo/Metronome Mark dialog could handle return
+chars. the way the text-entry (for Graphics) dialog does.  Cf. TextDialog.cp/MyFilter
+to DialogsEditor.cp/TempoFilter.
