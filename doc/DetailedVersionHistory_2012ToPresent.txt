@@ -724,3 +724,11 @@ damaged UTF-8, and it can't save defs.h because it's confused about its encoding
 Minor cleanup. Affects defs.h; DialogsEditor, DrawNRGR, DrawObject, Dragging,
 MPCommands, TextDialog.
 
+-------------------------------------------------------------------------------
+
+17 July
+
+Fixed bug (Issue #77): Trash on screen when Look at One Voice is in use. Affects
+DrawUtils.
+
+Minor cleanup. Affects DrawObject, Drawutils.

@@ -5,11 +5,11 @@
 ****************************************************************************/
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright Â© 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -1113,12 +1113,12 @@ PopLock(TIMESIGheap);
 void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DDIST yd,
 						Boolean reallyDraw)
 {
-	DDIST		lnSpace, offset, rise,	
+	DDIST		lnSpace, offset, rise,
 				endxd, endyd, hairThick,
-				sysLeft;						/* left margin of current system */
+				sysLeft; 					/* left margin of current system */
 	PADYNAMIC	aDynamic;
 	short		xp, yp, endxp, endyp, papyp, papendyp,
-				penThick;						/* vertical pen size in pixels */
+				penThick;					/* vertical pen size in pixels */
 
 	lnSpace = LNSPACE(pContext);
 	sysLeft = pContext->systemLeft;
@@ -1431,10 +1431,10 @@ PushLock(OBJheap);
 				papLeft = pContext->paper.left;
 				papTop = pContext->paper.top;
 				if (!p->noLCutoff) MOVE_AND_LINE(papLeft+xp, papTop+yp+risePxl, papLeft+xp,
-																	papTop+yp);
+																			papTop+yp);
 				MOVE_AND_LINE(papLeft+xp, papTop+yp, papLeft+endxp, papTop+yp);
 				if (!p->noRCutoff) MOVE_AND_LINE(papLeft+endxp, papTop+yp, papLeft+endxp,
-																	papTop+yp+risePxl);
+																			papTop+yp+risePxl);
 
 				if (endNum!=0 && endNum<maxEndingNum) {
 					oldFont = GetPortTxFont();

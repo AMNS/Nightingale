@@ -118,6 +118,8 @@ void DrawMChar(
 	GrafPtr oldPort; PenState pnState;
 
 	/*
+	 * FIXME: The following comment and the code it refers to looks grossly out-of-date.
+	 * --DAB, July 2016
 	 *	<kludgeFontMgr> refers to a kludge to get around what appears to be a bug in the
 	 * Font Manager on many Macs that causes it sometimes to truncate characters on the
 	 * right, sometimes into invisibility. It seems to occur only if the character has
@@ -133,12 +135,12 @@ void DrawMChar(
 	 * the pixels. The 4 blanks we use is actually NOT enough for all cases, but it's
 	 * close.
 	 *
-	 *	The bug has been seen on the SE/30, straight II, IIci, and much more recent
+	 * The bug has been seen on the SE/30, straight II, IIci, and much more recent
 	 * machines like the PowerMac 7100/66. In extensive use, it's never been seen on
 	 * Plus or SE (not that anyone cares anymore). For now, we assume it can occur on
 	 * straight II or ANY later machine. N.B. Apple claims System 6.0.5 fixed a bug in
 	 * displaying zero-width characters on IIci's; maybe so, but these problems still
-	 *	occur under System 7.
+	 * occur under System 7.
 	 */
 	Boolean kludgeFontMgr;
 	
@@ -175,13 +177,17 @@ void DrawMString(Document *doc, unsigned char *mstr, short shape, Boolean dim)
 {
 	short i;
 	
-	for (i=1; i<=mstr[0]; i++)
+	for (i=1; i<=mstr[0]; i++) {
 		DrawMChar(doc, mstr[i], shape, dim);
+		short wid = CharWidth(mstr[i]);
+//LogPrintf(LOG_DEBUG, "DrawMString: CharWidth()=%d\n", wid);
+		Move(wid, 0);
+	}
 }
 
 
 /* ------------------------------------------------------------------ DrawMColon -- */
-/* Draw a QuickDraw colon in the music font. Since the Sonata font doesn't
+/* Draw a QuickDraw colon in the music font. Since Sonata and compatible fonts don't
 include a colon, this is the do-it-yourself version: two augmentation dots, one
 above or (if italic) above and to the right of the other. The augmentation dot is
 bigger than a dot in a colon, so we also reduce the font size temporarily. */
@@ -225,8 +231,8 @@ static void LCGet8Pos(SignedByte clefType, DDIST dLnHeight, DDIST *xdOctDelta,
 								DDIST *ydOctDelta)
 {
 	/*
-	 * Careful: the vertical origin of the italic Sonata "8" is at the bottom, but the
-	 * Roman's is in the middle!
+	 * Careful: the vertical origin of the italic "8" in Sonata and compatible fonts
+	 * is at the bottom, but the Roman's is in the middle!
 	 */
 	*xdOctDelta = (DDIST)CANCEL_INT;
 	
@@ -317,22 +323,22 @@ void GetClefDrawInfo(
 		sizePercent = (100*txSize)/pContext->fontSize;
 		}
 
-/* Clefs in the Sonata font, other than the percussion clef, have their origins at the
- *	bottom line of a 5-line staff for their standard size and (for C clef) "normal"
- *	position; however, in the sense of the point on the clef whose staff position must
- *	be preserved when the clef is drawn in a non-standard size, each clef's "real"
- *	vertical origin is somewhere else:
- *		for treble clef, the next-to-bottom (G) line;
- *		for C clefs, the middle of the clef: middle line for alto, next-to-top for tenor;
- *		for bass clef, the next-to-top (F) line.
- *	Percussion clef (the real one, not the one Semipro Composer uses) doesn't even
- *	have its origin at the bottom line of a 5-line staff; anyway, its "real" origin
- *	is one line above its bottom.
- *
- * The following code computes the Sonata origin so as to preserve the clef's "real" 
- *	origin by moving down from the top line to the "real" origin, then scaling just the 
- *	portion of the staff height remaining below that. If the clef is full-size, <ydR> is
- *	the height of the staff; if it's small, <ydR> is somewhat less.
+/* Clefs in Sonata and compatible fonts, other than the percussion clef, have their
+	origins at the bottom line of a 5-line staff for their standard size and (for C
+	clef) "normal" position; however, in the sense of the point on the clef whose staff
+	position must be preserved when the clef is drawn in a non-standard size, each
+	clef's "real" vertical origin is somewhere else:
+		for treble clef, the next-to-bottom (G) line;
+		for C clefs, the middle of the clef: middle line for alto, next-to-top for tenor;
+		for bass clef, the next-to-top (F) line.
+	Percussion clef (the real one, not the one Semipro Composer uses) doesn't even
+	have its origin at the bottom line of a 5-line staff; anyway, its "real" origin
+	is one line above its bottom.
+
+	The following code computes the Sonata origin so as to preserve the clef's "real" 
+	origin by moving down from the top line to the "real" origin, then scaling just the 
+	portion of the staff height remaining below that. If the clef is full-size, <ydR> is
+	the height of the staff; if it's small, <ydR> is somewhat less.
  */
 	switch (aClef->subType) {
 		case TREBLE8_CLEF:
