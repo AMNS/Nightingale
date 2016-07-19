@@ -11,14 +11,14 @@ Downloads require an Apple Developer account; they should not require a paid iOS
  - should work on OS 10.4 too, but only 10.5 has been tested
 
 * MacOS version 10.6
- - Xcode version 3.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added
- - will not work on OS >= 10.7, due to PPC / Rosetta dependencies
+ - Xcode version 3.2 with MacOS 10.4 SDK, PowerPC, and GCC version 4.0 support added
+ - will not work on OS >= 10.7, due to PowerPC / Rosetta dependencies
 
 It will probably work with GCC 4.2 as well.
 
 * The following environment _may_ work; it did for one person (Geoff C.), but another (Don B.) was unable to set it up (note the kludgy instructions!):
 
-* MacOS version 10.6; Xcode version 4.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added 
+* MacOS version 10.6; Xcode version 4.2 with MacOS 10.4 SDK, PowerPC, and GCC version 4.0 support added 
  - Specifically, this is a hybrid of [Xcode 4.2 for MacOS 10.6] (http://adcdownload.apple.com//Developer_Tools/xcode_4.2_for_snow_leopard/xcode_4.2_for_snow_leopard.dmg)
  with [Xcode 3.2's for MacOS 10.6](http://adcdownload.apple.com//Developer_Tools/xcode_3.2.6_and_ios_sdk_4.3__final/xcode_3.2.6_and_ios_sdk_4.3.dmg) SDKs.
  Following [these instructions] (http://stackoverflow.com/questions/5333490/how-can-we-restore-ppc-ppc64-as-well-as-full-10-4-10-5-sdk-support-to-xcode-4
@@ -36,9 +36,9 @@ The last "curl" may fail, but (for one person) resulted in Xcode 4.2 doing what 
 
 Debugging
 ---------
-It's probably not possible to attach a debugger on an Intel machine (due to Rosetta translation requirements).  It should be possible to debug on a PPC machine.
+It's probably not possible to attach a debugger on an Intel machine (due to Rosetta translation requirements), but it should be possible on a PowerPC.
 
-Xcode 2.x and 3.x put debug build products in a directory like:
+Xcode 2.x and 3.x put debug build products in a directory with a path like:
 
 ~/NightingaleDev/build/Debug
 
@@ -50,7 +50,7 @@ XCode 4.x and above puts debug build products in a directory like:
 
 `find ~/* -name Nightingale.app`
 
-...or -- much faster! -- by command-clicking on "Nightingale" at the bottom in the folder view (leftmost icon(?)) of the project, then using the path to that directory in a "cd" command.)
+...or -- much, much faster! -- by control-clicking on "Nightingale" at the bottom in the folder view of the project (the leftmost icon), then choosing "Show in Finder", the first item in the pop-up menu.)
 
 It can be run like:
 
