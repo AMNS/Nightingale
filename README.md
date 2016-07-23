@@ -50,7 +50,7 @@ XCode 4.x and above puts debug build products in a directory like:
 
 `find ~/* -name Nightingale.app`
 
-...or -- much, much faster! -- by control-clicking on "Nightingale" at the bottom in the folder view of the project (the leftmost icon), then choosing "Show in Finder", the first item in the pop-up menu.)
+...or -- much, much faster! -- by control-clicking on "Nightingale" at the bottom in the folder view (leftmost icon(?)) of the project, then choosing "Show in Finder" in the pop-up menu.)
 
 It can be run like:
 

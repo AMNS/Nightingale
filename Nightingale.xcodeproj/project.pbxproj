@@ -9,6 +9,8 @@
 /* Begin PBXBuildFile section */
 		151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151D712F1C4FA1A900B49302 /* VoiceTable.cp */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
+		1556A2F61D3FA4E700A0B147 /* InsNew.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1556A2F51D3FA4E700A0B147 /* InsNew.cp */; };
+		1556A2F81D3FA4F200A0B147 /* InsNewUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1556A2F71D3FA4F200A0B147 /* InsNewUtils.cp */; };
 		15602EE71D20BEF300BAEBF6 /* Browser.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EE61D20BEF300BAEBF6 /* Browser.cp */; };
 		15602EEF1D20BF7400BAEBF6 /* Dragging.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EEE1D20BF7400BAEBF6 /* Dragging.cp */; };
 		15602EF81D20C03300BAEBF6 /* DebugUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EF71D20C03300BAEBF6 /* DebugUtils.cp */; };
@@ -57,8 +59,6 @@
 		D03E6E170D5F986D005FD177 /* help.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DF10D5F986D005FD177 /* help.cp */; };
 		D03E6E180D5F986D005FD177 /* Initialize.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DF20D5F986D005FD177 /* Initialize.cp */; };
 		D03E6E190D5F986D005FD177 /* InitNightingale.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DF30D5F986D005FD177 /* InitNightingale.cp */; };
-		D03E6E1A0D5F986D005FD177 /* InsNew.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DF40D5F986D005FD177 /* InsNew.cp */; };
-		D03E6E1B0D5F986D005FD177 /* InsNewUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DF50D5F986D005FD177 /* InsNewUtils.cp */; };
 		D03E6E1C0D5F986D005FD177 /* InstrDialog.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DF60D5F986D005FD177 /* InstrDialog.cp */; };
 		D03E6E1D0D5F986D005FD177 /* InsUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DF70D5F986D005FD177 /* InsUtils.cp */; };
 		D03E6E1E0D5F986D005FD177 /* Inval.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DF80D5F986D005FD177 /* Inval.cp */; };
@@ -205,6 +205,8 @@
 /* Begin PBXFileReference section */
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
+		1556A2F51D3FA4E700A0B147 /* InsNew.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNew.cp; sourceTree = "<group>"; };
+		1556A2F71D3FA4F200A0B147 /* InsNewUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNewUtils.cp; sourceTree = "<group>"; };
 		15602EE61D20BEF300BAEBF6 /* Browser.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Browser.cp; sourceTree = "<group>"; };
 		15602EEE1D20BF7400BAEBF6 /* Dragging.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dragging.cp; sourceTree = "<group>"; };
 		15602EF71D20C03300BAEBF6 /* DebugUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugUtils.cp; sourceTree = "<group>"; };
@@ -343,8 +345,6 @@
 		D03E6DF10D5F986D005FD177 /* help.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = help.cp; sourceTree = "<group>"; };
 		D03E6DF20D5F986D005FD177 /* Initialize.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Initialize.cp; sourceTree = "<group>"; };
 		D03E6DF30D5F986D005FD177 /* InitNightingale.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InitNightingale.cp; sourceTree = "<group>"; };
-		D03E6DF40D5F986D005FD177 /* InsNew.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNew.cp; sourceTree = "<group>"; };
-		D03E6DF50D5F986D005FD177 /* InsNewUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNewUtils.cp; sourceTree = "<group>"; };
 		D03E6DF60D5F986D005FD177 /* InstrDialog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InstrDialog.cp; sourceTree = "<group>"; };
 		D03E6DF70D5F986D005FD177 /* InsUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsUtils.cp; sourceTree = "<group>"; };
 		D03E6DF80D5F986D005FD177 /* Inval.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Inval.cp; sourceTree = "<group>"; };
@@ -728,8 +728,6 @@
 				D03E6DF10D5F986D005FD177 /* help.cp */,
 				D03E6DF20D5F986D005FD177 /* Initialize.cp */,
 				D03E6DF30D5F986D005FD177 /* InitNightingale.cp */,
-				D03E6DF40D5F986D005FD177 /* InsNew.cp */,
-				D03E6DF50D5F986D005FD177 /* InsNewUtils.cp */,
 				D03E6DF60D5F986D005FD177 /* InstrDialog.cp */,
 				D03E6DF70D5F986D005FD177 /* InsUtils.cp */,
 				D03E6DF80D5F986D005FD177 /* Inval.cp */,
@@ -877,6 +875,8 @@
 				D03E70760D5FA5B2005FD177 /* HeapBrowser.cp */,
 				D03E70770D5FA5B2005FD177 /* InfoDialog.cp */,
 				D03E70780D5FA5B2005FD177 /* Insert.cp */,
+				1556A2F51D3FA4E700A0B147 /* InsNew.cp */,
+				1556A2F71D3FA4F200A0B147 /* InsNewUtils.cp */,
 				D03E70790D5FA5B2005FD177 /* MasterMouse.cp */,
 				D03E707A0D5FA5B2005FD177 /* MeasFill.cp */,
 				D03E707B0D5FA5B2005FD177 /* Merge.cp */,
@@ -1063,8 +1063,6 @@
 				D03E6E170D5F986D005FD177 /* help.cp in Sources */,
 				D03E6E180D5F986D005FD177 /* Initialize.cp in Sources */,
 				D03E6E190D5F986D005FD177 /* InitNightingale.cp in Sources */,
-				D03E6E1A0D5F986D005FD177 /* InsNew.cp in Sources */,
-				D03E6E1B0D5F986D005FD177 /* InsNewUtils.cp in Sources */,
 				D03E6E1C0D5F986D005FD177 /* InstrDialog.cp in Sources */,
 				D03E6E1D0D5F986D005FD177 /* InsUtils.cp in Sources */,
 				D03E6E1E0D5F986D005FD177 /* Inval.cp in Sources */,
@@ -1184,6 +1182,8 @@
 				15602EE71D20BEF300BAEBF6 /* Browser.cp in Sources */,
 				15602EEF1D20BF7400BAEBF6 /* Dragging.cp in Sources */,
 				15602EF81D20C03300BAEBF6 /* DebugUtils.cp in Sources */,
+				1556A2F61D3FA4E700A0B147 /* InsNew.cp in Sources */,
+				1556A2F81D3FA4F200A0B147 /* InsNewUtils.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

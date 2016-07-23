@@ -1,8 +1,9 @@
 /***************************************************************************
 	PROJ:   Nightingale
-	DESC:   Higher-level routines to add music symbols to the score via mouse,
-				including deciding where the inserted symbol should go, tracking,
-				cancelling, etc.
+	DESC:   Higher-level routines to add music symbols to the score interactively,
+			including deciding where the inserted symbol should go, tracking,
+			cancelling, etc. They generally call analagous low-level routines in
+			InsNew.c to modify the object list.
 		AddNewGRSync
 		TrkInsSync				TrkInsNote				TrkInsGRSync
 		TrkInsGRNote			InsertNote				InsertGRNote
@@ -30,9 +31,9 @@ static Boolean TrkInsSync(Document *, LINK, Point, short *, short);
 static Boolean TrkInsNote(Document *, Point, short *, short);
 static Boolean TrkInsGRSync(Document *, LINK, Point, short *, short);
 static Boolean TrkInsGRNote(Document *, Point, short *, short);
-static LINK FindJIP(LINK,LINK);
-static Boolean ChkInsMODNR(LINK,short);
-static Boolean InsertHairpin(Document *,Point,LINK,short);
+static LINK FindJIP(LINK, LINK);
+static Boolean ChkInsMODNR(LINK, short);
+static Boolean InsertHairpin(Document *, Point, LINK, short);
 
 	
 /* Utility to add new GRSync before an object found by TimeSearchRight in AddGRNote. */

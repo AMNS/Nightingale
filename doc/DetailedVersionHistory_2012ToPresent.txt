@@ -732,3 +732,26 @@ Fixed bug (Issue #77): Trash on screen when Look at One Voice is in use. Affects
 DrawUtils.
 
 Minor cleanup. Affects DrawObject, Drawutils.
+
+===============================================================================
+
+19-20 July
+
+Changed version number from 5.7b2 to 5.7b3. Affects Info.plist.
+
+Improve standard (for Add Modifiers) position of the common accent (>). Affects InsNew.
+
+Move FIInsertModNR() from ?? and rename it AutoNewModNR().
+
+Move two files from project folder CFilesBoth to CFilesEditor. Affects InsNew,
+InsNewUtils.
+
+Minor cleanup.
+
+-------------------------------------------------------------------------------
+
+22 July
+
+Tweak standard (for Add Modifiers) position of circle (natural harmonic) note modifier.
+Affects InsNew.
+

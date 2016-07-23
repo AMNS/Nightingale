@@ -20,7 +20,6 @@ LINK FIInsertTempo(Document *doc, short staffn, LINK insertBeforeL, LINK anchorL
 LINK FIInsertSync(Document *doc, LINK insertBeforeL, short numSubobjects);
 LINK FIInsertGRSync(Document *doc, LINK insertBeforeL, short numSubobjects);
 LINK FIAddNoteToSync(Document *doc, LINK syncL);
-LINK FIInsertModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNoteL);
 LINK FIInsertSlur(Document *doc, LINK firstSyncL, LINK firstNoteL,
 							LINK lastSyncL, LINK lastNoteL, Boolean setShapeNow);
 short FICreateAllSlurs(Document *doc);

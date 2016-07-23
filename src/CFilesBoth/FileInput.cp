@@ -772,58 +772,6 @@ LINK FIAddNoteToSync(Document */*doc*/, LINK syncL)
 }
 
 
-/* --------------------------------------------------------------- FIInsertModNR -- */
-/* Add the specified modifier to the given note. Return the LINK of the
-new modifier, or NILINK if error. (Based on NewMODNR in InsNew.c.) */
-
-LINK FIInsertModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNoteL)
-{
-	short		qPitchLev;
-	LINK		aModNRL, lastModNRL;
-	PANOTE	aNote;
-	PAMODNR	aModNR;
-
-	/* Get vertical position of new modifier. Must do this before allocating new one! */
-	qPitchLev = ModNRPitchLev(doc, modCode, syncL, aNoteL);
-
-	/* Insert the new note modifier into the note's linked modifier list. 
-		If the list exists, traverse to the end, & insert the new MODNR LINK
-		into LastMODNR's next field, else into aNote->firstMod. */
-
-	aNote = GetPANOTE(aNoteL);
-	if (aNote->firstMod) {
-		aModNRL = aNote->firstMod;
-		for ( ; aModNRL; aModNRL = NextMODNRL(aModNRL))
-			if (!NextMODNRL(aModNRL))
-				lastModNRL = aModNRL;
-		aModNRL = HeapAlloc(MODNRheap, 1);
-		if (!aModNRL) {
-			MayErrMsg("FIInsertModNR: HeapAlloc failed.");
-			return NILINK;
-		}
-		NextMODNRL(lastModNRL) = aModNRL;
-	}
-	else {
-		aModNRL = HeapAlloc(MODNRheap, 1);
-		if (!aModNRL) {
-			MayErrMsg("FIInsertModNR: HeapAlloc failed.");
-			return NILINK;
-		}
-		aNote->firstMod = aModNRL;
-	}
-
-	aModNR = GetPAMODNR(aModNRL);
-	aModNR->selected = aModNR->soft = FALSE;
-	aModNR->visible = TRUE;
-	aModNR->modCode = modCode;
-	aModNR->xstd = 0+XSTD_OFFSET;
-	aModNR->ystdpit = qd2std(qPitchLev);
-	aModNR->data = data;
-
-	return aModNRL;
-}
-
-
 /* ----------------------------------------------------------------- FIInsertSlur -- */
 /* Insert a slur just before <firstSyncL>, and init it appropriately. Both
 <firstSyncL> and <lastSyncL> must be Syncs (not GRSyncs!) in the same system;

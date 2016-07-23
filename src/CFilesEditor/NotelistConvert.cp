@@ -600,10 +600,10 @@ Return TRUE if ok, FALSE if error. */
 
 static Boolean ConvertMods(Document *doc, NLINK firstModID, LINK syncL, LINK aNoteL)
 {
-	NLINK		thisModID;
+	NLINK	thisModID;
 	NL_MOD	aNLMod;
 	PAMODNR	pMod;
-	LINK		aModL;
+	LINK	aModL;
 	Boolean	result;
 	
 	for (thisModID = firstModID; thisModID; thisModID = aNLMod.next) {
@@ -612,7 +612,7 @@ static Boolean ConvertMods(Document *doc, NLINK firstModID, LINK syncL, LINK aNo
 			MayErrMsg("ConvertMods: couldn't retrieve modifier (modID = %d).", thisModID);
 			return FALSE;
 		}
-		aModL = FIInsertModNR(doc, aNLMod.code, aNLMod.data, syncL, aNoteL);
+		aModL = AutoNewModNR(doc, aNLMod.code, aNLMod.data, syncL, aNoteL);
 		if (!aModL) return FALSE;
 		pMod = GetPAMODNR(aModL);
 		pMod->ystdpit = 0;	// ystdpit is clef-independent dist below mid-C in 8th-spaces

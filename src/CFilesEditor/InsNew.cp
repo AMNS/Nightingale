@@ -1,14 +1,15 @@
 /***************************************************************************
 *	FILE:	InsNew.c
 *	PROJ:   Nightingale
-*	DESC:   Lower-level routines to add music symbols that actually modify
-*	the object list.
+*	DESC:   Lower-level routines to add music symbols. These functions actually
+*	modify the object list.
 		ClefBeforeBar			KeySigBeforeBar		TimeSigBeforeBar     
 		AddDot					AddNote					AddGRNote
 		NewArpSign				GetLineOffsets			NewLine
 		NewGraphic				NewMeasure
 		NewPseudoMeas			NewClef					NewKeySig
-		NewTimeSig				NewMODNR				NewDynamic				
+		NewTimeSig				NewMODNR				AutoNewModNR
+		NewDynamic				
 		NewRptEnd				NewEnding				NewTempo
 		XLoadInsertSeg
 /***************************************************************************/
@@ -33,10 +34,10 @@ Boolean ClefBeforeBar(Document *doc,
 							short staffn
 							)
 {
-	LINK			firstMeasL, firstClefL;
-	Boolean 		isClef;
-	LINK			endL, doneL;
-	short			sym;
+	LINK		firstMeasL, firstClefL;
+	Boolean 	isClef;
+	LINK		endL, doneL;
+	short		sym;
 	
 	if (!LinkBefFirstMeas(pLPIL)) return FALSE;
 
@@ -151,8 +152,8 @@ void AddDot(Document *doc,
 				)
 {
 	PANOTE	aNote;
-	LINK		aNoteL;
-	short		playDur;
+	LINK	aNoteL;
+	short	playDur;
 		
 	aNoteL = FindMainNote(syncL, voice);
 	aNote = GetPANOTE(aNoteL);
@@ -201,23 +202,23 @@ void AddDot(Document *doc,
 LINK AddNote(Document *doc,
 				short	x,			/* >=0 means new Sync, and this is its horiz. position in pixels, */
 									/* <0  means add note/rest to the existing Sync <doc->selStartL>. */
-				char inchar,		/* Symbol to add */
+				char	inchar,		/* Symbol to add */
 				short	staff,		/* Staff number */
 				short	pitchLev,	/* Half-line pitch level */
 				short	acc,		/* Accidental code */
-				short octType		/* -1 if not in Ottava, else octSignType */
+				short	octType		/* -1 if not in Ottava, else octSignType */
 				)
 {
-	PANOTE		aNote;
-	LINK		newL;
-	LINK		aNoteL=NILINK,measL;
-	short		sym, noteDur, noteNDots,
-				midCpitchLev, voice;
-	Boolean 	inChord,					/* whether added note will be in a chord or not */
-				isRest,
-				beamed;
+	PANOTE	aNote;
+	LINK	newL;
+	LINK	aNoteL=NILINK,measL;
+	short	sym, noteDur, noteNDots,
+			midCpitchLev, voice;
+	Boolean inChord,					/* whether added note will be in a chord or not */
+			isRest,
+			beamed;
 	CONTEXT	context;
-	DDIST		xd, measWidth;
+	DDIST	xd, measWidth;
 
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);				/* "Undo Insert" */
 	NewObjInit(doc, SYNCtype, &sym, inchar, staff, &context);
@@ -700,16 +701,16 @@ void NewGraphic(
 			Point	pt,					/* (Ignored) */
 			char	inchar,				/* Input char. code for symbol to add */
 			short	staff, short voice,
-			short pitchLev,			/* "Pitch level", i.e., vertical position (halflines) */
+			short	pitchLev,			/* "Pitch level", i.e., vertical position (halflines) */
 			Boolean relFSize,
 			short	fSize, short fStyle,
-			short enclosure,
-			short	auxInfo,				/* currently only for chord symbol */
+			short	enclosure,
+			short	auxInfo,			/* currently only for chord symbol */
 			Boolean lyric,
 			Boolean expanded,
 			unsigned char font[],
 			unsigned char string[],
-			short styleChoice			/* Header (not user) index of global style choice */
+			short	styleChoice			/* Header (not user) index of global style choice */
 			)
 {
 	short sym, graphicType, fontInd;
@@ -843,10 +844,10 @@ void NewMeasure(Document *doc,
 					char inchar		/* Input char. code for symbol to add */
 					)
 {
-	short			sym;
+	short		sym;
 	CONTEXT		context;
-	LINK			measL,endL;
-	DDIST			xdMeasure, xd;
+	LINK		measL,endL;
+	DDIST		xdMeasure, xd;
 
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
 	NewObjInit(doc, MEASUREtype, &sym, inchar, ANYONE, &context);
@@ -881,13 +882,13 @@ void NewPseudoMeas(Document *doc,
 						char inchar		/* Input char. code for symbol to add */
 						)
 {
-	short			sym, subType;
-	LINK			pseudoMeasL, prevMeasL, aPseudoMeasL, aprevMeasL;
-	PAPSMEAS		aPseudoMeas;
+	short		sym, subType;
+	LINK		pseudoMeasL, prevMeasL, aPseudoMeasL, aprevMeasL;
+	PAPSMEAS	aPseudoMeas;
 	PAMEASURE	aprevMeas;
-	CONTEXT		context;								/* current context */
-	DDIST			xdPSMeas,							/* click DDIST position relative to staff */
-					xdPSMeasRelStaff;
+	CONTEXT		context;							/* current context */
+	DDIST		xdPSMeas,							/* click DDIST position relative to staff */
+				xdPSMeasRelStaff;
 
 PushLock(OBJheap);
 PushLock(PSMEASheap);
@@ -904,7 +905,7 @@ PushLock(PSMEASheap);
 	pseudoMeasL = InsertNode(doc, doc->selStartL, PSMEAStype, doc->nstaves);
 	if (!pseudoMeasL) { NoMoreMemory(); goto Cleanup; }
 
-	xdPSMeas = p2d(pt.h);												/* absolute DDIST */
+	xdPSMeas = p2d(pt.h);										/* absolute DDIST */
 	xdPSMeasRelStaff = xdPSMeas - context.staffLeft;			/* relative to staff */	
 	NewObjSetup(doc, pseudoMeasL, ANYONE, xdPSMeasRelStaff);
 
@@ -936,8 +937,8 @@ PushLock(PSMEASheap);
 		aPseudoMeas->connStaff = aprevMeas->connStaff;
 	}
 	
-	doc->selStartL = pseudoMeasL; 										/* Update selection first ptr */
-	doc->selEndL = RightLINK(pseudoMeasL);								/* ...and last ptr */
+	doc->selStartL = pseudoMeasL; 								/* Update selection first ptr */
+	doc->selEndL = RightLINK(pseudoMeasL);						/* ...and last ptr */
 	
 	if (doc->selEndL==doc->tailL) UpdateTailxd(doc);
 
@@ -955,7 +956,7 @@ PopLock(PSMEASheap);
 
 void AddToClef(Document *doc, char inchar, short staff)
 {
-	LINK aClefL,newL, doneL; short sym; PACLEF aClef;
+	LINK aClefL, newL, doneL; short sym; PACLEF aClef;
 	CONTEXT context; SignedByte oldClefType;
 
 	if (ExpandNode(newL=doc->selStartL, &aClefL, 1)) {
@@ -984,11 +985,11 @@ void AddToClef(Document *doc, char inchar, short staff)
 
 void NewClef(Document *doc,
 				short	x,			/* <0 = add to existing clef obj, else horiz. position (pixels) */
-				char inchar,	/* Input char. code for symbol to add */
-				short staff		/* Staff number */
+				char	inchar,		/* Input char. code for symbol to add */
+				short	staff		/* Staff number */
 				)
 {
-	short sym; PCLEF newp; PACLEF aClef; LINK newL,aClefL, doneL;
+	short sym; PCLEF newp; PACLEF aClef; LINK newL, aClefL, doneL;
 	CONTEXT context; SignedByte oldClefType;
 
 	doc->undo.param1 = staff;
@@ -1064,23 +1065,23 @@ static Boolean ChkInsKSCancel(Document *doc, LINK insL, short staff)
 insertion point is not in the first system's reserved area! */
 
 void NewKeySig(Document *doc,
-					short x,						/* Horizontal position (pixels) */
+					short x,					/* Horizontal position (pixels) */
 					short sharpsOrFlats,		/* No. of sharps or flats in key sig. */
 					short staff					/* Staff number, or ANYONE for all staves */
 					)
 {
-	short			i, sym, stfCount, useStaff;
-	char			dummyInchar='X';
+	short		i, sym, stfCount, useStaff;
+	char		dummyInchar='X';
 	PKEYSIG		newp;
-	PAKEYSIG		aKeySig;
-	PAKEYSIG		aPrevKeySig;
-	LINK			newL;
-	LINK			prevKSL,
-					aKeySigL, aPrevKeySigL,
-					endL, qL, initKSL;
+	PAKEYSIG	aKeySig;
+	PAKEYSIG	aPrevKeySig;
+	LINK		newL;
+	LINK		prevKSL,
+				aKeySigL, aPrevKeySigL,
+				endL, qL, initKSL;
 	KSINFO		oldKSInfo, newKSInfo;
 	CONTEXT		context[MAXSTAVES+1],*pContext,
-					aContext;										/* context at LeftLINK(doc->selStartL) */
+				aContext;										/* context at LeftLINK(doc->selStartL) */
 	
 	if (!sharpsOrFlats)
 		if (!ChkInsKSCancel(doc, doc->selStartL, staff)) return;
@@ -1105,8 +1106,8 @@ PushLock(KEYSIGheap);
 		useStaff = (staff==ANYONE ? i : staff);
 		InitKeySig(aKeySigL, useStaff, 0, sharpsOrFlats);
 		aKeySig = GetPAKEYSIG(aKeySigL);
-		aKeySig->selected = TRUE;											/* Select the subobj */
-		aKeySig->visible = TRUE;											/* Regardless of sharpsOrFlats */
+		aKeySig->selected = TRUE;									/* Select the subobj */
+		aKeySig->visible = TRUE;									/* Regardless of sharpsOrFlats */
 
 		SetupKeySig(aKeySigL, sharpsOrFlats);
 		if (sharpsOrFlats==0) {
@@ -1149,11 +1150,11 @@ PopLock(KEYSIGheap);
 #define TIMESIG_PALCHAR '8'		/* Substitute this for blank <inchar> */
 
 void NewTimeSig(Document *doc,
-					short	x,						/* Horizontal position (pixels) */
+					short	x,					/* Horizontal position (pixels) */
 					char	inchar,				/* Input char. code for symbol to add */
 					short	staff,				/* Staff number */
 					short	type,
-					short numerator,
+					short	numerator,
 					short	denominator			/* Numerator and denominator of timesig */
 					)
 {
@@ -1161,7 +1162,7 @@ void NewTimeSig(Document *doc,
 	PTIMESIG	newp;
 	LINK 		newL, aTimeSigL;
 	PATIMESIG	aTimeSig;
-	CONTEXT		context;									/* current context */
+	CONTEXT		context;								/* current context */
 	TSINFO		timeSigInfo;
 	
 	if (inchar==' ') inchar = TIMESIG_PALCHAR;
@@ -1178,13 +1179,13 @@ void NewTimeSig(Document *doc,
 		InitTimeSig(aTimeSigL, useStaff, 0, type, numerator, denominator);
 		aTimeSig = GetPATIMESIG(aTimeSigL);
 		aTimeSig->soft = FALSE;
-		aTimeSig->selected = TRUE;							/* Select the subobj */
+		aTimeSig->selected = TRUE;						/* Select the subobj */
 		timeSigInfo.TSType = aTimeSig->subType;
 		timeSigInfo.numerator = aTimeSig->numerator;
 		timeSigInfo.denominator = aTimeSig->denominator;
 		FixContextForTimeSig(doc, RightLINK(newL), useStaff, timeSigInfo);
 	}
-	FixTimeStamps(doc, newL, NILINK);						/* In case of whole-meas. rests */
+	FixTimeStamps(doc, newL, NILINK);					/* In case of whole-meas. rests */
 	NewObjCleanup(doc, newL, staff);
 	if (doc->showDurProb) InvalWindow(doc);				/* Overkill but should be acceptable */
 }
@@ -1212,7 +1213,7 @@ static MODINFO modInfoTable[] = {
 	0,				0,				2,				-2,				/* '9' */
 	0,				1,				0,				-2,				/*	MOD_FERMATA */
 	0,				1,				0,				-2,				/*	MOD_TRILL */
-	0,				0,				2,				-1,				/*	MOD_ACCENT */
+	0,				0,				3,				-2,				/*	MOD_ACCENT */
 	0,				0,				3,				-2,				/*	MOD_HEAVYACCENT */
 	1,				0,				0,				0,				/*	MOD_STACCATO */
 	1,				0,				0,				0,				/*	MOD_WEDGE */
@@ -1221,7 +1222,7 @@ static MODINFO modInfoTable[] = {
 	0,				1,				0,				-2,				/*	MOD_INV_MORDENT */
 	0,				1,				0,				-2,				/*	MOD_TURN */
 	0,				1,				0,				-2,				/*	MOD_PLUS */
-	1,				0,				0,				0,				/*	MOD_CIRCLE */
+	0,				0,				1,				-1,				/*	MOD_CIRCLE */
 	0,				1,				0,				-3,				/*	MOD_UPBOW */
 	0,				1,				0,				-3,				/*	MOD_DOWNBOW */
 	1,				0,				0,				0,				/*	MOD_TREMOLO1 - don't think trems are even used here */
@@ -1363,8 +1364,8 @@ short ModNRPitchLev(Document *doc,
 		modQPit += yOffsetBelow;					/* offset from staccato position */
 	}
 
-	/* Try to avoid a collision with an existing modifier.  This is very crude, and it only
-		bothers with the first existing modifier. */
+	/* Try to avoid a collision with an existing modifier.  This is very crude, and it
+		only bothers with the first existing modifier. */
 	if (hasMod) {
 		LINK aModNRL = NoteFIRSTMOD(mainNoteL);
 		short existModQPit = std2qd(ModNRYSTDPIT(aModNRL));
@@ -1435,6 +1436,58 @@ void NewMODNR(Document *doc,
 	InvalMeasure(syncL, staff);									/* Redraw the measure */
 	MEAdjustCaret(doc, TRUE);
 }
+
+/* --------------------------------------------------------------- AutoNewModNR -- */
+/* Add the specified modifier to the given note. Return the LINK of the new
+modifier, or NILINK if error. (Based on NewMODNR(). FIXME: The two should be
+merged, at least in part.) */
+
+LINK AutoNewModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNoteL)
+{
+	short	qPitchLev;
+	LINK	aModNRL, lastModNRL;
+	PANOTE	aNote;
+	PAMODNR	aModNR;
+
+	/* Get vertical position of new modifier. Must do this before allocating new one! */
+	qPitchLev = ModNRPitchLev(doc, modCode, syncL, aNoteL);
+
+	/* Insert the new note modifier into the note's linked modifier list. 
+		If the list exists, traverse to the end, & insert the new MODNR LINK
+		into LastMODNR's next field, else into aNote->firstMod. */
+
+	aNote = GetPANOTE(aNoteL);
+	if (aNote->firstMod) {
+		aModNRL = aNote->firstMod;
+		for ( ; aModNRL; aModNRL = NextMODNRL(aModNRL))
+			if (!NextMODNRL(aModNRL)) lastModNRL = aModNRL;
+		aModNRL = HeapAlloc(MODNRheap, 1);
+		if (!aModNRL) {
+			MayErrMsg("AutoNewModNR: HeapAlloc failed.");
+			return NILINK;
+		}
+		NextMODNRL(lastModNRL) = aModNRL;
+	}
+	else {
+		aModNRL = HeapAlloc(MODNRheap, 1);
+		if (!aModNRL) {
+			MayErrMsg("AutoNewModNR: HeapAlloc failed.");
+			return NILINK;
+		}
+		aNote->firstMod = aModNRL;
+	}
+
+	aModNR = GetPAMODNR(aModNRL);
+	aModNR->selected = aModNR->soft = FALSE;
+	aModNR->visible = TRUE;
+	aModNR->modCode = modCode;
+	aModNR->xstd = 0+XSTD_OFFSET;
+	aModNR->ystdpit = qd2std(qPitchLev);
+	aModNR->data = data;
+
+	return aModNRL;
+}
+
 
 /* ---------------------------------------------------- Functions for NewDynamic -- */
 

@@ -846,7 +846,7 @@ static void DoNotesMenu(short choice)
 			case NM_AddAccident:
 				addAccCode = Advise(ADDACCIDENTAL_ALRT);
 				if (addAccCode!=Cancel) {
-					PrepareUndo(doc, doc->selStartL, U_AddRedundAcc, 42);		/* "Add Redundant Accidentals" */
+					PrepareUndo(doc, doc->selStartL, U_AddRedundAcc, 42);	/* "Add Redundant Accidentals" */
 					if (AddRedundantAccs(doc, ANYONE, addAccCode, TRUE))
 						InvalSelRange(doc);
 				}
@@ -1585,7 +1585,8 @@ static void SMReformat(Document *doc)
 	}
 
 
-/* Invoke Add Modifiers dialog to add modifiers to all selected notes. (JGG, 4/21/01) */
+/* Invoke Add Modifiers dialog to add modifiers to all selected notes (for chords, really
+to their main notes) or rests (fermata only). (JGG, 4/21/01) */
 	
 static void NMAddModifiers(Document *doc)
 	{
@@ -1603,14 +1604,14 @@ static void NMAddModifiers(Document *doc)
 						if (NoteSEL(aNoteL)) {
 							if (NoteREST(aNoteL) && modCode!=MOD_FERMATA)
 								continue;
-							/* If not the main note, and the main note is selected, skip it. */
+							/* If part of a chord and not the main note, and the main
+								note is selected, skip it. */
 							voice = NoteVOICE(aNoteL);
 							mainNoteL = FindMainNote(pL, voice);
-							if (aNoteL!=mainNoteL && NoteSEL(mainNoteL))
-								continue;
-							aModNRL = FIInsertModNR(doc, modCode, data, pL, aNoteL);
+							if (aNoteL!=mainNoteL && NoteSEL(mainNoteL)) continue;
+							aModNRL = AutoNewModNR(doc, modCode, data, pL, aNoteL);
 							if (aModNRL==NILINK) {
-								MayErrMsg("NMAddModifiers: FIInsertModNR failed.");
+								MayErrMsg("NMAddModifiers: AutoNewModNR failed.");
 								goto stop;
 							}
 							doc->changed = TRUE;

@@ -25,6 +25,7 @@ void NewClef(Document *, short, char, short);
 void NewPseudoMeas(Document *, Point, char);
 short ModNRPitchLev(Document *, Byte, LINK, LINK);
 void NewMODNR(Document *, char, short, short, short, LINK, LINK);
+LINK AutoNewModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNoteL);
 void AddXSysDynamic(Document *, short, short, char, short, short, LINK);
 LINK AddNewDynamic(Document *, short, short, DDIST *, char, short *, PCONTEXT, Boolean); 
 void NewRptEnd(Document *, short, char, short);
