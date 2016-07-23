@@ -741,7 +741,8 @@ Changed version number from 5.7b2 to 5.7b3. Affects Info.plist.
 
 Improve standard (for Add Modifiers) position of the common accent (>). Affects InsNew.
 
-Move FIInsertModNR() from ?? and rename it AutoNewModNR().
+Move FIInsertModNR() FileInput to a more appropriate "home" and rename it
+AutoNewModNR(). Affects FileInput, InsNew.
 
 Move two files from project folder CFilesBoth to CFilesEditor. Affects InsNew,
 InsNewUtils.
