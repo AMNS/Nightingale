@@ -337,7 +337,7 @@ accessory numerals. */
 
 void NumToSonataStr(long number, unsigned char *string)
 {
-	short		nchars;
+	short	nchars;
 	
 	NumToString(number, string);
 	nchars = string[0];
@@ -349,19 +349,20 @@ void NumToSonataStr(long number, unsigned char *string)
 
 
 /* ------------------------------------------------------------- GetMusicAscDesc -- */
-/* Get the ascender height and descender height of the music font. */
+/* Get the ascender height and descender height of the given string in the current
+music font. */
 
 void GetMusicAscDesc(
-				Document *doc,
-				unsigned char *string,			/* Pascal string */
-				short size,							/* in points, i.e., pixels at 100% magnification */
-				short *pAsc, short *pDesc
-				)
+			Document *doc,
+			unsigned char *string,			/* Pascal string */
+			short size,						/* in points, i.e., pixels at 100% magnification */
+			short *pAsc, short *pDesc		/* in points */
+			)
 {
-	short				ascent, descent, refCode;
+	short			ascent, descent, refCode;
 	unsigned short	n, k;
-	long				scale;
-	Rect				r, *bbox;
+	long			scale;
+	Rect			r, *bbox;
 	
 	refCode = MapMusChar(doc->musFontInfoIndex, REFERENCE_CODE);
 	bbox = musFontInfo[doc->musFontInfoIndex].cBBox;

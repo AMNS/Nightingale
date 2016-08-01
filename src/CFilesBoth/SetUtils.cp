@@ -1016,7 +1016,7 @@ Boolean SetSelGraphicStyle(
 		return FALSE;
 	}
 
-	fontInd = GetFontIndex(doc, style.fontName);
+	fontInd = FontName2Index(doc, style.fontName);
 	if (fontInd<0) {
 		GetIndCString(strBuf, MISCERRS_STRS, 27);    /* "The font won't be changed" */
 		CParamText(strBuf, "", "", "");

@@ -1112,7 +1112,7 @@ PushLock(OBJheap);
 							 * Get the new font's index, adding it to the table if necessary.
 							 * But if the table overflows, give up.
 							 */
-							newFontIndex = GetFontIndex(doc, newFont);
+							newFontIndex = FontName2Index(doc, newFont);
 							if (newFontIndex<0) {
 								GetIndCString(strBuf, MISCERRS_STRS, 27);    /* "The font won't be changed" */
 								CParamText(strBuf, "", "", "");

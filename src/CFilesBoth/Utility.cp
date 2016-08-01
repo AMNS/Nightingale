@@ -10,7 +10,7 @@
 		GetSymTableIndex		SymType					Objtype2Char
 		StrToObjRect			GetNFontInfo			NStringWidth
 		NPtStringWidth			NPtGraphicWidth			GetNPtStringBBox
-		MaxNameWidth			PartNameMargin
+		MaxPartNameWidth		PartNameMargin
 		SetFont					StringRect
 		AllocContext			AllocSpTimeInfo			NewGrafPort
 		DisposGrafPort			SamePoint
@@ -20,7 +20,7 @@
 		GCD						RoundDouble				RoundSignedInt
 		InterpY					FindIntInString
 		BlockCompare			RelIndexToSize			GetTextSize
-		GetFontIndex			User2HeaderFontNum		Header2UserFontNum
+		FontName2Index			User2HeaderFontNum		Header2UserFontNum
 		Rect2Window				Pt2Window
 		Pt2Paper				GlobalToPaper			RefreshScreen
 		InitSleepMS				SleepMS					SleepTicks
@@ -394,7 +394,7 @@ Rect StrToObjRect(unsigned char *string)
 /* ---------------------------------------------------------------- GetNFontInfo -- */
 
 void GetNFontInfo(
-			short font,
+			short fontID,
 			short size,			/* in points, i.e., pixels at 100% magnification */
 			short style,
 			FontInfo *pfInfo)
@@ -405,7 +405,7 @@ void GetNFontInfo(
 	oldSize = GetPortTxSize();
 	oldStyle = GetPortTxFace();
 
-	TextFont(font);
+	TextFont(fontID);
 	TextSize(size);
 	TextFace(style);
 		
@@ -513,9 +513,7 @@ be, but the difference will rarely be too great; but Sonata and other music font
 have enormous ascent and descent, so the height would be much too large. To avoid this
 problem, if the font is either Sonata OR the current music font, we use the ascent and
 descent of the actual characters in the string as given by GetMusicAscDesc instead of
-the font's. Currently (v.999) GetMusicAscDesc returns ascent and descent for Sonata,
-so the ascent and descent of the bbox we return will be inaccurate to the extent
-the string's font differs from Sonata. */
+the font's ascent and descent. */
 
 void GetNPtStringBBox(
 			Document *doc,
@@ -526,7 +524,7 @@ void GetNPtStringBBox(
 			Boolean multiLine,			/* has multiple lines, delimited by CH_CR */
 			Rect *bBox)					/* Bounding box for string, with TOP_LEFT at 0,0 and no margin */
 {
-	short width, ascent, descent, nLines;
+	short width, ascent, descent, nLines, lineHt;
 	FontInfo fInfo;
 
 	nLines = 0;
@@ -565,7 +563,7 @@ void GetNPtStringBBox(
 	if (fontID==doc->musicFontNum || fontID==sonataFontNum) {
 		GetMusicAscDesc(doc, string, size, &ascent, &descent);
 		if (multiLine) {
-			short lineHt = ascent + descent;	// no leading?
+			lineHt = ascent + descent;	// FIXME: what about leading?
 			bBox->top = -ascent;
 			bBox->bottom = descent + (lineHt * (nLines-1));
 		}
@@ -577,9 +575,11 @@ void GetNPtStringBBox(
 	else {
 		GetNFontInfo(fontID, size, style, &fInfo);
 		if (multiLine) {
-			short lineHt = fInfo.ascent + fInfo.descent + fInfo.leading;
+			lineHt = fInfo.ascent + fInfo.descent + fInfo.leading;
 			bBox->top = -fInfo.ascent;
 			bBox->bottom = fInfo.descent + (lineHt * (nLines-1));
+			LogPrintf(LOG_DEBUG, "GetNPtStringBBox: fontID, Size, Style=%d, %d, %d fInfo.ascent=%d .descent=%d .leading=%d lineHt=%d\n",
+					  fontID, size, style, fInfo.ascent, fInfo.descent, fInfo.leading, lineHt);
 		}
 		else {
 			bBox->top = -fInfo.ascent;
@@ -589,11 +589,11 @@ void GetNPtStringBBox(
 }
 
 
-/* ---------------------------------------------------------------- MaxNameWidth -- */
+/* ------------------------------------------------------------ MaxPartNameWidth -- */
 /* For the given document and code for the form of part names, return the
 maximum width needed by any part name, in points. */
 
-short MaxNameWidth(
+short MaxPartNameWidth(
 			Document *doc,
 			short nameCode)			/* 0=show none, 1=show abbrev., 2=show full names */
 {
@@ -617,7 +617,7 @@ short MaxNameWidth(
 		strcpy((char *)string, (nameCode==1? pPart->shortName : pPart->name));
 		CToPString((char *)string);
 
-		fontInd = GetFontIndex(doc, doc->fontNamePN);							/* Should never fail */
+		fontInd = FontName2Index(doc, doc->fontNamePN);							/* Should never fail */
 		font = doc->fontTable[fontInd].fontID;
 		fontSize = GetTextSize(doc->relFSizePN, doc->fontSizePN, LNSPACE(&context));
 
@@ -639,7 +639,7 @@ double PartNameMargin(
 	double inchDist;
 	
 	if (nameCode>0) {
-		nameWidth = MaxNameWidth(doc, nameCode);
+		nameWidth = MaxPartNameWidth(doc, nameCode);
 		/* Need more space for Connects. Add enough for a CONNECTCURLY as an approximation */
 		nameWidth += d2pt(ConnectDWidth(doc->srastral, CONNECTCURLY));
 		inchDist = pt2in(nameWidth);
@@ -1105,12 +1105,12 @@ short GetTextSize(Boolean relFSize, short fontSize, DDIST lineSpace)
 }
 
 
-/* ---------------------------------------------------------------- GetFontIndex -- */
+/* ---------------------------------------------------------------- FontName2Index -- */
 /* Get the fontname's index into our stored-to-system font number table; if the
 fontname doesn't appear in the table, add it. In all cases, return the index of the
 fontname. Exception: if the table overflows, return -1. */
 
-short GetFontIndex(Document *doc, unsigned char *fontName)
+short FontName2Index(Document *doc, unsigned char *fontName)
 {
 	short i, nfontsUsed;
 
@@ -1125,8 +1125,11 @@ short GetFontIndex(Document *doc, unsigned char *fontName)
 			
 	/* It's not in the table: if there's room, add it and return its index. */
 	
-	if (nfontsUsed>=MAX_SCOREFONTS)
+	if (nfontsUsed>=MAX_SCOREFONTS) {
+		LogPrintf(LOG_WARNING, "FontName2Index: limit of %d fonts exceeded.\n",
+				  MAX_SCOREFONTS);
 		return -1;
+	}
 	else {
 		PStrnCopy((StringPtr)fontName, 
 					(StringPtr)doc->fontTable[nfontsUsed].fontName, 32);

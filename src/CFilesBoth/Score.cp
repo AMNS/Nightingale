@@ -184,7 +184,7 @@ void InitFontRecs(Document *doc)
 
 /* -------------------------------------------------------------- FixGraphicFont -- */
 /* Insure that the given Graphic refers to the correct font in the score's <fontTable>,
-adding a new font to fontTable if necessary (in GetFontIndex). Intended for use in
+adding a new font to fontTable if necessary (in FontName2Index). Intended for use in
 pasting and similar operations. */
 
 void FixGraphicFont(Document *doc, LINK pL)
@@ -196,7 +196,7 @@ void FixGraphicFont(Document *doc, LINK pL)
 		PStrnCopy((StringPtr)clipboard->fontTable[p->fontInd].fontName, 
 						(StringPtr)font, 32);
 		p = GetPGRAPHIC(pL);
-		p->fontInd = GetFontIndex(doc, font);								/* Should never fail */						
+		p->fontInd = FontName2Index(doc, font);								/* Should never fail */						
 	}
 }
 

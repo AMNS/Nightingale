@@ -28,7 +28,7 @@ short NPtStringWidth(Document *, const unsigned char *, short, short, short);
 void GetNPtStringBBox(Document *, unsigned char *, short, short, short, Boolean, Rect *);
 short NPtGraphicWidth(Document *, LINK, PCONTEXT);
 
-short MaxNameWidth(Document *, short);
+short MaxPartNameWidth(Document *, short);
 double PartNameMargin(Document *, short);
 
 void SetFont(short);
@@ -67,7 +67,7 @@ short BlockCompare(void *src, void *dst, short len);
 short RelIndexToSize(short, DDIST);
 short GetTextSize(Boolean, short, DDIST);
 
-short GetFontIndex(Document *, unsigned char *);
+short FontName2Index(Document *, unsigned char *);
 short User2HeaderFontNum(Document *, short);
 short Header2UserFontNum(short);
 

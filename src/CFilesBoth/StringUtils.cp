@@ -104,6 +104,14 @@ Boolean Pstreql(unsigned char *s1, unsigned char *s2)
 }
 
 
+/* Length of a Pascal string */
+
+short Pstrlen(unsigned char *str)
+{
+	return (short)str[0];
+}
+
+
 /* --------------------------------------------------------------------- PStrCat -- */
 /* Concatenates a Pascal string at p2 to the end of p1. NB: if the total length
 of the strings is over 255 characters, this will fail but we won't detect it! */

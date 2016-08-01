@@ -751,8 +751,16 @@ Minor cleanup.
 
 -------------------------------------------------------------------------------
 
-22 July
+22-31 July
 
 Tweak standard (for Add Modifiers) position of circle (natural harmonic) note modifier.
 Affects InsNew.
 
+Rename MaxNameWidth() to MaxPartNameWidth(), GetFontIndex() to FontName2Index(). Affects
+Utility and about eight others.
+
+Added utility function Pstrlen; changed expressions of the form "if (blah[0])..." to
+the far more understandable "if (Pstrlen(blah)>0)..." Affects StringUtils.
+
+Minor cleanup. Affects DrawObject, DrawUtils, FileInput, InfoDialog, MusicFont, PS_Stdio,
+Utility.

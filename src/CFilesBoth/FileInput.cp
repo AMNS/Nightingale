@@ -545,7 +545,7 @@ static LINK InsertAndInitGraphic(Document *doc, LINK insertBeforeL, short graphi
 }
 
 
-/* Like GetFontIndex, except if the font table overflows, it gives an error message and
+/* Like FontName2Index, except if the font table overflows, it gives an error message and
 returns the last legal font index. Calling this repeatedly could overwhelm the user with
 repeated complaints: it should be used only if font table overflow is very unlikely. */
 
@@ -554,7 +554,7 @@ short FIGetFontIndex(Document *doc, unsigned char *fontName)
 {
 	short fontInd;
 	
-	fontInd = GetFontIndex(doc, fontName);
+	fontInd = FontName2Index(doc, fontName);
 	if (fontInd<0) {
 		GetIndCString(strBuf, MISCERRS_STRS, 20);    /* "Will use most recently added font." */
 		CParamText(strBuf, "", "", "");

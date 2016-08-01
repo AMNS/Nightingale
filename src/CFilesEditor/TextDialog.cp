@@ -811,7 +811,7 @@ static Boolean ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style)
 	
 	/* Get the new font's index, adding it to the table if necessary. But if
 		the table overflows, give up. */
-	newFontIndex = GetFontIndex(doc, style->fontName);
+	newFontIndex = FontName2Index(doc, style->fontName);
 	if (newFontIndex < 0)
 		return FALSE;
 

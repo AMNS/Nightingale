@@ -566,7 +566,7 @@ PushLock(OBJheap);
 		SetObject(newpL, xd, yd, TRUE, TRUE, FALSE);
 	
 		graphicType = (theStyle.lyric? GRLyric : GRString);
-		fontInd = GetFontIndex(doc, theStyle.fontName);
+		fontInd = FontName2Index(doc, theStyle.fontName);
 		if (fontInd<0) {
 			GetIndCString(strBuf, MISCERRS_STRS, 20);    /* "Will use most recently added font." */
 			CParamText(strBuf, "", "", "");

@@ -1440,7 +1440,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			
 			PutDlgWord(dlog, EXPARAM1, pGraphic->gu.thickness, FALSE);
 			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(pGraphic->info), FALSE);
-			PutDlgWord(dlog, RIGHT_VERT, DD2I(pGraphic->info2), FALSE);
+			PutDlgWord(dlog, RIGHT_VERT, DD2I(pGraphic->info2), FALSE);		/* for GRDraw only */
 
 			PopLock(OBJheap);
 			break;

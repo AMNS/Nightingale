@@ -45,6 +45,7 @@ short GetSmallerRSize(short rSize)
 	}
 }
 
+
 /* ------------------------------------------------------------ ContextedObjRect -- */
 
 Rect ContextedObjRect(Document *doc, LINK pL, short staff, PCONTEXT pContext)
@@ -87,6 +88,7 @@ void DrawPaddedChar(unsigned char ch)
 	
 	MoveTo(pt.h, pt.v);
 }
+
 
 /* ------------------------------------------------------------------ DrawMChar -- */
 /* Draw a QuickDraw character, optionally dimmed, in the current font. NB: this
@@ -445,8 +447,8 @@ void GetClefDrawInfo(
 from DrawHairpin and CheckDYNAMIC.  JGG, 3/13/01 */
 
 void GetHairpinBBox(
-		DDIST xd, DDIST endxd,	/* page-relative */
-		DDIST yd, DDIST endyd,	/* page-relative */
+		DDIST xd, DDIST endxd,		/* page-relative */
+		DDIST yd, DDIST endyd,		/* page-relative */
 		DDIST rise,					/* half of hairpin <mouthWidth>, converted to DDIST */
 		DDIST offset,				/* half of hairpin <otherWidth>, converted to DDIST */
 		short dynamType,			/* DIM_DYNAM or CRESC_DYNAM */
@@ -490,6 +492,7 @@ void GetDynamicDrawInfo(
 	pContext->dynamicType = DynamType(pL);
 	dTop = pContext->measureTop;
 	dLeft = pContext->measureLeft;
+	
 /* Make the dynamic xd relative to the firstSync of the dynamic. Offset
 is contained in subObject; LinkXD(pL) is set to 0 inside NewObjPrepare. */
 	*xd = SysRelxd(DynamFIRSTSYNC(pL)) + LinkXD(pL) + aDynamic->xd
@@ -501,13 +504,13 @@ is contained in subObject; LinkXD(pL) is set to 0 inside NewObjPrepare. */
 		case PP_DYNAM:
 			*glyph = MCH_pp;	break;
 		case P_DYNAM:
-			*glyph = MCH_p;	break;
+			*glyph = MCH_p;		break;
 		case MP_DYNAM:
 			*glyph = MCH_mp;	break;
 		case MF_DYNAM:
 			*glyph = MCH_mf;	break;
 		case F_DYNAM:
-			*glyph = MCH_f;	break;
+			*glyph = MCH_f;		break;
 		case FF_DYNAM:
 			*glyph = MCH_ff;	break;
 		case FFF_DYNAM:
@@ -732,7 +735,7 @@ void DrawRptBar(Document *doc,
 
 short GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
 {
-/* Octave-adjusted position for:	   F  E  D  C  B  A  G	(0=top staff line) */
+/* Octave-adjusted position for:		   F  E  D  C  B  A  G	(0=top staff line) */
 	static SignedByte trebleSharpPos[] = { 0, 1, 2, 3, 4, 5,-1 };
 	static SignedByte trebleFlatPos[]  = { 7, 1, 2, 3, 4, 5, 6 };
 	
@@ -762,37 +765,37 @@ short GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
 		case TREBLE_CLEF:
 		case PERC_CLEF:
 		  	if (KSItem.sharp) halfLn = trebleSharpPos[letcode];
-		  	else 					halfLn = trebleFlatPos[letcode];
+		  	else 				halfLn = trebleFlatPos[letcode];
 		  	break;
 	  	case SOPRANO_CLEF:
 		  	if (KSItem.sharp) halfLn = sopranoSharpPos[letcode];
-		  	else 					halfLn = sopranoFlatPos[letcode];
+		  	else 				halfLn = sopranoFlatPos[letcode];
 			break;
 		case MZSOPRANO_CLEF:
 		  	if (KSItem.sharp) halfLn = mzSoprSharpPos[letcode];
-		  	else 					halfLn = mzSoprFlatPos[letcode];
+		  	else 				halfLn = mzSoprFlatPos[letcode];
 			break;
 	  	case ALTO_CLEF:
 		  	if (KSItem.sharp) halfLn = altoSharpPos[letcode];
-		  	else 					halfLn = altoFlatPos[letcode];
+		  	else 				halfLn = altoFlatPos[letcode];
 			break;
 		case TENOR_CLEF:
 			if (KSItem.sharp) halfLn = tenorSharpPos[letcode];
-		  	else 					halfLn = tenorFlatPos[letcode];
+		  	else 				halfLn = tenorFlatPos[letcode];
 			break;
 		case BARITONE_CLEF:
 			if (KSItem.sharp) halfLn = baritoneSharpPos[letcode];
-		  	else 					halfLn = baritoneFlatPos[letcode];
+		  	else 				halfLn = baritoneFlatPos[letcode];
 			break;
 	  	case BASS_CLEF:
 	  	case BASS8B_CLEF:
 		  	if (KSItem.sharp) halfLn = bassSharpPos[letcode];
-		  	else 					halfLn = bassFlatPos[letcode];
+		  	else 				halfLn = bassFlatPos[letcode];
 			break;
 		case TRTENOR_CLEF:
 		default:
 		  	if (KSItem.sharp) halfLn = trebleSharpPos[letcode];
-		  	else 					halfLn = trebleFlatPos[letcode];
+		  	else 				halfLn = trebleFlatPos[letcode];
   	}
   	
   	return halfLn;
@@ -803,14 +806,14 @@ short GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
 /* Draw a single flat symbol in the designated position. */
 
 static void DrawFlat(
-				Document *doc,
-				short		tab,				/* item sequence no. of this flat in key signature */
-				short		yPos,				/* vertical offset of this flat (half-lines) */
+				Document	*doc,
+				short		tab,			/* item sequence no. of this flat in key signature */
+				short		yPos,			/* vertical offset of this flat (half-lines) */
 				DDIST		xd, DDIST yd,	/* TOP_LEFT corner of key signature */
 				DDIST		staffHeight,	/* height of the staff */
 				short		staffLines,		/* number of staff lines in staff */
 				short		*width,			/* width of symbol drawn */
-				PCONTEXT pContext,	
+				PCONTEXT	pContext,	
 				short		drawMode 		/* whether drawing to screen or bitmap for dragging */
 				)
 {
@@ -852,14 +855,14 @@ static void DrawFlat(
 /* Draw a single sharp symbol in the designated position. */
 
 static void DrawSharp(
-		Document *doc,
-		short		tab,					/* item sequence no. of this sharp in key signature */
-		short		yPos,					/* vertical offset of this sharp (half-lines) */
+		Document	*doc,
+		short		tab,				/* item sequence no. of this sharp in key signature */
+		short		yPos,				/* vertical offset of this sharp (half-lines) */
 		DDIST		xd, DDIST yd,		/* TOP_LEFT corner of key signature */
 		DDIST		staffHeight,		/* height of the staff */
 		short		staffLines,			/* number of staff lines in staff */
 		short		*width,				/* width of symbol drawn */
-		PCONTEXT pContext,		
+		PCONTEXT	pContext,		
 		short		drawMode 			/* whether drawing to screen or bitmap for dragging */
 		)
 {
@@ -868,7 +871,7 @@ static void DrawSharp(
 			paperLeft,
 			paperTop;
 	Byte	glyph;
-	DDIST lnSpace = LNSPACE(pContext);
+	DDIST	lnSpace = LNSPACE(pContext);
 
 	glyph = MapMusChar(doc->musFontInfoIndex, MCH_sharp);
 	xd += MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
@@ -901,14 +904,14 @@ static void DrawSharp(
 /* Draw a single natural symbol in the designated position. */
 
 static void DrawNatural(
-		Document *doc,
-		short		tab,					/* item sequence no. of this natural in (cancelling) key signature */
-		short		yPos,					/* vertical offset of this natural (half-lines) */
+		Document	*doc,
+		short		tab,				/* item sequence no. of this natural in (cancelling) key signature */
+		short		yPos,				/* vertical offset of this natural (half-lines) */
 		DDIST		xd, DDIST yd,		/* TOP_LEFT corner of key signature */
 		DDIST		staffHeight,		/* height of the staff */
 		short		staffLines,			/* number of staff lines in staff */
 		short		*width,				/* width of symbol drawn */
-		PCONTEXT pContext,
+		PCONTEXT	pContext,
 		short		drawMode 			/* whether drawing to screen or bitmap for dragging */
 		)
 {
@@ -917,7 +920,7 @@ static void DrawNatural(
 			paperLeft,
 			paperTop;
 	Byte	glyph;
-	DDIST lnSpace = LNSPACE(pContext);
+	DDIST	lnSpace = LNSPACE(pContext);
 
 	glyph = MapMusChar(doc->musFontInfoIndex, MCH_natural);
 	xd += MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
@@ -967,7 +970,7 @@ void DrawKSItems(Document *doc,
 	staffn = KeySigSTAFF(aKeySigL);
 	tab = 0;
 	
-  	if (aKeySig->nKSItems>0) {											/* Is it a "real" key sig.? */
+  	if (aKeySig->nKSItems>0) {									/* Is it a "real" key sig.? */
 		if (aKeySig->visible || doc->showInvis) {
 			for (k = 0; k<aKeySig->nKSItems; k++) {				/* For each item... */
 				yoffset = GetKSYOffset(pContext, aKeySig->KSItem[k]);
@@ -978,9 +981,9 @@ void DrawKSItems(Document *doc,
 			}
 		}
 	}
-	else {																		/* No, so cancel previous key sig. */
+	else {														/* No, so cancel previous key sig. */
 		prevKSL = LSSearch(LeftLINK(pL), KEYSIGtype, staffn, GO_LEFT, FALSE);
-		if (prevKSL)	{													/* Anything to change from? */
+		if (prevKSL)	{										/* Anything to change from? */
 			prevKS = GetPKEYSIG(prevKSL);
 			aPrevKSL = FirstSubLINK(prevKSL);
 			for ( ; aPrevKSL; aPrevKSL = NextKEYSIGL(aPrevKSL)) {
@@ -1032,7 +1035,7 @@ void GetKeySigDrawInfo(Document *doc,
 		dLeft = localContext.staffLeft;
 	}
 	localContext.nKSItems = aKeySig->nKSItems;				/* Copy this key sig. */
-	for (k = 0; k<aKeySig->nKSItems; k++)						/* into the localContext */
+	for (k = 0; k<aKeySig->nKSItems; k++)					/* into the localContext */
 		localContext.KSItem[k] = aKeySig->KSItem[k];
 	*xd = dLeft + LinkXD(pL) + aKeySig->xd;
 	*yd = *dTop;
@@ -1170,15 +1173,15 @@ short GetRestDrawInfo(Document *doc,
 
 	aRest = GetPANOTE(aRestL);
 	
-	if (aRest->subType<=WHOLEMR_L_DUR)		  *lDur = (breveWholeMeasure? BREVE_L_DUR : WHOLE_L_DUR);
-	else if (aRest->subType==UNKNOWN_L_DUR)  *lDur = BREVE_L_DUR; /* Should never happen */
-	else												  *lDur = aRest->subType;
+	if (aRest->subType<=WHOLEMR_L_DUR)		*lDur = (breveWholeMeasure? BREVE_L_DUR : WHOLE_L_DUR);
+	else if (aRest->subType==UNKNOWN_L_DUR)	*lDur = BREVE_L_DUR; /* Should never happen */
+	else									*lDur = aRest->subType;
 
 	*dTop = pContext->measureTop;
 	dLeft = pContext->measureLeft;
 
 	useTxSize = UseMTextSize(pContext->fontSize, doc->magnify);
-	if (aRest->small) useTxSize = SMALLSIZE(useTxSize);			/* A bit crude--cf. Ross */
+	if (aRest->small) useTxSize = SMALLSIZE(useTxSize);			/* A bit crude: cf. Ross */
 	if (outputTo!=toPostScript) TextSize(useTxSize);
 
 	*xd = dLeft + LinkXD(pL) + aRest->xd;
@@ -1302,7 +1305,7 @@ Boolean GetModNRInfo(
 		case 4:
 		case 5:
 			*glyph = '0'+code;
-			xOff = (code==1? 2 : 1);	/* '1' is narrower than the other digits */
+			xOff = (code==1? 2 : 1);		/* '1' is narrower than the other digits */
 			*sizePct = (small? SMALLSIZE(FINGERING_SIZEPCT) : FINGERING_SIZEPCT);
 			break;
 		default:
@@ -1366,13 +1369,13 @@ DDIST GRNoteXLoc(
 	Boolean stemDown;
 	
 	aGRNote = GetPAGRNOTE(aGRNoteL);
-	dLeft = measLeft + LinkXD(syncL);						/* abs. origin of GRSync */
-	xd = *pxdNorm = dLeft + aGRNote->xd;					/* abs. position of grace note */
+	dLeft = measLeft + LinkXD(syncL);					/* abs. origin of GRSync */
+	xd = *pxdNorm = dLeft + aGRNote->xd;				/* abs. position of grace note */
 	if (aGRNote->otherStemSide) {
 		mainGRNoteL = FindGRMainNote(syncL, GRNoteVOICE(aGRNoteL));
 		stemDown = (GRNoteYSTEM(mainGRNoteL) > GRNoteYD(mainGRNoteL));
 		if (stemDown) xd -= headWidth;
-		else		  	  xd += headWidth;
+		else		  xd += headWidth;
 	}
 	
 	return xd;
@@ -1395,18 +1398,18 @@ void NoteLedgers(
 			DDIST		xd,				/* DDIST horizontal position of normal-side notes */
 			QDIST		yqpit,			/* QDIST vertical position rel. to staff top of normal note, */
 			QDIST		yqpitSus,		/* 		of suspended (other side of stem) note (0=none) */
-			Boolean	stemDown,
+			Boolean		stemDown,
 			DDIST		staffTop,		/* abs DDIST position of staff top */
 			PCONTEXT	pContext,		/* for staff height and paper */
 			short		sizePercent 	/* Percent of "normal" ledger length for the staff height */
 			)
 {
-	QDIST		lineqd, midlineqd, startqd;
-	short		leftNow, lenNow, ox, oy, nlines, showLines;
-	DDIST		staffHt, dLLen, dLOtherLen, dShortLen, dLongLen,
-				dLLeft, dLSusLeft, dLeftNow, dLenNow, dSticksOut, dHeadWidth;
-	long		longDLLen;
-	DDIST		dLnHeight;
+	QDIST	lineqd, midlineqd, startqd;
+	short	leftNow, lenNow, ox, oy, nlines, showLines;
+	DDIST	staffHt, dLLen, dLOtherLen, dShortLen, dLongLen,
+			dLLeft, dLSusLeft, dLeftNow, dLenNow, dSticksOut, dHeadWidth;
+	long	longDLLen;
+	DDIST	dLnHeight;
 
 	staffHt = pContext->staffHeight;
 	nlines = pContext->staffLines;
@@ -1419,12 +1422,12 @@ void NoteLedgers(
 	dLLen = SizePercentSCALE(longDLLen);
 	dLOtherLen = (long)(config.ledgerLOtherLen*dLnHeight)/32L;
 
-	dShortLen = dLLen+dLOtherLen;											/* Notes on one side of stem */
-	dLongLen = 2*dLLen;														/* Notes on both sides */
+	dShortLen = dLLen+dLOtherLen;								/* Notes on one side of stem */
+	dLongLen = 2*dLLen;											/* Notes on both sides */
 	dHeadWidth = SizePercentSCALE(HeadWidth(dLnHeight));
 	dSticksOut = dLLen-dHeadWidth;
 	dLLeft = (stemDown? xd-dLOtherLen : xd-dSticksOut);			/* Normal */
-	dLSusLeft = (stemDown? xd-dLLen : xd-dSticksOut);				/* For suspended notes */
+	dLSusLeft = (stemDown? xd-dLLen : xd-dSticksOut);			/* For suspended notes */
 
 	midlineqd = (nlines/2)*4;
 
@@ -1434,9 +1437,9 @@ void NoteLedgers(
 		case toPICT:
 			ox = pContext->paper.left;
 			oy = pContext->paper.top;
-			if (yqpit<=midlineqd) {												/* Above staff */
+			if (yqpit<=midlineqd) {									/* Above staff */
 				if (showLines==SHOW_ALL_LINES)
-					startqd = -4;													/* 1st ledger above staff */
+					startqd = -4;									/* 1st ledger above staff */
 				else {
 					startqd = (showLines==0)? 8 : 4;
 					if (yqpitSus==0) yqpitSus = midlineqd;
@@ -1453,9 +1456,9 @@ void NoteLedgers(
 					Line(lenNow, 0);
 				}
 			}
-			else {																	/* Below staff */
+			else {													/* Below staff */
 				if (showLines==SHOW_ALL_LINES)
-					startqd = 4*nlines;											/* 1st ledger below staff */
+					startqd = 4*nlines;								/* 1st ledger below staff */
 				else
 					startqd = (showLines==0)? 8 : 12;
 				for (lineqd = startqd; lineqd<=yqpit; lineqd += 4) {
@@ -1472,7 +1475,7 @@ void NoteLedgers(
 			break;
 			
 		case toPostScript:
-			if (yqpit<0)															/* Above staff */
+			if (yqpit<0)												/* Above staff */
 				for (lineqd = -4; lineqd>=yqpit; lineqd -= 4) {
 					if (lineqd>=yqpitSus) {
 						dLeftNow = dLSusLeft; dLenNow = dLongLen;
@@ -1483,7 +1486,7 @@ void NoteLedgers(
 					PS_LedgerLine(staffTop+qd2d(lineqd, staffHt, nlines), dLeftNow,
 										dLenNow);
 				}
-			else																		/* Below staff */
+			else														/* Below staff */
 				for (lineqd = 4*nlines; lineqd<=yqpit; lineqd += 4) {
 					if (lineqd<=yqpitSus) {
 						dLeftNow = dLSusLeft; dLenNow = dLongLen;
@@ -1504,14 +1507,14 @@ void NoteLedgers(
 symbols that are vertically positionable at the appropriate half-line number */
 
 void InsertLedgers(
-			DDIST		xd,				/* DDIST horizontal position of note rel. to page */
-			short		halfLine,		/* half-line number */
-			PCONTEXT	pContext 		/* current context */
+			DDIST		xd,			/* DDIST horizontal position of note rel. to page */
+			short		halfLine,	/* half-line number */
+			PCONTEXT	pContext 	/* current context */
 			)
 {
 	DDIST		staffTop,
 				staffHt;
-	short		l,						/* current half-line number */
+	short		l,					/* current half-line number */
 				staffLines,	
 				showLines,	
 				ledgerLeft,			/* left coordinate of ledger line */
@@ -1597,11 +1600,11 @@ staves in the given part. If no staves in the part are visible, return -1 for
 both top and bottom. */
 
 void VisStavesForPart(
-				Document *doc,
-				LINK staffL,
-				LINK partL,
-				short *firstStaff, short *lastStaff
-				)
+			Document *doc,
+			LINK staffL,
+			LINK partL,
+			short *firstStaff, short *lastStaff
+			)
 {
 	PPARTINFO pPart;
 	
@@ -1616,11 +1619,11 @@ void VisStavesForPart(
 else return FALSE. */
 
 Boolean ShouldDrawConnect(
-				Document 	*doc,
-				LINK			pL,
-				LINK			aConnectL,
-				LINK			staffL 		/* Staff the Connect is attached to */
-				)
+			Document *doc,
+			LINK	pL,
+			LINK	aConnectL,
+			LINK	staffL 		/* Staff the Connect is attached to */
+			)
 {
 	LINK partL; Boolean drawThisOne; PACONNECT aConnect;
 	short firstStaff,lastStaff;
@@ -1663,9 +1666,9 @@ draw only the repeat dots (if any), simply return FALSE. */
 
 Boolean ShouldREDrawBarline(
 		Document *doc,
-		LINK rptEndObjL,			/* RptEnd object */
-		LINK theRptEndL,			/* RptEnd subobject */
-		short *connStf 				/* If function returns TRUE, staff no. to draw down to */
+		LINK rptEndObjL,		/* RptEnd object */
+		LINK theRptEndL,		/* RptEnd subobject */
+		short *connStf 			/* If function returns TRUE, staff no. to draw down to */
 		)
 {
 	PARPTEND theRptEnd, aRptEnd; LINK aRptEndL, topRptEndL;
@@ -1717,12 +1720,13 @@ Invisibles from drawing barlines that are invisible when their staves are visibl
 
 Boolean ShouldDrawBarline(
 				Document *doc,
-				LINK measObjL,			/* Measure object */
-				LINK theMeasL,			/* Measure subobject */
+				LINK measObjL,		/* Measure object */
+				LINK theMeasL,		/* Measure subobject */
 				short *connStf 		/* If function returns TRUE, staff no. to draw down to */
 				)
 {
-	PAMEASURE theMeas, aMeas; LINK aMeasL; short theStf, gTopStf, gBottomStf;
+	PAMEASURE theMeas, aMeas; LINK aMeasL;
+	short theStf, gTopStf, gBottomStf;
 	
 	theMeas = GetPAMEASURE(theMeasL);
 	if (!theMeas->visible && !doc->showInvis) return FALSE;
@@ -1773,12 +1777,13 @@ draw to; if we should draw only the staff-specific stuff (if any), return  FALSE
 
 Boolean ShouldPSMDrawBarline(
 		Document *doc,
-		LINK measObjL,				/* Pseudomeasure object */
-		LINK thePSMeasL,			/* Pseudomeasure subobject */
+		LINK measObjL,			/* Pseudomeasure object */
+		LINK thePSMeasL,		/* Pseudomeasure subobject */
 		short *connStf 			/* If function returns TRUE, staff no. to draw down to */
 		)
 {
-	PAPSMEAS thePSMeas, aPSMeas; LINK aPSMeasL; short theStf, gTopStf, gBottomStf;
+	PAPSMEAS thePSMeas, aPSMeas; LINK aPSMeasL;
+	short theStf, gTopStf, gBottomStf;
 	
 	/* If this the top staff of a group or not in a group, draw barline. */
 	
@@ -1829,9 +1834,9 @@ particular measure is one whose number should be shown, given the current settin
 doc->startMNPrint1 and of the interval between numbers or "start of system only". */
 
 Boolean ShouldDrawMeasNum(
-		Document		*doc,
-		LINK			measObjL,		/* Object */
-		LINK			theMeasL 		/* Subobject */
+		Document	*doc,
+		LINK		measObjL,		/* Object */
+		LINK		theMeasL 		/* Subobject */
 		)
 {
 	PAMEASURE aMeasure; short measureNum, topVisStf, botVisStf; LINK staffL;
@@ -1924,7 +1929,8 @@ void DrawNonArp(short xp, short yp, DDIST dHeight, DDIST lnSpace)
 /* Draw an arpeggio sign (QuickDraw only). Sonata has a nice arpeggio-section
 character we use.  */
 
-void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight, Byte glyph, PCONTEXT pContext)
+void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight,
+			 Byte glyph, PCONTEXT pContext)
 {
 
 	DDIST lnSpace,charHeight,ydHere;
@@ -1948,6 +1954,7 @@ void DrawArp(Document *doc, short xp, short yTop, DDIST yd, DDIST dHeight, Byte 
 	TextFont(oldFont);
 	TextFace(oldStyle);
 }
+
 
 /* ------------------------------------------------------------------ TempoGlyph -- */
 /* Return the glyph to draw for the given Tempo subType. We use noteheads with
@@ -1983,19 +1990,21 @@ char TempoGlyph(LINK pL)
 	}
 }
 
+
 /* ---------------------------------------- GetXXXDrawInfo for Graphics and Tempos -- */
 /* GetXXXDrawInfo function for Graphics and Tempos. For Tempos, this simply uses the
 position of the object the Graphic or Tempo is attached to, not the subobject; for
 Graphics, it uses the position of the subobj in the Graphic's voice or on its staff
-to get the xd.  */
+to get the xd. If the Graphic or Tempo is attached to the page, it always returns 1;
+otherwise it just returns _staffn_. */
 
 short GetGraphicDrawInfo(
-				Document *doc,
-				LINK pL, LINK relObjL,
-				short staffn,
-				DDIST *xd, DDIST *yd,
-				PCONTEXT pRelContext					/* Context at <relObjL> */
-				)
+			Document *doc,
+			LINK pL, LINK relObjL,
+			short staffn,
+			DDIST *xd, DDIST *yd,
+			PCONTEXT pRelContext					/* Context at <relObjL> */
+			)
 {
 	LINK measL;
 
@@ -2022,11 +2031,11 @@ short GetGraphicDrawInfo(
 /* GetXXXDrawInfo function for the right end of GRDraw Graphics. */
 
 short GetGRDrawLastDrawInfo(
-				Document *doc,
-				LINK graphicL, LINK lastObjL,
-				short staffn,
-				DDIST *xd2, DDIST *yd2
-				)
+			Document *doc,
+			LINK graphicL, LINK lastObjL,
+			short staffn,
+			DDIST *xd2, DDIST *yd2
+			)
 {
 	CONTEXT context; PGRAPHIC p;
 
@@ -2050,22 +2059,22 @@ short GetGRDrawLastDrawInfo(
 are characters or strings: not GRDraw, e.g. */
 
 void GetGraphicFontInfo(
-				Document *doc,
-				LINK pL,
-				PCONTEXT pRelContext,
-				short *pFontID,
-				short *pFontSize,					/* in points, ignoring magnification */
-				short *pFontStyle
-				)
+			Document *doc,
+			LINK pL,
+			PCONTEXT pRelContext,
+			short *pFontID,
+			short *pFontSize,					/* in points, ignoring magnification */
+			short *pFontStyle
+			)
 {
 	DDIST lnSpace; PGRAPHIC p;
 
 	lnSpace = LNSPACE(pRelContext);
 	if (GraphicSubType(pL)==GRChordFrame) {
 		*pFontID = config.chordFrameFontID;
-		if (*pFontID<=0) *pFontID = 123;								/* 123 is default, Seville */
+		if (*pFontID<=0) *pFontID = 123;					/* 123 is default, Seville */
 		*pFontSize = GetTextSize(config.chordFrameRelFSize, config.chordFrameFontSize, lnSpace);
-		*pFontStyle = 0;													/* Plain */
+		*pFontStyle = 0;									/* Plain */
 	}
 	else {
 		p = GetPGRAPHIC(pL);
@@ -2079,7 +2088,7 @@ void GetGraphicFontInfo(
 /* ----------------------------------------------------------------- Voice2Color -- */
 /* Return an appropriate color for drawing the given internal voice number. If it's
 a default voice or an error is found, use black; otherwise, within each part's
-voices,  cycle among a number of colors. Nightingale doesn't use Color QuickDraw,
+voices, cycle among a number of colors. Nightingale doesn't use Color QuickDraw,
 so this version uses original QuickDraw colors, and only a few colors with enough
 contrast are available (besides black and white). */
 
@@ -2097,9 +2106,8 @@ short Voice2Color(Document *doc, short iVoice)
 
 	/*
 	 * There should never be a problem converting internal voice number to user voice
-	 * number; if there is, don't worry about it, just use black.
+	 * number, but if there is, don't worry about it, just use black.
 	 */
-	 
 	if (Int2UserVoice(doc, iVoice, &userVoice, &aPartL)) {
 		if (doc->colorVoices==2)
 			extraVoice = userVoice-1;
@@ -2167,9 +2175,9 @@ in the application itself, since that's where the key equivs. are set!), with
 separate strings for the keys that have different enabling conditions. */
 
 Boolean DrawCheckInterrupt(Document */*doc*/)
-	{
-		return FALSE;
-	}
+{
+	return FALSE;
+}
 
 
 /* ------------------------------------------------------------- MaySetPSMusSize -- */

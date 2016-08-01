@@ -425,7 +425,7 @@ void DrawChordSym(Document *doc,
 			PStrCopy((StringPtr)doc->musFontName, (StringPtr)musFontName);			
 			pTxStyle = (TEXTSTYLE *)doc->fontNameCS;
 			PStrCopy((StringPtr)pTxStyle->fontName, (StringPtr)csName);
-			newFontIndex = GetFontIndex(doc, csName);			/* in case toPostScript: should never fail */
+			newFontIndex = FontName2Index(doc, csName);			/* in case toPostScript: should never fail */
 			csFont = doc->fontTable[newFontIndex].fontID;
 			csSize = GetTextSize(pTxStyle->relFSize, pTxStyle->fontSize, LNSPACE(pContext));
 			csFace = pTxStyle->fontStyle;

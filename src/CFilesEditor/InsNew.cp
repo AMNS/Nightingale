@@ -515,7 +515,7 @@ PushLock(OBJheap);
 
 	pGraphic = GetPGRAPHIC(newL);
 	pGraphic->info2 = symtable[sym].durcode;
-	pGraphic->info2 <<= 13;				/* ??ADD A MACRO TO NTypes.h AND USE HERE! */
+	pGraphic->info2 <<= 13;
 	height = d2qd(ydBottom-ydTop, context.staffHeight, context.staffLines);
 	pGraphic->info = height;
 	pGraphic->firstObj = doc->selStartL;
@@ -738,7 +738,7 @@ PushLock(GRAPHICheap);
 	NewObjSetup(doc, newL, staff, xd);
 	SetObject(newL, xd, yd, TRUE, TRUE, FALSE);
 
-	fontInd = GetFontIndex(doc, font);
+	fontInd = FontName2Index(doc, font);
 	if (fontInd<0) {
 		GetIndCString(strBuf, MISCERRS_STRS, 20);    	/* "Will use most recently added font." */
 		CParamText(strBuf, "", "", "");

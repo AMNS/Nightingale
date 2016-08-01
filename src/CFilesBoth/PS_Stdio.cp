@@ -89,8 +89,8 @@ static DDIST pageWidth,				/* Sizes of page in whatever coordinates */
 
 /* ============================================================== PUBLIC ROUTINES == */
 
-/* Open file and prepare to output PostScript.  If another file is already 
-open, then we close it before opening the new one.
+/* Open file and prepare to output PostScript.  If another file is already open,
+then we close it before opening the new one.
 
 If usingWhat is USING_FILE, PostScript text we create is sent to the
 given filename and directory.
@@ -1839,16 +1839,16 @@ OSErr PS_MusChar(Document *doc, DDIST x, DDIST y, char sym, Boolean visible, sho
  *	used.
  */
 
-OSErr PS_FontString(Document *doc, DDIST x, DDIST y, const unsigned char *str, const unsigned char *font,
-					short ptSize, short style)
+OSErr PS_FontString(Document *doc, DDIST x, DDIST y, const unsigned char *str,
+					const unsigned char *font, short ptSize, short style)
 	{
 		Boolean fontKnown; short fontNum;
 		
 		/*
 		 *	We treat Sonata differently from all other fonts because Sonata can't use
-		 *	our standard encoding vector.
+		 *	our standard encoding vector. FIXME: Surely this should be looking for the
+		 *	current music font, not Sonata!
 		 */
-		
 		if (PStrCmp(font,(StringPtr)"\pSonata")) {
 			if (usingFile)
 				PS_Print(" %ld MF\r",(long)ptSize);

@@ -37,7 +37,7 @@ slightly. Intended for computing objRects, which aren't useful if they're empty!
 note that this doesn't guarantee non-empty objRects: if the edges cross, it does
 nothing. Perhaps we should swap them in that case?  */
 
-void D2ObjRect(DRect *pdEnclBox, Rect *pobjRect)
+static void D2ObjRect(DRect *pdEnclBox, Rect *pobjRect)
 {
 	D2Rect(pdEnclBox, pobjRect);
 	if (pobjRect->bottom==pobjRect->top) {
@@ -72,7 +72,7 @@ static void DrawHeaderFooter(Document *doc,
 	
 	lnSpace = LNSPACE(&context[1]);
 	fontSize = GetTextSize(doc->relFSizePG, doc->fontSizePG, lnSpace);
-	fontInd = GetFontIndex(doc, doc->fontNamePG);
+	fontInd = FontName2Index(doc, doc->fontNamePG);
 	fontID = doc->fontTable[fontInd].fontID;
 
 	if (doc->alternatePGN && !odd(pageNum)) {
@@ -303,7 +303,7 @@ void SetFontFromTEXTSTYLE(Document *doc, TEXTSTYLE *pTextStyle, DDIST lineSpace)
 {
 	short fontInd, fontSize;
 	
-	fontInd = GetFontIndex(doc, pTextStyle->fontName);			/* Should never fail */
+	fontInd = FontName2Index(doc, pTextStyle->fontName);			/* Should never fail */
 	TextFont(doc->fontTable[fontInd].fontID);
 	
 	fontSize = GetTextSize(pTextStyle->relFSize, pTextStyle->fontSize, lineSpace);
@@ -361,7 +361,7 @@ static void DrawPartName(Document *doc, LINK staffL,
 		}
 		else {
 			/* Get position to horizontally center the part name in the left indent area. */
-			fontInd = GetFontIndex(doc, doc->fontNamePN);				/* Should never fail */
+			fontInd = FontName2Index(doc, doc->fontNamePN);				/* Should never fail */
 			fontID = doc->fontTable[fontInd].fontID;
 			nameWidth = NPtStringWidth(doc, str, fontID, fontSize, doc->fontStylePN);
 			connWidth = ConnectDWidth(doc->srastral, CONNECTCURLY);
@@ -1110,7 +1110,7 @@ PopLock(TIMESIGheap);
 /* Draw a hairpin dynamic. X-coord. of left end = xd; x-coord. of right end
 (relative to the symbol it's attached to) = aDynamic->endxd. */
 
-void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DDIST yd,
+static void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DDIST yd,
 						Boolean reallyDraw)
 {
 	DDIST		lnSpace, offset, rise,
@@ -1527,7 +1527,7 @@ static void DrawEnclosure(Document */*doc*/,
 /* Return the DDIST bounding box for the given Graphic, with origin at (0,0). If
 the Graphic is a text type and _expandN_, it's stretched out. */
 
-Boolean GetGraphicDBox(Document *doc,
+static Boolean GetGraphicDBox(Document *doc,
 					LINK pL,
 					Boolean expandN,
 					PCONTEXT pContext,
@@ -1636,7 +1636,7 @@ Boolean GetGraphicDBox(Document *doc,
 /* Draw the GRPICT Graphic with the given resource ID or handle. NB: PostScript
 drawing isn't yet implemented! */
 
-void DrawGRPICT(Document */*doc*/,
+static void DrawGRPICT(Document */*doc*/,
 				DDIST xd, DDIST yd,
 				short picID,			/* PICT resource ID */
 				Handle picH,			/* handle to PICT resource, or NULL */
@@ -1676,7 +1676,7 @@ void DrawGRPICT(Document */*doc*/,
 /* ----------------------------------------------------------------- DrawArpSign -- */
 /* Draw an arpeggio or non-arpeggio sign. */
 
-void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
+static void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
 					short subType, PCONTEXT pContext, Boolean /*dim*/)	/* <dim> is ignored */
 {
 	short xp, yp, yTop; DDIST lnSpace, nonarpThick; Byte glyph;
@@ -1725,7 +1725,7 @@ void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
 /* ----------------------------------------------------------------- DrawGRDraw -- */
 /* Draw a MiniDraw-subtype Graphic. Returns half its line thickness.  */
 
-DDIST DrawGRDraw(Document */*doc*/,
+static DDIST DrawGRDraw(Document */*doc*/,
 				DDIST xd, DDIST yd,		/* Center position of endpt */
 				DDIST xd2, DDIST yd2,	/* Center position of endpt */
 				short lineLW,			/* in percent of linespace */
@@ -1789,10 +1789,9 @@ Done:
 
 
 /* ---------------------------------------------------------------- DrawGRAPHIC -- */
-/* Draw a GRAPHIC object, including its enclosure, if it needs one. If necessary,
-also recompute its objRect. (I'm not sure if this is documented anywhere, but our
-UI doesn't support entering strings over 255 chars., so we don't need to support
-longer strings here.  --DAB, Sept. 2015) */
+/* Draw a GRAPHIC object, including its enclosure, if it needs one, and/or
+recompute its objRect. (Thus far, our UI doesn't support entering strings over
+255 chars., so we don't need to support longer strings here.  --DAB, Sept. 2015) */
 
 #define SWAP(a, b)	{ short temp; temp = (a); (a) = (b); (b) = temp; }
 
@@ -1831,7 +1830,7 @@ PushLock(OBJheap);
 PushLock(GRAPHICheap);
  	p = GetPGRAPHIC(pL);
  	
- 	staffn = GetGraphicDrawInfo(doc,pL,p->firstObj,p->staffn,&xd,&yd,&relContext);
+ 	staffn = GetGraphicDrawInfo(doc, pL, p->firstObj, p->staffn, &xd, &yd, &relContext);
 	GetGraphicFontInfo(doc, pL, &relContext, &fontID, &fontSize, &fontStyle);
 	
 	if (staffn!=NOONE) {
@@ -1839,7 +1838,7 @@ PushLock(GRAPHICheap);
 		if (!pContext->staffVisible && !PageTYPE(p->firstObj)) goto Cleanup;
 	}
 
-	expandN = 0;
+	expandN = FALSE;
 	if (p->graphicType==GRString) expandN = (p->info2!=0);
 	if (GetGraphicDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox))
 		OffsetDRect(&dEnclBox, xd, yd);
@@ -1922,7 +1921,7 @@ PushLock(GRAPHICheap);
 				switch (p->graphicType) {
 					case GRChar:
 						if (dim) DrawMChar(doc, p->info, NORMAL_VIS, TRUE);
-						else		DrawChar(p->info);
+						else	 DrawChar(p->info);
 						break;
 					case GRChordSym:
 						DrawChordSym(doc, xd, yd, PCopy(theStrOffset), p->info, pContext, dim, &dEnclBox);
@@ -2079,7 +2078,7 @@ PushLock(GRAPHICheap);
 				/* For sustain on/off (=pedal down/up), always use the document's music font. */
 				case GRMIDISustainOn:
 					oneChar[0] = 1;
-					oneChar[1] = 0xA1;						// Mac OS Roman keys: shift-option 8
+					oneChar[1] = 0xA1;									// Mac OS Roman keys: shift-option 8
 					PS_FontString(doc, xd, yd,oneChar,
 										doc->musFontName,
 										fontSize, fontStyle);
@@ -2128,7 +2127,7 @@ void DrawTEMPO(Document *doc,
 	FontInfo fInfo; StringOffset theStrOffset;
 	unsigned char tempoStr[256];
 	char metroStr[256], noteChar;
-	DDIST xd, yd, extraGap, lineSpace, xdNote, xdDot, xdMM, ydNote, ydDot;
+	DDIST xd, yd, extraGap, lnSpace, xdNote, xdDot, xdMM, ydNote, ydDot;
 	LINK firstObjL;
 	Boolean doDrawMM;
 	Byte dotChar = MapMusChar(doc->musFontInfoIndex, MCH_dot);
@@ -2147,12 +2146,13 @@ PushLock(TEMPOheap);
 		
 	pContext = &context[staffn];
 	if (!pContext->staffVisible) goto Cleanup;
-	lineSpace = LNSPACE(pContext);
+	lnSpace = LNSPACE(pContext);
 
 	theStrOffset = p->strOffset;
 	if (p->expanded) {
 		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
 			LogPrintf(LOG_WARNING, "DrawTEMPO: ExpandString failed.\n");
+			goto Cleanup;
 	}
 	else PStrCopy((StringPtr)PCopy(theStrOffset), tempoStr);
 
@@ -2174,20 +2174,20 @@ PushLock(TEMPOheap);
 	oldSize = GetPortTxSize();
 	oldStyle = GetPortTxFace();
 	
-	SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lineSpace);
+	SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lnSpace);
 
 	extraGap = 0;
 	xdNote = xd;
 	if (tempoStrlen>0) {
 		extraGap = qd2d(config.tempoMarkHGap, pContext->staffHeight, pContext->staffLines);
-		xdNote = xd+p2d(StringWidth(tempoStr))+lineSpace+extraGap;
+		xdNote = xd+p2d(StringWidth(tempoStr))+lnSpace+extraGap;
 	}
 //LogPrintf(LOG_DEBUG, "tempoStrlen=%d extraGap=%d\n", tempoStrlen, extraGap);
 	
 	/*
 	 *	We'll cheat and get the width of the note and dot in the current font/size/style
 	 *	instead of the ones it'll be drawn in. This shouldn't make much difference,
-	 * but it would be better to to do smthg like what MaxNameWidth does, or to share
+	 * but it would be better to to do smthg like what MaxPartNameWidth does, or to share
 	 * code with SymWidthRight (q.v.).
 	 */
 	noteWidth = CharWidth(noteChar);
@@ -2196,7 +2196,7 @@ PushLock(TEMPOheap);
 		noteWidth += CharWidth(dotChar);
 	}
 	else if (NFLAGS(p->subType)>0)
-		noteWidth += d2p(lineSpace);							/* maybe a bit too small */
+		noteWidth += d2p(lnSpace);							/* maybe a bit too small */
 	xdMM = xdNote+p2d(noteWidth);
 	
 	/* Never draw the metronome mark if there isn't one! */
@@ -2218,8 +2218,8 @@ PushLock(TEMPOheap);
 						xp+StringWidth(tempoStr), yp+fInfo.descent);
 
 			/* FIXME: Why go through all this setup if we might not draw the MM at all?  -JGG */
-			xdNote += MusCharXOffset(doc->musFontInfoIndex, noteChar, lineSpace);
-			ydNote = yd + MusCharYOffset(doc->musFontInfoIndex, noteChar, lineSpace);
+			xdNote += MusCharXOffset(doc->musFontInfoIndex, noteChar, lnSpace);
+			ydNote = yd + MusCharYOffset(doc->musFontInfoIndex, noteChar, lnSpace);
 			MoveTo(pContext->paper.left+d2p(xdNote), pContext->paper.top+d2p(ydNote));
 			useTxSize = UseTextSize(pContext->fontSize, doc->magnify);
 			useTxSize = MEDIUMSIZE(useTxSize);
@@ -2232,8 +2232,8 @@ PushLock(TEMPOheap);
 					DrawChar(noteChar);
 					if (p->dotted) {
 						xdDot = xdNote+p2d(noteWidth);
-						xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lineSpace);
-						ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lineSpace);
+						xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lnSpace);
+						ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lnSpace);
 //LogPrintf(LOG_DEBUG, "xdDot, ydDot=%d. %d  pap.left=%d pap.top=%d\n", xdDot, ydDot,
 //			pContext->paper.left, pContext->paper.top);
 						MoveTo(pContext->paper.left+d2p(xdDot), pContext->paper.top+d2p(ydDot));
@@ -2241,7 +2241,7 @@ PushLock(TEMPOheap);
 					}
 				}
 			
-			SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lineSpace);
+			SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lnSpace);
 			if (doDrawMM) {
 				MoveTo(pContext->paper.left+d2p(xdMM), pContext->paper.top+yp);
 				DrawCString(metroStr);
@@ -2250,16 +2250,16 @@ PushLock(TEMPOheap);
 			
 			break;
 		case toPostScript:
-			fontSize = GetTextSize(doc->relFSizeTM, doc->fontSizeTM, lineSpace);
+			fontSize = GetTextSize(doc->relFSizeTM, doc->fontSizeTM, lnSpace);
 			PS_FontString(doc, xd, yd, tempoStr, doc->fontNameTM, fontSize, doc->fontStyleTM);
 
 			if (doDrawMM) {
-				xdNote += MusCharXOffset(doc->musFontInfoIndex, noteChar, lineSpace);
-				ydNote = yd + MusCharYOffset(doc->musFontInfoIndex, noteChar, lineSpace);
+				xdNote += MusCharXOffset(doc->musFontInfoIndex, noteChar, lnSpace);
+				ydNote = yd + MusCharYOffset(doc->musFontInfoIndex, noteChar, lnSpace);
 				PS_MusChar(doc, xdNote, ydNote, noteChar, TRUE, MEDIUMSIZE(100));
 				if (p->dotted) {
-					xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lineSpace);
-					ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lineSpace);
+					xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lnSpace);
+					ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lnSpace);
 					PS_MusChar(doc, xdDot, ydDot, dotChar, TRUE, MEDIUMSIZE(100));
 				}
 				PS_FontString(doc, xdMM, yd, CToPString(metroStr),
@@ -2360,7 +2360,7 @@ static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 	}
 
 	if (doc->enclosureMN!=ENCL_NONE) {
-		fontInd = GetFontIndex(doc, doc->fontNameMN);					/* Should never fail */
+		fontInd = FontName2Index(doc, doc->fontNameMN);					/* Should never fail */
 		fontID = doc->fontTable[fontInd].fontID;
 		fontSize = GetTextSize(doc->relFSizeMN, doc->fontSizeMN, LNSPACE(pContext));
 		GetNPtStringBBox(doc, nStr, fontID, fontSize, doc->fontStyleMN, FALSE, &measNumBox);

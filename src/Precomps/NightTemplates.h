@@ -469,6 +469,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	Boolean		streql(char *s, char *t);
 	Boolean		Pstreql(unsigned char *s, unsigned char *t);
 	Boolean		strneql(char *s, char *t, short len);
+	short		Pstrlen(unsigned char *str);
 
 	void		PStrCat(StringPtr, ConstStringPtr);
 	void		PStrCopy(ConstStringPtr, StringPtr);
