@@ -67,7 +67,8 @@ short BlockCompare(void *src, void *dst, short len);
 short RelIndexToSize(short, DDIST);
 short GetTextSize(Boolean, short, DDIST);
 
-short FontName2Index(Document *, unsigned char *);
+short FontName2Index(Document *, StringPtr);
+Boolean FontID2Name(Document *doc, short fontID, StringPtr fontName);
 short User2HeaderFontNum(Document *, short);
 short Header2UserFontNum(short);
 

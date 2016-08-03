@@ -486,7 +486,7 @@ short NPtStringWidth(
 
 short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 {
-	short		font, fontSize, fontStyle;
+	short		fontID, fontSize, fontStyle;
 	PGRAPHIC	p;
 	Str255		string;
 	DDIST		lineSpace;
@@ -495,13 +495,13 @@ short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 				(StringPtr)string);
 
 	p = GetPGRAPHIC(pL);
-	font = doc->fontTable[p->fontInd].fontID;
+	fontID = doc->fontTable[p->fontInd].fontID;
 	fontStyle = p->fontStyle;
 
 	lineSpace = LNSPACE(pContext);
 	fontSize = GetTextSize(p->relFSize, p->fontSize, lineSpace);
 
-	return NPtStringWidth(doc, string, font, fontSize, fontStyle);
+	return NPtStringWidth(doc, string, fontID, fontSize, fontStyle);
 }
 
 
@@ -1110,7 +1110,7 @@ short GetTextSize(Boolean relFSize, short fontSize, DDIST lineSpace)
 fontname doesn't appear in the table, add it. In all cases, return the index of the
 fontname. Exception: if the table overflows, return -1. */
 
-short FontName2Index(Document *doc, unsigned char *fontName)
+short FontName2Index(Document *doc, StringPtr fontName)
 {
 	short i, nfontsUsed;
 
@@ -1137,6 +1137,25 @@ short FontName2Index(Document *doc, unsigned char *fontName)
 		doc->nfontsUsed++;
 		return nfontsUsed;
 	}
+}
+
+
+Boolean FontID2Name(Document *doc, short fontID, StringPtr fontName)
+{
+	short i, nfontsUsed;
+	
+	nfontsUsed = doc->nfontsUsed;
+	
+	/* If font ID is in the table, return its name. */
+	
+	for (i = 0; i<nfontsUsed; i++) {
+		if (doc->fontTable[i].fontID==fontID) {
+			PStrnCopy((StringPtr)doc->fontTable[i].fontName, (StringPtr)fontName, 32);
+			return TRUE;
+		}
+	}
+	
+	return FALSE;
 }
 
 

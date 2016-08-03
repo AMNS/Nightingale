@@ -93,19 +93,19 @@ static void DrawHeaderFooter(Document *doc,
 
 	lxpt = doc->headerFooterMargins.left;
 
-	if (chStr[0]) {
+	if (Pstrlen(chStr)>0) {
 		short width = NPtStringWidth(doc, chStr, fontID, fontSize, doc->fontStylePG);
 		chxpt = doc->origPaperRect.right/2 - width/2;
 	}
-	if (cfStr[0]) {
+	if (Pstrlen(cfStr)>0) {
 		short width = NPtStringWidth(doc, cfStr, fontID, fontSize, doc->fontStylePG);
 		cfxpt = doc->origPaperRect.right/2 - width/2;
 	}
-	if (rhStr[0]) {
+	if (Pstrlen(rhStr)>0) {
 		short width = NPtStringWidth(doc, rhStr, fontID, fontSize, doc->fontStylePG);
 		rhxpt = (doc->origPaperRect.right - doc->headerFooterMargins.right) - width;
 	}
-	if (rfStr[0]) {
+	if (Pstrlen(rfStr)>0) {
 		short width = NPtStringWidth(doc, rfStr, fontID, fontSize, doc->fontStylePG);
 		rfxpt = (doc->origPaperRect.right - doc->headerFooterMargins.right) - width;
 	}
@@ -1115,10 +1115,10 @@ static void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DD
 {
 	DDIST		lnSpace, offset, rise,
 				endxd, endyd, hairThick,
-				sysLeft; 					/* left margin of current system */
+				sysLeft;						/* left margin of current system */
 	PADYNAMIC	aDynamic;
 	short		xp, yp, endxp, endyp, papyp, papendyp,
-				penThick;					/* vertical pen size in pixels */
+				penThick;						/* vertical pen size in pixels */
 
 	lnSpace = LNSPACE(pContext);
 	sysLeft = pContext->systemLeft;
@@ -1609,8 +1609,11 @@ static Boolean GetGraphicDBox(Document *doc,
 			theStrOffset = aGraphic->strOffset;
 			
 			if (expandN) {
-				if (!ExpandString(string, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
+				if (!ExpandString(string, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER)) {
 					LogPrintf(LOG_WARNING, "GetGraphicDBox: ExpandString failed.\n");
+					return FALSE;
+				}
+				
 			}
 			else PStrCopy((StringPtr)PCopy(theStrOffset), string);
 			pStr = string;
@@ -2085,7 +2088,7 @@ PushLock(GRAPHICheap);
 					break;
 				case GRMIDISustainOff:
 					oneChar[0] = 1;
-					oneChar[1] = '*';						// Shift 8
+					oneChar[1] = '*';									// Shift 8
 					PS_FontString(doc, xd, yd,oneChar,
 										doc->musFontName,
 										fontSize, fontStyle);
@@ -2112,7 +2115,8 @@ PopLock(GRAPHICheap);
 
 
 /* ------------------------------------------------------------------ DrawTEMPO -- */
-/* Draw a TEMPO object: verbal tempo string and/or metronome mark. */
+/* Draw a TEMPO object: verbal tempo string and/or metronome mark (consisting of a
+duration-unit note, perhaps dotted, and M.M. string). */
 
 void DrawTEMPO(Document *doc,
 				LINK pL,
@@ -2125,7 +2129,7 @@ void DrawTEMPO(Document *doc,
 	short oldFont, oldSize, oldStyle, useTxSize, fontSize, xp, yp, noteWidth, staffn,
 			tempoStrlen;
 	FontInfo fInfo; StringOffset theStrOffset;
-	unsigned char tempoStr[256];
+	Str255 tempoStr;
 	char metroStr[256], noteChar;
 	DDIST xd, yd, extraGap, lnSpace, xdNote, xdDot, xdMM, ydNote, ydDot;
 	LINK firstObjL;
@@ -2161,7 +2165,6 @@ PushLock(TEMPOheap);
 //LogPrintf(LOG_DEBUG, "tempoStrlen=%d\n", tempoStrlen);
 	noteChar = TempoGlyph(pL);
 	noteChar = MapMusChar(doc->musFontInfoIndex, noteChar);
-
 	sprintf(metroStr," = %s", PToCString(PCopy(p->metroStrOffset)));
 
 	/*
@@ -2184,10 +2187,9 @@ PushLock(TEMPOheap);
 	}
 //LogPrintf(LOG_DEBUG, "tempoStrlen=%d extraGap=%d\n", tempoStrlen, extraGap);
 	
-	/*
-	 *	We'll cheat and get the width of the note and dot in the current font/size/style
-	 *	instead of the ones it'll be drawn in. This shouldn't make much difference,
-	 * but it would be better to to do smthg like what MaxPartNameWidth does, or to share
+	/* We'll cheat and get the width of the note and dot in the current font/size/style
+	 * instead of the ones it'll be drawn in. This shouldn't make much difference, but
+	 * it would be better to to do smthg like what MaxPartNameWidth does, or to share
 	 * code with SymWidthRight (q.v.).
 	 */
 	noteWidth = CharWidth(noteChar);
@@ -2250,6 +2252,7 @@ PushLock(TEMPOheap);
 			
 			break;
 		case toPostScript:
+			/* Draw the verbal tempo string and perhaps metronome mark */
 			fontSize = GetTextSize(doc->relFSizeTM, doc->fontSizeTM, lnSpace);
 			PS_FontString(doc, xd, yd, tempoStr, doc->fontNameTM, fontSize, doc->fontStyleTM);
 
