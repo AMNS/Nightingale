@@ -120,32 +120,32 @@ static void DrawHeaderFooter(Document *doc,
 			
 			SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNamePG, lnSpace);
 
-			if (lhStr[0]) {
+			if (Pstrlen(lhStr)>0) {
 				xp = pt2p(lxpt); yp = pt2p(hypt);
 				MoveTo(paper->left+xp, paper->top+yp);
 				DrawString(lhStr);
 			}
-			if (chStr[0]) {
+			if (Pstrlen(chStr)>0) {
 				xp = pt2p(chxpt); yp = pt2p(hypt);
 				MoveTo(paper->left+xp, paper->top+yp);
 				DrawString(chStr);
 			}
-			if (rhStr[0]) {
+			if (Pstrlen(rhStr)>0) {
 				xp = pt2p(rhxpt); yp = pt2p(hypt);
 				MoveTo(paper->left+xp, paper->top+yp);
 				DrawString(rhStr);
 			}
-			if (lfStr[0]) {
+			if (Pstrlen(lfStr)>0) {
 				xp = pt2p(lxpt); yp = pt2p(fypt);
 				MoveTo(paper->left+xp, paper->top+yp);
 				DrawString(lfStr);
 			}
-			if (cfStr[0]) {
+			if (Pstrlen(cfStr)>0) {
 				xp = pt2p(cfxpt); yp = pt2p(fypt);
 				MoveTo(paper->left+xp, paper->top+yp);
 				DrawString(cfStr);
 			}
-			if (rfStr[0]) {
+			if (Pstrlen(rfStr)>0) {
 				xp = pt2p(rfxpt); yp = pt2p(fypt);
 				MoveTo(paper->left+xp, paper->top+yp);
 				DrawString(rfStr);
@@ -156,17 +156,17 @@ static void DrawHeaderFooter(Document *doc,
 			TextFace(oldStyle);
 			break;
 		case toPostScript:
-			if (lhStr[0])
+			if (Pstrlen(lhStr)>0)
 				PS_FontString(doc, pt2d(lxpt), pt2d(hypt), lhStr, doc->fontNamePG, fontSize, doc->fontStylePG);
-			if (chStr[0])
+			if (Pstrlen(chStr)>0)
 				PS_FontString(doc, pt2d(chxpt), pt2d(hypt), chStr, doc->fontNamePG, fontSize, doc->fontStylePG);
-			if (rhStr[0])
+			if (Pstrlen(rhStr)>0)
 				PS_FontString(doc, pt2d(rhxpt), pt2d(hypt), rhStr, doc->fontNamePG, fontSize, doc->fontStylePG);
-			if (lfStr[0])
+			if (Pstrlen(lfStr)>0)
 				PS_FontString(doc, pt2d(lxpt), pt2d(fypt), lfStr, doc->fontNamePG, fontSize, doc->fontStylePG);
-			if (cfStr[0])
+			if (Pstrlen(cfStr)>0)
 				PS_FontString(doc, pt2d(cfxpt), pt2d(fypt), cfStr, doc->fontNamePG, fontSize, doc->fontStylePG);
-			if (rfStr[0])
+			if (Pstrlen(rfStr)>0)
 				PS_FontString(doc, pt2d(rfxpt), pt2d(fypt), rfStr, doc->fontNamePG, fontSize, doc->fontStylePG);
 			break;
 	}
@@ -2152,6 +2152,7 @@ PushLock(TEMPOheap);
 	if (!pContext->staffVisible) goto Cleanup;
 	lnSpace = LNSPACE(pContext);
 
+	/* Prepare tempo string. */
 	theStrOffset = p->strOffset;
 	if (p->expanded) {
 		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
@@ -2163,6 +2164,8 @@ PushLock(TEMPOheap);
 	//tempoStrlen = strlen(PToCString(PCopy(tempoStr)));
 	tempoStrlen = tempoStr[0];
 //LogPrintf(LOG_DEBUG, "tempoStrlen=%d\n", tempoStrlen);
+
+	/* Prepare M.M. duration unit note and M.M. string. */
 	noteChar = TempoGlyph(pL);
 	noteChar = MapMusChar(doc->musFontInfoIndex, noteChar);
 	sprintf(metroStr," = %s", PToCString(PCopy(p->metroStrOffset)));
@@ -2201,7 +2204,7 @@ PushLock(TEMPOheap);
 		noteWidth += d2p(lnSpace);							/* maybe a bit too small */
 	xdMM = xdNote+p2d(noteWidth);
 	
-	/* Never draw the metronome mark if there isn't one! */
+	/* Decide whether to actually draw the metronome mark. */
 	if (p->noMM) doDrawMM = FALSE;
 	else doDrawMM = ((!p->hideMM || doc->showInvis) && doDraw);
 

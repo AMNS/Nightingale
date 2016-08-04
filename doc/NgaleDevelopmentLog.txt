@@ -1475,8 +1475,16 @@ to 2!  To be continued.
 
 -------------------------------------------------------------------------------
 
-9-10 July
+9-31 July
 
 For Issue #98, it'd be great if the Tempo/Metronome Mark dialog could handle return
 chars. the way the text-entry (for Graphics) dialog does.  Cf. TextDialog.cp/MyFilter
 to DialogsEditor.cp/TempoFilter.
+
+Pull a new function DrawStringBlock() out of DrawGRAPHIC().
+
+One (of many!) problems along the way: To draw on screen, DrawStringBlock() needs the
+font ID, but to draw PostScript, it needs the font name. How to get one from the other?
+I don't think we have a routine to do that; how can it be done? Ah, doc->fontTable lets
+you convert from one to the other, and I think _every_ font used in a score has an entry
+in it!
