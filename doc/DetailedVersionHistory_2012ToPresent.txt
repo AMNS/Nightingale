@@ -751,7 +751,7 @@ Minor cleanup.
 
 -------------------------------------------------------------------------------
 
-22 July - 4 August
+22 July - 6 August
 
 Tweak standard (for Add Modifiers) position of circle (natural harmonic) note modifier.
 Affects InsNew.
@@ -765,6 +765,9 @@ the far more understandable "if (Pstrlen(blah)>0)..." Affects DrawObject, String
 Change some instances of "unsigned char *blah[256]" to "Str255 blah". Affects DrawObject.
 
 Add function FontID2Name. Affects Utility.
+
+Rewrite DrawGRAPHIC() and DrawTEMPO() so both call a new function, DrawTextBlock();
+other changes to prepare for multiline tempo marks. Affects DrawObject.
 
 Minor cleanup. Affects DrawObject, DrawUtils, FileInput, InfoDialog, MusicFont, PS_Stdio,
 Search, Utility.

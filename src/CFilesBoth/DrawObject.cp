@@ -28,6 +28,9 @@ static void DrawGRPICT(Document *, DDIST, DDIST, short, Handle, PCONTEXT, Boolea
 static void DrawArpSign(Document *, DDIST, DDIST, DDIST, short, PCONTEXT, Boolean);
 static DDIST DrawGRDraw(Document *, DDIST, DDIST, DDIST, DDIST, short, PCONTEXT, Boolean,
 						Boolean, Boolean *); 
+static Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pContext,
+							   Boolean dim, short fontID, short fontSize, short fontStyle);
+static Boolean GetTempoDBox(Document *, LINK, Boolean, PCONTEXT, short, short, short, DRect *);
 static void DrawBarline(Document *, LINK, short, short, CONTEXT [], SignedByte);
 
 
@@ -1791,6 +1794,166 @@ Done:
 }
 
 
+/* ------------------------------------------------------------- DrawTextBlock -- */
+/* Draw a "block" of strings: really a single Pascal string, perhaps with embedded
+CRs, which we interpret as starting new lines. Intended for use with text Graphics
+and the verbal part of Tempos. Return TRUE normally, FALSE if there's a problem. */
+
+static Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pContext,
+						Boolean dim, short fontID, short fontSize, short fontStyle)
+{
+	CONTEXT			relContext;					/* context of relative object */
+	short			oldFont, oldSize, oldStyle,
+					xp, yp, voice;
+	DDIST			dLineSp;
+	Str255			str, strToDraw;
+	StringOffset	theStrOffset;
+	Boolean			expandN=FALSE;				/* Stretch string out? */
+	Boolean			multiLine=FALSE;
+	FontInfo		fInfo;
+	
+	if (ObjLType(pL)==GRAPHICtype) {
+		PGRAPHIC p;
+		LINK aGraphicL;  PAGRAPHIC aGraphic;
+		
+		if (GraphicSubType(pL)!=GRLyric && GraphicSubType(pL)!=GRString) {
+			LogPrintf(LOG_ERR, "DrawTextBlock: Graphic at %d isn't a GRLyric or GRString\n",
+					  pL);
+			return FALSE;
+		}
+ 		p = GetPGRAPHIC(pL);
+		if (p->graphicType==GRString) expandN = (p->info2!=0);
+		multiLine = p->multiLine;
+		voice = p->voice;
+		
+		aGraphicL = FirstSubLINK(pL);
+		aGraphic = GetPAGRAPHIC(aGraphicL);
+		theStrOffset = aGraphic->strOffset;
+		GetNFontInfo(fontID, fontSize, fontStyle, &fInfo);
+		dLineSp = pt2d(fInfo.ascent + fInfo.descent + fInfo.leading);
+		//LogPrintf(LOG_DEBUG, "DrawTextBlock 1: fontID, Size, Style=%d, %d, %d fInfo.ascent=%d .descent=%d .leading=%d dLineSp=%d\n",
+		//		  fontID, fontSize, fontStyle, fInfo.ascent, fInfo.descent, fInfo.leading, dLineSp);
+		(void)GetGraphicDrawInfo(doc, pL, GraphicFIRSTOBJ(pL), GraphicSTAFF(pL), &xd, &yd, &relContext);
+		PStrCopy((StringPtr)PCopy(theStrOffset), str);
+		
+	}
+	else if (ObjLType(pL)==TEMPOtype) {
+		PTEMPO p = GetPTEMPO(pL);
+		expandN = p->expanded;
+		voice = -1;
+		theStrOffset = p->strOffset;
+		GetNFontInfo(fontID, fontSize, fontStyle, &fInfo);
+		dLineSp = pt2d(fInfo.ascent + fInfo.descent + fInfo.leading);
+		//LogPrintf(LOG_DEBUG, "DrawTextBlock 2: fontID, Size, Style=%d, %d, %d fInfo.ascent=%d .descent=%d .leading=%d dLineSp=%d\n",
+		//		  fontID, fontSize, fontStyle, fInfo.ascent, fInfo.descent, fInfo.leading, dLineSp);
+		PStrCopy((StringPtr)PCopy(theStrOffset), str);
+	}
+	else {
+		LogPrintf(LOG_ERR, "DrawTextBlock: object at %d isn't a Graphic or Tempo\n", pL);
+		return FALSE;
+	}
+	
+	//LogPrintf(LOG_DEBUG, "DrawTextBlock: expandN=%d multiLine=%d dim=%d\n", expandN, multiLine, dim);
+	switch (outputTo) { 
+		case toScreen:
+		case toImageWriter:
+		case toPICT:
+			oldFont = GetPortTxFont();
+			oldSize = GetPortTxSize();
+			oldStyle = GetPortTxFace();
+			
+			TextFont(fontID);				
+			TextSize(UseTextSize(fontSize, doc->magnify));
+			TextFace(fontStyle);
+			if (voice>=0) ForeColor(Voice2Color(doc, voice));
+			xp = d2p(xd);
+			yp = d2p(yd);
+			MoveTo(pContext->paper.left+xp, pContext->paper.top+yp);
+			
+			if (multiLine) {
+				short i, j, len, count;
+				Byte *q = str;
+				
+				len = q[0];
+				j = count = 0;
+				for (i = 1; i <= len; i++) {
+					count++;
+					if (q[i] == CH_CR || i == len) {
+					//if (q[i] == CH_CR || q[i] == '*' || i == len) {	// ????TEST!!!!!
+						q[j] = count;
+						if (dim)
+							DrawMString(doc, (StringPtr)&q[j], NORMAL_VIS, TRUE);
+						else
+							DrawString((StringPtr)&q[j]);
+						if (i < len) {
+							yd += dLineSp;
+							yp = d2p(yd);
+							MoveTo(pContext->paper.left+xp, pContext->paper.top+yp);
+						}
+						j = i;
+						count = 0;
+					}
+				}
+			}
+			else {
+				if (expandN) {
+					if (!ExpandString(strToDraw, str, EXPAND_WIDER)) {
+						LogPrintf(LOG_WARNING, "DrawTextBlock: ExpandString failed.\n");
+						break;
+					}
+				}
+				else PStrCopy(str, strToDraw);
+				
+				if (dim) DrawMString(doc, strToDraw, NORMAL_VIS, TRUE);
+				else DrawString(strToDraw);
+			}
+			
+			ForeColor(blackColor);
+			TextFont(oldFont);
+			TextSize(oldSize);
+			TextFace(oldStyle);
+			return TRUE;
+			
+		case toPostScript:
+			Str255 fontName;
+			if (!FontID2Name(doc, fontID, fontName)) {
+				LogPrintf(LOG_ERR, "Can't find font with ID=%d in font table.\n");
+				return FALSE;
+			}
+			if (multiLine) {
+				short i, j, len, count;
+				Byte *q = str;
+				
+				len = q[0];
+				j = count = 0;
+				for (i = 1; i <= len; i++) {
+					count++;
+					if (q[i] == CH_CR || i == len) {
+						q[j] = count;
+						PS_FontString(doc, xd, yd, &q[j], fontName, fontSize, fontStyle);
+						if (i < len)
+							yd += dLineSp;
+						j = i;
+						count = 0;
+					}
+				}
+			}
+			else {
+				if (expandN) {
+					if (!ExpandString(strToDraw, str, EXPAND_WIDER)) {
+						LogPrintf(LOG_WARNING, "DrawTextBlock: ExpandString failed.\n");
+						return FALSE;
+					}
+				}
+				else PStrCopy((StringPtr)str, strToDraw);
+				
+				PS_FontString(doc, xd, yd, strToDraw, fontName, fontSize, fontStyle);
+			}			
+			return TRUE;
+	}
+}
+
+
 /* ---------------------------------------------------------------- DrawGRAPHIC -- */
 /* Draw a GRAPHIC object, including its enclosure, if it needs one, and/or
 recompute its objRect. (Thus far, our UI doesn't support entering strings over
@@ -1818,7 +1981,6 @@ void DrawGRAPHIC(Document *doc,
 					fontID, fontSize, fontStyle,
 					xp, yp, staffn,
 					lineLW;
-	unsigned char	strToDraw[256];
 	unsigned char	oneChar[2];				/* Pascal string of a char */
 	StringOffset	theStrOffset;
 	Boolean			expandN;				/* Stretch string out? */
@@ -1852,6 +2014,11 @@ PushLock(GRAPHICheap);
 	
 	switch (p->graphicType) {
 		Boolean vertical; DDIST dHalfThick;
+		case GRLyric:
+		case GRString:
+			if (doDraw) DrawTextBlock(doc, xd, yd, pL, pContext, dim, fontID, fontSize, fontStyle);
+			if (outputTo==toScreen) D2ObjRect(&dEnclBox, &objRect);
+			goto DrawEnclosure;
 		case GRPICT:
 			if (doDraw)
 				DrawGRPICT(doc, xd, yd, p->info, p->gu.handle, &relContext, dim);
@@ -1901,7 +2068,6 @@ PushLock(GRAPHICheap);
 	aGraphicL = FirstSubLINK(pL);
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	theStrOffset = aGraphic->strOffset;
-	//LogPrintf(LOG_DEBUG, "DrawGraphic: expandN=%d str='%s'\n", expandN, PToCString(PCopy(aGraphic->strOffset)));
 
 	switch (outputTo) {
 		case toScreen:
@@ -1929,47 +2095,6 @@ PushLock(GRAPHICheap);
 					case GRChordSym:
 						DrawChordSym(doc, xd, yd, PCopy(theStrOffset), p->info, pContext, dim, &dEnclBox);
 						OffsetDRect(&dEnclBox, xd, yd);
-						break;
-					case GRLyric:
-					case GRString:
-						if (p->multiLine) {
-							short i, j, len, count, lineHt;
-							FontInfo fInfo;
-							Byte *q = PCopy(theStrOffset);
-
-							GetNFontInfo(fontID, UseTextSize(fontSize, doc->magnify), fontStyle, &fInfo);
-							lineHt = p2d(fInfo.ascent + fInfo.descent + fInfo.leading);
-
-							len = q[0];
-							j = count = 0;
-							for (i = 1; i <= len; i++) {
-								count++;
-								if (q[i] == CH_CR || i == len) {
-									q[j] = count;
-									if (dim)
-										DrawMString(doc, (StringPtr)&q[j], NORMAL_VIS, TRUE);
-									else
-										DrawString((StringPtr)&q[j]);
-									if (i < len) {
-										yd += lineHt;
-										yp = d2p(yd);
-										MoveTo(pContext->paper.left+xp, pContext->paper.top+yp);
-									}
-									j = i;
-									count = 0;
-								}
-							}
-						}
-						else {
-							if (expandN) {
-								if (!ExpandString(strToDraw, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-									LogPrintf(LOG_WARNING, "DrawGRAPHIC: ExpandString failed.\n");
-							}
-							else PStrCopy((StringPtr)PCopy(theStrOffset), strToDraw);
-
-							if (dim) DrawMString(doc, strToDraw, NORMAL_VIS, TRUE);
-							else DrawString(strToDraw);
-						}
 						break;
 					case GRChordFrame:
 					case GRRehearsal:
@@ -2029,44 +2154,6 @@ PushLock(GRAPHICheap);
 										"\pSeville",						// FIXME: TEMPORARY
 										fontSize, fontStyle);
 					break;
-				case GRLyric:
-				case GRString:
-					if (p->multiLine) {
-						short i, j, len, count, lineHt;
-						FontInfo fInfo;
-						Byte *q = PCopy(theStrOffset);
-
-						GetNFontInfo(fontID, UseTextSize(fontSize, doc->magnify), fontStyle, &fInfo);
-						lineHt = p2d(fInfo.ascent + fInfo.descent + fInfo.leading);
-
-						len = q[0];
-						j = count = 0;
-						for (i = 1; i <= len; i++) {
-							count++;
-							if (q[i] == CH_CR || i == len) {
-								q[j] = count;
-								PS_FontString(doc, xd, yd, &q[j],
-													doc->fontTable[p->fontInd].fontName,
-													fontSize, fontStyle);
-								if (i < len)
-									yd += lineHt;
-								j = i;
-								count = 0;
-							}
-						}
-					}
-					else {
-						if (expandN) {
-							if (!ExpandString(strToDraw, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-								LogPrintf(LOG_WARNING, "DrawGRAPHIC: ExpandString failed.\n");
-						}
-						else PStrCopy((StringPtr)PCopy(theStrOffset), strToDraw);
-					
-						PS_FontString(doc, xd, yd, strToDraw,
-											doc->fontTable[p->fontInd].fontName,
-											fontSize, fontStyle);
-					}
-					break;
 				case GRRehearsal:
 				case GRMIDIPatch:
 					PS_FontString(doc, xd, yd, PCopy(theStrOffset),
@@ -2114,6 +2201,56 @@ PopLock(GRAPHICheap);
 }
 
 
+
+
+/* ------------------------------------------------------------- GetTempoDBox -- */
+/* Return the DDIST bounding box for the given Tempo, with origin at (0,0). If
+ _expandN_, it's stretched out. */
+
+static Boolean GetTempoDBox(Document *doc,
+							LINK pL,
+							Boolean expandN,
+							PCONTEXT pContext,
+							short fontID, short fontSize, short fontStyle,
+							DRect *dBox			/* Bounding box for Tempo (TOP_LEFT at 0,0 and no margin) */
+							)
+{
+ 	PTEMPO p; DDIST dHeight;
+	Str255 string;
+	StringPtr pStr;
+	StringOffset theStrOffset;
+	Rect bBox;
+	
+	p = GetPTEMPO(pL);
+	theStrOffset = p->strOffset;
+	
+	if (expandN) {
+		if (!ExpandString(string, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER)) {
+			LogPrintf(LOG_WARNING, "GetTempoDBox: ExpandString failed.\n");
+			return FALSE;
+		}
+	}
+	else PStrCopy((StringPtr)PCopy(theStrOffset), string);
+	pStr = string;
+	
+	p = GetPTEMPO(pL);
+	//GetNPtStringBBox(doc, pStr, fontID, fontSize, fontStyle, p->multiLine, &bBox);
+	GetNPtStringBBox(doc, pStr, fontID, fontSize, fontStyle, FALSE, &bBox);
+	//LogPrintf(LOG_DEBUG, "GetTempoDBox: fontID, Size, Style=%d, %d, %d\n", fontID, fontSize, fontStyle);
+	
+	/* 
+	 *	Pure fudgery: for mysterious reasons, if the style is not plain, what we have
+	 *	now is too short by an amount that seems to increase with the length of the
+	 *	string, so add a little. 1 point per char. is slightly too much, but the code
+	 * below doesn't seem to be enough.
+	 */
+	if (fontStyle!=0) bBox.right += 2*(*pStr)/3;
+	
+	PtRect2D(&bBox, dBox);	
+	return TRUE;
+}
+
+
 /* ------------------------------------------------------------------ DrawTEMPO -- */
 /* Draw a TEMPO object: verbal tempo string and/or metronome mark (consisting of a
 duration-unit note, perhaps dotted, and M.M. string). */
@@ -2125,15 +2262,17 @@ void DrawTEMPO(Document *doc,
 				)
 {
 	PTEMPO p;
-	PCONTEXT pContext; CONTEXT relContext;
-	short oldFont, oldSize, oldStyle, useTxSize, fontSize, xp, yp, noteWidth, staffn,
-			tempoStrlen;
+	PCONTEXT pContext;  CONTEXT relContext;
+	DRect dEnclBox;  Rect objRect;
+	short oldFont, oldSize, oldStyle, useTxSize,
+			fontSize, fontInd, fontID, fontStyle;
+	short xp, yp, staffn, noteWidth, tempoWidth, tempoStrlen;
 	FontInfo fInfo; StringOffset theStrOffset;
 	Str255 tempoStr;
 	char metroStr[256], noteChar;
 	DDIST xd, yd, extraGap, lnSpace, xdNote, xdDot, xdMM, ydNote, ydDot;
 	LINK firstObjL;
-	Boolean doDrawMM;
+	Boolean expandN, doDrawMM;
 	Byte dotChar = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 PushLock(OBJheap);
@@ -2147,46 +2286,41 @@ PushLock(TEMPOheap);
 	}
 
 	staffn = GetGraphicDrawInfo(doc, pL, firstObjL, p->staffn, &xd, &yd, &relContext);
+	expandN = p->expanded;
 		
 	pContext = &context[staffn];
 	if (!pContext->staffVisible) goto Cleanup;
 	lnSpace = LNSPACE(pContext);
 
-	/* Prepare tempo string. */
+	/* Prepare tempo string and find its width. */
 	theStrOffset = p->strOffset;
-	if (p->expanded) {
-		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
+	if (expandN) {
+		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER)) {
 			LogPrintf(LOG_WARNING, "DrawTEMPO: ExpandString failed.\n");
 			goto Cleanup;
+		}
 	}
 	else PStrCopy((StringPtr)PCopy(theStrOffset), tempoStr);
 
-	//tempoStrlen = strlen(PToCString(PCopy(tempoStr)));
-	tempoStrlen = tempoStr[0];
+	tempoStrlen = Pstrlen(tempoStr);
 //LogPrintf(LOG_DEBUG, "tempoStrlen=%d\n", tempoStrlen);
 
-	/* Prepare M.M. duration unit note and M.M. string. */
+	fontSize = GetTextSize(doc->relFSizeTM, doc->fontSizeTM, lnSpace);
+	fontInd = FontName2Index(doc, doc->fontNameTM);
+	fontID = doc->fontTable[fontInd].fontID;
+	fontStyle = doc->fontStyleTM;
+	tempoWidth = NPtStringWidth(doc, tempoStr, fontID, fontSize, fontStyle);
+	
+	/* Prepare M.M. duration unit note and M.M. string and find their positions. */
 	noteChar = TempoGlyph(pL);
 	noteChar = MapMusChar(doc->musFontInfoIndex, noteChar);
 	sprintf(metroStr," = %s", PToCString(PCopy(p->metroStrOffset)));
-
-	/*
-	 *	We save the port's current font and set it for the tempo mark here regardless
-	 *	of whether we're going to use QuickDraw because we need to get the width of
-	 * the tempo mark character string. This means, of course, we have to restore the
-	 *	port's font regardless of whether we're using QuickDraw.
-	 */
-	oldFont = GetPortTxFont();
-	oldSize = GetPortTxSize();
-	oldStyle = GetPortTxFace();
 	
-	SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lnSpace);
-
 	extraGap = 0;
 	xdNote = xd;
 	if (tempoStrlen>0) {
 		extraGap = qd2d(config.tempoMarkHGap, pContext->staffHeight, pContext->staffLines);
-		xdNote = xd+p2d(StringWidth(tempoStr))+lnSpace+extraGap;
+		xdNote = xd+pt2d(tempoWidth)+lnSpace+extraGap;
 	}
 //LogPrintf(LOG_DEBUG, "tempoStrlen=%d extraGap=%d\n", tempoStrlen, extraGap);
 	
@@ -2212,40 +2346,45 @@ PushLock(TEMPOheap);
 		case toScreen:
 		case toImageWriter:
 		case toPICT:
-
+			/* Perhaps draw the verbal tempo string; recompute the object's bounding box */			
+			GetFontInfo(&fInfo);
+			if (doDraw) DrawTextBlock(doc, xd, yd, pL, pContext, FALSE, fontID,
+										fontSize, fontStyle);
+			if (GetTempoDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox))
+				OffsetDRect(&dEnclBox, xd, yd);
+			if (outputTo==toScreen) {
+				D2ObjRect(&dEnclBox, &objRect);
+				LinkOBJRECT(pL) = objRect;
+			}	
 			xp = d2p(xd);
 			yp = d2p(yd);
-			MoveTo(pContext->paper.left+xp, pContext->paper.top+yp);
-			
-			GetFontInfo(&fInfo);
-			if (doDraw) DrawString(tempoStr);
-			SetRect(&LinkOBJRECT(pL), xp, yp-fInfo.ascent, 
-						xp+StringWidth(tempoStr), yp+fInfo.descent);
-
-			/* FIXME: Why go through all this setup if we might not draw the MM at all?  -JGG */
-			xdNote += MusCharXOffset(doc->musFontInfoIndex, noteChar, lnSpace);
-			ydNote = yd + MusCharYOffset(doc->musFontInfoIndex, noteChar, lnSpace);
-			MoveTo(pContext->paper.left+d2p(xdNote), pContext->paper.top+d2p(ydNote));
-			useTxSize = UseTextSize(pContext->fontSize, doc->magnify);
-			useTxSize = MEDIUMSIZE(useTxSize);
-			TextSize(useTxSize);
-			TextFont(doc->musicFontNum);
-			TextFace(0);											/* Plain */
-
-			if (p->subType!=NO_L_DUR)
-				if (doDrawMM) {
-					DrawChar(noteChar);
-					if (p->dotted) {
-						xdDot = xdNote+p2d(noteWidth);
-						xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lnSpace);
-						ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lnSpace);
+		
+			/* Perhaps draw the duration unit (note and possibly dot) for the metronome mark. */
+			oldFont = GetPortTxFont();
+			oldSize = GetPortTxSize();
+			oldStyle = GetPortTxFace();
+			if (doDrawMM && p->subType!=NO_L_DUR) {
+				xdNote += MusCharXOffset(doc->musFontInfoIndex, noteChar, lnSpace);
+				ydNote = yd + MusCharYOffset(doc->musFontInfoIndex, noteChar, lnSpace);
+				MoveTo(pContext->paper.left+d2p(xdNote), pContext->paper.top+d2p(ydNote));
+				useTxSize = UseTextSize(pContext->fontSize, doc->magnify);
+				useTxSize = MEDIUMSIZE(useTxSize);
+				TextSize(useTxSize);
+				TextFont(doc->musicFontNum);
+				TextFace(0);											/* Plain */
+				DrawChar(noteChar);
+				if (p->dotted) {
+					xdDot = xdNote+p2d(noteWidth);
+					xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lnSpace);
+					ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lnSpace);
 //LogPrintf(LOG_DEBUG, "xdDot, ydDot=%d. %d  pap.left=%d pap.top=%d\n", xdDot, ydDot,
 //			pContext->paper.left, pContext->paper.top);
-						MoveTo(pContext->paper.left+d2p(xdDot), pContext->paper.top+d2p(ydDot));
-						DrawChar(dotChar);
-					}
+					MoveTo(pContext->paper.left+d2p(xdDot), pContext->paper.top+d2p(ydDot));
+					DrawChar(dotChar);
 				}
+			}
 			
+			/* Perhaps draw the metronome mark proper; widen the bounding box */
 			SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lnSpace);
 			if (doDrawMM) {
 				MoveTo(pContext->paper.left+d2p(xdMM), pContext->paper.top+yp);
@@ -2253,6 +2392,9 @@ PushLock(TEMPOheap);
 			}
 			LinkOBJRECT(pL).right += noteWidth+d2p(extraGap)+CStringWidth(metroStr);
 			
+			TextFont(oldFont);
+			TextSize(oldSize);
+			TextFace(oldStyle);
 			break;
 		case toPostScript:
 			/* Draw the verbal tempo string and perhaps metronome mark */
@@ -2274,10 +2416,6 @@ PushLock(TEMPOheap);
 
 			break;
 	}
-
-	TextFont(oldFont);
-	TextSize(oldSize);
-	TextFace(oldStyle);
 
 Cleanup:
 

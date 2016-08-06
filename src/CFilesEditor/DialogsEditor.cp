@@ -2099,7 +2099,7 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 	dialogOver = FALSE;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
-		LogPrintf(LOG_DEBUG, "TempoDialog: ditem=%d OK=%d\n", ditem, OK);
+		//LogPrintf(LOG_DEBUG, "TempoDialog: ditem=%d OK=%d\n", ditem, OK);
 		switch (ditem) {
 			case OK:
 				dialogOver = TRUE;
