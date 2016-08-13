@@ -230,13 +230,13 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			strcpy(strBuf, NameNodeType(pL));
 			if (aNote->rest)
 			{
-				strcat(strBuf, " Rest");
+				strcat(strBuf, ": Rest");
 				PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
 				PutDlgWord(dlog, SMALLNR, aNote->small, FALSE);		/* whether small note/rest */
 			}
 			else
 			{
-				strcat(strBuf, " Note");
+				strcat(strBuf, ": Note");
 				PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
 				PutDlgWord(dlog, ACCIDENT, aNote->accident, FALSE);
 				PutDlgWord(dlog, XMOVE_ACC, aNote->xmoveAcc, FALSE);
@@ -588,21 +588,21 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	}
 
 	SetPort(oldPort);
-	if (graphicDirty)	{										/* Was anything graphic changed? */
+	if (graphicDirty)	{								/* Was anything graphic changed? */
 		InvalMeasure(pL, staff);
 	}
 	if (graphicDirty || nodeDirty)						/* Was anything changed? */
 	{
-		doc->changed = TRUE;									/* Yes. */
-		LinkTWEAKED(pL) = TRUE;								/* Flag to show node was edited */
-		LinkVALID(pL) = FALSE;								/* Force recalc. objrect */
+		doc->changed = TRUE;							/* Yes. */
+		LinkTWEAKED(pL) = TRUE;							/* Flag to show node was edited */
+		LinkVALID(pL) = FALSE;							/* Force recalc. objrect */
 	}
 	
-	lastEditField = GetDialogKeyboardFocusItem(dlog); /* Save itemNum of last edit field */
+	lastEditField = GetDialogKeyboardFocusItem(dlog);	/* Save itemNum of last edit field */
 	lastObjType = ObjLType(pL);
 
 	DisposeModalFilterUPP(filterUPP);
-	DisposeDialog(dlog);									/* Free heap space */
+	DisposeDialog(dlog);								/* Free heap space */
 	PopLock(NOTEheap);
 	PopLock(GRNOTEheap);
 	return; 
@@ -691,13 +691,15 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
 
-	if (GraphicTYPE(pL))
-		strcpy(strBuf, NameGraphicType(pL, TRUE));
-	else
-		strcpy(strBuf, NameNodeType(pL));
-	if (SlurTYPE(pL) && SlurTIE(pL))
-		strcat(strBuf, " Tie");
+	strcpy(strBuf, NameNodeType(pL));
+	if (GraphicTYPE(pL)) {
+		strcat(strBuf, ": ");
+		strcat(strBuf, NameGraphicType(pL, TRUE));
+	}
+	else if (SlurTYPE(pL) && SlurTIE(pL))
+		strcat(strBuf, ": Tie");
 	PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
+	
 	PutDlgWord(dlog, OBJ_HORIZ, DD2I(LinkXD(pL)), FALSE);
 	GetDialogItem(dlog, TWEAKED, &aShort, &twHdl, &tRect);
 	SetDialogItemCText(twHdl, (char *)(LinkTWEAKED(pL)? "T" : " "));
@@ -978,7 +980,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	
 		if (dialogOver==Cancel) {
 			DisposeModalFilterUPP(filterUPP);
-			DisposeDialog(dlog);									/* Free heap space */
+			DisposeDialog(dlog);								/* Free heap space */
 			SetPort(oldPort);
 			return;
 		}
@@ -1408,10 +1410,12 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	SetPort(GetDialogWindowPort(dlog));
 
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
-	if (GraphicTYPE(pL))
-		strcpy(strBuf, NameGraphicType(pL, TRUE));
-	else
-		strcpy(strBuf, NameNodeType(pL));
+	strcpy(strBuf, NameNodeType(pL));
+	if (GraphicTYPE(pL)) {
+		strcat(strBuf, ": ");
+		strcat(strBuf, NameGraphicType(pL, TRUE));
+	}
+
 	PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
 	PutDlgWord(dlog, LEFT_HORIZ, DD2I(LinkXD(pL)), FALSE);
 	

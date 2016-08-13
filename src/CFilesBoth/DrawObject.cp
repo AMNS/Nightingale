@@ -1874,7 +1874,7 @@ static Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEX
 				short i, j, len, count;
 				Byte *q = str;
 				
-				len = q[0];
+				len = Pstrlen(q);
 				j = count = 0;
 				for (i = 1; i <= len; i++) {
 					count++;
@@ -1924,7 +1924,7 @@ static Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEX
 				short i, j, len, count;
 				Byte *q = str;
 				
-				len = q[0];
+				len = Pstrlen(q);
 				j = count = 0;
 				for (i = 1; i <= len; i++) {
 					count++;

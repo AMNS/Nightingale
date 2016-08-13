@@ -818,7 +818,7 @@ Boolean InitDocFields(Document *doc)
 	doc->masterChanged = FALSE;
 	doc->showFormat = doc->enterFormat = FALSE;
 	doc->locFmtChanged = FALSE;
-	doc->hasCaret = FALSE;								/* Tell DoUpdate to initialize caret */
+	doc->hasCaret = FALSE;							/* Tell DoUpdate to initialize caret */
 	doc->autoRespace = TRUE;
 	doc->pianoroll = FALSE;
 	doc->showSyncs = FALSE;
@@ -836,11 +836,11 @@ Boolean InitDocFields(Document *doc)
 	doc->selStaff = 1;
 	doc->deflamTime = 50;
 	
-	doc->srastral = config.defaultRastral;				/* Default staff rastral size */
+	doc->srastral = config.defaultRastral;			/* Default staff rastral size */
 	
-	doc->altsrastral = 2;								/* Default alternate staff rastral size */
+	doc->altsrastral = 2;							/* Default alternate staff rastral size */
 	
-	doc->numberMeas = -1;								/* Show measure nos. on every system */
+	doc->numberMeas = -1;							/* Show measure nos. on every system */
 	doc->otherMNStaff = 0;
 	doc->firstMNNumber = 1;
 	doc->aboveMN = TRUE;
@@ -885,7 +885,7 @@ Boolean InitDocFields(Document *doc)
 	else {
 		Str255 fontName;
 		GetFontName(config.musicFontID, fontName);
-		if (fontName[0]==0) {		/* no such font in system; use Sonata */
+		if (Pstrlen(fontName)==0) {					/* no such font in system; use Sonata */
 			Pstrcpy(doc->musFontName, "\pSonata");
 		}
 		else

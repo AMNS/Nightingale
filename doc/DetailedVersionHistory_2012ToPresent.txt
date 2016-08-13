@@ -772,3 +772,24 @@ other changes to prepare for multiline tempo marks. Affects DrawObject.
 Minor cleanup. Affects DrawObject, DrawUtils, FileInput, InfoDialog, MusicFont, PS_Stdio,
 Search, Utility.
 
+===============================================================================
+
+8 - 12 August
+
+Changed version number from 5.7b3 to 5.7b4. Affects Info.plist.
+
+Add a note about starting new lines to the Tempo/Metronome dialog. Affects .rsrc.
+
+Change expressions referring to "blah[0]" to get the length of a Pascal string to the
+far more understandable "Pstrlen(blah)". Affects DialogsEditor, Documents, Dragging,
+Undo.
+
+Change some instances of "unsigned char *blah[256]" for Pascal strings to "Str255 blah".
+Affects DialogsEditor, Dragging.
+
+Clarify symbol type labels in Get Info dialogs, e.g., say "GRAPHIC: TEXT" instead of
+just "TEXT". Affects InfoDialog.
+
+Fix bug: feedback for dragging an expanded text Graphic isn't expanded. Affects
+Dragging.
+

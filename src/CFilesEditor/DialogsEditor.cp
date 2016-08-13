@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	Dialogs.c
+*	FILE:	DialogsEditor.c
 *	PROJ:	Nightingale
-*	DESC:	Dialog-handling routines for miscellaneous dialogs
+*	DESC:	Dialog-handling routines for miscellaneous score-editing dialogs
 ***************************************************************************/
 
 /*
@@ -1111,7 +1111,7 @@ static short			popUpHilited=TRUE, show2dots=FALSE;
 /* ----------------------------------- Declarations & Help Funcs. for TupletDialog -- */
 
 static enum	{
-	TUPLE_NUM=4,												/* Item numbers */
+	TUPLE_NUM=4,										/* Item numbers */
 	TUPLE_PTEXT,
 	ED_TUPLE_DENOM,
 	BOTH_VIS,
@@ -1217,8 +1217,8 @@ static pascal Boolean TupleFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 					ans = DurPopupKey(curPop, popKeys0dot, ch);
 					*itemHit = ans? TPOPUP_ITEM : 0;
 					HiliteGPopUp(curPop, TRUE);
-					return TRUE;							/* so no chars get through to TDUMMY_ITEM edit field */
-				}												/* NB: however, DlgCmdKey will let you paste into TDUMMY_ITEM! */
+					return TRUE;						/* so no chars get through to TDUMMY_ITEM edit field */
+				}										/* NB: however, DlgCmdKey will let you paste into TDUMMY_ITEM! */
 			}
 			break;
 	}
@@ -2042,7 +2042,7 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 	Handle hndl; Rect box;
 	GrafPtr oldPort; POPKEY *pk;
 	char fmtStr[256];
-	unsigned char str[256];
+	Str255 str;
 	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(TempoFilter);
@@ -2119,9 +2119,8 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 				}
 				
 				GetDlgString(dlog, VerbalDI, str);
-				LogPrintf(LOG_DEBUG, "OK: str[0]=%d\n", str[9]);
-				if (str[0]==0 && !GetDlgChkRadio(dlog, UseMMDI)) {
-					GetIndCString(strBuf, DIALOGERRS_STRS,23);			/* "No tempo string and no M.M. is illegal" */ 
+				if (Pstrlen(str)==0 && !GetDlgChkRadio(dlog, UseMMDI)) {
+					GetIndCString(strBuf, DIALOGERRS_STRS, 23);			/* "No tempo string and no M.M. is illegal" */ 
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
 					SelectDialogItemText(dlog, MetroDI, 0, ENDTEXT);	/* Select field so user knows which one is bad. */
@@ -2712,7 +2711,7 @@ short StaffLinesDialog(
 
 	staffLinesPopUp.currentChoice = StaffLines2MenuItemNum(*staffLines);
 	if (!InitPopUp(dlog, &staffLinesPopUp, STAFFLINES_DI, 0, STAFFLINES_MENU,
-													staffLinesPopUp.currentChoice)) {
+												staffLinesPopUp.currentChoice)) {
 		AlwaysErrMsg("StaffLinesDialog: failure initializing popup menu");
 		goto broken;
 	}
@@ -2813,27 +2812,27 @@ Boolean MarginsDialog(Document *doc,
 		papHeight = doc->origPaperRect.bottom-doc->origPaperRect.top;
 		inchPapHeight = (FASTFLOAT)papHeight/POINTSPERIN;
 		inchPapHeight = RoundDouble(inchPapHeight, .01);
-		PutDlgDouble(dlog,HEIGHT_DI,inchPapHeight, FALSE);
+		PutDlgDouble(dlog, HEIGHT_DI, inchPapHeight, FALSE);
 		papWidth = doc->origPaperRect.right-doc->origPaperRect.left;
 		inchPapWidth = (FASTFLOAT)papWidth/POINTSPERIN;
 		inchPapWidth = RoundDouble(inchPapWidth, .01);
-		PutDlgDouble(dlog,WIDTH_DI,inchPapWidth, FALSE);
+		PutDlgDouble(dlog, WIDTH_DI, inchPapWidth, FALSE);
 
 		inchTMarg = (FASTFLOAT)*tMarg/POINTSPERIN;
 		inchTMarg = RoundDouble(inchTMarg, .01);
-		PutDlgDouble(dlog,TMARG_DI,inchTMarg,FALSE);
+		PutDlgDouble(dlog, TMARG_DI, inchTMarg, FALSE);
 		
 		inchRMarg = (FASTFLOAT)*rMarg/POINTSPERIN;
 		inchRMarg = RoundDouble(inchRMarg, .01);
-		PutDlgDouble(dlog,RMARG_DI,inchRMarg,FALSE);
+		PutDlgDouble(dlog, RMARG_DI, inchRMarg, FALSE);
 		
 		inchBMarg = (FASTFLOAT)*bMarg/POINTSPERIN;
 		inchBMarg = RoundDouble(inchBMarg, .01);
-		PutDlgDouble(dlog,BMARG_DI,inchBMarg,FALSE);
+		PutDlgDouble(dlog, BMARG_DI, inchBMarg, FALSE);
 
 		inchLMarg = (FASTFLOAT)*lMarg/POINTSPERIN;
 		inchLMarg = RoundDouble(inchLMarg, .01);
-		PutDlgDouble(dlog,LMARG_DI,inchLMarg,TRUE);
+		PutDlgDouble(dlog, LMARG_DI, inchLMarg, TRUE);
 		
 		CenterWindow(GetDialogWindow(dlog), 70);
 		ShowWindow(GetDialogWindow(dlog));
@@ -3070,7 +3069,7 @@ Boolean SetKSDialogGuts(short staffn, short *sharpParam, short *flatParam,
 		GetDialogItem(dlog, iKSStaff, &aShort, &tHdl, &ksStaffRect);
 		
 		PutDlgWord(dlog, STAFFN_DI, staffn, FALSE);
-		PutDlgChkRadio(dlog,ALLOW_CHANGES_DI,*pCanChange);
+		PutDlgChkRadio(dlog, ALLOW_CHANGES_DI, *pCanChange);
 	
 		PlaceWindow(GetDialogWindow(dlog), (WindowPtr)NULL, 0, 80);
 		ShowWindow(GetDialogWindow(dlog));

@@ -30,7 +30,7 @@ static Boolean CheckInsertUndo(Document *);
 static Boolean CheckEditObj(Document *, LINK);
 static Boolean CheckInfoUndo(Document *, LINK);
 static Boolean CheckSetUndo(Document *doc);
-static long ModNRListSIze(LINK aModNRL);
+static long ModNRListSize(LINK aModNRL);
 static long GetRangeMemAlloc(LINK startL, LINK endL);
 static Boolean UndoChkMemory(Document *doc, LINK sysL, LINK lastL);
 static void UndoDeselRange(Document *, LINK, LINK);
@@ -215,7 +215,7 @@ static Boolean CheckSetUndo(Document *doc)
 }
 
 
-static long ModNRListSIze(LINK aModNRL)
+static long ModNRListSize(LINK aModNRL)
 {
 	long listSize=0L;
 	
@@ -243,33 +243,27 @@ static long GetRangeMemAlloc(LINK startL, LINK endL)
 			case SYNCtype:
 				aNoteL = FirstSubLINK(pL);
 				if (NoteFIRSTMOD(aNoteL)) {
-					memAlloc += ModNRListSIze(NoteFIRSTMOD(aNoteL));
+					memAlloc += ModNRListSize(NoteFIRSTMOD(aNoteL));
 				}
 				break;
 			case GRSYNCtype:
 				aGRNoteL = FirstSubLINK(pL);
 				if (GRNoteFIRSTMOD(aGRNoteL)) {
-					memAlloc += ModNRListSIze(GRNoteFIRSTMOD(aGRNoteL));
+					memAlloc += ModNRListSize(GRNoteFIRSTMOD(aGRNoteL));
 				}
 				break;
 			case GRAPHICtype:
-
-				/* FIXME: This is ridiculous; isn't there a better way to get the
-					string size? */
-
 				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset), string);
-				memAlloc += string[0];
-							
+				memAlloc += Pstrlen(string);
 				break;
 			case TEMPOtype:
 				pTempo = GetPTEMPO(pL);
 				PStrCopy((StringPtr)PCopy(pTempo->strOffset), string);
-				memAlloc += string[0];
+				memAlloc += Pstrlen(string);
 							
 				pTempo = GetPTEMPO(pL);
 				PStrCopy((StringPtr)PCopy(pTempo->metroStrOffset), string);
-				memAlloc += string[0];
-
+				memAlloc += Pstrlen(string);
 				break;
 			default:
 				break;
@@ -286,10 +280,10 @@ static Boolean UndoChkMemory(Document *doc, LINK firstL, LINK lastL)
 {
 	long memNeeded=0L,memFreed=0L,totalFree;
 	
-	memNeeded = GetRangeMemAlloc(firstL,lastL);
+	memNeeded = GetRangeMemAlloc(firstL, lastL);
 	
 	if (doc->undo.hasUndo)
-		memFreed = GetRangeMemAlloc(RightLINK(doc->undo.headL),doc->undo.tailL);
+		memFreed = GetRangeMemAlloc(RightLINK(doc->undo.headL), doc->undo.tailL);
 	
 	memNeeded -= memFreed;
 	

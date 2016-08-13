@@ -1106,12 +1106,12 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 				else DrawChar(pGraphic->info);
 			}
 			else {
-				STRINGOFFSET strOfset = GraphicSTRING(FirstSubLINK(pL));
+				STRINGOFFSET strOffset = GraphicSTRING(FirstSubLINK(pL));
 
 				if (pGraphic->multiLine) {
 					short i, j, len, count, lineHt;
 					FontInfo fInfo;
-					Byte *q = PCopy(strOfset);
+					Byte *q = PCopy(strOffset);
 
 					GetNFontInfo(fontID, UseTextSize(fontSize, doc->magnify), fontStyle, &fInfo);
 					lineHt = p2d(fInfo.ascent + fInfo.descent + fInfo.leading);
@@ -1132,8 +1132,20 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 						}
 					}
 				}
-				else
-					DrawString(PCopy(strOfset));
+				else {
+					Boolean expandN = FALSE;
+					Str255 textStr;
+					pGraphic = GetPGRAPHIC(pL);
+					if (pGraphic->graphicType==GRString) expandN = (pGraphic->info2!=0);
+					//if (pGraphic->graphicType==GRString)
+					//	LogPrintf(LOG_DEBUG, "SDDrawGraphic: pGraphic->info2=%d\n", pGraphic->info2);
+					if (expandN) {
+						if (!ExpandString(textStr, (StringPtr)PCopy(strOffset), EXPAND_WIDER))
+							LogPrintf(LOG_WARNING, "SDDrawGraphic: ExpandString failed.\n");
+					}
+					else PStrCopy((StringPtr)PCopy(strOffset), textStr);
+					DrawString(textStr);
+				}
 			}
 				
 			TextFont(oldFont);
@@ -1150,7 +1162,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	short oldFont, oldSize, oldStyle, theRelSize, useTxSize, noteWidth, beforeFirst,
 				tempoStrlen;
 	DDIST xd, yd, extraGap, lineSpace, dTop, firstxd, xdNote, xdDot, ydDot;
-	unsigned char tempoStr[256];
+	Str255 tempoStr;
 	char metroStr[256], noteChar;
 	LINK contextL;
 	CONTEXT context; Rect mRect; FontInfo fInfo;
@@ -1192,7 +1204,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	theStrOffset = p->strOffset;
 	if (p->expanded) {
 		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-			LogPrintf(LOG_WARNING, "DrawTEMPO: ExpandString failed.\n");
+			LogPrintf(LOG_WARNING, "SDDrawTempo: ExpandString failed.\n");
 	}
 	else PStrCopy((StringPtr)PCopy(theStrOffset), tempoStr);
 
@@ -1202,7 +1214,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 
 	if (!TempoNOMM(pL) && (!p->hideMM || doc->showInvis)) {
 		//DrawChar(' ');
-		tempoStrlen = tempoStr[0];
+		tempoStrlen = Pstrlen(tempoStr);
 		if (tempoStrlen>0) {
 			extraGap = qd2d(config.tempoMarkHGap, context.staffHeight, context.staffLines);
 //LogPrintf(LOG_DEBUG, "DRAG extraGap=%d d2p(extraGap)=%d\n", extraGap, d2p(extraGap));
@@ -1254,22 +1266,22 @@ static void SDDrawSpace(Document */*doc*/, LINK /*pL*/, LINK /*measureL*/)
 
 static void SDDrawOttava(Document *doc, LINK pL, LINK measL)
 {
-	POTTAVA	p;
+	POTTAVA		p;
 	short		staff;
 	PCONTEXT	pContext;
-	CONTEXT  context;
-	DDIST		dTop, dLeft, firstxd, firstyd, lastxd, lastyd,
-				lastNoteWidth, yCutoffLen, dhalfLn, lnSpace; 
+	CONTEXT		context;
+	DDIST		dTop, dLeft, firstxd, firstyd, lastxd, lastyd, lastNoteWidth,
+				yCutoffLen, dhalfLn, lnSpace; 
 	DDIST		octxdFirst, octxdLast, octydFirst, octydLast;
-	DPoint	firstPt, lastPt;
-	PANOTE	aNote;
+	DPoint		firstPt, lastPt;
+	PANOTE		aNote;
 	LINK		aNoteL, firstSyncL, lastSyncL, firstMeas, lastMeas;
 	short		octWidth, firstx, firsty, lastx, yCutoff;
 	Rect		octRect, mRect;
 	unsigned char ottavaStr[20];
-	Boolean  bassa;
+	Boolean		bassa;
 	long		number;
-	short 	useTxSize;		/* Insure font is correct size to draw numeral. */
+	short		useTxSize;		/* Insure font is correct size to draw numeral. */
 				
 PushLock(OBJheap);
 	p = GetPOTTAVA(pL);
@@ -1370,7 +1382,7 @@ PopLock(OBJheap);
 void SDDrawBeam(
 		DDIST xl, DDIST yl, DDIST xr, DDIST yr,	/* Absolute left & right end pts. */
 		DDIST beamThick,
-		short upOrDown,									/* -1 for down, 1 for up */
+		short upOrDown,							/* -1 for down, 1 for up */
 		PCONTEXT /*pContext*/
 		)
 {
