@@ -1447,7 +1447,7 @@ to
    iVoice 2 in part 2 Role=. relVoice=1
    iVoice 3 in part 3 Role=. relVoice=1
 
-This looks correct, but it's not: iVoice 2 still belongs to part 1! ...I see.
+This looks correct, but it's not: iVoice 2 still belongs to part 1! ...Ah, I see.
 
 If a multistaff part has default voice(s) in use -- with notes, rests, or grace notes --
 on staves other than their "native" staves, splitting requires creating a new voice for
@@ -1475,7 +1475,7 @@ to 2!  To be continued.
 
 -------------------------------------------------------------------------------
 
-9-31 July
+9 July - 15 August
 
 For Issue #98, it'd be great if the Tempo/Metronome Mark dialog could handle return
 chars. the way the text-entry (for Graphics) dialog does.  Cf. TextDialog.cp/MyFilter
@@ -1487,4 +1487,16 @@ One (of many!) problems along the way: To draw on screen, DrawStringBlock() need
 font ID, but to draw PostScript, it needs the font name. How to get one from the other?
 I don't think we have a routine to do that; how can it be done? Ah, doc->fontTable lets
 you convert from one to the other, and I think _every_ font used in a score has an entry
-in it!
+in it! So implement FontID2Name() => OK.
+
+OK, for Tempo objects, DrawTextBlock() now divides the tempo string at occurrences of the
+"start new line" code and draws each separately -- but we also need to subdivide the string
+to compute the Tempo's bounding box, and to know how far to the right to position the
+M.M.! It's probably best to have DrawTEMPO() immediately convert the tempo string into
+an array of single-line strings.  NB we're not doing anything like that w/ Graphics!
+But they don't need such attention because (1) their embedded CRs automatically move to
+the next line, and (2) they're simpler, i.e., they have nothing like the Tempo's M.M.
+component.
+
+No, that's way too messy. Instead, have TempoDialog() convert the "new line" char. to CH_CR
+when it's OK'd, and vice-versa when it's opened w/ an existing tempo string => it works!

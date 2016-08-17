@@ -793,3 +793,12 @@ just "TEXT". Affects InfoDialog.
 Fix bug: feedback for dragging an expanded text Graphic isn't expanded. Affects
 Dragging.
 
+-------------------------------------------------------------------------------
+
+13 - 17 August
+
+Handle multiline tempo marks. Affects defs.h, DrawUtils,h; DialogsEditor, Dragging,
+DrawObject, Utility.
+
+Minor cleanup. Affects DialogsEditor, DrawingEdit, DrawObject, DrawUtils, TextDialog,
+Utility.

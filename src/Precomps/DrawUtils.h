@@ -49,7 +49,7 @@ void DrawPSMSubType(short, short, short, short);
 void DrawNonArp(short, short, DDIST, DDIST);
 void DrawArp(Document *, short, short, DDIST, DDIST, Byte, PCONTEXT);
 char TempoGlyph(LINK);
-short GetGraphicDrawInfo(Document *, LINK, LINK, short, DDIST *, DDIST *, PCONTEXT);
+short GetGraphicOrTempoDrawInfo(Document *, LINK, LINK, short, DDIST *, DDIST *, PCONTEXT);
 short GetGRDrawLastDrawInfo(Document *, LINK, LINK, short, DDIST *, DDIST *);
 void GetGraphicFontInfo(Document *doc, LINK pL, PCONTEXT pContext, short *pFontID,
 									short *pFontSize, short *pFontStyle);

@@ -106,8 +106,8 @@ void DoDrawingEdit(Document *doc, LINK pL)
 
 		oldDrawObj = thisDrawObj;
 	}
-	DoDrawFeedback(doc, &thisDrawObj);							/* draw black object */
-	DrawBothGrips(doc);												/* erase grips */
+	DoDrawFeedback(doc, &thisDrawObj);						/* draw black object */
+	DrawBothGrips(doc);										/* erase grips */
 
 	/* Update object in data structure and inval rect if it's changed. */
 	if (BlockCompare(&thisDrawObj, &origDrawObj, sizeof(DRAWOBJ))) {
@@ -131,10 +131,10 @@ static void EditDrawObj(Document *doc, LINK pL,
 {
 	Point		oldPt, newPt;
 	long		aLong;
-	Rect		boundsRect;				/* in paper coords */
+	Rect		boundsRect;						/* in paper coords */
 	short		dh, dv;
 			
-	if (grip==DRAGOBJ)										/* Erase the boxes before dragging */
+	if (grip==DRAGOBJ)							/* Erase the boxes before dragging */
 		DrawBothGrips(doc);
 
 	GetPaperMouse(&oldPt, &doc->currentPaper);
@@ -156,7 +156,7 @@ static void EditDrawObj(Document *doc, LINK pL,
 			dv = newPt.v - oldPt.v;
 		
 			PenMode(patXor);
-			DoDrawFeedback(doc, pd);							/* erase old object */
+			DoDrawFeedback(doc, pd);						/* erase old object */
 			
 			switch (grip) {
 				case DRAGOBJ:
@@ -166,7 +166,7 @@ static void EditDrawObj(Document *doc, LINK pL,
 					pd->rightPt.h += dh;	pd->rightPt.v += dv;
 					break;
 				case LGRIP:
-					DrawGrip(doc, LGRIP);						/* erase grip */
+					DrawGrip(doc, LGRIP);					/* erase grip */
 					lGrip.h += dh;
 					pd->leftPt.h += dh;
 					lGrip.v += dv;
@@ -184,7 +184,7 @@ static void EditDrawObj(Document *doc, LINK pL,
 			
 			AutoScroll();						
 
-			/* ??NB: There are some problems with autoscroll:
+			/* FIXME: There are some problems with autoscroll:
 			 *	1. It draws the original hairpin in black when it comes back into view after
 			 *		having been scrolled scrolled out of view. Can solve this by clearing hairpin's
 			 *		vis flag (in InitFeedback) and restoring it later (if it was vis to begin
@@ -256,9 +256,9 @@ static Boolean InitFeedback(Document */*doc*/,
 	/*
 	 * Position the object with vertical centering. This should be done exactly as the
 	 * drawing routine, DrawGRDraw, does it, with the same rounding, or feedback won't
-	 * always be correct. Unfortunately, the following does NOT do so: cf. DrawGRAPHIC
-	 * and the routines it calls, GetGraphicDrawInfo, GetGRDrawLastDrawInfo, and
-	 * DrawGRDraw.
+	 * always be correct. FIXME: Unfortunately, the following does NOT do so: cf.
+	 * DrawGRAPHIC and the routines it calls,GetGraphicOrTempoDrawInfo,
+	 * GetGRDrawLastDrawInfo, and DrawGRDraw.
 	 */
 	pGraphic = GetPGRAPHIC(pL);
 	SetPt(&pd->leftPt, d2p(firstXD+LinkXD(pL)+sysLeft), d2p(staffTop+LinkYD(pL)));

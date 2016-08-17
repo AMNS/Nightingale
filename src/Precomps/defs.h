@@ -197,6 +197,7 @@ enum {										/*  Dialog buttons ??lousy old names, should change  */
 #define CH_ENTER 0x03					/* ASCII character code for enter key */
 #define CH_BS 0x08						/* ASCII character code for backspace (delete) */
 #define CH_CR '\r'						/* ASCII (=C's) character code for carriage return  */
+#define CH_NLDELIM '#'					/* ASCII code for "start a new line" where '\r' can't be used */
 #define CH_ESC 0x1B						/* ASCII character code for ESC (escape) */
 
 #define CLEARKEY 27						/* Macintosh character code for clear key */

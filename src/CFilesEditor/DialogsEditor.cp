@@ -1916,6 +1916,7 @@ broken:
 
 static pascal Boolean TempoFilter(DialogPtr, EventRecord *, short *);
 static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr);
+static Boolean AllIsWell(void);
 
 static enum
 {
@@ -2030,6 +2031,67 @@ static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char
 }
 
 
+static Boolean AllIsWell(void)
+{
+	short expandedSetting, maxLenExpanded, type, i;
+	Handle hndl; Rect box;
+	DialogPtr dlog;
+	long beatsPM; 
+	Str255 str, metStr;
+	char fmtStr[256];
+	Boolean strOkay = TRUE;
+
+	GetDialogItem(dlog,VerbalDI, &type, &hndl, &box);
+	GetDialogItemText(hndl, str);
+	GetDialogItem(dlog, ExpandDI, &type, &hndl, &box);
+	expandedSetting = GetControlValue((ControlHandle)hndl);
+	if (expandedSetting!=0) {
+		maxLenExpanded = (EXPAND_WIDER? 255/3 : 255/2);
+		if (Pstrlen(str)>maxLenExpanded) strOkay = FALSE;
+		else {
+			for (i = 1; i <= Pstrlen(str); i++)
+			if (str[i]==CH_NLDELIM) {
+				strOkay = FALSE;
+				break;
+			}
+		}
+	}
+	if (!strOkay) {
+		GetIndCString(fmtStr, TEXTERRS_STRS, 2);		/* "Multiline strings and strings of..." */
+		sprintf(strBuf, fmtStr, maxLenExpanded);
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		return FALSE;
+	}
+
+	GetDlgString(dlog, MetroDI, metStr);
+	beatsPM = FindIntInString(metStr);
+	if (beatsPM<MIN_BPM || beatsPM>MAX_BPM) {
+		if (beatsPM<0L)
+			GetIndCString(strBuf, DIALOGERRS_STRS, 17); 	/* "M.M. field must contain a number" */ 
+		else {
+			GetIndCString(fmtStr, DIALOGERRS_STRS, 18);		/* "%ld beats per minute is illegal" */
+			sprintf(strBuf, fmtStr, beatsPM, MIN_BPM, MAX_BPM);
+		}
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		SelectDialogItemText(dlog, MetroDI, 0, ENDTEXT);	/* Select field so user knows which one is bad. */
+		return FALSE;
+	}
+	
+	GetDlgString(dlog, VerbalDI, str);
+	if (Pstrlen(str)==0 && !GetDlgChkRadio(dlog, UseMMDI)) {
+		GetIndCString(strBuf, DIALOGERRS_STRS, 23);			/* "No tempo string and no M.M. is illegal" */ 
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		SelectDialogItemText(dlog, MetroDI, 0, ENDTEXT);	/* Select field so user knows which one is bad. */
+		return FALSE;
+	}
+	
+	return TRUE;
+}
+
+
 /* Dialog to get Tempo and metronome mark parameters from user. */
 
 Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted, Boolean *expanded,
@@ -2037,12 +2099,10 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 {	
 	DialogPtr dlog;
 	short ditem=Cancel, type, oldResFile;
-	short choice, newLDur, oldLDur;
-	long beatsPM; Boolean dialogOver, oldDotted;
+	short choice, newLDur, oldLDur, k;
+	Boolean dialogOver, oldDotted;
 	Handle hndl; Rect box;
 	GrafPtr oldPort; POPKEY *pk;
-	char fmtStr[256];
-	Str255 str;
 	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(TempoFilter);
@@ -2080,7 +2140,10 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 	oldLDur = *dur;
 	oldDotted = *dotted;
 
-	//LogPrintf(LOG_DEBUG, "TempoDialog: *expanded=%d\n", *expanded);
+	/* Replace CH_CR with the UI "start new line" code. */
+	for (k=1; k<=Pstrlen(tempoStr); k++)
+		if (tempoStr[k]==CH_CR) tempoStr[k] = CH_NLDELIM;
+
 	PutDlgChkRadio(dlog, UseMMDI, *useMM);
 	PutDlgChkRadio(dlog, ShowMMDI, *showMM);
 	PutDlgChkRadio(dlog, ExpandDI, *expanded);
@@ -2099,33 +2162,9 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 	dialogOver = FALSE;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
-		//LogPrintf(LOG_DEBUG, "TempoDialog: ditem=%d OK=%d\n", ditem, OK);
 		switch (ditem) {
 			case OK:
-				dialogOver = TRUE;
-				GetDlgString(dlog, MetroDI, metroStr);
-				beatsPM = FindIntInString(metroStr);
-				if (beatsPM<MIN_BPM || beatsPM>MAX_BPM) {
-					if (beatsPM<0L)
-						GetIndCString(strBuf, DIALOGERRS_STRS, 17); 	/* "M.M. field must contain a number" */ 
-					else {
-						GetIndCString(fmtStr, DIALOGERRS_STRS, 18);		/* "%ld beats per minute is illegal" */
-						sprintf(strBuf, fmtStr, beatsPM, MIN_BPM, MAX_BPM);
-					}
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-					SelectDialogItemText(dlog, MetroDI, 0, ENDTEXT);	/* Select field so user knows which one is bad. */
-					dialogOver = FALSE;
-				}
-				
-				GetDlgString(dlog, VerbalDI, str);
-				if (Pstrlen(str)==0 && !GetDlgChkRadio(dlog, UseMMDI)) {
-					GetIndCString(strBuf, DIALOGERRS_STRS, 23);			/* "No tempo string and no M.M. is illegal" */ 
-					CParamText(strBuf, "", "", "");
-					StopInform(GENERIC_ALRT);
-					SelectDialogItemText(dlog, MetroDI, 0, ENDTEXT);	/* Select field so user knows which one is bad. */
-					dialogOver = FALSE;
-				}
+				if (AllIsWell()) dialogOver = TRUE;
 				break;
 			case Cancel:
 				dialogOver = TRUE;
@@ -2166,7 +2205,16 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 		*useMM = GetDlgChkRadio(dlog, UseMMDI);
 		*showMM = GetDlgChkRadio(dlog, ShowMMDI);
 		*expanded = GetDlgChkRadio(dlog, ExpandDI);
+		
+		/* In the tempo string, replace the UI "start new line" code with CH_CR. */
 		GetDlgString(dlog, VerbalDI, tempoStr);
+char strC[256];	Pstrcpy((unsigned char *)strC, tempoStr); PToCString((unsigned char *)strC);
+LogPrintf(LOG_DEBUG, "TempoDialog OK1: len=%d tempoStr='%s'\n", Pstrlen(tempoStr), strC);
+		for (k=1; k<=Pstrlen(tempoStr); k++)
+			if (tempoStr[k]==CH_NLDELIM) tempoStr[k] = CH_CR;
+Pstrcpy((unsigned char *)strC, tempoStr); PToCString((unsigned char *)strC);
+LogPrintf(LOG_DEBUG, "TempoDialog OK2: len=%d tempoStr='%s'\n", Pstrlen(tempoStr), strC);
+
 		GetDlgString(dlog, MetroDI, metroStr);
 	}
 		
@@ -2373,7 +2421,7 @@ static Boolean RHandleKeyDown(EventRecord *theEvent)
 {
 	char	theChar;
 
-	theChar =theEvent->message & charCodeMask;
+	theChar = theEvent->message & charCodeMask;
 	if (theChar==UPARROWKEY) {
 		RSmallerStaff();
 		return TRUE;
@@ -2597,6 +2645,9 @@ static enum {		/* popup menu item numbers */
 } E_StaffLinesItems;
 
 static UserPopUp staffLinesPopUp;
+static pascal Boolean SLFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
+static short StaffLines2MenuItemNum(short numLines);
+static short MenuItemNum2StaffLines(short itemNum);
 
 static pascal Boolean SLFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
@@ -2643,7 +2694,6 @@ static pascal Boolean SLFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	return ans;
 }
 
-static short StaffLines2MenuItemNum(short numLines);
 static short StaffLines2MenuItemNum(short numLines)
 {
 	switch (numLines) {
@@ -2660,7 +2710,6 @@ static short StaffLines2MenuItemNum(short numLines)
 	}
 }
 
-static short MenuItemNum2StaffLines(short itemNum);
 static short MenuItemNum2StaffLines(short itemNum)
 {
 	switch (itemNum) {

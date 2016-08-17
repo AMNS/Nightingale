@@ -1029,7 +1029,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 	mRect = SDGetMeasRect(doc, pL, measureL);
 	
 	pGraphic = GetPGRAPHIC(pL);
- 	staffn = GetGraphicDrawInfo(doc,pL,pGraphic->firstObj,pGraphic->staffn,&xd,&yd,
+ 	staffn = GetGraphicOrTempoDrawInfo(doc,pL,pGraphic->firstObj,pGraphic->staffn,&xd,&yd,
  											&relContext);
 	GetGraphicFontInfo(doc, pL, &relContext, &fontID, &fontSize, &fontStyle);
 	GetContext(doc, pL, staffn, &context);

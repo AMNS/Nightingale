@@ -364,7 +364,7 @@ char Objtype2Char(SignedByte objtype)
 
 
 /* ---------------------------------------------------------------- StrToObjRect -- */
-/*	Get the objRect for a string of characters. */
+/*	Get the objRect for a Pascal string. */
 
 Rect StrToObjRect(unsigned char *string)
 {
@@ -418,10 +418,11 @@ void GetNFontInfo(
 
 
 /* ---------------------------------------------------------------- NStringWidth -- */
-/* Compute and return the StringWidth (in pixels) of the given string in the
+/* Compute and return the StringWidth (in pixels) of the given Pascal string in the
 given font, size and style. */
 
-short NStringWidth(Document */*doc*/, const Str255 string, short font, short size, short style)
+short NStringWidth(Document */*doc*/, const Str255 string, short font, short size,
+					short style)
 {
 	short	oldFont, oldSize, oldStyle, width;
 
@@ -527,32 +528,31 @@ void GetNPtStringBBox(
 	short width, ascent, descent, nLines, lineHt;
 	FontInfo fInfo;
 
-	nLines = 0;
-
-	if (multiLine) {							/* Count lines; take width from longest line. */
-		short i, j, len, count, wid;
-		Str255 str;
+	if (multiLine) {
+		/* Count lines; take width from the longest line. */
+		short i, j, totalLen, curLineLen, curLineWidth;
+		Str255 tmpStr;
 		Byte *p;
+		nLines = 1;
 
-		PStrCopy(string, str);
+		PStrCopy(string, tmpStr);
 
-		p = str;
-		len = str[0];
-		j = count = width = 0;
-		for (i = 1; i <= len; i++) {
-			count++;
-			if (str[i] == CH_CR || i == len) {
-				str[j] = count;
-				wid = NPtStringWidth(doc, &str[j], fontID, size, style);
-				if (wid > width)
-					width = wid;
-				j = i;
-				count = 0;
-				nLines++;
+		p = tmpStr;
+		totalLen = Pstrlen(tmpStr);
+		j = curLineLen = width = 0;
+		for (i = 1; i <= totalLen; i++) {
+			curLineLen++;
+			if (tmpStr[i]==CH_CR || i==totalLen) {
+				tmpStr[j] = curLineLen;
+				curLineWidth = NPtStringWidth(doc, &tmpStr[j], fontID, size, style);
+				if (curLineWidth > width) width = curLineWidth;
+				if (tmpStr[i]==CH_CR) {
+					j = i;
+					curLineLen = 0;
+					nLines++;
+				}
 			}
 		}
-		if (string[len] == CH_CR)			/* Don't count a new line if last char is CR. */
-			nLines--;
 	}
 	else
 		width = NPtStringWidth(doc, string, fontID, size, style);
@@ -563,7 +563,9 @@ void GetNPtStringBBox(
 	if (fontID==doc->musicFontNum || fontID==sonataFontNum) {
 		GetMusicAscDesc(doc, string, size, &ascent, &descent);
 		if (multiLine) {
-			lineHt = ascent + descent;	// FIXME: what about leading?
+			/* You'd think we'd have to consider leading here, but it doesn't seem
+				to be necessary; the results are good as is. */
+			lineHt = ascent + descent;
 			bBox->top = -ascent;
 			bBox->bottom = descent + (lineHt * (nLines-1));
 		}
@@ -578,8 +580,8 @@ void GetNPtStringBBox(
 			lineHt = fInfo.ascent + fInfo.descent + fInfo.leading;
 			bBox->top = -fInfo.ascent;
 			bBox->bottom = fInfo.descent + (lineHt * (nLines-1));
-			LogPrintf(LOG_DEBUG, "GetNPtStringBBox: fontID, Size, Style=%d, %d, %d fInfo.ascent=%d .descent=%d .leading=%d lineHt=%d\n",
-					  fontID, size, style, fInfo.ascent, fInfo.descent, fInfo.leading, lineHt);
+			LogPrintf(LOG_DEBUG, "GetNPtStringBBox: fontID, Size, Style=%d, %d, %d fInfo.ascent=%d .descent=%d .leading=%d lineHt=%d nLines=%d\n",
+					  fontID, size, style, fInfo.ascent, fInfo.descent, fInfo.leading, lineHt, nLines);
 		}
 		else {
 			bBox->top = -fInfo.ascent;

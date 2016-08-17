@@ -144,6 +144,7 @@ static Boolean	ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style);
 static void		GetRealSizes(void);
 static void		TuneRadioIn(DialogPtr dlog,short itemHit, short *radio);
 static void		DrawExampleText(DialogPtr dlog, unsigned char *string);
+static Boolean	AllIsWell(void);
 static void		InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpanded);
 
 
@@ -921,7 +922,6 @@ static void DrawExampleText(DialogPtr dlog, unsigned char *string)
 
 /* Check that the text string is okay, including compatibility with the style. */
 
-static Boolean AllIsWell(void);
 static Boolean AllIsWell(void)
 {
 	short expandedSetting, maxLenExpanded, type, i;
@@ -931,7 +931,7 @@ static Boolean AllIsWell(void)
 	char fmtStr[256];
 	Boolean strOkay = TRUE;
 
-	GetDialogItem(dlog,EDIT25_Text, &type, &hndl, &box);
+	GetDialogItem(dlog, EDIT25_Text, &type, &hndl, &box);
 	GetDialogItemText(hndl, str);
 	GetDialogItem(dlog, CHK31_Expanded, &type, &hndl, &box);
 	expandedSetting = GetControlValue((ControlHandle)hndl);
@@ -963,7 +963,6 @@ static Boolean AllIsWell(void)
 	
 	return TRUE;
 }
-
 
 
 /* TextDialog takes a global style choice index; the name and attributes of an

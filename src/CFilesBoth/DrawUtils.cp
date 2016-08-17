@@ -1991,14 +1991,14 @@ char TempoGlyph(LINK pL)
 }
 
 
-/* ---------------------------------------- GetXXXDrawInfo for Graphics and Tempos -- */
+/* ------------------------ Functions to get drawing info for Graphics and Tempos -- */
 /* GetXXXDrawInfo function for Graphics and Tempos. For Tempos, this simply uses the
 position of the object the Graphic or Tempo is attached to, not the subobject; for
 Graphics, it uses the position of the subobj in the Graphic's voice or on its staff
 to get the xd. If the Graphic or Tempo is attached to the page, it always returns 1;
 otherwise it just returns _staffn_. */
 
-short GetGraphicDrawInfo(
+short GetGraphicOrTempoDrawInfo(
 			Document *doc,
 			LINK pL, LINK relObjL,
 			short staffn,
@@ -2018,7 +2018,7 @@ short GetGraphicDrawInfo(
 
 	GetContext(doc, relObjL, staffn, pRelContext);
 	if (GraphicTYPE(pL))
-		*xd = GraphicPageRelxd(doc, pL,relObjL, pRelContext);
+		*xd = GraphicPageRelxd(doc, pL, relObjL, pRelContext);
 	else
 		*xd = PageRelxd(relObjL, pRelContext);
 	*yd = PageRelyd(relObjL, pRelContext);
