@@ -46,6 +46,7 @@ void DrawTIMESIG(Document *, LINK, CONTEXT []);
 void DrawDYNAMIC(Document *, LINK, CONTEXT [], Boolean);
 void DrawRPTEND(Document *, LINK, CONTEXT []);
 void DrawENDING(Document *, LINK, CONTEXT []);
+Boolean DrawTextBlock(Document *, DDIST, DDIST, LINK, PCONTEXT, Boolean, short, short, short);
 void DrawGRAPHIC(Document *, LINK, CONTEXT [], Boolean);
 void DrawSPACER(Document *, LINK, CONTEXT []);
 void DrawTEMPO(Document *, LINK, CONTEXT [], Boolean);

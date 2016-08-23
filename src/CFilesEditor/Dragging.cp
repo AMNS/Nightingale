@@ -1018,22 +1018,22 @@ static void SDDrawGRDraw(Document */*doc*/, DDIST xd, DDIST yd, DDIST xd2, DDIST
 
 static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 {
-	DDIST xd,yd,dHeight,xd2,yd2;
+	DDIST xd, yd, dHeight, xd2, yd2;
 	short staffn, lineLW;
 	short	oldFont, oldSize, oldStyle, fontID, fontSize, fontStyle;
 	PGRAPHIC pGraphic;
-	CONTEXT relContext,context;
+	CONTEXT relContext, context;
 	Rect mRect;
 	unsigned char oneChar[2];			/* Pascal string of a char */
 
 	mRect = SDGetMeasRect(doc, pL, measureL);
 	
 	pGraphic = GetPGRAPHIC(pL);
- 	staffn = GetGraphicOrTempoDrawInfo(doc,pL,pGraphic->firstObj,pGraphic->staffn,&xd,&yd,
- 											&relContext);
+ 	staffn = GetGraphicOrTempoDrawInfo(doc, pL, pGraphic->firstObj, pGraphic->staffn,
+										&xd, &yd, &relContext);
 	GetGraphicFontInfo(doc, pL, &relContext, &fontID, &fontSize, &fontStyle);
 	GetContext(doc, pL, staffn, &context);
-	xd -= GetXDDiff(doc,pL,&context);
+	xd -= GetXDDiff(doc, pL, &context);
 
 	pGraphic = GetPGRAPHIC(pL);
 	if (pGraphic->firstObj) {
@@ -1111,12 +1111,15 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 				if (pGraphic->multiLine) {
 					short i, j, len, count, lineHt;
 					FontInfo fInfo;
-					Byte *q = PCopy(strOffset);
 
 					GetNFontInfo(fontID, UseTextSize(fontSize, doc->magnify), fontStyle, &fInfo);
 					lineHt = p2d(fInfo.ascent + fInfo.descent + fInfo.leading);
+					Byte *q = PCopy(strOffset);
+					len = Pstrlen(q);
 
-					len = q[0];
+					/* Divide the Pascal string q[] into a series of substrings by repeatedly
+					   stuffing the length we want into the byte preceding the current
+					   substring. */
 					j = count = 0;
 					for (i = 1; i <= len; i++) {
 						count++;
@@ -1159,7 +1162,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 {
 	PTEMPO p;
-	short oldFont, oldSize, oldStyle, theRelSize, useTxSize, noteWidth, beforeFirst,
+	short oldFont, oldSize, oldStyle, useTxSize, noteWidth, beforeFirst,
 				tempoStrlen;
 	DDIST xd, yd, extraGap, lineSpace, dTop, firstxd, xdNote, xdDot, ydDot;
 	Str255 tempoStr;
@@ -1167,47 +1170,45 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	LINK contextL;
 	CONTEXT context; Rect mRect; FontInfo fInfo;
 	StringOffset theStrOffset;
+	Boolean expandN=FALSE;				/* Stretch string out? */
 	Byte dotChar = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
-	oldFont = GetPortTxFont();
-	oldSize = GetPortTxSize();
-	oldStyle = GetPortTxFace();
-
 	beforeFirst = LinkBefFirstMeas(pL);
-	contextL = (beforeFirst ? LSSearch(pL,MEASUREtype,ANYONE,GO_RIGHT,FALSE) : pL);
-
+	contextL = (beforeFirst ? LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, FALSE) : pL);
 	GetContext(doc, contextL, TempoSTAFF(pL), &context);
 	lineSpace = LNSPACE(&context);
-	theRelSize = relFSizeTab[GRLarge]*lineSpace;
-	theRelSize = d2pt(theRelSize);
-
-	SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lineSpace);
-
-	mRect = SDGetMeasRect(doc, pL, measureL);
 	dTop = context.measureTop;
+	mRect = SDGetMeasRect(doc, pL, measureL);
 	
 	/* Don't use DragXD(xd) here: already correctly set.
 		If pL is LinkBefFirstMeas(), the dragPorts are system-relative, so include the
-		xd of firstObj, even if it is a measure. */
+		xd of firstObj even if it is a measure. */
 
 	if (LinkBefFirstMeas(pL))
 		firstxd = LinkXD(TempoFIRSTOBJ(pL));
 	else
 		firstxd = (MeasureTYPE(TempoFIRSTOBJ(pL)) ? 0 : LinkXD(TempoFIRSTOBJ(pL)));
 	xd = LinkXD(pL) + firstxd;
+	yd = dTop + LinkYD(pL) - p2d(mRect.top);
 
 	p = GetPTEMPO(pL);
-	yd = dTop + p->yd - p2d(mRect.top);
-	MoveTo(d2p(xd), d2p(yd));
-
-	GetFontInfo(&fInfo);
+	expandN = p->expanded;
 	theStrOffset = p->strOffset;
-	if (p->expanded) {
+
+	/* Save the current font and set the font we want. */
+	oldFont = GetPortTxFont();
+	oldSize = GetPortTxSize();
+	oldStyle = GetPortTxFace();
+	SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lineSpace);
+	GetFontInfo(&fInfo);
+	
+	if (expandN) {
 		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
 			LogPrintf(LOG_WARNING, "SDDrawTempo: ExpandString failed.\n");
 	}
 	else PStrCopy((StringPtr)PCopy(theStrOffset), tempoStr);
 
+	MoveTo(d2p(xd), d2p(yd));
 	DrawString(tempoStr);
 	SetRect(&LinkOBJRECT(pL), d2p(xd), d2p(yd)-fInfo.ascent, 
 				d2p(xd)+StringWidth(PCopy(theStrOffset)), d2p(yd)+fInfo.descent);
@@ -1797,30 +1798,29 @@ static Boolean SymDragLoop(
 				Document *doc,
 				LINK pL, LINK subObjL,			/* object/subobject to drag */
 				unsigned char glyph,
-				Point pt,							/* initial mousedown pt (paper-relative) */
-				LINK measureL						/* containing the object */
+				Point pt,						/* initial mousedown pt (paper-relative) */
+				LINK measureL					/* containing the object */
 				)
 {
 	PANOTE		aNote;
-	PAGRNOTE		aGRNote;
-	LINK			firstMeasL, octL, partL, staffL;
+	PAGRNOTE	aGRNote;
+	LINK		firstMeasL, octL, partL, staffL;
 	GrafPtr		oldPort, oldPort1;
 	GrafPtr		accPort=NULL;
-	Rect			theRect, theClipRect, mRect, bounds,
-					accBox, saveBox;
-	Point			oldPt;
-	short			xp,yp,staff,halfLn,oldHalfLn,halfLnDiff,
-					accy,noteLeft,newAcc,partn,useChan,octType,octTransp,
-					transp,prevAccident,middleCHalfLn,noteNum;
-	short			useIORefNum=0;		/* NB: both OMSUniqueID and fmsUniqueID are unsigned short */
+	Rect		theRect, theClipRect, mRect, bounds, accBox, saveBox;
+	Point		oldPt;
+	short		xp,yp,staff,halfLn,oldHalfLn,halfLnDiff,
+				accy,noteLeft,newAcc,partn,useChan,octType,octTransp,
+				transp,prevAccident,middleCHalfLn,noteNum;
+	short		useIORefNum=0;		/* NB: both OMSUniqueID and fmsUniqueID are unsigned short */
 	PPARTINFO	pPart;
-	DDIST			xdDiff,ydDiff,v,leftLim,rightLim,dxTotal;
+	DDIST		xdDiff,ydDiff,v,leftLim,rightLim,dxTotal;
 	CONTEXT		context;
-	Boolean 		horiz, vert, stillWithinSlop, vQuantize, isClef, isRest;
-	long			spaceFactor;			/* Amt. by which to respace dragged measures */
+	Boolean 	horiz, vert, stillWithinSlop, vQuantize, isClef, isRest;
+	long		spaceFactor;			/* Amt. by which to respace dragged measures */
 	short 		dx, dy;
 	Point 		newPt;
-	Rect 			dstRect;
+	Rect 		dstRect;
 	WindowPtr	w=doc->theWindow;
 	
 	const BitMap *wPortBits = NULL;
@@ -2442,7 +2442,7 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 		case DYNAMtype:
 			if (IsHairpin(pL)) {
 				DragHairpin(doc, pL);
-				return TRUE;							/* FIXME: Skip HandleSymDrag called from CheckObject below. */
+				return TRUE;						/* FIXME: Skip HandleSymDrag called from CheckObject below. */
 			}
 			else {
 #ifdef DRAG_DYNAMIC_OLD_WAY

@@ -795,10 +795,13 @@ Dragging.
 
 -------------------------------------------------------------------------------
 
-13 - 17 August
+13 - 23 August
 
 Handle multiline tempo marks. Affects defs.h, DrawUtils,h; DialogsEditor, Dragging,
 DrawObject, Utility.
 
-Minor cleanup. Affects DialogsEditor, DrawingEdit, DrawObject, DrawUtils, TextDialog,
-Utility.
+Rewrite SDDrawTempo() for readability. Affects Dragging.
+
+Minor cleanup. Affects Draw.h; DialogsEditor, DrawingEdit, DrawObject, DrawUtils,
+TextDialog, Utility.
+

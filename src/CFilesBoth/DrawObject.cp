@@ -29,8 +29,6 @@ static void DrawArpSign(Document *, DDIST, DDIST, DDIST, short, PCONTEXT, Boolea
 static DDIST DrawGRDraw(Document *, DDIST, DDIST, DDIST, DDIST, short, PCONTEXT, Boolean,
 						Boolean, Boolean *); 
 static short CountTextLines(StringPtr pString);
-static Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pContext,
-							   Boolean dim, short fontID, short fontSize, short fontStyle);
 static Boolean GetTempoDBox(Document *, LINK, Boolean, PCONTEXT, short, short, short, DRect *);
 static void DrawBarline(Document *, LINK, short, short, CONTEXT [], SignedByte);
 
@@ -1811,7 +1809,7 @@ static short CountTextLines(StringPtr pString)
 CRs, which we interpret as starting new lines. Intended for use with text Graphics
 and the verbal part of Tempos. Return TRUE normally, FALSE if there's a problem. */
 
-static Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pContext,
+Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pContext,
 						Boolean dim, short fontID, short fontSize, short fontStyle)
 {
 	CONTEXT			relContext;					/* context of relative object */
@@ -1884,13 +1882,11 @@ static Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEX
 			if (multiLine) {
 				short i, j, len, count;
 				len = Pstrlen(str);
+				Byte *q = str;
 				
 				/* Divide the Pascal string q[] into a series of substrings by repeatedly
 				   stuffing the length we want into the byte preceding the current
 				   substring. */
-				Byte *q = str;
-				
-				len = Pstrlen(q);
 				j = count = 0;
 				for (i = 1; i <= len; i++) {
 					count++;

@@ -392,6 +392,8 @@ Rect StrToObjRect(unsigned char *string)
 
 
 /* ---------------------------------------------------------------- GetNFontInfo -- */
+/* Get FontInfo for the specified font, size, and style (as opposed to the current
+font in its current size and style). */
 
 void GetNFontInfo(
 			short fontID,
