@@ -34,25 +34,25 @@ curl -O https://raw.github.com/thinkyhead/Legacy-XCode-Scripts/master/restore-wi
 The last "curl" may fail, but (for one person) resulted in Xcode 4.2 doing what we want.
 
 
-Debugging
----------
+Running and Debugging
+---------------------
 It's probably not possible to attach a debugger on an Intel machine (due to Rosetta translation requirements), but it should be possible on a PowerPC.
 
 Xcode 2.x and 3.x put debug build products in a directory with a path like:
 
-~/NightingaleDev/build/Debug
+`~/NightingaleDev/build/Debug`
 
-XCode 4.x and above puts debug build products in a directory like:
+XCode 4.x and above put debug build products in a directory with a totally unguessable path like:
 
 `~/Library/Developer/Xcode/DerivedData/Nightingale-dghtzivoyrfkjudiupfaqdqicrev/Build/Products/Debug/`
 
-(The latter can be found (in a terminal window, of course) using:
+That path can be found (in a terminal window, of course) using:
 
 `find ~/* -name Nightingale.app`
 
-...or -- much, much faster! -- by control-clicking on "Nightingale" at the bottom in the folder view (leftmost icon(?)) of the project, then choosing "Show in Finder" in the pop-up menu.)
+...or -- much, much faster! -- by control-clicking on "Nightingale" at the bottom in the folder view (leftmost icon(?)) of the project, then choosing "Show in Finder" in the pop-up menu.
 
-It can be run like:
+The built application can be run via:
 
 `open -a ~/Library/.../Build/Products/Debug/Nightingale.app`
 
@@ -64,3 +64,4 @@ The latter is somewhat helpful, since stderr/out will be printed to the command 
 
 NB: The same logging information will appear in system.log even when a normal (non-debug) build of Nightingale is run in the standard way, via opening the icon in the Finder.
 
+NB2: You can run Nightingale inside Xcode 2.x in the obvious way from the Build menu. But with Xcode 3.x, that doesn't seem to work! 
