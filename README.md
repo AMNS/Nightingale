@@ -64,4 +64,4 @@ The latter is somewhat helpful, since stderr/out will be printed to the command 
 
 NB: The same logging information will appear in system.log even when a normal (non-debug) build of Nightingale is run in the standard way, via opening the icon in the Finder.
 
-NB2: You can run Nightingale inside Xcode 2.x in the obvious way from the Build menu. But with Xcode 3.x, that doesn't seem to work! 
+NB2: You can run Nightingale inside Xcode 2.x in the obvious way from the Build menu. But with Xcode 3.x, that doesn't seem to work; we have no idea why! 

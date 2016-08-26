@@ -2259,7 +2259,6 @@ static Boolean GetTempoDBox(Document *doc,
 	 * below doesn't seem to be enough.
 	 */
 	if (fontStyle!=0) bBox.right += 2*(Pstrlen(string))/3;
-//	LogPrintf(LOG_DEBUG, "GetTempoDBox: *pStr=%d Pstrlen(string)=%d\n", *pStr, Pstrlen(string));
 	
 	PtRect2D(&bBox, dBox);	
 	return TRUE;
@@ -2309,7 +2308,6 @@ PushLock(TEMPOheap);
 	fontInd = FontName2Index(doc, doc->fontNameTM);
 	fontID = doc->fontTable[fontInd].fontID;
 	fontStyle = doc->fontStyleTM;
-//	LogPrintf(LOG_DEBUG, "DrawTEMPO: fontSize=%d\n", fontSize);
 
 	/* Prepare tempo string. */
 	theStrOffset = p->strOffset;
@@ -2326,7 +2324,7 @@ PushLock(TEMPOheap);
 		bottom line of the tempo mark; else it goes to the right of the top line.
 		(Of course _dEnclBox_, the object's bounding box, should reflect this.) */
 	metroIsBelow = (tempoStr[tempoStrlen]==CH_CR);
-LogPrintf(LOG_DEBUG, "tempoStrlen=%d metroIsBelow=%d\n", tempoStrlen, metroIsBelow);
+//LogPrintf(LOG_DEBUG, "tempoStrlen=%d metroIsBelow=%d\n", tempoStrlen, metroIsBelow);
 //char strC[256];	Pstrcpy((unsigned char *)strC, tempoStr); PToCString((unsigned char *)strC);
 //LogPrintf(LOG_DEBUG, "tempoStr='%s'\n", strC);
 	expandN = p->expanded;
@@ -2358,8 +2356,8 @@ LogPrintf(LOG_DEBUG, "tempoStrlen=%d metroIsBelow=%d\n", tempoStrlen, metroIsBel
 		}
 		ydMM = yd;
 	}
-LogPrintf(LOG_DEBUG, "dEnclBox.bottom=%d dTextLineHeight=%d xd,yd=%d,%d xdMM,ydMM=%d,%d\n",
-dEnclBox.bottom, dTextLineHeight, xd, yd, xdMM, ydMM);
+//LogPrintf(LOG_DEBUG, "dEnclBox.bottom=%d dTextLineHeight=%d xd,yd=%d,%d xdMM,ydMM=%d,%d\n",
+//dEnclBox.bottom, dTextLineHeight, xd, yd, xdMM, ydMM);
 	
 	/* We'll cheat and get the width of the note and dot in the current font/size/style
 	 * instead of the ones it'll be drawn in. FIXME: This shouldn't make much difference,
@@ -2887,8 +2885,8 @@ PushLock(MEASUREheap);
 					p->measureBBox.left = p->measureBBox.right;
 			}
 
-			//LogPrintf(LOG_DEBUG, "DrawMEASURE: %d is last meas in system. measureBBox=%d %d %d %d\n",
-			//		pL, p->measureBBox.top, p->measureBBox.left, p->measureBBox.bottom, p->measureBBox.right);
+//			LogPrintf(LOG_DEBUG, "DrawMEASURE: %d is last meas in system. measureBBox=%d %d %d %d\n",
+//					pL, p->measureBBox.top, p->measureBBox.left, p->measureBBox.bottom, p->measureBBox.right);
 		}
 	}
 
