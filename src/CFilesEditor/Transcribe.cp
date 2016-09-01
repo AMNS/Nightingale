@@ -69,18 +69,11 @@ static Boolean InitQuantize(Document *doc, Boolean merge)
 
 /* -------------------------------------------------------------- Voice2RTStructs -- */
 
-#ifdef PUBLIC_VERSION
-
-#define DEBUG_NOTE
-
-#else
-
 #define DEBUG_NOTE if (ShiftKeyDown() && OptionKeyDown())										\
 						LogPrintf(LOG_NOTICE, "iSync=%d %cvoice=%d [%d] noteNum=%d dur=%ld\n",	\
 						iSync, (nInChord>1? '+' : ' '), voice, nAux,							\
 						rawNoteAux[nAux].noteNumber, rawNoteAux[nAux].duration)
 
-#endif
 
 static short Voice2RTStructs(
 					Document *doc,
@@ -447,9 +440,9 @@ static LINK QuantAllVoices(
 		)
 {
 	short v, status, nSyncs, nNotes;
-	short timeOffset=0;									/* BEFORE quantizing, in PDUR ticks: normally 0 */
+	short timeOffset=0;								/* BEFORE quantizing, in PDUR ticks: normally 0 */
 	long startTime, len;
-	long postQTimeOffset;								/* AFTER quantizing, in PDUR ticks: normally 0 */
+	long postQTimeOffset;							/* AFTER quantizing, in PDUR ticks: normally 0 */
 	Boolean gotNotes=FALSE, okay=FALSE;
 	LINKTIMEINFO *rawSyncTab[MAXVOICES+1];			/* Arrays of pointers to tables */
 	NOTEAUX	*rawNoteAux[MAXVOICES+1];
@@ -526,16 +519,14 @@ static LINK QuantAllVoices(
 	UpdateSysNums(doc, doc->headL);
 	UpdateMeasNums(doc, NILINK);
 	
-	endExtraL = GDAddMeasures(doc, qEndL);						/* Destroys sel range & timestamps */
+	endExtraL = GDAddMeasures(doc, qEndL);					/* Destroys sel range & timestamps */
 	if (!endExtraL) goto Done;
 	qStartL = LinkLMEAS(endExtraL);
 
 	postQTimeOffset = 0L;
 
-#ifndef PUBLIC_VERSION
-	LogPrintf(LOG_NOTICE, "quantum=%d tripBias=%d tryLev=%d leastSq=%d\n",
+	LogPrintf(LOG_NOTICE, "QuantAllVoices: quantum=%d tripBias=%d tryLev=%d leastSq=%d\n",
 		quantum, tripletBias, config.tryTupLevels, config.leastSquares);
-#endif
 
 	/* The range [qStartL,qEndL) now starts one before and extends to the last newly-
 		added Measures. We're ready to go. Quantize and merge back in one voice at a
@@ -548,8 +539,8 @@ static LINK QuantAllVoices(
 		ProgressMsg(VOICE_PMSTR, strBuf);
 		
 		status = Voice2KnownDurs(doc, v, quantum, tripletBias, rawSyncTab[v], maxSyncs[v],
-											nRawSyncs[v], rawNoteAux[v], nAux[v], postQTimeOffset,
-											qStartL, (merge? NILINK : qEndL), &lastL);
+									nRawSyncs[v], rawNoteAux[v], nAux[v], postQTimeOffset,
+									qStartL, (merge? NILINK : qEndL), &lastL);
 		if (status==FAILURE) break;
 		if (status==OP_COMPLETE) gotNotes = TRUE;
 

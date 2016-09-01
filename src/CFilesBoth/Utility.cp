@@ -1319,10 +1319,8 @@ void InitSleepMS()
 	if (elapsedTicks<1L) elapsedTicks = 1L;		/* In case this machine is REALLY fast! */
 	countPerTick = loopCount/elapsedTicks;
 	oneMSDelayCount = (60L*countPerTick)/1000L;	/* Convert "per tick" to "per ms." */
-#ifndef PUBLIC_VERSION
 	LogPrintf(LOG_NOTICE, "loopCount=%ld elapsedTicks=%ld oneMSDelayCount=%ld\n", loopCount,
 						elapsedTicks, oneMSDelayCount);
-#endif
 }
 
 

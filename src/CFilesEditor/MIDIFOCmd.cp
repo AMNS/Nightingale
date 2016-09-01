@@ -31,7 +31,6 @@ extern DoubleWord locMF;				/* MIDI file track current position */
 #endif
 
 static OSType typelist[MAXINPUTTYPE] = {'MIDD','MID2', '    ', '    '};
-static Word vRefNum;
 static unsigned char *filename;
 
 static OSErr errCode;
@@ -65,11 +64,10 @@ static void DMFDrawLine(char *s)
 {
 	char *p;
 	short nt;
-	short tab[TAB_COUNT]={10,35,70,100,150,							/* In pixels */
-									201,211,221,231, 251,261,271,281,	/* First 8 channels */
-									301,311,324,337, 357,370,383,396};	/* Second 8 channels */
+	short tab[TAB_COUNT] =	{10,35,70,100,150,					/* In pixels */
+							 201,211,221,231, 251,261,271,281,	/* First 8 channels */
+							 301,311,324,337, 357,370,383,396};	/* Second 8 channels */
 
-#ifndef PUBLIC_VERSION
 	char aStr[256], *q;
 	if (ShiftKeyDown() && OptionKeyDown()) {
 		p = s; q = aStr;
@@ -79,7 +77,6 @@ static void DMFDrawLine(char *s)
 		}
 		*q = '\0'; LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
 	}
-#endif
 
 	MoveTo(textRect.left, textRect.top+linenum*LEADING);
 	p = s; nt = 0;
@@ -709,10 +706,8 @@ Boolean GetMIDIFileInfo(
 			}
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-#ifndef PUBLIC_VERSION
-LogPrintf(LOG_NOTICE, "Problem note (track %d, after %d notes): note no.=track[%ld]=%d\n",
+LogPrintf(LOG_WARNING, "Problem note (track %d, after %d notes): note no.=track[%ld]=%d\n",
 t, nTrackNotes[t], locMF-2, pChunkMF[locMF-2]);
-#endif
 		}
 		
 		if (t==1 && trackInfo[t].okay) {
@@ -776,9 +771,7 @@ static Boolean CheckAndConsult(
 	
 	/* Tell user what we found and ask them what to do now. */
 	
-#ifndef PUBLIC_VERSION
-LogPrintf(LOG_NOTICE, "lastEvent=%ld\n", *pLastEvent);
-#endif
+	LogPrintf(LOG_NOTICE, "lastEvent=%ld\n", *pLastEvent);
 	return TranscribeMFDialog(trackInfo, nTrackNotes, nTooLong, chanUsed, qTrLDur,
 										qTrTriplets, lastTrEvent, nNotes, nGoodTrs, qAllLDur,
 										pQuantCode, pAutoBeam, pTriplets, pClefChanges, pMaxMeasures);
@@ -855,21 +848,17 @@ static Boolean OpenMIDIFile()
 					if (trackInfo[td].pChunk) DisposePtr((Ptr)trackInfo[td].pChunk);
 				return FALSE;
 			}
-#ifndef PUBLIC_VERSION
 			if (ShiftKeyDown() && CmdKeyDown()) {
 				LogPrintf(LOG_NOTICE, "MTrk(%d) lenMF=%d:\n", t, lenMF);
 				DHexDump(pChunkMF, (lenMF>50L? 50L : lenMF), 5, 20);
 			}
-#endif
 
 			if (trackInfo[t].okay) {
 				len = MF2MIDNight(&pChunk);
-#ifndef PUBLIC_VERSION
 				if (ShiftKeyDown() && CmdKeyDown()) {
 					LogPrintf(LOG_NOTICE, "MTrk(%d) MIDNightLen=%d:\n", t, len);
 					DHexDump(pChunk, (len>50L? 50L : len), 5, 20);
 				}
-#endif
 				if (len==0) {
 					if (pChunkMF) DisposePtr((Ptr)pChunkMF);
 					if (pChunk) DisposePtr((Ptr)pChunk);

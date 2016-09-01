@@ -154,7 +154,7 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 						Point enlarge)
 {
 	PSYSTEM		p;
-	Rect		r,paperRect,sysRect,sysObjRect;
+	Rect		r, paperRect, sysRect, sysObjRect;
 	Point		mousePt;
 	PCONTEXT	pContext;
 	short		result;
@@ -169,8 +169,8 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 
 		/* Convert systemRect to paper-relative pixels */
 		D2Rect(&p->systemRect, &r);
-		GetSheetRect(doc,SheetNUM(pageL),&paperRect);
-		OffsetRect(&r,paperRect.left,paperRect.top);
+		GetSheetRect(doc, SheetNUM(pageL), &paperRect);
+		OffsetRect(&r, paperRect.left, paperRect.top);
 
 		switch (mode) {
 			case SMClick:
@@ -243,7 +243,7 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 #endif
 				}
 				D2Rect(&p->systemRect, &r);
-				InsetRect(&r, -enlarge.h, -enlarge.v);		/* Minus signs were missing. DB, 12/1/90 */
+				InsetRect(&r, -enlarge.h, -enlarge.v);
 				if (PtInRect(*(Point *)ptr, &r))
 					result = 0;
 				break;
@@ -275,9 +275,9 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 {
 	LINK aStaffL;
 	PCONTEXT pContext;
-	Rect rSub,wSub,aRect;
-	short i,result,staffn;
-	DDIST	dTop,dLeft,dBottom,dRight;
+	Rect rSub, wSub, aRect;
+	short i, result, staffn;
+	DDIST	dTop, dLeft, dBottom, dRight;
 	Boolean objSel=FALSE;
 	LINK partL;
 
@@ -412,7 +412,7 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 		}
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSel;
-	if (mode==SMDrag) HiliteStaves(doc, pL, context, FALSE);				/* Call this here to prevent chunky hiliting */
+	if (mode==SMDrag) HiliteStaves(doc, pL, context, FALSE);		/* Call this here to prevent chunky hiliting */
 	return result;
 }
 
@@ -428,13 +428,13 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 						Point /*enlarge*/)
 {
 	PACONNECT aConnect;
-	LINK aConnectL,staffL,aStaffL,cStaffL;
-	Rect r,rSub,wSub,limitR,slopR;
+	LINK aConnectL, staffL, aStaffL, cStaffL;
+	Rect r, rSub, wSub, limitR, slopR;
 	PCONTEXT pContext;
-	short i,j,result,staffAbove,staffBelow;
-	DDIST dTop,dLeft,xd,yd,dBottom,dRight,rSubRight;
+	short i, j, result, staffAbove, staffBelow;
+	DDIST dTop, dLeft, xd, yd, dBottom, dRight, rSubRight;
 	Boolean entire,objSel=FALSE;
-	RgnHandle connectRgn; long newPos;
+	RgnHandle connectRgn;  long newPos;
 	Point dragPt;
 
 	cStaffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, FALSE);			/* must exist */
@@ -450,12 +450,12 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 			aConnect = GetPACONNECT(aConnectL);
 			entire = aConnect->connLevel==0;
 			pContext = entire ? &context[FirstStaffn(pL)] :
-										&context[NextStaffn(doc,pL,TRUE,aConnect->staffAbove)];
+									&context[NextStaffn(doc, pL, TRUE, aConnect->staffAbove)];
 			dLeft = pContext->staffLeft;
 			dTop = pContext->staffTop;
 
 			pContext = entire ? &context[FirstStaffn(pL)] :
-										&context[NextStaffn(doc,pL,FALSE,aConnect->staffBelow)];
+										&context[NextStaffn(doc, pL, FALSE, aConnect->staffBelow)];
 			dBottom = pContext->staffTop + pContext->staffHeight;
 			dRight = pContext->staffRight;
 	
@@ -602,19 +602,19 @@ short CheckCLEF(Document *doc, LINK pL, CONTEXT context[],
 						STFRANGE stfRange,
 						Point enlarge)
 {
-	PACLEF		aClef;			/* ptr to current sub object */
+	PACLEF			aClef;			/* ptr to current sub object */
 	LINK			aClefL;
-	short			i,					/* scratch */
+	short			i,				/* scratch */
 					oldtxSize;		/* get & restore the port's textSize, for inMeasure clefs */
 	PCONTEXT		pContext;
 	DDIST			xd, yd,			/* scratch DDIST coordinates */
 					xdOct, ydOct,
 					lnSpace;
-	unsigned char	glyph;		/* clef symbol */
+	unsigned char	glyph;			/* clef symbol */
 	short			result;			/* =NOMATCH unless object/subobject clicked in */
-	Boolean		objSelected;	/* FALSE unless something in the object is selected */
-	Rect			rSub,				/* paper-relative bounding box for sub-object */
-					wSub,				/* Window relative of above */
+	Boolean			objSelected;	/* FALSE unless something in the object is selected */
+	Rect			rSub,			/* paper-relative bounding box for sub-object */
+					wSub,			/* Window relative of above */
 					aRect;			/* scratch */
 
 PushLock(OBJheap);
@@ -636,7 +636,7 @@ PushLock(CLEFheap);
 		
 		rSub = charRectCache.charRect[glyph];
 		OffsetRect(&rSub, d2p(xd), d2p(yd));
-		wSub = rSub; OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+		wSub = rSub; OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 		
 		switch (mode) {
 		case SMClick:
@@ -726,7 +726,7 @@ short CheckDYNAMIC(Document *doc, LINK pL, CONTEXT context[],
 							STFRANGE stfRange,
 							Point enlarge)
 {
-	PADYNAMIC	aDynamic;			/* ptr to current subobject */
+	PADYNAMIC		aDynamic;		/* ptr to current subobject */
 	LINK			aDynamicL,
 					firstSync, lastSync;
 	short			i,				/* scratch */
@@ -808,10 +808,10 @@ PushLock(DYNAMheap);
 					/* FIXME: objRects of dynamics aren't right in all cases, so the inval's
 					here don't always work. See comments in body of InvalObject. Use
 					EraseAndInval on <wsub> instead? */
-					InvalObject(doc, pL, TRUE);					/* inval old symbol */
+					InvalObject(doc, pL, TRUE);						/* inval old symbol */
 					DynamType(pL) = newDynamType;
 					FixContextForDynamic(doc, RightLINK(pL), staffn, oldDynamType, newDynamType);
-					InvalObject(doc, pL, TRUE);					/* inval new symbol */
+					InvalObject(doc, pL, TRUE);						/* inval new symbol */
 					doc->changed = TRUE;
 				}
 				HiliteInsertNode(doc, firstSync, staffn, FALSE);		/* Hiliting off */
@@ -897,10 +897,10 @@ short CheckRPTEND(Document *doc, LINK pL, CONTEXT context[],
 	PARPTEND		aRpt;
 	short			i;			
 	PCONTEXT		pContext;
-	unsigned char dummy=0;			/* for call to HandleSymDrag; not used. */
-	short			result;			/* =NOMATCH unless object/subobject clicked in */
-	Boolean		objSelected;
-	DDIST 		xd, yd,
+	unsigned char dummy=0;				/* for call to HandleSymDrag; not used. */
+	short			result;				/* =NOMATCH unless object/subobject clicked in */
+	Boolean			objSelected;
+	DDIST			xd, yd,
 					dBottom;			/* Bottom of subRect for aRpt, if aRpt->connStaff==0 */
 	Rect			rSub,				/* bounding box for object */
 					wSub,				/* window-relative of above */
@@ -1060,7 +1060,7 @@ PushLock(OBJheap);
 	result = NOMATCH;
 	
 	if (VISIBLE(pL) && LOOKING_AT(doc, GraphicVOICE(pL))) {
-		r = ContextedObjRect(doc,pL,staffn ? staffn : 1,&context1);
+		r = ContextedObjRect(doc, pL, staffn ? staffn : 1, &context1);
 		pContext = &context1;
 
 		switch (mode) {
@@ -1204,8 +1204,8 @@ PushLock(OBJheap);
 				break;
 			case SMDrag:
 				tempR = *(Rect *)ptr;
-				COffsetRect(&tempR,pContext->paper.left,pContext->paper.top);
-				if (r.top<tempR.top)			tempR.top = r.top;
+				COffsetRect(&tempR,pContext->paper.left, pContext->paper.top);
+				if (r.top<tempR.top)		tempR.top = r.top;
 				if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 				UnionRect(&r, &tempR, &aRect);				/* does (Rect *)ptr enclose r? */
 				if (EqualRect(&aRect, &tempR)) {
@@ -1219,7 +1219,7 @@ PushLock(OBJheap);
 					 staffn<=stfRange.bottomStaff && !p->selected) {
 					tempR = *(Rect *)ptr;
 					COffsetRect(&tempR,pContext->paper.left,pContext->paper.top);
-					if (r.top<tempR.top)			tempR.top = r.top;
+					if (r.top<tempR.top)		tempR.top = r.top;
 					if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 					UnionRect(&r, &tempR, &aRect);			/* does (Rect *)ptr enclose r? */
 					if (EqualRect(&aRect, &tempR)) {
@@ -1347,18 +1347,18 @@ PushLock(OBJheap);
 				dotted = p->dotted;
 				expanded = p->expanded;
 				ok = TempoDialog(&useMM, &showMM, &dur, &dotted, &expanded, tempoStr, metroStr);
-				if (tempoStr[0]>63) tempoStr[0] = 63;					/* Limit length for consistency with InsertTempo */
-				if (metroStr[0]>63) metroStr[0] = 63;					/* Limit length for consistency with InsertTempo */
+				if (tempoStr[0]>63) tempoStr[0] = 63;				/* Limit length for consistency with InsertTempo */
+				if (metroStr[0]>63) metroStr[0] = 63;				/* Limit length for consistency with InsertTempo */
 				p = GetPTEMPO(pL);
 				HiliteInsertNode(doc, p->firstObjL, staffn, FALSE);	/* Hiliting off */
 				if (ok) {
-					offset = PReplace(p->strOffset,tempoStr);
+					offset = PReplace(p->strOffset, tempoStr);
 					if (offset<0L)
 						{ NoMoreMemory(); goto Cleanup; }
 					else
 						p->strOffset = offset;
 
-					offset = PReplace(p->metroStrOffset,metroStr);
+					offset = PReplace(p->metroStrOffset, metroStr);
 					if (offset<0L)
 						{ NoMoreMemory(); goto Cleanup; }
 					else
@@ -1387,7 +1387,7 @@ PushLock(OBJheap);
 			case SMDrag:
 #ifdef DRAGRECT_TEMPO
 				tempR = *(Rect *)ptr;
-				COffsetRect(&tempR,pContext->paper.left,pContext->paper.top);
+				COffsetRect(&tempR,pContext->paper.left, pContext->paper.top);
 				if (r.top<tempR.top)			tempR.top = r.top;
 				if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 				UnionRect(&r, &tempR, &aRect);				/* does (Rect *)ptr enclose r? */
@@ -1402,7 +1402,7 @@ PushLock(OBJheap);
 				if (staffn>=stfRange.topStaff && 
 					 staffn<=stfRange.bottomStaff && !p->selected) {
 					tempR = *(Rect *)ptr;
-					COffsetRect(&tempR,pContext->paper.left,pContext->paper.top);
+					COffsetRect(&tempR, pContext->paper.left, pContext->paper.top);
 					if (r.top<tempR.top)			tempR.top = r.top;
 					if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 					UnionRect(&r, &tempR, &aRect);			/* does (Rect *)ptr enclose r? */
@@ -1481,7 +1481,7 @@ short CheckSPACER(Document *doc, LINK pL, CONTEXT context[],
 	
 	if (VISIBLE(pL)) {
 		pContext = (p->staffn ? &context[p->staffn] : &context[1]);
-		OffsetRect(&r,pContext->paper.left,pContext->paper.top);
+		OffsetRect(&r, pContext->paper.left, pContext->paper.top);
 
 		switch (mode) {
 			case SMClick:
@@ -1497,7 +1497,7 @@ short CheckSPACER(Document *doc, LINK pL, CONTEXT context[],
 #ifdef DRAGRECT_SPACE
 				tempR = *(Rect *)ptr;
 				COffsetRect(&tempR,pContext->paper.left,pContext->paper.top);
-				if (r.top<tempR.top)			tempR.top = r.top;
+				if (r.top<tempR.top)		tempR.top = r.top;
 				if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 				UnionRect(&r, &tempR, &aRect);				/* does (Rect *)ptr enclose r? */
 				if (EqualRect(&aRect, &tempR)) {
@@ -1512,7 +1512,7 @@ short CheckSPACER(Document *doc, LINK pL, CONTEXT context[],
 					 p->staffn<=stfRange.bottomStaff && !p->selected) {
 					tempR = *(Rect *)ptr;
 					COffsetRect(&tempR,pContext->paper.left,pContext->paper.top);
-					if (r.top<tempR.top)			tempR.top = r.top;
+					if (r.top<tempR.top)		tempR.top = r.top;
 					if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 					UnionRect(&r, &tempR, &aRect);			/* does (Rect *)ptr enclose r? */
 					if (EqualRect(&aRect, &tempR)) {
@@ -1571,11 +1571,11 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 						STFRANGE stfRange,
 						Point enlarge)
 {
-	PENDING	p;
-	Rect		r,aRect,tempR;
-	short		result, endNum, newNumber, cutoffs, newCutoffs;
+	PENDING p;
+	Rect r, aRect, tempR;
+	short result, endNum, newNumber, cutoffs, newCutoffs;
 	unsigned char dummy=0;								/* for call to HandleSymDrag; not used. */
-	PCONTEXT	pContext;
+	PCONTEXT pContext;
 	Boolean	okay;
 
 	result = NOMATCH;
@@ -1583,7 +1583,7 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 	
 	if (VISIBLE(pL)) {
 		pContext = (EndingSTAFF(pL) ? &context[EndingSTAFF(pL)] : &context[1]);
-		OffsetRect(&r,pContext->paper.left,pContext->paper.top);
+		OffsetRect(&r, pContext->paper.left, pContext->paper.top);
 
 		switch (mode) {
 			case SMClick:
@@ -1604,7 +1604,7 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 
 				HiliteInsertNode(doc, EndingFIRSTOBJ(pL), EndingSTAFF(pL), FALSE);		/* Hiliting off */
 				if (EndingFIRSTOBJ(pL)!=EndingLASTOBJ(pL))
-					HiliteInsertNode(doc, EndingLASTOBJ(pL), EndingSTAFF(pL), FALSE);		/* Hiliting off */
+					HiliteInsertNode(doc, EndingLASTOBJ(pL), EndingSTAFF(pL), FALSE);	/* Hiliting off */
 
 				if (okay) {
 					p = GetPENDING(pL);
@@ -1619,7 +1619,7 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 #ifdef DRAGRECT_ENDINGS
 				tempR = *(Rect *)ptr;
 				COffsetRect(&tempR,pContext->paper.left,pContext->paper.top);
-				if (r.top<tempR.top)			tempR.top = r.top;
+				if (r.top<tempR.top)		tempR.top = r.top;
 				if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 				UnionRect(&r, &tempR, &aRect);					/* does (Rect *)ptr enclose r? */
 				if (EqualRect(&aRect, &tempR)) {
@@ -1634,7 +1634,7 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 					 EndingSTAFF(pL)<=stfRange.bottomStaff && !LinkSEL(pL)) {
 					tempR = *(Rect *)ptr;
 					COffsetRect(&tempR,pContext->paper.left,pContext->paper.top);
-					if (r.top<tempR.top)			tempR.top = r.top;
+					if (r.top<tempR.top)		tempR.top = r.top;
 					if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 					UnionRect(&r, &tempR, &aRect);				/* does (Rect *)ptr enclose r? */
 					if (EqualRect(&aRect, &tempR)) {
@@ -1742,7 +1742,7 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 				if (beforeFirstMeas)
 					UpdateBFKSStaff(pL, aKeySig->staffn, newKSInfo);
 				FixContextForKeySig(doc, RightLINK(pL), aKeySig->staffn,
-																oldKSInfo, newKSInfo);
+											oldKSInfo, newKSInfo);
 				qL = FixAccsForKeySig(doc, pL, aKeySig->staffn, oldKSInfo, newKSInfo);
 				if (qL)
 					if (IsAfter(endL, qL)) endL = qL;
@@ -1754,7 +1754,7 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 			if (beforeFirstMeas)
 				UpdateBFKSStaff(pL, aKeySig->staffn, newKSInfo);
 			FixContextForKeySig(doc, RightLINK(pL), aKeySig->staffn,
-															oldKSInfo, newKSInfo);
+											oldKSInfo, newKSInfo);
 			endL = FixAccsForKeySig(doc, pL, aKeySig->staffn, oldKSInfo, newKSInfo);
 		}
 
@@ -1795,19 +1795,19 @@ short CheckKEYSIG(Document *doc, LINK pL, CONTEXT context[],
 						STFRANGE stfRange,
 						Point enlarge)
 {
-	PAKEYSIG		aKeySig;
-	LINK			aKeySigL;
-	PCONTEXT		pContext;
-	short			i,width;			/* total pixel width of key sig. */
+	PAKEYSIG	aKeySig;
+	LINK		aKeySigL;
+	PCONTEXT	pContext;
+	short		i, width;		/* total pixel width of key sig. */
 	short 		lines;
-	short			result;			/* =NOMATCH unless object/subobject clicked in */
+	short		result;			/* =NOMATCH unless object/subobject clicked in */
 	Boolean		objSelected;	/* FALSE unless something in the object is selected */
-	DDIST			xd, yd,			/* scratch DDIST coordinates */
-					dTop,				/* absolute DDIST position of origin (staff or measure) */
-					height;			/* height of current staff */
-	Rect			rSub,				/* subobject rectangle */
-					wSub,				/* window-relative of above */
-					aRect;			/* scratch */
+	DDIST		xd, yd,			/* scratch DDIST coordinates */
+				dTop,			/* absolute DDIST position of origin (staff or measure) */
+				height;			/* height of current staff */
+	Rect		rSub,			/* subobject rectangle */
+				wSub,			/* window-relative of above */
+				aRect;			/* scratch */
 	unsigned char dummy=0;
 
 PushLock(OBJheap);
@@ -1917,10 +1917,10 @@ PopLock(KEYSIGheap);
 /* ----------------------------------------------------------------- CheckSYNC -- */
 /* SYNC object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above), plus:
-	=SMThread      Determines whether *(Point *)ptr is inside any 
-	               subobject(s), selecting & highliting if so.
+	=SMThread		Determines whether *(Point *)ptr is inside any 
+					subobject(s), selecting & highliting if so.
 	=SMFindNote		Used by InsertSlur to find the note that will have
-						a new slur. 
+					a new slur. 
 */
 
 short CheckSYNC(Document *doc, LINK pL, CONTEXT context[],
@@ -1930,24 +1930,24 @@ short CheckSYNC(Document *doc, LINK pL, CONTEXT context[],
 					Point enlarge,
 					Point enlargeSpecial)
 {
-	PANOTE		aNote;			/* ptr to current subobject */
-	LINK			aNoteL, bNoteL;
-	short			i;					/* scratch */
-	PCONTEXT		pContext;
-	DDIST			xd, yd,			/* scratch DDIST coordinates */
-					dTop, dLeft,	/* absolute DDIST position of origin (staff or measure) */
-					lnSpace;
-	short			width;			/* dist to offset for otherStemSide */
-	short			glyph;			/* symbol */
-	short			result,			/* =NOMATCH unless object/subobject clicked in */
-					oldtxSize;		/* get & restore the port's textSize */
-	Boolean		objSelected,	/* FALSE unless something in the object is selected */
-					upOrDown,		/* needed for otherStemSide to offset rect correctly */
-					noteFound;		/* for SMThread */
-	Rect			rSub,				/* paper-relative bounding box for subobject */
-					wSub,				/* window-relative of above */
-					aRect;			/* scratch */
-	DRect			dRestBar;
+	PANOTE		aNote;				/* ptr to current subobject */
+	LINK		aNoteL, bNoteL;
+	short		i;					/* scratch */
+	PCONTEXT	pContext;
+	DDIST		xd, yd,				/* scratch DDIST coordinates */
+				dTop, dLeft,		/* absolute DDIST position of origin (staff or measure) */
+				lnSpace;
+	short		width;				/* dist to offset for otherStemSide */
+	short		glyph;				/* symbol */
+	short		result,				/* =NOMATCH unless object/subobject clicked in */
+				oldtxSize;			/* get & restore the port's textSize */
+	Boolean		objSelected,		/* FALSE unless something in the object is selected */
+				upOrDown,			/* needed for otherStemSide to offset rect correctly */
+				noteFound;			/* for SMThread */
+	Rect		rSub,				/* paper-relative bounding box for subobject */
+				wSub,				/* window-relative of above */
+				aRect;				/* scratch */
+	DRect		dRestBar;
 
 PushLock(OBJheap);
 PushLock(NOTEheap);
@@ -2007,7 +2007,7 @@ PushLock(NOTEheap);
 
 				if (upOrDown) 									/* stem up */
 					OffsetRect(&rSub, width, 0);
-				else												/* stem down */
+				else											/* stem down */
 					OffsetRect(&rSub, -width, 0);
 			}
 			wSub = rSub;
@@ -2067,12 +2067,10 @@ PushLock(NOTEheap);
 				if (aNote->selected) {
 					aNote->selected = FALSE;
 					InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
-#ifndef PUBLIC_VERSION
 					if (CapsLockKeyDown() && OptionKeyDown())
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							LogPrintf(LOG_NOTICE, " %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
 								enlargeSpecial.h, enlargeSpecial.v);
-#endif
 					HiliteRect(&wSub);
 				}
 				break;
@@ -2160,7 +2158,7 @@ short CheckGRSYNC(Document *doc, LINK pL, CONTEXT context[],
 	short			glyph;			/* symbol */
 	short			result,			/* =NOMATCH unless object/subobject clicked in */
 					oldtxSize;		/* get & restore the port's textSize */
-	Boolean		objSelected,	/* FALSE unless something in the object is selected */
+	Boolean			objSelected,	/* FALSE unless something in the object is selected */
 					upOrDown,		/* needed for otherStemSide to offset rect correctly */
 					noteFound;		/* for SMThread */
 	Rect			rSub,				/* bounding box for sub-object */
@@ -2695,12 +2693,10 @@ PushLock(MEASUREheap);
 			case SMDeselect:
 				if (aMeasure->selected) {
 					aMeasure->selected = FALSE;
-#ifndef PUBLIC_VERSION
 					if (CapsLockKeyDown() && OptionKeyDown())
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							if (!aMeasure->connAbove)
 						LogPrintf(LOG_NOTICE, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
-#endif
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 				}
 				break;
@@ -3006,11 +3002,9 @@ PushLock(OBJheap);
 	case SMDeselect:
 		if (LinkSEL(pL)) {
 			LinkSEL(pL) = FALSE;
-#ifndef PUBLIC_VERSION
 			if (CapsLockKeyDown() && OptionKeyDown())
 				if (SUSPICIOUS_WREL_RECT(wSub))
 					LogPrintf(LOG_NOTICE, " %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
-#endif
 			HiliteRect(&wSub);
 		}
 		break;
@@ -3049,12 +3043,12 @@ short CheckTUPLET(Document *doc, LINK pL, CONTEXT context[],
 						Point enlarge)
 {
 	PTUPLET		p;
-	short			result,			/* =NOMATCH unless object/subobject clicked in */
-					totalDur;
-	Rect			rSub,				/* bounding box for subobject */
-					wSub,				/* window-relative of above */
-					oldObjRect,
-					aRect;
+	short		result,			/* =NOMATCH unless object/subobject clicked in */
+				totalDur;
+	Rect		rSub,			/* bounding box for subobject */
+				wSub,			/* window-relative of above */
+				oldObjRect,
+				aRect;
 	CONTEXT		*pContext;
 	TupleParam	tParam;
 	Boolean		okay;
@@ -3182,10 +3176,10 @@ short CheckOTTAVA(Document *doc, LINK pL, CONTEXT context[],
 						Point enlarge)
 {
 	POTTAVA		p;
-	short			result;			/* =NOMATCH unless object/subobject clicked in */
-	Rect			rSub,				/* bounding box for sub-object */
-					wSub,				/* window-relative of above */
-					aRect;			/* scratch */
+	short		result;			/* =NOMATCH unless object/subobject clicked in */
+	Rect		rSub,			/* bounding box for sub-object */
+				wSub,			/* window-relative of above */
+				aRect;			/* scratch */
 	CONTEXT		*pContext;
 
 PushLock(OBJheap);
@@ -3352,18 +3346,16 @@ PushLock(OBJheap);
 		case SMDeselect:
 			if (aSlur->selected) {
 				aSlur->selected = FALSE;
-#ifndef PUBLIC_VERSION
 				if (CapsLockKeyDown() && OptionKeyDown())
 					if (SUSPICIOUS_WREL_RECT(wSub))
 						LogPrintf(LOG_NOTICE, " %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
-#endif
 				HiliteRect(&wSub);
 			}
 			break;
 		case SMSymDrag:
 			if (PtInRect(*(Point *)ptr, &rSub)) {
 				aSlur->selected = TRUE;			/* This & only this slur must be selected */
-														/* 	so that SymDragLoop knows which one to drag */
+												/* 	so that SymDragLoop knows which one to drag */
 				HandleSymDrag(doc, pL, NILINK, *(Point *)ptr, (unsigned char)0);
 				LinkSEL(pL) = !LinkSEL(pL);
 				aSlur->selected = LinkSEL(pL);

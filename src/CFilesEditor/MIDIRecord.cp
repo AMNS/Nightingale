@@ -824,10 +824,9 @@ static long MIDI2Night(
 					else
 						timeShift = -firstTime;
 				}
-#ifndef PUBLIC_VERSION
-				if (printDebug) LogPrintf(LOG_NOTICE, "; start-shift=%ld ticks",
+				if (printDebug) LogPrintf(LOG_DEBUG, "; start-shift=%ld ticks",
 					theNote.startTime-timeShift);
-#endif
+
 				if (theNote.startTime-prevStartTime<doc->deflamTime)
 					aNoteL = AddNoteToSync(doc, theNote, lSync,
 												USESTAFF(doc, theNote.noteNumber),
@@ -841,18 +840,12 @@ static long MIDI2Night(
 												USEVOICE(doc, USESTAFF(doc, theNote.noteNumber)),
 												FALSE, timeShift);
 					lastEndTime = theNote.startTime+theNote.duration;
-#ifndef PUBLIC_VERSION
-					if (printDebug) LogPrintf(LOG_NOTICE, " L%d", lSync);
-#endif
+					if (printDebug) LogPrintf(LOG_DEBUG, " L%d", lSync);
 				}
 				if (!firstSync) firstSync = lSync;
 				prevStartTime = theNote.startTime;
 NextEvent:
-#ifdef PUBLIC_VERSION
-				;
-#else
-				if (printDebug) LogPrintf(LOG_NOTICE, "\n");
-#endif
+				if (printDebug) LogPrintf(LOG_DEBUG, "\n");
 			}
 
 		}
@@ -2187,18 +2180,15 @@ Finished:
 
 static void PrintNote(MNOTEPTR pMNote, Boolean newLine)
 {
-#ifndef PUBLIC_VERSION
 	LogPrintf(LOG_NOTICE, "note=%3d chan=%2d ",pMNote->noteNumber,pMNote->channel);
 	LogPrintf(LOG_NOTICE, "vel=%3d/%3d ",pMNote->onVelocity,pMNote->offVelocity);
 	LogPrintf(LOG_NOTICE, "start=%5ld,dur=%4ld ms",pMNote->startTime, pMNote->duration);
 	if (newLine) LogPrintf(LOG_NOTICE, "\n");
-#endif
 }
 
 
 static void PrintNBuffer(Document *doc, NotePacket nOnBuffer[], short nOnBufLen)
 {
-#ifndef PUBLIC_VERSION
 	short n, i;
 	
 	LogPrintf(LOG_NOTICE, "PNB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d nOnBufLen=%d:\n",
@@ -2210,7 +2200,6 @@ static void PrintNBuffer(Document *doc, NotePacket nOnBuffer[], short nOnBufLen)
 			LogPrintf(LOG_NOTICE, "%x ", nOnBuffer[n].data[i]);
 		LogPrintf(LOG_NOTICE, "\n");
 	}
-#endif
 }
 
 
@@ -2219,7 +2208,6 @@ static void PrintNBuffer(Document *doc, NotePacket nOnBuffer[], short nOnBufLen)
 
 static void PrintBuffer(Document *doc, long mBufLen)
 {
-#ifndef PUBLIC_VERSION
 	MMMIDIPacket *p;
 	long loc; short i, len;
 	
@@ -2240,5 +2228,4 @@ static void PrintBuffer(Document *doc, long mBufLen)
 		 */
 		loc += ROUND_UP_EVEN(len);
 	}
-#endif
 }

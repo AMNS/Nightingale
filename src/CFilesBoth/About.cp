@@ -85,19 +85,21 @@ void DoAboutBox(
 	HideDialogItem(dlog, PICT_DEMO);
 	
 	/* Get version number string and display it in a static text item. */
-	unsigned char vstr[256], *vers_str;
-	const char *bundle_version_str;
-	
-	/* Get version number from main bundle (Info.plist); 
-	   this is the string value for key "CFBundleVersion" aka "Bundle version" 
-	 */
-	CFStringRef vsr = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey);
-	bundle_version_str = CFStringGetCStringPtr(vsr, kCFStringEncodingMacRoman);
-	vers_str = CToPString((char *) bundle_version_str);
-	vstr[0] = 0;
-	PStrCopy("\pv. ", vstr);
-	PStrCat(vstr, vers_str);
-	PutDlgString(dlog, STXT_VERS, vstr, FALSE);
+	{
+		unsigned char vstr[256], *vers_str;
+		const char *bundle_version_str;
+		
+		/* Get version number from main bundle (Info.plist); 
+		   this is the string value for key "CFBundleVersion" aka "Bundle version" 
+		 */
+		CFStringRef vsr = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey);
+		bundle_version_str = CFStringGetCStringPtr(vsr, kCFStringEncodingMacRoman);
+		vers_str = CToPString((char *) bundle_version_str);
+		vstr[0] = 0;
+		PStrCopy("\pv. ", vstr);
+		PStrCat(vstr, vers_str);
+		PutDlgString(dlog, STXT_VERS, vstr, FALSE);
+	}
 
 	GetDialogItem(dlog, BUT2_Special, &type, &hndl, &box);
 	HiliteControl((ControlHandle)hndl, CTL_INACTIVE);

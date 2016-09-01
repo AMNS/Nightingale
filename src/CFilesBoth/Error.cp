@@ -205,9 +205,7 @@ static void EMDebugPrintf(char *fmt, ... )
 	for (i=0; i<6; i++) args[i] = va_arg(ap,long);
 	va_end(ap);
 	
-#ifndef PUBLIC_VERSION
 	LogPrintf(LOG_WARNING, fmt, args[0], args[1], args[2], args[3], args[4], args[5]);
-#endif
 }
 
 void MayErrMsg(char *fmt, ...)

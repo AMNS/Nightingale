@@ -157,14 +157,16 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 							break;
 						case 'a':
 						case 'A':
-							short keyFocus = GetDialogKeyboardFocusItem(dlog);
-							if (keyFocus > 0) {
-								/* Dialog has text edit item: select all */
-								SelectDialogItemText(dlog,keyFocus,0,ENDTEXT);
+                            {
+								short keyFocus = GetDialogKeyboardFocusItem(dlog);
+								if (keyFocus > 0) {
+									/* Dialog has text edit item: select all */
+									SelectDialogItemText(dlog,keyFocus,0,ENDTEXT);
+									}
+								 else {
+									}
+								*itemHit = 0;
 								}
-							 else {
-								}
-							*itemHit = 0;
 							break;
 						case '.':
 							*itemHit = CANCEL_ITEM;

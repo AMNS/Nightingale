@@ -806,3 +806,15 @@ Minor cleanup. Affects Draw.h; DialogsEditor, DrawingEdit, DrawObject, DrawUtils
 TextDialog, Utility.
 
 Update README.
+
+-------------------------------------------------------------------------------
+
+1 Sept.
+
+Remove numerous #ifndef PUBLIC_VERSION. Affects a bunch of files.
+
+Incorporate Laurie S.'s changes to make Ngale compile with Xcode 7.3. Affects
+About, CheckMerge, DrawObject, DurationPopUp, FileInput, NavServices.
+
+Minor cleanup. Affects DurationPopUp, MCaret, MIDIFOCmd, MIDIRecord, NotelistParse,
+Objects, Transcribe.

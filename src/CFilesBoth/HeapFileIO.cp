@@ -459,17 +459,14 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	ioErr = FSWrite(refNum, &count, (Ptr)myHeap);
 	
 
-#ifndef PUBLIC_VERSION
 		if (ShiftKeyDown() && OptionKeyDown()) {
 			long position;
 			const char *ps;
-			
 			GetFPos(refNum, &position);
 			ps = NameHeapType(heapIndex, FALSE);
 			LogPrintf(LOG_NOTICE, "WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
 							heapIndex, ps, objCount[heapIndex], myHeap->objSize, myHeap->type, position);
 		}
-#endif
 
 	if (ioErr) SaveError(TRUE, refNum, ioErr, heapIndex);
 	return(ioErr);
@@ -1002,7 +999,6 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 	
 	myHeap = doc->Heap + heapIndex;
 
-//#ifndef PUBLIC_VERSION
 		if (ShiftKeyDown() && OptionKeyDown()) {
 			long position;
 			const char *ps;
@@ -1011,7 +1007,6 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 			LogPrintf(LOG_NOTICE, "RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
 							heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type, tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
 		}
-//#endif
 
 	if (myHeap->type!=tempHeap.type)
 		{ OpenError(TRUE, refNum, HDR_TYPE_ERR, heapIndex); return HDR_TYPE_ERR; }

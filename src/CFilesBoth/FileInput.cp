@@ -1586,7 +1586,7 @@ Boolean FSReadLine(char inBuf[], short maxChars, short refNum)
 	char c,cc;
 	
 	errCode = FSReadChar(refNum, &c);
-	if (errCode != noError) goto errorReturn;
+	if (errCode != noError) return FALSE;
 	
 	char *p = inBuf;
 	

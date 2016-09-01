@@ -365,9 +365,7 @@ static Boolean NotelistToNight(Document *doc)
 	spacePercent = 100L;
 	if (shortestDurCode==EIGHTH_L_DUR) spacePercent = 85L;
 	else if (shortestDurCode<EIGHTH_L_DUR && shortestDurCode!=UNKNOWN_L_DUR) spacePercent = 70L;
-#ifndef PUBLIC_VERSION
 	LogPrintf(LOG_NOTICE, "shortestDurCode=%d spacePercent=%ld\n", shortestDurCode, spacePercent);
-#endif
 	doc->spacePercent = spacePercent;
 	ok = RespaceBars(doc, firstMeasL, doc->tailL, RESFACTOR*spacePercent, FALSE, doReformat=TRUE);
 

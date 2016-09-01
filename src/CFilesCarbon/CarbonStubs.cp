@@ -411,16 +411,8 @@ Boolean	DoPostScript(Document */*doc*/)
 
 // MIDIRecord.c
 
-//Boolean StepRecord(Document *,Boolean ) { return TRUE; }
+//Boolean StepRecord(Document *, Boolean ) { return TRUE; }
 
 //Boolean Record(Document *) { return TRUE; }
 
 //Boolean RTMRecord(Document *) { return TRUE; }
-
-// -------------------------------------------------------------------------------
-// For PUBLIC_VERSION
-
-#ifdef PUBLIC_VERSION
-//void DebugPrintf(char *msg, ...) {}
-//void ShowHideDebugWindow(int how) {}
-#endif

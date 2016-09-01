@@ -378,11 +378,9 @@ Boolean AddMIDIRedundantAccs(
 					acc = NoteACC(aNoteL);
 			 		if (acc!=0) continue;
 			 		staff = NoteSTAFF(aNoteL);
-#ifndef PUBLIC_VERSION
 					if (CapsLockKeyDown() && OptionKeyDown())
 						LogPrintf(LOG_NOTICE, "AddMIDIRedundantAccs: pL=%d aNoteL=%d stf=%d clf=%d oct=%d\n",
 							pL, aNoteL, staff, clefType[staff], octType[staff]);
-#endif
 				   eAcc = MIDI2EffectiveAcc(doc, clefType[staff], octType[staff], pL, aNoteL);
 				   if (eAcc==ERROR_INT) {
 				   	MayErrMsg("AddMIDIRedundantAccs: can't find acc for pL=%ld", (long)pL);

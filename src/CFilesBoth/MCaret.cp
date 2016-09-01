@@ -40,8 +40,6 @@ up to 72 points. */
 
 #define MAX_CARET_HEIGHT	UseMagnifiedSize(2*72, MAX_MAGNIFY)	/* Maximum caret ht, in pixels */
 
-static GrafPtr caretPort;
-
 /* Prototypes for private tools */
 
 static void METurnCaret(Document *doc, Boolean on);
@@ -207,10 +205,8 @@ void MEAdjustCaret(Document *doc, Boolean moveNow)
 		      break;
 		      
 			default:
-#ifndef PUBLIC_VERSION
 				MayErrMsg("MEAdjustCaret: can't handle type %ld",
 							(long)(ObjLType(doc->selStartL)));
-#endif
 				return;		/* Don't call MEMoveCaret() below */
 	  		}
 

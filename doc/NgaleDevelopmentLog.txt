@@ -1500,3 +1500,15 @@ component.
 
 No, that's way too messy. Instead, have TempoDialog() convert the "new line" char. to CH_CR
 when it's OK'd, and vice-versa when it's opened w/ an existing tempo string => it works!
+
+-------------------------------------------------------------------------------
+
+28 Aug. - 1 Sept.
+
+Why did Laurie have to change a bunch of goto's and cases in switches to get Ngale to
+compile w/ Xcode 7.3? As http://www.cplusplus.com/forum/general/168196/ says: "A jump
+to a labelled statement (case xxx and default are labelled statements) is not permitted
+to bypass the initialisation of an object a variable." Files needing changes: About.cp,
+CheckMerge.cp, DrawObject.cp, DurationPopUp.cp, FileInput.cp, NavServices.cp.
+(The change she made in Menu.cp was commenting out code for a different reason.)
+

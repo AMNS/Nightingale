@@ -150,7 +150,6 @@ static void		InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpan
 
 static void DebugPrintFonts(Document *doc)
 	{
-#ifndef PUBLIC_VERSION
 		LogPrintf(LOG_NOTICE, "fontName1=%p\n relFSize1=%d fontSize1=%d fontStyle1=%d\n",
 			doc->fontName1,doc->relFSize1,doc->fontSize1,doc->fontStyle1);
 		LogPrintf(LOG_NOTICE, "fontName2=%p\n relFSize2=%d fontSize2=%d fontStyle2=%d\n",
@@ -179,7 +178,6 @@ static void DebugPrintFonts(Document *doc)
 			doc->fontNamePN,doc->relFSizePN,doc->fontSizePN,doc->fontStylePN);
 		LogPrintf(LOG_NOTICE, "fontNameRM=%p\n relFSizeRM=%d fontSizeRM=%d fontStyleRM=%d\n",
 			doc->fontNameRM,doc->relFSizeRM,doc->fontSizeRM,doc->fontStyleRM);
-#endif
 	}
 
 

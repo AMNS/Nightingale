@@ -327,8 +327,10 @@ static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSel
 					break;
 					
 				case kNavUserActionCancel:
-		 			NSClientDataPtr pNSD = (NSClientDataPtr)callbackUD;
-		 			pNSD->nsOpCancel = TRUE;
+                    {
+						NSClientDataPtr pNSD = (NSClientDataPtr)callbackUD;
+						pNSD->nsOpCancel = TRUE;
+                    }
 					break;
 					
 				default:
@@ -383,8 +385,10 @@ static pascal void NSNavSaveEventProc( const NavEventCallbackMessage callbackSel
 					break;
 					
 				case kNavUserActionCancel:
-		 			NSClientDataPtr pNSD = (NSClientDataPtr)callbackUD;
-		 			pNSD->nsOpCancel = TRUE;
+                    {
+						NSClientDataPtr pNSD = (NSClientDataPtr)callbackUD;
+						pNSD->nsOpCancel = TRUE;
+                    }
 					break;
 					
 				default:
@@ -463,9 +467,6 @@ static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUse
 				}
 				
 				status = NavDisposeReply(&reply);
-				break;
-				
-			default:
 				break;
 		}
 	}

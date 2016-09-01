@@ -72,18 +72,18 @@ static void DrawPopupSymbol(short, short);
 
 
 Boolean InitGPopUp(
-	register PGRAPHIC_POPUP	p,					/* pointer to GRAPHIC_POPUP allocated by caller */
-	Point							origin,			/* top, left corner in local coords */
-	short							menuID,			/* ID for menu AND its 'chgd' resource */
-	short							firstChoice		/* item number of initial choice (1-based) */
+	register PGRAPHIC_POPUP	p,				/* pointer to GRAPHIC_POPUP allocated by caller */
+	Point					origin,			/* top, left corner in local coords */
+	short					menuID,			/* ID for menu AND its 'chgd' resource */
+	short					firstChoice		/* item number of initial choice (1-based) */
 	)
 {
 	register Handle		resH;
 	register PCHARGRID	cgP;
-	register short			i, saveFontSize, saveFontNum, fontNameLen;
-	unsigned char			*itemChars;
-	GrafPtr					gp;
-	FontInfo					finfo;
+	register short		i, saveFontSize, saveFontNum, fontNameLen;
+	unsigned char		*itemChars;
+	GrafPtr				gp;
+	FontInfo			finfo;
 	
 	p->menu = NULL;	p->itemChars = NULL;		/* in case init fails, but DisposeGPopUp(p) called anyway */
 	
@@ -96,7 +96,12 @@ Boolean InitGPopUp(
 	p->numColumns = cgP->numColumns;
 	p->fontSize = cgP->fontSize;
 	p->itemChars = (char *) NewPtr((Size)p->numItems);
-	if (p->itemChars==NULL) goto broken;
+//	if (p->itemChars==NULL) goto broken;    // -ls
+    if (p->itemChars==NULL)
+    {
+        ReleaseResource(resH);
+        return FALSE;
+    }
 
 	fontNameLen = cgP->fontName[0] + 1;
 	if (odd(fontNameLen)) fontNameLen++;
@@ -231,9 +236,9 @@ static void DrawPopupSymbol(short h, short v)
 {
 	register short loop;
 
-	for (loop=0; loop<ARROW_LINES; ++loop) {				/* Loop through the six lines of the triangle */
-		MoveTo(h+loop-ARROW_LINES, v+loop);					/* Move to beginning of each line */
-		Line((ARROW_LINES*2)-2 - (loop*2), 0);				/* Draw line of appropriate length */
+	for (loop=0; loop<ARROW_LINES; ++loop) {		/* Loop through the six lines of the triangle */
+		MoveTo(h+loop-ARROW_LINES, v+loop);			/* Move to beginning of each line */
+		Line((ARROW_LINES*2)-2 - (loop*2), 0);		/* Draw line of appropriate length */
 	}
 }
 
@@ -242,7 +247,7 @@ static void DrawPopupSymbol(short h, short v)
 
 void HiliteGPopUp(
 	PGRAPHIC_POPUP	p,
-	short				activ 			/* frame popup box with dotted line, else erase it */
+	short			activ 			/* frame popup box with dotted line, else erase it */
 	)
 {
 	if (activ) {
@@ -267,7 +272,7 @@ Boolean DoGPopUp(PGRAPHIC_POPUP p)
 {
 	register long		choice;
 	register Boolean	ans = FALSE;
-	Point					pt, mPt;
+	Point				pt, mPt;
 	GrafPtr				savePort;
 	
 #if DRAW_POPUP_ARROW
@@ -327,8 +332,8 @@ void DisposeGPopUp(PGRAPHIC_POPUP p)
 
 POPKEY *InitDurPopupKey(PGRAPHIC_POPUP	gp)
 {
-	register short		i;
-	register char		*q;
+	register short	i;
+	register char	*q;
 	register POPKEY	*pkeys, *p;
 	
 	if (gp==NULL || gp->numItems==0) return NULL;
@@ -337,7 +342,7 @@ POPKEY *InitDurPopupKey(PGRAPHIC_POPUP	gp)
 	if (pkeys==NULL) goto broken;
 	
 	pkeys->durCode = pkeys->numDots = -99;			/* init garbage entry */
-	p = &pkeys[1];											/* point to 1st real entry */
+	p = &pkeys[1];										/* point to 1st real entry */
 	q = gp->itemChars;
 	for (i=0; i<gp->numItems; i++, q++, p++) {
 		p->numDots = 0;									/* might override below */
@@ -396,13 +401,13 @@ POPKEY *InitDurPopupKey(PGRAPHIC_POPUP	gp)
 				break;
 			case POP_64TH:
 			case POP_64TH_DOT:
-			case POP_64TH_2DOT:									/* disallowed by Ngale */
+			case POP_64TH_2DOT:								/* disallowed by Ngale */
 				p->durCode = SIXTY4TH_L_DUR;
 				if (*q==POP_64TH_DOT) p->numDots = 1;
 				if (*q==POP_64TH_2DOT) p->numDots = 2;
 				break;
 			case POP_128TH:
-			case POP_128TH_DOT:									/* disallowed by Ngale */
+			case POP_128TH_DOT:								/* disallowed by Ngale */
 				p->durCode = ONE28TH_L_DUR;
 				if (*q==POP_128TH_DOT) p->numDots = 1;
 				break;
@@ -439,15 +444,15 @@ short GetDurPopItem(PGRAPHIC_POPUP p, POPKEY *pk, short durCode, short numDots)
 
 /* from symtable: durKeys[durcode] = symcode */
 static unsigned char durKeys[MAX_L_DUR+1] = {
-	0,			/* dummy */
-	0xDD,		/* breve */
-	'w',		/* whole */
-	'h',		/* half */
-	'q',		/* quarter */
-	'e',		/* 8th */
-	'x',		/* 16th */
-	'r',		/* 32nd */
-	't',		/* 64th */
+	0,		/* dummy */
+	0xDD,	/* breve */
+	'w',	/* whole */
+	'h',	/* half */
+	'q',	/* quarter */
+	'e',	/* 8th */
+	'x',	/* 16th */
+	'r',	/* 32nd */
+	't',	/* 64th */
 	'y'		/* 128th */
 };
 
@@ -493,19 +498,19 @@ Boolean DurPopupKey(PGRAPHIC_POPUP p, POPKEY *pk, unsigned char theChar)
 	curNumDots = pk[curItem].numDots;
 	
 	newDurCode = DurPopChar2Dur(theChar);
-	if (newDurCode==NOMATCH) {							/* maybe it's another char we recognize */
-		if (theChar=='.')									/* same as aug dot's symcode in symtable */
+	if (newDurCode==NOMATCH) {						/* maybe it's another char we recognize */
+		if (theChar=='.')							/* same as aug dot's symcode in symtable */
 			isDotChar = TRUE;
-		else if (theChar=='?')							/* This certainly shouldn't be hard-wired, */
+		else if (theChar=='?')						/* This certainly shouldn't be hard-wired, */
 			newDurCode = UNKNOWN_L_DUR;				/* but there's no symcode for it! */
 		else
-			return FALSE;									/* no action for this key */
+			return FALSE;							/* no action for this key */
 	}
 	
 	if (isDotChar) {
-		for (i=curItem+1; ; i++) {						/* NB: do not use newDurCode in this block */
+		for (i=curItem+1; ; i++) {					/* NB: do not use newDurCode in this block */
 			if (i>numItems) i = 1;
-			if (pk[i].durCode==curDurCode) {			/* loop 'till we match durCodes */
+			if (pk[i].durCode==curDurCode) {		/* loop 'till we match durCodes */
 				newItem = i;
 				goto setChoice;
 			}
@@ -522,5 +527,5 @@ Boolean DurPopupKey(PGRAPHIC_POPUP p, POPKEY *pk, unsigned char theChar)
 setChoice:	
 	if (newItem && newItem!=curItem)
 		SetGPopUpChoice(p, newItem);
-	return TRUE;											/* the keystroke was directed at popup */
+	return TRUE;									/* the keystroke was directed at popup */
 }

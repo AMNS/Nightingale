@@ -374,33 +374,37 @@ static void DrawPartName(Document *doc, LINK staffL,
 			case toScreen:
 			case toImageWriter:
 			case toPICT:
-				oldFont = GetPortTxFont();
-				oldSize = GetPortTxSize();
-				oldStyle = GetPortTxFace();
-				
-				SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNamePN, LNSPACE(pContext));
-				
-				xname = paper->left+d2p(xd);
-				/*
-				 * To center vertically, one would expect to need to add txSize/2,
-				 * but that gives too low a position, maybe bcs of ascender/descender ht.
-				 */
-				short txSize = GetPortTxSize();
-				yname = paper->top+d2p(yd)+(txSize/3);
-				MoveTo(xname, yname);
-				DrawString(str);
-
-				TextFont(oldFont);
-				TextSize(oldSize);
-				TextFace(oldStyle);
+                {
+					oldFont = GetPortTxFont();
+					oldSize = GetPortTxSize();
+					oldStyle = GetPortTxFace();
+					
+					SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNamePN, LNSPACE(pContext));
+					
+					xname = paper->left+d2p(xd);
+					/*
+					 * To center vertically, one would expect to need to add txSize/2,
+					 * but that gives too low a position, maybe bcs of ascender/descender ht.
+					 */
+					short txSize = GetPortTxSize();
+					yname = paper->top+d2p(yd)+(txSize/3);
+					MoveTo(xname, yname);
+					DrawString(str);
+	
+					TextFont(oldFont);
+					TextSize(oldSize);
+					TextFace(oldStyle);
+                }
 				break;
 			case toPostScript:
-				/*
-				 * To center vertically, one would expect to need to add fontSize/2, but
-				 * again that gives too low a position, maybe bcs of ascender/descender ht.
-				 */
-				yd += pt2d(fontSize/4);
-				PS_FontString(doc, xd, yd, str, doc->fontNamePN, fontSize, doc->fontStylePN);
+                {
+					/*
+					 * To center vertically, one would expect to need to add fontSize/2, but
+					 * again that gives too low a position, maybe bcs of ascender/descender ht.
+					 */
+					yd += pt2d(fontSize/4);
+					PS_FontString(doc, xd, yd, str, doc->fontNamePN, fontSize, doc->fontStylePN);
+                }
 				break;
 		}
 	}

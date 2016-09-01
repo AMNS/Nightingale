@@ -901,9 +901,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			GetIndCString(fmtStr, FILEIO_STRS, 7);			/* "file version is illegal" */
 			sprintf(aStr, fmtStr, ACHAR(fndrInfo.fdType,3), ACHAR(fndrInfo.fdType,2),
 						 ACHAR(fndrInfo.fdType,1), ACHAR(fndrInfo.fdType,0));
-#ifndef PUBLIC_VERSION
 			LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
-#endif
 			CParamText(aStr, "", "", "");
 			StopInform(READ_ALRT);
 			return NULL;
@@ -952,9 +950,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			GetIndCString(fmtStr, FILEIO_STRS, 7);			/* "file version is illegal" */
 			sprintf(aStr, fmtStr, ACHAR(fndrInfo.fdType,3), ACHAR(fndrInfo.fdType,2),
 						 ACHAR(fndrInfo.fdType,1), ACHAR(fndrInfo.fdType,0));
-#ifndef PUBLIC_VERSION
 			LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
-#endif
 			CParamText(aStr, "", "", "");
 			StopInform(READ_ALRT);
 			return NULL;

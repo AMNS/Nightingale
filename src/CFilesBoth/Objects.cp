@@ -1565,7 +1565,7 @@ notes in the chord without warning!
 void FixChordForYStem(
 				LINK		syncL,
 				short		voice,
-				short		stemUpDown,			/* 1=up, -1=down */
+				short		stemUpDown,				/* 1=up, -1=down */
 				short		ystem					/* New ystem of chord */
 				)
 {
@@ -1575,7 +1575,7 @@ void FixChordForYStem(
 	DDIST maxy, miny;
 	
 #ifndef PUBLIC_VERSION
-	if (!stemUpDown) MayErrMsg("FixChordForYStem: stemUpDown bad.");
+	if (stemUpDown==0) MayErrMsg("FixChordForYStem: stemUpDown is bad.");
 #endif
 	
 	maxy = (DDIST)(-9999);
@@ -1873,7 +1873,7 @@ void FixGRChordForYStem(
 	DDIST maxy, miny;
 	
 #ifndef PUBLIC_VERSION
-	if (!stemUpDown) MayErrMsg("FixGRChordForYStem: stemUpDown bad.");
+	if (stemUpDown==0) MayErrMsg("FixGRChordForYStem: stemUpDown is bad.");
 #endif
 	
 	maxy = (DDIST)(-9999);

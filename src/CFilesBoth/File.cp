@@ -1344,10 +1344,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	/* If user has the secret keys down, pretend file is in current version. */
 	
 	if (CapsLockKeyDown() && ShiftKeyDown() && OptionKeyDown() && CmdKeyDown()) {
-#ifndef PUBLIC_VERSION
 		LogPrintf(LOG_NOTICE, "IGNORING FILE'S VERSION CODE '%T'.\n", version);
-#endif
-
 		GetIndCString(strBuf, FILEIO_STRS, 6);		/* "IGNORING FILE'S VERSION CODE!" */
 		CParamText(strBuf, "", "", "");
 		CautionInform(GENERIC_ALRT);
@@ -1362,9 +1359,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 		 { errCode = BAD_VERSION_ERR; goto Error; }
 	if (version<FIRST_VERSION) { errCode = LOW_VERSION_ERR; goto Error; }
 	if (version>THIS_VERSION) { errCode = HI_VERSION_ERR; goto Error; }
-#ifndef PUBLIC_VERSION
 	if (version!=THIS_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%T' FILE.\n", version);
-#endif
 
 	count = sizeof(fileTime);										/* Time file was written */
 	errCode = FSRead(refNum, &count, &fileTime);
@@ -1680,9 +1675,7 @@ void OpenError(Boolean fileOpened,
 					sprintf(aStr, fmtStr, errCode, errInfo);
 				}
 		}
-#ifndef PUBLIC_VERSION
 		LogPrintf(LOG_WARNING, aStr); LogPrintf(LOG_WARNING, "\n");
-#endif
 		CParamText(aStr, "", "", "");
 		StopInform(READ_ALRT);
 	}
@@ -2326,9 +2319,7 @@ void SaveError(Boolean fileOpened,
 		sprintf(aStr, fmtStr, errCode, errInfo);
 	}
 
-#ifndef PUBLIC_VERSION
 	LogPrintf(LOG_WARNING, aStr); LogPrintf(LOG_WARNING, "\n");
-#endif
 	CParamText(aStr, "", "", "");
 	StopInform(SAVE_ALRT);
 }
