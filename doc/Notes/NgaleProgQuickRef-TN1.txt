@@ -1,6 +1,30 @@
-NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.6)
+NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.7b4)
 Nightingale Technical Note #1
-Don Byrd, rev. early July 2016
+Don Byrd, rev. early Sept. 2016
+
+A general note:
+
+Working on Nightingale is more difficult than you might expect, and more difficult than
+it should be, for several reasons, mostly related to its age. It was designed in the
+mid- and late-1980's to run on some of the first Macintosh computers, e.g., the
+Macintosh Plus and SE. Those machines were hundreds, perhaps thousands, of times slower
+than modern (2016) computers: their processors were Motorola 68000s, 16-bit CPUs running
+at 8 MHz. They also had a thousand or so times less memory than modern computers:
+typically one or two megabytes. As a result:
+
+* For speed, Nightingale's main data structure, the object list, has cross-links on
+	multiple levels.
+* Nightingale's file format closely resembles its in-memory data structures, making it
+	much harder to add functionality that requires keeping information around while
+	retaining backwards compatability.
+* Nightingale has its own mid-level memory management routines, involving structures
+	called _heaps_. These must be "locked" at times to keep the Mac OS's own memory
+	manager, with its fixed _handles_, from moving things around and leaving pointers
+	behind.
+* The Macintosh toolkit of the time -- later dubbed "Carbon" -- was designed primarily
+	for use from Pascal, and it expects strings in Pascal's format of a length byte
+	followed by at most 255 characters. Thus Nightingale frequently converts strings
+	from C to Pascal format and vice-versa.
 
 NB: Everything in this document applies to versions of Nightingale at least as far back as
 v. 2000.
@@ -21,6 +45,31 @@ Also see the important header files:
 
 The voice-mapping table -- for the document _doc_, _doc->voiceTab[]_ -- is described in
 comments at the beginning of VoiceTable.c.
+
+---------------------------------------------------------------------------------------
+
+About Nightingale Data Structures
+
+Nightingale's main data structure is what is called an _object list_. For each open
+file, there's a "main" object list and one for the score’s Master Page. In addition,
+there's one for the Undo command and one for the clipboard. An object list is a
+doubly-linked list of Nightingale objects. Most object types, e.g., HEAD, MEASURE, and
+SYNC, have singly-linked lists of subobjects attached to them; a few, e.g., TAIL and
+PAGE, have no subobjects. For SYNCs, by far the most important and complex objects, the
+subobjects are notes and rests. There’s also one type of subobject, MODNRs (note/rest
+modifiers), that doesn’t have its own object type: instead, a list of MODNRs can be
+attached to a SYNC subobject. Every Nightingale file contains exactly two object lists:
+one for the score proper, and a very short one for the score’s Master Page.
+
+Not surprisingly, every object list must begin with a HEAD and end with a TAIL, but
+there are many other rules about the order in which objects can appear. For one thing,
+PAGEs, SYSTEMs, STAFFs, and MEASUREs have a heirarchic relationship, and each of them
+must follow whatever contains them. And every DYNAMIC, GRAPHIC, and SLUR affecting a
+note must precede the SYNC containing the note. Unfortunately, as far as I know, there's
+no explicit statement anywhere of all the rules, but many of them are implemented in or
+discussed in the comments on the debugging functions DCheckHeirarchy() and
+DCheckJDOrder(). See also Tech Note #4, "Nightingale Files and Troubleshooting Files
+Nightingale Can’t Open".
 
 ---------------------------------------------------------------------------------------
 
@@ -59,7 +108,7 @@ Type	Name			Object size in files (it's always 46 in RAM) (- = type has no objs)
 22		ENDINGtype		32	-
 23		PSMEAStype		24	6		pseudo-measure: dotted barline, repeat bar that isn't barline
 
-24		OBJtype			46	46 	(size in RAM; in a file, may be less, depending on type)
+24		OBJtype			46	46 	(the size in RAM; in a file, it may be less, depending on type)
 
 ---------------------------------------------------------------------------------------
 
