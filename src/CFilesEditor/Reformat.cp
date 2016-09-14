@@ -1,8 +1,8 @@
 /***************************************************************************
 	FILE:	Reformat.c
 	PROJ:	Nightingale
-	DESC:	Routines for standard reformatting (does no respacing, works on any
-	any range).
+	DESC:	Routines for standard reformatting (does no respacing, works on
+			any range).
 
 	BuildMeasTable				NewSysNums
 	FixMeasVis					AddFinalMeasure
@@ -27,12 +27,12 @@
 typedef struct {
 	LINK		measL;
 	LINK		systemL;
-	short		firstOfSys:1;			/* TRUE=first Measure of System */
-	short		lastOfSys:1;			/* TRUE=last Measure of System */
-	short		secondPiece:1;			/* TRUE=2nd piece of split Measure: combine if possible */
+	short		firstOfSys:1;		/* TRUE=first Measure of System */
+	short		lastOfSys:1;		/* TRUE=last Measure of System */
+	short		secondPiece:1;		/* TRUE=2nd piece of split Measure: combine if possible */
 	short		newSysNum:13;
-	DDIST		width;					/* Normal width of Measure */
-	DDIST		lastWidth;				/* Width of Measure if it's last in its System */
+	DDIST		width;				/* Normal width of Measure */
+	DDIST		lastWidth;			/* Width of Measure if it's last in its System */
 	long		lTimeStamp;
 	SignedByte	barType;
 	SignedByte	filler;
@@ -73,7 +73,8 @@ static Boolean MoveMeasJDObjs(Document *, LINK, LINK);
 static short GetTitleMargin(Document *doc);
 static short RfmtPages(Document *, LINK, LINK, short, short);
 
-static short nSysInScore,startSIndex;
+static short startSIndex;
+
 
 /* ------------------------------------------- CountMeasures/RealMeasures/Systems -- */
 
@@ -104,6 +105,7 @@ static short CountSystems(Document *doc, LINK startL)
 {
 	return CountObjects(startL, doc->tailL, SYSTEMtype);
 }
+
 
 /* ------------------------------------------------------ AllocMeasTable/SysTable -- */
 
@@ -140,6 +142,7 @@ static SYSDATA *AllocSysTable(Document *doc, LINK startSysL)
 	return sysTable;
 }
 
+
 /* ------------------------------------------------------------------- GetMWidth -- */
 
 static DDIST GetMWidth(Document *doc, LINK measL)
@@ -154,13 +157,14 @@ static DDIST GetMWidth(Document *doc, LINK measL)
 	return SysRelxd(lastL)-SysRelxd(measL);
 }
 
+
 /* -------------------------------------------------------------- BuildMeasTable -- */
 /* Build a table of widths and current owning Systems of the Measures to be
 reformatted, with a blank slot for the new System number of each Measure. Delivers
 the number of Measures in the table. */
 
 static short BuildMeasTable(Document *doc, LINK startSysL, LINK endSysL,
-									MEASDATA measTable[])
+								MEASDATA measTable[])
 {
 	short mIndex;
 	LINK measL, startMeasL, endMeasL;
@@ -220,6 +224,7 @@ static short BuildSysTable(Document */*doc*/, LINK startSysL, LINK endL, SYSDATA
 	return CountObjects(startSysL, endL, SYSTEMtype);
 }
 
+
 /* ------------------------------------------------------------------ NewSysNums -- */
 /*	Fill in the new System number each Measure will have. Start a new System when
 the desired number of Measures per System is exceeded or, optionally, when the
@@ -236,13 +241,13 @@ have a different length (because of its indent), we use one "usable staff length
 for the System we start with and another for all other Systems. */
 
 static short NewSysNums(
-					Document *doc,
-					short measPerSys,
-					Boolean ignoreOver,			/* Ignore overflow (up to max.DDIST length) */
-					MEASDATA measTable[],
-					short mCount,
-					LINK startSysL
-					)
+				Document *doc,
+				short measPerSys,
+				Boolean ignoreOver,			/* Ignore overflow (up to max.DDIST length) */
+				MEASDATA measTable[],
+				short mCount,
+				LINK startSysL
+				)
 {
 	short m,prevSysNum,measThisSys,startSysNum,oldSysNum;
 	LONGDDIST currWidth;
@@ -363,10 +368,10 @@ static void FixMeasVis(Document */*doc*/, MEASDATA measTable[], short mCount)
 /* ------------------------------------------------------------- AddFinalMeasure -- */
 
 static Boolean AddFinalMeasure(Document *doc, LINK startSysL, LINK newSysL,
-											DDIST measWidth)
+								DDIST measWidth)
 {
-	LINK		prevMeasL, staffL, newMeasL, aMeasureL;
-	DDIST 	staffTop[2];										/* Dummy, for MakeMeasure */		
+	LINK	prevMeasL, staffL, newMeasL, aMeasureL;
+	DDIST 	staffTop[2];							/* Dummy, for MakeMeasure */		
 	CONTEXT	theContext;
 
 	prevMeasL = SSearch(startSysL, MEASUREtype, GO_LEFT);
@@ -376,7 +381,7 @@ static Boolean AddFinalMeasure(Document *doc, LINK startSysL, LINK newSysL,
 		return FALSE;
 	}
 	newMeasL = MakeMeasure(doc, LeftLINK(startSysL), prevMeasL, staffL, newSysL,
-																	measWidth, staffTop, succMeas);
+													measWidth, staffTop, succMeas);
 	if (!newMeasL) return FALSE;
 	
 	SetMeasVisible(newMeasL, TRUE);
@@ -417,6 +422,7 @@ short GetSysWhere(LINK startSysL, LINK newSysL)
 	return succSystem;
 }
 
+
 /* ----------------------------------------------------------------- RfmtSystems -- */
 /* Reformat systems from <startSysL>, which must be a System, thru <endSysL>, in
 effect by moving Measures from System to System to fill them as well as possible,
@@ -430,7 +436,7 @@ static short RfmtSystems(
 					LINK		startSysL,
 					LINK		endSysL,
 					short		measPerSys,		/* Maximum no. of Measures allowed per System */
-					Boolean	ignoreOver,		/* Ignore overflow and consider only <measPerSys> */
+					Boolean		ignoreOver,		/* Ignore overflow and consider only <measPerSys> */
 					LINK		*newStartSysL 	/* Output: the first newly-created System */
 					)
 {
@@ -442,8 +448,8 @@ static short RfmtSystems(
 				prevMeasL=NILINK, newMeasL;
 	short		mCount, m, mPostRfmt;
 	short		prevSysNum, sysWhere, status, returnCode;
-	Boolean	moveRJD, moveMJD;
-	CONTEXT	context;
+	Boolean		moveRJD, moveMJD;
+	CONTEXT		context;
 	long		timeMove;
 
 	measTable = AllocMeasTable(doc,startSysL,endSysL);
@@ -464,24 +470,24 @@ static short RfmtSystems(
 	ProgressMsg(ARRANGEMEAS_PMSTR, "");
 
 	/*
-	 *	Traverse the Measures to be reformatted.  We create new Systems in the object
-	 *	list, inserting them before the System that originally held the first
-	 *	Measure to be reformatted.  Each newly created System is then filled with
-	 *	consecutive Measures (as decided in NewSysNums) by moving them in the object
+	 * Traverse the Measures to be reformatted.  We create new Systems in the object
+	 * list, inserting them before the System that originally held the first
+	 * Measure to be reformatted.  Each newly created System is then filled with
+	 * consecutive Measures (as decided in NewSysNums) by moving them in the object
 	 * list, one at a time, with MoveRange.
 	 *
-	 *	Any JD objects (Graphics, Tempos, and Endings) that are now attached either to
+	 * Any J_D objects (Graphics, Tempos, and Endings) that are now attached either to
 	 * objects in a reserved area or to its terminating Measure object, or that are
-	 *	attached to a Measure that will end up terminating a reserved area, will need
-	 *	updating, since their attached objects are going to disappear and be recreated:
-	 *	this is what <moveRJD> and <moveMJD> detect.
+	 * attached to a Measure that will end up terminating a reserved area, will need
+	 * updating, since their attached objects are going to disappear and be recreated:
+	 * this is what <moveRJD> and <moveMJD> detect.
 	 */
 	prevSysNum = -1;
 	newSysL = NILINK;
 	for (m = 0; m<mCount; m++) {
 	
 		/*
-		 *	Get the Measure's barline and the first object after the end of the Measure.
+		 * Get the Measure's barline and the first object after the end of the Measure.
 		 * Also get the corresponding post-reformatting Measure: the same as the
 		 * current Measure unless it's now the first in its System.
 		 */
@@ -499,7 +505,7 @@ static short RfmtSystems(
 		if (measTable[m].newSysNum!=prevSysNum) {
 
 			/*
-			 *	It is necessary, which means that the Measure we're about to move will
+			 * It is necessary, which means that the Measure we're about to move will
 			 * be the first Measure in the System (e.g., it follows the "invisible"
 			 * barline). We don't know the vertical position of the System yet, but
 			 * NewSheetNums uses this no. to decide page breaks, so it can't be any
@@ -630,19 +636,19 @@ static short RfmtSystems(
 	}
 
 	/*
-	 *	We've moved everything to its new home. Obliterate the empty, lifeless ghost
-	 *	town of Systems (and their neighboring Staffs, Connects, etc., plus perhaps
-	 *	some Pages) the Measures used to populate. We'll update page numbers as well as
-	 *	system and measure numbers unconditionally--it's easier and should cause no
+	 * We've moved everything to its new home. Obliterate the empty, lifeless ghost
+	 * town of Systems (and their neighboring Staffs, Connects, etc., plus perhaps
+	 * some Pages) the Measures used to populate. We'll update page numbers as well as
+	 * system and measure numbers unconditionally--it's easier and should cause no
 	 * problems. Before doing anything, however, we have to mark any cross-system
 	 * Slurs attached to them as being first pieces of cross-system Slur pairs,
-	 *	since otherwise the routine that updates them won't be able to tell which piece
-	 *	they are. We don't NOT have to to mark cross-system Slurs attached to Measures
-	 *	because, at the point where FixCrossSysObjects is called below, the Measures
-	 *	will still be recognizable as Measure objects (even though they won't be in
+	 * since otherwise the routine that updates them won't be able to tell which piece
+	 * they are. We don't NOT have to to mark cross-system Slurs attached to Measures
+	 * because, at the point where FixCrossSysObjects is called below, the Measures
+	 * will still be recognizable as Measure objects (even though they won't be in
 	 * the object list any longer), and that's all FixCrossSysObjects needs. (We don't
 	 * need to go thru the ENTIRE object list looking for slurs to mark; some day
-	 *	this should be optimized.)
+	 * this should be optimized.)
 	 */
 	sysL = startSysL;
 	for ( ; sysL && sysL!=measTable[mCount-1].systemL; sysL = LinkRSYS(sysL)) {	 
@@ -723,6 +729,7 @@ static short GetRfmtRange(Document *doc, SYSDATA sysTable[], short sCount)
 	return newSCount;
 }
 
+
 /* -------------------------------------------------------------- CheckSysHeight -- */
 /*	Check all Systems in <sysTable> to see if any single System is too tall for the
 height of the page. If so, if it's only because of the score's first System's extra
@@ -771,6 +778,7 @@ static short CheckSysHeight(Document *doc, SYSDATA sysTable[], short sCount, sho
 	return ALL_OK;
 }
 
+
 /* --------------------------------------------------------------- DebugSysTable -- */
 
 #ifdef RFMTBUG
@@ -788,19 +796,20 @@ static void DebugSysTable(SYSDATA [], short, DDIST, DDIST, short)
 {}
 #endif
 
+
 /* ---------------------------------------------------------------- NewSheetNums -- */
 /*	Fill in the new sheet number each System will have. Start a new Page when
 either the current Page overflows, or the desired number of Systems per Page is
 exceeded. Return TRUE if any System should be moved to another Page, else FALSE. */
 
 static Boolean NewSheetNums(
-						Document *doc,
-						LINK startSysL,
-						short sysPerPage,			/* Maximum no. of Systems allowed per Page */
-						SYSDATA sysTable[],
-						short sCount,				/* No. of Systems in <sysTable> */
-						short titleMargin
-						)
+					Document *doc,
+					LINK startSysL,
+					short sysPerPage,			/* Maximum no. of Systems allowed per Page */
+					SYSDATA sysTable[],
+					short sCount,				/* No. of Systems in <sysTable> */
+					short titleMargin
+					)
 {
 	short s, prevSheetNum,pgSysNum,oldSheetNum,startSheetNum;
 	DDIST pgHtUsed,pgHtAvail,topMargin,firstMargin,prevPgHtUsed;
@@ -858,6 +867,7 @@ static Boolean NewSheetNums(
 	return doSomething;
 }
 
+
 /* -------------------------------------------------------------- RfmtResetSlurs -- */
 /* Mark any cross-system Slurs attached to its initial Measure as being second
 pieces of cross-system Slur pair, and mark any cross-system Slurs attached
@@ -882,6 +892,7 @@ static LINK RfmtResetSlurs(Document *doc, LINK startMoveL)
 
 	return measL;
 }
+
 
 /* ----------------------------------------------------- MoveXXXJDObjs functions -- */
 /* These functions are to update links in JD objects attached to objects that may
@@ -979,10 +990,10 @@ set their object-attached-to links to NILINK to indicate they need updating. If 
 find any, return TRUE, else FALSE. */
 
 static Boolean PrepareMoveMeasJDObjs(
-						Document *doc,
-						LINK measL,			/* Measure to consider */
-						LINK prevMeasL 	/* Measure to search for objects attached to <measL> */
-						)
+					Document *doc,
+					LINK measL,		/* Measure to consider */
+					LINK prevMeasL 	/* Measure to search for objects attached to <measL> */
+					)
 {
 	LINK pL, endMeasL; Boolean didSomething;
 	
@@ -1022,15 +1033,16 @@ static Boolean PrepareMoveMeasJDObjs(
 	return didSomething;
 }
 
+
 /* Find every Graphic, Tempo, and Ending that has an object-attached-to link of
 NILINK, and set its object-attached-to link to the first Measure of the given
 System. */
 
 static Boolean MoveMeasJDObjs(
-							Document *doc,
-							LINK newSysL,
-							LINK prevMeasL		/* Measure to search for NILINKs */
-							)
+						Document *doc,
+						LINK newSysL,
+						LINK prevMeasL		/* Measure to search for NILINKs */
+						)
 {
 	LINK pL, endMeasL, newMeasL, nextL;
 	
@@ -1093,15 +1105,15 @@ along the way; this means that, when we're done, <startSysL> may no longer be in
 the object list! Returns FAILURE, NOTHING_TO_DO, or OP_COMPLETE. */
 
 static short RfmtPages(Document *doc,
-							LINK startSysL, LINK endSysL,
-							short sysPerPage,					/* Max. no. of Systems allowed per Page */
-							short titleMargin)
+						LINK startSysL, LINK endSysL,
+						short sysPerPage,					/* Max. no. of Systems allowed per Page */
+						short titleMargin)
 {
 	SYSDATA	*sysTable;
-	LINK		newPageL, nextSysL, firstPageL=NILINK, lastObjL,
-				measL, startMoveL, endMoveL, newMeasL;
-	short		startSheetNum, sCount, prevSheetNum, returnCode;
-	short		s;
+	LINK	newPageL, nextSysL, firstPageL=NILINK, lastObjL,
+			measL, startMoveL, endMoveL, newMeasL;
+	short	startSheetNum, sCount, prevSheetNum, returnCode;
+	short	s;
 	Boolean	sheetChange;
 
 	sysTable = AllocSysTable(doc, startSysL);
@@ -1151,13 +1163,12 @@ static short RfmtPages(Document *doc,
 	 * Yes, there's work to be done: reformat. Note that we may simply need to change
 	 * the top margin of the first page, in which case we're going to do a lot more
 	 * than we need to; I don't think that'll cause any real problems, though.
-	 *	Traverse the Systems to be reformatted.  The first one or more Systems may
-	 *	stay where they are. For following Systems, we create new Pages in the object
-	 *	list, inserting them at the end of the range to be reformatted.  Each
-	 *	newly created Page is then filled with consecutive Systems (as decided in
-	 *	NewSheetNums) by moving them in the object list, one at a time, with MoveRange.
+	 * Traverse the Systems to be reformatted.  The first one or more Systems may
+	 * stay where they are. For following Systems, we create new Pages in the object
+	 * list, inserting them at the end of the range to be reformatted.  Each
+	 * newly created Page is then filled with consecutive Systems (as decided in
+	 * NewSheetNums) by moving them in the object list, one at a time, with MoveRange.
 	 */
-
 	startSheetNum = SheetNUM(SysPAGE((startSysL)));
 	prevSheetNum = startSheetNum;
 

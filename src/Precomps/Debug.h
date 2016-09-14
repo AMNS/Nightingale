@@ -21,6 +21,7 @@ Boolean DCheckTuplets(Document *, Boolean);
 Boolean DCheckPlayDurs(Document *, Boolean);
 Boolean DCheckHairpins(Document *);
 Boolean DCheckContext(Document *);
+Boolean DCheckTempi(Document *);
 Boolean DCheckRedundKS(Document *);
 Boolean DCheckRedundTS(Document *);
 Boolean DCheckMeasDur(Document *);

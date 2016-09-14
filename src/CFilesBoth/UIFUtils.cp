@@ -1365,14 +1365,15 @@ StringPtr PtoCstr(StringPtr str)
 
 
 /* ------------------------------------------------------------ Log-file handling -- */
-/* NB: LOG_DEBUG is the lowest level (=highest internal code), so -- according to the
- man page for syslog(3) -- the call to setlogmask in InitLogPrintf() _should_ cause all
- messages to go to the log regardless of level; but on my G5, I rarely if ever get
- anything below LOG_NOTICE. To avoid this problem, LogPrintf() can change anything with
- a lower level(=higher code) to a given level, MIN_LOG_LEVEL. To disable that,
- set MIN_LOG_LEVEL to a large number, say 999. */
+/* NB: LOG_DEBUG is the lowest level (=_highest_ internal code: caveat!), so --
+according to the man page for syslog(3) -- the call to setlogmask in InitLogPrintf()
+_should_ cause all messages to go to the log regardless of level; but on my G5, I
+rarely if ever get anything below LOG_NOTICE. To avoid this problem, LogPrintf()
+can change anything with a lower level(=higher code) to a given level, MIN_LOG_LEVEL.
+To disable that feature, set MIN_LOG_LEVEL to a large number (not a small one!), say
+999. */
 
-#define MIN_LOG_LEVEL LOG_NOTICE			/* Force lower levels to this */
+#define MIN_LOG_LEVEL LOG_NOTICE			/* Force lower levels (higher codes) to this */
 
 #define LOG_TO_STDERR FALSE					/* Print to stderr as well as system log? */
 

@@ -15,6 +15,7 @@ static Boolean ExtractDialog(unsigned char *, Boolean *, Boolean *, Boolean *, s
 static void NormalizePartFormat(Document *doc);
 static void ReformatPart(Document *, short, Boolean, Boolean, short);
 static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *name);
+static Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerStr[], Boolean isHeader);
 
 /* ------------------------------------------------- ExtractDialog and DoExtract -- */
 
@@ -200,7 +201,7 @@ static void NormalizePartFormat(Document *doc)
 	 * for the original score. Now we need to correct staff positions, measureRects
 	 * and systemRects.
 	 */
-	ExFixMeasAndSysRects(doc);									/* OK since all staves are visible */
+	ExFixMeasAndSysRects(doc);								/* OK since all staves are visible */
 }
 					
 
@@ -220,7 +221,7 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 	RespaceBars(doc, pL, doc->tailL,
 					RESFACTOR*(long)spacePercent, FALSE, FALSE);	/* Don't reformat! */
 	doc->spacePercent = spacePercent;
-	Antikink();														/* FIXME: SHOULD BE AFTER Reformat! */
+	Antikink();														/* FIXME: SHOULD DO AFTER Reformat! */
 
 	Reformat(doc, RightLINK(doc->headL), doc->tailL,
 				changeSBreaks, (careMeasPerSys? measPerSys : 9999),
@@ -280,11 +281,9 @@ static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *partF
 
 /* Copy the header or footer strings from one document to another. */
 
-Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerStr[], Boolean isHeader);
-Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerStr[], Boolean isHeader)
+static Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerStr[], Boolean isHeader)
 {
 	STRINGOFFSET hOffset, fOffset, newOffset;
-	StringPtr pSrc, pDst;
 	Str255 string;
 	
 	if (isHeader) {

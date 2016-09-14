@@ -809,12 +809,16 @@ Update README.
 
 -------------------------------------------------------------------------------
 
-1 Sept.
+1 - 7 Sept.
 
-Remove numerous #ifndef PUBLIC_VERSION. Affects a bunch of files.
+Remove numerous #ifndef PUBLIC_VERSIONs. Affects a bunch of files.
 
 Incorporate Laurie S.'s changes to make Ngale compile with Xcode 7.3. Affects
 About, CheckMerge, DrawObject, DurationPopUp, FileInput, NavServices.
 
-Minor cleanup. Affects DurationPopUp, MCaret, MIDIFOCmd, MIDIRecord, NotelistParse,
-Objects, Transcribe.
+In extracted parts, set Left End of Systems for "Other" systems (not the first) to
+"No instrument names" and indent to 0. Affects Extract.
+
+Minor cleanup. Affects MemMacros.h; DurationPopUp, ExtractHighLevel, MCaret, MIDIFOCmd,
+MIDIRecord, NotelistParse, Objects, Reformat, Transcribe, UIFUtils.
+

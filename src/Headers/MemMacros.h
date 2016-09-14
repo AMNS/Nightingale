@@ -362,7 +362,7 @@
 #define GraphicLASTOBJ(link)	( (GetPGRAPHIC(link))->lastObj )
 #define GraphicSTRING(link)		( (GetPAGRAPHIC(link))->strOffset )
 #define TempoFIRSTOBJ(link)		( (GetPTEMPO(link))->firstObjL )
-#define TempoSTRING(link)	 	( (GetPTEMPO(link))->string )
+#define TempoSTRING(link)	 	( (GetPTEMPO(link))->strOffset )
 #define TempoMETROSTR(link)		( (GetPTEMPO(link))->metroStrOffset )
 #define TempoNOMM(link)			( (GetPTEMPO(link))->noMM )
 #define EndingFIRSTOBJ(link)	( (GetPENDING(link))->firstObjL )

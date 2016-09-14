@@ -17,7 +17,7 @@ static void		SelectPart(Document *doc, LINK partL, Boolean extractAllGraphics);
 static Boolean	CopyPartInfo(Document *, Document *, LINK);
 static Boolean	CopyPartRange(Document *, Document *, LINK, LINK, LINK, LINK);
 static Boolean	CopyPart(Document *score, Document *part, LINK partL);
-static void		CopyDocFields(Document *part, Document *score);
+static void		InitDocFields(Document *part, Document *score);
 static void		RPDeselAll(Document *);
 static short	ReadPart(Document *part, Document *score, LINK partL, Boolean *partOK);
 static Boolean	MakeMultibarRest(Document *, LINK, LINK, short, short, COPYMAP *, short);
@@ -578,10 +578,10 @@ static short ReadPart(Document *part, Document *score, LINK partL, Boolean *part
 }
 
 	
-/* Copy those fields which should be preserved in the extracted part from the score
-Document into the part Document. */
+/* Initialize fields in the part Document header, mostly by copying them from
+the score Document. */
 
-void CopyDocFields(register Document *score, register Document *part)
+static void InitDocFields(register Document *score, register Document *part)
 {
 	short s;
 	
@@ -608,14 +608,18 @@ void CopyDocFields(register Document *score, register Document *part)
 
 	part->feedback = score->feedback;
 	part->polyTimbral = score->polyTimbral;
-	part->spacePercent = score->spacePercent;
+	part->spacePercent = score->spacePercent;	
+	/* If score staff size is small, the size in the part probably should be larger,
+	   but changing it involves much more than just changing one header field, and it's
+	   easy for the user to change. */
 	part->srastral = score->srastral;
 	part->tempo = score->tempo;
 	part->channel = score->channel;
 	part->velocity = score->velocity;
-	part->otherIndent = score->otherIndent;
 	part->firstNames = score->firstNames;
-	part->otherNames = score->otherNames;
+	part->otherIndent = 0.0;
+	part->otherNames = NONAMES;
+
 	part->lastGlobalFont = score->lastGlobalFont;
 	part->xMNOffset = score->xMNOffset;
 	part->yMNOffset = score->yMNOffset;
@@ -1064,7 +1068,7 @@ Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum, F
 
 	/* We now have a Document with the part data in it, but it needs a lot of fixing up. */
 
-	CopyDocFields(doc,newDoc);
+	InitDocFields(doc,newDoc);
 	MultibarRests(newDoc, staffDiff, TRUE);
 	UpdateDocHeader(newDoc);						/* Since MultibarRests can remove systems and pages */
 	FixMeasures(newDoc);
