@@ -822,3 +822,14 @@ In extracted parts, set Left End of Systems for "Other" systems (not the first) 
 Minor cleanup. Affects MemMacros.h; DurationPopUp, ExtractHighLevel, MCaret, MIDIFOCmd,
 MIDIRecord, NotelistParse, Objects, Reformat, Transcribe, UIFUtils.
 
+===============================================================================
+
+14 - 15 Sept.
+
+Changed version number from 5.7b4 to 5.7b5. Affects Info.plist.
+
+Minor cleanup. Affects MIDIGeneral.h; CoreMidiUtils, MIDIFSave, MIDIPlay, MIDIUtils,
+NewSlur, TrackVMove.
+
+Increase max. no. of tempo changes on playback from 100 to 300; reword error message
+for exceeding the limit. Affects .rsrc; MIDIPlay.

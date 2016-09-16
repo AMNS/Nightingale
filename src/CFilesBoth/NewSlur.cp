@@ -53,8 +53,8 @@ static short BuildTieArrays(LINK, LINK, short, char [], char[]);
 indicate whether they were successful, or if not, the reason why. */
 
 #define PROG_ERR 	-2		/* Code for program error */
-#define USR_ALERT -1		/* Code for user alert */
-#define F_ABORT	0		/* Code for function abort */
+#define USR_ALERT	-1		/* Code for user alert */
+#define F_ABORT		0		/* Code for function abort */
 #define NF_OK		1		/* Code for successful completion */
 #define F_SLUR		2
 #define F_TIE		3
@@ -66,11 +66,10 @@ static LINK 	slurL;
 static short 	endStaff;
 static short 	oldSystem;
 static short 	subCount;
-static Point 	pt;
 static DPoint 	kn0Pt, kn1Pt;
 static DPoint 	c0, c1;
-static Boolean crossSystem, crossSysBack, crossStaff, crossStfBack;
-static Boolean itsATie, mustBeTie, slurToNext;
+static Boolean	crossSystem, crossSysBack, crossStaff, crossStfBack;
+static Boolean	itsATie, mustBeTie, slurToNext;
 static char 	firstIndA[MAXCHORD], lastIndA[MAXCHORD];
 static char 	returnCode;
 static Point	startPt[MAXCHORD], endPt[MAXCHORD];
@@ -84,7 +83,8 @@ static char HandleFirstSync(Document *doc, short staff, short voice)
 	Boolean noteFound=FALSE;
 	
 	if (doc->selStartL==doc->headL) {
-		MayErrMsg("HandleFirstSync: ASKED TO INSERT BEFORE HEADER"); return PROG_ERR;
+		MayErrMsg("HandleFirstSync: ASKED TO INSERT BEFORE HEADER");
+		return PROG_ERR;
 	}
 	
 	if (!SyncTYPE(LeftLINK(doc->selStartL))) return F_ABORT;
@@ -96,7 +96,7 @@ static char HandleFirstSync(Document *doc, short staff, short voice)
 		if (aNote->staffn==staff && aNote->voice==voice)
 			{ noteFound = TRUE; break; }
 	}
-	if (!noteFound) return F_ABORT;								/* No note on this staff & voice? */
+	if (!noteFound) return F_ABORT;						/* No note on this staff & voice? */
 
 	HiliteInsertNode(doc, firstSyncL, staff, TRUE);
 	return NF_OK;
@@ -112,9 +112,9 @@ static Point NewTrackSlur(Document *doc, Rect *paper, Point pt, Rect *newPaper)
 {
 	Boolean curveUp, good;
 	DPoint  tempPt;
-	Point   localPoint,globalPoint;
+	Point   localPoint, globalPoint;
 	PANOTE  firstNote;
-	short	  sheetNum;
+	short	sheetNum;
 
 	/*
 	 *	Decide whether the slur should curve up or down based on 1st note stem dir.
@@ -124,13 +124,12 @@ static Point NewTrackSlur(Document *doc, Rect *paper, Point pt, Rect *newPaper)
 	 *	OR EVEN IN WHICH DIRECTION!  PROBABLY BETTER TO LET USER'S GESTURE DECIDE
 	 *	FEEDBACK CURAVTURE, THEN CORRECT IT.) Then let the user "draw" the slur.
 	 */
-	 
  	firstNote = GetPANOTE(firstNoteL);
 	curveUp = (firstNote->ystem > firstNote->yd);
-	SetDPt(&tempPt,p2d(pt.h),p2d(pt.v));
+	SetDPt(&tempPt,p2d(pt.h), p2d(pt.v));
 
-	good = TrackSlur(paper,tempPt, &kn0Pt, &kn1Pt, &c0, &c1, curveUp);
-	SetPt(&localPoint,d2p(kn1Pt.h),d2p(kn1Pt.v));
+	good = TrackSlur(paper, tempPt, &kn0Pt, &kn1Pt, &c0, &c1, curveUp);
+	SetPt(&localPoint, d2p(kn1Pt.h), d2p(kn1Pt.v));
 
 	/* Convert localPoint to window coordinates and check if localPoint is
 		outside the bounds of paper.  If it is, then find the page that the
@@ -141,8 +140,8 @@ static Point NewTrackSlur(Document *doc, Rect *paper, Point pt, Rect *newPaper)
 	globalPoint.v += paper->top;
 	
 	*newPaper = *paper;
-	if (FindSheet(doc,globalPoint,&sheetNum))
-		GetSheetRect(doc,sheetNum,newPaper);
+	if (FindSheet(doc, globalPoint, &sheetNum))
+		GetSheetRect(doc, sheetNum, newPaper);
 	
 	/* At this point, if newPaper != paper, caller knows slur ends on another page */
 	return globalPoint;
@@ -160,6 +159,7 @@ static short GetSyncStaff(LINK pL, short index)
 		if (i==index) return NoteSTAFF(aNoteL);
 	return NOONE;
 }
+
 
 /* Check whether the slur ended on the same system or staff as it began. If the
 system was different, it's a cross-system slur, so set crossSystem TRUE. If the
@@ -183,22 +183,22 @@ static void CheckCrossness(Document *doc, short	staff, Point pt)
 
 	oldSystem = doc->currentSystem;
 
-	endStaff = FindStaff(doc, pt);								/* #1. */
+	endStaff = FindStaff(doc, pt);							/* #1. */
 	pL = FindObject(doc, pt, &index, SMFind);
-	if (pL) objEndStaff = GetSyncStaff(pL,index);
+	if (pL) objEndStaff = GetSyncStaff(pL, index);
 
 	if (objEndStaff!=NOONE)
 		if (endStaff!=objEndStaff)
 			endStaff = objEndStaff;
 
-	if (doc->currentSystem!=oldSystem)	{						/* Does it cross systems? */
+	if (doc->currentSystem!=oldSystem)	{					/* Does it cross systems? */
 		crossSysBack = (doc->currentSystem<oldSystem);
 		crossSystem = TRUE;
 	}
 	else
 		crossSystem = FALSE;
 
-	if (endStaff!=staff) {											/* Does it cross staves? */
+	if (endStaff!=staff) {									/* Does it cross staves? */
 		crossStfBack = (endStaff<staff);
 		crossStaff = TRUE;
 	}
@@ -214,9 +214,9 @@ static LINK ValidSlurEndpt(Document *doc, Point pt, short staffn)
 			systemL, syncL=NILINK;
 	DDIST	sysLeft, 					/* left margin (in DDISTs) of current system */
 			insertxd,					/* xd of insertion pt */
-			lDist=-1,rDist=-1;		/* DDIST dist from ins. pt to rightL, leftL */	
+			lDist=-1,rDist=-1;			/* DDIST dist from ins. pt to rightL, leftL */	
 	
-	/* Get valid leftL, rightL, if possible: closest note on staff, before any
+	/* Get valid leftL, rightL, if possible: closest note on the staff, before any
 	 * other non-J_D object. 
 	 */
 	symRightL = StaffFindSymRight(doc, pt, FALSE, staffn);
@@ -236,9 +236,9 @@ static LINK ValidSlurEndpt(Document *doc, Point pt, short staffn)
 	if (leftL && symLeftL)
 		if (IsAfter(leftL, symLeftL)) leftL = NILINK;
 	
-	/* We've got our valid syncs leftL, rightL; find which is closest. */
+	/* We've got our valid syncs leftL, rightL; find which is closer. */
 	
-	systemL = LSSearch(doc->headL,SYSTEMtype,doc->currentSystem,GO_RIGHT,FALSE);
+	systemL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, GO_RIGHT, FALSE);
 	pSystem = GetPSYSTEM(systemL); 
 	sysLeft = pSystem->systemRect.left;
 	insertxd = Sysxd(pt, sysLeft);
@@ -292,8 +292,8 @@ static void SwapEndpoints(Document *doc, short *staff)
 	DPoint tempPt; LINK tempL; short tempStf; 
 	
 	if ((!crossSystem && (kn1Pt.h<kn0Pt.h)) ||		/* Drawn right to left on same system? */
-		(crossSystem && crossSysBack)) {					/* Drawn bottom to top across systems? */
-		tempPt = kn0Pt;										/* Yes, swap endpoints */
+		(crossSystem && crossSysBack)) {			/* Drawn bottom to top across systems? */
+		tempPt = kn0Pt;								/* Yes, swap endpoints */
 		kn0Pt = kn1Pt;
 		kn1Pt = tempPt;
 		tempPt = c0;
@@ -313,7 +313,7 @@ static void SwapEndpoints(Document *doc, short *staff)
 		doc->selStartL = RightLINK(firstSyncL);
 	}
 	else if (crossStaff && crossStfBack) {
-		tempStf = endStaff;									/* Swap staff numbers */
+		tempStf = endStaff;							/* Swap staff numbers */
 		endStaff = *staff;
 		*staff = tempStf;
 	}
@@ -350,6 +350,8 @@ enum {
 };
 
 static short ComparePosInSys(LINK, LINK);
+static void CheckProposedSlur(LINK, LINK, LINK, Boolean *, Boolean *);
+
 static short ComparePosInSys(LINK obj1, LINK obj2)
 {
 	LINK pL;
@@ -366,13 +368,12 @@ static short ComparePosInSys(LINK obj1, LINK obj2)
 }
 
 
-static void CheckProposedSlur(LINK, LINK, LINK, Boolean *, Boolean *);
 static void CheckProposedSlur(
-					LINK newFirstL, LINK newLastL,	/* firstSyncL, lastSyncL of proposed slur/tie */
-					LINK oldSlurL,							/* existing Slur object to check */
-					Boolean *pCanTie,
-					Boolean *pCanSlur
-					)
+				LINK newFirstL, LINK newLastL,	/* firstSyncL, lastSyncL of proposed slur/tie */
+				LINK oldSlurL,					/* existing Slur object to check */
+				Boolean *pCanTie,
+				Boolean *pCanSlur
+				)
 {
 	LINK oldFirstL, oldLastL; short firstPos, lastPos;
 
@@ -385,12 +386,12 @@ static void CheckProposedSlur(
 	*pCanTie = TRUE; *pCanSlur = TRUE;
 	switch (firstPos) {
 		case C1_THEN_2:
-			if (IsAfterIncl(newLastL, oldFirstL)) break;		/* no pblm if they're disjoint */
+			if (IsAfterIncl(newLastL, oldFirstL)) break;	/* no pblm if they're disjoint */
 			switch (lastPos) {
-				case C1_THEN_2:										/* case 1a */
+				case C1_THEN_2:									/* case 1a */
 					*pCanTie = *pCanSlur = FALSE;
 					break;
-				case CEQUAL:											/* case 1b */
+				case CEQUAL:									/* case 1b */
 				case C2_THEN_1:
 					*pCanTie = FALSE;
 					if (!SlurTIE(oldSlurL)) *pCanSlur = FALSE;
@@ -399,13 +400,13 @@ static void CheckProposedSlur(
 			break;
 		case CEQUAL:
 			switch (lastPos) {
-				case C1_THEN_2:										/* case 2a */
+				case C1_THEN_2:									/* case 2a */
 					*pCanSlur = FALSE;
 					break;
-				case CEQUAL:											/* case 2b */
+				case CEQUAL:									/* case 2b */
 					*pCanTie = *pCanSlur = FALSE;
 					break;
-				case C2_THEN_1:										/* case 2c */
+				case C2_THEN_1:									/* case 2c */
 					*pCanTie = FALSE;
 					if (!SlurTIE(oldSlurL)) *pCanSlur = FALSE;
 					break;
@@ -414,11 +415,11 @@ static void CheckProposedSlur(
 		case C2_THEN_1:
 			if (IsAfterIncl(oldLastL, newFirstL)) break;		/* no pblm if they're disjoint */
 			switch (lastPos) {
-				case C1_THEN_2:										/* case 3a */
+				case C1_THEN_2:									/* case 3a */
 				case CEQUAL:
 					*pCanSlur = FALSE;
 					break;
-				case C2_THEN_1:										/* case 3b */
+				case C2_THEN_1:									/* case 3b */
 					*pCanTie = *pCanSlur = FALSE;
 					break;
 			}
@@ -428,29 +429,29 @@ static void CheckProposedSlur(
 
 
 static Boolean NestingIsOK(
-						LINK newFirstL, LINK newLastL,	/* firstSyncL, lastSyncL of proposed slur/tie */
-						short staff,							/* on one end of the slur/tie */
-						short voice,
-						Boolean crossSys,
-						Boolean crossStf,
-						Boolean *mustBeTie
-						)
+				LINK newFirstL, LINK newLastL,	/* firstSyncL, lastSyncL of proposed slur/tie */
+				short staff,					/* on one end of the slur/tie */
+				short voice,
+				Boolean crossSys,
+				Boolean crossStf,
+				Boolean *mustBeTie
+				)
 {
 	SearchParam pbSearch;
 	LINK		oldSlurL;
 	Boolean 	canTie=TRUE, canSlur=TRUE, canTieThis, canSlurThis, tiePossible;
 
-	if (crossSys || crossStf) return TRUE;		/* ??This doesn't look at all safe! */
+	if (crossSys || crossStf) return TRUE;		/* FIXME: This doesn't look at all safe! */
 	
 	InitSearchParam(&pbSearch);
-   pbSearch.id = ANYONE; 		/* check slurs on *any* staff that are in our voice */
+	pbSearch.id = ANYONE; 		/* check slurs on *any* staff that are in our voice */
 	pbSearch.voice = voice;				
 	pbSearch.inSystem = TRUE;
 
 	oldSlurL = newLastL;
 	while (oldSlurL = L_Search(LeftLINK(oldSlurL), SLURtype, GO_LEFT, &pbSearch)) {
 		if (IsAfter(SlurLASTSYNC(oldSlurL), newFirstL)) break;
-		CheckProposedSlur(newFirstL,newLastL,oldSlurL, &canTieThis, &canSlurThis);
+		CheckProposedSlur(newFirstL, newLastL, oldSlurL,  &canTieThis, &canSlurThis);
 		if (!canTieThis) canTie = FALSE;
 		if (!canSlurThis) canSlur = FALSE;
 	}
@@ -474,18 +475,18 @@ For a simpler approach that doesn't handle the accidental-tied-over-barline prob
 see BuildTieArrays. */
 
 static short FillTieArrays(
-					LINK firstL, LINK lastL,	/* Syncs */
-					short voice,
-					CHORDNOTE fChordNote[], 	/* NILINK noteL => ignore. NB: we destroy! */
-					CHORDNOTE lChordNote[],
-					short cnCount,
-					char firstIndA[],
-					char lastIndA[]
-					)
+				LINK firstL, LINK lastL,	/* Syncs */
+				short voice,
+				CHORDNOTE fChordNote[], 	/* NILINK noteL => ignore. NB: we destroy! */
+				CHORDNOTE lChordNote[],
+				short cnCount,
+				char firstIndA[],
+				char lastIndA[]
+				)
 {
 	short subCount;
 	char index,n;
-	register LINK aNoteL,firstNoteL,lastNoteL;
+	register LINK aNoteL, firstNoteL, lastNoteL;
 
 	/* First, replace the legal CHORDNOTE .noteNums with indices. */
 	
@@ -510,8 +511,8 @@ static short FillTieArrays(
 	}
 	
 	/* Now fill in the firstIndA and lastIndA arrays, set tied flags, and make the last
-		note's note number agree with the first's (for the accidental-tied-across-barlines
-		case). */
+		note's note number agree with the first's (for the accidental-tied-across-
+		barlines case). */
 	
 	subCount = 0;
 	for (n = 0; n<cnCount; n++) {
@@ -556,8 +557,8 @@ static Boolean WantTies(
 
 	if (firstCall) {
 		if (config.assumeTie==1)		assumeSlurTie = TIES_DI;
-		else if (config.assumeTie==2) assumeSlurTie = SLUR_DI;
-		else									assumeSlurTie = 0;
+		else if (config.assumeTie==2)	assumeSlurTie = SLUR_DI;
+		else							assumeSlurTie = 0;
 		firstCall = FALSE;
 	}
 	
@@ -573,7 +574,7 @@ static Boolean WantTies(
 			return FALSE;
 		}
 		GetPort(&oldPort);
-		dlog = GetNewDialog(SLURTIE_DLOG,NULL,BRING_TO_FRONT);
+		dlog = GetNewDialog(SLURTIE_DLOG, NULL, BRING_TO_FRONT);
 		if (dlog==NULL) {
 			DisposeModalFilterUPP(filterUPP);
 			MissingDialog(SLURTIE_DLOG);
@@ -587,14 +588,14 @@ static Boolean WantTies(
 		PutDlgChkRadio(dlog, TIES_DI, (group1==TIES_DI));
 		PutDlgChkRadio(dlog, SLUR_DI, (group1==SLUR_DI));
 	
-		PlaceWindow(GetDialogWindow(dlog),(WindowPtr)NULL,0,80);
+		PlaceWindow(GetDialogWindow(dlog), (WindowPtr)NULL,0,80);
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 	
 		/* Entertain filtered user events until dialog is dismissed */
 		
 		while (keepGoing) {
-			ModalDialog(filterUPP,&itemHit);
+			ModalDialog(filterUPP, &itemHit);
 			switch(itemHit) {
 				case BUT1_OK:
 					keepGoing = FALSE;
@@ -629,20 +630,19 @@ a tie or set of ties, or a slur. If the situation is ambiguous, it asks the user
 Should be called only for consecutive Syncs, since otherwise it must be a slur. 
 
 It sets subCount to the number of slur subobjects needed (always 1 for a slur). If
-a tie, it also fills firstIndA and lastIndA with indices to the tied notes
-within their respective chords, and it sets the relevant notes' tiedL/tiedR
-flags.
+a tie, it also fills firstIndA and lastIndA with indices to the tied notes within
+their respective chords, and it sets the relevant notes' tiedL/tiedR flags.
 
 HandleTie returns F_TIE, F_SLUR, or CANCEL_INT. */
 
 static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
-										char firstIndA[MAXCHORD], char lastIndA[MAXCHORD])
+								char firstIndA[MAXCHORD], char lastIndA[MAXCHORD])
 {
-	PANOTE	firstNote, lastNote;
+	PANOTE		firstNote, lastNote;
 	LINK		firstNoteL, lastNoteL;
-	Boolean	firstChord, lastChord, itsATie;
+	Boolean		firstChord, lastChord, itsATie;
 	short		i, flCount, nMatch, nTiedMatch, proceed;
-	CHORDNOTE fChordNote[MAXCHORD], lChordNote[MAXCHORD];
+	CHORDNOTE	fChordNote[MAXCHORD], lChordNote[MAXCHORD];
 	
 	for (i = 0; i<MAXCHORD; i++) 
 		firstIndA[i] = lastIndA[i] = -1;
@@ -676,7 +676,7 @@ static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
 	itsATie = FALSE;
 
 	CompareNCNotes(firstL, lastL, voice, &nMatch, &nTiedMatch, fChordNote,lChordNote,
-							&flCount);
+						&flCount);
 	if (nMatch!=nTiedMatch) {
 		proceed = CautionAdvise(ACCIDENTAL_TIE_ALRT);
 		if (proceed==Cancel) return CANCEL_INT;
@@ -685,7 +685,7 @@ static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
 		itsATie = WantTies(firstChord, lastChord);
 		if (itsATie) {
 			*subCount = FillTieArrays(firstL, lastL, voice, fChordNote, lChordNote,
-												flCount, firstIndA, lastIndA);
+										flCount, firstIndA, lastIndA);
 		}
 		else {
 			firstIndA[0] = lastIndA[0] = 0;
@@ -711,8 +711,8 @@ which by calling HandleTie. If it must be a tie but it's not, we have an error.
 Otherwise, be sure the end notes' slur/tie L/R flags are set properly. */
 
 static char NewSlurOrTie(
-						short staff,		/* on one end of the slur/tie */
-						short voice)
+				short staff,		/* on one end of the slur/tie */
+				short voice)
 {
 	register LINK aNoteL;
 	register PANOTE aNote;
@@ -742,7 +742,7 @@ static char NewSlurOrTie(
 	 *	MIDI note number, not spelling, though across barlines, things are more subtle.
 	 */
 	if (ConsecSync(firstSyncL, lastSyncL, endStaff, voice)) {
-		status = HandleTie(firstSyncL,lastSyncL,voice,&subCount,firstIndA,lastIndA);
+		status = HandleTie(firstSyncL, lastSyncL, voice, &subCount, firstIndA, lastIndA);
 		if (status==CANCEL_INT) {
 			InvalMeasures(firstSyncL, lastSyncL, staff);
 			return USR_ALERT;
@@ -809,11 +809,12 @@ static LINK AddNewSlur(Document *doc, LINK insertL, short staff, short voice)
 	aSlurL = FirstSubLINK(newL);
 	for ( ; aSlurL; aSlurL=NextSLURL(aSlurL)) {
 		aSlur = GetPASLUR(aSlurL);
-		SetRect(&aSlur->bounds, 0, 0, 0, 0);							/* A precaution */
+		SetRect(&aSlur->bounds, 0, 0, 0, 0);					/* A precaution */
 	}
 
 	return newL;
 }
+
 
 static void ClearSlurIndices(LINK newL)
 {
@@ -875,10 +876,10 @@ static char SetSlurIndices(LINK newL)
 end is attached to. */
 
 static LINK Tie2NoteLINK(
-					LINK theTieL,
-					short voice,
-					LINK syncL	/* firstSyncL of tie's Slur object: must really be a Sync */
-					)
+				LINK theTieL,
+				short voice,
+				LINK syncL	/* firstSyncL of tie's Slur object: must really be a Sync */
+				)
 {
 	PASLUR aTie;
 	LINK aNoteL;
@@ -1219,7 +1220,7 @@ void NewSlur(Document *doc, short staff, short voice, Point pt)
 	if (BAD_CODE(returnCode)) goto Disable;
 
 	/* Tracks the slur, returns the second anchor point in <newPt> (window coords). */
-	globPt = NewTrackSlur(doc,&context.paper,pt,&newPaper);
+	globPt = NewTrackSlur(doc, &context.paper, pt, &newPaper);
 	newPt = globPt;
 	newPt.h -= newPaper.left;								/* Convert back to paper-relative coords */
 	newPt.v -= newPaper.top;

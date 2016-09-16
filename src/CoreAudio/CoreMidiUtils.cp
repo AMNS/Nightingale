@@ -24,8 +24,6 @@ static Boolean AllocCMPacketList(void);
 
 static MIDIEndpointRef GetMIDIEndpointByID(MIDIUniqueID id);
 
-static unsigned long defaultOutputDev;
-
 #define CMDEBUG 1			
 
 // -------------------------------------------------------------------------------------
@@ -65,11 +63,11 @@ static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *c
 		for ( ; j < pktlist->numPackets && !CMEndOfBuffer(MIDIPacketNext(packetToAdd), packet->length); j++) {
 		
 			// Only take packets that are acceptable to us.
-			// For example, active sensing is sent once every 300 Milliseconds
+			// For example, active sensing is sent once every 300 milliseconds
 			
 			if (CMAcceptPacket(packet)) {
 				packetToAdd = MIDIPacketListAdd(gMIDIPacketList, sizeof(gMIDIPacketListBuf), packetToAdd, 
-																packet->timeStamp, packet->length, packet->data);
+													packet->timeStamp, packet->length, packet->data);
 						
 			}
 			packet = MIDIPacketNext(packet);
@@ -81,7 +79,7 @@ static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *c
 
 
 // -------------------------------------------------------------------------------------
-// Midi Packets
+// MIDI Packets
 
 /* ------------------------------------------------------------ AllocCMPacketList -- */
 
@@ -585,14 +583,14 @@ void CMFBNoteOff(Document *doc, short noteNum, short channel, short ioRefNum)
 void CMAllNotesOff()
 {
 	MIDIUniqueID	noteOffDeviceList[MAXSTAVES];
-	long	 			noteOffChannelMap[MAXSTAVES];
+	long	 		noteOffChannelMap[MAXSTAVES];
 	MIDIUniqueID	*partDevicePtr, endPtID;
-	//long				channelMap;
+	//long			channelMap;
 	short 			numNoteOffDevices;
 	short 			noteNum;
 	Boolean			deviceFound;
-	short				i, j;
-	OSStatus			err = noErr;
+	short			i, j;
+	OSStatus		err = noErr;
 	
 	if (currentDoc == NULL) return;
 	
@@ -946,7 +944,7 @@ static void CheckDefaultDevices()
 }
 
 
-// These calls use a selected input / midi thru device & channel, check if the
+// These calls use a selected input / MIDI thru device & channel, check if the
 // device / channel combos are valid, and get IORefNums for each for the MidiReadProc.
 //
 // Does Core Midi have an IORefNum for its read proc that needs to do this?
@@ -1159,22 +1157,13 @@ void DeletePartLCMDevice(Document *doc, LINK partL)
 }
 
 
-// --------------------------------------------------------------------------------------
-// MIDI Programs & Patches
-
-//#define CM_PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
-//#define CM_CHANNEL_BASE 0
-
-// 0-based uses BASE of 1
-
-#define CM_PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
-#define CM_CHANNEL_BASE 1	
+/* -------------------------------------------------------------------------------- */
+/* MIDI Programs & Patches */
 
 /*
-
  * This provides a conditional channel base depending on whether we are using
  * a hardware or software device.
- * Currently not using this, as both hardware and software are 0-based and use
+ * We're currently not using it as both hardware and software are 0-based and use
  * CM_CHANNEL_BASE 1.
  
 static int CMGetChannelBase(Document *doc, short partn)
@@ -1188,57 +1177,32 @@ static int CMGetChannelBase(Document *doc, short partn)
 }
 */
 
-/* -------------------------------------------------------------- UseMIDIChannel -- */
-/* Return the MIDI channel number to use for the given part. */
 
-/*
-
- * UseMIDIChannel will get the channel from the partInfo record (entered in the
- * range [1,16], and pin it inside the range [1,MAXCHANNEL] where MAXCHANNEL = 16.
- * This is always correct, regardless of the channel base; so we do not need to
- * define CMUseMIDIChannel here to take into account CM_CHANNEL_BASE.
- * The channel will be translated to its proper base when constructing the packet
- * either from CMMIDIProgram or using CMGetNotePlayInfo.
- 
-short UseMIDIChannel(Document *doc, short	partn)
-{
-	short				useChan;
-	LINK				partL;
-	PPARTINFO		pPart;
-	
-	if (doc->polyTimbral) {
-		partL = FindPartInfo(doc, partn);
-		pPart = GetPPARTINFO(partL);
-		useChan = pPart->channel;
-		if (useChan<1) useChan = 1;
-		if (useChan>MAXCHANNEL) useChan = MAXCHANNEL;
-		return useChan;
-	}
-	else
-		return doc->channel;
-}
-*/
+/* If "play on instruments' parts" is set, send out program (patch) changes to the
+correct patch numbers for all channels that have any parts assigned to them. Conflicts
+are possible if two or more parts are on the same channel, but we won't detect them. */
 
 OSErr CMMIDIProgram(Document *doc, unsigned char *partPatch, unsigned char *partChannel)
 {
 	short i, channel, patch;
-	//short channelBase;
 	Byte programChange[] = { 0xC0, 0x00 };
-	MIDITimeStamp tStamp = 0;				// Indicates perform NOW.
+	MIDITimeStamp tStamp = 0;								// Indicates perform NOW.
 	OSStatus err = noErr;
 	
 	MIDIUniqueIDVector *cmVecDevs = new MIDIUniqueIDVector();
-	long numItems = FillCMDestinationVec(cmVecDevs);
+	(void)FillCMDestinationVec(cmVecDevs);
 	MIDIUniqueIDVector::iterator itr = cmVecDevs->begin();
 	MIDIUniqueID defaultID = *itr;
 	
 	if (doc->polyTimbral && !doc->dontSendPatches && err==noErr) {
-		for (i = 1; i<=LinkNENTRIES(doc->headL) - 1 && err == noErr; i++) {		// skip dummy part			
-			//channelBase = CMGetChannelBase(doc, i);
-			channel = partChannel[i] - CM_CHANNEL_BASE; // channelBase;
+		for (i = 1; i<=LinkNENTRIES(doc->headL) - 1 && err == noErr; i++) {	// skip dummy part			
+			channel = partChannel[i] - CM_CHANNEL_BASE;
 			patch = partPatch[i] - CM_PATCHNUM_BASE;
 			programChange[0] = MPGMCHANGE + channel;
 			programChange[1] = patch;
+			
+			/* Try to send the program change to the desired device; if that doesn't work,
+			   just send it to the default device. */
 			MIDIUniqueID destDevID = GetCMDeviceForPartn(doc, i);
 			err = CMWritePacket(destDevID, tStamp, 2, programChange);
 			
@@ -1255,12 +1219,15 @@ OSErr CMMIDIProgram(Document *doc, unsigned char *partPatch, unsigned char *part
 	return err;
 }
 
+
 /* ------------------------------------------------------------- CMGetUseChannel -- */
+
 short CMGetUseChannel(Byte partChannel[], short partn) 
 {
 	short useChan = partChannel[partn] - CM_CHANNEL_BASE;
 	return useChan;
 }
+
 
 /* ------------------------------------------------------------- CMGetNotePlayInfo -- */
 /* Given a note and tables of part transposition, channel, and offset velocity, return
@@ -1273,13 +1240,10 @@ void CMGetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 {
 	short partn;
 	PANOTE aNote;
-	//PPARTINFO pPart;
-	//short channelBase;
 
 	partn = Staff2Part(doc,NoteSTAFF(aNoteL));
 	*pUseNoteNum = UseMIDINoteNum(doc, aNoteL, partTransp[partn]);
-	//channelBase = CMGetChannelBase(doc, partn);
-	*pUseChan = partChannel[partn] - CM_CHANNEL_BASE; // channelBase;
+	*pUseChan = partChannel[partn] - CM_CHANNEL_BASE;
 	aNote = GetPANOTE(aNoteL);
 	*pUseVelo = doc->velocity+aNote->onVelocity;
 	if (doc->polyTimbral) *pUseVelo += partVelo[partn];
@@ -1287,6 +1251,7 @@ void CMGetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 	if (*pUseVelo<1) *pUseVelo = 1;
 	if (*pUseVelo>MAX_VELOCITY) *pUseVelo = MAX_VELOCITY;
 }
+
 
 /* ----------------------------------------------------------- GetCMPartPlayInfo -- */
 /* Similar to the non-CM GetPartPlayInfo. */
@@ -1611,14 +1576,14 @@ Boolean InitCoreMIDI()
 			LogPrintf(LOG_NOTICE, "Setting config val for default channel to 1\n");
 		}
 
-		// Set up the DLS Synth audio unit and its Midi controller here with virtual endpoint
+		// Set up the DLS Synth audio unit and its MIDI controller here with virtual endpoint
 		// before we check the midi destinations.
 		
 		Byte activeChannel[MAXCHANNEL+1];
 		
 		// Send sound bank control changes and program changes on all channels.
 		
-		for (int i = 0; i<=MAXCHANNEL; i++)
+		for (i = 0; i<=MAXCHANNEL; i++)
 			activeChannel[i] = 1;
 
 		SetupSoftMIDI(activeChannel);

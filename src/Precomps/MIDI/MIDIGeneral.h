@@ -55,9 +55,21 @@
 
 #define BIMIDI_SMALLBUFSIZE 30		/* Our standard buffer size for built-in MIDI */
 
+
+/* Constants for Apple's Core MIDI, from CoreMidiUtils.c. (But now that MIDI is over 30
+years old, are these values _still_ not standardized?  --DAB, Sept. 2016) */
+
+//#define CM_PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
+//#define CM_CHANNEL_BASE 0
+
+// 0-based uses BASE of 1
+
+#define CM_PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
+#define CM_CHANNEL_BASE 1	
+
 /* Constant and medium-level functions for use with "any" built-in MIDI driver */
 
-#define ONEMILLISEC 782				/* Timer constant for 1ms interrupts */
+#define ONEMILLISEC 782				/* Timer constant for 1 ms. interrupts */
 
 /* Datatypes and public prototypes */
 

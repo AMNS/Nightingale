@@ -1,7 +1,7 @@
 /* MIDIFSave.c for Nightingale - routines to write MIDI files
 
 A lot of this is pretty closely analogous to the routines for playing scores located
-in MIDIGeneral.c (q.v.).
+in MIDIPlay.c.
 */
 
 /*

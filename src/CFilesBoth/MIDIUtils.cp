@@ -37,7 +37,15 @@ static void		SendAllNotesOff(void);
 /* -------------------------------------------------------------- UseMIDIChannel -- */
 /* Return the MIDI channel number to use for the given part. */
 
-short UseMIDIChannel(Document *doc, short	partn)
+/*
+ * UseMIDIChannel will get the channel from the partInfo record (entered in the
+ * range [1,16], and pin it inside the range [1,MAXCHANNEL] where MAXCHANNEL = 16.
+ * This is always correct, regardless of the channel base; so we do not need to
+ * define CMUseMIDIChannel here to take into account CM_CHANNEL_BASE.
+ * The channel will be translated to its proper base when constructing the packet
+ * either from CMMIDIProgram or using CMGetNotePlayInfo. */
+ 
+short UseMIDIChannel(Document *doc, short partn)
 {
 	short		useChan;
 	LINK		partL;
