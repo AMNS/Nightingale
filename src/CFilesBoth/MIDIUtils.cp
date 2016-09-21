@@ -733,7 +733,7 @@ void MMStartNoteNow(
 	mPacket.len = MM_NOTE_SIZE;
 			
 	mPacket.tStamp = MM_NOW;
-	mPacket.data[0] = MNOTEON+channel-1;
+	mPacket.data[0] = MNOTEON+channel-CM_CHANNEL_BASE;
 	mPacket.data[1] = noteNum;
 	mPacket.data[2] = velocity;
 	MIDIWritePacket(outputMMRefNum, &mPacket);
@@ -751,7 +751,7 @@ void MMEndNoteAtTime(
 	mPacket.len = MM_NOTE_SIZE;
 			
 	mPacket.tStamp = endTime;
-	mPacket.data[0] = MNOTEON+channel-1;
+	mPacket.data[0] = MNOTEON+channel-CM_CHANNEL_BASE;
 	mPacket.data[1] = noteNum;
 	mPacket.data[2] = 0;								/* 0 velocity = Note Off */
 	

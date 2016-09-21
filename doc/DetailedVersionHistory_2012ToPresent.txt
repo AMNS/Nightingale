@@ -833,3 +833,18 @@ NewSlur, TrackVMove.
 
 Increase max. no. of tempo changes on playback from 100 to 300; reword error message
 for exceeding the limit. Affects .rsrc; MIDIPlay.
+
+-------------------------------------------------------------------------------
+
+19 - 21 Sept.
+
+Bring the Combine Parts dialog layout up to an acceptable level. Affects .rsrc.
+
+Fix bug: if the Pan Settings dialog resource isn't available, Ngale gives the wrong
+error message. Affects DialogsEditor.
+
+Clarify the Change Patch dialog; improve its layout and that of the Pan Setting dialog.
+Affects .rsrc.
+
+Minor cleanup. Affects MIDIGeneral.h; CoreMidiUtils, DialogsEditor, MIDIPlay,
+MIDIFSave.

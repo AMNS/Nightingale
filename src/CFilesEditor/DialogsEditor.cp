@@ -3614,7 +3614,7 @@ static void TSNumeratorUp()
 	repeating every MOUSEREPEATTIME ticks thereafter, as long as the mouse
 	is still down inside of <arrowRect>. ??Should replace with TrackNumberArrow.*/
 
-void TrackArrow(Rect	*arrowRect, TrackArrowFunc actionProc)
+void TrackArrow(Rect *arrowRect, TrackArrowFunc actionProc)
 {
 	long	t;
 	Point	pt;
@@ -3693,11 +3693,11 @@ static Boolean CheckPatchVal(unsigned char *string)
 {
 	short len = string[0];
 	
-	if (len <=0) return false;
-	if (len >3) return false;
+	if (len <=0) return FALSE;
+	if (len >3) return FALSE;
 	
 	for (int i = 1; i<=len; i++) {
-		if (!isdigit(string[i])) return false;
+		if (!isdigit(string[i])) return FALSE;
 	}
 	
 	return TRUE;
@@ -3724,7 +3724,7 @@ Boolean PatchChangeDialog(unsigned char *string)
 		CenterWindow(GetDialogWindow(dlog), 70);
 		
 		/* Fill in dialog's values */
-		PutDlgString(dlog,EDIT4_MP,string,TRUE);
+		PutDlgString(dlog, EDIT4_MP, string,TRUE);
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 
@@ -3732,7 +3732,7 @@ Boolean PatchChangeDialog(unsigned char *string)
 			ModalDialog(filterUPP, &ditem);	
 			switch (ditem) {
 				case OK:
-					GetDlgString(dlog,EDIT4_MP,string);
+					GetDlgString(dlog, EDIT4_MP, string);
 					if (CheckPatchVal(string)) keepGoing = FALSE;
 					else keepGoing = TRUE;
 					break;
@@ -3776,7 +3776,7 @@ Boolean PanSettingDialog(unsigned char *string)
 
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
-		MissingDialog(PATCHCHANGE1_DLOG);
+		MissingDialog(PNSETTING_DLOG);
 		return FALSE;
 	}
 
@@ -3787,7 +3787,7 @@ Boolean PanSettingDialog(unsigned char *string)
 		CenterWindow(GetDialogWindow(dlog), 70);
 		
 		/* Fill in dialog's values */
-		PutDlgString(dlog,EDIT4_MPan,string,TRUE);
+		PutDlgString(dlog, EDIT4_MPan, string, TRUE);
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 
@@ -3795,7 +3795,7 @@ Boolean PanSettingDialog(unsigned char *string)
 			ModalDialog(filterUPP, &ditem);	
 			switch (ditem) {
 				case OK:
-					GetDlgString(dlog,EDIT4_MP,string);
+					GetDlgString(dlog, EDIT4_MP, string);
 					if (CheckPanVal(string)) keepGoing = FALSE;
 					else keepGoing = TRUE;
 					break;
@@ -3811,7 +3811,7 @@ Boolean PanSettingDialog(unsigned char *string)
 		return (ditem == OK);
 	}
 	DisposeModalFilterUPP(filterUPP);
-	MissingDialog(PATCHCHANGE1_DLOG);
+	MissingDialog(PNSETTING_DLOG);
 	return FALSE;
 }
 

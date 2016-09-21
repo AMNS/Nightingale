@@ -19,20 +19,26 @@
 
 #include "CoreMIDIDefs.h"
 
-/* Nightingale now (2015) supports Core MIDI and, I believe, no other MIDI driver.
-The following comment dates back to versions from the 20th century:
+/* Nightingale now (2015) supports Core MIDI and no other MIDI driver; I doubt if it's
+desirable to revive any of the earlier drivers, which I believe all predated OS X.
+Unfortunately, there's still a lot of code here and in other MIDI-related files left
+over from earlier drivers. The following comment dates back to the 20th century:
+"Nightingale supports both MIDI Manager and its own "built-in" MIDI routines. The
+latter, used here and in MIDIRecord.c, are Altech Systems' MIDI Pascal 3.0. We used to
+use a driver from Kirk Austin's articles in MacTutor, July and December 1987, but
+those routines became quite buggy--according to Jeremy Sagan, because they don't
+initialize enough registers. Anyway, MIDI Pascal is much more powerful, and slightly
+less ancient (sigh)." Besides the three drivers mentioned, earlier versions of Ngale
+also supported Opcode's OMS and Mark of the Unicorn(?)'s FreeMIDI.
 
-"Nightingale supports both MIDI Manager and its own "built-in" MIDI routines.
-The latter, used here and in MIDIRecord.c, are Altech Systems' MIDI Pascal 3.0.
-We used to use a driver from Kirk Austin's articles in MacTutor, July and
-December 1987, but those routines became quite buggy--according to Jeremy Sagan,
-because they don't initialize enough registers. Anyway, MIDI Pascal is much more
-powerful, and slightly less ancient (sigh)." */
+FIXME: The old code should be removed!  --DAB */
 
 /* ================================== LOCAL STUFF ================================== */
 
 static long		pageTurnTOffset;
 
+static void		ErrorMsg(short index);
+static short	DoGeneralAlert(unsigned char *str);
 static void		PlayMessage(Document *, LINK, short);
 static Boolean	HiliteSyncRect(Document *doc, Rect *syncRect, Rect *rPaper, Boolean scroll);
 static long		ScaleDurForVariableSpeed(long dur);
@@ -41,12 +47,10 @@ static long		ScaleDurForVariableSpeed(long dur);
 #define TDEBUG 1
 #define PLDEBUG 0
 
-/* Print an error message.  If index is non-zero, then retrieve the index'th
-string from our error strings resource. */
+/* Print an error message.  If index is non-zero, then retrieve the index'th string
+from our error strings resource. */
 
 #define MIDIErrorStringsID 235
-
-static short DoGeneralAlert(unsigned char *str);
 
 static void ErrorMsg(short index)
 {
@@ -177,7 +181,7 @@ void AddBarline(LINK pL)
 	if (pL && (nBars==0 || pL!=barBeforeL[nBars-1])) {
 		if (nBars<MAX_BARS)
 			barBeforeL[nBars] = pL;
-		nBars++;											/* Register attempt so we can tell user later */
+		nBars++;										/* Register attempt so we can tell user later */
 	}
 }
 
@@ -193,7 +197,7 @@ static Boolean TupletProblem(Document *doc, LINK insL)
 	if (tupStaff<=0)
 		return FALSE;
 	else {
-		GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 1);		/* "can't add a barline in middle of tuplet" */
+		GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 1);	/* "can't add a barline in middle of tuplet" */
 		sprintf(strBuf, fmtStr, tupStaff);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
@@ -338,7 +342,7 @@ static Byte cmPanSetting[MAXSTAVES + 1];
 static Boolean cmAllSustainOn[MAXSTAVES + 1];
 static Byte cmAllPanSetting[MAXSTAVES + 1];
 
-/* --------------------------------------------------------- SendMIDIProgramChange -- */
+/* ----------------------------------------------------------- SendMIDIPatchChange -- */
 /* Steps:
 
 	1. Get the Graphic
@@ -351,7 +355,7 @@ static Byte cmAllPanSetting[MAXSTAVES + 1];
  		with the progressively updated patch number.
 */
 
-static Boolean PostMIDIProgramChange(Document *doc, LINK pL, unsigned char *partPatch,
+static Boolean PostMIDIPatchChange(Document *doc, LINK pL, unsigned char *partPatch,
 									 unsigned char *partChannel) 
 {
 	Boolean posted = FALSE;
@@ -545,7 +549,7 @@ static void SendAllMIDIPans(Document *doc, unsigned char *partChannel)
 	}		
 }
 
-static void SendMIDIProgramChange(Document *doc, unsigned char *partPatch, unsigned char
+static void SendMIDIPatchChange(Document *doc, unsigned char *partPatch, unsigned char
 								  *partChannel) 
 {
 	CMMIDIProgram(doc, partPatch, partChannel);	
@@ -814,7 +818,7 @@ void PlaySequence(
 
 	for (pL = doc->headL; pL!=fromL; pL = RightLINK(pL)) {
 		if (IsMIDIPatchChange(pL)) {
-			PostMIDIProgramChange(doc, pL, partPatch, partChannel);
+			PostMIDIPatchChange(doc, pL, partPatch, partChannel);
 		}
 	}
 	
@@ -1046,7 +1050,7 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 			case GRAPHICtype:
 				if (useWhichMIDI==MIDIDR_CM) {				
 					if (IsMIDIPatchChange(pL)) {
-						patchChangePosted = PostMIDIProgramChange(doc, pL, partPatch, partChannel);						
+						patchChangePosted = PostMIDIPatchChange(doc, pL, partPatch, partChannel);						
 					}
 					else if (IsMidiSustainOn(pL)) 
 					{

@@ -84,18 +84,18 @@ typedef struct myEvent				/* MIDI event list item: */
 {
 	SignedByte	note;				/* MIDI note number, in range [0..MAX_NOTENUM]; 0=slot open */
 	SignedByte	channel;			/* MIDI channel number of note, in range [1..MAXCHANNEL] */
-	long	endTime;				/* ending time of note, in milliseconds */
+	long		endTime;			/* Ending time of note, in milliseconds */
 	SignedByte	offVel;				/* Note Off velocity */
-	short omsIORefNum;				/* used by OMS to identify device to receive packet */
+	short		omsIORefNum;		/* Used by OMS to identify device to receive packet */
 } MIDIEvent;
 
 typedef struct myCMEvent			/* MIDI event list item: */
 {
 	SignedByte	note;				/* MIDI note number, in range [0..MAX_NOTENUM]; 0=slot open */
 	SignedByte	channel;			/* MIDI channel number of note, in range [1..MAXCHANNEL] */
-	long	endTime;					/* ending time of note, in milliseconds */
+	long		endTime;			/* Ending time of note, in milliseconds */
 	SignedByte	offVel;				/* Note Off velocity */
-	long cmIORefNum;				/* used by CoreMIDI to identify device to receive packet */
+	long		cmIORefNum;			/* Used by CoreMIDI to identify device to receive packet */
 } CMMIDIEvent;
 
 /* Low- and medium-level MIDI utility routines */

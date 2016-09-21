@@ -738,7 +738,6 @@ static void GetInitialDefaultInputDevice()
 	
 	MIDIEndpointRef src = NULL;
 	MIDIEndpointRef s = NULL;
-	OSStatus err = noErr;
 	
 	int n = MIDIGetNumberOfSources();
 	int i = 0;
@@ -786,7 +785,7 @@ Boolean CMRecvChannelValid(MIDIUniqueID endPtID, int channel)
 	if (err == noErr) {
 	
 		// For one-based channel:
-		channelValid = (channelMap >> (channel-1)) & 0x01;
+		channelValid = (channelMap >> (channel-CM_CHANNEL_BASE)) & 0x01;
 		
 		// For zero-based channel:
 		//channelValid = (channelMap >> (channel)) & 0x01;
@@ -822,12 +821,7 @@ Boolean CMTransmitChannelValid(MIDIUniqueID endPtID, int channel)
 	}
 	
 	if (err == noErr) {
-	
-		// For one-based channel:
-		channelValid = (channelMap >> (channel-1)) & 0x01;
-		
-		// For zero-based channel:
-		//channelValid = (channelMap >> (channel)) & 0x01;
+		channelValid = (channelMap >> (channel-CM_CHANNEL_BASE)) & 0x01;
 	}
 	else if (err == kMIDIUnknownProperty) {
 		channelValid = TRUE;
@@ -871,7 +865,6 @@ static void GetInitialDefaultOutputDevice()
 	
 	MIDIEndpointRef dest = NULL;
 	MIDIEndpointRef d = NULL;
-	OSStatus err = noErr;
 	
 	int n = MIDIGetNumberOfDestinations();
 	int i = 0;
@@ -981,10 +974,10 @@ OSStatus OpenCoreMidiInput(MIDIUniqueID inputDevice)
 // --------------------------------------------------------------------------------------
 // MIDI Controllers
 
-OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, Byte ctrlVal, MIDITimeStamp tStamp)
+OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, Byte ctrlVal,
+							MIDITimeStamp tStamp)
 {
 	Byte controller[] = { MCTLCHANGE, 0, 0 };
-	//MIDITimeStamp tStamp = 0;				// Indicates perform NOW.
 
 	controller[0] = MCTLCHANGE;
 	controller[0] |= channel;
@@ -1186,7 +1179,7 @@ OSErr CMMIDIProgram(Document *doc, unsigned char *partPatch, unsigned char *part
 {
 	short i, channel, patch;
 	Byte programChange[] = { 0xC0, 0x00 };
-	MIDITimeStamp tStamp = 0;								// Indicates perform NOW.
+	MIDITimeStamp tStampZero = 0;								// Indicates do it NOW.
 	OSStatus err = noErr;
 	
 	MIDIUniqueIDVector *cmVecDevs = new MIDIUniqueIDVector();
@@ -1201,14 +1194,13 @@ OSErr CMMIDIProgram(Document *doc, unsigned char *partPatch, unsigned char *part
 			programChange[0] = MPGMCHANGE + channel;
 			programChange[1] = patch;
 			
-			/* Try to send the program change to the desired device; if that doesn't work,
-			   just send it to the default device. */
+			/* Try to send the program change to the desired device; if for any reason
+				that doesn't work, just send it to the default device. */
 			MIDIUniqueID destDevID = GetCMDeviceForPartn(doc, i);
-			err = CMWritePacket(destDevID, tStamp, 2, programChange);
-			
+			err = CMWritePacket(destDevID, tStampZero, 2, programChange);
 			if (err != noErr) {
 				destDevID = defaultID;
-				err = CMWritePacket(destDevID, tStamp, 2, programChange);
+				err = CMWritePacket(destDevID, tStampZero, 2, programChange);
 				if (err == noErr) {
 					SetCMDeviceForPartn(doc, i, destDevID);
 				}
@@ -1332,7 +1324,7 @@ void GetCMNotePlayInfo(
 // --------------------------------------------------------------------------------------
 
 
-static void DisplayMidiDevices()
+static void DisplayMIDIDevices()
 {
 	CFStringRef pname, pmanuf, pmodel;
 	char name[64], manuf[64], model[64];
@@ -1352,7 +1344,8 @@ static void DisplayMidiDevices()
 		CFRelease(pmanuf);
 		CFRelease(pmodel);
 
-		printf("name=%s, manuf=%s, model=%s\n", name, manuf, model);
+		LogPrintf(LOG_INFO, "MIDI device name='%s', manuf='%s', model='%s'\n",
+					name, manuf, model);
 	}
 }
 
@@ -1636,7 +1629,7 @@ Boolean InitCoreMIDI()
 		//CoreMidiSetSelectedInputDevice(config.cmDefaultInputDevice, config.defaultChannel);		
 		//CoreMidiSetSelectedMidiThruDevice(config.cmMetroDevice, config.defaultChannel);
 		
-		//DisplayMidiDevices();
+		DisplayMIDIDevices();
 		
 		CMDebugPrintXMission();
 
