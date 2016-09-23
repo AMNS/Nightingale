@@ -836,7 +836,7 @@ for exceeding the limit. Affects .rsrc; MIDIPlay.
 
 -------------------------------------------------------------------------------
 
-19 - 21 Sept.
+19 - 23 Sept.
 
 Bring the Combine Parts dialog layout up to an acceptable level. Affects .rsrc.
 
@@ -846,5 +846,9 @@ error message. Affects DialogsEditor.
 Clarify the Change Patch dialog; improve its layout and that of the Pan Setting dialog.
 Affects .rsrc.
 
-Minor cleanup. Affects MIDIGeneral.h; CoreMidiUtils, DialogsEditor, MIDIPlay,
-MIDIFSave.
+Fix bug: While patch settings properly affect MIDI playback inside Ngale, they have
+no effect on MIDI files Ngale writes. Affects MIDIFSave.
+
+Minor cleanup. Affects MIDIGeneral.h; CoreMidiUtils, DebugDisplay, DialogsEditor,
+MIDIFOCmd, MIDIFSave, MIDIPlay.
+

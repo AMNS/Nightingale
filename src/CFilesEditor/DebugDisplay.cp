@@ -525,7 +525,7 @@ void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLin
 
 
 /* --------------------------------------------------------------------- DHexDump -- */
-/* Dump the specified area as bytes in hexadecimal into the Current Events window. */
+/* Dump the specified area as bytes in hexadecimal into the log file. */
 
 void DHexDump(unsigned char *pBuffer,
 				long limit,
@@ -544,16 +544,16 @@ void DHexDump(unsigned char *pBuffer,
 		sprintf(&strBuf[strlen(strBuf)], "%x", pBuffer[l]); 
 		if ((l+1)%(long)nPerLine==0L) {
 			sprintf(&strBuf[strlen(strBuf)], "\n");
-			LogPrintf(LOG_NOTICE, "%s", strBuf);
+			LogPrintf(LOG_INFO, "%s", strBuf);
 			strBuf[0] = 0;
 		}
-		else if ((l+1)%(long)nPerGroup==0L) sprintf(&strBuf[strlen(strBuf)], "    ");
-		else			 					  			sprintf(&strBuf[strlen(strBuf)], " ");
+		else if ((l+1)%(long)nPerGroup==0L)	sprintf(&strBuf[strlen(strBuf)], "    ");
+		else								sprintf(&strBuf[strlen(strBuf)], " ");
 	}
 	
 	if (l%(long)nPerLine!=0L) {
 		sprintf(&strBuf[strlen(strBuf)], "\n");
-		LogPrintf(LOG_NOTICE, "%s", strBuf);
+		LogPrintf(LOG_INFO, "%s", strBuf);
 		
 	}
 }
