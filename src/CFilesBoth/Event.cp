@@ -882,8 +882,16 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 	
 	OSErr result = FSpGetFInfo(theFile, &fndrInfo);
 	if (result!=noErr) return NULL;
-
+	
 	switch (fndrInfo.fdType) {
+		default:
+			/* FIXME: We should give a specific, more helpful error message if it's a Help file. */		
+			GetIndCString(fmtStr, FILEIO_STRS, 20);		/* "Finder type is incorrect" */
+			sprintf(aStr, fmtStr);
+			strcat(aStr, "\n");
+			LogPrintf(LOG_NOTICE, aStr);
+			CParamText(aStr, "", "", "");
+			CautionInform(READ_PROBLEM_ALRT);			/* Fall through and try to open it anyway */
 		case DOCUMENT_TYPE_NORMAL:
 			if (DoOpenDocument(theFile->name, theFile->vRefNum, FALSE, theFile)) {
 				LogPrintf(LOG_DEBUG, "Opened file '%s'.\n", PToCString(theFile->name));
@@ -895,15 +903,6 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			return NULL;
 		case 'Midi':
 			if (ImportMIDIFile(theFile)) break;			
-			return NULL;
-		default:
-			/* FIXME: We should give a specific, more helpful error message if it's a Help file. */		
-			GetIndCString(fmtStr, FILEIO_STRS, 7);			/* "file version is illegal" */
-			sprintf(aStr, fmtStr, ACHAR(fndrInfo.fdType,3), ACHAR(fndrInfo.fdType,2),
-						 ACHAR(fndrInfo.fdType,1), ACHAR(fndrInfo.fdType,0));
-			LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
-			CParamText(aStr, "", "", "");
-			StopInform(READ_ALRT);
 			return NULL;
 	}
 

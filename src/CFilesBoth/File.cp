@@ -1306,7 +1306,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 				lastType;
 	long		count, stringPoolSize,
 				fileTime;
-	Boolean		fileOpened;
+	Boolean		fileIsOpen;
 	OMSSignature omsDevHdr;
 	long		fmsDevHdr;
 	long		omsBufCount, omsDevSize;
@@ -1319,24 +1319,18 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 
 	WaitCursor();
 
-	fileOpened = FALSE;
-	
-	//errCode = FSMakeFSSpec(vRefNum, 0, filename, &fsSpec);
-	//if (errCode) { errInfo = MAKEFSSPECcall; goto Error; }
-	
-	//errCode = FSOpen(filename, vRefNum, &refNum );		/* Open the file */
+	fileIsOpen = FALSE;
 	
 	fsSpec = *pfsSpec;
-	errCode = FSpOpenDF (&fsSpec, fsRdWrPerm, &refNum );	/* Open the file */
+	errCode = FSpOpenDF(&fsSpec, fsRdWrPerm, &refNum );			/* Open the file */
 	if (errCode == fLckdErr || errCode == permErr) {
 		doc->readOnly = TRUE;
-		errCode = FSpOpenDF (&fsSpec, fsRdPerm, &refNum );	/* Try again - open the file read-only */
-//		errCode = noErr;
+		errCode = FSpOpenDF (&fsSpec, fsRdPerm, &refNum );		/* Try again - open the file read-only */
 	}
 	if (errCode) { errInfo = OPENcall; goto Error; }
-	fileOpened = TRUE;
+	fileIsOpen = TRUE;
 
-	count = sizeof(version);										/* Read & check file version code */
+	count = sizeof(version);									/* Read & check file version code */
 	errCode = FSRead(refNum, &count, &version);
 	fix_end(version);
 	if (errCode) { errInfo = VERSIONobj; goto Error;}
@@ -1345,7 +1339,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	
 	if (CapsLockKeyDown() && ShiftKeyDown() && OptionKeyDown() && CmdKeyDown()) {
 		LogPrintf(LOG_NOTICE, "IGNORING FILE'S VERSION CODE '%T'.\n", version);
-		GetIndCString(strBuf, FILEIO_STRS, 6);		/* "IGNORING FILE'S VERSION CODE!" */
+		GetIndCString(strBuf, FILEIO_STRS, 6);					/* "IGNORING FILE'S VERSION CODE!" */
 		CParamText(strBuf, "", "", "");
 		CautionInform(GENERIC_ALRT);
 		version = THIS_VERSION;
@@ -1361,7 +1355,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	if (version>THIS_VERSION) { errCode = HI_VERSION_ERR; goto Error; }
 	if (version!=THIS_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%T' FILE.\n", version);
 
-	count = sizeof(fileTime);										/* Time file was written */
+	count = sizeof(fileTime);									/* Time file was written */
 	errCode = FSRead(refNum, &count, &fileTime);
 	fix_end(fileTime);
 	if (errCode) { errInfo = VERSIONobj; goto Error; }
@@ -1604,13 +1598,13 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	return 0;
 
 Error:
-	OpenError(fileOpened, refNum, errCode, errInfo);
+	OpenError(fileIsOpen, refNum, errCode, errInfo);
 	return errCode;
 }
 
 
 /* -------------------------------------------------------------------- OpenError -- */
-/* Handle errors occurring while reading a file. fileOpened indicates  whether or
+/* Handle errors occurring while reading a file. <fileIsOpen> indicates  whether or
 not the file was open when the error occurred; if so, OpenError closes it. <errCode>
 is either an error code return by the file system manager or one of our own codes
 (see enum above). <errInfo> indicates at what step of the process the error happened
@@ -1618,10 +1612,10 @@ is either an error code return by the file system manager or one of our own code
 some other additional information on the error. NB: If errCode==0, this will close
 the file but not give an error message; I'm not sure that's a good idea.
 
-Note that after a call to OpenError with fileOpened, you should not try to keep
+Note that after a call to OpenError with fileIsOpen, you should not try to keep
 reading, since the file will no longer be open! */
 
-void OpenError(Boolean fileOpened,
+void OpenError(Boolean fileIsOpen,
 					short refNum,
 					short errCode,
 					short errInfo)	/* More info: at what step error happened, type of obj being read, etc. */
@@ -1629,7 +1623,9 @@ void OpenError(Boolean fileOpened,
 	char aStr[256], fmtStr[256]; StringHandle strHdl;
 	short strNum;
 	
-	if (fileOpened) FSClose(refNum);
+	LogPrintf(LOG_ERR, "OpenError: errCode=%d errInfo=%d\n", errCode, errInfo);
+	if (fileIsOpen) FSClose(refNum);
+
 	if (errCode!=0) {
 		switch (errCode) {
 			/*
@@ -2138,7 +2134,7 @@ short SaveFile(
 	short			errCode, refNum;
 	short 			errInfo=noErr;				/* Type of object being read or other info on error */
 	short			saveType;
-	Boolean			fileOpened;
+	Boolean			fileIsOpen;
 	const unsigned char	*tempName;
 	ScriptCode		scriptCode = smRoman;
 	FSSpec 			fsSpec;
@@ -2151,7 +2147,7 @@ short SaveFile(
 	Pstrcpy(filename,doc->name);
 	vRefNum = doc->vrefnum;
 	fsSpec = doc->fsSpec;
-	fileOpened = FALSE;
+	fileIsOpen = FALSE;
 
 TryAgain:
 	WaitCursor();
@@ -2212,7 +2208,7 @@ TryAgain:
 	doc->docNew = FALSE;
 	doc->vrefnum = vRefNum;
 	doc->fsSpec	= fsSpec;
-	fileOpened = TRUE;
+	fileIsOpen = TRUE;
 
 	errCode = WriteFile(doc,refNum);
 	if (errCode) { errInfo = WRITEcall; goto Error; };
@@ -2281,7 +2277,7 @@ TryAgain:
 	return 0;
 
 Error:
-	SaveError(fileOpened, refNum, errCode, errInfo);
+	SaveError(fileIsOpen, refNum, errCode, errInfo);
 	return errCode;
 }
 
@@ -2289,7 +2285,7 @@ Error:
 /* Handle errors occurring while writing a file. Parameters are the same as those
 for OpenError(). */
 
-void SaveError(Boolean fileOpened,
+void SaveError(Boolean fileIsOpen,
 					short refNum,
 					short errCode,
 					short errInfo)		/* More info: at what step error happened, type of obj being written, etc. */
@@ -2297,7 +2293,8 @@ void SaveError(Boolean fileOpened,
 	char aStr[256], fmtStr[256]; StringHandle strHdl;
 	short strNum;
 
-	if (fileOpened) FSClose(refNum);
+	LogPrintf(LOG_ERR, "SaveError: errCode=%d errInfo=%d\n", errCode, errInfo);
+	if (fileIsOpen) FSClose(refNum);
 
 	/*
 	 * We expect descriptions of the common errors stored by code (negative values,

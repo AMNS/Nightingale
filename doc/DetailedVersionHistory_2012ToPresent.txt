@@ -846,9 +846,20 @@ error message. Affects DialogsEditor.
 Clarify the Change Patch dialog; improve its layout and that of the Pan Setting dialog.
 Affects .rsrc.
 
-Fix bug: While patch settings properly affect MIDI playback inside Ngale, they have
+Fix bug (Issue #114): While patch settings properly affect MIDI playback inside Ngale, they have
 no effect on MIDI files Ngale writes. Affects MIDIFSave.
 
 Minor cleanup. Affects MIDIGeneral.h; CoreMidiUtils, DebugDisplay, DialogsEditor,
 MIDIFOCmd, MIDIFSave, MIDIPlay.
 
+-------------------------------------------------------------------------------
+
+24-25 Sept.
+
+Trying to open certain old files that don't have the proper Ngale document icon, and
+therefore probably don't have the correct pre-OS X-Finder file type ('SCOR'), by
+dropping them on the Ngale program icon, used to just give an incomprehensible error
+message and give up; it now gives a meaningful message and tries to open them anyway.
+Affects .rsrc; NResource.h; Event.
+
+Minor cleanup. Affects Documents, File.

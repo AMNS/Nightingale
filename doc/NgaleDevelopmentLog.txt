@@ -1512,3 +1512,24 @@ to bypass the initialisation of an object a variable." Files needing changes: Ab
 CheckMerge.cp, DrawObject.cp, DurationPopUp.cp, FileInput.cp, NavServices.cp.
 (The change she made in Menu.cp was commenting out code for a different reason.)
 
+-------------------------------------------------------------------------------
+
+23 - 24 Sept.
+
+Doug McK. reports that he can't open his old files w/ Ngale 5.6, files that don't have
+the proper Ngale document icon, via the Open command -- no surprise. But trying to
+open them by dropping on the Ngale program icon gives
+
+	Nightingale can't open the file.
+	The file version is '
+
+Not too helpful! It looks like this is from StopInform(370); 370 is READ_ALRT. The 2nd
+line must be STR# 241 string 7, 8, or 9: all begin with "The file version is '", then
+go on to say more; it's not clear why that's all StopInform() sends out. Where is that
+StopInform()?
+
+Test w/ my file "Things th MaUs Sing full p.ngl copy": sure enough, it behaves the way
+Doug says. Add a LogPrintf at start of OpenError() => never prints anything! ?? Ah,
+dropping files on the program icon calls FSpecOpenDocument(); it notices the file has
+the wrong document type, but gives the wrong error message!
+

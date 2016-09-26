@@ -76,6 +76,7 @@
 #define SAFESAVE_ALRT 380
 #define SAFESAVE1_ALRT 381
 #define SAFESAVEINFO_ALRT 385
+#define READ_PROBLEM_ALRT 387
 #define JUSTSPACE_ALRT 390				/* Justify may not give good spacing */
 #define OPENPREFS_ALRT 393
 #define MODNRINFO_ALRT 399				/* Bad value in Modifier Info */

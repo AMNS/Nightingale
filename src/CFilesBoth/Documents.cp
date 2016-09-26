@@ -13,9 +13,9 @@
 
 /* Prototypes for private routines */
 
-short NumFreeDocuments(void);
-short NumOpenDocuments(void);
-void PositionWindow(WindowPtr,Document *);
+static short NumFreeDocuments(void);
+static short NumOpenDocuments(void);
+static Boolean AllStavesSameSize(Document *);
 
 /* ---------------------------------------------------- InstallDoc and associates -- */
 
@@ -39,10 +39,10 @@ does something tricky for the sake of speed. As a result, it's hard to see what
 the optimal setting is for odd magnifications, though it seems it should be
 somewhere from 2/3 to 3/4 the setting for the equivalent even magnification. For now:
 
-	Magnification	25%	37.5%	50%	75%	100%	150%	200%	300%	400%	600%
+	Magnification	25%		37.5%	50%		75%		100%	150%	200%	300%	400%	600%
 	magnify			-4		-3		-2		-1		0		1		2		3		4		5
-	magShift			6		6		5		5		4		4		3		3		2		2
-	magRound			32		32?	16		16?	8		8?		4		4?		2		2?
+	magShift		6		6		5		5		4		4		3		3		2		2
+	magRound		32		32?		16		16?		8		8?		4		4?		2		2?
 */
 
 void InstallMagnify(Document *doc)
@@ -129,7 +129,7 @@ Document *FirstFreeDocument()
 		
 		for (doc=documentTable; doc<topTable; doc++)
 			if (!doc->inUse) {
-				ZeroMem(doc,sizeof(Document));
+				ZeroMem(doc, sizeof(Document));
 				return(doc);
 				}
 		
@@ -137,9 +137,8 @@ Document *FirstFreeDocument()
 	}
 
 /*
- *	Deliver pointer to document table whose window is w.
- * Analagous to Carbon functions that cast up, e.g.
- * GetDialogFromWindow(WindowPtr)
+ * Deliver pointer to document table whose window is w. Analagous to Carbon
+ * functions that cast up, e.g. GetDialogFromWindow(WindowPtr)
  */
 
 Document *GetDocumentFromWindow(WindowPtr w)
@@ -178,12 +177,12 @@ Document *AlreadyInUse(unsigned char *name, short /*vrefnum*/, FSSpec *pfsSpec)
 		
 		for (doc=documentTable; doc<topTable; doc++)
 			if (doc->inUse && doc!=clipboard)
-				if (EqualFSSpec(&doc->fsSpec,pfsSpec))				// if(doc->vrefnum == vrefnum)
-					if (EqualString(doc->name,name,FALSE,FALSE)) return(doc);
+				if (EqualFSSpec(&doc->fsSpec, pfsSpec))				// if(doc->vrefnum == vrefnum)
+					if (EqualString(doc->name, name, FALSE, FALSE)) return(doc);
 		return(NULL);
 	}
 
-short NumFreeDocuments()
+static short NumFreeDocuments()
 	{
 		Document *doc; short n = 0;
 		
@@ -192,7 +191,7 @@ short NumFreeDocuments()
 		return(n);
 	}
 	
-short NumOpenDocuments()
+static short NumOpenDocuments()
 	{
 		Document *doc; short n = 0;
 		
@@ -227,11 +226,11 @@ void ShowClipDocument()
 					box.bottom = bounds.bottom - 24;
 					if (box.right > bounds.right-24)
 						box.right = bounds.right - 24;
-					SizeWindow(w,box.right-box.left,box.bottom-box.top,FALSE);
+					SizeWindow(w, box.right-box.left, box.bottom-box.top, FALSE);
 					once = FALSE;
 			 		}
 			 	if (BottomPalette != BRING_TO_FRONT)
-			 		SendBehind(clipboard->theWindow,BottomPalette);
+			 		SendBehind(clipboard->theWindow, BottomPalette);
 			 	 else
 			 		BringToFront(clipboard->theWindow);
 			 	ShowDocument(clipboard);
@@ -261,19 +260,19 @@ void PositionWindow(WindowPtr w, Document *doc)
 				box.left = bounds.left+4;
 			if (palWidth < palHeight)
 				box.left += palWidth;
-			MoveWindow(doc->theWindow,box.left,box.top,FALSE);
+			MoveWindow(doc->theWindow, box.left, box.top, FALSE);
 			AdjustWinPosition(w);
-			GetGlobalPort(w,&box);
+			GetGlobalPort(w, &box);
 			bounds = GetQDScreenBitsBounds();
 			box.bottom = bounds.bottom - 4;
 			if (box.right > bounds.right-4)
 				box.right = bounds.right - 4;
-			SizeWindow(doc->theWindow,box.right-box.left,box.bottom-box.top,FALSE);
+			SizeWindow(doc->theWindow, box.right-box.left, box.bottom-box.top, FALSE);
 			}
 		 else {
-			MoveWindow(doc->theWindow,revertWinPosition.left,revertWinPosition.top,FALSE);
-			SizeWindow(doc->theWindow,revertWinPosition.right-revertWinPosition.left,
-						   revertWinPosition.bottom-revertWinPosition.top,FALSE);
+			MoveWindow(doc->theWindow, revertWinPosition.left, revertWinPosition.top, FALSE);
+			SizeWindow(doc->theWindow, revertWinPosition.right-revertWinPosition.left,
+						   revertWinPosition.bottom-revertWinPosition.top, FALSE);
 			SetRect(&revertWinPosition,0,0,0,0); 		 /* Make it empty again */
 			}
 	}
@@ -295,7 +294,7 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 		/* If an existing file and already open, then just bring it to front */
 		
 		if (fileName) {
-			doc = AlreadyInUse(fileName,vRefNum,pfsSpec);
+			doc = AlreadyInUse(fileName, vRefNum, pfsSpec);
 			if (doc) {
 				DoSelectWindow(doc->theWindow);
 				return(TRUE);
@@ -307,7 +306,7 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 		doc = FirstFreeDocument();
 		if (doc == NULL) { TooManyDocs(); return(FALSE); }
 
-		w = GetNewWindow(docWindowID,NULL,BottomPalette);
+		w = GetNewWindow(docWindowID, NULL, BottomPalette);
 		if (w) {
 			doc->theWindow = w;
 			SetWindowKind(w, DOCUMENTKIND);
@@ -317,50 +316,50 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 			doc->readOnly = readOnly;
 			if (fileName) {
 				doc->docNew = FALSE;
-				Pstrcpy(doc->name,fileName);
+				Pstrcpy(doc->name, fileName);
 				doc->vrefnum = vRefNum;
 				doc->fsSpec = *pfsSpec;
 				}
 			 else {
 				doc->docNew = TRUE;
 				/* Count number of new (untitled) documents on desktop */
-				for (numNew=0,d=documentTable; d<topTable; d++)
+				for (numNew=0, d=documentTable; d<topTable; d++)
 					if (d->inUse && d->docNew && d!=clipboard) numNew++;
-				GetIndString(tmpStr,MiscStringsID,1);	/* Get "Untitled" */
-				Pstrcpy(doc->name,tmpStr);
+				GetIndString(tmpStr, MiscStringsID, 1);	/* Get "Untitled" */
+				Pstrcpy(doc->name, tmpStr);
 				*(doc->name + 1 + *(doc->name)) = '-';
 				*(doc->name + 2 + *(doc->name)) = ID + numNew;
 				(*doc->name) += 2;
 				doc->vrefnum = 0;
 				}
 				
-			if (!BuildDocument(doc,fileName,vRefNum,pfsSpec,&fileVersion,fileName==NULL)) {
+			if (!BuildDocument(doc, fileName, vRefNum, pfsSpec, &fileVersion, fileName==NULL)) {
 				DoCloseDocument(doc);
 				w = NULL;
 				}
 			 else {
-				PositionWindow(w,doc);
-				SetOrigin(doc->origin.h,doc->origin.v);
+				PositionWindow(w, doc);
+				SetOrigin(doc->origin.h, doc->origin.v);
 				RecomputeView(doc);
-				SetControlValue(doc->hScroll,doc->origin.h);
-				SetControlValue(doc->vScroll,doc->origin.v);
+				SetControlValue(doc->hScroll, doc->origin.h);
+				SetControlValue(doc->vScroll, doc->origin.v);
 				if (fileVersion != THIS_VERSION) {
 					/* Append " (converted)" to its name and mark the document changed */
 					unsigned char str[64];
-					GetIndString(str,MiscStringsID,5);
+					GetIndString(str, MiscStringsID, 5);
 					PStrCat(doc->name, str);
 					doc->changed = doc->docNew = !readOnly;
 					doc->converted = TRUE;
 					}
 				else
 					doc->converted = FALSE;
-				SetWTitle(w,doc->name);
+				SetWTitle(w, doc->name);
 				ShowDocument(doc);
 				
 				/* ERROR: new documents are not updated in Panther 10.3. This is a workaround */
 				if (doc->docNew) {
 					Rect portRect;
-					GetWindowPortBounds(doc->theWindow,&portRect);
+					GetWindowPortBounds(doc->theWindow, &portRect);
 					DoUpdate(doc->theWindow);
 					}
 					
@@ -379,7 +378,8 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
  * return TRUE.
  */
 
-Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec, Document **pDoc)
+Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
+						FSSpec *pfsSpec, Document **pDoc)
 	{
 		register WindowPtr w; register Document *doc, *d;
 		short numNew; long fileVersion;
@@ -390,7 +390,7 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 		/* If an existing file and already open, then just bring it to front */
 		
 		if (fileName) {
-			doc = AlreadyInUse(fileName,vRefNum,pfsSpec);
+			doc = AlreadyInUse(fileName, vRefNum, pfsSpec);
 			if (doc) {
 				DoSelectWindow(doc->theWindow);
 				*pDoc = doc;
@@ -403,7 +403,7 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 		doc = FirstFreeDocument();
 		if (doc == NULL) { TooManyDocs(); *pDoc = NULL; return(FALSE); }
 
-		w = GetNewWindow(docWindowID,NULL,BottomPalette);
+		w = GetNewWindow(docWindowID, NULL, BottomPalette);
 		if (w) {
 			doc->theWindow = w;
 			SetWindowKind(w, DOCUMENTKIND);
@@ -413,50 +413,50 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 			doc->readOnly = readOnly;
 			if (fileName) {
 				doc->docNew = FALSE;
-				Pstrcpy(doc->name,fileName);
+				Pstrcpy(doc->name, fileName);
 				doc->vrefnum = vRefNum;
 				doc->fsSpec = *pfsSpec;
 				}
 			 else {
 				doc->docNew = TRUE;
 				/* Count number of new (untitled) documents on desktop */
-				for (numNew=0,d=documentTable; d<topTable; d++)
+				for (numNew=0, d=documentTable; d<topTable; d++)
 					if (d->inUse && d->docNew && d!=clipboard) numNew++;
-				GetIndString(tmpStr,MiscStringsID,1);	/* Get "Untitled" */
-				Pstrcpy(doc->name,tmpStr);
+				GetIndString(tmpStr, MiscStringsID, 1);	/* Get "Untitled" */
+				Pstrcpy(doc->name, tmpStr);
 				*(doc->name + 1 + *(doc->name)) = '-';
 				*(doc->name + 2 + *(doc->name)) = ID + numNew;
 				(*doc->name) += 2;
 				doc->vrefnum = 0;
 				}
 				
-			if (!BuildDocument(doc,fileName,vRefNum,pfsSpec,&fileVersion,fileName==NULL)) {
+			if (!BuildDocument(doc, fileName, vRefNum, pfsSpec, &fileVersion, fileName==NULL)) {
 				DoCloseDocument(doc);
 				w = NULL;
 				}
 			 else {
-				PositionWindow(w,doc);
-				SetOrigin(doc->origin.h,doc->origin.v);
+				PositionWindow(w, doc);
+				SetOrigin(doc->origin.h, doc->origin.v);
 				RecomputeView(doc);
-				SetControlValue(doc->hScroll,doc->origin.h);
-				SetControlValue(doc->vScroll,doc->origin.v);
+				SetControlValue(doc->hScroll, doc->origin.h);
+				SetControlValue(doc->vScroll, doc->origin.v);
 				if (fileVersion != THIS_VERSION) {
 					/* Append " (converted)" to its name and mark the document changed */
 					unsigned char str[64];
-					GetIndString(str,MiscStringsID,5);
+					GetIndString(str, MiscStringsID, 5);
 					PStrCat(doc->name, str);
 					doc->changed = doc->docNew = !readOnly;
 					doc->converted = TRUE;
 					}
 				else
 					doc->converted = FALSE;
-				SetWTitle(w,doc->name);
+				SetWTitle(w, doc->name);
 				ShowDocument(doc);
 				
 				/* ERROR: new documents are not updated in Panther 10.3. This is a workaround */
 				if (doc->docNew) {
 					Rect portRect;
-					GetWindowPortBounds(doc->theWindow,&portRect);
+					GetWindowPortBounds(doc->theWindow, &portRect);
 					DoUpdate(doc->theWindow);
 					}
 				}
@@ -483,7 +483,7 @@ void ShowDocument(Document *doc)
 				/* There won't be an activate event for doc, so do it here */
 				ShowWindow(doc->theWindow);
 				HiliteWindow(doc->theWindow, TRUE);
-				ActivateDocument(doc,TRUE);
+				ActivateDocument(doc, TRUE);
 				}
 			if (TopDocument)
 				/* Ensure the TopDocument and its controls are unhilited properly. */
@@ -541,19 +541,19 @@ void ActivateDocument(register Document *doc, short activ)
 			WindowPtr w = doc->theWindow; 
 			GetPort(&oldPort);
 			
-			HiliteWindow(w,activ);
+			HiliteWindow(w, activ);
 			
-			GetWindowPortBounds(w,&portRect);
+			GetWindowPortBounds(w, &portRect);
 			SetPort(GetWindowPort(w));
 			ClipRect(&portRect);
 			
 			if (doc->active = (activ!=0)) {
-				HiliteControl(doc->hScroll,CTL_ACTIVE);
-				HiliteControl(doc->vScroll,CTL_ACTIVE);
+				HiliteControl(doc->hScroll, CTL_ACTIVE);
+				HiliteControl(doc->vScroll, CTL_ACTIVE);
 				}
 			 else {
-				HiliteControl(doc->hScroll,CTL_INACTIVE);
-				HiliteControl(doc->vScroll,CTL_INACTIVE);
+				HiliteControl(doc->hScroll, CTL_INACTIVE);
+				HiliteControl(doc->vScroll, CTL_INACTIVE);
 				}
 				
 			pt = TOP_LEFT(doc->growRect);
@@ -561,7 +561,7 @@ void ActivateDocument(register Document *doc, short activ)
 			ClipRect(&doc->viewRect);
 			
 			if (!doc->masterView && !doc->showFormat)
-				MEActivateCaret(doc,activ);
+				MEActivateCaret(doc, activ);
 			
 			if (activ) {
 				InstallDoc(doc);
@@ -590,9 +590,9 @@ Boolean DocumentSaved(register Document *doc)
 		if (doc->changed) {
 			DoUpdate(doc->theWindow);
 			ArrowCursor();
-			ParamText(doc->name,"\p","\p","\p");
-			PlaceAlert(saveChangesID,doc->theWindow,0,30);
-			itemHit = CautionAlert(saveChangesID,NULL);
+			ParamText(doc->name, "\p", "\p", "\p");
+			PlaceAlert(saveChangesID, doc->theWindow, 0, 30);
+			itemHit = CautionAlert(saveChangesID, NULL);
 			if (itemHit == Cancel) keepGoing = FALSE;
 			if (itemHit == OK) {
 				WaitCursor();
@@ -731,8 +731,7 @@ void DoRevertDocument(register Document *doc)
 not the score's <srastral>, offer user a change to set <srastral> accordingly.
 In all cases, return TRUE if all staves are the same size, else FALSE. */
 
-Boolean AllStavesSameSize(Document *);
-Boolean AllStavesSameSize(Document *doc)
+static Boolean AllStavesSameSize(Document *doc)
 {
 	LINK staffL, aStaffL; Boolean firstTime=TRUE, allSameSize=TRUE;
 	DDIST lnSpace, thisLnSpace; short i;
