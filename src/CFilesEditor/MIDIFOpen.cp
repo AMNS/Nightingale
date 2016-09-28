@@ -206,17 +206,6 @@ static DoubleWord GetVarLen(Byte chunk[], DoubleWord *pLoc)
 
 #define MAX_DENOM_POW2 6		/* This and denomTab must agree with the TSDENOM_BAD macro */
 
-#define METAEVENT 0xFF				/* Meta-event code. Subtypes: */
-
-#define ME_SEQTRACKNAME 0x03		/* Name of the sequence or track */
-#define ME_INSTRNAME 0x04			/* Name of the instrument */
-
-#define ME_EOT 0x2F					/* End-of-track */
-#define ME_TEMPO 0x51				/* Set Tempo: 3 bytes, in microseconds per MIDI qtr-note */
-#define ME_SMPTE 0x54				/* SMPTE offset */
-#define ME_TIMESIG 0x58				/* Time signature */
-#define ME_KEYSIG 0x59				/* Key signature: -7 = 7 flats...7 = 7 sharps */
-
 /* In versions before 3.1b41, we limited track size to 65535. But as far as I know,
 the only reason was to insure no more than 65535 notes/track so note indices fit in
 the .link field of a LINKTIMEINFO; limiting track size to the same value is much too
@@ -252,7 +241,7 @@ Word ReadTrack(Byte **ppChunk)
 		return 0;
 	}
 	actualLen = len;
-	if ((errCode = FSRead(infile,&actualLen,pChunk)) == 0)
+	if ((errCode = FSRead(infile, &actualLen, pChunk)) == 0)
 		if (actualLen<len) errCode = eofErr;
 	if (errCode) return 0;
 	
@@ -284,7 +273,7 @@ If an error is found, it returns 0xFFFFFFFF. */
 
 static DoubleWord GetDeltaTime(Byte chunk[], DoubleWord *pLoc)
 {
-	DoubleWord varLenValue, delta=0L;
+	DoubleWord varLenValue, deltaT=0L;
 	char fmtStr[256];
 	
 Another:
@@ -297,10 +286,10 @@ Another:
 		StopInform(GENERIC_ALRT);
 		return (DoubleWord)0xFFFFFFFF;
 	}
-	delta += varLenValue;
+	deltaT += varLenValue;
 
 	if (locMF>lenMF) return -1L;						/* If no more in the track */
-	if (chunk[locMF]!=MACTIVESENSE) return delta;
+	if (chunk[locMF]!=MACTIVESENSE) return deltaT;
 
 	while (chunk[locMF]==MACTIVESENSE) locMF++;			/* skip our "no-ops" */
 	if (locMF>lenMF) return -1L;						/* If no more in the track */
@@ -320,13 +309,13 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 {
 	Byte command, i;
 	Word n;
-	DoubleWord delta;
+	DoubleWord deltaT;
 	short opStatus=FAILURE;
 
 	if (locMF>=lenMF) return NOTHING_TO_DO;			/* If equal, can't have data AND delta time remaining */
 	
-	delta = GetDeltaTime(pChunkMF, &locMF);
-	if (delta==(DoubleWord)0xFFFFFFFF) return FAILURE;
+	deltaT = GetDeltaTime(pChunkMF, &locMF);
+	if (deltaT==(DoubleWord)0xFFFFFFFF) return FAILURE;
 
 	*pRunning = !(pChunkMF[locMF] & MSTATUSMASK);
 	if (!(*pRunning)) {
@@ -336,7 +325,8 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 
 	eventData[0] = statusByteMF;
 
-	command = COMMAND(statusByteMF);
+	if (DBG) DisplayMIDIEvent(deltaT, statusByteMF, pChunkMF[locMF]);
+	command = MCOMMAND(statusByteMF);
 	switch (command) {
 		case MNOTEON:
 		case MNOTEOFF:
@@ -369,12 +359,13 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 			eventData[2] = pChunkMF[locMF];
 			for (i = 1; i<=pChunkMF[locMF]; i++)
 				eventData[i+2] = pChunkMF[locMF+i];
-#if 1
+			/* JGG &DAB: Combining the next two operations with:
+				locMF += pChunkMF[locMF++];
+			...	doesn't work right on the CodeWarrior PowerPC compiler (ca. 2000?).
+			Not that we care about CodeWarrior or PowerPCs anymore, but it might be
+			a problem with other compilers too. */
 			locMF += pChunkMF[locMF];
 			locMF++;
-#else	// JGG: doesn't work right on CW PPC compiler:
-			locMF += pChunkMF[locMF++];
-#endif
 			opStatus = OP_COMPLETE;
 			break;
 		default:
@@ -384,7 +375,7 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 
 	if (locMF>lenMF) return NOTHING_TO_DO;
 
-	*pDeltaTime = delta;
+	*pDeltaTime = deltaT;
 	return opStatus;
 }
 
@@ -519,7 +510,7 @@ static Boolean FindNoteOff(
 			duration = 65535L;
 		}
 
-		command = COMMAND(eventData[0]);
+		command = MCOMMAND(eventData[0]);
 		if ( command==MNOTEOFF
 		||  (command==MNOTEON && eventData[2]==0) ) {
 			if (eventData[1]==noteNumber && MayBeNoteOff(locMF-2)) {
@@ -618,18 +609,17 @@ Boolean GetTrackInfo(
 	InitMFEventQue(0, 0);
 	InitNoteOffList();			/* Now (v.999) useless but if removed, remove calls to MaybeNoteOff! */
 	
-	/* ??This loop could be more readable! */
 	while ((opStatus = GetNextMFEvent(&deltaTime, eventData, &runStatus))==OP_COMPLETE) {
 		tickTime += deltaTime;
 
-		command = COMMAND(eventData[0]);
+		command = MCOMMAND(eventData[0]);
 		if (command==MNOTEOFF) continue;
 		if (command==MNOTEON && eventData[2]==0) continue;		/* Really a Note Off */
 		
 		switch (command) {
 			case MNOTEON:
 				if (FindNoteOff(locMF-2, FALSE, dummy, &tooLong)) {
-					chanUsed[CHANNEL(eventData[0])] = TRUE;
+					chanUsed[MCHANNEL(eventData[0])] = TRUE;
 					totCount++;
 					if (tooLong) (*nTooLong)++;
 					if  (qLDur!=UNKNOWN_L_DUR) {
@@ -694,7 +684,7 @@ Boolean GetTimingTrackInfo(
 	while (GetNextMFEvent(&deltaTime, eventData, &runStatus)==OP_COMPLETE) {
 		tickTime += deltaTime;
 
-		command = COMMAND(eventData[0]);
+		command = MCOMMAND(eventData[0]);
 		if (command==METAEVENT) {
 			if (eventData[1]==ME_TIMESIG) {
 				totCount++;
@@ -795,7 +785,7 @@ Word MF2MIDNight(
 		}
 		tickTime += deltaTime;
 
-		command = COMMAND(eventData[0]);
+		command = MCOMMAND(eventData[0]);
 		if (command==MNOTEOFF) continue;
 		if (command==MNOTEON && eventData[2]==0) continue;		/* Really a Note Off */
 		
@@ -822,7 +812,7 @@ Word MF2MIDNight(
 				outLoc += ROUND_UP_EVEN(MN_CTLLEN);
 				break;
 			case MPGMCHANGE:
-LogPrintf(LOG_DEBUG, "MF2MIDNight: found MPGMCHANGE\n");
+//LogPrintf(LOG_DEBUG, "MF2MIDNight: found MPGMCHANGE\n");
 				break;
 			case METAEVENT:
 				BlockMove(&tickTime, pChunk+outLoc, sizeof(long));
@@ -2065,8 +2055,8 @@ static short Track2RTStructs(
 		/* Point p to the beginning of the next MFEvent */
 		p = (MFEvent *)&(trackInfo[track].pChunk[loc]);
 		
-		command = COMMAND(p->data[0]);
-		channel = CHANNEL(p->data[0]);
+		command = MCOMMAND(p->data[0]);
+		channel = MCHANNEL(p->data[0]);
 
 		if (!isTempoMap && p->tStamp<cStartTime) goto IncrementLoc;
 		if (!isTempoMap && p->tStamp>=cStopTime) break;

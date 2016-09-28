@@ -108,15 +108,6 @@ Boolean WriteDeltaTime(DoubleWord absTime)
 }
 
 
-#define METAEVENT 0xFF			/* Meta-event code. Subtypes: */
-
-#define ME_SEQTRACKNAME 0x03	/* Name of the sequence or track */
-#define ME_EOT 0x2F				/* End-of-track */
-#define ME_TEMPO 0x51			/* Set Tempo: 3 bytes, in microseconds per MIDI qtr-note */
-#define ME_SMPTE 0x54			/* SMPTE offset */
-#define ME_TIMESIG 0x58			/* Time signature */
-#define ME_KEYSIG 0x59			/* Key signature: -7 = 7 flats... 7 = 7 sharps */
-
 /* ----------------------------------------------------------- WriteHeader, etc. -- */
 
 static Boolean WriteHeader(Byte, Word, Word);

@@ -773,7 +773,7 @@ static Boolean CheckAndConsult(
 	
 	/* Tell user what we found and ask them what to do now. */
 	
-	LogPrintf(LOG_NOTICE, "lastEvent=%ld\n", *pLastEvent);
+	LogPrintf(LOG_NOTICE, "CheckAndConsult: lastEvent=%ld\n", *pLastEvent);
 	return TranscribeMFDialog(trackInfo, nTrackNotes, nTooLong, chanUsed, qTrLDur,
 										qTrTriplets, lastTrEvent, nNotes, nGoodTrs, qAllLDur,
 										pQuantCode, pAutoBeam, pTriplets, pClefChanges, pMaxMeasures);
@@ -781,8 +781,8 @@ static Boolean CheckAndConsult(
 
 
 /* ----------------------------------------------------------------- OpenMIDIFile -- */
-/* Create a new score and read a format 1 MIDI file into it, mapping each track to
-one part of a single staff. Return TRUE if successful. */
+/* Create a new score and read a format 1 MIDI file into it, mapping each track (except
+the timing track) to a one-staff part. Return TRUE if successful. */
 
 #define RESET_PLAYDURS TRUE
 #define COMMENT_MIDIFILE "(origin: imported MIDI file)"	/* FIXME: Should be in resource for I18N */
@@ -824,9 +824,10 @@ static Boolean OpenMIDIFile()
 		durQuantum = (quantCode==UNKNOWN_L_DUR? 1 : Code2LDur(quantCode, 0));
 
 		/*
-		 *	We now have a default score with one part of two staves. In a format 1 MIDI
-		 * file, the first track is the tempo map; for every other track, add a part
-		 *	of one staff below all existing staves. Then get rid of the default part.
+		 * We now have a default score with one part of two staves. In a format 1 MIDI
+		 * file, the first track is the tempo map, which won't get a staff; for every
+		 * other track, add a part of one staff below all existing staves. Then get
+		 * rid of the default part.
 		 */
 		for (stf = 1; stf<nTracks; stf++) {
 			partL = AddPart(doc, 2+(stf-1), 1, SHOW_ALL_LINES);
@@ -838,9 +839,9 @@ static Boolean OpenMIDIFile()
 		FixMeasRectYs(doc, NILINK, TRUE, TRUE, FALSE);		/* Fix measure & system tops & bottoms */
 		Score2MasterPage(doc);
 		/*
-		 * Read in each track and convert okay ones to "MIDNight" intermediate form. Note
-		 *	that neither pChunkMF nor pChunk is allocated here: ReadTrack and MF2MIDNight
-		 *	are respectively responsible for that.
+		 * Read in each track and convert okay ones to our "MIDNight" intermediate form.
+		 * Note that neither pChunkMF nor pChunk is allocated here: ReadTrack and
+		 * MF2MIDNight are respectively responsible for that.
 		 */
 		for (t = 1; t<=nTracks; t++) {
 			lenMF = ReadTrack(&pChunkMF);
@@ -856,9 +857,10 @@ static Boolean OpenMIDIFile()
 			}
 
 			if (trackInfo[t].okay) {
+				LogPrintf(LOG_INFO, "OpenMIDIFile: Calling MF2MIDNight for track %d...\n", t);
 				len = MF2MIDNight(&pChunk);
 				if (ShiftKeyDown() && CmdKeyDown()) {
-					LogPrintf(LOG_INFO, "MTrk(%d) MIDNightLen=%d:\n", t, len);
+					LogPrintf(LOG_INFO, "OpenMIDIFile: MTrk(%d) MIDNightLen=%d:\n", t, len);
 					DHexDump(pChunk, (len>50L? 50L : len), 5, 20);
 				}
 				if (len==0) {
@@ -883,9 +885,10 @@ static Boolean OpenMIDIFile()
 		 * it, and clean up.
 		 */
 		tripletBias = (triplets? -config.noTripletBias : -100);
+		LogPrintf(LOG_INFO, "OpenMIDIFile: Calling MIDNight2Night with nTracks=%d...\n", nTracks);
 		status = MIDNight2Night(doc,trackInfo,durQuantum,tripletBias,
-											config.delRedundantAccs,clefChanges,RESET_PLAYDURS,
-											maxMeasures,lastEvent);
+									config.delRedundantAccs,clefChanges,RESET_PLAYDURS,
+									maxMeasures,lastEvent);
 
 		for (t = 1; t<=nTracks; t++)
 			if (trackInfo[t].pChunk) DisposePtr((Ptr)trackInfo[t].pChunk);

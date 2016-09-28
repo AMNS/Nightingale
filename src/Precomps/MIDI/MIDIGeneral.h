@@ -17,12 +17,23 @@
 #define MHI_SYSREALTIME 0xFF		/* Highest code for System Real Time command */
 #define MACTIVESENSE 0xFE
 
+#define METAEVENT 0xFF				/* Meta-event code. Subtypes: */
+
+#define ME_SEQTRACKNAME 0x03		/*	Name of the sequence or track */
+#define ME_INSTRNAME 0x04			/*	Name of the instrument */
+
+#define ME_EOT 0x2F					/*	End-of-track */
+#define ME_TEMPO 0x51				/*	Set Tempo: 3 bytes, in microseconds per MIDI qtr-note */
+#define ME_SMPTE 0x54				/*	SMPTE offset */
+#define ME_TIMESIG 0x58				/*	Time signature */
+#define ME_KEYSIG 0x59				/*	0Key signature: -7 = 7 flats...7 = 7 sharps */
+
 #define MSTATUSMASK 0x80
 #define MCOMMANDMASK 0xF0
 #define MCHANNELMASK 0x0F
 
-#define COMMAND(mByte)	((mByte)>=MSYSEX? (mByte) : (mByte) & MCOMMANDMASK)
-#define CHANNEL(mByte)	((mByte) & MCHANNELMASK)
+#define MCOMMAND(mByte)	((mByte)>=MSYSEX? (mByte) : (mByte) & MCOMMANDMASK)
+#define MCHANNEL(mByte)	((mByte) & MCHANNELMASK)
 
 /* MIDI limits and parameters */
 
@@ -124,6 +135,8 @@ void InitBIMIDITimer(void);
 void InitEventList(void);
 Boolean CheckEventList(long pageTurnTOffset);
 Boolean CMCheckEventList(long pageTurnTOffset);
+
+void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1);
 
 /* Higher-level MIDI, MIDI-play, and MIDI-utility routines */
 

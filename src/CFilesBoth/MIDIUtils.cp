@@ -906,3 +906,43 @@ Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly)
 	return TRUE;
 }
 
+
+/* ------------------------------------------------------------- DisplayMIDIEvent -- */
+
+void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
+{
+	Byte command;
+	char strDisp[256];
+	
+	command = MCOMMAND(statusByte);
+	switch (command) {
+		case MNOTEON:
+			strcpy(strDisp, "NoteOn"); break;
+		case MNOTEOFF:
+			strcpy(strDisp, "NoteOff"); break;
+		case MPOLYPRES:
+			strcpy(strDisp, "PolyPressure"); break;
+		case MCTLCHANGE:
+			strcpy(strDisp, "ControlChange"); break;
+		case MPITCHBEND:
+			strcpy(strDisp, "PitchBend"); break;
+			break;
+		case MPGMCHANGE:
+			strcpy(strDisp, "PatchChange"); break;
+		case MCHANPRES:
+			strcpy(strDisp, "ChannelPressure"); break;
+		case MSYSEX:
+			/* 
+			 *	This handles only the original one-chunk form of SysEx message. See
+			 *	midifile.c in Tim Thompson's mftext for some elegant code for
+			 *	collecting arbitrary chunks of SysEx.
+			 */
+			strcpy(strDisp, "SysEx"); break;
+		case METAEVENT:									/* No. of data bytes is in the command */
+			strcpy(strDisp, "Metaevent"); break;
+		default:
+			strcpy(strDisp, "(unknown)"); break;
+	}
+	LogPrintf(LOG_INFO, "DisplayMIDIEvent: deltaT=%ld %s data=%u (0x%x)\n", deltaT, strDisp,
+				eventData1, eventData1);
+}
