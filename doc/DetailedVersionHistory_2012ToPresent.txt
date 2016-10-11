@@ -859,11 +859,18 @@ MIDIFOCmd, MIDIFSave, MIDIPlay.
 Trying to open certain old files that don't have the proper Ngale document icon, and
 therefore probably don't have the correct pre-OS X-Finder file type ('SCOR'), by
 dropping them on the Ngale program icon, used to just give an incomprehensible error
-message and give up; Ngale now gives a meaningful message and tries to open the files.
-Affects .rsrc; NResource.h; Event.
+message and give up; Ngale now gives a meaningful message and it does try to open the
+files. Affects .rsrc; NResource.h; Event.
 
 Move def. of METAEVENT and its subcodes into a header. Affects MIDIGeneral.h; MIDIFOpen,
 MIDIFSave.
 
 Minor cleanup and enhancements. Affects MIDIGeneral.h; Documents, File, MIDIFOCmd,
 MIDIFOpen, MIDIUtils.
+
+-------------------------------------------------------------------------------
+
+30 Sept. - 11 Oct.
+
+Minor cleanup and enhancements. Affects Ottava.h; Dragging, MIDIFOpen, MIDIFSave,
+Ottava, RTRhythmDur.

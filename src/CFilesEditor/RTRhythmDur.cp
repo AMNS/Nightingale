@@ -42,7 +42,7 @@ static Boolean Add1Tuplet(Document *, short, LINKTIMEINFO [], short, short);
 
 #define CHECK_TS(m)																								\
 if (TSNUM_BAD(measInfoTab[(m)].numerator) || TSDENOM_BAD(measInfoTab[(m)].denominator)) \
-	MayErrMsg("Time signature %ld/%ld is illegal.",														\
+	MayErrMsg("Time signature %ld/%ld is illegal.",										\
 				(long)measInfoTab[(m)].numerator, (long)measInfoTab[(m)].denominator)
 
 
@@ -59,8 +59,8 @@ short FindTimeSig(long timeUsed, short m, MEASINFO measInfoTab[], short measTabL
 			"infinity". Various things including quantization might make the last notes
 			go beyond the supposed end of the file, and it doesn't much matter, anyway. */
 			 
-		if (m==measTabLen-1) *tsEndTime = BIGNUM;
-		else					   *tsEndTime += (*measDur)*measInfoTab[m].count;
+		if (m==measTabLen-1)	*tsEndTime = BIGNUM;
+		else					*tsEndTime += (*measDur)*measInfoTab[m].count;
 	}
 	
 	return m;
@@ -93,11 +93,11 @@ short Clar1ToMeas(
 			Document *doc,
 			LINKTIMEINFO rawSyncTab[],		/* Input and output: unclarified NCs */
 			short maxRawSyncs,				/* Maximum size of rawSyncTab */
-			short *pr,							/* Index into rawSyncTab */
+			short *pr,						/* Index into rawSyncTab */
 			short *pnRawSyncs,				/* Current size of rawSyncTab */
 			MEASINFO	measInfoTab[],
 			short measTabLen,
-			short *pm 							/* Index into measInfoTab; -1 = initialize */
+			short *pm 						/* Index into measInfoTab; -1 = initialize */
 			)
 {
 	short nPieces, nNewSyncs;
@@ -193,8 +193,8 @@ Boolean ClarAllToMeas(
 				LINKTIMEINFO rawSyncTab[],		/* Input and output: unclarified NRCs */
 				short maxRawSyncs,				/* Maximum size of rawSyncTab */
 				short *pnRawSyncs,				/* Current size of rawSyncTab */
-				short /*quantum*/,						/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
-				MEASINFO	measInfoTab[],
+				short /*quantum*/,				/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+				MEASINFO measInfoTab[],
 				short measTabLen
 				)
 {
@@ -266,7 +266,7 @@ short FitTime(
 			short /*nRawSyncs*/,
 			short start, short end,
 			short rangeDur,			/* Duration of the range being considered */
-			short quantum,				/* for the non-tuplet version, in PDUR ticks */
+			short quantum,			/* for the non-tuplet version, in PDUR ticks */
 			short tripletBias 		/* Bias towards triplets (roughly, -100=no triplets, +100=max.) */
 			)
 {
@@ -317,7 +317,7 @@ an eighth. */
 
 Boolean slotTupled[MAX_TUP_SLOTS];
 
-short tupLevel[3];	 						/* 1=1 level above beat, 2=beat, 3=1 below beat */
+short tupLevel[3];	 					/* 1=1 level above beat, 2=beat, 3=1 below beat */
 
 /* Decide which NRCs in the given measure in rawSyncTab[] should be tupleted at the
 given duration level, and store the results in the tuplet fields of rawSyncTab[].
@@ -328,7 +328,7 @@ void LevelChooseTuplets(
 			short levBtDur,				/* Total dur. of tuplet on the desired level */
 			LINKTIMEINFO rawSyncTab[],
 			short nRawSyncs,
-			short quantum,					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+			short quantum,				/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 			short tripletBias,			/* Percent bias towards triplets >= 2/3 durQuantum */
 			short subBtDur
 			)
@@ -348,8 +348,8 @@ void LevelChooseTuplets(
 		if (skip) continue;
 		
 		FindTimeRange(btStartTime, btEndTime, rawSyncTab, nRawSyncs, &start, &end);
-		if (start<0 || end<0) continue; 						/* No notes: can't tuple */
-		if (end-start<2) continue;								/* Fewer than 2 notes: can't tuple */
+		if (start<0 || end<0) continue; 					/* No notes: can't tuple */
+		if (end-start<2) continue;							/* Fewer than 2 notes: can't tuple */
 
 		bestNum = FitTime(rawSyncTab,nRawSyncs,start,end,levBtDur,quantum,tripletBias);
 		if (bestNum!=0) {
@@ -372,7 +372,7 @@ void ChooseTuplets(
 			short numer, short denom,	/* Time signature */
 			LINKTIMEINFO rawSyncTab[],
 			short nRawSyncs,
-			short quantum,					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+			short quantum,				/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 			short tripletBias 			/* Percent bias towards triplets >= 2/3 durQuantum */
 			)
 {
@@ -381,12 +381,12 @@ void ChooseTuplets(
 	Boolean compound, tryOnlyOne;
 	
 	compound = COMPOUND(numer);
-	if (compound) return;										/* for the near future, at least */
+	if (compound) return;								/* for the near future, at least */
 	if (tripletBias<=-100) return;
 	
 	FindTimeRange(measStartTime, measEndTime, rawSyncTab, nRawSyncs, &start, &end);
-	if (start<0 || end<0) return; 							/* No notes: can't tuple */
-	if (end-start<2) return;									/* Fewer than 2 notes: can't tuple */
+	if (start<0 || end<0) return; 						/* No notes: can't tuple */
+	if (end-start<2) return;							/* Fewer than 2 notes: can't tuple */
 	
 	beatDur = (long)l2p_durs[WHOLE_L_DUR]/(long)denom;
 	if (compound) beatDur *= 3;
@@ -424,14 +424,15 @@ Boolean ChooseAllTuplets(
 				Document */*doc*/,
 				LINKTIMEINFO rawSyncTab[],	/* Input: raw (unquantized and unclarified) NCs */
 				short /*maxRawSyncs*/,		/* Maximum size of rawSyncTab */
-				short nRawSyncs,				/* Current size of rawSyncTab */
-				short quantum,					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+				short nRawSyncs,			/* Current size of rawSyncTab */
+				short quantum,				/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 				short tripletBias,			/* Percent bias towards quant. to triplets >= 2/3 durQuantum */
-				MEASINFO	measInfoTab[],
+				MEASINFO measInfoTab[],
 				short measTabLen
 				)
 {
-	short i, m, shiftDenom, k; long measDur, measStartTime=0L, measEndTime;
+	short i, m, shiftDenom, k;
+	long measDur, measStartTime=0L, measEndTime;
 	
 	shiftDenom = 100;
 	for (k = 0; k<3; k++, shiftDenom /= 10)	
@@ -462,13 +463,13 @@ Assumes syncTab[] has already been clarifed to the tuplet level. */
 
 short GetNInTuple(
 			LINKTIMEINFO syncTab[],		/* Partly- or fully-clarified NRCs */
-			short nSyncs,					/* Current size of syncTab */
-			short start,					/* Index in syncTab of first element */
-			short quantum 					/* In PDUR ticks, or <=1=already quantized */
+			short nSyncs,				/* Current size of syncTab */
+			short start,				/* Index in syncTab of first element */
+			short quantum 				/* In PDUR ticks, or <=1=already quantized */
 			)
 {
 	short n;
-	short tupQuantum, tupRound;		/* Quantum considering the current tuplet */
+	short tupQuantum, tupRound;			/* Quantum considering the current tuplet */
 	long temp, tupEndTime, qStartTime;
 
 	if (quantum>1) {
@@ -500,13 +501,13 @@ NC from crossing tuplet boundaries may require more than one division, hence mor
 than one call. */
 
 static Boolean Clar1ToTuplet(
-						Document */*doc*/,
-						short /*voice*/,
-						LINKTIMEINFO rawSyncTab[],	/* Input and output: unclarified NCs */
-						short *pnRawSyncs,
-						short nDiv,						/* Index of the NC that crosses a tuplet boundary */
-						unsigned short divTime 		/* Division point, relative to the start of the NC */
-						)
+					Document */*doc*/,
+					short /*voice*/,
+					LINKTIMEINFO rawSyncTab[],	/* Input and output: unclarified NCs */
+					short *pnRawSyncs,
+					short nDiv,					/* Index of the NC that crosses a tuplet boundary */
+					unsigned short divTime 		/* Division point, relative to the start of the NC */
+					)
 {
 	short n; unsigned short newMult; Boolean restFill;
 	
@@ -518,7 +519,6 @@ static Boolean Clar1ToTuplet(
 	 *	to copy the new one from its "parent", rawSyncTab[nDiv], then correct it for the
 	 *	new situation.
 	 */
-	
 	for (n = *pnRawSyncs-1; n>=nDiv; n--)
 		rawSyncTab[n+1] = rawSyncTab[n];
 		
@@ -556,7 +556,8 @@ Boolean ClarAllToTuplets(
 				)
 {
 	long endTupTime, endThisTime;
-	short q, tupleNum, endTuplet, qr; unsigned short divTime;
+	short q, tupleNum, endTuplet, qr;
+	unsigned short divTime;
 	
 	/* Break NRCs at tuplet boundaries. */
 
@@ -617,7 +618,7 @@ static void RemoveShortAddedItems(LINKTIMEINFO [], short *, short);
 static void RemoveShortAddedItems(
 					LINKTIMEINFO rawSyncTab[],	/* Input: semi-raw (partly-clarified) NCs */
 					short *pnRawSyncs,			/* Input and output: size of rawSyncTab */
-					short quantum 					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+					short quantum 				/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 					)
 {
 	short q, nSkipped;
@@ -663,12 +664,12 @@ it leaves that to somebody else. */
 
 Boolean ChooseChords(
 				Document */*doc*/,
-				short /*voice*/,				/* Same as the staff, since we use only default voices */
+				short /*voice*/,			/* Same as the staff, since we use only default voices */
 				LINKTIMEINFO rawSyncTab[],	/* Input and output: raw (unquantized and unclarified) NCs */
 				short /*maxRawSyncs*/,		/* Maximum size of rawSyncTab */
 				short *pnRawSyncs,			/* Current size of rawSyncTab */
 				NOTEAUX rawNoteAux[],		/* Input: raw notes */
-				short quantum 					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+				short quantum 				/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 				)
 {
 	short endTuplet, q, qr, n;
@@ -793,7 +794,7 @@ void QuantizeAndClip(
 			short /*voice*/,
 			LINKTIMEINFO rawSyncTab[],	/* Input and output: unclarified NCs */
 			short *pnRawSyncs,
-			short quantum 					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+			short quantum 				/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 			)
 {
 	short round=quantum/2, q, prev, endTuplet, n;
@@ -906,8 +907,8 @@ void QuantizeAndClip(
 
 static void RemoveZeroDurItems(LINKTIMEINFO [], short *);
 static void RemoveZeroDurItems(
-					LINKTIMEINFO rawSyncTab[],		/* Input: semi-raw (partly-clarified) NCs */
-					short *pnRawSyncs 				/* Input and output: size of rawSyncTab */
+					LINKTIMEINFO rawSyncTab[],	/* Input: semi-raw (partly-clarified) NCs */
+					short *pnRawSyncs 			/* Input and output: size of rawSyncTab */
 					)
 {
 	short q, nSkipped;
@@ -973,12 +974,12 @@ rawSyncTab[] and rawNoteAux[]. */
 
 LINK BuildSyncs(
 			Document *doc,
-			short voice,					/* Same as the staff, since we use only default voices */
+			short voice,				/* Same as the staff, since we use only default voices */
 			LINKTIMEINFO rawSyncTab[],	/* Input: raw (unquantized and unclarified) NCs */
-			short nRawSyncs,				/* Size of rawSyncTab */
+			short nRawSyncs,			/* Size of rawSyncTab */
 			NOTEAUX rawNoteAux[],		/* Input: raw notes */
-			short /*nAux*/,						/* (unused) Size of rawNoteAux */
-			LINK measL 						/* Measure into which to put the new Syncs */
+			short /*nAux*/,				/* (unused) Size of rawNoteAux */
+			LINK measL 					/* Measure into which to put the new Syncs */
 			)
 {
 	LINK firstL, lSync, aNoteL, firstSync; MNOTE theNote;
@@ -1003,10 +1004,10 @@ LINK BuildSyncs(
 			theNote.noteNumber = 0;
 			theNote.onVelocity = config.feedbackNoteOnVel;
 			theNote.offVelocity = config.noteOffVel;
-			theNote.duration = 15;												/* ??Does this matter? */
+			theNote.duration = 15;									/* ??Does this matter? */
 			
-			aNoteL = CreateSync(doc, theNote, &lSync, voice, 			/* staffn = voice */
-										UNKNOWN_L_DUR, 0,							/* placeholders */
+			aNoteL = CreateSync(doc, theNote, &lSync, voice, 		/* staffn = voice */
+										UNKNOWN_L_DUR, 0,			/* placeholders */
 										voice, TRUE, 0);
 			if (!firstSync) firstSync = lSync;
 			rawSyncTab[q].link = lSync;
@@ -1021,7 +1022,7 @@ LINK BuildSyncs(
 		 *	which is TRUE iff it starts a new "chord", and leading to the following
 		 *	wierd <for> statement.
 		 */ 
-		iAux = rawSyncTab[q].link;												/* really aux index! */
+		iAux = rawSyncTab[q].link;									/* really aux index! */
 		for ( ; iAux==rawSyncTab[q].link || !rawNoteAux[iAux].first; iAux++) {
 			/*
 			 * If the chord already contains a note with this one's note number,
@@ -1042,12 +1043,12 @@ LINK BuildSyncs(
 			
 			if (lSync)
 				aNoteL = AddNoteToSync(doc, theNote, lSync, voice,		/* staffn = voice */
-											UNKNOWN_L_DUR, 0,						/* placeholders */
-											voice, FALSE, 0);
+										UNKNOWN_L_DUR, 0,				/* placeholders */
+										voice, FALSE, 0);
 			else {
 				aNoteL = CreateSync(doc, theNote, &lSync, voice, 		/* staffn = voice */
-											UNKNOWN_L_DUR, 0,						/* placeholders */
-											voice, FALSE, 0);
+										UNKNOWN_L_DUR, 0,				/* placeholders */
+										voice, FALSE, 0);
 				if (!firstSync) firstSync = lSync;
 				rawSyncTab[q].link = lSync;
 			}
@@ -1076,18 +1077,18 @@ Similar to ClarifyFromList, except that function considers merging the new segme
 with existing Syncs and does not return <newSyncs> and <nNewSyncs>. */
 
 Boolean MFClarifyFromList(
-			Document *doc,
+			Document	*doc,
 			LINK		syncL,
 			short		voice,
 			short		tieStaff,		/* Staff no. for ties, or <=0 for no ties (use with rests) */
-			NOTEPIECE piece[],
+			NOTEPIECE	piece[],
 			short		kount,
-			PCONTEXT pContext,
+			PCONTEXT	pContext,
 			LINKTIMEINFO newSyncs[],
-			short 	*nNewSyncs
+			short		*nNewSyncs
 			)
 {
-	register LINK newL; LINK qL, prevL, aNoteL, tieL;
+	register LINK newL;  LINK qL, prevL, aNoteL, tieL;
 	short k; long curTime;
 	
 	/*
@@ -1103,8 +1104,8 @@ Boolean MFClarifyFromList(
 	if (kount<2) return TRUE;
 	
 	aNoteL = FindMainNote(syncL, voice);
-	if (NoteTIEDR(aNoteL)) tieL = LVSearch(syncL, SLURtype, voice, GO_LEFT, FALSE);
-	else						  tieL = NILINK; 
+	if (NoteTIEDR(aNoteL))	tieL = LVSearch(syncL, SLURtype, voice, GO_LEFT, FALSE);
+	else					tieL = NILINK; 
 	prevL = syncL;
 
 	for (qL = syncL, k = 2; k<=kount; k++) {
@@ -1166,17 +1167,17 @@ gets startTime, numerator, and denominator from context and does not have <newSy
 and <nNewSyncs> parameters. */
 
 static Boolean Clar1BelowMeas(
-						Document *doc,
-						short voice,
-						LINKTIMEINFO rawSyncInfo,
-						short tupleNum,
-						MEASINFO	measInfoTab[],
-						short measTabLen,
-						short *m,							/* Index into measInfoTab; -1 = initialize */
-						LINKTIMEINFO newSyncTab[],
-						unsigned short maxNewSyncs,
-						short *nNewSyncs
-						)
+					Document *doc,
+					short voice,
+					LINKTIMEINFO rawSyncInfo,
+					short tupleNum,
+					MEASINFO	measInfoTab[],
+					short measTabLen,
+					short *m,							/* Index into measInfoTab; -1 = initialize */
+					LINKTIMEINFO newSyncTab[],
+					unsigned short maxNewSyncs,
+					short *nNewSyncs
+					)
 {
 	LINK syncL, aNoteL;
 	CONTEXT context;
@@ -1209,7 +1210,7 @@ static Boolean Clar1BelowMeas(
 	timeUsed = newSyncTab[*nNewSyncs].time;
 
 	*m = FindTimeSig(timeUsed, *m, measInfoTab, measTabLen, &tsStartTime,
-								&tsEndTime, &measDur);
+							&tsEndTime, &measDur);
 
 	timeUsedInMeas = (timeUsed-tsStartTime) % measDur;
 
@@ -1232,8 +1233,8 @@ static Boolean Clar1BelowMeas(
 	}
 
 	if (!MakeClarifyList(timeUsedInMeas, lDur, measInfoTab[*m].numerator,
-								measInfoTab[*m].denominator, compound, piece,
-								MF_MAXPIECES, &nPieces)) return FALSE;
+							measInfoTab[*m].denominator, compound, piece,
+							MF_MAXPIECES, &nPieces)) return FALSE;
 	if (*nNewSyncs+nPieces>=maxNewSyncs) {
 		GetIndCString(fmtStr, RHYTHMERRS_STRS, 6);    /* "After clarifying rhythm, there are over %d Syncs, which is more than Nightingale expected." */
 		sprintf(strBuf, fmtStr, maxNewSyncs); 
@@ -1267,7 +1268,7 @@ Boolean ClarAllBelowMeas(
 				short voice,
 				LINKTIMEINFO rawSyncTab[],		/* Input: partly-clarified NRCs */
 				short nRawSyncs,
-				MEASINFO	measInfoTab[],
+				MEASINFO measInfoTab[],
 				short measTabLen,
 				LINKTIMEINFO newSyncTab[],		/* Output: fully-clarified NRCs */
 				unsigned short maxNewSyncs,
@@ -1316,7 +1317,7 @@ Boolean AddTies(
 				Document *doc,
 				short voice,
 				LINKTIMEINFO rawSyncTab[],		/* Input: semi-raw (partly-clarified) NCs */
-				short nRawSyncs 					/* Current size of rawSyncTab */
+				short nRawSyncs 				/* Current size of rawSyncTab */
 				)
 {
 	short q;
@@ -1345,8 +1346,8 @@ static Boolean Add1Tuplet(
 						Document *doc,
 						short voice,
 						LINKTIMEINFO newSyncTab[],		/* Fully-clarified NCs */
-						short nNewSyncs,					/* Current size of newSyncTab */
-						short start 						/* Index in newSyncTab of first element */
+						short nNewSyncs,				/* Current size of newSyncTab */
+						short start 					/* Index in newSyncTab of first element */
 						)
 {
 	LINK tupletL, pL, aNoteL, aNoteTupleL;
@@ -1389,11 +1390,11 @@ static Boolean Add1Tuplet(
 
 
 Boolean AddTuplets(
-				Document *doc,
-				short voice,
-				LINKTIMEINFO newSyncTab[],		/* Fully-clarified NCs */
-				short nNewSyncs 					/* Current size of newSyncTab */
-				)
+			Document *doc,
+			short voice,
+			LINKTIMEINFO newSyncTab[],		/* Fully-clarified NCs */
+			short nNewSyncs 				/* Current size of newSyncTab */
+			)
 {
 	short q;
 	
@@ -1443,15 +1444,16 @@ void DPrintLTIs(char *label, LINKTIMEINFO itemTab[], short nItems)
 	
 	for (i = 0; i<nItems && i<(CapsLockKeyDown()? SHRT_MAX : PR_LIMIT); i++) {
 		LogPrintf(LOG_NOTICE, "  [%d] link=%u time=%ld mult=%u %s",
-							i, itemTab[i].link, itemTab[i].time, itemTab[i].mult,
-							(itemTab[i].added? "added" : "")); 
+						i, itemTab[i].link, itemTab[i].time, itemTab[i].mult,
+						(itemTab[i].added? "added" : "")); 
 		if (itemTab[i].tupleNum)
 			LogPrintf(LOG_NOTICE, " tupleNum=%d Time=%u Dur=%d", itemTab[i].tupleNum,
-								itemTab[i].tupleTime, itemTab[i].tupleDur);
+						itemTab[i].tupleTime, itemTab[i].tupleDur);
 		LogPrintf(LOG_NOTICE, "\n");
 	}
 #endif
 }
+
 
 #define DBG (ShiftKeyDown() && OptionKeyDown())
 
@@ -1482,17 +1484,17 @@ returns NILINK. */
 
 LINK TranscribeVoice(
 			Document *doc,
-			short voice,						/* Same as the staff, since we use only default voices */
+			short voice,					/* Same as the staff, since we use only default voices */
 			LINKTIMEINFO rawSyncTab[],		/* Input: raw (unquantized and unclarified) NCs */
 			short maxRawSyncs,				/* Maximum size of rawSyncTab */
-			short nRawSyncs,					/* Current size of rawSyncTab */
+			short nRawSyncs,				/* Current size of rawSyncTab */
 			NOTEAUX rawNoteAux[],			/* Input: auxiliary info on raw notes */
-			short nAux,							/* Size of rawNoteAux */
-			short quantum,						/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
+			short nAux,						/* Size of rawNoteAux */
+			short quantum,					/* For both attacks and releases, in PDUR ticks, or 1=no quantize */
 			short tripletBias,				/* Percent bias towards quant. to triplets >= 2/3 durQuantum */
-			MEASINFO	measInfoTab[],
+			MEASINFO measInfoTab[],
 			short nMeasTab,
-			LINK measL,							/* Measure into which to put the new Syncs */
+			LINK measL,						/* Measure into which to put the new Syncs */
 			LINKTIMEINFO newSyncTab[],		/* Output: fully-clarified NCs */
 			unsigned short maxNewSyncs,
 			short *pnNewSyncs,

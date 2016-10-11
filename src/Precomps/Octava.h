@@ -20,7 +20,7 @@ LINK HasOttavaAcrossPt(Document *, Point, short);
 
 Boolean SelRangeChkOttava(short, LINK, LINK);
 short OctCountNotesInRange(short stf,LINK startL,LINK endL, Boolean selectedOnly);
-void DashedLine(short x1, short y1, short x2, short y2);
+void QD_DrawDashedLine(short x1, short y1, short x2, short y2);
 void DrawOctBracket(DPoint, DPoint, short, DDIST, Boolean, PCONTEXT);
 void XLoadOttavaSeg(void);
 

@@ -1365,7 +1365,7 @@ PushLock(OBJheap);
 			of the ottava, and a solid line up or down yCutoff. */
 	
 		MoveTo(firstx+octWidth+XFUDGE, firsty);
-		DashedLine(firstx+octWidth+XFUDGE, firsty, lastx, firsty);
+		QD_DrawDashedLine(firstx+octWidth+XFUDGE, firsty, lastx, firsty);
 		if (yCutoff!=0) {
 			MoveTo(lastx, firsty);
 			LineTo(lastx, firsty+(bassa ? -yCutoff : yCutoff));

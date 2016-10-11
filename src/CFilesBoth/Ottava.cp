@@ -1,11 +1,11 @@
 /* File Ottava.c - octave-sign-related functions. */
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright Â© 2016 by Avian Music Notation Foundation. All Rights Reserved.
 
 	DoOttava				DoRemoveOttava			GetNoteyd
 	SetOttavaYPos			CreateOTTAVA			UnOttava
@@ -15,22 +15,22 @@
 	FirstInOttava 			LastInOttava
 	HasOctAcross			HasOttavaAcross 		OctOnStaff	
 	HasOttavaAcrossIncl
-	DashedLine				DrawOctBracket			XLoadOttavaSeg		
+	QD_DrawDashedLine		DrawOctBracket			XLoadOttavaSeg		
 */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
 /* Prototypes for internal functions */
-static void CreateOctStfRange(Document *doc,short s,LINK stfStartL,LINK stfEndL,Byte octType);
+static void CreateOctStfRange(Document *doc, short s, LINK stfStartL, LINK stfEndL, Byte octType);
 static LINK GetOctStartL(LINK startL, short staff, Boolean needSel);
-static DDIST GetNoteyd(LINK syncL,short staff);
+static DDIST GetNoteyd(LINK syncL, short staff);
 static void UnOttava(Document *, LINK, LINK, short);
 static void UnOttavaS(Document *, LINK, LINK, short);
-static void UnOttavaSync(Document *, LINK,LINK,DDIST,short,CONTEXT);
-static void UnOttavaGRSync(Document *, LINK,LINK,DDIST,short,CONTEXT);
-static void RemoveItsOttava(Document *doc,LINK fromL, LINK toL,LINK pL,short s);
-static LINK HasGROctAcross(LINK node,short staff);
+static void UnOttavaSync(Document *, LINK, LINK, DDIST, short, CONTEXT);
+static void UnOttavaGRSync(Document *, LINK, LINK, DDIST, short, CONTEXT);
+static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short s);
+static LINK HasGROctAcross(LINK node, short staff);
 static LINK HasOctAcrossPt(Document *, Point, short);
 static LINK HasGROctAcrossPt(Document *, Point, short);
 
@@ -49,7 +49,7 @@ void DoOttava(Document *doc)
 	
 		for (staff = 1; staff<=doc->nstaves; staff++) {
 			GetStfSelRange(doc, staff, &staffStartL, &staffEndL);
-			CreateOctStfRange(doc,staff,staffStartL,staffEndL,octSignType);
+			CreateOctStfRange(doc, staff, staffStartL, staffEndL, octSignType);
 		}
 	}
 }
@@ -83,7 +83,7 @@ on staff <s>. */
 static void CreateOctStfRange(Document *doc, short s, LINK stfStartL, LINK stfEndL,
 								Byte octType)
 {
-	short nInOttava; LINK ottavaL;
+	short nInOttava;  LINK ottavaL;
 
 	nInOttava = OctCountNotesInRange(s, stfStartL, stfEndL, TRUE);
 
@@ -121,7 +121,7 @@ there may be more than one such MainNote/GRMainNote: we just use the first one
 we find. */
 
 static DDIST GetNoteyd(LINK syncL,
-								short staff)		/* Either Sync or GRSync */
+						short staff)		/* Either Sync or GRSync */
 {
 	LINK aNoteL, aGRNoteL;
 	PANOTE aNote; PAGRNOTE aGRNote;
@@ -150,14 +150,14 @@ static DDIST GetNoteyd(LINK syncL,
 on the position of the MainNote of its first note/chord. (FIXME: It'd surely be better
 to look at all of its notes/chords, and not difficult.) */ 
 
-#define STANDOFFALTA 1			/* Minimum half-line distance between octave sign and staff */
-#define STANDOFFBASSA 2			/* Minimum half-line distance between octave sign and staff */
+#define OTTAVA_STANDOFF_ALTA 1		/* Minimum half-line distance between octave sign and staff */
+#define OTTAVA_STANDOFF_BASSA 2		/* Minimum half-line distance between octave sign and staff */
 
-#define MARGINALTA	3			/* Preferred half-line distance between octave sign and note */
-#define MARGINBASSA	5
+#define OTTAVA_MARGIN_ALTA	3		/* Preferred half-line distance between octave sign and note */
+#define OTTAVA_MARGIN_BASSA	5
 
-#define BRACKALTA_LIM(yd)	((yd)>octAltaYLim? octAltaYLim : (yd))
-#define BRACKBASSA_LIM(yd)	((yd)<octBassaYLim? octBassaYLim : (yd))
+#define OTTAVA_BRACKET_ALTA_LIM(yd)		((yd)>octAltaYLim? octAltaYLim : (yd))
+#define OTTAVA_BRACKET_BASSA_LIM(yd)	((yd)<octBassaYLim? octBassaYLim : (yd))
 
 void SetOttavaYPos(Document *doc, LINK octL)
 {
@@ -179,8 +179,8 @@ void SetOttavaYPos(Document *doc, LINK octL)
 	firstSyncL = FirstInOttava(octL);
 	firstyd = GetNoteyd(firstSyncL, staff);
 
-	octAltaYLim = -STANDOFFALTA*dhalfLn;
-	octBassaYLim = context.staffHeight + STANDOFFBASSA*dhalfLn;
+	octAltaYLim = -OTTAVA_STANDOFF_ALTA*dhalfLn;
+	octBassaYLim = context.staffHeight + OTTAVA_STANDOFF_BASSA*dhalfLn;
 
 	pOct = GetPOTTAVA(octL);
 	switch (pOct->octSignType) {
@@ -200,12 +200,12 @@ void SetOttavaYPos(Document *doc, LINK octL)
 
 	/*
 	 * Try to position the octave sign <margin> half-lines away from the 1st MainNote,
-	 *	but always put it at least <STANDOFFALTA/BASSA> away from the staff.
+	 *	but always put it at least <OTTAVA_STANDOFF_ALTA/BASSA> away from the staff.
 	 */
- 	if (bassa) margin = MARGINBASSA*dhalfLn;
- 	else		  margin = MARGINALTA*dhalfLn;
-	if (bassa) octydFirst = BRACKBASSA_LIM(firstyd+margin);
-	else		  octydFirst = BRACKALTA_LIM(firstyd-margin);
+ 	if (bassa)	margin = OTTAVA_MARGIN_BASSA*dhalfLn;
+ 	else		margin = OTTAVA_MARGIN_ALTA*dhalfLn;
+	if (bassa)	octydFirst = OTTAVA_BRACKET_BASSA_LIM(firstyd+margin);
+	else		octydFirst = OTTAVA_BRACKET_ALTA_LIM(firstyd-margin);
 	
 	pOct = GetPOTTAVA(octL);
 	pOct->ydLast = pOct->ydFirst = octydFirst;
@@ -231,7 +231,7 @@ LINK CreateOTTAVA(
 	short 		octElem, iOctElem,  v;
 	PANOTE		aNote;
 	PAGRNOTE	aGRNote;
-	LINK		aNoteL,aGRNoteL;
+	LINK		aNoteL, aGRNoteL;
 	LINK		opSync[MAXINOTTAVA];
 	LINK		noteInSync[MAXINOTTAVA];
 	DDIST		yDelta;
@@ -426,18 +426,18 @@ LINK CreateOTTAVA(
 			for (pL = startL; pL!=endL; pL=nextL) {
 				nextL = RightLINK(pL);
 				if (SyncTYPE(pL)) {
-					mainNoteL = FindMainNote(pL,v);
+					mainNoteL = FindMainNote(pL, v);
 					if (mainNoteL && NoteBEAMED(mainNoteL)) {
-						beamL = LVSearch(pL,BEAMSETtype,v,GO_LEFT,FALSE);
+						beamL = LVSearch(pL, BEAMSETtype, v, GO_LEFT, FALSE);
 						if (beamL)
 							if (BeamSTAFF(beamL)==staff
 							|| (BeamSTAFF(beamL)==staff-1 && BeamCrossSTAFF(beamL))) {
-							newBeamL = Rebeam(doc,beamL);
+							newBeamL = Rebeam(doc, beamL);
 							if (startL==beamL) startL = newBeamL;
 							if (doc->selStartL==beamL) doc->selStartL = newBeamL;
 							
 							nextL = RightLINK(LastInBeam(newBeamL));
-							if (IsAfter(endL,nextL)) nextL = endL;
+							if (IsAfter(endL, nextL)) nextL = endL;
 						}
 					}
 				}
@@ -639,7 +639,7 @@ void UnOttava(Document *doc, LINK stfStartL, LINK stfEndL, short s)
 	LINK newSelStart;
 
 	newSelStart = doc->selStartL;
-	if (BetweenIncl(stfStartL,doc->selStartL,stfEndL) && OttavaTYPE(doc->selStartL))
+	if (BetweenIncl(stfStartL, doc->selStartL, stfEndL) && OttavaTYPE(doc->selStartL))
 		newSelStart = FirstInOttava(doc->selStartL);
 
 	UnOttavaS(doc, stfStartL, stfEndL, s);
@@ -647,6 +647,7 @@ void UnOttava(Document *doc, LINK stfStartL, LINK stfEndL, short s)
 
 	BoundSelRange(doc);
 }
+
 
 /* Remove Ottavas in range [fromL,toL) on staff s. */
  
@@ -683,6 +684,7 @@ static void UnOttavaS(Document *doc, LINK fromL, LINK toL, short s)
 
 	UnOttavaRange(doc, fromL, toL, s);
 }
+
 
 static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short s,
 									CONTEXT context)
@@ -729,6 +731,7 @@ static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short 
 	}
 }
 
+
 static void UnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short s,
 									CONTEXT context)
 {
@@ -769,20 +772,21 @@ static void UnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, shor
 	}
 }
 
+
 /* -------------------------------------------------------------- RemoveOctOnStf -- */
 /* Remove the given octave sign and change notes and grace notes it affected
 accordingly. */
 
 void RemoveOctOnStf(Document *doc,
 							LINK octL, LINK fromL, LINK toL,
-							short s)										/* staff no. */
+							short s)								/* staff no. */
 {
 	DDIST yDelta; CONTEXT context; LINK syncL, aNoteOttavaL;
 	PANOTEOTTAVA aNoteOttava;
 
 	/* Update note's y position. */
 	GetContext(doc, octL, s, &context);
-	yDelta = halfLn2d(noteOffset[OctType(octL)-1],context.staffHeight,context.staffLines);
+	yDelta = halfLn2d(noteOffset[OctType(octL)-1], context.staffHeight, context.staffLines);
 							
 	aNoteOttavaL = FirstSubLINK(octL);
 	for ( ; aNoteOttavaL; aNoteOttavaL = NextNOTEOTTAVAL(aNoteOttavaL)) {
@@ -790,10 +794,10 @@ void RemoveOctOnStf(Document *doc,
 		syncL = aNoteOttava->opSync;
 
 		if (SyncTYPE(syncL)) {
-			UnOttavaSync(doc,octL,syncL,yDelta,s,context);
+			UnOttavaSync(doc, octL, syncL, yDelta, s, context);
 		}
 		else if (GRSyncTYPE(syncL)) {
-			UnOttavaGRSync(doc,octL,syncL,yDelta,s,context);
+			UnOttavaGRSync(doc, octL, syncL, yDelta, s, context);
 		}
 	}
 	
@@ -819,7 +823,7 @@ static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short 
 					MayErrMsg("UnOttavaRange: can't find Ottava for note in sync %ld on staff %ld",(long)pL,(long)s);
 					return;
 				}
-				RemoveOctOnStf(doc,ottavaL,fromL,toL,s);
+				RemoveOctOnStf(doc, ottavaL, fromL, toL, s);
 			}
 		}
 	}
@@ -833,7 +837,7 @@ static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short 
 					MayErrMsg("UnOttavaRange: can't find Ottava for note in sync %ld on staff %ld", (long)pL,(long)s);
 					return;
 				}
-				RemoveOctOnStf(doc,ottavaL,fromL,toL,s);
+				RemoveOctOnStf(doc, ottavaL, fromL, toL, s);
 			}
 		}
 	}
@@ -876,6 +880,7 @@ LINK LastInOttava(LINK ottavaL)
 	
 	return (aNoteOct->opSync);
 }
+
 
 /* ---------------------------------------------------------- HasOctAcross, etc. -- */
 /* Determines if there is an Ottava at <node> on <staff>. If <!skipNode>, checks
@@ -931,7 +936,7 @@ LINK HasOctAcross(
 
 /* Determines if there is an Ottava across the insertion point on <staff> into 
 which <node> is inserted. Returns NILINK if there is not, and the LINK to the 
-Ottava, if there is. Looks for grace Syncs only. */
+Ottava if there is. Looks for grace Syncs only. */
 
 LINK HasGROctAcross(LINK node, short staff)	
 {
@@ -1102,6 +1107,7 @@ LINK HasOttavaAcrossPt(Document *doc, Point pt, short staff)
 	return HasGROctAcrossPt(doc, pt, staff);
 }
 
+
 /* ----------------------------------------------------------- SelRangeChkOttava -- */
 
 Boolean SelRangeChkOttava(short staff, LINK staffStartL, LINK staffEndL)
@@ -1131,13 +1137,14 @@ Boolean SelRangeChkOttava(short staff, LINK staffStartL, LINK staffEndL)
 	return FALSE;
 }
 
+
 /* -------------------------------------------------------- OctCountNotesInRange -- */
 /* Return the total number of notes/chords on stf in the range from both Syncs and
 GRSyncs. Does NOT count rests. */
 
 short OctCountNotesInRange(short stf,
-									LINK startL, LINK endL,
-									Boolean selectedOnly)		/* TRUE=only selected notes/rests, FALSE=all */
+							LINK startL, LINK endL,
+							Boolean selectedOnly)		/* TRUE=only selected notes/rests, FALSE=all */
 {
 	short notesInRange;
 	
@@ -1148,12 +1155,12 @@ short OctCountNotesInRange(short stf,
 }
 
 
-/* ------------------------------------------------------------------ DashedLine -- */
+/* ------------------------------------------------------------ QD_DrawDashedLine -- */
 /* Draw a horizontal dashed line via QuickDraw. y2 is ignored. */
 
-#define DASH_LEN		4
+#define DASH_LEN		4		/* in pixels */
 
-void DashedLine(short x1, short y1, short x2, short /*y2*/)
+void QD_DrawDashedLine(short x1, short y1, short x2, short /*y2*/)
 {
 	short i; Point pt;
 	
@@ -1162,7 +1169,7 @@ void DashedLine(short x1, short y1, short x2, short /*y2*/)
 		LineTo(i+DASH_LEN, y1);			/* Draw dash */
 		MoveTo(i+2*DASH_LEN, y1);		/* Move to start of next dash */
 	}
-	GetPen(&pt);							/* Last MoveTo may have taken us too far. */
+	GetPen(&pt);						/* Last MoveTo may have taken us too far. */
 	if (pt.h<x2) LineTo(x2, y1);		/* If not, draw short final dash. */
 }
 
@@ -1197,7 +1204,7 @@ void DrawOctBracket(
 		/* Start octWidth to right of firstPt. Draw a dotted line to the end of the
 		octave sign, and a solid line up or down yCutoff. */
 			MoveTo(firstx+octWidth+XFUDGE, firsty);
-			DashedLine(firstx+octWidth+XFUDGE, firsty, lastx, firsty);
+			QD_DrawDashedLine(firstx+octWidth+XFUDGE, firsty, lastx, firsty);
 			if (yCutoff!=0) {
 				MoveTo(lastx, firsty);
 				LineTo(lastx, firsty+(bassa ? -yCutoff : yCutoff));

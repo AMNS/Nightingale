@@ -700,6 +700,7 @@ static Boolean WriteTrackName(Document *doc, short staffn)
 {
 	LINK partL; char str[256]; PPARTINFO aPart;
 
+	LogPrintf(LOG_INFO, "WriteTrackName: staff=%d name='%s'\n", staffn, aPart->name);
 	partL = Staff2PartL(doc, doc->headL, staffn);
 
 	aPart = GetPPARTINFO(partL);
@@ -734,6 +735,7 @@ static Boolean WriteTrackPatch(Document *doc, short staffn)
 	short partn = Staff2Part(doc, staffn);
 	short patch = partPatch[partn];
 	short channel = partChannel[partn];
+	LogPrintf(LOG_INFO, "WriteTrackPatch: staff=%d patch=%d\n", staffn, patch);
 	
 	WriteDeltaTime(0L);
 
@@ -742,8 +744,8 @@ static Boolean WriteTrackPatch(Document *doc, short staffn)
 	byteCount = 2L;	
 	errCode = FSWrite(fRefNum, &byteCount, buffer); 
 	trackLength += byteCount;
-	if (DBG) LogPrintf(LOG_DEBUG, "WriteTrackPatch: errCode=%d staffn=%d buffer[]=%d %d\n",
-				errCode, staffn, buffer[0], buffer[1]);
+	if (DBG) LogPrintf(LOG_DEBUG, "WriteTrackPatch: staffn=%d buffer[]=%d %d errCode=%d\n",
+				staffn, buffer[0], buffer[1], errCode);
 	return (errCode==noError);
 }	
 
@@ -788,6 +790,8 @@ static short WriteMFNotes(
 	Boolean		sustainOffPosted = FALSE;
 	Boolean		panPosted = FALSE;
 		
+	LogPrintf(LOG_INFO, "WriteMFNotes: staff=%d trkLastEndTime=%d\n", staffn, trkLastEndTime);
+
 	anyStaff = (staffn==ANYONE);
 
 	partL = FirstSubLINK(doc->headL);

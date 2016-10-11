@@ -912,8 +912,8 @@ static short Track2Night(Document *, TRACKINFO [], short, short, short, short, l
 #define MERGE_TAB_SIZE 4000			/* Max. Syncs and Measures in table for merging into */
 #define ONETRACK_TAB_SIZE 4000		/* Max. Syncs and max. notes for a single track */
 
-#define MAX_TSCHANGE 1000				/* Max. no. of time sig. changes in score */
-#define MAX_TEMPOCHANGE 1000			/* Max. no. of tempo changes in score */
+#define MAX_TSCHANGE 1000			/* Max. no. of time sig. changes in score */
+#define MAX_TEMPOCHANGE 1000		/* Max. no. of tempo changes in score */
 #define MAX_CTRLCHANGE 1000
 
 static short tsNum, tsDenom, sharpsOrFlats;
@@ -2018,7 +2018,14 @@ static void InitTrack2Night(Document *doc, long *pMergeTabSize, long *pOneTrackT
 
 #define DEBUG_PGM  if (DBG)	LogPrintf(LOG_DEBUG, " track=%d time=%ld PGMCHANGE type=0x%x\n",	\
 							track, (long)(MFTicks2NTicks(p->tStamp)), p->data[1]);
-							
+
+#define DEBUG_UNK  if (DBG)	LogPrintf(LOG_DEBUG, " track=%d time=%ld (UNKNOWN) type=0x%x\n",	\
+							track, (long)(MFTicks2NTicks(p->tStamp)), p->data[1]);
+
+
+/* Convert one track of a MIDI file to "raw Syncs" (unquantized and unclarified notes and
+chords, in parameters) and info on control changes (in ctrlInfoTab). Return OP_COMPLETE,
+NOTHING_TO_DO, or FAILURE. */
 
 static short Track2RTStructs(
 					Document *doc,
@@ -2027,10 +2034,10 @@ static short Track2RTStructs(
 					Boolean isTempoMap,
 					long cStartTime, long cStopTime,
 					short timeOffset,
-					LINKTIMEINFO rawSyncTab[],	/* Input: raw (unquantized and unclarified) NCs */
+					LINKTIMEINFO rawSyncTab[],	/* Output: raw (unquantized and unclarified) NCs */
 					unsigned short maxTrkNotes,	/* size of <rawSyncTab> and <rawNoteAux> */
 					short *pnSyncs,
-					NOTEAUX rawNoteAux[],		/* Input: auxiliary info on raw notes */
+					NOTEAUX rawNoteAux[],		/* Output: auxiliary info on raw notes */
 					short *pnAux,
 					short tripletBias			/* Percent bias towards quant. to triplets >= 2/3 quantum */
 					)
@@ -2147,7 +2154,7 @@ static short Track2RTStructs(
 				break;
 
 			default:
-				;
+				DEBUG_UNK;
 		}
 		
 IncrementLoc:
@@ -2157,8 +2164,12 @@ IncrementLoc:
 			loc += ROUND_UP_EVEN(sizeof(p->tStamp)+6);
 		else if (command==MCTLCHANGE)								/* control event */
 			loc += ROUND_UP_EVEN(sizeof(p->tStamp)+6);
-		else														/* assume metaevent! */
+		else if (command==METAEVENT)
 			loc += ROUND_UP_EVEN(sizeof(p->tStamp)+3+p->data[2]);
+		else {
+			AlwaysErrMsg("Track2RTStructs: Unknown MIDI event type.");
+			return FAILURE;
+		}
 
 	}
 
