@@ -15,7 +15,6 @@
 // MAS
 #include "CarbonTemplates.h"
 
-void			InitNightingale(void);
 static Boolean	DoSplashScreen(void);
 static Boolean	InitAllCursors(void);
 static void		InitNightFonts(void);
@@ -26,7 +25,7 @@ static void 	CheckScreenFonts(void);
 static void		InitMusicFontStuff(void);
 static Boolean	InitMIDISystem(void);
 
-void			NExitToShell(char *msg);
+static void		NExitToShell(char *msg);
 
 /* ------------------------------------------------------------- InitNightingale -- */
 /* One-time initialization of Nightingale-specific stuff. Assumes the Macintosh
@@ -48,7 +47,7 @@ void InitNightingale()
 	if (!InitMIDISystem()) NExitToShell("Init Midi");
 }
 
-void NExitToShell(char *msg)
+static void NExitToShell(char *msg)
 {
 	CParamText(msg, "", "", "");
 	StopInform(GENERIC_ALRT);

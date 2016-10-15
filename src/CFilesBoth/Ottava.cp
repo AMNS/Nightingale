@@ -153,7 +153,7 @@ to look at all of its notes/chords, and not difficult.) */
 #define OTTAVA_STANDOFF_ALTA 1		/* Minimum half-line distance between octave sign and staff */
 #define OTTAVA_STANDOFF_BASSA 2		/* Minimum half-line distance between octave sign and staff */
 
-#define OTTAVA_MARGIN_ALTA	3		/* Preferred half-line distance between octave sign and note */
+#define OTTAVA_MARGIN_ALTA	3		/* Default half-line distance between octave sign and note */
 #define OTTAVA_MARGIN_BASSA	5
 
 #define OTTAVA_BRACKET_ALTA_LIM(yd)		((yd)>octAltaYLim? octAltaYLim : (yd))
@@ -221,7 +221,7 @@ LINK CreateOTTAVA(
 			short staff, short nInOttava,
 			Byte octSignType,
 			Boolean needSelected,	/* TRUE if we only want selected items */
-			Boolean doOct			/* TRUE if we are explicitly octaving notes (so Ottava will be selected) */
+			Boolean doOct			/* TRUE if we're explicitly octaving notes (so Ottava will be selected) */
 			)
 {
 	POTTAVA 	ottavap;

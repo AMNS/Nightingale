@@ -1533,3 +1533,21 @@ Doug says. Add a LogPrintf at start of OpenError() => never prints anything! ?? 
 dropping files on the program icon calls FSpecOpenDocument(); it notices the file has
 the wrong document type, but gives the wrong error message!
 
+-------------------------------------------------------------------------------
+
+12 - 13 Oct.
+
+I want to change my violin concerto from _absolute_ C score (not even octave
+transposition) to normal C score (piccolo sounds 8va above written, bass sounds 8va
+below). Ngale doesn't have a "normal C score" option, but using the octave-transposed
+clefs works OK for piccolo, which plays only briefly a couple of times anyway. But for
+bass, while it gets rid of ledger lines below the staff for very low notes, it adds
+even more ledger lines _above_ the staff for very high notes! #^)@&$*)#%1=  Of course
+the standard solution for bass is to switch to tenor clef for very high notes, but Ngale
+doesn't have an octave-transposed tenor clef, sigh. How hard would it be to add?
+
+The enum for clef types, excluding PERC_CLEF, goes from highest (TREBLE8_CLEF) to lowest
+(BASS8B_CLEF) in order. Want to keep the order, but adding TENOR8_CLEF would change
+the code(s) for clefs after that. What about co-opting the code for baritone clef,
+which is almost never used?
+

@@ -263,14 +263,14 @@ Boolean InsertNote(
 					Boolean isGraphic		/* graphic ("by position") or temporal insert */
 					)
 {
-	short			clickStaff,		/* staff user clicked in */
-					sym,			/* index of current palChar in symtable[] */
-					voice;			/* voice to insert in */
-	LINK			addToSyncL,		/* sync to add note/rest to */
-					nodeRightL,		/* node to right of insertion pt */
-					pLPIL,
-					jipL,rightL,pL;
-	long			lTime;			/* logical time */
+	short		clickStaff,		/* staff user clicked in */
+				sym,			/* index of current palChar in symtable[] */
+				voice;			/* voice to insert in */
+	LINK		addToSyncL,		/* sync to add note/rest to */
+				nodeRightL,		/* node to right of insertion pt */
+				pLPIL,
+				jipL, rightL, pL;
+	long		lTime;			/* logical time */
 	
 	/* Get the staff to insert on (and set doc->currentSystem) */
 
@@ -315,7 +315,7 @@ Boolean InsertNote(
 		location of the click FIXME: LOOKS LIKE THIS ALWAYS SAYS "NO"; if so, add the
 		note to this sync, else add a new sync at the correct temporal location. */
 
-	if (isGraphic)	{														/* Get noteRightL directly */
+	if (isGraphic)	{												/* Get noteRightL directly */
 		nodeRightL = FindSymRight(doc, pt, FALSE, FALSE);
 	}
 
@@ -323,14 +323,14 @@ Boolean InsertNote(
 		(its ending time), then search for a sync at that time. If it exists
 		add to it, else create a new one. */
 
-	else {																	/* Get addToSyncL or nodeRightL */
+	else {															/* Get addToSyncL or nodeRightL */
 		pLPIL = FindLPI(doc, pt, (doc->lookVoice>=0? ANYONE : clickStaff), voice, TRUE);
-		addToSyncL = ObjAtEndTime(doc,pLPIL,SYNCtype,voice,&lTime,EXACT_TIME,TRUE);
-		if (addToSyncL) { 												/* Got a sync at the right time */	
+		addToSyncL = ObjAtEndTime(doc, pLPIL, SYNCtype, voice, &lTime, EXACT_TIME, TRUE);
+		if (addToSyncL) { 											/* Got a sync at the right time */	
 			jipL = FindJIP(pLPIL,addToSyncL);						/* #1. */
 			if (jipL) {
 				rightL = GSSearch(doc, pt, ANYTYPE, ANYONE, GO_RIGHT, FALSE, FALSE, FALSE);
-				if (rightL && IsAfter(rightL,addToSyncL))
+				if (rightL && IsAfter(rightL, addToSyncL))
 					for (pL=rightL; pL!=addToSyncL; pL=RightLINK(pL))
 						if (J_IPTYPE(pL))
 							return TrkInsSync(doc, pL, pt, &sym, clickStaff);
@@ -406,7 +406,7 @@ Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 		if (TrkInsGRNote(doc, pt, &sym, clickStaff))		/* Chord w/existing note/chord */
 			return TRUE;
 
-		doc->selStartL = doc->selEndL;							/* Insert cancelled. */
+		doc->selStartL = doc->selEndL;						/* Insert cancelled. */
 		MEAdjustCaret(doc, TRUE);
 		InvalMeasure(addToGRSyncL, clickStaff);
 		return FALSE;
@@ -430,7 +430,7 @@ Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 		at or after that time and add to a GRSync to its left. */
 
 	pLPIL = FindLPI(doc, pt, (doc->lookVoice>=0? ANYONE : clickStaff), voice, TRUE);
-	addToSyncL = ObjAtEndTime(doc,pLPIL,GRSYNCtype,voice,&lTime,EXACT_TIME,TRUE);
+	addToSyncL = ObjAtEndTime(doc, pLPIL, GRSYNCtype, voice, &lTime, EXACT_TIME, TRUE);
 	if (addToSyncL) {
 
 		/* If the GRSync already has a note in the voice, create a new GRSync before
@@ -460,7 +460,7 @@ Boolean InsertArpSign(Document *doc, Point pt)
 	aNoteL = NoteInVoice(pL, voice, FALSE);
 	if (NoteREST(aNoteL)) return FALSE;
 	
-	doc->selEndL = doc->selStartL = pL;										/* Selection is insertion point */
+	doc->selEndL = doc->selStartL = pL;							/* Selection is insertion point */
 	return NewArpSign(doc, pt, palChar, clickStaff, voice);
 }
 
@@ -480,7 +480,7 @@ Boolean InsertLine(Document *doc, Point pt)
 
 	doc->selEndL = doc->selStartL = insertL;
 
-	return TrackAndAddLine(doc, pt, clickStaff, voice);				/* Add sym. to obj list */
+	return TrackAndAddLine(doc, pt, clickStaff, voice);			/* Add sym. to obj list */
 }
 
 
@@ -494,9 +494,9 @@ searched, where FindGraphicObject uses the systemRect, which has been extended
 1 lnSpace beyond the right end of the staff, to handle precisely this case.
 #2. In OtherCode.c */
 
-#define SAVERM_LEN 	16
-#define MPATCH_LEN 	16
-#define MPAN_LEN	 	16
+#define SAVERM_LEN	16
+#define MPATCH_LEN	16
+#define MPAN_LEN	16
 
 #define CHORD_FRAME_DEFAULT 'A'
 #define REHEARSAL_MARK_DEFAULT 'A'
@@ -506,16 +506,16 @@ searched, where FindGraphicObject uses the systemRect, which has been extended
 
 Boolean InsertGraphic(Document *doc, Point pt)
 {
-	static char lastRMStr[SAVERM_LEN];	/* So we don't waste 256 bytes of static var.space */
-	static char lastMPStr[MPATCH_LEN];	/* So we don't waste 256 bytes of static var.space */
-	static char lastMPanStr[MPAN_LEN];	/* So we don't waste 256 bytes of static var.space */
+	static char lastRMStr[SAVERM_LEN];	/* So we don't waste 256 bytes of static var. space */
+	static char lastMPStr[MPATCH_LEN];	/* So we don't waste 256 bytes of static var. space */
+	static char lastMPanStr[MPAN_LEN];	/* So we don't waste 256 bytes of static var. space */
 	static Boolean firstRMCall=TRUE;
 	static Boolean firstMPCall=TRUE;
 	static Boolean firstMPanCall=TRUE;
-	LINK pL,measL;
-	short sym,pitchLev,clickStaff,voice,newSize,newStyle,newEncl,
-			hStyleChoice,uStyleChoice,staff,auxInfo;
-	Str63 newFont; Str255 string;
+	LINK pL, measL;
+	short sym, pitchLev, clickStaff, voice, newSize, newStyle, newEncl,
+			hStyleChoice, uStyleChoice, staff, auxInfo;
+	Str63 newFont;  Str255 string;
 	Boolean newRelSize, newLyric, newExpanded;
 	CONTEXT context;
 	char midiPatch[MPATCH_LEN];
@@ -534,16 +534,17 @@ Boolean InsertGraphic(Document *doc, Point pt)
 		case PAGEtype:
 			break;
 		case MEASUREtype:
-			staff = FindStaff(doc,pt);							/* #1 */
+			staff = FindStaff(doc,pt);						/* #1 */
 			if (staff!=NOONE) clickStaff = staff;			/* Fall through */		
 		default:
 			if (clickStaff!=NOONE && STAFFN_BAD(doc, clickStaff)) {
-				MayErrMsg("InsertGraphic: illegal staff number %ld. pL=%ld", (long)clickStaff, (long)pL);
+				MayErrMsg("InsertGraphic: illegal staff number %ld. pL=%ld",
+							(long)clickStaff, (long)pL);
 				return FALSE;
 			}
 			HiliteInsertNode(doc, pL, clickStaff, TRUE);			
 	}
-																		/* #2 */
+															/* #2 */
 
 	/* GRAPHICs must be after the page they are attached to, due to problems
 		with functions like BeforeFirstMeas, that rely on no object in a page
@@ -569,8 +570,8 @@ Boolean InsertGraphic(Document *doc, Point pt)
 		}
 		else {
 			uStyleChoice = Header2UserFontNum(doc->lastGlobalFont);
-			if (!TextDialog(doc,&uStyleChoice,&newRelSize,&newSize,&newStyle,
-							&newEncl,&newLyric,&newExpanded,newFont,string,&context))
+			if (!TextDialog(doc, &uStyleChoice, &newRelSize, &newSize, &newStyle,
+							&newEncl, &newLyric, &newExpanded, newFont, string, &context))
 				goto Cancelled;
 			hStyleChoice = User2HeaderFontNum(doc, uStyleChoice);
 		}
@@ -616,7 +617,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 					static short CSAuxInfo = -1;
 
 					/* NOTE: This will have to be changed if we encode other options in CSAuxInfo. */
-					if (CSAuxInfo==-1)	/* first time */
+					if (CSAuxInfo==-1)								/* first time */
 						CSAuxInfo = config.chordSymDrawPar? 1 : 0;
 					string[0] = 1;
 					string[1] = CHORD_SYMBOL_DEFAULT;
@@ -640,8 +641,8 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				GetContext(doc, pL, clickStaff, &context);
 				*string = 0;
 				uStyleChoice = Header2UserFontNum(doc->lastGlobalFont);
-				if (!TextDialog(doc,&uStyleChoice,&newRelSize,&newSize,&newStyle,
-									&newEncl,&newLyric,&newExpanded,newFont,string,&context))
+				if (!TextDialog(doc, &uStyleChoice, &newRelSize, &newSize, &newStyle,
+								&newEncl, &newLyric, &newExpanded, newFont, string, &context))
 					goto Cancelled;
 				hStyleChoice = User2HeaderFontNum(doc, uStyleChoice);
 				break;
@@ -692,16 +693,17 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				PStrCopy((StringPtr)doc->fontNameRM, (StringPtr)newFont);
 				break;
 			default:
-				;															/* Error */
+				;											/* Error */
 		}
 		
 		NewGraphic(doc, pt, palChar, clickStaff, voice, pitchLev, newRelSize, newSize,
-					newStyle, newEncl, auxInfo, newLyric, newExpanded, newFont, string, hStyleChoice);
+					newStyle, newEncl, auxInfo, newLyric, newExpanded, newFont, string,
+					hStyleChoice);
 		return TRUE;
 	}
 	
 Cancelled:
-	InvalMeasure(pL, clickStaff);									/* Just redraw the measure */
+	InvalMeasure(pL, clickStaff);							/* Just redraw the measure */
 	return FALSE;
 }
 
@@ -719,7 +721,7 @@ short Type2SymTableIndex(SignedByte objtype, SignedByte subtype)
 		if (objtype==symtable[j].objtype && subtype==symtable[j].subtype)
 			return j;								/* Found it */
 
-	return NOMATCH;								/* Not found - illegal */
+	return NOMATCH;									/* Not found - illegal */
 }
 
 /* -------------------------------------------------------------- InsertMusicChar -- */
@@ -729,13 +731,13 @@ and allows cancelling. */
 Boolean InsertMusicChar(Document *doc, Point pt)
 {
 	LINK pL;
-	short sym,pitchLev,clickStaff,voice,styleChoice,staff,stringInd;
+	short sym, pitchLev, clickStaff, voice, styleChoice, staff, stringInd;
 	Str63 musicFontName;
 	unsigned char string[2];
 	char stringInchar;
 	Boolean firstCall = TRUE;
 	/* musicChar maps symtable[sym].durcode value to corresponding font character:
-	                     Ped.   *   */
+			Ped.   *   */
 	char musicChar[] = { 0xA1, '*' };
 	short index;
 
@@ -754,20 +756,20 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 		case PAGEtype:
 			break;
 		case MEASUREtype:
-			staff = FindStaff(doc,pt);							/* See comment in InsertGraphic */
+			staff = FindStaff(doc, pt);						/* See comment in InsertGraphic */
 			if (staff!=NOONE) clickStaff = staff;			/* Fall through */		
 		default:
 			if (clickStaff!=NOONE && STAFFN_BAD(doc, clickStaff)) {
-				MayErrMsg("InsertMusicChar: illegal staff number %ld. pL=%ld", (long)clickStaff, (long)pL);
+				MayErrMsg("InsertMusicChar: illegal staff number %ld. pL=%ld",
+							(long)clickStaff, (long)pL);
 				return FALSE;
 			}
 			HiliteInsertNode(doc, pL, clickStaff, TRUE);			
 	}
 
-	/* GRAPHICs must be after the page they are attached to, due to problems
-		with functions like BeforeFirstMeas, that rely on no object in a page
-		or system being located before the page or system object itself in the
-		object list. */
+	/* GRAPHICs must be after the page they are attached to, to avoid problems with
+		functions like BeforeFirstMeas that assume no object in a page or system is
+		located before the page or system object itself in the object list. */
 
 	doc->selStartL = (PageTYPE(pL) ? SSearch(pL,SYSTEMtype,GO_RIGHT) : pL);
 	doc->selEndL = doc->selStartL;
@@ -789,7 +791,7 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 		return TRUE;
 	}
 
-	InvalMeasure(pL, clickStaff);									/* Just redraw the measure */
+	InvalMeasure(pL, clickStaff);							/* Just redraw the measure */
 	return FALSE;
 }
 
@@ -824,9 +826,9 @@ cancelling. */
 
 Boolean InsertMODNR(Document *doc, Point pt)
 {
-	short				staff, sym, index, pitchLev, qPitchLev, newSlashes, status, i;
+	short			staff, sym, index, pitchLev, qPitchLev, newSlashes, status, i;
 	static short	slashes=2, lastPitchLev=-3;
-	LINK				insSyncL, aNoteL;
+	LINK			insSyncL, aNoteL;
 
 	staff=FindStaff(doc, pt);
 	if (staff==NOONE) return FALSE;
@@ -849,7 +851,7 @@ Boolean InsertMODNR(Document *doc, Point pt)
 	}
 
 	staff = NoteSTAFF(aNoteL);
-	doc->selEndL = doc->selStartL = insSyncL;						/* Selection is insertion point */
+	doc->selEndL = doc->selStartL = insSyncL;				/* Selection is insertion point */
 
 	if (symtable[sym].subtype==MOD_FAKE_AUGDOT) {
 		AddDot(doc, insSyncL, NoteVOICE(aNoteL));
@@ -860,10 +862,10 @@ Boolean InsertMODNR(Document *doc, Point pt)
 	status = InsTrackUpDown(doc, pt, &sym, doc->selStartL, staff, &pitchLev);
 	if (status!=0) {
 		if (symtable[sym].subtype==MOD_TREMOLO1) {
-			pitchLev = lastPitchLev;								/* Ignore the new <pitchLev> */
+			pitchLev = lastPitchLev;						/* Ignore the new <pitchLev> */
 			newSlashes = TremSlashesDialog(slashes);
 			if (newSlashes<=0) {
-				InvalMeasure(doc->selStartL, staff);			/* Just redraw the measure */
+				InvalMeasure(doc->selStartL, staff);		/* Just redraw the measure */
 				return FALSE;
 			}
 
@@ -888,12 +890,12 @@ Boolean InsertMODNR(Document *doc, Point pt)
 		if (symtable[sym].subtype==MOD_TREMOLO1)
 			qPitchLev = 0;
 		NewMODNR(doc,symtable[sym].symcode,slashes,staff,qPitchLev,insSyncL,aNoteL);
-		InvalMeasure(doc->selStartL, staff);					/* Just redraw the measure */
+		InvalMeasure(doc->selStartL, staff);				/* Just redraw the measure */
 		lastPitchLev = pitchLev;
 		return TRUE;
 	}
 
-	InvalMeasure(doc->selStartL, staff);						/* Just redraw the measure */
+	InvalMeasure(doc->selStartL, staff);					/* Just redraw the measure */
 	return FALSE;
 }
 
@@ -904,15 +906,15 @@ mousedown at the given point. RptEnds are J_IT objects. */
 
 Boolean InsertRptEnd(Document *doc, Point pt)
 {
-	short		clickStaff;													/* staff user clicked in */
-	LINK		pLPIL;														/* pointer to Last Previous Item */
+	short	clickStaff;					/* staff user clicked in */
+	LINK	pLPIL;						/* pointer to Last Previous Item */
 
-	clickStaff = FindStaff(doc, pt);									/* Find staff clicked on... */
+	clickStaff = FindStaff(doc, pt);						/* Find staff clicked on... */
 	if (clickStaff==NOONE) return FALSE;
-	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);		/*   and Last Prev. Item on it */
+	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);	/*   and Last Prev. Item on it */
 
-	doc->selEndL = doc->selStartL = RightLINK(pLPIL);			/* selection is insertion point... */
-	NewRptEnd(doc, pt.h, palChar, clickStaff);					/* Add sym. to object list */
+	doc->selEndL = doc->selStartL = RightLINK(pLPIL);		/* selection is insertion point... */
+	NewRptEnd(doc, pt.h, palChar, clickStaff);				/* Add sym. to object list */
 	return TRUE;
 }
 
@@ -924,19 +926,19 @@ add the ending to the object list. Endings are J_D objects. */
 
 Boolean InsertEnding(Document *doc, Point pt)
 {
-	short		clickStaff,													/* staff in which user clicked */
-				staff;														/* staff & voice of obj found */
-	LINK		insertL;														/* relative obj for Ending */
+	short	clickStaff,						/* staff in which user clicked */
+			staff;							/* staff & voice of obj found */
+	LINK	insertL;						/* relative obj for Ending */
 
-	clickStaff = FindStaff(doc, pt);									/* Find staff clicked on. */
+	clickStaff = FindStaff(doc, pt);						/* Find staff clicked on. */
 	if (clickStaff==NOONE) return FALSE;
 	
-	insertL = FindEndingObject(doc, pt, &staff);					/* Find relative object for Ending */
+	insertL = FindEndingObject(doc, pt, &staff);			/* Find relative object for Ending */
 	if (!insertL) return FALSE;
 
 	doc->selEndL = doc->selStartL = insertL;
 
-	return TrackAndAddEnding(doc, pt, staff);						/* Add sym. to object list */
+	return TrackAndAddEnding(doc, pt, staff);				/* Add sym. to object list */
 }
 
 
@@ -985,22 +987,22 @@ the given point. */
 
 Boolean InsertMeasure(Document *doc, Point pt)
 {
-	short		clickStaff;
-	LINK		pLPIL;														/* link to Last Previous Item */
+	short	clickStaff;
+	LINK	pLPIL;											/* link to Last Previous Item */
 
-	clickStaff = FindStaff(doc, pt);									/* Sets doc->currentSystem */
-	if (clickStaff==NOONE) return FALSE;							/* Quit if no staff clicked on */
+	clickStaff = FindStaff(doc, pt);						/* Sets doc->currentSystem */
+	if (clickStaff==NOONE) return FALSE;					/* Quit if no staff clicked on */
 
 	/* If mouseDown before System's initial (invisible) barline, force it after
 		that barline. */
 	pt.h = ForceInMeasure(doc, pt.h);
-	pLPIL = FindLPI(doc, pt, ANYONE, ANYONE, FALSE);			/* Find Last Prev. Item on ANY staff */
+	pLPIL = FindLPI(doc, pt, ANYONE, ANYONE, FALSE);		/* Find Last Prev. Item on ANY staff */
 	
-	doc->selEndL = doc->selStartL = RightLINK(pLPIL);			/* selection is insertion point... */
+	doc->selEndL = doc->selStartL = RightLINK(pLPIL);		/* selection is insertion point... */
 	if (!InsMeasTupletOK(doc)) return FALSE;
 	if (!InsMeasUnkDurOK(doc)) return FALSE;
 
-	NewMeasure(doc, pt, palChar);										/* Add sym. to object list */
+	NewMeasure(doc, pt, palChar);							/* Add sym. to object list */
 	return TRUE;
 }
 
@@ -1011,19 +1013,19 @@ at the given point. */
 
 Boolean InsertPseudoMeas(Document *doc, Point pt)
 {
-	short		clickStaff;													/* staff user clicked in */
-	LINK		pLPIL;														/* link to Last Previous Item */
+	short	clickStaff;										/* staff user clicked in */
+	LINK	pLPIL;											/* link to Last Previous Item */
 
-	clickStaff = FindStaff(doc, pt);									/* Was ANY staff clicked on? */
-	if (clickStaff==NOONE) return FALSE;							/* If no, forget it */
+	clickStaff = FindStaff(doc, pt);						/* Was ANY staff clicked on? */
+	if (clickStaff==NOONE) return FALSE;					/* If no, forget it */
 
 	/* If mouseDown before System's initial (invisible) barline, force it after
 		that barline. */
 	pt.h = ForceInMeasure(doc, pt.h);
-	pLPIL = FindLPI(doc, pt, ANYONE, ANYONE, FALSE);			/* Find Last Prev. Item on ANY staff */
+	pLPIL = FindLPI(doc, pt, ANYONE, ANYONE, FALSE);		/* Find Last Prev. Item on ANY staff */
 	
-	doc->selEndL = doc->selStartL = RightLINK(pLPIL);			/* selection is insertion point */
-	NewPseudoMeas(doc, pt, palChar);									/* Add sym. to object list */
+	doc->selEndL = doc->selStartL = RightLINK(pLPIL);		/* selection is insertion point */
+	NewPseudoMeas(doc, pt, palChar);						/* Add sym. to object list */
 
 	return TRUE;
 }
@@ -1035,18 +1037,18 @@ given point. */
 
 Boolean InsertClef(Document *doc, Point pt)
 {
-	short		clickStaff;													/* staff user clicked in */
-	LINK		pLPIL,insNodeL,aClefL;
-	long		lTime;														/* logical time */
+	short	clickStaff;							/* staff user clicked in */
+	LINK	pLPIL, insNodeL, aClefL;
+	long	lTime;								/* logical time */
 				
-	clickStaff = FindStaff(doc, pt);									/* Find staff clicked on... */
+	clickStaff = FindStaff(doc, pt);						/* Find staff clicked on... */
 	if (clickStaff==NOONE) return FALSE;
 	
-	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);		/*   and Last Prev. Item on it */
-	if (ClefBeforeBar(doc,pLPIL,palChar,clickStaff))
+	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);	/*   and Last Prev. Item on it */
+	if (ClefBeforeBar(doc, pLPIL, palChar, clickStaff))
 		return TRUE;
 
-	insNodeL = ObjAtEndTime(doc,pLPIL,CLEFtype,clickStaff,&lTime,EXACT_TIME,FALSE);
+	insNodeL = ObjAtEndTime(doc, pLPIL, CLEFtype, clickStaff, &lTime, EXACT_TIME, FALSE);
 	if (insNodeL) {
 
 		aClefL = FirstSubLINK(insNodeL);
@@ -1060,7 +1062,7 @@ Boolean InsertClef(Document *doc, Point pt)
 	insNodeL = TimeSearchRight(doc, RightLINK(pLPIL), ANYTYPE, lTime, MIN_TIME);
 	if (insNodeL) {
 		doc->selEndL = doc->selStartL = LocateInsertPt(insNodeL);
-		NewClef(doc, pt.h, palChar, clickStaff);				/* Add sym. to object list */
+		NewClef(doc, pt.h, palChar, clickStaff);			/* Add sym. to object list */
 		return TRUE;
 	}
 	MayErrMsg("InsertClef: free TimeSearchRight returned NILINK.");
@@ -1074,12 +1076,12 @@ at the given point. */
 
 Boolean InsertKeySig(Document *doc, Point pt)
 {
-	short		clickStaff,								/* staff user clicked in */
+	short		clickStaff,							/* staff user clicked in */
 				sharps=0,flats=0,
 				sharpsOrFlats=0;
-	LINK		pLPIL,									/* pointer to Last Previous Item */
+	LINK		pLPIL,								/* pointer to Last Previous Item */
 				insNodeL;
-	long		lTime;									/* logical time */
+	long		lTime;								/* logical time */
 	static Boolean onAllStaves=TRUE;				/* or "This Staff Only" */
 
 	if (!KeySigDialog(&sharps, &flats, &onAllStaves, TRUE))
@@ -1093,14 +1095,14 @@ Boolean InsertKeySig(Document *doc, Point pt)
 		clickStaff = ANYONE;
 	}
 	else
-		clickStaff = FindStaff(doc, pt);									/* Find System & staff clicked on... */
+		clickStaff = FindStaff(doc, pt);						/* Find System & staff clicked on... */
 	if (clickStaff==NOONE) return FALSE;
 	
-	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);			/*   and Last Prev. Item on it */
+	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);		/*   and Last Prev. Item on it */
 	if (KeySigBeforeBar(doc, pLPIL, clickStaff, sharpsOrFlats))
 		return TRUE;
 		
-	insNodeL = ObjAtEndTime(doc,pLPIL,ANYTYPE,clickStaff,&lTime,MIN_TIME,FALSE);
+	insNodeL = ObjAtEndTime(doc, pLPIL, ANYTYPE, clickStaff, &lTime, MIN_TIME, FALSE);
 	if (insNodeL) {
 		doc->selEndL = doc->selStartL = LocateInsertPt(insNodeL);
 		NewKeySig(doc, pt.h, sharpsOrFlats, clickStaff);		/* Add sym(s). to object list */
@@ -1118,12 +1120,12 @@ at the given point. */
 
 Boolean InsertTimeSig(Document *doc, Point pt)
 {
-	short			clickStaff;
-	LINK			pLPIL,									/* pointer to Last Previous Item */
-					insNodeL;
-	long			lTime;									/* logical time */
+	short		clickStaff;
+	LINK		pLPIL,									/* pointer to Last Previous Item */
+				insNodeL;
+	long		lTime;									/* logical time */
 	static short type=N_OVER_D,
-					 numerator=4,denominator=4;
+					numerator=4,denominator=4;
 	static Boolean onAllStaves=TRUE;					/* or "This Staff Only" */
 
 	if (!TimeSigDialog(&type, &numerator, &denominator, &onAllStaves, TRUE))
@@ -1134,7 +1136,7 @@ Boolean InsertTimeSig(Document *doc, Point pt)
 		clickStaff = ANYONE;
 	}
 	else
-		clickStaff = FindStaff(doc, pt);								/* also sets doc->currentSystem */
+		clickStaff = FindStaff(doc, pt);						/* also sets doc->currentSystem */
 	if (clickStaff==NOONE) return FALSE;
 	
 	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);		/* find Last Prev. Item on clickStaff */

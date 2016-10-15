@@ -854,7 +854,7 @@ MIDIFOCmd, MIDIFSave, MIDIPlay.
 
 -------------------------------------------------------------------------------
 
-24-27 Sept.
+24 - 27 Sept.
 
 Trying to open certain old files that don't have the proper Ngale document icon, and
 therefore probably don't have the correct pre-OS X-Finder file type ('SCOR'), by
@@ -874,3 +874,9 @@ MIDIFOpen, MIDIUtils.
 
 Minor cleanup and enhancements. Affects Ottava.h; Dragging, MIDIFOpen, MIDIFSave,
 Ottava, RTRhythmDur.
+
+-------------------------------------------------------------------------------
+
+12 - 15 Oct.
+
+Minor cleanup. Affects NightTemplates.h; Initialize, InitNightingale, Insert, Tuplet.

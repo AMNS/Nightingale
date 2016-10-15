@@ -38,8 +38,6 @@ static Boolean		PrepareClipDoc(void);
 static void			AddSampleItems(MenuRef menu);
 static void			InstallCoreEventHandlers(void);
 
-void				InitNightingale(void);	// FIXME: non-static, so should be in a header
-
 
 /* ----------------------------------------------------------- Initialize and ally -- */
 /* Do everything that must be done prior to entering main event loop. A great deal of
@@ -1250,7 +1248,7 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 static void SetupPaletteRects(Rect *whichRects, short itemsAcross, short itemsDown,
 								short itemWidth, short itemHeight)
 	{
-		short across,down;
+		short across, down;
 		
 		whichRects->left = 0;
 		whichRects->top = 0;
@@ -1259,12 +1257,12 @@ static void SetupPaletteRects(Rect *whichRects, short itemsAcross, short itemsDo
 
 		whichRects++;
 		for (down=0; down<itemsDown; down++)
-			for (across=0; across<itemsAcross; across++,whichRects++) {
+			for (across=0; across<itemsAcross; across++, whichRects++) {
 				whichRects->left = across * itemWidth;
 				whichRects->top = down * itemHeight;
 				whichRects->right = (across + 1) * itemWidth;
 				whichRects->bottom = (down + 1) * itemHeight;
-				OffsetRect(whichRects,TOOLS_MARGIN,TOOLS_MARGIN);
+				OffsetRect(whichRects, TOOLS_MARGIN, TOOLS_MARGIN);
 				}
 	}
 
@@ -1277,7 +1275,7 @@ static Boolean PrepareClipDoc()
 
 		clipboard = documentTable;
 		clipboard->inUse = TRUE;
-		w = GetNewWindow(docWindowID,NULL,(WindowPtr)-1);
+		w = GetNewWindow(docWindowID, NULL, (WindowPtr)-1);
 		if (w == NULL) return(FALSE);
 		
 		clipboard->theWindow = w;
@@ -1286,14 +1284,14 @@ static Boolean PrepareClipDoc()
 		//		((WindowPeek)w)->spareFlag = TRUE;
 		ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
 
-		if (!BuildDocument(clipboard,NULL,0,NULL,&junkVersion,TRUE))
+		if (!BuildDocument(clipboard, NULL, 0, NULL, &junkVersion, TRUE))
 			return FALSE;
 		for (pL=clipboard->headL; pL!=clipboard->tailL; pL=DRightLINK(clipboard, pL))
 			if (DObjLType(clipboard, pL)==MEASUREtype)
 				{ clipFirstMeas = pL; break; }
 		clipboard->canCutCopy = FALSE;
-		GetIndCString(title,MiscStringsID,2);
-		SetWCTitle((WindowPtr)clipboard,title);
+		GetIndCString(title, MiscStringsID, 2);
+		SetWCTitle((WindowPtr)clipboard, title);
 		return TRUE;
 	}
 	
@@ -1382,15 +1380,15 @@ Boolean InitGlobals()
 		editMenu = GetMenu(editID);			if (!editMenu) return FALSE;
 		InsertMenu(editMenu,0);
 		
-		if (FALSE || CmdKeyDown() && OptionKeyDown())
+#ifdef PUBLIC_VERSION
+		if (CmdKeyDown() && OptionKeyDown())
 		{
 			AppendMenu(editMenu, "\p(-");
 			AppendMenu(editMenu, "\pBrowser");
 			AppendMenu(editMenu, "\pDebug...");
 			AppendMenu(editMenu, "\pDelete Objects");
 		}
-
-#ifndef PUBLIC_VERSION
+#else
 		testMenu = GetMenu(testID);		if (!testMenu) return FALSE;
 		InsertMenu(testMenu,0);
 #endif

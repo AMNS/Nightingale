@@ -241,6 +241,10 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	Boolean		OpenSetupFile(void);
 	Boolean		BuildEmptyDoc(Document *doc);
 
+/* InitNightingale.c */
+
+	void		InitNightingale(void);
+
 /* Magnify.c */
 
 	short		D2PFunc(DDIST d);
