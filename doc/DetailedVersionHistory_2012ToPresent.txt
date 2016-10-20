@@ -880,3 +880,17 @@ Ottava, RTRhythmDur.
 12 - 15 Oct.
 
 Minor cleanup. Affects NightTemplates.h; Initialize, InitNightingale, Insert, Tuplet.
+
+===============================================================================
+
+17 - 20 Oct.
+
+Changed version number from 5.7b5 to 5.7b6. Affects Info.plist.
+
+Implement "nudging" a selected symbol -- note(s)/rest(s), text Graphic, dynamic,
+or tempo/metronome mark -- via command-arrow keys. Affects Event.
+
+Clarify labels and minor cleanup in Get Info dialogs. Affects .rsrc; InfoDialog.
+
+Minor cleanup. Affects Event, Menu.
+

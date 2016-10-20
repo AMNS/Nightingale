@@ -124,7 +124,7 @@
 	<key>CFBundleSignature</key>
 	<string>BYRD</string>
 	<key>CFBundleVersion</key>
-	<string>5.7b5</string>
+	<string>5.7b6</string>
 	<key>LSApplicationCategoryType</key>
 	<string>public.app-category.music</string>
 </dict>

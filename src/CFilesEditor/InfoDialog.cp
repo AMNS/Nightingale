@@ -230,13 +230,13 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			strcpy(strBuf, NameNodeType(pL));
 			if (aNote->rest)
 			{
-				strcat(strBuf, ": Rest");
+				strcat(strBuf, " / Rest");
 				PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
 				PutDlgWord(dlog, SMALLNR, aNote->small, FALSE);		/* whether small note/rest */
 			}
 			else
 			{
-				strcat(strBuf, ": Note");
+				strcat(strBuf,  " / Note");
 				PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
 				PutDlgWord(dlog, ACCIDENT, aNote->accident, FALSE);
 				PutDlgWord(dlog, XMOVE_ACC, aNote->xmoveAcc, FALSE);
@@ -693,7 +693,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 	strcpy(strBuf, NameNodeType(pL));
 	if (GraphicTYPE(pL)) {
-		strcat(strBuf, ": ");
+		strcat(strBuf,  " / ");
 		strcat(strBuf, NameGraphicType(pL, TRUE));
 	}
 	else if (SlurTYPE(pL) && SlurTIE(pL))

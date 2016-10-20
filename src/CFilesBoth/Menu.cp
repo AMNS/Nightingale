@@ -499,6 +499,7 @@ void DoEditMenu(short choice)
 		}
 	}
 
+
 //#ifndef PUBLIC_VERSION
 
 /* Functions to delete selected objects from the score "stupidly", i.e., with almost
@@ -521,9 +522,10 @@ static void DeleteObj(Document *doc, LINK pL)
 
 static void DeleteSelObjs(Document *doc)
 {
-	short nInRange, nSelFlag; LINK pL, nextL, firstMeasL;
+	short nInRange, nSelFlag;  LINK pL, nextL, firstMeasL;
 	
 	CountSelection(doc, &nInRange, &nSelFlag);
+	LogPrintf(LOG_INFO, "DeleteSelObjs: nInRange=%d nSelFlag=%d\n", nInRange, nSelFlag);
 	if (nSelFlag<=0) { SysBeep(1); return; }
 	
 	sprintf(strBuf, "%d", nSelFlag);
@@ -544,12 +546,13 @@ static void DeleteSelObjs(Document *doc)
 	}
 }
 
+
 void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset);
 void ResetAllMeasNumPos(Document *doc);
 
 void SetMeasNumPos(Document *doc,
-							LINK startL, LINK endL,
-							short xOffset, short yOffset)
+					LINK startL, LINK endL,
+					short xOffset, short yOffset)
 {
 	PAMEASURE	aMeasure;
 	LINK		pL, aMeasureL;

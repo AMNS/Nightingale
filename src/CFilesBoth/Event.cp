@@ -31,7 +31,8 @@ static void		DoContent(WindowPtr w, Point pt, short modifiers, long when);
 static void		DoDocContent(WindowPtr w, Point p, short modifiers, long when);
 static void		DoGrow(WindowPtr w, Point pt, Boolean command);
 static Boolean	DoKeyDown(EventRecord *evt);
-static void		DoKeyUp(EventRecord *event);
+static Boolean	Nudge(Document *doc, short arrowKeyCode);
+static void		DoKeyUp(EventRecord *evt);
 static void		CheckMemory(void);
 
 static void		DoHighLevelEvent(EventRecord *evt);
@@ -505,7 +506,7 @@ static Boolean DoMouseDown(EventRecord *event)
 
 static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 	{
-		short code,val,oldVal,change; short index; GrafPtr oldPort;
+		short code,val, oldVal,change;  short index;  GrafPtr oldPort;
 		ControlHandle control;
 		Rect portRect;
 		short contrlHilite;
@@ -521,7 +522,7 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 			case DOCUMENTKIND:
 				doc = GetDocumentFromWindow(w);
 				if (doc) {
-					//switch( code = FindControl(pt,w,&control) ) {
+					//switch( code = FindControl(pt, w,&control) ) {
 					control = FindControlUnderMouse(pt, w, &code);
 					switch( code ) {
 						case kControlUpButtonPart:
@@ -531,9 +532,9 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 							contrlHilite = GetControlHilite(control);
 							if (contrlHilite != 255) {
 								MEHideCaret(doc);
-								GetWindowPortBounds(w,&portRect);
+								GetWindowPortBounds(w, &portRect);
 								ClipRect(&portRect);
-								TrackControl(control,pt,actionUPP);
+								TrackControl(control, pt, actionUPP);
 								ClipRect(&portRect);
 								DrawControls(w);
 								ClipRect(&doc->viewRect);
@@ -543,9 +544,9 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 							contrlHilite = GetControlHilite(control);
 							if (contrlHilite != 255) {
 								oldVal = GetControlValue(control);
-								GetWindowPortBounds(w,&portRect);
+								GetWindowPortBounds(w, &portRect);
 								ClipRect(&portRect);
-								TrackControl(control,pt,NULL);
+								TrackControl(control, pt, NULL);
 								val = GetControlValue(control);
 								ClipRect(&doc->viewRect);
 								if (change = val-oldVal) {
@@ -560,14 +561,14 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 									SetControlValue(control,oldVal);
 									MEHideCaret(doc);
 									/* OK, now go ahead */
-									if (control == doc->vScroll) QuickScroll(doc,0,change,TRUE,TRUE);
-									 else						 		  QuickScroll(doc,change,0,TRUE,TRUE);
+									if (control==doc->vScroll)	QuickScroll(doc, 0, change, TRUE, TRUE);
+									 else						QuickScroll(doc, change, 0, TRUE,TRUE);
 									}
 								}
 							break;
 						default:
 							if (doc!=clipboard)
-								DoDocContent(w,pt,modifiers,when);
+								DoDocContent(w, pt, modifiers, when);
 							break;
 						}
 					}
@@ -575,7 +576,7 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 			case PALETTEKIND:
 				notMenu = TRUE;
 				index = GetWRefCon(w);
-				if (index == TOOL_PALETTE) DoToolContent(pt,modifiers);
+				if (index == TOOL_PALETTE) DoToolContent(pt, modifiers);
 				if (index == CLAVIER_PALETTE) SysBeep(60);
 				notMenu = FALSE;
 				break;
@@ -587,17 +588,18 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 
 
 /* This routine is called from GetSelection() and other click and drag loops
-so that the view of the Document can be scrolled automatically if the
-user pulls the mouse outside the viewRect of the window. */
+so that the view of the Document can be scrolled automatically if the user
+pulls the mouse outside the viewRect of the window. */
 
 void AutoScroll()
 	{
-		Point pt; short dx,dy; Document *theDoc = GetDocumentFromWindow(TopDocument);
+		Point pt; short dx, dy;
+		Document *theDoc = GetDocumentFromWindow(TopDocument);
 		PenState pen;
 		
 		if (theDoc) {
 			GetMouse(&pt);
-			if (!PtInRect(pt,&theDoc->viewRect)) {
+			if (!PtInRect(pt, &theDoc->viewRect)) {
 				dx = dy = 0;
 				if (pt.h < theDoc->viewRect.left) dx = -24;
 				 else if (pt.h >= theDoc->viewRect.right) dx = 24;
@@ -605,7 +607,7 @@ void AutoScroll()
 				 else if (pt.v >= theDoc->viewRect.bottom) dy = 24;
 				
 				GetPenState(&pen);
-				QuickScroll(theDoc,dx,dy,TRUE,TRUE);		/* Change coordinate system */
+				QuickScroll(theDoc, dx, dy, TRUE, TRUE);	/* Change coordinate system */
 				SetPenState(&pen);
 				}
 			}
@@ -625,8 +627,8 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 		if (doc==NULL) return;
 		
 		if (PtInRect(pt,&doc->viewRect))
-			if (FindSheet(doc,pt,&ans)) {
-				GetSheetRect(doc,ans,&paper);
+			if (FindSheet(doc, pt, &ans)) {
+				GetSheetRect(doc, ans, &paper);
 				doc->currentSheet = ans;
 				doc->currentPaper = paper;
 				if (doc->overview) ;			/* See NightArchive:MiscCode:OverviewGoTo for former code */
@@ -636,30 +638,30 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 					doc->scaleCenter = pt;		/* Save window coord for SheetMagnify */
 					
 					/* Transform to paper relative coords: in pixels relative to
-						upper left corner of page (e.g. by subtracting (-24000,-24000)) */
+						upper left corner of page (e.g. by subtracting (-24000, -24000)) */
 					pt.h -= paper.left;
 					pt.v -= paper.top;
 					
 					if (doc->masterView) {
-						didSomething = DoEditMaster(doc,pt,modifiers,doubleClick);
+						didSomething = DoEditMaster(doc, pt, modifiers, doubleClick);
 						if (didSomething) doc->masterChanged = TRUE;
 					}
 					else if (doc->showFormat) {
-						didSomething = DoEditFormat(doc,pt,modifiers,doubleClick);
+						didSomething = DoEditFormat(doc, pt, modifiers, doubleClick);
 
 						if (didSomething)
 							/* doc->formatChanged TRUE; */
 							;
 					}
 					else
-						didSomething = DoEditScore(doc,pt,modifiers,doubleClick);
+						didSomething = DoEditScore(doc, pt, modifiers, doubleClick);
 
 #ifdef SHEETSSELECTION
 					if (didSomething)
 						doc->changed = TRUE;
 					 else {
 						theSelectionType = MARCHING_ANTS;
-						GetSelection(w,&result,/*&paper*/NULL,AutoScroll);
+						GetSelection(w, &result, /*&paper*/NULL, AutoScroll);
 						}
 #endif
 						
@@ -668,39 +670,107 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 			 else {
 #ifdef SHEETSSELECTION
 				theSelectionType = MARCHING_ANTS;
-				GetSelection(w,&result,NULL,AutoScroll);
+				GetSelection(w, &result, NULL, AutoScroll);
 #endif
 				}
 		 else {
 			/* Click in message box */
 			}
-		SetRect(&theSelection,0,0,0,0);
+		SetRect(&theSelection, 0, 0, 0, 0);
 	}
 
 
-/* Deal with a generic key down event.  In general, keys typed are intended
-to be choices among the various symbols and tools in the Tools Palette,
-which may or may not be visible, and which can be visible even when there's
-no current document open.  Other keys, such as DELETE or RETURN, are dealt
-with separately.  Routine delivers whether to continue event loop or not. */
+/* Move the selected symbol of certain types a teeny bit. Returns TRUE if it did anything. */
+
+#define NUDGE_DIST	p2d(1)		/* Distance to move: 1 pixel */
+
+static Boolean Nudge(Document *doc, short arrowKeyCode)
+{
+	LINK pL, aNoteL, aDynamicL;
+	Boolean moved;  DDIST nudgeSignedDist;
+
+	moved = FALSE;
+	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
+		if (LinkSEL(pL))
+			switch (ObjLType(pL)) {
+				/* Move horizontally only, and selected subobjects (notes and rests) only. */
+				case SYNCtype:
+					if (arrowKeyCode==kLeftArrowCharCode) nudgeSignedDist = -NUDGE_DIST;
+					else if (arrowKeyCode==kRightArrowCharCode) nudgeSignedDist = NUDGE_DIST;
+					else return FALSE;
+					
+					aNoteL = FirstSubLINK(pL);
+					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+						if (NoteSEL(aNoteL))
+							NoteXD(aNoteL) += nudgeSignedDist;
+					}
+					return TRUE;
+				/* Move the entire object in any direction. */
+				case TEMPOtype:
+				case GRAPHICtype:
+					if (arrowKeyCode==kLeftArrowCharCode) { LinkXD(pL) -= NUDGE_DIST; moved = TRUE; }
+					else if (arrowKeyCode==kRightArrowCharCode) { LinkXD(pL) += NUDGE_DIST; moved = TRUE; }
+					else if (arrowKeyCode==kUpArrowCharCode) { LinkYD(pL) -= NUDGE_DIST; moved = TRUE; }
+					else if (arrowKeyCode==kDownArrowCharCode) { LinkYD(pL) += NUDGE_DIST; moved = TRUE; }
+					return moved;
+				case DYNAMtype:
+					aDynamicL = FirstSubLINK(pL);
+					if (arrowKeyCode==kLeftArrowCharCode) { LinkXD(pL) -= NUDGE_DIST; moved = TRUE; }
+					else if (arrowKeyCode==kRightArrowCharCode) { LinkXD(pL) += NUDGE_DIST; moved = TRUE; }
+					else if (arrowKeyCode==kUpArrowCharCode) { DynamicYD(aDynamicL) -= NUDGE_DIST; moved = TRUE; }
+					else if (arrowKeyCode==kDownArrowCharCode) { DynamicYD(aDynamicL) += NUDGE_DIST; moved = TRUE; }
+					
+					if (IsHairpin(pL)) {
+						if (arrowKeyCode==kLeftArrowCharCode) { DynamicENDXD(aDynamicL) -= NUDGE_DIST; moved = TRUE; }
+						else if (arrowKeyCode==kRightArrowCharCode) { DynamicENDXD(aDynamicL) += NUDGE_DIST; moved = TRUE; }
+						else if (arrowKeyCode==kUpArrowCharCode) { DynamicENDYD(aDynamicL) -= NUDGE_DIST; moved = TRUE; }
+						else if (arrowKeyCode==kDownArrowCharCode) { DynamicENDYD(aDynamicL) += NUDGE_DIST; moved = TRUE; }
+					}
+					return moved;
+
+				default:
+					return FALSE;
+			}			
+
+	return FALSE;
+}
 
 
-static Boolean DoKeyDown(EventRecord *event)
+/* Deal with a generic key down event.  In general, keys typed are intended to be
+choices among the various symbols and tools in the Tools Palette, which may or may
+not be visible, and which can be visible even when there's no current document open.
+Other keys, such as DELETE or RETURN, are dealt with separately.  Return value is
+whether to continue event loop or not. */
+
+static Boolean DoKeyDown(EventRecord *evt)
 	{
-		short ch,itemHit,key; short nparts; WindowPtr wp;
+		short ch, itemHit, key, nparts;  WindowPtr wp;
+		short nInRange, nSelFlag;
 		Boolean scoreView;
 		Document *doc = GetDocumentFromWindow(TopDocument);
 		unsigned long cmdCode;
 		
-		ch = (unsigned)(event->message & charCodeMask);
-		key = (event->message>>8) & charCodeMask;
+		ch = (unsigned)(evt->message & charCodeMask);
+		key = (evt->message>>8) & charCodeMask;
 		
-		if (event->modifiers & cmdKey) {
+		if (evt->modifiers & cmdKey) {
+			if (ch>=kLeftArrowCharCode && ch<=kDownArrowCharCode) {
+				if (!doc) return TRUE;
+				CountSelection(doc, &nInRange, &nSelFlag);
+				if (nSelFlag!=1) return TRUE;
+				LogPrintf(LOG_DEBUG, "DoKeyDown: char code=%d nInRange=%d nSelFlag=%d\n",
+							ch, nInRange, nSelFlag);
+				if (Nudge(doc, ch)) {
+					doc->changed = TRUE;
+					InvalSelRange(doc);
+				}
+				return TRUE;
+			}
 #if TARGET_API_MAC_CARBON
-			//cmdCode = MenuKey((char)(event->message & charCodeMask));
-			cmdCode = MenuEvent(event);
+			//cmdCode = MenuKey((char)(evt->message & charCodeMask));
+			cmdCode = MenuEvent(evt);
 #else
-			cmdCode = MDEF_MenuKey(event->message, event->modifiers, hMenu);
+			cmdCode = MDEF_MenuKey(evt->message, evt->modifiers, hMenu);
 #endif
 			return(DoMenu(cmdCode));
 		}
@@ -711,8 +781,8 @@ static Boolean DoKeyDown(EventRecord *event)
 		scoreView = doc ? (!doc->masterView && !doc->showFormat) : FALSE;
 
 		if (GetWindowKind(wp)== dialogKind) {
-			/* Deal with key down in modeless dialog, such as get info dialogs,etc. */
-			if (DialogSelect(event,(DialogPtr *)&wp,&itemHit)) { }
+			/* Deal with key down in modeless dialog, such as get info dialogs, etc. */
+			if (DialogSelect(evt, (DialogPtr *)&wp, &itemHit)) { }
 			}
 		 else
 			switch(ch) {
@@ -732,13 +802,13 @@ static Boolean DoKeyDown(EventRecord *event)
 					break;
 				case '\r':
 					if (doc) {
-						/* For whatever, like system breaks or adding new systems ... */
+						/* For possible future use, perhaps adding system breaks or new systems ... */
 						}
 					break;
 				default:
 					if (doc || IsWindowVisible(palettes[TOOL_PALETTE]))
 						if (scoreView)
-							DoToolKeyDown(ch,key,event->modifiers);
+							DoToolKeyDown(ch, key, evt->modifiers);
 				}
 			
 		return(TRUE);
@@ -796,13 +866,14 @@ static void DoGrow(WindowPtr w, Point pt, Boolean /*command*/)
 	}
 
 /* ============================= APPLE EVENT ROUTINES ============================= */
-/* For AppleEvent-handling routines, THINK C 7 (with Univ Interfaces 2.1) wants the
-third param to be just <long> but doesn't insist; CW Pro 2 (w/Univ Interfaces 3.0.1)
-insists the third param be <unsigned long>. */
+/* For AppleEvent-handling routines, THINK C 7 (with Univ Interfaces 2.1) wanted the
+third param to be just <long> but didn't insist; CodeWarrior Pro 2 (with Universal
+Interfaces 3.0.1) insisted the third param be <unsigned long>. All versions of Xcode
+we've tried -- 2.5, 3.4, and 7 -- are happy with just <long>. */
 
 /* Open-an-application event. */
 
-pascal OSErr HandleOAPP(const AppleEvent *appleEvent, AppleEvent */*reply*/, /*unsigned*/ long /*refcon*/)
+pascal OSErr HandleOAPP(const AppleEvent *appleEvent, AppleEvent */*reply*/, long /*refcon*/)
 	{
 		OSErr err = noErr;
 		
@@ -821,7 +892,7 @@ pascal OSErr HandleOAPP(const AppleEvent *appleEvent, AppleEvent */*reply*/, /*u
 /* Finder (or someone) has asked us to open a document, usually when user double-
 clicks on or drag-drops a score in Finder. */
 
-pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, /*unsigned*/ long /*refcon*/)
+pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, long /*refcon*/)
 	{
 		OSErr err = noErr;
 		long iFile,nFiles;
@@ -964,7 +1035,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 #endif	//	TARGET_API_MAC_CARBON_FILEIO
 
 
-pascal OSErr HandlePDOC(const AppleEvent *appleEvent, AppleEvent *reply, /*unsigned*/ long refcon)
+pascal OSErr HandlePDOC(const AppleEvent *appleEvent, AppleEvent *reply, long refcon)
 	{
 		short err;
 		
@@ -976,7 +1047,7 @@ pascal OSErr HandlePDOC(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	}
 
 
-pascal OSErr HandleQUIT(const AppleEvent */*appleEvent*/, AppleEvent */*reply*/, /*unsigned*/ long /*refcon*/)
+pascal OSErr HandleQUIT(const AppleEvent */*appleEvent*/, AppleEvent */*reply*/, long /*refcon*/)
 	{
 		short keepGoing = DoFileMenu(FM_Quit);
 		

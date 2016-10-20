@@ -1551,3 +1551,24 @@ The enum for clef types, excluding PERC_CLEF, goes from highest (TREBLE8_CLEF) t
 the code(s) for clefs after that. What about co-opting the code for baritone clef,
 which is almost never used?
 
+-------------------------------------------------------------------------------
+
+17 - 20 Oct.
+
+Implement Nudge (move a single selected symbol of some types with command-arrowkey) =>
+wonderful when it works! But, while it works well (A) for some symbol types, it works
+less well or not at all (F) for others.
+
+* A	Text graphics
+* A	Notes/rests			+ Should affect just selected notes/rests, not the entire Sync!
+* A	Dynamics			+ Up/down has no effect whatever!?
+						+ For hairpins, affects only the left end
+* A	Tempo/metro marks
+* F	Tuplets				- None of the keys has any effect
+* F	Ottavas				- "  "
+* F	Slurs/ties			- "  "
+
+It'd be nice to be able to nudge tuplets, ottavas, but not worth doing now. Slurs are
+more important, but we really need to nudge individual endpoints and control points -- which
+is a different proposition.
+
