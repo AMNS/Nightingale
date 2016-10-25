@@ -475,7 +475,6 @@ void SelectAll(register Document *doc)
 }
 
 
-#ifdef JG_NOTELIST
 /* ------------------------------------------------------------- SelRangeNoHilite -- */
 /* Select all visible objects in the range (startL, endL]; doesn't change 
 hiliting or make any other user-interface assumptions. Written for use 
@@ -484,8 +483,8 @@ in file importing routines. */
 void SelRangeNoHilite(Document *doc, LINK startL, LINK endL)
 {
 	LINK		pL;
-	Boolean	found;
-	CONTEXT	context[MAXSTAVES+1];	/* current context table */
+	Boolean		found;
+	CONTEXT		context[MAXSTAVES+1];	/* current context table */
 	short		index;
 	STFRANGE	stfRange={0,0};
 
@@ -504,7 +503,6 @@ void SelRangeNoHilite(Document *doc, LINK startL, LINK endL)
 		pL = RightLINK(pL);
 	}
 }
-#endif
 
 
 /* --------------------------------------------------------------- SelAllNoHilite -- */

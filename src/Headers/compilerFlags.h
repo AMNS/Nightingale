@@ -15,8 +15,6 @@ Relationships among versions:
 
 /* Other compiler flags */
 
-#define JG_NOTELIST
-
 #define USE_GWORLDS	/* instead of 1-bit GrafPorts for dragging and a few other things */
 
 //#define USE_NL2XML

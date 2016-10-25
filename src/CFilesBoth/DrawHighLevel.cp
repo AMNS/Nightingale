@@ -206,7 +206,7 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 				DrawMEASURE(doc, pL, context);
 				pMeasure = GetPMEASURE(pL);
 				if (SectRect(&pMeasure->measureBBox, &paperUpdate, &result)
-														|| outputTo!=toScreen)
+								|| outputTo!=toScreen)
 					drawAll = TRUE;
 				else
 					drawAll = FALSE;					/* Draw only spanning objects in this measure */
@@ -232,7 +232,7 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 			case BEAMSETtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result)) {
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result)) {
 						if (GraceBEAM(pL))
 							DrawGRBEAMSET(doc, pL, context);
 						else
@@ -242,43 +242,43 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 			case TUPLETtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTUPLET(doc, pL, context);
 				break;
 			case OTTAVAtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawOTTAVA(doc, pL, context);
 				break;
 			case DYNAMtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawDYNAMIC(doc, pL, context, TRUE);
 				break;
 			case RPTENDtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawRPTEND(doc, pL, context);
 				break;
 			case ENDINGtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawENDING(doc, pL, context);
 				break;
 			case GRAPHICtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawGRAPHIC(doc, pL, context, TRUE);
 				break;
 			case TEMPOtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTEMPO(doc, pL, context, TRUE);
 				break;
 			case SPACERtype:
@@ -287,7 +287,7 @@ static void DrawFormatRange(Document *doc, LINK fromL, LINK toL, CONTEXT context
 			case SLURtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-											|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawSLUR(doc, pL, context);
 				break;
 			default:
@@ -316,7 +316,7 @@ grayPage:
 				/* Convert to window-relative and check for intersection with update area */
 				OffsetRect(&r,paper->left,paper->top);
 				
-				if (VISIBLE(pL) && SectRect(&r,updateRect,&result) || outputTo!=toScreen) {
+				if (VISIBLE(pL) && SectRect(&r,updateRect, &result) || outputTo!=toScreen) {
 					DrawSYSTEM(doc, pL, paper, context);
 					if (doc->frameSystems) FrameSysRect(&r, FALSE);			/* For debugging */
 				}
@@ -348,12 +348,15 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 	LINK		pL, measL;
 	PSYSTEM 	pSystem;
 	PMEASURE	pMeasure;
-	Rect 		r,result,
+	Rect 		r, result,
 				paperUpdate;			/* Paper-relative update rect */
 	Boolean		drawAll=TRUE;			/* FALSE if we're drawing only measure-spanning objects */
 	
 	paperUpdate = *updateRect;
-	OffsetRect(&paperUpdate,-paper->left,-paper->top);
+	OffsetRect(&paperUpdate, -paper->left, -paper->top);
+	
+	if (ShiftKeyDown() && ControlKeyDown())
+		LogPrintf(LOG_DEBUG, "DrawScoreRange: fromL=%d toL=%d\n", fromL, toL);
 	
 	for (pL=fromL; pL!=toL; pL=RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -431,7 +434,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 			case BEAMSETtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result)) {
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result)) {
 						if (GraceBEAM(pL))
 							DrawGRBEAMSET(doc, pL, context);
 						else
@@ -441,43 +444,43 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 			case TUPLETtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTUPLET(doc, pL, context);
 				break;
 			case OTTAVAtype:
 				if (VISIBLE(pL) && !doc->pianoroll)
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawOTTAVA(doc, pL, context);
 				break;
 			case DYNAMtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawDYNAMIC(doc, pL, context, TRUE);
 				break;
 			case RPTENDtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawRPTEND(doc, pL, context);
 				break;
 			case ENDINGtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawENDING(doc, pL, context);
 				break;
 			case GRAPHICtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawGRAPHIC(doc, pL, context, TRUE);
 				break;
 			case TEMPOtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawTEMPO(doc, pL, context, TRUE);
 				break;
 			case SPACERtype:
@@ -486,7 +489,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 			case SLURtype:
 				if (VISIBLE(pL))
 					if (drawAll || !LinkVALID(pL)
-									|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
+								|| SectRect(&LinkOBJRECT(pL), &paperUpdate, &result))
 						DrawSLUR(doc, pL, context);
 				break;
 			default:

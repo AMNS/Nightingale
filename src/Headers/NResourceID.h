@@ -252,9 +252,7 @@ enum {							/* File menu */
 	FM_Export,
 	FM_GetScan,
 	FM_GetETF,
-#ifdef JG_NOTELIST
 	FM_GetNotelist,
-#endif
 #ifdef USE_NL2XML
 	FM_Notelist2XML,
 #endif

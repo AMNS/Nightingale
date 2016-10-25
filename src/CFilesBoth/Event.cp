@@ -45,13 +45,13 @@ static ControlActionUPP	actionUPP = NULL;
 /* Handle each event as it arrives from the event queue.  Check available memory every
 so often on NULL events.  Also maintain the cursor and try to purge all segments. */
 
-#define MEMCHECK_INTVL 1800L		/* Ticks between checks of memory availability */
-#define DSCHECK_INTVL 150L			/* Ticks between event and checking main object list */
+#define MEMCHECK_INTVL 1800L		/* 1/60 sec. ticks between checks of memory availability */
+#define DSCHECK_INTVL 150L			/* 1/60 sec. ticks between event and checking main object list */
 
 Boolean DoEvent()
 	{
-		Boolean haveEvent,keepGoing = TRUE,activ;
-		long soon; short result;
+		Boolean haveEvent, keepGoing = TRUE, activ;
+		long soon;  short result;
 		static short fixCount = 1;
 		Point corner;
 		static long checkMemTime=BIGNUM, checkDSTime=BIGNUM;
@@ -92,7 +92,7 @@ Boolean DoEvent()
 					break;
         	    case activateEvt:
         	    	activ = (theEvent.modifiers &activeFlag) != 0;
-        	    	DoActivate(&theEvent,activ,FALSE);
+        	    	DoActivate(&theEvent, activ, FALSE);
         	    	break;
         	    case updateEvt:
         	    	DoUpdate((WindowPtr)(theEvent.message));
@@ -165,9 +165,9 @@ static void CheckMemory()
 		
 		if (nBytes < thresh) {
 			sprintf(numStr, "%ld", nBytes);
-			CParamText(numStr,"","","");
-			/* PlaceAlert(lowMemoryID,NULL,0,0); */
-			CautionAlert(lowMemoryID,NULL);
+			CParamText(numStr, "", "", "");
+			/* PlaceAlert(lowMemoryID, NULL, 0, 0); */
+			CautionAlert(lowMemoryID, NULL);
 			thresh = config.minMemory;
 			}
 		 else
@@ -176,21 +176,20 @@ static void CheckMemory()
 	}
 
 
-/* Do what has to be done on null events.  This is usually nothing, but at the
-very least we have to make carets blink in any open non-modal dialogs with
-editable text in them.  If we're using the windowKind field to distinguish
-among them, then we have to  restore it to dialogKind temporarily for the
-benefit of some too-smart-for-our-own-good Toolbox routines. */
+/* Do what has to be done on null events.  This is usually nothing, but at the very least
+we have to make carets blink in any open non-modal dialogs with editable text in them.  If
+we're using the windowKind field to distinguish among them, then we have to restore it to
+dialogKind temporarily for the benefit of some too-smart-for-our-own-good Toolbox routines. */
 
 static void DoNullEvent(EventRecord *evt)
 	{
-		WindowPtr w; short itemHit; Boolean other = FALSE;
+		WindowPtr w;  short itemHit;  Boolean other = FALSE;
 		Document *doc;
 		
 		if (w = TopWindow) 
 			switch (GetWindowKind(w)) {
 				case dialogKind:
-					DialogSelect(evt,(DialogPtr *)&w,&itemHit);	/* Force carets to blink */
+					DialogSelect(evt, (DialogPtr *)&w, &itemHit);	/* Force carets to blink */
 					other = TRUE;
 					break;
 				case PALETTEKIND:
@@ -210,15 +209,15 @@ static void DoNullEvent(EventRecord *evt)
 				}
 	}
 
-/* Handle a generic update event, doing different things depending on the
-type of window the event is for. */
+/* Handle a generic update event, doing different things depending on the type of window
+the event is for. */
 
 void DoUpdate(WindowPtr w)
 	{
 		GrafPtr oldPort; 
-		Rect bBox; Boolean doView;
+		Rect bBox;  Boolean doView;
 		
-		GetPort(&oldPort); SetPort(GetWindowPort(w));
+		GetPort(&oldPort);  SetPort(GetWindowPort(w));
 		Document *doc, *topDoc;
 		
 		BeginUpdate(w);
@@ -231,7 +230,7 @@ void DoUpdate(WindowPtr w)
 					/* Get bounding box of region to redraw in local coords */
 					RgnHandle visRgn = NewRgn();
 					GetPortVisibleRegion(GetWindowPort(w), visRgn);
-					GetRegionBounds(visRgn,&bBox);
+					GetRegionBounds(visRgn, &bBox);
 					DisposeRgn(visRgn);
 					InstallDoc(doc);
 					DrawDocumentControls(doc);
@@ -252,9 +251,9 @@ void DoUpdate(WindowPtr w)
 	}
 
 
-/* For all visible windows in window list, update them.  This is used after
-various alerts/dialogs that are followed by lengthy operations to keep those
-unsightly holes from staying in the windows during the lengthy operation. */
+/* For all visible windows in window list, update them.  This is used after various
+alerts/dialogs that are followed by lengthy operations to keep those unsightly holes from
+staying in the windows during the lengthy operation. */
 
 void UpdateAllWindows()
 	{
@@ -265,12 +264,12 @@ void UpdateAllWindows()
 	}
 
 
-/* Handle an activate/deactivate event.  If isJuggle is TRUE, then this is
-the final part of a suspend/resume event. */
+/* Handle an activate/deactivate event.  If isJuggle is TRUE, then this is the final part
+of a suspend/resume event. */
 
 void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 	{
-		WindowPtr w; short itemHit;
+		WindowPtr w;  short itemHit;
 		ScrapRef scrap;
 		static Boolean wasOurWindow;
 		WindowPtr curAct;
@@ -387,7 +386,7 @@ void DoSuspendResume(EventRecord *event)
 						ShowWindow(clipboard->theWindow);
 						}
 #ifdef WantKeyUps
-					SetEventMask(oldEventMask|keyUpMask);
+					SetEventMask(oldEventMask | keyUpMask);
 #endif
 					ArrowCursor();
 					}
@@ -403,7 +402,7 @@ void DoSuspendResume(EventRecord *event)
 				event->message = (long)TopDocument;
 				event->what = activateEvt;
 				if (event->message) {
-					DoActivate(event,activ,TRUE);
+					DoActivate(event, activ, TRUE);
 					}
 				break;
 			}
@@ -494,7 +493,7 @@ static Boolean DoMouseDown(EventRecord *event)
 							SetZoomState(w);
 							break;
 						case inGrow:
-							DoGrow(w,pt,command);
+							DoGrow(w, pt, command);
 							break;
 						}
 				}
@@ -697,8 +696,7 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 				case SYNCtype:
 					if (arrowKeyCode==kLeftArrowCharCode) nudgeSignedDist = -NUDGE_DIST;
 					else if (arrowKeyCode==kRightArrowCharCode) nudgeSignedDist = NUDGE_DIST;
-					else return FALSE;
-					
+					else return FALSE;								/* Attempt to move vertically */
 					aNoteL = FirstSubLINK(pL);
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 						if (NoteSEL(aNoteL))
@@ -758,12 +756,13 @@ static Boolean DoKeyDown(EventRecord *evt)
 				if (!doc) return TRUE;
 				CountSelection(doc, &nInRange, &nSelFlag);
 				if (nSelFlag!=1) return TRUE;
-				LogPrintf(LOG_DEBUG, "DoKeyDown: char code=%d nInRange=%d nSelFlag=%d\n",
-							ch, nInRange, nSelFlag);
+				//LogPrintf(LOG_DEBUG, "DoKeyDown: char code=%d nInRange=%d nSelFlag=%d\n",
+				//			ch, nInRange, nSelFlag);
 				if (Nudge(doc, ch)) {
 					doc->changed = TRUE;
 					InvalSelRange(doc);
 				}
+				else SysBeep(1);
 				return TRUE;
 			}
 #if TARGET_API_MAC_CARBON
@@ -781,7 +780,7 @@ static Boolean DoKeyDown(EventRecord *evt)
 		scoreView = doc ? (!doc->masterView && !doc->showFormat) : FALSE;
 
 		if (GetWindowKind(wp)== dialogKind) {
-			/* Deal with key down in modeless dialog, such as get info dialogs, etc. */
+			/* Deal with key down in modeless dialog, such as search results window. */
 			if (DialogSelect(evt, (DialogPtr *)&wp, &itemHit)) { }
 			}
 		 else

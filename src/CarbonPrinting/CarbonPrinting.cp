@@ -311,6 +311,9 @@ static pascal void NPrintDialogDoneProc(PMPrintSession /*printSession*/,
 
 // --------------------------------------------------------------------------------------------------------------
 
+/* Despite its name, NDoPrintScore doesn't actually do any printing; it handles interaction
+with the user and sets things up for printing. */
+
 void NDoPrintScore(Document *doc)
 {
 	OSStatus status = DocSetupPageFormat(doc);
@@ -344,13 +347,13 @@ void NDoPrintScore(Document *doc)
 	
 	if (status == noErr) {
 		PMSessionUseSheets(doc->docPrintInfo.docPrintSession,
-									doc->theWindow,
-									doc->docPrintInfo.docPrintDialogDoneUPP);
+								doc->theWindow,
+								doc->docPrintInfo.docPrintDialogDoneUPP);
 		
 		status = PMSessionPrintDialog(doc->docPrintInfo.docPrintSession,
-												doc->docPrintInfo.docPrintSettings,
-												doc->docPrintInfo.docPageFormat,
-												&accepted);
+											doc->docPrintInfo.docPrintSettings,
+											doc->docPrintInfo.docPageFormat,
+											&accepted);
 	}
 	
 	if (status != noErr) {
@@ -969,10 +972,10 @@ OSStatus FlattenAndSavePageFormat(Document *doc)
 		
 ------------------------------------------------------------------------------*/
 
-OSStatus	LoadAndUnflattenPageFormat(Document *doc)
+OSStatus LoadAndUnflattenPageFormat(Document *doc)
 {
-	OSStatus	status = noErr;
-	Handle	flatFormatHandle = NULL;
+	OSStatus status = noErr;
+	Handle flatFormatHandle = NULL;
 	PMPageFormat pageFormat = kPMNoPageFormat;
 	
 	if (doc->flatFormatHandle != NULL) 
@@ -1004,7 +1007,7 @@ OSStatus	LoadAndUnflattenPageFormat(Document *doc)
 
 // --------------------------------------------------------------------------------------------------------------
 
-static void DocPostPrintingError (Document */*doc*/, OSStatus status, CFStringRef errorFormatStringKey)
+static void DocPostPrintingError(Document */*doc*/, OSStatus status, CFStringRef errorFormatStringKey)
 {   
 	CFStringRef formatStr = NULL, 
 				printErrorMsg = NULL;
@@ -1017,15 +1020,15 @@ static void DocPostPrintingError (Document */*doc*/, OSStatus status, CFStringRe
 			printErrorMsg = CFStringCreateWithFormat(NULL, NULL, formatStr, status);
 			if (printErrorMsg != NULL) {
 				if (CFStringGetPascalString (printErrorMsg,    
-														stringBuf, sizeof (stringBuf), 
-														GetApplicationTextEncoding())) {
+												stringBuf, sizeof (stringBuf), 
+												GetApplicationTextEncoding())) {
 					StandardAlert(kAlertStopAlert, stringBuf, NULL, NULL, &alertItemHit);
 				}
 				
-				CFRelease (printErrorMsg);
+				CFRelease(printErrorMsg);
 			}
 			
-			CFRelease (formatStr);
+			CFRelease(formatStr);
 		}
 	}
 }
@@ -1035,8 +1038,8 @@ static void DocPostPrintingError (Document */*doc*/, OSStatus status, CFStringRe
 // Save as EPSF routines.
 
 /*
- *	Go thru the entire data structure and make a list of what font/style combinations
- *	are actually used.
+ *	Go thru the entire object list and make a list of the font/style combinations that are
+ *	actually used.
  */
 
 static void FillFontUsedTbl(Document *doc)
@@ -1046,8 +1049,7 @@ static void FillFontUsedTbl(Document *doc)
 	PGRAPHIC p;
 
 	for (j = 0; j<doc->nfontsUsed; j++) {
-		PStrCopy((StringPtr)doc->fontTable[j].fontName,
-					(StringPtr)fontUsedTbl[j].fontName);
+		PStrCopy((StringPtr)doc->fontTable[j].fontName, (StringPtr)fontUsedTbl[j].fontName);
 		for (k = 0; k<4; k++)
 			fontUsedTbl[j].style[k] = FALSE;
 		}
@@ -1085,7 +1087,7 @@ Boolean NDoPostScript(Document *doc)
 		if (!newType) return FALSE;
 		type = newType;
 		
-		EPSFile = (type == 1);
+		EPSFile = (type==1);
 		UpdateAllWindows();
 		
 		/*
@@ -1103,7 +1105,7 @@ Boolean NDoPostScript(Document *doc)
 		if (doc->named)	PStrCopy((StringPtr)doc->name, (StringPtr)outname);
 		 else			GetIndString(outname, MiscStringsID,1);		/* "Untitled" */
 		len = *(unsigned char *)outname;
-		if (len >= (64-suffixLen)) len = (64-suffixLen);	/* 64 is max file name size */
+		if (len >= (64-suffixLen)) len = (64-suffixLen);	/* 64 is max file name size ??REALLY? */
 		
 		/* Finally append suffix */
 		
@@ -1125,7 +1127,7 @@ Boolean NDoPostScript(Document *doc)
 		outputTo = toPostScript;
 		
 		WaitCursor();
-		theErr = PS_Open(doc, outname, vref, USING_FILE, EPSFile? 'EPSF':'TEXT',&rfSpec);
+		theErr = PS_Open(doc, outname, vref, USING_FILE, EPSFile? 'EPSF':'TEXT', &rfSpec);
 		if (theErr == noErr) {
 			paperRect = doc->origPaperRect;
 			

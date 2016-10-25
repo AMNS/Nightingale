@@ -30,7 +30,7 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static DDIST GetStaffLim(Document *doc,LINK pL,short s,Boolean top,PCONTEXT pContext);
+static DDIST GetStaffLim(Document *doc, LINK pL, short s, Boolean top, PCONTEXT pContext);
 	
 
 /* ----------------------------------------------------------------- GetStaffLim -- */
@@ -83,8 +83,8 @@ void HiliteInsertNode(
 		if (staffn==NOONE)
 			GetContext(doc, pL, 1, &context);
 		else {
-			blackTop = GetStaffLim(doc,pL,staffn,TRUE,&context);
-			blackBottom = GetStaffLim(doc,pL,staffn,FALSE,&context);
+			blackTop = GetStaffLim(doc, pL, staffn, TRUE, &context);
+			blackBottom = GetStaffLim(doc, pL, staffn, FALSE, &context);
 		}
 		xd = SysRelxd(pL)+context.systemLeft;					/* abs. origin of object */
 		
@@ -214,7 +214,7 @@ void FixCursor()
 		for (wp=TopPalette; wp!=NULL && GetWindowKind(wp)==PALETTEKIND; wp=GetNextWindow(wp)) {
 			RgnHandle strucRgn = NewRgn();
 			GetWindowRegion(wp, kWindowStructureRgn, strucRgn);
-			if (PtInRgn(globalpt,strucRgn)) {
+			if (PtInRgn(globalpt, strucRgn)) {
 				//if (!holdCursor) ArrowCursor();
 				DisposeRgn(strucRgn);
 				foundPalette = TRUE;
@@ -434,11 +434,7 @@ void StopInform(short alertID)
 
 /* ----------------------------------------------------------------- ProgressMsg -- */
 
-#ifdef JG_NOTELIST
-#define MAX_MESSAGE_STR 19		/* including Open Notelist */
-#else
-#define MAX_MESSAGE_STR 15
-#endif
+#define MAX_MESSAGE_STR 19		/* Index of last message string */
 
 #define MESSAGE_DI 1
 
@@ -1335,7 +1331,7 @@ void OffsetContrlRect(ControlRef ctrl, short dx, short dy)
 	Rect contrlRect;
 	
 	GetControlBounds(ctrl, &contrlRect);
-	OffsetRect(&contrlRect,dx,dy);
+	OffsetRect(&contrlRect, dx, dy);
 	SetControlBounds(ctrl, &contrlRect);
 }
 

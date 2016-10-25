@@ -96,7 +96,7 @@ void DoAboutBox(
 		bundle_version_str = CFStringGetCStringPtr(vsr, kCFStringEncodingMacRoman);
 		vers_str = CToPString((char *) bundle_version_str);
 		vstr[0] = 0;
-		PStrCopy("\pv. ", vstr);
+		Pstrcpy(vstr, "\pv. ");
 		PStrCat(vstr, vers_str);
 		PutDlgString(dlog, STXT_VERS, vstr, FALSE);
 	}
@@ -109,7 +109,7 @@ void DoAboutBox(
 	TextFont(textFontNum);
 	TextSize(textFontSmallSize);
 
-	y = GetMBarHeight()+10; x = 25;
+	y = GetMBarHeight()+10;  x = 25;
 	SetRect(&smallRect, x, y, x+2, y+2);
 	CenterWindow(GetDialogWindow(dlog), 70);
 	GetWindowPortBounds(GetDialogWindow(dlog), &bigRect);
@@ -345,7 +345,7 @@ void AnimateCredits(DialogPtr dlog)
 	const BitMap *dlogPortBits = GetPortBitMapForCopyBits(GetDialogWindowPort(dlog));
 	CopyBits(ftpPortBits, dlogPortBits, &textSection, &creditRect, srcCopy, NULL);
 					
-	textSection.top++; textSection.bottom++;
+	textSection.top++;  textSection.bottom++;
 	pixelCount++;
 
 	lastTime = thisTime;

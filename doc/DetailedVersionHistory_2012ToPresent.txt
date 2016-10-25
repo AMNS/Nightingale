@@ -894,3 +894,16 @@ Clarify labels and minor cleanup in Get Info dialogs. Affects .rsrc; InfoDialog.
 
 Minor cleanup. Affects Event, Menu.
 
+-------------------------------------------------------------------------------
+
+21 - 25 Oct.
+
+Cleanup: get rid of all references to JG_NOTELIST. Affects compilerFlags.h,
+NResourceID.h; Event, Menu, NotelistSave, Select, UIFUtils.
+
+Replace a few calls to PStrCopy with Pstrcpy. Affects About, Menu.
+
+Change default staff rastral size for Open Notelist from 2 to 5 so that scores
+with many staves are less likely to go off the bottom of the page.
+
+Minor cleanup. Affects CarbonPrinting, DrawHighLevel, Menu, NotelistConvert.

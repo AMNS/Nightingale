@@ -1172,14 +1172,14 @@ static Boolean SetupNLScore(Document *doc)
 
 /* ------------------------------------------------------------------ CreateNLDoc -- */
 
-#define NL_RASTRAL 2
+#define NL_RASTRAL 5	/* Default staff rastral size */
 
 static Document *CreateNLDoc(unsigned char *fileName)
 {
-	Document					*newDoc = NULL;
-	WindowPtr				w;
-	short						rastral;
-	long						fileVersion;
+	Document	*newDoc = NULL;
+	WindowPtr	w;
+	short		rastral;
+	long		fileVersion;
 
 	newDoc = FirstFreeDocument();
 	if (newDoc==NULL) {

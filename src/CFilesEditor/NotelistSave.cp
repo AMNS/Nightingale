@@ -353,11 +353,7 @@ PushLock(OBJheap);
 	sprintf(strBuf, "%c stf=%d '%s'", METRONOME_CHAR, TempoSTAFF(tempoL),
 				PtoCstr(PCopy(p->strOffset)) );							/* FIXME: WANT CCopy */
 
-#ifdef JG_NOTELIST
 	noteChar = gTempoCode[p->subType];
-#else
-	noteChar = TempoGlyph(doc, tempoL);
-#endif
 	if (!p->hideMM || doc->showInvis) {
 		sprintf(&strBuf[strlen(strBuf)], " %c", noteChar);
 		if (p->dotted) sprintf(&strBuf[strlen(strBuf)], ".");

@@ -216,15 +216,13 @@ static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD)
 	OSType 		inputType[MAXINPUTTYPE];
 	
 	inputType[0] = 'TEXT';
-	
 	err = OpenFileDialog(kNavGenericSignature, 1, inputType, pNSD);
-	
 	if (err != noErr || pNSD->nsOpCancel) {
 		return FALSE;
 	}		
 	
 	FSSpec fsSpec = pNSD->nsFSSpec;
-	PStrCopy(fsSpec.name, macfName);
+	Pstrcpy(macfName, fsSpec.name);
 	return TRUE;
 }
 #else
@@ -239,7 +237,7 @@ static Boolean GetNotelistFile(Str255 macfName, short *vRefNum)
 	
 	SFGetFile(dialogWhere, "\p", 0L, 1, myTypes, 0L, &reply);
 	if (reply.good) {
-		PStrCopy(reply.fName, macfName);
+		Pstrcpy(macfName, reply.fName);
 		*vRefNum = reply.vRefNum;
 		return TRUE;
 	}
@@ -255,14 +253,14 @@ static Boolean GetNotelistFile(Str255 macfName, short *vRefNum)
 
 Boolean DoFileMenu(short choice)
 	{
-		Boolean keepGoing = TRUE, doSymbol; short vrefnum; short returnCode;
-		register Document *doc=GetDocumentFromWindow(TopDocument); char str[256];
-		NSClientData nscd; FSSpec fsSpec;
+		Boolean keepGoing = TRUE, doSymbol;  short vrefnum, returnCode;
+		register Document *doc=GetDocumentFromWindow(TopDocument);  char str[256];
+		NSClientData nscd;   FSSpec fsSpec;
 		
 		switch(choice) {
 			case FM_New:
 				doSymbol = TopDocument == NULL;
-				DoOpenDocument(NULL,0,FALSE,NULL);
+				DoOpenDocument(NULL, 0, FALSE, NULL);
 				if (doSymbol && !IsWindowVisible(palettes[TOOL_PALETTE])) {
 					AnalyzeWindows();
 					DoViewMenu(VM_SymbolPalette);
@@ -273,12 +271,12 @@ Boolean DoFileMenu(short choice)
 				 else {
 					UseStandardType(documentType);
 					GetIndCString(str, MENUCMDMSGS_STRS, 4);			/* "Which score do you want to open?" */
-					returnCode = GetInputName(str,TRUE,tmpStr,&vrefnum,&nscd);
+					returnCode = GetInputName(str, TRUE, tmpStr, &vrefnum, &nscd);
 					if (returnCode) {
 						if (returnCode == OP_OpenFile) {
 							fsSpec = nscd.nsFSSpec;
 							vrefnum = nscd.nsFSSpec.vRefNum;
-							DoOpenDocument(tmpStr,vrefnum,FALSE,&fsSpec);
+							DoOpenDocument(tmpStr, vrefnum, FALSE, &fsSpec);
 							LogPrintf(LOG_DEBUG, "Opened file '%s'.\n", PToCString(tmpStr));
 						 }
 						 else if (returnCode == OP_NewFile)
@@ -293,11 +291,11 @@ Boolean DoFileMenu(short choice)
 				 else {
 					UseStandardType(documentType);
 					GetIndCString(str, MENUCMDMSGS_STRS, 5);			/* "Which score do you want to open read-only?" */
-					returnCode = GetInputName(str,FALSE,tmpStr,&vrefnum,&nscd);
+					returnCode = GetInputName(str, FALSE, tmpStr, &vrefnum, &nscd);
 					if (returnCode)
 						fsSpec = nscd.nsFSSpec;
 						vrefnum = nscd.nsFSSpec.vRefNum;
-						DoOpenDocument(tmpStr,vrefnum,TRUE, &fsSpec);
+						DoOpenDocument(tmpStr, vrefnum, TRUE, &fsSpec);
 						LogPrintf(LOG_DEBUG, "Opened read-only file '%s'.\n", PToCString(tmpStr));
 					}
 				break;
@@ -322,7 +320,7 @@ Boolean DoFileMenu(short choice)
 				ClearStandardTypes();
 				
 				GetIndCString(str, MIDIFILE_STRS, 1);					/* "What MIDI file do you want to Import?" */
-				if (returnCode = GetInputName(str,FALSE,tmpStr,&vrefnum,&nscd)) {
+				if (returnCode = GetInputName(str, FALSE, tmpStr, &vrefnum, &nscd)) {
 					fsSpec = nscd.nsFSSpec;
 					ImportMIDIFile(&fsSpec);
 				}
@@ -336,7 +334,6 @@ Boolean DoFileMenu(short choice)
 			case FM_GetETF:
 				// ETF (Finale Enigma Transportable File) support removed, so do nothing
 				break;
-#ifdef JG_NOTELIST
 			case FM_GetNotelist:
 				NSClientData nsData;
 				Str255 filename;
@@ -345,7 +342,6 @@ Boolean DoFileMenu(short choice)
 					OpenNotelistFile(filename, &nsData);
 
 				break;
-#endif
 #ifdef USE_NL2XML
 			case FM_Notelist2XML:
 				NSClientData nsData;
@@ -373,6 +369,7 @@ Boolean DoFileMenu(short choice)
 			case FM_Print:
 #if TARGET_API_MAC_CARBON
 				if (doc) NDoPrintScore(doc);
+				LogPrintf(LOG_DEBUG, "FM_Print >NDoPrintScore\n");
 #else
 				if (doc) DoPrintScore(doc);
 #endif
