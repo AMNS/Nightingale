@@ -664,7 +664,7 @@ void DrawRptBar(Document *doc,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = d2p(dLeft);
 			ypTop = d2p(dTop);
@@ -834,7 +834,7 @@ static void DrawFlat(
 	paperTop = (drawMode==MEDraw ? pContext->paper.top : 0);
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = paperLeft + d2p(xd) + tab*(*width);
 			yp = paperTop + d2p(yd + halfLn2d(yPos, staffHeight, staffLines));
@@ -883,7 +883,7 @@ static void DrawSharp(
 	paperTop = (drawMode==MEDraw ? pContext->paper.top : 0);
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = paperLeft + d2p(xd) + tab*(*width);
 			yp = paperTop + d2p(yd + halfLn2d(yPos, staffHeight, staffLines));
@@ -932,7 +932,7 @@ static void DrawNatural(
 	paperTop = (drawMode==MEDraw ? pContext->paper.top : 0);
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = paperLeft + d2p(xd) + tab*(*width);
 			yp = paperTop + d2p(yd + halfLn2d(yPos, staffHeight, staffLines));
@@ -1433,7 +1433,7 @@ void NoteLedgers(
 
 	switch(outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			ox = pContext->paper.left;
 			oy = pContext->paper.top;

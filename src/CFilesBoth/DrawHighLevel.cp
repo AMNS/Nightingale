@@ -356,7 +356,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 	OffsetRect(&paperUpdate, -paper->left, -paper->top);
 	
 	if (ShiftKeyDown() && ControlKeyDown())
-		LogPrintf(LOG_DEBUG, "DrawScoreRange: fromL=%d toL=%d\n", fromL, toL);
+		LogPrintf(LOG_DEBUG, "DrawScoreRange: fromL=%u toL=%u outputTo=%d\n", fromL, toL, outputTo);
 	
 	for (pL=fromL; pL!=toL; pL=RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -407,7 +407,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				DrawMEASURE(doc, pL, context);
 				pMeasure = GetPMEASURE(pL);
 				if (SectRect(&pMeasure->measureBBox, &paperUpdate, &result)
-														|| outputTo!=toScreen)
+									|| outputTo!=toScreen)
 					drawAll = TRUE;
 				else
 					drawAll = FALSE;					/* Draw only spanning objects in this measure */	
@@ -425,7 +425,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				if (VISIBLE(pL) && drawAll) DrawTIMESIG(doc, pL, context);
 				break;
 			case SYNCtype:
-				//LogPrintf(LOG_NOTICE, "DrawScoreRange <DrawSYNC: pL=%d visible=%d drawAll=%d\n", pL, VISIBLE(pL), drawAll);
+				//LogPrintf(LOG_NOTICE, "DrawScoreRange <DrawSYNC: pL=%u visible=%d drawAll=%d\n", pL, VISIBLE(pL), drawAll);
 				if (VISIBLE(pL) && drawAll) DrawSYNC(doc, pL, context);
 				break;
 			case GRSYNCtype:

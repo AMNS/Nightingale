@@ -59,8 +59,8 @@ enum {										/* Accidental codes */
 };
 
 enum {										/* Output device types */
-	toScreen,
-	toImageWriter,							/* I.e., QuickDraw printer */
+	toScreen=0,
+	toBitmapPrint,							/* I.e., QuickDraw printer */
 	toPostScript,
 	toPICT,
 	toVoid									/* (for debugging: do everything but actual drawing) */
@@ -109,7 +109,7 @@ enum {										/* MIDI Driver config settings */
 	MIDISYS_NONE
 };
 
-enum {										/*  Dialog buttons ??lousy old names, should change  */
+enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 	OK = 1,
 	Cancel
 };

@@ -596,7 +596,7 @@ DDIST CalcGRXStem(Document *doc, LINK grSyncL, short voice, short stemDir, DDIST
 	
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xpStem = pContext->paper.left+d2p(xd);
 			if (stemDir>0) {
@@ -966,7 +966,7 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 
 			switch (outputTo) {
 				case toScreen:
-				case toImageWriter:
+				case toBitmapPrint:
 				case toPICT:
 					Draw1Beam(startXStem-xoffStart, startYStem,
 							   stopXStem+xoffStop, stopYStem,

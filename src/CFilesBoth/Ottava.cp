@@ -607,7 +607,7 @@ PushLock(OBJheap);
 
 		switch (outputTo) {
 			case toScreen:
-			case toImageWriter:
+			case toBitmapPrint:
 			case toPICT:
 				TextSize(UseTextSize(pContext->fontSize, doc->magnify));
 				octxp=pContext->paper.left+d2p(octxdFirst);
@@ -1194,7 +1194,7 @@ void DrawOctBracket(
 	
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			firstx = pContext->paper.left+d2p(firstPt.h);
 			firsty = pContext->paper.top+d2p(firstPt.v);

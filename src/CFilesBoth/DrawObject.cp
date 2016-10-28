@@ -114,7 +114,7 @@ static void DrawHeaderFooter(Document *doc,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
@@ -217,7 +217,7 @@ static void DrawPageNum(Document *doc,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
@@ -284,7 +284,7 @@ void DrawSYSTEM(Document *doc,
 	}
 	switch (outputTo) {									/* draw the System */
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			D2ObjRect(&p->systemRect, &r);
 			temp = r; OffsetRect(&r, paper->left, paper->top);
@@ -372,7 +372,7 @@ static void DrawPartName(Document *doc, LINK staffL,
 		
 		switch (outputTo) {
 			case toScreen:
-			case toImageWriter:
+			case toBitmapPrint:
 			case toPICT:
                 {
 					oldFont = GetPortTxFont();
@@ -447,7 +447,7 @@ static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT cont
 		
 		switch (outputTo) {
 			case toScreen:
-			case toImageWriter:
+			case toBitmapPrint:
 			case toPICT:
 				/*
 				 *	To keep things from getting confused-looking, especially considering
@@ -532,7 +532,7 @@ void Draw1Staff(Document *doc,
 			}
 			if (d2p(LNSPACE(pContext))>15) PenSize(1, 2);
 			/* Fall through */
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			if (showLines>0) {
 				for (line=0; line<lines; line++) {
@@ -626,7 +626,7 @@ PushLock(STAFFheap);
 
 		switch (outputTo) {
 			case toScreen:
-			case toImageWriter:
+			case toBitmapPrint:
 			case toPICT:
 				if (doc->masterView) {
 					if (ground==TOPSYS_STAFF)
@@ -731,7 +731,7 @@ PushLock(CONNECTheap);
 			case CONNECTLINE:
 				switch (outputTo) {
 					case toScreen:
-					case toImageWriter:
+					case toBitmapPrint:
 					case toPICT:
 						px = pContext->paper.left+d2p(xd); 
 						pyTop = pContext->paper.top+d2p(dTop);
@@ -752,7 +752,7 @@ PushLock(CONNECTheap);
 #endif
 					switch (outputTo) {
 						case toScreen:
-						case toImageWriter:
+						case toBitmapPrint:
 						case toPICT:
 							pictRsrc = (PicHandle)GetResource('PICT',200);
 							if (!GoodResource((Handle)pictRsrc))
@@ -789,7 +789,7 @@ PushLock(CONNECTheap);
 			case CONNECTBRACKET:				/* Must immediately follow case CONNECTCURLY */
 				switch (outputTo) {
 					case toScreen:
-					case toImageWriter:
+					case toBitmapPrint:
 					case toPICT:
 						px = pContext->paper.left+d2p(xd);
 						pyTop = pContext->paper.top+d2p(dTop);
@@ -880,7 +880,7 @@ PushLock(CLEFheap);
 		aClef = GetPACLEF(aClefL);
 		switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = d2p(xd);
 			MoveTo(pContext->paper.left+xp, pContext->paper.top+d2p(yd));
@@ -1044,7 +1044,7 @@ PushLock(TIMESIGheap);
 		 */
 		switch (outputTo) {
 			case toScreen:
-			case toImageWriter:
+			case toBitmapPrint:
 			case toPICT:
 				npLeft = d2p(xdN);
 				dpLeft = d2p(xdD);
@@ -1137,7 +1137,7 @@ static void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DD
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			/*
 			 *	If staff size is large, thicken hairpin. Decide thickness in a crude way
@@ -1252,7 +1252,7 @@ PushLock(DYNAMheap);
 
 		switch (outputTo) {
 			case toScreen:
-			case toImageWriter:
+			case toBitmapPrint:
 			case toPICT:
 				switch (DynamType(pL)) {
 					case DIM_DYNAM:
@@ -1342,7 +1342,7 @@ PushLock(OBJheap);
 						
 			switch (outputTo) {
 				case toScreen:
-				case toImageWriter:
+				case toBitmapPrint:
 				case toPICT:
 					DrawRptBar(doc, pL, RptEndSTAFF(aRptL), connStaff, context, xd,
 									RptType(pL), MEDraw, dotsOnly);
@@ -1421,7 +1421,7 @@ PushLock(OBJheap);
 	 */
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = d2p(xd);
 			yp = d2p(yd);
@@ -1498,7 +1498,7 @@ static void DrawEnclosure(Document */*doc*/,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			D2Rect(dBox, &boxRect);
 			
@@ -1659,7 +1659,7 @@ static void DrawGRPICT(Document */*doc*/,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = pContext->paper.left + d2p(xd);
 			yp = yTop + d2p(yd);
@@ -1691,7 +1691,7 @@ static void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
 	if (subType==NONARP) {
 		switch (outputTo) {
 			case toScreen:
-			case toImageWriter:
+			case toBitmapPrint:
 			case toPICT:
 				xp = pContext->paper.left + d2p(xd);
 				yp = yTop + d2p(yd);
@@ -1714,7 +1714,7 @@ static void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
 	yd += MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = pContext->paper.left + d2p(xd);
 			DrawArp(doc, xp, yTop, yd, dHeight, glyph, pContext);
@@ -1766,7 +1766,7 @@ static DDIST DrawGRDraw(Document */*doc*/,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			if (dim) PenPat(NGetQDGlobalsGray());
 			if (vertical)
@@ -1866,7 +1866,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 	
 	switch (outputTo) { 
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
@@ -2089,7 +2089,7 @@ PushLock(GRAPHICheap);
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
@@ -2387,7 +2387,7 @@ PushLock(TEMPOheap);
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			/* Perhaps draw the verbal tempo string. If the metronome mark is to its
 			right, update the object's bounding box; if it's below it, the bounding
@@ -2473,7 +2473,7 @@ void DrawSPACER(Document *doc, LINK pL, CONTEXT context[])
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			dLeft = pContext->measureLeft;
 			dTop = pContext->measureTop;
@@ -2514,7 +2514,7 @@ static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = pContext->paper.left+d2p(xdMN);
 			yp = pContext->paper.top+d2p(ydMN);
@@ -2637,7 +2637,7 @@ void DrawBarline(Document *doc,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = pContext->paper.left + d2p(dLeft);
 			ypTop = pContext->paper.top + d2p(dTop);
@@ -3045,10 +3045,10 @@ PushLock(SLURheap);
 		ydLast += aSlur->endpoint.v;
 		
 		switch (outputTo) {
-			case toImageWriter:
+			case toBitmapPrint:
 			case toPICT:
 				/* Convert context to paper-relative coords */
-				OffsetRect(&paper,-paper.left,-paper.top);
+				OffsetRect(&paper, -paper.left, -paper.top);
 				/* Fall through */
 			case toScreen:
 				/* If slur is not in voice being "looked" at, dim it */

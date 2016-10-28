@@ -214,10 +214,10 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 		
 		status = PMGetAdjustedPaperRect(doc->docPrintInfo.docPageFormat, &pmRPaper);
 		
-		if (status == noErr)
+		if (status==noErr)
 			status = PMGetScale(doc->docPrintInfo.docPageFormat, &scale);
 
-		if (status == noErr) {
+		if (status==noErr) {
 			scale /= 100.0;
 			
 			pmRPaper.top *= scale;
@@ -248,15 +248,15 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 		}		
 
 		status = PMGetOrientation(doc->docPrintInfo.docPageFormat, &pmOrientation);
-		if (status == noErr) {
+		if (status==noErr) {
 			SignedByte oldLandscape = doc->landscape;
 	
-			doc->landscape = (pmOrientation == kPMLandscape || pmOrientation == kPMReverseLandscape);
+			doc->landscape = (pmOrientation==kPMLandscape || pmOrientation==kPMReverseLandscape);
 			if (doc->landscape != oldLandscape) doc->changed = TRUE;
 		}
 	}
 	
-	if (doc != NULL && printSession == doc->docPrintInfo.docPrintSession) {
+	if (doc != NULL && printSession==doc->docPrintInfo.docPrintSession) {
 		DocReleasePrintSession(doc);
 	}
 	else {
@@ -279,7 +279,7 @@ void NDoPageSetup(Document *doc)
 	
 	OSStatus status = DocSetupPageFormat(doc);
 	
-	if (status == noErr) {
+	if (status==noErr) {
 		PMSessionUseSheets(doc->docPrintInfo.docPrintSession,  w,
 							doc->docPrintInfo.docPageSetupDoneUPP);
 		status = PMSessionPageSetupDialog(doc->docPrintInfo.docPrintSession,
@@ -287,7 +287,7 @@ void NDoPageSetup(Document *doc)
 											&accepted);
 	}
 	
-	if (status != noErr) {
+	if (status!=noErr) {
 		DocReleasePrintSession(doc);
 		CFStringRef cfFormatStr = CFSTR("Page Setup Dialog error. Error number: %d.");
 		DocPostPrintingError(doc, status, cfFormatStr);
@@ -296,6 +296,8 @@ void NDoPageSetup(Document *doc)
 
 
 // --------------------------------------------------------------------------------------------------------------
+
+/* Actually do the printing. */
 
 static pascal void NPrintDialogDoneProc(PMPrintSession /*printSession*/,
 											WindowRef docWindow,
@@ -534,10 +536,10 @@ static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 
 		for (i=0; i < numSupportedFormats; i++) {
 			if ( CFStringCompare((CFStringRef)CFArrayGetValueAtIndex(supportedFormats, i),
-										kPMDocumentFormatPICTPS, kCFCompareCaseInsensitive) == kCFCompareEqualTo ) {
+									kPMDocumentFormatPICTPS, kCFCompareCaseInsensitive) == kCFCompareEqualTo ) {
 				// PICT w/ PS is supported, so tell the Printing Mgr to generate a PICT w/ PS spool file
 
-				// Build an array of graphics contexts containing just one type, Quickdraw,
+				// Build an array of graphics contexts containing just one type, QuickDraw,
 				// meaning that we will be using a QD port to image our pages in the print loop.
 				CFStringRef	strings[1];
 				CFArrayRef arrayOfGraphicsContexts;
@@ -571,14 +573,20 @@ static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 
 // --------------------------------------------------------------------------------------------------------------
 
+/* Decide whether to do PostScript or bitmap printing. We do this based on "whether the
+current printer driver supports embedding of PostScript in the spool file" (cf.
+IncludePostScriptInSpoolFile). FIXME: This code dates from ca. 2001. As of this writing
+(2016), surely PostScript is almost always what the user wants, since it'll be supported
+somehow; but in my hasty test, just insisting on PostScript here produced a blank page,
+so this needs more work. --DAB
+*/
+
 static short GetPrintDestination(Document *doc)
 {
 	Boolean includePostScript = IncludePostScriptInSpoolFile(doc->docPrintInfo.docPrintSession);
-	
-	if (includePostScript)
-		return toPostScript;
+	if (includePostScript) return toPostScript;
 		
-	return toImageWriter;
+	return toBitmapPrint;
 }
 
 
@@ -593,12 +601,12 @@ void PS_FinishPrintDictHdl()
 
 static void NDoPrintLoop(Document *doc)
 {
-	short		saveOutputTo;
+	short saveOutputTo;
 	OSStatus status;
 	UInt32	firstPage,lastPage;
 	UInt32	firstSheet,lastSheet;
 	UInt32	copies;
-	Rect		imageRect;
+	Rect imageRect;
 	
 	saveOutputTo = outputTo;
 	
@@ -631,7 +639,7 @@ static void NDoPrintLoop(Document *doc)
 	
 	if (status == noErr) {
 		switch (outputTo) {
-			case toImageWriter:
+			case toBitmapPrint:
 				status = PrintBitmap(doc, firstSheet, lastSheet);
 				if (status != noErr) copies = -1;
 				break;
@@ -657,13 +665,12 @@ displayError:
 	{
 		CFStringRef cfFormatStr = CFSTR("Print loop error. Error number: %d.");
 		
-		DocPostPrintingError(doc,status,cfFormatStr);
+		DocPostPrintingError(doc, status, cfFormatStr);
 	}
                                                             
-	//	Release the PrintSession and PrintSettings objects.  PMRelease decrements the
-	//	ref count of the allocated objects.  We let the Printing Manager decide when
-	//	to release the allocated memory.
-	// PageFormat persists between sessions.
+	/* Release the PrintSession and PrintSettings objects.  PMRelease decrements the
+		ref count of the allocated objects.  We let the Printing Manager decide when
+		to release the allocated memory. PageFormat persists between sessions. */
 	
 	//if (doc->docPrintInfo.docPageFormat != kPMNoPageFormat) {
 	//	PMRelease(doc->docPrintInfo.docPageFormat);

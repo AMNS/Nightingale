@@ -896,14 +896,18 @@ Minor cleanup. Affects Event, Menu.
 
 -------------------------------------------------------------------------------
 
-21 - 25 Oct.
+21 - 27 Oct.
 
 Cleanup: get rid of all references to JG_NOTELIST. Affects compilerFlags.h,
 NResourceID.h; Event, Menu, NotelistSave, Select, UIFUtils.
 
-Replace a few calls to PStrCopy with Pstrcpy. Affects About, Menu.
+Replace calls to PStrCopy with Pstrcpy. Affects About, Menu.
 
 Change default staff rastral size for Open Notelist from 2 to 5 so that scores
 with many staves are less likely to go off the bottom of the page.
 
-Minor cleanup. Affects CarbonPrinting, DrawHighLevel, Menu, NotelistConvert.
+Change all occurrences of _toPostscript_ to _toBitmapPrint_. Affects about
+10 files.
+
+Minor cleanup. Affects defs.h; CarbonPrinting, DrawHighLevel, Menu, NotelistConvert.
+

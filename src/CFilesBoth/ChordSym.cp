@@ -198,7 +198,7 @@ void DrawChordSym(Document *doc,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
@@ -654,17 +654,17 @@ static short Draw1Extension(
 			)
 {
 	register unsigned char	*p;
-	short							yTweak, w=0, wid;
-	DDIST							yTweakD;
-	Point							pt;
-	DDIST							xd, yd;
-	unsigned char				substr[2];
+	short					yTweak, w=0, wid;
+	DDIST					yTweakD;
+	Point					pt;
+	DDIST					xd, yd;
+	unsigned char			substr[2];
 	
 	if (str[0]==0) return 0;
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			MoveTo(xp, yp);
 			if (showParens) {

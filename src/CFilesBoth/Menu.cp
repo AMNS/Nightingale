@@ -506,7 +506,7 @@ ordinary users should never be allowed to do it! */
  
 static void DeleteObj(Document *doc, LINK pL)
 {
-	LogPrintf(LOG_NOTICE, "About to DeleteNode(%d) of type=%d...", pL, ObjLType(pL));
+	LogPrintf(LOG_NOTICE, "About to DeleteNode(%u) of type=%d...", pL, ObjLType(pL));
 
 	if (InDataStruct(doc, pL, MAIN_DSTR)) {
 		DeleteNode(doc, pL);
@@ -1782,9 +1782,8 @@ static void NMFillEmptyMeas(Document *doc)
 		short startMN, endMN;
 		LINK startMeasL, endMeasL, aMeasureL, startL, endL;
 		
-		/* Default start and end measures are from the selection. */
+		/* Get default start and end measures from the selection. */
 		
-#if 1
 		startMeasL = SSearch(doc->selStartL, MEASUREtype, GO_LEFT);	/* starting measure */
 		if (startMeasL==NILINK) SSearch(doc->selStartL, MEASUREtype, GO_RIGHT);
 		aMeasureL = FirstSubLINK(startMeasL);
@@ -1793,22 +1792,15 @@ static void NMFillEmptyMeas(Document *doc)
 		endMeasL = SSearch(doc->selEndL, MEASUREtype, GO_LEFT);		/* ending measure */
 		aMeasureL = FirstSubLINK(endMeasL);
 		endMN = MeasMEASURENUM(aMeasureL)+doc->firstMNNumber;
-		//LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMeasL=%d endMeasL=%d firstMNNumber=%d startMN=%d endMN=%d\n",
-		//		startMeasL, endMeasL, doc->firstMNNumber, startMN, endMN);
-#else
-		startMN = doc->firstMNNumber;
-		measL = MNSearch(doc, doc->tailL, ANYONE, GO_LEFT, TRUE);
-		aMeasure = GetPAMEASURE(FirstSubLINK(measL));
-		endMN = aMeasure->measureNum+doc->firstMNNumber;
-#endif
 
 		if (FillEmptyDialog(doc, &startMN, &endMN)) {
-			LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMN=%d endMN=%d firstMNNumber=%d startL=%d endL=%d\n",
+			LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMN=%d endMN=%d firstMNNumber=%d startL=%u endL=%u\n",
 						startMN, endMN, doc->firstMNNumber, startMeasL, endMeasL);
 			startL = MNSearch(doc, doc->headL, startMN-doc->firstMNNumber, GO_RIGHT, TRUE);
 			endL = MNSearch(doc, doc->headL, endMN-doc->firstMNNumber, GO_RIGHT, TRUE);
 			if (startL && endL) {
-				/* Not sure fiddling with selection range is a good idea, but what else can we do?  -JGG */
+				/* We have to change the selection range temporarily so PrepareUndo() knows
+					what to do. */
 				LINK saveSelStartL, saveSelEndL;
 				saveSelStartL = doc->selStartL; saveSelEndL = doc->selEndL;
 				doc->selStartL = startL; doc->selEndL = endL;

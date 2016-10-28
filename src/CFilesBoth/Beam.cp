@@ -1257,7 +1257,7 @@ DDIST CalcXStem(Document *doc, LINK syncL, short voice, short stemDir,
 	
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xpStem = pContext->paper.left+d2p(xd);
 			if (stemDir>0) {
@@ -1728,7 +1728,7 @@ void DrawBEAMSET(Document *doc, LINK beamL, CONTEXT context[])
 
 			switch (outputTo) {
 				case toScreen:
-				case toImageWriter:
+				case toBitmapPrint:
 				case toPICT:
 					Draw1Beam(startXStem-xoffStart, startYStem,
 							   stopXStem+xoffStop,	 stopYStem,
@@ -1793,7 +1793,7 @@ void DrawBEAMSET(Document *doc, LINK beamL, CONTEXT context[])
 
 			switch (outputTo) {
 				case toScreen:
-				case toImageWriter:
+				case toBitmapPrint:
 				case toPICT:
 					Draw1Beam(startXStem + (beamTab[n].fracGoLeft ? -p2d(1) : 0),
 							  startYStem,
@@ -1848,21 +1848,20 @@ void DrawBEAMSET(Document *doc, LINK beamL, CONTEXT context[])
 thickened line. yl and yr may refer to either the top or the bottom edge of the
 line. */
 		
-void Draw1Beam(DDIST xl, DDIST yl, DDIST xr, DDIST yr,		/* Absolute left & right end pts. */
+void Draw1Beam(DDIST xl, DDIST yl, DDIST xr, DDIST yr,	/* Absolute left & right end pts. */
 			Boolean	topEdge,							/* TRUE=yl->yr is top edge of beam, else bottom */
 			DDIST beamThick,
-			short	lUpOrDown, short rUpOrDown,	/* For respective end, 1=stem up, -1=stem down */
+			short	lUpOrDown, short rUpOrDown,			/* For respective end, 1=stem up, -1=stem down */
 			PCONTEXT pContext
 			)
 {
-	short pxlThick,paperLeft,paperTop,
-			yoffset;
+	short pxlThick,paperLeft,paperTop, yoffset;
 	
 	switch(outputTo) {
 		case toVoid:
 			break;
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			paperLeft = pContext->paper.left;
 			paperTop = pContext->paper.top;

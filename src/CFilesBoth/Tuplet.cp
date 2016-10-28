@@ -1645,7 +1645,7 @@ PushLock(OBJheap);
 	if (tup->numVis || doc->showInvis) {
 		switch (outputTo) {
 			case toScreen:
-			case toImageWriter:
+			case toBitmapPrint:
 			case toPICT:
 				ForeColor(Voice2Color(doc, tup->voice));
 				xp = pContext->paper.left+d2p(acnxd-dTuplWidth/2);
@@ -1684,7 +1684,7 @@ PushLock(OBJheap);
 		if (tup->brackVis || doc->showInvis) {
 			switch (outputTo) {
 				case toScreen:
-				case toImageWriter:
+				case toBitmapPrint:
 				case toPICT:
 					DrawTupletBracket(firstPt, lastPt, brackDelta, yCutoffLen, 
 							acnxd, -1, firstBelow, lastBelow, pContext, dim);

@@ -525,7 +525,7 @@ short GetSheetRect(Document *doc, short nSheet, Rect *paper)
 		pHeight = config.vPageSep*2 + doc->paperRect.bottom - doc->paperRect.top;
 		
 		*paper = doc->paperRect;								/* Always (0,0) in upper left */
-		if (outputTo!=toImageWriter && outputTo!=toPICT) {
+		if (outputTo!=toBitmapPrint && outputTo!=toPICT) {
 			hPos = doc->sheetOrigin.h+(long)c*pWidth;
 			vPos = doc->sheetOrigin.v+(long)r*pHeight;
 			if (hPos<-32767L || hPos>32767L

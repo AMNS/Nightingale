@@ -63,7 +63,7 @@ static void DrawSlashes(DDIST xdh, DDIST ydh,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = pContext->paper.left+d2p(xdh);
 			yp = pContext->paper.top+d2p(ydh);
@@ -110,7 +110,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 	
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			oldTxSize = GetPortTxSize();
 			useTxSize = UseMTextSize(SizePercentSCALE(pContext->fontSize), doc->magnify);
@@ -327,7 +327,7 @@ static void DrawAugDots(Document *doc,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			while (ndots>0) {
 				xdDots += 2*dhalfLn;
@@ -442,7 +442,7 @@ void DrawAcc(Document *doc,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = pContext->paper.left+d2p(xdAcc);
 			yp = pContext->paper.top+d2p(yd);
@@ -951,7 +951,7 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 
 	switch (outputTo) {
 	case toScreen:
-	case toImageWriter:
+	case toBitmapPrint:
 	case toPICT:
 		/*
 		 *	In every case but one, we need to fine-tune note Y-positions to compensate
@@ -961,7 +961,7 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 		 *	uses twice the font size and spaces the dots half the normal distance apart.
 		 *	However, for unknown reasons, best results are obtained with NO correction.
 		 */ 
-		if (outputTo==toImageWriter && bestQualityPrint)
+		if (outputTo==toBitmapPrint && bestQualityPrint)
 			fudgeHeadY = 0;											/* No fine Y-offset for notehead */
 		else
 			fudgeHeadY = GetYHeadFudge(useTxSize);					/* Get fine Y-offset for notehead */
@@ -1425,7 +1425,7 @@ static void DrawMBRest(Document *doc, PCONTEXT pContext,
 	 */
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			D2Rect(&dRestBar, &restBar);
 			OffsetRect(&restBar, pContext->paper.left, pContext->paper.top);
@@ -1547,7 +1547,7 @@ PushLock(NOTEheap);
 
 	switch (outputTo) {
 	case toScreen:
-	case toImageWriter:
+	case toBitmapPrint:
 	case toPICT:
 		fudgeRestY = GetYRestFudge(useTxSize, lDur);			/* Get fine Y-offset for rest */
 		
@@ -1803,7 +1803,7 @@ static void DrawGRAcc(Document *doc,
 
 	switch (outputTo) {
 		case toScreen:
-		case toImageWriter:
+		case toBitmapPrint:
 		case toPICT:
 			xp = pContext->paper.left+d2p(xdAcc);
 			yp = pContext->paper.top+d2p(yd);
@@ -1999,10 +1999,10 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 
 	switch (outputTo) {
 	case toScreen:
-	case toImageWriter:
+	case toBitmapPrint:
 	case toPICT:
 		/* See the comment on fine-tuning note Y-positions in DrawNote. */
-		if (outputTo==toImageWriter && bestQualityPrint)
+		if (outputTo==toBitmapPrint && bestQualityPrint)
 			fudgeHeadY = 0;													/* No fine Y-offset for notehead */
 		else
 			fudgeHeadY = GetYHeadFudge(useTxSize);						/* Get fine Y-offset for notehead */
