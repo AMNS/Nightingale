@@ -93,6 +93,7 @@ Boolean DCheckEverything(Document *doc,
 	(void)DCheckHairpins(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 
 	(void)DCheckContext(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckTempi(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckRedundKS(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckRedundTS(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 	if (maxCheck) {

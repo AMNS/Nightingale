@@ -911,3 +911,18 @@ Change all occurrences of _toPostscript_ to _toBitmapPrint_. Affects about
 
 Minor cleanup. Affects defs.h; CarbonPrinting, DrawHighLevel, Menu, NotelistConvert.
 
+-------------------------------------------------------------------------------
+
+29 Oct. - 2 Nov.
+
+Add check for multiple Tempo/metronome mark objects at the same point in the score
+whose tempo and M.M. strings aren't identical. Affects DebugHighLevel, Debug2Utils.
+
+Update and clarify wording of two error messages that are given upon launching
+Nightingale if a copy is already running. Affects .rsrc.
+
+Remove obsolete LogPrintf's. Affects DialogsEditor.
+
+Move NewSlur.cp from CFilesBoth to CFilesEditor. Affects Nightingale.xcodeproj.
+
+Minor cleanup. Affects DrawObject, NewSlur.

@@ -79,7 +79,7 @@ static Point	startPt[MAXCHORD], endPt[MAXCHORD];
 
 static char HandleFirstSync(Document *doc, short staff, short voice)
 {
-	LINK aNoteL; PANOTE aNote;
+	LINK aNoteL;  PANOTE aNote;
 	Boolean noteFound=FALSE;
 	
 	if (doc->selStartL==doc->headL) {
@@ -119,10 +119,10 @@ static Point NewTrackSlur(Document *doc, Rect *paper, Point pt, Rect *newPaper)
 	/*
 	 *	Decide whether the slur should curve up or down based on 1st note stem dir.
 	 *	(The following test works even for stemless notes, since SetupNote still
-	 *	sets the stem endpoint.  ??YES, BUT UP/DOWN DECISION SHOULD CONSIDER ALL
+	 *	sets the stem endpoint.  FIXME: YES, BUT UP/DOWN DECISION SHOULD CONSIDER ALL
 	 *	NOTES IN THE SLUR; UNFORTUNATELY, WE DON'T YET KNOW HOW FAR THE SLUR WILL GO
 	 *	OR EVEN IN WHICH DIRECTION!  PROBABLY BETTER TO LET USER'S GESTURE DECIDE
-	 *	FEEDBACK CURAVTURE, THEN CORRECT IT.) Then let the user "draw" the slur.
+	 *	FEEDBACK CURVATURE, THEN CORRECT IT.) Then let the user "draw" the slur.
 	 */
  	firstNote = GetPANOTE(firstNoteL);
 	curveUp = (firstNote->ystem > firstNote->yd);
@@ -150,7 +150,7 @@ static Point NewTrackSlur(Document *doc, Rect *paper, Point pt, Rect *newPaper)
 
 static short GetSyncStaff(LINK pL, short index)
 {
-	LINK aNoteL; short i;
+	LINK aNoteL;  short i;
 
 	if (!SyncTYPE(pL)) return NOONE;
 
@@ -248,7 +248,7 @@ static LINK ValidSlurEndpt(Document *doc, Point pt, short staffn)
 		lDist = ABS(insertxd-SysRelxd(leftL));
 
 	if (lDist>0 && rDist>0)
-		syncL = (lDist<=rDist) ? leftL : rightL;
+		syncL = (lDist<=rDist)? leftL : rightL;
 	else if (lDist>0) syncL = leftL;
 	else if (rDist>0) syncL = rightL;
 	
@@ -386,7 +386,7 @@ static void CheckProposedSlur(
 	*pCanTie = TRUE; *pCanSlur = TRUE;
 	switch (firstPos) {
 		case C1_THEN_2:
-			if (IsAfterIncl(newLastL, oldFirstL)) break;	/* no pblm if they're disjoint */
+			if (IsAfterIncl(newLastL, oldFirstL)) break;		/* no pblm if they're disjoint */
 			switch (lastPos) {
 				case C1_THEN_2:									/* case 1a */
 					*pCanTie = *pCanSlur = FALSE;
@@ -444,7 +444,7 @@ static Boolean NestingIsOK(
 	if (crossSys || crossStf) return TRUE;		/* FIXME: This doesn't look at all safe! */
 	
 	InitSearchParam(&pbSearch);
-	pbSearch.id = ANYONE; 		/* check slurs on *any* staff that are in our voice */
+	pbSearch.id = ANYONE;			/* check slurs on *any* staff that are in our voice */
 	pbSearch.voice = voice;				
 	pbSearch.inSystem = TRUE;
 
@@ -485,7 +485,7 @@ static short FillTieArrays(
 				)
 {
 	short subCount;
-	char index,n;
+	char index, n;
 	register LINK aNoteL, firstNoteL, lastNoteL;
 
 	/* First, replace the legal CHORDNOTE .noteNums with indices. */
@@ -546,12 +546,12 @@ static enum {
 static short group1;
 
 static Boolean WantTies(
-					Boolean /*firstChord*/, Boolean /*lastChord*/)		/* Both unused, for now */
+				Boolean /*firstChord*/, Boolean /*lastChord*/)		/* Both unused, for now */
 {
 	short itemHit;
 	Boolean value;
 	static short assumeSlurTie=0, oldChoice=0;
-	register DialogPtr dlog; GrafPtr oldPort;
+	register DialogPtr dlog;  GrafPtr oldPort;
 	Boolean keepGoing=TRUE;
 	static Boolean firstCall=TRUE;
 
@@ -636,7 +636,7 @@ their respective chords, and it sets the relevant notes' tiedL/tiedR flags.
 HandleTie returns F_TIE, F_SLUR, or CANCEL_INT. */
 
 static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
-								char firstIndA[MAXCHORD], char lastIndA[MAXCHORD])
+							char firstIndA[MAXCHORD], char lastIndA[MAXCHORD])
 {
 	PANOTE		firstNote, lastNote;
 	LINK		firstNoteL, lastNoteL;
@@ -789,7 +789,7 @@ sync; initialize fields in the slur object. */
 
 static LINK AddNewSlur(Document *doc, LINK insertL, short staff, short voice)
 {
-	LINK newL, aSlurL; register PSLUR pSlur; PASLUR aSlur;
+	LINK newL, aSlurL;  register PSLUR pSlur;  PASLUR aSlur;
 	CONTEXT context;
 	newL = InsertNode(doc, insertL, SLURtype, subCount);
 	if (!newL) { NoMoreMemory(); return NILINK; }
@@ -866,7 +866,7 @@ static char SetSlurIndices(LINK newL)
  		}
 		aSlur->firstInd = firstIndA[firsti];
 		aSlur->lastInd = lastIndA[lasti];
- 		firsti++; lasti++;
+ 		firsti++;  lasti++;
 	}
 	return NF_OK;
 }
@@ -944,7 +944,7 @@ void GetSlurTieCurveDir(Document */*doc*/, short voice, LINK slurL, Boolean *cur
 		/*
 		 *	Decide whether the slur should curve up or down based on 1st note stem dir.
 		 *	The following test works even for stemless notes, since SetupNote still
-		 *	sets the stem endpoint.  ??BUT SHOULD CONSIDER ALL NOTES IN THE SLUR!
+		 *	sets the stem endpoint.  FIXME: BUT SHOULD CONSIDER ALL NOTES IN THE SLUR!
 		 */
 		syncL = SlurFIRSTSYNC(slurL);
 		if (MeasureTYPE(syncL)) syncL = SlurLASTSYNC(slurL);
@@ -972,7 +972,7 @@ static void NewSlurSetCtlPts(Document *doc, short staff, short voice, CONTEXT co
 		aSlur->startPt = startPt[0];
 		aSlur->endPt = endPt[0];
 		SetSlurCtlPoints(doc, slurL, aSlurL, firstSyncL, lastSyncL, staff, voice,
-								context, curveUp);
+							context, curveUp);
 	}
 	else {
 		GetTiesCurveDir(doc, voice, slurL, curveUps);
@@ -983,7 +983,7 @@ static void NewSlurSetCtlPts(Document *doc, short staff, short voice, CONTEXT co
 			aSlur->startPt = startPt[i];
 			aSlur->endPt = endPt[i];
 			SetSlurCtlPoints(doc, slurL, aSlurL, firstSyncL, lastSyncL, staff, voice,
-									context, curveUps[i]);
+								context, curveUps[i]);
 		}
 	}
 }
@@ -1011,7 +1011,7 @@ static void CrossSysSetCtlPts(
 		aSlur->startPt = startPt[0];
 		aSlur->endPt = endPt[0];
 		SetSlurCtlPoints(doc, newL, aSlurL, firstSyncL, lastSyncL, staff, voice,
-								context, curveUp);
+							context, curveUp);
 	}
 	else {
 		GetTiesCurveDir(doc, voice, newL, curveUps);
@@ -1022,7 +1022,7 @@ static void CrossSysSetCtlPts(
 			aSlur->startPt = startPt[i];
 			aSlur->endPt = endPt[i];
 			SetSlurCtlPoints(doc, newL, aSlurL, firstSyncL, lastSyncL, staff, voice,
-									context, curveUps[i]);
+								context, curveUps[i]);
 		}
 	}
 }
@@ -1033,8 +1033,8 @@ measures. */
 
 static void NewSlurCleanup(
 					Document *doc,
-					short		staff,
-					LINK		newL,
+					short	staff,
+					LINK	newL,
 					Boolean	user 		/* TRUE=assume call results from user directly creating slur */
 					)
 {
@@ -1155,13 +1155,13 @@ static void NewCrossSystemSlur(Document *doc, short staff, short voice, CONTEXT 
 to make slur/tie go to next note/chord in <voice>. */
 
 static Boolean SlurToNext(Document *doc,
-									short *pStaff,		/* Input AND output */
-									short voice)
+							short *pStaff,		/* Input AND output */
+							short voice)
 {
  	SearchParam pbSearch;
- 	LINK			aNoteL, lastSystemL;
+ 	LINK		aNoteL, lastSystemL;
  	PSYSTEM		pSystem;
- 	short			tempStf;
+ 	short		tempStf;
  		
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
@@ -1193,19 +1193,19 @@ static Boolean SlurToNext(Document *doc,
 
 /* --------------------------------------------------------------------- NewSlur -- */
 /*	Add a slur or tie on <staff> and <voice> at <pt>. The firstSync is the node
-immediately to the left of <pt> on <staff>/<voice>; NewSlur checks that this
-is a sync, tracks the slur, checks systems and staves, finds a valid last sync,
-checks conditions for adding a tie or slur, and inserts the slur. BAD_CODE
-indicates that we have had a program error or user alert in one of the
-called functions, and must return without completing the operation. */ 
+immediately to the left of <pt> on <staff>/<voice>; NewSlur checks that this is a
+Sync, tracks the slur, checks systems and staves, finds a valid last Sync, checks
+conditions for adding a tie or slur, and inserts the slur. BAD_CODE indicates a
+program error or user alert in one of the called functions, so we must return without
+completing the operation. */ 
 
 #define SLOP 2		/* Minimum slur-drawing horizontal distance (pixels) */
 
 void NewSlur(Document *doc, short staff, short voice, Point pt)
 {
-	CONTEXT context;	LINK firstMeas;
-	Point	newPt,globPt; short ans;
-	Rect newPaper,paper;
+	CONTEXT context;  LINK firstMeas;
+	Point	newPt,globPt;  short ans;
+	Rect	newPaper, paper;
 	
 	/* Disable later if problem */
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);    			/* "Undo Insert" */
@@ -1235,7 +1235,6 @@ void NewSlur(Document *doc, short staff, short voice, Point pt)
 		}
 	}
 	else {
-	
 		if (!EqualRect(&context.paper,&newPaper)) {
 			/* Cross-page slur: need to change context to new pageRect */
 			if (FindSheet(doc,globPt,&ans)) {
@@ -1256,7 +1255,7 @@ void NewSlur(Document *doc, short staff, short voice, Point pt)
 		returnCode = HandleLastSync(doc, staff, voice, newPt);
 		if (BAD_CODE(returnCode)) goto Disable;
 		
-		/* If slur drawn right to left, swaps anchor and ctl points. */
+		/* If slur drawn right to left, swaps anchor and control points. */
 		SwapEndpoints(doc, &staff);
 	}
 	
@@ -1301,7 +1300,7 @@ case, it also sets the relevant notes' tiedL/tiedR flags.
 Will have problems if either chord (or only the last?) contains duplicate noteNums. */
 
 static short BuildTieArrays(LINK firstL, LINK lastL, short voice,
-									char firstIndA[MAXCHORD], char lastIndA[MAXCHORD])
+								char firstIndA[MAXCHORD], char lastIndA[MAXCHORD])
 {
 	short subCount;
 	char firstInd, lastInd;

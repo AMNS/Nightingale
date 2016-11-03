@@ -2208,12 +2208,10 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 		
 		/* In the tempo string, replace the UI "start new line" code with CH_CR. */
 		GetDlgString(dlog, VerbalDI, tempoStr);
-char strC[256];	Pstrcpy((unsigned char *)strC, tempoStr); PToCString((unsigned char *)strC);
-LogPrintf(LOG_DEBUG, "TempoDialog OK1: len=%d tempoStr='%s'\n", Pstrlen(tempoStr), strC);
 		for (k=1; k<=Pstrlen(tempoStr); k++)
 			if (tempoStr[k]==CH_NLDELIM) tempoStr[k] = CH_CR;
-Pstrcpy((unsigned char *)strC, tempoStr); PToCString((unsigned char *)strC);
-LogPrintf(LOG_DEBUG, "TempoDialog OK2: len=%d tempoStr='%s'\n", Pstrlen(tempoStr), strC);
+//Pstrcpy((unsigned char *)strC, tempoStr); PToCString((unsigned char *)strC);
+//LogPrintf(LOG_DEBUG, "TempoDialog OK2: len=%d tempoStr='%s'\n", Pstrlen(tempoStr), strC);
 
 		GetDlgString(dlog, MetroDI, metroStr);
 	}

@@ -1506,7 +1506,7 @@ static void DrawEnclosure(Document */*doc*/,
 			enclThick = d2p(dEnclThick); if (enclThick<1) enclThick = 1;
 		
 			InsetRect(&boxRect,-enclMargin,-enclMargin);
-			PenSize(enclThick,enclThick);
+			PenSize(enclThick, enclThick);
 			OffsetRect(&boxRect,pContext->paper.left, pContext->paper.top);
 			if (enclType==ENCL_BOX) FrameRect(&boxRect);
 #ifdef NOTYET
@@ -2674,7 +2674,7 @@ void DrawBarline(Document *doc,
 					MoveTo(xp, ypTop);
 					LineTo(xp, ypBot);
 					thickBarWidth = betweenBars;
-					PenSize(thickBarWidth,1);
+					PenSize(thickBarWidth, 1);
 					MoveTo(xp+betweenBars, ypTop);
 					LineTo(xp+betweenBars, ypBot);
 					PenNormal();
@@ -2779,8 +2779,8 @@ PushLock(MEASUREheap);
 			D2Rect(&aDRect, &measureRect);
 
 /* FIXME: SHOULD WE DO objRect STUFF IF STAFF ISN'T VISIBLE? */
-			SetRect(&barlineRect, measureRect.left-2, measureRect.top,
-											measureRect.left,	measureRect.bottom);
+			SetRect(&barlineRect, measureRect.left-2, measureRect.top, measureRect.left,
+						measureRect.bottom);
 			switch (aMeasure->subType) {
 				case BAR_SINGLE:
 					barlineRect.right += 2;
@@ -2841,20 +2841,20 @@ PushLock(MEASUREheap);
 				measureNum = aMeasure->measureNum+doc->firstMNNumber;
 				if (FirstMeasInSys(pL) && doc->sysFirstMN)
 					xdMN = pContext->staffLeft+halfLn2d(doc->xSysMNOffset,
-															pContext->staffHeight,
-															pContext->staffLines);
+														pContext->staffHeight,
+														pContext->staffLines);
 				else
 					xdMN = dLeft+halfLn2d(doc->xMNOffset, pContext->staffHeight,
-													pContext->staffLines);
+												pContext->staffLines);
 				yOffset = (doc->aboveMN? -doc->yMNOffset :
-													2*pContext->staffLines+doc->yMNOffset);
+												2*pContext->staffLines+doc->yMNOffset);
 				ydMN = dTop+halfLn2d(yOffset, pContext->staffHeight,
-													pContext->staffLines);
+												pContext->staffLines);
 
 				xdMN += std2d(aMeasure->xMNStdOffset, pContext->staffHeight,
-													pContext->staffLines);
+												pContext->staffLines);
 				ydMN += std2d(aMeasure->yMNStdOffset, pContext->staffHeight,
-													pContext->staffLines);
+												pContext->staffLines);
 
 				if (!doc->showFormat)
 					DrawMeasNum(doc, xdMN, ydMN, measureNum, pContext);
@@ -2937,7 +2937,7 @@ PushLock(PSMEASheap);
 	for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
 		aPSMeas = GetPAPSMEAS(aPSMeasL);
 		
-		pContext = &context[NextLimStaffn(doc,pL,TRUE,PSMeasSTAFF(aPSMeasL))];	/* ptr to context entry */
+		pContext = &context[NextLimStaffn(doc, pL, TRUE, PSMeasSTAFF(aPSMeasL))];
 		dTop = pContext->staffTop;
 		dLeft = pContext->measureLeft + LinkXD(pL);
 		lnSpace = LNSPACE(pContext);
@@ -3007,7 +3007,7 @@ void DrawSLUR(Document *doc, LINK pL, CONTEXT context[])
 				penThick;				/* vertical pen size in pixels */
 	DDIST		xdFirst, ydFirst,		/* DDIST positions of end notes */
 				xdLast, ydLast,
-				xdCtl0, ydCtl0,			/* and control points */
+				xdCtl0, ydCtl0,			/* ...and of control points */
 				xdCtl1, ydCtl1,
 				lnSpace;
 	Point 		startPt[MAXCHORD], endPt[MAXCHORD];
@@ -3036,8 +3036,8 @@ PushLock(SLURheap);
 		aSlur = GetPASLUR(aSlurL);
 		aSlur->startPt = startPt[j];
 		aSlur->endPt = endPt[j];
-		xdFirst = p2d(aSlur->startPt.h); xdLast = p2d(aSlur->endPt.h);
-		ydFirst = p2d(aSlur->startPt.v); ydLast = p2d(aSlur->endPt.v);
+		xdFirst = p2d(aSlur->startPt.h);  xdLast = p2d(aSlur->endPt.h);
+		ydFirst = p2d(aSlur->startPt.v);  ydLast = p2d(aSlur->endPt.v);
 	
 		xdFirst += aSlur->seg.knot.h;					/* abs. position of slur start */
 		ydFirst += aSlur->seg.knot.v;
@@ -3055,14 +3055,14 @@ PushLock(SLURheap);
 				p = GetPSLUR(pL);
 				dim = (outputTo==toScreen && !LOOKING_AT(doc, p->voice));
 				if (dim) PenPat(NGetQDGlobalsGray());
-				/*
-				 *	If staff size is large, thicken slur very crudely. We don't try to do
-				 *	better because (1) it'll never look good at screen resolution unless
-				 *	the staff size is enormous (e.g., at 400% magnification), (2) doing
-				 *	anything like the best possible job (including tapering ends!)  will
-				 *	probably slow drawing way down, and (3) precise registration of any-
-				 * thing against slurs is rarely important.
-				 */
+				
+				/* If staff size is large, thicken slur very crudely. We don't try to do
+				   better because (1) it'll never look good at screen resolution unless
+				   the staff size is enormous (e.g., at 400% magnification or above), (2)
+				   doing anything that looks really good (including tapering ends!)  will
+				   probably slow drawing way down, and (3) precise registration of anything
+				   against slurs is rarely important. */
+				   
 				lnSpace = LNSPACE(&context[SlurSTAFF(pL)]);
 				penThick = d2p(lnSpace/5);
 				if (penThick<1) penThick = 1;

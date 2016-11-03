@@ -3,8 +3,8 @@
 was just too big for certain Mac development systems of the 1990's, which had a
 limit of 32K per module object code.
 
-	DCheckVoiceTable		DCheckRedundKS			DCheckRedundTS
-	DCheckMeasDur			DCheckUnisons
+	DCheckVoiceTable		DCheckTempi				DCheckRedundKS
+	DCheckRedundTS			DCheckMeasDur			DCheckUnisons
 	DCheck1NEntries			DCheckNEntries			DCheck1SubobjLinks	
 	DBadNoteNum				DCheckNoteNums
 */
@@ -161,6 +161,67 @@ Boolean DCheckVoiceTable(Document *doc,
 	
 	return bad;
 }
+
+
+
+/* ------------------------------------------------------------------ DCheckTempi -- */	
+/* If there are multiple Tempo/metronome mark objects at the same point in the score,
+check that their tempo and M.M. strings are identical. This is on the assumption that
+the reason for multiple Tempos at the same point is just to make the tempo and/or M.M.
+appear at more than one vertical point, for a score with many staves. (It might make
+more sense to ignore the M.M. string if there's no M.M., but it doesn't much matter.) */
+
+Boolean DCheckTempi(Document *doc)
+{
+	LINK pL, prevTempoL;
+	Boolean bad, havePrevTempo;
+	StringOffset theStrOffset;
+	char tempoStr[256], metroStr[256], prevTempoStr[256], prevMetroStr[256];
+		
+	bad = FALSE;
+	havePrevTempo = FALSE;
+		
+	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
+		if (DErrLimit()) break;
+		
+		/* If we find a Sync, we're no longer "at the same point in the score". */
+		if (SyncTYPE(pL)) havePrevTempo = FALSE;
+		
+		if (TempoTYPE(pL)) {
+			if (havePrevTempo) {
+				theStrOffset = TempoSTRING(pL);
+				PStrCopy((StringPtr)PCopy(theStrOffset), (StringPtr)tempoStr);
+				PtoCstr((StringPtr)tempoStr);
+				theStrOffset = TempoMETROSTR(pL);
+				PStrCopy((StringPtr)PCopy(theStrOffset), (StringPtr)metroStr);
+				PtoCstr((StringPtr)metroStr);
+//LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevTempoStr,
+//					pL, tempoStr);
+				/* Does this Tempo object have the expected tempo and M.M. strings? */
+				if (strcmp(prevTempoStr, tempoStr)!=0)
+					COMPLAIN3("DCheckTempi: Tempi at %u ('%s') AND %u ARE INCONSISTENT.\n",
+								prevTempoL, prevTempoStr, pL);
+				if (strcmp(prevMetroStr, metroStr)!=0)
+					COMPLAIN3("DCheckTempi: M.M.s of Tempo objects at %u ('%s') AND %u ARE INCONSISTENT.\n",
+								prevTempoL, prevMetroStr, pL);
+			}
+			else {
+				theStrOffset = TempoSTRING(pL);
+				PStrCopy((StringPtr)PCopy(theStrOffset), (StringPtr)prevTempoStr);
+				PtoCstr((StringPtr)prevTempoStr);
+				theStrOffset = TempoMETROSTR(pL);
+				PStrCopy((StringPtr)PCopy(theStrOffset), (StringPtr)prevMetroStr);
+				PtoCstr((StringPtr)prevMetroStr);
+				havePrevTempo = TRUE;
+				prevTempoL = pL;
+			}
+		}
+	}
+	
+	return bad;
+}
+
+
 
 
 /* -------------------------------------------------------------- DCheckRedundKS -- */

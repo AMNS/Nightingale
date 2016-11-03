@@ -1572,3 +1572,26 @@ It'd be nice to be able to nudge tuplets, ottavas, but not worth doing now. Slur
 more important, but we really need to nudge individual endpoints and control points -- which
 is a different proposition.
 
+-------------------------------------------------------------------------------
+
+24-25 Oct.
+
+Apparently the Print command sometimes -- for Doug McKenna, consistently -- generates
+PostScript output instead of bitmap! How is that possible? Actually, it's not obvious
+how the Print command ever prints anything! NDoPrintScore() doesn't actually print
+anything, and all the Print command does explicitly is to call NDoPrintScore().
+
+Somehow we get to DrawScoreRange(), which is called only from DrawRange(), which (for
+the score proper, as opposed to Master Page) is called only from DrawPageContent().
+??
+
+-------------------------------------------------------------------------------
+
+1 Nov.
+
+It's worth some time on supporting tweaking slur position _somehow_, either with Get Info
+or nudging. The object xd is currently always set to 0 but ignored, so I could just make
+slur-drawing and -dragging code use it as an offset! -- well, no; there's also the code
+to drag anchor & control points. Much safer: change coordinates in each of the anchord &
+control points; UI-wise and more user-friendly, this fits nudging better.
+
