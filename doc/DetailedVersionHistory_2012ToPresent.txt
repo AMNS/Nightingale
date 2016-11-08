@@ -926,3 +926,17 @@ Remove obsolete LogPrintf's. Affects DialogsEditor.
 Move NewSlur.cp from CFilesBoth to CFilesEditor. Affects Nightingale.xcodeproj.
 
 Minor cleanup. Affects DrawObject, NewSlur.
+
+-------------------------------------------------------------------------------
+
+4-8 Nov.
+
+Implement "nudging" slurs/ties via command-arrow keys. Affects Event.
+
+Alphabetize precomp headers. Affects Nightingale.xcodeproj.
+
+In Get Info, show Graphic object subtypes in lower case, and widen the display field:
+otherwise long names like "Arpeggio" won't be shown at all. Affects .rsrc; UIFUtils.
+
+Minor cleanup. Affects MemMacros.h, NTypes.h; Event, Ottava, Slurs, SpaceTime.
+

@@ -59,8 +59,8 @@ void DoOttava(Document *doc)
 
 void DoRemoveOttava(Document *doc)
 {
-	LINK		startL, endL, staffStartL, staffEndL;
-	short		staff;
+	LINK	startL, endL, staffStartL, staffEndL;
+	short	staff;
 	
 	GetOptSelEnds(doc, &startL, &endL);
 	PrepareUndo(doc, startL, U_UnOttava, 32);    				/* "Undo Remove Ottava" */
@@ -397,10 +397,10 @@ LINK CreateOTTAVA(
 					}
 					stemLen = QSTEMLEN(!multiVoice, ShortenStem(aGRNoteL, context, stemDown));
 					aGRNote->ystem = CalcYStem(doc, aGRNote->yd,
-													NFLAGS(aGRNote->subType),
-													stemDown,
-													context.staffHeight, context.staffLines,
-													stemLen, FALSE);
+												NFLAGS(aGRNote->subType),
+												stemDown,
+												context.staffHeight, context.staffLines,
+												stemLen, FALSE);
 				}
 			}
 			/* Loop through the grace notes again and fix up the ystems of the
@@ -569,8 +569,7 @@ PushLock(OBJheap);
 	lastMeas = LSSearch(lastSyncL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
 	firstxd = dLeft+LinkXD(firstSyncL);
 	lastxd = dLeft+LinkXD(lastSyncL);
-	if (firstMeas!=lastMeas)
-		lastxd += LinkXD(lastMeas)-LinkXD(firstMeas);
+	if (firstMeas!=lastMeas) lastxd += LinkXD(lastMeas)-LinkXD(firstMeas);
 	yCutoffLen = (p->noCutoff? 0 : OCT_CUTOFFLEN(lnSpace));
 
 	number = GetOctTypeNum(pL, &bassa);
@@ -585,7 +584,7 @@ PushLock(OBJheap);
 	octydLast = dTop+p->ydLast;
 	
 	if (p->numberVis) {
-		NumToSonataStr(number,ottavaStr);
+		NumToSonataStr(number, ottavaStr);
 
 		octRect = StrToObjRect(ottavaStr);
 		OffsetRect(&octRect, d2p(octxdFirst), d2p(octydFirst));
@@ -708,9 +707,9 @@ static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short 
 			aNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
 			stemDown = GetStemInfo(doc, pL, aNoteL, &qStemLen);
 			NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
-												stemDown, 
-												context.staffHeight, context.staffLines,
-												qStemLen, FALSE);
+											stemDown, 
+											context.staffHeight, context.staffLines,
+											qStemLen, FALSE);
 			if (odd(noteOffset[OctType(octL)-1]))
 				ToggleAugDotPos(doc, aNoteL, stemDown);
 			dystd = -halfLn2std(noteOffset[OctType(octL)-1]);
@@ -718,8 +717,7 @@ static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short 
 		}
 	}
 
-	/* Loop through the notes again and fix up the ystems of the
-		non-extreme notes. */
+	/* Loop through the notes again and fix up the ystems of the non-extreme notes. */
 	aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
@@ -749,11 +747,9 @@ static void UnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, shor
 			aGRNote->yd -= yDelta;
 			aGRNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
 			stemLen = QSTEMLEN(!multiVoice, ShortenStem(aGRNoteL, context, stemDown));
-			aGRNote->ystem = CalcYStem(doc, aGRNote->yd,
-											NFLAGS(aGRNote->subType),
-											stemDown,
-											context.staffHeight, context.staffLines,
-											stemLen, FALSE);
+			aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(aGRNote->subType),
+									   stemDown, context.staffHeight,
+									   context.staffLines, stemLen, FALSE);
 		}
 	}
 
@@ -764,8 +760,8 @@ static void UnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, shor
 		aGRNote = GetPAGRNOTE(aGRNoteL);
 		if (!aGRNote->rest && GRNoteSTAFF(aGRNoteL)==s) {
 			if (aGRNote->inChord) {
-				FixGRSyncForChord(doc,pL,GRNoteVOICE(aGRNoteL),aGRNote->beamed,0,
-															multiVoice, &context);
+				FixGRSyncForChord(doc, pL, GRNoteVOICE(aGRNoteL), aGRNote->beamed, 0,
+									multiVoice, &context);
 				break;
 			}
 		}

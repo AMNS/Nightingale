@@ -579,18 +579,18 @@ const char *NameGraphicType(
 	}
 
 	switch (GraphicSubType(pL)) {
-		case GRPICT:			ps = (friendly? "PICT" : "GRPICT"); break;
-		case GRString:			ps = (friendly? "TEXT" : "GRString"); break;
-		case GRLyric:			ps = (friendly? "LYRIC" : "GRLyric"); break;
-		case GRDraw:			ps = (friendly? "DRAW" : "GRDraw"); break;
-		case GRRehearsal:		ps = (friendly? "REHEARSAL" : "GRRehearsal"); break;
-		case GRChordSym:		ps = (friendly? "CHORD SYM" : "GRChordSym"); break;
-		case GRArpeggio:		ps = (friendly? "ARPEGGIO" : "GRArpeggio"); break;
-		case GRChordFrame:		ps = (friendly? "CHORD FRAME" : "GRChordFrame"); break;
-		case GRMIDIPatch:		ps = (friendly? "MIDI PATCH" : "GRMIDIPatch"); break;
-		case GRMIDISustainOn:	ps = (friendly? "SUSTAIN ON" : "GRMIDISustainOn"); break;
-		case GRMIDISustainOff:	ps = (friendly? "SUSTAIN OFF" : "GRMIDISustainOff"); break;
-		case GRMIDIPan:			ps = (friendly? "PAN" : "GRMIDIPan"); break;
+		case GRPICT:			ps = (friendly? "PICT" : "GRPICT");  break;
+		case GRString:			ps = (friendly? "Text" : "GRString");  break;
+		case GRLyric:			ps = (friendly? "Lyric" : "GRLyric");  break;
+		case GRDraw:			ps = (friendly? "Draw" : "GRDraw");  break;
+		case GRRehearsal:		ps = (friendly? "Rehearsal" : "GRRehearsal");  break;
+		case GRChordSym:		ps = (friendly? "Chord Sym" : "GRChordSym");  break;
+		case GRArpeggio:		ps = (friendly? "Arpeggio" : "GRArpeggio");  break;
+		case GRChordFrame:		ps = (friendly? "Chord Frame" : "GRChordFrame");  break;
+		case GRMIDIPatch:		ps = (friendly? "MIDI Patch" : "GRMIDIPatch");  break;
+		case GRMIDISustainOn:	ps = (friendly? "Sustain On" : "GRMIDISustainOn");  break;
+		case GRMIDISustainOff:	ps = (friendly? "Sustain Off" : "GRMIDISustainOff");  break;
+		case GRMIDIPan:			ps = (friendly? "Pan" : "GRMIDIPan");  break;
 		default:				ps = (friendly? "*UNKNOWN*" : "*UNKNOWN*");
 	}
 

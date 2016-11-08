@@ -680,7 +680,8 @@
 #define MeasXMNSTDOFFSET(link)		( (GetPAMEASURE(link))->xMNStdOffset )
 #define SlurSTARTPT(link)			( (GetPASLUR(link))->startPt)
 #define SlurENDPT(link)				( (GetPASLUR(link))->endPt)
-#define SlurENDPOINTT(link)			( (GetPASLUR(link))->endpoint)
+#define SlurKNOT(link)				( (GetPASLUR(link))->seg.knot)
+#define SlurENDPOINT(link)			( (GetPASLUR(link))->endpoint)
 #define SlurSEG(link)				( (GetPASLUR(link))->seg)
 #define SlurDASHED(link)			( (GetPASLUR(link))->dashed)
 #define ClefYD(link)		 	 	( (GetPACLEF(link))->yd )
@@ -793,7 +794,6 @@
 
 #define NoteDOUBLEDUR(link)			( (GetPANOTE(link))->doubleDur )
 #define ClefSMALL(link)				( (GetPACLEF(link))->small )
-#define SlurENDPOINT(link)			( (GetPASLUR(link))->endpoint )
 #define MeasureTIMESIGTYPE(link)    ( (GetPAMEASURE(link))->timeSigType )
 
 #define GraphicNEXT(link)			( (GetPAGRAPHIC(link))->next )

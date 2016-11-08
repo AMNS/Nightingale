@@ -679,13 +679,14 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 	}
 
 
-/* Move the selected symbol of certain types a teeny bit. Returns TRUE if it did anything. */
+/* Move the selected symbol -- or, for some object types, symbols -- of certain types a
+ teeny bit. Returns TRUE if it did anything. */
 
 #define NUDGE_DIST	p2d(1)		/* Distance to move: 1 pixel */
 
 static Boolean Nudge(Document *doc, short arrowKeyCode)
 {
-	LINK pL, aNoteL, aDynamicL;
+	LINK pL, aNoteL, aDynamicL, aSlurL;
 	Boolean moved;  DDIST nudgeSignedDist;
 
 	moved = FALSE;
@@ -703,6 +704,7 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 							NoteXD(aNoteL) += nudgeSignedDist;
 					}
 					return TRUE;
+					
 				/* Move the entire object in any direction. */
 				case TEMPOtype:
 				case GRAPHICtype:
@@ -725,10 +727,38 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 						else if (arrowKeyCode==kDownArrowCharCode) { DynamicENDYD(aDynamicL) += NUDGE_DIST; moved = TRUE; }
 					}
 					return moved;
+				
+				/* Move in any direction selected subobjects (one slur or one or more ties) only. */
+				case SLURtype:
+					aSlurL = FirstSubLINK(pL);
+					for ( ; aSlurL; aSlurL = NextSLURL(aSlurL)) {
+						if (SlurSEL(aSlurL)) {
+							if (arrowKeyCode==kLeftArrowCharCode) {
+								SlurKNOT(aSlurL).h -= NUDGE_DIST;
+								SlurENDPOINT(aSlurL).h -= NUDGE_DIST;  moved = TRUE;
+							}
+							else if (arrowKeyCode==kRightArrowCharCode) {
+								SlurKNOT(aSlurL).h += NUDGE_DIST;
+								SlurENDPOINT(aSlurL).h += NUDGE_DIST;  moved = TRUE;
+							}
+							
+							else if (arrowKeyCode==kUpArrowCharCode) {
+								SlurKNOT(aSlurL).v -= NUDGE_DIST;
+								SlurENDPOINT(aSlurL).v -= NUDGE_DIST;  moved = TRUE;
+							}
+							else if (arrowKeyCode==kDownArrowCharCode) {
+								SlurKNOT(aSlurL).v += NUDGE_DIST;
+								SlurENDPOINT(aSlurL).v += NUDGE_DIST;  moved = TRUE;
+							}
+													
+						}
+					}
 
+					return moved;
+					
 				default:
 					return FALSE;
-			}			
+			}
 
 	return FALSE;
 }

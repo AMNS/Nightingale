@@ -19,10 +19,10 @@
 #define BOXSIZE 4						/* For editing handles (in pixels) */
 
 static Boolean	searchSpline,			/* Suppress drawing and search for point instead */
-					getBoundsSpline;		/* Suppress drawing and get bounding box instead */
-static short	xSearch,ySearch;		/* Point to search for (screen coordinates) */
-static short	slurLeft,slurRight,	/* Bounds to be found */
-					slurBottom,slurTop;
+				getBoundsSpline;		/* Suppress drawing and get bounding box instead */
+static short	xSearch, ySearch;		/* Point to search for (screen coordinates) */
+static short	slurLeft, slurRight,	/* Bounds to be found */
+				slurBottom, slurTop;
 
 /* Prototypes for local routines */
 
@@ -58,7 +58,7 @@ one segment, and editing only supports single segment slurs right now, anyway. *
  
 void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *endpoint)
  {
-	SplineSeg *thisSeg; PASLUR aSlur;
+	SplineSeg *thisSeg;  PASLUR aSlur;
 			
 	aSlur = GetPASLUR(aSlurL);
 	thisSeg = &aSlur->seg;
@@ -67,8 +67,8 @@ void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *en
 	SetDPt(endpoint,p2d(aSlur->endPt.h),p2d(aSlur->endPt.v));
 	aSlur = GetPASLUR(aSlurL);
 	
-	knot->v += thisSeg->knot.v; knot->h += thisSeg->knot.h;
-	endpoint->v += aSlur->endpoint.v; endpoint->h += aSlur->endpoint.h;
+	knot->v += thisSeg->knot.v;  knot->h += thisSeg->knot.h;
+	endpoint->v += aSlur->endpoint.v;  endpoint->h += aSlur->endpoint.h;
 					
 	c0->v = knot->v + thisSeg->c0.v; c0->h = knot->h + thisSeg->c0.h; 
 	c1->v = endpoint->v + thisSeg->c1.v; c1->h = endpoint->h + thisSeg->c1.h;
@@ -94,30 +94,30 @@ static Boolean SameDPoint(DPoint p1, DPoint p2)
 
 static void DrawDBox(Rect *paper, DPoint p, short size)
 	{
-		p.h = d2p(p.h); p.v = d2p(p.v);
+		p.h = d2p(p.h);  p.v = d2p(p.v);
 		
-		PenSize(size,size); size >>= 1;
+		PenSize(size,size);  size >>= 1;
 		MoveTo(paper->left + (p.h -= size), paper->top + (p.v -= size));
 		LineTo(paper->left+p.h, paper->top+p.v);
-		PenSize(1,1);
+		PenSize(1, 1);
 	}
 
 /*
  *	Entertain events in a separate event loop for manipulating slur objects.
- *	While mouse clicks stay within the slur's objRect (bounding Box),
- *	we stay here.  If any other event, we leave here so that main event loop
- *	can deal with it.
+ *	While mouse clicks stay within the slur's objRect (bounding Box), we stay
+ *	here.  If any other event, we leave here so that main event loop can deal
+ *	with it.
  *
  *	This event loop is not considerate of other processes.
  */
 
 void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
 	{
-		EventRecord		evt;
-		Boolean			stillEditing = TRUE;
-		DPoint			pt;
-		Point				ptStupid;
-		Rect				bboxBefore,bboxAfter;
+		EventRecord	evt;
+		Boolean		stillEditing = TRUE;
+		DPoint		pt;
+		Point		ptStupid;
+		Rect		bboxBefore, bboxAfter;
 
 		FlushEvents(everyEvent, 0);
 		
@@ -126,7 +126,7 @@ void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
 			if (EventAvail(everyEvent, &evt))
 				switch(evt.what) {
 					case mouseDown:
-						ptStupid = evt.where; GlobalToLocal(&ptStupid);
+						ptStupid = evt.where;  GlobalToLocal(&ptStupid);
 						pt.v = p2d(ptStupid.v - doc->currentPaper.top);
 						pt.h = p2d(ptStupid.h - doc->currentPaper.left);
 						GetSlurBBox(doc,pL,aSlurL,&bboxBefore,BOXSIZE);
@@ -153,20 +153,19 @@ void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
 	}
 
 /*
- *	Deliver the bounding box of the given slur sub-object in window-relative
- *	coordinates (not DDISTs).  Enlarge bbox by margin (for including handles
- *	to control pts).
+ *	Deliver the bounding box of the given slur sub-object in window-relative coordinates
+ *	(not DDISTs).  Enlarge bbox by margin (for including handles to control pts).
  */
 
 void GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, short margin)
 	{
-		DPoint knot,c0,c1,endpoint; short j; LINK sL;
-		Point startPt[MAXCHORD],endPt[MAXCHORD];
+		DPoint knot,c0,c1,endpoint;  short j;  LINK sL;
+		Point startPt[MAXCHORD], endPt[MAXCHORD];
 		PASLUR aSlur;
 		
-		GetSlurContext(doc, pL, startPt, endPt);						/* Get absolute positions, in DPoints */
+		GetSlurContext(doc, pL, startPt, endPt);			/* Get absolute positions, in DPoints */
 		
-		for (j=0,sL=FirstSubLINK(pL); sL!=aSlurL; j++, sL=NextSLURL(sL)) ;
+		for (j=0,sL=FirstSubLINK(pL);  sL!=aSlurL; j++, sL=NextSLURL(sL)) ;
 		aSlur = GetPASLUR(aSlurL);
 		aSlur->startPt = startPt[j];
 		aSlur->endPt = endPt[j];
@@ -198,30 +197,30 @@ void GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, short margin)
 	}
 
 /*
- *	A slur is hilited by drawing a small box at each of its knots and at each of
- *	the spline segments' control points.  We use Xor mode so that pairs of calls
- *	hilite and unhilite without graphic interference.
+ *	A slur is hilited by drawing a small box at each of its knots and at each of the
+ *	spline segments' control points.  We use Xor mode so that pairs of calls hilite
+ *	and unhilite without graphic interference.
  */
 
 void HiliteSlur(Rect *paper, LINK aSlurL)
-	{
-		SplineSeg *thisSeg; short nSegs=1,i;
-		DPoint knot, c0, c1, endpoint;
-		short size = BOXSIZE; PASLUR aSlur;
-		
-		if (aSlurL) {
-			PenMode(patXor);
-			aSlur = GetPASLUR(aSlurL);
-			thisSeg = &aSlur->seg;
-			for (i=1; i<=nSegs; i++,thisSeg++) {
-				GetSlurPoints(aSlurL,&knot,&c0,&c1,&endpoint);
-				
-				DrawDBox(paper,knot,size); DrawDBox(paper,endpoint,size);
-				DrawDBox(paper,c0,size); DrawDBox(paper,c1,size);
-				}
-			PenNormal();
+{
+	SplineSeg *thisSeg;  short nSegs=1,i;
+	DPoint knot, c0, c1, endpoint;
+	short size = BOXSIZE;  PASLUR aSlur;
+	
+	if (aSlurL) {
+		PenMode(patXor);
+		aSlur = GetPASLUR(aSlurL);
+		thisSeg = &aSlur->seg;
+		for (i=1; i<=nSegs; i++,thisSeg++) {
+			GetSlurPoints(aSlurL, &knot, &c0, &c1, &endpoint);
+			
+			DrawDBox(paper, knot, size);  DrawDBox(paper, endpoint, size);
+			DrawDBox(paper, c0, size);  DrawDBox(paper, c1, size);
 			}
-	}
+		PenNormal();
+		}
+}
 
 
 /*
@@ -247,9 +246,9 @@ static void DeselectKnots(Rect *paper, LINK aSlurL)
  */
 
 static Boolean DoSlurMouseDown(Document *doc, DPoint pt, LINK /*pL*/, LINK aSlurL,
-											short /*index*/)
+									short /*index*/)
 	{
-		SplineSeg *thisSeg,seg; short how = -1, nSegs=1,i;
+		SplineSeg *thisSeg,seg;  short how = -1, nSegs=1,i;
 		DPoint endpoint;
 		static Boolean found,changed;
 		PASLUR aSlur;
@@ -262,29 +261,28 @@ static Boolean DoSlurMouseDown(Document *doc, DPoint pt, LINK /*pL*/, LINK aSlur
 		 *	During all this, we turn search mode on so that we don't draw while
 		 *	searching for spline segment "near" the given point.
 		 */
-		
 		aSlur = GetPASLUR(aSlurL);
 		for (thisSeg = &aSlur->seg,i = 1; i <= nSegs; i++,thisSeg++) {
 		
-			if (i == nSegs) endpoint = aSlur->endpoint;
-			 else				 endpoint = (thisSeg+1)->knot;
+			if (i == nSegs)	endpoint = aSlur->endpoint;
+			 else			endpoint = (thisSeg+1)->knot;
 			 
 			GetSlurPoints(aSlurL, &seg.knot, &seg.c0, &seg.c1, &endpoint);
 			
 			/* Check if mouse falls in end knot points or control points */
 			/* For compound spline curves, should check bBox first */
 			
-			if (SameDPoint(pt,seg.knot))	{ how = S_Start; goto gotit; }
-			if (SameDPoint(pt,seg.c0))		{ how = S_C0; goto gotit; }
-			if (SameDPoint(pt,seg.c1))		{ how = S_C1; goto gotit; }
-			if (SameDPoint(pt,endpoint))	{ how = S_End; goto gotit; }
+			if (SameDPoint(pt,seg.knot))	{ how = S_Start;  goto gotit; }
+			if (SameDPoint(pt,seg.c0))		{ how = S_C0;  goto gotit; }
+			if (SameDPoint(pt,seg.c1))		{ how = S_C1;  goto gotit; }
+			if (SameDPoint(pt,endpoint))	{ how = S_End;  goto gotit; }
 			
 			/* Or along Bezier curve */
 			
 			StartSearch(&paper,pt);
 			found = DrawSegment(&paper,&seg,endpoint);
 			EndSearch();
-			if (found) { how = S_Whole; goto gotit; }
+			if (found) { how = S_Whole;  goto gotit; }
 		}
 
 		return(FALSE);
@@ -297,13 +295,11 @@ gotit:
 		 *	Temporarily deselect for a whole knot drag, so as not to leave
 		 *	hanging boxes on the screen.  Prepare for a dragging slursor
 		 */
-		
 		HiliteSlur(&paper,aSlurL);						/* Erase old knotboxes */
 				
 		if (changed = EditSlur(&paper, &seg, &endpoint, pt, how)) doc->changed = TRUE;
 
 		if (changed) {
-
 			/* Convert paper-relative coords back to offsets */
 			aSlur = GetPASLUR(aSlurL);
 			aSlur->seg.c0.h = seg.c0.h - seg.knot.h;
@@ -327,12 +323,12 @@ gotit:
  */
 
 static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endpoint, DPoint pt,
-								short how)
+							short how)
 	{
 		DPoint oldStart={0,0},
-					oldc0={0,0},
-					oldc1={0,0},
-					oldEnd={0,0};
+				oldc0={0,0},
+				oldc1={0,0},
+				oldEnd={0,0};
 	 	Boolean changed=FALSE;
 
 		/* Get new position */
@@ -347,9 +343,9 @@ static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endpoint, DPoint pt
 	}
 
 /*
- *	Draw a given spline segment with anchor point at seg->knot to the
- *	given end point. Return whether or not the current search point was
- *	encountered while "drawing" (see BezierTo).
+ *	Draw a given spline segment with anchor point at seg->knot to the given end
+ *	point. Return whether or not the current search point was encountered while
+ *	"drawing" (see BezierTo).
  */
 
 Boolean DrawSegment(Rect *paper, SplineSeg *seg, DPoint endpoint)
@@ -392,20 +388,20 @@ static Rect keepPaper;
 static short keepType;
 
 Boolean Slursor(Rect *paper, DPoint *start, DPoint *end,
-						DPoint *c0, DPoint *c1, short type, DPoint *q, short curve)
+					DPoint *c0, DPoint *c1, short type, DPoint *q, short curve)
 	{
-		DPoint p, tmp; DPoint *test; DDIST dist, dist4, dist8, dx, dy;
+		DPoint p, tmp;  DPoint *test;  DDIST dist, dist4, dist8, dx, dy;
 		Boolean first=TRUE,up,constrain,knotConstrain,horiz,
 					stillWithinSlop;
-		Point pt, origPt; short xdiff,ydiff;
+		Point pt, origPt;  short xdiff,ydiff;
 		
-		if (type == S_Extend) type = S_New;		/* Not implemented: use New */
+		if (type == S_Extend) type = S_New;					/* Not implemented: use New */
 		
 		if (type == S_New) *end = *c0 = *c1 = *start;
 		 else			   up = curve>0 ? TRUE : curve<0 ? FALSE : (c0->v >= start->v);
 				
 		PenMode(patXor);									/* Everything will be drawn twice */
-		DrawSlursor(paper,start,end,c0,c1,type,FALSE);	/* Draw first one in before loop */
+		DrawSlursor(paper,start,end,c0,c1,type,FALSE);		/* Draw first one in before loop */
 
 		 /* Choose which point we want to follow the mouse */
 		 
@@ -503,7 +499,8 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end,
 					 		tmp = *test;
 					 		break;
 						}
-					DrawSlursor(paper,start,end,c0,c1,type,FALSE);	/* Draw new section */
+						
+					DrawSlursor(paper,start,end,c0,c1,type,FALSE);		/* Draw new section */
 					/* Save what we just drew for benefit of AutoScrolling */
 					keepStart = *start;
 					keepEnd = *end;
@@ -583,8 +580,8 @@ void DrawTheSlursor()
 
 /*
  *	Draw a Bezier spline from startPt to endPt, using c0, c1 as control Points.
- *	This version is a fast version for integer coordinates, done in homebrew
- *	Fixed arithmetic, suitable for changing cursors, etc.
+ *	This version is a fast version for integer coordinates, done in homebrew Fixed
+ *	arithmetic, suitable for changing cursors, etc.
  *	If searchSpline is TRUE, don't draw; rather check for proximity to the point
  *	(xSearch,ySearch), and return TRUE if point is "close" to the spline.
  *	If getBoundsSpline is TRUE, maximize/minimize to find bounding box.
@@ -603,16 +600,16 @@ void EndSearch()
 	
 Boolean FindSLUR(Rect *paper, Point pt, LINK aSlurL)
 	{
-		DPoint p,endpoint; short i,nSegs=1; PASLUR aSlur;
-		SplineSeg *thisSeg,seg; Boolean found = FALSE;
+		DPoint p,endpoint;  short i,nSegs=1;  PASLUR aSlur;
+		SplineSeg *thisSeg,seg;  Boolean found = FALSE;
 		
 		p.h = p2d(pt.h); p.v = p2d(pt.v);
 		StartSearch(paper,p);
 		
 		aSlur = GetPASLUR(aSlurL);
 		for (i=1,thisSeg = &aSlur->seg; i<=nSegs; i++,thisSeg++) {
-			if (i == nSegs) endpoint = aSlur->endpoint;
-			 else				 endpoint = (thisSeg+1)->knot;
+			if (i == nSegs)	endpoint = aSlur->endpoint;
+			 else			endpoint = (thisSeg+1)->knot;
 			GetSlurPoints(aSlurL,&seg.knot,&seg.c0,&seg.c1,&endpoint);
 			if (DrawSegment(paper,&seg,endpoint)) { found = TRUE; break; }		/* In search mode */
 			}
@@ -642,10 +639,10 @@ void EndSlurBounds(Rect *paper, Rect *box)
  
 static void LineOrMoveTo(short, short, short, Boolean *, short *);
 static void LineOrMoveTo(short x, short y, short segsPerDash,
-									Boolean *pDoingDash, short *pSegsThisDash)
+								Boolean *pDoingDash, short *pSegsThisDash)
 	{
-		if (*pDoingDash) LineTo(x,y);
-		else				  MoveTo(x,y);
+		if (*pDoingDash)	LineTo(x,y);
+		else				MoveTo(x,y);
 		
 		(*pSegsThisDash)--;
 		if (*pSegsThisDash<=0) {
@@ -672,32 +669,32 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 
 		curx = startPt.h; cury = startPt.v;
 		
-		lastx = curx-1;									/* Force first draw */
+		lastx = curx-1;										/* Force first draw */
 
 		/*	Compute the integer Bezier spline coefficients, a, b, and c. */
 
-		cx = (c0.h - curx); cx += cx << 1;			/* times 3 */
+		cx = (c0.h - curx); cx += cx << 1;					/* times 3 */
 		cy = (c0.v - cury); cy += cy << 1;
 		
-		bx = (c1.h - c0.h); bx += (bx << 1) - cx;	/* times 3 - c */
+		bx = (c1.h - c0.h); bx += (bx << 1) - cx;			/* times 3 - c */
 		by = (c1.v - c0.v); by += (by << 1) - cy;
 		
 		ax = (endPt.h - curx) - cx - bx;
 		ay = (endPt.v - cury) - cy - by;
 
 
-		s = 32; s1 = 5;						/* Number of lines in spline, and bits */
+		s = 32; s1 = 5;								/* Number of lines in spline, and bits */
 		if (outputTo==toScreen) {
 			if (config.fastScreenSlurs==1)
-				{ s = 16; s1 = 4; }			/* Number of lines in spline, and bits */
+				{ s = 16; s1 = 4; }					/* Number of lines in spline, and bits */
 			if (config.fastScreenSlurs==2)
-				{ s = 8; s1 = 3; }			/* Number of lines in spline, and bits */
+				{ s = 8; s1 = 3; }					/* Number of lines in spline, and bits */
 		}
 
-		s2 = s1+s1; s3 = s2+s1;		/* s3 is 15 bits worth of scaling */
+		s2 = s1+s1; s3 = s2+s1;						/* s3 is 15 bits worth of scaling */
 		
-		bx   <<= s1;   by <<= s1;	/* Scale operands up for later according */
-		cx   <<= s2;   cy <<= s2;	/* to the degree in i in loop below */
+		bx   <<= s1;   by <<= s1;					/* Scale operands up for later according */
+		cx   <<= s2;   cy <<= s2;					/*   to the degree in i in loop below */
 		curx <<= s3; cury <<= s3;
 
 		if (dashed) {
@@ -716,7 +713,6 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 		}
 		
 		if (searchSpline)
-
 			for (i=0; i<=s; i++) {
 				x = (i * (i * (i * ax + bx) + cx) + curx) >> s3;
 				y = (i * (i * (i * ay + by) + cy) + cury) >> s3;
@@ -729,13 +725,12 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 				}
 
 		 else if (getBoundsSpline)
-		 
 			for (i=0; i<=s; i++) {
 				x = (i * (i * (i * ax + bx) + cx) + curx) >> s3;
 				y = (i * (i * (i * ay + by) + cy) + cury) >> s3;
 				if (lastx!=x || lasty!=y) {
-					if (dashed) LineOrMoveTo(x,y,segsPerDash,&doingDash,&segsThisDash);
-					else			LineTo(x,y);
+					if (dashed)	LineOrMoveTo(x,y,segsPerDash,&doingDash,&segsThisDash);
+					else		LineTo(x,y);
 					 /* Keep track of bounding box */
 					if (x < slurLeft) slurLeft = x;
 					if (x > slurRight) slurRight = x;
@@ -756,7 +751,7 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 					if (dx<=1 && dy<=1) MoveTo(x,y);
 
 					if (dashed) LineOrMoveTo(lastx=x,lasty=y,segsPerDash,
-														&doingDash,&segsThisDash);
+												&doingDash,&segsThisDash);
 					else			LineTo(lastx=x,lasty=y);
 					}
 				}

@@ -1073,7 +1073,8 @@ enum {								/* graphicType values: */
 	GRLastType=GRMIDISustainOff
 };
 
-// FIXME: Should these be here or in a MIDI header file?
+/* Our internal codes for sustain on/off. FIXME: Should these be here or in a header file
+ (MIDIGeneral.h)? */
 
 #define MIDISustainOn	127
 #define MIDISustainOff	0
