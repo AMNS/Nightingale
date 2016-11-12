@@ -63,7 +63,7 @@ static Boolean GetMidiMapFile(Str255 macfName, NSClientDataPtr pNSD)
 	}		
 	
 	FSSpec fsSpec = pNSD->nsFSSpec;
-	PStrCopy(fsSpec.name, macfName);
+	Pstrcpy(macfName, fsSpec.name);
 	return TRUE;
 }
 

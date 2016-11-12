@@ -1240,7 +1240,7 @@ void SaveMIDIFile(Document *doc)
 
 	/* Get current name and its length, and truncate name to make room for suffix */
 	
-	if (doc->named)	PStrCopy((StringPtr)doc->name, (StringPtr)filename);
+	if (doc->named)	Pstrcpy((StringPtr)filename, (StringPtr)doc->name);
 	else			GetIndString(filename, MiscStringsID, 1);		/* "Untitled" */
 	len = *filename;
 	/* FIXME: Is 64 really the max filename size? Surely it's FILENAME_MAXLEN! */

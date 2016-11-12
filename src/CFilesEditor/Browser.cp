@@ -802,7 +802,7 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 		hOffset = doc->headerStrOffset;
 		pStr = PCopy(hOffset);
 		if (pStr[0]!=0) {
-			PStrCopy((StringPtr)pStr, (StringPtr)string);
+			Pstrcpy((StringPtr)string, (StringPtr)pStr);
 			PToCString((StringPtr)string);
 			sprintf(s, "page header='%s'", string);
 			DrawTextLine(s);
@@ -811,7 +811,7 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 		fOffset = doc->footerStrOffset;
 		pStr = PCopy(fOffset);
 		if (pStr[0]!=0) {
-			PStrCopy((StringPtr)pStr, (StringPtr)string);
+			Pstrcpy((StringPtr)string, (StringPtr)pStr);
 			PToCString((StringPtr)string);
 			sprintf(s, "page footer='%s'", string);
 			DrawTextLine(s);
@@ -855,8 +855,7 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 	 * actually, as of v. 99b6, that's all there can be anyway.
 	 */
 		for (i = 0; i<doc->nfontsUsed && i<=10; i++) {
-			PStrCopy((StringPtr)(doc->fontTable[i].fontName),
-						(StringPtr)string);
+			Pstrcpy((StringPtr)string, (StringPtr)(doc->fontTable[i].fontName));
 			PToCString((StringPtr)string);
 			sprintf(s, "  (%d) name='%s' ID=%d", i, string, doc->fontTable[i].fontID);
 			DrawTextLine(s);

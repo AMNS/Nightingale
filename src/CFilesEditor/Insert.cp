@@ -39,7 +39,7 @@ static Boolean InsertHairpin(Document *, Point, LINK, short);
 /* Utility to add new GRSync before an object found by TimeSearchRight in AddGRNote. */
 
 static Boolean AddNewGRSync(Document *doc,
-								LINK baseL,		/* base link */
+								LINK baseL,			/* base link */
 								Point pt,
 								short sym,
 								short voice, short clickStaff
@@ -254,14 +254,13 @@ it must go into the object list before the first Beamset:
  * any J_D symbols. If it exists and is before (& not equal to) addToSyncL, start at
  * this object and traverse to addToSyncL, looking for any J_IP objects. If one exists,
  * insert before it.
- *
  */
 
 Boolean InsertNote(
-					Document *doc,
-					Point pt,				/* location of mouse click */
-					Boolean isGraphic		/* graphic ("by position") or temporal insert */
-					)
+			Document *doc,
+			Point pt,				/* location of mouse click */
+			Boolean isGraphic		/* graphic ("by position") or temporal insert */
+			)
 {
 	short		clickStaff,		/* staff user clicked in */
 				sym,			/* index of current palChar in symtable[] */
@@ -315,7 +314,7 @@ Boolean InsertNote(
 		location of the click FIXME: LOOKS LIKE THIS ALWAYS SAYS "NO"; if so, add the
 		note to this sync, else add a new sync at the correct temporal location. */
 
-	if (isGraphic)	{												/* Get noteRightL directly */
+	if (isGraphic)	{											/* Get noteRightL directly */
 		nodeRightL = FindSymRight(doc, pt, FALSE, FALSE);
 	}
 
@@ -323,11 +322,11 @@ Boolean InsertNote(
 		(its ending time), then search for a sync at that time. If it exists
 		add to it, else create a new one. */
 
-	else {															/* Get addToSyncL or nodeRightL */
+	else {														/* Get addToSyncL or nodeRightL */
 		pLPIL = FindLPI(doc, pt, (doc->lookVoice>=0? ANYONE : clickStaff), voice, TRUE);
 		addToSyncL = ObjAtEndTime(doc, pLPIL, SYNCtype, voice, &lTime, EXACT_TIME, TRUE);
-		if (addToSyncL) { 											/* Got a sync at the right time */	
-			jipL = FindJIP(pLPIL,addToSyncL);						/* #1. */
+		if (addToSyncL) { 										/* Got a sync at the right time */	
+			jipL = FindJIP(pLPIL,addToSyncL);					/* #1. */
 			if (jipL) {
 				rightL = GSSearch(doc, pt, ANYTYPE, ANYONE, GO_RIGHT, FALSE, FALSE, FALSE);
 				if (rightL && IsAfter(rightL, addToSyncL))
@@ -338,7 +337,7 @@ Boolean InsertNote(
 
 			/* If the sync already has a note in the voice, create a new sync before it. */
 
-			if (SyncInVoice(addToSyncL, voice))						/* Does it already have note/rest in this voice? */
+			if (SyncInVoice(addToSyncL, voice))					/* Does it already have note/rest in this voice? */
 				return TrkInsSync(doc, addToSyncL, pt, &sym, clickStaff);
 
 			if (!AddNoteCheck(doc, addToSyncL, clickStaff, sym)) {
@@ -485,13 +484,13 @@ Boolean InsertLine(Document *doc, Point pt)
 
 
 /* ---------------------------------------------------------------- InsertGraphic -- */
-/* Insert a GRAPHIC object in the object list, including chord symbols and
-rehearsal marks. Handles feedback and allows cancelling.
-#1. When user tries to insert a Graphic on the final barline of a justified
-system, FindGraphicObject finds a staff, but FindStaff doesn't: it uses
-pContext->staffRight to compute the object rect for clipping the region
-searched, where FindGraphicObject uses the systemRect, which has been extended
-1 lnSpace beyond the right end of the staff, to handle precisely this case.
+/* Insert a GRAPHIC object in the object list, including chord symbols and rehearsal
+marks. Handles feedback and allows cancelling.
+#1. When user tries to insert a Graphic on the final barline of a justified system,
+FindGraphicObject finds a staff, but FindStaff doesn't: it uses pContext->staffRight
+to compute the object rect for clipping the region searched, where FindGraphicObject
+uses the systemRect, which has been extended 1 lnSpace beyond the right end of the
+staff, to handle precisely this case.
 #2. In OtherCode.c */
 
 #define SAVERM_LEN	16
@@ -601,16 +600,16 @@ Boolean InsertGraphic(Document *doc, Point pt)
 	if (InsTrackUpDown(doc, pt, &sym, pL, clickStaff, &pitchLev)) {
 		switch (symtable[sym].subtype) {
 			case GRRehearsal:
-				PStrCopy((StringPtr)lastRMStr, (StringPtr)string);
+				Pstrcpy((StringPtr)string, (StringPtr)lastRMStr);
 				if (!RehearsalMarkDialog(string)) goto Cancelled;
 				if (string[0]>SAVERM_LEN-1) string[0] = SAVERM_LEN-1;
-				PStrCopy((StringPtr)string, (StringPtr)lastRMStr);
+				Pstrcpy((StringPtr)lastRMStr, (StringPtr)string);
 
 				newRelSize = doc->relFSizeRM;
 				newSize = doc->fontSizeRM;
 				newStyle = doc->fontStyleRM;
 				newEncl = doc->enclosureRM;
-				PStrCopy((StringPtr)doc->fontNameRM, (StringPtr)newFont);
+				Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 				break;
 			case GRChordSym:
 				{
@@ -626,7 +625,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 					newSize = doc->fontSizeCS;
 					newStyle = doc->fontStyleCS;
 					newEncl = doc->enclosureCS;
-					PStrCopy((StringPtr)doc->fontNameCS, (StringPtr)newFont);
+					Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameCS);
 					auxInfo = CSAuxInfo;
 				}
 				break;
@@ -634,8 +633,8 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				/* Chord frames are compatible with possible extensions to multiple characters. */
 				string[0] = 1;
 				string[1] = CHORD_FRAME_DEFAULT;
-				if (!ChordFrameDialog(doc, &newRelSize, &newSize, &newStyle, &newEncl, newFont,
-						&string[1])) goto Cancelled;
+				if (!ChordFrameDialog(doc, &newRelSize, &newSize, &newStyle, &newEncl,
+						newFont, &string[1])) goto Cancelled;
 				break;
 			case GRString:
 				GetContext(doc, pL, clickStaff, &context);
@@ -647,30 +646,30 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				hStyleChoice = User2HeaderFontNum(doc, uStyleChoice);
 				break;
 			case GRMIDIPatch:
-				PStrCopy((StringPtr)lastMPStr, (StringPtr)string);
+				Pstrcpy((StringPtr)string, (StringPtr)lastMPStr);
 				if (!PatchChangeDialog(string)) goto Cancelled;
 				if (string[0]>MPATCH_LEN-1) string[0] = MPATCH_LEN-1;
-				PStrCopy((StringPtr)string, (StringPtr)lastMPStr);
-				PStrCopy((StringPtr)string, (StringPtr)midiPatch);
+				Pstrcpy((StringPtr)lastMPStr, (StringPtr)string);
+				Pstrcpy((StringPtr)midiPatch, (StringPtr)string);
 				
 				newRelSize = doc->relFSizeRM;
 				newSize = doc->fontSizeRM;
 				newStyle = doc->fontStyleRM;
 				newEncl = doc->enclosureRM;
-				PStrCopy((StringPtr)doc->fontNameRM, (StringPtr)newFont);
+				Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 				break;
 			case GRMIDIPan:
-				PStrCopy((StringPtr)lastMPanStr, (StringPtr)string);
+				Pstrcpy((StringPtr)string, (StringPtr)lastMPanStr);
 				if (!PanSettingDialog(string)) goto Cancelled;
 				if (string[0]>MPAN_LEN-1) string[0] = MPAN_LEN-1;
-				PStrCopy((StringPtr)string, (StringPtr)lastMPanStr);
-				PStrCopy((StringPtr)string, (StringPtr)midiPanSetting);
+				Pstrcpy((StringPtr)lastMPanStr, (StringPtr)string);
+				Pstrcpy((StringPtr)midiPanSetting, (StringPtr)string);
 				
 				newRelSize = doc->relFSizeRM;
 				newSize = doc->fontSizeRM;
 				newStyle = doc->fontStyleRM;
 				newEncl = doc->enclosureRM;
-				PStrCopy((StringPtr)doc->fontNameRM, (StringPtr)newFont);
+				Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 				break;
 			case GRMIDISustainOn:
 				string[0] = 3; string[1] = '1'; string[2] = '2'; string[3] = '7';
@@ -680,7 +679,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				newSize = GRStaffHeight;
 				newStyle = doc->fontStyleRM;
 				newEncl = ENCL_NONE;
-				PStrCopy((StringPtr)doc->fontNameRM, (StringPtr)newFont);
+				Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 				break;
 			case GRMIDISustainOff:
 				string[0] = 1; string[1] = '0';
@@ -690,7 +689,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				newSize = GRStaffHeight;
 				newStyle = doc->fontStyleRM;
 				newEncl = ENCL_NONE;
-				PStrCopy((StringPtr)doc->fontNameRM, (StringPtr)newFont);
+				Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 				break;
 			default:
 				;											/* Error */
@@ -737,7 +736,7 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 	char stringInchar;
 	Boolean firstCall = TRUE;
 	/* musicChar maps symtable[sym].durcode value to corresponding font character:
-			Ped.   *   */
+			"Ped." (sustain pedal down),  "*" (pedal up)   */
 	char musicChar[] = { 0xA1, '*' };
 	short index;
 
@@ -782,12 +781,13 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 			MayErrMsg("InsertMusicChar: bad symtable[sym].durcode");
 		string[1] = musicChar[index];
 		
-		/* NB: If doc->musFontName not available on this system, doc->musicFontNum will be Sonata. */
+		/* NB: If doc->musFontName not available on this system, doc->musicFontNum will
+			be Sonata. */
 		GetFontName(doc->musicFontNum, musicFontName);
 		if (*musicFontName==0)
-			PStrCopy((StringPtr)"\pSonata", (StringPtr)musicFontName);
+			Pstrcpy((StringPtr)musicFontName, (StringPtr)"\pSonata");
 		NewGraphic(doc, pt, stringInchar, clickStaff, voice, pitchLev, TRUE, GRStaffHeight,
-							0, ENCL_NONE, 0, FALSE, FALSE, musicFontName, string, FONT_THISITEMONLY);
+					0, ENCL_NONE, 0, FALSE, FALSE, musicFontName, string, FONT_THISITEMONLY);
 		return TRUE;
 	}
 
@@ -797,9 +797,9 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 
 
 /* ----------------------------------------------------------------- ChkInsMODNR -- */
-/* Return FALSE to indicate we won't handle addition of MODNR in this situation. 
-If obj is not a note or rest, we won't handle it, but will give the user some
-advice on how to get what they seem to want. */
+/* Return FALSE to indicate we won't handle addition of MODNR in this situation. If
+object is not a note or rest, we won't handle it, but will give the user some advice
+on how to get what they seem to want. */
 
 static Boolean ChkInsMODNR(LINK insSyncL, short sym)
 {
@@ -881,7 +881,7 @@ Boolean InsertMODNR(Document *doc, Point pt)
 			qPitchLev = halfLn2qd(pitchLev);
 		}
 		else if (status<0) {
-			/* No vertical mouse mvmt: ask an expert for <qPitchLev> to use */
+			/* No vertical mouse mvmt: ask an "expert" for <qPitchLev> to use */
 			qPitchLev = ModNRPitchLev(doc, symtable[sym].subtype, insSyncL, aNoteL);
 		}
 		else
@@ -901,8 +901,8 @@ Boolean InsertMODNR(Document *doc, Point pt)
 
 
 /* -----------------------------------------------------------------InsertRptEnd -- */
-/* Insert a RepeatEnd at a place in the object list suitable for a
-mousedown at the given point. RptEnds are J_IT objects. */
+/* Insert a RepeatEnd at a place in the object list suitable for a mousedown
+at the given point. RptEnds are J_IT objects. */
 
 Boolean InsertRptEnd(Document *doc, Point pt)
 {
@@ -920,9 +920,9 @@ Boolean InsertRptEnd(Document *doc, Point pt)
 
 
 /* ---------------------------------------------------------------- InsertEnding -- */
-/* Insert an ending when the user clicks in the score with the Ending tool.
-Find the relative object for the ending located at pt, if one exists, and
-add the ending to the object list. Endings are J_D objects. */
+/* Insert an ending when the user clicks in the score with the Ending tool. Find
+the relative object for the ending located at pt, if one exists, and add the
+ending to the object list. Endings are J_D objects. */
 
 Boolean InsertEnding(Document *doc, Point pt)
 {
@@ -1143,7 +1143,7 @@ Boolean InsertTimeSig(Document *doc, Point pt)
 	if (TimeSigBeforeBar(doc, pLPIL, clickStaff, type, numerator, denominator))
 		return TRUE;
 	
-	insNodeL = ObjAtEndTime(doc,pLPIL,ANYTYPE,clickStaff,&lTime,MIN_TIME,FALSE);
+	insNodeL = ObjAtEndTime(doc, pLPIL, ANYTYPE, clickStaff, &lTime, MIN_TIME, FALSE);
 	if (insNodeL) {
 		doc->selEndL = doc->selStartL = LocateInsertPt(insNodeL);
 		NewTimeSig(doc, pt.h, palChar, clickStaff, type, numerator, denominator);
@@ -1160,17 +1160,17 @@ Boolean InsertTimeSig(Document *doc, Point pt)
 
 static Boolean InsertHairpin(Document *doc, Point pt, LINK /*pL*/, short clickStaff)
 {
-	LINK insSyncL,prevMeasL; short sym,subtype;
+	LINK insSyncL,prevMeasL;  short sym,subtype;
 	CONTEXT context;
 
 	sym = GetSymTableIndex(palChar);
  	subtype = symtable[sym].subtype;
 
-	/* Graphically search left for a sync. If found, search again on clickStaff to
+	/* Graphically search left for a Sync. If found, search again on clickStaff to
 		insure sync is on the proper staff. If none, we're before the first sync of
-		the system; search right graphically. If none, no sync; return. Otherwise,
-		see if sync found graphically is in a different measure from mouseDown pt;
-		if so, get the first sync in the mouseDown pt's measure. If none, return. */
+		the system; search right graphically. If none, no Sync; return. Otherwise,
+		see if Sync found graphically is in a different measure from mouseDown pt;
+		if so, get the first Sync in the mouseDown pt's measure. If none, return. */
 
 	insSyncL = FindSyncLeft(doc, pt, TRUE);
 	if (insSyncL)
@@ -1199,7 +1199,7 @@ Boolean InsertDynamic(Document *doc, Point pt)
 {
 	short pitchLev,sym,clickStaff,index,staff,subtype;
 	LINK pL,insSyncL;
-	Point startPt; CONTEXT context;
+	Point startPt;  CONTEXT context;
 
 	/* Get the staff to insert on (and set doc->currentSystem). If click was
 		on a symbol, use that symbol's staff, otherwise use the closest staff. */
@@ -1224,10 +1224,10 @@ Boolean InsertDynamic(Document *doc, Point pt)
 	if (subtype==DIM_DYNAM || subtype==CRESC_DYNAM)
 		return InsertHairpin(doc, pt, pL, clickStaff);
 
-	/* Graphically search left for a sync. If none, we're before the first sync of the
-		system; search right graphically. If none, no sync; return. Otherwise, see
-		if sync found graphically in a different measure from mouseDown pt; if so,
-		get the first sync in the mouseDown pt's measure. If none, return. */
+	/* Graphically search left for a Sync. If none, we're before the first Sync of the
+		system; search right graphically. If none, no Sync; return. Otherwise, see
+		if Sync found graphically in a different measure from mouseDown pt; if so,
+		get the first Sync in the mouseDown pt's measure. If none, return. */
 
 	startPt = pt;
 	startPt.h -= UseMagnifiedSize(3, doc->magnify);						/* Allow user some slop */
@@ -1270,15 +1270,14 @@ for a mousedown at the given point. */
 
 Boolean InsertSlur(Document *doc, Point pt)
 {
-	short		staff, index, voice;
-	LINK		pL, pLPIL;
-	Point		localPt;
+	short	staff, index, voice;
+	LINK	pL, pLPIL;
+	Point	localPt;
 
 	FindStaff(doc, pt);										/* Sets doc->currentSystem */
 
-	/* Correct "optical illusion" (CER's term) problem with slur cursor, which
-		cannot be fixed by moving down hotspot, which is moved down
-		all it can be. */
+	/* Correct "optical illusion" (CER's term) problem with slur cursor: it cannot
+		be fixed by moving down the hotspot, which is moved down all it can be. */
 
 	localPt = pt; localPt.v += 1;							/* Correct for "optical illusion" */
 	pL = FindObject(doc, localPt, &index, SMFindNote);
@@ -1298,8 +1297,8 @@ Boolean InsertSlur(Document *doc, Point pt)
 
 
 /* ------------------------------------------------------------------ InsertTempo -- */
-/* Insert a tempo mark at a place in the object list suitable for a
-mousedown at the given point.	Handles feedback and allows cancelling. */
+/* Insert a tempo mark at a place in the object list suitable for a mousedown at
+the given point. Handles feedback and allows cancelling. */
 
 Boolean InsertTempo(Document *doc, Point pt)
 {
@@ -1326,7 +1325,7 @@ Boolean InsertTempo(Document *doc, Point pt)
 			useMM = TRUE;
 			showMM = TRUE;
 			expanded = FALSE;
-			PStrCopy((StringPtr)"\p", (StringPtr)tempoStr);
+			Pstrcpy((StringPtr)tempoStr, (StringPtr)"\p");
 			firstCall = FALSE;
 		}
 
@@ -1334,9 +1333,9 @@ Boolean InsertTempo(Document *doc, Point pt)
 		Pstrcpy((unsigned char *)tmpStr, (unsigned char *)metroStr);
 		if (TempoDialog(&useMM, &showMM, &dur, &dotted, &expanded, (unsigned char *)strBuf, tmpStr)) {
 			doc->selEndL = doc->selStartL = pL;
-			if (strBuf[0]>63) strBuf[0] = 63;					/* Limit str. length (see above) */
+			if (strBuf[0]>63) strBuf[0] = 63;				/* Limit str. length (see above) */
 			Pstrcpy((unsigned char *)tempoStr, (unsigned char *)strBuf);
-			if (tmpStr[0]>63) tmpStr[0] = 63;					/* Limit str. length (see above) */
+			if (tmpStr[0]>63) tmpStr[0] = 63;				/* Limit str. length (see above) */
 			Pstrcpy((unsigned char *)metroStr, (unsigned char *)tmpStr);
 //LogPrintf(LOG_DEBUG, "InsertTempo 1: expanded=%d\n", expanded);
 			NewTempo(doc, pt, palChar, clickStaff, pitchLev, useMM, showMM, dur,dotted,
@@ -1345,7 +1344,7 @@ Boolean InsertTempo(Document *doc, Point pt)
 		}
 	}
 
-	InvalMeasure(pL, clickStaff);								/* Just redraw the measure */
+	InvalMeasure(pL, clickStaff);							/* Just redraw the measure */
 	return FALSE;
 }
 

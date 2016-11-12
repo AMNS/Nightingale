@@ -373,7 +373,7 @@ Boolean DoExtract(Document *doc)
 		hOffset = doc->headerStrOffset;
 		pStr = PCopy(hOffset);
 		if (pStr[0]!=0) {
-			PStrCopy((StringPtr)pStr, (StringPtr)headerStr);
+			Pstrcpy((StringPtr)headerStr, (StringPtr)pStr);
 			PToCString((StringPtr)headerStr);
 			LogPrintf(LOG_DEBUG, "page header='%s'\n", headerStr);
 		}
@@ -381,7 +381,7 @@ Boolean DoExtract(Document *doc)
 		fOffset = doc->footerStrOffset;
 		pStr = PCopy(fOffset);
 		if (pStr[0]!=0) {
-			PStrCopy((StringPtr)pStr, (StringPtr)footerStr);
+			Pstrcpy((StringPtr)footerStr, (StringPtr)pStr);
 			PToCString((StringPtr)footerStr);
 			LogPrintf(LOG_DEBUG, "page footer='%s'\n", footerStr);
 		}

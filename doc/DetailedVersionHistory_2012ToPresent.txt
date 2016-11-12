@@ -901,7 +901,7 @@ Minor cleanup. Affects Event, Menu.
 Cleanup: get rid of all references to JG_NOTELIST. Affects compilerFlags.h,
 NResourceID.h; Event, Menu, NotelistSave, Select, UIFUtils.
 
-Replace calls to PStrCopy with Pstrcpy. Affects About, Menu.
+Replace some calls to PStrCopy with Pstrcpy. Affects About, Menu.
 
 Change default staff rastral size for Open Notelist from 2 to 5 so that scores
 with many staves are less likely to go off the bottom of the page.
@@ -940,3 +940,12 @@ otherwise long names like "Arpeggio" won't be shown at all. Affects .rsrc; UIFUt
 
 Minor cleanup. Affects MemMacros.h, NTypes.h; Event, Ottava, Slurs, SpaceTime.
 
+-------------------------------------------------------------------------------
+
+9-11 Nov.
+
+Fix bug in checking for multiple Tempo/metronome mark objects at the same point whose
+tempo and M.M. strings aren't identical: for each pair being compared, if there really
+_isn't_ a M.M., skip the check. Affects Debug2Utils.
+
+Replace all calls to PStrCopy with Pstrcpy. Affects NightTemplates.h; about 18 C files.

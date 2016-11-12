@@ -1056,7 +1056,7 @@ static void FillFontUsedTbl(Document *doc)
 	PGRAPHIC p;
 
 	for (j = 0; j<doc->nfontsUsed; j++) {
-		PStrCopy((StringPtr)doc->fontTable[j].fontName, (StringPtr)fontUsedTbl[j].fontName);
+		Pstrcpy((StringPtr)fontUsedTbl[j].fontName, (StringPtr)doc->fontTable[j].fontName);
 		for (k = 0; k<4; k++)
 			fontUsedTbl[j].style[k] = FALSE;
 		}
@@ -1109,7 +1109,7 @@ Boolean NDoPostScript(Document *doc)
 	
 		/* Get current name and its length, and truncate name to make room for suffix */
 		
-		if (doc->named)	PStrCopy((StringPtr)doc->name, (StringPtr)outname);
+		if (doc->named)	Pstrcpy((StringPtr)outname, (StringPtr)doc->name);
 		 else			GetIndString(outname, MiscStringsID,1);		/* "Untitled" */
 		len = *(unsigned char *)outname;
 		if (len >= (64-suffixLen)) len = (64-suffixLen);	/* 64 is max file name size ??REALLY? */

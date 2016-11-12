@@ -1016,7 +1016,7 @@ Boolean TextDialog(
 		/* Determine in which font's style this string is, if any */
 		currentStyle = GetStrFontStyle(doc, *styleChoice);
 		if (currentStyle==TSThisItemOnlySTYLE) {
-			PStrCopy((StringPtr)name, (StringPtr)theCurrent.fontName);
+			Pstrcpy((StringPtr)theCurrent.fontName, (StringPtr)name);
 			theCurrent.relFSize = *relFSize;
 			theCurrent.fontSize = *size;
 			theCurrent.fontStyle = *style;
@@ -1028,7 +1028,7 @@ Boolean TextDialog(
 	 else {
 	 	currentStyle = Header2UserFontNum(doc->lastGlobalFont);
 	 	TSSetCurrentStyle(currentStyle);
-		PStrCopy((StringPtr)theCurrent.fontName, (StringPtr)name);
+		Pstrcpy((StringPtr)name, (StringPtr)theCurrent.fontName);
 		theExpanded = FALSE;
 		}
 
@@ -1152,7 +1152,7 @@ Boolean TextDialog(
 						}
 					 else
 						TSSetCurrentStyle(currentStyle);
-					PStrCopy((StringPtr)theCurrent.fontName, (StringPtr)name);
+					Pstrcpy((StringPtr)name, (StringPtr)theCurrent.fontName);
 					TextEditState(dlog, TRUE);
 					InstallTextStyle(dlog, &theCurrent, theExpanded);
 					TextEditState(dlog, FALSE);
@@ -1405,7 +1405,7 @@ Boolean DefineStyleDialog(Document *doc,
 	BlockMove(doc->fontNamePG,&thePageNumber,sizeof(TEXTSTYLE));
 	
 	SetCurrentStyle(currentStyle);
-	PStrCopy((StringPtr)theCurrent.fontName, (StringPtr)name);
+	Pstrcpy((StringPtr)name, (StringPtr)theCurrent.fontName);
 
 	theRegular1Changed = theRegular2Changed = theRegular3Changed = theRegular4Changed =
 		theRegular5Changed = theRegular6Changed = theRegular7Changed = theRegular8Changed =
@@ -1516,7 +1516,7 @@ Boolean DefineStyleDialog(Document *doc,
 					
 					currentStyle = GetStyleChoice();
 					SetCurrentStyle(currentStyle);
-					PStrCopy((StringPtr)theCurrent.fontName, (StringPtr)name);
+					Pstrcpy((StringPtr)name, (StringPtr)theCurrent.fontName);
 					TextEditState(dlog, TRUE);
 					InstallTextStyle(dlog,&theCurrent,FALSE);
 					TextEditState(dlog, FALSE);

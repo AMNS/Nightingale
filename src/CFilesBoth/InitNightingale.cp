@@ -340,7 +340,7 @@ static Boolean InitMusFontTables()
 		musFontInfo[i].downstemExtFlagLeading = *w++;
 		musFontInfo[i].upstem8thFlagLeading = *w++;
 		musFontInfo[i].downstem8thFlagLeading = *w++;
-		PStrCopy((StringPtr)w, musFontInfo[i].postscriptFontName);
+		Pstrcpy(musFontInfo[i].postscriptFontName, (StringPtr)w);
 		ReleaseResource(resH);
 	}
 

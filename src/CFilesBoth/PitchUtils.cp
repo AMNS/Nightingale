@@ -408,7 +408,7 @@ Boolean RespellChordSym(Document */*doc*/, LINK pL)
 	
 	aGraphicL = FirstSubLINK(pL);
 	theStrOffset = GraphicSTRING(aGraphicL);
-	PStrCopy((StringPtr)PCopy(theStrOffset), (StringPtr)string);
+	Pstrcpy((StringPtr)string, (StringPtr)PCopy(theStrOffset));
 
 	/*
 	 *	Look thru the string for occurences of the capital letters A thru G. When one
@@ -665,7 +665,7 @@ Boolean TranspChordSym(
 	
 	aGraphicL = FirstSubLINK(pL);
 	theStrOffset = GraphicSTRING(aGraphicL);
-	PStrCopy((StringPtr)PCopy(theStrOffset), (StringPtr)string);
+	Pstrcpy((StringPtr)string, (StringPtr)PCopy(theStrOffset));
 
 	/*
 	 *	Look thru the string for occurences of the capital letters A thru G. When one
@@ -855,17 +855,17 @@ A thru G is a pitch letter name and the next character after one may be an accid
 We transpose the letter names and leave any other characters in the string untouched. */
 
 void DTranspChordSym(Document */*doc*/,
-							LINK pL,
-							short steps)		/* Signed no. of diatonic steps transposition */
+						LINK pL,
+						short steps)		/* Signed no. of diatonic steps transposition */
 {
 	LINK			aGraphicL;
-	StringOffset theStrOffset;
+	StringOffset	theStrOffset;
 	unsigned char	string[256];
 	short			i, letName, newLetName;
 	
 	aGraphicL = FirstSubLINK(pL);
 	theStrOffset = GraphicSTRING(aGraphicL);
-	PStrCopy((StringPtr)PCopy(theStrOffset), (StringPtr)string);
+	Pstrcpy((StringPtr)string, (StringPtr)PCopy(theStrOffset));
 
 	/*
 	 *	Look thru the string for occurences of the capital letters A thru G. When one
@@ -904,12 +904,12 @@ This does not check that the resulting note has a legal MIDI note number! */
 
 void DTranspNote(
 				Document *doc,
-				LINK		syncL,
-				LINK		aNoteL,
+				LINK	syncL,
+				LINK	aNoteL,
 				CONTEXT	context,
-				Boolean	goUp,					/* TRUE=transpose up, else down */
-				short		octaves,				/* Signed no. of octaves transposition */
-				short		steps 				/* Signed no. of diatonic steps transposition */
+				Boolean	goUp,				/* TRUE=transpose up, else down */
+				short	octaves,			/* Signed no. of octaves transposition */
+				short	steps 				/* Signed no. of diatonic steps transposition */
 				)
 {
 	short effectiveAcc, stf, halfLn, letName,

@@ -755,7 +755,7 @@ PushLock(GRAPHICheap);
 	}
 	
 	if (graphicType==GRMIDIPatch) {
-		PStrCopy(string, midiPatch);
+		Pstrcpy(midiPatch, string);
 		patchNum = FindIntInString(string);
 		//PToCString(midiPatch);
 		//ans = sscanf((char*)midiPatch, "%d", &patchNum);

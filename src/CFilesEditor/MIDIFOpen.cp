@@ -1675,7 +1675,7 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			short dur = QTR_L_DUR;
 			
 			NumToString(tempoValue, metroStr);
-			PStrCopy((StringPtr)"\p", (StringPtr)tempoStr);
+			Pstrcpy((StringPtr)tempoStr, (StringPtr)"\p");
 			
 			doc->selEndL = doc->selStartL = relObj;
 			pitchLev = -2;
@@ -1732,7 +1732,7 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short 
 					newSize = GRStaffHeight;
 					newStyle = doc->fontStyleRM;
 					newEncl = ENCL_NONE;
-					PStrCopy((StringPtr)doc->fontNameRM, (StringPtr)newFont);
+					Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 					
 				}
 				else {
@@ -1743,7 +1743,7 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short 
 					newSize = GRStaffHeight;
 					newStyle = doc->fontStyleRM;
 					newEncl = ENCL_NONE;
-					PStrCopy((StringPtr)doc->fontNameRM, (StringPtr)newFont);
+					Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 					
 				}
 			}
@@ -1755,7 +1755,7 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short 
 				newSize = doc->fontSizeRM;
 				newStyle = doc->fontStyleRM;
 				newEncl = doc->enclosureRM;
-				PStrCopy((StringPtr)doc->fontNameRM, (StringPtr)newFont);
+				Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 			}
 			
 			clickStaff = ctrlInfo.track - 1;

@@ -494,8 +494,7 @@ short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 	Str255		string;
 	DDIST		lineSpace;
 	
-	PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset),
-				(StringPtr)string);
+	Pstrcpy((StringPtr)string, (StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset));
 
 	p = GetPGRAPHIC(pL);
 	fontID = doc->fontTable[p->fontInd].fontID;
@@ -537,7 +536,7 @@ void GetNPtStringBBox(
 		Byte *p;
 		nLines = 1;
 
-		PStrCopy(string, tmpStr);
+		Pstrcpy(tmpStr, string);
 
 		p = tmpStr;
 		totalLen = Pstrlen(tmpStr);

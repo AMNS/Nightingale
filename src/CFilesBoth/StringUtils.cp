@@ -9,7 +9,7 @@
 /*
 		PToCString				CToPString				Pstrcpy
 		streql					strneql					Pstreql		
-		PStrCat					PStrCopy				PStrnCopy
+		PStrCat					PStrnCopy
 		PStrCmp					PStrnCmp				GoodStrncpy
 		ExpandString			GetFinalSubstring		GetInitialSubstring
 */
@@ -129,18 +129,8 @@ void PStrCat(StringPtr p1, ConstStringPtr p2)
 }
 
 
-/* ---------------------------------------------------------- PStrCopy, PStrnCopy -- */
-/* Pascal string copy routines.  [From LSC miniedit] */
-
-/* Copy a Pascal string from src to dst */
-
-void PStrCopy(ConstStringPtr src, StringPtr dst)
-{
-	short len;
-	
-	len = *dst++ = *src++;
-	while (--len>=0) *dst++ = *src++;
-}
+/* ---------------------------------------------------------- PStrnCopy -- */
+/* Pascal string copy routine.  [From LSC miniedit] */
 
 /* Copy the first n chars of a Pascal string from src to dst */
 

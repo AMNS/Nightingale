@@ -867,7 +867,7 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 
 			/* Start with base name */
 			
-			PStrCopy((StringPtr)baseName,useFont);
+			Pstrcpy(useFont, (StringPtr)baseName);
 			for (p=suffix+1; nSuffices>0; nSuffices--,p++) {
 				short lenSuff,lenName;
 				suffix = PS_NthString(stringList,*p);
@@ -887,7 +887,7 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 			
 			if (style & bold) deFont = (unsigned char *)((style & italic) ? "\pTimes-BoldItalic" : "\pTimes-Bold");
 			 else			  deFont = (unsigned char *)((style & italic) ? "\pTimes-Italic" : "\pTimes-Roman");
-			 PStrCopy(deFont,useFont);
+			 Pstrcpy(useFont, deFont);
 			 return FALSE;
 			}
 	}
@@ -907,14 +907,14 @@ static OSErr PS_PrintFontName(const unsigned char *font, short style, Boolean *k
 		char *pn = NULL;
 		Str255 useFont;
 		
-		PStrCopy(font, useFont);
+		Pstrcpy(useFont, font);
 		if (FONTSUBST) {
 			if (PStrCmp((StringPtr)"\pGeneva", useFont))
-				PStrCopy((StringPtr)"\pHelvetica", useFont);
+				Pstrcpy(useFont, (StringPtr)"\pHelvetica");
 			if (PStrCmp((StringPtr)"\pNew York", useFont))
-				PStrCopy((StringPtr)"\pTimes", useFont);
+				Pstrcpy(useFont, (StringPtr)"\pTimes");
 			if (PStrCmp((StringPtr)"\pMonaco", useFont))
-				PStrCopy((StringPtr)"\pCourier", useFont);
+				Pstrcpy(useFont, (StringPtr)"\pCourier");
 			}
 
 		*known = Res2FontName(useFont,style);

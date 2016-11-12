@@ -426,7 +426,7 @@ Boolean WriteScoreHeader(Document *doc, LINK startL)
 	short startMeas;
 
 	if (doc->named) {
-		PStrCopy((StringPtr)doc->name,(StringPtr)filename);
+		Pstrcpy((StringPtr)filename, (StringPtr)doc->name);
 		PToCString((StringPtr)filename);
 	}
 	else
@@ -614,7 +614,7 @@ void SaveNotelist(
 
 	/* Get current name and its length, and truncate name to make room for suffix */
 	
-	if (doc->named) PStrCopy((StringPtr)doc->name, (StringPtr)filename);
+	if (doc->named) Pstrcpy((StringPtr)filename, (StringPtr)doc->name);
 	else				 GetIndString(filename, MiscStringsID, 1);		/* "Untitled" */
 	len = *(StringPtr)filename;
 	if (len >= (FILENAME_MAXLEN-suffixLen)) len = (FILENAME_MAXLEN-suffixLen);
@@ -683,8 +683,8 @@ void SaveNotelist(
 
 	/* Get current name and its length, and truncate name to make room for suffix */
 	
-	if (doc->named) PStrCopy((StringPtr)doc->name,(StringPtr)filename);
-	else				 GetIndString(filename,MiscStringsID,1);		/* "Untitled" */
+	if (doc->named)	Pstrcpy((StringPtr)filename, (StringPtr)doc->name);
+	else			GetIndString(filename,MiscStringsID,1);		/* "Untitled" */
 	len = *(StringPtr)filename;
 	if (len >= (FILENAME_MAXLEN-suffixLen)) len = (FILENAME_MAXLEN-suffixLen);
 	
@@ -700,7 +700,7 @@ void SaveNotelist(
 	GetIndString(prompt, MiscStringsID, 12);
 	SFPutFile(SFPwhere, prompt, filename, NULL, &reply);
 	if (!reply.good) return;
-	PStrCopy(reply.fName, (StringPtr)filename);
+	Pstrcpy((StringPtr)filename, reply.fName);
 	vRefNum = reply.vRefNum;
 	
 	errCode = FSDelete(filename, vRefNum);							/* Delete old file */

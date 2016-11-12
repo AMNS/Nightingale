@@ -177,10 +177,9 @@ person's extender) or hard blank. ??Should use C string (via CCopy) instead of P
 static Boolean AllowOverlap(LINK);
 static Boolean AllowOverlap(LINK lyricL)
 {
-	Str255 string; unsigned char lastChar; short i;
+	Str255 string;  unsigned char lastChar;  short i;
 
-	PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(lyricL))->strOffset),
-				(StringPtr)string);
+	Pstrcpy((StringPtr)string, (StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(lyricL))->strOffset));
 	
 	/* Skip trailing white space or punctuation marks before checking. */
 	
@@ -200,8 +199,8 @@ static void LyricWidthLR(Document *doc, LINK lyricL, short staff, STDIST *pNeedL
 									STDIST *pNeedRight)
 {
 	CONTEXT		context;
-	short			width;
-	DDIST			dNeedLeft, dNeedRight;
+	short		width;
+	DDIST		dNeedLeft, dNeedRight;
 
 	GetContext(doc, lyricL, staff, &context);
 	width = NPtGraphicWidth(doc, lyricL, &context);
@@ -222,7 +221,7 @@ static void ArpWidthLR(Document *doc, LINK arpL, short staff, STDIST *pNeedLeft,
 								STDIST *pNeedRight)
 {
 	CONTEXT	context;
-	DDIST		dNeedLeft=0, dNeedRight=0;
+	DDIST	dNeedLeft=0, dNeedRight=0;
 
 	GetContext(doc, arpL, staff, &context);
 	if (LinkXD(arpL)<0) dNeedLeft = -LinkXD(arpL);

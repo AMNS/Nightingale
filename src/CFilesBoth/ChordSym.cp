@@ -16,7 +16,7 @@
 static Boolean ParseChordSym(unsigned char *, char *, char *, char *, char *, char *, char *, char *);
 static Boolean IsCSAcc(char *, unsigned char *);
 static short Draw1Extension(Document *, char [], short, short, const unsigned char[], const unsigned char[],
-									short, short, short, short, short, Boolean, Boolean, Boolean);
+								short, short, short, short, short, Boolean, Boolean, Boolean);
 static void BuildCSstring(DialogPtr, unsigned char []);
 static void GetCSOptions(DialogPtr, Boolean *);
 static void CloseCSDialog(DialogPtr);
@@ -46,15 +46,15 @@ static ModalFilterUPP	filterUPP;
  */
 
 Boolean ParseChordSym(
-				unsigned char *csStr,	/* Pascal string stored by chord symbol graphic */
-				char *rootStr,			/* receives note name C string (e.g., "C", "Bb") */
-				char *qualStr,			/* receives quality C string (e.g., "Maj", "min", "dim") */
-				char *extStr,			/* receives extension C string (e.g., "7", "ֶ7", "+6", "7#9") */
-				char *extStk1Str,		/* receives (bottom) extension stack C string */
-				char *extStk2Str,		/* receives (middle) extension stack C string */
-				char *extStk3Str,		/* receives (top) extension stack C string */
-				char *bassStr			/* receives bass note C string (e.g., "Cm7/Eb") */
-				)
+			unsigned char *csStr,	/* Pascal string stored by chord symbol graphic */
+			char *rootStr,			/* receives note name C string (e.g., "C", "Bb") */
+			char *qualStr,			/* receives quality C string (e.g., "Maj", "min", "dim") */
+			char *extStr,			/* receives extension C string (e.g., "7", "ֶ7", "+6", "7#9") */
+			char *extStk1Str,		/* receives (bottom) extension stack C string */
+			char *extStk2Str,		/* receives (middle) extension stack C string */
+			char *extStk3Str,		/* receives (top) extension stack C string */
+			char *bassStr			/* receives bass note C string (e.g., "Cm7/Eb") */
+			)
 {
 	register Size	len;
 	register char	*p, *q;
@@ -121,7 +121,7 @@ Boolean ParseChordSym(
 /* Is <*p>, a character in the root portion of a chord symbol, an accidental? */
 
 static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
-								unsigned char *p)		/* ptr to current char in string */
+							unsigned char *p)		/* ptr to current char in string */
 {
 	/* If there's a previous char. in the root string and it's a letter name,
 	 *	recognize all accidentals; otherwise recognize only flat and sharp.
@@ -139,11 +139,11 @@ static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
 /* ----------------------------------------------------------------- DrawChordSym -- */
 /* Parse the given string as a sequence of 6 chunks of text and draw them according
  * to a (rather complicated) chord symbol formatting scheme:
- * 	Chunk				Format														Typical use
+ * 	Chunk			Format											Typical use
  * 	רררררררררררררררררררררררררררררררררררררררררררררררררררררררררררררררררררררררררררררר
- * 	rootStr		Chord symbol font and size;								Chord sym root,
- * 					accidentals in music font (e.g. Sonata),				harp pedals,
- * 					with size config.chordSymMusSize percent				harmony exam figs.
+ * 	rootStr		Chord symbol font and size;							Chord sym root,
+ * 					accidentals in music font (e.g. Sonata),		harp pedals,
+ * 					with size config.chordSymMusSize percent		harmony exam figs.
  * 					of chord symbol font; all accidentals
  * 					recognized for one char following upper case
  * 					root letters, else only flats and sharps.
@@ -153,17 +153,17 @@ static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
  * 	extStr		Chord symbol font, config.chordSymSmallSize %		Extensions
  * 					of chord symbol size; accidentals drawn in
  * 					music font, config.chordSymSmallSize % of
- *						music font size used in rootStr; all
+ *					music font size used in rootStr; all
  * 					superscripted by config.chordSymSuperscript.
  * 	extStk1Str	Same fonts, sizes, as extStr; enclosed in "()".		Extension stack,
- * 					enclosed in parentheses.									figured bass,
- * 	extStk2Str	Same as extStk1Str; each level stacked above			cautionary acc.
+ * 					enclosed in parentheses.						figured bass,
+ * 	extStk2Str	Same as extStk1Str; each level stacked above		cautionary acc.
  * 	extStk3Str	the last; the stack of three extensions taken
  * 					as a whole is left justified. If the bottom
- *						level (extStk1Str) is present, it rests on
- *						the root baseline; else extStk2Str is super-
- *						scripted and extStk3Str is above that.
- * 	bassStr		Bass note name, to be printed following a slash.   Chord sym bass,
+ *					level (extStk1Str) is present, it rests on
+ *					the root baseline; else extStk2Str is super-
+ *					scripted and extStk3Str is above that.
+ * 	bassStr		Bass note name, to be printed following a slash.   Chord sym bass
  *																							applied dominant figs.
  *
  * This function also calculates a bounding box DRect (w/ left,baseline at 0,0).
@@ -173,24 +173,24 @@ static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
  */
 
 void DrawChordSym(Document *doc,
-						DDIST xd, DDIST yd,
-						unsigned char *string,						/* Pascal string */
-						short auxInfo,									/* currently interpreted as Boolean:
-																					draw extension parentheses */
-						PCONTEXT pContext, Boolean dim,
-						DRect *dBox)									/* rect enclosing chord sym */
+					DDIST xd, DDIST yd,
+					unsigned char *string,					/* Pascal string */
+					short auxInfo,							/* currently interpreted as Boolean:
+																draw extension parentheses */
+					PCONTEXT pContext, Boolean dim,
+					DRect *dBox)							/* rect enclosing chord sym */
 {
 	register unsigned char	*p;
-	short							oldFont, oldSize, oldStyle, csFont, csSize, csFace,
-									csSmallSize, musSmallSize, xp, yp, musicSize, newTop,
-									yTweak, superScript, gap, dblGap, stkLineHt, wid1, wid2, wid3,
-									maxWid, start2, start3, parenTweak, baseline, extraLeading;
-	char							rootStr[256], qualStr[MAX_FLDLEN+1], extStr[MAX_FLDLEN+1],
-									extStk1Str[MAX_FLDLEN+1], extStk2Str[MAX_FLDLEN+1],
-									extStk3Str[MAX_FLDLEN+1], bassStr[MAX_FLDLEN+1];
-	Boolean						ok, hadAccident, hadSuperscript, showParens;
-	Point							pt, newPt, rootPt;
-	FontInfo						finfo;
+	short					oldFont, oldSize, oldStyle, csFont, csSize, csFace,
+							csSmallSize, musSmallSize, xp, yp, musicSize, newTop,
+							yTweak, superScript, gap, dblGap, stkLineHt, wid1, wid2, wid3,
+							maxWid, start2, start3, parenTweak, baseline, extraLeading;
+	char					rootStr[256], qualStr[MAX_FLDLEN+1], extStr[MAX_FLDLEN+1],
+							extStk1Str[MAX_FLDLEN+1], extStk2Str[MAX_FLDLEN+1],
+							extStk3Str[MAX_FLDLEN+1], bassStr[MAX_FLDLEN+1];
+	Boolean					ok, hadAccident, hadSuperscript, showParens;
+	Point					pt, newPt, rootPt;
+	FontInfo				finfo;
 	
 	ok = ParseChordSym(string, rootStr, qualStr, extStr, extStk1Str, extStk2Str, extStk3Str, bassStr);
 
@@ -416,15 +416,15 @@ void DrawChordSym(Document *doc,
 
 		case toPostScript:
 {
-			TEXTSTYLE	*pTxStyle;
+			TEXTSTYLE		*pTxStyle;
 			DDIST			ydRoot, xTweakD, yTweakD, superScriptD, gapD, dblGapD, extStackWidD;
 			short			w;
 			unsigned char csName[32], musFontName[64], substr[2];
 			short			newFontIndex;
 			
-			PStrCopy((StringPtr)doc->musFontName, (StringPtr)musFontName);			
+			Pstrcpy((StringPtr)musFontName, (StringPtr)doc->musFontName);			
 			pTxStyle = (TEXTSTYLE *)doc->fontNameCS;
-			PStrCopy((StringPtr)pTxStyle->fontName, (StringPtr)csName);
+			Pstrcpy((StringPtr)csName, (StringPtr)pTxStyle->fontName);
 			newFontIndex = FontName2Index(doc, csName);			/* in case toPostScript: should never fail */
 			csFont = doc->fontTable[newFontIndex].fontID;
 			csSize = GetTextSize(pTxStyle->relFSize, pTxStyle->fontSize, LNSPACE(pContext));
@@ -640,7 +640,7 @@ void DrawChordSym(Document *doc,
 static short Draw1Extension(
 			Document *doc,
 			char *str,							/* C string to enclose in parentheses */
-			short xp, short yp,				/* paper-rel pixels (QD) or points (PS); ignored if draw==FALSE */
+			short xp, short yp,					/* paper-rel pixels (QD) or points (PS); ignored if draw==FALSE */
 			const unsigned char musFontName[],	/* used only if drawing to PostScript */
 			const unsigned char csFontName[],	/* used only if drawing to PostScript */
 			short musSmallSize,
@@ -827,21 +827,21 @@ static enum {
 
 static UserPopUp	rootPop, qualPop, extPop, extstk1Pop, extstk2Pop, extstk3Pop, bassPop;
 static Rect			displayBox;
-static Document	*localDoc;
+static Document		*localDoc;
 
 
 /* --------------------------------------------------------------- ChordSymDialog -- */
 
 Boolean ChordSymDialog(Document *doc, unsigned char *string, short *auxInfo)
 {
-	short				item, type;
+	short			item, type;
 	Boolean			showParens, keepGoing=TRUE;
 	Handle			hndl;
 	UserPopUp		*p;
 	Str255			str;
-	char				qualStr[MAX_FLDLEN+1], extStr[MAX_FLDLEN+1],
-						extStk1Str[MAX_FLDLEN+1], extStk2Str[MAX_FLDLEN+1],
-						extStk3Str[MAX_FLDLEN+1], bassStr[MAX_FLDLEN+1];
+	char			qualStr[MAX_FLDLEN+1], extStr[MAX_FLDLEN+1],
+					extStk1Str[MAX_FLDLEN+1], extStk2Str[MAX_FLDLEN+1],
+					extStk3Str[MAX_FLDLEN+1], bassStr[MAX_FLDLEN+1];
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
 
@@ -909,11 +909,11 @@ Boolean ChordSymDialog(Document *doc, unsigned char *string, short *auxInfo)
 				break;
 			case POP5_Root:		p = &rootPop;		goto loadField;
 			case POP7_Quality:	p = &qualPop;		goto loadField;
-			case POP9_Ext:			p = &extPop;		goto loadField;
+			case POP9_Ext:		p = &extPop;		goto loadField;
 			case POP11_ExtStk2:	p = &extstk2Pop;	goto loadField;
 			case POP13_ExtStk1:	p = &extstk1Pop;	goto loadField;
 			case POP15_ExtStk3:	p = &extstk3Pop;	goto loadField;
-			case POP17_Bass:		p = &bassPop;		goto loadField;
+			case POP17_Bass:	p = &bassPop;		goto loadField;
 			
 			case EDIT4_Root:
 			case EDIT6_Quality:
@@ -1045,8 +1045,8 @@ static Boolean AnyBadCSvalues(DialogPtr dlog)
 
 static void ShowHideParens(DialogPtr dlog, Boolean show)
 {
-	short		item, type;
-	Rect		box;
+	short	item, type;
+	Rect	box;
 	Handle	hndl;
 
 	for (item = STXT21_LParen1; item <= STXT26_RParen3; item++) {
@@ -1062,21 +1062,21 @@ static void ShowHideParens(DialogPtr dlog, Boolean show)
 /* Display in the USER18_Display rectangle the chord symbol specified by edit fields in <dlog>. */
 
 static void DisplayChordSym(
-					Document *doc,
-					DialogPtr dlog,
-					Boolean alwaysDraw	/* if FALSE, draw only if chord sym has changed */
-					)
+				Document *doc,
+				DialogPtr dlog,
+				Boolean alwaysDraw	/* if FALSE, draw only if chord sym has changed */
+				)
 {
-	short						saveMagnify, saveSize, saveRelSize;
-	Str255					fullStr;
-	static Str255			saveFullStr = "\p";
-	DDIST						xd, yd;
-	CONTEXT					context;
-	Rect						box;
-	DRect						dBox;
-	RgnHandle				rgnHdl;
-	Boolean					showParens;
-	short						auxInfo;
+	short			saveMagnify, saveSize, saveRelSize;
+	Str255			fullStr;
+	static Str255	saveFullStr = "\p";
+	DDIST			xd, yd;
+	CONTEXT			context;
+	Rect			box;
+	DRect			dBox;
+	RgnHandle		rgnHdl;
+	Boolean			showParens;
+	short			auxInfo;
 		
 	BuildCSstring(dlog, fullStr);
 
@@ -1121,26 +1121,26 @@ static void DisplayChordSym(
 	
 	DrawChordSym(doc, xd, yd, fullStr, auxInfo, &context, FALSE, &dBox);
 
-	SetClip(rgnHdl);						/* restore clipping rgn */
+	SetClip(rgnHdl);					/* restore clipping rgn */
 
-	doc->relFSizeCS = saveRelSize;	/* restore chord symbol font size */
+	doc->relFSizeCS = saveRelSize;		/* restore chord symbol font size */
 	doc->fontSizeCS = saveSize;
 
-	doc->magnify = saveMagnify;		/* restore magnification */
+	doc->magnify = saveMagnify;			/* restore magnification */
 	InstallMagnify(doc);
 	
-	PStrCopy((StringPtr)fullStr, (StringPtr)saveFullStr);
+	Pstrcpy((StringPtr)saveFullStr, (StringPtr)fullStr);
 }
 
 
 /* --------------------------------------------------------------- ChordSymFilter -- */
 
-static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord	*evt, short *item)
+static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord *evt, short *item)
 {
-	short				type, oldFont, oldSize, oldStyle;
+	short			type, oldFont, oldSize, oldStyle;
 	Handle			hndl;
-	Rect				box,portRect;
-	Point				where;
+	Rect			box,portRect;
+	Point			where;
 	unsigned char	ch;
 	Str255			helpStr;
 
@@ -1164,7 +1164,7 @@ static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord	*evt, short *it
 			ClipRect(&bassPop.shadow);		DrawPopUp(&bassPop);
 			
 			portRect = GetQDPortBounds();
-			ClipRect(&portRect);	/* restore clipping rgn */
+			ClipRect(&portRect);							/* restore clipping rgn */
 
 			/* draw help text */
 			oldFont = GetPortTxFont();
@@ -1208,7 +1208,7 @@ static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord	*evt, short *it
 				curField = GetDialogKeyboardFocusItem(dlog);
 				GetDlgString(dlog, curField, str);
 				if (str[0]>MAX_FLDLEN) {
-					str[0] = MAX_FLDLEN;								/* in case pasted too many chars */
+					str[0] = MAX_FLDLEN;							/* in case pasted too many chars */
 					PutDlgString(dlog, curField, str, TRUE);
 				}
 				DisplayChordSym(localDoc, dlog, FALSE);
@@ -1237,11 +1237,11 @@ static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord	*evt, short *it
 
 static Boolean CheckCSuserItems(DialogPtr dlog, Point where, short *itemHit)
 {
-	register short			i, numItems;
+	register short		i, numItems;
 	register UserPopUp	*p;
-	register Boolean		changeMenu=FALSE;
-	Str255					eStr, mStr;
-	Rect 						portRect;
+	register Boolean	changeMenu=FALSE;
+	Str255				eStr, mStr;
+	Rect 				portRect;
 	
 	if (PtInRect(where, &rootPop.shadow))
 		{ p = &rootPop; *itemHit = POP5_Root; }
@@ -1284,7 +1284,7 @@ static Boolean CheckCSuserItems(DialogPtr dlog, Point where, short *itemHit)
 		}
 		changeMenu = TRUE;
 		InsertMenuItem(p->menu, "\p ", 0);			/* use SetMenuItemText to ignore any meta-chars in eStr */
-		if (eStr[1]=='-') eStr[1] = '׀';				/* prevent dotted line in menu! */
+		if (eStr[1]=='-') eStr[1] = '׀';			/* prevent dotted line in menu! */
 		SetMenuItemText(p->menu, 1, eStr);
 		InsertMenuItem(p->menu, "\p(-", 1);
 		ChangePopUpChoice(p, 1);
@@ -1297,13 +1297,13 @@ skipInsMenu:
 	
 	if (changeMenu) {
 		SetItemMark(p->menu, p->currentChoice, 0);
-		DeleteMenuItem(p->menu, 1);							/* top item */
-		DeleteMenuItem(p->menu, 1);							/* divider */
+		DeleteMenuItem(p->menu, 1);						/* top item */
+		DeleteMenuItem(p->menu, 1);						/* divider */
 		ChangePopUpChoice(p, p->currentChoice-2);
 	}
 	
-	/* This makes it unnecessary to have a separate menu handle for 
-	 * each popup that shares a menu resource.
+	/* This makes it unnecessary to have a separate menu handle for each
+	 * popup that shares a menu resource.
 	 */
 	SetItemMark(p->menu, p->currentChoice, 0);
 
@@ -1321,15 +1321,15 @@ void DialogAdjustCursor(DialogPtr dlog, EventRecord *evt, Boolean anyField)
 {
 	CursHandle	iBeam;
 	Handle		hndl;
-	short			curItem, curField, type;
-	Rect			box;
-	Point			localWhere;
+	short		curItem, curField, type;
+	Rect		box;
+	Point		localWhere;
 	
 	localWhere = evt->where;
 	GlobalToLocal(&localWhere);
 
 	curItem = FindDialogItem(dlog, localWhere) + 1;
-	if (curItem == 0)														/* not over any item */
+	if (curItem == 0)											/* not over any item */
 		goto setArrow;
 
 	GetDialogItem(dlog, curItem, &type, &hndl, &box);
@@ -1349,4 +1349,3 @@ void DialogAdjustCursor(DialogPtr dlog, EventRecord *evt, Boolean anyField)
 setArrow:
 	ArrowCursor();
 }
-

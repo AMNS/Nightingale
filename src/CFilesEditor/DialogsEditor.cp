@@ -3836,7 +3836,7 @@ Boolean ChordFrameDialog(Document *doc,
 	*size = theSize;
 	*style = 0;							/* plain */
 	*enclosure = ENCL_NONE;
-	PStrCopy((StringPtr)doc->fontNameCS, (StringPtr)fontname);
+	Pstrcpy((StringPtr)fontname, (StringPtr)doc->fontNameCS);
 
 	return TRUE;
 }

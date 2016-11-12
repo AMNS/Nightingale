@@ -87,7 +87,7 @@ Boolean OpenMidiMapFile(Document *doc, FSSpec *fsSpec)
 	Boolean		result;
 	Str255		fileName;
 
-	PStrCopy(fsSpec->name, fileName);
+	Pstrcpy(fileName, fsSpec->name);
 	result = OpenMidiMapFile(doc, fileName, fsSpec);
 	return result;
 }

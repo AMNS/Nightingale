@@ -1146,7 +1146,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 						if (!ExpandString(textStr, (StringPtr)PCopy(strOffset), EXPAND_WIDER))
 							LogPrintf(LOG_WARNING, "SDDrawGraphic: ExpandString failed.\n");
 					}
-					else PStrCopy((StringPtr)PCopy(strOffset), textStr);
+					else Pstrcpy(textStr, (StringPtr)PCopy(strOffset));
 					DrawString(textStr);
 				}
 			}
@@ -1206,7 +1206,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
 			LogPrintf(LOG_WARNING, "SDDrawTempo: ExpandString failed.\n");
 	}
-	else PStrCopy((StringPtr)PCopy(theStrOffset), tempoStr);
+	else Pstrcpy(tempoStr, (StringPtr)PCopy(theStrOffset));
 
 	MoveTo(d2p(xd), d2p(yd));
 	DrawString(tempoStr);

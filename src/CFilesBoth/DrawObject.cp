@@ -1616,7 +1616,7 @@ static Boolean GetGraphicDBox(Document *doc,
 				}
 				
 			}
-			else PStrCopy((StringPtr)PCopy(theStrOffset), string);
+			else Pstrcpy(string, (StringPtr)PCopy(theStrOffset));
 			pStr = string;
 	}
 	
@@ -1846,13 +1846,13 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 		GetNFontInfo(fontID, fontSize, fontStyle, &fInfo);
 		dLineSp = pt2d(fInfo.ascent + fInfo.descent + fInfo.leading);
 		(void)GetGraphicOrTempoDrawInfo(doc, pL, GraphicFIRSTOBJ(pL), GraphicSTAFF(pL), &xd, &yd, &relContext);
-		PStrCopy((StringPtr)PCopy(theStrOffset), str);
+		Pstrcpy(str, (StringPtr)PCopy(theStrOffset));
 	}
 	else if (ObjLType(pL)==TEMPOtype) {
 		PTEMPO p = GetPTEMPO(pL);
 		expandN = p->expanded;
 		theStrOffset = p->strOffset;
-		PStrCopy((StringPtr)PCopy(theStrOffset), str);
+		Pstrcpy(str, (StringPtr)PCopy(theStrOffset));
 		multiLine = (CountTextLines((StringPtr)str)>1);
 		voice = -1;
 		GetNFontInfo(fontID, fontSize, fontStyle, &fInfo);
@@ -1917,7 +1917,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 						break;
 					}
 				}
-				else PStrCopy(str, strToDraw);
+				else Pstrcpy(strToDraw, str);
 				
 				if (dim) DrawMString(doc, strToDraw, NORMAL_VIS, TRUE);
 				else DrawString(strToDraw);
@@ -1963,7 +1963,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 						return FALSE;
 					}
 				}
-				else PStrCopy((StringPtr)str, strToDraw);
+				else Pstrcpy(strToDraw, (StringPtr)str);
 				
 				PS_FontString(doc, xd, yd, strToDraw, fontName, fontSize, fontStyle);
 			}			
@@ -2241,7 +2241,7 @@ static Boolean GetTempoDBox(Document *doc,
 	
 	p = GetPTEMPO(pL);
 	theStrOffset = p->strOffset;
-	PStrCopy((StringPtr)PCopy(theStrOffset), tmpStr);
+	Pstrcpy(tmpStr, (StringPtr)PCopy(theStrOffset));
 	multiLine = (CountTextLines(tmpStr)>1);
 	
 	if (expandN) {
@@ -2250,7 +2250,7 @@ static Boolean GetTempoDBox(Document *doc,
 			return FALSE;
 		}
 	}
-	else PStrCopy((StringPtr)PCopy(theStrOffset), string);
+	else Pstrcpy(string, (StringPtr)PCopy(theStrOffset));
 	
 	GetNPtStringBBox(doc, string, fontID, fontSize, fontStyle, multiLine, &bBox);
 //	LogPrintf(LOG_DEBUG, "GetTempoDBox: count lines=%d fontID, Size, Style=%d, %d, %d\n",
@@ -2321,7 +2321,7 @@ PushLock(TEMPOheap);
 			goto Cleanup;
 		}
 	}
-	else PStrCopy((StringPtr)PCopy(theStrOffset), tempoStr);
+	else Pstrcpy(tempoStr, (StringPtr)PCopy(theStrOffset));
 	tempoStrlen = Pstrlen(tempoStr);
 	
 	/* If the tempo string ends with a new line, the metronome mark goes below the

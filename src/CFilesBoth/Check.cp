@@ -888,10 +888,10 @@ PopLock(DYNAMheap);
 of <mode> (see the list above). */
 
 short CheckRPTEND(Document *doc, LINK pL, CONTEXT context[],
-						Ptr ptr,
-						short mode,
-						STFRANGE stfRange,
-						Point enlarge)
+					Ptr ptr,
+					short mode,
+					STFRANGE stfRange,
+					Point enlarge)
 {
 	LINK			aRptL;
 	PARPTEND		aRpt;
@@ -1090,8 +1090,7 @@ PushLock(OBJheap);
 				
 				PStrnCopy((StringPtr)doc->fontTable[p->fontInd].fontName, 
 							(StringPtr)newFont, 32);
-				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset),
-							(StringPtr)string);
+				Pstrcpy((StringPtr)string, (StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset));
 							
 				switch (p->graphicType) {
 					case GRString:
@@ -1337,9 +1336,9 @@ PushLock(OBJheap);
 				HiliteInsertNode(doc, p->firstObjL, staffn, TRUE);		/* Hiliting on */
 				while (Button()) ;
 				p = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(p->strOffset), (StringPtr)tempoStr);
+				Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(p->strOffset));
 				p = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(p->metroStrOffset), (StringPtr)metroStr);
+				Pstrcpy((StringPtr)metroStr, (StringPtr)PCopy(p->metroStrOffset));
 				p = GetPTEMPO(pL);
 				useMM = !(p->noMM);
 				showMM = !(p->hideMM);

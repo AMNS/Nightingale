@@ -901,7 +901,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 				GraphicINFO(pL) = config.chordSymDrawPar? 1 : 0;
 
 				aGraphicL = FirstSubLINK(pL);
-				PStrCopy((StringPtr)PCopy(GraphicSTRING(aGraphicL)), (StringPtr)string);
+				Pstrcpy((StringPtr)string, (StringPtr)PCopy(GraphicSTRING(aGraphicL)));
 				PStrCat(string, delim);
 				offset = PReplace(GraphicSTRING(aGraphicL), string);
 				if (offset<0L) {
@@ -1486,15 +1486,15 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	
 	if (!PreflightMem(40)) { NoMoreMemory(); return LOWMEM_ERR; }
 	
-	ConvertScore(doc, fileTime);							/* Do any conversion of old files needed */
+	ConvertScore(doc, fileTime);						/* Do any conversion of old files needed */
 
-	PStrCopy(filename, doc->name);							/* Remember filename and vol refnum after scoreHead is overwritten */
+	Pstrcpy(doc->name, filename);						/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;
 	doc->changed = FALSE;
-	doc->saved = TRUE;										/* Has to be, since we just opened it! */
-	doc->named = TRUE;										/* Has to have a name, since we just opened it! */
+	doc->saved = TRUE;									/* Has to be, since we just opened it! */
+	doc->named = TRUE;									/* Has to have a name, since we just opened it! */
 
-	ModifyScore(doc, fileTime);								/* Do any hacking needed--ordinarily none */
+	ModifyScore(doc, fileTime);							/* Do any hacking needed--ordinarily none */
 
 	/*
 	 * Read the document's OMS device numbers for each part. if "devc" signature block not

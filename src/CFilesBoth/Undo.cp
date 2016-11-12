@@ -253,16 +253,15 @@ static long GetRangeMemAlloc(LINK startL, LINK endL)
 				}
 				break;
 			case GRAPHICtype:
-				PStrCopy((StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset), string);
+				Pstrcpy(string, (StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset));
 				memAlloc += Pstrlen(string);
 				break;
 			case TEMPOtype:
 				pTempo = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(pTempo->strOffset), string);
+				Pstrcpy(string, (StringPtr)PCopy(pTempo->strOffset));
 				memAlloc += Pstrlen(string);
-							
 				pTempo = GetPTEMPO(pL);
-				PStrCopy((StringPtr)PCopy(pTempo->metroStrOffset), string);
+				Pstrcpy(string, (StringPtr)PCopy(pTempo->metroStrOffset));
 				memAlloc += Pstrlen(string);
 				break;
 			default:
