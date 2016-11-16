@@ -165,12 +165,15 @@ Boolean DCheckVoiceTable(Document *doc,
 
 
 /* ------------------------------------------------------------------- DCheckTempi -- */	
-/* If there are multiple Tempo/metronome mark objects at the same point in the score,
-check that their tempo and M.M. strings are identical. This is on the assumption that
-the reason for multiple Tempos at the same point is just to make the tempo and/or M.M.
-appear at more than one vertical point, for a score with many staves. Exception: if one
-or both of the objects being compared at a given time don't have an M.M. (as indicated
-by their _noMM_ flags), don't check their M.M. strings. */
+/* If there are multiple Tempo objects at the same point in the score, check that their
+tempo and/or M.M. strings are identical. This is on the assumption that the reason for
+multiple Tempos at the same point is just to make the tempo and/or M.M. appear at more
+than one vertical point, presumably in a score with many staves. In any case, as of v.
+5.7, Nightingale doesn't support independent tempi on different staves, so different
+M.M.s really are a problem. NB: A Tempo object may have no tempo component (indicated
+by an empty tempo string), or no M.M. component (indicated by its _noMM_ flags). Check
+the tempo string only if both objects being compared at a given time have a tempo
+component, and likewise for M.M. strings. */
 
 Boolean DCheckTempi(Document *doc)
 {
@@ -193,11 +196,11 @@ Boolean DCheckTempi(Document *doc)
 				theStrOffset = TempoSTRING(pL);
 				Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)tempoStr);
-//LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevTempoStr,
-//					pL, tempoStr);
-				/* Does this Tempo object have the expected tempo string? */
-				if (strcmp(prevTempoStr, tempoStr)!=0)
-					COMPLAIN3("DCheckTempi: Tempi at %u ('%s') AND %u ARE INCONSISTENT.\n",
+LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevTempoStr,
+					pL, tempoStr);
+				/* If this Tempo object has a tempo string, is it the expected string? */
+				if (strlen(tempoStr)>0 && strcmp(prevTempoStr, tempoStr)!=0)
+					COMPLAIN3("DCheckTempi: Tempo marks at %u ('%s') AND %u ARE INCONSISTENT.\n",
 								prevTempoL, prevTempoStr, pL);
 			}
 			
@@ -205,8 +208,8 @@ Boolean DCheckTempi(Document *doc)
 				theStrOffset = TempoMETROSTR(pL);
 				Pstrcpy((StringPtr)metroStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)metroStr);
-//LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevMetroStr,
-//					pL, metroStr);
+LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevMetroStr,
+					pL, metroStr);
 				/* If this Tempo object has an M.M., is it the expected M.M. string? */
 				if (!TempoNOMM(pL) && strcmp(prevMetroStr, metroStr)!=0)
 					COMPLAIN3("DCheckTempi: M.M.s of Tempo objects at %u ('%s') AND %u ARE INCONSISTENT.\n",
@@ -219,7 +222,7 @@ Boolean DCheckTempi(Document *doc)
 				theStrOffset = TempoMETROSTR(pL);
 				Pstrcpy((StringPtr)prevMetroStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)prevMetroStr);
-				havePrevTempo = TRUE;
+				if (strlen(tempoStr)>0) havePrevTempo = TRUE;
 				if (!TempoNOMM(pL)) havePrevMetro = TRUE;
 				prevTempoL = pL;
 			}

@@ -21,7 +21,7 @@ the Notelist format should not change with locale. */
 
 static short fRefNum;					/* ID of currently open file */
 static OSErr errCode;					/* Latest report from the front */
-static Boolean firstKeySig;
+static Boolean firstKeySig, firstClef;
 
 OSErr WriteLine(void);
 
@@ -202,14 +202,18 @@ Boolean ProcessMeasure(Document */*doc*/, LINK measL, LINK aMeasL)
 }
 
 
-/* ----------------------------------------------------------------- ProcessClef -- */
-/* Process a Clef subobject. This version simply writes it out.
-Returns TRUE normally, FALSE if there's a problem. */
+#define NL_KEEP_CONTEXT_CLEFS FALSE
 
-Boolean ProcessClef(Document */*doc*/, LINK /*tsL*/, LINK aClefL)
+/* ------------------------------------------------------------------- ProcessClef -- */
+/* Process a Clef subobject. This version skips it if it's just a context-setting clef
+at the beginning of a system (other than the first, of course); otherwise it simply
+writes it out. Returns TRUE normally, FALSE if there's a problem. */
+
+Boolean ProcessClef(Document */*doc*/, LINK tsL, LINK aClefL)
 {
 	PACLEF aClef;
 	
+	if (!firstClef && !ClefINMEAS(tsL) && !NL_KEEP_CONTEXT_CLEFS) return TRUE;
 	aClef = GetPACLEF(aClefL);
 	sprintf(strBuf, "%c stf=%d type=%d", CLEF_CHAR, aClef->staffn, aClef->subType);
 
@@ -217,11 +221,12 @@ Boolean ProcessClef(Document */*doc*/, LINK /*tsL*/, LINK aClefL)
 }
 
 
-/* --------------------------------------------------------------- ProcessKeySig -- */
-/* Process a KeySig subobject. This version simply writes it out some of its
-information. NB: assumes standard key signature (non-standard ones aren't
-implemented yet, anyway, as of v.3.0).
-Returns TRUE normally, FALSE if there's a problem. */
+/* ----------------------------------------------------------------- ProcessKeySig -- */
+/* Process a KeySig subobject. This version skips it if it's just a context-setting
+key signature at the beginning of a system (other than the first, of course); otherwise
+it simply writes out some of its info. Thanks to Tim C. for the skipping code. NB:
+assumes standard key signature (non-standard ones aren't implemented yet, anyway, as of
+v.5.7). Returns TRUE normally, FALSE if there's a problem. */
 
 Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
 {
@@ -334,13 +339,14 @@ Boolean ProcessGraphic(Document *doc, LINK graphicL)
 
 extern char gTempoCode[];
 
-/* ---------------------------------------------------------------- ProcessTempo -- */
-/* Process a Tempo object. This version simply writes it out.
-Returns TRUE normally, FALSE if there's a problem. */
+/* ------------------------------------------------------------------ ProcessTempo -- */
+/* Process a Tempo object, with its tempo and metronome mark components. This version
+simply writes it out. Returns TRUE normally, FALSE if there's a problem. */
 
 Boolean ProcessTempo(Document *doc, LINK tempoL)
 {
 	PTEMPO p; char noteChar;
+	char tempoStr[255];
 	
 PushLock(OBJheap);
  	p = GetPTEMPO(tempoL);
@@ -350,14 +356,22 @@ PushLock(OBJheap);
 		return TRUE;
 	}
 
+	/* The tempo mark string may contain embedded newline chars.; replace them with
+		a delimiter char. to keep what we write out on one line. */ 
+	Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(p->strOffset));
+	PtoCstr((StringPtr)tempoStr);
+	for (short k=1; k<=strlen(tempoStr); k++)
+		if (tempoStr[k]==CH_CR) tempoStr[k] = CH_NLDELIM;
 	sprintf(strBuf, "%c stf=%d '%s'", METRONOME_CHAR, TempoSTAFF(tempoL),
-				PtoCstr(PCopy(p->strOffset)) );							/* FIXME: WANT CCopy */
+				 tempoStr);
 
 	noteChar = gTempoCode[p->subType];
-	if (!p->hideMM || doc->showInvis) {
+	if (p->noMM)
+		sprintf(&strBuf[strlen(strBuf)], " *=noMM");
+	else if (!p->hideMM || doc->showInvis) {
 		sprintf(&strBuf[strlen(strBuf)], " %c", noteChar);
 		if (p->dotted) sprintf(&strBuf[strlen(strBuf)], ".");
-		sprintf(&strBuf[strlen(strBuf)], "=%s", PtoCstr(PCopy(p->metroStrOffset)) );	/* FIXME: WANT CCopy */
+		sprintf(&strBuf[strlen(strBuf)], "=%s", PtoCstr(PCopy(p->metroStrOffset)) );
 	}
 
 PopLock(OBJheap);
@@ -472,7 +486,7 @@ unsigned short ProcessScore(
 	count++;
 
 	anyVoice = (voice==ANYONE);
-	firstKeySig = TRUE;
+	firstClef = firstKeySig = TRUE;
 
 	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
 	
@@ -566,16 +580,16 @@ unsigned short ProcessScore(
 		/*
 		 * If we've just handled a keysig, we're past the first keysig of the score.
 		 * Reset <firstKeySig> so that, of the keysigs that are not in a measure, no
-		 * others are ever output in the Notelist.
+		 * others are ever output in the Notelist. Likewise for clefs.
 		 */
-		if (ObjLType(pL)==KEYSIGtype)
-			firstKeySig = FALSE;
+		if (ObjLType(pL)==CLEFtype) firstClef = FALSE;
+		if (ObjLType(pL)==KEYSIGtype) firstKeySig = FALSE;
 	}
 
 	return count;	
 
 Error:
-	GetIndCString(strBuf, NOTELIST_STRS, 38);		/* "An error occurred: the entire notelist was not saved." */
+	GetIndCString(strBuf, NOTELIST_STRS, 38);	/* "An error occurred: the entire notelist was not saved." */
 	CParamText(strBuf, "", "", "");
 	StopInform(GENERIC_ALRT);
 	return count;		

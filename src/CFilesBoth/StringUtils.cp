@@ -8,8 +8,8 @@
 
 /*
 		PToCString				CToPString				Pstrcpy
-		streql					strneql					Pstreql		
-		PStrCat					PStrnCopy
+		PStrncpy				streql					strneql
+		Pstreql					Pstrlen					PStrCat					
 		PStrCmp					PStrnCmp				GoodStrncpy
 		ExpandString			GetFinalSubstring		GetInitialSubstring
 */
@@ -17,6 +17,11 @@
 #include "Nightingale_Prefix.pch"
 #include <ctype.h>
 #include "Nightingale.appl.h"
+
+/* ====================================================== Pascal string "toolbox" == */
+/* The following are mostly versions of standard C librariy functions that expect
+Pascal strings instead of C strings, plus some general string utilities.  Cf.
+StringToolbox.c.
 
 /* ------------------------------------------------------- PToCString, CToPString -- */
 /* Convert C to Pascal style strings and vice-versa. Very similar, quite possibly
@@ -26,7 +31,7 @@ identical, to Symantec's PtoCstr and CtoPstr. */
 
 char *PToCString(unsigned char *str)
 {
-	unsigned char *p,*q,*end;
+	unsigned char *p, *q, *end;
 	
 	end = str + *(unsigned char *)str;
 	q = (p=str) + 1;
@@ -40,7 +45,7 @@ char *PToCString(unsigned char *str)
 
 unsigned char *CToPString(char *str)
 {
-	char *p,*q;
+	char *p, *q;
 	short len;
 	
 	p = str + (len = strlen(str));
@@ -61,6 +66,17 @@ unsigned char *Pstrcpy(unsigned char *dst, const unsigned char *src)
 	n = *(unsigned char *)src + 1;
 	while (n-- > 0) *dst++ = *src++;
 	return(old);
+}
+
+
+/* Copy the first n chars of a Pascal string from src to dst */
+
+void PStrncpy(StringPtr dst, ConstStringPtr src, short n)	
+{
+	short len;
+	
+	len = *dst++ = *src++;
+	while (--len>=0 && --n>=0) *dst++ = *src++;
 }
 
 
@@ -94,7 +110,7 @@ Boolean strneql(char *s1, char *s2, short n)
 Boolean Pstreql(unsigned char *s1, unsigned char *s2)
 {
 	short len;
-	unsigned char *u1=s1,*u2=s2;
+	unsigned char *u1=s1, *u2=s2;
 	
 	len = *u1;
 	while (len-- >= 0)
@@ -126,20 +142,6 @@ void PStrCat(StringPtr p1, ConstStringPtr p2)
 	
 	len = *p2++;							/* Copy *p2 to *p1 */
 	while (--len>=0) *p1++=*p2++;
-}
-
-
-/* ---------------------------------------------------------- PStrnCopy -- */
-/* Pascal string copy routine.  [From LSC miniedit] */
-
-/* Copy the first n chars of a Pascal string from src to dst */
-
-void PStrnCopy(ConstStringPtr src, StringPtr dst, short n)	
-{
-	short len;
-	
-	len = *dst++ = *src++;
-	while (--len>=0 && --n>=0) *dst++ = *src++;
 }
 
 

@@ -1134,8 +1134,7 @@ short FontName2Index(Document *doc, StringPtr fontName)
 		return -1;
 	}
 	else {
-		PStrnCopy((StringPtr)fontName, 
-					(StringPtr)doc->fontTable[nfontsUsed].fontName, 32);
+		PStrncpy((StringPtr)doc->fontTable[nfontsUsed].fontName, (StringPtr)fontName, 32);
 		GetFNum(fontName, (short *)&doc->fontTable[nfontsUsed].fontID);
 		doc->nfontsUsed++;
 		return nfontsUsed;
@@ -1153,7 +1152,7 @@ Boolean FontID2Name(Document *doc, short fontID, StringPtr fontName)
 	
 	for (i = 0; i<nfontsUsed; i++) {
 		if (doc->fontTable[i].fontID==fontID) {
-			PStrnCopy((StringPtr)doc->fontTable[i].fontName, (StringPtr)fontName, 32);
+			PStrncpy((StringPtr)fontName, (StringPtr)doc->fontTable[i].fontName, 32);
 			return TRUE;
 		}
 	}

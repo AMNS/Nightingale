@@ -1147,7 +1147,7 @@ Boolean TextDialog(
 						theCurrent.lyric = theLyric;
 						if (popup7.currentChoice) {
 							GetMenuItemText(popup7.menu, popup7.currentChoice, name);
-							PStrnCopy((StringPtr)name, (StringPtr)theCurrent.fontName, 63);
+							PStrncpy((StringPtr)theCurrent.fontName, (StringPtr)name, 63);
 							}
 						}
 					 else
@@ -1474,10 +1474,10 @@ Boolean DefineStyleDialog(Document *doc,
 	theFont = 0;
 	AppendResMenu(popup7.menu,'FONT');
 	
-	InstallTextStyle(dlog,&theCurrent,FALSE);
+	InstallTextStyle(dlog, &theCurrent, FALSE);
 	SetStylePopUp(currentStyle);
 
-	PutDlgString(dlog,EDIT28_Text,(unsigned char *)string,FALSE);
+	PutDlgString(dlog,EDIT28_Text, (unsigned char *)string, FALSE);
 	
 	ShowWindow(GetDialogWindow(dlog));
 
@@ -1505,8 +1505,8 @@ Boolean DefineStyleDialog(Document *doc,
 			case POP4_StyleChoice:
 				if (popupAns) {
 					if (popup7.currentChoice)
-						GetMenuItemText(popup7.menu,popup7.currentChoice,name);
-					PStrnCopy((StringPtr)name, (StringPtr)theCurrent.fontName, 31);
+						GetMenuItemText(popup7.menu, popup7.currentChoice, name);
+					PStrncpy((StringPtr)theCurrent.fontName, (StringPtr)name, 31);
 					theCurrent.relFSize = isRelative;
 					theCurrent.fontSize = (isRelative? theRelIndex : theSize);
 					theCurrent.fontStyle = theStyle;
@@ -1518,9 +1518,9 @@ Boolean DefineStyleDialog(Document *doc,
 					SetCurrentStyle(currentStyle);
 					Pstrcpy((StringPtr)name, (StringPtr)theCurrent.fontName);
 					TextEditState(dlog, TRUE);
-					InstallTextStyle(dlog,&theCurrent,FALSE);
+					InstallTextStyle(dlog, &theCurrent, FALSE);
 					TextEditState(dlog, FALSE);
-					DrawExampleText(dlog,NULL);
+					DrawExampleText(dlog, NULL);
 #ifdef DEBUG_PRINTFONTS
 					DebugPrintFonts(doc);
 #endif
@@ -1529,7 +1529,7 @@ Boolean DefineStyleDialog(Document *doc,
 			case POP7_Name:
 				if (popupAns) {
 					GetRealSizes();
-					DrawExampleText(dlog,NULL);
+					DrawExampleText(dlog, NULL);
 					}
 				break;
 			case POP11_Absolute:
@@ -1541,7 +1541,7 @@ Boolean DefineStyleDialog(Document *doc,
 					TuneRadioIn(dlog,RAD9_Absolute,&radioChoice);
 					thePtSize = theSize;
 					SetAbsSizePopUp(theSize,str);
-					DrawExampleText(dlog,NULL);
+					DrawExampleText(dlog, NULL);
 					}
 				break;
 			case POP16_Relative:
@@ -1552,7 +1552,7 @@ Boolean DefineStyleDialog(Document *doc,
 					TuneRadioIn(dlog,RAD14_Relative,&radioChoice);
 					theRelIndex = popup16.currentChoice;
 					thePtSize = TDRelIndexToSize(theRelIndex);
-					DrawExampleText(dlog,NULL);
+					DrawExampleText(dlog, NULL);
 					}
 				break;
 			case CHK17_Plain:
@@ -1668,8 +1668,8 @@ Boolean DefineStyleDialog(Document *doc,
 		/* Change the current text style to new style */
 		
 		if (popup7.currentChoice)
-			GetMenuItemText(popup7.menu,popup7.currentChoice,name);
-		PStrnCopy((StringPtr)name, (StringPtr)theCurrent.fontName, 31);
+			GetMenuItemText(popup7.menu, popup7.currentChoice, name);
+		PStrncpy((StringPtr)theCurrent.fontName, (StringPtr)name, 31);
 		theCurrent.relFSize = isRelative;
 		theCurrent.fontSize = (isRelative? theRelIndex : theSize);
 		theCurrent.fontStyle = theStyle;

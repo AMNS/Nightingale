@@ -467,10 +467,9 @@ LINK CreateOTTAVA(
 
 	if (IsAfter(ottavaL,doc->selStartL)) doc->selStartL = ottavaL;
 
-	/* Clean up selection range: if we find any sync with a selected note,
-		and the sync is not selected, deselect the entire node. This is OK
-		since the selection range should have been correct when we entered the
-		routine. */
+	/* Clean up selection range: if we find any sync with a selected note, and the
+		sync is not selected, deselect the entire node. This is OK since the selection
+		range should have been correct when we entered the routine. */
 
 	for (pL = RightLINK(startL); pL!=endL; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) {
@@ -601,16 +600,16 @@ PushLock(OBJheap);
 		}
 		dBrackMin = 4*dhalfLn;
 		if (lastPt.h-firstPt.h>dBrackMin)
-			DrawOctBracket(firstPt, lastPt, octRect.right-octRect.left,
-									yCutoffLen, bassa, pContext);
+			DrawOctBracket(firstPt, lastPt, octRect.right-octRect.left, yCutoffLen,
+									bassa, pContext);
 
 		switch (outputTo) {
 			case toScreen:
 			case toBitmapPrint:
 			case toPICT:
 				TextSize(UseTextSize(pContext->fontSize, doc->magnify));
-				octxp=pContext->paper.left+d2p(octxdFirst);
-				octyp=pContext->paper.top+d2p(octydFirst);
+				octxp = pContext->paper.left+d2p(octxdFirst);
+				octyp = pContext->paper.top+d2p(octydFirst);
 				MoveTo(octxp, octyp);
 				DrawString(ottavaStr);
 				LinkOBJRECT(pL) = octRect;
@@ -722,7 +721,7 @@ static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short 
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
 		if (aNote->inChord && NoteSTAFF(aNoteL)==s) {
-			FixSyncForChord(doc,pL,NoteVOICE(aNoteL),aNote->beamed,0,
+			FixSyncForChord(doc, pL, NoteVOICE(aNoteL), aNote->beamed, 0,
 											(multiVoice? -1 : 1), &context);
 			break;
 		}

@@ -940,12 +940,24 @@ otherwise long names like "Arpeggio" won't be shown at all. Affects .rsrc; UIFUt
 
 Minor cleanup. Affects MemMacros.h, NTypes.h; Event, Ottava, Slurs, SpaceTime.
 
--------------------------------------------------------------------------------
+===============================================================================
 
-9-11 Nov.
+9-16 Nov.
+
+Changed version number from 5.7b6 to 5.7b7. Affects Info.plist.
 
 Fix bug in checking for multiple Tempo/metronome mark objects at the same point whose
-tempo and M.M. strings aren't identical: for each pair being compared, if there really
-_isn't_ a M.M., skip the check. Affects Debug2Utils.
+tempo and M.M. strings aren't identical: for each pair being compared, if both don't
+really _have_ tempo strings, skip the check; likewise for M.M strings. Affects
+Debug2Utils.
 
 Replace all calls to PStrCopy with Pstrcpy. Affects NightTemplates.h; about 18 C files.
+
+In Notelists, skip writing clefs that are at the beginnings of systems and just for
+context setting, the way key signatures have always been handled. Affects NotelistSave.
+
+In Notelists, handle multiple-line tempo marks to keep the notelist entry on one line.
+
+Minor cleanup. Affects Notelist.h; Check, Ottava, Score, SpaceTime, TextDialog.
+
+

@@ -1053,9 +1053,8 @@ short CheckGRAPHIC(Document *doc, LINK pL, CONTEXT /*context*/[],
 
 PushLock(OBJheap);
 	p = GetPGRAPHIC(pL);
-	if (PageTYPE(GraphicFIRSTOBJ(pL)))
-			staffn = 1;
-	else  staffn = p->staffn;
+	if (PageTYPE(GraphicFIRSTOBJ(pL))) staffn = 1;
+	else staffn = p->staffn;
 
 	result = NOMATCH;
 	
@@ -1088,8 +1087,7 @@ PushLock(OBJheap);
 					break;
 				}
 				
-				PStrnCopy((StringPtr)doc->fontTable[p->fontInd].fontName, 
-							(StringPtr)newFont, 32);
+				PStrncpy((StringPtr)newFont, (StringPtr)doc->fontTable[p->fontInd].fontName, 32);
 				Pstrcpy((StringPtr)string, (StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset));
 							
 				switch (p->graphicType) {

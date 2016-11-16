@@ -91,8 +91,8 @@ typedef struct {
 	unsigned short	inChord:1;		/* note is in a chord */
 	unsigned short	mainNote:1;		/* main note (carrying the stem) in a chord */
 	unsigned short	inTuplet:1;		/* note/rest is a member of a tuplet group (irrelevant for grace notes) */
-	unsigned short	tiedL:1;			/* tied to the preceding note */
-	unsigned short	tiedR:1;			/* tied to the following note */
+	unsigned short	tiedL:1;		/* tied to the preceding note */
+	unsigned short	tiedR:1;		/* tied to the following note */
 	unsigned short	slurredL:1;		/* slurred to the preceding note */
 	unsigned short	slurredR:1;		/* slurred to the following note */
 	unsigned short	filler1:2;
@@ -101,14 +101,14 @@ typedef struct {
 
 	unsigned char	filler2:1;
 	unsigned char	appear:4;		/* appearance code: 0-10 (see "NTypes.h") */
-	unsigned char	nDots:3;			/* number of augmentation dots: 0-5 */
-	char				durCode;			/* code for logical duration: 0-9 (-127 - 9 for rests!) */
+	unsigned char	nDots:3;		/* number of augmentation dots: 0-5 */
+	char			durCode;		/* code for logical duration: 0-9 (-127 - 9 for rests!) */
 
-	char				noteNum;			/* MIDI note number: 0-127 */
-	char				vel;				/* MIDI note on velocity: 0-127 */
-	short				pDur;				/* physical duration (480 units/quarter): 1-32000 */
-	NLINK				firstMod;		/* index into gHModList of 1st note mod, or 0 if no mods */
-} NL_NRGR, *PNL_NRGR;		/* 8 + 10 = 18 bytes */
+	char			noteNum;		/* MIDI note number: 0-127 */
+	char			vel;			/* MIDI note on velocity: 0-127 */
+	short			pDur;			/* physical duration (480 units/quarter): 1-32000 */
+	NLINK			firstMod;		/* index into gHModList of 1st note mod, or 0 if no mods */
+} NL_NRGR, *PNL_NRGR;				/* 8 + 10 = 18 bytes */
 
 
 /* Note the interpretation of NLOBJHEADER fields for tuplets:
@@ -120,13 +120,13 @@ typedef struct {
 	  
 typedef struct {
 	NLOBJHEADER
-	short		num;					/* accessory numeral (numerator) for tuplet: ??range? */
-	short		denom;				/* accessory denominator: ??range? */
-	short		nInTuple;			/* number of syncs in tuplet, computed by AnalyzeNLTuplet */
+	short	num;					/* accessory numeral (numerator) for tuplet: ??range? */
+	short	denom;					/* accessory denominator: ??range? */
+	short	nInTuple;				/* number of syncs in tuplet, computed by AnalyzeNLTuplet */
 	Boolean	numVis;
 	Boolean	denomVis;
 	Boolean	brackVis;
-	char		data[];				/* (additional bytes in union used by NL_NRGR) */
+	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_TUPLET, *PNL_TUPLET;
 
 
@@ -148,7 +148,7 @@ typedef struct {
 	
 typedef struct {
 	NLOBJHEADER
-	char		type;					/* clef type code: 1-12 (see "NTypes.h") */
+	char		type;				/* clef type code: 1-12 (see "NTypes.h") */
 	char		filler;
 	char		data[];				/* (additional bytes in union used by NL_NRGR) */
 } NL_CLEF, *PNL_CLEF;
@@ -160,10 +160,10 @@ typedef struct {
 	
 typedef struct {
 	NLOBJHEADER
-	char		numAcc;				/* number of accidentals in keysig: 0-7 */
-	char		filler;
-	Boolean	sharp;				/* TRUE if sharps in keysig, FALSE if flats */
-	char		data[];				/* (additional bytes in union used by NL_NRGR) */
+	char	numAcc;					/* number of accidentals in keysig: 0-7 */
+	char	filler;
+	Boolean	sharp;					/* TRUE if sharps in keysig, FALSE if flats */
+	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_KEYSIG, *PNL_KEYSIG;
 
 
@@ -173,11 +173,11 @@ typedef struct {
 	
 typedef struct {
 	NLOBJHEADER
-	char		num;					/* numerator: 1-99 */
-	char		denom;				/* denominator: powers of 2 from 1 to 64 */
-	char		appear;				/* 1-4 (normal, 'C', cut time, numerator only -- see "NTypes.h") */
-	char		filler;
-	char		data[];				/* (additional bytes in union used by NL_NRGR) */
+	char	num;					/* numerator: 1-99 */
+	char	denom;					/* denominator: powers of 2 from 1 to 64 */
+	char	appear;					/* 1-4 (normal, 'C', cut time, numerator only -- see "NTypes.h") */
+	char	filler;
+	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_TIMESIG, *PNL_TIMESIG;
 
 
@@ -187,12 +187,12 @@ typedef struct {
 	
 typedef struct {
 	NLOBJHEADER
-	NLINK		string;				/* tempo string: index into Notelist string pool, or NILINK */
-	NLINK		metroStr;			/* bpm string: index into Notelist string pool, or NILINK */
-	Boolean	dotted;				/* is metronome note-value dotted? */
-	Boolean	hideMM;				/* not encoded in Notelist; set in ParseTempoMark */
-	char		durCode;				/* for metronome note-value */
-	char		data[];				/* (additional bytes in union used by NL_NRGR) */
+	NLINK	string;					/* tempo string: index into Notelist string pool, or NILINK */
+	NLINK	metroStr;				/* bpm string: index into Notelist string pool, or NILINK */
+	Boolean	dotted;					/* is metronome note-value dotted? */
+	Boolean	hideMM;					/* not encoded in Notelist; set in ParseTempoMark */
+	char	durCode;				/* for metronome note-value */
+	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_TEMPO, *PNL_TEMPO;
 
 
@@ -206,10 +206,10 @@ typedef struct {
 		
 typedef struct {
 	NLOBJHEADER
-	NLINK		string;				/* graphic string: index into Notelist string pool, or NILINK */
-	char		type;					/* currently only GRString or GRLyric */
-	char		style;				/* style: TSRegular1STYLE to TSRegular5STYLE, or TSNoSTYLE */
-	char		data[];				/* (additional bytes in union used by NL_NRGR) */
+	NLINK	string;					/* graphic string: index into Notelist string pool, or NILINK */
+	char	type;					/* currently only GRString or GRLyric */
+	char	style;					/* style: TSRegular1STYLE to TSRegular5STYLE, or TSNoSTYLE */
+	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_GRAPHIC, *PNL_GRAPHIC;
 
 
@@ -219,9 +219,9 @@ typedef struct {
 	
 typedef struct {
 	NLOBJHEADER
-	char		type;					/* code (see "NTypes.h") : 1-23 */
-	char		filler;
-	char		data[];				/* (additional bytes in union used by NL_NRGR) */
+	char	type;					/* code (see "NTypes.h") : 1-23 */
+	char	filler;
+	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_DYNAMIC, *PNL_DYNAMIC;
 
 
@@ -234,59 +234,59 @@ typedef union {
 	NL_CLEF		clef;
 	NL_KEYSIG	keysig;
 	NL_TIMESIG	timesig;
-	NL_TEMPO		tempo;
+	NL_TEMPO	tempo;
 	NL_GRAPHIC	graphic;
 	NL_DYNAMIC	dynamic;
 } NL_NODE, *PNL_NODE;
 
 
 typedef struct {
-	NLINK		next;					/* link to next mod attached to owning note, or zero if none */
-	char		code;					/* note-modifier code: 1-31 (see "NTypes.h") */
-	char		data;					/* [currently unused]: -127 - 128 */
+	NLINK	next;					/* link to next mod attached to owning note, or zero if none */
+	char	code;					/* note-modifier code: 1-31 (see "NTypes.h") */
+	char	data;					/* [currently unused]: -127 - 128 */
 } NL_MOD, *PNL_MOD, **HNL_MOD;
 
 
 /* --------------------------------------------------------------------------------- */
 /* Other definitions */
 
-#define MAX_CHARS			256L			/* Max number of chars in a graphic string, including terminating null */
+#define MAX_CHARS		256L		/* Max number of chars in a graphic string, including terminating null */
 #define MAX_TEMPO_CHARS	64L			/* Max number of chars in either kind of tempo string, including terminating null */
-												/* NB: Code assumes MAX_TEMPO_CHARS < MAX_CHARS */
-#define FIRST_OFFSET		2				/* Offset into gHStringPool of first string */
-#define MAX_OFFSET		65535			/* Max offset into gHStringPool -- constrained by range of NLINK */
+									/* NB: Code assumes MAX_TEMPO_CHARS < MAX_CHARS */
+#define FIRST_OFFSET	2			/* Offset into gHStringPool of first string */
+#define MAX_OFFSET		65535		/* Max offset into gHStringPool -- constrained by range of NLINK */
 
-#define NOTE_CHAR			'N'
+#define NOTE_CHAR		'N'
 #define GRACE_CHAR		'G'
-#define REST_CHAR			'R'
+#define REST_CHAR		'R'
 #define TUPLET_CHAR		'P'
-#define BAR_CHAR			'/'
-#define CLEF_CHAR			'C'
+#define BAR_CHAR		'/'
+#define CLEF_CHAR		'C'
 #define KEYSIG_CHAR		'K'
-#define TIMESIG_CHAR		'T'
+#define TIMESIG_CHAR	'T'
 #define METRONOME_CHAR	'M'
-#define GRAPHIC_CHAR		'A'
-#define DYNAMIC_CHAR		'D'
-#define BEAM_CHAR			'B'
-#define COMMENT_CHAR		'%'
+#define GRAPHIC_CHAR	'A'
+#define DYNAMIC_CHAR	'D'
+#define BEAM_CHAR		'B'
+#define COMMENT_CHAR	'%'
 
 
 /* --------------------------------------------------------------------------------- */
 /* Data structure access macros */
 
-#define GetPNL_HEAD(link)			(PNL_HEAD)		&gNodeList[link]
-#define GetPNL_GENERIC(link)		(PNL_GENERIC)	&gNodeList[link]
-#define GetPNL_NRGR(link)			(PNL_NRGR)		&gNodeList[link]
+#define GetPNL_HEAD(link)		(PNL_HEAD)		&gNodeList[link]
+#define GetPNL_GENERIC(link)	(PNL_GENERIC)	&gNodeList[link]
+#define GetPNL_NRGR(link)		(PNL_NRGR)		&gNodeList[link]
 #define GetPNL_TUPLET(link)		(PNL_TUPLET)	&gNodeList[link]
-#define GetPNL_BARLINE(link)		(PNL_BARLINE)	&gNodeList[link]
-#define GetPNL_CLEF(link)			(PNL_CLEF)		&gNodeList[link]
+#define GetPNL_BARLINE(link)	(PNL_BARLINE)	&gNodeList[link]
+#define GetPNL_CLEF(link)		(PNL_CLEF)		&gNodeList[link]
 #define GetPNL_KEYSIG(link)		(PNL_KEYSIG)	&gNodeList[link]
-#define GetPNL_TIMESIG(link)		(PNL_TIMESIG)	&gNodeList[link]
-#define GetPNL_TEMPO(link)			(PNL_TEMPO)		&gNodeList[link]
-#define GetPNL_GRAPHIC(link)		(PNL_GRAPHIC)	&gNodeList[link]
-#define GetPNL_DYNAMIC(link)		(PNL_DYNAMIC)	&gNodeList[link]
+#define GetPNL_TIMESIG(link)	(PNL_TIMESIG)	&gNodeList[link]
+#define GetPNL_TEMPO(link)		(PNL_TEMPO)		&gNodeList[link]
+#define GetPNL_GRAPHIC(link)	(PNL_GRAPHIC)	&gNodeList[link]
+#define GetPNL_DYNAMIC(link)	(PNL_DYNAMIC)	&gNodeList[link]
 
-#define GetNL_TYPE(link)			(GetPNL_GENERIC(link))->objType
+#define GetNL_TYPE(link)		(GetPNL_GENERIC(link))->objType
 
 
 /* --------------------------------------------------------------------------------- */

@@ -245,8 +245,8 @@ STDIST SymWidthRight(
 				/*
 				 * If the note/rest has any dots and we're considering stuff after the
 				 * notehead, the dots determine its width; otherwise, if it's stem
-				 *	up and has flags, the flags determine its width. (Grace notes are
-				 *	the same except that they can't have dots.)
+				 * up and has flags, the flags determine its width. (Grace notes are
+				 * the same except that they can't have dots.)
 				 */
 			  	else if (NoteNDOTS(aNoteL)==0 || toHead) {
 					aNote = GetPANOTE(aNoteL);
@@ -864,12 +864,12 @@ Boolean GetMSpaceRange(Document *doc, LINK startL, LINK endL, short *pSpMin,
 }
 
 
-/* ------------------------------------------------------------------ LDur2Code -- */
-/* Convert logical duration <lDur> ??UNITS? to a more-or-less equivalent note l_dur code and
-number of augmentation dots, with an error of no more than <errMax> playDur units.
-The error is always positive, i.e., we may return a duration that's shorter than
-desired but never longer. If we can do this, return TRUE. If there is no such
-equivalent, return FALSE. */
+/* -------------------------------------------------------------------- LDur2Code -- */
+/* Convert logical duration <lDur> in PDUR ticks to a more-or-less equivalent note
+l_dur code and number of augmentation dots, with an error of no more than <errMax>
+playDur units. The error is always positive, i.e., we may return a duration that's
+shorter than desired but never longer. If we can do this, return TRUE. If there is
+no such equivalent, return FALSE. */
 
 Boolean LDur2Code(short lDur, short errMax, short maxDots, char *pNewDur, char *pNewDots)
 {
@@ -912,8 +912,9 @@ Boolean LDur2Code(short lDur, short errMax, short maxDots, char *pNewDur, char *
 }
 
 
-/* ------------------------------------------------------------------- Code2LDur -- */
-/* Convert note l_dur code and number of augmentation dots to logical duration ??UNITS?. */
+/* -------------------------------------------------------------------- Code2LDur -- */
+/* Convert note l_dur code and number of augmentation dots to logical duration in
+PDUR ticks. */
 
 long Code2LDur(char durCode, char nDots)
 {
@@ -927,9 +928,9 @@ long Code2LDur(char durCode, char nDots)
 }
 
 
-/* ------------------------------------------------------------------ SimpleLDur -- */
-/* Compute the "simple" logical duration of a note/rest ??UNITS?, ignoring tuplet
-membership and whole-measure rests. */
+/* ------------------------------------------------------------------- SimpleLDur -- */
+/* Compute the "simple" logical duration of a note/rest in PDUR ticks, ignoring
+tuplet membership and whole-measure rests. */
 
 long SimpleLDur(LINK aNoteL)
 {
@@ -937,7 +938,7 @@ long SimpleLDur(LINK aNoteL)
 
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->subType==UNKNOWN_L_DUR || aNote->subType<=WHOLEMR_L_DUR) {
-		MayErrMsg("SimpleLDur:can't handle unknown duration note or whole-measure rest, subobj %ld (ivoice %ld).",
+		MayErrMsg("SimpleLDur: can't handle unknown duration note or whole-measure rest, subobj %ld (ivoice %ld).",
 					(long)aNoteL, (long)NoteVOICE(aNoteL));
 		return 0L;
 	}
@@ -1072,7 +1073,7 @@ short GetMaxDurUnit(LINK tupletL)
 }
 
 
-/* ------------------------------------------------------------------ TimeSigDur -- */
+/* ------------------------------------------------------------------- TimeSigDur -- */
 /* Return the nominal duration of a measure with the given time signature. */
 
 long TimeSigDur(short /*timeSigType*/,		/* ignored */
@@ -1083,36 +1084,41 @@ long TimeSigDur(short /*timeSigType*/,		/* ignored */
 }
 
 
-/* ---------------------------------------------------------------- CalcNoteLDur -- */
-/* Compute the logical duration ??UNITS? of a note/rest. For multibar rests of ANY number
-of measures as well as for whole-measure rests, return one measure's duration. If
-the note/rest's tuplet flag is set but the tuplet can't be found, return -1. */
+/* ----------------------------------------------------------------- CalcNoteLDur -- */
+/* Compute the logical duration in PDUR ticks of a note/rest. For multibar rests of
+ANY number of measures as well as for whole-measure rests, return one measure's
+duration. If the note/rest's tuplet flag is set but the tuplet can't be found,
+return -1. */
 
 long CalcNoteLDur(Document *doc, LINK aNoteL, LINK syncL)
 {
 	PANOTE	aNote;
 	CONTEXT	context;
 	PTUPLET	pTuplet;
-	LINK		tupletL;
-	long		tempDur, noteDur;
+	LINK	tupletL;
+	short	measCount;
+	long	tempDur, noteDur;
 
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->subType==UNKNOWN_L_DUR)							/* Logical dur. unknown? */
 		return (long) (aNote->playDur);							/* Yes, use performance dur. */
 	else {														/* No, use logical dur. */
-		if (aNote->rest && aNote->subType<=WHOLEMR_L_DUR)		/* Whole-meas. or multibar rest? */
-		{
-			GetContext(doc, syncL, aNote->staffn, &context);
-			noteDur = TimeSigDur(context.timeSigType,			/* Yes, duration=measure dur. */
-											context.numerator,
-											context.denominator);
+		if (aNote->rest && aNote->subType<=WHOLEMR_L_DUR) {		/* Whole-meas. or multibar rest? */
+			GetContext(doc, syncL, aNote->staffn, &context);	/* Yes, duration=measure dur. */
+			measCount = -aNote->subType;
+			noteDur = TimeSigDur(context.timeSigType,			
+										context.numerator,
+										context.denominator);
+if (measCount>1)
+LogPrintf(LOG_DEBUG, "CalcNoteLDur: measCount=%d 1st noteDur=%ld\n", measCount, noteDur);
+			noteDur *= measCount;
 			aNote = GetPANOTE(aNoteL);
 		}
 		else													/* Normal duration */
 			noteDur = SimpleLDur(aNoteL);
 		
-		if (aNote->inTuplet) {
-			tupletL = LVSearch(syncL, TUPLETtype, aNote->voice, TRUE, FALSE);
+		if (NoteINTUPLET(aNoteL)) {
+			tupletL = LVSearch(syncL, TUPLETtype, NoteVOICE(aNoteL), TRUE, FALSE);
 			if (tupletL==NILINK) return -1;						/* Error, missing tuplet */
 			pTuplet = GetPTUPLET(tupletL);
 			tempDur = noteDur*pTuplet->accDenom;
@@ -1124,7 +1130,8 @@ long CalcNoteLDur(Document *doc, LINK aNoteL, LINK syncL)
 
 
 /* -------------------------------------------------------------------SyncMaxDur -- */
-/*	Compute the maximum logical duration ??UNITS? of all notes/rests in the given Sync. */
+/*	Compute the maximum logical duration in PDUR ticks of all notes/rests in the
+given Sync. */
 
 long SyncMaxDur(Document *doc, LINK syncL)
 {
@@ -1166,7 +1173,7 @@ long SyncNeighborTime(Document */*doc*/, LINK target, Boolean goLeft)
 
 
 /* -------------------------------------------------------------------- GetLTime -- */
-/*	Get "logical time" ??UNITS? since previous Measure:
+/*	Get "logical time" in PDUR ticks since previous Measure:
 	If there's no previous Measure, give an error and return -1.
 	If the argument is itself a Measure, return 0.
 	If the argument is a J_IT or J_IP symbol, return the start time, in PDUR
@@ -1392,8 +1399,8 @@ in the list! For example, if it returns 4, startTime[0--4] and justType[0--4]	ar
 meaningful. If the spine is empty, it returns -1.
 
 One reason this is tricky is some symbols (notes, grace notes) are in voices, others
-(clefs, key sigs., etc.) are on staves, but their interactions affect timing--even
-though notes (including rests, of course) are the ONLY symbols that occupy time. */
+(clefs, key sigs., etc.) are on staves, but their interactions affect timing, even
+though notes and rests are the ONLY symbols that occupy time. */
 
 short GetSpTimeInfo(
 			Document		*doc,
@@ -1471,7 +1478,7 @@ short GetSpTimeInfo(
 				 * Measure. We should fix this someday.
 				 */
 				for (i = 0; i<=MAXVOICES; i++)							/* Make non-participating */
-					if (!voiceInSync[i])										/*   voices catch up */
+					if (!voiceInSync[i])								/*   voices catch up */
 						if (vLTimes[i]<=timeHere)
 							vLTimes[i] = timeHere+minDur;
 				break;

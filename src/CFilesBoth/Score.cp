@@ -192,8 +192,7 @@ void FixGraphicFont(Document *doc, LINK pL)
 
 	if (GraphicTYPE(pL)) {
 		p = GetPGRAPHIC(pL);
-		PStrnCopy((StringPtr)clipboard->fontTable[p->fontInd].fontName, 
-						(StringPtr)font, 32);
+		PStrncpy((StringPtr)font, (StringPtr)clipboard->fontTable[p->fontInd].fontName, 32);
 		p = GetPGRAPHIC(pL);
 		p->fontInd = FontName2Index(doc, font);					/* Should never fail */						
 	}
@@ -290,7 +289,7 @@ Boolean NewDocScore(Document *doc)
 	doc->selStartL = doc->selEndL = doc->tailL;
 	doc->yBetweenSys = 0;
 
-	if (doc!=clipboard) NewMasterPage(doc,sysTop,FALSE);
+	if (doc!=clipboard) NewMasterPage(doc, sysTop, FALSE);
 	BuildVoiceTable(doc, TRUE);
 	
 	return TRUE;
@@ -451,8 +450,8 @@ Boolean FillStaffTopArray(Document */*doc*/, LINK startL, DDIST staffTop[])
 
 
 /* ------------------------------------------------------------- UpdateStaffTops -- */
-/* Update the staffTop fields of all Staff subobjects in range [startL, endL):
-set each to the corresponding value in the <staffTop> array. GIXME: MasterPage.c should
+/* Update the staffTop fields of all Staff subobjects in range [startL, endL): set
+each to the corresponding value in the <staffTop> array. FIXME: MasterPage.c should
 call this instead of its own version. */
 
 void UpdateStaffTops(Document */*doc*/,					/* unused */
@@ -513,8 +512,7 @@ static void PageFixMeasRects(
 		aMeas = GetPAMEASURE(measures[doc->nstaves]);
 		aStaff = GetPASTAFF(staves[doc->nstaves]);
 		if (useLedg)
-			aMeas->measureRect.bottom = 
-				MEAS_BOTTOM(aStaff->staffTop, aStaff->staffHeight);
+			aMeas->measureRect.bottom = MEAS_BOTTOM(aStaff->staffTop, aStaff->staffHeight);
 		else {
 			/*
 			 * Set the measureRect.bottom of the last measure subobj in the system.
@@ -1509,10 +1507,10 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 					DDIST spBefore, DDIST staffTop[], short where)
 {
 	LINK pL, nextMeasL, aMeasureL, aPrevMeasL, partL, connectL, aConnectL,
-			endMeasL,aStaffL;
+			endMeasL, aStaffL;
 	PMEASURE pMeasure;  PAMEASURE aPrevMeas; 
 	PPARTINFO pPart;  PACONNECT aConnect;
-	short i,j,connStaff;  Boolean connAbove;
+	short i, j, connStaff;  Boolean connAbove;
 	DDIST mTop, mBottom, sysHeight, staffLength, xd;
 	DRect sysRect;
 	
