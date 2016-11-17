@@ -1,4 +1,4 @@
-NIGHTINGALE TECH NOTES - Don Byrd, rev. early May 2016
+NIGHTINGALE TECH NOTES - Don Byrd, rev. mid November 2016
 
 As compared to earlier versions of this list (through early 2016), I've added numbers to
 several of the formerly unnumbered tech notes, and re-organized the full collection into
@@ -22,6 +22,7 @@ USER ORIENTED
 14	OK?	Cleaning Up Notelist files in Nightingale (CleaningNotelistFiles-TN14.txt)
 16	OK	Nightingale 5.X "CNFG" Resource Fields and Values (CNFGFields+Info-TN16.txt)
 17	OK	Linewidths For Printing and Display in Small Sizes (LineWidthsForSmallPrinting-TN17.txt)
+19	OK	Nightingale Notelist Technical Update (NotelistTechUpdate-TN19.txt)
 
 MOSTLY FOR DEVELOPERS
 
@@ -32,6 +33,7 @@ MOSTLY FOR DEVELOPERS
 11	OK	Nightingale Coordinate Systems and Page Layout (CoordinateSystems-TN11.doc)
 13	OK?	Sample Code For Computing Coordinates (CoordCalcSampleCode-TN13.txt)
 15	OK?	QuickDraw APIs Nightingale code depends on (QuickDrawAPIsUsedInNgale-TN15.xls)
+18	OK	Nightingale Menu Command Shortcuts (NgaleMenuCmdShortcuts-TN18.xls)
 
 OBSOLETE AND/OR OF MINIMAL INTEREST
 

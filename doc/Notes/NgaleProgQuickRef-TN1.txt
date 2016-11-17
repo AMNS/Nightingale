@@ -4,13 +4,13 @@ Don Byrd, rev. early Sept. 2016
 
 A general note:
 
-Working on Nightingale is more difficult than you might expect, and more difficult than
-it should be, for several reasons, mostly related to its age. It was designed in the
-mid- and late-1980's to run on some of the first Macintosh computers, e.g., the
-Macintosh Plus and SE. Those machines were hundreds, perhaps thousands, of times slower
-than modern (2016) computers: their processors were Motorola 68000s, 16-bit CPUs running
-at 8 MHz. They also had a thousand or so times less memory than modern computers:
-typically one or two megabytes. As a result:
+Working on Nightingale is considerably more difficult than you might expect, and more
+difficult than it should be, for several reasons, mostly related to its age. It was
+designed in the mid- and late-1980's to run on some of the first Macintosh computers,
+e.g., the Macintosh Plus and SE. Those machines were hundreds, perhaps thousands, of
+times slower than modern (2016) computers: their processors were Motorola 68000s, 16-bit
+CPUs running at 8 MHz. They also had a thousand or more times less memory than modern
+computers: typically one or two megabytes. As a result:
 
 * For speed, Nightingale's main data structure, the object list, has cross-links on
 	multiple levels.
@@ -20,7 +20,9 @@ typically one or two megabytes. As a result:
 * Nightingale has its own mid-level memory management routines, involving structures
 	called _heaps_. These must be "locked" at times to keep the Mac OS's own memory
 	manager, with its fixed _handles_, from moving things around and leaving pointers
-	behind.
+	behind. (This problem can be sidestepped to a great extent by using the macros
+	in MemMacros.h, but a tremendous amount of Nightingale code fails to use them
+	when it could.)
 * The Macintosh toolkit of the time -- later dubbed "Carbon" -- was designed primarily
 	for use from Pascal, and it expects strings in Pascal's format of a length byte
 	followed by at most 255 characters. Thus Nightingale frequently converts strings

@@ -1,0 +1,135 @@
+NIGHTINGALE NOTELIST TECHNICAL UPDATE
+Nightingale Technical Note #19
+by Donald Byrd - revised 16 November 2016, for Nightingale 5.7
+
+
+For general information on the notelist format, see the description of the Save
+Selection Notelist command in the Nightingale User's Guide. The book _Beyond MIDI:
+The Handbook of Musical Codes_, edited by Eleanor Selfridge-Field (MIT Press, 1997),
+has an entire chapter that describes Nightingale notelists in detail; that chapter
+is distributed with Nightingale in a text file called "NotelistDescription97.txt".
+
+The original notelist format was used by all versions of Nightingale thru 3.0. Files
+written by Nightingale 3.0A add two symbol types--tuplets and clefs--but the _Beyond
+MIDI_ chapter actually describes the 3.0A format, so tuplets and clefs are covered
+there and will not be discussed further.
+
+
+Errata and Clarifications for the Book Chapter (and text file)
+--------------------------------------------------------------
+
+* 21.2.1.G: for MIDI Note Number, the text file contains the statement that
+"...the C  above [middle C] = 61, etc.", which is wrong; the book chapter correctly
+refers to "the C-sharp above..."
+
+* 21.1.4.A: The statement that the parsing program must infer the structure of
+tuplets is wrong: they appear explicitly in notelists.
+
+* 21.2.1.A: Time [t=] for Note records is from 1 to about 2,147,000,000 (2^31-1),
+not 32,000.
+
+* 21.2.1.A: Time [t=] for Bar Line records is from 1 to about 2,147,000,000
+(2^31-1), not 32,000.
+
+* 21.2.8: The description of Key Signature records fails to say that at least one
+# or b must appear even if the number of key-signature items is zero.
+
+* 21.2.1.I: If there is no explicit or implied accidental on a note, the effective
+accidental is Sec. 21.2.1.H's "natural" (3), not "no accidental" (0).
+
+* 21.2.2.D: Grace-Note Attribute Flag (NB: not "flags"!) is described as "a series
+of six characters", just like for notes and rests, except that the second thru sixth
+are unimplemented. More precisely, a Grace-Note record needs to include only a
+single character, namely the first one described; if the other five are present,
+they are ignored.
+
+21.2.10: In tuplets, the "appear=" code _must_ contain three digits, even if that
+involves leading zeros. For example, a completely invisible tuplet is described
+by "appear=000".
+
+21.2.11: In tempo markings, the metronome note value may be followed by a dot ".",
+with the obvious meaning.
+
+
+Notelist Format Changes from the Book Chapter
+---------------------------------------------
+
+Newer notelists differ from the 3.0A notelists described in the book chapter in just
+five ways.
+
+1. The header line that begins every notelist file written by Nightingale 3.5 and later
+gives a file-format version number ("V1" for Nightingale 3.5, "V2" for later versions)
+after the keyword, and in V2, the keyword is not "Score" but the far more descriptive
+"Notelist". Examples of V1 and V2 header lines:
+
+	%%Score-V1 file='Debussy.Images-9'  partstaves=2 0
+	%%Notelist-V2 file='Debussy.Images-9'  partstaves=2 0
+
+2. V1 and later notelists may contain lines describing beams. These lines will be
+included only if you've set the "Include beams in Notelist files" option in the
+Nightingale AMNF Prefs file. (As of this writing, the only way to do this that's not
+insanely clumsy or technical is by using a resource editor (Resorcerer or ResEdit) on
+the 'CNFG' resource.) Notelist files containing beams may be useful if you're moving
+Nightingale scores into other notation programs. However, the Open Notelist command
+doesn't understand these lines: it always guesses beams automatically. In fact, if
+Nightingale 2000 or later opens a notelist file that contains beam lines, it'll
+complain about those lines, but they won't cause any problems: they will simply be
+ignored.
+
+3. Text items used to contain just an "L" (Lyric) or "S" (non-lyric String) before the
+text itself; in V2 files, the "L" or "S" is followed by a digit from 1 to 9 saying which
+of Nightingale's numbered styles to use, or 0 for unknown. So
+
+	A v=2 npt=4 stf=5 S5 'Variation 8'
+
+would describe the non-lyric string "Variation 8" in style 5, belonging to voice 2,
+part 4, staff 5.
+
+4. Beginning with Nightingale 2000 v.4 (or so), the header line ends with an optional
+starting measure number, in this format:
+
+	%%Notelist-V2 file='Beethoven.SonataOp111-I'  partstaves=2 0 startmeas=0
+
+If the starting measure number is not given, the score is assumed to start in
+measure 1.
+
+5. Beginning with Nightingale 2000 v.4 (or so), a note's play duration (Sec. 21.2.1.J),
+which formerly was required to be from 1 to 32000, can also be given as 0: this
+represents a reasonable default value, which Nightingale currently interprets as 95
+percent of the logical duration.
+
+6. Beginning with Nightingale 5.7, Tempo mark lines (Sec. 21.2.11) may indicate there's
+no associated metronome mark by ending with "noMM" instead of with a numerical metronome
+mark.
+
+For reference, the formats of items in a notelist file (other than the header) are:
+
+Note			N t=%ld v=%d npt=%d stf=%d dur=%d dots=%d nn=%d acc=%d eAcc=%d pDur=%d vel=%d %s appear=%d [mods=%d]
+Rest			R t=%ld v=%d npt=%d stf=%d dur=%d dots=%d %s appear=%d [mods=%d]
+Grace note		G t=-1 v=%d npt=%d stf=%d dur=%d dots=%d nn=%d acc=%d eAcc=%d pDur=%d vel=%d %c appear=%d [mods=%d]
+Barline			/ t=%ld type=%d
+Clef			C stf=%d type=%d
+Key signature	K stf=%d KS=%d %c
+Time signature	T stf=%d num=%d denom=%d
+Dynamic			D stf=%d dType=%d
+Text			A v=%d npt=%d stf=%d %c%c '%s'
+Tempo mark		M stf=%d '%s' %c[.]=%s
+Tuplet			P v=%d npt=%d num=%d denom=%d appear=%d
+Beam			B v=%d npt=%d count=%d
+Comment			% (anything)
+
+
+Creating and Manipulating Notelists and a Sample Parser
+-------------------------------------------------------
+
+A sample parser for notelist files, written in standard C, is distributed with
+Nightingale. It's intended mostly those who want to manipulate notelist files
+written by Nightingale, but it could also be useful to persons who want to create
+notelists, to help them understand the format and to test their own notelist-
+creating programs. A sample notelist-manipulating program, NotelistModify, also
+written in C, is also available.
+
+A warning to would-be notelist creators/manipulators: Nightingale does not
+error-check notelists as carefully as it might, and it's quite possible for
+an invalid notelist to cause it to crash! As of this writing, one dangerous
+case is inconsistencies on Note lines between MIDI note number, acc, and eAcc.
