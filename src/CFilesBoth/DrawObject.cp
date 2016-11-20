@@ -2557,18 +2557,19 @@ over the entire measure. */
 
 static void ShadeProbMeasure(Document *doc, LINK pL, PCONTEXT pContext)
 {
-	LINK barTermL; Boolean okay; long measDurNotated, measDurActual;
-	Rect r; PMEASURE p;
+	LINK barTermL;  Boolean okay;
+	long measDurFromTS, measDurActual;
+	Rect r;  PMEASURE p;
 
 	if (!FakeMeasure(doc, pL)) {
 		barTermL = EndMeasSearch(doc, pL);
 		if (barTermL) {
 			okay = TRUE;
-			measDurNotated = NotatedMeasDur(doc, barTermL);
-			if (measDurNotated<0) okay = FALSE;
+			measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
+			if (measDurFromTS<0) okay = FALSE;
 			else {
 				measDurActual = GetMeasDur(doc, barTermL);
-				if (measDurActual!=0 && ABS(measDurNotated-measDurActual)>=PDURUNIT)
+				if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT)
 					okay = FALSE;
 			}
 

@@ -20,7 +20,7 @@
 	SyncNeighborTime		GetLTime					GetSpaceInfo
 	FixStaffTime			FixVoiceTimes				GetSpTimeInfo
 	FixMeasTimeStamps		FixTimeStamps				GetLDur
-	GetVLDur				GetMeasDur					NotatedMeasDur
+	GetVLDur				GetMeasDur					GetTimeSigMeasDur
 	GetStaffMeasDur			WholeMeasRestIsBreve
 
 /***************************************************************************/
@@ -35,6 +35,12 @@
  
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
+
+/* Note: "Logical duration" herein refers to Nightingale's internal representation
+of a note or rest's symbolic duration, given in the same units as play duration:
+"PDUR ticks".  Cf. the definition of PDURUNIT. Thus, a triplet note of the shortest
+possible duration would have a logical duration of 2/3 of PDURUNIT.
+
 
 /* Prototypes for functions local to this file */
 
@@ -1085,10 +1091,10 @@ long TimeSigDur(short /*timeSigType*/,		/* ignored */
 
 
 /* ----------------------------------------------------------------- CalcNoteLDur -- */
-/* Compute the logical duration in PDUR ticks of a note/rest. For multibar rests of
-ANY number of measures as well as for whole-measure rests, return one measure's
-duration. If the note/rest's tuplet flag is set but the tuplet can't be found,
-return -1. */
+/* Compute the logical duration in PDUR ticks of a note/rest. For whole-measure rests,
+return one measure's duration according to the time signature; for multibar rests,
+multiply by the number of measures. If the note/rest's tuplet flag is set but the
+tuplet can't be found, return -1. */
 
 long CalcNoteLDur(Document *doc, LINK aNoteL, LINK syncL)
 {
@@ -1101,7 +1107,7 @@ long CalcNoteLDur(Document *doc, LINK aNoteL, LINK syncL)
 
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->subType==UNKNOWN_L_DUR)							/* Logical dur. unknown? */
-		return (long) (aNote->playDur);							/* Yes, use performance dur. */
+		return (long)(aNote->playDur);							/* Yes, use performance dur. */
 	else {														/* No, use logical dur. */
 		if (aNote->rest && aNote->subType<=WHOLEMR_L_DUR) {		/* Whole-meas. or multibar rest? */
 			GetContext(doc, syncL, aNote->staffn, &context);	/* Yes, duration=measure dur. */
@@ -1109,8 +1115,8 @@ long CalcNoteLDur(Document *doc, LINK aNoteL, LINK syncL)
 			noteDur = TimeSigDur(context.timeSigType,			
 										context.numerator,
 										context.denominator);
-if (measCount>1)
-LogPrintf(LOG_DEBUG, "CalcNoteLDur: measCount=%d 1st noteDur=%ld\n", measCount, noteDur);
+//if (measCount>1)
+//	LogPrintf(LOG_DEBUG, "CalcNoteLDur: measCount=%d 1st noteDur=%ld\n", measCount, noteDur);
 			noteDur *= measCount;
 			aNote = GetPANOTE(aNoteL);
 		}
@@ -1843,13 +1849,14 @@ errorReturn:
 }
 
 
-/* -------------------------------------------------------------- NotatedMeasDur -- */
+/* -------------------------------------------------------------- GetTimeSigMeasDur -- */
 /* Get the notated (i.e., according to the time signature) duration of the Measure
 ending at the given link. Looks at all staves; if they don't all have the same time
-signature, returns -1. If any staff changes time signature in the middle of the
-Measure, will misbehave. Cf. GetMeasDur, which gets the Measure's actual duration. */
+signature, returns -1. NB: If any staff changes time signature in the middle of the
+Measure, this will misbehave. Cf. GetMeasDur, which gets the Measure's actual
+duration. */
 
-long NotatedMeasDur(Document */*doc*/,
+long GetTimeSigMeasDur(Document */*doc*/,
 							LINK endMeasL)		/* Object ending a Measure */
 {
 	LINK measL, aMeasL;

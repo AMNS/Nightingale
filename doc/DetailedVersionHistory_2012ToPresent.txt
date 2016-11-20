@@ -942,12 +942,12 @@ Minor cleanup. Affects MemMacros.h, NTypes.h; Event, Ottava, Slurs, SpaceTime.
 
 ===============================================================================
 
-9-16 Nov.
+9-19 Nov.
 
 Changed version number from 5.7b6 to 5.7b7. Affects Info.plist.
 
 Fix bug in checking for multiple Tempo/metronome mark objects at the same point whose
-tempo and M.M. strings aren't identical: for each pair being compared, if both don't
+tempo and M.M. strings aren't identical. For each pair being compared, if both don't
 really _have_ tempo strings, skip the check; likewise for M.M strings. Affects
 Debug2Utils.
 
@@ -956,8 +956,10 @@ Replace all calls to PStrCopy with Pstrcpy. Affects NightTemplates.h; about 18 C
 In Notelists, skip writing clefs that are at the beginnings of systems and just for
 context setting, the way key signatures have always been handled. Affects NotelistSave.
 
+Notelists have always shown styles 1 through 5 in Text graphics correctly, but listed
+styles 6 through 9 as unknown; they now shown all styles correctly. Affects NotelistSave.
+
 In Notelists, handle multiple-line tempo marks to keep the notelist entry on one line.
 
-Minor cleanup. Affects Notelist.h; Check, Ottava, Score, SpaceTime, TextDialog.
-
-
+Minor cleanup. Affects Notelist.h, SpaceTime.h; Check, Debug2Utils, DrawObject, Extract,
+MIDIFSave, Ottava, Score, ScoreInfo, SpaceTime, TextDialog.

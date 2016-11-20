@@ -317,7 +317,6 @@ static void SelectPart(
 			case TIMESIGtype:
 			case SYNCtype:
 			case GRSYNCtype:
-				inTempoSeries = FALSE;								/* drop through */
 			case DYNAMtype:
 			case RPTENDtype:
 				tmpHeap = doc->Heap + ObjLType(pL);
@@ -342,7 +341,7 @@ static void SelectPart(
 			/*
 			 * Some objects (rehearsal marks and tempo marks always, all Graphics optionally)
 			 * go into the part regardless of staff, but only if it's obvious the object
-			 *	they're attached to has a subobject in the part.
+			 * they're attached to has a subobject in the part.
 			 */
 			case GRAPHICtype:
 				/* Page relative graphics go into every part. */
@@ -390,10 +389,10 @@ static void SelectPart(
 }
 
 
-/* Delete the initial range (head to first invisible measure) of the new part
-document. Duplicate the head of the score document and then remove all parts
-except the one currently being extracted. Set the head of the new part document
-to this copied node and fix up its cross links. */
+/* Delete the initial range (head to first invisible measure) of the new part document.
+Duplicate the head of the score document and then remove all parts except the one
+currently being extracted. Set the head of the new part document to this copied node and
+fix up its cross links. */
 
 static Boolean CopyPartInfo(Document *doc, Document *newDoc, LINK partL)
 {
@@ -413,8 +412,8 @@ static Boolean CopyPartInfo(Document *doc, Document *newDoc, LINK partL)
 	if (!newDoc->headL) { NoMoreMemory(); goto Done; }
 
 	/*
-	 * Traverse the subList and remove all parts other than partL,
-	 * starting with the part after the first unused part.
+	 * Traverse the subList and remove all parts other than partL, starting with the
+	 * part after the first unused part.
 	 */
 	subL = NextPARTINFOL(FirstSubLINK(newDoc->headL));
 	while (subL) {
@@ -692,10 +691,10 @@ static Boolean MakeMultibarRest(Document *doc,
 	nStaves = pPart->lastStaff;
 	nChange = nStaves-LinkNENTRIES(firstL);
 	/*
-	 *	Enlarge or reduce the first object to <nStaves> subobjects, then turn each into
+	 * Enlarge or reduce the first object to <nStaves> subobjects, then turn each into
 	 * a multibar rest on a different staff and in the default voice for that staff--
 	 * or rather, the voice that, after offsetting by staffDiff (normally the number of
-	 *	staves above the part being extracted), will BECOME the default voice for that
+	 * staves above the part being extracted), will BECOME the default voice for that
 	 * staff.
 	 */
 	if (!ExpandNode(firstL, &subList, nChange))
@@ -705,7 +704,7 @@ static Boolean MakeMultibarRest(Document *doc,
 	for (s = 1; restL; restL = NextNOTEL(restL), s++)
 		SetupNote(doc, firstL, restL, s, 0, -nMeas, 0, s+staffDiff, TRUE, 0, 0);
 
-	/* Update the <sysMap> for benefit of our Caller. */
+	/* Update the <sysMap> for benefit of our caller. */
 	
 	firstSysDelL = NILINK; nSysDel = 0;
 	for (pL = firstL; pL!= lastL; pL = RightLINK(pL))
@@ -713,7 +712,7 @@ static Boolean MakeMultibarRest(Document *doc,
 			if (!firstSysDelL) firstSysDelL = pL;
 			nSysDel++;
 		}
-	if (nSysDel>0) {											/* If no Sys in range, nthg to do */
+	if (nSysDel>0) {									/* If no System in range, nothing to do */
 		newSysL = SSearch(firstL, SYSTEMtype, GO_LEFT);
 		for (startSys = 0; startSys<nSys; startSys++)
 			if (sysMap[startSys].srcL==firstSysDelL) break;

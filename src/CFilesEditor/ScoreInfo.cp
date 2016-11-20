@@ -57,7 +57,7 @@ has a problem. */
 static short SICheckMeasDur(Document *doc, short *pFirstBad)
 {
 	LINK pL, barTermL;
-	long measDurNotated, measDurActual;
+	long measDurFromTS, measDurActual;
 	short nBad;
 
 	for (nBad = 0, pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
@@ -65,15 +65,15 @@ static short SICheckMeasDur(Document *doc, short *pFirstBad)
 		if (MeasureTYPE(pL) && !FakeMeasure(doc, pL)) {
 			barTermL = EndMeasSearch(doc, pL);
 			if (barTermL) {
-				measDurNotated = NotatedMeasDur(doc, barTermL);
-				if (measDurNotated<0) {
+				measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
+				if (measDurFromTS<0) {
 					nBad++;
 					if (nBad==1) *pFirstBad = GetMeasNum(doc, pL);
 					continue;
 				}
 
 				measDurActual = GetMeasDur(doc, barTermL);
-				if (measDurActual!=0 && ABS(measDurNotated-measDurActual)>=PDURUNIT) {
+				if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT) {
 					nBad++;
 					if (nBad==1) *pFirstBad = GetMeasNum(doc, pL);
 				}

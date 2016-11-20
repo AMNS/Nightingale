@@ -310,6 +310,10 @@ Boolean ProcessGraphic(Document *doc, LINK graphicL)
 		case FONT_R3: styleCode = '3'; break;
 		case FONT_R4: styleCode = '4'; break;
 		case FONT_R5: styleCode = '5'; break;
+		case FONT_R6: styleCode = '6'; break;
+		case FONT_R7: styleCode = '7'; break;
+		case FONT_R8: styleCode = '8'; break;
+		case FONT_R9: styleCode = '9'; break;
 		default: ;
 	}
 	

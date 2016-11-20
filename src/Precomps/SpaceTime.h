@@ -12,8 +12,8 @@ DDIST ConnectDWidth(short, char);
 DDIST GetClefSpace(LINK clefL);
 DDIST GetTSWidth(LINK timeSigL);
 short GetKSWidth(LINK, DDIST, short);
-DDIST KSDWidth(LINK,CONTEXT);
-DDIST GetKeySigWidth(Document *doc,LINK keySigL,short staffn);
+DDIST KSDWidth(LINK, CONTEXT);
+DDIST GetKeySigWidth(Document *doc, LINK keySigL, short staffn);
 
 long SyncNeighborTime(Document *, LINK, Boolean);
 long GetLTime(Document *, LINK);
@@ -45,6 +45,6 @@ Boolean FixTimeStamps(Document *, LINK, LINK);
 long CalcNoteLDur(Document *, LINK, LINK);
 long SyncMaxDur(Document *, LINK);
 long GetMeasDur(Document *, LINK);
-long NotatedMeasDur(Document *, LINK);
+long GetTimeSigMeasDur(Document *, LINK);
 
 Boolean WholeMeasRestIsBreve(char numerator, char denominator);

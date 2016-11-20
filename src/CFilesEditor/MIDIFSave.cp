@@ -1115,16 +1115,16 @@ very last measure. */
 static short CheckMeasDur(Document *doc)
 {
 	LINK pL, barTermL;
-	long measDurNotated, measDurActual;
+	long measDurFromTS, measDurActual;
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (MeasureTYPE(pL) && !FakeMeasure(doc, pL)) {
 			barTermL = EndMeasSearch(doc, pL);
 			if (barTermL && barTermL!=doc->tailL) {
-				measDurNotated = NotatedMeasDur(doc, barTermL);
-				if (measDurNotated<0) return FALSE;
+				measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
+				if (measDurFromTS<0) return FALSE;
 				measDurActual = GetMeasDur(doc, barTermL);
-				if (measDurActual!=0 && measDurNotated!=measDurActual)
+				if (measDurActual!=0 && measDurFromTS!=measDurActual)
 					return GetPAMEASURE(FirstSubLINK(pL))->measureNum+doc->firstMNNumber;
 			}
 		}

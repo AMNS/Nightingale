@@ -1589,11 +1589,11 @@ the score proper, as opposed to Master Page) is called only from DrawPageContent
 
 1 Nov.
 
-It's worth some time on supporting tweaking slur position _somehow_, either with Get Info
-or nudging. The object xd is currently always set to 0 but ignored, so I could just make
-slur-drawing and -dragging code use it as an offset! -- well, no; there's also the code
-to drag anchor & control points. Much safer: change coordinates in each of the anchord &
-control points; UI-wise and more user-friendly, this fits nudging better.
+It's worth some time on supporting tweaking slur position _somehow_, either with Get
+Info or nudging. The object xd is currently always set to 0 but ignored, so I could just
+make slur-drawing and -dragging code use it as an offset! -- well, not so easy; there's
+also the code to drag anchor & control points. Much safer: change coordinates in each of
+the anchord & control points; UI-wise and more user-friendly, this fits nudging better.
 
 -------------------------------------------------------------------------------
 
@@ -1602,21 +1602,40 @@ control points; UI-wise and more user-friendly, this fits nudging better.
 How about making (normal, 1-octave) ottava signs display "8va" or "8vab"? Definitely
 preferable a lot of the time -- probably most of the time -- but there are cases where
 just "8" is better. How hard would it be to offer a choice? It'd be very nice to have "8va"
-on the "Questionable Symbols" OMR test page, anyway! Just kludge it?
+on the "Questionable Symbols" OMR test page, anyway; just kludge it for that?
 
 -------------------------------------------------------------------------------
 
-15 Nov.
+15-16 Nov.
 
 I'd like to look for differences two versions of the violin solo part of the concerto,
-1st mvmt part 1, by doing text comparison of their notelists, but that's useless because
+1st mvmt part 1, by doing text comparison of their notelists; but that's useless because
 the start times are all different by 3840 bcs in one of the original files,
 1stMovement_Part1-VnSolo.ngl, the 1st visible barline has time 1920, while in the other
-it's the correct value 5760 bcs of the preceding multibar rest. This is computed by
-SpaceTime.cp>GetSpTimeInfo(), which calls CalcNoteLDur() ?!? -- whose comment says "for
-multibar rests of ANY number of measures..., return one measure's duration"; but why??
-And a vn part extracted from 1stMovement_Part1.ngl w/ Ngale 5.7b6 gives the rest the proper
-duration, obviously bcs Extract() does the right thing; 1stMovement_Part1-VnSolo.ngl
-could have ended up w/ the wrong value bcs of my fiddling w/ the initial multibar rest
-after extracting the part.
+it's the correct value 5760 bcs of the preceding multibar rest, so have 1444 diffs. in
+the notelists!  Logical times are computed by SpaceTime.cp>GetSpTimeInfo(), which calls
+CalcNoteLDur() ?!? -- whose comment says "for multibar rests of ANY number of
+measures..., return one measure's duration"; but why?? And a vn part extracted from
+1stMovement_Part1.ngl w/ Ngale 5.7b6 gives the rest the proper duration, obviously bcs
+Extract() does the right thing; 1stMovement_Part1-VnSolo.ngl could have ended up w/ the
+wrong value bcs of my fiddling w/ the initial multibar rest after extracting the part!
+
+Fixing CalcNoteLDur() shouldn't be hard, but impact? Well, multibar rests almost never
+occur outside of extracted parts, and changing the calculated duration of one can't affect
+syncing, etc., so realllly shouldn't be a significant problem.
+
+OK, done; but there are still 137 differences in the notelists! *#$@$)(!#  A fair no. are
+because of initial clefs on systems (since the system breaks are different). Why should
+notelists include initial clefs? Surely most of the time users wouldn't care anyway, &
+should be easy to skip them. Initial keysigs are already skipped, thanks to Tim C.
+
+OK, done => down to 123 differences.
+
+There's a 4-bar rest just before the 1st cues that should be 5 bars! => fixed.
+
+Make tempo marks omit metronome mark when _noMM_ is set, keep multiline tempo marks on one
+notelist line, etc. => down to 109 differences.
+
+Other changes... => down to 62 differences! A lot of these are bcs of cues I added to
+1stMovement_Part1-VnSolo.ngl; some due to reformatting affecting text (extensions, etc.).
 

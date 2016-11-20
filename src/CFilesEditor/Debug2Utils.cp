@@ -27,7 +27,7 @@ limit of 32K per module object code.
 #define DDB
 
 
-/* ---------------------------------------------------------- DCheckVoiceTable -- */
+/* ------------------------------------------------------------- DCheckVoiceTable -- */
 /* Check the voice-mapping table and its relationship to the object list:
 		that the voice table contains no empty slots;
 		that every default voice belongs to the correct part;
@@ -122,7 +122,7 @@ Boolean DCheckVoiceTable(Document *doc,
 	for (*pnVoicesUsed = 0, v = 1; v<=MAXVOICES; v++)
 		if (voiceUseTab[v]!=NILINK) (*pnVoicesUsed)++;
 
-	if (voiceInWrongPart) return bad;				/* Following checks may give 100's of errors */
+	if (voiceInWrongPart) return bad;				/* Following checks may give 100's of errors! */
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -163,8 +163,7 @@ Boolean DCheckVoiceTable(Document *doc,
 }
 
 
-
-/* ------------------------------------------------------------------- DCheckTempi -- */	
+/* ------------------------------------------------------------------- DCheckTempi -- */
 /* If there are multiple Tempo objects at the same point in the score, check that their
 tempo and/or M.M. strings are identical. This is on the assumption that the reason for
 multiple Tempos at the same point is just to make the tempo and/or M.M. appear at more
@@ -196,8 +195,8 @@ Boolean DCheckTempi(Document *doc)
 				theStrOffset = TempoSTRING(pL);
 				Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)tempoStr);
-LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevTempoStr,
-					pL, tempoStr);
+//LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevTempoStr,
+//					pL, tempoStr);
 				/* If this Tempo object has a tempo string, is it the expected string? */
 				if (strlen(tempoStr)>0 && strcmp(prevTempoStr, tempoStr)!=0)
 					COMPLAIN3("DCheckTempi: Tempo marks at %u ('%s') AND %u ARE INCONSISTENT.\n",
@@ -208,8 +207,8 @@ LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL,
 				theStrOffset = TempoMETROSTR(pL);
 				Pstrcpy((StringPtr)metroStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)metroStr);
-LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevMetroStr,
-					pL, metroStr);
+//LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevMetroStr,
+//					pL, metroStr);
 				/* If this Tempo object has an M.M., is it the expected M.M. string? */
 				if (!TempoNOMM(pL) && strcmp(prevMetroStr, metroStr)!=0)
 					COMPLAIN3("DCheckTempi: M.M.s of Tempo objects at %u ('%s') AND %u ARE INCONSISTENT.\n",
@@ -331,7 +330,7 @@ Boolean DCheckRedundTS(Document *doc)
 }
 
 
-/* -------------------------------------------------------------- DCheckMeasDur -- */
+/* ---------------------------------------------------------------- DCheckMeasDur -- */
 /* Check the actual duration of notes in every measure, considered as a whole,
 against its time signature on every staff. N.B. I think this function makes more
 assumptions about the consistency of the data structure than the other "DCheck"
@@ -348,7 +347,7 @@ measures" in which:
 Boolean DCheckMeasDur(Document *doc)
 {
 	LINK pL, barTermL;
-	long measDurNotated, measDurActual;
+	long measDurFromTS, measDurActual;
 	const char *adverb;
 	Boolean bad;
 	
@@ -360,15 +359,15 @@ Boolean DCheckMeasDur(Document *doc)
 		if (MeasureTYPE(pL) && !FakeMeasure(doc, pL)) {
 			barTermL = EndMeasSearch(doc, pL);
 			if (barTermL) {
-				measDurNotated = NotatedMeasDur(doc, barTermL);
-				if (measDurNotated<0) {
-					COMPLAIN("DCheckMeasDur: MEAS AT %u NOTATED DURATION DIFFERENT ON DIFFERENT STAVES.\n",
+				measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
+				if (measDurFromTS<0) {
+					COMPLAIN("DCheckMeasDur: MEAS AT %u TIME SIG. DURATION DIFFERENT ON DIFFERENT STAVES.\n",
 									pL);
 					continue;
 				}
 				measDurActual = GetMeasDur(doc, barTermL);
-				if (measDurNotated!=measDurActual) {
-					adverb = (ABS(measDurNotated-measDurActual)<PDURUNIT? " MINUTELY " : " ");
+				if (measDurFromTS!=measDurActual) {
+					adverb = (ABS(measDurFromTS-measDurActual)<PDURUNIT? " MINUTELY " : " ");
 					COMPLAIN3("DCheckMeasDur: MEAS AT %u DURATION OF %ld%sDIFFERENT FROM TIME SIG.\n",
 									pL, measDurActual, adverb);
 				}
@@ -380,7 +379,7 @@ Boolean DCheckMeasDur(Document *doc)
 }
 
 
-/* -------------------------------------------------------------- DCheckUnisons -- */
+/* ---------------------------------------------------------------- DCheckUnisons -- */
 /* Check chords for unisons. */
 
 Boolean DCheckUnisons(Document *doc)
