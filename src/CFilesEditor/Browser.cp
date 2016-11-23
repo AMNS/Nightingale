@@ -41,6 +41,7 @@ static void BrowseConnect(LINK, short);
 static void BrowseClef(LINK, short);
 static void BrowseKeySig(LINK, short);
 static void BrowseTimeSig(LINK, short);
+static void DRect2ScreenRect(DRect mrect, short xd, DRect systemRect);
 static void BrowseMeasure(LINK, short);
 static void BrowsePseudoMeas(LINK, short);
 static void BrowseSync(LINK, short);
@@ -168,7 +169,7 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 	}
 
 
-/* ------------------------------------------------------------------ Browser -- */
+/* ---------------------------------------------------------------------- Browser -- */
 /* Browser displays and handles interaction with a small window that lets the
 user (a Nightingale programmer, presumably) prowl around in an object list.
 tailL may be NILINK; in this case, the "go to tail" button will be inoperative,
@@ -487,7 +488,7 @@ void DrawTextLine(char *s)
 }
 
 
-/* --------------------------------------------------------------- ShowObjRect -- */
+/* ------------------------------------------------------------------ ShowObjRect -- */
 
 static void ShowObjRect(Document *doc)
 {
@@ -499,7 +500,7 @@ static void ShowObjRect(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------- SelSubObj -- */
+/* -------------------------------------------------------------------- SelSubObj -- */
 
 static void SelSubObj(LINK, LINK);
 static void SelSubObj(LINK pL, LINK subL)
@@ -530,7 +531,7 @@ static void SelSubObj(LINK pL, LINK subL)
 		}	
 }
 
-/* ----------------------------------------------------------- ChangeSelectObj -- */
+/* -------------------------------------------------------------- ChangeSelectObj -- */
 /* If mode is SMSelect, select pL and (if it has any subobjects) either the
 current one or all of them; if mode is SMDeselect, deselect pL and all of its
 subobjects, if it has any. This function is designed to handle anomalous
@@ -597,7 +598,7 @@ static void ChangeSelectObj(Document *doc, LINK pL,
 }
 
 
-/* ----------------------------------------------------------------- ShowObject -- */
+/* ------------------------------------------------------------------- ShowObject -- */
 
 void ShowObject(Document *doc, LINK pL, short index)
 {
@@ -737,7 +738,7 @@ void ShowObject(Document *doc, LINK pL, short index)
 	}
 }
 
-/* -------------------------------------------------------------- ShowVoicePage -- */
+/* ---------------------------------------------------------------- ShowVoicePage -- */
 
 #define VOICEPAGESIZE 25		/* Max. no. of lines (voices) that fit in Browser window */ 
 
@@ -757,7 +758,7 @@ static void ShowVoicePage(Document *doc, short startV)
 }
 
 
-/* --------------------------------------------------------------- BrowseHeader -- */
+/* ----------------------------------------------------------------- BrowseHeader -- */
 
 void BrowseHeader(Document *doc, LINK pL, short index)
 {
@@ -898,7 +899,7 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 }
 
 
-/* --------------------------------------------------------------- BrowsePage -- */
+/* ------------------------------------------------------------------- BrowsePage -- */
 
 void BrowsePage(LINK pL)
 {
@@ -914,7 +915,7 @@ void BrowsePage(LINK pL)
 }
 
 
-/* ------------------------------------------------------------- BrowseSystem -- */
+/* ----------------------------------------------------------------- BrowseSystem -- */
 
 void BrowseSystem(LINK pL)
 {
@@ -941,7 +942,7 @@ void BrowseSystem(LINK pL)
 }
 
 
-/* ------------------------------------------------------------- BrowseStaff -- */
+/* ------------------------------------------------------------------ BrowseStaff -- */
 
 void BrowseStaff(LINK pL, short index)
 {
@@ -1010,7 +1011,7 @@ void BrowseStaff(LINK pL, short index)
 }
 
 
-/* ------------------------------------------------------------ BrowseConnect -- */
+/* ---------------------------------------------------------------- BrowseConnect -- */
 
 void BrowseConnect(LINK pL, short index)
 {
@@ -1078,7 +1079,7 @@ void BrowseConnect(LINK pL, short index)
 }
 
 
-/* -------------------------------------------------------------- BrowseClef -- */
+/* ------------------------------------------------------------------- BrowseClef -- */
 
 void BrowseClef(LINK pL, short index)
 {
@@ -1123,7 +1124,7 @@ void BrowseClef(LINK pL, short index)
 }
 
 
-/* -------------------------------------------------------------- BrowseKeySig -- */
+/* ----------------------------------------------------------------- BrowseKeySig -- */
 
 void BrowseKeySig(LINK pL, short index)
 {
@@ -1166,7 +1167,7 @@ void BrowseKeySig(LINK pL, short index)
 }
 
 
-/* ------------------------------------------------------------ BrowseTimeSig -- */
+/* ---------------------------------------------------------------- BrowseTimeSig -- */
 
 void BrowseTimeSig(LINK pL, short index)
 {
@@ -1212,7 +1213,17 @@ void BrowseTimeSig(LINK pL, short index)
 }
 
 
-/* ------------------------------------------------------------- BrowseMeasure -- */
+/* ---------------------------------------------------------------- BrowseMeasure -- */
+
+static void DRect2ScreenRect(DRect aRect, short xd, DRect systemRect)
+{
+	OffsetDRect(&aRect, xd, systemRect.top);
+	SetRect(&objRect, aRect.left, aRect.top, aRect.right, aRect.bottom);
+	OffsetRect(&objRect, systemRect.left, 0);
+	D2Rect((DRect *)&objRect, &objRect);
+	OffsetRect(&objRect, paperRect.left, paperRect.top);
+}
+
 
 void BrowseMeasure(LINK pL, short index)
 {
@@ -1220,7 +1231,7 @@ void BrowseMeasure(LINK pL, short index)
 	PAMEASURE q;
 	LINK qL;
 	short i, xd;
-	Rect bbox; DRect mrect;
+	Rect bbox;  DRect mrect;
 
 	p = GetPMEASURE(pL);
 	sprintf(s, "l/r Measure=%d,%d", p->lMeasure, p->rMeasure);
@@ -1244,7 +1255,7 @@ void BrowseMeasure(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextMEASUREL(qL)) 
+	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextMEASUREL(qL)) 
 		;
 	q = GetPAMEASURE(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
@@ -1282,11 +1293,7 @@ void BrowseMeasure(LINK pL, short index)
 	sprintf(s, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
 	DrawTextLine(s);
 	
-	OffsetDRect(&mrect,xd,systemRect.top);
-	SetRect(&objRect,mrect.left,mrect.top,mrect.right,mrect.bottom);
-	OffsetRect(&objRect,systemRect.left,0);
-	D2Rect((DRect *)&objRect,&objRect);
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	DRect2ScreenRect(mrect, xd, systemRect);
 	
 	subL = qL;
 }
@@ -1353,30 +1360,30 @@ void BrowseSync(LINK pL, short index)
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	
 	strcpy(s, "flags=");
-	if (q->selected)			strcat(s, "SELECTED ");
+	if (q->selected)		strcat(s, "SELECTED ");
 	if (q->visible)			strcat(s, "VISIBLE ");
-	if (q->soft)				strcat(s, "SOFT ");
+	if (q->soft)			strcat(s, "SOFT ");
 	if (q->inChord)			strcat(s, "INCHORD");
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	
 	strcpy(s, "flags=");
-	if (q->rest)				strcat(s, "REST ");
-	if (q->beamed)				strcat(s, "BEAMED ");
+	if (q->rest)			strcat(s, "REST ");
+	if (q->beamed)			strcat(s, "BEAMED ");
 	if (q->otherStemSide)	strcat(s, "OTHERSTEMSIDE");
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	
 	strcpy(s, "flags=");
 	if (q->tiedL)			strcat(s, "TIEDL ");
 	if (q->tiedR)			strcat(s, "TIEDR ");
-	if (q->slurredL)			strcat(s, "SLURREDL ");
-	if (q->slurredR)			strcat(s, "SLURREDR");
+	if (q->slurredL)		strcat(s, "SLURREDL ");
+	if (q->slurredR)		strcat(s, "SLURREDR");
 	DrawTextLine(s);	q = GetPANOTE(qL);
 
 	strcpy(s, "flags=");
-	if (q->inTuplet)			strcat(s, "INTUPLET ");
-	if (q->inOttava)			strcat(s, "INOTTAVA ");
-	if (q->small)				strcat(s, "SMALL ");
-	if (q->tempFlag)			strcat(s, "TEMPFLAG");
+	if (q->inTuplet)		strcat(s, "INTUPLET ");
+	if (q->inOttava)		strcat(s, "INOTTAVA ");
+	if (q->small)			strcat(s, "SMALL ");
+	if (q->tempFlag)		strcat(s, "TEMPFLAG");
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	
 	sprintf(s, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
@@ -1404,7 +1411,7 @@ void BrowseSync(LINK pL, short index)
 }
 
 
-/* ----------------------------------------------------------- BrowseGRSync -- */
+/* ----------------------------------------------------------------- BrowseGRSync -- */
 
 void BrowseGRSync(LINK pL, short index)
 {
@@ -1431,29 +1438,29 @@ void BrowseGRSync(LINK pL, short index)
 
 	
 	strcpy(s, "flags=");
-	if (q->selected)			strcat(s, "SELECTED ");
+	if (q->selected)		strcat(s, "SELECTED ");
 	if (q->visible)			strcat(s, "VISIBLE ");
-	if (q->soft)				strcat(s, "SOFT ");
+	if (q->soft)			strcat(s, "SOFT ");
 	if (q->inChord)			strcat(s, "INCHORD");
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 	
 	strcpy(s, "flags=");
-	if (q->rest)				strcat(s, "REST ");
-	if (q->beamed)				strcat(s, "BEAMED ");
+	if (q->rest)			strcat(s, "REST ");
+	if (q->beamed)			strcat(s, "BEAMED ");
 	if (q->otherStemSide)	strcat(s, "OTHERSTEMSIDE");
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 	
 	strcpy(s, "flags=");
 	if (q->tiedL)			strcat(s, "TIEDL ");
 	if (q->tiedR)			strcat(s, "TIEDR ");
-	if (q->slurredL)			strcat(s, "SLURREDL ");
-	if (q->slurredR)			strcat(s, "SLURREDR");
+	if (q->slurredL)		strcat(s, "SLURREDL ");
+	if (q->slurredR)		strcat(s, "SLURREDR");
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 
 	strcpy(s, "flags=");
-	if (q->inTuplet)			strcat(s, "INTUPLET ");
-	if (q->inOttava)			strcat(s, "INOTTAVA ");
-	if (q->small)				strcat(s, "SMALL");
+	if (q->inTuplet)		strcat(s, "INTUPLET ");
+	if (q->inOttava)		strcat(s, "INOTTAVA ");
+	if (q->small)			strcat(s, "SMALL");
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 	
 	sprintf(s, "xd=%d yd=%d yqpit=%hd ystem=%d", q->xd, q->yd, q->yqpit, q->ystem);
@@ -1475,7 +1482,7 @@ void BrowseGRSync(LINK pL, short index)
 }
 
 
-/* ----------------------------------------------------------- BrowseBeamset -- */
+/* ---------------------------------------------------------------- BrowseBeamset -- */
 
 void BrowseBeamset(LINK pL, short index)
 {
@@ -1515,7 +1522,7 @@ void BrowseBeamset(LINK pL, short index)
 }
 
 
-/* --------------------------------------------------------------- BrowseTuplet -- */
+/* ----------------------------------------------------------------- BrowseTuplet -- */
 
 void BrowseTuplet(LINK pL, short index)
 {
@@ -1554,7 +1561,7 @@ void BrowseTuplet(LINK pL, short index)
 }
 
 
-/* -------------------------------------------------------------- BrowseOttava -- */
+/* ----------------------------------------------------------------- BrowseOttava -- */
 
 void BrowseOttava(LINK pL, short index)
 {
@@ -1588,7 +1595,7 @@ void BrowseOttava(LINK pL, short index)
 	DrawTextLine(s);
 }
 
-/* ----------------------------------------------------------- BrowseDynamic -- */
+/* ---------------------------------------------------------------- BrowseDynamic -- */
 
 void BrowseDynamic(LINK pL, short index)
 {
@@ -1638,7 +1645,7 @@ void BrowseDynamic(LINK pL, short index)
 }
 
 
-/* ----------------------------------------------------------- BrowseRptEnd -- */
+/* ----------------------------------------------------------------- BrowseRptEnd -- */
 
 void BrowseRptEnd(LINK pL, short index)
 {
@@ -1678,7 +1685,7 @@ void BrowseRptEnd(LINK pL, short index)
 }
 
 
-/* ---------------------------------------------------------------- BrowseEnding -- */
+/* ----------------------------------------------------------------- BrowseEnding -- */
 
 void BrowseEnding(LINK pL, short /*index*/)
 {
@@ -1702,15 +1709,15 @@ void BrowseEnding(LINK pL, short /*index*/)
 }
 
 
-/* -------------------------------------------------------------- ChordSym2Print -- */
-/* Convert in place a string representing a chord symbol to (semi-)readable form
-by replacing all delimiters with another character. */
+/* --------------------------------------------------------------- ChordSym2Print -- */
+/* Convert in place a Pascal string representing a chord symbol to (semi-)readable
+form by replacing all delimiters with another character. */
 
 #define DELIMITER FWDDEL_KEY
 #define CH_SUBST '|'
 
-void ChordSym2Print(unsigned char *);
-void ChordSym2Print(unsigned char *str)					/* Pascal string */
+void ChordSym2Print(StringPtr);
+void ChordSym2Print(StringPtr str)
 {
 	short i, count=*str;
 	
@@ -1718,7 +1725,7 @@ void ChordSym2Print(unsigned char *str)					/* Pascal string */
 		if (str[i]==DELIMITER) str[i] = CH_SUBST;
 }
 
-/* --------------------------------------------------------------- BrowseGraphic -- */
+/* ---------------------------------------------------------------- BrowseGraphic -- */
 
 void BrowseGraphic(LINK pL)
 {

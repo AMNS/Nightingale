@@ -409,7 +409,7 @@ static long GetStartTime(Document *doc, VInfo *vInfo, short v, short vStfDiff)
 		firstInVL = VoiceSearch(startL,vInfo,vStfDiff,GO_RIGHT);
 	}
 	else {
-		firstInVL = VoiceRangeSearch(startL,vInfo,vStfDiff,GO_RIGHT);
+		firstInVL = VoiceRangeSearch(startL, vInfo, vStfDiff, GO_RIGHT);
 	}
 
 	if (!firstInVL) return -1L;
@@ -424,27 +424,26 @@ static long GetStartTime(Document *doc, VInfo *vInfo, short v, short vStfDiff)
 		actually not being before the system object of the system to be merged
 		into; this is caught by testing beforeFirst in FixEditMenu. */
 
-	if (!SamePage(LeftLINK(startL),firstInVL)) return -1L;
+	if (!SamePage(LeftLINK(startL), firstInVL)) return -1L;
 
-	if (!SameSystem(LeftLINK(startL),firstInVL)) return -1L;
+	if (!SameSystem(LeftLINK(startL), firstInVL)) return -1L;
 
-	lastMeasL = LSSearch(firstInVL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+	lastMeasL = LSSearch(firstInVL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
 
 	if (lastMeasL!=startMeasL)
 		for (measL=startMeasL; measL!=lastMeasL; measL = LinkRMEAS(measL))
-			startTime += GetMeasDur(doc, LinkRMEAS(measL));
+			startTime += GetMeasDur(doc, LinkRMEAS(measL), ANYONE);
 
-	/* If firstInVL is neither J_IT nor J_IP, GetLTime will return the
-		lTime of the immediately preceding Sync. We want the J_IT or J_IP
-		object of firstInVL's slot, not the Sync immediately preceding
-		that slot.
-		Note that an analogous search is not required to get the clipEndTime,
-		since there we search to the right from clipboard->tailL and are
-		guaranteed to get the J_IT or J_IP object establishing the slot
-		before any J_D obj in the slot. */
+	/* If firstInVL is neither J_IT nor J_IP, GetLTime will return the lTime of the
+		immediately preceding Sync. We want the J_IT or J_IP object of firstInVL's
+		slot, not the Sync immediately preceding that slot.
+		
+		Note that an analogous search is not required to get the clipEndTime, since
+		there we search to the right from clipboard->tailL and we're guaranteed to get
+		the J_IT or J_IP object establishing the slot before any J_D obj in the slot. */
 
 	if (J_DTYPE(firstInVL))
-		firstInVL = FirstValidxd(firstInVL,GO_RIGHT);
+		firstInVL = FirstValidxd(firstInVL, GO_RIGHT);
 		
 	/* If lastMeasL is not equal to startMeasL, there is an empty slot
 		for merging spanning multiple measures, and firstInVL will be the
@@ -454,13 +453,13 @@ static long GetStartTime(Document *doc, VInfo *vInfo, short v, short vStfDiff)
 		lTime relative to the object before the insertion point. */
 
 	if (lastMeasL!=startMeasL)
-		startTime += GetLTime(doc,firstInVL);
+		startTime += GetLTime(doc, firstInVL);
 	else {
-		startTime = GetLTime(doc,firstInVL);
+		startTime = GetLTime(doc, firstInVL);
 
-		prevInVL = FirstValidxd(LeftLINK(startL),GO_LEFT);
-		prevTime = MeasureTYPE(prevInVL) ? 0L : GetLTime(doc,prevInVL) + 
-						GetLDur(doc,prevInVL,Obj2Stf(prevInVL,v));
+		prevInVL = FirstValidxd(LeftLINK(startL), GO_LEFT);
+		prevTime = MeasureTYPE(prevInVL) ? 0L : GetLTime(doc, prevInVL) + 
+						GetLDur(doc, prevInVL, Obj2Stf(prevInVL, v));
 
 		startTime -= prevTime;
 	}
@@ -825,7 +824,7 @@ static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *
 	if (!measInfo) {
 		*mergeErr = Mrg_AllocErr; return FALSE;
 	}
-	SetupDocMeasInfo(doc,measInfo,nClipMeas);
+	SetupDocMeasInfo(doc, measInfo, nClipMeas);
 	
 	for (v=1; v<=MAXVOICES; v++) {
 		vInfo[v].startTime = -1L;
@@ -840,31 +839,31 @@ static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *
 	
 	/* Initialize the vInfo array */
 	for (v=1; v<=MAXVOICES; v++)
-		if (VOICE_MAYBE_USED(clipboard,v) && vMap[v]>=0 && VOICE_MAYBE_USED(doc,vMap[v]))
-			GetVoiceStf(doc,vInfo,vMap[v]);
+		if (VOICE_MAYBE_USED(clipboard, v) && vMap[v]>=0 && VOICE_MAYBE_USED(doc, vMap[v]))
+			GetVoiceStf(doc, vInfo, vMap[v]);
 
 	measInfo[0].measTime = 0L;
 	for (i=1; i<nClipMeas; i++) {
 		docMeasL = measInfo[i].dstL;
 		measInfo[i].measTime = measInfo[i-1].measTime;
-		measInfo[i].measTime += GetMeasDur(doc,docMeasL);
+		measInfo[i].measTime += GetMeasDur(doc, docMeasL, ANYONE);
 	}
 
 	/* Get the start times of all voices potentially involved in the merge. */
 	for (v=1; v<=MAXVOICES; v++) {
-		if (VOICE_MAYBE_USED(clipboard,v) && VOICE_MAYBE_USED(doc,vMap[v]))
-			if (ClipVInUse(v) && DocVInUse(doc,vMap[v])) {
-				GetStartTime(doc,vInfo,v,vMap[v]);
+		if (VOICE_MAYBE_USED(clipboard, v) && VOICE_MAYBE_USED(doc, vMap[v]))
+			if (ClipVInUse(v) && DocVInUse(doc, vMap[v])) {
+				GetStartTime(doc, vInfo, v, vMap[v]);
 			}
 	}
 
 	/* Check those start times against the end times of all corresponding
 		voices in the clipboard. */
 	for (v=1; v<=MAXVOICES; v++)
-		if (VOICE_MAYBE_USED(clipboard,v) && VOICE_MAYBE_USED(doc,vMap[v])) {
-			if (ClipVInUse(v) && DocVInUse(doc,vMap[v])) {
+		if (VOICE_MAYBE_USED(clipboard, v) && VOICE_MAYBE_USED(doc, vMap[v])) {
+			if (ClipVInUse(v) && DocVInUse(doc, vMap[v])) {
 				if (vInfo[v].startTime>=0)
-					vInfo[v].vOK = CheckStartTime(vInfo,measInfo,v);
+					vInfo[v].vOK = CheckStartTime(vInfo, measInfo, v);
 			}
 		}
 
@@ -1323,7 +1322,7 @@ static MeasInfo *BuildMeasInfo(Document *doc)
 	for (i=1; i<nClipMeas; i++) {
 		docMeasL = measInfo[i].dstL;
 		measInfo[i].measTime = measInfo[i-1].measTime;
-		measInfo[i].measTime += GetMeasDur(doc,docMeasL);
+		measInfo[i].measTime += GetMeasDur(doc, docMeasL, ANYONE);
 	}
 	
 	return measInfo;

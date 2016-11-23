@@ -75,7 +75,7 @@ short Header2UserFontNum(short);
 void Rect2Window(Document *doc, Rect *r);
 void Pt2Window(Document *doc, Point *pt);
 void Pt2Paper(Document *doc, Point *pt);
-void GlobalToPaper(Document *doc, Point *pt);
+void Global2Paper(Document *doc, Point *pt);
 void RefreshScreen(void);
 
 void InitSleepMS(void);

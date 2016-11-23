@@ -18,7 +18,7 @@
 static void D2ObjRect(DRect *pdEnclBox, Rect *pobjRect);
 static void DrawPageNum(Document *, LINK, Rect *, PCONTEXT);
 static void DrawMeasNum(Document *, DDIST, DDIST, short, PCONTEXT);
-static void ShadeProbMeasure(Document *, LINK, PCONTEXT);
+static void ShadeProblemMeasure(Document *, LINK, PCONTEXT);
 static void DrawPartName(Document *, LINK, short, SignedByte, DDIST, Rect *, CONTEXT []);
 static void DrawInstrInfo(Document *, short, Rect *, CONTEXT []);
 static void DrawHairpin(LINK, LINK, PCONTEXT, DDIST, DDIST, Boolean);
@@ -2551,15 +2551,40 @@ static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 }
 
 
-/* ------------------------------------------------------------- ShadeProbMeasure -- */
-/* Check whether this measure's notated and actual durations agree. If not, shade
-over the entire measure. */
+/* ------------------------------------------------------------- ShadeProblemMeasure -- */
 
-static void ShadeProbMeasure(Document *doc, LINK pL, PCONTEXT pContext)
+static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat);
+static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat)
+{
+				OffsetRect(pRect, pContext->paper.left, pContext->paper.top);
+				/*
+				 * Indent shading area horizontally to avoid covering up the barlines,
+				 * and vertically to separate this measure from those in adjacent systems.
+				 * The standard ltGray pattern covers up some things drawn after it, e.g.,
+				 * it often makes the blinking caret almost invisible, so use our own
+				 * diagonal stripes.
+				 */
+				InsetRect(pRect, 1, 2);
+				PenPat(shadePat);
+				PenMode(patOr);
+				PaintRect(pRect);
+				PenNormal();
+}
+
+
+/* Check whether this measure's notated (time signature-based) and actual durations on
+all staves agree. If not, shade over the entire measure across all staves; if they do,
+perform the same check on individual staves, and shade the measure on just those staves
+that don't agree. The latter condition effectively means that staves for which the
+measure's notes/rests don't extend to the "real" end of the measure get shaded, but only
+when at least one other staff has a complete measure. */
+
+static void ShadeProblemMeasure(Document *doc, LINK pL, PCONTEXT pContext)
 {
 	LINK barTermL;  Boolean okay;
-	long measDurFromTS, measDurActual;
+	long measDurFromTS, measDurActual, measDurOnStaff;
 	Rect r;  PMEASURE p;
+	short staffn;
 
 	if (!FakeMeasure(doc, pL)) {
 		barTermL = EndMeasSearch(doc, pL);
@@ -2568,27 +2593,23 @@ static void ShadeProbMeasure(Document *doc, LINK pL, PCONTEXT pContext)
 			measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
 			if (measDurFromTS<0) okay = FALSE;
 			else {
-				measDurActual = GetMeasDur(doc, barTermL);
+				measDurActual = GetMeasDur(doc, barTermL, ANYONE);
 				if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT)
 					okay = FALSE;
 			}
 
-			if (!okay) {
+			if (okay) {
+				for (staffn=1; staffn<=doc->nstaves; staffn++) {
+					measDurOnStaff = GetMeasDur(doc, barTermL, staffn);
+					if (measDurOnStaff!=0 && ABS(measDurFromTS-measDurOnStaff)>=PDURUNIT)
+						//ShadeRect(&r, pContext, &altDiagonalLtGray);
+						LogPrintf(LOG_DEBUG, "ShadeProblemMeasure: for pL=%d, staff %d has dur %d\n", pL, staffn, measDurOnStaff);
+				}
+			}
+			else {
 				p = GetPMEASURE(pL);
 				r = p->measureBBox;
-				OffsetRect(&r, pContext->paper.left, pContext->paper.top);
-				/*
-				 * Indent shading area horizontally to avoid covering up the barlines,
-				 * and vertically to separate this measure from those in adjacent systems.
-				 * The standard ltGray pattern covers up some things drawn after it, e.g.,
-				 * it often makes the blinking caret almost invisible, so use our own
-				 * diagonal stripes.
-				 */
-				InsetRect(&r, 1, 2);
-				PenPat(&diagonalLtGray);
-				PenMode(patOr);
-				PaintRect(&r);
-				PenNormal();
+				ShadeRect(&r, pContext, &diagonalLtGray);
 			}
 		}
 	}
@@ -2771,7 +2792,7 @@ PushLock(MEASUREheap);
 		pContext->denominator = aMeasure->denominator;
 		pContext->dynamicType = aMeasure->dynamicType;
 
-		/* FIXME: This code should be re-written to be independent of rastral/magn.
+		/* FIXME: This code should be re-written to be independent of rastral/magnification.
 			When this is done, refer to note #1 in MakeSystem() in Score.c */
 
 		if (recalc) {
@@ -2899,7 +2920,7 @@ PushLock(MEASUREheap);
  * and actual durations agree, and if they don't, shade over the entire measure.
  */
 	if (doc->showDurProb)
-		ShadeProbMeasure(doc, pL, lastContext);
+		ShadeProblemMeasure(doc, pL, lastContext);
 
 	if (LinkSEL(pL))
 		if (doc->showFormat)

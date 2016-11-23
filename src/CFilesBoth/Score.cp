@@ -1541,7 +1541,7 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 		MeasureTIME(pL) = 0L;
 	else if (prevMeasL!=NILINK) {
 		endMeasL = EndMeasSearch(doc, prevMeasL);
-		MeasureTIME(pL) = MeasureTIME(prevMeasL)+GetMeasDur(doc, endMeasL);
+		MeasureTIME(pL) = MeasureTIME(prevMeasL)+GetMeasDur(doc, endMeasL, ANYONE);
 	}
 	else
 		MeasureTIME(pL) = 7734L;							/* Should never happen */

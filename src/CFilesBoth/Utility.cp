@@ -22,7 +22,7 @@
 		BlockCompare			RelIndexToSize			GetTextSize
 		FontName2Index			User2HeaderFontNum		Header2UserFontNum
 		Rect2Window				Pt2Window
-		Pt2Paper				GlobalToPaper			RefreshScreen
+		Pt2Paper				Global2Paper			RefreshScreen
 		InitSleepMS				SleepMS					SleepTicks
 		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
 		PlayResource
@@ -1249,7 +1249,7 @@ void Pt2Paper(Document *doc, Point *pt)
 
 /* Convert in place global (screen coords) pt to paper-relative coordinates. */
 
-void GlobalToPaper(Document *doc, Point *pt)
+void Global2Paper(Document *doc, Point *pt)
 {
 	GlobalToLocal(pt);
 	pt->h -= doc->currentPaper.left;

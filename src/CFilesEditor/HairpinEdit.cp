@@ -71,7 +71,7 @@ void DoHairpinEdit(Document *doc, LINK pL)
 		
 			if (eventRec.what == mouseDown) {
 				mousePt = eventRec.where;
-				GlobalToPaper(doc, &mousePt);
+				Global2Paper(doc, &mousePt);
 				if (!(SamePoint(mousePt, lGrip) ||
 					   SamePoint(mousePt, rGrip) ||
 					   PtInRect(mousePt, &thisHair.objRect)))
@@ -83,8 +83,8 @@ void DoHairpinEdit(Document *doc, LINK pL)
 			/* If mouse down event, edit hairpin. */			
 			GetNextEvent(mDownMask, &eventRec);
 
-			/* Leave initial hairpin in gray. NB: If you want the hairpin
-			 * to be fainter than staff lines, use dkGray (sic) instead.
+			/* Leave initial hairpin in gray. NB: If you want the hairpin to be
+			 * fainter than staff lines, use dkGray (sic) instead.
 			 */
 			PenMode(patXor);
 			DoHairFeedback(doc, &thisHair);				/* erase black hairpin */
@@ -112,7 +112,7 @@ void DoHairpinEdit(Document *doc, LINK pL)
 			oldHair = thisHair;
 		}
 	}
-	DoHairFeedback(doc, &thisHair);						/* draw black hairpin */
+	DoHairFeedback(doc, &thisHair);							/* draw black hairpin */
 	DrawBothGrips(doc);										/* erase grips */
 
 	/* Update hairpin in data structure and inval rect if it's changed. */

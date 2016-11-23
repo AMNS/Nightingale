@@ -414,7 +414,7 @@ Boolean OpenSetupFile()
 		 */
 		LogPrintf(LOG_NOTICE, "Can\'t find a '%s' (Preferences) file: creating a new one.\n", PToCString(setupFileName));
 		ProgressMsg(CREATESETUP_PMSTR, "");
-		SleepTicks((unsigned)(5*60L));						/* Give user time to read the msg */
+		SleepTicks((unsigned)(5*60L));					/* Give user time to read the msg */
 		if (!CreateSetupFile(&rfSpec)) {
 			GetIndCString(strBuf, INITERRS_STRS, 2);	/* "Can't create Prefs file" */
 			CParamText(strBuf, "", "", "");
@@ -1045,7 +1045,7 @@ static Boolean NInitFloatingWindows()
 		
 			/* Get a handle to a PaletteGlobals structure for this palette */
 			
-			paletteGlobals[index] = (PaletteGlobals **)GetResource('PGLB',ToolPaletteWDEF_ID+index);
+			paletteGlobals[index] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+index);
 			if (!GoodResource((Handle)paletteGlobals[index])) return FALSE;
 
 			MoveHHi((Handle)paletteGlobals[index]);
@@ -1065,16 +1065,12 @@ static Boolean NInitFloatingWindows()
 			wdefID = floatGrowProc;
 			
 			if (thisMac.hasColorQD)
-				palettes[index] = (WindowPtr)NewCWindow(NULL,
-										&windowRects[index],
-										"\p",FALSE,wdefID,
-										BRING_TO_FRONT,TRUE,
+				palettes[index] = (WindowPtr)NewCWindow(NULL, &windowRects[index],
+										"\p", FALSE, wdefID, BRING_TO_FRONT, TRUE,
 										(long)index);
 			 else
-				palettes[index] = (WindowPtr)NewWindow(NULL,
-										&windowRects[index],
-										"\p",FALSE,wdefID,
-										BRING_TO_FRONT,TRUE,
+				palettes[index] = (WindowPtr)NewWindow(NULL, &windowRects[index],
+										"\p", FALSE, wdefID, BRING_TO_FRONT, TRUE,
 										(long)index);
 			if (!GoodNewPtr((Ptr)palettes[index])) return FALSE;
 		
@@ -1110,8 +1106,8 @@ margin on all sides. */
 
 static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 	{
-		PicHandle toolPicture; Rect picRect;
-		short curResFile; short defaultToolItem;
+		PicHandle toolPicture;  Rect picRect;
+		short curResFile;  short defaultToolItem;
 		
 		/* Allocate a grid of characters from the 'PLCH' resource. */
 		defaultToolItem = GetToolGrid(whichPalette);
@@ -1192,8 +1188,8 @@ or 0 if problem. */
 
 static short GetToolGrid(PaletteGlobals *whichPalette)
 	{
-		short maxRow, maxCol, row, col, item, defItem = 0; short curResFile;
-		GridRec *pGrid; Handle hdl;
+		short maxRow, maxCol, row, col, item, defItem = 0;  short curResFile;
+		GridRec *pGrid;  Handle hdl;
 		unsigned char *p;			/* Careful: contains both binary and char data! */
 		
 		curResFile = CurResFile();
@@ -1347,7 +1343,7 @@ Boolean InitGlobals()
 		size = (long)sizeof(Document) * config.maxDocuments;
 		documentTable = (Document *)NewPtr(size);
 		if (!GoodNewPtr((Ptr)documentTable))
-			{ OutOfMemory(size); return FALSE; }
+			{ OutOfMemory(size);  return FALSE; }
 		
 		topTable = documentTable + config.maxDocuments;
 		for (doc=documentTable; doc<topTable; doc++) doc->inUse = FALSE;
@@ -1389,7 +1385,7 @@ Boolean InitGlobals()
 			AppendMenu(editMenu, "\pDelete Objects");
 		}
 #else
-		testMenu = GetMenu(testID);		if (!testMenu) return FALSE;
+		testMenu = GetMenu(testID);			if (!testMenu) return FALSE;
 		InsertMenu(testMenu,0);
 #endif
 		
@@ -1439,9 +1435,10 @@ Boolean InitGlobals()
 		
 		/* Pull in other miscellaneous things from resources. */
 		
-		GetIndPattern(&paperBack,MiscPatternsID,1);
-		GetIndPattern(&diagonalDkGray,MiscPatternsID,2);
-		GetIndPattern(&diagonalLtGray,MiscPatternsID,3);
+		GetIndPattern(&paperBack, MiscPatternsID, 1);
+		GetIndPattern(&diagonalDkGray, MiscPatternsID, 2);
+		GetIndPattern(&diagonalLtGray, MiscPatternsID, 3);
+		GetIndPattern(&altDiagonalLtGray, MiscPatternsID, 4);
 		
 		/* Call stub routines to load all segments needed for selection, so user
 		doesn't have to wait for them to load when he/she makes the the first

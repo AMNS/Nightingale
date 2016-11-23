@@ -1606,7 +1606,7 @@ on the "Questionable Symbols" OMR test page, anyway; just kludge it for that?
 
 -------------------------------------------------------------------------------
 
-15-16 Nov.
+15-20 Nov.
 
 I'd like to look for differences two versions of the violin solo part of the concerto,
 1st mvmt part 1, by doing text comparison of their notelists; but that's useless because
@@ -1620,9 +1620,10 @@ measures..., return one measure's duration"; but why?? And a vn part extracted f
 Extract() does the right thing; 1stMovement_Part1-VnSolo.ngl could have ended up w/ the
 wrong value bcs of my fiddling w/ the initial multibar rest after extracting the part!
 
-Fixing CalcNoteLDur() shouldn't be hard, but impact? Well, multibar rests almost never
-occur outside of extracted parts, and changing the calculated duration of one can't affect
-syncing, etc., so realllly shouldn't be a significant problem.
+Fixing CalcNoteLDur() to handle multibar rests shouldn't be hard, but impact? Well,
+multibar rests almost never occur outside of extracted parts, and changing the
+calculated duration of one can't affect syncing, etc., so realllly shouldn't be a
+significant problem.
 
 OK, done; but there are still 137 differences in the notelists! *#$@$)(!#  A fair no. are
 because of initial clefs on systems (since the system breaks are different). Why should
@@ -1639,3 +1640,19 @@ notelist line, etc. => down to 109 differences.
 Other changes... => down to 62 differences! A lot of these are bcs of cues I added to
 1stMovement_Part1-VnSolo.ngl; some due to reformatting affecting text (extensions, etc.).
 
+More changes => down to 59 differences. !! The main problem now is starting w/ m. 137, which
+-- thanks to cues in the tweaked part -- Ngale thinks has a duration of 2400 when it should
+be 1920. Clearly a bug resulting from the clef change in the cues. Kludge around that =>
+Ngale has the correct duration for m. 137 => only 28 differences!, and they all seem to be
+legitimate.
+
+-------------------------------------------------------------------------------
+
+21-22 Nov.
+
+I want to find measures that are incomplete on a given staff (as opposed to measures that are
+incomplete or overfull across all staves, ala Show Duration Problems). The nicest UI by far
+seems to be doing roughly what Show Duration Problems, but just shading the measure on the
+relevant staff. Might as well have Show Duration Problems turn this on/off also!
+
+Cf. DrawObject/ShadeProblemMeasure().

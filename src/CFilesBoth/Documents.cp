@@ -766,7 +766,7 @@ static Boolean AllStavesSameSize(Document *doc)
 }
 
 
-/* --------------------------------------------------------------- InitDocFields -- */
+/* ---------------------------------------------------------------- InitDocFields -- */
 /* Initialize miscellaneous fields in the given Document. If there's a problem (out
 of memory), give an error message and return FALSE, else TRUE. */
 
@@ -822,7 +822,7 @@ Boolean InitDocFields(Document *doc)
 	doc->pianoroll = FALSE;
 	doc->showSyncs = FALSE;
 	doc->frameSystems = FALSE;
-	doc->colorVoices = 0;
+	doc->colorVoices = 1;							/* Show non-default voices in color */
 	doc->showInvis = FALSE;
 	doc->showDurProb = FALSE;
 	doc->showWaitCurs = TRUE;
@@ -906,7 +906,7 @@ Boolean InitDocFields(Document *doc)
 	return TRUE;
 }
 
-/* ----------------------------------------------------------------- InitDocUndo -- */
+/* ------------------------------------------------------------------	InitDocUndo -- */
 /* Initialize the given Document's Undo fields, Undo record, and (empty) Undo
 object list. If there's a problem (out of memory), return FALSE, else TRUE. */
 

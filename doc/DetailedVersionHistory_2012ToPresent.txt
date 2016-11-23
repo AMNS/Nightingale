@@ -942,7 +942,7 @@ Minor cleanup. Affects MemMacros.h, NTypes.h; Event, Ottava, Slurs, SpaceTime.
 
 ===============================================================================
 
-9-19 Nov.
+9-16 Nov.
 
 Changed version number from 5.7b6 to 5.7b7. Affects Info.plist.
 
@@ -956,10 +956,29 @@ Replace all calls to PStrCopy with Pstrcpy. Affects NightTemplates.h; about 18 C
 In Notelists, skip writing clefs that are at the beginnings of systems and just for
 context setting, the way key signatures have always been handled. Affects NotelistSave.
 
+In Notelists, handle multiple-line tempo marks to keep the notelist entry on one line.
+
+-------------------------------------------------------------------------------
+
+17-19 Nov.
+
 Notelists have always shown styles 1 through 5 in Text graphics correctly, but listed
 styles 6 through 9 as unknown; they now shown all styles correctly. Affects NotelistSave.
 
-In Notelists, handle multiple-line tempo marks to keep the notelist entry on one line.
+Clarify code & minor cleanup. Affects Notelist.h, SpaceTime.h; Check, Debug2Utils,
+DrawObject, Extract, MIDIFSave, Ottava, Score, ScoreInfo, SpaceTime, TextDialog.
 
-Minor cleanup. Affects Notelist.h, SpaceTime.h; Check, Debug2Utils, DrawObject, Extract,
-MIDIFSave, Ottava, Score, ScoreInfo, SpaceTime, TextDialog.
+-------------------------------------------------------------------------------
+
+20-23 Nov.
+
+Make "Color Voices" the default for new scores. Affects Documents.
+
+Barline (Measure) lines in notelists now give the measure number. Affects NotelistSave.
+
+Partial implementation of making Show Duration Problems also show individual staff-
+measures that are incomplete. Affects .rsrc; SpaceTime.h, vars.h; DrawObject, Initialize.
+
+Minor cleanup; improve code readability, etc. Affects defs.h, MemMacros.h, Utility.h;
+Browser, Debug2Utils, Documents, DragBeam, DrawingEdit, DrawObject, HairpinEdit,
+Initialize, Merge, MIDIFSave, RfmtRaw, Score, ScoreInfo, SpaceTime, Utility.

@@ -340,7 +340,6 @@ measures" in which:
 	-There are no unknown duration notes
 	-All time signatures denote the same total time
 	-No time signature appears after the first Sync
-	-The total duration of each voice that has any notes agrees with the time signature
 	-Every Sync after the 1st has a common voice with the preceding Sync
 */
 
@@ -365,7 +364,7 @@ Boolean DCheckMeasDur(Document *doc)
 									pL);
 					continue;
 				}
-				measDurActual = GetMeasDur(doc, barTermL);
+				measDurActual = GetMeasDur(doc, barTermL, ANYONE);
 				if (measDurFromTS!=measDurActual) {
 					adverb = (ABS(measDurFromTS-measDurActual)<PDURUNIT? " MINUTELY " : " ");
 					COMPLAIN3("DCheckMeasDur: MEAS AT %u DURATION OF %ld%sDIFFERENT FROM TIME SIG.\n",

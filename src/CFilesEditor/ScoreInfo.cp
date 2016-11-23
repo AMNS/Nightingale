@@ -61,7 +61,6 @@ static short SICheckMeasDur(Document *doc, short *pFirstBad)
 	short nBad;
 
 	for (nBad = 0, pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
-
 		if (MeasureTYPE(pL) && !FakeMeasure(doc, pL)) {
 			barTermL = EndMeasSearch(doc, pL);
 			if (barTermL) {
@@ -72,7 +71,7 @@ static short SICheckMeasDur(Document *doc, short *pFirstBad)
 					continue;
 				}
 
-				measDurActual = GetMeasDur(doc, barTermL);
+				measDurActual = GetMeasDur(doc, barTermL, ANYONE);
 				if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT) {
 					nBad++;
 					if (nBad==1) *pFirstBad = GetMeasNum(doc, pL);

@@ -71,7 +71,7 @@ void DoDrawingEdit(Document *doc, LINK pL)
 		GetNextEvent(mDownMask, &eventRec);
 		if (eventRec.what == mouseDown) {
 			mousePt = eventRec.where;
-			GlobalToPaper(doc, &mousePt);
+			Global2Paper(doc, &mousePt);
 			if (!(SamePoint(mousePt, lGrip) ||
 				   SamePoint(mousePt, rGrip) ||
 				   PtInRect(mousePt, &thisDrawObj.objRect)))

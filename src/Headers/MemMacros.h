@@ -23,7 +23,7 @@
 #define PopLock(heap)	{ if (--(heap)->lockLevel <= 0) HUnlock((heap)->block); }
 
 #define PushLockHi(heap) { if ( (heap)->lockLevel++ <= 0) \
-									{ MoveHHi((heap)->block); HLock((heap)->block); } }
+								{ MoveHHi((heap)->block); HLock((heap)->block); } }
 
 /*
  *  The second set, HeapLock and HeapUnlock, also lock and unlock the block of
@@ -151,7 +151,7 @@
 
 
 /*
- *	The main data structure, a.k.a. object list, is a doubly-linked list of objects,
+ *	Our main data structure, the object list, is a doubly-linked list of objects,
  *	each of which can have a singly-linked list of subobjects dangling from it. 
  *	The objects in the backbone can have different types, but are all the same size:
  *	that of a SUPEROBJECT, which is the union of all objects).  The subobjects in
@@ -664,7 +664,6 @@
 #define NoteVIS(link)				( (GetPANOTE(link))->visible ) 
 #define NoteOtherStemSide(link)		( (GetPANOTE(link))->otherStemSide )
 
-#define MeasMEASURENUM(link)		( (GetPAMEASURE(link))->measureNum )
 #define ModNRMODCODE(link)			( (GetPAMODNR(link))->modCode )
 #define ModNRXSTD(link)				( (GetPAMODNR(link))->xstd )
 #define NoteSMALL(link)				( (GetPANOTE(link))->small ) 
@@ -676,6 +675,7 @@
 #define DynamicVIS(link)			( (GetPADYNAMIC(link))->visible )
 #define DynamicSMALL(link)			( (GetPADYNAMIC(link))->small )
 #define RptEndVIS(link)				( (GetPARPTEND(link))->visible )
+#define MeasMEASURENUM(link)		( (GetPAMEASURE(link))->measureNum )
 #define MeasYMNSTDOFFSET(link)		( (GetPAMEASURE(link))->yMNStdOffset )
 #define MeasXMNSTDOFFSET(link)		( (GetPAMEASURE(link))->xMNStdOffset )
 #define SlurSTARTPT(link)			( (GetPASLUR(link))->startPt)
@@ -773,6 +773,7 @@
 
 #define FirstGraphicSTRING(link)	( (GetPAGRAPHIC(FirstSubLINK(link)))->strOffset )
 #define TimeSigType(link)			( (GetPATIMESIG(link))->subType )
+
 #define MeasKSITEM(link)			( (GetPAMEASURE(link))->KSItem)
 #define MeasureMEASUREVIS(link)		( (GetPAMEASURE(link))->measureVisible )
 #define FirstMeasMEASURENUM(link)	( (GetPAMEASURE(FirstSubLINK(link)))->measureNum )
@@ -791,13 +792,12 @@
 #define KeySigType(link)			( (GetPAKEYSIG(link))->subType )
 
 #define MeasureCLEFTYPE(link)		( (GetPAMEASURE(link))->clefType )
+#define MeasureTIMESIGTYPE(link)    ( (GetPAMEASURE(link))->timeSigType )
 
 #define NoteDOUBLEDUR(link)			( (GetPANOTE(link))->doubleDur )
 #define ClefSMALL(link)				( (GetPACLEF(link))->small )
-#define MeasureTIMESIGTYPE(link)    ( (GetPAMEASURE(link))->timeSigType )
 
 #define GraphicNEXT(link)			( (GetPAGRAPHIC(link))->next )
-
 #define GraphicINFO(link)			( (GetPGRAPHIC(link))->info )
 
 #endif /* MemMacrosIncluded */

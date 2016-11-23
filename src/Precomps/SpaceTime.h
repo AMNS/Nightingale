@@ -44,7 +44,7 @@ Boolean RhythmUnderstood(Document *, LINK, Boolean);
 Boolean FixTimeStamps(Document *, LINK, LINK);
 long CalcNoteLDur(Document *, LINK, LINK);
 long SyncMaxDur(Document *, LINK);
-long GetMeasDur(Document *, LINK);
+long GetMeasDur(Document *, LINK, short);
 long GetTimeSigMeasDur(Document *, LINK);
 
 Boolean WholeMeasRestIsBreve(char numerator, char denominator);

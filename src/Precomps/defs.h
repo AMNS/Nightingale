@@ -232,8 +232,7 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 #define ANYSUBTYPE -1
 
 #define ANYONE -1						/* passed to search routines if we just don't care */
-
-#define NOONE -2						/* returned by FindStaff,GetStaffFromSel, etc. */
+#define NOONE -2						/* returned by FindStaff, GetStaffFromSel, etc. */
 
 #define NOMATCH -1
 
@@ -244,7 +243,7 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 #define MIN_TIME FALSE
 
 #define DFLT_CLEF TREBLE_CLEF			/* Default clefType for new staves */
-#define DFLT_NKSITEMS 0					/* Dflt. key sig. N.B.: !=0 HAS SIDE EFFECTS--CAREFUL! */
+#define DFLT_NKSITEMS 0					/* Dflt. key sig. N.B.: !=0 has side effects: CAREFUL! */
 #define DFLT_TSTYPE N_OVER_D			/* Default time sig. fields for new staves */
 #define DFLT_DYNAMIC MF_DYNAM			/* Default dynamic marking for new staves */
 #define DFLT_SPACETABLE 0				/* Default space table number */
@@ -291,12 +290,9 @@ moved there eventually). */
 /* Convert PDUR ticks per minute to microseconds per PDUR tick */
 #define TSCALE2MICROBEATS(ts) (60*1000000L/(ts))
 
-/* Convert OS ticks to milliseconds. */
-#define TICKS2MS(ticks) (1000*(ticks)/60)
-
 
 /* ----------------------------------------------------------- MISCELLANEOUS MACROS -- */
-/* ??These should probably be in a new file, <genlMacros.h> or some such. */
+/* FIXME: These should probably be in a new file, <genlMacros.h> or some such. */
 
 /* Arithmetic, etc. */
 #define ABS(a) ( (a)<0 ? -(a) : (a) )							/* absolute value function */
@@ -471,20 +467,24 @@ with MAX_TSDENOM, above! */
 
 /* ------------------------------------------------ MISCELLANEOUS SYSTEM-DEPENDENT -- */
 
+
+/* Convert OS ticks (in Carbon, 1/60 sec.) to milliseconds. */
+#define TICKS2MS(ticks) (1000*(ticks)/60)
+
 /* Standard font names */
 
-#define SYSFONTID_SANSSERIF	kFontIDGeneva				/* Universal Interfaces 3.0.1 */
+#define SYSFONTID_SANSSERIF		kFontIDGeneva			/* Universal Interfaces 3.0.1 */
 #define SYSFONTID_MONOSPACED	kFontIDMonaco			/* Universal Interfaces 3.0.1 */
 
 /* Rect corners */
 
-#define TOP_LEFT(r)		(((Point *) &(r))[0])
+#define TOP_LEFT(r)			(((Point *) &(r))[0])
 #define BOT_RIGHT(r)		(((Point *) &(r))[1])
 
 /* Getting/setting window type */
 
 #define GetWindowType(wind)		  ( ((WindowPeek)(wind))->windowKind-userKind-1 )
-#define SetWindowType(wind,type)	((WindowPeek)(wind))->windowKind = (type)+userKind+1
+#define SetWindowType(wind, type)	((WindowPeek)(wind))->windowKind = (type)+userKind+1
 
 #define PORT_IS_FREE(portStatus) ((portStatus & 0x80)!=0)
 

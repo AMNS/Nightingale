@@ -1401,19 +1401,19 @@ measure or less. It then uses the spine to fill in various information in
 types; in link, object pointers; and in isSync, whether the object is a Sync.
 If <spacing>, the dur and frac fields are also filled in. The function value
 returned is the index of the last entry in the list, NOT the number of entries
-in the list! For example, if it returns 4, startTime[0--4] and justType[0--4]	are
+in the list! For example, if it returns 4, startTime[0--4] and justType[0--4] are
 meaningful. If the spine is empty, it returns -1.
 
 One reason this is tricky is some symbols (notes, grace notes) are in voices, others
-(clefs, key sigs., etc.) are on staves, but their interactions affect timing, even
-though notes and rests are the ONLY symbols that occupy time. */
+(clefs, key sigs., etc.) are on staves, but their interactions affect timing. This
+is true even though notes and rests are the only symbols that occupy time. */
 
 short GetSpTimeInfo(
 			Document		*doc,
 			LINK			barFirst,			/* First obj within measure, i.e., after barline */
 			LINK			barLast,			/* Last obj to consider (usually the next MEASURE obj.) */				
 			SPACETIMEINFO	spaceTimeInfo[],
-			Boolean			spacing 			/* TRUE=give spacing info as well as time info */
+			Boolean			getSpacing 			/* TRUE=return spacing info as well as time info */
 			)
 {
 	register long	timeHere;
@@ -1471,11 +1471,11 @@ short GetSpTimeInfo(
 					if (noteDur<minDur) minDur = noteDur;
 				}
 				
-				/* ??Code to sync after tuplets, avoiding roundoff errror, goes here. */
+				/* FIXME: Code to sync after tuplets, avoiding roundoff errror, belongs here. */
 				
 				/*
-				 *	The following code insures that every voice that doesn't participate
-				 *	in this Sync has a time at least as far along as some voice that
+				 * The following code insures that every voice that doesn't participate
+				 * in this Sync has a time at least as far along as some voice that
 				 * does participate. This is a drastic step, intended to handle situations
 				 * where we have no way to tell when a Sync should happen because we can't
 				 * trace its voices back to the beginning of the Measure. Unfortunately,
@@ -1491,7 +1491,7 @@ short GetSpTimeInfo(
 				
 			case GRSYNCtype:
 				/*
-				 *	Handle grace Syncs just like regular ones except that ending times
+				 * Handle grace Syncs just like regular ones except that ending times
 				 * of participating voices are all equal to the Sync's start time.
 				 */
 				aGRNoteL = FirstSubLINK(pL);
@@ -1595,7 +1595,7 @@ short GetSpTimeInfo(
 		}
 	}
 	
-	if (spacing) GetSpaceInfo(doc, barFirst, barLast, last, spaceTimeInfo);
+	if (getSpacing) GetSpaceInfo(doc, barFirst, barLast, last, spaceTimeInfo);
 
 	return last;
 }
@@ -1805,23 +1805,39 @@ long GetVLDur(
 
 /* ------------------------------------------------------------------- GetMeasDur -- */
 /* Get the actual -- based on notes and rests, not time signature -- logical duration
-duration of the Measure preceding the given Measure object. If something goes wrong,
-return -1L. */
+of the Measure preceding the given Measure object, either for a single staff or across
+all staves. If something goes wrong, return -1L. */
 				
 long GetMeasDur(Document *doc,
-				LINK endMeasL)		/* Object ending a Measure */
+				LINK endMeasL,		/* Object ending a Measure */
+				short staffn)
 {
-	LINK			startL, syncL;
-	long			startTime;
+	LINK			startL, syncL, aNoteL;
+	long			startTime, maxDur;
 	short			last;
 	SPACETIMEINFO	*spTimeInfo=NULL;
 
 	startL = LSSearch(LeftLINK(endMeasL), MEASUREtype, ANYONE, GO_LEFT, FALSE); /* Find previous barline */
 	if (!startL) {
 		MayErrMsg("GetMeasDur: no Measure before %ld", (long)endMeasL);
-		goto errorReturn;
+		return -1L;
 	}
 	
+	if (staffn!=ANYONE) {
+		/* Consider one staff only. */
+		syncL = LSSearch(LeftLINK(endMeasL), SYNCtype, staffn, GO_LEFT, FALSE);
+		if (!syncL) return 0L;
+		maxDur = 0L;
+		aNoteL = FirstSubLINK(syncL);
+		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+			if (NoteSTAFFN(aNoteL)==staffn)
+			maxDur = max(maxDur, CalcNoteLDur(doc, aNoteL, syncL));
+		}
+		LogPrintf(LOG_DEBUG, "GetMeasDur: endMeasL=%d SyncTIME(syncL)=%d maxDur=%ld\n", endMeasL, SyncTIME(syncL), maxDur);
+		return SyncTIME(syncL)+maxDur;
+	}
+	
+	/* From this point on, consider all staves. */
 	if (!RhythmUnderstood(doc, startL, TRUE)) {
 		/* It's doubtful this function can do a good job in this case, but we'll try. */
 		syncL = LSSearch(LeftLINK(endMeasL), SYNCtype, ANYONE, GO_LEFT, FALSE);
@@ -1843,7 +1859,6 @@ long GetMeasDur(Document *doc,
 		return startTime;
 	}
 
-errorReturn:
 	if (spTimeInfo) DisposePtr((Ptr)spTimeInfo);
 	return -1L;
 }

@@ -42,7 +42,7 @@ Boolean WriteScoreHeader(Document *doc, LINK);
 Note			N t=%ld v=%d npt=%d stf=%d dur=%d dots=%d nn=%d acc=%d eAcc=%d pDur=%d vel=%d %s appear=%d
 Rest			R t=%ld v=%d npt=%d stf=%d dur=%d dots=%d %s appear=%d
 Grace note		G t=-1 v=%d npt=%d stf=%d dur=%d dots=%d nn=%d acc=%d eAcc=%d pDur=%d vel=%d %c appear=%d
-Barline			/ t=%ld type=%d
+Barline (Measure)	/ t=%ld type=%d number=%d
 Clef			C stf=%d type=%d
 Key signature	K stf=%d KS=%d %c
 Time signature	T stf=%d num=%d denom=%d
@@ -183,20 +183,22 @@ Boolean ProcessNRGR(
 }
 
 
-/* -------------------------------------------------------------- ProcessMeasure -- */
-/* Process a Measure object. This version also writes out information about
-the appearance of the given subobject, which may not apply to the other
-subobjects, i.e., barlines on other staves, but this is pretty minor, and
-barlines on different staves aren't independent in any other way. Hence this
-does not write out the staff number, and it should be called only once for
-a given Measure object! Returns TRUE normally, FALSE if there's a problem. */
+/* --------------------------------------------------------------- ProcessMeasure -- */
+/* Process a Measure object and subobject. This version also writes out information
+about the appearance of the given subobject, which may not apply to the other
+subobjects, i.e., barlines on other staves; but this is pretty minor, and barlines
+on different staves aren't independent in any other way. Hence this does not write
+out the staff number, and it should be called only once for a given Measure object!
+Returns TRUE normally, FALSE if there's a problem. */
 
-Boolean ProcessMeasure(Document */*doc*/, LINK measL, LINK aMeasL)
+Boolean ProcessMeasure(Document *doc, LINK measL, LINK aMeasL)
 {
-	short theSubType;
+	short theSubType, measureNum;
 
 	theSubType = MeasSUBTYPE(aMeasL);
-	sprintf(strBuf, "%c t=%ld type=%d", BAR_CHAR, MeasureTIME(measL), theSubType);
+	measureNum = MeasMEASURENUM(aMeasL)+doc->firstMNNumber;
+	sprintf(strBuf, "%c t=%ld type=%d number=%d", BAR_CHAR, MeasureTIME(measL), theSubType,
+				measureNum);
 
 	return (WriteLine()==noErr);
 }

@@ -208,7 +208,7 @@ LINK BreakSystem(register Document *doc, LINK breakL)
 	if (syncL)
 		prevMeasDur = SyncTIME(syncL);
 	else
-		prevMeasDur = GetMeasDur(doc, newMeasL);
+		prevMeasDur = GetMeasDur(doc, newMeasL, ANYONE);
 	MeasureTIME(newMeasL) = MeasureTIME(prevMeasL)+prevMeasDur;
 	MoveTimeInMeasure(breakL, doc->tailL, -prevMeasDur);
 

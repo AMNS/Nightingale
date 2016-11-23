@@ -79,7 +79,7 @@ void DoBeamEdit(Document *doc, LINK beamL)
 		if (EventAvail(everyEvent, &beamEventRec)) {		
 			if (beamEventRec.what == mouseDown) {
 				mousePt = beamEventRec.where;
-				GlobalToPaper(doc, &mousePt);
+				Global2Paper(doc, &mousePt);
 				if (!(SamePoint(mousePt, lGrip) ||
 						SamePoint(mousePt, rGrip) ||
 						PtInBeam(doc, mousePt, &thisBeam)))

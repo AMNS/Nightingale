@@ -109,7 +109,8 @@ GLOBAL LINK			drag1stMeas,			/* bitmap's meas range for Graphics, Tempos, &c. */
 					dragLastMeas;
 
 GLOBAL DDIST		initStfTop1, initStfTop2;	/* ??SHOULD BE doc-SPECIFIC */
-GLOBAL Pattern		diagonalDkGray, diagonalLtGray;
+GLOBAL Pattern		diagonalDkGray,
+					diagonalLtGray, altDiagonalLtGray;
 
 GLOBAL long			oneMSDelayCount;		/* Approx. iterations of empty loop that takes 1 ms */
 

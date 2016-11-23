@@ -400,7 +400,7 @@ PushLock(MEASUREheap);
 	}
 
 	if (RhythmUnderstood(doc, LinkLMEAS(measureL), TRUE)) {
-		pMeasure->lTimeStamp = prevMeas->lTimeStamp+GetMeasDur(doc, measureL);
+		pMeasure->lTimeStamp = prevMeas->lTimeStamp+GetMeasDur(doc, measureL, ANYONE);
 		FixTimeStamps(doc, measureL, measureL);
 	}
 	else if (nextSync) {

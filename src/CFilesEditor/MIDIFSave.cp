@@ -1123,7 +1123,7 @@ static short CheckMeasDur(Document *doc)
 			if (barTermL && barTermL!=doc->tailL) {
 				measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
 				if (measDurFromTS<0) return FALSE;
-				measDurActual = GetMeasDur(doc, barTermL);
+				measDurActual = GetMeasDur(doc, barTermL, ANYONE);
 				if (measDurActual!=0 && measDurFromTS!=measDurActual)
 					return GetPAMEASURE(FirstSubLINK(pL))->measureNum+doc->firstMNNumber;
 			}
