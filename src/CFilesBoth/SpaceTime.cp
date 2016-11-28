@@ -1833,7 +1833,7 @@ long GetMeasDur(Document *doc,
 			if (NoteSTAFFN(aNoteL)==staffn)
 			maxDur = max(maxDur, CalcNoteLDur(doc, aNoteL, syncL));
 		}
-		LogPrintf(LOG_DEBUG, "GetMeasDur: endMeasL=%d SyncTIME(syncL)=%d maxDur=%ld\n", endMeasL, SyncTIME(syncL), maxDur);
+		//LogPrintf(LOG_DEBUG, "GetMeasDur: endMeasL=%d SyncTIME(syncL)=%d maxDur=%ld\n", endMeasL, SyncTIME(syncL), maxDur);
 		return SyncTIME(syncL)+maxDur;
 	}
 	

@@ -254,8 +254,7 @@ static void InitGraphicBounds(Document *doc, LINK graphicL,
 		bounds->bottom = d2p(sysBot + SYSHT_SLOP);
 		
 		/* Constrain further, so that the Graphic will never be farther than one
-		 * measure away from the (first) object it's attached to.
-		 */
+		 * measure away from the (first) object it's attached to. */
 
 		/* Find the measure that will be the left boundary */
 		if (MeasureTYPE(firstObjL)) {
@@ -264,11 +263,11 @@ static void InitGraphicBounds(Document *doc, LINK graphicL,
 			else leftTargetMeasL = LinkLMEAS(inMeasL);
 		}
 		else {
-			inMeasL = LSSearch(firstObjL, MEASUREtype, staffn, GO_LEFT, FALSE);			/* meas containing firstObjL */
-			if (inMeasL==NILINK || !SameSystem(inMeasL, firstObjL))							/* firstObjL is before 1st meas of its system */
+			inMeasL = LSSearch(firstObjL, MEASUREtype, staffn, GO_LEFT, FALSE);	/* meas containing firstObjL */
+			if (inMeasL==NILINK || !SameSystem(inMeasL, firstObjL))				/* firstObjL is before 1st meas of its system */
 				leftTargetMeasL = inMeasL = LSSearch(firstObjL, MEASUREtype, staffn, GO_RIGHT, FALSE);
 			else {
-				prevMeasL = LinkLMEAS(inMeasL);														/* meas before meas containing firstObjL */
+				prevMeasL = LinkLMEAS(inMeasL);									/* meas before meas containing firstObjL */
 				if (SameSystem(prevMeasL, inMeasL))
 					leftTargetMeasL = prevMeasL;
 				else
@@ -278,7 +277,7 @@ static void InitGraphicBounds(Document *doc, LINK graphicL,
 
 		/* Allow dragging into reserved area if leftTargetMeasL is first meas of system. */
 		firstMeasL = LSSearch(MeasSYSL(leftTargetMeasL), MEASUREtype, staffn, GO_RIGHT, FALSE);	/* 1st meas in system */	
-		if (leftTargetMeasL == firstMeasL) {															/* targetMeas is 1st in system */
+		if (leftTargetMeasL == firstMeasL) {									/* targetMeas is 1st in system */
 			bounds->left = d2p(sysLeft);
 			dragIntoReserved = TRUE;			/* ??unused below! */
 		}
@@ -286,7 +285,7 @@ static void InitGraphicBounds(Document *doc, LINK graphicL,
 			bounds->left = d2p(LinkXD(leftTargetMeasL) + sysLeft);
 	
 		/* Find the measure that will be the right boundary */
-		nextMeasL = LinkRMEAS(inMeasL);									/* meas after the one containing firstObjL */
+		nextMeasL = LinkRMEAS(inMeasL);										/* meas after the one containing firstObjL */
 		if (nextMeasL==NILINK)												/* nextMeasL is last in file */
 			bounds->right = d2p(sysRight);
 		else {
@@ -294,7 +293,7 @@ static void InitGraphicBounds(Document *doc, LINK graphicL,
 				rightTargetMeasL = nextMeasL;
 			else
 				rightTargetMeasL = inMeasL;
-			aMeasP = GetPAMEASURE(FirstSubLINK(rightTargetMeasL));	/* get xd of END of meas */
+			aMeasP = GetPAMEASURE(FirstSubLINK(rightTargetMeasL));			/* get xd of END of meas */
 			measWid = aMeasP->measureRect.right;
 			bounds->right = d2p(LinkXD(rightTargetMeasL) + measWid + sysLeft);
 		}

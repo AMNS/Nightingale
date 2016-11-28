@@ -2579,15 +2579,15 @@ that don't agree. The latter condition effectively means that staves for which t
 measure's notes/rests don't extend to the "real" end of the measure get shaded, but only
 when at least one other staff has a complete measure. */
 
-static void ShadeProblemMeasure(Document *doc, LINK pL, PCONTEXT pContext)
+static void ShadeProblemMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 {
-	LINK barTermL;  Boolean okay;
+	LINK barTermL, sysL, aMeasL;  Boolean okay;
 	long measDurFromTS, measDurActual, measDurOnStaff;
 	Rect r;  PMEASURE p;
-	short staffn;
+	short staffn, xd;  DRect mrect;
 
-	if (!FakeMeasure(doc, pL)) {
-		barTermL = EndMeasSearch(doc, pL);
+	if (!FakeMeasure(doc, measureL)) {
+		barTermL = EndMeasSearch(doc, measureL);
 		if (barTermL) {
 			okay = TRUE;
 			measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
@@ -2599,15 +2599,28 @@ static void ShadeProblemMeasure(Document *doc, LINK pL, PCONTEXT pContext)
 			}
 
 			if (okay) {
-				for (staffn=1; staffn<=doc->nstaves; staffn++) {
+				/* Overall measure duration is okay. Look for individual staves with
+					incomplete contents. */
+				p = GetPMEASURE(measureL);
+				xd = p->xd;
+				sysL = LSSearch(measureL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+				aMeasL = FirstSubLINK(measureL);
+				for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
+					staffn = MeasureSTAFF(aMeasL);			
 					measDurOnStaff = GetMeasDur(doc, barTermL, staffn);
-					if (measDurOnStaff!=0 && ABS(measDurFromTS-measDurOnStaff)>=PDURUNIT)
-						//ShadeRect(&r, pContext, &altDiagonalLtGray);
-						LogPrintf(LOG_DEBUG, "ShadeProblemMeasure: for pL=%d, staff %d has dur %d\n", pL, staffn, measDurOnStaff);
+					if (measDurOnStaff!=0 && ABS(measDurFromTS-measDurOnStaff)>=PDURUNIT) {
+						mrect = MeasMRECT(aMeasL);
+						OffsetDRect(&mrect, xd, 0);
+						InsetDRect(&mrect, 0, pt2d(6));		/* Reduce ht of shading to emphasize staff */
+						DRect2ScreenRect(mrect, SystemRECT(sysL), doc->paperRect, &r);
+						LogPrintf(LOG_DEBUG, "ShadeProblemMeasure: for measureL=%d, staff %d has dur %d\n",
+									measureL, staffn, measDurOnStaff);
+						ShadeRect(&r, pContext, &altDiagonalLtGray);
+					}
 				}
 			}
 			else {
-				p = GetPMEASURE(pL);
+				p = GetPMEASURE(measureL);
 				r = p->measureBBox;
 				ShadeRect(&r, pContext, &diagonalLtGray);
 			}

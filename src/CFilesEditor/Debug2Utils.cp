@@ -4,9 +4,9 @@ was just too big for certain Mac development systems of the 1990's, which had a
 limit of 32K per module object code.
 
 	DCheckVoiceTable		DCheckTempi				DCheckRedundKS
-	DCheckRedundTS			DCheckMeasDur			DCheckUnisons
-	DCheck1NEntries			DCheckNEntries			DCheck1SubobjLinks	
-	DBadNoteNum				DCheckNoteNums
+	DCheckExtraTS			DCheckCautionaryTS		DCheckMeasDur
+	DCheckUnisons			DCheck1NEntries			DCheckNEntries
+	DCheck1SubobjLinks		DBadNoteNum				DCheckNoteNums
 */
 
 /*
@@ -66,7 +66,7 @@ Boolean DCheckVoiceTable(Document *doc,
 		||  pPart->lastStaff<1 || pPart->lastStaff>doc->nstaves) {
 			COMPLAIN("•DCheckVoiceTable: PART %ld firstStaff OR lastStaff IS ILLEGAL.\n",
 						(long)partn);
-			return bad;
+			return TRUE;
 		}
 		
 		voiceInWrongPart = FALSE;
@@ -83,9 +83,9 @@ Boolean DCheckVoiceTable(Document *doc,
 		voiceUseTab[v] = NILINK;
 
 	/*
-	 *	The objects with voice numbers other than notes and grace notes always get
-	 *	their voice numbers from the notes and grace notes they're attached to, so
-	 *	we'll assume they're OK, though it would be better to look.
+	 * The objects with voice numbers other than notes and grace notes always get
+	 * their voice numbers from the notes and grace notes they're attached to, so
+	 * we'll assume they're OK, though it would be better to look.
 	 */
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -234,11 +234,11 @@ Boolean DCheckTempi(Document *doc)
 
 
 
-/* -------------------------------------------------------------- DCheckRedundKS -- */
+/* ------------------------------------------------------------- DCheckRedundantKS -- */
 /* Check for redundant key signatures, "redundant" in the sense that the key sig. is
 a cancellation and the last key signature on the same staff was a cancel. */
 
-Boolean DCheckRedundKS(Document *doc)
+Boolean DCheckRedundantKS(Document *doc)
 {
 	LINK pL, aKSL; PAKEYSIG aKeySig;
 	Boolean bad, firstKS;
@@ -269,7 +269,7 @@ Boolean DCheckRedundKS(Document *doc)
 						nRedundant++;
 				}
 				if (nRedundant>0)
-					COMPLAIN2("*DCheckRedundKS: KEYSIG AT %u REPEATS CANCEL ON %d STAVES.\n",
+					COMPLAIN2("*DCheckRedundantKS: KEYSIG AT %u REPEATS CANCEL ON %d STAVES.\n",
 									pL, nRedundant);
 
 				for (aKSL = FirstSubLINK(pL); aKSL; aKSL = NextKEYSIGL(aKSL)) {
@@ -286,11 +286,11 @@ Boolean DCheckRedundKS(Document *doc)
 	return bad;
 }
 
-/* -------------------------------------------------------------- DCheckRedundTS -- */
-/* Check for redundant time signatures, "redundant" in the sense that there's already
-been a time signature on the same staff in the same measure. */
+/* ---------------------------------------------------------------- DCheckExtraTS -- */
+/* Check for extra time signatures, "extra" in the sense that there's already been
+a time signature on the same staff in the same measure. */
 
-Boolean DCheckRedundTS(Document *doc)
+Boolean DCheckExtraTS(Document *doc)
 {
 	LINK pL, aTSL;
 	Boolean haveTS[MAXSTAVES+1], bad;
@@ -311,7 +311,7 @@ Boolean DCheckRedundTS(Document *doc)
 					if (haveTS[TimeSigSTAFF(aTSL)])
 						nRedundant++;
 				if (nRedundant>0)
-					COMPLAIN2("DCheckRedundTS: TIMESIG AT %u BUT MEAS ALREADY HAS TIMESIG ON %d STAVES.\n",
+					COMPLAIN2("DCheckExtraTS: TIMESIG AT %u BUT MEASURE ALREADY HAS TIMESIG ON %d STAVES.\n",
 									pL, nRedundant);
 
 				for (aTSL = FirstSubLINK(pL); aTSL; aTSL = NextTIMESIGL(aTSL))
@@ -320,6 +320,73 @@ Boolean DCheckRedundTS(Document *doc)
 			case MEASUREtype:
 				for (s = 1; s<=doc->nstaves; s++)
 					haveTS[s] = FALSE;
+				break;
+			default:
+				;
+		}
+	}
+		
+	return bad;
+}
+
+
+/* ----------------------------------------------------------- DCheckCautionaryTS -- */
+/* Check that when a staff begins with a time signature, it's anticipated by the same
+time signature appearing on that staff at the end of the previous system. */
+
+Boolean DCheckCautionaryTS(Document *doc)
+{
+	LINK pL, aTSL, prevMeasL;
+	Boolean haveEndSysTS[MAXSTAVES+1], inNewSys[MAXSTAVES+1], bad;
+	short s, stf, numerator[MAXSTAVES+1], denominator[MAXSTAVES+1];
+	
+	bad = FALSE;
+		
+	for (s = 1; s<=doc->nstaves; s++) {
+		haveEndSysTS[s] = FALSE;
+	}
+
+	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
+		if (DErrLimit()) break;
+
+		switch (ObjLType(pL)) {
+			case TIMESIGtype:
+				if (!TimeSigINMEAS(pL)) continue;					/* Skip context-setting timesigs */
+				for (aTSL = FirstSubLINK(pL); aTSL; aTSL = NextTIMESIGL(aTSL)) {
+					stf = TimeSigSTAFF(aTSL);
+					if (inNewSys[stf]) {
+					/* We have a time signature at the beginning of a system. See if
+						there's an equivalent cautionary timesig on this staff at the
+						end of the previous system. */
+						if (!haveEndSysTS[stf]) {
+							COMPLAIN2("DCheckCautionaryTS: TIMESIG AT START OF SYSTEM ON STAFF %d AT %u NOT ANTICIPATED.\n",
+										stf, pL);
+						}
+						else if (TimeSigNUM(aTSL)!=numerator[stf] || TimeSigDENOM(aTSL)!=denominator[stf])
+							COMPLAIN2("DCheckCautionaryTS: TIMESIG AT START OF SYSTEM ON STAFF %d AT %u DISAGREES WITH ANTICIPATING TIMESIG.\n",
+										stf, pL);
+					}
+					haveEndSysTS[stf] = TRUE;
+					numerator[stf] = TimeSigNUM(aTSL);
+					denominator[stf] = TimeSigDENOM(aTSL);
+				}
+				break;
+			case MEASUREtype:
+				/* If this is the 1st (invisible barline) Measure of the system, ignore it */
+				prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+//				LogPrintf(LOG_DEBUG, "DCheckCautionaryTS: prevMeasL=%u SameSystem=%d haveEndSysTS[1]=%d\n",
+//							prevMeasL, SameSystem(prevMeasL, pL), haveEndSysTS[1]);
+				if (prevMeasL==NILINK || !SameSystem(prevMeasL, pL)) break;
+				for (s = 1; s<=doc->nstaves; s++)
+					haveEndSysTS[s] = FALSE;
+				break;
+			case SYSTEMtype:
+				for (s = 1; s<=doc->nstaves; s++)
+					inNewSys[s] = TRUE;
+				break;
+			case SYNCtype:
+				for (s = 1; s<=doc->nstaves; s++)
+					inNewSys[s] = FALSE;
 				break;
 			default:
 				;

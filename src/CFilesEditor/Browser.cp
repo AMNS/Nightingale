@@ -41,7 +41,6 @@ static void BrowseConnect(LINK, short);
 static void BrowseClef(LINK, short);
 static void BrowseKeySig(LINK, short);
 static void BrowseTimeSig(LINK, short);
-static void DRect2ScreenRect(DRect mrect, short xd, DRect systemRect);
 static void BrowseMeasure(LINK, short);
 static void BrowsePseudoMeas(LINK, short);
 static void BrowseSync(LINK, short);
@@ -256,7 +255,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			
 			/* objRect = oldObjRect; */
 			ShowObjRect(doc);							/* Restore previous objRect */
-			ShowObject(doc, pL, index); 				/*	Write out info and get new objRect */
+			ShowObject(doc, pL, index); 				/* Write out info and get new objRect */
 			ShowObjRect(doc);							/* Invert this objrect */
 			/* oldObjRect = objRect; 					Save for later restoration */
 			
@@ -494,7 +493,8 @@ static void ShowObjRect(Document *doc)
 {
 	GrafPtr oldPort;
 	
-	GetPort(&oldPort); SetPort(GetDocWindowPort(doc));
+	GetPort(&oldPort);
+	SetPort(GetDocWindowPort(doc));
 	InvertRect(&objRect);
 	SetPort(oldPort);
 }
@@ -946,10 +946,10 @@ void BrowseSystem(LINK pL)
 
 void BrowseStaff(LINK pL, short index)
 {
-	PSTAFF p;
-	PASTAFF q;
+	PSTAFF p;  PASTAFF q;
 	LINK qL;
 	short i;
+	DRect stfRect;
 
 	p = GetPSTAFF(pL);
 	sprintf(s, "l/r Staff=%d/%d", p->lStaff, p->rStaff);
@@ -962,21 +962,19 @@ void BrowseStaff(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;		/* since Master Page can have 0 staves */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextSTAFFL(qL))
+	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextSTAFFL(qL))
 		;
 	q = GetPASTAFF(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
 	DrawTextLine(s); q = GetPASTAFF(qL);
 	sprintf(s, "vis=%s sel=%s", q->visible ? "TRUE" : "false",
-										 q->selected ? "TRUE" : "false");
+									q->selected ? "TRUE" : "false");
 	DrawTextLine(s); q = GetPASTAFF(qL);
 	
-	SetRect(&objRect,q->staffLeft,q->staffTop,
-						  systemRect.right-systemRect.left,q->staffTop+q->staffHeight);
-	OffsetRect(&objRect,systemRect.left,systemRect.top);
-	D2Rect((DRect *)(&objRect),&objRect);
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
-	
+	stfRect.left = q->staffLeft;  stfRect.right = systemRect.right-systemRect.left;
+	stfRect.top = q->staffTop;  stfRect.bottom = q->staffTop+q->staffHeight;
+	DRect2ScreenRect(stfRect, systemRect, paperRect, &objRect);
+
 	sprintf(s, "staff top/left/right=%d %d %d",
 				q->staffTop, q->staffLeft, q->staffRight);
 	DrawTextLine(s); q = GetPASTAFF(qL);
@@ -1092,8 +1090,8 @@ void BrowseClef(LINK pL, short index)
 	objRect = p->objRect;
 	OffsetRect(&objRect, paperRect.left, paperRect.top);
 	
-	if (p->inMeasure) sprintf(s, "In measure ");
-	else					sprintf(s, "Not in measure ");
+	if (p->inMeasure) sprintf(s, "In Measure ");
+	else					sprintf(s, "Not in Measure ");
 	DrawTextLine(s);
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
@@ -1137,8 +1135,8 @@ void BrowseKeySig(LINK pL, short index)
 	objRect = p->objRect;
 	OffsetRect(&objRect, paperRect.left, paperRect.top);
 	
-	if (p->inMeasure) sprintf(s, "In measure ");
-	else					sprintf(s, "Not in measure ");
+	if (p->inMeasure) sprintf(s, "In Measure ");
+	else					sprintf(s, "Not in Measure ");
 	DrawTextLine(s);
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
@@ -1180,8 +1178,8 @@ void BrowseTimeSig(LINK pL, short index)
 	objRect = p->objRect;
 	OffsetRect(&objRect, paperRect.left, paperRect.top);
 	
-	if (p->inMeasure) sprintf(s, "In measure ");
-	else					sprintf(s, "Not in measure ");
+	if (p->inMeasure) sprintf(s, "In Measure ");
+	else					sprintf(s, "Not in Measure ");
 	DrawTextLine(s);
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
@@ -1214,16 +1212,6 @@ void BrowseTimeSig(LINK pL, short index)
 
 
 /* ---------------------------------------------------------------- BrowseMeasure -- */
-
-static void DRect2ScreenRect(DRect aRect, short xd, DRect systemRect)
-{
-	OffsetDRect(&aRect, xd, systemRect.top);
-	SetRect(&objRect, aRect.left, aRect.top, aRect.right, aRect.bottom);
-	OffsetRect(&objRect, systemRect.left, 0);
-	D2Rect((DRect *)&objRect, &objRect);
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
-}
-
 
 void BrowseMeasure(LINK pL, short index)
 {
@@ -1293,7 +1281,8 @@ void BrowseMeasure(LINK pL, short index)
 	sprintf(s, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
 	DrawTextLine(s);
 	
-	DRect2ScreenRect(mrect, xd, systemRect);
+	OffsetDRect(&mrect, xd, 0);
+	DRect2ScreenRect(mrect, systemRect, paperRect, &objRect);
 	
 	subL = qL;
 }

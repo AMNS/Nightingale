@@ -76,6 +76,8 @@ void Rect2Window(Document *doc, Rect *r);
 void Pt2Window(Document *doc, Point *pt);
 void Pt2Paper(Document *doc, Point *pt);
 void Global2Paper(Document *doc, Point *pt);
+void DRect2ScreenRect(DRect aDRect, DRect relRect, Rect paperRect, Rect *pScreenRect);
+
 void RefreshScreen(void);
 
 void InitSleepMS(void);

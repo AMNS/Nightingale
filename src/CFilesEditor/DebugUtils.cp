@@ -1852,8 +1852,8 @@ Boolean DCheckBeams(
 				beamSetL[voice] = pL;
 
 		 	pBS = GetPBEAMSET(pL);
-			measureL = LSSearch(pL, MEASUREtype, staff,	GO_RIGHT, 	/* Is 1st note in same */
-											FALSE);									/*   meas. as BEAMSET? */
+			measureL = LSSearch(pL, MEASUREtype, staff,	GO_RIGHT,			/* Is 1st note in same */
+									FALSE);									/*   meas. as BEAMSET? */
 			if (measureL) {
 				pNoteBeam = GetPANOTEBEAM(pBS->firstSubObj);
 				if (IsAfter(measureL, pNoteBeam->bpSync))
@@ -1862,7 +1862,7 @@ Boolean DCheckBeams(
 			
 			foundRest = FALSE;
 			InitSearchParam(&pbSearch);
-			pbSearch.id = ANYONE;														/* Prepare for search */
+			pbSearch.id = ANYONE;											/* Prepare for search */
 			pbSearch.voice = voice;
 			pbSearch.needSelected = pbSearch.inSystem = FALSE;
 			noteBeamL = pBS->firstSubObj;
@@ -2018,13 +2018,13 @@ easy as it might look. */
  
 Boolean DCheckOctaves(Document *doc)
 {
-	PANOTE				aNote;
-	LINK					pL, aNoteL, syncL, measureL, noteOctL;
-	short					staff, s, nVoice, j;
-	LINK					ottavaL[MAXSTAVES+1];
-	POTTAVA				pOct;
-	PANOTEOTTAVA		pNoteOct;
-	Boolean				bad;
+	PANOTE			aNote;
+	LINK			pL, aNoteL, syncL, measureL, noteOctL;
+	short			staff, s, nVoice, j;
+	LINK			ottavaL[MAXSTAVES+1];
+	POTTAVA			pOct;
+	PANOTEOTTAVA	pNoteOct;
+	Boolean			bad;
 
 	bad = FALSE;
 	
@@ -2108,8 +2108,9 @@ Next:
 	-that the slur object (including ties) and its firstSyncL and lastSyncL appear in
 		the correct order in the data structure.
 	-that the next Sync after the slur has notes in the slur's voice.
-	-since we currently (as of v.997) do not allow nested or overlapping slurs or ties
-		(though we do allow a tie nested within a slur), check for nesting or overlapping.
+	-since we currently (as of v. 5.6) do not allow nested or overlapping slurs or ties
+		(though we do allow a tie nested within a slur), that there's no other nesting
+		or overlapping.
 	-that cross-system slurs have their first piece on one system and their second on
 		the next system.
 	-that the Syncs joined by ties are consecutive in the tie's voice. (For the 2nd
@@ -2122,13 +2123,13 @@ nice to check that non-cross-system slurs are entirely on one system. */
 
 Boolean DCheckSlurs(Document *doc)
 {
-	register LINK		pL;
-	register short		i;
-	short					staff, voice;
-	LINK					slurEnd[MAXVOICES+1], tieEnd[MAXVOICES+1], endL;
-	LINK					slurSysL, otherSlurL, otherSlurSysL, nextSyncL, afterNextSyncL; 
-	Boolean				slur2FirstOK, slur2LastOK;
-	Boolean				bad;
+	register LINK	pL;
+	register short	i;
+	short			staff, voice;
+	LINK			slurEnd[MAXVOICES+1], tieEnd[MAXVOICES+1], endL;
+	LINK			slurSysL, otherSlurL, otherSlurSysL, nextSyncL, afterNextSyncL; 
+	Boolean			slur2FirstOK, slur2LastOK;
+	Boolean			bad;
 
 	bad = FALSE;
 	

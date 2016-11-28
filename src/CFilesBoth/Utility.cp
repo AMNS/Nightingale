@@ -21,8 +21,8 @@
 		InterpY					FindIntInString
 		BlockCompare			RelIndexToSize			GetTextSize
 		FontName2Index			User2HeaderFontNum		Header2UserFontNum
-		Rect2Window				Pt2Window
-		Pt2Paper				Global2Paper			RefreshScreen
+		Rect2Window				Pt2Window				Pt2Paper		
+		Global2Paper			DRect2ScreenRect		RefreshScreen
 		InitSleepMS				SleepMS					SleepTicks
 		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
 		PlayResource
@@ -46,16 +46,16 @@
 
 DDIST CalcYStem(
 			Document *doc,
-			DDIST		yhead,			/* position of note head */
-			short		nflags,			/* number of flags or beams */
+			DDIST	yhead,			/* position of note head */
+			short	nflags,			/* number of flags or beams */
 			Boolean	stemDown,		/* TRUE if stem is down, else stem is up */
-			DDIST		staffHeight,	/* staff height */
-			short		staffLines,
-			short		qtrSp,			/* desired "normal" (w/2 or less flags) stem length (qtr-spaces) */
+			DDIST	staffHeight,	/* staff height */
+			short	staffLines,
+			short	qtrSp,			/* desired "normal" (w/2 or less flags) stem length (qtr-spaces) */
 			Boolean	noExtend 		/* TRUE means don't extend stem to midline */
 			)
 {
-	DDIST		midline, dLen, ystem;
+	DDIST	midline, dLen, ystem;
 
 	/*
 	 * There are two reasons why we may have to make the stem longer than
@@ -455,10 +455,10 @@ calling NStringWidth, then restore its previous value. Note that since we're
 returning a value in integer points, the caller doesn't get maximum accuracy, but
 1-point accuracy is enough for Nightingale.
 
-To be honest, nothing is really guaranteed. Tech Note #26: Fond of FONDs (May 1992)
-discusses finding the width of a piece of text, and makes it clear that (in the general
-case) it's far more difficult than a reasonable person would expect, especially with
-bitmapped fonts. */
+But nothing is really guaranteed. Apple Tech Note #26: Fond of FONDs (May 1992)
+discusses finding the width of a piece of text, and makes it clear that (in the
+general case) it's far more difficult than a reasonable person would expect,
+especially with bitmapped fonts. */
 
 short NPtStringWidth(
 			Document *doc,
@@ -688,7 +688,7 @@ void SetFont(short which)
 	TextFace(0);										/* Plain */
 }
 
-/* ------------------------------------------------ AllocContext,AllocSpTimeInfo -- */
+/* ------------------------------------------------ AllocContext, AllocSpTimeInfo -- */
 /* Allocate arrays on the heap: context[MAXSTAVES+1], spTimeInfo[MAX_MEASNODES]. */
 
 PCONTEXT AllocContext()
@@ -1035,7 +1035,7 @@ in the given string. If the string contains no digits, return -1. */
 
 long FindIntInString(unsigned char *string)
 {
-	long number, digit; short i; Boolean foundDigits;
+	long number, digit;  short i;  Boolean foundDigits;
 	
 	number = 0L;
 	foundDigits = FALSE;
@@ -1255,6 +1255,26 @@ void Global2Paper(Document *doc, Point *pt)
 	pt->h -= doc->currentPaper.left;
 	pt->v -= doc->currentPaper.top;
 }
+
+
+/* Convert a DRect in coords. relative to a given DRect (e.g., a systemRect) to a
+Rect in screen pixel coords., ready to draw with. */
+
+void DRect2ScreenRect(DRect aDRect, DRect relRect, Rect paperRect, Rect *pScreenRect)
+{
+	DRect tempRect;
+	
+	SetDRect(&tempRect, aDRect.left, aDRect.top, aDRect.right, aDRect.bottom);
+	OffsetDRect(&tempRect, relRect.left, relRect.top);
+	D2Rect(&tempRect, pScreenRect);
+	OffsetRect(pScreenRect, paperRect.left, paperRect.top);
+//	LogPrintf(LOG_DEBUG, "DRect2ScreenRect: aDRect=%d,%d,%d,%d  objRect=%d,%d,%d,%d\n",
+//				aDRect.left, aDRect.top, aDRect.right, aDRect.bottom,
+//				pScreenRect->left, pScreenRect->top, pScreenRect->right, pScreenRect->bottom);
+}
+
+
+/* ---------------------------------------------------------------- RefreshScreen -- */
 
 void RefreshScreen()
 {

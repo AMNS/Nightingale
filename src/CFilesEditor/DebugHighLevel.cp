@@ -72,7 +72,9 @@ Boolean DCheckEverything(Document *doc,
 
 		DCheckNodeSel(doc, pL);		if (DErrLimit() || UserInterrupt()) return FALSE;
 	}
-	nTotal++;																/* Count tailL */
+	nTotal++;														/* Count tailL */
+	
+	/* PART 1. Check that data structures -- mostly the object list -- are legal. */
 	
 	if (DCheckNode(doc, doc->tailL, MAIN_DSTR, maxCheck)<0) return TRUE;
 	
@@ -89,13 +91,16 @@ Boolean DCheckEverything(Document *doc,
 	(void)DCheckOctaves(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckSlurs(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckTuplets(doc, maxCheck);		if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckPlayDurs(doc, maxCheck);	if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckHairpins(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
-
 	(void)DCheckContext(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+
+	/* PART 2. Check that musical and music-notation constraints are obeyed. */
+	
+	(void)DCheckPlayDurs(doc, maxCheck);	if (DErrLimit() || UserInterrupt()) return FALSE;
 	(void)DCheckTempi(doc);					if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckRedundKS(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
-	(void)DCheckRedundTS(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckRedundantKS(doc);			if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckExtraTS(doc);				if (DErrLimit() || UserInterrupt()) return FALSE;
+	(void)DCheckCautionaryTS(doc);			if (DErrLimit() || UserInterrupt()) return FALSE;
 	if (maxCheck) {
 		(void)DCheckMeasDur(doc);			if (DErrLimit() || UserInterrupt()) return FALSE;
 	}
@@ -235,7 +240,7 @@ static short DebugDialog(char *label, short *what, short *istart, short *istop,
 	SetControlValue(linksHdl, (*links? 1 : 0));
 	GetDialogItem(dialogp, SUBENTRIES, &itype, (Handle *)&subsHdl, &tRect);
 	SetControlValue(subsHdl, (*subs? 1 : 0));
-	SelectDialogItemText(dialogp, STOPNUM_DI, 0, ENDTEXT);					/* Hilite stop no. */
+	SelectDialogItemText(dialogp, STOPNUM_DI, 0, ENDTEXT);			/* Hilite stop no. */
 	if (*what>=EVERYTHING) DISABLE_CONTROLS
 	else				   ENABLE_CONTROLS;
 	dialogOver = FALSE;

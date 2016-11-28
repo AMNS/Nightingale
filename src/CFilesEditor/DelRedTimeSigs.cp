@@ -131,9 +131,7 @@ Boolean SameTimeSigOnAllStaves(Document *doc, LINK timeSigL)
 the same numerator/denominator with no Measures or Syncs in between"  (recall that
 in Nightingale every new System starts a new Measure) . Since it's affected by
 system breaks, this should be called after any Reformatting that might change system
-breaks. Returns FALSE if it finds a problem, else TRUE.
-
-NB: DCheckRedundTS checks for "redundancy" in a very different sense. */
+breaks. Returns FALSE if it finds a problem, else TRUE. */
 
 Boolean DelRedTimeSigs(
 			Document *doc,

@@ -974,7 +974,7 @@ DrawObject, Extract, MIDIFSave, Ottava, Score, ScoreInfo, SpaceTime, TextDialog.
 
 Make "Color Voices" the default for new scores. Affects Documents.
 
-Barline (Measure) lines in notelists now give the measure number. Affects NotelistSave.
+Notelists now give the measure number in Barline (Measure) lines. Affects NotelistSave.
 
 Partial implementation of making Show Duration Problems also show individual staff-
 measures that are incomplete. Affects .rsrc; SpaceTime.h, vars.h; DrawObject, Initialize.
@@ -982,3 +982,18 @@ measures that are incomplete. Affects .rsrc; SpaceTime.h, vars.h; DrawObject, In
 Minor cleanup; improve code readability, etc. Affects defs.h, MemMacros.h, Utility.h;
 Browser, Debug2Utils, Documents, DragBeam, DrawingEdit, DrawObject, HairpinEdit,
 Initialize, Merge, MIDIFSave, RfmtRaw, Score, ScoreInfo, SpaceTime, Utility.
+
+-------------------------------------------------------------------------------
+
+24-28 Nov.
+
+Make Show Duration Problems also show individual staff-measures that are incomplete.
+Affects DrawObject.
+
+Make the Debug command check for cautionary time signatures at the end of a system when
+there's a change of time signature at the beginning of the next system. Affects
+Debug.h; Debug2Utils, DebugHighLevel.
+
+Minor cleanup. Affects Utility.h; Browser, Context, DebugHighLevel, DelRedTimeSigs,
+DragGraphic, Utility.
+

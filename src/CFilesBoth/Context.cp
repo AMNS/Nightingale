@@ -184,18 +184,18 @@ general, context at an object before the first measure will have undefined field
 void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 {
 	register LINK pL;
-	PMEASURE		pMeasure;
+	PMEASURE	pMeasure;
 	PSTAFF		pStaff;
 	PSYSTEM		pSystem;
-	PPAGE			pPage;
-	LINK			staffL,systemL,aMeasureL,aStaffL,aClefL,
-					aKeySigL,aTimeSigL,aDynamicL,pageL,headL;
-	short			k;
+	PPAGE		pPage;
+	LINK		staffL, systemL, aMeasureL, aStaffL, aClefL,
+				aKeySigL, aTimeSigL, aDynamicL, pageL, headL;
+	short		k;
 	Boolean		found,			/* FALSE till a Measure or Staff is found for theStaff */
-					foundClef,		/* TRUE if we found any of these objects */
-					foundKeySig,
-					foundTimeSig,
-					foundDynamic;
+				foundClef,		/* TRUE if we found any of these objects */
+				foundKeySig,
+				foundTimeSig,
+				foundDynamic;
 
 	if (contextL==NILINK) {
 		MayErrMsg("GetContext: NILINK contextL, staff=%ld.", (long)theStaff);
@@ -236,7 +236,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 				}
 				pPage = GetPPAGE(pageL);
 				pContext->sheetNum = pPage->sheetNum;
-				GetSheetRect(doc,pPage->sheetNum,&pContext->paper);
+				GetSheetRect(doc, pPage->sheetNum, &pContext->paper);
 				pContext->inMeasure = FALSE;
 
 				pStaff = GetPSTAFF(pL);
