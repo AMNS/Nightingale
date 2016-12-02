@@ -162,9 +162,9 @@ STDIST SymWidthLeft(
 	  		if (maxxmoveAcc>=0) {
 #ifdef NOTYET
 				/*
-				 *	Ordinarily, the accidental position is relative to a note on the "normal"
-				 *	side of the stem. But if grace note is in a chord that's downstemmed and
-				 *	has notes to the left of the stem, its accidental is moved to the left.
+				 * Ordinarily, the accidental position is relative to a note on the "normal"
+				 * side of the stem. But if grace note is in a chord that's downstemmed and
+				 * has notes to the left of the stem, its accidental is moved to the left.
 				 * FIXME: ChordNoteToLeft DOESN'T KNOW ABOUT GRACE NOTES. ALSO, noteToLeft
 				 * SHOULD BE CONSIDERED REGARDESS OF ACCS.--CF. case SYNCtype ABOVE.
 				 */
@@ -180,11 +180,11 @@ STDIST SymWidthLeft(
 		
 		case MEASUREtype:
 			/*
-			 *	Though Measures (barlines) must have subobjects on all staves, they can be
+			 * Though Measures (barlines) must have subobjects on all staves, they can be
 			 * be hidden on some, so perhaps we should look at all staves and take the
 			 * staff sizes of the visible ones into account, but I doubt it's worth it--
-			 *	anyway, consistency among Measures is desirable. The same thing applies
-			 *	to Pseudomeasures.
+			 * anyway, consistency among Measures is desirable. The same thing applies
+			 * to Pseudomeasures.
 			 */ 
 			aMeasL = FirstSubLINK(pL);
 			aMeas = GetPAMEASURE(aMeasL);
@@ -260,7 +260,7 @@ STDIST SymWidthRight(
 			  			nwidth = NOTEHEAD_GRAPH_WIDTH*(STD_LINEHT*4)/3;
 					else
 			  			nwidth = (STD_LINEHT*4)/3;
-					if (!aNote->rest && !aNote->beamed			/* Is it a note, unbeamed, of */						
+					if (!aNote->rest && !aNote->beamed				/* Is it a note, unbeamed, of */						
 					&&  NFLAGS(aNote->subType)>0					/*   flag-needing duration, */  
 					&&  aNote->yd>aNote->ystem						/*   stem up, */
 					&&  !toHead)									/* and we're considering flags? */
@@ -285,8 +285,8 @@ STDIST SymWidthRight(
 	  	}
 
 		/*
-		 *	If chord is upstemmed and has notes to the right of the stem, it extends
-		 *	further to the right than it otherwise would. (The following adjustments
+		 * If chord is upstemmed and has notes to the right of the stem, it extends
+		 * further to the right than it otherwise would. (The following adjustments
 		 * should really take into account STF_SCALE. Someday.)
 		 */
 		noteToRight = FALSE;
@@ -318,9 +318,9 @@ STDIST SymWidthRight(
 	  	}
 #ifdef NOTYET
 		/*
-		 *	If chord is upstemmed and has grace notes to the right of the stem, it extends
-		 *	further to the right than it otherwise would. FIXME: ChordNoteToRight DOESN'T
-		 *	KNOW ABOUT GRACE NOTES.
+		 * If chord is upstemmed and has grace notes to the right of the stem, it extends
+		 * further to the right than it otherwise would. FIXME: ChordNoteToRight DOESN'T
+		 * KNOW ABOUT GRACE NOTES.
 		 */
 		noteToRight = FALSE;
 		if (anyStaff) {
@@ -336,11 +336,11 @@ STDIST SymWidthRight(
 
 	 case MEASUREtype:
 		/*
-		 *	Though Measures (barlines) must have subobjects on all staves, they can be
+		 * Though Measures (barlines) must have subobjects on all staves, they can be
 		 * be hidden on some, so perhaps we should look at all staves and take the
 		 * staff sizes of the visible ones into account, but I doubt it's worth it--
-		 *	anyway, consistency among Measures is desirable. The same thing applies
-		 *	to Pseudomeasures.
+		 * anyway, consistency among Measures is desirable. The same thing applies
+		 * to Pseudomeasures.
 		 */ 
 		aMeasureL = FirstSubLINK(pL);
 		aMeasure = GetPAMEASURE(aMeasureL);
@@ -553,9 +553,8 @@ DDIST GetTSWidth(LINK timeSigL)
 	short num,tsNum,tsDenom,prevNum=0,timeSigWidth;
 	Str31 nStr;
 
- 	/* Get maximum numeral of either timeSig numerator, denominator,
- 		or numeral displayed by other timeSig type of all timeSig
- 		subObjs in the timeSig object. */
+ 	/* Get maximum numeral of either timeSig numerator, denominator, or numeral
+		displayed by other timeSig type of all timeSig subObjs in the timeSig object. */
  
  	aTimeSigL = FirstSubLINK(timeSigL);
  	for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL)) {
@@ -598,9 +597,7 @@ DDIST GetTSWidth(LINK timeSigL)
 /* ------------------------------------------------------ Get Keysig Width Functions -- */
 /* ??Cf. KSDWidth and GetKeySigWidth to GetKSWidth and SymWidthRight: these functions
 should too. But much better, there should be only one way to get keysig width for a
-subobj and only one for an object, and it should use STD_ACCWIDTH and STD_ACCSPACE. */
-
-#define STD_ACCSPACE STD_ACCWIDTH	/* Space between accs. in key sig. is the same as their width */
+subobj and only one for an object, and it should use STD_ACCWIDTH and STD_KS_ACCSPACE. */
 
 /* Get the width of the given key signature subobject, in pixels. */
 
@@ -612,7 +609,7 @@ short GetKSWidth(LINK aKeySigL, DDIST staffHeight, short staffLines)
 	nAcc = (aKeySig->nKSItems>0? aKeySig->nKSItems : aKeySig->subType);
 	
 	stdWidth = STD_ACCWIDTH;
-	if (nAcc>1) stdWidth += (nAcc-1)*STD_ACCSPACE;
+	if (nAcc>1) stdWidth += (nAcc-1)*STD_KS_ACCSPACE;
 	dWidth = std2d(stdWidth, staffHeight, staffLines);
 
 	return d2p(dWidth);
@@ -698,7 +695,7 @@ void FillSpaceMap(Document *doc, short	whichTable)
 
 	for (i=0; i<MAX_L_DUR; i++) 
 		doc->spaceMap[i] = STD_LINEHT * (useDefault ? dfltSpaceMap[i] :
-												((long *)(*rsrc))[i] / 100.0);
+											((long *)(*rsrc))[i] / 100.0);
 		UseResFile(saveResFile);
 }
 
@@ -709,7 +706,7 @@ void FillSpaceMap(Document *doc, short	whichTable)
 
 short FIdealSpace(
 			Document *doc,
-			long dur,				/* dur is physical in (128*PDURUNIT)ths */
+			long dur,			/* dur is physical in (128*PDURUNIT)ths */
 			long spaceProp 		/* Use spaceProp/(RESFACTOR*100) of normal spacing */
 			)
 {
@@ -763,10 +760,10 @@ itself. */
 
 DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 {
-	LINK		beforeL;
-	LINK		pSubL;
-	long		maxLen,tempLen;
-	short		noteStaff;
+	LINK	beforeL;
+	LINK	pSubL;
+	long	maxLen,tempLen;
+	short	noteStaff;
 	CONTEXT	context;
 	STDIST	symWidth,space;
 	
@@ -1586,7 +1583,7 @@ short GetSpTimeInfo(
 							(long)MAX_MEASNODES);
 				return TOO_MANY_MEASNODES;
 			}
-			else {																	/* Yes, add it to list */
+			else {																/* Yes, add it to list */
 				spaceTimeInfo[last].startTime = timeHere;
 				spaceTimeInfo[last].justType = jType;
 				spaceTimeInfo[last].link = pL;
@@ -1626,15 +1623,15 @@ Boolean RhythmUnderstood(Document *doc, LINK measL, Boolean strict)
 		aNoteL = FirstSubLINK(pL);
 		for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
 			if (NoteType(aNoteL)==UNKNOWN_L_DUR) {
-				if (strict) return FALSE;
-				else			nUnknown++;
+				if (strict)	return FALSE;
+				else		nUnknown++;
 			}
 			else
 				nKnown++;
 		}
 
-	if (strict) return (nUnknown==0);
-	else			return (nUnknown==0 || nKnown>0);
+	if (strict)	return (nUnknown==0);
+	else		return (nUnknown==0 || nKnown>0);
 }
 
 
@@ -1651,7 +1648,7 @@ static long FixMeasTimeStamps(Document *, LINK, SPACETIMEINFO *);
 static long FixMeasTimeStamps(
 					Document *doc,
 					LINK measL,
-					SPACETIMEINFO	*spTimeInfo 	/* Scratch space (neither input nor output!) */
+					SPACETIMEINFO *spTimeInfo 	/* Scratch space (neither input nor output!) */
 					)
 {
 	LINK endMeasL, pL, nextMeasL, aMeasureL;
@@ -1845,8 +1842,7 @@ long GetMeasDur(Document *doc,
 		return SyncTIME(syncL)+NotePLAYDUR(FirstSubLINK(syncL));
 	}
 
-	spTimeInfo = (SPACETIMEINFO *)NewPtr((Size)MAX_MEASNODES *
-												sizeof(SPACETIMEINFO));
+	spTimeInfo = (SPACETIMEINFO *)NewPtr((Size)MAX_MEASNODES * sizeof(SPACETIMEINFO));
 	if (!GoodNewPtr((Ptr)spTimeInfo)) {
 		OutOfMemory((long)MAX_MEASNODES * sizeof(SPACETIMEINFO));
 		return -1L;

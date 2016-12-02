@@ -1,6 +1,6 @@
 NIGHTINGALE NOTELIST TECHNICAL UPDATE
 Nightingale Technical Note #19
-by Donald Byrd - revised 16 November 2016, for Nightingale 5.7
+by Donald Byrd - revised late November 2016, for Nightingale 5.7
 
 
 For general information on the notelist format, see the description of the Save
@@ -55,7 +55,7 @@ Notelist Format Changes from the Book Chapter
 ---------------------------------------------
 
 Newer notelists differ from the 3.0A notelists described in the book chapter in just
-five ways.
+six ways.
 
 1. The header line that begins every notelist file written by Nightingale 3.5 and later
 gives a file-format version number ("V1" for Nightingale 3.5, "V2" for later versions)

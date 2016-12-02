@@ -1,12 +1,9 @@
-/* File Debug2Utils.c - debugging functions. This is the other part of the 
-"DebugUtils" source file, made into a separate file long ago because DebugUtils.c
-was just too big for certain Mac development systems of the 1990's, which had a
-limit of 32K per module object code.
+/* File Debug2Utils.c - "debugging" functions for the musical content: Does the score
+obey musical and music-notation constraints?
 
-	DCheckVoiceTable		DCheckTempi				DCheckRedundKS
+	DCheckPlayDurs			DCheckTempi				DCheckRedundantKS
 	DCheckExtraTS			DCheckCautionaryTS		DCheckMeasDur
-	DCheckUnisons			DCheck1NEntries			DCheckNEntries
-	DCheck1SubobjLinks		DBadNoteNum				DCheckNoteNums
+	DCheckUnisons			DBadNoteNum				DCheckNoteNums
 */
 
 /*
@@ -22,8 +19,6 @@ limit of 32K per module object code.
 
 #include "DebugUtils.h"
 
-#define ulong unsigned long
-
 #define DDB
 
 
@@ -37,125 +32,61 @@ limit of 32K per module object code.
 		the legality of voiceRole fields.
 We could also check other symbols with voice nos. */
 
-Boolean DCheckVoiceTable(Document *doc,
-			Boolean fullCheck,				/* FALSE=skip less important checks */
-			short *pnVoicesUsed)
+/* ----------------------------------------------------------------- DCheckPlayDurs -- */
+/* Check that playDurs of notes appear reasonable for their logical durations. */
+
+Boolean DCheckPlayDurs(
+				Document *doc,
+				Boolean maxCheck		/* FALSE=skip less important checks */
+				)
 {
-	Boolean bad, foundEmptySlot;
-	LINK pL, aNoteL, aGRNoteL;
-	LINK voiceUseTab[MAXVOICES+1], partL;
-	short v, stf, partn;
-	PPARTINFO pPart;
-	Boolean voiceInWrongPart;
+	register LINK pL, aNoteL;
+	PANOTE aNote; PTUPLET pTuplet;
+	register Boolean bad;
+	short v, shortDurThresh, tupletNum[MAXVOICES+1], tupletDenom[MAXVOICES+1];
+	long lDur;
 
 	bad = FALSE;
 
-	for (foundEmptySlot = FALSE, v = 1; v<=MAXVOICES; v++) {
-		if (doc->voiceTab[v].partn==0) foundEmptySlot = TRUE;
-		if (doc->voiceTab[v].partn!=0 && foundEmptySlot) {
-				COMPLAIN("*DCheckVoiceTable: VOICE %ld IN TABLE FOLLOWS AN EMPTY SLOT.\n", (long)v);
-				break;
-		}
-	}
+	shortDurThresh = PDURUNIT/2;
+	for (v = 0; v<=MAXVOICES; v++)
+		tupletNum[v] = 0;
 
-	partL = NextPARTINFOL(FirstSubLINK(doc->headL));
-	for (partn = 1; partL; partn++, partL=NextPARTINFOL(partL)) {
-		pPart = GetPPARTINFO(partL);
-		
-		if (pPart->firstStaff<1 || pPart->firstStaff>doc->nstaves
-		||  pPart->lastStaff<1 || pPart->lastStaff>doc->nstaves) {
-			COMPLAIN("•DCheckVoiceTable: PART %ld firstStaff OR lastStaff IS ILLEGAL.\n",
-						(long)partn);
-			return TRUE;
-		}
-		
-		voiceInWrongPart = FALSE;
-		for (stf = pPart->firstStaff; stf<=pPart->lastStaff; stf++) {
-			if (doc->voiceTab[stf].partn!=partn) {
-				COMPLAIN2("*DCheckVoiceTable: VOICE %ld SHOULD BELONG TO PART %ld BUT DOESN'T.\n",
-								(long)stf, (long)partn);
-				voiceInWrongPart = TRUE;
-			}
-		}
-	}
+	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
+		if (DErrLimit()) break;
 
-	for (v = 1; v<=MAXVOICES; v++) {
-		voiceUseTab[v] = NILINK;
-
-	/*
-	 * The objects with voice numbers other than notes and grace notes always get
-	 * their voice numbers from the notes and grace notes they're attached to, so
-	 * we'll assume they're OK, though it would be better to look.
-	 */
-	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
-			case SYNCtype:
-				aNoteL = FirstSubLINK(pL);
-				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
-					if (voiceUseTab[NoteVOICE(aNoteL)]==NILINK)
-						voiceUseTab[NoteVOICE(aNoteL)] = pL;
+			case TUPLETtype:			 	
+				v = TupletVOICE(pL);
+				pTuplet = GetPTUPLET(pL);
+				tupletNum[v] = pTuplet->accNum;
+				tupletDenom[v] = pTuplet->accDenom;
 				break;
-			case GRSYNCtype:
-				aGRNoteL = FirstSubLINK(pL);
-				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
-					if (voiceUseTab[GRNoteVOICE(aGRNoteL)]==NILINK)
-						voiceUseTab[GRNoteVOICE(aGRNoteL)] = pL;
-				break;
-			default:
-				;
-		}
-	}
-
-	for (v = 1; v<=MAXVOICES; v++) {
-		if (voiceUseTab[v]!=NILINK)
-			if (doc->voiceTab[v].partn==0)
-				COMPLAIN2("*DCheckVoiceTable: VOICE %ld (FIRST USED AT %lu) NOT IN TABLE.\n",
-					(long)v, (ulong)voiceUseTab[v]);
-	}
-	
-	for (v = 1; v<=MAXVOICES; v++) {
-		if (fullCheck && doc->voiceTab[v].partn!=0 && voiceUseTab[v]==NILINK)
-			COMPLAIN("DCheckVoiceTable: VOICE %ld HAS NO NOTES, RESTS, OR GRACE NOTES.\n",
-				(long)v);
-	}
-
-	for (*pnVoicesUsed = 0, v = 1; v<=MAXVOICES; v++)
-		if (voiceUseTab[v]!=NILINK) (*pnVoicesUsed)++;
-
-	if (voiceInWrongPart) return bad;				/* Following checks may give 100's of errors! */
-	
-	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
-		switch (ObjLType(pL)) {
+				
 			case SYNCtype:
-				aNoteL = FirstSubLINK(pL);
-				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-					v = NoteVOICE(aNoteL);
-					stf = NoteSTAFF(aNoteL);
-					if (doc->voiceTab[v].partn!=Staff2Part(doc, stf))
-						COMPLAIN3("*DCheckVoiceTable: NOTE IN SYNC AT %lu STAFF %d IN ANOTHER PART'S VOICE, %ld.\n",
-										(ulong)pL, stf, (long)v);
+				for (aNoteL = FirstSubLINK(pL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+					aNote = GetPANOTE(aNoteL);
+					if (aNote->subType!=UNKNOWN_L_DUR && aNote->subType>WHOLEMR_L_DUR) {
+						if (aNote->playDur<shortDurThresh) {
+							COMPLAIN2("DCheckPlayDurs: NOTE IN VOICE %d IN SYNC AT %u HAS EXTREMELY SHORT playDur.\n",
+											aNote->voice, pL);
+						}
+						else {
+							lDur = SimpleLDur(aNoteL);
+							if (aNote->inTuplet) {
+								v = aNote->voice;
+								lDur = (lDur*tupletDenom[v])/tupletNum[v];
+							}
+							if (aNote->playDur>lDur)
+								COMPLAIN3("DCheckPlayDurs: NOTE IN VOICE %d IN SYNC AT %u playDur IS LONGER THAN FULL DUR. OF %d\n",
+											aNote->voice, pL, lDur);
+						}
+					}
 				}
 				break;
-			case GRSYNCtype:
-				aGRNoteL = FirstSubLINK(pL);
-				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
-					v = GRNoteVOICE(aGRNoteL);
-					stf = GRNoteSTAFF(aGRNoteL);
-					if (doc->voiceTab[v].partn!=Staff2Part(doc, stf))
-						COMPLAIN3("*DCheckVoiceTable: NOTE IN GRSYNC AT %lu STAFF %d IN ANOTHER PART'S VOICE, %ld.\n",
-										(ulong)pL, stf, (long)v);
-				}
-				break;
+				
 			default:
 				;
-		}
-
-	for (v = 1; v<=MAXVOICES; v++) {
-		if (doc->voiceTab[v].partn!=0) {
-			if (doc->voiceTab[v].voiceRole<UPPER_DI || doc->voiceTab[v].voiceRole>SINGLE_DI)
-				COMPLAIN("*DCheckVoiceTable: voiceTab[%ld].voiceRole IS ILLEGAL.\n", (long)v);
-			if (doc->voiceTab[v].relVoice<1 || doc->voiceTab[v].relVoice>MAXVOICES)
-				COMPLAIN("*DCheckVoiceTable: voiceTab[%ld].relVoice IS ILLEGAL.\n", (long)v);
 		}
 	}
 	
@@ -446,7 +377,8 @@ Boolean DCheckMeasDur(Document *doc)
 
 
 /* ---------------------------------------------------------------- DCheckUnisons -- */
-/* Check chords for unisons. */
+/* Check chords for unisons. They're not necessarily a problem, though Nightingale's
+user interface doesn't handle them well, e.g., showing their selection status. */
 
 Boolean DCheckUnisons(Document *doc)
 {
@@ -471,172 +403,6 @@ Boolean DCheckUnisons(Document *doc)
 }
 
 
-/* -------------------------------------------------------------- DCheck1NEntries -- */
-/* Check the given object's nEntries field for agreement with the length of its list
-of subobjects. */
-
-Boolean DCheck1NEntries(
-				Document */*doc*/,		/* unused */
-				LINK pL)
-{
-	LINK subL, tempL; Boolean bad; short subCount;
-	HEAP *myHeap;
-	
-	bad = FALSE;
-		
-	if (TYPE_BAD(pL)) {
-		COMPLAIN2("•DCheck1NEntries: OBJ AT %u HAS BAD type %d.\n", pL, ObjLType(pL));
-		return bad;
-	}
-
-	myHeap = Heap + ObjLType(pL);
-	for (subCount = 0, subL = FirstSubLINK(pL); subL!=NILINK;
-			subL = tempL, subCount++) {
-		if (subCount>255) {
-			COMPLAIN2("•DCheck1NEntries: OBJ AT %u HAS nEntries=%d  BUT SEEMS TO HAVE OVER 255 SUBOBJECTS.\n",
-							pL, LinkNENTRIES(pL));
-			break;
-		}
-		tempL = NextLink(myHeap, subL);
-	}
-
-	if (LinkNENTRIES(pL)!=subCount)
-		COMPLAIN3("•DCheck1NEntries: OBJ AT %u HAS nEntries=%d BUT %d SUBOBJECTS.\n",
-						pL, LinkNENTRIES(pL), subCount);
-	
-	return bad;
-}
-
-
-/* -------------------------------------------------------------- DCheckNEntries -- */
-/* For the entire main object list, Check objects' nEntries fields for agreement with
-the lengths of their lists of subobjects. This function is designed to be called
-independently of Debug when things are bad, e.g., to check for Mackey's Disease, so it
-protects itself against other simple data structure problems. */
-
-Boolean DCheckNEntries(Document *doc)
-{
-	LINK pL; Boolean bad; long soon=TickCount()+60L;
-	
-	bad = FALSE;
-		
-	for (pL = doc->headL; pL && pL!=doc->tailL; pL = RightLINK(pL)) {
-		if (TickCount()>soon) WaitCursor();
-		if (DCheck1NEntries(doc, pL)) { bad = TRUE; break; }
-	}
-	
-	return bad;
-}
-
-
-/* ---------------------------------------------------------- DCheck1SubobjLinks -- */
-/* Check subobject links for the given object. */
-
-Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
-{
-	PMEVENT p; HEAP *tmpHeap;
-	LINK subObjL, badLink; Boolean bad;
-	
-	bad = FALSE;
-	
-	switch (ObjLType(pL)) {
-		case HEADERtype: {
-			LINK aPartL;
-			
-			for (aPartL=FirstSubLINK(pL); aPartL; aPartL=NextPARTINFOL(aPartL))
-				if (DBadLink(doc, ObjLType(pL), aPartL, FALSE))
-					{ badLink = aPartL; bad = TRUE; break; }
-			break;
-		}
-		case STAFFtype: {
-			LINK aStaffL;
-			
-				for (aStaffL=FirstSubLINK(pL); aStaffL; aStaffL=NextSTAFFL(aStaffL))
-				if (DBadLink(doc, ObjLType(pL), aStaffL, FALSE))
-					{ badLink = aStaffL; bad = TRUE; break; }
-			}
-			break;
-		case CONNECTtype: {
-			LINK aConnectL;
-			
-				for (aConnectL=FirstSubLINK(pL); aConnectL; aConnectL=NextCONNECTL(aConnectL))
-				if (DBadLink(doc, ObjLType(pL), aConnectL, FALSE))
-					{ badLink = aConnectL; bad = TRUE; break; }
-			}
-			break;
-		case SYNCtype:
-		case GRSYNCtype:
-		case CLEFtype:
-		case KEYSIGtype:
-		case TIMESIGtype:
-		case MEASUREtype:
-		case PSMEAStype:
-		case DYNAMtype:
-		case RPTENDtype:
-			tmpHeap = Heap + ObjLType(pL);		/* p may not stay valid during loop */
-			
-			for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL=NextLink(tmpHeap,subObjL))
-				if (DBadLink(doc, ObjLType(pL), subObjL, FALSE))
-					{ badLink = subObjL; bad = TRUE; break; }
-			break;
-		case SLURtype: {
-			LINK aSlurL;
-			
-				for (aSlurL=FirstSubLINK(pL); aSlurL; aSlurL=NextSLURL(aSlurL))
-				if (DBadLink(doc, ObjLType(pL), aSlurL, FALSE))
-					{ badLink = aSlurL; bad = TRUE; break; }
-			}
-			break;
-			
-		case BEAMSETtype: {
-			LINK aNoteBeamL;
-			
-			aNoteBeamL = FirstSubLINK(pL);
-			for ( ; aNoteBeamL; aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
-				if (DBadLink(doc, ObjLType(pL), aNoteBeamL, FALSE))
-					{ badLink = aNoteBeamL; bad = TRUE; break; }
-			}
-			break;
-		}
-		case OTTAVAtype: {
-			LINK aNoteOctL;
-			
-			aNoteOctL = FirstSubLINK(pL);
-			for ( ; aNoteOctL; aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
-				if (DBadLink(doc, ObjLType(pL), aNoteOctL, FALSE))
-					{ badLink = aNoteOctL; bad = TRUE; break; }
-			}
-			break;
-		}
-		case TUPLETtype: {
-			LINK aNoteTupleL;
-			
-			aNoteTupleL = FirstSubLINK(pL);
-			for ( ; aNoteTupleL; aNoteTupleL=NextNOTETUPLEL(aNoteTupleL)) {
-				if (DBadLink(doc, ObjLType(pL), aNoteTupleL, FALSE))
-					{ badLink = aNoteTupleL; bad = TRUE; break; }
-			}
-			break;
-		}
-
-		case GRAPHICtype:
-		case TEMPOtype:
-		case SPACERtype:
-		case ENDINGtype:
-			break;
-			
-		default:
-			;
-			break;
-	}
-	
-	if (bad) COMPLAIN2("•DCheck1SubobjLinks: A SUBOBJ OF OBJ AT %u HAS A BAD LINK OF %d.\n",
-								pL, badLink);
-	
-	return bad;
-}
-
-
 /* ------------------------------------------------------------------ DBadNoteNum -- */
 /* Given a Sync and a note in it, plus the current clef, octave sign, and accidental
 table: return the discrepancy in the note's MIDI note number (0 if none). */
@@ -652,12 +418,12 @@ short DBadNoteNum(
 	short midCHalfLn, effectiveAcc, noteNum;
 	LINK firstSyncL, firstNoteL;
 
-	midCHalfLn = ClefMiddleCHalfLn(clefType);				/* Get middle C staff pos. */		
+	midCHalfLn = ClefMiddleCHalfLn(clefType);					/* Get middle C staff pos. */		
 	yqpit = NoteYQPIT(theNoteL)+halfLn2qd(midCHalfLn);
 	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
 
 	if (!FirstTiedNote(syncL, theNoteL, &firstSyncL, &firstNoteL))
-		return FALSE;												/* Object list is messed up */
+		return FALSE;											/* Object list is messed up */
 	effectiveAcc = EffectiveAcc(doc, firstSyncL, firstNoteL);
 	if (octType>0)
 		noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1],

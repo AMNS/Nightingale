@@ -190,6 +190,9 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 #define MCH_rptDots 0x7B
 #define MCH_arpeggioSign 'g'
 
+#define MCH_lParen '('						/* Parentheses */
+#define MCH_rParen ')'
+
 #define BREVEYOFFSET 2						/* Correction for Sonata error in breve origin (half-lines) */
 
 /* -------------------------------------------------- OTHER CHARACTER AND KEY CODES -- */

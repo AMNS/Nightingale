@@ -987,8 +987,9 @@ Initialize, Merge, MIDIFSave, RfmtRaw, Score, ScoreInfo, SpaceTime, Utility.
 
 24-28 Nov.
 
-Make Show Duration Problems also show individual staff-measures that are incomplete.
-Affects DrawObject.
+Show Duration Problems now shows individual staff-measures that are incomplete as well
+as entire measures (across all staves) that disagree with the time signature. Affects
+DrawObject.
 
 Make the Debug command check for cautionary time signatures at the end of a system when
 there's a change of time signature at the beginning of the next system. Affects
@@ -997,3 +998,17 @@ Debug.h; Debug2Utils, DebugHighLevel.
 Minor cleanup. Affects Utility.h; Browser, Context, DebugHighLevel, DelRedTimeSigs,
 DragGraphic, Utility.
 
+===============================================================================
+
+30 Nov. - 2 Dec.
+
+Changed version number from 5.7b7 to 5.7b8. Affects Info.plist.
+
+Move some notation style parameters and music-font character definitions into the proper
+headers. Affects defs.h, style.h; DrawNRGR, DrawUtils, SpaceTime.
+
+Move all "Debug" routines for checking our data structure into DebugUtils, and all
+routines for checking musical and music-notation constraints into Debug2Utils. Also
+affects Debug.h.
+
+Minor cleanup. Affects DebugHighLevel, Debug2Utils, DebugUtils, SpaceTime, Utility.

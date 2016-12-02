@@ -7,20 +7,21 @@ short DCheckNode(Document *, LINK, short, Boolean);
 
 Boolean DBadLink(Document *, short, LINK, Boolean);
 Boolean DCheckHeaps(Document *);
-Boolean DCheckVoiceTable(Document *, Boolean, short *);
 Boolean DCheckHeadTail(Document *, LINK, Boolean);
 Boolean DCheckSyncSlurs(LINK, LINK);
 Boolean DCheckNodeSel(Document *, LINK);
 Boolean DCheckSel(Document *, short *, short *);
+Boolean DCheckVoiceTable(Document *, Boolean, short *);
 Boolean DCheckHeirarchy(Document *);
 Boolean DCheckJDOrder(Document *);
 Boolean DCheckBeams(Document *, Boolean);
-Boolean DCheckOctaves(Document *);
+Boolean DCheckOttavas(Document *);
 Boolean DCheckSlurs(Document *);
 Boolean DCheckTuplets(Document *, Boolean);
-Boolean DCheckPlayDurs(Document *, Boolean);
 Boolean DCheckHairpins(Document *);
 Boolean DCheckContext(Document *);
+
+Boolean DCheckPlayDurs(Document *, Boolean);
 Boolean DCheckTempi(Document *);
 Boolean DCheckRedundantKS(Document *);
 Boolean DCheckExtraTS(Document *);

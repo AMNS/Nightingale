@@ -581,8 +581,8 @@ void GetNPtStringBBox(
 			lineHt = fInfo.ascent + fInfo.descent + fInfo.leading;
 			bBox->top = -fInfo.ascent;
 			bBox->bottom = fInfo.descent + (lineHt * (nLines-1));
-			LogPrintf(LOG_DEBUG, "GetNPtStringBBox: fontID, Size, Style=%d, %d, %d fInfo.ascent=%d .descent=%d .leading=%d lineHt=%d nLines=%d\n",
-					  fontID, size, style, fInfo.ascent, fInfo.descent, fInfo.leading, lineHt, nLines);
+//			LogPrintf(LOG_DEBUG, "GetNPtStringBBox: fontID, Size, Style=%d, %d, %d fInfo.ascent=%d .descent=%d .leading=%d lineHt=%d nLines=%d\n",
+//					  fontID, size, style, fInfo.ascent, fInfo.descent, fInfo.leading, lineHt, nLines);
 		}
 		else {
 			bBox->top = -fInfo.ascent;

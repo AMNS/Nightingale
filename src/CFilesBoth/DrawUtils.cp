@@ -729,8 +729,6 @@ void DrawRptBar(Document *doc,
 }
 
 
-#define STD_ACCSPACE STD_ACCWIDTH	/* Space between accs. in key sig. is the same as their width */
-
 /* ---------------------------------------------------------------- GetKSYOffset -- */
 
 short GetKSYOffset(PCONTEXT pContext, KSITEM KSItem)
@@ -828,7 +826,7 @@ static void DrawFlat(
 	xd += MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 	yd += MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 
-	dWidth = std2d(STD_ACCSPACE, staffHeight, staffLines);
+	dWidth = std2d(STD_KS_ACCSPACE, staffHeight, staffLines);
 	*width = d2p(dWidth);
 	paperLeft = (drawMode==MEDraw ? pContext->paper.left : 0);
 	paperTop = (drawMode==MEDraw ? pContext->paper.top : 0);
@@ -877,7 +875,7 @@ static void DrawSharp(
 	xd += MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 	yd += MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 
-	dWidth = std2d(STD_ACCSPACE, staffHeight, staffLines);
+	dWidth = std2d(STD_KS_ACCSPACE, staffHeight, staffLines);
 	*width = d2p(dWidth);
 	paperLeft = (drawMode==MEDraw ? pContext->paper.left : 0);
 	paperTop = (drawMode==MEDraw ? pContext->paper.top : 0);
@@ -926,7 +924,7 @@ static void DrawNatural(
 	xd += MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 	yd += MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 
-	dWidth = std2d(STD_ACCSPACE, staffHeight, staffLines);
+	dWidth = std2d(STD_KS_ACCSPACE, staffHeight, staffLines);
 	*width = d2p(dWidth);
 	paperLeft = (drawMode==MEDraw ? pContext->paper.left : 0);
 	paperTop = (drawMode==MEDraw ? pContext->paper.top : 0);
