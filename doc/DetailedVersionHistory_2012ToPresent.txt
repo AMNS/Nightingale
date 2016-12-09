@@ -1012,3 +1012,14 @@ routines for checking musical and music-notation constraints into Debug2Utils. A
 affects Debug.h.
 
 Minor cleanup. Affects DebugHighLevel, Debug2Utils, DebugUtils, SpaceTime, Utility.
+
+-------------------------------------------------------------------------------
+
+9 Dec.
+
+Have the Debug command check individual staff-measures that are incomplete as well
+as entire measures (across all staves) that disagree with the time signature. Affects
+Debug2Utils.
+
+Minor cleanup. Affects DebugHighLevel, DrawObject, Menu.
+

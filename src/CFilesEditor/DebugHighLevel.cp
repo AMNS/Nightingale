@@ -394,13 +394,13 @@ Boolean DoDebug(
 	strcpy(fullLabel, label);
 	switch (what) {
 		case EVERYTHING:
-			strcat(fullLabel, "'-All");
+			strcat(fullLabel, "'-Everything");
 			break;
 		case MOST_THINGS:
-			strcat(fullLabel, "'-Std");
+			strcat(fullLabel, "'-Standard");
 			break;
 		case MIN_THINGS:
-			strcat(fullLabel, "'-Min");
+			strcat(fullLabel, "'-Min. things");
 			break;
 		default:
 			strcat(fullLabel, "'");

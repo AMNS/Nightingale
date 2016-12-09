@@ -254,12 +254,13 @@ static Boolean GetNotelistFile(Str255 macfName, short *vRefNum)
 Boolean DoFileMenu(short choice)
 	{
 		Boolean keepGoing = TRUE, doSymbol;  short vrefnum, returnCode;
-		register Document *doc=GetDocumentFromWindow(TopDocument);  char str[256];
-		NSClientData nscd;   FSSpec fsSpec;
+		register Document *doc=GetDocumentFromWindow(TopDocument);
+		char str[256];
+		NSClientData nscd;  FSSpec fsSpec;
 		
 		switch(choice) {
 			case FM_New:
-				doSymbol = TopDocument == NULL;
+				doSymbol = (TopDocument == NULL);
 				DoOpenDocument(NULL, 0, FALSE, NULL);
 				if (doSymbol && !IsWindowVisible(palettes[TOOL_PALETTE])) {
 					AnalyzeWindows();
@@ -277,7 +278,7 @@ Boolean DoFileMenu(short choice)
 							fsSpec = nscd.nsFSSpec;
 							vrefnum = nscd.nsFSSpec.vRefNum;
 							DoOpenDocument(tmpStr, vrefnum, FALSE, &fsSpec);
-							LogPrintf(LOG_DEBUG, "Opened file '%s'.\n", PToCString(tmpStr));
+							LogPrintf(LOG_INFO, "Opened file '%s'.\n", PToCString(tmpStr));
 						 }
 						 else if (returnCode == OP_NewFile)
 						 	keepGoing = DoFileMenu(FM_New);
@@ -296,7 +297,7 @@ Boolean DoFileMenu(short choice)
 						fsSpec = nscd.nsFSSpec;
 						vrefnum = nscd.nsFSSpec.vRefNum;
 						DoOpenDocument(tmpStr, vrefnum, TRUE, &fsSpec);
-						LogPrintf(LOG_DEBUG, "Opened read-only file '%s'.\n", PToCString(tmpStr));
+						LogPrintf(LOG_INFO, "Opened read-only file '%s'.\n", PToCString(tmpStr));
 					}
 				break;
 			case FM_Close:
@@ -418,7 +419,6 @@ void DoEditMenu(short choice)
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
 		
-//LogPrintf(LOG_NOTICE, "DoEditMenu: choice=%ld\n", (long)choice);					
 		switch(choice) {
 			case EM_Undo:
 				DoUndo(doc);
@@ -482,12 +482,12 @@ void DoEditMenu(short choice)
 				if (OptionKeyDown())
 					Browser(doc,doc->masterHeadL, doc->masterTailL);
 				else if (ShiftKeyDown())
-					Browser(doc,doc->undo.headL, doc->undo.tailL);
+					Browser(doc, doc->undo.headL, doc->undo.tailL);
 				else
-					Browser(doc,doc->headL, doc->tailL);
+					Browser(doc, doc->headL, doc->tailL);
 				break;
 			case EM_Debug:
-				DoDebug("M");
+				DoDebug("Menu");
 				fflush(stdout);
 				break;
 			case EM_DeleteObjs:
@@ -604,19 +604,19 @@ static void DoTestMenu(short choice)
 				break;
 			case TS_ClickErase:
 				clickMode = ClickErase;
-				LogPrintf(LOG_NOTICE, "ClickMode set to ClickErase\n");
+				LogPrintf(LOG_INFO, "ClickMode set to ClickErase\n");
 				break;
 			case TS_ClickSelect:
 				clickMode = ClickSelect;
-				LogPrintf(LOG_NOTICE, "ClickMode set to ClickSelect\n");
+				LogPrintf(LOG_INFO, "ClickMode set to ClickSelect\n");
 				break;
 			case TS_ClickFrame:
 				clickMode = ClickFrame;
-				LogPrintf(LOG_NOTICE, "ClickMode set to ClickFrame\n");
+				LogPrintf(LOG_INFO, "ClickMode set to ClickFrame\n");
 				break;
 			case TS_Debug:
 #ifndef PUBLIC_VERSION
-				DoDebug("M");
+				DoDebug("Menu");
 #endif				
 				break;
 			case TS_ShowDebug:
@@ -2009,16 +2009,16 @@ static void PLRecord(Document *doc, Boolean merge)
 	{
 		if (!OKToRecord(doc)) return;
 
-		LogPrintf(LOG_NOTICE, "0. Starting to record\n");
+		LogPrintf(LOG_INFO, "0. Starting to record\n");
 		
 		if (merge) {
-			PrepareUndo(doc, doc->selStartL, U_RecordMerge, 25);    	/* "Record Merge" */
+			PrepareUndo(doc, doc->selStartL, U_RecordMerge, 25);    /* "Record Merge" */
 			RecTransMerge(doc);
 		}
 		else {
 			PrepareUndo(doc, doc->selStartL, U_Record, 26);    		/* "Record" */
 			
-			LogPrintf(LOG_NOTICE, "0.1. Ready to record\n");
+			LogPrintf(LOG_INFO, "0.1. Ready to record\n");
 			Record(doc);
 		}
 	}

@@ -330,9 +330,10 @@ Boolean DCheckCautionaryTS(Document *doc)
 
 /* ---------------------------------------------------------------- DCheckMeasDur -- */
 /* Check the actual duration of notes in every measure, considered as a whole,
-against its time signature on every staff. N.B. I think this function makes more
+against its time signature on every staff. Also check the actual duration against
+the time signature on each individual staff. NB: I think this function makes more
 assumptions about the consistency of the data structure than the other "DCheck"
-functions, so it may be more dangerous to use when things are shaky. N.B.2. It's
+functions, so it may be more dangerous to use when things are shaky. NB2: It's
 quite stupid. It probably would be better to check only "rhythmically understood
 measures" in which: 
 	-There are no unknown duration notes
@@ -343,9 +344,10 @@ measures" in which:
 
 Boolean DCheckMeasDur(Document *doc)
 {
-	LINK pL, barTermL;
-	long measDurFromTS, measDurActual;
+	LINK pL, barTermL, aMeasL;
+	long measDurFromTS, measDurActual, measDurOnStaff;
 	const char *adverb;
+	short staffn;
 	Boolean bad;
 	
 	bad = FALSE;
@@ -355,18 +357,29 @@ Boolean DCheckMeasDur(Document *doc)
 
 		if (MeasureTYPE(pL) && !FakeMeasure(doc, pL)) {
 			barTermL = EndMeasSearch(doc, pL);
-			if (barTermL) {
-				measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
-				if (measDurFromTS<0) {
-					COMPLAIN("DCheckMeasDur: MEAS AT %u TIME SIG. DURATION DIFFERENT ON DIFFERENT STAVES.\n",
-									pL);
-					continue;
-				}
-				measDurActual = GetMeasDur(doc, barTermL, ANYONE);
-				if (measDurFromTS!=measDurActual) {
-					adverb = (ABS(measDurFromTS-measDurActual)<PDURUNIT? " MINUTELY " : " ");
-					COMPLAIN3("DCheckMeasDur: MEAS AT %u DURATION OF %ld%sDIFFERENT FROM TIME SIG.\n",
-									pL, measDurActual, adverb);
+			if (barTermL==NILINK) continue;
+
+			measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
+			if (measDurFromTS<0) {
+				COMPLAIN("DCheckMeasDur: MEASURE AT %u TIME SIG. DURATION DIFFERENT ON DIFFERENT STAVES.\n",
+								pL);
+				continue;
+			}
+			measDurActual = GetMeasDur(doc, barTermL, ANYONE);
+			if (measDurFromTS!=measDurActual) {
+				adverb = (ABS(measDurFromTS-measDurActual)<PDURUNIT? " MINUTELY " : " ");
+				COMPLAIN3("DCheckMeasDur: MEASURE AT %u DURATION OF %ld%sDIFFERENT FROM TIME SIG.\n",
+								pL, measDurActual, adverb);
+			}
+
+			/* Check measure duration on individual staves. */
+			aMeasL = FirstSubLINK(pL);
+			for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
+				staffn = MeasureSTAFF(aMeasL);			
+				measDurOnStaff = GetMeasDur(doc, barTermL, staffn);
+				if (measDurOnStaff!=0 && ABS(measDurFromTS-measDurOnStaff)>=PDURUNIT) {
+					COMPLAIN3("DCheckMeasDur: measure at %u, staff %d duration %d different from time sig.\n",
+								pL, staffn, measDurOnStaff);
 				}
 			}
 		}

@@ -18,7 +18,8 @@
 static void D2ObjRect(DRect *pdEnclBox, Rect *pobjRect);
 static void DrawPageNum(Document *, LINK, Rect *, PCONTEXT);
 static void DrawMeasNum(Document *, DDIST, DDIST, short, PCONTEXT);
-static void ShadeProblemMeasure(Document *, LINK, PCONTEXT);
+static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat);
+static void ShadeDurPblmMeasure(Document *, LINK, PCONTEXT);
 static void DrawPartName(Document *, LINK, short, SignedByte, DDIST, Rect *, CONTEXT []);
 static void DrawInstrInfo(Document *, short, Rect *, CONTEXT []);
 static void DrawHairpin(LINK, LINK, PCONTEXT, DDIST, DDIST, Boolean);
@@ -2551,24 +2552,23 @@ static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 }
 
 
-/* ------------------------------------------------------------- ShadeProblemMeasure -- */
+/* ------------------------------------------------------------- ShadeDurPblmMeasure -- */
 
-static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat);
 static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat)
 {
-				OffsetRect(pRect, pContext->paper.left, pContext->paper.top);
-				/*
-				 * Indent shading area horizontally to avoid covering up the barlines,
-				 * and vertically to separate this measure from those in adjacent systems.
-				 * The standard ltGray pattern covers up some things drawn after it, e.g.,
-				 * it often makes the blinking caret almost invisible, so use our own
-				 * diagonal stripes.
-				 */
-				InsetRect(pRect, 1, 2);
-				PenPat(shadePat);
-				PenMode(patOr);
-				PaintRect(pRect);
-				PenNormal();
+	OffsetRect(pRect, pContext->paper.left, pContext->paper.top);
+	/*
+	 * Indent shading area horizontally to avoid covering up the barlines,
+	 * and vertically to separate this measure from those in adjacent systems.
+	 * The standard ltGray pattern covers up some things drawn after it, e.g.,
+	 * it often makes the blinking caret almost invisible, so use our own
+	 * diagonal stripes.
+	 */
+	InsetRect(pRect, 1, 2);
+	PenPat(shadePat);
+	PenMode(patOr);
+	PaintRect(pRect);
+	PenNormal();
 }
 
 
@@ -2579,7 +2579,7 @@ that don't agree. The latter condition effectively means that staves for which t
 measure's notes/rests don't extend to the "real" end of the measure get shaded, but only
 when at least one other staff has a complete measure. */
 
-static void ShadeProblemMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
+static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 {
 	LINK barTermL, sysL, aMeasL;  Boolean okay;
 	long measDurFromTS, measDurActual, measDurOnStaff;
@@ -2613,7 +2613,7 @@ static void ShadeProblemMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 						OffsetDRect(&mrect, xd, 0);
 						InsetDRect(&mrect, 0, pt2d(6));		/* Reduce ht of shading to emphasize staff */
 						DRect2ScreenRect(mrect, SystemRECT(sysL), doc->paperRect, &r);
-						LogPrintf(LOG_DEBUG, "ShadeProblemMeasure: for measureL=%d, staff %d has dur %d\n",
+						LogPrintf(LOG_DEBUG, "ShadeDurPblmMeasure: for measureL=%d, staff %d has dur %d\n",
 									measureL, staffn, measDurOnStaff);
 						ShadeRect(&r, pContext, &altDiagonalLtGray);
 					}
@@ -2933,7 +2933,7 @@ PushLock(MEASUREheap);
  * and actual durations agree, and if they don't, shade over the entire measure.
  */
 	if (doc->showDurProb)
-		ShadeProblemMeasure(doc, pL, lastContext);
+		ShadeDurPblmMeasure(doc, pL, lastContext);
 
 	if (LinkSEL(pL))
 		if (doc->showFormat)
