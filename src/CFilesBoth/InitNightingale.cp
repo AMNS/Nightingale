@@ -524,13 +524,13 @@ void InitMusicFontStuff()
 	short maxPtSize, sonataFontNum;
 	
 	/*
-	 *	We need a grafPort large enough for the largest Sonata character in the
-	 *	largest possible size: rastral 0 at 400 percent. Currently, with no magnification,
+	 * We need a grafPort large enough for the largest music character in the largest
+	 * possible size: rastral 0 at MAX_MAGNIFY magnification. With no magnification,
 	 * the best known lower bound is 60 pixels for the standard size of rastral 0, i.e.,
-	 *	28 points; however, we can't just use 60 pixels and magnify it because the actual
-	 *	point size of rastral 0 is variable--it might even be smaller than rastral 1. So,
-	 *	we find the largest possible point size (either rastral 0 or 1) and scale it by
-	 *	60/28, then magnify.
+	 * 28 points; however, we can't just use 60 pixels and magnify it because the actual
+	 * point size of rastral 0 is variable: it might even be smaller than rastral 1. So,
+	 * we find the largest possible point size (either rastral 0 or 1) and scale it by
+	 * 60/28, then magnify.
 	 */
 	maxPtSize = n_max(config.rastral0size, pdrSize[1]);
 	maxMCharWid = (60.0/28.0)*maxPtSize;

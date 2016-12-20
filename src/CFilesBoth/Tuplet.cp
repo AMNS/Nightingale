@@ -1530,8 +1530,8 @@ void GetTupletInfo(
 
 	if (tup->denomVis || doc->showInvis) {
 
-		/* We're drawing the ':' delimiter and denominator, too. Since Sonata has
-			no ':', leave space and we'll fake it. */
+		/* We're drawing the ':' delimiter and denominator, too. Since Sonata and
+			compatible fonts no ':', leave space and we'll fake it. */
 			
 		tupleLen = tupleStr[0]+1;
 		/* This won't work in all fonts.  E.g., in Petrucci, this is too wide.

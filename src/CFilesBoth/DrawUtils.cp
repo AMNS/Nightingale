@@ -125,9 +125,8 @@ void DrawMChar(
 	 *	<kludgeFontMgr> refers to a kludge to get around what appears to be a bug in the
 	 * Font Manager on many Macs that causes it sometimes to truncate characters on the
 	 * right, sometimes into invisibility. It seems to occur only if the character has
-	 *	pixels to the right of its declared width--for us, mostly Sonata (and other
-	 *	music fonts?) note flags and eighth and shorter rests; also some dynamics in
-	 *	some sizes. Specifically:
+	 *	pixels to the right of its declared width: for us, mostly music-font note flags
+	 *	and eighth and shorter rests; also some dynamics in some sizes. Specifically:
 	 *		(1) with the monitor set to 1 bit/pixel, flags and short rests are truncated
 	 *			(flags into invisibility) iff the font is scaled;
 	 *		(2) with the monitor set to multiple bits/pixel, they're truncated iff either

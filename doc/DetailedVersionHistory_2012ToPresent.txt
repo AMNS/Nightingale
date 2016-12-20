@@ -1023,3 +1023,15 @@ Debug2Utils.
 
 Minor cleanup. Affects DebugHighLevel, DrawObject, Menu.
 
+-------------------------------------------------------------------------------
+
+19 Dec.
+
+Make default left and right end positions of octave signs extend a bit past the notes.
+Affects Ottava.
+
+Reword some references to Sonata in comments to clarify that they really apply to
+any music font Nightingale handles. Affects vars.h; ChooseCharDlog, DragGraphic,
+DrawUtils, PS_Stdio, TrackVMove, Tuplet, Utility.
+
+Minor cleanup. Affects vars.h; DrawUtils, InitNightingale, Ottava.

@@ -121,7 +121,7 @@ there may be more than one such MainNote/GRMainNote: we just use the first one
 we find. */
 
 static DDIST GetNoteyd(LINK syncL,
-						short staff)		/* Either Sync or GRSync */
+						short staffn)		/* Either Sync or GRSync */
 {
 	LINK aNoteL, aGRNoteL;
 	PANOTE aNote; PAGRNOTE aGRNote;
@@ -129,7 +129,7 @@ static DDIST GetNoteyd(LINK syncL,
 	if (SyncTYPE(syncL)) {
 		aNoteL = FirstSubLINK(syncL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
-			if (NoteSTAFF(aNoteL)==staff && MainNote(aNoteL)) {
+			if (NoteSTAFF(aNoteL)==staffn && MainNote(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
 				return aNote->yd;
 			}
@@ -137,7 +137,7 @@ static DDIST GetNoteyd(LINK syncL,
 	else if (GRSyncTYPE(syncL)) {
 		aGRNoteL = FirstSubLINK(syncL);
 		for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
-			if (GRNoteSTAFF(aGRNoteL)==staff && GRMainNote(aGRNoteL)) {
+			if (GRNoteSTAFF(aGRNoteL)==staffn && GRMainNote(aGRNoteL)) {
 				aGRNote = GetPAGRNOTE(aGRNoteL);
 				return aGRNote->yd;
 			}
@@ -145,19 +145,23 @@ static DDIST GetNoteyd(LINK syncL,
 	return 0;
 }
 
-/* --------------------------------------------------------------- SetOttavaYPos -- */
-/* Set the given octave sign to (a guess at) a reasonable vertical position, based
-on the position of the MainNote of its first note/chord. (FIXME: It'd surely be better
-to look at all of its notes/chords, and not difficult.) */ 
 
-#define OTTAVA_STANDOFF_ALTA 1		/* Minimum half-line distance between octave sign and staff */
-#define OTTAVA_STANDOFF_BASSA 2		/* Minimum half-line distance between octave sign and staff */
+#define OTTAVA_XDPOS_FIRST -pt2d(2)		/* Default x-position of left end rel. to first Sync */
+#define OTTAVA_XDPOS_LAST (pt2d(1)/2)	/* Default x-position of right end rel. to first Sync */
 
-#define OTTAVA_MARGIN_ALTA	3		/* Default half-line distance between octave sign and note */
+#define OTTAVA_STANDOFF_ALTA 1			/* Minimum half-line distance from octave sign to staff */
+#define OTTAVA_STANDOFF_BASSA 2
+
+#define OTTAVA_MARGIN_ALTA	3			/* Default half-line distance from octave sign to note */
 #define OTTAVA_MARGIN_BASSA	5
 
 #define OTTAVA_BRACKET_ALTA_LIM(yd)		((yd)>octAltaYLim? octAltaYLim : (yd))
 #define OTTAVA_BRACKET_BASSA_LIM(yd)	((yd)<octBassaYLim? octBassaYLim : (yd))
+
+/* --------------------------------------------------------------- SetOttavaYPos -- */
+/* Set the given octave sign to (a guess at) a reasonable vertical position, based
+on the position of the MainNote of its first note/chord. (FIXME: It'd surely be better
+to look at all of its notes/chords, and not difficult.) */
 
 void SetOttavaYPos(Document *doc, LINK octL)
 {
@@ -271,7 +275,8 @@ LINK CreateOTTAVA(
 	ottavap->brackVis = FALSE;
 
 	ottavap->nxd = ottavap->nyd = 0;
-	ottavap->xdFirst = ottavap->xdLast = 0;
+	ottavap->xdFirst = OTTAVA_XDPOS_FIRST;
+	ottavap->xdLast = OTTAVA_XDPOS_LAST;
 
 	ottavap = GetPOTTAVA(ottavaL);
 	ottavap->noCutoff = ottavap->crossStaff = ottavap->crossSystem = FALSE;	

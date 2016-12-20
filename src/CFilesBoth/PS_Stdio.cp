@@ -1890,7 +1890,7 @@ OSErr PS_MusString(Document *doc, DDIST x, DDIST y, unsigned char *str, short si
 
 /*
  *	Given a position, print a do-it-yourself colon from that position at <sizePercent>
- *	of normal size. Useful because Sonata has no colon character.
+ *	of normal size. Useful because Sonata and compatible fonts have no colon character.
  */
 
 OSErr PS_MusColon(Document *doc, DDIST x, DDIST y, short sizePercent, DDIST lnSpace, Boolean italic)

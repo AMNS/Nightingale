@@ -1,7 +1,7 @@
 /***************************************************************************
-*	FILE:	vars.h																				*
-*	PROJ:	Nightingale, rev. for v.99														*
-*	DESC:	global variables																	*
+*	FILE:	vars.h
+*	PROJ:	Nightingale
+*	DESC:	global variables
 ***************************************************************************/
 
 /*
@@ -88,8 +88,8 @@ GLOBAL short		sonataFontNum,			/* font ID number of Sonata font */
 
 GLOBAL DDIST		drSize[MAXRASTRAL+1];	/* Sizes for staff rastral nos. */
 GLOBAL GridRec		*grid;					/* Character grid for Tool Palette */
-GLOBAL short		maxMCharWid, maxMCharHt; /* Max. size of any Sonata char.in any view */
-GLOBAL GrafPtr		fontPort,				/* Offscreen bitmap to store image of a single Sonata char */
+GLOBAL short		maxMCharWid, maxMCharHt; /* Max. size of any music char.in any view */
+GLOBAL GrafPtr		fontPort,				/* Offscreen bitmap to store image of a single music char */
 					palPort;				/* Offscreen port to hold copy of tools picture */
 
 GLOBAL Rect			revertWinPosition;		/* Where to replace Document window */
@@ -108,7 +108,7 @@ GLOBAL short		appVRefNum,				/* volume refNum of application (new style??) */
 GLOBAL LINK			drag1stMeas,			/* bitmap's meas range for Graphics, Tempos, &c. */
 					dragLastMeas;
 
-GLOBAL DDIST		initStfTop1, initStfTop2;	/* ??SHOULD BE doc-SPECIFIC */
+GLOBAL DDIST		initStfTop1, initStfTop2;	/* FIXME: SHOULD BE doc-SPECIFIC */
 GLOBAL Pattern		diagonalDkGray,
 					diagonalLtGray, altDiagonalLtGray;
 

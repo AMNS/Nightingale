@@ -511,7 +511,7 @@ short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 /* For the given string and font description, return the bounding box in points.
 Normally gets the height from the ascent and descent returned by GetNFontInfo, which
 calls GetFontInfo. For "normal" fonts, this will often be more than it really should
-be, but the difference will rarely be too great; but Sonata and other music fonts
+be, but the difference will rarely be too great; but Sonata and compatible music fonts
 have enormous ascent and descent, so the height would be much too large. To avoid this
 problem, if the font is either Sonata OR the current music font, we use the ascent and
 descent of the actual characters in the string as given by GetMusicAscDesc instead of

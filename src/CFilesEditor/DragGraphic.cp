@@ -49,13 +49,16 @@ PushLock(GRAPHICheap);
 	thisGraphic = GetPGRAPHIC(graphicL);
 	origGraphic = *thisGraphic;
 	oldObjRect = LinkOBJRECT(graphicL);				/* paper-rel pixels (dependent on mag) */
-	InsetRect(&oldObjRect, -pt2p(4), -pt2p(5));	/* Takes care of Sonata Graphics, whose chars exceed the objRect. Other fonts not significantly affected. */
 	
-	if (thisGraphic->firstObj && PageTYPE(thisGraphic->firstObj))	/* is page-relative */
+	/* The InsetRect below takes care of Graphics in Sonata and compatible fonts, whose
+		chars exceed the objRect. Other fonts aren't significantly affected. */
+	InsetRect(&oldObjRect, -pt2p(4), -pt2p(5));
+	
+	if (thisGraphic->firstObj && PageTYPE(thisGraphic->firstObj))		/* is page-relative */
 		measL = LSSearch(thisGraphic->firstObj, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
 	else {
-		measL = LSSearch(graphicL, MEASUREtype, thisGraphic->staffn, GO_LEFT, FALSE);		/* meas containing Graphic */
-		if (measL==NILINK || !SameSystem(measL, thisGraphic->firstObj))						/* Graphic attached to, or to left of, initial barline */
+		measL = LSSearch(graphicL, MEASUREtype, thisGraphic->staffn, GO_LEFT, FALSE);	/* meas containing Graphic */
+		if (measL==NILINK || !SameSystem(measL, thisGraphic->firstObj))					/* Graphic attached to, or to left of, initial barline */
 			measL = LSSearch(thisGraphic->firstObj, MEASUREtype, thisGraphic->staffn, GO_RIGHT, FALSE);
 	}
 	GetAllContexts(doc, context, measL);

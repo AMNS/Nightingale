@@ -13,7 +13,7 @@
 
 #include "ChooseCharLDEF.h"
 
-/* 24 is a nice size for Sonata */
+/* 24 is a nice size for Sonata and compatible fonts */
 #define MIN_FONTSIZE 	14		/* still too small for music fonts! */
 #define MAX_FONTSIZE 	48		/* too big for non-music fonts? too small for 72pt Seville, etc.*/
 #define MIN_CELLWIDTH	32		/* pixels */
