@@ -13,8 +13,8 @@
  */
 
 /* File InfoDialog.c - "Get Info" dialog routines:
-	InfoDialog				LegalStaff/Vert
-	SyncInfoDialog			GenInfoDialog				ExtendInfoDialog
+	InfoDialog				LegalStaff/Vert			SyncInfoDialog
+	PageRelGraphic			GenInfoDialog			ExtendInfoDialog
 	ModNRDialog and friends
 */
 
@@ -57,7 +57,7 @@ enum {
 
 void InfoDialog(Document *doc)
 {
-	short units; char unitLabel[256]; LINK pL;
+	short units;  char unitLabel[256];  LINK pL;
 	
 	units = config.infoDistUnits;
 	
@@ -95,8 +95,7 @@ void InfoDialog(Document *doc)
 
 static Boolean LegalVert(Document *doc, short newval)
 {
-	if (I2DD(newval)<ABOVE_VLIM(doc) || I2DD(newval)>BELOW_VLIM(doc))
-	{
+	if (I2DD(newval)<ABOVE_VLIM(doc) || I2DD(newval)>BELOW_VLIM(doc)) {
 		GetIndCString(strBuf, INFOERRS_STRS, 2);			/* "Vertical position out of bounds" */
 		CParamText(strBuf, "", "", "");
 		Inform(GINFO_ALRT);
@@ -149,14 +148,16 @@ static enum										/* Dialog item numbers */
 	RESPACE_IGNORES=57								/* Hidden & unused for now */
 } E_SyncInfoItems;
 
+#define MAX_HORIZ_POS 1999
+#define MAX_SYNCINFO_INT 32000
+
 static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 {
 	DialogPtr	dlog;
 	GrafPtr		oldPort;
 	short		dialogOver;
 	short		ditem, aShort;
-	short		newval, newval2, max_dots, staff,
-				minl_dur, userVoice;
+	short		newval, newval2, max_dots, minl_dur, userVoice;
 	Handle		twHdl, ulHdl;
 	Rect		tRect;
 	PANOTE		aNote;
@@ -164,7 +165,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	LINK		aNoteL, aGRNoteL, partL;
 	Boolean		graphicDirty,									/* Anything graphic changed? */
 				nodeDirty;										/* Anything non-graphic changed? */
-	Boolean		hasStem;
+	Boolean		hasStem, isRest;
 	char		fmtStr[256];
 	ModalFilterUPP	filterUPP;
 
@@ -176,11 +177,11 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				
 	GetPort(&oldPort);
 	ArrowCursor();
-	graphicDirty = nodeDirty = FALSE;									/* Nothing changed yet */
+	graphicDirty = nodeDirty = FALSE;								/* Nothing changed yet */
 
 /* --- 1. Create the dialog and initialize its contents. --- */
 
-	PrepareUndo(doc, pL, U_GetInfo, 12);    							/* "Undo Get Info" */
+	PrepareUndo(doc, pL, U_GetInfo, 12);    						/* "Undo Get Info" */
 
 	dlog = GetNewDialog(SYNCINFO_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
@@ -202,7 +203,9 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	GetDialogItem(dlog, UNITLABEL_SYNC, &aShort, &ulHdl, &tRect);
 	SetDialogItemCText(ulHdl, unitLabel);
 
-	switch (ObjLType(pL)) {													/* Initialize by type... */
+	isRest = FALSE;													/* In case it's a GRSYNC */
+	
+	switch (ObjLType(pL)) {											/* Initialize by type... */
 		case SYNCtype:
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
@@ -226,16 +229,15 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PutDlgWord(dlog, RESPACE_IGNORES, aNote->rspIgnore, FALSE);
 			
 			hasStem = (aNote->ystem!=aNote->yd);
+			isRest = aNote->rest;
 			
 			strcpy(strBuf, NameNodeType(pL));
-			if (aNote->rest)
-			{
+			if (isRest) {
 				strcat(strBuf, " / Rest");
 				PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
 				PutDlgWord(dlog, SMALLNR, aNote->small, FALSE);		/* whether small note/rest */
 			}
-			else
-			{
+			else {
 				strcat(strBuf,  " / Note");
 				PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
 				PutDlgWord(dlog, ACCIDENT, aNote->accident, FALSE);
@@ -274,7 +276,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PutDlgWord(dlog, STEM_VERT, DD2I(aGRNote->ystem), FALSE);
 			PutDlgWord(dlog, ON_VELOCITY, aGRNote->onVelocity, FALSE);
 			PutDlgWord(dlog, OFF_VELOCITY, aGRNote->offVelocity, FALSE);
-			PutDlgWord(dlog, SMALLNR, aGRNote->small, FALSE);	/* whether small grace note */
+			PutDlgWord(dlog, SMALLNR, aGRNote->small, FALSE);		/* whether small grace note */
 
 			hasStem = (aGRNote->ystem!=aGRNote->yd);
 
@@ -295,10 +297,8 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 /*--- 2. Interact with user til they push OK or Cancel. --- */
 
 	dialogOver = 0;
-	while (dialogOver==0)
-	{
-		do
-		{
+	while (dialogOver==0) {
+		do {
 			ModalDialog(filterUPP, &ditem);						/* Handle events in dialog window */
 			switch (ditem) {
 				case OK:
@@ -313,8 +313,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	/* --- 3. If dialog was terminated with OK, check any new values. ----- */
 	/* ---    If any are illegal, keep dialog on the screen to try again. - */
 	
-		if (dialogOver==Cancel)
-		{
+		if (dialogOver==Cancel) {
 			PopLock(NOTEheap);
 			PopLock(GRNOTEheap);
 			DisposeModalFilterUPP(filterUPP);
@@ -322,20 +321,18 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			SetPort(oldPort);
 			return;
 		}
-		else
-		{
+		else {
 			GetDlgWord(dlog, OBJ_HORIZ, &newval);
-			if (I2DD(newval)<0 || I2DD(newval)>RIGHT_HLIM(doc))
-			{
+			if (I2DD(newval)<0 || I2DD(newval)>RIGHT_HLIM(doc)) {
 				GetIndCString(fmtStr, INFOERRS_STRS, 7);		/* "Horizontal position must be..." */
 				sprintf(strBuf, fmtStr, DD2I(RIGHT_HLIM(doc)));
 				INFO_ERROR(strBuf);
 			}
 	
 			GetDlgWord(dlog, SUBOBJ_HORIZ, &newval);
-			if (newval<-1999 || newval>1999) {					/* ??MAGIC NOS!! */
+			if (newval<-MAX_HORIZ_POS || newval>MAX_HORIZ_POS) {
 				GetIndCString(fmtStr, INFOERRS_STRS, 8);		/* "Note/rest horiz pos must be..." */
-				sprintf(strBuf, fmtStr, -1999, 1999);
+				sprintf(strBuf, fmtStr, -MAX_HORIZ_POS, MAX_HORIZ_POS);
 				INFO_ERROR(strBuf);
 			}
 			
@@ -343,7 +340,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			if (!LegalVert(doc, newval)) dialogOver = 0;
 
 			GetDlgWord(dlog, L_DUR, &newval);
-			minl_dur = (aNote->rest ? -127 : UNKNOWN_L_DUR);
+			minl_dur = (isRest? -127 : UNKNOWN_L_DUR);
 			if (newval<minl_dur || newval>MAX_L_DUR) {
 				GetIndCString(fmtStr, INFOERRS_STRS, 9);		/* "CMN duration must be..." */
 				sprintf(strBuf, fmtStr, minl_dur, MAX_L_DUR);
@@ -371,16 +368,16 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 			if (SyncTYPE(pL)) {
 				GetDlgWord(dlog, P_TIME, &newval);
-				if (newval<0 || newval>32000) {					/* ??MAGIC NOS!! */
+				if (newval<0 || newval>MAX_SYNCINFO_INT) {
 					GetIndCString(fmtStr, INFOERRS_STRS, 13);	/* "Play time must be..." */
-					sprintf(strBuf, fmtStr, 0, 32000);
+					sprintf(strBuf, fmtStr, 0, MAX_SYNCINFO_INT);
 					INFO_ERROR(strBuf);
 				}
 
 				GetDlgWord(dlog, P_DUR, &newval);
-				if (newval<1 || newval>32000) {					/* ??MAGIC NOS!! */
+				if (newval<1 || newval>MAX_SYNCINFO_INT) {
 					GetIndCString(fmtStr, INFOERRS_STRS, 14);	/* "Play duration must be..." */
-					sprintf(strBuf, fmtStr, 1, 32000);
+					sprintf(strBuf, fmtStr, 1, MAX_SYNCINFO_INT);
 					INFO_ERROR(strBuf);
 				}
 
@@ -472,7 +469,6 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	GetDlgWord(dlog, OBJ_HORIZ, &newval);
 	DIST_ACCEPT(LinkXD(pL));
 
-	staff = 1;
 	switch (ObjLType(pL)) {										/* Get new values by type */
 		case SYNCtype:
 			aNote = GetPANOTE(aNoteL);
@@ -510,7 +506,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			GetDlgWord(dlog, SMALLNR, &newval);
 			GRAF_ACCEPT(aNote->small);
 	
-			if (!aNote->rest) {
+			if (!isRest) {
 	
 				GetDlgWord(dlog, ACCIDENT, &newval);
 				GRAF_ACCEPT(aNote->accident);
@@ -589,10 +585,9 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 	SetPort(oldPort);
 	if (graphicDirty)	{								/* Was anything graphic changed? */
-		InvalMeasure(pL, staff);
+		InvalMeasure(pL, 1);							/* Staff no. doesn't matter */
 	}
-	if (graphicDirty || nodeDirty)						/* Was anything changed? */
-	{
+	if (graphicDirty || nodeDirty) {					/* Was anything at all changed? */
 		doc->changed = TRUE;							/* Yes. */
 		LinkTWEAKED(pL) = TRUE;							/* Flag to show node was edited */
 		LinkVALID(pL) = FALSE;							/* Force recalc. objrect */
@@ -643,7 +638,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	GrafPtr		oldPort;
 	short		dialogOver;
 	short		ditem, aShort;
-	short		newval, staff, userVoice;
+	short		newval, userVoice;
 	Handle		tHdl, twHdl, ulHdl, p1Hdl, p2Hdl;
 	Rect		tRect, aRect;
 	PMEVENT		p;
@@ -697,7 +692,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		strcat(strBuf, NameGraphicType(pL, TRUE));
 	}
 	else if (SlurTYPE(pL) && SlurTIE(pL))
-		strcat(strBuf, ": Tie");
+		strcat(strBuf, " / Tie");
 	PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
 	
 	PutDlgWord(dlog, OBJ_HORIZ, DD2I(LinkXD(pL)), FALSE);
@@ -960,11 +955,9 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 /*--- 2. Interact with user til they push OK or Cancel. --- */
 
 	dialogOver = 0;
-	while (dialogOver==0)
-	{
-		do
-		{
-			ModalDialog(filterUPP, &ditem);						/* Handle events in dialog window */
+	while (dialogOver==0) {
+		do {
+			ModalDialog(filterUPP, &ditem);							/* Handle events in dialog window */
 			switch (ditem) {
 				case OK:
 				case Cancel:
@@ -980,7 +973,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	
 		if (dialogOver==Cancel) {
 			DisposeModalFilterUPP(filterUPP);
-			DisposeDialog(dlog);								/* Free heap space */
+			DisposeDialog(dlog);										/* Free heap space */
 			SetPort(oldPort);
 			return;
 		}
@@ -988,36 +981,35 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			GetDlgWord(dlog, OBJ_HORIZ, &newval);
 			if (PageRelGraphic(pL)) {
 				if (I2DD(newval)<0 || I2DD(newval)>p2d(doc->paperRect.right)) {
-					GetIndCString(fmtStr, INFOERRS_STRS, 26);		/* "Horizontal position must be..." */
+					GetIndCString(fmtStr, INFOERRS_STRS, 26);			/* "Horizontal position must be..." */
 					sprintf(strBuf, fmtStr, DD2I(p2d(doc->paperRect.right)));
 					INFO_ERROR(strBuf);
 				}
 			}
 			else
 				if (I2DD(newval)<LEFT_HLIM(doc, pL) || I2DD(newval)>RIGHT_HLIM(doc)) {
-					GetIndCString(fmtStr, INFOERRS_STRS, 27);		/* "Horizontal position must be..." */
+					GetIndCString(fmtStr, INFOERRS_STRS, 27);			/* "Horizontal position must be..." */
 					sprintf(strBuf, fmtStr, DD2I(LEFT_HLIM(doc, pL)), DD2I(RIGHT_HLIM(doc)));
 					INFO_ERROR(strBuf);
 				}
 	
-			switch (ObjLType(pL))										/* Get new values by type */
-			{
+			switch (ObjLType(pL)) {										/* Get new values by type */
 				case MEASUREtype:
 					GetDlgWord(dlog, PARAM1, &newval);
 					if (newval<1 || newval>7 || newval==BAR_HEAVYDBL) {	/* BAR_HEAVYDBL not supported */
-						GetIndCString(strBuf, INFOERRS_STRS, 28);	/* "Barline/Repeat bar type must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 28);		/* "Barline/Repeat bar type must be..." */
 						INFO_ERROR(strBuf);
 					}
 					
 					GetDlgWord(dlog, SUBOBJ_HORIZ, &newval);
 					if (newval<-128 || newval>127) {					/* ??MAGIC NOS!! */
-						GetIndCString(strBuf, INFOERRS_STRS, 47);	/* "Measure Number Horizontal offset must be...." */
+						GetIndCString(strBuf, INFOERRS_STRS, 47);		/* "Measure Number Horizontal offset must be...." */
 						INFO_ERROR(strBuf);
 					}
 					
 					GetDlgWord(dlog, VERT, &newval);
 					if (newval<-128 || newval>127) {					/* ??MAGIC NOS!! */
-						GetIndCString(strBuf, INFOERRS_STRS, 48);	/* "Measure Number Vertical offset must be...." */
+						GetIndCString(strBuf, INFOERRS_STRS, 48);		/* "Measure Number Vertical offset must be...." */
 						INFO_ERROR(strBuf);
 					}
 
@@ -1026,7 +1018,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				case RPTENDtype:
 					GetDlgWord(dlog, PARAM1, &newval);
 					if (newval<1 || newval>7) {
-						GetIndCString(strBuf, INFOERRS_STRS, 28);	/* "Barline/Repeat bar type must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 28);		/* "Barline/Repeat bar type must be..." */
 						INFO_ERROR(strBuf);
 					}
 					
@@ -1036,7 +1028,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				case TIMESIGtype:
 					GetDlgWord(dlog, SUBOBJ_HORIZ, &newval);
 					if (newval<-999 || newval>999) {					/* ??MAGIC NOS!! */
-						GetIndCString(fmtStr, INFOERRS_STRS, 29);	/* "Subobj H position must be..." */
+						GetIndCString(fmtStr, INFOERRS_STRS, 29);		/* "Subobj H position must be..." */
 						sprintf(strBuf, fmtStr, -999, 999);
 						INFO_ERROR(strBuf);
 					}
@@ -1057,7 +1049,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				case DYNAMtype:
 					if (DynamType(pL)>=FIRSTHAIRPIN_DYNAM) {
 						GetDlgWord(dlog, SUBOBJ_HORIZ, &newval);
-						if (newval<-999 || newval>4999) {					/* ??MAGIC NOS!! */
+						if (newval<-999 || newval>4999) {				/* ??MAGIC NOS!! */
 							GetIndCString(fmtStr, INFOERRS_STRS, 31);	/* "Right end position must be..." */
 							sprintf(strBuf, fmtStr, -999, 4999);
 							INFO_ERROR(strBuf);
@@ -1081,7 +1073,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				case KEYSIGtype:
 					GetDlgWord(dlog, SUBOBJ_HORIZ, &newval);
 					if (newval<-999 || newval>999) {					/* ??MAGIC NOS!! */
-						GetIndCString(fmtStr, INFOERRS_STRS, 34);	/* "Subobj H position must be..." */
+						GetIndCString(fmtStr, INFOERRS_STRS, 34);		/* "Subobj H position must be..." */
 						sprintf(strBuf, fmtStr, -999, 999);
 						INFO_ERROR(strBuf);
 					}
@@ -1116,7 +1108,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 					pBeamset = GetPBEAMSET(pL);
 					GetDlgWord(dlog, PARAM1, &newval);
 					if (newval<0 || newval>1) {
-						GetIndCString(strBuf, INFOERRS_STRS, 36);	/* "Thin value must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 36);		/* "Thin value must be..." */
 						INFO_ERROR(strBuf);
 					}
 					break;
@@ -1124,7 +1116,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				case SLURtype:
 					GetDlgWord(dlog, PARAM1, &newval);
 					if (newval<0 || newval>1) {
-						GetIndCString(strBuf, INFOERRS_STRS, 37);	/* "Dashed value must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 37);		/* "Dashed value must be..." */
 						INFO_ERROR(strBuf);
 					}
 					break;
@@ -1138,7 +1130,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				case SPACERtype:
 					GetDlgWord(dlog, PARAM1, &newval);
 					if (newval<1 || newval>999) {
-						GetIndCString(strBuf, INFOERRS_STRS, 38);	/* "Space width must be..." */
+						GetIndCString(strBuf, INFOERRS_STRS, 38);		/* "Space width must be..." */
 						INFO_ERROR(strBuf);
 					}
 				 
@@ -1149,15 +1141,15 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 					if (!LegalVert(doc, newval)) dialogOver = 0;
 					
 					GetDlgWord(dlog, PARAM1, &newval);
-					if (newval<-999 || newval>4999) {				/* ??MAGIC NOS!! */
-						GetIndCString(fmtStr, INFOERRS_STRS, 39);	/* "Right end position must be..." */
+					if (newval<-999 || newval>4999) {					/* ??MAGIC NOS!! */
+						GetIndCString(fmtStr, INFOERRS_STRS, 39);		/* "Right end position must be..." */
 						sprintf(strBuf, fmtStr, -999, 4999);
 						INFO_ERROR(strBuf);
 					}
 
 					GetDlgWord(dlog, PARAM2, &newval);
 					if (newval<0 || newval>MAX_ENDING_STRINGS) {
-						GetIndCString(fmtStr, INFOERRS_STRS, 40);	/* "Ending number must be..." */
+						GetIndCString(fmtStr, INFOERRS_STRS, 40);		/* "Ending number must be..." */
 						sprintf(strBuf, fmtStr, MAX_ENDING_STRINGS);
 						INFO_ERROR(strBuf);
 					}
@@ -1165,7 +1157,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 					break;
 
 				default:
-				  		;
+					;
 			}
 		}
 	}
@@ -1175,7 +1167,6 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	GetDlgWord(dlog, OBJ_HORIZ, &newval);
 	DIST_ACCEPT(LinkXD(pL));
 
-	staff = 1;
 	switch (ObjLType(pL))										/* Get new values by type */
 	{
 		case MEASUREtype:
@@ -1333,10 +1324,9 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 	SetPort(oldPort);
 	if (graphicDirty)	{								/* Was anything graphic changed? */
-		InvalMeasure(pL, staff);
+		InvalMeasure(pL, 1);
 	}
-	if (graphicDirty || nodeDirty)						/* Was anything changed? */
-	{
+	if (graphicDirty || nodeDirty) {					/* Was anything at all changed? */
 		doc->changed = TRUE;							/* Yes. */
 		LinkTWEAKED(pL) = TRUE;
 		LinkVALID(pL) = FALSE;							/* Force recalc. objrect */
@@ -1374,7 +1364,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	GrafPtr		oldPort;
 	short		dialogOver;
 	short		ditem, aShort;
-	short		newval, staff, userVoice;
+	short		newval, userVoice;
 	Handle		tHdl, twHdl, ulHdl, p1Hdl, p2Hdl;
 	Rect		tRect, aRect;
 	POTTAVA		ottavap;
@@ -1412,7 +1402,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
 	strcpy(strBuf, NameNodeType(pL));
 	if (GraphicTYPE(pL)) {
-		strcat(strBuf, ": ");
+		strcat(strBuf, " / ");
 		strcat(strBuf, NameGraphicType(pL, TRUE));
 	}
 
@@ -1499,11 +1489,9 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 /*--- 2. Interact with user til they push OK or Cancel. --- */
 
 	dialogOver = 0;
-	while (dialogOver==0)
-	{
-		do
-		{
-			ModalDialog(filterUPP, &ditem);						/* Handle events in dialog window */
+	while (dialogOver==0) {
+		do {
+			ModalDialog(filterUPP, &ditem);							/* Handle events in dialog window */
 			switch (ditem) {
 				case OK:
 				case Cancel:
@@ -1517,15 +1505,13 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	/* --- 3. If dialog was terminated with OK, check any new values. ----- */
 	/* ---    If any are illegal, keep dialog on the screen to try again. - */
 	
-		if (dialogOver==Cancel)
-		{
+		if (dialogOver==Cancel) {
 			DisposeModalFilterUPP(filterUPP);
-			DisposeDialog(dlog);								/* Free heap space */
+			DisposeDialog(dlog);									/* Free heap space */
 			SetPort(oldPort);
 			return;
 		}
-		else
-		{
+		else {
 			GetDlgWord(dlog, LEFT_HORIZ, &newval);
 			if (I2DD(newval)<LEFT_HLIM(doc, pL) || I2DD(newval)>RIGHT_HLIM(doc)) {
 				GetIndCString(fmtStr, INFOERRS_STRS, 41);			/* "Horizontal pos must be..." */
@@ -1543,9 +1529,8 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			GetDlgWord(dlog, LEFT_VERT, &newval);
 			if (!LegalVert(doc, newval)) dialogOver = 0;
 
-			switch (ObjLType(pL))									/* Check new values by type */
-			{
-				case GRAPHICtype:									/* NB: only GRDraw now */
+			switch (ObjLType(pL)) {									/* Check new values by type */
+				case GRAPHICtype:									/* NB: only GRDraw for now */
 					GetDlgWord(dlog, RIGHT_VERT, &newval);
 					if (!LegalVert(doc, newval)) dialogOver = 0;
 
@@ -1584,7 +1569,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				  	break;
 				  	
 				default:
-				  		;
+					;
 			}
 		}
 	}
@@ -1594,10 +1579,9 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	GetDlgWord(dlog, OBJ_HORIZ, &newval);
 	DIST_ACCEPT(LinkXD(pL));
 
-	staff = 1;
 	switch (ObjLType(pL))										/* Get new values by type */
 	{
-		case GRAPHICtype:										/* NB: only GRDraw now */
+		case GRAPHICtype:										/* NB: only GRDraw for now */
 			PushLock(OBJheap);
 		 	pGraphic = GetPGRAPHIC(pL);
 		 	
@@ -1667,16 +1651,15 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 	SetPort(oldPort);
 	if (graphicDirty)	{									/* Was anything graphic changed? */
-		InvalMeasure(pL, staff);
+		InvalMeasure(pL, 1);
 	}
-	if (graphicDirty || nodeDirty)							/* Was anything changed? */
-	{
+	if (graphicDirty || nodeDirty) {						/* Was anything at all changed? */
 		doc->changed = TRUE;								/* Yes. */
 		LinkTWEAKED(pL) = TRUE;
 		LinkVALID(pL) = FALSE;								/* Force recalc. objRect */
 	}
 	
-	lastEditField = GetDialogKeyboardFocusItem(dlog); /* Save itemNum of last edit field */
+	lastEditField = GetDialogKeyboardFocusItem(dlog);		/* Save itemNum of last edit field */
 	lastObjType = ObjLType(pL);
 
 	DisposeModalFilterUPP(filterUPP);
@@ -1714,8 +1697,8 @@ static Boolean GetModNRValues(PAMODNR);
 
 void MIDrawSlashes(short xhead, short ystem, short nslashes, DDIST dEighthLn)
 {
-	DDIST		slashLeading, slashThick, slashWidth, slashHeight;
-	short		i, xslash, yslash;
+	DDIST	slashLeading, slashThick, slashWidth, slashHeight;
+	short	i, xslash, yslash;
 	
 	slashLeading = 6*dEighthLn;
 	slashThick = 3*dEighthLn;
@@ -1733,7 +1716,7 @@ void MIDrawSlashes(short xhead, short ystem, short nslashes, DDIST dEighthLn)
 	PenNormal();	
 }
 
-#define DISP_RASTRAL 2				/* Arbitrary but preferably big for readability */	
+#define DISP_RASTRAL 2			/* Display rastral size: arbitrary but preferably big for readability */	
 
 static void InfoDrawModNR()
 {
@@ -1747,7 +1730,7 @@ static void InfoDrawModNR()
 
 	oldtxFont = GetPortTxFont();
 	oldtxSize = GetPortTxSize();
-	TextFont(sonataFontNum);								/* Use Sonata font */
+	TextFont(sonataFontNum);									/* Use Sonata font */
 	TextSize(Staff2MFontSize(drSize[DISP_RASTRAL]));
 
 	if (GetModNRInfo(modCode, noteSubType, noteSmall, above, &glyph,
@@ -1801,7 +1784,7 @@ static void PrepDrawModNR(AMODNR modNR, PCONTEXT pContext)
 
 	PutDlgWord(mDlog, HORIZ, modNR.xstd-XSTD_OFFSET, FALSE);
 	PutDlgWord(mDlog, DATA, modNR.data, FALSE);
-	PutDlgWord(mDlog, MVERT, modNR.ystdpit, TRUE);	/* Last so it can start out selected */
+	PutDlgWord(mDlog, MVERT, modNR.ystdpit, TRUE);		/* Last so it can start out selected */
 }
 
 
@@ -1914,8 +1897,8 @@ Boolean ModNRDialog(Document *doc)
 	}
 	SetPort(GetDialogWindowPort(mDlog));
 
-	/* Prepare user item to display the note modifier. First get the rectangle
-	and hide it so it doesn't cover up any other items. */
+	/* Prepare user item to display the note modifier. First get the rectangle and hide
+	it so it doesn't cover up any other items. */
 	
 	GetDialogItem(mDlog, SHOW_MOD, &aShort, &aHdl, &modNRArea);		
 	HideDialogItem(mDlog, SHOW_MOD);
@@ -1935,10 +1918,8 @@ Boolean ModNRDialog(Document *doc)
 	ShowWindow(GetDialogWindow(mDlog));
 	
 	dialogOver = 0;
-	while (dialogOver==0)
-	{
-		do
-		{
+	while (dialogOver==0) {
+		do {
 			ModalDialog(filterUPP, &ditem);						/* Handle events in dialog window */
 			switch (ditem) {
 				case OK:
@@ -1994,9 +1975,9 @@ Boolean ModNRDialog(Document *doc)
 	}
 
 	SetPort(oldPort);
-	if (dirty)	{													/* Was anything changed? */
+	if (dirty)	{												/* Was anything changed? */
 		InvalMeasure(pL, NoteSTAFF(aNoteL));
-		doc->changed = TRUE;										/* Yes. */
+		doc->changed = TRUE;									/* Yes. */
 		LinkTWEAKED(pL) = TRUE;									/* Flag to show node was edited */
 	}
 

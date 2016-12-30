@@ -1035,3 +1035,17 @@ any music font Nightingale handles. Affects vars.h; ChooseCharDlog, DragGraphic,
 DrawUtils, PS_Stdio, TrackVMove, Tuplet, Utility.
 
 Minor cleanup. Affects vars.h; DrawUtils, InitNightingale, Ottava.
+
+-------------------------------------------------------------------------------
+
+21-29 Dec.
+
+In the Get Info dialog for Syncs, move the "T" (Tweaked) flag away from the preceding
+text, and widen the dialog a bit. Affects .rsrc.
+
+Fix bug: Select a grace note, Get Info, OK the dialog => Nightingale crashes. Affects
+InfoDialog.
+
+Make grace notes a tiny bit smaller, ala Gould. Affects style.h.
+
+Minor cleanup. Affects ChooseCharDlog, InfoDialog, Inval.

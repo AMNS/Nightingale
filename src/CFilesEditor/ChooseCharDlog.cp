@@ -39,13 +39,13 @@ static Boolean BuildList(DialogPtr dlog);
 
 Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 {
-	short		itemHit, type;
-	Boolean	okay, keepGoing=TRUE;
-	Cell		aCell;
+	short			itemHit, type;
+	Boolean			okay, keepGoing=TRUE;
+	Cell			aCell;
 	register DialogPtr dlog;
-	Handle	hndl;
-	Rect		box;
-	GrafPtr	oldPort;
+	Handle			hndl;
+	Rect			box;
+	GrafPtr			oldPort;
 	ModalFilterUPP	filterUPP;
 
 	filterUPP = NewModalFilterUPP(ChooseCharFilter);
@@ -68,9 +68,8 @@ Boolean ChooseCharDlog(short fontNum, short fontSize, unsigned char *theChar)
 	if (fontSize<MIN_FONTSIZE) fontSize = MIN_FONTSIZE;
 	if (fontSize>MAX_FONTSIZE) fontSize = MAX_FONTSIZE;
 
-	/* Only use sizes that are installed, so we don't get ugly scaling.
-	 * (All sizes of TrueType and, I assume, ATM fonts are "real" fonts.)
-	 */
+	/* Only use sizes that are installed, so we don't get ugly scaling. (All sizes of
+		TrueType and, I assume, ATM fonts are "real" fonts.) */
 	if (!RealFont(fontNum, fontSize)) {
 		register short i;
 		Boolean gotIt=FALSE;
@@ -139,9 +138,9 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 {
 	Boolean			ans=FALSE, doHilite=FALSE;
 	WindowPtr		w;
-	short				ch, listFont, listFontSize, sysFontSize;
-	Cell				aCell;
-	Point				clickPt;
+	short			ch, listFont, listFontSize, sysFontSize;
+	Cell			aCell;
+	Point			clickPt;
 	GrafPtr			oldPort;
 	unsigned char	oldCellCh;
 	
@@ -149,11 +148,11 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 	switch(evt->what) {
 		case updateEvt:
 			if (w == GetDialogWindow(dlog)) {
-				GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
+				GetPort(&oldPort);  SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));
+				
 				/* Since the dlog port's font is the one used in the list, we temporarily
-				 * switch to the system font for updating the dlog's buttons.
-				 */
+					switch to the system font for updating the dlog's buttons. */
 				 
 				listFont = GetPortTxFont();
 				listFontSize = GetPortTxSize();
@@ -166,10 +165,10 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 				TextSize(listFontSize);
 				FrameDefault(dlog, OK, TRUE);
 				FrameRect(&charListBounds);
-				LUpdateDVisRgn(dlog,charListHndl);			
+				LUpdateDVisRgn(dlog, charListHndl);			
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
-				ans = TRUE; *itemHit = 0;
+				ans = TRUE;  *itemHit = 0;
 			}
 			break;
 		case activateEvt:
@@ -199,7 +198,7 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 			else if (ch=='.' && evt->modifiers & cmdKey) {
 				*itemHit = Cancel;
 				doHilite = TRUE;
-				ans = TRUE;									/* Other cmd-chars ignored */
+				ans = TRUE;									/* Ignore other cmd-chars */
 			}
 			else {				
 				aCell.h = aCell.v = 0;
@@ -254,7 +253,7 @@ static Boolean BuildList(DialogPtr dlog)
 				scrollBarWid, butWid, butHt, maxColumns, numRowsVis;
 	Rect		userBox, limitRect, cancelBox, OKbox, lMarg, contentRect, dataBounds,
 				portRect;
-	Handle	hndl;
+	Handle		hndl;
 	unsigned char data[4];
 	FontInfo	fontInfo;
 	Cell		aCell;
@@ -286,9 +285,9 @@ static Boolean BuildList(DialogPtr dlog)
 	maxColumns = (scrnWid - (lMarg.left + lMarg.right)) / cellWid;
 	numColumns = maxColumns>=16? 16 : (maxColumns>=8? 8 : 4);
 	numRowsVis = (scrnHt - (lMarg.top + lMarg.bottom)) / cellHt;			/* number of rows visible at a time (without scrolling) */
-	numRows = 256/numColumns;															/* total number of rows */
+	numRows = 256/numColumns;												/* total number of rows */
 	if (numRowsVis>numRows) numRowsVis = numRows;
-	scrollBarWid = numRowsVis==numRows? 0 : SCROLLBAR_WIDTH;					/* may not need scroll bar */
+	scrollBarWid = numRowsVis==numRows? 0 : SCROLLBAR_WIDTH;				/* may not need scroll bar */
 	
 	/* Calculate size of list and dialog window */
 	userBox.right = userBox.left + (cellWid*numColumns) + scrollBarWid;
@@ -300,7 +299,7 @@ static Boolean BuildList(DialogPtr dlog)
 
 	/* Change window size */
 	SizeWindow(GetDialogWindow(dlog), (userBox.right - userBox.left) + (lMarg.left + lMarg.right),
-						  (userBox.bottom - userBox.top) + (lMarg.top + lMarg.bottom), FALSE);
+					(userBox.bottom - userBox.top) + (lMarg.top + lMarg.bottom), FALSE);
 	
 	/* Move Cancel button */
 	GetDialogItem(dlog, Cancel, &type, &hndl, &cancelBox);
@@ -340,25 +339,26 @@ static Boolean BuildList(DialogPtr dlog)
 	// Create a custom list
 	WindowPtr w = GetDialogWindow(dlog);
 	CreateCustomList(&contentRect, &dataBounds, cSize, &defSpec, 
-							w, FALSE, FALSE, FALSE, scrollBarWid==0? FALSE : TRUE, &charListHndl);
+						w, FALSE, FALSE, FALSE, scrollBarWid==0? FALSE : TRUE, &charListHndl);
 #else	
 	charListHndl = LNew(&contentRect, &dataBounds, cSize, CHOOSECHAR_LDEF,
-								GetDialogWindow(dlog), FALSE, FALSE, FALSE, scrollBarWid==0? FALSE : TRUE);
+							GetDialogWindow(dlog), FALSE, FALSE, FALSE, scrollBarWid==0? FALSE : TRUE);
 #endif
 	if (charListHndl) {
 		(*charListHndl)->selFlags = lOnlyOne;
 		for (i=0; i<numRows; i++) {
 			for (j=0; j<numColumns; j++) {
-				aCell.h = j; aCell.v = i;
-				*data = (unsigned char)((i*numColumns)+j);		/* an ASCII value */
+				aCell.h = j;  aCell.v = i;
+				*data = (unsigned char)((i*numColumns)+j);	/* an ASCII value */
 				LSetCell(data, 1, aCell, charListHndl);
 			}
 		}
 		aCell.h = lastChoice % numColumns;
 		aCell.v = lastChoice / numColumns;
-		LSetSelect(TRUE, aCell, charListHndl);			/* select default (or sticky) cell */
+		LSetSelect(TRUE, aCell, charListHndl);				/* select default (or sticky) cell */
 		LAutoScroll(charListHndl);							/* and scroll to it */
 		LSetDrawingMode(TRUE, charListHndl);
 	}
+	
 	return (charListHndl!=NULL);
 }

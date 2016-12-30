@@ -7,7 +7,7 @@
 
 		InvalMeasure			InvalMeasures			InvalSystem
 		InvalSystems			InvalSysRange			InvalSelRange
-		InvalRange				EraseAndInvalRange	InvalContent
+		InvalRange				EraseAndInvalRange		InvalContent
 		InvalObject
 /***************************************************************************/
 
@@ -24,11 +24,12 @@
 
 
 /* ------------------------------------------------------------------InvalMeasure -- */
-/*	Erase and Inval the measure the specified object is in if it's in a
-measure; otherwise erase and Inval its entire system.	N.B. Destroys the
-global array contextA. */
+/*	Erase and Inval the measure the specified object is in if it's in a measure;
+otherwise erase and Inval its entire system. NB1: As of v. 5.7, we require all
+barlines to align on every staff; as long as this is true, <theStaff> is irrelevant.
+NB2: Destroys the global array contextA. */
 
-void InvalMeasure(LINK pL, short theStaff)	/* ??theStaff IS NONSENSE. SEE USE BELOW. */
+void InvalMeasure(LINK pL, short theStaff)
 {
 	PMEASURE		pMeasure;
 	LINK			measureL,staffL, pageL;
@@ -44,8 +45,7 @@ void InvalMeasure(LINK pL, short theStaff)	/* ??theStaff IS NONSENSE. SEE USE BE
 
 	measureL = LSSearch(pL, MEASUREtype, theStaff, TRUE, FALSE);
 	staffL = LSSearch(pL, STAFFtype, theStaff, TRUE, FALSE);
-	if (measureL && IsAfter(staffL, measureL))
-	{
+	if (measureL && IsAfter(staffL, measureL)) {
 		LinkVALID(measureL) = FALSE;
 		pMeasure = GetPMEASURE(measureL);
 		r = pMeasure->measureBBox;
@@ -80,11 +80,12 @@ static void AccumRect(Rect *r, Rect *tempR)
 }
 
 
-/* --------------------------------------------------------------- InvalMeasures -- */
+/* ---------------------------------------------------------------- InvalMeasures -- */
 /*	Erase and Inval all measures from the one the first specified object is	in
 (or, if it's not in a measure, the next measure) through and including the one
 the second specified object is in. If the second object is tail, erase and inval
-to tail. */
+to tail. NB: As of v. 5.7, we require all barlines to align on every staff; as long
+as this is true, <theStaff> is irrelevant.*/
 
 void InvalMeasures(LINK fromL, LINK toL,
 							short theStaff)			/* Staff no. or ANYONE */
@@ -128,10 +129,9 @@ void InvalMeasures(LINK fromL, LINK toL,
 		}
 		else
 			AccumRect(&r, &tempR);
-		if (measureL!=lastMeasureL)
-			measureL = LinkRMEAS(measureL);
-		else
-			break;
+			
+		if (measureL!=lastMeasureL)	measureL = LinkRMEAS(measureL);
+		else						break;
 	}
 
 	/* If the last measure to inval exists and is not the last in the system,
@@ -158,7 +158,7 @@ void InvalSystem(LINK pL)
 {
 	LINK			systemL, pageL;
 	Rect			r;
-	GrafPtr		oldPort;
+	GrafPtr			oldPort;
 	register Document *doc=GetDocumentFromWindow(TopDocument);
 	short			oldSheet;
 	Rect			oldPaper;
@@ -171,7 +171,7 @@ void InvalSystem(LINK pL)
 	oldPaper = doc->currentPaper;
 
 	systemL = LSSearch(pL, SYSTEMtype, ANYONE, TRUE, FALSE);
-	if (systemL != NILINK) {
+	if (systemL!=NILINK) {
 		r = LinkOBJRECT(systemL);
 		r.left = 0;
 		r.right = doc->paperRect.right;
@@ -192,7 +192,7 @@ void InvalSystem(LINK pL)
 
 void InvalSystems(LINK fromL, LINK toL)
 {
-	LINK sysL,pL;
+	LINK sysL, pL;
 	
 	sysL = LSSearch(fromL, SYSTEMtype, ANYONE, TRUE, FALSE);
 	for (pL=sysL; pL && pL!=toL; pL = RightLINK(pL))
@@ -231,9 +231,9 @@ screen bounding boxes of everything to empty.  */
 
 void InvalRange(LINK fromL, LINK toL)
 {
-	LINK		pL, aSlurL;
+	LINK	pL, aSlurL;
 	PASLUR	aSlur;
-	Rect		emptyRect;
+	Rect	emptyRect;
 
 	SetRect(&emptyRect, 0, 0, 0, 0);
 	for (pL=fromL; pL && pL!=toL; pL=RightLINK(pL)) {
@@ -260,8 +260,8 @@ the specified range. */
 
 void EraseAndInvalRange(Document *doc, LINK fromL, LINK toL)
 {
-	LINK		pL;
-	Rect		r,emptyRect;
+	LINK	pL;
+	Rect	r, emptyRect;
 
 	SetRect(&emptyRect, 0, 0, 0, 0);
 	for (pL=fromL; pL && pL!=toL; pL=RightLINK(pL)) {
@@ -279,8 +279,8 @@ range that are not of type J_STRUC. */
 
 void InvalContent(LINK fromL, LINK toL)
 {
-	LINK		pL;
-	Rect		emptyRect;
+	LINK	pL;
+	Rect	emptyRect;
 
 	SetRect(&emptyRect, 0, 0, 0, 0);
 	for (pL=fromL; pL && pL!=toL; pL=RightLINK(pL)) {
@@ -308,23 +308,23 @@ add a <doDraw> parameter.
 
 void InvalObject(Document *doc, LINK pL, short doErase)
 {
-	Rect r,slurBBox; LINK aSlurL;
+	Rect r, slurBBox;  LINK aSlurL;
 	short inset;
 
 	GetAllContexts(doc,contextA,pL);
 	switch (ObjLType(pL)) {
 		case GRAPHICtype:
-			DrawGRAPHIC(doc,pL,contextA,FALSE);
+			DrawGRAPHIC(doc, pL, contextA, FALSE);
 			break;
 		case TEMPOtype:
-			DrawTEMPO(doc,pL,contextA,FALSE);
+			DrawTEMPO(doc, pL, contextA, FALSE);
 			break;
 		case DYNAMtype:
-			DrawDYNAMIC(doc,pL,contextA,FALSE);
+			DrawDYNAMIC(doc, pL, contextA, FALSE);
 			break;
 		case SLURtype:
 			/* Need to handle slurBBox specially. */
-			aSlurL=FirstSubLINK(pL);
+			aSlurL = FirstSubLINK(pL);
 			for ( ; aSlurL; aSlurL=NextSLURL(aSlurL)) {
 				GetSlurBBox(doc, pL, aSlurL, &slurBBox, 4);
 				InvalWindowRect(doc->theWindow,&slurBBox);
@@ -334,17 +334,15 @@ void InvalObject(Document *doc, LINK pL, short doErase)
 
 	r = LinkOBJRECT(pL);
 
-	/* objRect of dynamics is not quite big enough; that is not
-		our problem here; but inset the rect to partially compensate.
-		Note that the amount of inset should really be dynamically
-		determined, e.g. based on sRastral and magnify. */
+	/* The objRect of dynamics is not quite big enough; that is not our problem here,
+		but inset the rect to partially compensate. FIXME: The amount of inset should
+		really be dynamically determined, e.g., based on sRastral and magnify. */
 
 	inset = DynamTYPE(pL) ? -4 : -1;
-	InsetRect(&r,inset,inset);
+	InsetRect(&r, inset, inset);
 
 	OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
 
-	if (doErase)
-			EraseAndInval(&r);
-	else	InvalWindowRect(doc->theWindow,&r);
+	if (doErase)	EraseAndInval(&r);
+	else			InvalWindowRect(doc->theWindow,&r);
 }

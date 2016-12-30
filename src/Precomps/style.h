@@ -20,10 +20,10 @@
 
 #define REST_STEMLET_LEN 4					/* For "stemlets" on beamed rests (quarter-spaces) */
 
-/* Relative sizes for various types of symbols */
+/* Relative sizes for various types of symbols. Cf. Gould, _Behind Bars_, pp. 125, 569. */
 
-#define GRACESIZE(size)		(3*(size)/4)	/* For grace notes */
-#define SMALLSIZE(size)		(3*(size)/4)	/* For "small" symbols: notes/rests, clefs, dynamics, etc. */
+#define GRACESIZE(size)		(7*(size)/10)	/* For grace notes */
+#define SMALLSIZE(size)		(3*(size)/4)	/* For "small" versions of symbols: notes/rests, clefs, dynamics, etc. */
 #define MEDIUMSIZE(size)	(9*(size)/10)	/* For tempo marks */
 
 /* Caveat: see the comment on GetModNRInfo before adjusting note modifier sizes. */
