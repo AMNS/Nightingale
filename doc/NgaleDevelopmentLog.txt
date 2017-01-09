@@ -1,4 +1,4 @@
-DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 thru early July 2016
+DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 amd after
 
 (Most of the files in my Ngale Carbon code base have last modification dates of April or
 May 2012; a few files are 2 June 2012, and it looks like that's the last source code I
@@ -1656,3 +1656,84 @@ seems to be doing roughly what Show Duration Problems, but just shading the meas
 relevant staff. Might as well have Show Duration Problems turn this on/off also!
 
 Cf. DrawObject/ShadeProblemMeasure().
+
+-------------------------------------------------------------------------------
+
+8 Dec.
+
+With the latest Ngale (5.7b8), Extracting the bassoon part of 3rdMovement.ngl crashes, at
+the call to InitMeasure() at the end of MakeMeasure(). This looks like the same bug I ran
+into in May (Issue #58).
+
+-------------------------------------------------------------------------------
+
+1 Jan. 2017
+
+For artificial harmonics, maybe (1) add a command to take a single note (sounding pitch);
+assuming the interval between stopped and touched pitches is a 4th(?), it adds two lower
+notes of same duration with velocity 0, makes the top note small, and the middle one of the
+three notes diamond shape.
+
+Or maybe (2) the command takes a 3-note chord; makes the top note small, sets the lower
+notes to velocity 0, and the middle one to diamond shape. Not as nice or helpful, but
+easier to implement!
+
+-------------------------------------------------------------------------------
+
+5 Jan.
+
+Trying to save MIDI files of my five violin concerto files, no problem with the first
+two, but then Ngale keeps either writing garbage MIDI files (though they're playable,
+and recognizable as the right music) or crashing! This is with the current Ngale 5.7b8,
+running "inside" Xcode. Ngale 5.7b7 does better, but not _that_ much better. ?!? From
+the log file when it doesn't crash:
+
+	...
+	Jan  5 11:06:30 DonDualG5 Ngale[64320]: WARNING: Tempo change in measure 187 at same time as a previous tempo change.
+	Jan  5 11:06:30 DonDualG5 Ngale[64320]: WARNING: Tempo change in measure 192 at same time as a previous tempo change.
+	Jan  5 11:06:30 DonDualG5 Ngale[64320]: WriteTrackName: staff=1 name='@û'
+	Jan  5 11:06:30 DonDualG5 Ngale[64320]: WriteTrackPatch: staff=1 patch=1
+	...
+
+The last messages are WriteTrackName, WriteTrackPatch, and WriteMFNotes for staff=15 name='Cello'
+-- oops, it should be double bass!?! Ah, the "staff" numbers are 1 too high because they're
+really track numbers; even though doesn't seem to have crashed, it didn't get to the last staff
+-- and the log file continues with stuff like:
+
+	Jan  8 14:48:19 DonDualG5 ReportCrash[37243]: Formulating crash report for process quicklookd[37241]
+	Jan  8 14:48:20 DonDualG5 Dock[146]: [QL ERROR] quicklookd crashed while thumbnailing /Users/donbyrd/Documents/2ndMovement.ngl.mid
+	Jan  8 14:48:20 DonDualG5 Finder[152]: [QL ERROR] quicklookd crashed while thumbnailing file://localhost/Users/donbyrd/Documents/2ndMovement.ngl.mid
+	Jan  8 14:48:20 DonDualG5 com.apple.launchd[128] (com.apple.quicklook[37241]): Exited abnormally: Bus error
+
+When Ngale does crash:
+
+	...
+	Jan  5 11:08:23 DonDualG5 Ngale[64320]: WARNING: Tempo change in measure 189 at same time as a previous tempo change.
+	Jan  5 11:08:23 DonDualG5 Ngale[64320]: WARNING: Tempo change in measure 206 at same time as a previous tempo change.
+	Jan  5 11:08:34 DonDualG5 ReportCrash[64364]: Formulating crash report for process quicklookd[64352]
+	Jan  5 11:08:34 DonDualG5 ReportCrash[64364]: Formulating crash report for process Nightingale[64320]
+	Jan  5 11:08:36 DonDualG5 Finder[28098]: [QL ERROR] quicklookd crashed while thumbnailing file://localhost/Users/donbyrd/Documents/3rdMovement.ngl.mid
+	...
+
+This suggests the problems, or at least the crashes, aren't Ngale's fault. ??
+
+Log out & back in; try 5.7b6 on 3rdMovement.ngl => another crash, with log:
+
+	Jan  5 11:23:00 DonDualG5 Ngale[64713]: WARNING: Tempo change in measure 189 at same time as a previous tempo change.
+	Jan  5 11:23:00 DonDualG5 Ngale[64713]: WARNING: Tempo change in measure 206 at same time as a previous tempo change.
+	Jan  5 11:23:06 DonDualG5 ReportCrash[64721]: Formulating crash report for process Nightingale[64713]
+	Jan  5 11:23:08 DonDualG5 ReportCrash[64721]: Saved crashreport to /Users/donbyrd/Library/Logs/CrashReporter/Nightingale_2017-01-05-112300_DonDualG5.crash using uid: 502 gid: 502, euid: 502 egid: 502
+	Jan  5 11:23:08 DonDualG5 com.apple.launchd[118] ([0x0-0x7a77a7].com.amns.nightingale[64713]): Exited abnormally: Bus error
+
+I almost certainly used 5.7b7 to generate the previous set of five MIDI files, w/ no
+problems; that also suggests it isn't Ngale's fault! Reboot, try again => crashes.
+
+Copy concerto Ngale files to MacBook 3; try 3rdMovement.ngl there w/ Ngale 5.7b8 => crashes; w/
+Ngale 5.7b6 => another garbage MIDI file, different from a previous version. It sounds as if
+the garbageness is because note times are scrambled. %^&()##$@)+  Listen more closely to the
+new garbage file => it's OK!!!  Maybe part of the problem is w/ QuickTime on my G5 -- but that
+doesn't explain the crashes. ?!?
+
+The crash seems to happen consistently w/ 3rdMovement.ngl, less consistently w/ other
+files.
+

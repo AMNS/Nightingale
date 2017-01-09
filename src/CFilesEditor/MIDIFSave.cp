@@ -895,7 +895,7 @@ static short WriteMFNotes(
 							continue;
 						}
 
-						partn = Staff2Part(doc,NoteSTAFF(aNoteL));
+						partn = Staff2Part(doc, NoteSTAFF(aNoteL));
 						/*
 						 *	Get note's MIDI note number, including transposition; velocity,
 						 *	limited to legal range; channel number; and duration, includ-
@@ -989,7 +989,7 @@ track corresponds to a staff; see WriteMIDIFile(). */
 
 static Boolean WriteTrack(
 				Document *doc,
-				short track,
+				short trackn,
 				long trkLastEndTime,			/* The latest ending time for any track */
 				short *pnZeroVel
 				)
@@ -1001,12 +1001,12 @@ static Boolean WriteTrack(
 
 	WriteChunkStart('MTrk', 0L);					/* Dummy tracklength: fill in later */
 
-	if (track==1)
+	if (trackn==1)
 		WriteTiming(doc, trkLastEndTime);
 	else {
-		WriteTrackName(doc, track-1);
-		WriteTrackPatch(doc, track-1);
-		nZeroVel = WriteMFNotes(doc, track-1, doc->headL, doc->tailL, trkLastEndTime);	/* stf = trk-1 */
+		WriteTrackName(doc, trackn-1);
+		WriteTrackPatch(doc, trackn-1);
+		nZeroVel = WriteMFNotes(doc, trackn-1, doc->headL, doc->tailL, trkLastEndTime);	/* stf = trk-1 */
 	}
 
 	FillInTrackLength();

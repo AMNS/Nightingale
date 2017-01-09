@@ -1046,6 +1046,17 @@ text, and widen the dialog a bit. Affects .rsrc.
 Fix bug: Select a grace note, Get Info, OK the dialog => Nightingale crashes. Affects
 InfoDialog.
 
-Make grace notes a tiny bit smaller, ala Gould. Affects style.h.
+Make grace notes a tiny bit smaller, ala Gould's _Behind Bars_. Affects style.h.
 
 Minor cleanup. Affects ChooseCharDlog, InfoDialog, Inval.
+
+-------------------------------------------------------------------------------
+
+7-9 Jan.
+
+Implement "nudging" octave signs and tuplets via command-arrow keys. Affects Event.
+
+Make Debug command messages for multiple time signatures in a measure and for missing
+courtesy time signatures more helpful. Affects Debug2Utils.
+
+Minor cleanup. Affects Debug2Utils, Event, MIDIFSave.

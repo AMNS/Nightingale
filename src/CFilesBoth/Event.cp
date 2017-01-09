@@ -78,14 +78,14 @@ Boolean DoEvent()
 			switch (theEvent.what) {
 				case mouseDown:
 					keepGoing = DoMouseDown(&theEvent);
-					checkMemTime = 0L;										/* Check memory now */
-					checkDSTime = TickCount();								/* Check obj list after delay */
+					checkMemTime = 0L;								/* Check memory now */
+					checkDSTime = TickCount();						/* Check obj list after delay */
 					break;
 				case autoKey:
 				case keyDown:
 					keepGoing = DoKeyDown(&theEvent);
-					checkMemTime = 0L;										/* Check memory now */
-					checkDSTime = TickCount();								/* Check obj list after delay */
+					checkMemTime = 0L;								/* Check memory now */
+					checkDSTime = TickCount();						/* Check obj list after delay */
 					break;
 				case keyUp:
 					DoKeyUp(&theEvent);
@@ -101,7 +101,7 @@ Boolean DoEvent()
 					result = HiWord(theEvent.message);
 					if (result) {
 						/*
-						 *	It'd be better to center the alert, but anyway, (112,80) is
+						 *	It'd be better to center the alert, but anyway, (112,80) was
 						 *	the location used by Finder 6.1.
 						 */
 						SetPt(&corner, 112, 80);
@@ -269,7 +269,7 @@ of a suspend/resume event. */
 
 void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 	{
-		WindowPtr w;  short itemHit;
+		WindowPtr w;   short itemHit;
 		ScrapRef scrap;
 		static Boolean wasOurWindow;
 		WindowPtr curAct;
@@ -356,7 +356,7 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 
 void DoSuspendResume(EventRecord *event)
 	{
-		Byte evtType; Boolean activ;
+		Byte evtType;  Boolean activ;
 		static Boolean clipShow;
 		
 		activ = isResume(event);
@@ -365,7 +365,7 @@ void DoSuspendResume(EventRecord *event)
 		AnalyzeWindows();
 		HiliteUserWindows();
 		
-		evtType = event->message >> 24;			/* Get high byte */
+		evtType = event->message >> 24;			/* Get high-order byte */
 		switch(evtType) {
 			case mouseMovedEvt:
 				break;
@@ -414,15 +414,15 @@ void DoSuspendResume(EventRecord *event)
 static Boolean DoMouseDown(EventRecord *event)
 	{
 		short part;
-		Boolean keepGoing = TRUE,option,shift,command,frontClick;
-		WindowPtr w; Point pt;
+		Boolean keepGoing = TRUE, option, shift, command, frontClick;
+		WindowPtr w;  Point pt;
 		
 		option  = (event->modifiers & optionKey) != 0;
 		shift   = (event->modifiers & shiftKey) != 0;
 		command = (event->modifiers & cmdKey) != 0;
 		
 		pt = event->where;
-		part = FindWindow(pt,&w);
+		part = FindWindow(pt, &w);
 		
 		//if (gResList)
 		//	WindowPtr front = FrontWindow();		
@@ -458,33 +458,31 @@ static Boolean DoMouseDown(EventRecord *event)
 				if (frontClick)
 					switch(part) {
 						case inContent:
-							DoContent(w,pt,event->modifiers,event->when);
+							DoContent(w, pt, event->modifiers, event->when);
 							break;
 						case inGoAway:
-							if (TrackGoAway(w,pt)) {
+							if (TrackGoAway(w, pt)) {
 								DoCloseWindow(w);
 								closingAll = option!=0;
 								}
 							break;
 						case inZoomIn:
 						case inZoomOut:
-							if (TrackBox(w,pt,part)) {
+							if (TrackBox(w, pt, part)) {
 								/*
 								 *	Force caret into off state, otherwise any invalid
-								 *	background bits covered by palette may about to become
-								 *	into view.
+								 *	background bits covered by palette may come into view.
 								 */
 								if (IsPaletteKind(w))
 									if (TopDocument)
 										MEHideCaret(GetDocumentFromWindow(TopDocument));
-								DoZoom(w,part);
+								DoZoom(w, part);
 								}
 							break;
 						case inDrag:
 							/*
 							 *	Force caret into off state, otherwise any invalid
-							 *	background bits covered by palette may about to become
-							 *	into view.
+							 *	background bits covered by palette may come into view.
 							 */
 							if (IsPaletteKind(w))
 								if (TopDocument)
@@ -505,13 +503,14 @@ static Boolean DoMouseDown(EventRecord *event)
 
 static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 	{
-		short code,val, oldVal,change;  short index;  GrafPtr oldPort;
+		short code,val, oldVal,change;   short index;
+		GrafPtr oldPort;
 		ControlHandle control;
 		Rect portRect;
 		short contrlHilite;
 		Document *doc;
 
-		if (actionUPP == NULL)			/* first time, so allocate it */
+		if (actionUPP == NULL)								/* first time, so allocate it */
 			actionUPP = NewControlActionUPP(ScrollDocument);
 
 		GetPort(&oldPort); SetPort(GetWindowPort(w));
@@ -586,9 +585,9 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 	}
 
 
-/* This routine is called from GetSelection() and other click and drag loops
-so that the view of the Document can be scrolled automatically if the user
-pulls the mouse outside the viewRect of the window. */
+/* This routine is called from GetSelection() and other click and drag loops so that
+the view of the Document can be scrolled automatically if the user pulls the mouse
+outside the viewRect of the window. */
 
 void AutoScroll()
 	{
@@ -687,6 +686,8 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 static Boolean Nudge(Document *doc, short arrowKeyCode)
 {
 	LINK pL, aNoteL, aDynamicL, aSlurL;
+	POTTAVA ottavap;
+	PTUPLET pTuplet;
 	Boolean moved;  DDIST nudgeSignedDist;
 
 	moved = FALSE;
@@ -725,6 +726,32 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 						else if (arrowKeyCode==kRightArrowCharCode) { DynamicENDXD(aDynamicL) += NUDGE_DIST; moved = TRUE; }
 						else if (arrowKeyCode==kUpArrowCharCode) { DynamicENDYD(aDynamicL) -= NUDGE_DIST; moved = TRUE; }
 						else if (arrowKeyCode==kDownArrowCharCode) { DynamicENDYD(aDynamicL) += NUDGE_DIST; moved = TRUE; }
+					}
+					return moved;
+				case OTTAVAtype:
+					ottavap = GetPOTTAVA(pL);
+					if (arrowKeyCode==kLeftArrowCharCode) {
+						ottavap->xdFirst -= NUDGE_DIST; ottavap->xdLast -= NUDGE_DIST; moved = TRUE;
+					}
+					else if (arrowKeyCode==kRightArrowCharCode) {
+						ottavap->xdFirst += NUDGE_DIST; ottavap->xdLast += NUDGE_DIST; moved = TRUE;
+					}
+					else if (arrowKeyCode==kUpArrowCharCode) { ottavap->ydFirst -= NUDGE_DIST; moved = TRUE; }
+					else if (arrowKeyCode==kDownArrowCharCode) { ottavap->ydFirst += NUDGE_DIST; moved = TRUE; }
+					return moved;
+				case TUPLETtype:
+		 			pTuplet = GetPTUPLET(pL);
+					if (arrowKeyCode==kLeftArrowCharCode) {
+						pTuplet->xdFirst -= NUDGE_DIST; pTuplet->xdLast -= NUDGE_DIST; moved = TRUE;
+					}
+					else if (arrowKeyCode==kRightArrowCharCode) {
+						pTuplet->xdFirst += NUDGE_DIST; pTuplet->xdLast += NUDGE_DIST; moved = TRUE;
+					}
+					else if (arrowKeyCode==kUpArrowCharCode) {
+						pTuplet->ydFirst -= NUDGE_DIST; pTuplet->ydLast -= NUDGE_DIST; moved = TRUE;
+					}
+					else if (arrowKeyCode==kDownArrowCharCode) {
+						pTuplet->ydFirst += NUDGE_DIST; pTuplet->ydLast += NUDGE_DIST; moved = TRUE;
 					}
 					return moved;
 				
@@ -877,10 +904,10 @@ static void DoGrow(WindowPtr w, Point pt, Boolean /*command*/)
 				GetWindowPortBounds(w, &oldRect);
 				Document *doc = GetDocumentFromWindow(w);
 				if (doc)  {
-					PrepareMessageDraw(doc,&oldMessageRect,TRUE);
+					PrepareMessageDraw(doc, &oldMessageRect, TRUE);
 					oldMessageRect.top--;		/* Include DrawGrowIcon line */
-					SetRect(&limitRect,MESSAGEBOX_WIDTH+70,80,20000,20000);
-					newSize = GrowWindow(w,pt,&limitRect);
+					SetRect(&limitRect, MESSAGEBOX_WIDTH+70, 80, 20000, 20000);
+					newSize = GrowWindow(w, pt,&limitRect);
 					if (newSize) {
 						EraseAndInval(&oldMessageRect);
 						x = LoWord(newSize); y = HiWord(newSize);
@@ -939,8 +966,8 @@ pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, lon
 		if (!err) {
 			AECountItems(&docList,&nFiles);
 			for (iFile=1; iFile<=nFiles; iFile++) {
-				err = AEGetNthPtr(&docList,iFile,typeFSS,&keywd,&returnedType,
-												(Ptr)&theFile,sizeof(FSSpec),&actualSize);
+				err = AEGetNthPtr(&docList, iFile, typeFSS, &keywd, &returnedType,
+											(Ptr)&theFile, sizeof(FSSpec), &actualSize);
 				if (err) {
 					AppleEventError("HandleODOC-PDOC/AEGetNthPtr",err);
 					break;
