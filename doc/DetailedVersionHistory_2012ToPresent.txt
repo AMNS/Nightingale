@@ -1060,3 +1060,14 @@ Make Debug command messages for multiple time signatures in a measure and for mi
 courtesy time signatures more helpful. Affects Debug2Utils.
 
 Minor cleanup. Affects Debug2Utils, Event, MIDIFSave.
+
+-------------------------------------------------------------------------------
+
+10 Jan.
+
+Fix bug: Changing a measure rest to a multibar rest, changing the no. of measures in a
+multibar rest, etc. should update measure numbers for the remainder of the score, but
+they rarely (if ever) do. Affects InfoDialog.
+
+Minor cleanup. Affects DSUtils, InfoDialog, InsNew, InsUtils, Search.
+

@@ -1,6 +1,6 @@
 /***************************************************************************
 	FILE:	DSUtils.c
-	PROJ:	Nightingale, revised for v.99
+	PROJ:	Nightingale
 	DESC:	Utility routines for examining and manipulating the main data
 			structure (the object list).
 
@@ -18,7 +18,7 @@
 		IsAfter					IsAfterIncl				BetweenIncl
 		WithinRange				SamePage				SameSystem
 		SameMeasure
-		ConsecSync				BeforeFirstMeas		FirstMeasInSys	
+		ConsecSync				BeforeFirstMeas			FirstMeasInSys	
 		LastMeasInSys			LastUsedMeasInSys		LastOnPrevSys
 		LastOnPrevSys			LastObjInSys
 		LastSysInPage			GetLastSysInPage		FirstSysInPage
@@ -26,7 +26,7 @@
 		GetCurrentPage			GetMasterPage			GetSysRange
 		MoveInMeasure and friends
 		MoveRestOfSystem
-		CountNotesInRange		CountGRNotesInRange	CountNotes
+		CountNotesInRange		CountGRNotesInRange		CountNotes
 		VCountNotes				CountGRNotes			SVCountNotes
 		SVCountGRNotes			CountObjects			CountInHeaps
 		HasOtherStemSide		NoteLeftOfStem			GetStemUpDown
@@ -145,10 +145,10 @@ void UpdateSysNums(Document *doc, LINK headL)
 
 
 /* --------------------------------------------------------------- UpdateMeasNums -- */
-/* Update the fakeMeas field of every Measure object and the measureNum field of every
-Measure subobject in the given document from <startL> or the preceding Measure to the
-end. If <startL> is NILINK, do the entire document. Deliver TRUE if we actually change
-anything.
+/* Based on Measure and Sync objects, update the fakeMeas field of every Measure object
+and the measureNum field of every Measure subobject in the given document from <startL>
+or the preceding Measure to the end. If <startL> is NILINK, do the entire document.
+Deliver TRUE if we actually change anything.
 
 NB: Updating the fakeMeas flags is very slow. For efficiency, if <startL> is non-NILINK,
 we actually update them only until the second Measure of the System after <startL>. */
@@ -160,7 +160,7 @@ Boolean UpdateMeasNums(Document *doc, LINK startL)
 	Boolean fakeMeas, didAnything=FALSE, updateFakeMeas;
 	PAMEASURE aMeasure;
 	short measNum,									/* Zero-indexed number of the next measure */
-			nMeasRest;
+		nMeasRest;
 
 	stopFakeMeasL = NILINK;
 	

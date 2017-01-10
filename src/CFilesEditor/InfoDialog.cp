@@ -31,10 +31,13 @@ static void ExtendInfoDialog(Document *, LINK, char []);
 #define I2DD(num)	((num)<<scaleShift)						/* Convert Get Info to DDIST */
 
 /* Macros for changing fields in the data structure: DIST_ACCEPT for DDIST distances;
-GRAF_ACCEPT for other fields that might immediately affect the display; GEN_ACCEPT for all others. */
+MEASNUM_ACCEPT fof fields that affect measure numbers;  GRAF_ACCEPT for other fields
+that might immediately affect the display; GEN_ACCEPT for all others. */
 
 #define DIST_ACCEPT(field)	if (newval!=DD2I(field)) \
 									{ (field) = I2DD(newval);  graphicDirty = TRUE; }
+#define MEASNUM_ACCEPT(field)	if (newval!=(field)) \
+									{ (field) = newval;  measNumDirty = TRUE; }
 #define GRAF_ACCEPT(field)	if (newval!=(field)) \
 									{ (field) = newval;  graphicDirty = TRUE; }
 #define GEN_ACCEPT(field)	if (newval!=(field)) \
@@ -162,8 +165,9 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	Rect		tRect;
 	PANOTE		aNote;
 	PAGRNOTE	aGRNote;
-	LINK		aNoteL, aGRNoteL, partL;
-	Boolean		graphicDirty,									/* Anything graphic changed? */
+	LINK		aNoteL, aGRNoteL, partL, sysL;
+	Boolean		measNumDirty,									/* Measure nos. maybe changed? */
+				graphicDirty,									/* Anything graphic changed? */
 				nodeDirty;										/* Anything non-graphic changed? */
 	Boolean		hasStem, isRest;
 	char		fmtStr[256];
@@ -177,7 +181,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				
 	GetPort(&oldPort);
 	ArrowCursor();
-	graphicDirty = nodeDirty = FALSE;								/* Nothing changed yet */
+	measNumDirty = graphicDirty = nodeDirty = FALSE;				/* Nothing changed yet */
 
 /* --- 1. Create the dialog and initialize its contents. --- */
 
@@ -220,7 +224,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			PutDlgWord(dlog, STEM_VERT, DD2I(aNote->ystem), FALSE);
 			PutDlgWord(dlog, P_TIME, aNote->playTimeDelta, FALSE);
 			PutDlgWord(dlog, P_DUR, aNote->playDur, FALSE);
-			PutDlgWord(dlog, L_DUR, aNote->subType, FALSE);			/* logical dur. */
+			PutDlgWord(dlog, L_DUR, aNote->subType, FALSE);			/* logical duration */
 			PutDlgWord(dlog, NDOTS, aNote->ndots, FALSE);
 			PutDlgWord(dlog, XMOVE_DOTS, aNote->xmovedots, FALSE);
 			PutDlgWord(dlog, YMOVE_DOTS, aNote->ymovedots, FALSE);
@@ -469,7 +473,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	GetDlgWord(dlog, OBJ_HORIZ, &newval);
 	DIST_ACCEPT(LinkXD(pL));
 
-	switch (ObjLType(pL)) {										/* Get new values by type */
+	switch (ObjLType(pL)) {									/* Get new values by type */
 		case SYNCtype:
 			aNote = GetPANOTE(aNoteL);
 	
@@ -483,13 +487,13 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			DIST_ACCEPT(aNote->ystem);
 	
 			GetDlgWord(dlog, P_TIME, &newval);
-			GRAF_ACCEPT(aNote->playTimeDelta);					/* Will affect graphics if pianoroll view */
+			GRAF_ACCEPT(aNote->playTimeDelta);				/* Will affect graphics if pianoroll view */
 	
 			GetDlgWord(dlog, P_DUR, &newval);
-			GRAF_ACCEPT(aNote->playDur);						/* Will affect graphics if pianoroll view */
+			GRAF_ACCEPT(aNote->playDur);					/* Will affect graphics if pianoroll view */
 	
 			GetDlgWord(dlog, L_DUR, &newval);
-			GRAF_ACCEPT(aNote->subType);
+			MEASNUM_ACCEPT(aNote->subType);					/* Affects measure nos. if multibar rest is involved */
 	
 			GetDlgWord(dlog, NDOTS, &newval);
 			GRAF_ACCEPT(aNote->ndots);
@@ -584,10 +588,16 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	}
 
 	SetPort(oldPort);
-	if (graphicDirty)	{								/* Was anything graphic changed? */
+	if (measNumDirty) {									/* Was anything changed that could affect measure nos.? */
+		UpdateMeasNums(doc, NILINK);
+		sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+		EraseAndInvalRange(doc, sysL, doc->tailL);
+	}
+	else if (graphicDirty)	{							/* Was anything graphic changed? */
 		InvalMeasure(pL, 1);							/* Staff no. doesn't matter */
 	}
-	if (graphicDirty || nodeDirty) {					/* Was anything at all changed? */
+
+	if (measNumDirty || graphicDirty || nodeDirty) {	/* Was anything at all changed? */
 		doc->changed = TRUE;							/* Yes. */
 		LinkTWEAKED(pL) = TRUE;							/* Flag to show node was edited */
 		LinkVALID(pL) = FALSE;							/* Force recalc. objrect */
@@ -1873,7 +1883,7 @@ Boolean ModNRDialog(Document *doc)
 	}
 	modCount = i;
 	curr = 0;
-	dirty = FALSE;														/* Nothing changed yet */
+	dirty = FALSE;												/* Nothing changed yet */
 
 	userDrawModNRUPP = NewUserItemUPP(UserDrawModNR);
 	if (userDrawModNRUPP==NULL) {

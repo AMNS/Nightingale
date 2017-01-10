@@ -1818,7 +1818,6 @@ void FixNewMeasAccs(Document *doc, LINK measureL)
 }
 
 
-
 /* --------------------------------------------------------------- InsFixMeasNums -- */
 /* Update fakeMeas and measureNum fields of appropriate Measures and Measure subobjs
 in the given document. <newL> is assumed to be an object whose insertion occasions the
@@ -1841,15 +1840,11 @@ Boolean InsFixMeasNums(Document *doc, LINK newL)
 	
 	switch (ObjLType(newL)) {
 		case MEASUREtype:
-#if 1
-			/* For years, the 2nd param here has been <NILINK>, i.e., do the entire file.
+			/* For years, the 2nd param here was <NILINK>, i.e., do the entire file.
 			 * But starting just before <newL> can be much, much faster, and it should be
 			 * sufficient in all cases.  --DAB, 1/2000
 			 */
 			return UpdateMeasNums(doc, LeftLINK(newL));
-#else
-			return UpdateMeasNums(doc, NILINK);
-#endif
 		case SYNCtype:
 		case GRSYNCtype:
 			measL = LSSearch(newL, MEASUREtype, ANYONE, GO_LEFT, FALSE);

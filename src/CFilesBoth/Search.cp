@@ -5,7 +5,8 @@
 		LPageSearch				RPageSearch			LSystemSearch
 		RSystemSearch			LStaffSearch		RStaffSearch
 		LMeasureSearch			RMeasureSearch		L_Search
-		LSSearch				LVSearch			LSSearch
+		LSSearch				LSISearch			LVSearch			
+		LSUSearch
 		LVUSearch				GSearch				GSSearch
 		LJSearch				StaffFindSymRight	StaffFindSyncRight
 		FindValidSymRight		StaffFindSymLeft	StaffFindSyncLeft

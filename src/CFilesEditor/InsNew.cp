@@ -828,7 +828,7 @@ PushLock(GRAPHICheap);
 	if (PageTYPE(GraphicFIRSTOBJ(newL)))
 		InvalWindow(doc);
 	else
-		InvalObject(doc,newL, FALSE);
+		InvalObject(doc, newL, FALSE);
 		
 Cleanup:
 PopLock(GRAPHICheap);
@@ -846,17 +846,17 @@ void NewMeasure(Document *doc,
 {
 	short		sym;
 	CONTEXT		context;
-	LINK		measL,endL;
+	LINK		measL, endL;
 	DDIST		xdMeasure, xd;
 
-	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
+	PrepareUndo(doc, doc->selStartL, U_Insert, 13);					/* "Undo Insert" */
 	NewObjInit(doc, MEASUREtype, &sym, inchar, ANYONE, &context);
 
-	xdMeasure = p2d(pt.h);												/* absolute DDIST */
+	xdMeasure = p2d(pt.h);											/* absolute DDIST */
 	xd = xdMeasure - context.staffLeft;								/* relative to staff */
 	measL = CreateMeasure(doc, doc->selStartL, xd, sym, context);
 
-	doc->selStartL = measL; 											/* Update selection range */
+	doc->selStartL = measL; 										/* Update selection range */
 	doc->selEndL = RightLINK(measL);
 	
 	if (doc->selEndL==doc->tailL) UpdateTailxd(doc);
@@ -865,11 +865,11 @@ void NewMeasure(Document *doc,
 	 *	If auto-respace is TRUE, both must be respaced.
 	 */
 	if (doc->autoRespace)
-		RespaceBars(doc,LeftLINK(doc->selStartL),RightLINK(doc->selStartL),0L,
-						FALSE,FALSE);
+		RespaceBars(doc, LeftLINK(doc->selStartL), RightLINK(doc->selStartL), 0L,
+						FALSE, FALSE);
 	else {
 		endL = EndSystemSearch(doc, measL);
-		InvalMeasures(measL,endL,ANYONE);
+		InvalMeasures(measL, endL, ANYONE);
 	}
 }
 
