@@ -2613,8 +2613,8 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 						OffsetDRect(&mrect, xd, 0);
 						InsetDRect(&mrect, 0, pt2d(6));		/* Reduce ht of shading to emphasize staff */
 						DRect2ScreenRect(mrect, SystemRECT(sysL), doc->paperRect, &r);
-						LogPrintf(LOG_DEBUG, "ShadeDurPblmMeasure: for measureL=%d, staff %d has dur %d\n",
-									measureL, staffn, measDurOnStaff);
+//						LogPrintf(LOG_DEBUG, "ShadeDurPblmMeasure: for measureL=%d, staff %d has dur %d\n",
+//									measureL, staffn, measDurOnStaff);
 						ShadeRect(&r, pContext, &altDiagonalLtGray);
 					}
 				}

@@ -68,8 +68,8 @@ Boolean DCheckPlayDurs(
 					aNote = GetPANOTE(aNoteL);
 					if (aNote->subType!=UNKNOWN_L_DUR && aNote->subType>WHOLEMR_L_DUR) {
 						if (aNote->playDur<shortDurThresh) {
-							COMPLAIN2("DCheckPlayDurs: NOTE IN VOICE %d IN SYNC L%u HAS EXTREMELY SHORT playDur.\n",
-											aNote->voice, pL);
+							COMPLAIN3("DCheckPlayDurs: NOTE IN VOICE %d OF SYNC L%u IN MEASURE %d HAS EXTREMELY SHORT playDur.\n",
+											aNote->voice, pL, GetMeasNum(doc, pL));
 						}
 						else {
 							lDur = SimpleLDur(aNoteL);
@@ -78,7 +78,7 @@ Boolean DCheckPlayDurs(
 								lDur = (lDur*tupletDenom[v])/tupletNum[v];
 							}
 							if (aNote->playDur>lDur)
-								COMPLAIN3("DCheckPlayDurs: NOTE IN VOICE %d IN SYNC L%u playDur IS LONGER THAN FULL DUR. OF %d\n",
+								COMPLAIN3("DCheckPlayDurs: NOTE IN VOICE %d OF SYNC L%u playDur IS LONGER THAN FULL DUR. OF %d\n",
 											aNote->voice, pL, lDur);
 						}
 					}
@@ -242,7 +242,7 @@ Boolean DCheckExtraTS(Document *doc)
 					if (haveTS[TimeSigSTAFF(aTSL)])
 						nRedundant++;
 				if (nRedundant>0)
-					COMPLAIN3("DCheckExtraTS: TIMESIG L%u BUT MEASURE %d ALREADY HAS TIMESIG ON %d STAVES.\n",
+					COMPLAIN3("DCheckExtraTS: L%u IS TIMESIG BUT MEASURE %d ALREADY HAS TIMESIG ON %d STAVES.\n",
 									pL, GetMeasNum(doc, pL), nRedundant);
 
 				for (aTSL = FirstSubLINK(pL); aTSL; aTSL = NextTIMESIGL(aTSL))
@@ -359,8 +359,8 @@ Boolean DCheckMeasDur(Document *doc)
 
 			measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
 			if (measDurFromTS<0) {
-				COMPLAIN("DCheckMeasDur: MEASURE L%u TIME SIG. DURATION DIFFERENT ON DIFFERENT STAVES.\n",
-								pL);
+				COMPLAIN2("DCheckMeasDur: MEASURE %d (L%u) TIME SIG. DURATION DIFFERENT ON DIFFERENT STAVES.\n",
+								GetMeasNum(doc, pL), pL);
 				continue;
 			}
 			measDurActual = GetMeasDur(doc, barTermL, ANYONE);
@@ -484,11 +484,11 @@ Boolean DCheckNoteNums(Document *doc)
 							nnDiff = DBadNoteNum(doc, clefType, useOctType, accTable, pL, aNoteL);
 							if (nnDiff!=0) {
 								if (abs(nnDiff)<=2) {
-									COMPLAIN3("DCheckNode: NOTE IN SYNC L%u STAFF %d noteNum %d AND NOTATION DISAGREE: ACCIDENTAL?\n",
+									COMPLAIN3("DCheckNoteNums: NOTE IN SYNC L%u STAFF %d noteNum %d AND NOTATION DISAGREE: ACCIDENTAL?\n",
 													pL, staff, NoteNUM(aNoteL));
 								}
 								else {
-									COMPLAIN3("DCheckNode: NOTE IN SYNC L%u STAFF %d noteNum %d AND NOTATION DISAGREE.\n",
+									COMPLAIN3("DCheckNoteNums: NOTE IN SYNC L%u STAFF %d noteNum %d AND NOTATION DISAGREE.\n",
 													pL, staff, NoteNUM(aNoteL));
 								}
 							}

@@ -11,7 +11,7 @@
 
 /* Prototype for internal routines */
 Boolean DCheckMeasSubobjs(Document *, LINK, Boolean);
-Boolean DCheckMBBox(LINK, Boolean);
+Boolean DCheckMBBox(Document *, LINK, Boolean);
 Boolean DCheck1SubobjLinks(Document *, LINK);
 Boolean DCheck1NEntries(Document *, LINK);
 

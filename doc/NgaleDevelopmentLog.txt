@@ -1676,7 +1676,7 @@ three notes diamond shape.
 
 Or maybe (2) the command takes a 3-note chord; makes the top note small, sets the lower
 notes to velocity 0, and the middle one to diamond shape. Not as nice or helpful, but
-easier to implement!
+considerably easier to implement!  Cf. MakeArtificialHarmonic.txt .
 
 -------------------------------------------------------------------------------
 

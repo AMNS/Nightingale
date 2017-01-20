@@ -199,7 +199,7 @@ static short ExtMapStaves(Document *doc, Document *newDoc)
 				tmpHeap = newDoc->Heap + ObjLType(pL);
 				p = GetPMEVENT(pL);
 				
-				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
+				for (subObjL=FirstSubObjPtr(p, pL); subObjL; subObjL = NextLink(tmpHeap, subObjL)) {
 					subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 					subObj->staffn -= staffDiff;
 				}	
@@ -214,11 +214,11 @@ static short ExtMapStaves(Document *doc, Document *newDoc)
 			case SPACERtype:
 				p = GetPMEVENT(pL);
 				((PEXTEND)p)->staffn -= staffDiff;
-				/* 
-				 * Some objects (e.g., tempo marks) go into the part regardless of whether
-				 * they belong to any of its staves, but we have to be careful that they
-				 * end up with a legal staff number in the part -- say, 1.
-				 */
+				
+				/* Some objects (e.g., certain tempo marks) go into the part regardless
+					of whether they belong to any of its staves, but we have to be careful
+					that they end up with a legal staff number in the part -- say, 1. */
+					
 				if (((PEXTEND)p)->staffn<1 || ((PEXTEND)p)->staffn>pPart->lastStaff)
 					((PEXTEND)p)->staffn = 1;
 				break;
@@ -299,10 +299,9 @@ static void SelectPart(
 				for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
 					aConnect = GetPACONNECT(aConnectL);
 					
-					/*
-					 * Copy the Connect if it's connLevel is SystemLevel or if it's within
-					 * our part.
-					 */
+					/* Copy the Connect if it's connLevel is SystemLevel or if it's within
+					   our part. */
+					 
 					if (!aConnect->connLevel ||
 							(aConnect->staffAbove>=firstStf && aConnect->staffBelow<=lastStf)) {
 						LinkSEL(pL) = TRUE;
@@ -321,7 +320,7 @@ static void SelectPart(
 			case RPTENDtype:
 				tmpHeap = doc->Heap + ObjLType(pL);
 				
-				for (subObjL=FirstSubObjPtr(p, pL); subObjL; subObjL = NextLink(tmpHeap, subObjL)) {
+				for (subObjL = FirstSubObjPtr(p, pL); subObjL; subObjL = NextLink(tmpHeap, subObjL)) {
 					subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 					if (subObj->staffn>=firstStf && subObj->staffn<=lastStf) {
 						LinkSEL(pL) = TRUE;
@@ -551,14 +550,14 @@ static short ReadPart(Document *part, Document *score, LINK partL, Boolean *part
 
 	/* If CopyPart fails, return with partOK FALSE. */
 	
-	if (!CopyPart(score,part,partL)) {
+	if (!CopyPart(score, part, partL)) {
 		*partOK = FALSE;
 		return 0;
 	}
 	
 	UpdateDocHeader(part);
 	InstallDoc(score);
-	staffDiff = ExtMapStaves(score,part);
+	staffDiff = ExtMapStaves(score, part);
 	InstallDoc(part);
 	InvalRange(part->headL, part->tailL);
 	InstallDoc(score);
@@ -642,15 +641,16 @@ static void InitDocFields(register Document *score, register Document *part)
 	part->spaceTable = score->spaceTable;
 	part->htight = score->htight;
 	part->deflamTime = score->deflamTime;
+
 	part->autoRespace = score->autoRespace;
 	part->insertMode = score->insertMode;
-
 	part->beamRests = score->beamRests;
 	part->pianoroll = score->pianoroll;
 	part->showSyncs = score->showSyncs;
 	part->frameSystems = score->frameSystems;
 	part->colorVoices = score->colorVoices;
 	part->showInvis = score->showInvis;
+	part->showDurProb = score->showDurProb;
 	part->recordFlats = score->recordFlats;
 	
 	BlockMove(score->spaceMap, part->spaceMap, (Size)MAX_L_DUR*sizeof(long));

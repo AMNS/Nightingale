@@ -1071,3 +1071,17 @@ they rarely (if ever) do. Affects InfoDialog.
 
 Minor cleanup. Affects DSUtils, InfoDialog, InsNew, InsUtils, Search.
 
+===============================================================================
+
+14-19 Jan.
+
+Changed version number from 5.7b8 to 5.7b9. Affects Info.plist.
+
+Add measure no. to Debug command messages for a few things. Affects DebugUtils.h;
+DebugUtils, Debug2Utils.
+
+Use the same "Show Duration Problems" setting for parts as in the score they're
+extracted from. Affects Extract.
+
+Minor cleanup. Affects DebugUtils, Debug2Utils (change all "AT %u" to "L%u"),
+DrawObject, Extract.
