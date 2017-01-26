@@ -1344,8 +1344,8 @@ void BrowseSync(LINK pL, short index)
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextNOTEL(qL)) 
 		;
 	q = GetPANOTE(qL);
-	sprintf(s, "link=%u @%lx stf=%d v=%hd next=%d", qL, q,
-				 q->staffn, q->voice, q->next);
+	sprintf(s, "link=%u @%lx stf=%d iv=%hd next=%d", qL, q, q->staffn,
+				  q->voice, q->next);
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	
 	strcpy(s, "flags=");
@@ -1421,8 +1421,8 @@ void BrowseGRSync(LINK pL, short index)
 	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextGRNOTEL(qL)) 
 		;
 	q = GetPAGRNOTE(qL);
-	sprintf(s, "link=%u @%lx stf=%d v=%hd next=%d", qL, q,
-				 q->staffn, q->voice, q->next);
+	sprintf(s, "link=%u @%lx stf=%d iv=%hd next=%d", qL, q, q->staffn,
+				q->voice, q->next);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 
 	

@@ -956,7 +956,8 @@ Replace all calls to PStrCopy with Pstrcpy. Affects NightTemplates.h; about 18 C
 In Notelists, skip writing clefs that are at the beginnings of systems and just for
 context setting, the way key signatures have always been handled. Affects NotelistSave.
 
-In Notelists, handle multiple-line tempo marks to keep the notelist entry on one line.
+In Notelists, handle multiple-line tempo marks so as to keep the notelist entry on one
+line.
 
 -------------------------------------------------------------------------------
 
@@ -1080,8 +1081,26 @@ Changed version number from 5.7b8 to 5.7b9. Affects Info.plist.
 Add measure no. to Debug command messages for a few things. Affects DebugUtils.h;
 DebugUtils, Debug2Utils.
 
-Use the same "Show Duration Problems" setting for parts as in the score they're
+Use the same "Show Duration Problems" setting for parts as for the score they're
 extracted from. Affects Extract.
 
 Minor cleanup. Affects DebugUtils, Debug2Utils (change all "AT %u" to "L%u"),
 DrawObject, Extract.
+
+-------------------------------------------------------------------------------
+
+21-25 Jan.
+
+In Notelists, skip writing time signatures that are at the ends of systems and
+presumably just "cautionary", similar to (but not quite the same as) the way key
+signatures and clefs are handled. Affects NotelistSave.
+
+Fix bug: If Show Duration Problems is checked, Nightingale "complains" about every
+multibar rest. Affects DrawObject.
+
+Make "Show Duration Problems" the default for new scores. Affects Documents.
+
+Make Browser display voice no. as "iv=" instead of "v=" to clarify that it's the
+internal, not user, voice number. Affects Browser.
+
+Minor cleanup. Affects DrawNRGR, DrawObject, SpaceTime.

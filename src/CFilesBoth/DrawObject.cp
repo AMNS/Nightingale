@@ -2572,58 +2572,72 @@ static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat)
 }
 
 
-/* Check whether this measure's notated (time signature-based) and actual durations on
-all staves agree. If not, shade over the entire measure across all staves; if they do,
-perform the same check on individual staves, and shade the measure on just those staves
-that don't agree. The latter condition effectively means that staves for which the
-measure's notes/rests don't extend to the "real" end of the measure get shaded, but only
-when at least one other staff has a complete measure. */
+/* Check whether this measure's notated (time signature-based) and actual durations
+across all staves agree. If not, shade over the entire measure across all staves; if
+they do, perform the same check on individual staves, and shade the measure on just
+those staves that don't agree. The latter condition effectively means that staves for
+which the measure's notes/rests don't extend to the "real" end of the measure get
+shaded, but only when at least one other staff has a complete measure. */
 
 static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 {
-	LINK barTermL, sysL, aMeasL;  Boolean okay;
+	LINK barTermL, sysL, aMeasL, aNoteL, aSyncL; 
+	Boolean okay, isMBRest;
 	long measDurFromTS, measDurActual, measDurOnStaff;
 	Rect r;  PMEASURE p;
 	short staffn, xd;  DRect mrect;
 
-	if (!FakeMeasure(doc, measureL)) {
-		barTermL = EndMeasSearch(doc, measureL);
-		if (barTermL) {
-			okay = TRUE;
-			measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
-			if (measDurFromTS<0) okay = FALSE;
-			else {
-				measDurActual = GetMeasDur(doc, barTermL, ANYONE);
-				if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT)
-					okay = FALSE;
+	if (FakeMeasure(doc, measureL)) return;
+	
+	barTermL = EndMeasSearch(doc, measureL);
+	if (barTermL) {
+		okay = TRUE;
+		measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
+		if (measDurFromTS<0) okay = FALSE;
+		else {
+			measDurActual = GetMeasDur(doc, barTermL, ANYONE);
+//if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT)
+//LogPrintf(LOG_DEBUG, "ShadeDurPblmMeasure: for measureL=%d, dur from TS=%d durActual=%d\n",
+//				measureL, measDurFromTS, measDurActual);
+			/* If the first Sync following the Measure object is a multibar rest, assume
+			   the "measure" is OK. (NB that if the "measure" we're checking contains no
+			   Syncs, the first Sync following won't be in it, but that shouldn't cause
+			   any problems.) */
+			aSyncL = SSearch(RightLINK(measureL), SYNCtype, GO_RIGHT);
+			if (aSyncL!=NILINK) {
+				aNoteL = FirstSubLINK(aSyncL);
+				isMBRest = (NoteType(aNoteL)<-1);
+//LogPrintf(LOG_DEBUG, "ShadeDurPblmMeasure: for SyncL=%u, aNoteL=%u, NoteType=%d\n",
+//RightLINK(measureL), aNoteL, NoteType(aNoteL));
+				if (isMBRest) return;
 			}
+			if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT)
+				okay = FALSE;
+		}
 
-			if (okay) {
-				/* Overall measure duration is okay. Look for individual staves with
-					incomplete contents. */
-				p = GetPMEASURE(measureL);
-				xd = p->xd;
-				sysL = LSSearch(measureL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
-				aMeasL = FirstSubLINK(measureL);
-				for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
-					staffn = MeasureSTAFF(aMeasL);			
-					measDurOnStaff = GetMeasDur(doc, barTermL, staffn);
-					if (measDurOnStaff!=0 && ABS(measDurFromTS-measDurOnStaff)>=PDURUNIT) {
-						mrect = MeasMRECT(aMeasL);
-						OffsetDRect(&mrect, xd, 0);
-						InsetDRect(&mrect, 0, pt2d(6));		/* Reduce ht of shading to emphasize staff */
-						DRect2ScreenRect(mrect, SystemRECT(sysL), doc->paperRect, &r);
-//						LogPrintf(LOG_DEBUG, "ShadeDurPblmMeasure: for measureL=%d, staff %d has dur %d\n",
-//									measureL, staffn, measDurOnStaff);
-						ShadeRect(&r, pContext, &altDiagonalLtGray);
-					}
+		if (okay) {
+			/* Overall measure duration is okay. Look for individual staves with
+				incomplete contents. */
+			p = GetPMEASURE(measureL);
+			xd = p->xd;
+			sysL = LSSearch(measureL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+			aMeasL = FirstSubLINK(measureL);
+			for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
+				staffn = MeasureSTAFF(aMeasL);			
+				measDurOnStaff = GetMeasDur(doc, barTermL, staffn);
+				if (measDurOnStaff!=0 && ABS(measDurFromTS-measDurOnStaff)>=PDURUNIT) {
+					mrect = MeasMRECT(aMeasL);
+					OffsetDRect(&mrect, xd, 0);
+					InsetDRect(&mrect, 0, pt2d(6));		/* Reduce ht of shading to emphasize staff */
+					DRect2ScreenRect(mrect, SystemRECT(sysL), doc->paperRect, &r);
+					ShadeRect(&r, pContext, &altDiagonalLtGray);
 				}
 			}
-			else {
-				p = GetPMEASURE(measureL);
-				r = p->measureBBox;
-				ShadeRect(&r, pContext, &diagonalLtGray);
-			}
+		}
+		else {
+			p = GetPMEASURE(measureL);
+			r = p->measureBBox;
+			ShadeRect(&r, pContext, &diagonalLtGray);
 		}
 	}
 }

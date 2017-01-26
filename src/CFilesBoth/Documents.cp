@@ -824,7 +824,7 @@ Boolean InitDocFields(Document *doc)
 	doc->frameSystems = FALSE;
 	doc->colorVoices = 1;							/* Show non-default voices in color */
 	doc->showInvis = FALSE;
-	doc->showDurProb = FALSE;
+	doc->showDurProb = TRUE;
 	doc->showWaitCurs = TRUE;
 	
 	doc->magnify = 0;

@@ -204,6 +204,15 @@ Boolean ProcessMeasure(Document *doc, LINK measL, LINK aMeasL)
 }
 
 
+/* Clefs, key signatures, and time signatures all have the feature that they can appear
+redundantly at system breaks. The current clef and (if there is one) key signature are
+repeated at the beginning of every system just to set the context; if a system starts
+with a change of time signature, the same time signature appears at the end of the
+previous system to alert a player of the coming change. We don't want these redundant
+symbols to appear in the notelist. Thanks to Tim Crawford for pointing out the problem
+and the simple solution (specifically for key signatures). */
+
+
 #define NL_KEEP_CONTEXT_CLEFS FALSE
 
 /* ------------------------------------------------------------------- ProcessClef -- */
@@ -226,19 +235,13 @@ Boolean ProcessClef(Document */*doc*/, LINK tsL, LINK aClefL)
 /* ----------------------------------------------------------------- ProcessKeySig -- */
 /* Process a KeySig subobject. This version skips it if it's just a context-setting
 key signature at the beginning of a system (other than the first, of course); otherwise
-it simply writes out some of its info. Thanks to Tim C. for the skipping code. NB:
-assumes standard key signature (non-standard ones aren't implemented yet, anyway, as of
-v.5.7). Returns TRUE normally, FALSE if there's a problem. */
+it simply writes out some of its info. NB: assumes standard key signature (non-standard
+ones aren't implemented yet, anyway, as of v.5.7). Returns TRUE normally, FALSE if
+there's a problem. */
 
 Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
 {
 	PAKEYSIG aKeySig;
-	
-	/* The problem addressed in the code for <firstKeySig>, by Tim C., is that keysigs
-	are otherwise added to the Notelist even when they are simply the default keysigs
-	at the beginning of each system. These are not desirable in the Notelist. They are
-	easy to recognize since KeySigs have an inMeasure flag, but we still need to keep
-	any key signatures selected at the very beginning of the score. */
 	
 	if (!firstKeySig && !KeySigINMEAS(ksL)) {
 		return TRUE;
@@ -252,12 +255,16 @@ Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
 
 
 /* -------------------------------------------------------------- ProcessTimeSig -- */
-/* Process a TimeSig subobject. This version simply writes it out.
+/* Process a TimeSig subobject. This version skips it if it's at the very end of a
+system, since in that case it's presumably just a cautionary TimeSig anticipating
+the change at the beginning of the next system; otherwise it simply writes it out.
 Returns TRUE normally, FALSE if there's a problem. */
 
-Boolean ProcessTimeSig(Document */*doc*/, LINK /*tsL*/, LINK aTimeSigL)
+Boolean ProcessTimeSig(Document */*doc*/, LINK tsL, LINK aTimeSigL)
 {
 	PATIMESIG aTimeSig;
+	
+	if (SystemTYPE(RightLINK(tsL))) return TRUE;
 	
 	aTimeSig = GetPATIMESIG(aTimeSigL);
 	sprintf(strBuf, "%c stf=%d num=%d denom=%d", TIMESIG_CHAR, aTimeSig->staffn,

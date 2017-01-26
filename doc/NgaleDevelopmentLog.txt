@@ -1669,10 +1669,22 @@ into in May (Issue #58).
 
 1 Jan. 2017
 
-For artificial harmonics, maybe (1) add a command to take a single note (sounding pitch);
-assuming the interval between stopped and touched pitches is a 4th(?), it adds two lower
-notes of same duration with velocity 0, makes the top note small, and the middle one of the
-three notes diamond shape.
+The "standard" notation for artificial harmonics -- as recommended in _Behind Bars_, and
+as seen in the Schoenberg Violin Concerto -- involves showing the sounding pitch with a
+small notehead, in parentheses, a bit to the right of the stopped/touched pitch "dyad".
+It's almost impossible to fake that in Ngale now, but it'd take a lot of work to
+implement properly; besides, I think it's ugly, and I haven't actually seen it used in
+many published scores at all. But something to help with _some_ kind of notation
+explicitly showing stopped, touched, and sounding pitches would be very nice! And of
+course it should play back properly. The best such non-ugly notation I can think of is
+to add to the stopped/touched dyad a small notehead, preferably in parentheses, at the
+sounding pitch; the small notehead would have the regular velocity, the stopped &
+touched noteheads velocity 0.
+
+Ignoring the parentheses for now, ideas: (1) add a command to take a single note
+(sounding pitch); assuming the interval between stopped and touched pitches is a 4th(?),
+it adds two lower notes of same duration with velocity 0, makes the top note small, and
+the middle one of the three notes diamond shape.
 
 Or maybe (2) the command takes a 3-note chord; makes the top note small, sets the lower
 notes to velocity 0, and the middle one to diamond shape. Not as nice or helpful, but
@@ -1736,4 +1748,22 @@ doesn't explain the crashes. ?!?
 
 The crash seems to happen consistently w/ 3rdMovement.ngl, less consistently w/ other
 files.
+
+-------------------------------------------------------------------------------
+
+22- Jan.
+
+"Measure duration/timestamps too large" bug is because, in FixMeasTimeStamps(), the value of
+spTimeInfo[last].startTime is sometimes too large -- but not always, and if it is, not always
+by the same amount! Open CalcLDur.ngl; delete whole rest in m. 3; re-insert it => 
+sometimes spTimeInfo[last].startTime = 960 (correct), sometimes it's 1140, sometimes 1200!
+So it's GetSpTimeInfo() that's misbehaving... Yes. Why? Because the whole rest doesn't always
+get added to the 1st Sync of the measure! This could be WAD if Insert by Position was checked,
+but it isn't. @#$#%^^!*# Is this worth fixing now? ??
+
+
+Re discussion of artificial harmonics above for 1 Jan., #2 is almost certainly the way to go.
+Cf. MakeArtificialHarmonic.txt . For UI, how about adding to QuickChange(TM)
+
+	Change [3-note chord] to artificial harmonic
 

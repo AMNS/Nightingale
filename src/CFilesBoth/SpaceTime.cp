@@ -1112,8 +1112,6 @@ long CalcNoteLDur(Document *doc, LINK aNoteL, LINK syncL)
 			noteDur = TimeSigDur(context.timeSigType,			
 										context.numerator,
 										context.denominator);
-//if (measCount>1)
-//	LogPrintf(LOG_DEBUG, "CalcNoteLDur: measCount=%d 1st noteDur=%ld\n", measCount, noteDur);
 			noteDur *= measCount;
 			aNote = GetPANOTE(aNoteL);
 		}
@@ -1226,9 +1224,9 @@ errorReturn:
 
 
 /* ---------------------------------------------------------------- GetSpaceInfo -- */
-/*	Get information on Syncs needed for Gourlay's spacing algorithm: the	
-controlling duration and fraction of that duration that affects spacing.
-Also fill in suitable values for non-Syncs in the spine. */
+/*	Get information on Syncs needed for Gourlay's spacing algorithm: the controlling
+duration and fraction of that duration that affects spacing. Also fill in suitable
+values for non-Syncs in the spine. */
 
 static void GetSpaceInfo(
 				Document *doc,
@@ -1395,15 +1393,15 @@ static void FixVoiceTimes(
 across all voices for symbols of either independent justification type, for one
 measure or less. It then uses the spine to fill in various information in
 <spaceTimeInfo>: always, in startTime, logical times; in justType, justification
-types; in link, object pointers; and in isSync, whether the object is a Sync.
-If <spacing>, the dur and frac fields are also filled in. The function value
-returned is the index of the last entry in the list, NOT the number of entries
-in the list! For example, if it returns 4, startTime[0--4] and justType[0--4] are
-meaningful. If the spine is empty, it returns -1.
+types; in link, object pointers; and in isSync, whether the object is a Sync. If
+<getSpacing>, the dur and frac fields are also filled in. The function value returned
+is the index of the last entry in the list, NOT the number of entries in the list!
+For example, if it returns 4, startTime[0--4] and justType[0--4] are meaningful.
+If the spine is empty, it returns -1.
 
-One reason this is tricky is some symbols (notes, grace notes) are in voices, others
-(clefs, key sigs., etc.) are on staves, but their interactions affect timing. This
-is true even though notes and rests are the only symbols that occupy time. */
+One reason this is tricky is some symbols (notes, rests, grace notes) are in voices,
+others (clefs, key sigs., etc.) are on staves, but their interactions affect timing.
+This is true even though notes and rests are the only symbols that occupy time. */
 
 short GetSpTimeInfo(
 			Document		*doc,
@@ -1445,12 +1443,10 @@ short GetSpTimeInfo(
 				for (i = 0; i<=MAXVOICES; i++)
 					voiceInSync[i] = FALSE;
 					
-				/*
-				 * Set the start time for this Sync to the current time for the voice or
-				 * staff that's furthest along of all participating. Then synchronize all
-				 * participating voices by setting their <vLTimes> to the ending times
-				 * of their notes in this Sync.
-				 */
+				/* Set the start time for this Sync to the current time for the voice or
+				   staff that's furthest along of all participating. Then synchronize all
+				   participating voices by setting their <vLTimes> to the ending times
+				   of their notes in this Sync. */
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
@@ -1463,6 +1459,7 @@ short GetSpTimeInfo(
 					noteDur = CalcNoteLDur(doc, aNoteL, pL);
 					aNote = GetPANOTE(aNoteL);
 					vLTimes[aNote->voice] = timeHere+noteDur;
+//LogPrintf(LOG_DEBUG, "GetSpTimeInfo0: voice=%d pL=%u timeHere=%ld noteDur=%ld\n", aNote->voice, pL, timeHere, noteDur);
 					voiceInSync[aNote->voice] = TRUE;
 					vStaves[aNote->voice] = aNote->staffn;
 					if (noteDur<minDur) minDur = noteDur;
@@ -1470,16 +1467,14 @@ short GetSpTimeInfo(
 				
 				/* FIXME: Code to sync after tuplets, avoiding roundoff errror, belongs here. */
 				
-				/*
-				 * The following code insures that every voice that doesn't participate
-				 * in this Sync has a time at least as far along as some voice that
-				 * does participate. This is a drastic step, intended to handle situations
-				 * where we have no way to tell when a Sync should happen because we can't
-				 * trace its voices back to the beginning of the Measure. Unfortunately,
-				 * it can give bad results in cases where consecutive Syncs have no voices
-				 * in common but we could still trace both back to the beginning of the
-				 * Measure. We should fix this someday.
-				 */
+				/* The following code insures that every voice that doesn't participate
+				   in this Sync has a time at least as far along as some voice that
+				   does participate. This is a drastic step, intended to handle situations
+				   where we have no way to tell when a Sync should happen because we can't
+				   trace its voices back to the beginning of the Measure. Unfortunately,
+				   it can give bad results in cases where consecutive Syncs have no voices
+				   in common but we could still trace both back to the beginning of the
+				   Measure. */
 				for (i = 0; i<=MAXVOICES; i++)							/* Make non-participating */
 					if (!voiceInSync[i])								/*   voices catch up */
 						if (vLTimes[i]<=timeHere)
@@ -1665,6 +1660,8 @@ static long FixMeasTimeStamps(
 
 	endMeasL = EndMeasSearch(doc, measL);
 	last = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, FALSE);
+//for (int k=0; k<=last; k++)
+//LogPrintf(LOG_DEBUG, "FixTimeStamps: spTimeInfo[%d].startTime=%ld\n", k, spTimeInfo[k].startTime);
 	if (last>=0) {
 		for (i = 0; i<last; i++)
 			if (spTimeInfo[i].isSync) {

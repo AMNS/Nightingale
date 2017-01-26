@@ -134,7 +134,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 				case MOD_DOWNBOW:
 				case MOD_HEAVYACC_STACC:
 				case MOD_LONG_INVMORDENT:
-					if (dim) DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
+					if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
 					else		DrawChar(glyph);
 					break;
 				case MOD_CIRCLE:
@@ -145,7 +145,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 				case 4:
 				case 5:
 					TextSize(useTxSize);
-					if (dim) DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
+					if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
 					else		DrawChar(glyph);
 					TextSize(oldTxSize);
 					break;
@@ -262,9 +262,9 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 	if (theNote->ndots==0 || theNote->ymovedots==0) return 0;	/* If no dots or dots invisible */
 
 	/*
-	 *	Ordinarily, the first dot is just to the right of a note on the "normal" side of
+	 * Ordinarily, the first dot is just to the right of a note on the "normal" side of
 	 * the stem. But if note is in a chord that's upstemmed and has notes to the right
-	 *	of the stem, its dots must be moved to the right.
+	 * of the stem, its dots must be moved to the right.
 	 */
 	xdStart = 0;
 	if (chordNoteToR) xdStart += HeadWidth(LNSPACE(pContext));
@@ -300,7 +300,7 @@ static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dot
 }
 
 static void DrawAugDots(Document *doc,
-					LINK theNoteL,				/* Subobject (note/rest) to draw dots for */
+					LINK theNoteL,			/* Subobject (note/rest) to draw dots for */
 					DDIST xdNorm, DDIST yd,	/* Notehead/rest origin, excluding effect of <otherStemSide> */
 					PCONTEXT pContext,
 					Boolean	chordNoteToR	/* Note in a chord that's upstemmed w/notes to right of stem? */
@@ -308,9 +308,9 @@ static void DrawAugDots(Document *doc,
 {
 	PANOTE	theNote;
 	DDIST 	xdDots, ydDots, dhalfLn;
-	short		ndots, xpDots, yp;
-	Boolean	dim;				/* Should it be dimmed bcs in a voice not being looked at? */
-	Byte		glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
+	short	ndots, xpDots, yp;
+	Boolean	dim;						/* Should it be dimmed bcs in a voice not being looked at? */
+	Byte	glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	theNote = GetPANOTE(theNoteL);
 	if (theNote->ndots==0 || theNote->ymovedots==0) return;	/* If no dots or dots invisible */
@@ -391,9 +391,9 @@ void DrawAcc(Document *doc,
 	d8thSp = LNSPACE(pContext)/8;
 
 	/*
-	 *	Ordinarily, the accidental position is relative to a note on the "normal" side of
+	 * Ordinarily, the accidental position is relative to a note on the "normal" side of
 	 * the stem. But if note is in a chord that's downstemmed and has notes to the left
-	 *	of the stem, its accidental must be moved to the left.
+	 * of the stem, its accidental must be moved to the left.
 	 */
 	if (chordNoteToL) xdNorm -= SizePercentSCALE(HeadWidth(LNSPACE(pContext)));
 
@@ -555,7 +555,7 @@ static void DrawNCLedgers(
 
 		/*
 		 * Find the chord's extreme notes above and below staff, on the normal side of
-		 *	the stem and "suspended" (on the other side).
+		 * the stem and "suspended" (on the other side).
 		 */
 		for ( ; bNoteL; bNoteL = NextNOTEL(bNoteL)) {
 			bNote = GetPANOTE(bNoteL);
@@ -568,8 +568,8 @@ static void DrawNCLedgers(
 		}
 		
 		/*
-		 *	Convert to staff-rel. coords. and draw the ledger lines, first below the
-		 *	staff, then above.
+		 * Convert to staff-rel. coords. and draw the ledger lines, first below the
+		 * staff, then above.
 		 */
 		yqpitRel = lowyqpit + halfLn2qd(ClefMiddleCHalfLn(pContext->clefType));
 		yqpitRelSus = (lowyqpitSus==-9999? 0
@@ -777,25 +777,25 @@ static void DrawNoteheadGraph(Document *doc,
 			ForeColor(segColor[1]);
 			segRect = graphRect;
 			segRect.right = segRect.left+graphLen/3;
-			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
+			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundLeftRect(&segRect, rDiam, rDiam);
 
 			ForeColor(segColor[2]);
 			segRect = graphRect;
 			segRect.left += graphLen/3;
 			segRect.right -= graphLen/3;
-			if (dim) FillRect(&segRect, NGetQDGlobalsGray());
+			if (dim)	FillRect(&segRect, NGetQDGlobalsGray());
 			else		PaintRect(&segRect);
 
 			ForeColor(segColor[3]);
 			segRect = graphRect;
 			segRect.left = segRect.right-graphLen/3;
-			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
+			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRightRect(&segRect, rDiam, rDiam);
 			break;
 		
 		default:
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
+			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam);		
 	}
 	ForeColor(Voice2Color(doc, aNote->voice));
@@ -811,28 +811,28 @@ static void DrawNoteheadGraph(Document *doc,
 	switch (appearance) {
 		case 1:
 			ForeColor(blueColor);
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
+			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
 			break;
 		case 2:
 			ForeColor(yellowColor);
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
+			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
 			break;
 		case 3:
 			segRect = graphRect;
 			segRect.right = segRect.left+graphLen/2;
 			ForeColor(magentaColor);
-			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
+			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&segRect, rDiam, rDiam); 
 			segRect = graphRect;
 			segRect.left = segRect.right-graphLen/2;
 			ForeColor(blueColor);
-			if (dim) FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
+			if (dim)	FillRoundRect(&segRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&segRect, rDiam, rDiam); 
 			break;
 		default:
-			if (dim) FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
+			if (dim)	FillRoundRect(&graphRect, rDiam, rDiam, NGetQDGlobalsGray());
 			else		PaintRoundRect(&graphRect, rDiam, rDiam); 
 			;
 	}
@@ -933,7 +933,7 @@ PushLock(NOTEheap);
 the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 	ledgerSizePct = WIDEHEAD_VALUE(WIDEHEAD(noteType), sizePercent);
 
-	/*	Suppress flags if the note is beamed. */
+	/* Suppress flags if the note is beamed. */
 	flagCount = (aNote->beamed? 0 : NFLAGS(noteType));
 
 	chordNoteToR = (!aNote->rest && ChordNoteToRight(pL, aNote->voice));
@@ -959,7 +959,7 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 			fudgeHeadY = GetYHeadFudge(useTxSize);					/* Get fine Y-offset for notehead */
 		
 		/* xhead,yhead is position of notehead; xadjhead,yadjhead is position of notehead 
-			with any offset applied (might be true if music font is not Sonata). */
+		   with any offset applied (might be true if music font is not Sonata). */
 		offset = MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 		if (offset) {
 			xhead = pContext->paper.left + d2p(xd);
@@ -993,7 +993,7 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 		DrawAcc(doc, pContext, aNoteL, xdNorm, yd, dim, sizePercent, chordNoteToL);
 
 		/*
-		 *	If note is not a non-Main note in a chord, draw any ledger lines needed: for
+		 * If note is not a non-Main note in a chord, draw any ledger lines needed: for
 		 * note or entire chord. A chord has only one MainNote, so this draws the ledger
 		 * lines exactly once.
 		 */
@@ -1023,9 +1023,8 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 	/* HANDLE UNKNOWN CMN DURATION/WHOLE/BREVE */
 				DrawNotehead(doc, glyph, appearance, dim, dhalfLn);
 			else {
-	/* HANDLE STEMMED NOTE. If the note is in a chord and is stemless, skip the
-	 *	entire business of drawing the stem and flags.
-	 */
+	/* HANDLE STEMMED NOTE. If the note is in a chord and is stemless, skip the entire
+	   business of drawing the stem and flags. */
 				if (MainNote(aNoteL)) {
 					short stemSpace;
 
@@ -1206,7 +1205,6 @@ EndQDrawing:
 		 * All but one note of every chord has its stem length set to 0, so this
 		 *	draws the ledger lines exactly once.
 		 */
-		
 		if (MainNote(aNoteL))
 			DrawNCLedgers(pL, pContext, aNoteL, xd, dTop, ledgerSizePct); 
 	
@@ -1242,7 +1240,6 @@ EndQDrawing:
 				 *	STEMMED NOTE. If the note is in a chord and is stemless, skip
 				 *	entire business of drawing the stem and flags.
 				 */
-				 
 				if (MainNote(aNoteL)) {
 					stemDown = (dStemLen>0);
 					xdAdj = (headRelSize==100? 0 : XD_GLYPH_ADJ(stemDown, headRelSize));
@@ -1396,7 +1393,7 @@ static void DrawMBRest(Document *doc, PCONTEXT pContext,
 	MapMusPString(doc->musFontInfoIndex, numStr);
 	short txFace = GetPortTxFace();
 	numWidth = NPtStringWidth(doc, numStr, doc->musicFontNum,
-										d2pt(pContext->staffHeight), txFace);
+									d2pt(pContext->staffHeight), txFace);
 	xdNum = (dRestBar.right+dRestBar.left)/2-pt2d(numWidth)/2;
 	
 	lnSpace = LNSPACE(pContext);
@@ -1461,12 +1458,12 @@ static void DrawMBRest(Document *doc, PCONTEXT pContext,
 void DrawRest(Document *doc,
 				LINK pL,
 				PCONTEXT pContext,	/* current context[] entry */
-				LINK aRestL,			/* current subobject */
+				LINK aRestL,		/* current subobject */
 				Boolean *drawn,		/* FALSE until a subobject has been drawn */
 				Boolean *recalc		/* TRUE if we need to recalc enclosing rectangle */
 				)
 {
-	PANOTE	aRest;
+	PANOTE		aRest;
 	short		xp, yp,			/* pixel coordinates */
 				xpLedg, ypLedg,
 				appearance,
@@ -1485,10 +1482,10 @@ void DrawRest(Document *doc,
 				yrest,
 				xledg, yledg,	/* Relative offset to start of ledger line from rest origin */
 				restxd, restyd;
-	Rect		rSub;				/* bounding box for subobject */
+	Rect		rSub;			/* bounding box for subobject */
 	char		lDur;
 	Boolean		stemDown,
-				dim;				/* Should it be dimmed bcs in a voice not being looked at? */
+				dim;			/* Should it be dimmed bcs in a voice not being looked at? */
 
 	if (doc->pianoroll) return;			/* FIXME: REALLY DO NOTHING, E.G., WITH OBJRECT? */
 
@@ -1554,7 +1551,7 @@ PushLock(NOTEheap);
 				OffsetRect(&rSub, -pContext->paper.left, -pContext->paper.top);
 		}
 		else {
-			Byte unmappedGlyph = glyph;										/* save for below */
+			Byte unmappedGlyph = glyph;									/* save for below */
 			glyph = MapMusChar(doc->musFontInfoIndex, glyph);
 			restxd += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace));
 			restyd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace));
@@ -1565,14 +1562,14 @@ PushLock(NOTEheap);
 			restyp = pContext->paper.top+d2p(restyd)+fudgeRestY;
 
 			if (appearance!=NOTHING_VIS) {
-				MoveTo(restxp, restyp);											/* Position pen */
+				MoveTo(restxp, restyp);									/* Position pen */
 				DrawMChar(doc, glyph, appearance, dim);					/* Draw the rest */
 	
-				if (xledg) {														/*	Draw any pseudo-ledger line */
+				if (xledg) {											/*	Draw any pseudo-ledger line */
 					MoveTo(xpLedg=xp-d2p(xledg),ypLedg=yp-d2p(yledg));
 					Line(d2p(LedgerLen(lnSpace)+LedgerOtherLen(lnSpace)),0);
 				}
-				DrawModNR(doc, aRestL, xd, pContext);						/* Draw all modifiers */
+				DrawModNR(doc, aRestL, xd, pContext);					/* Draw all modifiers */
 				DrawAugDots(doc, aRestL, xd, ydNorm, pContext, FALSE);
 	
 				/* If we're supposed to draw stemlets on beamed rests, do so. */
@@ -1585,7 +1582,7 @@ PushLock(NOTEheap);
 					MoveTo(xp, pContext->paper.top+d2p(dTop+aRest->ystem));
 					stemDown = (aRest->ystem > aRest->yd);
 					if (!stemDown) Move(stemSpace, 0);
-					Line(0, d2p(stemDown? -dStemLen : dStemLen));	/* Draw from stem toward rest */
+					Line(0, d2p(stemDown? -dStemLen : dStemLen));		/* Draw from stem toward rest */
 				}
 			}
 
@@ -1657,8 +1654,8 @@ PopLock(NOTEheap);
 }
 
 
-/* ----------------------------------------------------------------- ShowNGRSync -- */
-/* Draw a gray vertical line from near the bottom to near the top of the objRect
+/* ------------------------------------------------------------------- ShowNGRSync -- */
+/* Draw a dotted vertical line from near the bottom to near the top of the objRect
 of the given object, but only if it's tall enough to help clarify what's related to
 what. Intended for Syncs and GRSyncs, but should work for any non-J_STRUC object. */
 
@@ -1671,6 +1668,7 @@ static void ShowNGRSync(Document *doc, LINK pL, CONTEXT context[])
 	r = LinkOBJRECT(pL);
 	/* Convert r to window coords */
 	OffsetRect(&r,doc->currentPaper.left,doc->currentPaper.top);
+	// It'd be nice to use a different color, but ForeColor() here does nothing. ??
 	PenMode(patXor);
 	PenPat(NGetQDGlobalsGray());
 	dhalfLn = LNSPACE(&context[1])/2;
@@ -2091,10 +2089,10 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 
 						if (doc->musicFontNum==sonataFontNum) {
 							/* The 8th and 16th note flag characters in Sonata have their origins set so,
-								in theory, they're positioned properly if drawn from the point where the note
-								head was drawn. Unfortunately, the vertical position depends on the stem
-								length, which Adobe incorrectly assumed was always one octave. The "extend
-								flag" characters have their vertical origins set right where they go. */
+							   in theory, they're positioned properly if drawn from the point where the note
+							   head was drawn. Unfortunately, the vertical position depends on the stem
+							   length, which Adobe incorrectly assumed was always one octave. The "extend
+							   flag" characters have their vertical origins set right where they go. */
 							MoveTo(xhead, ypStem);								/* Position x at head, y at stem end */
 							octaveLength = d2p(7*SizePercentSCALE(dhalfLn));
 							Move(0, (stemDown? -octaveLength : octaveLength));	/* Adjust for flag origin */
@@ -2226,7 +2224,6 @@ EndQDrawing:
 		 * for grace note or entire chord. All but one note of every chord has its stem
 		 * length set to 0, so this draws the ledger lines exactly once.
 		 */
-		
 		if (GRMainNote(aGRNoteL))
 			DrawGRNCLedgers(pL, pContext, aGRNoteL, xd, dTop, ledgerSizePct);
 	
