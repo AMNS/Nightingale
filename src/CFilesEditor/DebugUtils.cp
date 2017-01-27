@@ -6,7 +6,7 @@
 
 /* File DebugUtils.c - debugging functions to check the validity of our data structures:
 	DBadLink				DCheckHeaps				DCheckHeadTail
-	DCheckSyncSlurs			
+	DCheckSyncSlurs
 	DCheckMBBox				DCheckMeasSubobjs		DCheckNode
 	DCheckNodeSel			DCheckSel				DCheckVoiceTable
 	DCheckHeirarchy			DCheckJDOrder
@@ -71,7 +71,7 @@ Boolean DBadLink(
 			LINK pL,
 			Boolean allowNIL)				/* TRUE=NILINK is an acceptable value */
 {
-	HEAP *heap; LINK link;
+	HEAP *heap;  LINK link;
 	Byte *p,*start;
 
 	if (pL==NILINK) return !allowNIL;
@@ -355,7 +355,7 @@ Boolean DCheckMeasSubobjs(
 				LINK pL,					/* Measure */
 				Boolean /*abnormal*/)
 {
-	LINK aMeasL; PAMEASURE aMeas;
+	LINK aMeasL;  PAMEASURE aMeas;
 	Boolean haveMeas[MAXSTAVES+1], foundConn;
 	short s, missing, connStaff[MAXSTAVES+1], nBadConns;
 	Boolean bad=FALSE;
@@ -488,25 +488,25 @@ short DCheckNode(
 /* CHECK self, left, and right links. ------------------------------------------- */
 
 		if (DBadLink(doc, OBJtype, pL, FALSE)) {
-				COMPLAIN("�DCheckNode: NODE L%u IS A GARBAGE LINK.\n", pL);
+				COMPLAIN("�DCheckNode: Object L%u LINK IS GARBAGE.\n", pL);
 				terrible = TRUE;
 		}
 
 		if (LeftLINK(pL)==NILINK || RightLINK(pL)==NILINK
 		||  DBadLink(doc, OBJtype, LeftLINK(pL), TRUE)
 		||  DBadLink(doc, OBJtype, RightLINK(pL), TRUE)) {
-				COMPLAIN("�DCheckNode: NODE L%u HAS A GARBAGE L OR R LINK.\n", pL);
+				COMPLAIN("�DCheckNode: Object L%u HAS A GARBAGE L OR R LINK.\n", pL);
 				terrible = TRUE;
 		}
 		else if (pLeft->right!=pL || pRight->left!=pL) {
-			COMPLAIN("�DCheckNode: NODE L%u HAS AN INCONSISTENT LINK.\n", pL);
+			COMPLAIN("�DCheckNode: Object L%u HAS AN INCONSISTENT LINK.\n", pL);
 			terrible = TRUE;
 		}
 		
 		if (terrible) return -1;									/* Give up now */
 
 		if (TYPE_BAD(pL) || ObjLType(pL)==HEADERtype || ObjLType(pL)==TAILtype)
-			COMPLAIN2("�DCheckNode: NODE L%u HAS BAD type %d.\n", pL, ObjLType(pL));
+			COMPLAIN2("�DCheckNode: Object L%u HAS BAD type %d.\n", pL, ObjLType(pL));
 			
 		if (fullCheck)
 			if (DCheck1SubobjLinks(doc, pL)) bad = terrible = TRUE;
@@ -517,28 +517,28 @@ short DCheckNode(
 
 		GetObjectLimits(ObjLType(pL), &minEntries, &maxEntries, &objRectOrdered);
 		if (LinkNENTRIES(pL)<minEntries || LinkNENTRIES(pL)>maxEntries)
-			COMPLAIN("�DCheckNode: NODE L%u HAS BAD nEntries FOR ITS TYPE.\n", pL);
+			COMPLAIN("�DCheckNode: Object L%u HAS BAD nEntries FOR ITS TYPE.\n", pL);
 			
 /* CHECK object's absolute horizontal position (rather crudely) and objRect. ---------- */
 
 		if (!BeamsetTYPE(pL))									/* Beamset xd is unused */
 			if (LinkXD(pL)<LEFT_HLIM(doc, pL) || LinkXD(pL)>RIGHT_HLIM(doc)) {
-				COMPLAIN2("DCheckNode: NODE L%u IN MEASURE %d HAS BAD HORIZONTAL POSITION.\n",
+				COMPLAIN2("DCheckNode: Object L%u IN MEASURE %d HAS BAD HORIZONTAL POSITION.\n",
 								pL, GetMeasNum(doc, pL));
 			}
 
 		if (!abnormal && LinkVALID(pL)) {
 			if (GARBAGE_Q1RECT(p->objRect)) {
 				/* It's OK for initial keysigs to be unselectable. */
-				pKeySig = GetPKEYSIG(pL);				/* FIXME: OR USE KeySigINMEAS? */
+				pKeySig = GetPKEYSIG(pL);						/* FIXME: OR USE KeySigINMEAS? */
 				if (!(KeySigTYPE(pL) && !pKeySig->inMeasure))
-					COMPLAIN("DCheckNode: NODE L%u HAS A GARBAGE (UNSELECTABLE) objRect.\n", pL);
+					COMPLAIN("DCheckNode: Object L%u HAS A GARBAGE (UNSELECTABLE) objRect.\n", pL);
 			}
 			
 			/* Valid initial objects, e.g., "deleted", can have zero-width objRects. */
 			else if (!ClefTYPE(pL) && !KeySigTYPE(pL) && !TimeSigTYPE(pL)
 						&& ZERODIM_RECT(p->objRect)) {
-				COMPLAIN("DCheckNode: NODE L%u HAS A ZERO-WIDTH/HEIGHT objRect.\n", pL);
+				COMPLAIN("DCheckNode: Object L%u HAS A ZERO-WIDTH/HEIGHT objRect.\n", pL);
 			}
 
 			else if (objRectOrdered) {
@@ -564,11 +564,11 @@ short DCheckNode(
 					apLeft = GetPMEVENT(apLeftL);
 					if (LinkVALID(apLeftL) && lRectOrdered
 					&&  p->objRect.left < apLeft->objRect.left)
-						COMPLAIN("DCheckNode: NODE L%u: objRect.left REL TO PREVIOUS IS SUSPICIOUS.\n", pL);
+						COMPLAIN("DCheckNode: Object L%u: objrect.left relative to previous is suspicious.\n", pL);
 					apRight = GetPMEVENT(apRightL);
 					if (LinkVALID(apRightL) && rRectOrdered
 					&&  p->objRect.left > apRight->objRect.left)
-						COMPLAIN("DCheckNode: NODE L%u: objRect.left REL TO NEXT IS SUSPICIOUS.\n", pL);
+						COMPLAIN("DCheckNode: Object L%u: objrect.left relative to next is suspicious.\n", pL);
 				}
 			}
 		}
@@ -583,7 +583,7 @@ short DCheckNode(
 				break;
 			default:
 				if (LinkYD(pL)!=0)
-					COMPLAIN("*DCheckNode: NODE L%u VERTICAL POSITION SHOULD BE ZERO FOR ITS TYPE BUT ISN'T.\n",
+					COMPLAIN("*DCheckNode: Object L%u VERTICAL POSITION SHOULD BE ZERO FOR ITS TYPE BUT ISN'T.\n",
 									pL);
 		}
 
@@ -667,7 +667,7 @@ short DCheckNode(
 						else {
 							if ((lDurCode<-1 || vlDur[v]<-1)
 							&&   lDurCode!=vlDur[v])
-								COMPLAIN3("DCheckNode: VOICE %d IN SYNC L%u (MEASURE %d) SHOWS MULTIBAR REST INCONSISTENCY.\n",
+								COMPLAIN3("DCheckNode: VOICE %d IN SYNC L%u (MEASURE %d) HAS MULTIBAR REST INCONSISTENCY.\n",
 												v, pL, GetMeasNum(doc, pL));
 						}
 					}
@@ -676,7 +676,7 @@ short DCheckNode(
 				for (aNoteL = FirstSubLINK(pL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					if (vStaff[aNote->voice]!=-999 && aNote->staffn!=vStaff[aNote->voice]) {
-						COMPLAIN2("DCheckNode: VOICE %d IN SYNC L%u ON DIFFERENT STAVES.\n",
+						COMPLAIN2("DCheckNode: VOICE %d IN SYNC L%u IS ON DIFFERENT STAVES.\n",
 										aNote->voice, pL);
 						vStaff[aNote->voice] = -999;
 						}
@@ -1474,7 +1474,7 @@ Boolean DCheckNodeSel(Document *doc, LINK pL)
 	bad = FALSE;
 
 	if (TYPE_BAD(pL) || ObjLType(pL)==HEADERtype || ObjLType(pL)==TAILtype) {
-			COMPLAIN("�DCheckNodeSel: NODE L%u HAS BAD type.\n", pL);
+			COMPLAIN("�DCheckNodeSel: Object L%u HAS BAD type.\n", pL);
 			return bad;
 	}
 
@@ -1755,7 +1755,7 @@ Boolean DCheckHeirarchy(Document *doc)
 				foundMeasure,								/* Found a MEASURE since the last STAFF? */
 				foundClef, foundKeySig, foundTimeSig;	/* Found any CLEF, KEYSIG, TIMESIG yet? */
 	Boolean	bad=FALSE;
-	PCLEF		pClef; PKEYSIG pKeySig; PTIMESIG pTimeSig;
+	PCLEF		pClef;  PKEYSIG pKeySig;  PTIMESIG pTimeSig;
 				
 	foundPage = foundSystem = foundStaff = FALSE;
 	for (i = 1; i<=doc->nstaves; i++)
@@ -1772,7 +1772,7 @@ Boolean DCheckHeirarchy(Document *doc)
 				if (!foundPage || !foundSystem || !foundStaff)
 					COMPLAIN("�DCheckHeirarchy: SYNC L%u PRECEDES PAGE, SYSTEM OR STAFF.\n", pL);
 				if (!foundClef || !foundKeySig || !foundTimeSig)
-					COMPLAIN("�DCheckHeirarchy: NODE L%u PRECEDES CLEF, KEYSIG, OR TIMESIG.\n", pL);
+					COMPLAIN("�DCheckHeirarchy: Object L%u PRECEDES CLEF, KEYSIG, OR TIMESIG.\n", pL);
 				break;
 			case PAGEtype:
 				foundPage = TRUE;
@@ -1819,10 +1819,10 @@ Boolean DCheckHeirarchy(Document *doc)
 			case OTTAVAtype:
 	ChkAll:
 				if (!foundClef || !foundKeySig || !foundTimeSig)
-					COMPLAIN("�DCheckHeirarchy: NODE L%u PRECEDES CLEF, KEYSIG, OR TIMESIG.\n", pL);
+					COMPLAIN("�DCheckHeirarchy: Object L%u PRECEDES CLEF, KEYSIG, OR TIMESIG.\n", pL);
 	ChkPageSysStaff:
 				if (!foundPage || !foundSystem || !foundStaff)
-					COMPLAIN("�DCheckHeirarchy: NODE L%u PRECEDES PAGE, SYSTEM OR STAFF.\n", pL);
+					COMPLAIN("�DCheckHeirarchy: Object L%u PRECEDES PAGE, SYSTEM OR STAFF.\n", pL);
 				break;
 			case CONNECTtype:
 				if (!foundPage || !foundSystem)
@@ -1893,8 +1893,8 @@ Boolean DCheckHeirarchy(Document *doc)
 				COMPLAIN("�DCheckHeirarchy: OBJECT L%u PRECEDES ITS STAFF'S 1ST MEASURE.\n", pL);
 			break;
 	}
-	if (!foundMeasure) {															/* Any Measures in the last System? */
-		pL = LSSearch(doc->tailL, SYSTEMtype, ANYONE, TRUE, FALSE);	/* No */
+	if (!foundMeasure) {												/* Any Measures in the last System? */
+		pL = LSSearch(doc->tailL, SYSTEMtype, ANYONE, TRUE, FALSE);		/* No */
 		COMPLAIN("�DCheckHeirarchy: SYSTEM L%u CONTAINS NO MEASURES.\n", pL);
 	}		
 
@@ -1949,16 +1949,16 @@ Boolean DCheckBeams(
 					Boolean maxCheck		/* FALSE=skip less important checks */
 					)
 {
-	PANOTE				aNote, aGRNote;
-	LINK				pL, aNoteL, aGRNoteL;
-	LINK				syncL, measureL, noteBeamL, qL;
-	short				staff, voice, v, n, nEntries;
-	LINK				beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
-	Boolean				expect2ndPiece[MAXVOICES+1], beamNotesOkay;
-	PBEAMSET			pBS;
-	PANOTEBEAM			pNoteBeam;
-	SearchParam 		pbSearch;
-	Boolean				foundRest, grace, bad;
+	PANOTE			aNote, aGRNote;
+	LINK			pL, aNoteL, aGRNoteL;
+	LINK			syncL, measureL, noteBeamL, qL;
+	short			staff, voice, v, n, nEntries;
+	LINK			beamSetL[MAXVOICES+1], grBeamSetL[MAXVOICES+1];
+	Boolean			expect2ndPiece[MAXVOICES+1], beamNotesOkay;
+	PBEAMSET		pBS;
+	PANOTEBEAM		pNoteBeam;
+	SearchParam 	pbSearch;
+	Boolean			foundRest, grace, bad;
 
 	bad = FALSE;
 	
@@ -2704,7 +2704,7 @@ Boolean DCheck1NEntries(
 				Document */*doc*/,		/* unused */
 				LINK pL)
 {
-	LINK subL, tempL; Boolean bad; short subCount;
+	LINK subL, tempL;  Boolean bad;  short subCount;
 	HEAP *myHeap;
 	
 	bad = FALSE;
@@ -2741,7 +2741,7 @@ protects itself against other simple data structure problems. */
 
 Boolean DCheckNEntries(Document *doc)
 {
-	LINK pL; Boolean bad; long soon=TickCount()+60L;
+	LINK pL;  Boolean bad;  long soon=TickCount()+60L;
 	
 	bad = FALSE;
 		
@@ -2759,8 +2759,8 @@ Boolean DCheckNEntries(Document *doc)
 
 Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 {
-	PMEVENT p; HEAP *tmpHeap;
-	LINK subObjL, badLink; Boolean bad;
+	PMEVENT p;  HEAP *tmpHeap;
+	LINK subObjL, badLink;  Boolean bad;
 	
 	bad = FALSE;
 	

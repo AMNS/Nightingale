@@ -31,12 +31,14 @@ Boolean QDP(char *fmtStr);
 #define COMPLAIN(f, v) { if (QDP(f)) { LogPrintf(LOG_WARNING, (f), (v)); bad = TRUE; } }
 #define COMPLAIN2(f, v1, v2) { if (QDP(f)) { LogPrintf(LOG_WARNING, (f), (v1), (v2)); bad = TRUE; } }
 #define COMPLAIN3(f, v1, v2, v3) { if (QDP(f)) { LogPrintf(LOG_WARNING, (f), (v1), (v2), (v3)); bad = TRUE; } }
+#define COMPLAIN4(f, v1, v2, v3, v4) { if (QDP(f)) { LogPrintf(LOG_WARNING, (f), (v1), (v2), (v3), (v4)); bad = TRUE; } }
 
 #else
 
 #define COMPLAIN(f, v) { MayErrMsg((f), (v)); nerr++; bad = TRUE; }
 #define COMPLAIN2(f, v1, v2) { MayErrMsg((f), (v1), (v2)); nerr++; bad = TRUE; }
 #define COMPLAIN3(f, v1, v2, v3) { MayErrMsg((f), (v1), (v2), (v3)); nerr++; bad = TRUE; }
+#define COMPLAIN4(f, v1, v2, v3, v4) { MayErrMsg((f), (v1), (v2), (v3), (v4)); nerr++; bad = TRUE; }
 
 #endif
 
@@ -46,7 +48,7 @@ Boolean QDP(char *fmtStr);
 /* Check whether a Rect is a valid 1st-quadrant rectangle with positive height
 (Nightingale uses rectangles of zero width for empty key signatures). */
 #define GARBAGE_Q1RECT(r)	(  (r).left>(r).right || (r).top>=(r).bottom		\
-									|| (r).left<0 || (r).right<0							\
+									|| (r).left<0 || (r).right<0				\
 									|| (r).top<0 || (r).bottom<0)
 #define ZERODIM_RECT(r)		(  (r).left==(r).right || (r).top==(r).bottom	)
 

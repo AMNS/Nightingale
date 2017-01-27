@@ -309,7 +309,7 @@ static void DrawAugDots(Document *doc,
 	PANOTE	theNote;
 	DDIST 	xdDots, ydDots, dhalfLn;
 	short	ndots, xpDots, yp;
-	Boolean	dim;						/* Should it be dimmed bcs in a voice not being looked at? */
+	Boolean	dim;							/* Should it be dimmed bcs in a voice not being looked at? */
 	Byte	glyph = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	theNote = GetPANOTE(theNoteL);
@@ -339,7 +339,7 @@ static void DrawAugDots(Document *doc,
 			}
 			break;
 		case toPostScript:
-			if (doc->srastral==7) ydDots += pt2d(1)/8;						/* Tiny empirical correction */
+			if (doc->srastral==7) ydDots += pt2d(1)/8;				/* Tiny empirical correction */
 			while (ndots>0) {
 				xdDots += 2*dhalfLn;
 				PS_MusChar(doc, xdDots, ydDots, glyph, TRUE, 100);
@@ -359,7 +359,7 @@ DDIST AccXOffset(short xmoveAcc, PCONTEXT pContext)
 	dAccWidth = std2d(STD_ACCWIDTH,
 							 pContext->staffHeight,
 							 pContext->staffLines);
-	xOffset = dAccWidth;												/* Set offset to default */
+	xOffset = dAccWidth;									/* Set offset to default */
 	xOffset += (dAccWidth*(xmoveAcc-DFLT_XMOVEACC))/4;		/* Fine-tune it */
 	return xOffset;
 }
@@ -431,9 +431,8 @@ void DrawAcc(Document *doc,
 		yoffset = MusCharYOffset(doc->musFontInfoIndex, rparenGlyph, lnSpace);	/* assume both parens have same yoffset */
 		delta = (short)(((long)scalePercent*config.courtesyAccYD)/100L);
 		ydParens = yd + delta*d8thSp + ((DDIST)(((long)scalePercent*yoffset)/100L));
-		//LogPrintf(LOG_NOTICE, "DrawAcc: yd=%d, delta=%d, scalePercent=%d, yoffset=%d, ydParens=%d\n",
-		//			yd, delta, scalePercent, yoffset, ydParens);
 	}
+
 	xdAcc += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
 	yd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, accGlyph, lnSpace));
 
@@ -1059,7 +1058,7 @@ the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
 							/* The 8th and 16th note flag characters in Sonata have their origins set so,
 								in theory, they're positioned properly if drawn from the point where the note
 								head was drawn. Unfortunately, the vertical position depends on the stem
-								length, which Adobe incorrectly assumed was always one octave. The "extend
+								length, which Sonata's designers assumed was always one octave. The "extend
 								flag" characters have their vertical origins set right where they go. */
 							MoveTo(xhead, ypStem);								/* Position x at head, y at stem end */
 							octaveLength = d2p(7*SizePercentSCALE(dhalfLn));

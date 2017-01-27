@@ -1104,3 +1104,12 @@ Make Browser display voice no. as "iv=" instead of "v=" to clarify that it's the
 internal, not user, voice number. Affects Browser.
 
 Minor cleanup. Affects DrawNRGR, DrawObject, SpaceTime.
+
+-------------------------------------------------------------------------------
+
+26-27 Jan.
+
+Add measure no. to Debug command messages for a number of things. Affects
+DebugUtils.h; DebugUtils, Debug2Utils.
+
+Minor cleanup. Affects DrawNRGR, DebugUtils, Debug2Utils.

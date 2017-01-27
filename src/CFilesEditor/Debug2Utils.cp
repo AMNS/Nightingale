@@ -41,7 +41,7 @@ Boolean DCheckPlayDurs(
 				)
 {
 	register LINK pL, aNoteL;
-	PANOTE aNote; PTUPLET pTuplet;
+	PANOTE aNote;  PTUPLET pTuplet;
 	register Boolean bad;
 	short v, shortDurThresh, tupletNum[MAXVOICES+1], tupletDenom[MAXVOICES+1];
 	long lDur;
@@ -68,8 +68,8 @@ Boolean DCheckPlayDurs(
 					aNote = GetPANOTE(aNoteL);
 					if (aNote->subType!=UNKNOWN_L_DUR && aNote->subType>WHOLEMR_L_DUR) {
 						if (aNote->playDur<shortDurThresh) {
-							COMPLAIN3("DCheckPlayDurs: NOTE IN VOICE %d OF SYNC L%u IN MEASURE %d HAS EXTREMELY SHORT playDur.\n",
-											aNote->voice, pL, GetMeasNum(doc, pL));
+							COMPLAIN3("DCheckPlayDurs: Note in Sync L%u voice %d in measure %d playDur is extremely short.\n",
+											pL, aNote->voice, GetMeasNum(doc, pL));
 						}
 						else {
 							lDur = SimpleLDur(aNoteL);
@@ -78,8 +78,8 @@ Boolean DCheckPlayDurs(
 								lDur = (lDur*tupletDenom[v])/tupletNum[v];
 							}
 							if (aNote->playDur>lDur)
-								COMPLAIN3("DCheckPlayDurs: NOTE IN VOICE %d OF SYNC L%u playDur IS LONGER THAN FULL DUR. OF %d\n",
-											aNote->voice, pL, lDur);
+								COMPLAIN4("DCheckPlayDurs: Note in Sync L%u voice %d in measure %d playDur is longer than full dur. of %d\n",
+											pL, aNote->voice, GetMeasNum(doc, pL), lDur);
 						}
 					}
 				}
@@ -130,7 +130,7 @@ Boolean DCheckTempi(Document *doc)
 //					pL, tempoStr);
 				/* If this Tempo object has a tempo string, is it the expected string? */
 				if (strlen(tempoStr)>0 && strcmp(prevTempoStr, tempoStr)!=0)
-					COMPLAIN3("DCheckTempi: Tempo marks L%u ('%s') AND L%u ARE INCONSISTENT.\n",
+					COMPLAIN3("DCheckTempi: Tempo marks L%u ('%s') and L%u are inconsistent.\n",
 								prevTempoL, prevTempoStr, pL);
 			}
 			
@@ -142,7 +142,7 @@ Boolean DCheckTempi(Document *doc)
 //					pL, metroStr);
 				/* If this Tempo object has an M.M., is it the expected M.M. string? */
 				if (!TempoNOMM(pL) && strcmp(prevMetroStr, metroStr)!=0)
-					COMPLAIN3("DCheckTempi: M.M.s of Tempo objects L%u ('%s') AND L%u ARE INCONSISTENT.\n",
+					COMPLAIN3("DCheckTempi: M.M.s of Tempo objects L%u ('%s') and L%u are inconsistent.\n",
 								prevTempoL, prevMetroStr, pL);
 			}
 			else {
@@ -171,7 +171,7 @@ a cancellation and the last key signature on the same staff was a cancel. */
 
 Boolean DCheckRedundantKS(Document *doc)
 {
-	LINK pL, aKSL; PAKEYSIG aKeySig;
+	LINK pL, aKSL;  PAKEYSIG aKeySig;
 	Boolean bad, firstKS;
 	short lastKSNAcc[MAXSTAVES+1], s, nRedundant;
 	
@@ -200,7 +200,7 @@ Boolean DCheckRedundantKS(Document *doc)
 						nRedundant++;
 				}
 				if (nRedundant>0)
-					COMPLAIN2("*DCheckRedundantKS: KEYSIG L%u REPEATS CANCEL ON %d STAVES.\n",
+					COMPLAIN2("*DCheckRedundantKS: Keysig L%u repeats cancel on %d staves.\n",
 									pL, nRedundant);
 
 				for (aKSL = FirstSubLINK(pL); aKSL; aKSL = NextKEYSIGL(aKSL)) {
@@ -242,7 +242,7 @@ Boolean DCheckExtraTS(Document *doc)
 					if (haveTS[TimeSigSTAFF(aTSL)])
 						nRedundant++;
 				if (nRedundant>0)
-					COMPLAIN3("DCheckExtraTS: L%u IS TIMESIG BUT MEASURE %d ALREADY HAS TIMESIG ON %d STAVES.\n",
+					COMPLAIN3("DCheckExtraTS: L%u is a Timesig but Measure %d already has Timesig on %d staves.\n",
 									pL, GetMeasNum(doc, pL), nRedundant);
 
 				for (aTSL = FirstSubLINK(pL); aTSL; aTSL = NextTIMESIGL(aTSL))
@@ -290,11 +290,11 @@ Boolean DCheckCautionaryTS(Document *doc)
 						there's an equivalent cautionary timesig on this staff at the
 						end of the previous system. */
 						if (!haveEndSysTS[stf]) {
-							COMPLAIN3("DCheckCautionaryTS: TIMESIG AT START OF SYSTEM IN MEASURE %d, STAFF %d (L%u) NOT ANTICIPATED.\n",
+							COMPLAIN3("DCheckCautionaryTS: Timesig at start of system in measure %d, staff %d (L%u) not anticipated.\n",
 										GetMeasNum(doc, pL), stf, pL);
 						}
 						else if (TimeSigNUM(aTSL)!=numerator[stf] || TimeSigDENOM(aTSL)!=denominator[stf])
-							COMPLAIN3("DCheckCautionaryTS: TIMESIG AT START OF SYSTEM IN MEASURE %d, STAFF %d (L%u) DISAGREES WITH ANTICIPATING TIMESIG.\n",
+							COMPLAIN3("DCheckCautionaryTS: Timesig at start of system in measure %d, staff %d (L%u) disagrees with anticipating timesig.\n",
 										GetMeasNum(doc, pL), stf, pL);
 					}
 					haveEndSysTS[stf] = TRUE;
@@ -359,15 +359,15 @@ Boolean DCheckMeasDur(Document *doc)
 
 			measDurFromTS = GetTimeSigMeasDur(doc, barTermL);
 			if (measDurFromTS<0) {
-				COMPLAIN2("DCheckMeasDur: MEASURE %d (L%u) TIME SIG. DURATION DIFFERENT ON DIFFERENT STAVES.\n",
+				COMPLAIN2("DCheckMeasDur: Measure %d (L%u) time sig. duration is different on different staves.\n",
 								GetMeasNum(doc, pL), pL);
 				continue;
 			}
 			measDurActual = GetMeasDur(doc, barTermL, ANYONE);
 			if (measDurFromTS!=measDurActual) {
-				adverb = (ABS(measDurFromTS-measDurActual)<PDURUNIT? " MINUTELY " : " ");
-				COMPLAIN3("DCheckMeasDur: MEASURE L%u DURATION OF %ld%sDIFFERENT FROM TIME SIG.\n",
-								pL, measDurActual, adverb);
+				adverb = (ABS(measDurFromTS-measDurActual)<PDURUNIT? "minutely" : "");
+				COMPLAIN4("DCheckMeasDur: Measure %d (L%u) duration of %ld is %s different from time sig.\n",
+								GetMeasNum(doc, pL), pL, measDurActual, adverb);
 			}
 
 			/* Check measure duration on individual staves. */
@@ -376,8 +376,8 @@ Boolean DCheckMeasDur(Document *doc)
 				staffn = MeasureSTAFF(aMeasL);			
 				measDurOnStaff = GetMeasDur(doc, barTermL, staffn);
 				if (measDurOnStaff!=0 && ABS(measDurFromTS-measDurOnStaff)>=PDURUNIT) {
-					COMPLAIN3("DCheckMeasDur: measure L%u, staff %d duration %d different from time sig.\n",
-								pL, staffn, measDurOnStaff);
+					COMPLAIN4("DCheckMeasDur: Measure %d (L%u), staff %d duration %d is different from time sig.\n",
+								GetMeasNum(doc, pL), pL, staffn, measDurOnStaff);
 				}
 			}
 		}
@@ -393,9 +393,9 @@ user interface doesn't handle them well, e.g., showing their selection status. *
 
 Boolean DCheckUnisons(Document *doc)
 {
-	LINK pL; Boolean bad; short voice;
+	LINK pL;  Boolean bad;  short voice;
 	
-	if (unisonsOK) return FALSE;
+	if (unisonsOK) return FALSE;		/* If they're not a problem now, skip checking! */
 	
 	bad = FALSE;
 		
@@ -406,8 +406,8 @@ Boolean DCheckUnisons(Document *doc)
 			for (voice = 1; voice<=MAXVOICES; voice++)
 				if (VOICE_MAYBE_USED(doc, voice))
 					if (ChordHasUnison(pL, voice))
-						COMPLAIN2("DCheckUnisons: SYNC L%u CHORD IN VOICE %d CONTAINS UNISON.\n",
-										pL, voice);
+						COMPLAIN3("DCheckUnisons: In measure %d, chord (L%u) in voice %d contains a unison.\n",
+										GetMeasNum(doc, pL), pL, voice);
 	}
 	
 	return FALSE;
@@ -484,11 +484,11 @@ Boolean DCheckNoteNums(Document *doc)
 							nnDiff = DBadNoteNum(doc, clefType, useOctType, accTable, pL, aNoteL);
 							if (nnDiff!=0) {
 								if (abs(nnDiff)<=2) {
-									COMPLAIN3("DCheckNoteNums: NOTE IN SYNC L%u STAFF %d noteNum %d AND NOTATION DISAGREE: ACCIDENTAL?\n",
+									COMPLAIN3("DCheckNoteNums: Note in Sync L%u staff %d notenum %d and notation disagree: wrong accidental?\n",
 													pL, staff, NoteNUM(aNoteL));
 								}
 								else {
-									COMPLAIN3("DCheckNoteNums: NOTE IN SYNC L%u STAFF %d noteNum %d AND NOTATION DISAGREE.\n",
+									COMPLAIN3("DCheckNoteNums: Note in Sync L%u staff %d notenum %d and notation disagree.\n",
 													pL, staff, NoteNUM(aNoteL));
 								}
 							}

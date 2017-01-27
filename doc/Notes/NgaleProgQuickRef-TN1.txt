@@ -1,6 +1,6 @@
-NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.7b4)
+NIGHTINGALE PROGRAMMER'S QUICK REFERENCE (as of v. 5.7b8)
 Nightingale Technical Note #1
-Don Byrd, rev. early Sept. 2016
+Don Byrd, rev. late January 2017
 
 A general note:
 
@@ -12,17 +12,19 @@ times slower than modern (2016) computers: their processors were Motorola 68000s
 CPUs running at 8 MHz. They also had a thousand or more times less memory than modern
 computers: typically one or two megabytes. As a result:
 
-* For speed, Nightingale's main data structure, the object list, has cross-links on
-	multiple levels.
+* For speed, Nightingale's main data structure, the object list, has cross links on
+	multiple levels. Of course the cross links can become inconsistent.
+* For speed, Nightingale tries pretty hard not to redraw more than necessary. Of
+	course it can redraw _less_ than necesssary.
 * Nightingale's file format closely resembles its in-memory data structures, making it
 	much harder to add functionality that requires keeping information around while
 	retaining backwards compatability.
 * Nightingale has its own mid-level memory management routines, involving structures
 	called _heaps_. These must be "locked" at times to keep the Mac OS's own memory
 	manager, with its fixed _handles_, from moving things around and leaving pointers
-	behind. (This problem can be sidestepped to a great extent by using the macros
-	in MemMacros.h, but a tremendous amount of Nightingale code fails to use them
-	when it could.)
+	behind. (This problem can be avoided to a great extent by using the macros in
+	MemMacros.h, but a large amount of Nightingale code doesn't use them where it
+	could. However, all new code should use them!)
 * The Macintosh toolkit of the time -- later dubbed "Carbon" -- was designed primarily
 	for use from Pascal, and it expects strings in Pascal's format of a length byte
 	followed by at most 255 characters. Thus Nightingale frequently converts strings
@@ -36,16 +38,16 @@ Also see the important header files:
 	precomp includes
 		applicationTypes.h: major structs including DOCUMENTHEADER, Document, Configuration
 		NTypes.h: structs and defines for most of the data structures in the object
-						list, etc., plus important constants and macros
+					list, etc., plus important constants and macros
 		NLimits.h: most limits, i.e., maximum and minimum values
 		defs.h: important #defines other than memory mgmt and the above, plus a few limits
 	
 	application includes
 		MemMacros.h: macros for the memory-management layer
 		vars.h: global variables and tables including the symbol table (symtable), the
-						object-properties table (objTable), staff sizes, and subObjLength[].
+					object-properties table (objTable), staff sizes, and subObjLength[].
 
-The voice-mapping table -- for the document _doc_, _doc->voiceTab[]_ -- is described in
+The voice-mapping table -- for the Document _*doc_, _doc->voiceTab[]_ -- is described in
 comments at the beginning of VoiceTable.c.
 
 ---------------------------------------------------------------------------------------

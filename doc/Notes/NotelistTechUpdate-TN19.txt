@@ -1,6 +1,6 @@
 NIGHTINGALE NOTELIST TECHNICAL UPDATE
 Nightingale Technical Note #19
-by Donald Byrd - revised late November 2016, for Nightingale 5.7
+by Donald Byrd - revised mid January 2017, for Nightingale 5.7
 
 
 For general information on the notelist format, see the description of the Save
@@ -10,9 +10,9 @@ has an entire chapter that describes Nightingale notelists in detail; that chapt
 is distributed with Nightingale in a text file called "NotelistDescription97.txt".
 
 The original notelist format was used by all versions of Nightingale thru 3.0. Files
-written by Nightingale 3.0A add two symbol types--tuplets and clefs--but the _Beyond
-MIDI_ chapter actually describes the 3.0A format, so tuplets and clefs are covered
-there and will not be discussed further.
+written by Nightingale 3.0A add two symbol types -- tuplets and clefs -- but the
+_Beyond MIDI_ chapter actually describes the 3.0A format, so tuplets and clefs are
+covered there and will not be discussed further.
 
 
 Errata and Clarifications for the Book Chapter (and text file)
@@ -54,8 +54,8 @@ with the obvious meaning.
 Notelist Format Changes from the Book Chapter
 ---------------------------------------------
 
-Newer notelists differ from the 3.0A notelists described in the book chapter in just
-six ways.
+Newer notelists differ from the Nightingale 3.0A notelists described in the book chapter
+in just eight ways.
 
 1. The header line that begins every notelist file written by Nightingale 3.5 and later
 gives a file-format version number ("V1" for Nightingale 3.5, "V2" for later versions)
@@ -80,9 +80,9 @@ ignored.
 text itself; in V2 files, the "L" or "S" is followed by a digit from 1 to 9 saying which
 of Nightingale's numbered styles to use, or 0 for unknown. So
 
-	A v=2 npt=4 stf=5 S5 'Variation 8'
+	A v=2 npt=4 stf=5 S3 'Variation 8'
 
-would describe the non-lyric string "Variation 8" in style 5, belonging to voice 2,
+would describe the non-lyric string "Variation 8" in style 3, belonging to voice 2,
 part 4, staff 5.
 
 4. Beginning with Nightingale 2000 v.4 (or so), the header line ends with an optional
@@ -93,21 +93,30 @@ starting measure number, in this format:
 If the starting measure number is not given, the score is assumed to start in
 measure 1.
 
-5. Beginning with Nightingale 2000 v.4 (or so), a note's play duration (Sec. 21.2.1.J),
+5. Starting with Nightingale 2000 v.4 (or so), a note's play duration (Sec. 21.2.1.J),
 which formerly was required to be from 1 to 32000, can also be given as 0: this
 represents a reasonable default value, which Nightingale currently interprets as 95
 percent of the logical duration.
 
-6. Beginning with Nightingale 5.7, Tempo mark lines (Sec. 21.2.11) may indicate there's
+6. Starting with Nightingale 5.7, Tempo mark lines (Sec. 21.2.11) may indicate there's
 no associated metronome mark by ending with "noMM" instead of with a numerical metronome
 mark.
+
+7. Starting with Nightingale 5.7, Measure (barline) lines give the measure number.
+
+8. Starting with Nightingale 5.7, context-setting clefs at the beginnings of systems
+are ignored, just as context-setting key signatures have always been. Similarly, time
+signatures at the very ends of systems are assumed to be cautionary occurrences for
+the same time signature appearing at the beginning of the same staff in the next
+system, and the cautionary occurrences are skipped.
+
 
 For reference, the formats of items in a notelist file (other than the header) are:
 
 Note			N t=%ld v=%d npt=%d stf=%d dur=%d dots=%d nn=%d acc=%d eAcc=%d pDur=%d vel=%d %s appear=%d [mods=%d]
 Rest			R t=%ld v=%d npt=%d stf=%d dur=%d dots=%d %s appear=%d [mods=%d]
 Grace note		G t=-1 v=%d npt=%d stf=%d dur=%d dots=%d nn=%d acc=%d eAcc=%d pDur=%d vel=%d %c appear=%d [mods=%d]
-Barline			/ t=%ld type=%d
+Measure (barline)	/ t=%ld type=%d	number=%d
 Clef			C stf=%d type=%d
 Key signature	K stf=%d KS=%d %c
 Time signature	T stf=%d num=%d denom=%d

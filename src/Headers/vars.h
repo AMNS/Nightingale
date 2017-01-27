@@ -258,8 +258,8 @@ SYMDATA symtable[] = {
 			271,	GRAPHICtype,GRArpeggio,		'g',	ARP,	/* Arpeggio sign */
 			271,	GRAPHICtype,GRArpeggio,		'G',	NONARP,/* Non-arpeggio sign */
 			275,	GRAPHICtype,GRDraw,			'_',	0,		/* Line */
-			341,	GRAPHICtype,GRMIDISustainOn,	0xB6,	0,		/* Music char. "Ped." (pedal down) */
-			342,	GRAPHICtype,GRMIDISustainOff,	0xFA,	1,		/* Music char. pedal up */
+			341,	GRAPHICtype,GRMIDISustainOn,	0xB6,	0,	/* Music char. "Ped." (pedal down) */
+			342,	GRAPHICtype,GRMIDISustainOff,	0xFA,	1,	/* Music char. pedal up */
 			340,	GRAPHICtype,GRMIDIPan,		0x7C,	1,		/* MIDI Pan Controller */
 			271,	GRAPHICtype,GRChordFrame,	0xB1,	0,		/* Chord frame */
 			300,	MEASUREtype, BAR_RPT_L,		'[',	0,		/* left repeat */
@@ -312,7 +312,7 @@ OBJDATA objTable[] = {
  *	The point sizes we really want for staff rastral sizes, as given, e.g., in Ted
  *	Ross' book, are:
  *		FASTFLOAT rSize[MAXRASTRAL+1] =						Sizes for staff rastral nos.
- *			{26,21.6,20,18.8,18,16.4,14.2,12.4,10;			 in points
+ *			{26,21.6,20,18.8,18,16.4,14.2,12.4,10;			in points
  *	But we'll accept the following approximations, which are more practical with the
  *	Macintosh's screen resolution of 72 dpi, or 1 point. N.B. pdrSize[0] is normally
  * replaced by a value from the CNFG resource.
@@ -321,10 +321,10 @@ OBJDATA objTable[] = {
 short pdrSize[MAXRASTRAL+1] =								/* Sizes for staff rastral nos., */
 	{ 28, 24, 20, 19, 18, 16, 14, 12, 10};					/*  in points */ 
 
-/* Sets of related characters in the Adobe music font, "Sonata" (individual
-characters are declared in NTypes.h): */
+/* Sets of related characters in Adobe's Sonata and compatibles (individual characters
+are declared in NTypes.h) */
 unsigned char SonataAcc[6] = { ' ', 0xBA,'b','n','#',0xDC };	/* Accidentals */
-unsigned char MCH_idigits[10] =										/* Small italic digits for tuplets, etc. */
+unsigned char MCH_idigits[10] =									/* Small italic digits for tuplets, etc. */
 	{ 0xBC, 0xC1, 0xAA, 0xA3, 0xA2, 0xB0, 0xA4, 0xA6, 0xA5, 0xBB };
 
 unsigned char MCH_notes[MAX_L_DUR] =
@@ -338,11 +338,11 @@ unsigned char MCH_rests[MAX_L_DUR] =
 short restYOffset[MAX_L_DUR+1] = 
 					{ 0, 0, 0, 0, 0, -1, 1, 1, 3, 3 };
 
-short noteOffset[] = { 7, 14, 21, -7, -14, -21 };				/* Offset for ottavas in half-lines */
+short noteOffset[] = { 7, 14, 21, -7, -14, -21 };				/* Vert. offset for ottavas, in half-lines */
 
-/*	Text sizes, relative to line space:
-                             Tiny VSmall Small Medium Large VLarge Jumbo -- StaffHt */
-FASTFLOAT relFSizeTab[] =  { 1.0, 1.5,  1.7,   2.0,  2.2,	2.5,	3.0,   3.6, 0,   4.0  };
+/*	Text sizes, in line spaces:
+                             Tiny VSmall Small Medium Large VLarge Jumbo ------- StaffHt */
+FASTFLOAT relFSizeTab[] =  { 1.0, 1.5,   1.7,  2.0,   2.2,	2.5,   3.0,  3.6, 0,   4.0  };
 
 short subObjLength[] = {
 		sizeof(PARTINFO),	/* HEADER subobject */
