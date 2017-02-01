@@ -19,16 +19,16 @@ short infile;
 long eofpos;
 
 
-/* The format of Standard MIDI Files is described in a document of that name
-available from the International MIDI Association.
+/* The format of Standard MIDI Files is described in a document of that name available
+from the International MIDI Association.
 
 We go thru two steps in converting a MIDI file to Nightingale score. In step 1, we
-translate the MIDI file to our "MIDNight" format: see MF2MIDNight for comments on
-this. In step 2, we generate Nightingale data structure from the MIDNight data, which
-is much more difficult: see comments after the heading "MIDNight --> Nightingale".
+translate the MIDI file to our "MIDNight" format: see MF2MIDNight for comments on this.
+In step 2, we generate Nightingale data structure from the MIDNight data, which is much
+more difficult: see comments after the heading "MIDNight --> Nightingale".
 
-This file also contains some utility functions for use by MIDI-file-reading
-user-interface-level routines. */
+This file also contains some utility functions for use by MIDI-file-reading user-
+interface-level routines. */
 
 static short errCode;
 
@@ -164,10 +164,8 @@ Boolean ReadMFHeader(Byte *pFormat, Word *pnTracks, Word *pTimeBase)
 		if (errCode!=noError) return FALSE;
 	}
 
-#ifndef PUBLIC_VERSION_1
-	if (DBG) LogPrintf(LOG_NOTICE, "MThd len=%ld format=%d nTracks=%d timeBase=%d (qtrNTicks=%d)\n",
-						len, *pFormat, *pnTracks, *pTimeBase, qtrNTicks);
-#endif
+	LogPrintf(LOG_NOTICE, "ReadMFHeader: MThd len=%ld format=%d nTracks=%d timeBase=%d (qtrNTicks=%d)\n",
+					len, *pFormat, *pnTracks, *pTimeBase, qtrNTicks);
 	return TRUE;
 }
 
@@ -714,7 +712,7 @@ Done:
 /* Convert an entire track of a MIDI file into our "MIDNight" form, an inter-
 mediate form designed simply to make it easier to generate Nightingale data
 structure. The only differences between MIDI file format and MIDNight are:
-1. MIDNight has no Note Offs; instead release velocity and duration are appended
+1. MIDNight has no Note Offs; instead, release velocity and duration are appended
 	to Note Ons, giving notes the format (in bytes):
 		Status NoteNum OnVel OffVel Dur1 Dur2
 	Notice that this limits durations to a maximum of 2^16-1 = 65535 ticks; at our
@@ -726,16 +724,16 @@ structure. The only differences between MIDI file format and MIDNight are:
 4. For now, at least, MIDNight ignores SysEx events and channel commands other than
 	Note On and Note Off.
 
-A note in a MIDI file takes from 4 to 6 bytes (2 or 3 each for note on and off),
-while MIDNight always needs 6. Also, every event in a MIDI file needs from 1 to
-4 bytes, but rarely more than 2, for delta time, while MIDNight always needs 4
-for its absolute time. On the other hand, a MIDI file note has two delta times,
-while a MIDNight note has only one. So a note takes a total of 6 to 10 bytes in a
-MIDI file, exactly 10 in MIDNight, for a total of 0 to 4 more in MIDNight.
-Considering running status, a metaevent takes 0 to 4 bytes more in a MIDNight file.
-Furthermore, MIDNight may need a byte of padding to make events start at even
-locations. Thus, a MIDNight chunk is likely to be much larger than the MIDI file
-track it corresponds to, though rarely if ever twice as large.
+A note in a MIDI file takes from 4 to 6 bytes (2 or 3 each for Note On and Off), while
+MIDNight always needs 6. Also, every event in a MIDI file needs from 1 to 4 bytes, but
+rarely more than 2, for delta time, while MIDNight always needs 4 for its absolute time.
+On the other hand, a MIDI file note has two delta times, while a MIDNight note has only
+one. So, counting timing info, a note takes a total of 6 to 10 bytes in a MIDI file,
+exactly 10 in MIDNight, for a total of 0 to 4 more in MIDNight. Considering running
+status, a metaevent takes 0 to 4 bytes more in a MIDNight file. Furthermore, MIDNight
+may need a byte of padding to make events start at even locations. Thus, a MIDNight
+chunk is likely to be much larger than the MIDI file track it corresponds to, though
+rarely if ever twice as large.
 
 MF2MIDNight returns the length of the MIDNight chunk, or 0 if an error occurs. */
 
@@ -1576,12 +1574,13 @@ static LINK GetCtrlRelObj(LINKTIMEINFO *docSyncTab, short tabSize, CTRLINFO ctrl
 
 static void PrintDocSyncTab(char *tabname, LINKTIMEINFO *docSyncTab, short tabSize) 
 {
-	LogPrintf(LOG_NOTICE, "PrintDocSyncTab: for %s, tabSize=%ld\n", tabname, tabSize);
+	LogPrintf(LOG_INFO, "PrintDocSyncTab: for %s, tabSize=%ld\n", tabname, tabSize);
 	
 	for (int j = 0; j<tabSize; j++) 
 	{
 		LINKTIMEINFO info = docSyncTab[j];
-		if (DBG) LogPrintf(LOG_INFO, "j = %ld link = %ld time=%ld mult=%ld\n", j, info.link, info.time, info.mult);
+		if (DBG) LogPrintf(LOG_DEBUG, "j = %ld link = %ld time=%ld mult=%ld\n", j, info.link,
+					info.time, info.mult);
 	}
 }
 
@@ -2218,10 +2217,8 @@ static short Track2Night(
 	isTempoMap = (track==1);						/* an OK assumption for format 1 MIDI files */
 	isLastTrack = (track==nTracks);
 	if (isTempoMap) InitTrack2Night(doc, &mergeTabSize, &oneTrackTabSize);
-#ifndef PUBLIC_VERSION_1
 	if (isTempoMap)
-		LogPrintf(LOG_NOTICE, "mergeTabSize=%ld oneTrackTabSize=%ld\n", mergeTabSize, oneTrackTabSize);
-#endif
+		LogPrintf(LOG_DEBUG, "Track2Night: mergeTabSize=%ld oneTrackTabSize=%ld\n", mergeTabSize, oneTrackTabSize);
 
 	len = oneTrackTabSize*sizeof(LINKTIMEINFO);
 	rawSyncTab = (LINKTIMEINFO *)NewPtr(len);
@@ -2262,11 +2259,9 @@ static short Track2Night(
 		measInfoTab[measTabLen-1].count = count;
 		if (!MFAddMeasures(doc, maxMeasures, &cStopTime)) goto Done;
 		cStopTime = NTicks2MFTicks(cStopTime);
-#ifndef PUBLIC_VERSION_1
-		LogPrintf(LOG_NOTICE, "cStart/StopTime=%ld/%ld quantum=%d tripBias=%d tryLev=%d leastSq=%d timeOff=%d\n",
+		LogPrintf(LOG_DEBUG, "cStart/StopTime=%ld/%ld quantum=%d tripBias=%d tryLev=%d leastSq=%d timeOff=%d\n",
 							cStartTime, cStopTime, quantum, tripletBias,
 							config.tryTupLevels, config.leastSquares, timeOffset);
-#endif
 	}
 	else if (status==OP_COMPLETE) {
 		/*
@@ -2288,12 +2283,11 @@ static short Track2Night(
 		 *	chords we just generated; in any case, build Syncs and get information for
 		 *	merging into <newSyncTab> ??REWRITE.
 		 */
-#ifndef PUBLIC_VERSION_1
-		if (DBG)
-			if (voice==1) { DPrintMeasTab("X", measInfoTab, measTabLen);
-				LogPrintf(LOG_INFO, "quantum=%d tripBias=%d timeOff=%d\n",
-								quantum, tripletBias, timeOffset); }
-#endif
+		if (DBG && voice==1) {
+			DPrintMeasTab("X", measInfoTab, measTabLen);
+			LogPrintf(LOG_INFO, "quantum=%d tripBias=%d timeOff=%d\n",
+								quantum, tripletBias, timeOffset);
+		}
 		
 		newFirstSync = TranscribeVoice(doc, voice, rawSyncTab, oneTrackTabSize, 
 								nRawSyncs, rawNoteAux, nAux, quantum, tripletBias, measInfoTab,
@@ -2412,7 +2406,7 @@ short MIDNight2Night(
 		}
 		if (t<nTracks && CheckAbort()) {							/* Check for user cancelling */
 			ProgressMsg(SKIPTRACKS_PMSTR, "");
-			SleepTicks(75L);										/* So user can read the msg */
+			SleepTicks(120L);										/* So user has time to read the msg */
 			break;
 		}
 	}

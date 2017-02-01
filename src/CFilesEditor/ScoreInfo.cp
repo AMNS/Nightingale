@@ -160,6 +160,21 @@ static short SICheckRange(Document *doc, short *pFirstOutOfRange)
 }
 
 
+short CountNoteAttacks(Document *doc);
+short CountNoteAttacks(Document *doc)
+{
+	LINK pL, aNoteL;
+	short nNoteAttacks = 0;
+	
+	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
+		if (SyncTYPE(pL))
+			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
+				if (!NoteREST(aNoteL) && !NoteTIEDL(aNoteL)) nNoteAttacks++;
+	}
+	return nNoteAttacks;
+}
+
+
 /* Return the approximate (see comments) duration of the score. */
 
 long GetScoreDuration(Document *doc)
@@ -199,7 +214,7 @@ void ScoreInfo()
 		DialogPtr dialogp; GrafPtr oldPort;
 		short ditem, aShort; Handle aHdl;
 		LINK pL; const char *ps; HEAP *theHeap;
-		unsigned short h, count, objCount[LASTtype], objsTotal;
+		unsigned short h, count, objCount[LASTtype], objsTotal, noteAttackCount;
 		long lObjCount[LASTtype], totalCount, scoreDuration, qtrNTicks;
 		Document *doc=GetDocumentFromWindow(TopDocument);
 		short nBad, firstBad, nEmpty, firstEmpty, nOutOfRange, firstOutOfRange;
@@ -248,6 +263,7 @@ void ScoreInfo()
 			SIDrawLine(s);
 	
 			CountInHeaps(doc, objCount, FALSE);
+			noteAttackCount = CountNoteAttacks(doc);
 
 			totalCount = 0L;
 		 	for (h = SYNCtype; h<OBJtype; h++) {
@@ -289,7 +305,9 @@ void ScoreInfo()
 
 				if (lObjCount[h]>=0) {
 					ps = NameHeapType(h, TRUE);
-		 			sprintf(s, "    %ld %s", lObjCount[h], ps);
+					if (h==SYNCtype)	sprintf(s, "    %ld %s;  %d note attacks",
+												lObjCount[h], ps, noteAttackCount);
+		 			else				sprintf(s, "    %ld %s", lObjCount[h], ps);
 					SIDrawLine(s);
 					totalCount += lObjCount[h];
 				}
@@ -305,7 +323,7 @@ void ScoreInfo()
 
 			scoreDuration = GetScoreDuration(doc);
 			qtrNTicks = Code2LDur(QTR_L_DUR, 0);
-			sprintf(s, "----------------------------------");
+			sprintf(s, "------------------------------------------");
 			SIDrawLine(s);
 			GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "Duration: approx. %ld quarters." */
 			sprintf(s, fmtStr, scoreDuration/qtrNTicks); 

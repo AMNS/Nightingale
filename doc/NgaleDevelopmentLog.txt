@@ -1740,14 +1740,60 @@ Log out & back in; try 5.7b6 on 3rdMovement.ngl => another crash, with log:
 I almost certainly used 5.7b7 to generate the previous set of five MIDI files, w/ no
 problems; that also suggests it isn't Ngale's fault! Reboot, try again => crashes.
 
-Copy concerto Ngale files to MacBook 3; try 3rdMovement.ngl there w/ Ngale 5.7b8 => crashes; w/
-Ngale 5.7b6 => another garbage MIDI file, different from a previous version. It sounds as if
-the garbageness is because note times are scrambled. %^&()##$@)+  Listen more closely to the
-new garbage file => it's OK!!!  Maybe part of the problem is w/ QuickTime on my G5 -- but that
-doesn't explain the crashes. ?!?
+Copy concerto Ngale files to MacBook 3; try 3rdMovement.ngl there w/ Ngale 5.7b8 =>
+crashes; w/ Ngale 5.7b6 => another garbage MIDI file, different from a previous version.
+It sounds as if the garbageness is because note times are scrambled, starting within the
+first few seconds. %^&()##$@)+  Listen more closely to the new garbage file => it's OK!!! 
+Maybe part of the problem is w/ QuickTime on my G5 -- but that doesn't explain the
+crashes. ?!?
 
 The crash seems to happen consistently w/ 3rdMovement.ngl, less consistently w/ other
 files.
+
+28-31 Jan.
+
+The bug seems to be totally gone! I haven't touched the Import MIDI File code, but I
+exported each of the five chunks of the violin concerto, the 3rd mvmt twice, with no
+problems!! Then I did them all again, in reverse order, w/ 5.7b8 => no problems. Looks
+like I was "chasing a ghost", which isn't hard to believe in view of the issues
+mentioned above. Try again w/ 5.7b6: open all five sections; export
+1stMovement_Part1.ngl => no problem; 1stMovement_Cadenza.ngl => crashes ^#$%^(#$%!*%^ .
+No, it's a bug, not a ghost! Part of traceback in Problem Report:
+
+	Thread 0 Crashed:
+	0   libSystem.B.dylib             	0x969ff7c8 strlen + 8
+	1   libSystem.B.dylib             	0x96a94edc __vfprintf$LDBL128 + 16332
+	2   libSystem.B.dylib             	0x96ad51cc vsprintf$LDBL128 + 228
+	3   com.amns.nightingale          	0x0001b414 LogPrintf(short, char const*, ...) + 80
+	4   com.amns.nightingale          	0x000ce2cc SaveMIDIFile(Document*) + 2508
+	5   com.amns.nightingale          	0x00009a30 DoFileMenu(short) + 844
+	6   com.amns.nightingale          	0x0000bd60 DoMenu(long) + 232
+
+W/ 5.7b8, open all five sections; export 1stMovement_Part1.ngl => crashes, w/ traceback
+identical to the above except for slightly different offset in SaveMIDIFile()  :-( . From
+log file:
+
+	Jan 29 09:17:51 DonDualG5 Ngale[27919]: WARNING: Tempo change in measure 173 at same time as a previous tempo change.
+	Jan 29 09:17:51 DonDualG5 Ngale[27919]: WARNING: Tempo change in measure 198 at same time as a previous tempo change.
+	Jan 29 09:17:58 DonDualG5 com.apple.launchd[1] (org.postfix.master[27914]): Stray process with PGID equal to this dead job: PID 27915 PPID 1 pickup
+	Jan 29 09:18:10 DonDualG5 ReportCrash[27928]: Formulating crash report for process quicklookd[27929]
+	Jan 29 09:18:12 DonDualG5 ReportCrash[27928]: Formulating crash report for process Nightingale[27919]
+	Jan 29 09:18:12 DonDualG5 fseventsd[42]: callback_client: ERROR: d2f_callback_rpc() => (ipc/send) timed out (268435460) for pid 27919
+
+Hmmmm -- WriteTrackName() calls LogPrintf() w/ an unintialized variable for a string
+pointer! Could that be the problem? Fix it; open all five chunks; Export MIDI Files =>
+no crash, but 1stMovement_Part1 & _Part3 have the scrambled note times problem :-( .
+
+According to our Import MIDI File, 1stMovement_Part1_TRASHED.mid contains 3812 notes, while
+1stMovement_Part1_OK.mid contains 3830!! Why? On a track-by-track basis, one track has 2 more
+notes in the trashed version; others have the same number, or from 1 to ca. 3 fewer. Why?
+1stMovement_Part3_TRASHED.mid contains 2640 notes, while 1stMovement_Part3_OK.mid contains
+2641. ??
+
+Very few of the functions in MIDIFSave.cp that actually write to the file check FSWrite()'s
+return value for errors. Add checking to all, experiment more => after saving each of the five
+concerto chunk MIDI files two or three times, no more bad MIDI files, and no errors detected.
+Sigh.
 
 -------------------------------------------------------------------------------
 

@@ -846,8 +846,8 @@ error message. Affects DialogsEditor.
 Clarify the Change Patch dialog; improve its layout and that of the Pan Setting dialog.
 Affects .rsrc.
 
-Fix bug (Issue #114): While patch settings properly affect MIDI playback inside Ngale, they have
-no effect on MIDI files Ngale writes. Affects MIDIFSave.
+Fix bug (Issue #114): While patch settings properly affect MIDI playback inside Ngale,
+they have no effect on MIDI files Ngale writes. Affects MIDIFSave.
 
 Minor cleanup. Affects MIDIGeneral.h; CoreMidiUtils, DebugDisplay, DialogsEditor,
 MIDIFOCmd, MIDIFSave, MIDIPlay.
@@ -1109,7 +1109,21 @@ Minor cleanup. Affects DrawNRGR, DrawObject, SpaceTime.
 
 26-27 Jan.
 
-Add measure no. to Debug command messages for a number of things. Affects
+Add the measure no. to Debug command messages for a number of things. Affects
 DebugUtils.h; DebugUtils, Debug2Utils.
 
 Minor cleanup. Affects DrawNRGR, DebugUtils, Debug2Utils.
+
+-------------------------------------------------------------------------------
+
+29-31 Jan.
+
+Enlarge the Import MIDI File "Info" window to show 20 tracks at a time (vs. the previous
+16). Affects .rsrc.
+
+Add to the Score Info window the number of note attacks (i.e., sounding notes as opposed
+to written notes). Affects ScoreInfo.
+
+Greatly improve Export MIDI File checking for FSWrite errors. Affects MIDIFSave.
+
+Minor cleanup. Affects .rsrc; MIDIFOpen, MIDIFSave.
