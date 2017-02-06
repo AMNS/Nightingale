@@ -1750,13 +1750,13 @@ crashes. ?!?
 The crash seems to happen consistently w/ 3rdMovement.ngl, less consistently w/ other
 files.
 
-28-31 Jan.
+28 Jan.-1 Feb.
 
-The bug seems to be totally gone! I haven't touched the Import MIDI File code, but I
-exported each of the five chunks of the violin concerto, the 3rd mvmt twice, with no
-problems!! Then I did them all again, in reverse order, w/ 5.7b8 => no problems. Looks
-like I was "chasing a ghost", which isn't hard to believe in view of the issues
-mentioned above. Try again w/ 5.7b6: open all five sections; export
+This bug is now Issue #123. But it bug seems to be totally gone! I haven't touched the
+Import MIDI File code, but I exported each of the five chunks of the violin concerto,
+the 3rd mvmt twice, with no problems!! Then I did them all again, in reverse order, w/
+5.7b8 => no problems. Looks like I was "chasing a ghost", which isn't hard to believe in
+view of the issues mentioned above. Try again w/ 5.7b6: open all five sections; export
 1stMovement_Part1.ngl => no problem; 1stMovement_Cadenza.ngl => crashes ^#$%^(#$%!*%^ .
 No, it's a bug, not a ghost! Part of traceback in Problem Report:
 
@@ -1793,7 +1793,14 @@ notes in the trashed version; others have the same number, or from 1 to ca. 3 fe
 Very few of the functions in MIDIFSave.cp that actually write to the file check FSWrite()'s
 return value for errors. Add checking to all, experiment more => after saving each of the five
 concerto chunk MIDI files two or three times, no more bad MIDI files, and no errors detected.
-Sigh.
+Which proves nothing.
+
+What else could be the problem? Ah, we're using pointers to Ngale objects in places where
+memory could have moved without locking the HEAP, e.g., in WriteTrackName(); that could
+lead to occasional crashes or strange behavior! ...Fixed all of those. Export all five concerto
+chunks, PianoSonataMvmt, 2 violin duets, concerto chunks again => all OK! -- except that
+Issue #114 is back!: While patch settings properly affect MIDI playback inside Ngale,
+they have no effect on MIDI files Ngale writes. ??
 
 -------------------------------------------------------------------------------
 
@@ -1805,11 +1812,50 @@ by the same amount! Open CalcLDur.ngl; delete whole rest in m. 3; re-insert it =
 sometimes spTimeInfo[last].startTime = 960 (correct), sometimes it's 1140, sometimes 1200!
 So it's GetSpTimeInfo() that's misbehaving... Yes. Why? Because the whole rest doesn't always
 get added to the 1st Sync of the measure! This could be WAD if Insert by Position was checked,
-but it isn't. @#$#%^^!*# Is this worth fixing now? ??
+but it isn't. @#$#%^^!*# Is this worth fixing now? Maybe not.
 
 
 Re discussion of artificial harmonics above for 1 Jan., #2 is almost certainly the way to go.
 Cf. MakeArtificialHarmonic.txt . For UI, how about adding to QuickChange(TM)
 
-	Change [3-note chord] to artificial harmonic
+	Change [3-note chord] to artificial harmonic 
+
+-------------------------------------------------------------------------------
+
+2-3 Feb.
+
+I _think_ the Export MIDI File crash/trash bug is fixed, but now patch changes again aren't
+working! @#)#$%#))%^  I fixed this in 5.7b5 just a few months ago! Test w/ Concerto
+1stMovementPart1 & 5.7b6 => OK; w/ 5.7b8 => OK; w/ MIDISave.cp of 8 Jan., of 31 Jan., of 1
+Feb., of 2 Feb. AM => all OK. So either I just broke this or it's a ghost! Test w/ latest
+MIDISave.cp => still OK, so it's a ghost :-| .
+
+-------------------------------------------------------------------------------
+
+4-5 Feb.
+
+Work on some "inadequate screen redrawing for dragging and/or nudging" bugs:
+
+1. For Graphics (normally text) attached to the page, dragging gives feedback by showing
+the bounding box moving around, then -- when you stop -- it draws the Graphic at its new
+location. Not ideal, but good enough. But for nudging, the "feedback" is redrawing the
+music area, which almost never contains the Graphic: pretty dumb looking! To fix, have
+InvalSelRange check if anything selected is attached to the page, and if so inval the
+entire window. Also not ideal: it'd be much nicer to just Inval the page; could I
+implement that quickly & reliably?
+
+2. For Graphics, feedback for both dragging and nudging redraws only the Measure the
+Graphic belongs to, but the Graphic often extends into the previous or the following
+Measure. (And it sometimes extends even further, but that's rare enough to ignore.)
+
+For tempo marks, ottavas, and  slur/ties, feedback for dragging sometimes redraws
+enough, but for nudging and sometimes for dragging, it redraws only the Measure.
+
+A good-enough (I think) solution: In all cases(?), after dragging and after each nudge,
+redraw the previous Measure as well if it's in the same system; likewise for the
+following Measure.
+
+3. For dynamics. feedback for dragging covers a large enough area, but doesn't erase the
+previous positions, so it leaves a trail! For nudging, redrawing the previous and next
+Measures (if in the same System) is good enough.
 

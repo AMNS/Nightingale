@@ -28,6 +28,7 @@ void CountSelection(Document *, short *, short *);
 Boolean ChordSetSel(LINK, short);
 Boolean ExtendSelChords(Document *);
 Boolean ChordHomoSel(LINK, short, Boolean);
+Boolean SelAttachedToPage(Document *doc);
 Boolean ContinSelection(Document *, Boolean);
 void OptimizeSelection(Document *);
 void UpdateSelection(Document *);

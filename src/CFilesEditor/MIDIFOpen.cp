@@ -738,7 +738,7 @@ rarely if ever twice as large.
 MF2MIDNight returns the length of the MIDNight chunk, or 0 if an error occurs. */
 
 #define MN_NOTELEN 6L	/* Length of an MFNote, not counting tStamp */
-#define MN_CTLLEN 6L	/* Length of an MFNote, not counting tStamp */
+#define MN_CTLLEN 6L	/* Length of a Control Change message, not counting tStamp */
 
 Word MF2MIDNight(
 			Byte **ppMNChunk)		/* Pointer to MIDNight track Pointer */
@@ -839,18 +839,17 @@ Word MF2MIDNight(
 format. Each track consists of a sequence of note events and metaevents: no SysEx
 events are allowed (MIDNight doesn't handle them yet, anyway). For now, these
 additional restrictions hold:
-	1. Track 1 may contain only metaevents--no Notes. Time signatures in it are used;
+	1. Track 1 may contain only metaevents, no Notes. Time signatures in it are used;
 		if there's a key signature at time 0, it's used, but any others are ignored.
 	2. The only metaevents tracks after 1 may contain are end-of-track and name of
 		sequence/track.
 
-MIDNight2Night is the top-level function here, but Track2Night is in charge of most
-of the work. Track2Night goes thru an entire track on each call. If it's track 1--
-the tempo map track--it creates all Measures and time signatures for the entire
-score (actually one Measure too many). Otherwise it generates two tables describing
-the contents of the track: rawSyncTab for what will become Syncs, and rawNoteAux for
-the notes. When it's gone thru a track (other than track 1), Track2Night calls
-TranscribeVoice, which:
+MIDNight2Night is the top-level function here, but Track2Night is in charge of most of
+the work. Track2Night goes thru an entire track on each call. If it's track 1 -- the
+tempo map track -- it creates all Measures and time signatures for the entire score,
+plus one extra Measure. Otherwise it generates two tables describing the contents of the
+track: rawSyncTab for what will become Syncs, and rawNoteAux for the notes. When it's
+gone thru a track (other than track 1), Track2Night calls TranscribeVoice, which:
 	-Decides what notes should be tupleted, if tuplets were requested (ChooseTuplets);
 	-Creates all the Syncs (BuildSyncs);
 	-Quantizes the notes/chords, if quantization was requested (QuantizeAndClip);

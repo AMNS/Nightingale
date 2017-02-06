@@ -1414,12 +1414,12 @@ PushLock(OBJheap);
 		GoodStrncpy(numStr, &endingString[strOffset], MAX_ENDING_STRLEN-1);
 	}
 
-	/*
-	 *	Traditionally, ending numerals are in the "music font", i.e., the same font
-	 *	as time signature digits, tuplet numerals, etc. However, the origins and sizes
-	 * of Sonata characters (at least) are very non-standard, so for now, do something
-	 * much simpler: use a standard screen font on the screen, and Times on PostScript.
-	 */
+	/* Traditionally, ending numerals are in the "music font", i.e., the same font as
+	   time signature digits, tuplet numerals, etc. However, the origins and sizes of
+	   characters in Sonata and compatibles (at least) are very non-standard, so for
+	   now, do something much simpler: use a standard screen font on the screen, and
+	   Times on PostScript output. */
+	   
 	switch (outputTo) {
 		case toScreen:
 		case toBitmapPrint:
@@ -1793,7 +1793,7 @@ Done:
 }
 
 
-/* ------------------------------------------------------------- DrawTextBlock -- */
+/* ------------------------------------------------------------------ DrawTextBlock -- */
 
 static short CountTextLines(StringPtr pString)
 {
@@ -1973,7 +1973,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 }
 
 
-/* ---------------------------------------------------------------- DrawGRAPHIC -- */
+/* -------------------------------------------------------------------- DrawGRAPHIC -- */
 /* Draw a GRAPHIC object, including its enclosure, if it needs one, and/or
 recompute its objRect. (Thus far, our UI doesn't support entering strings over
 255 chars., so we don't need to support longer strings here.  --DAB, Sept. 2015) */
@@ -2222,7 +2222,7 @@ PopLock(GRAPHICheap);
 
 
 
-/* ------------------------------------------------------------- GetTempoDBox -- */
+/* ------------------------------------------------------------------- GetTempoDBox -- */
 /* Return the DDIST bounding box for the given Tempo object, with origin at (0,0).
 If _expandN_, it's stretched out. */
 
@@ -2326,8 +2326,9 @@ PushLock(TEMPOheap);
 	tempoStrlen = Pstrlen(tempoStr);
 	
 	/* If the tempo string ends with a new line, the metronome mark goes below the
-		bottom line of the tempo mark; else it goes to the right of the top line.
-		(Of course _dEnclBox_, the object's bounding box, should reflect this.) */
+		bottom line of the tempo mark; else it goes to the right of the top line. (Of
+		course _dEnclBox_, the object's bounding box, should reflect this.) */
+		
 	metroIsBelow = (tempoStr[tempoStrlen]==CH_CR);
 //LogPrintf(LOG_DEBUG, "tempoStrlen=%d metroIsBelow=%d\n", tempoStrlen, metroIsBelow);
 //char strC[256];	Pstrcpy((unsigned char *)strC, tempoStr); PToCString((unsigned char *)strC);
@@ -2350,7 +2351,7 @@ PushLock(TEMPOheap);
 		dTextLineHeight = pt2d(lineBBox.bottom-lineBBox.top);
 		extraVertGap = lnSpace/2;
 		ydMM = yd+dEnclBoxHeight-dTextLineHeight+extraVertGap;
-		//ydMM = yd+dEnclBoxHeight-lnSpace;
+		//ydMM = yd+dEnclBoxHeight-lnSpace; 
 	}
 	else {
 		extraHorizGap = 0;
@@ -2643,7 +2644,7 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 }
 
 
-/* ---------------------------------------------------------------- DrawBarline -- */
+/* -------------------------------------------------------------------- DrawBarline -- */
 /* Draw a barline (not a repeat bar) across one or more staves. */
 
 void DrawBarline(Document *doc,

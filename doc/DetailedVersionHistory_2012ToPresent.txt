@@ -1116,14 +1116,39 @@ Minor cleanup. Affects DrawNRGR, DebugUtils, Debug2Utils.
 
 -------------------------------------------------------------------------------
 
-29-31 Jan.
+29 Jan.-3 Feb.
 
 Enlarge the Import MIDI File "Info" window to show 20 tracks at a time (vs. the previous
 16). Affects .rsrc.
 
-Add to the Score Info window the number of note attacks (i.e., sounding notes as opposed
+Add to the Score Info window the number of note attacks (i.e., sounding notes, as opposed
 to written notes). Affects ScoreInfo.
 
-Greatly improve Export MIDI File checking for FSWrite errors. Affects MIDIFSave.
+In Export MIDI File code, greatly improve checking for FSWrite errors; rewrite code
+that could have produced stale pointers to our HEAPs, hopefully fixing the "Export MIDI
+File sometimes crashes or writes files with garbage timing" bug. Affects MIDIFSave.
 
 Minor cleanup. Affects .rsrc; MIDIFOpen, MIDIFSave.
+
+-------------------------------------------------------------------------------
+
+3-5 Feb.
+
+Change copyright notice dates to end in 2017. Affects .rsrc, Info.plist.
+
+In Export MIDI File code, rewrite code that could have produced stale pointers to our
+HEAPs, hopefully fixing the "Export MIDI File sometimes crashes or writes files with
+garbage timing" bug (Issue #123). Affects MIDIFSave.
+
+Fix bug in feedback for nudging Graphics (normally text) attached to the page. We've
+been doing it by redrawing the music area, but that accomplishes nothing because it
+almost never contains the Graphic; instead, redraw the entire window. Affects Inval.
+
+Alleviate bug in feedback for drawing and nudging symbols that extend beyond a measure.
+We've always done it in most cases (especially for nudging) by redrawing just the
+measure the symbol belongs to. Instead, in all cases, after dragging and after each
+nudge, redraw the previous Measure as well if it's in the same system; likewise for the
+following Measure. This is enough for many cases and at least helps in the others.
+Affects Inval.
+
+Minor cleanup. Affects DrawObject, Inval, MIDIFOpen, MIDIFSave, Select.

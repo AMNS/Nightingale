@@ -67,7 +67,7 @@ or if we have trouble writing it, return FALSE. */
 
 static Boolean WriteVarLen(DoubleWord value)
 {
-	long buffer, byteCount; Byte b;
+	long buffer, byteCount;  Byte b;
 	
 	if (value<0 || value>0x0FFFFFFF) return FALSE;
 
@@ -213,7 +213,7 @@ static Boolean WriteTSEvent(short numerator, short denominator, short clocksPerB
 
 
 static Boolean WriteTextEvent(Byte mEventType,
-					char text[])			/* C string: must be <=255 chars. */
+				char text[])				/* C string of <=255 chars. */
 {
 	long 			byteCount; 
 	unsigned char	buffer[259];			/* Be careful: a mixture of binary and char. data! */
@@ -382,7 +382,8 @@ static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn
 	Byte ctrlNum = MSUSTAIN;
 	Byte ctrlVal = GetSustainCtrlVal(susOn);
 	
-	LogPrintf(LOG_INFO, "WriteAllMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n", ctrlNum, ctrlVal, startTime);
+	if (DBG) LogPrintf(LOG_INFO, "  WriteAllMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
+				ctrlNum, ctrlVal, startTime);
 	if (susOn) {
 		for (int j = 1; j<=MAXSTAVES; j++) {
 			if (cmFSSustainOn[j]) {
@@ -421,7 +422,8 @@ static void WriteMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, l
 			Byte ctrlNum = MSUSTAIN;
 			Byte ctrlVal = GetSustainCtrlVal(susOn);
 			
-			LogPrintf(LOG_INFO, "WriteMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
+			if (DBG) LogPrintf(LOG_INFO, "  WriteMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
+						ctrlNum, ctrlVal, startTime);
 			
 			short partn = Staff2Part(doc,stf);
 			short channel = partChannel[partn];
@@ -496,7 +498,8 @@ static void WriteMIDIPans(Document *doc, Byte *partChannel, long startTime, LINK
 			Byte ctrlNum = MPAN;
 			Byte ctrlVal = GraphicINFO(graphicL);
 			
-			LogPrintf(LOG_INFO, "WriteMIDIPans: ctrlNum=%ld ctrlVal=%ld time=%ld\n",ctrlNum, ctrlVal, startTime);
+			LogPrintf(LOG_INFO, "  WriteMIDIPans: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
+						ctrlNum, ctrlVal, startTime);
 			
 			short partn = Staff2Part(doc,stf);
 			short channel = partChannel[partn];
@@ -624,12 +627,10 @@ static Boolean WriteTSig(
 					long absTime
 					)
 {
-	PATIMESIG aTS;
 	short numer, denom, tempDenom, clocksPerBeat;
 
-	aTS = GetPATIMESIG(aTSL);
-	numer = aTS->numerator;
-	denom = aTS->denominator;
+	numer = TimeSigNUM(aTSL);
+	denom = TimeSigDENOM(aTSL);
 
 	tempDenom = denom;
 	clocksPerBeat = 24*4;							/* 24 is standard/qtr, and 4 qtrs/whole */
@@ -663,7 +664,7 @@ static Boolean WriteTiming(
 			tempoTime, prevTempoTime;
 	short 	measNum;
 
-	LogPrintf(LOG_INFO, "WriteTiming: trkLastEndTime=%d\n", trkLastEndTime);
+	LogPrintf(LOG_NOTICE, "WriteTiming: trkLastEndTime=%d\n", trkLastEndTime);
 	measureTime = 0L;
 	prevTempoTime = -1L;
 	for (pL = doc->headL; pL; pL = RightLINK(pL))
@@ -692,7 +693,7 @@ static Boolean WriteTiming(
 					MayErrMsg("Unable to write a tempo event to the MIDI file.");
 					return FALSE;
 				}
-				if (DBG) LogPrintf(LOG_INFO, "WriteTiming: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n",
+				if (DBG) LogPrintf(LOG_INFO, "  WriteTiming: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n",
 									pL, tempoTime, timeScale);
 				prevTempoTime = tempoTime;
 				break;
@@ -705,7 +706,7 @@ static Boolean WriteTiming(
 					an identical cautionary one at the end of the last system. */
 					
 				aTSL = TimeSigOnStaff(pL, 1);
-//LogPrintf(LOG_INFO, "WriteTiming: TIMESIG pL=%d aTSL=%d measureTime=%ld %c\n", pL, aTSL,
+//LogPrintf(LOG_DEBUG, "  WriteTiming: TIMESIG pL=%d aTSL=%d measureTime=%ld %c\n", pL, aTSL,
 //measureTime, (measureTime!=prevTSTime? ' ' : 'S'));
 				if (aTSL && measureTime!=prevTSTime) {
 					WriteTSig(pL, aTSL, measureTime);	/* Assume time sig. is at beginning of measure! */
@@ -728,13 +729,12 @@ static Boolean WriteTiming(
 
 static Boolean WriteTrackName(Document *doc, short staffn)
 {
-	LINK partL; char str[256]; PPARTINFO aPart;
+	LINK aPartL; char str[256];
 
-	partL = Staff2PartL(doc, doc->headL, staffn);
-	aPart = GetPPARTINFO(partL);
-	LogPrintf(LOG_INFO, "WriteTrackName: staff=%d name='%s'\n", staffn, aPart->name);
+	aPartL = Staff2PartL(doc, doc->headL, staffn);
+	if (DBG) LogPrintf(LOG_INFO, "  WriteTrackName: staff=%d name='%s'\n", staffn, PartNAME(aPartL));
 
-	strcpy(str, aPart->name);
+	strcpy(str, PartNAME(aPartL));
 	WriteDeltaTime(0L);
 	if (!WriteTextEvent(ME_SEQTRACKNAME, str)) {
 		MayErrMsg("Unable to write track name to MIDI file.");
@@ -768,7 +768,7 @@ static Boolean WriteTrackPatch(Document *doc, short staffn)
 	short partn = Staff2Part(doc, staffn);
 	short patch = partPatch[partn];
 	short channel = partChannel[partn];
-	LogPrintf(LOG_INFO, "WriteTrackPatch: staff=%d patch=%d\n", staffn, patch);
+	if (DBG) LogPrintf(LOG_INFO, "  WriteTrackPatch: staff=%d patch=%d channel=%d\n", staffn, patch, channel);
 	
 	WriteDeltaTime(0L);
 
@@ -777,7 +777,7 @@ static Boolean WriteTrackPatch(Document *doc, short staffn)
 	byteCount = 2L;	
 	errCode = FSWrite(fRefNum, &byteCount, buffer); 
 	trackLength += byteCount;
-	if (DBG) LogPrintf(LOG_DEBUG, "WriteTrackPatch: staffn=%d buffer[]=%d %d errCode=%d\n",
+	if (DBG) LogPrintf(LOG_DEBUG, "  WriteTrackPatch: staffn=%d buffer[]=%d %d errCode=%d\n",
 				staffn, buffer[0], buffer[1], errCode);
 	return (errCode==noError);
 }	
@@ -804,7 +804,6 @@ static short WriteMFNotes(
 {
 	LINK		pL, aNoteL;
 	LINK		partL, measL, newMeasL;
-	PANOTE		aNote;
 	short		i, nZeroVel;
 	short		useNoteNum,
 				useChan, useVelo, partn;
@@ -823,7 +822,7 @@ static short WriteMFNotes(
 	Boolean		sustainOffPosted = FALSE;
 	Boolean		panPosted = FALSE;
 		
-	LogPrintf(LOG_INFO, "WriteMFNotes: staff=%d trkLastEndTime=%d\n", staffn, trkLastEndTime);
+	if (DBG) LogPrintf(LOG_INFO, "  WriteMFNotes: staff=%d trkLastEndTime=%d\n", staffn, trkLastEndTime);
 
 	anyStaff = (staffn==ANYONE);
 
@@ -865,7 +864,7 @@ static short WriteMFNotes(
 		  			MayErrMsg("WriteMFNotes: pL=%ld has timeStamp=%ld", (long)pL,
 		  							(long)SyncTIME(pL));
 #ifdef TDEBUG
-				if (toffset<0L) LogPrintf(LOG_INFO, "toffset=%ld => %ld\n", toffset, MeasureTIME(measL)+SyncTIME(pL));
+				if (toffset<0L) LogPrintf(LOG_DEBUG, "  toffset=%ld => %ld\n", toffset, MeasureTIME(measL)+SyncTIME(pL));
 #endif
 		  		plStartTime = MeasureTIME(measL)+SyncTIME(pL);
 		  		startTime = plStartTime;
@@ -920,24 +919,20 @@ static short WriteMFNotes(
 						if (!NoteToBePlayed(doc, aNoteL, FALSE)) continue;
 						
 						/* If note has zero on velocity, skip writing it. If such a
-						 * note is a chord slash, it's not interesting, else count it.
-						 */
-						aNote = GetPANOTE(aNoteL);						
-						if (aNote->onVelocity==0) {
+						   note is a chord slash, it's not interesting, else count it. */
+						if (NoteONVELOCITY(aNoteL)==0) {
 							if (NoteAPPEAR(aNoteL)!=SLASH_SHAPE) nZeroVel++;
 							continue;
 						}
 
 						partn = Staff2Part(doc, NoteSTAFF(aNoteL));
-						/*
-						 *	Get note's MIDI note number, including transposition; velocity,
-						 *	limited to legal range; channel number; and duration, includ-
-						 * ing any tied notes to right.
-						 */
+						
+						/* Get note's MIDI note number, including transposition; velocity,
+						   limited to legal range; channel number; and duration, includ-
+						   ing any tied notes to right. */
 						useNoteNum = UseMIDINoteNum(doc, aNoteL, partTransp[partn]);
 						useChan = partChannel[partn];
-						aNote = GetPANOTE(aNoteL);
-						useVelo = doc->velocity+aNote->onVelocity;
+						useVelo = doc->velocity+NoteONVELOCITY(aNoteL);
 						if (USEPARTVELO) useVelo += partVelo[partn];
 	
 						if (useVelo<1) useVelo = 1;
@@ -967,7 +962,7 @@ static short WriteMFNotes(
 					short stf = GraphicSTAFF(pL);
 					//if (anyStaff || stf == staffn) {
 					if (stf==staffn) {
-						short partn = Staff2Part(doc,stf);
+						short partn = Staff2Part(doc, stf);
 						//short channel = CMGetUseChannel(partChannel, partn);
 						short channel = partChannel[partn];
 
@@ -982,16 +977,13 @@ static short WriteMFNotes(
 	//					}
 	//					else 
 						
-						if (IsMidiSustainOn(pL)) 
-						{
+						if (IsMidiSustainOn(pL)) {
 							sustainOnPosted = MFSPostMIDISustain(doc, pL, staffn, TRUE);
 						}
-						else if (IsMidiSustainOff(pL)) 
-						{
+						else if (IsMidiSustainOff(pL)) {
 							sustainOffPosted = MFSPostMIDISustain(doc, pL, staffn, FALSE);
 						}
-						else if (IsMidiPan(pL)) 
-						{
+						else if (IsMidiPan(pL)) {
 							panPosted = MFSPostMIDIPan(doc, pL, staffn);
 						}					
 					}
@@ -1027,7 +1019,9 @@ static Boolean WriteTrack(
 				short *pnZeroVel
 				)
 {
-	short nZeroVel;
+	LINK aPartL;
+	short staffn, nZeroVel, partPatch, channel;
+	PARTINFO aPart;
 	
 	trackLength = 0L;
 	curTime = 0L;
@@ -1037,9 +1031,18 @@ static Boolean WriteTrack(
 	if (trackn==1)
 		WriteTiming(doc, trkLastEndTime);
 	else {
-		WriteTrackName(doc, trackn-1);
-		WriteTrackPatch(doc, trackn-1);
-		nZeroVel = WriteMFNotes(doc, trackn-1, doc->headL, doc->tailL, trkLastEndTime);	/* stf = trk-1 */
+		staffn = trackn-1;
+		WriteTrackName(doc, staffn);
+		WriteTrackPatch(doc, staffn);
+		nZeroVel = WriteMFNotes(doc, staffn, doc->headL, doc->tailL, trkLastEndTime);
+		aPartL = Staff2PartL(doc, doc->headL, staffn);
+		aPart = GetPARTINFO(aPartL);
+		partPatch = aPart.patchNum;
+		channel = aPart.channel;
+		LogPrintf(LOG_NOTICE, "Wrote track for staff %d ('%s') patch=%d, channel=%d, trkLastEndTime=%d",
+			staffn, PartNAME(aPartL), partPatch, channel, trkLastEndTime);
+		if (nZeroVel>0) LogPrintf(LOG_NOTICE, ", %d zero-vel. note(s).", nZeroVel);
+		LogPrintf(LOG_NOTICE, "\n");
 	}
 
 	FillInTrackLength();
@@ -1054,10 +1057,9 @@ static Boolean WriteTrack(
 long LastEndTime(Document *doc, LINK fromL, LINK toL)
 {
 	LINK 	measL, pL, aNoteL;
-	PANOTE	aNote;
 	long	lastET, endTime, playDur,
-			toffset,							/* PDUR start time of 1st note played */
-			plStartTime, plEndTime;				/* in PDUR ticks */
+			toffset,								/* PDUR start time of 1st note played */
+			plStartTime, plEndTime;					/* in PDUR ticks */
 	
 	lastET = 0L;
 
@@ -1087,8 +1089,7 @@ long LastEndTime(Document *doc, LINK fromL, LINK toL)
 									
 					/* If it's a "real" note (not rest or continuation or vel. 0), consider it */
 					
-					aNote = GetPANOTE(aNoteL);
-					if (!aNote->rest && !aNote->tiedL &&  aNote->onVelocity!=0) {
+					if (!NoteREST(aNoteL) && !NoteTIEDL(aNoteL) && NoteONVELOCITY(aNoteL)!=0) {
 						playDur = TiedDur(doc, pL, aNoteL, FALSE);
 						plEndTime = plStartTime+playDur;						
 						endTime = plEndTime-toffset;
@@ -1177,7 +1178,6 @@ static short CountZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStar
 	short measNum, nZeroVel;
 	short startStaff, endStaff, startMeasNum, endMeasNum;
 	LINK pL, aNoteL;
-	PANOTE aNote;
 
 	nZeroVel = 0;
 	startMeasNum = startStaff = SHRT_MAX;
@@ -1195,8 +1195,7 @@ static short CountZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStar
 					 * If a zero on-velocity note is a chord slash, it's not really
 					 * interesting; else count it.
 					 */
-					aNote = GetPANOTE(aNoteL);						
-					if (aNote->onVelocity==0 && NoteAPPEAR(aNoteL)!=SLASH_SHAPE) {
+					if (NoteONVELOCITY(aNoteL)==0 && NoteAPPEAR(aNoteL)!=SLASH_SHAPE) {
 						nZeroVel++;
 						if (measNum<startMeasNum) startMeasNum = measNum;
 						if (measNum>endMeasNum) endMeasNum = measNum;
@@ -1255,7 +1254,7 @@ void SaveMIDIFile(Document *doc)
 	if (totalZeroVel>0) {
 		Staff2UserStr(doc, startStaff, strFirst);
 		Staff2UserStr(doc, endStaff, strLast);
-		GetIndCString(fmtStr, MIDIFILE_STRS, 39);		/* "%d notes with On velocity of zero..." */
+		GetIndCString(fmtStr, MIDIFILE_STRS, 39);		/* "%d note(s) with On velocity of zero..." */
 		sprintf(strBuf, fmtStr, totalZeroVel, startMeasNum, endMeasNum, strFirst,
 					strLast);
 		CParamText(strBuf, "", "", "");

@@ -3,7 +3,8 @@
 *	PROJ:	Nightingale
 *	DESC:	User-interface-level "Inval" functions of two types: the regular
 			QuickDraw type, which applies to pixels (as in InvalRect), and
-			our own, which applies to Nightingale objects.
+			our own, which applies to Nightingale objects. In either case,
+			"Inval"ing an area of the screen will cause it to be redrawn.
 
 		InvalMeasure			InvalMeasures			InvalSystem
 		InvalSystems			InvalSysRange			InvalSelRange
@@ -74,27 +75,34 @@ static void AccumRect(Rect *r, Rect *tempR)
 	Rect nilRect;
 	
 	SetRect(&nilRect, 0, 0, 0, 0);
-	if (EqualRect(tempR, &nilRect))
-			*tempR = *r;
-	else	UnionRect(r, tempR, tempR);
+	if (EqualRect(tempR, &nilRect))	*tempR = *r;
+	else							UnionRect(r, tempR, tempR);
 }
 
 
 /* ---------------------------------------------------------------- InvalMeasures -- */
-/*	Erase and Inval all measures from the one the first specified object is	in
-(or, if it's not in a measure, the next measure) through and including the one
-the second specified object is in. If the second object is tail, erase and inval
-to tail. NB: As of v. 5.7, we require all barlines to align on every staff; as long
-as this is true, <theStaff> is irrelevant.*/
+/*	Erase and Inval all Measures at least from the one the first specified object is
+in (or, if it's not in a Measure, the next Measure) through and including the one the
+second specified object is in. If the Measure preceding the first Measure of that range
+is in the same System, include it too; likewise for the Measure following the last
+Measure of that range. If the second object is tail, erase and inval to tail. NB: As of
+v. 5.7, we require all barlines to align on every staff; as long as this is true,
+<theStaff> is irrelevant.
+
+Going beyond the specified Measures is helpful because objects of some types --
+especially Tempo/metronom marks and text Graphics -- quite often extend beyond their
+Measure. But, fairly often, one Measure extra each way isn't enough. FIXME: Should
+really Inval the entire first System that's involved and the entire last System that's
+involved. */
 
 void InvalMeasures(LINK fromL, LINK toL,
 							short theStaff)			/* Staff no. or ANYONE */
 {
-	LINK			measureL, lastMeasureL, pageL;
-	Rect			r, tempR, nilRect;
-	Document		*doc=GetDocumentFromWindow(TopDocument);
-	short			oldSheet;
-	Rect			oldPaper;
+	LINK		measureL, lastMeasureL, pageL;
+	Rect		r, tempR, nilRect;
+	Document	*doc=GetDocumentFromWindow(TopDocument);
+	short		oldSheet;
+	Rect		oldPaper;
 
 	if (doc==NULL) return;
 	
@@ -105,9 +113,23 @@ void InvalMeasures(LINK fromL, LINK toL,
 	tempR = nilRect;
 
 	measureL = LSSearch(fromL, MEASUREtype, theStaff, GO_LEFT, FALSE);
-	if (!measureL)
+	if (measureL) {
+		LINK prevMeasL = LinkLMEAS(measureL);
+//LogPrintf(LOG_DEBUG, "InvalMeasures1a: prevMeasL=%u measureL=%u\n", prevMeasL, measureL);
+		if (prevMeasL && SameSystem(prevMeasL, measureL)) measureL = prevMeasL;
+//LogPrintf(LOG_DEBUG, "InvalMeasures1b: prevMeasL=%u measureL=%u\n", prevMeasL, measureL);
+	}
+	else {
 		measureL = LSSearch(fromL, MEASUREtype, theStaff, GO_RIGHT, FALSE);
+	}
+	
 	lastMeasureL = LSSearch(toL, MEASUREtype, theStaff, GO_LEFT, FALSE);
+	if (lastMeasureL && MeasureTYPE(lastMeasureL)) {
+		LINK nextMeasL = LinkRMEAS(lastMeasureL);
+//LogPrintf(LOG_DEBUG, "InvalMeasures2a: lastMeasureL=%u nextMeasL=%u\n", lastMeasureL, nextMeasL);
+		if (nextMeasL && SameSystem(lastMeasureL, nextMeasL)) lastMeasureL = nextMeasL;
+//LogPrintf(LOG_DEBUG, "InvalMeasures2b: lastMeasureL=%u nextMeasL=%u\n", lastMeasureL, nextMeasL);
+	}
 	
 	while (measureL) {
 		LinkVALID(measureL) = FALSE;
@@ -134,8 +156,8 @@ void InvalMeasures(LINK fromL, LINK toL,
 		else						break;
 	}
 
-	/* If the last measure to inval exists and is not the last in the system,
-		erase and inval it here.  */
+	/* If the last Measure to inval exists and is not the last in the System, erase
+		and inval it here.  */
 	
 	if (lastMeasureL) {
 		pageL = LSSearch(lastMeasureL, PAGEtype, ANYONE, GO_LEFT, FALSE);
@@ -214,11 +236,16 @@ void InvalSysRange(LINK fromSys, LINK toSys)
 }
 
 /* --------------------------------------------------------------- InvalSelRange -- */
-/* Inval all measures containing any of the selection range. */
+/* Inval all measures containing any of the selection range. Exception: If anything
+selected is attached to the page, it probably won't be in the music area at all,
+so inval the entire window. */
 
 void InvalSelRange(Document *doc)
 {
-	InvalMeasures(doc->selStartL, doc->selEndL, ANYONE);
+	if (SelAttachedToPage(doc))
+		InvalWindow(doc);
+	else
+		InvalMeasures(doc->selStartL, doc->selEndL, ANYONE);
 }
 
 

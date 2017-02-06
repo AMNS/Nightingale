@@ -42,7 +42,7 @@ static short NextEverSel(Document *doc, Boolean *stEverSel, short s);
 static Boolean CSChkSelRanges(LINK s1, LINK e1, LINK s2, LINK e2);
 static Boolean OldContinSel(Document *doc, Boolean strict);
 static Boolean NewContinSel(Document *doc);
-static void SetSelEnds(LINK,LINK *,LINK *);
+static void SetSelEnds(LINK, LINK *, LINK *);
 
 
 /* --------------------------------------------------------------- DeselectSTAFF -- */
@@ -52,7 +52,7 @@ DeleteParts. */
 void DeselectSTAFF(LINK pL)
 {
 	PASTAFF	aStaff;
-	LINK		aStaffL;
+	LINK	aStaffL;
 	
 	aStaffL = FirstSubLINK(pL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
@@ -90,6 +90,7 @@ void SetDefaultSelection(Document *doc)
 	doc->selEndL = doc->selStartL;
 }
 
+
 /* -------------------------------------------------------------------- DeselAll -- */
 /*	Deselect current selection, make selection range null, and unhilite. */
 
@@ -111,13 +112,13 @@ untouched. */
 
 void DeselRange(Document *doc, LINK startL, LINK endL)
 {
-	LINK			pL;
+	LINK		pL;
 	CONTEXT		context[MAXSTAVES+1];
 	Boolean		found;
-	short			index,oldSheet;
-	STFRANGE		stfRange={0,0};
-	Rect			oldPaper;
-	long			soon;
+	short		index,oldSheet;
+	STFRANGE	stfRange={0,0};
+	Rect		oldPaper;
+	long		soon;
 
 	if (!startL || startL==endL) return;				/* check for empty selection */
 
@@ -130,7 +131,7 @@ void DeselRange(Document *doc, LINK startL, LINK endL)
 		if (PageTYPE(pL)) startL = pL;
 	}
 	
-	soon = TickCount()+60L;
+	soon = TickCount()+60L;								/* 1 sec. in the future */
 
 	for (pL = startL; pL!=endL; pL = RightLINK(pL)) {
 		if (TickCount()>soon) {
@@ -176,13 +177,14 @@ void DeselRangeNoHilite(Document */*doc*/, LINK startL, LINK endL)
 	LINK pL;
 
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
-		if (LinkSEL(pL))										/* We need LinkSEL bcs DeselectNode can't handle Pages, etc. */
+		if (LinkSEL(pL))							/* We need LinkSEL bcs DeselectNode can't handle Pages, etc. */
  			DeselectNode(pL);
 }
 
 
 /* ---------------------------------------------------------------- DoOpenSymbol -- */
-/* Open symbol for editing, i.e., handle double clicks. Returns LINK of object
+/* Open symbol for editing. Currently (v. 5.7b9) this just handles double clicks,
+but it could also be used by an "Edit Symbol" command. Returns LINK of object
 opened, or NILINK if no object found for mouse click. */
 
 LINK DoOpenSymbol(Document *doc, Point pt)
@@ -204,6 +206,7 @@ LINK DoOpenSymbol(Document *doc, Point pt)
 	return pL;
 }
 
+
 /* --------------------------------------------------------------- DoAccumSelect -- */
 /*	Handle user cmd-selection: accumulate selected objects into selection range,
 optimize selection, and set blinking caret if user deselected everything. The
@@ -222,8 +225,8 @@ static void DoAccumSelect(Document	*doc, LINK oldSelStartL, LINK oldSelEndL)
 
 /* -------------------------------------------------------------- DoExtendSelect -- */
 /*	Handle user shift-selection: accumulate selected objects into selection range,
-optimize selection, and set blinking caret if user deselected everything.
-The resulting selection will be continuous. */
+optimize selection, and set blinking caret if user deselected everything. The
+resulting selection will be continuous. */
 
 static void DoExtendSelect(
 					Document	*doc,
@@ -234,22 +237,22 @@ static void DoExtendSelect(
 					)
 {
 	LINK		pL, selStartPageL, selStartSysL, selStartMeasL, firstMeasL;
-	Boolean	found;
+	Boolean		found;
 	short		sheet, oldSheet;
 	short		index;
 	Rect		paper, oldPaper, selRect;
 	STFRANGE	stfRange;
-	CONTEXT	context[MAXSTAVES+1];
-	long soon;
+	CONTEXT		context[MAXSTAVES+1];
+	long		soon;
 	
-	if (IsAfterIncl(oldSelStartL, doc->selStartL))		/* accumulate new selection */
+	if (IsAfterIncl(oldSelStartL, doc->selStartL))				/* accumulate new selection */
 		doc->selStartL = oldSelStartL;
 	if (IsAfterIncl(doc->selEndL, oldSelEndL))
 		doc->selEndL = oldSelEndL;
 
 	if (doc->selStartL==doc->selEndL) {
 		MEAdjustCaret(doc, TRUE);
-		return;														/*???is this right? */
+		return;													/*???is this right? */
 	}
 	
 	soon = TickCount()+60L;
@@ -260,7 +263,7 @@ static void DoExtendSelect(
 			doc->selStartL = pL;
 	}
 		
-	if (PageTYPE(doc->selStartL))							/* TRUE if called from DoPageSelect */
+	if (PageTYPE(doc->selStartL))								/* TRUE if called from DoPageSelect */
 		selStartPageL = doc->selStartL;
 	else
 		selStartPageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, FALSE);
@@ -288,7 +291,7 @@ static void DoExtendSelect(
 
 	pL = doc->selStartL;
 	
-	if (GraphicTYPE(pL)) {							/* If doc->selStartL is a page-rel graphic... */
+	if (GraphicTYPE(pL)) {						/* If doc->selStartL is a page-rel graphic... */
 		LINK fooL = GraphicFIRSTOBJ(pL);
 		if (PageTYPE(fooL)) pL = fooL;			/* ... pL=its page, so that we get correct pg context below */
 	}
@@ -304,12 +307,12 @@ static void DoExtendSelect(
 		if (TickCount()>soon) WaitCursor();
 
 		ContextObject(doc, pL, context);
-		if (VISIBLE(pL)) {					/* ???but shouldn't invis objs be selected too? */
+		if (VISIBLE(pL)) {						/* ???but shouldn't invis objs be selected too? */
 			if (mode==SMThread)
 				if (ObjLType(pL)!=threadableType) continue;
 			CheckObject(doc, pL, &found, (Ptr)&selRect, context, SMStaffDrag,
 							&index, stfRange);
-			if (found) LinkSEL(pL) = TRUE;							/* mark new selection */
+			if (found) LinkSEL(pL) = TRUE;		/* mark new selection */
 		}
 	}
 	
@@ -323,22 +326,22 @@ static void DoExtendSelect(
 
 static void DoPageSelect(
 					Document	*doc,
-					Point 	pt,
+					Point		pt,
 					LINK		oldSelStartL,
 					LINK		oldSelEndL,
-					Boolean	shiftFlag,
-					Boolean	cmdFlag,
+					Boolean		shiftFlag,
+					Boolean		cmdFlag,
 					short		/*mode*/
 					)
 {
-	LINK			pL;
-	short			index;
+	LINK	pL;
+	short	index;
 		
-	pL = FindObject(doc, pt, &index, SMClick);		/* Look for PAGEs to which to attach GRAPHICs */
+	pL = FindObject(doc, pt, &index, SMClick);			/* Look for PAGEs to which to attach GRAPHICs */
 	if (pL) {
 		doc->selStartL = pL; doc->selEndL = RightLINK(pL);
 		if (shiftFlag)
-			;														/* Formerly called DoExtendSelect here */
+			;													/* Formerly called DoExtendSelect here */
 		else if (cmdFlag)
 			DoAccumSelect(doc, oldSelStartL, oldSelEndL);
 	}
@@ -356,7 +359,7 @@ click that sets an insertion point at the given point. NB: does NOT check that t
 click really is setting an insertion point (i.e., isn't within an object or a click
 with modifier keys) or move the caret. Ordinarily, use FixEmptySelection instead. */
 
-Boolean SetInsPoint(Document *doc, Point	pt)
+Boolean SetInsPoint(Document *doc, Point pt)
 {
 	short staffn;
 
@@ -374,15 +377,15 @@ Boolean SetInsPoint(Document *doc, Point	pt)
 
 void DoSelect(
 			Document *doc,
-			Point		pt,						/* Mousedown point */
+			Point	pt,						/* Mousedown point */
 			Boolean	shiftFlag,				/* Accumulate selection */
-			Boolean	cmdFlag,					/* Extend selection, as in TextEdit */
+			Boolean	cmdFlag,				/* Extend selection, as in TextEdit */
 			Boolean	/*capsLockFlag*/,		/* unused */
-			short		mode 						/* SMThread or SMSelect */
+			short	mode 					/* SMThread or SMSelect */
 			)
 {
-	LINK		pL, oldSelStartL, oldSelEndL;
-	short		index, oldSelStaff;
+	LINK	pL, oldSelStartL, oldSelEndL;
+	short	index, oldSelStaff;
 
 	oldSelStartL = doc->selStartL;
 	oldSelEndL = doc->selEndL;
@@ -391,47 +394,47 @@ void DoSelect(
 	if (doc->selStartL==doc->selEndL) cmdFlag = FALSE;		/* Cmd-click with empty selection makes no sense */		
 
 	if (!cmdFlag && !shiftFlag) 
-		DeselAll(doc);													/* Deselect previous selection */
+		DeselAll(doc);										/* Deselect previous selection */
 	
 	if (mode!=SMThread && FindStaff(doc, pt)==NOONE) {		/* Mousedown not inside any staff */
 		DoPageSelect(doc, pt, oldSelStartL, oldSelEndL,
-									shiftFlag, cmdFlag, mode);		/* Handle selection of pageRel objs */
+								shiftFlag, cmdFlag, mode);	/* Handle selection of pageRel objs */
 		return;
 	}
 
 	if (mode==SMThread)
-		DoThreadSelect(doc, pt);								/* Handle threader selection */
+		DoThreadSelect(doc, pt);							/* Handle threader selection */
 	else {
-		if (!SelectStaffRect(doc, pt))						/* Try one-dimensional wipe selection */
-		{																/* Mouse not moved horizontally, so */
-			pL = FindObject(doc, pt, &index, SMClick);	/*  select object clicked in, if any */
+		if (!SelectStaffRect(doc, pt)) {					/* Try one-dimensional wipe selection */
+			/* Mouse not moved horizontally, so select object clicked in, if any. */
+			pL = FindObject(doc, pt, &index, SMClick);
 			if (pL) 
 				{ doc->selStartL = pL; doc->selEndL = RightLINK(pL); }
 			 else {
-				if (!shiftFlag) 									/* ??what if cmdFlag? */
+				if (!shiftFlag) 							/* ??what if cmdFlag? */
 					FixEmptySelection(doc, pt);
 				else
 					SetInsPoint(doc, pt);
 			}
 		}
-	
 	}
-	if (shiftFlag)									/* extend selection continuously, as in TextEdit */
+	
+	if (shiftFlag)										/* extend selection continuously, as in TextEdit */
 		DoExtendSelect(doc, oldSelStartL, oldSelEndL, oldSelStaff, mode);
-	else if (cmdFlag)								/* accumulate new, possibly discontinuous selection (formerly shiftFlag) */
+	else if (cmdFlag)									/* accumulate new, possibly discontinuous selection (formerly shiftFlag) */
 		DoAccumSelect(doc, oldSelStartL, oldSelEndL);
 }
 
 
-/* -------------------------------------------------------------------- SelectAll -- */
+/* ---------------------------------------------------------------------- SelectAll -- */
 /*	Select and hilite all objects in score. Handles all user-interface details,
 including redrawing the message box. */
 
 void SelectAll(register Document *doc)
 {
 	LINK		pL, pageL;
-	Boolean	found;
-	CONTEXT	context[MAXSTAVES+1];	/* current context table */
+	Boolean		found;
+	CONTEXT		context[MAXSTAVES+1];			/* current context table */
 	short		index, oldCurrentSheet, sheet;
 	Rect		paper,oldPaper;
 	STFRANGE	stfRange={0,0};
@@ -468,6 +471,7 @@ void SelectAll(register Document *doc)
 		}
 		pL = RightLINK(pL);
 	}
+	
 	ArrowCursor();
 	doc->currentSheet = oldCurrentSheet;
 	doc->currentPaper = oldPaper;
@@ -512,8 +516,8 @@ user-interface assumptions. Written for use in file importing routines. */
 void SelAllNoHilite(register Document *doc)
 {
 	LINK		pL;
-	Boolean	found;
-	CONTEXT	context[MAXSTAVES+1];	/* current context table */
+	Boolean		found;
+	CONTEXT		context[MAXSTAVES+1];		/* current context table */
 	short		index;
 	STFRANGE	stfRange={0,0};
 
@@ -533,15 +537,15 @@ void SelAllNoHilite(register Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- DeselectNode -- */
+/* ------------------------------------------------------------------- DeselectNode -- */
 /* Deselect pL and all its subobjects, if it has any and they can be selected. */
 
 void DeselectNode(LINK pL)
 {	
 	HEAP		*tmpHeap;
 	LINK		subObjL;
-	PMEVENT	p;
-	GenSubObj *subObj;
+	PMEVENT		p;
+	GenSubObj	*subObj;
 	
 	if (LinkSEL(pL))
 		LinkSEL(pL) = FALSE;										/* Deselect the object */
@@ -571,14 +575,14 @@ void DeselectNode(LINK pL)
 		case RPTENDtype:
 			tmpHeap = Heap + ObjLType(pL);		/* p may not stay valid during loop */
 			
-			for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
+			for (subObjL = FirstSubObjPtr(p, pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
 				subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
 				subObj->selected = FALSE;							/* Deselect all the subobjects */
 			}
 			break;
 		case SLURtype: {
 			LINK aSlurL;
-				for (aSlurL=FirstSubLINK(pL); aSlurL; aSlurL=NextSLURL(aSlurL))
+				for (aSlurL = FirstSubLINK(pL); aSlurL; aSlurL = NextSLURL(aSlurL))
 					SlurSEL(aSlurL) = FALSE;
 			}
 			break;
@@ -606,7 +610,7 @@ void DeselectNode(LINK pL)
 user-interface assumptions. Doesn't select the object itself; for that, call
 SelectObject instead.
 
-??Problem: tuplets and ottavas should be handled the same way as beamsets, which
+FIXME: tuplets and ottavas should be handled the same way as beamsets, which
 currently leave the data structure in an  inconsistent state: the code will select
 the sync object without selecting any of its subobjects, and without choosing the
 correct subobject to select. */
@@ -614,21 +618,20 @@ correct subobject to select. */
 void SelAllSubObjs(LINK pL)
 {
 	PMEVENT		p;
-	HEAP			*tmpHeap;
-	LINK			subObjL;
+	HEAP		*tmpHeap;
+	LINK		subObjL;
 	GenSubObj 	*subObj;
 	
 	switch (ObjLType(pL)) {
 		case STAFFtype: {
 			LINK aStaffL;
-				for (aStaffL=FirstSubLINK(pL); aStaffL; aStaffL=NextSTAFFL(aStaffL))
+				for (aStaffL = FirstSubLINK(pL); aStaffL; aStaffL = NextSTAFFL(aStaffL))
 					StaffSEL(aStaffL) = TRUE;
 			}
 			break;
 		case CONNECTtype: {
 			LINK aConnectL;
-				for (aConnectL=FirstSubLINK(pL); aConnectL; 
-						aConnectL=NextCONNECTL(aConnectL))
+				for (aConnectL = FirstSubLINK(pL); aConnectL; aConnectL = NextCONNECTL(aConnectL))
 					ConnectSEL(aConnectL) = TRUE;
 			}
 			break;
@@ -643,14 +646,14 @@ void SelAllSubObjs(LINK pL)
 		case RPTENDtype:
 			tmpHeap = Heap + ObjLType(pL);		/* p may not stay valid during loop */
 			
-			for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
-				subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
+			for (subObjL = FirstSubObjPtr(p, pL); subObjL; subObjL = NextLink(tmpHeap, subObjL)) {
+				subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 				subObj->selected = TRUE;
 			}
 			break;
 		case SLURtype: {
 			LINK aSlurL;
-				for (aSlurL=FirstSubLINK(pL); aSlurL; aSlurL=NextSLURL(aSlurL))
+				for (aSlurL = FirstSubLINK(pL); aSlurL; aSlurL = NextSLURL(aSlurL))
 					SlurSEL(aSlurL) = TRUE;
 			}
 			break;
@@ -663,8 +666,8 @@ void SelAllSubObjs(LINK pL)
 		case ENDINGtype:
 			break;
 		default:
-			MayErrMsg("SelAllSubObjs: at %ld, type=%ld not supported",
-						(long)pL, (long)ObjLType(pL));
+			MayErrMsg("SelAllSubObjs: at %ld, type=%ld not supported", (long)pL,
+						(long)ObjLType(pL));
 			break;
 	}
 }
@@ -693,10 +696,10 @@ You'd think a loop calling CheckObject could do the same thing, but probably not
 
 void SelectRange(Document *doc, LINK startL, LINK endL, short firstStf, short lastStf)
 {
-	LINK 			pL,subObjL,aSlurL;
+	LINK 		pL,subObjL,aSlurL;
 	PMEVENT		p;
 	GenSubObj 	*subObj;
-	HEAP 			*tmpHeap;
+	HEAP 		*tmpHeap;
 
 	for (pL = startL; pL!=endL; pL = RightLINK(pL)) {
 		p = GetPMEVENT(pL);
@@ -712,8 +715,8 @@ void SelectRange(Document *doc, LINK startL, LINK endL, short firstStf, short la
 			case RPTENDtype:
 				tmpHeap = doc->Heap + ObjLType(pL);
 				
-				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
-					subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
+				for (subObjL = FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap, subObjL)) {
+					subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 					if (subObj->staffn>=firstStf && subObj->staffn<=lastStf) {
 						LinkSEL(pL) = TRUE;
 						subObj->selected = TRUE;
@@ -735,7 +738,7 @@ void SelectRange(Document *doc, LINK startL, LINK endL, short firstStf, short la
 				if (SlurSTAFF(pL)>=firstStf && SlurSTAFF(pL)<=lastStf) {
 					LinkSEL(pL) = TRUE;
 					aSlurL = FirstSubLINK(pL);
-					for ( ; aSlurL; aSlurL=NextSLURL(aSlurL))
+					for ( ; aSlurL; aSlurL = NextSLURL(aSlurL))
 						SlurSEL(aSlurL) = TRUE;
 				}
 				break;
@@ -744,21 +747,21 @@ void SelectRange(Document *doc, LINK startL, LINK endL, short firstStf, short la
 }
 
 
-/* ------------------------------------------------------------- ExtendSelection -- */
+/* ---------------------------------------------------------------- ExtendSelection -- */
 /* For every object that has at least one subobject selected, select all its
 subobjects. Handles all user-interface details, assuming the score is on screen. */
 
 void ExtendSelection(Document *doc)
 {
-	LINK			pL;
+	LINK		pL;
 	CONTEXT		context[MAXSTAVES+1];
 	Boolean		found;
-	short			index;
-	STFRANGE		stfRange={0,0};
+	short		index;
+	STFRANGE	stfRange={0,0};
 
 	WaitCursor();
 
-	GetAllContexts(doc, context, doc->selStartL);		/* get context at start of range */
+	GetAllContexts(doc, context, doc->selStartL);			/* get context at start of range */
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		ContextObject(doc, pL, context);
 		if (LinkSEL(pL))
@@ -767,7 +770,7 @@ void ExtendSelection(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ ObjTypeSel -- */
+/* --------------------------------------------------------------------- ObjTypeSel -- */
 /* If at least one object of the specified type is selected, deliver the first
 one's link, else deliver NILINK. */
 
@@ -792,7 +795,7 @@ LINK ObjTypeSel(Document *doc, short type, short graphicSubType)
 
 
 /* --------------------------------------------------------------- BoundSelRange -- */
-/* Deselect any object outside the selection range. */
+/* Deselect every object outside the selection range. */
 
 void BoundSelRange(Document *doc)
 {
@@ -821,7 +824,7 @@ void LimitSelRange(Document *doc)
 	BoundSelRange(doc);
 
 	pL = doc->selStartL;
-	for ( ; pL; doc->selStartL=pL=RightLINK(pL)) {
+	for ( ; pL; doc->selStartL = pL = RightLINK(pL)) {
 		if (doc->selStartL==doc->selEndL) return;
 		if (LinkSEL(pL)) break;
 	}
@@ -855,7 +858,7 @@ with selection flags set. */
 
 void CountSelection(Document *doc, short *nInRange, short *nSelFlag)
 {
-	LINK	pL;
+	LINK pL;
 	register short nIn, nSel;
 	
 	nIn = nSel = 0;
@@ -874,9 +877,9 @@ void CountSelection(Document *doc, short *nInRange, short *nSelFlag)
 }
 
 
-/* ----------------------------------------------------------------- ChordSetSel -- */
-/* If any note in the chord in the given Sync and voice is selected, set all of
-them to be selected and return TRUE; if none is selected, just return FALSE. If
+/* -------------------------------------------------------------------- ChordSetSel -- */
+/* If any note in the chord in the given Sync and voice is selected, set all notes in
+in the chord to be selected and return TRUE; if none is selected, just return FALSE. If
 the given Sync and voice does not contain a chord, i.e., it contains zero or one
 notes, does nothing, but may return either TRUE or FALSE. */
 
@@ -903,7 +906,7 @@ Boolean ChordSetSel(LINK syncL, short voice)
 }
 
 
-/* ------------------------------------------------------------- ExtendSelChords -- */
+/* ---------------------------------------------------------------- ExtendSelChords -- */
 /* Extend the selection to include all notes in every chord that has any note(s)
 selected. If it does anything, return TRUE, else FALSE. */
 
@@ -923,13 +926,13 @@ Boolean ExtendSelChords(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- ChordHomoSel -- */
+/* ------------------------------------------------------------------- ChordHomoSel -- */
 /* Return TRUE iff every note in the voice in <pL> (which must be a Sync) has the
 specified selection status. */
 
 Boolean ChordHomoSel(LINK pL, short voice, Boolean selected)
 {
-	LINK 		aNoteL;
+	LINK 	aNoteL;
 	
 	for (aNoteL = FirstSubLINK(pL); aNoteL; aNoteL = NextNOTEL(aNoteL))
 		if (NoteVOICE(aNoteL)==voice)
@@ -938,7 +941,27 @@ Boolean ChordHomoSel(LINK pL, short voice, Boolean selected)
 }
 
 
-/* ====================================================== Continuity of Selection == */
+/* ------------------------------------------------------------------- ChordHomoSel -- */
+/* Is anything in the selection attached to a Page rather than to a System or something
+within a System? If so, return TRUE, else FALSE. This is so a calling function can know
+if redrawing the entire Page is necessary.  As of this writing (v. 5.7b9), only Graphics
+can be attached to a Page. */
+
+Boolean SelAttachedToPage(Document *doc)
+{
+	LINK pL, relObjL;
+	if (doc->selStartL==doc->selEndL) return FALSE;
+
+	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
+		if (LinkSEL(pL) && GraphicTYPE(pL)) {
+			relObjL = GraphicFIRSTOBJ(pL);
+			if (PageTYPE(relObjL)) return TRUE;
+		}
+	return FALSE;
+}
+
+
+/* ======================================================== Continuity of Selection == */
 
 static Boolean ContinSelChks(Document *doc)
 {
@@ -996,16 +1019,16 @@ static Boolean OldContinSel(Document *doc, Boolean strict)
 {
 	PMEVENT		p;
 	register LINK pL;
-	LINK			subObjL, aMeasL, aPSMeasL;
+	LINK		subObjL, aMeasL, aPSMeasL;
 	register short s;
-	HEAP			*tmpHeap;
+	HEAP		*tmpHeap;
 	GenSubObj	*subObj;
 	Boolean		stEverSel[MAXSTAVES+1],				/* Found anything in the staff sel. yet? */
-					stPrevSel[MAXSTAVES+1],				/* Was the previous thing in staff sel.? */
-					stNowSel[MAXSTAVES+1];				/* Is this thing in staff sel.? */
-	short			stStatus[MAXSTAVES+1];				/* -1=this not in stf, 1= sel., 0= unsel. */
-	LINK			startL1, endL1, startL2, endL2;	/* Chking stf selRange adjacency */
-	short			s1,s2;
+				stPrevSel[MAXSTAVES+1],				/* Was the previous thing in staff sel.? */
+				stNowSel[MAXSTAVES+1];				/* Is this thing in staff sel.? */
+	short		stStatus[MAXSTAVES+1];				/* -1=this not in stf, 1= sel., 0= unsel. */
+	LINK		startL1, endL1, startL2, endL2;		/* Checking stf selRange adjacency */
+	short		s1,s2;
 	
 	if (!ContinSelChks(doc)) return FALSE;
 
@@ -1030,7 +1053,7 @@ static Boolean OldContinSel(Document *doc, Boolean strict)
 			case RPTENDtype:
 				tmpHeap = Heap + ObjLType(pL);							/* Heap?? may not stay valid during loop */
 				
-				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
+				for (subObjL = FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
 					subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
 
 					SetStfStatus(stStatus,subObj->staffn,subObj->selected);
@@ -1116,16 +1139,16 @@ static Boolean OldContinSel(Document *doc, Boolean strict)
 	GetStfSelRange(doc, s1, &startL1, &endL1);
 	GetStfSelRange(doc, s2, &startL2, &endL2);
 	
-	if (!CSChkSelRanges(startL1,endL1,startL2,endL2)) return FALSE;
+	if (!CSChkSelRanges(startL1, endL1, startL2, endL2)) return FALSE;
 
 	for (s = s2; s<doc->nstaves; s=s2) {
-		s2 = NextEverSel(doc,stEverSel,s+1);
+		s2 = NextEverSel(doc, stEverSel, s+1);
 		if (s2<0) break;
 
 		startL1 = startL2; endL1 = endL2;
 		GetStfSelRange(doc, s2, &startL2, &endL2);
 
-		if (!CSChkSelRanges(startL1,endL1,startL2,endL2)) return FALSE;
+		if (!CSChkSelRanges(startL1, endL1, startL2, endL2)) return FALSE;
 	}
 
 	return TRUE;
@@ -1134,12 +1157,12 @@ static Boolean OldContinSel(Document *doc, Boolean strict)
 static Boolean NewContinSel(Document *doc)
 {
 	register LINK pL;
-	LINK			aNoteL;
+	LINK		aNoteL;
 	PANOTE		aNote;
 	register short v;
 	Boolean		voiceEverSel[MAXVOICES+1],			/* Found anything in the voice sel. yet? */
-					voicePrevSel[MAXVOICES+1],			/* Was the previous thing in voice sel.? */
-					voiceNowSel[MAXVOICES+1];			/* Is this thing in voice sel.? */
+				voicePrevSel[MAXVOICES+1],			/* Was the previous thing in voice sel.? */
+				voiceNowSel[MAXVOICES+1];			/* Is this thing in voice sel.? */
 	
 	if (!ContinSelChks(doc)) return FALSE;
 
@@ -1150,7 +1173,7 @@ static Boolean NewContinSel(Document *doc)
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
 			aNoteL = FirstSubLINK(pL);
-			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
+			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
 				if (aNote->inChord) {
 					if (MainNote(aNoteL)) {
@@ -1181,20 +1204,22 @@ static Boolean NewContinSel(Document *doc)
 	return TRUE;
 }
 
+
 /* ------------------------------------------------------------- ContinSelection -- */
 /* Check whether the selection is nonempty, entirely within one system, and
 continuous in each staff (current version) or voice (someday); if so, return TRUE. */
 
 Boolean ContinSelection(Document *doc,
-								Boolean strict)	/* TRUE=use unreasonably strict <v.996 checks */
+							Boolean strict)	/* TRUE=use unreasonably strict <v.996 checks */
 {
 #ifndef NEWCONTTEST
 
-	return OldContinSel(doc,strict);
+	return OldContinSel(doc, strict);
 #endif
 
 	return NewContinSel(doc);
 }
+
 
 /* ----------------------------------------------------------- OptimizeSelection -- */
 /* Assuming everything selected is between doc->selStartL and selEndL, clear 
@@ -1207,8 +1232,8 @@ NB: should probably call BoundSelRange. */
 void OptimizeSelection(Document *doc)
 {
 	PMEVENT		p;
-	LINK			pL, oldStartL, subObjL;
-	HEAP			*tmpHeap;
+	LINK		pL, oldStartL, subObjL;
+	HEAP		*tmpHeap;
 	GenSubObj	*subObj;
 	
 	if (doc->selStartL==doc->selEndL)							/* Return if empty sel. range. */
@@ -1262,13 +1287,12 @@ void OptimizeSelection(Document *doc)
 
 /* ------------------------------------------------------------- UpdateSelection -- */
 /* Clear object selected flags where appropriate for their subobjects, and set
-selStartL, selEndL to the narrowest range that includes all selected objects.
-Does NOT assume the current values of selStartL, selEndL are meaningful.
-NB: at the moment, if nothing is selected, sets selStartL = selEndL = headL;
-this is almost certainly a bug!
-JGG: Yes, it causes the "MEAdjustCaret: can't handle type 0" error msg. Trying to
-protect against this after call to OptimizeSelection below, but this may not be
-the right fix. */
+selStartL, selEndL to the narrowest range that includes all selected objects. Does NOT
+assume the current values of selStartL, selEndL are meaningful. NB: at the moment, if
+nothing is selected, sets selStartL = selEndL = headL; this is almost certainly a bug!
+JGG says: Yes, it causes the "MEAdjustCaret: can't handle type 0" error msg. Trying to
+protect against this after call to OptimizeSelection below, but this may not be the
+right fix. */
 
 void UpdateSelection(Document *doc)
 {
@@ -1290,23 +1314,23 @@ static void SetSelEnds(LINK pL, LINK *startL, LINK *endL)
 }
 
 
-/* -------------------------------------------------------------- GetStfSelRange -- */
+/* ----------------------------------------------------------------- GetStfSelRange -- */
 /*  Return the minimum range that includes everything selected on a staff. If
 nothing is selected on that staff, returns NILINKs.
 
-Note: We could lump the last 8 cases into one by use of GetSubObjStaff(pL, 1).
-	However, GetSubObjStaff is misnamed, since it gets objStaff half the time,
-	and casts Graphics, Tempos, Slurs and Space objects to PEXTENDs, which
-	they are not; NTypes.h had damn well better know about this if we don't
-	want to risk breaking things by moving fields around in Graphics, etc.
+Note: We could lump the last 8 cases into one by use of GetSubObjStaff(pL, 1). However,
+GetSubObjStaff is misnamed, since it gets objStaff half the time, and casts Graphics,
+Tempos, Slurs and Space objects to PEXTENDs, which they are not; NTypes.h had damn well
+better know about this if we don't want to risk breaking things by moving fields around
+in Graphics, etc.
 */
 
 void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 {
-	PMEVENT	p;
+	PMEVENT		p;
 	LINK 		pL, subObjL;
 	HEAP		*tmpHeap;
-	GenSubObj *subObj;
+	GenSubObj	*subObj;
 	
 	*startL = *endL = NILINK;
 	
@@ -1325,10 +1349,11 @@ void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 			case RPTENDtype:
 				tmpHeap = Heap + ObjLType(pL);		/* p may not stay valid during loop */
 				
-				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
-					subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
+				for (subObjL = FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap, subObjL)) {
+					subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 					if (subObj->staffn==staff && subObj->selected) {
-						SetSelEnds(pL,startL,endL); break;
+						SetSelEnds(pL, startL, endL);
+						break;
 					}
 				}
 				break;
@@ -1338,23 +1363,23 @@ void GetStfSelRange(Document *doc, short staff, LINK *startL, LINK *endL)
 			case OTTAVAtype:
 				p = GetPMEVENT(pL);
 				if (((PEXTEND)p)->staffn==staff)
-					SetSelEnds(pL,startL,endL);
+					SetSelEnds(pL, startL, endL);
 				break;
 			case GRAPHICtype:
 				if (GraphicSTAFF(pL)==staff)
-					SetSelEnds(pL,startL,endL);
+					SetSelEnds(pL, startL, endL);
 				break;
 			case TEMPOtype:
 				if (TempoSTAFF(pL)==staff)
-					SetSelEnds(pL,startL,endL);
+					SetSelEnds(pL, startL, endL);
 				break;
 			case SPACERtype:
 				if (SpacerSTAFF(pL)==staff)
-					SetSelEnds(pL,startL,endL);
+					SetSelEnds(pL, startL, endL);
 				break;
 			case ENDINGtype:
 				if (EndingSTAFF(pL)==staff)
-					SetSelEnds(pL,startL,endL);
+					SetSelEnds(pL, startL, endL);
 				break;
 			default:
 				;
@@ -1371,7 +1396,7 @@ nothing is selected in that voice, returns NILINKs. */
 
 void GetVSelRange(Document *doc, short v, LINK *startL, LINK *endL)
 {
-	LINK 		pL;
+	LINK 	pL;
 	
 	*startL = *endL = NILINK;
 	
@@ -1395,7 +1420,7 @@ void GetNoteSelRange(
 				LINK *startL, LINK *endL,
 				Boolean notesGraceNotes)	/* Notes/rests only, grace notes only, or both */
 {
-	LINK 		pL, aNoteL, aGRNoteL;
+	LINK 	pL, aNoteL, aGRNoteL;
 	
 	*startL = *endL = NILINK;
 
