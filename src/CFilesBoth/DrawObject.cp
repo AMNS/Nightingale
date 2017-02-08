@@ -2288,7 +2288,7 @@ void DrawTEMPO(Document *doc,
 	StringOffset theStrOffset;
 	Str255 tempoStr;
 	char metroStr[256], noteChar;
-	DDIST lnSpace, extraHorizGap, extraVertGap, dEnclBoxHeight, dTextLineHeight;
+	DDIST lnSpace, extraHorizGap, dEnclBoxHeight, dTextLineHeight;
 	DDIST xd, yd, xdMM, xdDot, xdMMNumber, ydMM, ydDot;
 	LINK firstObjL;
 	Boolean expandN, doDrawMM, metroIsBelow;
@@ -2349,9 +2349,7 @@ PushLock(TEMPOheap);
 		xdMM = xd;
 		GetNPtStringBBox(doc, tempoStr, fontID, fontSize, fontStyle, FALSE, &lineBBox);
 		dTextLineHeight = pt2d(lineBBox.bottom-lineBBox.top);
-		extraVertGap = lnSpace/2;
-		ydMM = yd+dEnclBoxHeight-dTextLineHeight+extraVertGap;
-		//ydMM = yd+dEnclBoxHeight-lnSpace; 
+		ydMM = yd+dEnclBoxHeight-dTextLineHeight;
 	}
 	else {
 		extraHorizGap = 0;
@@ -2410,7 +2408,7 @@ PushLock(TEMPOheap);
 			if (doDrawMM && p->subType!=NO_L_DUR) {
 				MoveTo(pContext->paper.left+d2p(xdMM), pContext->paper.top+d2p(ydMM));
 				useTxSize = UseTextSize(pContext->fontSize, doc->magnify);
-				useTxSize = MEDIUMSIZE(useTxSize);
+				useTxSize = METROSIZE(useTxSize);
 				TextSize(useTxSize);
 				TextFont(doc->musicFontNum);
 				TextFace(0);											/* Plain */
@@ -2429,7 +2427,11 @@ PushLock(TEMPOheap);
 			/* Perhaps draw the metronome mark number; maybe widen the bounding box */
 			SetFontFromTEXTSTYLE(doc, (TEXTSTYLE *)doc->fontNameTM, lnSpace);
 			if (doDrawMM) {
+				short tempoSize, mmSize;
 				MoveTo(pContext->paper.left+d2p(xdMMNumber), pContext->paper.top+d2p(ydMM));
+				tempoSize = GetPortTxSize();
+				mmSize = METROSIZE(tempoSize);
+				TextSize(mmSize);
 				DrawCString(metroStr);
 			}
 			
@@ -2442,11 +2444,11 @@ PushLock(TEMPOheap);
 			fontSize = GetTextSize(doc->relFSizeTM, doc->fontSizeTM, lnSpace);
 			DrawTextBlock(doc, xd, yd, pL, pContext, FALSE, fontID, fontSize, fontStyle);
 			if (doDrawMM) {
-				PS_MusChar(doc, xdMM, ydMM, noteChar, TRUE, MEDIUMSIZE(100));
+				PS_MusChar(doc, xdMM, ydMM, noteChar, TRUE, METROSIZE(100));
 				if (p->dotted) {
 					xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lnSpace);
 					ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lnSpace);
-					PS_MusChar(doc, xdDot, ydDot, dotChar, TRUE, MEDIUMSIZE(100));
+					PS_MusChar(doc, xdDot, ydDot, dotChar, TRUE, METROSIZE(100));
 				}
 				PS_FontString(doc, xdMMNumber, ydMM, CToPString(metroStr),
 									doc->fontNameTM, fontSize, doc->fontStyleTM);

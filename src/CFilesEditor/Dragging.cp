@@ -1223,7 +1223,7 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 		}
 
 		useTxSize = UseTextSize(context.fontSize, doc->magnify);
-		useTxSize = MEDIUMSIZE(useTxSize);
+		useTxSize = METROSIZE(useTxSize);
 		TextFace(0);                                 /* Plain */
 		TextSize(useTxSize);
 		TextFont(doc->musicFontNum);

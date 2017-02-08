@@ -1152,3 +1152,12 @@ following Measure. This is enough for many cases and at least helps in the other
 Affects Inval.
 
 Minor cleanup. Affects DrawObject, Inval, MIDIFOpen, MIDIFSave, Select.
+
+-------------------------------------------------------------------------------
+
+7 Feb.
+
+Make metronome marks smaller (Issue #131): they've always been larger than the standard
+size, and making them smaller is particularly important for parts, where measures tend
+to be much narrower and more crowded, etc. Affects Style.h; Dragging, DrawObject.
+

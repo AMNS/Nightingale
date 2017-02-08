@@ -24,7 +24,7 @@
 
 #define GRACESIZE(size)		(7*(size)/10)	/* For grace notes */
 #define SMALLSIZE(size)		(3*(size)/4)	/* For "small" versions of symbols: notes/rests, clefs, dynamics, etc. */
-#define MEDIUMSIZE(size)	(9*(size)/10)	/* For tempo marks */
+#define METROSIZE(size)		(8*(size)/10)	/* For metronome marks */
 
 /* Caveat: see the comment on GetModNRInfo before adjusting note modifier sizes. */
 
