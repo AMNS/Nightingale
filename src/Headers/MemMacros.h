@@ -384,7 +384,7 @@
 #define StaffCLEFTYPE(link)		( (GetPASTAFF(link))->clefType )
 #define StaffKSITEM(link)	 	( (GetPASTAFF(link))->KSItem )	
 
-#define MeasMRECT(link)			( (GetPAMEASURE(link)->measureRect) )
+#define MeasMRECT(link)			( (GetPAMEASURE(link)->measSizeRect) )
 #define MeasCLEFTYPE(link)	 	( (GetPAMEASURE(link))->clefType )
 #define MeasSUBTYPE(link)	 	( (GetPAMEASURE(link))->subType )
 #define MeasCONNABOVE(link)		( (GetPAMEASURE(link))->connAbove )

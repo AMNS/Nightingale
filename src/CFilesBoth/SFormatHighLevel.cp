@@ -26,7 +26,7 @@ static Boolean CheckSFInvis(Document *doc);
 static Boolean SFVisPossible(Document *doc);
 static Boolean SFCanVisify(Document *doc);
 
-static void OffsetStaves(Document *,LINK,DDIST,DDIST);
+static void OffsetStaves(Document *, LINK, DDIST, DDIST);
 
 
 /* Set up for Work on Format. Deactivate the caret upon entering showFormat, and
@@ -44,7 +44,7 @@ static void SetupShowFormat(Document *doc, Boolean doEnter)
 	else
 		doc->frameSystems = oldFrameSystems;
 	
-	MEActivateCaret(doc,!doEnter);
+	MEActivateCaret(doc, !doEnter);
 	selL = doc->selStartL;
 	DeselAll(doc);
 	if (!doEnter) {
@@ -57,10 +57,10 @@ static void SetupShowFormat(Document *doc, Boolean doEnter)
 }
 
 /*-------------------------------------------------------------- SetupFormatMenu -- */
-/* Replace the Play/Record menu with the format menu. We must guarantee that
-the user cannot enter showFormat from MasterPage, or vice versa; inside
-Master Page the masterPgMenu and not the playRecordMenu is installed, and
-likewise inside showFormat. */
+/* Replace the Play/Record menu with the format menu. We must guarantee that the
+user cannot enter showFormat from MasterPage, or vice versa; inside Master Page
+the masterPgMenu and not the playRecordMenu is installed, and likewise inside
+showFormat. */
 
 void SetupFormatMenu(Document *doc)
 {
@@ -72,8 +72,8 @@ void SetupFormatMenu(Document *doc)
 
 static void EnterShowFormat(Document *doc)
 {
-	SetupShowFormat(doc,TRUE);			/* Allocate memory for all necessary objects */
-	SetupFormatMenu(doc);				/* Replace the Play/Record menu with Format menu */
+	SetupShowFormat(doc,TRUE);		/* Allocate memory for all necessary objects */
+	SetupFormatMenu(doc);			/* Replace the Play/Record menu with Format menu */
 }
 
 
@@ -83,8 +83,8 @@ static void ExitShowFormat(Document *doc)
 {
 	HiliteAllStaves(doc, TRUE);		/* Deselect all staves which may have been selected during editing. */
 
-	SetupFormatMenu(doc);				/* Replace the Format menu with Play/Record menu */
-	SetupShowFormat(doc,FALSE);
+	SetupFormatMenu(doc);			/* Replace the Format menu with Play/Record menu */
+	SetupShowFormat(doc, FALSE);
 }
 
 
@@ -103,19 +103,17 @@ void DoShowFormat(Document *doc)
 		EnterShowFormat(doc);				/* Allocate memory, import values, etc. */
 	}
 	else {
-		ExitShowFormat(doc);					/* Dispose memory, export values, etc. */
+		ExitShowFormat(doc);				/* Dispose memory, export values, etc. */
 		MEAdjustCaret(doc, FALSE);
 	}
 
-	GetWindowPortBounds(w,&portRect);
+	GetWindowPortBounds(w, &portRect);
 	ClipRect(&portRect);
-	InvalWindowRect(w,&portRect);
-
+	InvalWindowRect(w, &portRect);
 }
 
 
 /* ------------------------------------------------------------- SFInvisify et al -- */
-
 /* If there are any "content" objects on the given staff in the system, return TRUE.
 If the staff is the other staff of cross-staff objects, don't worry about it.
 We use the term "content" here in a rather specialized sense: clef, key signature,
@@ -206,9 +204,9 @@ systems. pL is the staff object. */
 
 DDIST SetStfInvis(Document *doc, LINK pL, LINK aStaffL)
 {
-	PASTAFF aStaff,bStaff;
-	LINK bStaffL,sysL;
-	DDIST vDiff,prevStfHt; short staffn,prevBelowDist;
+	PASTAFF aStaff, bStaff;
+	LINK bStaffL, sysL;
+	DDIST vDiff, prevStfHt;  short staffn, prevBelowDist;
 
 	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	prevBelowDist = BelowStfDist(doc, sysL, pL);
@@ -230,7 +228,7 @@ DDIST SetStfInvis(Document *doc, LINK pL, LINK aStaffL)
 		bStaffL = FirstSubLINK(pL);
 		for ( ; bStaffL; bStaffL = NextSTAFFL(bStaffL)) {
 			staffn = StaffSTAFF(bStaffL);
-			if (staffn == NextLimStaffn(doc,pL,TRUE,StaffSTAFF(aStaffL)+1)) {
+			if (staffn == NextLimStaffn(doc, pL, TRUE, StaffSTAFF(aStaffL)+1)) {
 				bStaff = GetPASTAFF(bStaffL);
 				aStaff = GetPASTAFF(aStaffL);
 				vDiff = bStaff->staffTop - aStaff->staffTop;
@@ -266,23 +264,21 @@ DDIST SetStfInvis(Document *doc, LINK pL, LINK aStaffL)
 }
 
 
-/* Invisify selected staves. Invisifying a Staff sets the subobj's <visible>
-flag FALSE. It also removes the vertical space occupied by that Staff by
-decreasing the staffTop of each Staff below by the distance between that Staff
-and the one below, and decreasing the systemRect.bottom by the same amount.
-If there are any systems below, their systemRects are translated up by the
-same amount. The amount is then stored in the Staff's <spaceBelow> for use
-in case the Staff is later made visible.
-If a Staff belongs to a multi-staff part:
- if there are any cross-staff beams or slurs in the system, it can't be
-	invisified
- the Connect is always drawn from the part's top visible Staff to its
- 	bottom visible Staff, even if they're the same
+/* Invisify selected staves. Invisifying a Staff sets the subobj's <visible> flag FALSE.
+It also removes the vertical space occupied by that Staff by decreasing the staffTop of
+each Staff below by the distance between that Staff and the one below, and decreasing
+the systemRect.bottom by the same amount. If there are any systems below, their
+systemRects are translated up by the same amount. The amount is then stored in the
+Staff's <spaceBelow> for use in case the Staff is later made visible. If a Staff belongs
+to a multi-staff part:
+ * if there are any cross-staff beams or slurs in the system, it can't be invisified
+ * the Connect is always drawn from the part's top visible Staff to its bottom
+   visible Staff, even if they're the same
 InvisifySelStaves makes no user-interface assumptions. */
 
 void InvisifySelStaves(Document *doc)
 {
-	LINK pL,aStaffL,sysL; DDIST vDiff=0;
+	LINK pL, aStaffL, sysL; DDIST vDiff=0;
 
 	/* Find the first selected Staff object. If the selection is continuous,
 		as of v.2.1, it'll be the only selected Staff object. */
@@ -304,13 +300,13 @@ void InvisifySelStaves(Document *doc)
 		on the page upward by the amount that the invisified Staff occupied. Update
 		the measureRects of measures in these systems to accomodate the translation. */
  
-	sysL = LSSearch(doc->selStartL,SYSTEMtype,ANYONE,GO_LEFT,FALSE);
-	UpdateSysMeasYs(doc,sysL,FALSE,FALSE);
+	sysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	UpdateSysMeasYs(doc, sysL, FALSE, FALSE);
 
 	if (!LastSysInPage(sysL))
 		for (sysL=LinkRSYS(sysL); sysL; sysL=LinkRSYS(sysL)) {
 			OffsetSystem(sysL, 0, -d2p(vDiff));
-			UpdateSysMeasYs(doc,sysL,FALSE,FALSE);
+			UpdateSysMeasYs(doc, sysL, FALSE, FALSE);
 			if (LastSysInPage(sysL)) break;
 		}
 	
@@ -329,7 +325,7 @@ void SFInvisify(Document *doc)
 
 	InvisifySelStaves(doc);
 		
-	InvalRange(doc->headL,doc->tailL);
+	InvalRange(doc->headL, doc->tailL);
 	InvalWindow(doc);
 }
 
@@ -341,7 +337,7 @@ space. If the staff is ALREADY visible, do nothing and return 0. */
 
 DDIST VisifyStf(LINK pL, LINK aStaffL, short staffn)
 {
-	DDIST vDiff; LINK sysL,bStaffL; PASTAFF aStaff,bStaff;
+	DDIST vDiff;  LINK sysL, bStaffL;  PASTAFF aStaff, bStaff;
 
 	if (StaffVIS(aStaffL)) return 0;
 
@@ -370,7 +366,7 @@ reformatting might still be necessary. */
 
 static Boolean SFVisPossible(Document *doc)
 {
-	LINK pL,aStaffL,staffL,sysL,pageL; DDIST vDiff=0,sysHt;
+	LINK pL, aStaffL, staffL, sysL, pageL;  DDIST vDiff=0, sysHt;
 	PASTAFF aStaff; PSYSTEM pSys; DRect sysRect;
 	
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -385,7 +381,7 @@ static Boolean SFVisPossible(Document *doc)
 			staffL = pL; break;	
 		}
 
-	pageL = LSSearch(doc->selStartL,PAGEtype,ANYONE,GO_LEFT,FALSE);
+	pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, FALSE);
 
 	sysL = StaffSYS(staffL);
 	pSys = GetPSYSTEM(sysL);
@@ -404,8 +400,8 @@ else return TRUE to indicate all staves can be visified. */
 
 static Boolean SFCanVisify(Document *doc)
 {
-	LINK pL,aStaffL,sysL,pageL; DDIST vDiff=0;
-	PASTAFF aStaff; PSYSTEM pSys;
+	LINK pL, aStaffL, sysL, pageL;  DDIST vDiff=0;
+	PASTAFF aStaff;  PSYSTEM pSys;
 	
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (StaffTYPE(pL) && LinkSEL(pL)) {
@@ -419,7 +415,7 @@ static Boolean SFCanVisify(Document *doc)
 			break;	
 		}
 		
-	pageL = LSSearch(doc->selStartL,PAGEtype,ANYONE,GO_LEFT,FALSE);
+	pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_LEFT, FALSE);
 
 	sysL = GetLastSysInPage(pageL);
 	pSys = GetPSYSTEM(sysL);
@@ -432,8 +428,8 @@ static Boolean SFCanVisify(Document *doc)
 
 
 /* If there are any invisible staves in the given Staff object, show all of them,
-move all systems below on its page down accordingly, and return the System the
-Staff is in. Otherwise just return NILINK. */
+move all systems below on its page down accordingly, and return the System the Staff
+is in. Otherwise just return NILINK. */
 
 LINK VisifyAllStaves(Document *doc, LINK staffL)
 {
@@ -444,8 +440,8 @@ LINK VisifyAllStaves(Document *doc, LINK staffL)
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
 		if (!StaffVIS(aStaffL)) {
-			vDiff += VisifyStf(staffL,aStaffL,StaffSTAFF(aStaffL));
-			VisifyAllObjs(doc,staffL,aStaffL,VIS);
+			vDiff += VisifyStf(staffL, aStaffL, StaffSTAFF(aStaffL));
+			VisifyAllObjs(doc, staffL, aStaffL, VIS);
 			InvisFirstMeas(staffL);
 			didSomething = TRUE;
 		}
@@ -457,7 +453,7 @@ LINK VisifyAllStaves(Document *doc, LINK staffL)
 		on the page downward by the amount that the visified staves now occupy. Update
 		the measureRects of measures in these systems to accomodate the translation. */
  
-	theSysL = LSSearch(staffL,SYSTEMtype,ANYONE,GO_LEFT,FALSE);		/* Should always succeed */
+	theSysL = LSSearch(staffL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);		/* Should always succeed */
 
 	if (!LastSysInPage(theSysL))
 		for (sysL=LinkRSYS(theSysL); sysL; sysL=LinkRSYS(sysL)) {
@@ -468,7 +464,7 @@ LINK VisifyAllStaves(Document *doc, LINK staffL)
 	UpdateSysMeasYs(doc,theSysL,FALSE,FALSE);
 	if (!LastSysInPage(theSysL))
 		for (sysL=LinkRSYS(theSysL); sysL; sysL=LinkRSYS(sysL)) {
-			UpdateSysMeasYs(doc,sysL,FALSE,FALSE);
+			UpdateSysMeasYs(doc, sysL, FALSE, FALSE);
 			if (LastSysInPage(sysL)) break;
 		}
 
@@ -476,17 +472,17 @@ LINK VisifyAllStaves(Document *doc, LINK staffL)
 }
 
 
-/* Visify all invisible staves in a selected Staff object. We assume there's no
-more than one Staff object in the selection range (this is guaranteed only if
-the selection is continuous!). If we encounter one, visify all staff subObjects
-and all the invisified objects on each staff.  ??It'd be better not to
-VisifyAllObjs; maybe just the Measure objs, since anything else hidden was
-probably hidden specifically by the user, but changing this probably requires
-changing the call to VisifyAllObjs in SetStfInvis...DAB. */
+/* Visify all invisible staves in a selected Staff object. We assume there's no more
+than one Staff object in the selection range (this is guaranteed only if the selection
+is continuous!). If we encounter one, visify all staff subObjects and all the invisified
+objects on each staff.  ??It'd be better not to VisifyAllObjs; maybe just the Measure
+objs, since anything else hidden was probably hidden specifically by the user, but
+changing this probably requires changing the call to VisifyAllObjs in SetStfInvis...DAB.
+*/
 
 void SFVisify(Document *doc)
 {
-	LINK pL,sysL;
+	LINK pL, sysL;
 	short rfmt=Cancel;
 	
 	if (!SFVisPossible(doc)) {
@@ -509,7 +505,7 @@ void SFVisify(Document *doc)
 		Reformat(doc, sysL, doc->tailL, FALSE, 9999, FALSE, 999, config.titleMargin);
 
 	doc->changed = TRUE;
-	InvalRange(doc->headL,doc->tailL);
+	InvalRange(doc->headL, doc->tailL);
 	InvalWindow(doc);
 }
 
@@ -528,7 +524,7 @@ typedef enum {
 
 static void OffsetStaves(Document */*doc*/, LINK sysL, DDIST dy, DDIST dx)
 {
-	LINK staffL,aStaffL; PASTAFF aStaff;
+	LINK staffL,aStaffL;  PASTAFF aStaff;
 	
 	staffL = LSSearch(sysL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
 	aStaffL = FirstSubLINK(staffL);
@@ -547,15 +543,15 @@ they actually drag it, FALSE if there's a problem or they leave it where it is.
 Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 {
 	Boolean		didSomething=FALSE;
-	Point			origPt;
-	Rect			topMargin, bottomMargin, leftMargin, rightMargin, margin, origMargin, sysRect;
+	Point		origPt;
+	Rect		topMargin, bottomMargin, leftMargin, rightMargin, margin, origMargin, sysRect;
 	CursHandle	cursorH;
-	short			oldVal, dy, dx, minVal, maxVal, xMove, yMove, staffn;
-	LINK			lSys, rSys, staffL, aStaffL;
+	short		oldVal, dy, dx, minVal, maxVal, xMove, yMove, staffn;
+	LINK		lSys, rSys, staffL, aStaffL;
 	MarginType	marginType;
 	
-	/*	Define the bounding boxes of the margin lines, whose positions on
-		the screen are assumed to have been defined by a call such as
+	/*	Define the bounding boxes of the margin lines, whose positions on the
+		screen are assumed to have been defined by a call such as
 		FrameRect(&doc->marginRect).  We use these bounding boxes to determine
 		if the user has clicked on one of the margin lines. */
 
@@ -754,7 +750,7 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 				/* MagnifyPaper(&doc->marginRect, &doc->marginRect, -doc->magnify); */
 
 				AutoScroll();
-				SleepTicks(2L);										/* Avoid too much flicker */
+				SleepTicks(2L);									/* Avoid too much flicker */
 			}
 		}
 	}
@@ -789,7 +785,7 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 				/* MagnifyPaper(&doc->marginRect, &doc->marginRect, -doc->magnify); */
 
 				AutoScroll();
-				SleepTicks(2L);										/* Avoid too much flicker */
+				SleepTicks(2L);									/* Avoid too much flicker */
 			}
 		}
 	}

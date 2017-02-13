@@ -297,7 +297,7 @@ static void InitGraphicBounds(Document *doc, LINK graphicL,
 			else
 				rightTargetMeasL = inMeasL;
 			aMeasP = GetPAMEASURE(FirstSubLINK(rightTargetMeasL));			/* get xd of END of meas */
-			measWid = aMeasP->measureRect.right;
+			measWid = aMeasP->measSizeRect.right;
 			bounds->right = d2p(LinkXD(rightTargetMeasL) + measWid + sysLeft);
 		}
 	}

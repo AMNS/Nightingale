@@ -684,7 +684,7 @@ typedef struct {
 	SignedByte	filler2;
 	short		oldFakeMeas:1,		/* OBSOLETE: now at the object level, so this is to be removed */
 				measureNum:15;		/* internal measure number; first is always 0 */
-	DRect		measureRect;		/* enclosing Rect of measure, V rel. to System top & H to meas. xd  */
+	DRect		measSizeRect;		/* enclosing Rect of measure, V rel. to System top & H to meas. xd  */
 	SignedByte	connStaff;			/* staff to connect to (valid if >0 and !connAbove) */
 	SignedByte	clefType;			/* clef context */
 	SignedByte	dynamicType;		/* dynamic marking context */

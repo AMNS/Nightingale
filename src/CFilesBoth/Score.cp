@@ -507,17 +507,17 @@ static void PageFixMeasRects(
 		for (i = 1; i<doc->nstaves; i++) {
 			aMeas = GetPAMEASURE(measures[i]);
 			aStaff = GetPASTAFF(staves[i+1]);
-			aMeas->measureRect.bottom = aStaff->staffTop;
+			aMeas->measSizeRect.bottom = aStaff->staffTop;
 		}
 		aMeas = GetPAMEASURE(measures[doc->nstaves]);
 		aStaff = GetPASTAFF(staves[doc->nstaves]);
 		if (useLedg)
-			aMeas->measureRect.bottom = MEAS_BOTTOM(aStaff->staffTop, aStaff->staffHeight);
+			aMeas->measSizeRect.bottom = MEAS_BOTTOM(aStaff->staffTop, aStaff->staffHeight);
 		else {
 			/*
-			 * Set the measureRect.bottom of the last measure subobj in the system.
-			 * measureRect is v-relative to systemTop, so the last meas subobj's
-			 * measureRect.bottom will just be the sysHeight.
+			 * Set the measSizeRect.bottom of the last measure subobj in the system.
+			 * measSizeRect is v-relative to systemTop, so the last meas subobj's
+			 * measSizeRect.bottom will just be the sysHeight.
 			 */
 			if (masterPg)
 				sysL = SSearch(doc->masterHeadL, SYSTEMtype, GO_RIGHT);
@@ -525,16 +525,16 @@ static void PageFixMeasRects(
 				sysL = LSSearch(measL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 
 			sysRect = SystemRECT(sysL);
-			aMeas->measureRect.bottom = sysRect.bottom - sysRect.top;
+			aMeas->measSizeRect.bottom = sysRect.bottom - sysRect.top;
 		}
 	
 		for (i = 2; i<=doc->nstaves; i++) {
 			aMeas = GetPAMEASURE(measures[i]);
 			aStaff = GetPASTAFF(staves[i-1]);
-			aMeas->measureRect.top = aStaff->staffTop+aStaff->staffHeight;
+			aMeas->measSizeRect.top = aStaff->staffTop+aStaff->staffHeight;
 		}
 		aMeas = GetPAMEASURE(measures[1]);
-		aMeas->measureRect.top = 0;
+		aMeas->measSizeRect.top = 0;
 		
 		if (LastMeasInSys(measL)) {
 			if (!staffL)
@@ -547,7 +547,7 @@ static void PageFixMeasRects(
 
 
 /* --------------------------------------------------------------- FixMeasRectYs -- */
-/* Set all Measure subobjects' measureRect.tops and .bottoms from Staff tops
+/* Set all Measure subobjects' measSizeRect.tops and .bottoms from Staff tops
 and heights.  Also optionally set the Systems' systemRect.tops and .bottoms. If
 pageL is NILINK, do this for the entire score; otherwise pageL should be a Page
 object, and we do it for that page only. */
@@ -556,7 +556,7 @@ void FixMeasRectYs(
 		Document *doc,
 		LINK 	pageL,		/* Page to fix up, or NILINK for entire score */
 		Boolean	fixSys,		/* TRUE=fix up systemRects as well */
-		Boolean	useLedg,	/* TRUE=set measureRect on bottom stf from doc->ledgerYSp */
+		Boolean	useLedg,	/* TRUE=set measSizeRect on bottom stf from doc->ledgerYSp */
 		Boolean	masterPg	/* TRUE=use the masterSystem to fix meas/sysRects */
 		)
 {
@@ -577,7 +577,7 @@ void FixMeasRectYs(
 
 
 /* --------------------------------------------------------------- FixMeasRectXs -- */
-/* Fix the measureRect.left and .right for every Measure from <startBarL> to
+/* Fix the measSizeRect.left and .right for every Measure from <startBarL> to
 <endBarL> so each ends where the next one begins, except for the last Measures
 of Systems, which are made to extend to the end of their System. <startBarL> must
 be a Measure, <endBarL> can be either a Measure or NILINK. */
@@ -614,7 +614,7 @@ Boolean FixMeasRectXs(LINK startBarL, LINK endBarL)
 }
 
 /* ------------------------------------------------------------ FixSysMeasRectXs -- */
-/* Fix the measureRect.left and .right for every Measure in sysL. sysL must be
+/* Fix the measSizeRect.left and .right for every Measure in sysL. sysL must be
 a LINK to a System obj. */
 
 Boolean FixSysMeasRectXs(LINK sysL)
@@ -676,7 +676,7 @@ void SetStaffLength(Document *doc, short staffLength)
 			aMeasureL = FirstSubLINK(pMeasL);
 			for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
 				aMeasure = GetPAMEASURE(aMeasureL);
-				aMeasure->measureRect.right = dStaffLength-LinkXD(pMeasL);
+				aMeasure->measSizeRect.right = dStaffLength-LinkXD(pMeasL);
 			}
 			LinkVALID(pMeasL) = FALSE;							/* So measureBBox will get updated */
 		}
@@ -684,9 +684,9 @@ void SetStaffLength(Document *doc, short staffLength)
 }
 
 
-/* ---------------------------------------------------------------- SetStaffSize -- */
+/* ------------------------------------------------------------------- SetStaffSize -- */
 /* Fix values in object list in non-structural objects, Measure widths, and Staffs
-for new staff size.  N.B. Does NOT adjust Staff or Measure y-coordinates, measureRect
+for new staff size.  N.B. Does NOT adjust Staff or Measure y-coordinates, measSizeRect
 heights, or anything in System objects (e.g., systemRect). */
 
 #define SCALE(v)	((v) = sizeRatio*(v))
@@ -776,7 +776,7 @@ void SetStaffSize(Document */*doc*/, LINK headL, LINK tailL, short oldRastral, s
 				aMeasureL = FirstSubLINK(pL);
 				for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
 					aMeasure = GetPAMEASURE(aMeasureL);
-					SCALE(aMeasure->measureRect.right);
+					SCALE(aMeasure->measSizeRect.right);
 				}
 				break;
 				
@@ -890,7 +890,7 @@ Boolean ChangeSysIndent(Document *doc, LINK sysL, DDIST change)
 			aMeasL = FirstSubLINK(measL);
 			for ( ; aMeasL; aMeasL=NextMEASUREL(aMeasL)) {
 				aMeasure = GetPAMEASURE(aMeasL);
-				aMeasure->measureRect.right += change;
+				aMeasure->measSizeRect.right += change;
 			}
 			LinkVALID(measL) = FALSE;
 			break;											/* Last meas. of this system only */
@@ -900,7 +900,7 @@ Boolean ChangeSysIndent(Document *doc, LINK sysL, DDIST change)
 }
 
 
-/* --------------------------------------------------------------- IndentSystems -- */
+/* ------------------------------------------------------------------ IndentSystems -- */
 /* Increase indent of system(s) in the Document by <changeIndent>. If <first>, do
 the first system only; otherwise do every system but the first. */
 

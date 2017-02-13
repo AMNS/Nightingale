@@ -2110,8 +2110,8 @@ void PasteFixMeasureRect(LINK pMeasureL,
 							DDIST systemWidth)	/* Only used if pMeasure->rMeasure==NILINK */
 {
 	PAMEASURE	aMeasure;
-	LINK			aMeasureL;
-	DDIST			measureWidth;
+	LINK		aMeasureL;
+	DDIST		measureWidth;
 	
 	if (LastMeasInSys(pMeasureL))
 		measureWidth = systemWidth-LinkXD(pMeasureL);
@@ -2121,8 +2121,8 @@ void PasteFixMeasureRect(LINK pMeasureL,
 	aMeasureL = FirstSubLINK(pMeasureL);
 	for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
-		aMeasure->measureRect.left = 0;
-		aMeasure->measureRect.right = measureWidth;
+		aMeasure->measSizeRect.left = 0;
+		aMeasure->measSizeRect.right = measureWidth;
 	}
 	LinkVALID(pMeasureL) = FALSE;
 }

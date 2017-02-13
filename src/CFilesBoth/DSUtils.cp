@@ -794,7 +794,7 @@ DDIST GetSysWidth(Document *doc)
 	lastMeasL = LSSearch(doc->tailL, MEASUREtype, 1, TRUE, FALSE);
 	lastMeasSubL = FirstSubLINK(lastMeasL);
 	lastMeasSub = GetPAMEASURE(lastMeasSubL);
-	systemWidth = LinkXD(lastMeasL)+lastMeasSub->measureRect.right;
+	systemWidth = LinkXD(lastMeasL)+lastMeasSub->measSizeRect.right;
 	return systemWidth;
 }
 
@@ -862,7 +862,7 @@ DDIST StaffLength(LINK pL)
 
 LINK GetLastMeasInSys(LINK sysL)
 {
-	LINK measL,rMeas;
+	LINK measL, rMeas;
 
 	measL = SSearch(sysL,MEASUREtype,GO_RIGHT);
 	for ( ; measL && SameSystem(measL,sysL); measL = LinkRMEAS(measL)) {
@@ -939,7 +939,7 @@ the Measure <pL> is in. */
 
 DDIST MeasWidth(LINK pL)
 {
-	LINK 			measL, aMeasL;
+	LINK 		measL, aMeasL;
 	PAMEASURE	aMeas;
 	
 	measL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
@@ -947,7 +947,7 @@ DDIST MeasWidth(LINK pL)
 
 	aMeasL = FirstSubLINK(measL);
 	aMeas = GetPAMEASURE(aMeasL);
-	return (aMeas->measureRect.right-aMeas->measureRect.left);
+	return (aMeas->measSizeRect.right-aMeas->measSizeRect.left);
 }
 
 
@@ -1012,17 +1012,17 @@ DDIST MeasJustWidth(Document *doc, LINK pL, CONTEXT context)
 
 Boolean SetMeasWidth(LINK measL, DDIST	width)
 {
-	LINK			aMeasL;
+	LINK		aMeasL;
 	PAMEASURE	aMeas;
-	short			j;
+	short		j;
 
 	if (width<=0) return FALSE;
 	
 	aMeasL = FirstSubLINK(measL);
 	for (j=0; j<LinkNENTRIES(measL); j++,aMeasL=NextMEASUREL(aMeasL)) {
 		aMeas = GetPAMEASURE(aMeasL);
-		aMeas->measureRect.left = 0;	
-		aMeas->measureRect.right =	width;
+		aMeas->measSizeRect.left = 0;	
+		aMeas->measSizeRect.right =	width;
 	}
 	return TRUE;
 }
@@ -1036,7 +1036,7 @@ return FALSE, else TRUE. */
 
 Boolean MeasFillSystem(LINK measL)
 {
-	DDIST		staffLen;
+	DDIST	staffLen;
 
 	if (!MeasureTYPE(measL)) {
 		MayErrMsg("MeasFillSystem: %ld isn't a Measure.", (long)measL);

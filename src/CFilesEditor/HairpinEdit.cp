@@ -445,8 +445,8 @@ static void InitHairBounds(
 	 */
 
 	/* Find the measure that will be the left boundary */
-	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, FALSE);		/* meas containing 1st sync */
-	prevMeasL = LinkLMEAS(measL);															/* meas before that */
+	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, FALSE);			/* meas containing 1st sync */
+	prevMeasL = LinkLMEAS(measL);												/* meas before that */
 	if (SameSystem(prevMeasL, measL))
 		targetMeasL = prevMeasL;
 	else
@@ -454,20 +454,20 @@ static void InitHairBounds(
 		
 	/* Allow dragging into reserved area */
 	measL = LSSearch(MeasSYSL(targetMeasL), MEASUREtype, staffn, GO_RIGHT, FALSE);	/* 1st meas in system */	
-	if (targetMeasL == measL)																/* targetMeas is 1st in system */
+	if (targetMeasL == measL)														/* targetMeas is 1st in system */
 		bounds->left = d2p(sysLeft);
 	else
 		bounds->left = d2p(LinkXD(targetMeasL) + sysLeft);
 
 	/* Find the measure that will be the right boundary */
 	measL = LSSearch(lastSyncL, MEASUREtype, staffn, GO_LEFT, FALSE);			/* meas containing last sync */
-	nextMeasL = LinkRMEAS(measL);															/* meas after that */
+	nextMeasL = LinkRMEAS(measL);												/* meas after that */
 	if (SameSystem(nextMeasL, measL))
 		targetMeasL = nextMeasL;
 	else
 		targetMeasL = measL;
-	aMeasP = GetPAMEASURE(FirstSubLINK(targetMeasL));								/* get xd of END of meas */
-	measWid = aMeasP->measureRect.right;
+	aMeasP = GetPAMEASURE(FirstSubLINK(targetMeasL));							/* get xd of END of meas */
+	measWid = aMeasP->measSizeRect.right;
 	bounds->right = d2p(LinkXD(targetMeasL) + measWid + sysLeft);
 
 	/* Prevent hairpins < 2 pixels long and crossing of endpoints. Offset

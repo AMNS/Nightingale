@@ -1563,22 +1563,22 @@ static void FixDelMeasures(Document *doc, LINK measL)	/* measL must be a Measure
 		aMeasureL = FirstSubLINK(measL);
 		for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
 			aMeasure = GetPAMEASURE(aMeasureL);
-			aMeasure->measureRect.right = measWidth;
+			aMeasure->measSizeRect.right = measWidth;
 		}
 
 		return;
 	}
 
 	/* If measL is not the last measure of the system or the score, set the
-		measureRect.right of measL to equal the xd of measL's rMeasure minus measL's xd. */
+		measSizeRect.right of measL to equal the xd of measL's rMeasure minus measL's xd. */
 
 	aMeasureL = FirstSubLINK(measL);
 	for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
-		aMeasure->measureRect.right = LinkXD(LinkRMEAS(measL))-LinkXD(measL);
+		aMeasure->measSizeRect.right = LinkXD(LinkRMEAS(measL))-LinkXD(measL);
 	}
 
-	/* Then reset the measureRect of the last measure in the system the same
+	/* Then reset the measSizeRect of the last measure in the system the same
 		as above. ??This sets it incorrectly (to much too large a value); nonetheless,
 		after the Delete is done, it seems to be correct! ?? */
 
@@ -1595,7 +1595,7 @@ static void FixDelMeasures(Document *doc, LINK measL)	/* measL must be a Measure
 	aMeasureL = FirstSubLINK(measL);
 	for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
-		aMeasure->measureRect.right = measWidth;
+		aMeasure->measSizeRect.right = measWidth;
 	}
 }
 
@@ -2341,7 +2341,7 @@ static void DelSelCleanup(
 						(long)newSelL);
 	}
 
-	/* Fix the measureRect.rights of the Measures whose width changes;
+	/* Fix the measSizeRect.rights of the Measures whose width changes;
 		post-process the beamsets on the boundary of the selection range,
 		and constrain the selRange to be consistent with the actual range
 		of selected objects. */
@@ -2352,7 +2352,7 @@ static void DelSelCleanup(
 	
 	/*
 	 * Fix status of whole/whole-measure rests in every measure affected by the
-	 *	delete. If deletion was before the first measure of any system, since
+	 * delete. If deletion was before the first measure of any system, since
 	 * no selection that extends from such a point into a measure can be deleted,
 	 * we don't need to do anything at all.
 	 */

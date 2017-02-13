@@ -17,7 +17,7 @@
 #define CONTEXT_DLOG 1901
 #define LEADING 11				/* Vertical space between lines displayed (pixels) */
 
-static Rect bRect, objRect, oldObjRect, paperRect;
+static Rect bRect, paperRect;
 static DRect systemRect;
 static short linenum, showBPage;
 static char s[300];				/* A bit more than 256 to protect against 255-char. Graphics, etc. */
@@ -29,32 +29,32 @@ static LINK subL;
 static Boolean DynamicToString(short dynamicType);
 static Boolean ClefToString(short clefType);
 static void DrawTextLine(char *);
-static void ShowObjRect(Document *);
-static void ChangeSelectObj(Document *, LINK, short, short, Boolean);
-static void ShowObject(Document *, LINK, short);
+static void InvertObjRect(Document *, Rect *);
+static void ChangeSelectObj(Document *, LINK, short, short, Boolean, Rect *);
+static void ShowObject(Document *, LINK, short, Rect *);
 static void ShowVoicePage(Document *, short);
-static void BrowseHeader(Document *, LINK, short);
-static void BrowsePage(LINK);
-static void BrowseSystem(LINK);
-static void BrowseStaff(LINK, short);
-static void BrowseConnect(LINK, short);
-static void BrowseClef(LINK, short);
-static void BrowseKeySig(LINK, short);
-static void BrowseTimeSig(LINK, short);
-static void BrowseMeasure(LINK, short);
-static void BrowsePseudoMeas(LINK, short);
-static void BrowseSync(LINK, short);
-static void BrowseGRSync(LINK, short);
-static void BrowseBeamset(LINK, short);
-static void BrowseTuplet(LINK, short);
-static void BrowseOttava(LINK, short);
-static void BrowseDynamic(LINK, short);
-static void BrowseRptEnd(LINK, short);
-static void BrowseEnding(LINK, short);
-static void BrowseGraphic(LINK);
-static void BrowseTempo(LINK);
-static void BrowseSpace(LINK);
-static void BrowseSlur(LINK, short);
+static void BrowseHeader(Document *, LINK, short, Rect *);
+static void BrowsePage(LINK, Rect *);
+static void BrowseSystem(LINK, Rect *);
+static void BrowseStaff(LINK, short, Rect *);
+static void BrowseConnect(LINK, short, Rect *);
+static void BrowseClef(LINK, short, Rect *);
+static void BrowseKeySig(LINK, short, Rect *);
+static void BrowseTimeSig(LINK, short, Rect *);
+static void BrowseMeasure(LINK, short, Rect *);
+static void BrowsePseudoMeas(LINK, short, Rect *);
+static void BrowseSync(LINK, short, Rect *);
+static void BrowseGRSync(LINK, short, Rect *);
+static void BrowseBeamset(LINK, short, Rect *);
+static void BrowseTuplet(LINK, short, Rect *);
+static void BrowseOttava(LINK, short, Rect *);
+static void BrowseDynamic(LINK, short, Rect *);
+static void BrowseRptEnd(LINK, short, Rect *);
+static void BrowseEnding(LINK, short, Rect *);
+static void BrowseGraphic(LINK, Rect *);
+static void BrowseTempo(LINK, Rect *);
+static void BrowseSpace(LINK, Rect *);
+static void BrowseSlur(LINK, short, Rect *);
 static pascal Boolean BrowserFilter(DialogPtr, EventRecord *, short *);
 
 
@@ -177,15 +177,16 @@ but everything else will work as usual. */
 void Browser(Document *doc, LINK headL, LINK tailL)
 {
 	DialogPtr dlog;
-	short itype, ditem; short type;
+	short itype, ditem, type;
 	ControlHandle selHdl, deselHdl, tHdl;
 	Rect tRect;
 	short index, oldIndex, oldShowBPage, goLoc;
 	Boolean done;
+	Rect objRect;
 	GrafPtr oldPort;
-	LINK	pL, oldL;
+	LINK pL, oldL;
 	LINK oldpL;
-	ControlHandle scroll; short part;
+	ControlHandle scrollHdl;  short part;
 	Document *saveDoc;
 	ModalFilterUPP	filterUPP;
 
@@ -233,7 +234,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 
 /*--- 2. Interact with user til they push OK or Cancel. --- */
 
-	SetRect(&oldObjRect, 0, 0, 0, 0);
+	SetRect(&objRect, 0, 0, 0, 0);
 	
 	index = 0;
 	showBPage = 0;
@@ -244,7 +245,6 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 
 	done = FALSE;
 	ShowWindow(GetDialogWindow(dlog));
-//	OutlineOKButton(dlog,TRUE);
 	
 	do {
 		/* If the desired thing has changed or, for Header, may have changed... */
@@ -253,11 +253,11 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 		
 			EraseRect(&bRect);
 			
-			/* objRect = oldObjRect; */
-			ShowObjRect(doc);							/* Restore previous objRect */
-			ShowObject(doc, pL, index); 				/* Write out info and get new objRect */
-			ShowObjRect(doc);							/* Invert this objrect */
-			/* oldObjRect = objRect; 					Save for later restoration */
+			InvertObjRect(doc, &objRect);				/* Restore previous objRect */
+			ShowObject(doc, pL, index, &objRect); 		/* Write out info and get new objRect */
+//LogPrintf(LOG_DEBUG, "Browser: objRect (t l b r)=%d %d %d %d\n",
+//objRect.top, objRect.left, objRect.bottom, objRect.right);
+			InvertObjRect(doc, &objRect);				/* Hilite this objRect */
 			
 			if (ObjLType(pL)==HEADERtype
 			||  ObjLType(pL)==TAILtype) {				/* Case iSelect & iDeselect don't handle these */
@@ -271,7 +271,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 		}
 		oldpL = pL; oldIndex = index; oldShowBPage = showBPage;
 		ModalDialog(filterUPP, &ditem);					/* Handle dialog events */
-		scroll = NULL;
+		scrollHdl = NULL;
 		switch (ditem) {
 			case iOK:
 			  	done = TRUE;
@@ -395,23 +395,23 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			case iSelect:
 				/* If shift key down, select only current subobject, if there is one */
 				if (headL==doc->headL)
-			 		ChangeSelectObj(doc, pL, index, SMSelect, ShiftKeyDown());
+			 		ChangeSelectObj(doc, pL, index, SMSelect, ShiftKeyDown(), &objRect);
 			   break;
 			case iDeselect:
 			 	if (headL==doc->headL)
-					ChangeSelectObj(doc, pL, index, SMDeselect, FALSE);
+					ChangeSelectObj(doc, pL, index, SMDeselect, FALSE, &objRect);
 			 	break;
 			case iScrollUp:
-			 	scroll = doc->vScroll; part = kControlPageUpPart;
+			 	scrollHdl = doc->vScroll; part = kControlPageUpPart;
 			 	break;
 			case iScrollDown:
-			 	scroll = doc->vScroll; part = kControlPageDownPart;
+			 	scrollHdl = doc->vScroll; part = kControlPageDownPart;
 			 	break;
 			case iScrollRight:
-			 	scroll = doc->hScroll; part = kControlPageUpPart;
+			 	scrollHdl = doc->hScroll; part = kControlPageUpPart;
 			   break;
 			case iScrollLeft:
-			 	scroll = doc->hScroll; part = kControlPageDownPart;
+			 	scrollHdl = doc->hScroll; part = kControlPageDownPart;
 			 	break;
 			case iGo:
 				SelectDialogItemText(dlog, iGoNum, 0, ENDTEXT); 		/* hilite number */
@@ -430,11 +430,11 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			 default:
 			 	;
 		}
-		if (scroll) {
-			GrafPtr oldPort; Rect box, portRect;
+		if (scrollHdl) {
+			GrafPtr oldPort;  Rect box, portRect;
 			WindowPtr w; 
-			Point oldOrigin; short dx, dy;
-			ShowObjRect(doc);
+			Point oldOrigin;  short dx, dy;
+			InvertObjRect(doc, &objRect);
 			
 			w = doc->theWindow;
 			//box = (*(((WindowPeek)doc))->strucRgn)->rgnBBox;
@@ -446,7 +446,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			oldOrigin = doc->origin;
 			GetWindowPortBounds(w, &portRect);
 			ClipRect(&portRect);
-			ScrollDocument(scroll, part);
+			ScrollDocument(scrollHdl, part);
 			GetWindowPortBounds(w, &portRect);
 			ClipRect(&portRect);
 			DrawControls(w);
@@ -457,12 +457,12 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 				OffsetRect(&box, dx, dy);
 				InvalWindowRect(w, &box);
 				DoUpdate(doc->theWindow);
-				}
+			}
 			SetPort(oldPort);
 			
-			ShowObjRect(doc);
+			InvertObjRect(doc, &objRect);
 			ArrowCursor();
-			}
+		}
 		
 	} while (!done);
 	
@@ -470,7 +470,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	DisposeDialog(dlog);
 	SetPort(oldPort);
 	InstallDoc(saveDoc);
-	InvertRect(&objRect);
+	InvertRect(&objRect);					/* Restore appearance of last-displayed objRect */
 	SetRect(&objRect, 0, 0, 0, 0);
 	return; 
 }
@@ -487,15 +487,15 @@ void DrawTextLine(char *s)
 }
 
 
-/* ------------------------------------------------------------------ ShowObjRect -- */
+/* ------------------------------------------------------------------ InvertObjRect -- */
 
-static void ShowObjRect(Document *doc)
+static void InvertObjRect(Document *doc, Rect *pObjRect)
 {
 	GrafPtr oldPort;
 	
 	GetPort(&oldPort);
 	SetPort(GetDocWindowPort(doc));
-	InvertRect(&objRect);
+	InvertRect(pObjRect);
 	SetPort(oldPort);
 }
 
@@ -541,7 +541,8 @@ work in the safest possible way. */
 static void ChangeSelectObj(Document *doc, LINK pL,
 				short	index,		/* Index of subobject currently displayed */
 				short	mode,
-				Boolean selSub		/* If SMSelect, TRUE=select only current subobject */
+				Boolean selSub,		/* If SMSelect, TRUE=select only current subobject */
+				Rect *pObjRect
 				)
 {
 	CONTEXT		context[MAXSTAVES+1];
@@ -594,13 +595,13 @@ static void ChangeSelectObj(Document *doc, LINK pL,
 	UpdateSelection(doc);
 	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc,TRUE);
 	EraseRect(&bRect);
-	ShowObject(doc, pL, index);							/*	Show the thing again */
+	ShowObject(doc, pL, index, pObjRect);						/*	Show the thing again */
 }
 
 
 /* ------------------------------------------------------------------- ShowObject -- */
 
-void ShowObject(Document *doc, LINK pL, short index)
+void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 {
 	PMEVENT p;
 	PSYSTEM pSystem;
@@ -638,8 +639,7 @@ void ShowObject(Document *doc, LINK pL, short index)
 		strcat(s, "TWEAKED ");
 	DrawTextLine(s);
 	r = LinkOBJRECT(pL);
-	sprintf(s, "objRect=%d %d %d %d",
-				r.top, r.left, r.bottom, r.right);
+	sprintf(s, "objRect/t l b r=%d %d %d %d", r.top, r.left, r.bottom, r.right);
 
 	/* Search back for this object's measure, system, and page (poor man's GetContext) */
 	
@@ -652,7 +652,7 @@ void ShowObject(Document *doc, LINK pL, short index)
 		systemRect = pSystem->systemRect;
 		}
 	 else
-		SetDRect(&systemRect,0, 0, 0, 0);
+		SetDRect(&systemRect, 0, 0, 0, 0);
 	
 	/* Get sheet this object is on so we can mark object's bounding box while browsing */
 	pageL = pL;
@@ -668,70 +668,70 @@ void ShowObject(Document *doc, LINK pL, short index)
 	subL = NILINK;
 	switch (ObjLType(pL)) {
 	case HEADERtype:
-		BrowseHeader(doc, pL, index);
+		BrowseHeader(doc, pL, index, pObjRect);
 		break;
 	case PAGEtype:
-		BrowsePage(pL);
+		BrowsePage(pL, pObjRect);
 		break;
 	case SYSTEMtype:
-		BrowseSystem(pL);
+		BrowseSystem(pL, pObjRect);
 		break;
 	case STAFFtype:
-		BrowseStaff(pL, index);
+		BrowseStaff(pL, index, pObjRect);
 		break;
 	case CONNECTtype:
-		BrowseConnect(pL, index);
+		BrowseConnect(pL, index, pObjRect);
 		break;
 	case CLEFtype:
-		BrowseClef(pL, index);
+		BrowseClef(pL, index, pObjRect);
 		break;
 	case KEYSIGtype:
-		BrowseKeySig(pL, index);
+		BrowseKeySig(pL, index, pObjRect);
 		break;
 	case TIMESIGtype:
-		BrowseTimeSig(pL, index);
+		BrowseTimeSig(pL, index, pObjRect);
 		break;
 	case MEASUREtype:
-		BrowseMeasure(pL, index);
+		BrowseMeasure(pL, index, pObjRect);
 		break;
 	case PSMEAStype:
-		BrowsePseudoMeas(pL, index);
+		BrowsePseudoMeas(pL, index, pObjRect);
 		break;
 	case SYNCtype:
-		BrowseSync(pL, index);
+		BrowseSync(pL, index, pObjRect);
 		break;
 	case GRSYNCtype:
-		BrowseGRSync(pL, index);
+		BrowseGRSync(pL, index, pObjRect);
 		break;
 	case BEAMSETtype:
-		BrowseBeamset(pL, index);
+		BrowseBeamset(pL, index, pObjRect);
 		break;
 	case TUPLETtype:
-		BrowseTuplet(pL, index);
+		BrowseTuplet(pL, index, pObjRect);
 		break;
 	case OTTAVAtype:
-		BrowseOttava(pL, index);
+		BrowseOttava(pL, index, pObjRect);
 		break;
 	case DYNAMtype:
-		BrowseDynamic(pL, index);
+		BrowseDynamic(pL, index, pObjRect);
 		break;
 	case RPTENDtype:
-		BrowseRptEnd(pL, index);
+		BrowseRptEnd(pL, index, pObjRect);
 		break;
 	case ENDINGtype:
-		BrowseEnding(pL, index);
+		BrowseEnding(pL, index, pObjRect);
 		break;
 	case GRAPHICtype:
-		BrowseGraphic(pL);
+		BrowseGraphic(pL, pObjRect);
 		break;
 	case TEMPOtype:
-		BrowseTempo(pL);
+		BrowseTempo(pL, pObjRect);
 		break;
 	case SPACERtype:
-		BrowseSpace(pL);
+		BrowseSpace(pL, pObjRect);
 		break;
 	case SLURtype:
-		BrowseSlur(pL, index);
+		BrowseSlur(pL, index, pObjRect);
 		break;
 	default:
 		;
@@ -760,7 +760,7 @@ static void ShowVoicePage(Document *doc, short startV)
 
 /* ----------------------------------------------------------------- BrowseHeader -- */
 
-void BrowseHeader(Document *doc, LINK pL, short index)
+void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 {
 	PPARTINFO q;
 	short i, v;
@@ -818,25 +818,25 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 			DrawTextLine(s);
 		}
 
-		sprintf(s, "pprRect=p%d,%d,%d,%d marg=p%d,%d,%d,%d",
+		sprintf(s, "paperRect=p%d,%d,%d,%d marg=p%d,%d,%d,%d",
 			doc->paperRect.top, doc->paperRect.left,
 			doc->paperRect.bottom, doc->paperRect.right,
 			doc->marginRect.top, doc->marginRect.left,
 			doc->marginRect.bottom, doc->marginRect.right);
 		DrawTextLine(s);
-		sprintf(s, "origPpr=%d,%d,%d,%d",
+		sprintf(s, "origPaper=%d,%d,%d,%d",
 			doc->origPaperRect.top, doc->origPaperRect.left,
 			doc->origPaperRect.bottom, doc->origPaperRect.right);
 		DrawTextLine(s);
-		sprintf(s, "origin=%d,%d shtOrgn=%d,%d",
+		sprintf(s, "origin=%d,%d sheetOrigin=%d,%d",
 			doc->origin.v, doc->origin.h,
 			doc->sheetOrigin.v, doc->sheetOrigin.h);
 		DrawTextLine(s);
-		sprintf(s, "currPpr=%d,%d,%d,%d",
+		sprintf(s, "currPaper=%d,%d,%d,%d",
 			doc->currentPaper.top, doc->currentPaper.left,
 			doc->currentPaper.bottom, doc->currentPaper.right);
 		DrawTextLine(s);
-		sprintf(s, "viewR=%d,%d,%d,%d",
+		sprintf(s, "viewRect=%d,%d,%d,%d",
 			doc->viewRect.top, doc->viewRect.left,
 			doc->viewRect.bottom, doc->viewRect.right);
 		DrawTextLine(s);
@@ -874,7 +874,7 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 	
 		if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-		for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextPARTINFOL(qL)) ;
+		for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextPARTINFOL(qL)) ;
 	
 		q = GetPPARTINFO(qL);
 		sprintf(s, "link=%u @%lx next=%d", qL, q, q->next);
@@ -895,13 +895,13 @@ void BrowseHeader(Document *doc, LINK pL, short index)
 		DrawTextLine(s);
 	}
 	
-	SetRect(&objRect, 0, 0, 0, 0);
+	SetRect(pObjRect, 0, 0, 0, 0);
 }
 
 
 /* ------------------------------------------------------------------- BrowsePage -- */
 
-void BrowsePage(LINK pL)
+void BrowsePage(LINK pL, Rect *pObjRect)
 {
 	PPAGE p;
 	p = GetPPAGE(pL);
@@ -911,13 +911,13 @@ void BrowsePage(LINK pL)
 	sprintf(s, "sheetNum=%d", p->sheetNum);
 	DrawTextLine(s);
 	
-	objRect = paperRect;
+	*pObjRect = paperRect;
 }
 
 
 /* ----------------------------------------------------------------- BrowseSystem -- */
 
-void BrowseSystem(LINK pL)
+void BrowseSystem(LINK pL, Rect *pObjRect)
 {
 	PSYSTEM p;
 	
@@ -931,8 +931,8 @@ void BrowseSystem(LINK pL)
 	sprintf(s, "pageL=%d", p->pageL);
 	DrawTextLine(s);
 	p = GetPSYSTEM(pL);
-	D2Rect(&p->systemRect, &objRect);
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	D2Rect(&p->systemRect, pObjRect);
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	sprintf(s, "systemRect=%d %d %d %d",
 			p->systemRect.top,
 			p->systemRect.left,
@@ -944,7 +944,7 @@ void BrowseSystem(LINK pL)
 
 /* ------------------------------------------------------------------ BrowseStaff -- */
 
-void BrowseStaff(LINK pL, short index)
+void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 {
 	PSTAFF p;  PASTAFF q;
 	LINK qL;
@@ -973,7 +973,7 @@ void BrowseStaff(LINK pL, short index)
 	
 	stfRect.left = q->staffLeft;  stfRect.right = systemRect.right-systemRect.left;
 	stfRect.top = q->staffTop;  stfRect.bottom = q->staffTop+q->staffHeight;
-	DRect2ScreenRect(stfRect, systemRect, paperRect, &objRect);
+	DRect2ScreenRect(stfRect, systemRect, paperRect, pObjRect);
 
 	sprintf(s, "staff top/left/right=%d %d %d",
 				q->staffTop, q->staffLeft, q->staffRight);
@@ -1011,7 +1011,7 @@ void BrowseStaff(LINK pL, short index)
 
 /* ---------------------------------------------------------------- BrowseConnect -- */
 
-void BrowseConnect(LINK pL, short index)
+void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 {
 	PCONNECT p;
 	PACONNECT q;
@@ -1019,8 +1019,8 @@ void BrowseConnect(LINK pL, short index)
 	short i;
 
 	p = GetPCONNECT(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
@@ -1079,7 +1079,7 @@ void BrowseConnect(LINK pL, short index)
 
 /* ------------------------------------------------------------------- BrowseClef -- */
 
-void BrowseClef(LINK pL, short index)
+void BrowseClef(LINK pL, short index, Rect *pObjRect)
 {
 	PCLEF p;
 	PACLEF q;
@@ -1087,8 +1087,8 @@ void BrowseClef(LINK pL, short index)
 	short i;
 
 	p = GetPCLEF(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	if (p->inMeasure) sprintf(s, "In Measure ");
 	else					sprintf(s, "Not in Measure ");
@@ -1124,7 +1124,7 @@ void BrowseClef(LINK pL, short index)
 
 /* ----------------------------------------------------------------- BrowseKeySig -- */
 
-void BrowseKeySig(LINK pL, short index)
+void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 {
 	PKEYSIG p;
 	PAKEYSIG q;
@@ -1132,8 +1132,8 @@ void BrowseKeySig(LINK pL, short index)
 	short i;
 
 	p = GetPKEYSIG(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	if (p->inMeasure) sprintf(s, "In Measure ");
 	else					sprintf(s, "Not in Measure ");
@@ -1167,7 +1167,7 @@ void BrowseKeySig(LINK pL, short index)
 
 /* ---------------------------------------------------------------- BrowseTimeSig -- */
 
-void BrowseTimeSig(LINK pL, short index)
+void BrowseTimeSig(LINK pL, short index, Rect *pObjRect)
 {
 	PTIMESIG p;
 	PATIMESIG q;
@@ -1175,8 +1175,8 @@ void BrowseTimeSig(LINK pL, short index)
 	short i;
 
 	p = GetPTIMESIG(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	if (p->inMeasure) sprintf(s, "In Measure ");
 	else					sprintf(s, "Not in Measure ");
@@ -1213,13 +1213,13 @@ void BrowseTimeSig(LINK pL, short index)
 
 /* ---------------------------------------------------------------- BrowseMeasure -- */
 
-void BrowseMeasure(LINK pL, short index)
+void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 {
 	PMEASURE p;
 	PAMEASURE q;
 	LINK qL;
 	short i, xd;
-	Rect bbox;  DRect mrect;
+	Rect bbox;  DRect measSizeRect;
 
 	p = GetPMEASURE(pL);
 	sprintf(s, "l/r Measure=%d,%d", p->lMeasure, p->rMeasure);
@@ -1230,10 +1230,8 @@ void BrowseMeasure(LINK pL, short index)
 	DrawTextLine(s);	p = GetPMEASURE(pL);
 	bbox = p->measureBBox;
 	sprintf(s, "measureBBox=%d %d %d %d",
-			p->measureBBox.top,
-			p->measureBBox.left,
-			p->measureBBox.bottom,
-			p->measureBBox.right);
+			p->measureBBox.top, p->measureBBox.left,
+			p->measureBBox.bottom, p->measureBBox.right);
 	DrawTextLine(s);
 	sprintf(s, "lTimeStamp=%ld", p->lTimeStamp);
 	DrawTextLine(s);
@@ -1241,7 +1239,7 @@ void BrowseMeasure(LINK pL, short index)
 	DrawTextLine(s);
 	xd = p->xd;
 
-	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
+	if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextMEASUREL(qL)) 
 		;
@@ -1254,12 +1252,10 @@ void BrowseMeasure(LINK pL, short index)
 	if (q->soft) strcat(s, "SOFT ");
 	if (q->measureVisible) strcat(s, "MEASUREVIS ");
 	DrawTextLine(s);	q = GetPAMEASURE(qL);
-	mrect = q->measureRect;
-	sprintf(s, "measureRect=%d %d %d %d ",
-			q->measureRect.top,
-			q->measureRect.left,
-			q->measureRect.bottom,
-			q->measureRect.right);
+	measSizeRect = q->measSizeRect;
+	sprintf(s, "measSizeRect=%d %d %d %d ",
+			q->measSizeRect.top, q->measSizeRect.left,
+			q->measSizeRect.bottom, q->measSizeRect.right);
 	DrawTextLine(s);	q = GetPAMEASURE(qL);
 	sprintf(s, "measureNum=%hd xMNSOff=%hd yMNSOff=%hd", q->measureNum,
 				q->xMNStdOffset, q->yMNStdOffset);
@@ -1281,8 +1277,11 @@ void BrowseMeasure(LINK pL, short index)
 	sprintf(s, "dynamicType=%hd (%s)", q->dynamicType, dynStr);
 	DrawTextLine(s);
 	
-	OffsetDRect(&mrect, xd, 0);
-	DRect2ScreenRect(mrect, systemRect, paperRect, &objRect);
+	/* measSizeRect really just gives the width and height of the Measure; its top and
+	   left should always be 0. So we convert is horizontal coords. to System-relative,
+	   then to screen coordinates. */
+	OffsetDRect(&measSizeRect, xd, 0);
+	DRect2ScreenRect(measSizeRect, systemRect, paperRect, pObjRect);
 	
 	subL = qL;
 }
@@ -1290,13 +1289,15 @@ void BrowseMeasure(LINK pL, short index)
 
 /* ---------------------------------------------------------- BrowsePseudoMeas -- */
 
-void BrowsePseudoMeas(LINK pL, short index)
+void BrowsePseudoMeas(LINK pL, short index, Rect *pObjRect)
 {
 	PPSMEAS p;
 	PAPSMEAS q;
 	LINK qL;
 	short i, xd;
 
+	/* For now, ignore the pObjRect parameter and don't change hiliting. */
+	
 	p = GetPPSMEAS(pL);
 	xd = p->xd;
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
@@ -1304,7 +1305,7 @@ void BrowsePseudoMeas(LINK pL, short index)
 
 	if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
 
-	for (i=0,qL=FirstSubLINK(pL); i<index; i++,qL=NextPSMEASL(qL)) 
+	for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextPSMEASL(qL)) 
 		;
 	q = GetPAPSMEAS(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
@@ -1322,7 +1323,7 @@ void BrowsePseudoMeas(LINK pL, short index)
 
 /* ---------------------------------------------------------------- BrowseSync -- */
 
-void BrowseSync(LINK pL, short index)
+void BrowseSync(LINK pL, short index, Rect *pObjRect)
 {
 	PSYNC p;
 	PANOTE q;
@@ -1330,8 +1331,8 @@ void BrowseSync(LINK pL, short index)
 	short i;
 
 	p = GetPSYNC(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(s, "timeStamp=%u (onset time=%ld)", SyncTIME(pL), SyncAbsTime(pL));
 	
@@ -1402,7 +1403,7 @@ void BrowseSync(LINK pL, short index)
 
 /* ----------------------------------------------------------------- BrowseGRSync -- */
 
-void BrowseGRSync(LINK pL, short index)
+void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 {
 	PGRSYNC p;
 	PAGRNOTE q;
@@ -1410,8 +1411,8 @@ void BrowseGRSync(LINK pL, short index)
 	short i;
 
 	p = GetPGRSYNC(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 	DrawTextLine(s);
@@ -1473,7 +1474,7 @@ void BrowseGRSync(LINK pL, short index)
 
 /* ---------------------------------------------------------------- BrowseBeamset -- */
 
-void BrowseBeamset(LINK pL, short index)
+void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 {
 	PBEAMSET	p;
 	PANOTEBEAM	q;
@@ -1481,8 +1482,8 @@ void BrowseBeamset(LINK pL, short index)
 	short i;
 
 	p = GetPBEAMSET(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(s, "link=%u stf=%d voice=%d", pL, p->staffn, p->voice);
 	DrawTextLine(s);
@@ -1513,7 +1514,7 @@ void BrowseBeamset(LINK pL, short index)
 
 /* ----------------------------------------------------------------- BrowseTuplet -- */
 
-void BrowseTuplet(LINK pL, short index)
+void BrowseTuplet(LINK pL, short index, Rect *pObjRect)
 {
 	PTUPLET p;
 	PANOTETUPLE	q;
@@ -1521,8 +1522,8 @@ void BrowseTuplet(LINK pL, short index)
 	short i;
 
 	p = GetPTUPLET(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(s, "staff=%d voice=%d num=%d denom=%d", p->staffn, p->voice,
 		p->accNum, p->accDenom);
@@ -1552,7 +1553,7 @@ void BrowseTuplet(LINK pL, short index)
 
 /* ----------------------------------------------------------------- BrowseOttava -- */
 
-void BrowseOttava(LINK pL, short index)
+void BrowseOttava(LINK pL, short index, Rect *pObjRect)
 {
 	POTTAVA p;
 	PANOTEOTTAVA q;
@@ -1560,8 +1561,8 @@ void BrowseOttava(LINK pL, short index)
 	short i;
 
 	p = GetPOTTAVA(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(s, "staff=%d", p->staffn);
 	DrawTextLine(s);	p = GetPOTTAVA(pL);
@@ -1586,7 +1587,7 @@ void BrowseOttava(LINK pL, short index)
 
 /* ---------------------------------------------------------------- BrowseDynamic -- */
 
-void BrowseDynamic(LINK pL, short index)
+void BrowseDynamic(LINK pL, short index, Rect *pObjRect)
 {
 	PDYNAMIC p;
 	PADYNAMIC q;
@@ -1594,8 +1595,8 @@ void BrowseDynamic(LINK pL, short index)
 	short i;
 
 	p = GetPDYNAMIC(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	DrawTextLine("");
 	sprintf(s, "firstSyncL=%d lastSyncL=%d",
@@ -1636,7 +1637,7 @@ void BrowseDynamic(LINK pL, short index)
 
 /* ----------------------------------------------------------------- BrowseRptEnd -- */
 
-void BrowseRptEnd(LINK pL, short index)
+void BrowseRptEnd(LINK pL, short index, Rect *pObjRect)
 {
 	PRPTEND p;
 	PARPTEND q;
@@ -1644,8 +1645,8 @@ void BrowseRptEnd(LINK pL, short index)
 	short i;
 
 	p = GetPRPTEND(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(s, "rptEndType=%hd", p->subType);
 	DrawTextLine(s);	p = GetPRPTEND(pL);
@@ -1676,13 +1677,13 @@ void BrowseRptEnd(LINK pL, short index)
 
 /* ----------------------------------------------------------------- BrowseEnding -- */
 
-void BrowseEnding(LINK pL, short /*index*/)
+void BrowseEnding(LINK pL, short /*index*/, Rect *pObjRect)
 {
 	PENDING p;
 
 	p = GetPENDING(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(s, "stf=%d", p->staffn);
 	DrawTextLine(s);
@@ -1716,7 +1717,7 @@ void ChordSym2Print(StringPtr str)
 
 /* ---------------------------------------------------------------- BrowseGraphic -- */
 
-void BrowseGraphic(LINK pL)
+void BrowseGraphic(LINK pL, Rect *pObjRect)
 {
 	PGRAPHIC p;
 	char s2[256];
@@ -1724,8 +1725,8 @@ void BrowseGraphic(LINK pL)
 	PAGRAPHIC aGraphic;
 
 	p = GetPGRAPHIC(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(s, "stf=%d voice=%d", p->staffn, p->voice);
 	DrawTextLine (s);
@@ -1792,12 +1793,14 @@ void BrowseGraphic(LINK pL)
 
 /* ------------------------------------------------------------- BrowseTempo -- */
 
-void BrowseTempo(LINK pL)
+void BrowseTempo(LINK pL, Rect *pObjRect)
 {
 	PTEMPO p;
 	char t[256];
 	
 	p = GetPTEMPO(pL);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 
 	sprintf(s, "stf=%d", p->staffn);
 	DrawTextLine(s); p = GetPTEMPO(pL);
@@ -1864,12 +1867,15 @@ void BrowseTempo(LINK pL)
 
 /* --------------------------------------------------------------- BrowseSpace -- */
 
-void BrowseSpace(LINK pL)
+void BrowseSpace(LINK pL, Rect *pObjRect)
 {
 	PSPACER p;
 
 	p = GetPSPACER(pL);
-	sprintf(s, "stf=%d spWidth=%d", p->staffn,p->spWidth);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
+	p = GetPSPACER(pL);
+	sprintf(s, "stf=%d spWidth=%d", p->staffn, p->spWidth);
 	DrawTextLine(s); p = GetPSPACER(pL);
 	sprintf(s, "bottomStf=%d", p->bottomStaff);
 	DrawTextLine(s);
@@ -1877,7 +1883,7 @@ void BrowseSpace(LINK pL)
 
 /* ---------------------------------------------------------------- BrowseSlur -- */
 
-void BrowseSlur(LINK pL, short index)
+void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 {
 	PSLUR p;
 	PASLUR aSlur;
@@ -1885,8 +1891,8 @@ void BrowseSlur(LINK pL, short index)
 	short i;
 	
 	p = GetPSLUR(pL);
-	objRect = p->objRect;
-	OffsetRect(&objRect, paperRect.left, paperRect.top);
+	*pObjRect = p->objRect;
+	OffsetRect(pObjRect, paperRect.left, paperRect.top);
 	
 	sprintf(s, "stf=%d voice=%d", p->staffn, p->voice);
 	DrawTextLine(s);	p = GetPSLUR(pL);

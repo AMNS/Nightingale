@@ -2770,7 +2770,7 @@ void DrawBarline(Document *doc,
 /* ----------------------------------------------------------------- DrawMEASURE -- */
 /* Draw a MEASURE object, i.e., all its barlines or repeat bars. If !LinkVALID(pL)
 and we're drawing to the screen, also update the MEASURE's <measureBBox> based on
-the <measureRect>s of the subobjects. */
+the <measSizeRect>s of the subobjects. */
 
 void DrawMEASURE(Document *doc, LINK pL, CONTEXT context[])
 {
@@ -2826,7 +2826,7 @@ PushLock(MEASUREheap);
 			When this is done, refer to note #1 in MakeSystem() in Score.c */
 
 		if (recalc) {
-			aDRect = aMeasure->measureRect;
+			aDRect = aMeasure->measSizeRect;
 			OffsetDRect(&aDRect, pContext->measureLeft, pContext->systemTop);
 			D2Rect(&aDRect, &measureRect);
 

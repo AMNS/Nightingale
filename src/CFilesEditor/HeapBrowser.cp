@@ -411,11 +411,9 @@ void HeapBrowseMeasure(short itemIndex)
 	if (q->connAbove)
 		strcat(s, "CONNABOVE ");
 	HeapDrawLine(s);	q = GetPAMEASURE(qL);
-	sprintf(s, "measureRect=%d %d %d %d",
-			q->measureRect.top,
-			q->measureRect.left,
-			q->measureRect.bottom,
-			q->measureRect.right);
+	sprintf(s, "measSizeRect=%d %d %d %d",
+			q->measSizeRect.top, q->measSizeRect.left,
+			q->measSizeRect.bottom, q->measSizeRect.right);
 	HeapDrawLine(s);	q = GetPAMEASURE(qL);
 	sprintf(s, "measureNum=%hd", q->measureNum);
 	HeapDrawLine(s);	q = GetPAMEASURE(qL);

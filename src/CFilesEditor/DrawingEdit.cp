@@ -336,8 +336,8 @@ static void InitDrawObjBounds(Document *doc, LINK pL, short grip,
 	 */
 
 	/* Find the measure that will be the left boundary */
-	measL = LSSearch(firstL, MEASUREtype, staffn, GO_LEFT, FALSE);		/* meas containing 1st att.point */
-	prevMeasL = LinkLMEAS(measL);															/* meas before that */
+	measL = LSSearch(firstL, MEASUREtype, staffn, GO_LEFT, FALSE);				/* meas containing 1st att.point */
+	prevMeasL = LinkLMEAS(measL);												/* meas before that */
 	if (SameSystem(prevMeasL, measL))
 		targetMeasL = prevMeasL;
 	else
@@ -345,20 +345,20 @@ static void InitDrawObjBounds(Document *doc, LINK pL, short grip,
 		
 	/* Allow dragging into reserved area */
 	measL = LSSearch(MeasSYSL(targetMeasL), MEASUREtype, staffn, GO_RIGHT, FALSE); /* 1st meas in system */	
-	if (targetMeasL == measL)																/* targetMeas is 1st in system */
+	if (targetMeasL == measL)														/* targetMeas is 1st in system */
 		bounds->left = d2p(sysLeft);
 	else
 		bounds->left = d2p(LinkXD(targetMeasL) + sysLeft);
 
 	/* Find the measure that will be the right boundary */
-	measL = LSSearch(lastL, MEASUREtype, staffn, GO_LEFT, FALSE);			/* meas containing last sync */
-	nextMeasL = LinkRMEAS(measL);														/* meas after that */
+	measL = LSSearch(lastL, MEASUREtype, staffn, GO_LEFT, FALSE);				/* meas containing last sync */
+	nextMeasL = LinkRMEAS(measL);												/* meas after that */
 	if (SameSystem(nextMeasL, measL))
 		targetMeasL = nextMeasL;
 	else
 		targetMeasL = measL;
 	aMeasP = GetPAMEASURE(FirstSubLINK(targetMeasL));							/* get xd of END of meas */
-	measWid = aMeasP->measureRect.right;
+	measWid = aMeasP->measSizeRect.right;
 	bounds->right = d2p(LinkXD(targetMeasL) + measWid + sysLeft);
 
 	/* Prevent objects < 2 pixels long and crossing of endpoints. Offset

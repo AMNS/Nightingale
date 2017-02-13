@@ -1421,7 +1421,7 @@ Boolean RespaceBars(
 			measA[i].spacePercent = pMeas->spacePercent;
 			aMeasL = FirstSubLINK(pL);
 			aMeas = GetPAMEASURE(aMeasL);
-			measA[i].width = aMeas->measureRect.right-aMeas->measureRect.left;
+			measA[i].width = aMeas->measSizeRect.right-aMeas->measSizeRect.left;
 			i++;
 		}
 	}
@@ -1543,9 +1543,9 @@ Boolean StretchToSysEnd(
 	LinkXD(endL) = staffWidth - lastMeasWidth;
 	
 	/*
-	 *	Now go through each Measure (from pL upto nextMeasL) and ensure that 
-	 *	its subobject measureRects are in sync with Measures set above.  This
-	 *	loop excludes the last Measure now flush with the end of the System.
+	 *	Now go through each Measure (from pL upto nextMeasL) and ensure that its 
+	 *	subobject measSizeRects are in sync with Measures set above.  This loop
+	 *	excludes the last Measure now flush with the end of the System.
 	 */
 	for (pL=startL; pL!=endL; pL=nextMeasL) {
 		nextMeasL = LinkRMEAS(pL);

@@ -60,22 +60,22 @@ void FixMeasureRect(Document *doc, LINK measL)
 		aMeasureL = FirstSubLINK(measL);
 		for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
 			aMeasure = GetPAMEASURE(aMeasureL);
-			aMeasure->measureRect.right = measWidth;
+			aMeasure->measSizeRect.right = measWidth;
 		}
 
 		return;
 	}
 
 	/* measL is not the last Measure of the system or the score: set its
-		measureRect.right to the xd of its rMeasure minus its own xd. */
+		measSizeRect.right to the xd of its rMeasure minus its own xd. */
 
 	aMeasureL = FirstSubLINK(measL);
 	for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
-		aMeasure->measureRect.right = LinkXD(LinkRMEAS(measL))-LinkXD(measL);
+		aMeasure->measSizeRect.right = LinkXD(LinkRMEAS(measL))-LinkXD(measL);
 	}
 
-	/* Then reset the measureRect of the last Measure in the system the same
+	/* Then reset the measSizeRect of the last Measure in the system the same
 		as above. */
 
 	if (LinkRSYS(systemL))
@@ -90,7 +90,7 @@ void FixMeasureRect(Document *doc, LINK measL)
 	aMeasureL = FirstSubLINK(measL);
 	for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
-		aMeasure->measureRect.right = measWidth;
+		aMeasure->measSizeRect.right = measWidth;
 	}
 }
 

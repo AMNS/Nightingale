@@ -1196,7 +1196,7 @@ void InitMeasure(LINK aMeasureL, short staff, short left, short top, short right
 
 	aMeasure = GetPAMEASURE(aMeasureL);
 	aMeasure->staffn = staff;
-	SetDRect(&aMeasure->measureRect, left, top, right, bottom);
+	SetDRect(&aMeasure->measSizeRect, left, top, right, bottom);
 	aMeasure->visible = barlineVisible;
 	aMeasure->measureVisible = TRUE;
 	aMeasure->connAbove = connAbove;

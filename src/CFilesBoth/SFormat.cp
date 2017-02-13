@@ -37,10 +37,10 @@ static void SFUpdateStfPos(Document *doc, LINK sysL, long newPos)
 	LINK staffL, aStaffL; PASTAFF aStaff;
 	DDIST dv,sysTop;
 
-	/* Case for the first system in the page. Clip the systemRect.top to
-		the marginRect.top, and move the position of the staves relative to
-		the system by the same amount in the opposite direction, in order
-		to keep them in the same place. */
+	/* Case for the first system in the page. Clip the systemRect.top to the
+	   marginRect.top, and move the position of the staves relative to the system
+	   by the same amount in the opposite direction, in order to keep them in the
+	   same place. */
 
 	if (FirstSysInPage(sysL)) {
 		sysTop = SystemRECT(sysL).top;
@@ -51,7 +51,7 @@ static void SFUpdateStfPos(Document *doc, LINK sysL, long newPos)
 			staffL = SSearch(sysL, STAFFtype, GO_RIGHT);
 		
 			aStaffL = FirstSubLINK(staffL);
-			for (	; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
+			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
 				aStaff = GetPASTAFF(aStaffL);
 				aStaff->staffTop += dv;
 			}
@@ -59,12 +59,11 @@ static void SFUpdateStfPos(Document *doc, LINK sysL, long newPos)
 		return;
 	}
 
-	/* All other systems: move the systemRect.top up by half the amount
-		of the system drag, and the systemRect.bottom of the previous system
-		down, by the same amount. Move the staves up by the same amount as
-		the systemRect.top. */
+	/* All other systems: move the systemRect.top up by half the amount of the
+	   system drag, and the systemRect.bottom of the previous system down, by the
+	   same amount. Move the staves up by the same amount as the systemRect.top. */
 
-	dv = p2d(HiWord(newPos)); dv >>= 1;
+	dv = p2d(HiWord(newPos));  dv >>= 1;
 
 	staffL = SSearch(sysL, STAFFtype, GO_RIGHT);
 
@@ -134,21 +133,21 @@ void UpdateSysMeasYs(
 			if (StaffVIS(staves[i])) {
 				aStaff = GetPASTAFF(staves[NextLimStaffn(doc,staffL,TRUE,i+1)]);
 	
-				aMeas->measureRect.bottom = aStaff->staffTop;
+				aMeas->measSizeRect.bottom = aStaff->staffTop;
 			}
 			else
-				aMeas->measureRect.bottom = aMeas->measureRect.top;
+				aMeas->measSizeRect.bottom = aMeas->measSizeRect.top;
 		}
 
 		aMeas = GetPAMEASURE(measures[LastStaffn(staffL)]);
 		aStaff = GetPASTAFF(staves[LastStaffn(staffL)]);
 		/*
-		 * Set the measureRect.bottom of the bottom Measure subobj. measureRect is
-		 * v-relative to systemTop; => the bottom Measure subobj's measureRect.bottom
+		 * Set the measSizeRect.bottom of the bottom Measure subobj. measSizeRect is
+		 * v-relative to systemTop; => the bottom Measure subobj's measSizeRect.bottom
 		 * will just be the sysHeight.
 		 */
 		if (useLedg)
-			aMeas->measureRect.bottom = MEAS_BOTTOM(aStaff->staffTop,aStaff->staffHeight);
+			aMeas->measSizeRect.bottom = MEAS_BOTTOM(aStaff->staffTop,aStaff->staffHeight);
 		else {
 			if (masterPg)
 				sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
@@ -156,25 +155,25 @@ void UpdateSysMeasYs(
 				sysL = LSSearch(measL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 
 			sysRect = SystemRECT(sysL);
-			aMeas->measureRect.bottom = sysRect.bottom - sysRect.top;
+			aMeas->measSizeRect.bottom = sysRect.bottom - sysRect.top;
 		}
 	
 		for (i = 2; i<=doc->nstaves; i++) {						/* All staves but the top one */
 			aMeas = GetPAMEASURE(measures[i]);
 	
 			if (StaffVIS(staves[i])) {
-				/* ??If the staff above is invisible, setting measureRect.top as follows
+				/* ??If the staff above is invisible, setting measSizeRect.top as follows
 					is very questionable! E.g., if i=2 and staff 1 is invisible, we want
-					measureRect.top = 0. But it's not clear how to fix this in general. */
+					measSizeRect.top = 0. But it's not clear how to fix this in general. */
 				aStaff = GetPASTAFF(staves[NextLimStaffn(doc,staffL,FALSE,i-1)]);
 	
-				aMeas->measureRect.top = aStaff->staffTop+aStaff->staffHeight;
+				aMeas->measSizeRect.top = aStaff->staffTop+aStaff->staffHeight;
 			}
 			else
-				aMeas->measureRect.bottom = aMeas->measureRect.top;
+				aMeas->measSizeRect.bottom = aMeas->measSizeRect.top;
 		}
 		aMeas = GetPAMEASURE(measures[1]);
-		aMeas->measureRect.top = 0;
+		aMeas->measSizeRect.top = 0;
 	}	
 }
 
@@ -221,8 +220,8 @@ void UpdateFormatSystem(Document *doc, LINK sysL, long newPos)
 		system accordingly. */
 
 	if (LinkLSYS(sysL))
-		if (SamePage(sysL,LinkLSYS(sysL)))
-			UpdateSysMeasYs(doc,LinkLSYS(sysL),FALSE,FALSE);
+		if (SamePage(sysL, LinkLSYS(sysL)))
+			UpdateSysMeasYs(doc, LinkLSYS(sysL), FALSE, FALSE);
 	UpdateSysMeasYs(doc, sysL, FALSE, FALSE);
 	
 	/* doc, every page, !fixSys, !useLedg, !masterPg */

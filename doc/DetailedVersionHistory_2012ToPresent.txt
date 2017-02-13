@@ -1161,3 +1161,14 @@ Make metronome marks smaller (Issue #131): they've always been larger than the s
 size, and making them smaller is particularly important for parts, where measures tend
 to be much narrower and more crowded, etc. Affects Style.h; Dragging, DrawObject.
 
+-------------------------------------------------------------------------------
+
+8-13 Feb.
+
+Reorganize Browser code for readability. Affects Browser.
+
+For code readability, rename the Measure _measureRect_ field -- which effectively just
+contains a point giving the size of the entire Measure -- to _measSizeRect_. Affects
+MemMacros.h, NTypes.h; about 16 C files.
+
+Minor cleanup. Affects Browser, DebugUtils, SFormatHighLevel.
