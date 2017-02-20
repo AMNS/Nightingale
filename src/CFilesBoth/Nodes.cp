@@ -224,7 +224,7 @@ void InitNode(short type, LINK subList)
  *	Allocate an object with the specified type and number of subobjects, insert it
  *	into the object Heap before <link>, and return its LINK.  Returns NILINK if
  *	memory problem. Note: before calling this function, you should normally do
- *	something like "link = LocateInsertPt(link)": cf. InsNoteInto and InsNodeIntoSlot.
+ *	something like "link = FindInsertPt(link)": cf. InsNoteInto and InsNodeIntoSlot.
  */
 
 LINK InsertNode(Document *doc, LINK link, short type, short subCount)
@@ -322,7 +322,7 @@ void InsNodeIntoSlot(LINK node, LINK beforeL)
 	{
 		LINK insL;
 
-		insL = LocateInsertPt(beforeL);
+		insL = FindInsertPt(beforeL);
 		InsNodeInto(node,insL);
 	}
 

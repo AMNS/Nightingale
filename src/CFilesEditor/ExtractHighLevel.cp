@@ -76,9 +76,9 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 									Boolean *pReformat, short *pSpacePercent)
 {	
 	DialogPtr dlog;
-	short ditem; short radio1, radio2;
+	short ditem;  short radio1, radio2;
 	GrafPtr oldPort;
-	short aShort; Handle aHdl; Rect spacePanelBox;
+	short aShort;  Handle aHdl;  Rect spacePanelBox;
 	short newSpace;
 	Boolean dialogOver=FALSE;
 	UserItemUPP userDimUPP;
@@ -138,8 +138,8 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 				dialogOver = TRUE;
 				break;
 			case REFORMAT_DI:
-				PutDlgChkRadio(dlog,REFORMAT_DI,!GetDlgChkRadio(dlog,REFORMAT_DI));
-				InvalWindowRect(GetDialogWindow(dlog),&spacePanelBox);	/* Force filter to call DimSpacePanel */
+				PutDlgChkRadio(dlog, REFORMAT_DI, !GetDlgChkRadio(dlog, REFORMAT_DI));
+				InvalWindowRect(GetDialogWindow(dlog), &spacePanelBox);	/* Force filter to call DimSpacePanel */
 				break;
 			case EXTRACTALL_DI:
 			case EXTRACTONE_DI:
@@ -172,7 +172,7 @@ static Boolean ExtractDialog(unsigned char *partName, Boolean *pAll, Boolean *pS
 }
 
 
-/* ------------------------------------------------------------------------------ */
+/* ----------------------------------------------------------------------------------- */
 
 /* Normalize the part's format by making all staves visible and giving all systems
 the same dimensions. For details of what we do to measure and system positions and
@@ -217,7 +217,7 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 	NormalizePartFormat(doc);
 
 	InitAntikink(doc, doc->headL, doc->tailL);
-	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, FALSE); /* Start at first measure */
+	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, FALSE);		/* Start at first measure */
 	RespaceBars(doc, pL, doc->tailL,
 					RESFACTOR*(long)spacePercent, FALSE, FALSE);	/* Don't reformat! */
 	doc->spacePercent = spacePercent;
@@ -260,9 +260,9 @@ static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *partF
 		least 2 chars. of the part name to increase the odds of getting a meaningful
 		default name. FIXME: But there's still a good chance of getting meaningless
 		default names, or, worse, two parts getting the same default name! It'd be
-		better to shorten both the score filename _and_ the part name, or let the
-		user replace the score filename with a (presumably shorter) name, e.g., in the
-		Extract dialog. */
+		better to shorten both the score filename _and_ the part name, or let the user
+		replace the score filename with a (presumably shorter) name, e.g., in the Extract
+		dialog. */
 	short maxNameLen = FILENAME_MAXLEN-strlen(nameStr)-strlen(extStr)-1;
 	if (maxNameLen<2) maxNameLen = 2;
 	strncat(nameStr, PartNAME(partL), maxNameLen);
@@ -309,7 +309,6 @@ static Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerS
 			newOffset = PReplace(fOffset, string);
 		else
 			newOffset = PStore(string);
-//LogPrintf(LOG_DEBUG, "CopyHeaderFooter: fOffset=%d newOffset=%d\n", fOffset, newOffset);
 		if (newOffset < 0L) {
 			NoMoreMemory();
 			return FALSE;
@@ -328,7 +327,7 @@ Boolean DoExtract(Document *doc)
 {
 	Str255 partName, name, str;
 	short spacePercent, numParts;
-	LINK partL; PPARTINFO pPart;
+	LINK partL;  PPARTINFO pPart;
 	LINK selPartList[MAXSTAVES+1];
 	Document *partDoc;
 	Boolean useHeaderFooter;
@@ -360,7 +359,7 @@ Boolean DoExtract(Document *doc)
 	/* Dialog was OK'd: the user really wants one or more parts exxtracted. */
 	
 	if (firstCall) {
-		careMeasPerSys = FALSE; measPerSys = 4; firstCall = FALSE;
+		careMeasPerSys = FALSE;  measPerSys = 4;  firstCall = FALSE;
 	}
 	
 	char headerStr[256], footerStr[256];
@@ -453,6 +452,7 @@ Boolean DoExtract(Document *doc)
 			InstallDoc(doc);
 		}
 	}
+
 Done:
 	return TRUE;
 }

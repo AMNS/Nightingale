@@ -1172,3 +1172,17 @@ contains a point giving the size of the entire Measure -- to _measSizeRect_. Aff
 MemMacros.h, NTypes.h; about 16 C files.
 
 Minor cleanup. Affects Browser, DebugUtils, SFormatHighLevel.
+
+-------------------------------------------------------------------------------
+
+15-20 Feb.
+
+Add doc->selStartL and ->selEndL to Context display. Affects .rsrc; Browser.
+
+Greatly simplify two InvalXxx() functions. Affects Inval.
+
+Rename _LocateInsertPt_ to _FindInsertPt_ and _MeasRange_ to _GetMeasRange_. Affects
+many files.
+
+Minor cleanup. Affects MemMacros.h; Browser, DSUtils, InsUtils.
+

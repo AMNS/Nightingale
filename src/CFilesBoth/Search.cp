@@ -33,8 +33,7 @@
 /* A helpful hint: in general, as of v.3.1, functions whose names end with
 "Search" look for and return a LINK to an object. Those starting with or
 containing "Find" look for and return a LINK to either an object or a subobject.
-Those starting with "Locate" do a variety of things ??though LocateInsertPt
-should probably be renamed FindXXX and moved here. */
+Those starting with "Locate" do a variety of things. */
 
 
 /* ------------------------------------------------------------- InitSearchParam -- */

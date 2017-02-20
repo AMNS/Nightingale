@@ -824,7 +824,7 @@ void FixEmptySelection(Document *doc, Point	pt)
 			doc->selStartL = doc->selEndL = RightLINK(selL);
 		}
 		else {
-			selL = LocateInsertPt(selL);
+			selL = FindInsertPt(selL);
 			doc->selStartL = doc->selEndL = selL;
 		}
 		MEAdjustCaret(doc, TRUE);

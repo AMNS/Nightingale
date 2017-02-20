@@ -445,7 +445,7 @@ for (i = 0; i<n_min(nMergeObjs, 5); i++) {
 				 *	mergeable object after matchL.
 				 */
 				insL = (match<nMergeObjs-1? mergeObjs[match+1].link : doc->tailL);
-				insL = LocateInsertPt(insL);
+				insL = FindInsertPt(insL);
 				MoveNode(newL, insL);
 				selEndL = insL;
 				if (slurL) MoveNode(slurL, newL);

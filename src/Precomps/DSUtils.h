@@ -42,7 +42,7 @@ DDIST GetSysLeft(Document *);
 DDIST StaffHeight(Document *doc, LINK, short);
 DDIST StaffLength(LINK);
 LINK GetLastMeasInSys(LINK sysL);
-void MeasRange(Document *doc,LINK pL,LINK *startMeas,LINK *endMeas);
+void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas);
 DDIST MeasWidth(LINK);
 DDIST MeasOccupiedWidth(Document *, LINK, long);
 DDIST MeasJustWidth(Document *, LINK, CONTEXT);

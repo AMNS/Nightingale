@@ -472,7 +472,7 @@ static GrafPtr RectGrafPort(Rect r)
 
 
 /* ------------------------------------------------------------------ CopyBitMaps -- */
-/* Initialize underBits and offScrBits with w's bits. */
+/* Initialize underBits and offScrBits with doc's window's bits. */
 
 static void CopyBitMaps(Document *doc, Rect srcRect, Rect dstRect)
 {
@@ -523,7 +523,8 @@ static GrafPtr SDGetGrafPorts(Rect r)
 
 Rect GetSysRect(Document *doc, LINK pL)
 {
-	LINK sysL; PSYSTEM pSystem; DRect sysR; Rect r;
+	LINK sysL;  PSYSTEM pSystem;
+	DRect sysR;  Rect r;
 	
 	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	pSystem = GetPSYSTEM(sysL);
@@ -540,7 +541,7 @@ Rect GetSysRect(Document *doc, LINK pL)
 
 Rect GetMeasRect(Document *doc, LINK measL)
 {
-	PMEASURE	pMeasure; Rect mRect;
+	PMEASURE pMeasure;  Rect mRect;
 	
 	pMeasure = GetPMEASURE(measL);
 	mRect = pMeasure->measureBBox;
@@ -550,9 +551,8 @@ Rect GetMeasRect(Document *doc, LINK measL)
 }
 
 
-/* ---------------------------------------------------------------- Get2MeasRect -- */
-/* Return the union of the measureRects of meas1, meas2, clipped to
-doc's portRect. */
+/* ------------------------------------------------------------------- Get2MeasRect -- */
+/* Return the union of the measureRects of meas1, meas2, clipped to doc's portRect. */
 
 Rect Get2MeasRect(Document *doc, LINK meas1, LINK meas2)
 {
@@ -575,7 +575,7 @@ Rect Get2MeasRect(Document *doc, LINK meas1, LINK meas2)
 
 Rect SDGetMeasRect(Document *doc, LINK pL, LINK measL)
 {
-	LINK prevMeasL,firstMeasL,lastMeasL;
+	LINK prevMeasL, firstMeasL, lastMeasL;
 	Rect mRect;
 
 	if (LinkBefFirstMeas(pL))
@@ -650,7 +650,7 @@ Rect SDGetMeasRect(Document *doc, LINK pL, LINK measL)
 
 GrafPtr NewMeasGrafPort(Document *doc, LINK measL)
 {
-	Rect		mBBox;
+	Rect	mBBox;
 	GrafPtr	oldPort, ourPort;
 	
 	GetPort(&oldPort);
@@ -690,7 +690,7 @@ GrafPtr New2MeasGrafPort(Document *doc, LINK measL)
 
 GrafPtr NewNMeasGrafPort(Document *doc, LINK measL, LINK lastMeasL)
 {
-	Rect		mBBox;
+	Rect	mBBox;
 	GrafPtr	oldPort, ourPort;
 	
 	GetPort(&oldPort);
@@ -709,8 +709,8 @@ GrafPtr NewNMeasGrafPort(Document *doc, LINK measL, LINK lastMeasL)
 
 GrafPtr NewBeamGrafPort(Document *doc, LINK beamL, Rect *beamRect)
 {
-	LINK		measL, lastMeasL,lastSyncL;
-	Rect		mBBox;
+	LINK	measL, lastMeasL,lastSyncL;
+	Rect	mBBox;
 	GrafPtr	oldPort, ourPort;
 	
 	GetPort(&oldPort);
@@ -735,7 +735,7 @@ GrafPtr NewBeamGrafPort(Document *doc, LINK beamL, Rect *beamRect)
 
 GrafPtr SetupMeasPorts(Document *doc, LINK measL)
 {
-	Rect 		mRect,dstRect;
+	Rect 	mRect,dstRect;
 	
 	underBits = NewMeasGrafPort(doc, measL);
 	offScrBits = NewMeasGrafPort(doc, measL);
@@ -758,8 +758,8 @@ GrafPtr SetupMeasPorts(Document *doc, LINK measL)
 
 GrafPtr Setup2MeasPorts(Document *doc, LINK measL)
 {
-	Rect 		twoMeasRect,dstRect;
-	LINK		prevMeasL;
+	Rect 	twoMeasRect, dstRect;
+	LINK	prevMeasL;
 	
 	underBits = New2MeasGrafPort(doc, measL);
 	offScrBits = New2MeasGrafPort(doc, measL);
@@ -783,8 +783,8 @@ GrafPtr Setup2MeasPorts(Document *doc, LINK measL)
 
 GrafPtr SetupNMeasPorts(Document *doc, LINK startL, LINK endL)
 {
-	Rect 		mBBox,dstRect;
-	LINK		firstMeasL, lastMeasL;
+	Rect 	mBBox,dstRect;
+	LINK	firstMeasL, lastMeasL;
 	
 	firstMeasL = LSSearch(startL, MEASUREtype, 1, GO_LEFT, FALSE);
 	lastMeasL = LSSearch(endL, MEASUREtype, 1, GO_LEFT, FALSE);
@@ -812,7 +812,7 @@ GrafPtr SetupSysPorts(Document *doc, LINK pL)
 	if (!SDGetGrafPorts(r)) return NULL;
 
 	dstRect = r;
-	OffsetRect(&dstRect,-r.left,-r.top);
+	OffsetRect(&dstRect, -r.left, -r.top);
 	OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
 	
 	CopyBitMaps(doc, r, dstRect);
@@ -825,9 +825,9 @@ GrafPtr SetupSysPorts(Document *doc, LINK pL)
 void DragBeforeFirst(Document *doc, LINK pL, Point pt)
 {
 	Boolean		found;
-	short			index;
+	short		index;
 	CONTEXT		context[MAXSTAVES+1];
-	STFRANGE		stfRange = {0,0};
+	STFRANGE	stfRange = {0,0};
 
 	if (!SetupSysPorts(doc, pL)) {
 		ErrDisposPorts();
@@ -839,21 +839,22 @@ void DragBeforeFirst(Document *doc, LINK pL, Point pt)
 	CheckObject(doc, pL, &found, (Ptr)&pt, context, SMSymDrag, &index, stfRange);
 	
 	/* Set the selRange and clean up the ports. */
-	doc->selStartL = pL;	doc->selEndL = RightLINK(pL);
+	doc->selStartL = pL;
+	doc->selEndL = RightLINK(pL);
 	DisposMeasPorts();
 }
 
 
-/* ------------------------------------------------------------------ PageRelDrag -- */
-/* Use DragGrayRgn to drag any page-relative objects; currently only
+/* -------------------------------------------------------------------- PageRelDrag -- */
+/* Use DragGrayRgn to drag any page-relative objects. As of v. 5.7, only GRAPHICs
 GRAPHICs qualify. */
 
 void PageRelDrag(Document *doc, LINK pL, Point pt)
 {
-	Rect r,limitR,slopR; RgnHandle graphicRgn; long newPos;
+	Rect r, limitR, slopR;  RgnHandle graphicRgn;  long newPos;
 	
 	r = LinkOBJRECT(pL);
-	OffsetRect(&r,doc->currentPaper.left,doc->currentPaper.top);
+	OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
 	InsetRect(&r,-1,-1);
 
 	pt.h += doc->currentPaper.left;

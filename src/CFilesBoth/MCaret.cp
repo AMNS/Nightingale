@@ -233,8 +233,8 @@ LINK Point2InsPt(Document *doc, Point selPt)
 		to get the next symbol (presumably the following System or Page). */
 
 	pL = GSSearch(doc, selPt, ANYTYPE, ANYONE, GO_RIGHT, FALSE, FALSE, FALSE);	 /* #1 */
-	if (pL) 	pL = LocateInsertPt(pL);
-	else		pL = FindSymRight(doc, selPt, FALSE, TRUE);
+	if (pL) pL = FindInsertPt(pL);
+	else	pL = FindSymRight(doc, selPt, FALSE, TRUE);
 	
 	return pL;
 }
@@ -255,7 +255,7 @@ LINK Point2InsPt(Document *doc, Point selPt)
  * the J_D object and its owned Syncs.
  * Current situation: As of v.997, all J_D symbols (except CONNECTs, whose J_Type
  * should be changed) are located in a d.s. slot before the J_IT/J_IP objs
- * they depend on. Call GSSearch with useJD FALSE, and then call LocateInsertPt
+ * they depend on. Call GSSearch with useJD FALSE, and then call FindInsertPt
  * to get the insertion point at the head of the slot, prior to any J_D objects
  * which depend on the J_IT/J_IP obj found.
  */

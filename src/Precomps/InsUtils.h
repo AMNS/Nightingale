@@ -25,7 +25,7 @@ LINK FindGRSyncLeft(Document *, Point, Boolean);
 LINK FindSymRight(Document *, Point, Boolean, Boolean);
 LINK FindLPI(Document *, Point, short, short, Boolean);	
 LINK ObjAtEndTime(Document *, LINK, short, short, long *, Boolean, Boolean);
-LINK LocateInsertPt(LINK);
+LINK FindInsertPt(LINK);
 
 short FindStaff(Document *, Point);
 LINK SetCurrentSystem(Document *, Point);

@@ -873,13 +873,13 @@ LINK GetLastMeasInSys(LINK sysL)
 	return NILINK;
 }
 
-/* ------------------------------------------------------------------- MeasRange -- */
-/* Return in parameters the range of measures spanned by <pL>.*/
+/* ------------------------------------------------------------------- GetMeasRange -- */
+/* Return in parameters the range of measures graphically spanned by <pL>.*/
 
-void MeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
+void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 {
-	LINK measL,sysL,lastMeas,objMeasL,firstL;
-	Rect r,objR;
+	LINK measL, sysL, lastMeas, objMeasL, firstL;
+	Rect r, objR;
 
 	*startMeas = *endMeas = NILINK;
 
@@ -887,21 +887,21 @@ void MeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 
 	switch(ObjLType(pL)) {
 		case GRAPHICtype:
-			DrawGRAPHIC(doc,pL,contextA,FALSE);
+			DrawGRAPHIC(doc, pL, contextA, FALSE);
 			break;
 		case TEMPOtype:
-			DrawTEMPO(doc,pL,contextA,FALSE);
+			DrawTEMPO(doc, pL, contextA, FALSE);
 			break;
 	}
 	
 	/* Traverse measures on pL's system, and compare objRect of pL to measureBBox
 		 of each measure. */
  
-	sysL = EitherSearch(pL,SYSTEMtype,ANYONE,GO_LEFT,FALSE);
-	measL = SSearch(sysL,MEASUREtype,GO_RIGHT);
+	sysL = EitherSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	measL = SSearch(sysL, MEASUREtype, GO_RIGHT);
 	objR = LinkOBJRECT(pL);
 	
-	for ( ; measL && SameSystem(measL,sysL); measL = LinkRMEAS(measL)) {
+	for ( ; measL && SameSystem(measL, sysL); measL = LinkRMEAS(measL)) {
 		r = MeasureBBOX(measL);
 		if (r.right > objR.right)
 			{ *endMeas = measL; break; } 
@@ -910,7 +910,7 @@ void MeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 	lastMeas = GetLastMeasInSys(sysL);
 	measL = lastMeas;
 	
-	for ( ; measL && SameSystem(measL,sysL); measL = LinkLMEAS(measL)) {
+	for ( ; measL && SameSystem(measL, sysL); measL = LinkLMEAS(measL)) {
 		r = MeasureBBOX(measL);
 		if (r.left < objR.left)
 			{ *startMeas = measL; break; } 
@@ -928,7 +928,7 @@ void MeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 			firstL = TempoFIRSTOBJ(pL);
 			break;
 	}
-	objMeasL = EitherSearch(firstL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+	objMeasL = EitherSearch(firstL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
 	*startMeas = objMeasL;
 }
 

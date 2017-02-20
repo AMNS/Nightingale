@@ -1,6 +1,6 @@
 /***************************************************************************
 *	FILE:	InsUtils.c
-*	PROJ:	Nightingale, rev. for v.99
+*	PROJ:	Nightingale
 *	DESC:	Utility routines for inserting symbols.
 
 	GetPaperMouse
@@ -13,6 +13,7 @@
 	FindGRSync				AddGRNoteCheck			FindSyncRight			
 	FindSyncLeft			FindGRSyncRight			FindGRSyncLeft
 	FindSymRight			FindLPI					ObjAtEndTime
+	FindInsertPt
 	GetPitchLim				CalcPitchLevel			FindStaff
 	SetCurrentSystem		GetCurrentSystem		AddGRNoteUnbeam
 	AddNoteFixBeams	
@@ -40,9 +41,10 @@
 static void IDrawHairpin(Point, Point, Boolean, PCONTEXT);
 static Boolean TrackHairpin(Document *, LINK, Point, Point *, Boolean, short);
 static Boolean GetCrossStatus(Document *, Point, Point, short *, short *);
+static LINK InsFindNRG(Document *doc, Point pt, LINK *paNoteL);
 static void AddGRNoteUnbeam(Document *, LINK, LINK, LINK, short);
-static DDIST GetTopStfLim(Document *,LINK,LINK,PCONTEXT);
-static DDIST GetBotStfLim(Document *,LINK,LINK,PCONTEXT);
+static DDIST GetTopStfLim(Document *, LINK, LINK, PCONTEXT);
+static DDIST GetBotStfLim(Document *, LINK, LINK, PCONTEXT);
 
 /* --------------------------------------------------------------- GetPaperMouse -- */
 /* Deliver mouse position in paper-relative coordinates, and deliver TRUE or
@@ -109,10 +111,10 @@ void GetInsRect(Document *doc, LINK startL, Rect *tRectp)
 /* Draw the hairpin during the dragging loop. */
 
 static void IDrawHairpin(Point downPt,			/* Original mouseDown */
-									Point pt,			/* new pt. */
-									Boolean left,		/* TRUE if hairpin left. */
-									PCONTEXT pContext
-								)
+							Point pt,			/* new pt. */
+							Boolean left,		/* TRUE if hairpin left. */
+							PCONTEXT pContext
+						)
 {
    short   rise;
         
@@ -192,7 +194,7 @@ static Boolean GetCrossStatus(Document *doc, Point pt, Point newPt,
 	firstDynSys = doc->currentSystem;
 	*lastStf = FindStaff(doc, newPt);
 	lastDynSys = doc->currentSystem;			/* set by FindStaff */
-	return (firstDynSys != lastDynSys);		/* TRUE if crossSystem */
+	return (firstDynSys != lastDynSys);			/* TRUE if crossSystem */
 }
 
 /* Track the hairpin; determine (1) if it's crossSystem and (2) considering whether
@@ -279,8 +281,8 @@ static Boolean TrackEnding(Document *, LINK, Point, Point *, short);
 /* Draw the ending bracket during the dragging loop. */
 
 static void IDrawEndingBracket(Point downPt, Point pt,	/* Original mouseDown point, current point */
-										DDIST lnSpace					/* Space between staff lines. */
-										)
+								DDIST lnSpace			/* Space between staff lines. */
+								)
 {
 	short stfSpace;				/* Pixel distance between stafflines */
 	
@@ -298,8 +300,8 @@ static void IDrawEndingBracket(Point downPt, Point pt,	/* Original mouseDown poi
 
 Boolean TrackEnding(Document *doc, LINK pL, Point pt, Point *endPt, short staff)
 {
-	Point	oldPt, newPt; short endv; Boolean firstLoop;
-	CONTEXT context; DDIST lnSpace; Rect tRect;
+	Point	oldPt, newPt;  short endv;  Boolean firstLoop;
+	CONTEXT context;  DDIST lnSpace;  Rect tRect;
 
 	GetContext(doc, pL, staff, &context);
 	lnSpace = context.staffHeight / (context.staffLines-1);
@@ -346,8 +348,8 @@ Boolean TrackAndAddEnding(Document *doc, Point pt, short clickStaff)
 {
 	static short number=1;
 	static short cutoffs=3;
-	short newNumber, newCutoffs, pitchLev,firstStf,lastStf;
-	LINK insertL, lastL; Point newPt, findPt;
+	short newNumber, newCutoffs, pitchLev, firstStf, lastStf;
+	LINK insertL, lastL;  Point newPt, findPt;
 	Boolean crossSys;
 
 	insertL = doc->selStartL;
@@ -407,7 +409,7 @@ static Boolean TrackLine(Document *, LINK, Point, Point *, short);
 /* Draw the line during the dragging loop. */
 
 static void IDrawLine(Point downPt,		/* Original mousedown point */
-								Point curPt)	/* Current point */
+						Point curPt)	/* Current point */
 {	
 	MoveTo(downPt.h,downPt.v);
 	LineTo(curPt.h,curPt.v);
@@ -473,10 +475,9 @@ Return as function value the Sync/grace Sync, and in *paNoteL the note/rest/grac
 Return NILINK if it's not in any object, or if it's in an object but not a Sync or grace
 Sync. */
 
-LINK InsFindNRG(Document *doc, Point pt, LINK *paNoteL);
-LINK InsFindNRG(Document *doc, Point pt, LINK *paNoteL)
+static LINK InsFindNRG(Document *doc, Point pt, LINK *paNoteL)
 {
-	LINK syncL, aNoteL; short index; short i; Boolean isSync;
+	LINK syncL, aNoteL;  short index; short i;  Boolean isSync;
 	
 	syncL = FindObject(doc, pt, &index, SMFind);
 	if (!syncL) return NILINK;
@@ -501,13 +502,13 @@ LINK InsFindNRG(Document *doc, Point pt, LINK *paNoteL)
 
 /* Get note, rest, or grace note half-space position. */
 
-short GetNRGHalfSpaces(LINK syncL, LINK noteL, CONTEXT context);
-short GetNRGHalfSpaces(
+static short GetNRGHalfSpaces(LINK syncL, LINK noteL, CONTEXT context);
+static short GetNRGHalfSpaces(
 						LINK syncL,
 						LINK noteL,
 						CONTEXT context)
 {
-	DDIST yd; short halfSpace;
+	DDIST yd;  short halfSpace;
 
 	if (SyncTYPE(syncL))
 		yd = NoteYD(noteL);
@@ -593,12 +594,12 @@ Nope:
 must already have a note/rest on the given staff. */
 
 LINK FindSync(Document *doc, Point pt,
-					Boolean isGraphic,			/* whether graphic or temporal insert */
+					Boolean isGraphic,			/* whether graphical or temporal insert */
 					short clickStaff
 					)
 {
-	register LINK addToSyncL;		/* sync to which to add note/rest */
-	LINK			lSyncL, rSyncL,	/* Links to left & right syncs */
+	register LINK addToSyncL;			/* Sync to which to add note/rest */
+	LINK			lSyncL, rSyncL,		/* Links to left & right Syncs */
 					aNoteL, lNoteL, rNoteL;
 	Rect			noteRect;
 	short			lDist, rDist,		/* Pixel distance from ins. pt to rSync, lSync */	
@@ -606,7 +607,7 @@ LINK FindSync(Document *doc, Point pt,
 					lSyncPos,
 					oneWayLimit,		/* Note position tolerance if only one side is possible */
 					limit;				/* Note position tolerance if left & right both possible */
-	Point			ptHLeft;				/* The point to left of <pt> by 1/2 noteWidth */ 
+	Point			ptHLeft;			/* The point to left of <pt> by 1/2 notewidth */ 
 
 	/*
 	 *	Compute distances from horizontal position where user clicked to the
@@ -661,10 +662,10 @@ LINK FindSync(Document *doc, Point pt,
 	
 	if (isGraphic) {
 	/*
-	 *	In graphic mode, if the click point is relatively close to the nearest Sync
-	 *	either to left or right but not both, choose that Sync. If it's close to
-	 *	both but only one already has a note on this staff, choose that one.
-	 *	Otherwise return NULL.
+	 *	In graphical mode, if the click point is relatively close to the nearest Sync
+	 *	either to left or right but not both, choose that Sync. If it's close to both
+	 *	but only one already has a note on this staff, choose that one. Otherwise
+	 *	return NULL.
 	 */
 		if (lDist>=0 && rDist>=0) {
 			limit = (lDist+rDist)/3;
@@ -689,7 +690,7 @@ LINK FindSync(Document *doc, Point pt,
 	}
 	else {																/* Temporal mode */
 	/*
-	 *	In non-graphic mode:
+	 *	In non-graphical mode:
 	 *	If nearest Syncs exist and have notes for this staff in both directions:
 	 *		If neither is close to the click point, return NILINK.
 	 *		If only one is close to the click point, return that one.
@@ -743,24 +744,24 @@ Boolean AddCheckVoiceTable(Document *doc, short staff)
 }
 
 
-/* --------------------------------------------------------------- AddNoteCheck -- */
-/*	Check whether it's OK to add a note/rest in the current voice and the given
-staff to the given sync, and deliver TRUE if it is OK. (The insertion user interface
-distinguishes chord slashes, but they're really just funny notes.) */
+/* ------------------------------------------------------------------- AddNoteCheck -- */
+/*	Check whether it's OK to add a note/rest in the current voice and the given staff
+to the given Sync, and deliver TRUE if it is OK. (As of v. 5.7, the insertion user
+interface distinguishes chord slashes, but they're really just funny notes.) */
 
 Boolean AddNoteCheck(Document *doc,
-							LINK		addToSyncL,		/* Sync to which to add note/rest */
-							short		staff,
-							short		symIndex			/* Symbol table index of note/rest to be inserted */
-							)
+						LINK		addToSyncL,		/* Sync to which to add note/rest */
+						short		staff,
+						short		symIndex		/* Symbol table index of note/rest to be inserted */
+						)
 {
-	short		voice, userVoice;
-	LINK		aNoteL, partL;
+	short	voice, userVoice;
+	LINK	aNoteL, partL;
 	Boolean	isRest, isChordSlash, okay=TRUE;
-	char		fmtStr[256];
+	char	fmtStr[256];
 	
 	voice = USEVOICE(doc, staff);
-	if (addToSyncL==NILINK) { SysBeep(30);	return FALSE; }		/* No sync to check */
+	if (addToSyncL==NILINK) { SysBeep(30);	return FALSE; }		/* No Sync to check */
 	
 	isRest = (symtable[symIndex].subtype==1);
 	isChordSlash = (symtable[symIndex].subtype==2);
@@ -811,18 +812,18 @@ Boolean AddNoteCheck(Document *doc,
 GRSync must already have a grace note on the given staff. */
 
 LINK FindGRSync(Document *doc, Point pt,
-					Boolean isGraphic,			/* whether graphic or temporal insert */
+					Boolean isGraphic,			/* whether graphical or temporal insert */
 					short clickStaff
 					)
 {
 	LINK			addToGRSyncL,			/* GRSync to which to add note/rest */
-					lGRSyncL, rGRSyncL,	/* Links to left & right GRSyncs */
+					lGRSyncL, rGRSyncL,		/* Links to left & right GRSyncs */
 					aNoteL, lNoteL, rNoteL;
 	Rect			noteRect;
-	short			lDist, rDist,		/* Pixel distance from ins. pt to rSync, lSync */	
-					noteWidth,			/* 2*amount by which to shift lDist,rDist */
-					oneWayLimit,		/* Note position tolerance if only one side is possible */
-					limit;				/* Note position tolerance if left & right both possible */
+	short			lDist, rDist,			/* Pixel distance from ins. pt to rSync, lSync */	
+					noteWidth,				/* 2*amount by which to shift lDist,rDist */
+					oneWayLimit,			/* Note position tolerance if only one side is possible */
+					limit;					/* Note position tolerance if left & right both possible */
 	Point			ptHLeft;				/* The point to left of <pt> by 1/2 noteWidth */ 
 
 	/*
@@ -956,7 +957,7 @@ Boolean AddGRNoteCheck(
 }
 
 /* --------------------------------------------------------------- FindSyncRight -- */
-/* Returns the first sync whose objRect.left is to the right of pt.h */
+/* Returns the first Sync whose objRect.left is to the right of pt.h */
 
 LINK FindSyncRight(Document *doc, Point pt, Boolean needVisible)
 {
@@ -973,7 +974,7 @@ LINK FindSyncRight(Document *doc, Point pt, Boolean needVisible)
 
 
 /* ---------------------------------------------------------------- FindSyncLeft -- */
-/* Returns the first sync whose objRect.left is to the left of pt.h */
+/* Returns the first Sync whose objRect.left is to the left of pt.h */
 
 LINK FindSyncLeft(Document *doc, Point pt, Boolean needVisible)
 {
@@ -1028,7 +1029,7 @@ NB: SetCurrentSystem sets doc->currentSystem as a side effect. If we do not wish
 to do this, and assume doc->currentSystem is already properly set, can call
 GetCurrentSystem.
 
-This will not find page-relative graphics, which we do not want anyway. */
+This will not find page-relative Graphics, which we do not want anyway. */
 
 LINK FindSymRight(Document *doc, Point pt,
 						Boolean needVisible,
@@ -1062,17 +1063,17 @@ whether the first symbol to the right of <pt> needs to be visible in order to be
 used in a search to the right used by the code. */
 
 LINK FindLPI(Document *doc,
-				Point		pt,
-				short		staff,			/* staff desired or ANYONE */
-				short		voice,			/* voice desired or ANYONE */
-				Boolean 	needVisible 	/* Must the FOLLOWING item on any staff be visible? */
+				Point	pt,
+				short	staff,			/* staff desired or ANYONE */
+				short	voice,			/* voice desired or ANYONE */
+				Boolean needVisible 	/* Must the FOLLOWING item on any staff be visible? */
 				)
 {
 	PMEVENT		p;
-	LINK			pL, subObjL,
-					nodeL, pLPIL, aNoteL, aGRNoteL;
+	LINK		pL, subObjL,
+				nodeL, pLPIL, aNoteL, aGRNoteL;
 	Boolean		anyStaff, anyVoice;
-	HEAP 			*tmpHeap;
+	HEAP 		*tmpHeap;
 	GenSubObj	*subObj;
 
 	anyStaff = (staff==ANYONE);
@@ -1161,7 +1162,7 @@ LINK ObjAtEndTime(
 }
 
 
-/* -------------------------------------------------------------- LocateInsertPt -- */
+/* ------------------------------------------------------------------- FindInsertPt -- */
 /* Locate the insertion point corresponding to pL's slot in the data structure. The
 slot consists of all J_D objects dependent on a J_IP or J_IT object terminating the
 slot, plus the J_IP/J_IT symbol; the insertion point corresponding to the slot is
@@ -1170,7 +1171,7 @@ returned to mark that insertion point. (Second pieces of cross-system slurs are 
 part of their ending note's slot: if they were, we might insert objects between the
 initial measure and the cross-system slur, which seems dangerous.) */
 
-LINK LocateInsertPt(LINK pL)
+LINK FindInsertPt(LINK pL)
 {
 	while (J_DTYPE(LeftLINK(pL))) {
 		if (SlurTYPE(LeftLINK(pL)) && SlurLastSYSTEM(LeftLINK(pL))) return pL;
@@ -1462,7 +1463,7 @@ static void AddGRNoteUnbeam(Document *doc, LINK beamL, LINK startL, LINK endL,
 /* ------------------------------------------------------------- AddNoteFixBeams -- */
 /* AddNoteFixBeams should be called ONLY if <newNoteL> is being inserted in the
 middle of a beamset; it fixes things up appropriately. It assumes inChord flags are
-set properly for notes in the sync in <newNoteL>'s voice. */ 
+set properly for notes in the Sync in <newNoteL>'s voice. */ 
 
 void AddNoteFixBeams(Document *doc,
 							LINK syncL,			/* Sync the new note belongs to */
@@ -1470,10 +1471,10 @@ void AddNoteFixBeams(Document *doc,
 							)
 {
 	short 		nBeamable, voice;
-	LINK			firstSyncL, lastSyncL;
-	LINK			aNoteL, beamL, farNoteL, newBeamL;
-	PBEAMSET		pBeam, newBeam;
-	DDIST			ystem, maxLength;
+	LINK		firstSyncL, lastSyncL;
+	LINK		aNoteL, beamL, farNoteL, newBeamL;
+	PBEAMSET	pBeam, newBeam;
+	DDIST		ystem, maxLength;
 	Boolean		crossSys, firstSys;
 	SearchParam	pbSearch;
 	
@@ -1508,13 +1509,13 @@ void AddNoteFixBeams(Document *doc,
 		newBeam->firstSystem = firstSys;
 	}
 	else {
-		/* Split subRanges of notes. If splitting a cross system beam, handle cases
+		/* Split subranges of notes. If splitting a cross system beam, handle cases
 		for first & second pieces of crossSystem beams on first & second systems.
-		Handle first subRange here. */
+		Handle first subrange here. */
 		nBeamable = CountBeamable(doc, firstSyncL, syncL, voice, FALSE);
 		if (nBeamable>=2)
 			newBeamL = CreateBEAMSET(doc, firstSyncL, syncL, voice, nBeamable,
-												FALSE, doc->voiceTab[voice].voiceRole);
+											FALSE, doc->voiceTab[voice].voiceRole);
 		newBeam = GetPBEAMSET(newBeamL);
 		if (crossSys)
 			if (firstSys)
@@ -1524,7 +1525,7 @@ void AddNoteFixBeams(Document *doc,
 				newBeam->firstSystem = FALSE;
 			}
 		
-		/* Handle second subRange of notes. */
+		/* Handle second subrange of notes. */
 		nBeamable = CountBeamable(doc, RightLINK(syncL), RightLINK(lastSyncL),
 											voice, FALSE);
 		if (nBeamable>=2)
@@ -1540,7 +1541,7 @@ void AddNoteFixBeams(Document *doc,
 	if (NoteBEAMED(newNoteL) && NoteINCHORD(newNoteL)) {
 /* syncL may need fixing up, since the new note in the chord may need the
  * stem. This involves: 
- * 1. Get ystem for the stemmed note in this voice & sync. */
+ * 1. Get ystem for the stemmed note in this voice & Sync. */
 		aNoteL = FirstSubLINK(syncL);
 		for (ystem = -9999; aNoteL; aNoteL = NextNOTEL(aNoteL))
 			if (NoteVOICE(aNoteL)==voice && !NoteREST(aNoteL))
@@ -1548,7 +1549,7 @@ void AddNoteFixBeams(Document *doc,
 					ystem = NoteYSTEM(aNoteL);
 
 		if (ystem==-9999) {
-			 MayErrMsg("AddNoteFixBeams: no MainNote in sync %ld voice %ld\n",
+			 MayErrMsg("AddNoteFixBeams: no MainNote in Sync %ld voice %ld\n",
 											(long)syncL, (long)voice);
 			ystem = 99;
 		}
@@ -1688,7 +1689,7 @@ Boolean AddNoteFixOttavas(LINK newL, LINK newNoteL)	/* Sync and new note (in tha
 }
 
 
-/* ------------------------------------------------------------- AddNoteFixSlurs -- */
+/* ---------------------------------------------------------------- AddNoteFixSlurs -- */
 /* If there's a tie crossing the added note, remove it. Ignore slurs, which can
 cross any intervening notes: maybe this function should be renamed AddNoteFixTies.
 ??This function should certainly work by voice, not by staff! */
@@ -1696,7 +1697,7 @@ cross any intervening notes: maybe this function should be renamed AddNoteFixTie
 void AddNoteFixSlurs(Document *doc, LINK newL, short staff)
 {
 	PANOTE	aNote;
-	LINK		syncL, tieL, aNoteL;
+	LINK	syncL, tieL, aNoteL;
 
 	tieL = LeftSlurSearch(newL,staff,TRUE);
 	if (!tieL) return;

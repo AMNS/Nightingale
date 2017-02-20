@@ -237,7 +237,7 @@ Boolean CloseAddBarlines(Document *doc)
 
 	/*
 	 *	Save current selection range so we can set range for PrepareUndo, then restore
-	 *	it. Since Undo works on whole systems, LocateInsertPt can't affect it.
+	 *	it. Since Undo works on whole systems, FindInsertPt can't affect it.
 	 */
 	saveSelStartL = doc->selStartL;
 	saveSelEndL = doc->selEndL;
@@ -251,7 +251,7 @@ Boolean CloseAddBarlines(Document *doc)
 	symIndex = GetSymTableIndex(singleBarInChar);					/* single barline */
 	for (n = 0; n<nBars; n++) {
 		GetContext(doc, LeftLINK(barBeforeL[n]), 1, &context);
-		insL = LocateInsertPt(barBeforeL[n]);
+		insL = FindInsertPt(barBeforeL[n]);
 		if (TupletProblem(doc, insL))
 			{ nBars = n; break; }
 		if (n==0) firstInsL = insL;

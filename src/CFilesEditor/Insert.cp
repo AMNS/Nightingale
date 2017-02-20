@@ -113,7 +113,7 @@ static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, short *sym, shor
 		return FALSE;	
 	}
 
-	qL = LocateInsertPt(rightL);
+	qL = FindInsertPt(rightL);
 	doc->selStartL = doc->selEndL = qL;
 
 	/* Check if the note is being added into an ottava'd range; if so, get the ottava
@@ -171,7 +171,7 @@ static Boolean TrkInsGRSync(Document *doc, LINK rightL, Point pt, short *sym, sh
 		return FALSE;
 	}
 
-	qL = LocateInsertPt(rightL);
+	qL = FindInsertPt(rightL);
 
 	doc->selStartL = doc->selEndL = qL;
 	if (octL = HasOttavaAcrossPt(doc, pt, staff))
@@ -1061,7 +1061,7 @@ Boolean InsertClef(Document *doc, Point pt)
 	}
 	insNodeL = TimeSearchRight(doc, RightLINK(pLPIL), ANYTYPE, lTime, MIN_TIME);
 	if (insNodeL) {
-		doc->selEndL = doc->selStartL = LocateInsertPt(insNodeL);
+		doc->selEndL = doc->selStartL = FindInsertPt(insNodeL);
 		NewClef(doc, pt.h, palChar, clickStaff);			/* Add sym. to object list */
 		return TRUE;
 	}
@@ -1104,7 +1104,7 @@ Boolean InsertKeySig(Document *doc, Point pt)
 		
 	insNodeL = ObjAtEndTime(doc, pLPIL, ANYTYPE, clickStaff, &lTime, MIN_TIME, FALSE);
 	if (insNodeL) {
-		doc->selEndL = doc->selStartL = LocateInsertPt(insNodeL);
+		doc->selEndL = doc->selStartL = FindInsertPt(insNodeL);
 		NewKeySig(doc, pt.h, sharpsOrFlats, clickStaff);		/* Add sym(s). to object list */
 		return TRUE;
 	}
@@ -1145,7 +1145,7 @@ Boolean InsertTimeSig(Document *doc, Point pt)
 	
 	insNodeL = ObjAtEndTime(doc, pLPIL, ANYTYPE, clickStaff, &lTime, MIN_TIME, FALSE);
 	if (insNodeL) {
-		doc->selEndL = doc->selStartL = LocateInsertPt(insNodeL);
+		doc->selEndL = doc->selStartL = FindInsertPt(insNodeL);
 		NewTimeSig(doc, pt.h, palChar, clickStaff, type, numerator, denominator);
 		return TRUE;
 	}

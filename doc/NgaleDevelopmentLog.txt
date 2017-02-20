@@ -1832,11 +1832,11 @@ MIDISave.cp => still OK, so it's a ghost :-| .
 
 -------------------------------------------------------------------------------
 
-4-5 Feb.
+4-20 Feb.
 
 Work on some "inadequate screen redrawing for dragging and/or nudging" bugs:
 
-1. For Graphics (normally text) attached to the page, dragging gives feedback by showing
+-1. Graphics (normally text) attached to the page: dragging gives feedback by showing
 the bounding box moving around, then -- when you stop -- it draws the Graphic at its new
 location. Not ideal, but good enough. But for nudging, the "feedback" is redrawing the
 music area, which almost never contains the Graphic: pretty dumb looking! To fix, have
@@ -1844,18 +1844,43 @@ InvalSelRange check if anything selected is attached to the page, and if so inva
 entire window. Also not ideal: it'd be much nicer to just Inval the page; could I
 implement that quickly & reliably?
 
-2. For Graphics, feedback for both dragging and nudging redraws only the Measure the
+-2. "Normal" Graphics: feedback for both dragging and nudging redraws only the Measure the
 Graphic belongs to, but the Graphic often extends into the previous or the following
 Measure. (And it sometimes extends even further, but that's rare enough to ignore.)
 
-For tempo marks, ottavas, and  slur/ties, feedback for dragging sometimes redraws
-enough, but for nudging and sometimes for dragging, it redraws only the Measure.
+-Tempo marks, ottavas, and  slur/ties: feedback for dragging sometimes redraws
+enough, but for nudging and sometimes for dragging, it redraws only the Measure. ??Actually,
+feedback for dragging tempos sometimes works for the next measure as well, or even the
+entire part of the system to the right! ??
 
-A good-enough (I think) solution: In all cases(?), after dragging and after each nudge,
+-A good-enough (I think) solution: In all cases(?), after dragging and after each nudge,
 redraw the previous Measure as well if it's in the same system; likewise for the
 following Measure.
 
-3. For dynamics. feedback for dragging covers a large enough area, but doesn't erase the
+-3. Dynamics & modifiers: feedback for dragging covers a large enough area, but doesn't erase the
 previous positions, so it leaves a trail! For nudging, redrawing the previous and next
 Measures (if in the same System) is good enough.
 
+-------------------------------------------------------------------------------
+
+13 Feb.
+
+Work on the "Consecutive measures of rest in extracted parts aren't combined into a
+multi measure rest" bug (Issue #111)
+
+The original description of the Issue (Aug 25, 2016):
+
+In some cases, consecutive measures of rest in extracted parts aren't combined into a
+multi measure rests, and for no obvious reason, e.g., there's no change of time
+signature. Examples in my Violin Concerto include 1st mvmt Part 1, piano, mm. 195-199;
+3rd mvmt, trumpet, mm. 75-79. In both of these, there's a system break in the score in
+the middle of the area; could that be the reason?
+
+Another theory. In both of the above-cited cases, a tempo mark is attached to the 1st
+measure that's not merged into a multi measure rest. Is that the problem? Maybe part of
+the problem: deleting the tempo mark in I, m. 195 results in the extracted piano part
+going one measure further! Ah, of course: we continue multibar rests only as long as the
+extracted part contains _nothing_ but normal single barlines and whole measure rests.
+But why does the multibar rest still stop at m. 196? Because there's an invisible tempo
+mark in that measure, attached to the solo violin part, but extracted anyway! This is
+probably what I had in mind all along, i.e., thsi feature Works as Designed :-) .

@@ -42,14 +42,14 @@
  *	relocated! This is a generic macro that should be avoided whenever it's
  *	possible to use one of the ones below. N.B. For space and time efficiency
  *	reasons, we now use an equivalent function, located in Heaps.c; we use an
- * identical macro with its name slightly changed in the THINK Debugger. See the
- * end of this file.
+ *	identical macro with its name slightly changed in the THINK Debugger. See the
+ *	end of this file.
  *
- *	PtrToLink(heap,ptr) delivers the LINK into a heap that a given pointer to an
+ *	PtrToLink(heap, ptr) delivers the LINK into a heap that a given pointer to an
  *	object corresponds to.  Since this is done generically, there's no reasonable
- * way to avoid the divide (unless you know that heap->objSize is a power of 2);
- * however, it rarely needs to be used--in fact, in Nightingale 1.0 thru 2.01 (at
- * least), it's not used at all.
+ *	way to avoid the divide (unless you know that heap->objSize is a power of 2);
+ *	however, it rarely needs to be used--in fact, in Nightingale 1.0 thru 2.01 (at
+ *	least), it's not used at all.
  */
 
 #ifndef LinkToPtrFUNCTION	/* REPLACED BY EQUIVALENT FUNCTION */
@@ -154,7 +154,7 @@
  *	Our main data structure, the object list, is a doubly-linked list of objects,
  *	each of which can have a singly-linked list of subobjects dangling from it. 
  *	The objects in the backbone can have different types, but are all the same size:
- *	that of a SUPEROBJECT, which is the union of all objects).  The subobjects in
+ *	that of a SUPEROBJECT, which is the union of all objects.  The subobjects in
  *	each object's list are all of the same type, which depends on the owning
  *	object's type.  All lists are linked via LINKs (indices into the respective
  *	heaps). We have two macros for converting a link to the pointer to its sub/object,
@@ -604,9 +604,10 @@
 /* ====================================================================================
  *
  * To facilitate debugging, define a macro version of LinkToPtr and versions of some
- *	basic macros that call it. This is useful because the THINK C Debugger will refuse
- *	to evaluate expressions that call the LinkToPtr function because it doesn't know
- *	there are no possible side effects.
+ *	basic macros that call it. This was useful long ago because the THINK C Debugger
+ *	refused to evaluate expressions that call the LinkToPtr function because it didn't
+ *	know there are no possible side effects; I doubt it's useful these days, but we'll
+ *	them for now.  --DAB, Feb. 2017
  */
 
 #define _LinkToPtr(heap,link)	( ((char *)(*(heap)->block)) + ((heap)->objSize*(unsigned long)(link)) )

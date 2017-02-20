@@ -1,7 +1,7 @@
 /* Double.c for Nightingale */
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALE» PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
@@ -461,7 +461,7 @@ void DblSetupVMap(Document *doc, short vMap[], LINK startL, LINK endL, short src
 	for (v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn!=0)
 			LogPrintf(LOG_NOTICE, "%ciVoice %d part %d relVoice=%d\n",
-							(v==1? '«' : ' '),
+							(v==1? 'Ç' : ' '),
 							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
 #endif	
 }
@@ -1054,7 +1054,7 @@ short Double(Document *doc)
 	 * The selection range might start with the first note of a beam or tuplet. Be sure
 	 * we consider the Beamset or Tuplet object.
 	 */ 
-	doc->selStartL = LocateInsertPt(doc->selStartL);
+	doc->selStartL = FindInsertPt(doc->selStartL);
 
 	PrepareUndo(doc, doc->selStartL, U_Double, 10);    	/* "Undo Double Selection" */
 	WaitCursor();

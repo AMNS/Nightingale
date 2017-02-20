@@ -1960,7 +1960,7 @@ void ShowContext(Document *doc)
 	short		theStaff;
 	GrafPtr		oldPort;
 	PAGRAPHIC	aGraphic;
-	char s2[256];
+	char		s2[256];
 
 /* Get LINK to and staff number of first selected object or of insertion point. */
 
@@ -1995,6 +1995,8 @@ void ShowContext(Document *doc)
 	linenum = 1;
 
 	sprintf(s, "doc->selStaff=%hd", doc->selStaff);
+	DrawTextLine(s);
+	sprintf(s, "doc->selStartL=%hd ->selEndL=%hd", doc->selStartL, doc->selEndL);
 	DrawTextLine(s);
 	sprintf(s, "");
 	DrawTextLine(s);
@@ -2052,7 +2054,7 @@ void ShowContext(Document *doc)
 	}
 	else {
 		pTempo  = GetPTEMPO(tempoL);
-		sprintf(s, "Last previous Tempo link=%u tempoMM=%d", tempoL, pTempo->tempoMM);
+		sprintf(s, "Last prev. Tempo link=%u tempoMM=%d", tempoL, pTempo->tempoMM);
 		DrawTextLine(s);
 	}
 
@@ -2061,7 +2063,7 @@ void ShowContext(Document *doc)
 		DrawTextLine("No GRAPHIC obj on staff before this.");
 	}
 	else {
-		sprintf(s, "Last previous Graphic link=%u", graphicL);
+		sprintf(s, "Last prev. Graphic link=%u", graphicL);
 		DrawTextLine(s);
 		switch (GraphicSubType(graphicL)) {
 			case GRString:

@@ -267,7 +267,7 @@ LINK NewRestSync(Document *doc, LINK pL, short time, LINK *pSyncL)
 {
 	LINK syncL;
 	
-	pL = LocateInsertPt(pL);
+	pL = FindInsertPt(pL);
 	syncL = InsertNode(doc, pL, SYNCtype, 1);
 	SetObject(syncL, 0, 0, FALSE, TRUE, FALSE);
 	LinkTWEAKED(syncL) = FALSE;
