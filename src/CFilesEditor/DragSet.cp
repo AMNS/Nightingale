@@ -25,8 +25,8 @@ chord together, considering whether movement is vertical/horizontal, etc. */
 clefs in the object is at the same position as the object anymore, move the
 object to the closest one. */
 
-void MoveClefHoriz(LINK, LINK, DDIST);
-void MoveClefHoriz(LINK pL, LINK theClefL, DDIST xdDiff)
+static void MoveClefHoriz(LINK, LINK, DDIST);
+static void MoveClefHoriz(LINK pL, LINK theClefL, DDIST xdDiff)
 {
 	LINK aClefL; PACLEF theClef; DDIST minXD;
 	
@@ -99,8 +99,8 @@ void SetClefFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydD
 key sigs in the object is at the same position as the object anymore, move the
 object to the closest one. */
 
-void MoveKeySigHoriz(LINK, LINK, DDIST);
-void MoveKeySigHoriz(LINK pL, LINK theKeySigL, DDIST xdDiff)
+static void MoveKeySigHoriz(LINK, LINK, DDIST);
+static void MoveKeySigHoriz(LINK pL, LINK theKeySigL, DDIST xdDiff)
 {
 	LINK aKeySigL; PAKEYSIG theKeySig; DDIST minXD;
 	
@@ -143,8 +143,8 @@ void SetKeySigFields(LINK pL, LINK subObjL, DDIST xdDiff, short /*xp*/)
 time sigs in the object is at the same position as the object anymore, move the
 object to the closest one. */
 
-void MoveTimeSigHoriz(LINK, LINK, DDIST);
-void MoveTimeSigHoriz(LINK pL, LINK theTimeSigL, DDIST xdDiff)
+static void MoveTimeSigHoriz(LINK, LINK, DDIST);
+static void MoveTimeSigHoriz(LINK pL, LINK theTimeSigL, DDIST xdDiff)
 {
 	LINK aTimeSigL; PATIMESIG theTimeSig; DDIST minXD;
 	
@@ -188,8 +188,8 @@ chord, by the given distance. After doing so, if none of the notes/rests in the
 Sync is at the same position as the Sync anymore, move the Sync to the closest
 one. */
 
-void MoveNoteHoriz(LINK, LINK, DDIST);
-void MoveNoteHoriz(LINK pL, LINK theNoteL, DDIST xdDiff)
+static void MoveNoteHoriz(LINK, LINK, DDIST);
+static void MoveNoteHoriz(LINK pL, LINK theNoteL, DDIST xdDiff)
 {
 	LINK aNoteL; PANOTE theNote, aNote; DDIST minXD;
 	
@@ -230,9 +230,9 @@ void MoveNoteHoriz(LINK pL, LINK theNoteL, DDIST xdDiff)
 regardless of whether the note actually has dots or not. See more detailed comments on
 FixAugDotPos (which should probably call this!). */
 
-void FixNoteAugDotPos(SignedByte clefType, LINK aNoteL, short voiceRole, Boolean stemDown,
+static void FixNoteAugDotPos(SignedByte clefType, LINK aNoteL, short voiceRole, Boolean stemDown,
 								Boolean lineNotesOnly);
-void FixNoteAugDotPos(
+static void FixNoteAugDotPos(
 			SignedByte clefType,
 			LINK aNoteL,
 			short voiceRole,
@@ -247,7 +247,7 @@ void FixNoteAugDotPos(
 
 	halfSp = qd2halfLn(NoteYQPIT(aNoteL));							/* Half-lines below middle C */
 	lineNote = (midCIsInSpace? odd(halfSp) : !odd(halfSp));
-	if (lineNote)															/* Note on line */
+	if (lineNote)														/* Note on line */
 		NoteYMOVEDOTS(aNoteL) = GetLineAugDotPos(voiceRole, stemDown);
 	else if (!lineNotesOnly)											/* Note in space */
 		NoteYMOVEDOTS(aNoteL) = 2;
@@ -257,8 +257,8 @@ void FixNoteAugDotPos(
 /* Return the Ottava object that the given Sync or GRSync belongs to on the given
 staff. If none, return NILINK. */
 
-LINK FindOttava(LINK pL, short staffn);
-LINK FindOttava(LINK pL, short staffn)
+static LINK FindOttava(LINK pL, short staffn);
+static LINK FindOttava(LINK pL, short staffn)
 {
 	LINK octL;
 	
@@ -283,13 +283,13 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 					short newAcc		/* The new accidental resulting from vertical dragging. */
 					)
 {
-	PANOTE aNote;
-	LINK	 beamL, mainNoteL, octL;
-	short  halfLnDiff, halfLn, staffn, v,
-			 effectiveAcc, voiceRole, octType;
-	DDIST	 dDiff, firstystem, lastystem;
-	QDIST	 qStemLen;									/* y QDIST position relative to staff top */
-	STDIST dystd;
+	PANOTE	aNote;
+	LINK	beamL, mainNoteL, octL;
+	short	halfLnDiff, halfLn, staffn, v,
+			effectiveAcc, voiceRole, octType;
+	DDIST	dDiff, firstystem, lastystem;
+	QDIST	qStemLen;									/* y QDIST position relative to staff top */
+	STDIST	dystd;
 	CONTEXT context;
 	Boolean main, stemDown;
 	
@@ -362,10 +362,10 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 			else if (!aNote->beamed) {
 				stemDown = GetStemInfo(doc, pL, subObjL, &qStemLen);
 				NoteYSTEM(subObjL) = CalcYStem(doc, NoteYD(subObjL),
-													NFLAGS(NoteType(subObjL)),
-													stemDown,
-													context.staffHeight, context.staffLines,
-													qStemLen, FALSE);
+												NFLAGS(NoteType(subObjL)),
+												stemDown,
+												context.staffHeight, context.staffLines,
+												qStemLen, FALSE);
 			}
 		}
 	}
@@ -374,7 +374,7 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 
 	InvalRange(pL, RightLINK(pL));
 
-	/* Fix up stems if notes in beamset are dragged. Only case where this is
+	/* Fix up stems if notes in beamset are dragged. The only case where this is
 		necessary is if note is dragged horizontally in a slanted beamset. */
 	if (!vert) {
 		aNote = GetPANOTE(subObjL);
@@ -387,14 +387,14 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 			firstystem = Getystem(BeamVOICE(beamL), FirstInBeam(beamL));
 			lastystem = Getystem(BeamVOICE(beamL), LastInBeam(beamL));
 
-			/* If beam not horizontal, fix up note stems. Need the call to
-				inval object, to inval a rect containing the beam, in case
+			/* If beam is not horizontal, fix up note stems. We need the call to
+				InvalObject to inval a rect containing the beam in case
 				the beam extends outside the system. Need to modify the test
-				<firstystem!=lastystem> in case the beam is crossStaff. */
+				<firstystem!=lastystem> in case the beam is cross staff. */
 
 			if (firstystem!=lastystem) {
-				InvalObject(doc,beamL,TRUE);
-				SDFixStemLengths(doc,beamL);
+				InvalObject(doc, beamL, TRUE);
+				SDFixStemLengths(doc, beamL);
 			}
 		}
 	}
@@ -403,16 +403,15 @@ void SetNoteFields(Document *doc, LINK pL, LINK subObjL,
 }
 
 
-/* ------------------------------------------------------------ SetGRNoteFields -- */
-
+/* ---------------------------------------------------------------- SetGRNoteFields -- */
 
 /* Move the given grace note and, if it's in a chord, all other grace notes in the
 chord, by the given distance. After doing so, if none of the grace notes in the
 GRSync is at the same position as the GRSync anymore, move the GRSync to the
 closest one. */
 
-void MoveGRNoteHoriz(LINK, LINK, DDIST);
-void MoveGRNoteHoriz(LINK pL, LINK theGRNoteL, DDIST xdDiff)
+static void MoveGRNoteHoriz(LINK, LINK, DDIST);
+static void MoveGRNoteHoriz(LINK pL, LINK theGRNoteL, DDIST xdDiff)
 {
 	LINK aGRNoteL; PAGRNOTE theGRNote, aGRNote; DDIST minXD;
 	
@@ -459,12 +458,12 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 						short newAcc			/* The new accidental resulting from vertical dragging. */
 						)
 {
-	PAGRNOTE aGRNote;
-	LINK	 beamL, octL;
-	short  midCHalfLn, halfLnDiff, halfLn, staffn, accKeep, effectiveAcc, octType;
-	DDIST	 dDiff, firstystem, lastystem;
-	CONTEXT context;
-	Boolean main;
+	PAGRNOTE	aGRNote;
+	LINK		beamL, octL;
+	short		midCHalfLn, halfLnDiff, halfLn, staffn, accKeep, effectiveAcc, octType;
+	DDIST		dDiff, firstystem, lastystem;
+	CONTEXT		context;
+	Boolean		main;
 	
 	aGRNote = GetPAGRNOTE(subObjL);
 	main = GRMainNote(subObjL);
@@ -474,8 +473,8 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 		aGRNote = GetPAGRNOTE(subObjL);
 
 		/* Quantize vertical movement to half lines. */
-		halfLnDiff = d2halfLn(ydDiff,context.staffHeight,context.staffLines);
-		dDiff = halfLn2d(halfLnDiff,context.staffHeight,context.staffLines);
+		halfLnDiff = d2halfLn(ydDiff, context.staffHeight, context.staffLines);
+		dDiff = halfLn2d(halfLnDiff, context.staffHeight, context.staffLines);
 
 		if (!aGRNote->beamed && main) aGRNote->ystem += dDiff;
 		aGRNote->yd += dDiff;
@@ -490,14 +489,14 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 			FixGRSyncForChord(doc, pL, aGRNote->voice, aGRNote->beamed, 0, TRUE, NULL);
 
 		/* Update the new note accidental. */
-		midCHalfLn = ClefMiddleCHalfLn(context.clefType);		/* Get middle C staff pos. */		
+		midCHalfLn = ClefMiddleCHalfLn(context.clefType);			/* Get middle C staff pos. */		
 		aGRNote = GetPAGRNOTE(subObjL);
 		aGRNote->accident = newAcc;
 		halfLn = qd2halfLn(aGRNote->yqpit);
 		GetPitchTable(doc, accTable, pL, staffn);					/* Get pitch modif. situation */
 		if (newAcc!=0 && newAcc!=accTable[halfLn-midCHalfLn+ACCTABLE_OFF])	/* Note's acc. a change from prev. */																		/* Yep */
 			accKeep = accTable[halfLn-midCHalfLn+ACCTABLE_OFF];
-		else																						/* No change */
+		else																/* No change */
 			accKeep = 0;
 		FixAccidental(doc, RightLINK(pL), staffn, midCHalfLn-halfLn, accKeep);
 		
@@ -544,7 +543,7 @@ void SetGRNoteFields(Document *doc, LINK pL, LINK subObjL,
 /* Update fields of the given Dynamic for dragging by (xdDiff,ydDiff). Also make
 any other changes to the object list necessary for consistency. NB: this should
 probably be updated in the same way as the SetClefFields function (e.g.) to call
-a new MoveDynamHoriz function and to use InvalRange; however, (1) as of v.3.0,
+a new MoveDynamHoriz function and to use InvalRange; however, (1) as of v. 5.7,
 Dynamics still can't have more than one subobject, so it's of no practical relevance,
 and (2) Dynamics can be dragged both horizontally and vertically at the same time,
 so it's a little more complicated to do here. */
@@ -561,13 +560,13 @@ void SetDynamicFields(LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short x
 	if (LinkNENTRIES(pL)==1) {
 		p = GetPMEVENT(pL);
 		p->xd += xdDiff;
-		OffsetRect(&LinkOBJRECT(pL),xp,yp);
+		OffsetRect(&LinkOBJRECT(pL), xp, yp);
 	}
 	else {
 		aDynamic->xd += xdDiff;
 		tempR = LinkOBJRECT(pL);
-		OffsetRect(&tempR,xp,yp);
-		UnionRect(&LinkOBJRECT(pL),&tempR,&LinkOBJRECT(pL));
+		OffsetRect(&tempR, xp, yp);
+		UnionRect(&LinkOBJRECT(pL), &tempR,&LinkOBJRECT(pL));
 	}
 	if (IsHairpin(pL)) {
 		aDynamic->endxd += xdDiff;
@@ -615,15 +614,16 @@ void SetEndingFields(Document *doc, LINK pL, LINK /*subObjL*/, DDIST xdDiff, DDI
 
 
 /* ------------------------------------------------------------- SetMeasureFields -- */
-/* Returns a long percent by which to respace the preceeding measure, in case a
+/* Returns a long percent by which to respace the preceding measure, in case a
 barline was dragged. */
 
 long SetMeasureFields(Document *doc, LINK pL, DDIST xdDiff)
 {
-	short sysWidth;
-	LINK	qL, pSystemL, measL, prevMeasL; PSYSTEM pSystem;
-	long  oldMWidth, newMWidth, spaceFactor;
-	PMEASURE prevMeas;
+	short		sysWidth;
+	LINK		qL, pSystemL, measL, prevMeasL;
+	PSYSTEM		pSystem;
+	long		oldMWidth, newMWidth, spaceFactor;
+	PMEASURE	prevMeas;
 	
 #ifdef CHECK_BARLINE_DRAG
 	/* Check to see if dragging the barline will make symbols spill off the end
@@ -680,7 +680,7 @@ long SetMeasureFields(Document *doc, LINK pL, DDIST xdDiff)
 void SetPSMeasFields(Document */*doc*/, LINK pL, DDIST xdDiff)
 {
 	LinkXD(pL) += xdDiff;
-	OffsetRect(&LinkOBJRECT(pL),d2p(xdDiff),0);
+	OffsetRect(&LinkOBJRECT(pL), d2p(xdDiff), 0);
 
 	LinkTWEAKED(pL) = TRUE;
 }
@@ -697,7 +697,7 @@ void SetTupletFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 	p->xdLast += xdDiff;
 	p->ydFirst += ydDiff;
 	p->ydLast += ydDiff;
-	OffsetRect(&LinkOBJRECT(pL),xp,yp);
+	OffsetRect(&LinkOBJRECT(pL), xp, yp);
 
 	LinkTWEAKED(pL) = TRUE;
 }
@@ -714,7 +714,7 @@ void SetOttavaFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 	p->xdLast += xdDiff;
 	p->ydFirst += ydDiff;
 	p->ydLast += ydDiff;
-	OffsetRect(&LinkOBJRECT(pL),xp,yp);
+	OffsetRect(&LinkOBJRECT(pL), xp, yp);
 
 	LinkTWEAKED(pL) = TRUE;
 }
@@ -734,7 +734,7 @@ void SetGraphicFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 		p->info += xdDiff;
 		p->info2 += ydDiff;
 	}
-	OffsetRect(&LinkOBJRECT(pL),xp,yp);
+	OffsetRect(&LinkOBJRECT(pL), xp, yp);
 	LinkTWEAKED(pL) = TRUE;
 }
 
@@ -749,7 +749,7 @@ void SetTempoFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short xp, short yp)
 	
 	p->xd += xdDiff;
 	p->yd += ydDiff;
-	OffsetRect(&LinkOBJRECT(pL),xp,yp);
+	OffsetRect(&LinkOBJRECT(pL), xp, yp);
 	LinkTWEAKED(pL) = TRUE;
 }
 
@@ -778,7 +778,7 @@ void SetBeamFields(LINK pL, DDIST /*xdDiff*/, DDIST ydDiff, short /*xp*/, short 
 
 void SetSlurFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short /*xp*/, short /*yp*/)
 {
-	PASLUR aSlur; LINK aSlurL;
+	PASLUR aSlur;  LINK aSlurL;
 	
 	aSlurL = FirstSubLINK(pL);
 	
@@ -796,9 +796,7 @@ void SetSlurFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short /*xp*/, short /*yp
 }
 
 
-/* ------------------------------------------------------------- SetForNewPitch -- */
-
-Boolean DelSlurTie(Document *, LINK);		/* ?????? MOVE TO .h! ?????? */
+/* ----------------------------------------------------------------- SetForNewPitch -- */
 
 void SetForNewPitch(Document *doc,
 					LINK pL,					/* Sync or GRSync */
@@ -807,19 +805,19 @@ void SetForNewPitch(Document *doc,
 					short pitchLev, short acc
 					)
 {
-	PANOTE aNote; PAGRNOTE aGRNote;
-	short oldPitchLev, yp; DDIST ydDiff; LINK slurL, startL;
+	PANOTE aNote;  PAGRNOTE aGRNote;
+	short oldPitchLev, yp;  DDIST ydDiff;  LINK slurL, startL;
 			
 	if (SyncTYPE(pL)) {
 		if (NoteTIEDL(subObjL)) {
-			slurL = LeftSlurSearch(pL,NoteVOICE(subObjL),TRUE);
-			DelSlurTie(doc,slurL);
+			slurL = LeftSlurSearch(pL, NoteVOICE(subObjL), TRUE);
+			DeleteSlurTie(doc, slurL);
 		}
 		if (NoteTIEDR(subObjL)) {
 			startL = LeftLINK(pL);
 			for ( ; pL && J_DTYPE(pL); pL = LeftLINK(pL)) ;
-			slurL = LVSearch(startL,SLURtype,NoteVOICE(subObjL),GO_RIGHT,FALSE);
-			DelSlurTie(doc,slurL);
+			slurL = LVSearch(startL, SLURtype, NoteVOICE(subObjL), GO_RIGHT, FALSE);
+			DeleteSlurTie(doc, slurL);
 		}
 
 		aNote = GetPANOTE(subObjL);

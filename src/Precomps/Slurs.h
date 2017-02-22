@@ -10,8 +10,8 @@ void		EndSlurBounds(Rect *paper, Rect *box);
 void		DrawSlursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 						short how, Boolean dashed);
 void		DrawTheSlursor(void);
-void 		CreateAllTies(Document *doc);
 void		RotateSlurCtrlPts(LINK, DDIST, DDIST, short);
+void 		CreateAllTies(Document *doc);
 
 /* Non-Doug Utilities */
 
@@ -29,6 +29,7 @@ void		HiliteSlurNodes(Document *, LINK pL);
 Boolean		SetSlurCtlPoints(Document *, LINK, LINK, LINK, LINK, short, short, CONTEXT,
 								Boolean);
 
+Boolean		DeleteSlurTie(Document *, LINK);
 Boolean		FlipSelSlur(LINK);
 
 Boolean		InitAntikink(Document *, LINK, LINK);

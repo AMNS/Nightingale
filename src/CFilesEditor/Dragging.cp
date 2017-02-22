@@ -1767,9 +1767,9 @@ static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 }
 
 
-/* ================================================================================= */
+/* =================================================================================== */
 
-/* --------------------------------------------------------------- HandleSymDrag -- */
+/* ------------------------------------------------------------------ HandleSymDrag -- */
 /* Should be called by all CheckXXX routines to handle normal dragging. See comments
 on DoSymbolDrag for a description of the torturous route we take to get here. */
 
@@ -1784,7 +1784,7 @@ Boolean HandleSymDrag(Document *doc, LINK pL, LINK subObjL, Point pt, unsigned c
 /* -------------------------------------------------------------------- SymDragLoop -- */
 /* Routine that is actually responsible for dragging the object. First calls the
 SDDraw routine for the object's type to draw the to-be-dragged object into the
-offscreen bitmap; then enters the loop where the user drags the object; and fially
+offscreen bitmap; then enters the loop where the user drags the object; and finally
 updates the object's position and other attributes with the SetFields routine for the
 type of the dragged object.
 
@@ -2083,7 +2083,7 @@ static Boolean SymDragLoop(
 					switch (ObjLType(pL)) {
 						case SYNCtype:
 						case GRSYNCtype:
-							horiz = ABS(dx) > ABS(dy);				/* Diagonal movement = vertical */
+							horiz = ABS(dx) > ABS(dy);				/* Interpret 45-deg. mvmt as vertical */
 							vQuantize = vert = !horiz;
 							oldHalfLn = CalcPitchLevel(pt.v, &context, staffL, staff);
 							if ((!NoteREST(subObjL) || GRSyncTYPE(pL)) && vert)
@@ -2096,7 +2096,7 @@ static Boolean SymDragLoop(
 								case ALTO_CLEF:
 								case TENOR_CLEF:
 								case BARITONE_CLEF:
-									horiz = ABS(dx) > ABS(dy);		/* Diagonal movement = vertical */
+									horiz = ABS(dx) > ABS(dy);		/* Interpret 45-deg. mvmt as vertical */
 									vQuantize = vert = !horiz;
 									oldHalfLn = CalcPitchLevel(pt.v, &context, staffL, staff);
 									break;
@@ -2121,7 +2121,7 @@ static Boolean SymDragLoop(
 							break;
 						default:
 							if (ShiftKeyDown()) {
-								horiz = ABS(dx) > ABS(dy);			/* Diagonal movement = vertical */
+								horiz = ABS(dx) > ABS(dy);			/* Interpret 45-deg. mvmt as vertical */
 								vert = !horiz;
 							}
 					}
@@ -2137,11 +2137,11 @@ static Boolean SymDragLoop(
 					v = halfLn2d(halfLnDiff, context.staffHeight, context.staffLines);
 
 					/* In magnified sizes, dstRect position picks up a small cumulative
-						error each time thru the loop, resulting in the bitmap beinf
+						error each time thru the loop, resulting in the bitmap being
 						drawn a little too low. Use d2px, which doesn't add ROUND to
 						the computation of dy. */
-					if (doc->magnify) dy = d2px(v);
-					else dy = d2p(v);
+					if (doc->magnify!=0)	dy = d2px(v);
+					else					dy = d2p(v);
 
 					if (!isClef) {
 						GetPort(&oldPort1);
@@ -2379,9 +2379,11 @@ noteDragDone:
 	}
 }
 
+
+/* ------------------------------------------------------------------- DoSymbolDrag -- */
 /* This is the entry point for all dragging routines handling normal dragging.
 If symbol is beforeFirstMeas, handle it as a special case and return. Otherwise,
-set up the three offscreen bitmaps, and call CheckObject, which should call the
+set up the three offscreen bitmaps and call CheckObject, which should call the
 appropriate CheckXXX routine with mode SMSymDrag; the CheckXXX routines should in
 turn call HandleSymDrag. <pt> is the mouseDown pt in window-local coordinates.
 
@@ -2396,9 +2398,8 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 	short		pIndex;
 	STFRANGE	stfRange={0,0};
 	
-	/* If there is no object, return, or if the object is before the first
-		measure, call DragBeforeFirst, then return. Otherwise, get the following
-		barLine to set up the object's grafPorts. */
+	/* If there is no object, return immediately; if the object is before the first
+		measure, call DragBeforeFirst, then return. */
 
 	pL = FindObject(doc, pt, &index, SMFind);
 	if (!pL) return FALSE;
@@ -2422,6 +2423,9 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 		}
 	}
 
+	/* Not a special case. Get the following barline, and set up grafPorts for giving
+		visual feedback during the drag. */
+	
 	measureL = LSSearch(pL, MEASUREtype, 1, TRUE, FALSE);
 	
 	switch (ObjLType(pL)) {

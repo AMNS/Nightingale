@@ -39,8 +39,6 @@ void SDCleanUp(Document *doc, GrafPtr oldPort, long spaceFactor, LINK pL, Boolea
 void DisposMeasPorts(void);
 void ErrDisposPorts(void);
 
-Boolean DelSlurTie(Document *, LINK);
-
 /* Prototypes for DragSet.c */
 
 void SetClefFields(Document *doc, LINK pL, LINK subObjL, DDIST xdDiff, DDIST ydDiff, short xp, short yp, Boolean vert);

@@ -33,6 +33,7 @@ static Boolean	Slursor(Rect *paper, DPoint *start,DPoint *end,DPoint *c0,DPoint 
 						DPoint *q,short curve);
 static void		StartSearch(Rect *paper, DPoint pt);
 static void		EndSearch(void);
+static void		LineOrMoveTo(short, short, short, Boolean *, short *);
 static Boolean	BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean dashed);
 static Boolean	DrawSegment(Rect *paper, SplineSeg *seg, DPoint endpoint);
 static void		DeselectKnots(Rect *paper, LINK aSlurL);
@@ -637,9 +638,8 @@ void EndSlurBounds(Rect *paper, Rect *box)
  *	(LineTo's) and a series of space segments (MoveTo's).
  */
  
-static void LineOrMoveTo(short, short, short, Boolean *, short *);
-static void LineOrMoveTo(short x, short y, short segsPerDash,
-								Boolean *pDoingDash, short *pSegsThisDash)
+static void LineOrMoveTo(short x, short y, short segsPerDash, Boolean *pDoingDash,
+								short *pSegsThisDash)
 	{
 		if (*pDoingDash)	LineTo(x,y);
 		else				MoveTo(x,y);
@@ -1179,15 +1179,79 @@ void CreateAllTies(Document *doc)
 }
 
 
+/* ------------------------------------------------------------------ DeleteSlurTie -- */
+/* Delete the given slur object, which must be of subtype <tie>, and clear the tiedL
+and tiedR flags of notes it connects. If the slur is cross-system, also delete its
+other piece. */
+
+Boolean DeleteSlurTie(Document *doc, LINK slurL)
+{
+	LINK	firstSyncL, lastSyncL, otherSlur;
+	Boolean	lastIsSys, firstIsMeas, left, right;
+	
+	if (!SlurTIE(slurL)) return FALSE;
+	
+	right = TRUE; left = FALSE;
+	lastIsSys = firstIsMeas = FALSE;
+	
+	FixAccsForNoTie(doc, slurL);
+	
+	/* Clear tiedL/tiedR flags of notes for this slur. */
+	
+	firstSyncL = SlurFIRSTSYNC(slurL);
+	if (MeasureTYPE(firstSyncL))
+		firstIsMeas = TRUE;
+	else
+		FixSyncForSlur(firstSyncL, SlurVOICE(slurL), TRUE, right);
+		
+	lastSyncL = SlurLASTSYNC(slurL);
+	if (SystemTYPE(lastSyncL))
+		lastIsSys = TRUE;
+	else
+		FixSyncForSlur(lastSyncL, SlurVOICE(slurL), TRUE, left);
+		
+	/* If cross-system, clear tiedL/tiedR flags of notes for slur's other piece. */
+
+	if (firstIsMeas) {
+		otherSlur = XSysSlurMatch(slurL);
+		lastSyncL = SlurLASTSYNC(otherSlur);
+		if (SystemTYPE(lastSyncL)) {
+			firstSyncL = SlurFIRSTSYNC(otherSlur);
+			FixSyncForSlur(firstSyncL, SlurVOICE(slurL), TRUE, right);
+		}
+	}
+	
+	if (lastIsSys) {
+		otherSlur = XSysSlurMatch(slurL);
+		firstSyncL = SlurFIRSTSYNC(otherSlur);
+		if (MeasureTYPE(firstSyncL)) {
+			lastSyncL = SlurLASTSYNC(otherSlur);
+			FixSyncForSlur(lastSyncL, SlurVOICE(slurL), TRUE, left);
+		}
+	}
+	
+	if (firstIsMeas || lastIsSys) 
+		InvalMeasure(otherSlur, SlurSTAFF(otherSlur));
+
+	/* Finally, delete the slur object(s). */
+	
+	DeleteNode(doc, slurL);
+	if ((firstIsMeas || lastIsSys) && otherSlur)
+		DeleteNode(doc, otherSlur);
+	
+	return TRUE;
+}
+
+
 /* ----------------------------------------------------------------- FlipSelSlur -- */
 /* Flip the direction of every selected subobject of the given Slur object; return
 TRUE if there are any, else FALSE. */
 
 Boolean FlipSelSlur(LINK slurL)		/* Slur object */
 {
-	LINK		aSlurL;
+	LINK	aSlurL;
 	PASLUR	aSlur;
-	DDIST		x, y;
+	DDIST	x, y;
 	Boolean	flipped;
 
 	flipped = FALSE;

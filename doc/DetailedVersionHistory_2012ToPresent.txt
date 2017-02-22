@@ -1186,3 +1186,12 @@ many files.
 
 Minor cleanup. Affects MemMacros.h; Browser, DSUtils, InsUtils.
 
+-------------------------------------------------------------------------------
+
+21 Feb.
+
+Move DelSlurTie() from DragUtils to Slurs and rename it DeleteSlurTie(). Affects
+Dragging.h, Slurs.h; DragUtils, Slurs.
+
+Minor cleanup, mostly of dragging-related files. Affects MemMacros.h; Dragging,
+DragSet, DragUtils, Slurs.

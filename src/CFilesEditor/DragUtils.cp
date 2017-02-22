@@ -30,8 +30,8 @@ flagged as not valid by giving it a value of -1. */
 void GetHDragLims(Document */*doc*/, LINK pL, LINK subObjL, short /*staff*/, CONTEXT /*context*/,
 						DDIST *leftLim, DDIST *rightLim)
 {
-	DDIST leftLimit,rightLimit,needLeft,needRight,measWidth,objXD;
-	LINK leftL,rightL;
+	DDIST leftLimit, rightLimit, needLeft, needRight, measWidth, objXD;
+	LINK leftL, rightL;
 
 	objXD = LinkXD(pL) + GetSubXD(pL,subObjL);
 	leftL = FirstValidxd(LeftLINK(pL), TRUE);
@@ -69,9 +69,9 @@ the halfline number <halfLine>. */
 
 void SDInsertLedgers(LINK pL, LINK aNoteL, short halfLine, PCONTEXT pContext)
 {
-	DDIST	staffTop,staffHeight,xd;
-	short l,staffLines,ledgerLeft,ledgerLen,staff;
-	LINK staffL, aStaffL; PASTAFF aStaff;
+	DDIST	staffTop, staffHeight, xd;
+	short	l, staffLines, ledgerLeft, ledgerLen, staff;
+	LINK	staffL, aStaffL;  PASTAFF aStaff;
 
 	PenNormal();
 	xd = LinkXD(pL);							/* DDIST horiz pos of note rel to portRect of SymDrag Ports */
@@ -83,7 +83,7 @@ void SDInsertLedgers(LINK pL, LINK aNoteL, short halfLine, PCONTEXT pContext)
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffSTAFF(aStaffL)==staff) break;
 
-	aStaff=GetPASTAFF(aStaffL);
+	aStaff = GetPASTAFF(aStaffL);
 	staffTop = aStaff->staffTop;
 
 	staffHeight = pContext->staffHeight;
@@ -103,6 +103,7 @@ void SDInsertLedgers(LINK pL, LINK aNoteL, short halfLine, PCONTEXT pContext)
 			Line(ledgerLen, 0);
 		}
 }
+
 
 /* -------------------------------------------------------------- SDSetAccidental -- */
 /* Get new accidental for note dragged vertically from within SymDragLoop,
@@ -213,9 +214,8 @@ DDIST GetGRystem(short voice, LINK GRsync)
 
 
 /* -------------------------------------------------------------- SDFixStemLengths -- */
-/* Fix up all stems in a slanted beamset in which a note has been
-dragged horizontally. Cross staff beams must have their note stems
-fixed up differently. */
+/* Fix up all stems in a slanted beamset in which a note has been dragged
+horizontally. Cross staff beams must have their note stems fixed up differently. */
 
 static void FixNoteStems(LINK beamL,LINK qL,LINK firstSyncL,
 					DDIST hDiff,DDIST vDiff,DDIST lastystem,short *h);
@@ -227,8 +227,8 @@ static void FixNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff,
 									DDIST vDiff, DDIST lastystem, short *h)
 {
 	LINK qSubL;
-	DDIST noteDiff,newStemDiff;
-	float fhDiff,fvDiff,fnoteDiff;
+	DDIST noteDiff, newStemDiff;
+	float fhDiff, fvDiff, fnoteDiff;
 
 	for (qSubL=FirstSubLINK(qL); qSubL; qSubL=NextNOTEL(qSubL))
 		if (NoteVOICE(qSubL)==BeamVOICE(beamL))
@@ -246,7 +246,7 @@ static void FixNoteStems(LINK beamL, LINK qL, LINK firstSyncL, DDIST hDiff,
 				 	}
 				}
 				else if (!NoteREST(qSubL))
-					MayErrMsg("SDFixStemLengths: Unbeamed note in sync %ld where beamed note expected", (long)qL);
+					MayErrMsg("SDFixStemLengths: Unbeamed note in Sync %ld where beamed note expected", (long)qL);
 				if (!NoteREST(qSubL) || NoteBEAMED(qSubL))
 					(*h)++;
 			}
@@ -265,7 +265,7 @@ static void FixXStfNoteStems(Document *doc, LINK beamL)
 	staff = BeamSTAFF(beamL);
 	nInBeam = LinkNENTRIES(beamL);
 
-	/* Fill in the arrays of sync and note LINKs for the benefit of beam subObjs. */
+	/* Fill in the arrays of Sync and note LINKs for the benefit of beam subobjs. */
 	if (!GetBeamSyncs(doc, startL, RightLINK(endL), v, nInBeam, bpSync, noteInSync, FALSE))
 			return;
 
@@ -312,7 +312,7 @@ static void HDragFixNoteStems(Document *doc, LINK beamL, LINK firstSyncL, DDIST 
 			if (qL==firstSyncL)							/* have already done firstSync */
 				h++;
 			else
-				FixNoteStems(beamL,qL,firstSyncL,hDiff,vDiff,lastystem,&h);
+				FixNoteStems(beamL, qL, firstSyncL, hDiff, vDiff, lastystem, &h);
 		}
 	}
 }
@@ -330,7 +330,7 @@ void SDFixStemLengths(Document *doc, LINK beamL)
 	lastystem = Getystem(BeamVOICE(beamL), lastSyncL);
 	vDiff = firstystem-lastystem;
 
-	HDragFixNoteStems(doc,beamL,firstSyncL,hDiff,vDiff,lastystem,BeamCrossSTAFF(beamL));
+	HDragFixNoteStems(doc, beamL, firstSyncL, hDiff, vDiff, lastystem, BeamCrossSTAFF(beamL));
 }
 
 /* ----------------------------------------------------------- SDFixGRStemLengths -- */
@@ -343,7 +343,7 @@ void SDFixGRStemLengths(LINK beamL)
 	LINK		qL, firstSyncL, lastSyncL, qSubL;
 	PAGRNOTE	qSub;
 	short		h;
-	float 	fhDiff, fnoteDiff, fvDiff;
+	float		fhDiff, fnoteDiff, fvDiff;
 	
 	firstSyncL = FirstInBeam(beamL);
 	lastSyncL = LastInBeam(beamL);
@@ -352,12 +352,12 @@ void SDFixGRStemLengths(LINK beamL)
 	lastystem = GetGRystem(BeamVOICE(beamL), lastSyncL);
 	vDiff = firstystem-lastystem;
 
-	h=0;
+	h = 0;
 	for (qL=RightLINK(beamL); qL && h<LinkNENTRIES(beamL); qL=RightLINK(qL)) {
 		if (GRSyncTYPE(qL)) {
 			if (qL==firstSyncL) {
 				h++;								/* h indexes the # of syncs in the beamset */
-				continue;						/* Have already done firstSync */
+				continue;							/* Have already done firstSync */
 			}
 			else {
 				for (qSubL=FirstSubLINK(qL); qSubL; qSubL=NextGRNOTEL(qSubL))
@@ -375,7 +375,7 @@ void SDFixGRStemLengths(LINK beamL)
 							 	}
 							}
 							else
-								MayErrMsg("SDFixGRStemLengths: Unbeamed note in sync %ld where beamed note expected", (long)qL);
+								MayErrMsg("SDFixGRStemLengths: Unbeamed note in Sync %ld where beamed note expected", (long)qL);
 							h++;
 						}
 					}
@@ -437,7 +437,8 @@ static GrafPtr SDGetGrafPorts(Rect);
 
 static void ClipToPort(Document *doc, Rect *r)
 {
-	WindowPtr w=doc->theWindow; Rect oldRect,portRect;
+	WindowPtr w=doc->theWindow;
+	Rect oldRect, portRect;
 	
 	/* Offset mRect to window coords, intersect it with w->portRect, then back to paper */
 	OffsetRect(r, doc->currentPaper.left, doc->currentPaper.top);
@@ -486,7 +487,6 @@ static void CopyBitMaps(Document *doc, Rect srcRect, Rect dstRect)
 	
 	RgnHandle underBitsClipRgn = NewRgn();
 	RgnHandle offScrBitsClipRgn = NewRgn();
-
 
 	GetPortClipRegion(underBits,underBitsClipRgn);
 	GetPortClipRegion(offScrBits,offScrBitsClipRgn);
@@ -656,7 +656,7 @@ GrafPtr NewMeasGrafPort(Document *doc, LINK measL)
 	GetPort(&oldPort);
 
 	mBBox = GetMeasRect(doc, measL);
-	ourPort = RectGrafPort(mBBox);		/* Allocate GrafPort the size of measureRect */
+	ourPort = RectGrafPort(mBBox);			/* Allocate GrafPort the size of measureRect */
 	
 	/* Clean up ports, return */
 
@@ -669,8 +669,8 @@ GrafPtr NewMeasGrafPort(Document *doc, LINK measL)
 
 GrafPtr New2MeasGrafPort(Document *doc, LINK measL)
 {
-	LINK		prevMeasL;
-	Rect		mBBox;
+	LINK	prevMeasL;
+	Rect	mBBox;
 	GrafPtr	oldPort, ourPort;
 	
 	GetPort(&oldPort);
@@ -678,7 +678,7 @@ GrafPtr New2MeasGrafPort(Document *doc, LINK measL)
 	prevMeasL = LSSearch(LeftLINK(measL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
 	mBBox = Get2MeasRect(doc, prevMeasL, measL);
 
-	ourPort = RectGrafPort(mBBox);		/* Allocate GrafPort the size of measureRect */
+	ourPort = RectGrafPort(mBBox);			/* Allocate GrafPort the combined size of two Measures */
 	
 	/* Clean up ports, return */
 
@@ -735,7 +735,7 @@ GrafPtr NewBeamGrafPort(Document *doc, LINK beamL, Rect *beamRect)
 
 GrafPtr SetupMeasPorts(Document *doc, LINK measL)
 {
-	Rect 	mRect,dstRect;
+	Rect 	mRect, dstRect;
 	
 	underBits = NewMeasGrafPort(doc, measL);
 	offScrBits = NewMeasGrafPort(doc, measL);
@@ -746,8 +746,8 @@ GrafPtr SetupMeasPorts(Document *doc, LINK measL)
 	mRect = GetMeasRect(doc, measL);
 
 	dstRect = mRect;
-	OffsetRect(&dstRect,-mRect.left,-mRect.top);
-	OffsetRect(&mRect,doc->currentPaper.left, doc->currentPaper.top);
+	OffsetRect(&dstRect, -mRect.left, -mRect.top);
+	OffsetRect(&mRect, doc->currentPaper.left, doc->currentPaper.top);
 	
 	CopyBitMaps(doc, mRect, dstRect);
 
@@ -783,7 +783,7 @@ GrafPtr Setup2MeasPorts(Document *doc, LINK measL)
 
 GrafPtr SetupNMeasPorts(Document *doc, LINK startL, LINK endL)
 {
-	Rect 	mBBox,dstRect;
+	Rect 	mBBox, dstRect;
 	LINK	firstMeasL, lastMeasL;
 	
 	firstMeasL = LSSearch(startL, MEASUREtype, 1, GO_LEFT, FALSE);
@@ -847,7 +847,7 @@ void DragBeforeFirst(Document *doc, LINK pL, Point pt)
 
 /* -------------------------------------------------------------------- PageRelDrag -- */
 /* Use DragGrayRgn to drag any page-relative objects. As of v. 5.7, only GRAPHICs
-GRAPHICs qualify. */
+can be page-relative. */
 
 void PageRelDrag(Document *doc, LINK pL, Point pt)
 {
@@ -1043,69 +1043,4 @@ void ErrDisposPorts()
 	StopInform(GENERIC_ALRT);
 
 	underBits = offScrBits = picBits = NULL;
-}
-
-
-/* -------------------------------------------------------------------- DelSlurTie -- */
-/* Delete the given slur object, which must be of subtype <tie>, and clear the tiedL
-and tiedR flags of notes it connects. If the slur is cross-system, also delete its
-other piece. ??THIS BELONGS IN ANOTHER FILE, BUT I'M NOT SURE WHICH. */
-
-Boolean DelSlurTie(Document *, LINK);
-Boolean DelSlurTie(Document *doc, LINK slurL)
-{
-	LINK		firstSyncL, lastSyncL, otherSlur;
-	Boolean  lastIsSys, firstIsMeas, left, right;
-	
-	if (!SlurTIE(slurL)) return FALSE;
-	
-	right = TRUE; left = FALSE;
-	lastIsSys = firstIsMeas = FALSE;
-	
-	FixAccsForNoTie(doc, slurL);
-	
-	/* Clear tiedL/tiedR flags of notes for this slur. */
-	
-	firstSyncL = SlurFIRSTSYNC(slurL);
-	if (MeasureTYPE(firstSyncL))
-		firstIsMeas = TRUE;
-	else
-		FixSyncForSlur(firstSyncL, SlurVOICE(slurL), TRUE, right);
-		
-	lastSyncL = SlurLASTSYNC(slurL);
-	if (SystemTYPE(lastSyncL))
-		lastIsSys = TRUE;
-	else
-		FixSyncForSlur(lastSyncL, SlurVOICE(slurL), TRUE, left);
-		
-	/* If cross-system, clear tiedL/tiedR flags of notes for slur's other piece. */
-
-	if (firstIsMeas) {
-		otherSlur = XSysSlurMatch(slurL);
-		lastSyncL = SlurLASTSYNC(otherSlur);
-		if (SystemTYPE(lastSyncL)) {
-			firstSyncL = SlurFIRSTSYNC(otherSlur);
-			FixSyncForSlur(firstSyncL, SlurVOICE(slurL), TRUE, right);
-		}
-	}
-	
-	if (lastIsSys) {
-		otherSlur = XSysSlurMatch(slurL);
-		firstSyncL = SlurFIRSTSYNC(otherSlur);
-		if (MeasureTYPE(firstSyncL)) {
-			lastSyncL = SlurLASTSYNC(otherSlur);
-			FixSyncForSlur(lastSyncL, SlurVOICE(slurL), TRUE, left);
-		}
-	}
-	
-	if (firstIsMeas || lastIsSys) 
-		InvalMeasure(otherSlur, SlurSTAFF(otherSlur));
-
-	/* Finally, delete the slur object(s). */
-	
-	DeleteNode(doc, slurL);
-	if ((firstIsMeas || lastIsSys) && otherSlur)
-		DeleteNode(doc, otherSlur);
-	
-	return TRUE;
 }

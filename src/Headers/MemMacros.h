@@ -1,6 +1,6 @@
 /***************************************************************************
 *	FILE:	MemMacros.h
-*	PROJ:	Nightingale, rev. for v.2000 with macros for OMRAS MemMacroizing
+*	PROJ:	Nightingale
 *	DESC:	#defines for object/heap memory management
 ***************************************************************************/
 
@@ -36,19 +36,19 @@
  
 /*
  *	LinkToPtr(heap,link) delivers the address of the 0'th byte of the link'th
- *	object kept in a given heap.  This address is determined without typing
- *	information by using the heap's own idea of how large the object is in bytes.
+ *	object kept in a given heap.  This address is determined without type information
+ *	by using the heap's own idea of how large the object is in bytes. The pointer
  *	The pointer so delivered is only valid as long as the heap block doesn't get
- *	relocated! This is a generic macro that should be avoided whenever it's
- *	possible to use one of the ones below. N.B. For space and time efficiency
- *	reasons, we now use an equivalent function, located in Heaps.c; we use an
- *	identical macro with its name slightly changed in the THINK Debugger. See the
- *	end of this file.
+ *	relocated! This is a generic macro that should be avoided whenever it's possible
+ *	to use one of the ones below. NB: For space and time efficiency reasons, we now
+ *	use an equivalent function, located in Heaps.c. Long ago, we used an identical
+ *	macro with its name slightly changed in the THINK Debugger. (I don't know if
+ *	it'd be useful with a modern debugger. --DAB, Feb. 2017) See the end of this file.
  *
  *	PtrToLink(heap, ptr) delivers the LINK into a heap that a given pointer to an
  *	object corresponds to.  Since this is done generically, there's no reasonable
- *	way to avoid the divide (unless you know that heap->objSize is a power of 2);
- *	however, it rarely needs to be used--in fact, in Nightingale 1.0 thru 2.01 (at
+ *	way to avoid the divide (unless you know that heap->objSize is a power of 2).
+ *	However, it rarely needs to be used--in fact, in Nightingale 1.0 thru 5.7 (at
  *	least), it's not used at all.
  */
 
@@ -607,7 +607,7 @@
  *	basic macros that call it. This was useful long ago because the THINK C Debugger
  *	refused to evaluate expressions that call the LinkToPtr function because it didn't
  *	know there are no possible side effects; I doubt it's useful these days, but we'll
- *	them for now.  --DAB, Feb. 2017
+ *	keep them for now.  --DAB, Feb. 2017
  */
 
 #define _LinkToPtr(heap,link)	( ((char *)(*(heap)->block)) + ((heap)->objSize*(unsigned long)(link)) )
