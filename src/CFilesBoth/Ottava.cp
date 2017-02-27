@@ -565,7 +565,7 @@ PushLock(OBJheap);
 	firstxd = dLeft+LinkXD(firstSyncL);
 	lastxd = dLeft+LinkXD(lastSyncL);
 	if (firstMeas!=lastMeas) lastxd += LinkXD(lastMeas)-LinkXD(firstMeas);
-	yCutoffLen = (p->noCutoff? 0 : OCT_CUTOFFLEN(lnSpace));
+	yCutoffLen = (p->noCutoff? 0 : OTTAVA_CUTOFFLEN(lnSpace));
 
 	number = GetOctTypeNum(pL, &bassa);
 
@@ -1204,10 +1204,10 @@ void DrawOctBracket(
 		case toPostScript:
 			lnSpace = LNSPACE(pContext);
 			PS_HDashedLine(firstPt.h+p2d(octWidth+XFUDGE), firstPt.v, lastPt.h,
-								OCT_THICK(lnSpace), pt2d(4));
+								OTTAVA_THICK(lnSpace), pt2d(4));
 			if (yCutoffLen!=0) PS_Line(lastPt.h, firstPt.v, lastPt.h,
 										firstPt.v+(bassa ? -yCutoffLen : yCutoffLen),
-										OCT_THICK(lnSpace));
+										OTTAVA_THICK(lnSpace));
 			return;
 		default:
 			;

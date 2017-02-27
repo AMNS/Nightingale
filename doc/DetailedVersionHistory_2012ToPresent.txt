@@ -1196,7 +1196,7 @@ Dragging.h, Slurs.h; DragUtils, Slurs.
 Minor cleanup, mostly of dragging-related files. Affects MemMacros.h; Dragging,
 DragSet, DragUtils, Slurs.
 
--------------------------------------------------------------------------------
+===============================================================================
 
 22-26 Feb.
 
@@ -1211,4 +1211,16 @@ DrawNRGR, Ottava.
 Avoid possible uninitialized variables. Affects Menu, MIDIFSave.
 
 Minor cleanup. DebugUtils.h; DebugUtils, InstrDialog, Menu, MIDIFSave.
+
+-------------------------------------------------------------------------------
+
+27 Feb.
+
+For consistency, rename defs.h and style.h to Defs.h and Style.h.
+
+Make the "This file uses nn font(s) that aren't available in bit form..." alert
+wider. Affects .rsrc.
+
+Reorganize Style.h; rename some #defines for consistency. Affects Style.h; Dragging,
+Ottava.
 

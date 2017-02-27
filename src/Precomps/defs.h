@@ -1,4 +1,4 @@
-/* defs.h for Nightingale - general global #defines and enums. Limits are in NLimits.h.
+/* Defs.h for Nightingale - general global #defines and enums. Limits are in NLimits.h.
 Some other #defines, dependent on _VERSION, are in versionStrings. */
 
 /* ----------------------------------------------------- Miscellaneous global enums -- */

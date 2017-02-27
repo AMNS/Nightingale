@@ -1302,7 +1302,7 @@ PushLock(OBJheap);
 		lastxd += LinkXD(lastMeas)-LinkXD(firstMeas);
 
 	lnSpace = LNSPACE(pContext);
-	yCutoffLen = OCT_CUTOFFLEN(lnSpace);
+	yCutoffLen = OTTAVA_CUTOFFLEN(lnSpace);
 	mRect = SDGetMeasRect(doc, pL, measL);
 	
 	aNoteL = FirstSubLINK(firstSyncL);
