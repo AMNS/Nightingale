@@ -44,8 +44,8 @@ Here is a complete correct entry. N.B., all on one line!
  
 Either 'n' or <space> can be used for natural.
  
-N.B.: It appears that if the MIDI note no. and the note/accidental disagree,
-MIDI note no. 0 and C-natural are used instead--not good. */
+FIXME: It appears that if the MIDI note no. and the note/accidental disagree,
+MIDI note no. 0 and C-natural are used instead--not good! */
  
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -56,22 +56,22 @@ MIDI note no. 0 and C-natural are used instead--not good. */
 
 /* Local Prototypes */
 
-static char * 				strcut(char *, char *, short);
-static rangeHandle			ReadInstr(ListHandle, short, short);
-static pascal Boolean		TheFilter(DialogPtr, EventRecord *, short *);
-static pascal Boolean		TheCMPMFilter(DialogPtr, EventRecord *, short *);
-static Boolean 				GetInstr(rangeHandle, char *);
-static Boolean				MpCheck(PARTINFO *);
-static void 				NoteErase(short, char, char, Boolean);
-static void 				NoteDraw(short, char, char, Boolean);
-static void					DrawTranspChar(Boolean, short);
-static void 				DrawStaves(void);
-static void 				DrawNoteNames(Boolean);
-static void 				InitRange(rangeMaster *);
-static void 				ShowInit(rangeMaster *);
-static void 				InstrMoveRange(struct range *, short, short);
-static void					ShowLSelect(DialogPtr, short);
-static void 				ClickEraseRange(void);
+static char * 			strcut(char *, char *, short);
+static rangeHandle		ReadInstr(ListHandle, short, short);
+static pascal Boolean	TheFilter(DialogPtr, EventRecord *, short *);
+static pascal Boolean	TheCMPMFilter(DialogPtr, EventRecord *, short *);
+static Boolean 			GetInstr(rangeHandle, char *);
+static Boolean			MpCheck(PARTINFO *);
+static void 			NoteErase(short, char, char, Boolean);
+static void 			NoteDraw(short, char, char, Boolean);
+static void				DrawTranspChar(Boolean, short);
+static void 			DrawStaves(void);
+static void 			DrawNoteNames(Boolean);
+static void 			InitRange(rangeMaster *);
+static void 			ShowInit(rangeMaster *);
+static void 			InstrMoveRange(struct range *, short, short);
+static void				ShowLSelect(DialogPtr, short);
+static void 			ClickEraseRange(void);
 
 
 /* -------------------------- ( FORMERLY iDialogModal.c) -------------------------- */
@@ -101,8 +101,8 @@ static void 				ClickEraseRange(void);
 #define BTNON			1
 
 #define LIST_PARTS	20
-#define LIST_OFFSET	15
-#define ITEM_HEIGHT	16
+#define LIST_OFFSET	15					/* in pixels */
+#define ITEM_HEIGHT	16					/* in pixels */
 
 #define UP				1
 #define DOWN			-1
@@ -117,12 +117,12 @@ static struct radSet
 /* list struct */
 static struct instr_list
 {
-	Rect				instr_box;
+	Rect			instr_box;
 	ListHandle		instr_name;
-	Rect				d_rect;
-	short				num_instr;
+	Rect			d_rect;
+	short			num_instr;
 	ControlHandle	text_scroll;
-	short				last_one;
+	short			last_one;
 } I;
 
 static rangeHandle rangeHdl;
@@ -130,7 +130,7 @@ static rangeMaster master;
 struct scaleTblEnt *noteInfo[T_TRNS_B];
 static short sLeft, sTop;
 
-static Rect noteNameRect;					/* Valid in all cases, OMS or not */
+static Rect noteNameRect;				/* Valid in all cases, OMS or not */
 
 static unsigned long *origMPDevice;		/* can be either MIDIUniqueID, OMSUniqueID or fmsUniqueID */
 static Rect deviceMenuBox;
@@ -153,24 +153,23 @@ static rangeMaster dfault =
 
 // ---------------------------------------------------------------------------------
 
-const short 					kCMPopupID = 300;
+const short 				kCMPopupID = 300;
 
 static MenuHandle 			cmOutputMenuH;
-static UserPopUp				cmOutputPopup;
+static UserPopUp			cmOutputPopup;
 static MIDIUniqueIDVector 	*cmVecDevices;
 
-static Boolean ValidCMDeviceIndex(short idx) {
+static Boolean ValidCMDeviceIndex(short idx)
+{
 	return (idx >= 0 && idx <cmVecDevices->size());
 }
 
-static short GetCMDeviceIndex(MIDIUniqueID dev) {
-
+static short GetCMDeviceIndex(MIDIUniqueID dev)
+{
 	long j = 0;
 	
 	if (dev != NULL) {
-		
 		MIDIUniqueIDVector::iterator i = cmVecDevices->begin();
-		
 		for ( ; i!= cmVecDevices->end(); i++, j++) {
 			if (dev == (*i))
 				return j;
@@ -192,7 +191,6 @@ static MIDIUniqueID GetCMOutputDeviceID()
 
 static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MIDIUniqueID device, short item)
 {
-
 	Boolean popupOk = InitPopUp(dlog, p,
 								item,			/* Dialog item to set p->box from */
 								0,				/* Dialog item to set p->prompt from, or 0=set it empty */
@@ -214,7 +212,6 @@ static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MI
 
 	return p->menu;
 }
-
 
 
 // ---------------------------------------------------------------------------------
@@ -296,7 +293,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 	
 	/* Create the list */
 	I.instr_name = LNew(&I.instr_box, &list_rect, cell_size, 0, GetDialogWindow(theDialog),
-				FALSE, FALSE, FALSE, TRUE);
+						FALSE, FALSE, FALSE, TRUE);
 	if (I.instr_name==NULL) {
 		itemHit = 0;
 		goto broken;
@@ -312,7 +309,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 	 
 	if (ReadInstr(I.instr_name, I.num_instr, INSTR_STRS) == (rangeHandle)NULL) {
 		NoMoreMemory();
-		itemHit = 0;	/* forces return(0) */
+		itemHit = 0;		/* forces return(0) */
 		goto broken;
 	}
 
@@ -440,10 +437,10 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 				
 				case radCtrl+ctrlItem:				/* radio button was hit */
 					GetDialogItem(theDialog, radSet.nowOn, &theType,
-						&radHdl, &radBox);										/* get handle to button now on */
+						&radHdl, &radBox);								/* get handle to button now on */
 					SetControlValue((ControlHandle)radHdl, BTNOFF);		/* old button off */
 					SetControlValue((ControlHandle)itemHdl, BTNON);		/* new button on */
-					radSet.nowOn = itemHit;										/* update structure */
+					radSet.nowOn = itemHit;								/* update structure */
 					break;
 			}
 		} while (!dialogOver);
@@ -480,7 +477,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
 					GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
-					HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
+					HiliteControl((ControlHandle)hndl,0);		/* so OK btn doesn't stay hilited */
 					dialogOver = 0;
 					continue;									/* Loop back for correction */
 				}
@@ -503,7 +500,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 			}
 
 			gotValue = GetDlgWord(theDialog, V_BALANCE, &val);
-			if (gotValue && val >= -127 && val <= 127)				/* MAX_VELOCITY */
+			if (gotValue && val >= -127 && val <= 127)			/* MAX_VELOCITY */
 				mp->partVelocity = val;
 			else {
 				GetIndCString(strBuf, INSTRERRS_STRS, 6);		/* "Balance velocity must be between -127 and 127." */
@@ -516,7 +513,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 			}
 													
 			/*
-			 * copy modified range (top & bottom), transposition,
+			 * Copy modified range (top & bottom), transposition,
 			 * notename, accidental, instrument name and abbrv.
 			 */
 			 
@@ -608,11 +605,11 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, shor
 			mouseLoc = theEvent->where;
 			GlobalToLocal(&mouseLoc);
 			
-				/* If we've hit the OK or Cancel button, bypass the rest of the control stuff below. */
+			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
 			GetDialogItem (theDialog, OKBTN, &type, &hndl, &box);
-			if (PtInRect(mouseLoc, &box))	break;
+			if (PtInRect(mouseLoc, &box)) break;
 			GetDialogItem (theDialog, CANCELBTN, &type, &hndl, &box);
-			if (PtInRect(mouseLoc, &box))	break;
+			if (PtInRect(mouseLoc, &box)) break;
 
 			if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH != NULL) {
 				if (PtInRect(mouseLoc, &deviceMenuBox)) {
@@ -625,11 +622,9 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, shor
 
 			part = FindControl(mouseLoc, GetDialogWindow(theDialog), &cntrlHndl);
 						
-			if (part == kControlButtonPart)
-			{					
+			if (part == kControlButtonPart) {					
 				/* Code in "do" loop below needs this switch to set "range" local var. */
-				switch(radSet.nowOn)
-				{
+				switch(radSet.nowOn) {
 					case TOP_RAD:
 						range = TOP; break;
 					case TRANS_RAD:
@@ -643,17 +638,14 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, shor
 				GetDialogItem (theDialog, UPBTN, &type, &upBtnHdl, &upBox);
 				GetDialogItem (theDialog, DOWNBTN, &type, &dwnBtnHdl, &dwnBox);
 
-				do
-				{	
-					if (PtInRect(mouseLoc, &upBox))
-					{
+				do {	
+					if (PtInRect(mouseLoc, &upBox)) {
 						HiliteControl((ControlHandle)upBtnHdl, BTNON);
 						InstrMoveRange(&master.ttb[range], range, UP);
 						/* in case notes move too fast */
 						SleepTicks(4L);
 					}
-					else if (PtInRect(mouseLoc, &dwnBox))
-					{
+					else if (PtInRect(mouseLoc, &dwnBox)) {
 						HiliteControl((ControlHandle)dwnBtnHdl, BTNON);
 						InstrMoveRange(&master.ttb[range], range, DOWN);
 						/* in case notes move too fast */
@@ -663,17 +655,14 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, shor
 					/* Buttons get un-hilited automatically */
 			}
 					
-			if (part >= LIST_PARTS)
-			{
-				if (cntrlHndl == (*I.instr_name)->vScroll)
-				{
+			if (part >= LIST_PARTS) {
+				if (cntrlHndl == (*I.instr_name)->vScroll) {
 					/* we are in the list of instruments */
 					LClick(mouseLoc, theEvent->modifiers, I.instr_name);
 				}
 			}
 			
-			else if (PtInRect(mouseLoc, &(*I.instr_name)->rView))
-			{ 
+			else if (PtInRect(mouseLoc, &(*I.instr_name)->rView)) { 
 				LClick(mouseLoc, theEvent->modifiers, I.instr_name);
 				lSelection.h = lSelection.v = 0;
 				LGetSelect(TRUE, &lSelection, I.instr_name);
@@ -722,8 +711,7 @@ static void ShowLSelect(DialogPtr theDialog, short cell)
 	 
 	ClickEraseRange();
 	
-	for (r = 0; r < T_TRNS_B; r++)
-	{
+	for (r = 0; r < T_TRNS_B; r++) {
 		master.ttb[r].midiNote = selectedInstr->ttb[r].midiNote;
 		master.ttb[r].name = selectedInstr->ttb[r].name;
 		master.ttb[r].acc = selectedInstr->ttb[r].acc;
@@ -755,41 +743,41 @@ static void ShowLSelect(DialogPtr theDialog, short cell)
 
 
 #define HORIZONTAL			40
-#define NOTEHEAD				(char)MCH_quarterNoteHead
+#define NOTEHEAD			(char)MCH_quarterNoteHead
 #define MUSICFONT_SIZE		18			/* Music font size to use */
 #define ACCIDENTAL_OFFSET	6			/* pixels from acc H position to note H position */
 #define C_LINE_VPOS			99				
-#define TRANS_OFFSET			-15		/* horiz offset of transpose note from extrema */
+#define TRANS_OFFSET		-15			/* horiz offset of transpose note from extrema */
 
-#define STAVES					2
-#define LINES					5
-#define V_SPACE 				5
+#define STAVES				2
+#define LINES				5
+#define V_SPACE 			5
 #define NOTE_SPACE			5			/* pixels between staff lines */
 
 #define TOP_LEDGER			4			/* vertical */
-#define LEDGERTOPMAX			14
+#define LEDGERTOPMAX		14
 #define TOP_TRANS_LEDGER	7			/* number of ledger lines above staff for transpose */
-#define MAX_TRANS_MIDI		103		/* corresponding max MIDI note num for transpose */
-#define BOT_LEDGER			129		/* vertical */
-#define LEDGERBOTMAX			12
+#define MAX_TRANS_MIDI		103			/* corresponding max MIDI note num for transpose */
+#define BOT_LEDGER			129			/* vertical */
+#define LEDGERBOTMAX		12
 #define BOT_TRANS_LEDGER	7			/* number of ledger lines below staff for transpose */
 #define MIN_TRANS_MIDI		17			/* corresponding min MIDI note num for transpose */
-#define START					74			/* vertical */
+#define START				74			/* vertical */
 #define STAFF_START			3			/* horizontal */
-#define STAFF_END				65
+#define STAFF_END			65
 #define LEDG_RANGE_STRT		45
 #define LEDG_TRANS_STRT		30
 #define LEDGER_WID			7
 #define CLEF_START			6
-#define TREB_V					93	
-#define BASS_V					124		/* vertical */
-#define TREB_CLEF				'&'
-#define BASS_CLEF				'?'
+#define TREB_V				93	
+#define BASS_V				124			/* vertical */
+#define TREB_CLEF			'&'
+#define BASS_CLEF			'?'
 
 #define TRANS_NOT_WID		6			/* dimensions of transpose 'note' */
-#define TRANS_NOT_HT			5
+#define TRANS_NOT_HT		5
 
-#define MIN_RANGE				3			/* minimum range in semitones */
+#define MIN_RANGE			3			/* minimum range in semitones */
 
 static void DrawStaves()
 {
@@ -801,8 +789,7 @@ static void DrawStaves()
 	
 	/* ledger lines above */
 	for (line = 0, yStart = sTop+TOP_LEDGER; line < LEDGERTOPMAX;
-							line++, yStart += NOTE_SPACE)
-	{
+							line++, yStart += NOTE_SPACE) {
 		if (line >= LEDGERTOPMAX - TOP_TRANS_LEDGER) {
 			MoveTo(sLeft+LEDG_TRANS_STRT, yStart);
 			LineTo(sLeft+LEDG_TRANS_STRT+LEDGER_WID, yStart);
@@ -812,10 +799,8 @@ static void DrawStaves()
 	}
 	
 	/* staves, clefs, and "system connect" */
-	for (staff = 0, yStart = sTop+START; staff < STAVES; staff++, yStart += V_SPACE)
-	{
-		for (line = 0; line < LINES; line++, yStart += NOTE_SPACE)
-		{
+	for (staff = 0, yStart = sTop+START; staff < STAVES; staff++, yStart += V_SPACE) {
+		for (line = 0; line < LINES; line++, yStart += NOTE_SPACE) {
 			MoveTo(sLeft+STAFF_START, yStart);
 			LineTo(sLeft+STAFF_END, yStart); 
 		}
@@ -840,8 +825,7 @@ static void DrawStaves()
 
 	/* ledger lines below */
 	for (line = 0, yStart = sTop+BOT_LEDGER; line < LEDGERBOTMAX;
-							line++, yStart += NOTE_SPACE)
-	{
+							line++, yStart += NOTE_SPACE) {
 		if (line < BOT_TRANS_LEDGER) {
 			MoveTo(sLeft+LEDG_TRANS_STRT, yStart);
 			LineTo(sLeft+LEDG_TRANS_STRT+LEDGER_WID, yStart); 
@@ -853,10 +837,10 @@ static void DrawStaves()
 
 
 static void InstrMoveRange(
-							struct range *t,	/* where we find current range */	
-							short i,				/* index into noteInfo[] */
-							short direction	/* up == 1, down == -1 */
-							)
+				struct range *t,	/* where we find current range */	
+				short i,			/* index into noteInfo[] */
+				short direction		/* up == 1, down == -1 */
+				)
 {
 
 	extern struct scaleTblEnt scaleTbl[];
@@ -879,16 +863,18 @@ static void InstrMoveRange(
 
 	if (radSet.nowOn == TOP_RAD) {				/* prevent overlap */
 		if ((t->midiNote == master.ttb[BOT].midiNote + MIN_RANGE)
-														&& direction == DOWN) return; }
+										&& direction == DOWN) return;
+	}
 	if (radSet.nowOn == BOT_RAD) {
 		if ((t->midiNote == master.ttb[TOP].midiNote - MIN_RANGE)
-														&& direction == UP) return; }
+										&& direction == UP) return;
+	}
 	TextFont(sonataFontNum);
 	TextSize(MUSICFONT_SIZE);
 	
 	oldPtr = noteInfo[i];
 	
-	/* erase only the currently active note to avoid flashing */
+	/* Erase only the currently active note to avoid flashing */
 	switch (radSet.nowOn) {
 		case TOP_RAD:
 			m = TOP; break;
@@ -901,19 +887,18 @@ static void InstrMoveRange(
 	NoteErase(octTbl[oct] + noteInfo[m]->v_pos, NOTEHEAD, noteInfo[m]->n.acc,
 		(m == TRANS ? TRUE : FALSE) );	/* last param for offsetting transpose note from extrema */
 	
-	/* we are moving an external pointer here! */ 
+	/* We are moving an external pointer here! */ 
 	noteInfo[i] += direction; 							/* here is where we move! */
 	
-	/* if needed, wrap newPtr around in scaleTbl regardless of direction */
-	/* we are moving an external pointer here! */
+	/* If needed, wrap newPtr around in scaleTbl regardless of direction */
+	/* We are moving an external pointer here! */
 	 
 	if (noteInfo[i] < scaleTbl)
 		noteInfo[i] = &scaleTbl[MAXSCALE];
 	else if (noteInfo[i] > &scaleTbl[MAXSCALE])
 		noteInfo[i] = scaleTbl;
 	
-	if (oldPtr->n.midiNote != noteInfo[i]->n.midiNote)
-	{
+	if (oldPtr->n.midiNote != noteInfo[i]->n.midiNote) {
 		t->midiNote += direction;			/* new MIDI note in master struct */
 	}
 	/* name and acc may change even if MIDI note does not! */
@@ -922,14 +907,13 @@ static void InstrMoveRange(
 	 
 	DrawStaves();
 		
-	/* draw all */
-	for (m = 0; m < T_TRNS_B; m++)
-	{
+	/* Draw all */
+	for (m = 0; m < T_TRNS_B; m++) {
 		oct = master.ttb[m].midiNote / TWELVE;	
 		NoteDraw(octTbl[oct] + noteInfo[m]->v_pos, NOTEHEAD, noteInfo[m]->n.acc,
 			(m == TRANS ? TRUE : FALSE) );	/* last param for offsetting transpose note from extrema */
 	}
-	DrawNoteNames(FALSE);		/* update name and accidental for current note only */
+	DrawNoteNames(FALSE);					/* update name and accidental for current note only */
 	
 }
 
@@ -946,8 +930,7 @@ static void ClickEraseRange()
 	TextSize(MUSICFONT_SIZE);	
 	
 	/* erase all */
-	for (m = 0; m < T_TRNS_B; m++)
-	{
+	for (m = 0; m < T_TRNS_B; m++) {
 		oct = master.ttb[m].midiNote / TWELVE;
 		NoteErase(octTbl[oct] + noteInfo[m]->v_pos, NOTEHEAD, noteInfo[m]->n.acc,
 			(m == TRANS ? TRUE : FALSE));	/* last param is kludge to offset transp from extrema */
@@ -957,11 +940,11 @@ static void ClickEraseRange()
 
 
 static void NoteDraw(
-					short v,
-					char /*noteChar*/,			/* ignored for now */
-					char accChar,
-					Boolean isTrans		/* for horiz. offsetting transpose note from extrema */
-					)
+				short v,
+				char /*noteChar*/,	/* ignored for now */
+				char accChar,
+				Boolean isTrans		/* for horiz. offsetting transpose note from extrema */
+				)
 {
 	short h_pos;
 	
@@ -978,11 +961,11 @@ static void NoteDraw(
 
 
 void NoteErase(
-				short v,
-				char /*noteChar*/,		/* ignored for now */
-				char accChar,
-				Boolean isTrans		/* for horiz. offsetting transpose note from extrema */
-				)
+			short v,
+			char /*noteChar*/,		/* ignored for now */
+			char accChar,
+			Boolean isTrans		/* for horiz. offsetting transpose note from extrema */
+			)
 {
 	short h_pos;
 	
@@ -1021,8 +1004,7 @@ static void ShowInit(rangeMaster *M)
 	TextFont(sonataFontNum);
 	TextSize(MUSICFONT_SIZE);
 	
-	for (i = 0; i < T_TRNS_B; i++)
-	{
+	for (i = 0; i < T_TRNS_B; i++) {
 		oct = M->ttb[i].midiNote / TWELVE;	
 		NoteDraw(octTbl[oct] + noteInfo[i]->v_pos, NOTEHEAD,
 				noteInfo[i]->n.acc, (i==TRANS ? TRUE : FALSE));	/* last param is kludge to offset trans from extrema */
@@ -1042,11 +1024,10 @@ static void ShowInit(rangeMaster *M)
 static void DrawNoteNames(
 					Boolean drawAll)		/* If false, draw only currently moving note. */
 {
-	
 	extern struct scaleTblEnt *noteInfo[3];
 	extern rangeMaster master;
 	static char acc[T_TRNS_B];		/* holds current accidentals */
-	static char name[T_TRNS_B];	/* holds current note names */
+	static char name[T_TRNS_B];		/* holds current note names */
 	short i;
 	long trans;
 	static char tranStr[20];
@@ -1063,7 +1044,7 @@ static void DrawNoteNames(
 	/*
 	 * This function repeatedly switches between the music font (for accidentals) and
 	 *	the system font (for note names). It also repeatedly switches between drawing
-	 *	in "BIC" mode (for erasing) and "OR" mode (for actual drawing.)
+	 *	in "BIC" mode (for erasing) and "OR" mode (for actual drawing).
 	 */
 	 
 	/* Erase old accidentals, if necessary. */
@@ -1141,6 +1122,7 @@ short octTbl[MAXOCT+1] = {	185,
 							 30, /* -17= */ 
 							 13, /* -18= */
 						 	 -5	};
+
 /*
  *	This table lets us keep track of only one octave (and simple enharmonics:
  * sorry harpists, no Cb!) as midinote, name, accidental, and vertical 
@@ -1225,9 +1207,9 @@ static rangeHandle ReadInstr(
 		StopInform(GENERIC_ALRT);
 	}
 	
-	*rangeHdl = tmpRngPtr;								/* restore master pointer to start of array */
+	*rangeHdl = tmpRngPtr;							/* restore master pointer to start of array */
 	
-	HUnlock((Handle)rangeHdl);							/* unlock it */
+	HUnlock((Handle)rangeHdl);						/* unlock it */
 	
 	/*
 	 * No List item selected at first unless this is turned on...Don says no.
@@ -1282,8 +1264,7 @@ static Boolean GetInstr(rangeHandle rHdl, char *strPtr)
 	else
 		return(FALSE);	
 	
-	for (i = TOP; i <= BOT; i++)
-	{
+	for (i = TOP; i <= BOT; i++) {
 		/* range */
 		if ((strPtr = strcut(tmp_str, strPtr, RSIZE)) != NULL)	
 			/* FIXME: With improper input, atoi can crash. We should use strtol instead. */
@@ -1300,7 +1281,8 @@ static Boolean GetInstr(rangeHandle rHdl, char *strPtr)
 		/* accidental */
 		if ((strPtr = strcut(tmp_str, strPtr, 1)) != NULL)	{
 			if (tmp_str[0] == 'n') tmp_str[0] = ' ';	/* substitute <space> for 'n' (natural) */
-			(*rHdl)->ttb[i].acc = tmp_str[0]; }
+			(*rHdl)->ttb[i].acc = tmp_str[0];
+		}
 		else
 			return(FALSE);
 	}
@@ -1345,16 +1327,13 @@ char *strcut(char *r,			/* ptr to temp buffer where data will go */
 	if (s == NULL || r == NULL 
 		|| *s == (char)NULL || size <= 0 || size >= STRBUF_SIZE)
 		return(NULL);
-	else
-	{
+	else {
 		/* 
 		 * check for max size, NULL byte, separation char, and if ok, copy to temp buf.
 		 */
 		 
-		while (i++ <= size)
-		{
-		 	switch(*s)
-		 	{
+		while (i++ <= size) {
+		 	switch(*s) {
 		 		case SEPARATOR:
 		 		
 		 		/* mark end of temp buf and return ptr
@@ -1424,16 +1403,14 @@ void InitRange(
 	 * number limits.
 	 */
  	 
-	for (r = 0; r < T_TRNS_B; r++)
-	{
+	for (r = 0; r < T_TRNS_B; r++) {
 		useDefault = FALSE;
 		if (r==TRANS && (M->ttb[r].midiNote > MAX_TRANS_MIDI ||
                         M->ttb[r].midiNote < MIN_TRANS_MIDI))
 			useDefault = TRUE;
 		else if (M->ttb[r].midiNote > MAXMIDI || M->ttb[r].midiNote < MINMIDI)
 			useDefault = TRUE;
-		else            /* MIGHT be sane...keep checking! */
-		{	
+		else {										/* MIGHT be sane...keep checking! */
 			/*
 			 * We want to see if the noteName and accidental are valid too...
 			 * find an index into scaleTbl (assign to noteInfo[r]) for matching name, 
@@ -1442,18 +1419,16 @@ void InitRange(
 			 */
 			 pc =  M->ttb[r].midiNote % TWELVE;
 			 savedp = noteInfo[r];
-			 for (i = 0, found = FALSE; i <= MAXSCALE && found != TRUE; i++)
-			 {
+			 for (i = 0, found = FALSE; i <= MAXSCALE && found != TRUE; i++) {
 			 	if (M->ttb[r].name == noteInfo[r]->n.name 
 			 		 && pc == noteInfo[r]->n.midiNote
 			 	    && M->ttb[r].acc == noteInfo[r]->n.acc )
-			 		found = TRUE;							/* leave loop */
+			 		found = TRUE;						/* leave loop */
 			 	else
-			 		noteInfo[r]++;							/* try next scaleTbl[] entry */
+			 		noteInfo[r]++;						/* try next scaleTbl[] entry */
 			 }
 			 /* sanity check */
-			 if (!found)									/* can't match name and acc with pc */
-			 {
+			 if (!found) {								/* can't match name and acc with pc */
 			 	noteInfo[r] = savedp;
 			 	useDefault = TRUE;
 			 }
@@ -1497,7 +1472,7 @@ Boolean MpCheck(PARTINFO *p)
 			&& p->patchNum>=minPatchNum
 			&& p->partVelocity<=MAX_VELOCITY
 			&& p->partVelocity>=-127 )
-			return TRUE;	/* OK to use this data */
+			return TRUE;							/* OK to use this data */
 	}
 	return FALSE;
 }
@@ -1506,15 +1481,15 @@ Boolean MpCheck(PARTINFO *p)
 /* --------------------------------------------------------------- PartMIDIDialog -- */
 
 /* Dialog item numbers */
-#define PM_INSTRNAME		5
-#define PM_INSTRABRV		7
+#define PM_INSTRNAME	5
+#define PM_INSTRABRV	7
 #define PM_CHANNEL		8
-#define PM_PATCH			9
-#define PM_V_BALANCE		10
+#define PM_PATCH		9
+#define PM_V_BALANCE	10
 #define PM_DEVICE_OMS	16
-#define PM_DEVICE_CM		16
+#define PM_DEVICE_CM	16
 
-#define PM_PATCH_FMS		8		/* For FreeMIDI dlog, these used instead of */
+#define PM_PATCH_FMS	8		/* For FreeMIDI dlog, these used instead of */
 #define PM_DEVICE_FMS	9		/* PM_CHANNEL, PM_PATCH, and PM_DEVICE_OMS */
 
 #define PM_ALLPARTS		17
@@ -1528,15 +1503,15 @@ Boolean CMPartMIDIDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice, Bo
 
 Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 {
-	Str255		str, deviceStr;
+	Str255			str, deviceStr;
 	char			fmtStr[256];
-	DialogPtr	theDialog;
-	GrafPtr		oldPort;
-	Handle		hndl;
+	DialogPtr		theDialog;
+	GrafPtr			oldPort;
+	Handle			hndl;
 	Rect			itemBox;
 	short			itemHit, theType, val;
 	short			dialogOver;
-	Boolean		gotValue;
+	Boolean			gotValue;
 	short			scratch;
 	ModalFilterUPP	filterUPP;
 	
@@ -1606,7 +1581,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 		}
 	}
 	else {
-		GetIndCString(strBuf, INSTRERRS_STRS, 1);					/* "Illegal instrument description; will use default." */
+		GetIndCString(strBuf, INSTRERRS_STRS, 1);				/* "Illegal instrument description; will use default." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		master = dfault;
@@ -1650,7 +1625,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 	while (dialogOver==0) {
 		do {	
 			ModalDialog(filterUPP, &itemHit);
-			if (itemHit<1) continue;									/* in case returned by filter */
+			if (itemHit<1) continue;								/* in case returned by filter */
 			switch (itemHit) {
 				case OKBTN:
 				case CANCELBTN:
@@ -1675,13 +1650,13 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 					master.validDeviceChannel = 1;
 				}
 				else {
-					GetIndCString(strBuf, INSTRERRS_STRS, 8);    	/* "Channel number and device are inconsistant" */
+					GetIndCString(strBuf, INSTRERRS_STRS, 8);    /* "Channel number and device are inconsistant" */
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
 					GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
-					HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
+					HiliteControl((ControlHandle)hndl,0);		/* so OK btn doesn't stay hilited */
 					dialogOver = 0;
-					continue;										/* Loop back for correction */
+					continue;									/* Loop back for correction */
 				}					
 			}
 			else {
@@ -1694,9 +1669,9 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
 					GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
-					HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
+					HiliteControl((ControlHandle)hndl,0);		/* so OK btn doesn't stay hilited */
 					dialogOver = 0;
-					continue;										/* Loop back for correction */
+					continue;									/* Loop back for correction */
 				}
 			}
 			
@@ -1735,7 +1710,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 					GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
 					HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
 					dialogOver = 0;
-					continue;												/* Loop back for correction */
+					continue;										/* Loop back for correction */
 				}					
 			}
 			
@@ -1756,8 +1731,7 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 		}
 	}		/* while (dialogOver==0) */
 
-	if (useWhichMIDI==MIDIDR_CM)
-	{
+	if (useWhichMIDI==MIDIDR_CM) {
 		if (master.validDeviceChannel && master.changedDeviceChannel) {
 			/* Ask user if they want to save the entered device/channel/patch as default
 			 * for instrument, or... could add a new instrument type (need more flags
@@ -1790,11 +1764,9 @@ pascal Boolean TheOMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 	Handle		hndl;
 	Rect		box;
 	
-	switch(theEvent->what)
-	{
+	switch(theEvent->what) {
 		case updateEvt:
-			if ((WindowPtr)theEvent->message == GetDialogWindow(theDialog))
-			{
+			if ((WindowPtr)theEvent->message == GetDialogWindow(theDialog)) {
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(theDialog));
 				BeginUpdate(GetDialogWindow(theDialog));	
 				UpdateDialogVisRgn(theDialog);			
@@ -1812,9 +1784,9 @@ pascal Boolean TheOMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 			
 				/* If we've hit the OK or Cancel button, bypass the rest of the control stuff below. */
 			GetDialogItem(theDialog, OKBTN, &type, &hndl, &box);
-			if (PtInRect(mouseLoc, &box))	break;
+			if (PtInRect(mouseLoc, &box)) break;
 			GetDialogItem(theDialog, CANCELBTN, &type, &hndl, &box);
-			if (PtInRect(mouseLoc, &box))	break;
+			if (PtInRect(mouseLoc, &box)) break;
 
 		case autoKey:
 		case keyDown:
@@ -1842,8 +1814,7 @@ pascal Boolean TheCMPMFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 	switch(theEvent->what)
 	{
 		case updateEvt:
-			if ((WindowPtr)theEvent->message == GetDialogWindow(theDialog))
-			{
+			if ((WindowPtr)theEvent->message == GetDialogWindow(theDialog)) {
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(theDialog));
 				BeginUpdate(GetDialogWindow(theDialog));	
 				UpdateDialogVisRgn(theDialog);			

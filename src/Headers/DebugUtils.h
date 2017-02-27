@@ -42,14 +42,4 @@ Boolean QDP(char *fmtStr);
 
 #endif
 
-/* If we're looking at the Clipboard, Undo or Mstr Page, "flag" arg by adding a huge offset */
-#define FP(pL)	( abnormal ? 1000000L+(pL) : (pL) )
-
-/* Check whether a Rect is a valid 1st-quadrant rectangle with positive height
-(Nightingale uses rectangles of zero width for empty key signatures). */
-#define GARBAGE_Q1RECT(r)	(  (r).left>(r).right || (r).top>=(r).bottom		\
-									|| (r).left<0 || (r).right<0				\
-									|| (r).top<0 || (r).bottom<0)
-#define ZERODIM_RECT(r)		(  (r).left==(r).right || (r).top==(r).bottom	)
-
 

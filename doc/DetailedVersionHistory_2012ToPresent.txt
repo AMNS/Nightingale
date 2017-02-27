@@ -143,7 +143,7 @@ the MIDI Modifier Effects dialog slightly smaller. Affects .rsrc.
 
 12 - 16 Sept.
 
-Fix bug in MIDI file export where tempo changes after the first few are often ignored.
+Fix bug (Issue #24) in MIDI file export where tempo changes after the first few are often ignored.
 Affects MIDIPlay.cp: PlaySequence().
 
 MIDIPlay.cp: Change most instances of "Midi" in function names to "MIDI"; improve
@@ -184,7 +184,7 @@ Change version number from 5.4 to 5.5! Affects Info.plist.
 27 Sept. - 18 Oct.
 
 Add a "Mute Part" command to the Play/Rec menu; notes for the muted part will neither
-be played nor written to an exported MIDI file. Affects .rsrc; applicationTypes.h,
+be played nor written to an exported MIDI file. (Issue #26) Affects .rsrc; applicationTypes.h,
 MIDIGeneral.h, NightTemplates.h, NResourceID.h; Documents, Menu, MIDIDialogs, MIDIPlay,
 MIDIFSave, MIDIUtils, Part.
 
@@ -299,7 +299,7 @@ now shows "3 (pp)", not just "3". Affects Browser.
 On MIDI playback, if multiple notes are simultaneously playing the same note number on
 the same channel but end at different times, either hold the note till the last one ends
 or (via compile-time option) stop playing that note when the first one ends, as Ngale
-has always done. Affects MIDIUtils; MIDIGeneral.h.
+has always done. (Issue #30) Affects MIDIUtils; MIDIGeneral.h.
 
 -------------------------------------------------------------------------------
 
@@ -618,7 +618,7 @@ to _defaultTempoMM_. Affects ApplicationTypes.h, NTypes.h; Browser, Check, File,
 Initialize, Insert, InsNew, MIDIFOpen, MIDIFSave, MIDIRecord, MIDIUtils, NotelistParse.
 
 Add to tempo/metronome mark dialog an option to have no M.M., so it has no effect on
-playback timing. Affects MemMacros.h; Browser, Check, DialogsEditor, Dragging,
+playback timing. (Issue #84) Affects MemMacros.h; Browser, Check, DialogsEditor, Dragging,
 DrawObject, InsNew, MIDIPlay, MIDIRecord, MIDIFSave, MIDIUtils, .rsrc.
 
 Increase minimum legal tempo from 1 to 10 BPM. Affects DialogsEditor.
@@ -888,7 +888,7 @@ Minor cleanup. Affects NightTemplates.h; Initialize, InitNightingale, Insert, Tu
 Changed version number from 5.7b5 to 5.7b6. Affects Info.plist.
 
 Implement "nudging" a selected symbol -- note(s)/rest(s), text Graphic, dynamic,
-or tempo/metronome mark -- via command-arrow keys. Affects Event.
+or tempo/metronome mark -- via command-arrow keys. Affects Event. (Issue #119)
 
 Clarify labels and minor cleanup in Get Info dialogs. Affects .rsrc; InfoDialog.
 
@@ -1066,9 +1066,9 @@ Minor cleanup. Affects Debug2Utils, Event, MIDIFSave.
 
 10 Jan.
 
-Fix bug: Changing a measure rest to a multibar rest, changing the no. of measures in a
-multibar rest, etc. should update measure numbers for the remainder of the score, but
-they rarely (if ever) do. Affects InfoDialog.
+Fix bug (Issue #124): Changing a measure rest to a multibar rest, changing the no. of
+measures in a multibar rest, etc. should update measure numbers for the remainder of the
+score, but they rarely (if ever) do. Affects InfoDialog.
 
 Minor cleanup. Affects DSUtils, InfoDialog, InsNew, InsUtils, Search.
 
@@ -1195,3 +1195,20 @@ Dragging.h, Slurs.h; DragUtils, Slurs.
 
 Minor cleanup, mostly of dragging-related files. Affects MemMacros.h; Dragging,
 DragSet, DragUtils, Slurs.
+
+-------------------------------------------------------------------------------
+
+22-26 Feb.
+
+Changed version number from 5.7b9 to 5.7b10. Affects Info.plist.
+
+Change the default value of config.minMemory from 1 to 200. Not that it matters anymore.
+Affects Initialize.
+
+Move #defines for notation style into styles.h. Affects DebugUtils.h; ChordSym,
+DrawNRGR, Ottava.
+
+Avoid possible uninitialized variables. Affects Menu, MIDIFSave.
+
+Minor cleanup. DebugUtils.h; DebugUtils, InstrDialog, Menu, MIDIFSave.
+

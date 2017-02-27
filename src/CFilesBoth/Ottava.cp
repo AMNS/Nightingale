@@ -146,15 +146,6 @@ static DDIST GetNoteyd(LINK syncL,
 }
 
 
-#define OTTAVA_XDPOS_FIRST -pt2d(2)		/* Default x-position of left end rel. to first Sync */
-#define OTTAVA_XDPOS_LAST (pt2d(1)/2)	/* Default x-position of right end rel. to first Sync */
-
-#define OTTAVA_STANDOFF_ALTA 1			/* Minimum half-line distance from octave sign to staff */
-#define OTTAVA_STANDOFF_BASSA 2
-
-#define OTTAVA_MARGIN_ALTA	3			/* Default half-line distance from octave sign to note */
-#define OTTAVA_MARGIN_BASSA	5
-
 #define OTTAVA_BRACKET_ALTA_LIM(yd)		((yd)>octAltaYLim? octAltaYLim : (yd))
 #define OTTAVA_BRACKET_BASSA_LIM(yd)	((yd)<octBassaYLim? octBassaYLim : (yd))
 

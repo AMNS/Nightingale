@@ -839,17 +839,7 @@ static void DrawNoteheadGraph(Document *doc,
 #endif
 }
 
-/* ---------------------------------------------------------------------- DrawNote -- */
-
-/* Adjust <width> for given WIDEHEAD code. NB: watch out for integer overflow! */
-#define WIDEHEAD_VALUE(whCode, width) (whCode==2? 160*(width)/100 : \
-													(whCode==1? 135*(width)/100 : (width)) )
-
-/* If this shape of notehead is wider or narrow than normal and note is upstemmed,
-move it left or right so its right edge touches the stem. */
-
-#define XD_GLYPH_ADJ(stemDn, headRSize)		\
-	(!stemDn? ((headRSize-100L)*HeadWidth(lnSpace))/100L : 0L)
+/* ----------------------------------------------------------------------- DrawNote -- */
 
 void DrawNote(Document *doc,
 				LINK	pL,				/* Sync note belongs to */
@@ -930,7 +920,7 @@ PushLock(NOTEheap);
 
 /* FIXME: Instead of <WIDEHEAD> & <IS_WIDEREST>, we should use smthg like CharRect of
 the glyph to get the headwidth! the same goes for DrawMODNR and DrawRest. */
-	ledgerSizePct = WIDEHEAD_VALUE(WIDEHEAD(noteType), sizePercent);
+	ledgerSizePct = WIDENOTEHEAD_PCT(WIDEHEAD(noteType), sizePercent);
 
 	/* Suppress flags if the note is beamed. */
 	flagCount = (aNote->beamed? 0 : NFLAGS(noteType));
@@ -1241,7 +1231,7 @@ EndQDrawing:
 				 */
 				if (MainNote(aNoteL)) {
 					stemDown = (dStemLen>0);
-					xdAdj = (headRelSize==100? 0 : XD_GLYPH_ADJ(stemDown, headRelSize));
+					xdAdj = (headRelSize==100? 0 : NHEAD_XD_GLYPH_ADJ(stemDown, headRelSize));
 					PS_NoteStem(doc, (xd+xoff)-xdAdj, yd+yoff, xd+xoff, glyph, dStemLen, dStemShorten,
 										aNote->beamed, appearance!=NO_VIS, headSizePct);
 					if (flagCount) {
@@ -1349,7 +1339,7 @@ EndQDrawing:
 						bNote = GetPANOTE(bNoteL);
 						dStemLen = bNote->ystem - bNote->yd;
 						stemDown = (dStemLen>0);
-						xdAdj = XD_GLYPH_ADJ(stemDown, headRelSize);
+						xdAdj = NHEAD_XD_GLYPH_ADJ(stemDown, headRelSize);
 				 	}
 					PS_NoteStem(doc, (xd+xoff)-xdAdj, yd+yoff, xd+xoff, glyph, (DDIST)0, (DDIST)0, aNote->beamed,
 										appearance!=NO_VIS, headSizePct);
@@ -1869,8 +1859,6 @@ static void DrawGRNCLedgers(LINK syncL, PCONTEXT pContext, LINK aGRNoteL, DDIST 
 
 
 /* ------------------------------------------------------------------ DrawGRNote -- */
-
-#define GRNOTE_SLASH_YDELTA(len) (3*(len)/4)	/* "Height" of slash of length len */
 
 void DrawGRNote(Document *doc,
 						LINK pL,			/* GRSYNC grace note belongs to */

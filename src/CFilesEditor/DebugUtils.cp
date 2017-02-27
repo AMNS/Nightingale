@@ -333,13 +333,12 @@ Boolean DCheckMBBox(
 		}
 	}
 
-	/* _measureBBox_ and _sysRect_ are can be compared because both are in pixels
-	   relative to the top left corner of the page. */
+	/* _measureBBox_ and _sysRect_ can be compared because both are in pixels relative
+	   to the top left corner of the page. */
 	
 	UnionRect(&mBBox, &sysRect, &unRect);
-LogPrintf(LOG_DEBUG, "mBBox=%d %d %d %d, systemRect=%d %d %d %d\n",
-mBBox.top, mBBox.left, mBBox.bottom, mBBox.right,
-sysRect.top, sysRect.left, sysRect.bottom, sysRect.right);
+//LogPrintf(LOG_DEBUG, "mBBox=%d %d %d %d, systemRect=%d %d %d %d\n", mBBox.top, mBBox.left,
+//mBBox.bottom, mBBox.right, sysRect.top, sysRect.left, sysRect.bottom, sysRect.right);
 	if (!EqualRect(&sysRect, &unRect)) {
 		sprintf(str, "(%s%s%s%s)\n",
 			(mBBox.top<sysRect.top? "top " : ""),

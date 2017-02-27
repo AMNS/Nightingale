@@ -1242,10 +1242,10 @@ void DoPlayRecMenu(short choice)
 
 void MPInstrument(Document *doc)
 	{
-		LINK staffL, aStaffL; short partStaffn;
+		LINK staffL, aStaffL;  short partStaffn;
 		
-		staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
-	
+		partStaffn = -1;
+		staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
 		aStaffL = FirstSubLINK(staffL);
 		for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
 			if (StaffSEL(aStaffL)) {
@@ -1253,7 +1253,9 @@ void MPInstrument(Document *doc)
 				break;
 				}
 
-		if (SDInstrDialog(doc,partStaffn)) {
+		if (partStaffn<0) return;
+		
+		if (SDInstrDialog(doc, partStaffn)) {
 			doc->masterChanged = TRUE;
 			InvalWindow(doc);
 		}
@@ -2440,8 +2442,8 @@ static void DisableSMMove()
 
 static void FixMoveMeasSys(Document *doc)
 	{
-		LINK pageL,sysL,startBarL,endBarL,nextBarL,measAfterSelStart;
-		Boolean measSysEnd,moveMeasUp;
+		LINK pageL, sysL, startBarL, endBarL, nextBarL, measAfterSelStart;
+		Boolean measSysEnd, moveMeasUp;
 
 		if (doc->masterView) {
 			DisableSMMove();
@@ -2469,6 +2471,7 @@ static void FixMoveMeasSys(Document *doc)
 			return;
 		}
 
+		startBarL = NILINK;
 		if (LinkLSYS(sysL)!=NILINK)
 			startBarL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
 
@@ -2483,6 +2486,7 @@ static void FixMoveMeasSys(Document *doc)
 			DisableMenuItem(scoreMenu, SM_MoveMeasUp);
 
 		endBarL = LSISearch(LeftLINK(doc->selEndL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		measSysEnd = NILINK;
 		if (endBarL)
 			measSysEnd = LastUsedMeasInSys(doc, endBarL);
 		XableItem(scoreMenu, SM_MoveMeasDown, !beforeFirst && endBarL && measSysEnd);

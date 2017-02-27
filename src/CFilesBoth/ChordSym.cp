@@ -133,9 +133,6 @@ static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
 }
 
 
-#define CS_GAPBTWFIELDS		8		/* distance between fields (e.g., btw. root and qual strings); % of csSmallSize */
-#define CS_PAREN_YOFFSET	18		/* offset of parentheses from baseline (above); % of csSmallSize */
-
 /* ----------------------------------------------------------------- DrawChordSym -- */
 /* Parse the given string as a sequence of 6 chunks of text and draw them according
  * to a (rather complicated) chord symbol formatting scheme:
@@ -1115,8 +1112,7 @@ static void DisplayChordSym(
 	EraseRect(&box);
 	
 	/* Center chord sym horizontally; set vpos from a constant. */
-#define BASELINE_FROMBOT 16	/* pixels */
-	yd = p2d(displayBox.bottom-displayBox.top-BASELINE_FROMBOT);
+	yd = p2d(displayBox.bottom-displayBox.top-CS_BASELINE_FROMBOT);
 	xd = (p2d(displayBox.right-displayBox.left) - dBox.right)>>1;
 	
 	DrawChordSym(doc, xd, yd, fullStr, auxInfo, &context, FALSE, &dBox);

@@ -1175,7 +1175,7 @@ function value, plus info on where the offending notes were. */
 static short CountZeroVelNotes(Document *doc, LINK fromL, LINK toL, short *pStartStaff,
 								short *pEndStaff, short *pStartMeasNum, short *pEndMeasNum)
 {
-	short measNum, nZeroVel;
+	short measNum=-1, nZeroVel;
 	short startStaff, endStaff, startMeasNum, endMeasNum;
 	LINK pL, aNoteL;
 
