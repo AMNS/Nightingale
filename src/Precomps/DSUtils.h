@@ -57,7 +57,7 @@ Boolean IsOutside(LINK, LINK, LINK);
 Boolean SameSystem(LINK, LINK);
 Boolean SameMeasure(LINK, LINK);
 Boolean ConsecSync(LINK, LINK, short, short);
-short LinkBefFirstMeas(LINK);
+Boolean LinkBefFirstMeas(LINK);
 short BeforeFirstPageMeas(LINK);
 Boolean BeforeFirstMeas(LINK);
 
@@ -161,7 +161,7 @@ void SetSpareFlags(LINK, LINK, Boolean);
 Boolean GetMultiVoice(LINK pL, short staff);
 short GetSelectionStaff(Document *doc);
 void TweakSubRects(Rect *r, LINK aNoteL, CONTEXT *pContext);
-short CompareScoreFormat(Document *doc1,Document *doc2,short pasteType);
+Boolean CompareScoreFormat(Document *doc1,Document *doc2,short pasteType);
 LINK GetaMeasL(LINK measL,short stf);
 void DisposeMODNRs(LINK, LINK);
 

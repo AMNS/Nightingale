@@ -428,7 +428,7 @@ DDIST SDGetClosestClef(Document */*doc*/, short halfLnDiff, LINK /*pL*/, LINK su
 /* Utilities related to symbol dragging with offscreen bitmaps. */
 
 static void ClipToPort(Document *, Rect *);
-static GrafPtr RectGrafPort(Rect);
+static GrafPtr GetRectGrafPort(Rect);
 static void CopyBitMaps(Document *, Rect, Rect);
 static GrafPtr SDGetGrafPorts(Rect);
 
@@ -452,10 +452,10 @@ static void ClipToPort(Document *doc, Rect *r)
 }
 
 
-/* ----------------------------------------------------------------- RectGrafPort -- */
+/* ---------------------------------------------------------------- GetRectGrafPort -- */
 /* Get a new grafPort the size of r. */
 
-static GrafPtr RectGrafPort(Rect r)
+static GrafPtr GetRectGrafPort(Rect r)
 {
 	GrafPtr ourPort; short rWidth, rHeight;
 
@@ -509,9 +509,9 @@ static void CopyBitMaps(Document *doc, Rect srcRect, Rect dstRect)
 
 static GrafPtr SDGetGrafPorts(Rect r)
 {
-	underBits = RectGrafPort(r);
-	offScrBits = RectGrafPort(r);
-	picBits = RectGrafPort(r);
+	underBits = GetRectGrafPort(r);
+	offScrBits = GetRectGrafPort(r);
+	picBits = GetRectGrafPort(r);
 	
 	if (!underBits || !offScrBits || !picBits) return NULL;
 
@@ -656,7 +656,7 @@ GrafPtr NewMeasGrafPort(Document *doc, LINK measL)
 	GetPort(&oldPort);
 
 	mBBox = GetMeasRect(doc, measL);
-	ourPort = RectGrafPort(mBBox);			/* Allocate GrafPort the size of measureRect */
+	ourPort = GetRectGrafPort(mBBox);		/* Allocate GrafPort the size of measureRect */
 	
 	/* Clean up ports, return */
 
@@ -678,7 +678,7 @@ GrafPtr New2MeasGrafPort(Document *doc, LINK measL)
 	prevMeasL = LSSearch(LeftLINK(measL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
 	mBBox = Get2MeasRect(doc, prevMeasL, measL);
 
-	ourPort = RectGrafPort(mBBox);			/* Allocate GrafPort the combined size of two Measures */
+	ourPort = GetRectGrafPort(mBBox);		/* Allocate GrafPort the combined size of two Measures */
 	
 	/* Clean up ports, return */
 
@@ -696,7 +696,7 @@ GrafPtr NewNMeasGrafPort(Document *doc, LINK measL, LINK lastMeasL)
 	GetPort(&oldPort);
 
 	mBBox = Get2MeasRect(doc, measL, lastMeasL);
-	ourPort = RectGrafPort(mBBox);		/* Allocate GrafPort the size of mBBox */
+	ourPort = GetRectGrafPort(mBBox);		/* Allocate GrafPort the size of mBBox */
 
 	/* Clean up ports, return */
 
@@ -721,7 +721,7 @@ GrafPtr NewBeamGrafPort(Document *doc, LINK beamL, Rect *beamRect)
 
 	mBBox = Get2MeasRect(doc, measL, lastMeasL);
 
-	ourPort = RectGrafPort(mBBox);		/* Allocate GrafPort the size of mBBox */
+	ourPort = GetRectGrafPort(mBBox);		/* Allocate GrafPort the size of mBBox */
 	*beamRect = mBBox;
 
 	/* Clean up ports, return */

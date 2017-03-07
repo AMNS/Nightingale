@@ -15,10 +15,10 @@ static short FindAccModNR(Document *, Point, LINK *, LINK *, LINK *, Rect *);
 static void GetAccidentalBbox(Document *, LINK, LINK, Rect *);
 static void DoAccidentalDrag(Document *, Point, LINK, LINK, Rect *);
 static DDIST GetAccXOffset(PANOTE, short, PCONTEXT);
-static void DrawAccidentalParams(Document *doc, short);
-static Boolean GetModNRbbox(Document *, LINK, LINK, LINK, Rect *);
+static void ShowAccidentalParams(Document *doc, short);
+static Boolean GetModNRBbox(Document *, LINK, LINK, LINK, Rect *);
 static void DoModNRDrag(Document *, Point, LINK, LINK, LINK, Rect *);
-static void DrawModNRParams(Document *doc, SHORTSTD, SHORTSTD);
+static void ShowModNRParams(Document *doc, SHORTSTD, SHORTSTD);
 
 static enum {			/* return values for FindAccModNR */
 	NOHIT=0,
@@ -72,7 +72,7 @@ static short FindAccModNR(Document *doc, Point pt,
 						aNoteAcc = aNote->accident;
 						if (aModNRL) {
 							for ( ; aModNRL; aModNRL = NextMODNRL(aModNRL)) {
-								if (!GetModNRbbox(doc, pL, aNoteL, aModNRL, bbox))
+								if (!GetModNRBbox(doc, pL, aNoteL, aModNRL, bbox))
 									continue;
 								if (PtInRect(pt, bbox)) {
 									*noteL = aNoteL;
@@ -125,7 +125,7 @@ Boolean DoOpenModNR(Document *doc, Point pt)
 		if (change) {
 			ModNRMODCODE(modNRL) = modCode;
 
-			if (GetModNRbbox(doc, syncL, noteL, modNRL, &bboxNew))
+			if (GetModNRBbox(doc, syncL, noteL, modNRL, &bboxNew))
 				UnionRect(&bboxOld, &bboxNew, &bbox);
 			else
 				bbox = bboxNew;
@@ -225,7 +225,7 @@ static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBB
 	accBBox->bottom = baseLine + accCharRect.bottom;
 	accBBox->top = baseLine + accCharRect.top - 1;		/* this still doesn't always enclose the char... */
 	
-	accBBox->top -= 3;											/* so make it taller */
+	accBBox->top -= 3;									/* so make it taller */
 	accBBox->bottom += 2;
 	
 	/* add more slop if the rect is very small */
@@ -238,12 +238,12 @@ static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBB
 static void DoAccidentalDrag(Document *doc, Point pt, LINK syncL, LINK noteL,
 									Rect *origAccBBox)				/* in paper coords */
 {
-	DDIST		noteXD, noteYD, xdNorm, xdNormAdjusted, xOffset, accXOffset, dAccWidth;
-	short		accCode, oldTxMode, oldTxSize, useTxSize, 
-				sizePercent, diffH, accOriginH, xmoveAcc;
-	Point		oldPt, newPt;
+	DDIST	noteXD, noteYD, xdNorm, xdNormAdjusted, xOffset, accXOffset, dAccWidth;
+	short	accCode, oldTxMode, oldTxSize, useTxSize, 
+			sizePercent, diffH, accOriginH, xmoveAcc;
+	Point	oldPt, newPt;
 	Boolean	chordNoteToL, suppressRedraw = FALSE;
-	ANOTE		oldNote;	
+	ANOTE	oldNote;	
 	PANOTE	aNote;
 	CONTEXT	context;
 	
@@ -277,7 +277,7 @@ PushLock(NOTEheap);
 						TRUE, sizePercent, chordNoteToL);		/* draw it in gray */
 	TextMode(srcXor);
 
-	DrawAccidentalParams(doc, aNote->xmoveAcc);				/* display this now in case we never drag */
+	ShowAccidentalParams(doc, aNote->xmoveAcc);				/* display this now in case we never drag */
 
 	/* Adjust xdNorm for chordNoteToL notes. Don't change xdNorm, because
 	 * DrawAcc already does that for us.
@@ -342,7 +342,7 @@ PushLock(NOTEheap);
 							FALSE, sizePercent, chordNoteToL);		/* draw new accidental */
 		
 		/* Draw new params in msg box. (Do this after drawing accidental at new pos to reduce flicker.) */
-		DrawAccidentalParams(doc, aNote->xmoveAcc);
+		ShowAccidentalParams(doc, aNote->xmoveAcc);
 		
 		oldPt = newPt;
 	}
@@ -386,12 +386,12 @@ DDIST GetAccXOffset(PANOTE aNote, short sizePercent, PCONTEXT pContext)
 
 /* Draws the offset (negative) of the accidental from the notehead into the msg box. */
 
-static void DrawAccidentalParams(Document *doc, short xmoveAcc)
+static void ShowAccidentalParams(Document *doc, short xmoveAcc)
 {
 	char str[256], fmtStr[256];
 	
-	GetIndCString(fmtStr, DIALOG_STRS, 10);			/* "horizontal offset = %d" */
-	sprintf(str, fmtStr, -xmoveAcc);						/* units are actually STD_ACCWIDTH/4 */
+	GetIndCString(fmtStr, DIALOG_STRS, 10);				/* "horizontal offset = %d" */
+	sprintf(str, fmtStr, -xmoveAcc);					/* units are actually STD_ACCWIDTH/4 */
 	DrawMessageString(doc, str);
 }
 
@@ -400,7 +400,7 @@ static void DrawAccidentalParams(Document *doc, short xmoveAcc)
 
 /* Returns box surrounding the modNR in paper-rel coordinates. */
 
-static Boolean GetModNRbbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
+static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 										Rect *bbox)
 {
 	DDIST		noteXD, xdMod, ydMod, staffTop, xdNorm, lnSpace;
@@ -425,11 +425,11 @@ static Boolean GetModNRbbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 
 	if (!GetModNRInfo(code, aNote->subType, aNote->small,
 							(ydMod<=aNote->yd), &glyph, &xOffset, &yOffset, &sizePercent)) {
-		MayErrMsg("GetModNRbbox: illegal MODNR code %ld for note link=%ld",
+		MayErrMsg("GetModNRBbox: illegal MODNR code %ld for note link=%ld",
 					(long)code, (long)noteL);
 		return FALSE;
 	}
-   if (glyph==' ') return FALSE;			/* if it's a tremolo slash, can't drag it (yet) */
+   if (glyph==' ') return FALSE;			/* if it's a tremolo slash, can't drag it */
 
 	xdMod += (LNSPACE(&context)/8)*xOffset;
 	ydMod += (LNSPACE(&context)/8)*yOffset;
@@ -444,7 +444,7 @@ static Boolean GetModNRbbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 	if (aNote->small) useTxSize = SMALLSIZE(useTxSize);
 	TextSize(useTxSize);
 	BuildCharRectCache(doc);				/* current cache may not be valid for this modifier's size */
-	charWid = CharWidth(glyph);			/* more accurate for screen fonts, especially when scaled */
+	charWid = CharWidth(glyph);				/* more accurate for screen fonts, especially when scaled */
 	TextSize(oldTxSize);
 
 	glyphRect = CharRect((short)glyph);
@@ -453,9 +453,8 @@ static Boolean GetModNRbbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 	bbox->right = bbox->left + charWid;
 	baseLine = d2p(staffTop + ydMod);
 	bbox->bottom = baseLine + glyphRect.bottom;
-	bbox->top = baseLine + glyphRect.top - 1;		/* this still doesn't always enclose the char... */
-	
-	bbox->top -= 2;										/* so make it taller */
+	bbox->top = baseLine + glyphRect.top - 1;		/* this still doesn't always enclose the char. */
+	bbox->top -= 2;									/* ...so make it taller */
 	bbox->bottom += 2;
 		
 	/* add more slop if the rect is very small */
@@ -477,13 +476,13 @@ static enum {
 } E_ModNRConstrainItems;
 
 static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK modNRL,
-													Rect *origModNRbbox)		/* in paper coords */
+							Rect *origModNRBbox)					/* in paper coords */
 {
-	DDIST		noteXD, xdMod, ydMod, staffTop, xdNorm, xd, yd, xdModOrig, ydModOrig, lnSpace;
+	DDIST	noteXD, xdMod, ydMod, staffTop, xdNorm, xd, yd, xdModOrig, ydModOrig, lnSpace;
 	STDIST	xstd, ystdpit;
-	short		code, sizePercent, xOffset, yOffset, constrain = NOCONSTRAIN,
-				oldTxSize, useTxSize, oldTxMode;
-	Point		oldPt, newPt, modOrigin, diffPt;
+	short	code, sizePercent, xOffset, yOffset, constrain = NOCONSTRAIN,
+			oldTxSize, useTxSize, oldTxMode;
+	Point	oldPt, newPt, modOrigin, diffPt;
 	Boolean	firstLoop = TRUE, suppressRedraw = FALSE;
 	PAMODNR	aModNR;
 	AMODNR	oldModNR;
@@ -491,7 +490,7 @@ static void DoModNRDrag(Document *doc, Point pt, LINK syncL, LINK noteL, LINK mo
 	CONTEXT	context;
 	unsigned char glyph;
 	
-/* ??Do I really need to lock these? What about the modNR heaps? */
+/* ??Do I really need to lock OBJheap? What about the modNR heap? */
 PushLock(OBJheap);
 PushLock(NOTEheap);
 
@@ -508,8 +507,8 @@ PushLock(NOTEheap);
 	ystdpit = aModNR->ystdpit;
 	xdMod = noteXD + std2d(xstd, context.staffHeight, context.staffLines);
 	ydMod = std2d(ystdpit, context.staffHeight, context.staffLines);
-	if (!GetModNRInfo(code, aNote->subType, aNote->small,
-							(ydMod<=aNote->yd), &glyph, &xOffset, &yOffset, &sizePercent))
+	if (!GetModNRInfo(code, aNote->subType, aNote->small, (ydMod<=aNote->yd),
+							&glyph, &xOffset, &yOffset, &sizePercent))
 		goto Cleanup;
 
 	lnSpace = LNSPACE(&context);
@@ -532,21 +531,22 @@ PushLock(NOTEheap);
 #define DRAW_IN_GRAY
 #ifdef DRAW_IN_GRAY
 	TextMode(srcXor);
-	Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
-					&context, sizePercent, FALSE);			/* erase original modNR */
+	Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context,
+					sizePercent, FALSE);					/* erase original modNR */
 	TextMode(srcOr);
-	Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
-					&context, sizePercent, TRUE);				/* draw it in gray */
+	Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context, 
+					sizePercent, TRUE);						/* ...and redraw it in gray */
 	TextMode(srcXor);
 #endif
 
-	DrawModNRParams(doc, aModNR->xstd-XSTD_OFFSET, aModNR->ystdpit);
+	ShowModNRParams(doc, aModNR->xstd-XSTD_OFFSET, aModNR->ystdpit);
 
 	SetPt(&modOrigin, d2p(xdModOrig), d2p(ydModOrig + staffTop));
 	SetPt(&diffPt, pt.h - modOrigin.h, pt.v - modOrigin.v);	/* set from pt, before the search and drawing in gray, etc. */
 	
 	GetPaperMouse(&oldPt, &doc->currentPaper);
 
+	/* We're ready to go. This loop handles the actual dragging. */
 	if (StillDown()) while (WaitMouseUp()) {
 		GetPaperMouse(&newPt, &doc->currentPaper);
 		if (EqualPt(newPt, oldPt)) continue;
@@ -558,8 +558,8 @@ PushLock(NOTEheap);
 			firstLoop = FALSE;
 		}
 		
-		Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
-						&context, sizePercent, FALSE);		/* erase old modNR */
+		Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context,
+						sizePercent, FALSE);				/* erase modNR at old position */
 		
 		xd = p2d(newPt.h - diffPt.h);
 		xstd = d2std(xd - noteXD - ((LNSPACE(&context)/8)*xOffset),
@@ -593,7 +593,7 @@ PushLock(NOTEheap);
 		xdMod += (LNSPACE(&context)/8)*xOffset;
 		ydMod += (LNSPACE(&context)/8)*yOffset;
 		
-		/* Some symbols (like fermata) have different glyphs, depending on whether
+		/* Some symbols (like fermata) have different glyphs depending on whether
 		 * modNR is above or below its note, so update glyph, etc. now.
 		 */
 		GetModNRInfo(code, aNote->subType, aNote->small, (ydMod<=aNote->yd),
@@ -604,18 +604,19 @@ PushLock(NOTEheap);
 		xdMod += MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace);
 		ydMod += MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace);
 
-		Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
-						&context, sizePercent, FALSE);	/* draw new modNR */
+		Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context, 
+						sizePercent, FALSE);					/* draw modNR in new position */
 
-		/* Draw new params in msg box. (Do this after drawing modNR at new pos to reduce flicker.) */
-		DrawModNRParams(doc, aModNR->xstd-XSTD_OFFSET, aModNR->ystdpit);
+		/* Draw new params in msg box. (Do this after drawing modNR at new position to
+		   reduce flicker.) */
+		ShowModNRParams(doc, aModNR->xstd-XSTD_OFFSET, aModNR->ystdpit);
 		
 		oldPt = newPt;
 	}
 
 	TextMode(srcOr);
-	Draw1ModNR(doc, xdMod, ydMod, code, glyph, 
-					&context, sizePercent, FALSE);			/* draw new modNR in normal mode */
+	Draw1ModNR(doc, xdMod, ydMod, code, glyph, &context, sizePercent,
+					 FALSE);									/* draw in final position in normal mode */
 
 	TextMode(oldTxMode);
 	TextSize(oldTxSize);
@@ -623,12 +624,12 @@ PushLock(NOTEheap);
 	/* Update modNR in data structure and inval rect if it's changed. */
 	if (BlockCompare(aModNR, &oldModNR, sizeof(AMODNR))) {
 		doc->changed = TRUE;
-		LinkTWEAKED(syncL) = TRUE;									/* Flag to show node was edited */
+		LinkTWEAKED(syncL) = TRUE;								/* Flag to show node was edited */
 		
-		Rect2Window(doc, origModNRbbox);
-		InsetRect(origModNRbbox, -1, -4);
+		Rect2Window(doc, origModNRBbox);
+		InsetRect(origModNRBbox, -1, -4);
 		if (!suppressRedraw)
-			EraseAndInval(origModNRbbox);
+			EraseAndInval(origModNRBbox);
 	}
 	else
 		*aModNR = oldModNR;
@@ -642,7 +643,7 @@ PopLock(NOTEheap);
 
 /* Draws the (note-rel) x and (staffTop-rel) y values of a modNR into the msg box. */
 
-static void DrawModNRParams(Document *doc, SHORTSTD xstd, SHORTSTD ystd)
+static void ShowModNRParams(Document *doc, SHORTSTD xstd, SHORTSTD ystd)
 {
 	char str[256], fmtStr[256];
 	

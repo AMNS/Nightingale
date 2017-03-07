@@ -860,7 +860,7 @@ Trying to open certain old files that don't have the proper Ngale document icon,
 therefore probably don't have the correct pre-OS X-Finder file type ('SCOR'), by
 dropping them on the Ngale program icon, used to just give an incomprehensible error
 message and give up; Ngale now gives a meaningful message and it does try to open the
-files. Affects .rsrc; NResource.h; Event.
+files (and in tests it succeeded). Affects .rsrc; NResource.h; Event.
 
 Move def. of METAEVENT and its subcodes into a header. Affects MIDIGeneral.h; MIDIFOpen,
 MIDIFSave.
@@ -1224,3 +1224,15 @@ wider. Affects .rsrc.
 Reorganize Style.h; rename some #defines for consistency. Affects Style.h; Dragging,
 Ottava.
 
+-------------------------------------------------------------------------------
+
+28 Feb. - 6 Mar.
+
+Replace (at last!) our timed-loop delay function with something much more accurate
+and far more robust against changes of processor speed, even drastic changes. Affects
+Utility.
+
+Make "slop" values more explicit via #defines. Affects DragDynamic, UIFUtils.
+
+Minor cleanup. Affects AccModNRMouse, DragDynamic, Dragging, DragUtils, DrawObject,
+DSUtils, InitNightingale, UIFUtils, Utility.

@@ -330,13 +330,13 @@ void FixCursor()
 
 /* ------------------------------------------------------------------- FlashRect -- */
 
-#define FLASH_COUNT 1
+#define FLASH_RECT_COUNT 1
 
 void FlashRect(Rect *pRect)
 {
 	short	j;
 	
-	for (j=0; j<FLASH_COUNT; j++) {
+	for (j=0; j<FLASH_RECT_COUNT; j++) {
 		InvertRect(pRect);
 		SleepTicks(20L);
 		InvertRect(pRect);
@@ -349,14 +349,16 @@ void FlashRect(Rect *pRect)
 /* Check to see if two Points (presumably on the screen) are within slop of each
 other. Needed for editing beams, lines, hairpins, etc. */
 
+#define SAME_POINT_SLOP 2
+
 Boolean SamePoint(Point p1, Point p2)
 {
-	short dx,dy; static short slop = 2;
+	short dx, dy;
 	
 	dx = p1.h - p2.h; if (dx < 0) dx = -dx;
 	dy = p1.v - p2.v; if (dy < 0) dy = -dy;
 	
-	return ( dx<=slop && dy<=slop );
+	return (dx<=SAME_POINT_SLOP && dy<=SAME_POINT_SLOP);
 }
 	
 

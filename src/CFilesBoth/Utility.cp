@@ -1,7 +1,9 @@
 /***************************************************************************
 *	FILE:	Utility.c
 *	PROJ:	Nightingale
-*	DESC:	Miscellaneous utility routines that needed a home
+*	DESC:	Miscellaneous utility routines. User-interface related functions
+*			belong in UIFUtils.c, not here.
+
 		CalcYStem				GetNoteYStem			GetGRNoteYStem
 		ShortenStem				GetCStemInfo			GetStemInfo
 		GetCGRStemInfo			GetGRStemInfo
@@ -23,7 +25,7 @@
 		FontName2Index			User2HeaderFontNum		Header2UserFontNum
 		Rect2Window				Pt2Window				Pt2Paper		
 		Global2Paper			DRect2ScreenRect		RefreshScreen
-		InitSleepMS				SleepMS					SleepTicks
+		GetMillisecTime			SleepMS					SleepTicks
 		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
 		PlayResource
 /***************************************************************************/
@@ -102,7 +104,7 @@ DDIST GetNoteYStem(Document *doc, LINK syncL, LINK aNoteL, CONTEXT context)
 }
 
 
-/* -------------------------------------------------------------- GetGRNoteYStem -- */
+/* ----------------------------------------------------------------- GetGRNoteYStem -- */
 /*	Calculate optimum stem endpoint for a grace note in main data structure, assuming
 normal (one voice per staff) rules, assuming it's not in a chord and not considering
 beaming. Cf. GetGRCYStem in Objects.c. */
@@ -122,7 +124,7 @@ DDIST GetGRNoteYStem(LINK aGRNoteL, CONTEXT context)
 }
 
 
-/* ----------------------------------------------------------------- ShortenStem -- */
+/* -------------------------------------------------------------------- ShortenStem -- */
 /*	Returns TRUE if the given note and stem direction require a shorter-than-normal
 stem; intended for use in 2-voice notation. */
 
@@ -152,10 +154,10 @@ note is not in a chord. */
 Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context, 
 						short *qStemLen)
 {
-	Byte voiceRole; PANOTE aNote;
-	short halfLn, midCHalfLn; QDIST yqpit;
+	Byte voiceRole;  PANOTE aNote;
+	short halfLn, midCHalfLn;  QDIST yqpit;
 	Boolean stemDown;
-	LINK partL; PPARTINFO pPart;
+	LINK partL;  PPARTINFO pPart;
 	
 	voiceRole = doc->voiceTab[NoteVOICE(aNoteL)].voiceRole;
 
@@ -182,13 +184,15 @@ Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context
 			stemDown = (NoteSTAFF(aNoteL)==pPart->firstStaff);
 			*qStemLen = QSTEMLEN(FALSE, ShortenStem(aNoteL, context, stemDown));
 			break;
+		default:													/* Should never get here */
+			return FALSE;
 	}
 	
 	return stemDown;
 }
 
 
-/* ----------------------------------------------------------------- GetStemInfo -- */
+/* -------------------------------------------------------------------- GetStemInfo -- */
 /* Given a note, return (in <qStemLen>) its normal stem length and (as function
 value) whether it should be stem down. Considers voice role but assumes the note
 is not in a chord. */
@@ -210,8 +214,8 @@ the grace note is not in a chord. */
 Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /*context*/,
 							short *qStemLen)
 {
-	Byte voiceRole; Boolean stemDown;
-	LINK partL; PPARTINFO pPart;
+	Byte voiceRole;  Boolean stemDown;
+	LINK partL;  PPARTINFO pPart;
 	
 	voiceRole = doc->voiceTab[GRNoteVOICE(aGRNoteL)].voiceRole;
 
@@ -228,6 +232,8 @@ Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /
 			pPart = GetPPARTINFO(partL);
 			stemDown = (GRNoteSTAFF(aGRNoteL)==pPart->firstStaff);
 			break;
+		default:													/* Should never get here */
+			return FALSE;
 	}
 	
 	*qStemLen = config.stemLenGrace;
@@ -1161,7 +1167,7 @@ Boolean FontID2Name(Document *doc, short fontID, StringPtr fontName)
 }
 
 
-/* --------------------------------------- User2HeaderFontNum,Header2UserFontNum -- */
+/* ----------------------------------------- User2HeaderFontNum, Header2UserFontNum -- */
 
 short User2HeaderFontNum(Document */*doc*/, short styleChoice)
 {
@@ -1285,99 +1291,75 @@ void RefreshScreen()
 
 
 /* ---------------------------------------------------- SleepMS, SleepTicks, etc. -- */
-/* Find a loop count that'll give roughly a 1 millisec. delay. Of course we could
-get more precise timing by using hardware timer V1, but it's used by Sound Manager,
-MIDI Manager, and the MacTutor MIDI driver: for situations where we need shorter
-intervals than TickCount provides (1/60 sec.) but don't need precise timing, a simple-
-minded timing loop avoids any possible conflicts. For example, this might be used
-for a delay time in an All Notes Off function to avoid overloading old synthesizers.
-DO NOT USE IF TIMING NEEDS TO BE AT ALL ACCURATE!
 
-The count in THIS function's loop should be large enough so we get something
-meaningful on any (well, almost any) machine, but small enough so it doesn't take
-too long on a slow one. This is not easy, since of course machines get faster all
-the time. For now, we have a fixed loop count but adjust it down for very old
-(slow) machines. A much better solution would be to try a small loop count (say
-100,000); if that doesn't run long enough to get reasonable accuracy, try a larger
-count (say 4 times as large); if that still doesn't run long enough, try a still
-larger count, etc.
+static long GetMillisecTime();
 
-It would seem that, instead of looping a pre-determined number of times, we could
-loop for a certain predefined amount of time; the trouble with this is the
-potentially large overhead from checking the elapsed time!
+/* Get a time in milliseconds corresponding to the current wall-clock time. The value
+returned is not meaningful in itself, but the difference between two returned values
+is the wall-clock time difference between the two calls.
 
-For reference, compiling this with THINK C 5, an SE/30 (16MHz 68030) gets a bit
-over 25,000 iterations per tick, giving oneMSDelayCount = about 1510. (NB: this
-is about twice as fast as older comments here said: I assume the difference is
-THINK C 5's improved code generation.) With THINK C 6, a PowerMac 7100/66 (in
-emulation, of course) gets about 37,500 iterations per tick, so oneMSDelayCount =
-about 2250.
+We use gettimeofday() to get the time from the system. A good argument can be made that
+gettimeofday() should not be used for this, basically because the system clock might
+have jumped "a second or two (or 15 minutes) in a random direction because it happened
+to sync up against a proper clock at that point". Instead, it is recommended to use
+clock_gettime(CLOCK_MONOTONIC, ...). See
 
-(Actually, there's a solution to this problem that's probably much better: use the
-Time Manager; but it'd also be much more complex. There's a much better and very
-simple solution: compute <oneMSDelayCount> from low-memory global TimeDBRA=0x0D00.
-Of course, both of these are much more machine-dependent. Yet another idea: do
-this while the splash screen is up, so it would be zero overhead.) */
- 
-#define NORMAL_LOOP_COUNT 1500000L		/* For a "normal" (68020 or above) Mac */
+   https://blog.habets.se/2010/09/gettimeofday-should-never-be-used-to-measure-time.html
 
-void InitSleepMS()
+But if you just want to measure times of a few seconds or less, gettimeofday() is
+likely to work fine. */
+
+static long GetMillisecTime()
 {
-	long startTicks, elapsedTicks, countPerTick, loopCount, l;
+	static bool firstTime=true;
+	static time_t offsetSec;
+	struct timeval tv;
+	time_t timeSec;
+	suseconds_t timeUsec;
+	short timeMsec;
+	long fullTimeMsec;
 
-	loopCount = NORMAL_LOOP_COUNT;
-	/* If this is an early, slow CPU, reduce <loopCount> so it doesn't take too long. */ 
+	gettimeofday(&tv, NULL); 
 
-	startTicks = TickCount();
-	
-	for (l = 0L; l<=loopCount; l++)			/* The compiler better not optimize this away! */
-		;
-	elapsedTicks = TickCount()-startTicks;
+	/* Combine the seconds and milliseconds times by multiplying seconds by 1000 and
+	   adding milliseconds. To avoid overflow, the first time we're called, save the
+	   seconds part of the time (tv.tv_sec) and use that as an offset; thus, if the last
+	   call is 100.437 sec. after the first, the combined time will never exceed 100,000
+	   or so, regardless of the actual values of tv.tv_sec. */
+  
+	if (firstTime) {
+		offsetSec = tv.tv_sec;
+		firstTime = false;
+	}
+	timeSec = tv.tv_sec-offsetSec;
+	timeUsec = tv.tv_usec;
+	timeMsec = (timeUsec+500)/1000;
+	//printf("timeSec=%ld timeUsec=%d timeMsec=%d\n", timeSec, timeUsec, timeMsec);
 
-	if (elapsedTicks<1L) elapsedTicks = 1L;		/* In case this machine is REALLY fast! */
-	countPerTick = loopCount/elapsedTicks;
-	oneMSDelayCount = (60L*countPerTick)/1000L;	/* Convert "per tick" to "per ms." */
-	LogPrintf(LOG_NOTICE, "loopCount=%ld elapsedTicks=%ld oneMSDelayCount=%ld\n", loopCount,
-						elapsedTicks, oneMSDelayCount);
+	fullTimeMsec = (1000L*timeSec) + timeMsec;
+	//printf("fullTimeMsec=%ld\n", fullTimeMsec);
+
+	return fullTimeMsec;
 }
 
+/* Do nothing for a given number of milliseconds. See above for comments on why this
+exists.
 
-/* Do nothing for <millisec> milliseconds, using a  simple delay loop. See above for
-comments on why this exists. <oneMSDelayCount> MUST be initialized before calling this!
+Note we don't take into account overhead for calling and returning from this function,
+which might be significant on a very slow computer if msecDelay=1 or 2.*/
 
-Note we don't take into account overhead for calling and returning from this
-function, which might be significant on a slow computer if millisec=1 or 2. But,
-as mentioned, this SHOULD NOT BE USED IF PRECISION IS NEEDED, anyway.*/
-
-void SleepMS(long millisec)
+void SleepMS(long msecDelay)
 {
-	long delayCount, count;
+	long timeBefore;
 
-	/*
-	 * Precompute the loop limit, don't put it in the "for" statement. With THINK
-	 * C 4 on an SE/30, putting this computation in the "for" makes each iteration
-	 * about TEN TIMES slower!
-	 */
-	delayCount = millisec*oneMSDelayCount;
+	timeBefore = GetMillisecTime();
 
-	/* The compiler had better not optimize this loop away! */
-
-	for (count = 1L; count<delayCount; count++)
+	while (GetMillisecTime()<timeBefore+msecDelay)
 		;
 }
 
-
-/* Do nothing for <ticks> ticks; then, if the mouse button is down, wait til it's up. */
-
-void SleepTicksWaitButton(unsigned long ticks)
-{
-	SleepTicks(ticks);
-	while (Button())
-		;
-}
-
-/* Do nothing for <ticks> ticks. Written because I got tired of debugging crashes
-caused by my calling Delay and forgetting to put the "&" in front of the second
+/* Do nothing for <ticks> ticks of 1/60 sec. Written because I got tired of debugging
+crashes caused by my calling Delay and forgetting to put the "&" in front of the second
 argument (which I never have any use for, anyway). */
 
 void SleepTicks(unsigned long ticks)
@@ -1385,6 +1367,16 @@ void SleepTicks(unsigned long ticks)
 	unsigned long aLong;
 	
 	Delay(ticks, &aLong);
+}
+
+/* Do nothing for <ticks> ticks of 1/60 sec.; then, if the mouse button is down, wait
+til it's up. */
+
+void SleepTicksWaitButton(unsigned long ticks)
+{
+	SleepTicks(ticks);
+	while (Button())
+		;
 }
 
 

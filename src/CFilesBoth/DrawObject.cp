@@ -1209,7 +1209,7 @@ static void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DD
 
 
 /* ------------------------------------------------------------------ DrawDYNAMIC -- */
-/* Draw a DYNAMIC object, a set (as of v.3.1, always one) of hairpins and/or
+/* Draw a DYNAMIC object, a set (as of v. 5.7, always one) of hairpins and/or
 "simple" dynamics, and if necessary recompute its objRect. */
 
 void DrawDYNAMIC(
@@ -1265,7 +1265,7 @@ PushLock(DYNAMheap);
 						glyph = MapMusChar(doc->musFontInfoIndex, glyph);
 						xd += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace));
 						yd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace));
-						xp=d2p(xd); yp=d2p(yd);
+						xp = d2p(xd); yp = d2p(yd);
 						aDynamic = GetPADYNAMIC(aDynamicL);
 						if (reallyDraw) {
 							MoveTo(pContext->paper.left+xp, pContext->paper.top+yp);

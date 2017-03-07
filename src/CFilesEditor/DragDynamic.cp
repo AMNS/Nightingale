@@ -12,6 +12,7 @@
 #include "Nightingale.appl.h"
 
 #define USE_BITMAP	/* use offscreen bitmap when dragging; otherwise use srcXor drawing mode */
+#define DRAG_DYNAMIC_SLOP 2		/* in pixels */
 
 static void InitDynamicBounds(Document *, LINK, Point, Rect *);
 
@@ -78,7 +79,7 @@ PushLock(DYNAMheap);
 				decide whether horizontally/vertically constrained. */
 			dhTotal = newPt.h - origPt.h;
 			dvTotal = newPt.v - origPt.v;
-			if (ABS(dhTotal)<2 && ABS(dvTotal)<2) continue;
+			if (ABS(dhTotal)<DRAG_DYNAMIC_SLOP && ABS(dvTotal)<DRAG_DYNAMIC_SLOP) continue;
 			if (ShiftKeyDown()) {
 				horiz = ABS(dhTotal) > ABS(dvTotal);		/* 45 degree movement => vertical */
 				vert = !horiz;
@@ -92,7 +93,7 @@ PushLock(DYNAMheap);
 		if (firstTime)							/* ???if we get it to draw in gray above, remove this firstTime business */
 			firstTime = FALSE;
 		else
-			DrawDYNAMIC(doc, dynamL, context, TRUE);				/* erase old dynamic */
+			DrawDYNAMIC(doc, dynamL, context, TRUE);		/* erase old dynamic */
 
 		thisDynObj->xd += p2d(dh);
 		thisDynSubObj->yd += p2d(dv);
@@ -101,29 +102,29 @@ PushLock(DYNAMheap);
 		 * otherwise AutoScroll will leave a trail of text images as we scroll.
 		 * ???NB: also need to turn off ShowInvisibles if it's on!!
 		 */
-		TextMode(srcOr);													/* so staff lines won't cut through notes */
+		TextMode(srcOr);									/* so staff lines won't cut through notes */
 		thisDynSubObj->visible = FALSE;
 		AutoScroll();
 		thisDynSubObj->visible = dynamVis;
 		TextMode(srcXor);
 
-		DrawDYNAMIC(doc, dynamL, context, TRUE);				/* draw new dynamic */
+		DrawDYNAMIC(doc, dynamL, context, TRUE);			/* draw new dynamic */
 		
 		oldPt = newPt;
 	}
 	TextMode(srcOr);
-	LinkVALID(dynamL) = FALSE;										/* force objRect recomputation */
-	DrawDYNAMIC(doc, dynamL, context, TRUE);					/* draw final black dynamic */
+	LinkVALID(dynamL) = FALSE;								/* force objRect recomputation */
+	DrawDYNAMIC(doc, dynamL, context, TRUE);				/* draw final black dynamic */
 
 	TextMode(oldTxMode);
 
 	/* Inval old and new location */
-	newObjRect = LinkOBJRECT(dynamL);							/* DrawDYNAMIC has updated this */
+	newObjRect = LinkOBJRECT(dynamL);						/* DrawDYNAMIC has updated this */
 	Rect2Window(doc, &newObjRect);
 	if (BlockCompare(thisDynObj, &origDynObj, sizeof(DYNAMIC)) ||
 		 BlockCompare(thisDynSubObj, &origDynSubObj, sizeof(ADYNAMIC))) {
 		doc->changed = TRUE;
-		LinkTWEAKED(dynamL) = TRUE;								/* Flag to show node was edited */
+		LinkTWEAKED(dynamL) = TRUE;							/* Flag to show node was edited */
 		Rect2Window(doc, &oldObjRect);
 		InsetRect(&oldObjRect, -pt2p(5), -pt2p(3));			/* ??wouldn't have to be 4 if objrects far enuf to the right for wide dynamics (fff, ppp) */ 
 		if (!suppressRedraw)

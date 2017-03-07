@@ -15,8 +15,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-//#define DRAG_DYNAMIC_OLD_WAY
-
 #define DragXD(xd)	( (xd) - p2d(dragOffset) )
 #define DragXP(xp)	( (xp) - dragOffset )
 
@@ -33,6 +31,7 @@ static void SDDrawMBRest(Document *doc,PCONTEXT pContext,LINK theRestL,DDIST xd,
 static void SDDrawRest(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawNote(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawGRNote(Document *doc, LINK pL, LINK subObjL, LINK measureL);
+static void SDDrawDynamic(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void SDDrawRptEnd(Document *doc, LINK pL, LINK subObjL, LINK measureL);
 static void MoveAndLineTo(short x1, short y1, short x2, short y2);
 static void SDDrawEnding(Document *doc, LINK pL, LINK subObjL, LINK measureL);
@@ -769,6 +768,38 @@ PopLock(OBJheap);
 PopLock(GRNOTEheap);
 }
 
+#ifdef DRAG_DYNAMIC_OLD_WAY
+// SDDrawDynamic IS NOWHERE NEAR FINISHED! It was part of an attempt to handle dragging
+// dynamics the way everything else is, instead of having a bunch of extra code in
+// DragDynamic.c -- code that's a bit buggy (and I don't remember why we did it that way
+// in the first place), but replacing it with this is looking like a major undertaking.
+// Oh well.  --DAB, March 2017
+static void SDDrawDynamic(Document *doc, LINK pL, LINK subObjL, LINK measureL)
+{
+	DDIST		xd, yd;
+	CONTEXT		context[MAXSTAVES+1];
+	Rect		rSub, mRect;
+	
+	mRect = SDGetMeasRect(doc, pL, measureL);
+	
+	GetAllContexts(doc, context, pL);
+	GetDynamicDrawInfo(doc, pL, subObjL, context, &glyph, &xd, &yd);
+		sizePercent = (DynamicSMALL(subObjL)? SMALLSIZE(100) : 100);
+		oldTxSize = GetPortTxSize();
+		useTxSize = UseMTextSize(SizePercentSCALE(pContext->fontSize), doc->magnify);
+
+		TextSize(useTxSize);
+		glyph = MapMusChar(doc->musFontInfoIndex, glyph);
+		xd += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace));
+		yd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace));
+		xp = d2p(xd); yp = d2p(yd);
+		aDynamic = GetPADYNAMIC(aDynamicL);
+		MoveTo(pContext->paper.left+xp, pContext->paper.top+yp);
+		DrawMChar(doc, glyph, NORMAL_VIS, FALSE);
+}
+#endif
+
+
 static void SDDrawRptEnd(Document *doc, LINK pL, LINK /*subObjL*/, LINK measureL)
 {
 	LINK		aRptL;
@@ -908,12 +939,12 @@ static void SDDrawMeasure(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 
 static void SDDrawPSMeas(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 {
-	LINK		prevMeasL;
+	LINK	prevMeasL;
 	PAPSMEAS aPSMeas;
 	CONTEXT	context, context2;
 	short 	mLeft, xp, ypTop, ypBot;
-	DDIST		dLeft, dTop, dBottom;
-	Rect 		mRect;
+	DDIST	dLeft, dTop, dBottom;
+	Rect 	mRect;
 	
 	mRect = SDGetMeasRect(doc, pL, measureL);
 
@@ -1018,12 +1049,12 @@ static void SDDrawGRDraw(Document */*doc*/, DDIST xd, DDIST yd, DDIST xd2, DDIST
 
 static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 {
-	DDIST xd, yd, dHeight, xd2, yd2;
-	short staffn, lineLW;
-	short	oldFont, oldSize, oldStyle, fontID, fontSize, fontStyle;
-	PGRAPHIC pGraphic;
-	CONTEXT relContext, context;
-	Rect mRect;
+	DDIST		xd, yd, dHeight, xd2, yd2;
+	short		staffn, lineLW;
+	short		oldFont, oldSize, oldStyle, fontID, fontSize, fontStyle;
+	PGRAPHIC	pGraphic;
+	CONTEXT		relContext, context;
+	Rect		mRect;
 	unsigned char oneChar[2];			/* Pascal string of a char */
 
 	mRect = SDGetMeasRect(doc, pL, measureL);
@@ -1162,15 +1193,14 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 {
 	PTEMPO p;
-	short oldFont, oldSize, oldStyle, useTxSize, noteWidth, beforeFirst,
-				tempoStrlen;
+	short oldFont, oldSize, oldStyle, useTxSize, noteWidth, tempoStrlen;
 	DDIST xd, yd, extraGap, lineSpace, dTop, firstxd, xdNote, xdDot, ydDot;
 	Str255 tempoStr;
 	char metroStr[256], noteChar;
 	LINK contextL;
 	CONTEXT context; Rect mRect; FontInfo fInfo;
 	StringOffset theStrOffset;
-	Boolean expandN=FALSE;				/* Stretch string out? */
+	Boolean expandN=FALSE, beforeFirst;
 	Byte dotChar = MapMusChar(doc->musFontInfoIndex, MCH_dot);
 
 	beforeFirst = LinkBefFirstMeas(pL);
@@ -1781,6 +1811,7 @@ Boolean HandleSymDrag(Document *doc, LINK pL, LINK subObjL, Point pt, unsigned c
 	return SymDragLoop(doc, pL, subObjL, glyph, pt, measL);
 }
 
+
 /* -------------------------------------------------------------------- SymDragLoop -- */
 /* Routine that is actually responsible for dragging the object. First calls the
 SDDraw routine for the object's type to draw the to-be-dragged object into the
@@ -1898,8 +1929,8 @@ static Boolean SymDragLoop(
 				partn = Staff2Part(doc, staff);
 				useChan = UseMIDIChannel(doc, partn);					/* Set feedback channel no. */
 
-
-				if (octL = OctOnStaff(doc->selStartL, staff)) {
+				octL = OctOnStaff(doc->selStartL, staff);
+				if (octL) {
 					octType = OctType(octL);
 					octTransp = (octType>0? noteOffset[octType-1] : 0);	/* Set feedback transposition */
 				}
@@ -1963,8 +1994,8 @@ static Boolean SymDragLoop(
 			partn = Staff2Part(doc, staff);
 			useChan = UseMIDIChannel(doc, partn);					/* Set feedback channel no. */
 
-
-			if (octL = OctOnStaff(doc->selStartL, staff)) {
+			octL = OctOnStaff(doc->selStartL, staff);
+			if (octL) {
 				octType = OctType(octL);
 				octTransp = (octType>0? noteOffset[octType-1] : 0);	/* Set feedback transposition */
 			}
@@ -1974,8 +2005,8 @@ static Boolean SymDragLoop(
 			}
 			partL = FindPartInfo(doc, partn);
 			pPart = GetPPARTINFO(partL);
-			if (doc->transposed) transp = pPart->transpose;
-			else						transp = 0;
+			if (doc->transposed)	transp = pPart->transpose;
+			else					transp = 0;
 
 			prevAccident = 0;
 			middleCHalfLn = ClefMiddleCHalfLn(context.clefType);
@@ -2398,15 +2429,17 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 	short		pIndex;
 	STFRANGE	stfRange={0,0};
 	
-	/* If there is no object, return immediately; if the object is before the first
-		measure, call DragBeforeFirst, then return. */
+	/* If there is no object, do nothing. */
 
 	pL = FindObject(doc, pt, &index, SMFind);
 	if (!pL) return FALSE;
 	
 	DisableUndo(doc, FALSE);
 	
-	/* If object is a page-relative Graphic, handle it later in PageRelDrag. */
+	/* If the object is before the first Measure of its System, call DragBeforeFirst.
+	Exception: If object is a Graphic or is attached to a page-relative Graphic, handle
+	in this function and don't call DragBeforeFirst. */
+	
 	if (LinkBefFirstMeas(pL)) {
 		if (!GraphicTYPE(pL) || !PageTYPE(GraphicFIRSTOBJ(pL))) {
 			GetMeasRange(doc, pL, &startMeas, &endMeas);

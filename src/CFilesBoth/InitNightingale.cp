@@ -201,10 +201,6 @@ static Boolean InitNightGlobals()
 	playTempoPercent = 100;								/* Play using the tempi as marked */
 	unisonsOK = TRUE;									/* Don't complain about perfect unisons */
 
-	/* Initialize our high-resolution (??but very inaccurate!) delay function */
-	
-	InitSleepMS();
-
 	/* Find input char. codes for important symbol table entries */
 	
 	for (j=0; j<nsyms; j++)
@@ -521,7 +517,7 @@ screen fonts. */
 
 void InitMusicFontStuff()
 {
-	short maxPtSize, sonataFontNum;
+	short maxPtSize;
 	
 	/*
 	 * We need a grafPort large enough for the largest music character in the largest
@@ -542,7 +538,6 @@ void InitMusicFontStuff()
 #else
 	fontPort = NewGrafPort(maxMCharWid, maxMCharHt);
 #endif
-	GetFNum("\pSonata", &sonataFontNum);				/* Get ID of standard music font */
 	CheckScreenFonts();
 }
 

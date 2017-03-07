@@ -80,7 +80,6 @@ void DRect2ScreenRect(DRect aDRect, DRect relRect, Rect paperRect, Rect *pScreen
 
 void RefreshScreen(void);
 
-void InitSleepMS(void);
 void SleepMS(long millisec);
 void SleepTicks(unsigned long ticks);
 void SleepTicksWaitButton(unsigned long ticks);
