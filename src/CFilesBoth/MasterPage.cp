@@ -165,7 +165,7 @@ static void UpdateSystemRects(Document *doc, LINK sysL)
  * left, or staff rastral size.
  */
 
-#define SLOP pt2d(1)
+#define DANGLING_SLOP pt2d(1)
 
 static Boolean DanglingContents(Document *doc)
 {
@@ -190,7 +190,7 @@ static Boolean DanglingContents(Document *doc)
 			system, to account for possible editing of marginRect.left */
 
 		rMargDiff = SysRectLEFT(masterSysL) - SysRectLEFT(sysL);
-		if (endxd > SysRectRIGHT(masterSysL)-rMargDiff+SLOP) return TRUE;
+		if (endxd > SysRectRIGHT(masterSysL)-rMargDiff+DANGLING_SLOP) return TRUE;
 	}
 	return FALSE;
 }

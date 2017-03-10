@@ -349,7 +349,7 @@ void FlashRect(Rect *pRect)
 /* Check to see if two Points (presumably on the screen) are within slop of each
 other. Needed for editing beams, lines, hairpins, etc. */
 
-#define SAME_POINT_SLOP 2
+#define SAME_POINT_SLOP 2		/* in pixels */
 
 Boolean SamePoint(Point p1, Point p2)
 {

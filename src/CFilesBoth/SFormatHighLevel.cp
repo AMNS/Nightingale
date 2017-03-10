@@ -512,8 +512,8 @@ void SFVisify(Document *doc)
 
 /* ----------------------------------------------------------------- EditSysRect -- */
 
-#define SLOP	1		/* For recognizing mousedown on system boundary (pixels) */
-#define GAP		4		/* Don't let margin closer to edge than this (pixels) */
+#define SYSBOUNDS_SLOP	1		/* For recognizing mousedown on system boundary (pixels) */
+#define MARGIN_GAP		4		/* Don't let margin closer to edge than this (pixels) */
 
 typedef enum {
 	LMARG,
@@ -573,10 +573,10 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 
 	/* Add a slop factor for each rectangle */
 	
-	InsetRect(&topMargin, 0, -SLOP);
-	InsetRect(&bottomMargin, 0, -SLOP);
-	InsetRect(&leftMargin, -SLOP, 0);
-	InsetRect(&rightMargin, -SLOP, 0);
+	InsetRect(&topMargin, 0, -SYSBOUNDS_SLOP);
+	InsetRect(&bottomMargin, 0, -SYSBOUNDS_SLOP);
+	InsetRect(&leftMargin, -SYSBOUNDS_SLOP, 0);
+	InsetRect(&rightMargin, -SYSBOUNDS_SLOP, 0);
 	
 	/*	Check to see if point is within our sloppy margin rectangles.  If so,
 		then use the applicable cursor, but muck with its hotspot first so
@@ -604,16 +604,16 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 
 		/* Shift the cursor's hotspot over by distance from line */
 		
-		dy = pt.v - (SLOP + ((marginType==TMARG) ? topMargin.top : (bottomMargin.top+1)));
+		dy = pt.v - (SYSBOUNDS_SLOP + ((marginType==TMARG) ? topMargin.top : (bottomMargin.top+1)));
 		(*cursorH)->hotSpot.v += dy;
 		SetCursor(*cursorH);
 
-		/* Don't let user drag margin closer than GAP pixels to appropriate edge
-			of paper, or GAP pixels to prev or next systems, etc. */
+		/* Don't let user drag margin closer than MARGIN_GAP pixels to appropriate edge
+			of paper, or MARGIN_GAP pixels to prev or next systems, etc. */
 
 		if (marginType==TMARG) {
 			if (FirstSysInPage(sysL))
-				minVal = doc->paperRect.top + GAP;
+				minVal = doc->paperRect.top + MARGIN_GAP;
 			else {
 				Rect prevSysRect;
 				LINK prevSysL = LinkLSYS(sysL);
@@ -626,7 +626,8 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 						break;
 				}
 				/* bottom of bottom staff of previous system */
-				minVal = prevSysRect.top + d2p(StaffTOP(aStaffL) + StaffHEIGHT(aStaffL)) + GAP;
+				minVal = prevSysRect.top + d2p(StaffTOP(aStaffL) + StaffHEIGHT(aStaffL))
+							+ MARGIN_GAP;
 			}
 
 			staffn = FirstStaffn(RightLINK(sysL));
@@ -636,7 +637,7 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 				if (StaffSTAFF(aStaffL)==staffn)
 					break;
 			}
-			maxVal = origMargin.top + d2p(StaffTOP(aStaffL)) - GAP;		/* top of top staff of cur sys */
+			maxVal = origMargin.top + d2p(StaffTOP(aStaffL)) - MARGIN_GAP;	/* top of top staff of cur sys */
 		}
 		else {
 			staffn = LastStaffn(RightLINK(sysL));
@@ -647,10 +648,11 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 					break;
 			}
 			/* bottom of bottom staff of current system */
-			minVal = origMargin.top + d2p(StaffTOP(aStaffL) + StaffHEIGHT(aStaffL)) + GAP;
+			minVal = origMargin.top + d2p(StaffTOP(aStaffL) + StaffHEIGHT(aStaffL))
+						+ MARGIN_GAP;
 
 			if (LastSysInPage(sysL))
-				maxVal = doc->paperRect.bottom - GAP;
+				maxVal = doc->paperRect.bottom - MARGIN_GAP;
 			else {
 				Rect nextSysRect;
 				LINK nextSysL = LinkRSYS(sysL);
@@ -662,7 +664,7 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 					if (StaffSTAFF(aStaffL)==staffn)
 						break;
 				}
-				maxVal = nextSysRect.top + d2p(StaffTOP(aStaffL)) - GAP;		/* top of top staff of next sys */
+				maxVal = nextSysRect.top + d2p(StaffTOP(aStaffL)) - MARGIN_GAP;	/* top of top staff of next sys */
 			}
 		}
 		minVal += doc->currentPaper.top;
@@ -678,20 +680,20 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 
 		/* Shift the cursor's hotspot over by distance from line */
 		
-		dx = pt.h - (SLOP + ((marginType==LMARG) ? leftMargin.left : (rightMargin.left+1)));
+		dx = pt.h - (SYSBOUNDS_SLOP + ((marginType==LMARG) ? leftMargin.left : (rightMargin.left+1)));
 		(*cursorH)->hotSpot.h += dx;
 		SetCursor(*cursorH);
 
-		/* Don't let user drag margin closer than GAP pixels to appropriate edge
-			of paper, or GAP*4 pixels to other end of system. */
+		/* Don't let user drag margin closer than MARGIN_GAP pixels to appropriate edge
+			of paper, or MARGIN_GAP*4 pixels to other end of system. */
 
 		if (marginType==LMARG) {
-			minVal = doc->paperRect.left + GAP;
-			maxVal = (doc->paperRect.left + origMargin.right) - (GAP * 4);
+			minVal = doc->paperRect.left + MARGIN_GAP;
+			maxVal = (doc->paperRect.left + origMargin.right) - (MARGIN_GAP * 4);
 		}
 		else {
-			minVal = (doc->paperRect.left + origMargin.left) + (GAP * 4);
-			maxVal = doc->paperRect.right - GAP;
+			minVal = (doc->paperRect.left + origMargin.left) + (MARGIN_GAP * 4);
+			maxVal = doc->paperRect.right - MARGIN_GAP;
 		}
 		minVal += doc->currentPaper.left;
 		maxVal += doc->currentPaper.left;

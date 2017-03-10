@@ -1226,7 +1226,7 @@ Ottava.
 
 -------------------------------------------------------------------------------
 
-28 Feb. - 6 Mar.
+28 Feb.-6 Mar.
 
 Replace (at last!) our timed-loop delay function with something much more accurate
 and far more robust against changes of processor speed, even drastic changes. Affects
@@ -1236,3 +1236,12 @@ Make "slop" values more explicit via #defines. Affects DragDynamic, UIFUtils.
 
 Minor cleanup. Affects AccModNRMouse, DragDynamic, Dragging, DragUtils, DrawObject,
 DSUtils, InitNightingale, UIFUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+7-9 Mar.
+
+Make SLOP #defines clearer by expanding their names and/or improving comments. Affects
+MasterMouse, MasterPage, SFormatHighLevel, UIFUtils.
+
+Other minor cleanup. Affects DragBeam, DSUtils, Insert, InsUtils, MasterMouse, Utility, 

@@ -1306,8 +1306,8 @@ clock_gettime(CLOCK_MONOTONIC, ...). See
 
    https://blog.habets.se/2010/09/gettimeofday-should-never-be-used-to-measure-time.html
 
-But if you just want to measure times of a few seconds or less, gettimeofday() is
-likely to work fine. */
+But in Nightingale we just want to measure times of a few seconds or less, and
+gettimeofday() is likely to work fine for that. */
 
 static long GetMillisecTime()
 {
@@ -1467,23 +1467,21 @@ char *StdVerNumToStr(long verNum, char *verStr)
 
 
 /* ---------------------------------------------------------------- PlayResource -- */
-
-
 /* Play a 'snd ' resource, as found in the given handle.  If sync is TRUE, play it
 synchronously here and return when it's done.  If sync is FALSE, start the sound
 playing and return before it's finished.  Deliver any error.  To stop a currently
 playing sound, call this with snd == NULL.
 
-Disposing of the sound handle is the caller's responsibility.  If you call this
-with sync==FALSE, then at some point in the future, it is the caller's responsibility
-to call again with snd==NULL, to unlock the locked sound.  This probably ought to
-be done in a completion routine somewhere. */
+Disposing of the sound handle is the caller's responsibility.  If this is called with
+sync==FALSE, then at some point in the future, it should be called again with
+snd==NULL, to unlock the locked sound. (But it'd be better to do that in a completion
+routine that's called automatically when the sound ends.) */
 
 short PlayResource(Handle snd, Boolean sync)
 	{
 		short err = noErr;
-		static SndChannel *theChanPtr;			/* Channel storage must come from heap */
-		static Handle theSound;					/* Initially NULL */
+		static SndChannel *theChanPtr;					/* Channel storage must come from heap */
+		static Handle theSound;							/* Initially NULL */
 		
 		/* First turn any current sound off if we're called for any reason */
 		

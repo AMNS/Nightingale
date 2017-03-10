@@ -1884,3 +1884,22 @@ extracted part contains _nothing_ but normal single barlines and whole measure r
 But why does the multibar rest still stop at m. 196? Because there's an invisible tempo
 mark in that measure, attached to the solo violin part, but extracted anyway! This is
 probably what I had in mind all along, i.e., thsi feature Works as Designed :-) .
+
+-------------------------------------------------------------------------------
+
+Early March
+
+Replace (at long last!) our ridiculous timed-loop millisecond delay function with
+something that uses gettimeofday()! It's been pointed out that timing something by
+comparing values of gettimeofday() can fail badly if the OS decides to update the
+time in the middle, but that's pretty unlikely for timing a few seconds or less, and
+that's all Ngale ever does.
+
+-------------------------------------------------------------------------------
+
+9 March
+
+Work on AddCautionaryTimesigs(). It's not hard to decide whether and where to add a
+cautionary timesig, but how to actually add it to object list? It could just call
+NewMeasure(), but might be better to mimic what NewMeasure() does to prepare, e.g.,
+call GetContext(); then call CreateMeasure() to add the object.

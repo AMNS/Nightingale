@@ -39,14 +39,14 @@ static Boolean QuantizeBeamEndYStems(Document *doc, LINK beamL, DDIST yDiffFirst
 static Boolean PtInBeam(Document *, Point, BEAMFEEDBACK *);
 static void EditBeam(Document *, LINK, short, BEAMFEEDBACK *);
 static void InitBeamGrips(BEAMFEEDBACK *);
-static void GetMaxSecs(LINK, short [], short [], short [], short *, short *);
+static void GetMaxSecBeams(LINK, short [], short [], short [], short *, short *);
 static void SetBeamFeedback(Document *, LINK, BEAMFEEDBACK *);
 static void InitBeamBounds(Document *, LINK, Rect *);
 static void DoBeamFeedback(Document *, BEAMFEEDBACK *);
 static void DrawBeamGrip(Document *, short);
 static void DrawBothGrips(Document *);
 
-static Point	lGrip, rGrip;				/* in paper coords */
+static Point lGrip, rGrip;				/* in paper coords */
 
 /* ------------------------------------------------------------------ DoBeamEdit -- */
 
@@ -54,10 +54,10 @@ void DoBeamEdit(Document *doc, LINK beamL)
 {
 	Point 			mousePt;							/* paper coords */
 	EventRecord		beamEventRec;
-	Rect				newObjRect, oldObjRect, updateRect;
+	Rect			newObjRect, oldObjRect, updateRect;
 	BEAMFEEDBACK	origBeam, oldBeam, thisBeam;
-	DDIST				yDiffLeft, yDiffRight, deltaFirst, deltaLast;
-	short				oldGripV, newGripV, grip;
+	DDIST			yDiffLeft, yDiffRight, deltaFirst, deltaLast;
+	short			oldGripV, newGripV, grip;
 
 	FlushEvents(everyEvent, 0);
 	
@@ -70,11 +70,11 @@ void DoBeamEdit(Document *doc, LINK beamL)
 	while (TRUE) {
 		if (GetNextEvent(updateMask, &beamEventRec)) {
 			if (grip != DRAGBEAM)
-				DrawBothGrips(doc);											/* erase grips */
+				DrawBothGrips(doc);								/* erase grips */
 			DoUpdate((WindowPtr)(beamEventRec.message));
 			ArrowCursor();
-			InitBeamGrips(&thisBeam);										/* grip h-pos may change */
-			DrawBothGrips(doc);												/* redraw them */
+			InitBeamGrips(&thisBeam);							/* grip h-pos may change */
+			DrawBothGrips(doc);									/* redraw them */
 		}
 		if (EventAvail(everyEvent, &beamEventRec)) {		
 			if (beamEventRec.what == mouseDown) {
@@ -92,13 +92,13 @@ void DoBeamEdit(Document *doc, LINK beamL)
 			GetNextEvent(mDownMask|mUpMask, &beamEventRec);
 			if (beamEventRec.what == mouseUp) continue;
 
-			/* Leave initial beam in gray. NB: If you want the beam
-			 * to be fainter than staff lines, use dkGray (sic) instead.
+			/* Leave initial beam in gray. NB: If you want the beam to be fainter
+			 * than staff lines, use dkGray (sic) instead.
 			 */
 			PenMode(patXor);
-			DoBeamFeedback(doc, &thisBeam);								/* erase black beam */
+			DoBeamFeedback(doc, &thisBeam);						/* erase black beam */
 			PenPat(NGetQDGlobalsGray());				/* ???dkGray might be better here; easier to see black beam */
-			DoBeamFeedback(doc, &thisBeam);								/* draw it in gray */
+			DoBeamFeedback(doc, &thisBeam);						/* draw it in gray */
 			PenNormal();
 
 			if (SamePoint(mousePt, lGrip)) {
@@ -157,7 +157,7 @@ void DoBeamEdit(Document *doc, LINK beamL)
 			Rect2Window(doc, &oldObjRect);
 			UnionRect(&oldObjRect, &newObjRect, &updateRect);
 			if (ShiftKeyDown()) {
-				FrameRect(&oldObjRect);				/* to debug update rect */
+				FrameRect(&oldObjRect);							/* to debug update rect */
 				SleepTicks(90L);
 				FrameRect(&newObjRect);
 				SleepTicks(90L);
@@ -196,12 +196,12 @@ putting the endpoints on different staff lines. */
 static Boolean QuantizeYStemsForBeam(CONTEXT context, Boolean stemUp, Boolean noCenter,
 										short ledgerSpaces, DDIST *pFirstystem, DDIST *pLastystem);
 static Boolean QuantizeYStemsForBeam(
-						CONTEXT context,
-						Boolean stemUp,
-						Boolean noCenter,						/* TRUE=don't allow the "center" position */
-						short ledgerSpaces,					/* How far above/below staff to go (spaces) */
-						DDIST *pFirstystem, DDIST *pLastystem	/* Both inputs and outputs! */
-						)
+					CONTEXT context,
+					Boolean stemUp,
+					Boolean noCenter,						/* TRUE=don't allow the "center" position */
+					short ledgerSpaces,						/* How far above/below staff to go (spaces) */
+					DDIST *pFirstystem, DDIST *pLastystem	/* Both inputs and outputs! */
+					)
 {
 	DDIST firstystem, lastystem, origFirstystem, origLastystem, dSpace, dQuarterSpace,
 			dRound, dTolerance;
@@ -323,15 +323,15 @@ static Boolean QuantizeBeamEndYStems(
 /* ------------------------------------------------------------------- PtInBeam -- */
 
 static Boolean PtInBeam(
-						Document			*doc,
-						Point				pt,			/* paper-rel coords */
-						BEAMFEEDBACK	*bm
-						)
+					Document		*doc,
+					Point			pt,			/* paper-rel coords */
+					BEAMFEEDBACK	*bm
+					)
 {
 	Point lPtUp, lPtDn, rPtUp, rPtDn;
 	register RgnHandle beamRgn;
-	short		thick,
-				slop = 3;				/* pixels, regardless of magnification */
+	short	thick,
+			slop = 3;				/* pixels, regardless of magnification */
 	Boolean	isInBeam;
 
 	thick = bm->thickness;
@@ -339,18 +339,18 @@ static Boolean PtInBeam(
 	Pt2Window(doc, &lPtUp);			Pt2Window(doc, &rPtUp);
 	lPtDn = lPtUp;						rPtDn = rPtUp;
 	
-	if (bm->leftUOD==STEM_DOWN)	{	lPtUp.v -= thick;		lPtDn.v++;			}
-	else 									{	lPtUp.v--;				lPtDn.v += thick;	}
-	if (bm->rightUOD==STEM_DOWN)	{	rPtUp.v -= thick;		rPtDn.v++;			}
-	else 									{	rPtUp.v--;				rPtDn.v += thick;	}
+	if (bm->leftUOD==STEM_DOWN)	{	lPtUp.v -= thick;	lPtDn.v++;			}
+	else 						{	lPtUp.v--;			lPtDn.v += thick;	}
+	if (bm->rightUOD==STEM_DOWN)	{	rPtUp.v -= thick;	rPtDn.v++;			}
+	else 							{	rPtUp.v--;			rPtDn.v += thick;	}
 	
-	lPtUp.v -= slop;					rPtUp.v -= slop;
-	lPtDn.v += slop;					rPtDn.v += slop;
+	lPtUp.v -= slop;		rPtUp.v -= slop;
+	lPtDn.v += slop;		rPtDn.v += slop;
 	
 	/* Define a region that encloses just the 1st primary beam + vertical slop... */
 	beamRgn = NewRgn();
 	OpenRgn();
-#ifdef DBDEBUG						/* for debugging rgn bounds */
+#ifdef DBDEBUG										/* for debugging region bounds */
 	ShowPen();
 #endif
 	MoveTo(lPtDn.h, lPtDn.v);
@@ -375,18 +375,18 @@ static Boolean PtInBeam(
 <mousePt> and grip points are in paper-relative coordinates. */
 
 static void EditBeam(
-					Document			*doc,
-					LINK				beamL,
-					short	 			grip,			/* Edit mode: LGRIP, RGRIP, DRAGBEAM */
-					BEAMFEEDBACK	*bm
-					)
+				Document		*doc,
+				LINK			beamL,
+				short	 		grip,			/* Edit mode: LGRIP, RGRIP, DRAGBEAM */
+				BEAMFEEDBACK	*bm
+				)
 {
 	Point		oldPt, newPt;
 	long		aLong;
-	Rect		boundsRect;				/* in paper coords */
+	Rect		boundsRect;					/* in paper coords */
 	short		dv;
 		
-	if (grip==DRAGBEAM)								/* Erase the handles prior to dragging the beam. */
+	if (grip==DRAGBEAM)									/* Erase the handles prior to dragging the beam. */
 		DrawBothGrips(doc);
 
 	InitBeamBounds(doc, beamL, &boundsRect);
@@ -407,7 +407,7 @@ static void EditBeam(
 			dv = newPt.v - oldPt.v;
 			
 			PenMode(patXor);
-			DoBeamFeedback(doc, bm);								/* erase old beam */
+			DoBeamFeedback(doc, bm);					/* erase old beam */
 			
 			switch (grip) {
 				case DRAGBEAM:
@@ -417,7 +417,7 @@ static void EditBeam(
 					bm->rightPt.v += dv;
 					break;
 				case LGRIP:
-					DrawBeamGrip(doc, LGRIP);							/* erase grip */
+					DrawBeamGrip(doc, LGRIP);			/* erase grip */
 					lGrip.v += dv;
 					bm->leftPt.v += dv;
 					break;
@@ -431,17 +431,17 @@ static void EditBeam(
 
 			if (grip != DRAGBEAM)
 				DrawBeamGrip(doc, grip);
-			DoBeamFeedback(doc, bm);									/* draw new beam */
+			DoBeamFeedback(doc, bm);					/* draw new beam */
 			
 			oldPt = newPt;
 		}
 	}
-	DoBeamFeedback(doc, bm);											/* erase old beam */
+	DoBeamFeedback(doc, bm);							/* erase old beam */
 	PenNormal();
 }
 
 
-/* -------------------------------------------------------------- InitBeamGrips -- */
+/* ------------------------------------------------------------------ InitBeamGrips -- */
 /* Set up handles for manipulating beam slant. */
 
 static void InitBeamGrips(BEAMFEEDBACK *bm)
@@ -457,19 +457,19 @@ static void InitBeamGrips(BEAMFEEDBACK *bm)
 }
 
 
-/* ------------------------------------------------------------------ GetMaxSecs -- */
+/* ----------------------------------------------------------------- GetMaxSecBeams -- */
 /* Get the max. no. of secondary beams above and below primaries in the given beam. */
 
-static void GetMaxSecs(
-					LINK		beamL,
-					short		nSecs[],
-					short		nSecsA[],
-					short		nSecsB[],
-					short		*pMaxAbove,
-					short		*pMaxBelow
-					)
+static void GetMaxSecBeams(
+				LINK	beamL,
+				short	nSecs[],
+				short	nSecsA[],
+				short	nSecsB[],
+				short	*pMaxAbove,
+				short	*pMaxBelow
+				)
 {
-	short numEntries, maxAbove, maxBelow; register short n;
+	short numEntries, maxAbove, maxBelow;  register short n;
 	
 	numEntries = LinkNENTRIES(beamL);
 	maxAbove = maxBelow = 0;
@@ -514,18 +514,18 @@ downstemmed notes sit on the points. */
 		that just dumbly offsets current ystem.
 */
 
-#define BEAMTABLEN 300	/* Should be enough: even 127 alternate 128ths & 8ths need only 257 */
+#define BEAMTABLEN 300	/* Should be plenty: even 127 alternate 128ths & 8ths need only 257 */
 
 static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 {
-	PBEAMSET		beamP;
-	BEAMINFO		beamTab[BEAMTABLEN];
-	short			firstStaff, lastStaff, voice, stemUOD, n, whichWay, beamCount,
-					maxAbove, maxBelow, nPrimary, fracLevUp, fracLevDown;
-	short			nSecs[MAXINBEAM], nSecsA[MAXINBEAM], nSecsB[MAXINBEAM];
-	DDIST			sysLeft, firstStaffTop, lastStaffTop, firstSyncXD, lastSyncXD, beamThick,
-					firstXStem, lastXStem, leftYstem, rightYstem, flagYDelta, xtraWidD, dQuarterSp;
-	LINK			firstSyncL, lastSyncL, firstNoteL, lastNoteL, staffL, aStaffL, measL;
+	PBEAMSET	beamP;
+	BEAMINFO	beamTab[BEAMTABLEN];
+	short		firstStaff, lastStaff, voice, stemUOD, n, whichWay, beamCount,
+				maxAbove, maxBelow, nPrimary, fracLevUp, fracLevDown;
+	short		nSecs[MAXINBEAM], nSecsA[MAXINBEAM], nSecsB[MAXINBEAM];
+	DDIST		sysLeft, firstStaffTop, lastStaffTop, firstSyncXD, lastSyncXD, beamThick,
+				firstXStem, lastXStem, leftYstem, rightYstem, flagYDelta, xtraWidD, dQuarterSp;
+	LINK		firstSyncL, lastSyncL, firstNoteL, lastNoteL, staffL, aStaffL, measL;
 	CONTEXT		firstContext, lastContext;
 	SignedByte	stemUpDown[MAXINBEAM];
 
@@ -603,7 +603,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	if (beamP->crossSystem) {
 		dQuarterSp = LNSPACE(&firstContext)/4;
 		if (beamP->firstSystem)	bm->rightPt.h += d2p(config.crossStaffBeamExt*dQuarterSp);
-		else							bm->leftPt.h -= d2p(config.crossStaffBeamExt*dQuarterSp);
+		else					bm->leftPt.h -= d2p(config.crossStaffBeamExt*dQuarterSp);
 	}
 
 	/* If there's more than 1 primary beam and the beamset is a center (or cross-staff) beam,
@@ -626,14 +626,14 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	}
 	else { 		/* Be sure normal (thin) beams are at least 2 (1) pixels thick. */	
 		if (beamP->thin)	beamThick = beamThick<p2d(1)? p2d(1) : beamThick;
-		else					beamThick = beamThick<p2d(2)? p2d(2) : beamThick;	
+		else				beamThick = beamThick<p2d(2)? p2d(2) : beamThick;	
 	}
 	bm->thickness = d2p(beamThick);
 
 	/* Determine TMPOBJRECT */
 	
-	/* Determine right and left of objRect, taking into account any
-	 * otherstemside notes, accidentals and dots.
+	/* Determine right and left of objRect, taking into account any otherstemside
+	 * notes, accidentals and dots.
 	 */
 	 
 	xtraWidD = SymDWidthLeft(doc, firstSyncL, firstStaff, firstContext);
@@ -663,7 +663,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 		bm->objRect.bottom += bm->thickness;
 
 	/* ...and for any other primary, secondary and fractional beams */
-	GetMaxSecs(beamL, nSecs, nSecsA, nSecsB, &maxAbove, &maxBelow);
+	GetMaxSecBeams(beamL, nSecs, nSecsA, nSecsB, &maxAbove, &maxBelow);
 
 	if (nPrimary > 1) {
 		bm->objRect.top -= d2p((nPrimary-1) * flagYDelta);
@@ -677,7 +677,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	/* Make sure rect encloses any fractional beams */
 	fracLevUp = fracLevDown = 0;
 	for (n=0; n<beamCount; n++) {
-		if (beamTab[n].start==beamTab[n].stop) {						/* it's a fractional beam */
+		if (beamTab[n].start==beamTab[n].stop) {				/* it's a fractional beam */
 			if (beamTab[n].startLev < 0 && beamTab[n].startLev < fracLevUp)
 				fracLevUp = beamTab[n].startLev;
 			else if (beamTab[n].startLev > 0 && beamTab[n].startLev > fracLevDown)
@@ -697,26 +697,26 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 }
 
 
-/* -------------------------------------------------------------- InitBeamBounds -- */
+/* ----------------------------------------------------------------- InitBeamBounds -- */
 /* Set up the rectangle beyond which the user won't be allowed to drag the beam. */
 
 #define SYSHT_SLOP pt2d(8)		/* DDIST */
 
 static void InitBeamBounds(
 					Document *doc,
-					LINK		beamL,
-					Rect		*bounds 				/* paper coords */
+					LINK	beamL,
+					Rect	*bounds 				/* paper coords */
 					)
 {
-	short		staffn;
+	short	staffn;
 	CONTEXT	context;
 
-	staffn = BeamSTAFF(beamL);												/* doesn't matter which one of beam's staves */
+	staffn = BeamSTAFF(beamL);									/* doesn't matter which one of beam's staves */
 	GetContext(doc, beamL, staffn, &context);
 	
 	bounds->top = d2p(context.systemTop - SYSHT_SLOP);
 	bounds->bottom = d2p(context.systemBottom + SYSHT_SLOP);
-	bounds->left = d2p(context.systemLeft);							/* really irrelevant for beams, because no horiz. motion allowed */
+	bounds->left = d2p(context.systemLeft);						/* really irrelevant for beams, because no horiz. motion allowed */
 	bounds->right = d2p(context.staffRight);
 }
 
@@ -751,14 +751,14 @@ static void DoBeamFeedback(Document *doc, BEAMFEEDBACK *bm)
 /* Draw a small box for the left or right grip of the feedback beam. */
 
 static void DrawBeamGrip(
-					Document *doc,
-					short		whichOne 		/* LGRIP or RGRIP */
-					)
+				Document *doc,
+				short	whichOne 		/* LGRIP or RGRIP */
+				)
 {
 	Point gripPt;
 
 	if (whichOne==LGRIP)	gripPt = lGrip;
-	else						gripPt = rGrip;
+	else					gripPt = rGrip;
 	Pt2Window(doc, &gripPt);
 	DrawBox(gripPt, BOXSIZE);
 }
@@ -784,10 +784,10 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 	DDIST		hDiff,						/* horiz. distance btw. 1st and last syncs in beam */
 				noteDiff, stemChange;
 	LINK		qL, firstSyncL, lastSyncL, qSubL;
-	PANOTE	qSub;
+	PANOTE		qSub;
 	short		h, stemUp, oldStemUp;
 	FASTFLOAT 	fhDiff, fnoteDiff, fyDiff;
-	Boolean	stemDirChange, didFixChordForYStem = FALSE;
+	Boolean		stemDirChange, didFixChordForYStem = FALSE;
 
 	firstSyncL = FirstInBeam(beamL);
 	lastSyncL = LastInBeam(beamL);
@@ -819,7 +819,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 								}
 								if (qSub->ystem>qSub->yd) oldStemUp = -1;		/* get current stem direction */
 								else oldStemUp = 1;
-						 		qSub->ystem += stemChange;							/* change stem length */
+						 		qSub->ystem += stemChange;						/* change stem length */
 								if (qSub->ystem>qSub->yd) stemUp = -1;			/* get new stem direction */
 								else stemUp = 1;
 								if (oldStemUp != stemUp) stemDirChange = TRUE;
@@ -861,10 +861,10 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 						if ((NoteVOICE(qSubL)==BeamVOICE(beamL)) && MainNote(qSubL)) {
 							qSub = GetPANOTE(qSubL);
 							if (qSub->beamed) {
-								if (qSub->ystem>qSub->yd) oldStemUp = -1;		/* get current stem direction */
+								if (qSub->ystem>qSub->yd) oldStemUp = -1;	/* get current stem direction */
 								else oldStemUp = 1;
-						 		qSub->ystem += yDiff;								/* change stem length */
-								if (qSub->ystem>qSub->yd) stemUp = -1;			/* get new stem direction */
+						 		qSub->ystem += yDiff;						/* change stem length */
+								if (qSub->ystem>qSub->yd) stemUp = -1;		/* get new stem direction */
 								else stemUp = 1;
 								if (oldStemUp != stemUp) stemDirChange = TRUE;
 							}
@@ -872,8 +872,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 								if (!NoteREST(qSubL))
 									MayErrMsg("FixStemLengths: Unbeamed note in sync %ld where beamed note expected", (long)qL);
 
-							if (!NoteREST(qSubL) || qSub->beamed)
-								h++;
+							if (!NoteREST(qSubL) || qSub->beamed) h++;
 						}
 					}
 					/* Call FixChordForYStem only if stem direction has changed. Otherwise,
@@ -915,10 +914,10 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 	DDIST		hDiff,						/* horiz. distance btw. 1st and last syncs in beam */
 				noteDiff, stemChange;
 	LINK		qL, firstGRSyncL, lastGRSyncL, qSubL;
-	PANOTE	qSub;
+	PANOTE		qSub;
 	short		h, stemUp, oldStemUp;
 	FASTFLOAT 	fhDiff, fnoteDiff, fyDiff;
-	Boolean	stemDirChange, didFixChordForYStem = FALSE;
+	Boolean		stemDirChange, didFixChordForYStem = FALSE;
 
 	firstGRSyncL = FirstInBeam(beamL);
 	lastGRSyncL = LastInBeam(beamL);
@@ -948,10 +947,10 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 									}
 									else stemChange = 0;
 								}
-								if (qSub->ystem>qSub->yd) oldStemUp = -1;		/* get current stem direction */
+								if (qSub->ystem>qSub->yd) oldStemUp = -1;	/* get current stem direction */
 								else oldStemUp = 1;
-						 		qSub->ystem += stemChange;							/* change stem length */
-								if (qSub->ystem>qSub->yd) stemUp = -1;			/* get new stem direction */
+						 		qSub->ystem += stemChange;					/* change stem length */
+								if (qSub->ystem>qSub->yd) stemUp = -1;		/* get new stem direction */
 								else stemUp = 1;
 								if (oldStemUp != stemUp) stemDirChange = TRUE;
 							}
@@ -991,10 +990,10 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 						if ((GRNoteVOICE(qSubL)==BeamVOICE(beamL)) && GRMainNote(qSubL)) {
 							qSub = GetPAGRNOTE(qSubL);
 							if (qSub->beamed) {
-								if (qSub->ystem>qSub->yd) oldStemUp = -1;		/* get current stem direction */
+								if (qSub->ystem>qSub->yd) oldStemUp = -1;	/* get current stem direction */
 								else oldStemUp = 1;
-						 		qSub->ystem += yDiff;								/* change stem length */
-								if (qSub->ystem>qSub->yd) stemUp = -1;			/* get new stem direction */
+						 		qSub->ystem += yDiff;						/* change stem length */
+								if (qSub->ystem>qSub->yd) stemUp = -1;		/* get new stem direction */
 								else stemUp = 1;
 								if (oldStemUp != stemUp) stemDirChange = TRUE;
 							}

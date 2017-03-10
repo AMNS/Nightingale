@@ -2,7 +2,7 @@
 	FILE:	DSUtils.c
 	PROJ:	Nightingale
 	DESC:	Utility routines for examining and manipulating the main data
-			structure (the object list).
+			structure, the object list.
 
 		NRGRInMeasure			FakeMeasure				UpdatePageNums
 		UpdateSysNums			UpdateMeasNums			GetMeasNum
@@ -76,10 +76,10 @@ static Boolean NRGRInMeasure(Document *doc, LINK measL)
 
 
 /* ------------------------------------------------------------------ FakeMeasure -- */
-/* If <measL>, which must be a Measure, doesn't start a real measure, return TRUE. By
-"not a real measure", we mean it's at the end of a system and contains no notes,
+/* If <measL>, which must be a Measure obj, doesn't start a real measure, return TRUE.
+By "not a real measure", we mean it's at the end of a System and contains no notes,
 rests, or grace notes (so it's just ending the previous measure), or it's at the
-beginning of a system and the last measure in the previous system is a real measure
+beginning of a System and the last Measure in the previous System is a real measure
 (so we have a measure split across systems). Intended for use in assigning and
 displaying measure numbers. */
 
@@ -331,7 +331,7 @@ DDIST PageRelxd(LINK pL, PCONTEXT pContext)
 			firstL = SlurFIRSTSYNC(pL);
 			lastL = SlurLASTSYNC(pL);
 			xd = SyncTYPE(firstL) ? PageRelxd(firstL, pContext) :
-											PageRelxd(lastL, pContext);
+										PageRelxd(lastL, pContext);
 			return xd+objXD;
 		case TUPLETtype:
 			firstL = FirstInTuplet(pL);
@@ -549,8 +549,8 @@ DDIST ObjSpaceUsed(Document *doc, LINK pL)
 				symWidth = SymWidthRight(doc, pL, noteStaff, FALSE);
 				GetContext(doc, pL, noteStaff, &context);
 				return ((space >= symWidth) ? 
-										std2d(space,context.staffHeight,5) :
-				 						std2d(symWidth,context.staffHeight,5));
+								std2d(space,context.staffHeight, 5) :
+								std2d(symWidth,context.staffHeight, 5));
 		case TIMESIGtype:
 		case KEYSIGtype:
 		case DYNAMtype:
@@ -814,7 +814,7 @@ DDIST GetSysLeft(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- StaffHeight -- */
+/* -------------------------------------------------------------------- StaffHeight -- */
 /* Get the staffHeight at the specified object on the specified staff. This is
 done by searching backwards for a Staff object and getting the information from
 there. */
@@ -938,8 +938,8 @@ void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 
 
 /* ------------------------------------------------------------------- MeasWidth -- */
-/* If <pL> is a Measure, return its width, otherwise return the width of
-the Measure <pL> is in. */
+/* If <pL> is a Measure, return its width, otherwise return the width of the
+Measure <pL> is in. */
 
 DDIST MeasWidth(LINK pL)
 {
@@ -1192,10 +1192,10 @@ Boolean ConsecSync(LINK syncA, LINK syncB, short staff, short voice)
 
 
 /* ---------------------------------------- LinkBefFirstMeas, BeforeFirstPageMeas -- */
-/* Is the object (not the selection range ptr) pL before the first Measure of
-its System?
+/* Is the object (not the selection range ptr or insertion point!) pL before the first
+Measure of its System?  Cf. the BeforeFirstMeas() function.
 
-This makes no reference to the selection range. If doc->selStartL indicates an
+NB: This makes no reference to the selection range. If doc->selStartL indicates an
 insertion point at the end of a System, it will be the following system object
 (or tail); if called with this object, this function will return TRUE, because
 the System is before the first Measure of its system. For selection range and
@@ -1270,23 +1270,25 @@ static LINK GetFirstObj(LINK pL)
 	}
 }
 
-/* ------------------------------------------------------------- BeforeFirstMeas -- */
-/* Return TRUE if selection range ptr or insertion point (not object) pL is before
+/* ---------------------------------------------------------------- BeforeFirstMeas -- */
+/* Return TRUE if selection range ptr or insertion point (not object!) pL is before
 the first Measure of its System. Specifically:
-	If pL is the head, returns TRUE; if pL is the tail, returns FALSE.
-	If pL is a Page, returns TRUE if pL is the first page of the score;
-		returns FALSE if pL is any succeeding Page, which represents an
-		insPt at the end of prev Page.
-	If pL is a System, returns TRUE if pL is the first System of its Page,
-		and FALSE for any succeeding System on the Page, which represents an
-		insPt at end of prev Sys.
-	If pL is the first measure of its system, returns FALSE.
+	If pL is the head, return TRUE; if pL is the tail, return FALSE.
+	If pL is a Page, return TRUE if pL is the first page of the score; return
+		FALSE if pL is any succeeding Page, since that represents an insertion
+		point at the end of the previous Page.
+	If pL is a System, return TRUE if pL is the first System of its Page, but
+		FALSE for any succeeding System on the Page, since that represents an
+		insertion point at the end of the previous System.
+	If pL is the first Measure of its System, return FALSE.
+
+The equivalent function for objects is LinkBefFirstMeas().
 
 BeforeFirstMeas depends upon certain constraints on the ordering of the object
 list, as follows:
-#1. This will work correctly if there is nothing belonging to a nonFirstInScore
+#1. This will work correctly if there is nothing belonging to a non-FirstInScore
 page located prior to that page object.
-#2. This will work correctly if there is nothing belonging to a nonFirstInPage
+#2. This will work correctly if there is nothing belonging to a non-FirstInPage
 system located prior to that system object.
 #3. If before the first system of a succeeding page, Search right for system
 from pL will return last system of previous page; its SysPAGE will not be the
@@ -1297,7 +1299,7 @@ tested will also be the previous page, and test will fail.
 
 Boolean BeforeFirstMeas(LINK pL)
 {
-	LINK firstL,pageL,sysL,firstMeasL;
+	LINK firstL, pageL, sysL, firstMeasL;
 	
 	switch (ObjLType(pL)) {
 		case HEADERtype:
@@ -1306,10 +1308,10 @@ Boolean BeforeFirstMeas(LINK pL)
 			return FALSE;									/* After everything */
 		case PAGEtype:
 			if (FirstPageInScore(pL)) return TRUE;			/* Before first meas of score */
-			return FALSE;									/* At end of prev page  Cf. #1. */
+			return FALSE;									/* At end of prev Page.  Cf. #1. */
 		case SYSTEMtype:
-			if (FirstSysInPage(pL)) return TRUE;			/* Between page obj and 1st meas */
-			return FALSE;									/* At end of prev sys. Cf. #2. */
+			if (FirstSysInPage(pL)) return TRUE;			/* Between Page obj and 1st meas */
+			return FALSE;									/* At end of prev System. Cf. #2. */
 		default:
 			if (J_DTYPE(pL) && HasFirstObj(pL)) {
 				firstL = GetFirstObj(pL);
@@ -1320,7 +1322,7 @@ Boolean BeforeFirstMeas(LINK pL)
 			if (!pageL) return TRUE;						/* Before any Page */
 
 			sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
-			if (!sysL) return TRUE;							/* Before any system */			
+			if (!sysL) return TRUE;							/* Before any System */			
 
 			if (SysPAGE(sysL)!=pageL) return TRUE;			/* Before the 1st System of a succeeding page. Cf. #3. */
 		
@@ -1329,7 +1331,7 @@ Boolean BeforeFirstMeas(LINK pL)
 	}
 }
 
-/* ------------------------------------------------------------- GetCurrentPage -- */
+/* ----------------------------------------------------------------- GetCurrentPage -- */
 /* Get the current Page object. */
 
 LINK GetCurrentPage(Document *doc)
@@ -2124,7 +2126,8 @@ void CountInHeaps(Document *doc,
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
-				if (aModNRL = aNote->firstMod) {
+				aModNRL = aNote->firstMod;
+				if (aModNRL) {
 					for ( ; aModNRL; aModNRL = NextMODNRL(aModNRL))
 						numMods++;
 				}
@@ -2612,9 +2615,9 @@ Boolean ObjHasVoice(LINK pL)
 	}
 }
 
-/* ----------------------------------------------------------------- ObjHasVoice -- */
+/* -------------------------------------------------------------------- ObjHasVoice -- */
 /* If pL has a voice, if it is selected in the voice or one of its subObjects is,
-return the obj or subObj. ??Should make calling sequence analogous to ObjOnStaff
+return the obj or subObj. FIXME: Should make calling sequence analogous to ObjOnStaff
 and rename it ObjInVoice. */
 
 LINK ObjSelInVoice(LINK pL, short v)
@@ -2624,12 +2627,12 @@ LINK ObjSelInVoice(LINK pL, short v)
 	if (ObjHasVoice(pL)) {
 		switch (ObjLType(pL)) {
 			case SYNCtype:
-				if (aNoteL = NoteInVoice(pL, v, TRUE))
-					return aNoteL;
+				aNoteL = NoteInVoice(pL, v, TRUE);
+				if (aNoteL) return aNoteL;
 				return NILINK;
 			case GRSYNCtype:
-				if (aNoteL = GRNoteInVoice(pL, v, TRUE))
-					return aNoteL;
+				aNoteL = GRNoteInVoice(pL, v, TRUE);
+				if (aNoteL) return aNoteL;
 				return NILINK;
 			case BEAMSETtype:
 				if (BeamVOICE(pL) == v) link = pL; break;

@@ -32,8 +32,10 @@ static Boolean TrkInsNote(Document *, Point, short *, short);
 static Boolean TrkInsGRSync(Document *, LINK, Point, short *, short);
 static Boolean TrkInsGRNote(Document *, Point, short *, short);
 static LINK FindJIP(LINK, LINK);
+static short Type2SymTableIndex(SignedByte objtype, SignedByte subtype);
 static Boolean ChkInsMODNR(LINK, short);
 static Boolean InsertHairpin(Document *, Point, LINK, short);
+static short GetNoteStfVoice(LINK pL, short index, short *v);
 
 	
 /* Utility to add new GRSync before an object found by TimeSearchRight in AddGRNote. */
@@ -85,7 +87,7 @@ static Boolean AddChordSlash(
 						short octType
 						)
 {
-	LINK aNoteL; PANOTE aNote; short pitchLev;
+	LINK aNoteL;  PANOTE aNote;  short pitchLev;
 	
 	pitchLev = 4;
 	aNoteL = AddNote(doc, x, qtrNoteInChar, staff, pitchLev, 0, octType);
@@ -104,7 +106,7 @@ static Boolean AddChordSlash(
 
 static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, short *sym, short staff)
 {
-	LINK 	qL, octL;
+	LINK qL, octL;
 	short octType=-1;
 	short pitchLev, acc;
 
@@ -192,7 +194,7 @@ static Boolean TrkInsGRSync(Document *doc, LINK rightL, Point pt, short *sym, sh
 
 static Boolean TrkInsGRNote(Document *doc, Point pt, short *sym, short staff)
 {
-	short pitchLev, acc; LINK octL;
+	short pitchLev, acc;  LINK octL;
 	short octType=-1;
 
 	if (octL = OctOnStaff(doc->selStartL, staff))
@@ -262,14 +264,14 @@ Boolean InsertNote(
 			Boolean isGraphic		/* graphic ("by position") or temporal insert */
 			)
 {
-	short		clickStaff,		/* staff user clicked in */
-				sym,			/* index of current palChar in symtable[] */
-				voice;			/* voice to insert in */
-	LINK		addToSyncL,		/* sync to add note/rest to */
-				nodeRightL,		/* node to right of insertion pt */
-				pLPIL,
-				jipL, rightL, pL;
-	long		lTime;			/* logical time */
+	short	clickStaff,		/* staff user clicked in */
+			sym,			/* index of current palChar in symtable[] */
+			voice;			/* voice to insert in */
+	LINK	addToSyncL,		/* sync to add note/rest to */
+			nodeRightL,		/* node to right of insertion pt */
+			pLPIL,
+			jipL, rightL, pL;
+	long	lTime;			/* logical time */
 	
 	/* Get the staff to insert on (and set doc->currentSystem) */
 
@@ -371,8 +373,8 @@ mousedown at the given point. Handles feedback and allows cancelling. */
 Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 {
 	short clickStaff, voice, sym;
-	LINK  nodeRightL, pLPIL, addToSyncL, addToGRSyncL;
-	long	lTime;
+	LINK nodeRightL, pLPIL, addToSyncL, addToGRSyncL;
+	long lTime;
 
 	/* Get the staff to insert on (and set doc->currentSystem) */
 
@@ -711,8 +713,7 @@ Cancelled:
 InitNightGlobals for another way to do this: it's probably better to use this
 function locally and avoid globals. */
 
-short Type2SymTableIndex(SignedByte objtype, SignedByte subtype);
-short Type2SymTableIndex(SignedByte objtype, SignedByte subtype)
+static short Type2SymTableIndex(SignedByte objtype, SignedByte subtype)
 {
 	short j;
 	
@@ -796,7 +797,7 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 }
 
 
-/* ----------------------------------------------------------------- ChkInsMODNR -- */
+/* -------------------------------------------------------------------- ChkInsMODNR -- */
 /* Return FALSE to indicate we won't handle addition of MODNR in this situation. If
 object is not a note or rest, we won't handle it, but will give the user some advice
 on how to get what they seem to want. */
@@ -819,7 +820,7 @@ static Boolean ChkInsMODNR(LINK insSyncL, short sym)
 	return TRUE;
 }
 
-/* ------------------------------------------------------------------InsertMODNR -- */
+/* ---------------------------------------------------------------------InsertMODNR -- */
 /* Adds a MODNR ("Modify Note/Rest") or augmentation dot to a note or rest at
 the given point. Handles feedback and (other than for aug. dots) and allows
 cancelling. */
@@ -1076,13 +1077,13 @@ at the given point. */
 
 Boolean InsertKeySig(Document *doc, Point pt)
 {
-	short		clickStaff,							/* staff user clicked in */
-				sharps=0,flats=0,
-				sharpsOrFlats=0;
-	LINK		pLPIL,								/* pointer to Last Previous Item */
-				insNodeL;
-	long		lTime;								/* logical time */
-	static Boolean onAllStaves=TRUE;				/* or "This Staff Only" */
+	short	clickStaff,							/* staff user clicked in */
+			sharps=0,flats=0,
+			sharpsOrFlats=0;
+	LINK	pLPIL,								/* pointer to Last Previous Item */
+			insNodeL;
+	long	lTime;								/* logical time */
+	static Boolean onAllStaves=TRUE;			/* or "This Staff Only" */
 
 	if (!KeySigDialog(&sharps, &flats, &onAllStaves, TRUE))
 		return FALSE;
@@ -1120,12 +1121,11 @@ at the given point. */
 
 Boolean InsertTimeSig(Document *doc, Point pt)
 {
-	short		clickStaff;
-	LINK		pLPIL,									/* pointer to Last Previous Item */
-				insNodeL;
-	long		lTime;									/* logical time */
-	static short type=N_OVER_D,
-					numerator=4,denominator=4;
+	short	clickStaff;
+	LINK	pLPIL,									/* pointer to Last Previous Item */
+			insNodeL;
+	long	lTime;									/* logical time */
+	static short type=N_OVER_D, numerator=4, denominator=4;
 	static Boolean onAllStaves=TRUE;					/* or "This Staff Only" */
 
 	if (!TimeSigDialog(&type, &numerator, &denominator, &onAllStaves, TRUE))
@@ -1191,7 +1191,7 @@ static Boolean InsertHairpin(Document *doc, Point pt, LINK /*pL*/, short clickSt
 }
 
 
-/* -------------------------------------------------------------- InsertDynamic -- */
+/* ------------------------------------------------------------------ InsertDynamic -- */
 /* Insert a dynamic marking at a place in the object list suitable for a
 mousedown at the given point. Handles feedback and allows cancelling. */
 
@@ -1247,7 +1247,7 @@ Boolean InsertDynamic(Document *doc, Point pt)
 }
 
 
-static short GetNoteStfVoice(LINK pL, short index, short *v);
+/* ---------------------------------------------------------------- GetNoteStfVoice -- */
 
 static short GetNoteStfVoice(LINK pL, short index, short *v)
 {
@@ -1264,7 +1264,8 @@ static short GetNoteStfVoice(LINK pL, short index, short *v)
 	*v = NOONE; return NOONE;
 }
 
-/* ------------------------------------------------------------------ InsertSlur -- */
+
+/* --------------------------------------------------------------------- InsertSlur -- */
 /* Insert a slur (or set of ties) at a place in the object list suitable
 for a mousedown at the given point. */
 

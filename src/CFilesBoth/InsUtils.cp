@@ -2102,14 +2102,14 @@ Boolean NewObjInit(Document *doc, short type, short *sym, char inchar, short sta
 	
 	/* If doc->selStartL is before the first Measure, GetContext will not define
 	 * all fields. For now, at least fill the most important ones in with the
-	 * likely (but not guaranteed) values--a lousy way to handle this.
+	 * likely (but not guaranteed) values--a lousy way to handle this. FIXME:
 	 * GetContext should really always define these!
 	 */
 	 context->staffHeight = drSize[doc->srastral];
 	 context->staffLines = STFLINES;
 
-	if (staff==ANYONE) GetContext(doc, LeftLINK(doc->selStartL), 1, context);
-	else 					 GetContext(doc, LeftLINK(doc->selStartL), staff, context);
+	if (staff==ANYONE)	GetContext(doc, LeftLINK(doc->selStartL), 1, context);
+	else				GetContext(doc, LeftLINK(doc->selStartL), staff, context);
 
 	return TRUE;
 }

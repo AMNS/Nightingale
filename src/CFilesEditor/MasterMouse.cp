@@ -16,8 +16,8 @@ to be modified, mostly by menu commands. */
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#define SLOP	1		/* pixels */
-#define GAP		4		/* pixels */
+#define BOUNDS_SLOP	1		/* For recognizing mousedown on boundary (pixels) */
+#define MARGIN_GAP	4		/* Don't let margin closer to edge than this (pixels) */
 
 enum {
 	LMARG,
@@ -106,29 +106,29 @@ void MPDrawParams(Document *doc,
 
 
 static void DrawMarginParams(Document *doc,
-										short whichMarg, short marg,
-										short /*d*/)						/* Unused */
-	{
-		char fmtStr[256];
-		
-		switch (whichMarg) {
-			case LMARG:
-				GetIndCString(fmtStr, MPGENERAL_STRS, 3);				/*	"Left margin" */
-				break;
-			case TMARG:
-				GetIndCString(fmtStr, MPGENERAL_STRS, 4);				/*	"Top margin" */
-				break;
-			case RMARG:
-				GetIndCString(fmtStr, MPGENERAL_STRS, 5);				/*	"Right margin" */
-				break;
-			case BMARG:
-				GetIndCString(fmtStr, MPGENERAL_STRS, 6);				/*	"Bottom margin" */
-				break;
-		}
-		sprintfInches((char *)fmtStr, p2pt(marg));
-
-		DrawMessageString(doc, strBuf);
+									short whichMarg, short marg,
+									short /*d*/)						/* Unused */
+{
+	char fmtStr[256];
+	
+	switch (whichMarg) {
+		case LMARG:
+			GetIndCString(fmtStr, MPGENERAL_STRS, 3);				/*	"Left margin" */
+			break;
+		case TMARG:
+			GetIndCString(fmtStr, MPGENERAL_STRS, 4);				/*	"Top margin" */
+			break;
+		case RMARG:
+			GetIndCString(fmtStr, MPGENERAL_STRS, 5);				/*	"Right margin" */
+			break;
+		case BMARG:
+			GetIndCString(fmtStr, MPGENERAL_STRS, 6);				/*	"Bottom margin" */
+			break;
 	}
+	sprintfInches((char *)fmtStr, p2pt(marg));
+
+	DrawMessageString(doc, strBuf);
+}
 
 
 /* If the user is editing the Master Page, find out here if she is editing the
@@ -138,7 +138,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 	{
 		Boolean didSomething = FALSE; Point oldPt;
 		Rect topMargin,leftMargin,rightMargin,bottomMargin,margin;		/* in pixels */
-		Rect origMarginRect;															/* in points */
+		Rect origMarginRect;											/* in points */
 		CursHandle upDownCursor,rightLeftCursor;
 		short *dragVal,oldVal,dx,dy,minVal,maxVal;
 		Boolean horiz=FALSE,vert=FALSE,moved;
@@ -152,7 +152,6 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 		 *	We use these bounding boxes to determine if the user has clicked
 		 *	on any of the four sides of the margin box.
 		 */
-		
 		oldPt = pt;
 		origMarginRect = doc->marginRect;
 		margin = origMarginRect;
@@ -172,8 +171,8 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 		
 		/* Add a slop factor for each rectangle */
 		
-		InsetRect(&topMargin,0,-SLOP); InsetRect(&bottomMargin,0,-SLOP);
-		InsetRect(&leftMargin,-SLOP,0); InsetRect(&rightMargin,-SLOP,0);
+		InsetRect(&topMargin,0,-BOUNDS_SLOP); InsetRect(&bottomMargin,0,-BOUNDS_SLOP);
+		InsetRect(&leftMargin,-BOUNDS_SLOP,0); InsetRect(&rightMargin,-BOUNDS_SLOP,0);
 		
 		/* During dragging we work in window coordinates instead of paper */
 		
@@ -193,22 +192,22 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 				HandToHand((Handle *)&upDownCursor);
 				if (MemError() == noErr) {
 					/* Shift the cursor's hotspot over by distance from line */
-					dy = pt.v - (SLOP + (inTop ? topMargin.top : (bottomMargin.top+1)));
+					dy = pt.v - (BOUNDS_SLOP + (inTop ? topMargin.top : (bottomMargin.top+1)));
 					(*upDownCursor)->hotSpot.v += dy;
 					SetCursor(*upDownCursor);
 					/*
 					 *	Precompute values of interest; don't let margin closer
-					 *	than GAP pixels to edge
+					 *	than MARGIN_GAP pixels to edge
 					 */
 					if (inTop) {
 						dragVal = &margin.top;
-						minVal = doc->paperRect.top + GAP;
-						maxVal = doc->marginRect.bottom - GAP;
+						minVal = doc->paperRect.top + MARGIN_GAP;
+						maxVal = doc->marginRect.bottom - MARGIN_GAP;
 						}
 					 else {
 						dragVal = &margin.bottom;
-						maxVal = doc->paperRect.bottom - GAP;
-						minVal = doc->marginRect.top + GAP;
+						maxVal = doc->paperRect.bottom - MARGIN_GAP;
+						minVal = doc->marginRect.top + MARGIN_GAP;
 						}
 					minVal += doc->currentPaper.top;
 					maxVal += doc->currentPaper.top;
@@ -222,18 +221,18 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 			if (rightLeftCursor) {
 				HandToHand((Handle *)&rightLeftCursor);
 				if (MemError() == noErr) {
-					dx = pt.h - (SLOP + (inLeft ? leftMargin.left : (rightMargin.left+1)));
+					dx = pt.h - (BOUNDS_SLOP + (inLeft ? leftMargin.left : (rightMargin.left+1)));
 					(*rightLeftCursor)->hotSpot.h += dx;
 					SetCursor(*rightLeftCursor);
 					if (inLeft) {
 						dragVal = &margin.left;
-						minVal = doc->paperRect.left + GAP;
-						maxVal = doc->marginRect.right- GAP;
+						minVal = doc->paperRect.left + MARGIN_GAP;
+						maxVal = doc->marginRect.right- MARGIN_GAP;
 						}
 					 else {
 					 	dragVal = &margin.right;
-					 	minVal = doc->marginRect.left + GAP;
-					 	maxVal = doc->paperRect.right - GAP;
+					 	minVal = doc->marginRect.left + MARGIN_GAP;
+					 	maxVal = doc->paperRect.right - MARGIN_GAP;
 						}
 					minVal += doc->currentPaper.left;
 					maxVal += doc->currentPaper.left;
@@ -247,7 +246,6 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 		 *	as well (via *origVal), so that we can have proper AutoScroll updating.
 		 *	Coordinates within this loop are all window-relative pixels.
 		 */
-		
 		if (didSomething) {
 			PenMode(patXor);
 			PenPat(NGetQDGlobalsGray());
@@ -287,10 +285,10 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 							vdiff = doc->currentPaper.top-(pt.v-oldPt.v);
 						 	}
 						DrawMarginParams(doc, whichMarg, margv, vdiff);
-						FrameRect(&margin);		/* Erase old margin */
+						FrameRect(&margin);			/* Erase old margin */
 						oldVal = pt.v;
-						*dragVal = pt.v - dy;	/* Set new margin */
-						FrameRect(&margin);		/* Draw new margin */
+						*dragVal = pt.v - dy;		/* Set new margin */
+						FrameRect(&margin);			/* Draw new margin */
 						moved = TRUE;
 						doc->margVChangedMP = TRUE;
 						}
@@ -319,13 +317,12 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 	}
 
 
-/* Handle a double-click in Master Page: call FindMasterObject with selection
-mode SMDblClick to bring up InstrDialog to edit a part.
+/* Handle a double-click in Master Page: call FindMasterObject with selection mode
+SMDblClick to bring up InstrDialog to edit a part.
 
-Must save and restore doc->nstaves, since the number of staves in Master
-Page may be temporarily inconsistent with the number in the score, and
-intervening routines use doc->nstaves and need to know how many staves they
-are dealing with. */
+Must save and restore doc->nstaves, since the number of staves in Master Page may be
+temporarily inconsistent with the number in the score, and intervening routines use
+doc->nstaves and need to know how many staves they are dealing with. */
 
 static void DoMasterDblClick(Document *doc, Point pt, short /*modifiers*/)
 {
@@ -368,7 +365,7 @@ void SelectMasterRectangle(Document *doc, Point pt)
 				found = FALSE;
 				CheckMasterObject(doc, pL, &found, (Ptr)&selRect, context, SMDrag, &pIndex, stfRange);
 				if (found) {
-					LinkSEL(pL) = TRUE;								/* update selection */
+					LinkSEL(pL) = TRUE;							/* update selection */
 					if (!doc->selStartL)
 						doc->selStartL = pL;
 					doc->selEndL = RightLINK(pL);
@@ -385,7 +382,7 @@ void SelectMasterRectangle(Document *doc, Point pt)
 		doc->selStartL = oldSelStartL;
 		doc->selEndL = oldSelEndL;
 	}
-	ArrowCursor();														/* Can only get here if cursor should become arrow */
+	ArrowCursor();												/* Can only get here if cursor should become arrow */
 }
 
 
