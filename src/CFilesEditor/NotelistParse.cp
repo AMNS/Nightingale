@@ -168,7 +168,7 @@ Boolean ParseNotelistFile(Str255 fileName, FSSpec *fsSpec)
 
 	WaitCursor();
 	if (!printNotelist)
-		ProgressMsg(CONVERTNOTELIST_PMSTR, " 1...");
+		ProgressMsg(CONVERTNOTELIST_PMSTR, " 1...");	/* "Converting Notelist file: step 1..." */
 
 	ok = FSPreProcessNotelist(refNum);
 	if (!ok) {
@@ -1556,6 +1556,7 @@ static Boolean CheckNLTimeSigs(void)
 	if (gNumNLStaves==1) return TRUE;				/* There's no problem to solve. */
 
 	count = 0;
+	saveL = 1;										/* Should never be neccessary, but just in case */
 	for (pL = 1; pL<=gNumNLItems; pL++) {
 		if (GetNL_TYPE(pL)==TIMESIG_TYPE) {
 			if (count==0) {

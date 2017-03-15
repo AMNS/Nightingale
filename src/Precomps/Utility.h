@@ -94,3 +94,4 @@ Boolean VLogPrintf(const char *fmt, va_list argp);
 Boolean LogPrintf(short priLevel, const char *fmt, ...);
 short InitLogPrintf();
 
+Boolean FitStavesOnPaper(Document *);

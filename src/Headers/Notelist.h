@@ -17,7 +17,6 @@ Nightingale's Notelist format to its native format. Written by John Gibson. */
 	#define PRINTNOTELIST			1
 #endif
 #define CNTLKEYFORPRINTNOTELIST		1
-#define CONVERTSCORE				1
 
 
 /* --------------------------------------------------------------------------------- */

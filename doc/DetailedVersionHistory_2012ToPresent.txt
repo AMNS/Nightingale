@@ -1245,3 +1245,18 @@ Make SLOP #defines clearer by expanding their names and/or improving comments. A
 MasterMouse, MasterPage, SFormatHighLevel, UIFUtils.
 
 Other minor cleanup. Affects DragBeam, DSUtils, Insert, InsUtils, MasterMouse, Utility, 
+
+-------------------------------------------------------------------------------
+
+12-14 Mar.
+
+Be sure variables are initialized before use. Affects FileInput, Utility.
+
+Move page-reformatting functions from MIDIFOpen to Utility. Affects those two & Utility.h.
+ 
+Rename NotelistConvert.c to NotelistOpen.c.
+
+Remove "#define CONVERTSCORE" and "#if CONVERTSCORE"s. Affects Notelist.h, NotelistOpen,
+NotelistParse.
+
+Minor cleanup. Affects Notelist.h; FileInput, MIDIFOpen, NotelistParse, Score, Utility.

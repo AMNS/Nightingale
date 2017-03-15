@@ -1,4 +1,4 @@
-DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 amd after
+DAB'S NIGHTINGALE DEVELOPMENT LOG for March 2013 and after
 
 (Most of the files in my Ngale Carbon code base have last modification dates of April or
 May 2012; a few files are 2 June 2012, and it looks like that's the last source code I
@@ -1897,9 +1897,38 @@ that's all Ngale ever does.
 
 -------------------------------------------------------------------------------
 
-9 March
+9-14 March
 
 Work on AddCautionaryTimesigs(). It's not hard to decide whether and where to add a
 cautionary timesig, but how to actually add it to object list? It could just call
 NewMeasure(), but might be better to mimic what NewMeasure() does to prepare, e.g.,
-call GetContext(); then call CreateMeasure() to add the object.
+call GetContext(); then call CreateMeasure() to add the object... Just a minute! We have
+the routines Open Notelist uses, in FileInput.C! Duh.
+
+While I'm at it, clean the Open Notelist code up a bit & rename NotelistConvert.cp to
+NotelistOpen.cp. Test w/ a couple of Vn Concerto notelists => !! It says of an M list
+in each "can't parse"; why?  !! Now it crashes on a couple of Vn Concerto notelists (3rd
+mvmt & one other; I'm not sure if they're the same ones). @%(@($@!)(  Try 3rd mvmt w/
+last 5.7b10 (of 6 March) => same result. W/ 5.6 => no crash, but an error message that
+system is too tall for the page, & score is unreadable; w/ 5.7b4 => no error message &
+score looks fine; w5.7b7 => crashes. Back to 5.7b4 => it now crashes! So this  almost
+certainly isn't a ghost, but something random, maybe bcs of an uninitialized variable.
+Okay; be sure several possible uninits are inited => says "Arranging measures into
+systems", then crashes in on the call to InitMeasure() in MakeMeasure() called from
+CreateSystem() called from Reformat. If it crashed really trying to call InitMeasure(),
+maybe aPrevMeasL is null bcs... Ah, prevMeasL=0; that sure could explain it! In fact,
+some code in InitMeasure() checks if prevMeasL is NILINK or not and takes action in
+each case; other code in it just assumes its non-NILINK.
+
+Switch from G5 to my old MacBook "3"; do more cleanup. Open 3rd mvmt notelist via Ngale
+menu command => OK; via drop on Ngale icon => OK. Which proves nothing! But open 2nd
+mvmt notelist via menu cmd =>
+
+	can't parse the Notelist file.
+	Problem in line 8394: "M stf=10 'L'istesso tempo...'
+	"
+	Miscellanous error.
+
+This is almost certainly unrelated to the previous problem, and caused by the embedded
+"'" in the tempo mark.
+

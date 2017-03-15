@@ -20,6 +20,7 @@
 static Boolean FICombineInto1KeySig(Document *doc, LINK firstL, short numSubObjs, LINK aSourceKS[]);
 static Boolean GetTextStyleRec(Document *doc, short textStyle, PTEXTSTYLE pStyleRec);
 static LINK InsertAndInitGraphic(Document *doc, LINK insertBeforeL, short graphicType);
+static short FIGetFontIndex(Document *doc, unsigned char *fontName);
 static LINK AnchorSearch(Document *doc, LINK dependentL);
 static short GuessVoiceRole(Document *doc, short iVoice, LINK startL, LINK endL);
 
@@ -81,9 +82,9 @@ In addition:
 
 void FIFixTupletLinks(Document *doc, LINK startL, LINK endL, short voice)
 {
-	short			i, nInTuplet;
-	long			lDur;
-	LINK			pL, syncL, aNoteTupleL, aNoteL;
+	short		i, nInTuplet;
+	long		lDur;
+	LINK		pL, syncL, aNoteTupleL, aNoteL;
 	PANOTETUPLE	aNoteTuple;
 	
 	for (pL = startL; pL!=endL; pL = RightLINK(pL)) {
@@ -117,11 +118,11 @@ no need to fix up following accidentals. (Adapted from ReplaceKeySig in InsNew.c
 
 Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsOrFlats)
 {
-	PAKEYSIG		aKeySig;
+	PAKEYSIG	aKeySig;
 	KSINFO		oldKSInfo, newKSInfo;
-	LINK			endL, aKeySigL;
+	LINK		endL, aKeySigL;
 	
-	if (KeySigINMEAS(keySigL)==FALSE)										/* Can't handle this yet */
+	if (KeySigINMEAS(keySigL)==FALSE)								/* Can't handle this yet */
 		return FALSE;
 
 	endL = keySigL;
@@ -132,12 +133,12 @@ Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsO
 				KeySigVIS(aKeySigL) = TRUE;
 
 			aKeySig = GetPAKEYSIG(aKeySigL);
-			KEYSIG_COPY((PKSINFO)aKeySig->KSItem, &oldKSInfo);			/* Copy old keysig. info */
+			KEYSIG_COPY((PKSINFO)aKeySig->KSItem, &oldKSInfo);		/* Copy old keysig. info */
 			InitKeySig(aKeySigL, KeySigSTAFF(aKeySigL), 0, sharpsOrFlats);
 			SetupKeySig(aKeySigL, sharpsOrFlats);
 			
 			aKeySig = GetPAKEYSIG(aKeySigL);
-			KEYSIG_COPY((PKSINFO)aKeySig->KSItem, &newKSInfo);			/* Copy new keysig. info */
+			KEYSIG_COPY((PKSINFO)aKeySig->KSItem, &newKSInfo);		/* Copy new keysig. info */
 			
 			FixContextForKeySig(doc, RightLINK(keySigL), 
 										KeySigSTAFF(aKeySigL), oldKSInfo, newKSInfo);
@@ -151,12 +152,12 @@ Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsO
 /* -------------------------------------------------------- FIInsertWholeMeasRest -- */
 /* Insert a whole-measure rest before <insertBeforeL> on the given staff in the given
 (internal) voice. Does NOT attempt to create a sync with notes on other staves.
-Returns TRUE if ok, FALSE if error. */
+Returns TRUE if OK, FALSE if error. */
 
 Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 										short iVoice, Boolean visible)
 {
-	LINK		syncL, aNoteL;
+	LINK	syncL, aNoteL;
 	PANOTE	aNote;
 
 	syncL = InsertNode(doc, insertBeforeL, SYNCtype, 1);
@@ -168,7 +169,8 @@ Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 	SetObject(syncL, 0, 0, TRUE, TRUE, FALSE);
 	LinkTWEAKED(syncL) = FALSE;
 	aNoteL = FirstSubLINK(syncL);
-	SetupNote(doc, syncL, aNoteL, staffn, -1/*halfLn*/, WHOLEMR_L_DUR, 0, iVoice, TRUE, 0, 0);
+	SetupNote(doc, syncL, aNoteL, staffn, -1/*halfLn*/, WHOLEMR_L_DUR, 0, iVoice,
+				TRUE, 0, 0);
 	aNote = GetPANOTE(aNoteL);
 	aNote->visible = visible;
 	
@@ -178,12 +180,12 @@ Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 
 /* -------------------------------------------------------------- FIInsertBarline -- */
 /* Insert a barline of type <barlineType> before <insertBeforeL> on all staves.
-Returns the link of this barline if ok, NILINK if error. */
+Returns the link of this barline if OK, NILINK if error. */
 
 LINK FIInsertBarline(Document *doc, LINK insertBeforeL, short barlineType)
 {
-	short		sym;
-	LINK		measL;
+	short	sym;
+	LINK	measL;
 	CONTEXT	context;
 	
 	NewObjInit(doc, MEASUREtype, &sym, singleBarInChar, ANYONE, &context);
@@ -204,11 +206,12 @@ Boolean SetMeasureSubType(LINK measL, short subType)
 {
 	LINK	aMeasL;
 
-	if (measL==NILINK || subType<BAR_SINGLE || subType>BAR_LAST)			/* subType out of range */
+	if (measL==NILINK || subType<BAR_SINGLE || subType>BAR_LAST)	/* subType out of range */
 		return FALSE;
 
 	for (aMeasL = FirstSubLINK(measL); aMeasL; aMeasL = NextMEASUREL(aMeasL))
 		MeasSUBTYPE(aMeasL) = subType;
+	
 	return TRUE;
 }
 
@@ -220,12 +223,12 @@ to any following objects.
 NB: Do not use this function to change a clef in the reserved area. (For that purpose,
 insert a clef change at the end of the previous system.) FIInsertClef only creates
 clefs that are inMeasure.
-Returns the link of this clef if ok, NILINK if error. */
+Returns the link of this clef if OK, NILINK if error. */
 
 LINK FIInsertClef(Document *doc, short staffn, LINK insertBeforeL, short clefType,
-						Boolean small)
+					Boolean small)
 {
-	LINK		clefL, aClefL;
+	LINK	clefL, aClefL;
 	PACLEF	aClef;
 	
 	clefL = InsertNode(doc, insertBeforeL, CLEFtype, 1);
@@ -249,11 +252,11 @@ LINK FIInsertClef(Document *doc, short staffn, LINK insertBeforeL, short clefTyp
 this function. */
 	
 LINK FIInsertTimeSig(Document	*doc,
-							short		staff,						/* or ANYONE for all staves */
-							LINK		insertBeforeL,
-							short		type,
-							short		numerator,
-							short		denominator)
+						short		staff,					/* or ANYONE for all staves */
+						LINK		insertBeforeL,
+						short		type,
+						short		numerator,
+						short		denominator)
 {
 	short			stfCount, i, useStaff;
 	LINK			timeSigL, aTimeSigL;
@@ -289,14 +292,14 @@ LINK FIInsertTimeSig(Document	*doc,
 calling this function. */
 	
 LINK FIInsertKeySig(Document	*doc,
-						  short		staff,						/* or ANYONE for all staves */
-						  LINK		insertBeforeL,
-						  short		sharpsOrFlats)				/* <0: flats; >0: sharps, 0: cancel prev ks */
+					  short		staff,					/* or ANYONE for all staves */
+					  LINK		insertBeforeL,
+					  short		sharpsOrFlats)			/* <0: flats; >0: sharps, 0: cancel prev ks */
 {
-	short			stfCount, i, useStaff;
-	LINK			keySigL, aKeySigL;
+	short		stfCount, i, useStaff;
+	LINK		keySigL, aKeySigL;
 	PKEYSIG		keySig;
-	PAKEYSIG		aKeySig;
+	PAKEYSIG	aKeySig;
 	
 	stfCount = (staff==ANYONE? doc->nstaves : 1);
 
@@ -320,7 +323,7 @@ LINK FIInsertKeySig(Document	*doc,
 			GetContext(doc, LeftLINK(keySigL), useStaff, &context);
 			aKeySig = GetPAKEYSIG(aKeySigL);
 			aKeySig->subType = context.nKSItems;		/* number of cancelling naturals */
-			aKeySig->visible = TRUE;						/* InitKeySig will have set this to FALSE. */
+			aKeySig->visible = TRUE;					/* InitKeySig will have set this to FALSE. */
 		}
 		aKeySig = GetPAKEYSIG(aKeySigL);
 		aKeySig->soft = aKeySig->selected = FALSE;
@@ -334,9 +337,9 @@ LINK FIInsertKeySig(Document	*doc,
 /* Helper function for FICombineKeySigs */
 
 static Boolean FICombineInto1KeySig(Document	*doc,
-												LINK		firstL,
-												short		numSubObjs,
-												LINK		aSourceKS[])
+									LINK		firstL,
+									short		numSubObjs,
+									LINK		aSourceKS[])
 {
 	short		s;
 	PAKEYSIG	srcKeySig, dstKeySig;
@@ -360,7 +363,7 @@ static Boolean FICombineInto1KeySig(Document	*doc,
 			KEYSIG_COPY((PKSINFO)srcKeySig->KSItem, (PKSINFO)dstKeySig->KSItem);
 			dstKeySig->subType = srcKeySig->subType;
 			if (dstKeySig->nKSItems==0 && dstKeySig->subType)
-				dstKeySig->visible = TRUE;											/* show cancelling naturals ks */
+				dstKeySig->visible = TRUE;						/* show cancelling naturals ks */
 			dstKSsubL = NextKEYSIGL(dstKSsubL);			
 			DeleteNode(doc, aSourceKS[s]);
 		}
@@ -374,20 +377,20 @@ single object having multiple subobjects. The series of keysigs so combined
 must satisfy these conditions:
 	1) each must have exactly one subobject,
 	2) each must have a unique staff number within the series, and
-	3) the series must be strictly continuous; that is, no object
-		of another type may fall between any members of the series.
-Return TRUE if ok, FALSE if out of memory (after alerting user).
+	3) the series must be strictly continuous; that is, no object of
+		another type may fall between any two members of the series.
+Return TRUE if OK, FALSE if out of memory (after alerting user).
 
-CAVEAT: Currently this function ignores any graphics attached to keysigs.
-When it deletes a keysig with an attached graphic, the graphic is orphaned. */
+CAVEAT: Currently this function ignores any Graphics attached to keysigs. If
+it deletes a keysig with an attached Graphic, the Graphic is orphaned. */
 
-Boolean FICombineKeySigs(Document	*doc,
-								 LINK			startL,
-								 LINK			endL)
+Boolean FICombineKeySigs(Document *doc,
+						 LINK startL,
+						 LINK endL)
 {
-	short		s, staffn, numSubObjs;
+	short	s, staffn, numSubObjs=0;
 	Boolean	inSeries = FALSE;
-	LINK		pL, firstL, aSourceKS[MAXSTAVES+1];
+	LINK	pL, firstL, aSourceKS[MAXSTAVES+1];
 
 	firstL = NILINK;
 	for (pL = startL; pL!=endL; pL = RightLINK(pL)) {
@@ -396,14 +399,13 @@ Boolean FICombineKeySigs(Document	*doc,
 				if (inSeries==FALSE) {
 					inSeries = TRUE;
 					firstL = pL;
-					numSubObjs = 0;
 					for (s = 1; s<=doc->nstaves; s++)
 						aSourceKS[s] = NILINK;
 				}
 				staffn = KeySigSTAFF(FirstSubLINK(pL));
-				if (aSourceKS[staffn]) {			/* We already have a keysig on this staff, so terminate series. */
+				if (aSourceKS[staffn]) {		/* We already have a keysig on this staff, so terminate series. */
 					inSeries = FALSE;
-					pL = LeftLINK(pL);				/* So we'll catch this ks again in next iteration. (It might begin a new ks series.) */
+					pL = LeftLINK(pL);			/* So we'll catch this ks again in next iteration. (It might begin a new ks series.) */
 				}
 				else {
 					aSourceKS[staffn] = pL;
@@ -436,13 +438,13 @@ the given staff. Set the dynamic's firstSyncL to <anchorL>, which can be
 NILINK if the caller prefers to set this later. Caller next should call
 FixContextForDynamic to propagate the effects of the dynamic change to any
 following objects. Caller also must set coordinates, because we just set
-them to 0 here. Returns the link of this dynamic if ok, NILINK if error. */
+them to 0 here. Returns the link of this dynamic if OK, NILINK if error. */
 	
 LINK FIInsertDynamic(Document *doc, short staffn, LINK insertBeforeL, LINK anchorL,
-							short dynamicType)
+						short dynamicType)
 {
-	LINK			dynamicL;
-	PDYNAMIC		dynamic;
+	LINK		dynamicL;
+	PDYNAMIC	dynamic;
 	PADYNAMIC	aDynamic;
 	
 	dynamicL = InsertNode(doc, insertBeforeL, DYNAMtype, 1);
@@ -464,7 +466,7 @@ LINK FIInsertDynamic(Document *doc, short staffn, LINK insertBeforeL, LINK ancho
 	/* Init subobject */
 	aDynamic = GetPADYNAMIC(FirstSubLINK(dynamicL));
 	aDynamic->staffn = staffn;
-	aDynamic->subType = 0;													/* Unused--obj has type */
+	aDynamic->subType = 0;											/* Unused; obj has type */
 	aDynamic->selected = FALSE;
 	aDynamic->visible = TRUE;
 	aDynamic->soft = FALSE;
@@ -480,7 +482,7 @@ LINK FIInsertDynamic(Document *doc, short staffn, LINK insertBeforeL, LINK ancho
 /* -------------------------------------------------------------- GetTextStyleRec -- */
 /*	Copy the data from the specified text style (stored in document's SCOREHEADER)
 into the supplied TEXTSTYLE record.
-Return TRUE if ok, FALSE if <textStyle> is out of range. */
+Return TRUE if OK, FALSE if <textStyle> is out of range. */
 	
 static Boolean GetTextStyleRec(Document *doc, short textStyle, PTEXTSTYLE pStyleRec)
 {
@@ -504,7 +506,7 @@ static Boolean GetTextStyleRec(Document *doc, short textStyle, PTEXTSTYLE pStyle
 /* -------------------------------------------------------- InsertAndInitGraphic -- */
 /*	Insert a graphic of the given type before <insertBeforeL> and initialize 
 all object and subobject fields.
-Returns the link of this graphic if ok, NILINK if error. */
+Returns the link of this graphic if OK, NILINK if error. */
 	
 static LINK InsertAndInitGraphic(Document *doc, LINK insertBeforeL, short graphicType)
 {
@@ -545,12 +547,12 @@ static LINK InsertAndInitGraphic(Document *doc, LINK insertBeforeL, short graphi
 }
 
 
-/* Like FontName2Index, except if the font table overflows, it gives an error message and
-returns the last legal font index. Calling this repeatedly could overwhelm the user with
-repeated complaints: it should be used only if font table overflow is very unlikely. */
+/* Like FontName2Index, except if the font table overflows, it gives an error message
+and returns the last legal font index. Calling this repeatedly could overwhelm the user
+with repeated complaints: it should be used only if the font table overflowing by more
+than a few places is very unlikely. */
 
-short FIGetFontIndex(Document *doc, unsigned char *fontName);
-short FIGetFontIndex(Document *doc, unsigned char *fontName)
+static short FIGetFontIndex(Document *doc, unsigned char *fontName)
 {
 	short fontInd;
 	
@@ -565,6 +567,7 @@ short FIGetFontIndex(Document *doc, unsigned char *fontName)
 	return fontInd;
 }
 
+
 /* ------------------------------------------------------------- FIInsertGRString -- */
 /*	Insert a graphic of type GRString, or GRLyric if <isLyric>, before <insertBeforeL>.
 Set the graphic's firstObj to <anchorL>, which can be NILINK if the caller prefers
@@ -573,20 +576,20 @@ pre-configured text styles (TSRegularXSTYLE, where 'X' is 1-5) in <textStyle> or
 supplying the required text characteristics in <pStyleRec>. If choosing the first
 approach, pass NULL for <pStyleRec>; if choosing the second, pass TSNoSTYLE for
 <textStyle>. (NB: <isLyric> overrides pStyleRec->lyric.)
-Returns the link of this graphic if ok, NILINK if error. */
+Returns the link of this graphic if OK, NILINK if error. */
 
 LINK FIInsertGRString(Document	*doc,
-							 short		staffn,
-							 short		iVoice,					/* internal voice number */
-							 LINK			insertBeforeL,
-							 LINK			anchorL,
-							 Boolean		isLyric,
-							 short		textStyle,				/* Ngale "text style" choice, e.g., TSRegular1STYLE */
-							 PTEXTSTYLE	pStyleRec,
-							 char			string[])				/* C-string */
+						 short		staffn,
+						 short		iVoice,				/* internal voice number */
+						 LINK		insertBeforeL,
+						 LINK		anchorL,
+						 Boolean	isLyric,
+						 short		textStyle,			/* Ngale "text style" choice, e.g., TSRegular1STYLE */
+						 PTEXTSTYLE	pStyleRec,
+						 char		string[])			/* C string */
 {
-	LINK				graphicL, aGraphicL;
-	PGRAPHIC			pGraphic;
+	LINK			graphicL, aGraphicL;
+	PGRAPHIC		pGraphic;
 	STRINGOFFSET	strOffset;
 	TEXTSTYLE		styleRec;
 	Boolean			result;
@@ -601,7 +604,7 @@ PushLock(OBJheap);
 	
 	if (textStyle==TSNoSTYLE) {
 		if (pStyleRec==NULL) {
-			MayErrMsg("FIInsertGRString: missing text style data...using style 1.");
+			MayErrMsg("FIInsertGRString: missing text style data. Using style 1.");
 			textStyle = TSRegular1STYLE;
 			goto getStyle;
 		}
@@ -617,7 +620,7 @@ PushLock(OBJheap);
 getStyle:
 		result = GetTextStyleRec(doc, textStyle, &styleRec);
 		if (!result) {
-			MayErrMsg("FIInsertGRString: bad textStyle...using style 1 instead.");
+			MayErrMsg("FIInsertGRString: bad textStyle. Using style 1 instead.");
 			textStyle = TSRegular1STYLE;
 			GetTextStyleRec(doc, textStyle, &styleRec);
 		}
@@ -653,21 +656,21 @@ PopLock(OBJheap);
 /*	Insert a tempo mark before <insertBeforeL> on the given staff. Set the tempo's
 firstSyncL to <anchorL>, which can be NILINK if the caller prefers to set this
 later. Caller must set coordinates, because we just set them to 0 here. Returns
-the link of this tempo mark if ok, NILINK if error. */
+the link of this tempo mark if OK, NILINK if error. */
 
 LINK FIInsertTempo(Document	*doc,
-						 short		staffn,
-						 LINK			insertBeforeL,
-						 LINK			anchorL,
-						 char			durCode,
-						 Boolean		dotted,
-						 Boolean		hideMM,
-						 char			tempoStr[],						/* <tempoStr> and <metroStr> are C strings */
-						 char			metroStr[])
+					 short		staffn,
+					 LINK		insertBeforeL,
+					 LINK		anchorL,
+					 char		durCode,
+					 Boolean	dotted,
+					 Boolean	hideMM,
+					 char		tempoStr[],				/* <tempoStr> and <metroStr> are C strings */
+					 char		metroStr[])
 {
-	LINK		tempoL;
+	LINK	tempoL;
 	PTEMPO	pTempo;
-	long		beatsPM;
+	long	beatsPM;
 	
 	tempoL = InsertNode(doc, insertBeforeL, TEMPOtype, 0);
 	if (tempoL==NILINK) {
@@ -713,11 +716,11 @@ PopLock(OBJheap);
 
 /* ----------------------------------------------------------------- FIInsertSync -- */
 /* Insert a Sync containing the given number of subobjects before <insertBeforeL>.
-Returns the link of this sync if ok, NILINK if error. */
+Returns the link of this sync if OK, NILINK if error. */
 
 LINK FIInsertSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 {
-	LINK		syncL;
+	LINK	syncL;
 	
 	syncL = InsertNode(doc, insertBeforeL, SYNCtype, numSubobjects);
 	if (syncL==NILINK) {
@@ -734,11 +737,11 @@ LINK FIInsertSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 
 /* --------------------------------------------------------------- FIInsertGRSync -- */
 /* Insert a GRSync containing the given number of subobjects before <insertBeforeL>.
-Returns the link of this GRSync if ok, NILINK if error. */
+Returns the link of this GRSync if OK, NILINK if error. */
 
 LINK FIInsertGRSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 {
-	LINK		GRSyncL;
+	LINK	GRSyncL;
 	
 	GRSyncL = InsertNode(doc, insertBeforeL, GRSYNCtype, numSubobjects);
 	if (GRSyncL==NILINK) {
@@ -754,11 +757,11 @@ LINK FIInsertGRSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 
 
 /* ------------------------------------------------------------- FIAddNoteToSync -- */
-/* Add a note to an existing Sync or GRSync. The sync does NOT need to have
-any subobjects when this is called. The caller will have to initialize nearly
-everything about the new note on return, by calling SetupNote or SetupGRNote.
-All this function does is link a new node into the syncs's subobject list.
-Returns the note LINK if everything is ok, NILINK if error. */
+/* Add a note to an existing Sync or GRSync. The sync doesn't need to have any
+subobjects when this is called. The caller will have to initialize nearly everything
+about the new note on return, by calling SetupNote or SetupGRNote. All this function
+does is link a new node into the syncs's subobject list.
+Returns the note LINK if everything is OK, NILINK if error. */
 
 LINK FIAddNoteToSync(Document */*doc*/, LINK syncL)
 {
@@ -787,15 +790,15 @@ This function gives up and returns NILINK if:
 	there isn't enough memory to create a new slur. */
 
 LINK FIInsertSlur(Document	*doc,
-						LINK		firstSyncL,
-						LINK		firstNoteL,
-						LINK		lastSyncL,
-						LINK		lastNoteL,
-						Boolean	setShapeNow)
+					LINK		firstSyncL,
+					LINK		firstNoteL,
+					LINK		lastSyncL,
+					LINK		lastNoteL,
+					Boolean	setShapeNow)
 {
-	short		staffn1, staffn2, iVoice;
-	LINK		slurL, aSlurL;
-	PSLUR		pSlur;
+	short	staffn1, staffn2, iVoice;
+	LINK	slurL, aSlurL;
+	PSLUR	pSlur;
 	PASLUR	aSlur;
 	PANOTE	aNote;
 	
@@ -814,7 +817,7 @@ LINK FIInsertSlur(Document	*doc,
 		return NILINK;
 	}
 
-	/* Init object */
+	/* Initialize object */
 
 	pSlur = GetPSLUR(slurL);
 	InitObject(slurL, pSlur->left, pSlur->right, 0, 0, FALSE, TRUE, FALSE);	
@@ -837,7 +840,7 @@ LINK FIInsertSlur(Document	*doc,
  	pSlur->firstSyncL = firstSyncL;
  	pSlur->lastSyncL = lastSyncL;
 
-	/* Init subobject. (Assumes there is only one.) */
+	/* Initialize subobject. (Assumes there is only one.) */
 
 	aSlurL = FirstSubLINK(slurL);
 	aSlur = GetPASLUR(aSlurL);
@@ -873,13 +876,13 @@ returns the number of errors encountered. If there are errors, the caller
 should clean up the slurredL and slurredR flags by calling
 FIFixAllNoteSlurFlags.
 CAVEAT: It will create a nested slur if the slurredL and slurredR flags are set
-accordingly, even though Nightingale doesn't allow nested slurs. */
+that way, even though Nightingale doesn't allow nested slurs. */
 
 short FICreateAllSlurs(Document *doc)
 {
-	LINK		pL, qL, prevL, slurL, aNoteL, bNoteL;
+	LINK	pL, qL, prevL, slurL, aNoteL, bNoteL;
 	PANOTE	bNote;
-	short		voice, errCnt = 0;
+	short	voice, errCnt = 0;
 	Boolean	found;
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
@@ -897,7 +900,7 @@ short FICreateAllSlurs(Document *doc)
 								bNote = GetPANOTE(bNoteL);
 								if (bNote->voice==voice && bNote->slurredL) {
 									slurL = FIInsertSlur(doc, pL, aNoteL, qL, bNoteL, FALSE);
-									if (!slurL) errCnt++;										/* probably cross-sys */
+									if (!slurL) errCnt++;			/* probably cross-sys */
 									found = TRUE;
 								}
 							}
@@ -936,8 +939,8 @@ void FIReshapeSlursTies(Document *doc)
 void FIFixAllNoteSlurTieFlags(Document *doc)
 {
 	SearchParam pbSearch;
-	LINK			pL, aNoteL, prevSyncL, tieL, slurL, searchL;
-	short			voice;
+	LINK		pL, aNoteL, prevSyncL, tieL, slurL, searchL;
+	short		voice;
 	Boolean		tiedL, tiedR, slurredL, slurredR;
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
@@ -947,9 +950,9 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 				tiedR = NoteTIEDR(aNoteL);
 				if (tiedL || tiedR) {
 					InitSearchParam(&pbSearch);
-					pbSearch.id = ANYONE;										/* Prepare for search */
+					pbSearch.id = ANYONE;							/* Prepare for search */
 					voice = pbSearch.voice = NoteVOICE(aNoteL);
-					pbSearch.subtype = TRUE;									/* Tieset, not slur */
+					pbSearch.subtype = TRUE;						/* Tieset, not slur */
 			
 					if (tiedL) {
 						/* If we start searching for the tie here, we may find one that starts with this
@@ -985,7 +988,7 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 					InitSearchParam(&pbSearch);
 					pbSearch.id = ANYONE;
 					voice = pbSearch.voice = NoteVOICE(aNoteL);
-					pbSearch.subtype = FALSE;									/* Slur, not tieset */
+					pbSearch.subtype = FALSE;							/* Slur, not tieset */
 					if (slurredL) {
 						/* See comments for ties above. */
 						prevSyncL = LVSearch(LeftLINK(pL), SYNCtype, voice, GO_LEFT, FALSE);
@@ -1012,19 +1015,19 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 
 
 /* ----------------------------------------------------------------- AnchorSearch -- */
-/*	Given a Dynamic, Graphic, Ottava, Tempo or Ending, return the closest 
-	(in the data structure) eligible anchor symbol, else return NILINK.
+/*	Given a Dynamic, Graphic, Ottava, Tempo or Ending, return the closest (in the
+	data structure) eligible anchor symbol, else return NILINK.
 	
 	<dependentL> type			eligible anchor types
 	-----------------------------------------------------------
 	DYNAMtype					SYNCtype
 	GRAPHICtype					SYNCtype, RPTENDtype, PAGEtype, MEASUREtype, CLEFtype,
-									KEYSIGtype, TIMESIGtype, SPACERtype, PSMEAStype
+								KEYSIGtype, TIMESIGtype, SPACERtype, PSMEAStype
 	OTTAVAtype					SYNCtype, GRSYNCtype
-[	SLURtype						SYNCtype, SYSTEMtype --slurs and tuplets not handled here]
+[	SLURtype					SYNCtype, SYSTEMtype --slurs and tuplets not handled here]
 [	TUPLETtype					SYNCtype ]
 	TEMPOtype					SYNCtype, RPTENDtype, MEASUREtype, CLEFtype, KEYSIGtype,
-									TIMESIGtype, PSMEAStype
+								TIMESIGtype, PSMEAStype
 	ENDINGtype					SYNCtype, MEASUREtype, PSMEAStype
 	
 	Notes:
@@ -1038,10 +1041,10 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 
 static LINK AnchorSearch(Document *doc, LINK dependentL)
 {
-	short		dType,		/* type of dependent symbol */
-				staff,		/* staff of dependent symbol */
-				iVoice;		/* internal voice number of dependent symbol */
-	LINK		pL;
+	short	dType,		/* type of dependent symbol */
+			staff,		/* staff of dependent symbol */
+			iVoice;		/* internal voice number of dependent symbol */
+	LINK	pL;
 	
 	iVoice = NOONE;
 	
@@ -1126,17 +1129,17 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 
 
 /* ----------------------------------------------------------- FIAnchorAllJDObjs -- */
-/* ???Big problems:
+/* FIXME: Big problems:
 
 If a symbol should be attached to an anchor in the reserved area, this will fail,
 because during conversion the symbol will have been added to the data structure
-*after* the reserved anchor symbol. (This applies to page-rel graphics also.)
-Or, since I'm reformatting after conversion, is this a problem only with
-the first system?? */
+*after* the reserved anchor symbol. (This applies to page-rel graphics also.) Or,
+since we're reformatting after conversion, is this a problem only with the first
+system?? */
 
 Boolean FIAnchorAllJDObjs(Document *doc)
 {
-	LINK		pL, anchorL;
+	LINK	pL, anchorL;
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 //??don't need this!->		if (J_DTYPE(pL))
@@ -1173,11 +1176,11 @@ broken:
 
 
 /* ------------------------------------------------------------ FIAutoMultiVoice -- */
-/* For the entire document, guess the roles of all voices on a measure by
-measure basis, and apply the appropriate multi-voice rules. */
+/* For the entire document, guess the roles of all voices on a measure-by-measure
+basis, and apply the appropriate multi-voice rules. */
 
 void FIAutoMultiVoice(Document	*doc,
-							 Boolean		doSingle)		/* Call DoMultivoiceRules even when a voice is SINGLE_DI */
+						Boolean	doSingle)		/* Call DoMultivoiceRules even when a voice is SINGLE_DI */
 {
 	short	voiceRole, v;
 	LINK	startL, endL;
@@ -1202,24 +1205,23 @@ void FIAutoMultiVoice(Document	*doc,
 
 
 /* -------------------------------------------------------------- GuessVoiceRole -- */
-/* Guess the role of the given voice over the range (startL, endL].
-	Return UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI (see Dialogs.h).
-	If the range contains no notes in the given voice, return SINGLE_DI.
-	If the voice occurs on more than one staff, return CROSS_DI. If more
-	than one voice shares iVoice's staff, we give up and return SINGLE_DI.
-	Specify <iVoice> with an internal, not a part-relative, voice number.
-	NB: the algorithm for guessing voice role is quite crude, but usually 
-	should be satisfactory when there are no more than 2 voices on a staff.
-	The caller will get the best results if the range comprises exactly one
-	measure's worth of notes. */
+/* Guess the role of the given voice over the range (startL, endL], and return
+UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI (see Dialogs.h). If the range contains
+no notes in the given voice, return SINGLE_DI. If the voice occurs on more than one
+staff, return CROSS_DI. If more than one voice shares iVoice's staff, give up and
+return SINGLE_DI. Specify <iVoice> with an internal, not a part-relative, voice
+number. NB: the algorithm for guessing voice role is quite crude, but usually 
+should be satisfactory when there are no more than 2 voices on a staff. The caller
+will get the best results if the range comprises exactly one measure's worth of
+ notes. */
 	
 static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK endL)
 {
-	LINK		pL, aNoteL;
+	LINK	pL, aNoteL;
 	PANOTE	aNote;
 	short 	v, ourStaff, voiceCnt, otherVoice, ourNoteCnt, otherNoteCnt;
-	long		ourPitchTotal, otherPitchTotal;
-	float		ourAvg, otherAvg;
+	long	ourPitchTotal, otherPitchTotal;
+	float	ourAvg, otherAvg;
 	Boolean	sharingVoices[MAXVOICES+1];
 
 	/* Does <iVoice> span more than one staff over the given range? If so, return CROSS_DI. */
@@ -1240,7 +1242,7 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 	if (ourStaff==0) return SINGLE_DI;				/* range contains no notes in the given voice */
 	
 	/* Does <iVoice> share its staff with other voices? If not, return SINGLE_DI.
-		If it shares with *more* than one voice, we give up and return SINGLE_DI. */
+		If it shares with more than one voice, give up and return SINGLE_DI. */
 	
 	for (v = 1; v<=MAXVOICES; v++)
 		sharingVoices[v] = FALSE;
@@ -1286,7 +1288,7 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 	ourAvg = (float)ourPitchTotal / ourNoteCnt;
 	otherAvg = (float)otherPitchTotal / otherNoteCnt;
 	
-	if (ourAvg<otherAvg)							/* NB: yqpit goes up when pitch goes down */
+	if (ourAvg<otherAvg)						/* NB: yqpit goes up when pitch goes down */
 		return UPPER_DI;
 	else return LOWER_DI;					
 }
@@ -1300,15 +1302,15 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 This produces better looking spacing than the normal justify command, especially when
 there isn't much content on a system. (This is not so rare in garden variety Enigma
 files.) NB: Does not complain if the space percentage exceeds the limit.
-Returns TRUE if ok, FALSE if error. */
+Returns TRUE if OK, FALSE if error. */
 
 Boolean FIJustifySystem(Document *doc, LINK systemL)
 {
-	long			justProp;
-	DDIST			lastMeasWidth, staffWidth;
+	long		justProp;
+	DDIST		lastMeasWidth, staffWidth;
 	FASTFLOAT	justFact;
-	LINK			firstMeasL, termSysL, lastMeasL;
-	PMEASURE		pMeas;
+	LINK		firstMeasL, termSysL, lastMeasL;
+	PMEASURE	pMeas;
 	Boolean		ok;
 
 	/* Get first and last Measure of System and object ending it. */
@@ -1339,11 +1341,11 @@ Boolean FIJustifySystem(Document *doc, LINK systemL)
 
 /* ----------------------------------------------------------------- FIJustifyAll -- */
 /* Justify the entire score using the "smart" justification algorithm described in
-FIJustifySystem. Returns TRUE if ok, FALSE if error. */
+FIJustifySystem. Returns TRUE if OK, FALSE if error. */
 
 Boolean FIJustifyAll(Document *doc)
 {
-	LINK		sysL, startSysL;
+	LINK	sysL, startSysL;
 	Boolean	ok = FALSE;
 	
 	startSysL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
@@ -1365,8 +1367,7 @@ FILE *OpenInputFile(Str255 macfName, short vRefNum)
 	char	ansifName[256];
 	FILE	*f;
 
-	// ?? What was this call intended for?
-	
+// ?? What was this call intended for?	
 //	result = GetWDInfo(vRefNum, &volNum, &dirID, &aProcID);
 //	if (result!=noErr) goto err;
 	
@@ -1439,8 +1440,8 @@ Boolean ReadLine1(char inBuf[], short maxChars, FILE *f)
 	
 	ptr = fgets(inBuf, maxChars, f);
 	if (ptr) {
-		long	len = strlen(inBuf);				/* length of string, including any terminating newline, but not including the terminating null */
-		if (inBuf[len-1]=='\n')					/* if last char of string is newline, replace with null */
+		long len = strlen(inBuf);		/* length of string, including any terminating newline, but not including the terminating null */
+		if (inBuf[len-1]=='\n')			/* if last char of string is newline, replace with null */
 			inBuf[len-1] = '\0';
 		return TRUE;
 	}
@@ -1448,9 +1449,11 @@ Boolean ReadLine1(char inBuf[], short maxChars, FILE *f)
 		return FALSE;
 }
 
-// \n mac
-// \r unix
-// \r\n windows
+/* Linebreak chars/sequences:
+	\n		OS X
+	\r		Unix
+	\r\n	Windows
+*/
 
 Boolean ReadLine(char inBuf[], short maxChars, FILE *f)
 {
@@ -1468,8 +1471,8 @@ Boolean ReadLine(char inBuf[], short maxChars, FILE *f)
 		}
 		else if (c == '\r')
 		{
-			char cc = fgetc(f);						// advance past windows terminator char if necessary
-			if (cc != '\n' && cc != EOF)			// can't unget EOF
+			char cc = fgetc(f);					// advance past windows terminator char if necessary
+			if (cc != '\n' && cc != EOF)		// can't unget EOF
 				ungetc(cc, f);
 				
 			*p++ = '\n';		
@@ -1489,37 +1492,37 @@ Boolean ReadLine(char inBuf[], short maxChars, FILE *f)
 /* --------------------------------------------------------------- SaveTextToFile -- */
 /* Save the block of text pointed to by <pText> to a text file (type 'TEXT', creator
 'ttxt'). Note that <pText> is a Mac Ptr, allocated by the Memory Mgr. It is NOT
-terminated by a null.  Returns TRUE if ok, even if the user cancels the save; returns
+terminated by a null.  Returns TRUE if OK, even if the user cancels the save; returns
 FALSE if error. */
 
 #ifdef TARGET_API_MAC_CARBON
 
 Boolean SaveTextToFile(Ptr		,		/* block of text */
-							  Str255	,		/* Pascal string */
-							  short	)		/* index into MiscStringsID 'STR#' */
-							  					/*   of prompt string (e.g., "Save as:") */
+						Str255	,		/* Pascal string */
+						short	)		/* index into MiscStringsID 'STR#' */
+										/*   of prompt string (e.g., "Save as:") */
 {
 	return TRUE;
 }
 
 #else
 
-Boolean SaveTextToFile(Ptr		pText,						/* block of text */
-							  Str255	suggestedFileName,		/* Pascal string */
-							  short	promptStrID)				/* index into MiscStringsID 'STR#' */
-							  											/*   of prompt string (e.g., "Save as:") */
+Boolean SaveTextToFile(Ptr pText,						/* block of text */
+					   Str255 suggestedFileName,		/* Pascal string */
+					   short promptStrID)				/* index into MiscStringsID 'STR#' */
+														/*   of prompt string (e.g., "Save as:") */
 {
 	Str255	promptStr;
-	Point		dialogWhere = { 90, 82 };
+	Point	dialogWhere = { 90, 82 };
 	SFReply	reply;
-	short		refNum, volNum;
-	long		inOutCount, dirID, procID;
-	OSErr		result;
+	short	refNum, volNum;
+	long	inOutCount, dirID, procID;
+	OSErr	result;
 
 	GetIndString(promptStr, MiscStringsID, promptStrID);
 	
 	SFPutFile(dialogWhere, promptStr, suggestedFileName, NULL, &reply);
-	if (reply.good) {																	/* Write file. */
+	if (reply.good) {													/* Write file. */
 		result = GetWDInfo(reply.vRefNum, &volNum, &dirID, &procID);
 		if (result) goto broken;
 		result = HCreate(volNum, dirID, reply.fName, 'ttxt', 'TEXT');
@@ -1538,7 +1541,7 @@ Boolean SaveTextToFile(Ptr		pText,						/* block of text */
 		result = FSClose(refNum);
 		if (result) goto broken;
 	}
-	else {																				/* User cancelled. */
+	else {																/* User cancelled. */
 	}
 	return TRUE;
 broken:
@@ -1551,7 +1554,7 @@ short FSOpenInputFile(FSSpec *fsSpec, short *refNum)
 {
 	short errCode;
 	
-	errCode = FSpOpenDF (fsSpec, fsRdWrPerm, refNum );	/* Open the file */
+	errCode = FSpOpenDF (fsSpec, fsRdWrPerm, refNum );		/* Open the file */
 	if (errCode == fLckdErr || errCode == permErr) {
 		errCode = FSpOpenDF (fsSpec, fsRdPerm, refNum );	/* Try again - open the file read-only */
 	}
@@ -1640,4 +1643,5 @@ short FSRewind(short refNum)
 	short errCode;
 	
 	errCode = SetFPos(refNum, fsFromStart, 0);
+	return errCode;
 }

@@ -340,8 +340,10 @@ void FixTopSystemYs(Document *doc, LINK startSysL, LINK endSysL)
 other systems and systemRect.bottoms for all systems on pageL. Optionally use the
 measureRect.bottom for the bottom staff in the first measure of the first system
 to reset all systemRect heights (this may be dangerous if not all systems have
-the same visibility of staves!). Otherwise preserve the current systemRect
-heights. */
+the same visibility of staves!). Otherwise preserve the current systemRect heights.
+FIXME: It's not obvious this function works correctly if there's only system per
+page, and it's not obvious that prevSysBottom and sysHeight get set correctly or at
+all in all cases. */
 
 void PageFixSysRects(
 			Document *doc,

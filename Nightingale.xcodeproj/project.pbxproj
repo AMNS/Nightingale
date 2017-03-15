@@ -18,6 +18,7 @@
 		15602EF81D20C03300BAEBF6 /* DebugUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EF71D20C03300BAEBF6 /* DebugUtils.cp */; };
 		157437C51D05153300C5A4DF /* DelAddRedAccs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157437C41D05153300C5A4DF /* DelAddRedAccs.cp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
+		15E0B7AA1E7757E7001C568B /* NotelistOpen.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E0B7A91E7757E7001C568B /* NotelistOpen.cp */; };
 		15E2F8FC1DC983B3006D56E9 /* NewSlur.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */; };
 		15E4B7751C823507001279A2 /* Ottava.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E4B7741C823507001279A2 /* Ottava.cp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
@@ -123,7 +124,6 @@
 		D03E70CB0D5FA5B2005FD177 /* MoveUpDown.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70840D5FA5B2005FD177 /* MoveUpDown.cp */; };
 		D03E70CD0D5FA5B2005FD177 /* MPCommands.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70860D5FA5B2005FD177 /* MPCommands.cp */; };
 		D03E70CE0D5FA5B2005FD177 /* MPImportExport.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70870D5FA5B2005FD177 /* MPImportExport.cp */; };
-		D03E70CF0D5FA5B2005FD177 /* NotelistConvert.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70880D5FA5B2005FD177 /* NotelistConvert.cp */; };
 		D03E70D00D5FA5B2005FD177 /* NotelistParse.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70890D5FA5B2005FD177 /* NotelistParse.cp */; };
 		D03E70D10D5FA5B2005FD177 /* NotelistSave.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708A0D5FA5B2005FD177 /* NotelistSave.cp */; };
 		D03E70D50D5FA5B2005FD177 /* PitchCmds.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E708E0D5FA5B2005FD177 /* PitchCmds.cp */; };
@@ -217,6 +217,7 @@
 		15602EEE1D20BF7400BAEBF6 /* Dragging.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dragging.cp; sourceTree = "<group>"; };
 		15602EF71D20C03300BAEBF6 /* DebugUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugUtils.cp; sourceTree = "<group>"; };
 		157437C41D05153300C5A4DF /* DelAddRedAccs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedAccs.cp; sourceTree = "<group>"; };
+		15E0B7A91E7757E7001C568B /* NotelistOpen.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistOpen.cp; sourceTree = "<group>"; };
 		15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewSlur.cp; sourceTree = "<group>"; };
 		15E4B7741C823507001279A2 /* Ottava.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Ottava.cp; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -418,7 +419,6 @@
 		D03E70850D5FA5B2005FD177 /* MPCombineParts.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MPCombineParts.cp; sourceTree = "<group>"; };
 		D03E70860D5FA5B2005FD177 /* MPCommands.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MPCommands.cp; sourceTree = "<group>"; };
 		D03E70870D5FA5B2005FD177 /* MPImportExport.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MPImportExport.cp; sourceTree = "<group>"; };
-		D03E70880D5FA5B2005FD177 /* NotelistConvert.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistConvert.cp; sourceTree = "<group>"; };
 		D03E70890D5FA5B2005FD177 /* NotelistParse.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistParse.cp; sourceTree = "<group>"; };
 		D03E708A0D5FA5B2005FD177 /* NotelistSave.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistSave.cp; sourceTree = "<group>"; };
 		D03E708E0D5FA5B2005FD177 /* PitchCmds.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = PitchCmds.cp; sourceTree = "<group>"; };
@@ -895,7 +895,7 @@
 				D03E70860D5FA5B2005FD177 /* MPCommands.cp */,
 				D03E70870D5FA5B2005FD177 /* MPImportExport.cp */,
 				15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */,
-				D03E70880D5FA5B2005FD177 /* NotelistConvert.cp */,
+				15E0B7A91E7757E7001C568B /* NotelistOpen.cp */,
 				D03E70890D5FA5B2005FD177 /* NotelistParse.cp */,
 				D03E708A0D5FA5B2005FD177 /* NotelistSave.cp */,
 				D03E708E0D5FA5B2005FD177 /* PitchCmds.cp */,
@@ -1128,7 +1128,6 @@
 				D03E70CB0D5FA5B2005FD177 /* MoveUpDown.cp in Sources */,
 				D03E70CD0D5FA5B2005FD177 /* MPCommands.cp in Sources */,
 				D03E70CE0D5FA5B2005FD177 /* MPImportExport.cp in Sources */,
-				D03E70CF0D5FA5B2005FD177 /* NotelistConvert.cp in Sources */,
 				D03E70D00D5FA5B2005FD177 /* NotelistParse.cp in Sources */,
 				D03E70D10D5FA5B2005FD177 /* NotelistSave.cp in Sources */,
 				D03E70D50D5FA5B2005FD177 /* PitchCmds.cp in Sources */,
@@ -1188,6 +1187,7 @@
 				1556A2F61D3FA4E700A0B147 /* InsNew.cp in Sources */,
 				1556A2F81D3FA4F200A0B147 /* InsNewUtils.cp in Sources */,
 				15E2F8FC1DC983B3006D56E9 /* NewSlur.cp in Sources */,
+				15E0B7AA1E7757E7001C568B /* NotelistOpen.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

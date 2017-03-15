@@ -1,8 +1,10 @@
 /***************************************************************************
 *	FILE:	Utility.c
 *	PROJ:	Nightingale
-*	DESC:	Miscellaneous utility routines. User-interface related functions
-*			belong in UIFUtils.c, not here.
+*	DESC:	Miscellaneous utility routines. NB: There are better places for utility
+*			functions of various types, e.g., UIFUtils.c (for user-interface related
+*			functions), DialogUtils.c, DrawUtils.c, FontUtils.c, InsUtils.c,
+*			PitchUtils.c, etc.
 
 		CalcYStem				GetNoteYStem			GetGRNoteYStem
 		ShortenStem				GetCStemInfo			GetStemInfo
@@ -27,7 +29,7 @@
 		Global2Paper			DRect2ScreenRect		RefreshScreen
 		GetMillisecTime			SleepMS					SleepTicks
 		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
-		PlayResource
+		PlayResource			FitStavesOnPaper
 /***************************************************************************/
 
 /*
@@ -42,6 +44,7 @@
 #include <ctype.h>
 #include "Nightingale.appl.h"
 
+#include "CarbonPrinting.h"
 
 /* ------------------------------------------------------------------- CalcYStem -- */
 /*	Calculate optimum stem endpoint for a note. */
@@ -1466,7 +1469,7 @@ char *StdVerNumToStr(long verNum, char *verStr)
 }
 
 
-/* ---------------------------------------------------------------- PlayResource -- */
+/* ------------------------------------------------------------------- PlayResource -- */
 /* Play a 'snd ' resource, as found in the given handle.  If sync is TRUE, play it
 synchronously here and return when it's done.  If sync is FALSE, start the sound
 playing and return before it's finished.  Deliver any error.  To stop a currently
@@ -1515,3 +1518,136 @@ short PlayResource(Handle snd, Boolean sync)
 			}
 		return(err);
 	}
+
+
+/* -------------------------------------------------- Functions to FitStavesOnPaper -- */
+
+static void MFUpdateStaffTops(DDIST [], LINK, LINK);
+static void FixForStaffSize(Document *, DDIST [], short);
+
+/* Update the staffTop field of all staff subObjects in the given range. */
+
+static void MFUpdateStaffTops(DDIST staffTop[], LINK headL, LINK tailL)
+{
+	LINK pL, aStaffL; PASTAFF aStaff;
+	
+	for (pL = headL; pL!=tailL; pL = RightLINK(pL))
+		if (StaffTYPE(pL)) {
+			aStaffL = FirstSubLINK(pL);
+			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
+				aStaff = GetPASTAFF(aStaffL);
+				aStaff->staffTop = staffTop[StaffSTAFF(aStaffL)];
+			}
+		}
+}
+
+/* Do everything necessary to change the given score's staff size to <newRastral>. */
+
+void FixForStaffSize(Document *doc, DDIST staffTop[], short newRastral)
+{
+	FASTFLOAT fact;  short i;  LINK sysL;
+	DRect sysRect;  DDIST sysSize, sysOffset;
+	
+	if (newRastral==doc->srastral) return;
+	
+	fact = (FASTFLOAT)drSize[newRastral]/drSize[doc->srastral];
+
+	for (i = 2; i<=doc->nstaves; i++)
+		staffTop[i] = staffTop[1] + (fact * (staffTop[i]-staffTop[1]));
+			
+	SetStaffSize(doc, doc->headL, doc->tailL, doc->srastral, newRastral);
+	MFUpdateStaffTops(staffTop, doc->headL, doc->tailL);
+
+	SetStaffSize(doc, doc->masterHeadL, doc->masterTailL, doc->srastral, newRastral);
+	MFUpdateStaffTops(staffTop, doc->masterHeadL, doc->masterTailL);
+
+	/* Adjust heights of systemRects, both in Master Page and in the score proper. */
+	sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+	sysRect = SystemRECT(sysL);
+	
+	sysSize = sysRect.bottom-sysRect.top;
+	sysOffset = (fact-1.0)*sysSize;
+	
+	SystemRECT(sysL).bottom += sysOffset;
+	LinkOBJRECT(sysL).bottom += d2p(sysOffset);
+	
+	sysL = SSearch(doc->headL, SYSTEMtype, FALSE);
+	for ( ; sysL; sysL = LinkRSYS(sysL)) {
+		SystemRECT(sysL).bottom += sysOffset;
+		LinkOBJRECT(sysL).bottom += d2p(sysOffset);
+	}
+	
+	FixMeasRectYs(doc, NILINK, FALSE, TRUE, FALSE);		/* Fix measure tops & bottoms */
+
+	doc->srastral = newRastral;
+}
+
+/* Try to insure that all the staves of a single system fit on a page by, if necessary,
+reducing the staff size and asking the user to increase the paper size. (??Probably also
+needs to consider reducing distance between staves: this could be done in an intelligent
+way after filling in the score object list and adding clef changes but only in a dumb
+way before.) Decides what to do by looking at the Master system, which is fine if
+nothing has been done in Work on Format. Returns FALSE if it's unable to get everything
+on the page, TRUE if it can do so or if the system already fits.
+
+NB: this doesn't worry about multiple systems going off the bottom of a page; for
+that, use Reformat. What IS a problem is its assumption that the (top or only) system
+of every page is vertically positioned like the Master system on the Master Page,
+which is generally false for the first page of a score because of config.titleMargin.
+FIXME. */
+
+Boolean FitStavesOnPaper(Document *doc)
+{
+	short newRastral;  FASTFLOAT fact;
+	LINK staffL, aStaffL;  PASTAFF aStaff;
+	DDIST pageHeightAvail, botStaffTop, botStaffHt, newBotStaffTop,
+			staffTop[MAXSTAVES+1];
+		
+	pageHeightAvail = pt2d(doc->marginRect.bottom-doc->marginRect.top);
+
+	staffL = SSearch(doc->masterHeadL, STAFFtype, GO_RIGHT);
+	aStaffL = StaffOnStaff(staffL, doc->nstaves);	
+	aStaff = GetPASTAFF(aStaffL);
+	botStaffTop = aStaff->staffTop;
+	botStaffHt = aStaff->staffHeight;
+	newBotStaffTop = botStaffTop;
+	if (botStaffTop+botStaffHt>=pageHeightAvail) {
+	
+		/* We have a staves-off-page-bottom problem. Fill the <staffTop> array. */
+		
+		staffL = SSearch(doc->masterHeadL, STAFFtype, GO_RIGHT);
+		aStaffL = FirstSubLINK(staffL);
+		for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
+			aStaff = GetPASTAFF(aStaffL);
+			staffTop[StaffSTAFF(aStaffL)] = aStaff->staffTop;
+		}
+
+		/* Try to find a staff size small enough to accomodate all the staves. */
+		
+		newRastral = doc->srastral;
+		while (newBotStaffTop+botStaffHt>=pageHeightAvail && newRastral<MAXRASTRAL) {
+			newRastral = GetSmallerRSize(newRastral);
+			fact = (FASTFLOAT)drSize[newRastral]/drSize[doc->srastral];
+			
+			/* Change the distance between staves as well as the sizes of the staves
+				themselves. We don't want to change the top margin, so leave staff 1 alone. */
+			
+			newBotStaffTop = staffTop[1] + (fact * (botStaffTop-staffTop[1]));
+		}
+
+		/* We've done our best to find the staff size. If there's still a problem, ask
+			user to increase the paper size. Finally, update the score accordingly. */
+		
+		if (newBotStaffTop+botStaffHt>=pageHeightAvail) {
+			GetIndCString(strBuf, MIDIFILE_STRS, 8);	/* "Nightingale is having trouble getting an entire system..." */
+			CParamText(strBuf, "", "", "");
+			CautionInform(GENERIC_ALRT);
+			NDoPageSetup(doc);
+		}
+
+		FixForStaffSize(doc, staffTop, newRastral);
+	}
+	
+	return (newBotStaffTop+botStaffHt<pageHeightAvail);
+}
+

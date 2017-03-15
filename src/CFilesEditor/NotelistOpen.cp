@@ -1,17 +1,17 @@
 /***************************************************************************
-*	FILE:	NotelistConvert.c
-*	PROJ:	Nightingale,
-*	DESC:	Routines for creating a native Nightingale file from a temporary
-*			data structure representing a Nightingale Notelist file.
-*			Written by John Gibson with help from Tim Crawford.
+*	FILE:	NotelistOpen.c
+*	PROJ:	Nightingale
+*	DESC:	Routines for opening a Nightingale Notelist file, creating a native
+*			Nightingale file from it. Written by John Gibson with help from Tim
+*			Crawford.
 ***************************************************************************/
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEÂª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright Â© 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 
@@ -41,6 +41,7 @@
 
 /* Local prototypes */
 
+static short GetShortestDurCode(short voice, LINK startL, LINK endL);
 static Boolean NotelistToNight(Document *doc);
 static Boolean ConvertNoteRest(Document *doc, NLINK pL);
 static Boolean ConvertGrace(Document *doc, NLINK pL);
@@ -72,10 +73,9 @@ static char DynamicGlyph(LINK dynamicL);
 static void BuildConvertedNLFileName(Str255 fn, Str255 newfn);
 
 
-/* --------------------------------------------------------------------------------- */
 /* Globals declared in NotelistParse.c */
 
-extern PNL_NODE	gNodeList;
+extern PNL_NODE		gNodeList;
 extern PNL_MOD		gModList;
 extern Handle		gHStringPool;
 
@@ -91,19 +91,17 @@ extern Boolean		gDelAccs;						/* delete redundant accidentals? */
 static long			gCurSyncTime;
 
 
-/* --------------------------------------------------------------------------------- */
-
 /* ------------------------------------------------------------- OpenNotelistFile -- */
 /* The top level, public function. Returns TRUE on success, FALSE if there's a problem. */
 
 Boolean OpenNotelistFile(Str255 fileName, NSClientDataPtr pNSD)
 {
 	Str255		newfn;
-	Document		*doc;
-	char			configDisableUndo;
+	Document	*doc;
+	char		configDisableUndo;
 	Boolean		result;
-	PNL_HEAD		pHead;
-	char			fmtStr[256];
+	PNL_HEAD	pHead;
+	char		fmtStr[256];
 	FSSpec		fsSpec;
 	
 	gHairpinCount = 0;
@@ -117,7 +115,6 @@ Boolean OpenNotelistFile(Str255 fileName, NSClientDataPtr pNSD)
 		CautionInform(GENERIC_ALRT);
 	}
 
-#if CONVERTSCORE
 	/* Grab score name from the Notelist header. If that's empty build a filename. */
 	pHead = GetPNL_HEAD(0);
 	if (pHead->scoreName) {
@@ -137,14 +134,14 @@ buildit:
 		goto Error;
 	}
 
-	configDisableUndo = config.disableUndo;						/* Save this. */
-	config.disableUndo = TRUE;											/* In case we invoke PrepareUndo. */
+	configDisableUndo = config.disableUndo;					/* Save this. */
+	config.disableUndo = TRUE;								/* In case we invoke PrepareUndo. */
 	
 	result = NotelistToNight(doc);
 	
 	config.disableUndo = configDisableUndo;
 
-	ProgressMsg(0, "");													/* Remove progress window. */
+	ProgressMsg(0, "");										/* Remove progress window. */
 
 	if (!result) {
 		doc->changed = FALSE;
@@ -152,7 +149,6 @@ buildit:
 	}
 	else
 		DisplayNLDoc(doc);
-#endif
 
 Error:
 	ProgressMsg(0, "");										/* Remove progress window, if it hasn't already been removed. */
@@ -162,18 +158,21 @@ Error:
 
 
 /* ------------------------------------------------------------- OpenNotelistFile -- */
-/* The top level, public function. Returns TRUE on success, FALSE if there's a problem. */
+/* The top level, public function; FSSpec calling sequence version. As of v. 5.7, this
+version is used iff user drops a notelist file on the Nightingale icon. Returns TRUE
+on success, FALSE if there's a problem. */
 
 Boolean OpenNotelistFile(Str255 fileName, FSSpec *fsSpec)
 {
 	Str255		newfn;
-	Document		*doc;
-	char			configDisableUndo;
+	Document	*doc;
+	char		configDisableUndo;
 	Boolean		result;
-	PNL_HEAD		pHead;
-	char			fmtStr[256];
-	//FSSpec		fsSpec;
+	PNL_HEAD	pHead;
+	char		fmtStr[256];
+	//FSSpec	fsSpec;
 	
+	LogPrintf(LOG_DEBUG, "In FSSpec version of OpenNF\n");
 	gHairpinCount = 0;
 	//fsSpec = pNSD->nsFSSpec;
 	//result = ParseNotelistFile(fileName, &fsSpec);
@@ -185,8 +184,7 @@ Boolean OpenNotelistFile(Str255 fileName, FSSpec *fsSpec)
 		CParamText(strBuf, "", "", "");
 		CautionInform(GENERIC_ALRT);
 	}
-
-#if CONVERTSCORE
+	
 	/* Grab score name from the Notelist header. If that's empty build a filename. */
 	pHead = GetPNL_HEAD(0);
 	if (pHead->scoreName) {
@@ -195,9 +193,9 @@ Boolean OpenNotelistFile(Str255 fileName, FSSpec *fsSpec)
 		CtoPstr((StringPtr)newfn);
 	}
 	else
-buildit:
+		buildit:
 		BuildConvertedNLFileName(fileName, newfn);
-
+	
 	doc = CreateNLDoc(newfn);
 	if (doc==NULL) {
 		GetIndCString(strBuf, NOTELIST_STRS, 2);
@@ -205,24 +203,23 @@ buildit:
 		StopInform(GENERIC_ALRT);
 		goto Error;
 	}
-
-	configDisableUndo = config.disableUndo;						/* Save this. */
-	config.disableUndo = TRUE;											/* In case we invoke PrepareUndo. */
+	
+	configDisableUndo = config.disableUndo;					/* Save this. */
+	config.disableUndo = TRUE;								/* In case we invoke PrepareUndo. */
 	
 	result = NotelistToNight(doc);
 	
 	config.disableUndo = configDisableUndo;
-
-	ProgressMsg(0, "");													/* Remove progress window. */
-
+	
+	ProgressMsg(0, "");										/* Remove progress window. */
+	
 	if (!result) {
 		doc->changed = FALSE;
 		DoCloseDocument(doc);
 	}
 	else
 		DisplayNLDoc(doc);
-#endif
-
+	
 Error:
 	ProgressMsg(0, "");										/* Remove progress window, if it hasn't already been removed. */
 	DisposNotelistMemory();
@@ -236,8 +233,7 @@ Error:
 /* Get the note subtype code for the shortest duration of any note/chord in the given
 range in the given voice. */
 
-short GetShortestDurCode(short voice, LINK startL, LINK endL);
-short GetShortestDurCode(short voice, LINK startL, LINK endL)
+static short GetShortestDurCode(short voice, LINK startL, LINK endL)
 {
 	LINK pL, aNoteL;
 	short maxDurCode;
@@ -260,14 +256,14 @@ short GetShortestDurCode(short voice, LINK startL, LINK endL)
 
 static Boolean NotelistToNight(Document *doc)
 {
-	short			v;
-	long			spacePercent;
-	LINK			firstMeasL, pL;
-	Boolean			ok, result, doReformat;
-	PNL_GENERIC		pG;
-	NLINK			itemL;
-	char			fmtStr[256];
-	short			shortestDurCode;
+	short		v;
+	long		spacePercent;
+	LINK		firstMeasL, pL;
+	Boolean		ok, result, doReformat;
+	PNL_GENERIC	pG;
+	NLINK		itemNL;
+	char		fmtStr[256];
+	short		shortestDurCode;
 	
 	result = SetupNLScore(doc);
 	if (!result) return FALSE;
@@ -275,45 +271,46 @@ static Boolean NotelistToNight(Document *doc)
 	gCurSyncTime = -1L;
 	ConvertGrace(doc, NILINK);										/* Initialization */
 	
-	for (itemL=1; itemL<=gNumNLItems; itemL++) {
-		pG = GetPNL_GENERIC(itemL);
+	for (itemNL=1; itemNL<=gNumNLItems; itemNL++) {
+		pG = GetPNL_GENERIC(itemNL);
 		switch (pG->objType) {
 			case NR_TYPE:
-				result = ConvertNoteRest(doc, itemL);
+				result = ConvertNoteRest(doc, itemNL);
 				break;
 			case GRACE_TYPE:
-				result = ConvertGrace(doc, itemL);
+				result = ConvertGrace(doc, itemNL);
 				break;
 			case TUPLET_TYPE:
-				result = ConvertTuplet(doc, itemL);
+				result = ConvertTuplet(doc, itemNL);
 				break;
 			case BARLINE_TYPE:
-				result = ConvertBarline(doc, itemL);
+				result = ConvertBarline(doc, itemNL);
 				break;
 			case CLEF_TYPE:
-				result = ConvertClef(doc, itemL);
+				result = ConvertClef(doc, itemNL);
 				break;
 			case KEYSIG_TYPE:
-				result = ConvertKeysig(doc, itemL);
+				result = ConvertKeysig(doc, itemNL);
 				break;
 			case TIMESIG_TYPE:
-				result = ConvertTimesig(doc, itemL);
+				result = ConvertTimesig(doc, itemNL);
 				break;
 			case TEMPO_TYPE:
-				result = ConvertTempo(doc, itemL);
+				result = ConvertTempo(doc, itemNL);
 				break;
 			case GRAPHIC_TYPE:
-				result = ConvertGraphic(doc, itemL);
+				result = ConvertGraphic(doc, itemNL);
 				break;
 			case DYNAMIC_TYPE:
-				result = ConvertDynamic(doc, itemL);
+				result = ConvertDynamic(doc, itemNL);
 				break;
 			default:
 				MayErrMsg("NotelistToNight: bad objType: %d.", pG->objType);
 		}
 		
-		/* This may be overkill: we should be able to recover and continue converting.
-			But that has caused problems, so it's safer to abort. */
+		/* If there's a problem, give up. This may be overkill: we should be able to
+			recover and continue converting. But that has caused problems, so it's safer
+			to abort. */
 		
 		if (!result) {
 			GetIndCString(fmtStr, NOTELIST_STRS, 30);	/* "Open Notelist can't convert item..." */
@@ -324,7 +321,7 @@ static Boolean NotelistToNight(Document *doc)
 		}
 	}
 
-	ProgressMsg(CONVERTNOTELIST_PMSTR, " 2...");
+	ProgressMsg(CONVERTNOTELIST_PMSTR, " 2...");	/* "Converting Notelist file: step 2..." */
 
 	/* Fix up LINKs of all Tuplets in the score. Note that FIFixTupletLinks also resets
 	 * play durations of notes in tuplets: this is not good, since we've already set
@@ -383,7 +380,7 @@ static Boolean NotelistToNight(Document *doc)
 		if (TupletTYPE(pL))
 			SetTupletYPos(doc, pL);
 
-	FIJustifyAll(doc);															/* Justify every system. */
+	FIJustifyAll(doc);												/* Justify every system. */
 	
 	/* Reshape slurs and ties to default; respace/reformat will have deformed many of them. */
 	FIReshapeSlursTies(doc);
@@ -405,15 +402,15 @@ static Boolean NotelistToNight(Document *doc)
 
 static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 {
-	PNL_NRGR		pNR;
+	PNL_NRGR	pNR;
 	PANOTE		aNote;
-	LINK			syncL, aNoteL, partL;
-	short			iVoice, halfLn, midCHalfLn;
+	LINK		syncL, aNoteL, partL;
+	short		iVoice, halfLn, midCHalfLn;
 	Boolean		result, isRest;
 	CONTEXT		context;
 	static LINK	curSyncL;
 
-	if (gCurSyncTime==-1L) curSyncL = NILINK;						/* Init this on first call of conversion. */
+	if (gCurSyncTime==-1L) curSyncL = NILINK;				/* Init this on first call of conversion. */
 	syncL = NILINK;
 	
 	pNR = GetPNL_NRGR(pL);
@@ -428,7 +425,7 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 	*/
 	if (pNR->lStartTime==gCurSyncTime) {
 		aNoteL = FIAddNoteToSync(doc, curSyncL);
-		if (aNoteL==NILINK) return FALSE;							// probably out of memory
+		if (aNoteL==NILINK) return FALSE;					/* probably out of memory */
 	}
 	else if (pNR->lStartTime>gCurSyncTime) {
 		syncL = FIInsertSync(doc, doc->tailL, 1);
@@ -472,9 +469,9 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 	aNote = GetPANOTE(aNoteL);
 	aNote->accident = pNR->acc;
 	aNote->inTuplet = pNR->inTuplet;
-	aNote->tiedR = pNR->tiedR;								/* flag for subsequent call to CreateAllTies */
+	aNote->tiedR = pNR->tiedR;							/* flag for subsequent call to CreateAllTies */
 	aNote->tiedL = pNR->tiedL;
-	aNote->slurredR = pNR->slurredR;						/* flag for subsequent call to CreateAllSlurs */
+	aNote->slurredR = pNR->slurredR;					/* flag for subsequent call to CreateAllSlurs */
 	aNote->slurredL = pNR->slurredL;
 	aNote->headShape = pNR->appear;
 	if (!isRest) {
@@ -507,19 +504,18 @@ CAUTION: At this time we do not support:
 Calling ConvertGrace with NILINK for <pL> tells it to initialize a static variable.
 Do this once before converting a score.
 
-***NB: There is a flaw in the current Notelist spec that makes it impossible
-to decide whether two consecutive grace notes are part of the same sync.
-If a grace is in a chord, its inChord flag is set. Unfortunately, there's
-no way to tell *which* chord the grace is in. 
-Until this is fixed (probably by making lStartTime meaningful), we can't do
-a very smart job of syncing. */
+NB: There is a flaw in the current Notelist spec that makes it impossible to decide
+whether two consecutive grace notes are part of the same Sync. If a grace note is
+in a (grace) chord, its inChord flag is set, but there's no way to tell *which*
+chord it's in. Until this is fixed (probably by making lStartTime meaningful), we
+can't do a very smart job of syncing. */
 
 static Boolean ConvertGrace(Document *doc, NLINK pL)
 {
-	PNL_NRGR		pNR;
-	PAGRNOTE		aGRNote;
-	LINK			syncL, aGRNoteL, partL;
-	short			iVoice, halfLn, midCHalfLn;
+	PNL_NRGR	pNR;
+	PAGRNOTE	aGRNote;
+	LINK		syncL, aGRNoteL, partL;
+	short		iVoice, halfLn, midCHalfLn;
 	Boolean		result;
 	CONTEXT		context;
 	static LINK	curGRSyncL;
@@ -613,7 +609,7 @@ static Boolean ConvertMods(Document *doc, NLINK firstModID, LINK syncL, LINK aNo
 		aModL = AutoNewModNR(doc, aNLMod.code, aNLMod.data, syncL, aNoteL);
 		if (!aModL) return FALSE;
 		pMod = GetPAMODNR(aModL);
-		pMod->ystdpit = 0;	// ystdpit is clef-independent dist below mid-C in 8th-spaces
+		pMod->ystdpit = 0;		/* ystdpit is clef-independent dist below mid-C in 8th-spaces */
 	}
 	
 	return TRUE;
@@ -634,7 +630,7 @@ static Boolean NLMIDI2HalfLn(char noteNum, char eAcc, short midCHalfLn, short *p
 	short	pitchClass, halfLines, octave, halfSteps;
 	
 	static char hLinesTable[5][12] = {
-							{ 1,  _X, 2,  3,  _X, 4,  _X, 5,  _X, 6,  7,  _X },	/* AC_DBLFLAT */
+							{ 1,  _X, 2,  3,  _X, 4,  _X, 5,  _X, 6,  7,  _X },		/* AC_DBLFLAT */
 		  /* pitchclass: Dbb Db  Ebb Fbb E   Gbb Gb  Abb Ab  Bbb Cbb B */
 
 							{ _X, 1,  _X, 2,  3,  _X, 4,  _X, 5,  _X, 6,  7 },		/* AC_FLAT */
@@ -643,7 +639,7 @@ static Boolean NLMIDI2HalfLn(char noteNum, char eAcc, short midCHalfLn, short *p
 							{ 0,  _X, 1,  _X, 2,  3,  _X, 4,  _X, 5,  _X, 6 },		/* AC_NATURAL */
 		  /* pitchclass: C   C#  D   D#  E   F   F#  G   G#  A   A#  B */
 
-							{ -1, 0,  _X, 1,  _X, 2,  3,  _X, 4,  _X, 5,  _X },	/* AC_SHARP */
+							{ -1, 0,  _X, 1,  _X, 2,  3,  _X, 4,  _X, 5,  _X },		/* AC_SHARP */
 		  /* pitchclass: B#  C#  D   D#  E   E#  F#  G   G#  A   A#  B */
 
 							{ _X, -1, 0,  _X, 1,  _X, 2,  3,  _X, 4,  _X, 5 } };	/* AC_DBLSHARP */
@@ -670,9 +666,9 @@ static Boolean NLMIDI2HalfLn(char noteNum, char eAcc, short midCHalfLn, short *p
 
 static Boolean ConvertTuplet(Document *doc, NLINK pL)
 {
-	short			iVoice;
+	short		iVoice;
 	PNL_TUPLET	pT;
-	LINK			partL, tupletL;
+	LINK		partL, tupletL;
 	
 	pT = GetPNL_TUPLET(pL);
 	
@@ -681,7 +677,7 @@ static Boolean ConvertTuplet(Document *doc, NLINK pL)
 	if (iVoice==0) goto broken;
 
 	tupletL = FICreateTUPLET(doc, iVoice, pT->staff, doc->tailL, pT->nInTuple,
-									pT->num, pT->denom, pT->numVis, pT->denomVis, pT->brackVis);
+								pT->num, pT->denom, pT->numVis, pT->denomVis, pT->brackVis);
 	if (tupletL==NILINK) goto broken;
 
 	return TRUE;
@@ -696,7 +692,7 @@ broken:
 static Boolean ConvertBarline(Document *doc, NLINK pL)
 {
 	PNL_BARLINE	pBar;
-	LINK			measL;
+	LINK		measL;
 	
 	pBar = GetPNL_BARLINE(pL);
 	
@@ -716,7 +712,7 @@ static Boolean ConvertClef(Document *doc, NLINK pL)
 {
 	PNL_CLEF	pC;
 	LINK		clefL, aClefL;
-	Boolean	small;
+	Boolean		small;
 	
 	pC = GetPNL_CLEF(pL);
 
@@ -745,9 +741,9 @@ broken:
 
 static Boolean ConvertKeysig(Document *doc, NLINK pL)
 {
-	short			sharpsOrFlats;
+	short		sharpsOrFlats;
 	PNL_KEYSIG	pKS;
-	LINK			keySigL;
+	LINK		keySigL;
 	
 	/* We've already converted the first key sig. in the score, during SetupNLScore.
 		If <pL> belongs to that key sig., skip it. */
@@ -772,14 +768,14 @@ broken:
 static Boolean ConvertTimesig(Document *doc, NLINK pL)
 {
 	PNL_TIMESIG	pTS;
-	LINK			timeSigL;
+	LINK		timeSigL;
 	
 	/* We've already converted the first time sig. in the score, during SetupNLScore.
 		If <pL> belongs to that time sig., skip it. */
 	if (IsFirstTimesig(pL)) return TRUE;
 
 	pTS = GetPNL_TIMESIG(pL);
-	if (pTS->staff==NOONE) return TRUE;				/* don't convert it -- already handled by another record */
+	if (pTS->staff==NOONE) return TRUE;			/* don't convert it -- already handled by another record */
 	
 	timeSigL = FIInsertTimeSig(doc, pTS->staff, doc->tailL, pTS->appear, pTS->num, pTS->denom);
 	if (timeSigL==NILINK) goto broken;
@@ -797,8 +793,8 @@ static Boolean ConvertTempo(Document *doc, NLINK pL)
 {
 	PNL_TEMPO	pT;
 	Boolean		result;
-	char			tempoStr[MAX_TEMPO_CHARS], metroStr[MAX_TEMPO_CHARS];
-	LINK			tempoL;
+	char		tempoStr[MAX_TEMPO_CHARS], metroStr[MAX_TEMPO_CHARS];
+	LINK		tempoL;
 	
 	pT = GetPNL_TEMPO(pL);
 
@@ -817,7 +813,7 @@ static Boolean ConvertTempo(Document *doc, NLINK pL)
 		metroStr[0] = '\0';
 
 	tempoL = FIInsertTempo(doc, pT->staff, doc->tailL, NILINK, pT->durCode,
-									pT->dotted, pT->hideMM, tempoStr, metroStr);
+								pT->dotted, pT->hideMM, tempoStr, metroStr);
 	if (tempoL==NILINK) goto broken;
 	
 	return TRUE;
@@ -833,13 +829,13 @@ static Boolean ConvertGraphic(Document *doc, NLINK pL)
 {
 	PNL_GRAPHIC	pG;
 	Boolean		result, isLyric;
-	short			textStyle, iVoice;
-	char			str[MAX_CHARS];
-	LINK			graphicL, partL, insertBeforeL, anchorL;
+	short		textStyle, iVoice;
+	char		str[MAX_CHARS];
+	LINK		graphicL, partL, insertBeforeL, anchorL;
 	
 	pG = GetPNL_GRAPHIC(pL);
 
-	if (!pG->string) return FALSE;			/* fail silently */
+	if (!pG->string) return FALSE;					/* fail silently */
 	
 	result = FetchString(pG->string, str);
 	if (!result) goto broken;
@@ -864,11 +860,11 @@ static Boolean ConvertGraphic(Document *doc, NLINK pL)
 	}
 	else {
 		insertBeforeL = doc->tailL;
-		anchorL = NILINK;									/* filled in later */
+		anchorL = NILINK;							/* filled in later */
 	}
 	
 	graphicL = FIInsertGRString(doc, pG->staff, iVoice, insertBeforeL, 
-											anchorL, isLyric, textStyle, NULL, str);
+									anchorL, isLyric, textStyle, NULL, str);
 	if (graphicL==NILINK) goto broken;
 
 	return TRUE;
@@ -883,11 +879,11 @@ broken:
 static Boolean ConvertDynamic(Document *doc, NLINK pL)
 {
 	PNL_DYNAMIC	pD;
-	LINK			dynamicL;
-	char			str[32];
-	char			*dynamStrs[] = { "pppp", "", "", "", "", "", "", "", "", "ffff",
-										  "pi piano", "meno piano", "meno forte", "pi forte", "",
-										  "fz", "sfz", "rf", "rfz", "fp", "sfp" };
+	LINK		dynamicL;
+	char		str[32];
+	char		*dynamStrs[] = { "pppp", "", "", "", "", "", "", "", "", "ffff",
+									"piÂ piano", "meno piano", "meno forte", "piÂ forte", "",
+									"fz", "sfz", "rf", "rfz", "fp", "sfp" };
 
 	pD = GetPNL_DYNAMIC(pL);
 
@@ -933,24 +929,21 @@ broken:
 }
 
 
-/* ------------------------------------------------------------- SetDefaultCoords -- */
-/* Move every Graphic, Tempo mark and Dynamic to a reasonable default position.
-Since the Notelist format does not encode graphic information for these items,
-we must do something crude and arbitrary here.
-We could get fancy...
-	If staff has any lyrics, put dynamics above staff instead
-	of below (where they would collide with lyrics anyway).
-...but we don't. */
+/* --------------------------------------------------------------- SetDefaultCoords -- */
+/* Move every Graphic, Tempo mark and Dynamic to a reasonable default position. Since
+the Notelist format does not encode graphic information for these items, we do something
+crude and arbitrary here. It'd be good to make this less crude, e.g.,: If staff has any
+lyrics, put dynamics above staff instead of below. */
 
 static Boolean SetDefaultCoords(Document *doc)
 {
-	LINK			pL, firstStaffL, aStaffL, firstL;
-	DDIST			staffHeight[MAXSTAVES+1], xd, yd,
-					lastPgRelGrXD = 0, lastPgRelGrYD = 0;
-	QDIST			height;
-	char			staffLines[MAXSTAVES+1], staffn, str[256], glyph;
-	short			fontSize[MAXSTAVES+1], wid, textStyle;
-	PGRAPHIC		pGraphic;
+	LINK		pL, firstStaffL, aStaffL, firstL;
+	DDIST		staffHeight[MAXSTAVES+1], xd, yd,
+				lastPgRelGrXD = 0, lastPgRelGrYD = 0;
+	QDIST		height;
+	char		staffLines[MAXSTAVES+1], staffn, str[256], glyph;
+	short		fontSize[MAXSTAVES+1], wid, textStyle;
+	PGRAPHIC	pGraphic;
 	PASTAFF		aStaff;
 	PADYNAMIC	aDynamic;
 
@@ -972,7 +965,7 @@ static Boolean SetDefaultCoords(Document *doc)
 			case GRAPHICtype:
 				staffn = GraphicSTAFF(pL);
 				firstL = GraphicFIRSTOBJ(pL);
-				if (PageTYPE(firstL)) {									/* crudely tile page-rel graphics */
+				if (PageTYPE(firstL)) {								/* crudely tile page-rel graphics */
 					if (lastPgRelGrXD==0) xd = DFLT_PGRELGR_XD;
 					else xd = lastPgRelGrXD + PGRELGR_XOFFSET;
 					LinkXD(pL) = lastPgRelGrXD = xd;
@@ -985,7 +978,7 @@ static Boolean SetDefaultCoords(Document *doc)
 					pGraphic = GetPGRAPHIC(pL);
 					textStyle = Header2UserFontNum(pGraphic->info);
 					switch (textStyle) {
-						case TSRegular2STYLE:							/* for dynamics faked with graphics (see ConvertDynamic) */
+						case TSRegular2STYLE:						/* for dynamics faked with graphics (see ConvertDynamic) */
 							height = DFLT_DYNAMIC_HEIGHT;
 							CenterTextGraphic(doc, pL);
 							break;
@@ -994,10 +987,14 @@ static Boolean SetDefaultCoords(Document *doc)
 							CenterTextGraphic(doc, pL);				/* NB: This assumes lyrics are attached to notes. */
 							break;
 						case TSRegular1STYLE:
-						case TSRegular3STYLE:							/* shouldn't find 3, 5 or thisItemOnly */
+						case TSRegular3STYLE:						/* shouldn't find 3, 5 or thisItemOnly */
 						case TSRegular5STYLE:
 						case TSThisItemOnlySTYLE:
-							height = DFLT_TEXT_HEIGHT;		break;
+							height = DFLT_TEXT_HEIGHT;
+							break;
+						default:
+							MayErrMsg("SetDefaultCoords: nonsense textStyle.");
+							height = DFLT_TEXT_HEIGHT;
 					}
 					yd = qd2d(height, staffHeight[staffn], staffLines[staffn]);
 					LinkYD(pL) = yd;
@@ -1042,7 +1039,7 @@ of notelists. */
 
 static void FixPlayDurs(Document *doc, LINK startL, LINK endL)
 {
-	LINK pL, aNoteL; long useLDur;
+	LINK pL, aNoteL;  long useLDur;
 	
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) {
@@ -1060,16 +1057,14 @@ static void FixPlayDurs(Document *doc, LINK startL, LINK endL)
 
 /* ----------------------------------------------------------------- SetupNLScore -- */
 
-Boolean FitStavesOnPaper(Document *);		// ??BELONGS IN A HEADER
-
 static Boolean SetupNLScore(Document *doc)
 {
-	short			part, staffn, nStaves, sharpsOrFlats, timeSigNum, timeSigDenom, type;
-	LINK			firstClefL, partL, firstTSL, firstKeySigL;
-	NLINK			clefL, ksL, tsL;
-	PNL_CLEF		pClef;
+	short		part, staffn, nStaves, sharpsOrFlats, timeSigNum, timeSigDenom, type;
+	LINK		firstClefL, partL, firstTSL, firstKeySigL;
+	NLINK		clefL, ksL, tsL;
+	PNL_CLEF	pClef;
 	PNL_TIMESIG	pTS;
-	DDIST			sysTop;
+	DDIST		sysTop;
 
 	InstallDoc(doc);
 	doc->firstMNNumber = gFirstMNNumber;
@@ -1164,7 +1159,7 @@ static Boolean SetupNLScore(Document *doc)
 
 	/* Make sure the staves of a large system don't go off the bottom of the page. */
 	
-	//(void)FitStavesOnPaper(doc);
+	//(void)FitStavesOnPaper(doc);	??I have no idea why this is commented out :-( . --DAB, March 2017
 
 	return TRUE;
 }
@@ -1217,23 +1212,27 @@ FALSE in case of error. */
 #define COMMENT_NOTELIST "(origin: notelist file)"	/* ??Should be in resource for I18N */
 
 static Boolean BuildNLDoc(
-						Document *doc,
-						long *fileVersion,
-						short /*pageWidth*/,
-						short /*pageHt*/,
-						short /*nStaves*/,
-						short rastral)
+					Document *doc,
+					long *fileVersion,
+					short /*pageWidth*/,
+					short /*pageHt*/,
+					short /*nStaves*/,
+					short rastral)
 {
-	WindowPtr		w = doc->theWindow;
-	Rect				r;
+	WindowPtr	w = doc->theWindow;
+	Rect		r;
 
 	SetPort(GetWindowPort(w));
 	
 	/* Set the initial paper size, margins, etc. */
 	
 	doc->paperRect.top = doc->paperRect.left = 0;
-	doc->paperRect.bottom = 792;
-	doc->paperRect.right = 612;
+	//doc->paperRect.bottom = 11*72;
+	//doc->paperRect.right = 8.5*72;
+	doc->paperRect.bottom = config.paperRect.bottom;
+	doc->paperRect.right = config.paperRect.right;
+LogPrintf(LOG_DEBUG, "paperRect.bottom=%d paperRect.right=%d\n", doc->paperRect.bottom,
+		  doc->paperRect.right);
 	
 	doc->pageType = 2;		//??Is this even used?
 	doc->measSystem = 0;
@@ -1448,6 +1447,9 @@ char DynamicGlyph(LINK dynamicL)
 			glyph = MCH_fff;	break;
 		case SF_DYNAM:
 			glyph = MCH_sf;	break;
+		default:
+			MayErrMsg("DynamicGlyph: nonsense dynamic.");
+			glyph = MCH_xShapeHead;
 	}
 	return glyph;
 }
@@ -1466,7 +1468,7 @@ static void BuildConvertedNLFileName(Str255 fn, Str255 newfn)
 {
 	unsigned char	str[64];
 	unsigned char	*p;
-	long				len;
+	long			len;
 
 	Pstrcpy(newfn, fn);
 
