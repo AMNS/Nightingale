@@ -351,13 +351,12 @@ static Boolean NotelistToNight(Document *doc)
 	if (gNumNLStaves>1)
 		ok = FICombineKeySigs(doc, doc->headL, doc->tailL);
 	
-	/* Respace entire score to 100%. */
+	/* Respace entire score, trying to avoid both overcrowding and wasted spoce. */
 	SelAllNoHilite(doc);
 	firstMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
 	doc->autoRespace = TRUE;
 
 	/* If there aren't any short notes, save some paper. Cf. MFRespAndRfmt(). */
-	
 	shortestDurCode = GetShortestDurCode(ANYONE, firstMeasL, doc->tailL);
 	spacePercent = 100L;
 	if (shortestDurCode==EIGHTH_L_DUR) spacePercent = 85L;

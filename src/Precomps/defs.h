@@ -67,11 +67,11 @@ enum {										/* Output device types */
 };
 
 enum {										/* Location for adding Systems and Measures: */
-	firstSystem,							/* Adding the very first System of the score, when it is created */
-	beforeFirstSys,							/* Adding before the first System of the score */
-	firstOnPage,							/* Adding a new first System to some page other than the first */
-	succSystem,								/* Adding a System following the first to any page */
-	succMeas								/* Adding a Measure following the first to any System */
+	FirstSystem,							/* Adding the very first System of the score, when it is created */
+	BeforeFirstSys,							/* Adding before the first System of the score */
+	FirstOnPage,							/* Adding a new first System to some page other than the first */
+	SuccSystem,								/* Adding a System following the first to any page */
+	SuccMeas								/* Adding a Measure following the first to any System */
 };
 
 enum {										/* DrawSTAFF foreground/background codes: */

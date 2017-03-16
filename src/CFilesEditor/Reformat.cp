@@ -73,8 +73,6 @@ static Boolean MoveMeasJDObjs(Document *, LINK, LINK);
 static short GetTitleMargin(Document *doc);
 static short RfmtPages(Document *, LINK, LINK, short, short);
 
-static short startSIndex;
-
 
 /* ------------------------------------------- CountMeasures/RealMeasures/Systems -- */
 
@@ -381,7 +379,7 @@ static Boolean AddFinalMeasure(Document *doc, LINK startSysL, LINK newSysL,
 		return FALSE;
 	}
 	newMeasL = MakeMeasure(doc, LeftLINK(startSysL), prevMeasL, staffL, newSysL,
-													measWidth, staffTop, succMeas);
+													measWidth, staffTop, SuccMeas);
 	if (!newMeasL) return FALSE;
 	
 	SetMeasVisible(newMeasL, TRUE);
@@ -414,12 +412,12 @@ short GetSysWhere(LINK startSysL, LINK newSysL)
 	if (newSysL==NILINK) {
 		if (LinkLSYS(startSysL)) {
 			pageL = SSearch(startSysL, PAGEtype, GO_LEFT);
-			return (IsAfter(pageL, LinkLSYS(startSysL)) ? succSystem : firstOnPage);
+			return (IsAfter(pageL, LinkLSYS(startSysL)) ? SuccSystem : FirstOnPage);
 		}
-		return beforeFirstSys;
+		return BeforeFirstSys;
 	}
 
-	return succSystem;
+	return SuccSystem;
 }
 
 
@@ -508,13 +506,13 @@ static short RfmtSystems(
 			 * It is necessary, which means that the Measure we're about to move will
 			 * be the first Measure in the System (e.g., it follows the "invisible"
 			 * barline). We don't know the vertical position of the System yet, but
-			 * NewSheetNums uses this no. to decide page breaks, so it can't be any
+			 * NewSheetNums uses this number to decide page breaks, so it can't be any
 			 * greater than the top margin; also, if it ends up as top system of its
 			 * page, it'll stay at this position. So we set it to the top margin. The
 			 * location of the new System relative to other Systems and Pages also
 			 * needs to be determined, for CreateSystem.
 			 */
-			sysWhere = GetSysWhere(startSysL,newSysL);
+			sysWhere = GetSysWhere(startSysL, newSysL);
 			topMargin = pt2d(doc->marginRect.top);
 			newSysL = CreateSystem(doc, LeftLINK(startSysL), topMargin, sysWhere);
 			if (!newSysL) {
@@ -1336,7 +1334,7 @@ Boolean RJustifySystems(
 }
 
 
-/* -------------------------------------------------------------------- Reformat -- */
+/* ----------------------------------------------------------------------- Reformat -- */
 /* Reformat takes the range of Systems from the one containing <startL> to the one
 one containing <endL> and rearranges things to fill them as well as possible by
 moving Measures from System to System and, if necessary, creating new Systems and
@@ -1357,15 +1355,15 @@ short Reformat(
 			Document	*doc,
 			LINK		startL,
 			LINK		endL,
-			Boolean	changeSBreaks,			/* Change System breaks? */
-			short		measPerSys,				/* (Maximum) no. of Measures allowed per System */
-			Boolean	justify,					/* Justify afterwards? */
-			short 	sysPerPage, 			/* Maximum no. of Systems allowed per Page */
-			short		titleMargin				/* In points */
+			Boolean		changeSBreaks,		/* Change System breaks? */
+			short		measPerSys,			/* (Maximum) no. of Measures allowed per System */
+			Boolean		justify,			/* Justify afterwards? */
+			short		sysPerPage, 		/* Maximum no. of Systems allowed per Page */
+			short		titleMargin			/* In points */
 			)
 {
-	LINK startSysL, endSysL, newStartSysL, firstMeasL, beforeL,
-			startPageL, endPageL, pageL, pL;
+	LINK startSysL, endSysL, newStartSysL, firstMeasL, beforeL, startPageL, endPageL,
+			pageL, pL;
 	short returnCode, nMeasures;
 	Boolean didAnything=FALSE, fixFirstSys, didChangeSBreaks=FALSE, nothingToDo=TRUE;
 	Boolean exactMeasPerSys, foundHidden;

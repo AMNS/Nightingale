@@ -173,7 +173,7 @@ LINK BreakSystem(register Document *doc, LINK breakL)
 
 	prevSysRect = SystemRECT(prevSysL);
 	sysTop = prevSysRect.bottom;
-	newSysL = CreateSystem(doc, LeftLINK(sysTermL), sysTop, succSystem);
+	newSysL = CreateSystem(doc, LeftLINK(sysTermL), sysTop, SuccSystem);
 	if (!newSysL)  { NoMoreMemory(); return NILINK; }
 	
 	prevMeasL = LSSearch(breakL, MEASUREtype, ANYONE, GO_LEFT, FALSE);

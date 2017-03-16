@@ -704,7 +704,7 @@ Rename Boolean functions PartSel, PartRangeSel, & GroupSel to PartIsSel, PartRan
 
 -------------------------------------------------------------------------------
 
-1 - 5 July
+1 - 5 July			       ==== NIGHTINGALE 5.7b1 ====
 
 Make "Frame System Boxes" frame them in blue instead of black. Affects DrawHighLevel.
 
@@ -751,7 +751,7 @@ Minor cleanup.
 
 -------------------------------------------------------------------------------
 
-22 July - 6 August
+22 July - 6 August			       ==== NIGHTINGALE 5.7b2 ====
 
 Tweak standard (for Add Modifiers) position of circle (natural harmonic) note modifier.
 Affects InsNew.
@@ -774,7 +774,7 @@ Search, Utility.
 
 ===============================================================================
 
-8 - 12 August
+8 - 12 August			       ==== NIGHTINGALE 5.7b3 ====
 
 Changed version number from 5.7b3 to 5.7b4. Affects Info.plist.
 
@@ -809,7 +809,7 @@ Update README.
 
 -------------------------------------------------------------------------------
 
-1 - 7 Sept.
+1 - 7 Sept.			       ==== NIGHTINGALE 5.7b4 ====
 
 Remove numerous #ifndef PUBLIC_VERSIONs. Affects a bunch of files.
 
@@ -877,7 +877,7 @@ Ottava, RTRhythmDur.
 
 -------------------------------------------------------------------------------
 
-12 - 15 Oct.
+12 - 15 Oct.			       ==== NIGHTINGALE 5.7b5 ====
 
 Minor cleanup. Affects NightTemplates.h; Initialize, InitNightingale, Insert, Tuplet.
 
@@ -929,7 +929,7 @@ Minor cleanup. Affects DrawObject, NewSlur.
 
 -------------------------------------------------------------------------------
 
-4-8 Nov.
+4-8 Nov.			       ==== NIGHTINGALE 5.7b6 ====
 
 Implement "nudging" slurs/ties via command-arrow keys. Affects Event.
 
@@ -986,7 +986,7 @@ Initialize, Merge, MIDIFSave, RfmtRaw, Score, ScoreInfo, SpaceTime, Utility.
 
 -------------------------------------------------------------------------------
 
-24-28 Nov.
+24-28 Nov.			       ==== NIGHTINGALE 5.7b7 ====
 
 Show Duration Problems now shows individual staff-measures that are incomplete as well
 as entire measures (across all staves) that disagree with the time signature. Affects
@@ -1064,7 +1064,7 @@ Minor cleanup. Affects Debug2Utils, Event, MIDIFSave.
 
 -------------------------------------------------------------------------------
 
-10 Jan.
+10 Jan.			       ==== NIGHTINGALE 5.7b8 ====
 
 Fix bug (Issue #124): Changing a measure rest to a multibar rest, changing the no. of
 measures in a multibar rest, etc. should update measure numbers for the remainder of the
@@ -1188,7 +1188,7 @@ Minor cleanup. Affects MemMacros.h; Browser, DSUtils, InsUtils.
 
 -------------------------------------------------------------------------------
 
-21 Feb.
+21 Feb.			       ==== NIGHTINGALE 5.7b9 ====
 
 Move DelSlurTie() from DragUtils to Slurs and rename it DeleteSlurTie(). Affects
 Dragging.h, Slurs.h; DragUtils, Slurs.
@@ -1230,7 +1230,7 @@ Ottava.
 
 Replace (at last!) our timed-loop delay function with something much more accurate
 and far more robust against changes of processor speed, even drastic changes. Affects
-Utility.
+Utility. (Issue #70)
 
 Make "slop" values more explicit via #defines. Affects DragDynamic, UIFUtils.
 
@@ -1248,9 +1248,9 @@ Other minor cleanup. Affects DragBeam, DSUtils, Insert, InsUtils, MasterMouse, U
 
 -------------------------------------------------------------------------------
 
-12-14 Mar.
+12-15 Mar.			       ==== NIGHTINGALE 5.7b10 ====
 
-Be sure variables are initialized before use. Affects FileInput, Utility.
+Be sure some variables are initialized before use. Affects FileInput, Utility.
 
 Move page-reformatting functions from MIDIFOpen to Utility. Affects those two & Utility.h.
  
@@ -1259,4 +1259,18 @@ Rename NotelistConvert.c to NotelistOpen.c.
 Remove "#define CONVERTSCORE" and "#if CONVERTSCORE"s. Affects Notelist.h, NotelistOpen,
 NotelistParse.
 
+For readability, in the enum for score location type, capitalize all values. Affects
+Defs.h; MoveUpDown, Reformat, RfmtRaw, Score.
+
 Minor cleanup. Affects Notelist.h; FileInput, MIDIFOpen, NotelistParse, Score, Utility.
+
+===============================================================================
+
+16 Mar.
+
+Changed version number from 5.7b10 to 5.7b11. Affects Info.plist.
+
+Fix bug (Issue #136): Open Notelist often gets as far as "Arranging measures into systems",
+then crashes. Affects Score.
+
+Minor cleanup. Affects OpenNotelist, Reformat, Score, SpaceHighLevel.

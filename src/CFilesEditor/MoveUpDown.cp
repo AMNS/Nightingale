@@ -386,7 +386,7 @@ Boolean MoveBarsDown(Document *doc, LINK startL, LINK endL)
 		if (RoomForSystem(doc, startL)) {
 			sysRect = SystemRECT(sys1L);
 			sysTop = sysRect.bottom;
-			sys2L = CreateSystem(doc,prevL,sysTop,succSystem);
+			sys2L = CreateSystem(doc,prevL,sysTop,SuccSystem);
 		}
 		else {
 			CreatePage(doc, prevL);

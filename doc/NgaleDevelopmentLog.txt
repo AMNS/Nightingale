@@ -1897,7 +1897,7 @@ that's all Ngale ever does.
 
 -------------------------------------------------------------------------------
 
-9-14 March
+9-16 March
 
 Work on AddCautionaryTimesigs(). It's not hard to decide whether and where to add a
 cautionary timesig, but how to actually add it to object list? It could just call
@@ -1911,14 +1911,25 @@ in each "can't parse"; why?  !! Now it crashes on a couple of Vn Concerto noteli
 mvmt & one other; I'm not sure if they're the same ones). @%(@($@!)(  Try 3rd mvmt w/
 last 5.7b10 (of 6 March) => same result. W/ 5.6 => no crash, but an error message that
 system is too tall for the page, & score is unreadable; w/ 5.7b4 => no error message &
-score looks fine; w5.7b7 => crashes. Back to 5.7b4 => it now crashes! So this  almost
+score looks fine; w5.7b7 => crashes. Back to 5.7b4 => it now crashes! So this almost
 certainly isn't a ghost, but something random, maybe bcs of an uninitialized variable.
 Okay; be sure several possible uninits are inited => says "Arranging measures into
-systems", then crashes in on the call to InitMeasure() in MakeMeasure() called from
-CreateSystem() called from Reformat. If it crashed really trying to call InitMeasure(),
+systems", then crashes in the call to InitMeasure() in MakeMeasure(). Traceback:
+	MakeMeasure called from
+	CreateSystem called from
+	RfmtSystems called from
+	Reformat called from
+	PositionWholeMeasures
+
+. If it crashed really trying to call InitMeasure(),
 maybe aPrevMeasL is null bcs... Ah, prevMeasL=0; that sure could explain it! In fact,
-some code in InitMeasure() checks if prevMeasL is NILINK or not and takes action in
-each case; other code in it just assumes its non-NILINK.
+some code in MakeMeasure() checks if prevMeasL is NILINK or not and takes action in
+each case, but the call to InitMeasure() and preceding lines assumes it's non-NILINK.
+Fix that => seems OK, no crash!
+
+-------------------------------------------------------------------------------
+
+16 March
 
 Switch from G5 to my old MacBook "3"; do more cleanup. Open 3rd mvmt notelist via Ngale
 menu command => OK; via drop on Ngale icon => OK. Which proves nothing! But open 2nd
@@ -1929,6 +1940,6 @@ mvmt notelist via menu cmd =>
 	"
 	Miscellanous error.
 
-This is almost certainly unrelated to the previous problem, and caused by the embedded
-"'" in the tempo mark.
+This is almost certainly unrelated to the previous problem, and it's very probably
+caused by the embedded "'" in the tempo mark.
 

@@ -285,7 +285,7 @@ Boolean NewDocScore(Document *doc)
 	pPage->sheetNum = 0;
 
 	sysTop = SYS_TOP(doc)+pt2d(config.titleMargin);
-	if (!CreateSystem(doc, qL, sysTop, firstSystem)) return FALSE;
+	if (!CreateSystem(doc, qL, sysTop, FirstSystem)) return FALSE;
 	doc->selStartL = doc->selEndL = doc->tailL;
 	doc->yBetweenSys = 0;
 
@@ -306,10 +306,10 @@ DDIST GetSysHeight(Document *doc,
 {
 	LINK baseSys;  DRect sysRect;
 
-	if (where==firstSystem)
+	if (where==FirstSystem)
 		return (MEAS_BOTTOM(initStfTop1+initStfTop2, STHEIGHT));
 
-	baseSys = (where==beforeFirstSys ? LinkRSYS(sysL) : LinkLSYS(sysL));	
+	baseSys = (where==BeforeFirstSys ? LinkRSYS(sysL) : LinkLSYS(sysL));	
 	sysRect = SystemRECT(baseSys);	
 
 	return (sysRect.bottom-sysRect.top);
@@ -960,15 +960,15 @@ LINK AddSysInsertPt(Document *doc, LINK pL, short *where)
 		
 		insertL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 		if (!insertL)
-			*where = succSystem;
+			*where = SuccSystem;
 		else if (FirstSysInPage(insertL))
-			*where = SheetNUM(SysPAGE(insertL))!=0 ? firstOnPage : beforeFirstSys;
+			*where = SheetNUM(SysPAGE(insertL))!=0 ? FirstOnPage : BeforeFirstSys;
 		else
-			*where = succSystem;
+			*where = SuccSystem;
 	}
 	else if (PageTYPE(pL)) {
 		insertL = pL;
-		*where = succSystem;
+		*where = SuccSystem;
 	}
 	else {
 		insertL = LSSearch(pL, SYSTEMtype, ANYONE, FALSE, FALSE);
@@ -977,7 +977,7 @@ LINK AddSysInsertPt(Document *doc, LINK pL, short *where)
 			if (FirstSysInPage(insertL))			/* Found first sys of fllwng pg; return pg */
 				insertL = SysPAGE(insertL);
 
-		*where = succSystem;
+		*where = SuccSystem;
 	}
 
 	return (insertL ? insertL : doc->tailL);
@@ -1098,9 +1098,9 @@ LINK AddSystem(Document *doc, LINK insertL, short where)
 	/* Add the new system before insertL */
 	prevSysL = LSSearch(LeftLINK(insertL), SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 
-	if (where == firstSystem || where == beforeFirstSys)
+	if (where == FirstSystem || where == BeforeFirstSys)
 		sysTop = SYS_TOP(doc)+pt2d(config.titleMargin);
-	else if (where == firstOnPage)
+	else if (where == FirstOnPage)
 		sysTop = SYS_TOP(doc);
 	else {
 		invalDRect = sysRect = SystemRECT(prevSysL);
@@ -1144,7 +1144,7 @@ LINK AddSystem(Document *doc, LINK insertL, short where)
 			MoveSysOnPage(doc, newSysL, newPos);
 		}
 
-		if (where == firstSystem || where == beforeFirstSys || where == firstOnPage)
+		if (where == FirstSystem || where == BeforeFirstSys || where == FirstOnPage)
 			InvalWindow(doc);
 		else {
 			LINK pageL; Rect paperRect;
@@ -1200,7 +1200,7 @@ LINK MakeSystem(Document *doc, LINK prevL, LINK prevPageL, LINK prevSysL, DDIST 
 	SetObject(pL, MARGLEFT(doc), sysTop, FALSE, TRUE, TRUE);
 	LinkTWEAKED(pL) = FALSE;
 	
-	if (where==beforeFirstSys)
+	if (where==BeforeFirstSys)
 		nextSysL = SSearch(RightLINK(pL), SYSTEMtype, FALSE);
 	else
 		nextSysL = (prevSysL? LinkRSYS(prevSysL) : NILINK);
@@ -1214,7 +1214,7 @@ LINK MakeSystem(Document *doc, LINK prevL, LINK prevPageL, LINK prevSysL, DDIST 
 	
 	SysPAGE(pL) = prevPageL;
 
-	if (where==firstSystem || where==beforeFirstSys) {
+	if (where==FirstSystem || where==BeforeFirstSys) {
 		indent = doc->firstIndent;
 		staffLength = MARGWIDTH(doc)-doc->firstIndent;
 	}
@@ -1249,7 +1249,7 @@ LINK MakeStaff(Document *doc,
 	LINK pL, nextStaffL, aStaffL, copyStaffL;
 	PASTAFF aStaff;
 	
-	if (where==firstSystem) {
+	if (where==FirstSystem) {
 		pL = InsertNode(doc, RightLINK(prevL), STAFFtype, doc->nstaves);
 		if (!pL) { NoMoreMemory(); return NILINK; }
 	
@@ -1272,7 +1272,7 @@ LINK MakeStaff(Document *doc,
 
 	/* Copy the previous Staff, if there is one, otherwise get it from Master Page. */
 	
-	if (where==beforeFirstSys) copyStaffL = SSearch(doc->headL,STAFFtype,GO_RIGHT);
+	if (where==BeforeFirstSys) copyStaffL = SSearch(doc->headL,STAFFtype,GO_RIGHT);
 	else if (prevStaffL)		copyStaffL = prevStaffL;
 	else						copyStaffL = SSearch(doc->masterHeadL,STAFFtype,GO_RIGHT);
 	pL = DuplicateObject(STAFFtype, copyStaffL, FALSE, doc, doc, FALSE);
@@ -1301,7 +1301,7 @@ LINK MakeStaff(Document *doc,
 
 /* ----------------------------------------------------------------- MakeConnect -- */
 /* Insert a new Connect after prevL in some object list belonging to doc. Return
-new Connect's LINK, or NILINK. N.B. If where=<firstSystem>, assumes the system has
+new Connect's LINK, or NILINK. N.B. If where=<FirstSystem>, assumes the system has
 exactly one part of two staves!*/
 
 LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, short where)
@@ -1309,7 +1309,7 @@ LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, short where)
 	LINK pL, aConnectL, copyConnL;
 	PCONNECT pConnect;  register PACONNECT aConnect;
 	
-	if (where==firstSystem) {
+	if (where==FirstSystem) {
 		pL = InsertNode(doc, RightLINK(prevL), CONNECTtype, 2);
 		if (!pL) { NoMoreMemory(); return NILINK; }
 
@@ -1348,7 +1348,7 @@ LINK MakeConnect(Document *doc, LINK prevL, LINK prevConnectL, short where)
 
 	/* Copy the previous Connect, if there is one, otherwise get it from Master Page. */
 
-	if (where==beforeFirstSys) copyConnL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
+	if (where==BeforeFirstSys) copyConnL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
 	else if (prevConnectL)		copyConnL = prevConnectL;
 	else						copyConnL = SSearch(doc->masterHeadL,CONNECTtype,GO_RIGHT);
 
@@ -1372,7 +1372,7 @@ static LINK MakeClef(
 
 	/* Create and fill in the Clef object. */
 
-	if (where==beforeFirstSys) {
+	if (where==BeforeFirstSys) {
 		prevClefL = SSearch(prevL, CLEFtype, FALSE);
 
 		pL = DuplicateObject(CLEFtype, prevClefL, FALSE, doc, doc, FALSE);
@@ -1390,7 +1390,7 @@ static LINK MakeClef(
 	LinkTWEAKED(pL) = FALSE;
 
 	aClefL = FirstSubLINK(pL);
-	if (where==firstSystem) {
+	if (where==FirstSystem) {
 		/* Initialize the clefs in standard way, regardless of staff context */
 		InitClef(aClefL, 1, 0, TREBLE_CLEF);
 		aClefL = NextCLEFL(aClefL);
@@ -1412,7 +1412,7 @@ static LINK MakeKeySig(Document *doc, LINK prevL, short where, CONTEXT context[]
 
 	/* Create and fill in the KeySig object. */
 
-	if (where==beforeFirstSys) {
+	if (where==BeforeFirstSys) {
 		prevKeySigL = SSearch(prevL, KEYSIGtype, FALSE);
 
 		pL = DuplicateObject(KEYSIGtype, prevKeySigL, FALSE, doc, doc, FALSE);
@@ -1438,7 +1438,7 @@ static LINK MakeKeySig(Document *doc, LINK prevL, short where, CONTEXT context[]
 	SetObject(pL, LinkXD(prevL)+spBefore, 0, FALSE, TRUE, TRUE);
 	LinkTWEAKED(pL) = FALSE;
 	KeySigINMEAS(pL) = FALSE;
-	if (where==firstSystem) {
+	if (where==FirstSystem) {
 		aKeySigL = FirstSubLINK(pL);
 		InitKeySig(aKeySigL, 1, 0, 0);
 		aKeySigL = NextKEYSIGL(aKeySigL);
@@ -1472,7 +1472,7 @@ static LINK MakeTimeSig(Document *doc, LINK prevL, short where, CONTEXT context[
 {
 	LINK pL, prevTimeSigL, aTimeSigL;
 
-	if (where==beforeFirstSys) {
+	if (where==BeforeFirstSys) {
 		prevTimeSigL = SSearch(prevL, TIMESIGtype, FALSE);
 
 		pL = DuplicateObject(TIMESIGtype, prevTimeSigL, FALSE, doc, doc, FALSE);
@@ -1500,9 +1500,9 @@ static LINK MakeTimeSig(Document *doc, LINK prevL, short where, CONTEXT context[
 	return pL;
 }
 
-/* ----------------------------------------------------------------- MakeMeasure -- */
-/* Insert a new invisible Measure after prevL in some object list belonging to doc.
-Deliver new Measure's LINK, or NILINK. Does not depend on validity of cross-links.
+/* ------------------------------------------------------------------- MakeMeasure -- */
+/* Insert a new Measure after prevL in an object list belonging to doc. Deliver new
+Measure's LINK if it succeeds, else NILINK. Does not depend on validity of cross-links.
 Does not set the Measure's context fields: the calling routine must do so. */
 
 LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK systemL,
@@ -1510,16 +1510,16 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 {
 	LINK pL, nextMeasL, aMeasureL, aPrevMeasL, partL, connectL, aConnectL,
 			endMeasL, aStaffL;
-	PMEASURE pMeasure;  PAMEASURE aPrevMeas; 
+	PMEASURE pMeasure; 
 	PPARTINFO pPart;  PACONNECT aConnect;
-	short i, j, connStaff;  Boolean connAbove;
+	short i, j, connStaff, measureNum;  Boolean connAbove;
 	DDIST mTop, mBottom, sysHeight, staffLength, xd;
 	DRect sysRect;
 	
 	pL = InsertNode(doc, RightLINK(prevL), MEASUREtype, doc->nstaves);
 	if (pL==NILINK) { NoMoreMemory(); return NILINK; }
 
-	if (where==beforeFirstSys)
+	if (where==BeforeFirstSys)
 		nextMeasL = SSearch(RightLINK(pL), MEASUREtype, FALSE);
 	else
 		nextMeasL = (prevMeasL? LinkRMEAS(prevMeasL) : NILINK);
@@ -1532,14 +1532,14 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 	MeasSYSL(pL) = systemL;
 	MeasSTAFFL(pL) = staffL;
 
-	xd = (where==succMeas? LinkXD(prevMeasL)+spBefore : LinkXD(prevL)+spBefore);
+	xd = (where==SuccMeas? LinkXD(prevMeasL)+spBefore : LinkXD(prevL)+spBefore);
 	SetObject(pL, xd, 0, FALSE, FALSE, TRUE);
 	LinkTWEAKED(pL) = FALSE;
 	pMeasure = GetPMEASURE(pL);
 	SetRect(&pMeasure->measureBBox, 0, 0, 0, 0);			/* Will be computed when it's drawn */ 
 	pMeasure->spacePercent = doc->spacePercent;
 	
-	if (where==firstSystem || where==beforeFirstSys)
+	if (where==FirstSystem || where==BeforeFirstSys)
 		MeasureTIME(pL) = 0L;
 	else if (prevMeasL!=NILINK) {
 		endMeasL = EndMeasSearch(doc, prevMeasL);
@@ -1552,7 +1552,7 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 	sysHeight = sysRect.bottom-sysRect.top;
 
 	aMeasureL = FirstSubLINK(pL);
-	if (where==firstSystem) {
+	if (where==FirstSystem) {
 		staffLength = MARGWIDTH(doc)-doc->firstIndent;
 		InitMeasure(aMeasureL, 1, pt2d(0), pt2d(0), staffLength-LinkXD(pL),
 									initStfTop1+initStfTop2, FALSE, FALSE, 2, 0);
@@ -1606,12 +1606,14 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 			else
 				mTop = mBottom = 0;
 
-			aPrevMeasL = FirstSubLINK(prevMeasL);
-			aPrevMeas = GetPAMEASURE(aPrevMeasL);
-			InitMeasure(aMeasureL, i, pt2d(0), mTop,
-							staffLength-LinkXD(pL), mBottom,
-							FALSE, connAbove, 
-							connStaff, aPrevMeas->measureNum+1);
+			if (prevMeasL!=NILINK) {
+				aPrevMeasL = FirstSubLINK(prevMeasL);
+				 measureNum = MeasMEASURENUM(aPrevMeasL)+1;
+			}
+			else
+				measureNum = 0;
+			InitMeasure(aMeasureL, i, pt2d(0), mTop, staffLength-LinkXD(pL), mBottom,
+							FALSE, connAbove, connStaff, measureNum);
 		}
 	}
 
@@ -1628,14 +1630,14 @@ static void CreateSysFixContext(Document *doc, LINK staffL, LINK measL, short wh
 		See comments on horrible way to establish context in CreateSystem. */
 
 	aStaffL = FirstSubLINK(staffL);
-	if (where==firstSystem) {
+	if (where==FirstSystem) {
 		GetContext(doc, LeftLINK(staffL), 1, &theContext);
 		FixStaffContext(aStaffL, &theContext);
 		aStaffL = NextSTAFFL(aStaffL);
 		GetContext(doc, LeftLINK(staffL), 2, &theContext);
 		FixStaffContext(aStaffL, &theContext);
 	}
-	else if (where==beforeFirstSys) {
+	else if (where==BeforeFirstSys) {
 
 		/* Update the context of the staff object in the system which
 			was added. */
@@ -1663,14 +1665,14 @@ static void CreateSysFixContext(Document *doc, LINK staffL, LINK measL, short wh
 	/* Fill in clef/key sig./time sig. context fields of the initial Measure. */
 
 	aMeasL = FirstSubLINK(measL);
-	if (where==firstSystem) {
+	if (where==FirstSystem) {
 		GetContext(doc, LeftLINK(measL), 1, &theContext);
 		FixMeasureContext(aMeasL, &theContext);
 		aMeasL = NextMEASUREL(aMeasL);
 		GetContext(doc, LeftLINK(measL), 2, &theContext);
 		FixMeasureContext(aMeasL, &theContext);
 	}
-	else if (where==beforeFirstSys)
+	else if (where==BeforeFirstSys)
 		for (i=1; i<=doc->nstaves; i++, aMeasL=NextMEASUREL(aMeasL)) {
 			GetContext(doc, LinkRMEAS(measL), MeasureSTAFF(aMeasL), &theContext);
 			FixMeasureContext(aMeasL, &theContext);
@@ -1690,7 +1692,7 @@ The Clef, KeySig, and TimeSig are properly initialized from the context. If ther
 anything following the new objects, the calling routine is responsible for updating
 it appropriately, aside from links: CreateSystem does not update system numbers,
 coordinates, etc. Delivers LINK to the new System. Uses enum following comment
-for <where> to determine where to add the system. N.B. If <firstSystem>, assumes
+for <where> to determine where to add the system. N.B. If <FirstSystem>, assumes
 the system is exactly one part of two staves!
 */
 
@@ -1706,14 +1708,14 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 
 	qPageL = LSSearch(prevL, PAGEtype, ANYONE, TRUE, FALSE);
 
-	if (where==firstSystem) {
+	if (where==FirstSystem) {
 		qSystemL = qStaffL = qMeasureL = qConnectL = NILINK;
 		staffLength = MARGWIDTH(doc)-doc->firstIndent;
 		doc->nstaves = 2;
 		doc->nsystems = 1;
 		InitParts(doc, FALSE);
 	}
-	else if (where==beforeFirstSys) {
+	else if (where==BeforeFirstSys) {
 		qSystemL = qStaffL = qMeasureL = qConnectL = NILINK;
 		staffLength = MARGWIDTH(doc)-doc->firstIndent;
 		FillStaffTopArray(doc, doc->headL, staffTop);
@@ -1755,12 +1757,12 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 		DEFLT_CLEF by default, and there isn't even any comment to indicate that this
 		is the way it is being done. */
 	
- 	if (where==firstSystem) {
+ 	if (where==FirstSystem) {
 		GetContext(doc, LeftLINK(staffL), 1, &context[1]);
 		GetContext(doc, LeftLINK(staffL), 2, &context[2]);
 		context[2].clefType = BASS_CLEF;
 	}
-	else if (where==beforeFirstSys)
+	else if (where==BeforeFirstSys)
 		for (i = 1; i<=doc->nstaves; i++)
 			GetContext(doc, LinkRSTAFF(staffL), i, &context[i]);
 	else
@@ -1792,7 +1794,7 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 		If we are inserting beforeFirstSys, add TimeSig to this system, and remove the
 		one from the previous first system. */
 
-	if (where==firstSystem || where==beforeFirstSys) {
+	if (where==FirstSystem || where==BeforeFirstSys) {
 		pL = MakeTimeSig(doc, pL, where, context, spBefore);
 		if (pL==NILINK) return NILINK;
 		spBefore = 3*dLineSp;
@@ -1803,10 +1805,10 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 	pL = MakeMeasure(doc, pL, qMeasureL, staffL, systemL, spBefore, staffTop, where);
 	if (pL==NILINK) return NILINK;	
 	
-	if (where==firstSystem) 
+	if (where==FirstSystem) 
 		InitObject(doc->tailL, pL, NILINK, 0xFFFF, 0, FALSE, FALSE, TRUE);	/* xd will be set by UpdateTailxd */
 	
-	if (where==beforeFirstSys) 
+	if (where==BeforeFirstSys) 
 		(void)ChangeSysIndent(doc, LinkRSYS(systemL), -doc->firstIndent);
 	
 	CreateSysFixContext(doc, staffL, pL, where);
@@ -1814,7 +1816,7 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 	/* Must not set staff's clefType until here, or it will be overwritten by
 		CreateSysFixContext */
 
- 	if (where==firstSystem) {
+ 	if (where==FirstSystem) {
 		for (aStaffL=FirstSubLINK(staffL); aStaffL; aStaffL=NextSTAFFL(aStaffL))
 			if (StaffSTAFF(aStaffL)==2)
 				{ StaffCLEFTYPE(aStaffL) = BASS_CLEF; break; }
@@ -1824,7 +1826,7 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 		delete it until now so as to preserve context information until all context
 		updating is done. */
 
-	if (where==beforeFirstSys) {
+	if (where==BeforeFirstSys) {
 		timeSigL = SSearch(LinkRSYS(systemL), TIMESIGtype, FALSE);
 		DeleteNode(doc, timeSigL);
 	}
@@ -1952,9 +1954,9 @@ LINK CreatePage(Document *doc, LINK prevL)
 	doc->numSheets++;
 
 	if (lPage)
-		CreateSystem(doc, pageL, SYS_TOP(doc), firstOnPage);
+		CreateSystem(doc, pageL, SYS_TOP(doc), FirstOnPage);
 	else
-		CreateSystem(doc, pageL, SYS_TOP(doc)+pt2d(config.titleMargin), beforeFirstSys);
+		CreateSystem(doc, pageL, SYS_TOP(doc)+pt2d(config.titleMargin), BeforeFirstSys);
 	doc->selStartL = doc->selEndL =
 						LinkRPAGE(pageL) ? LinkRPAGE(pageL) : doc->tailL;
 						
