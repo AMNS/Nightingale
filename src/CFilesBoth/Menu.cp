@@ -217,9 +217,7 @@ static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD)
 	
 	inputType[0] = 'TEXT';
 	err = OpenFileDialog(kNavGenericSignature, 1, inputType, pNSD);
-	if (err != noErr || pNSD->nsOpCancel) {
-		return FALSE;
-	}		
+	if (err != noErr || pNSD->nsOpCancel) return FALSE;
 	
 	FSSpec fsSpec = pNSD->nsFSSpec;
 	Pstrcpy(macfName, fsSpec.name);
@@ -265,7 +263,7 @@ Boolean DoFileMenu(short choice)
 				if (doSymbol && !IsWindowVisible(palettes[TOOL_PALETTE])) {
 					AnalyzeWindows();
 					DoViewMenu(VM_SymbolPalette);
-					}
+				}
 				break;
 			case FM_Open:
 				if (!FirstFreeDocument()) TooManyDocs();
@@ -298,7 +296,7 @@ Boolean DoFileMenu(short choice)
 						vrefnum = nscd.nsFSSpec.vRefNum;
 						DoOpenDocument(tmpStr, vrefnum, TRUE, &fsSpec);
 						LogPrintf(LOG_INFO, "Opened read-only file '%s'.\n", PToCString(tmpStr));
-					}
+				}
 				break;
 			case FM_Close:
 				if (doc) DoCloseWindow(doc->theWindow);
@@ -321,7 +319,8 @@ Boolean DoFileMenu(short choice)
 				ClearStandardTypes();
 				
 				GetIndCString(str, MIDIFILE_STRS, 1);					/* "What MIDI file do you want to Import?" */
-				if (returnCode = GetInputName(str, FALSE, tmpStr, &vrefnum, &nscd)) {
+				returnCode = GetInputName(str, FALSE, tmpStr, &vrefnum, &nscd);
+				if (returnCode) {
 					fsSpec = nscd.nsFSSpec;
 					ImportMIDIFile(&fsSpec);
 				}
@@ -592,15 +591,13 @@ static void DoTestMenu(short choice)
 						Browser(doc,doc->undo.headL, doc->undo.tailL);
 					else
 						Browser(doc,doc->headL, doc->tailL);
-					}
+				}
 				break;
 			case TS_HeapBrowser:
 				HeapBrowser();
 				break;
 			case TS_Context:
-				if (doc) {
-					ShowContext(doc);
-					}
+				if (doc) ShowContext(doc);
 				break;
 			case TS_ClickErase:
 				clickMode = ClickErase;
@@ -622,7 +619,8 @@ static void DoTestMenu(short choice)
 			case TS_ShowDebug:
 //				static Boolean showDbgWin = FALSE;
 				
-				if (showDbgWin = !showDbgWin) {
+				showDbgWin = !showDbgWin;
+				if (showDbgWin) {
 //					ShowHideDebugWindow(TRUE);
 					LogPrintf(LOG_WARNING, "Show Debug Window isn't implemented.\n");					
 				}
@@ -652,7 +650,9 @@ static void DoTestMenu(short choice)
 
 static void DoScoreMenu(short choice)
 	{
-		register Document *doc=GetDocumentFromWindow(TopDocument); LINK insertL; short where;
+		register Document *doc=GetDocumentFromWindow(TopDocument);
+		LINK insertL;  short where;
+		
 		if (doc==NULL) return;
 		
 		switch(choice) {
@@ -733,7 +733,7 @@ to indicate Transpose Key shouldn't be allowed. */
 
 static Boolean SetTranspKeyStaves(Document *doc, Boolean trStaff[])
 	{
-		short s; LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
+		short s;  LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
 		
 		/* If anything is selected after the initial reserved area, don't allow
 			Transpose Key. */
@@ -780,7 +780,8 @@ static void DoNotesMenu(short choice)
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		short delAccCode;
 		Boolean canTranspKey, trStaff[MAXSTAVES+1];
-		short	addAccCode;
+		short addAccCode;
+		
 		if (doc == NULL) return;
 		
 		switch(choice) {
@@ -878,7 +879,8 @@ static void DoNotesMenu(short choice)
 void DoGroupsMenu(short choice)
 	{
 		register Document *doc=GetDocumentFromWindow(TopDocument);
-		TupleParam tParam; Boolean okay;
+		TupleParam tParam;  Boolean okay;
+		
 		if (doc==NULL) return;
 		
 		switch(choice) {
@@ -886,8 +888,8 @@ void DoGroupsMenu(short choice)
 				DoAutoBeam(doc);
 				break;
 			case GM_Beam:
-				if (cmdIsBeam) DoBeam(doc);
-				else				DoUnbeam(doc);
+				if (cmdIsBeam)	DoBeam(doc);
+				else			DoUnbeam(doc);
 				break;
 			case GM_BreakBeam:
 				DoBreakBeam(doc);
@@ -912,12 +914,8 @@ void DoGroupsMenu(short choice)
 					}
 				break;
 			case GM_Ottava:
-				if (cmdIsOttava) {
-					DoOttava(doc);
-				}
-				else {
-					DoRemoveOttava(doc);
-				}
+				if (cmdIsOttava)	DoOttava(doc);
+				else				DoRemoveOttava(doc);
 				break;
 			default:
 				break;
@@ -931,7 +929,8 @@ void DoGroupsMenu(short choice)
 
 void DoViewMenu(short choice)
 	{
-		register Document *doc=GetDocumentFromWindow(TopDocument); short palIndex;
+		register Document *doc=GetDocumentFromWindow(TopDocument);
+		short palIndex;
 		Rect screen, pal, docRect;
 		
 		switch(choice) {
@@ -970,7 +969,7 @@ void DoViewMenu(short choice)
 					CheckMenuItem(viewMenu, VM_ShowSystems, doc->frameSystems);
 					doc->frameSystems = !doc->frameSystems;
 					InvalWindow(doc);
-					}
+				}
 				break;
 			case VM_ColorVoices:
 				VMColorVoices();
@@ -1001,12 +1000,12 @@ void DoViewMenu(short choice)
 					GetMyScreen(&docRect,&screen);
 					OffsetRect(&docRect,config.toolsPosition.h,config.toolsPosition.v);
 					PullInsideRect(&docRect,&screen,2);
-					}
+				}
 				 else {
 					/* Initial position is upper left corner of main screen */
 					GetQDScreenBitsBounds(&docRect);
 				 	InsetRect(&docRect, 10, GetMBarHeight()+16);
-				 	}
+				}
 				(*paletteGlobals[palIndex])->position.h = docRect.left;
 				(*paletteGlobals[palIndex])->position.v = docRect.top;
 				MovePalette(palettes[palIndex],(*paletteGlobals[palIndex])->position);
@@ -1059,7 +1058,7 @@ void PLMIDIModPrefs(Document *doc)
 void PLTransposeScore(Document *doc)
 {
 	static Boolean warnedTransp = FALSE;
-	short partn, nparts; LINK partL;
+	short partn, nparts;  LINK partL;
 	PPARTINFO pPart;
 
 	if (!warnedTransp) {
@@ -1083,8 +1082,8 @@ void PLTransposeScore(Document *doc)
 
 void EditPartMIDI(Document *doc)
 {
-	LINK partL, pMPartL; PPARTINFO pPart, pMPart;
-	PARTINFO partInfo; short firstStaff;
+	LINK partL, pMPartL;  PPARTINFO pPart, pMPart;
+	PARTINFO partInfo;  short firstStaff;
 	short partn;
 	Boolean allParts = FALSE;
 
@@ -1241,40 +1240,38 @@ void DoPlayRecMenu(short choice)
 	}
 
 void MPInstrument(Document *doc)
-	{
-		LINK staffL, aStaffL;  short partStaffn;
-		
-		partStaffn = -1;
-		staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
-		aStaffL = FirstSubLINK(staffL);
-		for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
-			if (StaffSEL(aStaffL)) {
-				partStaffn = StaffSTAFF(aStaffL);
-				break;
-				}
-
-		if (partStaffn<0) return;
-		
-		if (SDInstrDialog(doc, partStaffn)) {
-			doc->masterChanged = TRUE;
-			InvalWindow(doc);
+{
+	LINK staffL, aStaffL;  short partStaffn;
+	
+	partStaffn = -1;
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+	aStaffL = FirstSubLINK(staffL);
+	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
+		if (StaffSEL(aStaffL)) {
+			partStaffn = StaffSTAFF(aStaffL);
+			break;
 		}
+
+	if (partStaffn<0) return;
+	
+	if (SDInstrDialog(doc, partStaffn)) {
+		doc->masterChanged = TRUE;
+		InvalWindow(doc);
 	}
+}
 	
 /*
 void MPCombineParts(Document *doc)
-	{
-		LINK firstPartL, lastPartL;
-		
-		if (!GetPartSelRange(doc, &firstPartL, &lastPartL)) return;
-		
-		if (MPCombineParts(doc, firstPartL, lastPartL)) {
-			doc->masterChanged = TRUE;
-			InvalWindow(doc);
-		}
-		
-
+{
+	LINK firstPartL, lastPartL;
+	
+	if (!GetPartSelRange(doc, &firstPartL, &lastPartL)) return;
+	
+	if (MPCombineParts(doc, firstPartL, lastPartL)) {
+		doc->masterChanged = TRUE;
+		InvalWindow(doc);
 	}
+}
 */
 
 /*
@@ -1329,21 +1326,21 @@ static void DoMasterPgMenu(short choice)
  */
 
 static void DoFormatMenu(short choice)
-	{		
-		Document *doc=GetDocumentFromWindow(TopDocument);
-		if (doc==NULL) return;
-		
-		switch(choice) {
-			case FT_Invisify:
-				SFInvisify(doc);
-				break;
-			case FT_ShowInvis:
-				SFVisify(doc);
-				break;
-			default:
-				break;
-			}
-	}
+{		
+	Document *doc=GetDocumentFromWindow(TopDocument);
+	if (doc==NULL) return;
+	
+	switch(choice) {
+		case FT_Invisify:
+			SFInvisify(doc);
+			break;
+		case FT_ShowInvis:
+			SFVisify(doc);
+			break;
+		default:
+			break;
+		}
+}
 
 
 /*
@@ -1363,7 +1360,7 @@ static void DoMagnifyMenu(short choice)
 			newMagnify = MIN_MAGNIFY+(choice-1);
 			magnifyDiff = newMagnify-(doc->magnify);
 			SheetMagnify(doc, magnifyDiff);
-			}
+		}
 	}
 
 
@@ -1465,22 +1462,22 @@ void SMLeftEnd(Document *doc)
  */
  
 static void SMTextStyle(Document *doc)
-	{
-		static Boolean firstCall=TRUE;
-		static Str255 string;
-		Boolean okay;
-		CONTEXT context; LINK firstMeas;
+{
+	static Boolean firstCall=TRUE;
+	static Str255 string;
+	Boolean okay;
+	CONTEXT context; LINK firstMeas;
 
-		firstMeas = LSSearch(doc->headL, MEASUREtype, ANYONE, FALSE, FALSE);
-		GetContext(doc, firstMeas, 1, &context);
+	firstMeas = LSSearch(doc->headL, MEASUREtype, ANYONE, FALSE, FALSE);
+	GetContext(doc, firstMeas, 1, &context);
 
-		if (firstCall) {
-			GetIndString(tmpStr,MiscStringsID,6);	/* Get default sample string */
-			Pstrcpy(string,tmpStr);
-			firstCall = FALSE;
-		}
-		okay = DefineStyleDialog(doc, string, &context);
+	if (firstCall) {
+		GetIndString(tmpStr,MiscStringsID,6);	/* Get default sample string */
+		Pstrcpy(string,tmpStr);
+		firstCall = FALSE;
 	}
+	okay = DefineStyleDialog(doc, string, &context);
+}
 
 
 /*
@@ -1488,12 +1485,12 @@ static void SMTextStyle(Document *doc)
  */
 	
 static void SMMeasNum(Document *doc)
-	{
-		if (MeasNumDialog(doc)) {
-			EraseAndInvalMessageBox(doc);
-			InvalWindow(doc);
-		}
+{
+	if (MeasNumDialog(doc)) {
+		EraseAndInvalMessageBox(doc);
+		InvalWindow(doc);
 	}
+}
 
 /*
  * Respace selected measures to tightness set by user from dialog.
@@ -1827,9 +1824,9 @@ static void NMFillEmptyMeas(Document *doc)
  
 static void VMLookAt()
 	{
-		short			dval, newLookV, userVoice, saveStaff;
-		Document		*doc=GetDocumentFromWindow(TopDocument);
-		LINK			partL;
+		short		dval, newLookV, userVoice, saveStaff;
+		Document	*doc=GetDocumentFromWindow(TopDocument);
+		LINK		partL;
 		PPARTINFO 	pPart;
 
 		if (doc==NULL) return;
@@ -2056,36 +2053,32 @@ static void PLStepRecord(Document *doc, Boolean merge)
 	}
 
 /*
- *	When activating a document, ensure that the correct menu is installed for
- *	the current mode of viewing that document: Play/Record menu, Master Page
- *	menu, or Show Format menu.
+ *	When activating a document, ensure that the correct menu is installed for the
+ *	current mode of viewing that document: Play/Record menu, Master Page menu, or
+ *	Show Format menu.
  */
 
 void InstallDocMenus(Document *doc)
 	{
-		short mid; MenuHandle oldMh, mh;
+		short mid;  MenuHandle curMh, mh;
 	
-		if (oldMh = GetMenuHandle(playRecID))
-			DeleteMenu(playRecID);
-		 else if (oldMh = GetMenuHandle(masterPgID))
-			DeleteMenu(masterPgID);
-		 else if (oldMh = GetMenuHandle(formatID))
-			DeleteMenu(formatID);
+		if ((curMh = GetMenuHandle(playRecID))) DeleteMenu(playRecID);
+		 else if ((curMh = GetMenuHandle(masterPgID))) DeleteMenu(masterPgID);
+		 else if ((curMh = GetMenuHandle(formatID))) DeleteMenu(formatID);
 	
 		/*
 		 *	GetMenuHandle may give NULL for the new menu (if that menu was never installed?
 		 *	I dunno), so instead pass one of our stored menu handles to InsertMenu.
 		 */
-		if (doc->masterView)		  { mid = masterPgID; mh = masterPgMenu; }
-		else if (doc->showFormat) { mid = formatID; mh = formatMenu; }
-		else							  { mid = playRecID; mh = playRecMenu; }
+		if (doc->masterView)		{ mid = masterPgID; mh = masterPgMenu; }
+		else if (doc->showFormat)	{ mid = formatID; mh = formatMenu; }
+		else						{ mid = playRecID; mh = playRecMenu; }
 		
-		InsertMenu(mh,0);
+		InsertMenu(mh, 0);
 		DrawMenuBar();
 
-		if (oldMh) {
+		if (curMh) {
 			/* Flash to call user's attention to the fact that there's a new menu. */
-			
 			HiliteMenu(mid);
 			SleepTicks(1);
 			HiliteMenu(0);
@@ -2124,9 +2117,9 @@ static void InstallDebugMenuItems(Boolean installAll)
 
 void FixMenus()
 	{
-		Boolean isDA; WindowPtr w;
+		Boolean isDA;  WindowPtr w;
 		register Document *theDoc;
-		short nInRange=0,nSel=0;
+		short nInRange=0, nSel=0;
 		LINK firstMeasL;
 		Boolean continSel=FALSE;
 		
@@ -2230,7 +2223,7 @@ static void FixFileMenu(Document *doc, short nSel)
 short CountSelPages(Document *);
 short CountSelPages(Document *doc)
 	{
-		Boolean selAcrossFirst; short nPages; LINK pL;
+		Boolean selAcrossFirst;  short nPages;  LINK pL;
 		
 		if (!doc) return 0;
 		
@@ -3088,8 +3081,8 @@ static void FixFormatMenu(Document *doc)
 		if (StaffTYPE(pL) && LinkSEL(pL)) {
 			aStaffL = FirstSubLINK(pL);
 			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
-				if (StaffVIS(aStaffL)) nVis++;
-				else						  nInvis++;
+				if (StaffVIS(aStaffL))	nVis++;
+				else					nInvis++;
 		}
 	
 	XableItem(formatMenu, FT_Invisify, nVis>=2);

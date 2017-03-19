@@ -725,8 +725,6 @@ PushLock(CONNECTheap);
 									&context[stfB=NextStaffn(doc,pL,FALSE,aConnect->staffBelow)];
 		dBottom = pContext->staffTop + pContext->staffHeight;
 		xd = dLeft+aConnect->xd;
-//		LogPrintf(LOG_DEBUG, "mView=%d  aConnect->staffAbove, staffBelow=%d, %d  dTop, pC->staffTop, dBottom=%d, %d, %d\n",
-//			doc->masterView, aConnect->staffAbove, aConnect->staffBelow, dTop, pContext->staffTop, dBottom);
 		
 		switch (aConnect->connectType) {
 			case CONNECTLINE:
@@ -1407,9 +1405,9 @@ PushLock(OBJheap);
 	endxd = SysRelxd(p->lastObjL)+p->endxd+sysLeft;
 	xdNum = xd+lnSpace;
 	ydNum = yd+2*lnSpace;
+	fontSize = d2pt(2*lnSpace-1);
 	
 	if (endNum!=0 && endNum<maxEndingNum) {
-		fontSize = d2pt(2*lnSpace-1);
 		strOffset = endNum*MAX_ENDING_STRLEN;
 		GoodStrncpy(numStr, &endingString[strOffset], MAX_ENDING_STRLEN-1);
 	}
@@ -1624,6 +1622,9 @@ static Boolean GetGraphicDBox(Document *doc,
 	/* If we get here, the Graphic is some sort of text. */
 	p = GetPGRAPHIC(pL);
 	GetNPtStringBBox(doc, pStr, fontID, fontSize, fontStyle, p->multiLine, &bBox);
+//char cStr[256]; Pstrcpy((unsigned char *)cStr, pStr); PToCString((unsigned char *)cStr);
+//LogPrintf(LOG_DEBUG, "GetGraphicDBox: count lines=%d fontID, Size, Style=%d, %d, %d str='%s'\n",
+//			CountTextLines(string), fontID, fontSize, fontStyle, cStr);
 
 	/* 
 	 *	Pure fudgery: for mysterious reasons, if the style is not plain, what we have
@@ -1751,9 +1752,9 @@ static DDIST DrawGRDraw(Document */*doc*/,
 	 * enough that it doesn't matter. FIXME: AT THE MOMENT, QD ONLY.
 	 */
 	dThick = (long)(lineLW*lnSpace) / 100L;
+	vertical = (ABS(yd-yd2) > ABS(2*(xd-xd2)));			/* Is line "nearly" vertical? */
 	if (!doDraw) goto Done;
 	
-	vertical = (ABS(yd-yd2) > ABS(2*(xd-xd2)));			/* Is line "nearly" vertical? */
 	if (vertical) {
 		xd -= dThick/2;
 		xd2 -= dThick/2;
@@ -2032,7 +2033,7 @@ PushLock(GRAPHICheap);
 	/* Handle the odd (mostly non-text) subtypes of Graphics separately. */
 	
 	switch (p->graphicType) {
-		Boolean vertical; DDIST dHalfThick;
+		Boolean vertical;  DDIST dHalfThick;
 		case GRLyric:
 		case GRString:
 			if (doDraw) DrawTextBlock(doc, xd, yd, pL, pContext, dim, fontID, fontSize, fontStyle);
@@ -2254,8 +2255,9 @@ static Boolean GetTempoDBox(Document *doc,
 	else Pstrcpy(string, (StringPtr)PCopy(theStrOffset));
 	
 	GetNPtStringBBox(doc, string, fontID, fontSize, fontStyle, multiLine, &bBox);
-//	LogPrintf(LOG_DEBUG, "GetTempoDBox: count lines=%d fontID, Size, Style=%d, %d, %d\n",
-//				CountTextLines(string), fontID, fontSize, fontStyle);
+//char cStr[256]; Pstrcpy((unsigned char *)cStr, string); PToCString((unsigned char *)cStr);
+//LogPrintf(LOG_DEBUG, "GetTempoDBox: count lines=%d fontID, Size, Style=%d, %d, %d str='%s'\n",
+//			CountTextLines(string), fontID, fontSize, fontStyle, cStr);
 	
 	/* 
 	 *	Pure fudgery: for mysterious reasons, if the style is not plain, what we have
@@ -2265,7 +2267,7 @@ static Boolean GetTempoDBox(Document *doc,
 	 */
 	if (fontStyle!=0) bBox.right += 2*(Pstrlen(string))/3;
 	
-	PtRect2D(&bBox, dBox);	
+	PtRect2D(&bBox, dBox);
 	return TRUE;
 }
 
@@ -2316,6 +2318,7 @@ PushLock(TEMPOheap);
 
 	/* Prepare tempo string. */
 	theStrOffset = p->strOffset;
+	expandN = p->expanded;
 	if (expandN) {
 		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER)) {
 			LogPrintf(LOG_WARNING, "DrawTEMPO: ExpandString failed.\n");
@@ -2330,10 +2333,6 @@ PushLock(TEMPOheap);
 		course _dEnclBox_, the object's bounding box, should reflect this.) */
 		
 	metroIsBelow = (tempoStr[tempoStrlen]==CH_CR);
-//LogPrintf(LOG_DEBUG, "tempoStrlen=%d metroIsBelow=%d\n", tempoStrlen, metroIsBelow);
-//char strC[256];	Pstrcpy((unsigned char *)strC, tempoStr); PToCString((unsigned char *)strC);
-//LogPrintf(LOG_DEBUG, "tempoStr='%s'\n", strC);
-	expandN = p->expanded;
 	if (GetTempoDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox)) {
 		dEnclBoxHeight = dEnclBox.bottom-dEnclBox.top;
 		OffsetDRect(&dEnclBox, xd, yd);
@@ -2373,6 +2372,9 @@ PushLock(TEMPOheap);
 	if (p->dotted) {
 		noteWidth += pt2p(2);
 		noteWidth += CharWidth(dotChar);
+		xdDot = xdMM+p2d(noteWidth);
+		xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lnSpace);
+		ydDot = ydMM + MusCharYOffset(doc->musFontInfoIndex, dotChar, lnSpace);
 	}
 	else if (NFLAGS(p->subType)>0) noteWidth += d2p(lnSpace);	/* maybe a bit too small */
 	
@@ -2382,22 +2384,22 @@ PushLock(TEMPOheap);
 	xdMMNumber = xdMM+p2d(noteWidth);
 	
 	/* Decide whether to actually draw the metronome mark. */
-	if (p->noMM) doDrawMM = FALSE;
-	else doDrawMM = ((!p->hideMM || doc->showInvis) && doDraw);
+	if (p->noMM)	doDrawMM = FALSE;
+	else			doDrawMM = ((!p->hideMM || doc->showInvis) && doDraw);
 
 	switch (outputTo) {
 		case toScreen:
 		case toBitmapPrint:
 		case toPICT:
-			/* Perhaps draw the verbal tempo string. If the metronome mark is to its
-			right, update the object's bounding box; if it's below it, the bounding
-			box is already correct. */			
+			/* Perhaps draw the verbal tempo string. If the metronome mark is visible
+			and to its right, update the object's bounding box; otherwise, the bounding
+			box is already correct. */		
 			if (doDraw) DrawTextBlock(doc, xd, yd, pL, pContext, FALSE, fontID, fontSize,
 										fontStyle);
 			if (outputTo==toScreen) {
 				D2ObjRect(&dEnclBox, &objRect);
 				LinkOBJRECT(pL) = objRect;
-				if (!metroIsBelow)
+				if (doDrawMM && !metroIsBelow)
 					LinkOBJRECT(pL).right += noteWidth+d2p(extraHorizGap)+CStringWidth(metroStr);
 			}	
 		
@@ -2414,9 +2416,6 @@ PushLock(TEMPOheap);
 				TextFace(0);											/* Plain */
 				DrawChar(noteChar);
 				if (p->dotted) {
-					xdDot = xdMM+p2d(noteWidth);
-					xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lnSpace);
-					ydDot = ydMM + MusCharYOffset(doc->musFontInfoIndex, dotChar, lnSpace);
 //LogPrintf(LOG_DEBUG, "xdDot, ydDot=%d. %d  pap.left=%d pap.top=%d\n", xdDot, ydDot,
 //			pContext->paper.left, pContext->paper.top);
 					MoveTo(pContext->paper.left+d2p(xdDot), pContext->paper.top+d2p(ydDot));
@@ -2446,7 +2445,7 @@ PushLock(TEMPOheap);
 			if (doDrawMM) {
 				PS_MusChar(doc, xdMM, ydMM, noteChar, TRUE, METROSIZE(100));
 				if (p->dotted) {
-					xdDot += MusCharXOffset(doc->musFontInfoIndex, dotChar, lnSpace);
+					/* FIXME: Why is ydDot defined differently here from bitmap drawing? */
 					ydDot = yd + MusCharYOffset(doc->musFontInfoIndex, dotChar, lnSpace);
 					PS_MusChar(doc, xdDot, ydDot, dotChar, TRUE, METROSIZE(100));
 				}
@@ -2940,9 +2939,6 @@ PushLock(MEASUREheap);
 				if (prevRight==p->measureBBox.right)
 					p->measureBBox.left = p->measureBBox.right;
 			}
-
-//			LogPrintf(LOG_DEBUG, "DrawMEASURE: %d is last meas in system. measureBBox=%d %d %d %d\n",
-//					pL, p->measureBBox.top, p->measureBBox.left, p->measureBBox.bottom, p->measureBBox.right);
 		}
 	}
 

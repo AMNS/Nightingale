@@ -1274,3 +1274,14 @@ Fix bug (Issue #136): Open Notelist often gets as far as "Arranging measures int
 then crashes. Affects Score.
 
 Minor cleanup. Affects OpenNotelist, Reformat, Score, SpaceHighLevel.
+
+-------------------------------------------------------------------------------
+
+18 Mar.
+
+Fix bug (Issue #138): Bounding boxes of tempo/metronome marks are too wide if the M.M.
+isn't visible. Affects DrawObject.
+
+Be sure some variables are initialized before use. Affects DrawObject.
+
+Minor cleanup. Affects DrawObject, Menu.
