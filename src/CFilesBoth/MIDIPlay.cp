@@ -19,19 +19,21 @@
 
 #include "CoreMIDIDefs.h"
 
-/* Nightingale now (2015) supports Core MIDI and no other MIDI driver; I doubt if it's
-desirable to revive any of the earlier drivers, which I believe all predated OS X.
-Unfortunately, there's still a lot of code here and in other MIDI-related files left
-over from earlier drivers. The following comment dates back to the 20th century:
-"Nightingale supports both MIDI Manager and its own "built-in" MIDI routines. The
-latter, used here and in MIDIRecord.c, are Altech Systems' MIDI Pascal 3.0. We used to
-use a driver from Kirk Austin's articles in MacTutor, July and December 1987, but
-those routines became quite buggy--according to Jeremy Sagan, because they don't
-initialize enough registers. Anyway, MIDI Pascal is much more powerful, and slightly
-less ancient (sigh)." Besides the three drivers mentioned, earlier versions of Ngale
-also supported Opcode's OMS and Mark of the Unicorn(?)'s FreeMIDI.
+/* As of version 5.4 or earlier, Nightingale supports Apple's Core MIDI and no other
+MIDI driver. It formerly supported, in (I think) chronological order, the "MacTutor"
+driver, MIDI Pascal, Apple MIDI Manager, Opcode's OMS, and Mark of the Unicorn's
+FreeMIDI. The earlier drivers all predate OS X, and if it's even possible, I seriously
+doubt if it's desirable to revive any of the earlier drivers. Unfortunately, there's
+still a lot of code here and in other MIDI-related files left over from earlier drivers.
+The following comment dates back to the 20th century: "Nightingale supports both MIDI
+Manager and its own 'built-in' MIDI routines. The latter, used here and in MIDIRecord.c,
+are Altech Systems' MIDI Pascal 3.0. We used to use a driver from Kirk Austin's articles
+in MacTutor, July and December 1987, but those routines became quite buggy--according to
+Jeremy Sagan, because they don't initialize enough registers. Anyway, MIDI Pascal is
+much more powerful, and slightly less ancient (sigh)."
 
 FIXME: The old code should be removed!  --DAB */
+
 
 /* ================================== LOCAL STUFF ================================== */
 
@@ -77,7 +79,7 @@ from <pL>'s Measure. */
 
 static void PlayMessage(Document *doc, LINK pL, short measNum)
 {
-	Rect	messageRect;
+	Rect messageRect;
 
 	if (pL!=NILINK)
 		measNum = GetMeasNum(doc, pL);
@@ -123,7 +125,7 @@ static Boolean HiliteSyncRect(
 					Rect *rPaper,				/* doc->currentPaper for r's page */
 					Boolean scroll)
 {
-	Rect result; short x, y;
+	Rect result;  short x, y;
 	Boolean turnedPage=FALSE;
 	
 	/* Temporarily convert r to window coords. Normally, we do this by offsetting
@@ -207,7 +209,7 @@ static Boolean TupletProblem(Document *doc, LINK insL)
 
 Boolean CloseAddBarlines(Document *doc)
 {
-	short symIndex, n; CONTEXT context;
+	short symIndex, n;  CONTEXT context;
 	LINK insL, newMeasL, firstInsL, lastInsL, saveSelStartL, saveSelEndL, prevSync;
 	Boolean okay=TRUE;
 	char fmtStr[256];
@@ -226,8 +228,8 @@ Boolean CloseAddBarlines(Document *doc)
 	
 	WaitCursor();
 	
-	/* Put barlines that would otherwise go at the beginning of a system at
-	 * the end of the previous system instead. */
+	/* Put barlines that would otherwise go at the beginning of a system at the end
+	 * of the previous system instead. */
 	
 	for (n = 0; n<nBars; n++) {
 		prevSync = SSearch(LeftLINK(barBeforeL[n]), SYNCtype, GO_LEFT);
@@ -723,7 +725,8 @@ void PlaySequence(
 	short		partTransp[MAXSTAVES];
 	Byte		channelPatch[MAXCHANNEL];
 
-	short		useIORefNum;							/* NB: can be fmsUniqueID */
+	/* _useIORefNum_ is never used with CoreMIDI; it and code that uses it should go away! */
+	short		useIORefNum=0;							/* NB: can be fmsUniqueID */
 	Byte		partPatch[MAXSTAVES];
 	short		partIORefNum[MAXSTAVES];
 
@@ -1016,7 +1019,7 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 								if (useWhichMIDI==MIDIDR_CM)
 									err = CMStartNoteNow(partDevID, useNoteNum, useChan, useVelo);
 								else
-									err = StartNoteNow(useNoteNum, useChan, useVelo, useIORefNum);
+									err = StartNoteNow(useNoteNum, useChan, useVelo);
 									
 								/* Convert time to nominal millisecs. using tempi marked;
 									then convert that to actual millisec. to handle

@@ -164,7 +164,7 @@ void SetOttavaYPos(Document *doc, LINK octL)
 				octAltaYLim, octBassaYLim,			/* Closest possible positions to the staff */
 				lnSpace, dhalfLn;
 	LINK		firstSyncL;
-	Boolean  	bassa;
+	Boolean  	isBassa=FALSE;
 
 	staff = OttavaSTAFF(octL);
 	GetContext(doc, octL, staff, &context);
@@ -182,12 +182,12 @@ void SetOttavaYPos(Document *doc, LINK octL)
 		case OTTAVA8va:
 		case OTTAVA15ma:
 		case OTTAVA22ma:
-			bassa = FALSE;
+			isBassa = FALSE;
 			break;
 		case OTTAVA8vaBassa:
 		case OTTAVA15maBassa:
 		case OTTAVA22maBassa:
-			bassa = TRUE;
+			isBassa = TRUE;
 			break;
 		default:
 			;
@@ -197,10 +197,10 @@ void SetOttavaYPos(Document *doc, LINK octL)
 	 * Try to position the octave sign <margin> half-lines away from the 1st MainNote,
 	 *	but always put it at least <OTTAVA_STANDOFF_ALTA/BASSA> away from the staff.
 	 */
- 	if (bassa)	margin = OTTAVA_MARGIN_BASSA*dhalfLn;
- 	else		margin = OTTAVA_MARGIN_ALTA*dhalfLn;
-	if (bassa)	octydFirst = OTTAVA_BRACKET_BASSA_LIM(firstyd+margin);
-	else		octydFirst = OTTAVA_BRACKET_ALTA_LIM(firstyd-margin);
+ 	if (isBassa)	margin = OTTAVA_MARGIN_BASSA*dhalfLn;
+ 	else			margin = OTTAVA_MARGIN_ALTA*dhalfLn;
+	if (isBassa)	octydFirst = OTTAVA_BRACKET_BASSA_LIM(firstyd+margin);
+	else			octydFirst = OTTAVA_BRACKET_ALTA_LIM(firstyd-margin);
 	
 	pOct = GetPOTTAVA(octL);
 	pOct->ydLast = pOct->ydFirst = octydFirst;
@@ -495,7 +495,7 @@ LINK CreateOTTAVA(
 /* --------------------------------------------------------------- GetOctTypeNum -- */
 /* Get octave-sign number corresponding to octSignType, and whether bassa. */
 
-long GetOctTypeNum(LINK pL, Boolean *bassa)
+long GetOctTypeNum(LINK pL, Boolean *isBassa)
 {
 	POTTAVA p;
 
@@ -503,22 +503,22 @@ long GetOctTypeNum(LINK pL, Boolean *bassa)
 	
 	switch (p->octSignType) {
 		case OTTAVA8va:
-			*bassa = FALSE;
+			*isBassa = FALSE;
 			return 8L;
 		case OTTAVA15ma:
-			*bassa = FALSE;
+			*isBassa = FALSE;
 			return 15L;
 		case OTTAVA22ma:
-			*bassa = FALSE;
+			*isBassa = FALSE;
 			return 22L;
 		case OTTAVA8vaBassa:
-			*bassa = TRUE;
+			*isBassa = TRUE;
 			return 8L;
 		case OTTAVA15maBassa:
-			*bassa = TRUE;
+			*isBassa = TRUE;
 			return 15L;
 		case OTTAVA22maBassa:
-			*bassa = TRUE;
+			*isBassa = TRUE;
 			return 22L;
 		default:
 			MayErrMsg("GetOctTypeNum: illegal Ottava %ld", (long)p->octSignType);
@@ -544,7 +544,7 @@ void DrawOTTAVA(Document *doc, LINK pL, CONTEXT context[])
 	short		octxp, octyp;
 	Rect		octRect;
 	unsigned char ottavaStr[20];
-	Boolean  	bassa;
+	Boolean  	isBassa=FALSE;
 	long		number;
 	short		octaveNumSize;
 
@@ -567,7 +567,7 @@ PushLock(OBJheap);
 	if (firstMeas!=lastMeas) lastxd += LinkXD(lastMeas)-LinkXD(firstMeas);
 	yCutoffLen = (p->noCutoff? 0 : OTTAVA_CUTOFFLEN(lnSpace));
 
-	number = GetOctTypeNum(pL, &bassa);
+	number = GetOctTypeNum(pL, &isBassa);
 
 	/* For the forseeable future, nxd and nyd are always zero, but we're keeping them
 		 as potential offsets for moving the number independently of the octave sign. */
@@ -590,14 +590,14 @@ PushLock(OBJheap);
 		 */
 		SetDPt(&firstPt, octxdFirst, octydFirst);
 		SetDPt(&lastPt, octxdLast, octydLast);
-		if (!bassa) {
+		if (!isBassa) {
 			firstPt.v -= 2*dhalfLn;
 			lastPt.v -= 2*dhalfLn;
 		}
 		dBrackMin = 4*dhalfLn;
 		if (lastPt.h-firstPt.h>dBrackMin)
 			DrawOctBracket(firstPt, lastPt, octRect.right-octRect.left, yCutoffLen,
-									bassa, pContext);
+									isBassa, pContext);
 
 		switch (outputTo) {
 			case toScreen:
@@ -980,8 +980,8 @@ LINK HasOttavaAcross(LINK node, short staff)
 {
 	LINK octL;
 
-	if (octL = HasOctAcross(node,staff,FALSE)) return octL;
-	
+	octL = HasOctAcross(node,staff,FALSE);
+	if (octL) return octL;
 	return (HasGROctAcross(node,staff));
 }
 
@@ -1093,8 +1093,8 @@ LINK HasOttavaAcrossPt(Document *doc, Point pt, short staff)
 {
 	LINK octL;
 
-	if (octL = HasOctAcrossPt(doc, pt, staff))
-		return octL;
+	octL = HasOctAcrossPt(doc, pt, staff);
+	if (octL) return octL;
 	return HasGROctAcrossPt(doc, pt, staff);
 }
 
@@ -1170,13 +1170,13 @@ void QD_DrawDashedLine(short x1, short y1, short x2, short /*y2*/)
 and end points of the bracket, and octWidth is the width of the octave sign string.
 For now, lastPt.v is ignored and the bracket is always horizontal. */
 
-#define XFUDGE		4
+#define XFUDGE	4	/* in pixels or points */
 
 void DrawOctBracket(
 		DPoint firstPt, DPoint lastPt,
 		short octWidth,			/* in pixels--FIXME: not good resolution: we really need DDIST */
 		DDIST yCutoffLen,		/* unsigned length of cutoff line */
-		Boolean bassa,
+		Boolean isBassa,
 		PCONTEXT pContext
 		)
 {
@@ -1198,7 +1198,7 @@ void DrawOctBracket(
 			QD_DrawDashedLine(firstx+octWidth+XFUDGE, firsty, lastx, firsty);
 			if (yCutoff!=0) {
 				MoveTo(lastx, firsty);
-				LineTo(lastx, firsty+(bassa ? -yCutoff : yCutoff));
+				LineTo(lastx, firsty+(isBassa ? -yCutoff : yCutoff));
 			}
 			return;
 		case toPostScript:
@@ -1206,7 +1206,7 @@ void DrawOctBracket(
 			PS_HDashedLine(firstPt.h+p2d(octWidth+XFUDGE), firstPt.v, lastPt.h,
 								OTTAVA_THICK(lnSpace), pt2d(4));
 			if (yCutoffLen!=0) PS_Line(lastPt.h, firstPt.v, lastPt.h,
-										firstPt.v+(bassa ? -yCutoffLen : yCutoffLen),
+										firstPt.v+(isBassa ? -yCutoffLen : yCutoffLen),
 										OTTAVA_THICK(lnSpace));
 			return;
 		default:

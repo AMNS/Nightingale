@@ -285,7 +285,7 @@ allows. Affects .rsrc .
 
 Replace calls to DebugPrintf() -- which was simply #define'd as printf -- with calls to
 a new function LogPrintf(), which uses syslog(Section 3) so messages go to the system
-log and (optionally, via compile time option) also to stderr (which appears in Xcode's
+log and (optionally, via compile-time option) also to stderr (which appears in Xcode's
 Run Log window if Nightingale is running inside Xcode). Affects DebugUtils.h; about 60
 files.
 
@@ -298,16 +298,18 @@ now shows "3 (pp)", not just "3". Affects Browser.
 
 On MIDI playback, if multiple notes are simultaneously playing the same note number on
 the same channel but end at different times, either hold the note till the last one ends
-or (via compile-time option) stop playing that note when the first one ends, as Ngale
-has always done. (Issue #30) Affects MIDIUtils; MIDIGeneral.h.
+or (via compile-time option, "#define MULTNOTES_PLAYMAXDUR") stop playing that note when
+the first one ends, as Ngale has always done. (Issue #30) Affects MIDIUtils;
+MIDIGeneral.h.
 
 -------------------------------------------------------------------------------
 
 28-31 Dec.
 
-Add control (via compile time option) of whether Nightingale complains about unisons
-(whether perfect or augmented) in a chord, (1) when an attempt to create one is made
-and (2) in Debug command output. Affects vars.h; Debug2Utils, InitNightingale, InsNew.
+Add control (via compile-time option, in global variable _unisonsOK_) of whether
+Nightingale complains about unisons (whether perfect or augmented) in a chord, (1)
+when an attempt to create one is made and (2) in Debug command output. Affects vars.h;
+Debug2Utils, InitNightingale, InsNew.
 
 Minor cleanup; improve error checking slightly. Affects .rsrc; Context, Initialize,
 MIDIPlay, Objects.
@@ -1208,7 +1210,7 @@ Affects Initialize.
 Move #defines for notation style into styles.h. Affects DebugUtils.h; ChordSym,
 DrawNRGR, Ottava.
 
-Avoid possible uninitialized variables. Affects Menu, MIDIFSave.
+Avoid possibly uninitialized variables. Affects Menu, MIDIFSave.
 
 Minor cleanup. DebugUtils.h; DebugUtils, InstrDialog, Menu, MIDIFSave.
 
@@ -1250,7 +1252,7 @@ Other minor cleanup. Affects DragBeam, DSUtils, Insert, InsUtils, MasterMouse, U
 
 12-15 Mar.			       ==== NIGHTINGALE 5.7b10 ====
 
-Be sure some variables are initialized before use. Affects FileInput, Utility.
+Avoid possibly uninitialized variables. Affects FileInput, Utility.
 
 Move page-reformatting functions from MIDIFOpen to Utility. Affects those two & Utility.h.
  
@@ -1282,6 +1284,18 @@ Minor cleanup. Affects OpenNotelist, Reformat, Score, SpaceHighLevel.
 Fix bug (Issue #138): Bounding boxes of tempo/metronome marks are too wide if the M.M.
 isn't visible. Affects DrawObject.
 
-Be sure some variables are initialized before use. Affects DrawObject.
+Avoid possibly uninitialized variables. Affects DrawObject.
 
-Minor cleanup. Affects DrawObject, Menu.
+Minor cleanup. Affects DrawObject, Menu, MIDIPlay.
+
+-------------------------------------------------------------------------------
+
+19-20 Mar.
+
+Avoid clearly or possibly uninitialized variables. Affects DialogsEditor, MIDIPlay,
+Ottava, TextDialog.
+
+Make "slop" values more explicit via #defines. Affects Slurs.
+
+Minor cleanup. Affects MIDIPlay, MIDIUtils, Slurs, Ottava, TextDialog.
+

@@ -79,14 +79,16 @@ void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *en
  *	Check to see if two DPoint's are within slop of each other.
  */
 
+#define SLURDPOINT_SLOP pt2d(2)
+
 static Boolean SameDPoint(DPoint p1, DPoint p2)
 	{
-		short dx,dy; static DDIST slop = pt2d(2);
+		short dx,dy;
 		
 		dx = p1.h - p2.h; if (dx < 0) dx = -dx;
 		dy = p1.v - p2.v; if (dy < 0) dy = -dy;
 		
-		return( dx<=slop && dy<=slop );
+		return (dx<=SLURDPOINT_SLOP && dy<=SLURDPOINT_SLOP);
 	}
 	
 /*
@@ -384,6 +386,8 @@ Boolean DrawSegment(Rect *paper, SplineSeg *seg, DPoint endpoint)
  *	otherwise FALSE.
  */
 
+#define SLURDRAG_SLOP 2		/* in pixels */
+
 static DPoint keepStart,keepEnd,keepc0,keepc1;
 static Rect keepPaper;
 static short keepType;
@@ -428,7 +432,7 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end,
 					xdiff = pt.h - origPt.h; ydiff = pt.v - origPt.v;
 					
 					/* If we're still within slop bounds, don't do anything */
-					if (ABS(xdiff)<2 && ABS(ydiff)<2) continue;
+					if (ABS(xdiff)<SLURDRAG_SLOP && ABS(ydiff)<SLURDRAG_SLOP) continue;
 					horiz = ABS(xdiff) > ABS(ydiff);      /* 45 degree movement => vertical */
 					stillWithinSlop = FALSE;
 					}
@@ -448,8 +452,8 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end,
 
 					/* If we're constraining to horiz. or vertical, discard other axis */
 					if (knotConstrain) {
-						if (horiz) pt.v = d2p(test->v);
-						else		  pt.h = d2p(test->h);
+						if (horiz)	pt.v = d2p(test->v);
+						else		pt.h = d2p(test->h);
 						}
 					
 					test->v = p2d(pt.v); test->h = p2d(pt.h);

@@ -119,8 +119,8 @@ void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 							Byte partChannel[], SignedByte partVelo[],
 							short *pUseNoteNum, short *pUseChan, short *pUseVelo);
 
-OSStatus StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity, short ioRefNum);
-OSStatus EndNoteNow(short noteNum, SignedByte channel, short ioRefNum);
+OSStatus StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity);
+OSStatus EndNoteNow(short noteNum, SignedByte channel);
 Boolean EndNoteLater(short noteNum, SignedByte channel, long endTime, short ioRefNum);
 Boolean CMEndNoteLater(short noteNum, SignedByte channel, long endTime, long ioRefNum);
 

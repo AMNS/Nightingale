@@ -1916,7 +1916,7 @@ broken:
 
 static pascal Boolean TempoFilter(DialogPtr, EventRecord *, short *);
 static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr);
-static Boolean AllIsWell(void);
+static Boolean AllIsWell(DialogPtr dlog);
 
 static enum
 {
@@ -2031,11 +2031,10 @@ static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char
 }
 
 
-static Boolean AllIsWell(void)
+static Boolean AllIsWell(DialogPtr dlog)
 {
 	short expandedSetting, maxLenExpanded, type, i;
 	Handle hndl; Rect box;
-	DialogPtr dlog;
 	long beatsPM; 
 	Str255 str, metStr;
 	char fmtStr[256];
@@ -2164,7 +2163,7 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
 			case OK:
-				if (AllIsWell()) dialogOver = TRUE;
+				if (AllIsWell(dlog)) dialogOver = TRUE;
 				break;
 			case Cancel:
 				dialogOver = TRUE;

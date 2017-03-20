@@ -144,7 +144,7 @@ static Boolean	ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style);
 static void		GetRealSizes(void);
 static void		TuneRadioIn(DialogPtr dlog,short itemHit, short *radio);
 static void		DrawExampleText(DialogPtr dlog, unsigned char *string);
-static Boolean	AllIsWell(void);
+static Boolean	AllIsWell(DialogPtr dlog);
 static void		InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpanded);
 
 
@@ -542,7 +542,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 #endif
 			case activateEvt:
 				if (w == GetDialogWindow(dlog)) {
-					short activ = (evt->modifiers & activeFlag)!=0;
+					/* Do nothing */
 					}
 				break;
 			case mouseDown:
@@ -920,11 +920,10 @@ static void DrawExampleText(DialogPtr dlog, unsigned char *string)
 
 /* Check that the text string is okay, including compatibility with the style. */
 
-static Boolean AllIsWell(void)
+static Boolean AllIsWell(DialogPtr dlog)
 {
 	short expandedSetting, maxLenExpanded, type, i;
-	Handle hndl; Rect box;
-	DialogPtr dlog;
+	Handle hndl;  Rect box;
 	unsigned char str[256];
 	char fmtStr[256];
 	Boolean strOkay = TRUE;
@@ -1126,7 +1125,7 @@ Boolean TextDialog(
 		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
 		switch(itemHit) {
 			case BUT1_OK:
-				if (AllIsWell()) {
+				if (AllIsWell(dlog)) {
 					keepGoing = FALSE;
 					okay = TRUE;
 				}

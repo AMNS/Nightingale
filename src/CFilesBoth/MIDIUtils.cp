@@ -543,7 +543,7 @@ Boolean CheckEventList(long pageTurnTOffset)
 		if (pEvent->note) {
 			empty = FALSE;
 			if (pEvent->endTime<=t) {							/* note is done, t = now */
-				EndNoteNow(pEvent->note, pEvent->channel, pEvent->omsIORefNum);
+				EndNoteNow(pEvent->note, pEvent->channel);
 				pEvent->note = 0;								/* slot available now */
 			}
 		}
@@ -602,7 +602,7 @@ static void KillEventList()
 	
 	for (i = 0, pEvent = eventList; i<lastEvent; i++, pEvent++)
 		if (pEvent->note) {
-			EndNoteNow(pEvent->note, pEvent->channel, pEvent->omsIORefNum);
+			EndNoteNow(pEvent->note, pEvent->channel);
 		}
 
 	InitEventList();
@@ -651,17 +651,17 @@ void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 	if (*pUseVelo>MAX_VELOCITY) *pUseVelo = MAX_VELOCITY;
 }
 
-/* --------------------------------------------------------------- SetMIDIProgram -- */
+/* ----------------------------------------------------------------- SetMIDIProgram -- */
 
 #define PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
 
-/* ---------------------------------------- StartNoteNow,EndNoteNow,EndNoteLater -- */
+/* ----------------------------------------- StartNoteNow, EndNoteNow, EndNoteLater -- */
 /* Functions to start and end notes; handle OMS, FreeMIDI, MIDI Manager, and built-in
 MIDI (MIDI Pascal or MacTutor driver). ??NOT ANY MORE! Caveat: EndNoteLater does not
 communicate with the MIDI system, it simply adds the note to our event-list routines'
 queue. */
 
-OSStatus StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity, short ioRefNum)
+OSStatus StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity)
 {
 #if DEBUG_KEEPTIMES
 	if (nkt<MAXKEEPTIMES) kStartTime[nkt++] = TickCount();
@@ -681,7 +681,7 @@ OSStatus StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity, sh
 	return err;
 }
 
-OSStatus EndNoteNow(short noteNum, SignedByte channel, short ioRefNum)
+OSStatus EndNoteNow(short noteNum, SignedByte channel)
 {
 	OSStatus err = noErr;
 	
@@ -696,7 +696,11 @@ OSStatus EndNoteNow(short noteNum, SignedByte channel, short ioRefNum)
 	return err;
 }
 
-#define MULTNOTES_PLAYMAXDUR TRUE
+/* If multiple notes are simultaneously playing the same note number on the same channel
+but end at different times, do we hold the note till the last one ends or stop playing
+the note when the first one ends? Ngale has always done the latter, but the former makes
+more sense in most cases. MULTNOTES_PLAYMAXDUR controls this. */
+#define MULTNOTES_PLAYMAXDUR TRUE		/* Hold the note till the last instance ends? */ 
 
 Boolean EndNoteLater(
 			short noteNum,
