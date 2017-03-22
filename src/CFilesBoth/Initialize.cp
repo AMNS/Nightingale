@@ -76,13 +76,12 @@ void Initialize()
 		{ OutOfMemory(256L); ExitToShell(); }
 	
 	/*
-	 *	FIXME: The following comment describes a trick we used with THINK C that
-	 *  I suspect not only no longer works, but isn't even necessary as of
-	 *  v.6.0.1--I think starting with TC 6.0.1, we appear to have the correct
-	 *  creatorType even under TC. On the other hand, it shouldn't have any
-	 *	effect except on Ngale developers running in a development system.
+	 *	FIXME: The following comment describes a trick we used with THINK C that I
+	 *  suspect not only no longer works, but isn't even necessary. On the other hand,
+	 *	it shouldn't have any effect except on Ngale developers running in a development
+	 *	system.
 	 *
-	 *	For the benefit of AppleEvent handler installation, we attempt to
+	 *	"For the benefit of AppleEvent handler installation, we attempt to
 	 *	figure out whether we are running on our own or under THINK C. 
 	 *	AppleEvents addressed to creatorType ('BYRD') never get to us when we
 	 *	are running under TC, since it looks to the outside world like we're
@@ -92,7 +91,7 @@ void Initialize()
 	 *	16 is an arbitrary threshold. (Doug had 32, which I don't think qualifies
 	 *	as very small; in fact I think MapInfo counts on 0 for this purpose!)
 	 *	This may not work under future versions of THINK C, but it did with
-	 *	version 5.0.4 (the last version we tried it with).
+	 *	version 5.0.4 (the last version we tried it with)."
 	 */
 	
 	creatorType = CREATOR_TYPE_NORMAL;
@@ -105,12 +104,8 @@ void Initialize()
 	thisMac.machineType = -1;
 	err = SysEnvirons(1,&thisMac);
 	if (err) thisMac.machineType = -1;
-			
-	/* FIXME: We formerly checked here to see if we're running on Mac OS 7.0 or later.
-		Rather pointless now (2016)!; this global should go away completely. */
-	appleEventsOK = TRUE;
-
-	if (appleEventsOK) InstallCoreEventHandlers();
+	
+	InstallCoreEventHandlers();
 	
 	InitLogPrintf();
 
@@ -164,17 +159,18 @@ void Initialize()
 	Init_Help();
 	
 	/*
-	 * See if we have enough memory that the user should be able to do
-	 * SOMETHING useful--and enough to get back to the main event loop, where
-	 * we do our regular low-memory checking. As of v.999, 250K was enough, but
-	 * make the minimum a lot higher.
+	 * See if we have enough memory that the user should be able to do SOMETHING
+	 * useful -- and enough to get back to the main event loop, where we do our
+	 * we do our regular low-memory checking. As of v.999, 250K was enough; but now,
+	 * in the 21st century, we might as well make the minimum a lot higher.
 	 */
-	if (!PreflightMem(400))
+	if (!PreflightMem(600))
 		{ BadInit(); ExitToShell(); }
 }
 
 
-static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCreator, FSSpec *prefsSpec) 
+static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCreator,
+								FSSpec *prefsSpec) 
 {
 	short pvol;
 	long pdir;

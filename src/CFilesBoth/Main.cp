@@ -18,13 +18,13 @@
  * Nightingale also incorporates OMS code by Ken Brockman, a help system by Joe Pillera,
  * and work by Jim Carr, Geoff Chirgwin, Michel Salim, and Ray Spears.
  *
- * Thanks to Bill Brinkley, Mike Brockman, Bill Buxton, John Davis, Ric Ford,
- * John Gibson, David Gottlieb, Doug Hofstadter, Scott Kim, Jan Knoefel, Paul Lansky,
- * Katharine McKenna, Malcolm and Priscilla McKenna, Scott McCormick, Jef Raskin, Steve
- * Sacco, Paul Sadowski, Kim Stickney, and Christopher Yavelow. Special thanks to John
- * Maxwell and Severo Ornstein, without whom I could not have imagined this program. And
- * very special thanks to my father, Eugene Byrd, and my wife, Susan Schneider, without
- * whom version 1.0 certainly would never have existed...
+ * Thanks to Bill Brinkley, Mike Brockman, Bill Buxton, Tim Crawford, John Davis, Ric
+ * Ford, John Gibson, David Gottlieb, Doug Hofstadter, Scott Kim, Jan Knoefel, Paul
+ * Lansky, Katharine McKenna, Malcolm and Priscilla McKenna, Scott McCormick, Jef Raskin,
+ * Steve Sacco, Paul Sadowski, Kim Stickney, and Christopher Yavelow. Special thanks to
+ * John Maxwell and Severo Ornstein, without whom I could not have imagined this program.
+ * And very special thanks to my father, Eugene Byrd, and my wife, Susan Schneider,
+ * without whose support version 1.0 certainly would never have been completed...
  *
  * Nightingale is very loosely based on several earlier programs. The approach owes
  * a great deal to John Maxwell and Severo Ornstein's Mockingbird; to the Macintosh
@@ -63,22 +63,11 @@ int main()
 
 /* Do the standard startup action after initializing.  We don't do this in Initialize()
 since FileStartup usually allocates non-relocatable memory and loads other segments,
-which means that the UnloadSeg(Initialize) above can leave a hole in the heap.
-If Apple events are available, then they will run the application startup stuff from
-the handlers. */
+which means that the UnloadSeg(Initialize) above can leave a hole in the heap. */
 
 static void FileStartup()
 	{
-		if (!appleEventsOK) {
-			/*
-			 *	If we're launching due to the user double-clicking on a file, open
-			 *	each document file in selection; otherwise, simulate the standard
-			 *	Open command.
-			 */
-		
-			AnalyzeWindows();
-			}
-		DoOpenApplication(!appleEventsOK);
+		DoOpenApplication(FALSE);
 	}
 
 void DoOpenApplication(Boolean askForFile)

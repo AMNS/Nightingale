@@ -1299,3 +1299,14 @@ Make "slop" values more explicit via #defines. Affects Slurs.
 
 Minor cleanup. Affects MIDIPlay, MIDIUtils, Slurs, Ottava, TextDialog.
 
+-------------------------------------------------------------------------------
+
+21-22 Mar.
+
+Remove checking for availability of Apple Events; since OS 7 of around 20 years ago,
+they're always available. Affects ApplicData; Event, Initialize, Main.
+
+Avoid 119 "missing braces" compiler warnings. Affects vars.h.
+
+Minor cleanup. Affects vars.h; Events, Initialize, Main.
+

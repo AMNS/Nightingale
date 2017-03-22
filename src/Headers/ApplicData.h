@@ -1,4 +1,4 @@
-/* ApplicData.h: generic and semi-generic "Sheets" globals for Nightingale 3.1 */
+/* ApplicData.h: generic and semi-generic "Sheets" globals for Nightingale */
 
 GLOBAL Configuration config;			/* Nightingale configuration info */
 GLOBAL Boolean		inBackground;		/* Application state: TRUE if we're frontmost */
@@ -63,7 +63,6 @@ GLOBAL Document		*documentTable,			/* Ptr to head of score table */
 					*clipboard,				/* Ptr to clipboard score */
 					*searchPatDoc;			/* Ptr to search-pattern score */
 
-GLOBAL Boolean		appleEventsOK;			/* True when Apple events can be processed */
 #ifdef FUTUREEVENTS
 GLOBAL ResType		myAppType;				/* 'BYRD' or 'KAHL' depending on environment */
 #endif

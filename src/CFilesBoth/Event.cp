@@ -111,8 +111,7 @@ Boolean DoEvent()
         	    	DoSuspendResume(&theEvent);
         	    	break;
         	    case kHighLevelEvent:
-        	    	if (appleEventsOK)
-        	    		DoHighLevelEvent(&theEvent);
+					DoHighLevelEvent(&theEvent);
         	    	break;
         	    	
 				default:
@@ -186,7 +185,8 @@ static void DoNullEvent(EventRecord *evt)
 		WindowPtr w;  short itemHit;  Boolean other = FALSE;
 		Document *doc;
 		
-		if (w = TopWindow) 
+		w = TopWindow;
+		if (w)
 			switch (GetWindowKind(w)) {
 				case dialogKind:
 					DialogSelect(evt, (DialogPtr *)&w, &itemHit);	/* Force carets to blink */
@@ -201,12 +201,14 @@ static void DoNullEvent(EventRecord *evt)
 					break;
 				}
 		
-		if (!other)
-			if (doc = GetDocumentFromWindow(TopDocument)) {	/* If TopDocument exists, use it to idle the caret */
+		if (!other) {
+			doc = GetDocumentFromWindow(TopDocument);
+			if (doc) {					/* If TopDocument exists, use it to idle the caret */
 				if (doc != clipboard) {
 					if (!doc->overview && !doc->masterView) MEIdleCaret(doc);
 					}
 				}
+			}
 	}
 
 /* Handle a generic update event, doing different things depending on the type of window
@@ -394,8 +396,8 @@ void DoSuspendResume(EventRecord *event)
 					inBackground = TRUE;
 					/* Convert to deactivate event */
 					event->modifiers &= ~activeFlag;
-					if (clipShow = IsWindowVisible(clipboard->theWindow))
-						HideWindow(clipboard->theWindow);
+					clipShow = IsWindowVisible(clipboard->theWindow);
+					if (clipShow) HideWindow(clipboard->theWindow);
 					SetEventMask(oldEventMask);
 					}
 				AnalyzeWindows();
@@ -547,7 +549,8 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 								TrackControl(control, pt, NULL);
 								val = GetControlValue(control);
 								ClipRect(&doc->viewRect);
-								if (change = val-oldVal) {
+								change = val-oldVal;
+								if (change) {
 									if (change & 7)
 										/* Keep change a multiple of 8 */
 										if (change > 0) change += (8-(change&7));
@@ -882,8 +885,8 @@ static void DoKeyUp(EventRecord */*event*/)
 
 static void DoGrow(WindowPtr w, Point pt, Boolean /*command*/)
 	{
-		Rect limitRect,oldRect,oldMessageRect; GrafPtr oldPort;
-		long newSize; short x,y; long kind;
+		Rect limitRect,oldRect,oldMessageRect;  GrafPtr oldPort;
+		long newSize;  short x,y;  long kind;
 		
 		GetPort(&oldPort);
 		
