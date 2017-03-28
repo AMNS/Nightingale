@@ -74,7 +74,7 @@ Boolean ClefBeforeBar(Document *doc,
 
 Boolean KeySigBeforeBar(Document *doc, LINK pLPIL, short staffn, short sharpsOrFlats)
 {
-	LINK	firstMeasL,firstKeySigL,endL;
+	LINK	firstMeasL, firstKeySigL=NILINK, endL=NILINK;
 	
 	if (!LinkBefFirstMeas(pLPIL)) return FALSE;
 
@@ -96,12 +96,12 @@ Boolean KeySigBeforeBar(Document *doc, LINK pLPIL, short staffn, short sharpsOrF
 
 
 /*
- * #1. Replacement of timeSig before bar is accomplished by calling FindStaff
+ * #1. Replacement of timeSig before bar is accomplished by calling FindStaffSetSys
  *			to set doc->currentSystem from the calling function, and then seeing
  *			if pLPIL (pointer to LastPreviousItemLINK) is before the first invisible
  *			measure of system 1 of the score.
- * #2. Will refine this algorithm by comparing with of old and
- *			new timeSigs; for now, use this 1st approximation.
+ * #2. FIXME: Should refine this algorithm by comparing with old and new timesigs;
+ *			for now, use this 1st approximation.
  * #3. See comment in ClefBeforeBar for LeftLINK(endL).
  */
 
@@ -111,7 +111,7 @@ Boolean TimeSigBeforeBar(Document *doc, LINK pLPIL, short staffn, short type,
 	LINK firstMeasL,firstTSL,endL;
 	Boolean isTimeSig;
 	
-	if (!LinkBefFirstMeas(pLPIL)) return FALSE;							/* #1 */
+	if (!LinkBefFirstMeas(pLPIL)) return FALSE;								/* #1 */
 
 	if (doc->currentSystem==1) {
 		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, FALSE, FALSE);
@@ -181,7 +181,7 @@ void AddDot(Document *doc,
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 		if (NoteVOICE(aNoteL)==voice) {
 			NoteNDOTS(aNoteL)++;
-			playDur = SimplePlayDur(aNoteL); 					/* Set physical dur. to default */
+			playDur = SimplePlayDur(aNoteL); 				/* Set physical dur. to default */
 			NotePLAYDUR(aNoteL) = playDur;
 			doc->changed = TRUE;
 		}
@@ -211,7 +211,7 @@ LINK AddNote(Document *doc,
 {
 	PANOTE	aNote;
 	LINK	newL;
-	LINK	aNoteL=NILINK,measL;
+	LINK	aNoteL=NILINK, measL;
 	short	sym, noteDur, noteNDots,
 			midCpitchLev, voice;
 	Boolean inChord,					/* whether added note will be in a chord or not */
@@ -255,7 +255,7 @@ LINK AddNote(Document *doc,
 				midCpitchLev = pitchLev-ClefMiddleCHalfLn(context.clefType);
 				aNote = GetPANOTE(aNoteL);
 				if (!unisonsOK && !ControlKeyDown() && midCpitchLev==qd2halfLn(aNote->yqpit) ) {
-					GetIndCString(strBuf, INSERTERRS_STRS, 6);    /* "Nightingale can't handle chords containing unisons." */
+					GetIndCString(strBuf, INSERTERRS_STRS, 6);	/* "Nightingale can't handle chords containing unisons." */
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
 					InvalMeasure(doc->selStartL, staff);
@@ -285,14 +285,14 @@ LINK AddNote(Document *doc,
 	 	LinkTWEAKED(newL) = FALSE;
 	}
 	
-	SetupNote(doc, newL, aNoteL, staff, pitchLev, noteDur, noteNDots,
-								voice, isRest, acc, octType);
+	SetupNote(doc, newL, aNoteL, staff, pitchLev, noteDur, noteNDots, voice,
+							isRest, acc, octType);
 	aNote = GetPANOTE(aNoteL);
 	aNote->selected = TRUE;											/* Select the subobject */
 	aNote->inChord = inChord;
 	if (inChord) aNote->ystem = aNote->yd;
 
-	/* The order of the following "Fix" calls is significant. */
+	/* Be careful: The order of the next few "Fix" calls is significant... */
 
 	AddNoteFixTuplets(doc, newL, aNoteL, voice);
 
@@ -303,7 +303,7 @@ LINK AddNote(Document *doc,
 	if (inChord) FixSyncForChord(doc, newL, voice, beamed, 0, 0, NULL);
 	if (beamed) AddNoteFixBeams(doc, newL, aNoteL);
 
-	/* ... but this one can called anywhere. */
+	/* ... but this one can be called anywhere. */
 	FixWholeRests(doc, newL);
 	
 	/* If the new note is <inChord>, its duration will be the same as existing chord
@@ -333,7 +333,7 @@ LINK AddNote(Document *doc,
 			measWidth = MeasWidth(measL);
 			if (noteDur==WHOLEMR_L_DUR) CenterNR(doc, newL, aNoteL, measWidth/2);
 		}
-		InvalMeasure(newL, staff);								/* Always redraw the measure */
+		InvalMeasure(newL, staff);
 	}
 	
 	return aNoteL;
@@ -424,7 +424,7 @@ LINK AddGRNote(Document *doc,
 	aNote->inChord = inChord;
 	if (inChord) aNote->ystem = aNote->yd;
 
-	/* N.B. The order of the following "Fix" calls is significant: change only with care. */
+	/* NB: The order of the following "Fix" calls is significant: change with care. */
 #ifdef ADDGRNOTE_FIXOTTAVAS
 	if (!AddNoteFixOttavas(newL, aNoteL))
 		MayErrMsg("AddGRNote: AddNoteFixOttava couldn't allocate ottava subobject.");
@@ -548,19 +548,25 @@ PopLock(OBJheap);
 
 /* Adjust <width> for given WIDEHEAD code. NB: watch out for integer overflow! */
 #define WIDEHEAD_VALUE(whCode, width) (whCode==2? 160*(width)/100 : \
-													(whCode==1? 135*(width)/100 : (width)) )
+										(whCode==1? 135*(width)/100 : (width)) )
 
-void GetGlissPositionInfo(CONTEXT context, DDIST *pxdPosition, DDIST *pxdOffset);
-void GetGlissPositionInfo(CONTEXT context, DDIST *pxdPosition, DDIST *pxdOffset)
+static void GetGlissPositionInfo(CONTEXT context, DDIST *pxdPosition, DDIST *pxdOffset);
+static void GetClusterPositionInfo(LINK firstL, short voice, CONTEXT context,
+									DDIST *pxdOffset, DDIST *pydOffset);
+static void GetLineOffsets(LINK firstL, LINK lastL, short pitchLev1, short pitchLev2,
+							CONTEXT context, short voice, DDIST *pxd1, DDIST *pxd2,
+							DDIST *pyd1, DDIST *pyd2);
+
+static void GetGlissPositionInfo(CONTEXT context, DDIST *pxdPosition, DDIST *pxdOffset)
 {
 	*pxdPosition = std2d(L_HDIST_TO_NOTE, context.staffHeight, context.staffLines);
 	*pxdOffset = HeadWidth(LNSPACE(&context));
 }
 
-void GetClusterPositionInfo(LINK firstL, short voice, CONTEXT context, DDIST *pxdOffset, DDIST *pydOffset);
-void GetClusterPositionInfo(LINK firstL, short voice, CONTEXT context, DDIST *pxdOffset, DDIST *pydOffset)
+static void GetClusterPositionInfo(LINK firstL, short voice, CONTEXT context,
+									DDIST *pxdOffset, DDIST *pydOffset)
 {
-	LINK aNoteL; short noteType; LONGDDIST ldHalfHeadWidth;
+	LINK aNoteL;  short noteType;  LONGDDIST ldHalfHeadWidth;
 	
 	aNoteL = FindMainNote(firstL, voice);
 	noteType = NoteType(aNoteL);
@@ -579,14 +585,10 @@ to. We compute offsets on the assumption that, if both ends are attached to the 
 Sync or grace Sync, it's something like a tone cluster in Martino's notation; otherwise,
 it's something like a glissando or voice-leading line. */
 
-static void GetLineOffsets(LINK firstL, LINK lastL, short pitchLev1, short pitchLev2,
-							CONTEXT context, short voice, DDIST *pxd1, DDIST *pxd2,
-							DDIST *pyd1, DDIST *pyd2);
 static void GetLineOffsets(LINK firstL, LINK lastL,
 							short pitchLev1, short pitchLev2,		/* For left and right ends */
 							CONTEXT context, short voice,
-							DDIST *pxd1, DDIST *pxd2,
-							DDIST *pyd1, DDIST *pyd2)
+							DDIST *pxd1, DDIST *pxd2, DDIST *pyd1, DDIST *pyd2)
 {
 	DDIST xd1, yd1, xd2, yd2, xdPosition, xdOffset, ydOffset;
 
@@ -599,7 +601,6 @@ static void GetLineOffsets(LINK firstL, LINK lastL,
 	 * Horizontal coordinates are of the center of the line, not of either edge. Vertical
 	 * 	coords. are ?? .
 	 */
-	
 	xd1 = 0;
 	yd1 = halfLn2d(pitchLev1, context.staffHeight, context.staffLines);
 	xd2 = 0;
@@ -611,8 +612,8 @@ static void GetLineOffsets(LINK firstL, LINK lastL,
 		 * It might seem that we shouldn't scale <xdPosition> for grace notes, but grace
 		 * notes tend to appear very close together, so we have to do everything we
 		 * can to keep lines between them from being too short or even going backwards!
-		 * This is only likely to be a serious problem when the left end of the line is
-		 * attached to a grace note--a rare case.
+		 * But this is only likely to be a serious problem when the left end of the line
+		 * is attached to a grace note--a very rare case.
 		 */
 		xd1 = (GRSyncTYPE(firstL)? GRACESIZE(xdPosition) : xdPosition);
 		xd1 += (GRSyncTYPE(firstL)? GRACESIZE(xdOffset) : xdOffset);
@@ -714,8 +715,8 @@ void NewGraphic(
 			)
 {
 	short sym, graphicType, fontInd;
-	LINK newL, aGraphicL, pageL; CONTEXT context; DDIST xd, yd;
-	PGRAPHIC pGraphic; PAGRAPHIC aGraphic;
+	LINK newL, aGraphicL, pageL;  CONTEXT context;  DDIST xd, yd;
+	PGRAPHIC pGraphic;  PAGRAPHIC aGraphic;
 	short patchNum, panSetting;
 	unsigned char midiPatch[16];
 	
@@ -740,7 +741,7 @@ PushLock(GRAPHICheap);
 
 	fontInd = FontName2Index(doc, font);
 	if (fontInd<0) {
-		GetIndCString(strBuf, MISCERRS_STRS, 20);    	/* "Will use most recently added font." */
+		GetIndCString(strBuf, MISCERRS_STRS, 20);			/* "Will use most recently added font." */
 		CParamText(strBuf, "", "", "");
 		CautionInform(MANYFONTS_ALRT);
 		fontInd = MAX_SCOREFONTS-1;
@@ -875,7 +876,7 @@ void NewMeasure(Document *doc,
 
 
 /* --------------------------------------------------------------- NewPseudoMeas -- */
-/*	Add a pseudomeasure to the object list for all staves. */
+/*	Add a Pseudomeasure to the object list for all staves. */
 
 void NewPseudoMeas(Document *doc,
 						Point pt,		/* Page-relative starting x-position of pseudomeasure */
@@ -895,9 +896,9 @@ PushLock(PSMEASheap);
 	PrepareUndo(doc, doc->selStartL, U_Insert, 13);  			/* "Undo Insert" */
 	NewObjInit(doc, PSMEAStype, &sym, inchar, ANYONE, &context);
 	prevMeasL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE,
-													GO_LEFT, FALSE);
+									GO_LEFT, FALSE);
 	if (!prevMeasL) {
-		MayErrMsg("NewPseudoMeas: can't find previous measure");
+		AlwaysErrMsg("NewPseudoMeas: can't find previous measure");
 		return;
 	}
 
@@ -956,8 +957,8 @@ PopLock(PSMEASheap);
 
 void AddToClef(Document *doc, char inchar, short staff)
 {
-	LINK aClefL, newL, doneL; short sym; PACLEF aClef;
-	CONTEXT context; SignedByte oldClefType;
+	LINK aClefL, newL, doneL;  short sym;  PACLEF aClef;
+	CONTEXT context;  SignedByte oldClefType;
 
 	if (ExpandNode(newL=doc->selStartL, &aClefL, 1)) {
 		sym = GetSymTableIndex(inchar);
@@ -972,7 +973,7 @@ void AddToClef(Document *doc, char inchar, short staff)
 		GetContext(doc, LeftLINK(doc->selStartL), staff, &context);
 		oldClefType = context.clefType;
 		doneL = FixContextForClef(doc, RightLINK(newL), staff, oldClefType,
-											symtable[sym].subtype);
+										symtable[sym].subtype);
 		InvalSystems(RightLINK(newL), (doneL? doneL : RightLINK(newL)));
 		NewObjCleanup(doc, newL, staff);
 	}
@@ -989,8 +990,9 @@ void NewClef(Document *doc,
 				short	staff		/* Staff number */
 				)
 {
-	short sym; PCLEF newp; PACLEF aClef; LINK newL, aClefL, doneL;
-	CONTEXT context; SignedByte oldClefType;
+	short sym;  PCLEF newp;  PACLEF aClef;
+	LINK newL, aClefL, doneL;
+	CONTEXT context;  SignedByte oldClefType;
 
 	doc->undo.param1 = staff;
 	PrepareUndo(doc, doc->selStartL, U_InsertClef, 13);  					/* "Undo Insert" */
@@ -1004,7 +1006,7 @@ void NewClef(Document *doc,
 	newp->inMeasure = TRUE;
 	
 	if (context.clefType<=0)
-		MayErrMsg("NewClef: GetContext(%ld, %ld, ...) gives clef=%ld",
+		AlwaysErrMsg("NewClef: GetContext(%ld, %ld, ...) gives illegal clef=%ld",
 					(long)newL, (long)staff, (long)context.clefType);
 	oldClefType = context.clefType;
 	
@@ -1118,7 +1120,7 @@ PushLock(KEYSIGheap);
 		  	if (aPrevKeySig->nKSItems>0)
 				aKeySig->subType = aPrevKeySig->nKSItems;
 		}
-		KeySigCopy((PKSINFO)aKeySig->KSItem, &newKSInfo);			/* Safe bcs heap locked! */
+		KeySigCopy((PKSINFO)aKeySig->KSItem, &newKSInfo);			/* Safe bcs heap is locked */
 		
 		pContext = &context[useStaff];
 		KeySigCopy((PKSINFO)pContext->KSItem, &oldKSInfo);
@@ -1191,7 +1193,7 @@ void NewTimeSig(Document *doc,
 }
 
 
-/* --------------------------------------------------------------- ModNRPitchLev -- */
+/* ------------------------------------------------------------------ ModNRPitchLev -- */
 typedef struct {
 	Byte	canBeInStaff;	/* can put modifier inside staff, if note head pos. allows (boolean) */
 	Byte	alwaysAbove;	/* if only 1 voice on staff, put modifier above staff, even if stem is up (boolean) */
@@ -1201,40 +1203,40 @@ typedef struct {
 
 static MODINFO modInfoTable[] = {
 /* canBeInStaff	alwaysAbove		yOffsetBelow	yOffsetAbove	[modCode indices] */
-	0,				0,				2,				-2,				/* '0' */
-	0,				0,				2,				-2,				/* '1' */
-	0,				0,				2,				-2,				/* '2' */
-	0,				0,				2,				-2,				/* '3' */
-	0,				0,				2,				-2,				/* '4' */
-	0,				0,				2,				-2,				/* '5' */
-	0,				0,				2,				-2,				/* '6' */
-	0,				0,				2,				-2,				/* '7' */
-	0,				0,				2,				-2,				/* '8' */
-	0,				0,				2,				-2,				/* '9' */
-	0,				1,				0,				-2,				/*	MOD_FERMATA */
-	0,				1,				0,				-2,				/*	MOD_TRILL */
-	0,				0,				3,				-2,				/*	MOD_ACCENT */
-	0,				0,				3,				-2,				/*	MOD_HEAVYACCENT */
-	1,				0,				0,				0,				/*	MOD_STACCATO */
-	1,				0,				0,				0,				/*	MOD_WEDGE */
-	1,				0,				0,				0,				/*	MOD_TENUTO */
-	0,				1,				0,				-3,				/*	MOD_MORDENT */
-	0,				1,				0,				-2,				/*	MOD_INV_MORDENT */
-	0,				1,				0,				-2,				/*	MOD_TURN */
-	0,				1,				0,				-2,				/*	MOD_PLUS */
-	0,				0,				1,				-1,				/*	MOD_CIRCLE */
-	0,				1,				0,				-3,				/*	MOD_UPBOW */
-	0,				1,				0,				-3,				/*	MOD_DOWNBOW */
-	1,				0,				0,				0,				/*	MOD_TREMOLO1 - don't think trems are even used here */
-	1,				0,				0,				0,				/*	MOD_TREMOLO2 */
-	1,				0,				0,				0,				/*	MOD_TREMOLO3 */
-	1,				0,				0,				0,				/*	MOD_TREMOLO4 */
-	1,				0,				0,				0,				/*	MOD_TREMOLO5 */
-	1,				0,				0,				0,				/*	MOD_TREMOLO6 */
-	0,				0,				3,				-2,				/*	MOD_HEAVYACC_STACC */
-	0,				1,				0,				-2				/*	MOD_LONG_INVMORDENT */
+	{ 0,			0,				2,				-2 },			/* '0' */
+	{ 0,			0,				2,				-2 },			/* '1' */
+	{ 0,			0,				2,				-2 },			/* '2' */
+	{ 0,			0,				2,				-2 },			/* '3' */
+	{ 0,			0,				2,				-2 },			/* '4' */
+	{ 0,			0,				2,				-2 },				/* '5' */
+	{ 0,			0,				2,				-2 },				/* '6' */
+	{ 0,			0,				2,				-2 },				/* '7' */
+	{ 0,			0,				2,				-2 },				/* '8' */
+	{ 0,			0,				2,				-2 },				/* '9' */
+	{ 0,			1,				0,				-2 },				/*	MOD_FERMATA */
+	{ 0,			1,				0,				-2 },				/*	MOD_TRILL */
+	{ 0,			0,				3,				-2 },				/*	MOD_ACCENT */
+	{ 0,			0,				3,				-2 },				/*	MOD_HEAVYACCENT */
+	{ 1,			0,				0,				0 },				/*	MOD_STACCATO */
+	{ 1,			0,				0,				0 },				/*	MOD_WEDGE */
+	{ 1,			0,				0,				0 },				/*	MOD_TENUTO */
+	{ 0,			1,				0,				-3 },				/*	MOD_MORDENT */
+	{ 0,			1,				0,				-2 },				/*	MOD_INV_MORDENT */
+	{ 0,			1,				0,				-2 },				/*	MOD_TURN */
+	{ 0,			1,				0,				-2 },				/*	MOD_PLUS */
+	{ 0,			0,				1,				-1 },				/*	MOD_CIRCLE */
+	{ 0,			1,				0,				-3 },				/*	MOD_UPBOW */
+	{ 0,			1,				0,				-3 },				/*	MOD_DOWNBOW */
+	{ 1,			0,				0,				0 },				/*	MOD_TREMOLO1 - don't think trems are even used here */
+	{ 1,			0,				0,				0 },				/*	MOD_TREMOLO2 */
+	{ 1,			0,				0,				0 },				/*	MOD_TREMOLO3 */
+	{ 1,			0,				0,				0 },				/*	MOD_TREMOLO4 */
+	{ 1,			0,				0,				0 },				/*	MOD_TREMOLO5 */
+	{ 1,			0,				0,				0 },				/*	MOD_TREMOLO6 */
+	{ 0,			0,				3,				-2 },				/*	MOD_HEAVYACC_STACC */
+	{ 0,			1,				0,				-2 }				/*	MOD_LONG_INVMORDENT */
 };
-static short modInfoLen = (sizeof(modInfoTable) / sizeof(MODINFO));	/* Length of modInfoTable */ 
+static short modInfoLen = (sizeof(modInfoTable) / sizeof(MODINFO));		/* Length of modInfoTable */ 
 
 
 /* Given a note/rest/chord to which a specified note modifier is to be added,
@@ -1285,7 +1287,7 @@ short ModNRPitchLev(Document *doc,
 	}
 	alwaysBelow = FALSE;
 
-	/* NOTE: <alwaysAbove> and <alwaysBelow> can both be FALSE, but only one can be TRUE. */
+	/* NB: <alwaysAbove> and <alwaysBelow> can both be FALSE, but only one can be TRUE. */
 	if (doc->voiceTab[voice].voiceRole==UPPER_DI)
 		alwaysAbove = TRUE;
 	else if (doc->voiceTab[voice].voiceRole==LOWER_DI)
@@ -1382,7 +1384,7 @@ short ModNRPitchLev(Document *doc,
 }
 
 
-/* -------------------------------------------------------------------- NewMODNR -- */
+/* ----------------------------------------------------------------------- NewMODNR -- */
 /*	Add a note/rest modifier. */
 
 void NewMODNR(Document *doc,
@@ -1437,7 +1439,7 @@ void NewMODNR(Document *doc,
 	MEAdjustCaret(doc, TRUE);
 }
 
-/* --------------------------------------------------------------- AutoNewModNR -- */
+/* ------------------------------------------------------------------- AutoNewModNR -- */
 /* Add the specified modifier to the given note. Return the LINK of the new
 modifier, or NILINK if error. (Based on NewMODNR(). FIXME: The two should be
 merged, at least in part.) */
@@ -1489,7 +1491,7 @@ LINK AutoNewModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNote
 }
 
 
-/* ---------------------------------------------------- Functions for NewDynamic -- */
+/* ------------------------------------------------------- Functions for NewDynamic -- */
 
 /* Call to InvalMeasures takes measL rather than lastSyncL as a parameter in an
 effort to avoid passing one more parameter. */
@@ -1524,19 +1526,19 @@ LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
 	return newL;
 }
 
-/* ------------------------------------------------------------------ NewDynamic -- */
+/* --------------------------------------------------------------------- NewDynamic -- */
 /* Add a dynamic marking to the object list. */
 
 void NewDynamic(
-				Document *doc,
-				short	x,				/* Horiz. position in pixels */
-				short	endx,			/* For hairpins, horiz. right endpt in pixels */
-				char	inchar,			/* Symbol code: symcode field from symtable */
-				short	staff,			/* Staff number */
-				short	pitchLev,		/* Vertical position in halflines */
-				LINK  	lastSyncL,		/* For hairpins, sync right end is attached to */
-				Boolean	crossSys		/* (Ignored for now) Whether cross system */
-				)
+			Document *doc,
+			short	x,				/* Horiz. position in pixels */
+			short	endx,			/* For hairpins, horiz. right endpt in pixels */
+			char	inchar,			/* Symbol code: symcode field from symtable */
+			short	staff,			/* Staff number */
+			short	pitchLev,		/* Vertical position in halflines */
+			LINK  	lastSyncL,		/* For hairpins, sync right end is attached to */
+			Boolean	crossSys		/* (Ignored for now) Whether cross system */
+			)
 {
 	short	sym; LINK newL; CONTEXT context; DDIST sysLeft;
 	PDYNAMIC newp;
@@ -1631,14 +1633,14 @@ void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clic
 
 	firstL = doc->selStartL;
 	GetContext(doc, firstL, 1, &firstContext);
-	firstRelxd = MeasureTYPE(firstL) ? 0 : LinkXD(firstL);
+	firstRelxd = (MeasureTYPE(firstL) ? 0 : LinkXD(firstL));
 
 	pEnding = GetPENDING(pL);
 	pEnding->xd = p2d(firstx)-firstContext.measureLeft;
 	pEnding->xd -= firstRelxd;
 
 	GetContext(doc, lastL, 1, &lastContext);
-	lastRelxd = MeasureTYPE(lastL) ? 0 : LinkXD(lastL);
+	lastRelxd = (MeasureTYPE(lastL) ? 0 : LinkXD(lastL));
 
 	pEnding = GetPENDING(pL);
 	pEnding->endxd = p2d(lastx)-lastContext.measureLeft;
@@ -1659,7 +1661,7 @@ void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clic
 	InvalMeasures(firstL,lastL,ANYONE);
 }
 
-/* -------------------------------------------------------------------- NewTempo -- */
+/* ----------------------------------------------------------------------- NewTempo -- */
 /*	Add a Tempo/metronome mark to the object list. One slightly tricky thing: if _noMM_
 is FALSE, the metronome mark is to be ignored. */
 
@@ -1709,7 +1711,7 @@ PopLock(OBJheap);
 }
 
 
-/* -------------------------------------------------------------------- NewSpace -- */
+/* ----------------------------------------------------------------------- NewSpace -- */
 /*	Add a Space mark to the object list. */
 
 void NewSpace(Document *doc, Point pt, char inchar, short topStaff, short bottomStaff,

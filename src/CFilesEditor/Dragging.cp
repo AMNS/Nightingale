@@ -1586,7 +1586,8 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 	crossSys = p->crossSystem;
 	firstSys = p->firstSystem;
 
-	if (crossStaff = p->crossStaff) {
+	crossStaff = p->crossStaff;
+	if (crossStaff) {
 		GetBeamNotes(pL, notesInBeam);
 		GetCrossStaff(LinkNENTRIES(pL), notesInBeam, &stfRange);
 	}
@@ -1743,12 +1744,12 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 
 static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 {
-	PSLUR p; PASLUR aSlur; LINK aSlurL;
-	Rect paper; CONTEXT localContext;
-	short	j,penThick;								/* vertical pen size in pixels */
-	DDIST xdFirst,ydFirst,xdLast,ydLast,			/* DDIST positions of end notes */
+	PSLUR p;  PASLUR aSlur;  LINK aSlurL;
+	Rect paper;  CONTEXT localContext;
+	short j, penThick;								/* vertical pen size in pixels */
+	DDIST xdFirst, ydFirst, xdLast, ydLast,			/* DDIST positions of end notes */
 			slurDiff;								/* fudges for slurs */
-	Point startPt[MAXCHORD],endPt[MAXCHORD];
+	Point startPt[MAXCHORD], endPt[MAXCHORD];
 	DPoint start,end,c0,c1;	
 
 	PushLock(OBJheap);
@@ -1757,7 +1758,7 @@ static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 	p = GetPSLUR(pL);
 	GetContext(doc, p->firstSyncL, SlurSTAFF(pL), &localContext);
 
-	GetSlurContext(doc, pL, startPt, endPt);					/* Get absolute positions, in DPoints */
+	GetSlurContext(doc, pL, startPt, endPt);				/* Get absolute positions, in DPoints */
 	
 	paper = SDGetMeasRect(doc,pL,measL);
 	paper.left = -paper.left;
@@ -1772,10 +1773,10 @@ static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 			xdFirst = p2d(aSlur->startPt.h); xdLast = p2d(aSlur->endPt.h);
 			ydFirst = p2d(aSlur->startPt.v); ydLast = p2d(aSlur->endPt.v);
 		
-			xdFirst += aSlur->seg.knot.h;						/* abs. position of slur start */
+			xdFirst += aSlur->seg.knot.h;					/* abs. position of slur start */
 			ydFirst += aSlur->seg.knot.v;
-			xdLast += aSlur->endpoint.h;						/* abs. position of slur end */
-			ydLast += aSlur->endpoint.v;
+			xdLast += aSlur->endKnot.h;						/* abs. position of slur end */
+			ydLast += aSlur->endKnot.v;
 			
 			penThick = d2p(LNSPACE(&localContext)/5);
 			if (penThick<1) penThick = 1;

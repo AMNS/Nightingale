@@ -577,7 +577,7 @@ void HeapBrowseSlur(short itemIndex)
 	HeapDrawLine(s);	q = GetPASLUR(qL);
 	sprintf(s, "c1=%d %d", q->seg.c1.h, q->seg.c1.v);
 	HeapDrawLine(s);	q = GetPASLUR(qL);
-	sprintf(s, "endpt=%d %d", q->endpoint.h, q->endpoint.v);
+	sprintf(s, "endKnot=%d %d", q->endKnot.h, q->endKnot.v);
 	HeapDrawLine(s);
 }
 

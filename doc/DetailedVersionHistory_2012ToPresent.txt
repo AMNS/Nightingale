@@ -1310,3 +1310,16 @@ Avoid 119 "missing braces" compiler warnings. Affects vars.h.
 
 Minor cleanup. Affects vars.h; Events, Initialize, Main.
 
+-------------------------------------------------------------------------------
+
+23-28 Mar.
+
+Change the very misleading name FindStaff() to FindStaffSetSys(). Affects defs.h,
+InsUtils.h; EditScore, Insert, InsUtils, NewSlur, Select, SelUtils, 
+
+For clarity, rename the ASLUR field _endpoint_ to _endKnot. Affects MemMacros.h,
+NTypes.h; Browser, DebugDisplay, Dragging, DragSet, DrawObject, Event, File, FileInput,
+HeapBrowser, Score, Slurs.
+
+Avoid many "missing braces" compiler warnings; other minor cleanup. Affects Dragging,
+Error, InsNew, InsUtils, NotelistOpen, Select, Slurs.

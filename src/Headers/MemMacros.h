@@ -682,7 +682,7 @@
 #define SlurSTARTPT(link)			( (GetPASLUR(link))->startPt)
 #define SlurENDPT(link)				( (GetPASLUR(link))->endPt)
 #define SlurKNOT(link)				( (GetPASLUR(link))->seg.knot)
-#define SlurENDPOINT(link)			( (GetPASLUR(link))->endpoint)
+#define SlurENDKNOT(link)			( (GetPASLUR(link))->endKnot)
 #define SlurSEG(link)				( (GetPASLUR(link))->seg)
 #define SlurDASHED(link)			( (GetPASLUR(link))->dashed)
 #define ClefYD(link)		 	 	( (GetPACLEF(link))->yd )

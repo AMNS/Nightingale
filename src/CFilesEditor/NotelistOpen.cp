@@ -134,14 +134,14 @@ buildit:
 		goto Error;
 	}
 
-	configDisableUndo = config.disableUndo;					/* Save this. */
-	config.disableUndo = TRUE;								/* In case we invoke PrepareUndo. */
+	configDisableUndo = config.disableUndo;				/* Save this. */
+	config.disableUndo = TRUE;							/* In case we invoke PrepareUndo. */
 	
 	result = NotelistToNight(doc);
 	
 	config.disableUndo = configDisableUndo;
 
-	ProgressMsg(0, "");										/* Remove progress window. */
+	ProgressMsg(0, "");									/* Remove progress window. */
 
 	if (!result) {
 		doc->changed = FALSE;
@@ -151,7 +151,7 @@ buildit:
 		DisplayNLDoc(doc);
 
 Error:
-	ProgressMsg(0, "");										/* Remove progress window, if it hasn't already been removed. */
+	ProgressMsg(0, "");									/* Remove progress window, if it hasn't already been removed. */
 	DisposNotelistMemory();
 	return result;
 }
@@ -434,7 +434,7 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 		gCurSyncTime = pNR->lStartTime;
 	}
 	else {
-		MayErrMsg("ConvertNoteRest: Note/rest (%d) has starttime (%ld) before current time (%ld).",
+		MayErrMsg("ConvertNoteRest: Note/rest at %u has starttime (%ld) before current time (%ld).",
 					pL, pNR->lStartTime, gCurSyncTime);
 		return FALSE;
 	}
@@ -452,7 +452,8 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 		midCHalfLn = ClefMiddleCHalfLn(context.clefType);
 		result = NLMIDI2HalfLn(pNR->noteNum, pNR->eAcc, midCHalfLn, &halfLn);
 		if (!result) {
-			sprintf(strBuf, "Can't understand pitch of note (time=%ld). Maybe an inconsistent accidental.", pNR->lStartTime);
+			sprintf(strBuf, "Can't understand pitch of note (time=%ld). Maybe an inconsistent accidental.",
+						pNR->lStartTime);
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
 			return FALSE;
@@ -489,7 +490,7 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 
 	return TRUE;
 broken:
-	MayErrMsg("ConvertNoteRest failed (pL=%d)", pL);
+	MayErrMsg("ConvertNoteRest failed (pL=%u)", pL);
 	return FALSE;
 }
 
@@ -544,7 +545,7 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 	partL = FindPartInfo(doc, pNR->part);
 	iVoice = User2IntVoice(doc, (short)pNR->uVoice, partL);
 	if (iVoice==0) {
-		MayErrMsg("ConvertGrace: can't get internal voice number (pL=%d)", pL);
+		MayErrMsg("ConvertGrace: can't get internal voice number (pL=%u)", pL);
 		return FALSE;
 	}
 
@@ -553,7 +554,7 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 	midCHalfLn = ClefMiddleCHalfLn(context.clefType);
 	result = NLMIDI2HalfLn(pNR->noteNum, pNR->eAcc, midCHalfLn, &halfLn);
 	if (!result) {
-		sprintf(strBuf, "Can't understand pitch of grace note (pL=%d). Maybe an inconsistent accidental", pL);
+		sprintf(strBuf, "Can't understand pitch of grace note (pL=%u). Maybe an inconsistent accidental", pL);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		return FALSE;
@@ -573,13 +574,13 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 	aGRNote->onVelocity = pNR->vel;
 	aGRNote->playDur = pNR->pDur;
 
-	if (pNR->inChord && syncL==NILINK)					/* NB: syncL==0 if we're adding to sync */
+	if (pNR->inChord && syncL==NILINK)					/* NB: syncL==0 if we're adding to Sync */
 		result = FixGRSyncForChord(doc, curGRSyncL, iVoice,
 					FALSE/*beamed*/, 0/*stemUpDown*/, 0/*voices1orMore*/, NULL);
 	
 	return TRUE;
 broken:
-	MayErrMsg("ConvertGrace failed (pL=%d)", pL);
+	MayErrMsg("ConvertGrace failed (pL=%u)", pL);
 	return FALSE;
 }
 
@@ -681,7 +682,7 @@ static Boolean ConvertTuplet(Document *doc, NLINK pL)
 
 	return TRUE;
 broken:
-	MayErrMsg("ConvertTuplet: couldn't make tuplet (pL=%d).", pL);
+	MayErrMsg("ConvertTuplet: couldn't make tuplet (pL=%u).", pL);
 	return FALSE;
 }
 
@@ -700,7 +701,7 @@ static Boolean ConvertBarline(Document *doc, NLINK pL)
 
 	return TRUE;
 broken:
-	MayErrMsg("ConvertBarline: couldn't make barline (pL=%d).", pL);
+	MayErrMsg("ConvertBarline: couldn't make barline (pL=%u).", pL);
 	return FALSE;
 }
 
@@ -731,7 +732,7 @@ static Boolean ConvertClef(Document *doc, NLINK pL)
 
 	return TRUE;
 broken:
-	MayErrMsg("ConvertClef failed (pL=%d)", pL);
+	MayErrMsg("ConvertClef failed (pL=%u)", pL);
 	return FALSE;
 }
 
@@ -757,7 +758,7 @@ static Boolean ConvertKeysig(Document *doc, NLINK pL)
 
 	return TRUE;
 broken:
-	MayErrMsg("ConvertKeysig failed (pL=%d)", pL);
+	MayErrMsg("ConvertKeysig failed (pL=%u)", pL);
 	return FALSE;
 }
 
@@ -781,7 +782,7 @@ static Boolean ConvertTimesig(Document *doc, NLINK pL)
 
 	return TRUE;
 broken:
-	MayErrMsg("ConvertTimesig failed (pL=%d)", pL);
+	MayErrMsg("ConvertTimesig failed (pL=%u)", pL);
 	return FALSE;
 }
 
@@ -817,7 +818,7 @@ static Boolean ConvertTempo(Document *doc, NLINK pL)
 	
 	return TRUE;
 broken:
-	MayErrMsg("ConvertTempo failed (pL=%d)", pL);
+	MayErrMsg("ConvertTempo failed (pL=%u)", pL);
 	return FALSE;
 }
 
@@ -868,7 +869,7 @@ static Boolean ConvertGraphic(Document *doc, NLINK pL)
 
 	return TRUE;
 broken:
-	MayErrMsg("ConvertGraphic failed (pL=%d)", pL);
+	MayErrMsg("ConvertGraphic failed (pL=%u)", pL);
 	return FALSE;
 }
 
@@ -923,7 +924,7 @@ static Boolean ConvertDynamic(Document *doc, NLINK pL)
 
 	return TRUE;
 broken:
-	MayErrMsg("ConvertDynamic failed (pL=%d)", pL);
+	MayErrMsg("ConvertDynamic failed (pL=%u)", pL);
 	return FALSE;
 }
 
@@ -1095,12 +1096,12 @@ static Boolean SetupNLScore(Document *doc)
 		
 	firstClefL = LSSearch(doc->headL, CLEFtype, 1, GO_RIGHT, FALSE);
 	if (firstClefL==NILINK) {
-		MayErrMsg("SetupNLScore: can't find first clef!");
+		AlwaysErrMsg("SetupNLScore: can't find first clef!");
 		return FALSE;
 	}
 	firstKeySigL = LSSearch(doc->headL, KEYSIGtype, 1, GO_RIGHT, FALSE);
 	if (firstKeySigL==NILINK) {
-		MayErrMsg("SetupNLScore: can't find first keysig!");
+		AlwaysErrMsg("SetupNLScore: can't find first keysig!");
 		return FALSE;
 	}
 
@@ -1145,7 +1146,7 @@ static Boolean SetupNLScore(Document *doc)
 
 	firstTSL = LSSearch(doc->headL, TIMESIGtype, 1, GO_RIGHT, FALSE);
 	if (firstTSL==NILINK) {
-		MayErrMsg("SetupNLScore: can't find first time signature!");
+		AlwaysErrMsg("SetupNLScore: can't find first time signature!");
 		return FALSE;
 	}
 	ReplaceTimeSig(doc, firstTSL, ANYONE/*staffn*/, type, timeSigNum, timeSigDenom);

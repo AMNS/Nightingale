@@ -491,7 +491,7 @@ static void ConvertChordSlurs(Document *doc)
 				aSlurL = FirstSubLINK(pL);
 				aSlur = GetPASLUR(aSlurL);
 				aSlur->seg.knot.v -= p2d(changeStart);
-				aSlur->endpoint.v -= p2d(changeEnd);
+				aSlur->endKnot.v -= p2d(changeEnd);
 			}
 		}
 	}

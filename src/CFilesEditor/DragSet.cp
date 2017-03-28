@@ -789,8 +789,8 @@ void SetSlurFields(LINK pL, DDIST xdDiff, DDIST ydDiff, short /*xp*/, short /*yp
 			aSlur->seg.knot.h += xdDiff;
 			aSlur->seg.knot.v += ydDiff;
 	
-			aSlur->endpoint.h += xdDiff;
-			aSlur->endpoint.v += ydDiff;
+			aSlur->endKnot.h += xdDiff;
+			aSlur->endKnot.v += ydDiff;
 		}
 	}
 }

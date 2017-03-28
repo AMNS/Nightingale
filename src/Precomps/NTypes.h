@@ -1169,7 +1169,7 @@ typedef struct {
 	long		reserved;			/* For later expansion (e.g., to multi-segment slurs) */
 	SplineSeg	seg;				/* For now, one slur spline segment always defined */
 	Point		startPt, endPt;		/* Base points (note positions), paper-rel.; GetSlurContext returns Points */
-	DPoint		endpoint;			/* End point of last spline segment, relative to endPt */
+	DPoint		endKnot;			/* End point of last spline segment, relative to endPt */
 	
 } ASLUR, *PASLUR;
 

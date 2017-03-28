@@ -235,7 +235,7 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 #define ANYSUBTYPE -1
 
 #define ANYONE -1						/* passed to search routines if we just don't care */
-#define NOONE -2						/* returned by FindStaff, GetStaffFromSel, etc. */
+#define NOONE -2						/* returned by FindStaffSetSys, GetStaffFromSel, etc. */
 
 #define NOMATCH -1
 
@@ -246,7 +246,7 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 #define MIN_TIME FALSE
 
 #define DFLT_CLEF TREBLE_CLEF			/* Default clefType for new staves */
-#define DFLT_NKSITEMS 0					/* Dflt. key sig. N.B.: !=0 has side effects: CAREFUL! */
+#define DFLT_NKSITEMS 0					/* Dflt. key sig. NB: !=0 has side effects: CAREFUL! */
 #define DFLT_TSTYPE N_OVER_D			/* Default time sig. fields for new staves */
 #define DFLT_DYNAMIC MF_DYNAM			/* Default dynamic marking for new staves */
 #define DFLT_SPACETABLE 0				/* Default space table number */

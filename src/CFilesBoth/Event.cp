@@ -765,20 +765,20 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 						if (SlurSEL(aSlurL)) {
 							if (arrowKeyCode==kLeftArrowCharCode) {
 								SlurKNOT(aSlurL).h -= NUDGE_DIST;
-								SlurENDPOINT(aSlurL).h -= NUDGE_DIST;  moved = TRUE;
+								SlurENDKNOT(aSlurL).h -= NUDGE_DIST;  moved = TRUE;
 							}
 							else if (arrowKeyCode==kRightArrowCharCode) {
 								SlurKNOT(aSlurL).h += NUDGE_DIST;
-								SlurENDPOINT(aSlurL).h += NUDGE_DIST;  moved = TRUE;
+								SlurENDKNOT(aSlurL).h += NUDGE_DIST;  moved = TRUE;
 							}
 							
 							else if (arrowKeyCode==kUpArrowCharCode) {
 								SlurKNOT(aSlurL).v -= NUDGE_DIST;
-								SlurENDPOINT(aSlurL).v -= NUDGE_DIST;  moved = TRUE;
+								SlurENDKNOT(aSlurL).v -= NUDGE_DIST;  moved = TRUE;
 							}
 							else if (arrowKeyCode==kDownArrowCharCode) {
 								SlurKNOT(aSlurL).v += NUDGE_DIST;
-								SlurENDPOINT(aSlurL).v += NUDGE_DIST;  moved = TRUE;
+								SlurENDKNOT(aSlurL).v += NUDGE_DIST;  moved = TRUE;
 							}
 													
 						}

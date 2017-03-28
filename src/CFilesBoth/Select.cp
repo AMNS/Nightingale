@@ -189,9 +189,9 @@ opened, or NILINK if no object found for mouse click. */
 
 LINK DoOpenSymbol(Document *doc, Point pt)
 {
-	short index; LINK pL;
+	short index;  LINK pL;
 
-	FindStaff(doc, pt);						/* Just to set doc->currentSystem */
+	FindStaffSetSys(doc, pt);
 
 	pL = FindObject(doc, pt, &index, SMFind);
 	if (pL)
@@ -363,7 +363,7 @@ Boolean SetInsPoint(Document *doc, Point pt)
 {
 	short staffn;
 
-	staffn = FindStaff(doc, pt);						/* Also sets doc->currentSystem */
+	staffn = FindStaffSetSys(doc, pt);
 	if (staffn==NOONE) return FALSE;					/* Click wasn't within any system */
 
 	doc->selStaff = staffn;
@@ -377,11 +377,11 @@ Boolean SetInsPoint(Document *doc, Point pt)
 
 void DoSelect(
 			Document *doc,
-			Point	pt,						/* Mousedown point */
-			Boolean	shiftFlag,				/* Accumulate selection */
-			Boolean	cmdFlag,				/* Extend selection, as in TextEdit */
-			Boolean	/*capsLockFlag*/,		/* unused */
-			short	mode 					/* SMThread or SMSelect */
+			Point pt,						/* Mousedown point */
+			Boolean shiftFlag,				/* Accumulate selection */
+			Boolean cmdFlag,				/* Extend selection, as in TextEdit */
+			Boolean /*capsLockFlag*/,		/* unused */
+			short mode 						/* SMThread or SMSelect */
 			)
 {
 	LINK	pL, oldSelStartL, oldSelEndL;
@@ -396,7 +396,7 @@ void DoSelect(
 	if (!cmdFlag && !shiftFlag) 
 		DeselAll(doc);										/* Deselect previous selection */
 	
-	if (mode!=SMThread && FindStaff(doc, pt)==NOONE) {		/* Mousedown not inside any staff */
+	if (mode!=SMThread && FindStaffSetSys(doc, pt)==NOONE) {	/* Mousedown not inside any staff */
 		DoPageSelect(doc, pt, oldSelStartL, oldSelEndL,
 								shiftFlag, cmdFlag, mode);	/* Handle selection of pageRel objs */
 		return;

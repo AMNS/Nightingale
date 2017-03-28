@@ -797,14 +797,14 @@ If the selection isn't empty, do nothing. */
 
 void FixEmptySelection(Document *doc, Point	pt)
 {
-	LINK maySectL, selL; short staffn;
+	LINK maySectL, selL;  short staffn;
 	Rect r;
 
 	/* If selection range is empty, process mouse click to set an insertion point
 		which doesn't conflict graphically with any symbol of most types. */
 
 	if (doc->selStartL==doc->selEndL) {						
-		staffn = FindStaff(doc, pt);						/* Also sets doc->currentSystem */
+		staffn = FindStaffSetSys(doc, pt);
 		if (staffn==NOONE) return;							/* Click wasn't on any staff; return */
 
 		doc->selStaff = staffn;
@@ -846,7 +846,7 @@ static void GetStaffLimits(Document *doc, Point pt, STAFFINFO staffInfo[],
 	PSYSTEM	pSystem;
 	Rect	sysRect;
 
-	staff = FindStaff(doc, pt);								/* FindStaff also sets currentSystem */
+	staff = FindStaffSetSys(doc, pt);
 	if (staff==NOONE) MayErrMsg("GetStaffLimits: couldn't find staff");
 
 	/* Find the staff and system objects enclosing <pt>. */

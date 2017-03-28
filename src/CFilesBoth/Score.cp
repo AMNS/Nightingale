@@ -826,8 +826,8 @@ void SetStaffSize(Document */*doc*/, LINK headL, LINK tailL, short oldRastral, s
 				SCALE(aSlur->seg.c0.v);
 				SCALE(aSlur->seg.c1.h);
 				SCALE(aSlur->seg.c1.v);
-				SCALE(aSlur->endpoint.h);
-				SCALE(aSlur->endpoint.v);
+				SCALE(aSlur->endKnot.h);
+				SCALE(aSlur->endKnot.v);
 				break;
 				
 			case GRAPHICtype:

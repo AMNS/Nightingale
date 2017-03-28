@@ -1934,7 +1934,7 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);	aSlur = GetPASLUR(aSlurL);
 	sprintf(s, "c1=%d,%d", aSlur->seg.c1.h, aSlur->seg.c1.v);
 	DrawTextLine(s);	aSlur = GetPASLUR(aSlurL);
-	sprintf(s, "endpoint=%d,%d", aSlur->endpoint.h, aSlur->endpoint.v);
+	sprintf(s, "endKnot=%d,%d", aSlur->endKnot.h, aSlur->endKnot.v);
 	DrawTextLine(s);
 	sprintf(s, "startPt=%d,%d endPt=%d,%d", aSlur->startPt.h, aSlur->startPt.v,
 				aSlur->endPt.h, aSlur->endPt.v);

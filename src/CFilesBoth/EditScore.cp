@@ -103,13 +103,13 @@ void DoClickFrame(Document *doc, Point pt)
 		short 	clickStaff;
 		LINK	prevMeasL, pL, pLPIL;
 		
-		clickStaff = FindStaff(doc, pt);								/* Find staff clicked on... */
+		clickStaff = FindStaffSetSys(doc, pt);							/* Find staff clicked on... */
 		pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, TRUE);				/*   and Last Prev. Item on it */
 		prevMeasL = LSSearch(pLPIL, MEASUREtype, clickStaff, TRUE, FALSE);
 		for (pL=RightLINK(prevMeasL); pL && !MeasureTYPE(pL); pL=RightLINK(pL)) {
 			FrameRect(&LinkOBJRECT(pL));
 			SleepTicks(30L);
-			PenPat(NGetQDGlobalsWhite());											/* Erase objRect */
+			PenPat(NGetQDGlobalsWhite());									/* Erase objRect */
 			FrameRect(&LinkOBJRECT(pL));
 			PenPat(NGetQDGlobalsBlack());
 			}

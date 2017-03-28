@@ -275,7 +275,7 @@ Boolean InsertNote(
 	
 	/* Get the staff to insert on (and set doc->currentSystem) */
 
-	clickStaff = FindStaff(doc, pt);
+	clickStaff = FindStaffSetSys(doc, pt);
 	if (clickStaff==NOONE) return FALSE;
 
 	/* If mouseDown before System's initial (invisible) barline, force it after
@@ -378,7 +378,7 @@ Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 
 	/* Get the staff to insert on (and set doc->currentSystem) */
 
-	clickStaff = FindStaff(doc, pt);
+	clickStaff = FindStaffSetSys(doc, pt);
 	if (clickStaff==NOONE) return FALSE;
 
 	/* If mouseDown before System's initial (invisible) barline, force it after
@@ -489,7 +489,7 @@ Boolean InsertLine(Document *doc, Point pt)
 /* Insert a GRAPHIC object in the object list, including chord symbols and rehearsal
 marks. Handles feedback and allows cancelling.
 #1. When user tries to insert a Graphic on the final barline of a justified system,
-FindGraphicObject finds a staff, but FindStaff doesn't: it uses pContext->staffRight
+FindGraphicObject finds a staff, but FindStaffSetSys doesn't: it uses pContext->staffRight
 to compute the object rect for clipping the region searched, where FindGraphicObject
 uses the systemRect, which has been extended 1 lnSpace beyond the right end of the
 staff, to handle precisely this case.
@@ -535,7 +535,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 		case PAGEtype:
 			break;
 		case MEASUREtype:
-			staff = FindStaff(doc,pt);						/* #1 */
+			staff = FindStaffSetSys(doc,pt);				/* #1 */
 			if (staff!=NOONE) clickStaff = staff;			/* Fall through */		
 		default:
 			if (clickStaff!=NOONE && STAFFN_BAD(doc, clickStaff)) {
@@ -756,7 +756,7 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 		case PAGEtype:
 			break;
 		case MEASUREtype:
-			staff = FindStaff(doc, pt);						/* See comment in InsertGraphic */
+			staff = FindStaffSetSys(doc, pt);				/* See comment in InsertGraphic */
 			if (staff!=NOONE) clickStaff = staff;			/* Fall through */		
 		default:
 			if (clickStaff!=NOONE && STAFFN_BAD(doc, clickStaff)) {
@@ -831,7 +831,7 @@ Boolean InsertMODNR(Document *doc, Point pt)
 	static short	slashes=2, lastPitchLev=-3;
 	LINK			insSyncL, aNoteL;
 
-	staff=FindStaff(doc, pt);
+	staff = FindStaffSetSys(doc, pt);
 	if (staff==NOONE) return FALSE;
 	
 	/* Find the symbol clicked on. */
@@ -910,7 +910,7 @@ Boolean InsertRptEnd(Document *doc, Point pt)
 	short	clickStaff;					/* staff user clicked in */
 	LINK	pLPIL;						/* pointer to Last Previous Item */
 
-	clickStaff = FindStaff(doc, pt);						/* Find staff clicked on... */
+	clickStaff = FindStaffSetSys(doc, pt);					/* Find staff clicked on... */
 	if (clickStaff==NOONE) return FALSE;
 	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);	/*   and Last Prev. Item on it */
 
@@ -931,7 +931,7 @@ Boolean InsertEnding(Document *doc, Point pt)
 			staff;							/* staff & voice of obj found */
 	LINK	insertL;						/* relative obj for Ending */
 
-	clickStaff = FindStaff(doc, pt);						/* Find staff clicked on. */
+	clickStaff = FindStaffSetSys(doc, pt);					/* Find staff clicked on. */
 	if (clickStaff==NOONE) return FALSE;
 	
 	insertL = FindEndingObject(doc, pt, &staff);			/* Find relative object for Ending */
@@ -991,7 +991,7 @@ Boolean InsertMeasure(Document *doc, Point pt)
 	short	clickStaff;
 	LINK	pLPIL;											/* link to Last Previous Item */
 
-	clickStaff = FindStaff(doc, pt);						/* Sets doc->currentSystem */
+	clickStaff = FindStaffSetSys(doc, pt);					/* Sets doc->currentSystem */
 	if (clickStaff==NOONE) return FALSE;					/* Quit if no staff clicked on */
 
 	/* If mouseDown before System's initial (invisible) barline, force it after
@@ -1017,7 +1017,7 @@ Boolean InsertPseudoMeas(Document *doc, Point pt)
 	short	clickStaff;										/* staff user clicked in */
 	LINK	pLPIL;											/* link to Last Previous Item */
 
-	clickStaff = FindStaff(doc, pt);						/* Was ANY staff clicked on? */
+	clickStaff = FindStaffSetSys(doc, pt);					/* Was ANY staff clicked on? */
 	if (clickStaff==NOONE) return FALSE;					/* If no, forget it */
 
 	/* If mouseDown before System's initial (invisible) barline, force it after
@@ -1042,7 +1042,7 @@ Boolean InsertClef(Document *doc, Point pt)
 	LINK	pLPIL, insNodeL, aClefL;
 	long	lTime;								/* logical time */
 				
-	clickStaff = FindStaff(doc, pt);						/* Find staff clicked on... */
+	clickStaff = FindStaffSetSys(doc, pt);					/* Find staff clicked on... */
 	if (clickStaff==NOONE) return FALSE;
 	
 	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);	/*   and Last Prev. Item on it */
@@ -1096,7 +1096,7 @@ Boolean InsertKeySig(Document *doc, Point pt)
 		clickStaff = ANYONE;
 	}
 	else
-		clickStaff = FindStaff(doc, pt);						/* Find System & staff clicked on... */
+		clickStaff = FindStaffSetSys(doc, pt);					/* Find System & staff clicked on... */
 	if (clickStaff==NOONE) return FALSE;
 	
 	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);		/*   and Last Prev. Item on it */
@@ -1136,7 +1136,7 @@ Boolean InsertTimeSig(Document *doc, Point pt)
 		clickStaff = ANYONE;
 	}
 	else
-		clickStaff = FindStaff(doc, pt);						/* also sets doc->currentSystem */
+		clickStaff = FindStaffSetSys(doc, pt);					/* also sets doc->currentSystem */
 	if (clickStaff==NOONE) return FALSE;
 	
 	pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, FALSE);		/* find Last Prev. Item on clickStaff */
@@ -1204,7 +1204,7 @@ Boolean InsertDynamic(Document *doc, Point pt)
 	/* Get the staff to insert on (and set doc->currentSystem). If click was
 		on a symbol, use that symbol's staff, otherwise use the closest staff. */
 
-	clickStaff = FindStaff(doc, pt);
+	clickStaff = FindStaffSetSys(doc, pt);
 	if (clickStaff==NOONE) return FALSE;
 
 	sym = GetSymTableIndex(palChar);
@@ -1275,7 +1275,7 @@ Boolean InsertSlur(Document *doc, Point pt)
 	LINK	pL, pLPIL;
 	Point	localPt;
 
-	FindStaff(doc, pt);										/* Sets doc->currentSystem */
+	FindStaffSetSys(doc, pt);								/* Sets doc->currentSystem */
 
 	/* Correct "optical illusion" (CER's term) problem with slur cursor: it cannot
 		be fixed by moving down the hotspot, which is moved down all it can be. */
@@ -1313,7 +1313,7 @@ Boolean InsertTempo(Document *doc, Point pt)
 
 	pL = FindTempoObject(doc, pt, &clickStaff, &v);
 	if (pL==NILINK) return FALSE;
-	if (MeasureTYPE(pL)) clickStaff = FindStaff(doc, pt);
+	if (MeasureTYPE(pL)) clickStaff = FindStaffSetSys(doc, pt);
 	
 	if (!(SystemTYPE(pL) || PageTYPE(pL))) HiliteInsertNode(doc, pL, clickStaff, TRUE);
 	
@@ -1359,7 +1359,7 @@ Boolean InsertSpace(Document *doc, Point pt)
 	short clickStaff,topStf,bottomStf; LINK pLPIL,measL; STDIST stdSpace=0;
 	Point newPt; CONTEXT context;
 	
-	clickStaff = FindStaff(doc, pt);								/* Find staff clicked on */
+	clickStaff = FindStaffSetSys(doc, pt);							/* Find staff clicked on */
 	if (clickStaff==NOONE) return FALSE;
 
 	measL = GSSearch(doc, pt, MEASUREtype, ANYONE, TRUE, FALSE, FALSE, FALSE); /* Need a LINK for GetContext */

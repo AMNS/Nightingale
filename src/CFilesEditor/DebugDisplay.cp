@@ -407,7 +407,7 @@ void DisplayNode(Document *doc, LINK pL,
 				LogPrintf(LOG_NOTICE, "     1stInd=%d lastInd=%d ctl pts=(%P %P %P %P) %c%c%c\n",
 					aSlur->firstInd, aSlur->lastInd,
 					&aSlur->seg.knot, &aSlur->seg.c0,
-					&aSlur->seg.c1, &aSlur->endpoint,
+					&aSlur->seg.c1, &aSlur->endKnot,
 					(aSlur->selected? 'S' : '.'),
 					(aSlur->visible? 'V' : '.'),
 					(aSlur->soft? 'S' : '.') );

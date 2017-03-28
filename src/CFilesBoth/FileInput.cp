@@ -858,7 +858,7 @@ LINK FIInsertSlur(Document	*doc,
 	aSlur->seg.c1.h = aSlur->seg.c1.v = 0;
 	aSlur->startPt.h = aSlur->startPt.v = 0;
 	aSlur->endPt.h = aSlur->endPt.v = 0;
-	aSlur->endpoint.h = aSlur->endpoint.v = 0;
+	aSlur->endKnot.h = aSlur->endKnot.v = 0;
 
 	if (setShapeNow)
 		SetAllSlursShape(doc, slurL, TRUE);

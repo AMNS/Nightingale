@@ -167,13 +167,13 @@ staff was different, it's a cross-staff slur, so set crossStaff TRUE.
 
 #1. Get staff containing mouseClick. Need to call FindObject in case the note
 terminating slur-tracking operation is so high or low that it overlaps a staff
-which it is not on, with the result that FindStaff will find the staff that the
-note is not on. However, slur tracking routines eventually call ValidSlurEndpt
+which it is not on, with the result that FindStaffSetSys will find the staff that
+the note is not on. However, slur tracking routines eventually call ValidSlurEndpt
 to get a valid note at the end of the slur-tracking operation, and ValidSlurEndpt
 uses different logic from FindObject, so it may be possible for FindObject to miss
 a sync that ValidSlurEndpt will accept. Therefore, if FindObject actually finds
 the endnote of the tracking operation, use that note's staff here; otherwise, the
-best that can be done is to use the results of FindStaff. */
+best that can be done is to use the results of FindStaffSetSys. */
 
 
 static void CheckCrossness(Document *doc, short	staff, Point pt)
@@ -183,7 +183,7 @@ static void CheckCrossness(Document *doc, short	staff, Point pt)
 
 	oldSystem = doc->currentSystem;
 
-	endStaff = FindStaff(doc, pt);							/* #1. */
+	endStaff = FindStaffSetSys(doc, pt);					/* #1. */
 	pL = FindObject(doc, pt, &index, SMFind);
 	if (pL) objEndStaff = GetSyncStaff(pL, index);
 
@@ -1241,7 +1241,7 @@ void NewSlur(Document *doc, short staff, short voice, Point pt)
 				GetSheetRect(doc,ans,&paper);
 				doc->currentSheet = ans;
 				doc->currentPaper = paper;
-				FindStaff(doc, globPt);						/* Set currentSystem */
+				FindStaffSetSys(doc, globPt);					/* Set currentSystem */
 				}
 			}
 		

@@ -27,7 +27,7 @@ LINK FindLPI(Document *, Point, short, short, Boolean);
 LINK ObjAtEndTime(Document *, LINK, short, short, long *, Boolean, Boolean);
 LINK FindInsertPt(LINK);
 
-short FindStaff(Document *, Point);
+short FindStaffSetSys(Document *, Point);
 LINK SetCurrentSystem(Document *, Point);
 LINK GetCurrentSystem(Document *);
 void CheckSuccSystem(LINK);

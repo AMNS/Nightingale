@@ -189,9 +189,9 @@ void NoMoreMemory()							{ ErrorMsg(noMoreMemory); }
 void OutOfMemory(long nBytes)				{ ErrorNumber(exhaustedMemory,nBytes); }
 
 
-/* ================================================================ Miscellaneous == */
+/* ================================================================== Miscellaneous == */
 
-/* ---------------------------------------------------------------------- MayErrMsg -- */
+/* -------------------------------------------------------- MayErrMsg, AlwaysErrMsg -- */
 
 char	junk[256];
 
@@ -212,7 +212,7 @@ void MayErrMsg(char *fmt, ...)
 {
 	va_list ap; long arg1,arg2,arg3,arg4,arg5,arg6;
 	
-	static short alertCount = 2;
+	static short alertCount = 3;		/* No. of times to actually give the alarm */
 
 	va_start(ap,fmt);
 	arg1 = va_arg(ap,long);

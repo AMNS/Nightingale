@@ -29,26 +29,44 @@ static short	slurLeft, slurRight,	/* Bounds to be found */
 static Boolean	SameDPoint(DPoint p1, DPoint p2);
 static Boolean	DoSlurMouseDown(Document *doc, DPoint pt, LINK pL, LINK aSlurL, short index);
 static Boolean	EditSlur(Rect *paper, SplineSeg *seg, DPoint *endpt, DPoint pt, short how);
-static Boolean	Slursor(Rect *paper, DPoint *start,DPoint *end,DPoint *c0,DPoint *c1,short type,
-						DPoint *q,short curve);
+static Boolean	Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
+						short type, DPoint *q, short curve);
 static void		StartSearch(Rect *paper, DPoint pt);
 static void		EndSearch(void);
 static void		LineOrMoveTo(short, short, short, Boolean *, short *);
 static Boolean	BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean dashed);
-static Boolean	DrawSegment(Rect *paper, SplineSeg *seg, DPoint endpoint);
+static Boolean	DrawSegment(Rect *paper, SplineSeg *seg, DPoint endKnot);
 static void		DeselectKnots(Rect *paper, LINK aSlurL);
 static void		HiliteSlur(Rect *paper, LINK aSlurL);
 static void		DrawDBox(Rect *paper, DPoint pt, short size);
 
 static void		CreateTies(Document *doc, LINK pL, LINK aNoteL);
 
-/* A slur object consists of a table of subobjects, each of which contains a record
-consisting of one SplineSeg, where a SplineSeg is the coordinates of the start of
-a spline, plus two control points.  All points are kept as pairs of DDISTs.  The
-end of each segment would be the start of the next segment, and the end of the last
-segment is kept separately in the record.  This is in case compound slurs are later
-implemented. But the vast majority of slurs will only need the preallocated list of
-one segment, and editing only supports single segment slurs right now, anyway. */
+/* Nightingale models slurs with cubic Bezier curves. This is nice for compatibility
+with PostScript, which also uses cubic Beziers (as does HTML5); but it also suits the
+way slurs are used in CWMN in that a cubic Beizer curve can have at most one inflection
+point. The vast majority of slurs -- say, 95% or more -- have no inflection points, and
+the vast majority of the others -- again probably 95% or more -- have just one. As for
+the small fraction of a percent that have more than one, as of version 5.7, Nightingale
+can't handle them.
+
+A Nightingale Slur object consists of a table of subobjects, each of which contains a
+record consisting of one SplineSeg, where a SplineSeg is the coordinates of the start of
+a spline, plus two control points.  All points are kept as pairs of DDISTs.  The end
+of each segment would be the start of the next segment, and the end of the last segment
+is kept separately in the record.  This is in case we someday implement "compound slurs",
+i.e., slurs with more than one inflection point.
+
+NB: There's much confusion about the terminology for the points that define Bezier
+curves. Every Bezier has two endpoints, also called _anchor_ points or _knots_, where
+the curve starts and ends. A cubic Bezier also has two _control points_, points that
+affect the shape of the curve but which the curve rarely passes through. But the
+endpoints are sometines also called control points, sometimes not! Herein we do not
+consider the endpoints to be control points.
+
+NB2: Perhaps of interest to the mathematically inclined: every Bezier curve is contained
+within the convex hull of its (four, for cubic Beziers) defining points. */
+
 
 /*
  *	Take the offsets stored in aSlur->seg.knot, etc; take the endpoints stored 
@@ -57,33 +75,33 @@ one segment, and editing only supports single segment slurs right now, anyway. *
  *	Points returned are in paper-relative DDISTs (not offsets from startPt, etc.)
  */
  
-void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *endpoint)
+void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *endKnot)
  {
 	SplineSeg *thisSeg;  PASLUR aSlur;
 			
 	aSlur = GetPASLUR(aSlurL);
 	thisSeg = &aSlur->seg;
 
-	SetDPt(knot,p2d(aSlur->startPt.h),p2d(aSlur->startPt.v));
-	SetDPt(endpoint,p2d(aSlur->endPt.h),p2d(aSlur->endPt.v));
+	SetDPt(knot, p2d(aSlur->startPt.h), p2d(aSlur->startPt.v));
+	SetDPt(endKnot, p2d(aSlur->endPt.h), p2d(aSlur->endPt.v));
 	aSlur = GetPASLUR(aSlurL);
 	
 	knot->v += thisSeg->knot.v;  knot->h += thisSeg->knot.h;
-	endpoint->v += aSlur->endpoint.v;  endpoint->h += aSlur->endpoint.h;
+	endKnot->v += aSlur->endKnot.v;  endKnot->h += aSlur->endKnot.h;
 					
 	c0->v = knot->v + thisSeg->c0.v; c0->h = knot->h + thisSeg->c0.h; 
-	c1->v = endpoint->v + thisSeg->c1.v; c1->h = endpoint->h + thisSeg->c1.h;
+	c1->v = endKnot->v + thisSeg->c1.v; c1->h = endKnot->h + thisSeg->c1.h;
  }
 
 /*
- *	Check to see if two DPoint's are within slop of each other.
+ *	Check to see if two DPoints are within slop of each other.
  */
 
 #define SLURDPOINT_SLOP pt2d(2)
 
 static Boolean SameDPoint(DPoint p1, DPoint p2)
 	{
-		short dx,dy;
+		short dx, dy;
 		
 		dx = p1.h - p2.h; if (dx < 0) dx = -dx;
 		dy = p1.v - p2.v; if (dy < 0) dy = -dy;
@@ -132,19 +150,19 @@ void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
 						ptStupid = evt.where;  GlobalToLocal(&ptStupid);
 						pt.v = p2d(ptStupid.v - doc->currentPaper.top);
 						pt.h = p2d(ptStupid.h - doc->currentPaper.left);
-						GetSlurBBox(doc,pL,aSlurL,&bboxBefore,BOXSIZE);
-						stillEditing = DoSlurMouseDown(doc,pt,pL,aSlurL,index);
-						FlushEvents(mUpMask,0);
+						GetSlurBBox(doc, pL, aSlurL, &bboxBefore, BOXSIZE);
+						stillEditing = DoSlurMouseDown(doc, pt, pL, aSlurL, index);
+						FlushEvents(mUpMask, 0);
                   if (stillEditing) {
                      EraseAndInval(&bboxBefore);
-                     GetSlurBBox(doc,pL,aSlurL,&bboxAfter,BOXSIZE);
+                     GetSlurBBox(doc, pL, aSlurL, &bboxAfter, BOXSIZE);
                      EraseAndInval(&bboxAfter);
                      }
 						break;
 					case updateEvt:
         	    		DoUpdate((WindowPtr)(evt.message));
         	    		if (stillEditing)
-        	    			HiliteSlur(&doc->currentPaper,aSlurL);
+        	    			HiliteSlur(&doc->currentPaper, aSlurL);
 						break;
 					default:
 						stillEditing = FALSE;
@@ -152,7 +170,7 @@ void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
 					}
 			}
 					
-	DeselectKnots(&doc->currentPaper,aSlurL);
+	DeselectKnots(&doc->currentPaper, aSlurL);
 	}
 
 /*
@@ -162,7 +180,7 @@ void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
 
 void GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, short margin)
 	{
-		DPoint knot,c0,c1,endpoint;  short j;  LINK sL;
+		DPoint knot, c0, c1, endKnot;  short j;  LINK sL;
 		Point startPt[MAXCHORD], endPt[MAXCHORD];
 		PASLUR aSlur;
 		
@@ -173,25 +191,25 @@ void GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, short margin)
 		aSlur->startPt = startPt[j];
 		aSlur->endPt = endPt[j];
 
-		GetSlurPoints(aSlurL,&knot,&c0,&c1,&endpoint);
+		GetSlurPoints(aSlurL, &knot, &c0, &c1, &endKnot);
 		
 		/* Get convex hull of 4 points */
 		
 		bbox->left = bbox->right = knot.h;
 		bbox->top = bbox->bottom = knot.v;
-		if (c0.h < bbox->left) bbox->left = c0.h;
-		 else if (c0.h > bbox->right) bbox->right = c0.h;
-		if (c1.h < bbox->left) bbox->left = c1.h;
-		 else if (c1.h > bbox->right) bbox->right = c1.h;
-		if (endpoint.h < bbox->left) bbox->left = endpoint.h;
-		 else if (endpoint.h > bbox->right) bbox->right = endpoint.h;
+		if (c0.h < bbox->left)			bbox->left = c0.h;
+		 else if (c0.h > bbox->right)	bbox->right = c0.h;
+		if (c1.h < bbox->left)			bbox->left = c1.h;
+		 else if (c1.h > bbox->right)	bbox->right = c1.h;
+		if (endKnot.h < bbox->left)		bbox->left = endKnot.h;
+		 else if (endKnot.h > bbox->right) bbox->right = endKnot.h;
 		 
-		if (c0.v < bbox->top) bbox->top = c0.v;
-		 else if (c0.v > bbox->bottom) bbox->bottom = c0.v;
-		if (c1.v < bbox->top) bbox->top = c1.v;
-		 else if (c1.v > bbox->bottom) bbox->bottom = c1.v;
-		if (endpoint.v < bbox->top) bbox->top = endpoint.v;
-		 else if (endpoint.v > bbox->bottom) bbox->bottom = endpoint.v;
+		if (c0.v < bbox->top)			bbox->top = c0.v;
+		 else if (c0.v > bbox->bottom)	bbox->bottom = c0.v;
+		if (c1.v < bbox->top)			bbox->top = c1.v;
+		 else if (c1.v > bbox->bottom)	bbox->bottom = c1.v;
+		if (endKnot.v < bbox->top)				bbox->top = endKnot.v;
+		 else if (endKnot.v > bbox->bottom)	bbox->bottom = endKnot.v;
 		
 		D2Rect((DRect *)bbox,bbox);
 		
@@ -207,8 +225,8 @@ void GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, short margin)
 
 void HiliteSlur(Rect *paper, LINK aSlurL)
 {
-	SplineSeg *thisSeg;  short nSegs=1,i;
-	DPoint knot, c0, c1, endpoint;
+	SplineSeg *thisSeg;  short nSegs=1, i;
+	DPoint knot, c0, c1, endKnot;
 	short size = BOXSIZE;  PASLUR aSlur;
 	
 	if (aSlurL) {
@@ -216,9 +234,9 @@ void HiliteSlur(Rect *paper, LINK aSlurL)
 		aSlur = GetPASLUR(aSlurL);
 		thisSeg = &aSlur->seg;
 		for (i=1; i<=nSegs; i++,thisSeg++) {
-			GetSlurPoints(aSlurL, &knot, &c0, &c1, &endpoint);
+			GetSlurPoints(aSlurL, &knot, &c0, &c1, &endKnot);
 			
-			DrawDBox(paper, knot, size);  DrawDBox(paper, endpoint, size);
+			DrawDBox(paper, knot, size);  DrawDBox(paper, endKnot, size);
 			DrawDBox(paper, c0, size);  DrawDBox(paper, c1, size);
 			}
 		PenNormal();
@@ -230,7 +248,6 @@ void HiliteSlur(Rect *paper, LINK aSlurL)
  *	Designate the currently selected slur by graphically hiliting it.  If a
  *	selected slur already exists, unhilite it (since we're using Xor mode),
  *	and then hilite the new one.  The NULL slur is legal and just deselects.
- *	The routine delivers the previous value of the selected slur.
  */
 
 void SelectSlur(Rect *paper, LINK aSlurL)
@@ -252,7 +269,7 @@ static Boolean DoSlurMouseDown(Document *doc, DPoint pt, LINK /*pL*/, LINK aSlur
 									short /*index*/)
 	{
 		SplineSeg *thisSeg,seg;  short how = -1, nSegs=1,i;
-		DPoint endpoint;
+		DPoint endKnot;
 		static Boolean found,changed;
 		PASLUR aSlur;
 		Rect paper;
@@ -267,10 +284,10 @@ static Boolean DoSlurMouseDown(Document *doc, DPoint pt, LINK /*pL*/, LINK aSlur
 		aSlur = GetPASLUR(aSlurL);
 		for (thisSeg = &aSlur->seg,i = 1; i <= nSegs; i++,thisSeg++) {
 		
-			if (i == nSegs)	endpoint = aSlur->endpoint;
-			 else			endpoint = (thisSeg+1)->knot;
+			if (i == nSegs)	endKnot = aSlur->endKnot;
+			 else			endKnot = (thisSeg+1)->knot;
 			 
-			GetSlurPoints(aSlurL, &seg.knot, &seg.c0, &seg.c1, &endpoint);
+			GetSlurPoints(aSlurL, &seg.knot, &seg.c0, &seg.c1, &endKnot);
 			
 			/* Check if mouse falls in end knot points or control points */
 			/* For compound spline curves, should check bBox first */
@@ -278,12 +295,12 @@ static Boolean DoSlurMouseDown(Document *doc, DPoint pt, LINK /*pL*/, LINK aSlur
 			if (SameDPoint(pt,seg.knot))	{ how = S_Start;  goto gotit; }
 			if (SameDPoint(pt,seg.c0))		{ how = S_C0;  goto gotit; }
 			if (SameDPoint(pt,seg.c1))		{ how = S_C1;  goto gotit; }
-			if (SameDPoint(pt,endpoint))	{ how = S_End;  goto gotit; }
+			if (SameDPoint(pt,endKnot))		{ how = S_End;  goto gotit; }
 			
 			/* Or along Bezier curve */
 			
 			StartSearch(&paper,pt);
-			found = DrawSegment(&paper,&seg,endpoint);
+			found = DrawSegment(&paper, &seg, endKnot);
 			EndSearch();
 			if (found) { how = S_Whole;  goto gotit; }
 		}
@@ -293,29 +310,29 @@ static Boolean DoSlurMouseDown(Document *doc, DPoint pt, LINK /*pL*/, LINK aSlur
 gotit:
 		/* Our mouse down event should be eaten and dealt with here */
 
-		FlushEvents(mDownMask,0);
+		FlushEvents(mDownMask, 0);
 		/*
-		 *	Temporarily deselect for a whole knot drag, so as not to leave
-		 *	hanging boxes on the screen.  Prepare for a dragging slursor
+		 *	Temporarily deselect for a whole knot drag, so as not to leave hanging
+		 *	boxes on the screen.  Prepare for a dragging slursor
 		 */
-		HiliteSlur(&paper,aSlurL);						/* Erase old knotboxes */
-				
-		if (changed = EditSlur(&paper, &seg, &endpoint, pt, how)) doc->changed = TRUE;
-
+		HiliteSlur(&paper, aSlurL);						/* Erase old knot boxes */
+		
+		changed = EditSlur(&paper, &seg, &endKnot, pt, how);
 		if (changed) {
+			doc->changed = TRUE;
 			/* Convert paper-relative coords back to offsets */
 			aSlur = GetPASLUR(aSlurL);
 			aSlur->seg.c0.h = seg.c0.h - seg.knot.h;
 			aSlur->seg.c0.v = seg.c0.v - seg.knot.v;
-			aSlur->seg.c1.h = seg.c1.h - endpoint.h;
-			aSlur->seg.c1.v = seg.c1.v - endpoint.v;
+			aSlur->seg.c1.h = seg.c1.h - endKnot.h;
+			aSlur->seg.c1.v = seg.c1.v - endKnot.v;
 			aSlur->seg.knot.h = seg.knot.h - p2d(aSlur->startPt.h); 
 			aSlur->seg.knot.v = seg.knot.v - p2d(aSlur->startPt.v); 
-			aSlur->endpoint.h = endpoint.h - p2d(aSlur->endPt.h);
-			aSlur->endpoint.v = endpoint.v - p2d(aSlur->endPt.v);
+			aSlur->endKnot.h = endKnot.h - p2d(aSlur->endPt.h);
+			aSlur->endKnot.v = endKnot.v - p2d(aSlur->endPt.v);
 			}
 		
-		DrawSegment(&paper,&seg,endpoint);
+		DrawSegment(&paper, &seg, endKnot);
 		return(TRUE);
 	}
 
@@ -325,7 +342,7 @@ gotit:
  *	occurred, FALSE if not.
  */
 
-static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endpoint, DPoint pt,
+static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endKnot, DPoint pt,
 							short how)
 	{
 		DPoint oldStart={0,0},
@@ -335,12 +352,12 @@ static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endpoint, DPoint pt
 	 	Boolean changed=FALSE;
 
 		/* Get new position */
-		Slursor(paper,&seg->knot,endpoint,&seg->c0,&seg->c1,how,&pt,0);
+		Slursor(paper, &seg->knot, endKnot, &seg->c0, &seg->c1, how, &pt, 0);
 		
 		changed = (oldStart.h!=seg->knot.h || oldStart.v!=seg->knot.v ||
 						oldc0.h!=seg->c0.h || oldc0.v!=seg->c0.v ||
 						oldc1.h!=seg->c1.h || oldc1.v!=seg->c1.v ||
-						oldEnd.h!=endpoint->h || oldEnd.v!=endpoint->v);
+						oldEnd.h!=endKnot->h || oldEnd.v!=endKnot->v);
 	
 		return changed;
 	}
@@ -351,14 +368,14 @@ static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endpoint, DPoint pt
  *	"drawing" (see BezierTo).
  */
 
-Boolean DrawSegment(Rect *paper, SplineSeg *seg, DPoint endpoint)
+Boolean DrawSegment(Rect *paper, SplineSeg *seg, DPoint endKnot)
 	{
 		Point start,c0,c1,end;
 		
 		start.h = paper->left + d2p(seg->knot.h);
 		start.v = paper->top + d2p(seg->knot.v);
-		end.h = paper->left + d2p(endpoint.h);
-		end.v = paper->top + d2p(endpoint.v);
+		end.h = paper->left + d2p(endKnot.h);
+		end.v = paper->top + d2p(endKnot.v);
 		c0.h = paper->left + d2p(seg->c0.h);
 		c0.v = paper->top + d2p(seg->c0.v);
 		c1.h = paper->left + d2p(seg->c1.h);
@@ -392,18 +409,18 @@ static DPoint keepStart,keepEnd,keepc0,keepc1;
 static Rect keepPaper;
 static short keepType;
 
-Boolean Slursor(Rect *paper, DPoint *start, DPoint *end,
-					DPoint *c0, DPoint *c1, short type, DPoint *q, short curve)
+Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
+					short type, DPoint *q, short curve)
 	{
 		DPoint p, tmp;  DPoint *test;  DDIST dist, dist4, dist8, dx, dy;
-		Boolean first=TRUE,up,constrain,knotConstrain,horiz,
+		Boolean first=TRUE,up,constrain,knotConstrain,horiz=FALSE,
 					stillWithinSlop;
 		Point pt, origPt;  short xdiff,ydiff;
 		
 		if (type == S_Extend) type = S_New;					/* Not implemented: use New */
 		
 		if (type == S_New) *end = *c0 = *c1 = *start;
-		 else			   up = curve>0 ? TRUE : curve<0 ? FALSE : (c0->v >= start->v);
+		 else			   up = curve>0 ? TRUE : (curve<0 ? FALSE : (c0->v >= start->v));
 				
 		PenMode(patXor);									/* Everything will be drawn twice */
 		DrawSlursor(paper,start,end,c0,c1,type,FALSE);		/* Draw first one in before loop */
@@ -417,6 +434,7 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end,
 			case S_C1:		test = c1; break;
 			case S_End:		test = end; tmp = *end; break;
 			case S_Whole:	test = q; tmp = *q; break;
+			default:		return FALSE;					/* Should never happen */
 			}
 		
 		theSelectionType = SLURSOR;
@@ -444,8 +462,10 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end,
 						if (horiz && test->h==p.h || !horiz && test->v==p.v)
 							continue;
 					}
-					if (first) if (type==S_New || type==S_Extend)
-						{ up = curve>0 ? TRUE : curve<0 ? FALSE : p.v<=end->v; first = FALSE; }
+					if (first) if (type==S_New || type==S_Extend) {
+						up = curve>0 ? TRUE : (curve<0 ? FALSE : p.v<=end->v);
+						first = FALSE;
+						}
 					
 					DrawSlursor(paper,start,end,c0,c1,type,FALSE);	/* Erase old slursor */
 					GetPaperMouse(&pt,paper);						/* Get the most up-to-date position */
@@ -605,7 +625,7 @@ void EndSearch()
 	
 Boolean FindSLUR(Rect *paper, Point pt, LINK aSlurL)
 	{
-		DPoint p,endpoint;  short i,nSegs=1;  PASLUR aSlur;
+		DPoint p,endKnot;  short i,nSegs=1;  PASLUR aSlur;
 		SplineSeg *thisSeg,seg;  Boolean found = FALSE;
 		
 		p.h = p2d(pt.h); p.v = p2d(pt.v);
@@ -613,10 +633,10 @@ Boolean FindSLUR(Rect *paper, Point pt, LINK aSlurL)
 		
 		aSlur = GetPASLUR(aSlurL);
 		for (i=1,thisSeg = &aSlur->seg; i<=nSegs; i++,thisSeg++) {
-			if (i == nSegs)	endpoint = aSlur->endpoint;
-			 else			endpoint = (thisSeg+1)->knot;
-			GetSlurPoints(aSlurL,&seg.knot,&seg.c0,&seg.c1,&endpoint);
-			if (DrawSegment(paper,&seg,endpoint)) { found = TRUE; break; }		/* In search mode */
+			if (i == nSegs)	endKnot = aSlur->endKnot;
+			 else			endKnot = (thisSeg+1)->knot;
+			GetSlurPoints(aSlurL,&seg.knot,&seg.c0,&seg.c1,&endKnot);
+			if (DrawSegment(paper,&seg,endKnot)) { found = TRUE; break; }		/* In search mode */
 			}
 		EndSearch();
 		return found;
@@ -668,7 +688,7 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 		short x,y,s,s1,s2,s3,lastx,lasty,dx,dy;
 		Boolean found = FALSE;
 		static short epsilon = 5;
-		FASTFLOAT segLen; short segsPerDash,segsThisDash;
+		FASTFLOAT segLen;  short segsPerDash,segsThisDash;
 		Boolean doingDash;
 
 		curx = startPt.h; cury = startPt.v;
@@ -703,11 +723,11 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 
 		if (dashed) {
 			/*
-			 * Try to find the no. of segments that will make dashes (and spaces) as
+			 * Try to find the number of segments that will make dashes (and spaces) as
 			 * close as possible to DASHLEN pixels. The following doesn't do a very
-			 *	good job. Also, it would be better to make dashes and spaces on the screen
-			 *	agree with the PostScript versions, so their lengths should be independent
-			 *	of magnification.
+			 * good job. Also, it would be better to make dashes and spaces on the screen
+			 * agree with the PostScript versions, so their lengths should be independent
+			 * of magnification.
 			 */
 			segLen = ABS(endPt.h-startPt.h)/(FASTFLOAT)s;
 			segsPerDash = DASHLEN/segLen;
@@ -754,9 +774,9 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 					dy = y - lasty; if (dy < 0) dy = -dy;
 					if (dx<=1 && dy<=1) MoveTo(x,y);
 
-					if (dashed) LineOrMoveTo(lastx=x,lasty=y,segsPerDash,
+					if (dashed)	LineOrMoveTo(lastx=x,lasty=y,segsPerDash,
 												&doingDash,&segsThisDash);
-					else			LineTo(lastx=x,lasty=y);
+					else		LineTo(lastx=x,lasty=y);
 					}
 				}
 	
@@ -770,12 +790,12 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
  * minimum length.
  */
 
-Boolean TrackSlur(Rect *paper, DPoint p, DPoint *knot, DPoint *endpoint,
+Boolean TrackSlur(Rect *paper, DPoint p, DPoint *knot, DPoint *endKnot,
 							 DPoint *c0, DPoint *c1, Boolean curveUp)
 	{
-		*knot = p; *endpoint = p; *c0 = p; *c1 = p;					/* Default: degenerate */
+		*knot = p; *endKnot = p; *c0 = p; *c1 = p;					/* Default: degenerate */
 		
-		return Slursor(paper,knot,endpoint,c0,c1,S_New,&p,curveUp?1:-1);
+		return Slursor(paper,knot,endKnot,c0,c1,S_New,&p,curveUp?1:-1);
 	}
 
 /* ------------------------------------------------------------- GetSlurNoteLinks -- */
@@ -840,16 +860,15 @@ positions (expressed in points) of the notes delimiting its subobjects. */
 
 void GetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
 	{
-		CONTEXT 	localContext;
-		DDIST		dFirstLeft, dFirstTop, dLastLeft, dLastTop,
-					xdFirst, xdLast, ydFirst, ydLast;
+		CONTEXT localContext;
+		DDIST	dFirstLeft, dFirstTop, dLastLeft, dLastTop,
+				xdFirst, xdLast, ydFirst, ydLast;
 		PANOTE 	firstNote, lastNote;
-		PSLUR		p;
-		LINK		firstNoteL, lastNoteL, aSlurL, firstSyncL, 
-					lastSyncL, systemL;
-		PSYSTEM  pSystem;
+		PSLUR	p;
+		LINK	firstNoteL, lastNoteL, aSlurL, firstSyncL, lastSyncL, systemL;
+		PSYSTEM	pSystem;
 		short 	k, xpFirst, xpLast, ypFirst, ypLast, firstStaff, lastStaff;
-		Boolean  firstMEAS, lastSYS;
+		Boolean	firstMEAS, lastSYS;
 
 		/* If the Slur is cross-system, its firstSyncL may actually be a Measure (if
 			it's the second piece of the cross-system pair), or its lastSyncL may actually
@@ -890,12 +909,12 @@ void GetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
 			lastSyncL = p->lastSyncL;
 
 		GetContext(doc, firstSyncL, firstStaff, &localContext);
-		dFirstLeft = localContext.measureLeft;								/* abs. origin of left end coords. */
+		dFirstLeft = localContext.measureLeft;							/* abs. origin of left end coords. */
 		dFirstTop = localContext.measureTop;
 		
 		GetContext(doc, lastSyncL, lastStaff, &localContext);
 		if (!lastSYS)
-			dLastLeft = localContext.measureLeft;							/* abs. origin of right end coords. */
+			dLastLeft = localContext.measureLeft;						/* abs. origin of right end coords. */
 		else {
 			pSystem = GetPSYSTEM(systemL);
 			dLastLeft = pSystem->systemRect.right;
@@ -1001,16 +1020,16 @@ Boolean SetSlurCtlPoints(
 		Boolean curveUp
 		)
 {
-	DDIST			noteWidth=0, span, dLineSp;
-	DDIST			x,y,x0,y0,x1,y1,tmp;
+	DDIST		noteWidth=0, span, dLineSp;
+	DDIST		x,y,x0,y0,x1,y1,tmp;
 	FASTFLOAT	t;
 	PASLUR		aSlur;
 	//LINK		pL,aNoteL;
-	//PANOTE		aNote;
-	//short 		type,stemUp,accent,beam,degree;
+	//PANOTE	aNote;
+	//short 	type,stemUp,accent,beam,degree;
 	//DDIST		dTop,dBot,dLeft,xd,yd,stemLength;
 	//DDIST		xoffFirst,xoffLast,yoffFirst,yoffLast;
-	long			ltemp;
+	long		ltemp;
 	
 	/* Get horizontal offsets from note positions to slur ends. If it is a
 		crossSystem slur, either firstSync or lastSync will not be a sync; in
@@ -1029,20 +1048,20 @@ Boolean SetSlurCtlPoints(
 									context.staffHeight, context.staffLines);
 
 	aSlur = GetPASLUR(aSlurL);
-	aSlur->endpoint.h = noteWidth/6;
+	aSlur->endKnot.h = noteWidth/6;
 	
-	span = (p2d(aSlur->endPt.h)+aSlur->endpoint.h) -
+	span = (p2d(aSlur->endPt.h)+aSlur->endKnot.h) -
 			 (p2d(aSlur->startPt.h)+aSlur->seg.knot.h);
 	dLineSp = std2d(STD_LINEHT, context.staffHeight, context.staffLines);
-	aSlur->seg.knot.v = aSlur->endpoint.v = curveUp ? -dLineSp : dLineSp;
+	aSlur->seg.knot.v = aSlur->endKnot.v = curveUp ? -dLineSp : dLineSp;
 
 PrintSlurPoints(aSlurL, "SetSlurCtlPts: 1");
 
 	/*
-	 *	We now set the control points, which affect curvature.  This eventually
-	 *	wants to be done using the Ohio slurs algorithms, but in the meantime,
-	 *	we use the following methods, one for short spans and one for long spans,
-	 *	with a linear blending between the two for medium spans.
+	 *	We now set the control points, which affect curvature.  This eventually wants
+	 *	to be done using something like the Ohio slurs algorithms, but in the meantime,
+	 *	we use the following methods, one for short spans and one for long spans, with
+	 *	a linear blending between the two for medium spans.
 	 */
 
 	/* Compute left control point offset from slur start for short slurs */
@@ -1076,20 +1095,18 @@ PrintSlurPoints(aSlurL, "SetSlurCtlPts: 1");
 	aSlur->seg.c1.h = -x0;
 	aSlur->seg.c1.v = aSlur->seg.c0.v;
 
-/*
-	c0 is the offset from the left slur end to the left control point, c1 the offset
+	/* c0 is the offset from the left slur end to the left control point, c1 the offset
 	from the right slur end to the right control point; but they are only symmetric
 	about the vertical in the case where the two endpoints of the slur/tie are at the
 	same height.  Therefore, we need to rotate the control point offset vectors to keep
-	the slur symmetric.
- */
+	the slur symmetric. */
 
 	aSlur = GetPASLUR(aSlurL);
 	
-	/* Get 0-based vector from slur knot to endpoint */
-	x = (p2d(aSlur->endPt.h)+aSlur->endpoint.h) -
+	/* Get 0-based vector from slur knot to endKnot */
+	x = (p2d(aSlur->endPt.h)+aSlur->endKnot.h) -
 		 (p2d(aSlur->startPt.h)+aSlur->seg.knot.h);
-	y = (p2d(aSlur->endPt.v)+aSlur->endpoint.v) -
+	y = (p2d(aSlur->endPt.v)+aSlur->endKnot.v) -
 		 (p2d(aSlur->startPt.v)+aSlur->seg.knot.v);
 
 	RotateSlurCtrlPts(aSlurL,x,y,1);
@@ -1264,10 +1281,10 @@ Boolean FlipSelSlur(LINK slurL)		/* Slur object */
 			flipped = TRUE;
 			aSlur = GetPASLUR(aSlurL);
 			
-			/* Get 0-based vector from slur knot to endpoint */
-			x = (p2d(aSlur->endPt.h)+aSlur->endpoint.h) -
+			/* Get 0-based vector from slur knot to endKnot */
+			x = (p2d(aSlur->endPt.h)+aSlur->endKnot.h) -
 				 (p2d(aSlur->startPt.h)+aSlur->seg.knot.h);
-			y = (p2d(aSlur->endPt.v)+aSlur->endpoint.v) -
+			y = (p2d(aSlur->endPt.v)+aSlur->endKnot.v) -
 				 (p2d(aSlur->startPt.v)+aSlur->seg.knot.v);
 
 			RotateSlurCtrlPts(aSlurL,x,y,-1);
@@ -1280,7 +1297,7 @@ Boolean FlipSelSlur(LINK slurL)		/* Slur object */
 
 			aSlur = GetPASLUR(aSlurL);
 			aSlur->seg.knot.v *= -1;
-			aSlur->endpoint.v *= -1;
+			aSlur->endKnot.v *= -1;
 		}
 
 	return flipped;
@@ -1288,6 +1305,10 @@ Boolean FlipSelSlur(LINK slurL)		/* Slur object */
 
 
 /* ========================================================== Antikink and allies == */
+/* If you move the endpoints of a Bezier curve much closer together, leaving the
+control points in their same relative positions, the curve will tend to develop
+kinks or even loops because the control points will cross. To avoid this, we "antikink"
+by moving the control points closer to the endpoints. */
 
 typedef struct {
 	LINK	link;
@@ -1296,11 +1317,6 @@ typedef struct {
 
 static SLURINFO *slurInfo,**slurInfoHdl;
 static short lastSlur,maxSlurs;
-
-/* If you move the endpoints of a Bezier curve much closer together, leaving the
-control points in their same relative positions, the curve will tend to develop
-kinks or even loops because the control points will cross. "Antikinking" is what
-we call moving the control points closer to the endpoints to avoid this. */
 
 Boolean AddSlurToList(LINK);
 static DDIST SlurEndxd(LINK);
@@ -1336,13 +1352,12 @@ Boolean AddSlurToList(LINK slurL)
 }
 
 
-/* Return the SysRelxd of the given LINK, which is assumed to be a slur endpoint:
-if it's a System, it represents the right end of that System, otherwise it
-represents itself. */
+/* Return the SysRelxd of the given LINK, which is assumed to be a slur endpoint: if it's
+a System, it represents the right end of that System, otherwise it represents itself. */
 
 static DDIST SlurEndxd(LINK pL)
 {
-	PSYSTEM pSystem; DDIST xd;
+	PSYSTEM pSystem;  DDIST xd;
 	
 	if (SystemTYPE(pL)) {
 		pSystem = GetPSYSTEM(pL);
@@ -1362,7 +1377,7 @@ that might be affected. */
 
 Boolean InitAntikink(Document *doc, LINK startL, LINK endL)
 {
-	LINK startChkL, endChkL, pL; short i,slurCount;
+	LINK startChkL, endChkL, pL;  short i,slurCount;
 	DDIST leftEnd, rightEnd;
 	
 	lastSlur = 0;
@@ -1440,9 +1455,9 @@ GiveUp:
 
 void Antikink()
 {
-	short i; DDIST leftEnd, rightEnd, newLen, dist;
+	short i;  DDIST leftEnd, rightEnd, newLen, dist;
 	LINK aSlurL; PASLUR aSlur;
-	SplineSeg seg; DPoint endpoint; FASTFLOAT scale;
+	SplineSeg seg;  DPoint endKnot;  FASTFLOAT scale;
 
 	for (i = 0; i<lastSlur; i++)
 		if (slurInfo[i].link) {
@@ -1456,17 +1471,17 @@ void Antikink()
 				for ( ; aSlurL; aSlurL = NextSLURL(aSlurL)) {
 					aSlur = GetPASLUR(aSlurL);
 					seg = aSlur->seg;
-					endpoint = aSlur->endpoint;
+					endKnot = aSlur->endKnot;
 
 					dist = seg.c0.h-seg.knot.h;
 					seg.c0.h = seg.knot.h+scale*dist;
-					dist = seg.c1.h-endpoint.h;
-					seg.c1.h = endpoint.h+scale*dist;
+					dist = seg.c1.h-endKnot.h;
+					seg.c1.h = endKnot.h+scale*dist;
 
 					dist = seg.c0.v-seg.knot.v;
 					seg.c0.v = seg.knot.v+scale*dist;
-					dist = seg.c1.v-endpoint.v;
-					seg.c1.v = endpoint.v+scale*dist;
+					dist = seg.c1.v-endKnot.v;
+					seg.c1.v = endKnot.v+scale*dist;
 					
 					aSlur->seg = seg;
 				}

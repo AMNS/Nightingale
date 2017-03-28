@@ -1971,6 +1971,8 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 			}			
 			return TRUE;
 	}
+	
+	return FALSE;										/* Should never reach here */
 }
 
 
@@ -3089,8 +3091,8 @@ PushLock(SLURheap);
 	
 		xdFirst += aSlur->seg.knot.h;					/* abs. position of slur start */
 		ydFirst += aSlur->seg.knot.v;
-		xdLast += aSlur->endpoint.h;					/* abs. position of slur end */
-		ydLast += aSlur->endpoint.v;
+		xdLast += aSlur->endKnot.h;					/* abs. position of slur end */
+		ydLast += aSlur->endKnot.v;
 		
 		switch (outputTo) {
 			case toBitmapPrint:
