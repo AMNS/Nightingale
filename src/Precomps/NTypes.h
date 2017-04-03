@@ -49,7 +49,7 @@ typedef struct {
 } DPoint;
 
 typedef struct {
-	DDIST	top,left,bottom,right;
+	DDIST	top, left, bottom, right;
 } DRect;
 
 typedef struct						/* Key signature item: */
@@ -58,11 +58,15 @@ typedef struct						/* Key signature item: */
 	Boolean sharp:1;				/* LG: Is it a sharp? (FALSE=flat) */
 } KSITEM;
 
-#define WHOLE_KSINFO				/* Complete key sig. w/o context. NB: w/TC5, 15 bytes! */	\
-	KSITEM		KSItem[MAX_KSITEMS];	/* The sharps and flats */								\
-	SignedByte	nKSItems;			/* No. of sharps and flats in key sig. */
+/* NB: We #define a WHOLE_KSINFO macro, then a struct that consists of nothing but an
+invocation of that macro; why? I'm don't remember, but old comments here pointed out that
+with THINK C 5 the macro takes 15 bytes, but the struct takes 16. */
+
+#define WHOLE_KSINFO					/* Complete key sig. w/o context. */			\
+	KSITEM		KSItem[MAX_KSITEMS];	/* The sharps and flats */						\
+	SignedByte	nKSItems;				/* No. of sharps and flats in key sig. */
 	
-typedef struct						/* NB: w/TC5, 16 bytes: KSINFO is larger than WHOLE_KSINFO! */
+typedef struct						/* Complete key sig. */
 {
 	WHOLE_KSINFO
 } KSINFO, *PKSINFO;
@@ -240,7 +244,7 @@ typedef struct						/* A part (for an instrument or voice): */
 	Byte		bankNumber32;		/* If device uses cntl 32 for bank select msgs */
 									/* NB: some devices use both cntl 0 and cntl 32 */
 
-	/* The following are for FreeMIDI support. We use an fmsUniqueID to identify
+	/* The following fields are for FreeMIDI support. We use an fmsUniqueID to identify
 		the output device while running. We use a destinationMatch to allow FreeMIDI
 		to match the characteristics of a stored device with devices that are currently
 		available to the system. (This is recommended by "FreeMIDI API.pdf.") E.g.,
@@ -541,10 +545,6 @@ typedef struct {
 				showLedgers:1,		/* TRUE if drawing ledger lines of notes on this staff (the default if showLines>0) */
 				showLines:4;		/* 0=show 0 staff lines, 1=only middle line (of 5-line staff), 2-14 unused,
 										15=show all lines (default) (use SHOW_ALL_LINES for this) */
-#ifdef STAFFRASTRAL
-// FIXME: maybe this should be drSize (DDIST) for the staff's current rastral?
-	short			srastral;		/* rastral for this staff */
-#endif
 } ASTAFF, *PASTAFF;
 
 typedef struct sSTAFF {
@@ -572,7 +572,7 @@ typedef struct {
 
 typedef struct {
 	OBJECTHEADER
-	LINK			connFiller;
+	LINK		connFiller;
 } CONNECT, *PCONNECT;
 
 enum {								/* Codes for connectType */
@@ -1281,9 +1281,6 @@ typedef struct {
 	SignedByte	staffLines;			/* 			number of lines */
 	SignedByte	showLines;			/*			0=show no lines, 1=only middle line, or SHOW_ALL_LINES=show all */
 	Boolean		showLedgers;		/*			TRUE=show ledger lines for notes on this staff */
-#ifdef STAFFRASTRAL
-	short		srastral;			/*			rastral for this staff */
-#endif
 	short		fontSize;			/* 			preferred font size */
 	DDIST		measureTop;			/* MEASURE:	page relative top */
 	DDIST		measureLeft;		/* 			page relative left */

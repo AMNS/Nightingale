@@ -1312,7 +1312,7 @@ Minor cleanup. Affects vars.h; Events, Initialize, Main.
 
 -------------------------------------------------------------------------------
 
-23-28 Mar.
+23-28 Mar.			       ==== NIGHTINGALE 5.7b11 ====
 
 Change the very misleading name FindStaff() to FindStaffSetSys(). Affects defs.h,
 InsUtils.h; EditScore, Insert, InsUtils, NewSlur, Select, SelUtils, 
@@ -1323,3 +1323,16 @@ HeapBrowser, Score, Slurs.
 
 Avoid many "missing braces" compiler warnings; other minor cleanup. Affects Dragging,
 Error, InsNew, InsUtils, NotelistOpen, Select, Slurs.
+
+===============================================================================
+
+29 Mar.-3 Apr.
+
+Changed version number from 5.7b11 to 5.7b12. Affects Info.plist.
+
+Widen the Browser, Heap Browser, and Context dialogs slightly. Affects .rsrc.
+
+Make "slop" values more explicit via #defines. Affects AccModNRMouse.
+
+Minor cleanup. Affects MemMacros.h; AccModNRMouse, CheckUtils, ScoreInfo, Slurs.
+

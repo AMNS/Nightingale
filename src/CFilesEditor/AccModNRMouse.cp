@@ -35,9 +35,9 @@ static short FindAccModNR(Document *doc, Point pt,
 						Rect *bbox				/* paper coords */
 						)
 {
-	LINK		pL, pageL, startL, endL, firstMeasL, measL, aNoteL, aModNRL;
+	LINK	pL, pageL, startL, endL, firstMeasL, measL, aNoteL, aModNRL;
 	PANOTE	aNote;
-	short		i, aNoteAcc;
+	short	i, aNoteAcc;
 		
 	pageL = GetCurrentPage(doc);
 	endL = RightLINK(LastObjOnPage(doc, pageL));
@@ -59,9 +59,9 @@ static short FindAccModNR(Document *doc, Point pt,
 			break;
 		}
 	}
-	if (!startL) startL = pageL;			/* in case we've clicked outside of any measure rect */
+	if (!startL) startL = pageL;					/* in case click is outside of any measure rect */
 	
-	for (i=0; i<2; i++) {												/* may have to search twice */
+	for (i=0; i<2; i++) {										/* may have to search twice */
 		for (pL=startL ; pL!=endL; pL=RightLINK(pL)) {			/* find object that was clicked on */
 			if (ObjLType(pL) == SYNCtype) {
 				if (VISIBLE(pL)) {
@@ -105,8 +105,8 @@ static short FindAccModNR(Document *doc, Point pt,
 }
 
 
-/* If user double-clicked on a modNR, invokes a dialog to let user change
-the modifier and returns TRUE; otherwise, just returns FALSE. */
+/* If user double-clicked on a modNR, invokes a dialog to let them change the
+modifier and returns TRUE; otherwise, just returns FALSE. */
 
 Boolean DoOpenModNR(Document *doc, Point pt)
 {
@@ -169,21 +169,24 @@ Boolean DoAccModNRClick(Document *doc, Point pt)
 }
 
 
-/* ======================================================== Accidental functions == */
+/* =========================================================== Accidental functions == */
 
-/* Returns box surrounding the accidental in paper-rel coordinates.
- * Much code borrowed from DrawACC.
+#define ADD_SLOP_THRESH 6	/* in pixels */
+#define SLOP_TO_ADD 2		/* in pixels */
+
+/* Returns box surrounding the accidental in paper-rel coordinates. Much of the
+ * code borrowed from DrawACC.
  */
 static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBBox)
 {
-	DDIST		noteXD, noteYD, accXOffset, xdNorm;
-	short		oldTxSize, useTxSize, sizePercent, charWid, baseLine;
+	DDIST	noteXD, noteYD, accXOffset, xdNorm;
+	short	oldTxSize, useTxSize, sizePercent, charWid, baseLine;
 	PANOTE	aNote;
 	CONTEXT	context;
-	Rect		accCharRect;
+	Rect	accCharRect;
 	Boolean	chordNoteToL;
-	short		accidentalChar, wid, ht;
-	DDIST		d8thSp, dIncreaseWid;
+	short	accidentalChar, wid, ht;
+	DDIST	d8thSp, dIncreaseWid;
 	
 	GetContext(doc, syncL, NoteSTAFF(noteL), &context);
 	
@@ -200,8 +203,8 @@ static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBB
 	oldTxSize = GetPortTxSize();
 	useTxSize = UseMTextSize(SizePercentSCALE(context.fontSize), doc->magnify);
 	TextSize(useTxSize);
-	BuildCharRectCache(doc);						/* current cache may not be valid for this accidental's size */
-	charWid = CharWidth(accidentalChar);		/* more accurate for screen fonts, especially when scaled */
+	BuildCharRectCache(doc);				/* current cache may not be valid for this accidental's size */
+	charWid = CharWidth(accidentalChar);	/* more accurate for screen fonts, especially when scaled */
 	TextSize(oldTxSize);
 
 	accCharRect = CharRect(accidentalChar);
@@ -225,7 +228,7 @@ static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBB
 	accBBox->bottom = baseLine + accCharRect.bottom;
 	accBBox->top = baseLine + accCharRect.top - 1;		/* this still doesn't always enclose the char... */
 	
-	accBBox->top -= 3;									/* so make it taller */
+	accBBox->top -= 3;									/* ...so make it taller */
 	accBBox->bottom += 2;
 	
 	/* add more slop if the rect is very small */
@@ -263,7 +266,6 @@ PushLock(NOTEheap);
 	accXOffset = GetAccXOffset(aNote, sizePercent, &context);
 
 	oldTxMode = GetPortTxMode();
-//	oldTxMode = qd.thePort->txMode;
 	oldTxSize = GetPortTxSize();
 	useTxSize = UseMTextSize(context.fontSize, doc->magnify);
 	if (aNote->small) useTxSize = SMALLSIZE(useTxSize);
@@ -286,10 +288,10 @@ PushLock(NOTEheap);
 			xdNorm-SizePercentSCALE(HeadWidth(LNSPACE(&context))) : xdNorm;
 	accOriginH = d2p(xdNormAdjusted) - d2p(accXOffset);
 	
-	/* <diffH> is the distance between the point where the user clicked
-	 * and the origin of the accidental. Set this from pt, rather
-	 * than from the current mouseLoc, because the mouse may have
-	 * moved between the mouseDown and now (i.e., during FindAccidental).
+	/* <diffH> is the distance between the point where the user clicked and the
+	 * origin of the accidental. Set this from pt rather than from the current
+	 * mouseLoc, because the mouse may have moved between the mouseDown and now
+	 * (i.e., during FindAccidental).
 	 */
 	diffH = pt.h - accOriginH;
 	GetPaperMouse(&oldPt, &doc->currentPaper);
@@ -310,19 +312,19 @@ PushLock(NOTEheap);
 		if (chordNoteToL)
 			xOffset -= SizePercentSCALE(HeadWidth(LNSPACE(&context)));
 		if (aNote->small) {
-				LONGDDIST xOffsetLong;					/* to avoid DDIST overflow */			
+				LONGDDIST xOffsetLong;								/* to avoid DDIST overflow */			
 				xOffsetLong = (LONGDDIST)xOffset;
 				xmoveAcc = (((((DDIST)((xOffsetLong*100L)/(long)sizePercent)) 
-										 - dAccWidth) * 4) / dAccWidth) + DFLT_XMOVEACC;
+										- dAccWidth) * 4) / dAccWidth) + DFLT_XMOVEACC;
 		}
 		else
 			xmoveAcc = (((xOffset - dAccWidth) * 4) / dAccWidth) + DFLT_XMOVEACC;
 		if (aNote->accident==AC_DBLFLAT)
-			xmoveAcc -= 2;							/* ??this isn't quite right */
+			xmoveAcc -= 2;									/* ??this isn't quite right */
 
 		if (xmoveAcc >= 0 && xmoveAcc <= 31)
 			aNote->xmoveAcc = xmoveAcc;
-		else {										/* if outside limits, constrain to limits */
+		else {												/* if outside limits, constrain to limits */
 			if (xmoveAcc < 0)
 				aNote->xmoveAcc = 0;
 			else
@@ -396,7 +398,7 @@ static void ShowAccidentalParams(Document *doc, short xmoveAcc)
 }
 
 
-/* ============================================================ modNR functions == */
+/* ================================================================ modNR functions == */
 
 /* Returns box surrounding the modNR in paper-rel coordinates. */
 
@@ -404,11 +406,11 @@ static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 										Rect *bbox)
 {
 	DDIST		noteXD, xdMod, ydMod, staffTop, xdNorm, lnSpace;
-	short		code, oldTxSize, useTxSize, sizePercent,
-				xOffset, yOffset, charWid, baseLine, wid, ht;
-	PAMODNR	aModNR;
-	PANOTE	aNote;
-	CONTEXT	context;
+	short		code, oldTxSize, useTxSize, sizePercent, xOffset, yOffset,
+				charWid, baseLine, wid, ht;
+	PAMODNR		aModNR;
+	PANOTE		aNote;
+	CONTEXT		context;
 	unsigned char glyph;
 	Rect		glyphRect;
 	
@@ -423,8 +425,8 @@ static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 	xdMod = noteXD + std2d(aModNR->xstd-XSTD_OFFSET, context.staffHeight, context.staffLines);
 	ydMod = std2d(aModNR->ystdpit, context.staffHeight, context.staffLines);
 
-	if (!GetModNRInfo(code, aNote->subType, aNote->small,
-							(ydMod<=aNote->yd), &glyph, &xOffset, &yOffset, &sizePercent)) {
+	if (!GetModNRInfo(code, aNote->subType, aNote->small, (ydMod<=aNote->yd),
+									&glyph, &xOffset, &yOffset, &sizePercent)) {
 		MayErrMsg("GetModNRBbox: illegal MODNR code %ld for note link=%ld",
 					(long)code, (long)noteL);
 		return FALSE;
@@ -453,14 +455,15 @@ static Boolean GetModNRBbox(Document *doc, LINK syncL, LINK noteL, LINK modNRL,
 	bbox->right = bbox->left + charWid;
 	baseLine = d2p(staffTop + ydMod);
 	bbox->bottom = baseLine + glyphRect.bottom;
-	bbox->top = baseLine + glyphRect.top - 1;		/* this still doesn't always enclose the char. */
-	bbox->top -= 2;									/* ...so make it taller */
+	bbox->top = baseLine + glyphRect.top - 1;	/* this still doesn't always enclose the char. */
+	bbox->top -= 2;								/* ...so make it taller */
 	bbox->bottom += 2;
 		
 	/* add more slop if the rect is very small */
 	wid = bbox->right - bbox->left;
 	ht = bbox->bottom - bbox->top;
-	InsetRect(bbox, wid<6? -2 : 0, ht<6? -2 : 0);
+	InsetRect(bbox, (wid<ADD_SLOP_THRESH? -SLOP_TO_ADD : 0),
+							(ht<ADD_SLOP_THRESH? -SLOP_TO_ADD : 0));
 
 	return TRUE;
 }
@@ -526,7 +529,6 @@ PushLock(NOTEheap);
 	if (aNote->small) useTxSize = SMALLSIZE(useTxSize);
 	TextSize(useTxSize);
 	oldTxMode = GetPortTxMode();
-//	oldTxMode = qd.thePort->txMode;
 
 #define DRAW_IN_GRAY
 #ifdef DRAW_IN_GRAY
@@ -628,8 +630,7 @@ PushLock(NOTEheap);
 		
 		Rect2Window(doc, origModNRBbox);
 		InsetRect(origModNRBbox, -1, -4);
-		if (!suppressRedraw)
-			EraseAndInval(origModNRBbox);
+		if (!suppressRedraw) EraseAndInval(origModNRBbox);
 	}
 	else
 		*aModNR = oldModNR;

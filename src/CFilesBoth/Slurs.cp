@@ -76,7 +76,7 @@ within the convex hull of its (four, for cubic Beziers) defining points. */
  */
  
 void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *endKnot)
- {
+{
 	SplineSeg *thisSeg;  PASLUR aSlur;
 			
 	aSlur = GetPASLUR(aSlurL);
@@ -91,7 +91,7 @@ void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *en
 					
 	c0->v = knot->v + thisSeg->c0.v; c0->h = knot->h + thisSeg->c0.h; 
 	c1->v = endKnot->v + thisSeg->c1.v; c1->h = endKnot->h + thisSeg->c1.h;
- }
+}
 
 /*
  *	Check to see if two DPoints are within slop of each other.
@@ -100,28 +100,28 @@ void GetSlurPoints(LINK	aSlurL, DPoint *knot, DPoint *c0, DPoint *c1, DPoint *en
 #define SLURDPOINT_SLOP pt2d(2)
 
 static Boolean SameDPoint(DPoint p1, DPoint p2)
-	{
-		short dx, dy;
-		
-		dx = p1.h - p2.h; if (dx < 0) dx = -dx;
-		dy = p1.v - p2.v; if (dy < 0) dy = -dy;
-		
-		return (dx<=SLURDPOINT_SLOP && dy<=SLURDPOINT_SLOP);
-	}
+{
+	short dx, dy;
+	
+	dx = p1.h - p2.h; if (dx < 0) dx = -dx;
+	dy = p1.v - p2.v; if (dy < 0) dy = -dy;
+	
+	return (dx<=SLURDPOINT_SLOP && dy<=SLURDPOINT_SLOP);
+}
 	
 /*
  *	Use a wide line to draw a filled box at a point.
  */
 
-static void DrawDBox(Rect *paper, DPoint p, short size)
-	{
-		p.h = d2p(p.h);  p.v = d2p(p.v);
-		
-		PenSize(size,size);  size >>= 1;
-		MoveTo(paper->left + (p.h -= size), paper->top + (p.v -= size));
-		LineTo(paper->left+p.h, paper->top+p.v);
-		PenSize(1, 1);
-	}
+static void DrawDBox(Rect *paper, DPoint ptd, short size)
+{
+	ptd.h = d2p(ptd.h);  ptd.v = d2p(ptd.v);
+	
+	PenSize(size,size);  size >>= 1;
+	MoveTo(paper->left + (ptd.h -= size), paper->top + (ptd.v -= size));
+	LineTo(paper->left+ptd.h, paper->top+ptd.v);
+	PenSize(1, 1);
+}
 
 /*
  *	Entertain events in a separate event loop for manipulating slur objects.
@@ -133,45 +133,45 @@ static void DrawDBox(Rect *paper, DPoint p, short size)
  */
 
 void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
-	{
-		EventRecord	evt;
-		Boolean		stillEditing = TRUE;
-		DPoint		pt;
-		Point		ptStupid;
-		Rect		bboxBefore, bboxAfter;
+{
+	EventRecord	evt;
+	Boolean		stillEditing = TRUE;
+	DPoint		pt;
+	Point		ptStupid;
+	Rect		bboxBefore, bboxAfter;
 
-		FlushEvents(everyEvent, 0);
-		
-		while (stillEditing) {
-			ArrowCursor();
-			if (EventAvail(everyEvent, &evt))
-				switch(evt.what) {
-					case mouseDown:
-						ptStupid = evt.where;  GlobalToLocal(&ptStupid);
-						pt.v = p2d(ptStupid.v - doc->currentPaper.top);
-						pt.h = p2d(ptStupid.h - doc->currentPaper.left);
-						GetSlurBBox(doc, pL, aSlurL, &bboxBefore, BOXSIZE);
-						stillEditing = DoSlurMouseDown(doc, pt, pL, aSlurL, index);
-						FlushEvents(mUpMask, 0);
-                  if (stillEditing) {
-                     EraseAndInval(&bboxBefore);
-                     GetSlurBBox(doc, pL, aSlurL, &bboxAfter, BOXSIZE);
-                     EraseAndInval(&bboxAfter);
-                     }
-						break;
-					case updateEvt:
-        	    		DoUpdate((WindowPtr)(evt.message));
-        	    		if (stillEditing)
-        	    			HiliteSlur(&doc->currentPaper, aSlurL);
-						break;
-					default:
-						stillEditing = FALSE;
-						break;
-					}
+	FlushEvents(everyEvent, 0);
+	
+	while (stillEditing) {
+		ArrowCursor();
+		if (EventAvail(everyEvent, &evt))
+			switch(evt.what) {
+				case mouseDown:
+					ptStupid = evt.where;  GlobalToLocal(&ptStupid);
+					pt.v = p2d(ptStupid.v - doc->currentPaper.top);
+					pt.h = p2d(ptStupid.h - doc->currentPaper.left);
+					GetSlurBBox(doc, pL, aSlurL, &bboxBefore, BOXSIZE);
+					stillEditing = DoSlurMouseDown(doc, pt, pL, aSlurL, index);
+					FlushEvents(mUpMask, 0);
+			  if (stillEditing) {
+				 EraseAndInval(&bboxBefore);
+				 GetSlurBBox(doc, pL, aSlurL, &bboxAfter, BOXSIZE);
+				 EraseAndInval(&bboxAfter);
+			  }
+					break;
+				case updateEvt:
+					DoUpdate((WindowPtr)(evt.message));
+					if (stillEditing)
+						HiliteSlur(&doc->currentPaper, aSlurL);
+					break;
+				default:
+					stillEditing = FALSE;
+					break;
 			}
-					
-	DeselectKnots(&doc->currentPaper, aSlurL);
 	}
+				
+	DeselectKnots(&doc->currentPaper, aSlurL);
+}
 
 /*
  *	Deliver the bounding box of the given slur sub-object in window-relative coordinates
@@ -179,43 +179,43 @@ void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
  */
 
 void GetSlurBBox(Document *doc, LINK pL, LINK aSlurL, Rect *bbox, short margin)
-	{
-		DPoint knot, c0, c1, endKnot;  short j;  LINK sL;
-		Point startPt[MAXCHORD], endPt[MAXCHORD];
-		PASLUR aSlur;
-		
-		GetSlurContext(doc, pL, startPt, endPt);			/* Get absolute positions, in DPoints */
-		
-		for (j=0,sL=FirstSubLINK(pL);  sL!=aSlurL; j++, sL=NextSLURL(sL)) ;
-		aSlur = GetPASLUR(aSlurL);
-		aSlur->startPt = startPt[j];
-		aSlur->endPt = endPt[j];
+{
+	DPoint knot, c0, c1, endKnot;  short j;  LINK sL;
+	Point startPt[MAXCHORD], endPt[MAXCHORD];
+	PASLUR aSlur;
+	
+	GetSlurContext(doc, pL, startPt, endPt);			/* Get absolute positions, in DPoints */
+	
+	for (j=0, sL=FirstSubLINK(pL);  sL!=aSlurL; j++, sL=NextSLURL(sL)) ;
+	aSlur = GetPASLUR(aSlurL);
+	aSlur->startPt = startPt[j];
+	aSlur->endPt = endPt[j];
 
-		GetSlurPoints(aSlurL, &knot, &c0, &c1, &endKnot);
-		
-		/* Get convex hull of 4 points */
-		
-		bbox->left = bbox->right = knot.h;
-		bbox->top = bbox->bottom = knot.v;
-		if (c0.h < bbox->left)			bbox->left = c0.h;
-		 else if (c0.h > bbox->right)	bbox->right = c0.h;
-		if (c1.h < bbox->left)			bbox->left = c1.h;
-		 else if (c1.h > bbox->right)	bbox->right = c1.h;
-		if (endKnot.h < bbox->left)		bbox->left = endKnot.h;
-		 else if (endKnot.h > bbox->right) bbox->right = endKnot.h;
-		 
-		if (c0.v < bbox->top)			bbox->top = c0.v;
-		 else if (c0.v > bbox->bottom)	bbox->bottom = c0.v;
-		if (c1.v < bbox->top)			bbox->top = c1.v;
-		 else if (c1.v > bbox->bottom)	bbox->bottom = c1.v;
-		if (endKnot.v < bbox->top)				bbox->top = endKnot.v;
-		 else if (endKnot.v > bbox->bottom)	bbox->bottom = endKnot.v;
-		
-		D2Rect((DRect *)bbox,bbox);
-		
-		InsetRect(bbox,-margin,-margin);
-		OffsetRect(bbox,doc->currentPaper.left,doc->currentPaper.top);
-	}
+	GetSlurPoints(aSlurL, &knot, &c0, &c1, &endKnot);
+	
+	/* Get convex hull of 4 points */
+	
+	bbox->left = bbox->right = knot.h;
+	bbox->top = bbox->bottom = knot.v;
+	if (c0.h < bbox->left)			bbox->left = c0.h;
+	else if (c0.h > bbox->right)	bbox->right = c0.h;
+	if (c1.h < bbox->left)			bbox->left = c1.h;
+	else if (c1.h > bbox->right)	bbox->right = c1.h;
+	if (endKnot.h < bbox->left)			bbox->left = endKnot.h;
+	else if (endKnot.h > bbox->right)	bbox->right = endKnot.h;
+	 
+	if (c0.v < bbox->top)			bbox->top = c0.v;
+	else if (c0.v > bbox->bottom)	bbox->bottom = c0.v;
+	if (c1.v < bbox->top)			bbox->top = c1.v;
+	else if (c1.v > bbox->bottom)	bbox->bottom = c1.v;
+	if (endKnot.v < bbox->top)			bbox->top = endKnot.v;
+	else if (endKnot.v > bbox->bottom)	bbox->bottom = endKnot.v;
+	
+	D2Rect((DRect *)bbox,bbox);
+	
+	InsetRect(bbox,-margin,-margin);
+	OffsetRect(bbox,doc->currentPaper.left,doc->currentPaper.top);
+}
 
 /*
  *	A slur is hilited by drawing a small box at each of its knots and at each of the
@@ -238,9 +238,9 @@ void HiliteSlur(Rect *paper, LINK aSlurL)
 			
 			DrawDBox(paper, knot, size);  DrawDBox(paper, endKnot, size);
 			DrawDBox(paper, c0, size);  DrawDBox(paper, c1, size);
-			}
-		PenNormal();
 		}
+		PenNormal();
+	}
 }
 
 
@@ -251,14 +251,14 @@ void HiliteSlur(Rect *paper, LINK aSlurL)
  */
 
 void SelectSlur(Rect *paper, LINK aSlurL)
-	{
-		HiliteSlur(paper,aSlurL);
-	}
+{
+	HiliteSlur(paper,aSlurL);
+}
 
 static void DeselectKnots(Rect *paper, LINK aSlurL)
-	{
-		HiliteSlur(paper,aSlurL);
-	}
+{
+	HiliteSlur(paper,aSlurL);
+}
 	
 /*
  *	Deal with a mouse down event at DPoint pt.  Deliver TRUE if mouse down
@@ -344,23 +344,23 @@ gotit:
 
 static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endKnot, DPoint pt,
 							short how)
-	{
-		DPoint oldStart={0,0},
-				oldc0={0,0},
-				oldc1={0,0},
-				oldEnd={0,0};
-	 	Boolean changed=FALSE;
+{
+	DPoint oldStart={0,0},
+			oldc0={0,0},
+			oldc1={0,0},
+			oldEnd={0,0};
+	Boolean changed=FALSE;
 
-		/* Get new position */
-		Slursor(paper, &seg->knot, endKnot, &seg->c0, &seg->c1, how, &pt, 0);
-		
-		changed = (oldStart.h!=seg->knot.h || oldStart.v!=seg->knot.v ||
-						oldc0.h!=seg->c0.h || oldc0.v!=seg->c0.v ||
-						oldc1.h!=seg->c1.h || oldc1.v!=seg->c1.v ||
-						oldEnd.h!=endKnot->h || oldEnd.v!=endKnot->v);
+	/* Get new position */
+	Slursor(paper, &seg->knot, endKnot, &seg->c0, &seg->c1, how, &pt, 0);
 	
-		return changed;
-	}
+	changed = (oldStart.h!=seg->knot.h || oldStart.v!=seg->knot.v ||
+					oldc0.h!=seg->c0.h || oldc0.v!=seg->c0.v ||
+					oldc1.h!=seg->c1.h || oldc1.v!=seg->c1.v ||
+					oldEnd.h!=endKnot->h || oldEnd.v!=endKnot->v);
+
+	return changed;
+}
 
 /*
  *	Draw a given spline segment with anchor point at seg->knot to the given end
@@ -369,41 +369,41 @@ static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endKnot, DPoint pt,
  */
 
 Boolean DrawSegment(Rect *paper, SplineSeg *seg, DPoint endKnot)
-	{
-		Point start,c0,c1,end;
-		
-		start.h = paper->left + d2p(seg->knot.h);
-		start.v = paper->top + d2p(seg->knot.v);
-		end.h = paper->left + d2p(endKnot.h);
-		end.v = paper->top + d2p(endKnot.v);
-		c0.h = paper->left + d2p(seg->c0.h);
-		c0.v = paper->top + d2p(seg->c0.v);
-		c1.h = paper->left + d2p(seg->c1.h);
-		c1.v = paper->top + d2p(seg->c1.v);
-		
-		MoveTo(start.h,start.v);
-		return(BezierTo(start,end,c0,c1,FALSE));
-	}
+{
+	Point start,c0,c1,end;
+	
+	start.h = paper->left + d2p(seg->knot.h);
+	start.v = paper->top + d2p(seg->knot.v);
+	end.h = paper->left + d2p(endKnot.h);
+	end.v = paper->top + d2p(endKnot.v);
+	c0.h = paper->left + d2p(seg->c0.h);
+	c0.v = paper->top + d2p(seg->c0.v);
+	c1.h = paper->left + d2p(seg->c1.h);
+	c1.v = paper->top + d2p(seg->c1.v);
+	
+	MoveTo(start.h,start.v);
+	return(BezierTo(start,end,c0,c1,FALSE));
+}
 
 	
 /*
- *	Here we create a movable slur spline section, between start and end with
- *	control points c0 and c1.  If type is S_New or S_Extend, we initialise end,
- *	c0, and c1 here; otherwise we use the provided arguments.  When we're done,
- *	the current spline (in DDIST coordinates) is returned in end, c0, and c1
- *	(usually anchored at start).  q points to the original click point (which is
- *	not a control point if type == S_Whole). When we drag an endpoint, the assoc-
- *	iated control point follows in parallel.
- *
- *	If the Shift key is held down: if we're dragging a control point, we force
- *	the opposite control point to work symmetrically; if we're dragging an end
- *	point, we constrain motion to whichever axis was used first (this is the
- * conventional meaning of the Shift key when dragging in Mac graphics programs).
- *	Finally, we deliver TRUE if resulting spline is at least a certain size;
- *	otherwise FALSE.
+ *	Here we create or update a movable slur spline section, between start and end with
+ *	control points c0 and c1.  If type is S_New or S_Extend, we initialise end, c0, and
+ *	c1 here; otherwise we use the provided arguments.  When we're done, the current
+ *	spline (in DDIST coordinates) is returned in end, c0, and c1 (usually anchored at
+ *	start).  q points to the original click point (which is not a control point if type
+ *	== S_Whole). When we drag an endpoint, the associated control point follows in
+ *	parallel.
+ *	
+ *	If the Shift key is held down: if we're dragging a control point, we force the
+ *	opposite control point to work symmetrically; if we're dragging an endpoint, we
+ *	constrain motion to whichever axis was used first (this is the conventional meaning
+ *	of the Shift key when dragging in Mac graphics programs). Finally, we deliver TRUE
+ *	if the resulting spline is at least a certain size; otherwise FALSE.
  */
 
 #define SLURDRAG_SLOP 2		/* in pixels */
+#define MIN_GOOD_SIZE 4		/* in pixels */
 
 static DPoint keepStart,keepEnd,keepc0,keepc1;
 static Rect keepPaper;
@@ -411,142 +411,143 @@ static short keepType;
 
 Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 					short type, DPoint *q, short curve)
-	{
-		DPoint p, tmp;  DPoint *test;  DDIST dist, dist4, dist8, dx, dy;
-		Boolean first=TRUE,up,constrain,knotConstrain,horiz=FALSE,
-					stillWithinSlop;
-		Point pt, origPt;  short xdiff,ydiff;
-		
-		if (type == S_Extend) type = S_New;					/* Not implemented: use New */
-		
-		if (type == S_New) *end = *c0 = *c1 = *start;
-		 else			   up = curve>0 ? TRUE : (curve<0 ? FALSE : (c0->v >= start->v));
-				
-		PenMode(patXor);									/* Everything will be drawn twice */
-		DrawSlursor(paper,start,end,c0,c1,type,FALSE);		/* Draw first one in before loop */
+{
+	DPoint ptd, tmp;  DPoint *test;  DDIST dist, dist4, dist8, dx, dy;
+	Boolean first=TRUE,up,constrain,knotConstrain,horiz=FALSE,
+				stillWithinSlop;
+	Point pt, origPt;  short xdiff,ydiff;
+	
+	if (type == S_Extend) type = S_New;					/* Not implemented: use New */
+	
+	if (type == S_New) *end = *c0 = *c1 = *start;
+	 else			   up = curve>0 ? TRUE : (curve<0 ? FALSE : (c0->v >= start->v));
+			
+	PenMode(patXor);									/* Everything will be drawn twice */
+	DrawSlursor(paper,start,end,c0,c1,type,FALSE);		/* Draw first one in before loop */
 
-		 /* Choose which point we want to follow the mouse */
-		 
-		switch(type) {
-			case S_New:		test = end; break;
-			case S_Start:	test = start; tmp = *start; break;
-			case S_C0:		test = c0; break;
-			case S_C1:		test = c1; break;
-			case S_End:		test = end; tmp = *end; break;
-			case S_Whole:	test = q; tmp = *q; break;
-			default:		return FALSE;					/* Should never happen */
-			}
-		
-		theSelectionType = SLURSOR;
-		constrain = ShiftKeyDown();
-		knotConstrain = (constrain && (type==S_Start || type==S_End));
-		stillWithinSlop = TRUE;
-		GetPaperMouse(&origPt,paper);
-
-		if (StillDown())
-			while (WaitMouseUp()) {
-				GetPaperMouse(&pt,paper);
-				if (knotConstrain && stillWithinSlop) {
-					xdiff = pt.h - origPt.h; ydiff = pt.v - origPt.v;
-					
-					/* If we're still within slop bounds, don't do anything */
-					if (ABS(xdiff)<SLURDRAG_SLOP && ABS(ydiff)<SLURDRAG_SLOP) continue;
-					horiz = ABS(xdiff) > ABS(ydiff);      /* 45 degree movement => vertical */
-					stillWithinSlop = FALSE;
-					}
-
-				p.h = p2d(pt.h); p.v = p2d(pt.v);
-				if (test->h!=p.h || test->v!=p.v) {
-					/* Don't flicker if the axis we care about hasn't changed. */
-					if (knotConstrain) {
-						if (horiz && test->h==p.h || !horiz && test->v==p.v)
-							continue;
-					}
-					if (first) if (type==S_New || type==S_Extend) {
-						up = curve>0 ? TRUE : (curve<0 ? FALSE : p.v<=end->v);
-						first = FALSE;
-						}
-					
-					DrawSlursor(paper,start,end,c0,c1,type,FALSE);	/* Erase old slursor */
-					GetPaperMouse(&pt,paper);						/* Get the most up-to-date position */
-
-					/* If we're constraining to horiz. or vertical, discard other axis */
-					if (knotConstrain) {
-						if (horiz)	pt.v = d2p(test->v);
-						else		pt.h = d2p(test->h);
-						}
-					
-					test->v = p2d(pt.v); test->h = p2d(pt.h);
-					
-					switch(type) {
-						case S_New:
-							dist = end->h - start->h;
-							dist4 = dist>>2; dist8 = dist4>>1;
-							if (dist8 > 0) dist8 = -dist8;
-							if (up) dist8 = -dist8;
-							c0->h = start->h + dist4;
-							c1->h =   end->h - dist4;
-							c0->v = start->v - dist8;
-							c1->v =   end->v - dist8;
-							break;
-						case S_Start:
-							dx = test->h - tmp.h; dy = test->v - tmp.v;
-							c0->h += dx; c0->v += dy;
-							tmp = *test;
-							break;
-						case S_C0:
-							if (constrain) {
-								dx = test->h - start->h;
-								dy = test->v - start->v;
-								c1->h = end->h - dx;
-								c1->v = end->v + dy;
-								}
-							break;
-						case S_C1:
-							if (constrain) {
-								dx = test->h - end->h;
-								dy = test->v - end->v;
-								c0->h = start->h - dx;
-								c0->v = start->v + dy;
-								}
-							break;
-						case S_End:
-							dx = test->h - tmp.h; dy = test->v - tmp.v;
-							c1->h += dx; c1->v += dy;
-							tmp = *test;
-							break;
-						case S_Whole:
-					 		dx = test->h - tmp.h; dy = test->v - tmp.v;
-					 		start->h += dx; end->h += dx;
-					 		c0->h += dx; c1->h += dx;
-					 		start->v += dy; end->v += dy;
-					 		c0->v += dy; c1->v += dy;
-					 		tmp = *test;
-					 		break;
-						}
-						
-					DrawSlursor(paper,start,end,c0,c1,type,FALSE);		/* Draw new section */
-					/* Save what we just drew for benefit of AutoScrolling */
-					keepStart = *start;
-					keepEnd = *end;
-					keepc0 = *c0;
-					keepc1 = *c1;
-					keepPaper = *paper;
-					keepType = type;
-		
-					AutoScroll();
-					}
-				}
-		/* Erase final image of cursor */
-		DrawSlursor(paper,start,end,c0,c1,type,FALSE);
-		PenNormal();
-		theSelectionType = 0;
-		
-		 /* Now determine if spline is large enough to be good (4 pixels on each axis) */
-		dist = p2d(4);
-		dx = ABS(start->h - end->h); dy = ABS(start->v-end->v);
-		return(dx>dist || dy>dist);
+	 /* Choose which point we want to follow the mouse */
+	 
+	switch(type) {
+		case S_New:		test = end; break;
+		case S_Start:	test = start; tmp = *start; break;
+		case S_C0:		test = c0; break;
+		case S_C1:		test = c1; break;
+		case S_End:		test = end; tmp = *end; break;
+		case S_Whole:	test = q; tmp = *q; break;
+		default:		return FALSE;					/* Should never happen */
 	}
+	
+	theSelectionType = SLURSOR;
+	constrain = ShiftKeyDown();
+	knotConstrain = (constrain && (type==S_Start || type==S_End));
+	stillWithinSlop = TRUE;
+	GetPaperMouse(&origPt,paper);
+
+	if (StillDown())
+		while (WaitMouseUp()) {
+			GetPaperMouse(&pt,paper);
+			if (knotConstrain && stillWithinSlop) {
+				xdiff = pt.h - origPt.h; ydiff = pt.v - origPt.v;
+				
+				/* If we're still within slop bounds, don't do anything */
+				if (ABS(xdiff)<SLURDRAG_SLOP && ABS(ydiff)<SLURDRAG_SLOP) continue;
+				horiz = ABS(xdiff) > ABS(ydiff);      /* 45 degree movement => vertical */
+				stillWithinSlop = FALSE;
+			}
+
+			ptd.h = p2d(pt.h); ptd.v = p2d(pt.v);
+			if (test->h!=ptd.h || test->v!=ptd.v) {
+				/* Don't flicker if the axis we care about hasn't changed. */
+				if (knotConstrain) {
+					if (horiz && test->h==ptd.h || !horiz && test->v==ptd.v)
+						continue;
+				}
+				if (first) if (type==S_New || type==S_Extend) {
+					up = curve>0 ? TRUE : (curve<0 ? FALSE : ptd.v<=end->v);
+					first = FALSE;
+				}
+				
+				DrawSlursor(paper,start,end,c0,c1,type,FALSE);	/* Erase old slursor */
+				GetPaperMouse(&pt,paper);						/* Get the most up-to-date position */
+
+				/* If we're constraining to horiz. or vertical, discard other axis */
+				if (knotConstrain) {
+					if (horiz)	pt.v = d2p(test->v);
+					else		pt.h = d2p(test->h);
+				}
+				
+				test->v = p2d(pt.v); test->h = p2d(pt.h);
+				
+				switch(type) {
+					case S_New:
+						dist = end->h - start->h;
+						dist4 = dist>>2; dist8 = dist4>>1;
+						if (dist8 > 0) dist8 = -dist8;
+						if (up) dist8 = -dist8;
+						c0->h = start->h + dist4;
+						c1->h =   end->h - dist4;
+						c0->v = start->v - dist8;
+						c1->v =   end->v - dist8;
+						break;
+					case S_Start:
+						dx = test->h - tmp.h; dy = test->v - tmp.v;
+						c0->h += dx; c0->v += dy;
+						tmp = *test;
+						break;
+					case S_C0:
+						if (constrain) {
+							dx = test->h - start->h;
+							dy = test->v - start->v;
+							c1->h = end->h - dx;
+							c1->v = end->v + dy;
+						}
+						break;
+					case S_C1:
+						if (constrain) {
+							dx = test->h - end->h;
+							dy = test->v - end->v;
+							c0->h = start->h - dx;
+							c0->v = start->v + dy;
+						}
+						break;
+					case S_End:
+						dx = test->h - tmp.h; dy = test->v - tmp.v;
+						c1->h += dx; c1->v += dy;
+						tmp = *test;
+						break;
+					case S_Whole:
+						dx = test->h - tmp.h; dy = test->v - tmp.v;
+						start->h += dx; end->h += dx;
+						c0->h += dx; c1->h += dx;
+						start->v += dy; end->v += dy;
+						c0->v += dy; c1->v += dy;
+						tmp = *test;
+						break;
+				}
+					
+				DrawSlursor(paper,start,end,c0,c1,type,FALSE);		/* Draw new section */
+				/* Save what we just drew for benefit of AutoScrolling */
+				keepStart = *start;
+				keepEnd = *end;
+				keepc0 = *c0;
+				keepc1 = *c1;
+				keepPaper = *paper;
+				keepType = type;
+	
+				AutoScroll();
+			}
+		}
+		
+	/* Erase final image of cursor */
+	DrawSlursor(paper,start,end,c0,c1,type,FALSE);
+	PenNormal();
+	theSelectionType = 0;
+	
+	 /* Now determine if spline is large enough to be good (4 pixels on each axis) */
+	dist = p2d(MIN_GOOD_SIZE);
+	dx = ABS(start->h - end->h); dy = ABS(start->v-end->v);
+	return (dx>dist || dy>dist);
+}
 
 /*
  *	Draw on the screen a spline from start to end, using c0 and c1 as control points.
@@ -625,11 +626,11 @@ void EndSearch()
 	
 Boolean FindSLUR(Rect *paper, Point pt, LINK aSlurL)
 	{
-		DPoint p,endKnot;  short i,nSegs=1;  PASLUR aSlur;
+		DPoint ptd,endKnot;  short i,nSegs=1;  PASLUR aSlur;
 		SplineSeg *thisSeg,seg;  Boolean found = FALSE;
 		
-		p.h = p2d(pt.h); p.v = p2d(pt.v);
-		StartSearch(paper,p);
+		ptd.h = p2d(pt.h); ptd.v = p2d(pt.v);
+		StartSearch(paper,ptd);
 		
 		aSlur = GetPASLUR(aSlurL);
 		for (i=1,thisSeg = &aSlur->seg; i<=nSegs; i++,thisSeg++) {
@@ -784,18 +785,18 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
   }
 
 /*
- *	TrackSlur lets the user pull around a slur, anchored at DPoint p, and then,
+ *	TrackSlur lets the user pull around a slur, anchored at DPoint ptd, and then,
  *	when the user lets go of the mouse, delivers the paper-relative coordinates
  *	(in DPoints) of the slur.  It returns FALSE if the slur is below a certain
  * minimum length.
  */
 
-Boolean TrackSlur(Rect *paper, DPoint p, DPoint *knot, DPoint *endKnot,
+Boolean TrackSlur(Rect *paper, DPoint ptd, DPoint *knot, DPoint *endKnot,
 							 DPoint *c0, DPoint *c1, Boolean curveUp)
 	{
-		*knot = p; *endKnot = p; *c0 = p; *c1 = p;					/* Default: degenerate */
+		*knot = ptd; *endKnot = ptd; *c0 = ptd; *c1 = ptd;			/* Default: degenerate */
 		
-		return Slursor(paper,knot,endKnot,c0,c1,S_New,&p,curveUp?1:-1);
+		return Slursor(paper,knot,endKnot,c0,c1,S_New,&ptd,curveUp?1:-1);
 	}
 
 /* ------------------------------------------------------------- GetSlurNoteLinks -- */

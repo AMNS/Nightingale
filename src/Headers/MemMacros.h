@@ -643,10 +643,6 @@
 #define StaffSHOWLEDGERS(link)		( (GetPASTAFF(link))->showLedgers)
 #define StaffSHOWLINES(link)		( (GetPASTAFF(link))->showLines)
 
-#ifdef STAFFRASTRAL
-#define StaffRASTRAL(link)			( (GetPASTAFF(link))->srastral)
-#endif
-
 #define StaffFONTSIZE(link)			( (GetPASTAFF(link))->fontSize)
 #define TimeSigNUM(link)			( (GetPATIMESIG(link))->numerator )
 #define TimeSigDENOM(link)			( (GetPATIMESIG(link))->denominator)
