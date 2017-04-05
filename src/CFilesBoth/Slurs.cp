@@ -405,7 +405,7 @@ Boolean DrawSegment(Rect *paper, SplineSeg *seg, DPoint endKnot)
 #define SLURDRAG_SLOP 2		/* in pixels */
 #define MIN_GOOD_SIZE 4		/* in pixels */
 
-static DPoint keepStart,keepEnd,keepc0,keepc1;
+static DPoint keepStart, keepEnd, keepc0, keepc1;
 static Rect keepPaper;
 static short keepType;
 
@@ -413,17 +413,17 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 					short type, DPoint *q, short curve)
 {
 	DPoint ptd, tmp;  DPoint *test;  DDIST dist, dist4, dist8, dx, dy;
-	Boolean first=TRUE,up,constrain,knotConstrain,horiz=FALSE,
+	Boolean first=TRUE, up, constrain, knotConstrain, horiz=FALSE,
 				stillWithinSlop;
-	Point pt, origPt;  short xdiff,ydiff;
+	Point pt, origPt;  short xdiff, ydiff;
 	
-	if (type == S_Extend) type = S_New;					/* Not implemented: use New */
+	if (type == S_Extend) type = S_New;						/* Not implemented: use New */
 	
 	if (type == S_New) *end = *c0 = *c1 = *start;
 	 else			   up = curve>0 ? TRUE : (curve<0 ? FALSE : (c0->v >= start->v));
 			
-	PenMode(patXor);									/* Everything will be drawn twice */
-	DrawSlursor(paper,start,end,c0,c1,type,FALSE);		/* Draw first one in before loop */
+	PenMode(patXor);										/* Everything will be drawn twice */
+	DrawSlursor(paper, start, end, c0, c1, type, FALSE);	/* Draw first one in before loop */
 
 	 /* Choose which point we want to follow the mouse */
 	 
@@ -434,18 +434,18 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 		case S_C1:		test = c1; break;
 		case S_End:		test = end; tmp = *end; break;
 		case S_Whole:	test = q; tmp = *q; break;
-		default:		return FALSE;					/* Should never happen */
+		default:		return FALSE;						/* Should never happen */
 	}
 	
 	theSelectionType = SLURSOR;
 	constrain = ShiftKeyDown();
 	knotConstrain = (constrain && (type==S_Start || type==S_End));
 	stillWithinSlop = TRUE;
-	GetPaperMouse(&origPt,paper);
+	GetPaperMouse(&origPt, paper);
 
 	if (StillDown())
 		while (WaitMouseUp()) {
-			GetPaperMouse(&pt,paper);
+			GetPaperMouse(&pt, paper);
 			if (knotConstrain && stillWithinSlop) {
 				xdiff = pt.h - origPt.h; ydiff = pt.v - origPt.v;
 				
@@ -557,52 +557,52 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 
 void DrawSlursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 						short type, Boolean dashed)
-	{
-		Point pStart,pEnd,pC0,pC1;
-		
-		/* Convert all arguments from DDIST to paper-relative points */
-		
-		pStart.h = paper->left + d2p(start->h);
-		pStart.v = paper->top + d2p(start->v);
-		pEnd.h = paper->left + d2p(end->h);
-		pEnd.v = paper->top + d2p(end->v);
-		pC0.h = paper->left + d2p(c0->h);
-		pC0.v = paper->top + d2p(c0->v);
-		pC1.h = paper->left + d2p(c1->h);
-		pC1.v = paper->top + d2p(c1->v);
-		
-		/* Draw Bezier curve plus a line to any pertinent control point */
-		
-		MoveTo(pStart.h,pStart.v);
-		BezierTo(pStart,pEnd,pC0,pC1,dashed);
+{
+	Point pStart,pEnd,pC0,pC1;
+	
+	/* Convert all arguments from DDIST to paper-relative points */
+	
+	pStart.h = paper->left + d2p(start->h);
+	pStart.v = paper->top + d2p(start->v);
+	pEnd.h = paper->left + d2p(end->h);
+	pEnd.v = paper->top + d2p(end->v);
+	pC0.h = paper->left + d2p(c0->h);
+	pC0.v = paper->top + d2p(c0->v);
+	pC1.h = paper->left + d2p(c1->h);
+	pC1.v = paper->top + d2p(c1->v);
+	
+	/* Draw Bezier curve plus a line to any pertinent control point */
+	
+	MoveTo(pStart.h,pStart.v);
+	BezierTo(pStart,pEnd,pC0,pC1,dashed);
 
-		if (type == S_C1) {
-			MoveTo(pEnd.h,pEnd.v);
-			LineTo(pC1.h,pC1.v);
-		 	}
-		 else if (type == S_C0) {
-			MoveTo(pStart.h,pStart.v);
-			LineTo(pC0.h,pC0.v);
-			}
-
-		/* Draw a box for the handle according to type */
-				
-		switch (type) {
-			case S_Start:	
-				DrawDBox(paper,*start, BOXSIZE); break;
-			case S_C0:
-				DrawDBox(paper,*c0, BOXSIZE); break;
-			case S_C1:
-				DrawDBox(paper,*c1, BOXSIZE); break;
-			case S_End:
-				DrawDBox(paper,*end, BOXSIZE); break;
-		}
+	if (type == S_C1) {
+		MoveTo(pEnd.h,pEnd.v);
+		LineTo(pC1.h,pC1.v);
 	}
+	 else if (type == S_C0) {
+		MoveTo(pStart.h,pStart.v);
+		LineTo(pC0.h,pC0.v);
+	}
+
+	/* Draw a box for the handle according to type */
+			
+	switch (type) {
+		case S_Start:	
+			DrawDBox(paper,*start, BOXSIZE); break;
+		case S_C0:
+			DrawDBox(paper,*c0, BOXSIZE); break;
+		case S_C1:
+			DrawDBox(paper,*c1, BOXSIZE); break;
+		case S_End:
+			DrawDBox(paper,*end, BOXSIZE); break;
+	}
+}
 
 void DrawTheSlursor()
-	{
-		DrawSlursor(&keepPaper,&keepStart,&keepEnd,&keepc0,&keepc1,keepType,FALSE);
-	}
+{
+	DrawSlursor(&keepPaper,&keepStart,&keepEnd,&keepc0,&keepc1,keepType,FALSE);
+}
 
 /*
  *	Draw a Bezier spline from startPt to endPt, using c0, c1 as control Points.
@@ -614,49 +614,49 @@ void DrawTheSlursor()
  */
 
 void StartSearch(Rect *paper, DPoint pt)
-	{
-		searchSpline = TRUE;
-		xSearch = paper->left + d2p(pt.h); ySearch = paper->top + d2p(pt.v);
-	}
+{
+	searchSpline = TRUE;
+	xSearch = paper->left + d2p(pt.h); ySearch = paper->top + d2p(pt.v);
+}
 
 void EndSearch()
-	{
-		searchSpline = FALSE;
-	}
+{
+	searchSpline = FALSE;
+}
 	
 Boolean FindSLUR(Rect *paper, Point pt, LINK aSlurL)
-	{
-		DPoint ptd,endKnot;  short i,nSegs=1;  PASLUR aSlur;
-		SplineSeg *thisSeg,seg;  Boolean found = FALSE;
-		
-		ptd.h = p2d(pt.h); ptd.v = p2d(pt.v);
-		StartSearch(paper,ptd);
-		
-		aSlur = GetPASLUR(aSlurL);
-		for (i=1,thisSeg = &aSlur->seg; i<=nSegs; i++,thisSeg++) {
-			if (i == nSegs)	endKnot = aSlur->endKnot;
-			 else			endKnot = (thisSeg+1)->knot;
-			GetSlurPoints(aSlurL,&seg.knot,&seg.c0,&seg.c1,&endKnot);
-			if (DrawSegment(paper,&seg,endKnot)) { found = TRUE; break; }		/* In search mode */
-			}
-		EndSearch();
-		return found;
-	}
+{
+	DPoint ptd,endKnot;  short i,nSegs=1;  PASLUR aSlur;
+	SplineSeg *thisSeg,seg;  Boolean found = FALSE;
+	
+	ptd.h = p2d(pt.h); ptd.v = p2d(pt.v);
+	StartSearch(paper,ptd);
+	
+	aSlur = GetPASLUR(aSlurL);
+	for (i=1,thisSeg = &aSlur->seg; i<=nSegs; i++,thisSeg++) {
+		if (i == nSegs)	endKnot = aSlur->endKnot;
+		 else			endKnot = (thisSeg+1)->knot;
+		GetSlurPoints(aSlurL,&seg.knot,&seg.c0,&seg.c1,&endKnot);
+		if (DrawSegment(paper,&seg,endKnot)) { found = TRUE; break; }		/* In search mode */
+		}
+	EndSearch();
+	return found;
+}
 
 void StartSlurBounds()
-	{
-		searchSpline = FALSE;
-		getBoundsSpline = TRUE;
-		slurLeft = slurTop = 32767;
-		slurRight = slurBottom = -32767;
-	}
+{
+	searchSpline = FALSE;
+	getBoundsSpline = TRUE;
+	slurLeft = slurTop = 32767;
+	slurRight = slurBottom = -32767;
+}
 
 void EndSlurBounds(Rect *paper, Rect *box)
-	{
-		SetRect(box,slurLeft,slurTop,slurRight,slurBottom);
-		OffsetRect(box,-paper->left,-paper->top);				/* Convert box to paper coords */
-		getBoundsSpline = FALSE;
-	}
+{
+	SetRect(box,slurLeft,slurTop,slurRight,slurBottom);
+	OffsetRect(box,-paper->left,-paper->top);				/* Convert box to paper coords */
+	getBoundsSpline = FALSE;
+}
 
 /*
  * Draw next segment of dashed line: alternate between a series of dash segments
@@ -665,16 +665,16 @@ void EndSlurBounds(Rect *paper, Rect *box)
  
 static void LineOrMoveTo(short x, short y, short segsPerDash, Boolean *pDoingDash,
 								short *pSegsThisDash)
-	{
-		if (*pDoingDash)	LineTo(x,y);
-		else				MoveTo(x,y);
-		
-		(*pSegsThisDash)--;
-		if (*pSegsThisDash<=0) {
-			*pDoingDash = !(*pDoingDash);
-			*pSegsThisDash = segsPerDash;
-		}
+{
+	if (*pDoingDash)	LineTo(x,y);
+	else				MoveTo(x,y);
+	
+	(*pSegsThisDash)--;
+	if (*pSegsThisDash<=0) {
+		*pDoingDash = !(*pDoingDash);
+		*pSegsThisDash = segsPerDash;
 	}
+}
 
 
 #define DASHLEN 3	/* in pixels */
@@ -798,6 +798,7 @@ Boolean TrackSlur(Rect *paper, DPoint ptd, DPoint *knot, DPoint *endKnot,
 		
 		return Slursor(paper,knot,endKnot,c0,c1,S_New,&ptd,curveUp?1:-1);
 	}
+
 
 /* ------------------------------------------------------------- GetSlurNoteLinks -- */
 /* Given a Slur object and one of its subobjects, and firstSyncL and lastSyncL (from
@@ -1208,7 +1209,7 @@ other piece. */
 
 Boolean DeleteSlurTie(Document *doc, LINK slurL)
 {
-	LINK	firstSyncL, lastSyncL, otherSlur;
+	LINK	firstSyncL, lastSyncL, otherSlurL;
 	Boolean	lastIsSys, firstIsMeas, left, right;
 	
 	if (!SlurTIE(slurL)) return FALSE;
@@ -1235,31 +1236,30 @@ Boolean DeleteSlurTie(Document *doc, LINK slurL)
 	/* If cross-system, clear tiedL/tiedR flags of notes for slur's other piece. */
 
 	if (firstIsMeas) {
-		otherSlur = XSysSlurMatch(slurL);
-		lastSyncL = SlurLASTSYNC(otherSlur);
+		otherSlurL = XSysSlurMatch(slurL);
+		lastSyncL = SlurLASTSYNC(otherSlurL);
 		if (SystemTYPE(lastSyncL)) {
-			firstSyncL = SlurFIRSTSYNC(otherSlur);
+			firstSyncL = SlurFIRSTSYNC(otherSlurL);
 			FixSyncForSlur(firstSyncL, SlurVOICE(slurL), TRUE, right);
 		}
 	}
 	
 	if (lastIsSys) {
-		otherSlur = XSysSlurMatch(slurL);
-		firstSyncL = SlurFIRSTSYNC(otherSlur);
+		otherSlurL = XSysSlurMatch(slurL);
+		firstSyncL = SlurFIRSTSYNC(otherSlurL);
 		if (MeasureTYPE(firstSyncL)) {
-			lastSyncL = SlurLASTSYNC(otherSlur);
+			lastSyncL = SlurLASTSYNC(otherSlurL);
 			FixSyncForSlur(lastSyncL, SlurVOICE(slurL), TRUE, left);
 		}
 	}
 	
 	if (firstIsMeas || lastIsSys) 
-		InvalMeasure(otherSlur, SlurSTAFF(otherSlur));
+		InvalMeasure(otherSlurL, SlurSTAFF(otherSlurL));
 
 	/* Finally, delete the slur object(s). */
 	
 	DeleteNode(doc, slurL);
-	if ((firstIsMeas || lastIsSys) && otherSlur)
-		DeleteNode(doc, otherSlur);
+	if ((firstIsMeas || lastIsSys) && otherSlurL) DeleteNode(doc, otherSlurL);
 	
 	return TRUE;
 }

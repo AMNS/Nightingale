@@ -1414,7 +1414,7 @@ LINK XSysSlurMatch(LINK slurL)
 	slurTie = SlurTIE(slurL);
 	voice = SlurVOICE(slurL);
 
-	firstPiece = SlurFirstSYSTEM(slurL);
+	firstPiece = SlurFirstIsSYSTEM(slurL);
 	if (firstPiece) {
 		otherSlurL = LVSearch(RightLINK(slurL), SLURtype, voice, GO_RIGHT, FALSE);
 		if (otherSlurL && !KIND_WANTED(otherSlurL))

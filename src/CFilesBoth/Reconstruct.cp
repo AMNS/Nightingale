@@ -860,7 +860,7 @@ void LocateJDObj(Document */*doc*/, LINK pL, LINK baseMeasL, PTIME *durArray)
 			break;
 		case SLURtype:
 			newObjL = NILINK;
-			if (SlurLastSYSTEM(pL))
+			if (SlurLastIsSYSTEM(pL))
 				newObjL = RightLINK(baseMeasL);
 			else
 				for (pTime = durArray; pTime->pTime<BIGNUM; pTime++) {
@@ -1479,7 +1479,7 @@ static void LocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durArra
 		case SLURtype:
 			newObjL = copyL = NILINK;
 			
-			if (SlurLastSYSTEM(pL))
+			if (SlurLastIsSYSTEM(pL))
 				newObjL = RightLINK(baseMeasL);
 			else
 				for (pTime = durArray; pTime->pTime<BIGNUM; pTime++) {

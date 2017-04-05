@@ -10,13 +10,13 @@
 #define NILINK ((LINK)0)
 
 /*
- *	These macros should be used very sparingly to lock a given heap's data
- *	temporarily. The first set of macros cannot be intermingled with the second
- *	set, since the second set are designed to be nestable, and the first aren't.
+ *	These macros are to lock a given heap's data at its location in memory temporarily;
+ *  they should be used very sparingly! The first set of macros cannot be intermingled
+ *	with the second, since the second set are designed to be nestable and the first
+ *	aren't.
  *
- *	In the first set, the condition being maintained is that if heap->lockLevel
- *	is greater than 0, than the heap can be assumed to be locked; if 0, then it
- *	is unlocked.
+ *	In the first set, the condition being maintained is that if heap->lockLevel is
+ *	greater than 0, then the heap is assumed to be locked; if 0, then it's unlocked.
  */
 
 #define PushLock(heap)	{ if ( (heap)->lockLevel++ <= 0) HLock((heap)->block); }
@@ -33,7 +33,8 @@
  
 #define HeapLock(heap) 		HLock((heap)->block)
 #define HeapUnlock(heap)	HUnlock((heap)->block)
- 
+
+/* ----------------------------------------------------------------------------------- */
 /*
  *	LinkToPtr(heap,link) delivers the address of the 0'th byte of the link'th
  *	object kept in a given heap.  This address is determined without type information
@@ -82,8 +83,9 @@
 #define LinkYD(link)		( *(DDIST *)((4*sizeof(LINK)) + LinkToPtr(OBJheap,link)) )
 
 /*
- * For subobjects, the staffn field is in the same place as ->left for objs;
- * however, staffn is a SignedByte.
+ * Get the staff number of (depending on object type) an object or subject, or the
+ * voice number of an object or subobject. For subobjects, the staffn field is in the
+ * same place as ->left for objs, but staffn is a SignedByte.
  */
  
 #define StaffSTAFF(link)	( *(SignedByte *)(sizeof(LINK) + LinkToPtr(STAFFheap,link)) )
@@ -116,6 +118,8 @@
 #define GRNoteVOICE(link) 	( (GetPAGRNOTE(link))->voice )
 #define SlurVOICE(link) 	( (GetPSLUR(link))->voice )
 
+/* Get various other fields that are common among different types of objects. */
+
 #define StaffSEL(link)		( (GetPASTAFF(link))->selected )
 #define ConnectSEL(link)	( (GetPACONNECT(link))->selected )
 #define NoteSEL(link)		( (GetPANOTE(link))->selected )
@@ -145,11 +149,13 @@
 #define GRNoteType(link)	( (GetPAGRNOTE(link))->subType )
 #define GraphicSubType(link)	( (GetPGRAPHIC(link))->graphicType )
 
+/* ----------------------------------------------------------------------------------- */
+
 #define SyncTIME(link)		( (GetPSYNC(link))->timeStamp )
 
 #define PartNAME(link)		( GetPPARTINFO(link)->name )
 
-
+/* ----------------------------------------------------------------------------------- */
 /*
  *	Our main data structure, the object list, is a doubly-linked list of objects,
  *	each of which can have a singly-linked list of subobjects dangling from it. 
@@ -175,7 +181,7 @@
  *	long as the heap's block doesn't get relocated!  This macro may be slightly
  *	more efficient than using the one above, since the object size is known at
  *	compile time, rather than execution time.
- * GetObject(heap,link,cast) delivers the actual object data.
+ *	GetObject(heap,link,cast) delivers the actual object data.
  */
 
 #define GetObjectPtr(heap,link,cast)	( ((cast)(*(heap)->block)) + (link) )
@@ -211,9 +217,7 @@
 
 #define ObjLType(link)	( ((PMEVENT)GetObjectPtr(OBJheap,link,PSUPEROBJECT))->type )
 
-/*
- *	Now type-specific versions of the above, for accessing objects in OBJheap
- */
+/* Type-specific versions of the above, for accessing objects in OBJheap */
 
 #define GetPMEVENT(link)	(PMEVENT)GetObjectPtr(OBJheap,link,PSUPEROBJECT)
 #define GetMEVENT(link)		(MEVENT)GetObject(OBJheap,link,PSUPEROBJECT)
@@ -262,15 +266,12 @@
 #define GetPANOTETUPLE(link)	GetObjectPtr(NOTETUPLEheap,link,PANOTETUPLE)
 #define GetPANOTEOTTAVA(link)	GetObjectPtr(NOTEOTTAVAheap,link,PANOTEOTTAVA)
 #define GetPAGRNOTE(link)		GetObjectPtr(GRNOTEheap,link,PAGRNOTE)
-
 #define GetANOTE(link)			GetObject(NOTEheap,link,PANOTE)
 #define GetPARTINFO(link)		GetObject(PARTINFOheap,link,PPARTINFO)
 #define GetKEYSIG(link)			GetObject(KEYSIGheap,link,PAKEYSIG)
 #define GetTIMESIG(link)		GetObject(TIMESIGheap,link,PATIMESIG)
 
-/*
- *	Type-specific macros for getting the next subobject via the next link field:
- */
+/* Type-specific macros for getting the next subobject via the next link field */
 
 #define NextPPARTINFO(partInfo)		GetPPARTINFO((partInfo)->next)
 #define NextPASTAFF(aStaff)			GetPASTAFF((aStaff)->next)
@@ -321,147 +322,7 @@
 #define NextNOTETUPLEL(aNoteTupleL) NextLink(NOTETUPLEheap,(aNoteTupleL))
 #define NextNOTEOTTAVAL(aNoteOttavaL) 	NextLink(NOTEOTTAVAheap,(aNoteOttavaL))
 
-/* For certain frequently accessed object and subobject fields, we use these macros */
-
-#define FirstSubObjPtr(p,link)	(p = GetPMEVENT(link), p->firstSubObj)
-#define LinkSEL(link)			( (GetPMEVENT(link))->selected )
-#define LinkVIS(link)			( (GetPMEVENT(link))->visible )
-#define LinkSOFT(link)			( (GetPMEVENT(link))->soft )
-#define LinkVALID(link)			( (GetPMEVENT(link))->valid )
-#define LinkOBJRECT(link)		( (GetPMEVENT(link))->objRect )
-#define LinkNENTRIES(link)		( (GetPMEVENT(link))->nEntries )
-#define LinkTWEAKED(link)		( (GetPMEVENT(link))->tweaked )
-#define LinkSPAREFLAG(link)		( (GetPMEVENT(link))->spareFlag )
-#define LinkLPAGE(link)			( (GetPPAGE(link))->lPage )
-#define LinkRPAGE(link)			( (GetPPAGE(link))->rPage )
-#define LinkLSYS(link)			( (GetPSYSTEM(link))->lSystem )
-#define LinkRSYS(link)			( (GetPSYSTEM(link))->rSystem )
-#define LinkLSTAFF(link)		( (GetPSTAFF(link))->lStaff )
-#define LinkRSTAFF(link)		( (GetPSTAFF(link))->rStaff )
-#define LinkLMEAS(link)			( (GetPMEASURE(link))->lMeasure )
-#define LinkRMEAS(link)			( (GetPMEASURE(link))->rMeasure )
-
-#define SheetNUM(link)			( (GetPPAGE(link))->sheetNum )
-#define SystemNUM(link)			( (GetPSYSTEM(link))->systemNum )
-#define SystemRECT(link)		( (GetPSYSTEM(link))->systemRect )
-#define SysRectTOP(link)		( SystemRECT(link).top )
-#define SysRectLEFT(link)		( SystemRECT(link).left )
-#define SysRectBOTTOM(link)		( SystemRECT(link).bottom )
-#define SysRectRIGHT(link)		( SystemRECT(link).right )
-#define SysPAGE(link)			( (GetPSYSTEM(link))->pageL )
-#define StaffSYS(link)			( (GetPSTAFF(link))->systemL )
-#define MeasSYSL(link)			( (GetPMEASURE(link))->systemL )
-#define MeasSTAFFL(link)	    ( (GetPMEASURE(link))->staffL )
-#define MeasureBBOX(link)	    ( (GetPMEASURE(link))->measureBBox )
-#define MeasPAGE(link)			( (SysPAGE(MeasSYSL(link))) )
-#define MeasureTIME(link)	    ( (GetPMEASURE(link))->lTimeStamp )
-#define MeasISFAKE(link)		( (GetPMEASURE(link))->fakeMeas )
-#define DynamFIRSTSYNC(link)	( (GetPDYNAMIC(link))->firstSyncL )
-#define DynamLASTSYNC(link)		( (GetPDYNAMIC(link))->lastSyncL )
-#define GraphicFIRSTOBJ(link)	( (GetPGRAPHIC(link))->firstObj )
-#define GraphicLASTOBJ(link)	( (GetPGRAPHIC(link))->lastObj )
-#define GraphicSTRING(link)		( (GetPAGRAPHIC(link))->strOffset )
-#define TempoFIRSTOBJ(link)		( (GetPTEMPO(link))->firstObjL )
-#define TempoSTRING(link)	 	( (GetPTEMPO(link))->strOffset )
-#define TempoMETROSTR(link)		( (GetPTEMPO(link))->metroStrOffset )
-#define TempoNOMM(link)			( (GetPTEMPO(link))->noMM )
-#define EndingFIRSTOBJ(link)	( (GetPENDING(link))->firstObjL )
-#define EndingLASTOBJ(link)		( (GetPENDING(link))->lastObjL )
-#define RptEndFIRSTOBJ(link)	( (GetPRPTEND(link))->firstObj )
-#define RptEndSTARTRPT(link)	( (GetPRPTEND(link))->startRpt )
-#define RptEndENDRPT(link)		( (GetPRPTEND(link))->endRpt )
-#define SlurFIRSTSYNC(link)		( (GetPSLUR(link))->firstSyncL )
-#define SlurLASTSYNC(link)	 	( (GetPSLUR(link))->lastSyncL )
-#define SlurTIE(link)			( (GetPSLUR(link))->tie )
-#define ClefINMEAS(link)		( (GetPCLEF(link))->inMeasure )
-#define KeySigINMEAS(link)		( (GetPKEYSIG(link))->inMeasure )
-#define TimeSigINMEAS(link)		( (GetPTIMESIG(link))->inMeasure )
-
-#define StaffTOP(link)			( (GetPASTAFF(link))->staffTop )
-#define StaffLEFT(link)			( (GetPASTAFF(link))->staffLeft )
-#define StaffRIGHT(link)		( (GetPASTAFF(link))->staffRight )
-#define StaffHEIGHT(link)		( (GetPASTAFF(link))->staffHeight )
-#define StaffCLEFTYPE(link)		( (GetPASTAFF(link))->clefType )
-#define StaffKSITEM(link)	 	( (GetPASTAFF(link))->KSItem )	
-
-#define MeasMRECT(link)			( (GetPAMEASURE(link)->measSizeRect) )
-#define MeasCLEFTYPE(link)	 	( (GetPAMEASURE(link))->clefType )
-#define MeasSUBTYPE(link)	 	( (GetPAMEASURE(link))->subType )
-#define MeasCONNABOVE(link)		( (GetPAMEASURE(link))->connAbove )
-#define MeasCONNSTAFF(link)		( (GetPAMEASURE(link))->connStaff )
-
-#define PSMeasCONNABOVE(link)	( (GetPAPSMEAS(link))->connAbove )
-#define PSMeasCONNSTAFF(link)	( (GetPAPSMEAS(link))->connStaff )
-
-#define RptEndCONNABOVE(link)	( (GetPARPTEND(link))->connAbove )
-#define RptEndCONNSTAFF(link)	( (GetPARPTEND(link))->connStaff )
-
-#define NoteBEAMED(link)		( (GetPANOTE(link))->beamed )
-#define NoteINOTTAVA(link)		( (GetPANOTE(link))->inOttava )
-#define NoteINTUPLET(link)		( (GetPANOTE(link))->inTuplet )
-#define NoteXD(link)		 	( (GetPANOTE(link))->xd )
-#define NoteYD(link)			( (GetPANOTE(link))->yd )
-#define NoteYQPIT(link)			( (GetPANOTE(link))->yqpit )
-#define NoteNUM(link)			( (GetPANOTE(link))->noteNum )
-#define NoteINCHORD(link)		( (GetPANOTE(link))->inChord )
-#define NoteYSTEM(link)			( (GetPANOTE(link))->ystem )
-#define NoteYMOVEDOTS(link)		( (GetPANOTE(link))->ymovedots )
-#define NoteREST(link)			( (GetPANOTE(link))->rest )
-#define NoteACC(link)			( (GetPANOTE(link))->accident )
-#define NoteCOURTESYACC(link)	( (GetPANOTE(link))->courtesyAcc )
-#define NoteACCSOFT(link)		( (GetPANOTE(link))->accSoft )
-#define NotePLAYDUR(link)		( (GetPANOTE(link))->playDur )
-#define NoteTIEDL(link)		 	( (GetPANOTE(link))->tiedL )
-#define NoteTIEDR(link)		 	( (GetPANOTE(link))->tiedR )
-#define NoteSLURREDL(link)		( (GetPANOTE(link))->slurredL )
-#define NoteSLURREDR(link)		( (GetPANOTE(link))->slurredR )
-#define NoteFIRSTMOD(link)		( (GetPANOTE(link))->firstMod )
-#define NoteMERGED(link)		( (GetPANOTE(link))->merged )
-#define NoteAPPEAR(link)		( (GetPANOTE(link))->headShape )
-#define NoteNDOTS(link)		 	( (GetPANOTE(link))->ndots )
-#define NoteXMOVEACC(link)		( (GetPANOTE(link))->xmoveAcc )
-#define NoteXMOVEDOTS(link)		( (GetPANOTE(link))->xmovedots )
-
-#define GRNoteBEAMED(link)		( (GetPAGRNOTE(link))->beamed )
-#define GRNoteINOTTAVA(link)	( (GetPAGRNOTE(link))->inOttava )
-#define GRNoteXD(link)		 	( (GetPAGRNOTE(link))->xd )
-#define GRNoteYD(link)			( (GetPAGRNOTE(link))->yd )
-#define GRNoteYQPIT(link)		( (GetPAGRNOTE(link))->yqpit )
-#define GRNoteNUM(link)			( (GetPAGRNOTE(link))->noteNum )
-#define GRNoteINCHORD(link)		( (GetPAGRNOTE(link))->inChord )
-#define GRNoteYSTEM(link)		( (GetPAGRNOTE(link))->ystem )
-#define GRNoteACC(link)			( (GetPAGRNOTE(link))->accident )
-#define GRNoteCOURTESYACC(link) ( (GetPAGRNOTE(link))->courtesyAcc )
-#define GRNoteACCSOFT(link)		( (GetPAGRNOTE(link))->accSoft )
-#define GRNoteSUBTYPE(link)		( (GetPAGRNOTE(link))->subType )
-#define GRNoteFIRSTMOD(link)	( (GetPAGRNOTE(link))->firstMod )
-#define GRNoteXMOVEACC(link)	( (GetPAGRNOTE(link))->xmoveAcc )
-
-#define ClefXD(link)			( (GetPACLEF(link))->xd )
-#define KeySigXD(link)		 	( (GetPAKEYSIG(link))->xd )
-#define TimeSigXD(link)		 	( (GetPATIMESIG(link))->xd )
-#define DynamicXD(link)		 	( (GetPADYNAMIC(link))->xd )
-
-#define BeamCrossSYS(link)		( (GetPBEAMSET(link))->crossSystem )
-#define BeamFirstSYS(link)		( (GetPBEAMSET(link))->firstSystem )
-#define BeamCrossSTAFF(link)	( (GetPBEAMSET(link))->crossStaff )
-#define SlurCrossSYS(link)		( (GetPSLUR(link))->crossSystem )
-
-/*
- * SlurFirstSYSTEM considers the possibility of SlurLASTSYNC being non-existent: this
- * can never occur in a normal valid object list, but it happens inside RfmtSystems,
- * and this makes it possible for FixCrossSysSlurs to use SlurFirstSYSTEM.
- */
-#define _SlurFirstSYSTEM(pL)	( (SystemTYPE(SlurLASTSYNC(pL))) )			/* Boolean, not link */
-#define SlurFirstSYSTEM(pL)	(SlurLASTSYNC(pL)? _SlurFirstSYSTEM(pL) : TRUE)	/* Boolean, not link */
-
-#define SlurLastSYSTEM(pL)	 	( (MeasureTYPE(SlurFIRSTSYNC(pL))) )		/* Boolean, not link */
-#define SlurCrossSTAFF(link)	( (GetPSLUR(link))->crossStaff )
-#define DynamCrossSYS(link)		( (GetPDYNAMIC(link))->crossSys )
-#define DynamFirstSYSTEM(pL)	( (SystemTYPE(DynamLASTSYNC(pL))) )			/* Boolean, not link */
-#define DynamLastSYSTEM(pL)		( (MeasureTYPE(DynamFIRSTSYNC(pL))) )		/* Boolean, not link */
-#define GraceBEAM(link)			( (GetPBEAMSET(link))->grace )
-#define BeamRESTS(link)			( (GetPBEAMSET(link))->beamRests )
+/* Type-specific macros to say if an obj is of that type, two objs are the same type, etc. */
 
 #define HeaderTYPE(link)		( (ObjLType(link)==HEADERtype) )
 #define TailTYPE(link)			( (ObjLType(link)==TAILtype) )
@@ -487,12 +348,15 @@
 #define TempoTYPE(link)		 	( (ObjLType(link)==TEMPOtype) )
 #define EndingTYPE(link)		( (ObjLType(link)==ENDINGtype) )
 #define SameTYPE(link1,link2)	( (ObjLType(link1)==ObjLType(link2)) )
-#define JustTYPE(link)			( objTable[ObjLType(link)].justType )
 #define J_ITTYPE(link)			( JustTYPE(link)==J_IT )
 #define J_IPTYPE(link)			( JustTYPE(link)==J_IP )
 #define J_DTYPE(link)			( JustTYPE(link)==J_D )
 #define J_STRUCTYPE(link)		( JustTYPE(link)==J_STRUC )
 #define GenlJ_DTYPE(link)		( GraphicTYPE(pL) || EndingTYPE(pL) || TempoTYPE(pL) )
+
+/* Get an object's justification type */
+
+#define JustTYPE(link)			( objTable[ObjLType(link)].justType )
 
 /* These macros take specific Documents as arguments */
 
@@ -601,8 +465,8 @@
 
 #define DMainNote(doc,link)		(!DNoteINCHORD(doc,link) || DNoteYD(doc,link)!=DNoteYSTEM(doc,link))
 
-/* ====================================================================================
- *
+/* ----------------------------------------------------------------------------------- */
+/*
  * To facilitate debugging, define a macro version of LinkToPtr and versions of some
  *	basic macros that call it. This was useful long ago because the THINK C Debugger
  *	refused to evaluate expressions that call the LinkToPtr function because it didn't
@@ -623,178 +487,319 @@
 #define _NoteSTAFF(link) 		( *(SignedByte *)(sizeof(LINK) + _LinkToPtr(NOTEheap,link)) )
 
 
-/* ==================================================================================== */
-/* Macros for the OMRAS "MemMacroizing" project, mostly by Steve Hart */
+/* ----------------------------------------------------------------------------------- */
+/* Macros for acccessing various other fields of subobjects (mostly) or objects. (FWIW,
+170 of these are from the OMRAS "MemMacroizing" project, mostly by Steve Hart.) */
 
-#define NoteBeamBPSYNC(link)		( (GetPANOTEBEAM(link))->bpSync )
-#define TimeSigYD(link)		  		( (GetPATIMESIG(link))->yd )
-#define NotePTIME(link)				( (GetPANOTE(link))->pTime ) 
-#define KeySigNKSITEMS(link)		( (GetPAKEYSIG(link))->nKSItems ) 
-#define MeasNKSITEMS(link)			( (GetPAMEASURE(link))->nKSItems )
-#define MeasTIMESIGTYPE(link)		( (GetPAMEASURE(link))->timeSigType )
-#define MeasDynamType(link)			( (GetPAMEASURE(link))->dynamicType )
-#define MeasNUM(link)				( (GetPAMEASURE(link))->numerator )
-#define MeasDENOM(link)				( (GetPAMEASURE(link))->denominator)
-#define StaffNKSITEMS(link)			( (GetPASTAFF(link))->nKSItems )
-#define StaffTIMESIGTYPE(link)		( (GetPASTAFF(link))->timeSigType )
-#define StaffDynamType(link)		( (GetPASTAFF(link))->dynamicType )
-#define StaffNUM(link)				( (GetPASTAFF(link))->numerator )
-#define StaffDENOM(link)			( (GetPASTAFF(link))->denominator)
-#define StaffSHOWLEDGERS(link)		( (GetPASTAFF(link))->showLedgers)
-#define StaffSHOWLINES(link)		( (GetPASTAFF(link))->showLines)
+#define FirstSubObjPtr(p,link)		(p = GetPMEVENT(link), p->firstSubObj)			
 
-#define StaffFONTSIZE(link)			( (GetPASTAFF(link))->fontSize)
-#define TimeSigNUM(link)			( (GetPATIMESIG(link))->numerator )
-#define TimeSigDENOM(link)			( (GetPATIMESIG(link))->denominator)
-#define NoteONVELOCITY(link)	 	( (GetPANOTE(link))->onVelocity )
-#define NoteTEMPFLAG(link)	 		( (GetPANOTE(link))->tempFlag)
-#define NoteTupleTPSYNC(link)	 	( (GetPANOTETUPLE(link))->tpSync)
-#define GRNoteTEMPFLAG(link)	 	( (GetPAGRNOTE(link))->tempFlag)
-#define GRNoteVIS(link)				( (GetPAGRNOTE(link))->visible )
-#define GRNoteOtherStemSide(link)	( (GetPAGRNOTE(link))->otherStemSide )
-#define SlurBOUNDS(link)			( (GetPASLUR(link))->bounds )
-#define ConnectCONNLEVEL(link)		( (GetPACONNECT(link))->connLevel )
-#define ConnectSTAFFBELOW(link)		( (GetPACONNECT(link))->staffBelow )
-#define ConnectSTAFFABOVE(link)		( (GetPACONNECT(link))->staffAbove )
+#define BeamCrossSTAFF(link)		( (GetPBEAMSET(link))->crossStaff )			
+#define BeamCrossSYS(link)			( (GetPBEAMSET(link))->crossSystem )		
+#define BeamFirstSYS(link)			( (GetPBEAMSET(link))->firstSystem )		
+#define BeamRESTS(link)				( (GetPBEAMSET(link))->beamRests )	
+
+#define ClefFILLER1(link)		 	( (GetPACLEF(link))->filler1)	
+#define ClefFILLER2(link)		 	( (GetPACLEF(link))->filler2)	
+#define ClefINMEAS(link)			( (GetPCLEF(link))->inMeasure )		
+#define ClefSMALL(link)				( (GetPACLEF(link))->small )
+#define ClefSOFT(link)				( (GetPACLEF(link))->soft)
+#define ClefSTAFFN(link)			( (GetPACLEF(link))->staffn )	
+#define ClefXD(link)				( (GetPACLEF(link))->xd )	
+#define ClefYD(link)		 	 	( (GetPACLEF(link))->yd )
+
+#define ConnectCONNLEVEL(link)		( (GetPACONNECT(link))->connLevel )		
+#define ConnectCONNTYPE(link)		( (GetPACONNECT(link))->connectType )		
+#define ConnectFILLER(link)		 	( (GetPACONNECT(link))->filler)	
+#define ConnectFIRSTPART(link)		( (GetPACONNECT(link))->firstPart)		
+#define ConnectLASTPART(link)		( (GetPACONNECT(link))->lastPart)		
+#define ConnectSTAFFABOVE(link)		( (GetPACONNECT(link))->staffAbove )		
+#define ConnectSTAFFBELOW(link)		( (GetPACONNECT(link))->staffBelow )		
 #define ConnectXD(link)				( (GetPACONNECT(link))->xd )
 #define ConnectYD(link)				( (GetPACONNECT(link))->yd )
-#define NoteVIS(link)				( (GetPANOTE(link))->visible ) 
-#define NoteOtherStemSide(link)		( (GetPANOTE(link))->otherStemSide )
 
-#define ModNRMODCODE(link)			( (GetPAMODNR(link))->modCode )
-#define ModNRXSTD(link)				( (GetPAMODNR(link))->xstd )
-#define NoteSMALL(link)				( (GetPANOTE(link))->small ) 
-#define ConnectCONNTYPE(link)		( (GetPACONNECT(link))->connectType )
-#define DynamicENDXD(link)			( (GetPADYNAMIC(link))->endxd)
-#define DynamicENDYD(link)			( (GetPADYNAMIC(link))->endyd)
-#define DynamicOTHERWIDTH(link)		( (GetPADYNAMIC(link))->otherWidth)
-#define DynamicMOUTHWIDTH(link)		( (GetPADYNAMIC(link))->mouthWidth)
-#define DynamicVIS(link)			( (GetPADYNAMIC(link))->visible )
-#define DynamicSMALL(link)			( (GetPADYNAMIC(link))->small )
-#define RptEndVIS(link)				( (GetPARPTEND(link))->visible )
-#define MeasMEASURENUM(link)		( (GetPAMEASURE(link))->measureNum )
-#define MeasYMNSTDOFFSET(link)		( (GetPAMEASURE(link))->yMNStdOffset )
-#define MeasXMNSTDOFFSET(link)		( (GetPAMEASURE(link))->xMNStdOffset )
-#define SlurSTARTPT(link)			( (GetPASLUR(link))->startPt)
-#define SlurENDPT(link)				( (GetPASLUR(link))->endPt)
-#define SlurKNOT(link)				( (GetPASLUR(link))->seg.knot)
-#define SlurENDKNOT(link)			( (GetPASLUR(link))->endKnot)
-#define SlurSEG(link)				( (GetPASLUR(link))->seg)
-#define SlurDASHED(link)			( (GetPASLUR(link))->dashed)
-#define ClefYD(link)		 	 	( (GetPACLEF(link))->yd )
+#define DynamCrossSYS(link)			( (GetPDYNAMIC(link))->crossSys )		
+#define DynamFIRSTSYNC(link)		( (GetPDYNAMIC(link))->firstSyncL )			
+#define DynamicENDXD(link)			( (GetPADYNAMIC(link))->endxd)	
+#define DynamicENDYD(link)			( (GetPADYNAMIC(link))->endyd)	
+#define DynamicMOUTHWIDTH(link)		( (GetPADYNAMIC(link))->mouthWidth)		
+#define DynamicOTHERWIDTH(link)		( (GetPADYNAMIC(link))->otherWidth)		
+#define DynamicSMALL(link)			( (GetPADYNAMIC(link))->small )	
+#define DynamicSOFT(link)			( (GetPADYNAMIC(link))->soft)	
+#define DynamicSTAFFN(link)			( (GetPADYNAMIC(link))->staffn )	
+#define DynamicType(link)			( (GetPADYNAMIC(link))->subType)	
+#define DynamicVIS(link)			( (GetPADYNAMIC(link))->visible )	
+#define DynamicXD(link)				( (GetPADYNAMIC(link))->xd )	
 #define DynamicYD(link)		 	 	( (GetPADYNAMIC(link))->yd )
+#define DynamLASTSYNC(link)			( (GetPDYNAMIC(link))->lastSyncL )		
+#define DynamFirstIsSYSTEM(pL)		( (SystemTYPE(DynamLASTSYNC(pL))) )			/* Boolean, not link */
+#define DynamLastIsSYSTEM(pL)		( (MeasureTYPE(DynamFIRSTSYNC(pL))) )		/* Boolean, not link */
+#define DynamSubType(link)			( (GetPADYNAMIC(link))->subType)	
 
-#define NoteOttavaOPSYNC(link)		( (GetPANOTEOTTAVA(link))->opSync) 
-#define SlurLASTIND(link)			( (GetPASLUR(link))->lastInd)
-#define SlurFIRSTIND(link)			( (GetPASLUR(link))->firstInd)
-#define ModNRYSTDPIT(link)			( (GetPAMODNR(link))->ystdpit)
-#define MeasOLDFAKEMEAS(link)		( (GetPAMEASURE(link))->oldFakeMeas)
-#define KeySigSOFT(link)			( (GetPAKEYSIG(link))->soft)
-#define TimeSigSOFT(link)			( (GetPATIMESIG(link))->soft)
+#define EndingFIRSTOBJ(link)		( (GetPENDING(link))->firstObjL )			
+#define EndingLASTOBJ(link)			( (GetPENDING(link))->lastObjL )		
 
-#define KeySigKSITEM(link)			( (GetPAKEYSIG(link))->KSItem)
-#define DynamicType(link)			( (GetPADYNAMIC(link))->subType)
-#define DynamicSOFT(link)			( (GetPADYNAMIC(link))->soft)
-#define ModNRSEL(link)				( (GetPAMODNR(link))->selected)
-#define ModNRVIS(link)				( (GetPAMODNR(link))->visible)
-#define ModNRDATA(link)				( (GetPAMODNR(link))->data)
-#define ModNRSOFT(link)				( (GetPAMODNR(link))->soft)
-#define SlurVIS(link)				( (GetPASLUR(link))->visible)
-#define SlurFILLER(link)			( (GetPASLUR(link))->filler)
-#define SlurSOFT(link)				( (GetPASLUR(link))->soft)
-#define SlurRESERVED(link)			( (GetPASLUR(link))->reserved)
-#define NoteBeamFRACGOLEFT(link)	( (GetPANOTEBEAM(link))->fracGoLeft)
-#define NoteBeamFRACS(link)			( (GetPANOTEBEAM(link))->fracs)
-#define NoteBeamSTARTEND(link)		( (GetPANOTEBEAM(link))->startend)
-#define NextGraphic(aGraphic)		( (GetPAGRAPHIC((aGraphic))->next )
-#define PSMeasSOFT(link)			( (GetPAPSMEAS(link))->soft)
-#define ClefSOFT(link)				( (GetPACLEF(link))->soft)
-#define MeasSOFT(link)				( (GetPAMEASURE(link))->soft)
-#define ConnectLASTPART(link)		( (GetPACONNECT(link))->lastPart)
-#define ConnectFIRSTPART(link)		( (GetPACONNECT(link))->firstPart)
-#define ConnectFILLER(link)		 	( (GetPACONNECT(link))->filler)
-#define NoteSOFT(link)				( (GetPANOTE(link))->soft)
-#define NoteOFFVELOCITY(link)		( (GetPANOTE(link))->offVelocity)
-#define NoteUNPITCHED(link)			( (GetPANOTE(link))->unpitched)
-#define NoteMICROPITCH(link)		( (GetPANOTE(link))->micropitch)
-#define NoteFILLERN(link)			( (GetPANOTE(link))->fillerN)
-#define NotePLAYTIMEDELTA(link)		( (GetPANOTE(link))->playTimeDelta)
-#define GRNoteSOFT(link)			( (GetPAGRNOTE(link))->soft)
-#define GRNoteREST(link)			( (GetPAGRNOTE(link))->rest )
-#define GRNoteONVELOCITY(link)	 	( (GetPAGRNOTE(link))->onVelocity )
-#define GRNoteOFFVELOCITY(link)	 	( (GetPAGRNOTE(link))->offVelocity )
-#define GRNoteNDOTS(link)	 		( (GetPAGRNOTE(link))->ndots )
-#define GRNoteXMOVEDOTS(link)	 	( (GetPAGRNOTE(link))->xmovedots )
-#define GRNoteYMOVEDOTS(link)	 	( (GetPAGRNOTE(link))->ymovedots )
-#define GRNotePLAYTIMEDELTA(link)	( (GetPAGRNOTE(link))->playTimeDelta)
-#define GRNotePLAYDUR(link)		 	( (GetPAGRNOTE(link))->playDur )
-#define GRNotePTIME(link)			( (GetPAGRNOTE(link))->pTime ) 
-#define GRNoteUNPITCHED(link)		( (GetPAGRNOTE(link))->unpitched)
-#define GRNoteMICROPITCH(link)		( (GetPAGRNOTE(link))->micropitch)
-#define GRNoteFILLERN(link)			( (GetPAGRNOTE(link))->fillerN)
-#define GRNoteAPPEAR(link)		 	( (GetPAGRNOTE(link))->headShape)
-#define GRNoteDOUBLEDUR(link)		( (GetPAGRNOTE(link))->doubleDur )
-#define GRNoteTIEDR(link)		 	( (GetPAGRNOTE(link))->tiedR )
-#define GRNoteTIEDL(link)	 		( (GetPAGRNOTE(link))->tiedL )
-#define GRNoteSLURREDL(link)		( (GetPAGRNOTE(link))->slurredL )
-#define GRNoteSLURREDR(link)		( (GetPAGRNOTE(link))->slurredR )
-#define GRNoteINTUPLET(link)		( (GetPAGRNOTE(link))->inTuplet )
-#define GRNoteSMALL(link)			( (GetPAGRNOTE(link))->small ) 
+#define FirstGraphicSTRING(link)	( (GetPAGRAPHIC(FirstSubLINK(link)))->strOffset )			
+#define FirstMeasMEASURENUM(link)	( (GetPAMEASURE(FirstSubLINK(link)))->measureNum )			
 
-#define StaffFILLERSTF(link)		( (GetPASTAFF(link))->fillerStf)
-#define StaffFLAGLEADING(link)		( (GetPASTAFF(link))->flagLeading)
-#define StaffMINSTEMFREE(link)		( (GetPASTAFF(link))->minStemFree)
-#define StaffLEDGERWIDTH(link)		( (GetPASTAFF(link))->ledgerWidth)
-#define StaffNOTEHEADWIDTH(link)	( (GetPASTAFF(link))->noteHeadWidth)
-#define StaffFRACBEAMWIDTH(link)	( (GetPASTAFF(link))->fracBeamWidth)
-#define StaffFILLER(link)			( (GetPASTAFF(link))->filler)
-#define ClefFILLER1(link)		 	( (GetPACLEF(link))->filler1)
-#define ClefFILLER2(link)		 	( (GetPACLEF(link))->filler2)
-#define KeySigSMALL(link)		 	( (GetPAKEYSIG(link))->small)
-#define KeySigNONSTANDARD(link)		( (GetPAKEYSIG(link))->nonstandard)
-#define KeySigFILLER1(link)		 	( (GetPAKEYSIG(link))->filler1)
-#define KeySigFILLER2(link)			( (GetPAKEYSIG(link))->filler2)
-#define TimeSigSMALL(link)			( (GetPATIMESIG(link))->small)
-#define TimeSigCONNSTAFF(link)		( (GetPATIMESIG(link))->connStaff)
-#define TimeSigFILLER(link)			( (GetPATIMESIG(link))->filler)
-#define MeasFILLER1(link)		 	( (GetPAMEASURE(link))->filler1)
-#define MeasFILLER2(link)		 	( (GetPAMEASURE(link))->filler2)
-#define PSMeasFILLER1(link)		 	( (GetPAPSMEAS(link))->filler1)
-#define RptEndFILLER(link)			( (GetPARPTEND(link))->filler)
-#define RptEndType(link)			( (GetPARPTEND(link))->subType)
-#define DynamSubType(link)			( (GetPADYNAMIC(link))->subType)
-#define StaffSPACEBELOW(link)		( (GetPASTAFF(link))->spaceBelow)
+#define GraceBEAM(link)				( (GetPBEAMSET(link))->grace )	
 
-#define NoteBeamFILLER(link)		( (GetPANOTEBEAM(link))->filler)
-#define StaffSTAFFLINES(link)		( (GetPASTAFF(link))->staffLines )
-
-#define FirstGraphicSTRING(link)	( (GetPAGRAPHIC(FirstSubLINK(link)))->strOffset )
-#define TimeSigType(link)			( (GetPATIMESIG(link))->subType )
-
-#define MeasKSITEM(link)			( (GetPAMEASURE(link))->KSItem)
-#define MeasureMEASUREVIS(link)		( (GetPAMEASURE(link))->measureVisible )
-#define FirstMeasMEASURENUM(link)	( (GetPAMEASURE(FirstSubLINK(link)))->measureNum )
-
-#define StaffSTAFFN(link)			( (GetPASTAFF(link))->staffn )
-#define NoteSTAFFN(link) 			( (GetPANOTE(link))->staffn )
-#define GRNoteSTAFFN(link) 			( (GetPAGRNOTE(link))->staffn )
-#define ClefSTAFFN(link)			( (GetPACLEF(link))->staffn )
-#define KeySigSTAFFN(link)			( (GetPAKEYSIG(link))->staffn )
-#define TimeSigSTAFFN(link)			( (GetPATIMESIG(link))->staffn )
-#define MeasureSTAFFN(link)			( (GetPAMEASURE(link))->staffn )
-#define PSMeasSTAFFN(link)			( (GetPAPSMEAS(link))->staffn )
-#define DynamicSTAFFN(link)			( (GetPADYNAMIC(link))->staffn )
-#define RptEndSTAFFN(link) 			( (GetPARPTEND(link))->staffn )
-
-#define KeySigType(link)			( (GetPAKEYSIG(link))->subType )
-
-#define MeasureCLEFTYPE(link)		( (GetPAMEASURE(link))->clefType )
-#define MeasureTIMESIGTYPE(link)    ( (GetPAMEASURE(link))->timeSigType )
-
-#define NoteDOUBLEDUR(link)			( (GetPANOTE(link))->doubleDur )
-#define ClefSMALL(link)				( (GetPACLEF(link))->small )
-
-#define GraphicNEXT(link)			( (GetPAGRAPHIC(link))->next )
+#define GraphicFIRSTOBJ(link)		( (GetPGRAPHIC(link))->firstObj )			
 #define GraphicINFO(link)			( (GetPGRAPHIC(link))->info )
+#define GraphicLASTOBJ(link)		( (GetPGRAPHIC(link))->lastObj )		
+#define GraphicNEXT(link)			( (GetPAGRAPHIC(link))->next )
+#define GraphicSTRING(link)			( (GetPAGRAPHIC(link))->strOffset )	
+
+#define GRNoteACC(link)				( (GetPAGRNOTE(link))->accident )
+#define GRNoteACCSOFT(link)			( (GetPAGRNOTE(link))->accSoft )	
+#define GRNoteAPPEAR(link)		 	( (GetPAGRNOTE(link))->headShape)
+#define GRNoteBEAMED(link)			( (GetPAGRNOTE(link))->beamed )	
+#define GRNoteCOURTESYACC(link)		( (GetPAGRNOTE(link))->courtesyAcc )			
+#define GRNoteDOUBLEDUR(link)		( (GetPAGRNOTE(link))->doubleDur )	
+#define GRNoteFILLERN(link)			( (GetPAGRNOTE(link))->fillerN)
+#define GRNoteFIRSTMOD(link)		( (GetPAGRNOTE(link))->firstMod )		
+#define GRNoteINCHORD(link)			( (GetPAGRNOTE(link))->inChord )	
+#define GRNoteINOTTAVA(link)		( (GetPAGRNOTE(link))->inOttava )		
+#define GRNoteINTUPLET(link)		( (GetPAGRNOTE(link))->inTuplet )	
+#define GRNoteMICROPITCH(link)		( (GetPAGRNOTE(link))->micropitch)	
+#define GRNoteNDOTS(link)	 		( (GetPAGRNOTE(link))->ndots )
+#define GRNoteNUM(link)				( (GetPAGRNOTE(link))->noteNum )
+#define GRNoteOFFVELOCITY(link)	 	( (GetPAGRNOTE(link))->offVelocity )	
+#define GRNoteONVELOCITY(link)	 	( (GetPAGRNOTE(link))->onVelocity )	
+#define GRNoteOtherStemSide(link)	( (GetPAGRNOTE(link))->otherStemSide )		
+#define GRNotePLAYDUR(link)		 	( (GetPAGRNOTE(link))->playDur )
+#define GRNotePLAYTIMEDELTA(link)	( (GetPAGRNOTE(link))->playTimeDelta)		
+#define GRNotePTIME(link)			( (GetPAGRNOTE(link))->pTime ) 
+#define GRNoteREST(link)			( (GetPAGRNOTE(link))->rest )
+#define GRNoteSLURREDL(link)		( (GetPAGRNOTE(link))->slurredL )	
+#define GRNoteSLURREDR(link)		( (GetPAGRNOTE(link))->slurredR )	
+#define GRNoteSMALL(link)			( (GetPAGRNOTE(link))->small ) 
+#define GRNoteSOFT(link)			( (GetPAGRNOTE(link))->soft)
+#define GRNoteSTAFFN(link) 			( (GetPAGRNOTE(link))->staffn )
+#define GRNoteSUBTYPE(link)			( (GetPAGRNOTE(link))->subType )	
+#define GRNoteTEMPFLAG(link)	 	( (GetPAGRNOTE(link))->tempFlag)	
+#define GRNoteTIEDL(link)	 		( (GetPAGRNOTE(link))->tiedL )	
+#define GRNoteTIEDR(link)		 	( (GetPAGRNOTE(link))->tiedR )	
+#define GRNoteUNPITCHED(link)		( (GetPAGRNOTE(link))->unpitched)		
+#define GRNoteVIS(link)				( (GetPAGRNOTE(link))->visible )
+#define GRNoteXD(link)		 		( (GetPAGRNOTE(link))->xd )	
+#define GRNoteXMOVEACC(link)		( (GetPAGRNOTE(link))->xmoveAcc )			
+#define GRNoteXMOVEDOTS(link)	 	( (GetPAGRNOTE(link))->xmovedots )		
+#define GRNoteYD(link)				( (GetPAGRNOTE(link))->yd )	
+#define GRNoteYMOVEDOTS(link)	 	( (GetPAGRNOTE(link))->ymovedots )		
+#define GRNoteYQPIT(link)			( (GetPAGRNOTE(link))->yqpit )		
+#define GRNoteYSTEM(link)			( (GetPAGRNOTE(link))->ystem )		
+
+#define KeySigFILLER1(link)		 	( (GetPAKEYSIG(link))->filler1)	
+#define KeySigFILLER2(link)			( (GetPAKEYSIG(link))->filler2)	
+
+#define KeySigINMEAS(link)			( (GetPKEYSIG(link))->inMeasure )		
+#define KeySigKSITEM(link)			( (GetPAKEYSIG(link))->KSItem)	
+#define KeySigNKSITEMS(link)		( (GetPAKEYSIG(link))->nKSItems ) 		
+#define KeySigNONSTANDARD(link)		( (GetPAKEYSIG(link))->nonstandard)	
+#define KeySigSMALL(link)		 	( (GetPAKEYSIG(link))->small)
+#define KeySigSOFT(link)			( (GetPAKEYSIG(link))->soft)
+#define KeySigSTAFFN(link)			( (GetPAKEYSIG(link))->staffn )
+#define KeySigType(link)			( (GetPAKEYSIG(link))->subType )
+#define KeySigXD(link)		 		( (GetPAKEYSIG(link))->xd )
+
+#define LinkLMEAS(link)				( (GetPMEASURE(link))->lMeasure )
+#define LinkLPAGE(link)				( (GetPPAGE(link))->lPage )
+#define LinkLSTAFF(link)			( (GetPSTAFF(link))->lStaff )	
+#define LinkLSYS(link)				( (GetPSYSTEM(link))->lSystem )
+#define LinkNENTRIES(link)			( (GetPMEVENT(link))->nEntries )	
+#define LinkOBJRECT(link)			( (GetPMEVENT(link))->objRect )	
+#define LinkRMEAS(link)				( (GetPMEASURE(link))->rMeasure )
+#define LinkRPAGE(link)				( (GetPPAGE(link))->rPage )
+#define LinkRSTAFF(link)			( (GetPSTAFF(link))->rStaff )	
+#define LinkRSYS(link)				( (GetPSYSTEM(link))->rSystem )
+#define LinkSEL(link)				( (GetPMEVENT(link))->selected )	
+#define LinkSOFT(link)				( (GetPMEVENT(link))->soft )	
+#define LinkSPAREFLAG(link)			( (GetPMEVENT(link))->spareFlag )		
+#define LinkTWEAKED(link)			( (GetPMEVENT(link))->tweaked )		
+#define LinkVALID(link)				( (GetPMEVENT(link))->valid )	
+#define LinkVIS(link)				( (GetPMEVENT(link))->visible )	
+
+#define MeasCLEFTYPE(link)	 		( (GetPAMEASURE(link))->clefType )		
+#define MeasCONNABOVE(link)			( (GetPAMEASURE(link))->connAbove )		
+#define MeasCONNSTAFF(link)			( (GetPAMEASURE(link))->connStaff )		
+#define MeasDENOM(link)				( (GetPAMEASURE(link))->denominator)
+#define MeasDynamType(link)			( (GetPAMEASURE(link))->dynamicType )	
+#define MeasFILLER1(link)		 	( (GetPAMEASURE(link))->filler1)	
+#define MeasFILLER2(link)		 	( (GetPAMEASURE(link))->filler2)	
+#define MeasISFAKE(link)			( (GetPMEASURE(link))->fakeMeas )		
+#define MeasKSITEM(link)			( (GetPAMEASURE(link))->KSItem)	
+#define MeasMEASURENUM(link)		( (GetPAMEASURE(link))->measureNum )		
+#define MeasMRECT(link)				( (GetPAMEASURE(link)->measSizeRect) )	
+#define MeasNKSITEMS(link)			( (GetPAMEASURE(link))->nKSItems )	
+#define MeasNUM(link)				( (GetPAMEASURE(link))->numerator )
+#define MeasOLDFAKEMEAS(link)		( (GetPAMEASURE(link))->oldFakeMeas)		
+#define MeasPAGE(link)				( (SysPAGE(MeasSYSL(link))) )	
+#define MeasSOFT(link)				( (GetPAMEASURE(link))->soft)
+#define MeasSTAFFL(link)			( (GetPMEASURE(link))->staffL )			
+#define MeasSUBTYPE(link)	 		( (GetPAMEASURE(link))->subType )		
+#define MeasSYSL(link)				( (GetPMEASURE(link))->systemL )	
+#define MeasTIMESIGTYPE(link)		( (GetPAMEASURE(link))->timeSigType )		
+#define MeasureBBOX(link)			( (GetPMEASURE(link))->measureBBox )			
+#define MeasureCLEFTYPE(link)		( (GetPAMEASURE(link))->clefType )		
+#define MeasureMEASUREVIS(link)		( (GetPAMEASURE(link))->measureVisible )		
+#define MeasureSTAFFN(link)			( (GetPAMEASURE(link))->staffn )	
+#define MeasureTIME(link)			( (GetPMEASURE(link))->lTimeStamp )			
+#define MeasureTIMESIGTYPE(link)    ( (GetPAMEASURE(link))->timeSigType )				
+#define MeasXMNSTDOFFSET(link)		( (GetPAMEASURE(link))->xMNStdOffset )		
+#define MeasYMNSTDOFFSET(link)		( (GetPAMEASURE(link))->yMNStdOffset )		
+
+#define ModNRDATA(link)				( (GetPAMODNR(link))->data)
+#define ModNRMODCODE(link)			( (GetPAMODNR(link))->modCode )	
+#define ModNRSEL(link)				( (GetPAMODNR(link))->selected)
+#define ModNRSOFT(link)				( (GetPAMODNR(link))->soft)
+#define ModNRVIS(link)				( (GetPAMODNR(link))->visible)
+#define ModNRXSTD(link)				( (GetPAMODNR(link))->xstd )
+#define ModNRYSTDPIT(link)			( (GetPAMODNR(link))->ystdpit)	
+
+#define NextGraphic(aGraphic)		( (GetPAGRAPHIC((aGraphic))->next )		
+
+#define NoteACC(link)				( (GetPANOTE(link))->accident )	
+#define NoteACCSOFT(link)			( (GetPANOTE(link))->accSoft )		
+#define NoteAPPEAR(link)			( (GetPANOTE(link))->headShape )		
+#define NoteBeamBPSYNC(link)		( (GetPANOTEBEAM(link))->bpSync )		
+#define NoteBEAMED(link)			( (GetPANOTE(link))->beamed )		
+#define NoteBeamFILLER(link)		( (GetPANOTEBEAM(link))->filler)		
+#define NoteBeamFRACGOLEFT(link)	( (GetPANOTEBEAM(link))->fracGoLeft)		
+#define NoteBeamFRACS(link)			( (GetPANOTEBEAM(link))->fracs)
+#define NoteBeamSTARTEND(link)		( (GetPANOTEBEAM(link))->startend)	
+#define NoteCOURTESYACC(link)		( (GetPANOTE(link))->courtesyAcc )		
+#define NoteDOUBLEDUR(link)			( (GetPANOTE(link))->doubleDur )
+#define NoteFILLERN(link)			( (GetPANOTE(link))->fillerN)
+#define NoteFIRSTMOD(link)			( (GetPANOTE(link))->firstMod )	
+#define NoteINCHORD(link)			( (GetPANOTE(link))->inChord )	
+#define NoteINOTTAVA(link)			( (GetPANOTE(link))->inOttava )	
+#define NoteINTUPLET(link)			( (GetPANOTE(link))->inTuplet )	
+#define NoteMERGED(link)			( (GetPANOTE(link))->merged )	
+#define NoteMICROPITCH(link)		( (GetPANOTE(link))->micropitch)	
+#define NoteNDOTS(link)		 		( (GetPANOTE(link))->ndots )
+#define NoteNUM(link)				( (GetPANOTE(link))->noteNum )
+#define NoteOFFVELOCITY(link)		( (GetPANOTE(link))->offVelocity)	
+#define NoteONVELOCITY(link)	 	( (GetPANOTE(link))->onVelocity )	
+#define NoteOtherStemSide(link)		( (GetPANOTE(link))->otherStemSide )		
+#define NoteOttavaOPSYNC(link)		( (GetPANOTEOTTAVA(link))->opSync)		
+#define NotePLAYDUR(link)			( (GetPANOTE(link))->playDur )		
+#define NotePLAYTIMEDELTA(link)		( (GetPANOTE(link))->playTimeDelta)		
+#define NotePTIME(link)				( (GetPANOTE(link))->pTime ) 
+#define NoteREST(link)				( (GetPANOTE(link))->rest )	
+#define NoteSLURREDL(link)			( (GetPANOTE(link))->slurredL )		
+#define NoteSLURREDR(link)			( (GetPANOTE(link))->slurredR )		
+#define NoteSMALL(link)				( (GetPANOTE(link))->small ) 
+#define NoteSOFT(link)				( (GetPANOTE(link))->soft)
+#define NoteSTAFFN(link) 			( (GetPANOTE(link))->staffn )	
+#define NoteTEMPFLAG(link)	 		( (GetPANOTE(link))->tempFlag)	
+#define NoteTIEDL(link)		 		( (GetPANOTE(link))->tiedL )	
+#define NoteTIEDR(link)		 		( (GetPANOTE(link))->tiedR )	
+#define NoteTupleTPSYNC(link)	 	( (GetPANOTETUPLE(link))->tpSync)		
+#define NoteUNPITCHED(link)			( (GetPANOTE(link))->unpitched)	
+#define NoteVIS(link)				( (GetPANOTE(link))->visible ) 
+#define NoteXD(link)		 		( (GetPANOTE(link))->xd )	
+#define NoteXMOVEACC(link)			( (GetPANOTE(link))->xmoveAcc )		
+#define NoteXMOVEDOTS(link)			( (GetPANOTE(link))->xmovedots )		
+#define NoteYD(link)				( (GetPANOTE(link))->yd )	
+#define NoteYMOVEDOTS(link)			( (GetPANOTE(link))->ymovedots )		
+#define NoteYQPIT(link)				( (GetPANOTE(link))->yqpit )	
+#define NoteYSTEM(link)				( (GetPANOTE(link))->ystem )	
+
+#define PSMeasCONNABOVE(link)		( (GetPAPSMEAS(link))->connAbove )			
+#define PSMeasCONNSTAFF(link)		( (GetPAPSMEAS(link))->connStaff )			
+#define PSMeasFILLER1(link)		 	( (GetPAPSMEAS(link))->filler1)	
+#define PSMeasSOFT(link)			( (GetPAPSMEAS(link))->soft)	
+#define PSMeasSTAFFN(link)			( (GetPAPSMEAS(link))->staffn )	
+
+#define RptEndCONNABOVE(link)		( (GetPARPTEND(link))->connAbove )			
+#define RptEndCONNSTAFF(link)		( (GetPARPTEND(link))->connStaff )			
+#define RptEndENDRPT(link)			( (GetPRPTEND(link))->endRpt )		
+#define RptEndFILLER(link)			( (GetPARPTEND(link))->filler)	
+#define RptEndFIRSTOBJ(link)		( (GetPRPTEND(link))->firstObj )			
+#define RptEndSTAFFN(link) 			( (GetPARPTEND(link))->staffn )	
+#define RptEndSTARTRPT(link)		( (GetPRPTEND(link))->startRpt )			
+#define RptEndType(link)			( (GetPARPTEND(link))->subType)	
+#define RptEndVIS(link)				( (GetPARPTEND(link))->visible )
+
+#define SheetNUM(link)				( (GetPPAGE(link))->sheetNum )	
+
+#define SlurBOUNDS(link)			( (GetPASLUR(link))->bounds )	
+#define SlurCrossSTAFF(link)		( (GetPSLUR(link))->crossStaff )			
+#define SlurCrossSYS(link)			( (GetPSLUR(link))->crossSystem )		
+#define SlurDASHED(link)			( (GetPASLUR(link))->dashed)	
+#define SlurENDKNOT(link)			( (GetPASLUR(link))->endKnot)	
+#define SlurENDPT(link)				( (GetPASLUR(link))->endPt)
+#define SlurFILLER(link)			( (GetPASLUR(link))->filler)	
+#define SlurFIRSTIND(link)			( (GetPASLUR(link))->firstInd)	
+#define SlurFIRSTSYNC(link)			( (GetPSLUR(link))->firstSyncL )
+	
+/* SlurFirstIsSYSTEM considers the possibility of SlurLASTSYNC being non-existent: this can
+   never occur in a normal valid object list, but it does inside RfmtSystems, and handling
+   that condition makes it possible for FixCrossSysSlurs to use SlurFirstIsSYSTEM. */
+ 
+#define _SlurFirstSYSTEM(pL)		( (SystemTYPE(SlurLASTSYNC(pL))) )			/* Boolean, not link */
+#define SlurFirstIsSYSTEM(pL)		(SlurLASTSYNC(pL)? _SlurFirstSYSTEM(pL) : TRUE)	/* Boolean, not link */		
+#define SlurKNOT(link)				( (GetPASLUR(link))->seg.knot)
+#define SlurLASTIND(link)			( (GetPASLUR(link))->lastInd)	
+#define SlurLASTSYNC(link)	 		( (GetPSLUR(link))->lastSyncL )		
+#define SlurLastIsSYSTEM(pL)	 	( (MeasureTYPE(SlurFIRSTSYNC(pL))) )		/* Boolean, not link */
+#define SlurRESERVED(link)			( (GetPASLUR(link))->reserved)	
+#define SlurSEG(link)				( (GetPASLUR(link))->seg)
+#define SlurSOFT(link)				( (GetPASLUR(link))->soft)
+#define SlurSTARTPT(link)			( (GetPASLUR(link))->startPt)	
+#define SlurTIE(link)				( (GetPSLUR(link))->tie )	
+#define SlurVIS(link)				( (GetPASLUR(link))->visible)
+
+#define StaffCLEFTYPE(link)			( (GetPASTAFF(link))->clefType )		
+#define StaffDENOM(link)			( (GetPASTAFF(link))->denominator)	
+#define StaffDynamType(link)		( (GetPASTAFF(link))->dynamicType )		
+#define StaffFILLER(link)			( (GetPASTAFF(link))->filler)	
+#define StaffFILLERSTF(link)		( (GetPASTAFF(link))->fillerStf)		
+#define StaffFLAGLEADING(link)		( (GetPASTAFF(link))->flagLeading)		
+#define StaffFONTSIZE(link)			( (GetPASTAFF(link))->fontSize)	
+#define StaffFRACBEAMWIDTH(link)	( (GetPASTAFF(link))->fracBeamWidth)			
+#define StaffHEIGHT(link)			( (GetPASTAFF(link))->staffHeight )		
+#define StaffKSITEM(link)	 		( (GetPASTAFF(link))->KSItem )		
+#define StaffLEDGERWIDTH(link)		( (GetPASTAFF(link))->ledgerWidth)		
+#define StaffLEFT(link)				( (GetPASTAFF(link))->staffLeft )	
+#define StaffMINSTEMFREE(link)		( (GetPASTAFF(link))->minStemFree)		
+#define StaffNKSITEMS(link)			( (GetPASTAFF(link))->nKSItems )	
+#define StaffNOTEHEADWIDTH(link)	( (GetPASTAFF(link))->noteHeadWidth)			
+#define StaffNUM(link)				( (GetPASTAFF(link))->numerator )
+#define StaffRIGHT(link)			( (GetPASTAFF(link))->staffRight )		
+#define StaffSHOWLEDGERS(link)		( (GetPASTAFF(link))->showLedgers)		
+#define StaffSHOWLINES(link)		( (GetPASTAFF(link))->showLines)		
+#define StaffSPACEBELOW(link)		( (GetPASTAFF(link))->spaceBelow)		
+#define StaffSTAFFLINES(link)		( (GetPASTAFF(link))->staffLines )		
+#define StaffSTAFFN(link)			( (GetPASTAFF(link))->staffn )
+#define StaffSYS(link)				( (GetPSTAFF(link))->systemL )
+#define StaffTIMESIGTYPE(link)		( (GetPASTAFF(link))->timeSigType )	
+#define StaffTOP(link)				( (GetPASTAFF(link))->staffTop )
+
+#define SysRectBOTTOM(link)			( SystemRECT(link).bottom )	
+#define SysRectLEFT(link)			( SystemRECT(link).left )	
+#define SysRectRIGHT(link)			( SystemRECT(link).right )	
+#define SysRectTOP(link)			( SystemRECT(link).top )	
+
+#define SystemNUM(link)				( (GetPSYSTEM(link))->systemNum )
+#define SysPAGE(link)				( (GetPSYSTEM(link))->pageL )
+#define SystemRECT(link)			( (GetPSYSTEM(link))->systemRect )	
+
+#define TempoFIRSTOBJ(link)			( (GetPTEMPO(link))->firstObjL )	
+#define TempoMETROSTR(link)			( (GetPTEMPO(link))->metroStrOffset )	
+#define TempoNOMM(link)				( (GetPTEMPO(link))->noMM )
+#define TempoSTRING(link)	 		( (GetPTEMPO(link))->strOffset )	
+
+#define TimeSigCONNSTAFF(link)		( (GetPATIMESIG(link))->connStaff)	
+#define TimeSigDENOM(link)			( (GetPATIMESIG(link))->denominator)	
+#define TimeSigFILLER(link)			( (GetPATIMESIG(link))->filler)	
+#define TimeSigINMEAS(link)			( (GetPTIMESIG(link))->inMeasure )		
+#define TimeSigNUM(link)			( (GetPATIMESIG(link))->numerator )	
+#define TimeSigSMALL(link)			( (GetPATIMESIG(link))->small)	
+#define TimeSigSOFT(link)			( (GetPATIMESIG(link))->soft)	
+#define TimeSigSTAFFN(link)			( (GetPATIMESIG(link))->staffn )	
+#define TimeSigType(link)			( (GetPATIMESIG(link))->subType )	
+#define TimeSigXD(link)		 		( (GetPATIMESIG(link))->xd )	
+#define TimeSigYD(link)		  		( (GetPATIMESIG(link))->yd )				
 
 #endif /* MemMacrosIncluded */

@@ -112,7 +112,7 @@ static LINK EditSysGetStartL(Document *doc, Boolean paste)
 	
 	if (SystemTYPE(doc->selStartL)) {
 		if (FirstSysInPage(doc->selStartL))		/* Default value: not obvious how doc->selStartL */
-			return doc->selStartL;					/*		could ever be at this LINK. */
+			return doc->selStartL;				/*		could ever be at this LINK. */
 		return (LinkLSYS(doc->selStartL));		/* Will clear this or paste after it. */
 	}
 	
@@ -210,13 +210,12 @@ static LINK CreateKSContext(Document *doc, LINK insertL, short nEntries, Boolean
 	keySigL = InsertNode(doc, insertL, KEYSIGtype, nEntries);
 	if (!keySigL) { NoMoreMemory(); return NILINK; }
 	
-	/* If the newContext nKSItems on staff s is non-zero, insert a
-		new keySig with nKSItems sharps or flats to establish the new
-		context for the pasted-in system.
-		Otherwise, insert a keySig with nKSItems naturals to cancel
-		the context of the previous system. */
+	/* If the newContext nKSItems on staff s is non-zero, insert a new keySig with
+		nKSItems sharps or flats to establish the new context for the pasted-in
+		system. Otherwise, insert a keySig with nKSItems naturals to cancel the
+		context of the previous system. */
 
-	aKeySigL=FirstSubLINK(keySigL);
+	aKeySigL = FirstSubLINK(keySigL);
 	for (s=1; s<=MAXSTAVES; s++)
 		if (staffMap[s]) {
 			if (newContext[s].nKSItems!=0) {
@@ -364,13 +363,12 @@ static void RespaceSystem(Document *doc, LINK sysL, RMEASDATA *rmTable, short nM
 
 void CopySystem(Document *doc)
 {
-	LINK sysL,clipSys,lastL,startL,pL;
-	short nSystems=0;
+	LINK sysL, clipSys, lastL, startL, pL;
 	
-	ReplaceHeader(doc,clipboard);
-	SetupClipDoc(doc,FALSE);
+	ReplaceHeader(doc, clipboard);
+	SetupClipDoc(doc, FALSE);
 
-	startL = EditSysGetStartL(doc,FALSE);
+	startL = EditSysGetStartL(doc, FALSE);
 	sysL = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	lastL = LastObjInSys(doc, RightLINK(sysL));
 
@@ -770,15 +768,14 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 
 	InstallDoc(doc);
 
-	/* Fix cross linkages to objects following the inserted
-		system. */
+	/* Fix cross linkages to objects following the inserted system. */
 
 	newSys = SSearch(pageL,SYSTEMtype,GO_RIGHT);
 	newStf = SSearch(newSys,STAFFtype,GO_RIGHT);
 	newMeas = SSearch(rSys,MEASUREtype,GO_LEFT);			/* Fix cross links for the */
-																		/*		last meas in new system */
+															/*		last meas in new system */
 
-	rMeas = SSearch(rSys,MEASUREtype,GO_RIGHT);			/* First meas in new rSys */
+	rMeas = SSearch(rSys,MEASUREtype,GO_RIGHT);				/* First meas in new rSys */
 
 	SysPAGE(newSys) = pageL;
 	LinkRSYS(newSys) = rSys;
@@ -794,14 +791,12 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 	sysHeight = sysRect.bottom-sysRect.top;
 	prevSysRect = SystemRECT(rSys);
 
-	/* Translate newly added system to location of previous
-		1st system in page. */
+	/* Translate newly added system to location of previous 1st system in page. */
 
 	MoveSystemY(newSys,prevSysRect.top-sysRect.top);
 	InvalRange(newSys,LastObjInSys(doc,RightLINK(newSys)));
 	
-	/* Move systemRects down for systems following the inserted
-		system. */
+	/* Move systemRects down for systems following the inserted system. */
 
 	for (succSys=rSys; succSys; succSys = LinkRSYS(succSys)) {
 		if (!SamePage(succSys, newSys)) break;			/* Avoid passing NILINK to SamePage */
@@ -810,8 +805,7 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 		InvalRange(succSys,LastObjInSys(doc,RightLINK(succSys)));
 	}
 
-	/* Fix cross linkages from objects before the inserted
-		system. */
+	/* Fix cross linkages from objects before the inserted system. */
 
 	lSys = LSSearch(LeftLINK(newSys),SYSTEMtype,ANYONE,GO_LEFT,FALSE);
 	lStaff = lSys ? SSearch(lSys,SYSTEMtype,GO_RIGHT) : NILINK;
@@ -843,8 +837,7 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 		CutNode(timeSigL);
 	}
 
-	/* Update system nums, measure nums, pTimes, handle
-		selection range. */
+	/* Update system nums, measure nums, pTimes, and handle selection range. */
 
 	UpdateSysNums(doc,doc->headL);
 	UpdateMeasNums(doc,NILINK);
@@ -864,13 +857,12 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 	
 	PSysFixStfSize(doc,newSys,rSys);
 	
-	/* Update the system left indent to set the pasted-in system's
-		left indent to doc->firstIndent. */
+	/* Update the system left indent to set the pasted-in system's left indent
+		to doc->firstIndent. */
 		
 	PSysSetFirstIndent(doc,newSys);
 
-	/* Update the system left indent for the system following the new
-		first sys. */
+	/* Update the system left indent for the system following the new first system. */
 		
 	PSysUpdateSysIndent(doc,rSys);
 	
@@ -888,7 +880,7 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 #endif
 
 	UpdateVoiceTable(doc, TRUE);
-	MEAdjustCaret(doc,TRUE);
+	MEAdjustCaret(doc, TRUE);
 }
 
 
@@ -901,26 +893,23 @@ static void PFixGraphicFont(Document *doc, LINK startL, LINK endL)
 }
 
 
-/*
- * Paste the system in the clipboard into the document before the page,
- * system or tail following the system in doc containing the insertion
- * point. Note the contrast with PastePages, which pastes the pages BEFORE
- * the page containing the insertion point.
- *
- *	Function copies the system into the document, positions it graphically,
- * and fixes up cross links and other status information such as selection
- * LINKs and system numbers.
- */
+/* Paste the system in the clipboard into the document before the page, system or tail
+ following the system in doc containing the insertion point. Note the contrast with
+ PastePages, which pastes the pages BEFORE the page containing the insertion point.
+
+ Function copies the system into the document, positions it graphically, and fixes
+ up cross links and other status information such as selection LINKs and system
+ numbers. */
 
 void PasteSystem(Document *doc)
 {
 	LINK prevL,insertL,startL,clipSys,lastL,succSys,newTS,
 		rSys,rStaff,rMeas,newPage,
 		sysL,staffL,measL,newSys,newStf,newMeas,newFirstMeas,firstLMeas;
-	short nSystems=0; DRect sysRect,prevSysRect;
+	DRect sysRect,prevSysRect;
 	DDIST sysHeight;
 
-	/* System pasted in must have same part-staff format as destination doc. */
+	/* System pasted in must have the same part-staff format as destination doc. */
 	
 	if (!CompareScoreFormat(clipboard,doc,0)) {
 		GetIndCString(strBuf, SYSPE_STRS, 3);		/* "can't Paste System into a score with different format" */
@@ -1075,8 +1064,8 @@ static Boolean GetXSysObj(LINK sysL, Boolean prev)
 			if (!prev && BeamFirstSYS(pL)) return TRUE;
 		}
 		if (SlurTYPE(pL)) {
-			if (prev && SlurLastSYSTEM(pL)) return TRUE;
-			if (!prev && SlurFirstSYSTEM(pL)) return TRUE;
+			if (prev && SlurLastIsSYSTEM(pL)) return TRUE;
+			if (!prev && SlurFirstIsSYSTEM(pL)) return TRUE;
 		}
 	}
 	return FALSE;
@@ -1125,8 +1114,8 @@ void ClearSystem(Document *doc)
 	sysRect = SystemRECT(sysL);
 	sysHeight = sysRect.bottom - sysRect.top;
 
-	/* Set the selStartL one link to the right of the last object in
-		the system to be deleted. */
+	/* Set the selStartL one link to the right of the last object in the system to
+		be deleted. */
 	lSys = LinkLSYS(sysL);
 	rSys = LinkRSYS(sysL);
 
@@ -1137,8 +1126,7 @@ void ClearSystem(Document *doc)
 	rMeas = rSys ? SSearch(rSys,MEASUREtype,GO_RIGHT) : NILINK;
 	lMeas = lSys ? LSSearch(sysL,MEASUREtype,ANYONE,GO_LEFT,FALSE) : NILINK;
 
-	/* Inval the system before deleting it while its systemRect still
-		exists. */
+	/* Inval the system before deleting it while its systemRect still exists. */
 	InvalSystem(sysL);
 	if (lSys) {
 		if (GetXSysObj(sysL,TRUE))
@@ -1149,8 +1137,7 @@ void ClearSystem(Document *doc)
 			InvalSystem(rSys);
 	}
 	
-	/* Determine whether sysL is last system on its page before
-		deleting it. */
+	/* Determine whether sysL is last system on its page before deleting it. */
 	samePage = rSys ? SamePage(sysL, rSys) : FALSE;
 
 	DeleteRange(doc,sysL,RightLINK(lastL));
@@ -1378,13 +1365,13 @@ static LINK GetPageInsertL(Document *doc, Boolean *newFirstPage)
 
 	*newFirstPage = FALSE;
 
-	/* Insertion point is at end of last page; return tailL in order to
-		insert page at end of score. */
+	/* Insertion point is at end of last page; return tailL in order to insert page
+		at end of score. */
 	if (TailTYPE(doc->selStartL))
 		return doc->selStartL;
 	
-	/* Insertion point is at end of a page; doc->selStartL is the
-		following page object. */
+	/* Insertion point is at end of a page; doc->selStartL is the following page
+		object. */
 	if (PageTYPE(doc->selStartL))
 		return doc->selStartL;
 	
@@ -1396,8 +1383,8 @@ static LINK GetPageInsertL(Document *doc, Boolean *newFirstPage)
 	else
 		pageL = LSSearch(doc->selStartL, PAGEtype, ANYONE, GO_RIGHT, FALSE);
 	
-	/* If found no page, insertion point was after the first measure
-		on the last page, so insert at end of score. */
+	/* If we found no page, insertion point was after the first measure on the last
+		page, so insert at end of score. */
 	return (pageL ? pageL : doc->tailL);
 }
 
@@ -1411,12 +1398,12 @@ static LINK GetPageInsertL(Document *doc, Boolean *newFirstPage)
 
 void PastePages(Document *doc)
 {
-	LINK prevL,insertL,oldFirstSys,pageL,sysL,masterSysL,
-			timeSigL,clipTimeSigL,clipSys,newFirstMeas;
+	LINK prevL, insertL, oldFirstSys, pageL, sysL, masterSysL, timeSigL, clipTimeSigL,
+			clipSys, newFirstMeas;
 	Boolean newFirstPage=FALSE;
 	DDIST change;
 	SearchParam pbSearch;
-	Rect paper, result; short pageNum; Boolean appending;
+	Rect paper, result;  short pageNum;  Boolean appending;
 
 	/* The pages to be pasted in must contain systems with same part-staff format as
 		the destination doc. */

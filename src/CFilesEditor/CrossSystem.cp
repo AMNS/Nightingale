@@ -188,7 +188,7 @@ short FixCrossSysSlurs(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 					}
 				}	
 
-				else if (SlurFirstSYSTEM(pL)) {
+				else if (SlurFirstIsSYSTEM(pL)) {
 					/*
 					 *	First piece of cross-system slur. If it should be non-cross-system,
 					 *	delete its other piece and make this one non-cross-system.

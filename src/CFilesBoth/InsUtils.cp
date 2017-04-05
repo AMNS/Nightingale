@@ -70,7 +70,7 @@ trying to insert symbols before an initial measure. */
 
 short ForceInMeasure(Document *doc, short x)
 {
-	DDIST sysLeft;		LINK sysL, firstMeasL;
+	DDIST sysLeft;  LINK sysL, firstMeasL;
 	
 	sysLeft = GetSysLeft(doc);
 	sysL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, GO_RIGHT, FALSE);
@@ -88,10 +88,10 @@ up outside that Rect, the insert should be cancelled. */
 
 void GetInsRect(Document *doc, LINK startL, Rect *tRectp)
 {
-	Rect		docRect,			/* portRect->bounds without scroll bar areas */
-				sysRect;
+	Rect	docRect,			/* portRect->bounds without scroll bar areas */
+			sysRect;
 	PSYSTEM	pSystem;
-	LINK		pSystemL;
+	LINK	pSystemL;
 
 	/* Get current view in paper-relative coords for current sheet */
 	docRect = doc->viewRect;
@@ -113,7 +113,7 @@ static void IDrawHairpin(Point downPt,			/* Original mouseDown */
 							Point pt,			/* new pt. */
 							Boolean left,		/* TRUE if hairpin left. */
 							PCONTEXT pContext
-						)
+							)
 {
    short   rise;
         
@@ -1172,7 +1172,7 @@ initial measure and the cross-system slur, which seems dangerous.) */
 LINK FindInsertPt(LINK pL)
 {
 	while (J_DTYPE(LeftLINK(pL))) {
-		if (SlurTYPE(LeftLINK(pL)) && SlurLastSYSTEM(LeftLINK(pL))) return pL;
+		if (SlurTYPE(LeftLINK(pL)) && SlurLastIsSYSTEM(LeftLINK(pL))) return pL;
 		pL = LeftLINK(pL);
 	}
 	

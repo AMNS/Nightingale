@@ -1336,3 +1336,13 @@ Make "slop" values more explicit via #defines. Affects AccModNRMouse.
 
 Minor cleanup. Affects MemMacros.h; AccModNRMouse, CheckUtils, ScoreInfo, Slurs.
 
+-------------------------------------------------------------------------------
+
+4-5 Apr.
+
+Reorganize MemMacros; rename some MemMacros with Boolean values to clarify their
+Boolean-ness. Affects MemMacros.h; CrossSystem, DebugUtils, Delete, File, InsUtils,
+Reconstruct, Search, SysPageEdit.
+
+Minor cleanup. Affects MemMacros.h; DebugUtils, InsUtils, Slurs, SysPageEdit.
+

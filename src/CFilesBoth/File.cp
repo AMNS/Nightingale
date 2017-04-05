@@ -674,7 +674,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 	}
 
 	/* Move all slurs to correct position in d.s., immediately before their
-		firstSyncL. If the slur is a SlurLastSYSTEM slur, move it immediately
+		firstSyncL. If the slur is a SlurLastIsSYSTEM slur, move it immediately
 		after the first invis meas, e.g. before the RightLINK of its firstSyncL. */
 		
 	if (version<='N100') {
@@ -683,7 +683,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 		for (pL = doc->headL; pL; pL = nextL) {
 			nextL = RightLINK(pL);
 			if (SlurTYPE(pL))
-				if (!SlurLastSYSTEM(pL))
+				if (!SlurLastIsSYSTEM(pL))
 					MoveNode(pL,SlurFIRSTSYNC(pL));
 				else
 					MoveNode(pL,RightLINK(SlurFIRSTSYNC(pL)));

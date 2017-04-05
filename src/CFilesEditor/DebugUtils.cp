@@ -61,7 +61,7 @@ positive height is probably pointless.  --DAB, April 2015 */
 #define ZERODIM_RECT(r)		(  (r).left==(r).right || (r).top==(r).bottom	)
 
 
-/* --------------------------------------------------------------------- DBadLink ---- */
+/* ---------------------------------------------------------------------- DBadLink --- */
 /* Given a type and a LINK, check whether the LINK is bad and return TRUE if so,
 FALSE if it's OK. Checks whether the LINK is larger than the heap currently allows,
 and if LINK is on the freelist: in either case, it's not valid. */
@@ -72,7 +72,7 @@ Boolean DBadLink(
 			Boolean allowNIL)				/* TRUE=NILINK is an acceptable value */
 {
 	HEAP *heap;  LINK link;
-	Byte *p,*start;
+	Byte *p, *start;
 
 	if (pL==NILINK) return !allowNIL;
 	
@@ -1186,9 +1186,9 @@ short DCheckNode(
 				
 			case SLURtype: {
 				short theInd, firstNoteNum, lastNoteNum;
-				PANOTE 	firstNote, lastNote;
-				LINK		firstNoteL, lastNoteL;
-				Boolean	foundFirst, foundLast;
+				PANOTE firstNote, lastNote;
+				LINK firstNoteL, lastNoteL;
+				Boolean foundFirst, foundLast;
 				
 				PushLock(SLURheap);
 				pSlur = GetPSLUR(pL);
@@ -1604,7 +1604,8 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 	
 	if (doc->selStartL!=doc->selEndL)
 		if (!LinkSEL(doc->selStartL) || !LinkSEL(LeftLINK(doc->selEndL)))
-			COMPLAIN("DCheckSel: SELECTION RANGE IS NOT OPTIMIZED.\n", pL);
+			COMPLAIN2("DCheckSel: SELECTION RANGE (%u TO %u) IS NOT OPTIMIZED.\n",
+				doc->selStartL, doc->selEndL);
 	
 	return FALSE;			
 }
@@ -2311,13 +2312,13 @@ Boolean DCheckSlurs(Document *doc)
 										voice, pL);
 						}
 					else
-						if (SlurFirstSYSTEM(pL)) {
+						if (SlurFirstIsSYSTEM(pL)) {
 							endL = LSSearch(pL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
 							tieEnd[voice] = endL;
 						}
 						else {
 							tieEnd[voice] = SlurLASTSYNC(pL);
-							if (SlurCrossSYS(pL) && !SlurFirstSYSTEM(pL))
+							if (SlurCrossSYS(pL) && !SlurFirstIsSYSTEM(pL))
 								afterNextSyncL = nextSyncL;
 							else
 								afterNextSyncL = LVSearch(RightLINK(nextSyncL), SYNCtype, voice,
@@ -2332,7 +2333,7 @@ Boolean DCheckSlurs(Document *doc)
 						{ COMPLAIN2("*DCheckSlurs: SLUR IN VOICE %d L%u WITH SLUR ALREADY IN PROGRESS.\n",
 										voice, pL); }
 					else
-						if (SlurFirstSYSTEM(pL)) {
+						if (SlurFirstIsSYSTEM(pL)) {
 							endL = LSSearch(pL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
 							slurEnd[voice] = endL;
 						}
@@ -2349,11 +2350,11 @@ Boolean DCheckSlurs(Document *doc)
 			 *	 	slur, first, last		for non-cross-system slurs
 			 */
 
-			if (SlurCrossSYS(pL) && SlurFirstSYSTEM(pL)) {
+			if (SlurCrossSYS(pL) && SlurFirstIsSYSTEM(pL)) {
 				slur2FirstOK = IsAfter(pL, SlurFIRSTSYNC(pL));
 				slur2LastOK = IsAfter(SlurLASTSYNC(pL), pL);
 			}
-			else if (SlurCrossSYS(pL) && !SlurFirstSYSTEM(pL)) {
+			else if (SlurCrossSYS(pL) && !SlurFirstIsSYSTEM(pL)) {
 				slur2FirstOK = IsAfter(SlurFIRSTSYNC(pL), pL);
 				slur2LastOK = IsAfter(pL, SlurLASTSYNC(pL));
 			}
@@ -2375,7 +2376,7 @@ Boolean DCheckSlurs(Document *doc)
 			 * cross-system slur piece of the same subtype in the voice exists and is on
 			 * the next System.
 			 */
-			if (SlurCrossSYS(pL) && SlurFirstSYSTEM(pL)) {
+			if (SlurCrossSYS(pL) && SlurFirstIsSYSTEM(pL)) {
 				otherSlurL = XSysSlurMatch(pL);
 				if (!otherSlurL)
 					{ COMPLAIN("*DCheckSlurs: SLUR L%u IS 1ST PIECE OF CROSS-SYS BUT VOICE HAS NO CROSS-SYS SLURS FOLLOWING.\n",

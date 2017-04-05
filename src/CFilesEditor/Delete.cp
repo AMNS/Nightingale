@@ -1019,8 +1019,8 @@ void FixDelCrossSysBeams(register Document *doc)
  * slurs.
  */
  
-#define CrossSysAndFirstSysSl(pL)	 	( SlurCrossSYS(pL) && SlurFirstSYSTEM(pL) )
-#define CrossSysAndSecondSysSl(pL)		( SlurCrossSYS(pL) && SlurLastSYSTEM(pL) )
+#define CrossSysAndFirstSysSl(pL)	 	( SlurCrossSYS(pL) && SlurFirstIsSYSTEM(pL) )
+#define CrossSysAndSecondSysSl(pL)		( SlurCrossSYS(pL) && SlurLastIsSYSTEM(pL) )
 
 void FixDelCrossSysSlurs(register Document *doc)
 {
@@ -1048,7 +1048,7 @@ void FixDelCrossSysSlurs(register Document *doc)
 				if (SlurTYPE(pL) && SlurVOICE(pL)==v) {
 					pSlur = GetPSLUR(pL);
 					if (pSlur->crossSystem)
-						if (SlurFirstSYSTEM(pL)) {
+						if (SlurFirstIsSYSTEM(pL)) {
 							nextSlurL = LVSearch(RightLINK(pL), SLURtype, v, GO_RIGHT, FALSE);
 							if (!nextSlurL || !CrossSysAndSecondSysSl(nextSlurL)) {
 								DeleteXSysSlur(doc, pL);
@@ -1078,8 +1078,8 @@ void FixDelCrossSysSlurs(register Document *doc)
  * incorrect <-] . 
  */
 
-#define CrossSysAndFirstSysDyn(pL)	 	( DynamCrossSYS(pL) && DynamFirstSYSTEM(pL) )
-#define CrossSysAndSecondSysDyn(pL)		( DynamCrossSYS(pL) && DynamLastSYSTEM(pL) )
+#define CrossSysAndFirstSysDyn(pL)	 	( DynamCrossSYS(pL) && DynamFirstIsSYSTEM(pL) )
+#define CrossSysAndSecondSysDyn(pL)		( DynamCrossSYS(pL) && DynamLastIsSYSTEM(pL) )
 
 void FixDelCrossSysHairpins(Document *doc)
 {
