@@ -990,7 +990,7 @@ static Boolean GetConfig()
         LogPrintf(LOG_NOTICE, "(no errors)\n");
 	
 Finish:
-	/* Make any final adjustments. N.B. Must undo these in UpdateSetupFile()! */
+	/* Make any final adjustments. NB: Must undo these in UpdateSetupFile()! */
 	
 	config.maxDocuments++;								/* to allow for clipboard doc */
 
@@ -1005,7 +1005,7 @@ all went well, FALSE if not. */
 static Boolean InitMemory(short numMasters)
 {
 #ifdef CARBON_NOMORE
-	THz thisZone; long heapSize; short orig;
+	THz thisZone;  long heapSize;  short orig;
 	
 	/* Increase stack size by decreasing heap size (thanks to DBW for the method). */
 	heapSize = (long)GetApplLimit()-(long)GetZone();
@@ -1026,8 +1026,8 @@ static Boolean InitMemory(short numMasters)
 }
 
 
-/* Initialize everything about the floating windows. NB: as of v.2.01, for a long time,
-we've had a tool palette. We've kept vestigal code for the help palette (unlikely
+/* Initialize everything about the floating windows. NB: as of v. 5.7, for a very long
+time, we've had a tool palette. We've kept vestigal code for the help palette (unlikely
 ever to be used) and for the clavier palette (fairly likely to be used someday). */
 
 static Boolean NInitFloatingWindows()
@@ -1363,14 +1363,14 @@ Boolean InitGlobals()
 		/* Pull in the permanent menus from resources and install in menu bar. */
 		
 		appleMenu = GetMenu(appleID);		if (!appleMenu) return FALSE;
-		AppendResMenu(appleMenu,'DRVR');
-		InsertMenu(appleMenu,0);
+		AppendResMenu(appleMenu, 'DRVR');
+		InsertMenu(appleMenu, 0);
 		
 		fileMenu = GetMenu(fileID);			if (!fileMenu) return FALSE;
-		InsertMenu(fileMenu,0);
+		InsertMenu(fileMenu, 0);
 		
 		editMenu = GetMenu(editID);			if (!editMenu) return FALSE;
-		InsertMenu(editMenu,0);
+		InsertMenu(editMenu, 0);
 		
 #ifdef PUBLIC_VERSION
 		if (CmdKeyDown() && OptionKeyDown())
@@ -1382,45 +1382,45 @@ Boolean InitGlobals()
 		}
 #else
 		testMenu = GetMenu(testID);			if (!testMenu) return FALSE;
-		InsertMenu(testMenu,0);
+		InsertMenu(testMenu, 0);
 #endif
 		
 		scoreMenu = GetMenu(scoreID);		if (!scoreMenu) return FALSE;
-		InsertMenu(scoreMenu,0);
+		InsertMenu(scoreMenu, 0);
 		
 		notesMenu = GetMenu(notesID);		if (!notesMenu) return FALSE;
-		InsertMenu(notesMenu,0);
+		InsertMenu(notesMenu, 0);
 		
 		groupsMenu = GetMenu(groupsID);		if (!groupsMenu) return FALSE;
-		InsertMenu(groupsMenu,0);
+		InsertMenu(groupsMenu, 0);
 		
 		viewMenu = GetMenu(viewID);			if (!viewMenu) return FALSE;
-		InsertMenu(viewMenu,0);
+		InsertMenu(viewMenu, 0);
 		
 		magnifyMenu = GetMenu(magnifyID);	if (!magnifyMenu) return FALSE;
-		InsertMenu(magnifyMenu,hierMenu);
+		InsertMenu(magnifyMenu, hierMenu);
 		
 		/* We install only one of the following menus at a time. */
 		
 		playRecMenu = GetMenu(playRecID);	if (!playRecMenu) return FALSE;
-		InsertMenu(playRecMenu,0);
+		InsertMenu(playRecMenu, 0);
 		
 #ifdef TEST_MDEF_CODE
 		MenuRef			customMenu;
 		MenuDefSpec		defSpec;
 		
 		defSpec.defType = kMenuDefProcPtr;
-		defSpec.u.defProc = NewMenuDefUPP( MyMDefProc );
+		defSpec.u.defProc = NewMenuDefUPP(MyMDefProc);
 
 		// Create a custom menu
 		//CreateCustomMenu( &defSpec, 1201, 0, &customMenu );
 		//SetMenuTitleWithCFString( customMenu, CFSTR("Sample [Custom]") );
 		//InsertMenu( customMenu, 0 );
 		//AddSampleItems( customMenu );
-		CreateCustomMenu( &defSpec, TWODOTDUR_MENU, 0, &customMenu );
-		SetMenuTitleWithCFString( customMenu, CFSTR("Graphic MDEF") );
-		InsertMenu( customMenu, 0 );
-		AddSampleItems( customMenu );
+		CreateCustomMenu(&defSpec, TWODOTDUR_MENU, 0, &customMenu);
+		SetMenuTitleWithCFString(customMenu, CFSTR("Graphic MDEF"));
+		InsertMenu(customMenu, 0);
+		AddSampleItems(customMenu);
 #endif
 		
 		masterPgMenu = GetMenu(masterPgID);	if (!masterPgMenu) return FALSE;
@@ -1434,7 +1434,7 @@ Boolean InitGlobals()
 		GetIndPattern(&paperBack, MiscPatternsID, 1);
 		GetIndPattern(&diagonalDkGray, MiscPatternsID, 2);
 		GetIndPattern(&diagonalLtGray, MiscPatternsID, 3);
-		GetIndPattern(&altDiagonalLtGray, MiscPatternsID, 4);
+		GetIndPattern(&otherLtGray, MiscPatternsID, 4);
 		
 		/* Call stub routines to load all segments needed for selection, so user
 		doesn't have to wait for them to load when he/she makes the the first
@@ -1446,9 +1446,8 @@ Boolean InitGlobals()
 	}
 
 
-/* Install the addresses of the functions that the Event Manager will call when
-any of the Apple events we handle (for now, only the core events) come in over the
-transom. */
+/* Install the addresses of the functions that the Event Manager will call when any of
+the Apple events we handle (for now, only the core events) come in over the transom. */
 
 static AEEventHandlerUPP oappUPP, odocUPP, pdocUPP, quitUPP;
 #ifdef FUTUREEVENTS

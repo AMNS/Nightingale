@@ -389,14 +389,18 @@ Boolean DCheckMeasSubobjs(
 			COMPLAIN("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD clefType.\n", pL);
 		if (aMeas->nKSItems<0 ||  aMeas->nKSItems>7)
 			COMPLAIN("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD nKSItems.\n", pL);
-		if (TSTYPE_BAD(aMeas->timeSigType))
-			COMPLAIN("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD timeSigType.\n", pL);
-		if (TSNUM_BAD(aMeas->numerator))
-			COMPLAIN("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD TIMESIG numerator.\n", pL);
-		if (TSDENOM_BAD(aMeas->denominator))
-			COMPLAIN("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD TIMESIG denominator.\n", pL);
-		if (TSDUR_BAD(aMeas->numerator, aMeas->denominator))
-			COMPLAIN("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS TIMESIG OF TOO GREAT DURATION.\n", pL);
+		if (TSTYPE_BAD(MeasTIMESIGTYPE(aMeasL)))
+			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD timeSigType %d.\n",
+						pL, MeasTIMESIGTYPE(aMeasL));
+		if (TSNUM_BAD(MeasNUMER(aMeasL)))
+			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD TIMESIG numerator %d.\n",
+						pL, MeasNUMER(aMeasL));
+		if (TSDENOM_BAD(MeasDENOM(aMeasL)))
+			COMPLAIN2("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS BAD TIMESIG denominator %d.\n",
+						pL, MeasDENOM(aMeasL));
+		if (TSDUR_BAD(MeasNUMER(aMeasL), MeasDENOM(aMeasL)))
+			COMPLAIN3("*DCheckMeasSubobjs: SUBOBJ IN MEASURE L%u HAS TIMESIG OF TOO GREAT DURATION %d/%d.\n",
+						pL, MeasNUMER(aMeasL), MeasDENOM(aMeasL));
 	}
 
 	for (missing = 0, s = 1; s<=doc->nstaves; s++)

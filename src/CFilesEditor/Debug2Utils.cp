@@ -293,12 +293,12 @@ Boolean DCheckCautionaryTS(Document *doc)
 							COMPLAIN3("DCheckCautionaryTS: Timesig at start of system in measure %d, staff %d (L%u) not anticipated.\n",
 										GetMeasNum(doc, pL), stf, pL);
 						}
-						else if (TimeSigNUM(aTSL)!=numerator[stf] || TimeSigDENOM(aTSL)!=denominator[stf])
+						else if (TimeSigNUMER(aTSL)!=numerator[stf] || TimeSigDENOM(aTSL)!=denominator[stf])
 							COMPLAIN3("DCheckCautionaryTS: Timesig at start of system in measure %d, staff %d (L%u) disagrees with anticipating timesig.\n",
 										GetMeasNum(doc, pL), stf, pL);
 					}
 					haveEndSysTS[stf] = TRUE;
-					numerator[stf] = TimeSigNUM(aTSL);
+					numerator[stf] = TimeSigNUMER(aTSL);
 					denominator[stf] = TimeSigDENOM(aTSL);
 				}
 				break;

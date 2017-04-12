@@ -48,7 +48,7 @@
 #define SFVIS_ALL_ALRT1 321				/* Cannot visify all staves */
 #define RTM_TIMESIG_ALRT 324
 #define SAVECNFG_ALRT 330
-#define USEMM_NOBI_ALRT 332				/* NOTE: all these USE... ALRTs replaced by DLOG 485 */
+#define USEMM_NOBI_ALRT 332				/* NOTE: all these USE... ALRTs are replaced by DLOG 485 */
 #define USEOMS_MM_NOBI_ALRT 333
 #define USEOMS_NOBI_ALRT 334
 #define USEMM_ALRT 335
@@ -301,10 +301,10 @@ enum {							/* Edit menu */
 	EM_____________6,
 	EM_SearchMelody,
 	EM_SearchAgain,
-	EM_LastItem = EM_SearchAgain,
-#else
-	EM_LastItem = EM_ModifierInfo,
 #endif
+	EM_____________7,
+	EM_AddTimeSigs,
+	EM_LastItem = EM_AddTimeSigs,
 	EM_Browser = EM_LastItem+2,
 	EM_Debug,
 	EM_ShowDebug,

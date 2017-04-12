@@ -110,7 +110,7 @@ GLOBAL LINK			drag1stMeas,			/* bitmap's meas range for Graphics, Tempos, &c. */
 
 GLOBAL DDIST		initStfTop1, initStfTop2;	/* FIXME: SHOULD BE doc-SPECIFIC */
 GLOBAL Pattern		diagonalDkGray,
-					diagonalLtGray, altDiagonalLtGray;
+					diagonalLtGray, otherLtGray;
 
 GLOBAL Byte			useWhichMIDI;			/* MIDIDR_CM is MacOS Carbon MIDI or MIDIDR_NONE */
 GLOBAL short		timeMMRefNum;			/* MIDI Manager time base port reference number */ 

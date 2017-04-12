@@ -20,13 +20,13 @@ static Boolean AllStavesSameSize(Document *);
 /* ---------------------------------------------------- InstallDoc and associates -- */
 
 void InstallDoc(Document *doc)
-	{
-		InstallDocHeaps(doc);
-		InstallStrPool(doc);
-		InstallMagnify(doc);
-		
-		currentDoc = doc;
-	}
+{
+	InstallDocHeaps(doc);
+	InstallStrPool(doc);
+	InstallMagnify(doc);
+	
+	currentDoc = doc;
+}
 	
 /* For a given document, set globals for use by the macros that convert to/from
 screen pixels (d2p, etc.). NB: as of this writing (v.3.1), this is called by
@@ -46,30 +46,30 @@ somewhere from 2/3 to 3/4 the setting for the equivalent even magnification. For
 */
 
 void InstallMagnify(Document *doc)
-	{
-		magMagnify = doc->magnify;
-		if (doc->magnify<0) {
-			magShift = 4-((doc->magnify-1)/2);			/* Rounds <magShift> up */
-			magRound = 8<<(-(doc->magnify-1)/2);
-		}
-		else {
-			magShift = 4-(doc->magnify/2);				/* Rounds <magShift> up */
-			magRound = 8>>(doc->magnify/2);
-		}
-		
+{
+	magMagnify = doc->magnify;
+	if (doc->magnify<0) {
+		magShift = 4-((doc->magnify-1)/2);			/* Rounds <magShift> up */
+		magRound = 8<<(-(doc->magnify-1)/2);
+	}
+	else {
+		magShift = 4-(doc->magnify/2);				/* Rounds <magShift> up */
+		magRound = 8>>(doc->magnify/2);
+	}
+	
 #ifdef TEST_MAG
-		{
-			DDIST d; short pxl, dummy;
-			pxl = d2p(160); d = p2d(pxl);
-			d = p2d(1); pxl = d2p(d);
-			d = p2d(2); pxl = d2p(d);
-			d = p2d(3); pxl = d2p(d);
-			d = p2d(4); pxl = d2p(d);
-			dummy = 0;		/* Need a breakpoint to look at vars. in debugger */
-		}
+	{
+		DDIST d; short pxl, dummy;
+		pxl = d2p(160); d = p2d(pxl);
+		d = p2d(1); pxl = d2p(d);
+		d = p2d(2); pxl = d2p(d);
+		d = p2d(3); pxl = d2p(d);
+		d = p2d(4); pxl = d2p(d);
+		dummy = 0;		/* Need a breakpoint to look at vars. in debugger */
+	}
 #endif
 
-	}
+}
 
 /*
  *	For a given document, install its heaps into the Nightingale globals, making them
@@ -78,44 +78,44 @@ void InstallMagnify(Document *doc)
  */
 
 void InstallDocHeaps(Document *doc)
-	{
-		register HEAP *hp;
-		
-		Heap = hp = doc->Heap;
-		
-		/* DO NOT CHANGE THE ORDER OF THESE ASSIGNMENTS */
-		
-		PARTINFOheap = hp++;
-		TAILheap = hp++;
-		NOTEheap = hp++;
-		RPTENDheap = hp++;
-		PAGEheap = hp++;
-		SYSTEMheap = hp++;
-		STAFFheap = hp++;
-		MEASUREheap = hp++;
-		CLEFheap = hp++;
-		KEYSIGheap = hp++;
-		TIMESIGheap = hp++;
-		NOTEBEAMheap = hp++;
-		CONNECTheap = hp++;
-		DYNAMheap = hp++;
-		MODNRheap = hp++;
-		GRAPHICheap = hp++;
-		NOTEOTTAVAheap = hp++;
-		SLURheap = hp++;
-		NOTETUPLEheap = hp++;
-		GRNOTEheap = hp++;
-		TEMPOheap = hp++;
-		SPACEheap = hp++;
-		ENDINGheap = hp++;
-		PSMEASheap = hp++;
-		OBJheap = hp++;
-	}
+{
+	register HEAP *hp;
+	
+	Heap = hp = doc->Heap;
+	
+	/* DO NOT CHANGE THE ORDER OF THESE ASSIGNMENTS! */
+	
+	PARTINFOheap = hp++;
+	TAILheap = hp++;
+	NOTEheap = hp++;
+	RPTENDheap = hp++;
+	PAGEheap = hp++;
+	SYSTEMheap = hp++;
+	STAFFheap = hp++;
+	MEASUREheap = hp++;
+	CLEFheap = hp++;
+	KEYSIGheap = hp++;
+	TIMESIGheap = hp++;
+	NOTEBEAMheap = hp++;
+	CONNECTheap = hp++;
+	DYNAMheap = hp++;
+	MODNRheap = hp++;
+	GRAPHICheap = hp++;
+	NOTEOTTAVAheap = hp++;
+	SLURheap = hp++;
+	NOTETUPLEheap = hp++;
+	GRNOTEheap = hp++;
+	TEMPOheap = hp++;
+	SPACEheap = hp++;
+	ENDINGheap = hp++;
+	PSMEASheap = hp++;
+	OBJheap = hp++;
+}
 
 void InstallStrPool(Document *doc)
-	{
-		SetStringPool(doc->stringPool);
-	}
+{
+	SetStringPool(doc->stringPool);
+}
 
 
 /*
@@ -124,17 +124,17 @@ void InstallStrPool(Document *doc)
  */
 
 Document *FirstFreeDocument()
-	{
-		register Document *doc;
-		
-		for (doc=documentTable; doc<topTable; doc++)
-			if (!doc->inUse) {
-				ZeroMem(doc, sizeof(Document));
-				return(doc);
-				}
-		
-		return(NULL);
-	}
+{
+	register Document *doc;
+	
+	for (doc=documentTable; doc<topTable; doc++)
+		if (!doc->inUse) {
+			ZeroMem(doc, sizeof(Document));
+			return(doc);
+		}
+	
+	return(NULL);
+}
 
 /*
  * Deliver pointer to document table whose window is w. Analagous to Carbon
@@ -142,29 +142,29 @@ Document *FirstFreeDocument()
  */
 
 Document *GetDocumentFromWindow(WindowPtr w)
-	{
-		register Document *doc;
-		
-		if (w==(WindowPtr)NULL)
-			return(NULL);
-			
-		for (doc=documentTable; doc<topTable; doc++)
-			if (doc->theWindow == w) {
-				return(doc);
-				}
-		
+{
+	register Document *doc;
+	
+	if (w==(WindowPtr)NULL)
 		return(NULL);
-	}
+		
+	for (doc=documentTable; doc<topTable; doc++)
+		if (doc->theWindow == w) {
+			return(doc);
+		}
+	
+	return(NULL);
+}
 	
 Boolean EqualFSSpec(FSSpec *fs1, FSSpec *fs2)
-	{
-		if (fs1->parID != fs2->parID)
-			return FALSE;
-		if (fs1->vRefNum != fs2->vRefNum)
-			return FALSE;
-		
-		return (PStrCmp(fs1->name, fs2->name));
-	}
+{
+	if (fs1->parID != fs2->parID)
+		return FALSE;
+	if (fs1->vRefNum != fs2->vRefNum)
+		return FALSE;
+	
+	return (PStrCmp(fs1->name, fs2->name));
+}
 
 /*
  *	Search for this file in this directory among all already open Documents.
@@ -172,70 +172,69 @@ Boolean EqualFSSpec(FSSpec *fs1, FSSpec *fs2)
  */
 
 Document *AlreadyInUse(unsigned char *name, short /*vrefnum*/, FSSpec *pfsSpec)
-	{
-		register Document *doc;
-		
-		for (doc=documentTable; doc<topTable; doc++)
-			if (doc->inUse && doc!=clipboard)
-				if (EqualFSSpec(&doc->fsSpec, pfsSpec))				// if(doc->vrefnum == vrefnum)
-					if (EqualString(doc->name, name, FALSE, FALSE)) return(doc);
-		return(NULL);
-	}
+{
+	register Document *doc;
+	
+	for (doc=documentTable; doc<topTable; doc++)
+		if (doc->inUse && doc!=clipboard)
+			if (EqualFSSpec(&doc->fsSpec, pfsSpec))				// if(doc->vrefnum == vrefnum)
+				if (EqualString(doc->name, name, FALSE, FALSE)) return(doc);
+	return(NULL);
+}
 
 static short NumFreeDocuments()
-	{
-		Document *doc; short n = 0;
-		
-		for (doc=documentTable; doc<topTable; doc++)
-			if (!doc->inUse) n++;
-		return(n);
-	}
+{
+	Document *doc; short n = 0;
+	
+	for (doc=documentTable; doc<topTable; doc++)
+		if (!doc->inUse) n++;
+	return(n);
+}
 	
 static short NumOpenDocuments()
-	{
-		Document *doc; short n = 0;
-		
-		for (doc=documentTable; doc<topTable; doc++)
-			if (doc->inUse) n++;
-		if (clipboard->inUse) n--;
-		
-		return(n);
-	}
+{
+	Document *doc; short n = 0;
+	
+	for (doc=documentTable; doc<topTable; doc++)
+		if (doc->inUse) n++;
+	if (clipboard->inUse) n--;
+	
+	return(n);
+}
 
 
 /*
- *	Either show or bring to front the clipboard document.  If this is the
- *	first time it's being shown, then position it on the right side of the
- *	main screen.
+ *	Either show or bring to front the clipboard document.  If this is the first time
+ *	it's being shown, then position it on the right side of the main screen.
  */
 
 void ShowClipDocument()
-	{
-		static Boolean once = TRUE; Rect scrn,bounds; Rect box;
-		
-		if (clipboard)
-			if (IsWindowVisible(clipboard->theWindow))
-				SelectWindow(clipboard->theWindow);
-			 else {
-			 	if (once) {
-			 		WindowPtr w = clipboard->theWindow;
-					scrn = GetQDScreenBitsBounds();
-					AdjustWinPosition(w);		/* Avoid conflicts with other windows */
-					GetGlobalPort(w,&box);		/* set bottom of window near screen bottom */
-					bounds = GetQDScreenBitsBounds();
-					box.bottom = bounds.bottom - 24;
-					if (box.right > bounds.right-24)
-						box.right = bounds.right - 24;
-					SizeWindow(w, box.right-box.left, box.bottom-box.top, FALSE);
-					once = FALSE;
-			 		}
-			 	if (BottomPalette != BRING_TO_FRONT)
-			 		SendBehind(clipboard->theWindow, BottomPalette);
-			 	 else
-			 		BringToFront(clipboard->theWindow);
-			 	ShowDocument(clipboard);
-				}
-	}
+{
+	static Boolean once = TRUE;  Rect scrn,bounds;  Rect box;
+	
+	if (clipboard)
+		if (IsWindowVisible(clipboard->theWindow))
+			SelectWindow(clipboard->theWindow);
+		 else {
+			if (once) {
+				WindowPtr w = clipboard->theWindow;
+				scrn = GetQDScreenBitsBounds();
+				AdjustWinPosition(w);				/* Avoid conflicts with other windows */
+				GetGlobalPort(w, &box);				/* set bottom of window near screen bottom */
+				bounds = GetQDScreenBitsBounds();
+				box.bottom = bounds.bottom - 24;
+				if (box.right > bounds.right-24)
+					box.right = bounds.right - 24;
+				SizeWindow(w, box.right-box.left, box.bottom-box.top, FALSE);
+				once = FALSE;
+			}
+			if (BottomPalette != BRING_TO_FRONT)
+				SendBehind(clipboard->theWindow, BottomPalette);
+			 else
+				BringToFront(clipboard->theWindow);
+			ShowDocument(clipboard);
+		}
+}
 
 
 /*
@@ -244,38 +243,38 @@ void ShowClipDocument()
  */
 
 void PositionWindow(WindowPtr w, Document *doc)
-	{
-		Rect box,bounds; short palWidth,palHeight;
-		
-		if (EmptyRect(&revertWinPosition)) {
-	 		/* Get width of tool palette */
-			GetWindowPortBounds((*paletteGlobals[TOOL_PALETTE])->paletteWindow,&box);
+{
+	Rect box, bounds; short palWidth, palHeight;
+	
+	if (EmptyRect(&revertWinPosition)) {
+		/* Get width of tool palette */
+		GetWindowPortBounds((*paletteGlobals[TOOL_PALETTE])->paletteWindow,&box);
 //			box = (*paletteGlobals[TOOL_PALETTE])->paletteWindow->portRect;
-			palWidth = box.right - box.left;
-			palHeight = box.bottom - box.top;
-			/* Place new document window in non-conflicting position */
-			GetGlobalPort(w,&box);							/* Set bottom of window near screen bottom */
-			bounds = GetQDScreenBitsBounds();
-			if (box.left < bounds.left+4)
-				box.left = bounds.left+4;
-			if (palWidth < palHeight)
-				box.left += palWidth;
-			MoveWindow(doc->theWindow, box.left, box.top, FALSE);
-			AdjustWinPosition(w);
-			GetGlobalPort(w, &box);
-			bounds = GetQDScreenBitsBounds();
-			box.bottom = bounds.bottom - 4;
-			if (box.right > bounds.right-4)
-				box.right = bounds.right - 4;
-			SizeWindow(doc->theWindow, box.right-box.left, box.bottom-box.top, FALSE);
-			}
-		 else {
-			MoveWindow(doc->theWindow, revertWinPosition.left, revertWinPosition.top, FALSE);
-			SizeWindow(doc->theWindow, revertWinPosition.right-revertWinPosition.left,
-						   revertWinPosition.bottom-revertWinPosition.top, FALSE);
-			SetRect(&revertWinPosition,0,0,0,0); 		 /* Make it empty again */
-			}
+		palWidth = box.right - box.left;
+		palHeight = box.bottom - box.top;
+		/* Place new document window in non-conflicting position */
+		GetGlobalPort(w,&box);							/* Set bottom of window near screen bottom */
+		bounds = GetQDScreenBitsBounds();
+		if (box.left < bounds.left+4)
+			box.left = bounds.left+4;
+		if (palWidth < palHeight)
+			box.left += palWidth;
+		MoveWindow(doc->theWindow, box.left, box.top, FALSE);
+		AdjustWinPosition(w);
+		GetGlobalPort(w, &box);
+		bounds = GetQDScreenBitsBounds();
+		box.bottom = bounds.bottom - 4;
+		if (box.right > bounds.right-4)
+			box.right = bounds.right - 4;
+		SizeWindow(doc->theWindow, box.right-box.left, box.bottom-box.top, FALSE);
 	}
+	 else {
+		MoveWindow(doc->theWindow, revertWinPosition.left, revertWinPosition.top, FALSE);
+		SizeWindow(doc->theWindow, revertWinPosition.right-revertWinPosition.left,
+					   revertWinPosition.bottom-revertWinPosition.top, FALSE);
+		SetRect(&revertWinPosition,0,0,0,0); 		 /* Make it empty again */
+	}
+}
 
 /*
  *	If fileName is non-NULL, open document file of that name in the given directory;
@@ -381,7 +380,7 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 						FSSpec *pfsSpec, Document **pDoc)
 	{
-		register WindowPtr w; register Document *doc, *d;
+		register WindowPtr w;  register Document *doc, *d;
 		short numNew; long fileVersion;
 		static char ID = '0';
 		
@@ -469,28 +468,28 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 	}
 
 /*
- *	This routine is called after preparing another document to be shown.
+ *	This routine should be called after preparing another document to be shown.
  */
 
 void ShowDocument(Document *doc)
-	{
-		RecomputeView(doc);
-		if (TopPalette) {
-			if (TopPalette != TopWindow)
-				/* Bring the TopPalette to the front and generate activate event. */
-				SelectWindow(TopPalette);
-			else {
-				/* There won't be an activate event for doc, so do it here */
-				ShowWindow(doc->theWindow);
-				HiliteWindow(doc->theWindow, TRUE);
-				ActivateDocument(doc, TRUE);
-				}
-			if (TopDocument)
-				/* Ensure the TopDocument and its controls are unhilited properly. */
-				ActivateDocument(GetDocumentFromWindow(TopDocument), FALSE);
-			}
-		ShowWindow(doc->theWindow);		
+{
+	RecomputeView(doc);
+	if (TopPalette) {
+		if (TopPalette != TopWindow)
+			/* Bring the TopPalette to the front and generate activate event. */
+			SelectWindow(TopPalette);
+		else {
+			/* There won't be an activate event for doc, so do it here */
+			ShowWindow(doc->theWindow);
+			HiliteWindow(doc->theWindow, TRUE);
+			ActivateDocument(doc, TRUE);
+		}
+		if (TopDocument)
+			/* Ensure the TopDocument and its controls are unhilited properly. */
+			ActivateDocument(GetDocumentFromWindow(TopDocument), FALSE);
 	}
+	ShowWindow(doc->theWindow);		
+}
 
 /*
  *	Close a given document, saving it if necessary, and giving it a name if
@@ -498,79 +497,80 @@ void ShowDocument(Document *doc)
  */
 
 Boolean DoCloseDocument(register Document *doc)
-	{
-		Boolean keepGoing = TRUE;
-		
-		if (doc)
-			if (IsDocumentKind(doc->theWindow))
-				if (doc == clipboard)
+{
+	Boolean keepGoing = TRUE;
+	
+	if (doc)
+		if (IsDocumentKind(doc->theWindow))
+			if (doc == clipboard)
+				HideWindow(doc->theWindow);
+			 else if (doc == searchPatDoc)
+				HideWindow(doc->theWindow);
+			 else
+				if ( (keepGoing = DocumentSaved(doc)) ) {
 					HideWindow(doc->theWindow);
-				 else if (doc == searchPatDoc)
-					HideWindow(doc->theWindow);
-				 else
-					if (keepGoing = DocumentSaved(doc)) {
-						HideWindow(doc->theWindow);
-						if (doc->vScroll) DisposeControl(doc->vScroll);
-						doc->vScroll = NULL;
-						if (doc->hScroll) DisposeControl(doc->hScroll);
-						doc->hScroll = NULL;
+					if (doc->vScroll) DisposeControl(doc->vScroll);
+					doc->vScroll = NULL;
+					if (doc->hScroll) DisposeControl(doc->hScroll);
+					doc->hScroll = NULL;
+				
+					if (doc->undo.undoRecord) DisposeHandle(doc->undo.undoRecord);
+					doc->undo.undoRecord = NULL;
 					
-						if (doc->undo.undoRecord) DisposeHandle(doc->undo.undoRecord);
-						doc->undo.undoRecord = NULL;
-						
-						DestroyAllHeaps(doc);
+					DestroyAllHeaps(doc);
 
-						doc->undo.hasUndo = FALSE;
-						
-						if (doc->stringPool) DisposeStringPool(doc->stringPool);
-						doc->stringPool = NULL;
+					doc->undo.hasUndo = FALSE;
 					
-						DisposeWindow(doc->theWindow);
-						doc->inUse = FALSE;
-						}
-		
-		return(keepGoing);
-	}
+					if (doc->stringPool) DisposeStringPool(doc->stringPool);
+					doc->stringPool = NULL;
+				
+					DisposeWindow(doc->theWindow);
+					doc->inUse = FALSE;
+				}
+	
+	return(keepGoing);
+}
 
 void ActivateDocument(register Document *doc, short activ)
-	{
-		Point pt; GrafPtr oldPort;
-		Rect portRect;
+{
+	Point pt; GrafPtr oldPort;
+	Rect portRect;
+	
+	if (doc) {
+		WindowPtr w = doc->theWindow; 
+		GetPort(&oldPort);
 		
-		if (doc) {
-			WindowPtr w = doc->theWindow; 
-			GetPort(&oldPort);
+		HiliteWindow(w, activ);
+		
+		GetWindowPortBounds(w, &portRect);
+		SetPort(GetWindowPort(w));
+		ClipRect(&portRect);
+		
+		doc->active = (activ!=0);
+		if (doc->active) {
+			HiliteControl(doc->hScroll, CTL_ACTIVE);
+			HiliteControl(doc->vScroll, CTL_ACTIVE);
+		}
+		 else {
+			HiliteControl(doc->hScroll, CTL_INACTIVE);
+			HiliteControl(doc->vScroll, CTL_INACTIVE);
+		}
 			
-			HiliteWindow(w, activ);
-			
-			GetWindowPortBounds(w, &portRect);
-			SetPort(GetWindowPort(w));
-			ClipRect(&portRect);
-			
-			if (doc->active = (activ!=0)) {
-				HiliteControl(doc->hScroll, CTL_ACTIVE);
-				HiliteControl(doc->vScroll, CTL_ACTIVE);
-				}
-			 else {
-				HiliteControl(doc->hScroll, CTL_INACTIVE);
-				HiliteControl(doc->vScroll, CTL_INACTIVE);
-				}
-				
-			pt = TOP_LEFT(doc->growRect);
-			DrawGrowIcon(w);
-			ClipRect(&doc->viewRect);
-			
-			if (!doc->masterView && !doc->showFormat)
-				MEActivateCaret(doc, activ);
-			
-			if (activ) {
-				InstallDoc(doc);
-				InstallDocMenus(doc);
-				}
-			 else
-				SetPort(oldPort);
-			}
+		pt = TOP_LEFT(doc->growRect);
+		DrawGrowIcon(w);
+		ClipRect(&doc->viewRect);
+		
+		if (!doc->masterView && !doc->showFormat)
+			MEActivateCaret(doc, activ);
+		
+		if (activ) {
+			InstallDoc(doc);
+			InstallDocMenus(doc);
+		}
+		 else
+			SetPort(oldPort);
 	}
+}
 
 /* Ensure that a given document is ready to be closed.  Ask user if any changes
 should be saved, and save them if he does.  If user says to Cancel, then return
@@ -579,29 +579,29 @@ update the Document underneath it so the user can see what it looks like before
 making the decision. */
 
 Boolean DocumentSaved(register Document *doc)
-	{
-		short itemHit; Boolean keepGoing = TRUE;
-		
-		InstallDoc(doc);
-		if (doc->masterView)
-			if (!ExitMasterView(doc))			/* Dispose all memory allocated by masterPage */
-				return FALSE;
+{
+	short itemHit; Boolean keepGoing = TRUE;
+	
+	InstallDoc(doc);
+	if (doc->masterView)
+		if (!ExitMasterView(doc))			/* Dispose all memory allocated by masterPage */
+			return FALSE;
 
-		if (doc->changed) {
-			DoUpdate(doc->theWindow);
-			ArrowCursor();
-			ParamText(doc->name, "\p", "\p", "\p");
-			PlaceAlert(saveChangesID, doc->theWindow, 0, 30);
-			itemHit = CautionAlert(saveChangesID, NULL);
-			if (itemHit == Cancel) keepGoing = FALSE;
-			if (itemHit == OK) {
-				WaitCursor();
-				UpdateAllWindows();
-				keepGoing = DoSaveDocument(doc);
-				}
-			}
-		return(keepGoing);
+	if (doc->changed) {
+		DoUpdate(doc->theWindow);
+		ArrowCursor();
+		ParamText(doc->name, "\p", "\p", "\p");
+		PlaceAlert(saveChangesID, doc->theWindow, 0, 30);
+		itemHit = CautionAlert(saveChangesID, NULL);
+		if (itemHit == Cancel) keepGoing = FALSE;
+		if (itemHit == OK) {
+			WaitCursor();
+			UpdateAllWindows();
+			keepGoing = DoSaveDocument(doc);
+		}
 	}
+	return(keepGoing);
+}
 
 /*
  *	Given a document, either new or old, save it.  If it's new, then call
@@ -626,21 +626,21 @@ Boolean DocumentSaved(register Document *doc)
  */
 
 Boolean DoSaveDocument(register Document *doc)
-	{
-		Boolean keepGoing = FALSE; short err;
-		
-		if (doc->docNew || doc->readOnly) return(DoSaveAs(doc));
-		
-		err = SaveFile(doc, FALSE);
+{
+	Boolean keepGoing = FALSE; short err;
+	
+	if (doc->docNew || doc->readOnly) return(DoSaveAs(doc));
+	
+	err = SaveFile(doc, FALSE);
 
-		if (err!=CANCEL_INT) {
-			HSetVol(NULL,doc->vrefnum,0);
-		
-			keepGoing = TRUE;
-			}
-
-		return(keepGoing);
+	if (err!=CANCEL_INT) {
+		HSetVol(NULL,doc->vrefnum,0);
+	
+		keepGoing = TRUE;
 	}
+
+	return(keepGoing);
+}
 
 /*
  *	Save a given document under a new name, and give new name to document,
@@ -648,93 +648,95 @@ Boolean DoSaveDocument(register Document *doc)
  */
 
 Boolean DoSaveAs(register Document *doc)
-	{
-		Boolean keepGoing;
-		Str255 name; short vrefnum; short err;
-		OSErr result;
-		FInfo theInfo;
-		FSSpec fsSpec;
-		NSClientData nscd;
+{
+	Boolean keepGoing;
+	Str255 name; short vrefnum; short err;
+	OSErr result;
+	FInfo theInfo;
+	FSSpec fsSpec;
+	NSClientData nscd;
+	
+	Pstrcpy(name,doc->name);
+	keepGoing = GetOutputName(MiscStringsID,3,name,&vrefnum,&nscd);
+	if (keepGoing) {
+		//result = FSMakeFSSpec(vrefnum, 0, name, &fsSpec);
+		fsSpec = nscd.nsFSSpec;
+		Pstrcpy(name,fsSpec.name);
 		
-		Pstrcpy(name,doc->name);
-		if (keepGoing = GetOutputName(MiscStringsID,3,name,&vrefnum,&nscd)) {
-			//result = FSMakeFSSpec(vrefnum, 0, name, &fsSpec);
-			fsSpec = nscd.nsFSSpec;
-			Pstrcpy(name,fsSpec.name);
-			
-			//result = GetFInfo(name, vrefnum, &theInfo);
-			//if (result == noErr)
-				result = FSpGetFInfo (&fsSpec, &theInfo);
-			
-			if (result == noErr && theInfo.fdType != documentType) {
-				GetIndCString(strBuf, FILEIO_STRS, 11);	/* "You can replace only files created by Nightingale" */
-				CParamText(strBuf, "", "", "");
-				StopInform(GENERIC_ALRT);
-				return FALSE;
-				}
+		//result = GetFInfo(name, vrefnum, &theInfo);
+		//if (result == noErr)
+			result = FSpGetFInfo (&fsSpec, &theInfo);
+		
+		if (result == noErr && theInfo.fdType != documentType) {
+			GetIndCString(strBuf, FILEIO_STRS, 11);	/* "You can replace only files created by Nightingale" */
+			CParamText(strBuf, "", "", "");
+			StopInform(GENERIC_ALRT);
+			return FALSE;
+		}
 #if TARGET_API_MAC_CARBON
-			result = HSetVol(NULL,fsSpec.vRefNum,fsSpec.parID);
+		result = HSetVol(NULL,fsSpec.vRefNum,fsSpec.parID);
 #else
-			result = HSetVol(NULL,vrefnum,0);
+		result = HSetVol(NULL,vrefnum,0);
 #endif
-			
-			if (result == noErr) {
-				
-				/* Save the file under this name */
-				Pstrcpy(doc->name,name);
-				doc->vrefnum = fsSpec.vRefNum;
-				doc->fsSpec = fsSpec;
-				SetWTitle(doc->theWindow,name);
-				err = SaveFile(doc, TRUE);
-				}
-			 else {
-			  err = CANCEL_INT;
-			  }
-
-			if (keepGoing = err!=CANCEL_INT) {
-				doc->changed = FALSE;
-				doc->named = TRUE;
-				doc->readOnly = FALSE;
-				}
-			}
 		
-		return(keepGoing);
+		if (result == noErr) {
+			
+			/* Save the file under this name */
+			Pstrcpy(doc->name,name);
+			doc->vrefnum = fsSpec.vRefNum;
+			doc->fsSpec = fsSpec;
+			SetWTitle(doc->theWindow,name);
+			err = SaveFile(doc, TRUE);
+		}
+		else {
+			err = CANCEL_INT;
+		}
+
+		keepGoing = (err!=CANCEL_INT);
+		if (keepGoing) {
+			doc->changed = FALSE;
+			doc->named = TRUE;
+			doc->readOnly = FALSE;
+		}
 	}
+	
+	return(keepGoing);
+}
 
 /*
  *	Discard all changes to given document, but only with user's permission.
  */
 
 void DoRevertDocument(register Document *doc)
-	{
-		short itemHit,vrefnum,docReadOnly; Str255 name; unsigned char *p;
-		
-		if (doc->changed) {
-			ParamText(doc->name,"\p","\p","\p");
-			PlaceAlert(discardChangesID,doc->theWindow,0,30);
-			itemHit = CautionAlert(discardChangesID,NULL);
-			if (itemHit == OK) {
-				doc->changed = FALSE;		/* So DoCloseWindow doesn't call alert */
-				Pstrcpy(name,doc->name);
-				vrefnum = doc->vrefnum;
-				FSSpec fsSpec = doc->fsSpec;
-				docReadOnly = doc->readOnly;
-				GetGlobalPort(doc->theWindow,&revertWinPosition);
-				p = doc->docNew ? NULL : Pstrcpy(name,doc->name);
-				DoCloseDocument(doc);
-				DoOpenDocument(p,vrefnum,docReadOnly,&fsSpec);
-				}
-			}
+{
+	short itemHit, vrefnum, docReadOnly;  Str255 name;  unsigned char *p;
+	
+	if (doc->changed) {
+		ParamText(doc->name,"\p","\p","\p");
+		PlaceAlert(discardChangesID,doc->theWindow,0,30);
+		itemHit = CautionAlert(discardChangesID,NULL);
+		if (itemHit == OK) {
+			doc->changed = FALSE;		/* So DoCloseWindow doesn't call alert */
+			Pstrcpy(name,doc->name);
+			vrefnum = doc->vrefnum;
+			FSSpec fsSpec = doc->fsSpec;
+			docReadOnly = doc->readOnly;
+			GetGlobalPort(doc->theWindow,&revertWinPosition);
+			p = doc->docNew ? NULL : Pstrcpy(name,doc->name);
+			DoCloseDocument(doc);
+			DoOpenDocument(p,vrefnum,docReadOnly,&fsSpec);
+		}
 	}
+}
 
 /* If all staves (of the first Staff object only!) are the same size and that size is
-not the score's <srastral>, offer user a change to set <srastral> accordingly.
-In all cases, return TRUE if all staves are the same size, else FALSE. */
+not the score's <srastral>, offer user a change to set <srastral> accordingly. In all
+cases, return TRUE if all staves are the same size, else FALSE. */
 
 static Boolean AllStavesSameSize(Document *doc)
 {
-	LINK staffL, aStaffL; Boolean firstTime=TRUE, allSameSize=TRUE;
-	DDIST lnSpace, thisLnSpace; short i;
+	LINK staffL, aStaffL;  Boolean firstTime=TRUE, allSameSize=TRUE;
+	static DDIST lnSpace;  DDIST thisLnSpace;  short i;
 	
 	staffL = SSearch(doc->headL, STAFFtype, GO_RIGHT);				/* Should never fail */
 	for (aStaffL = FirstSubLINK(staffL); aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
@@ -947,117 +949,113 @@ Boolean BuildDocument(
 		long *fileVersion,
 		Boolean isNew		/* TRUE=new file, FALSE=open existing file */
 		)
-	{
-		WindowPtr w = doc->theWindow; Rect r;
-		DDIST sysTop;
-		
-		SetPort(GetWindowPort(w));
-		
-		/*
-		 *	About coordinate systems:
-		 *	The point (0,0) is placed at the upper left corner of the initial paperRect.
-		 *  The viewRect is the same as the window portRect, but without the scroll bar
-		 *	areas. The display of the document's contents should always be in this
-		 *	coordinate system, so that printing will be in the same coordinate system.
-		 */
-		
-		/* Set the initial paper size, margins, etc. from the config */
-		
-		doc->pageType = 2;
-		doc->measSystem = 0;
-		doc->paperRect = config.paperRect;
-		doc->origPaperRect = config.paperRect;
+{
+	WindowPtr w = doc->theWindow; Rect r;
+	DDIST sysTop;
+	
+	SetPort(GetWindowPort(w));
+	
+	/*
+	 *	About coordinate systems:
+	 *	The point (0,0) is placed at the upper left corner of the initial paperRect.
+	 *  The viewRect is the same as the window portRect, but without the scroll bar
+	 *	areas. The display of the document's contents should always be in this
+	 *	coordinate system, so that printing will be in the same coordinate system.
+	 */
+	
+	/* Set the initial paper size, margins, etc. from the config */
+	
+	doc->pageType = 2;
+	doc->measSystem = 0;
+	doc->paperRect = config.paperRect;
+	doc->origPaperRect = config.paperRect;
 
-		doc->marginRect.top = doc->paperRect.top+config.pageMarg.top;
-		doc->marginRect.left = doc->paperRect.left+config.pageMarg.left;
-		doc->marginRect.bottom = doc->paperRect.bottom-config.pageMarg.bottom;
-		doc->marginRect.right = doc->paperRect.right-config.pageMarg.right;
+	doc->marginRect.top = doc->paperRect.top+config.pageMarg.top;
+	doc->marginRect.left = doc->paperRect.left+config.pageMarg.left;
+	doc->marginRect.bottom = doc->paperRect.bottom-config.pageMarg.bottom;
+	doc->marginRect.right = doc->paperRect.right-config.pageMarg.right;
 
-		if (!InitDocFields(doc))
+	if (!InitDocFields(doc)) return FALSE;
+
+	FillSpaceMap(doc, 0);
+
+	/*
+	 *	Add the standard scroll bar controls to Document's window. The scroll bars
+	 *	are created with a maximum value of 0 here, but that will have no effect if
+	 *	we call RecomputeView, since it resets the max.
+	 */
+	GetWindowPortBounds(w,&r);
+	r.left = r.right - (SCROLLBAR_WIDTH+1);
+	r.bottom -= SCROLLBAR_WIDTH;
+	r.top--;
+	
+	doc->vScroll = NewControl(w,&r,"\p",TRUE,doc->origin.h,doc->origin.h,
+														0,scrollBarProc,0L);
+	GetWindowPortBounds(w,&r);
+	r.top = r.bottom - (SCROLLBAR_WIDTH+1);
+	r.right -= SCROLLBAR_WIDTH;
+	r.left += MESSAGEBOX_WIDTH;
+	
+	doc->hScroll = NewControl(w,&r,"\p",TRUE,
+								doc->origin.v,doc->origin.v,0,scrollBarProc,0L);
+	if (!InitAllHeaps(doc)) { NoMoreMemory(); return FALSE; }
+	InstallDoc(doc);
+	BuildEmptyList(doc,&doc->headL,&doc->tailL);
+	
+	doc->selStartL = doc->selEndL = doc->tailL;					/* Empty selection  */
+	
+	/*
+	 * Set part name showing and corresponding system indents. We'd like to use
+	 * PartNameMargin() to get the appropriate indents, but not enough of the data
+	 * structure is set up, so do something cruder.
+	 */
+	doc->firstNames = FULLNAMES;								/* 1st system: full part names */
+	doc->firstIndent = qd2d(config.indent1st, drSize[doc->srastral], STFLINES);
+	doc->otherNames = NONAMES;									/* Other systems: no part names */
+	doc->otherIndent = 0;
+	
+	if (isNew) {
+		*fileVersion = THIS_VERSION;
+		NewDocScore(doc);										/* Set up initial staves, clefs, etc. */
+		doc->firstSheet = 0;
+		doc->currentSheet = 0;
+		doc->origin = doc->sheetOrigin;							/* Ignore position recorded in file */
+	}
+	else {														/* Finally READ THE FILE! */
+		if (OpenFile(doc,(unsigned char *)fileName,vRefNum,pfsSpec,fileVersion)!=noErr)
 			return FALSE;
-
-		FillSpaceMap(doc, 0);
-
-		/*
-		 *	Add the standard scroll bar controls to Document's window. The scroll
-		 *	bars are created with a maximum value of 0 here, but this will have no
-		 *	effect if we call RecomputeView, since it resets the max.
-		 */
-		GetWindowPortBounds(w,&r);
-		r.left = r.right - (SCROLLBAR_WIDTH+1);
-		r.bottom -= SCROLLBAR_WIDTH;
-		r.top--;
-		
-		doc->vScroll = NewControl(w,&r,"\p",TRUE,
-									doc->origin.h,doc->origin.h,0,scrollBarProc,0L);
-		GetWindowPortBounds(w,&r);
-		r.top = r.bottom - (SCROLLBAR_WIDTH+1);
-		r.right -= SCROLLBAR_WIDTH;
-		r.left += MESSAGEBOX_WIDTH;
-		
-		doc->hScroll = NewControl(w,&r,"\p",TRUE,
-									doc->origin.v,doc->origin.v,0,scrollBarProc,0L);
-		if (!InitAllHeaps(doc)) { NoMoreMemory(); return FALSE; }
-		InstallDoc(doc);
-		BuildEmptyList(doc,&doc->headL,&doc->tailL);
-		
-		doc->selStartL = doc->selEndL = doc->tailL;			/* Empty selection  */
-		
-		/*
-		 * Set part name showing and corresponding system indents. We'd like to use
-		 * PartNameMargin() to get the appropriate indents, but not enough of the data
-		 * structure is set up, so do something cruder.
-		 */
-		doc->firstNames = FULLNAMES;								/* 1st system: full part names */
-		doc->firstIndent = qd2d(config.indent1st, drSize[doc->srastral], STFLINES);
-		doc->otherNames = NONAMES;									/* Other systems: no part names */
-		doc->otherIndent = 0;
-		
-		if (isNew) {
-			*fileVersion = THIS_VERSION;
-			NewDocScore(doc);										/* Set up initial staves, clefs, etc. */
-			doc->firstSheet = 0;
-			doc->currentSheet = 0;
-			doc->origin = doc->sheetOrigin;					/* Ignore position recorded in file */
-
-		}
-		else {														/* Finally READ THE FILE! */
-			if (OpenFile(doc,(unsigned char *)fileName,vRefNum,pfsSpec,fileVersion)!=noErr) {
-				return FALSE;
-				}
-			doc->firstSheet = 0 /* Or whatever; may be document specific */;
-			doc->currentSheet = 0;
-			doc->lastGlobalFont = 4;							/* Default is Regular1 */
-			InstallMagnify(doc);									/* Set for file-specified magnification */
-			if (doc->masterHeadL == NILINK) {
-				/* This is an ancient file without Master Page object list: make default one */
-				sysTop = SYS_TOP(doc);
-				NewMasterPage(doc,sysTop,TRUE);
-				}
-			doc->nonstdStfSizes = FillRelStaffSizes(doc);
-			if (doc->nonstdStfSizes)
-				if (!AllStavesSameSize(doc)) {
-				GetIndCString(strBuf, MISCERRS_STRS, 6);	/* "Not all staves are the std. size" */
+		doc->firstSheet = 0;									/* Or whatever; may be document specific! */
+		doc->currentSheet = 0;
+		doc->lastGlobalFont = 4;								/* Default is Regular1 */
+		InstallMagnify(doc);									/* Set for file-specified magnification */
+		if (doc->masterHeadL == NILINK) {
+			/* This is an ancient file without Master Page object list: make default one */
+			sysTop = SYS_TOP(doc);
+			NewMasterPage(doc,sysTop,TRUE);
+			}
+		doc->nonstdStfSizes = FillRelStaffSizes(doc);
+		if (doc->nonstdStfSizes)
+			if (!AllStavesSameSize(doc)) {
+				GetIndCString(strBuf, MISCERRS_STRS, 6);		/* "Not all staves are the std. size" */
 				CParamText(strBuf, "", "", "");
 				CautionInform(GENERIC_ALRT);
-				}
 			}
+		}
 
-		if (!InitDocUndo(doc))
-			return FALSE;
+	if (!InitDocUndo(doc)) return FALSE;
 
-		doc->yBetweenSysMP = doc->yBetweenSys = 0;			/* No longer used */
-		SetOrigin(doc->origin.h,doc->origin.v);
-		GetAllSheets(doc);
+	doc->yBetweenSysMP = doc->yBetweenSys = 0;					/* No longer used */
+	SetOrigin(doc->origin.h,doc->origin.v);
+	GetAllSheets(doc);
 
-		/* Finally, set empty selection just after the first Measure and put caret there.
-			N.B. This will not necessarily be on the screen! We should eventually make
-			the initial selection agree with the doc's scrolled position. */
-		
-		SetDefaultSelection(doc);
-		doc->selStaff = 1;
-		
-		MEAdjustCaret(doc,FALSE);
-		
-		return TRUE;
-	}
+	/* Finally, set empty selection just after the first Measure and put caret there.
+		N.B. This will not necessarily be on the screen! We should eventually make
+		the initial selection agree with the doc's scrolled position. */
+	
+	SetDefaultSelection(doc);
+	doc->selStaff = 1;
+	
+	MEAdjustCaret(doc,FALSE);
+	
+	return TRUE;
+}

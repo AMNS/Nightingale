@@ -629,7 +629,7 @@ static Boolean WriteTSig(
 {
 	short numer, denom, tempDenom, clocksPerBeat;
 
-	numer = TimeSigNUM(aTSL);
+	numer = TimeSigNUMER(aTSL);
 	denom = TimeSigDENOM(aTSL);
 
 	tempDenom = denom;

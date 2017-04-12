@@ -268,8 +268,8 @@ static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *partF
 	strncat(nameStr, PartNAME(partL), maxNameLen);
 	strcat(nameStr, ".");
 	strcat(nameStr, extStr);
-	LogPrintf(LOG_DEBUG, "BuildPartFilename: tmpStr='%s' extStr='%s' maxNameLen=%d nameStr='%s' len=%d\n",
-			tmpStr, extStr, maxNameLen, nameStr, strlen(nameStr));
+	//LogPrintf(LOG_DEBUG, "BuildPartFilename: tmpStr='%s' extStr='%s' maxNameLen=%d nameStr='%s' len=%d\n",
+	//	tmpStr, extStr, maxNameLen, nameStr, strlen(nameStr));
 
 	tooLong = (strlen(nameStr)>FILENAME_MAXLEN);
 	CToPString(nameStr);
@@ -294,7 +294,6 @@ static Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerS
 			newOffset = PReplace(hOffset, string);
 		else
 			newOffset = PStore(string);
-//LogPrintf(LOG_DEBUG, "CopyHeaderFooter: hOffset=%d newOffset=%d\n", hOffset, newOffset);
 		if (newOffset < 0L) {
 			NoMoreMemory();
 			return FALSE;
@@ -374,7 +373,7 @@ Boolean DoExtract(Document *doc)
 		if (pStr[0]!=0) {
 			Pstrcpy((StringPtr)headerStr, (StringPtr)pStr);
 			PToCString((StringPtr)headerStr);
-			LogPrintf(LOG_DEBUG, "page header='%s'\n", headerStr);
+			//LogPrintf(LOG_DEBUG, "page header='%s'\n", headerStr);
 		}
 
 		fOffset = doc->footerStrOffset;
@@ -382,7 +381,7 @@ Boolean DoExtract(Document *doc)
 		if (pStr[0]!=0) {
 			Pstrcpy((StringPtr)footerStr, (StringPtr)pStr);
 			PToCString((StringPtr)footerStr);
-			LogPrintf(LOG_DEBUG, "page footer='%s'\n", footerStr);
+			//LogPrintf(LOG_DEBUG, "page footer='%s'\n", footerStr);
 		}
 	}
 

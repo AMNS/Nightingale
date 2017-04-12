@@ -2634,7 +2634,7 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 					OffsetDRect(&mrect, xd, 0);
 					InsetDRect(&mrect, 0, pt2d(6));		/* Reduce ht of shading to emphasize staff */
 					DRect2ScreenRect(mrect, SystemRECT(sysL), doc->paperRect, &r);
-					ShadeRect(&r, pContext, &altDiagonalLtGray);
+					ShadeRect(&r, pContext, &otherLtGray);
 				}
 			}
 		}

@@ -1346,3 +1346,18 @@ Reconstruct, Search, SysPageEdit.
 
 Minor cleanup. Affects MemMacros.h; DebugUtils, InsUtils, Slurs, SysPageEdit.
 
+-------------------------------------------------------------------------------
+
+6-11 Apr.
+
+Add an "Add Cautionary TimeSigs" command. Affects .rsrc, NResourceID.h, NTypes.h;
+Menu, Undo.
+
+Replace the "alternate" diagonal light gray shading pattern, indicating one type of
+rhythm/time signature conflict, with a rectangular-grid pattern. Affects .rsrc; vars.h;
+DrawObject.
+
+Remove some redundant MemMacros and rename others; other minor cleanup. Affects
+MemMacros.h; AutoBeam, Context, CrossSystem, DebugUtils, Debug2Utils, Documents,
+ExtractHighLevel, Initialize, InsNewUtils, Menu, MIDIFSave, NotelistOpen,
+Window.

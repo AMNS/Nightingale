@@ -396,7 +396,7 @@ Boolean AutoBeam(Document *doc)
 				case TIMESIGtype:
 					CreateBEAMandResetBeamCounter(doc, voice, pL);
 					aTimeSigL = FirstSubLINK(pL);
-					CreateNBeamBeatList(TimeSigNUM(aTimeSigL), TimeSigDENOM(aTimeSigL));
+					CreateNBeamBeatList(TimeSigNUMER(aTimeSigL), TimeSigDENOM(aTimeSigL));
 					break;
 		
 				case MEASUREtype:

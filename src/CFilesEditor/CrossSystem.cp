@@ -81,12 +81,12 @@ static void MakeSlurNoncrossSys(Document *doc, LINK pL, LINK otherSlurL)
 }
 
 
-/* ---------------------------------------------------------------- MoveSlurEnd -- */
+/* -------------------------------------------------------------------- MoveSlurEnd -- */
 /* Move the right endpoint of the Slur or Tie in the given voice from one Sync to
 another. */
 
-void MoveSlurEnd(short voice, LINK oldSyncL, LINK newSyncL, Boolean isTie);
-void MoveSlurEnd(short voice, LINK oldSyncL, LINK newSyncL, Boolean isTie)
+static void MoveSlurEnd(short voice, LINK oldSyncL, LINK newSyncL, Boolean isTie);
+static void MoveSlurEnd(short voice, LINK oldSyncL, LINK newSyncL, Boolean isTie)
 {
 	LINK aNoteL;
 	        
@@ -105,7 +105,7 @@ void MoveSlurEnd(short voice, LINK oldSyncL, LINK newSyncL, Boolean isTie)
 	else       NoteSLURREDL(aNoteL) = TRUE;
 }
 
-/* ------------------------------------------------------------ FixCrossSysSlurs -- */
+/* --------------------------------------------------------------- FixCrossSysSlurs -- */
 /* In the range [startL,endL), fix "cross-system-ness" and higher-level links of all
 Slurs, as described in FixCrossSysObjects. Assumes cross links in the data structure
 are valid! Since Nightingale allows Slurs to cross only one system break, we truncate
@@ -119,7 +119,7 @@ short FixCrossSysSlurs(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 {
 	short v, nTrunc, thisMeas, truncFirstMeas=SHRT_MAX, truncLastMeas=0;
 	LINK pL;
-	LINK	otherSlurL, firstSys, lastSys, secondSys, thirdSys, thisFirstObj,
+	LINK otherSlurL, firstSys, lastSys, secondSys, thirdSys, thisFirstObj,
 			otherFirstObj, thisLastObj, otherLastObj, lastObjSys, oldLastObj;
 	Boolean slurRemoved, slurTruncated;
 	
@@ -128,8 +128,9 @@ short FixCrossSysSlurs(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 		for (pL = startL; pL!=endL; pL = RightLINK(pL)) {
 			if (SlurTYPE(pL) && SlurVOICE(pL)==v) {
 				/*
-				 *	We have a slur in the correct voice. There are three possible types: not
-				 *	cross-system, first piece of cross-system, second piece of cross-system.
+				 *	We have a slur in the correct voice. There are three possible types:
+				 *	not cross-system, first piece of cross-system, second piece of
+				 *	cross-system.
 				 */
 				if (!SlurCrossSYS(pL)) {
 					/*
@@ -151,7 +152,7 @@ short FixCrossSysSlurs(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 				 		 * there is one; if not, this is a pathological case, and the most
 				 		 * important thing is avoiding crashes.
 				 		 *
-				 		 *	Should be handled by existing utils: DeleteXSysSlur or DeleteNonXSysSLur,
+				 		 * Should be handled by existing utils: DeleteXSysSlur or DeleteNonXSysSLur,
 				 		 * depending on whether it is xsys or not.
 				 		 * Delete.c: code to delete slurs.
 				 		 * Ex: score 3 barL, notes in all m in top stf, stf 2: note in bL 1 & 3,
@@ -287,16 +288,16 @@ static Boolean MakeBeamCrossSys(Document *doc, LINK pL)
 	RemoveBeam(doc, pL, v, FALSE);
 
 	/*
-	 * For now, don't rebeam either System unless it has at least 2 beamable
-	 * notes, but eventually we should handle cross-system beams with only 1
-	 * note in either piece.
+	 * For now, don't rebeam either System unless it has at least 2 beamable notes.
+	 * But eventually we should handle cross-system beams with only 1 note in
+	 * either piece.
 	 */
 	if (nInBeam1>1) {
 		beamL1 = CreateNonXSysBEAMSET(doc, firstSyncL, RightLINK(prevL), v, nInBeam1,
 										FALSE, FALSE, doc->voiceTab[v].voiceRole);
 		if (nInBeam2>1) {
-			beamL2 = CreateNonXSysBEAMSET(doc, qL, RightLINK(prevL2), v, nInBeam2, FALSE,
-												FALSE, doc->voiceTab[v].voiceRole);
+			beamL2 = CreateNonXSysBEAMSET(doc, qL, RightLINK(prevL2), v, nInBeam2,
+											FALSE, FALSE, doc->voiceTab[v].voiceRole);
 			BeamCrossSYS(beamL1) = TRUE;
 			BeamFirstSYS(beamL1) = TRUE;
 			BeamCrossSYS(beamL2) = TRUE;
@@ -326,19 +327,19 @@ static LINK MakeBeamNoncrossSys(Document *doc, LINK pL, LINK otherBeamL)
 	RemoveBeam(doc, otherBeamL, v, FALSE);
 		
 	nInBeam = CountBeamable(doc, newFirstSyncL, RightLINK(newLastSyncL), v, FALSE);
-	if (nInBeam>=2)															/* Should always succeed */
+	if (nInBeam>=2)														/* Should always succeed */
 		beamL = CreateBEAMSET(doc, newFirstSyncL, RightLINK(newLastSyncL), v,
 										nInBeam, FALSE, doc->voiceTab[v].voiceRole);
 	
 	return beamL;
 }
 
-/* ---------------------------------------------------------------- RebeamXStf -- */
+/* --------------------------------------------------------------------- RebeamXStf -- */
 /* Rebeam the notes/rests beamed by the two pieces of a cross-staff beam <beamL1>
 and <beamL2>. Handles grace AND regular beams. */
 
-LINK RebeamXStf(Document *, LINK, LINK);
-LINK RebeamXStf(Document *doc, LINK beamL1, LINK beamL2)
+static LINK RebeamXStf(Document *, LINK, LINK);
+static LINK RebeamXStf(Document *doc, LINK beamL1, LINK beamL2)
 {
 	short voice, nInBeam1, nInBeam2;
 	LINK firstSyncL1, lastSyncL1, firstSyncL2, lastSyncL2;
@@ -399,6 +400,7 @@ static Boolean UpdateCrossSysBeam(Document *doc, LINK pL, LINK otherBeamL)
 	return TRUE;
 }
 
+
 /* ------------------------------------------------------------- FixCrossSysBeams -- */
 /* In the range [startL,endL), fix "cross-system-ness" of all beams, as described in
 FixCrossSysObjects. Assumes cross links in the data structure are valid! Since
@@ -431,7 +433,7 @@ short FixCrossSysBeams(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 					/*
 					 * Non-cross-system Beamset. If it should be cross-system, be sure it
 					 * ends in the system after the one it begins in, create its other
-					 *	piece, and make this piece cross-system.
+					 * piece, and make this piece cross-system.
 					 */
 				 	if (!SameSystem(FirstInBeam(pL), LastInBeam(pL)))
 						if (MakeBeamCrossSys(doc, pL)) {
@@ -442,13 +444,13 @@ short FixCrossSysBeams(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 						}
 				}	
 				else if (CrossSysAndFirstSys(pL)) {
-				/*
-				 *	First piece of cross-system Beamset. If it should be non-cross-system,
-				 *	delete its other piece and make this one non-cross-system. If it should
-				 * stay cross-system, check that the boundary between the two pieces
-				 * hasn't changed, i.e., that Syncs in the 1st piece don't belong in the
-				 * 2nd and vice-versa.
-				 */
+				
+				/* First piece of cross-system Beamset. If it should be non-cross-system,
+				   delete its other piece and make this one non-cross-system. If it
+				   should stay cross-system, check that the boundary between the two
+				   pieces hasn't changed, i.e., that Syncs in the 1st piece don't belong
+				   in the 2nd and vice-versa. */
+				   
 					otherBeamL = LVSearch(RightLINK(pL), BEAMSETtype, v, GO_RIGHT, FALSE);
 					if (!otherBeamL)
 						MayErrMsg("FixCrossSysBeams: can't find 2nd piece for Beamset at %ld",
@@ -460,13 +462,13 @@ short FixCrossSysBeams(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 				}
 				else
 					/*
-					 * Second piece of cross-system Beamset. We don't have to consider the
-					 * possibility that it needs to be made non-cross-system, since we're
-					 * traversing the range that needs work from left to right, and any second
-					 *	piece of a cross-system Beamset that needed to be made non-cross-system
-					 *	would already have been handled before we got to it. ??But we do have
-					 * to be sure it ends in the system following the one the first piece is
-					 * in and, if not, truncate it.
+					 Second piece of cross-system Beamset. We don't have to consider the
+					 possibility that it needs to be made non-cross-system, since we're
+					 traversing the range that needs work from left to right, and any
+					 second piece of a cross-system Beamset that needed to be made non-
+					 cross-system would already have been handled before we got to it.
+					 ??But we do have to be sure it ends in the system following the one
+					 the first piece is in and, if not, truncate it.
 					 */
 					;
 			}
@@ -479,7 +481,7 @@ short FixCrossSysBeams(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 }
 
 
-/* --------------------------------------------------------- FixCrossSysHairpins -- */
+/* ------------------------------------------------------------ FixCrossSysHairpins -- */
 /* In the range [startL,endL), fix "cross-system-ness" of all hairpins. We'd like to
 do it as described in FixCrossSysObjects, but Nightingale does not allow cross-system
 hairpins yet, so we just clip them to keep them on one system. It'd be better to
@@ -583,8 +585,8 @@ static void MakeOctCrossSys(Document *doc, LINK octL, LINK firstSys,
 										LINK /*lastSys*/									/* unused */
 										)
 {
-	LINK qL,prevL,firstSyncL,lastSyncL,noteOctL;
-	short i,s,octType,nInOttava1; PANOTEOTTAVA anoteOct;
+	LINK qL, prevL, firstSyncL, lastSyncL, noteOctL;
+	short i, s, octType, nInOttava1;  PANOTEOTTAVA anoteOct;
 	
 	firstSyncL = FirstInOttava(octL);
 	lastSyncL = LastInOttava(octL);
@@ -598,23 +600,23 @@ static void MakeOctCrossSys(Document *doc, LINK octL, LINK firstSys,
 		anoteOct = GetPANOTEOTTAVA(noteOctL);
 		prevL = qL;
 		qL = anoteOct->opSync;
-		if (!SameSystem(qL,firstSys)) break;
+		if (!SameSystem(qL, firstSys)) break;
 	}
 	nInOttava1 = i;
 
 	RemoveOctOnStf(doc, octL, firstSyncL, RightLINK(lastSyncL), s);
 
 	if (nInOttava1>0) CreateOTTAVA(doc, firstSyncL, RightLINK(prevL), s,
-												nInOttava1, octType, FALSE, FALSE);
+											nInOttava1, octType, FALSE, FALSE);
 }
 
 
-/* ---------------------------------------------------------- FixCrossSysOttavas -- */
+/* ------------------------------------------------------------- FixCrossSysOttavas -- */
 /* In the range [startL,endL), fix "cross-system-ness" of all Ottavas. We'd like to
 do it as described in FixCrossSysObjects, but Nightingale does not allow cross-system
 Ottavas yet, so we just clip them to keep them on one system. It might be better to
-also add a second piece of the Ottava on the following system, even though they
-can't be linked the way pieces of cross-system slurs and beams are.
+also add a second piece of the Ottava on the following system, even though they can't
+be linked the way pieces of cross-system slurs and beams are.
 
 Return value is the number of Ottavas truncated. */
 
@@ -710,9 +712,8 @@ cross-system; unfortunately, we can't always do this because Nightingale restric
 cross-system Slurs and Beamsets to just two Systems, and it doesn't understand cross-
 system hairpins, octave signs, endings, and GRDraw (line) Graphics at all. (The other
 type of "extended object",the tuplet, can't cross measure boundaries, so it's not a
-concern.) In any case, we also fix up higher-level links of cross-system objects
-that stay cross-system.
-*/
+concern.) In any case, we also fix up higher-level links of cross-system objects that
+stay cross-system. */
 
 void FixCrossSysObjects(Document *doc, LINK startL, LINK endL)
 {
@@ -724,9 +725,8 @@ void FixCrossSysObjects(Document *doc, LINK startL, LINK endL)
 			strEndings[32], strLine[32], strLines[32];
 	
 	nSlurTrunc = FixCrossSysSlurs(doc, startL, endL, &truncVeryFirstMeas, &truncVeryLastMeas);
-
 	nBeamTrunc = FixCrossSysBeams(doc, startL, endL, &truncFirstMeas, &truncLastMeas);
-	truncVeryFirstMeas =	n_min(truncFirstMeas, truncVeryFirstMeas);
+	truncVeryFirstMeas = n_min(truncFirstMeas, truncVeryFirstMeas);
 	truncVeryLastMeas = n_max(truncLastMeas, truncVeryLastMeas);
 
 	if (nSlurTrunc>0 || nBeamTrunc>0) {
@@ -745,7 +745,7 @@ void FixCrossSysObjects(Document *doc, LINK startL, LINK endL)
 					nBeamTrunc, (nBeamTrunc>1? strBeams : strBeam));
 		} 
 
-		strBuf[strlen(strBuf)-1] = '\0';							/* Remove final "," */
+		strBuf[strlen(strBuf)-1] = '\0';					/* Remove final "," */
 		sprintf(numStr1, "%d", truncVeryFirstMeas);
 		sprintf(numStr2, "%d", truncVeryLastMeas);
 		CParamText(strBuf, numStr1, numStr2, "");
@@ -794,10 +794,12 @@ void FixCrossSysObjects(Document *doc, LINK startL, LINK endL)
 					nDrawTrunc, (nDrawTrunc>1? strLines : strLine));
 		}
 
-		strBuf[strlen(strBuf)-1] = '\0';							/* Remove final "," */
+		strBuf[strlen(strBuf)-1] = '\0';					/* Remove final "," */
 		sprintf(numStr1, "%d", truncVeryFirstMeas);
 		sprintf(numStr2, "%d", truncVeryLastMeas);
 		CParamText(strBuf, numStr1, numStr2, "");
-		StopInform(RFMT_XSYS2_ALRT);
+		LogPrintf(LOG_INFO, "Can’t handle hairpins, 8vas, endings, or lines crossing a system break, so these were truncated: %s in mm. %d thru %d\n",
+					strBuf, truncVeryFirstMeas, truncVeryLastMeas);
+		StopInform(RFMT_XSYS2_ALRT);						/* "Nightingale can't handle hairpins, etc..." */
 	}
 }

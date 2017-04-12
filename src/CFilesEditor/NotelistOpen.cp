@@ -485,7 +485,7 @@ static Boolean ConvertNoteRest(Document *doc, NLINK pL)
 	
 	if (pNR->firstMod) {
 		result = ConvertMods(doc, pNR->firstMod, curSyncL, aNoteL);
-		if (!result) return FALSE;
+		if (!result) goto broken;
 	}
 
 	return TRUE;
@@ -504,11 +504,12 @@ CAUTION: At this time we do not support:
 Calling ConvertGrace with NILINK for <pL> tells it to initialize a static variable.
 Do this once before converting a score.
 
-NB: There is a flaw in the current Notelist spec that makes it impossible to decide
-whether two consecutive grace notes are part of the same Sync. If a grace note is
-in a (grace) chord, its inChord flag is set, but there's no way to tell *which*
-chord it's in. Until this is fixed (probably by making lStartTime meaningful), we
-can't do a very smart job of syncing. */
+NB: There is a flaw in the current Notelist spec affecting rare cases where the
+notelist contains two consecutive grace chords and either or both contain three or
+more (grace) notes. In this case, all of their constituent notes will have their
+inChord flags set; but there'll be no foolproof way to tell _which_ GRSync the middle
+notes belong to. Until this is fixed (probably by making lStartTime meaningful), we
+can't do a very smart job of syncing. But this really is a rare case. */
 
 static Boolean ConvertGrace(Document *doc, NLINK pL)
 {
@@ -520,7 +521,7 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 	CONTEXT		context;
 	static LINK	curGRSyncL;
 
-	if (pL==NILINK) {										/* Init static variable only. */
+	if (pL==NILINK) {									/* Just initialize static variable. */
 		curGRSyncL = NILINK;
 		return TRUE;
 	}
@@ -528,8 +529,7 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 	pNR = GetPNL_NRGR(pL);
 	
 	syncL = NILINK;
-	if (curGRSyncL && !pNR->inChord)
-		curGRSyncL = NILINK;
+	if (curGRSyncL && !pNR->inChord) curGRSyncL = NILINK;
 
 	if (curGRSyncL) {
 		aGRNoteL = FIAddNoteToSync(doc, curGRSyncL);
@@ -579,9 +579,6 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 					FALSE/*beamed*/, 0/*stemUpDown*/, 0/*voices1orMore*/, NULL);
 	
 	return TRUE;
-broken:
-	MayErrMsg("ConvertGrace failed (pL=%u)", pL);
-	return FALSE;
 }
 
 
@@ -1030,7 +1027,7 @@ broken:
 }
 
 
-/* ------------------------------------------------------------- FixPlayDurs -- */
+/* -------------------------------------------------------------------- FixPlayDurs -- */
 /* Set play duration of every note that now has a zero or negative play dur. to a
 reasonable value: this is intended mostly to handle the "default duration" feature
 of notelists. */
@@ -1052,10 +1049,10 @@ static void FixPlayDurs(Document *doc, LINK startL, LINK endL)
 }
 
 
-/* --------------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------------- */
 /* Functions for creating and displaying the converted Notelist document. */
 
-/* ----------------------------------------------------------------- SetupNLScore -- */
+/* ----------------------------------------------------------------- SetupNLScore ---- */
 
 static Boolean SetupNLScore(Document *doc)
 {
@@ -1456,10 +1453,10 @@ char DynamicGlyph(LINK dynamicL)
 
 
 
-/* --------------------------------------------------------------------------------- */
+/* ----------------------------------------------------------------------------------- */
 /* Functions that call Macintosh Toolbox routines. */
 
-/* ----------------------------------------------------- BuildConvertedNLFileName -- */
+/* ------------------------------------------------------- BuildConvertedNLFileName -- */
 /* Build a filename for the converted score, removing ".nl" suffix, if any, and appending
 " (converted)" to the input filename. Note that we use this _only_ if the header of
 the Notelist file doesn't contain a score name. */

@@ -35,6 +35,8 @@ static void	DoMagnifyMenu(short choice);
 
 static void	FMPreferences(Document *doc);
 
+static void EMAddCautionaryTimeSigs(Document *doc);
+
 static void	SMLeftEnd(Document *doc);
 static void	SMTextStyle(Document *doc);
 static void	SMMeasNum(Document *doc);
@@ -157,7 +159,6 @@ Boolean DoMenu(long menuChoice)
 				break;
 			}
 		
-Cleanup:
 		if (keepGoing) HiliteMenu(0);
 		return(keepGoing);
 	}
@@ -188,24 +189,27 @@ static void DoAppleMenu(short choice)
 			}
 	}
 
+
+/* ----------------------------------------------------------------------------------- */
+
 Boolean IsSafeToQuit()
-	{
-		Document *doc; Boolean inMasterPage=FALSE;
-		
-		for (doc=documentTable; doc<topTable; doc++)
-			if (doc->inUse)
-				if (doc->masterView)
-					{ inMasterPage = TRUE; break; }
-		
-		if (inMasterPage) {
-			GetIndCString(strBuf, MENUCMDMSGS_STRS, 1);			/* "You can't quit now because at least one score is in Master Page." */
-			CParamText(strBuf, "", "", "");
-			StopInform(GENERIC_ALRT);
-			return FALSE;
-		}
-		else
-			return TRUE;
+{
+	Document *doc;  Boolean inMasterPage=FALSE;
+	
+	for (doc=documentTable; doc<topTable; doc++)
+		if (doc->inUse)
+			if (doc->masterView)
+				{ inMasterPage = TRUE; break; }
+	
+	if (inMasterPage) {
+		GetIndCString(strBuf, MENUCMDMSGS_STRS, 1);			/* "You can't quit now because at least one score is in Master Page." */
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+		return FALSE;
 	}
+	else
+		return TRUE;
+}
 
 #ifdef TARGET_API_MAC_CARBON_FILEIO
 
@@ -409,6 +413,8 @@ Boolean DoFileMenu(short choice)
 		return(keepGoing);
 	}
 
+
+/* ----------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Edit Menu.
  */
@@ -476,6 +482,9 @@ void DoEditMenu(short choice)
 			case EM_Set:
 				DoSet(doc);
 				break;
+			case EM_AddTimeSigs:
+				EMAddCautionaryTimeSigs(doc);
+				break;
 
 			case EM_Browser:
 				if (OptionKeyDown())
@@ -495,6 +504,8 @@ void DoEditMenu(short choice)
 		}
 	}
 
+
+/* ----------------------------------------------------------------------------------- */
 
 //#ifndef PUBLIC_VERSION
 
@@ -644,6 +655,8 @@ static void DoTestMenu(short choice)
 #endif //ndef PUBLIC_VERSION
 	}
 
+
+/* ----------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Score Menu.
  */
@@ -723,6 +736,9 @@ static void DoScoreMenu(short choice)
 				break;
 			}
 	}
+
+
+/* ----------------------------------------------------------------------------------- */
 
 /* Collect information for the Transpose Key command: fill the <trStaff> array with
 flags indicating which staff nos. should be transposed (because they have something
@@ -872,6 +888,8 @@ static void DoNotesMenu(short choice)
 			}
 	}
 
+
+/* ----------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Groups Menu.
  */
@@ -922,10 +940,11 @@ void DoGroupsMenu(short choice)
 			}
 	}
 
+
+/* ----------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the View Menu.
  */
-
 
 void DoViewMenu(short choice)
 	{
@@ -1020,6 +1039,8 @@ void DoViewMenu(short choice)
 			}
 	}
 
+
+/* ----------------------------------------------------------------------------------- */
 /*
  * Handle the "MIDI Dynamics Preferences" command.
  */
@@ -1239,6 +1260,9 @@ void DoPlayRecMenu(short choice)
 			}
 	}
 
+
+/* ----------------------------------------------------------------------------------- */
+
 void MPInstrument(Document *doc)
 {
 	LINK staffL, aStaffL;  short partStaffn;
@@ -1321,6 +1345,8 @@ static void DoMasterPgMenu(short choice)
 			}
 	}
 
+
+/* ----------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Show Format Menu
  */
@@ -1343,6 +1369,7 @@ static void DoFormatMenu(short choice)
 }
 
 
+/* ----------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Reduce/Enlarge To (Magnify) Menu
  */
@@ -1363,6 +1390,8 @@ static void DoMagnifyMenu(short choice)
 		}
 	}
 
+
+/* ----------------------------------------------------------------- Miscellaneous --- */
 
 static void MovePalette(WindowPtr whichPalette, Point position)
 	{
@@ -1410,20 +1439,101 @@ static void MovePalette(WindowPtr whichPalette, Point position)
  *	Get user preferences from dialog.
  */
 
-void FMPreferences(Document *doc)
-	{
-		static short section=1;			/* Initially show General preferences */
+static void FMPreferences(Document *doc)
+{
+	static short section=1;			/* Initially show General preferences */
+	
+	PrefsDialog(doc, doc->used, &section);
+	FillSpaceMap(doc, doc->spaceTable);
+}
+
+
+/* Add "cautionary" time signatures: if any system begins with a time-signature change,
+if the previous system ends with a barline, add the same time signature after the
+barline on all staves. NB: We assume that every time-signature change is the same on
+all staves! Nightingale requires all barlines to extend across all staves -- i.e.,
+Measure objects must have subobjects on every Staff); that makes our assumption safer,
+but not really safe; it'd be better to check here.  */
+
+static void EMAddCautionaryTimeSigs(Document *doc)
+{
+	LINK pL, systemL, endPrevSysL, timeSigL, aTimeSigL;
+	short systemNum, type, numer, denom, numAdded;
+	Boolean beforeFirstNRGR, firstChange;
+	TSINFO timeSigInfo;
+
+	/* Go thru the entire object list. When we encounter a time signature, if it's
+	   before any Syncs or GRSyncs (i.e., notes, rests, or grace notes) in its
+	   System and the last object of the previous System is a Measure (graphically, a
+	   barline), add the same time signature at the end of the previous system. Note
+	   that we can't just look for a time signature that's not <inMeas>, i.e., before
+	   the first Measure of a System, since time sig. changes are _within_ the first
+	   Measure. */
+	numAdded = 0;
+	systemNum = 0;
+	beforeFirstNRGR = TRUE;
+	firstChange = TRUE;
+	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
+		switch (ObjLType(pL)) {
+			case SYSTEMtype:
+				systemNum++;
+				//LogPrintf(LOG_DEBUG, "EMAddCautionaryTimeSigs system %d\n", systemNum);
+				systemL = pL;
+				beforeFirstNRGR = TRUE;
+				break;
+			case SYNCtype:
+			case GRSYNCtype:
+				beforeFirstNRGR = FALSE;
+				break;
+			case TIMESIGtype:
+				if (systemNum>1 && beforeFirstNRGR) {
+					/* Consider adding the same timesig at the end of the previous
+						System. If the previous System ended with a Measure, it must
+						be the object just before the current System or -- if that
+						object is a Page -- the object just before that. */
+					endPrevSysL = LeftLINK(systemL);
+					if (PageTYPE(endPrevSysL)) endPrevSysL = LeftLINK(endPrevSysL);
+					if (MeasureTYPE(endPrevSysL)) {
+						if (firstChange) PrepareUndo(doc, endPrevSysL,
+											U_AddCautionaryTS, 50);    /* "Add Cautionary TimeSigs" */
+						firstChange = FALSE;
+						aTimeSigL = FirstSubLINK(pL);
+						type = TimeSigType(aTimeSigL);
+						numer = TimeSigNUMER(aTimeSigL);
+						denom = TimeSigDENOM(aTimeSigL);
+						LogPrintf(LOG_DEBUG, "EMAddCautionaryTimeSigs: adding TS type %d, %d/%d. system %d\n",
+										type, numer, denom, systemNum);						
+						timeSigL = FIInsertTimeSig(doc, ANYONE, RightLINK(endPrevSysL),
+													type, numer, denom);
+						if (timeSigL==NILINK) {
+							AlwaysErrMsg("EMAddCautionaryTimeSigs: can't add time signature.");
+							return;
+						}
+						timeSigInfo.TSType = type;
+						timeSigInfo.numerator = numer;
+						timeSigInfo.denominator = denom;
+						// ??NEED TO DO THIS FOR ALL STAVES!!!!!
+						FixContextForTimeSig(doc, RightLINK(timeSigL), 1, timeSigInfo);
+						RespaceBars(doc, timeSigL, timeSigL, 0, FALSE, FALSE);
+						numAdded++;
+					}
+				}
+			default:
+				;
+			}
+		}
 		
-		PrefsDialog(doc, doc->used, &section);
-		FillSpaceMap(doc, doc->spaceTable);
-	}
+		LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: added %d time signature(s).\n",
+					numAdded);
+		if (numAdded!=0) InvalWindow(doc);
+}
 
 
 /*
  * Change indents and showing/not showing part names at left end of systems.
  */
  
-void SMLeftEnd(Document *doc)
+static void SMLeftEnd(Document *doc)
 {
 	short	changeFirstIndent, changeOtherIndent;
 	short	firstNames, firstDist, otherNames, otherDist;
@@ -1497,23 +1607,23 @@ static void SMMeasNum(Document *doc)
  */
 
 static void SMRespace(Document *doc)
-	{
-		short spMin, spMax, dval;
+{
+	short spMin, spMax, dval;
 
-		GetMSpaceRange(doc, doc->selStartL, doc->selEndL, &spMin, &spMax);
-		dval = SpaceDialog(RESPACE_DLOG, spMin, spMax);
-		if (dval>0) {				
-			WaitCursor();
-			InitAntikink(doc, doc->selStartL, doc->selEndL);
-			if (RespaceBars(doc, doc->selStartL, doc->selEndL, 
-									RESFACTOR*(long)dval, TRUE, FALSE))
-				doc->spacePercent = dval;
-				
-			/* NB: It would be much better not to Antikink if RespaceBars failed, but we
-				have no other way to free its data structures! This should be fixed. */
-			Antikink();
-		}
+	GetMSpaceRange(doc, doc->selStartL, doc->selEndL, &spMin, &spMax);
+	dval = SpaceDialog(RESPACE_DLOG, spMin, spMax);
+	if (dval>0) {				
+		WaitCursor();
+		InitAntikink(doc, doc->selStartL, doc->selEndL);
+		if (RespaceBars(doc, doc->selStartL, doc->selEndL, 
+								RESFACTOR*(long)dval, TRUE, FALSE))
+			doc->spacePercent = dval;
+			
+		/* NB: It would be much better not to Antikink if RespaceBars failed, but we
+			have no other way to free its data structures! This should be fixed. */
+		Antikink();
 	}
+}
 	
 /*
  * For each object in the selection range with subobjects, align all of its
@@ -1521,15 +1631,15 @@ static void SMRespace(Document *doc)
  */
 
 static void SMRealign(Document *doc)
-	{
-		LINK pL; Boolean didSomething=FALSE;
+{
+	LINK pL; Boolean didSomething=FALSE;
 
-		for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
-			if (RealignObj(pL, TRUE)) didSomething = TRUE;
-			
-		if (didSomething) doc->changed = TRUE;
-		InvalSelRange(doc);
-	}
+	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
+		if (RealignObj(pL, TRUE)) didSomething = TRUE;
+		
+	if (didSomething) doc->changed = TRUE;
+	InvalSelRange(doc);
+}
 
 /*
  * Reformat first System of selection thru last System of selection in accordance
@@ -1537,51 +1647,51 @@ static void SMRealign(Document *doc)
  */
 
 static void SMReformat(Document *doc)
-	{
-		static Boolean firstCall=TRUE, changeSBreaks, careMeasPerSys, exactMPS,
-							careSysPerPage, justify;
-		short useMeasPerSys;
-		static short measPerSys, sysPerPage, titleMargin;
-		short endSysNum, status;
-		LINK startSysL, endSysL;
+{
+	static Boolean firstCall=TRUE, changeSBreaks, careMeasPerSys, exactMPS,
+						careSysPerPage, justify;
+	short useMeasPerSys;
+	static short measPerSys, sysPerPage, titleMargin;
+	short endSysNum, status;
+	LINK startSysL, endSysL;
+	
+	if (firstCall) {
+		changeSBreaks = TRUE;
+		careMeasPerSys = exactMPS = FALSE;
+		measPerSys = 4;
 		
-		if (firstCall) {
-			changeSBreaks = TRUE;
-			careMeasPerSys = exactMPS = FALSE;
-			measPerSys = 4;
-			
-			careSysPerPage = FALSE;
-			sysPerPage = 6;
-			justify = FALSE;
-			titleMargin = config.titleMargin;
-			
-			firstCall = FALSE;
-		}
+		careSysPerPage = FALSE;
+		sysPerPage = 6;
+		justify = FALSE;
+		titleMargin = config.titleMargin;
+		
+		firstCall = FALSE;
+	}
 
-		GetSysRange(doc, doc->selStartL, doc->selEndL, &startSysL, &endSysL);
-		endSysNum = SystemNUM(endSysL);
-		if (SystemNUM(startSysL)==1 && endSysNum==doc->nsystems) endSysNum = -1;
-		if (ReformatDialog(SystemNUM(startSysL),endSysNum,&changeSBreaks,&careMeasPerSys,
-								&exactMPS,&measPerSys,&justify,&careSysPerPage,&sysPerPage,
-								&titleMargin)) {
-			PrepareUndo(doc, doc->selStartL, U_Reformat, 20);    		/* "Reformat" */
-			if (careMeasPerSys) {
-				useMeasPerSys = measPerSys;
-				if (exactMPS) useMeasPerSys = -useMeasPerSys;
-			}
-			else
-				useMeasPerSys = 9999;
-			
-			status = Reformat(doc, doc->selStartL, doc->selEndL, changeSBreaks,
-							useMeasPerSys, justify, (careSysPerPage? sysPerPage : 999),
-							titleMargin);
-			if (status==NOTHING_TO_DO) {
-				GetIndCString(strBuf, MENUCMDMSGS_STRS, 2);			/* "The selected systems are already formatted as you specified." */
-				CParamText(strBuf, "", "", "");
-				NoteInform(GENERIC_ALRT);
-			}
+	GetSysRange(doc, doc->selStartL, doc->selEndL, &startSysL, &endSysL);
+	endSysNum = SystemNUM(endSysL);
+	if (SystemNUM(startSysL)==1 && endSysNum==doc->nsystems) endSysNum = -1;
+	if (ReformatDialog(SystemNUM(startSysL),endSysNum,&changeSBreaks,&careMeasPerSys,
+							&exactMPS,&measPerSys,&justify,&careSysPerPage,&sysPerPage,
+							&titleMargin)) {
+		PrepareUndo(doc, doc->selStartL, U_Reformat, 20);    		/* "Reformat" */
+		if (careMeasPerSys) {
+			useMeasPerSys = measPerSys;
+			if (exactMPS) useMeasPerSys = -useMeasPerSys;
+		}
+		else
+			useMeasPerSys = 9999;
+		
+		status = Reformat(doc, doc->selStartL, doc->selEndL, changeSBreaks,
+						useMeasPerSys, justify, (careSysPerPage? sysPerPage : 999),
+						titleMargin);
+		if (status==NOTHING_TO_DO) {
+			GetIndCString(strBuf, MENUCMDMSGS_STRS, 2);			/* "The selected systems are already formatted as you specified." */
+			CParamText(strBuf, "", "", "");
+			NoteInform(GENERIC_ALRT);
 		}
 	}
+}
 
 
 /* Invoke Add Modifiers dialog to add modifiers to all selected notes (for chords, really
@@ -1589,9 +1699,9 @@ to their main notes) or rests (fermata only). (JGG, 4/21/01) */
 	
 static void NMAddModifiers(Document *doc)
 	{
-		LINK	pL, aNoteL, mainNoteL, aModNRL;
-		short	voice;
-		char	data = 0;
+		LINK		pL, aNoteL, mainNoteL, aModNRL;
+		short		voice;
+		char		data = 0;
 		static Byte	modCode = MOD_STACCATO;
 		
 		if (AddModNRDialog(&modCode)) {
@@ -2108,11 +2218,11 @@ static void InstallDebugMenuItems(Boolean installAll)
 	}
 
 
-/* ============================ MENU-UPDATING ROUTINES ============================ */
+/* ========================================================= MENU-UPDATING ROUTINES == */
 
 /*
- *	Force all menus to reflect internal state, since we're about to let user
- *	peruse them.
+ *	Force all menus to reflect internal state. This should be called we're about to let
+ *	user peruse them.
  */
 
 void FixMenus()
@@ -2139,10 +2249,10 @@ void FixMenus()
 		
 		/*
 		 *	Precompute information about the current score and the clipboard for the
-		 *	benefit of the various menu fixing routines about to be called.
-		 *	We have to install theDoc first because, if the active window has
-		 *	changed, the resulting Activate event (which will install it) may
-		 *	not have been handled yet.
+		 *	benefit of the various menu fixing routines about to be called. We have
+		 *	We have to install theDoc first because, if the active window has changed,
+		 *	the resulting Activate event (which will install it) may not have been
+		 *	handled yet.
 		 */
 		
 		if (theDoc) {
@@ -2154,7 +2264,7 @@ void FixMenus()
 				continSel = ContinSelection(theDoc, config.strictContin!=0);
 				theDoc->canCutCopy = continSel;
 				}
-			 else {							/* Clipboard is top document */
+			 else {								/* Clipboard is top document */
 			 	nInRange = nSel = 0;
 			 	beforeFirst = FALSE;
 			 }
@@ -2220,8 +2330,8 @@ static void FixFileMenu(Document *doc, short nSel)
 	}
 
 
-short CountSelPages(Document *);
-short CountSelPages(Document *doc)
+static short CountSelPages(Document *);
+static short CountSelPages(Document *doc)
 	{
 		Boolean selAcrossFirst;  short nPages;  LINK pL;
 		
@@ -2302,7 +2412,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 					
 			nPages = CountSelPages(doc);
 			if (nPages>1) {
-				GetIndCString(fmtStr, MENUCMD_STRS, 1);					/* "Copy %d Pages" */
+				GetIndCString(fmtStr, MENUCMD_STRS, 1);						/* "Copy %d Pages" */
 				sprintf(str, fmtStr, nPages);
 			}
 			else
@@ -2335,7 +2445,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 				case COPYTYPE_PAGE:
 					nPages = clipboard->numSheets;
 					if (nPages>1) {
-						GetIndCString(fmtStr, MENUCMD_STRS, 5);			/* "Paste %d Pages" */
+						GetIndCString(fmtStr, MENUCMD_STRS, 5);				/* "Paste %d Pages" */
 						sprintf(str, fmtStr, nPages);
 					}
 					else
@@ -2564,7 +2674,7 @@ static void FixScoreMenu(Document *doc, short nSel)
 		FixMoveMeasSys(doc);
 	}
 
-LINK MBRestSel(Document *doc)
+static LINK MBRestSel(Document *doc)
 {
 	LINK	pL, aNoteL;
 	
@@ -2770,6 +2880,7 @@ knowTupled:
 			DisableMenuItem(groupsMenu, GM_FancyTuplet);
 			return;
 		}
+		
 	/*
 	 *	For all voices, if there is a tuplable range (tupleNum>=2), enable the menu items.
 	 */
@@ -2869,46 +2980,46 @@ knowOttavad:
  */
 
 static void FixGroupsMenu(Document *doc, Boolean continSel)
-	{
-		register Boolean noteSel;
-		Boolean GRnoteSel, disableWholeMenu;
+{
+	register Boolean noteSel;
+	Boolean GRnoteSel, disableWholeMenu;
 
-		disableWholeMenu = (doc==NULL || doc==clipboard || doc->masterView);
-		UpdateMenu(groupsMenu, !disableWholeMenu);
-		if (disableWholeMenu) return;
-		
-		noteSel = ObjTypeSel(doc, SYNCtype, 0)!=NILINK;
-		GRnoteSel = ObjTypeSel(doc, GRSYNCtype, 0)!=NILINK;
-		
-		XableItem(groupsMenu, GM_AutomaticBeam, noteSel);
+	disableWholeMenu = (doc==NULL || doc==clipboard || doc->masterView);
+	UpdateMenu(groupsMenu, !disableWholeMenu);
+	if (disableWholeMenu) return;
+	
+	noteSel = ObjTypeSel(doc, SYNCtype, 0)!=NILINK;
+	GRnoteSel = ObjTypeSel(doc, GRSYNCtype, 0)!=NILINK;
+	
+	XableItem(groupsMenu, GM_AutomaticBeam, noteSel);
 
-		/*
-		 * If there are neither any notes nor grace notes selected, we just disable
-		 *	all commands and we're done.
-		 */
-		if (!noteSel) {										/* No notes selected, so... */
-			DisableMenuItem(groupsMenu, GM_Tuplet);			/* Can't remove or add any tuplets. */
-			DisableMenuItem(groupsMenu, GM_FancyTuplet);
-			if (!GRnoteSel) {
-				DisableMenuItem(groupsMenu, GM_Beam); 			/* Can't remove or add any beams. */
-				DisableMenuItem(groupsMenu, GM_BreakBeam);	 	/* Can't break any. */
-				DisableMenuItem(groupsMenu, GM_FlipFractional); /* Can't flip any. */
+	/*
+	 * If there are neither any notes nor grace notes selected, we just disable
+	 *	all commands and we're done.
+	 */
+	if (!noteSel) {											/* No notes selected, so... */
+		DisableMenuItem(groupsMenu, GM_Tuplet);				/* Can't remove or add any tuplets. */
+		DisableMenuItem(groupsMenu, GM_FancyTuplet);
+		if (!GRnoteSel) {
+			DisableMenuItem(groupsMenu, GM_Beam); 			/* Can't remove or add any beams. */
+			DisableMenuItem(groupsMenu, GM_BreakBeam);	 	/* Can't break any. */
+			DisableMenuItem(groupsMenu, GM_FlipFractional); /* Can't flip any. */
 
-				DisableMenuItem(groupsMenu, GM_Ottava); 		/* Can't remove or add any ottavas. */
-				return;
-				}
-			}
-		
-		/* Finish handling menu Enable/Disable for Beams, Tuplets, Ottavas. */
-
-		FixBeamCommands(doc);
-		FixTupletCommands(doc);
-		FixOttavaCommands(doc, continSel);
+			DisableMenuItem(groupsMenu, GM_Ottava); 		/* Can't remove or add any ottavas. */
+			return;
+		}
 	}
+	
+	/* Finish handling menu Enable/Disable for Beams, Tuplets, Ottavas. */
+
+	FixBeamCommands(doc);
+	FixTupletCommands(doc);
+	FixOttavaCommands(doc, continSel);
+}
 
 void AddWindowList()
 {
-	short startItems, itemNum; Document *doc;
+	short startItems, itemNum;  Document *doc;
 	
 	/* Delete any window names from the end of the View menu. */
 	
@@ -3035,7 +3146,7 @@ this menu shouldn't be installed, so we don't even need to disable it. */
 
 static void FixMasterPgMenu(Document *doc)
 {
-	short groupIsSel, nstavesMP, nparts; LINK staffL; Str255 str;
+	short groupIsSel, nstavesMP, nparts;  LINK staffL;  Str255 str;
 
 	if (doc==NULL || !doc->masterView) return;
 	
@@ -3072,7 +3183,7 @@ this menu shouldn't be installed, so we don't even need to disable it. */
 
 static void FixFormatMenu(Document *doc)
 {
-	short nVis, nInvis; LINK pL, aStaffL;
+	short nVis, nInvis;  LINK pL, aStaffL;
 
 	if (doc==NULL || !doc->showFormat) return;
 	

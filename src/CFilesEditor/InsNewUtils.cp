@@ -61,7 +61,7 @@ void UpdateBFTSStaff(LINK firstTSL, short staffn, short /*subType*/, short /*num
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffSTAFF(aStaffL)==staffn) {
 			StaffTIMESIGTYPE(aStaffL) = TimeSigType(firstTSL);
-			StaffNUM(aStaffL) = TimeSigNUM(firstTSL);
+			StaffNUM(aStaffL) = TimeSigNUMER(firstTSL);
 			StaffDENOM(aStaffL) = TimeSigDENOM(firstTSL);
 		}
 }
@@ -178,7 +178,7 @@ void ReplaceTimeSig(Document *doc,
 			UpdateBFTSStaff(firstTimeSigL,staffn,type,numerator,denominator);
 
 			timeSigInfo.TSType = TimeSigType(aTimeSigL);
-			timeSigInfo.numerator = TimeSigNUM(aTimeSigL);
+			timeSigInfo.numerator = TimeSigNUMER(aTimeSigL);
 			timeSigInfo.denominator = TimeSigDENOM(aTimeSigL);
 			FixContextForTimeSig(doc,RightLINK(firstTimeSigL),TimeSigSTAFFN(aTimeSigL),timeSigInfo);
 			doc->changed = TRUE;

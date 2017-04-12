@@ -56,7 +56,7 @@ void ContextKeySig(LINK pL, CONTEXT	context[])
 		if (KeySigVIS(aKeySigL)) {
 			pContext = &context[KeySigSTAFF(aKeySigL)];
 			pContext->nKSItems = KeySigNKSITEMS(aKeySigL);				/* Copy this key sig. */
-			for (k = 0; k<KeySigNKSITEMS(aKeySigL); k++)					/*    into the context */
+			for (k = 0; k<KeySigNKSITEMS(aKeySigL); k++)				/*    into the context */
 				pContext->KSItem[k] = (KeySigKSITEM(aKeySigL))[k];
 		}
 	}
@@ -150,7 +150,7 @@ void ContextTimeSig(LINK pL, CONTEXT context[])
 		/* aTimeSig = GetPATIMESIG(aTimeSigL); */
 		if (TimeSigVIS(aTimeSigL)) {
 			pContext = &context[TimeSigSTAFF(aTimeSigL)];
-			pContext->numerator = TimeSigNUM(aTimeSigL);
+			pContext->numerator = TimeSigNUMER(aTimeSigL);
 			pContext->denominator = TimeSigDENOM(aTimeSigL);
 		}
 	}
@@ -188,8 +188,8 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 	PSTAFF		pStaff;
 	PSYSTEM		pSystem;
 	PPAGE		pPage;
-	LINK		staffL, systemL, aMeasureL, aStaffL, aClefL,
-				aKeySigL, aTimeSigL, aDynamicL, pageL, headL;
+	LINK		staffL, systemL, aMeasureL, aStaffL, aClefL, aKeySigL,
+				aTimeSigL, aDynamicL, pageL, headL;
 	short		k;
 	Boolean		found,			/* FALSE till a Measure or Staff is found for theStaff */
 				foundClef,		/* TRUE if we found any of these objects */
@@ -263,7 +263,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 											(long)pL, (long)(StaffNKSITEMS(aStaffL)), (long)theStaff);
 								return;
 							}
-							pContext->nKSItems = StaffNKSITEMS(aStaffL);				/* Copy this key sig. */
+							pContext->nKSItems = StaffNKSITEMS(aStaffL);			/* Copy this key sig. */
 							for (k = 0; k<StaffNKSITEMS(aStaffL); k++)				/*    into the context */
 								pContext->KSItem[k] = (StaffKSITEM(aStaffL))[k];
 						}
@@ -345,7 +345,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 						}
 						if (!foundTimeSig) {
 							pContext->timeSigType = MeasTIMESIGTYPE(aMeasureL);
-							pContext->numerator = MeasNUM(aMeasureL);
+							pContext->numerator = MeasNUMER(aMeasureL);
 							pContext->denominator = MeasDENOM(aMeasureL);
 						}
 						if (!foundDynamic)
@@ -365,7 +365,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 								return;
 							}
 							pContext->nKSItems = KeySigNKSITEMS(aKeySigL);			/* Copy this key sig. */
-							for (k = 0; k<KeySigNKSITEMS(aKeySigL); k++)				/*    into the context */
+							for (k = 0; k<KeySigNKSITEMS(aKeySigL); k++)			/*    into the context */
 								pContext->KSItem[k] = (KeySigKSITEM(aKeySigL))[k];
 							foundKeySig = TRUE;
 						}
@@ -379,7 +379,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 						/* aTimeSig = GetPATIMESIG(aTimeSigL); */
 						if (TimeSigSTAFF(aTimeSigL) == theStaff) {
 							pContext->timeSigType = TimeSigType(aTimeSigL);
-							pContext->numerator = TimeSigNUM(aTimeSigL);
+							pContext->numerator = TimeSigNUMER(aTimeSigL);
 							pContext->denominator = TimeSigDENOM(aTimeSigL);
 							foundTimeSig = TRUE;
 						}
@@ -817,7 +817,7 @@ void EFixContForTimeSig(LINK startL, LINK doneL,
 					if (MeasureSTAFF(aMeasureL)==staffn) {
 						/* aMeasure = GetPAMEASURE(aMeasureL); */
 						MeasTIMESIGTYPE(aMeasureL) = newTSInfo.TSType;				/* Copy the time sig. into the context */
-						MeasNUM(aMeasureL) = newTSInfo.numerator;
+						MeasNUMER(aMeasureL) = newTSInfo.numerator;
 						MeasDENOM(aMeasureL) = newTSInfo.denominator;
 					}
 				break;
@@ -904,7 +904,7 @@ void EFixContForDynamic(LINK startL, LINK doneL,
 	newVelocity = dynam2velo[newDynamic];						/* Replace; discard tweaking */
 	if (newVelocity<1 || newVelocity>MAX_VELOCITY) {
 		MayErrMsg("EFixContForDynamic: illegal velocity of %ld for dynamic type %ld",
-					(long)newVelocity), (long)newDynamic;
+					(long)newVelocity, (long)newDynamic);
 		return;
 	}
 #endif
@@ -985,17 +985,17 @@ LINK FixContextForDynamic(
 				SignedByte oldDynamic, SignedByte newDynamic		/* Previous and new dynamTypes */
 				)
 {
-	LINK		doneL;
+	LINK	doneL;
 
 	if (!startL || startL==doc->tailL) return NILINK;			/* If nothing following, quit. */
 	if (oldDynamic==newDynamic) return NILINK;					/* If no dynamic change, quit. */
 
-	/* For now, hairpin dynamics don't affect note velocities; therefore we
-		don't put them in the context fields. */
+	/* For now, hairpin dynamics don't affect note velocities; therefore we don't
+		put them in the context fields. */
 
 	if (newDynamic>=FIRSTHAIRPIN_DYNAM) return NILINK;
 	
-	/* ??This error should be more general: what is so special about the headL
+	/* FIXME: This error should be more general: what is so special about the headL
 		as opposed to, say, the first page obj of the score? */
 
 	if (startL==doc->headL) {
@@ -1011,7 +1011,7 @@ LINK FixContextForDynamic(
 }
 
 
-/* --------------------------------------------------- FixMeasureContext -- */
+/* -------------------------------------------------------------- FixMeasureContext -- */
 /*	Fix clef/key sig./meter/dynamic context fields of a Measure subobject. */
 
 void FixMeasureContext(LINK aMeasureL, PCONTEXT pContext)
@@ -1023,19 +1023,18 @@ void FixMeasureContext(LINK aMeasureL, PCONTEXT pContext)
 		pContext->nKSItems = MAX_KSITEMS;
 	}
 	
-	/* aMeasure = GetPAMEASURE(aMeasureL); */
-	MeasureCLEFTYPE(aMeasureL) = pContext->clefType;
+	MeasCLEFTYPE(aMeasureL) = pContext->clefType;
 	MeasNKSITEMS(aMeasureL) = pContext->nKSItems;
 	for (k = 0; k<pContext->nKSItems; k++)
 		(MeasKSITEM(aMeasureL))[k] = pContext->KSItem[k];
 	MeasTIMESIGTYPE(aMeasureL) = pContext->timeSigType;
-	MeasNUM(aMeasureL) = pContext->numerator;
+	MeasNUMER(aMeasureL) = pContext->numerator;
 	MeasDENOM(aMeasureL) = pContext->denominator;
 	MeasDynamType(aMeasureL) = pContext->dynamicType;
 }
 
 
-/* ------------------------------------------------------ FixStaffContext -- */
+/* ---------------------------------------------------------------- FixStaffContext -- */
 /*	Fix clef/key sig./meter context fields of a Staff subobject. */
 
 void FixStaffContext(LINK aStaffL, PCONTEXT pContext)
@@ -1047,7 +1046,6 @@ void FixStaffContext(LINK aStaffL, PCONTEXT pContext)
 		pContext->nKSItems = MAX_KSITEMS;
 	}
 
-	/* aStaff = GetPASTAFF(aStaffL); */
 	StaffCLEFTYPE(aStaffL) = pContext->clefType;
 	StaffNKSITEMS(aStaffL) = pContext->nKSItems;
 	for (k = 0; k<pContext->nKSItems; k++)
@@ -1087,13 +1085,13 @@ void UpdateTSContext(Document *doc, LINK pL, short stf, CONTEXT newContext)
 
 /* Merge accidental table KSTab into oldKSTab. */
 
-void CombineTables(SignedByte oldKSTab[], SignedByte KSTab[])	/* Accidental tables */
+void CombineTables(SignedByte oldKSTab[], SignedByte KSTab[])
 {
 	short j;
 	
-	for (j = 0; j<MAX_STAFFPOS; j++)									/* Combine tables */
-		if (oldKSTab[j]==KSTab[j])										/* Entry the same? */
-			oldKSTab[j] = 0;												/* Yes, do nothing */
+	for (j = 0; j<MAX_STAFFPOS; j++)					/* Combine tables */
+		if (oldKSTab[j]==KSTab[j])						/* Entry the same? */
+			oldKSTab[j] = 0;							/* Yes, do nothing */
 }
 
 /* Initialize a pitch modifier table from the given KSInfo. */
@@ -1102,7 +1100,7 @@ void InitPitchModTable(SignedByte KSTab[], KSINFO *pKSInfo)
 {
 	short j;
 
-	KeySig2AccTable(KSTab, pKSInfo);							/* Init. table from key sig. */
+	KeySig2AccTable(KSTab, pKSInfo);					/* Init. table from key sig. */
 	for (j = 0; j<MAX_STAFFPOS; j++)
 		if (KSTab[j]==0) KSTab[j] = AC_NATURAL;			/* Replace no acc. with natural */
 }
