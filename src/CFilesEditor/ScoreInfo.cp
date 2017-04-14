@@ -18,7 +18,6 @@ static short MeasCount(Document *);
 static short SICheckMeasDur(Document *doc, short *pFirstBad);
 static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty);
 static short SICheckRange(Document *doc, short *pFirstOutOfRange);
-static short CountNoteAttacks(Document *doc);
 static long GetScoreDuration(Document *doc);
 
 #define LEADING 11			/* Vertical dist. between lines displayed (pixels) */
@@ -46,7 +45,7 @@ static short MeasCount(Document *doc)
 		return aMeasure->measureNum+1;
 	}
 	else
-		return 1;
+		return 1;										/* should never happen */
 }
 
 
@@ -159,20 +158,6 @@ static short SICheckRange(Document *doc, short *pFirstOutOfRange)
 }
 
 
-static short CountNoteAttacks(Document *doc)
-{
-	LINK pL, aNoteL;
-	short nNoteAttacks = 0;
-	
-	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
-		if (SyncTYPE(pL))
-			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
-				if (!NoteREST(aNoteL) && !NoteTIEDL(aNoteL)) nNoteAttacks++;
-	}
-	return nNoteAttacks;
-}
-
-
 /* Return the approximate (see comments) duration of the score. */
 
 long GetScoreDuration(Document *doc)
@@ -209,9 +194,9 @@ long GetScoreDuration(Document *doc)
 
 void ScoreInfo()
 	{
-		DialogPtr dialogp; GrafPtr oldPort;
-		short ditem, aShort; Handle aHdl;
-		LINK pL; const char *ps; HEAP *theHeap;
+		DialogPtr dialogp;  GrafPtr oldPort;
+		short ditem, aShort;  Handle aHdl;
+		LINK pL;  const char *ps;  HEAP *theHeap;
 		unsigned short h, count, objCount[LASTtype], objsTotal, noteAttackCount;
 		long lObjCount[LASTtype], totalCount, scoreDuration, qtrNTicks;
 		Document *doc=GetDocumentFromWindow(TopDocument);
@@ -263,6 +248,12 @@ void ScoreInfo()
 			CountInHeaps(doc, objCount, FALSE);
 			noteAttackCount = CountNoteAttacks(doc);
 
+			/* Find and display the number of subobjects of each type. NB that for some
+			   types, these numbers may not agree with the user's concept of things: for
+			   example, they include context-setting KeySig objects at the beginning of
+			   each system, which are invisible if there's no actual key signature in
+			   effect. */
+			
 			totalCount = 0L;
 		 	for (h = SYNCtype; h<OBJtype; h++) {
 		 		theHeap = Heap+h;

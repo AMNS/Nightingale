@@ -252,7 +252,7 @@ static short GetShortestDurCode(short voice, LINK startL, LINK endL)
 	return maxDurCode;
 }
 
-/* -------------------------------------------------------------- NotelistToNight -- */
+/* ---------------------------------------------------------------- NotelistToNight -- */
 
 static Boolean NotelistToNight(Document *doc)
 {
@@ -1052,7 +1052,7 @@ static void FixPlayDurs(Document *doc, LINK startL, LINK endL)
 /* ----------------------------------------------------------------------------------- */
 /* Functions for creating and displaying the converted Notelist document. */
 
-/* ----------------------------------------------------------------- SetupNLScore ---- */
+/* ------------------------------------------------------------------- SetupNLScore -- */
 
 static Boolean SetupNLScore(Document *doc)
 {

@@ -32,10 +32,11 @@
 	Boolean		AddMIDIRedundantAccs(Document *doc, LINK endAddAccsL, Boolean
 							addTiedLeft, Boolean addNaturals);
 
-/* DelRedTimeSigs.c */
+/* DelAddRedTimeSigs.c */
 
 	Boolean		DelRedTimeSigs(Document *doc, Boolean respace, LINK *pFirstDelL,
 						LINK *pLastDelL);
+	short		AddCautionaryTimeSigs(Document *doc);
 
 /* DialogsEditor.c */
 

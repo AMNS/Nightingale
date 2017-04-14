@@ -1,4 +1,6 @@
-/* ExtractHighLevel.c for Nightingale - high-level routines for extracting parts */
+/* CombineParts.c for Nightingale. FIXME: Routines in this file support combining parts
+directly in the main object list. However, from the UI standpoint, it'd make far more
+sense to have the Combine Parts command in Master Page! Cf. MPCombineParts.c. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC

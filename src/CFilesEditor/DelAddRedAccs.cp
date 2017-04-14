@@ -1,5 +1,4 @@
-/* DelAddRedAccs.c for Nightingale - routines for deleting and adding accidentals -
-MemMacroized version. */
+/* DelAddRedAccs.c for Nightingale - routines for deleting and adding accidentals. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -13,7 +12,7 @@ MemMacroized version. */
 #include "Nightingale.appl.h"
 
 
-/* ------------------------------------------------ DelNoteRedAcc,DelGRNoteRedAcc -- */
+/* -------------------------------------------------- DelNoteRedAcc,DelGRNoteRedAcc -- */
 /* If the note's accidental is redundant, delete the accidental. */
 
 Boolean DelNoteRedAcc(Document *doc, short code, LINK syncL, LINK aNoteL,
@@ -21,7 +20,7 @@ Boolean DelNoteRedAcc(Document *doc, short code, LINK syncL, LINK aNoteL,
 {
 	LINK prevSyncL, prevNoteL;
 	short stf, halfLn, prevHalfLn;
-	Boolean didAnything;
+	Boolean didAnything=FALSE;
 	
 	stf = NoteSTAFF(aNoteL);
 	GetPitchTable(doc, accTable, syncL, stf);						/* Get pitch modif. situation */
@@ -62,7 +61,7 @@ Boolean DelGRNoteRedAcc(Document *doc, short code, LINK syncL, LINK aGRNoteL,
 								Boolean syncVChanged[])
 {
 	short stf, halfLn;
-	Boolean didAnything;
+	Boolean didAnything=FALSE;
 
 	stf = GRNoteSTAFF(aGRNoteL);
 	GetPitchTable(doc, accTable, syncL, stf);						/* Get pitch modif. situation */
@@ -78,7 +77,7 @@ Boolean DelGRNoteRedAcc(Document *doc, short code, LINK syncL, LINK aGRNoteL,
 }
 
 
-/* -------------------------------------------- ArrangeSyncAccs, ArrangeGRSyncAccs -- */
+/* --------------------------------------------- ArrangeSyncAccs, ArrangeGRSyncAccs -- */
 /* In the given Sync, arrange the accidentals for notes/chords in all voices whose
 flags are set in <syncVChanged>. */
 
@@ -175,7 +174,6 @@ Boolean DelRedundantAccs(
 
 	if (didAnything) doc->changed = TRUE;
 	return didAnything;
-
 }
 
 
@@ -196,7 +194,7 @@ Boolean AddRedundantAccs(
 			Document	*doc,
 			short		stf,		/* Staff no. or ANYONE */
 			short		code,
-			Boolean	addTiedLeft
+			Boolean		addTiedLeft
 			)
 {
 	LINK		pL, aNoteL;
@@ -275,13 +273,13 @@ short MIDI2EffectiveAcc(
 			LINK /*syncL*/, LINK theNoteL
 			)
 {
-	short halfLn;							/* Relative to the top of the staff */
+	short halfLn;										/* Relative to the top of the staff */
 	SHORTQD yqpit;
 	short midCHalfLn, noteNum, delta;
 
-	midCHalfLn = ClefMiddleCHalfLn(clefType);						/* Get middle C staff pos. */		
+	midCHalfLn = ClefMiddleCHalfLn(clefType);					/* Get middle C staff pos. */		
 	yqpit = NoteYQPIT(theNoteL)+halfLn2qd(midCHalfLn);
-	halfLn = qd2halfLn(yqpit);											/* Number of half lines from stftop */
+	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
 
 	if (octType>0)
 		noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1], AC_NATURAL);
@@ -306,13 +304,13 @@ short MIDI2EffectiveGRAcc(
 			LINK /*syncL*/, LINK theGRNoteL
 			)
 {
-	short halfLn;							/* Relative to the top of the staff */
+	short halfLn;									/* Relative to the top of the staff */
 	SHORTQD yqpit;
 	short midCHalfLn, noteNum, delta;
 
-	midCHalfLn = ClefMiddleCHalfLn(clefType);						/* Get middle C staff pos. */		
+	midCHalfLn = ClefMiddleCHalfLn(clefType);					/* Get middle C staff pos. */		
 	yqpit = GRNoteYQPIT(theGRNoteL)+halfLn2qd(midCHalfLn);
-	halfLn = qd2halfLn(yqpit);											/* Number of half lines from stftop */
+	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
 
 	if (octType>0)
 		noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1], AC_NATURAL);
@@ -431,7 +429,6 @@ Boolean AddMIDIRedundantAccs(
 			default:
 				;
 		}
-
 
 	if (didAnything) doc->changed = TRUE;
 	return didAnything;

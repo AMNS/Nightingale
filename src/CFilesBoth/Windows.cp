@@ -535,12 +535,13 @@ void DoDragWindow(WindowPtr w)
 
 /* Application's own version of dragging. We use this instead of DragWindow because
 we want the DragGrayRgn feedback to show that the window is behind our floating
-palettes. This version can handle, e.g., Radius FPD-equipped SE's. */
+palettes. A comment here clearly dating from the 1990's: "This version can handle,
+e.g., Radius FPD-equipped SE's." */
 
 void OurDragWindow(WindowPtr whichWindow)
 {
 	Rect portBounds = GetQDPortBounds();
-	DragWindow(whichWindow,theEvent.where,&portBounds);
+	DragWindow(whichWindow, theEvent.where, &portBounds);
 }
 
 
@@ -557,7 +558,7 @@ void SendToBack(WindowPtr w)
 			if (IsDocumentKind(next)) {
 				below = next;
 				break;
-				}
+			}
 		if (w != below) {
 			SendBehind(w, NULL);		/* Send the document all the way to the back */
 			if (TopPalette == TopWindow) {
@@ -567,9 +568,9 @@ void SendToBack(WindowPtr w)
 				AnalyzeWindows();
 				/* Ensure the TopDocument and its controls are hilited properly */
 				ActivateDocument(GetDocumentFromWindow(TopDocument), TRUE);
-				}
 			}
-		} 
+		}
+	} 
 	else
 		if (w!=BottomPalette && TopPalette!=BottomPalette)
 			SendBehind(w, BottomPalette);	/* Move the palette behind the BottomPalette. */

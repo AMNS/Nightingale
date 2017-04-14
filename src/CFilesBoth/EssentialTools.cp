@@ -1,6 +1,8 @@
 /*	EssentialTools.c
-	These are miscellaneous routines that are generally-useful extensions to the
-	Mac Toolbox routines. Doug McKenna, 1989; numerous revisions by Donald Byrd. */
+	These are miscellaneous routines that are generally-useful extensions to the Mac
+	Toolbox routines. Doug McKenna, 1989; numerous revisions by Donald Byrd.  NB: Quite
+	a few of these are for use in dialogs; they should probably be moved someday to
+	DialogUtils.c. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -21,44 +23,45 @@
 static void	DrawSelBox(short index);
 
 /* Given a double and a buffer, format the double as a C string. The obvious way to
-do this is with sprintf, but in THINK C, we can't, for reasons explained in the
-comments on ftoaTC.  Delivers its first argument. */
+do this is with sprintf, but in THINK C (ca. 2000 A.D.), we couldn't, for reasons
+explained in the comments on ftoaTC; it's probably okay to change now (2017).
+Delivers its first argument. */
 
 char *ftoa(char *buffer, double arg)
-	{
-		sprintf(buffer, "%.2f", arg);		/* JGG: Just use 2 decimal places */
-		return buffer;
-	}
+{
+	sprintf(buffer, "%.2f", arg);		/* JGG: Just use 2 decimal places */
+	return buffer;
+}
 
 
 /* Set a block of nBytes bytes, starting at m, to zero.  m must be even. Cf. FillMem. */
 
 void ZeroMem(void *m, long nBytes)
-	{
-		char *p;
+{
+	char *p;
 
-		p = (char *)m;
-		while (nBytes-- > 0) *p++ = 0;
-	}
+	p = (char *)m;
+	while (nBytes-- > 0) *p++ = 0;
+}
 
 /*
  *	For checking validity of pointers and handles just allocated
  */
 
 Boolean GoodNewPtr(Ptr p)
-	{
-		return( (p!=NULL) && (MemError()==noErr) );
-	}
+{
+	return( (p!=NULL) && (MemError()==noErr) );
+}
 
 Boolean GoodNewHandle(Handle hndl)
-	{
-		return( (hndl!=NULL) && GoodNewPtr(*hndl) );
-	}
+{
+	return( (hndl!=NULL) && GoodNewPtr(*hndl) );
+}
 
 Boolean GoodResource(Handle hndl)
-	{
-		return( hndl!=NULL && ResError()==noErr && *hndl!=NULL );
-	}
+{
+	return( hndl!=NULL && ResError()==noErr && *hndl!=NULL );
+}
 
 /*
  *	This requests a non-relocatable n-byte block of memory from the Toolbox,
@@ -68,17 +71,17 @@ Boolean GoodResource(Handle hndl)
  */
 
 void *NewZPtr(Size n)		/* Allocate n bytes of zeroed memory; deliver ptr */
-	{
-		char *p,*q; void *ptr;
+{
+	char *p, *q;  void *ptr;
 
-		ptr = NewPtr(n);
-		if (!ptr) /* NoMemory(memFullErr) */ SysBeep(1);
-		 else {
-			p = (char *)ptr; q = p + n;
-			while (p < q) *p++ = '\0';
-			}
-		return(ptr);
-	}
+	ptr = NewPtr(n);
+	if (!ptr) /* NoMemory(memFullErr) */ SysBeep(1);
+	 else {
+		p = (char *)ptr; q = p + n;
+		while (p < q) *p++ = '\0';
+		}
+	return(ptr);
+}
 
 /*
  *	GrowMemory() is a very simple grow zone function designed to prevent the ROM or
@@ -91,20 +94,20 @@ void *NewZPtr(Size n)		/* Allocate n bytes of zeroed memory; deliver ptr */
  */
 
 pascal long GrowMemory(Size /*nBytes*/)		/* nBytes is unused */
-	{
-		long bufferSize=0L;
-		long oldA5 = SetCurrentA5();
-		
-		if (memoryBuffer!=NULL) {
-			bufferSize = GetHandleSize(memoryBuffer);
-			DisposeHandle(memoryBuffer);
-			memoryBuffer = NULL;
-		}
-		outOfMemory = TRUE;
-		
-		SetA5(oldA5);
-		return(bufferSize);
+{
+	long bufferSize=0L;
+	long oldA5 = SetCurrentA5();
+	
+	if (memoryBuffer!=NULL) {
+		bufferSize = GetHandleSize(memoryBuffer);
+		DisposeHandle(memoryBuffer);
+		memoryBuffer = NULL;
 	}
+	outOfMemory = TRUE;
+	
+	SetA5(oldA5);
+	return(bufferSize);
+}
 
 
 /* Is the given amount of memory available? This can be checked simply by calling
@@ -130,48 +133,48 @@ Boolean PreflightMem(short nKBytes)		/* if nKBytes<=0, assume max. size of a seg
  */
 
 void WaitCursor()
-	{
-		static CursHandle watchHandle;
-		static Boolean once = TRUE;
-		
-		if (once) {
-			watchHandle = GetCursor(watchCursor);	/* From system resources */
-			once = FALSE;
-			}
-		if (watchHandle && *watchHandle) SetCursor(*watchHandle);
+{
+	static CursHandle watchHandle;
+	static Boolean once = TRUE;
+	
+	if (once) {
+		watchHandle = GetCursor(watchCursor);	/* From system resources */
+		once = FALSE;
 	}
+	if (watchHandle && *watchHandle) SetCursor(*watchHandle);
+}
 
 void ArrowCursor()
-	{
-		Cursor arrow;
-		
-		GetQDGlobalsArrow(&arrow);
+{
+	Cursor arrow;
+	
+	GetQDGlobalsArrow(&arrow);
 
-		SetCursor(&arrow);
-	}
+	SetCursor(&arrow);
+}
 
 Boolean CheckAbort()
-	{
-		EventRecord evt; int ch; Boolean quit = FALSE;
+{
+	EventRecord evt; int ch; Boolean quit = FALSE;
 
-		if (hasWaitNextEvent) {
-			if (!WaitNextEvent(keyDownMask+app4Mask,&evt,0,NULL)) return(quit);
-			}
-		 else
-			if (!GetNextEvent(keyDownMask,&evt)) return(quit);
-
-		switch(evt.what) {
-			case keyDown:
-	 			ch = evt.message & charCodeMask;
-	 			if (ch=='.' && (evt.modifiers&cmdKey)!=0) quit = TRUE;
-				break;
-			case app4Evt:
-				DoSuspendResume(&evt);
-				break;
-			}
-		
-	 	return(quit);
+	if (hasWaitNextEvent) {
+		if (!WaitNextEvent(keyDownMask+app4Mask, &evt, 0, NULL)) return(quit);
 	}
+	 else
+		if (!GetNextEvent(keyDownMask, &evt)) return(quit);
+
+	switch(evt.what) {
+		case keyDown:
+			ch = evt.message & charCodeMask;
+			if (ch=='.' && (evt.modifiers&cmdKey)!=0) quit = TRUE;
+			break;
+		case app4Evt:
+			DoSuspendResume(&evt);
+			break;
+	}
+	
+	return(quit);
+}
 
 /*
  *	Determine if a mouse click is a double click, using given position tolerance,
@@ -196,13 +199,13 @@ Boolean IsDoubleClick(Point pt, short tol, long now)
 		return ans;
 	}
 
-/******************************************************************************
+/****************************************************************************************
  KeyIsDown	(from THINK C class library)
  
 		Determine whether or not the specified key is being pressed. Keys
 		are specified by hardware-specific key code (NOT the character).
 		Charts of key codes appear in Inside Macintosh, p. V-191.
- ******************************************************************************/
+ ***************************************************************************************/
 
 Boolean KeyIsDown(short theKeyCode)
 {
@@ -210,45 +213,42 @@ Boolean KeyIsDown(short theKeyCode)
 	
 	GetKeys(theKeys);					/* Get state of each key */
 										
-		/* Ordering of bits in a KeyMap is truly bizarre. A KeyMap is a
-			16-byte (128 bits) array where each bit specifies the state
-			of a key (0 = up, 1 = down). We isolate the bit for the
-			specified key code by first determining the byte position in
-			the KeyMap and then the bit position within that byte.
-			Key codes 0-7 are in the first byte (offset 0 from the
-			start), codes 8-15 are in the second, etc. The BitTst() trap
-			counts bits starting from the high-order bit of the byte.
-			For example, for key code 58 (the option key), we look at
-			the 8th byte (7 offset from the first byte) and the 5th bit
-			within that byte.	*/
+	/* Ordering of bits in a KeyMap is truly bizarre. A KeyMap is a 16-byte (128
+		bits) array where each bit specifies the state of a key (0 = up, 1 = down). We
+		isolate the bit for the specified key code by first determining the byte
+		position in the KeyMap and then the bit position within that byte. Key codes
+		0-7 are in the first byte (offset 0 from the start), codes 8-15 are in the
+		second, etc. The BitTst() trap counts bits starting from the high-order bit of
+		the byte. For example, for key code 58 (the option key), we look at the 8th
+		byte (7 offset from the first byte) and the 5th bit within that byte.	*/
 		
 	return( BitTst( ((char*) &theKeys) + theKeyCode / 8,
 					(long) 7 - (theKeyCode % 8) )!=0 );
 }
 
 Boolean CmdKeyDown() {
-		return (KeyIsDown(55));
-	}
+	return (KeyIsDown(55));
+}
 
 Boolean OptionKeyDown() {
-		return (GetCurrentKeyModifiers() & optionKey) != 0;
-	}
+	return (GetCurrentKeyModifiers() & optionKey) != 0;
+}
 
 Boolean ShiftKeyDown() {
-		 return (GetCurrentKeyModifiers() & shiftKey) != 0;
-	}
+	return (GetCurrentKeyModifiers() & shiftKey) != 0;
+}
 
 Boolean CapsLockKeyDown() {
-		 return (GetCurrentKeyModifiers() & alphaLock) != 0;
-	}
+	return (GetCurrentKeyModifiers() & alphaLock) != 0;
+}
 
 Boolean ControlKeyDown() {
-		 return (GetCurrentKeyModifiers() & controlKey) != 0;
-	}
+	return (GetCurrentKeyModifiers() & controlKey) != 0;
+}
 	
 Boolean CommandKeyDown() {
-		 return (GetCurrentKeyModifiers() & cmdKey) != 0;
-	}
+	return (GetCurrentKeyModifiers() & cmdKey) != 0;
+}
 
 /*
  *	Outline the given item in the given dialog to show it's the default item, or

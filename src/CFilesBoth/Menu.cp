@@ -262,7 +262,7 @@ Boolean DoFileMenu(short choice)
 		
 		switch(choice) {
 			case FM_New:
-				doSymbol = (TopDocument == NULL);
+				doSymbol = (TopDocument==NULL);
 				DoOpenDocument(NULL, 0, FALSE, NULL);
 				if (doSymbol && !IsWindowVisible(palettes[TOOL_PALETTE])) {
 					AnalyzeWindows();
@@ -276,15 +276,15 @@ Boolean DoFileMenu(short choice)
 					GetIndCString(str, MENUCMDMSGS_STRS, 4);			/* "Which score do you want to open?" */
 					returnCode = GetInputName(str, TRUE, tmpStr, &vrefnum, &nscd);
 					if (returnCode) {
-						if (returnCode == OP_OpenFile) {
+						if (returnCode==OP_OpenFile) {
 							fsSpec = nscd.nsFSSpec;
 							vrefnum = nscd.nsFSSpec.vRefNum;
 							DoOpenDocument(tmpStr, vrefnum, FALSE, &fsSpec);
 							LogPrintf(LOG_INFO, "Opened file '%s'.\n", PToCString(tmpStr));
 						 }
-						 else if (returnCode == OP_NewFile)
+						 else if (returnCode==OP_NewFile)
 						 	keepGoing = DoFileMenu(FM_New);
-						 else if (returnCode == OP_QuitInstead)
+						 else if (returnCode==OP_QuitInstead)
 						 	keepGoing = DoFileMenu(FM_Quit);
 						}
 					}
@@ -486,6 +486,7 @@ void DoEditMenu(short choice)
 				EMAddCautionaryTimeSigs(doc);
 				break;
 
+			/* These debug commands may be added to this menu: cf. InstallDebugMenuItems */
 			case EM_Browser:
 				if (OptionKeyDown())
 					Browser(doc,doc->masterHeadL, doc->masterTailL);
@@ -748,43 +749,43 @@ work very differently), if anything after the reserved area is selected, return 
 to indicate Transpose Key shouldn't be allowed. */
 
 static Boolean SetTranspKeyStaves(Document *doc, Boolean trStaff[])
-	{
-		short s;  LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
-		
-		/* If anything is selected after the initial reserved area, don't allow
-			Transpose Key. */
-		
-		measL = LSSearch(LeftLINK(doc->selEndL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
-		if (measL) return FALSE;
+{
+	short s;  LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
+	
+	/* If anything is selected after the initial reserved area, don't allow
+		Transpose Key. */
+	
+	measL = LSSearch(LeftLINK(doc->selEndL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	if (measL) return FALSE;
 
-		/* Decide which staves will be affected. */
+	/* Decide which staves will be affected. */
+	
+	for (s = 1; s<=MAXSTAVES; s++)
+		trStaff[s] = FALSE;
 		
-		for (s = 1; s<=MAXSTAVES; s++)
-			trStaff[s] = FALSE;
-			
-		for (pL = doc->selStartL; pL && !MeasureTYPE(pL); pL = RightLINK(pL))
-			switch (ObjLType(pL)) {
-				case CLEFtype:
-					aClefL = FirstSubLINK(pL);
-					for ( ; aClefL; aClefL = NextCLEFL(aClefL))
-						if (ClefSEL(aClefL)) trStaff[ClefSTAFF(aClefL)] = TRUE;
-					break;
-				case KEYSIGtype:
-					aKeySigL = FirstSubLINK(pL);
-					for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL))
-						if (KeySigSEL(aKeySigL)) trStaff[KeySigSTAFF(aKeySigL)] = TRUE;
-					break;
-				case TIMESIGtype:
-					aTimeSigL = FirstSubLINK(pL);
-					for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL))
-						if (TimeSigSEL(aTimeSigL)) trStaff[TimeSigSTAFF(aTimeSigL)] = TRUE;
-					break;
-				default:
-					;
-			}
+	for (pL = doc->selStartL; pL && !MeasureTYPE(pL); pL = RightLINK(pL))
+		switch (ObjLType(pL)) {
+			case CLEFtype:
+				aClefL = FirstSubLINK(pL);
+				for ( ; aClefL; aClefL = NextCLEFL(aClefL))
+					if (ClefSEL(aClefL)) trStaff[ClefSTAFF(aClefL)] = TRUE;
+				break;
+			case KEYSIGtype:
+				aKeySigL = FirstSubLINK(pL);
+				for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL))
+					if (KeySigSEL(aKeySigL)) trStaff[KeySigSTAFF(aKeySigL)] = TRUE;
+				break;
+			case TIMESIGtype:
+				aTimeSigL = FirstSubLINK(pL);
+				for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL))
+					if (TimeSigSEL(aTimeSigL)) trStaff[TimeSigSTAFF(aTimeSigL)] = TRUE;
+				break;
+			default:
+				;
+		}
 
-		return TRUE;
-	}
+	return TRUE;
+}
 
 
 /*
@@ -798,7 +799,7 @@ static void DoNotesMenu(short choice)
 		Boolean canTranspKey, trStaff[MAXSTAVES+1];
 		short addAccCode;
 		
-		if (doc == NULL) return;
+		if (doc==NULL) return;
 		
 		switch(choice) {
 			case NM_SetDuration:
@@ -1112,7 +1113,7 @@ void EditPartMIDI(Document *doc)
 	firstStaff = PartFirstSTAFF(partL);
 	pPart = GetPPARTINFO(partL);
 	partInfo = *pPart;
-	if (useWhichMIDI == MIDIDR_CM) {
+	if (useWhichMIDI==MIDIDR_CM) {
 		MIDIUniqueID device;
 		partn = (short)PartL2Partn(doc, partL);
 		device = GetCMDeviceForPartn(doc, partn);
@@ -1159,16 +1160,6 @@ void EditPartMIDI(Document *doc)
 	}
 }
 
-/* If we're using built-in MIDI and the port currently chosen for built-in MIDI is
-already in use, this function gives an error message and returns TRUE, else it just
-returns FALSE. Call it before starting a MIDI operation that might use built-in MIDI. */
-
-static Boolean BIMIDIPortIsBusy(void);
-static Boolean BIMIDIPortIsBusy()
-{
-	return FALSE;
-}
-
 /*
  *	Handle a choice from the Play/Record Menu
  */
@@ -1182,17 +1173,14 @@ void DoPlayRecMenu(short choice)
 		switch(choice) {
 		
 			case PL_PlayEntire:
-				if (BIMIDIPortIsBusy()) break;
 				MEHideCaret(doc);
 				if (doc) PlayEntire(doc);
 				break;
 			case PL_PlaySelection:
-				if (BIMIDIPortIsBusy()) break;
 				MEHideCaret(doc);
 				if (doc) PlaySelection(doc);
 				break;
 			case PL_PlayFromSelection:
-				if (BIMIDIPortIsBusy()) break;
 				MEHideCaret(doc);
 				if (doc) PlaySequence(doc, doc->selStartL, doc->tailL, TRUE, FALSE);
 				break;
@@ -1205,26 +1193,22 @@ void DoPlayRecMenu(short choice)
 				if (doc) SetPlaySpeedDialog();
 				break;
 			case PL_RecordInsert:
-				if (BIMIDIPortIsBusy()) break;
 				if (doc) PLRecord(doc, FALSE);
 				break;
 			case PL_Quantize:
 				if (doc) DoQuantize(doc);
 				break;
 			case PL_RecordMerge:
-				if (BIMIDIPortIsBusy()) break;
 				if (doc) PLRecord(doc, TRUE);
 				break;
 			case PL_StepRecInsert:
-				if (BIMIDIPortIsBusy()) break;
 				if (doc) PLStepRecord(doc, FALSE);
 				break;
 			case PL_StepRecMerge:
-				if (BIMIDIPortIsBusy()) break;
 				if (doc) PLStepRecord(doc, TRUE);
 				break;
 			case PL_AllNotesOff:
-				if (useWhichMIDI == MIDIDR_CM)
+				if (useWhichMIDI==MIDIDR_CM)
 					CMAllNotesOff();
 				break;
 			case PL_MIDISetup:
@@ -1375,65 +1359,66 @@ static void DoFormatMenu(short choice)
  */
 
 static void DoMagnifyMenu(short choice)
-	{		
-		/*
-		 * Assume the menu simply contains a list of all possible <doc->magnify>
-		 * values, starting with the smallest (MIN_MAGNIFY).
-		 */
-		Document *doc=GetDocumentFromWindow(TopDocument);
-		short newMagnify, magnifyDiff;
+{		
+	/*
+	 * Assume the menu simply contains a list of all possible <doc->magnify>
+	 * values, starting with the smallest (MIN_MAGNIFY).
+	 */
+	Document *doc=GetDocumentFromWindow(TopDocument);
+	short newMagnify, magnifyDiff;
 
-		if (doc) {
-			newMagnify = MIN_MAGNIFY+(choice-1);
-			magnifyDiff = newMagnify-(doc->magnify);
-			SheetMagnify(doc, magnifyDiff);
-		}
+	if (doc) {
+		newMagnify = MIN_MAGNIFY+(choice-1);
+		magnifyDiff = newMagnify-(doc->magnify);
+		SheetMagnify(doc, magnifyDiff);
 	}
+}
 
 
 /* ----------------------------------------------------------------- Miscellaneous --- */
 
 static void MovePalette(WindowPtr whichPalette, Point position)
-	{
-		PaletteGlobals *pg; GrafPtr oldPort; Rect portRect;
-		
-		if (GetWRefCon(whichPalette) == TOOL_PALETTE) {
-			ShowHide(whichPalette,FALSE);
-			MoveWindow(whichPalette, position.h, position.v, FALSE);
-			pg = *paletteGlobals[TOOL_PALETTE];
-			ChangeToolSize(pg->firstAcross,pg->firstDown,TRUE);
-			}
-		 else {
-			MoveWindow(whichPalette, position.h, position.v, FALSE);
-			GetPort(&oldPort); SetPort(GetWindowPort(whichPalette));
-			GetWindowPortBounds(whichPalette,&portRect);
-			InvalWindowRect(whichPalette,&portRect);
-			SetPort(oldPort);
-			}
-		
-		if (TopWindow!=NULL && GetWindowKind(TopWindow)<OURKIND)
-			/* The TopWindow is a non-application document. */
-			if (IsWindowVisible(whichPalette))
-				/* The palette is visible. Bring it to the front and generate an activate event. */
-				SelectWindow(whichPalette);
-			 else {
-				BringToFront(whichPalette);
-				/* Make the palette visible and generate an activate event. */
-				ShowWindow(whichPalette);
-				}
-		 else {
-			/* The TopWindow is an application window or it is equal to NULL */
-			BringToFront(whichPalette);
-			if (TopWindow == NULL)
-				/* Make the palette visible and generate an activate event. */
-				ShowWindow(whichPalette);
-			 else {
-				/* Make the palette visible but don't generate an activate event. */
-				ShowHide(whichPalette, TRUE);
-				HiliteWindow(whichPalette, TRUE);
-				}
-			}
+{
+	PaletteGlobals *pg;  GrafPtr oldPort;  Rect portRect;
+	
+	if (GetWRefCon(whichPalette)==TOOL_PALETTE) {
+		ShowHide(whichPalette,FALSE);
+		MoveWindow(whichPalette, position.h, position.v, FALSE);
+		pg = *paletteGlobals[TOOL_PALETTE];
+		ChangeToolSize(pg->firstAcross,pg->firstDown,TRUE);
 	}
+	 else {
+		MoveWindow(whichPalette, position.h, position.v, FALSE);
+		GetPort(&oldPort); SetPort(GetWindowPort(whichPalette));
+		GetWindowPortBounds(whichPalette,&portRect);
+		InvalWindowRect(whichPalette,&portRect);
+		SetPort(oldPort);
+	}
+	
+	if (TopWindow!=NULL && GetWindowKind(TopWindow)<OURKIND)
+		/* The TopWindow is a non-application document. */
+		if (IsWindowVisible(whichPalette))
+			/* The palette is visible. Bring it to the front and generate an activate event. */
+			SelectWindow(whichPalette);
+		 else {
+			BringToFront(whichPalette);
+			/* Make the palette visible and generate an activate event. */
+			ShowWindow(whichPalette);
+		}
+	 else {
+		/* The TopWindow is an application window or it is equal to NULL */
+		BringToFront(whichPalette);
+		if (TopWindow==NULL)
+			/* Make the palette visible and generate an activate event. */
+			ShowWindow(whichPalette);
+		 else {
+			/* Make the palette visible but don't generate an activate event. */
+			ShowHide(whichPalette, TRUE);
+			HiliteWindow(whichPalette, TRUE);
+		}
+	}
+}
+
 
 /*
  *	Get user preferences from dialog.
@@ -1457,75 +1442,12 @@ but not really safe; it'd be better to check here.  */
 
 static void EMAddCautionaryTimeSigs(Document *doc)
 {
-	LINK pL, systemL, endPrevSysL, timeSigL, aTimeSigL;
-	short systemNum, type, numer, denom, numAdded;
-	Boolean beforeFirstNRGR, firstChange;
-	TSINFO timeSigInfo;
-
-	/* Go thru the entire object list. When we encounter a time signature, if it's
-	   before any Syncs or GRSyncs (i.e., notes, rests, or grace notes) in its
-	   System and the last object of the previous System is a Measure (graphically, a
-	   barline), add the same time signature at the end of the previous system. Note
-	   that we can't just look for a time signature that's not <inMeas>, i.e., before
-	   the first Measure of a System, since time sig. changes are _within_ the first
-	   Measure. */
-	numAdded = 0;
-	systemNum = 0;
-	beforeFirstNRGR = TRUE;
-	firstChange = TRUE;
-	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
-		switch (ObjLType(pL)) {
-			case SYSTEMtype:
-				systemNum++;
-				//LogPrintf(LOG_DEBUG, "EMAddCautionaryTimeSigs system %d\n", systemNum);
-				systemL = pL;
-				beforeFirstNRGR = TRUE;
-				break;
-			case SYNCtype:
-			case GRSYNCtype:
-				beforeFirstNRGR = FALSE;
-				break;
-			case TIMESIGtype:
-				if (systemNum>1 && beforeFirstNRGR) {
-					/* Consider adding the same timesig at the end of the previous
-						System. If the previous System ended with a Measure, it must
-						be the object just before the current System or -- if that
-						object is a Page -- the object just before that. */
-					endPrevSysL = LeftLINK(systemL);
-					if (PageTYPE(endPrevSysL)) endPrevSysL = LeftLINK(endPrevSysL);
-					if (MeasureTYPE(endPrevSysL)) {
-						if (firstChange) PrepareUndo(doc, endPrevSysL,
-											U_AddCautionaryTS, 50);    /* "Add Cautionary TimeSigs" */
-						firstChange = FALSE;
-						aTimeSigL = FirstSubLINK(pL);
-						type = TimeSigType(aTimeSigL);
-						numer = TimeSigNUMER(aTimeSigL);
-						denom = TimeSigDENOM(aTimeSigL);
-						LogPrintf(LOG_DEBUG, "EMAddCautionaryTimeSigs: adding TS type %d, %d/%d. system %d\n",
-										type, numer, denom, systemNum);						
-						timeSigL = FIInsertTimeSig(doc, ANYONE, RightLINK(endPrevSysL),
-													type, numer, denom);
-						if (timeSigL==NILINK) {
-							AlwaysErrMsg("EMAddCautionaryTimeSigs: can't add time signature.");
-							return;
-						}
-						timeSigInfo.TSType = type;
-						timeSigInfo.numerator = numer;
-						timeSigInfo.denominator = denom;
-						// ??NEED TO DO THIS FOR ALL STAVES!!!!!
-						FixContextForTimeSig(doc, RightLINK(timeSigL), 1, timeSigInfo);
-						RespaceBars(doc, timeSigL, timeSigL, 0, FALSE, FALSE);
-						numAdded++;
-					}
-				}
-			default:
-				;
-			}
-		}
-		
-		LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: added %d time signature(s).\n",
-					numAdded);
-		if (numAdded!=0) InvalWindow(doc);
+	short numAdded;
+	
+	numAdded = AddCautionaryTimeSigs(doc);
+	LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: added %d time signature(s).\n",
+				numAdded);
+	if (numAdded!=0) InvalWindow(doc);
 }
 
 
@@ -1566,6 +1488,7 @@ static void SMLeftEnd(Document *doc)
 		if (changeFirstIndent || changeOtherIndent) InvalWindow(doc);
 	}
 }
+
 
 /*
  *	Set global font characteristics.
@@ -2221,8 +2144,8 @@ static void InstallDebugMenuItems(Boolean installAll)
 /* ========================================================= MENU-UPDATING ROUTINES == */
 
 /*
- *	Force all menus to reflect internal state. This should be called we're about to let
- *	user peruse them.
+ * Force all menus to reflect internal state. This should be called when we're about to
+ * let user peruse them.
  */
 
 void FixMenus()
@@ -2234,7 +2157,7 @@ void FixMenus()
 		Boolean continSel=FALSE;
 		
 		w = TopWindow;
-		if (w == NULL) {
+		if (w==NULL) {
 			theDoc = NULL;
 			isDA = FALSE;
 			}
@@ -2250,9 +2173,9 @@ void FixMenus()
 		/*
 		 *	Precompute information about the current score and the clipboard for the
 		 *	benefit of the various menu fixing routines about to be called. We have
-		 *	We have to install theDoc first because, if the active window has changed,
-		 *	the resulting Activate event (which will install it) may not have been
-		 *	handled yet.
+		 *	to install theDoc first because, if the active window has changed, the
+		 *	resulting Activate event (which will install it) may not have been handled
+		 *	yet.
 		 */
 		
 		if (theDoc) {
@@ -2281,7 +2204,7 @@ void FixMenus()
 		FixNotesMenu(theDoc, continSel);
 		FixGroupsMenu(theDoc, continSel);
 		FixViewMenu(theDoc);
-		FixPlayRecordMenu(theDoc,nSel);
+		FixPlayRecordMenu(theDoc, nSel);
 		FixMasterPgMenu(theDoc);
 		FixFormatMenu(theDoc);
 		
@@ -2321,10 +2244,10 @@ static void FixFileMenu(Document *doc, short nSel)
 		XableItem(fileMenu,FM_Preferences,doc!=NULL && doc!=clipboard);
 		XableItem(fileMenu,FM_ScoreInfo,doc!=NULL);
 		
-		//disable all Nightingale Search Menu items until they have been removed from menu (rsrc) entirely
-		XableItem(editMenu,EM_SearchMelody,FALSE);        
-		XableItem(editMenu,EM_SearchAgain,FALSE);        
-		XableItem(fileMenu,FM_SearchInFiles,FALSE);        
+		//disable all Nightingale Search Menu items until it's re-implemented
+		XableItem(editMenu, EM_SearchMelody,FALSE);        
+		XableItem(editMenu, EM_SearchAgain,FALSE);        
+		XableItem(fileMenu, FM_SearchInFiles,FALSE);        
 		XableItem(viewMenu, VM_ShowSearchPattern, FALSE);
 		
 	}

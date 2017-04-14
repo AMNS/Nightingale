@@ -106,6 +106,7 @@ unsigned short VCountNotes(short, LINK, LINK, Boolean);
 unsigned short CountGRNotes(short, LINK, LINK, Boolean);
 unsigned short SVCountNotes(short, short, LINK, LINK, Boolean);
 unsigned short SVCountGRNotes(short, short, LINK, LINK, Boolean);
+unsigned short CountNoteAttacks(Document *doc);
 unsigned short CountObjects(LINK, LINK, short);
 
 void CountInHeaps(Document *, unsigned short [], Boolean);

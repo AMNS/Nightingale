@@ -17,6 +17,7 @@
 		15602EEF1D20BF7400BAEBF6 /* Dragging.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EEE1D20BF7400BAEBF6 /* Dragging.cp */; };
 		15602EF81D20C03300BAEBF6 /* DebugUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EF71D20C03300BAEBF6 /* DebugUtils.cp */; };
 		157437C51D05153300C5A4DF /* DelAddRedAccs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157437C41D05153300C5A4DF /* DelAddRedAccs.cp */; };
+		15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */; };
 		15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15BCF5991E9D27D30069F7EB /* Undo.cp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
 		15E0B7AA1E7757E7001C568B /* NotelistOpen.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E0B7A91E7757E7001C568B /* NotelistOpen.cp */; };
@@ -92,7 +93,6 @@
 		D03E70A60D5FA5B2005FD177 /* DebugDisplay.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E705F0D5FA5B2005FD177 /* DebugDisplay.cp */; };
 		D03E70A70D5FA5B2005FD177 /* DebugHighLevel.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70600D5FA5B2005FD177 /* DebugHighLevel.cp */; };
 		D03E70A90D5FA5B2005FD177 /* Delete.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70620D5FA5B2005FD177 /* Delete.cp */; };
-		D03E70AA0D5FA5B2005FD177 /* DelRedTimeSigs.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70630D5FA5B2005FD177 /* DelRedTimeSigs.cp */; };
 		D03E70AB0D5FA5B2005FD177 /* DialogsEditor.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70640D5FA5B2005FD177 /* DialogsEditor.cp */; };
 		D03E70AC0D5FA5B2005FD177 /* Double.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70650D5FA5B2005FD177 /* Double.cp */; };
 		D03E70AD0D5FA5B2005FD177 /* DragBeam.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70660D5FA5B2005FD177 /* DragBeam.cp */; };
@@ -217,6 +217,7 @@
 		15602EEE1D20BF7400BAEBF6 /* Dragging.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dragging.cp; sourceTree = "<group>"; };
 		15602EF71D20C03300BAEBF6 /* DebugUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugUtils.cp; sourceTree = "<group>"; };
 		157437C41D05153300C5A4DF /* DelAddRedAccs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedAccs.cp; sourceTree = "<group>"; };
+		15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedTimeSigs.cp; sourceTree = "<group>"; };
 		15BCF5991E9D27D30069F7EB /* Undo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Undo.cp; sourceTree = "<group>"; };
 		15E0B7A91E7757E7001C568B /* NotelistOpen.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistOpen.cp; sourceTree = "<group>"; };
 		15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewSlur.cp; sourceTree = "<group>"; };
@@ -386,7 +387,6 @@
 		D03E705F0D5FA5B2005FD177 /* DebugDisplay.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugDisplay.cp; sourceTree = "<group>"; };
 		D03E70600D5FA5B2005FD177 /* DebugHighLevel.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugHighLevel.cp; sourceTree = "<group>"; };
 		D03E70620D5FA5B2005FD177 /* Delete.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Delete.cp; sourceTree = "<group>"; };
-		D03E70630D5FA5B2005FD177 /* DelRedTimeSigs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelRedTimeSigs.cp; sourceTree = "<group>"; };
 		D03E70640D5FA5B2005FD177 /* DialogsEditor.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogsEditor.cp; sourceTree = "<group>"; };
 		D03E70650D5FA5B2005FD177 /* Double.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Double.cp; sourceTree = "<group>"; };
 		D03E70660D5FA5B2005FD177 /* DragBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DragBeam.cp; sourceTree = "<group>"; };
@@ -857,7 +857,7 @@
 				15602EF71D20C03300BAEBF6 /* DebugUtils.cp */,
 				157437C41D05153300C5A4DF /* DelAddRedAccs.cp */,
 				D03E70620D5FA5B2005FD177 /* Delete.cp */,
-				D03E70630D5FA5B2005FD177 /* DelRedTimeSigs.cp */,
+				15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */,
 				D03E70640D5FA5B2005FD177 /* DialogsEditor.cp */,
 				D03E70650D5FA5B2005FD177 /* Double.cp */,
 				D03E70660D5FA5B2005FD177 /* DragBeam.cp */,
@@ -1095,7 +1095,6 @@
 				D03E70A60D5FA5B2005FD177 /* DebugDisplay.cp in Sources */,
 				D03E70A70D5FA5B2005FD177 /* DebugHighLevel.cp in Sources */,
 				D03E70A90D5FA5B2005FD177 /* Delete.cp in Sources */,
-				D03E70AA0D5FA5B2005FD177 /* DelRedTimeSigs.cp in Sources */,
 				D03E70AB0D5FA5B2005FD177 /* DialogsEditor.cp in Sources */,
 				D03E70AC0D5FA5B2005FD177 /* Double.cp in Sources */,
 				D03E70AD0D5FA5B2005FD177 /* DragBeam.cp in Sources */,
@@ -1188,6 +1187,7 @@
 				15E2F8FC1DC983B3006D56E9 /* NewSlur.cp in Sources */,
 				15E0B7AA1E7757E7001C568B /* NotelistOpen.cp in Sources */,
 				15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */,
+				15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

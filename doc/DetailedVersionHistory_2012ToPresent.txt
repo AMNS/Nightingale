@@ -1361,3 +1361,13 @@ Remove some redundant MemMacros and rename others; other minor cleanup. Affects
 MemMacros.h; AutoBeam, Context, CrossSystem, DebugUtils, Debug2Utils, Documents,
 ExtractHighLevel, Initialize, InsNewUtils, Menu, MIDIFSave, NotelistOpen,
 Window.
+
+-------------------------------------------------------------------------------
+
+13-14 Apr.
+
+Rename DelRedTimeSigs.cp => DelAddRedTimeSigs.cp; move AddCautionaryTimeSigs there.
+Besides those two files, affects NightTemplates.h; Menu.
+
+Minor cleanup. Affects DSUtils.h; CombineParts, DelAddRedAccs, DSUtils, EssentialTools,
+Menu, MPCombineParts, NotelistOpen, ScoreInfo, Windows.

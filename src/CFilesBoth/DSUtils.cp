@@ -1,4 +1,4 @@
-/***************************************************************************
+/************************************************************************************
 	FILE:	DSUtils.c
 	PROJ:	Nightingale
 	DESC:	Utility routines for examining and manipulating the main data
@@ -28,7 +28,8 @@
 		MoveRestOfSystem
 		CountNotesInRange		CountGRNotesInRange		CountNotes
 		VCountNotes				CountGRNotes			SVCountNotes
-		SVCountGRNotes			CountObjects			CountInHeaps
+		SVCountGRNotes			CountNoteAttacks		CountObjects
+		CountInHeaps
 		HasOtherStemSide		NoteLeftOfStem			GetStemUpDown
 		GetGRStemUpDown			GetExtremeNotes			GetExtremeGRNotes
 		FindMainNote			FindGRMainNote			GetObjectLimits
@@ -44,7 +45,7 @@
 		GetMultiVoice			TweakSubRects
 		CompareScoreFormat		DisposeMODNRs			Staff2PartL
 		PartL2Partn				VHasTieAcross			HasSmthgAcross
-*****************************************************************************/
+**************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -58,7 +59,7 @@
 #include "Nightingale.appl.h"
 
 
-/* --------------------------------------------------------------- NRGRInMeasure -- */
+/* ------------------------------------------------------------------ NRGRInMeasure -- */
 /* Is there a note, rest, or grace note in Measure <measL>? */
 
 static Boolean NRGRInMeasure(Document *, LINK);
@@ -75,7 +76,7 @@ static Boolean NRGRInMeasure(Document *doc, LINK measL)
 }
 
 
-/* ------------------------------------------------------------------ FakeMeasure -- */
+/* -------------------------------------------------------------------- FakeMeasure -- */
 /* If <measL>, which must be a Measure obj, doesn't start a real measure, return TRUE.
 By "not a real measure", we mean it's at the end of a System and contains no notes,
 rests, or grace notes (so it's just ending the previous measure), or it's at the
@@ -108,7 +109,7 @@ Boolean FakeMeasure(Document *doc, LINK measL)
 	return NRGRInMeasure(doc, measL);
 }
 
-/* -------------------------------------------------------------- UpdatePageNums -- */
+/* ----------------------------------------------------------------- UpdatePageNums -- */
 /* Update the sheetNum field for all pages in the score by simply re-numbering
 them by starting at 0 for the first page and incrementing for all remaining
 pages. Also update the header's numSheets field. */
@@ -126,7 +127,7 @@ void UpdatePageNums(Document *doc)
 }
 
 
-/* --------------------------------------------------------------- UpdateSysNums -- */
+/* ------------------------------------------------------------------ UpdateSysNums -- */
 /* Update the systemNum field for all systems in the score by simply re-numbering
 them by starting at 1 for the first system and incrementing for all remaining
 systems. Also update the header's nsystems field. */
@@ -144,7 +145,7 @@ void UpdateSysNums(Document *doc, LINK headL)
 }
 
 
-/* --------------------------------------------------------------- UpdateMeasNums -- */
+/* ----------------------------------------------------------------- UpdateMeasNums -- */
 /* Based on Measure and Sync objects, update the fakeMeas field of every Measure object
 and the measureNum field of every Measure subobject in the given document from <startL>
 or the preceding Measure to the end. If <startL> is NILINK, do the entire document.
@@ -208,9 +209,9 @@ Boolean UpdateMeasNums(Document *doc, LINK startL)
 				if (!fakeMeas) measNum++;
 				break;
 			case SYNCtype:
-				/* If a multibar rest, add one less than no. of bars to next meas. number.
-					Note that all subobjs of the Sync should be identical multibar rests! */
-				
+				/* If a multibar rest, add one less than no. of bars to next measure
+				   number. Note that all subobjs of the Sync should be identical
+				   multibar rests! */
 				aNoteL = FirstSubLINK(pL);
 				if (NoteREST(aNoteL) && NoteType(aNoteL)<-1) {
 					nMeasRest = ABS(NoteType(aNoteL));
@@ -226,15 +227,15 @@ Boolean UpdateMeasNums(Document *doc, LINK startL)
 }
 
 
-/* ------------------------------------------------------------------ GetMeasNum -- */
+/* --------------------------------------------------------------------- GetMeasNum -- */
 /* Get the (user) number of the Measure the given object is in, or of the object
 itself if it's a Measure. Does not assume cross-links are valid. */
 
 short GetMeasNum(Document *doc, LINK pL)
 {
-	LINK measL, aMeasureL;
+	LINK		measL, aMeasureL;
 	PAMEASURE	aMeasure;
-	short			measNum;
+	short		measNum;
 	
 	measL = SSearch(pL, MEASUREtype, GO_LEFT);
 	if (!measL) return 0;								/* ??SHOULD GIVE doc->firstMNNumber */
@@ -246,7 +247,7 @@ short GetMeasNum(Document *doc, LINK pL)
 }
 
 
-/* ---------------------------------------------------------------- PtInMeasure --- */
+/* -------------------------------------------------------------------- PtInMeasure -- */
 /* Is the given point within the given Measure? */
 
 Boolean PtInMeasure(Document */*doc*/, Point pt, LINK sL)
@@ -258,7 +259,7 @@ Boolean PtInMeasure(Document */*doc*/, Point pt, LINK sL)
 }
 
 
-/* --------------------------------------------------------- PageRelxd,PageRelyd --- */
+/* ------------------------------------------------------------ PageRelxd,PageRelyd -- */
 /* Return object's xd and yd relative to the Page. These are not necessarily exact,
 and no single value could possibly be correct for all subobjs of Syncs, Slurs,
 etc.: they are intended for purposes like setting scaleCenter for enlarging, and
@@ -443,7 +444,7 @@ DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 }
 
 
-/* ------------------------------------------------------------- GraphicPageRelxd -- */
+/* --------------------------------------------------------------- GraphicPageRelxd -- */
 /* Return xd relative to the Page for a Graphic, whose position is relative to
 a subobject in its voice or on its staff. */
 
@@ -501,7 +502,7 @@ DDIST GraphicPageRelxd(Document */*doc*/,					/* unused */
 }
 
 
-/* ------------------------------------------------------------------- LinkToPt --- */
+/* ---------------------------------------------------------------------- LinkToPt -- */
 /* Return pL's location in paper or window-relative coords, depending on toWindow. */
 
 Point LinkToPt(Document *doc, LINK pL, Boolean toWindow)
@@ -522,16 +523,16 @@ Point LinkToPt(Document *doc, LINK pL, Boolean toWindow)
 }
 
 
-/* ---------------------------------------------------------------- ObjSpaceUsed -- */
+/* ------------------------------------------------------------------- ObjSpaceUsed -- */
 /* Return the amount of horizontal space pL occupies. */
 
 DDIST ObjSpaceUsed(Document *doc, LINK pL)
 {
 	LINK	aNoteL;
-	long	maxLen,tempLen;
+	long	maxLen, tempLen;
 	short	noteStaff;
 	CONTEXT	context;
-	STDIST	symWidth,space;
+	STDIST	symWidth, space;
 	
 	switch(ObjLType(pL)) {
 		case SYNCtype:
@@ -568,7 +569,7 @@ DDIST ObjSpaceUsed(Document *doc, LINK pL)
 }
 
 
-/* ------------------------------------------------------------------- SysRelxd --- */
+/* ----------------------------------------------------------------------- SysRelxd -- */
 /* Return object's xd relative to the System, regardless of the object's type.
 NB: Checking for systems will crash if pL is not in the main object list. */
 
@@ -586,7 +587,7 @@ DDIST SysRelxd(LINK pL)
 }
 
 
-/* --------------------------------------------------------------- Sysxd, PMDist --- */
+/* ------------------------------------------------------------------ Sysxd, PMDist -- */
 /* Return point's xd relative to the System. */
 
 DDIST Sysxd(Point pt, DDIST sysLeft)
@@ -601,7 +602,7 @@ DDIST PMDist(LINK pL, LINK qL)
 }
 
 
-/* --------------------------------------------------------- "Validxd" functions -- */
+/* ------------------------------------------------------------ "Validxd" utilities -- */
 
 Boolean HasValidxd(LINK pL)
 {
@@ -609,18 +610,16 @@ Boolean HasValidxd(LINK pL)
 }
 
 
-/* Return the first object with valid xd, according to HasValidxd, in the
-direction goLeft. */
+/* Return the first object with valid xd, according to HasValidxd, in the direction
+goLeft.
 
-/*
- * If FirstValidxd returns NULL (e.g. when for loop terminates because of !qL),
- * this can cause an error in the calling routine, for example, PMDist. However,
- * since tailL has a valid xd, FirstValidxd should return its address before it
- * gets to, e.g., RightLINK(tailL). Also, when FirstValidxd is called for
- * RightLINK(pL), since it should never be possible to select tailL directly,
- * it should never be possible to call FirstValidxd for a NULL node
- * (RightLINK(tailL)). Given these assurances, it is still not easy to see how
- * to do error checking in this routine.
+If FirstValidxd returns NULL (e.g. when for loop terminates because of !qL), this can
+cause an error in the calling routine, for example, PMDist. However, since tailL has a
+valid xd, FirstValidxd should return its address before it gets to, e.g.,
+RightLINK(tailL). Also, when FirstValidxd is called for RightLINK(pL), since it should
+never be possible to select tailL directly, it should never be possible to call
+FirstValidxd for a NULL node (RightLINK(tailL)). Given these assurances, it is still
+not easy to see how to do error checking in this routine.
  */
 
 LINK FirstValidxd(LINK pL, Boolean goLeft)
@@ -690,7 +689,7 @@ LINK ObjWithValidxd(LINK pL, Boolean measureOK)
 }
 
 
-/* -------------------------------------------------------------------- GetSubXD -- */
+/* ----------------------------------------------------------------------- GetSubXD -- */
 /* Get the subobject xd of subobject subObjL of object pL. */
 
 DDIST GetSubXD(LINK pL, LINK subObjL)
@@ -713,7 +712,7 @@ DDIST GetSubXD(LINK pL, LINK subObjL)
 	return 0;
 }
 	
-/* ----------------------------------------------------------------------- ZeroXD -- */
+/* ------------------------------------------------------------------------- ZeroXD -- */
 /* Set the xd of subobject subObjL of object pL to zero. */
 
 void ZeroXD(LINK pL, LINK subObjL)
@@ -734,7 +733,7 @@ void ZeroXD(LINK pL, LINK subObjL)
 	}
 }
 	
-/* ------------------------------------------------------------------- RealignObj -- */
+/* --------------------------------------------------------------------- RealignObj -- */
 /* If pL has subobjects, relocate all of them either to the position of the first
 selected one, or to the object's position. Specifically, set all subobj xds to
 zero. Then, if <useSel>, set the xd of pL to its xd plus the xd of its first
@@ -744,7 +743,7 @@ Boolean RealignObj(LINK pL,
 					Boolean useSel		/* TRUE=move subobjs to position of 1st one that's selected */
 					)
 {
-	GenSubObj *subObj;  LINK subObjL;  DDIST subXD;
+	GenSubObj *subObj;  LINK subObjL;  DDIST subXD=0;
 	short i;  Boolean haveXD;
 	PMEVENT p;  HEAP *tmpHeap;
 
@@ -766,7 +765,7 @@ Boolean RealignObj(LINK pL,
 		case DYNAMtype:
 			tmpHeap = Heap + p->type;		/* p may not stay valid during loop */
 			
-			for (i=0,subObjL=FirstSubObjPtr(p,pL); subObjL; i++, subObjL = NextLink(tmpHeap,subObjL)) {
+			for (i=0, subObjL=FirstSubObjPtr(p,pL); subObjL; i++, subObjL = NextLink(tmpHeap,subObjL)) {
 				subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
 				if (subObj->selected && !haveXD) {
 					haveXD = TRUE;
@@ -784,7 +783,7 @@ Boolean RealignObj(LINK pL,
 }
 	
 
-/* ----------------------------------------------------- GetSysWidth, GetSysLeft -- */
+/* -------------------------------------------------------- GetSysWidth, GetSysLeft -- */
 /* Get the "standard" width of a system, actually the width of the document's last
 system. As of v. 3.0A, used only in Clipboard.c. */
 
@@ -845,7 +844,7 @@ DDIST StaffHeight(Document *doc, LINK pL, short theStaff)
 }
 
 
-/* ----------------------------------------------------------------- StaffLength -- */
+/* -------------------------------------------------------------------- StaffLength -- */
 /* Return the length of the staff <pL> is in. */
 
 DDIST StaffLength(LINK pL)
@@ -861,7 +860,7 @@ DDIST StaffLength(LINK pL)
 }
 
 
-/* ------------------------------------------------------------ GetLastMeasInSys -- */
+/* --------------------------------------------------------------- GetLastMeasInSys -- */
 
 LINK GetLastMeasInSys(LINK sysL)
 {
@@ -878,13 +877,19 @@ LINK GetLastMeasInSys(LINK sysL)
 
 
 /* ------------------------------------------------------------------- GetMeasRange -- */
-/* Return in parameters the range of measures graphically spanned by <pL>.*/
+/* Return in parameters the range of measures graphically spanned by <pL>, which
+must be either a Graphic or a Tempo. */
 
 void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 {
 	LINK measL, sysL, lastMeas, objMeasL, firstL;
 	Rect r, objR;
 
+	if (!GraphicTYPE(pL) && !TempoTYPE(pL)) {
+		LogPrintf(LOG_WARNING, "GetMeasRange: object %u is an illegal type.\n", pL);
+		return;
+	}
+	
 	*startMeas = *endMeas = NILINK;
 
 	/* Get objRect of pL. */
@@ -898,8 +903,8 @@ void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 			break;
 	}
 	
-	/* Traverse measures on pL's system, and compare objRect of pL to measureBBox
-		 of each measure. */
+	/* Traverse measures on pL's system, and compare objRect of pL to measureBBox of
+	   each measure. */
  
 	sysL = EitherSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	measL = SSearch(sysL, MEASUREtype, GO_RIGHT);
@@ -937,7 +942,7 @@ void GetMeasRange(Document *doc, LINK pL, LINK *startMeas, LINK *endMeas)
 }
 
 
-/* ------------------------------------------------------------------- MeasWidth -- */
+/* ---------------------------------------------------------------------- MeasWidth -- */
 /* If <pL> is a Measure, return its width, otherwise return the width of the
 Measure <pL> is in. */
 
@@ -955,7 +960,7 @@ DDIST MeasWidth(LINK pL)
 }
 
 
-/* ---------------------------------------------------------- MeasOccupiedWidth -- */
+/* -------------------------------------------------------------- MeasOccupiedWidth -- */
 /* If <pL> is a Measure, return width of its occupied part, otherwise return the
 width of the occupied part of the Measure <pL> is in. The "occupied part" extends
 to the point where its ending barline normally "would go", i.e., to the right of
@@ -982,7 +987,7 @@ DDIST MeasOccupiedWidth(Document *doc, LINK pL, long spaceProp)
 }
 
 
-/* --------------------------------------------------------------- MeasJustWidth -- */
+/* ------------------------------------------------------------------ MeasJustWidth -- */
 /* If <pL> is a Measure, return its "justification width", otherwise return the
 justification width of the Measure <pL> is in. Justification width is the space
 that should be allocated to the Measure if it's at the end of a right-justified
@@ -1011,7 +1016,7 @@ DDIST MeasJustWidth(Document *doc, LINK pL, CONTEXT context)
 }
 
 
-/* ---------------------------------------------------------------- SetMeasWidth -- */
+/* ------------------------------------------------------------------- SetMeasWidth -- */
 /* Set the width of every subobject of the given measure to the given width. */
 
 Boolean SetMeasWidth(LINK measL, DDIST	width)
@@ -1032,7 +1037,7 @@ Boolean SetMeasWidth(LINK measL, DDIST	width)
 }
 
 
-/* -------------------------------------------------------------- MeasFillSystem -- */
+/* ----------------------------------------------------------------- MeasFillSystem -- */
 /* Set the measureRects of all subobjects of <measL>, which must be a Measure,
 to extend to the end of their System (which ends at the same point as the
 Staff). If any of the subobjects starts at or past the end of their Staff,
@@ -1054,7 +1059,7 @@ Boolean MeasFillSystem(LINK measL)
 }
 
 
-/* -------------------------------------------------------------------- IsAfter --- */
+/* ------------------------------------------------------------------------ IsAfter -- */
 /* Returns TRUE if obj1 is followed by obj2 in some object list. */
 
 Boolean IsAfter(LINK obj1, LINK obj2)
@@ -1068,7 +1073,7 @@ Boolean IsAfter(LINK obj1, LINK obj2)
 }
 
 
-/* ---------------------------------------------------------------- IsAfterIncl --- */
+/* -------------------------------------------------------------------- IsAfterIncl -- */
 /* Returns TRUE if obj1 is the same as obj2 or is followed by it in some object
 list. */
 
@@ -1083,7 +1088,7 @@ Boolean IsAfterIncl(LINK obj1, LINK obj2)
 }
 
 
-/* ------------------------------------------------------------------- IsOutside -- */
+/* ---------------------------------------------------------------------- IsOutside -- */
 /* Is theObj outside [obj1, obj2]? Assumes all three are in the same object list. */
 
 Boolean IsOutside(LINK theObj, LINK obj1, LINK obj2)
@@ -1092,7 +1097,7 @@ Boolean IsOutside(LINK theObj, LINK obj1, LINK obj2)
 }
 
 
-/* ----------------------------------------------------------------- BetweenIncl -- */
+/* -------------------------------------------------------------------- BetweenIncl -- */
 /* Is theObj between obj1 and obj2 or identical to one of them? N.B. This will
 misbehave if obj2 precedes obj1! */
 
@@ -1107,7 +1112,7 @@ Boolean BetweenIncl(LINK obj1, LINK theObj, LINK obj2)
 }
 
 
-/* ----------------------------------------------------------------- WithinRange -- */
+/* -------------------------------------------------------------------- WithinRange -- */
 /* Is theObj within the range obj1 to obj2 (including the first but not the
 second)? */
 
@@ -1121,10 +1126,11 @@ Boolean WithinRange(LINK obj1, LINK theObj, LINK obj2)
 	return BetweenIncl(obj1, theObj, LeftLINK(obj2));
 }
 
-/* -------------------------------------------------------------------- SamePage -- */
-/* Return TRUE if pL and qL are in the same page. The previous version of this
-function assumed its arguments were both Systems; this version accepts anything
-and should be virtually as fast if the arguments do happen to be Systems. */
+/* ---------------------------------------------------- SamePage, -System, -Measure -- */
+
+/* Return TRUE if pL and qL are in the same page. An earlier version of this function
+assumed its arguments were both Systems; this version accepts anything and should be
+virtually as fast if the arguments do happen to be Systems. */
 
 Boolean SamePage(LINK pL, LINK qL)
 {
@@ -1135,11 +1141,9 @@ Boolean SamePage(LINK pL, LINK qL)
 	return (pPageL==qPageL);
 }
 
-
-/* ------------------------------------------------------------------ SameSystem -- */
-/* Return TRUE if pL and qL are in the same system. If either pL or qL is a
-Page and the other is in the last system of the previous Page, will return
-TRUE. This is either a bug or a pitfall. */
+/* Return TRUE if pL and qL are in the same system. Caveat: If either pL or qL is a
+Page and the other is in the last system of the previous Page, will return TRUE!
+This is either a bug or a pitfall. */
 
 Boolean SameSystem(LINK pL, LINK qL)
 {
@@ -1150,10 +1154,9 @@ Boolean SameSystem(LINK pL, LINK qL)
 	return (pSysL==qSysL);
 }
 
-/* ----------------------------------------------------------------- SameMeasure -- */
-/* Return TRUE if pL and qL are in the same measure. If either pL or qL is before
-the first measure of the first system of a page and the other is in the last
-measure of the previous Page, will return TRUE. This is either a bug or a pitfall. */
+/* Return TRUE if pL and qL are in the same measure. Caveat: If either pL or qL is
+before the first measure of the first system of a page and the other is in the last
+measure of the previous Page, will return TRUE! This is either a bug or a pitfall. */
 
 Boolean SameMeasure(LINK pL, LINK qL)
 {
@@ -1164,7 +1167,7 @@ Boolean SameMeasure(LINK pL, LINK qL)
 	return (pMeasL==qMeasL);
 }
 
-/* ------------------------------------------------------------------ ConsecSync -- */
+/* --------------------------------------------------------------------- ConsecSync -- */
 /* Are syncA and syncB consecutive syncs in the given staff/voice? Note that
 ConsecSync will find consecutive syncs in different systems, since LSSearch
 doesn't set inSystem TRUE for its search and initial system objects (System,
@@ -1191,7 +1194,7 @@ Boolean ConsecSync(LINK syncA, LINK syncB, short staff, short voice)
 }
 
 
-/* ---------------------------------------- LinkBefFirstMeas, BeforeFirstPageMeas -- */
+/* ------------------------------------------ LinkBefFirstMeas, BeforeFirstPageMeas -- */
 /* Is the object (not the selection range ptr or insertion point!) pL before the first
 Measure of its System?  Cf. the BeforeFirstMeas() function.
 
@@ -1239,7 +1242,7 @@ short BeforeFirstPageMeas(LINK pL)
 }
 
 
-/* ----------------------------------------------- Functions for BeforeFirstMeas -- */
+/* -------------------------------------------------- Functions for BeforeFirstMeas -- */
 static Boolean FirstPageInScore(LINK pL);
 static Boolean HasFirstObj(LINK pL);
 static LINK GetFirstObj(LINK pL);
@@ -1347,7 +1350,8 @@ LINK GetCurrentPage(Document *doc)
 	return pL;
 }
 
-/* --------------------------------------------------------------- GetMasterPage -- */
+
+/* ------------------------------------------------------------------ GetMasterPage -- */
 /* Get the Master Page's Page object. */
 
 LINK GetMasterPage(Document *doc)
@@ -1359,7 +1363,8 @@ LINK GetMasterPage(Document *doc)
 	return pL;
 }
 
-/* ----------------------------------------------------------------- GetSysRange -- */
+
+/* -------------------------------------------------------------------- GetSysRange -- */
 /* Find the smallest range of systems that includes the range of objects
 [startL, endL). */
 
@@ -1382,14 +1387,16 @@ void GetSysRange(Document */*doc*/, LINK startL, LINK endL, LINK *startSysL, LIN
 	*endSysL = EitherSearch(LeftLINK(endL), SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 }
 
-/* ---------------------------------------------------------------- FirstSysMeas -- */
+
+/* ------------------------------------------------- Find "First" of various things -- */
+
 /* Return the first measure of the system containing pL. pL is regarded as a
 LINK, not a selRange ptr. If no system can be found, or no measure, return
 NILINK. */
 
 LINK FirstSysMeas(LINK pL)
 {
-	LINK sysL,firstMeasL;
+	LINK sysL, firstMeasL;
 
 	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	if (!sysL) return NILINK;
@@ -1398,7 +1405,6 @@ LINK FirstSysMeas(LINK pL)
 	return firstMeasL;
 }
 
-/* ---------------------------------------------------------------- FirstDocMeas -- */
 /* Return the first measure of the document. If no measure can be found,
 return NILINK. */
 
@@ -1407,7 +1413,6 @@ LINK FirstDocMeas(Document *doc)
 	return LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);	 
 }
 
-/*--------------------------------------------------------------- FirstMeasInSys -- */
 /* Is <measL>, which must be a Measure, the first Measure of its System? */
 
 Boolean FirstMeasInSys(LINK measL)
@@ -1428,7 +1433,8 @@ Boolean FirstMeasInSys(LINK measL)
 }
 
 
-/* ---------------------------------------------------------------- LastMeasInSys - */
+/* ------------------------------------------------- Find "Last" of various things -- */
+
 /* Is <measL>, which must be a Measure, the last Measure of its System? */
 
 Boolean LastMeasInSys(LINK measL)
@@ -1448,8 +1454,6 @@ Boolean LastMeasInSys(LINK measL)
 	return TRUE;							/* Because last meas. of entire score */
 }
 
-
-/* ----------------------------------------------------------- LastUsedMeasInSys -- */
 /* Is <measL>, which must be a Measure, the last "used" Measure of its System,
 i.e., is there nothing following it except possibly a barline? */
 
@@ -1464,8 +1468,6 @@ Boolean LastUsedMeasInSys(Document *doc, LINK measL)
 
 }
 
-
-/* --------------------------------------------------------------- LastOnPrevSys -- */
 /* If pL is not a System, if there is a system which contains pL, return 
 the last obj on it.
 If there is no containing system, return pL (we should be returning doc->headL).
@@ -1491,7 +1493,6 @@ LINK LastOnPrevSys(LINK pL)
 	return ( LeftLINK(sysL) );
 }
 
-/* ---------------------------------------------------------------- LastObjInSys -- */
 /* Return the last Object of pL's System. If pL is a system, will return the last
 object of the previous system. */
 
@@ -1508,6 +1509,7 @@ LINK LastObjInSys(Document *doc, LINK pL)
 	
 	return (LeftLINK(sysL));
 }
+
 
 /* --------------------------------------------------------------- GetNextSystem -- */
 /* Return the system following pL, if one exists; else doc->tailL. If pL is a
@@ -1617,7 +1619,7 @@ LINK LastObjOnPage(Document *doc, LINK pageL)
 }
 
 
-/* ------------------------------------------------------------------ RoomForSystem -- */
+/* -------------------------------------------------- RoomFor-, MasterRoomForSystem -- */
 /* Is there room for another System on Page containing pL? Assumes the Page
 already contains at least one System. */
 
@@ -1649,8 +1651,6 @@ Boolean RoomForSystem(Document *doc, LINK pL)
 	return canAddSystem;
 }
 
-
-/* --------------------------------------------------------- MasterRoomForSystem -- */
 /* See if room exists for another system in the masterPage. Gets sysHeight
 from masterPage's only system. */
 
@@ -1667,7 +1667,7 @@ Boolean MasterRoomForSystem(Document *doc, LINK sysL)
 }
 
 
-/* ----------------------------------------------------------------- NextSystem -- */
+/* --------------------------------------------------------------------- NextSystem -- */
 /*	Return pointer to the next System object, or tailL if there is none. sysL
 must be a System object. */
 
@@ -1677,7 +1677,7 @@ LINK NextSystem(Document *doc, LINK sysL)
 }
 
 
-/* --------------------------------------------------------------------- GetNext -- */
+/* ------------------------------------------------------------------------ GetNext -- */
 /* Get the next link in the object list to the left or right, as specified by
 <goLeft>. */
 
@@ -1687,21 +1687,22 @@ LINK GetNext(LINK pL, Boolean goLeft)
 }
 
 
-/* ------------------------------------------------------------------ RSysOnPage -- */
+/* --------------------------------------------------------------------- RSysOnPage -- */
 /* Return the next System on the Page sysL is in, or NILINK if there is none. */
 
 LINK RSysOnPage(Document */*doc*/, LINK sysL)
 {
-	LINK rSys;
+	LINK rSysL;
 	
-	if (rSys = LinkRSYS(sysL))
-		if (SysPAGE(rSys)==SysPAGE(sysL))
-			return rSys;
+	rSysL = LinkRSYS(sysL);
+	if (rSysL)
+		if (SysPAGE(rSysL)==SysPAGE(sysL))
+			return rSysL;
 	return NILINK;
 }
 
 
-/* -------------------------------------------- MoveInMeasure, MoveMeasures, etc. -- */
+/* ---------------------------------------------- MoveInMeasure, MoveMeasures, etc. -- */
 /* MoveInMeasure moves objects [startL,endL) by diffxd. If endL is not in the
 same Measure as startL, it'll stop moving at the end of the Measure (since the object
 ending the Measure will always have a valid xd). Returns the first object after the
@@ -1723,7 +1724,7 @@ LINK MoveInMeasure(LINK startL, LINK endL, DDIST diffxd)
 	LINK pL,nextL;
 
 	pL = nextL = FirstValidxd(startL, GO_RIGHT);
-	if (!IsAfter(pL,endL)) return endL;					/* #1. */
+	if (!IsAfter(pL,endL)) return endL;							/* #1. */
 
 	for ( ; pL!=endL && !MeasureTYPE(pL) && !J_STRUCTYPE(pL); pL=RightLINK(pL))
 		if (pL==nextL) {										/* #2. */
@@ -1818,7 +1819,7 @@ Boolean CheckMoveMeasures(Document *doc, LINK pStartL, DDIST diffxd)
 }
 
 
-/* ------------------------------------------------------------- MoveRestOfSystem -- */
+/* --------------------------------------------------------------- MoveRestOfSystem -- */
 /* Given a Measure and the width of that Measure, if there's anything following
 in that Measure's System, move that following stuff left or right as appropriate
 so it starts where the Measure ends. Be careful to stop moving at the end of the
@@ -1849,7 +1850,7 @@ Boolean MoveRestOfSystem(Document *doc, LINK measL, DDIST measWidth)
 }
 
 
-/* ----------------------------------------------------------------- SyncAbsTime -- */
+/* -------------------------------------------------------------------- SyncAbsTime -- */
 
 long SyncAbsTime(LINK syncL)
 {
@@ -1864,7 +1865,7 @@ long SyncAbsTime(LINK syncL)
 }
 
 
-/* ------------------------------------------ MoveTimeInMeasure, MoveTimeMeasures -- */
+/* -------------------------------------------- MoveTimeInMeasure, MoveTimeMeasures -- */
 /* MoveTimeInMeasure changes the timeStamps of Syncs in [startL,endL) by diffTime.
 If endL is not in the same Measure as startL, it'll stop moving at the end of the
 Measure. */
@@ -1894,9 +1895,9 @@ void MoveTimeMeasures(LINK startL, LINK endL, long diffTime)
 }
 
 
-/* ================================================ Object and subobject Counting == */
+/* ================================================== Object and Subobject Counting == */
 
-/* ----------------------------------------------------------- CountNotesInRange -- */
+/* -------------------------------------------------------------- CountNotesInRange -- */
 /* Counts notes in range [startL,endL) on staff <staff>, not including rests, and
 with each chord counting as 1 note. */
 
@@ -1917,7 +1918,7 @@ unsigned short CountNotesInRange(short staff, LINK startL, LINK endL, Boolean se
 }
 
 
-/* --------------------------------------------------------- CountGRNotesInRange -- */
+/* ------------------------------------------------------------ CountGRNotesInRange -- */
 /* Counts GRNotes in range [startL,endL) on staff <staff> (there are no GRRrests),
 and with each chord counting as 1 GRNote. */
 
@@ -1938,7 +1939,7 @@ unsigned short CountGRNotesInRange(short staff, LINK startL, LINK endL, Boolean 
 }
 
 
-/* ------------------------------------------------------------------ CountNotes -- */
+/* --------------------------------------------------------------------- CountNotes -- */
 /* Counts notes/rests in range on staff, with each Sync (not chord: they can be
 different if there are multiple voices on the staff) optionally counting as 1 note.
 Cf. CountNotesInRange: should perhaps be combined with it, but NB: that function ignores
@@ -2025,7 +2026,7 @@ unsigned short CountGRNotes(short staff,
 }
 
 
-/* ---------------------------------------------------------------- SVCountNotes -- */
+/* ------------------------------------------------------------------- SVCountNotes -- */
 /* Counts notes/rests in range in voice and staff. Cf. CountNotesInRange. */
 
 unsigned short SVCountNotes(short staff, short v, LINK startL,
@@ -2050,7 +2051,7 @@ unsigned short SVCountNotes(short staff, short v, LINK startL,
 	return noteCount;
 }
 
-/* --------------------------------------------------------------- SVCountGRNotes -- */
+/* ----------------------------------------------------------------- SVCountGRNotes -- */
 /* Counts grace notes in range in voice and staff. Cf. CountNotesInRange. */
 
 unsigned short SVCountGRNotes(short staff, short v,
@@ -2075,14 +2076,28 @@ unsigned short SVCountGRNotes(short staff, short v,
 	return noteCount;
 }
 
+/* --------------------------------------------------------------- CountNoteAttacks -- */
 
-/* ---------------------------------------------------------------- CountObjects -- */
+unsigned short CountNoteAttacks(Document *doc)
+{
+	LINK pL, aNoteL;
+	short nNoteAttacks = 0;
+	
+	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
+		if (SyncTYPE(pL))
+			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
+				if (!NoteREST(aNoteL) && !NoteTIEDL(aNoteL)) nNoteAttacks++;
+	}
+	return nNoteAttacks;
+}
+
+/* ------------------------------------------------------------------- CountObjects -- */
 /* Count objects in range of the given type or of all types. */
 
 unsigned short CountObjects(LINK startL, LINK endL,
 							short type)					/* Object type or ANYTYPE */
 {
-	unsigned short count; LINK pL;
+	unsigned short count;  LINK pL;
 	
 	for (count = 0, pL = startL; pL && pL!=endL; pL = RightLINK(pL))
 		if (type==ANYTYPE || ObjLType(pL)==type)
@@ -2092,11 +2107,14 @@ unsigned short CountObjects(LINK startL, LINK endL,
 }
 
 
-/* ---------------------------------------------------------------- CountInHeaps -- */
-/* Count the objects in each heap of the given score. */
+/* ------------------------------------------------------------------- CountInHeaps -- */
+/* Count the subobjects in each heap of the given score. These numbers may not agree
+with the user's concept of things: for example, they include context-setting KeySig
+objects at the beginning of each system, which are invisible if there's no actual key
+signature in effect. */
 
 void CountInHeaps(Document *doc,
-			unsigned short objCount[],
+			unsigned short subobjCount[],
 			Boolean includeMP				/* TRUE=include Master Page object list */
 			)
 {
@@ -2104,22 +2122,22 @@ void CountInHeaps(Document *doc,
 	LINK pL, aNoteL, aModNRL;  PANOTE aNote;	
 
 	for (h = FIRSTtype; h<LASTtype; h++ )
-		objCount[h] = 0;
+		subobjCount[h] = 0;
 	
 	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
-		objCount[ObjLType(pL)] += LinkNENTRIES(pL);
+		subobjCount[ObjLType(pL)] += LinkNENTRIES(pL);
 	}
 
-	/* Add in the numbers of objects in the Master Page of each object type. */
+	/* Optionally add in the numbers of objects in the Master Page of each object type. */
 
 	if (includeMP)
 		for (pL = doc->masterHeadL; pL; pL = RightLINK(pL)) {
-			objCount[ObjLType(pL)] += LinkNENTRIES(pL);
+			subobjCount[ObjLType(pL)] += LinkNENTRIES(pL);
 		}
 
-	/* Compute the numbers of note modifiers in the score (the only type with
+	/* Compute the numbers of note modifiers in the score. (This is the only type with
 		subobjects but no objects: note modifier subobjects are attached to Sync
-		subobjects). */
+		subobjects.) */
 
 	for (pL = doc->headL; pL!=RightLINK(doc->tailL); pL = RightLINK(pL))
 		if (SyncTYPE(pL)) {
@@ -2133,11 +2151,11 @@ void CountInHeaps(Document *doc,
 				}
 			}
 		}
-	objCount[MODNRtype] = numMods;
+	subobjCount[MODNRtype] = numMods;
 }
 
 
-/* ------------------------------------------------------------ HasOtherStemSide -- */
+/* --------------------------------------------------------------- HasOtherStemSide -- */
 
 Boolean HasOtherStemSide(LINK syncL,
 							short staff)			/* staff no. or ANYONE */
@@ -2153,7 +2171,7 @@ Boolean HasOtherStemSide(LINK syncL,
 }
 
 
-/* --------------------------------------------------------------- NoteLeftOfStem -- */
+/* ----------------------------------------------------------------- NoteLeftOfStem -- */
 /* Is the given note on the left side of its stem or its chord's stem? */
 
 Boolean NoteLeftOfStem(LINK /*pL*/,			/* Sync note belongs to */
@@ -2168,7 +2186,7 @@ Boolean NoteLeftOfStem(LINK /*pL*/,			/* Sync note belongs to */
 }
 
 
-/* --------------------------------------------------------------- GetStemUpDown -- */
+/* ------------------------------------------------------------------ GetStemUpDown -- */
 /* Deliver 1 if the note/chord for the given voice and Sync is stem up, -1
 if stem down. If the voice and Sync has a rest or nothing, return 0. */
 
@@ -2190,7 +2208,7 @@ short GetStemUpDown(LINK syncL, short voice)
 }
 
 
-/* ------------------------------------------------------------ GetGRStemUpDown -- */
+/* ---------------------------------------------------------------- GetGRStemUpDown -- */
 /* Deliver 1 if the note/chord for the given voice and GRSync is stem up, -1
 if stem down. If the voice and GRSync has nothing, return 0. */
 
@@ -2211,7 +2229,7 @@ short GetGRStemUpDown(LINK grSyncL, short voice)
 }
 
 
-/* ------------------------------------------------------------ GetExtremeNotes -- */
+/* ---------------------------------------------------------------- GetExtremeNotes -- */
 /* Return the highest and lowest (in terms of y-position, not pitch!) notes of the
 chord in a given Sync and voice. If there's only one note in that Sync/voice,
 return that note as both highest and lowest; if there are no notes in the Sync/voice,
@@ -2249,11 +2267,11 @@ void GetExtremeNotes(LINK syncL,
 }
 
 
-/* ------------------------------------------------------------ GetExtremeGRNotes -- */
+/* -------------------------------------------------------------- GetExtremeGRNotes -- */
 /* Return the highest and lowest (in terms of y-position, not pitch!) grace notes of
 the chord in a given GRSync and voice. If there's only one grace note in that
 GRSync/voice, return that note as both highest and lowest; if there are no grace notes
-in the GRSync/voice, return NILINK for each. ??FindExtremeGRNote should call it. */
+in the GRSync/voice, return NILINK for each. FIXME: FindExtremeGRNote should call it. */
 
 void GetExtremeGRNotes(LINK grSyncL,
 							short voice,
@@ -2286,7 +2304,7 @@ void GetExtremeGRNotes(LINK grSyncL,
 }
 
 
-/* ---------------------------------------------------------------- FindMainNote -- */
+/* ------------------------------------------------------------------- FindMainNote -- */
 /* Return the MainNote/GRMainNote (the one with a stem) in the given voice and
 Sync/GRSync. */
 
@@ -2650,7 +2668,8 @@ LINK ObjSelInVoice(LINK pL, short v)
 	return LinkSEL(link) ? link : NILINK;
 }
 
-/* ---------------------------------------------------------------- StaffOnStaff -- */
+/* ------------------------------------------------------------ "OnStaff" utilities -- */
+
 /* If staffL has a subobj on s, return it. staffL must be a Staff. */
 
 LINK StaffOnStaff(LINK staffL, short s)
@@ -2664,7 +2683,6 @@ LINK StaffOnStaff(LINK staffL, short s)
 	return NILINK;
 }			
 
-/* ----------------------------------------------------------------- ClefOnStaff -- */
 /* If clefL has a subobject on s, return it. clefL must be a Clef. */
 
 LINK ClefOnStaff(LINK clefL, short s)
@@ -2678,7 +2696,6 @@ LINK ClefOnStaff(LINK clefL, short s)
   	return NILINK;
 }
 
-/* --------------------------------------------------------------- KeySigOnStaff -- */
 /* If ksL has a subobject on s, return it. ksL must be a KeySig. */
 
 LINK KeySigOnStaff(LINK ksL, short s)
@@ -2692,7 +2709,6 @@ LINK KeySigOnStaff(LINK ksL, short s)
   	return NILINK;
 }
 
-/* -------------------------------------------------------------- TimeSigOnStaff -- */
 /* If tsL has a timeSig on s, return it. tsL must be a TimeSig. */
 
 LINK TimeSigOnStaff(LINK tsL, short s)
@@ -2706,8 +2722,6 @@ LINK TimeSigOnStaff(LINK tsL, short s)
   	return NILINK;
 }
 
-
-/* ----------------------------------------------------------------- MeasOnStaff -- */
 /* If measL has a subobject on s, return it. measL must be a Measure. */
 
 LINK MeasOnStaff(LINK measL, short s)
@@ -2721,7 +2735,6 @@ LINK MeasOnStaff(LINK measL, short s)
   	return NILINK;
 }
 
-/* ----------------------------------------------------------------- NoteOnStaff -- */
 /* If pL has a subobj (note or rest) on s, return it. pL must be a Sync. */
 
 LINK NoteOnStaff(LINK pL, short s)
@@ -2735,7 +2748,6 @@ LINK NoteOnStaff(LINK pL, short s)
 	return NILINK;
 }			
 
-/* -------------------------------------------------------------- GRNoteOnStaff -- */
 /* If pL has a subobj (grace note) on s, return it. pL must be a GRSync. */
 
 LINK GRNoteOnStaff(LINK pL, short s)
@@ -2749,7 +2761,7 @@ LINK GRNoteOnStaff(LINK pL, short s)
 	return NILINK;
 }			
 
-/* ---------------------------------------------------------------- NoteInVoice -- */
+/* ------------------------------------------------------------ "InVoice" utilities -- */
 /* If syncL has a subobj (note or rest) in voice v, return it. */
 
 LINK NoteInVoice(LINK syncL, short v, Boolean needSel)
@@ -2763,7 +2775,6 @@ LINK NoteInVoice(LINK syncL, short v, Boolean needSel)
 	return NILINK;
 }			
 
-/* -------------------------------------------------------------- GRNoteInVoice -- */
 /* If grSyncL has a subobj (grace note) in voice v, return it. */
 
 LINK GRNoteInVoice(LINK grSyncL, short v, Boolean needSel)
@@ -2777,8 +2788,6 @@ LINK GRNoteInVoice(LINK grSyncL, short v, Boolean needSel)
 	return NILINK;
 }			
 
-
-/* ----------------------------------------------------------------- SyncInVoice -- */
 /* Return TRUE if pL (which must be a Sync) has a note/rest in the given voice. */
 
 Boolean SyncInVoice(LINK pL, short voice)
@@ -2786,7 +2795,6 @@ Boolean SyncInVoice(LINK pL, short voice)
 	return (NoteInVoice(pL, voice, FALSE)!=NILINK);
 }			
 
-/* --------------------------------------------------------------- GRSyncInVoice -- */
 /* Return TRUE if pL (which must be a GRSync) has a grace note in the given voice. */
 
 Boolean GRSyncInVoice(LINK pL, short voice)
@@ -2794,7 +2802,8 @@ Boolean GRSyncInVoice(LINK pL, short voice)
 	return (GRNoteInVoice(pL, voice, FALSE)!=NILINK);
 }			
 
-/* ------------------------------------------------------------ SyncVoiceOnStaff -- */
+
+/* --------------------------------------------------------------- SyncVoiceOnStaff -- */
 /* If the given Sync has one or more subobjects on the given staff, return the
 first one's voice number, otherwise return NOONE. */
 
@@ -3112,7 +3121,7 @@ void TweakSubRects(Rect *r, LINK aNoteL, CONTEXT *pContext)
 			d2p(std2d(stOffset, pContext->staffHeight, pContext->staffLines)));
 }
 
-/* --------------------------------------------------------- CompareScoreFormat --- */
+/* ------------------------------------------------------------- CompareScoreFormat -- */
 /* Return TRUE if doc1,doc2 have identical part-staff formats, else return FALSE. */
 
 Boolean CompareScoreFormat(Document *doc1,
@@ -3209,7 +3218,7 @@ LINK Partn2PartL(Document *doc, short partn)
 }
 
 
-/* ------------------------------------------------------ HasXXXAcross functions -- */
+/* ------------------------------------------------------ HasXXXAcross utilities -- */
 
 /* Determines if there is a tie-subtype Slur in <voice> across the point just
 before <link>.  If so, returns the LINK to the Slur, else NILINK. */
@@ -3293,6 +3302,7 @@ Finish:
 }
 
 
+/* -------------------------------------------------------------- Rastral utilities -- */
 /* Given interline space in DDIST, return the rastral of a staff that
 would have this interline space, or return -1 if error.  -JGG, 7/31/00 */
 
