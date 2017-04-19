@@ -2,7 +2,7 @@
 	FILE:	RfmtRaw.c
 	PROJ:	Nightingale
 	DESC:	Routines for "raw" reformatting: respaces and assumes a very simple
-		range. Intended for use by recording routines. Cf. Reformat.c.
+			range. Intended for use by recording routines. Cf. Reformat.c.
 
 	UMoveInMeasure			UMoveMeasures			UMoveRestOfSystem
 	USysRelxd				AddSysMaybePage
@@ -67,10 +67,10 @@ void UMoveMeasures(LINK startL, LINK endL, DDIST diffxd)
 }
 
 
-/* ----------------------------------------------------------- UMoveRestOfSystem -- */
+/* -------------------------------------------------------------- UMoveRestOfSystem -- */
 /* Given a Measure and the width of that Measure, if there's anything following
 in that Measure's System, move that following stuff left or right as appropriate
-so it starts where the Measure ends. Identical to MoveRestOfSystem (q.v.) except
+so it starts where the Measure ends. Identical to CanMoveRestOfSystem (q.v.) except
 that it treats xd's as unsigned, instead of signed, numbers. ??SHOULD IT JUST
 SKIP MeasFillSystem, SINCE IT'S NOT NEEDED AND CAN'T BE RELIABLE? */
 

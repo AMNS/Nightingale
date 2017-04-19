@@ -174,7 +174,7 @@ Boolean DCheckHeadTail(
 voice that refers to it. If it's tied, also look for a match for its note number in
 the "other" Sync. */
 
-Boolean DCheckSyncSlurs(LINK syncL, LINK aNoteL)
+Boolean DCheckSyncSlurs(Document *doc, LINK syncL, LINK aNoteL)
 {
 	SearchParam pbSearch;
 	LINK		prevSyncL, slurL, searchL, otherSyncL;
@@ -208,13 +208,13 @@ Boolean DCheckSyncSlurs(LINK syncL, LINK aNoteL)
 		}
 
 		if (!slurL) {
-			COMPLAIN2("DCheckSyncSlurs: NOTE slurredL IN VOICE %d IN SYNC L%u HAS NO SLUR.\n",
-						voice, syncL);
+			COMPLAIN3("DCheckSyncSlurs: NOTE slurredL IN VOICE %d IN SYNC L%u, MEASURE %d, HAS NO SLUR.\n",
+						voice, syncL, GetMeasNum(doc, syncL));
 		}
 		else {
 			if (SlurLASTSYNC(slurL)!=syncL) {
-				COMPLAIN2("DCheckSyncSlurs: NOTE slurredL IN VOICE %d IN SYNC L%u HAS BAD SLUR.\n",
-							voice, syncL);
+				COMPLAIN3("DCheckSyncSlurs: NOTE slurredL IN VOICE %d IN SYNC L%u, MEASURE %d, HAS BAD SLUR.\n",
+							voice, syncL, GetMeasNum(doc, syncL));
 			}
 		}
 	}
@@ -222,13 +222,13 @@ Boolean DCheckSyncSlurs(LINK syncL, LINK aNoteL)
 	if (NoteSLURREDR(aNoteL)) {
 		slurL = L_Search(syncL, SLURtype, GO_LEFT, &pbSearch);
 		if (!slurL) {
-			COMPLAIN2("DCheckSyncSlurs: NOTE slurredR IN VOICE %d IN SYNC L%u HAS NO SLUR.\n",
-						voice, syncL);
+			COMPLAIN3("DCheckSyncSlurs: NOTE slurredR IN VOICE %d IN SYNC L%u, MEASURE %d, HAS NO SLUR.\n",
+						voice, syncL, GetMeasNum(doc, syncL));
 		}
 		else {
 			if (SlurFIRSTSYNC(slurL)!=syncL) {
-				COMPLAIN2("DCheckSyncSlurs: NOTE slurredR IN VOICE %d IN SYNC L%u HAS BAD SLUR.\n",
-							voice, syncL);
+				COMPLAIN3("DCheckSyncSlurs: NOTE slurredR IN VOICE %d IN SYNC L%u, MEASURE %d, HAS BAD SLUR.\n",
+							voice, syncL, GetMeasNum(doc, syncL));
 			}
 		}
 	}
@@ -237,10 +237,10 @@ Boolean DCheckSyncSlurs(LINK syncL, LINK aNoteL)
 
 	if (NoteTIEDL(aNoteL)) {
 		/* If we start searching for the slur here, we may find one that starts with this
-			Sync, while we want one that ends with this Sync; instead, start searching
-			from the previous Sync in this voice. Exception: if the previous Sync is not
-			in the same System, the slur we want is the second piece of a cross-system
-			one; in this case, search to the right from the previous Measure.
+			Sync, while we want one that ends with this Sync; to avoid that, start
+			searching from the previous Sync in this voice. Exception: if the previous
+			Sync is not in the same System, the slur we want is the second piece of a
+			cross-system one; in that case, search to the right from the previous Measure.
 			Cf. LeftSlurSearch. */
 			
 		prevSyncL = LVSearch(LeftLINK(syncL), SYNCtype, voice, GO_LEFT, FALSE);
@@ -770,7 +770,7 @@ short DCheckNode(
 						COMPLAIN2("*DCheckNode: REST IN VOICE %d WITH inCHORD FLAG IN SYNC L%u.\n",
 										aNote->voice, pL);
 
-					DCheckSyncSlurs(pL, aNoteL);
+					DCheckSyncSlurs(doc, pL, aNoteL);
 					
 					if (aNote->firstMod) {
 						unsigned short nObjs = MODNRheap->nObjs;
@@ -1127,11 +1127,11 @@ short DCheckNode(
 						aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
 					aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
 					if (DBadLink(doc, OBJtype, aNoteOct->opSync, TRUE)) {
-						COMPLAIN2("�DCheckNode: OTTAVA L%u HAS GARBAGE SYNC LINK %d.\n",
+						COMPLAIN2("�DCheckNode: OTTAVA L%u HAS GARBAGE SYNC LINK %u.\n",
 										pL, aNoteOct->opSync);
 					}
 					else if (!SyncTYPE(aNoteOct->opSync) && !GRSyncTYPE(aNoteOct->opSync))
-						COMPLAIN2("�DCheckNode: OTTAVA L%u HAS BAD SYNC LINK %d.\n",
+						COMPLAIN2("�DCheckNode: OTTAVA L%u HAS BAD SYNC LINK %u.\n",
 										pL, aNoteOct->opSync);
 				}
 				
@@ -1465,10 +1465,10 @@ short DCheckNode(
 
 
 /* ------------------------------------------------------------------ DCheckNodeSel -- */
-/* Do consistency check on selection status between object and subobject:
-if object is not selected, no subobjects should be selected. Does not check
-the other type of consistency--if object is selected, at least one subobject
-should be. Returns TRUE if it finds a problem. */
+/* Do consistency check on selection status between object and subobject: if
+object is not selected, no subobjects should be selected. Does not check the other
+type of consistency, namely if object is selected, at least one subobject should
+be. Returns TRUE if it finds a problem. */
 
 Boolean DCheckNodeSel(Document *doc, LINK pL)
 {
@@ -1760,9 +1760,9 @@ Boolean DCheckHeirarchy(Document *doc)
 	LINK 		pL, aStaffL, pageL, systemL;
 	short		nMissing, i,
 				nsystems, numSheets;
-	Boolean	aStaffFound[MAXSTAVES+1],				/* Found the individual staff? */
-				foundPage, foundSystem, foundStaff,	/* Found any PAGE, SYSTEM, STAFF obj yet? */
-				foundMeasure,								/* Found a MEASURE since the last STAFF? */
+	Boolean	aStaffFound[MAXSTAVES+1],					/* Found the individual staff? */
+				foundPage, foundSystem, foundStaff,		/* Found any PAGE, SYSTEM, STAFF obj yet? */
+				foundMeasure,							/* Found a MEASURE since the last STAFF? */
 				foundClef, foundKeySig, foundTimeSig;	/* Found any CLEF, KEYSIG, TIMESIG yet? */
 	Boolean	bad=FALSE;
 	PCLEF		pClef;  PKEYSIG pKeySig;  PTIMESIG pTimeSig;
@@ -2018,13 +2018,13 @@ Next:
 					syncL = L_Search(RightLINK(syncL), (grace? GRSYNCtype : SYNCtype),
 											GO_RIGHT, &pbSearch);
 					if (DBadLink(doc, OBJtype, syncL, TRUE)) {
-						COMPLAIN2("*DCheckBeams: BEAMSET %d: TROUBLE FINDING %sSYNCS.\n", pL,
+						COMPLAIN2("*DCheckBeams: BEAMSET %u: TROUBLE FINDING %sSYNCS.\n", pL,
 										(grace? "GR" : ""));
 						beamNotesOkay = FALSE;
 						break;
 					}
 					if (!SameSystem(pL, syncL)) {
-						COMPLAIN3("*DCheckBeams: BEAMSET %d: %sSYNC %d NOT IN SAME SYSTEM.\n", pL,
+						COMPLAIN3("*DCheckBeams: BEAMSET %u: %sSYNC %u NOT IN SAME SYSTEM.\n", pL,
 										(grace? "GR" : ""), syncL);
 						beamNotesOkay = FALSE;
 						break;
@@ -2045,11 +2045,11 @@ Next:
 					 */
 					if (pNoteBeam->bpSync!=syncL) {
 						if (foundRest && maxCheck) {
-							COMPLAIN("DCheckBeams: BEAMSET %d SYNC LINK INCONSISTENT (WITH RESTS; PROBABLY OK).\n", pL);
+							COMPLAIN("DCheckBeams: BEAMSET %u SYNC LINK INCONSISTENT (WITH RESTS; PROBABLY OK).\n", pL);
 							beamNotesOkay = FALSE;
 						}
 						else if (!foundRest) {
-							COMPLAIN("*DCheckBeams: BEAMSET %d SYNC LINK INCONSISTENT.\n", pL);
+							COMPLAIN("*DCheckBeams: BEAMSET %u SYNC LINK INCONSISTENT.\n", pL);
 							beamNotesOkay = FALSE;
 						}
 					}
@@ -2059,7 +2059,7 @@ Next:
 				for (qL = RightLINK(pL); qL!=syncL; qL = RightLINK(qL))
 					if (BeamsetTYPE(qL))
 						if (BeamVOICE(qL)==BeamVOICE(pL)) {
-							COMPLAIN2("*DCheckBeams: BEAMSET %d IN SAME VOICE AS UNFINISHED BEAMSET %d.\n",
+							COMPLAIN2("*DCheckBeams: BEAMSET %u IN SAME VOICE AS UNFINISHED BEAMSET %u.\n",
 										qL, pL);
 							break;
 						}
@@ -2706,7 +2706,7 @@ Boolean DCheckContext(Document *doc)
 
 
 
-/* -------------------------------------------------------------- DCheck1NEntries -- */
+/* ---------------------------------------------------------------- DCheck1NEntries -- */
 /* Check the given object's nEntries field for agreement with the length of its list
 of subobjects. */
 
@@ -2743,7 +2743,7 @@ Boolean DCheck1NEntries(
 }
 
 
-/* -------------------------------------------------------------- DCheckNEntries -- */
+/* ----------------------------------------------------------------- DCheckNEntries -- */
 /* For the entire main object list, Check objects' nEntries fields for agreement with
 the lengths of their lists of subobjects. This function is designed to be called
 independently of Debug when things are bad, e.g., to check for Mackey's Disease, so it
@@ -2751,7 +2751,7 @@ protects itself against other simple data structure problems. */
 
 Boolean DCheckNEntries(Document *doc)
 {
-	LINK pL;  Boolean bad;  long soon=TickCount()+60L;
+	LINK pL;  Boolean bad;  unsigned long soon=TickCount()+60L;
 	
 	bad = FALSE;
 		
@@ -2764,7 +2764,7 @@ Boolean DCheckNEntries(Document *doc)
 }
 
 
-/* ---------------------------------------------------------- DCheck1SubobjLinks -- */
+/* ------------------------------------------------------------ DCheck1SubobjLinks -- */
 /* Check subobject links for the given object. */
 
 Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
@@ -2870,5 +2870,3 @@ Boolean DCheck1SubobjLinks(Document *doc, LINK pL)
 	
 	return bad;
 }
-
-

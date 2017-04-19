@@ -457,7 +457,7 @@ static Boolean NestingIsOK(
 	}
 
 	*mustBeTie = !canSlur;
-	tiePossible = ConsecSync(newFirstL, newLastL, staff, voice);
+	tiePossible = SyncsAreConsec(newFirstL, newLastL, staff, voice);
 	if (!tiePossible) canTie = FALSE;
 	return (canTie || canSlur);
 }
@@ -741,7 +741,7 @@ static char NewSlurOrTie(
 	 *	a slur;  if neither is a chord, it's a tie. "Same pitch" is usually indicated by
 	 *	MIDI note number, not spelling, though across barlines, things are more subtle.
 	 */
-	if (ConsecSync(firstSyncL, lastSyncL, endStaff, voice)) {
+	if (SyncsAreConsec(firstSyncL, lastSyncL, endStaff, voice)) {
 		status = HandleTie(firstSyncL, lastSyncL, voice, &subCount, firstIndA, lastIndA);
 		if (status==CANCEL_INT) {
 			InvalMeasures(firstSyncL, lastSyncL, staff);

@@ -3,7 +3,7 @@
 Utilities for handling the object list for MIDI recording and importing MIDI files.
 These functions have no user interface implications.
 	SetupMIDINote		CreateSync				AddNoteToSync
-	MIDI2HalfLn			FillMergeBuffer		ObjTimeInTable
+	MIDI2HalfLn			FillMergeBuffer			ObjTimeInTable
 	MRFixTieLinks		FixTupletLinks			MRMerge
 	AvoidUnisons		AvoidUnisonsInRange
 */				
@@ -20,8 +20,8 @@ These functions have no user interface implications.
 #include "Nightingale.appl.h"
 
 
-static void SetupMIDINote(Document *, LINK, LINK, MNOTE, CONTEXT, SignedByte, short, short,
-							SignedByte, Boolean, long);
+static void SetupMIDINote(Document *, LINK, LINK, MNOTE, CONTEXT, SignedByte, short,
+							short, SignedByte, Boolean, long);
 static short MIDI2HalfLn(Document *, Byte, short, Boolean, SignedByte *);
 static short ObjTimeInTable(long, LINKTIMEINFO *, short);
 static void MRFixTieLinks(Document *, LINK, LINK, short);
@@ -36,15 +36,15 @@ accidental must be inferred as best we can. lDur may be UNKNOWN_L_DUR or any
 larger value, i.e., it cannot be WHOLEMR_L_DUR or below. */
 
 static void SetupMIDINote(Document *doc,
-									LINK syncL, LINK aNoteL,
-									MNOTE MIDINote,
-									CONTEXT context,
-									SignedByte staffn,
-									short lDur, short ndots,
-									SignedByte voice,
-									Boolean isRest,
-									long /*timeShift*/						/* obsolete and ignored */
-									)
+							LINK syncL, LINK aNoteL,
+							MNOTE MIDINote,
+							CONTEXT context,
+							SignedByte staffn,
+							short lDur, short ndots,
+							SignedByte voice,
+							Boolean isRest,
+							long /*timeShift*/						/* obsolete and ignored */
+							)
 {
 	register PANOTE aNote;
 	SHORTQD		yqpit;
@@ -67,10 +67,10 @@ PushLock(NOTEheap);
 		yqpit = halfLn2qd(context.staffLines-1);
 		aNote->yd = qd2d(yqpit, context.staffHeight,
 						context.staffLines);
-		aNote->yqpit = -1;												/* No QDIST pitch */
-		aNote->accident = 0;												/* No accidental */
-		aNote->noteNum = 0;												/* No MIDI note number */
-		aNote->ystem = 0;													/* No stem end pos. */
+		aNote->yqpit = -1;										/* No QDIST pitch */
+		aNote->accident = 0;									/* No accidental */
+		aNote->noteNum = 0;										/* No MIDI note number */
+		aNote->ystem = 0;										/* No stem end pos. */
 	}
 	else {
 		midCHalfLn = ClefMiddleCHalfLn(context.clefType);
@@ -79,8 +79,7 @@ PushLock(NOTEheap);
 		aNote->yd = qd2d(yqpit, context.staffHeight, context.staffLines);
 		aNote->yqpit = yqpit-halfLn2qd(midCHalfLn);
 		stemDown = GetStemInfo(doc, syncL, aNoteL, &qStemLen);
-		aNote->ystem = CalcYStem(doc, aNote->yd, NFLAGS(lDur),
-											stemDown,
+		aNote->ystem = CalcYStem(doc, aNote->yd, NFLAGS(lDur), stemDown,
 											context.staffHeight, context.staffLines,
 											qStemLen, FALSE);
 		aNote->accident = acc;
@@ -115,14 +114,14 @@ PushLock(NOTEheap);
 	aNote->tempFlag = FALSE;
 	aNote->fillerN = 0;
 
-	aNote->playTimeDelta = 0;											/* For the moment */
+	aNote->playTimeDelta = 0;										/* For the moment */
 
-	if (lDur>UNKNOWN_L_DUR)												/* Known dur. & not MB rest? */
+	if (lDur>UNKNOWN_L_DUR)											/* Known dur. & not MB rest? */
 		aNote->playDur = SimplePlayDur(aNoteL);
 	else
 		aNote->playDur = MIDINote.duration;
 
-	aNote->pTime = 0;														/* Used by Tuplet routines */
+	aNote->pTime = 0;												/* Used by Tuplet routines */
 		
 PopLock(NOTEheap);
 }
@@ -142,9 +141,9 @@ LINK CreateSync(register Document *doc,
 						)
 {
 	register LINK	newpL, aNoteL;
-	CONTEXT 			context;
+	CONTEXT 		context;
 			 
-	newpL = InsertNode(doc, doc->selStartL,SYNCtype,1);
+	newpL = InsertNode(doc, doc->selStartL, SYNCtype, 1);
 	if (newpL==NILINK) {
 		NoMoreMemory();
 		return NILINK;
@@ -166,14 +165,14 @@ LINK CreateSync(register Document *doc,
 }
 
 
-/* ---------------------------------------------------------------- AddNoteToSync -- */
+/* ------------------------------------------------------------------ AddNoteToSync -- */
 /* Add a note to the given Sync. */
 
-LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn, short lDur,
-							short ndots, SignedByte voice, Boolean isRest, long timeShift)
+LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn, short
+					lDur, short ndots, SignedByte voice, Boolean isRest, long timeShift)
 {
-	CONTEXT  context;
-	LINK		aNoteL;
+	CONTEXT	context;
+	LINK	aNoteL;
 	Boolean	inVoice;
 				 
 	inVoice = SyncInVoice(syncL, voice);
@@ -189,6 +188,7 @@ LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn,
 	
 	/* If there was already a note in this note's voice, it's now a chord. */
 	if (inVoice) FixSyncForChord(doc, syncL, voice, FALSE, 0, 0, &context);
+
 	return aNoteL;
 }
 
@@ -201,14 +201,11 @@ top line of staff = 0??) and the accidental in <*pAcc>. */
 static short MIDI2HalfLn(Document */*doc*/, Byte noteNum, short midCHalfLn,
 								Boolean useFlats, SignedByte *pAcc)
 {
-	short		pitchClass,
-				halfLines,
-				octave,
-				halfSteps;
+	short pitchClass, halfLines, octave, halfSteps;
 				
-	static short	hLinesTable[] =
+	static short hLinesTable[] =
 		/* pitchclass	  C  C# D  D# E  F  F# G  G# A  A# B	*/				
-							{ 0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6 };	
+						{ 0, 0, 1, 1, 2, 3, 3, 4, 4, 5, 5, 6 };	
 	
 	pitchClass = noteNum % 12;					
 	halfSteps = hLinesTable[pitchClass];
@@ -238,6 +235,7 @@ static Boolean IsMeasAndMergable(LINK pL)
 	return !FirstMeasInSys(pL);
 }
 
+
 /* -------------------------------------------------------------- FillMergeBuffer -- */
 /* Fill one of MRMerge's buffers with objects from <startL> to the end of the score,
 but at most <maxObjs> objects. If there are more objects than that, return <maxObjs+1>
@@ -254,7 +252,7 @@ short FillMergeBuffer(
 				Boolean syncsOnly		/* TRUE=include Syncs only, else Syncs and Measures */
 				)
 {
-	short i; LINK pL;
+	short i;  LINK pL;
 	
 	for (i = 0, pL = startL; i<maxObjs && pL; pL = RightLINK(pL))
 		if (SyncTYPE(pL) || (!syncsOnly && IsMeasAndMergable(pL))) {
@@ -284,6 +282,7 @@ static short ObjTimeInTable(long lTime, LINKTIMEINFO *mergeObjs, short nObjs)
 	return nObjs-1;
 }
 
+
 /* ---------------------------------------------------------------- MRFixTieLinks -- */
 /* In the range [startL,endL), fix the firstSyncL and lastSyncL of every tie-
 subtype Slur in the given voice to agree with the order of objects in the data
@@ -291,10 +290,10 @@ structure, i.e., set the firstSyncL to the next Sync in voice and the lastSyncL
 to the next Sync after that. */
 
 static void MRFixTieLinks(
-						Document */*doc*/,
-						LINK startL, LINK endL,			/* Range to fix */
-						short voice
-						)
+				Document */*doc*/,
+				LINK startL, LINK endL,			/* Range to fix */
+				short voice
+				)
 {
 	LINK pL, firstSyncL, lastSyncL;
 	
@@ -320,9 +319,9 @@ of objects in the data structure, i.e., set the first tpSync to the next Sync in
 voice, the next tpSync to the next Sync after that, etc. */
 
 static void MRFixTupletLinks(
-						Document */*doc*/,
-						LINK startL, LINK endL,
-						short voice)
+					Document */*doc*/,
+					LINK startL, LINK endL,
+					short voice)
 {
 	LINK pL, syncL;
 	LINK aNoteTupleL;
@@ -340,8 +339,8 @@ static void MRFixTupletLinks(
 				aNoteTuple->tpSync = syncL;
 			}
 		}
-	
 }
+
 
 /* ---------------------------------------------------------------------- MRMerge -- */
 /* Merge objects in the object list described by <newSyncs> into the object list by
@@ -549,7 +548,8 @@ notes, not grace notes. */
 
 void AvoidUnisonsInRange(Document *doc, LINK startL, LINK endL, short staff)
 {
-	CONTEXT context; short voice, relStaff; LINK pL, partL;
+	CONTEXT context;  short voice, relStaff;
+	LINK pL, partL;
 	PPARTINFO pPart; short nProblems=0;
 	char fmtStr[256];
 	

@@ -47,8 +47,8 @@ static void	PS_Char(short ch);
 static char	*PS_PrtLong(unsigned long arg, Boolean negArg, Boolean doSign,
 						Boolean noSign, short base, short width, short *len);
 static void	PS_Recompute(void);
-static OSErr	PS_Comment(char *buffer, long nChars);
-static Byte 	*PS_NthString(Byte *stringList, short n);
+static OSErr PS_Comment(char *buffer, long nChars);
+static Byte *PS_NthString(Byte *stringList, short n);
 
 /* Private globals */
 
@@ -63,7 +63,6 @@ static OSErr thisError;				/* Latest report from the front */
 static Boolean fileOpened;			/* TRUE when there is an opened file */
 static Boolean handleOpened;		/* TRUE when there is an opened handle */
 static Handle prec103;				/* The resource to be downloaded once per job */
-static Boolean skipHeader;			/* TRUE if PS_Header has been used to build PREC */
 static Handle theTextHandle;
 static char *buffer,*bufTop,*bp;	/* For buffered output to file */
 static short thisFont;				/* Latest set font */
@@ -87,7 +86,7 @@ static DDIST pageWidth,				/* Sizes of page in whatever coordinates */
 			 stemFudge;				/* For shortening stems at notehead end */
 
 
-/* ============================================================== PUBLIC ROUTINES == */
+/* ================================================================ PUBLIC ROUTINES == */
 
 /* Open file and prepare to output PostScript.  If another file is already open,
 then we close it before opening the new one.
@@ -107,14 +106,14 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
 			/* Don't open anything new until old open is shut first */
 			
 			if (fileOpened)
-				if (thisError = PS_Close()) return(thisError);
+				if ((thisError = PS_Close())) return(thisError);
 			
 			usingFile = TRUE;
 			usingPrinter = usingHandle = FALSE;
 
 			HSetVol(NULL,fsSpec->vRefNum,fsSpec->parID);
 			FSpDelete(fsSpec);									/* Don't care if notFound error */
-			thisError = FSpCreate (fsSpec, creatorType, 
+			thisError = FSpCreate(fsSpec, creatorType, 
 									(ShiftKeyDown()||OptionKeyDown())?'TEXT':fileType, smRoman);
 			if (thisError==noErr || thisError==dupFNErr) {
 				thisError = FSpOpenDF(fsSpec, fsRdWrPerm, &thisFile);
@@ -129,7 +128,7 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
  			}
  		 else if (usingWhat == USING_HANDLE) {
  			if (handleOpened)
- 				if (thisError = PS_Close()) return(thisError);
+ 				if ((thisError = PS_Close())) return(thisError);
  			
  			usingHandle = TRUE;
  			usingPrinter = usingFile = FALSE;
@@ -141,15 +140,15 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
  			}
  		
  		/*
- 		 *	Now try to allocate temporary buffer for text output.
- 		 *	This may be a different call for MultiFinder, and could
- 		 *	just as well be a locked handle somewhere high in memory.
+ 		 *	Now try to allocate temporary buffer for text output. This may be a
+ 		 *	different call for MultiFinder, and could just as well be a locked
+ 		 *	somewhere high in memory.
  		 */
  		buffer = (char *)NewPtr(PSBUFSIZE);
- 		if (thisError = MemError()) return(thisError);
+ 		if ((thisError = MemError())) return(thisError);
  		
- 		bufTop = buffer + PSBUFSIZE;	/* First char above buffer */
- 		bp = buffer;					/* Next char to be placed */
+ 		bufTop = buffer + PSBUFSIZE;						/* First char above buffer */
+ 		bp = buffer;										/* Next char to be placed */
  		
  		if (usingFile) {
  			/* File is open and empty at this point */
@@ -220,15 +219,12 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 						Boolean landscape, Boolean doEncoding, Rect *bBox, Rect *paper)
 	{
 		short percent,width,height,paperWidth,paperHeight,resID;
-		Rect box; unsigned long dateTime; Str255 dateTimeStr;
+		Rect box;  unsigned long dateTime;  Str255 dateTimeStr;
 		static Rect thisImageRect;
-		char fmtStr[256];
-		char str[256];
+		char fmtStr[256], str[256];
 		Byte glyph;
-		double dPercent;
-		double dSdcf;
-		long lPercent;
-		long sdcf;        
+		double dPercent, dSdcf;
+		long lPercent, sdcf;        
 		short temp;
 		
 		if (paper) thisImageRect = *paper;		/* thisImageRect must be static */
@@ -313,12 +309,12 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 		 */
 		 
 		if (usingFile)
- 			PS_Print("/NightTopSave save def\r\r");				/* restore in Trailer */
+ 			PS_Print("/NightTopSave save def\r\r");					/* restore in Trailer */
 					 
 		// MAS: Declare ddFact before first jump
 		short ddFact;
 		
-		if (PS_Resource(-1,'TEXT',resID=128)) goto PSRErr;		/* Start Preamble (1) */
+		if (PS_Resource(-1,'TEXT',resID=128)) goto PSRErr;			/* Start Preamble (1) */
 
 		//PS_Print("%%••••\r");
 		/* /qw needs stringwidth of a char whose code depends on the music font.
@@ -328,20 +324,21 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 		sprintf(str, "\\%o", glyph);
 		PS_Print("/SQW {/qw (%s)stringwidth pop def} def\r", str);
 
-		if (PS_Resource(-1,'TEXT',resID=129)) goto PSRErr;		/* Start Preamble (2) */
+		if (PS_Resource(-1,'TEXT',resID=129)) goto PSRErr;			/* Start Preamble (2) */
 
 		//PS_Print("%%••••\r");
 		/*	Curly braces. For fonts that have curly brace chars, we use them, but also
 			provide a homebrew method that draws the braces without relying on the font.
-			(Why was this provided before?) For fonts, like Petrucci, that don't have
-			the brace chars, we use only the homebrew method.  -JGG */
-		if (PS_Resource(-1,'TEXT',resID=130)) goto PSRErr;		/* Curly brace (1) */
+			(Why was this provided before?) For fonts like Petrucci that don't have the
+			brace chars, we use only the homebrew method.  -JGG */
+		if (PS_Resource(-1,'TEXT',resID=130)) goto PSRErr;			/* Curly brace (1) */
 		if (MusFontHasCurlyBraces(doc->musFontInfoIndex)) {
-			/* This code is here, instead of in resources, so that we can map brace chars. */
+		
+			/* This code is here instead of in resources so that we can map brace chars. */
 			glyph = MapMusChar(doc->musFontInfoIndex, MCH_braceup);
 			sprintf(str, "\\%o", glyph);
 			PS_Print("   (%s)CH/cBot XD/cTop XD\r", str);
-			if (PS_Resource(-1,'TEXT',resID=131)) goto PSRErr;	/* Curly brace (2), both */
+			if (PS_Resource(-1,'TEXT',resID=131)) goto PSRErr;		/* Curly brace (2), both */
 			PS_Print("      0 cBot abs neg rmoveto(%s)show\r", str);
 			PS_Print("      grestore\r");
 			glyph = MapMusChar(doc->musFontInfoIndex, MCH_bracedown);
@@ -355,12 +352,12 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 			PS_Print("} BD\r");
 		}
 		else {
-			if (PS_Resource(-1,'TEXT',resID=132)) goto PSRErr;	/* Curly brace (2), homebrew only */
+			if (PS_Resource(-1,'TEXT',resID=132)) goto PSRErr;		/* Curly brace (2), homebrew only */
 		}
 
 		//PS_Print("%%••••\r");
 		if (doEncoding)
-			if (PS_Resource(-1,'TEXT',resID=133)) goto PSRErr;	/* Encoding */
+			if (PS_Resource(-1,'TEXT',resID=133)) goto PSRErr;		/* Encoding */
 
 		//PS_Print("%%••••\r");
 		/* Now directly print stuff that needs information from here */
@@ -412,13 +409,14 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 		if (PS_Resource(-1,'TEXT',resID=134)) goto PSRErr;	/* End Preamble */
 		//PS_Print("%%••••\r");
 
-		/*	Need the PostScript font name of our music font, which can differ from the screen font
-			name. IM Font Mgr. Ref., p. 102, gives code for doing this for a 'FOND' rsrc.  Hints 
-			about how to do it for 'sfnt' appear earlier.  But all this is *way* more complicated 
-			than you'd expect, so we just store the PS font name in the 'MFEx' resource. You can 
-			get this name using the old Varityper ToolKit program. */
+		/*	Need the PostScript font name of our music font, which can differ from the
+			screen font name. Inside Macintosh Font Mgr. Ref., p. 102, gives code for
+			doing this for a 'FOND' rsrc.  Hints about how to do it for 'sfnt' appear
+			earlier.  But all this is *way* more complicated than you'd expect, so we
+			just store the PS font name in the 'MFEx' resource. You can get this name
+			using the old Varityper ToolKit program. */
 		PS_Print("/MF {/%p findfont exch DCF mul dup neg FMX scale makefont setfont} BD\r",
-											musFontInfo[doc->musFontInfoIndex].postscriptFontName);
+									musFontInfo[doc->musFontInfoIndex].postscriptFontName);
 
 		PS_Print("\rend         %% NightingaleDict\r\r");
 		//PS_Print("%%••••\r");
@@ -476,7 +474,7 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 			}
 		
 		paperWidth = scaleFactor * (thisImageRect.right - thisImageRect.left);
-		paperHeight= scaleFactor * (thisImageRect.bottom - thisImageRect.top);
+		paperHeight = scaleFactor * (thisImageRect.bottom - thisImageRect.top);
 		
 		if (landscape) {
 			short tmp;
@@ -505,7 +503,8 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 			}
 
 		if (usingFile) {
-			PS_Print("%%%%BoundingBox: %ld %ld %ld %ld\r",(long)box.left,(long)box.bottom,(long)box.right,(long)box.top);
+			PS_Print("%%%%BoundingBox: %ld %ld %ld %ld\r",(long)box.left,(long)box.bottom,
+						(long)box.right,(long)box.top);
 			PS_Print("%%%%DocumentFonts: (atend)\r");
 			PS_Print("%%%%EndComments\r\r");
 			}
@@ -618,11 +617,12 @@ OSErr PS_HeaderHdl(Document *doc, unsigned char *docName, short nPages, FASTFLOA
 		if (PS_Resource(-1,'TEXT',resID=134)) goto PSRErr;	/* End Preamble */
 		//PS_Print("%%••••\r");
 
-		/*	Need the PostScript font name of our music font, which can differ from the screen font
-			name. IM Font Mgr. Ref., p. 102, gives code for doing this for a 'FOND' rsrc.  Hints 
-			about how to do it for 'sfnt' appear earlier.  But all this is *way* more complicated 
-			than you'd expect, so we just store the PS font name in the 'MFEx' resource. You can 
-			get this name using the old Varityper ToolKit program. */
+		/*	Need the PostScript font name of our music font, which can differ from the
+			screen font name. Inside Macintosh Font Mgr. Ref., p. 102, gives code for
+			doing this for a 'FOND' rsrc.  Hints about how to do it for 'sfnt' appear
+			earlier.  But all this is *way* more complicated than you'd expect, so we
+			just store the PS font name in the 'MFEx' resource. You can get this name
+			using the old Varityper ToolKit program. */
 		PS_Print("/MF {/%p findfont exch DCF mul dup neg FMX scale makefont setfont} BD\r",
 											musFontInfo[doc->musFontInfoIndex].postscriptFontName);
 		PS_Print("\rend         %% NightingaleDict\r\r");
@@ -732,14 +732,13 @@ OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle* oHandle)
 	status = noErr;
 
 
-	/* Get the font family name to use with the Resource
-		Manager when grabbing the 'FOND' resource. */
+	/* Get the font family name to use with the Resource Manager when grabbing
+		the 'FOND' resource. */
 	status = FMGetFontFamilyName(iFontFamily, fontFamilyName);
 	require(status == noErr, FMGetFontFamilyName_Failed);
 
-	/* Get a component font of the font family to obtain
-		the file specification of the container of the font
-		family. */
+	/* Get a component font of the font family to obtain the file specification
+		of the container of the font family. */
 	status = FMGetFontFromFontFamilyInstance(iFontFamily, 0, &font, nil);
 	require(status == noErr && font != kInvalidFont, FMGetFontFromFontFamilyInstance_Failed);
 
@@ -749,24 +748,21 @@ OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle* oHandle)
 	/* Open the resource fork of the file. */
 	rsrcFRefNum = FSpOpenResFile(&rsrcFSSpec, fsRdPerm);
 
-	/* If the font is based on the ".dfont" file format,
-		we need to open the data fork of the file. */
+	/* If the font is based on the ".dfont" file format, we need to open the data
+		fork of the file. */
 	if ( rsrcFRefNum == -1 ) {
 
-		/* The standard fork name is required to open
-			the data fork of the file. */
+		/* The standard fork name is required to open the data fork of the file. */
 		status = FSGetDataForkName(&forkName);
 		require(status == noErr, FSGetDataForkName_Failed);
 
-		/* The file specification (FSSpec) must be converted
-			to a file reference (FSRef) to open the data fork
-			of the file. */
+		/* The file specification (FSSpec) must be converted to a file reference
+			(FSRef) to open the data for of the file. */
 		status = FSpMakeFSRef(&rsrcFSSpec, &rsrcFSRef);
 		require(status == noErr, FSpMakeFSRef_Failed);
 
-		status = FSOpenResourceFile(&rsrcFSRef,
-												forkName.length, forkName.unicode,
-												fsRdPerm, &rsrcFRefNum);
+		status = FSOpenResourceFile(&rsrcFSRef, forkName.length, forkName.unicode,
+										fsRdPerm, &rsrcFRefNum);
 		require(status == noErr, FSOpenResourceFile_Failed);
 	}
 
@@ -775,15 +771,12 @@ OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle* oHandle)
 	/* On Mac OS X, the font family identifier may not match the resource identifier
 		after resolution of conflicting and duplicate fonts. */
 	rsrcHandle = Get1NamedResource(FOUR_CHAR_CODE('FOND'), fontFamilyName);
-	require_action(rsrcHandle != NULL,
-		Get1NamedResource_Failed, status = ResError());
-
+	require_action(rsrcHandle != NULL, Get1NamedResource_Failed,
+					status = ResError());
 	DetachResource(rsrcHandle);
 
 Get1NamedResource_Failed:
-
-	if ( rsrcFRefNum != -1 )
-		CloseResFile(rsrcFRefNum);
+	if (rsrcFRefNum != -1) CloseResFile(rsrcFRefNum);
 
 FSOpenResourceFile_Failed:
 FSpMakeFSRef_Failed:
@@ -791,9 +784,7 @@ FSGetDataForkName_Failed:
 FMGetFontContainer_Failed:
 FMGetFontFromFontFamilyInstance_Failed:
 FMGetFontFamilyName_Failed:
-
-	if ( oHandle != NULL )
-		*oHandle = rsrcHandle;
+	if (oHandle != NULL) *oHandle = rsrcHandle;
 
 	return status;
 } 
@@ -803,13 +794,12 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 	{
 		Handle resH; 
 		unsigned char *deFont;
-		
-		FMFontFamily 	iFontFamily;
-		OSStatus 		status = noErr;
+		FMFontFamily iFontFamily;
+		OSStatus status = noErr;
 		/*
 		 *  Get the suffixes for the desired style from the style-mapping table in the
-		 *	FOND resource. This is (poorly) documented in the LaserWriter Reference
-		 *	manual, p. 27ff.
+		 *	FOND resource. This is (poorly) documented in the ancient LaserWriter
+		 *	Reference manual, p. 27ff.
 		 */
 		iFontFamily = FMGetFontFamilyFromName(useFont); 
 		
@@ -871,7 +861,7 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 			for (p=suffix+1; nSuffices>0; nSuffices--,p++) {
 				short lenSuff,lenName;
 				suffix = PS_NthString(stringList,*p);
-				lenName = *useFont;		/* What we've built so far */
+				lenName = *useFont;							/* What we've built so far */
 				lenSuff = *(unsigned char *)suffix;			/* What we're about to append */
 				if ((lenName+lenSuff) <= 255)
 					PStrCat(useFont,suffix);
@@ -894,17 +884,16 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 
 /* Given a Pascal string of the Mac font name, convert it to the PostScript version,
 with any style (usually italic or bold) modifications, and print the result as a
-PostScript literal name.  Conversion is needed because the PostScript font names
-are, shall we say, less than systematically named with respect to the Mac names.
-The PostScript names appear in the style-mapping table at the end of FOND resources
-in a complex format. Returns (in *known) TRUE=font name known; FALSE=unknown, using
-the default. */
+PostScript literal name.  Conversion is needed because the PostScript font names are,
+shall we say, less than systematically named with respect to the Mac names. The
+PostScript names appear in the style-mapping table at the end of FOND resources in a
+complex format. Returns (in *known) TRUE=font name known; FALSE=unknown, using the
+default. */
 
 static OSErr PS_PrintFontName(const unsigned char *font, short style, Boolean *known);
 static OSErr PS_PrintFontName(const unsigned char *font, short style, Boolean *known)
 	{
 		//FontNameMap *fnt; 
-		char *pn = NULL;
 		Str255 useFont;
 		
 		Pstrcpy(useFont, font);
@@ -990,10 +979,9 @@ OSErr PS_Trailer(Document *doc, short nfontsUsed, FONTUSEDITEM *fontUsedTbl, uns
 	}
 
 /*
- *	Declare a new page to begin.  The page is known under the name/number as
- *	found in the C string page (which can be NULL or empty); the number that
- *	this page is in the sequence of printed pages must be in n and must be
- *	1 through n in an n-page document.
+ *	Declare a new page to begin.  The page is known under the name/number as found in
+ *	the C string page (which can be NULL or empty); the number that this page is in the
+ *	sequence of printed pages must be in n and must be 1 through n in an n-page document.
  */
 
 OSErr PS_NewPage(Document *doc, char *page, short n)
@@ -1027,9 +1015,8 @@ OSErr PS_EndPage()
 	}
 
 /*
- *	Send a given C string out to the open file.  This could be made more
- *	efficient later by doing it a roomleft-sized chunk at a time instead
- *	of the simpler character at a time.
+ *	Send a given C string out to the open file.  This could be made more efficient by
+ *	doing it a roomleft-sized chunk at a time instead of the simpler character at a time.
  */
 
 OSErr PS_String(char *str)
@@ -1040,8 +1027,8 @@ OSErr PS_String(char *str)
 	}
 
 /*
- *	Send a given Pascal string out to the open file.  This may not be
- *	necessary, but I've added it for completeness.
+ *	Send a given Pascal string out to the open file.  This may not be necessary, but
+ *	I've added it for completeness.
  */
 
 OSErr PS_PString(unsigned char *str)
@@ -1103,16 +1090,13 @@ void PS_Handle()
 		PS_Flush();
 }
 	
-/* Here is a simpler, shorter version of printf for printing directly to the
-the currently open file.  This is included here in case you want to be self-
-self-sufficient library-wise and want to avoid loading someone else's sprintf().
-But it also incorporates some non-standard features. According to ANSI/ISO,
-"%p" is a pointer to void, and the result is the value of the pointer; PS_Print
-assumes it's a pointer to a Pascal string, and the result is the string. Also,
-PS_Print accepts "%P" as a variation on "%p" that generates escape codes for
-non-standard PostScript characters (see PS_Char). If you need the stdio library
-anyway, you could use sprintf to format strings and then call PS_String() to
-print them, but you'd have to do something about PS_Print's non-standard features.
+/* PS_Print is a simpler, shorter version of printf for printing directly to the the
+currently open file.  This could be useful if you want to be self-sufficient
+library-wise, to avoid loading someone else's sprintf(). More important, it includes
+some non-standard features. According to ANSI/ISO, "%p" is a pointer to void, and the
+result is the value of the pointer; PS_Print assumes it's a pointer to a Pascal string,
+and the result is the string. Also, PS_Print accepts "%P" as a variation on "%p" that
+generates escape codes for non-standard PostScript characters (see PS_Char).
 
 PS_Print handles:
 
@@ -1122,7 +1106,6 @@ PS_Print handles:
 	Length: h l
 	Base/sign: b o x u d
 	Other: p s c %
-
  */
 
 #include <stdarg.h>
@@ -1130,20 +1113,23 @@ PS_Print handles:
 void PS_Print(char *msg, ...)
 	{
 		va_list nxtArg;
-		short base, precision, len;
-		short width,n,fieldLength;
-		long arg; unsigned long argu;
+		short base, precision, len, width, n, fieldLength;
+		long arg;  unsigned long argu;
 		char *p;
-		Boolean wideArg,pascalStr,doPrecision,noSign,doSpace;
-		Boolean leftJustify,doSign,negArg,doZero,doAlternate;
+		Boolean wideArg, pascalStr, doPrecision, noSign, doSpace;
+		Boolean leftJustify, doSign, negArg, doZero, doAlternate;
 		
 		va_start(nxtArg, msg);
 		
+		/* Why do we claim <short>s are <int>s in calls va_args? Before we did this, GCC
+		   4.0 warned: "'short int' is promoted to 'int' when passed through '...' (so you
+		   should pass 'int' not 'short int' to 'va_arg'). If this code is reached, the
+		   program will abort." */
+
 		while (*msg)
-		
 			if (*msg != '%') PS_Char(*(unsigned char *)msg++);
+			
 			 else {
-			 	
 			 	leftJustify = doSign = doSpace = doZero = doAlternate =
 			 				  doPrecision = FALSE;
 			 	width = -1; precision = 0;
@@ -1151,7 +1137,7 @@ void PS_Print(char *msg, ...)
 			 	 /* First pick off the possible modifiers */
 			 	
 				while (TRUE)
-			 		switch(*++msg) {
+			 		switch (*++msg) {
 			 			case ' ':
 			 					doSpace = !doSign; break;
 			 			case '-':
@@ -1163,7 +1149,7 @@ void PS_Print(char *msg, ...)
 			 			case '#':
 			 					doAlternate = TRUE; break;
 			 			case '*':
-			 					width = va_arg(nxtArg, short);
+			 					width = va_arg(nxtArg, int);
 			 					if (width < 0) width = 0;
 			 					break;
 			 			default:
@@ -1182,9 +1168,10 @@ void PS_Print(char *msg, ...)
 			 	
 			 	 /* Get the precision, if a period is next */
 			 	
-			 	if (doPrecision = (*msg == '.'))
+			 	doPrecision = (*msg == '.');
+				if (doPrecision)
 			 		if (*++msg == '*') {
-			 			precision = va_arg(nxtArg, short);
+			 			precision = va_arg(nxtArg, int);
 			 			msg++;
 			 			}
 			 		 else 
@@ -1194,11 +1181,12 @@ void PS_Print(char *msg, ...)
 			 	 /* Note whether this is a long argument: ignore short */
 			 	
 			 	if (*msg == 'h') msg++;
-			 	if (wideArg = (*msg == 'l')) msg++;
+			 	wideArg = (*msg == 'l');
+				if (wideArg) msg++;
 			 	
 			 	negArg = pascalStr = FALSE; noSign = TRUE; fieldLength = 0;
 
-			 	switch(*msg) {
+			 	switch (*msg) {
 			 		case 'b':
 			 			base = 2; goto outInt;
 			 		case 'o':
@@ -1214,19 +1202,19 @@ void PS_Print(char *msg, ...)
 			 				if (wideArg)
 			 					argu = va_arg(nxtArg, unsigned long);
 			 				else
-			 					argu = va_arg(nxtArg, unsigned short);
+			 					argu = va_arg(nxtArg, int);
 			 			else {
 			 				if (wideArg)
 			 					arg = va_arg(nxtArg, long);
 			 				 else
-			 					arg = va_arg(nxtArg, short);
+			 					arg = va_arg(nxtArg, int);
 			 				
 			 				/* Split the signed value into value <argu> and sign <negArg>. */
 			 				argu = (unsigned long)arg;
 			 				negArg = (arg < 0);
 			 				if (negArg) argu = -argu;
 			 				}
-			 			p = PS_PrtLong(argu,negArg,doSign,noSign,base,width,&len);
+			 			p = PS_PrtLong(argu, negArg, doSign, noSign, base, width, &len);
 			 			fieldLength = len;
 			 			break;
 			 		case 'P':
@@ -1253,7 +1241,7 @@ void PS_Print(char *msg, ...)
 			 			break;
 			 		case 'c':
 						p = " ";
-						*p = (char)va_arg(nxtArg, short);	 /* chars passed as shorts */
+						*p = (char)va_arg(nxtArg, int);			/* chars passed as shorts */
 			 			fieldLength = 1;
 			 			break;
 			 		case '%':
@@ -1268,8 +1256,8 @@ void PS_Print(char *msg, ...)
 				va_end(nxtArg);								/* Clean up va_ stuff */
 				
 			 	/*
-			 	 *	Finally add string to output: fieldLength is actual string
-			 	 *	length, width is requested or default width.
+			 	 *	Finally add string to output: fieldLength is the actual string
+			 	 *	length, width the requested or default width.
 			 	 */
 			 	
 			 	n = fieldLength;
@@ -1288,10 +1276,9 @@ void PS_Print(char *msg, ...)
 	}
 
 /*
- *	Change the default coordinate system to a given one.  This routine will
- *	only affect things if it is called prior to PS_Header().  The origin is
- *	assumed to be at the upper left when the actual PostScript code
- *	is generated.
+ *	Change the default coordinate system to a given one.  This routine will affect
+ *	things only if it is called prior to PS_Header().  The origin is assumed to be
+ *	at the upper left when the actual PostScript code is generated.
  */
 
 void PS_PageSize(DDIST x, DDIST y)
@@ -1349,7 +1336,6 @@ OSErr PS_LineVT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
 	}
 
 OSErr PS_LineHT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width);
-
 OSErr PS_LineHT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
 	{
 		/*
@@ -1359,6 +1345,7 @@ OSErr PS_LineHT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
                                  2 copy exch th add exch XF lineto XF lineto
                                  closepath fill} BD
 		*/
+		
 		/* y-coordinates refer to the TOP of the line! */
 		PS_Print("%ld %ld %ld %ld %ld LHT\r",(long)x0,(long)y0,(long)x1,(long)y1,
 					(long)width);
@@ -1366,8 +1353,8 @@ OSErr PS_LineHT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
 	}
 
 /*
- * The dashed-line drawing routines below really should use the PostScript
- * "setdash" operator instead of drawing lots of tiny lines.
+ * The dashed-line routines below draw lots of tiny lines. FIXME: They really should
+ * use the PostScript "setdash" operator instead.
  */
 
 OSErr PS_HDashedLine(DDIST x0, DDIST y, DDIST x1, DDIST width, DDIST dashLen)
@@ -1381,7 +1368,7 @@ OSErr PS_HDashedLine(DDIST x0, DDIST y, DDIST x1, DDIST width, DDIST dashLen)
 			PS_Print("%ld %ld %ld %ld %ld ML\r",(long)xend,(long)y,
 						(long)xstart,(long)y,(long)width);
 			}
-		if (xend<x1)								/* If necessary, extend final dash */
+		if (xend<x1)										/* If necessary, extend final dash */
 			PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x1,(long)y,
 						(long)xend,(long)y,(long)width);
 		return(thisError);
@@ -1399,7 +1386,7 @@ OSErr PS_VDashedLine(DDIST x, DDIST y0, DDIST y1, DDIST width, DDIST dashLen)
 						(long)x,(long)ystart,(long)width);
 			}
 
-		if (ystart<y1)									/* Draw short final dash */
+		if (ystart<y1)										/* Draw short final dash */
 			PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x,(long)y1,
 						(long)x,(long)ystart,(long)width);
 		return(thisError);
@@ -1482,9 +1469,9 @@ OSErr PS_BarLine(DDIST top, DDIST bot,DDIST x, char type)
 	}
 
 /*
- *	Draw vertical thin connect line on page at given x using current bar width.
- *	This differs from barline above in that the connect line has to be slightly
- *	extended to make a sharp corner with the left edge of the staff.
+ *	Draw vertical thin connect line on page at given x using current bar width. This
+ *	differs from barline above in that the connect line has to be slightly extended
+ *	to make a sharp corner with the left edge of the staff.
  */
 
 OSErr PS_ConLine(DDIST top, DDIST bot, DDIST x)
@@ -2267,11 +2254,10 @@ void PS_Flush()
 	}
 
 /*
- *	Add a character to the buffer, flushing if necessary.  If the character
- *	is outside the range of "printable" characters (ASCII graphic chars.
- *	plus Return and Tab) and we're printing a PostScript string, we turn
- *	the char. into the appropriate escape sequence, then call ourselves
- *	recursively to output the sequence.
+ *	Add a character to the buffer, flushing if necessary.  If the character is outside
+ *	the range of "printable" characters (ASCII graphic chars. plus Return and Tab) and
+ *	we're printing a PostScript string, we turn the char. into the appropriate escape
+ *	sequence, then call ourselves recursively to output the sequence.
  */
 
 static void PS_Char(short ch)
@@ -2281,6 +2267,7 @@ static void PS_Char(short ch)
 		if (doEscapes) {
 			doEscapes = FALSE;
 			if ((ch<' ' && (ch!='\r' && ch!='\t')) || (ch > 127)) {
+			
 				/* Convert character to octal code escape sequence */
 				PS_Char('\\');
 				PS_Char('0' + ((ch >> 6)&3));
@@ -2303,15 +2290,13 @@ static void PS_Char(short ch)
 	}
 
 /*
- *	Convert a long integer to a static string and deliver pointer
- *	to string.  Gets digits in reverse order, and then reverses them.
- *	This would be better in-line in PS_Print(), so we wouldn't need
- *	so many arguments.
+ *	Convert a long integer to a static string and deliver pointer to string.  Gets
+ *	digits in reverse order, and then reverses them. This would be better in-line
+ *	in PS_Print(), so we wouldn't need so many arguments.
  */
 
-static char *PS_PrtLong(unsigned long arg,
-						Boolean negArg, Boolean doSign, Boolean noSign,
-						short base, short /*width*/, short *len)
+static char *PS_PrtLong(unsigned long arg, Boolean negArg, Boolean doSign,
+						Boolean noSign, short base, short /*width*/, short *len)
 	{
 		char *dst,*start,*dig,tmp;
 		static char *digit = "0123456789abcdef";

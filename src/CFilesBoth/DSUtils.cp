@@ -18,14 +18,15 @@
 		IsAfter					IsAfterIncl				BetweenIncl
 		WithinRange				SamePage				SameSystem
 		SameMeasure
-		ConsecSync				BeforeFirstMeas			FirstMeasInSys	
-		LastMeasInSys			LastUsedMeasInSys		LastOnPrevSys
-		LastOnPrevSys			LastObjInSys
+		SyncsAreConsec			BeforeFirstMeas			FirstMeasInSys	
+		LastMeasInSys			IsLastUsedMeasInSys		LastOnPrevSys
+		IsLastInSystem			LastObjInSys
 		LastSysInPage			GetLastSysInPage		FirstSysInPage
-		NSysOnPage				LastObjOnPage			RoomForSystem
+		NSysOnPage				LastObjOnPage			GetNextSystem
+		RoomForSystem
 		GetCurrentPage			GetMasterPage			GetSysRange
-		MoveInMeasure and friends
-		MoveRestOfSystem
+		MoveInMeasure & friends
+		CanMoveRestOfSystem
 		CountNotesInRange		CountGRNotesInRange		CountNotes
 		VCountNotes				CountGRNotes			SVCountNotes
 		SVCountGRNotes			CountNoteAttacks		CountObjects
@@ -45,6 +46,7 @@
 		GetMultiVoice			TweakSubRects
 		CompareScoreFormat		DisposeMODNRs			Staff2PartL
 		PartL2Partn				VHasTieAcross			HasSmthgAcross
+		LineSpace2Rastral		Rastral2LineSpace		StaffRastral
 **************************************************************************************/
 
 /*
@@ -1019,7 +1021,7 @@ DDIST MeasJustWidth(Document *doc, LINK pL, CONTEXT context)
 /* ------------------------------------------------------------------- SetMeasWidth -- */
 /* Set the width of every subobject of the given measure to the given width. */
 
-Boolean SetMeasWidth(LINK measL, DDIST	width)
+Boolean SetMeasWidth(LINK measL, DDIST width)
 {
 	LINK		aMeasL;
 	PAMEASURE	aMeas;
@@ -1167,19 +1169,20 @@ Boolean SameMeasure(LINK pL, LINK qL)
 	return (pMeasL==qMeasL);
 }
 
-/* --------------------------------------------------------------------- ConsecSync -- */
-/* Are syncA and syncB consecutive syncs in the given staff/voice? Note that
-ConsecSync will find consecutive syncs in different systems, since LSSearch
+/* ----------------------------------------------------------------- SyncsAreConsec -- */
+/* Are syncA and syncB consecutive Syncs in the given staff/voice? Note that
+SyncsAreConsec will find consecutive Syncs in different systems, since LSSearch
 doesn't set inSystem TRUE for its search and initial system objects (System,
 Connect, etc.) are not checked for. */
 
-Boolean ConsecSync(LINK syncA, LINK syncB, short staff, short voice)
+Boolean SyncsAreConsec(LINK syncA, LINK syncB, short staff, short voice)
 {
 	LINK pL;
 	SearchParam	pbSearch;
 	
 	if (!SyncTYPE(syncA) || !SyncTYPE(syncB)) {
-		MayErrMsg("ConsecSync: called with syncA %ld or syncB %ld not SYNCtype",(long)syncA, (long)syncB);
+		MayErrMsg("SyncsAreConsec: called with syncA %ld or syncB %ld not SYNCtype",
+					(long)syncA, (long)syncB);
 		return FALSE;
 	}
 	
@@ -1433,7 +1436,7 @@ Boolean FirstMeasInSys(LINK measL)
 }
 
 
-/* ------------------------------------------------- Find "Last" of various things -- */
+/* ----------------------------------------- Find or check "Last" of various things -- */
 
 /* Is <measL>, which must be a Measure, the last Measure of its System? */
 
@@ -1457,7 +1460,7 @@ Boolean LastMeasInSys(LINK measL)
 /* Is <measL>, which must be a Measure, the last "used" Measure of its System,
 i.e., is there nothing following it except possibly a barline? */
 
-Boolean LastUsedMeasInSys(Document *doc, LINK measL)
+Boolean IsLastUsedMeasInSys(Document *doc, LINK measL)
 {
 	LINK pL;
 
@@ -1470,7 +1473,7 @@ Boolean LastUsedMeasInSys(Document *doc, LINK measL)
 
 /* If pL is not a System, if there is a system which contains pL, return 
 the last obj on it.
-If there is no containing system, return pL (we should be returning doc->headL).
+If there is no containing System, return pL (we should be returning doc->headL).
 If pL is a System, return the LINK of last object on the previous System
 in the score, skipping any intervening Page object if the System in question
 is the first System on the Page.  If pL is the first System on the first Page,
@@ -1488,45 +1491,38 @@ LINK LastOnPrevSys(LINK pL)
 	}
 
 	if (FirstSysInPage(sysL))
-		return ( LeftLINK(SysPAGE(sysL)) );
+		return LeftLINK(SysPAGE(sysL));
 
-	return ( LeftLINK(sysL) );
+	return LeftLINK(sysL);
 }
 
-/* Return the last Object of pL's System. If pL is a system, will return the last
-object of the previous system. */
+/* Return TRUE if the given link is the last object in its System. */
+
+Boolean IsLastInSystem(LINK pL)
+{
+	if (SystemTYPE(RightLINK(pL)) || PageTYPE(RightLINK(pL))) return TRUE;
+	return FALSE;
+}
+
+
+/* Return the last Object of pL's System. If pL is itself a System, will return the last
+object of the previous System. */
 
 LINK LastObjInSys(Document *doc, LINK pL)
 {
 	LINK sysL;
 	
-	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);	/* Get succeeding sys */
+	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);	/* Get succeeding System */
 	if (!sysL)
 		return (LeftLINK(doc->tailL));
 		
-	if (FirstSysInPage(sysL))												/* Avoid pageRel objs */
+	if (FirstSysInPage(sysL))									/* Avoid pageRel objs */
 		return (LeftLINK(SysPAGE(sysL)));
 	
 	return (LeftLINK(sysL));
 }
 
-
-/* --------------------------------------------------------------- GetNextSystem -- */
-/* Return the system following pL, if one exists; else doc->tailL. If pL is a
-system, will return the following system, if any. */
-
-LINK GetNextSystem(Document *doc, LINK pL)
-{
-	LINK nextSysL;
-	
-	nextSysL = LSSearch(RightLINK(pL), SYSTEMtype, ANYONE, FALSE, FALSE);
-	return (nextSysL ? nextSysL : doc->tailL);
-}
-
-
-/* --------------------------------------------------------------- LastSysInPage -- */
-/* Determines if sysL is the last system of its page. Assumes that sysL is a
-LINK to an object of type SYSTEM. */
+/* Determines if sysL is the last system of its page. Assumes that sysL is a SYSTEM. */
 
 Boolean LastSysInPage(LINK sysL)
 {
@@ -1616,6 +1612,19 @@ LINK LastObjOnPage(Document *doc, LINK pageL)
 		return LastObjInSys(doc, RightLINK(sysL));
 	}
 	return LeftLINK(doc->tailL);
+}
+
+
+/* --------------------------------------------------------------- GetNextSystem -- */
+/* Return the system following pL, if one exists; else doc->tailL. If pL is a
+system, will return the following system, if any. */
+
+LINK GetNextSystem(Document *doc, LINK pL)
+{
+	LINK nextSysL;
+	
+	nextSysL = LSSearch(RightLINK(pL), SYSTEMtype, ANYONE, FALSE, FALSE);
+	return (nextSysL ? nextSysL : doc->tailL);
 }
 
 
@@ -1800,12 +1809,12 @@ void DMoveMeasures(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL,
 }
 
 
-/* Check to see if the operation of MoveMeasures starting at pStartL by diffxd 
-will cause the contents of the system to extend past the system boundaries. 
-The range of MoveMeasures is restricted to objects within a single system, so
-this function also considers only that range. */
+/* Check to see if the operation of MoveMeasures starting at pStartL by diffxd will 
+cause the contents of the system to extend past the system boundaries. The range of
+MoveMeasures is restricted to objects within a single system, so this function also
+considers only that range. */
 
-Boolean CheckMoveMeasures(Document *doc, LINK pStartL, DDIST diffxd)
+Boolean CanMoveMeasures(Document *doc, LINK pStartL, DDIST diffxd)
 {
 	LINK pSystemL, lastObjL;  PSYSTEM pSystem;
 	DDIST sysWidth;
@@ -1819,13 +1828,13 @@ Boolean CheckMoveMeasures(Document *doc, LINK pStartL, DDIST diffxd)
 }
 
 
-/* --------------------------------------------------------------- MoveRestOfSystem -- */
+/* ------------------------------------------------------------ CanMoveRestOfSystem -- */
 /* Given a Measure and the width of that Measure, if there's anything following
 in that Measure's System, move that following stuff left or right as appropriate
 so it starts where the Measure ends. Be careful to stop moving at the end of the
 System. Intended for use by routines that change the width of a Measure or Measures. */
 
-Boolean MoveRestOfSystem(Document *doc, LINK measL, DDIST measWidth)
+Boolean CanMoveRestOfSystem(Document *doc, LINK measL, DDIST measWidth)
 {
 	LINK nextMeasL, endSysL, lastMeasL;
 	DDIST diffxd;
@@ -2665,7 +2674,7 @@ LINK ObjSelInVoice(LINK pL, short v)
 				return NILINK;
 		}
 	}
-	return LinkSEL(link) ? link : NILINK;
+	return (LinkSEL(link) ? link : NILINK);
 }
 
 /* ------------------------------------------------------------ "OnStaff" utilities -- */
@@ -3229,15 +3238,15 @@ LINK VHasTieAcross(LINK link, short voice)
 	
 	if (link==NILINK) return NILINK;	
 
-	/* Get the syncs in <voice> immediately to the right and left of the link. */
+	/* Get the Syncs in <voice> immediately to the right and left of the link. */
 
 	lSyncL = LVSearch(LeftLINK(link), SYNCtype, voice, GO_LEFT, FALSE);
 	rSyncL = LVSearch(link, SYNCtype, voice, GO_RIGHT, FALSE);
 	
 	if (lSyncL==NILINK || rSyncL==NILINK) return NILINK;
 
-	/* LVSearch in voice <voice> guarantees that if both syncs exists,
-		both have main notes in voice <voice>. */
+	/* LVSearch in voice <voice> guarantees that if both Syncs exists, both have
+		main notes in voice <voice>. */
 
 	lNoteL = FindMainNote(lSyncL,voice);
 	if (!NoteTIEDR(lNoteL)) return NILINK;
@@ -3245,8 +3254,8 @@ LINK VHasTieAcross(LINK link, short voice)
 	rNoteL = FindMainNote(rSyncL,voice);
 	if (!NoteTIEDL(rNoteL)) return NILINK;
 
-	/* Left and right notes are both tied. Search for the right one's tie. If it
-		also belongs to the left sync, return it, otherwise return NILINK. */
+	/* Left and right notes are both tied. Search for the right one's tie. If it also
+		belongs to the left Sync, return it, otherwise return NILINK. */
 
 	slurL = LeftSlurSearch(rSyncL, voice, TRUE);
 	if (SlurFIRSTSYNC(slurL)==lSyncL) 
@@ -3303,8 +3312,8 @@ Finish:
 
 
 /* -------------------------------------------------------------- Rastral utilities -- */
-/* Given interline space in DDIST, return the rastral of a staff that
-would have this interline space, or return -1 if error.  -JGG, 7/31/00 */
+/* Given interline space in DDIST, return the rastral of a staff that would have
+that interline space, or return -1 if error.  -JGG, 7/31/00 */
 
 short LineSpace2Rastral(DDIST lnSpace)
 {
@@ -3321,7 +3330,7 @@ short LineSpace2Rastral(DDIST lnSpace)
 }
 
 
-/* Given a rastral, return interline space in DDIST  -JGG, 7/31/00 */
+/* Given a rastral, return interline space in DDIST.  -JGG, 7/31/00 */
 
 DDIST Rastral2LineSpace(short rastral)
 {
@@ -3341,5 +3350,3 @@ short StaffRastral(LINK aStaffL)
 	lnSpace = staffHeight/(staffLines-1);
 	return LineSpace2Rastral(lnSpace);
 }
-
-

@@ -14,7 +14,7 @@
 Boolean ReplaceSetupResource(Handle, Handle, ResType, short, const unsigned char *);
 static Boolean UpdateSetupFile(void);
 
-/* --------------------------------------------------------- ReplaceSetupResource -- */
+/* ----------------------------------------------------------- ReplaceSetupResource -- */
 
 /* In the current resource file, remove <resH> and replace it with <hndl> (which
 must not be a resource when this is called). Return TRUE if all OK, give an error
@@ -44,7 +44,7 @@ Boolean ReplaceSetupResource(Handle resH, Handle hndl, ResType type, short id,
 }
 
 
-/* ------------------------------------------------------------- UpdateSetupFile -- */
+/* --------------------------------------------------------------- UpdateSetupFile -- */
 /* Save current config struct in Prefs (formerly "Setup") file's 'CNFG' resource,
 MIDI dynamics table in Prefs file's 'MIDI' resource, and MIDI modifier prefs tables
 in Prefs file's 'MIDM' resource, if they've been changed. Does NOT update any other
@@ -59,7 +59,7 @@ give an error message and return FALSE if there's a problem. */
 static Boolean UpdateSetupFile()
 {
 	Handle			cnfgResH, midiResH, midiModNRResH;	/* Handles to resource */
-	Configuration	**cnfgHndl;			/* Handle to global struct */
+	Configuration	**cnfgHndl;							/* Handle to global struct */
 	MIDIPreferences **midiHndl;
 	MIDIModNRPreferences **midiModNRHndl;
 	OSErr			result;
@@ -117,18 +117,18 @@ static Boolean UpdateSetupFile()
  		if (save==OK) {
 			/* Create a handle to global config struct */
 			cnfgHndl = (Configuration **)NewHandle((long) sizeof(Configuration));
-			if (result = MemError()) {
+			if ((result = MemError())) {
 				MayErrMsg("UpdateSetupFile: can't allocate cnfgHndl.  Error %d", result);
 				return FALSE;
 			}
-			BlockMove(&config, *cnfgHndl, (Size) sizeof(Configuration));
+			BlockMove(&config, *cnfgHndl, (Size)sizeof(Configuration));
 	
 			ReplaceSetupResource(cnfgResH, (Handle)cnfgHndl, 'CNFG', THE_CNFG,
 									CNFG_RES_NAME);
 
 			/* Create a handle to a MIDIPreferences and fill it with updated values. */
 			midiHndl = (MIDIPreferences **)NewHandle((long) sizeof(MIDIPreferences));
-			if (result = MemError()) {
+			if ((result = MemError())) {
 				MayErrMsg("UpdateSetupFile: can't allocate midiHndl.  Error %d", result);
 				return FALSE;
 			}
@@ -141,7 +141,7 @@ static Boolean UpdateSetupFile()
 
 			/* Create a handle to a MIDIModNRPreferences and fill it with updated values. */
 			midiModNRHndl = (MIDIModNRPreferences **)NewHandle((long) sizeof(MIDIModNRPreferences));
-			if (result = MemError()) {
+			if ((result = MemError())) {
 				MayErrMsg("UpdateSetupFile: can't allocate midiModNRHndl.  Error %d", result);
 				return FALSE;
 			}
@@ -160,7 +160,7 @@ static Boolean UpdateSetupFile()
 }
 
 
-/* -------------------------------------------------------------- CloseSetupFile -- */
+/* ----------------------------------------------------------------- CloseSetupFile -- */
 /* Closes the Prefs file; returns TRUE is successful, FALSE if error. From InsideMac:
 If there's no resource file open with the given reference number, CloseResFile will
 do nothing and the ResError function will return the result code resFNotFound. */
@@ -178,7 +178,7 @@ Boolean CloseSetupFile()
 }
 
 
-/* -------------------------------------------------------------------- Finalize -- */
+/* ----------------------------------------------------------------------- Finalize -- */
 /* Do final cleanup before quitting. */
 
 void Finalize()

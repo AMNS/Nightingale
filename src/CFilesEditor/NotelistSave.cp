@@ -62,7 +62,7 @@ here was writing to a \r. The MSL handles platform conversion of special chars
 what they write and write what they are going to read. Thus, changing
 sprintf to write a \n here. */
 
-/* ------------------------------------------------------------------- WriteLine -- */
+/* ---------------------------------------------------------------------- WriteLine -- */
 
 OSErr WriteLine()
 {
@@ -76,7 +76,7 @@ OSErr WriteLine()
 	return errCode;
 }
 
-/* ------------------------------------------------------------------ ProcessNRGR -- */
+/* -------------------------------------------------------------------- ProcessNRGR -- */
 /* Process a note, rest, or grace note. This version of ProcessNRGR simply writes
 out the more important (for purposes of a Musicologist's Database or a composer's
 synthesis program) fields. Returns TRUE normally, FALSE if there's a problem.
@@ -183,7 +183,7 @@ Boolean ProcessNRGR(
 }
 
 
-/* --------------------------------------------------------------- ProcessMeasure -- */
+/* ----------------------------------------------------------------- ProcessMeasure -- */
 /* Process a Measure object and subobject. This version also writes out information
 about the appearance of the given subobject, which may not apply to the other
 subobjects, i.e., barlines on other staves; but this is pretty minor, and barlines
@@ -207,7 +207,7 @@ Boolean ProcessMeasure(Document *doc, LINK measL, LINK aMeasL)
 /* Clefs, key signatures, and time signatures all have the feature that they can appear
 redundantly at system breaks. The current clef and (if there is one) key signature are
 repeated at the beginning of every system just to set the context; if a system starts
-with a change of time signature, the same time signature appears at the end of the
+with a change of time signature, the same time signature should appear at the end of the
 previous system to alert a player of the coming change. We don't want these redundant
 symbols to appear in the notelist. Thanks to Tim Crawford for pointing out the problem
 and the simple solution (specifically for key signatures). */
@@ -232,7 +232,7 @@ Boolean ProcessClef(Document */*doc*/, LINK tsL, LINK aClefL)
 }
 
 
-/* ----------------------------------------------------------------- ProcessKeySig -- */
+/* ------------------------------------------------------------------ ProcessKeySig -- */
 /* Process a KeySig subobject. This version skips it if it's just a context-setting
 key signature at the beginning of a system (other than the first, of course); otherwise
 it simply writes out some of its info. NB: assumes standard key signature (non-standard
@@ -254,7 +254,7 @@ Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
 }
 
 
-/* -------------------------------------------------------------- ProcessTimeSig -- */
+/* ----------------------------------------------------------------- ProcessTimeSig -- */
 /* Process a TimeSig subobject. This version skips it if it's at the very end of a
 system, since in that case it's presumably just a cautionary TimeSig anticipating
 the change at the beginning of the next system; otherwise it simply writes it out.
@@ -264,7 +264,7 @@ Boolean ProcessTimeSig(Document */*doc*/, LINK tsL, LINK aTimeSigL)
 {
 	PATIMESIG aTimeSig;
 	
-	if (SystemTYPE(RightLINK(tsL))) return TRUE;
+	if (IsLastInSystem(tsL)) return TRUE;
 	
 	aTimeSig = GetPATIMESIG(aTimeSigL);
 	sprintf(strBuf, "%c stf=%d num=%d denom=%d", TIMESIG_CHAR, aTimeSig->staffn,
@@ -277,7 +277,7 @@ Boolean ProcessTimeSig(Document */*doc*/, LINK tsL, LINK aTimeSigL)
 }
 
 
-/* -------------------------------------------------------------- ProcessDynamic -- */
+/* ----------------------------------------------------------------- ProcessDynamic -- */
 /* Process a Dynamic object. This version simply writes it out.
 Returns TRUE normally, FALSE if there's a problem. */
 
@@ -296,7 +296,7 @@ Boolean ProcessDynamic(Document */*doc*/, LINK dynamL)
 }
 
 
-/* -------------------------------------------------------------- ProcessGraphic -- */
+/* ----------------------------------------------------------------- ProcessGraphic -- */
 /* Process a Graphic object. This version simply writes out GRStrings and GRLyrics,
 and ignores the other subtypes. Returns TRUE normally, FALSE if there's a problem. */
 
@@ -352,7 +352,7 @@ Boolean ProcessGraphic(Document *doc, LINK graphicL)
 
 extern char gTempoCode[];
 
-/* ------------------------------------------------------------------ ProcessTempo -- */
+/* ------------------------------------------------------------------- ProcessTempo -- */
 /* Process a Tempo object, with its tempo and metronome mark components. This version
 simply writes it out. Returns TRUE normally, FALSE if there's a problem. */
 
@@ -392,7 +392,7 @@ PopLock(OBJheap);
 }
 
 
-/* -------------------------------------------------------------- ProcessTuplet -- */
+/* ------------------------------------------------------------------ ProcessTuplet -- */
 /* Process a Tuplet object. This version simply writes it out.
 Returns TRUE normally, FALSE if there's a problem. */
 
@@ -417,7 +417,7 @@ PopLock(OBJheap);
 }
 
 
-/* -------------------------------------------------------------- ProcessBeamset -- */
+/* ----------------------------------------------------------------- ProcessBeamset -- */
 /* Process a Beamset object. This version simply writes it out.
 Returns TRUE normally, FALSE if there's a problem. */
 
@@ -439,7 +439,7 @@ PopLock(OBJheap);
 }
 
 
-/* ------------------------------------------------------------ WriteScoreHeader -- */
+/* --------------------------------------------------------------- WriteScoreHeader -- */
 
 #define COMMENT_NLHEADER2	"%%Notelist-V2 file="	/* start of structured comment: Ngale 99 and after */
 
@@ -478,7 +478,7 @@ Boolean WriteScoreHeader(Document *doc, LINK startL)
 	return (WriteLine()==noErr);
 }
 
-/* ---------------------------------------------------------------- ProcessScore -- */
+/* ------------------------------------------------------------------- ProcessScore -- */
 /* Traverse the given Document from beginning to end and call ProcessXXX for
 every selected object/subobject of certain types in the given voice or in all
 voices. N.B. <voice> is an INTERNAL voice number, which is rarely the same as

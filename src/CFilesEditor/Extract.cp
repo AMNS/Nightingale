@@ -359,6 +359,8 @@ static void SelectPart(
 				the tempo appears above the top staff and somewhere in the middle), so
 				we want only the first one. */
 			case TEMPOtype:
+if (pL>900 &&  pL<1000)
+LogPrintf(LOG_DEBUG, "Extract/SelectPart: consider pL=%u, inTempoSeries=%d\n", pL, inTempoSeries);
 				if (inTempoSeries) break;
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf) {
 					LinkSEL(pL) = TRUE;
@@ -790,7 +792,7 @@ static Boolean MultibarRests(Document *doc,
 {
 	register LINK pL;  LINK aMeasL, aNoteL, firstL, lastSyncL;
 	short nMeasInSeries=0, nSys;
-	Boolean allWMR, possibleMBR=TRUE, measStart, okay=FALSE;
+	Boolean allWMR, possibleMBR=TRUE, isMeasStart, okay=FALSE;
 	PPARTINFO pPart;  short nStaves, s;  COPYMAP *sysMap;
 	
 	SetupSysCopyMap(doc, &sysMap, &nSys);
@@ -821,7 +823,7 @@ static Boolean MultibarRests(Document *doc,
 					possibleMBR = TRUE;
 					break;
 				}
-				measStart = possibleMBR = TRUE;
+				isMeasStart = possibleMBR = TRUE;
 				break;
 			case SYNCtype:
 				allWMR = TRUE;
@@ -850,7 +852,7 @@ static Boolean MultibarRests(Document *doc,
 					if (nMeasInSeries==1) firstL = pL;
 				}
 				lastSyncL = pL;
-				measStart = FALSE;
+				isMeasStart = FALSE;
 				break;
 			case PAGEtype:
 			case SYSTEMtype:
@@ -871,7 +873,7 @@ static Boolean MultibarRests(Document *doc,
 								nMeasInSeries, staffDiff, sysMap, nSys))
 							goto Done;
 					nMeasInSeries = 0;
-					if (!measStart) possibleMBR = FALSE;
+					if (!isMeasStart) possibleMBR = FALSE;
 				}
 				break;
 			case KEYSIGtype:
@@ -881,7 +883,7 @@ static Boolean MultibarRests(Document *doc,
 								nMeasInSeries, staffDiff, sysMap, nSys))
 							goto Done;
 					nMeasInSeries = 0;
-					if (!measStart) possibleMBR = FALSE;
+					if (!isMeasStart) possibleMBR = FALSE;
 				}
 				break;
 			case TIMESIGtype:
@@ -891,7 +893,7 @@ static Boolean MultibarRests(Document *doc,
 								nMeasInSeries, staffDiff, sysMap, nSys))
 							goto Done;
 					nMeasInSeries = 0;
-					if (!measStart) possibleMBR = FALSE;
+					if (!isMeasStart) possibleMBR = FALSE;
 				}
 				break;
 			default:
@@ -901,7 +903,7 @@ static Boolean MultibarRests(Document *doc,
 						goto Done;
 				nMeasInSeries = 0;
 				possibleMBR = FALSE;
-				measStart = FALSE;
+				isMeasStart = FALSE;
 		}
 	}
 	

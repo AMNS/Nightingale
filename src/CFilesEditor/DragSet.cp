@@ -628,7 +628,7 @@ long SetMeasureFields(Document *doc, LINK pL, DDIST xdDiff)
 #ifdef CHECK_BARLINE_DRAG
 	/* Check to see if dragging the barline will make symbols spill off the end
 		of the system. */
-	if (!CheckMoveMeasures(pL, xdDiff)) {
+	if (!CanMoveMeasures(pL, xdDiff)) {
 		GetIndCString(strBuf, MISCERRS_STRS, 22);    /* "Dragging barline will cause objects to extend past system boundary" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);

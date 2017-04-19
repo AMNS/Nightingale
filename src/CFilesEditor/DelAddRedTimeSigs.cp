@@ -285,8 +285,9 @@ short AddCautionaryTimeSigs(Document *doc)
 						type = TimeSigType(aTimeSigL);
 						numer = TimeSigNUMER(aTimeSigL);
 						denom = TimeSigDENOM(aTimeSigL);
-						LogPrintf(LOG_DEBUG, "AddCautionaryTimeSigs: adding TS type %d, %d/%d before system %d\n",
-										type, numer, denom, systemNum);						
+						LogPrintf(LOG_DEBUG, "AddCautionaryTimeSigs: adding TS type %d, %d/%d before measure %d\n",
+										type, numer, denom, GetMeasNum(doc, pL));						
+						/* Insert the cautionary time signature on all staves. */
 						timeSigL = FIInsertTimeSig(doc, ANYONE, RightLINK(endPrevSysL),
 													type, numer, denom);
 						if (timeSigL==NILINK) {
@@ -296,8 +297,8 @@ short AddCautionaryTimeSigs(Document *doc)
 						timeSigInfo.TSType = type;
 						timeSigInfo.numerator = numer;
 						timeSigInfo.denominator = denom;
-						/* Insert the cautionary time signature on all staves. */
-						FixContextForTimeSig(doc, RightLINK(timeSigL), 1, timeSigInfo);
+						for (int s=1; s<=doc->nstaves; s++)
+							FixContextForTimeSig(doc, RightLINK(timeSigL), s, timeSigInfo);
 						RespaceBars(doc, timeSigL, timeSigL, 0, FALSE, FALSE);
 						numAdded++;
 					}

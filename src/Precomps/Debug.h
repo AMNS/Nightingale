@@ -8,7 +8,7 @@ short DCheckNode(Document *, LINK, short, Boolean);
 Boolean DBadLink(Document *, short, LINK, Boolean);
 Boolean DCheckHeaps(Document *);
 Boolean DCheckHeadTail(Document *, LINK, Boolean);
-Boolean DCheckSyncSlurs(LINK, LINK);
+Boolean DCheckSyncSlurs(Document *, LINK, LINK);
 Boolean DCheckNodeSel(Document *, LINK);
 Boolean DCheckSel(Document *, short *, short *);
 Boolean DCheckVoiceTable(Document *, Boolean, short *);

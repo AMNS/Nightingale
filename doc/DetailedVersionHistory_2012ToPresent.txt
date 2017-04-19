@@ -1371,3 +1371,21 @@ Besides those two files, affects NightTemplates.h; Menu.
 
 Minor cleanup. Affects DSUtils.h; CombineParts, DelAddRedAccs, DSUtils, EssentialTools,
 Menu, MPCombineParts, NotelistOpen, ScoreInfo, Windows.
+
+-------------------------------------------------------------------------------
+
+15-19 Apr.
+
+For the "Add Cautionary TimeSigs" command, fix bug with scores of more than one staff;
+improve feedback on what it actually did. Affects .rsrc; DelAddRedTimeSigs, Menu.
+
+Prettify the Respace dialog and one ALRT. Affects .rsrc.
+
+Fix bug: Save Notelist should never write cautionary time signatures out, but if one
+appears at the end of a page, it _is_ written out. Affects NotelistSave.
+
+Rename a few data-structure utilities to clarify that they're Boolean-valued. Affects
+DSUtils.h; DragSet, DSUtils, NewSlur, RfmtRaw.
+
+Minor cleanup. Affects .rsrc; DebugUtils, DSUtils, Extract, Finalize, Menu, MIDIRecUtils,
+NotelistSave, PS_Stdio, RTRhythmDur.
