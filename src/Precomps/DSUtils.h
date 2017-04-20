@@ -12,7 +12,7 @@ void InvalContent(LINK, LINK);
 void InvalObject(Document *doc, LINK pL, short doErase);
 
 void FixMeasNums(LINK, short);
-Boolean FakeMeasure(Document *, LINK);
+Boolean IsFakeMeasure(Document *, LINK);
 void UpdatePageNums(Document *);
 void UpdateSysNums(Document *, LINK);
 Boolean UpdateMeasNums(Document *, LINK);

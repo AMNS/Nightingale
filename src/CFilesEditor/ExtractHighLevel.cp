@@ -17,7 +17,7 @@ static void ReformatPart(Document *, short, Boolean, Boolean, short);
 static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *name);
 static Boolean CopyHeaderFooter(Document *dstDoc, char headerStr[], char footerStr[], Boolean isHeader);
 
-/* ------------------------------------------------- ExtractDialog and DoExtract -- */
+/* ---------------------------------------------------- ExtractDialog and DoExtract -- */
 
 static enum {
 	EXTRACTALL_DI=4,
@@ -210,7 +210,7 @@ system positions and bounding boxes, reformat to update page breaks, and optiona
 reformat to update system breaks. */
 
 static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreaks,
-					Boolean careMeasPerSys, short measPerSys)
+							Boolean careMeasPerSys, short measPerSys)
 {
 	LINK pL, firstDelL, lastDelL;
 	
@@ -223,9 +223,8 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 	doc->spacePercent = spacePercent;
 	Antikink();														/* FIXME: SHOULD DO AFTER Reformat! */
 
-	Reformat(doc, RightLINK(doc->headL), doc->tailL,
-				changeSBreaks, (careMeasPerSys? measPerSys : 9999),
-				FALSE, 999, config.titleMargin);
+	Reformat(doc, RightLINK(doc->headL), doc->tailL, changeSBreaks,
+				(careMeasPerSys? measPerSys : 9999), FALSE, 999, config.titleMargin);
 
 	(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
 }
@@ -234,20 +233,20 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *partFName)
 {
 	int wantLen;
-	char tmpStr[256], nameStr[256], extStr[32];
+	char tempStr[256], nameStr[256], extStr[32];
 	Boolean okay, tooLong;
 
 	/* Convert Pascal to C strings; manipulate C strings, and convert back at the end. */
-	PToCString(Pstrcpy((unsigned char *)tmpStr, doc->name));
+	PToCString(Pstrcpy((unsigned char *)tempStr, doc->name));
 
-	GetFinalSubstring(tmpStr, extStr, '.');
-    wantLen = strlen(tmpStr)-strlen(extStr)-1;				/* -1 to leave out the "." */
-    okay = GetInitialSubstring(tmpStr, nameStr, wantLen);
+	GetFinalSubstring(tempStr, extStr, '.');
+    wantLen = strlen(tempStr)-strlen(extStr)-1;						/* -1 to leave out the "." */
+    okay = GetInitialSubstring(tempStr, nameStr, wantLen);
     if (okay) {
-        //LogPrintf(LOG_DEBUG, "BuildPartFilename: OK. tmpStr='%s' wantLen=%d name='%s' ext='%s'\n",
-		//			tmpStr, wantLen, nameStr, extStr);
+        //LogPrintf(LOG_DEBUG, "BuildPartFilename: OK. tempStr='%s' wantLen=%d name='%s' ext='%s'\n",
+		//			tempStr, wantLen, nameStr, extStr);
     } else {
-        //LogPrintf(LOG_DEBUG, "BuildPartFilename: Not OK. tmpStr=%s wantLen=%d.\n", tmpStr, wantLen);
+        //LogPrintf(LOG_DEBUG, "BuildPartFilename: Not OK. tempStr=%s wantLen=%d.\n", tempStr, wantLen);
 		return FALSE;
 	}
 	strcat(nameStr, "-");
@@ -259,17 +258,18 @@ static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *partF
 		the legal limit. And since we might exceed the limit regardless, always keep at
 		least 2 chars. of the part name to increase the odds of getting a meaningful
 		default name. FIXME: But there's still a good chance of getting meaningless
-		default names, or, worse, two parts getting the same default name! It'd be
+		default names, or, even worse, two parts getting the same default name! It'd be
 		better to shorten both the score filename _and_ the part name, or let the user
 		replace the score filename with a (presumably shorter) name, e.g., in the Extract
 		dialog. */
+		
 	short maxNameLen = FILENAME_MAXLEN-strlen(nameStr)-strlen(extStr)-1;
 	if (maxNameLen<2) maxNameLen = 2;
 	strncat(nameStr, PartNAME(partL), maxNameLen);
 	strcat(nameStr, ".");
 	strcat(nameStr, extStr);
-	//LogPrintf(LOG_DEBUG, "BuildPartFilename: tmpStr='%s' extStr='%s' maxNameLen=%d nameStr='%s' len=%d\n",
-	//	tmpStr, extStr, maxNameLen, nameStr, strlen(nameStr));
+	//LogPrintf(LOG_DEBUG, "BuildPartFilename: tempStr='%s' extStr='%s' maxNameLen=%d nameStr='%s' len=%d\n",
+	//	tempStr, extStr, maxNameLen, nameStr, strlen(nameStr));
 
 	tooLong = (strlen(nameStr)>FILENAME_MAXLEN);
 	CToPString(nameStr);
@@ -350,7 +350,7 @@ Boolean DoExtract(Document *doc)
 	}
 
 	/* It's not easy to guess what a reasonable amount of squeezing is, but we'll try. */
-	spacePercent = doc->spacePercent;
+	spacePercent = (doc->spacePercent+100)/2;
 	if (spacePercent>100) spacePercent = 100;
 	if (!ExtractDialog(partName, &allParts, &closeAndSave, &reformat, &spacePercent))
 		return FALSE;
@@ -401,8 +401,10 @@ Boolean DoExtract(Document *doc)
 			BuildPartFilename(doc, partL, name);
 
 			WaitCursor();
+			
 			/* FIXME: If <doc> has been saved, <doc->vrefnum> seems to be correct, but if
 			it hasn't been, <doc->vrefnum> seems to be zero; I'm not sure if that's safe. */
+			
 			partDoc = CreatePartDoc(doc, name, doc->vrefnum, &doc->fsSpec, partL);
 			if (partDoc) {
 				if (reformat) {
@@ -455,4 +457,3 @@ Boolean DoExtract(Document *doc)
 Done:
 	return TRUE;
 }
-

@@ -1152,7 +1152,7 @@ static short CheckMeasDur(Document *doc)
 	long measDurFromTS, measDurActual;
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
-		if (MeasureTYPE(pL) && !FakeMeasure(doc, pL)) {
+		if (MeasureTYPE(pL) && !IsFakeMeasure(doc, pL)) {
 			barTermL = EndMeasSearch(doc, pL);
 			if (barTermL && barTermL!=doc->tailL) {
 				measDurFromTS = GetTimeSigMeasDur(doc, barTermL);

@@ -1389,3 +1389,21 @@ DSUtils.h; DragSet, DSUtils, NewSlur, RfmtRaw.
 
 Minor cleanup. Affects .rsrc; DebugUtils, DSUtils, Extract, Finalize, Menu, MIDIRecUtils,
 NotelistSave, PS_Stdio, RTRhythmDur.
+
+-------------------------------------------------------------------------------
+
+20 Apr.
+
+The space percentage in the Extract dialog has always been initialized to
+doc->spacePercent, but at most 100; instead, we now initialize it to the mean of
+100 and doc->spacePercent, but at most 100. Affects ExtractHighLevel.
+
+Add to the Respace dialog a brief comment on how it works. Affects .rsrc. (HOWEVER,
+SourceTree doesn't recognize that it's been modified! How to get it into the
+repository??)
+
+Renamed one data-structure utility to clarify it's Boolean-valued; minor cleanup.
+Affects DSUtils.h, NResourceID.h; Debug2Utils, DrawObject, DrawUtils, DSUtils,
+ExtractHighLevel, FlowInText, Menu, MIDIFSave, PS_Stdio, ScoreInfo.
+
+

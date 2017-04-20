@@ -591,6 +591,7 @@ enum {							/* Format menu */
 #define RHAND_CURS 128					/* Right hand cursor */
 #define LHAND_CURS 129					/* Left hand cursor */
 #define PRINT_CURS 162					/* 'printing...' cursor (no longer used) */
+#define FLOWIN_CURS 280					/* Graphic-insertion cursor */
 #define THREAD_CURS 2004				/* 'Threader' cursor */
 #define ARROW_CURS 2005					/* arrow cursor (no longer used) */
 #define DRAG_CURS 2006					/* Cursor for beam & slur dragging */

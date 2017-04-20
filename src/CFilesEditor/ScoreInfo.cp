@@ -61,7 +61,7 @@ static short SICheckMeasDur(Document *doc, short *pFirstBad)
 	short nBad;
 
 	for (nBad = 0, pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
-		if (MeasureTYPE(pL) && !FakeMeasure(doc, pL)) {
+		if (MeasureTYPE(pL) && !IsFakeMeasure(doc, pL)) {
 			barTermL = EndMeasSearch(doc, pL);
 			if (barTermL) {
 				measDurFromTS = GetTimeSigMeasDur(doc, barTermL);

@@ -1266,7 +1266,11 @@ void MPInstrument(Document *doc)
 	}
 }
 	
-/*
+#ifdef NOTYET
+/* For now, we have a Combine Parts command accessible in "normal" mode; it'd
+be better to have combining parts in Master Page, but there are unsolved problems
+with MPCombineParts(). */
+
 void MPCombineParts(Document *doc)
 {
 	LINK firstPartL, lastPartL;
@@ -1278,7 +1282,7 @@ void MPCombineParts(Document *doc)
 		InvalWindow(doc);
 	}
 }
-*/
+#endif
 
 /*
  *	Handle a choice from the MasterPage Menu
@@ -1320,8 +1324,10 @@ static void DoMasterPgMenu(short choice)
 		case MP_Instrument:
 			MPInstrument(doc);
 			break;
-//			case MP_CombineParts:
-//				MPCombineParts(doc);
+#ifdef NOTYET
+		case MP_CombineParts:
+			MPCombineParts(doc);
+#endif
 		default:
 			break;
 	}
@@ -1935,7 +1941,7 @@ static void VMShowDurProblems()
 		doc->showDurProb = !doc->showDurProb;
 		CheckMenuItem(viewMenu, VM_ShowDurProb, doc->showDurProb);
 		InvalWindow(doc);
-		}
+	}
 }
 
 
@@ -1951,7 +1957,7 @@ static void VMShowSyncs()
 		doc->showSyncs = !doc->showSyncs;
 		CheckMenuItem(viewMenu, VM_ShowSyncL, doc->showSyncs);
 		InvalWindow(doc);
-		}
+	}
 }
 
 	
@@ -1967,7 +1973,7 @@ static void VMShowInvisibles()
 		doc->showInvis = !doc->showInvis;
 		CheckMenuItem(viewMenu, VM_ShowInvis, doc->showInvis);
 		InvalWindow(doc);
-		}
+	}
 }
 
 
@@ -1990,7 +1996,7 @@ static void VMColorVoices()
 			doc->colorVoices = 0;
 		CheckMenuItem(viewMenu, VM_ColorVoices, doc->colorVoices);
 		InvalWindow(doc);
-		}
+	}
 }
 
 
@@ -2016,15 +2022,14 @@ static void VMActivate(short choice)
 {
 	short itemNum; Document *doc;
 
-	/* The items at the end of the View menu (after the dividing line after
-	 *	VM_LastItem) correspond to Documents in documentTable. Search for the
-	 * Document we want, starting after any special Documents, which do not
-	 * appear in the list.
-	 */
+	/* The items at the end of the View menu (after the dividing line after VM_LastItem)
+	   correspond to Documents in documentTable. Search for the Document we want,
+	   starting after any special Documents, which do not appear in the list. */
+	
 	for (itemNum = VM_LastItem+2, doc = documentTable+SPEC_DOC_COUNT; doc<topTable; doc++)
 		if (doc->inUse) {
-			if (itemNum==choice) { SelectWindow(doc->theWindow); break; }
-			else						itemNum++;
+			if (itemNum==choice)	{ SelectWindow(doc->theWindow); break; }
+			else					itemNum++;
 		}
 }
 
@@ -2066,11 +2071,11 @@ static void PLRecord(Document *doc, Boolean merge)
 	LogPrintf(LOG_INFO, "0. Starting to record\n");
 	
 	if (merge) {
-		PrepareUndo(doc, doc->selStartL, U_RecordMerge, 25);    /* "Record Merge" */
+		PrepareUndo(doc, doc->selStartL, U_RecordMerge, 25);		/* "Record Merge" */
 		RecTransMerge(doc);
 	}
 	else {
-		PrepareUndo(doc, doc->selStartL, U_Record, 26);    		/* "Record" */
+		PrepareUndo(doc, doc->selStartL, U_Record, 26);				/* "Record" */
 		
 		LogPrintf(LOG_INFO, "0.1. Ready to record\n");
 		Record(doc);
@@ -2088,7 +2093,7 @@ static void PLStepRecord(Document *doc, Boolean merge)
 	
 	if (!OKToRecord(doc)) return;
 
-	PrepareUndo(doc, doc->selStartL, U_Record, 27);    			/* "Step Record" */
+	PrepareUndo(doc, doc->selStartL, U_Record, 27);					/* "Step Record" */
 	if (StepRecord(doc, merge)) {
 		spaceProp = MeasSpaceProp(doc->selStartL);
 		/*

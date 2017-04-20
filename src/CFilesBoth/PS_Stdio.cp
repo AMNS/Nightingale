@@ -414,7 +414,7 @@ OSErr PS_Header(Document *doc, const unsigned char *docName, short nPages, FASTF
 			doing this for a 'FOND' rsrc.  Hints about how to do it for 'sfnt' appear
 			earlier.  But all this is *way* more complicated than you'd expect, so we
 			just store the PS font name in the 'MFEx' resource. You can get this name
-			using the old Varityper ToolKit program. */
+			using the ancient Varityper ToolKit program. */
 		PS_Print("/MF {/%p findfont exch DCF mul dup neg FMX scale makefont setfont} BD\r",
 									musFontInfo[doc->musFontInfoIndex].postscriptFontName);
 
@@ -737,8 +737,8 @@ OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle* oHandle)
 	status = FMGetFontFamilyName(iFontFamily, fontFamilyName);
 	require(status == noErr, FMGetFontFamilyName_Failed);
 
-	/* Get a component font of the font family to obtain the file specification
-		of the container of the font family. */
+	/* Get a component font of the font family to obtain the file specification of
+		the family's container. */
 	status = FMGetFontFromFontFamilyInstance(iFontFamily, 0, &font, nil);
 	require(status == noErr && font != kInvalidFont, FMGetFontFromFontFamilyInstance_Failed);
 
@@ -757,7 +757,7 @@ OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle* oHandle)
 		require(status == noErr, FSGetDataForkName_Failed);
 
 		/* The file specification (FSSpec) must be converted to a file reference
-			(FSRef) to open the data for of the file. */
+			(FSRef) to open the data fork. */
 		status = FSpMakeFSRef(&rsrcFSSpec, &rsrcFSRef);
 		require(status == noErr, FSpMakeFSRef_Failed);
 
@@ -771,8 +771,7 @@ OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle* oHandle)
 	/* On Mac OS X, the font family identifier may not match the resource identifier
 		after resolution of conflicting and duplicate fonts. */
 	rsrcHandle = Get1NamedResource(FOUR_CHAR_CODE('FOND'), fontFamilyName);
-	require_action(rsrcHandle != NULL, Get1NamedResource_Failed,
-					status = ResError());
+	require_action(rsrcHandle != NULL, Get1NamedResource_Failed, status = ResError());
 	DetachResource(rsrcHandle);
 
 Get1NamedResource_Failed:
@@ -981,7 +980,8 @@ OSErr PS_Trailer(Document *doc, short nfontsUsed, FONTUSEDITEM *fontUsedTbl, uns
 /*
  *	Declare a new page to begin.  The page is known under the name/number as found in
  *	the C string page (which can be NULL or empty); the number that this page is in the
- *	sequence of printed pages must be in n and must be 1 through n in an n-page document.
+ *	sequence of printed pages must be an integer, and, in an n-page document, must be
+ *	from 1 to n.
  */
 
 OSErr PS_NewPage(Document *doc, char *page, short n)
@@ -1016,7 +1016,7 @@ OSErr PS_EndPage()
 
 /*
  *	Send a given C string out to the open file.  This could be made more efficient by
- *	doing it a roomleft-sized chunk at a time instead of the simpler character at a time.
+ *	doing it a room-left-sized chunk at a time instead of the simpler character at a time.
  */
 
 OSErr PS_String(char *str)
@@ -1121,10 +1121,10 @@ void PS_Print(char *msg, ...)
 		
 		va_start(nxtArg, msg);
 		
-		/* Why do we claim <short>s are <int>s in calls va_args? Before we did this, GCC
-		   4.0 warned: "'short int' is promoted to 'int' when passed through '...' (so you
-		   should pass 'int' not 'short int' to 'va_arg'). If this code is reached, the
-		   program will abort." */
+		/* Why do we claim <short>s are <int>s in calls to va_args? Before we did this,
+		   GCC 4.0 warned: "'short int' is promoted to 'int' when passed through '...'
+		   (so you should pass 'int' not 'short int' to 'va_arg'). If this code is
+		   reached, the program will abort." */
 
 		while (*msg)
 			if (*msg != '%') PS_Char(*(unsigned char *)msg++);
@@ -1168,7 +1168,7 @@ void PS_Print(char *msg, ...)
 			 	
 			 	 /* Get the precision, if a period is next */
 			 	
-			 	doPrecision = (*msg == '.');
+				doPrecision = (*msg == '.');
 				if (doPrecision)
 			 		if (*++msg == '*') {
 			 			precision = va_arg(nxtArg, int);
@@ -1338,8 +1338,7 @@ OSErr PS_LineVT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
 OSErr PS_LineHT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width);
 OSErr PS_LineHT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
 	{
-		/*
-            The new definition in the 'TEXT' preamble for this is:
+		/* The new definition in the 'TEXT' preamble for this is:
 
             /LHT {/th XD newpath 2 copy XF moveto exch th add exch XF lineto
                                  2 copy exch th add exch XF lineto XF lineto
@@ -1359,7 +1358,7 @@ OSErr PS_LineHT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
 
 OSErr PS_HDashedLine(DDIST x0, DDIST y, DDIST x1, DDIST width, DDIST dashLen)
 	{
-		DDIST xstart,xend,spaceLen;
+		DDIST xstart, xend=0, spaceLen;
 		
 		spaceLen = dashLen;		
 
@@ -1376,7 +1375,7 @@ OSErr PS_HDashedLine(DDIST x0, DDIST y, DDIST x1, DDIST width, DDIST dashLen)
 
 OSErr PS_VDashedLine(DDIST x, DDIST y0, DDIST y1, DDIST width, DDIST dashLen)
 	{
-		DDIST ystart,yend,spaceLen;
+		DDIST ystart, yend, spaceLen;
 		
 		spaceLen = dashLen;
 		
@@ -2291,7 +2290,7 @@ static void PS_Char(short ch)
 
 /*
  *	Convert a long integer to a static string and deliver pointer to string.  Gets
- *	digits in reverse order, and then reverses them. This would be better in-line
+ *	digits in reverse order, and then reverses them. This might be better in-line
  *	in PS_Print(), so we wouldn't need so many arguments.
  */
 

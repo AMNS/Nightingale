@@ -353,7 +353,7 @@ Boolean DCheckMeasDur(Document *doc)
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
 
-		if (MeasureTYPE(pL) && !FakeMeasure(doc, pL)) {
+		if (MeasureTYPE(pL) && !IsFakeMeasure(doc, pL)) {
 			barTermL = EndMeasSearch(doc, pL);
 			if (barTermL==NILINK) continue;
 

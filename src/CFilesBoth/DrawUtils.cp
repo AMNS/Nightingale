@@ -1825,7 +1825,7 @@ DrawAll:
 /* ------------------------------------------------------------ ShouldDrawMeasNum -- */
 /* For the given Measure subobject,if we should draw the measure number above or below
 it, return TRUE. The rules are, draw a measure number if measure numbers are wanted
-at all; this is a "real" measure (see the FakeMeasure function); this is the top
+at all; this is a "real" measure (see the IsFakeMeasure function); this is the top
 or bottom (depending on doc->aboveMN) visible staff of the system; and this
 particular measure is one whose number should be shown, given the current settings of
 doc->startMNPrint1 and of the interval between numbers or "start of system only". */

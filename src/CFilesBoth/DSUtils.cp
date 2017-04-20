@@ -4,7 +4,7 @@
 	DESC:	Utility routines for examining and manipulating the main data
 			structure, the object list.
 
-		NRGRInMeasure			FakeMeasure				UpdatePageNums
+		NRGRInMeasure			IsFakeMeasure			UpdatePageNums
 		UpdateSysNums			UpdateMeasNums			GetMeasNum
 		PtInMeasure				PageRelxd				PageRelyd
 		GraphicPageRelxd		LinkToPt				SysRelxd
@@ -78,7 +78,7 @@ static Boolean NRGRInMeasure(Document *doc, LINK measL)
 }
 
 
-/* -------------------------------------------------------------------- FakeMeasure -- */
+/* ------------------------------------------------------------------ IsFakeMeasure -- */
 /* If <measL>, which must be a Measure obj, doesn't start a real measure, return TRUE.
 By "not a real measure", we mean it's at the end of a System and contains no notes,
 rests, or grace notes (so it's just ending the previous measure), or it's at the
@@ -86,7 +86,7 @@ beginning of a System and the last Measure in the previous System is a real meas
 (so we have a measure split across systems). Intended for use in assigning and
 displaying measure numbers. */
 
-Boolean FakeMeasure(Document *doc, LINK measL)
+Boolean IsFakeMeasure(Document *doc, LINK measL)
 {
 	LINK prevMeasL;
 
@@ -193,7 +193,7 @@ Boolean UpdateMeasNums(Document *doc, LINK startL)
 			case MEASUREtype:
 				if (pL==stopFakeMeasL) updateFakeMeas = FALSE;
 				if (updateFakeMeas) {
-					fakeMeas = FakeMeasure(doc, pL);
+					fakeMeas = IsFakeMeasure(doc, pL);
 					if (MeasISFAKE(pL)!=fakeMeas) didAnything = TRUE;
 					MeasISFAKE(pL) = fakeMeas;
 				}

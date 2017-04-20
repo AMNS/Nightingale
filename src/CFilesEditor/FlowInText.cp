@@ -1,8 +1,8 @@
-/***************************************************************************
+/***************************************************************************************
 *	FILE:	FlowInText.c				
-*	PROJ:	Nightingale, slightly revised for v.3.6
+*	PROJ:	Nightingale
 *	DESC:	Routines to handle flow-in text dialog and insertion
-/***************************************************************************/
+/***************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -19,9 +19,9 @@
 
 /* In debug versions of Nightingale, we #define in our "Handle Manager", an
 intermediate layer of memory management routines that adds error checking: this
-could cause meaningless complaints since we don't use it in TEfield.c, the text-
-box routines the Flow In Text dialog uses. Avoid this annoyance (though at the
-cost of losing some error checking) by #undef'ing Handle Manager routines. */
+could cause meaningless complaints since we don't use it in TEfield.c, the text-box
+routines the Flow In Text dialog uses. Avoid this annoyance (though at the cost of
+losing some error checking) by #undef'ing Handle Manager routines. */
 
 #undef DisposeHandle
 #undef NewHandle
@@ -39,9 +39,7 @@ static enum {
 	
 #define CANCEL_ITEM 	BUT2_Cancel
 
-#define FLOWIN_CURS 280 	/* Use the Graphic-insertion cursor ??belongs in a header */
-
-#define DEFAULT_VPOS 14		/* Default vertical position (pitch level) for new lyrics */
+#define DEFAULT_VPOS 14			/* Default vertical position (pitch level) for new lyrics */
 
 
 /* local prototypes */
@@ -120,8 +118,9 @@ Boolean FlowInDialog(Document *doc, short *font)	/* ??should be static */
 	 *	DoDialogItem() has already called AnyBadValues().
 	 */
 	
-	if (okay = (itemHit==BUT1_Flow)) {
-		Size len; char *p;
+	okay = (itemHit==BUT1_Flow);
+	if (okay) {
+		Size len;  char *p;
 		
 		if (lyricBlk) DisposeHandle(lyricBlk);
 		lyricBlk = (Handle)GetEditFieldText(&myField);
@@ -152,7 +151,6 @@ Boolean FlowInDialog(Document *doc, short *font)	/* ??should be static */
 
 	CloseThisDialog(dlog);
 	SetPort(oldPort);
-	
 	WriteDeskScrap();
 
 	return okay;
@@ -695,20 +693,20 @@ void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, short v,
 
 static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 {
-	short						ans, stf, v=0, sym, pitchLev;
-	short						ch, val, oldVal, status, activ;
-	short						change, oldPitchLev, lyricLen;
-	WindowPtr				w = doc->theWindow;
-	LINK						pL, prevGrL;
-	LINK						lastGrL, aNoteL;
-	EventRecord				evt;
-	Point						pt;
-	Rect						paper,portRect;
-	Boolean					gotEvent=FALSE;
-	ControlHandle			control;
-	CursHandle				flowInCursor;
-	ControlActionUPP		actionUPP;
-	short						contrlHilite;
+	short				ans, stf, v=0, sym, pitchLev;
+	short				ch, val, oldVal, status, activ;
+	short				change, oldPitchLev, lyricLen;
+	WindowPtr			w = doc->theWindow;
+	LINK				pL, prevGrL;
+	LINK				lastGrL, aNoteL;
+	EventRecord			evt;
+	Point				pt;
+	Rect				paper, portRect;
+	Boolean				gotEvent=FALSE;
+	ControlHandle		control;
+	CursHandle			flowInCursor;
+	ControlActionUPP	actionUPP;
+	short				contrlHilite;
 	
 	flowInCursor = GetCursor(FLOWIN_CURS);
 	if (flowInCursor) SetCursor(*flowInCursor);
@@ -731,7 +729,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 				pt = evt.where;
 				GlobalToLocal(&pt);
 
-				switch (FindControl(pt,w,&control)) {
+				switch (FindControl(pt, w, &control)) {
 					case kControlUpButtonPart:
 					case kControlPageUpPart:
 					case kControlDownButtonPart:
@@ -739,14 +737,14 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 						contrlHilite = GetControlHilite(control);
 						if (contrlHilite != 255) {
 							MEHideCaret(doc);
-							GetWindowPortBounds(w,&portRect);
+							GetWindowPortBounds(w, &portRect);
 							ClipRect(&portRect);
 							actionUPP = NewControlActionUPP(ScrollDocument);
 							if (actionUPP) {
 								TrackControl(control, pt, actionUPP);
 								DisposeControlActionUPP(actionUPP);
 							}
-							GetWindowPortBounds(w,&portRect);
+							GetWindowPortBounds(w, &portRect);
 							ClipRect(&portRect);
 							DrawControls(w);
 							ClipRect(&doc->viewRect);
@@ -756,31 +754,32 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 						contrlHilite = GetControlHilite(control);
 						if (contrlHilite != 255) {
 							oldVal = GetControlValue(control);
-							GetWindowPortBounds(w,&portRect);
+							GetWindowPortBounds(w, &portRect);
 							ClipRect(&portRect);
-							TrackControl(control,pt,NULL);
+							TrackControl(control, pt, NULL);
 							val = GetControlValue(control);
 							ClipRect(&doc->viewRect);
-							if (change = val-oldVal) {
+							change = val-oldVal;
+							if (change) {
 								if (change & 7)
 									/* Keep change a multiple of 8 */
 									if (change > 0) change += (8-(change&7));
 									 else			change -= (change & 7);
 								/*
-								 *	Reset it, cause QuickScroll expects old value,
-								 *	but don't let user see you set it back.
+								 *	Reset it, because QuickScroll expects old value,
+								 *	but don't let user see us set it back.
 								 */
-								SetControlValue(control,oldVal);
+								SetControlValue(control, oldVal);
 								MEHideCaret(doc);
 								/* OK, now go ahead */
-								if (control == doc->vScroll) QuickScroll(doc,0,change,TRUE,TRUE);
-								 else						 QuickScroll(doc,change,0,TRUE,TRUE);
+								if (control == doc->vScroll) QuickScroll(doc, 0, change, TRUE, TRUE);
+								 else						 QuickScroll(doc, change, 0, TRUE, TRUE);
 								}
 							}
 						break;
 					default:
 						if (PtInRect(pt, &doc->viewRect)) {
-							if (FindSheet(doc,pt, &ans)) {
+							if (FindSheet(doc, pt, &ans)) {
 								GetSheetRect(doc, ans, &paper);
 								doc->currentSheet = ans;
 								doc->currentPaper = paper;
@@ -790,6 +789,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 								pt.v -= paper.top;
 					
 								pL = FindGraphicObject(doc, pt, &stf, &v);
+								
 								/* To allow attaching to objects other than notes, remove
 									the following test for SyncTYPE. */
 								if (pL && SyncTYPE(pL) && (currWord<lyricLen || OptionKeyDown())) {
@@ -801,12 +801,12 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 										oldPitchLev = pitchLev;
 										prevGrL = lastGrL;
 										InsertSyllable(doc, pL, &lastGrL, stf, v,
-																lyricLen, pitchLev, theFont, theStyle);
+														lyricLen, pitchLev, theFont, theStyle);
 									}
 								}
 							}
 						}
-						else goto done;			/* clicked outside of score area, so exit */
+						else goto done;				/* clicked outside of score area, so exit */
 						break;
 				}
 
@@ -820,10 +820,10 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 							/* Erase and inval the objrect of this Graphic. */
 							Rect r = LinkOBJRECT(lastGrL);
 							r.left -= pt2p(2);
-							r.right += pt2p(4);		/* bbox often not wide enough on right */
+							r.right += pt2p(4);			/* bbox often not wide enough on right */
 							OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
 							EraseAndInval(&r);
-/* ??NB: DeleteNode doesn't get rid of string in StrMgr lib! */
+							/* FIXME: DeleteNode doesn't get rid of string in StrMgr lib! */
 							DeleteNode(doc, lastGrL);
 							currWord = prevWord;
 							RegisterHyphen(lastGrL, currWord, FALSE);
@@ -889,8 +889,8 @@ done:
 
 void DoTextFlowIn(Document *doc)
 {
-	short theFont;			/* NB: this is itemNumber of text style popup in FlowInDialog! 
-										for use in 1 call to User2HeaderFontNum. */
+	short theFont;				/* NB: this is itemNumber of text style popup in FlowInDialog! 
+								for use in 1 call to User2HeaderFontNum. */
 	TEXTSTYLE style;
 
 	if (FlowInDialog(doc, &theFont)) {
@@ -902,10 +902,10 @@ void DoTextFlowIn(Document *doc)
 		
 		/*
 		 * If auto-respacing is on, the text we've just flowed in is in a lyric
-		 * style, and we really did flow some in, respace the entire area from
+		 * style, and we really did flow some in, then respace the entire area from
 		 * the first measure anything was added to thru the last. If any measures
 		 * within the range didn't have anything added to them, maybe they should
-		 * be left alone, but that would be pretty unusual, and this is easier.
+		 * be left alone; but that would be pretty unusual, and this is simpler.
 		 */
 		if (doc->autoRespace && style.lyric) {
 			if (firstFlowL && lastFlowL) {
@@ -936,23 +936,23 @@ RegisterHyphen maintains an array of HYPHENSPAN structs, each of which contains 
 to the Graphics that initiate and terminate a hyphen, as well as their voice number. */
 
 static void RegisterHyphen(
-					LINK		grL,				/* Graphic just inserted */
-					short		charOffset,		/* offset of Graphic's text in lyricBlk */
-					Boolean	add 				/* if TRUE, register; if FALSE, un-register */
-				)
+				LINK	grL,			/* Graphic just inserted */
+				short	charOffset,		/* offset of Graphic's text in lyricBlk */
+				Boolean	add				/* if TRUE, register; if FALSE, un-register */
+			)
 {
-	short			i, numNodes;
+	short		i, numNodes;
 	HYPHENSPAN	*h;
 	Boolean		hasHyphen;
 	SignedByte	voice;
-	char			*p;
-	char			syllable[256];		/* C string */
-	Size			len;
+	char		*p;
+	char		syllable[256];			/* C string */
+	Size		len;
 	
 	if (grL==NILINK) return;
 	
 	if (hyphens==NULL) {
-		hyphens = (HYPHENSPAN **) NewHandle((Size)(sizeof(HYPHENSPAN) * 4));
+		hyphens = (HYPHENSPAN **)NewHandle((Size)(sizeof(HYPHENSPAN) * 4));
 		if (hyphens==NULL) {
 			MayErrMsg("RegisterHyphen: can't allocate hyphen list");
 			return;
@@ -967,7 +967,7 @@ static void RegisterHyphen(
 	HUnlock(lyricBlk);
 	
 	/* find out if it ends with hyphen */
-	if (syllable[strlen(syllable)-1]=='-')		/* test (only) last letter of syllable */
+	if (syllable[strlen(syllable)-1]=='-')							/* test last letter of syllable */
 		hasHyphen = TRUE;
 	else
 		hasHyphen = FALSE;
@@ -982,11 +982,11 @@ static void RegisterHyphen(
 				if (h->voice==voice) {
 					if (h->termL==NILINK) {
 						if (IsAfter(h->startL, grL)) {
-							h->termL=grL;						/* our grL is a completor */
+							h->termL=grL;							/* our grL is a completor */
 							break;
 						}
 						else {
-							GetIndCString(strBuf, FLOWIN_STRS, 4);		/* "Lyrics must go from left to right within the voice" */
+							GetIndCString(strBuf, FLOWIN_STRS, 4);	/* "Lyrics must go from left to right within the voice" */
 							CParamText(strBuf, "", "", "");
 							StopInform(GENERIC_ALRT);
 							/* ??offer to delete? */
@@ -1016,7 +1016,7 @@ static void RegisterHyphen(
 			/* start new record in 0-based array */
 			h = *hyphens + numHyphens;
 			h->startL = grL;
-			h->termL = NILINK;				/* so we'll recognize it when completor follows */
+			h->termL = NILINK;							/* so we'll recognize it when completor follows */
 			h->voice = voice;
 			h->filler = 0;
 			numHyphens++;
@@ -1031,7 +1031,7 @@ static void RegisterHyphen(
 			for (i=numHyphens-1, h=*hyphens+i; i>=0; i--, h--) {
 				if (h->voice==voice) {
 					if (grL==h->termL) {
-						h->termL = NILINK;						/* mark it for use later */
+						h->termL = NILINK;					/* mark it for use later */
 						break;
 					}
 					else if (grL==h->startL) {
@@ -1048,7 +1048,7 @@ static void RegisterHyphen(
 }
 
 
-/* Crudely strips one hyphen, if hyphen is last char of word */
+/* Crudely strips one hyphen, if hyphen is last char of word. */
 
 static void StripHyphen(char *str)
 {
@@ -1060,58 +1060,54 @@ static void StripHyphen(char *str)
 }
 
 
-/* ??NB: following comment doesn't know about multiple hyphens! (much
-less about "cross-system" hyphens)
-Determine desired xd for one hyphen roughly equidistant from the closest
-edges of its h->startL and h->termL Graphics. Then find a sync whose xd
-is closest to the desired xd, and attach the hyphen Graphic to that sync.
-However, hyphens must appear in the same measure as their firstObj.
-Otherwise, if we have this:
+/* ??NB: following comment doesn't know about multiple hyphens! (much less about
+"cross-system" hyphens)
+Determine desired xd for one hyphen roughly equidistant from the closest edges of its
+h->startL and h->termL Graphics. Then find a sync whose xd is closest to the desired xd,
+and attach the hyphen Graphic to that sync. However, hyphens must appear in the same
+measure as their firstObj. Otherwise, if we have this:
 					wholenote          | note
 					1st syllable    '-'  2nd syllable
-(with hyphen attached to second note, to which it is closer), two
-bad things can happen: 1) moving 2nd measure down might put hypen
-in or to left of reserved area, or 2) respace might push 2nd note
-to right in order to place hyphen after barline! (Try it.) */		 
+(with hyphen attached to second note, to which it is closer), two bad things can happen:
+1) moving 2nd measure down might put hypen in or to left of reserved area, or 2) respace
+might push 2nd note to right in order to place hyphen after barline! (Try it.) */
 
-/* Create a run of hyphens within one system. The syllables surrounding the hyphen
-may not even be in this system. Returns number of errors encountered, or -1 in
-case of a fatal error. */
+/* Create a run of hyphens within one system. The syllables surrounding the hyphen may
+not even be in this system. Returns number of errors encountered, or -1 in case of a
+fatal error. */
 
 short CreateHyphenRun(Document *, LINK, LINK, LINK, DDIST, DDIST, Boolean, short, DDIST,
 								short, short, TEXTSTYLE, DDIST);
-
 short CreateHyphenRun(
-			Document		*doc,
-			LINK			firstSylL,	/* first syllable's graphic, or NILINK if it's not on this system */
-			LINK			startL,		/* If a sync, it's the first one we can attach hyphen to; */
-											/* if a measure, hyphen's first syllable is on a previous system. */
-			LINK			/*endL*/,	/* If a sync, it's the last one we can attach hyphen to; */
-											/* if a measure, hyphen's last syllable is on a following system. */
-											/* NB: if endL is a measure, it may come *before* startL! */
-			DDIST			startXD,		/* left edge of space to fill with hyphen run */
-			DDIST			endXD,		/* right edge [ditto] */
+			Document	*doc,
+			LINK		firstSylL,		/* first syllable's graphic, or NILINK if it's not on this system */
+			LINK		startL,			/* If a sync, it's the first one we can attach hyphen to; */
+										/* if a measure, hyphen's first syllable is on a previous system. */
+			LINK		/*endL*/,		/* If a sync, it's the last one we can attach hyphen to; */
+										/* if a measure, hyphen's last syllable is on a following system. */
+										/* NB: if endL is a measure, it may come *before* startL! */
+			DDIST		startXD,		/* left edge of space to fill with hyphen run */
+			DDIST		endXD,			/* right edge [ditto] */
 			Boolean		openSys,		/* TRUE if last meas in sys is not fake (i.e., syncs follow last bar line in sys) */
-			short			v,				/* Attach hyphen graphics to syncs in this voice */
-			DDIST			hyphenWid,	/* width of hyphen char in context of first syllable */
-			short			pitchLev,	/* halfLine pos of first syllable */
-			short			theFont,		/* for User2HeaderFontNum call in InsertNewGraphic */
-			TEXTSTYLE	theStyle, 	/* style properties of first syllable */
-			DDIST			dMaxHyphenDist	/* Maximum horiz. space one hyphen can span */
+			short		v,				/* Attach hyphen graphics to syncs in this voice */
+			DDIST		hyphenWid,		/* width of hyphen char in context of first syllable */
+			short		pitchLev,		/* halfLine pos of first syllable */
+			short		theFont,		/* for User2HeaderFontNum call in InsertNewGraphic */
+			TEXTSTYLE	theStyle,		/* style properties of first syllable */
+			DDIST		dMaxHyphenDist	/* Maximum horiz. space one hyphen can span */
 			)
 {
-	short				i, stf, hyphenCnt, errCnt=0;
-	LINK				pL, lastL, prevL, measL, newL, aGraphicL, aNoteL;
-	DDIST				emptySpace, subSpace, desiredXD, spcLeft, thisXD;
+	short			i, stf, hyphenCnt, errCnt=0;
+	LINK			pL, lastL, prevL, measL, newL, aGraphicL, aNoteL;
+	DDIST			emptySpace, subSpace, desiredXD, spcLeft, thisXD;
 	STRINGOFFSET	offset;
-	char				hyphStr[256];
+	char			hyphStr[256];
 
 	emptySpace = endXD - startXD;
 	
 	/* The space between hyphen-separated syllables divided by dMaxHyphenDist gives
-	 * the number of hyphens we place between the syllables. We center each hyphen
-	 * within its slice of this space.
-	 */
+	   the number of hyphens we place between the syllables. We center each hyphen
+	   within its slice of this space. */
 
 	if (emptySpace>hyphenWid) {
 		hyphenCnt = emptySpace / dMaxHyphenDist;
@@ -1123,17 +1119,17 @@ short CreateHyphenRun(
 		for (i=0, spcLeft=startXD; i<hyphenCnt; i++, spcLeft+=subSpace) {	/* for each hyphen...*/
 			desiredXD = spcLeft + ((subSpace-hyphenWid)>>1);
 
-			for (lastL=prevL; ; lastL=pL) {								/* ...find best sync to attach it to */
+			for (lastL=prevL; ; lastL=pL) {									/* ...find best Sync to attach it to */
 				pL = LVSearch(RightLINK(lastL), SYNCtype, v, GO_RIGHT, FALSE);
-				if (pL==NILINK) break;		/* "Can't happen", because there has to be a sync */
-													/* for last syllable, even if it's not on this system. */
+				if (pL==NILINK) break;						/* Should never happen because there has to be a Sync */
+															/* for last syllable, even if it's not on this system. */
 				if (!SameSystem(lastL, pL)) {
 					if (SyncTYPE(lastL)) pL = lastL;
-					else pL = NILINK;			/* it's not clear that this could ever happen */
+					else pL = NILINK;						/* it's not clear that this could ever happen */
 					break;
 				}
 				thisXD = SysRelxd(pL);
-				measL = LSISearch(pL, MEASUREtype, ANYONE, TRUE, FALSE);		/* get next meas on same sys */
+				measL = LSISearch(pL, MEASUREtype, ANYONE, TRUE, FALSE);	/* get next meas on same sys */
 				if (measL) {
 					/* if hyphen appears before measL, attach to last sync */
 					if (LinkXD(measL)>desiredXD) {
@@ -1142,7 +1138,7 @@ short CreateHyphenRun(
 					}
 				}
 				if (thisXD>desiredXD) {
-					/* if lastL's xd is closer to desiredXD, use lastL if it's a sync */
+					/* if lastL's xd is closer to desiredXD, use lastL if it's a Sync */
 					if (ABS(SysRelxd(lastL)-desiredXD) <= ABS(SysRelxd(pL)-desiredXD))
 						pL = SyncTYPE(lastL)? lastL : pL;
 					break;
@@ -1150,19 +1146,16 @@ short CreateHyphenRun(
 			}
 			if (pL==NILINK) { continue; errCnt++; }
 			
-			/* Voice may be weaving between staves. Hyphens will have
-			 * v-pos's relative to their parent note, which is undesirable
-			 * because the attachment of hyphens to some of those notes
-			 * is rather arbitrary. But the alternative is risking giving
-			 * hyphen Graphic a staff number that none of its parent sync's
-			 * notes are on. This would give a debug complaint (at the very
-			 * least). Fortunately, it's unlikely the user will often want
-			 * lyrics on a voice that crosses staves.
-			 * ??To make this better, caller could pass the staff of first
-			 * syllable's note, and we could fiddle with pitchLev to make
-			 * all hyphens appear at same height, regardless of which staff
-			 * their parent notes are on.
-			 */
+			/* Voice may be weaving between staves. Hyphens will have v-pos's relative
+			   to their parent note, which is undesirable because the attachment of
+			   hyphens to some of those notes is rather arbitrary. But the alternative
+			   is risking giving hyphen Graphic a staff number that none of its parent
+			   Sync's notes are on; this would not be good! Fortunately, it's unlikely
+			   the user will often want lyrics on a voice that crosses staves. ??To
+			   improve this, caller could pass the staff of first syllable's note, and
+			   we could fiddle with pitchLev to make all hyphens appear at same height,
+			   regardless of which staff their parent notes are on. */
+			
 			aNoteL = NoteInVoice(pL, v, FALSE);
 			stf = NoteSTAFF(aNoteL);
 
@@ -1175,12 +1168,11 @@ short CreateHyphenRun(
 			/* center it within its slice of horizontal space */
 			LinkXD(newL) = -(SysRelxd(pL) - desiredXD);
 			
-			/* This prevents hyphens from continuing to end of system when the
-			 * last sync in system is substantially to the left of the end of 
-			 * the system. (e.g., new, note, addSys, note, flow "hy-phen")
-			 * If we don't do this, and user later justifies system, hyphens
-			 * will end up off the right side of the page. 
-			 */
+			/* This prevents hyphens from continuing to end of system when the last
+			   Sync in the system is substantially to the left of the end of the
+			   system. If we don't do this, and user later justifies the system,
+			   hyphens will end up off the right side of the page. */
+			
 			if (openSys) {
 				LINK syncL = LVSearch(RightLINK(pL), SYNCtype, v, GO_RIGHT, FALSE);
 				if (!SameSystem(syncL, pL) && desiredXD>(SysRelxd(pL)-(subSpace>>2))) break;
@@ -1190,17 +1182,17 @@ short CreateHyphenRun(
 		}
 	}
 	else {
-		/* No room for hyphen. For now (or maybe forever), append hyphen to
-		 * first syllable's Graphic if it's on this system. NB: Space btw.
-		 * lyrics (for respace) should be set so that a hypen will always fit.
-		 */
+		/* No room for a hyphen. For now (or maybe forever), append hyphen to first
+		   syllable's Graphic if it's on this system. NB: Space between lyrics (for
+		   respace) should be set so that a hypen will always fit. */
+		   
 		if (firstSylL) {
 			aGraphicL = FirstSubLINK(firstSylL);
 			Pstrcpy((unsigned char *)hyphStr, PCopy(GraphicSTRING(aGraphicL)));
 			PStrCat((StringPtr)hyphStr, (StringPtr)"\p-");
 			offset = PStore((unsigned char *)hyphStr);
 			if (offset<0L) {
-				NoMoreMemory();		/* ??but we've destroyed a syllable! */
+				NoMoreMemory();							/* ??but we've destroyed a syllable! */
 				return -1;
 			}
 			else
@@ -1214,14 +1206,14 @@ short CreateHyphenRun(
 
 static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 {
-	short			i, j;
+	short		i, j;
 	HYPHENSPAN	*h;
-	LINK			firstSyncL, lastSyncL;
+	LINK		firstSyncL, lastSyncL;
 	CONTEXT		context;
-	PGRAPHIC		pGraphic;
-	short			staff, voice, pitchLev, fontSize, fontNum, ans, errCnt=0;
-	DDIST			startRtEdge, endLeftEdge, startGrWid, hyphenWid;
-	DDIST			dMaxHyphenDist;	/* Maximum horiz. space one hyphen can span */
+	PGRAPHIC	pGraphic;
+	short		staff, voice, pitchLev, fontSize, fontNum, ans, errCnt=0;
+	DDIST		startRtEdge, endLeftEdge, startGrWid, hyphenWid;
+	DDIST		dMaxHyphenDist;					/* Maximum horiz. space one hyphen can span */
 	
 	WaitCursor();
 	
@@ -1230,14 +1222,15 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 		if (h->startL==NILINK || h->termL==NILINK) continue;		/* empty or incomplete node */
 		firstSyncL = GraphicFIRSTOBJ(h->startL);
 		lastSyncL = GraphicFIRSTOBJ(h->termL);
-		if (firstSyncL==NILINK || lastSyncL==NILINK) { continue; errCnt++; }
+		if (firstSyncL==NILINK || lastSyncL==NILINK) { errCnt++; continue; }
 				
 		staff = GraphicSTAFF(h->startL);
 		voice = GraphicVOICE(h->startL);
 		GetContext(doc, h->startL, staff, &context);
 		pitchLev = d2halfLn(LinkYD(h->startL), context.staffHeight, context.staffLines);
 		if (config.maxHyphenDist==0) dMaxHyphenDist = pt2d(36);
-		else                         dMaxHyphenDist = halfLn2d(config.maxHyphenDist, context.staffHeight, context.staffLines);
+		else                         dMaxHyphenDist = halfLn2d(config.maxHyphenDist,
+														context.staffHeight, context.staffLines);
 		
 		/* get hyphen width (Must follow GetContext!) */
 		pGraphic = GetPGRAPHIC(h->startL);
@@ -1255,7 +1248,7 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 									/* NB: this  ^^^^^ doesn't matter in this case */
 									theStyle, dMaxHyphenDist);
 
-		else {			/* hyphen run spans multiple systems */
+		else {													/* hyphen run spans multiple systems */
 			LINK	startL, endL, startSysL, endSysL, midSysL, firstSylL=NILINK;
 			DDIST	startXD, endXD;
 			short	sysCnt; Boolean lastMeasFake;
@@ -1263,12 +1256,12 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 			GetSysRange(doc, firstSyncL, RightLINK(lastSyncL), &startSysL, &endSysL);
 			sysCnt = SystemNUM(endSysL) - SystemNUM(startSysL) + 1;
 			for (j=1; j<=sysCnt; j++) {
-				if (j==1) {							/* system containing first syllable */
+				if (j==1) {									/* system containing first syllable */
 					firstSylL = h->startL;
 					startL = firstSyncL;
 					startXD = startRtEdge;
 					endL = GetLastMeasInSys(startSysL);
-					lastMeasFake = FakeMeasure(doc, endL);
+					lastMeasFake = IsFakeMeasure(doc, endL);
 					if (FirstMeasInSys(endL))
 						lastMeasFake = FALSE;				/* if only 1 barline on sys, disregard fakeness */
 					if (!lastMeasFake)
@@ -1276,19 +1269,19 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 					else
 						endXD = SysRelxd(endL);
 				}
-				else if (j==sysCnt) {			/* system containing last syllable */
+				else if (j==sysCnt) {						/* system containing last syllable */
 					startL = FirstSysMeas(lastSyncL);
 					startXD = SysRelxd(startL);
 					endL = lastSyncL;
 					endXD = endLeftEdge;
-					lastMeasFake = TRUE;			/* doesn't matter in this case */
+					lastMeasFake = TRUE;					/* doesn't matter in this case */
 				}
-				else {								/* any intervening systems */
+				else {										/* any intervening systems */
 					midSysL = LSSearch(startSysL, SYSTEMtype, SystemNUM(startSysL)+j-1, GO_RIGHT, FALSE);
-					startL = LSSearch(midSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);		/* 1st meas in sys */
+					startL = LSSearch(midSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);	/* 1st meas in sys */
 					startXD = SysRelxd(startL);
-					endL = GetLastMeasInSys(midSysL);												/* last meas in sys */
-					lastMeasFake = FakeMeasure(doc, endL);
+					endL = GetLastMeasInSys(midSysL);									/* last meas in sys */
+					lastMeasFake = IsFakeMeasure(doc, endL);
 					if (FirstMeasInSys(endL))
 						lastMeasFake = FALSE;				/* if only 1 barline on sys, disregard fakeness */
 					if (!lastMeasFake)
@@ -1314,8 +1307,7 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 
 static void DisposeHyphenList()
 {
-	if (hyphens)
-		DisposeHandle((Handle)hyphens);
+	if (hyphens) DisposeHandle((Handle)hyphens);
 	hyphens = NULL;
 	numHyphens = 0;
 }
@@ -1334,8 +1326,8 @@ Returns TRUE if all okay. Gives an error msg and returns FALSE if error. */
 
 Boolean SetFlowInText(Ptr pText)
 {
-	Size		pTextSize;
-	OSErr		err;
+	Size	pTextSize;
+	OSErr	err;
 	
 	if (!pText) {
 		MayErrMsg("SetFlowInText: <pText> is NULL!");

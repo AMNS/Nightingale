@@ -2591,7 +2591,7 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 	Rect r;  PMEASURE p;
 	short staffn, xd;  DRect mrect;
 
-	if (FakeMeasure(doc, measureL)) return;
+	if (IsFakeMeasure(doc, measureL)) return;
 	
 	barTermL = EndMeasSearch(doc, measureL);
 	if (barTermL) {
