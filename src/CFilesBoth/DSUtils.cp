@@ -31,7 +31,7 @@
 		VCountNotes				CountGRNotes			SVCountNotes
 		SVCountGRNotes			CountNoteAttacks		CountObjects
 		CountInHeaps
-		HasOtherStemSide		NoteLeftOfStem			GetStemUpDown
+		HasOtherStemSide		IsNoteLeftOfStem		GetStemUpDown
 		GetGRStemUpDown			GetExtremeNotes			GetExtremeGRNotes
 		FindMainNote			FindGRMainNote			GetObjectLimits
 		InDataStruct			GetSubObjStaff			GetSubObjVoice
@@ -1040,10 +1040,10 @@ Boolean SetMeasWidth(LINK measL, DDIST width)
 
 
 /* ----------------------------------------------------------------- MeasFillSystem -- */
-/* Set the measureRects of all subobjects of <measL>, which must be a Measure,
-to extend to the end of their System (which ends at the same point as the
-Staff). If any of the subobjects starts at or past the end of their Staff,
-return FALSE, else TRUE. */
+/* Set the measureRects of all subobjects of <measL>, which must be a Measure, to
+extend to the end of their System (which ends at the same point as the Staff). If
+any of the subobjects starts at or past the end of their Staff, return FALSE, else
+TRUE. */
 
 Boolean MeasFillSystem(LINK measL)
 {
@@ -2180,11 +2180,11 @@ Boolean HasOtherStemSide(LINK syncL,
 }
 
 
-/* ----------------------------------------------------------------- NoteLeftOfStem -- */
+/* ------------------------------------------------------------------ IsNoteLeftOfStem -- */
 /* Is the given note on the left side of its stem or its chord's stem? */
 
-Boolean NoteLeftOfStem(LINK /*pL*/,			/* Sync note belongs to */
-						LINK theNoteL,		/* Note */
+Boolean IsNoteLeftOfStem(LINK /*pL*/,			/* Sync note belongs to */
+						LINK theNoteL,			/* Note */
 						Boolean stemDown
 						)
 {

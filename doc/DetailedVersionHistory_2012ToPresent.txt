@@ -640,7 +640,7 @@ Minor cleanup. Affects DialogsEditor.
 
 -------------------------------------------------------------------------------
 
-16 June			       ==== NIGHTINGALE 5.6 (16 June 2016) ====
+16 June			    ======== NIGHTINGALE 5.6 (16 June 2016) ========
 
 In the Info dialog for notes and rests, make the Dur field wider, to accomodate values
 like "-47" for a 47-bar rest. Affects .rsrc.
@@ -1392,7 +1392,9 @@ NotelistSave, PS_Stdio, RTRhythmDur.
 
 -------------------------------------------------------------------------------
 
-20 Apr.
+20-23 Apr.			 ======== NIGHTINGALE 5.7 (23 April 2017) ========
+
+Changed version number from 5.7b12 to 5.7. Affects Info.plist.
 
 The space percentage in the Extract dialog has always been initialized to
 doc->spacePercent, but at most 100; instead, we now initialize it to the mean of
@@ -1402,8 +1404,6 @@ Add to the Respace dialog a brief comment on how it works. Affects .rsrc. (HOWEV
 SourceTree doesn't recognize that it's been modified! How to get it into the
 repository??)
 
-Renamed one data-structure utility to clarify it's Boolean-valued; minor cleanup.
-Affects DSUtils.h, NResourceID.h; Debug2Utils, DrawObject, DrawUtils, DSUtils,
-ExtractHighLevel, FlowInText, Menu, MIDIFSave, PS_Stdio, ScoreInfo.
-
-
+Renamed two data-structure utilities to clarify they're Boolean-valued; minor cleanup.
+Affects .rsrc; DSUtils.h, NResourceID.h; Debug2Utils, DrawObject, DrawUtils, DSUtils,
+ExtractHighLevel, FlowInText, Menu, MIDIFSave, Objects, PS_Stdio, ScoreInfo.

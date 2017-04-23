@@ -98,8 +98,6 @@ long SyncAbsTime(LINK);
 LINK MoveTimeInMeasure(LINK, LINK, long);
 void MoveTimeMeasures(LINK, LINK, long);
 
-Boolean ContentObj(LINK);
-
 unsigned short CountNotesInRange(short staff, LINK startL, LINK endL, Boolean selectedOnly);
 unsigned short CountGRNotesInRange(short staff, LINK startL, LINK endL, Boolean selectedOnly);
 unsigned short CountNotes(short, LINK, LINK, Boolean);
@@ -113,7 +111,7 @@ unsigned short CountObjects(LINK, LINK, short);
 void CountInHeaps(Document *, unsigned short [], Boolean);
 
 Boolean HasOtherStemSide(LINK, short);
-Boolean NoteLeftOfStem(LINK, LINK, Boolean);
+Boolean IsNoteLeftOfStem(LINK, LINK, Boolean);
 
 short GetStemUpDown(LINK, short);
 short GetGRStemUpDown(LINK, short);

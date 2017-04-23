@@ -1404,7 +1404,7 @@ Boolean ChordHasUnison(LINK syncL, short voice)
 }
 
 
-/* ------------------------------------------------------------- ChordNoteToRight -- */
+/* --------------------------------------------------------------- ChordNoteToRight -- */
 /* Return TRUE if the given Sync and voice has a chord that is stem up but has at least
 one note to right of the stem. Works even if stem won't be drawn, probably because
 all notes are whole notes. */
@@ -1422,7 +1422,7 @@ Boolean ChordNoteToRight(LINK syncL, short voice)
 		
 		aNoteL = FirstSubLINK(syncL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-			if (NoteVOICE(aNoteL)==voice && !NoteLeftOfStem(syncL, aNoteL, stemDown))
+			if (NoteVOICE(aNoteL)==voice && !IsNoteLeftOfStem(syncL, aNoteL, stemDown))
 				return TRUE;
 		}
 	}
@@ -1431,7 +1431,7 @@ Boolean ChordNoteToRight(LINK syncL, short voice)
 }
 
 
-/* -------------------------------------------------------------- ChordNoteToLeft -- */
+/* ---------------------------------------------------------------- ChordNoteToLeft -- */
 /* Return TRUE if the given Sync and voice has a chord that is stem down and has at
 least one note to left of the stem. Works even if stem won't be drawn, probably because
 all notes are whole notes. */
@@ -1449,7 +1449,7 @@ Boolean ChordNoteToLeft(LINK syncL, short voice)
 		
 		aNoteL = FirstSubLINK(syncL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-			if (NoteVOICE(aNoteL)==voice && NoteLeftOfStem(syncL, aNoteL, stemDown))
+			if (NoteVOICE(aNoteL)==voice && IsNoteLeftOfStem(syncL, aNoteL, stemDown))
 				return TRUE;
 		}
 	}
