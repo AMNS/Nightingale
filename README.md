@@ -14,7 +14,7 @@ Downloads require an Apple Developer account; they should not require a paid iOS
  - Xcode version 3.2 with MacOS 10.4 SDK, PPC, and GCC version 4.0 support added
  - It works with GCC 4.2 as well.
  
- * Will not run on OS >= 10.7, due to PPC / Rosetta dependencies, but it should compile with Xcode 7.x or 8.x with MacOS 10.4 SDK and PPC support added.
+ * Nightingale will not run on OS >= 10.7, due to PPC / Rosetta dependencies, but it should compile with Xcode 7.x or 8.x with MacOS 10.4 SDK and PPC support added.
 
 * The following environment _may_ work; it did for one person (Geoff C.), but another (Don B.) was unable to set it up (note the kludgy instructions!):
 
