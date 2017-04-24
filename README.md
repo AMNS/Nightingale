@@ -12,9 +12,9 @@ Downloads require an Apple Developer account; they should not require a paid iOS
 
 * MacOS version 10.6
  - Xcode version 3.2 with MacOS 10.4 SDK, PowerPC, and GCC version 4.0 support added
- - will not work on OS >= 10.7, due to PowerPC / Rosetta dependencies
-
-It will probably work with GCC 4.2 as well.
+- It works with GCC 4.2 as well.
+ 
+* Nightingale will not run on OS >= 10.7, due to PowerPC / Rosetta dependencies; but it should be possible to compile it with Xcode 7 and 8.
 
 * The following environment _may_ work; it did for one person (Geoff C.), but another (Don B.) was unable to set it up (note the kludgy instructions!):
 
