@@ -32,14 +32,12 @@ void EnumerateFonts(Document *doc)
 	status = FMCreateFontFamilyIterator(NULL, NULL, kFMDefaultOptions, 
 											&fontFamilyIterator);
 
-	while ( (status = FMGetNextFontFamily(&fontFamilyIterator, &fontFamily)) == noErr)
-	{
+	while ( (status = FMGetNextFontFamily(&fontFamilyIterator, &fontFamily)) == noErr) {
 		status = FMGetFontFamilyName (fontFamily, fontFamilyName);
 
 		for (short j = 0; j<doc->nfontsUsed; j++)
-			if (PStrnCmp((StringPtr)doc->fontTable[j].fontName,
+			if (Pstrneql((StringPtr)doc->fontTable[j].fontName,
 							 (StringPtr)fontFamilyName, 32)) {
-				
 				doc->fontTable[j].fontID = fontFamily;
 		}
 	}

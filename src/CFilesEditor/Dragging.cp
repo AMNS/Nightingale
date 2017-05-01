@@ -1174,8 +1174,8 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 					//if (pGraphic->graphicType==GRString)
 					//	LogPrintf(LOG_DEBUG, "SDDrawGraphic: pGraphic->info2=%d\n", pGraphic->info2);
 					if (expandN) {
-						if (!ExpandString(textStr, (StringPtr)PCopy(strOffset), EXPAND_WIDER))
-							LogPrintf(LOG_WARNING, "SDDrawGraphic: ExpandString failed.\n");
+						if (!ExpandPString(textStr, (StringPtr)PCopy(strOffset), EXPAND_WIDER))
+							LogPrintf(LOG_WARNING, "SDDrawGraphic: ExpandPString failed.\n");
 					}
 					else Pstrcpy(textStr, (StringPtr)PCopy(strOffset));
 					DrawString(textStr);
@@ -1233,8 +1233,8 @@ static void SDDrawTempo(Document *doc, LINK pL, LINK measureL)
 	GetFontInfo(&fInfo);
 	
 	if (expandN) {
-		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
-			LogPrintf(LOG_WARNING, "SDDrawTempo: ExpandString failed.\n");
+		if (!ExpandPString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER))
+			LogPrintf(LOG_WARNING, "SDDrawTempo: ExpandPString failed.\n");
 	}
 	else Pstrcpy(tempoStr, (StringPtr)PCopy(theStrOffset));
 

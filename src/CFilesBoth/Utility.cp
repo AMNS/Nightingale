@@ -1,4 +1,4 @@
-/***************************************************************************
+/****************************************************************************************
 *	FILE:	Utility.c
 *	PROJ:	Nightingale
 *	DESC:	Miscellaneous utility routines. NB: There are better places for utility
@@ -15,7 +15,7 @@
 		StrToObjRect			GetNFontInfo			NStringWidth
 		NPtStringWidth			NPtGraphicWidth			GetNPtStringBBox
 		MaxPartNameWidth		PartNameMargin
-		SetFont					StringRect
+		SetFont
 		AllocContext			AllocSpTimeInfo			NewGrafPort
 		DisposGrafPort			SamePoint
 		D2Rect					Rect2D					PtRect2D
@@ -30,7 +30,7 @@
 		GetMillisecTime			SleepMS					SleepTicks
 		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
 		PlayResource			FitStavesOnPaper
-/***************************************************************************/
+/***************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -46,18 +46,18 @@
 
 #include "CarbonPrinting.h"
 
-/* ------------------------------------------------------------------- CalcYStem -- */
+/* ---------------------------------------------------------------------- CalcYStem -- */
 /*	Calculate optimum stem endpoint for a note. */
 
 DDIST CalcYStem(
 			Document *doc,
 			DDIST	yhead,			/* position of note head */
 			short	nflags,			/* number of flags or beams */
-			Boolean	stemDown,		/* TRUE if stem is down, else stem is up */
+			Boolean	stemDown,		/* true if stem is down, else stem is up */
 			DDIST	staffHeight,	/* staff height */
 			short	staffLines,
 			short	qtrSp,			/* desired "normal" (w/2 or less flags) stem length (qtr-spaces) */
-			Boolean	noExtend 		/* TRUE means don't extend stem to midline */
+			Boolean	noExtend 		/* true means don't extend stem to midline */
 			)
 {
 	DDIST	midline, dLen, ystem;
@@ -89,7 +89,7 @@ DDIST CalcYStem(
 }
 
 
-/* ----------------------------------------------------------------- GetNoteYStem -- */
+/* ------------------------------------------------------------------- GetNoteYStem -- */
 /*	Calculate optimum stem endpoint for a note in main data structure, considering voice
 role, but assuming note is not in a chord and not considering beaming. Cf. GetNCYStem
 in Objects.c. */
@@ -102,7 +102,7 @@ DDIST GetNoteYStem(Document *doc, LINK syncL, LINK aNoteL, CONTEXT context)
 	ystem = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
 							stemDown,
 							context.staffHeight, context.staffLines,
-							qStemLen, FALSE);
+							qStemLen, false);
 	return ystem;
 }
 
@@ -128,7 +128,7 @@ DDIST GetGRNoteYStem(LINK aGRNoteL, CONTEXT context)
 
 
 /* -------------------------------------------------------------------- ShortenStem -- */
-/*	Returns TRUE if the given note and stem direction require a shorter-than-normal
+/*	Returns true if the given note and stem direction require a shorter-than-normal
 stem; intended for use in 2-voice notation. */
 
 Boolean ShortenStem(LINK aNoteL, CONTEXT context, Boolean stemDown)
@@ -142,14 +142,14 @@ Boolean ShortenStem(LINK aNoteL, CONTEXT context, Boolean stemDown)
 	yqpit = aNote->yqpit+halfLn2qd(midCHalfLn);						/* For notehead... */
 	halfLn = qd2halfLn(yqpit);										/* Half-lines below stftop */
 	
-	if (halfLn<(0+STRICT_SHORTSTEM) && !stemDown) return TRUE;			/* Above staff so shorten */
+	if (halfLn<(0+STRICT_SHORTSTEM) && !stemDown) return true;			/* Above staff so shorten */
 	if (halfLn>(2*(context.staffLines-1)-STRICT_SHORTSTEM) && stemDown)	/* Below staff so shorten */
-		 return TRUE;
-	return FALSE;
+		 return true;
+	return false;
 }
 
 
-/* ----------------------------------------------------------------- GetCStemInfo -- */
+/* ------------------------------------------------------------------- GetCStemInfo -- */
 /* Given a note and a context, return (in <qStemLen>) its normal stem length and (as
 function value) whether it should be stem down. Considers voice role but assumes the
 note is not in a chord. */
@@ -171,24 +171,24 @@ Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context
 			yqpit = aNote->yqpit+halfLn2qd(midCHalfLn);
 			halfLn = qd2halfLn(yqpit);								/* Number of half lines from stftop */
 			stemDown = (halfLn<=context.staffLines-1);
-			*qStemLen = QSTEMLEN(TRUE, ShortenStem(aNoteL, context, stemDown));
+			*qStemLen = QSTEMLEN(true, ShortenStem(aNoteL, context, stemDown));
 			break;
 		case UPPER_DI:
-			stemDown = FALSE;
-			*qStemLen = QSTEMLEN(FALSE, ShortenStem(aNoteL, context, stemDown));
+			stemDown = false;
+			*qStemLen = QSTEMLEN(false, ShortenStem(aNoteL, context, stemDown));
 			break;
 		case LOWER_DI:
-			stemDown = TRUE;
-			*qStemLen = QSTEMLEN(FALSE, ShortenStem(aNoteL, context, stemDown));
+			stemDown = true;
+			*qStemLen = QSTEMLEN(false, ShortenStem(aNoteL, context, stemDown));
 			break;
 		case CROSS_DI:
 			partL = FindPartInfo(doc, Staff2Part(doc, NoteSTAFF(aNoteL)));
 			pPart = GetPPARTINFO(partL);
 			stemDown = (NoteSTAFF(aNoteL)==pPart->firstStaff);
-			*qStemLen = QSTEMLEN(FALSE, ShortenStem(aNoteL, context, stemDown));
+			*qStemLen = QSTEMLEN(false, ShortenStem(aNoteL, context, stemDown));
 			break;
 		default:													/* Should never get here */
-			return FALSE;
+			return false;
 	}
 	
 	return stemDown;
@@ -209,7 +209,7 @@ Boolean GetStemInfo(Document *doc, LINK syncL, LINK aNoteL, short *qStemLen)
 }
 
 
-/* --------------------------------------------------------------- GetCGRStemInfo -- */
+/* ----------------------------------------------------------------- GetCGRStemInfo -- */
 /* Given a grace note and a context, return (in <qStemLen>) its normal stem length and
 (as function value) whether it should be stem down. Considers voice role but assumes
 the grace note is not in a chord. */
@@ -225,10 +225,10 @@ Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /
 	switch (voiceRole) {
 		case SINGLE_DI:
 		case UPPER_DI:
-			stemDown = FALSE;
+			stemDown = false;
 			break;
 		case LOWER_DI:
-			stemDown = TRUE;
+			stemDown = true;
 			break;
 		case CROSS_DI:
 			partL = FindPartInfo(doc, Staff2Part(doc, GRNoteSTAFF(aGRNoteL)));
@@ -236,7 +236,7 @@ Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /
 			stemDown = (GRNoteSTAFF(aGRNoteL)==pPart->firstStaff);
 			break;
 		default:													/* Should never get here */
-			return FALSE;
+			return false;
 	}
 	
 	*qStemLen = config.stemLenGrace;
@@ -244,7 +244,7 @@ Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /
 }
 
 
-/* ---------------------------------------------------------------- GetGRStemInfo -- */
+/* ------------------------------------------------------------------ GetGRStemInfo -- */
 /* Given a grace note, return (in <qStemLen>) its normal stem length and (as function
 value) whether it should be stem down. Considers voice role but assumes the grace note
 is not in a chord. */
@@ -258,7 +258,7 @@ Boolean GetGRStemInfo(Document *doc, LINK grSyncL, LINK aGRNoteL, short *qStemLe
 }
 
 
-/* ------------------------------------------------------------ GetLineAugDotPos -- */
+/* --------------------------------------------------------------- GetLineAugDotPos -- */
 /* Return the normal augmentation dot y-position for a note on a line. */
 							
 short GetLineAugDotPos(
@@ -271,7 +271,7 @@ short GetLineAugDotPos(
 }
 
 
-/* --------------------------------------------------------------- ExtraSysWidth -- */
+/* ------------------------------------------------------------------ ExtraSysWidth -- */
 /* Compute extra space needed at the right end of the system to allow space for
 objRects of right-justified barlines. In DrawMeasure the width allowed for the
 widest barline (final double) is 5 ( ? pixels). A lineSp equals 4 pixels at default
@@ -289,7 +289,7 @@ DDIST ExtraSysWidth(Document *doc)
 }
 
 
-/* --------------------------------------------------------------- ApplHeapCheck -- */
+/* ------------------------------------------------------------------ ApplHeapCheck -- */
 /* Mac-specific: Check the heap at a location of your choice in the code. Breaks into
 MacsBug, checks the heap, and continues if the heap is OK. Unfortunately, also makes
 the screen flash. */
@@ -300,7 +300,7 @@ void ApplHeapCheck()
 }
 
 
-/* -------------------------------------------------------------------- Char2Dur -- */
+/* ----------------------------------------------------------------------- Char2Dur -- */
 /*	Convert input character to duration code */
 
 short Char2Dur(char token)
@@ -314,7 +314,7 @@ short Char2Dur(char token)
 }
 
 
-/* -------------------------------------------------------------------- Dur2Char -- */
+/* ----------------------------------------------------------------------- Dur2Char -- */
 /*	Convert duration code to input character */
 
 short Dur2Char(short dur)
@@ -328,7 +328,7 @@ short Dur2Char(short dur)
 }
 
 
-/* ------------------------------------------------------------ GetSymTableIndex -- */
+/* --------------------------------------------------------------- GetSymTableIndex -- */
 /*	Return symtable index for CMN character token. */
 
 short GetSymTableIndex(char token)
@@ -338,11 +338,11 @@ short GetSymTableIndex(char token)
 	for (j=0; j<nsyms; j++)
 		if (token==symtable[j].symcode)
 			return j;								/* Found it */
-	return NOMATCH;								/* Not found - illegal */
+	return NOMATCH;									/* Not found - illegal */
 }
 
 
-/* --------------------------------------------------------------------- SymType -- */
+/* ------------------------------------------------------------------------ SymType -- */
 /*	Return the symbol type for the specified character. */
 
 short SymType(char ch)
@@ -357,7 +357,7 @@ short SymType(char ch)
 }
 
 
-/* ---------------------------------------------------------------- Objtype2Char -- */
+/* ------------------------------------------------------------------- Objtype2Char -- */
 /*	Return the (first, if there's more than one) input character for objtype in
 symtable. */
 
@@ -367,26 +367,26 @@ char Objtype2Char(SignedByte objtype)
 	
 	for (j=0; j<nsyms; j++)
 		if (objtype==symtable[j].objtype)
-			return symtable[j].symcode;						/* Found it */
-	return '\0';											/* Not found - illegal */
+			return symtable[j].symcode;					/* Found it */
+	return '\0';										/* Not found - illegal */
 }
 
 
-/* ---------------------------------------------------------------- StrToObjRect -- */
+/* ------------------------------------------------------------------- StrToObjRect -- */
 /*	Get the objRect for a Pascal string. */
 
 Rect StrToObjRect(unsigned char *string)
 {
 	short	nchars;
 	Rect	strRect, tempR;
-	Boolean	rectNotSet = TRUE;
+	Boolean	rectNotSet = true;
 	
 	nchars = string[0];
 	while (nchars > 0) {
 		if (rectNotSet) {
 			strRect = CharRect(string[nchars]);
 			OffsetRect(&strRect, -strRect.left, 0);
-			rectNotSet = FALSE;
+			rectNotSet = false;
 		}
 		else {
 			tempR = CharRect(string[nchars]);
@@ -400,7 +400,7 @@ Rect StrToObjRect(unsigned char *string)
 }
 
 
-/* ---------------------------------------------------------------- GetNFontInfo -- */
+/* ------------------------------------------------------------------- GetNFontInfo -- */
 /* Get FontInfo for the specified font, size, and style (as opposed to the current
 font in its current size and style). */
 
@@ -428,7 +428,7 @@ void GetNFontInfo(
 }
 
 
-/* ---------------------------------------------------------------- NStringWidth -- */
+/* ------------------------------------------------------------------- NStringWidth -- */
 /* Compute and return the StringWidth (in pixels) of the given Pascal string in the
 given font, size and style. */
 
@@ -455,7 +455,7 @@ short NStringWidth(Document */*doc*/, const Str255 string, short font, short siz
 }
 
 
-/* --------------------------------------------------------------- NPtStringWidth -- */
+/* ----------------------------------------------------------------- NPtStringWidth -- */
 /* Compute and return the StringWidth (in points, not pixels) of the given Pascal
 string in the given font, size and style. By far the easiest way to get the width
 of a string on the Mac is from QuickDraw, for the screen, but it's limited to screen
@@ -493,7 +493,7 @@ short NPtStringWidth(
 }
 
 
-/* ------------------------------------------------------------- NPtGraphicWidth -- */
+/* ---------------------------------------------------------------- NPtGraphicWidth -- */
 /* Compute and return the StringWidth (in points) of the given Graphic. */	
 
 short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
@@ -516,7 +516,7 @@ short NPtGraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 }
 
 
-/* ------------------------------------------------------------ GetNPtStringBBox -- */
+/* --------------------------------------------------------------- GetNPtStringBBox -- */
 /* For the given string and font description, return the bounding box in points.
 Normally gets the height from the ascent and descent returned by GetNFontInfo, which
 calls GetFontInfo. For "normal" fonts, this will often be more than it really should
@@ -541,22 +541,22 @@ void GetNPtStringBBox(
 	if (multiLine) {
 		/* Count lines; take width from the longest line. */
 		short i, j, totalLen, curLineLen, curLineWidth;
-		Str255 tmpStr;
+		Str255 tempStr;
 		Byte *p;
 		nLines = 1;
 
-		Pstrcpy(tmpStr, string);
+		Pstrcpy(tempStr, string);
 
-		p = tmpStr;
-		totalLen = Pstrlen(tmpStr);
+		p = tempStr;
+		totalLen = Pstrlen(tempStr);
 		j = curLineLen = width = 0;
 		for (i = 1; i <= totalLen; i++) {
 			curLineLen++;
-			if (tmpStr[i]==CH_CR || i==totalLen) {
-				tmpStr[j] = curLineLen;
-				curLineWidth = NPtStringWidth(doc, &tmpStr[j], fontID, size, style);
+			if (tempStr[i]==CH_CR || i==totalLen) {
+				tempStr[j] = curLineLen;
+				curLineWidth = NPtStringWidth(doc, &tempStr[j], fontID, size, style);
 				if (curLineWidth > width) width = curLineWidth;
-				if (tmpStr[i]==CH_CR) {
+				if (tempStr[i]==CH_CR) {
 					j = i;
 					curLineLen = 0;
 					nLines++;
@@ -601,7 +601,7 @@ void GetNPtStringBBox(
 }
 
 
-/* ------------------------------------------------------------ MaxPartNameWidth -- */
+/* --------------------------------------------------------------- MaxPartNameWidth -- */
 /* For the given document and code for the form of part names, return the
 maximum width needed by any part name, in points. */
 
@@ -620,7 +620,7 @@ short MaxPartNameWidth(
 	
 	maxWidth = 0;
 
-	measL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	measL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, false);
 	partL = FirstSubLINK(doc->masterHeadL);
 	for (partL=NextPARTINFOL(partL); partL; partL=NextPARTINFOL(partL)) {	/* Skip unused first partL */
 		pPart = GetPPARTINFO(partL);
@@ -629,7 +629,7 @@ short MaxPartNameWidth(
 		strcpy((char *)string, (nameCode==1? pPart->shortName : pPart->name));
 		CToPString((char *)string);
 
-		fontInd = FontName2Index(doc, doc->fontNamePN);							/* Should never fail */
+		fontInd = FontName2Index(doc, doc->fontNamePN);						/* Should never fail */
 		font = doc->fontTable[fontInd].fontID;
 		fontSize = GetTextSize(doc->relFSizePN, doc->fontSizePN, LNSPACE(&context));
 
@@ -641,7 +641,7 @@ short MaxPartNameWidth(
 }
 
 
-/* -------------------------------------------------------------- PartNameMargin -- */
+/* ----------------------------------------------------------------- PartNameMargin -- */
 
 double PartNameMargin(
 			Document *doc,
@@ -664,8 +664,8 @@ double PartNameMargin(
 }
 
 
-/* --------------------------------------------------------------------- SetFont -- */
-/* Set one of Nightingale's standard fonts. Obsolescent. */
+/* ------------------------------------------------------------------------ SetFont -- */
+/* Set one of Nightingale's formerly standard fonts. Obsolescent. */
 
 void SetFont(short which)
 {
@@ -697,7 +697,7 @@ void SetFont(short which)
 	TextFace(0);										/* Plain */
 }
 
-/* ------------------------------------------------ AllocContext, AllocSpTimeInfo -- */
+/* -------------------------------------------------- AllocContext, AllocSpTimeInfo -- */
 /* Allocate arrays on the heap: context[MAXSTAVES+1], spTimeInfo[MAX_MEASNODES]. */
 
 PCONTEXT AllocContext()
@@ -732,7 +732,7 @@ These make it easy to work with color images.  See Apple documentation
 
 /* ------------------------------------------------------------------ MakeGWorld -- */
 /* Create a new graphics world (GWorld) for offscreen drawing, having
-the given dimensions.  If <lock> is TRUE, the PixMap of this GWorld will be
+the given dimensions.  If <lock> is true, the PixMap of this GWorld will be
 locked on return.  Returns the new GWorldPtr, or NULL if error. */
 
 GWorldPtr MakeGWorld(short width, short height, Boolean lock)
@@ -789,7 +789,7 @@ void DestroyGWorld(GWorldPtr theGWorld)
 }
 
 
-/* ------------------------------------------------ SaveGWorld and RestoreGWorld -- */
+/* --------------------------------------------------- SaveGWorld and RestoreGWorld -- */
 /* NOTE: These are not reentrant!  So be careful to keep things in sync. */
 
 static CGrafPtr savePort = NULL;		/* NB: Can also represent GrafPtr or GWorldPtr */
@@ -798,23 +798,23 @@ static GDHandle saveDevice = NULL;
 Boolean SaveGWorld()
 {
 	if (savePort!=NULL || saveDevice!=NULL)
-		return FALSE;				/* our temporary data already in use */
+		return false;				/* our temporary data already in use */
 	GetGWorld(&savePort, &saveDevice);
-	return TRUE;
+	return true;
 }
 
 Boolean RestoreGWorld()
 {
 	if (savePort==NULL || saveDevice==NULL)
-		return FALSE;		/* SaveGWorld hasn't been called since last RestoreGWorld. */
+		return false;		/* SaveGWorld hasn't been called since last RestoreGWorld. */
 	SetGWorld(savePort, saveDevice);
 	savePort = NULL;
 	saveDevice = NULL;
-	return TRUE;
+	return true;
 }
 
 
-/* ------------------------------------------------- LockGWorld and UnlockGWorld -- */
+/* ---------------------------------------------------- LockGWorld and UnlockGWorld -- */
 Boolean LockGWorld(GWorldPtr theGWorld)
 {
 	PixMapHandle	pixMapH;
@@ -832,7 +832,7 @@ void UnlockGWorld(GWorldPtr theGWorld)
 }
 
 
-/* ----------------------------------------------------------------- NewGrafPort -- */
+/* ------------------------------------------------------------- GrafPort functions -- */
 /* Create a new GrafPort large enough to hold a bit image of the specified width
 and height.  Returns a pointer to the GrafPort, but does NOT set it to be the
 current port.
@@ -861,7 +861,6 @@ GrafPtr NewGrafPort(short width, short height)	/* required size of requested Gra
 }
 
 
-/* -------------------------------------------------------------- DisposGrafPort -- */
 /* Deallocate memory used by a GrafPort created with NewGrafPort. */
 
 void DisposGrafPort(GrafPtr aPort)
@@ -870,7 +869,7 @@ void DisposGrafPort(GrafPtr aPort)
 }
 
 
-/* ---------------------------------------------------------------------- D2Rect -- */
+/* -----------------------------------------------------------D2Rect, Rect/PtRect2D -- */
 /* Convert DRect to Rect in pixels */
 
 void D2Rect(DRect *dRect, Rect *rRect)
@@ -881,8 +880,6 @@ void D2Rect(DRect *dRect, Rect *rRect)
 	rRect->right = d2p(dRect->right);
 }
 
-
-/* ---------------------------------------------------------------------- Rect2D -- */
 /* Convert Rect in pixels to DRect */
 
 void Rect2D(Rect *rRect, DRect *dRect)
@@ -893,7 +890,6 @@ void Rect2D(Rect *rRect, DRect *dRect)
 	dRect->right = p2d(rRect->right);
 }
 
-/* -------------------------------------------------------------------- PtRect2D -- */
 /* Convert Rect in points to DRect */
 
 void PtRect2D(Rect *rRect, DRect *dRect)
@@ -905,7 +901,7 @@ void PtRect2D(Rect *rRect, DRect *dRect)
 }
 
 
-/* ---------------------------------------------------------------------- AddDPt -- */
+/* ------------------------------------------------------------------------- AddDPt -- */
 /* Add DPoint <src> to <*dest>. */
 
 void AddDPt(DPoint src, DPoint *dest)
@@ -915,7 +911,7 @@ void AddDPt(DPoint src, DPoint *dest)
 }
 
 
-/* ---------------------------------------------------------------------- SetDPt -- */
+/* ------------------------------------------------------------------------- SetDPt -- */
 /* Initialize a DPoint with the given DDIST coordinates */
 
 void SetDPt(DPoint *dPoint, DDIST dx, DDIST dy)
@@ -925,7 +921,7 @@ void SetDPt(DPoint *dPoint, DDIST dx, DDIST dy)
 }
 
 
-/* -------------------------------------------------------------------- SetDRect -- */
+/* ----------------------------------------------------------------------- SetDRect -- */
 /* Initialize a DRect with the given DDIST coordinates */
 
 void SetDRect(DRect *dRect, DDIST dLeft, DDIST dTop, DDIST dRight, DDIST dBottom)
@@ -937,7 +933,7 @@ void SetDRect(DRect *dRect, DDIST dLeft, DDIST dTop, DDIST dRight, DDIST dBottom
 }
 
 
-/* ----------------------------------------------------------------- OffsetDRect -- */
+/* -------------------------------------------------------------------- OffsetDRect -- */
 /* Offset a DRect by the specified DDIST amounts */
 
 void OffsetDRect(DRect *dRect, DDIST dx, DDIST dy)
@@ -949,7 +945,7 @@ void OffsetDRect(DRect *dRect, DDIST dx, DDIST dy)
 }
 
 
-/* ------------------------------------------------------------------ InsetDRect -- */
+/* --------------------------------------------------------------------- InsetDRect -- */
 /* Inset a DRect by the specified DDIST amounts */
 
 void InsetDRect(DRect *dRect, DDIST dx, DDIST dy)
@@ -961,7 +957,7 @@ void InsetDRect(DRect *dRect, DDIST dx, DDIST dy)
 }
 
 
-/* --------------------------------------------------------------------- DMoveTo -- */
+/* ------------------------------------------------------------------------ DMoveTo -- */
 /* MoveTo with DDIST args. */
 
 void DMoveTo(DDIST xd, DDIST yd)
@@ -970,7 +966,7 @@ void DMoveTo(DDIST xd, DDIST yd)
 }
 
 
-/* ------------------------------------------------------------------------- GCD -- */
+/* ---------------------------------------------------------------------------- GCD -- */
 /* Euclid's algorithm for GCD of two integers, from Knuth, v.1 p.2. */
 
 short GCD(short m, short n)
@@ -992,7 +988,7 @@ short GCD(short m, short n)
 }
 
 
-/* ----------------------------------------------------------------- RoundDouble -- */
+/* -------------------------------------------------------------------- RoundDouble -- */
 /* Round <value> to the nearest multiple of <quantum>. Since it uses integer
 arithmetic, overflow is possible, but we don't do any checking. */
 
@@ -1021,7 +1017,7 @@ short RoundSignedInt(short value, short quantum)
 }
 
 
-/* ---------------------------------------------------------------------- InterpY -- */
+/* ------------------------------------------------------------------------ InterpY -- */
 /* Use linear interpolation to find the y-coord. of a point on the line from (x0,y0)
 to (x1,y1) corresponding to x-coord. ptx. This is a fast version for integer
 coordinates, done in homebrew fixed-point arithmetic. */
@@ -1038,22 +1034,22 @@ short InterpY(short x0, short y0, short x1, short y1, short ptx)
 	return y;
 }
 
-/* ------------------------------------------------------------- FindIntInString -- */
+/* ---------------------------------------------------------------- FindIntInString -- */
 /* Find the first recognizable unsigned (long) integer, simply a string of digits,
 in the given string. If the string contains no digits, return -1. */
 
 long FindIntInString(unsigned char *string)
 {
-	long number, digit;  short i;  Boolean foundDigits;
+	long number, digit;  Boolean foundDigits;
 	
 	number = 0L;
-	foundDigits = FALSE;
-	for (i = 1; i<=string[0]; i++) {
+	foundDigits = false;
+	for (short i = 1; i<=string[0]; i++) {
 		if (isdigit(string[i])) {
 			if (number>BIGNUM/10L) return number;			/* Avoid overflow */
 			digit = string[i]-'0';
 			number = (10L*number)+digit;
-			foundDigits = TRUE;
+			foundDigits = true;
 		}
 		else if (foundDigits)
 			return number;
@@ -1064,7 +1060,7 @@ long FindIntInString(unsigned char *string)
 }
 
 
-/* ---------------------------------------------------------------- BlockCompare -- */
+/* ------------------------------------------------------------------- BlockCompare -- */
 /* Compare two structures byte by byte for a given length until either they match,
 in which case we deliver 0, or until the first is less than or greater than
 the second, in which case we deliver -1 or 1 respectively. */
@@ -1082,7 +1078,7 @@ short BlockCompare(void *blk1, void *blk2, short len)
 	}
 
 
-/* -------------------------------------------------------------- RelIndexToSize -- */
+/* ----------------------------------------------------------------- RelIndexToSize -- */
 /*	Deliver the absolute size (in points) that the Tiny...Jumbo...StaffHeight
 menu item for text Graphics represents, or 0 if out of bounds. */
 
@@ -1098,7 +1094,7 @@ short RelIndexToSize(short index, DDIST lineSpace)
 	}
 
 
-/* ----------------------------------------------------------------- GetTextSize -- */
+/* -------------------------------------------------------------------- GetTextSize -- */
 /* Given the relative/absolute size flag, nominal (Nightingale internal) size, and
 space between staff lines, return the point size to use. */
 
@@ -1117,7 +1113,7 @@ short GetTextSize(Boolean relFSize, short fontSize, DDIST lineSpace)
 }
 
 
-/* ---------------------------------------------------------------- FontName2Index -- */
+/* ----------------------------------------------------------------- FontName2Index -- */
 /* Get the fontname's index into our stored-to-system font number table; if the
 fontname doesn't appear in the table, add it. In all cases, return the index of the
 fontname. Exception: if the table overflows, return -1. */
@@ -1131,7 +1127,7 @@ short FontName2Index(Document *doc, StringPtr fontName)
 	/* If font is already in the table, just return its index. */
 	
 	for (i = 0; i<nfontsUsed; i++)
-		if (PStrnCmp((StringPtr)fontName, 
+		if (Pstrneql((StringPtr)fontName, 
 						 (StringPtr)doc->fontTable[i].fontName, 32))
 			return i;
 			
@@ -1162,11 +1158,11 @@ Boolean FontID2Name(Document *doc, short fontID, StringPtr fontName)
 	for (i = 0; i<nfontsUsed; i++) {
 		if (doc->fontTable[i].fontID==fontID) {
 			PStrncpy((StringPtr)fontName, (StringPtr)doc->fontTable[i].fontName, 32);
-			return TRUE;
+			return true;
 		}
 	}
 	
-	return FALSE;
+	return false;
 }
 
 
@@ -1232,7 +1228,7 @@ short Header2UserFontNum(short globalFontIndex)
 }
 
 
-/* ---------------------------------------------- Convert to/from screen coords. -- */
+/* ------------------------------------------------- Convert to/from screen coords. -- */
 /* Convert rect r from paper to window coordinates. */
 
 void Rect2Window(Document *doc, Rect *r)
@@ -1277,13 +1273,10 @@ void DRect2ScreenRect(DRect aDRect, DRect relRect, Rect paperRect, Rect *pScreen
 	OffsetDRect(&tempRect, relRect.left, relRect.top);
 	D2Rect(&tempRect, pScreenRect);
 	OffsetRect(pScreenRect, paperRect.left, paperRect.top);
-//	LogPrintf(LOG_DEBUG, "DRect2ScreenRect: aDRect=%d,%d,%d,%d  objRect=%d,%d,%d,%d\n",
-//				aDRect.left, aDRect.top, aDRect.right, aDRect.bottom,
-//				pScreenRect->left, pScreenRect->top, pScreenRect->right, pScreenRect->bottom);
 }
 
 
-/* ---------------------------------------------------------------- RefreshScreen -- */
+/* ------------------------------------------------------------------ RefreshScreen -- */
 
 void RefreshScreen()
 {
@@ -1293,7 +1286,7 @@ void RefreshScreen()
 }
 
 
-/* ---------------------------------------------------- SleepMS, SleepTicks, etc. -- */
+/* ------------------------------------------------------ SleepMS, SleepTicks, etc. -- */
 
 static long GetMillisecTime();
 
@@ -1304,13 +1297,13 @@ is the wall-clock time difference between the two calls.
 We use gettimeofday() to get the time from the system. A good argument can be made that
 gettimeofday() should not be used for this, basically because the system clock might
 have jumped "a second or two (or 15 minutes) in a random direction because it happened
-to sync up against a proper clock at that point". Instead, it is recommended to use
+to sync up against a proper clock at that point". Instead, some people recommend using
 clock_gettime(CLOCK_MONOTONIC, ...). See
 
    https://blog.habets.se/2010/09/gettimeofday-should-never-be-used-to-measure-time.html
 
 But in Nightingale we just want to measure times of a few seconds or less, and
-gettimeofday() is likely to work fine for that. */
+gettimeofday() is very likely to work fine for that. */
 
 static long GetMillisecTime()
 {
@@ -1337,10 +1330,8 @@ static long GetMillisecTime()
 	timeSec = tv.tv_sec-offsetSec;
 	timeUsec = tv.tv_usec;
 	timeMsec = (timeUsec+500)/1000;
-	//printf("timeSec=%ld timeUsec=%d timeMsec=%d\n", timeSec, timeUsec, timeMsec);
 
 	fullTimeMsec = (1000L*timeSec) + timeMsec;
-	//printf("fullTimeMsec=%ld\n", fullTimeMsec);
 
 	return fullTimeMsec;
 }
@@ -1383,7 +1374,7 @@ void SleepTicksWaitButton(unsigned long ticks)
 }
 
 
-/* --------------------------------------------------------------- NMIDIVersion -- */
+/* ------------------------------------------------------------------- NMIDIVersion -- */
 /* Return MIDI Manager version numbers as a <long>. Why is this function useful?
 MIDIVersion() and OMSVersion() both return <NumVersion>. The CodeWarrior header
 indeed declares MIDIVersion that way, but THINK's declares it <unsigned long>;
@@ -1409,7 +1400,7 @@ long NMIDIVersion()
 
 #endif
 
-/* --------------------------------------------------------------- StdVerNumToStr -- */
+/* ----------------------------------------------------------------- StdVerNumToStr -- */
 /* Get String representation of given Version Number. See Mac Tech Note #189 for
 details. */
 
@@ -1470,13 +1461,13 @@ char *StdVerNumToStr(long verNum, char *verStr)
 
 
 /* ------------------------------------------------------------------- PlayResource -- */
-/* Play a 'snd ' resource, as found in the given handle.  If sync is TRUE, play it
-synchronously here and return when it's done.  If sync is FALSE, start the sound
+/* Play a 'snd ' resource, as found in the given handle.  If sync is true, play it
+synchronously here and return when it's done.  If sync is false, start the sound
 playing and return before it's finished.  Deliver any error.  To stop a currently
 playing sound, call this with snd == NULL.
 
 Disposing of the sound handle is the caller's responsibility.  If this is called with
-sync==FALSE, then at some point in the future, it should be called again with
+sync==false, then at some point in the future, it should be called again with
 snd==NULL, to unlock the locked sound. (But it'd be better to do that in a completion
 routine that's called automatically when the sound ends.) */
 
@@ -1489,16 +1480,16 @@ short PlayResource(Handle snd, Boolean sync)
 		/* First turn any current sound off if we're called for any reason */
 		
 		if (theSound) {
-			err = SndDisposeChannel(theChanPtr,TRUE);
+			err = SndDisposeChannel(theChanPtr, true);
 			HUnlock(theSound);
 			theSound = NULL;
 			}
 		if (snd==NULL || err!=noErr) return(err);
 		
-		MoveHHi(snd); HLock(snd);							/* Get data out of the way (may not be necessary) */
+		MoveHHi(snd); HLock(snd);								/* Get data out of the way (may not be necessary) */
 
 		if (sync) {
-			err = SndPlay(NULL,(SndListHandle)snd,FALSE);	/* Doesn't return until sound is finished */
+			err = SndPlay(NULL, (SndListHandle)snd, false);		/* Doesn't return until sound is finished */
 			HUnlock(snd);
 			}
 		 else {
@@ -1506,13 +1497,13 @@ short PlayResource(Handle snd, Boolean sync)
 		 	 *	Fill in our channel record with new channel, no synths, no init, no callback
 		 	 */
 		 	theChanPtr = (SndChannel *)NewPtr(sizeof(SndChannel));
-			if (!(err = SndNewChannel(&theChanPtr,0,0L,NULL))) {
+			if (!(err = SndNewChannel(&theChanPtr, 0, 0L, NULL))) {
 			
-				err = SndPlay(theChanPtr,(SndListHandle)snd,TRUE);	/* Channel initialized: start it up */
+				err = SndPlay(theChanPtr, (SndListHandle)snd, true);	/* Channel initialized: start it up */
 				
 				/* Continues playing after we return: we'll unlock sound when channel is disposed */
 				
-				if (err) HUnlock(snd);							/* Unless there was an error */
+				if (err) HUnlock(snd);								/* Unless there was an error */
 				 else	 theSound = snd;
 				}
 			}
@@ -1562,7 +1553,7 @@ void FixForStaffSize(Document *doc, DDIST staffTop[], short newRastral)
 	MFUpdateStaffTops(staffTop, doc->masterHeadL, doc->masterTailL);
 
 	/* Adjust heights of systemRects, both in Master Page and in the score proper. */
-	sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+	sysL = SSearch(doc->masterHeadL, SYSTEMtype, false);
 	sysRect = SystemRECT(sysL);
 	
 	sysSize = sysRect.bottom-sysRect.top;
@@ -1571,13 +1562,13 @@ void FixForStaffSize(Document *doc, DDIST staffTop[], short newRastral)
 	SystemRECT(sysL).bottom += sysOffset;
 	LinkOBJRECT(sysL).bottom += d2p(sysOffset);
 	
-	sysL = SSearch(doc->headL, SYSTEMtype, FALSE);
+	sysL = SSearch(doc->headL, SYSTEMtype, false);
 	for ( ; sysL; sysL = LinkRSYS(sysL)) {
 		SystemRECT(sysL).bottom += sysOffset;
 		LinkOBJRECT(sysL).bottom += d2p(sysOffset);
 	}
 	
-	FixMeasRectYs(doc, NILINK, FALSE, TRUE, FALSE);		/* Fix measure tops & bottoms */
+	FixMeasRectYs(doc, NILINK, false, true, false);		/* Fix measure tops & bottoms */
 
 	doc->srastral = newRastral;
 }
@@ -1587,8 +1578,8 @@ reducing the staff size and asking the user to increase the paper size. (??Proba
 needs to consider reducing distance between staves: this could be done in an intelligent
 way after filling in the score object list and adding clef changes but only in a dumb
 way before.) Decides what to do by looking at the Master system, which is fine if
-nothing has been done in Work on Format. Returns FALSE if it's unable to get everything
-on the page, TRUE if it can do so or if the system already fits.
+nothing has been done in Work on Format. Returns false if it's unable to get everything
+on the page, true if it can do so or if the system already fits.
 
 NB: this doesn't worry about multiple systems going off the bottom of a page; for
 that, use Reformat. What IS a problem is its assumption that the (top or only) system

@@ -9,41 +9,41 @@
 /*
 		PToCString				CToPString				Pstrcpy
 		PStrncpy				streql					strneql
-		Pstreql					Pstrlen					PStrCat					
-		PStrCmp					PStrnCmp				GoodStrncpy
-		ExpandString			GetFinalSubstring		GetInitialSubstring
+		Pstreql					Pstrneql				Pstrlen
+		PStrCat					GoodStrncpy
+		ExpandPString			GetFinalSubstring		GetInitialSubstring
 */
 
 #include "Nightingale_Prefix.pch"
 #include <ctype.h>
 #include "Nightingale.appl.h"
 
-/* ====================================================== Pascal string "toolbox" == */
+/* ======================================================== Pascal string "toolbox" == */
 /* The following are mostly versions of standard C librariy functions that expect
 Pascal strings instead of C strings, plus some general string utilities.  Cf.
 StringToolbox.c.
 
-/* ------------------------------------------------------- PToCString, CToPString -- */
+/* --------------------------------------------------------- PToCString, CToPString -- */
 /* Convert C to Pascal style strings and vice-versa. Very similar, quite possibly
 identical, to Symantec's PtoCstr and CtoPstr. */
 
 /* Convert in place a Pascal string to C string */
 
-char *PToCString(unsigned char *str)
+char *PToCString(StringPtr str)
 {
-	unsigned char *p, *q, *end;
+	StringPtr p, q, end;
 	
-	end = str + *(unsigned char *)str;
+	end = str + *str;
 	q = (p=str) + 1;
 	while (p != end) *p++ = *q++;
 	*p = '\0';
-	return((char *)str);
+	return (char *)str;
 }
 
 
 /* Convert in place a C string to Pascal string */
 
-unsigned char *CToPString(char *str)
+StringPtr CToPString(char *str)
 {
 	char *p, *q;
 	short len;
@@ -52,20 +52,20 @@ unsigned char *CToPString(char *str)
 	q = p-1;
 	while (p != str) *p-- = *q--;
 	*str = (len>255) ? 255 : len;
-	return((unsigned char *)str);
+	return (StringPtr)str;
 }
 
 
 /* Copy Pascal string from src to dst; return dst */
 
-unsigned char *Pstrcpy(unsigned char *dst, const unsigned char *src)
+StringPtr Pstrcpy(StringPtr dst, ConstStringPtr src)
 {
 	unsigned char *old = dst;
 	unsigned short n;
 	
 	n = *(unsigned char *)src + 1;
 	while (n-- > 0) *dst++ = *src++;
-	return(old);
+	return old;
 }
 
 
@@ -80,55 +80,67 @@ void PStrncpy(StringPtr dst, ConstStringPtr src, short n)
 }
 
 
-/* Are two strings the same or not */
+/* Are two C strings the same or not */
 
 Boolean streql(char *s1, char *s2)
 {
 	/* FIXME: It would be best to replace this body with a call to strcmp. */
 	
-	while (*s1) if (*s1++ != *s2++) return(FALSE);
-	return(*s1 == *s2);
+	while (*s1) if (*s1++ != *s2++) return false;
+	return (*s1 == *s2);
 }
 
 
-/* Are two strings the same or not up to given length */
+/* Are two C strings the same or not up to given length */
 
 Boolean strneql(char *s1, char *s2, short n)
 {
 	/* FIXME: It would be best to replace this body with a call to strncmp. */
-	if (n++ == 0) return(TRUE);
+	if (n++ == 0) return true;
 	
-	while (*s1 && --n>0) if (*s1++ != *s2++) return(FALSE);
+	while (*s1 && --n>0) if (*s1++ != *s2++) return false;
 	n--;
-	if (n == 0) return(TRUE);
-	return(*s1 == *s2);
+	if (n == 0) return true;
+	return (*s1 == *s2);
 }
 
 
 /* Are two Pascal strings the same or not */
 
-Boolean Pstreql(unsigned char *s1, unsigned char *s2)
+Boolean Pstreql(StringPtr s1, StringPtr s2)
 {
 	short len;
 	unsigned char *u1=s1, *u2=s2;
 	
 	len = *u1;
 	while (len-- >= 0)
-		if (*u1++ != *u2++) return(FALSE);
+		if (*u1++ != *u2++) return false;
 	
-	return(TRUE);
+	return true;
 }
 
+/* Are the first n chars of two Pascal strings the same? */
+
+Boolean Pstrneql(StringPtr p1, StringPtr p2, short n)
+{
+	short len;
+	
+	len = *p2;
+	if (*p2++!=*p1++) return false;			/* Compare length byte */
+	while (--len>=0 && --n>=0)
+		if (*p2++!=*p1++) return false;		/* Compare content */
+	return true;
+}
 
 /* Length of a Pascal string */
 
-short Pstrlen(unsigned char *str)
+short Pstrlen(ConstStringPtr str)
 {
 	return (short)str[0];
 }
 
 
-/* --------------------------------------------------------------------- PStrCat -- */
+/* ------------------------------------------------------------------------ PStrCat -- */
 /* Concatenates a Pascal string at p2 to the end of p1. NB: if the total length
 of the strings is over 255 characters, this will fail but we won't detect it! */
 
@@ -145,37 +157,7 @@ void PStrCat(StringPtr p1, ConstStringPtr p2)
 }
 
 
-/* ------------------------------------------------------------ PStrCmp, PStrnCmp -- */
-/* Pascal string comparison routines. */
-
-/* Are Pascal strings p1 and p2 the same? */
-
-Boolean PStrCmp(ConstStringPtr p1, ConstStringPtr p2)
-{
-	short len;
-	
-	len = *p2;
-	if (*p2++!=*p1++) return FALSE;			/* Compare length byte */
-	while (--len>=0)
-		if (*p2++!=*p1++) return FALSE;		/* Compare content */
-	return TRUE;
-}
-
-/* Are the first n chars of Pascal strings p1 and p2 the same? */
-
-Boolean PStrnCmp(ConstStringPtr p1, ConstStringPtr p2, short n)
-{
-	short len;
-	
-	len = *p2;
-	if (*p2++!=*p1++) return FALSE;			/* Compare length byte */
-	while (--len>=0 && --n>=0)
-		if (*p2++!=*p1++) return FALSE;		/* Compare content */
-	return TRUE;
-}
-
-
-/* ----------------------------------------------------------------- GoodStrncpy -- */
+/* -------------------------------------------------------------------- GoodStrncpy -- */
 /* GoodStrncpy is like the ANSI function strncpy, except that it guarantees the
 result will be a valid C string even if the length of srcStr exceeds numChars.
 Note that it does this by storing into the <numChars+1>st location of <dstStr>! */
@@ -189,20 +171,20 @@ void GoodStrncpy(
 }
 
 
-/* ----------------------------------------------------------------- ExpandString -- */
+/* ------------------------------------------------------------------ ExpandPString -- */
 /* Stretch the given Pascal string by adding one or two blanks between each pair of
 characters. */
 
-Boolean ExpandString(unsigned char *dstStr, const unsigned char *srcStr, Boolean wider)
+Boolean ExpandPString(StringPtr dstStr, StringPtr srcStr, bool wider)
 {
 	unsigned short in, out, origLen, maxLenExpanded;
 	
-	origLen = *(unsigned char *)srcStr;
+	origLen = *srcStr;
 	Pstrcpy(dstStr, srcStr);
 	PToCString(dstStr);
 	/* Pascal strings can't be longer than 255 chars. */
 	maxLenExpanded = (wider? 255/3 : 255/2);
-	if (origLen>maxLenExpanded) return FALSE;
+	if (origLen>maxLenExpanded) return false;
 	
 	for (in = 1, out = 0; in<=origLen; in++) {
 		*(dstStr+out) = *(srcStr+in);
@@ -219,24 +201,24 @@ Boolean ExpandString(unsigned char *dstStr, const unsigned char *srcStr, Boolean
 	*(dstStr+out) = '\0';
 	CToPString((char *)dstStr);
 
-	return TRUE;
+	return true;
 }
 
 
-/* ----------------------------------------------------------- Substring functions -- */
+/* ------------------------------------------------------------ Substring functions -- */
 /* C's standard string functions don't handle substrings well, especially if you don't
-want to do pointer arithmetic. Here are a couple of functions designed for handling
-filenames but potentially useful for other purposes. */
+want to do pointer arithmetic. Here are a couple of substring functions, designed for
+handling filenames but potentially useful for other purposes. */
 
 Boolean GetFinalSubstring(char *str, char *substr, char delimChar) {
     const char *delim = strrchr(str, delimChar);
-    if (!delim || delim == str) {
+    if (!delim || delim==str) {
         strcpy(substr, "");
-        return FALSE;
+        return false;
     }
     else {
         strcpy(substr, delim+1);
-        return TRUE;
+        return true;
     }
 }
 
@@ -245,11 +227,11 @@ Boolean GetInitialSubstring(char *str, char *substr, short len)
 {
 	if (len>strlen(str)) {
 		*substr = '\0';
-		return FALSE;
+		return false;
 	}
 	
 	strcpy(substr, str);
 	*(substr+len) = '\0';
-	return TRUE;
+	return true;
 }
 

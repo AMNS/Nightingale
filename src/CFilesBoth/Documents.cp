@@ -145,8 +145,7 @@ Document *GetDocumentFromWindow(WindowPtr w)
 {
 	register Document *doc;
 	
-	if (w==(WindowPtr)NULL)
-		return(NULL);
+	if (w==(WindowPtr)NULL) return(NULL);
 		
 	for (doc=documentTable; doc<topTable; doc++)
 		if (doc->theWindow == w) {
@@ -158,13 +157,12 @@ Document *GetDocumentFromWindow(WindowPtr w)
 	
 Boolean EqualFSSpec(FSSpec *fs1, FSSpec *fs2)
 {
-	if (fs1->parID != fs2->parID)
-		return FALSE;
-	if (fs1->vRefNum != fs2->vRefNum)
-		return FALSE;
+	if (fs1->parID != fs2->parID) return FALSE;
+	if (fs1->vRefNum != fs2->vRefNum) return FALSE;
 	
-	return (PStrCmp(fs1->name, fs2->name));
+	return (Pstreql(fs1->name, fs2->name));
 }
+
 
 /*
  *	Search for this file in this directory among all already open Documents.

@@ -1407,3 +1407,18 @@ repository??)
 Renamed two data-structure utilities to clarify they're Boolean-valued; minor cleanup.
 Affects .rsrc; DSUtils.h, NResourceID.h; Debug2Utils, DrawObject, DrawUtils, DSUtils,
 ExtractHighLevel, FlowInText, Menu, MIDIFSave, Objects, PS_Stdio, ScoreInfo.
+
+===============================================================================
+
+25-30 Apr.
+
+Get rid of redundant string utility PStrCmp, and replace calls to it with calls to
+Pstreql. Affects NightTemplates.h; ChordSym, Documents, FontUtils, HeaderFooterDialog,
+Initialize, Preferences, PS_Stdio, Search.
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects style.h;
+About, AutoBeam, Beam, Extract, StringUtils, Utility.
+
+Rename ExpandString() to ExpandPString() and other minor cleanup. Affects
+NightTemplates.h, Utility,h; About, AutoBeam, Beam, Dragging, DrawObject, Extract, File,
+PS_Stdio, StringUtils, TextDialog, Utility.

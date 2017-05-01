@@ -882,8 +882,8 @@ static void DrawExampleText(DialogPtr dlog, unsigned char *string)
 			str1[0] = tmpLen;
 
 			if (theExpanded) {
-				if (!ExpandString(str2, str1, EXPAND_WIDER)) {
-					LogPrintf(LOG_NOTICE, "DrawExampleText: ExpandString failed.\n");
+				if (!ExpandPString(str2, str1, EXPAND_WIDER)) {
+					LogPrintf(LOG_NOTICE, "DrawExampleText: ExpandPString failed.\n");
 					return;
 					}
 				}

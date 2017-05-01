@@ -1609,8 +1609,8 @@ static Boolean GetGraphicDBox(Document *doc,
 			theStrOffset = aGraphic->strOffset;
 			
 			if (expandN) {
-				if (!ExpandString(string, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER)) {
-					LogPrintf(LOG_WARNING, "GetGraphicDBox: ExpandString failed.\n");
+				if (!ExpandPString(string, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER)) {
+					LogPrintf(LOG_WARNING, "GetGraphicDBox: ExpandPString failed.\n");
 					return FALSE;
 				}
 				
@@ -1914,8 +1914,8 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 			}
 			else {
 				if (expandN) {
-					if (!ExpandString(strToDraw, str, EXPAND_WIDER)) {
-						LogPrintf(LOG_WARNING, "DrawTextBlock: ExpandString failed.\n");
+					if (!ExpandPString(strToDraw, str, EXPAND_WIDER)) {
+						LogPrintf(LOG_WARNING, "DrawTextBlock: ExpandPString failed.\n");
 						break;
 					}
 				}
@@ -1960,8 +1960,8 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 			}
 			else {
 				if (expandN) {
-					if (!ExpandString(strToDraw, str, EXPAND_WIDER)) {
-						LogPrintf(LOG_WARNING, "DrawTextBlock: ExpandString failed.\n");
+					if (!ExpandPString(strToDraw, str, EXPAND_WIDER)) {
+						LogPrintf(LOG_WARNING, "DrawTextBlock: ExpandPString failed.\n");
 						return FALSE;
 					}
 				}
@@ -2249,8 +2249,8 @@ static Boolean GetTempoDBox(Document *doc,
 	multiLine = (CountTextLines(tmpStr)>1);
 	
 	if (expandN) {
-		if (!ExpandString(string, tmpStr, EXPAND_WIDER)) {
-			LogPrintf(LOG_WARNING, "GetTempoDBox: ExpandString failed.\n");
+		if (!ExpandPString(string, tmpStr, EXPAND_WIDER)) {
+			LogPrintf(LOG_WARNING, "GetTempoDBox: ExpandPString failed.\n");
 			return FALSE;
 		}
 	}
@@ -2322,8 +2322,8 @@ PushLock(TEMPOheap);
 	theStrOffset = p->strOffset;
 	expandN = p->expanded;
 	if (expandN) {
-		if (!ExpandString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER)) {
-			LogPrintf(LOG_WARNING, "DrawTEMPO: ExpandString failed.\n");
+		if (!ExpandPString(tempoStr, (StringPtr)PCopy(theStrOffset), EXPAND_WIDER)) {
+			LogPrintf(LOG_WARNING, "DrawTEMPO: ExpandPString failed.\n");
 			goto Cleanup;
 		}
 	}

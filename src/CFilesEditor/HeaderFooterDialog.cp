@@ -356,12 +356,12 @@ Boolean HeaderFooterDialog(Document *doc)
 				GetDlgString(dlog, FTRCENTER_DI, centerFtrStr);
 				GetDlgString(dlog, FTRRIGHT_DI, rightFtrStr);
 
-				if (!PStrCmp(oldLeftHdrStr, leftHdrStr)
-						|| !PStrCmp(oldCenterHdrStr, centerHdrStr)
-						|| !PStrCmp(oldRightHdrStr, rightHdrStr)
-						|| !PStrCmp(oldLeftFtrStr, leftFtrStr)
-						|| !PStrCmp(oldCenterFtrStr, centerFtrStr)
-						|| !PStrCmp(oldRightFtrStr, rightFtrStr)) {
+				if (!Pstreql(oldLeftHdrStr, leftHdrStr)
+						|| !Pstreql(oldCenterHdrStr, centerHdrStr)
+						|| !Pstreql(oldRightHdrStr, rightHdrStr)
+						|| !Pstreql(oldLeftFtrStr, leftFtrStr)
+						|| !Pstreql(oldCenterFtrStr, centerFtrStr)
+						|| !Pstreql(oldRightFtrStr, rightFtrStr)) {
 					if (leftHdrStr[0]+centerHdrStr[0]+rightHdrStr[0] > MAX_HEADERFOOTER_STRLEN) {
 						char strBuf[256];
 						GetIndCString(strBuf, HEADERFOOTER_STRS, 4);	/* "The three header text boxes together must not..." */

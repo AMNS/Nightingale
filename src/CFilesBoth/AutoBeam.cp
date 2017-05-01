@@ -1,5 +1,5 @@
 /* File AutoBeam.c - automatic beaming functions, original versions by Ray Spears,
-rewritten by CER and DAB. MemMacroized version. */
+rewritten by Charlie Rose and Don Byrd. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -59,7 +59,7 @@ static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamSt
  TODO: remove this function or at least find it a better home
  */
   
- /* Given a one-byte value, a starting address, and a length, fill memory with the value. */
+ /* Given a one-byte value, starting address, and length, fill memory with the value. */
 
 void FillMem(Byte value, void *loc, DoubleWord len)
 {
@@ -96,7 +96,7 @@ static void CreateNBeamBeatList(Byte num, Byte denom)
 	break4 = (config.autoBeamOptions & 1)==0;
 	breakMin = ((config.autoBeamOptions & 2)==0? 2 : 3);
 	
-	if (((num % 3) == 0) && (num >= 6)) 			/* dotted: 2 dotted-quarter = 6/8 */
+	if (((num % 3) == 0) && (num >= 6))					/* dotted: 2 dotted-quarter = 6/8 */
 		meterType = Compound;
 	else
 		meterType = (num % 2) ? Imperfect : Simple;
@@ -133,7 +133,7 @@ static void CreateNBeamBeatList(Byte num, Byte denom)
 		return;
 	}
 
-	if ((num & 3) == 0 && break4) {					/* Numerator div. by 4: maybe break in 4 */
+	if ((num & 3) == 0 && break4) {						/* Numerator div. by 4: maybe break in 4 */
 		breakDurEX = (beatEX*num) / 4L;
 		BeamBeatListEX[3] = 0;
 		BeamBeatListEX[2] = breakDurEX;
@@ -160,11 +160,10 @@ static void CreateNBeamBeatList(Byte num, Byte denom)
 	BeamBeatListEX[0] = beatEX * (1 + (num / 2L));
 }
 
-/* ------------------------------------------------------------------------------- */
-/* Beam the selection.
-Traverse the selection once making potential beam events every time a note in a
-voice is short enough to beam across; when a beam isn't in progress; and terminating
-it and linking it in or discarding it when it terminates. */
+/* ----------------------------------------------------------------------------------- */
+/* Beam the selection. Traverse the selection once, making potential beam events every
+time a note in a voice is short enough to beam across; when a beam isn't in progress;
+and terminating it and linking it in or discarding it when it terminates. */
 
 static Byte BeamNoteRelationship(LINK aNoteL, Byte beamConditions)
 {
@@ -210,7 +209,7 @@ static void CreateBEAMandResetBeamCounter(Document *doc, Byte voice, LINK endL)
 {
 	if (beamCounterPtr->BeamState == BEAMING) {
 		CreateBEAMSET(doc, beamCounterPtr->Syncs[0], endL, voice,
-							beamCounterPtr->nextLINK, TRUE,
+							beamCounterPtr->nextLINK, true,
 							doc->voiceTab[voice].voiceRole);
 		}
 	beamCounterPtr->BeamState = NOTBEAMING;
@@ -224,11 +223,11 @@ static void PostulateBeam(LINK pL)
 	beamCounterPtr->nextLINK = 1;
 }
 
-/* ---------------------------------------------------------------- GetAnyLTime - */
+/* -------------------------------------------------------------------- GetAnyLTime -- */
 /* Get "logical time" since previous Measure of any object:
 		If the argument is a Sync, return its start time, in p_dur units.
-		If the argument is anything else, return the logical time of the 
-			next Sync in the Measure; if there is none, return 0. */
+		If the argument is anything else, return the logical time of the next
+			Sync in the Measure; if there is none, return 0. */
 
 static long GetAnyLTime(Document *doc, LINK target)
 {
@@ -241,7 +240,7 @@ static long GetAnyLTime(Document *doc, LINK target)
 	return 0L;
 }
 
-/* -------------------------------------------------- Utilities for DoAutoBeam -- */
+/* ------------------------------------------------------- Utilities for DoAutoBeam -- */
 
 /* We may have created one or more Beamsets just before doc->selStartL; if so,
 	they're all selected, so be sure the selection range includes them. */
@@ -318,9 +317,9 @@ static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamSt
 }
 
 
-/* -------------------------------------------------------------------- AutoBeam -- */
-/* Beam the selection "automatically", i.e., according to the meter. Return TRUE
-normally, FALSE if unable to allocate temporary memory blocks. */
+/* ----------------------------------------------------------------------- AutoBeam -- */
+/* Beam the selection "automatically", i.e., according to the meter. Return true
+normally, false if unable to allocate temporary memory blocks. */
 
 Boolean AutoBeam(Document *doc)
 {
@@ -329,7 +328,7 @@ Boolean AutoBeam(Document *doc)
 	LINK pL,measL,endMeasL,aTimeSigL;
 	Byte voice;
 	LINK aNoteL;
-	Boolean okay=FALSE;
+	Boolean okay=false;
 	
 	CurrentBeamCondition = (doc->beamRests? CROSSRESTS + AUTOBEAM : AUTOBEAM);
 
@@ -363,7 +362,7 @@ Boolean AutoBeam(Document *doc)
 	for (voice = 1; voice<=MAXVOICES; voice++) {
 		if (!VOICE_MAYBE_USED(doc, voice)) continue;
 		
-		firstNoteInVoice = TRUE;
+		firstNoteInVoice = true;
 		FillMem (0, beamCounterPtr, sizeof(struct BeamCounter));
 		
 		beamCounterPtr->LCDsIntoThisMeasure =
@@ -383,7 +382,7 @@ Boolean AutoBeam(Document *doc)
 						if (NoteSEL(aNoteL) && NoteVOICE(aNoteL) == voice) {
 							if (firstNoteInVoice) {
 								CreateBeatList(doc,pL,aNoteL);
-								firstNoteInVoice = FALSE;
+								firstNoteInVoice = false;
 							}
 
 							nextBeamState = SetBeamCounter(doc,pL,aNoteL);
@@ -420,7 +419,7 @@ Boolean AutoBeam(Document *doc)
 	/* Expand selRange to include possibly-added beams. */
 	
 	ExpandSelRange(doc);
-	okay = TRUE;
+	okay = true;
 
 	PopLock(OBJheap);
 	PopLock(NOTEheap);
@@ -433,7 +432,7 @@ Done:
 }
 
 
-/* ----------------------------------------------------------------- DoAutoBeam -- */
+/* --------------------------------------------------------------------- DoAutoBeam -- */
 /* User-interface level function to automatically beam the selection. */
 
 void DoAutoBeam(Document *doc)
@@ -452,5 +451,5 @@ void DoAutoBeam(Document *doc)
 
 	WaitCursor();
 	if (!AutoBeam(doc))
-		DisableUndo(doc,TRUE);
+		DisableUndo(doc, true);
 }

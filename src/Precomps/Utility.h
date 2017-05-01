@@ -32,7 +32,6 @@ short MaxPartNameWidth(Document *, short);
 double PartNameMargin(Document *, short);
 
 void SetFont(short);
-Rect StringRect(Str255 *);
 
 PCONTEXT AllocContext(void);
 SPACETIMEINFO *AllocSpTimeInfo(void);

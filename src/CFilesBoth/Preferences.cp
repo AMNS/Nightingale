@@ -1,11 +1,14 @@
-/***************************************************************************
+/****************************************************************************************
 	FILE:	Preferences.c
 	PROJ:	Nightingale
-	DESC:	Routines for handling a text preferences file, i.e., a text
-			file containing a list of key value pairs in the format
+	DESC:	Routines for handling a text preferences file, i.e., a text file
+			containing a list of key value pairs in the format
 				key=value
-			Nomenclature follows that of config file routines in Initialize.c
-***************************************************************************/
+			Nomenclature follows that of config file routines in Initialize.c .
+			NB: This is really a work in progress, but there are already calls to
+			it elsewhere in Nightingale code! They don't seem to cause any trouble,
+			but beware!
+****************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -14,6 +17,7 @@
  *
  * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
+
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -38,7 +42,6 @@ typedef struct {
 	char *key;
 	char *value;
 } KeyValuePair;
-
 
 /* --------------------------------------------------------------------------------- */
 /* Local prototypes */
@@ -75,7 +78,7 @@ static OSStatus FindTextPreferencesFile(OSType fType, OSType fCreator, FSSpec *p
 		if (( (cat.hFileInfo.ioFlAttrib & 16) == 0) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdType == fType) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdCreator == fCreator) &&
-				(PStrCmp(name, SETUP_TEXTFILE_NAME) == TRUE)) 
+				Pstreql(name, (unsigned char *)SETUP_TEXTFILE_NAME) )
 		{
 			// make a fsspec referring to the file
 			return FSMakeFSSpec(pvol, pdir, name, prefsSpec);
@@ -442,4 +445,3 @@ char *GetPrefsValue(char *key)
 				p = strchr(gInBuf, '=');						// p will point to '=' 
 				if (!p) continue;
 */
-

@@ -468,20 +468,18 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* StringUtils.c */
 
-	char		*PToCString(unsigned char *str);
-	unsigned char *CToPString(char *str);
-	unsigned char *Pstrcpy(unsigned char *dst, const unsigned char *src);
-	Boolean		streql(char *s, char *t);
-	Boolean		Pstreql(unsigned char *s, unsigned char *t);
-	Boolean		strneql(char *s, char *t, short len);
-	short		Pstrlen(unsigned char *str);
-
-	void		PStrCat(StringPtr, ConstStringPtr);
+	char		*PToCString(StringPtr str);
+	StringPtr	CToPString(char *str);
+	StringPtr	Pstrcpy(StringPtr dst, ConstStringPtr src);
 	void		PStrncpy(StringPtr, ConstStringPtr, short);
-	Boolean		PStrCmp(ConstStringPtr, ConstStringPtr);
-	Boolean		PStrnCmp(ConstStringPtr, ConstStringPtr, short);
-	void		GoodStrncpy(char [256], char [256], unsigned long);
-	Boolean		ExpandString(unsigned char *dstStr, const unsigned char *srcStr, Boolean wider);
+	Boolean		streql(char *s, char *t);
+	Boolean		strneql(char *s, char *t, short len);
+	Boolean		Pstreql(StringPtr s1, StringPtr s2);
+	Boolean		Pstrneql(StringPtr s1, StringPtr s2, short n);
+	short		Pstrlen(ConstStringPtr str);
+	void		PStrCat(StringPtr, ConstStringPtr);
+	void		GoodStrncpy(char *, char *, unsigned long);
+	Boolean		ExpandPString(unsigned char *dstStr, unsigned char *srcStr, bool wider);
 	Boolean		GetFinalSubstring(char *str, char *substr, char delimChar);
 	Boolean		GetInitialSubstring(char *str, char *substr, short len);
 

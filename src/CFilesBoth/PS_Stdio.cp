@@ -897,12 +897,12 @@ static OSErr PS_PrintFontName(const unsigned char *font, short style, Boolean *k
 		
 		Pstrcpy(useFont, font);
 		if (FONTSUBST) {
-			if (PStrCmp((StringPtr)"\pGeneva", useFont))
-				Pstrcpy(useFont, (StringPtr)"\pHelvetica");
-			if (PStrCmp((StringPtr)"\pNew York", useFont))
-				Pstrcpy(useFont, (StringPtr)"\pTimes");
-			if (PStrCmp((StringPtr)"\pMonaco", useFont))
-				Pstrcpy(useFont, (StringPtr)"\pCourier");
+			if (Pstreql((StringPtr)"\pGeneva", useFont))
+					Pstrcpy(useFont, (StringPtr)"\pHelvetica");
+			if (Pstreql((StringPtr)"\pNew York", useFont))
+					Pstrcpy(useFont, (StringPtr)"\pTimes");
+			if (Pstreql((StringPtr)"\pMonaco", useFont))
+					Pstrcpy(useFont, (StringPtr)"\pCourier");
 			}
 
 		*known = Res2FontName(useFont,style);
@@ -1828,14 +1828,14 @@ OSErr PS_MusChar(Document *doc, DDIST x, DDIST y, char sym, Boolean visible, sho
 OSErr PS_FontString(Document *doc, DDIST x, DDIST y, const unsigned char *str,
 					const unsigned char *font, short ptSize, short style)
 	{
-		Boolean fontKnown; short fontNum;
+		Boolean fontKnown;  short fontNum;
 		
 		/*
 		 *	We treat Sonata differently from all other fonts because Sonata can't use
 		 *	our standard encoding vector. FIXME: Surely this should be looking for the
 		 *	current music font, not Sonata!
 		 */
-		if (PStrCmp(font,(StringPtr)"\pSonata")) {
+		if (Pstreql((unsigned char *)font, (unsigned char *)"\pSonata")) {
 			if (usingFile)
 				PS_Print(" %ld MF\r",(long)ptSize);
 			 else

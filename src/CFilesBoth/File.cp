@@ -161,7 +161,7 @@ static void FillFontTable(Document *doc)
 		SetResLoad(TRUE);
 		GetResInfo(fontHdl, &fontID, &fontType, fontName);
 		for (j = 0; j<doc->nfontsUsed; j++)
-			if (PStrnCmp((StringPtr)doc->fontTable[j].fontName,
+			if (Pstrneql((StringPtr)doc->fontTable[j].fontName,
 							 (StringPtr)fontName, 32)) {
 				doc->fontTable[j].fontID = fontID;
 		}

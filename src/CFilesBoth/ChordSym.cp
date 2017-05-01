@@ -1081,7 +1081,7 @@ static void DisplayChordSym(
 	auxInfo = showParens? 1 : 0;			/* Change if we have to encode more options later */
 
 	if (!alwaysDraw)
-		if (PStrCmp((StringPtr)fullStr, (StringPtr)saveFullStr)) return;
+		if (Pstreql((StringPtr)fullStr, (StringPtr)saveFullStr)) return;
 
 	/* fiddle with chord symbol font size */
 	saveRelSize = doc->relFSizeCS;

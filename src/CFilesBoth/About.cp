@@ -11,7 +11,7 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-/* ------------------------------------------------------------- DoAboutBox et al -- */
+/* --------------------------------------------------------------- DoAboutBox et al -- */
 
 #define	CR_LEADING			14		/* Vert. dist. between baselines of credit text */
 #define	PAUSE_CODE			'¹'		/* [opt-p] If line of TEXT resource begins with this,
@@ -48,7 +48,7 @@ void DoAboutBox(
 	short			type, itemHit;
 	short			x, y;
 	Rect			smallRect, bigRect;
-	Boolean			okay, keepGoing=TRUE;
+	Boolean			okay, keepGoing=true;
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
 	Handle			hndl;
@@ -86,7 +86,8 @@ void DoAboutBox(
 	
 	/* Get version number string and display it in a static text item. */
 	{
-		unsigned char vstr[256], *vers_str;
+		Str255 vstr;
+		unsigned char *vers_str;
 		const char *bundle_version_str;
 		
 		/* Get version number from main bundle (Info.plist); 
@@ -98,7 +99,7 @@ void DoAboutBox(
 		vstr[0] = 0;
 		Pstrcpy(vstr, "\pv. ");
 		PStrCat(vstr, vers_str);
-		PutDlgString(dlog, STXT_VERS, vstr, FALSE);
+		PutDlgString(dlog, STXT_VERS, vstr, false);
 	}
 
 	GetDialogItem(dlog, BUT2_Special, &type, &hndl, &box);
@@ -115,11 +116,11 @@ void DoAboutBox(
 	GetWindowPortBounds(GetDialogWindow(dlog), &bigRect);
 	LocalToGlobal(&TOP_LEFT(bigRect));
 	LocalToGlobal(&BOT_RIGHT(bigRect));
-	//ZoomRect(&smallRect, &bigRect, TRUE);
+	//ZoomRect(&smallRect, &bigRect, true);
 	ShowWindow(GetDialogWindow(dlog));
 	
 	/* Show the first "screen" of animated text */
-	firstAnimateCall = TRUE;
+	firstAnimateCall = true;
 	
 	const BitMap *ftpPortBits = GetPortBitMapForCopyBits(fullTextPort);
 	const BitMap *dlogPortBits = GetPortBitMapForCopyBits(GetDialogWindowPort(dlog));
@@ -139,7 +140,7 @@ void DoAboutBox(
 		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
 		switch(itemHit) {
 			case BUT1_OK:
-				keepGoing = FALSE; okay = TRUE;
+				keepGoing = false; okay = true;
 				break;
 			case BUT2_Special:
 				SysBeep(1);		/* For future use; maybe a simple "Debug Check" */
@@ -150,7 +151,7 @@ void DoAboutBox(
 	DestroyGWorld(fullTextPort);
 	
 	HideWindow(GetDialogWindow(dlog));
-	//ZoomRect(&smallRect, &bigRect, FALSE);
+	//ZoomRect(&smallRect, &bigRect, false);
 broken:	
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);
@@ -160,7 +161,7 @@ broken:
 
 static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
-	Boolean		ans=FALSE;
+	Boolean		ans=false;
 	WindowPtr	w;
 	GrafPtr		oldPort;
 	int			ch;
@@ -175,12 +176,12 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				BeginUpdate(GetDialogWindow(dlog));
 		
 				UpdateDialogVisRgn(dlog);
-				FrameDefault(dlog, BUT1_OK, TRUE);
+				FrameDefault(dlog, BUT1_OK, true);
 		
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 
-				ans = TRUE; *itemHit = 0;
+				ans = true; *itemHit = 0;
 			}
 			break;
 		case activateEvt:
@@ -197,7 +198,7 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			if (ch=='\r' || ch==CH_ENTER) {
 				FlashButton(dlog, BUT1_OK);
 				*itemHit = BUT1_OK;
-				ans = TRUE;
+				ans = true;
 			}
 			break;
 	}
@@ -221,7 +222,7 @@ Boolean SetupCredits()
 	creditText = GetResource('TEXT', ABOUT_TEXT);
 	if (!creditText) {
 		MayErrMsg("AboutBox: Can't get credit text.");
-		return FALSE;
+		return false;
 	}
 	textLen = GetResourceSizeOnDisk(creditText);
 	
@@ -240,7 +241,7 @@ Boolean SetupCredits()
 	/* Create offscreen port to hold formatted text */
 
 	portWid = creditRect.right - creditRect.left;				/* creditRect is static global declared above */
-	GWorldPtr gwPtr = MakeGWorld(portWid, numLines * CR_LEADING, TRUE);
+	GWorldPtr gwPtr = MakeGWorld(portWid, numLines * CR_LEADING, true);
 	SetGWorld(gwPtr, NULL);
 	
 	TextFont(textFontNum);
@@ -289,7 +290,7 @@ Boolean SetupCredits()
 	HUnlock(creditText);
 	ReleaseResource(creditText);	
 	
-	return TRUE;
+	return true;
 }
 
 
@@ -304,15 +305,14 @@ void AnimateCredits(DialogPtr dlog)
 	static long		lastTime;
 	static short	pixelCount;
 	short			i, thisLineNum;
-	Boolean			doPause=FALSE;
+	Boolean			doPause=false;
 
 	thisTime = TickCount();
 	
-	/* Is this first time called since the dialog was put up?
-		[AboutBox() initializes firstAnimateCall to TRUE.]
-		If so, we must initialize some static variables. */
-	if (firstAnimateCall == TRUE) {
-		firstAnimateCall = FALSE;
+	/* Is this first time called since the dialog was put up? [AboutBox() initializes
+		firstAnimateCall to true.] If so, we must initialize some static variables. */
+	if (firstAnimateCall == true) {
+		firstAnimateCall = false;
 		lastTime = thisTime;
 		pixelCount = CR_LEADING;
 	}
@@ -323,7 +323,7 @@ void AnimateCredits(DialogPtr dlog)
 	/* If line number has changed, check array to see if we should pause on this line. */
 	if (!(pixelCount % CR_LEADING)) {
 		for (i=0; i<MAX_PAUSE_LINES; i++) {
-			if (pauseLines[i]==thisLineNum) doPause = TRUE;
+			if (pauseLines[i]==thisLineNum) doPause = true;
 		}
 	}
 			
@@ -338,7 +338,8 @@ void AnimateCredits(DialogPtr dlog)
 		OffsetRect(&textSection, -creditRect.left, -creditRect.top);
 		pixelCount = CR_LEADING-1;
 		/* Incremented to CR_LEADING below, before we get back to line number computation.
-			Array search, and thus pause, will be skipped if this computation yields a remainder. */
+			Array search, and thus pause, will be skipped if this computation yields a
+			remainder. */
 	}
 		
 	const BitMap *ftpPortBits = GetPortBitMapForCopyBits(fullTextPort);

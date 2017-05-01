@@ -110,7 +110,7 @@ void ExFixMeasAndSysRects(Document *doc)
 	sysL = SSearch(doc->headL, SYSTEMtype, GO_RIGHT);
 	oldSysRectBottom = SystemRECT(sysL).bottom;
 
-	FixMeasRectYs(doc, NILINK, TRUE, TRUE, TRUE);
+	FixMeasRectYs(doc, NILINK, true, true, true);
 	
 	sysRectDiff = SystemRECT(sysL).bottom-oldSysRectBottom;
 	
@@ -121,7 +121,6 @@ void ExFixMeasAndSysRects(Document *doc)
 	 */
 	UpdateStaffTops(doc, doc->masterHeadL, doc->masterTailL, staffTop);
 	UpdateMPSysRectHeight(doc, sysRectDiff);
-	
 }
 
 
@@ -243,7 +242,7 @@ static void UpdateDocHeader(Document *newDoc)
 		if (PageTYPE(pL)) nPages++;
 		if (SystemTYPE(pL)) nSystems++;
 	}
-	staffL = SSearch(newDoc->headL, STAFFtype, FALSE);
+	staffL = SSearch(newDoc->headL, STAFFtype, false);
 	for (aStaffL=FirstSubLINK(staffL); aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		nStaves++;
 	
@@ -254,13 +253,13 @@ static void UpdateDocHeader(Document *newDoc)
 
 
 /* Select all subobjects in the document that belong to the part, plus others that we
-want in the part even though they "belong" to other parts--for example, rehearsal amrks
+want in the part even though they "belong" to other parts--for example, rehearsal marks
 and tempo marks. */
 	
 static void SelectPart(
 				Document *doc,
 				LINK partL,
-				Boolean extractAllGraphics		/* TRUE=put all "appropriate" Graphics in part */
+				Boolean extractAllGraphics		/* true=put all "appropriate" Graphics in part */
 				)
 {
 	LINK 		pL, subObjL, aStaffL, aConnectL, aSlurL, firstL;
@@ -277,21 +276,21 @@ static void SelectPart(
 	firstStf = pPart->firstStaff;
 	lastStf = pPart->lastStaff;
 
-	inTempoSeries = FALSE;
+	inTempoSeries = false;
 
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		p = GetPMEVENT(pL);
 		switch (ObjLType(pL)) {
 			case PAGEtype:
 			case SYSTEMtype:
-				LinkSEL(pL) = TRUE;
+				LinkSEL(pL) = true;
 				break;
 			case STAFFtype:
 				aStaffL = FirstSubLINK(pL);
 				for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
 					if (StaffSTAFF(aStaffL)>=firstStf && StaffSTAFF(aStaffL)<=lastStf) {
-						LinkSEL(pL) = TRUE;
-						StaffSEL(aStaffL) = TRUE;
+						LinkSEL(pL) = true;
+						StaffSEL(aStaffL) = true;
 					}
 				break;
 			case CONNECTtype:
@@ -304,8 +303,8 @@ static void SelectPart(
 					 
 					if (!aConnect->connLevel ||
 							(aConnect->staffAbove>=firstStf && aConnect->staffBelow<=lastStf)) {
-						LinkSEL(pL) = TRUE;
-						ConnectSEL(aConnectL) = TRUE;
+						LinkSEL(pL) = true;
+						ConnectSEL(aConnectL) = true;
 					}
 				}
 				break;
@@ -323,11 +322,11 @@ static void SelectPart(
 				for (subObjL = FirstSubObjPtr(p, pL); subObjL; subObjL = NextLink(tmpHeap, subObjL)) {
 					subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 					if (subObj->staffn>=firstStf && subObj->staffn<=lastStf) {
-						LinkSEL(pL) = TRUE;
-						subObj->selected = TRUE;
+						LinkSEL(pL) = true;
+						subObj->selected = true;
 					}
 				}
-				inTempoSeries = FALSE;
+				inTempoSeries = false;
 				break;
 			case BEAMSETtype:
 			case TUPLETtype:
@@ -335,7 +334,7 @@ static void SelectPart(
 			case ENDINGtype:
 			case SPACERtype:
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf)
-					LinkSEL(pL) = TRUE;
+					LinkSEL(pL) = true;
 				break;
 			/*
 			 * Some objects (rehearsal marks and tempo marks always, all Graphics optionally)
@@ -345,13 +344,13 @@ static void SelectPart(
 			case GRAPHICtype:
 				/* Page relative Graphics go into every part. */
 				if (PageTYPE(GraphicFIRSTOBJ(pL)))
-					LinkSEL(pL) = TRUE;
+					LinkSEL(pL) = true;
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf)
-					LinkSEL(pL) = TRUE;
+					LinkSEL(pL) = true;
 				else if (GraphicSubType(pL)==GRRehearsal || extractAllGraphics) {
 					firstL = GraphicFIRSTOBJ(pL);
 					if (LinkBefFirstMeas(firstL) || MeasureTYPE(firstL))
-						LinkSEL(pL) = TRUE;
+						LinkSEL(pL) = true;
 				}
 				break;
 			/* If, in a series of TEMPO objects, there's more than one relevant to this
@@ -359,29 +358,29 @@ static void SelectPart(
 				the tempo appears above the top staff and somewhere in the middle), so
 				we want only the first one. */
 			case TEMPOtype:
-if (pL>900 &&  pL<1000)
-LogPrintf(LOG_DEBUG, "Extract/SelectPart: consider pL=%u, inTempoSeries=%d\n", pL, inTempoSeries);
+//if (pL>900 &&  pL<1000)
+//LogPrintf(LOG_DEBUG, "Extract/SelectPart: consider pL=%u, inTempoSeries=%d\n", pL, inTempoSeries);
 				if (inTempoSeries) break;
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf) {
-					LinkSEL(pL) = TRUE;
-					inTempoSeries = TRUE;
+					LinkSEL(pL) = true;
+					inTempoSeries = true;
 				}
 				else {
 					firstL = TempoFIRSTOBJ(pL);
 					if (LinkBefFirstMeas(firstL) || MeasureTYPE(firstL)) {
-						LinkSEL(pL) = TRUE;
-						inTempoSeries = TRUE;
+						LinkSEL(pL) = true;
+						inTempoSeries = true;
 					}
 				}
 				break;
 
 			case SLURtype:
 				if (SlurSTAFF(pL)>=firstStf && SlurSTAFF(pL)<=lastStf) {
-					LinkSEL(pL) = TRUE;
+					LinkSEL(pL) = true;
 					aSlurL = FirstSubLINK(pL);
 					for ( ; aSlurL; aSlurL=NextSLURL(aSlurL)) {
 						aSlur = GetPASLUR(aSlurL);
-						aSlur->selected = TRUE;
+						aSlur->selected = true;
 					}
 				}
 				break;
@@ -397,8 +396,10 @@ fix up its cross links. */
 
 static Boolean CopyPartInfo(Document *doc, Document *newDoc, LINK partL)
 {
-	LINK subL, tempL;  PPARTINFO pSub, pPart;
-	short firstStaff;  Boolean okay=FALSE;
+	LINK subL, tempL;
+	PPARTINFO pSub, pPart;
+	short firstStaff;
+	Boolean okay=false;
 
 	/* This must be done before installing newDoc's heaps. */
 	pPart = GetPPARTINFO(partL);
@@ -410,7 +411,7 @@ static Boolean CopyPartInfo(Document *doc, Document *newDoc, LINK partL)
 	
 	/* DuplicateObject automatically copies all partInfo subObjs */
 	
-	newDoc->headL = DuplicateObject(HEADERtype, doc->headL, FALSE, doc, newDoc, FALSE);
+	newDoc->headL = DuplicateObject(HEADERtype, doc->headL, false, doc, newDoc, false);
 	if (!newDoc->headL) { NoMoreMemory(); goto Done; }
 
 	/*
@@ -435,7 +436,7 @@ static Boolean CopyPartInfo(Document *doc, Document *newDoc, LINK partL)
 	LeftLINK(newDoc->tailL) = newDoc->headL;
 	LeftLINK(newDoc->headL) = NILINK;
 	
-	okay = TRUE;
+	okay = true;
 	
 Done:
 	InstallDoc(doc);
@@ -452,29 +453,28 @@ static Boolean CopyPartRange(Document *doc, Document *newDoc, LINK srcStartL,
 {
 	LINK pL, prevL, copyL, initL;  short i, numObjs;
 	COPYMAP *partMap;
-	Boolean okay=TRUE;
+	Boolean okay=true;
 
 	if (!SetupCopyMap(srcStartL, srcEndL, &partMap, &numObjs)) {
-		okay = FALSE; goto Done;
+		okay = false; goto Done;
 	}
 	
-	/*
-	 * CopyPartInfo deletes the range in the new document from the head to the
-	 *	tail, e.g., from the head to and including the first invisible measure.
-	 *	 Then it copies the headL with the correct partInfo object.
-	 */
+	/* CopyPartInfo deletes the range in the new document from the head to the tail,
+	   e.g., from the head to and including the first invisible measure. Then it
+	   copies the headL with the correct partInfo object. */
+	   
 	if (!CopyPartInfo(doc, newDoc, partL)) {
-		okay = FALSE; goto Done;
+		okay = false; goto Done;
 	}
 	initL = prevL = DLeftLINK(newDoc,insertL);
 
 	for (i=0, pL=RightLINK(doc->headL); pL!=doc->tailL; i++, pL=RightLINK(pL)) {
 		if (!LinkSEL(pL)) continue;
 
-		copyL = DuplicateObject(ObjLType(pL), pL, TRUE, doc, newDoc, FALSE);
+		copyL = DuplicateObject(ObjLType(pL), pL, true, doc, newDoc, false);
 		if (!copyL) {
 			NoMoreMemory();
-			okay = FALSE; goto Done;
+			okay = false; goto Done;
 		}
 		DRightLINK(newDoc,copyL) = insertL;
 		DLeftLINK(newDoc,insertL) = copyL;
@@ -515,7 +515,7 @@ static void RPDeselAll(Document *doc)
 				break;
 			case PAGEtype:
 			case SYSTEMtype:
-				LinkSEL(pL) = FALSE;
+				LinkSEL(pL) = false;
 				break;
 			/*
 			 * Be sure Connect subobjs are deselected, even if the object doesn't appear
@@ -527,8 +527,7 @@ static void RPDeselAll(Document *doc)
             DeselectNode(pL);
             break;
 			default:
-				if (LinkSEL(pL))
-					DeselectNode(pL);
+				if (LinkSEL(pL)) DeselectNode(pL);
 				break;
 			}
 		}
@@ -539,7 +538,8 @@ static void RPDeselAll(Document *doc)
 
 static short ReadPart(Document *part, Document *score, LINK partL, Boolean *partOK)
 {
-	LINK firstMeasL; short staffDiff;
+	LINK firstMeasL;
+	short staffDiff;
 	
 	/* For the entire score, select just those subObjs that we want to put into the
 		part to be read, and then copy them. To avoid problems if, e.g., any Connect
@@ -548,12 +548,12 @@ static short ReadPart(Document *part, Document *score, LINK partL, Boolean *part
 	InstallDoc(score);
 	RPDeselAll(score);
 	SelectPart(score, partL, config.extractAllGraphics);
-	*partOK = TRUE;
+	*partOK = true;
 
-	/* If CopyPart fails, return with partOK FALSE. */
+	/* If CopyPart fails, return with partOK false. */
 	
 	if (!CopyPart(score, part, partL)) {
-		*partOK = FALSE;
+		*partOK = false;
 		return 0;
 	}
 	
@@ -565,13 +565,13 @@ static short ReadPart(Document *part, Document *score, LINK partL, Boolean *part
 	InstallDoc(score);
 	RPDeselAll(score);
 	
-	firstMeasL = LSSearch(score->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	firstMeasL = LSSearch(score->headL, MEASUREtype, ANYONE, GO_RIGHT, false);
 	score->selStartL = score->selEndL = firstMeasL;
 
 	InstallDoc(part);
 	RPDeselAll(part);
 
-	firstMeasL = LSSearch(part->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	firstMeasL = LSSearch(part->headL, MEASUREtype, ANYONE, GO_RIGHT, false);
 	part->selStartL = part->selEndL = firstMeasL;
 	
 	return staffDiff;
@@ -686,7 +686,8 @@ static Boolean MakeMultibarRest(Document *doc,
 						COPYMAP *sysMap,
 						short nSys)
 {
-	PPARTINFO pPart;  short nStaves, nChange, s, nSysDel, startSys, i;
+	PPARTINFO pPart;
+	short nStaves, nChange, s, nSysDel, startSys, i;
 	LINK subList, restL, measL, pL, firstSysDelL, newSysL;
 	
 	pPart = GetPPARTINFO(NextPARTINFOL(FirstSubLINK(doc->headL)));
@@ -700,11 +701,11 @@ static Boolean MakeMultibarRest(Document *doc,
 	 * staff.
 	 */
 	if (!ExpandNode(firstL, &subList, nChange))
-		{ NoMoreMemory(); return FALSE; }
+		{ NoMoreMemory(); return false; }
 
 	restL = FirstSubLINK(firstL);
 	for (s = 1; restL; restL = NextNOTEL(restL), s++)
-		SetupNote(doc, firstL, restL, s, 0, -nMeas, 0, s+staffDiff, TRUE, 0, 0);
+		SetupNote(doc, firstL, restL, s, 0, -nMeas, 0, s+staffDiff, true, 0, 0);
 
 	/* Update the <sysMap> for benefit of our caller. */
 	
@@ -732,7 +733,7 @@ static Boolean MakeMultibarRest(Document *doc,
 			nextSysL = doc->tailL;
 		FixStructureLinks(doc, doc, lastL, nextSysL);
 	}
-	return TRUE;
+	return true;
 }
 
 /* Set up the copyMap array for use in updating links to cross-system slurs. */
@@ -781,7 +782,7 @@ static void ExtFixCrossSysSlurs(Document *doc, COPYMAP *sysMap, short nSys)
 /* Look for any series of whole-measure rests separated only by Measures and replace
 each with a single multibar rest on each staff. If staff and voice nos. have not yet
 been mapped for the new (part) context, set staffDiff to the staff no. offset and
-<setVoiceRoles> TRUE (in which case we change the <voiceRoles>s for the mapped voices
+<setVoiceRoles> true (in which case we change the <voiceRoles>s for the mapped voices
 to those of the actual voices and do NOT restore them: this should be OK since they may
 contain garbage anyway). */
  
@@ -790,10 +791,13 @@ static Boolean MultibarRests(Document *doc,
 					Boolean setVoiceRoles
 					)
 {
-	register LINK pL;  LINK aMeasL, aNoteL, firstL, lastSyncL;
+	register LINK pL;
+	LINK aMeasL, aNoteL, firstL, lastSyncL;
 	short nMeasInSeries=0, nSys;
-	Boolean allWMR, possibleMBR=TRUE, isMeasStart, okay=FALSE;
-	PPARTINFO pPart;  short nStaves, s;  COPYMAP *sysMap;
+	Boolean allWMR, possibleMBR=true, isMeasStart, okay=false;
+	PPARTINFO pPart;
+	short nStaves, s;
+	COPYMAP *sysMap;
 	
 	SetupSysCopyMap(doc, &sysMap, &nSys);
 	if (!sysMap) goto Done;
@@ -820,13 +824,13 @@ static Boolean MultibarRests(Document *doc,
 								nMeasInSeries, staffDiff, sysMap, nSys))
 							goto Done;
 					nMeasInSeries = 0;
-					possibleMBR = TRUE;
+					possibleMBR = true;
 					break;
 				}
-				isMeasStart = possibleMBR = TRUE;
+				isMeasStart = possibleMBR = true;
 				break;
 			case SYNCtype:
-				allWMR = TRUE;
+				allWMR = true;
 				for (aNoteL = FirstSubLINK(pL); aNoteL; aNoteL = NextNOTEL(aNoteL))
 					if (NoteType(aNoteL)!=WHOLEMR_L_DUR) {
 						if (nMeasInSeries>1)
@@ -834,7 +838,7 @@ static Boolean MultibarRests(Document *doc,
 									nMeasInSeries, staffDiff, sysMap, nSys))
 								goto Done;
 						nMeasInSeries = 0;
-						allWMR = FALSE;
+						allWMR = false;
 					}
 				if (allWMR && possibleMBR) {
 					nMeasInSeries++;
@@ -846,13 +850,13 @@ static Boolean MultibarRests(Document *doc,
 														127, staffDiff, sysMap, nSys))
 							goto Done;
 						nMeasInSeries = 1;
-						possibleMBR = TRUE;
+						possibleMBR = true;
 					}
 					
 					if (nMeasInSeries==1) firstL = pL;
 				}
 				lastSyncL = pL;
-				isMeasStart = FALSE;
+				isMeasStart = false;
 				break;
 			case PAGEtype:
 			case SYSTEMtype:
@@ -860,9 +864,9 @@ static Boolean MultibarRests(Document *doc,
 			case CONNECTtype:
 				break;
 			/*
-			 *	Clefs, key signatures, and time signatures that aren't inMeas have
+			 * Clefs, key signatures, and time signatures that aren't inMeas have
 			 * no effect on multibar rests, since they must be in the reserved area.
-			 *	Clefs, key signatures, and time signatures beginning the first measure
+			 * Clefs, key signatures, and time signatures beginning the first measure
 			 * of a possible multibar rest don't prevent it, but they do if they're
 			 * they're in the middle or at the end of the measure.
 			 */
@@ -873,7 +877,7 @@ static Boolean MultibarRests(Document *doc,
 								nMeasInSeries, staffDiff, sysMap, nSys))
 							goto Done;
 					nMeasInSeries = 0;
-					if (!isMeasStart) possibleMBR = FALSE;
+					if (!isMeasStart) possibleMBR = false;
 				}
 				break;
 			case KEYSIGtype:
@@ -883,7 +887,7 @@ static Boolean MultibarRests(Document *doc,
 								nMeasInSeries, staffDiff, sysMap, nSys))
 							goto Done;
 					nMeasInSeries = 0;
-					if (!isMeasStart) possibleMBR = FALSE;
+					if (!isMeasStart) possibleMBR = false;
 				}
 				break;
 			case TIMESIGtype:
@@ -893,7 +897,7 @@ static Boolean MultibarRests(Document *doc,
 								nMeasInSeries, staffDiff, sysMap, nSys))
 							goto Done;
 					nMeasInSeries = 0;
-					if (!isMeasStart) possibleMBR = FALSE;
+					if (!isMeasStart) possibleMBR = false;
 				}
 				break;
 			default:
@@ -902,12 +906,12 @@ static Boolean MultibarRests(Document *doc,
 							nMeasInSeries, staffDiff, sysMap, nSys))
 						goto Done;
 				nMeasInSeries = 0;
-				possibleMBR = FALSE;
-				isMeasStart = FALSE;
+				possibleMBR = false;
+				isMeasStart = false;
 		}
 	}
 	
-	okay = TRUE;
+	okay = true;
 	
 Done:
 	/*  FIXME: Is it okay to call FixStructureLinks if arrived from sysMap==NULL failure? */
@@ -934,11 +938,11 @@ static void FixMeasures(Document *doc)
 				aMeasureL = FirstSubLINK(pL);
 				for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL)) {
 					if (MeasureSTAFF(aMeasureL)<=1) {
-						MeasCONNABOVE(aMeasureL) = FALSE;
+						MeasCONNABOVE(aMeasureL) = false;
 						MeasCONNSTAFF(aMeasureL) = (doc->nstaves>1? doc->nstaves : 0);
 					}
 					else {
-						MeasCONNABOVE(aMeasureL) = TRUE;
+						MeasCONNABOVE(aMeasureL) = true;
 						MeasCONNSTAFF(aMeasureL) = 0;
 					}
 				}
@@ -947,11 +951,11 @@ static void FixMeasures(Document *doc)
 				aPSMeasL = FirstSubLINK(pL);
 				for ( ; aPSMeasL; aPSMeasL=NextPSMEASL(aPSMeasL)) {
 					if (PSMeasSTAFF(aPSMeasL)<=1) {
-						PSMeasCONNABOVE(aPSMeasL) = FALSE;
+						PSMeasCONNABOVE(aPSMeasL) = false;
 						PSMeasCONNSTAFF(aPSMeasL) = (doc->nstaves>1? doc->nstaves : 0);
 					}
 					else {
-						PSMeasCONNABOVE(aPSMeasL) = TRUE;
+						PSMeasCONNABOVE(aPSMeasL) = true;
 						PSMeasCONNSTAFF(aPSMeasL) = 0;
 					}
 				}
@@ -960,11 +964,11 @@ static void FixMeasures(Document *doc)
 				aRptEndL = FirstSubLINK(pL);
 				for ( ; aRptEndL; aRptEndL=NextRPTENDL(aRptEndL)) {
 					if (RptEndSTAFF(aRptEndL)<=1) {
-						RptEndCONNABOVE(aRptEndL) = FALSE;
+						RptEndCONNABOVE(aRptEndL) = false;
 						RptEndCONNSTAFF(aRptEndL) = (doc->nstaves>1? doc->nstaves : 0);
 					}
 					else {
-						RptEndCONNABOVE(aRptEndL) = TRUE;
+						RptEndCONNABOVE(aRptEndL) = true;
 						RptEndCONNSTAFF(aRptEndL) = 0;
 					}
 				}
@@ -990,7 +994,7 @@ static void ExtCompactVoiceNums(Document *doc, short staffDiff)
 	 *	table wrong, so we update it again at the end of the end of this function.
 	 */
 	OffsetVoiceNums(doc, 1, -staffDiff);
-	BuildVoiceTable(doc, TRUE);
+	BuildVoiceTable(doc, true);
 	for (vNew = v = 1; v<=MAXVOICES; v++)
 		newVoiceTab[v] = (doc->voiceTab[v].partn>0? vNew++ : 0);
 			
@@ -1011,7 +1015,8 @@ score might have positioned them further to the left than the part needs. */
 
 static void FixConnects(Document *doc)
 {
-	LINK pL, aConnectL; PACONNECT aConnect;
+	LINK pL, aConnectL;
+	PACONNECT aConnect;
 	
 	for (pL = doc->headL; pL; pL = RightLINK(pL))
 		if (ConnectTYPE(pL)) {
@@ -1032,8 +1037,11 @@ part of the original.  Deliver the new Document, or NULL if we can't do it. */
 Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum,
 						FSSpec *pfsSpec, LINK partL)
 {
-	register Document *newDoc;  WindowPtr w;  long fileVersion;
-	short staffDiff, palWidth, palHeight;  Rect box, bounds; 
+	register Document *newDoc; 
+	WindowPtr w; 
+	long fileVersion;
+	short staffDiff, palWidth, palHeight;
+	Rect box, bounds; 
 	Boolean partOK;
 
 	newDoc = FirstFreeDocument();
@@ -1044,17 +1052,17 @@ Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum,
 	
 	newDoc->theWindow = w;
 	SetDocumentKind(w);
-	//((WindowPeek)w)->spareFlag = TRUE;
+	//((WindowPeek)w)->spareFlag = true;
 	ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
 	
-	newDoc->inUse = TRUE;
+	newDoc->inUse = true;
 	Pstrcpy(newDoc->name, fileName);
 	newDoc->vrefnum = vRefNum;
 	newDoc->fsSpec = *pfsSpec;
 
 	/* Create <newDoc>, the basic part Document, and add the part's data to it. */
 	
-	if (!BuildDocument(newDoc, fileName, vRefNum, pfsSpec, &fileVersion, TRUE)) {
+	if (!BuildDocument(newDoc, fileName, vRefNum, pfsSpec, &fileVersion, true)) {
 		DoCloseDocument(newDoc);
 		return(NULL);
 	}
@@ -1071,8 +1079,8 @@ Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum,
 	/* We now have a Document with the part data in it, but it needs a lot of fixing up. */
 
 	InitDocFields(doc, newDoc);
-	MultibarRests(newDoc, staffDiff, TRUE);
-	UpdateDocHeader(newDoc);						/* Since MultibarRests can remove systems and pages */
+	MultibarRests(newDoc, staffDiff, true);
+	UpdateDocHeader(newDoc);						/* Since multibar rests can remove systems and pages */
 	FixMeasures(newDoc);
 	UpdateMeasNums(newDoc, NILINK);
 	FixConnects(newDoc);
@@ -1083,8 +1091,8 @@ Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum,
 		extracted part. */
 
 	Score2MasterPage(newDoc);
-	newDoc->docNew = newDoc->changed = TRUE;		/* Has to be set after BuildDocument */
-	newDoc->readOnly = FALSE;
+	newDoc->docNew = newDoc->changed = true;		/* Has to be set after BuildDocument */
+	newDoc->readOnly = false;
 	
 	/* Place new document window in a non-conflicting position */
 
@@ -1096,13 +1104,13 @@ Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum,
 	bounds = GetQDScreenBitsBounds();
 	if (box.left < bounds.left+4) box.left = bounds.left+4;
 	if (palWidth < palHeight) box.left += palWidth;
-	MoveWindow(newDoc->theWindow, box.left, box.top, FALSE);
+	MoveWindow(newDoc->theWindow, box.left, box.top, false);
 	AdjustWinPosition(w);
 	GetGlobalPort(w, &box);
 	bounds = GetQDScreenBitsBounds();
 	box.bottom = bounds.bottom - 4;
 	if (box.right > bounds.right-4) box.right = bounds.right - 4;
-	SizeWindow(newDoc->theWindow, box.right-box.left, box.bottom-box.top, FALSE);
+	SizeWindow(newDoc->theWindow, box.right-box.left, box.bottom-box.top, false);
 
 	SetOrigin(newDoc->origin.h, newDoc->origin.v);
 	GetAllSheets(newDoc);
@@ -1111,7 +1119,7 @@ Document *CreatePartDoc(Document *doc, unsigned char *fileName, short vRefNum,
 	SetControlValue(newDoc->vScroll, newDoc->origin.v);
 	SetWTitle(w, newDoc->name);
 	
-	MEAdjustCaret(newDoc, FALSE);
+	MEAdjustCaret(newDoc, false);
 	InstallMagnify(newDoc);
 	ShowDocument(newDoc);
 

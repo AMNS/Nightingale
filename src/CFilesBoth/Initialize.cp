@@ -194,7 +194,7 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 		if (( (cat.hFileInfo.ioFlAttrib & 16) == 0) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdType == fType) &&
 				(cat.hFileInfo.ioFlFndrInfo.fdCreator == fCreator) &&
-				(PStrCmp(name, fileName) == TRUE)) {
+				Pstreql(name, fileName)) {
 			// make a fsspec referring to the file
 			return FSMakeFSSpec(pvol, pdir, name, prefsSpec);
 		}
