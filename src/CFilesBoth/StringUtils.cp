@@ -1,4 +1,4 @@
-/* StringUtils.c for Nightingale - string-handling utilities - new in v.3.1 */
+/* StringUtils.c for Nightingale - string-handling utilities */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -19,13 +19,12 @@
 #include "Nightingale.appl.h"
 
 /* ======================================================== Pascal string "toolbox" == */
-/* The following are mostly versions of standard C librariy functions that expect
+/* The following are mostly versions of standard C library functions that expect
 Pascal strings instead of C strings, plus some general string utilities.  Cf.
 StringToolbox.c.
 
 /* --------------------------------------------------------- PToCString, CToPString -- */
-/* Convert C to Pascal style strings and vice-versa. Very similar, quite possibly
-identical, to Symantec's PtoCstr and CtoPstr. */
+/* Convert C to Pascal style strings and vice-versa. */
 
 /* Convert in place a Pascal string to C string */
 
@@ -56,6 +55,8 @@ StringPtr CToPString(char *str)
 }
 
 
+/* ------------------------------------------------------------ Copy Pascal strings -- */
+
 /* Copy Pascal string from src to dst; return dst */
 
 StringPtr Pstrcpy(StringPtr dst, ConstStringPtr src)
@@ -79,6 +80,8 @@ void PStrncpy(StringPtr dst, ConstStringPtr src, short n)
 	while (--len>=0 && --n>=0) *dst++ = *src++;
 }
 
+
+/* --------------------------------------------------- String comparison and length -- */
 
 /* Are two C strings the same or not */
 
@@ -158,7 +161,7 @@ void PStrCat(StringPtr p1, ConstStringPtr p2)
 
 
 /* -------------------------------------------------------------------- GoodStrncpy -- */
-/* GoodStrncpy is like the ANSI function strncpy, except that it guarantees the
+/* GoodStrncpy is like the ISO function strncpy, except that it guarantees the
 result will be a valid C string even if the length of srcStr exceeds numChars.
 Note that it does this by storing into the <numChars+1>st location of <dstStr>! */
 
@@ -205,7 +208,7 @@ Boolean ExpandPString(StringPtr dstStr, StringPtr srcStr, bool wider)
 }
 
 
-/* ------------------------------------------------------------ Substring functions -- */
+/* ----------------------------------------------------------- Substring extraction -- */
 /* C's standard string functions don't handle substrings well, especially if you don't
 want to do pointer arithmetic. Here are a couple of substring functions, designed for
 handling filenames but potentially useful for other purposes. */
@@ -234,4 +237,3 @@ Boolean GetInitialSubstring(char *str, char *substr, short len)
 	*(substr+len) = '\0';
 	return true;
 }
-

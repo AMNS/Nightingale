@@ -1943,3 +1943,106 @@ mvmt notelist via menu cmd =>
 This is almost certainly unrelated to the previous problem, and it's very probably
 caused by the embedded "'" in the tempo mark.
 
+-------------------------------------------------------------------------------
+
+6-11 April
+
+Finally implement the Add Cautionary Time Sigs command!, and Undo for it. It all seems
+to work, except for handling cases where every staff doesn't have the same time sig., or
+maybe doesn't have a time sig. at all. An extreme case: at the end of a system, all
+staves are in 3/4; at the beginning of the next, some change to 6/8, some to 12/16, some
+don't change at all.
+
+-------------------------------------------------------------------------------
+
+12 April
+
+#Issue #73: Many of Ngale's own routines that sound like QuickDraw or something else
+from Apple.To reduce confusion, rename them. Specifically, rename:
+
+HiliteRect, GetPortTxFont, GetPortTxFace, GetPortTxSize, GetPortTxMode; SetFont
+and SamePoint
+
+...to (e.g.)
+
+NHiliteRect, NGetPortTxFont, NGetPortTxFace, NGetPortTxSize, NGetPortTxMode, NSetFont,
+NSamePoint.
+
+There are more candidates for name changes in Utility.cp. But NB there are _lots_ of
+calls to some of these, so may take awhile to change all!
+
+-------------------------------------------------------------------------------
+
+24-28 April
+
+Last Sept., Laurie Spiegel had Ngale compiling with Xcode 7.3 & a recent mac OS; can I?
+
+Try w/ Xcode 8.2.x on OS 10.12 => needs the OS 10.4 (or 10.4u?) SDK. Get it from Laurie;
+quit Xcode, put the 10.4u SDK in the Xcode/Contents/Developer/...Developer/SDKs folder;
+restart Xcode & open the Ngale project => Xcode doesn't seem to know the 10.4u SDK is
+there, sigh. Try the same thing w/ Xcode 5.1.1 on OS 10.8.5 => Xcode lets me choose the
+10.4 SDK; do so; Clean => says "unsupported compiler GCC 4.0". Not surprising! The only
+other choice appears to be the default compiler, Apple LLVM 5.1; Clean => OK; Build =>
+"error: unable to create target: 'No available targets are compatible with this triple,
+see -version for the available targets.'" What triple?? And see "--version" in WHAT? I
+suppose the compiler itself, but...
+
+The next day, results are slightly different!? Both Clean and Build fail with 162
+issues, all fatal. The list of fatal errors is preceded by
+
+  Target Integrity
+    Invalid C/C++ compiler in target Nightingale: 4.0
+
+The first fatal error is
+
+  Dependency Analysis Error
+    Unsupported compiler '4.0' selected for architecture 'ppc'
+
+The others are all
+
+  Dependency Analysis Error
+  Unable to determine concrete GCC compiler for file /Users/donbyrd/NgaleDev/...XXX
+
+where the 160 XXX's are the 160 source files.
+
+This website has instructions for installing gcc 4.2.1 on OS 10.8, and says it works:
+
+       https://www.cyberciti.biz/faq/howto-apple-mac-os-x-install-gcc-compiler/
+
+-- though NB their demo of it working is via command line, not Xcode! They show
+the output from _gcc --version_ as showing the gcc version, duh. But when I say
+_gcc --version_, I get
+
+ Configured with: --prefix=/Applications/Xcode.app/Contents/Developer/usr --with-gxx-include-dir=/usr/include/c++/4.2.1
+ Apple LLVM version 5.1 (clang-503.0.40) (based on LLVM 3.4svn)
+ Target: x86_64-apple-darwin12.6.0
+ Thread model: posix
+
+Pretty obscure, but very likely the _gxx-include-dir_ path ending with 4.2.1 is just an
+exceptionally user-unfriendly way to say version 4.2.1! So I already have it installed,
+and maybe all I need to do is to tell Xcode to use it -- but the only choice besides
+"Unsupported Compiler (4.0)" is "Default Compiler (LLVM 5.1)". Now what?? Now I say
+this isn't worth the trouble! Michel S. said he wanted to try compiling Ngale with a
+recent version of Xcode; more power to him.
+
+-------------------------------------------------------------------------------
+
+May 2, 2017
+
+Hi Don,
+
+I just got off a week of on-call and traveling for work, so I've not tried this -- but
+found this interesting article:
+
+https://www.cocoawithlove.com/blog/porting-from-macos8-to-sierra.html#conclusion
+
+someone ported an old MacOS 8.x app to run on Sierra, still using Carbon -- it does
+require having the 10.6 SDK.
+
+-- 
+Michel
+
+Michel Alexandre Salim
+profile:    https://keybase.io/michel_slm
+GPG key ID: 4AF554ABA36A937A
+

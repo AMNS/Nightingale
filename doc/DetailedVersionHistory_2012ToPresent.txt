@@ -1392,7 +1392,7 @@ NotelistSave, PS_Stdio, RTRhythmDur.
 
 -------------------------------------------------------------------------------
 
-20-23 Apr.			 ======== NIGHTINGALE 5.7 (23 April 2017) ========
+20-23 Apr.		======== (FIRST) NIGHTINGALE 5.7 (23 April 2017) ========
 
 Changed version number from 5.7b12 to 5.7. Affects Info.plist.
 
@@ -1408,13 +1408,13 @@ Renamed two data-structure utilities to clarify they're Boolean-valued; minor cl
 Affects .rsrc; DSUtils.h, NResourceID.h; Debug2Utils, DrawObject, DrawUtils, DSUtils,
 ExtractHighLevel, FlowInText, Menu, MIDIFSave, Objects, PS_Stdio, ScoreInfo.
 
-===============================================================================
-
 25-30 Apr.
 
+Changed version number from 5.7 to 5.8b1. Affects Info.plist.
+
 Get rid of redundant string utility PStrCmp, and replace calls to it with calls to
-Pstreql. Affects NightTemplates.h; ChordSym, Documents, FontUtils, HeaderFooterDialog,
-Initialize, Preferences, PS_Stdio, Search.
+Pstreql (Issue #78). Affects NightTemplates.h; ChordSym, Documents, FontUtils,
+HeaderFooterDialog, Initialize, Preferences, PS_Stdio, Search.
 
 Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects style.h;
 About, AutoBeam, Beam, Extract, StringUtils, Utility.
@@ -1422,3 +1422,17 @@ About, AutoBeam, Beam, Extract, StringUtils, Utility.
 Rename ExpandString() to ExpandPString() and other minor cleanup. Affects
 NightTemplates.h, Utility,h; About, AutoBeam, Beam, Dragging, DrawObject, Extract, File,
 PS_Stdio, StringUtils, TextDialog, Utility.
+
+-------------------------------------------------------------------------------
+
+30 Apr.-3 May			 ======== NIGHTINGALE 5.7 (3 May 2017) ========
+
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
+StringUtils.
+
+Minor cleanup. Affects ChordSym, StringUtils.
+
+Redefine version 5.7 by changing the version number from 5.8b1 back to 5.7; this is
+desirable because I failed to preserve the 5.7 source (as previously defined) in the
+GitHub repository. Affects Info.plist.

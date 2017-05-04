@@ -11,8 +11,8 @@
 
 /* ChordSym.c */
 
-	void		DrawChordSym(Document *, DDIST, DDIST, unsigned char [], short, PCONTEXT, Boolean, DRect *);
-	Boolean		ChordSymDialog(Document *, unsigned char *, short *);
+	void		DrawChordSym(Document *, DDIST, DDIST, StringPtr, short, PCONTEXT, Boolean, DRect *);
+	Boolean		ChordSymDialog(Document *, StringPtr, short *);
 
 /* CompactVoices.c */
 
