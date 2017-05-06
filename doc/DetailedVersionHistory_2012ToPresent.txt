@@ -1436,3 +1436,15 @@ Minor cleanup. Affects ChordSym, StringUtils.
 Redefine version 5.7 by changing the version number from 5.8b1 back to 5.7; this is
 desirable because I failed to preserve the 5.7 source (as previously defined) in the
 GitHub repository. Affects Info.plist.
+
+===============================================================================
+
+4-5 May
+
+Changed version number from 5.7 to 5.8b1 (again). Affects Info.plist.
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
+AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem.
+
+Move HomogenizeSel() from Selutils to SetUtils; other minor cleanup. Affects SelUtils.h;
+AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem, SelUtils, SetUtils.

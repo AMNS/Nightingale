@@ -1,4 +1,4 @@
-/***************************************************************************
+/****************************************************************************************
 *	FILE:	SelUtils.c
 *	PROJ:	Nightingale
 *	DESC:	Routines to handle the user interface for selection, get info
@@ -7,12 +7,12 @@
 	GetSelStaff				GetStaffFromSel			GetSelPart
 	GetVoiceFromSel			GetStfRangeOfSel		Sel2MeasPage
 	GetSelMIDIRange			FindSelAcc
-	ShellSort				UnemptyRect
+	HomogenizeSel			ShellSort				UnemptyRect
 	GetStaff				TrackStaffRect			ChangeInvRect
 	FixEmptySelection		GetStaffLimits			SelectStaffRect
 	DoThreadSelect			InsertSpaceTrackStf
 	NotesSel2TempFlags		TempFlags2NotesSel
-/***************************************************************************/
+/****************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -559,12 +559,50 @@ LINK FindSelAcc(Document *doc, short acc)
 }
 
 
-/* ------------------------------------------------------------------- ShellSort -- */
+/* ------------------------------------------------------------------- HomogenizeSel -- */
+/* See if there are any chords that are partly selected. If so, if an alert ID is
+specified, ask user for permission to extend the selection to include all notes in
+them, and if they agree, extend it; if no alert is specified, just extend it.
+
+Return TRUE if we end up with no partly-selected chords, regardless of how it
+happens. */
+
+Boolean HomogenizeSel(
+				Document *doc,
+				short alertID 		/* 0=don't need permission */
+				)
+{
+	LINK pL, aNoteL; Boolean homoSel;
+	
+	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
+		if (LinkSEL(pL) && SyncTYPE(pL)) {
+			aNoteL = FirstSubLINK(pL); homoSel = TRUE;
+			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
+				if (MainNote(aNoteL) && NoteINCHORD(aNoteL)) {
+					if (!ChordHomoSel(pL, NoteVOICE(aNoteL), NoteSEL(aNoteL))) {
+						homoSel = FALSE;
+						break;
+					}
+				}
+		}
+
+	if (!homoSel) {
+		if (alertID && NoteAdvise(alertID)==Cancel) return FALSE;
+		
+		ExtendSelChords(doc);
+	}
+	
+	return TRUE;
+}
+
+
+/* ----------------------------------------------------------------------- ShellSort -- */
 /* ShellSort does a Shell (diminishing increment) sort on the given array,
 putting it into ascending order.  The increments we use are powers of 2,
 which does not give the fastest possible execution, though the difference
 should be negligible for a few hundred elements or less. See Knuth, The Art
-of Computer Programming, vol. 2, pp. 84-95. */
+of Computer Programming, vol. 2, pp. 84-95. ??This definitely belongs elsewhere,
+probably in Utility.c. */
 
 static void ShellSort(short array[], short nsize)
 {

@@ -3,7 +3,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /* BeamBreak.c for Nightingale - functions to handle secondary beam breaks:
@@ -19,15 +19,16 @@ static Boolean BBFixCenterSecBeams(Document *, LINK [], short [], short);
 static short CountPrimaries(LINK);
 
 
-/* ------------------------------------------------------------- BreakBeamBefore -- */
+/* ----------------------------------------------------------------- BreakBeamBefore -- */
 /* Given a Beamset and a Sync (or GRSync), try to add a secondary break to the
-Beamset just before the Sync. If we can do so, return TRUE, else FALSE. Regardless,
+Beamset just before the Sync. If we can do so, return true, else false. Regardless,
 if there's a link preceding the Sync in the Beamset, return it in *pPrevL. Takes no
 user-interface actions. */
 
 Boolean BreakBeamBefore(Document */*doc*/, LINK beamL, LINK syncL, LINK *pPrevL)
 {
-	short nInBeam, i, beamsNow; LINK aNoteBeamL, bNoteBeamL;
+	short nInBeam, i, beamsNow;
+	LINK aNoteBeamL, bNoteBeamL;
 	PANOTEBEAM aNoteBeam, bNoteBeam, prevNoteBeam=NULL;
 	
 	nInBeam = LinkNENTRIES(beamL);
@@ -52,7 +53,7 @@ Boolean BreakBeamBefore(Document */*doc*/, LINK beamL, LINK syncL, LINK *pPrevL)
 				bNoteBeam = GetPANOTEBEAM(bNoteBeamL);		
 				beamsNow += bNoteBeam->startend;
 			}
-			if (beamsNow<=1) return FALSE;
+			if (beamsNow<=1) return false;
 
 			/* If another break here would require a fractional beam on this or the
 				preceding note, no good. This would certainly happen if this is the
@@ -60,25 +61,25 @@ Boolean BreakBeamBefore(Document */*doc*/, LINK beamL, LINK syncL, LINK *pPrevL)
 				preceding note is now starting a beam and the break would cause it also
 				to end one, or vice-versa. */
 				
-			if (i<=1 || i==nInBeam-1) return FALSE;
-			if (prevNoteBeam->startend>0) return FALSE;
-			if (aNoteBeam->startend<0) return FALSE;
+			if (i<=1 || i==nInBeam-1) return false;
+			if (prevNoteBeam->startend>0) return false;
+			if (aNoteBeam->startend<0) return false;
 
 			/* Everything's OK. Break away! */
 			
 			prevNoteBeam->startend -= 1;
 			aNoteBeam->startend += 1;
-			return TRUE;
+			return true;
 		}
 		prevNoteBeam = aNoteBeam;
 	}
 	
 	*pPrevL = NILINK;
-	return FALSE;
+	return false;
 }
 
 
-/* ---------------------------------------------------------- BBFixCenterSecBeams -- */
+/* ------------------------------------------------------------- BBFixCenterSecBeams -- */
 /* Fix a center beam for its secondary beams; intended for use after adding secondary
 beam breaks. */
 
@@ -105,7 +106,7 @@ static Boolean BBFixCenterSecBeams(Document *doc, LINK beamLA[], short beamNPrim
 			lastystem = NoteYSTEM(lastNoteL);
 			nInBeam = LinkNENTRIES(beamL);
 			if (!GetBeamSyncs(doc, firstL, RightLINK(lastL), voice, nInBeam, bpSync,
-				noteInSync, FALSE)) return FALSE;
+				noteInSync, false)) return false;
 			crossStaff = BeamCrossSTAFF(beamL);
 			theRange.topStaff = BeamSTAFF(beamL);
 			theRange.bottomStaff = (crossStaff? theRange.topStaff+1 : theRange.topStaff);
@@ -132,26 +133,27 @@ static Boolean BBFixCenterSecBeams(Document *doc, LINK beamLA[], short beamNPrim
 					{ firstystem += extension; lastystem -= extension; }
 			}		
 
-			SlantBeamNoteStems(doc, bpSync, voice, nInBeam, firstystem, lastystem, theRange,
-								crossStaff);
+			SlantBeamNoteStems(doc, bpSync, voice, nInBeam, firstystem, lastystem,
+								theRange, crossStaff);
 			
 			/*
-			 * We now have consistent stem lengths, except that our downstems and upstems
-			 *	don't overlap.  Correct for them now.
+			 * We now have consistent stem lengths, except that our downstems and
+			 * upstems don't overlap.  Correct for them now.
 			 */
 			ExtendStems(doc, beamL, nInBeam, nPrimary, nSecsA, nSecsB);
 		}
 	}
 	
-	return TRUE;
+	return true;
 }
 
-/* -------------------------------------------------------------- CountPrimaries -- */
+/* ------------------------------------------------------------------ CountPrimaries -- */
 /* Return the no. of primary beams in the given beamset. */
 
 short CountPrimaries(LINK beamL)
 {
-	LINK noteBeamL, syncL, aNoteL; PANOTEBEAM pNoteBeam;
+	LINK noteBeamL, syncL, aNoteL;
+	PANOTEBEAM pNoteBeam;
 	short iel, startend, firstStemUpDown, nestLevel, nPrim;
 	SignedByte stemUpDown[MAXINBEAM];
 	
@@ -186,7 +188,7 @@ short CountPrimaries(LINK beamL)
 }
 
 
-/* ----------------------------------------------------------------- DoBreakBeam -- */
+/* --------------------------------------------------------------------- DoBreakBeam -- */
 /* Try to add a secondary beam break before every selected note/chord. Handles user
 interface on the assumption the given document is on the screen.
 
@@ -197,36 +199,38 @@ anyway, the grace-beam drawing routines probably don't handle beam breaks. */
 
 void DoBreakBeam(Document *doc)
 {
-	LINK pL, beamL, prevL, partL; short v, userVoice;
+	LINK pL, beamL, prevL, partL;
+	short v, userVoice;
 	PPARTINFO pPart; char vStr[20], partName[256];
-	LINK beamLA[MAX_BEAMSETS]; short beamNPrimaryA[MAX_BEAMSETS];
-	short	nBeamsets=0, i, nPrimary;
+	LINK beamLA[MAX_BEAMSETS];
+	short beamNPrimaryA[MAX_BEAMSETS];
+	short nBeamsets=0, i, nPrimary;
 	Boolean found;
 	
-	DisableUndo(doc, FALSE);
+	DisableUndo(doc, false);
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
 			for (v = 1; v<=MAXVOICES; v++) {
 				if (VOICE_MAYBE_USED(doc, v))
-					if (NoteInVoice(pL, v, TRUE)) {
-						beamL = LVSearch(pL, BEAMSETtype, v, GO_LEFT, FALSE);
+					if (NoteInVoice(pL, v, true)) {
+						beamL = LVSearch(pL, BEAMSETtype, v, GO_LEFT, false);
 						if (beamL) {
 							nPrimary = CountPrimaries(beamL);
 							if (BreakBeamBefore(doc, beamL, pL, &prevL)) {
-								doc->changed = TRUE;
+								doc->changed = true;
 								InvalMeasures(pL, prevL, BeamSTAFF(beamL));
 
 							/*
-							 *	If this beam is cross-staff, we'll have to update its stemlengths.
-							 * We can't do that now, since other breaks in the same beamset may
-							 *	follow, but remember its owning beamset for later use; if we run
-							 *	out of space to remember it, just unbeam so at least we won't end
-							 *	up with stems and beams that disagree.
+							 * If this beam is cross-staff, we'll have to update its stem
+							 * lengths. We can't do that now, since other breaks in the same
+							 * beamset may follow, but remember its owning beamset for later
+							 * use; if we run out of space to remember it, just unbeam so at
+							 * least we won't end up with stems and beams that disagree.
 							 */
 								if (nBeamsets<MAX_BEAMSETS) {
-									for (found = FALSE, i = 0; i<nBeamsets; i++)
-										if (beamL==beamLA[i]) { found = TRUE; break; }
+									for (found = false, i = 0; i<nBeamsets; i++)
+										if (beamL==beamLA[i]) { found = true; break; }
 									if (!found) {
 										beamLA[nBeamsets] = beamL;
 										beamNPrimaryA[nBeamsets] = nPrimary;

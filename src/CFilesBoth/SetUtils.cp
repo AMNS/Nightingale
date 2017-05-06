@@ -13,14 +13,13 @@
  */
  
 /*
-	HomogenizeSel				FixChordStatus			
 	FixSyncVoice				SetSelVoice					SetSelStaff
 	ExtremeNote					SetSelStemlen				SetSelNRAppear
 	SetSelNRSmall				SetVelFromContext			SetSelVelocity
 	SetSelGraphicY				SetSelTempoX				SetSelTempoY				
 	SetSelTempoVisible
-	SetSelGraphicStyle		SetSelMeasVisible			SetSelMeasType
-	SetSelDynamVisible		SetSelTupBracket
+	SetSelGraphicStyle			SetSelMeasVisible			SetSelMeasType
+	SetSelDynamVisible			SetSelTupBracket
 	SetSelTupNums				SetAllSlursShape			SetSelSlurShape
 	SetSelSlurAppear			SetSelLineThickness
  */
@@ -28,8 +27,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean HomogenizeSel(Document *, short);
-static void FixChordStatus(Document *, LINK);
 static Boolean SSVChkNote(Document *, LINK, LINK, short);
 static Boolean SSVCheck(Document *, LINK, short);
 static void FixSyncVoice(Document *, LINK, short);
@@ -39,43 +36,6 @@ static Boolean SSSCheck(Document *, LINK, LINK, short);
 static LINK ExtremeNote(LINK, short, Boolean);
 static Boolean SSGYCheck(Document *, LINK, DDIST);
 static Boolean SSTYCheck(Document *, LINK, DDIST);
-
-
-/* --------------------------------------------------------------- HomogenizeSel -- */
-/* See if there are any chords that are partly selected. If so, if an alert ID is
-specified, ask user for permission to extend the selection to include all notes in
-them, and if they agree, extend it; if no alert is specified, just extend it.
-
-Return TRUE if we end up with no partly-selected chords, regardless of how it
-happens. ??This belongs in Select.c or SelUtils.c. */
-
-Boolean HomogenizeSel(
-				Document *doc,
-				short alertID 		/* 0=don't need permission */
-				)
-{
-	LINK pL, aNoteL; Boolean homoSel;
-	
-	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
-		if (LinkSEL(pL) && SyncTYPE(pL)) {
-			aNoteL = FirstSubLINK(pL); homoSel = TRUE;
-			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
-				if (MainNote(aNoteL) && NoteINCHORD(aNoteL)) {
-					if (!ChordHomoSel(pL, NoteVOICE(aNoteL), NoteSEL(aNoteL))) {
-						homoSel = FALSE;
-						break;
-					}
-				}
-		}
-
-	if (!homoSel) {
-		if (alertID && NoteAdvise(alertID)==Cancel) return FALSE;
-		
-		ExtendSelChords(doc);
-	}
-	
-	return TRUE;
-}
 
 
 static Boolean SSVChkNote(Document *doc, LINK pL, LINK aNoteL, short uVoice)
@@ -161,11 +121,11 @@ void FixSyncVoice(Document *doc,
 						LINK pL,				/* Sync */
 						short voice)
 {
-	LINK		aNoteL, vNoteL;
+	LINK	aNoteL, vNoteL;
 	CONTEXT	context;
 	Boolean	stemDown;
-	QDIST		qStemLen;
-	short		notesInChord, voiceRole;
+	QDIST	qStemLen;
+	short	notesInChord, voiceRole;
 	
 	if (SyncTYPE(pL)) {
 		notesInChord = 0;
@@ -196,7 +156,7 @@ void FixSyncVoice(Document *doc,
 }
 
 
-/* ----------------------------------------------------------------- SetSelVoice -- */
+/* --------------------------------------------------------------------- SetSelVoice -- */
 /* Set the voice number of every selected note or rest to the internal voice number
 for its part that's equivalent to the given user voice number. */
 
@@ -253,7 +213,7 @@ Boolean SetSelVoice(Document *doc, short uVoice)
 }
 
 
-/* ------------------------------------------------------------------ SSSCheck's -- */
+/* ---------------------------------------------------------------------- SSSCheck's -- */
 
 /* If the given Sync has an UNSELECTED subobj (note or rest) on the given staff,
 return the first one found. */
@@ -353,16 +313,16 @@ static Boolean SSSCheck(Document *doc, LINK /*syncL*/, LINK aNoteL, short absSta
 	return TRUE;
 }
 
-/* ----------------------------------------------------------------- SetSelStaff -- */
+/* --------------------------------------------------------------------- SetSelStaff -- */
 /* Set the staff number of every selected note or rest. NB: it looks like the
 restriction to unbeamed notes could be eliminated simply by calling Unbeam. */
 
 Boolean SetSelStaff(Document *doc,
-							short newStaff)		/* part-relative staff no. */
+						short newStaff)		/* part-relative staff no. */
 {
 	LINK		pL, aNoteL, partL;
-	PPARTINFO pPart;
-	Boolean	didAnything;
+	PPARTINFO	pPart;
+	Boolean		didAnything;
 	short		absStaff, halfLn, effAcc;
 	
 	/* Convert from part-relative to absolute staff number. */
@@ -438,7 +398,7 @@ StaffFound:
 }
 
 
-/* ----------------------------------------------------------------- ExtremeNote -- */
+/* --------------------------------------------------------------------- ExtremeNote -- */
 /* Return the note in the given Sync and voice that's closest to the stem, i.e.,
 furthest from the MainNote. */
 
@@ -458,18 +418,18 @@ LINK ExtremeNote(LINK syncL, short voice, Boolean stemDown)
 	return extNoteL;
 }
 
-/* --------------------------------------------------------------- SetSelStemlen -- */
+/* ------------------------------------------------------------------- SetSelStemlen -- */
 /* Set the stem length of every selected note/rest/chord to a positive value,
 leaving stem direction as it is. If any note in a chord is selected, the chord
 is considered selected. */
 
 Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 {
-	LINK		pL, aNoteL, bNoteL;
-	DDIST		dStemlen, extend;
+	LINK	pL, aNoteL, bNoteL;
+	DDIST	dStemlen, extend;
 	CONTEXT	context;
 	Boolean	didAnything;
-	short		voice, upDown;
+	short	voice, upDown;
 
 	didAnything = FALSE;
 		
@@ -542,7 +502,7 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 Boolean SetSelNRAppear(Document *doc, short appearance)
 {
 	PANOTE	aNote;
-	LINK		pL, aNoteL;
+	LINK	pL, aNoteL;
 	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -557,13 +517,13 @@ Boolean SetSelNRAppear(Document *doc, short appearance)
 	return didAnything;
 }
 
-/* --------------------------------------------------------------- SetSelNRSmall -- */
+/* ------------------------------------------------------------------- SetSelNRSmall -- */
 /* Set the <small> flag of every selected note or rest. */
 
 Boolean SetSelNRSmall(Document *doc, short small)
 {
 	PANOTE	aNote;
-	LINK		pL, aNoteL;
+	LINK	pL, aNoteL;
 	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -579,13 +539,13 @@ Boolean SetSelNRSmall(Document *doc, short small)
 }
 
 
-/* -------------------------------------------------------------- SetSelNRParens -- */
+/* ------------------------------------------------------------------ SetSelNRParens -- */
 /* Set the <courtesyAcc> flag of every selected note or rest. */
 
 Boolean SetSelNRParens(Document *doc, short inParens)
 {
 	PANOTE	aNote;
-	LINK		pL, aNoteL;
+	LINK	pL, aNoteL;
 	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -601,7 +561,7 @@ Boolean SetSelNRParens(Document *doc, short inParens)
 }
 
 
-/* ----------------------------------------------------------- SetVelFromContext -- */
+/* --------------------------------------------------------------- SetVelFromContext -- */
 /* Set the On velocity of a note according to its context, i.e, the last dynamic
 marking on its staff and the current dynamics-to-velocity table. Works either on
 all notes in the score or only on selected notes. */
@@ -647,14 +607,14 @@ Boolean SetVelFromContext(Document *doc, Boolean selectedOnly)
 }
 
 
-/* -------------------------------------------------------------- SetSelVelocity -- */
+/* ------------------------------------------------------------------ SetSelVelocity -- */
 /* Set the On velocity of every selected note to a specific unsigned value. If the
 value specified is negative, does nothing. */
 
 Boolean SetSelVelocity(Document *doc, short velocity)
 {
 	PANOTE	aNote;
-	LINK		pL, aNoteL;
+	LINK	pL, aNoteL;
 	Boolean	didAnything=FALSE;
 
 	if (velocity>=0) {
@@ -672,11 +632,12 @@ Boolean SetSelVelocity(Document *doc, short velocity)
 }
 
 
-/* ------------------------------------------------------------------- SSGXCheck -- */
+/* ----------------------------------------------------------------------- SSGXCheck -- */
 
 static Boolean SSGXCheck(Document *doc, LINK graphicL, DDIST dxd)
 {
-	PGRAPHIC	p; DDIST pageRelxd, xd;
+	PGRAPHIC p;
+	DDIST pageRelxd, xd;
 	CONTEXT	context;
 	char fmtStr[256], wordStr[32];
 
@@ -710,16 +671,16 @@ height and number of staff lines. */
 
 Boolean SetSelGraphicX(
 				Document *doc,
-				STDIST	stx,
-				short		subtype					/* GRString, GRLyric, or GRChordSym */
+				STDIST stx,
+				short subtype					/* GRString, GRLyric, or GRChordSym */
 				)
 {
 	PGRAPHIC	p;
 	register LINK pL;
 	LINK		contL;
 	DDIST		dxd=-32767;
-	CONTEXT	context;
-	Boolean	didAnything=FALSE;
+	CONTEXT		context;
+	Boolean		didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && GraphicTYPE(pL))
@@ -753,7 +714,8 @@ Boolean SetSelGraphicX(
 
 static Boolean SSGYCheck(Document *doc, LINK graphicL, DDIST dyd)
 {
-	PGRAPHIC	p; DDIST pageRelyd, yd; Boolean top;
+	PGRAPHIC p; DDIST pageRelyd, yd;
+	Boolean top;
 	CONTEXT	context;
 	char fmtStr[256], wordStr[32];
 
@@ -779,15 +741,15 @@ static Boolean SSGYCheck(Document *doc, LINK graphicL, DDIST dyd)
 	return TRUE;
 }
 
-/* -------------------------------------------------------------- SetSelGraphicY -- */
+/* ------------------------------------------------------------------ SetSelGraphicY -- */
 /* Set the yd of every selected Graphic of the given subtype to a signed value.
 Assumes all staves containing selected Graphics of the given subtype have the same
 height and number of staff lines. */
 
 Boolean SetSelGraphicY(
 				Document *doc,
-				STDIST	sty,
-				short		subtype,					/* GRString, GRLyric, or GRChordSym */
+				STDIST sty,
+				short subtype,					/* GRString, GRLyric, or GRChordSym */
 				Boolean	above 					/* TRUE=above, FALSE=below */
 				)
 {
@@ -795,8 +757,8 @@ Boolean SetSelGraphicY(
 	register LINK pL;
 	LINK		contL;
 	DDIST		dyd=-32767;
-	CONTEXT	context;
-	Boolean	didAnything=FALSE;
+	CONTEXT		context;
+	Boolean		didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && GraphicTYPE(pL))
@@ -828,11 +790,12 @@ Boolean SetSelGraphicY(
 }
 
 
-/* -------------------------------------------------------------------- SSTXCheck -- */
+/* ----------------------------------------------------------------------- SSTXCheck -- */
 
 static Boolean SSTXCheck(Document *doc, LINK tempoL, DDIST dxd)
 {
-	PTEMPO p; DDIST pageRelxd, xd;
+	PTEMPO p;
+	DDIST pageRelxd, xd;
 	CONTEXT	context;
 	char fmtStr[256], wordStr[32];
 	
@@ -859,7 +822,7 @@ static Boolean SSTXCheck(Document *doc, LINK tempoL, DDIST dxd)
 }
 
 
-/* ---------------------------------------------------------------- SetSelTempoX -- */
+/* -------------------------------------------------------------------- SetSelTempoX -- */
 /* Set the xd of every selected tempo mark to a signed value. Assumes all staves
 containing selected Graphics of the given subtype have same height and number of
 staff lines. */
@@ -871,7 +834,7 @@ Boolean SetSelTempoX(
 {
 	PTEMPO	p;
 	register LINK pL;
-	DDIST		dxd=-32767;
+	DDIST	dxd=-32767;
 	CONTEXT	context;							/* current context */
 	Boolean	didAnything=FALSE;
 
@@ -896,7 +859,7 @@ Boolean SetSelTempoX(
 }
 
 
-/* -------------------------------------------------------------------- SSTYCheck -- */
+/* ----------------------------------------------------------------------- SSTYCheck -- */
 
 static Boolean SSTYCheck(Document *doc, LINK tempoL, DDIST dyd)
 {
@@ -927,7 +890,7 @@ static Boolean SSTYCheck(Document *doc, LINK tempoL, DDIST dyd)
 }
 
 
-/* ---------------------------------------------------------------- SetSelTempoY -- */
+/* -------------------------------------------------------------------- SetSelTempoY -- */
 /* Set the yd of every selected tempo mark to a signed value. Assumes all staves
 containing selected Graphics of the given subtype have same height and number of
 staff lines. */
@@ -940,7 +903,7 @@ Boolean SetSelTempoY(
 {
 	PTEMPO	p;
 	register LINK pL;
-	DDIST		dyd=-32767;
+	DDIST	dyd=-32767;
 	CONTEXT	context;							/* current context */
 	Boolean	didAnything=FALSE;
 
@@ -967,7 +930,7 @@ Boolean SetSelTempoY(
 }
 
 
-/* ---------------------------------------------------------- SetSelTempoVisible -- */
+/* -------------------------------------------------------------- SetSelTempoVisible -- */
 /* Set visibility of every selected Tempo's M.M. */
 
 Boolean SetSelTempoVisible(Document *doc, Boolean visible)
@@ -987,19 +950,19 @@ Boolean SetSelTempoVisible(Document *doc, Boolean visible)
 }
 
 
-/* --------------------------------------------------------- SetSelGraphicStyle -- */
+/* -------------------------------------------------------------- SetSelGraphicStyle -- */
 /* Set the style of every selected Graphic of the given subtype to a given value. */
 
 Boolean SetSelGraphicStyle(
 				Document *doc,
-				short		styleChoice,
-				short		subtype 					/* GRString or GRLyric */
+				short styleChoice,
+				short subtype 					/* GRString or GRLyric */
 				)
 {
 	PGRAPHIC	pGraphic;
 	LINK		pL;
-	Boolean	didAnything=FALSE, toOrFromLyric;
-	TEXTSTYLE style;
+	Boolean		didAnything=FALSE, toOrFromLyric;
+	TEXTSTYLE	style;
 	short		fontInd, info;
 
 	if (styleChoice==TSRegular1STYLE) BlockMove(doc->fontName1,&style,sizeof(TEXTSTYLE));
@@ -1072,7 +1035,7 @@ Boolean SetSelGraphicStyle(
 }
 
 
-/* ----------------------------------------------------------- SetSelMeasVisible -- */
+/* --------------------------------------------------------------- SetSelMeasVisible -- */
 /* Set visibility of every selected Measure and its subobjects, i.e., of the
 barlines, not the contents of the measures. */
 
@@ -1097,13 +1060,13 @@ Boolean SetSelMeasVisible(Document *doc, Boolean visible)
 }
 
 
-/* -------------------------------------------------------------- SetSelMeasType -- */
+/* ------------------------------------------------------------------ SetSelMeasType -- */
 /* Set "type" (the subType field) of every selected Measure subobject. */
 
 Boolean SetSelMeasType(Document *doc, short subtype)
 {
 	PAMEASURE	aMeasure;
-	LINK			pL, aMeasureL;
+	LINK		pL, aMeasureL;
 	Boolean		didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
@@ -1121,13 +1084,13 @@ Boolean SetSelMeasType(Document *doc, short subtype)
 }
 
 
-/* --------------------------------------------------------- SetSelDynamVisible -- */
+/* -------------------------------------------------------------- SetSelDynamVisible -- */
 /* Set visibility of every selected Dynamic. */
 
 Boolean SetSelDynamVisible(Document *doc, Boolean visible)
 {
-	LINK			pL, aDynamicL;
-	Boolean		didAnything=FALSE;
+	LINK	pL, aDynamicL;
+	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && DynamTYPE(pL)) {
@@ -1142,13 +1105,13 @@ Boolean SetSelDynamVisible(Document *doc, Boolean visible)
 	return didAnything;
 }
 
-/* --------------------------------------------------------- SetSelDynamSmall -- */
+/* ---------------------------------------------------------------- SetSelDynamSmall -- */
 /* Set visibility of every selected Dynamic. */
 
 Boolean SetSelDynamSmall(Document *doc, Boolean small)
 {
-	LINK			pL, aDynamicL;
-	Boolean		didAnything=FALSE;
+	LINK	pL, aDynamicL;
+	Boolean	didAnything=FALSE;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && DynamTYPE(pL)) {
@@ -1164,7 +1127,7 @@ Boolean SetSelDynamSmall(Document *doc, Boolean small)
 }
 
 
-/* ---------------------------------------------------------- SetSelBeamsetThin -- */
+/* --------------------------------------------------------------- SetSelBeamsetThin -- */
 /* Set thickness of selected beamset. */
 
 Boolean SetSelBeamsetThin(Document *doc, Boolean thin)
@@ -1183,13 +1146,13 @@ Boolean SetSelBeamsetThin(Document *doc, Boolean thin)
 	return didAnything;
 }
 
-/* ---------------------------------------------------------- SetSelClefVisible -- */
+/* --------------------------------------------------------------- SetSelClefVisible -- */
 /* Set visibility of every selected Clef. */
 
 Boolean SetSelClefVisible(Document *doc, Boolean visible)
 {
-	LINK			pL, aClefL;
-	Boolean		didAnything=FALSE;
+	LINK	pL, aClefL;
+	Boolean	didAnything=FALSE;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && ClefTYPE(pL)) {
@@ -1206,13 +1169,13 @@ Boolean SetSelClefVisible(Document *doc, Boolean visible)
 
 
 
-/* -------------------------------------------------------- SetSelKeySigVisible -- */
+/* ------------------------------------------------------------- SetSelKeySigVisible -- */
 /* Set visibility of every selected KeySig. */
 
 Boolean SetSelKeySigVisible(Document *doc, Boolean visible)
 {
-	LINK			pL, aKeySigL;
-	Boolean		didAnything=FALSE;
+	LINK	pL, aKeySigL;
+	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && KeySigTYPE(pL)) {
@@ -1228,13 +1191,13 @@ Boolean SetSelKeySigVisible(Document *doc, Boolean visible)
 }
 
 
-/* ------------------------------------------------------- SetSelTimeSigVisible -- */
+/* ------------------------------------------------------------ SetSelTimeSigVisible -- */
 /* Set visibility of every selected TimeSig. */
 
 Boolean SetSelTimeSigVisible(Document *doc, Boolean visible)
 {
-	LINK			pL, aTimeSigL;
-	Boolean		didAnything=FALSE;
+	LINK	pL, aTimeSigL;
+	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && TimeSigTYPE(pL)) {
@@ -1250,14 +1213,14 @@ Boolean SetSelTimeSigVisible(Document *doc, Boolean visible)
 }
 
 
-/* ------------------------------------------------------------ SetSelTupBracket -- */
+/* ---------------------------------------------------------------- SetSelTupBracket -- */
 /* Set visibility of every selected Tuplet bracket. */
 
 Boolean SetSelTupBracket(Document *doc, Boolean visible)
 {
-	PTUPLET		pTuplet;
-	LINK			pL;
-	Boolean		didAnything=FALSE;
+	PTUPLET	pTuplet;
+	LINK	pL;
+	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && TupletTYPE(pL)) {
@@ -1270,7 +1233,7 @@ Boolean SetSelTupBracket(Document *doc, Boolean visible)
 }
 
 
-/* --------------------------------------------------------------- SetSelTupNums -- */
+/* ------------------------------------------------------------------- SetSelTupNums -- */
 /* Set visibility of accessory numerals in every selected Tuplet. */
 
 enum {
@@ -1281,7 +1244,7 @@ enum {
 Boolean SetSelTupNums(Document *doc, short showWhich)
 {
 	PTUPLET		pTuplet;
-	LINK			pL;
+	LINK		pL;
 	Boolean		didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
@@ -1296,29 +1259,29 @@ Boolean SetSelTupNums(Document *doc, short showWhich)
 }
 
 
-/* ------------------------------------------------------------ SetAllSlursShape -- */
+/* ---------------------------------------------------------------- SetAllSlursShape -- */
 /* Set all slur/tie subobjects to the default shape. */
 
 void SetAllSlursShape(
 			Document *doc,
-			LINK 		slurL,
-			Boolean	recalc 		/* TRUE=recompute slur/ties' startPt and endPt fields */
+			LINK slurL,
+			Boolean recalc 		/* TRUE=recompute slur/ties' startPt and endPt fields */
 			)
 {
-	LINK			aSlurL, aNoteL, firstSyncL, lastSyncL;
-	CONTEXT		context;
-	PASLUR		aSlur;
-	Point 		startPt[MAXCHORD], endPt[MAXCHORD];
-	short			j, staff, voice;
-	Boolean 		curveUps[MAXCHORD];
+	LINK	aSlurL, aNoteL, firstSyncL, lastSyncL;
+	CONTEXT	context;
+	PASLUR	aSlur;
+	Point 	startPt[MAXCHORD], endPt[MAXCHORD];
+	short	j, staff, voice;
+	Boolean curveUps[MAXCHORD];
 	
 	staff = SlurSTAFF(slurL);
 	voice = SlurVOICE(slurL);
 
 	if (recalc) {
 	/* This is necessary because SetSlurCtlPoints assumes the slur/ties' startPt and endPt
-	 *	describe the positions of the notes they're attached to, a poor idea--why can't it
-	 *	just look at the notes and get their actual positions?
+	 * describe the positions of the notes they're attached to, a poor idea--why can't it
+	 * just look at the notes and get their actual positions?
 	 */
 		GetSlurContext(doc, slurL, startPt, endPt);		/* Get paper-relative positions, in points */
 		
@@ -1332,14 +1295,14 @@ void SetAllSlursShape(
 
 	if (LinkNENTRIES(slurL)==1) {
 	/*
-	 *	One slur/tie: decide whether it should curve up or down based on 1st note stem
-	 *	direction. The stem dir. test works even for stemless durations, since SetupNote
+	 * One slur/tie: decide whether it should curve up or down based on 1st note stem
+	 * direction. The stem dir. test works even for stemless durations, since SetupNote
 	 * always sets the stem endpoint.  ??BUT SHOULD CONSIDER ALL NOTES IN THE SLUR!
 	 */
 		firstSyncL = SlurFIRSTSYNC(slurL);
 		lastSyncL = SlurLASTSYNC(slurL);
-		if (SyncTYPE(firstSyncL)) aNoteL = FindMainNote(firstSyncL, voice);
-		else							  aNoteL = FindMainNote(lastSyncL, voice);
+		if (SyncTYPE(firstSyncL))	aNoteL = FindMainNote(firstSyncL, voice);
+		else						aNoteL = FindMainNote(lastSyncL, voice);
 		curveUps[0] = (NoteYSTEM(aNoteL) > NoteYD(aNoteL));
 	}
 	else
@@ -1357,18 +1320,18 @@ void SetAllSlursShape(
 }
 
 
-/* ------------------------------------------------------------- SetSelSlurShape -- */
+/* ----------------------------------------------------------------- SetSelSlurShape -- */
 /* Set every selected slur or tie subobject to the default shape by resetting its
 control points. */
 
 Boolean SetSelSlurShape(Document *doc)
 {
-	PSLUR			pSlur;
-	PASLUR		aSlur;
-	LINK			pL, aSlurL, aNoteL;
-	short			staff, voice, i;
-	CONTEXT		context;
-	Boolean		curveUp, curveUps[MAXCHORD], didAnything;
+	PSLUR	pSlur;
+	PASLUR	aSlur;
+	LINK	pL, aSlurL, aNoteL;
+	short	staff, voice, i;
+	CONTEXT	context;
+	Boolean	curveUp, curveUps[MAXCHORD], didAnything;
 
 	didAnything = FALSE;
 	
@@ -1410,13 +1373,13 @@ Boolean SetSelSlurShape(Document *doc)
 }
 
 
-/* ------------------------------------------------------------ SetSelSlurAppear -- */
+/* ---------------------------------------------------------------- SetSelSlurAppear -- */
 /* Set the appearance (line style) of every selected slur/tie. */
 
 Boolean SetSelSlurAppear(Document *doc, short appearance)
 {
 	PASLUR	aSlur;
-	LINK		pL, aSlurL;
+	LINK	pL, aSlurL;
 	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -1432,13 +1395,13 @@ Boolean SetSelSlurAppear(Document *doc, short appearance)
 }
 
 
-/* ---------------------------------------------------------- SetSelLineThickness -- */
-/* Set the thickness of every selected GRDraw Graphic to a given value. */
+/* ------------------------------------------------------------- SetSelLineThickness -- */
+/* Set the line thickness of every selected GRDraw Graphic to a given value. */
 
 Boolean SetSelLineThickness(Document *doc, short thickness)
 {
 	PGRAPHIC pGraphic;
-	LINK		pL;
+	LINK	pL;
 	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -1451,13 +1414,13 @@ Boolean SetSelLineThickness(Document *doc, short thickness)
 	return didAnything;
 }
 
-/* ------------------------------------------------------- SetSelPatchChangeVisible -- */
+/* -------------------------------------------------------- SetSelPatchChangeVisible -- */
 /* Set visibility of every selected PatchChange. */
 
 Boolean SetSelPatchChangeVisible(Document *doc, Boolean visible)
 {
-	LINK		pL;
-	Boolean		didAnything=FALSE;
+	LINK	pL;
+	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && GraphicTYPE(pL)) 
@@ -1476,8 +1439,8 @@ Boolean SetSelPatchChangeVisible(Document *doc, Boolean visible)
 
 Boolean SetSelPanVisible(Document *doc, Boolean visible)
 {
-	LINK		pL;
-	Boolean		didAnything=FALSE;
+	LINK	pL;
+	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && GraphicTYPE(pL)) 
