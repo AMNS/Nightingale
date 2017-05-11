@@ -1,15 +1,15 @@
-/***************************************************************************
+/****************************************************************************************
 *	FILE:	TextDialog.c
 *	PROJ:	Nightingale
 *	DESC:	Routines to handle text editing and Define Text Style dialogs
-/***************************************************************************/
+*****************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -95,8 +95,8 @@ static UserPopUp popup11;		/* For font sizes and real sizes menu */
 static UserPopUp popup16;		/* For staff-relative sizes menu */
 static Boolean popupAns;		/* New choice has been made in popup itemHit event */
 
-/* Global current values of what we're editing, so that we can draw the
-text as it looks from within the Filter during an update event. */
+/* Global current values of what we're editing, so that we can draw the text as
+it looks from within the Filter during an update event. */
 
 static short theFont;
 static short theLyric;
@@ -128,8 +128,8 @@ static void		DimStylePanels(DialogPtr dlog, Boolean dim);
 static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 
 static void		DebugPrintFonts(Document *doc);
-static void		SetFontPopUp(unsigned char *fontName, unsigned char *strbuf);
-static void		SetAbsSizePopUp(short size, unsigned char *strbuf);
+static void		SetFontPopUp(StringPtr fontName, StringPtr strbuf);
+static void		SetAbsSizePopUp(short size, StringPtr strbuf);
 static void		SetStyleBoxes(DialogPtr dlog, short style, short lyric);
 static void		SetStylePopUp(short styleIndex);
 static short	GetStyleChoice(void);
@@ -143,7 +143,7 @@ static void		UpdateDocStyles(Document *doc);
 static Boolean	ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style);
 static void		GetRealSizes(void);
 static void		TuneRadioIn(DialogPtr dlog,short itemHit, short *radio);
-static void		DrawExampleText(DialogPtr dlog, unsigned char *string);
+static void		DrawExampleText(DialogPtr dlog, StringPtr string);
 static Boolean	AllIsWell(DialogPtr dlog);
 static void		InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpanded);
 
@@ -187,7 +187,9 @@ therefore be outlined.  Also defines the font number of the current font. */
 
 static void GetRealSizes()
 	{
-		short i,nitems; unsigned char str[64]; long num;
+		short i, nitems;
+		unsigned char str[64];
+		long num;
 		
 		if (popup7.currentChoice) {
 			/* Pull non-truncated menu item back into popup str storage */
@@ -211,7 +213,7 @@ static void GetRealSizes()
 look up the name in the popup font menu, and set the popup to display it,
 if it exists. */
 
-static void SetFontPopUp(unsigned char *fontName, unsigned char *strbuf)
+static void SetFontPopUp(StringPtr fontName, StringPtr strbuf)
 	{
 		short nitems, i;
 		
@@ -231,7 +233,7 @@ static void SetFontPopUp(unsigned char *fontName, unsigned char *strbuf)
 look up the size in the size popup menu, and set the popup choice to display it,
 if it exists. */
 
-static void SetAbsSizePopUp(short size, unsigned char *strbuf)
+static void SetAbsSizePopUp(short size, StringPtr strbuf)
 	{
 		short nitems, i; long num;
 		
@@ -656,7 +658,7 @@ static void InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpand
 	{
 		unsigned char str[256]; short tmpSize, i;
 
-		SetFontPopUp((unsigned char *)aStyle->fontName,str);
+		SetFontPopUp((StringPtr)aStyle->fontName,str);
 		
 		GetRealSizes();
 		isRelative = aStyle->relFSize;
@@ -854,7 +856,7 @@ static void TuneRadioIn(DialogPtr dlog, short itemHit, short *radio)
 given current font, size, and style.  If _string_ is NULL, then look it up;
 otherwise it is the string to draw. */
 
-static void DrawExampleText(DialogPtr dlog, unsigned char *string)
+static void DrawExampleText(DialogPtr dlog, StringPtr string)
 	{
 		unsigned char str1[256], str2[256];
 		short oldFont,oldSize,oldStyle,type,y,userItem,editText,i,tmpLen,oldLen;
@@ -977,16 +979,16 @@ Boolean TextDialog(
 			short *enclosure,		/* Enclosure code */
 			Boolean *lyric,			/* TRUE=lyric, FALSE=other */
 			Boolean *expanded,		/* TRUE=expanded */
-			unsigned char *name,	/* Fontname or empty */
-			unsigned char *string,	/* Current text string or empty */
+			StringPtr name,			/* Fontname or empty */
+			StringPtr string,		/* Current text string or empty */
 			CONTEXT *context
 			)
 {
-	short tmpSize,itemHit,type;
-	Boolean okay=FALSE,keepGoing=TRUE;
+	short tmpSize, itemHit, type;
+	Boolean okay=FALSE, keepGoing=TRUE;
 	short val, i, currentStyle;
-	Handle hndl; Rect box; long num;
-	DialogPtr dlog; GrafPtr oldPort;
+	Handle hndl;  Rect box;  long num;
+	DialogPtr dlog;  GrafPtr oldPort;
 	unsigned char str[256];
 	ModalFilterUPP filterUPP;
 	
@@ -1313,7 +1315,7 @@ Boolean TextDialog(
 						textH = GetDialogTextEditHandle(dlog);
 						(*textH)->selStart = selStart+1;
 						(*textH)->selEnd = selStart+1;
-						DrawExampleText(dlog, (unsigned char *)str1);
+						DrawExampleText(dlog, (StringPtr)str1);
 						HILITE_DITEM(BUT1_OK, CTL_ACTIVE);
 					}
 				}
@@ -1367,7 +1369,7 @@ displays an editable sample text string in the current font. It returns FALSE
 in case of an error or Cancel, else TRUE. */
 
 Boolean DefineStyleDialog(Document *doc,
-							unsigned char *string,		/* Sample text */
+							StringPtr string,		/* Sample text */
 							CONTEXT *context)
 {
 	LINK			pL;
@@ -1476,7 +1478,7 @@ Boolean DefineStyleDialog(Document *doc,
 	InstallTextStyle(dlog, &theCurrent, FALSE);
 	SetStylePopUp(currentStyle);
 
-	PutDlgString(dlog,EDIT28_Text, (unsigned char *)string, FALSE);
+	PutDlgString(dlog,EDIT28_Text, (StringPtr)string, FALSE);
 	
 	ShowWindow(GetDialogWindow(dlog));
 

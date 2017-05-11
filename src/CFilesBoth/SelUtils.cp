@@ -30,7 +30,6 @@ typedef struct {
 	unsigned short	top:15;
 } STAFFINFO;
 
-static void ShellSort(short [], short);
 static short GetStaff(Document *, Point);
 static short GetNextStaffn(Document *, short, Boolean);
 static Point TrackStaffRect(Document *, Point, short *, short *, Rect *);
@@ -39,7 +38,7 @@ static void GetStaffLimits(Document *, Point, STAFFINFO [], CONTEXT []);
 static void StartThread(void);
 
 
-/* ------------------------------------------------------------------ GetSelStaff -- */
+/* -------------------------------------------------------------------- GetSelStaff -- */
 /* Get the staff number of the insertion point or selection. If anything is selected,
 if the first selected object or subobject actually has a staff number (almost always
 the case unless it's a page-relative Graphic) return that number; if it doesn't,
@@ -593,40 +592,6 @@ Boolean HomogenizeSel(
 	}
 	
 	return TRUE;
-}
-
-
-/* ----------------------------------------------------------------------- ShellSort -- */
-/* ShellSort does a Shell (diminishing increment) sort on the given array,
-putting it into ascending order.  The increments we use are powers of 2,
-which does not give the fastest possible execution, though the difference
-should be negligible for a few hundred elements or less. See Knuth, The Art
-of Computer Programming, vol. 2, pp. 84-95. ??This definitely belongs elsewhere,
-probably in Utility.c. */
-
-static void ShellSort(short array[], short nsize)
-{
-	short nstep, ncheck, i, n, temp;
-	
-	for (nstep = nsize/2; nstep>=1; nstep = nstep/2)
-	{
-/* Sort <nstep> subarrays by simple insertion */
-		for (i = 0; i<nstep; i++)
-		{
-			for (n = i+nstep; n<nsize; n += nstep) {		/* Look for item <n>'s place */
-				temp = array[n];							/* Save it */
-				for (ncheck = n-nstep; ncheck>=0;
-					  ncheck -= nstep)
-					if (temp<array[ncheck])
-						array[ncheck+nstep] = array[ncheck];
-					else {
-						array[ncheck+nstep] = temp;
-						break;
-					}
-					array[ncheck+nstep] = temp;
-			}
-		}
-	}
 }
 
 

@@ -62,6 +62,7 @@ short RoundSignedInt(short value, short quantum);
 short InterpY(short, short, short, short, short);
 
 long FindIntInString(unsigned char *);
+void ShellSort(short [], short);
 short BlockCompare(void *src, void *dst, short len);
 short RelIndexToSize(short, DDIST);
 short GetTextSize(Boolean, short, DDIST);

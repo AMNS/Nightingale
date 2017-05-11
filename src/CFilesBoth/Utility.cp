@@ -22,7 +22,7 @@
 		AddDPt					SetDPt					SetDRect
 		OffsetDRect				InsetDRect				DMoveTo
 		GCD						RoundDouble				RoundSignedInt
-		InterpY					FindIntInString
+		InterpY					FindIntInString			ShellSort
 		BlockCompare			RelIndexToSize			GetTextSize
 		FontName2Index			User2HeaderFontNum		Header2UserFontNum
 		Rect2Window				Pt2Window				Pt2Paper		
@@ -725,12 +725,12 @@ SPACETIMEINFO *AllocSpTimeInfo()
 }
 
 
-/* ------------------------------------------------------ MakeGWorld and friends -- */
+/* ---------------------------------------------------------- MakeGWorld and friends -- */
 /* Functions for managing offscreen graphics ports using Apple's GWorld mechanism.
 These make it easy to work with color images.  See Apple documentation
 ("Offscreen Graphics Worlds.pdf") for more.   JGG, 8/11/01 */
 
-/* ------------------------------------------------------------------ MakeGWorld -- */
+/* ---------------------------------------------------------------------- MakeGWorld -- */
 /* Create a new graphics world (GWorld) for offscreen drawing, having
 the given dimensions.  If <lock> is true, the PixMap of this GWorld will be
 locked on return.  Returns the new GWorldPtr, or NULL if error. */
@@ -778,13 +778,13 @@ GWorldPtr MakeGWorld(short width, short height, Boolean lock)
 }
 
 
-/* --------------------------------------------------------------- DestroyGWorld -- */
+/* ------------------------------------------------------------------- DestroyGWorld -- */
 void DestroyGWorld(GWorldPtr theGWorld)
 {
 	PixMapHandle pixMapH;
 
 	pixMapH = GetGWorldPixMap(theGWorld);
-	UnlockPixels(pixMapH);		/* Presumably this is OK even if PixMap is unlocked. */
+	UnlockPixels(pixMapH);			/* Presumably this is OK even if PixMap is unlocked. */
 	DisposeGWorld(theGWorld);
 }
 
@@ -1024,7 +1024,8 @@ coordinates, done in homebrew fixed-point arithmetic. */
 
 short InterpY(short x0, short y0, short x1, short y1, short ptx)
 {
-	long prop, dyBig; short y;
+	long prop, dyBig;
+	short y;
 
 	if (x1==x0) return y1;										/* Avoid possible divide by 0 */
 
@@ -1040,7 +1041,8 @@ in the given string. If the string contains no digits, return -1. */
 
 long FindIntInString(unsigned char *string)
 {
-	long number, digit;  Boolean foundDigits;
+	long number, digit;
+	Boolean foundDigits;
 	
 	number = 0L;
 	foundDigits = false;
@@ -1060,7 +1062,38 @@ long FindIntInString(unsigned char *string)
 }
 
 
-/* ------------------------------------------------------------------- BlockCompare -- */
+/* ----------------------------------------------------------------------- ShellSort -- */
+/* ShellSort does a Shell (diminishing increment) sort on the given array, putting
+it into ascending order.  The increments we use are powers of 2, which does not
+give the fastest possible execution, though the difference should be negligible for
+a few hundred elements or less. See Knuth, The Art of Computer Programming, vol. 2,
+pp. 84-95. */
+
+void ShellSort(short array[], short nsize)
+{
+	short nstep, ncheck, i, n, temp;
+	
+	for (nstep = nsize/2; nstep>=1; nstep = nstep/2) {
+		/* Sort <nstep> subarrays by simple insertion */
+		for (i = 0; i<nstep; i++) {
+			for (n = i+nstep; n<nsize; n += nstep) {		/* Look for item <n>'s place */
+				temp = array[n];							/* Save it */
+				for (ncheck = n-nstep; ncheck>=0;
+					  ncheck -= nstep)
+					if (temp<array[ncheck])
+						array[ncheck+nstep] = array[ncheck];
+					else {
+						array[ncheck+nstep] = temp;
+						break;
+					}
+					array[ncheck+nstep] = temp;
+			}
+		}
+	}
+}
+
+
+/* -------------------------------------------------------------------- BlockCompare -- */
 /* Compare two structures byte by byte for a given length until either they match,
 in which case we deliver 0, or until the first is less than or greater than
 the second, in which case we deliver -1 or 1 respectively. */

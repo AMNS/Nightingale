@@ -14,7 +14,7 @@
 #include "ChooseCharLDEF.h"
 
 /* No one point size is good for both music fonts and normal text fonts. 24 is a nice
-size for Sonata and similar fonts. */
+size for Sonata and similar fonts, whether compatible or not. */
 #define MIN_FONTSIZE 	14		/* still too small for music fonts! */
 #define MAX_FONTSIZE 	48		/* too big for non-music fonts? too small for 72pt Seville, etc.*/
 #define MIN_CELLWIDTH	32		/* pixels */
@@ -223,7 +223,7 @@ static pascal Boolean ChooseCharFilter(DialogPtr dlog, EventRecord *evt, short *
 						if (oldCellCh < numColumns*(numRows-1))
 							oldCellCh += numColumns;
 						break;
-					default:								/* select the letter typed */
+					default:								/* select the character typed */
 						oldCellCh = ch;
 						break;
 				}

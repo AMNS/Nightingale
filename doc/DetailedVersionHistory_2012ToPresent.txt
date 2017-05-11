@@ -1392,7 +1392,7 @@ NotelistSave, PS_Stdio, RTRhythmDur.
 
 -------------------------------------------------------------------------------
 
-20-23 Apr.		======== (FIRST) NIGHTINGALE 5.7 (23 April 2017) ========
+20-23 Apr.	======== (FIRST CANDIDATE) NIGHTINGALE 5.7 (23 April 2017) ========
 
 Changed version number from 5.7b12 to 5.7. Affects Info.plist.
 
@@ -1446,5 +1446,24 @@ Changed version number from 5.7 to 5.8b1 (again). Affects Info.plist.
 Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
 AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem.
 
-Move HomogenizeSel() from Selutils to SetUtils; other minor cleanup. Affects SelUtils.h;
+Move HomogenizeSel() from SelUtils to SetUtils; other minor cleanup. Affects SelUtils.h;
 AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem, SelUtils, SetUtils.
+
+-------------------------------------------------------------------------------
+
+6-10 May
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects Check,
+Menu, PitchUtils, Tuplet, Undo.
+
+Move ShellSort() from SelUtils to Utility; other minor cleanup. Affects Utility.h;
+SelUtils, Utility.
+
+Fix bug: Editing text always, and Untuple in rare circumstances, leave Undo for the
+previous operation in place; now, both operations always just leave Undo disabled.
+Affects Check, Tuplet. (An abandoned attempt to implement Undo for editing text affects
+NTypes.h; .rsrc; Undo.)
+
+Replace some "unsigned char [256]" with "Str255" and "unsigned char*" with "StringPtr";
+other minor cleanup. Affects Check, ChooseCharDlog, Menu, PitchUtils, TextDialog,
+Tuplet, Undo, Utility.

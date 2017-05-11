@@ -2046,3 +2046,21 @@ Michel Alexandre Salim
 profile:    https://keybase.io/michel_slm
 GPG key ID: 4AF554ABA36A937A
 
+-------------------------------------------------------------------------------
+
+6 May ff.
+
+Need to get the Ngale 5.7 codebase from the develop into the master branch! ??
+
+...done; also, created branch develop5p8 ...
+
+-------------------------------------------------------------------------------
+
+10 May
+
+To facilitate add cues to extracted parts, how about a "Paste as Cue" command? It
+should put up a dialog to get voice no. n & cue note velocity v, & name to display at
+beginning of the cue (presumably the instrument the cur is of); Paste Merge from the
+clipboard into voice n; set notes/rest size to small, and velocity to v; and attach
+a text Graphic to the 1st note w/ the name.
+
