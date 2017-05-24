@@ -925,7 +925,7 @@ Nightingale if a copy is already running. Affects .rsrc.
 
 Remove obsolete LogPrintf's. Affects DialogsEditor.
 
-Move NewSlur.cp from CFilesBoth to CFilesEditor. Affects Nightingale.xcodeproj.
+Move NewSlur.cp from folder CFilesBoth to CFilesEditor. Affects Nightingale.xcodeproj.
 
 Minor cleanup. Affects DrawObject, NewSlur.
 
@@ -1459,11 +1459,39 @@ Menu, PitchUtils, Tuplet, Undo.
 Move ShellSort() from SelUtils to Utility; other minor cleanup. Affects Utility.h;
 SelUtils, Utility.
 
-Fix bug: Editing text always, and Untuple in rare circumstances, leave Undo for the
-previous operation in place; now, both operations always just leave Undo disabled.
-Affects Check, Tuplet. (An abandoned attempt to implement Undo for editing text affects
-NTypes.h; .rsrc; Undo.)
+Fix bug: Editing text always, and the Untuple command in rare circumstances, leave Undo
+for the previous operation in place; now, both operations always just leave Undo
+disabled. Affects Check, Tuplet. (An abandoned attempt to implement Undo for editing
+text affects NTypes.h; .rsrc; Undo.)
 
 Replace some "unsigned char [256]" with "Str255" and "unsigned char*" with "StringPtr";
 other minor cleanup. Affects Check, ChooseCharDlog, Menu, PitchUtils, TextDialog,
 Tuplet, Undo, Utility.
+
+-------------------------------------------------------------------------------
+
+11-13 May
+
+Fix bug: Editing a tempo/metronome mark leaves Undo for the previous operation in place;
+now, it just leave Undo disabled. Affects Check.
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
+CheckUtils, ChordSym.
+
+Rename three data-structure utilities to clarify that they're Boolean-valued. Affects
+DSUtils.h; AccModNRMouse, CheckUtils, Clipboard, DSUtils, MergeUtils, MoveUpDown,
+Ottava, Score, SFormatHighLevel, Tuplet.
+
+Minor cleanup. Affects About, Check, CheckUtils, Clipboard, DSUtils, MergeUtils,
+MoveUpDown, Utility.
+
+-------------------------------------------------------------------------------
+
+17-21 May
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
+CompactVoices, Context, FileInput, Merge.
+
+Move CompactVoices from folder CFilesBoth to CFilesEditor.
+
+Minor cleanup. Affects CompactVoices, Context, FileInput, Menu, Merge.

@@ -15,9 +15,9 @@
 
 #define	CR_LEADING			14		/* Vert. dist. between baselines of credit text */
 #define	PAUSE_CODE			'¹'		/* [opt-p] If line of TEXT resource begins with this,
-											animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
+										animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
 #define	BOLD_CODE			'º'		/* [opt-b] If this begins a line of TEXT resource, or follows
-											PAUSE_CODE, that line will be drawn in bold. */
+										PAUSE_CODE, that line will be drawn in bold. */
 #define	SCROLL_PAUSE_DELAY	210		/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
 #define	SCROLL_NORM_DELAY	4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
 #define	MAX_PAUSE_LINES		10		/* Max number of lines that can begin with PAUSE_CODE */
@@ -47,7 +47,6 @@ void DoAboutBox(
 {
 	short			type, itemHit;
 	short			x, y;
-	Rect			smallRect, bigRect;
 	Boolean			okay, keepGoing=true;
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
@@ -87,7 +86,7 @@ void DoAboutBox(
 	/* Get version number string and display it in a static text item. */
 	{
 		Str255 vstr;
-		unsigned char *vers_str;
+		StringPtr vers_str;
 		const char *bundle_version_str;
 		
 		/* Get version number from main bundle (Info.plist); 
@@ -95,7 +94,7 @@ void DoAboutBox(
 		 */
 		CFStringRef vsr = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey);
 		bundle_version_str = CFStringGetCStringPtr(vsr, kCFStringEncodingMacRoman);
-		vers_str = CToPString((char *) bundle_version_str);
+		vers_str = CToPString((char *)bundle_version_str);
 		vstr[0] = 0;
 		Pstrcpy(vstr, "\pv. ");
 		PStrCat(vstr, vers_str);
@@ -111,12 +110,7 @@ void DoAboutBox(
 	TextSize(textFontSmallSize);
 
 	y = GetMBarHeight()+10;  x = 25;
-	SetRect(&smallRect, x, y, x+2, y+2);
 	CenterWindow(GetDialogWindow(dlog), 70);
-	GetWindowPortBounds(GetDialogWindow(dlog), &bigRect);
-	LocalToGlobal(&TOP_LEFT(bigRect));
-	LocalToGlobal(&BOT_RIGHT(bigRect));
-	//ZoomRect(&smallRect, &bigRect, true);
 	ShowWindow(GetDialogWindow(dlog));
 	
 	/* Show the first "screen" of animated text */
@@ -149,9 +143,7 @@ void DoAboutBox(
 	}
 	
 	DestroyGWorld(fullTextPort);
-	
 	HideWindow(GetDialogWindow(dlog));
-	//ZoomRect(&smallRect, &bigRect, false);
 broken:	
 	DisposeModalFilterUPP(filterUPP);
 	DisposeDialog(dlog);

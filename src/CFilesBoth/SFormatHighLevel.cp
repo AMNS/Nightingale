@@ -206,7 +206,8 @@ DDIST SetStfInvis(Document *doc, LINK pL, LINK aStaffL)
 {
 	PASTAFF aStaff, bStaff;
 	LINK bStaffL, sysL;
-	DDIST vDiff, prevStfHt;  short staffn, prevBelowDist;
+	DDIST vDiff, prevStfHt; 
+	short staffn, prevBelowDist;
 
 	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	prevBelowDist = BelowStfDist(doc, sysL, pL);
@@ -303,11 +304,11 @@ void InvisifySelStaves(Document *doc)
 	sysL = LSSearch(doc->selStartL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	UpdateSysMeasYs(doc, sysL, FALSE, FALSE);
 
-	if (!LastSysInPage(sysL))
+	if (!IsLastSysInPage(sysL))
 		for (sysL=LinkRSYS(sysL); sysL; sysL=LinkRSYS(sysL)) {
 			OffsetSystem(sysL, 0, -d2p(vDiff));
 			UpdateSysMeasYs(doc, sysL, FALSE, FALSE);
-			if (LastSysInPage(sysL)) break;
+			if (IsLastSysInPage(sysL)) break;
 		}
 	
 	/*
@@ -455,17 +456,17 @@ LINK VisifyAllStaves(Document *doc, LINK staffL)
  
 	theSysL = LSSearch(staffL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);		/* Should always succeed */
 
-	if (!LastSysInPage(theSysL))
+	if (!IsLastSysInPage(theSysL))
 		for (sysL=LinkRSYS(theSysL); sysL; sysL=LinkRSYS(sysL)) {
 			OffsetSystem(sysL, 0, d2p(vDiff));
-			if (LastSysInPage(sysL)) break;
+			if (IsLastSysInPage(sysL)) break;
 		}
 	
-	UpdateSysMeasYs(doc,theSysL,FALSE,FALSE);
-	if (!LastSysInPage(theSysL))
+	UpdateSysMeasYs(doc, theSysL, FALSE, FALSE);
+	if (!IsLastSysInPage(theSysL))
 		for (sysL=LinkRSYS(theSysL); sysL; sysL=LinkRSYS(sysL)) {
 			UpdateSysMeasYs(doc, sysL, FALSE, FALSE);
-			if (LastSysInPage(sysL)) break;
+			if (IsLastSysInPage(sysL)) break;
 		}
 
 	return theSysL;
@@ -651,7 +652,7 @@ Boolean EditSysRect(Document *doc, Point pt, LINK sysL)
 			minVal = origMargin.top + d2p(StaffTOP(aStaffL) + StaffHEIGHT(aStaffL))
 						+ MARGIN_GAP;
 
-			if (LastSysInPage(sysL))
+			if (IsLastSysInPage(sysL))
 				maxVal = doc->paperRect.bottom - MARGIN_GAP;
 			else {
 				Rect nextSysRect;

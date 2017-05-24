@@ -17,7 +17,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -37,15 +37,15 @@
 		=SMSelNoHilite	Selects all subobjects but does no highliting.
 		=SMDeselect		Deselects and unhighlites all subobjects.
 		=SMHilite		Highlites all selected subobjects.
-	   =SMSymDrag		Determines whether *(Point *)ptr is inside any
+		=SMSymDrag		Determines whether *(Point *)ptr is inside any
 	                 	subobject(s), calling HandleSymDrag if so.
-	Not all routines handle all modes, and a couple of routines have an
-	additional mode, SMThread.
+	Not all routines handle all modes, and a couple of routines have an additional
+	mode, SMThread.
 
 	For objects with subobjects, in most cases, return value is either NOMATCH or the
 	subobject sequence number (NOT staff or voice number!) of the subobject found.
 
-	FIXME: These functions should check <valid> flags before doing a lot of their work--
+	FIXME: These functions should check <valid> flags before doing a lot of their work:
 	e.g., SMDeselect can clear flags but shouldn't HiliteRect if it's not <valid>. */
 
 
@@ -412,7 +412,7 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 		}
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSel;
-	if (mode==SMDrag) HiliteStaves(doc, pL, context, false);		/* Call this here to prevent chunky hiliting */
+	if (mode==SMDrag) HiliteStaves(doc, pL, context, false);	/* Call this here to prevent chunky hiliting */
 	return result;
 }
 
@@ -535,7 +535,7 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 										staffAbove = NextStaffn(doc,pL,true,aConnect->staffAbove);
 										staffBelow = NextStaffn(doc,pL,false,aConnect->staffBelow);
 										UpdateFormatConnect(doc, staffL,
-																	staffAbove, staffBelow, newPos);
+																staffAbove, staffBelow, newPos);
 									}
 
 								result = 0;
@@ -814,7 +814,7 @@ PushLock(DYNAMheap);
 					InvalObject(doc, pL, true);						/* inval new symbol */
 					doc->changed = true;
 				}
-				HiliteInsertNode(doc, firstSync, staffn, false);		/* Hiliting off */
+				HiliteInsertNode(doc, firstSync, staffn, false);	/* Hiliting off */
 			}
 			break;
 		case SMDrag:
@@ -1195,7 +1195,7 @@ PushLock(GRAPHICheap);
 						SleepTicks(30L);
 						break;
 					default:
-						NULL;
+						;
 				}
 				
 				if (GraphicSubType(pL)!=GRDraw)
@@ -1365,6 +1365,7 @@ PushLock(OBJheap);
 				p = GetPTEMPO(pL);
 				HiliteInsertNode(doc, p->firstObjL, staffn, false);	/* Hiliting off */
 				if (ok) {
+					DisableUndo(doc, false);
 					offset = PReplace(p->strOffset, tempoStr);
 					if (offset<0L)
 						{ NoMoreMemory(); goto Cleanup; }
@@ -1416,8 +1417,8 @@ PushLock(OBJheap);
 					 staffn<=stfRange.bottomStaff && !p->selected) {
 					tempR = *(Rect *)ptr;
 					COffsetRect(&tempR, pContext->paper.left, pContext->paper.top);
-					if (r.top<tempR.top)			tempR.top = r.top;
-					if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
+					if (r.top<tempR.top)		tempR.top = r.top;
+					if (r.bottom>tempR.bottom)	tempR.bottom = r.bottom;
 					UnionRect(&r, &tempR, &aRect);			/* does (Rect *)ptr enclose r? */
 					if (EqualRect(&aRect, &tempR)) {
 						p->selected = true;

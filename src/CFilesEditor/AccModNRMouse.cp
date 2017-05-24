@@ -54,7 +54,7 @@ static short FindAccModNR(Document *doc, Point pt,
 	startL = NILINK;
 	firstMeasL = LSSearch(pageL, MEASUREtype, ANYONE, GO_RIGHT, false);
 	for (measL = firstMeasL; SamePage(measL, firstMeasL); measL = LinkRMEAS(measL)) {
-		if (PtInMeasure(doc, pt, measL)) {
+		if (IsPtInMeasure(doc, pt, measL)) {
 			startL = measL;
 			break;
 		}

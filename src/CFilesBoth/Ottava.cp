@@ -323,12 +323,11 @@ LINK CreateOTTAVA(
 	/* Update notes' y position. */
 	
 	GetContext(doc, ottavaL, staff, &context);
-	yDelta = halfLn2d(noteOffset[octSignType-1],context.staffHeight,
-							context.staffLines);
+	yDelta = halfLn2d(noteOffset[octSignType-1],context.staffHeight, context.staffLines);
 
 	for (pL = startL; pL!=endL; pL=RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
-			multiVoice = GetMultiVoice(pL, staff); 		/* Are there multiple voices on staff? */
+			multiVoice = IsMultiVoice(pL, staff); 		/* Are there multiple voices on staff? */
 			/* Loop through the notes, simple-mindedly fixing up notehead, stem, and
 				aug. dot y-positions. Chords will need more attention once all their
 				constituent notes have been moved. */
@@ -690,7 +689,7 @@ static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short 
 	STDIST dystd;
 	
 	/* Determine if there are multiple voices on s. */
-	multiVoice = GetMultiVoice(pL, s);
+	multiVoice = IsMultiVoice(pL, s);
 
 	/* Loop through the notes and set their yds and ystems. */
 	aNoteL = FirstSubLINK(pL);

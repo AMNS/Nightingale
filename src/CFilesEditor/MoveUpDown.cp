@@ -1,4 +1,4 @@
-/***************************************************************************
+/****************************************************************************************
 	FILE:	MoveUpDown.c
 	PROJ:	Nightingale
 	DESC:	Routines for moving Measures and Systems logically "up" and
@@ -7,14 +7,14 @@
 	InitMoveBars			FixMeasOwners			FixStartContext
 	CleanupMoveBars			MoveBarsUp				MoveBarsDown
 	MoveSystemUp			MoveSystemDown
-/***************************************************************************/
+/****************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -28,7 +28,7 @@ static void FixStartContext(Document *doc, LINK pL, LINK startL, LINK endL);
 static void CleanupMoveBars(Document *doc, LINK startL, LINK endL);
 static void MoveUpDownErr(LINK pL, short errNum);
 
-/* ------------------------------------------------------------ Various Utilities -- */
+/* --------------------------------------------------------------- Various Utilities -- */
 
 /* Return range of bars to move in startBarL and endBarL. Returns FALSE if
 startMeasL is not before endL. startBarL is first measure before startL, or
@@ -48,7 +48,7 @@ static Boolean InitMoveBars(Document *doc, LINK startL, LINK endL, LINK *startBa
 	}
 
 	*startBarL = startMeasL;
-	*endBarL = EndMeasSearch(doc, LeftLINK(endL));										/* Stop at end of Measure */
+	*endBarL = EndMeasSearch(doc, LeftLINK(endL));							/* Stop at end of Measure */
 	return TRUE;
 }
 
@@ -57,7 +57,7 @@ static Boolean InitMoveBars(Document *doc, LINK startL, LINK endL, LINK *startBa
 
 static void FixStartContext(Document *doc, LINK pL, LINK startL, LINK endL)
 {
-	short s; KSINFO KSInfo; TSINFO TSInfo; CONTEXT context;
+	short s;  KSINFO KSInfo;  TSINFO TSInfo;  CONTEXT context;
 
 /* Fix start-of-system (or page) contexts. */
 	for (s = 1; s<=doc->nstaves; s++) {
@@ -126,7 +126,7 @@ static void MoveUpDownErr(LINK pL, short errNum)
 	}
 }
 
-/* ------------------------------------------------------------------ MoveJDObjs -- */
+/* ---------------------------------------------------------------------- MoveJDObjs -- */
 /*	Find all Graphics, Tempos and Endings that are attached to <srcAnchorL>, and
 attach them to <dstAnchorL>. Return TRUE if we did anything, FALSE if there were
 no J_D objects to move.
@@ -138,7 +138,7 @@ Tempo and Ending objects? */
 Boolean MoveJDObjs(Document *doc, LINK srcAnchorL, LINK dstAnchorL);
 Boolean MoveJDObjs(Document *doc, LINK srcAnchorL, LINK dstAnchorL)
 {
-	LINK		pL, stopL, prevL;
+	LINK	pL, stopL, prevL;
 	Boolean	didSomething = FALSE;
 	
 	if (srcAnchorL==dstAnchorL) return FALSE;
@@ -191,11 +191,11 @@ initial barline).
 [P] indicates [optional] page. node/ indicates that node is a barLine.
 
 BEFORE: sys1L...leftBarL/
-			[P] sys2L...startBarL/...startL...firstBarL/...endL...endBarL/...rightBarL/...
-			sys3L
+		[P] sys2L...startBarL/...startL...firstBarL/...endL...endBarL/...rightBarL/...
+		sys3L
 AFTER:  sys1L...leftBarL/ RightLINK(startBarL)...startL...firstBarL/...endL...endBarL/
-			[P] sys2L...startBarL/...rightBarL/...
-			sys3L
+		[P] sys2L...startBarL/...rightBarL/...
+		sys3L
 
 Enable "Move Measures Up" iff selStartL and selEndL are in the same System;
 that System is not the first; selStartL is in the first Measure of that System;
@@ -204,11 +204,11 @@ and there's at least one Measure in the System after selStartL.
 
 Boolean MoveBarsUp(Document *doc, LINK startL, LINK endL)
 {
-	LINK			startBarL, endBarL,						/* Objs delimiting Move area */
-					sys1L, sys2L, sys3L,
-					rightBarL, endRangeL,
-					lastL, nextBarL;
-	DDIST			xMove1, xMove2, linkXD, nextBarXD;	/* Dists to move ranges on upper and lower Systems */
+	LINK	startBarL, endBarL,					/* Objs delimiting Move area */
+			sys1L, sys2L, sys3L,
+			rightBarL, endRangeL,
+			lastL, nextBarL;
+	DDIST	xMove1, xMove2, linkXD, nextBarXD;	/* Dists to move ranges on upper and lower Systems */
 	
 	/* InitMoveBars returns range consisting of bars properly containing [startL,endL).
 		If startL is before all measures, startBarL is the first barLine of score. */
@@ -332,7 +332,7 @@ Boolean MoveBarsUp(Document *doc, LINK startL, LINK endL)
 	return TRUE;
 }
 
-/* ---------------------------------------------------------------- MoveBarsDown -- */
+/* -------------------------------------------------------------------- MoveBarsDown -- */
 /* Move a range of Measures down from the end of a System to the beginning of
 the following System. The range extends from the barLine prior to startL to
 the end of the measure including endL.
@@ -370,7 +370,7 @@ Boolean MoveBarsDown(Document *doc, LINK startL, LINK endL)
 	if (!InitMoveBars(doc, startL, endL, &startBarL, &endBarL))
 		return FALSE;
 
-	PrepareUndo(doc, startL, U_MoveMeasDown, 45);    			/* "Move Measures Down" */
+	PrepareUndo(doc, startL, U_MoveMeasDown, 45);    		/* "Move Measures Down" */
 	
 	sys1L = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
 	if (!sys1L)
@@ -483,25 +483,24 @@ Boolean MoveBarsDown(Document *doc, LINK startL, LINK endL)
 }
 
 
-/* ----------------------------------------------------------------- MoveSystemUp -- */
+/* -------------------------------------------------------------------- MoveSystemUp -- */
 /* Move a System "up" from the top of one page to the bottom of the preceding one. The
 System is the one containing <startL>. MoveSystemUp returns TRUE if it successfully
 moves a System, FALSE if not (because of an error). */
 
 Boolean MoveSystemUp(Document *doc, LINK startL)
 {
-	LINK			sys1L, sys2L, sys3L,
-					srcPageL, destPageL, endSysL;
-	PSYSTEM		pSys;
-	DDIST			sysHeight, sysTop;
+	LINK	sys1L, sys2L, sys3L, srcPageL, destPageL, endSysL;
+	PSYSTEM	pSys;
+	DDIST	sysHeight, sysTop;
 	
-	PrepareUndo(doc, startL, U_MoveSysUp, 46);    						/* "Move System Up" */
+	PrepareUndo(doc, startL, U_MoveSysUp, 46);    				/* "Move System Up" */
 	
 	/* First, figure out what to move and collect relevant links. */
 
 	sys2L = LSSearch(startL, SYSTEMtype, ANYONE, TRUE, FALSE);
 	if (!sys2L) MayErrMsg("MoveSystemUp: no containing System for %ld", (long)startL);
-	if (LastSysInPage(sys2L)) {
+	if (IsLastSysInPage(sys2L)) {
 		GetIndCString(strBuf, MISCERRS_STRS, 15);    /* "Nightingale can't remove the only system on a page. Use Reformat to combine pages." */
 		CParamText(strBuf,	"", "", "");
 		StopInform(GENERIC_ALRT);
@@ -512,7 +511,7 @@ Boolean MoveSystemUp(Document *doc, LINK startL)
 	if (!sys1L) MayErrMsg("MoveSystemUp: no preceding System for %ld", (long)startL);
 	srcPageL = SysPAGE(sys2L);
 	destPageL = SysPAGE(sys1L);
-	sys3L = LinkRSYS(sys2L);													/* Must exist & be on same Page */
+	sys3L = LinkRSYS(sys2L);									/* Must exist & be on same Page */
 
 	/* Move the range [sys2L, endSysL) to its new location. */
 	MoveRange(sys2L, endSysL, srcPageL);
@@ -524,12 +523,12 @@ Boolean MoveSystemUp(Document *doc, LINK startL)
 	
 	/* Move all affected Systems to new graphic locations. */
 	pSys = GetPSYSTEM(sys2L);
-	sysTop = pSys->systemRect.top;											/* Get first System top */
+	sysTop = pSys->systemRect.top;								/* Get first System top */
 	pSys = GetPSYSTEM(sys3L);
 	sysHeight = pSys->systemRect.bottom-pSys->systemRect.top;
-	pSys->systemRect.top = sysTop;											/* Fix first System top & bottom */
+	pSys->systemRect.top = sysTop;								/* Fix first System top & bottom */
 	pSys->systemRect.bottom = pSys->systemRect.top+sysHeight;
-	FixSystemRectYs(doc, FALSE);												/* Fix all Systems' top & bottom */
+	FixSystemRectYs(doc, FALSE);								/* Fix all Systems' top & bottom */
 
 	/* Insure selection range is legal, update screen, and do miscellaneous cleanup. */
 	InvalRange(destPageL, LinkRPAGE(srcPageL));
@@ -539,19 +538,19 @@ Boolean MoveSystemUp(Document *doc, LINK startL)
 }
 
 
-/* -------------------------------------------------------------- MoveSystemDown -- */
+/* ------------------------------------------------------------------ MoveSystemDown -- */
 /* Move a System "down" from the bottom of one page to the top of the next one. The
 System is the one containing <startL>. MoveSystemDown returns TRUE if it successfully
 moves a System, FALSE if not (because of an error). */
 
 Boolean MoveSystemDown(Document *doc, LINK startL)
 {
-	LINK			sys1L, sys2L,
-					destPageL, nextPageL;
-	PSYSTEM		pSys;
-	DDIST			sysHeight, sysTop;
+	LINK	sys1L, sys2L,
+			destPageL, nextPageL;
+	PSYSTEM	pSys;
+	DDIST	sysHeight, sysTop;
 	
-	PrepareUndo(doc, startL, U_MoveSysDown, 47);    					/* "Move System Down" */
+	PrepareUndo(doc, startL, U_MoveSysDown, 47);    			/* "Move System Down" */
 	
 	/* First, figure out what to move and collect relevant links. */
 
@@ -581,12 +580,12 @@ Boolean MoveSystemDown(Document *doc, LINK startL)
 	
 	/* Move all affected Systems to new graphic locations. */
 	pSys = GetPSYSTEM(sys2L);
-	sysTop = pSys->systemRect.top;											/* Get first System top */
+	sysTop = pSys->systemRect.top;								/* Get first System top */
 	pSys = GetPSYSTEM(sys1L);
 	sysHeight = pSys->systemRect.bottom-pSys->systemRect.top;
-	pSys->systemRect.top = sysTop;											/* Fix first System top & bottom */
+	pSys->systemRect.top = sysTop;								/* Fix first System top & bottom */
 	pSys->systemRect.bottom = pSys->systemRect.top+sysHeight;
-	FixSystemRectYs(doc, FALSE);												/* Fix other Systems top & bottom */
+	FixSystemRectYs(doc, FALSE);								/* Fix other Systems top & bottom */
 
 	/* Insure selection range is legal, update screen, and do miscellaneous cleanup. */
 	if (doc->selEndL==destPageL) doc->selEndL = sys2L;

@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -200,8 +200,7 @@ static void MFixOverlapSync(Document *doc, LINK syncL, short v)
 			}
 	}
 
-	/* Now fix inChord status for the chord which remains after processing
-		rests. */
+	/* Now fix inChord status for the chord which remains after processing rests. */
 
 	vNotes = GetNumVNotes(syncL,v);
 	if (vNotes>1) {
@@ -336,7 +335,7 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 	STDIST dystd;
 	
 	/* Determine if there are multiple voices on s. */
-	multiVoice = GetMultiVoice(pL, s);
+	multiVoice = IsMultiVoice(pL, s);
 
 	/* Loop through the notes and set their yds and ystems. */
 	aNoteL = FirstSubLINK(pL);
@@ -391,9 +390,9 @@ static void MUnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
 			aGRNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
 			stemLen = QSTEMLEN(!multiVoice, ShortenStem(aGRNoteL, context, stemDown));
 			aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(aGRNote->subType),
-													stemDown,
-													context.staffHeight, context.staffLines,
-													stemLen, FALSE);
+											stemDown,
+											context.staffHeight, context.staffLines,
+											stemLen, FALSE);
 		}
 	}
 
@@ -589,25 +588,25 @@ doneL, we stop there. MAY inval some or all of the range (via Rebeam) but
 may not. */
 
 void MEFixContForClef(Document *doc,
-								LINK startL, LINK doneL,
-								short staffn,
-								SignedByte oldClef, SignedByte newClef,	/* Previously-effective and new clefTypes */
-								CONTEXT context
-								)
+							LINK startL, LINK doneL,
+							short staffn,
+							SignedByte oldClef, SignedByte newClef,	/* Previously-effective and new clefTypes */
+							CONTEXT context
+							)
 {
-	short			voice, yPrev, yHere, qStemLen;
-	DDIST			yDelta;
+	short		voice, yPrev, yHere, qStemLen;
+	DDIST		yDelta;
 	PANOTE		aNote;
-	PAGRNOTE		aGRNote;
+	PAGRNOTE	aGRNote;
 	PASTAFF		aStaff;
 	PACLEF		aClef;
 	PAMEASURE	aMeasure;
-	LINK			pL, aClefL, aNoteL, aGRNoteL, aStaffL, aMeasureL;
+	LINK		pL, aClefL, aNoteL, aGRNoteL, aStaffL, aMeasureL;
 	Boolean		stemDown;
 	
 	/*
-	 * Update <context> to reflect the clef change. This is necessary to get
-	 * the correct stem direction from GetCStemInfo.
+	 * Update <context> to reflect the clef change. This is necessary to get the
+	 * correct stem direction from GetCStemInfo.
 	 */
 	context.clefType = newClef;
 	
@@ -630,10 +629,10 @@ void MEFixContForClef(Document *doc,
 						else {
 							stemDown = GetCStemInfo(doc, pL, aNoteL, context, &qStemLen);
 							NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL),
-																NFLAGS(NoteType(aNoteL)),
-																stemDown,
-																context.staffHeight, context.staffLines,
-																qStemLen, FALSE);
+															NFLAGS(NoteType(aNoteL)),
+															stemDown,
+															context.staffHeight, context.staffLines,
+															qStemLen, FALSE);
 						}
 					}
 				}
@@ -697,8 +696,8 @@ static void MFixAllAccidentals(LINK fixFirstL, LINK fixLastL,
 						Boolean pitchMod	/* TRUE=<accTable> has pitch modifers, else accidentals */
 						)
 {
-	PANOTE	aNote;
-	PAGRNOTE aGRNote;
+	PANOTE		aNote;
+	PAGRNOTE	aGRNote;
 	LINK		pL, aNoteL, aGRNoteL;
 	short		halfLn;
 
@@ -710,15 +709,15 @@ static void MFixAllAccidentals(LINK fixFirstL, LINK fixLastL,
 					if (NoteSTAFF(aNoteL)==staff && NoteMERGED(aNoteL)) {																/* Yes. */
 						aNote = GetPANOTE(aNoteL);
 						halfLn = qd2halfLn(aNote->yqpit)+ACCTABLE_OFF;
-						if (aNote->accident!=0)								/* Does it have an accidental? */
-							accTable[halfLn] = -1;							/* Yes. Mark this line/space OK */
-						else {													/* No, has no accidental */
+						if (aNote->accident!=0)							/* Does it have an accidental? */
+							accTable[halfLn] = -1;						/* Yes. Mark this line/space OK */
+						else {											/* No, has no accidental */
 							if (accTable[halfLn]>0 && 
 									(!pitchMod || accTable[halfLn]!=AC_NATURAL)) {
 								aNote->accident = accTable[halfLn];
 								aNote->accSoft = TRUE;
 							}
-							accTable[halfLn] = -1;							/* Mark this line/space OK */
+							accTable[halfLn] = -1;						/* Mark this line/space OK */
 						}
 					}
 				break;
@@ -728,15 +727,15 @@ static void MFixAllAccidentals(LINK fixFirstL, LINK fixLastL,
 					if (GRNoteSTAFF(aGRNoteL)==staff) {																/* Yes. */
 						aGRNote = GetPAGRNOTE(aGRNoteL);
 						halfLn = qd2halfLn(aGRNote->yqpit)+ACCTABLE_OFF;
-						if (aGRNote->accident!=0)							/* Does it have an accidental? */
-							accTable[halfLn] = -1;							/* Yes. Mark this line/space OK */
-						else {													/* No, has no accidental */
+						if (aGRNote->accident!=0)						/* Does it have an accidental? */
+							accTable[halfLn] = -1;						/* Yes. Mark this line/space OK */
+						else {											/* No, has no accidental */
 							if (accTable[halfLn]>0 && 
 									(!pitchMod || accTable[halfLn]!=AC_NATURAL)) {
 								aGRNote->accident = accTable[halfLn];
 								aGRNote->accSoft = TRUE;
 							}
-							accTable[halfLn] = -1;							/* Mark this line/space OK */
+							accTable[halfLn] = -1;						/* Mark this line/space OK */
 						}
 					}
 				break;
@@ -750,11 +749,11 @@ static void MFixAllAccidentals(LINK fixFirstL, LINK fixLastL,
 appropriate to keep notes' pitches the same. */
 
 static void MEFixAccsForKeySig(Document *doc,
-										LINK startL, LINK doneL,
-										short staffn,					/* Desired staff no. */
-										KSINFO oldKSInfo,				/* Previously-effective and new key sig. info */
-										KSINFO newKSInfo
-										)
+								LINK startL, LINK doneL,
+								short staffn,					/* Desired staff no. */
+								KSINFO oldKSInfo,				/* Previously-effective and new key sig. info */
+								KSINFO newKSInfo
+								)
 {
 	SignedByte oldKSTab[MAX_STAFFPOS], KSTab[MAX_STAFFPOS];	/* Orig., new accidental tables */
 	LINK barFirstL,barLastL,measL,firstL,lastL;
@@ -789,9 +788,8 @@ static void MEFixAccsForKeySig(Document *doc,
 at <startL>, on staff <s>. */
 
 static void MergeFixAllContexts(Document *doc,
-											LINK startL, LINK endL,
-											short s,
-											CONTEXT oldContext, CONTEXT newContext)
+									LINK startL, LINK endL, short s,
+									CONTEXT oldContext, CONTEXT newContext)
 {
 	KSINFO oldKSInfo, newKSInfo;
 	TSINFO timeSigInfo;
@@ -830,7 +828,9 @@ Note: comment about the range seems wrong. (CER,2/91) */
 void MergeFixContext(Document *doc, LINK initL, LINK succL, short minStf, short maxStf,
 							short staffDiff)
 {
-	short s,v; CONTEXT oldContext, newContext; LINK clipMeasL;
+	short s, v;
+	CONTEXT oldContext, newContext;
+	LINK clipMeasL;
 
 	InstallDoc(clipboard);
 	clipMeasL = LSSearch(clipboard->headL, MEASUREtype, ANYONE, FALSE, FALSE);
@@ -885,8 +885,7 @@ void MergeFixContext(Document *doc, LINK initL, LINK succL, short minStf, short 
 		[minStf+staffDiff,maxStf+staffDiff] */
 
 	for (v = 1; v<=MAXVOICES; v++)
-		if (VOICE_MAYBE_USED(doc,v))
-			PasteFixBeams(doc,RightLINK(initL),v);
+		if (VOICE_MAYBE_USED(doc,v)) PasteFixBeams(doc,RightLINK(initL),v);
 }
 
 /* -------------------------------------------------------------- MFixOttavaLinks -- */
@@ -894,11 +893,11 @@ void MergeFixContext(Document *doc, LINK initL, LINK succL, short minStf, short 
 
 static void MFixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	short				i, k;
+	short			i, k;
 	PANOTE 			aNote;
-	PAGRNOTE			aGRNote;
+	PAGRNOTE		aGRNote;
 	PANOTEOTTAVA 	paNoteOct;
-	LINK				pL, qL, aNoteL, aNoteOctL, aGRNoteL;
+	LINK			pL, qL, aNoteL, aNoteOctL, aGRNoteL;
 	Boolean			needMerged;
 
 	InstallDoc(fixDoc);
@@ -961,10 +960,10 @@ static void MFixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LIN
 
 static void MFixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
 {
-	short			i, k;
+	short		i, k;
 	PANOTE 		aNote;
 	PANOTEBEAM 	paNoteBeam;
-	LINK			pL, qL, aNoteL, aNoteBeamL;
+	LINK		pL, qL, aNoteL, aNoteBeamL;
 	Boolean		needMerged;
 	
 	InstallDoc(fixDoc);

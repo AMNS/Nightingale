@@ -1064,10 +1064,10 @@ long FindIntInString(unsigned char *string)
 
 /* ----------------------------------------------------------------------- ShellSort -- */
 /* ShellSort does a Shell (diminishing increment) sort on the given array, putting
-it into ascending order.  The increments we use are powers of 2, which does not
-give the fastest possible execution, though the difference should be negligible for
-a few hundred elements or less. See Knuth, The Art of Computer Programming, vol. 2,
-pp. 84-95. */
+it into ascending order. Intended for use on at most a few hundred elements. The
+increments we use are powers of 2, which does not give the fastest possible execution,
+but the difference should be negligible for such small arrays. See Knuth, The Art of
+Computer Programming, vol. 2, pp. 84-95. */
 
 void ShellSort(short array[], short nsize)
 {

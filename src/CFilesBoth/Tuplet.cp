@@ -10,7 +10,7 @@
 
 /*
 DisposeArrays			VoiceInSelRange			CheckContinVoice
-CheckMaxTupleNum		PrepareSelRange			ShellSort
+CheckMaxTupleNum		PrepareSelRange			TupShellSort
 SortPTimes				GetTupleDenom			ComputePlayDurs
 RearrangeNotes			DoTuple
 GetBracketVis			InitTuplet				SetTupletYPos
@@ -38,7 +38,7 @@ static void DisposeArrays(void);
 
 static PTIME *PrepareSelRange(Document *doc, short *nInRange, LINK *baseMeasL);
 
-static void ShellSort(short n, short nvoices);
+static void TupShellSort(short n, short nvoices);
 static void SortPTimes(short nInSelRange, short nvoices);
 
 static short GetTupleDenom(short tupleNum, TupleParam *tParam);
@@ -174,11 +174,11 @@ static PTIME *PrepareSelRange(Document *doc, short *nInRange, LINK *baseMeasL)
 }
 
 
-/* ------------------------------------------------------------------- ShellSort -- */
+/* ------------------------------------------------------------------- TupShellSort -- */
 /* Sort the pDurArray via Shell's algorithm. See comments on the algorithm in
 MIDIRecord.c and PitchUtils.c. */
 
-static void ShellSort(short n, short nvoices)
+static void TupShellSort(short n, short nvoices)
 {
 	short gap, i, j, arrLen;
 	PTIME t;
@@ -201,7 +201,7 @@ static void ShellSort(short n, short nvoices)
 
 static void SortPTimes(short nInMeas, short nvoices)
 {
-	ShellSort(nInMeas, nvoices);
+	TupShellSort(nInMeas, nvoices);
 }
 
 

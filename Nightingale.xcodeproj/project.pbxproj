@@ -18,6 +18,7 @@
 		15602EF81D20C03300BAEBF6 /* DebugUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EF71D20C03300BAEBF6 /* DebugUtils.cp */; };
 		157437C51D05153300C5A4DF /* DelAddRedAccs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157437C41D05153300C5A4DF /* DelAddRedAccs.cp */; };
 		15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */; };
+		15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B639401ECDA9E00029EDD7 /* CompactVoices.cp */; };
 		15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15BCF5991E9D27D30069F7EB /* Undo.cp */; };
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
 		15E0B7AA1E7757E7001C568B /* NotelistOpen.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E0B7A91E7757E7001C568B /* NotelistOpen.cp */; };
@@ -44,7 +45,6 @@
 		D03E6DFE0D5F986D005FD177 /* Check.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD80D5F986D005FD177 /* Check.cp */; };
 		D03E6DFF0D5F986D005FD177 /* CheckUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD90D5F986D005FD177 /* CheckUtils.cp */; };
 		D03E6E000D5F986D005FD177 /* ChordSym.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDA0D5F986D005FD177 /* ChordSym.cp */; };
-		D03E6E010D5F986D005FD177 /* CompactVoices.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDB0D5F986D005FD177 /* CompactVoices.cp */; };
 		D03E6E030D5F986D005FD177 /* DialogsBoth.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDD0D5F986D005FD177 /* DialogsBoth.cp */; };
 		D03E6E040D5F986D005FD177 /* DialogUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDE0D5F986D005FD177 /* DialogUtils.cp */; };
 		D03E6E050D5F986D005FD177 /* DrawDocument.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DDF0D5F986D005FD177 /* DrawDocument.cp */; };
@@ -218,6 +218,7 @@
 		15602EF71D20C03300BAEBF6 /* DebugUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugUtils.cp; sourceTree = "<group>"; };
 		157437C41D05153300C5A4DF /* DelAddRedAccs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedAccs.cp; sourceTree = "<group>"; };
 		15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedTimeSigs.cp; sourceTree = "<group>"; };
+		15B639401ECDA9E00029EDD7 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
 		15BCF5991E9D27D30069F7EB /* Undo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Undo.cp; sourceTree = "<group>"; };
 		15E0B7A91E7757E7001C568B /* NotelistOpen.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistOpen.cp; sourceTree = "<group>"; };
 		15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewSlur.cp; sourceTree = "<group>"; };
@@ -331,7 +332,6 @@
 		D03E6DD80D5F986D005FD177 /* Check.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Check.cp; sourceTree = "<group>"; };
 		D03E6DD90D5F986D005FD177 /* CheckUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckUtils.cp; sourceTree = "<group>"; };
 		D03E6DDA0D5F986D005FD177 /* ChordSym.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = ChordSym.cp; sourceTree = "<group>"; };
-		D03E6DDB0D5F986D005FD177 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
 		D03E6DDD0D5F986D005FD177 /* DialogsBoth.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogsBoth.cp; sourceTree = "<group>"; };
 		D03E6DDE0D5F986D005FD177 /* DialogUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DialogUtils.cp; sourceTree = "<group>"; };
 		D03E6DDF0D5F986D005FD177 /* DrawDocument.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawDocument.cp; sourceTree = "<group>"; };
@@ -705,7 +705,6 @@
 				D03E6DD80D5F986D005FD177 /* Check.cp */,
 				D03E6DD90D5F986D005FD177 /* CheckUtils.cp */,
 				D03E6DDA0D5F986D005FD177 /* ChordSym.cp */,
-				D03E6DDB0D5F986D005FD177 /* CompactVoices.cp */,
 				D03E6DAF0D5F9644005FD177 /* Context.cp */,
 				D03E6DB00D5F9644005FD177 /* Copy.cp */,
 				D03E6DC10D5F9720005FD177 /* CrossLinks.cp */,
@@ -850,6 +849,7 @@
 				D03E705A0D5FA5B2005FD177 /* Clear.cp */,
 				D03E705B0D5FA5B2005FD177 /* Clipboard.cp */,
 				D03E705C0D5FA5B2005FD177 /* CombineParts.cp */,
+				15B639401ECDA9E00029EDD7 /* CompactVoices.cp */,
 				D03E705D0D5FA5B2005FD177 /* CrossSystem.cp */,
 				D03E705E0D5FA5B2005FD177 /* Debug2Utils.cp */,
 				D03E705F0D5FA5B2005FD177 /* DebugDisplay.cp */,
@@ -1046,7 +1046,6 @@
 				D03E6DFE0D5F986D005FD177 /* Check.cp in Sources */,
 				D03E6DFF0D5F986D005FD177 /* CheckUtils.cp in Sources */,
 				D03E6E000D5F986D005FD177 /* ChordSym.cp in Sources */,
-				D03E6E010D5F986D005FD177 /* CompactVoices.cp in Sources */,
 				D03E6E030D5F986D005FD177 /* DialogsBoth.cp in Sources */,
 				D03E6E040D5F986D005FD177 /* DialogUtils.cp in Sources */,
 				D03E6E050D5F986D005FD177 /* DrawDocument.cp in Sources */,
@@ -1188,6 +1187,7 @@
 				15E0B7AA1E7757E7001C568B /* NotelistOpen.cp in Sources */,
 				15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */,
 				15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */,
+				15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

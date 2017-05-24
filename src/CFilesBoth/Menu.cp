@@ -2559,7 +2559,7 @@ static void FixMoveMeasSys(Document *doc)
 		XableItem(scoreMenu, SM_MoveSystemUp,
 			(FirstSysInPage(sysL) && LinkLPAGE(pageL)!=NILINK));
 		XableItem(scoreMenu, SM_MoveSystemDown, 
-			(LastSysInPage(sysL) && LinkRPAGE(pageL)!=NILINK));
+			(IsLastSysInPage(sysL) && LinkRPAGE(pageL)!=NILINK));
 	}
 
 /*

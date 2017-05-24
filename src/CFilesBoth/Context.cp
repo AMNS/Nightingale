@@ -1,6 +1,6 @@
-/***************************************************************************
+/****************************************************************************************
 	FILE:	Context.c
-	PROJ:	Nightingale; MemMacroized version.
+	PROJ:	Nightingale
 	DESC:	Context-related routines. There should be no user-interface effects;
 	at the moment, some routines can Inval, which should be changed.
 		ContextKeySig				ContextMeasure				Context1Staff
@@ -12,14 +12,14 @@
 		FixStaffContext				UpdateKSContext				UpdateTSContext
 		CombineTables				InitPitchModTable			CopyTables
 		EndMeasRangeSearch			EFixAccsForKeySig			FixAccsForKeySig
-/***************************************************************************/
+/****************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -55,8 +55,8 @@ void ContextKeySig(LINK pL, CONTEXT	context[])
 		/* aKeySig = GetPAKEYSIG(aKeySigL); */
 		if (KeySigVIS(aKeySigL)) {
 			pContext = &context[KeySigSTAFF(aKeySigL)];
-			pContext->nKSItems = KeySigNKSITEMS(aKeySigL);				/* Copy this key sig. */
-			for (k = 0; k<KeySigNKSITEMS(aKeySigL); k++)				/*    into the context */
+			pContext->nKSItems = KeySigNKSITEMS(aKeySigL);			/* Copy this key sig. */
+			for (k = 0; k<KeySigNKSITEMS(aKeySigL); k++)			/*    into the context */
 				pContext->KSItem[k] = (KeySigKSITEM(aKeySigL))[k];
 		}
 	}
@@ -122,7 +122,7 @@ void ContextStaff(LINK pL, CONTEXT context[])
 
 void ContextSystem(LINK pL, CONTEXT	context[])
 {
-	PSYSTEM	p;
+	PSYSTEM		p;
 	PCONTEXT	pContext;
 	short		i;
 
@@ -132,7 +132,7 @@ void ContextSystem(LINK pL, CONTEXT	context[])
 		pContext->systemTop = p->systemRect.top;
 		pContext->systemLeft = p->systemRect.left;
 		pContext->systemBottom = p->systemRect.bottom;
-		pContext->visible = FALSE;
+		pContext->visible = false;
 	}
 }
 
@@ -142,8 +142,8 @@ void ContextSystem(LINK pL, CONTEXT	context[])
 
 void ContextTimeSig(LINK pL, CONTEXT context[])
 {
-	LINK			aTimeSigL;
-	PCONTEXT		pContext;
+	LINK		aTimeSigL;
+	PCONTEXT	pContext;
 
 	aTimeSigL = FirstSubLINK(pL);
 	for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL)) {
@@ -162,7 +162,7 @@ void ContextTimeSig(LINK pL, CONTEXT context[])
 
 void ContextPage(Document *doc, LINK pL, CONTEXT context[])
 {
-	PPAGE	p; PCONTEXT pContext; short i;
+	PPAGE p; PCONTEXT pContext; short i;
 
 	p = GetPPAGE(pL);
 	doc->currentSheet = p->sheetNum;
@@ -191,8 +191,8 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 	LINK		staffL, systemL, aMeasureL, aStaffL, aClefL, aKeySigL,
 				aTimeSigL, aDynamicL, pageL, headL;
 	short		k;
-	Boolean		found,			/* FALSE till a Measure or Staff is found for theStaff */
-				foundClef,		/* TRUE if we found any of these objects */
+	Boolean		found,			/* false till a Measure or Staff is found for theStaff */
+				foundClef,		/* true if we found any of these objects */
 				foundKeySig,
 				foundTimeSig,
 				foundDynamic;
@@ -212,7 +212,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 	headL = doc->masterView ? doc->masterHeadL : doc->headL;
 
 	/* Initialize in case nothing is found. */
-	pContext->visible = FALSE;
+	pContext->visible = false;
 	pContext->fontSize = 12;
 	pContext->clefType = DFLT_CLEF;
 	pContext->nKSItems = DFLT_NKSITEMS;
@@ -221,14 +221,14 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 	pContext->denominator = config.defaultTSDenom;
 	pContext->dynamicType = DFLT_DYNAMIC;
 	
-	found = FALSE;
-	foundClef = foundKeySig = foundTimeSig = foundDynamic = FALSE;
+	found = false;
+	foundClef = foundKeySig = foundTimeSig = foundDynamic = false;
 	
 	for ( ; !found && pL && pL!=headL; pL=LeftLINK(pL)) {
 		switch (ObjLType(pL)) {
 			case STAFFtype:
-				found = TRUE;
-				pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, FALSE);
+				found = true;
+				pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, false);
 				if (!pageL) {
 					MayErrMsg("GetContext: can't find Page for %ld. contextL=%ld, staff=%ld",
 											(long)pL, (long)contextL, (long)theStaff);
@@ -237,7 +237,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 				pPage = GetPPAGE(pageL);
 				pContext->sheetNum = pPage->sheetNum;
 				GetSheetRect(doc, pPage->sheetNum, &pContext->paper);
-				pContext->inMeasure = FALSE;
+				pContext->inMeasure = false;
 
 				pStaff = GetPSTAFF(pL);
 				systemL = pStaff->systemL;
@@ -247,7 +247,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 				pContext->systemTop = pSystem->systemRect.top;
 				pContext->systemLeft = pSystem->systemRect.left;
 				pContext->systemBottom = pSystem->systemRect.bottom;
-				pContext->visible = FALSE;
+				pContext->visible = false;
 
 				/* GET STAFF CONTEXT INFO */
 				aStaffL = FirstSubLINK(pL);
@@ -263,8 +263,8 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 											(long)pL, (long)(StaffNKSITEMS(aStaffL)), (long)theStaff);
 								return;
 							}
-							pContext->nKSItems = StaffNKSITEMS(aStaffL);			/* Copy this key sig. */
-							for (k = 0; k<StaffNKSITEMS(aStaffL); k++)				/*    into the context */
+							pContext->nKSItems = StaffNKSITEMS(aStaffL);		/* Copy this key sig. */
+							for (k = 0; k<StaffNKSITEMS(aStaffL); k++)			/*    into the context */
 								pContext->KSItem[k] = (StaffKSITEM(aStaffL))[k];
 						}
 						if (!foundTimeSig) {
@@ -278,8 +278,8 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 				}
 				break;
 			case MEASUREtype:
-				found = TRUE;
-				pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, FALSE);
+				found = true;
+				pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, false);
 				if (!pageL) {
 					MayErrMsg("GetContext: can't find Page for %ld. contextL=%ld, staff=%ld",
 											(long)pL, (long)contextL, (long)theStaff);
@@ -288,7 +288,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 				pPage = GetPPAGE(pageL);
 				pContext->sheetNum = pPage->sheetNum;
 				GetSheetRect(doc,pPage->sheetNum,&pContext->paper);
-				pContext->inMeasure = TRUE;
+				pContext->inMeasure = true;
 
 				pMeasure = GetPMEASURE(pL);
 				staffL = pMeasure->staffL; pStaff = GetPSTAFF(staffL);
@@ -298,7 +298,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 				pContext->systemTop = pSystem->systemRect.top;
 				pContext->systemLeft = pSystem->systemRect.left;
 				pContext->systemBottom = pSystem->systemRect.bottom;
-				pContext->visible = FALSE;
+				pContext->visible = false;
 
 				/* GET STAFF CONTEXT INFO */
 				for (aStaffL=FirstSubLINK(staffL); aStaffL;
@@ -339,8 +339,8 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 											(long)pL, (long)(MeasNKSITEMS(aMeasureL)), (long)theStaff);
 								return;
 							}
-							pContext->nKSItems = MeasNKSITEMS(aMeasureL);			/* Copy this key sig. */
-							for (k = 0; k<MeasNKSITEMS(aMeasureL); k++)				/*    into the context */
+							pContext->nKSItems = MeasNKSITEMS(aMeasureL);		/* Copy this key sig. */
+							for (k = 0; k<MeasNKSITEMS(aMeasureL); k++)			/*    into the context */
 								pContext->KSItem[k] = (MeasKSITEM(aMeasureL))[k];
 						}
 						if (!foundTimeSig) {
@@ -364,10 +364,10 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 											(long)pL, (long)(KeySigNKSITEMS(aKeySigL)), (long)theStaff);
 								return;
 							}
-							pContext->nKSItems = KeySigNKSITEMS(aKeySigL);			/* Copy this key sig. */
-							for (k = 0; k<KeySigNKSITEMS(aKeySigL); k++)			/*    into the context */
+							pContext->nKSItems = KeySigNKSITEMS(aKeySigL);		/* Copy this key sig. */
+							for (k = 0; k<KeySigNKSITEMS(aKeySigL); k++)		/*    into the context */
 								pContext->KSItem[k] = (KeySigKSITEM(aKeySigL))[k];
-							foundKeySig = TRUE;
+							foundKeySig = true;
 						}
 					}
 				}
@@ -381,7 +381,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 							pContext->timeSigType = TimeSigType(aTimeSigL);
 							pContext->numerator = TimeSigNUMER(aTimeSigL);
 							pContext->denominator = TimeSigDENOM(aTimeSigL);
-							foundTimeSig = TRUE;
+							foundTimeSig = true;
 						}
 					}
 				}
@@ -393,7 +393,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 						/* aClef = GetPACLEF(aClefL); */
 						if (ClefSTAFF(aClefL) == theStaff) {
 							pContext->clefType = ClefType(aClefL);
-							foundClef = TRUE;
+							foundClef = true;
 						}
 					}
 				}
@@ -408,7 +408,7 @@ void GetContext(Document *doc, LINK contextL, short theStaff, PCONTEXT pContext)
 						if (DynamicSTAFF(aDynamicL) == theStaff
 						&&  DynamType(pL)<FIRSTHAIRPIN_DYNAM) {
 							pContext->dynamicType = DynamType(pL);
-							foundDynamic = TRUE;
+							foundDynamic = true;
 						}
 					}
 				}
@@ -429,7 +429,7 @@ void GetAllContexts(Document *doc, CONTEXT context[], LINK pAtL)
 
 #ifdef MAYBE_SAFER
 	if (LinkBefFirstMeas(pAtL))
-		pAtL = LSSearch(pAtL,MEASUREtype,ANYONE,GO_RIGHT,FALSE);
+		pAtL = LSSearch(pAtL,MEASUREtype,ANYONE,GO_RIGHT,false);
 #endif
 
 	if (pAtL)
@@ -439,25 +439,27 @@ void GetAllContexts(Document *doc, CONTEXT context[], LINK pAtL)
 
 
 /* ----------------------------------------------------------- ClefFixBeamContext -- */
-/* Remove and re-beam every beamset that has elements in the given range on the
-given staff, presumably to handle a change of clef context. */
+/* Remove and re-beam every beamset that has elements in the given range on the given
+staff. This was written to handle a change of clef context. */
 
 void ClefFixBeamContext(Document *doc, LINK startL, LINK doneL, short staffn)
 {
 	LINK firstBeamL=NILINK, tempL, prevBeamL;
 	LINK pL, notes[MAXINBEAM];
-	short v; PBEAMSET pBeam; STFRANGE stfRange;
+	short v;
+	PBEAMSET pBeam;
+	STFRANGE stfRange;
 
 #ifdef QUESTIONABLE
 	/* First, look to see if a crossStaff beam on another staff affecting the given staff
 	 *	is before the relevant beam on the given staff. If so, use this as the starting pt.
 	 */
 	if (staffn > 1)	/* ??CAN'T BE RIGHT--EVEN STAFF 1 MIGHT HAVE XSTF BEAM TO STF 2 */
-		firstBeamL = LSSearch(startL, BEAMSETtype, staffn-1, GO_LEFT, FALSE);	/* 1st beam that might be affected */
+		firstBeamL = LSSearch(startL, BEAMSETtype, staffn-1, GO_LEFT, false);	/* 1st beam that might be affected */
 	if (firstBeamL) {
 		firstBeam = GetPBEAMSET(firstBeamL);
 		if (firstBeam->crossStaff) {
-			tempBeamL = LSSearch(startL, BEAMSETtype, staffn, GO_LEFT, FALSE);	/* 1st beam that might be affected */
+			tempBeamL = LSSearch(startL, BEAMSETtype, staffn, GO_LEFT, false);	/* 1st beam that might be affected */
 			if (tempBeamL)
 				if (IsAfter(tempBeamL, firstBeamL))
 					firstBeamL = tempBeamL;
@@ -473,14 +475,14 @@ void ClefFixBeamContext(Document *doc, LINK startL, LINK doneL, short staffn)
 	 *	range, <firstBeamL> if it is.
 	 */
 	if (!firstBeamL)
-		firstBeamL = LSSearch(startL, BEAMSETtype, staffn, GO_LEFT, FALSE);	/* 1st beam that might be affected */
+		firstBeamL = LSSearch(startL, BEAMSETtype, staffn, GO_LEFT, false);	/* 1st beam that might be affected */
 	
 	if (firstBeamL) {
-		if (IsAfter(LastInBeam(firstBeamL), startL))							/* Is it really affected? */
-			firstBeamL = startL;														/* No */
+		if (IsAfter(LastInBeam(firstBeamL), startL))						/* Is it really affected? */
+			firstBeamL = startL;											/* No */
 	}
 	else
-		 firstBeamL = startL;														/* No beams before range on staff */
+		 firstBeamL = startL;												/* No beams before range on staff */
 
 	/* Now remove and recreate all beamsets in the (possibly extended) range. Rebeam
 		can recreate the beamset object to the right of its original position in the
@@ -535,6 +537,7 @@ static void ToggleAugDotPosInRange(Document *doc, LINK startL, LINK endL, short 
 	}
 }
 
+
 /* -------------------------------------------------------------- EFixContForClef -- */
 /* In the range [startL,doneL), update (1) the clef in context fields of following
 STAFFs and MEASUREs for the given staff, (2) note y-positions, (3) note stem directions
@@ -553,9 +556,9 @@ void EFixContForClef(
 				CONTEXT context
 				)
 {
-	short			voice, yPrev, yHere, qStemLen;
-	DDIST			yDelta;
-	LINK			pL, aClefL, aNoteL, aGRNoteL, aStaffL, aMeasureL;
+	short		voice, yPrev, yHere, qStemLen;
+	DDIST		yDelta;
+	LINK		pL, aClefL, aNoteL, aGRNoteL, aStaffL, aMeasureL;
 	Boolean		stemDown;
 	STDIST		dystd;
 	
@@ -586,10 +589,10 @@ void EFixContForClef(
 						else {
 							stemDown = GetCStemInfo(doc, pL, aNoteL, context, &qStemLen);
 							NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL),
-																NFLAGS(NoteType(aNoteL)),
-																stemDown,
-																context.staffHeight, context.staffLines,
-																qStemLen, FALSE);
+															NFLAGS(NoteType(aNoteL)),
+															stemDown,
+															context.staffHeight, context.staffLines,
+															qStemLen, false);
 						}
 					}
 				}
@@ -602,7 +605,7 @@ void EFixContForClef(
 						GRNoteYD(aGRNoteL) += yDelta;
 						if (GRNoteINCHORD(aGRNoteL))
 							FixGRSyncForChord(doc, pL, GRNoteVOICE(aGRNoteL), GRNoteBEAMED(aGRNoteL), 0,
-													TRUE, NULL);
+													true, NULL);
 						else
 							FixGRSyncNote(doc, pL, GRNoteVOICE(aGRNoteL), &context);
 					}
@@ -672,21 +675,20 @@ LINK FixContextForClef(
 	SearchParam	pbSearch;
 
 	/* If nothing following or no clef change, quit.
-	 * If startL itself is a clef, no change propagates past it; therefore
-	 * we are done. ??YES, BUT ONLY IF IT'S A CLEF ON OUR STAFF! CF. FixContextForKeySig.
+	 * If startL itself is a clef, no change propagates past it, so we're done.
+	 * ??YES, BUT ONLY IF IT'S A CLEF ON OUR STAFF! CF. FixContextForKeySig.
 	 */
-	if (!startL || startL==doc->tailL || oldClef==newClef)
-			return NILINK;							
+	if (!startL || startL==doc->tailL || oldClef==newClef) return NILINK;							
 
 	if (ClefTYPE(startL)) return NILINK;
 
 	InitSearchParam(&pbSearch);
 	pbSearch.id = staffn;
-	pbSearch.needSelected = pbSearch.inSystem = FALSE;
-	pbSearch.needInMeasure = TRUE;
+	pbSearch.needSelected = pbSearch.inSystem = false;
+	pbSearch.needInMeasure = true;
 
 	/* Clef change propagates until the next inMeasure clef. */
-	doneL = L_Search(RightLINK(startL), CLEFtype, FALSE, &pbSearch);
+	doneL = L_Search(RightLINK(startL), CLEFtype, false, &pbSearch);
 	if (!doneL) doneL = doc->tailL;
 	
 	GetContext(doc, LeftLINK(startL), staffn, &context);			/* Get staff height, lines */
@@ -702,11 +704,11 @@ following STAFFs and MEASUREs for the given staff. If we find another key sig-
 nature on the staff before doneL, we stop at that point. */
 
 void EFixContForKeySig(LINK startL, LINK doneL,
-						short staffn,								/* Desired staff no. */
+						short staffn,							/* Desired staff no. */
 						KSINFO /*oldKSInfo*/, KSINFO newKSInfo	/* Previously-effective and new key sig. info */
 						)
 {
-	LINK			pL, aStaffL, aKeySigL, aMeasureL;
+	LINK	pL, aStaffL, aKeySigL, aMeasureL;
 
 	for (pL = startL; pL!=doneL; pL=RightLINK(pL)) {
 		switch (ObjLType(pL)) {
@@ -756,11 +758,11 @@ LINK FixContextForKeySig(Document *doc, LINK startL,
 						KSINFO oldKSInfo, KSINFO newKSInfo	/* Previously-effective and new key sig. info */
 						)
 {
-	LINK			doneL;
+	LINK		doneL;
 	SearchParam	pbSearch;
 
 	if (!startL || startL==doc->tailL)
-			return NILINK;												/* If nothing following, quit */
+			return NILINK;											/* If nothing following, quit */
 	if (KeySigTYPE(startL))
 		if (KeySigOnStaff(startL, staffn))
 			return NILINK;
@@ -769,11 +771,11 @@ LINK FixContextForKeySig(Document *doc, LINK startL,
 
 	InitSearchParam(&pbSearch);
 	pbSearch.id = staffn;														
-	pbSearch.needSelected = pbSearch.inSystem = FALSE;
-	pbSearch.needInMeasure = TRUE;
+	pbSearch.needSelected = pbSearch.inSystem = false;
+	pbSearch.needInMeasure = true;
 
 	/* keySig change propagates until the next inMeasure keySig. */
-	doneL = L_Search(RightLINK(startL), KEYSIGtype, FALSE, &pbSearch);
+	doneL = L_Search(RightLINK(startL), KEYSIGtype, false, &pbSearch);
 	if (!doneL) doneL = doc->tailL;
 
 	EFixContForKeySig(startL, doneL, staffn, oldKSInfo, newKSInfo);
@@ -806,7 +808,7 @@ void EFixContForTimeSig(LINK startL, LINK doneL,
 				for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
 					if (StaffSTAFF(aStaffL)==staffn) {
 						/* aStaff = GetPASTAFF(aStaffL); */
-						StaffTIMESIGTYPE(aStaffL) = newTSInfo.TSType;				/* Copy the time sig. into the context */
+						StaffTIMESIGTYPE(aStaffL) = newTSInfo.TSType;			/* Copy the time sig. into the context */
 						StaffNUM(aStaffL) = newTSInfo.numerator;
 						StaffDENOM(aStaffL) = newTSInfo.denominator;
 					}
@@ -816,7 +818,7 @@ void EFixContForTimeSig(LINK startL, LINK doneL,
 				for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL))
 					if (MeasureSTAFF(aMeasureL)==staffn) {
 						/* aMeasure = GetPAMEASURE(aMeasureL); */
-						MeasTIMESIGTYPE(aMeasureL) = newTSInfo.TSType;				/* Copy the time sig. into the context */
+						MeasTIMESIGTYPE(aMeasureL) = newTSInfo.TSType;			/* Copy the time sig. into the context */
 						MeasNUMER(aMeasureL) = newTSInfo.numerator;
 						MeasDENOM(aMeasureL) = newTSInfo.denominator;
 					}
@@ -854,11 +856,11 @@ a change of time sig.--it forges ahead regardless.  See comments on the (minor)
 problems with this in EFixContForTimeSig. */
 
 LINK FixContextForTimeSig(Document *doc, LINK startL,
-								short staffn,			/* Desired staff no. */
-								TSINFO newTSInfo		/* New time signature */
-								)
+							short staffn,			/* Desired staff no. */
+							TSINFO newTSInfo		/* New time signature */
+							)
 {
-	LINK		doneL;
+	LINK doneL;
 
 	/*
 	 *	If nothing following or if startL itself is a time signature, no change
@@ -867,7 +869,7 @@ LINK FixContextForTimeSig(Document *doc, LINK startL,
 	 */
 	if (!startL || TimeSigTYPE(startL)) return NILINK;															/* If nothing following, quit */
 
-	doneL = LSSearch(startL, TIMESIGtype, staffn, FALSE, FALSE);
+	doneL = LSSearch(startL, TIMESIGtype, staffn, false, false);
 	if (!doneL) doneL = doc->tailL;
 
 	EFixContForTimeSig(startL, doneL, staffn, newTSInfo);
@@ -969,7 +971,7 @@ static LINK NonHPDynamSearch(LINK link, short staffn)
 		return link;
 
 	do {
-		link = LSSearch(RightLINK(link), DYNAMtype, staffn, FALSE, FALSE);
+		link = LSSearch(RightLINK(link), DYNAMtype, staffn, false, false);
 	} while (link && DynamType(link)>=FIRSTHAIRPIN_DYNAM);
 	
 	return link;
@@ -1105,14 +1107,14 @@ void InitPitchModTable(SignedByte KSTab[], KSINFO *pKSInfo)
 		if (KSTab[j]==0) KSTab[j] = AC_NATURAL;			/* Replace no acc. with natural */
 }
 
-/* Copy accidental table KSTab into accTable. */
+/* Copy accidental table KSTab into accTab. */
 
-void CopyTables(SignedByte KSTab[], SignedByte accTable[])
+void CopyTables(SignedByte KSTab[], SignedByte accTab[])
 {
 	short j;
 
 	for (j = 0; j<MAX_STAFFPOS; j++)
-		accTable[j] = KSTab[j];
+		accTab[j] = KSTab[j];
 }
 
 
@@ -1151,19 +1153,19 @@ LINK EFixAccsForKeySig(Document *doc, LINK startL, LINK doneL,
  	CombineTables(oldKSTab, KSTab);
 
 	/*
-	 *	Now use the table <oldKSTab> to correct accidentals of notes on the staff, one
+	 * Now use the table <oldKSTab> to correct accidentals of notes on the staff, one
 	 * measure at a time. 
 	 */
 	barFirstL = startL;
 	barLastL = EndMeasSearch(doc, RightLINK(startL));
 	if (IsAfter(doneL, barLastL)) barLastL = doneL;
 
-	while (IsAfter(barFirstL, barLastL))						/* Till next key sig... */
-	{															/* Fix accs. in 1 measure */
+	/* Until the next key sig., fix the accidentals, one measure at a time. */
+	while (IsAfter(barFirstL, barLastL)) {					
 		/* Initialize accTable for each bar, since (ugh) FixAllAccidentals destroys it! */
 		CopyTables(oldKSTab,accTable);
 	
-		FixAllAccidentals(barFirstL, barLastL, staffn, FALSE);
+		FixAllAccidentals(barFirstL, barLastL, staffn, false);
 		if (barLastL==doc->tailL) break;
 		
 		barFirstL = barLastL;
@@ -1171,6 +1173,7 @@ LINK EFixAccsForKeySig(Document *doc, LINK startL, LINK doneL,
 	}
 	return barLastL;
 }
+
 
 /* ------------------------------------------------------------- FixAccsForKeySig -- */
 /* See whether new key signature is different from the previous one in effect here.
@@ -1188,7 +1191,7 @@ LINK FixAccsForKeySig(Document *doc,
 
 	if (KeySigEqual(&oldKSInfo, &newKSInfo)) return NILINK;
 
-	nextKSL = KSSearch(doc,RightLINK(keySigL),staffn,TRUE,FALSE);
+	nextKSL = KSSearch(doc,RightLINK(keySigL),staffn,true,false);
 
 	lastFixL = EFixAccsForKeySig(doc, keySigL, nextKSL, staffn, oldKSInfo, newKSInfo);
 	return lastFixL;

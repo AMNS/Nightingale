@@ -1127,7 +1127,7 @@ LINK AddSystem(Document *doc, LINK insertL, short where)
 		if (rfmtChoice!=0) {
 			if (rfmtChoice==1) {
 				sysL = newSysL;
-				while (!LastSysInPage(sysL))
+				while (!IsLastSysInPage(sysL))
 					sysL = LinkRSYS(sysL);
 				endRfmtL = RightLINK(sysL);
 			}
@@ -1135,7 +1135,7 @@ LINK AddSystem(Document *doc, LINK insertL, short where)
 				endRfmtL = doc->tailL;
 			Reformat(doc, newSysL, endRfmtL, FALSE, 9999, FALSE, 999, config.titleMargin);
 		}
-		else if (!LastSysInPage(newSysL)) {
+		else if (!IsLastSysInPage(newSysL)) {
 			DRect newSysR; long newPos; short hiWord;
 			
 			newSysR = SystemRECT(newSysL);

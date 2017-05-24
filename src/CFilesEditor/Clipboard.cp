@@ -1,15 +1,15 @@
-/***************************************************************************
+/****************************************************************************************
 *	FILE:	Clipboard.c
 *	PROJ:	Nightingale
 *	DESC:	clipboard routines
-/***************************************************************************/
+/****************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright  2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright  2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -90,11 +90,11 @@ FixNCStem, which this should maybe call. */
 
 static void FixClipBeams(Document *doc, LINK startL, LINK endL)
 {
-	LINK 		aNoteL, aGRNoteL, pL;
-	PANOTE 	aNote;
-	PAGRNOTE aGRNote;
+	LINK		aNoteL, aGRNoteL, pL;
+	PANOTE		aNote;
+	PAGRNOTE	aGRNote;
 	DDIST		tempystem;
-	CONTEXT	context[MAXSTAVES+1];		/* current context table */
+	CONTEXT		context[MAXSTAVES+1];		/* current context table */
 	
 	GetAllContexts(doc, context, doc->selStartL);
 	InstallDoc(clipboard);
@@ -108,7 +108,7 @@ static void FixClipBeams(Document *doc, LINK startL, LINK endL)
 					if (aNote->inChord) {
 						if (MainNote(aNoteL)) {
 							FixSyncForChord(clipboard, pL, NoteVOICE(aNoteL), FALSE, 0, 1,
-													&context[aNote->staffn]);
+												&context[aNote->staffn]);
 						}
 					}
 					else {
@@ -143,7 +143,7 @@ static void FixClipTuplets(Document *doc, LINK startL, LINK endL)
 {
 	LINK pL, aNoteL;
 	PANOTE 	aNote;
-	long		tempLDur;
+	long tempLDur;
 	
 	InstallDoc(clipboard);
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
@@ -173,10 +173,12 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 									short numObjs)
 {
 	LINK pL,aNoteL,qL,ottavaL;
-	PANOTE aNote; short i,staff;
-	CONTEXT context; DDIST yDelta;
+	PANOTE aNote;
+	short i,staff;
+	CONTEXT context;
+	DDIST yDelta;
 	Boolean stemDown, multiVoice;
-	short	stemLen, octType;
+	short stemLen, octType;
 
 	InstallDoc(clipboard);
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
@@ -208,9 +210,8 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 					yDelta = halfLn2d(noteOffset[octType-1], context.staffHeight,
 											context.staffLines);
 				
-					/* Determine if there are multiple voices on
-						staff. */
-					multiVoice = GetMultiVoice(qL, staff);
+					/* Determine if there are multiple voices on staff. */
+					multiVoice = IsMultiVoice(qL, staff);
 					InstallDoc(clipboard);
 
 					if (multiVoice) stemDown = (aNote->yd<=aNote->ystem);
@@ -221,9 +222,9 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 						stemDown = (aNote->yd<=context.staffHeight/2);
 					stemLen = QSTEMLEN(!multiVoice, ShortenStem(aNoteL, context, stemDown));
 					aNote->ystem = CalcYStem(doc, aNote->yd, NFLAGS(aNote->subType),
-														stemDown,
-														context.staffHeight, context.staffLines,
-														stemLen, FALSE);
+												stemDown,
+												context.staffHeight, context.staffLines,
+												stemLen, FALSE);
 	
 					/* Loop through the notes again and fix up the ystems
 						of the non-extreme notes. */
@@ -246,8 +247,8 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 }
 
 /* --------------------------------------------------------------- ChkSrcDocSlur -- */
-/* If the slur exists and was selected in the src Doc, check to
-see if it was copied to the dst Doc. */
+/* If the slur exists and was selected in the src Doc, check to see if it was copied
+to the dst Doc. */
 
 static Boolean ChkSrcDocSlur(LINK slurL, COPYMAP *clipMap, short numObjs)
 {
@@ -262,12 +263,12 @@ static Boolean ChkSrcDocSlur(LINK slurL, COPYMAP *clipMap, short numObjs)
 }
 
 /* -------------------------------------------------------------- SrcSlurInRange -- */
-/* Check to see if the slur in the src doc which begins/ends at qL is in
-the range copied to the destination doc (currentDoc). */
+/* Check to see if the slur in the src doc which begins/ends at qL is in the range
+copied to the destination doc (currentDoc). */
 
 static Boolean SrcSlurInRange(Document *srcDoc, LINK qL, Boolean isTie,
-										Boolean slurredL, COPYMAP *clipMap, short numObjs,
-										SearchParam *pbSearch)
+									Boolean slurredL, COPYMAP *clipMap, short numObjs,
+									SearchParam *pbSearch)
 {
 	LINK slurL; Boolean inRange;
 	Document *saveDoc;
@@ -275,8 +276,8 @@ static Boolean SrcSlurInRange(Document *srcDoc, LINK qL, Boolean isTie,
 	saveDoc = currentDoc;
 	InstallDoc(srcDoc);
 
-	/* Search left in the source document for the slur in the
-		note's voice that ends at the note in the source doc. */
+	/* Search left in the source document for the slur in the note's voice that
+	   ends at the note in the source doc. */
 
 	if (slurredL)
 		slurL = LeftSlurSearch(qL,pbSearch->voice,isTie);
@@ -305,7 +306,7 @@ Calling function is responsible for insuring that the heaps it wants
 installed are actually installed after calling this function! */
 
 static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK endL,
-									COPYMAP *clipMap, short numObjs, short stfDiff)
+							COPYMAP *clipMap, short numObjs, short stfDiff)
 {
 	short i;
 	LINK pL;
@@ -499,7 +500,9 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 
 static void UpdateClipContext(Document *doc)
 {
-	short s,sharpsOrFlats; CONTEXT context; LINK firstClef, firstKSL, firstTSL;
+	short s,sharpsOrFlats;
+	CONTEXT context;
+	LINK firstClef, firstKSL, firstTSL;
 
 	InstallDoc(clipboard);
 	firstClef = LSSearch(clipboard->headL, CLEFtype, ANYONE, GO_RIGHT, FALSE);
@@ -534,8 +537,8 @@ static void UpdateClipContext(Document *doc)
 
 static DDIST SyncSpaceNeeded(Document *doc, LINK pL)
 {
-	LINK aNoteL; long maxLen,tempLen;
-	short staff; CONTEXT context;
+	LINK aNoteL;  long maxLen,tempLen;
+	short staff;  CONTEXT context;
 	STDIST symWidth,space;
 	
 	maxLen = tempLen = 0L;
@@ -584,7 +587,7 @@ static void SetupClip(Document *doc, LINK startL, LINK endL, COPYMAP **clipMap,
 {
 	LINK pL,baseL,nextL; DDIST diff;
 
-	DelClip(doc);													/* Kill current clipboard */
+	DelClip(doc);												/* Kill current clipboard */
 	SetupClipDoc(doc,TRUE);
 	clipxd = 0;
 	UpdateTailxd(doc);
@@ -633,10 +636,10 @@ that voice's default. */
 
 static void FixClipChords(Document *doc, LINK syncL)
 {
-	short		v;
-	short		nInChord[MAXVOICES+1];
+	short	v;
+	short	nInChord[MAXVOICES+1];
 	PANOTE	aNote;
-	LINK		aNoteL, mainNoteL;
+	LINK	aNoteL, mainNoteL;
 	
 	for (v = 1; v<=MAXVOICES; v++)
 		nInChord[v] = 0;
@@ -660,8 +663,8 @@ static void FixClipChords(Document *doc, LINK syncL)
 /* Given a Sync or GRSync, if any of its notes or grace notes has an explicit
 accidental, even a natural, return TRUE; else return FALSE. */
  
-Boolean HasAnyAccidentals(LINK pL);
-Boolean HasAnyAccidentals(LINK pL)
+static Boolean HasAnyAccidentals(LINK pL);
+static Boolean HasAnyAccidentals(LINK pL)
 {
 	LINK aNoteL, aGRNoteL;
 	
@@ -1692,11 +1695,11 @@ PasteCancel; else return PasteOK. Assumes clipboard document is installed. */
 static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 {
 	short		staff,stfDiff,partDiff,stfOff,pasteType=PasteOK,minStf,maxStf;
-	Boolean	staffOK=TRUE;
-	PMEVENT	p;
+	Boolean		staffOK=TRUE;
+	PMEVENT		p;
 	HEAP		*tmpHeap;
 	GenSubObj 	*subObj;
-	LINK			subObjL,pL;
+	LINK		subObjL,pL;
 	
 	stfDiff = GetStfDiff(doc,&partDiff,&stfOff);
 	InstallDoc(clipboard);
@@ -1806,7 +1809,6 @@ static short GetTupletTopStaff(LINK tupL)
 
 static Boolean CrossStaff2CrossPart(LINK pL, short staffDiff, short staffTab[])
 {
-
 	short topStf;
 	
 	switch (ObjLType(pL)) {
