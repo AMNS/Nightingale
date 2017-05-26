@@ -1446,7 +1446,7 @@ Changed version number from 5.7 to 5.8b1 (again). Affects Info.plist.
 Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
 AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem.
 
-Move HomogenizeSel() from SelUtils to SetUtils; other minor cleanup. Affects SelUtils.h;
+Moved HomogenizeSel() from SelUtils to SetUtils; other minor cleanup. Affects SelUtils.h;
 AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem, SelUtils, SetUtils.
 
 -------------------------------------------------------------------------------
@@ -1456,15 +1456,15 @@ AccModNRMouse, BeamBreak, Browser, CheckMerge, Clear, CrossSystem, SelUtils, Set
 Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects Check,
 Menu, PitchUtils, Tuplet, Undo.
 
-Move ShellSort() from SelUtils to Utility; other minor cleanup. Affects Utility.h;
+Moved ShellSort() from SelUtils to Utility; other minor cleanup. Affects Utility.h;
 SelUtils, Utility.
 
-Fix bug: Editing text always, and the Untuple command in rare circumstances, leave Undo
+Fixed bug: Editing text always, and the Untuple command in rare circumstances, leave Undo
 for the previous operation in place; now, both operations always just leave Undo
 disabled. Affects Check, Tuplet. (An abandoned attempt to implement Undo for editing
 text affects NTypes.h; .rsrc; Undo.)
 
-Replace some "unsigned char [256]" with "Str255" and "unsigned char*" with "StringPtr";
+Replaced some "unsigned char [256]" with "Str255" and "unsigned char*" with "StringPtr";
 other minor cleanup. Affects Check, ChooseCharDlog, Menu, PitchUtils, TextDialog,
 Tuplet, Undo, Utility.
 
@@ -1472,13 +1472,13 @@ Tuplet, Undo, Utility.
 
 11-13 May
 
-Fix bug: Editing a tempo/metronome mark leaves Undo for the previous operation in place;
+Fixed bug: Editing a tempo/metronome mark leaves Undo for the previous operation in place;
 now, it just leave Undo disabled. Affects Check.
 
 Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
 CheckUtils, ChordSym.
 
-Rename three data-structure utilities to clarify that they're Boolean-valued. Affects
+Renamed three data-structure utilities to clarify that they're Boolean-valued. Affects
 DSUtils.h; AccModNRMouse, CheckUtils, Clipboard, DSUtils, MergeUtils, MoveUpDown,
 Ottava, Score, SFormatHighLevel, Tuplet.
 
@@ -1492,6 +1492,21 @@ MoveUpDown, Utility.
 Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects
 CompactVoices, Context, FileInput, Merge.
 
-Move CompactVoices from folder CFilesBoth to CFilesEditor.
+Moved CompactVoices from folder CFilesBoth to CFilesEditor.
 
 Minor cleanup. Affects CompactVoices, Context, FileInput, Menu, Merge.
+
+-------------------------------------------------------------------------------
+
+25-26 May
+
+Removed code for handling Desk Accessories, which have been essentially obsolete for
+the entire 21st century. Affects Menu.
+
+Moved SetUtils from folder CFilesBoth to CFilesEditor, and Clipboard from CFilesEditor
+to CFilesBoth.
+
+Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects Clipboard,
+DSUtils, MoveUpDown.
+
+Minor cleanup. Affects Clipboard, FileInput, Menu, MoveUpDown, SetUtils.

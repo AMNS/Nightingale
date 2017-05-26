@@ -1297,9 +1297,8 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 	2) repace using the new space percentage (stored in first measure of system),
 	3) then justify again.
 This produces better looking spacing than the normal justify command, especially when
-there isn't much content on a system. (This is not so rare in garden variety Enigma
-files.) NB: Does not complain if the space percentage exceeds the limit.
-Returns true if OK, false if error. */
+there isn't much content on a system. NB: Does not complain if the space percentage
+exceeds the limit. Returns true if OK, false if error. */
 
 Boolean FIJustifySystem(Document *doc, LINK systemL)
 {
@@ -1394,16 +1393,15 @@ short CloseInputFile(FILE *f)
 
 
 /* ------------------------------------------------------------------------ ReadLine -- */
-/* Read a line of text from the given stream <f> and place it in the given buffer <inBuf>.
-Read chars until we find a newline (or return). Replace the newline char with a null.
-If no newline appears after reading <maxChars> - 1 chars, store a null into the last 
-byte of <inBuf>. (Does not append a newline to the string.)
+/* Read a line of text from the given stream <f> and place it in the given buffer
+<inBuf>. Read chars until we find a newline (or return). Replace the newline char with
+a null. If no newline appears after reading <maxChars> - 1 chars, store a null into the
+last byte of <inBuf>. (Does not append a newline to the string.)  The purpose of this
+function is to avoid using the standard C library's gets, which doesn't guarantee that
+the given buffer will not be overwritten by a very long line.
 
 If the read was successful, return true. If we reach EOF without reading a character,
-or if there is some kind of error, return false. (The purpose of this function is to
-avoid using the ANSI lib's gets, which does NOT guarantee that the given buffer will
-not be overwritten by a very long line, such as a long stream of Enigma lyrics that
-contain no return chars.)
+or if there is some kind of error, return false.
 
 For example, if the stream contains "now is the time for all bytes to stand up and
 be counted\n", and <maxChars> is 9, ReadLine will not reach the newline and will

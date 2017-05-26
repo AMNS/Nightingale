@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		151D71301C4FA1A900B49302 /* VoiceTable.cp in Sources */ = {isa = PBXBuildFile; fileRef = 151D712F1C4FA1A900B49302 /* VoiceTable.cp */; };
+		1540DDE61ED721ED007ECD61 /* SetUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1540DDE51ED721ED007ECD61 /* SetUtils.cp */; };
 		1544E9B31E645DA400431548 /* Style.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B21E645DA400431548 /* Style.h */; };
 		1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B41E645DEF00431548 /* Defs.h */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
@@ -23,6 +24,7 @@
 		15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */; };
 		15E0B7AA1E7757E7001C568B /* NotelistOpen.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E0B7A91E7757E7001C568B /* NotelistOpen.cp */; };
 		15E2F8FC1DC983B3006D56E9 /* NewSlur.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */; };
+		15E332F21ED8AFC1007385A1 /* Clipboard.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E332F11ED8AFC1007385A1 /* Clipboard.cp */; };
 		15E4B7751C823507001279A2 /* Ottava.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15E4B7741C823507001279A2 /* Ottava.cp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
 		8D0C4E920486CD37000505A6 /* Carbon.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20286C33FDCF999611CA2CEA /* Carbon.framework */; };
@@ -74,7 +76,6 @@
 		D03E6EF10D5FA2CC005FD177 /* Search.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EEB0D5FA2CC005FD177 /* Search.cp */; };
 		D03E6EF20D5FA2CC005FD177 /* Select.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EEC0D5FA2CC005FD177 /* Select.cp */; };
 		D03E6EF30D5FA2CC005FD177 /* SelUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EED0D5FA2CC005FD177 /* SelUtils.cp */; };
-		D03E6EF40D5FA2CC005FD177 /* SetUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EEE0D5FA2CC005FD177 /* SetUtils.cp */; };
 		D03E6EF50D5FA2CC005FD177 /* SFormat.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EEF0D5FA2CC005FD177 /* SFormat.cp */; };
 		D03E6EFF0D5FA2F8005FD177 /* Multivoice.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EF70D5FA2F8005FD177 /* Multivoice.cp */; };
 		D03E6F000D5FA2F8005FD177 /* MusicFont.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6EF80D5FA2F8005FD177 /* MusicFont.cp */; };
@@ -86,7 +87,6 @@
 		D03E709F0D5FA5B2005FD177 /* CheckMerge.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70580D5FA5B2005FD177 /* CheckMerge.cp */; };
 		D03E70A00D5FA5B2005FD177 /* ChooseCharDlog.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70590D5FA5B2005FD177 /* ChooseCharDlog.cp */; };
 		D03E70A10D5FA5B2005FD177 /* Clear.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E705A0D5FA5B2005FD177 /* Clear.cp */; };
-		D03E70A20D5FA5B2005FD177 /* Clipboard.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E705B0D5FA5B2005FD177 /* Clipboard.cp */; };
 		D03E70A30D5FA5B2005FD177 /* CombineParts.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E705C0D5FA5B2005FD177 /* CombineParts.cp */; };
 		D03E70A40D5FA5B2005FD177 /* CrossSystem.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E705D0D5FA5B2005FD177 /* CrossSystem.cp */; };
 		D03E70A50D5FA5B2005FD177 /* Debug2Utils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E705E0D5FA5B2005FD177 /* Debug2Utils.cp */; };
@@ -209,6 +209,7 @@
 /* Begin PBXFileReference section */
 		0867D6ABFE840B52C02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		151D712F1C4FA1A900B49302 /* VoiceTable.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = VoiceTable.cp; sourceTree = "<group>"; };
+		1540DDE51ED721ED007ECD61 /* SetUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetUtils.cp; sourceTree = "<group>"; };
 		1544E9B21E645DA400431548 /* Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Style.h; sourceTree = "<group>"; };
 		1544E9B41E645DEF00431548 /* Defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defs.h; sourceTree = "<group>"; };
 		1556A2F51D3FA4E700A0B147 /* InsNew.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNew.cp; sourceTree = "<group>"; };
@@ -222,6 +223,7 @@
 		15BCF5991E9D27D30069F7EB /* Undo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Undo.cp; sourceTree = "<group>"; };
 		15E0B7A91E7757E7001C568B /* NotelistOpen.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NotelistOpen.cp; sourceTree = "<group>"; };
 		15E2F8FB1DC983B3006D56E9 /* NewSlur.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = NewSlur.cp; sourceTree = "<group>"; };
+		15E332F11ED8AFC1007385A1 /* Clipboard.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cp; sourceTree = "<group>"; };
 		15E4B7741C823507001279A2 /* Ottava.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Ottava.cp; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
 		32DBCF6D0370B57F00C91783 /* Nightingale_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Nightingale_Prefix.pch; sourceTree = "<group>"; };
@@ -368,7 +370,6 @@
 		D03E6EEB0D5FA2CC005FD177 /* Search.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Search.cp; sourceTree = "<group>"; };
 		D03E6EEC0D5FA2CC005FD177 /* Select.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Select.cp; sourceTree = "<group>"; };
 		D03E6EED0D5FA2CC005FD177 /* SelUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SelUtils.cp; sourceTree = "<group>"; };
-		D03E6EEE0D5FA2CC005FD177 /* SetUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetUtils.cp; sourceTree = "<group>"; };
 		D03E6EEF0D5FA2CC005FD177 /* SFormat.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SFormat.cp; sourceTree = "<group>"; };
 		D03E6EF70D5FA2F8005FD177 /* Multivoice.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Multivoice.cp; sourceTree = "<group>"; };
 		D03E6EF80D5FA2F8005FD177 /* MusicFont.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MusicFont.cp; sourceTree = "<group>"; };
@@ -380,7 +381,6 @@
 		D03E70580D5FA5B2005FD177 /* CheckMerge.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckMerge.cp; sourceTree = "<group>"; };
 		D03E70590D5FA5B2005FD177 /* ChooseCharDlog.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ChooseCharDlog.cp; sourceTree = "<group>"; };
 		D03E705A0D5FA5B2005FD177 /* Clear.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Clear.cp; sourceTree = "<group>"; };
-		D03E705B0D5FA5B2005FD177 /* Clipboard.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Clipboard.cp; sourceTree = "<group>"; };
 		D03E705C0D5FA5B2005FD177 /* CombineParts.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CombineParts.cp; sourceTree = "<group>"; };
 		D03E705D0D5FA5B2005FD177 /* CrossSystem.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CrossSystem.cp; sourceTree = "<group>"; };
 		D03E705E0D5FA5B2005FD177 /* Debug2Utils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Debug2Utils.cp; sourceTree = "<group>"; };
@@ -705,6 +705,7 @@
 				D03E6DD80D5F986D005FD177 /* Check.cp */,
 				D03E6DD90D5F986D005FD177 /* CheckUtils.cp */,
 				D03E6DDA0D5F986D005FD177 /* ChordSym.cp */,
+				15E332F11ED8AFC1007385A1 /* Clipboard.cp */,
 				D03E6DAF0D5F9644005FD177 /* Context.cp */,
 				D03E6DB00D5F9644005FD177 /* Copy.cp */,
 				D03E6DC10D5F9720005FD177 /* CrossLinks.cp */,
@@ -761,7 +762,6 @@
 				D03E6EEB0D5FA2CC005FD177 /* Search.cp */,
 				D03E6EEC0D5FA2CC005FD177 /* Select.cp */,
 				D03E6EED0D5FA2CC005FD177 /* SelUtils.cp */,
-				D03E6EEE0D5FA2CC005FD177 /* SetUtils.cp */,
 				D03E6EEF0D5FA2CC005FD177 /* SFormat.cp */,
 				D088B9730D5FB9990028C2BC /* SFormatHighLevel.cp */,
 				D088B9740D5FB9990028C2BC /* Sheet.cp */,
@@ -847,7 +847,6 @@
 				D03E70580D5FA5B2005FD177 /* CheckMerge.cp */,
 				D03E70590D5FA5B2005FD177 /* ChooseCharDlog.cp */,
 				D03E705A0D5FA5B2005FD177 /* Clear.cp */,
-				D03E705B0D5FA5B2005FD177 /* Clipboard.cp */,
 				D03E705C0D5FA5B2005FD177 /* CombineParts.cp */,
 				15B639401ECDA9E00029EDD7 /* CompactVoices.cp */,
 				D03E705D0D5FA5B2005FD177 /* CrossSystem.cp */,
@@ -906,6 +905,7 @@
 				D03E70950D5FA5B2005FD177 /* RTRhythmDur.cp */,
 				D03E70960D5FA5B2005FD177 /* ScoreInfo.cp */,
 				D03E70970D5FA5B2005FD177 /* SetCommand.cp */,
+				1540DDE51ED721ED007ECD61 /* SetUtils.cp */,
 				D03E70980D5FA5B2005FD177 /* SysPageEdit.cp */,
 				D03E70990D5FA5B2005FD177 /* TextDialog.cp */,
 				D03E709A0D5FA5B2005FD177 /* TrackVMove.cp */,
@@ -1075,7 +1075,6 @@
 				D03E6EF10D5FA2CC005FD177 /* Search.cp in Sources */,
 				D03E6EF20D5FA2CC005FD177 /* Select.cp in Sources */,
 				D03E6EF30D5FA2CC005FD177 /* SelUtils.cp in Sources */,
-				D03E6EF40D5FA2CC005FD177 /* SetUtils.cp in Sources */,
 				D03E6EF50D5FA2CC005FD177 /* SFormat.cp in Sources */,
 				D03E6EFF0D5FA2F8005FD177 /* Multivoice.cp in Sources */,
 				D03E6F000D5FA2F8005FD177 /* MusicFont.cp in Sources */,
@@ -1087,7 +1086,6 @@
 				D03E709F0D5FA5B2005FD177 /* CheckMerge.cp in Sources */,
 				D03E70A00D5FA5B2005FD177 /* ChooseCharDlog.cp in Sources */,
 				D03E70A10D5FA5B2005FD177 /* Clear.cp in Sources */,
-				D03E70A20D5FA5B2005FD177 /* Clipboard.cp in Sources */,
 				D03E70A30D5FA5B2005FD177 /* CombineParts.cp in Sources */,
 				D03E70A40D5FA5B2005FD177 /* CrossSystem.cp in Sources */,
 				D03E70A50D5FA5B2005FD177 /* Debug2Utils.cp in Sources */,
@@ -1188,6 +1186,8 @@
 				15BCF59A1E9D27D30069F7EB /* Undo.cp in Sources */,
 				15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */,
 				15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */,
+				1540DDE61ED721ED007ECD61 /* SetUtils.cp in Sources */,
+				15E332F21ED8AFC1007385A1 /* Clipboard.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

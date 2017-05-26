@@ -1,15 +1,15 @@
-/***************************************************************************
+/****************************************************************************************
 *	FILE:	SetUtils.c
 *	PROJ:	Nightingale
 *	DESC:	Set data-structure-manipulating routines, by DAB and John Gibson
-/***************************************************************************/
+/****************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 /*
@@ -40,7 +40,9 @@ static Boolean SSTYCheck(Document *, LINK, DDIST);
 
 static Boolean SSVChkNote(Document *doc, LINK pL, LINK aNoteL, short uVoice)
 {
-	PANOTE aNote; LINK partL, vNoteL; short iVoice;
+	PANOTE aNote;
+	LINK partL, vNoteL;
+	short iVoice;
 
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->beamed
@@ -68,7 +70,9 @@ static Boolean SSVChkNote(Document *doc, LINK pL, LINK aNoteL, short uVoice)
 
 Boolean SSVCheck(Document *doc, LINK syncL, short uVoice)
 {
-	LINK aNoteL; short np, durCode[MAXSTAVES+1]; Boolean haveRest[MAXSTAVES+1];
+	LINK aNoteL;
+	short np, durCode[MAXSTAVES+1];
+	Boolean haveRest[MAXSTAVES+1];
 	
 	/* First context-independent checks of each note (really each voice, since some
 		notes may not be selected yet). */
@@ -121,7 +125,7 @@ void FixSyncVoice(Document *doc,
 						LINK pL,				/* Sync */
 						short voice)
 {
-	LINK	aNoteL, vNoteL;
+	LINK	aNoteL, vNoteL=NILINK;
 	CONTEXT	context;
 	Boolean	stemDown;
 	QDIST	qStemLen;
@@ -144,10 +148,10 @@ void FixSyncVoice(Document *doc,
 				stemDown = GetStemInfo(doc, pL, vNoteL, &qStemLen);
 				GetContext(doc, pL, NoteSTAFF(vNoteL), &context);
 				NoteYSTEM(vNoteL) = CalcYStem(doc, NoteYD(vNoteL),
-													NFLAGS(NoteType(vNoteL)),
-													stemDown,
-													context.staffHeight, context.staffLines,
-													qStemLen, FALSE);
+												NFLAGS(NoteType(vNoteL)),
+												stemDown,
+												context.staffHeight, context.staffLines,
+												qStemLen, FALSE);
 			}
 
 			FixAugDotPos(doc, pL, voice, TRUE);
@@ -162,7 +166,8 @@ for its part that's equivalent to the given user voice number. */
 
 Boolean SetSelVoice(Document *doc, short uVoice)
 {
-	LINK partL, pL, aNoteL; short v, tempV;
+	LINK partL, pL, aNoteL;
+	short v, tempV;
 	Boolean didAnything, syncChanged, voiceChanged[MAXVOICES+1];
 	
 	didAnything = FALSE;
@@ -313,6 +318,7 @@ static Boolean SSSCheck(Document *doc, LINK /*syncL*/, LINK aNoteL, short absSta
 	return TRUE;
 }
 
+
 /* --------------------------------------------------------------------- SetSelStaff -- */
 /* Set the staff number of every selected note or rest. NB: it looks like the
 restriction to unbeamed notes could be eliminated simply by calling Unbeam. */
@@ -392,7 +398,7 @@ StaffFound:
 
 	if (didAnything) {
 		DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
-		InvalRange(doc->selStartL, doc->selEndL);							/* Update objRects */
+		InvalRange(doc->selStartL, doc->selEndL);						/* Update objRects */
 	}
 	return didAnything;
 }
@@ -404,7 +410,8 @@ furthest from the MainNote. */
 
 LINK ExtremeNote(LINK syncL, short voice, Boolean stemDown)
 {
-	LINK aNoteL, extNoteL=NILINK; DDIST extYD;
+	LINK aNoteL, extNoteL=NILINK;
+	DDIST extYD;
 	
 	extYD = (stemDown? -32767 : 32767);
 	for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL))
@@ -417,6 +424,7 @@ LINK ExtremeNote(LINK syncL, short voice, Boolean stemDown)
 	
 	return extNoteL;
 }
+
 
 /* ------------------------------------------------------------------- SetSelStemlen -- */
 /* Set the stem length of every selected note/rest/chord to a positive value,
@@ -460,10 +468,10 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 							continue;
 						}
 						/*
-						 *	Convert the staff-height-relative stem length to DDIST. Length zero
+						 * Convert the staff-height-relative stem length to DDIST. Length zero
 						 * will cause big problems with chords, so instead use the shortest
 						 * length that Get Info won't round to zero. We assume staff height and
-						 *	no. of lines are constant--true in v.1.0.
+						 * no. of lines are constant--true as of v.5.7.
 						 */
 						if (dStemlen<=-32767) {
 							if (stemlen==0)
@@ -477,7 +485,7 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 						upDown = (NoteYD(aNoteL)>NoteYSTEM(aNoteL)? 1 : -1);
 						/*
 						 * If this is a chord, the user undoubtedly thinks of the stem length
-						 *	as what projects beyond the note at the other end of the chord
+						 * as what projects beyond the note at the other end of the chord
 						 * from the MainNote, so we have to increase the actual length
 						 * accordingly.
 						 */
@@ -496,7 +504,8 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 	return didAnything;
 }
 
-/* -------------------------------------------------------------- SetSelNRAppear -- */
+
+/* ------------------------------------------------------------------ SetSelNRAppear -- */
 /* Set the appearance (shape and visibility) of every selected note or rest. */
 
 Boolean SetSelNRAppear(Document *doc, short appearance)
@@ -516,6 +525,7 @@ Boolean SetSelNRAppear(Document *doc, short appearance)
 
 	return didAnything;
 }
+
 
 /* ------------------------------------------------------------------- SetSelNRSmall -- */
 /* Set the <small> flag of every selected note or rest. */
@@ -714,7 +724,8 @@ Boolean SetSelGraphicX(
 
 static Boolean SSGYCheck(Document *doc, LINK graphicL, DDIST dyd)
 {
-	PGRAPHIC p; DDIST pageRelyd, yd;
+	PGRAPHIC p;
+	DDIST pageRelyd, yd;
 	Boolean top;
 	CONTEXT	context;
 	char fmtStr[256], wordStr[32];
@@ -863,7 +874,9 @@ Boolean SetSelTempoX(
 
 static Boolean SSTYCheck(Document *doc, LINK tempoL, DDIST dyd)
 {
-	PTEMPO p; DDIST pageRelyd, yd; Boolean top;
+	PTEMPO p;
+	DDIST pageRelyd, yd;
+	Boolean top;
 	CONTEXT	context;
 	char fmtStr[256], wordStr[32];
 	
@@ -1036,13 +1049,13 @@ Boolean SetSelGraphicStyle(
 
 
 /* --------------------------------------------------------------- SetSelMeasVisible -- */
-/* Set visibility of every selected Measure and its subobjects, i.e., of the
-barlines, not the contents of the measures. */
+/* Set visibility of every selected Measure and its subobjects, i.e., of the barlines,
+not the contents of the measures. */
 
 Boolean SetSelMeasVisible(Document *doc, Boolean visible)
 {
 	PAMEASURE	aMeasure;
-	LINK			pL, aMeasureL;
+	LINK		pL, aMeasureL;
 	Boolean		didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
@@ -1105,6 +1118,7 @@ Boolean SetSelDynamVisible(Document *doc, Boolean visible)
 	return didAnything;
 }
 
+
 /* ---------------------------------------------------------------- SetSelDynamSmall -- */
 /* Set visibility of every selected Dynamic. */
 
@@ -1146,6 +1160,7 @@ Boolean SetSelBeamsetThin(Document *doc, Boolean thin)
 	return didAnything;
 }
 
+
 /* --------------------------------------------------------------- SetSelClefVisible -- */
 /* Set visibility of every selected Clef. */
 
@@ -1166,7 +1181,6 @@ Boolean SetSelClefVisible(Document *doc, Boolean visible)
 	}
 	return didAnything;
 }
-
 
 
 /* ------------------------------------------------------------- SetSelKeySigVisible -- */
@@ -1400,9 +1414,9 @@ Boolean SetSelSlurAppear(Document *doc, short appearance)
 
 Boolean SetSelLineThickness(Document *doc, short thickness)
 {
-	PGRAPHIC pGraphic;
-	LINK	pL;
-	Boolean	didAnything=FALSE;
+	PGRAPHIC	pGraphic;
+	LINK		pL;
+	Boolean		didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && GraphicTYPE(pL) && GraphicSubType(pL)==GRDraw) {
@@ -1414,6 +1428,7 @@ Boolean SetSelLineThickness(Document *doc, short thickness)
 	return didAnything;
 }
 
+
 /* -------------------------------------------------------- SetSelPatchChangeVisible -- */
 /* Set visibility of every selected PatchChange. */
 
@@ -1423,8 +1438,7 @@ Boolean SetSelPatchChangeVisible(Document *doc, Boolean visible)
 	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
-		if (LinkSEL(pL) && GraphicTYPE(pL)) 
-		{		
+		if (LinkSEL(pL) && GraphicTYPE(pL)) {		
 			if (GraphicSubType(pL)==GRMIDIPatch) {
 				LinkVIS(pL) = visible;
 				didAnything = TRUE;
@@ -1434,7 +1448,8 @@ Boolean SetSelPatchChangeVisible(Document *doc, Boolean visible)
 	return didAnything;
 }
 
-/* ------------------------------------------------------- SetSelPanVisible -- */
+
+/* ---------------------------------------------------------------- SetSelPanVisible -- */
 /* Set visibility of every selected Pan. */
 
 Boolean SetSelPanVisible(Document *doc, Boolean visible)
@@ -1443,8 +1458,7 @@ Boolean SetSelPanVisible(Document *doc, Boolean visible)
 	Boolean	didAnything=FALSE;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
-		if (LinkSEL(pL) && GraphicTYPE(pL)) 
-		{		
+		if (LinkSEL(pL) && GraphicTYPE(pL)) {		
 			if (GraphicSubType(pL)==GRMIDIPan) {
 				LinkVIS(pL) = visible;
 				didAnything = TRUE;

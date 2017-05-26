@@ -71,7 +71,7 @@ static void	PLTransposedScore(Document *);
 static void InstallDebugMenuItems(Boolean installAll);
 
 static void	FixFileMenu(Document *doc, short nSel);
-static void	FixEditMenu(Document *doc, short nInSelRange, short nSel, Boolean isDA);
+static void	FixEditMenu(Document *doc, short nInSelRange, short nSel);
 static void	FixTestMenu(Document *doc, short nSel);
 static void	DisableSMMove(void);
 static void	FixMoveMeasSys(Document *doc);
@@ -2228,7 +2228,7 @@ void FixMenus()
 			}
 		
 		FixFileMenu(theDoc, nSel);
-		FixEditMenu(theDoc, nInRange, nSel, isDA);
+		FixEditMenu(theDoc, nInRange, nSel);
 		FixTestMenu(theDoc, nSel);
 		FixScoreMenu(theDoc, nSel);
 		FixNotesMenu(theDoc, continSel);
@@ -2325,11 +2325,11 @@ static void GetUndoString(Document *doc, char undoMenuItem[])
 	}
 
 /*
- *	Enable or disable all items in the Edit menu; disable entire menu if the front
- * window isn't a DA and we're looking at the Master Page or Showing Format.
+ *	Enable or disable all items in the Edit menu; disable entire menu if we're looking
+ *  at the Master Page or Showing Format.
  */
 
-static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean isDA)
+static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 	{
 		Boolean mergeable,enablePaste,enableClearSys,enableClearPage;
 		char str[256], undoMenuItem[256], fmtStr[256];
@@ -2340,57 +2340,55 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 		/*
 		 * Unlike most other menus, we can't just disable the whole menu if there's
 		 * no score open, so the code below has to work even if doc==NULL!
-		 */
-		 
-		/*
+		 *
 		 *	Handle clipboard commands if either doc==NULL, or it exists and is in the
 		 * normal view (not Master Page or Work on Format).
 		 */
 		
 		if (doc==NULL || (!doc->masterView && !doc->showFormat)) {
-			XableItem(editMenu,EM_Undo,isDA || 
+			XableItem(editMenu,EM_Undo,false || 
 				(doc!=NULL && doc->undo.lastCommand!=U_NoOp && doc->undo.canUndo));
 			if (doc) {
 				GetUndoString(doc, undoMenuItem);
 				SetMenuItemCText(editMenu, EM_Undo, undoMenuItem);
 			}
 	
-			XableItem(editMenu,EM_Cut,isDA ||
+			XableItem(editMenu,EM_Cut,false ||
 				(doc!=NULL && doc!=clipboard && doc->canCutCopy && !beforeFirst));
-			XableItem(editMenu,EM_Copy,isDA ||
+			XableItem(editMenu,EM_Copy,false ||
 				(doc!=NULL && doc!=clipboard && doc->canCutCopy && !beforeFirst));
-			XableItem(editMenu,EM_Clear,isDA ||
+			XableItem(editMenu,EM_Clear,false ||
 				(doc!=NULL && doc!=clipboard && doc->canCutCopy
 						&& BFSelClearable(doc, beforeFirst)));
 					
 			nPages = CountSelPages(doc);
 			if (nPages>1) {
-				GetIndCString(fmtStr, MENUCMD_STRS, 1);						/* "Copy %d Pages" */
+				GetIndCString(fmtStr, MENUCMD_STRS, 1);					/* "Copy %d Pages" */
 				sprintf(str, fmtStr, nPages);
 			}
 			else
-				GetIndCString(str, MENUCMD_STRS, 2);						/* "Copy Page" */
+				GetIndCString(str, MENUCMD_STRS, 2);					/* "Copy Page" */
 			SetMenuItemCText(editMenu, EM_CopyPage, str);
 			if (nPages>1) {
-				GetIndCString(fmtStr, MENUCMD_STRS, 21);					/* "Clear %d Pages" */
+				GetIndCString(fmtStr, MENUCMD_STRS, 21);				/* "Clear %d Pages" */
 				sprintf(str, fmtStr, nPages);
 			}
 			else
-				GetIndCString(str, MENUCMD_STRS, 22);						/* "Clear Page" */
+				GetIndCString(str, MENUCMD_STRS, 22);					/* "Clear Page" */
 			SetMenuItemCText(editMenu, EM_ClearPage, str);
 
 			/* FIXME: How can you "Paste Insert" anything into a DA? (CER asks?) */
 
 			switch (lastCopy) {
 				case COPYTYPE_CONTENT:
-					GetIndCString(str, MENUCMD_STRS, 3);					/* "Paste Insert" */
+					GetIndCString(str, MENUCMD_STRS, 3);				/* "Paste Insert" */
 					SetMenuItemCText(editMenu, EM_Paste, str);
-					enablePaste = (isDA ||
-						(doc!=NULL && doc!=clipboard && clipboard->canCutCopy && !beforeFirst));
+					enablePaste = (doc!=NULL && doc!=clipboard && clipboard->canCutCopy
+									&& !beforeFirst);
 					XableItem(editMenu,EM_Paste,enablePaste);
 					break;
 				case COPYTYPE_SYSTEM:
-					GetIndCString(str, MENUCMD_STRS, 4);					/* "Paste System" */
+					GetIndCString(str, MENUCMD_STRS, 4);				/* "Paste System" */
 					SetMenuItemCText(editMenu, EM_Paste, str);
 					enablePaste = (doc!=NULL && doc!=clipboard && !beforeFirst);
 					XableItem(editMenu,EM_Paste,enablePaste);
@@ -2398,11 +2396,11 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 				case COPYTYPE_PAGE:
 					nPages = clipboard->numSheets;
 					if (nPages>1) {
-						GetIndCString(fmtStr, MENUCMD_STRS, 5);				/* "Paste %d Pages" */
+						GetIndCString(fmtStr, MENUCMD_STRS, 5);			/* "Paste %d Pages" */
 						sprintf(str, fmtStr, nPages);
 					}
 					else
-						GetIndCString(str, MENUCMD_STRS, 6);				/* "Paste Page" */
+						GetIndCString(str, MENUCMD_STRS, 6);			/* "Paste Page" */
 					SetMenuItemCText(editMenu, EM_Paste, str);
 					enablePaste = (doc!=NULL && doc!=clipboard && !beforeFirst);
 					XableItem(editMenu,EM_Paste,enablePaste);
@@ -2450,9 +2448,9 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel, Boolean i
 			XableItem(editMenu,EM_CopyPage,doc!=NULL && doc!=clipboard);
 
 			XableItem(editMenu, EM_SelAll,
-				(!isDA) && (doc!=NULL && doc!=clipboard && (RightLINK(doc->headL)!=doc->tailL)));
+				(doc!=NULL && doc!=clipboard && (RightLINK(doc->headL)!=doc->tailL)));
 			XableItem(editMenu, EM_ExtendSel,
-				(!isDA) && (doc!=NULL && doc!=clipboard && nSel>0));
+				(doc!=NULL && doc!=clipboard && nSel>0));
 
 			XableItem(editMenu, EM_GetInfo, doc!=NULL && nSel==1);
 
