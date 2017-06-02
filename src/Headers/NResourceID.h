@@ -281,6 +281,7 @@ enum {							/* Edit menu */
 	EM_Copy,
 	EM_Paste,
 	EM_Merge,
+	EM_PasteAsCue,
 	EM_Clear,
 	EM_____________2,
 	EM_Double,

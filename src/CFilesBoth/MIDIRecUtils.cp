@@ -5,7 +5,6 @@ These functions have no user interface implications.
 	SetupMIDINote		CreateSync				AddNoteToSync
 	MIDI2HalfLn			FillMergeBuffer			ObjTimeInTable
 	MRFixTieLinks		FixTupletLinks			MRMerge
-	AvoidUnisons		AvoidUnisonsInRange
 */				
 
 /*
@@ -26,7 +25,6 @@ static short MIDI2HalfLn(Document *, Byte, short, Boolean, SignedByte *);
 static short ObjTimeInTable(long, LINKTIMEINFO *, short);
 static void MRFixTieLinks(Document *, LINK, LINK, short);
 static void MRFixTupletLinks(Document *, LINK, LINK, short);
-Boolean AvoidUnisons(Document *, LINK, short, PCONTEXT);
 
 
 /* ---------------------------------------------------------------- SetupMIDINote -- */
@@ -476,113 +474,4 @@ for (i = 0; i<n_min(nMergeObjs, 5); i++) {
 	doc->selStartL = endL;
 	doc->selEndL = selEndL;
 	return TRUE;
-}
-
-
-/* ----------------------------------------------------------------- AvoidUnisons -- */
-/* In the given chord, try to avoid any kind of unisons by respelling. Returns FALSE
-if there's at least one unison it can't get rid of. Assumes the chord doesn't con-
-tain any fancy spellings (see below).  Handles only chords of normal notes, not
-grace notes.*/
-
-Boolean AvoidUnisons(Document *doc, LINK syncL, short voice, PCONTEXT pContext)
-{
-	short			noteCount, i, unisonCount;
-	CHORDNOTE	chordNote[MAXCHORD];
-	short			halfSpTab[MAXCHORD+1];
-	PANOTE		aNote, bNote;
-	Boolean		thisChanged, anyChanged;
-
-	/*
-	 *	Sort notes by note number and go thru them by y-position, making a table of
-	 * y-position intervals. (We sort by note number instead of y-position to be
-	 * sure notes in unisons are in the correct order; this could backfire if fancy
-	 * enharmonic spellings were involved--say, E# and Fb--but that can't happen with
-	 * newly-recorded notes.) For our purposes, it makes no difference whether we
-	 * get the notes in descending or ascending order; arbitrarily choose ascending.
-	 */
-	noteCount = PSortChordNotes(syncL, voice, TRUE, chordNote);
-	
-	for (i = 1; i<noteCount; i++) {
-		aNote = GetPANOTE(chordNote[i].noteL);
-		bNote = GetPANOTE(chordNote[i-1].noteL);
-		halfSpTab[i] = qd2halfLn(ABS(aNote->yqpit-bNote->yqpit));
-	}
-
-	halfSpTab[0] = halfSpTab[noteCount] = 999;
-	
-	for (anyChanged = FALSE, unisonCount = 0, i = 1; i<noteCount; i++) {
-		if (halfSpTab[i]==0) {
-		/*
-		 *	Found a unison. Try to avoid it by changing the first note of the two (the
-		 * lower-pitched) to an enharmonic equivalent on the line/space below its current
-		 * position, if this would not CREATE a unison in that position; if it would, or
-		 * if we have no equivalent on the line/space below, leave the first note alone
-		 * and try to change the second note to an enharmonic equivalent on the line/space
-		 * above its current position. If this would create a unison in that position,
-		 * or if we have no equivalent on the line/space above, give up. I suspect there
-		 * are cases where this will fail but just considering the notes in a different
-		 * order would work. Oh well.
-		 */
-		 	thisChanged = FALSE;
-			if (halfSpTab[i-1]>1)
-				if (RespellNote(doc, syncL, chordNote[i-1].noteL, pContext))
-					thisChanged = anyChanged = TRUE;
-			if (halfSpTab[i+1]>1 && !thisChanged)
-				if (RespellNote(doc, syncL, chordNote[i].noteL, pContext))
-					thisChanged = anyChanged = TRUE;
-			if (!thisChanged)
-					unisonCount++;
-		}
-	}
-	
-	if (anyChanged) FixRespelledVoice(doc, syncL, voice);
-	return (unisonCount==0);
-}
-
-
-/* ---------------------------------------------------------- AvoidUnisonsInRange -- */
-/* In the range [startL,endL), try to avoid by respelling any kind of unisons
-(perfect or augmented) in chords on the given staff. Handles only chords of normal
-notes, not grace notes. */
-
-void AvoidUnisonsInRange(Document *doc, LINK startL, LINK endL, short staff)
-{
-	CONTEXT context;  short voice, relStaff;
-	LINK pL, partL;
-	PPARTINFO pPart; short nProblems=0;
-	char fmtStr[256];
-	
-	/*
-	 * Using the context before the first Measure is dangerous and there can't be
-	 * any Syncs there, anyway, so if <startL> is before the first Measure,
-	 * instead start at the first Measure.
-	 */
-	if (!SSearch(startL, MEASUREtype, GO_LEFT))
-		startL = SSearch(startL, MEASUREtype, GO_RIGHT);
-
-	GetContext(doc, startL, staff, &context);
-	voice = USEVOICE(doc, staff);
-	for (pL = startL; pL!=endL; pL = RightLINK(pL))
-		if (SyncTYPE(pL))
-			if (!AvoidUnisons(doc, pL, voice, &context))
-				nProblems++;
-	
-	if (nProblems>0) {
-		partL = FindPartInfo(doc, Staff2Part(doc, staff));
-		pPart = GetPPARTINFO(partL);
-		relStaff = staff-pPart->firstStaff+1;
-		GetIndCString(fmtStr, MIDIERRS_STRS, 22);				/* "Nightingale couldn't avoid unisons in %d chord(s) on staff %d " */
-		sprintf(strBuf, fmtStr, nProblems, staff); 
-		if (pPart->lastStaff>pPart->firstStaff) {
-			GetIndCString(fmtStr, MIDIERRS_STRS, 23);			/* "(staff %d of %s)." */
-			sprintf(&strBuf[strlen(strBuf)], fmtStr, relStaff, pPart->name); 
-		}
-		else {
-			GetIndCString(fmtStr, MIDIERRS_STRS, 24);			/* "(%s)." */
-			sprintf(&strBuf[strlen(strBuf)], fmtStr, pPart->name); 
-		}
-		CParamText(strBuf, "", "", "");
-		StopInform(GENERIC_ALRT);
-	}
 }

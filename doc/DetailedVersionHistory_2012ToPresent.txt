@@ -1510,3 +1510,22 @@ Replaced "TRUE" and "FALSE" with the more standard "true" and "false". Affects C
 DSUtils, MoveUpDown.
 
 Minor cleanup. Affects Clipboard, FileInput, Menu, MoveUpDown, SetUtils.
+
+-------------------------------------------------------------------------------
+
+28-31 May
+
+Begin implementation of the "Paste as Cue" command. Affects .rsrc, Merge.h; Menu,
+Merge.
+
+Reword the very misleading "Can't merge" warning dialog so it's more accurate. Affects
+.rsrc.
+
+Move AvoidUnisons() and AvoidUnisonsInRange() from MIDIRecUtils to PitchUtils. Also
+affects NightTemplates.h, PitchUtils.h.
+
+Reduce the height of shading on the screen indicating individual staves in measures with
+duration less than the time signature indicates. Affects DrawObject.
+
+Minor cleanup. Affects Clipboard, DrawObject, DSUtils, Menu, Merge, MergeUtils,
+MIDIFOCmd, Objects.

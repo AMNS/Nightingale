@@ -1882,9 +1882,9 @@ static Boolean MultipleVoicesInClip()
 
 /* ------------------------------------------------------------------------------------ */
 /* Functions to determine if the user is trying to paste illegally nested slurs.
-Much of the complexity is due to the fact that the function has to analyze the
-paste operation as if a potentially non-empty selRange has already been removed
-by DeleteSelection(), before it actually is removed. */
+Much of the complexity is due to the fact that we have to analyze the paste
+operation as if a potentially non-empty selRange has already been removed by
+DeleteSelection(), before it actually is removed. */
 
 /* Count the number of slurs spanning doc's potential insertion point, given slurL
 returned by LVSearch. */
@@ -2152,6 +2152,9 @@ static void ClipMovexd(Document *doc, LINK insertL)
 	MoveMeasures(pL, doc->tailL, clipxd);
 }
 
+
+/* ------------------------------------------------------------------------------------ */
+
 /* Required for mapping clipboard staves. The contents of the clipboard
 are guaranteed to begin with a measure object. From that point on to the
 tail, if there are only measures or PSMeasures, return true, else return
@@ -2200,8 +2203,8 @@ static Boolean ClipNoteInV(Document *doc, short v)
 
 static short GetFirstStf(Document *doc, LINK pL)
 {
-	short minStf=1000; LINK subObjL;
-	PMEVENT p; GenSubObj *subObj; HEAP *tmpHeap;
+	short minStf=1000;  LINK subObjL;
+	PMEVENT p;  GenSubObj *subObj;  HEAP *tmpHeap;
 
 	switch (ObjLType(pL)) {
 
@@ -2270,12 +2273,9 @@ short GetClipMinStf(Document *fixDoc)
 	return minStf;
 }
 
-/*
- * Return the last staff (highest staffn) of any subobj of pL, or the
- * staffn of pL itself. If pL is a structural object, return 1, which is
- * a value which will not enter into the computation of the maximum
- * staffn of some range.
- */
+/* Return the number of the last staff (highest staffn) of any subobj of pL, or the
+staffn of pL itself. If pL is a structural object, return 1, a value which will not
+enter into the computation of the maximum staffn of some range. */
 
 static short GetLastStf(Document *doc, LINK pL)
 {
@@ -2323,10 +2323,8 @@ static short GetLastStf(Document *doc, LINK pL)
 	}
 }
 
-/*
- *	Gets the maximum staffn of any object/subObj in the clipboard, and then re-
- * installs the doc heaps of fixdoc. ??SHOULD PROBABLY TOSS THE PARAM AND USE <currentDoc>.
- */
+/* Gets the maximum staffn of any object/subObj in the clipboard, and then reinstalls
+the doc heaps of fixdoc. */
 
 short GetClipMaxStf(Document *fixDoc)
 {
@@ -2347,21 +2345,23 @@ short GetClipMaxStf(Document *fixDoc)
 	return maxStf;
 }
 
-/* minStaff is the minimum staffn of any object/subObj in the
-clipboard. minPart is the part in the clipboard containing minStaff.
-selPart is the part in fixDoc containing the insertion point.
-stfOff is set to the offset in the clipboard of minStaff in its part.
-partDiff is the difference in parts between minPart and selPart.  
-Returns the difference in staves of fixDoc->selStaff and minStaff. */
+
+/* ------------------------------------------------------- GetStfDiff, GetAnyStfDiff -- */
+/* Given minStaff is the minimum staffn of any object/subObj in the clipboard, minPart
+is the part in the clipboard containing minStaff, and selPart is the part in fixDoc
+containing the insertion point: then this sets partDiff to the difference in parts
+between minPart and selPart, and stfOff to the offset in the clipboard of minStaff in
+its part. Returns the difference in staves of fixDoc->selStaff and minStaff. */
 
 short GetStfDiff(Document *fixDoc, short *partDiff, short *stfOff)
 {
-	short minStaff, minPart, staffDiff, selPart; LINK partL;
+	short minStaff, minPart, staffDiff, selPart;
+	LINK partL;
 
 	minStaff = GetClipMinStf(fixDoc);				/* minStf of any subObj/obj in clip */
 
 	InstallDoc(clipboard);
-	minPart = Staff2Part(clipboard, minStaff);	/* Part containing minStf */
+	minPart = Staff2Part(clipboard, minStaff);		/* Part containing minStf */
 
 	partL = FindPartInfo(clipboard, minPart);		/* OffSet in clip of minStf in its part */
 	*stfOff = minStaff-GetPPARTINFO(partL)->firstStaff;
@@ -2369,34 +2369,34 @@ short GetStfDiff(Document *fixDoc, short *partDiff, short *stfOff)
 	InstallDoc(fixDoc);
 	selPart = Staff2Part(fixDoc, fixDoc->selStaff);	/* Part containing insPt in fixDoc */
 	staffDiff = fixDoc->selStaff-minStaff;			/* Diff in staves of selStf, minStf */
-	*partDiff = selPart-minPart;						/* Diff in parts of selPart,minPart */ 						
+	*partDiff = selPart-minPart;					/* Diff in parts of selPart,minPart */ 						
 
 	return staffDiff;
 }
 
-/* ------------------------------------------------------------------- GetAnyStfDiff -- */
 /* Like GetStfDiff, but it adjusts for <PastePin> . */
 
 static short GetAnyStfDiff(Document *doc, Document *fixDoc, short pasteType,
 									short *partDiff, short *stfOff)
 {
-	short staffDiff,minStf,maxStf,stfRange,overStf;
+	short staffDiff, minStf, maxStf, stfRange, overStf;
 
-	staffDiff = GetStfDiff(fixDoc,partDiff,stfOff);
+	staffDiff = GetStfDiff(fixDoc, partDiff, stfOff);
 	if (pasteType==PastePin) {
 		minStf = GetClipMinStf(fixDoc);
 		maxStf = GetClipMaxStf(fixDoc);
 
-		stfRange = maxStf-minStf+1;									/* +1 gets the correct value for the range */
+		stfRange = maxStf-minStf+1;								/* +1 gets the correct value for the range */
 	
-		overStf = (stfRange+doc->selStaff)-(doc->nstaves+1);		/* +1 corrects for 1-based indexing of doc->selStaff */
+		overStf = (stfRange+doc->selStaff)-(doc->nstaves+1);	/* +1 corrects for 1-based indexing of doc->selStaff */
 		staffDiff -= overStf;
 	}
 	
 	return staffDiff;
 }
 
-/* ------------------------------------------------------------------- MapStaves -- */
+
+/* ----------------------------------------------------------------------- MapStaves -- */
 /* Translate the staff numbers of LINKs in the range [startL,endL) by staffDiff. */
 
 void MapStaves(Document *doc, LINK startL, LINK endL, short staffDiff)

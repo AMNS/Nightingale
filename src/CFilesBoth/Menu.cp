@@ -1,11 +1,11 @@
 /* Menu.c for Nightingale - general menu routines */
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright Â© 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -89,8 +89,6 @@ static void	FixFormatMenu(Document *doc);
 static void DeleteObj(Document *, LINK);
 static void DeleteSelObjs(Document *);
 
-short		NumOpenDocuments(void);
-
 static Boolean cmdIsBeam, cmdIsTuplet, cmdIsOttava;
 
 static Boolean	goUp=true;								/* For "Transpose" dialog */
@@ -114,7 +112,8 @@ static Boolean debugItemsNeedInstall = true;
 
 Boolean DoMenu(long menuChoice)
 	{
-		register short choice; short menu;
+		register short choice;
+		short menu;
 		Boolean keepGoing = true;
 		
 		menu = HiWord(menuChoice); choice = LoWord(menuChoice);
@@ -444,11 +443,16 @@ void DoEditMenu(short choice)
 				else if (lastCopy==COPYTYPE_PAGE)
 					PastePages(doc);
 				break;
-			case EM_Clear:
-				DoClear(doc);
-				break;
 			case EM_Merge:
 				DoMerge(doc);
+				break;
+			case EM_PasteAsCue:
+#define CUE_VOICENUM 3
+#define CUENOTE_VELOCITY 20
+				DoPasteAsCue(doc, CUE_VOICENUM, CUENOTE_VELOCITY);
+				break;
+			case EM_Clear:
+				DoClear(doc);
 				break;
 			case EM_Double:
 				Double(doc);
@@ -2180,25 +2184,15 @@ static void InstallDebugMenuItems(Boolean installAll)
 
 void FixMenus()
 	{
-		Boolean isDA;  WindowPtr w;
+		WindowPtr w;
 		register Document *theDoc;
 		short nInRange=0, nSel=0;
 		LINK firstMeasL;
 		Boolean continSel=false;
 		
 		w = TopWindow;
-		if (w==NULL) {
-			theDoc = NULL;
-			isDA = false;
-			}
-		 else {
-#ifdef TARGET_API_MAC_CARBON
-			isDA = false;
-#else
-			isDA = ((WindowPeek)w)->windowKind < 0;
-#endif
-			theDoc = GetDocumentFromWindow(TopDocument);
-			}
+		if (w==NULL)	theDoc = NULL;
+		 else			theDoc = GetDocumentFromWindow(TopDocument);
 		
 		/*
 		 *	Precompute information about the current score and the clipboard for the
@@ -2469,15 +2463,15 @@ static void FixTestMenu(Document *doc, short nSel)
 	{
 #ifndef PUBLIC_VERSION
 		if (clickMode==ClickErase)
-			SetItemMark(testMenu, TS_ClickErase, 'â€¢');
+			SetItemMark(testMenu, TS_ClickErase, '¥');
 		else
 			SetItemMark(testMenu, TS_ClickErase, noMark);
 		if (clickMode==ClickSelect)
-			SetItemMark(testMenu, TS_ClickSelect, 'â€¢');
+			SetItemMark(testMenu, TS_ClickSelect, '¥');
 		else
 			SetItemMark(testMenu, TS_ClickSelect, noMark);
 		if (clickMode==ClickFrame)
-			SetItemMark(testMenu, TS_ClickFrame, 'â€¢');
+			SetItemMark(testMenu, TS_ClickFrame, '¥');
 		else
 			SetItemMark(testMenu, TS_ClickFrame, noMark);
 

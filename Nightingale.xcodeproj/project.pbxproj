@@ -12,6 +12,7 @@
 		1544E9B31E645DA400431548 /* Style.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B21E645DA400431548 /* Style.h */; };
 		1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B41E645DEF00431548 /* Defs.h */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
+		154C91D31EDBB86F00AAC011 /* AutoBeam.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154C91D21EDBB86F00AAC011 /* AutoBeam.cp */; };
 		1556A2F61D3FA4E700A0B147 /* InsNew.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1556A2F51D3FA4E700A0B147 /* InsNew.cp */; };
 		1556A2F81D3FA4F200A0B147 /* InsNewUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1556A2F71D3FA4F200A0B147 /* InsNewUtils.cp */; };
 		15602EE71D20BEF300BAEBF6 /* Browser.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EE61D20BEF300BAEBF6 /* Browser.cp */; };
@@ -42,7 +43,6 @@
 		D03E6DC90D5F9720005FD177 /* Slurs.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DC30D5F9720005FD177 /* Slurs.cp */; };
 		D03E6DCA0D5F9720005FD177 /* StringUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DC40D5F9720005FD177 /* StringUtils.cp */; };
 		D03E6DCB0D5F9720005FD177 /* UIFUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DC50D5F9720005FD177 /* UIFUtils.cp */; };
-		D03E6DFC0D5F986D005FD177 /* AutoBeam.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD60D5F986D005FD177 /* AutoBeam.cp */; };
 		D03E6DFD0D5F986D005FD177 /* Beam.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD70D5F986D005FD177 /* Beam.cp */; };
 		D03E6DFE0D5F986D005FD177 /* Check.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD80D5F986D005FD177 /* Check.cp */; };
 		D03E6DFF0D5F986D005FD177 /* CheckUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD90D5F986D005FD177 /* CheckUtils.cp */; };
@@ -212,6 +212,7 @@
 		1540DDE51ED721ED007ECD61 /* SetUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetUtils.cp; sourceTree = "<group>"; };
 		1544E9B21E645DA400431548 /* Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Style.h; sourceTree = "<group>"; };
 		1544E9B41E645DEF00431548 /* Defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defs.h; sourceTree = "<group>"; };
+		154C91D21EDBB86F00AAC011 /* AutoBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoBeam.cp; sourceTree = "<group>"; };
 		1556A2F51D3FA4E700A0B147 /* InsNew.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNew.cp; sourceTree = "<group>"; };
 		1556A2F71D3FA4F200A0B147 /* InsNewUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNewUtils.cp; sourceTree = "<group>"; };
 		15602EE61D20BEF300BAEBF6 /* Browser.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Browser.cp; sourceTree = "<group>"; };
@@ -329,7 +330,6 @@
 		D03E6DC30D5F9720005FD177 /* Slurs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Slurs.cp; sourceTree = "<group>"; };
 		D03E6DC40D5F9720005FD177 /* StringUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtils.cp; sourceTree = "<group>"; };
 		D03E6DC50D5F9720005FD177 /* UIFUtils.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = UIFUtils.cp; sourceTree = "<group>"; };
-		D03E6DD60D5F986D005FD177 /* AutoBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoBeam.cp; sourceTree = "<group>"; };
 		D03E6DD70D5F986D005FD177 /* Beam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Beam.cp; sourceTree = "<group>"; };
 		D03E6DD80D5F986D005FD177 /* Check.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Check.cp; sourceTree = "<group>"; };
 		D03E6DD90D5F986D005FD177 /* CheckUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckUtils.cp; sourceTree = "<group>"; };
@@ -700,7 +700,6 @@
 			isa = PBXGroup;
 			children = (
 				D03E6DAE0D5F9644005FD177 /* About.cp */,
-				D03E6DD60D5F986D005FD177 /* AutoBeam.cp */,
 				D03E6DD70D5F986D005FD177 /* Beam.cp */,
 				D03E6DD80D5F986D005FD177 /* Check.cp */,
 				D03E6DD90D5F986D005FD177 /* CheckUtils.cp */,
@@ -842,6 +841,7 @@
 			isa = PBXGroup;
 			children = (
 				D03E70550D5FA5B2005FD177 /* AccModNRMouse.cp */,
+				154C91D21EDBB86F00AAC011 /* AutoBeam.cp */,
 				D03E70560D5FA5B2005FD177 /* BeamBreak.cp */,
 				15602EE61D20BEF300BAEBF6 /* Browser.cp */,
 				D03E70580D5FA5B2005FD177 /* CheckMerge.cp */,
@@ -1041,7 +1041,6 @@
 				D03E6DC90D5F9720005FD177 /* Slurs.cp in Sources */,
 				D03E6DCA0D5F9720005FD177 /* StringUtils.cp in Sources */,
 				D03E6DCB0D5F9720005FD177 /* UIFUtils.cp in Sources */,
-				D03E6DFC0D5F986D005FD177 /* AutoBeam.cp in Sources */,
 				D03E6DFD0D5F986D005FD177 /* Beam.cp in Sources */,
 				D03E6DFE0D5F986D005FD177 /* Check.cp in Sources */,
 				D03E6DFF0D5F986D005FD177 /* CheckUtils.cp in Sources */,
@@ -1188,6 +1187,7 @@
 				15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */,
 				1540DDE61ED721ED007ECD61 /* SetUtils.cp in Sources */,
 				15E332F21ED8AFC1007385A1 /* Clipboard.cp in Sources */,
+				154C91D31EDBB86F00AAC011 /* AutoBeam.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

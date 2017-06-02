@@ -1,6 +1,7 @@
 /* Prototypes for Merge.c for Nightingale */
 
 void DoMerge(Document *);
+void DoPasteAsCue(Document *doc, short voice, short velocity);
 
 short CheckMerge1(Document *doc,ClipVInfo *clipVInfo);
 

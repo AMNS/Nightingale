@@ -1,4 +1,4 @@
-/************************************************************************************
+/****************************************************************************************
 	FILE:	DSUtils.c
 	PROJ:	Nightingale
 	DESC:	Utility routines for examining and manipulating the main data
@@ -47,7 +47,7 @@
 		CompareScoreFormat		DisposeMODNRs			Staff2PartL
 		PartL2Partn				VHasTieAcross			HasSmthgAcross
 		LineSpace2Rastral		Rastral2LineSpace		StaffRastral
-**************************************************************************************/
+*****************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -61,7 +61,7 @@
 #include "Nightingale.appl.h"
 
 
-/* ------------------------------------------------------------------ NRGRInMeasure -- */
+/* ------------------------------------------------------------------- NRGRInMeasure -- */
 /* Is there a note, rest, or grace note in Measure <measL>? */
 
 static Boolean NRGRInMeasure(Document *, LINK);
@@ -78,7 +78,7 @@ static Boolean NRGRInMeasure(Document *doc, LINK measL)
 }
 
 
-/* ------------------------------------------------------------------ IsFakeMeasure -- */
+/* ------------------------------------------------------------------- IsFakeMeasure -- */
 /* If <measL>, which must be a Measure obj, doesn't start a real measure, return true.
 By "not a real measure", we mean it's at the end of a System and contains no notes,
 rests, or grace notes (so it's just ending the previous measure), or it's at the
@@ -111,7 +111,7 @@ Boolean IsFakeMeasure(Document *doc, LINK measL)
 	return NRGRInMeasure(doc, measL);
 }
 
-/* ----------------------------------------------------------------- UpdatePageNums -- */
+/* ------------------------------------------------------------------ UpdatePageNums -- */
 /* Update the sheetNum field for all pages in the score by simply re-numbering
 them by starting at 0 for the first page and incrementing for all remaining
 pages. Also update the header's numSheets field. */
@@ -129,7 +129,7 @@ void UpdatePageNums(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ UpdateSysNums -- */
+/* ------------------------------------------------------------------- UpdateSysNums -- */
 /* Update the systemNum field for all systems in the score by simply re-numbering
 them by starting at 1 for the first system and incrementing for all remaining
 systems. Also update the header's nsystems field. */
@@ -446,7 +446,7 @@ DDIST PageRelyd(LINK pL, PCONTEXT pContext)
 }
 
 
-/* --------------------------------------------------------------- GraphicPageRelxd -- */
+/* ---------------------------------------------------------------- GraphicPageRelxd -- */
 /* Return xd relative to the Page for a Graphic, whose position is relative to
 a subobject in its voice or on its staff. */
 
@@ -454,7 +454,8 @@ DDIST GraphicPageRelxd(Document */*doc*/,					/* unused */
 						LINK pL, LINK relObjL,
 						PCONTEXT pContext)
 {
-	short staffn, voice;  DDIST xd;
+	short staffn, voice;
+	DDIST xd;
 	LINK aNoteL, aGRNoteL, aClefL, aKeySigL, aTimeSigL;
 	
 	xd = PageRelxd(relObjL, pContext);
@@ -571,9 +572,9 @@ DDIST ObjSpaceUsed(Document *doc, LINK pL)
 }
 
 
-/* ----------------------------------------------------------------------- SysRelxd -- */
-/* Return object's xd relative to the System, regardless of the object's type.
-NB: Checking for systems will crash if pL is not in the main object list. */
+/* ------------------------------------------------------------------------ SysRelxd -- */
+/* Return object's xd relative to the System, regardless of the object's type. Assumes
+pL is in the main object list. */
 
 DDIST SysRelxd(LINK pL)
 {
@@ -582,8 +583,7 @@ DDIST SysRelxd(LINK pL)
 	if (MeasureTYPE(pL)) return (LinkXD(pL));
 
 	measL = LSISearch(LeftLINK(pL), MEASUREtype, ANYONE, GO_LEFT, false);
-	if (!measL)
-		return (LinkXD(pL));								/* before 1st measure of its system */
+	if (!measL) return (LinkXD(pL));					/* before 1st measure of its system */
 
 	return (LinkXD(measL)+LinkXD(pL));
 }
@@ -765,7 +765,7 @@ Boolean RealignObj(LINK pL,
 		case SYNCtype:
 		case GRSYNCtype:
 		case DYNAMtype:
-			tmpHeap = Heap + p->type;		/* p may not stay valid during loop */
+			tmpHeap = Heap + p->type;		/* Caveat: p may not stay valid during loop */
 			
 			for (i=0, subObjL=FirstSubObjPtr(p,pL); subObjL; i++, subObjL = NextLink(tmpHeap,subObjL)) {
 				subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
@@ -3048,7 +3048,7 @@ void SetSpareFlags(LINK startL, LINK endL, Boolean value)
 }
 
 
-/* ------------------------------------------------------------------0- IsMultiVoice -- */
+/* -------------------------------------------------------------------- IsMultiVoice -- */
 /* Determine if syncL has notes in multiple voices on <staff>. ??Ignores rests; this
 is probably a bug, but as of v. 5.7, this function isn't used for much, so probably
 not serious. */

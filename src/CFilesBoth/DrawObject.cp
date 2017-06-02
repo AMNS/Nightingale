@@ -30,7 +30,7 @@ static void DrawArpSign(Document *, DDIST, DDIST, DDIST, short, PCONTEXT, Boolea
 static DDIST DrawGRDraw(Document *, DDIST, DDIST, DDIST, DDIST, short, PCONTEXT, Boolean,
 						Boolean, Boolean *); 
 static short CountTextLines(StringPtr pString);
-static Boolean GetTempoDBox(Document *, LINK, Boolean, PCONTEXT, short, short, short, DRect *);
+static Boolean GetTempoDBox(Document *, LINK, Boolean, short, short, short, DRect *);
 static void DrawBarline(Document *, LINK, short, short, CONTEXT [], SignedByte);
 
 
@@ -2223,8 +2223,6 @@ PopLock(GRAPHICheap);
 }
 
 
-
-
 /* ------------------------------------------------------------------- GetTempoDBox -- */
 /* Return the DDIST bounding box for the given Tempo object, with origin at (0,0).
 If _expandN_, it's stretched out. */
@@ -2232,24 +2230,23 @@ If _expandN_, it's stretched out. */
 static Boolean GetTempoDBox(Document *doc,
 							LINK pL,
 							Boolean expandN,
-							PCONTEXT pContext,
 							short fontID, short fontSize, short fontStyle,
 							DRect *dBox			/* Bounding box (TOP_LEFT at 0,0 and no margin) */
 							)
 {
  	PTEMPO p;
-	Str255 string, tmpStr;
+	Str255 string, tempStr;
 	StringOffset theStrOffset;
 	Boolean multiLine;
 	Rect bBox;
 	
 	p = GetPTEMPO(pL);
 	theStrOffset = p->strOffset;
-	Pstrcpy(tmpStr, (StringPtr)PCopy(theStrOffset));
-	multiLine = (CountTextLines(tmpStr)>1);
+	Pstrcpy(tempStr, (StringPtr)PCopy(theStrOffset));
+	multiLine = (CountTextLines(tempStr)>1);
 	
 	if (expandN) {
-		if (!ExpandPString(string, tmpStr, EXPAND_WIDER)) {
+		if (!ExpandPString(string, tempStr, EXPAND_WIDER)) {
 			LogPrintf(LOG_WARNING, "GetTempoDBox: ExpandPString failed.\n");
 			return FALSE;
 		}
@@ -2335,7 +2332,7 @@ PushLock(TEMPOheap);
 		course _dEnclBox_, the object's bounding box, should reflect this.) */
 		
 	metroIsBelow = (tempoStr[tempoStrlen]==CH_CR);
-	if (GetTempoDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox)) {
+	if (GetTempoDBox(doc, pL, expandN, fontID, fontSize, fontStyle, &dEnclBox)) {
 		dEnclBoxHeight = dEnclBox.bottom-dEnclBox.top;
 		OffsetDRect(&dEnclBox, xd, yd);
 	}
@@ -2632,7 +2629,7 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 				if (measDurOnStaff!=0 && ABS(measDurFromTS-measDurOnStaff)>=PDURUNIT) {
 					mrect = MeasMRECT(aMeasL);
 					OffsetDRect(&mrect, xd, 0);
-					InsetDRect(&mrect, 0, pt2d(6));		/* Reduce ht of shading to emphasize staff */
+					InsetDRect(&mrect, 0, pt2d(10));		/* Reduce ht of shading to emphasize staff */
 					DRect2ScreenRect(mrect, SystemRECT(sysL), doc->paperRect, &r);
 					ShadeRect(&r, pContext, &otherLtGray);
 				}

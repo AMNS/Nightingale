@@ -347,7 +347,6 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	
 /* MIDIRecord.c */
 
-	void AvoidUnisonsInRange(Document *, LINK, LINK, short);
 	Boolean	Record(Document *);
 	Boolean	StepRecord(Document *, Boolean);
 	

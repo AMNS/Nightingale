@@ -50,3 +50,6 @@ void GetAccTable(Document *, SignedByte[], LINK, short);
 void GetPitchTable(Document *, SignedByte[], LINK, short);
 void DelNoteFixAccs(Document *, LINK, SignedByte, short, short);
 short InsNoteFixAccs(Document *, LINK, SignedByte, short, short);
+
+Boolean AvoidUnisons(Document *, LINK, short, PCONTEXT);
+void AvoidUnisonsInRange(Document *, LINK, LINK, short);

@@ -2056,11 +2056,22 @@ Need to get the Ngale 5.7 codebase from the develop into the master branch! ??
 
 -------------------------------------------------------------------------------
 
-10 May
+10 May-1 June
 
 To facilitate adding cues to extracted parts, how about a "Paste as Cue" command? It
-should put up a dialog to get voice no. n & cue note velocity v, & text of a Graphic to
-display at beginning of the cue (presumably the instrument the cue is of); Paste Merge
-from the clipboard into voice n; set notes/rest size to small, and velocity to v; and
-attach the text Graphic to the 1st note (or rest? ??CF. GOULD!).
+should:
+(1) put up a dialog to get voice no. n & cue note velocity v, & text of a Graphic to
+display at beginning of the cue (presumably the instrument the cue is of);
+(2) Paste Merge from the clipboard into voice n;
+(3) set notes/rest, dynamic, & clef size to small, and note velocity to v; and
+(4) attach the text Graphic to the 1st note (or rest? ??CF. GOULD!).
+
+Step 3 might be difficult: the operation shouldn't affect the clipboard, so it must be
+done either while the merge is in progress or afterwards. While the merge is in progress
+there could be tricky problems with heaps, so best to do afterwards, but then how to
+tell what objects/subobjects came from the clipboard? We're using the object-level
+<spareFlag> to mark all objects from the clipboard. So after the merge, we can distinguish
+notes/rests in Syncs w/ <spareFlag> set by voice or by their <merged> flags. Dynamic
+objects have only one subobject, so the <spareFlag> is all we need. But Clef objects often
+have multiple subobjects, and they're attached to staves, not voices, so how to tell?
 
