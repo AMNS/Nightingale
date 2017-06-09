@@ -1526,7 +1526,8 @@ enum									/* Undo op codes */
 	U_FillEmptyMeas,
 	U_AddCautionaryTS,
 	U_EditText,
-	U_NumOps
+	U_PasteAsCue,
+	U_NUM_OPS
 };
 
 

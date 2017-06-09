@@ -1529,3 +1529,12 @@ duration less than the time signature indicates. Affects DrawObject.
 
 Minor cleanup. Affects Clipboard, DrawObject, DSUtils, Menu, Merge, MergeUtils,
 MIDIFOCmd, Objects.
+
+-------------------------------------------------------------------------------
+
+1-7 June
+
+Continue implementation of "Paste as Cue" command. Affects .rsrc, Merge.
+
+Minor cleanup. Affects Merge, MergeUtils.
+

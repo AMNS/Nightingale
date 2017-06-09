@@ -139,6 +139,7 @@ static Boolean Merge1Measure(Document *doc,MeasInfo *measInfo,short i,LINK inser
 static LINK MergeFromClip(Document *doc, LINK insertL, short *vMap, VInfo *vInfo);
 static void CleanupMerge(Document *doc, LINK prevMeasL, LINK lastL);
 
+static void SetPastedAsCue(Document *doc, LINK prevMeasL, LINK lastL, short velocity);
 
 /* --------------------------------------------------------------------- CheckMerge -- */
 /* Utilities for CheckMerge. */
@@ -192,12 +193,12 @@ static LINK VSyncSearch(LINK pL, LINK *subL, short v, Boolean goLeft, Boolean ne
 	return NILINK;
 }
 
-/* Search inSystem in direction goLeft for the next obj in a singleStf voice v.
-For a single stf voice, constraining L_Search by setting pbSearch.id to the stf
-of that voice will prevent L_Search from returning objects without voices on
-irrelevant staves. Ignore measures, which are on all staves, and are transparent
-for the sake of allowing multi-measure merges. May have to extend this test to
-other or all staff-spanning objects (rptEnds, psMeasures). */
+/* Search inSystem in direction goLeft for the next obj in a singleStf voice v. For a
+single stf voice, constraining L_Search by setting pbSearch.id to the stf of that
+voice will prevent L_Search from returning objects without voices on irrelevant
+staves. Ignore measures, which are on all staves, and are transparent for the sake of
+allowing multi-measure merges. We may have to extend this test to other or even all
+staff-spanning objects (RptEnds, pseudomeasures). */
 
 static LINK VoiceSearch(LINK pL, VInfo *vInfo, short v, Boolean goLeft)
 {
@@ -230,15 +231,13 @@ static Boolean ObjInStfRange(LINK pL, short firstStf, short lastStf)
 	return false;
 }
 
-/* Search inSystem in direction goLeft for the next obj in a !singleStf voice v.
-For a single stf voice, constraining L_Search by setting pbSearch.id to the stf
-of that voice will prevent L_Search from returning objects without voices on
-irrelevant staves. Cannot do this here; must retrieve all objects without v and
-test if they are in the range of staves.
-
-Ignore measures, which are on all staves, and are transparent for the sake of
-allowing multi-measure merges. May have to extend this test to other or all
-staff-spanning objects (rptEnds, pseudoMeasures). */
+/* Search inSystem in direction goLeft for the next obj in a !singleStf voice v. For a
+single stf voice, constraining L_Search by setting pbSearch.id to the stf of that
+voice will prevent L_Search from returning objects without voices on irrelevant
+staves. We cannot do this here; must retrieve all objects without v and test if they
+are in the range of staves. Ignore measures, which are on all staves, and are
+transparent for the sake of allowing multi-measure merges. We may have to extend this
+test to other or even all staff-spanning objects (RptEnds, pseudomeasures). */
 
 static LINK VoiceRangeSearch(LINK pL, VInfo *vInfo, short v, Boolean goLeft)
 {
@@ -338,8 +337,8 @@ static void GetVoiceStf(Document *doc, VInfo *vInfo, short v)
 	vInfo[v].singleStf = (vInfo[v].firstStf==vInfo[v].lastStf);
 }
 
-/* Get information singleStf,firstStf & lastStf for voice v in the clipboard.
-This is the src voice which is mapped to v+stfDiff in the doc. */
+/* Get information singleStf,firstStf & lastStf for voice v in the clipboard. This is
+the src voice which is mapped to v+stfDiff in the doc. */
 
 static void GetClipVStf(short v, short *singleStf, short *firstStf, short *lastStf)
 {
@@ -385,12 +384,12 @@ static void GetClipVStf(short v, short *singleStf, short *firstStf, short *lastS
 	*singleStf = (*firstStf==*lastStf);
 }
 
-/* Return the total amount of time after doc->selEndL that voice vStfDiff in
-Document doc starts; fills in vInfo[v].startTime with that time.
+/* Return the total amount of time after doc->selEndL that voice vStfDiff in Document
+doc starts; fills in vInfo[v].startTime with that time.
 
-The vInfo struct handles the mapping by merge from src v to dst v+stfDiff
-by storing the startTime of voice v+stfDiff (=vStfDiff) at vInfo[v], since
-the endTime of clipboard voice v is compared to this startTime.
+The vInfo struct handles the mapping by merge from src v to dst v+stfDiff by storing
+the startTime of voice v+stfDiff (=vStfDiff) at vInfo[v], since the endTime of
+clipboard voice v is compared to this startTime.
 
 Leaves doc installed. */
 
@@ -414,15 +413,15 @@ static long GetStartTime(Document *doc, VInfo *vInfo, short v, short vStfDiff)
 
 	if (!firstInVL) return -1L;
 
-	/* All merging is done on a single system; if the first obj in the voice
-		is on a following system, return -1 to indicate no further checking
-		needed.
-		If the insertion point is at the end of the system, doc->selEndL will
-		be the succeeding page or system object; use LeftLINK(startL) to
-		guarantee actually testing the system containing the insertion point.
-		This use of LeftLINK depends on startL not equalling doc->headL or
-		actually not being before the system object of the system to be merged
-		into; this is caught by testing beforeFirst in FixEditMenu. */
+	/* All merging is done on a single system; if the first obj in the voice is on a
+		following system, return -1 to indicate no further checking is needed.
+		
+		If the insertion point is at the end of the system, doc->selEndL will be the
+		succeeding page or system object; use LeftLINK(startL) to guarantee actually
+		testing the system containing the insertion point. This use of LeftLINK
+		depends on startL not equalling doc->headL or actually not being before the
+		system object of the system to be merged into; this is caught by testing
+		beforeFirst in FixEditMenu. */
 
 	if (!SamePage(LeftLINK(startL), firstInVL)) return -1L;
 
@@ -573,8 +572,8 @@ static long GetClipEndTime(VInfo *vInfo, MeasInfo *mInfo, short v)
 }
 
 
-/* Check the start time of voice v. Get the total duration of the voice v in
-in the clipboard, and return true if it is less than startTime. */
+/* Check the start time of voice v. Get the total duration of the voice v in the
+clipboard, and return true if it is less than startTime. */
 
 static Boolean CheckStartTime(VInfo *vInfo, MeasInfo *mInfo, short v)
 {
@@ -639,8 +638,8 @@ static Boolean ClipVInUse(short v)
 
 /* Determines if voice v is in use in doc in the system containing doc->selEndL: iff
 so, returns true. Intended for use in merging, which as of now is on one system only.
-For determination of what is considered to use a voice, cf. ObjFillsV. Leaves
-doc installed. */
+For determination of what is considered to use a voice, cf. ObjFillsV. Leaves doc
+installed. */
 
 static Boolean DocVInUse(Document *doc, short v)
 {
@@ -806,8 +805,8 @@ done:
 
 
 /* ---------------------------------------------------------------------- CheckMerge -- */
-/* Check to see that the voices being pasted aren't already in use in the
-destination area. NB: also initializes the vInfo array! */
+/* Check to see that the voices being pasted aren't already in use in the destination
+area. NB: also initializes the vInfo array! */
 
 static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *vInfo,
 									short *mergeErr)
@@ -1170,12 +1169,12 @@ static void InitMergeArr(Document *doc, LINK startL, LINK endL, MERGEARRAY *merg
 }
 
 
-/* --------------------------------------------------------------- SetupMergeArr -- */
-/* Allocate an array of LINKs, lTimes and xds for all valid xd objects in
-the range [startL,endL). */
+/* ------------------------------------------------------------------- SetupMergeArr -- */
+/* Allocate an array of LINKs, lTimes and xds for all valid xd objects in the range
+[startL,endL). */
 
-static void SetupMergeArr(LINK startL, LINK endL,
-									MERGEARRAY **mergeArr, short *objCount)
+static void SetupMergeArr(LINK startL, LINK endL, MERGEARRAY **mergeArr,
+														short *objCount)
 {
 	LINK pL;
 	short i, numObjs=0;
@@ -1352,8 +1351,8 @@ static MeasInfo *BuildMeasInfo(Document *doc)
 
 
 /* --------------------------------------------------------- Dispose of Merge arrays -- */
-/* Dispose merge arrays. pDurArray is allocated by MPrepareSelRange;
-qDurArray is allocated by MRearrangeNotes; the others by MComputePlayTimes. */
+/* Dispose merge arrays for doc. pDurArray is allocated by MPrepareSelRange; qDurArray
+is allocated by MRearrangeNotes; the others by MComputePlayTimes. */
 
 static void MDisposeArrays()
 {
@@ -1394,7 +1393,7 @@ static void MDisposeAllArrays()
 }
 
 
-/* ------------------------------------------------------------------ SortPTimes -- */
+/* ---------------------------------------------------------------------- SortPTimes -- */
 /* Sort durArray via the Shell algorithm. */
 
 static void SortPTimes(PTIME *durArray, short n, short nvoices)
@@ -1442,16 +1441,16 @@ static LINK InsNewObjInto(LINK newObjL, LINK prevL, LINK insertL)
 }
 		
 /* ---------------------------------------------------------------- MPrepareSelRange -- */
-/* Prepare array for use by Merge. */
+/* Prepare pDurArray for use by Merge. */
 
 static PTIME *MPrepareSelRange(Document *doc, LINK measL, short *nInRange)
 {
-	short nInMeas=0,numNotes;
+	short nInMeas=0, numNotes;
 	
 	startMeas = measL;
-	endMeas = EndMeasSearch(doc,startMeas);
+	endMeas = EndMeasSearch(doc, startMeas);
 
-	nInMeas = CountSyncs(startMeas,endMeas);
+	nInMeas = CountSyncs(startMeas, endMeas);
 
 	/* Allocate pDurArray[numNotes]. numNotes provides one note per voice for all
 		syncs in selection range. */
@@ -1460,25 +1459,25 @@ static PTIME *MPrepareSelRange(Document *doc, LINK measL, short *nInRange)
 	pDurArray = (PTIME *)NewPtr((Size)numNotes*sizeof(PTIME));
 	if (!GoodNewPtr((Ptr)pDurArray)) { NoMoreMemory(); return NULL; }
 
-	InitDurArray(pDurArray,nInMeas);
+	InitDurArray(pDurArray, nInMeas);
 	*nInRange = nInMeas;
 
 	return pDurArray;
 }
 
 /* -------------------------------------------------------------- MPrepareClSelRange -- */
-/* Prepare array for use by Merge. */
+/* Prepare pClDurArray for use by Merge. */
 
 static PTIME *MPrepareClSelRange(Document *doc, LINK measL, short *nInRange)
 {
-	short nInMeas=0,numNotes;
+	short nInMeas=0, numNotes;
 	
 	InstallDoc(clipboard);
 
 	startClMeas = measL;
-	endClMeas = EndMeasSearch(clipboard,startClMeas);
+	endClMeas = EndMeasSearch(clipboard, startClMeas);
 
-	nInMeas = CountSyncs(startClMeas,endClMeas);
+	nInMeas = CountSyncs(startClMeas, endClMeas);
 
 	/*  Allocate pClDurArray[numNotes]. numNotes provides one note per voice for all
 		syncs in selection range. */ 
@@ -1487,7 +1486,7 @@ static PTIME *MPrepareClSelRange(Document *doc, LINK measL, short *nInRange)
 	pClDurArray = (PTIME *)NewPtr((Size)numNotes*sizeof(PTIME));
 	if (!GoodNewPtr((Ptr)pClDurArray)) { InstallDoc(doc); NoMoreMemory(); return NULL; }
 
-	InitDurArray(pClDurArray,nInMeas);
+	InitDurArray(pClDurArray, nInMeas);
 	*nInRange = nInMeas;
 	
 	InstallDoc(doc);
@@ -1748,11 +1747,12 @@ static LINK CopyClSync(Document *doc, short subCount, PTIME *pTime)
 	This spareFlag is set for reason a.
 */
 
-static LINK MCreateClSync(Document *doc, PTIME *pTime, PTIME **newPTime,
-									short *nEntries, short *nItems)
+static LINK MCreateClSync(Document *doc, PTIME *pTime, PTIME **newPTime, short *nEntries,
+							short *nItems)
 {
 	short subCount,itemCount;
-	PTIME *qTime;  LINK newObjL;
+	PTIME *qTime; 
+	LINK newObjL;
 
 	InstallDoc(clipboard);
 
@@ -1792,14 +1792,12 @@ broken:
 
 
 /* ------------------------------------------------------------------ MergeClSubObjs -- */
-/* Copy the subObject information from each note at this time from a
-sync in the clipboard into the subObjects of an already created object
-generated to hold the notes of a pair of syncs merged together, one from
-the doc and one from the clipboard.
-pTime is the PTIME array of notes from the clipboard.
-newObjL is the already generated sync object, and newSubL is the
-first subObj in the segment of the list into which the subObjs from
-the clipboard will be copied.
+/* Copy the subObject information from each note at this time from a sync in the
+clipboard into the subObjects of an already created object generated to hold the
+notes of a pair of syncs merged together, one from the doc and one from the
+clipboard. pTime is the PTIME array of notes from the clipboard. newObjL is the
+already generated sync object, and newSubL is the first subObj in the segment of the
+list into which the subObjs from the clipboard will be copied.
 
 #1. If the subObj is selected, make sure that the selection status of
 object and subObj are consistent, so e.g. DeselRange will work correctly.
@@ -1976,30 +1974,30 @@ static void GetMergeRange(LINK startMeas, LINK endMeas, LINK *prevL, LINK *lastL
 
 
 /* ----------------------------------------------------------------- MRearrangeNotes -- */
-/* Need to pass mergeMap to RelocateClObjs, RelocateClGenlJDObjs, use to init copy map
-for updating of Slurs, Graphics, Tempos, Endings and Dynamics.
-FixCrossPtrs should update those types (NBJD) which originated in the score.
-Logic of FixCrossPtrs: all endpt links and cross links for Slur-type objs originating
-in score should be fixed up in this way, because if one of their endpt syncs is
-rearranged, the rearrangement will be mapped by some merged measure's durArray.
-If one of their endPt non-syncs is rearranged, it will just be re-linked into the
-d.s at the same link value. E.g. if a Graphic's firstObj is a Clef, it will be re-
-inserted with the same LINK value, so the firstObj field will not need to be
-updated.
-Remaining question: will this process run danger of over-writing previously updated
-links? Answer: No, since srcL maps from score, where pre-rearrangement link values are
-unique, to score, where post-rearrangement link values are unique. */
+/* This is the heart of the merging process. We need to pass mergeMap to RelocateClObjs,
+RelocateClGenlJDObjs, use to init copy map for updating of Slurs, Graphics, Tempos,
+Endings and Dynamics. FixCrossPtrs should update those types (NBJD) which originated in
+the score. Logic of FixCrossPtrs: all endpt links and cross links for Slur-type objs
+originating in score should be fixed up in this way, because if one of their endpt syncs
+is rearranged, the rearrangement will be mapped by some merged measure's durArray. If
+one of their endPt non-syncs is rearranged, it will just be re-linked into the object
+list at the same link value. E.g., if a Graphic's firstObj is a Clef, it will be re-
+inserted with the same LINK value, so the firstObj field won't need to be updated.
+
+Remaining question: Does this process run the danger of over-writing previously updated
+links? No, since srcL maps from score, where pre-rearrangement link values are unique,
+to score, where post-rearrangement link values are unique. */
 
 static Boolean MRearrangeNotes(
-								Document *doc,
-								short nNotes, short nClNotes,
-								LINK insertL,
-								LINK *prevL1, LINK *lastL1,
-								Boolean first,
-								short stfDiff,
-								COPYMAP *mergeMap,
-								short *vMap
-								)
+						Document *doc,
+						short nNotes, short nClNotes,
+						LINK insertL,
+						LINK *prevL1, LINK *lastL1,
+						Boolean first,
+						short stfDiff,
+						COPYMAP *mergeMap,
+						short *vMap
+						)
 {
 	short i,j,numNotes,numClNotes,arrBound,clArrBound,nEntries,nClEntries,
 		numObjs,nItems,nClItems;
@@ -2078,9 +2076,9 @@ static Boolean MRearrangeNotes(
 	firstL = RightLINK(startMeas);							/* Get boundary markers of preexisting */
 	lastL = LeftLINK(endMeas);								/* 	list between measure bounds */
 
-	/* Link the selection range into a temporary object list. This is simply
-		to store the non-Sync nodes until they can be returned to the object
-		list, instead of calling DeleteRange(doc, startMeas, endMeas). */
+	/* Link the selection range into a temporary object list. This is simply to store
+		the non-Sync nodes until they can be returned to the object list, instead of
+		calling DeleteRange(doc, startMeas, endMeas). */
 
 	headL = NewNode(doc, HEADERtype, 2);					/* Create new empty list */
 	if (!headL) goto broken1;
@@ -2097,9 +2095,9 @@ static Boolean MRearrangeNotes(
 	LeftLINK(firstL) = headL;
 	RightLINK(lastL) = tailL;
 
-	/* Loop through the qDurArray and pClDurArray, creating syncs out of notes
-		which have the same pTimes from each array, merging syncs from both arrays
-		into the main object list. */
+	/* Loop through the qDurArray and pClDurArray, creating syncs out of notes that
+		have the same pTimes from each array, merging syncs from both arrays into the
+		main object list. */
 		
 	pTime = qTime = qDurArray;
 	pClTime = qClTime = qClDurArray;
@@ -2226,7 +2224,7 @@ static Boolean Merge1Measure(
 	Boolean first;
 	MeasInfo *pMeasInfo;
 
-	first = i==0;
+	first = (i==0);
 	pMeasInfo = measInfo+i;
 	if (pMeasInfo->clipEmpty) return true;
 
@@ -2234,9 +2232,12 @@ static Boolean Merge1Measure(
 	clipEndL = EndMeasSearch(clipboard,clipMeasL=pMeasInfo->srcL);
 
 	InstallDoc(doc);
-	docEndL = EndMeasSearch(doc,docMeasL=pMeasInfo->dstL);
+	docMeasL = pMeasInfo->dstL;
+	docEndL = EndMeasSearch(doc,docMeasL);
 	docInsL = docEndL;					/* Merge orphaned ranges at end of measure */
 
+	/* Handle oddball cases. */
+	
 	if (pMeasInfo->docEmpty || pMeasInfo->docNoSyncs || pMeasInfo->clipNoSyncs) {
 		firstL = MCopyClipRange(doc,clipMeasL,clipEndL,docInsL,mergeMap,stfDiff,vMap);
 		
@@ -2246,14 +2247,14 @@ static Boolean Merge1Measure(
 		return true;
 	}
 
-	/* If there are no objects in the score's measure, simply copy the range in from
-		the clipboard. We must update crosslinks in the same way as other measures:
-		update links of beamlike objs here, and set mergemap for NBJD objs so that
-		MergeFromClip can update them. */
+	/* Handle the usual case. If there are no objects in the score's measure, simply
+	   copy the range in from the clipboard. We must update crosslinks in the same way
+	   as other measures: update links of beamlike objs here, and set mergemap for NBJD
+	   objs so that MergeFromClip can update them. */
 
+LogPrintf(LOG_DEBUG, "Merge1Measure: about to call MPrepare[Cl]SelRange\n");
 	pDurArray = MPrepareSelRange(doc,docMeasL,&nInMeas);
 	if (!pDurArray) goto broken;
-
 	pClDurArray = MPrepareClSelRange(doc,clipMeasL,&nInClMeas);
 	if (!pClDurArray) goto broken;
 
@@ -2381,9 +2382,9 @@ static void CleanupMerge(Document *doc, LINK prevMeasL, LINK lastL)
 {
 	LINK endMeasL;
 
-	endMeasL = LSSearch(LeftLINK(lastL),MEASUREtype,ANYONE,GO_LEFT,false);	/* Cf. #2 in DoMerge */
+	endMeasL = LSSearch(LeftLINK(lastL), MEASUREtype, ANYONE, GO_LEFT, false);	/* Cf. #2 in DoMerge */
 	if (endMeasL)
-			endMeasL = EndMeasSearch(doc,endMeasL);
+			endMeasL = EndMeasSearch(doc, endMeasL);
 	else	endMeasL = doc->tailL;
 
 	FixWholeRests(doc, prevMeasL);
@@ -2484,55 +2485,40 @@ void DoMerge(Document *doc)
 	if (DeselPartlySelMeasSubobjs(doc)) OptimizeSelection(doc);
 
 	/* #1. */
-	prevMeasL = LSSearch(LeftLINK(doc->selStartL),MEASUREtype,ANYONE,GO_LEFT,false);	
+	prevMeasL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE, GO_LEFT, false);	
 
 	DeleteSelection(doc, true, &dontResp);
 
 	/* Everything finally looks OK. Actually do the merge. */
 	
-	lastL = MergeFromClip(doc,doc->selEndL,voiceMap,vInfo);
+	lastL = MergeFromClip(doc, doc->selEndL, voiceMap, vInfo);
 
-	CleanupMerge(doc,prevMeasL,lastL);
+	CleanupMerge(doc, prevMeasL, lastL);
 }
 
 
 /* -------------------------------------------------------------------- DoPasteAsCue -- */
 
-static void SetClipAsCue(Document *doc, short velocity);
-static void SetClipAsCue(Document *doc, short velocity)
+static void SetPastedAsCue(Document *doc, LINK prevMeasL, LINK lastL, short velocity)
 {
 	LINK pL, aNoteL;
-	
-	InstallDoc(clipboard);
-	
-	for (pL = clipboard->headL; pL!=clipboard->tailL; pL=RightLINK(pL))
-		if (SyncTYPE(pL))
+		
+	for (pL = prevMeasL; pL!=lastL; pL=RightLINK(pL)) {
+		if (SyncTYPE(pL) && LinkSPAREFLAG(pL))
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
+				if (NoteMERGED(aNoteL)) {
 					NoteSMALL(aNoteL) = true;
 					NoteONVELOCITY(aNoteL) = velocity;
+//LogPrintf(LOG_DEBUG, "SetPastedAsCue: set note %u velocity to %d\n", aNoteL, velocity);
 				}
-
-	InstallDoc(doc);
+			}
+	}
 }
 
 
 /* Merge the contents of the clipboard into the score starting at doc->selStartL,
-treating the content of the clipboard as a cue. User-interface level.
-
-#1. a. If there is an insertion point at the end of a measure, doc->selStartL
-	will be set to the following measure object.
-	b. If there is an insertion point at the start of a measure,
-	LeftLINK(doc->selStartL) will be the measure object, and searching from it
-	will return it, which is correct.
-	c. If there is a non-empty selRange whose first selected object is a measure,
-	doc->selStartL will be set to that measure.
-		In this case, DeleteSelection will delete the measure obj and everything
-		else in the range, and if the insertion point is left at the end of
-		a new measure, the previous case will hold.
-	Therefore, we can search for a prevMeasL from LeftLINK(doc->selStartL).
-#2. a, b and c hold for doc->selEndL as well. Therefore, can search for endMeasL
-	in CleanupMerge from LeftLINK(doc->selEndL).
-*/
+treating the content of the clipboard as a cue. User-interface level. See the comments
+on DoMerge(). */
 
 void DoPasteAsCue(Document *doc, short voice, short velocity)
 {
@@ -2549,13 +2535,13 @@ void DoPasteAsCue(Document *doc, short voice, short velocity)
 			here. */
 		
 		DoPaste(doc);
-		GetIndCString(strBuf, UNDO_STRS, 28);    				/* "Undo Merge" */
+		GetIndCString(strBuf, UNDO_STRS, 52);    				/* "Undo Paste as Cue" */
 		SetupUndo(doc, U_Merge, strBuf);
 		return;
 	}
 
 	if (doc->selStartL!=doc->selEndL) {
-		GetIndCString(strBuf, CLIPERRS_STRS, 8);    			/* "You can't Paste ??AS CUE! without an insertion point." */
+		GetIndCString(strBuf, CLIPERRS_STRS, 10);    			/* "You can't Paste as Cue without an insertion point." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		return;
@@ -2579,7 +2565,7 @@ void DoPasteAsCue(Document *doc, short voice, short velocity)
 		return;
 	}
 
-	PrepareUndo(doc, doc->selStartL, U_Merge, 28);  			/* "Undo Merge" */
+	PrepareUndo(doc, doc->selStartL, U_PasteAsCue, 28);  			/* "Undo Paste as Cue" */
 	MEHideCaret(doc);
 	WaitCursor();
 
@@ -2595,15 +2581,16 @@ void DoPasteAsCue(Document *doc, short voice, short velocity)
 	if (DeselPartlySelMeasSubobjs(doc)) OptimizeSelection(doc);
 
 	/* #1. */
-	prevMeasL = LSSearch(LeftLINK(doc->selStartL),MEASUREtype,ANYONE,GO_LEFT,false);	
+	prevMeasL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE, GO_LEFT, false);	
 
 	DeleteSelection(doc, true, &dontResp);
 
-	/* Everything finally looks OK. Actually do the merge part. The rest of "Paste as Cue"
-	   -- making the notes small and soft -- ?? */
+	/* Everything finally looks OK. Actually do the merge, and make the merged-in notes
+	   small and with the desired velocity. */
 	
-	SetClipAsCue(doc, velocity);
-	lastL = MergeFromClip(doc,doc->selEndL,voiceMap,vInfo);
-
-	CleanupMerge(doc,prevMeasL,lastL);
+	lastL = MergeFromClip(doc, doc->selEndL, voiceMap, vInfo);
+LogPrintf(LOG_INFO, "Calling SetPastedAsCue with prevMeasL=%u, lastL=%u...\n", prevMeasL, lastL);
+	SetPastedAsCue(doc, prevMeasL, lastL, velocity);
+	
+	CleanupMerge(doc, prevMeasL, lastL);
 }
