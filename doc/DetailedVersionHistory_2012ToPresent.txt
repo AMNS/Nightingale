@@ -1515,16 +1515,16 @@ Minor cleanup. Affects Clipboard, FileInput, Menu, MoveUpDown, SetUtils.
 
 28-31 May
 
-Begin implementation of the "Paste as Cue" command. Affects .rsrc, Merge.h; Menu,
+Began implementation of the "Paste as Cue" command. Affects .rsrc, Merge.h; Menu,
 Merge.
 
-Reword the very misleading "Can't merge" warning dialog so it's more accurate. Affects
+Reworded the very misleading "Can't merge" warning dialog so it's more accurate. Affects
 .rsrc.
 
-Move AvoidUnisons() and AvoidUnisonsInRange() from MIDIRecUtils to PitchUtils. Also
+Moved AvoidUnisons() and AvoidUnisonsInRange() from MIDIRecUtils to PitchUtils. Also
 affects NightTemplates.h, PitchUtils.h.
 
-Reduce the height of shading on the screen indicating individual staves in measures with
+Reduced the height of shading on the screen indicating individual staves in measures with
 duration less than the time signature indicates. Affects DrawObject.
 
 Minor cleanup. Affects Clipboard, DrawObject, DSUtils, Menu, Merge, MergeUtils,
@@ -1534,7 +1534,25 @@ MIDIFOCmd, Objects.
 
 1-7 June
 
-Continue implementation of "Paste as Cue" command. Affects .rsrc, Merge.
+Continued implementation of "Paste as Cue" command. Affects .rsrc, Merge.
 
 Minor cleanup. Affects Merge, MergeUtils.
 
+-------------------------------------------------------------------------------
+
+8-15 June
+
+Continued implementation of "Paste as Cue" command. Affects Merge.
+
+Changed the initial setting of _colorVoices_ in new documents from 1 (color all non-
+default voices in each part) to 2 (color all voices but voice no. 1 in each part).
+Affects Documents, DrawUtils.
+
+We've long been using two versions of DoOpenDocument() with different calling sequences.
+This is lovely in C++, and it works with the compilers we've been using, but I don't
+think it's so lovely in C, so renamed one to DoOpenDocumentX(). Affects NightTemplates;
+Documents, MIDIFOCmd.
+
+Clarified (in comments) the difference between doc->colorVoices=1 and =2; various other
+minor cleanup. Affects NTypes.h, Reconstruct.h; Browser, Delete, Documents, DrawUtils,
+Event, Menu, Merge, MIDIFOCmd, Nodes, Reconstruct.

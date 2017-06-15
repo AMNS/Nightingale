@@ -30,7 +30,6 @@ extern DoubleWord locMF;				/* MIDI file track current position */
 #define MAXINPUTTYPE	4
 #endif
 
-static OSType typelist[MAXINPUTTYPE] = {'MIDD','MID2', '    ', '    '};
 static unsigned char *filename;
 
 static OSErr errCode;
@@ -38,7 +37,7 @@ static OSErr errCode;
 static Boolean OpenMIDIFile(void);
 
 
-/* -------------------------------------------------------- MFInfoDialog and helpers -- */
+/* ---------------------------------------------------------- MFInfoDialog and helpers -- */
 /* Display statistics for the individual tracks of the MIDI file. */
 
 static void DMFDrawLine(char *);
@@ -247,7 +246,7 @@ static short			popUpHilited=true;
 
 #define CurEditField(dlog) (((DialogPeek)(dlog))->editField+1)
 
-/* -------------------------------------------------------------- TranscribeMFDialog -- */
+/* ---------------------------------------------------------------- TranscribeMFDialog -- */
 
 static enum
 {
@@ -401,9 +400,9 @@ Boolean TranscribeMFDialog(
 	if (popKeys0dot==NULL) goto broken;
 	curPop = &durPop0dot;
 	
-	Pstrcpy((unsigned char *)strBuf, filename);
-	PStrCat((unsigned char *)strBuf, "\p”");
-	PutDlgString(dlog, FILENAME_DI, (unsigned char *)strBuf, false);
+	Pstrcpy((StringPtr)strBuf, filename);
+	PStrCat((StringPtr)strBuf, "\p”");
+	PutDlgString(dlog, FILENAME_DI, (StringPtr)strBuf, false);
 
 	PutDlgWord(dlog, NNOTES_DI, nNotes, false);
 	PutDlgWord(dlog, NTRACKS_DI, nTracks, false);
@@ -549,13 +548,13 @@ broken:
 }
 
 
-/* --------------------------------------------------------------------- NameMFScore -- */
+/* ----------------------------------------------------------------------- NameMFScore -- */
 /* Give the score a name based on the name of the Imported MIDI file it came from. */
 
 void NameMFScore(Document *);
 void NameMFScore(Document *doc)
 {
-	unsigned char str[64];
+	Str63 str;
 	WindowPtr w=(WindowPtr)doc;
 
 	/* Get the name of MIDI file and append a suffix to indicate converted MIDI file */
@@ -569,7 +568,7 @@ void NameMFScore(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------------- MFHeaderOK -- */
+/* ------------------------------------------------------------------------ MFHeaderOK -- */
 
 static Boolean MFHeaderOK(Byte, Word, Word);
 static Boolean MFHeaderOK(Byte midiFileFormat, Word nTracks, Word timeBase)
@@ -605,7 +604,7 @@ static Boolean MFHeaderOK(Byte midiFileFormat, Word nTracks, Word timeBase)
 }
 
 
-/* ----------------------------------------------------------------- GetMIDIFileInfo -- */
+/* ------------------------------------------------------------------- GetMIDIFileInfo -- */
 
 Boolean GetMIDIFileInfo(TRACKINFO [], short *, long *, short [], short [],
 							Boolean [][MAXCHANNEL], short [], Boolean [], long [], short *,
@@ -660,7 +659,7 @@ Boolean GetMIDIFileInfo(
 
 			/* Timing tracks with an end time of zero seem to be somewhat common: cf. Peter
 			 * Stone. Peter's seem to cause no problems, but one produced by Nightingale,
-			 * I'm not sure how, and starting with a very long note has the very long note
+			 * I'm not sure how, and starting with a very long note, has the very long note
 			 * truncated to almost nothing. So it's not clear whether to warn about them.
 			 */
 			if (t!=1 && lastTrEvent[t]==0) {
@@ -747,7 +746,7 @@ Boolean GetMIDIFileInfo(
 	return true;
 }
 
-/* ----------------------------------------------------------------- CheckAndConsult -- */
+/* ------------------------------------------------------------------- CheckAndConsult -- */
 
 static Boolean CheckAndConsult(TRACKINFO [],short *,Boolean *,Boolean *,Boolean *,short *,long *);
 static Boolean CheckAndConsult(
@@ -777,7 +776,7 @@ static Boolean CheckAndConsult(
 }
 
 
-/* -------------------------------------------------------------------- OpenMIDIFile -- */
+/* ---------------------------------------------------------------------- OpenMIDIFile -- */
 /* Create a new score and read a format 1 MIDI file into it, mapping each track (except
 the timing track) to a one-staff part. Return true if successful. */
 
@@ -812,7 +811,7 @@ static Boolean OpenMIDIFile()
 
 	/* Create a score, then read the tracks and put their content into that score. */
 	
-	if (DoOpenDocument(NULL, 0, false, &fsSpec, &doc)) {
+	if (DoOpenDocumentX(NULL, 0, false, &fsSpec, &doc)) {
 		AnalyzeWindows();
 		InstallDoc(doc);
 		//doc = (Document *)TopDocument;
@@ -920,7 +919,7 @@ static Boolean OpenMIDIFile()
 }
 
 
-/* ------------------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------------------- */
 
 Boolean	ImportMIDIFile(FSSpec *fsSpec)
 {

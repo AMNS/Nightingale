@@ -168,7 +168,7 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 	}
 
 
-/* ---------------------------------------------------------------------- Browser -- */
+/* --------------------------------------------------------------------------- Browser -- */
 /* Browser displays and handles interaction with a small window that lets the
 user (a Nightingale programmer, presumably) prowl around in an object list.
 tailL may be NILINK; in this case, the "go to tail" button will be inoperative,
@@ -477,7 +477,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 }
 
 
-/* ------------------------------------------------------------------ DrawTextLine -- */
+/* ---------------------------------------------------------------------- DrawTextLine -- */
 /* Draw the specified C string on the next line in Browser dialog. */
 
 void DrawTextLine(char *str)
@@ -488,7 +488,7 @@ void DrawTextLine(char *str)
 }
 
 
-/* ------------------------------------------------------------------ InvertObjRect -- */
+/* --------------------------------------------------------------------- InvertObjRect -- */
 
 static void InvertObjRect(Document *doc, Rect *pObjRect)
 {
@@ -501,7 +501,7 @@ static void InvertObjRect(Document *doc, Rect *pObjRect)
 }
 
 
-/* -------------------------------------------------------------------- SelSubObj -- */
+/* ------------------------------------------------------------------------- SelSubObj -- */
 
 static void SelSubObj(LINK, LINK);
 static void SelSubObj(LINK pL, LINK subL)
@@ -532,7 +532,7 @@ static void SelSubObj(LINK pL, LINK subL)
 		}	
 }
 
-/* -------------------------------------------------------------- ChangeSelectObj -- */
+/* ------------------------------------------------------------------- ChangeSelectObj -- */
 /* If mode is SMSelect, select pL and (if it has any subobjects) either the
 current one or all of them; if mode is SMDeselect, deselect pL and all of its
 subobjects, if it has any. This function is designed to handle anomalous
@@ -600,7 +600,7 @@ static void ChangeSelectObj(Document *doc, LINK pL,
 }
 
 
-/* ------------------------------------------------------------------- ShowObject -- */
+/* ------------------------------------------------------------------------ ShowObject -- */
 
 void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 {
@@ -739,7 +739,7 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	}
 }
 
-/* ---------------------------------------------------------------- ShowVoicePage -- */
+/* --------------------------------------------------------------------- ShowVoicePage -- */
 
 #define VOICEPAGESIZE 25		/* Max. no. of lines (voices) that fit in Browser window */ 
 
@@ -759,7 +759,7 @@ static void ShowVoicePage(Document *doc, short startV)
 }
 
 
-/* ----------------------------------------------------------------- BrowseHeader -- */
+/* ---------------------------------------------------------------------- BrowseHeader -- */
 
 void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 {
@@ -900,7 +900,7 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ------------------------------------------------------------------- BrowsePage -- */
+/* ------------------------------------------------------------------------ BrowsePage -- */
 
 void BrowsePage(LINK pL, Rect *pObjRect)
 {
@@ -916,7 +916,7 @@ void BrowsePage(LINK pL, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseSystem -- */
+/* ---------------------------------------------------------------------- BrowseSystem -- */
 
 void BrowseSystem(LINK pL, Rect *pObjRect)
 {
@@ -943,7 +943,7 @@ void BrowseSystem(LINK pL, Rect *pObjRect)
 }
 
 
-/* ------------------------------------------------------------------ BrowseStaff -- */
+/* ----------------------------------------------------------------------- BrowseStaff -- */
 
 void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 {
@@ -1010,7 +1010,7 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------------- BrowseConnect -- */
+/* --------------------------------------------------------------------- BrowseConnect -- */
 
 void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 {
@@ -1078,7 +1078,7 @@ void BrowseConnect(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ------------------------------------------------------------------- BrowseClef -- */
+/* ------------------------------------------------------------------------ BrowseClef -- */
 
 void BrowseClef(LINK pL, short index, Rect *pObjRect)
 {
@@ -1123,7 +1123,7 @@ void BrowseClef(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseKeySig -- */
+/* ---------------------------------------------------------------------- BrowseKeySig -- */
 
 void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 {
@@ -1166,7 +1166,7 @@ void BrowseKeySig(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------------- BrowseTimeSig -- */
+/* --------------------------------------------------------------------- BrowseTimeSig -- */
 
 void BrowseTimeSig(LINK pL, short index, Rect *pObjRect)
 {
@@ -1212,7 +1212,7 @@ void BrowseTimeSig(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------------- BrowseMeasure -- */
+/* --------------------------------------------------------------------- BrowseMeasure -- */
 
 void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 {
@@ -1288,7 +1288,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------- BrowsePseudoMeas -- */
+/* ------------------------------------------------------------------ BrowsePseudoMeas -- */
 
 void BrowsePseudoMeas(LINK pL, short index, Rect *pObjRect)
 {
@@ -1322,7 +1322,7 @@ void BrowsePseudoMeas(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------------- BrowseSync -- */
+/* ------------------------------------------------------------------------ BrowseSync -- */
 
 void BrowseSync(LINK pL, short index, Rect *pObjRect)
 {
@@ -1402,7 +1402,7 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseGRSync -- */
+/* ---------------------------------------------------------------------- BrowseGRSync -- */
 
 void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 {
@@ -1473,7 +1473,7 @@ void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ---------------------------------------------------------------- BrowseBeamset -- */
+/* --------------------------------------------------------------------- BrowseBeamset -- */
 
 void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 {
@@ -1513,7 +1513,7 @@ void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseTuplet -- */
+/* ---------------------------------------------------------------------- BrowseTuplet -- */
 
 void BrowseTuplet(LINK pL, short index, Rect *pObjRect)
 {
@@ -1552,7 +1552,7 @@ void BrowseTuplet(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseOttava -- */
+/* ---------------------------------------------------------------------- BrowseOttava -- */
 
 void BrowseOttava(LINK pL, short index, Rect *pObjRect)
 {
@@ -1586,7 +1586,7 @@ void BrowseOttava(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);
 }
 
-/* ---------------------------------------------------------------- BrowseDynamic -- */
+/* --------------------------------------------------------------------- BrowseDynamic -- */
 
 void BrowseDynamic(LINK pL, short index, Rect *pObjRect)
 {
@@ -1636,7 +1636,7 @@ void BrowseDynamic(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseRptEnd -- */
+/* ---------------------------------------------------------------------- BrowseRptEnd -- */
 
 void BrowseRptEnd(LINK pL, short index, Rect *pObjRect)
 {
@@ -1676,7 +1676,7 @@ void BrowseRptEnd(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ----------------------------------------------------------------- BrowseEnding -- */
+/* ---------------------------------------------------------------------- BrowseEnding -- */
 
 void BrowseEnding(LINK pL, short /*index*/, Rect *pObjRect)
 {
@@ -1700,7 +1700,7 @@ void BrowseEnding(LINK pL, short /*index*/, Rect *pObjRect)
 }
 
 
-/* --------------------------------------------------------------- ChordSym2Print -- */
+/* -------------------------------------------------------------------- ChordSym2Print -- */
 /* Convert in place a Pascal string representing a chord symbol to (semi-)readable
 form by replacing all delimiters with another character. */
 
@@ -1716,7 +1716,7 @@ void ChordSym2Print(StringPtr str)
 		if (str[i]==DELIMITER) str[i] = CH_SUBST;
 }
 
-/* ---------------------------------------------------------------- BrowseGraphic -- */
+/* --------------------------------------------------------------------- BrowseGraphic -- */
 
 void BrowseGraphic(LINK pL, Rect *pObjRect)
 {
@@ -1792,7 +1792,7 @@ void BrowseGraphic(LINK pL, Rect *pObjRect)
 }
 
 
-/* ------------------------------------------------------------- BrowseTempo -- */
+/* ----------------------------------------------------------------------- BrowseTempo -- */
 
 void BrowseTempo(LINK pL, Rect *pObjRect)
 {
@@ -1866,7 +1866,7 @@ void BrowseTempo(LINK pL, Rect *pObjRect)
 	}
 }
 
-/* --------------------------------------------------------------- BrowseSpace -- */
+/* ----------------------------------------------------------------------- BrowseSpace -- */
 
 void BrowseSpace(LINK pL, Rect *pObjRect)
 {
@@ -1882,7 +1882,7 @@ void BrowseSpace(LINK pL, Rect *pObjRect)
 	DrawTextLine(s);
 }
 
-/* ---------------------------------------------------------------- BrowseSlur -- */
+/* ------------------------------------------------------------------------ BrowseSlur -- */
 
 void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 {
@@ -1945,7 +1945,7 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 }
 
 
-/* ------------------------------------------------------------- ShowContext -- */
+/* ----------------------------------------------------------------------- ShowContext -- */
 
 #define iText 2
 

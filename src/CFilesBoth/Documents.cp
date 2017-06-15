@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -17,7 +17,7 @@ static short NumFreeDocuments(void);
 static short NumOpenDocuments(void);
 static Boolean AllStavesSameSize(Document *);
 
-/* ---------------------------------------------------- InstallDoc and associates -- */
+/* --------------------------------------------------------- InstallDoc and associates -- */
 
 void InstallDoc(Document *doc)
 {
@@ -59,7 +59,7 @@ void InstallMagnify(Document *doc)
 	
 #ifdef TEST_MAG
 	{
-		DDIST d; short pxl, dummy;
+		DDIST d;  short pxl, dummy;
 		pxl = d2p(160); d = p2d(pxl);
 		d = p2d(1); pxl = d2p(d);
 		d = p2d(2); pxl = d2p(d);
@@ -157,8 +157,8 @@ Document *GetDocumentFromWindow(WindowPtr w)
 	
 Boolean EqualFSSpec(FSSpec *fs1, FSSpec *fs2)
 {
-	if (fs1->parID != fs2->parID) return FALSE;
-	if (fs1->vRefNum != fs2->vRefNum) return FALSE;
+	if (fs1->parID != fs2->parID) return false;
+	if (fs1->vRefNum != fs2->vRefNum) return false;
 	
 	return (Pstreql(fs1->name, fs2->name));
 }
@@ -176,13 +176,13 @@ Document *AlreadyInUse(unsigned char *name, short /*vrefnum*/, FSSpec *pfsSpec)
 	for (doc=documentTable; doc<topTable; doc++)
 		if (doc->inUse && doc!=clipboard)
 			if (EqualFSSpec(&doc->fsSpec, pfsSpec))				// if(doc->vrefnum == vrefnum)
-				if (EqualString(doc->name, name, FALSE, FALSE)) return(doc);
+				if (EqualString(doc->name, name, false, false)) return(doc);
 	return(NULL);
 }
 
 static short NumFreeDocuments()
 {
-	Document *doc; short n = 0;
+	Document *doc;  short n = 0;
 	
 	for (doc=documentTable; doc<topTable; doc++)
 		if (!doc->inUse) n++;
@@ -191,7 +191,7 @@ static short NumFreeDocuments()
 	
 static short NumOpenDocuments()
 {
-	Document *doc; short n = 0;
+	Document *doc;  short n = 0;
 	
 	for (doc=documentTable; doc<topTable; doc++)
 		if (doc->inUse) n++;
@@ -202,13 +202,14 @@ static short NumOpenDocuments()
 
 
 /*
- *	Either show or bring to front the clipboard document.  If this is the first time
+ *	Either show or bring to front the clipboard document. If this is the first time
  *	it's being shown, then position it on the right side of the main screen.
  */
 
 void ShowClipDocument()
 {
-	static Boolean once = TRUE;  Rect scrn,bounds;  Rect box;
+	static Boolean once = true;
+	Rect scrn, bounds, box;
 	
 	if (clipboard)
 		if (IsWindowVisible(clipboard->theWindow))
@@ -221,10 +222,9 @@ void ShowClipDocument()
 				GetGlobalPort(w, &box);				/* set bottom of window near screen bottom */
 				bounds = GetQDScreenBitsBounds();
 				box.bottom = bounds.bottom - 24;
-				if (box.right > bounds.right-24)
-					box.right = bounds.right - 24;
-				SizeWindow(w, box.right-box.left, box.bottom-box.top, FALSE);
-				once = FALSE;
+				if (box.right > bounds.right-24) box.right = bounds.right - 24;
+				SizeWindow(w, box.right-box.left, box.bottom-box.top, false);
+				once = false;
 			}
 			if (BottomPalette != BRING_TO_FRONT)
 				SendBehind(clipboard->theWindow, BottomPalette);
@@ -236,13 +236,14 @@ void ShowClipDocument()
 
 
 /*
- *	Find a size and position for the given window that, as much as possible, avoids
+ * Find a size and position for the given window that, as much as possible, avoids
  * conflict with either the tool palette or other Document windows.
  */
 
 void PositionWindow(WindowPtr w, Document *doc)
 {
-	Rect box, bounds; short palWidth, palHeight;
+	Rect box, bounds;
+	short palWidth, palHeight;
 	
 	if (EmptyRect(&revertWinPosition)) {
 		/* Get width of tool palette */
@@ -251,41 +252,40 @@ void PositionWindow(WindowPtr w, Document *doc)
 		palWidth = box.right - box.left;
 		palHeight = box.bottom - box.top;
 		/* Place new document window in non-conflicting position */
-		GetGlobalPort(w,&box);							/* Set bottom of window near screen bottom */
+		GetGlobalPort(w,&box);								/* Set bottom of window near screen bottom */
 		bounds = GetQDScreenBitsBounds();
 		if (box.left < bounds.left+4)
 			box.left = bounds.left+4;
 		if (palWidth < palHeight)
 			box.left += palWidth;
-		MoveWindow(doc->theWindow, box.left, box.top, FALSE);
+		MoveWindow(doc->theWindow, box.left, box.top, false);
 		AdjustWinPosition(w);
 		GetGlobalPort(w, &box);
 		bounds = GetQDScreenBitsBounds();
 		box.bottom = bounds.bottom - 4;
 		if (box.right > bounds.right-4)
 			box.right = bounds.right - 4;
-		SizeWindow(doc->theWindow, box.right-box.left, box.bottom-box.top, FALSE);
+		SizeWindow(doc->theWindow, box.right-box.left, box.bottom-box.top, false);
 	}
 	 else {
-		MoveWindow(doc->theWindow, revertWinPosition.left, revertWinPosition.top, FALSE);
+		MoveWindow(doc->theWindow, revertWinPosition.left, revertWinPosition.top, false);
 		SizeWindow(doc->theWindow, revertWinPosition.right-revertWinPosition.left,
-					   revertWinPosition.bottom-revertWinPosition.top, FALSE);
-		SetRect(&revertWinPosition,0,0,0,0); 		 /* Make it empty again */
+					   revertWinPosition.bottom-revertWinPosition.top, false);
+		SetRect(&revertWinPosition, 0, 0, 0, 0);			/* Make it empty again */
 	}
 }
 
 /*
- *	If fileName is non-NULL, open document file of that name in the given directory;
- * if fileName is NULL, then open an Untitled new document instead.  In either case,
- * open a window for the document, and return TRUE if successful, FALSE if not.
- * If the named document is already open, just bring its window to the front and
- * return TRUE.
+ * If fileName is non-NULL, open document file of that name in the given directory; if
+ * fileName is NULL, then open an Untitled new document instead.  In either case, open a
+ * window for the document, and return true if successful, false if not. If the named
+ * document is already open, just bring its window to the front and return true.
  */
 
 Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec)
 	{
-		register WindowPtr w; register Document *doc, *d;
-		short numNew; long fileVersion;
+		register WindowPtr w;  register Document *doc, *d;
+		short numNew;  long fileVersion;
 		static char ID = '0';
 		
 		/* If an existing file and already open, then just bring it to front */
@@ -294,31 +294,31 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 			doc = AlreadyInUse(fileName, vRefNum, pfsSpec);
 			if (doc) {
 				DoSelectWindow(doc->theWindow);
-				return(TRUE);
+				return(true);
 				}
 			}
 		
 		/* Otherwise, open file */
 		
 		doc = FirstFreeDocument();
-		if (doc == NULL) { TooManyDocs(); return(FALSE); }
+		if (doc == NULL) { TooManyDocs(); return(false); }
 
 		w = GetNewWindow(docWindowID, NULL, BottomPalette);
 		if (w) {
 			doc->theWindow = w;
 			SetWindowKind(w, DOCUMENTKIND);
-			// ((WindowPeek)w)->spareFlag = TRUE;
+			// ((WindowPeek)w)->spareFlag = true;
 			ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
-			doc->inUse = TRUE;
+			doc->inUse = true;
 			doc->readOnly = readOnly;
 			if (fileName) {
-				doc->docNew = FALSE;
+				doc->docNew = false;
 				Pstrcpy(doc->name, fileName);
 				doc->vrefnum = vRefNum;
 				doc->fsSpec = *pfsSpec;
 				}
 			 else {
-				doc->docNew = TRUE;
+				doc->docNew = true;
 				/* Count number of new (untitled) documents on desktop */
 				for (numNew=0, d=documentTable; d<topTable; d++)
 					if (d->inUse && d->docNew && d!=clipboard) numNew++;
@@ -346,10 +346,10 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 					GetIndString(str, MiscStringsID, 5);
 					PStrCat(doc->name, str);
 					doc->changed = doc->docNew = !readOnly;
-					doc->converted = TRUE;
+					doc->converted = true;
 					}
 				else
-					doc->converted = FALSE;
+					doc->converted = false;
 				SetWTitle(w, doc->name);
 				ShowDocument(doc);
 				
@@ -368,18 +368,20 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 	}
 
 /*
- *	If fileName is non-NULL, open document file of that name in the given directory;
- * if fileName is NULL, then open an Untitled new document instead.  In either case,
- * open a window for the document, and return TRUE if successful, FALSE if not.
- * If the named document is already open, just bring its window to the front and
- * return TRUE.
+ * If fileName is non-NULL, open document file of that name in the given directory; if
+ * fileName is NULL, then open an Untitled new document instead.  In either case, open a
+ * window for the document, and return true if successful, false if not. If the named
+ * document is already open, just bring its window to the front and return true.
+ * FIXME: This function is simply DoOpenDocument() except that it has an additional
+ * parameter in which it returns the Document! Either DoOpenDocument() should simply
+ * call this function, or calls to DoOpenDocument() should directly call this function.
  */
 
-Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
-						FSSpec *pfsSpec, Document **pDoc)
+Boolean DoOpenDocumentX(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec,
+Document **pDoc)
 	{
 		register WindowPtr w;  register Document *doc, *d;
-		short numNew; long fileVersion;
+		short numNew;  long fileVersion;
 		static char ID = '0';
 		
 		*pDoc = NULL;
@@ -391,31 +393,31 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 			if (doc) {
 				DoSelectWindow(doc->theWindow);
 				*pDoc = doc;
-				return(TRUE);
+				return(true);
 				}
 			}
 		
 		/* Otherwise, open file */
 		
 		doc = FirstFreeDocument();
-		if (doc == NULL) { TooManyDocs(); *pDoc = NULL; return(FALSE); }
+		if (doc == NULL) { TooManyDocs(); *pDoc = NULL; return(false); }
 
 		w = GetNewWindow(docWindowID, NULL, BottomPalette);
 		if (w) {
 			doc->theWindow = w;
 			SetWindowKind(w, DOCUMENTKIND);
-			// ((WindowPeek)w)->spareFlag = TRUE;
+			// ((WindowPeek)w)->spareFlag = true;
 			ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
-			doc->inUse = TRUE;
+			doc->inUse = true;
 			doc->readOnly = readOnly;
 			if (fileName) {
-				doc->docNew = FALSE;
+				doc->docNew = false;
 				Pstrcpy(doc->name, fileName);
 				doc->vrefnum = vRefNum;
 				doc->fsSpec = *pfsSpec;
 				}
 			 else {
-				doc->docNew = TRUE;
+				doc->docNew = true;
 				/* Count number of new (untitled) documents on desktop */
 				for (numNew=0, d=documentTable; d<topTable; d++)
 					if (d->inUse && d->docNew && d!=clipboard) numNew++;
@@ -443,10 +445,10 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 					GetIndString(str, MiscStringsID, 5);
 					PStrCat(doc->name, str);
 					doc->changed = doc->docNew = !readOnly;
-					doc->converted = TRUE;
+					doc->converted = true;
 					}
 				else
-					doc->converted = FALSE;
+					doc->converted = false;
 				SetWTitle(w, doc->name);
 				ShowDocument(doc);
 				
@@ -458,8 +460,7 @@ Boolean DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly,
 					}
 				}
 				
-				if (w != NULL)
-					*pDoc = doc;
+				if (w != NULL) *pDoc = doc;
 			}
 			
 		return(w != NULL);
@@ -479,24 +480,24 @@ void ShowDocument(Document *doc)
 		else {
 			/* There won't be an activate event for doc, so do it here */
 			ShowWindow(doc->theWindow);
-			HiliteWindow(doc->theWindow, TRUE);
-			ActivateDocument(doc, TRUE);
+			HiliteWindow(doc->theWindow, true);
+			ActivateDocument(doc, true);
 		}
 		if (TopDocument)
 			/* Ensure the TopDocument and its controls are unhilited properly. */
-			ActivateDocument(GetDocumentFromWindow(TopDocument), FALSE);
+			ActivateDocument(GetDocumentFromWindow(TopDocument), false);
 	}
 	ShowWindow(doc->theWindow);		
 }
 
 /*
- *	Close a given document, saving it if necessary, and giving it a name if
- *	necessary.  Return TRUE if all okay, FALSE if user cancels or error.
+ *	Close a given document, saving it if necessary, and giving it a name if necessary.
+ *	Return true if all okay, false if user cancels or error.
  */
 
 Boolean DoCloseDocument(register Document *doc)
 {
-	Boolean keepGoing = TRUE;
+	Boolean keepGoing = true;
 	
 	if (doc)
 		if (IsDocumentKind(doc->theWindow))
@@ -517,13 +518,13 @@ Boolean DoCloseDocument(register Document *doc)
 					
 					DestroyAllHeaps(doc);
 
-					doc->undo.hasUndo = FALSE;
+					doc->undo.hasUndo = false;
 					
 					if (doc->stringPool) DisposeStringPool(doc->stringPool);
 					doc->stringPool = NULL;
 				
 					DisposeWindow(doc->theWindow);
-					doc->inUse = FALSE;
+					doc->inUse = false;
 				}
 	
 	return(keepGoing);
@@ -531,7 +532,7 @@ Boolean DoCloseDocument(register Document *doc)
 
 void ActivateDocument(register Document *doc, short activ)
 {
-	Point pt; GrafPtr oldPort;
+	Point pt;  GrafPtr oldPort;
 	Rect portRect;
 	
 	if (doc) {
@@ -572,18 +573,18 @@ void ActivateDocument(register Document *doc, short activ)
 
 /* Ensure that a given document is ready to be closed.  Ask user if any changes
 should be saved, and save them if he does.  If user says to Cancel, then return
-FALSE, otherwise return TRUE.  We use a simple alert, with a filter that lets us
+false, otherwise return true.  We use a simple alert, with a filter that lets us
 update the Document underneath it so the user can see what it looks like before
 making the decision. */
 
 Boolean DocumentSaved(register Document *doc)
 {
-	short itemHit; Boolean keepGoing = TRUE;
+	short itemHit; Boolean keepGoing = true;
 	
 	InstallDoc(doc);
 	if (doc->masterView)
 		if (!ExitMasterView(doc))			/* Dispose all memory allocated by masterPage */
-			return FALSE;
+			return false;
 
 	if (doc->changed) {
 		DoUpdate(doc->theWindow);
@@ -591,7 +592,7 @@ Boolean DocumentSaved(register Document *doc)
 		ParamText(doc->name, "\p", "\p", "\p");
 		PlaceAlert(saveChangesID, doc->theWindow, 0, 30);
 		itemHit = CautionAlert(saveChangesID, NULL);
-		if (itemHit == Cancel) keepGoing = FALSE;
+		if (itemHit == Cancel) keepGoing = false;
 		if (itemHit == OK) {
 			WaitCursor();
 			UpdateAllWindows();
@@ -603,52 +604,51 @@ Boolean DocumentSaved(register Document *doc)
 
 /*
  *	Given a document, either new or old, save it.  If it's new, then call
- *	DoSaveAs on it.  Return TRUE if all went well, FALSE if not.
+ *	DoSaveAs on it.  Return true if all went well, false if not.
  *
- * ??This is not correct. As previously written, returned TRUE unless DoSaveAs
+ * ??This is not correct. As previously written, returned true unless DoSaveAs
  * tried to save a file and got an error or fdType != 'SCOR'. All errors except
  *	those resulting from action of GetOutputName were ignored.
  *
- * Currently, will return FALSE if returned FALSE before, and will return
- * FALSE if SaveFile returns CANCELop, and TRUE otherwise. If keepGoing is
- * TRUE, this means that the save (or close, or quit) operation can continue,
+ * Currently, will return false if returned false before, and will return
+ * false if SaveFile returns CANCELop, and true otherwise. If keepGoing is
+ * true, this means that the save (or close, or quit) operation can continue,
  * otherwise the op is aborted, and closing or quitting is discontinued.
  *
- * If we set keepGoing FALSE upon a file system error, we could get into a 
+ * If we set keepGoing false upon a file system error, we could get into a 
  * situation where it is impossible to quit Nightingale because every time we
- * try to close a file, we get a file system error, and keepGoing is set FALSE,
+ * try to close a file, we get a file system error, and keepGoing is set false,
  * the close op is discontinued, and the doc is kept onScreen, and quitting
  * is aborted. Thus, only add explicit user cancellation to the list of 
  * conditions which can abort a close, for both DoSaveDocument and DoSaveAs.
- *
  */
 
 Boolean DoSaveDocument(register Document *doc)
 {
-	Boolean keepGoing = FALSE; short err;
+	Boolean keepGoing = false; short err;
 	
 	if (doc->docNew || doc->readOnly) return(DoSaveAs(doc));
 	
-	err = SaveFile(doc, FALSE);
+	err = SaveFile(doc, false);
 
 	if (err!=CANCEL_INT) {
 		HSetVol(NULL,doc->vrefnum,0);
 	
-		keepGoing = TRUE;
+		keepGoing = true;
 	}
 
 	return(keepGoing);
 }
 
 /*
- *	Save a given document under a new name, and give new name to document,
- *	which remains open.
+ *	Save a given document under a new name, and give new name to document, which remains
+ *	open.
  */
 
 Boolean DoSaveAs(register Document *doc)
 {
 	Boolean keepGoing;
-	Str255 name; short vrefnum; short err;
+	Str255 name; short vrefnum, err;
 	OSErr result;
 	FInfo theInfo;
 	FSSpec fsSpec;
@@ -669,7 +669,7 @@ Boolean DoSaveAs(register Document *doc)
 			GetIndCString(strBuf, FILEIO_STRS, 11);	/* "You can replace only files created by Nightingale" */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			return FALSE;
+			return false;
 		}
 #if TARGET_API_MAC_CARBON
 		result = HSetVol(NULL,fsSpec.vRefNum,fsSpec.parID);
@@ -684,7 +684,7 @@ Boolean DoSaveAs(register Document *doc)
 			doc->vrefnum = fsSpec.vRefNum;
 			doc->fsSpec = fsSpec;
 			SetWTitle(doc->theWindow,name);
-			err = SaveFile(doc, TRUE);
+			err = SaveFile(doc, true);
 		}
 		else {
 			err = CANCEL_INT;
@@ -692,9 +692,9 @@ Boolean DoSaveAs(register Document *doc)
 
 		keepGoing = (err!=CANCEL_INT);
 		if (keepGoing) {
-			doc->changed = FALSE;
-			doc->named = TRUE;
-			doc->readOnly = FALSE;
+			doc->changed = false;
+			doc->named = true;
+			doc->readOnly = false;
 		}
 	}
 	
@@ -707,14 +707,15 @@ Boolean DoSaveAs(register Document *doc)
 
 void DoRevertDocument(register Document *doc)
 {
-	short itemHit, vrefnum, docReadOnly;  Str255 name;  unsigned char *p;
+	short itemHit, vrefnum, docReadOnly;
+	Str255 name;  unsigned char *p;
 	
 	if (doc->changed) {
 		ParamText(doc->name,"\p","\p","\p");
 		PlaceAlert(discardChangesID,doc->theWindow,0,30);
 		itemHit = CautionAlert(discardChangesID,NULL);
 		if (itemHit == OK) {
-			doc->changed = FALSE;		/* So DoCloseWindow doesn't call alert */
+			doc->changed = false;		/* So DoCloseWindow doesn't call alert */
 			Pstrcpy(name,doc->name);
 			vrefnum = doc->vrefnum;
 			FSSpec fsSpec = doc->fsSpec;
@@ -729,24 +730,26 @@ void DoRevertDocument(register Document *doc)
 
 /* If all staves (of the first Staff object only!) are the same size and that size is
 not the score's <srastral>, offer user a change to set <srastral> accordingly. In all
-cases, return TRUE if all staves are the same size, else FALSE. */
+cases, return true if all staves are the same size, else false. */
 
 static Boolean AllStavesSameSize(Document *doc)
 {
-	LINK staffL, aStaffL;  Boolean firstTime=TRUE, allSameSize=TRUE;
-	static DDIST lnSpace;  DDIST thisLnSpace;  short i;
+	LINK staffL, aStaffL;
+	Boolean firstTime=true, allSameSize=true;
+	static DDIST lnSpace;  DDIST thisLnSpace;
+	short i;
 	
 	staffL = SSearch(doc->headL, STAFFtype, GO_RIGHT);				/* Should never fail */
 	for (aStaffL = FirstSubLINK(staffL); aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
 		if (firstTime) {
 			lnSpace = StaffHEIGHT(aStaffL)/(StaffSTAFFLINES(aStaffL)-1);
 			thisLnSpace = lnSpace;
-			firstTime = FALSE;
+			firstTime = false;
 		}
 		else
 			thisLnSpace = StaffHEIGHT(aStaffL)/(StaffSTAFFLINES(aStaffL)-1);
 		if (thisLnSpace!=lnSpace) {
-			allSameSize = FALSE;
+			allSameSize = false;
 			break;
 		}
 	}
@@ -758,17 +761,17 @@ static Boolean AllStavesSameSize(Document *doc)
 				DDIST stfHeight = lnSpace*(STFLINES-1);
 				for (i = 0; i<=MAXRASTRAL; i++)
 					if (stfHeight==drSize[i]) doc->srastral = i;
-				doc->nonstdStfSizes = FillRelStaffSizes(doc); 		/* Should return FALSE! */
+				doc->nonstdStfSizes = FillRelStaffSizes(doc); 		/* Should return false! */
 			}
-			return TRUE;
+			return true;
 	}
-	return FALSE;
+	return false;
 }
 
 
-/* ---------------------------------------------------------------- InitDocFields -- */
+/* --------------------------------------------------------------------- InitDocFields -- */
 /* Initialize miscellaneous fields in the given Document. If there's a problem (out
-of memory), give an error message and return FALSE, else TRUE. */
+of memory), give an error message and return false, else true. */
 
 Boolean InitDocFields(Document *doc)
 {
@@ -788,7 +791,7 @@ Boolean InitDocFields(Document *doc)
 	
 	doc->firstPageNumber = 1;
 	doc->startPageNumber = 2;
-	doc->topPGN = FALSE;
+	doc->topPGN = false;
 	doc->hPosPGN = CENTER;
 	
 	doc->firstSheet = 0;
@@ -799,7 +802,7 @@ Boolean InitDocFields(Document *doc)
 	doc->background = NewRgn();
 	if (doc->background==NULL) {
 		NoMoreMemory();
-		return FALSE;
+		return false;
 	}
 	GetAllSheets(doc);
 	
@@ -810,22 +813,22 @@ Boolean InitDocFields(Document *doc)
 	doc->scaleCenter.h = doc->scaleCenter.v = SHRT_MAX;
 
 	doc->vScroll = doc->hScroll = NULL;
-	doc->changed = FALSE;
-	doc->canCutCopy = FALSE;
-	doc->active = doc->caretActive = doc->caretOn = FALSE;
-	doc->masterView = doc->overview = FALSE;
-	doc->masterChanged = FALSE;
-	doc->showFormat = doc->enterFormat = FALSE;
-	doc->locFmtChanged = FALSE;
-	doc->hasCaret = FALSE;							/* Tell DoUpdate to initialize caret */
-	doc->autoRespace = TRUE;
-	doc->pianoroll = FALSE;
-	doc->showSyncs = FALSE;
-	doc->frameSystems = FALSE;
-	doc->colorVoices = 1;							/* Show non-default voices in color */
-	doc->showInvis = FALSE;
-	doc->showDurProb = TRUE;
-	doc->showWaitCurs = TRUE;
+	doc->changed = false;
+	doc->canCutCopy = false;
+	doc->active = doc->caretActive = doc->caretOn = false;
+	doc->masterView = doc->overview = false;
+	doc->masterChanged = false;
+	doc->showFormat = doc->enterFormat = false;
+	doc->locFmtChanged = false;
+	doc->hasCaret = false;							/* Tell DoUpdate to initialize caret */
+	doc->autoRespace = true;
+	doc->pianoroll = false;
+	doc->showSyncs = false;
+	doc->frameSystems = false;
+	doc->colorVoices = 2;							/* Show all voices but no. 1 in color */
+	doc->showInvis = false;
+	doc->showDurProb = true;
+	doc->showWaitCurs = true;
 	
 	doc->magnify = 0;
 	InstallMagnify(doc);
@@ -842,15 +845,15 @@ Boolean InitDocFields(Document *doc)
 	doc->numberMeas = -1;							/* Show measure nos. on every system */
 	doc->otherMNStaff = 0;
 	doc->firstMNNumber = 1;
-	doc->aboveMN = TRUE;
+	doc->aboveMN = true;
 	doc->yMNOffset = 5;
 	doc->xMNOffset = 0;
-	doc->sysFirstMN = TRUE;
+	doc->sysFirstMN = true;
 	doc->xSysMNOffset = 0;		
 	
-	doc->insertMode = FALSE;
-	doc->beamRests = FALSE;
-	doc->recordFlats = FALSE;
+	doc->insertMode = false;
+	doc->beamRests = false;
+	doc->recordFlats = false;
 
 	for (i=0; i<MAXSTAVES; i++)
 		doc->omsPartDeviceList[i] = 0;
@@ -865,7 +868,7 @@ Boolean InitDocFields(Document *doc)
 	doc->fmsInputDestination.basic.destinationType = 0,
 	doc->fmsInputDestination.basic.name[0] = 0;
 
-	doc->nonstdStfSizes = FALSE;
+	doc->nonstdStfSizes = false;
 
 	/* Avoid certain Debugger complaints in MEHideCaret */
 	SetRect(&doc->viewRect, 0, 0, 0, 0);
@@ -874,7 +877,7 @@ Boolean InitDocFields(Document *doc)
 	if (!(doc->stringPool = NewStringPool())) {
 		DisposeRgn(doc->background);
 		MayErrMsg("InitDocFields: couldn't allocate string pool for document");	/* ??CHG TO USER ERR MSG? */
-		return FALSE;
+		return false;
 		}
 
 	doc->mutedPartNum = 0;
@@ -903,12 +906,12 @@ Boolean InitDocFields(Document *doc)
 	doc->midiMapFSSpecHdl = NULL;
 #endif
 	
-	return TRUE;
+	return true;
 }
 
-/* ------------------------------------------------------------------	InitDocUndo -- */
+/* ----------------------------------------------------------------------- InitDocUndo -- */
 /* Initialize the given Document's Undo fields, Undo record, and (empty) Undo
-object list. If there's a problem (out of memory), return FALSE, else TRUE. */
+object list. If there's a problem (out of memory), return false, else true. */
 
 Boolean InitDocUndo(Document *doc)
 {
@@ -918,25 +921,25 @@ Boolean InitDocUndo(Document *doc)
 	doc->undo.tailL = NILINK;
 	doc->undo.selStartL = doc->undo.selEndL = NILINK;
 	doc->undo.param1 = doc->undo.param2 = 0;
-	doc->undo.redo = FALSE;
-	doc->undo.hasUndo = FALSE;
-	doc->undo.canUndo = FALSE;
+	doc->undo.redo = false;
+	doc->undo.hasUndo = false;
+	doc->undo.canUndo = false;
 	strcpy(doc->undo.menuItem, "");
 	doc->undo.undoRecord = NewHandle(0L);
-	if (!doc->undo.undoRecord) { NoMoreMemory(); return FALSE; }
+	if (!doc->undo.undoRecord) { NoMoreMemory(); return false; }
 
 	BuildEmptyList(doc,&doc->undo.headL, &doc->undo.tailL);	/* ??Can fail: should check! */
 	
-	return TRUE;
+	return true;
 }
 
 
-/* -------------------------------------------------------------- BuildDocument -- */
+/* --------------------------------------------------------------------- BuildDocument -- */
 /*
  *	Initialise a Document.  If <isNew>, make a new Document, untitled and empty;
  *	otherwise, read the given file, decode it, and attach it to this Document.
  *	In any case, make the Document the current grafPort and install it, including
- *	magnification. Return TRUE normally, FALSE in case of error.
+ *	magnification. Return true normally, false in case of error.
  */
 
 Boolean BuildDocument(
@@ -945,10 +948,11 @@ Boolean BuildDocument(
 		short vRefNum,
 		FSSpec *pfsSpec,
 		long *fileVersion,
-		Boolean isNew		/* TRUE=new file, FALSE=open existing file */
+		Boolean isNew		/* true=new file, false=open existing file */
 		)
 {
-	WindowPtr w = doc->theWindow; Rect r;
+	WindowPtr w = doc->theWindow;
+	Rect r;
 	DDIST sysTop;
 	
 	SetPort(GetWindowPort(w));
@@ -973,7 +977,7 @@ Boolean BuildDocument(
 	doc->marginRect.bottom = doc->paperRect.bottom-config.pageMarg.bottom;
 	doc->marginRect.right = doc->paperRect.right-config.pageMarg.right;
 
-	if (!InitDocFields(doc)) return FALSE;
+	if (!InitDocFields(doc)) return false;
 
 	FillSpaceMap(doc, 0);
 
@@ -987,62 +991,62 @@ Boolean BuildDocument(
 	r.bottom -= SCROLLBAR_WIDTH;
 	r.top--;
 	
-	doc->vScroll = NewControl(w,&r,"\p",TRUE,doc->origin.h,doc->origin.h,
+	doc->vScroll = NewControl(w,&r,"\p",true,doc->origin.h,doc->origin.h,
 														0,scrollBarProc,0L);
 	GetWindowPortBounds(w,&r);
 	r.top = r.bottom - (SCROLLBAR_WIDTH+1);
 	r.right -= SCROLLBAR_WIDTH;
 	r.left += MESSAGEBOX_WIDTH;
 	
-	doc->hScroll = NewControl(w,&r,"\p",TRUE,
-								doc->origin.v,doc->origin.v,0,scrollBarProc,0L);
-	if (!InitAllHeaps(doc)) { NoMoreMemory(); return FALSE; }
+	doc->hScroll = NewControl(w,&r,"\p",true,doc->origin.v,doc->origin.v,
+														0,scrollBarProc,0L);
+	if (!InitAllHeaps(doc)) { NoMoreMemory(); return false; }
 	InstallDoc(doc);
 	BuildEmptyList(doc,&doc->headL,&doc->tailL);
 	
-	doc->selStartL = doc->selEndL = doc->tailL;					/* Empty selection  */
+	doc->selStartL = doc->selEndL = doc->tailL;				/* Empty selection  */
 	
 	/*
 	 * Set part name showing and corresponding system indents. We'd like to use
 	 * PartNameMargin() to get the appropriate indents, but not enough of the data
 	 * structure is set up, so do something cruder.
 	 */
-	doc->firstNames = FULLNAMES;								/* 1st system: full part names */
+	doc->firstNames = FULLNAMES;							/* 1st system: full part names */
 	doc->firstIndent = qd2d(config.indent1st, drSize[doc->srastral], STFLINES);
-	doc->otherNames = NONAMES;									/* Other systems: no part names */
+	doc->otherNames = NONAMES;								/* Other systems: no part names */
 	doc->otherIndent = 0;
 	
 	if (isNew) {
 		*fileVersion = THIS_VERSION;
-		NewDocScore(doc);										/* Set up initial staves, clefs, etc. */
+		NewDocScore(doc);									/* Set up initial staves, clefs, etc. */
 		doc->firstSheet = 0;
 		doc->currentSheet = 0;
-		doc->origin = doc->sheetOrigin;							/* Ignore position recorded in file */
+		doc->origin = doc->sheetOrigin;						/* Ignore position recorded in file */
 	}
-	else {														/* Finally READ THE FILE! */
+	else {													/* Finally READ THE FILE! */
 		if (OpenFile(doc,(unsigned char *)fileName,vRefNum,pfsSpec,fileVersion)!=noErr)
-			return FALSE;
-		doc->firstSheet = 0;									/* Or whatever; may be document specific! */
+			return false;
+		doc->firstSheet = 0;								/* Or whatever; may be document specific! */
 		doc->currentSheet = 0;
-		doc->lastGlobalFont = 4;								/* Default is Regular1 */
-		InstallMagnify(doc);									/* Set for file-specified magnification */
+		doc->lastGlobalFont = 4;							/* Default is Regular1 */
+		InstallMagnify(doc);								/* Set for file-specified magnification */
 		if (doc->masterHeadL == NILINK) {
 			/* This is an ancient file without Master Page object list: make default one */
 			sysTop = SYS_TOP(doc);
-			NewMasterPage(doc,sysTop,TRUE);
+			NewMasterPage(doc,sysTop,true);
 			}
 		doc->nonstdStfSizes = FillRelStaffSizes(doc);
 		if (doc->nonstdStfSizes)
 			if (!AllStavesSameSize(doc)) {
-				GetIndCString(strBuf, MISCERRS_STRS, 6);		/* "Not all staves are the std. size" */
+				GetIndCString(strBuf, MISCERRS_STRS, 6);	/* "Not all staves are the std. size" */
 				CParamText(strBuf, "", "", "");
 				CautionInform(GENERIC_ALRT);
 			}
 		}
 
-	if (!InitDocUndo(doc)) return FALSE;
+	if (!InitDocUndo(doc)) return false;
 
-	doc->yBetweenSysMP = doc->yBetweenSys = 0;					/* No longer used */
+	doc->yBetweenSysMP = doc->yBetweenSys = 0;				/* No longer used */
 	SetOrigin(doc->origin.h,doc->origin.v);
 	GetAllSheets(doc);
 
@@ -1053,7 +1057,7 @@ Boolean BuildDocument(
 	SetDefaultSelection(doc);
 	doc->selStaff = 1;
 	
-	MEAdjustCaret(doc,FALSE);
+	MEAdjustCaret(doc,false);
 	
-	return TRUE;
+	return true;
 }

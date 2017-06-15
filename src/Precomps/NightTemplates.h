@@ -114,7 +114,8 @@
 	Boolean		DoExtract(Document *doc);
 	Boolean		DoCombineParts(Document *doc);
 	Boolean		DoOpenDocument(unsigned char *fileName, short vrefnum, Boolean readOnly, FSSpec *pfsSpec);
-	Boolean		DoOpenDocument(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec, Document **pDoc);
+	Boolean		DoOpenDocumentX(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec,
+						Document **pDoc);
 	void		DoRevertDocument(Document *doc);
 	Boolean		DoSaveDocument(Document *doc);
 	Boolean		DoSaveAs(Document *doc);

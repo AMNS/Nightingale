@@ -464,7 +464,7 @@ typedef struct {
 					showSyncs,			/* Show (w/HiliteInsertNode) lines on every sync? */	\
 					frameSystems,		/* Frame systemRects (for debugging)? */				\
 					fillerEM:4,			/* unused */											\
-					colorVoices:2,		/* 0=normal, 1=show non-dflt voices in color */			\
+					colorVoices:2,		/* 0=normal, 1=show non-dflt voices in color, 2=show all but voice 1 in color */ \
 					showInvis:1,		/* Display invisible objects? */						\
 					showDurProb:1,		/* Show measures with duration/time sig. problems? */	\
 					recordFlats;		/* TRUE if black-key notes recorded should use flats */ \

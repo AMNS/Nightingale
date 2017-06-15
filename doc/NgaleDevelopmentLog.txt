@@ -2074,4 +2074,20 @@ tell what objects/subobjects came from the clipboard? We're using the object-lev
 notes/rests in Syncs w/ <spareFlag> set by voice or by their <merged> flags.
 
 Hmmm. It seems that Paste Merge and Paste as Cue always go into voice 1, regardless of
-the Looked at voice! I'm almost certain it hasn't always been this way. ??
+the Looked at voice! I'm almost certain that Paste Merge used to do this correctly. ??
+
+-------------------------------------------------------------------------------
+
+8 - 13 June
+
+Paste Merge and Paste as Cue do seem to handle the Looked at voice correctly; the
+apparent problem resulted from an anomaly in handling doc->lookVoice. Fixed.
+
+Back to Paste as Cue. How to keep it from copying objects of all types into the score?
+Try letting it copy everything, then delete undesired objects. Write ThinNonSyncObjects,
+which calls DeleteNode() for objs of undesired types; call it from CleanupMerge => seems
+to work okay, but if a dynamic was copied in, then removed, the dynamic context is left
+in inconsistent state. Could fix that, presumably w/ FixContextForDynamic(), but anyway,
+it'd be safer to avoid copying them in in the 1st place. Looks like non-Sync nodes are
+handled via a "temporary object list"; see comment in MRearrangeAll()...
+

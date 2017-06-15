@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	Delete.c
 *	PROJ:	Nightingale
 *	DESC:	Deletion-related routines.
@@ -17,14 +17,14 @@
 		DelSelPrepare			DelSelCleanup
 		DeleteSelection			DelNoteRedAcc			DelGRNoteRedAcc
 		ArrangeSyncAccs			DelRedundantAccs
-****************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -92,9 +92,9 @@ static LINK	beamStartL[MAXVOICES+1], beamEndL[MAXVOICES+1];
 static LINK cntxtDoneL[MAXSTAVES+1];
 
 
-/* =============================== Routines for deleting Graphics and Dynamics == */
+/* ======================================= Routines for deleting Graphics and Dynamics == */
 
-/* ----------------------------------------------------------- DSRemoveGraphic -- */
+/* ------------------------------------------------------------------- DSRemoveGraphic -- */
 /* DSRemoveGraphic deletes any Graphic which is attached to <pL>. */
 
 static void DSRemoveGraphic(Document *doc, LINK pL)
@@ -113,7 +113,7 @@ static void DSRemoveGraphic(Document *doc, LINK pL)
 	} while (graphicL && objL);
 }
 
-/* ------------------------------------------------------------ DSRemoveTempo -- */
+/* ---------------------------------------------------------------------- DSRemoveTempo -- *
 /* DSRemoveTempo deletes any Tempo object which is attached to <pL>. */
 
 static void DSRemoveTempo(Document *doc, LINK pL)
@@ -132,7 +132,7 @@ static void DSRemoveTempo(Document *doc, LINK pL)
 	} while (tempoL && objL);
 }
 
-/* ------------------------------------------------------------ DSRemoveEnding -- */
+/* -------------------------------------------------------------------- DSRemoveEnding -- */
 /* DSRemoveEnding deletes any Ending object which is attached to <pL>. */
 
 static void DSRemoveEnding(Document *doc, LINK pL)
@@ -152,7 +152,7 @@ static void DSRemoveEnding(Document *doc, LINK pL)
 	} while (endingL && objL);
 }
 
-/* ----------------------------------------------------------- DSObjDelGraphic -- */
+/* ------------------------------------------------------------------- DSObjDelGraphic -- */
 /* Delete graphicL when pL (its firstObj) no longer has any subObjs on graphicL's
 staff or in its voice. */
 
@@ -177,7 +177,7 @@ static void DSObjDelGraphic(Document *doc, LINK pL, LINK graphicL)
 	}
 }
 
-/* ------------------------------------------------------------ DSObjRemGraphic -- */
+/* ------------------------------------------------------------------- DSObjRemGraphic -- */
 /* DSObjRemGraphic deletes any Graphic which is attached to <pL>, when all of
 pL's subObjs on the Graphic's staff or in its voice have been deleted. */
 
@@ -198,7 +198,7 @@ static void DSObjRemGraphic(Document *doc, LINK pL)
 }
 
 
-/* ------------------------------------------------------------- DSObjDelTempo -- */
+/* --------------------------------------------------------------------- DSObjDelTempo -- */
 /* Delete tempoL when pL (its firstObj) no longer has any subObjs on tempoL's
 staff. */
 
@@ -216,7 +216,7 @@ static void DSObjDelTempo(Document *doc, LINK pL, LINK tempoL)
 	}
 }
 
-/* ------------------------------------------------------------- DSObjRemTempo -- */
+/* --------------------------------------------------------------------- DSObjRemTempo -- */
 /* DSObjDelTempo deletes any Tempo which is attached to <pL>, when all of
 pL's subObjs on the Tempo's staff have been deleted. */
 
@@ -238,9 +238,8 @@ static void DSObjRemTempo(Document *doc, LINK pL)
 	} while (tempoL && objL);
 }
 
-/* ------------------------------------------------------------ DSObjDelEnding -- */
-/* Delete endingL when its firstObj <pL> no longer has any subObjs on endingL's
-staff. */
+/* -------------------------------------------------------------------- DSObjDelEnding -- */
+/* Delete endingL when its firstObj <pL> no longer has any subObjs on endingL's staff. */
 
 static void DSObjDelEnding(Document *doc, LINK pL, LINK endingL)
 {
@@ -254,9 +253,9 @@ static void DSObjDelEnding(Document *doc, LINK pL, LINK endingL)
 	}
 }
 
-/* ------------------------------------------------------------ DSObjRemEnding -- */
-/* DSObjDelEnding deletes any Ending which is attached to <pL>, when all of
-pL's subObjs on the Ending's staff have been deleted. */
+/* -------------------------------------------------------------------- DSObjRemEnding -- */
+/* DSObjDelEnding deletes any Ending which is attached to <pL>, when all of pL's subObjs
+on the Ending's staff have been deleted. */
 
 static void DSObjRemEnding(Document *doc, LINK pL)
 {
@@ -277,12 +276,13 @@ static void DSObjRemEnding(Document *doc, LINK pL)
 }
 
 
-/* ---------------------------------------------------------- FixDynamicContext -- */
+/* ----------------------------------------------------------------- FixDynamicContext -- */
 /* Fix up the context for the dynamic <pL> */
 
 static void FixDynamicContext(Document *doc, LINK pL)
 {
-	LINK aDynamicL; short staff; CONTEXT oldContext, newContext;
+	LINK aDynamicL;  short staff;
+	CONTEXT oldContext, newContext;
 
 	aDynamicL = FirstSubLINK(pL);
 	staff = DynamicSTAFF(aDynamicL);
@@ -294,14 +294,16 @@ static void FixDynamicContext(Document *doc, LINK pL)
 }
 
 
-/* --------------------------------------------------------- DeleteOtherDynamic -- */
-/* DeleteOtherDynamic deletes any cross system dynamic which is paired to <pL>.
-It traverses in the direction of the other piece until it finds it; if it finds
-a mismatched piece first, it sets dynamError TRUE and stops the traversal. */
+/* ---------------------------------------------------------------- DeleteOtherDynamic -- */
+/* DeleteOtherDynamic deletes any cross system dynamic which is paired to <pL>. It
+traverses in the direction of the other piece until it finds it; if it finds a
+mismatched piece first, it sets dynamError TRUE and stops the traversal. */
 
 static void DeleteOtherDynamic(Document *doc, LINK pL)
 {
-	LINK aDynamicL,qL,firstSync,lastSync; PDYNAMIC p,q; short dynamStaff;
+	LINK aDynamicL,qL,firstSync,lastSync;
+	PDYNAMIC p,q;
+	short dynamStaff;
 	Boolean isHairpin,crossSys,foundDynam=FALSE,haveDynam=TRUE,dynamError=FALSE;
 
 	isHairpin = IsHairpin(pL);
@@ -340,7 +342,7 @@ static void DeleteOtherDynamic(Document *doc, LINK pL)
 				}
 			}
 		else if (MeasureTYPE(firstSync))
-			while (!foundDynam && haveDynam) {			/* cf supra */
+			while (!foundDynam && haveDynam) {				/* cf supra */
 				qL = LSSearch(LeftLINK(pL), DYNAMtype, dynamStaff, TRUE, FALSE);
 				if (qL) {
 					haveDynam = TRUE;
@@ -368,26 +370,26 @@ static void DeleteOtherDynamic(Document *doc, LINK pL)
 }
 
 
-/* ------------------------------------------------------------ DSRemoveDynamic -- */
-/* Called when a note or sync is deleted; deletes the dynamic attached to
-the sync if the last note (of a possible chord) in the sync on the staff
-of the dynamic is deleted.
-Need determinate test for pairing of cross system dynamics; until then,
-will not be easy to decide how to remove cross system pairs in this
-function.
+/* ------------------------------------------------------------------- DSRemoveDynamic -- */
+/* Called when a note or sync is deleted; deletes the dynamic attached to the sync
+if the last note (of a possible chord) in the sync on the staff of the dynamic is
+deleted.
+
+We need a determinate test for pairing of cross system dynamics; until then, it won't
+be easy to decide how to remove cross system pairs in this function.
 */
 
 static void DSRemoveDynamic(Document *doc, LINK pL,
 							short staff)	/* staff of dynamic, or ANYONE for DeleteWhole */
 {
 	LINK dynamicL, aDynamicL, objL, aNoteL, firstSyncL, lastSyncL;
-	PDYNAMIC pDynamic; Boolean hasNoteOnStf=FALSE;
+	PDYNAMIC pDynamic;
+	Boolean hasNoteOnStf=FALSE;
 	
-	/* If the entire sync is not being deleted, a note on a staff is being
-	deleted; if this is the case, only remove the dynamic if this is the last
-	note in the sync on the staff; if notes will remain after deleting this
-	one, dynamics can still be attached to the remaining notes and should not
-	be removed. */
+	/* If the entire sync is not being deleted, a note on a staff is being deleted.
+	If this is the case, remove the dynamic only if this is the last note in the sync
+	on the staff; if notes will remain after deleting this one, dynamics can still be
+	attached to the remaining notes and should not be removed. */
 
 	if (staff!=ANYONE) {
 		aNoteL = FirstSubLINK(pL);
@@ -433,10 +435,10 @@ static void DSRemoveDynamic(Document *doc, LINK pL,
 }
 
 
-/* ======================================== Routine for deleting entire objects == */
+/* =============================================== Routine for deleting entire objects == */
 
-/* DeleteMeasure deletes the given Measure object and fixes up cross-links. It
-does NOT update coords. of objects formerly in the Measure for their new status. */
+/* DeleteMeasure deletes the given Measure object and fixes up cross-links. It does NOT
+update coords. of objects formerly in the Measure for their new status. */
 
 void DeleteMeasure(Document *doc, register LINK measL)
 {
@@ -458,9 +460,8 @@ void DeleteMeasure(Document *doc, register LINK measL)
 }
 
 
-/* --------------------------------------------------------------- DeleteWhole -- */
-/* DeleteWhole deletes <pL> and makes the object list consistent for the
-deletion. It:
+/* ----------------------------------------------------------------------- DeleteWhole -- */
+/* DeleteWhole deletes <pL> and makes the object list consistent for the deletion. It:
 1. Deletes Graphics, Tempos, and Endings that refer to pL.
 2. Updates pointers for the deleted object. 
 	a. Updates pGraphic->firstObj pointers for objects of all types. 
@@ -476,9 +477,9 @@ Syncs' timeStamps; this must be done later.
  
 static Boolean DeleteWhole(Document *doc, register LINK pL)
 {
-	DDIST 		xMove, xRelMeas;
-	PANOTE		aNote;
-	LINK			aNoteL, tempL, aKSL;
+	DDIST 	xMove, xRelMeas;
+	PANOTE	aNote;
+	LINK	aNoteL, tempL, aKSL;
 	
 	tempL = LeftLINK(pL);
 	DSRemoveGraphic(doc, pL);
@@ -517,8 +518,8 @@ static Boolean DeleteWhole(Document *doc, register LINK pL)
 			break;
 
 		case MEASUREtype: {
-			DDIST		dTemp;
-			LINK		prevMeasureL;
+			DDIST	dTemp;
+			LINK	prevMeasureL;
 
 			if (doc->autoRespace) {
 				/* Adjust objects' x-coords. to make relative to their new measure and
@@ -542,8 +543,7 @@ static Boolean DeleteWhole(Document *doc, register LINK pL)
 					keep them in the same place on the page. */
 
 			 	if (!MeasureTYPE(RightLINK(pL))) {
-					prevMeasureL = LSSearch(LeftLINK(pL),MEASUREtype,ANYONE,
-											TRUE,FALSE);
+					prevMeasureL = LSSearch(LeftLINK(pL),MEASUREtype,ANYONE,TRUE,FALSE);
 			 		xMove = SysRelxd(pL)-SysRelxd(prevMeasureL);
 			 		MoveInMeasure(RightLINK(pL), doc->tailL, xMove);
 			 	}
@@ -558,35 +558,31 @@ static Boolean DeleteWhole(Document *doc, register LINK pL)
 			break;
 
 		default:
-			MayErrMsg("DeleteWhole: Illegal type %ld at %ld", 
-						(long)ObjLType(pL), pL);
+			MayErrMsg("DeleteWhole: Illegal type %ld at %ld", (long)ObjLType(pL), pL);
 			return FALSE;
 	}
 	
 	return TRUE;
 }
 
-/* ================================================= Routines for Deleting Slurs = */
-/* Deletion of slurs is handled by: 1) FixDelSlurs, 2) FixTieIndices, 
- * 	& 3) case SLURtype in DeleteSelection. They are all functionally
- *		independent.
- *
- * 1. FixDelSlurs deletes all slurs in the selection range, or slur 
- *		subobjects if the slur is a tie with multiple subobjects. This happens 
- *		regardless of whether or not the slur is selected; the actual deletion is
- *		performed by DeleteSlur, which either calls DeleteTie to delete tie 
- *		subobjects, or DeleteNode to delete the entire slur. 
- *	2. FixTieIndices is called in case SYNCtype of DeleteSelection. It updates 
- *		the values pSlur->firstInd & lastInd of a tie with multiple subobjects which 
- *		ties a chord one (or more) of whose notes has been deleted. 
- *	3. case SLURtype performs the ordinary deletion of a slur which has been 
- *		selected by clicking or dragging and is to be explicitly deleted.
- *
- *  Note: DeleteTie removed by chirgwin Mon Jun 25 21:56:05 PDT 2012
- */
+/* ======================================================= Routines for Deleting Slurs == */
+/* Deletion of slurs is handled by: 1) FixDelSlurs, 2) FixTieIndices, and 3) case
+SLURtype in DeleteSelection. They are all functionally independent.
+
+1. FixDelSlurs deletes all slurs in the selection range, or slur subobjects if the
+	slur is a tie with multiple subobjects. This happens regardless of whether or not
+	the slur is selected; the actual deletion is performed by DeleteSlur, which either
+	calls DeleteTie to delete tie subobjects, or DeleteNode to delete the entire slur.
+2. FixTieIndices is called in case SYNCtype of DeleteSelection. It updates the values
+	pSlur->firstInd & lastInd of a tie with multiple subobjects which ties a chord one
+	(or more) of whose notes has been deleted.
+3. case SLURtype performs the ordinary deletion of a slur which has been selected by
+	clicking or dragging and is to be explicitly deleted. *
+
+Note: DeleteTie removed by chirgwin Mon Jun 25 21:56:05 PDT 2012 */
 
 
-/* ----------------------------------------------------------------- DeleteSlur -- */
+/* ------------------------------------------------------------------------ DeleteSlur -- */
 /* 1. DeleteSlur is called with parameters pL & slurNoteL, where slurNoteL
 		is the first subobject of pL on the staff with tied or slurred flag set. 
 	2. goLeft is set depending on whether FixDelSlurs is traversing left or
@@ -609,8 +605,8 @@ static void DeleteSlur(
 					LINK slurNoteL,
 					Boolean goLeft, Boolean isTie)
 {
-	LINK		syncL, slurL;
-	Boolean  firstIsMeas, lastIsSys;
+	LINK syncL, slurL;
+	Boolean firstIsMeas, lastIsSys;
 	SearchParam pbSearch;
 
 	firstIsMeas = lastIsSys = FALSE;
@@ -656,7 +652,7 @@ static void DeleteSlur(
 }
 
 
-/* ---------------------------------------------------------------- FixDelSlurs -- */
+/* ----------------------------------------------------------------------- FixDelSlurs -- */
 /* FixDelSlurs pre-processes the selection range for slurs. After expanding the
 selection range to include all slur objects immediately following selEndL, it
 traverses the object list in each voice once right from selStartL and once left
@@ -671,11 +667,11 @@ if (NoteVOICE(aNoteL)==voice...) should take care of this. */
 
 void FixDelSlurs(Document *doc)
 {
-	LINK					pL, aNoteL;
-	PANOTE				aNote;
-	short					voice;
-	SearchParam			pbSearch;
-	Boolean				voiceTiesDone;
+	LINK			pL, aNoteL;
+	PANOTE			aNote;
+	short			voice;
+	SearchParam		pbSearch;
+	Boolean			voiceTiesDone;
 
 	/* If selEndL is a slur and it gets deleted, the selection range will be
 	garbage. To avoid this, extend the selection range to include all contiguous
@@ -749,7 +745,7 @@ void FixDelSlurs(Document *doc)
 		}
 }
 
-/* ------------------------------------------------------------- PPageFixDelSlurs - */
+/* ------------------------------------------------------------------- PPageFixDelSlurs - */
 /* Version of FixDelSlurs for clearing (not pasting, as the name and former comments
 said!) pages; doesn't require that Syncs be selected, since it assumes the selection
 range is set before it's called, and all slurs on page to be cleared must be
@@ -757,11 +753,11 @@ processed. */
 
 void PPageFixDelSlurs(Document *doc)
 {
-	LINK					pL, aNoteL;
-	PANOTE				aNote;
-	short					voice;
-	SearchParam			pbSearch;
-	Boolean				voiceTiesDone;
+	LINK			pL, aNoteL;
+	PANOTE			aNote;
+	short			voice;
+	SearchParam		pbSearch;
+	Boolean			voiceTiesDone;
 
 	/* If selEndL is a slur and it gets deleted, the selection range will be
 	garbage. To avoid this, extend the selection range to include all contiguous
@@ -835,7 +831,7 @@ void PPageFixDelSlurs(Document *doc)
 		}
 }
 
-/* ------------------------------------------------------------ DeleteOtherSlur -- */
+/* ------------------------------------------------------------------- DeleteOtherSlur -- */
 /* Handle the deletion of the other slur for crossSystem slurs.
  *
  * firstIsMeas TRUE indicates that the slur whose companion is to be deleted
@@ -876,7 +872,7 @@ static void DeleteOtherSlur(Document *doc,
 }
 
 
-/* ------------------------------------------------------------- FixSyncForSlur -- */
+/* -------------------------------------------------------------------- FixSyncForSlur -- */
 /* Clear the tiedL/R or slurredL/R flags of every note in the given voice in the
 given sync, presumably because the slur object is being deleted. */
 
@@ -909,9 +905,9 @@ void FixSyncForSlur(LINK pL,					/* Sync */
 }
 
 
-/* ================================== Routines for Updating CrossSystem Objects == */
+/* ======================================== Routines for Updating Cross-System Objects == */
 
-/* ------------------------------------------------------------- DeleteXSysSlur -- */
+/* -------------------------------------------------------------------- DeleteXSysSlur -- */
 /* Delete a non-matched crossSystem slur. Get the first or last syncL, whichever
  * is a sync, and call FixSyncForSlur to fix it; then delete the slur.
  */
@@ -933,7 +929,7 @@ void DeleteXSysSlur(Document *doc, LINK pL)		/* pL = cross-system slur */
 }
 
 
-/* --------------------------------------------------------- FixDelCrossSysObjs -- */
+/* ---------------------------------------------------------------- FixDelCrossSysObjs -- */
 /* Traverse the object list from the first system before the selRange to the system
  * following the selRange, checking for and updating mismatched crossSystem
  * objects. N.B. The updating technique assumes that something has been deleted;
@@ -949,7 +945,7 @@ void FixDelCrossSysObjs(Document *doc)
 }
 
 
-/* -------------------------------------------------------- FixDelCrossSysBeams -- */
+/* --------------------------------------------------------------- FixDelCrossSysBeams -- */
 /* After post-processing beamsets in PostFixDelBeams, traverse the object list
  * from the first system before the selRange to the system following the selRange,
  * checking for and updating mismatched crossSystem beams. Specifically, when we
@@ -1013,7 +1009,7 @@ void FixDelCrossSysBeams(register Document *doc)
 }
 
 
-/* -------------------------------------------------------- FixDelCrossSysSlurs -- */
+/* --------------------------------------------------------------- FixDelCrossSysSlurs -- */
 /* Traverse the object list from the first system before the selRange to the
  * system following the selRange, checking for and updating mismatched crossSystem
  * slurs.
@@ -1070,7 +1066,7 @@ void FixDelCrossSysSlurs(register Document *doc)
 }
 
 
-/* ----------------------------------------------------- FixDelCrossSysHairpins -- */
+/* ------------------------------------------------------------ FixDelCrossSysHairpins -- */
 /* Traverse the object list from the first system before the selRange to the
  * system following the selRange, checking for and updating mismatched crossSystem
  * hairpins. Assumes that there are no intervening dynamics between the first
@@ -1129,10 +1125,10 @@ void FixDelCrossSysHairpins(Document *doc)
 }
 
 
-/* ========================================== FixDelBeams and associated routines = */
+/* ================================================ FixDelBeams and associated routines = */
 
 
-/* ----------------------------------------------------------------- FindTheBeam -- */
+/* ----------------------------------------------------------------------- FindTheBeam -- */
 
 static LINK FindTheBeam(LINK startL, short voice)
 {
@@ -1158,7 +1154,7 @@ static LINK FindTheBeam(LINK startL, short voice)
 	return NILINK;
 }
 
-/* -------------------------------------------------------------- FindTheGRBeam -- */
+/* --------------------------------------------------------------------- FindTheGRBeam -- */
 
 static LINK FindTheGRBeam(LINK startL, short voice)
 {
@@ -1185,7 +1181,7 @@ static LINK FindTheGRBeam(LINK startL, short voice)
 }
 
 
-/* ---------------------------------------------------------------- FixDelBeams -- */
+/* ----------------------------------------------------------------------- FixDelBeams -- */
 /* FixDelBeams pre-processes the selection range for beamsets. It traverses the 
  * range,
  * 1. deleting beamsets which extend into or occur within the range, and
@@ -1196,10 +1192,10 @@ static LINK FindTheGRBeam(LINK startL, short voice)
 
 static void FixDelBeams(Document *doc)
 {
-	short			i, h, voice, v, nInBeam;
-	LINK			startL, endL, pL, qL, pFirstL, pLastL,
-					rStartL, rEndL, lBeamL, rBeamL, beamFirstL, newBeamL;
-	PBEAMSET		lBeam, rBeam, newBeam;
+	short		i, h, voice, v, nInBeam;
+	LINK		startL, endL, pL, qL, pFirstL, pLastL,
+				rStartL, rEndL, lBeamL, rBeamL, beamFirstL, newBeamL;
+	PBEAMSET	lBeam, rBeam, newBeam;
 	Boolean		spansRange, crossSys, firstSys;
 	
 	spansRange = FALSE;
@@ -1291,7 +1287,8 @@ static void FixDelBeams(Document *doc)
 					Then, if possible, beam all notes on the voice between the end of the
 					range and the last note of rBeamL. */
 	
-				if (rBeamL = VHasBeamAcross(endL, voice)) {			/* Diff. beam across r.end ? */
+				rBeamL = VHasBeamAcross(endL, voice);
+				if (rBeamL) {											/* Diff. beam across r.end ? */
 					rStartL = FirstInBeam(rBeamL);						/* Yes, remove beam but save bounds */
 					rEndL = LastInBeam(rBeamL);
 					for (v=1; v<=MAXVOICES; v++)
@@ -1306,7 +1303,7 @@ static void FixDelBeams(Document *doc)
 					RemoveBeam(doc, rBeamL, voice, TRUE);
 					rStartL = LSSearch(endL, SYNCtype, voice, FALSE, FALSE);	/* Get new beginning */
 					
-					if (!IsAfterIncl(rStartL, rEndL)) {								/* Excludes undefined relationship (IsAfter doesn't) */
+					if (!IsAfterIncl(rStartL, rEndL)) {							/* Excludes undefined relationship (IsAfter doesn't) */
 						MayErrMsg("FixDelBeams: rStartL=%ld is after rEndL=%ld.\n",
 									(long)rStartL, (long)rEndL);
 						continue;
@@ -1330,11 +1327,10 @@ static void FixDelBeams(Document *doc)
 }
 	
 
-/* ------------------------------------------------------------- PostFixDelBeams - */
-/* Post-process the beams. If there were any beams which spanned the range,
-their First/LastInBeams were saved in beamStartL[]/EndL[]. For each voice,
-count all notes on voice between beamStartL[voice] & beamEndL[voice], and
-beam them. */
+/* ------------------------------------------------------------------- PostFixDelBeams -- */
+/* Post-process the beams. If there were any beams which spanned the range, their
+First/LastInBeams were saved in beamStartL[]/EndL[]. For each voice, count all notes
+on voice between beamStartL[voice] & beamEndL[voice], and beam them. */
 
 static void PostFixDelBeams(Document *doc)
 {
@@ -1392,7 +1388,7 @@ static void PostFixDelBeams(Document *doc)
 }
 
 
-/* --------------------------------------------------------------- FixDelGRBeams - */
+/* --------------------------------------------------------------------- FixDelGRBeams -- */
 
 static void FixDelGRBeams(Document *doc)
 {
@@ -1419,8 +1415,9 @@ static void FixDelGRBeams(Document *doc)
 					RecomputeGRNoteStems(doc, lStartL, lEndL, v);
 				}
 	
-				if (rBeamL = VHasGRBeamAcross(endL, v)) {					/* Diff. beam across r.end ? */
-					rStartL = FirstInBeam(rBeamL);							/* Yes, remove beam but save bounds */
+				rBeamL = VHasGRBeamAcross(endL, v);
+				if (rBeamL) {										/* Diff. beam across r.end ? */
+					rStartL = FirstInBeam(rBeamL);					/* Yes, remove beam but save bounds */
 					rEndL = LastInBeam(rBeamL);
 					RemoveGRBeam(doc, rBeamL, v, TRUE);
 					RecomputeGRNoteStems(doc, lStartL, lEndL, v);
@@ -1430,7 +1427,7 @@ static void FixDelGRBeams(Document *doc)
 }
 
 
-/* ======================================== Delete objects associated with syncs == */
+/* ============================================== Delete objects associated with syncs == */
 
 /* Set inTuplet flags FALSE for all notes in tupletL. */
 
@@ -1452,7 +1449,7 @@ static void ClearInTupletFlags(LINK tupletL)
 	}	
 }
 
-/* ---------------------------------------------------------- DelTupletForSync -- */
+/* ------------------------------------------------------------------ DelTupletForSync -- */
 /* If a note to be deleted is inTuplet, delete the tuplet itself, and set all
 inTuplet flags FALSE for all notes in that tuplet. */
 
@@ -1478,7 +1475,7 @@ static void DelTupletForSync(Document *doc, LINK pL, LINK aNoteL)
 }
 
 
-/* ------------------------------------------------------------ DelOttavaForSync - */
+/* ------------------------------------------------------------------- DelOttavaForSync - */
 /* Assuming the given note is to be deleted and is inOttava, remove its subObject
 from its ottava object, and decrement the ottava's nEntries. If that leaves
 nothing in the ottava, remove it, too. */
@@ -1510,13 +1507,13 @@ static void DelOttavaForSync(Document *doc, LINK pL, LINK aNoteL)
 }
 
 
-/* ------------------------------------------------------------ DelModsForSync -- */
+/* ------------------------------------------------------------------- DelModsForSync -- */
 /* If a note to be deleted has any note modifiers, remove the modifiers
 from the modifier subObject heap. */ 
 
 void DelModsForSync(LINK /*pL*/, LINK aNoteL)
 {
-	LINK		aModNRL;
+	LINK	aModNRL;
 	PANOTE	aNote;
 	
 	aNote = GetPANOTE(aNoteL);
@@ -1528,10 +1525,10 @@ void DelModsForSync(LINK /*pL*/, LINK aNoteL)
 }
 
 
-/* ========================================= Update measures, context, accidentals = */
+/* ============================================= Update measures, context, accidentals == */
 
 
-/* -------------------------------------------------------------- FixDelMeasures -- */
+/* -------------------------------------------------------------------- FixDelMeasures -- */
 /* Fix the measureRect.rights of the Measures whose width changes: the one
 preceding the region deleted, and the one at the end of the System.  We
 expect the Draw routines to update the measureBBoxes, since the valid flags
@@ -1541,9 +1538,9 @@ static void FixDelMeasures(Document *doc, LINK measL)	/* measL must be a Measure
 {
 	PAMEASURE	aMeasure;
 	PSYSTEM		pSystem;
-	LINK			aMeasureL, qL, systemL;
-	DDIST			measWidth;
-	Boolean 		endOfSystem;
+	LINK		aMeasureL, qL, systemL;
+	DDIST		measWidth;
+	Boolean 	endOfSystem;
 	
 	if (!MeasureTYPE(measL)) 
 		MayErrMsg("FixDelMeasures: argument %ld not a Measure", (long)measL);
@@ -1587,7 +1584,7 @@ static void FixDelMeasures(Document *doc, LINK measL)	/* measL must be a Measure
 	else
 		measL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
 
-	LinkVALID(measL) = FALSE;														/* So Draw updates measureBBox */
+	LinkVALID(measL) = FALSE;										/* So Draw updates measureBBox */
 	qL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
 
 	pSystem = GetPSYSTEM(systemL);
@@ -1600,7 +1597,7 @@ static void FixDelMeasures(Document *doc, LINK measL)	/* measL must be a Measure
 }
 
 
-/* ---------------------------------------------------------- FixDelAccidentals -- */
+/* ----------------------------------------------------------------- FixDelAccidentals -- */
 /* FixDelAccidentals assumes the given range on the given staff is about to be
 deleted and fixes up accidentals of following notes on the staff according to
 standard CMN rules so they will retain their current pitches. If ACC_IN_CONTEXT
@@ -1625,11 +1622,11 @@ but at worst we'll just end up wasting some CPU time.
 
 static void FixDelAccidentals(Document *doc, short staff, LINK stfSelStart, LINK stfSelEnd)
 {
-	LINK			pL, fixFirstL, fixLastL, nextKSL,
-					nextSyncL, aNoteL, prevSyncL, firstSyncL, bNoteL;
+	LINK		pL, fixFirstL, fixLastL, nextKSL,
+				nextSyncL, aNoteL, prevSyncL, firstSyncL, bNoteL;
 	PANOTE		aNote;
 	SignedByte	accTab[MAX_STAFFPOS], pitTab1[MAX_STAFFPOS], pitTab2[MAX_STAFFPOS];
-	short			halfLn, j;
+	short		halfLn, j;
 	SearchParam	pbSearch;
 
 	if (!ACC_IN_CONTEXT) return;
@@ -1687,14 +1684,14 @@ static void FixDelAccidentals(Document *doc, short staff, LINK stfSelStart, LINK
 		nextKSL = L_Search(stfSelEnd, KEYSIGtype, GO_RIGHT, &pbSearch);
 		if (!nextKSL) nextKSL = doc->tailL;
 	}
-	else nextKSL = fixLastL; 											/* Nope */
+	else nextKSL = fixLastL; 									/* Nope */
 	
-	while (IsAfter(fixFirstL, fixLastL)) {							/* Till next key sig, fix accs. in 1 measure */
-		for (j = 0; j<MAX_STAFFPOS; j++)								/* Initialize accTable for each bar, */
-			accTable[j] = accTab[j];									/* since FixAllAccidentals destroys it */
+	while (IsAfter(fixFirstL, fixLastL)) {						/* Till next key sig, fix accs. in 1 measure */
+		for (j = 0; j<MAX_STAFFPOS; j++)						/* Initialize accTable for each bar, */
+			accTable[j] = accTab[j];							/* since FixAllAccidentals destroys it */
 		FixAllAccidentals(fixFirstL, fixLastL, staff, FALSE);
 		fixFirstL = fixLastL;
-		if (fixLastL!=doc->tailL) {										/* More to do? */
+		if (fixLastL!=doc->tailL) {								/* More to do? */
 			fixLastL = LSSearch(RightLINK(fixLastL),MEASUREtype,staff,GO_RIGHT,FALSE);
 			if (fixLastL==NILINK) fixLastL = doc->tailL;
 			if (IsAfter(nextKSL, fixLastL)) fixLastL = nextKSL;
@@ -1703,7 +1700,7 @@ static void FixDelAccidentals(Document *doc, short staff, LINK stfSelStart, LINK
 }
 
 
-/* --------------------------------------------------------------- PreFDContext -- */
+/* ---------------------------------------------------------------------- PreFDContext -- */
 /* If the initial clef, keysig, or timesig on the given staff is about to be
 deleted, first set the context fields of the initial Staff subobj (which is to
 its left in the object list) to the current default. When these initial objects
@@ -1742,13 +1739,13 @@ static void PreFDContext(Document *doc, short stf, LINK firstStaffL)
 }
 
 
-/* -------------------------------------------------------------- FixDelContext -- */
+/* --------------------------------------------------------------------- FixDelContext -- */
 /* Fix context for clef, keysig, timesig and dynamic. */
 
 static void FixDelContext(Document *doc)
 {
-	short		stf;
-	LINK	  	firstMeasL, firstStaffL, stSelStartL, stSelEndL, doneL, endL;
+	short	stf;
+	LINK	firstMeasL, firstStaffL, stSelStartL, stSelEndL, doneL, endL;
 	Boolean	beforeFirstMeas;
 	CONTEXT	oldContext,newContext;
 	
@@ -1849,7 +1846,7 @@ static void ExtendJDRange(Document *doc)
 }
 
 
-/* ============================================== Deleting BeforeFirstMeas objects == */
+/* ================================================== Deleting BeforeFirstMeas objects == */
 
 void ChangeSpaceBefFirst(
 		Document *doc,
@@ -1904,7 +1901,7 @@ static void FixStfBeforeFirst(Document *doc, LINK keySigL, LINK aKSL)
 }
 
 
-/* ---------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Utilities for DelClefBeforeFirst. */
 
 /*
@@ -1958,7 +1955,7 @@ static void RemoveBFClef(Document *doc, LINK clefL)
 	}
 }
 
-/* -------------------------------------------------------------- DelClefBefFirst -- */
+/* ------------------------------------------------------------------- DelClefBefFirst -- */
 /* Delete the initial clef <pL>. */
 
 static Boolean DelClefBefFirst(Document *doc, LINK pL, LINK *pNewSelL)
@@ -1974,7 +1971,7 @@ static Boolean DelClefBefFirst(Document *doc, LINK pL, LINK *pNewSelL)
 }
 
 
-/* ---------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Utilities for DelKeySigBeforeFirst. */
 
 /* Traverse keySigL's subObj list and process selected subObjects for deletion:
@@ -1997,7 +1994,7 @@ static Boolean InvisifyBFKeySig(Document */*doc*/, LINK keySigL)
 			aKeySig->selected = FALSE;
 			aKeySig->nKSItems = DFLT_NKSITEMS;
 			
-			KEYSIG_COPY((PKSINFO)aKeySig->KSItem, &newKSInfo);			/* Copy old keysig. info */
+			KEYSIG_COPY((PKSINFO)aKeySig->KSItem, &newKSInfo);		/* Copy old keysig. info */
 			newKSInfo.nKSItems = DFLT_NKSITEMS;
 			UpdateBFKSStaff(keySigL,KeySigSTAFF(aKeySigL),newKSInfo);
 			didAnything = TRUE;
@@ -2027,7 +2024,7 @@ static void RemoveBFKeySig(Document *doc, LINK keySigL)
 }
 
 
-/* -------------------------------------------------------- DelKeySigBeforeFirst -- */
+/* -------------------------------------------------------------- DelKeySigBeforeFirst -- */
 /* Delete the initial key signature <pL>. */
 
 static Boolean DelKeySigBefFirst(Document *doc, LINK pL)
@@ -2040,7 +2037,7 @@ static Boolean DelKeySigBefFirst(Document *doc, LINK pL)
 	return didAnything;
 }
 
-/* -------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Utilities for DelTimeSigBeforeFirst. */
 
 /*
@@ -2097,7 +2094,7 @@ static void RemoveBFTimeSig(Document *doc, LINK timeSigL, DDIST width)
 	}
 }
 
-/* ------------------------------------------------------- DelTimeSigBeforeFirst -- */
+/* ------------------------------------------------------------- DelTimeSigBeforeFirst -- */
 /* Delete the initial time signature <pL>. */
 
 static Boolean DelTimeSigBefFirst(Document *doc, LINK pL)
@@ -2112,7 +2109,7 @@ static Boolean DelTimeSigBefFirst(Document *doc, LINK pL)
 }
 
 
-/* --------------------------------------------------------------- FixDelChords -- */
+/* ---------------------------------------------------------------------- FixDelChords -- */
 /* Fix up all chords (including those that aren't really chords any more because
 they have only one note left!) in the given Sync that have had notes deleted,
 as indicated by voiceChanged[]. */
@@ -2120,9 +2117,9 @@ as indicated by voiceChanged[]. */
 static void FixDelChords(Document *doc, LINK syncL, Boolean voiceChanged[])
 {
 	register short v;
-	short		nInChord[MAXVOICES+1];
+	short	nInChord[MAXVOICES+1];
 	PANOTE	aNote;
-	LINK		aNoteL;
+	LINK	aNoteL;
 	
 	for (v = 1; v<=MAXVOICES; v++)
 		nInChord[v] = 0;
@@ -2143,7 +2140,7 @@ static void FixDelChords(Document *doc, LINK syncL, Boolean voiceChanged[])
 }
 
 
-/* -------------------------------------------------------------- FixDelGRChords -- */
+/* -------------------------------------------------------------------- FixDelGRChords -- */
 /* Fix up all grace chords (including those that aren't really chords any more
 because they have only one note left!) in the given GRSync that have had notes
 deleted, as indicated by voiceChanged[]. */
@@ -2209,7 +2206,7 @@ void FixAccsForNoTie(Document *doc,
 }
 
 
-/* =================================== DeleteSelection and associated routines == */
+/* =========================================== DeleteSelection and associated routines == */
 
 static enum {
 	RECALC_NONE,
@@ -2217,7 +2214,7 @@ static enum {
 	RECALC_ALL
 } E_RecalcItems;
 
-/* ------------------------------------------------------------- DelSelPrepare -- */
+/* -------------------------------------------------------------------- DelSelPrepare -- */
 /* Prepare for DeleteSelection: search for firstMeasL, etc.; decide what needs to
 be updated; prepare beamsets and slurs; and prepare context. */
 
@@ -2289,7 +2286,7 @@ upMNDone:
 }
 
 
-/* ------------------------------------------------------------ DelSelCleanup -- */
+/* --------------------------------------------------------------------- DelSelCleanup -- */
 /* DelSelCleanup does:
 		Reset selection range,
 		Fix selection for selected objects outside of range,
@@ -2311,7 +2308,7 @@ static void DelSelCleanup(
 				Boolean noUpMeasNums
 				)
 {
-	LINK	  pL, endL;
+	LINK pL, endL;
 	
 	/* If any subObjs or objs were actually deleted, determine the
 		correct location and set selStartL and selEndL. */
@@ -2372,8 +2369,8 @@ static void DelSelCleanup(
 }
 
 
-/* ----------------------------------------------------------- DeleteSelection -- */
-/* Delete the current selection.  This routine needs to be smart but	not VERY
+/* ------------------------------------------------------------------- DeleteSelection -- */
+/* Delete the current selection.  This routine needs to be smart but not _too_
 smart, since we refuse to call it unless the selection is continuous in any
 given voice. It may not have System, Staff, and Measure objects  selected, but
 GetContext should take care of them.
@@ -2409,7 +2406,7 @@ void DeleteSelection(
 		Boolean *noResp		/* Returns TRUE if nothing deleted that could need respacing */
 		)
 {
-	register LINK	pL;
+	register LINK pL;
 	LINK		newSelL, firstMeasL, rightL,
 				startL, firstSyncL, lastSyncL, prevMeasL;
 	register Boolean didAnything=FALSE;

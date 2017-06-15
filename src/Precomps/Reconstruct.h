@@ -21,11 +21,6 @@ void InsertJDBefore(LINK, LINK);
 void InsertJITBefore(LINK, LINK);
 void InsertJIPBefore(LINK, LINK);
 
-void LocateJITObj(Document *, LINK, LINK, LINK, PTIME *);
-void LocateJIPObj(Document *, LINK, LINK, LINK, PTIME *);
-void LocateGenlJDObj(Document *, LINK, PTIME *);
-void LocateJDObj(Document *, LINK, LINK, PTIME *);
-
 void DebugDurArray(short narrBound, PTIME *durArray);
 
 void RelocateObjs(Document *,LINK,LINK,LINK,LINK,PTIME *);

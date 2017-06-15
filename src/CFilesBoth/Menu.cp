@@ -189,7 +189,7 @@ static void DoAppleMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 Boolean IsSafeToQuit()
 {
@@ -413,7 +413,7 @@ Boolean DoFileMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Edit Menu.
  */
@@ -510,7 +510,7 @@ void DoEditMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 //#ifndef PUBLIC_VERSION
 
@@ -562,9 +562,7 @@ static void DeleteSelObjs(Document *doc)
 void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset);
 void ResetAllMeasNumPos(Document *doc);
 
-void SetMeasNumPos(Document *doc,
-					LINK startL, LINK endL,
-					short xOffset, short yOffset)
+void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset)
 {
 	PAMEASURE	aMeasure;
 	LINK		pL, aMeasureL;
@@ -661,7 +659,7 @@ static void DoTestMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Score Menu.
  */
@@ -743,7 +741,7 @@ static void DoScoreMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 /* Collect information for the Transpose Key command: fill the <trStaff> array with
 flags indicating which staff nos. should be transposed (because they have something
@@ -894,7 +892,7 @@ static void DoNotesMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Groups Menu.
  */
@@ -946,7 +944,7 @@ void DoGroupsMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the View Menu.
  */
@@ -1045,7 +1043,7 @@ void DoViewMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  * Handle the "MIDI Dynamics Preferences" command.
  */
@@ -1248,7 +1246,7 @@ void DoPlayRecMenu(short choice)
 	}
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 void MPInstrument(Document *doc)
 {
@@ -1340,7 +1338,7 @@ static void DoMasterPgMenu(short choice)
 }
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Show Format Menu
  */
@@ -1363,7 +1361,7 @@ static void DoFormatMenu(short choice)
 }
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /*
  *	Handle a choice from the Reduce/Enlarge To (Magnify) Menu
  */
@@ -1385,7 +1383,7 @@ static void DoMagnifyMenu(short choice)
 }
 
 
-/* ----------------------------------------------------------------- Miscellaneous --- */
+/* --------------------------------------------------------------------- Miscellaneous -- */
 
 static void MovePalette(WindowPtr whichPalette, Point position)
 {
@@ -2175,7 +2173,7 @@ static void InstallDebugMenuItems(Boolean installAll)
 }
 
 
-/* ========================================================= MENU-UPDATING ROUTINES == */
+/* ============================================================ MENU-UPDATING ROUTINES == */
 
 /*
  * Force all menus to reflect internal state. This should be called when we're about to

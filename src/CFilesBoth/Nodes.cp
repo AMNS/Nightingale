@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  *
  *	Routines in this file implement various mid-level Nightingale generic object methods.
  *	"Nodes" are objects, often with sub-object lists attached, that are doubly-linked
@@ -14,8 +14,8 @@
  *	the object level.
  *
  *  NOTE: Appearances to the contrary notwithstanding (i.e., the presence of <doc>
- *	parameters), most if not all of these functions assume the correct document's
- *	heaps are already installed. Caveat!
+ *	parameters), most if not all of these functions assume the correct document's heaps
+ *	are already installed. Caveat!
  */
 
 #include "Nightingale_Prefix.pch"
@@ -23,32 +23,34 @@
 
 /*
  *	Create a head and tail for an empty node list, allocating the objects out of
- *	the given document's objHeap and linking them to one another.  Delivers TRUE
- *	if success, FALSE if no memory.
+ *	the given document's objHeap and linking them to one another.  Delivers true
+ *	if success, false if no memory.
  */
 
 Boolean BuildEmptyList(Document *doc, LINK *headL, LINK *tailL)
-	{
-		Boolean ans;
+{
+	Boolean ans;
+	
+	*headL = NewNode(doc, HEADERtype, 2);			/* Need nparts+1 subobjs */
+	*tailL = NewNode(doc, TAILtype, 0);
+	
+	ans = (*headL!=NILINK && *tailL!=NILINK);
+	if (ans) {
+		SetObject(*headL, 0, 0, false, false, true);
+		SetObject(*tailL, 0, 0, false, false, true);
 		
-		*headL = NewNode(doc, HEADERtype, 2);			/* Need nparts+1 subobjs */
-		*tailL = NewNode(doc, TAILtype, 0);
+		/* Turn two objects into linked sentinel objects for an empty node list */
 		
-		if (ans = (*headL!=NILINK && *tailL!=NILINK)) {
-			SetObject(*headL, 0, 0, FALSE, FALSE, TRUE);
-			SetObject(*tailL, 0, 0, FALSE, FALSE, TRUE);
-			
-			/* Turn two objects into linked sentinel objects for an empty node list */
-			
-			LeftLINK(*headL) = NILINK;
-			RightLINK(*headL) = *tailL;
-			LeftLINK(*tailL) = *headL;
-			RightLINK(*tailL) = NILINK;
-			LinkTWEAKED(*headL) = LinkTWEAKED(*tailL) = FALSE;
-			}
-		
-		return(ans);
+		LeftLINK(*headL) = NILINK;
+		RightLINK(*headL) = *tailL;
+		LeftLINK(*tailL) = *headL;
+		RightLINK(*tailL) = NILINK;
+		LinkTWEAKED(*headL) = LinkTWEAKED(*tailL) = false;
 	}
+	
+	return(ans);
+}
+
 
 /*
  *	Return an entire node list, including head and tail, to memory.  Addresses of
@@ -58,77 +60,78 @@ Boolean BuildEmptyList(Document *doc, LINK *headL, LINK *tailL)
  */
 
 void DisposeNodeList(Document *doc, LINK *headL, LINK *tailL)
-	{
-		if (*headL==NILINK || *tailL==NILINK)
-			MayErrMsg("DisposeNodeList: Tried to delete NILINK sentinel");
-		 else {
-			/* Ditch any objects in list between head and tail */
-			
-			DeleteRange(doc,RightLINK(*headL),*tailL);
-			
-			/*
-			 *	Ditch subobject lists.  Nightingale currently does not
-			 *	keep any subobjects in TAIL objects, so the second call
-			 *	here does nothing, but we do it anyway because it is
-			 *	not this routine's business to decide whether any particular
-			 *	object does or does not have a subobject list.
-			 */
-			
-			HeapFree(doc->Heap+HEADERtype,FirstSubLINK(*headL));
-			HeapFree(doc->Heap+TAILtype,  FirstSubLINK(*tailL));
-			
-			/* Ditch head and tail objects (HeapFree takes the whole list) */
-			
-			HeapFree(doc->Heap+OBJtype,*headL);
-			
-			/* And reset references in calling routine to NILINK */
-			
-			*headL = *tailL = NILINK;
-			}
+{
+	if (*headL==NILINK || *tailL==NILINK)
+		MayErrMsg("DisposeNodeList: Tried to delete NILINK sentinel");
+	 else {
+		/* Ditch any objects in list between head and tail */
+		
+		DeleteRange(doc,RightLINK(*headL),*tailL);
+		
+		/*
+		 *	Ditch subobject lists.  Nightingale currently does not
+		 *	keep any subobjects in TAIL objects, so the second call
+		 *	here does nothing, but we do it anyway because it is
+		 *	not this routine's business to decide whether any particular
+		 *	object does or does not have a subobject list.
+		 */
+		HeapFree(doc->Heap+HEADERtype,FirstSubLINK(*headL));
+		HeapFree(doc->Heap+TAILtype,  FirstSubLINK(*tailL));
+		
+		/* Ditch head and tail objects (HeapFree takes the whole list) */
+		
+		HeapFree(doc->Heap+OBJtype,*headL);
+		
+		/* And reset references in calling routine to NILINK */
+		
+		*headL = *tailL = NILINK;
 	}
+}
+
 
 /*
  *	Given a <link> to a node, expand the node's subobject list by numEntries subobjects,
- *	and deliver TRUE if success, FALSE is no memory.  The newly allocated subobjects are
+ *	and deliver true if success, false is no memory.  The newly allocated subobjects are
  *	appended to the <link>'s subobject list and are left minimally initialized.  The link
  *	to the first appended subobject is delivered in subList.  If numEntries<0, then
  *	ShrinkNode() is called to remove the final -numEntries subobjects from the given
- *	node's list, and TRUE is delivered.  If numEntries==0, nothing happens and TRUE is
+ *	node's list, and true is delivered.  If numEntries==0, nothing happens and true is
  *	delivered.
  */
 
 Boolean ExpandNode(LINK link, LINK *subList, short numEntries)
-	{
-		HEAP	*subHeap;
-		LINK	subHead;
-		short	type;
+{
+	HEAP	*subHeap;
+	LINK	subHead;
+	short	type;
+
+	if (numEntries > 0) {							/* Append sub-objects */
 	
-		if (numEntries > 0) {							/* Append sub-objects */
+		subHeap = Heap + (type = ObjLType(link));
+		subHead = FirstSubLINK(link);
+	
+		/* Allocate sub-object list to append */
 		
-			subHeap = Heap + (type = ObjLType(link));
-			subHead = FirstSubLINK(link);
+		*subList = HeapAlloc(subHeap, numEntries);
+		if (*subList == NILINK) return(false);		/* No memory */
 		
-			/* Allocate sub-object list to append */
-			
-			*subList = HeapAlloc(subHeap, numEntries);
-			if (*subList == NILINK) return(FALSE);		/* No memory */
-			
-			InitNode(type,*subList);					/* Minimal setup */
-			LinkNENTRIES(link) += numEntries;
-			/*
-			 *	If sub-object list already exists, append;
-			 *	otherwise, just install as new list
-			 */
-			if (subHead) InsAfterLink(subHeap, subHead, NILINK, *subList);
-			 else		 FirstSubLINK(link) = subHead = *subList;
-			}
-		 else {
-			ShrinkNode(link,-numEntries);				/* Does nothing if numEntries==0 */
-			*subList = NILINK;
-			}
-		
-		return(TRUE);
+		InitNode(type,*subList);					/* Minimal setup */
+		LinkNENTRIES(link) += numEntries;
+		/*
+		 *	If sub-object list already exists, append; oherwise, just install as
+		 *	new list.
+		 */
+		if (subHead)	InsAfterLink(subHeap, subHead, NILINK, *subList);
+		 else			FirstSubLINK(link) = subHead = *subList;
 	}
+	 else {
+		ShrinkNode(link, -numEntries);				/* Does nothing if numEntries==0 */
+		*subList = NILINK;
+	}
+	
+	return(true);
+}
+
 
 /*
  *	Given a <link> to a node, shrink the node's subobject list by numToSnip subobjects.
@@ -138,87 +141,89 @@ Boolean ExpandNode(LINK link, LINK *subList, short numEntries)
  */
 
 void ShrinkNode(LINK link, short numToSnip)
-	{
-		short	numLeft;
-		LINK	next,tail,subHead;
-		HEAP	*subHeap;
+{
+	short	numLeft;
+	LINK	next, tail, subHead;
+	HEAP	*subHeap;
+	
+	if (numToSnip > 0) {
 		
-	 	if (numToSnip > 0) {
-	 		
-	 		subHeap = Heap + ObjLType(link);
-		 	subHead = FirstSubLINK(link);
-	 		
-	 		/* Get the number of entries left after snipping, and update node's field */
-	 		
-		 	numLeft = LinkNENTRIES(link) - numToSnip;
-		 	if (numLeft < 0) numLeft = 0;
-		 	LinkNENTRIES(link) = numLeft;
-		 	
-		 	if (numLeft == 0) {
-		 		/* Delete entire sublist */
-		 		FirstSubLINK(link) = HeapFree(subHeap,subHead);
-		 		}
-		 	 else if (subHead) {				/* Should always be defined */
-		 		/*
-		 		 *	Find subobject in sublist that points to head of subobjects to be snipped.
-		 		 *	Note that numLeft>0 means we'll iterate this loop at least once.
-		 		 */
-		 		for (next=subHead; next && numLeft-->0; next=NextLink(subHeap,next)) tail = next;
-		 		/* De-allocate rest of list and terminate the tail with a NILINK */
-		 		NextLink(subHeap,tail) = HeapFree(subHeap,next);
-		 		}
-			}
+		subHeap = Heap + ObjLType(link);
+		subHead = FirstSubLINK(link);
+		
+		/* Get the number of entries left after snipping, and update node's field */
+		
+		numLeft = LinkNENTRIES(link) - numToSnip;
+		if (numLeft < 0) numLeft = 0;
+		LinkNENTRIES(link) = numLeft;
+		
+		if (numLeft == 0) {
+			/* Delete entire sublist */
+			FirstSubLINK(link) = HeapFree(subHeap,subHead);
+		}
+		 else if (subHead) {				/* Should always be defined */
+			/*
+			 *	Find subobject in sublist that points to head of subobjects to be snipped.
+			 *	Note that numLeft>0 means we'll iterate this loop at least once.
+			 */
+			for (next=subHead; next && numLeft-->0; next=NextLink(subHeap,next))
+				tail = next;
+			/* De-allocate rest of list and terminate the tail with a NILINK */
+			NextLink(subHeap,tail) = HeapFree(subHeap,next);
+		}
 	}
+}
+
 
 /*
  *	Minimally initialize the generic subobjects in given list of given type.
  */
 
 void InitNode(short type, LINK subList)
-	{
-		GenSubObj *subObj;
-		LINK subL;
-		HEAP *subHeap;
-		
-		subHeap = Heap + type;
-		
-		switch (type) {
-			case HEADERtype:
-			case TAILtype:
-			case STAFFtype:
-			case CONNECTtype:
-				break;
-			case MEASUREtype:
-			case PSMEAStype:
-			case SYNCtype:
-			case GRSYNCtype:
-			case CLEFtype:
-			case KEYSIGtype:
-			case TIMESIGtype:
-			case DYNAMtype:
-			case RPTENDtype:
-				/*
-				 *	For those subobjects that have a a SUBOBJHEADER which
-				 *	contains the selected bit, etc. we initialize some of
-				 *	its fields.
-				 */
-				for (subL=subList; subL; subL=NextLink(subHeap,subL)) {
-					subObj = (GenSubObj *)LinkToPtr(subHeap,subL);
-					subObj->selected = subObj->soft = FALSE;
-					subObj->visible = TRUE;
-					}
-				break;
-			case GRAPHICtype:
-			case BEAMSETtype:
-			case TUPLETtype:
-			case OTTAVAtype:
-			case TEMPOtype:
-			case SPACERtype:
-			case ENDINGtype:
-			default:
-				break;
-			}
+{
+	GenSubObj *subObj;
+	LINK subL;
+	HEAP *subHeap;
+	
+	subHeap = Heap + type;
+	
+	switch (type) {
+		case HEADERtype:
+		case TAILtype:
+		case STAFFtype:
+		case CONNECTtype:
+			break;
+		case MEASUREtype:
+		case PSMEAStype:
+		case SYNCtype:
+		case GRSYNCtype:
+		case CLEFtype:
+		case KEYSIGtype:
+		case TIMESIGtype:
+		case DYNAMtype:
+		case RPTENDtype:
+			/*
+			 *	For those subobjects that have a SUBOBJHEADER which contains the
+			 *	coselected bit, etc. we initialize some of its fields.
+			 */
+			for (subL=subList; subL; subL=NextLink(subHeap,subL)) {
+				subObj = (GenSubObj *)LinkToPtr(subHeap,subL);
+				subObj->selected = subObj->soft = false;
+				subObj->visible = true;
+				}
+			break;
+		case GRAPHICtype:
+		case BEAMSETtype:
+		case TUPLETtype:
+		case OTTAVAtype:
+		case TEMPOtype:
+		case SPACERtype:
+		case ENDINGtype:
+		default:
+			break;
 	}
+}
+
 
 /*
  *	Allocate an object with the specified type and number of subobjects, insert it
@@ -228,47 +233,49 @@ void InitNode(short type, LINK subList)
  */
 
 LINK InsertNode(Document *doc, LINK link, short type, short subCount)
-	{
-		LINK obj, prevL;
-	
-		if (type==HEADERtype || type==TAILtype) {
-			MayErrMsg("InsertNode: can't insert Head or Tail");
-			return(NILINK);
-			}
-		
-		if (obj = NewNode(doc, type, subCount)) {
+{
+	LINK obj, prevL;
 
-			if (link == NILINK) {
-				/* Append obj to end of Object list, or create new object list */
-				prevL = NILINK;
-				for (link=doc->headL; link; prevL=link,link=RightLINK(link)) ;
-				if (prevL) {
-					/* Append after prevL */
-					RightLINK(prevL) = obj;
-					LeftLINK(obj) = prevL;
-					}
-				 else {
-					/* headL was empty */
-					doc->headL = obj;
-					}
-				}
-			 else {
-				if (prevL = LeftLINK(link)) {
-					RightLINK(obj) = link;
-					RightLINK(prevL) = obj;
-					LeftLINK(obj) = prevL;
-					LeftLINK(link) = obj;
-					}
-				 else {
-					/* Insert obj in front of headL (should never happen) */
-					RightLINK(obj) = doc->headL;
-					doc->headL = obj;
-					}
-				}
-			}
-
-		return(obj);
+	if (type==HEADERtype || type==TAILtype) {
+		MayErrMsg("InsertNode: can't insert Head or Tail");
+		return(NILINK);
 	}
+	
+	obj = NewNode(doc, type, subCount);
+	if (obj) {
+		if (link == NILINK) {
+			/* Append obj to end of Object list, or create new object list */
+			prevL = NILINK;
+			for (link=doc->headL; link; prevL=link,link=RightLINK(link)) ;
+			if (prevL) {
+				/* Append after prevL */
+				RightLINK(prevL) = obj;
+				LeftLINK(obj) = prevL;
+			}
+			 else {
+				/* headL was empty */
+				doc->headL = obj;
+			}
+			}
+		 else {
+			prevL = LeftLINK(link);
+			if (prevL) {
+				RightLINK(obj) = link;
+				RightLINK(prevL) = obj;
+				LeftLINK(obj) = prevL;
+				LeftLINK(link) = obj;
+			}
+			 else {
+				/* Insert obj in front of headL (should never happen) */
+				RightLINK(obj) = doc->headL;
+				doc->headL = obj;
+			}
+		}
+	}
+
+	return(obj);
+}
+
 
 /*
  *	Cut all objects in a node list from startL up to but not including endL.
@@ -277,17 +284,18 @@ LINK InsertNode(Document *doc, LINK link, short type, short subCount)
  */
 
 void CutRange(LINK startL, LINK endL)
-	{
-		LINK endMoveL;
-		
-		endMoveL = LeftLINK(endL);
+{
+	LINK endMoveL;
 	
-		RightLINK(LeftLINK(startL)) = endL;			/* Remove range from old location. */
-		LeftLINK(endL) = LeftLINK(startL);
-		
-		LeftLINK(startL) = NILINK;					/* Get rid of boundary references so */
-		RightLINK(endMoveL) = NILINK;				/* that cut nodes are well-formed list */
-	}
+	endMoveL = LeftLINK(endL);
+
+	RightLINK(LeftLINK(startL)) = endL;			/* Remove range from old location. */
+	LeftLINK(endL) = LeftLINK(startL);
+	
+	LeftLINK(startL) = NILINK;					/* Get rid of boundary references so */
+	RightLINK(endMoveL) = NILINK;				/*   that cut nodes are well-formed list */
+}
+
 
 /*
  *	Cut a single node out of the object list. node cannot be HEADER or TAIL.
@@ -295,9 +303,10 @@ void CutRange(LINK startL, LINK endL)
  */
 
 void CutNode(LINK node)
-	{
-		CutRange(node,RightLINK(node));
-	}
+{
+	CutRange(node,RightLINK(node));
+}
+
 
 /*
  *	Insert a single node before beforeL.  Use in place of MoveNode when the node
@@ -306,12 +315,13 @@ void CutNode(LINK node)
  */
 
 void InsNodeInto(LINK node, LINK beforeL)
-	{
-		LeftLINK(node) = LeftLINK(beforeL);
-		RightLINK(node) = beforeL;
-		RightLINK(LeftLINK(beforeL)) = node;
-		LeftLINK(beforeL) = node;
-	}
+{
+	LeftLINK(node) = LeftLINK(beforeL);
+	RightLINK(node) = beforeL;
+	RightLINK(LeftLINK(beforeL)) = node;
+	LeftLINK(beforeL) = node;
+}
+
 
 /*
  *	Insert a single node at the start of beforeL's slot in the object list. NB:
@@ -319,12 +329,13 @@ void InsNodeInto(LINK node, LINK beforeL)
  */
 
 void InsNodeIntoSlot(LINK node, LINK beforeL)
-	{
-		LINK insL;
+{
+	LINK insL;
 
-		insL = FindInsertPt(beforeL);
-		InsNodeInto(node,insL);
-	}
+	insL = FindInsertPt(beforeL);
+	InsNodeInto(node,insL);
+}
+
 
 /*
  *	Remove node pL from its location in the object list and reinsert it
@@ -334,9 +345,10 @@ void InsNodeIntoSlot(LINK node, LINK beforeL)
  */
 
 void MoveNode(LINK pL, LINK beforeL)
-	{
-		if (pL!=beforeL) MoveRange(pL,RightLINK(pL),beforeL);
-	}
+{
+	if (pL!=beforeL) MoveRange(pL,RightLINK(pL),beforeL);
+}
+
 
 /*
  *	Remove the range of nodes from startL up to but not including endL from
@@ -348,22 +360,23 @@ void MoveNode(LINK pL, LINK beforeL)
  */
 
 void MoveRange(LINK startL, LINK endL, LINK beforeL)
-	{
-		LINK endMoveL;
-		
-		if (startL==endL) return; 				/* Range is empty */
-		if (endL==beforeL) return; 				/* Range is already before <beforeL> */		
-		 
-		endMoveL = LeftLINK(endL);				/* Get last node in range */
-		CutRange(startL,endL);					/* Snip range from node list */
+{
+	LINK endMoveL;
+	
+	if (startL==endL) return; 				/* Range is empty */
+	if (endL==beforeL) return; 				/* Range is already before <beforeL> */		
+	 
+	endMoveL = LeftLINK(endL);				/* Get last node in range */
+	CutRange(startL,endL);					/* Snip range from node list */
 
-		LeftLINK(startL) = LeftLINK(beforeL);	/* Insert at new location */
-		RightLINK(endMoveL) = beforeL;
-	
-		RightLINK(LeftLINK(beforeL)) = startL;
-		LeftLINK(beforeL) = endMoveL;
-	}
-	
+	LeftLINK(startL) = LeftLINK(beforeL);	/* Insert at new location */
+	RightLINK(endMoveL) = beforeL;
+
+	RightLINK(LeftLINK(beforeL)) = startL;
+	LeftLINK(beforeL) = endMoveL;
+}
+
+
 /*
  *	Delete the range of nodes from startL up to but not including endL in the main
  *	object list.  All nodes (both objects and each object's subobject list) are
@@ -373,38 +386,40 @@ void MoveRange(LINK startL, LINK endL, LINK beforeL)
  */
 
 LINK DeleteRange(Document *doc, LINK startL, LINK endL)
-	{
-		LINK pL; short type;
-		HEAP *objHeap,*subHeap;
+{
+	LINK pL;
+	short type;
+	HEAP *objHeap,*subHeap;
+	
+	if (startL == NILINK)
+		MayErrMsg("DeleteRange: Tried to delete NILINK node");
+	 else
+		if (startL != endL) {							/* Non-empty ranges only, please */
 		
-		if (startL == NILINK)
-			MayErrMsg("DeleteRange: Tried to delete NILINK node");
-		 else
-			if (startL != endL) {				/* Non-empty ranges only, please */
-			
-				type = ObjLType(startL);
-				if (type==HEADERtype || type==TAILtype)
-					MayErrMsg("DeleteRange: Tried to delete Head or Tail");
-				 else {
-					/* Return all note modifiers to the free list. */
-					DisposeMODNRs(startL,endL);
+			type = ObjLType(startL);
+			if (type==HEADERtype || type==TAILtype)
+				MayErrMsg("DeleteRange: Tried to delete Head or Tail");
+			 else {
+				/* Return all note modifiers to the free list. */
+				DisposeMODNRs(startL,endL);
 
-				 	/* Pull range out of node list */
-					CutRange(startL,endL);
-					
-					/* Delete each node's subobject list, leaving nodes still in a list */
-					objHeap = doc->Heap + OBJtype;
-					for (pL=startL; pL; pL=NextLink(objHeap,pL)) {
-						subHeap = doc->Heap + ObjLType(pL);
-						HeapFree(subHeap,FirstSubLINK(pL));			/* Empty list is legal */
-						}
-					
-					/* Finally, deliver the backbone back to its maker */
-					return(HeapFree(objHeap,startL));
-					}
+				/* Pull range out of node list */
+				CutRange(startL,endL);
+				
+				/* Delete each node's subobject list, leaving nodes still in a list */
+				objHeap = doc->Heap + OBJtype;
+				for (pL=startL; pL; pL=NextLink(objHeap,pL)) {
+					subHeap = doc->Heap + ObjLType(pL);
+					HeapFree(subHeap,FirstSubLINK(pL));			/* Empty list is legal */
 				}
-		return(NILINK);
-	}
+				
+				/* Finally, deliver the backbone back to its maker */
+				return(HeapFree(objHeap,startL));
+			}
+		}
+	return(NILINK);
+}
+
 
 /*
  *	Delete a single node in object list. Just turn it into a range and do it that way.
@@ -412,25 +427,27 @@ LINK DeleteRange(Document *doc, LINK startL, LINK endL)
  */
 
 LINK DeleteNode(Document *doc, LINK node)
-	{
-		short type; LINK l,r;
-		
-		if (node) {
-			type = ObjLType(node);
-			if (type==HEADERtype || type==TAILtype) {
-				HeapFree(doc->Heap+type,FirstSubLINK(node));
-				if (r = RightLINK(node)) LeftLINK(r) = LeftLINK(node);
-				if (l = LeftLINK(node))  RightLINK(l) = RightLINK(node);
-				RightLINK(node) = NILINK;
-				HeapFree(doc->Heap+OBJtype,node);
-				}
-			 else
-				DeleteRange(doc,node,RightLINK(node));
-			}
+{
+	short type;
+	LINK l, r;
+	
+	if (node) {
+		type = ObjLType(node);
+		if (type==HEADERtype || type==TAILtype) {
+			HeapFree(doc->Heap+type,FirstSubLINK(node));
+			if ((r = RightLINK(node))) LeftLINK(r) = LeftLINK(node);
+			if ((l = LeftLINK(node)))  RightLINK(l) = RightLINK(node);
+			RightLINK(node) = NILINK;
+			HeapFree(doc->Heap+OBJtype,node);
+		}
 		 else
-			MayErrMsg("DeleteNode: Tried to delete NILINK node");
-		return(NILINK);
+			DeleteRange(doc,node,RightLINK(node));
 	}
+	 else
+		MayErrMsg("DeleteNode: Tried to delete NILINK node");
+	return(NILINK);
+}
+
 
 /*
  *	Allocate an object from the object heap, and subCount subobjects of the given
@@ -452,44 +469,45 @@ LINK NewNode(Document *doc, short type, short subCount)
 		objHeap = doc->Heap + OBJtype;
 		subHeap = doc->Heap + type;
 		
-		if (objHead = HeapAlloc(objHeap,1)) {
+		objHead = HeapAlloc(objHeap,1);
+		if (objHead) {
 		
 			/* Got the object: now get the list of subCount subobjects */
 			
 			subHead = NILINK;
 			if (subCount)
 				if (!(subHead = HeapAlloc(subHeap,subCount)))
-					objHead = HeapFree(objHeap,objHead);			/* objHead = NILINK */
+					objHead = HeapFree(objHeap,objHead);		/* objHead = NILINK */
 			
 			if (objHead) {
 			
 				/* Initialise various OBJECTHEADER fields of newly allocated object. */
 				
-				DLeftLINK(doc,objHead) = NILINK;			/* Not attached to any list yet */
+				DLeftLINK(doc,objHead) = NILINK;				/* Not attached to any list yet */
 				DRightLINK(doc,objHead) = NILINK;
 				
-				DFirstSubLINK(doc,objHead) = subHead;		/* Attach subobjects to object */
+				DFirstSubLINK(doc,objHead) = subHead;			/* Attach subobjects to object */
 				DLinkNENTRIES(doc,objHead) = subCount;
 				
-				DObjLType(doc,objHead) = type;				/* Compound object is of given type */
-				DLinkSEL(doc,objHead) = FALSE;
-				DLinkSOFT(doc,objHead) = FALSE;				/* Not user created */
-				DLinkVIS(doc,objHead) = TRUE;
+				DObjLType(doc,objHead) = type;					/* Compound object is of given type */
+				DLinkSEL(doc,objHead) = false;
+				DLinkSOFT(doc,objHead) = false;					/* Not user created */
+				DLinkVIS(doc,objHead) = true;
 
-				DLinkTWEAKED(doc,objHead) = FALSE;
+				DLinkTWEAKED(doc,objHead) = false;
 				DLinkYD(doc,objHead) = 0;
 				
 				/* Initial objRect is empty and needs to be recomputed */
 				
 				SetRect(&DLinkOBJRECT(doc,objHead), 0, 0, 0, 0);
-				DLinkVALID(doc,objHead) = FALSE;
+				DLinkVALID(doc,objHead) = false;
 	
 				/* And initialize various other fields according to type */
 				
 				switch (type) {
 					case HEADERtype:
 					case TAILtype:
-						DLinkSOFT(doc,objHead) = TRUE;
+						DLinkSOFT(doc,objHead) = true;
 						break;
 					case STAFFtype:
 					case CONNECTtype:
@@ -504,8 +522,8 @@ LINK NewNode(Document *doc, short type, short subCount)
 					case RPTENDtype:
 						for (subL=subHead; subL; subL=NextLink(subHeap,subL)) {
 							GenSubObj *subObj = (GenSubObj *)LinkToPtr(subHeap,subL);
-							subObj->selected = subObj->soft = FALSE;
-							subObj->visible = TRUE;
+							subObj->selected = subObj->soft = false;
+							subObj->visible = true;
 							}
 						break;
 					case GRAPHICtype:
@@ -525,23 +543,24 @@ LINK NewNode(Document *doc, short type, short subCount)
 	}
 
 
-/* ----------------------------------------------------------------- MergeObject -- */
-/* Merge pL into qL by appending pL's subobject list to qL's. Preserves qL; this
-has significance for later operations which expect LINKs in the merged range to
-retain their identity. Discards pL. */
+/* ----------------------------------------------------------------------- MergeObject -- */
+/* Merge pL into qL by appending pL's subobject list to qL's. Preserves qL; this has
+significance for later operations which expect LINKs in the merged range to retain their
+identity. Discards pL. */
 
 LINK MergeObject(Document *doc, LINK pL, LINK qL)
 {
-	LINK subL; HEAP *tmpHeap;
+	LINK subL;
+	HEAP *tmpHeap;
 
 	tmpHeap = doc->Heap + ObjLType(pL);
 	
 	/* InsAfterLink(heap,head,after,objlist):
-		Insert <objlist> after link <after> in list <head>.  after is NILINK,
-		so append objList to head's list. */
+		Insert <objlist> after link <after> in list <head>.  after is NILINK, so
+		append objList to head's list. */
 
 	subL = FirstSubLINK(pL);
-	InsAfterLink(doc->Heap+ObjLType(pL),FirstSubLINK(qL),NILINK,subL);
+	InsAfterLink(doc->Heap+ObjLType(pL), FirstSubLINK(qL), NILINK,subL);
 	LinkNENTRIES(qL) += LinkNENTRIES(pL);
 	HeapFree(OBJheap, pL);
 

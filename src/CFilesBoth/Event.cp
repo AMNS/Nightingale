@@ -1024,7 +1024,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			CautionInform(READ_PROBLEM_ALRT);			/* Fall through and try to open it anyway */
 		case DOCUMENT_TYPE_NORMAL:
 			if (DoOpenDocument(theFile->name, theFile->vRefNum, FALSE, theFile)) {
-				LogPrintf(LOG_DEBUG, "Opened file '%s'.\n", PToCString(theFile->name));
+				LogPrintf(LOG_INFO, "Opened file '%s'.\n", PToCString(theFile->name));
 				break;
 			}
 			return NULL;
