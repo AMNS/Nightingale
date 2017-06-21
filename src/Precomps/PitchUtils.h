@@ -15,7 +15,7 @@ short Pitch2PC(short, short);
 short PCDiff(short, short, Boolean);
 short GetRespell(short, short, short *, short *);
 
-void FixRespelledVoice(Document *, LINK, short);
+void FixVoiceForPitchChange(Document *, LINK, short);
 short Char2LetName(char);
 char LetName2Char(short);
 

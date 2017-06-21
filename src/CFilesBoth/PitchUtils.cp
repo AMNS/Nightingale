@@ -6,7 +6,7 @@
 	ClefMiddleCHalfLn		Char2Acc				Acc2Char
 	EffectiveAcc			EffectiveGRAcc			Pitch2MIDI
 	Pitch2PC				PCDiff					GetRespell
-	FixRespelledVoice		Char2LetName			LetName2Char
+	FixVoiceForPitchChange	Char2LetName			LetName2Char
 	RespellChordSym			RespellNote				GetTranspSpell
 	TranspChordSym			TranspNote				TranspGRNote
 	DTranspChordSym			DTranspNote				DTranspGRNote
@@ -324,14 +324,17 @@ short GetRespell(
 }
 
 
-/* --------------------------------------------------------------- FixRespelledVoice -- */
-/* Set the graphic parameters of all notes (or grace notes) in the given voice in
-the given Sync (or GRSync) to reasonable values, whether there's a chord or not, on
-the assumption one or more of the notes has been respelled or transposed. NB: if
-notes have been moved into or out of the voice, may not give correct results; for
-that, cf. FixSyncVoice in SetUtils.c, which probably should be combined with this. */
+/* ------------------------------------------------------------ FixVoiceForPitchChange -- */
+/* Set the graphic parameters of all notes (or grace notes) in the given voice in the
+given Sync (or GRSync) to reasonable values, whether there's a chord or not; if there
+aren't two voices on the staff, consider changing the stem direction (presumably because
+one or more of the notes has been respelled or transposed). For a single note, "graphic
+parameters" is a simple matter; for a chord, much less so -- see comments on
+FixSyncForChord(). NB: if notes have been moved into or out of the voice, I think will
+still give correct results, but maybe not; cf. FixSyncVoice in SetUtils.c, which probably
+should be combined with this. */
 
-void FixRespelledVoice(
+void FixVoiceForPitchChange(
 				Document *doc,
 				LINK pL,
 				short voice)		/* Sync or GRSync */
@@ -343,6 +346,14 @@ void FixRespelledVoice(
 	
 	if (SyncTYPE(pL)) {
 		aNoteL = FindMainNote(pL, voice);
+LogPrintf(LOG_DEBUG, "FixVoiceForPitchChange: pL=%u multivoice for staff %d=%d\n",
+		  pL,  NoteSTAFF(aNoteL), IsMultiVoice(pL, NoteSTAFF(aNoteL)));
+		if (IsMultiVoice(pL, NoteSTAFF(aNoteL))) {
+			/* In multivoice (>=2 voices on the staff) notation, don't change stem
+			   direction, but preserve stem length. */
+			
+			return;
+		}
 		if (aNoteL) {
 			if (NoteINCHORD(aNoteL)) FixSyncForChord(doc, pL, voice,
 														NoteBEAMED(aNoteL), 0, 0, NULL);
@@ -2034,7 +2045,7 @@ Boolean AvoidUnisons(Document *doc, LINK syncL, short voice, PCONTEXT pContext)
 		}
 	}
 	
-	if (anyChanged) FixRespelledVoice(doc, syncL, voice);
+	if (anyChanged) FixVoiceForPitchChange(doc, syncL, voice);
 	return (unisonCount==0);
 }
 

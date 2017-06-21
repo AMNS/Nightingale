@@ -2080,7 +2080,7 @@ the Looked at voice! I'm almost certain that Paste Merge used to do this correct
 
 8 - 13 June
 
-Paste Merge and Paste as Cue do seem to handle the Looked at voice correctly; the
+Paste Merge and Paste as Cue _do_ seem to handle the Looked at voice correctly; the
 apparent problem resulted from an anomaly in handling doc->lookVoice. Fixed.
 
 Back to Paste as Cue. How to keep it from copying objects of all types into the score?
@@ -2090,4 +2090,17 @@ to work okay, but if a dynamic was copied in, then removed, the dynamic context 
 in inconsistent state. Could fix that, presumably w/ FixContextForDynamic(), but anyway,
 it'd be safer to avoid copying them in in the 1st place. Looks like non-Sync nodes are
 handled via a "temporary object list"; see comment in MRearrangeAll()...
+
+-------------------------------------------------------------------------------
+
+16-20 June
+
+It'd be really nice to record "permanently" if a note is a cue note, so (at a minimum)
+Ngale knows how to play it appropriately -- the obvious thing being to play it at a
+fixed velocity for cues. Is there a bit in ANOTE to record it, a bit that's guaranteed
+to be initialized? Yes! There are several possibilities, e.g., a bit in all three MIDI
+values, <rspIgnore>, and a bit in micropitch.
+
+Work on Issue #142, undesirable change of stem directions on transposing notes in
+multivoice situations. ??
 

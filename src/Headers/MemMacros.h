@@ -673,6 +673,7 @@
 #define NoteINOTTAVA(link)			( (GetPANOTE(link))->inOttava )	
 #define NoteINTUPLET(link)			( (GetPANOTE(link))->inTuplet )	
 #define NoteMERGED(link)			( (GetPANOTE(link))->merged )	
+#define NoteCUENOTE(link)			( (GetPANOTE(link))->cueNote)	
 #define NoteMICROPITCH(link)		( (GetPANOTE(link))->micropitch)	
 #define NoteNDOTS(link)		 		( (GetPANOTE(link))->ndots )
 #define NoteNUM(link)				( (GetPANOTE(link))->noteNum )

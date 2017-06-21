@@ -1544,8 +1544,11 @@ Minor cleanup. Affects Merge, MergeUtils.
 
 Continued implementation of "Paste as Cue" command. Affects Merge.
 
-Changed the initial setting of _colorVoices_ in new documents from 1 (color all non-
-default voices in each part) to 2 (color all voices but voice no. 1 in each part).
+Changed the initial setting of a score's <colorVoices> in new documents from 1 (color
+all non- default voices in each part) to 2 (color all voices but voice no. 1 in each
+part); clarified (in comments) that difference (which is controlled in an obscure
+way by the Look at Voices command). Affects NTypes.h; Documents, DrawUtils, 
+
 Affects Documents, DrawUtils.
 
 We've long been using two versions of DoOpenDocument() with different calling sequences.
@@ -1553,6 +1556,22 @@ This is lovely in C++, and it works with the compilers we've been using, but I d
 think it's so lovely in C, so renamed one to DoOpenDocumentX(). Affects NightTemplates;
 Documents, MIDIFOCmd.
 
-Clarified (in comments) the difference between doc->colorVoices=1 and =2; various other
-minor cleanup. Affects NTypes.h, Reconstruct.h; Browser, Delete, Documents, DrawUtils,
-Event, Menu, Merge, MIDIFOCmd, Nodes, Reconstruct.
+Minor cleanup. Affects Reconstruct.h; Browser, Delete, Documents, DrawUtils, Event,
+Menu, Merge, MIDIFOCmd, Nodes, Reconstruct.
+
+-------------------------------------------------------------------------------
+
+16-20 June
+
+Swapped the association of voice no. and color for red and green. Affects DrawUtils.
+
+Ngale now knows when a note is a cue note; that info is stored in a formerly ununsed bit
+in the ANOTE struct (not that it helps anything quite yet). Affects MemMacros.h,
+NTypes.h; Merge.
+
+Partly fixed bug: When notes are transposed or respelled, we always "normalize" the
+new notation according to the standard one-voice notation rules even if there are two
+voices on the staff. Affects PitchUtils.
+
+Minor cleanup, including renaming FixRespelledVoice() to FixVoiceForPitchChange().
+Affects PitchUtils.h; Delete, DrawUtils, Merge, Objects, PitchCmds, PitchUtils, Utility.

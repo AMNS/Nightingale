@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -2594,8 +2594,7 @@ static void SetPastedAsCue(Document *doc, LINK prevMeasL, LINK lastL, short velo
 		if (SyncTYPE(pL) && LinkSPAREFLAG(pL))
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				if (NoteMERGED(aNoteL)) {
-					NoteSMALL(aNoteL) = true;
-					NoteONVELOCITY(aNoteL) = velocity;
+					NoteCUENOTE(aNoteL) = true;
 //LogPrintf(LOG_DEBUG, "SetPastedAsCue: set note %u velocity to %d\n", aNoteL, velocity);
 				}
 			}

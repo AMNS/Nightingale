@@ -37,7 +37,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -46,7 +46,7 @@
 
 #include "CarbonPrinting.h"
 
-/* ---------------------------------------------------------------------- CalcYStem -- */
+/* ------------------------------------------------------------------------- CalcYStem -- */
 /*	Calculate optimum stem endpoint for a note. */
 
 DDIST CalcYStem(
@@ -63,10 +63,10 @@ DDIST CalcYStem(
 	DDIST	midline, dLen, ystem;
 
 	/*
-	 * There are two reasons why we may have to make the stem longer than
-	 * requested: the stem has to be long enough to accomodate the flags, and
-	 * if the stem is pointing towards the center of the staff (the normal case),
-	 * it should normally extend at least to the center of the staff.
+	 * There are two reasons why we may have to make the stem longer than requested:
+	 * the stem has to be long enough to accomodate any flags, and if the stem is
+	 * pointing towards the center of the staff (the normal case), it should extend
+	 * at least to the center of the staff.
 	 */
 // FIXME: Perhaps use flag leading info, instead of just assuming leading == 1 space
 	if (MusFontHas16thFlag(doc->musFontInfoIndex)) {

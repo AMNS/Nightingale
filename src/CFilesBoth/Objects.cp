@@ -1,4 +1,4 @@
-/****************************************************************************************
+/******************************************************************************************
 	FILE:	Objects.c
 	PROJ:	Nightingale
 	DESC:	Object-level routines, mostly for specific object types. Most
@@ -20,7 +20,7 @@
 		GetGRCYStem				FixGRChordForYStem		FixGRSyncForChord
 		FixGRSyncNote			FixGRSyncForNoChord		FixAugDotPos
 		ToggleAugDotPos
-/****************************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -72,7 +72,7 @@ LINK CopyModNRList(Document *srcDoc, Document *dstDoc, LINK firstModNRL)
 }
 
 
-/* ----------------------------------------------------------------- DuplicateObject -- */
+/* ------------------------------------------------------------------- DuplicateObject -- */
 /* Given a LINK to an object of a given type, allocate another duplicate object
 from the Object Heap, and duplicate the subobject list as well.  If selectedOnly
 is TRUE, then only duplicate those subobjects that are selected in the original;
@@ -569,10 +569,10 @@ PopLock(dstDoc->Heap+OBJtype);
 }
 
 
-/* ------------------------------------------------------------------------ DuplicNC -- */
-/* Given a LINK to a Sync, create another Sync that is identical except that it
-includes only the subobjects in the given voice. Returns the LINK to the duplicate
-Sync, or NILINK if there's a problem. */
+/* -------------------------------------------------------------------------- DuplicNC -- */
+/* Given a LINK to a Sync, create another Sync that is identical except that it includes
+only the subobjects in the given voice, i.e., it duplicates the note or chord. Returns
+the LINK to the duplicate Sync, or NILINK if there's a problem. */
 
 LINK DuplicNC(Document *doc, LINK syncL, short voice)
 {
@@ -599,7 +599,7 @@ LINK DuplicNC(Document *doc, LINK syncL, short voice)
 }
 
 
-/* ----------------------------------------------------------- InitObject, SetObject -- */
+/* ------------------------------------------------------------- InitObject, SetObject -- */
 
 void InitObject(
 			LINK link, LINK left, LINK right,
@@ -648,7 +648,7 @@ LINK GrowObject(Document *doc,
 	PMEASURE 	pMeasure, lMeasure, rMeasure;
 	PMEVENT		q;
 	PRPTEND		pRptEnd, startRpt, endRpt;
-	LINK 			staffL, qL, subListL;
+	LINK 		staffL, qL, subListL;
 
 	/* Grow the node generically. */
 	
@@ -664,7 +664,7 @@ LINK GrowObject(Document *doc,
 		case STAFFtype:
 			staffL = pL;
 			pStaff = GetPSTAFF(pL);
-			if (pStaff->lStaff) {													/* Update pointers */
+			if (pStaff->lStaff) {										/* Update pointers */
 				lStaff = GetPSTAFF(pStaff->lStaff);
 				lStaff->rStaff = staffL;
 			}
@@ -720,7 +720,7 @@ LINK GrowObject(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------- SimplePlayDur -- */
+/* --------------------------------------------------------------------- SimplePlayDur -- */
 /* Compute the "simple" playback duration of a note/rest, ignoring tuplet
 membership and whole-measure and multibar rests. */
 
@@ -730,7 +730,7 @@ long SimplePlayDur(LINK aNoteL)
 }
 
 
-/* --------------------------------------------------------------------- CalcPlayDur -- */
+/* ----------------------------------------------------------------------- CalcPlayDur -- */
 /* Return the playback duration in PDUR ticks of the given note. Handles whole-
 measure and multibar rests, tuplet membership, and unknown duration. In the latter
 case, we set this note's play duration to that of the first note we find in its
@@ -738,7 +738,7 @@ voice and Sync; if there is no such note, it's an error. */
 
 short CalcPlayDur(LINK syncL, LINK aNoteL, char lDur, Boolean isRest, PCONTEXT pContext)
 {
-	short playDur; LINK bNoteL; PANOTE bNote;
+	short playDur;  LINK bNoteL;  PANOTE bNote;
 	
 	if (isRest && lDur<=WHOLEMR_L_DUR) {
 		playDur = TimeSigDur(pContext->timeSigType,				/* Whole rest: duration=measure dur. */
@@ -766,7 +766,7 @@ short CalcPlayDur(LINK syncL, LINK aNoteL, char lDur, Boolean isRest, PCONTEXT p
 }
 
 
-/* ------------------------------------------------------------------ IsRestPosLower -- */
+/* -------------------------------------------------------------------- IsRestPosLower -- */
 
 static Boolean IsRestPosLower(
 				Document *doc,
@@ -774,7 +774,7 @@ static Boolean IsRestPosLower(
 				short voiceRole 	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
 				)
 {
-	LINK partL; PPARTINFO pPart;
+	LINK partL;  PPARTINFO pPart;
 
 	switch (voiceRole) {
 		case CROSS_DI:
@@ -787,7 +787,7 @@ static Boolean IsRestPosLower(
 }
 
 
-/* ----------------------------------------------------------------------- SetupNote -- */
+/* ------------------------------------------------------------------------- SetupNote -- */
 /* Setup a vanilla (what some people call "B-flat") note or rest. If it has an
 accidental, also handle its effect on following notes by calling InsNoteFixAccs
 (though something that high-level probably shouldn't be done here). */
@@ -804,12 +804,12 @@ LINK SetupNote(
 		short octType
 		)
 {
-	PANOTE		aNote;
-	short		voiceRole, midCHalfLn, effectiveAcc, playDur;
-	QDIST		qStemLen;
-	CONTEXT		context;							/* current context */
-	SHORTQD		yqpit;
-	Boolean		makeLower;
+	PANOTE	aNote;
+	short	voiceRole, midCHalfLn, effectiveAcc, playDur;
+	QDIST	qStemLen;
+	CONTEXT	context;							/* current context */
+	SHORTQD	yqpit;
+	Boolean	makeLower;
 	
 PushLock(NOTEheap);
 	GetContext(doc, syncL, staffn, &context);
@@ -905,7 +905,7 @@ PopLock(NOTEheap);
 }
 
 
-/* --------------------------------------------------------------------- SetupGRNote -- */
+/* ----------------------------------------------------------------------- SetupGRNote -- */
 /* Set up a vanilla (what some people call "B-flat") grace note. If it has an
 accidental, also handle its effect on following notes by calling InsNoteFixAccs
 (though something that high-level probably shouldn't be done here). */
@@ -921,8 +921,8 @@ LINK SetupGRNote(
 				short octType
 				)
 {
-	PAGRNOTE		aGRNote;
-	short			midCHalfLn, effectiveAcc;
+	PAGRNOTE	aGRNote;
+	short		midCHalfLn, effectiveAcc;
 	CONTEXT		context;
 	SHORTQD		yqpit;
 	
@@ -954,7 +954,7 @@ PushLock(GRNOTEheap);
 	else
 		aGRNote->noteNum = Pitch2MIDI(midCHalfLn-halfLn, effectiveAcc);
 	aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(lDur),
-									FALSE,								/* Always stem up */
+									FALSE,						/* Always stem up */
 									context.staffHeight, context.staffLines,
 									config.stemLenGrace, TRUE);
 
@@ -992,7 +992,7 @@ PopLock(GRNOTEheap);
 }
 
 
-/* ------------------------------------------------------------------------ InitPart -- */
+/* -------------------------------------------------------------------------- InitPart -- */
 /* Initialize a garden-variety Part subobject. */
 
 void InitPart(LINK partL, short firstStaff, short lastStaff)
@@ -1029,7 +1029,7 @@ PopLock(PARTINFOheap);
 }
 
 
-/* ----------------------------------------------------------------------- InitStaff -- */
+/* ------------------------------------------------------------------------- InitStaff -- */
 /* Initialize a garden-variety staff subobject. */
 
 void InitStaff(LINK aStaffL, short staff, short top, short left, short right,
@@ -1060,7 +1060,7 @@ void InitStaff(LINK aStaffL, short staff, short top, short left, short right,
 } 
 
 
-/* ------------------------------------------------------------------------ InitClef -- */
+/* -------------------------------------------------------------------------- InitClef -- */
 /*	Initialize a garden-variety clef subobject. */
 
 void InitClef(LINK aClefL, short staff, DDIST xd, short clefType)
@@ -1078,7 +1078,7 @@ void InitClef(LINK aClefL, short staff, DDIST xd, short clefType)
 }
 
 
-/* ---------------------------------------------------------------------- InitKeySig -- */
+/* ------------------------------------------------------------------------ InitKeySig -- */
 /*	Initialize a garden-variety key signature subobject. Caveat: doesn't fill in
 the no. of sharps/flats and what they are! For that, use SetupKeySig. */
 
@@ -1099,7 +1099,7 @@ void InitKeySig(LINK aKeySigL, short staff, DDIST xd, short nKSItems)
 }
 
 
-/* ----------------------------------------------------------------------- AddKSItem -- */
+/* ------------------------------------------------------------------------- AddKSItem -- */
 
 static void AddKSItem(LINK aKeySigL, Boolean isSharp, short n, short line)
 {
@@ -1111,7 +1111,7 @@ static void AddKSItem(LINK aKeySigL, Boolean isSharp, short n, short line)
 }
 
 
-/* --------------------------------------------------------------------- SetupKeySig -- */
+/* ----------------------------------------------------------------------- SetupKeySig -- */
 /* Set fields in key signature node in data structure, for conventional key
 signatures only (all we support as of v.3.0). */
 
@@ -1161,7 +1161,7 @@ void SetupKeySig(LINK aKeySigL,
 }
 
 
-/* --------------------------------------------------------------------- InitTimeSig -- */
+/* ----------------------------------------------------------------------- InitTimeSig -- */
 /*	Initialize a garden-variety time signature subobject. */
 
 void InitTimeSig(LINK aTimeSigL, short staff, DDIST xd, short timeSigType, short numerator,
@@ -1183,7 +1183,7 @@ void InitTimeSig(LINK aTimeSigL, short staff, DDIST xd, short timeSigType, short
 }
 
 
-/* --------------------------------------------------------------------- InitMeasure -- */
+/* ----------------------------------------------------------------------- InitMeasure -- */
 /*	Initialize a garden-variety measure subobject. */
 
 void InitMeasure(LINK aMeasureL, short staff, short left, short top, short right,
@@ -1207,7 +1207,7 @@ void InitMeasure(LINK aMeasureL, short staff, short left, short top, short right
 }
 
 
-/* ------------------------------------------------------------------- InitPSMeasure -- */
+/* --------------------------------------------------------------------- InitPSMeasure -- */
 /*	Initialize a generic PSMeasure subobject. */
 
 void InitPSMeasure(LINK aPSMeasL, short staff, Boolean barlineVisible,
@@ -1225,7 +1225,7 @@ void InitPSMeasure(LINK aPSMeasL, short staff, Boolean barlineVisible,
 }
 
 
-/* ---------------------------------------------------------------------- InitRptEnd -- */
+/* ------------------------------------------------------------------------ InitRptEnd -- */
 /*	Initialize a garden-variety RepeatEnd subobject. */
 
 void InitRptEnd(LINK pL, short /*staff*/, char rptEndType, LINK measL)
@@ -1258,7 +1258,7 @@ void InitRptEnd(LINK pL, short /*staff*/, char rptEndType, LINK measL)
 }
 
 
-/* --------------------------------------------------------------------- InitDynamic -- */
+/* ----------------------------------------------------------------------- InitDynamic -- */
 /*	Initialize a garden-variety Dynamic subobject. */
 
 void InitDynamic(Document *doc, LINK pL, short staff, short x, DDIST sysLeft,
@@ -1284,7 +1284,7 @@ void InitDynamic(Document *doc, LINK pL, short staff, short x, DDIST sysLeft,
 }
 
 
-/* -------------------------------------------------------------------- SetupHairpin -- */
+/* ---------------------------------------------------------------------- SetupHairpin -- */
 
 void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft,
 							short endx, Boolean crossSys)
@@ -1298,9 +1298,9 @@ void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft,
  			aDynamic = GetPADYNAMIC(FirstSubLINK(newpL));
 			aDynamic->mouthWidth = config.hairpinMouthWidth;
 						
-			/* Search right from the sync at the right end of the hairpin for
-				the next barline; if it is to the left of the corresponding end
-				of the hairpin, truncate it. */
+			/* Search right from the sync at the right end of the hairpin for the
+				next barline; if it is to the left of the corresponding end of the
+				hairpin, truncate it. */
 
  			if (SystemTYPE(lastSyncL))
  				aDynamic->endxd = p2d(endx)-sysLeft;
@@ -1319,7 +1319,7 @@ void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft,
 				if (LinkXD(measL)<p2d(endx)-sysLeft)
 					aDynamic->endxd = -SysRelxd(lastSyncL)+LinkXD(measL)-pt2d(2);
 
-			InvalMeasures(newpL, lastSyncL, staff);							/* NewObjCleanup only Invals 1 meas. */
+			InvalMeasures(newpL, lastSyncL, staff);						/* NewObjCleanup only Invals 1 meas. */
 			newp->lastSyncL = lastSyncL;
 			newp->crossSys = crossSys;
 			break;
@@ -1330,7 +1330,7 @@ void SetupHairpin(LINK newpL, short staff, LINK lastSyncL, DDIST sysLeft,
 }
 
 
-/* --------------------------------------------------------------------- InitGraphic -- */
+/* ----------------------------------------------------------------------- InitGraphic -- */
 
 void InitGraphic(LINK graphicL, short graphicType, short staff, short voice,
 						short fontInd, Boolean relFSize, short fSize, short fStyle,
@@ -1357,7 +1357,7 @@ void InitGraphic(LINK graphicL, short graphicType, short staff, short voice,
 }
 
 
-/* ------------------------------------------------------------------ SetMeasVisible -- */
+/* -------------------------------------------------------------------- SetMeasVisible -- */
 /* Set the visibility of all subobjects of the given Measure object. */
 
 void SetMeasVisible(LINK measL, Boolean visible)
@@ -1374,7 +1374,7 @@ void SetMeasVisible(LINK measL, Boolean visible)
 }
 
 
-/* ------------------------------------------------------------------ ChordHasUnison -- */
+/* -------------------------------------------------------------------- ChordHasUnison -- */
 /* If the specified chord contains any unisons, return TRUE, else FALSE. We check
 by looking for notes with the same vertical position, so both perfect and augmented
 unisons are detected. */
@@ -1402,7 +1402,7 @@ Boolean ChordHasUnison(LINK syncL, short voice)
 }
 
 
-/* ---------------------------------------------------------------- ChordNoteToRight -- */
+/* ------------------------------------------------------------------ ChordNoteToRight -- */
 /* Return TRUE if the given Sync and voice has a chord that is stem up but has at least
 one note to right of the stem. Works even if stem won't be drawn, probably because
 all notes are whole notes. */
@@ -1429,9 +1429,9 @@ Boolean ChordNoteToRight(LINK syncL, short voice)
 }
 
 
-/* ----------------------------------------------------------------- ChordNoteToLeft -- */
+/* ------------------------------------------------------------------- ChordNoteToLeft -- */
 /* Return TRUE if the given Sync and voice has a chord that is stem down and has at
-least one note to left of the stem. Works even if stem won't be drawn, probably because
+least one note to left of the stem. Works even if stem won't be drawn, typically because
 all notes are whole notes. */
 
 Boolean ChordNoteToLeft(LINK syncL, short voice)
@@ -1455,7 +1455,7 @@ Boolean ChordNoteToLeft(LINK syncL, short voice)
 	return FALSE;
 }
 
-/* ---------------------------------------------------------------- NormalStemUpDown -- */
+/* ------------------------------------------------------------------ NormalStemUpDown -- */
 /* If the note or chord in the given Sync and voice would normally (considering
 the voice's multivoice position) be stem up, return 1, else -1. Cf. the DOWNSTEM
 macro. */
@@ -1498,12 +1498,12 @@ static short NormalStemUpDown(Document *doc, LINK syncL, short voice, CONTEXT *p
 			stemDown = (NoteSTAFF(aNoteL)==pPart->firstStaff);
 			return (stemDown? -1 : 1);
 		default:
-			return 1;													/* Should never get here */
+			return 1;												/* Should never get here */
 	}
 }
 
 
-/* ---------------------------------------------------------------------- GetNCYStem -- */
+/* ------------------------------------------------------------------------ GetNCYStem -- */
 /* Find the correct stem endpoint for a note or chord. Return the stem endpoint the
 note closest to the end of the stem for the specified direction would have if it wasn't
 in a chord. */
@@ -1551,7 +1551,7 @@ DDIST GetNCYStem(
 }
 
 
-/* ---------------------------------------------------------------- FixChordForYStem -- */
+/* ----------------------------------------------------==------------ FixChordForYStem -- */
 /* Fix all the notes in a chord for a given stem direction and endpoint:
 	-Set their inChord flags;
 	-Put them on their correct sides of the stem;
@@ -1614,8 +1614,8 @@ void FixChordForYStem(
 }
 
 
-/* ----------------------------------------------------------------- FixSyncForChord -- */
-/* Fix all the notes in a chord:
+/* ------------------------------------------------------------------- FixSyncForChord -- */
+/* Normalize notation of a note or of all the notes in a chord:
 	-Set their inChord flags;
 	-Put them on their correct sides of the stem;
 	-Position their accidentals to avoid collisions among them;
@@ -1669,16 +1669,16 @@ Boolean FixSyncForChord(
 		return FALSE;
 	}
 
-	if (pContext) context = *pContext;
-	else			  GetContext(doc, syncL, staff, &context);
+	if (pContext)	context = *pContext;
+	else			GetContext(doc, syncL, staff, &context);
 
 	if (beamed && mainNoteL!=NILINK)
 		stemUpDown = (NoteYSTEM(mainNoteL)>NoteYD(mainNoteL)? -1 : 1);
 	if (!stemUpDown)
 		stemUpDown = NormalStemUpDown(doc, syncL, voice, &context);
 		
-	if (voices1orMore==0) singleVoice = (doc->voiceTab[voice].voiceRole==SINGLE_DI);
-	else						 singleVoice = (voices1orMore==1);
+	if (voices1orMore==0)	singleVoice = (doc->voiceTab[voice].voiceRole==SINGLE_DI);
+	else					singleVoice = (voices1orMore==1);
 	
 	/* In all cases, <context>, <stemUpDown>, and <singleVoice> are now defined. */
 	
@@ -1702,10 +1702,9 @@ Boolean FixSyncForChord(
 }
 
 
-/* --------------------------------------------------------------------- FixSyncNote -- */
-/* For the note in the given GRSync and voice, fix its ystem, clear its inChord
-flag, put it on the normal side of the stem, and move its accidental to default
-position. If the note is in a chord, this function will cause serious damage! */
+/* ----------------------------------------------------------------------- FixSyncNote -- */
+/* For the one note in the given Sync and voice, fix its ystem, clear its inChord flag,
+put it on the normal side of the stem, and move its accidental to default position. */
 
 void FixSyncNote(Document *doc,
 					LINK syncL,
@@ -1734,12 +1733,11 @@ void FixSyncNote(Document *doc,
 }
 
 
-/* --------------------------------------------------------------- FixSyncForNoChord -- */
+/* ----------------------------------------------------------------- FixSyncForNoChord -- */
 /* When a note that was formerly in a chord (as indicated by its <inChord> flag
 being set) is no longer in a chord, fix its ystem, clear its inChord flag, put it
 on the normal side of the stem, and move its accidental to default position. If the
-note's <inChord> flag isn't set, do nothing. NB: If the note is STILL in a chord,
-this function will cause serious problems! */
+note's <inChord> flag isn't set, do nothing. */
 
 void FixSyncForNoChord(Document *doc,
 							LINK syncL,
@@ -1754,7 +1752,7 @@ void FixSyncForNoChord(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ FixNoteForClef -- */
+/* -------------------------------------------------------------------- FixNoteForClef -- */
 /* Fix the given note or, if it's in a chord, its chord, for the impending move of
 the note to a different staff and clef. If the clef in effect on the new staff is
 the same as the note's current clef, do nothing. We assume that all notes in the
@@ -1791,8 +1789,7 @@ void FixNoteForClef(Document *doc,
 }
 
 
-
-/* --------------------------------------------------------------------- GetGRCYStem -- */
+/* ----------------------------------------------------------------------- GetGRCYStem -- */
 /* Find the correct stem endpoint for a grace note or chord. If the note/chord is
 beamed, we just return the current endpoint of its MainNote (regardless of the
 specifed stem direction). Otherwise, return the stem endpoint of the note closest
@@ -1847,7 +1844,7 @@ static DDIST GetGRCYStem(
 }
 
 
-/* -------------------------------------------------------------- FixGRChordForYStem -- */
+/* ---------------------------------------------------------------- FixGRChordForYStem -- */
 /* Fix all the notes in a chord for a given stem direction and endpoint:
 	-Set their inChord flags;
 	-Put them on their correct sides of the stem;
@@ -1908,7 +1905,7 @@ void FixGRChordForYStem(
 }
 
 
-/* --------------------------------------------------------------- FixGRSyncForChord -- */
+/* ----------------------------------------------------------------- FixGRSyncForChord -- */
 /* Fix all the grace notes in a grace chord:
 	-Set their inChord flags;
 	-Put them on their correct sides of the stem;
@@ -1923,7 +1920,7 @@ when deleting grace notes. It returns FALSE in case of an error, else TRUE.
 N.B. Will do bad things if the the given sync and voice does not have a chord. */
 
 Boolean FixGRSyncForChord(
-				Document *doc,
+				Document	*doc,
 				LINK		grSyncL,
 				short		voice,
 				Boolean		beamed,			/* If TRUE, ignore stemUpDown and keep current stem endpt */
@@ -2027,7 +2024,7 @@ void FixGRSyncNote(Document *doc,
 }
 
 
-/* ------------------------------------------------------------- FixGRSyncForNoChord -- */
+/* --------------------------------------------------------------- FixGRSyncForNoChord -- */
 /* When a grace note that was formerly in a chord (as indicated by its <inChord> flag
 being set) is no longer in a chord, fix its ystem, clear its inChord flag, put it
 on the normal side of the stem, and move its accidental to default position. If the
@@ -2047,10 +2044,10 @@ void FixGRSyncForNoChord(Document *doc,
 }
 
 
-/* -------------------------------------------------------------------- FixAugDotPos -- */
-/* Set the augmentation dot position for notes in the given Sync and voice to
-a reasonable standard value, regardless of whether the notes actually have dots
-or not. Does not handle grace Syncs, which (as of v. 3.0) can never have dots.
+/* ---------------------------------------------------------------------- FixAugDotPos -- */
+/* Set the augmentation dot position for notes in the given Sync and voice to a
+reasonable standard value, regardless of whether the notes actually have dots or
+not. Does not handle grace Syncs, which (as of v. 5.7) can never have dots.
 
 Augmentation dots for a "line" note should never be next to the note: normally
 they should in the space above, but for stem-down voices in two-voice notation,
@@ -2084,18 +2081,18 @@ void FixAugDotPos(
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 		if (NoteVOICE(aNoteL)==voice) {
-			halfSp = qd2halfLn(NoteYQPIT(aNoteL));					/* Half-lines below middle C */
+			halfSp = qd2halfLn(NoteYQPIT(aNoteL));				/* Half-lines below middle C */
 			lineNote = (midCIsInSpace? odd(halfSp) : !odd(halfSp));
 
-			if (lineNote)											/* Note on line */
+			if (lineNote)										/* Note on line */
 				NoteYMOVEDOTS(aNoteL) = GetLineAugDotPos(voiceRole, stemDown);
-			else if (!lineNotesOnly)								/* Note in space */
+			else if (!lineNotesOnly)							/* Note in space */
 				NoteYMOVEDOTS(aNoteL) = 2;
 		}
 }
 
 
-/* ----------------------------------------------------------------- ToggleAugDotPos -- */
+/* ------------------------------------------------------------------- ToggleAugDotPos -- */
 /* If the vertical position of augmentation dots is above or below the note, put them
 next to the notehead. If the dots are next to the notehead, move them above or below,
 depending on the note's voice role. If the dots are invisible (ymovedots=0), do

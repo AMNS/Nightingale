@@ -1629,9 +1629,9 @@ Boolean ShouldDrawConnect(
 	PACONNECT aConnect;
 	short firstStaff,lastStaff;
 	
-	if (doc->masterView)
-		drawThisOne = TRUE;
-	else {
+	drawThisOne = TRUE;
+
+	if (!doc->masterView) {
 		/*
 		 *	CMN convention is usually to not show Connects if they include only one
 		 *	staff, except on groups (instrument choirs, etc.), where they're shown if
@@ -2111,7 +2111,7 @@ only voice 1 will be in black. */
 
 short Voice2Color(Document *doc, short iVoice)
 {
-	short colors[COLOR_CYCLE_LEN] = { redColor, greenColor, cyanColor, magentaColor };
+	short colors[COLOR_CYCLE_LEN] = { greenColor, redColor, cyanColor, magentaColor };
 	LINK aPartL;
 	short userVoice;
 	short colorIndex, nPartStaves, extraVoice;
