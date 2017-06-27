@@ -1,11 +1,11 @@
 /* Menu.c for Nightingale - general menu routines */
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright Â© 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -112,8 +112,7 @@ static Boolean debugItemsNeedInstall = true;
 
 Boolean DoMenu(long menuChoice)
 	{
-		register short choice;
-		short menu;
+		short choice, menu;
 		Boolean keepGoing = true;
 		
 		menu = HiWord(menuChoice); choice = LoWord(menuChoice);
@@ -2453,7 +2452,7 @@ static void FixEditMenu(Document *doc, short /*nInRange*/, short nSel)
 
 			XableItem(editMenu, EM_Set, doc!=clipboard && IsSetEnabled(doc));
 			
-			XableItem(editMenu,EM_SearchMelody,searchPatDoc != NULL);
+			XableItem(editMenu,EM_SearchMelody,searchPatDoc!=NULL);
 		}
 	}
 
@@ -2461,15 +2460,15 @@ static void FixTestMenu(Document *doc, short nSel)
 	{
 #ifndef PUBLIC_VERSION
 		if (clickMode==ClickErase)
-			SetItemMark(testMenu, TS_ClickErase, '¥');
+			SetItemMark(testMenu, TS_ClickErase, '*');
 		else
 			SetItemMark(testMenu, TS_ClickErase, noMark);
 		if (clickMode==ClickSelect)
-			SetItemMark(testMenu, TS_ClickSelect, '¥');
+			SetItemMark(testMenu, TS_ClickSelect, '*');
 		else
 			SetItemMark(testMenu, TS_ClickSelect, noMark);
 		if (clickMode==ClickFrame)
-			SetItemMark(testMenu, TS_ClickFrame, '¥');
+			SetItemMark(testMenu, TS_ClickFrame, '*');
 		else
 			SetItemMark(testMenu, TS_ClickFrame, noMark);
 

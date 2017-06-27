@@ -494,7 +494,7 @@ Boolean DoDebug(
 			stopL = doc->selEndL;
 	}
 	
-	if (disp && startL!=stopL) LogPrintf(LOG_INFO, " (Obj flags: SelVisSoftValidTwkd)");
+	if (disp && startL!=stopL) LogPrintf(LOG_INFO, " (Obj flags: SelVisSoftValidTwkdSpare)");
 	LogPrintf(LOG_INFO, "\n");
 	kount = 0;
 	ResetDErrLimit();

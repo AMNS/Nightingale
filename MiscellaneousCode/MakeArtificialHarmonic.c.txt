@@ -1,0 +1,76 @@
+struct NoteNumSorter {
+	short noteNum;
+	LINK noteL;
+};
+
+static void SwapNotes(struct NoteNumSorter noteA, struct NoteNumSorter noteB);
+static Boolean FindThreeNoteChord(Document *, LINK, short, LINK *, LINK *, LINK *);
+Boolean MakeArtificialHarmonic(Document *doc, LINK aSyncL);
+
+
+static void SwapNotes(struct NoteNumSorter noteA, struct NoteNumSorter noteB)
+{
+	struct NoteNumSorter tempNote;
+	
+	tempNote = noteA;
+	noteA = noteB;
+	noteB = tempNote;
+}
+
+/* See if the given voice in the given Sync has a chord of exactly three notes. If so,
+set topNoteL, middleNoteL, and bottomNoteL to the three notes and return TRUE; else
+just retun FALSE. */
+
+static Boolean FindThreeNoteChord(Document *doc, LINK aSyncL, short voicen,
+								LINK *topNoteL, LINK *middleNoteL, LINK *bottomNoteL)
+{
+	LINK aNoteL;
+	short inVCount;
+	struct NoteNumSorter noteInV[3];
+
+	inVCount = 0;
+	aNoteL = FirstSubLINK(aSyncL);
+	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+		if (NoteVOICE(aNoteL)==voicen) {
+			if (inVCount>=3) return FALSE;				/* More than 3 notes in voice */
+			noteInV[inVCount].noteL = aNoteL;
+			noteInV[inVCount].noteNum = NoteNUM(aNoteL);
+			inVCount++;
+		}
+	}
+	
+	if (inVCount<3) return FALSE;						/* Fewer than 3 notes in voice */
+	
+	/* This voice has a chord of exactly 3 notes: sort them by MIDI note number. */
+	if (noteInV[0].noteNum > noteInV[1].noteNum) SWAP(noteInV[0], noteInV[1]);
+	if (noteInV[1].noteNum > noteInV[2].noteNum) SWAP(noteInV[1], noteInV[2]);
+	if (noteInV[0].noteNum > noteInV[1].noteNum) SWAP(noteInV[0], noteInV[1]);
+	*topNoteL = noteInV[2].noteL;
+	*middleNoteL = noteInV[1].noteL;
+	*bottomNoteL = noteInV[0].noteL;
+	
+	return TRUE;
+}
+
+
+/* Given a Sync that may have 3-note chords selected in one or more voices, make
+each such chord look and play back like an artificial harmonic. To do that:
+	* Make the top note small
+	* Give the middle note a diamond notehead
+	* Set the on velocity of the middle and bottom notes to 0
+Return TRUE if ?? . */
+
+Boolean MakeArtificialHarmonic(Document *doc, LINK aSyncL)
+{
+	short v;
+	LINK aNoteL, topNoteL, midNoteL, bottomNoteL;
+	
+	for (v = 1; v<=MAXVOICES; v++)
+		if (VOICE_MAYBE_USED(doc, v)) {
+			if (FindThreeNoteChord(doc, aSyncL, v, &topNoteL, &middleNoteL, &bottomNoteL)) {
+				NoteSMALL(topNoteL) = TRUE;
+				NoteAPPEAR(midNoteL) = DIAMONDH_SHAPE;
+				NoteONVELOCITY(midNoteL) = NoteONVELOCITY(bottomNoteL) = 0;
+			}
+	return TRUE;
+}

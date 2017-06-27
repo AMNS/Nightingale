@@ -83,13 +83,14 @@ void DisplayNode(Document *doc, LINK pL,
 		LogPrintf(LOG_NOTICE, " L%2d", pL);
 
 	ps = NameNodeType(pL);
-	LogPrintf(LOG_NOTICE, " xd=%d yd=%d %s %c%c%c%c%c oRect.l=p%d",
+	LogPrintf(LOG_NOTICE, " xd=%d yd=%d %s %c%c%c%c%c%c oRect.l=p%d",
 					p->xd, p->yd, ps,
 					(p->selected? 'S' : '.'),
 					(p->visible? 'V' : '.'),
 					(p->soft? 'S' : '.'),
 					(p->valid? 'V' : '.'),
 					(p->tweaked? 'T' : '.'),
+					(p->spareFlag? 'S' : '.'),
 					p->objRect.left );
 
 	switch (ObjLType(pL)) {

@@ -799,7 +799,7 @@ Boolean TransposeKey(
 
 			/* The following respaces the entire score at a fixed percentage--pretty
 				crude. Much better would be to go thru the score one measure at a time,
-				errespacing any measure with keysigs on affected staves at its current
+				respacing any measure with keysigs on affected staves at its current
 				percentage, but that would tend to produce messy reformatting. Someday. */
 
 			spaceProp = RESFACTOR*doc->spacePercent;
@@ -823,9 +823,9 @@ Boolean TransposeKey(
 
 
 /* ------------------------------------------------------------------------ CheckRange -- */
-/* Check MIDI noteNums for all notes in the score against the ranges of the
-instruments assigned to their parts. Any out-of-range notes are left selected;
-everything else is deselected. Assumes doc is in the active window.
+/* Check MIDI noteNums for all notes in the score against the ranges of the instruments
+assigned to their parts. Any out-of-range notes are left selected; everything else is
+deselected. Assumes doc is in the active window.
 FIXME: Questions:
 1. firstStaff and lastStaff: is index (cf comment in NTypes.h) the staffn?
 2. are the staves numbered consecutively or at least monotonically? */

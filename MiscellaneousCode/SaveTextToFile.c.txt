@@ -1,0 +1,65 @@
+The code below has been in Ngale (in FileInput.cp) but apparently unused for a very
+long time: note that there isn't even a Carbon (OS X) implementation. I suppose it
+might be useful for something someday, though.  --Don Byrd, May 2017
+
+
+/* ------------------------------------------------------------------ SaveTextToFile -- */
+/* Save the block of text pointed to by <pText> to a text file (type 'TEXT', creator
+'ttxt'). Note that <pText> is a Mac Ptr, allocated by the Memory Mgr. It is NOT
+terminated by a null.  Returns true if OK, even if the user cancels the save; returns
+FALSE if error. */
+
+#ifdef TARGET_API_MAC_CARBON
+
+Boolean SaveTextToFile(Ptr		,		/* block of text */
+						Str255	,		/* Pascal string */
+						short	)		/* index into MiscStringsID 'STR#' */
+										/*   of prompt string (e.g., "Save as:") */
+{
+	return true;
+}
+
+#else
+
+Boolean SaveTextToFile(Ptr pText,						/* block of text */
+					   Str255 suggestedFileName,		/* Pascal string */
+					   short promptStrID)				/* index into MiscStringsID 'STR#' */
+														/*   of prompt string (e.g., "Save as:") */
+{
+	Str255	promptStr;
+	Point	dialogWhere = { 90, 82 };
+	SFReply	reply;
+	short	refNum, volNum;
+	long	inOutCount, dirID, procID;
+	OSErr	result;
+
+	GetIndString(promptStr, MiscStringsID, promptStrID);
+	
+	SFPutFile(dialogWhere, promptStr, suggestedFileName, NULL, &reply);
+	if (reply.good) {													/* Write file. */
+		result = GetWDInfo(reply.vRefNum, &volNum, &dirID, &procID);
+		if (result) goto broken;
+		result = HCreate(volNum, dirID, reply.fName, 'ttxt', 'TEXT');
+		if (result==dupFNErr) {					// for now just delete; later confirm that it's an ok type to delete
+			result = HDelete(volNum, dirID, reply.fName);
+			if (result) goto broken;
+			result = HCreate(volNum, dirID, reply.fName, 'ttxt', 'TEXT');
+			if (result) goto broken;
+		}
+		else if (result) goto broken;
+		result = HOpen(volNum, dirID, reply.fName, fsWrPerm, &refNum);
+		if (result) goto broken;
+		inOutCount = GetPtrSize(pText);
+		result = FSWrite(refNum, &inOutCount, pText);
+		if (result) goto broken;
+		result = FSClose(refNum);
+		if (result) goto broken;
+	}
+	else {																/* User cancelled. */
+	}
+	return TRUE;
+broken:
+	ReportIOError(result, WRITETEXTFILE_ALRT);
+	return FALSE;	
+}
+#endif

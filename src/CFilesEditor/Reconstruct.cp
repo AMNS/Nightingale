@@ -1,5 +1,5 @@
-/* Reconstruct.c for Nightingale. Used for functions that re-arrange the object
-list (based on time?), e.g., Remove Gaps in Voices, Merge, Create/Remove Tuplet. */
+/* Reconstruct.c for Nightingale. Used for functions that re-arrange the object list,
+e.g., Remove Gaps in Voices, Merge, Create/Remove Tuplet. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -27,7 +27,7 @@ static void FixGRDrawLinks(LINK graphicL, PTIME *durArray);
 /* -------------------------------------------------------------------------------------- */
 /* Reconstruction utilities */
 
-/* Return TRUE if voice v contains notes in the selection range. */
+/* Return true if voice v contains notes in the selection range. */
 
 Boolean VoiceInSelRange(Document *doc, short v)
 {
@@ -39,29 +39,29 @@ Boolean VoiceInSelRange(Document *doc, short v)
 
 
 /* Check all voices in the selection to see if there are any gaps in the logical
-time of notes in those voices in the given measure; if so, return FALSE. */
+time of notes in those voices in the given measure; if so, return false. */
 
 Boolean Check1ContinVoice(Document *doc, LINK measL, Boolean vInSel[],
 									SPACETIMEINFO *spTimeInfo)
 {
-	LINK link, endMeasL; short i, lastNode, v;
+	LINK link, endMeasL;
+	short i, lastNode, v;
 	Boolean first;
 	long startTime, nextlTime;
 
 	endMeasL = LinkRMEAS(measL) ? LinkRMEAS(measL) : LeftLINK(doc->tailL);
-	lastNode = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, FALSE);
+	lastNode = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, false);
 
 	/* For each voice in use <v>, traverse spTimeInfo's list of syncs for the
 		measure the selection is in. The first sync should be at startTime zero.
 		After the first sync, each sync following <link> in v should be at startTime
 		equal to link's startTime plus its duration in the voice. If it is at a
-		greater time, there is a hole in the voice, so return FALSE.
-		Note the confusing way we have to set the startL and endL params
-		for GetSpTimeInfo. */
+		greater time, there is a hole in the voice, so return false. Note the
+		confusing way we have to set the startL and endL params for GetSpTimeInfo. */
 
 	for (v = 1; v<=MAXVOICES; v++)
 		if (vInSel[v]) {
-			first = TRUE;
+			first = true;
 			startTime = nextlTime = 0L;
 			for (i=0; i<=lastNode; i++) {
 				link = spTimeInfo[i].link;
@@ -69,44 +69,44 @@ Boolean Check1ContinVoice(Document *doc, LINK measL, Boolean vInSel[],
 					if (SyncInVoice(link,v)) {
 						startTime = spTimeInfo[i].startTime;
 						if (first) {
-							if (startTime!=0) return FALSE;
-							first = FALSE;
+							if (startTime!=0) return false;
+							first = false;
 						}
 						else
-							if (startTime > nextlTime) return FALSE;
+							if (startTime > nextlTime) return false;
 
 						nextlTime = startTime+GetVLDur(doc,link,v);
 					}
 			}
 		}
 
-	return TRUE;
+	return true;
 }
 
 
 /* Check all voices in the selection to see if there are any gaps in their logical
-times in any measure in the selection range. If there are any such gaps, return
-FALSE. */
+times in any measure in the selection range. If there are any such gaps, return false. */
 
 Boolean CheckContinVoice(Document *doc)
 {
-	LINK measL, lastL; short v;
-	Boolean okay=FALSE, vInSel[MAXVOICES+1];
+	LINK measL, lastL;
+	short v;
+	Boolean okay=false, vInSel[MAXVOICES+1];
 	SPACETIMEINFO *spTimeInfo;
 	
 	spTimeInfo = AllocSpTimeInfo();
-	if (!spTimeInfo) return TRUE;
+	if (!spTimeInfo) return true;
 
 	for (v = 1; v<=MAXVOICES; v++)
 		vInSel[v] = VoiceInSelRange(doc,v);
 	
-	measL = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+	measL = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_LEFT,false);
 	lastL = EndMeasSearch(doc, LeftLINK(doc->selEndL));
 
 	for ( ; measL && measL!=lastL; measL=LinkRMEAS(measL))
 		if (!Check1ContinVoice(doc,measL,vInSel,spTimeInfo)) goto Cleanup;
 	
-	okay = TRUE;
+	okay = true;
 	
 Cleanup:
 	DisposePtr((Ptr)spTimeInfo);
@@ -226,7 +226,7 @@ short SetPTimes(Document *doc, PTIME *durArray, short nInMeas, SPACETIMEINFO *sp
 	PANOTE aNote;
 
 	barLastL = EndMeasSearch(doc, startMeas);
-	nInMeasure = GetSpTimeInfo(doc, startMeas, barLastL, spTimeInfo, FALSE);
+	nInMeasure = GetSpTimeInfo(doc, startMeas, barLastL, spTimeInfo, false);
 	for (v = 1; v<=MAXVOICES; v++)
 		for (notes=0, pL=startMeas; pL!=endMeas; pL=RightLINK(pL))
 			if (SyncTYPE(pL)) {
@@ -268,17 +268,17 @@ void SetLinkOwners(PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas)
 						 */
 						pL = (durArray + v*nInMeas+notes)->objL;
 						if (NoteBEAMED(aNoteL)) {
-							beamL = LVSearch(pL, BEAMSETtype, v, TRUE, FALSE);
+							beamL = LVSearch(pL, BEAMSETtype, v, true, false);
 							if (beamL)
 								(durArray + v*nInMeas+notes)->beamL = beamL;
 						}
 						if (NoteINOTTAVA(aNoteL)) {
-							octL = LSSearch(pL,OTTAVAtype,NoteSTAFF(aNoteL),TRUE,FALSE);
+							octL = LSSearch(pL,OTTAVAtype,NoteSTAFF(aNoteL),true,false);
 							if (octL)
 								(durArray + v*nInMeas+notes)->octL = octL;
 						}
 						if (NoteINTUPLET(aNoteL)) {
-							tupletL = LVSearch(pL, TUPLETtype, v, TRUE, FALSE);
+							tupletL = LVSearch(pL, TUPLETtype, v, true, false);
 							if (tupletL)
 								(durArray + v*nInMeas+notes)->tupletL = tupletL;
 						}
@@ -287,43 +287,43 @@ void SetLinkOwners(PTIME *durArray, short nInMeas, LINK startMeas, LINK endMeas)
 						InitSearchParam(&pbSearch);
 						pbSearch.id = ANYONE;
 						pbSearch.voice = v;
-						pbSearch.needSelected = FALSE;
-						pbSearch.inSystem = FALSE;
-						pbSearch.optimize = TRUE;
+						pbSearch.needSelected = false;
+						pbSearch.inSystem = false;
+						pbSearch.optimize = true;
 
 						if (aNote->slurredR) {
-							pbSearch.subtype = FALSE;			/* FALSE for Slur, TRUE for Tie */
-							slurL = L_Search(pL, SLURtype, TRUE, &pbSearch);
+							pbSearch.subtype = false;			/* false for Slur, true for Tie */
+							slurL = L_Search(pL, SLURtype, true, &pbSearch);
 							if (slurL)
 								(durArray + v*nInMeas+notes)->slurFirstL = slurL;
 						}
 						aNote = GetPANOTE(aNoteL);
 						if (aNote->slurredL) {
-							pbSearch.subtype = FALSE;
-							slurL = L_Search(pL, SLURtype, TRUE, &pbSearch);
+							pbSearch.subtype = false;
+							slurL = L_Search(pL, SLURtype, true, &pbSearch);
 							while (slurL) {
 								if (SlurLASTSYNC(slurL)==pL) {
 									(durArray + v*nInMeas+notes)->slurLastL = slurL;
 									break;
 								}
-								slurL = L_Search(LeftLINK(slurL), SLURtype, TRUE, &pbSearch);
+								slurL = L_Search(LeftLINK(slurL), SLURtype, true, &pbSearch);
 							}
 						}
 						if (aNote->tiedR) {
-							pbSearch.subtype = TRUE;
-							tieL = L_Search(pL, SLURtype, TRUE, &pbSearch);
+							pbSearch.subtype = true;
+							tieL = L_Search(pL, SLURtype, true, &pbSearch);
 							if (tieL)
 								(durArray + v*nInMeas+notes)->tieFirstL = tieL;
 						}
 						if (aNote->tiedL) {
-							pbSearch.subtype = TRUE;
-							tieL = L_Search(pL, SLURtype, TRUE, &pbSearch);
+							pbSearch.subtype = true;
+							tieL = L_Search(pL, SLURtype, true, &pbSearch);
 							while (tieL) {
 								if (SlurLASTSYNC(tieL)==pL) {
 									(durArray + v*nInMeas+notes)->tieLastL = tieL;
 									break;
 								}
-								tieL = L_Search(LeftLINK(tieL), SLURtype, TRUE, &pbSearch);
+								tieL = L_Search(LeftLINK(tieL), SLURtype, true, &pbSearch);
 							}
 						}
 					}
@@ -414,7 +414,7 @@ LINK CopyClipNotes(Document *doc, LINK subL, LINK newSubL, long pTime)
 }
 
 
-/* ----------------------------------------------------------------- CopySubObjs -- */
+/* ----------------------------------------------------------------------- CopySubObjs -- */
 /* Copy the subObject information from each note at this time into the subObjects
 of the newly created object. Decrement the nEntries field of the object from which
 the subObj is copied, and remove that subObject, or delete the object, if it has
@@ -425,14 +425,14 @@ LINK is initialized. */
 LINK CopySubObjs(Document *doc, LINK newObjL, PTIME *pTime)
 {
 	LINK subL,newSubL,tempSubL; PTIME *qTime;
-	Boolean objSel=FALSE; short v;
+	Boolean objSel=false; short v;
 
 	qTime = pTime;
 	subL = qTime->subL;
 	newSubL = FirstSubLINK(newObjL);
 
 	while (qTime->pTime==pTime->pTime) {
-		if (NoteSEL(subL)) objSel = TRUE;
+		if (NoteSEL(subL)) objSel = true;
 
 		if (qTime->mult > 1) {
 			v = NoteVOICE(subL);
@@ -466,6 +466,7 @@ LINK CopySubObjs(Document *doc, LINK newObjL, PTIME *pTime)
 	return newSubL;
 }
 
+
 /* -------------------------------------------------------------------------- CopySync -- */
 /* Create a new Sync with subCount nEntries and copy object level information
 from pTime into it. */
@@ -487,6 +488,7 @@ LINK CopySync(Document *doc, short subCount, PTIME *pTime)
 	
 	return newObjL;
 }
+
 
 /* -------------------------------------------------------------------- InsertJDBefore -- */
 /* Pull pL out of its linked list and insert it before newObjL in newObjL's list. */
@@ -781,7 +783,7 @@ its relative-object links.. For J_D objects which can only be relative to SYNCs.
 
 static void RelocateJDObj(Document */*doc*/, LINK pL, LINK baseMeasL, PTIME *durArray)
 {
-	LINK firstL, newObjL, lastL, newLastL;
+	LINK firstL, lastL, newLastL, newObjL=NILINK;
 	PTIME *pTime;
 
 	switch (ObjLType(pL)) {
@@ -819,7 +821,6 @@ static void RelocateJDObj(Document */*doc*/, LINK pL, LINK baseMeasL, PTIME *dur
 			break;
 		case DYNAMtype:
 			if (IsHairpin(pL)) {
-				newObjL = NILINK;
 				firstL = DynamFIRSTSYNC(pL);
 				for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 					if (pTime->objL==firstL) {
@@ -926,6 +927,7 @@ void DebugDurArray(short arrBound, PTIME *durArray)
 }
 
 #endif
+
 
 /* ---------------------------------------------------------------------- RelocateObjs -- */
 /* Relocate all J_IT & J_IP objects, and all J_D objects which can only be relative
@@ -1066,7 +1068,7 @@ static LINK InsertClJITBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mer
 	LINK copyL;
 	short numObjs;
 
-	copyL = DuplicateObject(ObjLType(pL),pL,FALSE,clipboard,doc,FALSE);
+	copyL = DuplicateObject(ObjLType(pL),pL,false,clipboard,doc,false);
 	if (!copyL) return NILINK;
 
 	/* GetNumClObjs installs clipboard and re-installs doc; SetCopyMap
@@ -1100,7 +1102,7 @@ static LINK InsertClJIPBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mer
 	LINK copyL;
 	short numObjs;
 
-	copyL = DuplicateObject(ObjLType(pL),pL,FALSE,clipboard,doc,FALSE);
+	copyL = DuplicateObject(ObjLType(pL),pL,false,clipboard,doc,false);
 	if (!copyL) return NILINK;
 
 	/* GetNumClObjs installs clipboard and re-installs doc; SetCopyMap
@@ -1132,7 +1134,7 @@ static LINK InsertClJDBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *merg
 	LINK copyL;
 	short numObjs;
 
-	copyL = DuplicateObject(ObjLType(pL),pL,FALSE,clipboard,doc,FALSE);
+	copyL = DuplicateObject(ObjLType(pL),pL,false,clipboard,doc,false);
 	if (!copyL) return NILINK;
 
 	/* GetNumClObjs installs clipboard and re-installs doc; SetCopyMap
@@ -1157,6 +1159,7 @@ static LINK InsertClJDBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *merg
 
 
 /* -------------------------------------------------------------------------------------- */
+/* Functions to relocate a single obj from the clipboard. Intended for Merge operations. */
 
 static void RelocateClJITObj(Document *, LINK, LINK, LINK, PTIME *, short, COPYMAP *, short *);
 static void RelocateClJIPObj(Document *, LINK, LINK, LINK, PTIME *, short, COPYMAP *, short *);
@@ -1401,7 +1404,7 @@ the clipboard.*/
 static void RelocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durArray,
 								short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
-	LINK firstL,newObjL,lastL,newLastL,copyL;
+	LINK firstL,lastL,newLastL,copyL,newObjL=NILINK;
 	PTIME *pTime;
 
 	switch (ObjLType(pL)) {
@@ -1448,7 +1451,6 @@ static void RelocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durAr
 			break;
 		case DYNAMtype:
 			if (IsHairpin(pL)) {
-				newObjL = NILINK;
 				firstL = DynamFIRSTSYNC(pL);
 				for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 					if (pTime->objL==firstL) {
@@ -1532,9 +1534,12 @@ static void RelocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durAr
 }
 
 
+/* -------------------------------------------------------------------------------------- */
+/* Functions to relocate a list of objs from the clipboard. Intended for Merge ops. */
+
 /* -------------------------------------------------------------------- RelocateClObjs -- */
-/* Relocate all J_IT & J_IP objects from the clipboard, and all J_D objects from
-the clipboard which can only be relative to SYNCs. */
+/* Relocate all J_IT & J_IP objects from the clipboard, and all J_D objects from the
+clipboard which can only be relative to SYNCs. */
 
 void RelocateClObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startMeas,
 						LINK endMeas, PTIME *durArray, short stfDiff, COPYMAP *mergeMap,
@@ -1577,8 +1582,8 @@ void RelocateClObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startM
 
 
 /* -------------------------------------------------------------- RelocateClGenlJDObjs -- */
-/* Relocate all J_D objects to be merged in from the clipboard which can be
-relative to J_IT objects other than SYNCs or J_IP objects. */
+/* Relocate all J_D objects to be merged in from the clipboard which can be relative
+to J_IT objects other than SYNCs or J_IP objects. */
 	
 void RelocateClGenlJDObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startMeas,
 									LINK endMeas, PTIME *durArray, short stfDiff, COPYMAP *mergeMap,
@@ -1607,9 +1612,10 @@ void RelocateClGenlJDObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK 
 	InstallDoc(doc);
 }
 
+
 /* -------------------------------------------------------- GetFirstBeam/Tuplet/Ottava -- */
-/* The following functions return the first owning object in the object list for
-any of the notes in the sync argument. */
+/* The following functions return the first owning object in the object list for any
+of the notes in the sync argument. */
 
 LINK GetFirstBeam(LINK syncL)
 {
@@ -1618,7 +1624,7 @@ LINK GetFirstBeam(LINK syncL)
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
 		if (NoteBEAMED(aNoteL)) {
-			beamL = LVSearch(syncL, BEAMSETtype, NoteVOICE(aNoteL), TRUE, FALSE);
+			beamL = LVSearch(syncL, BEAMSETtype, NoteVOICE(aNoteL), true, false);
 			if (firstBeam) {
 				if (IsAfterIncl(beamL, firstBeam))
 					firstBeam = beamL;
@@ -1635,7 +1641,7 @@ LINK GetFirstTuplet(LINK syncL)
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
 		if (NoteINTUPLET(aNoteL)) {
-			tupletL = LVSearch(syncL, TUPLETtype, NoteVOICE(aNoteL), TRUE, FALSE);
+			tupletL = LVSearch(syncL, TUPLETtype, NoteVOICE(aNoteL), true, false);
 			if (firstTuplet) {
 				if (IsAfterIncl(tupletL, firstTuplet))
 					firstTuplet = tupletL;
@@ -1652,7 +1658,7 @@ LINK GetFirstOttava(LINK syncL)
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
 		if (NoteINOTTAVA(aNoteL)) {
-			octL = LSSearch(syncL, OTTAVAtype, NoteSTAFF(aNoteL), TRUE, FALSE);
+			octL = LSSearch(syncL, OTTAVAtype, NoteSTAFF(aNoteL), true, false);
 			if (firstOct) {
 				if (IsAfterIncl(octL, firstOct))
 					firstOct = octL;
@@ -1714,7 +1720,7 @@ LINK GetBaseLink(Document *doc, short type, LINK startMeasL)
 {
 	LINK syncL, aNoteL, beamL, octL, tupletL;
 	
-	syncL = LSSearch(doc->selStartL, SYNCtype, ANYONE, FALSE, FALSE);
+	syncL = LSSearch(doc->selStartL, SYNCtype, ANYONE, false, false);
 	aNoteL = FirstSubLINK(syncL);
 
 	switch (type) {

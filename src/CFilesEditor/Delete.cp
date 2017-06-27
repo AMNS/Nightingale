@@ -1142,7 +1142,7 @@ static LINK FindTheBeam(LINK startL, short voice)
 	pbSearch.needSelected = false;
 	pbSearch.inSystem = true;					/* true until we start handling crossSystem beams. */
 	pbSearch.subtype = NoteBeam;
-	lBeamL = L_Search(startL, BEAMSETtype, TRUE, &pbSearch);
+	lBeamL = L_Search(startL, BEAMSETtype, true, &pbSearch);
 	
 	if (lBeamL) {
 		aNBeamL = FirstSubLINK(lBeamL);
@@ -1167,9 +1167,9 @@ static LINK FindTheGRBeam(LINK startL, short voice)
 	pbSearch.id = ANYONE;
 	pbSearch.voice = voice;
 	pbSearch.needSelected = false;
-	pbSearch.inSystem = TRUE;					/* TRUE until we start handling crossSystem beams. */
+	pbSearch.inSystem = true;					/* true until we start handling crossSystem beams. */
 	pbSearch.subtype = GRNoteBeam;
-	lBeamL = L_Search(startL, BEAMSETtype, TRUE, &pbSearch);
+	lBeamL = L_Search(startL, BEAMSETtype, true, &pbSearch);
 	
 	if (lBeamL) {
 		aNBeamL = FirstSubLINK(lBeamL);
@@ -1234,7 +1234,7 @@ static void FixDelBeams(Document *doc)
 					}
 	
 					/* If lBeamL extends past the right end of the range (all the way
-						across the range), set spansRange TRUE and save beam end syncs
+						across the range), set spansRange true and save beam end syncs
 						for lBeamL in beamStartL[voice],beamEndL[voice]. 
 						If beamFirstL exists, it is the last unselected sync in the beginning
 						of the range of the beamset. Otherwise, take the first unselected
@@ -1254,7 +1254,7 @@ static void FixDelBeams(Document *doc)
 						else
 							beamStartL[voice] = endL;
 						beamEndL[voice] = pLastL;
-						spansRange = TRUE;
+						spansRange = true;
 					}
 	
 					/* Delete the beam, and if it didn't span the range, re-beam
@@ -1268,14 +1268,14 @@ static void FixDelBeams(Document *doc)
 					lBeam = GetPBEAMSET(lBeamL);
 					crossSys = lBeam->crossSystem;
 					firstSys = lBeam->firstSystem;
-					RemoveBeam(doc, lBeamL, voice, TRUE);
+					RemoveBeam(doc, lBeamL, voice, true);
 					if (spansRange) { spansRange = false; continue; }
 					if (nInBeam >= 2) {
 						newBeamL = CreateBEAMSET(doc, pFirstL, qL, voice, nInBeam, false,
 															doc->voiceTab[voice].voiceRole);
 						newBeam = GetPBEAMSET(newBeamL);
 						if (crossSys && !firstSys) {
-							newBeam->crossSystem = TRUE;
+							newBeam->crossSystem = true;
 							newBeam->firstSystem = false;
 						}
 					}
@@ -1301,7 +1301,7 @@ static void FixDelBeams(Document *doc)
 					rBeam = GetPBEAMSET(rBeamL);
 					crossSys = rBeam->crossSystem;
 					firstSys = rBeam->firstSystem;
-					RemoveBeam(doc, rBeamL, voice, TRUE);
+					RemoveBeam(doc, rBeamL, voice, true);
 					rStartL = LSSearch(endL, SYNCtype, voice, false, false);	/* Get new beginning */
 					
 					if (!IsAfterIncl(rStartL, rEndL)) {							/* Excludes undefined relationship (IsAfter doesn't) */
@@ -1319,7 +1319,7 @@ static void FixDelBeams(Document *doc)
 															false, doc->voiceTab[voice].voiceRole);
 						newBeam = GetPBEAMSET(newBeamL);
 						if (crossSys && firstSys)
-							newBeam->crossSystem = newBeam->firstSystem = TRUE;
+							newBeam->crossSystem = newBeam->firstSystem = true;
 					}
 				}
 			}
@@ -1363,13 +1363,13 @@ static void PostFixDelBeams(Document *doc)
 					pbSearch.needSelected = false;
 					pbSearch.inSystem = false;
 					pbSearch.subtype = NoteBeam;
-					prevBeamL = L_Search(LeftLINK(newBeamL), BEAMSETtype, TRUE, &pbSearch);
+					prevBeamL = L_Search(LeftLINK(newBeamL), BEAMSETtype, true, &pbSearch);
 					if (prevBeamL)
 						if (!SameSystem(newBeamL, prevBeamL)) {
 							prevBeam = GetPBEAMSET(prevBeamL);
 							if (prevBeam->crossSystem && prevBeam->firstSystem) {
 								newBeam = GetPBEAMSET(newBeamL);
-								newBeam->crossSystem = TRUE;
+								newBeam->crossSystem = true;
 								newBeam->firstSystem = false;
 							}
 						}
@@ -1379,7 +1379,7 @@ static void PostFixDelBeams(Document *doc)
 							nextBeam = GetPBEAMSET(nextBeamL);
 							if (nextBeam->crossSystem && !nextBeam->firstSystem) {
 								newBeam = GetPBEAMSET(newBeamL);
-								newBeam->crossSystem = newBeam->firstSystem = TRUE;
+								newBeam->crossSystem = newBeam->firstSystem = true;
 							}
 						}
 				}
@@ -1412,7 +1412,7 @@ static void FixDelGRBeams(Document *doc)
 	
 					lStartL = FirstInBeam(lBeamL);
 					lEndL = RightLINK(LastInBeam(lBeamL));
-					RemoveGRBeam(doc, lBeamL, v, TRUE);
+					RemoveGRBeam(doc, lBeamL, v, true);
 					RecomputeGRNoteStems(doc, lStartL, lEndL, v);
 				}
 	
@@ -1420,7 +1420,7 @@ static void FixDelGRBeams(Document *doc)
 				if (rBeamL) {										/* Diff. beam across r. end? */
 					rStartL = FirstInBeam(rBeamL);					/* Yes, remove beam but save bounds */
 					rEndL = LastInBeam(rBeamL);
-					RemoveGRBeam(doc, rBeamL, v, TRUE);
+					RemoveGRBeam(doc, rBeamL, v, true);
 					RecomputeGRNoteStems(doc, lStartL, lEndL, v);
 				}
 			}
@@ -1682,7 +1682,7 @@ static void FixDelAccidentals(Document *doc, short staff, LINK stfSelStart, LINK
 		pbSearch.voice = ANYONE;
 		pbSearch.needSelected = false;
 		pbSearch.inSystem = false;
-		pbSearch.needInMeasure = TRUE;
+		pbSearch.needInMeasure = true;
 		nextKSL = L_Search(stfSelEnd, KEYSIGtype, GO_RIGHT, &pbSearch);
 		if (!nextKSL) nextKSL = doc->tailL;
 	}
@@ -1729,7 +1729,7 @@ static void PreFDContext(Document *doc, short stf, LINK firstStaffL)
 			case KEYSIGtype:
 				break;
 			case TIMESIGtype:
-				if (ObjOnStaff(pL, stf, TRUE)) {
+				if (ObjOnStaff(pL, stf, true)) {
 					aStaff->timeSigType = DFLT_TSTYPE;
 					aStaff->numerator = config.defaultTSNum;
 					aStaff->denominator = config.defaultTSDenom;
@@ -1843,7 +1843,7 @@ static void ExtendJDRange(Document *doc)
 					}
 			}
 			if (nSel==LinkNENTRIES(pL))
-				LinkSEL(pL) = TRUE;
+				LinkSEL(pL) = true;
 		}
 }
 
@@ -1854,7 +1854,7 @@ void ChangeSpaceBefFirst(
 		Document *doc,
 		LINK pL,
 		DDIST change,
-		Boolean allSystems 	/* TRUE=change in pL's System and all following, else pL's only */
+		Boolean allSystems 	/* true=change in pL's System and all following, else pL's only */
 		)
 {
 	LINK qL, firstMeas;
@@ -1927,7 +1927,7 @@ static Boolean InvisifyBFClef(Document */*doc*/, LINK clefL)
 			
 			UpdateBFClefStaff(clefL,ClefSTAFF(aClefL),DFLT_CLEF);
 
-			didAnything = TRUE;
+			didAnything = true;
 		}
 
 	return didAnything;
@@ -1998,7 +1998,7 @@ static Boolean InvisifyBFKeySig(Document */*doc*/, LINK keySigL)
 			KEYSIG_COPY((PKSINFO)aKeySig->KSItem, &newKSInfo);		/* Copy old keysig. info */
 			newKSInfo.nKSItems = DFLT_NKSITEMS;
 			UpdateBFKSStaff(keySigL,KeySigSTAFF(aKeySigL),newKSInfo);
-			didAnything = TRUE;
+			didAnything = true;
 		}
 
 	return didAnything;
@@ -2018,7 +2018,7 @@ static void RemoveBFKeySig(Document *doc, LINK keySigL)
 	needWidth = GetKeySigWidth(doc,keySigL,1);
 	
 	change = needWidth-haveWidth;
-	if (change) ChangeSpaceBefFirst(doc, keySigL, change, TRUE);
+	if (change) ChangeSpaceBefFirst(doc, keySigL, change, true);
 	if (!isKeySig) {
 		DSRemoveGraphic(doc, keySigL);
 		DSRemoveTempo(doc, keySigL);
@@ -2066,7 +2066,7 @@ static Boolean InvisifyBFTimeSig(Document */*doc*/, LINK timeSigL)
 
 			UpdateBFTSStaff(timeSigL,TimeSigSTAFF(aTimeSigL),
 										DFLT_TSTYPE,config.defaultTSNum,config.defaultTSDenom);
-			didAnything = TRUE;
+			didAnything = true;
 		}
 
 	return didAnything;
@@ -2225,7 +2225,7 @@ static Boolean DelSelPrepare(
 				LINK *firstMeasL,	/* First Measure of the score */
 				LINK *prevMeasL,	/* Measure just before doc->selStartL */
 				LINK *startL,		/* Link just before doc->selStartL */
-				Boolean *noResp,	/* Returns TRUE if nothing deleted that could need respacing */
+				Boolean *noResp,	/* Returns true if nothing deleted that could need respacing */
 				short *fixTimes,
 				Boolean *noUpMeasNums
 				)
@@ -2243,7 +2243,7 @@ static Boolean DelSelPrepare(
 	
 	/* Don't respace if the only symbols deleted are type J_D symbols. */
 	
-	*noResp = TRUE;
+	*noResp = true;
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (JustTYPE(pL)!=J_D) {
 			*noResp = false;
@@ -2264,7 +2264,7 @@ static Boolean DelSelPrepare(
 	/* Don't update Measure numbers if the range being deleted is entirely within
 		one Measure and the Measure will still contain at least one Sync or GRSync. */
 		
-	upMeasNums = TRUE;
+	upMeasNums = true;
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && MeasureTYPE(pL)) goto upMNDone;
 	for (pL=RightLINK(*prevMeasL); pL!=doc->selStartL; pL=RightLINK(pL))
@@ -2284,7 +2284,7 @@ upMNDone:
 	FixDelContext(doc);
 	ExtendJDRange(doc);
 
-	return TRUE;
+	return true;
 }
 
 
@@ -2364,7 +2364,7 @@ static void DelSelCleanup(
 	
 	if (!noUpMeasNums) UpdateMeasNums(doc, prevMeasL);
 	
-	if (content) UpdateVoiceTable(doc, TRUE);		/* If changing structure, can't do this yet */
+	if (content) UpdateVoiceTable(doc, true);		/* If changing structure, can't do this yet */
 	
 	if (fixTimes==RECALC_ALL) FixTimeStamps(doc, prevMeasL, NILINK);
 	else if (fixTimes==RECALC_ONEMEAS) FixTimeStamps(doc, prevMeasL, prevMeasL);
@@ -2404,8 +2404,8 @@ actually deleted. */
 
 void DeleteSelection(
 		register Document *doc,
-		Boolean content,		/* TRUE=deleting content (normal), else structure */
-		Boolean *noResp		/* Returns TRUE if nothing deleted that could need respacing */
+		Boolean content,		/* true=deleting content (normal), else structure */
+		Boolean *noResp			/* Returns true if nothing deleted that could need respacing */
 		)
 {
 	register LINK pL;
@@ -2481,7 +2481,7 @@ void DeleteSelection(
 							tempL = NextCONNECTL(subL);
 							RemoveLink(pL, CONNECTheap, FirstSubLINK(pL), subL);
 							HeapFree(CONNECTheap,subL);
-							didAnything = TRUE;
+							didAnything = true;
 							subL = tempL;
 						}
 						else subL = NextCONNECTL(subL);					
@@ -2490,7 +2490,8 @@ void DeleteSelection(
 				break;
 			
 			case MEASUREtype: {
-					PMEASURE	pObj, lMeasure, rMeasure; PAMEASURE pSub; 
+					PMEASURE pObj, lMeasure, rMeasure;
+					PAMEASURE pSub; 
 					LINK subL, tempL;
 					
 					/* We assume the only case of deleting measures we have to handle is
@@ -2533,7 +2534,7 @@ void DeleteSelection(
 							RemoveLink(pL, MEASUREheap, FirstSubLINK(pL), subL);
 							HeapFree(MEASUREheap,subL);
 							subL = tempL;
-							didAnything = TRUE;
+							didAnything = true;
 						}
 						else subL = NextMEASUREL(subL);
 					}
@@ -2575,7 +2576,7 @@ void DeleteSelection(
 							RemoveLink(pL, PSMEASheap, FirstSubLINK(pL), subL);
 							HeapFree(PSMEASheap,subL);
 							subL = tempL;
-							didAnything = TRUE;
+							didAnything = true;
 						}
 						else subL = NextPSMEASL(subL);
 					}
@@ -2584,7 +2585,8 @@ void DeleteSelection(
 				break;
 
 			case CLEFtype: {
-					PACLEF pSub; LINK	subL, tempL;
+					PACLEF pSub;
+					LINK subL, tempL;
 
 					/* Handle deletion of initial clef. */
 					newSelL = RightLINK(pL);			
@@ -2611,7 +2613,7 @@ void DeleteSelection(
 							tempL = NextCLEFL(subL);
 							RemoveLink(pL, CLEFheap, FirstSubLINK(pL), subL);
 							HeapFree(CLEFheap,subL);
-							didAnything = TRUE;
+							didAnything = true;
 							subL = tempL;
 						}
 						else subL = NextCLEFL(subL);
@@ -2622,7 +2624,8 @@ void DeleteSelection(
 				break;
 
 			case KEYSIGtype: {
-					PAKEYSIG	pSub; LINK subL, tempL;
+					PAKEYSIG pSub;
+					LINK subL, tempL;
 
 					/* Handle deletion of initial keySig. */
 					newSelL = RightLINK(pL);
@@ -2648,7 +2651,7 @@ void DeleteSelection(
 							FixStfBeforeFirst(doc,pL,subL);
 							RemoveLink(pL, KEYSIGheap,FirstSubLINK(pL),subL);
 							HeapFree(KEYSIGheap,subL);
-							didAnything = TRUE;
+							didAnything = true;
 							subL = tempL;
 						}
 						else subL = NextKEYSIGL(subL);
@@ -2668,7 +2671,8 @@ void DeleteSelection(
 				break;
 
 			case TIMESIGtype: {
-				PATIMESIG pSub; LINK subL, tempL;	
+				PATIMESIG pSub;
+				LINK subL, tempL;	
 					
 					/* Handle deletion of initial timeSig. */
 					newSelL = RightLINK(pL);
@@ -2693,7 +2697,7 @@ void DeleteSelection(
 							tempL = NextTIMESIGL(subL);
 							RemoveLink(pL, TIMESIGheap,FirstSubLINK(pL),subL);
 							HeapFree(TIMESIGheap,subL);
-							didAnything = TRUE;
+							didAnything = true;
 							subL = tempL;
 						}
 						else subL = NextTIMESIGL(subL);
@@ -2704,11 +2708,12 @@ void DeleteSelection(
 				break;
 
 			case SYNCtype: {
-				PANOTE pSub; LINK pSubL,qSubL,tempL; short v;
-				Boolean delOct=TRUE, voiceChanged[MAXVOICES+1];
+				PANOTE pSub;
+				LINK pSubL,qSubL,tempL;
+				short v;
+				Boolean delOct=true, voiceChanged[MAXVOICES+1];
 
-					/* Get remaining nEntries of sync. If none, delete entire
-						object. */
+					/* Get remaining nEntries of sync. If none, delete entire object. */
 					pSubL = FirstSubLINK(pL);
 					newSelL = RightLINK(pL);
 					for ( ; pSubL; pSubL=NextNOTEL(pSubL)) {
@@ -2731,7 +2736,7 @@ void DeleteSelection(
 						tempL = NextNOTEL(pSubL);
 						pSub = GetPANOTE(pSubL);
 						if (pSub->selected) {
-							voiceChanged[pSub->voice] = TRUE;						
+							voiceChanged[pSub->voice] = true;						
 							if (pSub->inTuplet)
 								DelTupletForSync(doc, pL, pSubL);
 							if (pSub->inOttava) {
@@ -2749,7 +2754,7 @@ void DeleteSelection(
 							DSRemoveDynamic(doc, pL, NoteSTAFF(pSubL));
 							RemoveLink(pL, NOTEheap, FirstSubLINK(pL), pSubL);
 							HeapFree(NOTEheap,pSubL);
-							didAnything = TRUE;
+							didAnything = true;
 						}
 						pSubL = tempL;
 					}
@@ -2787,10 +2792,10 @@ void DeleteSelection(
 						tempL = NextGRNOTEL(subL);
 						pSub = GetPAGRNOTE(subL);
 						if (pSub->selected) {
-							voiceChanged[pSub->voice] = TRUE;						
+							voiceChanged[pSub->voice] = true;						
 							RemoveLink(pL, GRNOTEheap, FirstSubLINK(pL), subL);
 							HeapFree(GRNOTEheap,subL);
-							didAnything = TRUE;
+							didAnything = true;
 						}
 						subL = tempL;
 					}
@@ -2808,7 +2813,7 @@ void DeleteSelection(
 				rather than Unbeam, since we do not need to check the endpoints for
 				beams across them. Same for ottavas and tuplets. */
 
-				didAnything = TRUE;
+				didAnything = true;
 				newSelL = RightLINK(pL);
 				firstSyncL = FirstInBeam(pL);
 				lastSyncL = LastInBeam(pL);
@@ -2819,7 +2824,7 @@ void DeleteSelection(
 				break;
 
 			case OTTAVAtype:
-				didAnything = TRUE;
+				didAnything = true;
 				newSelL = RightLINK(pL);
 				firstSyncL = FirstInOttava(pL);
 				lastSyncL = LastInOttava(pL);
@@ -2827,7 +2832,7 @@ void DeleteSelection(
 				break;
 
 			case TUPLETtype:
-				didAnything = TRUE;
+				didAnything = true;
 				newSelL = RightLINK(pL);
 				firstSyncL = FirstInTuplet(pL);
 				lastSyncL = LastInTuplet(pL);
@@ -2838,7 +2843,7 @@ void DeleteSelection(
 				Boolean isHairpin;
 
 					isHairpin = IsHairpin(pL);
-					didAnything = TRUE;
+					didAnything = true;
 					newSelL = RightLINK(pL);
 					InvalObject(doc, pL, false);
 					
@@ -2854,7 +2859,7 @@ void DeleteSelection(
 			case RPTENDtype: {
 				PRPTEND pRptEnd, startRpt, endRpt;
 				
-					didAnything = TRUE;
+					didAnything = true;
 					newSelL = RightLINK(pL);
 					pRptEnd = GetPRPTEND(pL);
 					if (pRptEnd->startRpt) {
@@ -2871,8 +2876,8 @@ void DeleteSelection(
 
 			case SLURtype: {
 				PSLUR 	pSlur;
-				LINK		firstSyncL, lastSyncL, otherSlur;
-				Boolean  lastIsSys, firstIsMeas, left, right;
+				LINK	firstSyncL, lastSyncL, otherSlur;
+				Boolean	lastIsSys, firstIsMeas, left, right;
 				
 					didAnything = true;
 					right = true; left = false;

@@ -1561,7 +1561,7 @@ Menu, Merge, MIDIFOCmd, Nodes, Reconstruct.
 
 -------------------------------------------------------------------------------
 
-16-20 June
+16-21 June
 
 Swapped the association of voice no. and color for red and green. Affects DrawUtils.
 
@@ -1575,3 +1575,19 @@ voices on the staff. Affects PitchUtils.
 
 Minor cleanup, including renaming FixRespelledVoice() to FixVoiceForPitchChange().
 Affects PitchUtils.h; Delete, DrawUtils, Merge, Objects, PitchCmds, PitchUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+22-27 June
+
+Continued implementation of "Paste as Cue" command. Affects .rsrc: fix Edit menu
+shortcuts; Merge.
+
+In Browser and Debug Display, we now show the object <spareFlag> as well as the five
+flags we've always shown. Affects Browser, DebugDisplay, DebugHighLevel.
+
+Changed the bullet char as marker for the current mode in the Test menu to asterisk;
+aside from being needlessly charset dependent (bullet isn't in ASCII), it might be
+causing Xcode's repeated problems finding Menu.cp unreadable. Affects Menu.
+
+Minor cleanup. Affects Browser, DebugUtils, MCaret, Menu, Merge, Reconstruct.

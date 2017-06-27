@@ -169,10 +169,12 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 
 
 /* --------------------------------------------------------------------------- Browser -- */
-/* Browser displays and handles interaction with a small window that lets the
-user (a Nightingale programmer, presumably) prowl around in an object list.
-tailL may be NILINK; in this case, the "go to tail" button will be inoperative,
-but everything else will work as usual. */
+/* Browser displays and handles interaction with a small window that lets the user
+(a Nightingale programmer, presumably) prowl around in an object list.
+
+If headL is anything other than doc->headL, the "Go to" button will be inoperative; if
+tailL is NILINK, the tiny "go to tail" button will be inoperative. In either case,
+everything else will work as usual. */
 
 void Browser(Document *doc, LINK headL, LINK tailL)
 {
@@ -184,9 +186,9 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	Boolean done;
 	Rect objRect;
 	GrafPtr oldPort;
-	LINK pL, oldL;
-	LINK oldpL;
-	ControlHandle scrollHdl;  short part;
+	LINK pL, oldL, oldpL;
+	ControlHandle scrollHdl;
+	short part;
 	Document *saveDoc;
 	ModalFilterUPP	filterUPP;
 
@@ -223,7 +225,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	else if (headL==doc->masterHeadL) strcpy(objList, "Master Page ");
 	else if (headL==doc->undo.headL) strcpy(objList, "Undo ");
 	
-	/* We support the "Go" button only for the main object list. */
+	/* We support the "Go" button only if headL is the head of the main object list. */
 	if (headL!=doc->headL) {
 		GetDialogItem(dlog, iGo, &itype, (Handle *)&tHdl, &tRect);
 		HiliteControl(tHdl, CTL_INACTIVE);
@@ -628,16 +630,12 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "@%lx xd,yd=%d,%d", p, p->xd, p->yd);
 	DrawTextLine(s);
 	strcpy(s, "flags=");
-	if (LinkSEL(pL))
-		strcat(s, "SELECTED ");
-	if (LinkVIS(pL))
-		strcat(s, "VISIBLE ");
-	if (LinkSOFT(pL))
-		strcat(s, "SOFT ");
-	if (LinkVALID(pL))
-		strcat(s, "VALID ");
-	if (LinkTWEAKED(pL))
-		strcat(s, "TWEAKED ");
+	if (LinkSEL(pL))		strcat(s, "SELECTED ");
+	if (LinkVIS(pL))		strcat(s, "VISIBLE ");
+	if (LinkSOFT(pL))		strcat(s, "SOFT ");
+	if (LinkVALID(pL))		strcat(s, "VALID ");
+	if (LinkTWEAKED(pL))	strcat(s, "TWEAKED ");
+	if (LinkSPAREFLAG(pL))	strcat(s, "SPARE ");
 	DrawTextLine(s);
 	r = LinkOBJRECT(pL);
 	sprintf(s, "objRect/t l b r=%d %d %d %d", r.top, r.left, r.bottom, r.right);

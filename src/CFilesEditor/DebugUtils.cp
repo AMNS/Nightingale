@@ -1,6 +1,6 @@
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
- * NOTATION FOUNDATION. Copyright © 2016 by Avian Music Notation Foundation.
+ * NOTATION FOUNDATION. Copyright © 2017 by Avian Music Notation Foundation.
  * All Rights Reserved.
  */
 
@@ -61,7 +61,7 @@ positive height is probably pointless.  --DAB, April 2015 */
 #define ZERODIM_RECT(r)		(  (r).left==(r).right || (r).top==(r).bottom	)
 
 
-/* ---------------------------------------------------------------------- DBadLink --- */
+/* ------------------------------------------------------------------------- DBadLink --- */
 /* Given a type and a LINK, check whether the LINK is bad and return TRUE if so,
 FALSE if it's OK. Checks whether the LINK is larger than the heap currently allows,
 and if LINK is on the freelist: in either case, it's not valid. */
@@ -94,7 +94,7 @@ Boolean DBadLink(
 }
 
 
-/* -------------------------------------------------------------------- DCheckHeaps -- */
+/* ----------------------------------------------------------------------- DCheckHeaps -- */
 /* Check whether <doc>'s Heaps are the current global Heaps. */
 
 Boolean DCheckHeaps(Document *doc)
@@ -111,7 +111,7 @@ Boolean DCheckHeaps(Document *doc)
 
 
 
-/* ----------------------------------------------------------------- DCheckHeadTail -- */
+/* -------------------------------------------------------------------- DCheckHeadTail -- */
 /* Do consistency check on head or tail of data structure (object list). */
 
 Boolean DCheckHeadTail(
@@ -169,7 +169,7 @@ Boolean DCheckHeadTail(
 }
 
 
-/* ---------------------------------------------------------------- DCheckSyncSlurs -- */
+/* ------------------------------------------------------------------- DCheckSyncSlurs -- */
 /* Given a note, if it claims to be slurred or tied, check for a slur object for its
 voice that refers to it. If it's tied, also look for a match for its note number in
 the "other" Sync. */
@@ -299,7 +299,7 @@ Boolean DCheckSyncSlurs(Document *doc, LINK syncL, LINK aNoteL)
 }
 
 
-/* -------------------------------------------------------------------- DCheckMBBox -- */
+/* ----------------------------------------------------------------------- DCheckMBBox -- */
 
 Boolean DCheckMBBox(
 				Document *doc,
@@ -352,7 +352,7 @@ Boolean DCheckMBBox(
 }
 
 
-/* -------------------------------------------------------------- DCheckMeasSubobjs -- */
+/* ----------------------------------------------------------------- DCheckMeasSubobjs -- */
 /* Assumes the MEASUREheap is locked. */
 
 Boolean DCheckMeasSubobjs(
@@ -427,7 +427,7 @@ Boolean DCheckMeasSubobjs(
 }
 
 
-/* --------------------------------------------------------------------- DCheckNode -- */
+/* ------------------------------------------------------------------------ DCheckNode -- */
 /* Do legality and simple (context-free or dependent only on "local" context)
 consistency checks on an individual node. Returns:
 	0 if no problems are found,
@@ -447,8 +447,7 @@ short DCheckNode(
 {
 	short		minEntries, maxEntries;
 	Boolean		bad;
-	Boolean		terrible, abnormal,
-				objRectOrdered, lRectOrdered, rRectOrdered;
+	Boolean		terrible, abnormal, objRectOrdered, lRectOrdered, rRectOrdered;
 	PMEVENT		p;
 	PMEVENT		apLeft, apRight, pLeft, pRight;
 	PSYSTEM		pSystem;
@@ -552,7 +551,7 @@ short DCheckNode(
 
 			else if (objRectOrdered) {
 
-/* CHECK the objRect's relative horizontal position. ----------------------------
+/* CHECK the objRect's relative horizontal position. --------------------------------
  *	We first try find objects in this System to its left and/or right in the data
  *	structure that have meaningful objRects. If we find such object(s), we check whether
  *	their relative graphic positions agree with their relative data structure positions.
@@ -596,7 +595,7 @@ short DCheckNode(
 									pL);
 		}
 
-/* CHECK everything else. Object type dependent. ----------------------------- */
+/* CHECK everything else. Object type dependent. -------------------------------- */
 
 		switch (ObjLType(pL)) {
 		
@@ -1464,7 +1463,7 @@ short DCheckNode(
 }
 
 
-/* ------------------------------------------------------------------ DCheckNodeSel -- */
+/* --------------------------------------------------------------------- DCheckNodeSel -- */
 /* Do consistency check on selection status between object and subobject: if
 object is not selected, no subobjects should be selected. Does not check the other
 type of consistency, namely if object is selected, at least one subobject should
@@ -1549,12 +1548,12 @@ Boolean DCheckNodeSel(Document *doc, LINK pL)
 		default:
 			;
 	}
-	if (bad) return TRUE;
-	else	   return FALSE;		
+
+	return bad;
 }
 
 
-/* ---------------------------------------------------------------------- DCheckSel -- */
+/* ------------------------------------------------------------------------- DCheckSel -- */
 /* Do consistency checks on the selection: check selection start/end links,
 that no node outside the range they describe has its selected flag set, etc.
 Returns TRUE if the selection start or end link is garbage or not even in the
@@ -1608,7 +1607,7 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 	
 	if (doc->selStartL!=doc->selEndL)
 		if (!LinkSEL(doc->selStartL) || !LinkSEL(LeftLINK(doc->selEndL)))
-			COMPLAIN2("DCheckSel: SELECTION RANGE (%u TO %u) IS NOT OPTIMIZED.\n",
+			COMPLAIN2("DCheckSel: SELECTION RANGE (L%u TO L%u) IS NOT OPTIMIZED.\n",
 				doc->selStartL, doc->selEndL);
 	
 	return FALSE;			
@@ -1741,7 +1740,7 @@ Boolean DCheckVoiceTable(Document *doc,
 }
 
 
-/* ---------------------------------------------------------------- DCheckHeirarchy -- */
+/* ------------------------------------------------------------------- DCheckHeirarchy -- */
 /* Check:
 	(1) that the numbers of PAGEs and of SYSTEMs are what the header says they are;
 	(2) that nodes appear on each page in the order (ignoring GRAPHICs and maybe
@@ -1912,9 +1911,9 @@ Boolean DCheckHeirarchy(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ DCheckJDOrder -- */
+/* --------------------------------------------------------------------- DCheckJDOrder -- */
 /* For now, checks only Graphics. FIXME: Should eventually check that every JD object is 
-n the "slot" preceding its relObj or firstObj. */
+in the "slot" preceding its relObj or firstObj. */
 
 Boolean DCheckJDOrder(Document *doc)
 {
@@ -1947,7 +1946,7 @@ Boolean DCheckJDOrder(Document *doc)
 }
 
 
-/* -------------------------------------------------------------------- DCheckBeams -- */
+/* ----------------------------------------------------------------------- DCheckBeams -- */
 /* Check consistency of Beamset objects with notes/rests or grace notes they should
 be referring to. Also check that, after a non-grace Beamset that's the first of a
 cross-system pair, the next non-grace Beamset in that voice is the second of a cross-
@@ -1955,9 +1954,9 @@ system pair. Notes/rests are checked against their Beamset more carefully than
 grace notes are. */
  
 Boolean DCheckBeams(
-					Document *doc,
-					Boolean maxCheck		/* FALSE=skip less important checks */
-					)
+				Document *doc,
+				Boolean maxCheck		/* FALSE=skip less important checks */
+				)
 {
 	PANOTE			aNote, aGRNote;
 	LINK			pL, aNoteL, aGRNoteL;
@@ -2018,13 +2017,13 @@ Next:
 					syncL = L_Search(RightLINK(syncL), (grace? GRSYNCtype : SYNCtype),
 											GO_RIGHT, &pbSearch);
 					if (DBadLink(doc, OBJtype, syncL, TRUE)) {
-						COMPLAIN2("*DCheckBeams: BEAMSET %u: TROUBLE FINDING %sSYNCS.\n", pL,
+						COMPLAIN2("*DCheckBeams: BEAMSET L%u: TROUBLE FINDING %sSYNCS.\n", pL,
 										(grace? "GR" : ""));
 						beamNotesOkay = FALSE;
 						break;
 					}
 					if (!SameSystem(pL, syncL)) {
-						COMPLAIN3("*DCheckBeams: BEAMSET %u: %sSYNC %u NOT IN SAME SYSTEM.\n", pL,
+						COMPLAIN3("*DCheckBeams: BEAMSET L%u: %sSYNC L%u NOT IN SAME SYSTEM.\n", pL,
 										(grace? "GR" : ""), syncL);
 						beamNotesOkay = FALSE;
 						break;
@@ -2045,11 +2044,11 @@ Next:
 					 */
 					if (pNoteBeam->bpSync!=syncL) {
 						if (foundRest && maxCheck) {
-							COMPLAIN("DCheckBeams: BEAMSET %u SYNC LINK INCONSISTENT (WITH RESTS; PROBABLY OK).\n", pL);
+							COMPLAIN("DCheckBeams: BEAMSET L%u SYNC LINK INCONSISTENT (WITH RESTS; PROBABLY OK).\n", pL);
 							beamNotesOkay = FALSE;
 						}
 						else if (!foundRest) {
-							COMPLAIN("*DCheckBeams: BEAMSET %u SYNC LINK INCONSISTENT.\n", pL);
+							COMPLAIN("*DCheckBeams: BEAMSET L%u SYNC LINK INCONSISTENT.\n", pL);
 							beamNotesOkay = FALSE;
 						}
 					}
@@ -2059,7 +2058,7 @@ Next:
 				for (qL = RightLINK(pL); qL!=syncL; qL = RightLINK(qL))
 					if (BeamsetTYPE(qL))
 						if (BeamVOICE(qL)==BeamVOICE(pL)) {
-							COMPLAIN2("*DCheckBeams: BEAMSET %u IN SAME VOICE AS UNFINISHED BEAMSET %u.\n",
+							COMPLAIN2("*DCheckBeams: BEAMSET L%u IN SAME VOICE AS UNFINISHED BEAMSET L%u.\n",
 										qL, pL);
 							break;
 						}
@@ -2077,13 +2076,13 @@ Next:
 		 	for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 		 		aNote = GetPANOTE(aNoteL);
 				if (aNote->beamed) {
-					if (!beamSetL[aNote->voice]) {
-						COMPLAIN2("*DCheckBeams: BEAMED NOTE IN SYNC %d VOICE %d WITHOUT BEAMSET.\n",
-										pL, aNote->voice);
+					if (!beamSetL[NoteVOICE(aNoteL)]) {
+						COMPLAIN3("*DCheckBeams: BEAMED NOTE IN SYNC %d (MEASURE %d) VOICE %d WITHOUT BEAMSET.\n",
+										pL, GetMeasNum(doc, pL), NoteVOICE(aNoteL));
 					}
 					else if (!SyncInBEAMSET(pL, beamSetL[aNote->voice]))
-						COMPLAIN2("*DCheckBeams: BEAMED NOTE IN SYNC %d VOICE %d NOT IN VOICE'S LAST BEAMSET.\n",
-										pL, aNote->voice);
+						COMPLAIN3("*DCheckBeams: BEAMED NOTE IN SYNC %d (MEASURE %d) VOICE %d NOT IN VOICE'S LAST BEAMSET.\n",
+										pL, GetMeasNum(doc, pL), NoteVOICE(aNoteL));
 				}
 			}
 			break;
@@ -2112,7 +2111,7 @@ Next:
 }
 
 
-/* -----------------------------------------------------  DCheckOttavas and helpers -- */
+/* --------------------------------------------------------  DCheckOttavas and helpers -- */
 
 static LINK FindNextSyncGRSync(LINK, short);
 static short CountSyncVoicesOnStaff(LINK, short);
@@ -2249,7 +2248,7 @@ Next:
 }
 
 
-/* -------------------------------------------------------------------- DCheckSlurs -- */
+/* ----------------------------------------------------------------------- DCheckSlurs -- */
 /* For each slur, check:
 	-that the slur object (including ties) and its firstSyncL and lastSyncL appear in
 		the correct order in the data structure.
@@ -2401,7 +2400,7 @@ Boolean DCheckSlurs(Document *doc)
 }
 
 
-/* -------------------------------------------------------------- LegalTupletTotDur -- */
+/* ----------------------------------------------------------------- LegalTupletTotDur -- */
 /* If the given tuplet contains an unknown or whole-measure duration note/rest, return
 -1; else return the tuplet's total duration. NB: in  case of chords, checks only one
 note/rest of the chord. */
@@ -2427,7 +2426,7 @@ short LegalTupletTotDur(LINK tupL)
 }
 
 
-/* ------------------------------------------------------------------ DCheckTuplets -- */
+/* --------------------------------------------------------------------- DCheckTuplets -- */
 /* Check that tuplet objects are in the same measures as their last (and therefore
 all of their) Syncs, and check consistency of tuplet objects with Syncs they should
 be referring to. Also warn about any tuplets whose notes are subject to roundoff
@@ -2509,7 +2508,7 @@ Boolean DCheckTuplets(
 
 
 
-/* ----------------------------------------------------------------- DCheckHairpins -- */
+/* ------------------------------------------------------------------- DCheckHairpins -- */
 /* For each hairpin, check that the Dynamic object and its firstSyncL and lastSyncL
 appear in the correct order in the data structure. */
 
@@ -2542,33 +2541,33 @@ Boolean DCheckHairpins(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ DCheckContext -- */
+/* --------------------------------------------------------------------- DCheckContext -- */
 /* Do consistency checks on the entire score to see if changes of clef, key
 signature, meter and dynamics in context fields of STAFFs and MEASUREs agree
 with appearances of actual CLEF, KEYSIG, TIMESIG and DYNAM objects. */
  
 Boolean DCheckContext(Document *doc)
 {
-	register short	i;
+	register short		i;
 	register PASTAFF	aStaff;
 	register PAMEASURE	aMeas;
-	PACLEF			aClef;
-	PAKEYSIG		aKeySig;
-	PATIMESIG		aTimeSig;
-	PADYNAMIC		aDynamic;
-	PCLEF			pClef;
-	PKEYSIG			pKeySig;
-	register LINK	pL;
-	LINK			aStaffL, aMeasL, aClefL, aKeySigL,
-					aTimeSigL, aDynamicL;
-	SignedByte		clefType[MAXSTAVES+1];			/* Current context: clef, */
-	short			nKSItems[MAXSTAVES+1];			/*   sharps & flats in key sig., */
-	SignedByte		timeSigType[MAXSTAVES+1],		/*   time signature, */
-					numerator[MAXSTAVES+1],
-					denominator[MAXSTAVES+1],
-					dynamicType[MAXSTAVES+1];		/*		dynamic mark */
-	Boolean			aStaffFound[MAXSTAVES+1],
-					aMeasureFound[MAXSTAVES+1];
+	PACLEF				aClef;
+	PAKEYSIG			aKeySig;
+	PATIMESIG			aTimeSig;
+	PADYNAMIC			aDynamic;
+	PCLEF				pClef;
+	PKEYSIG				pKeySig;
+	register LINK		pL;
+	LINK				aStaffL, aMeasL, aClefL, aKeySigL,
+						aTimeSigL, aDynamicL;
+	SignedByte			clefType[MAXSTAVES+1];			/* Current context: clef, */
+	short				nKSItems[MAXSTAVES+1];			/*   sharps & flats in key sig., */
+	SignedByte			timeSigType[MAXSTAVES+1],		/*   time signature, */
+						numerator[MAXSTAVES+1],
+						denominator[MAXSTAVES+1],
+						dynamicType[MAXSTAVES+1];		/*		dynamic mark */
+	Boolean				aStaffFound[MAXSTAVES+1],
+						aMeasureFound[MAXSTAVES+1];
 	register Boolean	bad;
 
 	bad = FALSE;
@@ -2702,11 +2701,7 @@ Boolean DCheckContext(Document *doc)
 }
 
 
-
-
-
-
-/* ---------------------------------------------------------------- DCheck1NEntries -- */
+/* ------------------------------------------------------------------- DCheck1NEntries -- */
 /* Check the given object's nEntries field for agreement with the length of its list
 of subobjects. */
 
@@ -2743,7 +2738,7 @@ Boolean DCheck1NEntries(
 }
 
 
-/* ----------------------------------------------------------------- DCheckNEntries -- */
+/* -------------------------------------------------------------------- DCheckNEntries -- */
 /* For the entire main object list, Check objects' nEntries fields for agreement with
 the lengths of their lists of subobjects. This function is designed to be called
 independently of Debug when things are bad, e.g., to check for Mackey's Disease, so it
@@ -2764,7 +2759,7 @@ Boolean DCheckNEntries(Document *doc)
 }
 
 
-/* ------------------------------------------------------------ DCheck1SubobjLinks -- */
+/* ---------------------------------------------------------------- DCheck1SubobjLinks -- */
 /* Check subobject links for the given object. */
 
 Boolean DCheck1SubobjLinks(Document *doc, LINK pL)

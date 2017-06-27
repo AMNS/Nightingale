@@ -2099,8 +2099,25 @@ It'd be really nice to record "permanently" if a note is a cue note, so (at a mi
 Ngale knows how to play it appropriately -- the obvious thing being to play it at a
 fixed velocity for cues. Is there a bit in ANOTE to record it, a bit that's guaranteed
 to be initialized? Yes! There are several possibilities, e.g., a bit in all three MIDI
-values, <rspIgnore>, and a bit in micropitch.
+values, <rspIgnore>, and a bit in micropitch. The change should be low impact, but
+should really display it in Get Info -- read only? -- and in Browser. ??TBD
 
 Work on Issue #142, undesirable change of stem directions on transposing notes in
-multivoice situations. ??
+multivoice situations. Tricky aspect: How far does the "situation" extend in each
+direction from a Sync w/ multiple voices on the staff? Maybe just decide a measure
+at a time. Also, must change ystem of MainNote as well as yd's of notes.
 
+-------------------------------------------------------------------------------
+
+22-27 June
+
+Back to Paste as Cue. Non-Sync nodes are indeed handled via a temporary object list,
+but only those from the score, not the clipboard! Nodes from the clipboard are moved
+into the main object list by calls to RelocateClObjs and RelocateClGenlJDObjs in
+MRearrangeAll. Is it as simple as skipping those calls to get only Syncs from the
+clipboard? No: we also need slur/ties, tuplets, ottavas, and (probably) clefs in
+the clipboard! Oh well; it really doesn't look hard to keep those and skip everything
+else.
+
+So in MRearrangeAll, must _always_ call RelocateClObjs and RelocateClGenlJDObjs,
+passing the <syncsOnly> flag to them.  ??TBD
