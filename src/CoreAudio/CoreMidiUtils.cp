@@ -1,7 +1,7 @@
 /* 
  * CoreMIDIUtils.c
  * 
- * Implementation of OMSUtils functionality for CoreMIDI
+ * Implementation of OMSUtils functionality for CoreMIDI for Nightingale
  */
  
 #include "Nightingale_Prefix.pch"
@@ -26,10 +26,10 @@ static MIDIEndpointRef GetMIDIEndpointByID(MIDIUniqueID id);
 
 #define CMDEBUG 1			
 
-// -------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 // MIDI Callbacks
 
-/* -------------------------------------------------------------- NightCMReadProc -- */
+/* ------------------------------------------------------------------- NightCMReadProc -- */
 
 static long MIDIPacketSize(int len)
 {
@@ -78,10 +78,10 @@ static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *c
 }
 
 
-// -------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 // MIDI Packets
 
-/* ------------------------------------------------------------ AllocCMPacketList -- */
+/* ----------------------------------------------------------------- AllocCMPacketList -- */
 
 static Boolean AllocCMPacketList(void)
 {
@@ -92,7 +92,7 @@ static Boolean AllocCMPacketList(void)
 	return (gCurrentPacket != NULL);
 }
 
-/* ------------------------------------------------------------ ResetMIDIPacketList -- */
+/* --------------------------------------------------------------- ResetMIDIPacketList -- */
 /* Same implementation as AllocCMPacketList. Fulfill different functions for which
  * implementation will diverge when we dynamically allocate the buffer.
  */
@@ -123,7 +123,7 @@ void ClearCMMIDIPacket()
 	gCurrentPacket = NULL;
 }
 
-/* ------------------------------------------------------------ GetCMMIDIPacket -- */
+/* ------------------------------------------------------------------- GetCMMIDIPacket -- */
 /* ASSUMPTION, since buffer element is returned to Queue, it is unlikely to be reused
   before caller has a chance to use the packet */
   
@@ -139,7 +139,7 @@ MIDIPacket *GetCMMIDIPacket(void)
 	return pmPkt;
 }
 
-/* ----------------------------------------------------- PeekAtNextOMSMIDIPacket -- */
+/* ----------------------------------------------------------- PeekAtNextOMSMIDIPacket -- */
 
 MIDIPacket *PeekAtNextCMMIDIPacket(Boolean first)
 {
@@ -175,7 +175,7 @@ MIDIPacket *PeekAtNextCMMIDIPacket(Boolean first)
 */
 }
 
-/* -------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
+/* ------------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
 
 void DeletePeekedAtCMMIDIPacket(void)
 {
@@ -184,7 +184,7 @@ void DeletePeekedAtCMMIDIPacket(void)
 	}
 }
 
-// -------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 // Packet Types
 
 static Boolean CMIsNoteOnPacket(MIDIPacket *p)
@@ -204,7 +204,7 @@ static Boolean CMIsActiveSensingPacket(MIDIPacket *p)
 	return (p->length == kActiveSensingLen && p->data[0] == kActiveSensingData);
 }
 
-/* -------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
+/* ------------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
 
 static MIDIPacket *AddActiveSensingPacket(MIDIPacket *p)
 {
@@ -220,7 +220,7 @@ static MIDIPacket *AddActiveSensingPacket(MIDIPacket *p)
 	return p;
 }
 
-/* --------------------------------------------------------- CMTimeStampToMillis -- */
+/* --------------------------------------------------------------- CMTimeStampToMillis -- */
 
 long CMTimeStampToMillis(MIDITimeStamp timeStamp)
 {
@@ -241,7 +241,7 @@ long CMGetHostTimeMillis()
 	return hostMillis;
 }
 
-/* -------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
+/* ------------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
 
 void CMNormalizeTimeStamps()
 {
@@ -266,7 +266,7 @@ void CMNormalizeTimeStamps()
 	}
 } 
 
-/* -------------------------------------------------- CloseCoreMidiInput -- */
+/* ---------------------------------------------------------------- CloseCoreMidiInput -- */
 
 void CloseCoreMidiInput(void)
 {
@@ -274,10 +274,10 @@ void CloseCoreMidiInput(void)
 }
 
 
-// -------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 // Write packet list (for single note on / note offs.
 
-/* -------------------------------------------------------- AllocCMWritePacketList -- */
+/* ------------------------------------------------------------ AllocCMWritePacketList -- */
 
 static Boolean AllocCMWritePacketList(void)
 {
@@ -299,7 +299,7 @@ Boolean ResetMIDIWritePacketList()
 
 
 
-// ----------------------------------------------------------- Timing calls for CoreMidi
+// --------------------------------------------------------- Timing calls for CoreMidi -- */
 // Use the Nightingale Time Manager.
 
 void CMInitTimer(void)
@@ -350,7 +350,7 @@ static void InitCoreMidiTimer()
 	CMInitTimer();
 }
 
-// ----------------------------------------------------------- Setup and teardown for CoreMidi
+// --------------------------------------------------- Setup and teardown for CoreMidi -- */
 // Setup for playback and teardown after playback
 
 static void CMGetUsedChannels(Document *doc, Byte *partChannel, Byte *activeChannel)
@@ -399,7 +399,7 @@ void CMTeardown(void)
 }
 
 
-// -------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------
 // Sending Notes
 
 // Need a 1 packet long list to send
@@ -415,7 +415,7 @@ void CMTeardown(void)
 //
 // Need to figure out how to set up the packet
 
-//  -------------------------------------------------------------- CM End/Start Note Now 
+//  ------------------------------------------------------------ CM End/Start Note Now -- */ 
 
 
 OSStatus CMWritePacket(MIDIUniqueID destDevID, MIDITimeStamp tStamp, UInt16 pktLen, Byte *data)
@@ -434,8 +434,8 @@ OSStatus CMWritePacket(MIDIUniqueID destDevID, MIDITimeStamp tStamp, UInt16 pktL
 	
 	if (destEndPt != NULL) {
 		gCurrentWritePacket = MIDIPacketListAdd(gMIDIWritePacketList, 
-																sizeof(gMIDIWritePacketListBuf), 
-																gCurrentWritePacket, tStamp, pktLen, data);
+												sizeof(gMIDIWritePacketListBuf), 
+												gCurrentWritePacket, tStamp, pktLen, data);
 
 		err = MIDISend(gOutPort, destEndPt, gMIDIWritePacketList);
 										 /*gDest*/
@@ -480,7 +480,7 @@ OSStatus CMStartNoteNow(MIDIUniqueID destDevID, short noteNum, char channel, cha
 }
 
 
-//  ------------------------------------------------------------------------ CM Feedback 
+//  ---------------------------------------------------------------------- CM Feedback -- */
 
 static void CMFBNoteOnDevID(Document *doc, short noteNum, short channel, MIDIUniqueID devID);
 static void CMFBNoteOffDevID(Document *doc, short noteNum, short channel, MIDIUniqueID devID);
@@ -520,7 +520,7 @@ void CMMIDIFBNoteOff(Document *doc, short noteNum, short channel, MIDIUniqueID d
 }
 
 
-/* ---------------------------------------------------------- CMMIDIFBNoteOn/Off -- */
+/* ---------------------------------------------------------------- CMMIDIFBNoteOn/Off -- */
 
 /* Start MIDI "feedback" note by sending a MIDI NoteOn command for the
 specified note and channel. */
@@ -577,7 +577,7 @@ void CMFBNoteOff(Document *doc, short noteNum, short channel, short ioRefNum)
 }
 
 
-/* -------------------------------------------------------------- CMAllNotesOff -- */
+/* --------------------------------------------------------------------- CMAllNotesOff -- */
 /* noteOffChannelMap is unused */
 
 void CMAllNotesOff()
@@ -649,7 +649,7 @@ void CMAllNotesOff()
 			gDest = oldGDest;
 		}
 		
-		SleepMS(1L);														/* pause between devices */
+		SleepMS(1L);										/* pause between devices */
 	}
 
 }
@@ -657,7 +657,7 @@ void CMAllNotesOff()
 
 
 
-// -------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 
 const long kMaxChannels = 16;
 
@@ -971,7 +971,7 @@ OSStatus OpenCoreMidiInput(MIDIUniqueID inputDevice)
 	return noErr;
 }
 
-// --------------------------------------------------------------------------------------
+// ----------------------------------------------------------------------------------------
 // MIDI Controllers
 
 OSStatus CMMIDIController(MIDIUniqueID destDevID, char channel, Byte ctrlNum, Byte ctrlVal,
@@ -1050,8 +1050,9 @@ OSStatus CMMIDIPan(MIDIUniqueID destDevID, char channel, Byte panSetting)
 }
 
 
-/* ---------------------------------------------------------- CreateOMSInputMenu --
+/* ---------------------------------------------------------------- CreateOMSInputMenu -- */
 
+#ifdef NOMORE
 OMSDeviceMenuH CreateOMSInputMenu(Rect *menuBox)
 {
 	if (!gSignedIntoOMS) return NULL;
@@ -1062,9 +1063,9 @@ OMSDeviceMenuH CreateOMSInputMenu(Rect *menuBox)
 					omsIncludeInputs + omsIncludeReal,
 					NULL);
 }
- */
+#endif
 
-/* ---------------------------------------------------------- GetCMDeviceForPart -- */
+/* ---------------------------------------------------------------- GetCMDeviceForPart -- */
 
 MIDIUniqueID GetCMDeviceForPartn(Document *doc, short partn)
 {
@@ -1081,7 +1082,7 @@ MIDIUniqueID GetCMDeviceForPartL(Document *doc, LINK partL)
 	return doc->cmPartDeviceList[partn];
 }
 
-/* ---------------------------------------------------------- SetCMDeviceForPart -- */
+/* ---------------------------------------------------------------- SetCMDeviceForPart -- */
 
 void SetCMDeviceForPartn(Document *doc, short partn, MIDIUniqueID device)
 {
@@ -1237,7 +1238,7 @@ void CMGetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 	*pUseNoteNum = UseMIDINoteNum(doc, aNoteL, partTransp[partn]);
 	*pUseChan = partChannel[partn] - CM_CHANNEL_BASE;
 	aNote = GetPANOTE(aNoteL);
-	*pUseVelo = doc->velocity+aNote->onVelocity;
+	*pUseVelo = (NotePLAYASCUE(aNoteL)? CUENOTE_VELOCITY : doc->velocity+aNote->onVelocity);
 	if (doc->polyTimbral) *pUseVelo += partVelo[partn];
 	
 	if (*pUseVelo<1) *pUseVelo = 1;

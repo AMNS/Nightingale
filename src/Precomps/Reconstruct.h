@@ -31,8 +31,8 @@ void SetCopyMap(LINK startL,LINK endL,short numObjs,COPYMAP *mergeMap);
 LINK GetCopyMap(LINK link,short numObjs,COPYMAP *mergeMap);
 short GetNumClObjs(Document *);
 
-void RelocateClObjs(Document *,LINK,LINK,LINK,LINK,PTIME *,short,COPYMAP *,short *);
-void RelocateClGenlJDObjs(Document *,LINK,LINK,LINK,LINK,PTIME *,short,COPYMAP *,short *);
+void RelocateClObjs(Document *,LINK,LINK,LINK,LINK,PTIME *,short,COPYMAP *,short *, Boolean);
+void RelocateClGenlJDObjs(Document *,LINK,LINK,LINK,LINK,PTIME *,short,COPYMAP *,short *, Boolean);
 
 LINK GetFirstBeam(LINK syncL);
 LINK GetFirstTuplet(LINK syncL);

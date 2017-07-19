@@ -1591,3 +1591,23 @@ aside from being needlessly charset dependent (bullet isn't in ASCII), it might 
 causing Xcode's repeated problems finding Menu.cp unreadable. Affects Menu.
 
 Minor cleanup. Affects Browser, DebugUtils, MCaret, Menu, Merge, Reconstruct.
+
+-------------------------------------------------------------------------------
+
+28 June-18 July
+
+Continued implementation of "Paste as Cue" command, including setting playback
+velocity for cue notes to CUENOTE_VELOCITY regardless of the value in the Note
+subobject. Affects MemMacros.h, Reconstruct.h; CoreMidiUtils, Merge, Objects,
+Reconstruct.
+
+Gave up on "Paste as Cue" command for the time being: remove user interface for and
+disable Paste as Cue. Affects .rsrc; NResourceID.h; Menu.
+
+Renamed the <noteCUE> flag of the aNote struct to <playAsCue>, since -- at least for
+the near future -- it affects only MIDI playback. Affects NTypes.h; Browser,
+CoreMIDIUtils, Merge, Objects.
+
+Renamed CoreMidiUtils to CoreMIDIUtils.
+
+Minor cleanup. Affects vars.h; Copy, CoreMIDIUtils, Error, Merge, Reconstruct.

@@ -353,6 +353,7 @@
 #define J_DTYPE(link)			( JustTYPE(link)==J_D )
 #define J_STRUCTYPE(link)		( JustTYPE(link)==J_STRUC )
 #define GenlJ_DTYPE(link)		( GraphicTYPE(pL) || EndingTYPE(pL) || TempoTYPE(pL) )
+#define SyncSupportTYPE(link)	( BeamsetTYPE(link) || OttavaTYPE(link) || SlurTYPE(link) || TupletTYPE(link) )
 
 /* Get an object's justification type */
 
@@ -673,7 +674,7 @@
 #define NoteINOTTAVA(link)			( (GetPANOTE(link))->inOttava )	
 #define NoteINTUPLET(link)			( (GetPANOTE(link))->inTuplet )	
 #define NoteMERGED(link)			( (GetPANOTE(link))->merged )	
-#define NoteCUENOTE(link)			( (GetPANOTE(link))->cueNote)	
+#define NotePLAYASCUE(link)			( (GetPANOTE(link))->playAsCue)	
 #define NoteMICROPITCH(link)		( (GetPANOTE(link))->micropitch)	
 #define NoteNDOTS(link)		 		( (GetPANOTE(link))->ndots )
 #define NoteNUM(link)				( (GetPANOTE(link))->noteNum )

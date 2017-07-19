@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	vars.h
 *	PROJ:	Nightingale
-*	DESC:	global variables
-***************************************************************************/
+*	DESC:	global variables*
+******************************************************************************************/
 
 /*
 #ifdef MAIN
@@ -13,7 +13,7 @@
 */
 
 
-/* ------------------------------- Without Initialization --------------------------- */
+/* ------------------------------------------------------------ Without Initialization -- */
 
 GLOBAL SysEnvRec	thisMac;				/* Our machine environment info */
 GLOBAL HEAP 		*Heap;					/* Pointer to current heap list */
@@ -47,11 +47,11 @@ GLOBAL OSType		creatorType;			/* Application signature ('BYRD') */
 GLOBAL OSType		documentType;			/* Document file signature */
 
 GLOBAL LINK			clipFirstMeas;			/* first measure of clipboard */
-GLOBAL Boolean		doneFlag,				/* FALSE until program is done */
-					cursorValid,			/* TRUE while cursor is valid */
+GLOBAL Boolean		doneFlag,				/* false until program is done */
+					cursorValid,			/* true while cursor is valid */
 					hasWaitNextEvent,		/* Is the WaitNextEvent trap available (e.g., MultiFinder)? */
 					bestQualityPrint,		/* "Best Quality Print" requested (on ImageWriter)? */
-					toolPalChanged;			/* TRUE if user has rearranged tool palette */
+					toolPalChanged;			/* true if user has rearranged tool palette */
 GLOBAL CursHandle	handCursor,				/* various cursors */
 					threadCursor,
 					genlDragCursor,
@@ -96,7 +96,7 @@ GLOBAL Rect			revertWinPosition;		/* Where to replace Document window */
 GLOBAL short		theSelectionType;		/* Current selection type (for autoscrolling) */
 GLOBAL short		dragOffset;				/* Diff between measureRect and portRect */
 GLOBAL CONTEXT		*contextA;				/* Allocate context[MAXSTAVES+1] on the heap */
-GLOBAL Boolean		initedBIMIDI;			/* TRUE=hardware/interrupts set for MIDI use, FALSE=normal */
+GLOBAL Boolean		initedBIMIDI;			/* true=hardware/interrupts set for MIDI use, false=normal */
 GLOBAL short		portSettingBIMIDI;		/* Port to use for built-in MIDI */	
 GLOBAL short		interfaceSpeedBIMIDI;	/* Interface speed for built-in MIDI */
 GLOBAL short		maxEndingNum;			/* Maximum Ending number available */
@@ -121,7 +121,7 @@ GLOBAL long			mPacketBufferLen;		/* Length of mPacketBuffer */
 GLOBAL long			mRecIndex;				/* For our MIDI Mgr readHook or built-in MIDI */		
 GLOBAL long			mFirstTime;				/* For our MIDI Mgr readHook: time stamp of 1st data message */
 GLOBAL long			mFinalTime;				/* For our MIDI Mgr readHook: time stamp of last data message */
-GLOBAL Boolean		recordingNow;			/* TRUE = MIDI recording in progress */
+GLOBAL Boolean		recordingNow;			/* true = MIDI recording in progress */
 GLOBAL Boolean		recordFlats;			/* Use flats for black key notes from MIDI, else sharps */
 GLOBAL short		playTempoPercent;		/* For "variable-speed playback": scale marked tempi by this */
 
@@ -150,12 +150,12 @@ GLOBAL ScrapRef 	gNightScrap;
 
 GLOBAL Boolean		gCoreMIDIInited;
 
-GLOBAL Boolean		unisonsOK;				/* If TRUE, don't object to unisons (perfect or augmented) in a chord */
+GLOBAL Boolean		unisonsOK;				/* If true, don't object to unisons (perfect or augmented) in a chord */
 
 GLOBAL Boolean		ignoreChord[MAX_MEASNODES][MAXVOICES+1];
 
 
-/* ------------------------------- With Initialization ------------------------------ */
+/* ------------------------------------------------------------- With Initialization -- */
 
 #ifdef MAIN
 
@@ -276,34 +276,34 @@ short nsyms=(sizeof(symtable)/sizeof(SYMDATA));	/* Length of symtable */
  
 OBJDATA objTable[] = {
 	/*	objtype  	justType	minEnt	maxEnt		objRectOrd */
-	{ HEADERtype,	0,			2,		MAXSTAVES+1,FALSE },
-	{ TAILtype,		J_IT,		0,		0,			FALSE },
-	{ SYNCtype,		J_IT,		1,		255,		TRUE },
-	{ RPTENDtype,	J_IT,		1,		MAXSTAVES,	TRUE },
-	{ PAGEtype,		J_STRUC,	0,		0,			FALSE },
+	{ HEADERtype,	0,			2,		MAXSTAVES+1,false },
+	{ TAILtype,		J_IT,		0,		0,			false },
+	{ SYNCtype,		J_IT,		1,		255,		true },
+	{ RPTENDtype,	J_IT,		1,		MAXSTAVES,	true },
+	{ PAGEtype,		J_STRUC,	0,		0,			false },
 
-	{ SYSTEMtype,	J_STRUC,	0,		0,			FALSE },
-	{ STAFFtype,	J_STRUC,	1,		MAXSTAVES,	FALSE },
-	{ MEASUREtype,	J_IT,		1,		MAXSTAVES,	TRUE },
-	{ CLEFtype,		J_IP,		1,		MAXSTAVES,	TRUE },
-	{ KEYSIGtype,	J_IP,		1,		MAXSTAVES,	TRUE },
+	{ SYSTEMtype,	J_STRUC,	0,		0,			false },
+	{ STAFFtype,	J_STRUC,	1,		MAXSTAVES,	false },
+	{ MEASUREtype,	J_IT,		1,		MAXSTAVES,	true },
+	{ CLEFtype,		J_IP,		1,		MAXSTAVES,	true },
+	{ KEYSIGtype,	J_IP,		1,		MAXSTAVES,	true },
 
-	{ TIMESIGtype,	J_IP,		1,		MAXSTAVES,	TRUE },
-	{ BEAMSETtype,	J_D,		2,		127,		FALSE },
-	{ CONNECTtype,	J_D,		1,		MAXSTAVES,	TRUE },
-	{ DYNAMtype,	J_D,		1,		MAXSTAVES,	FALSE },
-	{ MODNRtype,	0,			0,		0,			FALSE },
+	{ TIMESIGtype,	J_IP,		1,		MAXSTAVES,	true },
+	{ BEAMSETtype,	J_D,		2,		127,		false },
+	{ CONNECTtype,	J_D,		1,		MAXSTAVES,	true },
+	{ DYNAMtype,	J_D,		1,		MAXSTAVES,	false },
+	{ MODNRtype,	0,			0,		0,			false },
 
-	{ GRAPHICtype,	J_D,		1,		255,		FALSE },
-	{ OTTAVAtype,	J_D,		1,		MAXINOTTAVA,TRUE },
-	{ SLURtype,		J_D,		1,		MAXCHORD,	FALSE },
-	{ TUPLETtype,	J_D,		2,		127,		FALSE },
-	{ GRSYNCtype,	J_IP,		1,		255,		TRUE },
-	{ TEMPOtype,	J_D,		0,		0,			FALSE },
-	{ SPACERtype,	J_IT,		0,		0,			TRUE },	
-	{ ENDINGtype,	J_D,		0,		0,			FALSE },
-	{ PSMEAStype, 	J_IT,		1,		MAXSTAVES,	TRUE },	
-	{ OBJtype,		J_STRUC,	0,		0,			FALSE }
+	{ GRAPHICtype,	J_D,		1,		255,		false },
+	{ OTTAVAtype,	J_D,		1,		MAXINOTTAVA,true },
+	{ SLURtype,		J_D,		1,		MAXCHORD,	false },
+	{ TUPLETtype,	J_D,		2,		127,		false },
+	{ GRSYNCtype,	J_IP,		1,		255,		true },
+	{ TEMPOtype,	J_D,		0,		0,			false },
+	{ SPACERtype,	J_IT,		0,		0,			true },	
+	{ ENDINGtype,	J_D,		0,		0,			false },
+	{ PSMEAStype, 	J_IT,		1,		MAXSTAVES,	true },	
+	{ OBJtype,		J_STRUC,	0,		0,			false }
 };
 
 /*
@@ -312,7 +312,7 @@ OBJDATA objTable[] = {
  *		FASTFLOAT rSize[MAXRASTRAL+1] =						Sizes for staff rastral nos.
  *			{26,21.6,20,18.8,18,16.4,14.2,12.4,10;			in points
  *	But we'll accept the following approximations, which are more practical with the
- *	Macintosh's screen resolution of 72 dpi, or 1 point. N.B. pdrSize[0] is normally
+ *	Macintosh's screen resolution of 72 dpi, or 1 point. NB: pdrSize[0] is normally
  * replaced by a value from the CNFG resource.
  */
 
@@ -422,6 +422,6 @@ GLOBAL SignedByte threadableType;
 #endif
 
 
-/* ------------------------------------- enums --------------------------------------- */
+/* ----------------------------------------------------------------------------- enums -- */
 
 enum { ClickErase, ClickSelect, ClickInsert, ClickFrame };

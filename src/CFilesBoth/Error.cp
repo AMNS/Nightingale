@@ -1,13 +1,11 @@
-/* Error.c - Error message routines for Nightingale, rev. for v.3.1 */
+/* Error.c - Error message routines for Nightingale */
 
-/*											NOTICE
+/*
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
+ * github.com/AMNS/Nightingale .
  *
- * THIS FILE IS PART OF THE NIGHTINGALE» PROGRAM AND IS CONFIDENTIAL PROP-
- * ERTY OF ADVANCED MUSIC NOTATION SYSTEMS, INC.  IT IS CONSIDERED A TRADE
- * SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
- * WRITTEN AUTHORIZATION FROM THE OWNER.
- * Copyright © 1991-97 by Advanced Music Notation Systems, Inc. All Rights Reserved.
- *
+ * Copyright Â© 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -16,7 +14,7 @@
 #include <stdarg.h>
 
 
-/* ================================================= Doug's generic error routines == */
+/* ======================================================= Some generic error routines == */
 
 enum {					/* Indices of error strings in Error Strings STR# resource */
 		useMsg,			/* Signal to take string from second argument */
@@ -41,21 +39,21 @@ enum {					/* Indices of error strings in Error Strings STR# resource */
 
 static void		ErrorMsg(short index);
 static void		ErrorNumber(short index, long num);
-static void		ErrorString(short index, unsigned char *msg);
-static short	DoGeneralAlert(unsigned char *str);
+static void		ErrorString(short index, StringPtr msg);
+static short	DoGeneralAlert(StringPtr str);
 
 
 /* Print an error message.  If index is non-zero, then retrieve the index'th
 string from our error strings resource. */
 
 static void ErrorMsg(short index)
-	{
-		Str255 str;
-		
-		if (index > 0) GetIndString(str,ErrorStringsID,index);
-		else		   	*str = 0;
-		(void)DoGeneralAlert(str);
-	}
+{
+	Str255 str;
+	
+	if (index > 0)	GetIndString(str,ErrorStringsID,index);
+	else			*str = 0;
+	(void)DoGeneralAlert(str);
+}
 
 /*
  *	Print an error message with a string argument.  The message is kept
@@ -63,14 +61,14 @@ static void ErrorMsg(short index)
  *	have a ^0 in it where we'll place the argument to the message.
  */
 
-static void ErrorString(short index, unsigned char *msg)
-	{
-		Str255 str;
-		
-		GetIndString(str,ErrorStringsID,index);
-		InstallArg(str,msg,1);
-		(void)DoGeneralAlert(str);
-	}
+static void ErrorString(short index, StringPtr msg)
+{
+	Str255 str;
+	
+	GetIndString(str,ErrorStringsID,index);
+	InstallArg(str,msg,1);
+	(void)DoGeneralAlert(str);
+}
 
 /*
  *	Print an error message with any number (count>0) of long arguments.  The
@@ -78,14 +76,15 @@ static void ErrorString(short index, unsigned char *msg)
  */
 
 static void ErrorNumber(short index, long num)
-	{
-		Str255 str; Str31 numStr;
-		
-		GetIndString(str,ErrorStringsID,index);
-		NumToString(num,numStr);
-		InstallArg(str,numStr,0);
-		(void)DoGeneralAlert(str);
-	}
+{
+	Str255 str;
+	Str31 numStr;
+	
+	GetIndString(str,ErrorStringsID,index);
+	NumToString(num,numStr);
+	InstallArg(str,numStr,0);
+	(void)DoGeneralAlert(str);
+}
 
 /*
  *	Install a given string into the single ParamText argument in the given
@@ -93,12 +92,12 @@ static void ErrorNumber(short index, long num)
  *	different alerts based on the size of the string.
  */
 
-static short DoGeneralAlert(unsigned char *str)
-	{
-		ParamText(str,"\p","\p","\p");
-		PlaceAlert(errorMsgID,NULL,0,40);
-		return (StopAlert(errorMsgID,NULL));
-	}
+static short DoGeneralAlert(StringPtr str)
+{
+	ParamText(str,"\p","\p","\p");
+	PlaceAlert(errorMsgID,NULL,0,40);
+	return (StopAlert(errorMsgID,NULL));
+}
 
 /* Given a string, _str_, an argument string, _msg_, and an index _n_, look for a
 three-character string of the form double-< n double-> in str, and substitute msg
@@ -112,51 +111,52 @@ be easy to fix, but in heavy use of Nightingale for the last six or ten months, 
 not sure I've ever seen it used, so it's low priority; besides, it'd be hard to test.
 --DAB, Feb. 2016 */
 
-void InstallArg(unsigned char *str, unsigned char *msg, short n)
-	{
-		unsigned char *src,*dst; short strLen,msgLen,len;
-		unsigned char *top;
-		
-		strLen = *str;
-		msgLen = *msg;
-		n += '0';
-		
-		/* Scan backwards from last character for ‚ */
-		
-		dst = str+strLen;
-		while (dst > str)
-			if (*dst-- == (unsigned char)'é')
-				if (dst>str && *dst-- == n)
-					if (dst>str && *dst==(unsigned char)'‚') {
-						/* Found start of arg insertion point */
-						if (msgLen > 3) {
-							if (strLen + msgLen - 3 <= 255) {
-								/* Make room for argument string */
-								dst += 3;			/* 3 = sizeof "‚né" */
-								src = str+strLen+1;
-								while (--src >= dst) *(src+msgLen-3) = *src;
-								/* Overwrite the ‚né */
-								dst -= 3;
-								src = msg+1;
-								*str += msgLen-3;
-								while (msgLen-- > 0) *dst++ = *src++;
-								}
-							}
-						 else {
-							/* String is getting smaller */
-							*str += msgLen-3;
-							/* Overwrite ‚né with message */
+void InstallArg(StringPtr str, StringPtr msg, short n)
+{
+	StringPtr src,dst;
+	short strLen,msgLen,len;
+	StringPtr top;
+	
+	strLen = *str;
+	msgLen = *msg;
+	n += '0';
+	
+	/* Scan backwards from last character for Â‚ */
+	
+	dst = str+strLen;
+	while (dst > str)
+		if (*dst-- == (unsigned char)'Ã©')
+			if (dst>str && *dst-- == n)
+				if (dst>str && *dst==(unsigned char)'Â‚') {
+					/* Found start of arg insertion point */
+					if (msgLen > 3) {
+						if (strLen + msgLen - 3 <= 255) {
+							/* Make room for argument string */
+							dst += 3;			/* 3 = sizeof "Â‚nÃ©" */
+							src = str+strLen+1;
+							while (--src >= dst) *(src+msgLen-3) = *src;
+							/* Overwrite the Â‚nÃ© */
+							dst -= 3;
 							src = msg+1;
-							len = msgLen;
+							*str += msgLen-3;
 							while (msgLen-- > 0) *dst++ = *src++;
-							/* Shift rest of string down */
-							src = dst - len + 3;
-							top = str + strLen;
-							while (src <= top) *dst++ = *src++;
 							}
-						break;
 						}
-	}
+					 else {
+						/* String is getting smaller */
+						*str += msgLen-3;
+						/* Overwrite Â‚nÃ© with message */
+						src = msg+1;
+						len = msgLen;
+						while (msgLen-- > 0) *dst++ = *src++;
+						/* Shift rest of string down */
+						src = dst - len + 3;
+						top = str + strLen;
+						while (src <= top) *dst++ = *src++;
+						}
+					break;
+					}
+}
 	
 
 /* These are specific error routines, whose names indicate their purpose.
@@ -166,7 +166,7 @@ functions. */
 
 void CannotPrint()							{ ErrorMsg(cannotPrint); }
 
-void NotOurs(unsigned char *name)			{ ErrorString(notOurDocument,name); }
+void NotOurs(StringPtr name)				{ ErrorString(notOurDocument,name); }
 
 void BadInit()								{ ErrorMsg(badInit); }
 
@@ -189,9 +189,9 @@ void NoMoreMemory()							{ ErrorMsg(noMoreMemory); }
 void OutOfMemory(long nBytes)				{ ErrorNumber(exhaustedMemory,nBytes); }
 
 
-/* ================================================================== Miscellaneous == */
+/* ===================================================================== Miscellaneous == */
 
-/* -------------------------------------------------------- MayErrMsg, AlwaysErrMsg -- */
+/* ----------------------------------------------------------- MayErrMsg, AlwaysErrMsg -- */
 
 char	junk[256];
 
@@ -210,7 +210,8 @@ static void EMDebugPrintf(char *fmt, ... )
 
 void MayErrMsg(char *fmt, ...)
 {
-	va_list ap; long arg1,arg2,arg3,arg4,arg5,arg6;
+	va_list ap;
+	long arg1,arg2,arg3,arg4,arg5,arg6;
 	
 	static short alertCount = 3;		/* No. of times to actually give the alarm */
 
@@ -240,7 +241,8 @@ void MayErrMsg(char *fmt, ...)
 
 void AlwaysErrMsg(char *fmt, ...)
 {
-	va_list ap; long arg1,arg2,arg3,arg4,arg5,arg6;
+	va_list ap;
+	long arg1,arg2,arg3,arg4,arg5,arg6;
 	
 	va_start(ap,fmt);
 	arg1 = va_arg(ap,long);
@@ -265,19 +267,20 @@ void AlwaysErrMsg(char *fmt, ...)
 }
 
 
-/* ---------------------------------------------------------------- ReportIOError -- */
+/* --------------------------------------------------------------------- ReportIOError -- */
 /* Alert user to the given I/O error, using the given dialog. */
 
 Boolean ReportIOError(short errCode, short dlog)
 {
-	StringHandle strHdl; char fmtStr[256];
+	StringHandle strHdl;
+	char fmtStr[256];
 	
 	if (errCode==noError) return FALSE;
 
 	strHdl = GetString(errCode);
 	if (strHdl) {
-		Pstrcpy((unsigned char *)strBuf, *strHdl);
-		PToCString((unsigned char *)strBuf);
+		Pstrcpy((StringPtr)strBuf, *strHdl);
+		PToCString((StringPtr)strBuf);
 	}
 	else {
 		GetIndCString(fmtStr, ErrorStringsID, 14);		/* "System I/O error number %d." */
@@ -289,7 +292,7 @@ Boolean ReportIOError(short errCode, short dlog)
 }
 
 
-/* --------------------------------------------------------------- ReportResError -- */
+/* -------------------------------------------------------------------- ReportResError -- */
 /* Check for a Resource Manager error and alert user to it, if there is one. Return
 TRUE if there's an error, FALSE if not. NB: Calling this after, e.g., GetResource
 is not good enough: even if the GetResource failed, ResError() can return noErr!
@@ -298,7 +301,8 @@ ReportBadResource. */
 
 Boolean ReportResError()
 {
-	OSErr theErr; char buf[256];
+	OSErr theErr;
+	char buf[256];
 	
 	if ( (theErr = ResError()) != noErr) 
 	{
@@ -313,7 +317,7 @@ Boolean ReportResError()
 }
 
 
-/* ------------------------------------------------------------ ReportBadResource -- */
+/* ----------------------------------------------------------------- ReportBadResource -- */
 /* Check for validity of the given resource, presumably just allocated, and alert
 user if there is a problem. Return TRUE if there's an error, FALSE if not. */
 
@@ -334,7 +338,7 @@ Boolean ReportBadResource(Handle resH)
 }
 
 
-/* --------------------------------------------------------------- MissingDialog -- */
+/* -------------------------------------------------------------------- MissingDialog -- */
 /* Alert user when a dialog resource cannot be found. For now, just beep and put a
 complied-in message in the log. We could also give a compiled-in error message, but
 it's probably too dangerous to try to get one from a resource in this situation. */
@@ -346,7 +350,7 @@ void MissingDialog(short dlogID)
 }
 
 
-/* ------------------------------------------------------------- AppleEventError -- */
+/* ------------------------------------------------------------------ AppleEventError -- */
 /* Alert user when an Apple event handler gets an error code. */
 
 void AppleEventError(char */*handlerName*/, short errCode)

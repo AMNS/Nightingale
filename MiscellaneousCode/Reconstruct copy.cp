@@ -52,9 +52,9 @@ Boolean Check1ContinVoice(Document *doc, LINK measL, Boolean vInSel[],
 	endMeasL = LinkRMEAS(measL) ? LinkRMEAS(measL) : LeftLINK(doc->tailL);
 	lastNode = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, false);
 
-	/* For each voice in use <v>, traverse spTimeInfo's list of Syncs for the
-		measure the selection is in. The first Sync should be at startTime zero.
-		After the first Sync, each Sync following <link> in v should be at startTime
+	/* For each voice in use <v>, traverse spTimeInfo's list of syncs for the
+		measure the selection is in. The first sync should be at startTime zero.
+		After the first sync, each sync following <link> in v should be at startTime
 		equal to link's startTime plus its duration in the voice. If it is at a
 		greater time, there is a hole in the voice, so return false. Note the
 		confusing way we have to set the startL and endL params for GetSpTimeInfo. */
@@ -418,7 +418,7 @@ LINK CopyClipNotes(Document *doc, LINK subL, LINK newSubL, long pTime)
 /* Copy the subObject information from each note at this time into the subObjects
 of the newly created object. Decrement the nEntries field of the object from which
 the subObj is copied, and remove that subObject, or delete the object, if it has
-only one subObj left. This refers to the Sync still in the object list. Returns
+only one subObj left. This refers to the sync still in the object list. Returns
 the subObj LINK in the list following the last one initialized, or NILINK if every
 LINK is initialized. */
 
@@ -468,8 +468,8 @@ LINK CopySubObjs(Document *doc, LINK newObjL, PTIME *pTime)
 
 
 /* -------------------------------------------------------------------------- CopySync -- */
-/* Create a new Sync with <subCount> nEntries and copy object level information from
-pTime into it. */
+/* Create a new Sync with subCount nEntries and copy object level information
+from pTime into it. */
 
 LINK CopySync(Document *doc, short subCount, PTIME *pTime)
 {
@@ -779,7 +779,7 @@ static void RelocateGenlJDObj(Document */*doc*/, LINK pL, PTIME *durArray)
 /* --------------------------------------------------------------------- RelocateJDObj -- */
 /* Find the point into which to insert the J_D object pL in the rearranged score
 object list, call InsertJDBefore to insert it there, and, if appropriate, update
-its relative-object links.. For J_D objects which can only be relative to Syncs. */
+its relative-object links.. For J_D objects which can only be relative to SYNCs. */
 
 static void RelocateJDObj(Document */*doc*/, LINK pL, LINK baseMeasL, PTIME *durArray)
 {
@@ -931,12 +931,12 @@ void DebugDurArray(short arrBound, PTIME *durArray)
 
 /* ---------------------------------------------------------------------- RelocateObjs -- */
 /* Relocate all J_IT & J_IP objects, and all J_D objects which can only be relative
-to Syncs. */
+to SYNCs. */
 
 void RelocateObjs(Document *doc, LINK headL, LINK tailL, LINK startMeas, LINK endMeas,
 						PTIME *durArray)
 {
-	LINK pL, nextL, nextSync, qL;
+	LINK pL,nextL,nextSync,qL;
 	short objType;
 
 	for (pL = headL; pL!=tailL; pL=nextL) {
@@ -969,7 +969,7 @@ void RelocateObjs(Document *doc, LINK headL, LINK tailL, LINK startMeas, LINK en
 
 
 /* ---------------------------------------------------------------- RelocateGenlJDObjs -- */
-/* Relocate all J_D objects which can be relative to J_IT objects other than Syncs
+/* Relocate all J_D objects which can be relative to J_IT objects other than SYNCs
 or J_IP objects. */
 	
 void RelocateGenlJDObjs(Document *doc, LINK headL, LINK tailL, PTIME *durArray)
@@ -1046,7 +1046,7 @@ short GetNumClObjs(Document *doc)
 }
 
 /* ---------------------------------------- RelocateClObjs, RelocateClGenlJDObjs, etc. -- */
-/*  Functions for re-locating non-Sync objects from the clipboard */
+/*  Functions for re-locating non-sync objects from the clipboard */
 
 /* --------------------------------------------------------------------- FixObjStfSize -- */
 /* Fix staff size for pL; if staff rastral for clipboard is different from score,
@@ -1071,8 +1071,8 @@ static LINK InsertClJITBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mer
 	copyL = DuplicateObject(ObjLType(pL),pL,false,clipboard,doc,false);
 	if (!copyL) return NILINK;
 
-	/* GetNumClObjs installs clipboard and re-installs doc; SetCopyMap doesn't depend
-		on any particular doc heaps being installed. */
+	/* GetNumClObjs installs clipboard and re-installs doc; SetCopyMap
+		doesn't depend upon any particular doc heaps being installed. */
 
 	numObjs = GetNumClObjs(doc);
 	SetCopyMap(pL,copyL,numObjs,mergeMap);
@@ -1105,8 +1105,8 @@ static LINK InsertClJIPBefore(Document *doc, LINK pL, LINK newObjL, COPYMAP *mer
 	copyL = DuplicateObject(ObjLType(pL),pL,false,clipboard,doc,false);
 	if (!copyL) return NILINK;
 
-	/* GetNumClObjs installs clipboard and re-installs doc; SetCopyMap doesn't depend
-		on any particular doc heaps being installed. */
+	/* GetNumClObjs installs clipboard and re-installs doc; SetCopyMap
+		doesn't depend upon any particular doc heaps being installed. */
 
 	numObjs = GetNumClObjs(doc);
 	SetCopyMap(pL,copyL,numObjs,mergeMap);
@@ -1169,18 +1169,19 @@ static void RelocateClJDObj(Document *, LINK, LINK, PTIME *, short, COPYMAP *, s
 
 /* ------------------------------------------------------------------ RelocateClJITObj -- */
 /* Find the point into which to insert the J_IP object pL in the rearranged score
-object list, and call InsertClJITBefore to insert it there. clipboard document should
-be installed for all RelocateClJ_TYPEObj functions. pL and nextL are LINKs in the
-clipboard; endMeasL is in the doc. nextL is the first Sync following pL in the clipboard.
-pTime->newObjL is a LINK in the doc's object list which is set by CopyClSubObjs (in
-Merge.c). vMap for the RelocateCl functions allows determination of new voice for objects
+object list, and call InsertClJITBefore to insert it there. clipboard document
+should be installed for all RelocateClJ_TYPEObj functions. pL and nextL are LINKs
+in the clipboard; endMeasL is in the doc. nextL is the first Sync following pL
+in the clipboard. pTime->newObjL is a LINK in the doc's object list which is
+set by CopyClSubObjs (Merge.c).
+vMap for the RelocateCl functions allows determination of new voice for objects
 translated by stfDiff. */
 
 static void RelocateClJITObj(Document *doc, LINK pL, LINK nextL, LINK endMeasL,
 							PTIME *durArray, short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
 	PTIME *pTime;
-	LINK newObjL=NILINK, copyL;
+	LINK newObjL=NILINK,copyL;
 	
 	if (nextL)
 		for (pTime=durArray; newObjL==NILINK && pTime->pTime<BIGNUM; pTime++)
@@ -1188,7 +1189,7 @@ static void RelocateClJITObj(Document *doc, LINK pL, LINK nextL, LINK endMeasL,
 	
 				switch (ObjLType(pL)) {
 					case SPACERtype:
-						if (SpacerSTAFF(pL)+stfDiff==DNoteSTAFF(doc, pTime->newSubL))
+						if (SpacerSTAFF(pL)+stfDiff==DNoteSTAFF(doc,pTime->newSubL))
 							newObjL = pTime->newObjL;
 						break;
 					case RPTENDtype:
@@ -1393,9 +1394,9 @@ static void RelocateClGenlJDObj(Document *doc, LINK pL, LINK startClMeas, LINK e
 
 
 /* ------------------------------------------------------------------- RelocateClJDObj -- */
-/* Find the point into which to insert the J_D object pL in the rearranged score object
-list, and call InsertJDBefore to insert it there. For J_D objects which can only be
-relative to Syncs.
+/* Find the point into which to insert the J_D object pL in the rearranged score
+object list, and call InsertJDBefore to insert it there. For J_D objects which
+can only be relative to SYNCs.
 
 #1. Want the voice in the document of the new subObject, not that of an object in
 the clipboard.*/
@@ -1403,7 +1404,7 @@ the clipboard.*/
 static void RelocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durArray,
 								short stfDiff, COPYMAP *mergeMap, short *vMap)
 {
-	LINK firstL, lastL, newLastL, copyL, newObjL=NILINK;
+	LINK firstL,lastL,newLastL,copyL,newObjL=NILINK;
 	PTIME *pTime;
 
 	switch (ObjLType(pL)) {
@@ -1537,24 +1538,22 @@ static void RelocateClJDObj(Document *doc, LINK pL, LINK baseMeasL, PTIME *durAr
 /* Functions to relocate a list of objs from the clipboard. Intended for Merge ops. */
 
 /* -------------------------------------------------------------------- RelocateClObjs -- */
-/* Relocate all J_IT & J_IP objects from the range [startClMeas, endClMeas) of the
-clipboard, and all J_D objects from the range which can only be relative to Syncs.
-Exception: if <syncsOnly>, relocate only Syncs and objects that support them: beams,
-tuplets, etc. */
-
+/* Relocate all J_IT & J_IP objects from the clipboard, and all J_D objects from the
+clipboard which can only be relative to SYNCs. */
 
 void RelocateClObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startMeas,
 						LINK endMeas, PTIME *durArray, short stfDiff, COPYMAP *mergeMap,
 						short *vMap, Boolean syncsOnly)
 {
-	LINK pL, nextL, nextSync, qL;
-	short objType;
+	LINK pL, nextL, nextSync,qL; short objType;
 	
 	InstallDoc(clipboard);
 
-	for (pL = startClMeas; pL!=endClMeas; pL=nextL) {
+	pL = startClMeas;
+	for ( ; pL!=endClMeas; pL=nextL) {
+		if (SyncTYPE(pL)) MayErrMsg("RelocateClObjs: Link %ld is a Sync.", (long)pL);
+		
 		nextL = RightLINK(pL);
-LogPrintf(LOG_DEBUG, "RelocateClObjs: pL=%u JustTYPE=%d\n", pL, JustTYPE(pL));
 		switch (JustTYPE(pL)) {
 			case J_IT:
 				objType = ObjLType(pL);
@@ -1562,19 +1561,18 @@ LogPrintf(LOG_DEBUG, "RelocateClObjs: pL=%u JustTYPE=%d\n", pL, JustTYPE(pL));
 					for (nextSync=NILINK, qL=pL; qL && qL!=endClMeas; qL=RightLINK(qL))
 						if (SyncTYPE(qL))
 							{ nextSync = qL; break; }
-					RelocateClJITObj(doc, pL, nextSync, endMeas, durArray, stfDiff, mergeMap, vMap);
+					RelocateClJITObj(doc,pL,nextSync,endMeas,durArray,stfDiff,mergeMap,vMap);
 				}
 				break;
 			case J_IP:
 				for (nextSync=NILINK, qL=pL; qL && qL!=endClMeas; qL=RightLINK(qL))
 					if (SyncTYPE(qL)) 
 						{ nextSync = qL; break; }
-				RelocateClJIPObj(doc, pL, nextSync, endMeas, durArray, stfDiff, mergeMap, vMap);
+				RelocateClJIPObj(doc,pL,nextSync,endMeas,durArray,stfDiff,mergeMap,vMap);
 				break;
 			case J_D:
-				if (syncsOnly && !SyncSupportTYPE(pL)) break;
-				if (!GenlJ_DTYPE(pL))				/* GenlJ_DTYPE: Graphic || Ending || Tempo */
-					RelocateClJDObj(doc, pL, startMeas, durArray, stfDiff, mergeMap, vMap);		
+				if (!GenlJ_DTYPE(pL))		/* GenlJ_DTYPE: Graphic || Ending || Tempo */
+					RelocateClJDObj(doc,pL,startMeas,durArray,stfDiff,mergeMap,vMap);		
 				break;
 			case J_STRUC:
 				break;
@@ -1586,22 +1584,21 @@ LogPrintf(LOG_DEBUG, "RelocateClObjs: pL=%u JustTYPE=%d\n", pL, JustTYPE(pL));
 
 
 /* -------------------------------------------------------------- RelocateClGenlJDObjs -- */
-/* Relocate all J_D objects to be merged in from the range [startClMeas, endClMeas) of
-the clipboard which can be relative to J_IT objects other than Syncs or J_IP objects.
-Exception: if <syncsOnly>, relocate only Syncs and objects that support them: beams,
-tuplets, etc.*/
+/* Relocate all J_D objects to be merged in from the clipboard which can be relative
+to J_IT objects other than SYNCs or J_IP objects. */
 	
 void RelocateClGenlJDObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startMeas,
 							LINK endMeas, PTIME *durArray, short stfDiff, COPYMAP *mergeMap,
 							short *vMap, Boolean syncsOnly)
 {
-	LINK pL, nextL;
+	LINK pL,nextL;
 
 	InstallDoc(clipboard);
 
 	if (RightLINK(startClMeas) != endClMeas)
 		for (pL = RightLINK(startClMeas); pL!=endClMeas; pL=nextL) {
-LogPrintf(LOG_DEBUG, "RelocateClGenlJDObjs: pL=%u JustTYPE=%d\n", pL, JustTYPE(pL));
+			if (SyncTYPE(pL)) MayErrMsg("RelocateClObjs: Link %ld is a Sync.", (long)pL);
+
 			nextL = RightLINK(pL);
 			switch(JustTYPE(pL)) {
 				case J_IT:
@@ -1609,8 +1606,7 @@ LogPrintf(LOG_DEBUG, "RelocateClGenlJDObjs: pL=%u JustTYPE=%d\n", pL, JustTYPE(p
 					break;
 				case J_D:
 					if (GenlJ_DTYPE(pL) || BeamsetTYPE(pL))
-						RelocateClGenlJDObj(doc, pL, startClMeas, endClMeas, startMeas,
-											endMeas, durArray, stfDiff, mergeMap, vMap);
+						RelocateClGenlJDObj(doc,pL,startClMeas,endClMeas,startMeas,endMeas,durArray,stfDiff,mergeMap,vMap);
 					break;
 				case J_STRUC:
 					break;
@@ -1623,7 +1619,7 @@ LogPrintf(LOG_DEBUG, "RelocateClGenlJDObjs: pL=%u JustTYPE=%d\n", pL, JustTYPE(p
 
 /* -------------------------------------------------------- GetFirstBeam/Tuplet/Ottava -- */
 /* The following functions return the first owning object in the object list for any
-of the notes in <syncL>. */
+of the notes in the sync argument. */
 
 LINK GetFirstBeam(LINK syncL)
 {
@@ -1720,9 +1716,9 @@ LINK GetFirstSlur(PTIME *durArray)
 
 /* ----------------------------------------------------------------------- GetBaseLink -- */
 /* Get the correct base link from which to fix up pointers at the end of 
-RearrangeNotes. If the first Sync in the selection range is beamed/in Ottava/
+RearrangeNotes. If the first sync in the selection range is beamed/in Ottava/
 in Tuplet, the owning object could be anywhere prior to the selection range; 
-find it and return it; else return the startMeas. (As of v. 5.7, this is unused.) */
+find it and return it; else return the startMeas. As of v. 3.0, this is unused. */
 
 LINK GetBaseLink(Document *doc, short type, LINK startMeasL)
 {
@@ -1768,9 +1764,9 @@ LINK GetBaseLink(Document *doc, short type, LINK startMeasL)
 
 /* ---------------------------------------------------------------------- FixSlurLinks -- */
 /* Use durArray to update slurL's firstSyncL and lastSyncL fields.
-#1. If a Sync with notes in more than one voice is split into more than one object
+#1. If a sync with notes in more than one voice is split into more than one object
 by the operation we're reconstructing for, then, without this check, we could find
-the old Sync for a note in a voice which is mapped to a new Sync different than
+the old sync for a note in a voice which is mapped to a new  sync different than
 the one to which the slurred note belongs. */
 
 static void FixSlurLinks(LINK slurL, PTIME *durArray)
@@ -1794,7 +1790,7 @@ static void FixSlurLinks(LINK slurL, PTIME *durArray)
 check staffn. This could lead to ambiguous results in case described for slurs;
 however, in this case the ambiguity cannot lead to incorrect object list, and is
 inherent in the object list anyway - there is no way to resolve it, since hairpins
-are attached to Syncs, not to notes. */
+are attached to syncs, not to notes. */
 
 static void FixDynamLinks(LINK dynamL, PTIME *durArray)
 {
@@ -1803,7 +1799,7 @@ static void FixDynamLinks(LINK dynamL, PTIME *durArray)
 	if (IsHairpin(dynamL)) {
 		for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)
 			if (DynamFIRSTSYNC(dynamL)==pTime->objL)
-				if (NoteSTAFF(pTime->newSubL)==DynamicSTAFF(FirstSubLINK(dynamL)))	/* #1. */
+				if (NoteSTAFF(pTime->newSubL)==DynamicSTAFF(FirstSubLINK(dynamL)))		/* #1. */
 					{ DynamFIRSTSYNC(dynamL) = pTime->newObjL; break; }
 	
 		for (pTime = durArray; pTime->pTime<BIGNUM; pTime++)

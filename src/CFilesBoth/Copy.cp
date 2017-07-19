@@ -12,7 +12,7 @@
 #include "Nightingale.appl.h"
 
 
-#define EXTRAOBJS	4
+#define EXTRAOBJS	4				/* A bit of padding, on general principles */
 
 LINK GetSrcLink(LINK dstL, COPYMAP *copyMap, short numObjs)
 {
@@ -37,16 +37,17 @@ LINK GetDstLink(LINK srcL, COPYMAP *copyMap, short numObjs)
 	return NILINK;
 }
 
-/* --------------------------------------------------------------- SetupCopyMap -- */
+
+/* ---------------------------------------------------------------------- SetupCopyMap -- */
 /* Set up the copyMap array for use in updating links to objects (slurs, Graphics,
-dynamics, etc.) that refer to objects of other types. Returns TRUE if it succeeds,
-FALSE if it fails (due to lack of memory). */
+dynamics, etc.) that refer to objects of other types. Returns true if it succeeds, false
+if it fails (due to lack of memory). */
 
 Boolean SetupCopyMap(LINK startL, LINK endL, COPYMAP **copyMap, short *objCount)
 {
 	LINK pL;
 	short i, numObjs=0;
-	Boolean okay=TRUE;
+	Boolean okay=true;
 
 	for (pL=startL; pL!=endL; pL = RightLINK(pL))
 		numObjs++;						
@@ -56,17 +57,16 @@ Boolean SetupCopyMap(LINK startL, LINK endL, COPYMAP **copyMap, short *objCount)
 		for (i=0; i<numObjs; i++)
 			(*copyMap)[i].srcL = (*copyMap)[i].dstL = NILINK;
 	else
-		{ NoMoreMemory(); okay = FALSE; }
+		{ NoMoreMemory(); okay = false; }
 
 	*objCount = numObjs;					/* Return number of objects in range. */
 	return okay;
 }
 
 
-/* --------------------------------------------------------------- CopyFixLinks -- */
-/* Use the copy map to fix up cross links in the object list to objects of
- * different types.
- */
+/* ---------------------------------------------------------------------- CopyFixLinks -- */
+/* Use the copy map to fix up cross links in the object list to objects of different
+types. */
 
 void CopyFixLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL,
 						COPYMAP *copyMap, short numObjs)
@@ -154,18 +154,18 @@ void CopyFixLinks(Document *doc, Document *fixDoc, LINK startL, LINK endL,
 }
 
 
-/*
- * Copy range in srcDoc from srcStartL to srcEndL into data structure of 
- * dstDoc at insertL. Copying is done from heaps in srcDoc to heaps in dstDoc.
- * Leaves the heaps of srcDoc installed.
- */
+/* Copy range in srcDoc from srcStartL to srcEndL into data structure of dstDoc at
+insertL. Copying is done from heaps in srcDoc to heaps in dstDoc. Leaves the heaps of
+srcDoc installed. */
 
 Boolean CopyRange(Document *srcDoc, Document *dstDoc, LINK srcStartL, LINK srcEndL,
-							LINK insertL,
-							short /*toRange*/		/* unused */
-							)
+						LINK insertL,
+						short /*toRange*/		/* unused */
+						)
 {
-	LINK pL,prevL,copyL,initL; short i,numObjs; COPYMAP *copyMap;
+	LINK pL, prevL, copyL, initL;
+	short i, numObjs;
+	COPYMAP *copyMap;
 
 	InstallDoc(srcDoc);
 
@@ -176,16 +176,17 @@ Boolean CopyRange(Document *srcDoc, Document *dstDoc, LINK srcStartL, LINK srcEn
 	initL = prevL = LeftLINK(insertL);
 
 	for (i=0, pL=srcStartL; pL!=srcEndL; i++, pL=DRightLINK(srcDoc, pL)) {
-		copyL = DuplicateObject(DObjLType(srcDoc, pL), pL, FALSE, srcDoc, dstDoc, FALSE);
+		copyL = DuplicateObject(DObjLType(srcDoc, pL), pL, false, srcDoc, dstDoc, false);
 		if (!copyL)
-			return FALSE;
+			return false;
 
 		RightLINK(copyL) = insertL;
 		LeftLINK(insertL) = copyL;
 		RightLINK(prevL) = copyL;
 		LeftLINK(copyL) = prevL;
 
-		copyMap[i].srcL = pL;	copyMap[i].dstL = copyL;
+		copyMap[i].srcL = pL;
+		copyMap[i].dstL = copyL;
 		prevL = copyL;
   	}
 
@@ -199,5 +200,5 @@ Boolean CopyRange(Document *srcDoc, Document *dstDoc, LINK srcStartL, LINK srcEn
 	
 	InstallDoc(srcDoc);
 
-	return TRUE;
+	return true;
 }

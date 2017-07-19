@@ -1371,6 +1371,7 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	strcpy(s, "flags=");
 	if (q->inTuplet)		strcat(s, "INTUPLET ");
 	if (q->inOttava)		strcat(s, "INOTTAVA ");
+	if (q->playAsCue)		strcat(s, "PLAY-AS-CUE ");
 	if (q->small)			strcat(s, "SMALL ");
 	if (q->tempFlag)		strcat(s, "TEMPFLAG");
 	DrawTextLine(s);	q = GetPANOTE(qL);

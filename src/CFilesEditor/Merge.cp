@@ -675,10 +675,9 @@ static LINK ClipTupletInV(short v)
 	return tupletL;
 }
 
-/* Returns true if there is a rhythm conflict between clipV and docV, where
-conflicting rhythm means: there are Syncs in clip that map to times where
-there are not Syncs in score in that voice. Also returns true if it can't
-allocate memory it needs. */
+/* Returns true if there is a rhythm conflict between clipV and docV, where conflicting
+rhythm means: there are Syncs in clipboard that map to times where there are not Syncs
+in score in that voice. Also returns true if it can't allocate memory it needs. */
 
 static Boolean RhythmConflictInV(Document *doc, VInfo *vInfo, short *vMap)
 {
@@ -818,7 +817,7 @@ static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *
 
 	*mergeErr = noErr;
 
-	measInfo = SetupMeasInfo1(doc,&nClipMeas);
+	measInfo = SetupMeasInfo1(doc, &nClipMeas);
 	if (!measInfo) {
 		*mergeErr = Mrg_AllocErr;
 		return false;
@@ -856,8 +855,8 @@ static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *
 			}
 	}
 
-	/* Check those start times against the end times of all corresponding
-		voices in the clipboard. */
+	/* Check those start times against the end times of all corresponding voices
+		in the clipboard. */
 	for (v=1; v<=MAXVOICES; v++)
 		if (VOICE_MAYBE_USED(clipboard, v) && VOICE_MAYBE_USED(doc, vMap[v])) {
 			if (ClipVInUse(v) && DocVInUse(doc, vMap[v])) {
@@ -867,12 +866,12 @@ static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *
 		}
 
 	/*
-	 * If all voices are OK to merge, mergeOK stays true through the loop
-	 *	and CheckMerge returns true. Otherwise, need to continue checking.
+	 * If all voices are OK to merge, mergeOK stays true through the loop and
+	 *	CheckMerge returns true. Otherwise, need to continue checking.
 	 */
 	for (v=1; v<=MAXVOICES && mergeOK; v++)
-		if (VOICE_MAYBE_USED(clipboard,v) && VOICE_MAYBE_USED(doc,vMap[v])) {
-			if (ClipVInUse(v) && DocVInUse(doc,vMap[v])) {
+		if (VOICE_MAYBE_USED(clipboard, v) && VOICE_MAYBE_USED(doc, vMap[v])) {
+			if (ClipVInUse(v) && DocVInUse(doc, vMap[v])) {
 				mergeOK = vInfo[v].vOK;
 			}
 		}
@@ -891,7 +890,7 @@ static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *
 	 * Set the vBad flag true for all clipboard voices which have temporal
 	 * overlap and which also contain tuplets.
 	 */
-	for (v=1,mergeOK=true; v<=MAXVOICES; v++)
+	for (v=1, mergeOK=true; v<=MAXVOICES; v++)
 		if (!vInfo[v].vOK) {
 			if (ClipTupletInV(v)) {
 				*mergeErr = Mrg_TupletInV;
@@ -905,7 +904,7 @@ static Boolean CheckMerge(Document *doc, short /*stfDiff*/, short *vMap, VInfo *
 	 * Determine if there is a rhythm conflict in any of the voices which have
 	 * temporal overlap.
 	 */
-	if (RhythmConflictInV(doc,vInfo,vMap)) {
+	if (RhythmConflictInV(doc, vInfo, vMap)) {
 		*mergeErr = Mrg_RhythmConfl;
 		mergeOK = false;
 	}	
@@ -2111,8 +2110,8 @@ static Boolean MRearrangeAll(
 	/* The temporary object list now looks like this:
 			headL  firstL  ...  lastL  tailL
 	   
-		Loop through the qDurArray and pClDurArray, creating syncs out of notes that
-		have the same pTimes from each array, and merging syncs from both arrays into
+		Loop through the qDurArray and pClDurArray, creating Syncs out of notes that
+		have the same pTimes from each array, and merging Syncs from both arrays into
 		the main object list. */
 		
 	pTime = qTime = qDurArray;
@@ -2172,27 +2171,28 @@ static Boolean MRearrangeAll(
 		proper places. Relocate all J_IT & J_IP objects, and all J_D objects which
 		can only be relative to SYNCs. */
 
-	RelocateObjs(doc,headL,tailL,startMeas,endMeas,qDurArray);
+	RelocateObjs(doc, headL, tailL, startMeas, endMeas, qDurArray);
 
 	/* Relocate all J_D objects which can be relative to J_IT objects other than
 		SYNCs or J_IP objects. */
 	
-	RelocateGenlJDObjs(doc,headL,tailL,qDurArray);
+	RelocateGenlJDObjs(doc, headL, tailL, qDurArray);
 	
-	/* Relocate clipboard objects as above, unless we're merging only Syncs. */
+	/* Relocate clipboard objects as above, perhaps only Syncs (plus objects that
+		support them: beams, tuplets, etc.). */
 
-	if (!syncsOnly) {
-		InstallDoc(clipboard);
-		if (IsAfter(startClMeas,endClMeas)) {
-			RelocateClObjs(doc,startClMeas,endClMeas,startMeas,endMeas,qClDurArray,
-							stfDiff,mergeMap,vMap);
-			RelocateClGenlJDObjs(doc,startClMeas,endClMeas,startMeas,endMeas,qClDurArray,
-							stfDiff,mergeMap,vMap);
-		}
-		InstallDoc(doc);
+	InstallDoc(clipboard);
+	if (IsAfter(startClMeas, endClMeas)) {
+LogPrintf(LOG_DEBUG, "MRearrangeAll: RelocateCl from %u to %u\n", startClMeas, endClMeas);
+Browser(clipboard, startClMeas, endClMeas);
+		RelocateClObjs(doc, startClMeas, endClMeas, startMeas, endMeas, qClDurArray,
+						stfDiff, mergeMap, vMap, syncsOnly);
+		RelocateClGenlJDObjs(doc, startClMeas, endClMeas, startMeas, endMeas, qClDurArray,
+						stfDiff, mergeMap, vMap, syncsOnly);
 	}
+	InstallDoc(doc);
 
-	GetMergeRange(startMeas,endMeas,prevL1,lastL1,firstMeas);
+	GetMergeRange(startMeas, endMeas, prevL1, lastL1, firstMeas);
 
 	/* Beams, ottavas and tuplets can be updated without reference to their
 		origin. - Not true anymore ??HUH?, because of overlapping voices.
@@ -2202,7 +2202,7 @@ static Boolean MRearrangeAll(
 		originally in score; those merged from clipboard are updated using
 		mergeMap after all measures are merged in. */
 
-	MFixCrossPtrs(doc,startMeas,endMeas,qDurArray);
+	MFixCrossPtrs(doc, startMeas, endMeas, qDurArray);
 
 	DeleteRange(doc, RightLINK(headL), tailL);
 	DeleteNode(doc, headL);
@@ -2526,8 +2526,9 @@ static void SetPastedAsCue(Document *doc, LINK prevMeasL, LINK lastL, short velo
 		if (SyncTYPE(pL) && LinkSPAREFLAG(pL))
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				if (NoteMERGED(aNoteL)) {
-					NoteCUENOTE(aNoteL) = true;
-//LogPrintf(LOG_DEBUG, "SetPastedAsCue: set note %u velocity to %d\n", aNoteL, velocity);
+					NoteSMALL(aNoteL) = true;
+					NotePLAYASCUE(aNoteL) = true;
+LogPrintf(LOG_DEBUG, "SetPastedAsCue: set note %u velocity to %d\n", aNoteL, velocity);
 				}
 			}
 	}

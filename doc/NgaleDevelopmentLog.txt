@@ -2098,9 +2098,10 @@ handled via a "temporary object list"; see comment in MRearrangeAll()...
 It'd be really nice to record "permanently" if a note is a cue note, so (at a minimum)
 Ngale knows how to play it appropriately -- the obvious thing being to play it at a
 fixed velocity for cues. Is there a bit in ANOTE to record it, a bit that's guaranteed
-to be initialized? Yes! There are several possibilities, e.g., a bit in all three MIDI
-values, <rspIgnore>, and a bit in micropitch. The change should be low impact, but
-should really display it in Get Info -- read only? -- and in Browser. ??TBD
+to be initialized? Yes! There are several possibilities, e.g., the high order bit in
+all three MIDI values, <rspIgnore>, and a bit in micropitch. The change should be low
+impact, but should really display it in Get Info -- read only? -- and in Browser.
+Decision: take the high-order bit of micropitch.
 
 Work on Issue #142, undesirable change of stem directions on transposing notes in
 multivoice situations. Tricky aspect: How far does the "situation" extend in each
@@ -2120,4 +2121,24 @@ the clipboard! Oh well; it really doesn't look hard to keep those and skip every
 else.
 
 So in MRearrangeAll, must _always_ call RelocateClObjs and RelocateClGenlJDObjs,
-passing the <syncsOnly> flag to them.  ??TBD
+passing the <syncsOnly> flag to them.
+
+-------------------------------------------------------------------------------
+
+29 June-1 July
+
+For Paste as Cue, in MRearrangeAll, _always_ call RelocateClObjs and
+RelocateClGenlJDObjs, passing the <syncsOnly> flag to them => done. ?! RelocateClObjs
+and RelocateClGenlJDObjs have "break" statements where it realllly looks like they
+should have "continue"s! As written, their _for_ loops are going to quit prematurely,
+no?
+
+Test to test Paste as Cue w/ all object types; cf. the objTable[], def'd in vars.h ??
+
+-------------------------------------------------------------------------------
+
+18 July
+
+I give up on Paste as Cue, at least for the time being. I think it's almost working,
+but have to do other things for the Concerto. So just pull the menu command out of
+the menu and processing in Menu.cp... ??

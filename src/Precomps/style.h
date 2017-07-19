@@ -55,6 +55,11 @@ with stems away from the staff are shortened. */
 #define CIRCLE_SIZEPCT 150					/* Percent of normal font size for circle */
 #define OCTNUM_SIZEPCT 120					/* PostScript relative size for 8ve sign number (unused) */
 
+/* Constants for cue notes, especially the "Paste as Cue" command. These really don't belong
+in a file of notation style parameters, but where is better?  --DAB, June 2017 */
+#define CUE_VOICENUM 3
+#define CUENOTE_VELOCITY 20
+
 /* ---------------- Chord symbols ---------------- */
 
 #define CS_GAPBTWFIELDS		8				/* distance between fields (e.g., btw. root & qual strings); % of csSmallSize */

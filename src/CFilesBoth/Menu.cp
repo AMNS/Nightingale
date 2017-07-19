@@ -445,11 +445,6 @@ void DoEditMenu(short choice)
 			case EM_Merge:
 				DoMerge(doc);
 				break;
-			case EM_PasteAsCue:
-#define CUE_VOICENUM 3
-#define CUENOTE_VELOCITY 20
-				DoPasteAsCue(doc, CUE_VOICENUM, CUENOTE_VELOCITY);
-				break;
 			case EM_Clear:
 				DoClear(doc);
 				break;

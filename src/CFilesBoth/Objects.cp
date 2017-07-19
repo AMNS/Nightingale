@@ -879,6 +879,7 @@ PushLock(NOTEheap);
 	aNote->otherStemSide = false;
 	aNote->rspIgnore = false;	
 	aNote->accSoft = false;
+	aNote->playAsCue = false;
 	aNote->micropitch = 0;
 	aNote->xmoveAcc = DFLT_XMOVEACC;
 	aNote->courtesyAcc = 0;
