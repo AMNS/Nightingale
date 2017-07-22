@@ -5,42 +5,38 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-/*
- *	Draw the scroll bars, message box/horizontal scroll bar boundary, and grow box
- *	for the given document, gated by the global flag <alreadyDrawn>, which is used to
- *	skip the update event after an activate event that redraws the controls.
- */
+/* Draw the scroll bars, message box/horizontal scroll bar boundary, and grow box for the
+given document, gated by the global flag <alreadyDrawn>, which is used to skip the
+update event after an activate event that redraws the controls. */
 
 void DrawDocumentControls(Document *doc)
-	{
-		Point pt; Rect portRect;
-		
-		if (!alreadyDrawn) {
-			GetWindowPortBounds(doc->theWindow,&portRect);
-			ClipRect(&portRect);
-			pt = TOP_LEFT(doc->growRect);
+{
+	Point pt;
+	Rect portRect;
+	
+	if (!alreadyDrawn) {
+		GetWindowPortBounds(doc->theWindow,&portRect);
+		ClipRect(&portRect);
+		pt = TOP_LEFT(doc->growRect);
 
-			/* Draw in new grow box. NB: DrawGrowIcon draws the boundary lines as well! */
+		/* Draw in new grow box. NB: DrawGrowIcon draws the boundary lines as well! */
 
-			DrawGrowIcon(doc->theWindow);
-			DrawControls(doc->theWindow);
-			ClipRect(&doc->viewRect);
-			alreadyDrawn = FALSE;
-			}
+		DrawGrowIcon(doc->theWindow);
+		DrawControls(doc->theWindow);
+		ClipRect(&doc->viewRect);
+		alreadyDrawn = false;
 	}
+}
 
-/*
- *	Draw everything that should show in a Document window, clipped to the
- *	current value of doc->viewRect if updateRect is NULL, or to updateRect
- *	if not. "Everything" means the window background and the visible sheets
- *	of paper. Within each sheet, draw its contents.
- */
+/* Draw everything that should show in a Document window, clipped to the current value
+of doc->viewRect if updateRect is NULL, or to updateRect if not. "Everything" means the
+window background and the visible sheets of paper. Within each sheet, draw its contents. */
 
 void DrawDocumentView(Document *doc, Rect *updateRect)
 	{
@@ -48,7 +44,7 @@ void DrawDocumentView(Document *doc, Rect *updateRect)
 		short i;
 		
 		if (doc->showWaitCurs) WaitCursor();
-		doc->showWaitCurs = TRUE;
+		doc->showWaitCurs = true;
 		
 		if (updateRect) {
 			SectRect(&doc->viewRect,updateRect,&updater);
@@ -159,24 +155,25 @@ void DrawDocumentView(Document *doc, Rect *updateRect)
 		
 		/* Clear "entering Show Format" flag and update any carets or selections. */
 		
-		doc->enterFormat = FALSE;
+		doc->enterFormat = false;
 		DrawTheSelection();
 
 		ClipRect(&doc->viewRect);
 	}
 
-/*
- *	A window has changed size: recompute everything that depends on size, and
- *	directly redraw the scroll bars, message box/horizontal scroll bar boundary,
- *	and grow box here, rather than depending on update events.
- */
+/* A window has changed size: recompute everything that depends on size, and directly
+redraw the scroll bars, message box/horizontal scroll bar boundary, and grow box here,
+rather than depending on update events. */
 
 extern Boolean magnifyOnly;			/* Secret message from SheetMagnify */
 
 void RecomputeView(Document *doc)
 	{
-		Rect r,rem,messageRect,portRect; WindowPtr w = doc->theWindow;
-		Point pt; short width,height,x,y; Boolean changingView;
+		Rect r,rem,messageRect,portRect;
+		WindowPtr w = doc->theWindow;
+		Point pt;
+		short width,height,x,y;
+		Boolean changingView;
 		Rect contrlRect;
 		
 		
@@ -186,7 +183,7 @@ void RecomputeView(Document *doc)
 		
 		/* Get new view and move grow rectangle to new position */
 
-		PrepareMessageDraw(doc,&messageRect,TRUE);
+		PrepareMessageDraw(doc,&messageRect,true);
 		EraseAndInval(&doc->growRect);
 		
 		GetControlBounds(doc->hScroll, &contrlRect);
@@ -202,16 +199,16 @@ void RecomputeView(Document *doc)
 		doc->viewRect.bottom -= SCROLLBAR_WIDTH;
 		
 		/*
-		 *	When shrinking the window, it is possible for the paper
-		 *	to become completely hidden.  In this case, we force the
-		 *	view to change so that the top left corner of the paper
-		 *	always remains in view.
+		 *	When shrinking the window, it is possible for the paper to become
+		 *	completely hidden.  In this case, we force the view to change so that
+		 *	the top left corner of the paper always remains in view.
 		 */
 		r = doc->viewRect;
 		r.right -= config.hScrollSlop;
 		r.bottom -= config.vScrollSlop;
 		
-		if (changingView = !SectRect(&doc->allSheets,&r,&rem)) {
+		changingView = !SectRect(&doc->allSheets,&r,&rem);
+		if (changingView) {
 			if (r.right < doc->allSheets.left)
 				doc->origin.h = doc->allSheets.left - (r.right - r.left);
 			 else if (r.left > doc->allSheets.right)
@@ -235,7 +232,7 @@ void RecomputeView(Document *doc)
 		OffsetRect(&doc->growRect,doc->viewRect.right,doc->viewRect.bottom);
 		pt = TOP_LEFT(doc->growRect);
 		DrawGrowIcon(w);
-		/* DrawGrowBox(w,pt,TRUE); */
+		/* DrawGrowBox(w,pt,true); */
 		ValidWindowRect(w,&doc->growRect);
 
 		/*

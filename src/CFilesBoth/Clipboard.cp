@@ -208,7 +208,7 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 					yDelta = halfLn2d(noteOffset[octType-1], context.staffHeight,
 											context.staffLines);
 				
-					multiVoice = IsMultiVoice(qL, staff);
+					multiVoice = IsSyncMultiVoice(qL, staff);
 					InstallDoc(clipboard);
 
 					if (multiVoice) stemDown = (aNote->yd<=aNote->ystem);

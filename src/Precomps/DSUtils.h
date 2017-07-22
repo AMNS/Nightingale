@@ -158,18 +158,18 @@ Boolean BFTimeSigExists(LINK timeSigL);
 char *StaffPartName(Document *doc, short staff);
 void SetTempFlags(Document *, Document *, LINK, LINK, Boolean);
 void SetSpareFlags(LINK, LINK, Boolean);
-Boolean IsMultiVoice(LINK pL, short staff);
+Boolean IsSyncMultiVoice(LINK pL, short staff);
 short GetSelectionStaff(Document *doc);
 void TweakSubRects(Rect *r, LINK aNoteL, CONTEXT *pContext);
-Boolean CompareScoreFormat(Document *doc1,Document *doc2,short pasteType);
-LINK GetaMeasL(LINK measL,short stf);
+Boolean CompareScoreFormat(Document *doc1, Document *doc2, short pasteType);
+LINK GetaMeasL(LINK measL, short stf);
 void DisposeMODNRs(LINK, LINK);
 
-LINK Staff2PartL(Document *doc,LINK headL,short stf);
+LINK Staff2PartL(Document *doc, LINK headL, short stf);
 short PartL2Partn(Document *doc, LINK partL);
 LINK Partn2PartL(Document *doc, short partn);
 
-LINK VHasTieAcross(LINK node,short voice);
+LINK VHasTieAcross(LINK node, short voice);
 Boolean HasSmthgAcross(Document *, LINK, char *);
 
 short LineSpace2Rastral(DDIST);

@@ -2183,8 +2183,8 @@ static Boolean MRearrangeAll(
 
 	InstallDoc(clipboard);
 	if (IsAfter(startClMeas, endClMeas)) {
-LogPrintf(LOG_DEBUG, "MRearrangeAll: RelocateCl from %u to %u\n", startClMeas, endClMeas);
-Browser(clipboard, startClMeas, endClMeas);
+//LogPrintf(LOG_DEBUG, "MRearrangeAll: RelocateCl from %u to %u\n", startClMeas, endClMeas);
+//Browser(clipboard, startClMeas, endClMeas);
 		RelocateClObjs(doc, startClMeas, endClMeas, startMeas, endMeas, qClDurArray,
 						stfDiff, mergeMap, vMap, syncsOnly);
 		RelocateClGenlJDObjs(doc, startClMeas, endClMeas, startMeas, endMeas, qClDurArray,

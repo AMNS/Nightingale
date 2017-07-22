@@ -327,7 +327,7 @@ LINK CreateOTTAVA(
 
 	for (pL = startL; pL!=endL; pL=RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
-			multiVoice = IsMultiVoice(pL, staff); 		/* Are there multiple voices on staff? */
+			multiVoice = IsSyncMultiVoice(pL, staff); 		/* Are there multiple voices on staff? */
 			/* Loop through the notes, simple-mindedly fixing up notehead, stem, and
 				aug. dot y-positions. Chords will need more attention once all their
 				constituent notes have been moved. */
@@ -688,8 +688,7 @@ static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short 
 	QDIST qStemLen;
 	STDIST dystd;
 	
-	/* Determine if there are multiple voices on s. */
-	multiVoice = IsMultiVoice(pL, s);
+	multiVoice = IsSyncMultiVoice(pL, s);
 
 	/* Loop through the notes and set their yds and ystems. */
 	aNoteL = FirstSubLINK(pL);

@@ -43,7 +43,7 @@
 		SyncVoiceOnStaff		SyncInBEAMSET			SyncInOTTAVA
 		PrevTiedNote			FirstTiedNote			ChordNextNR
 		GetCrossStaff			SetTempFlags			SetSpareFlags
-		IsMultiVoice			TweakSubRects
+		IsSyncMultiVoice		TweakSubRects
 		CompareScoreFormat		DisposeMODNRs			Staff2PartL
 		PartL2Partn				VHasTieAcross			HasSmthgAcross
 		LineSpace2Rastral		Rastral2LineSpace		StaffRastral
@@ -3053,7 +3053,7 @@ void SetSpareFlags(LINK startL, LINK endL, Boolean value)
 is probably a bug, but as of v. 5.7, this function isn't used for much, so probably
 not serious. */
 
-Boolean IsMultiVoice(LINK syncL, short staff)
+Boolean IsSyncMultiVoice(LINK syncL, short staff)
 {
 	LINK aNoteL;
 	PANOTE aNote;

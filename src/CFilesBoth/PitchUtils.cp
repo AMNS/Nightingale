@@ -347,8 +347,8 @@ void FixVoiceForPitchChange(
 	if (SyncTYPE(pL)) {
 		aNoteL = FindMainNote(pL, voice);
 LogPrintf(LOG_DEBUG, "FixVoiceForPitchChange: pL=%u multivoice for staff %d=%d\n",
-		  pL,  NoteSTAFF(aNoteL), IsMultiVoice(pL, NoteSTAFF(aNoteL)));
-		if (IsMultiVoice(pL, NoteSTAFF(aNoteL))) {
+		  pL,  NoteSTAFF(aNoteL), IsSyncMultiVoice(pL, NoteSTAFF(aNoteL)));
+		if (IsSyncMultiVoice(pL, NoteSTAFF(aNoteL))) {
 			/* In multivoice (>=2 voices on the staff) notation, don't change stem
 			   direction, but preserve stem length. */
 			

@@ -1554,7 +1554,7 @@ void RelocateClObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK startM
 
 	for (pL = startClMeas; pL!=endClMeas; pL=nextL) {
 		nextL = RightLINK(pL);
-LogPrintf(LOG_DEBUG, "RelocateClObjs: pL=%u JustTYPE=%d\n", pL, JustTYPE(pL));
+//LogPrintf(LOG_DEBUG, "RelocateClObjs: pL=%u JustTYPE=%d\n", pL, JustTYPE(pL));
 		switch (JustTYPE(pL)) {
 			case J_IT:
 				objType = ObjLType(pL);
@@ -1601,7 +1601,7 @@ void RelocateClGenlJDObjs(Document *doc, LINK startClMeas, LINK endClMeas, LINK 
 
 	if (RightLINK(startClMeas) != endClMeas)
 		for (pL = RightLINK(startClMeas); pL!=endClMeas; pL=nextL) {
-LogPrintf(LOG_DEBUG, "RelocateClGenlJDObjs: pL=%u JustTYPE=%d\n", pL, JustTYPE(pL));
+//LogPrintf(LOG_DEBUG, "RelocateClGenlJDObjs: pL=%u JustTYPE=%d\n", pL, JustTYPE(pL));
 			nextL = RightLINK(pL);
 			switch(JustTYPE(pL)) {
 				case J_IT:

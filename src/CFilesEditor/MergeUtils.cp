@@ -336,8 +336,7 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 	QDIST qStemLen;
 	STDIST dystd;
 	
-	/* Determine if there are multiple voices on staff s. */
-	multiVoice = IsMultiVoice(pL, s);
+	multiVoice = IsSyncMultiVoice(pL, s);
 
 	/* Loop through the notes and set their yds and ystems. */
 	aNoteL = FirstSubLINK(pL);

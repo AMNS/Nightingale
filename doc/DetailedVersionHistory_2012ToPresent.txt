@@ -1545,7 +1545,7 @@ Minor cleanup. Affects Merge, MergeUtils.
 Continued implementation of "Paste as Cue" command. Affects Merge.
 
 Changed the initial setting of a score's <colorVoices> in new documents from 1 (color
-all non- default voices in each part) to 2 (color all voices but voice no. 1 in each
+all non-default voices in each part) to 2 (color all voices but voice no. 1 in each
 part); clarified (in comments) that difference (which is controlled in an obscure
 way by the Look at Voices command). Affects NTypes.h; Documents, DrawUtils, 
 
@@ -1611,3 +1611,19 @@ CoreMIDIUtils, Merge, Objects.
 Renamed CoreMidiUtils to CoreMIDIUtils.
 
 Minor cleanup. Affects vars.h; Copy, CoreMIDIUtils, Error, Merge, Reconstruct.
+
+-------------------------------------------------------------------------------
+
+19-22 July
+
+Renamed utility function IsMultiVoice() to IsSyncMultiVoice(). Affects DSutils.h;
+Clipboard, DSUtils, MergeUtils, Ottava, PitchUtils.
+
+Formerly, using the shift key while dragging a slur endpoint constrained it to
+move on one axis or the other, but using it while dragging a control point made the
+other control point move symmetrically; now using the shift key while dragging either
+an endpoint or a control point constrains it to move on an axis, and using the option
+key while dragging either makes the other move symmetrically. Affects Slurs.
+
+Minor cleanup. Affects DrawDocument, Merge, Reconstruct, Slurs.
+
