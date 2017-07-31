@@ -135,7 +135,7 @@ static void DrawDBox(Rect *paper, DPoint ptd, short size)
 void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
 {
 	EventRecord	evt;
-	Boolean		stillEditing = TRUE;
+	Boolean		stillEditing = true;
 	DPoint		pt;
 	Point		ptStupid;
 	Rect		bboxBefore, bboxAfter;
@@ -165,7 +165,7 @@ void DoSlurEdit(Document *doc, LINK pL, LINK aSlurL, short index)
 						HiliteSlur(&doc->currentPaper, aSlurL);
 					break;
 				default:
-					stillEditing = FALSE;
+					stillEditing = false;
 					break;
 			}
 	}
@@ -263,8 +263,8 @@ static void DeselectKnots(Rect *paper, LINK aSlurL)
 }
 	
 /*
- *	Deal with a mouse down event at DPoint pt.  Deliver TRUE if mouse down
- *	is eaten and dealt with here, FALSE if not dealt with.
+ *	Deal with a mouse down event at DPoint pt.  Deliver true if mouse down
+ *	is eaten and dealt with here, false if not dealt with.
  */
 
 static Boolean DoSlurMouseDown(Document *doc, DPoint pt, LINK /*pL*/, LINK aSlurL,
@@ -308,7 +308,7 @@ static Boolean DoSlurMouseDown(Document *doc, DPoint pt, LINK /*pL*/, LINK aSlur
 			if (found) { how = S_Whole;  goto gotit; }
 		}
 
-		return(FALSE);
+		return(false);
 
 gotit:
 		/* Our mouse down event should be eaten and dealt with here */
@@ -322,7 +322,7 @@ gotit:
 		
 		changed = EditSlur(&paper, &seg, &endKnot, pt, how);
 		if (changed) {
-			doc->changed = TRUE;
+			doc->changed = true;
 			/* Convert paper-relative coords back to offsets */
 			aSlur = GetPASLUR(aSlurL);
 			aSlur->seg.c0.h = seg.c0.h - seg.knot.h;
@@ -336,13 +336,13 @@ gotit:
 			}
 		
 		DrawSegment(&paper, &seg, endKnot);
-		return(TRUE);
+		return(true);
 	}
 
 /*
  *	Given a slur segment of the selected slur, in which a mouse click has specified the
- *	indicated part, interactively change that part.  Deliver TRUE if an actual change
- *	occurred, FALSE if not.
+ *	indicated part, interactively change that part.  Deliver true if an actual change
+ *	occurred, false if not.
  */
 
 static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endKnot, DPoint pt, short how)
@@ -351,7 +351,7 @@ static Boolean EditSlur(Rect *paper, SplineSeg *seg, DPoint *endKnot, DPoint pt,
 			oldc0={0,0},
 			oldc1={0,0},
 			oldEnd={0,0};
-	Boolean changed=FALSE;
+	Boolean changed=false;
 
 	/* Track user action and get new position */
 	Slursor(paper, &seg->knot, endKnot, &seg->c0, &seg->c1, how, &pt, 0);
@@ -384,7 +384,7 @@ Boolean DrawSegment(Rect *paper, SplineSeg *seg, DPoint endKnot)
 	c1.v = paper->top + d2p(seg->c1.v);
 	
 	MoveTo(start.h,start.v);
-	return(BezierTo(start,end,c0,c1,FALSE));
+	return(BezierTo(start,end,c0,c1,false));
 }
 
 	
@@ -400,8 +400,8 @@ Boolean DrawSegment(Rect *paper, SplineSeg *seg, DPoint endKnot)
  *	If the Shift key is held down, we constrain motion to whichever axis was used first
  *	(this is the conventional meaning of the Shift key when dragging in Mac graphics
  *	programs). If the Option key is down, force the opposite control point or endpoint to
- *	move symmetrically. Finally, we deliver TRUE if the resulting spline is at least a
- *	certain size; otherwise FALSE.
+ *	move symmetrically. Finally, we deliver true if the resulting spline is at least a
+ *	certain size; otherwise false.
  */
 
 #define SLURDRAG_SLOP 2		/* in pixels */
@@ -416,7 +416,7 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 {
 	DPoint ptd, tmp, *test; 
 	DDIST dist, dist4, dist8, dx, dy;
-	Boolean first=TRUE, up, constrainToAxis, constrainSymmetric, horiz=FALSE,
+	Boolean first=true, up, constrainToAxis, constrainSymmetric, horiz=false,
 				stillWithinSlop;
 	Point pt, origPt;
 	short xdiff, ydiff;
@@ -424,10 +424,10 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 	if (type == S_Extend) type = S_New;						/* Not implemented: use New */
 	
 	if (type == S_New) *end = *c0 = *c1 = *start;
-	 else			   up = curve>0 ? TRUE : (curve<0 ? FALSE : (c0->v >= start->v));
+	 else			   up = curve>0 ? true : (curve<0 ? false : (c0->v >= start->v));
 			
 	PenMode(patXor);										/* Everything will be drawn twice */
-	DrawSlursor(paper, start, end, c0, c1, type, FALSE);	/* Draw first one in before loop */
+	DrawSlursor(paper, start, end, c0, c1, type, false);	/* Draw first one in before loop */
 
 	 /* Choose which point we want to follow the mouse */
 	 
@@ -438,13 +438,13 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 		case S_C1:		test = c1; break;
 		case S_End:		test = end; tmp = *end; break;
 		case S_Whole:	test = q; tmp = *q; break;
-		default:		return FALSE;						/* Should never happen */
+		default:		return false;						/* Should never happen */
 	}
 	
 	theSelectionType = SLURSOR;
 	constrainToAxis = ShiftKeyDown();
 	constrainSymmetric = OptionKeyDown();
-	stillWithinSlop = TRUE;
+	stillWithinSlop = true;
 	GetPaperMouse(&origPt, paper);
 
 	if (StillDown())
@@ -456,7 +456,7 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 				/* If we're still within slop bounds, don't do anything */
 				if (ABS(xdiff)<SLURDRAG_SLOP && ABS(ydiff)<SLURDRAG_SLOP) continue;
 				horiz = ABS(xdiff) > ABS(ydiff);      /* 45 degree movement => vertical */
-				stillWithinSlop = FALSE;
+				stillWithinSlop = false;
 			}
 
 			ptd.h = p2d(pt.h); ptd.v = p2d(pt.v);
@@ -467,11 +467,11 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 						continue;
 				}
 				if (first) if (type==S_New || type==S_Extend) {
-					up = curve>0 ? TRUE : (curve<0 ? FALSE : ptd.v<=end->v);
-					first = FALSE;
+					up = curve>0 ? true : (curve<0 ? false : ptd.v<=end->v);
+					first = false;
 				}
 				
-				DrawSlursor(paper,start,end,c0,c1,type,FALSE);	/* Erase old slursor */
+				DrawSlursor(paper,start,end,c0,c1,type,false);	/* Erase old slursor */
 				GetPaperMouse(&pt,paper);						/* Get the most up-to-date position */
 
 				/* If we're constraining to horiz. or vertical, discard change on other axis */
@@ -537,7 +537,7 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 						break;
 				}
 					
-				DrawSlursor(paper,start,end,c0,c1,type,FALSE);		/* Draw new section */
+				DrawSlursor(paper,start,end,c0,c1,type,false);		/* Draw new section */
 				/* Save what we just drew for benefit of AutoScrolling */
 				keepStart = *start;
 				keepEnd = *end;
@@ -551,7 +551,7 @@ Boolean Slursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1,
 		}
 		
 	/* Erase final image of cursor */
-	DrawSlursor(paper,start,end,c0,c1,type,FALSE);
+	DrawSlursor(paper,start,end,c0,c1,type,false);
 	PenNormal();
 	theSelectionType = 0;
 	
@@ -613,33 +613,33 @@ void DrawSlursor(Rect *paper, DPoint *start, DPoint *end, DPoint *c0, DPoint *c1
 
 void DrawTheSlursor()
 {
-	DrawSlursor(&keepPaper,&keepStart,&keepEnd,&keepc0,&keepc1,keepType,FALSE);
+	DrawSlursor(&keepPaper,&keepStart,&keepEnd,&keepc0,&keepc1,keepType,false);
 }
 
 /*
  *	Draw a Bezier spline from startPt to endPt, using c0, c1 as control Points.
  *	This version is a fast version for integer coordinates, done in homebrew Fixed
  *	arithmetic, suitable for changing cursors, etc.
- *	If searchSpline is TRUE, don't draw; rather check for proximity to the point
- *	(xSearch,ySearch), and return TRUE if point is "close" to the spline.
- *	If getBoundsSpline is TRUE, maximize/minimize to find bounding box.
+ *	If searchSpline is true, don't draw; rather check for proximity to the point
+ *	(xSearch,ySearch), and return true if point is "close" to the spline.
+ *	If getBoundsSpline is true, maximize/minimize to find bounding box.
  */
 
 void StartSearch(Rect *paper, DPoint pt)
 {
-	searchSpline = TRUE;
+	searchSpline = true;
 	xSearch = paper->left + d2p(pt.h); ySearch = paper->top + d2p(pt.v);
 }
 
 void EndSearch()
 {
-	searchSpline = FALSE;
+	searchSpline = false;
 }
 	
 Boolean FindSLUR(Rect *paper, Point pt, LINK aSlurL)
 {
 	DPoint ptd,endKnot;  short i,nSegs=1;  PASLUR aSlur;
-	SplineSeg *thisSeg,seg;  Boolean found = FALSE;
+	SplineSeg *thisSeg,seg;  Boolean found = false;
 	
 	ptd.h = p2d(pt.h); ptd.v = p2d(pt.v);
 	StartSearch(paper,ptd);
@@ -649,7 +649,7 @@ Boolean FindSLUR(Rect *paper, Point pt, LINK aSlurL)
 		if (i == nSegs)	endKnot = aSlur->endKnot;
 		 else			endKnot = (thisSeg+1)->knot;
 		GetSlurPoints(aSlurL,&seg.knot,&seg.c0,&seg.c1,&endKnot);
-		if (DrawSegment(paper,&seg,endKnot)) { found = TRUE; break; }		/* In search mode */
+		if (DrawSegment(paper,&seg,endKnot)) { found = true; break; }		/* In search mode */
 		}
 	EndSearch();
 	return found;
@@ -657,8 +657,8 @@ Boolean FindSLUR(Rect *paper, Point pt, LINK aSlurL)
 
 void StartSlurBounds()
 {
-	searchSpline = FALSE;
-	getBoundsSpline = TRUE;
+	searchSpline = false;
+	getBoundsSpline = true;
 	slurLeft = slurTop = 32767;
 	slurRight = slurBottom = -32767;
 }
@@ -667,7 +667,7 @@ void EndSlurBounds(Rect *paper, Rect *box)
 {
 	SetRect(box,slurLeft,slurTop,slurRight,slurBottom);
 	OffsetRect(box,-paper->left,-paper->top);				/* Convert box to paper coords */
-	getBoundsSpline = FALSE;
+	getBoundsSpline = false;
 }
 
 /*
@@ -699,7 +699,7 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 	{
 		long i,ax,ay,bx,by,cx,cy,curx,cury;
 		short x,y,s,s1,s2,s3,lastx,lasty,dx,dy;
-		Boolean found = FALSE;
+		Boolean found = false;
 		static short epsilon = 5;
 		FASTFLOAT segLen;  short segsPerDash,segsThisDash;
 		Boolean doingDash;
@@ -745,7 +745,7 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 			segLen = ABS(endPt.h-startPt.h)/(FASTFLOAT)s;
 			segsPerDash = DASHLEN/segLen;
 			if (segsPerDash<1) segsPerDash = 1;
-			doingDash = TRUE;
+			doingDash = true;
 			segsThisDash = segsPerDash;
 		}
 		
@@ -756,7 +756,7 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 				if (lastx!=x || lasty!=y) {							/* ?? lasty NEVER INIT.! */
 					dx = x - xSearch; if (dx < 0) dx = -dx;
 					dy = y - ySearch; if (dy < 0) dy = -dy;
-					if (dx<=epsilon && dy<=epsilon) { found = TRUE; break; }
+					if (dx<=epsilon && dy<=epsilon) { found = true; break; }
 					lastx = x; lasty = y;
 					}
 				}
@@ -799,12 +799,12 @@ static Boolean BezierTo(Point startPt, Point endPt, Point c0, Point c1, Boolean 
 /*
  *	TrackSlur lets the user pull around a slur, anchored at DPoint ptd, and then,
  *	when the user lets go of the mouse, delivers the paper-relative coordinates
- *	(in DPoints) of the slur.  It returns FALSE if the slur is below a certain
- * minimum length.
+ *	(in DPoints) of the slur.  It returns false if the slur is below a certain
+ *	minimum length.
  */
 
-Boolean TrackSlur(Rect *paper, DPoint ptd, DPoint *knot, DPoint *endKnot,
-							 DPoint *c0, DPoint *c1, Boolean curveUp)
+Boolean TrackSlur(Rect *paper, DPoint ptd, DPoint *knot, DPoint *endKnot, DPoint *c0,
+					DPoint *c1, Boolean curveUp)
 	{
 		*knot = ptd; *endKnot = ptd; *c0 = ptd; *c1 = ptd;			/* Default: degenerate */
 		
@@ -911,13 +911,13 @@ void GetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
 			from. If lastSYS, p->lastSyncL must have an RSYS; find the first sync to the
 			left of RSYS to get the context from. */
 
-		firstSyncL = (firstMEAS ? LSSearch(p->firstSyncL, SYNCtype, firstStaff, GO_RIGHT, FALSE)
+		firstSyncL = (firstMEAS ? LSSearch(p->firstSyncL, SYNCtype, firstStaff, GO_RIGHT, false)
 										: p->firstSyncL);
 
 		p = GetPSLUR(pL);
 		if (lastSYS) {
 			systemL = p->lastSyncL;
-			lastSyncL = LSSearch(LinkRSYS(systemL),SYNCtype,lastStaff,GO_LEFT,FALSE);
+			lastSyncL = LSSearch(LinkRSYS(systemL),SYNCtype,lastStaff,GO_LEFT,false);
 		}
 		else
 			lastSyncL = p->lastSyncL;
@@ -998,14 +998,14 @@ void HiliteSlurNodes(Document *doc, LINK pL)
 	/* We don't flash here because it's unnecessary (the slur's staff is obvious
 		in any reasonable situation) and it slows down a common operation. */
 	
-	p = GetPSLUR(pL); HiliteInsertNode(doc, p->firstSyncL, p->staffn, FALSE);	/* Hiliting on... */
-	p = GetPSLUR(pL); HiliteInsertNode(doc, p->lastSyncL, p->staffn, FALSE);
+	p = GetPSLUR(pL); HiliteInsertNode(doc, p->firstSyncL, p->staffn, false);	/* Hiliting on... */
+	p = GetPSLUR(pL); HiliteInsertNode(doc, p->lastSyncL, p->staffn, false);
 	SleepTicks(HILITE_TICKS);
 
 	while (Button()) ;
 
-	p = GetPSLUR(pL); HiliteInsertNode(doc, p->firstSyncL, p->staffn, FALSE);	/* Off. */
-	p = GetPSLUR(pL); HiliteInsertNode(doc, p->lastSyncL, p->staffn, FALSE);
+	p = GetPSLUR(pL); HiliteInsertNode(doc, p->firstSyncL, p->staffn, false);	/* Off. */
+	p = GetPSLUR(pL); HiliteInsertNode(doc, p->lastSyncL, p->staffn, false);
 
 	SetPenState(&pn);
 }
@@ -1050,7 +1050,7 @@ Boolean SetSlurCtlPoints(
 		this case, make the respective noteWidth equal zero. */
 	
 	if (SyncTYPE(firstSyncL))
-		noteWidth = std2d(SymWidthRight(doc, firstSyncL, staff, TRUE),
+		noteWidth = std2d(SymWidthRight(doc, firstSyncL, staff, true),
 									context.staffHeight, context.staffLines);
 
 	aSlur = GetPASLUR(aSlurL);
@@ -1058,7 +1058,7 @@ Boolean SetSlurCtlPoints(
 
 	noteWidth = 0;
 	if (SyncTYPE(lastSyncL))
-		noteWidth = std2d(SymWidthRight(doc, lastSyncL, staff, TRUE),
+		noteWidth = std2d(SymWidthRight(doc, lastSyncL, staff, true),
 									context.staffHeight, context.staffLines);
 
 	aSlur = GetPASLUR(aSlurL);
@@ -1125,7 +1125,7 @@ PrintSlurPoints(aSlurL, "SetSlurCtlPts: 1");
 
 	RotateSlurCtrlPts(aSlurL,x,y,1);
 
-	return TRUE;
+	return true;
 }
 
 
@@ -1174,7 +1174,7 @@ static void CreateTies(Document *doc, LINK pL, LINK aNoteL)
 	
 	aNote = GetPANOTE(aNoteL);
 	if (aNote->tiedR) {
-		qL = LVSearch(RightLINK(pL), SYNCtype, NoteVOICE(aNoteL), GO_RIGHT, FALSE);
+		qL = LVSearch(RightLINK(pL), SYNCtype, NoteVOICE(aNoteL), GO_RIGHT, false);
 		if (qL) {
 			bNoteL = FirstSubLINK(qL);
 			for ( ; bNoteL; bNoteL=NextNOTEL(bNoteL))
@@ -1224,10 +1224,10 @@ Boolean DeleteSlurTie(Document *doc, LINK slurL)
 	LINK	firstSyncL, lastSyncL, otherSlurL;
 	Boolean	lastIsSys, firstIsMeas, left, right;
 	
-	if (!SlurTIE(slurL)) return FALSE;
+	if (!SlurTIE(slurL)) return false;
 	
-	right = TRUE; left = FALSE;
-	lastIsSys = firstIsMeas = FALSE;
+	right = true; left = false;
+	lastIsSys = firstIsMeas = false;
 	
 	FixAccsForNoTie(doc, slurL);
 	
@@ -1235,15 +1235,15 @@ Boolean DeleteSlurTie(Document *doc, LINK slurL)
 	
 	firstSyncL = SlurFIRSTSYNC(slurL);
 	if (MeasureTYPE(firstSyncL))
-		firstIsMeas = TRUE;
+		firstIsMeas = true;
 	else
-		FixSyncForSlur(firstSyncL, SlurVOICE(slurL), TRUE, right);
+		FixSyncForSlur(firstSyncL, SlurVOICE(slurL), true, right);
 		
 	lastSyncL = SlurLASTSYNC(slurL);
 	if (SystemTYPE(lastSyncL))
-		lastIsSys = TRUE;
+		lastIsSys = true;
 	else
-		FixSyncForSlur(lastSyncL, SlurVOICE(slurL), TRUE, left);
+		FixSyncForSlur(lastSyncL, SlurVOICE(slurL), true, left);
 		
 	/* If cross-system, clear tiedL/tiedR flags of notes for slur's other piece. */
 
@@ -1252,7 +1252,7 @@ Boolean DeleteSlurTie(Document *doc, LINK slurL)
 		lastSyncL = SlurLASTSYNC(otherSlurL);
 		if (SystemTYPE(lastSyncL)) {
 			firstSyncL = SlurFIRSTSYNC(otherSlurL);
-			FixSyncForSlur(firstSyncL, SlurVOICE(slurL), TRUE, right);
+			FixSyncForSlur(firstSyncL, SlurVOICE(slurL), true, right);
 		}
 	}
 	
@@ -1261,7 +1261,7 @@ Boolean DeleteSlurTie(Document *doc, LINK slurL)
 		firstSyncL = SlurFIRSTSYNC(otherSlurL);
 		if (MeasureTYPE(firstSyncL)) {
 			lastSyncL = SlurLASTSYNC(otherSlurL);
-			FixSyncForSlur(lastSyncL, SlurVOICE(slurL), TRUE, left);
+			FixSyncForSlur(lastSyncL, SlurVOICE(slurL), true, left);
 		}
 	}
 	
@@ -1273,13 +1273,13 @@ Boolean DeleteSlurTie(Document *doc, LINK slurL)
 	DeleteNode(doc, slurL);
 	if ((firstIsMeas || lastIsSys) && otherSlurL) DeleteNode(doc, otherSlurL);
 	
-	return TRUE;
+	return true;
 }
 
 
 /* ----------------------------------------------------------------------- FlipSelSlur -- */
 /* Flip the direction of every selected subobject of the given Slur object; return
-TRUE if there are any, else FALSE. */
+true if there are any, else false. */
 
 Boolean FlipSelSlur(LINK slurL)		/* Slur object */
 {
@@ -1288,10 +1288,10 @@ Boolean FlipSelSlur(LINK slurL)		/* Slur object */
 	DDIST	x, y;
 	Boolean	flipped;
 
-	flipped = FALSE;
+	flipped = false;
 	for (aSlurL = FirstSubLINK(slurL); aSlurL; aSlurL = NextSLURL(aSlurL))
 		if (SlurSEL(aSlurL)) {
-			flipped = TRUE;
+			flipped = true;
 			aSlur = GetPASLUR(aSlurL);
 			
 			/* Get 0-based vector from slur knot to endKnot */
@@ -1352,7 +1352,7 @@ Boolean AddSlurToList(LINK slurL)
 	
 	if (i<lastSlur || lastSlur++<maxSlurs) {
 		slurInfo[i].link = slurL;
-		return TRUE;
+		return true;
 	}
 	else {
 		lastSlur--;			
@@ -1360,7 +1360,7 @@ Boolean AddSlurToList(LINK slurL)
 		sprintf(strBuf, fmtStr, maxSlurs); 
 		CParamText(strBuf,	"", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return false;
 	}
 }
 
@@ -1385,7 +1385,7 @@ static DDIST SlurEndxd(LINK pL)
 /* Do "antikinking" on slurs/ties that might be affected by changes to the systems
 from the one containing startL to the one containing endL. Every call to InitAntiKink
 must be paired with a call to Antikink, which will dispose of the handle allocated by
-InitAntiKink. Return TRUE if all OK, FALSE if either there's an error or no slurs/ties
+InitAntiKink. Return true if all OK, false if either there's an error or no slurs/ties
 that might be affected. */
 
 Boolean InitAntikink(Document *doc, LINK startL, LINK endL)
@@ -1397,25 +1397,25 @@ Boolean InitAntikink(Document *doc, LINK startL, LINK endL)
 
 	/* No slur before the beginning of startL's System could continue to startL. */
 	
-	startChkL = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	startChkL = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, false);
 	if (!startChkL) startChkL = startL;
 	endChkL = EndSystemSearch(doc, endL);
 
 	/*
-	 * Get an upper bound on the number of slurs we might be handling and
-	 * allocate a block to hold SLURINFOs for them.
+	 * Get an upper bound on the number of slurs we might be handling and allocate
+	 * a block to hold SLURINFOs for them.
 	 */
 	slurCount = 0;
 	for (pL = startChkL; pL!=endChkL; pL = RightLINK(pL))
 		if (SlurTYPE(pL)) slurCount++;
 
-	if (slurCount==0) return FALSE;
+	if (slurCount==0) return false;
 	
 	maxSlurs = slurCount;
 	slurInfoHdl = (SLURINFO **)NewHandle((Size)sizeof(SLURINFO) * maxSlurs);
 	if (!GoodNewHandle((Handle)slurInfoHdl)) {
 		NoMoreMemory();
-		return FALSE;
+		return false;
 	}
 
 	MoveHHi((Handle)slurInfoHdl);
@@ -1453,14 +1453,14 @@ Boolean InitAntikink(Document *doc, LINK startL, LINK endL)
 			slurInfo[i].len = rightEnd-leftEnd;
 		}
 
-	return TRUE;
+	return true;
 	
 GiveUp:
 	if (slurInfoHdl) {
 		DisposeHandle((Handle)slurInfoHdl);
 		slurInfoHdl = NULL;
 	}
-	return FALSE;
+	return false;
 }
 	
 

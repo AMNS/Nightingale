@@ -11,6 +11,7 @@
 		1540DDE61ED721ED007ECD61 /* SetUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1540DDE51ED721ED007ECD61 /* SetUtils.cp */; };
 		1544E9B31E645DA400431548 /* Style.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B21E645DA400431548 /* Style.h */; };
 		1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1544E9B41E645DEF00431548 /* Defs.h */; };
+		154518B31F26D8F200FA26FF /* InternalInput.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154518B21F26D8F200FA26FF /* InternalInput.cp */; };
 		15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEF0D5F986D005FD177 /* HeapFileIO.cp */; };
 		15497E2C1F125FF7000E7FA3 /* CoreMIDIUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15497E2B1F125FF7000E7FA3 /* CoreMIDIUtils.cp */; };
 		154C91D31EDBB86F00AAC011 /* AutoBeam.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154C91D21EDBB86F00AAC011 /* AutoBeam.cp */; };
@@ -60,7 +61,6 @@
 		D03E6E0B0D5F986D005FD177 /* EditScore.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE50D5F986D005FD177 /* EditScore.cp */; };
 		D03E6E0E0D5F986D005FD177 /* Error.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE80D5F986D005FD177 /* Error.cp */; };
 		D03E6E0F0D5F986D005FD177 /* File.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DE90D5F986D005FD177 /* File.cp */; };
-		D03E6E100D5F986D005FD177 /* FileInput.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEA0D5F986D005FD177 /* FileInput.cp */; };
 		D03E6E110D5F986D005FD177 /* Finalize.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEB0D5F986D005FD177 /* Finalize.cp */; };
 		D03E6E120D5F986D005FD177 /* FontUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEC0D5F986D005FD177 /* FontUtils.cp */; };
 		D03E6E140D5F986D005FD177 /* GRBeam.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DEE0D5F986D005FD177 /* GRBeam.cp */; };
@@ -212,6 +212,7 @@
 		1540DDE51ED721ED007ECD61 /* SetUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SetUtils.cp; sourceTree = "<group>"; };
 		1544E9B21E645DA400431548 /* Style.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Style.h; sourceTree = "<group>"; };
 		1544E9B41E645DEF00431548 /* Defs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Defs.h; sourceTree = "<group>"; };
+		154518B21F26D8F200FA26FF /* InternalInput.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InternalInput.cp; sourceTree = "<group>"; };
 		15497E2B1F125FF7000E7FA3 /* CoreMIDIUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMIDIUtils.cp; sourceTree = "<group>"; };
 		154C91D21EDBB86F00AAC011 /* AutoBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AutoBeam.cp; sourceTree = "<group>"; };
 		154FABBC1EF2ADF300666F3F /* Reconstruct.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Reconstruct.cp; sourceTree = "<group>"; };
@@ -347,7 +348,6 @@
 		D03E6DE50D5F986D005FD177 /* EditScore.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = EditScore.cp; sourceTree = "<group>"; };
 		D03E6DE80D5F986D005FD177 /* Error.cp */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.cpp.cpp; lineEnding = 0; path = Error.cp; sourceTree = "<group>"; };
 		D03E6DE90D5F986D005FD177 /* File.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = File.cp; sourceTree = "<group>"; };
-		D03E6DEA0D5F986D005FD177 /* FileInput.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FileInput.cp; sourceTree = "<group>"; };
 		D03E6DEB0D5F986D005FD177 /* Finalize.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Finalize.cp; sourceTree = "<group>"; };
 		D03E6DEC0D5F986D005FD177 /* FontUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = FontUtils.cp; sourceTree = "<group>"; };
 		D03E6DEE0D5F986D005FD177 /* GRBeam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GRBeam.cp; sourceTree = "<group>"; };
@@ -722,7 +722,6 @@
 				D03E6B070D5F6EC9005FD177 /* EssentialTools.cp */,
 				D03E6DA40D5F95C8005FD177 /* Event.cp */,
 				D03E6DE90D5F986D005FD177 /* File.cp */,
-				D03E6DEA0D5F986D005FD177 /* FileInput.cp */,
 				D03E6DEB0D5F986D005FD177 /* Finalize.cp */,
 				D03E6DEC0D5F986D005FD177 /* FontUtils.cp */,
 				D03E6DEE0D5F986D005FD177 /* GRBeam.cp */,
@@ -733,6 +732,7 @@
 				D03E6DF30D5F986D005FD177 /* InitNightingale.cp */,
 				D03E6DF60D5F986D005FD177 /* InstrDialog.cp */,
 				D03E6DF70D5F986D005FD177 /* InsUtils.cp */,
+				154518B21F26D8F200FA26FF /* InternalInput.cp */,
 				D03E6DF80D5F986D005FD177 /* Inval.cp */,
 				D03E6DF90D5F986D005FD177 /* Magnify.cp */,
 				D03AF84F0D6F4F9C0018F558 /* Main.cp */,
@@ -1056,7 +1056,6 @@
 				D03E6E0B0D5F986D005FD177 /* EditScore.cp in Sources */,
 				D03E6E0E0D5F986D005FD177 /* Error.cp in Sources */,
 				D03E6E0F0D5F986D005FD177 /* File.cp in Sources */,
-				D03E6E100D5F986D005FD177 /* FileInput.cp in Sources */,
 				D03E6E110D5F986D005FD177 /* Finalize.cp in Sources */,
 				D03E6E120D5F986D005FD177 /* FontUtils.cp in Sources */,
 				D03E6E140D5F986D005FD177 /* GRBeam.cp in Sources */,
@@ -1188,6 +1187,7 @@
 				154C91D31EDBB86F00AAC011 /* AutoBeam.cp in Sources */,
 				154FABBD1EF2ADF300666F3F /* Reconstruct.cp in Sources */,
 				15497E2C1F125FF7000E7FA3 /* CoreMIDIUtils.cp in Sources */,
+				154518B31F26D8F200FA26FF /* InternalInput.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

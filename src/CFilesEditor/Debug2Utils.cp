@@ -22,7 +22,7 @@ obey musical and music-notation constraints?
 #define DDB
 
 
-/* ------------------------------------------------------------- DCheckVoiceTable -- */
+/* ------------------------------------------------------------------ DCheckVoiceTable -- */
 /* Check the voice-mapping table and its relationship to the object list:
 		that the voice table contains no empty slots;
 		that every default voice belongs to the correct part;
@@ -32,7 +32,7 @@ obey musical and music-notation constraints?
 		the legality of voiceRole fields.
 We could also check other symbols with voice nos. */
 
-/* ----------------------------------------------------------------- DCheckPlayDurs -- */
+/* -------------------------------------------------------------------- DCheckPlayDurs -- */
 /* Check that playDurs of notes appear reasonable for their logical durations. */
 
 Boolean DCheckPlayDurs(
@@ -94,7 +94,7 @@ Boolean DCheckPlayDurs(
 }
 
 
-/* ------------------------------------------------------------------- DCheckTempi -- */
+/* ----------------------------------------------------------------------- DCheckTempi -- */
 /* If there are multiple Tempo objects at the same point in the score, check that their
 tempo and/or M.M. strings are identical. This is on the assumption that the reason for
 multiple Tempos at the same point is just to make the tempo and/or M.M. appear at more
@@ -118,7 +118,7 @@ Boolean DCheckTempi(Document *doc)
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
 		
-		/* If we find a Sync, we're no longer "at the same point in the score". */
+		/* If we found a Sync, we're no longer "at the same point in the score". */
 		if (SyncTYPE(pL)) havePrevTempo = havePrevMetro = FALSE;
 		
 		if (TempoTYPE(pL)) {
@@ -130,8 +130,8 @@ Boolean DCheckTempi(Document *doc)
 //					pL, tempoStr);
 				/* If this Tempo object has a tempo string, is it the expected string? */
 				if (strlen(tempoStr)>0 && strcmp(prevTempoStr, tempoStr)!=0)
-					COMPLAIN3("DCheckTempi: Tempo marks L%u ('%s') and L%u are inconsistent.\n",
-								prevTempoL, prevTempoStr, pL);
+					COMPLAIN4("DCheckTempi: Tempo marks L%u ('%s') and L%u in measure %d are inconsistent.\n",
+								prevTempoL, prevTempoStr, pL, GetMeasNum(doc, pL));
 			}
 			
 			if (havePrevMetro) {
@@ -142,8 +142,8 @@ Boolean DCheckTempi(Document *doc)
 //					pL, metroStr);
 				/* If this Tempo object has an M.M., is it the expected M.M. string? */
 				if (!TempoNOMM(pL) && strcmp(prevMetroStr, metroStr)!=0)
-					COMPLAIN3("DCheckTempi: M.M.s of Tempo objects L%u ('%s') and L%u are inconsistent.\n",
-								prevTempoL, prevMetroStr, pL);
+					COMPLAIN4("DCheckTempi: M.M.s of Tempo objects L%u ('%s') and L%u in measure %d are inconsistent.\n",
+								prevTempoL, prevMetroStr, pL, GetMeasNum(doc, pL));
 			}
 			else {
 				theStrOffset = TempoSTRING(pL);
@@ -165,7 +165,7 @@ Boolean DCheckTempi(Document *doc)
 
 
 
-/* ------------------------------------------------------------- DCheckRedundantKS -- */
+/* ----------------------------------------------------------------- DCheckRedundantKS -- */
 /* Check for redundant key signatures, "redundant" in the sense that the key sig. is
 a cancellation and the last key signature on the same staff was a cancel. */
 
@@ -217,7 +217,7 @@ Boolean DCheckRedundantKS(Document *doc)
 	return bad;
 }
 
-/* ---------------------------------------------------------------- DCheckExtraTS -- */
+/* --------------------------------------------------------------------- DCheckExtraTS -- */
 /* Check for extra time signatures, "extra" in the sense that there's already been
 a time signature on the same staff in the same measure. */
 
@@ -261,7 +261,7 @@ Boolean DCheckExtraTS(Document *doc)
 }
 
 
-/* ----------------------------------------------------------- DCheckCautionaryTS -- */
+/* ---------------------------------------------------------------- DCheckCautionaryTS -- */
 /* Check that when a staff begins with a time signature, it's anticipated by the same
 time signature appearing on that staff at the end of the previous system. */
 
@@ -326,7 +326,7 @@ Boolean DCheckCautionaryTS(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- DCheckMeasDur -- */
+/* --------------------------------------------------------------------- DCheckMeasDur -- */
 /* Check the actual duration of notes in every measure, considered as a whole,
 against its time signature on every staff. Also check the actual duration against
 the time signature on each individual staff. NB: I think this function makes more
@@ -387,7 +387,7 @@ Boolean DCheckMeasDur(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- DCheckUnisons -- */
+/* --------------------------------------------------------------------- DCheckUnisons -- */
 /* Check chords for unisons. They're not necessarily a problem, though Nightingale's
 user interface doesn't handle them well, e.g., showing their selection status. */
 
@@ -414,7 +414,7 @@ Boolean DCheckUnisons(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ DBadNoteNum -- */
+/* ----------------------------------------------------------------------- DBadNoteNum -- */
 /* Given a Sync and a note in it, plus the current clef, octave sign, and accidental
 table: return the discrepancy in the note's MIDI note number (0 if none). */
 
@@ -446,7 +446,7 @@ short DBadNoteNum(
 }
 
 
-/* --------------------------------------------------------------- DCheckNoteNums -- */
+/* -------------------------------------------------------------------- DCheckNoteNums -- */
 /* Check whether the MIDI note numbers of Notes agree with their notation. Ignores
 both grace notes and rests. */
 

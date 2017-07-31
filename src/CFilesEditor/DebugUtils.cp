@@ -254,13 +254,13 @@ Boolean DCheckSyncSlurs(Document *doc, LINK syncL, LINK aNoteL)
 		}
 
 		if (!slurL) {
-			COMPLAIN2("DCheckSyncSlurs: NOTE tiedL IN VOICE %d IN SYNC L%u HAS NO TIE.\n",
-						voice, syncL);
+			COMPLAIN3("DCheckSyncSlurs: NOTE tiedL IN VOICE %d IN SYNC L%u, MEASURE %d, HAS NO TIE.\n",
+						voice, syncL, GetMeasNum(doc, syncL));
 		}
 		else {
 			if (SlurLASTSYNC(slurL)!=syncL) {
-				COMPLAIN2("DCheckSyncSlurs: NOTE tiedL IN VOICE %d IN SYNC L%u HAS BAD TIE.\n",
-							voice, syncL);
+				COMPLAIN3("DCheckSyncSlurs: NOTE tiedL IN VOICE %d IN SYNC L%u, MEASURE %d, HAS BAD TIE.\n",
+							voice, syncL, GetMeasNum(doc, syncL));
 			}
 			else {
 				otherSyncL = SlurFIRSTSYNC(slurL);
@@ -276,13 +276,13 @@ Boolean DCheckSyncSlurs(Document *doc, LINK syncL, LINK aNoteL)
 	if (NoteTIEDR(aNoteL)) {
 		slurL = L_Search(syncL, SLURtype, GO_LEFT, &pbSearch);
 		if (!slurL) {
-			COMPLAIN2("DCheckSyncSlurs: NOTE tiedR IN VOICE %d IN SYNC L%u HAS NO TIE.\n",
-						voice, syncL);
+			COMPLAIN3("DCheckSyncSlurs: NOTE tiedR IN VOICE %d IN SYNC L%u, MEASURE %d, HAS NO TIE.\n",
+						voice, syncL, GetMeasNum(doc, syncL));
 		}
 		else {
 			if (SlurFIRSTSYNC(slurL)!=syncL) {
-				COMPLAIN2("DCheckSyncSlurs: NOTE tiedR IN VOICE %d IN SYNC L%u HAS BAD TIE.\n",
-							voice, syncL);
+				COMPLAIN3("DCheckSyncSlurs: NOTE tiedR IN VOICE %d IN SYNC L%u, MEASURE %d, HAS BAD TIE.\n",
+							voice, syncL, GetMeasNum(doc, syncL));
 			}
 			else {
 				otherSyncL = SlurLASTSYNC(slurL);
@@ -540,7 +540,8 @@ short DCheckNode(
 				/* It's OK for initial keysigs to be unselectable. */
 				pKeySig = GetPKEYSIG(pL);						/* FIXME: OR USE KeySigINMEAS? */
 				if (!(KeySigTYPE(pL) && !pKeySig->inMeasure))
-					COMPLAIN("DCheckNode: Object L%u HAS A GARBAGE (UNSELECTABLE) objRect.\n", pL);
+					COMPLAIN2("DCheckNode: Object L%u IN MEASURE %d HAS A GARBAGE (UNSELECTABLE) objRect.\n",
+						pL, GetMeasNum(doc, pL));
 			}
 			
 			/* Valid initial objects, e.g., "deleted", can have zero-width objRects. */

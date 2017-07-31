@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	File.c
 *	PROJ:	Nightingale
-*	DESC:	File output, format conversion, and related routines
-/***************************************************************************/
+*	DESC:	Input and output of normal Nightingale files, plus file format conversion, etc.
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -29,9 +29,9 @@ static Boolean ConvertScore(Document *, long);
 static Boolean ModifyScore(Document *, long);
 static void SetTimeStamps(Document *);
 
-/* Codes for object types being read/written or for non-read/write call when an
-I/O error occurs; note that all are negative. See HeapFileIO.c for additional,
-positive, codes. */
+/* Codes for object types being read/written or for non-read/write call when an I/O
+error occurs; note that all are negative. See HeapFileIO.c for additional, positive,
+codes. */
 
 enum {
 	HEADERobj=-999,
@@ -52,7 +52,7 @@ enum {
 };
 
 
-/* ----------------------------------------------------- MissingFontsDialog et al -- */
+/* ---------------------------------------------------------- MissingFontsDialog et al -- */
 
 static short MFDrawLine(unsigned char *);
 static void MissingFontsDialog(Document *, short);
@@ -114,7 +114,7 @@ static void MissingFontsDialog(Document *doc, short nMissing)
 }
 
 
-/* ---------------------------------------------------------------- FillFontTable -- */
+/* --------------------------------------------------------------------- FillFontTable -- */
 /* Fill score header's fontTable, which maps internal font numbers to system
 font numbers for the Macintosh system we're running on so we can call TextFont. */
 
@@ -268,7 +268,7 @@ static void GetPrintHandle(Document *doc, short /*vRefNum*/, FSSpec *pfsSpec)
 	}
 
 
-/* ------------------------------------------------------------- WritePrintHandle -- */
+/* ------------------------------------------------------------------ WritePrintHandle -- */
 /* Save a copy of the document's print record (if any) in the resource fork of the
 score file.  The resource fork may already exist or it may not. Should be called when
 saving a document.
@@ -299,7 +299,6 @@ static Boolean WritePrintHandle(Document *doc)
 				err = ResError();
 
 				if (err == noErr) {
-				
 					/*
 					 *	We want to add the data in the print record to the resource file
 					 *	but leave the record in memory independent of it, so we add it
@@ -328,7 +327,7 @@ static Boolean WritePrintHandle(Document *doc)
 	}
 
 
-/* --------------------------------------------------------- ConvertScore helpers -- */
+/* -------------------------------------------------------------- ConvertScore helpers -- */
 
 static void OldGetSlurContext(Document *, LINK, Point [], Point []);
 static void ConvertChordSlurs(Document *);
@@ -344,14 +343,15 @@ static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point end
 		CONTEXT 	localContext;
 		DDIST		dFirstLeft, dFirstTop, dLastLeft, dLastTop,
 					xdFirst, xdLast, ydFirst, ydLast;
-		PANOTE 	aNote, firstNote, lastNote;
-		PSLUR p; PASLUR	aSlur;
+		PANOTE		aNote, firstNote, lastNote;
+		PSLUR		p;
+		PASLUR		aSlur;
 		LINK		aNoteL, firstNoteL, lastNoteL, aSlurL, firstSyncL, 
 					lastSyncL, pSystemL;
-		PSYSTEM  pSystem;
-		short 	k, xpFirst, xpLast, ypFirst, ypLast, firstStaff, lastStaff;
+		PSYSTEM		pSystem;
+		short		k, xpFirst, xpLast, ypFirst, ypLast, firstStaff, lastStaff;
 		SignedByte	firstInd, lastInd;
-		Boolean  firstMEAS, lastSYS;
+		Boolean		firstMEAS, lastSYS;
 
 		firstMEAS = lastSYS = FALSE;
 			
@@ -499,7 +499,9 @@ static void ConvertChordSlurs(Document *doc)
 
 static void ConvertModNRVPositions(Document */*doc*/, LINK syncL)
 {
-	LINK aNoteL, aModNRL; PANOTE aNote; PAMODNR aModNR; short yOff; Boolean above;
+	LINK aNoteL, aModNRL;
+	PANOTE aNote;  PAMODNR aModNR;
+	short yOff;  Boolean above;
 	
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
@@ -553,8 +555,8 @@ static void ConvertModNRVPositions(Document */*doc*/, LINK syncL)
 	}
 }
 
-/* Convert old staff <oneLine> field to new <showLines> field. Also initialize
-new <showLedgers> field.
+/* Convert old staff <oneLine> field to new <showLines> field. Also initialize new
+<showLedgers> field.
 		Old ASTAFF had this:
 			char			filler:7,
 							oneLine:1;
@@ -589,7 +591,7 @@ static void ConvertStaffLines(LINK startL)
 }
 
 
-/* ----------------------------------------------------------------- ConvertScore -- */
+/* ---------------------------------------------------------------------- ConvertScore -- */
 /* Any file-format-conversion code that doesn't affect the length of the header or
 lengths of objects should go here. This function should only be called after the
 header and entire object list have been read. (Tweaks that affect lengths must be
@@ -598,14 +600,14 @@ if all goes well, FALSE if not. */
 
 static Boolean ConvertScore(Document *doc, long fileTime)
 {
-	LINK pL; DateTimeRec date;
+	LINK pL;  DateTimeRec date;
 	
 	SecondsToDate(fileTime, &date);
 
 	/* Put all Dynamic horizontal position info into object xd */
 	
 	if (version<='N100') {
-		LINK aDynamicL; PADYNAMIC aDynamic;
+		LINK aDynamicL;  PADYNAMIC aDynamic;
 	
 		for (pL = doc->headL; pL; pL = RightLINK(pL)) 
 			if (ObjLType(pL)==DYNAMtype) {
@@ -883,15 +885,14 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 	}
 
 	/* For GRChordSym graphics:
-			1)	Initialize info field. This is now used for chord symbol options -- currently
-				only whether to show parentheses around extensions -- so we set it to the
-				current config setting that used to be the only way to toggle showing 
-				parentheses. This seems like the best way to get what the user expects.
-			2) Append the chord symbol delimiter character to the graphic string, to represent
-				an empty substring for the new "/bass" field.
-																			-JGG, 6/16/01 */
-	#define CS_DELIMITER FWDDEL_KEY		/* MUST match DELIMITER in ChordSym.c! */
-
+		1)	Initialize info field. This is now used for chord symbol options -- currently
+			only whether to show parentheses around extensions -- so we set it to the
+			current config setting that used to be the only way to toggle showing 
+			parentheses. This seems like the best way to get what the user expects.
+		2) Append the chord symbol delimiter character to the graphic string, to represent
+			an empty substring for the new "/bass" field.
+																-JGG, 6/16/01 */
+	
 	if (version<='N102') {
 		Str255 string, delim; LINK aGraphicL; STRINGOFFSET offset;
 
@@ -934,7 +935,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 }
 
 
-/* ----------------------------------------------------------------- ModifyScore -- */
+/* ----------------------------------------------------------------------- ModifyScore -- */
 /* Any temporary file-content-updating code (a.k.a. hacking) that doesn't affect the
 length of the header or lengths of objects should go here. This function should only be
 called after the header and entire object list have been read. Return TRUE if all goes
@@ -942,7 +943,7 @@ well, FALSE if not.
 
 NB: If code here considers changing something, and especially if it ends up actually
 doing so, it should call LogPrintf to display at least one very prominent message
-in the console window, and SysBeep to draw attention to it. It should perhaps also
+in the console window, and SysBeep to draw attention to it! It should perhaps also
 set doc->changed, though this will make it easier for people to accidentally overwrite
 the original version.
 
@@ -950,19 +951,21 @@ NB2: Be sure that all of this code is removed or commented out in ordinary versi
 To facilitate that, when done with hacking, add an "#error" line; cf. examples
 below. */
 
-static void ShowTops(Document *doc, LINK pL, short staffN1, short staffN2);
-static void ShowTops(Document *doc, LINK pL, short staffN1, short staffN2)
+#ifdef SWAP_STAVES
+#error ATTEMPTED TO COMPILE OLD HACKING CODE for ModifyScore!
+static void ShowStfTops(Document *doc, LINK pL, short staffN1, short staffN2);
+static void ShowStfTops(Document *doc, LINK pL, short staffN1, short staffN2)
 {
-	CONTEXT context; short staffTop1, staffTop2;
+	CONTEXT context;
+	short staffTop1, staffTop2;
 	pL = SSearch(doc->headL, STAFFtype, FALSE);
 	GetContext(doc, pL, staffN1, &context);
 	staffTop1 =  context.staffTop;
 	GetContext(doc, pL, staffN2, &context);
 	staffTop2 =  context.staffTop;
-	LogPrintf(LOG_NOTICE, "ShowTops(%d): staffTop1=%d, staffTop2=%d\n", pL, staffTop1, staffTop2);
+	LogPrintf(LOG_NOTICE, "ShowStfTops(%d): staffTop1=%d, staffTop2=%d\n", pL, staffTop1, staffTop2);
 }
 
-#ifdef SWAP_STAVES
 static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2);
 static void SwapStaves(Document *doc, LINK pL, short staffN1, short staffN2)
 {
@@ -1003,7 +1006,7 @@ LogPrintf(LOG_NOTICE, "    staffTop1, 2=%d, %d\n", staffTop1, staffTop2);
 			}
 //GetContext(doc, pL, staffN1, &context);
 //LogPrintf(LOG_NOTICE, "(2)    pL=%d staffTop1=%d\n", pL, staffTop1);
-//ShowTops(doc, pL, staffN1, staffN2);
+//ShowStfTops(doc, pL, staffN1, staffN2);
 			break;
 
 		case CONNECTtype:
@@ -1260,7 +1263,7 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
 }
 
 
-/* ---------------------------------------------------------------- SetTimeStamps -- */
+/* --------------------------------------------------------------------- SetTimeStamps -- */
 /* Recompute timestamps up to the first Measure that has any unknown durs. in it. */
 
 void SetTimeStamps(Document *doc)
@@ -1275,7 +1278,7 @@ void SetTimeStamps(Document *doc)
 }
 
 
-/* --------------------------------------------------------------------- OpenFile -- */
+/* -------------------------------------------------------------------------- OpenFile -- */
 /*	Open and read in the specified file. If there's an error, normally (see comments
 in OpenError) gives an error message, and returns <errCode>; else returns noErr (0). 
 Also sets *fileVersion to the Nightingale version that created the file. NB: even
@@ -1603,7 +1606,7 @@ Error:
 }
 
 
-/* -------------------------------------------------------------------- OpenError -- */
+/* ------------------------------------------------------------------------- OpenError -- */
 /* Handle errors occurring while reading a file. <fileIsOpen> indicates  whether or
 not the file was open when the error occurred; if so, OpenError closes it. <errCode>
 is either an error code return by the file system manager or one of our own codes
@@ -1678,7 +1681,7 @@ void OpenError(Boolean fileIsOpen,
 }
 	
 
-/* -------------------------------------------------------- Functions for SaveFile - */
+/* ----------------------------------------------------- Helper functions for SaveFile -- */
 
 static enum {
 	SF_SafeSave,
@@ -1696,14 +1699,14 @@ static short WriteFile(Document *doc,short refNum);
 static Boolean SFChkScoreOK(Document *doc);
 static Boolean GetOutputFile(Document *doc);
 
-/* Return, in bytes, the physical size of the file in which doc was previously
-saved: physical length of data fork + physical length of resource fork.
+/* Return, in bytes, the physical size of the file in which doc was previously saved:
+physical length of data fork + physical length of resource fork.
 
 FIXME: This does not quite give the information needed to tell how much disk space the
-file takes: the relevant thing is numbers of allocation blocks, not bytes, and
-that number must be computed independently for the data fork and resource fork.
-PreflightFileCopySpace in FileCopy.c in Apple DTS' More Files package appears
-to do a much better job. */
+file takes: the relevant thing is numbers of allocation blocks, not bytes, and that
+number must be computed independently for the data fork and resource fork. It looks
+like PreflightFileCopySpace in FileCopy.c in Apple DTS' More Files package does a
+much better job. */
 
 static long GetOldFileSize(Document *doc)
 {
@@ -1730,9 +1733,9 @@ static long GetOldFileSize(Document *doc)
 	return (long)err;
 }
 
-/* Get the physical size of the file as it will be saved from memory: the
-total size of all objects written to disk, rounded up to sector size, plus
-the total size of all resources saved, rounded up to sector size. */
+/* Get the physical size of the file as it will be saved from memory: the total size
+of all objects written to disk, rounded up to sector size, plus the total size of all
+resources saved, rounded up to sector size. */
 
 static long GetFileSize(Document *doc, long vAlBlkSize)
 {
@@ -1772,8 +1775,7 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 	
 	nHeaps = LASTtype-FIRSTtype+1;
 
-	/* Total number of objects of type heapIndex plus sizeAllObjects, 1
-		for each heap. */
+	/* Total number of objects of type heapIndex plus sizeAllObjects, 1 for each heap. */
 
 	fileSize += (sizeof(short)+sizeof(long))*nHeaps;
 	
@@ -1788,8 +1790,8 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 	if (blkMod)
 		fileSize += vAlBlkSize - blkMod;
 	
-	/* Add size of file's resource fork here, rounded up to the next higher
-		multiple of allocation block size. */
+	/* Add size of file's resource fork here, rounded up to the next higher multiple
+		of allocation block size. */
 	
 	if (doc->hPrint) {
 		rSize = GetHandleSize((Handle)doc->hPrint);
@@ -1804,7 +1806,7 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 	return fileSize;
 }
 
-/* Get the amount of free space on the volume: number of free blks * blk size */
+/* Get the amount of free space on the volume: number of free blocks * block size. */
 
 static long GetFreeSpace(Document *doc, long *vAlBlkSize)
 {
@@ -1839,9 +1841,9 @@ static short AskSaveType(Boolean canContinue)
 	short saveType;
 
 	if (canContinue)
-		saveType = StopAlert(SAFESAVE_ALRT,NULL);
+		saveType = StopAlert(SAFESAVE_ALRT, NULL);
 	else
-		saveType = StopAlert(SAFESAVE1_ALRT,NULL);
+		saveType = StopAlert(SAFESAVE1_ALRT, NULL);
 
 	if (saveType==1) return SF_SaveAs;
 	if (saveType==3) return SF_Replace;
@@ -1880,7 +1882,7 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 
 	freeSpace = GetFreeSpace(doc,&vAlBlkSize);
 	if (freeSpace<0L) {
-		GetIndCString(strBuf, FILEIO_STRS, 14);    /* "Can't get the disk free space." */
+		GetIndCString(strBuf, FILEIO_STRS, 14);			/* "Can't get the disk free space." */
 		CParamText(strBuf, "", "", "");
 		StopInform(SAFESAVEINFO_ALRT);
 		return AskSaveType(TRUE);						/* Let them try to save on this vol. anyway */
@@ -1925,12 +1927,12 @@ static short WriteFile(Document *doc, short refNum)
 	long			omsDevSize, fmsDevHdr;
 	long			cmDevSize, cmHdr;
 
-	version = THIS_VERSION;											/* Write version code */
+	version = THIS_VERSION;										/* Write version code */
 	count = sizeof(version);
 	errCode = FSWrite(refNum, &count, &version);
 	if (errCode) return VERSIONobj;
 
-	GetDateTime(&fileTime);											/* Write current date and time */
+	GetDateTime(&fileTime);										/* Write current date and time */
 #define VERSION_KLUDGE
 #ifdef VERSION_KLUDGE
 	if (version=='N101') fileTime &= 0x7FFFFFFF;				/* Fake "sub-version" N101+1/2 */
@@ -2055,7 +2057,7 @@ static Boolean GetOutputFile(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------------- SaveFile -- */
+/* -------------------------------------------------------------------------- SaveFile -- */
 /*	Routine that actually saves the specifed file.  If there's an error, gives an
 error message and returns <errCode>; else returns 0 if successful, CANCEL_INT if
 operation is cancelled. */
@@ -2073,12 +2075,13 @@ have to truncate (this is the more dangerous case). */
 
 Boolean MakeVariantFilename(Str255 filename, char *suffix, Str255 bkpName);
 Boolean MakeVariantFilename(
-			Str255 filename,		/* Pascal string */
-			char *suffix,			/* C string */
-			Str255 bkpName			/* Pascal string */
+			Str255 filename,			/* Pascal string */
+			char *suffix,				/* C string */
+			Str255 bkpName				/* Pascal string */
 			)
 {
-	short bkpNameLen; Boolean truncated = FALSE;
+	short bkpNameLen;
+	Boolean truncated = FALSE;
 	
 	Pstrcpy(bkpName, filename);
 	PToCString(bkpName);
@@ -2109,7 +2112,7 @@ static short RenameAsBackup(Str255 filename, short vRefNum, Str255 bkpName)
 		return errCode;
 
 	//errCode = FSDelete(bkpName, vRefNum);						/* Delete old file */
-	errCode = FSpDelete(&bkpFSSpec);								/* Delete old file */
+	errCode = FSpDelete(&bkpFSSpec);							/* Delete old file */
 	if (errCode && errCode!=fnfErr)								/* Ignore "file not found" */
 		return errCode;
 
@@ -2164,8 +2167,8 @@ TryAgain:
 			{ errInfo = MAKEFSSPECcall; goto Error; }
 		
 		/* Without the following, if TEMP_FILENAME exists, Safe Save gives an error. */
-		errCode = FSpDelete(&tempFSSpec);							/* Delete any old temp file */
-		if (errCode && errCode!=fnfErr)								/* Ignore "file not found" */
+		errCode = FSpDelete(&tempFSSpec);						/* Delete any old temp file */
+		if (errCode && errCode!=fnfErr)							/* Ignore "file not found" */
 			{ errInfo = DELETEcall; goto Error; }
 
 		errCode = FSpCreate (&tempFSSpec, creatorType, documentType, scriptCode);
@@ -2180,8 +2183,8 @@ TryAgain:
 		//	{ errInfo = MAKEFSSPECcall; goto Error; }
 		fsSpec = doc->fsSpec;
 		
-		errCode = FSpDelete(&fsSpec);								/* Delete old file */
-		if (errCode && errCode!=fnfErr)								/* Ignore "file not found" */
+		errCode = FSpDelete(&fsSpec);							/* Delete old file */
+		if (errCode && errCode!=fnfErr)							/* Ignore "file not found" */
 			{ errInfo = DELETEcall; goto Error; }
 			
 		errCode = FSpCreate (&fsSpec, creatorType, documentType, scriptCode);
@@ -2219,7 +2222,7 @@ TryAgain:
 		 * filename and vRefNum. Note that, from the user's standpoint, this replaces
 		 * the file's creation date with the current date--unfortunate.
 		 * 
-		 * FIXME: Inside Mac VI, 25-9ff, points out that System 7 introduces FSpExchangeFiles
+		 * FIXME: Inside Mac VI, 25-9ff, points out that System 7 introduced FSpExchangeFiles
 		 * and PBExchangeFiles, which simplify a safe save by altering the catalog entries
 		 * for two files to swap their contents. However, if we're keeping a backup copy,
 		 * this would result in the backup having the current date as its creation date!
@@ -2262,7 +2265,7 @@ TryAgain:
 		if (errCode) { errInfo = CLOSEcall; goto Error; }
 	}
 
-	doc->changed = FALSE;											/* Score isn't dirty... */
+	doc->changed = FALSE;											/* Score isn't dirty */
 	doc->saved = TRUE;												/* ...and it's been saved */
 
 	/* Save any print record or other resources in the resource fork */
@@ -2281,7 +2284,7 @@ Error:
 	return errCode;
 }
 
-/* --------------------------------------------------------------------- SaveError -- */
+/* ------------------------------------------------------------------------- SaveError -- */
 /* Handle errors occurring while writing a file. Parameters are the same as those
 for OpenError(). */
 
@@ -2290,7 +2293,8 @@ void SaveError(Boolean fileIsOpen,
 					short errCode,
 					short errInfo)		/* More info: at what step error happened, type of obj being written, etc. */
 {
-	char aStr[256], fmtStr[256]; StringHandle strHdl;
+	char aStr[256], fmtStr[256];
+	StringHandle strHdl;
 	short strNum;
 
 	LogPrintf(LOG_ERR, "SaveError: errCode=%d errInfo=%d\n", errCode, errInfo);

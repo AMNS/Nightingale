@@ -31,8 +31,6 @@ static ModalFilterUPP filterUPP;
 
 #define MORE_ACCURATE_CHAR_WIDTH
 
-#define DELIMITER	FWDDEL_KEY		/* MUST match CS_DELIMITER in File.c! */
-
 #define MAX_FLDLEN	31				/* max number of chars in each (of 6) chord sym chunks */
 
 /* Parse the chord symbol string <csStr> into several component strings, giving:
@@ -58,7 +56,7 @@ Boolean ParseChordSym(
 {
 	register Size	len;
 	register char	*p, *q;
-	char			tmpStr[256];
+	char			tempStr[256];
 	
 	*rootStr = *qualStr = *extStr = *extStk1Str = *extStk2Str = *extStk3Str = *bassStr = 0;
 
@@ -66,50 +64,50 @@ Boolean ParseChordSym(
 	if (len==0) return false;
 	
 	/* copy graphic's Pascal string into local C string */
-	BlockMove(&csStr[1], tmpStr, len);
-	tmpStr[len] = 0;
+	BlockMove(&csStr[1], tempStr, len);
+	tempStr[len] = 0;
 	
-	q = tmpStr;
-	p = strchr(tmpStr, DELIMITER);			/* p will point to first delimiter */
+	q = tempStr;
+	p = strchr(tempStr, CS_DELIMITER);		/* p will point to first delimiter */
 	if (p==NULL) {							/* if there's not one, it's an old-style chord symbol */
-		strcpy(rootStr, tmpStr);
+		strcpy(rootStr, tempStr);
 		return true;						/* old-style is ok */
 	}
 	*p = 0;									/* terminate first chunk (replace delim with null) */
 	strcpy(rootStr, q);						/* copy first chunk into rootStr */
 
 	q = p+1;								/* q points to start of next chunk */
-	p = strchr(q, DELIMITER);				/* p will point to next delimiter */
+	p = strchr(q, CS_DELIMITER);			/* p will point to next delimiter */
 	if (p==NULL) return false;				/* wrong number of delimiters */
 	*p = 0;									/* terminate second chunk */
 	strcpy(qualStr, q);
 	
 	q = p+1;								/* same for the other strings */
-	p = strchr(q, DELIMITER);
+	p = strchr(q, CS_DELIMITER);
 	if (p==NULL) return false;
 	*p = 0;
 	strcpy(extStr, q);
 	
 	q = p+1;
-	p = strchr(q, DELIMITER);
+	p = strchr(q, CS_DELIMITER);
 	if (p==NULL) return false;
 	*p = 0;
 	strcpy(extStk1Str, q);
 	
 	q = p+1;
-	p = strchr(q, DELIMITER);
+	p = strchr(q, CS_DELIMITER);
 	if (p==NULL) return false;
 	*p = 0;
 	strcpy(extStk2Str, q);
 	
 	q = p+1;
-	p = strchr(q, DELIMITER);
+	p = strchr(q, CS_DELIMITER);
 	if (p==NULL) return false;
 	*p = 0;
 	strcpy(extStk3Str, q);
 	
 	q = p+1;
-	p = strchr(q, DELIMITER);
+	p = strchr(q, CS_DELIMITER);
 	if (p) return false;						/* too many delimiters! */
 	strcpy(bassStr, q);
 	
@@ -117,7 +115,7 @@ Boolean ParseChordSym(
 }
 
 
-/* ---------------------------------------------------------------------- IsCSAcc -- */
+/* --------------------------------------------------------------------------- IsCSAcc -- */
 /* Is <*p>, a character in the root portion of a chord symbol, an accidental? */
 
 static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
@@ -133,7 +131,7 @@ static Boolean IsCSAcc(char */*string*/,			/* C string: currently unused */
 }
 
 
-/* ----------------------------------------------------------------- DrawChordSym -- */
+/* ---------------------------------------------------------------------- DrawChordSym -- */
 /* Parse the given string as a sequence of 6 chunks of text and draw them according
  * to a (rather complicated) chord symbol formatting scheme:
  * 	Chunk			Format											Typical use
@@ -787,10 +785,10 @@ static short Draw1Extension(
 }
 
 
-/* ------------------------------------------------------- ChordSymDialog & friends -- */
+/* ---------------------------------------------------------- ChordSymDialog & friends -- */
 
-/* WARNING: Code in CheckCSuserItems depends on popups following (by 1)
- * their associated edit fields in the item list.
+/* WARNING: Code in CheckCSuserItems depends on popups following (by 1) their
+ * associated edit fields in the item list.
  */
 static enum {
 	BUT1_OK = 1,
@@ -828,7 +826,7 @@ static Rect			displayBox;
 static Document		*localDoc;
 
 
-/* --------------------------------------------------------------- ChordSymDialog -- */
+/* -------------------------------------------------------------------- ChordSymDialog -- */
 
 Boolean ChordSymDialog(Document *doc, StringPtr string, short *auxInfo)
 {
@@ -959,7 +957,7 @@ static void BuildCSstring(DialogPtr dlog, unsigned char *str)
 	unsigned char delim[2];
 	Str255 tmp;
 	
-	delim[0] = 1;	delim[1] = DELIMITER;
+	delim[0] = 1;	delim[1] = CS_DELIMITER;
 	str[0] = 0;
 	
 	/* CAUTION: order of EDIT fields below is critical! */
@@ -1130,7 +1128,7 @@ static void DisplayChordSym(
 }
 
 
-/* --------------------------------------------------------------- ChordSymFilter -- */
+/* -------------------------------------------------------------------- ChordSymFilter -- */
 
 static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord *evt, short *item)
 {
@@ -1212,12 +1210,12 @@ static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord *evt, short *it
 				return true;
 			}
 			ch = evt->message & charCodeMask;
-			if (ch==DELIMITER) return true;								/* filter out delimiter! */
+			if (ch==CS_DELIMITER) return true;							/* filter out delimiter! */
 			TEHandle textH = GetDialogTextEditHandle(dlog);
 			if ((*textH)->teLength >= MAX_FLDLEN)
 			//if ((**(*(DialogPeek)dlog).textH).teLength >= MAX_FLDLEN)	/* can't add any more chars */
 				if (ch!=CH_BS && ch!='\t' && ch!=LEFTARROWKEY &&
-									ch!=RIGHTARROWKEY && ch!=UPARROWKEY && ch!=DOWNARROWKEY) {
+						ch!=RIGHTARROWKEY && ch!=UPARROWKEY && ch!=DOWNARROWKEY) {
 					GetIndCString(strBuf, MISCERRS_STRS, 13);			/* "text has reached its maximum length" */
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
@@ -1230,7 +1228,7 @@ static pascal Boolean ChordSymFilter(DialogPtr dlog, EventRecord *evt, short *it
 }
 
 
-/* ------------------------------------------------------------- CheckCSuserItems -- */
+/* ------------------------------------------------------------------ CheckCSuserItems -- */
 
 static Boolean CheckCSuserItems(DialogPtr dlog, Point where, short *itemHit)
 {

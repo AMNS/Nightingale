@@ -257,7 +257,6 @@ short AddCautionaryTimeSigs(Document *doc)
 		switch (ObjLType(pL)) {
 			case SYSTEMtype:
 				systemNum++;
-				//LogPrintf(LOG_DEBUG, "AddCautionaryTimeSigs system %d\n", systemNum);
 				systemL = pL;
 				beforeFirstNRGR = TRUE;
 				break;
@@ -285,8 +284,8 @@ short AddCautionaryTimeSigs(Document *doc)
 						type = TimeSigType(aTimeSigL);
 						numer = TimeSigNUMER(aTimeSigL);
 						denom = TimeSigDENOM(aTimeSigL);
-						LogPrintf(LOG_DEBUG, "AddCautionaryTimeSigs: adding TS type %d, %d/%d before measure %d\n",
-										type, numer, denom, GetMeasNum(doc, pL));						
+						//LogPrintf(LOG_DEBUG, "AddCautionaryTimeSigs: adding TS type %d, %d/%d before measure %d\n",
+						//				type, numer, denom, GetMeasNum(doc, pL));						
 						/* Insert the cautionary time signature on all staves. */
 						timeSigL = FIInsertTimeSig(doc, ANYONE, RightLINK(endPrevSysL),
 													type, numer, denom);

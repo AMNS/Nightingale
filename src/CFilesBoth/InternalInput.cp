@@ -1,8 +1,8 @@
 /****************************************************************************************
-*	FILE:	FileInput.c
+*	FILE:	InternalInput.c (formerly called FileInput.c)
 *	PROJ:	Nightingale
-*	DESC:	Routines for creating Nightingale objects via file input or
-*			AppleScript, rather than mouse input. Written by John Gibson.
+*	DESC:	Routines for creating Nightingale objects via notelist file, AppleScript,
+*			etc., rather than via Nightingale's user interface. Written by John Gibson.
 /****************************************************************************************/
 
 /*
@@ -25,7 +25,7 @@ static LINK AnchorSearch(Document *doc, LINK dependentL);
 static short GuessVoiceRole(Document *doc, short iVoice, LINK startL, LINK endL);
 
 
-/* ------------------------------------------------------------------ FICreateTUPLET -- */
+/* -------------------------------------------------------------------- FICreateTUPLET -- */
 /* Creates a tuplet object with the specified number of subobjects and other
 characteristics. Insert it *before* <beforeL>. NOTE: Does *not* set tpSync fields
 in the tuplet. Call FIFixTupletLinks for that after creating all the relevant syncs.
@@ -70,7 +70,7 @@ LINK FICreateTUPLET(Document	*doc,
 }
 
 
-/* ---------------------------------------------------------------- FIFixTupletLinks -- */
+/* ------------------------------------------------------------------ FIFixTupletLinks -- */
 /* In the range [startL,endL), fix the tpSyncs of every Tuplet to agree with the order
 of objects in the data structure, i.e., set the first tpSync to the next Sync in its
 voice, the next tpSync to the next Sync after that, etc. In addition:
@@ -108,7 +108,7 @@ void FIFixTupletLinks(Document *doc, LINK startL, LINK endL, short voice)
 }
 
 
-/* ----------------------------------------------------------------- FIReplaceKeySig -- */
+/* ------------------------------------------------------------------- FIReplaceKeySig -- */
 /* Replace key signature on the given staff with one specified by <sharpsOrFlats>.
 CAUTION: In contrast to ReplaceKeySig, FIReplaceKeySig works with keysigs that
 are NOT in the reserved area. That is, it works with keysigs that are inMeasure.
@@ -147,7 +147,7 @@ Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsO
 }
 
 
-/* ----------------------------------------------------------- FIInsertWholeMeasRest -- */
+/* ------------------------------------------------------------- FIInsertWholeMeasRest -- */
 /* Insert a whole-measure rest before <insertBeforeL> on the given staff in the given
 (internal) voice. Does NOT attempt to create a sync with notes on other staves.
 Returns true if OK, false if error. */
@@ -176,7 +176,7 @@ Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 }
 
 
-/* ----------------------------------------------------------------- FIInsertBarline -- */
+/* ------------------------------------------------------------------- FIInsertBarline -- */
 /* Insert a barline of type <barlineType> before <insertBeforeL> on all staves.
 Returns the link of this barline if OK, NILINK if error. */
 
@@ -195,7 +195,7 @@ LINK FIInsertBarline(Document *doc, LINK insertBeforeL, short barlineType)
 }
 
 
-/* --------------------------------------------------------------- SetMeasureSubType -- */
+/* ----------------------------------------------------------------- SetMeasureSubType -- */
 /* Set all subobjects of the given measure to <subType>, a code indicating the
 type of barline (e.g., single bar, double bar, end bar, etc.) Returns true if okay,
 false if error. */
@@ -214,7 +214,7 @@ Boolean SetMeasureSubType(LINK measL, short subType)
 }
 
 
-/* -------------------------------------------------------------------- FIInsertClef -- */
+/* ---------------------------------------------------------------------- FIInsertClef -- */
 /* Insert a clef of the given type and size before <insertBeforeL> on the given staff.
 Caller should then call FixContextForClef to propagate the effects of the clef change
 to any following objects.
@@ -245,7 +245,7 @@ LINK FIInsertClef(Document *doc, short staffn, LINK insertBeforeL, short clefTyp
 }
 
 
-/* ----------------------------------------------------------------- FIInsertTimeSig -- */
+/* ------------------------------------------------------------------- FIInsertTimeSig -- */
 /*	Caller may need to call FixContextForTimeSig and/or FixTimeStamps after calling
 this function. */
 	
@@ -285,7 +285,7 @@ LINK FIInsertTimeSig(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ FIInsertKeySig -- */
+/* -------------------------------------------------------------------- FIInsertKeySig -- */
 /* Caller may need to call FixContextForKeySig and/or FixAccsForKeySig after
 calling this function. */
 	
@@ -331,7 +331,7 @@ LINK FIInsertKeySig(Document *doc,
 }
 
 
-/* ---------------------------------------------------------------- FICombine1KeySig -- */
+/* ------------------------------------------------------------------ FICombine1KeySig -- */
 /* Helper function for FICombineKeySigs */
 
 static Boolean FICombineInto1KeySig(Document *doc,
@@ -369,18 +369,18 @@ static Boolean FICombineInto1KeySig(Document *doc,
 }
 
 
-/* ---------------------------------------------------------------- FICombineKeySigs -- */
-/*	Within the range (startL, endL], combine adjacent keysigs objects into a
-single object having multiple subobjects. The series of keysigs so combined
-must satisfy these conditions:
+/* ------------------------------------------------------------------ FICombineKeySigs -- */
+/*	Within the range (startL, endL], combine adjacent keysigs objects into a single
+object having multiple subobjects. The series of keysigs so combined must satisfy
+these conditions:
 	1) each must have exactly one subobject,
 	2) each must have a unique staff number within the series, and
 	3) the series must be strictly continuous; that is, no object of
 		another type may fall between any two members of the series.
 Return true if OK, false if out of memory (after alerting user).
 
-CAVEAT: Currently this function ignores any Graphics attached to keysigs. If
-it deletes a keysig with an attached Graphic, the Graphic is orphaned. */
+CAVEAT: Currently this function ignores any Graphics attached to keysigs. If it deletes
+a keysig with an attached Graphic, the Graphic is orphaned. */
 
 Boolean FICombineKeySigs(Document *doc,
 						 LINK startL,
@@ -431,7 +431,7 @@ Boolean FICombineKeySigs(Document *doc,
 }
 
 
-/* ----------------------------------------------------------------- FIInsertDynamic -- */
+/* ------------------------------------------------------------------- FIInsertDynamic -- */
 /*	Insert a (non-hairpin) dynamic of the given type before <insertBeforeL> on the
  given staff. Set the dynamic's firstSyncL to <anchorL>, which can be NILINK if the
  caller prefers to set this later. Caller next should call FixContextForDynamic to
@@ -478,10 +478,10 @@ LINK FIInsertDynamic(Document *doc, short staffn, LINK insertBeforeL, LINK ancho
 }
 
 
-/* ----------------------------------------------------------------- GetTextStyleRec -- */
+/* ------------------------------------------------------------------- GetTextStyleRec -- */
 /*	Copy the data from the specified text style (stored in document's SCOREHEADER)
-into the supplied TEXTSTYLE record.
-Return true if OK, false if <textStyle> is out of range. */
+into the supplied TEXTSTYLE record. Return true if OK, false if <textStyle> is out of
+range. */
 	
 static Boolean GetTextStyleRec(Document *doc, short textStyle, PTEXTSTYLE pStyleRec)
 {
@@ -502,7 +502,7 @@ static Boolean GetTextStyleRec(Document *doc, short textStyle, PTEXTSTYLE pStyle
 }
 
 
-/* ------------------------------------------------------------ InsertAndInitGraphic -- */
+/* -------------------------------------------------------------- InsertAndInitGraphic -- */
 /*	Insert a graphic of the given type before <insertBeforeL> and initialize all
 object and subobject fields. Returns the link of this graphic if OK, NILINK if error. */
 	
@@ -566,7 +566,7 @@ static short FIGetFontIndex(Document *doc, unsigned char *fontName)
 }
 
 
-/* ------------------------------------------------------------- FIInsertGRString -- */
+/* ------------------------------------------------------------------ FIInsertGRString -- */
 /*	Insert a graphic of type GRString, or GRLyric if <isLyric>, before <insertBeforeL>.
 Set the graphic's firstObj to <anchorL>, which can be NILINK if the caller prefers
 to set this later. The caller has the option of specifying one of the five
@@ -576,15 +576,15 @@ approach, pass NULL for <pStyleRec>; if choosing the second, pass TSNoSTYLE for
 <textStyle>. (NB: <isLyric> overrides pStyleRec->lyric.) Returns the link of this
 Graphic if OK, NILINK if error. */
 
-LINK FIInsertGRString(Document	*doc,
-						 short		staffn,
-						 short		iVoice,				/* internal voice number */
-						 LINK		insertBeforeL,
-						 LINK		anchorL,
-						 Boolean	isLyric,
-						 short		textStyle,			/* Ngale "text style" choice, e.g., TSRegular1STYLE */
+LINK FIInsertGRString(Document *doc,
+						 short staffn,
+						 short iVoice,				/* internal voice number */
+						 LINK insertBeforeL,
+						 LINK anchorL,
+						 Boolean isLyric,
+						 short textStyle,			/* Ngale "text style" choice, e.g., TSRegular1STYLE */
 						 PTEXTSTYLE	pStyleRec,
-						 char		string[])			/* C string */
+						 char string[])				/* C string */
 {
 	LINK			graphicL, aGraphicL;
 	PGRAPHIC		pGraphic;
@@ -650,7 +650,7 @@ PopLock(OBJheap);
 }
 
 
-/* ------------------------------------------------------------------- FIInsertTempo -- */
+/* --------------------------------------------------------------------- FIInsertTempo -- */
 /*	Insert a tempo mark before <insertBeforeL> on the given staff. Set the tempo's
 firstSyncL to <anchorL>, which can be NILINK if the caller prefers to set this
 later. Caller must set coordinates, because we just set them to 0 here. Returns
@@ -712,7 +712,7 @@ PopLock(OBJheap);
 }
 
 
-/* -------------------------------------------------------------------- FIInsertSync -- */
+/* ---------------------------------------------------------------------- FIInsertSync -- */
 /* Insert a Sync containing the given number of subobjects before <insertBeforeL>.
 Returns the link of this sync if OK, NILINK if error. */
 
@@ -733,7 +733,7 @@ LINK FIInsertSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 }
 
 
-/* ------------------------------------------------------------------ FIInsertGRSync -- */
+/* -------------------------------------------------------------------- FIInsertGRSync -- */
 /* Insert a GRSync containing the given number of subobjects before <insertBeforeL>.
 Returns the link of this GRSync if OK, NILINK if error. */
 
@@ -754,7 +754,7 @@ LINK FIInsertGRSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 }
 
 
-/* ----------------------------------------------------------------- FIAddNoteToSync -- */
+/* ------------------------------------------------------------------- FIAddNoteToSync -- */
 /* Add a note to an existing Sync or GRSync. The sync doesn't need to have any
 subobjects when this is called. The caller will have to initialize nearly everything
 about the new note on return, by calling SetupNote or SetupGRNote. All this function
@@ -773,7 +773,7 @@ LINK FIAddNoteToSync(Document */*doc*/, LINK syncL)
 }
 
 
-/* -------------------------------------------------------------------- FIInsertSlur -- */
+/* ---------------------------------------------------------------------- FIInsertSlur -- */
 /* Insert a slur just before <firstSyncL>, and init it appropriately. Both
 <firstSyncL> and <lastSyncL> must be Syncs (not GRSyncs!) in the same system;
 <firstNoteL> and <lastNoteL> must be in the same voice. If <setShapeNow>, set the
@@ -843,7 +843,7 @@ LINK FIInsertSlur(Document *doc,
 	aSlur->selected = false;
 	aSlur->visible = true;
 	aSlur->soft = false;
-	aSlur->dashed = false;							/* Caller can override this. */
+	aSlur->dashed = false;								/* Caller can override this. */
 	aSlur->filler = 0;
 	SetRect(&aSlur->bounds, 0, 0, 0, 0);
 	aSlur->firstInd = 0;
@@ -863,9 +863,9 @@ LINK FIInsertSlur(Document *doc,
 }
 
 
-/* ---------------------------------------------------------------- FICreateAllSlurs -- */
+/* ------------------------------------------------------------------ FICreateAllSlurs -- */
 /*	Examines the slurredL and slurredR flags of all notes in the score and creates
-slurs accordingly. Does not set slur shapes -- caller should call FIReshapeSlursTies
+slurs accordingly. Does not set slur shapes; the caller should call FIReshapeSlursTies
 later. It will refuse to create a cross-system slur. It does not alert the user to
 this (or any other) kind of error, but returns the number of errors encountered. If
 there are errors, the caller should clean up the slurredL and slurredR flags by
@@ -908,12 +908,13 @@ short FICreateAllSlurs(Document *doc)
 					}
 				}
 		}
+
 	return errCnt;
 }
 
 
-/* -------------------------------------------------------------- FIReshapeSlursTies -- */
-/* Set all slurs and ties in the score to default shape. */
+/* ---------------------------------------------------------------- FIReshapeSlursTies -- */
+/* Set all slurs and ties in the entire score to default shape. */
 
 void FIReshapeSlursTies(Document *doc)
 {
@@ -925,12 +926,12 @@ void FIReshapeSlursTies(Document *doc)
 }
 
 
-/* -------------------------------------------------------- FIFixAllNoteSlurTieFlags -- */
-/*	For every note in the score that claims to be TIEDL, TIEDR, SLURREDL or SLURREDR,
-	see if there really is a tie that starts or ends on that note. If there isn't,
-	clear the appropriate flag (tiedL or tiedR), so that the data structure will be
-	consistent. (Adapted from DCheckSyncSlurs.)
-*/
+/* ---------------------------------------------------------- FIFixAllNoteSlurTieFlags -- */
+/* For every note in the score that claims to be TIEDL, TIEDR, SLURREDL or SLURREDR,
+see if there really is a tie that starts or ends on that note. If there isn't, clear
+the appropriate flag (tiedL or tiedR), so that the data structure will be consistent.
+(Adapted from DCheckSyncSlurs.) */
+
 void FIFixAllNoteSlurTieFlags(Document *doc)
 {
 	SearchParam pbSearch;
@@ -1010,9 +1011,9 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 }
 
 
-/* -------------------------------------------------------------------- AnchorSearch -- */
+/* ---------------------------------------------------------------------- AnchorSearch -- */
 /*	Given a Dynamic, Graphic, Ottava, Tempo or Ending, return the closest (in the
-	data structure) eligible anchor symbol, else return NILINK.
+	object list) eligible anchor symbol; if there is none, return NILINK.
 	
 	<dependentL> type			eligible anchor types
 	-----------------------------------------------------------
@@ -1028,11 +1029,11 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 	
 	Notes:
 		1.	Page-relative graphics come right *after* their page anchor objects
-			in the data structure, not before them, as is the case with other
+			in the object list, not before them, as is the case with other
 			types of anchor objects.
 		2. Some dependent symbols have secondary anchors, such as the lastObjL
-			of an ending. AnchorSearch does not lood for these secondary anchors;
-			the caller must do this.
+			of an ending. AnchorSearch does not look for these secondary anchors;
+			the caller must do so.
 */
 
 static LINK AnchorSearch(Document *doc, LINK dependentL)
@@ -1172,7 +1173,7 @@ broken:
 }
 
 
-/* ---------------------------------------------------------------- FIAutoMultiVoice -- */
+/* ------------------------------------------------------------------ FIAutoMultiVoice -- */
 /* For the entire document, guess the roles of all voices on a measure-by-measure
 basis, and apply the appropriate multi-voice rules. */
 
@@ -1201,7 +1202,7 @@ void FIAutoMultiVoice(Document	*doc,
 }
 
 
-/* ------------------------------------------------------------------ GuessVoiceRole -- */
+/* -------------------------------------------------------------------- GuessVoiceRole -- */
 /* Guess the role of the given voice over the range (startL, endL], and return
 UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI (see Dialogs.h). If the range contains
 no notes in the given voice, return SINGLE_DI. If the voice occurs on more than one
@@ -1210,7 +1211,7 @@ return SINGLE_DI. Specify <iVoice> with an internal, not a part-relative, voice
 number. NB: the algorithm for guessing voice role is quite crude, but usually 
 should be satisfactory when there are no more than 2 voices on a staff. The caller
 will get the best results if the range comprises exactly one measure's worth of
- notes. */
+notes. */
 	
 static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK endL)
 {
@@ -1291,7 +1292,7 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 }
 
 
-/* ----------------------------------------------------------------- FIJustifySystem -- */
+/* ------------------------------------------------------------------- FIJustifySystem -- */
 /* Justify one system using a "smart" justification algorithm:
 	1) justify normally,
 	2) repace using the new space percentage (stored in first measure of system),
@@ -1335,7 +1336,7 @@ Boolean FIJustifySystem(Document *doc, LINK systemL)
 }
 
 
-/* ----------------------------------------------------------------- FIJustifyAll -- */
+/* ---------------------------------------------------------------------- FIJustifyAll -- */
 /* Justify the entire score using the "smart" justification algorithm described in
 FIJustifySystem. Returns true if OK, false if error. */
 
@@ -1353,7 +1354,7 @@ Boolean FIJustifyAll(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- OpenInputFile -- */
+/* --------------------------------------------------------------------- OpenInputFile -- */
 
 FILE *OpenInputFile(Str255 macfName, short vRefNum)
 {
@@ -1384,7 +1385,7 @@ err:
 }
 
 
-/* ------------------------------------------------------------------ CloseInputFile -- */
+/* -------------------------------------------------------------------- CloseInputFile -- */
 
 short CloseInputFile(FILE *f)
 {
@@ -1392,7 +1393,7 @@ short CloseInputFile(FILE *f)
 }
 
 
-/* ------------------------------------------------------------------------ ReadLine -- */
+/* -------------------------------------------------------------------------- ReadLine -- */
 /* Read a line of text from the given stream <f> and place it in the given buffer
 <inBuf>. Read chars until we find a newline (or return). Replace the newline char with
 a null. If no newline appears after reading <maxChars> - 1 chars, store a null into the
@@ -1410,8 +1411,8 @@ so that the next character read  from the stream will be 'h', and so the next ca
 ReadLine will deliver "he time '\0'". Each call to ReadLine delivers 8, not 9, chars,
 followed by a null.
 
-The below comments must date back to the very early 21st century; I don't know if
-they're still relevant!  --DAB, May 2017
+NB: The below comment refer to obsolete Mac IDEs and must date back to the very early
+21st century; I don't know if they're still at all relevant!  --DAB, May 2017
 
 CAUTION: The behavior of ReadLine depends upon Metrowerks' implementation of the C
 library function, fgets. I don't know if THINK C works the same way, but it probably

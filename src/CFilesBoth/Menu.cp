@@ -1451,6 +1451,8 @@ static void EMAddCautionaryTimeSigs(Document *doc)
 	if (numAdded==0) {
 		LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: No new time signatures needed.\n");
 		GetIndCString(strBuf, MENUCMDMSGS_STRS, 10);	/* "No new cautionary time signatures needed." */
+		CParamText(strBuf, "", "", "");
+		NoteInform(GENERIC_ALRT);
 	}
 	else {
 		LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: added %d time signature(s).\n",
@@ -1458,8 +1460,6 @@ static void EMAddCautionaryTimeSigs(Document *doc)
 		GetIndCString(fmtStr, MENUCMDMSGS_STRS, 9);	/* "Added %d cautionary time sig(s)." */
 		sprintf(strBuf, fmtStr, numAdded);
 	}
-	CParamText(strBuf, "", "", "");
-	NoteInform(GENERIC_ALRT);
 	if (numAdded!=0) InvalWindow(doc);
 }
 

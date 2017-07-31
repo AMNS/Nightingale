@@ -1614,16 +1614,27 @@ Minor cleanup. Affects vars.h; Copy, CoreMIDIUtils, Error, Merge, Reconstruct.
 
 -------------------------------------------------------------------------------
 
-19-22 July
+19-22 July			       ==== NIGHTINGALE 5.8b1 ====
 
 Renamed utility function IsMultiVoice() to IsSyncMultiVoice(). Affects DSutils.h;
 Clipboard, DSUtils, MergeUtils, Ottava, PitchUtils.
 
 Formerly, using the shift key while dragging a slur endpoint constrained it to
 move on one axis or the other, but using it while dragging a control point made the
-other control point move symmetrically; now using the shift key while dragging either
+other control point move symmetrically. Now, using the shift key while dragging either
 an endpoint or a control point constrains it to move on an axis, and using the option
 key while dragging either makes the other move symmetrically. Affects Slurs.
 
 Minor cleanup. Affects DrawDocument, Merge, Reconstruct, Slurs.
 
+===============================================================================
+
+23-31 July
+
+Changed version number from 5.8b1 to 5.8b2. Affects Info.plist.
+
+Renamed file FileInput to InternalInput.
+
+Minor cleanup: Improved debug messages, moved def'n of CS_DELIMITER to a header, etc.
+Affects Defs.h; ChordSym, DebugUtils, Debug2Utils, File, InternalInput, Menu,
+PitchUtils, Slurs.

@@ -211,6 +211,8 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 #define DOWNARROWKEY 31
 #define FWDDEL_KEY 127					/* Macintosh character code for forward delete key (on ext. kybds) */
 
+#define CS_DELIMITER	FWDDEL_KEY		/* Chord symbol field delimiter */
+
 /* -------------------------------------------------------- MISCELLANEOUS CONSTANTS -- */
 
 #define FIDEAL_RESOLVE 10				/* Fractional STDIST resolution in parts of an STDIST */
