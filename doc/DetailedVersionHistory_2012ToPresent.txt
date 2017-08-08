@@ -1638,3 +1638,10 @@ Renamed file FileInput to InternalInput.
 Minor cleanup: Improved debug messages, moved def'n of CS_DELIMITER to a header, etc.
 Affects Defs.h; ChordSym, DebugUtils, Debug2Utils, File, InternalInput, Menu,
 PitchUtils, Slurs.
+
+-------------------------------------------------------------------------------
+
+2-8 Aug.
+
+Minor cleanup: replaced "TRUE" and "FALSE" with the more standard "true" and "false",
+improve error messages, etc. Affects DebugUtils, Debug2Utils, Scroll, UIFUtils.

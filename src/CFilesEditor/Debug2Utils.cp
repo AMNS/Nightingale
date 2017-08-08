@@ -11,7 +11,7 @@ obey musical and music-notation constraints?
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -37,7 +37,7 @@ We could also check other symbols with voice nos. */
 
 Boolean DCheckPlayDurs(
 				Document *doc,
-				Boolean maxCheck		/* FALSE=skip less important checks */
+				Boolean maxCheck		/* false=skip less important checks */
 				)
 {
 	register LINK pL, aNoteL;
@@ -46,7 +46,7 @@ Boolean DCheckPlayDurs(
 	short v, shortDurThresh, tupletNum[MAXVOICES+1], tupletDenom[MAXVOICES+1];
 	long lDur;
 
-	bad = FALSE;
+	bad = false;
 
 	shortDurThresh = PDURUNIT/2;
 	for (v = 0; v<=MAXVOICES; v++)
@@ -112,14 +112,14 @@ Boolean DCheckTempi(Document *doc)
 	StringOffset theStrOffset;
 	char tempoStr[256], metroStr[256], prevTempoStr[256], prevMetroStr[256];
 		
-	bad = FALSE;
-	havePrevTempo = havePrevMetro = FALSE;
+	bad = false;
+	havePrevTempo = havePrevMetro = false;
 		
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
 		
 		/* If we found a Sync, we're no longer "at the same point in the score". */
-		if (SyncTYPE(pL)) havePrevTempo = havePrevMetro = FALSE;
+		if (SyncTYPE(pL)) havePrevTempo = havePrevMetro = false;
 		
 		if (TempoTYPE(pL)) {
 			if (havePrevTempo) {
@@ -152,8 +152,8 @@ Boolean DCheckTempi(Document *doc)
 				theStrOffset = TempoMETROSTR(pL);
 				Pstrcpy((StringPtr)prevMetroStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)prevMetroStr);
-				if (strlen(tempoStr)>0) havePrevTempo = TRUE;
-				if (!TempoNOMM(pL)) havePrevMetro = TRUE;
+				if (strlen(tempoStr)>0) havePrevTempo = true;
+				if (!TempoNOMM(pL)) havePrevMetro = true;
 				prevTempoL = pL;
 			}
 		}
@@ -175,8 +175,8 @@ Boolean DCheckRedundantKS(Document *doc)
 	Boolean bad, firstKS;
 	short lastKSNAcc[MAXSTAVES+1], s, nRedundant;
 	
-	bad = FALSE;
-	firstKS = TRUE;
+	bad = false;
+	firstKS = true;
 		
 	for (s = 1; s<=doc->nstaves; s++)
 		lastKSNAcc[s] = 99;
@@ -191,7 +191,7 @@ Boolean DCheckRedundantKS(Document *doc)
 				 * All other non-inMeasure key sigs. are just repeating the context.
 				 */
 				if (!firstKS && !KeySigINMEAS(pL)) break;
-				firstKS = FALSE;
+				firstKS = false;
 				nRedundant = 0;
 				for (aKSL = FirstSubLINK(pL); aKSL; aKSL = NextKEYSIGL(aKSL)) {
 					aKeySig = GetPAKEYSIG(aKSL);
@@ -227,10 +227,10 @@ Boolean DCheckExtraTS(Document *doc)
 	Boolean haveTS[MAXSTAVES+1], bad;
 	short s, nRedundant;
 	
-	bad = FALSE;
+	bad = false;
 		
 	for (s = 1; s<=doc->nstaves; s++)
-		haveTS[s] = FALSE;
+		haveTS[s] = false;
 
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
@@ -246,11 +246,11 @@ Boolean DCheckExtraTS(Document *doc)
 									pL, GetMeasNum(doc, pL), nRedundant);
 
 				for (aTSL = FirstSubLINK(pL); aTSL; aTSL = NextTIMESIGL(aTSL))
-					haveTS[TimeSigSTAFF(aTSL)] = TRUE;
+					haveTS[TimeSigSTAFF(aTSL)] = true;
 				break;
 			case MEASUREtype:
 				for (s = 1; s<=doc->nstaves; s++)
-					haveTS[s] = FALSE;
+					haveTS[s] = false;
 				break;
 			default:
 				;
@@ -271,10 +271,10 @@ Boolean DCheckCautionaryTS(Document *doc)
 	Boolean haveEndSysTS[MAXSTAVES+1], inNewSys[MAXSTAVES+1], bad;
 	short s, stf, numerator[MAXSTAVES+1], denominator[MAXSTAVES+1];
 	
-	bad = FALSE;
+	bad = false;
 		
 	for (s = 1; s<=doc->nstaves; s++) {
-		haveEndSysTS[s] = FALSE;
+		haveEndSysTS[s] = false;
 	}
 
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
@@ -297,25 +297,25 @@ Boolean DCheckCautionaryTS(Document *doc)
 							COMPLAIN3("DCheckCautionaryTS: Timesig at start of system in measure %d, staff %d (L%u) disagrees with anticipating timesig.\n",
 										GetMeasNum(doc, pL), stf, pL);
 					}
-					haveEndSysTS[stf] = TRUE;
+					haveEndSysTS[stf] = true;
 					numerator[stf] = TimeSigNUMER(aTSL);
 					denominator[stf] = TimeSigDENOM(aTSL);
 				}
 				break;
 			case MEASUREtype:
 				/* If this is the 1st (invisible barline) Measure of the system, ignore it */
-				prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+				prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, 1, GO_LEFT, false);
 				if (prevMeasL==NILINK || !SameSystem(prevMeasL, pL)) break;
 				for (s = 1; s<=doc->nstaves; s++)
-					haveEndSysTS[s] = FALSE;
+					haveEndSysTS[s] = false;
 				break;
 			case SYSTEMtype:
 				for (s = 1; s<=doc->nstaves; s++)
-					inNewSys[s] = TRUE;
+					inNewSys[s] = true;
 				break;
 			case SYNCtype:
 				for (s = 1; s<=doc->nstaves; s++)
-					inNewSys[s] = FALSE;
+					inNewSys[s] = false;
 				break;
 			default:
 				;
@@ -348,7 +348,7 @@ Boolean DCheckMeasDur(Document *doc)
 	short staffn;
 	Boolean bad;
 	
-	bad = FALSE;
+	bad = false;
 		
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
@@ -395,9 +395,9 @@ Boolean DCheckUnisons(Document *doc)
 {
 	LINK pL;  Boolean bad;  short voice;
 	
-	if (unisonsOK) return FALSE;		/* If they're not a problem now, skip checking! */
+	if (unisonsOK) return false;		/* If they're not a problem now, skip checking! */
 	
-	bad = FALSE;
+	bad = false;
 		
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
@@ -410,7 +410,7 @@ Boolean DCheckUnisons(Document *doc)
 										GetMeasNum(doc, pL), pL, voice);
 	}
 	
-	return FALSE;
+	return false;
 }
 
 
@@ -434,7 +434,7 @@ short DBadNoteNum(
 	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
 
 	if (!FirstTiedNote(syncL, theNoteL, &firstSyncL, &firstNoteL))
-		return FALSE;											/* Object list is messed up */
+		return false;											/* Object list is messed up */
 	effectiveAcc = EffectiveAcc(doc, firstSyncL, firstNoteL);
 	if (octType>0)
 		noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1],
@@ -452,7 +452,7 @@ both grace notes and rests. */
 
 Boolean DCheckNoteNums(Document *doc)
 {
-	Boolean bad=FALSE, haveAccs;
+	Boolean bad=false, haveAccs;
 	short staff, clefType, octType[MAXSTAVES+1], useOctType, nnDiff;
 	LINK pL, aNoteL, aClefL;
 	SignedByte accTable[MAX_STAFFPOS];
@@ -472,24 +472,24 @@ Boolean DCheckNoteNums(Document *doc)
 	
 				case SYNCtype:
 					aNoteL = FirstSubLINK(pL);
-					haveAccs = FALSE;
+					haveAccs = false;
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 						if (NoteSTAFF(aNoteL)==staff && !NoteREST(aNoteL)) {
 							if (!haveAccs) {
 								GetAccTable(doc, accTable, pL, staff);
-								haveAccs = TRUE;
+								haveAccs = true;
 							}
 
 							useOctType = (NoteINOTTAVA(aNoteL)? octType[staff] : 0);
 							nnDiff = DBadNoteNum(doc, clefType, useOctType, accTable, pL, aNoteL);
 							if (nnDiff!=0) {
 								if (abs(nnDiff)<=2) {
-									COMPLAIN3("DCheckNoteNums: Note in Sync L%u staff %d notenum %d and notation disagree: wrong accidental?\n",
-													pL, staff, NoteNUM(aNoteL));
+									COMPLAIN4("DCheckNoteNums: Note in Sync L%u in measure %d, staff %d notenum %d and notation disagree: wrong accidental?\n",
+													pL, GetMeasNum(doc, pL), staff, NoteNUM(aNoteL));
 								}
 								else {
-									COMPLAIN3("DCheckNoteNums: Note in Sync L%u staff %d notenum %d and notation disagree.\n",
-													pL, staff, NoteNUM(aNoteL));
+									COMPLAIN4("DCheckNoteNums: Note in Sync L%u in measure %d, staff %d notenum %d and notation disagree.\n",
+													pL, GetMeasNum(doc, pL), staff, NoteNUM(aNoteL));
 								}
 							}
 						}

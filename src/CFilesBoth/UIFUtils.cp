@@ -1,4 +1,4 @@
-/******************************************************************************
+/******************************************************************************************
 *	FILE:	UIFUtils.c
 *	PROJ:	Nightingale
 *	DESC:	General-purpose utility routines for implementing the user interface.
@@ -17,14 +17,14 @@
 		DisposePopUp			HilitePopUp				ResizePopUp
 		ShowPopUp				VLogPrintf				LogPrintf
 		InitLogPrintf	
-/******************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -33,14 +33,14 @@
 static DDIST GetStaffLim(Document *doc, LINK pL, short s, Boolean top, PCONTEXT pContext);
 	
 
-/* ----------------------------------------------------------------- GetStaffLim -- */
+/* ----------------------------------------------------------------------- GetStaffLim -- */
 /* Return a rough top or bottom staff limit: staffTop - 6 half-lines, or staff
 bottom + 6 half-lines. */
 
 static DDIST GetStaffLim(
 					Document *doc, LINK pL,
 					short staffn,
-					Boolean top,					/* TRUE if getting top staff limit. */
+					Boolean top,					/* true if getting top staff limit. */
 					PCONTEXT pContext)
 {
 	DDIST blackTop, blackBottom,
@@ -59,7 +59,7 @@ static DDIST GetStaffLim(
 	return blackBottom;
 }
 
-/* ------------------------------------------------------------ HiliteInsertNode -- */
+/* ------------------------------------------------------------------ HiliteInsertNode -- */
 /* Hilite an object in a distinctive way to show it's the one into which a
 subobject is about to be inserted, or to which an object is or will be attached.
 The hiliting we do is a vertical dotted line thru the object, thickened slightly
@@ -70,7 +70,7 @@ void HiliteInsertNode(
 			Document *doc,
 			LINK	pL,
 			short	staffn,			/* No. of "special" staff to emphasize or NOONE */
-			Boolean	flash			/* TRUE=flash to emphasize special staff */
+			Boolean	flash			/* true=flash to emphasize special staff */
 			)
 {
 	short		xd, xp, ypTop, ypBot;
@@ -83,8 +83,8 @@ void HiliteInsertNode(
 		if (staffn==NOONE)
 			GetContext(doc, pL, 1, &context);
 		else {
-			blackTop = GetStaffLim(doc, pL, staffn, TRUE, &context);
-			blackBottom = GetStaffLim(doc, pL, staffn, FALSE, &context);
+			blackTop = GetStaffLim(doc, pL, staffn, true, &context);
+			blackBottom = GetStaffLim(doc, pL, staffn, false, &context);
 		}
 		xd = SysRelxd(pL)+context.systemLeft;					/* abs. origin of object */
 		
@@ -118,27 +118,27 @@ void HiliteInsertNode(
 }
 
 
-/* ------------------------------------------------------------ HiliteTwoNodesOn -- */
+/* ------------------------------------------------------------------ HiliteTwoNodesOn -- */
 /* Show in a sensible way insert-type hiliting on two nodes that may be identical.
 Should NOT be used to erase the hiliting: for that, call HiliteInsertNode once
 or twice. */
 
 void HiliteTwoNodesOn(Document *doc, LINK node1, LINK node2, short staffn)
 {	
-	HiliteInsertNode(doc, node1, staffn, TRUE);							/* Hiliting on */
+	HiliteInsertNode(doc, node1, staffn, true);							/* Hiliting on */
 	/* If both ends are the same, wait, erase, wait, and draw again */ 
 	if (node1==node2) {
 		SleepTicks(HILITE_TICKS);
-		HiliteInsertNode(doc, node1, staffn, FALSE);
+		HiliteInsertNode(doc, node1, staffn, false);
 		SleepTicks(HILITE_TICKS);
-		HiliteInsertNode(doc, node1, staffn, FALSE);
+		HiliteInsertNode(doc, node1, staffn, false);
 	}
 	else
-		HiliteInsertNode(doc, node2, staffn, TRUE);						/* Hiliting on */
+		HiliteInsertNode(doc, node2, staffn, true);						/* Hiliting on */
 }
 
 
-/* ------------------------------------------------------------- HiliteAttPoints -- */
+/* ------------------------------------------------------------------- HiliteAttPoints -- */
 /* Hilite attachment point(s) and wait as long as the mouse button is down, or in
 any case for a short minimum time; then erase the hiliting. If <firstL> is NILINK,
 we do nothing at all. <lastL> may be NILINK (to indicate there's really only one
@@ -153,13 +153,13 @@ void HiliteAttPoints(
 	if (!firstL) return;
 	
 	if (lastL) HiliteTwoNodesOn(doc, firstL, lastL, staffn);					/* On */
-	else	   HiliteInsertNode(doc, firstL, staffn, TRUE);						/* On */
+	else	   HiliteInsertNode(doc, firstL, staffn, true);						/* On */
 
 	SleepTicks(HILITE_TICKS);
 	while (Button()) ;
 	
-	HiliteInsertNode(doc, firstL, staffn, FALSE);								/* Off */
-	if (lastL && firstL!=lastL) HiliteInsertNode(doc, lastL, staffn, FALSE);	/* Off */
+	HiliteInsertNode(doc, firstL, staffn, false);								/* Off */
+	if (lastL && firstL!=lastL) HiliteInsertNode(doc, lastL, staffn, false);	/* Off */
 }
 
 static void DebugLogPrint(char *str);
@@ -168,7 +168,7 @@ static void DebugLogPrint(char *str)
 	//LogPrintf(LOG_NOTICE, str);
 }
 
-/* -------------------------------------------------------------------- FixCursor -- */
+/* ------------------------------------------------------------------------- FixCursor -- */
 /*	Set cursor shape based on window and mouse position. This version allows "shaking
 off the mode".	*/
 
@@ -186,7 +186,7 @@ void FixCursor()
 	static long 	now, soon, nextcheck;
 	PaletteGlobals *toolPalette;
 	char			message[256];
-	Boolean			foundPalette = FALSE;
+	Boolean			foundPalette = false;
 	
 	toolPalette = *paletteGlobals[TOOL_PALETTE];
 	
@@ -204,20 +204,20 @@ void FixCursor()
 	/* If no windows at all, use arrow */
 	
 	if (TopWindow == NULL) {
-		holdCursor = FALSE; DebugLogPrint("1. TopWindow is null\n"); ArrowCursor(); return;
+		holdCursor = false; DebugLogPrint("1. TopWindow is null\n"); ArrowCursor(); return;
 		}
 	
 	/* If mouse over any palette, use arrow unless a tool was just chosen */
 
 	if (GetWindowKind(TopWindow) == PALETTEKIND) {
-		holdCursor = TRUE;
+		holdCursor = true;
 		for (wp=TopPalette; wp!=NULL && GetWindowKind(wp)==PALETTEKIND; wp=GetNextWindow(wp)) {
 			RgnHandle strucRgn = NewRgn();
 			GetWindowRegion(wp, kWindowStructureRgn, strucRgn);
 			if (PtInRgn(globalpt, strucRgn)) {
 				//if (!holdCursor) ArrowCursor();
 				DisposeRgn(strucRgn);
-				foundPalette = TRUE;
+				foundPalette = true;
 				}
 				else {
 				DisposeRgn(strucRgn);
@@ -225,7 +225,7 @@ void FixCursor()
 			}
 		}
 
-	holdCursor = FALSE;			/* OK to change cursor back to arrow when it's over a palette */
+	holdCursor = false;			/* OK to change cursor back to arrow when it's over a palette */
 	
 	/* If no Documents, use arrow */
 	
@@ -328,7 +328,7 @@ void FixCursor()
 }
 
 
-/* ------------------------------------------------------------------- FlashRect -- */
+/* ------------------------------------------------------------------------- FlashRect -- */
 
 #define FLASH_RECT_COUNT 1
 
@@ -345,7 +345,7 @@ void FlashRect(Rect *pRect)
 }
 
 
-/* ------------------------------------------------------------------- SamePoint -- */
+/* ------------------------------------------------------------------------- SamePoint -- */
 /* Check to see if two Points (presumably on the screen) are within slop of each
 other. Needed for editing beams, lines, hairpins, etc. */
 
@@ -362,7 +362,7 @@ Boolean SamePoint(Point p1, Point p2)
 }
 	
 
-/* ------------------------------------------------------------- Advise functions -- */
+/* ------------------------------------------------------------------ Advise functions -- */
 /* Give alerts of varlous types and return value. */
 
 short Advise(short alertID)
@@ -394,7 +394,7 @@ short StopAdvise(short alertID)
 }
 
 
-/* ------------------------------------------------------------- Inform functions -- */
+/* ------------------------------------------------------------------ Inform functions -- */
 /* Give valueless alerts of various types. */
 							
 void Inform(short alertID)
@@ -434,7 +434,7 @@ void StopInform(short alertID)
 }
 
 
-/* ----------------------------------------------------------------- ProgressMsg -- */
+/* ----------------------------------------------------------------------- ProgressMsg -- */
 
 #define MAX_MESSAGE_STR 19		/* Index of last message string */
 
@@ -449,8 +449,8 @@ Boolean ProgressMsg(short which,
 						char *moreInfo)				/* C string */
 {
 	static short lastWhich=-999;
-	static DialogPtr dialogp=NULL; GrafPtr oldPort; char str[256];
-	short aShort; Handle tHdl; Rect aRect;
+	static DialogPtr dialogp=NULL;  GrafPtr oldPort;  char str[256];
+	short aShort;  Handle tHdl;  Rect aRect;
 	 
 	GetPort(&oldPort);
 
@@ -461,7 +461,7 @@ Boolean ProgressMsg(short which,
 		
 		if (!dialogp) {
 			dialogp = GetNewDialog(MESSAGE_DLOG, NULL, BRING_TO_FRONT);
-			if (!dialogp) return FALSE;
+			if (!dialogp) return false;
 		}
 
 		SetPort(GetDialogWindowPort(dialogp));
@@ -486,42 +486,42 @@ Boolean ProgressMsg(short which,
 	}
 
 	SetPort(oldPort);
-	return TRUE;
+	return true;
 }
 
 
-/* ---------------------------------------------------------------- UserInterrupt -- */
-/*	Returns TRUE if COMMAND and PERIOD (.) keys are both currently down; all other
+/* --------------------------------------------------------------------- UserInterrupt -- */
+/*	Returns true if COMMAND and PERIOD (.) keys are both currently down; all other
 keys are ignored. FIXME: Should be internationalized! */
 
 Boolean UserInterrupt()
 {
-	if (!CmdKeyDown()) return FALSE;
-	if (!KeyIsDown(47)) return FALSE;
+	if (!CmdKeyDown()) return false;
+	if (!KeyIsDown(47)) return false;
 	
-	return TRUE;
+	return true;
 }
 
 
-/* ---------------------------------------------------------- UserInterruptAndSel -- */
-/* Returns TRUE if COMMAND and SLASH (/) keys are both currently down; all other
+/* --------------------------------------------------------------- UserInterruptAndSel -- */
+/* Returns true if COMMAND and SLASH (/) keys are both currently down; all other
 keys are ignored. FIXME: Should be internationalized! */
 
 Boolean UserInterruptAndSel()
 {
-	if (!CmdKeyDown()) return FALSE;
-	if (!KeyIsDown(44)) return FALSE;
+	if (!CmdKeyDown()) return false;
+	if (!KeyIsDown(44)) return false;
 	
-	return TRUE;
+	return true;
 }
 
 
-/* --------------------------------------------------- NameHeapType, NameNodeType -- */
+/* -------------------------------------------------------- NameHeapType, NameNodeType -- */
 /* Given a "heap index" or object type, return the name of the corresponding object. */
 
 const char *NameHeapType(
 			short heapIndex,
-			Boolean friendly)		/* TRUE=give user-friendly names, FALSE=give "real" names */
+			Boolean friendly)		/* true=give user-friendly names, false=give "real" names */
 {
 	const char *ps;
 
@@ -562,16 +562,16 @@ const char *NameHeapType(
 
 const char *NameNodeType(LINK pL)
 {
-	return NameHeapType(ObjLType(pL), FALSE);
+	return NameHeapType(ObjLType(pL), false);
 }
 
 
-/* -------------------------------------------------------------- NameGraphicType -- */
+/* ------------------------------------------------------------------- NameGraphicType -- */
 /* Given an object of type GRAPHIC, return its subtype. */
 
 const char *NameGraphicType(
 			LINK pL,
-			Boolean friendly)		/* TRUE=give user-friendly names, FALSE=give "real" names */
+			Boolean friendly)		/* true=give user-friendly names, false=give "real" names */
 {
 	const char *ps;
 
@@ -600,7 +600,7 @@ const char *NameGraphicType(
 }
 
 
-/* ---------------------------------------------------------------- ConvertQuote -- */
+/* ---------------------------------------------------------------------- ConvertQuote -- */
 /*	Given a TextEdit handle and a character, presumably one being inserted, if that
 character is a (neutral) double quote or apostrophe, change it to its open/close
 equivalent character according to the type of character that precedes it, if any;
@@ -629,7 +629,7 @@ short ConvertQuote(TEHandle textH, short ch)
 	}
 
 
-/* --------------------------------------------------------------------- DrawBox -- */
+/* --------------------------------------------------------------------------- DrawBox -- */
 /* Use a wide line to draw a filled box centered at the given point.  Size should
 normally be 4 so that the special drag cursor fits in with it. Intended to draw
 handles for dragging.*/
@@ -643,7 +643,7 @@ void DrawBox(Point pt, short size)
 	}
 
 
-/* ------------------------------------------------------------------ HiliteRect -- */
+/* ------------------------------------------------------------------------ HiliteRect -- */
 /*	Toggle the hiliting of the given rectangle, using the selection color. Intended
 for object/subobject  hiliting. */
 
@@ -657,7 +657,7 @@ void HiliteRect(Rect *r)
 }
 
 
-/* ---------------------------------------------------------- Voice/Staff2UserStr -- */
+/* --------------------------------------------------------------- Voice/Staff2UserStr -- */
 
 /* Given an (internal) voice no., return its part and part-relative voice no. in
 user-friendly format, e.g., "voice 2 of Piano".
@@ -707,7 +707,7 @@ void Staff2UserStr(Document *doc,
 }
 
 
-/* ============================================================  Pop-up Utilities == */
+/* =================================================================  Pop-up Utilities == */
 /* The following utilities for handling pop-ups were written by Resorcerer and are
 included by its kind permission and permission of its agent, Mr. Douglas M. McKenna. */
 
@@ -787,7 +787,7 @@ void TruncPopUpString(UserPopUp *p)
 	}
 
 
-/* Initialise a UserPopUp data structure; return FALSE if error. If firstChoice=0,
+/* Initialise a UserPopUp data structure; return false if error. If firstChoice=0,
 no item is initially chosen. */
 
 short InitPopUp(
@@ -809,19 +809,19 @@ short InitPopUp(
 		p->shadow = p->bounds;
 		p->shadow.right++; p->shadow.bottom++;
 		p->menu = GetMenu(p->menuID = menuID);
-		if (!p->menu) { SysBeep(1); return(FALSE); }
+		if (!p->menu) { SysBeep(1); return(false); }
 		p->currentChoice = firstChoice;
 		TruncPopUpString(p);
 
-		return(TRUE);
+		return(true);
 	}
 
 
-/* Invoke a popup menu; return TRUE if new choice was made */
+/* Invoke a popup menu; return true if new choice was made */
 
 short DoUserPopUp(UserPopUp *p)
 	{
-		long choice; Point pt; short ans = FALSE;
+		long choice; Point pt; short ans = false;
 
 		InvertRect(&p->prompt);
 		InsertMenu(p->menu,-1);
@@ -835,7 +835,7 @@ short DoUserPopUp(UserPopUp *p)
 			choice = LoWord(choice);
 			if (choice != p->currentChoice) {
 				ChangePopUpChoice(p,(short)choice);
-				ans = TRUE;
+				ans = true;
 				}
 			}
 		return(ans);
@@ -924,12 +924,12 @@ dialog items. */
 void ShowPopUp(UserPopUp *p, short vis)
 	{
 		switch (vis)	{
-			case TRUE:
+			case true:
 				if (p->box.left > 16000)	{
 					p->box.left -= 16384;
 					p->box.right -= 16384;}
 				break;
-			case FALSE:
+			case false:
 				if (p->box.left < 16000)	{
 					p->box.left += 16384;
 					p->box.right += 16384;}	
@@ -952,8 +952,8 @@ void HiliteArrowKey(DialogPtr /*dlog*/, short whichKey, UserPopUp *pPopup,
 	UserPopUp *p;
 					
 	if (!*pHilitedItem) {
-		*pHilitedItem = TRUE;
-		HilitePopUp(pPopup, TRUE);
+		*pHilitedItem = true;
+		HilitePopUp(pPopup, true);
 	}
 	else {
 		p = pPopup;
@@ -972,7 +972,7 @@ void HiliteArrowKey(DialogPtr /*dlog*/, short whichKey, UserPopUp *pPopup,
 			if (p->str[1] == '-') newChoice += 1;		/* Skip over the dash item */ 						
 		}
 		ChangePopUpChoice (p, newChoice);
-		HilitePopUp(p,TRUE);
+		HilitePopUp(p,true);
 	}
 }
 
@@ -1015,12 +1015,12 @@ Rect *GetQDScreenBitsBounds(Rect *bounds)
 Pattern *NGetQDGlobalsDarkGray()
 {
 	static Pattern sDkGray;
-	static Boolean once = TRUE;
+	static Boolean once = true;
 	
 	if (once)
 	{	
 		GetQDGlobalsDarkGray(&sDkGray);
-		once = FALSE;
+		once = false;
 	}
 	
 	return &sDkGray;
@@ -1029,12 +1029,12 @@ Pattern *NGetQDGlobalsDarkGray()
 Pattern *NGetQDGlobalsLightGray()
 {
 	static Pattern sLtGray;
-	static Boolean once = TRUE;
+	static Boolean once = true;
 	
 	if (once)
 	{	
 		GetQDGlobalsLightGray(&sLtGray);
-		once = FALSE;
+		once = false;
 	}
 	
 	return &sLtGray;
@@ -1043,12 +1043,12 @@ Pattern *NGetQDGlobalsLightGray()
 Pattern *NGetQDGlobalsGray()
 {
 	static Pattern sGray;
-	static Boolean once = TRUE;
+	static Boolean once = true;
 	
 	if (once)
 	{	
 		GetQDGlobalsGray(&sGray);
-		once = FALSE;
+		once = false;
 	}
 	
 	return &sGray;
@@ -1057,12 +1057,12 @@ Pattern *NGetQDGlobalsGray()
 Pattern *NGetQDGlobalsBlack()
 {
 	static Pattern sBlack;
-	static Boolean once = TRUE;
+	static Boolean once = true;
 	
 	if (once)
 	{	
 		GetQDGlobalsBlack(&sBlack);
-		once = FALSE;
+		once = false;
 	}
 	
 	return &sBlack;
@@ -1071,12 +1071,12 @@ Pattern *NGetQDGlobalsBlack()
 Pattern *NGetQDGlobalsWhite()
 {
 	static Pattern sWhite;
-	static Boolean once = TRUE;
+	static Boolean once = true;
 	
 	if (once)
 	{	
 		GetQDGlobalsWhite(&sWhite);
-		once = FALSE;
+		once = false;
 	}
 	
 	return &sWhite;
@@ -1362,18 +1362,20 @@ StringPtr PtoCstr(StringPtr str)
 }
 
 
-/* ------------------------------------------------------------ Log-file handling -- */
+/* ----------------------------------------------------------------- Log-file handling -- */
 /* NB: LOG_DEBUG is the lowest level (=_highest_ internal code: caveat!), so --
 according to the man page for syslog(3) -- the call to setlogmask in InitLogPrintf()
-_should_ cause all messages to go to the log regardless of level; but on my G5, I
-rarely if ever get anything below LOG_NOTICE. To avoid this problem, LogPrintf()
-can change anything with a lower level(=higher code) to a given level, MIN_LOG_LEVEL.
-To disable that feature, set MIN_LOG_LEVEL to a large number (not a small one!), say
-999. */
+_should_ cause all messages to go to the log regardless of level. But on my G5 running
+OS 10.5.x (Xcode 2.5), I rarely if ever get anything below LOG_NOTICE; I have no idea
+why. That doesn't seem to happen on my MacBook with OS 10.6.x (Xcode 3.2).
+
+To avoid this problem, LogPrintf() can change anything with a lower level(=higher code)
+to a given level, MIN_LOG_LEVEL. To disable that feature, set MIN_LOG_LEVEL to a
+large number (not a small one!), say 999. --DAB, July 2017. */
 
 #define MIN_LOG_LEVEL LOG_NOTICE			/* Force lower levels (higher codes) to this */
 
-#define LOG_TO_STDERR FALSE					/* Print to stderr as well as system log? */
+#define LOG_TO_STDERR false					/* Print to stderr as well as system log? */
 
 static Boolean HaveNewline(const char *str);
 
@@ -1382,18 +1384,18 @@ char inStr[1000], outStr[1000];
 static Boolean HaveNewline(const char *str)
 {
 	while (*str!='\0') {
-		if (*str=='\n') return TRUE;
+		if (*str=='\n') return true;
 		str++;
 	}
-	return FALSE;
+	return false;
 }
 
 
 Boolean VLogPrintf(const char *fmt, va_list argp)
 {
-	//if (strlen(inStr)+strlen(str)>=1000) return FALSE;	FIXME: How to check for buffer overflow?
+	//if (strlen(inStr)+strlen(str)>=1000) return false;	FIXME: How to check for buffer overflow?
 	vsprintf(inStr, fmt, argp);
-	return TRUE;
+	return true;
 }
 
 
@@ -1401,7 +1403,8 @@ Boolean VLogPrintf(const char *fmt, va_list argp)
  following parameters. The message may contain at most one "\n". There are two cases:
  (1) It may be terminated by "\n", i.e., it may be a full line or a chunk ending a line.
  (2) If it's not terminated by "\n", it's a partial line, to be completed on a later call.
- In case #1, we send the complete line to syslog(); in case #2, just add it to a buffer.  */
+ In case #1, we send the complete line to syslog(); in case #2, just add it to a buffer.
+ FIXME: Instances of "\n" _within_ the message aren't handled correctly. */
 
 Boolean LogPrintf(short priLevel, const char *fmt, ...)
 {
@@ -1434,11 +1437,6 @@ short InitLogPrintf()
 	int logopt = 0;
 	if (LOG_TO_STDERR) logopt = LOG_PERROR;
 	openlog("Ngale", logopt, LOG_USER);
-	
-	/* LOG_DEBUG is the lowest level (=highest internal code), so the call to setlogmask
-	 below _should_ cause all messages to go to the log regardless of level. But on
-	 my G5 running OS 10.5.x, I rarely if ever get anything below LOG_NOTICE; I have
-	 no idea why. --DAB, March 2016 */
 	
 	int oldLevelMask = setlogmask(LOG_UPTO(LOG_DEBUG));
 	outStr[0] = '\0';										/* Set <outStr> to empty */

@@ -5,7 +5,7 @@ struct NoteNumSorter {
 
 static void SwapNotes(struct NoteNumSorter noteA, struct NoteNumSorter noteB);
 static Boolean FindThreeNoteChord(Document *, LINK, short, LINK *, LINK *, LINK *);
-Boolean MakeArtificialHarmonic(Document *doc, LINK aSyncL);
+short MakeArtificialHarmonic(Document *doc, LINK aSyncL);
 
 
 static void SwapNotes(struct NoteNumSorter noteA, struct NoteNumSorter noteB)
@@ -58,11 +58,11 @@ each such chord look and play back like an artificial harmonic. To do that:
 	* Make the top note small
 	* Give the middle note a diamond notehead
 	* Set the on velocity of the middle and bottom notes to 0
-Return TRUE if ?? . */
+Return the number of "artificial harmonics" created. */
 
-Boolean MakeArtificialHarmonic(Document *doc, LINK aSyncL)
+short MakeArtificialHarmonic(Document *doc, LINK aSyncL)
 {
-	short v;
+	short harmonicCount=0, v;
 	LINK aNoteL, topNoteL, midNoteL, bottomNoteL;
 	
 	for (v = 1; v<=MAXVOICES; v++)
@@ -71,6 +71,7 @@ Boolean MakeArtificialHarmonic(Document *doc, LINK aSyncL)
 				NoteSMALL(topNoteL) = TRUE;
 				NoteAPPEAR(midNoteL) = DIAMONDH_SHAPE;
 				NoteONVELOCITY(midNoteL) = NoteONVELOCITY(bottomNoteL) = 0;
+				harmonicCount++;
 			}
-	return TRUE;
+	return harmonicCount;
 }

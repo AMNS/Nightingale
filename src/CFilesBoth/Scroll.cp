@@ -3,7 +3,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /*
@@ -15,10 +15,10 @@
 
 
 /* ScrollDocument should be called repeatedly by the Toolbox's TrackControl() when
-doing continuous scrolling.  We always force the distance scrolled to be a
-multiple of 8 since this is the period of the background pattern being painted
-in behind sheets of paper in the document window, and if the coordinate system
-stays in sync with the pattern, it will appear stationary. */
+doing continuous scrolling.  We always force the distance scrolled to be a multiple of
+8 since this is the period of the background pattern being painted in behind sheets of
+paper in the document window, and if the coordinate system stays in sync with the
+pattern, it will appear stationary. */
 
 pascal void ScrollDocument(ControlHandle control, short part)
 	{
@@ -48,27 +48,27 @@ pascal void ScrollDocument(ControlHandle control, short part)
 				break;
 			}
 		if (part) {
-			if (control == theDoc->vScroll) dy = change; else dx = change;
-			QuickScroll(theDoc,dx,dy,TRUE,TRUE);
+			if (control == theDoc->vScroll)	dy = change;
+			else							dx = change;
+			QuickScroll(theDoc,dx,dy,true,true);
 			}
 	}
 
 
 /* QuickScroll(doc,dx,dy,rel,doCopy) scrolls the view rectangle (the content of the
-window associated with document doc, minus the scroll and grow icon areas)
-by dx pixels horizontally, and dy pixels vertically.  It does this without 
-creating update events, since it can be called from within ScrollDocument(),
-which is called repeatedly from TrackControl(), and from AutoScroll.
-If either of dx or dy are so large that the entire view would be
-scrolled offscreen, it just erases and redraws; otherwise, it BitBlt's
-the view rectangle the appropriate distance, and redraws only the newly
-scrolled-in rectangle(s).  Essentially, it implements an update region
-using the document's view rectangle.  If doCopy is FALSE, then we don't
-muck with anything in the view rectangle, but do everything else.
-This gets complicated by any floating palettes, since each one of them
-brings in 1 or 2 more rectangular areas to be updated.  Whether we should
-just go back to standard update regions or not depends on how the page-
-redrawing routines are when given this increasing number of of rectangles. */
+window associated with document doc, minus the scroll and grow icon areas) by dx
+pixels horizontally, and dy pixels vertically.  It does this without creating update
+events, since it can be called from within ScrollDocument(), which is called
+repeatedly from TrackControl(), and from AutoScroll. If either of dx or dy are so
+large that the entire view would be scrolled offscreen, it just erases and redraws;
+otherwise, it BitBlt's the view rectangle the appropriate distance, and redraws only
+the newly scrolled-in rectangle(s).  Essentially, it implements an update region using
+the document's view rectangle.  If doCopy is false, then we don't muck with anything
+in the view rectangle, but do everything else. This gets complicated by any floating
+palettes, since each one of them brings in 1 or 2 more rectangular areas to be
+updated.  Whether we should just go back to standard update regions or not depends on
+how the page- redrawing routines are when given this increasing number of of
+rectangles. */
 
 void QuickScroll(register Document *doc, register short dx, register short dy,
 					Boolean rel, Boolean doCopy)
@@ -99,7 +99,6 @@ void QuickScroll(register Document *doc, register short dx, register short dy,
 		 *	doesn't flash at its min or max positions.
 		 */
 
-		
 		GetWindowPortBounds(w,&portRect);
 		ClipRect(&portRect);
 		if (dx) {
@@ -148,7 +147,6 @@ void QuickScroll(register Document *doc, register short dx, register short dy,
 		 */
 		 
 		if (dx<width && dx>-width && dy<height && dy>-height) {
-		
 			/*
 			 *	Scroll view's bits vertically and/or horizontally.  Use a
 			 *	mask region that is the current visible region translated
@@ -174,8 +172,8 @@ void QuickScroll(register Document *doc, register short dx, register short dy,
 				}
 			/*
 			 *	Set a rectangle for each of the new areas just opened up.
-			 *	If both dx and dy are non-zero, they will overlap, so
-			 *	adjust one of them appropriately.
+			 *	If both dx and dy are non-zero, they will overlap, so adjust
+			 *	one of them appropriately.
 			 */
 			
 			OffsetRect(&src,dx,dy);
@@ -310,7 +308,7 @@ void QuickScroll(register Document *doc, register short dx, register short dy,
 			/* Got our list: now update them all in reverse order (palettes first) */
 			
 			for (nr=updateRectTable; nr!=nextRect; nr++) {
-				doc->showWaitCurs = FALSE;	/* Avoid distracting cursor changes when auto-scrolling */
+				doc->showWaitCurs = false;	/* Avoid distracting cursor changes when auto-scrolling */
 				DrawDocumentView(doc,nr);
 				}
 		
