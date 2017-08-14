@@ -1645,3 +1645,9 @@ PitchUtils, Slurs.
 
 Minor cleanup: replaced "TRUE" and "FALSE" with the more standard "true" and "false",
 improve error messages, etc. Affects DebugUtils, Debug2Utils, Scroll, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+9-14 Aug.
+
+Minor cleanup. Affects Utility.h; CarbonPrinting, DebugUtils, Utility.

@@ -728,29 +728,29 @@ short DCheckNode(
 
 					if (!aNote->rest) {
 						if (aNote->noteNum<1 || aNote->noteNum>MAX_NOTENUM) {
-							COMPLAIN2("*DCheckNode: NOTE IN SYNC L%u HAS BAD noteNum %d.\n",
-											pL, aNote->noteNum);
+							COMPLAIN3("*DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS BAD noteNum %d.\n",
+											pL, GetMeasNum(doc, pL), aNote->noteNum);
 						}
 
 						/* If noteNum is outside the range of the piano, warn more gently. */
 						else if (aNote->noteNum<21 || aNote->noteNum>108) {
-							COMPLAIN2("DCheckNode: NOTE IN SYNC L%u HAS SUSPICIOUS noteNum %d.\n",
-											pL, aNote->noteNum);
+							COMPLAIN3("DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS SUSPICIOUS noteNum %d.\n",
+											pL, GetMeasNum(doc, pL), aNote->noteNum);
 						}
 
 						if (aNote->onVelocity>MAX_VELOCITY)
-							COMPLAIN2("*DCheckNode: NOTE IN SYNC L%u HAS BAD onVelocity %d.\n",
-											pL, aNote->onVelocity);
+							COMPLAIN3("*DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS BAD onVelocity %d.\n",
+											pL, GetMeasNum(doc, pL), aNote->onVelocity);
 						if (aNote->offVelocity>MAX_VELOCITY)
-							COMPLAIN2("*DCheckNode: NOTE IN SYNC L%u HAS BAD offVelocity %d.\n",
-											pL, aNote->offVelocity);
+							COMPLAIN3("*DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS BAD offVelocity %d.\n",
+											pL, GetMeasNum(doc, pL), aNote->offVelocity);
 						if (fullCheck) {
 							if (aNote->onVelocity==0)
-								COMPLAIN("DCheckNode: NOTE IN SYNC L%u HAS ZERO onVelocity.\n",
-												pL);
+								COMPLAIN2("DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS ZERO onVelocity.\n",
+												pL, GetMeasNum(doc, pL));
 							if (aNote->offVelocity==0)
-								COMPLAIN("DCheckNode: NOTE IN SYNC L%u HAS ZERO offVelocity.\n",
-												pL);
+								COMPLAIN2("DCheckNode: NOTE IN SYNC L%u IN MEASURE %d HAS ZERO offVelocity.\n",
+												pL, GetMeasNum(doc, pL));
 						}
 					}
 					
@@ -828,13 +828,13 @@ short DCheckNode(
 						lSystem = GetPSYSTEM(pSystem->lSystem);				
 						if (pSystem->pageL==lSystem->pageL
 						&&  pSystem->systemRect.top<lSystem->systemRect.bottom)
-							COMPLAIN("*DCheckNode: SYSTEM L%u RECT NOT BELOW PREVIOUS SYSTEM.\n", pL);
+							COMPLAIN("*DCheckNode: SYSTEM L%u RECT NOT ENTIRELY BELOW PREVIOUS SYSTEM.\n", pL);
 					}
 					if (pSystem->rSystem) {
 						rSystem = GetPSYSTEM(pSystem->rSystem);				
 						if (pSystem->pageL==rSystem->pageL
 						&&  pSystem->systemRect.bottom>rSystem->systemRect.top)
-							COMPLAIN("*DCheckNode: SYSTEM L%u RECT NOT ABOVE FOLLOWING SYSTEM.\n", pL);
+							COMPLAIN("*DCheckNode: SYSTEM L%u RECT NOT ENTIRELY ABOVE FOLLOWING SYSTEM.\n", pL);
 					}
 					PopLock(SYSTEMheap);
 				}

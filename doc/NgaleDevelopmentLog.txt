@@ -2142,3 +2142,11 @@ Test to test Paste as Cue w/ all object types; cf. the objTable[], def'd in vars
 I give up on Paste as Cue, at least for the time being. I think it's almost working,
 but have to do other things for the Concerto. So just pull the menu command out of
 the menu and processing in Menu.cp... ??
+
+-------------------------------------------------------------------------------
+
+14 Aug.
+
+Following up comments of 1 Jan., another idea for artificial harmonics: (3) take a chord
+of three notes, meaning the obvious, as input. Do the same things as in idea #2, but
+also move the top note into another voice and give it stem length 0!

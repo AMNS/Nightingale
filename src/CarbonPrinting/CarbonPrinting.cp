@@ -415,20 +415,16 @@ static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPa
 
 // --------------------------------------------------------------------------------------------------------------
 
-/*
- * Check that systems in a range of pages are all justified. If SysJustFact() is
- * significantly different from 1.0, tell user and give them a chance to
- * cancel. Return FALSE if user says stop, TRUE otherwise (all justified or user
- * says continue anyway). (It'd be nice some day to give them an opportunity to
- * justify right now.)
- */
-
-#define JUSTSLOP .001
+/* Check that systems in a range of pages are all justified. If SysJustFact() is
+significantly different from 1.0, tell user and give them a chance to cancel. Return
+FALSE if user says stop or there's an error, TRUE otherwise (all justified, or user
+sqys continue anyway). (It'd be nice some day to give them an opportunity to justify
+right now.) */
 
 static Boolean IsRightJustOK(Document *doc, 
 								short firstSheet, short lastSheet)	/* Inclusive range of sheet numbers */
 {
-	LINK startPageL, endPageL, pL, firstMeasL, termSysL, lastMeasL;
+	LINK startPageL, endPageL;
 	FASTFLOAT justFact;
 	DDIST staffWidth, lastMeasWidth;
 	
@@ -437,20 +433,11 @@ static Boolean IsRightJustOK(Document *doc,
 	if (!endPageL) endPageL = doc->tailL;
 	if (!startPageL) {
 		MayErrMsg("IsRightJustOK: can't find startPageL.");
-		return TRUE;
+		return FALSE;
 	}
 	
-	for (pL = startPageL; pL!=endPageL; pL = RightLINK(pL))
-		if (SystemTYPE(pL)) {
-			firstMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
-			termSysL = EndSystemSearch(doc, pL);
-			lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
-			justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
-			if (justFact<1.0-JUSTSLOP || justFact>1.0+JUSTSLOP) {
-				return (CautionAdvise(NOTJUST_ALRT)!=Cancel);
-			}
-		}
-		
+	if (CountRightUnjustSystems(doc, startPageL, endPageL)>0)
+		return (CautionAdvise(NOTJUST_ALRT)!=Cancel);
 	return TRUE;
 }
 
@@ -1116,15 +1103,13 @@ Boolean NDoPostScript(Document *doc)
 		
 		/* Finally append suffix */
 		
-		ch = outname[len];								/* Hold last character of name */
+		ch = outname[len];									/* Hold last character of name */
 		GetIndString(outname+len, MiscStringsID,sufIndex);	/* Append suffix, obliterating last char */
-		outname[len] = ch;								/* Overwrite length byte with saved char */
-		*outname = (len + suffixLen);					/* And ensure new string knows new length */
+		outname[len] = ch;									/* Overwrite length byte with saved char */
+		*outname = (len + suffixLen);						/* And ensure new string knows new length */
 		
 		/* Ask user where to put this PostScript file */
 
-		//Pstrcpy(outname,doc->name);
-		//PStrCat(outname,EPSFile? (StringPtr)"\p.eps":(StringPtr)"\p.txt");
 		keepGoing = GetOutputName(MiscStringsID,EPSFile? 7:9, outname, &vref, &nscd);
 		if (!keepGoing) return FALSE;
 		

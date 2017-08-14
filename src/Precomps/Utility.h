@@ -95,3 +95,4 @@ Boolean LogPrintf(short priLevel, const char *fmt, ...);
 short InitLogPrintf();
 
 Boolean FitStavesOnPaper(Document *);
+short CountRightUnjustSystems(Document *doc, LINK startPageL, LINK endPageL);
