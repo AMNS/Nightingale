@@ -427,6 +427,7 @@ static Boolean IsRightJustOK(Document *doc,
 	LINK startPageL, endPageL;
 	FASTFLOAT justFact;
 	DDIST staffWidth, lastMeasWidth;
+	short firstUnjustPg;
 	
 	startPageL = LSSearch(doc->headL, PAGEtype, firstSheet, GO_RIGHT, FALSE);
 	endPageL = LSSearch(doc->headL, PAGEtype, lastSheet+1, GO_RIGHT, FALSE);
@@ -436,7 +437,7 @@ static Boolean IsRightJustOK(Document *doc,
 		return FALSE;
 	}
 	
-	if (CountRightUnjustSystems(doc, startPageL, endPageL)>0)
+	if (CountUnjustifiedSystems(doc, startPageL, endPageL, &firstUnjustPg)>0)
 		return (CautionAdvise(NOTJUST_ALRT)!=Cancel);
 	return TRUE;
 }

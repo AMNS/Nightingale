@@ -39,7 +39,7 @@ static short MeasCount(Document *doc)
 {
 	LINK measL; PAMEASURE aMeasure;
 
-	measL = MNSearch(doc, doc->tailL, ANYONE, GO_LEFT, TRUE);
+	measL = MNSearch(doc, doc->tailL, ANYONE, GO_LEFT, true);
 	if (measL) {
 		aMeasure = GetPAMEASURE(FirstSubLINK(measL));
 		return aMeasure->measureNum+1;
@@ -56,7 +56,7 @@ has a problem. */
 
 static short SICheckMeasDur(Document *doc, short *pFirstBad)
 {
-	LINK pL, barTermL;
+	LINK pL, barTermL, syncL, aNoteL, nextSyncL;
 	long measDurFromTS, measDurActual;
 	short nBad;
 
@@ -73,8 +73,20 @@ static short SICheckMeasDur(Document *doc, short *pFirstBad)
 
 				measDurActual = GetMeasDur(doc, barTermL, ANYONE);
 				if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT) {
+					/* If the "measure" contains an n-measure multibar rest, the only
+						problem case is if there's another Sync in the measure. */
+//LogPrintf(LOG_DEBUG, "SICheckMeasDur: suspicious measDurActual=%d\n", measDurActual);
+					syncL = LSSearch(pL, SYNCtype, ANYONE, GO_RIGHT, false);
+					aNoteL = FirstSubLINK(syncL);
+					if (NoteREST(aNoteL) && NoteType(aNoteL)<WHOLEMR_L_DUR) {
+						nextSyncL = LSSearch(RightLINK(syncL), SYNCtype, ANYONE, GO_RIGHT, false);
+						if (!nextSyncL || IsAfter(barTermL, nextSyncL)) continue;
+LogPrintf(LOG_DEBUG, "SICheckMeasDur: problem with multibar rest. syncL=%u barTermL=%u nextSyncL=%u\n",
+						syncL, barTermL, nextSyncL);
+					}
 					nBad++;
 					if (nBad==1) *pFirstBad = GetMeasNum(doc, pL);
+
 				}
 			}
 		}
@@ -96,7 +108,7 @@ static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty)
 	short nEmpty;
 
 	nEmpty = 0;
-	barL = SSearch(doc->headL, MEASUREtype, FALSE);
+	barL = SSearch(doc->headL, MEASUREtype, false);
 	for ( ; barL && barL!=NILINK; barL = LinkRMEAS(barL)) {
 		if (MeasISFAKE(barL)) continue;
 		barFirstL = RightLINK(barL);
@@ -174,7 +186,7 @@ long GetScoreDuration(Document *doc)
 				 * enough for the purpose.
 				 */
 				lastSyncTime += NotePLAYDUR(FirstSubLINK(pL));
-				lastMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+				lastMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, false);
 				return lastSyncTime+MeasureTIME(lastMeasL);
 			case MEASUREtype:
 				return MeasureTIME(pL);
@@ -196,15 +208,19 @@ void ScoreInfo()
 	{
 		DialogPtr dialogp;  GrafPtr oldPort;
 		short ditem, aShort;  Handle aHdl;
-		LINK pL;  const char *ps;  HEAP *theHeap;
+		LINK pL, startPageL;
+		const char *ps;  HEAP *theHeap;
 		unsigned short h, count, objCount[LASTtype], objsTotal, noteAttackCount;
 		long lObjCount[LASTtype], totalCount, scoreDuration, qtrNTicks;
 		Document *doc=GetDocumentFromWindow(TopDocument);
-		short nBad, firstBad, nEmpty, firstEmpty, nOutOfRange, firstOutOfRange;
+		short nBad, nEmpty, nOutOfRange, nUnjustSys, firstBad=0, firstEmpty=0,
+				firstOutOfRange=0, firstUnjustPg=0;
 		char fmtStr[256], commentOrig[256], commentNew[256];
 		Boolean keepGoing;
 		ModalFilterUPP filterUPP;
 
+		if (!doc) return;
+		
 		filterUPP = NewModalFilterUPP(OKButFilter);
 		if (filterUPP==NULL) {
 			MissingDialog(SCOREINFO_DLOG);
@@ -212,8 +228,7 @@ void ScoreInfo()
 		}
 		 
 		str = (char *)NewPtr(256);
-		if (!GoodNewPtr((Ptr)str))
-			{ OutOfMemory(256L); return; }
+		if (!GoodNewPtr((Ptr)str)) { OutOfMemory(256L); return; }
 
 		GetPort(&oldPort);
 		dialogp = GetNewDialog(SCOREINFO_DLOG, NULL, BRING_TO_FRONT);
@@ -230,159 +245,162 @@ void ScoreInfo()
 		ShowWindow(GetDialogWindow(dialogp));
 						
 		ArrowCursor();
-		OutlineOKButton(dialogp, TRUE);
+		OutlineOKButton(dialogp, true);
 	
 		linenum = 1;
 		GetIndCString(fmtStr, SCOREINFO_STRS, 1);   			/* "SCORE INFORMATION:" */
 		sprintf(str, fmtStr);
 		SIDrawLine(str);
-		if (doc) {
-			GetIndCString(fmtStr, SCOREINFO_STRS, 2);   		/* "%d pages, %d systems, %d measures." */
-			sprintf(str, fmtStr, doc->numSheets,
-							doc->nsystems, MeasCount(doc));
-			SIDrawLine(str);
-			GetIndCString(fmtStr, SCOREINFO_STRS, 3);   		/* "    A system contains %d staves." */
-			sprintf(str, fmtStr, doc->nstaves);
-			SIDrawLine(str);
-	
-			CountInHeaps(doc, objCount, FALSE);
-			noteAttackCount = CountNoteAttacks(doc);
 
-			/* Find and display the number of subobjects of each type. NB that for some
-			   types, these numbers may not agree with the user's concept of things: for
-			   example, they include context-setting KeySig objects at the beginning of
-			   each system, which are invisible if there's no actual key signature in
-			   effect. */
+		GetIndCString(fmtStr, SCOREINFO_STRS, 2);   		/* "%d pages, %d systems, %d measures." */
+		sprintf(str, fmtStr, doc->numSheets,
+						doc->nsystems, MeasCount(doc));
+		SIDrawLine(str);
+		GetIndCString(fmtStr, SCOREINFO_STRS, 3);   		/* "    A system contains %d staves." */
+		sprintf(str, fmtStr, doc->nstaves);
+		SIDrawLine(str);
+
+		CountInHeaps(doc, objCount, false);
+		noteAttackCount = CountNoteAttacks(doc);
+
+		/* Find and display the number of subobjects of each type. NB that for some
+		   types, these numbers may not agree with the user's concept of things: for
+		   example, they include context-setting KeySig objects at the beginning of
+		   each system, which are invisible if there's no actual key signature in
+		   effect. */
+		
+		totalCount = 0L;
+		for (h = SYNCtype; h<OBJtype; h++) {
+			theHeap = Heap+h;
 			
-			totalCount = 0L;
-		 	for (h = SYNCtype; h<OBJtype; h++) {
-		 		theHeap = Heap+h;
-				
-		 		switch (h) {
-		 			/*
-		 			 *	Skip these types: they're uninteresting and/or info already given.
-					 */
-					case STAFFtype:
-					case MEASUREtype:
-					case CONNECTtype:
+			switch (h) {
+				/*
+				 *	Skip these types: they're uninteresting and/or info already given.
+				 */
+				case STAFFtype:
+				case MEASUREtype:
+				case CONNECTtype:
+					lObjCount[h] = -1L;
+					break;
+				/*
+				 * For these types, users are interested in the numbers of objects.
+				 */
+				case BEAMSETtype:
+				case OTTAVAtype:
+				case TUPLETtype:
+				case TEMPOtype:
+				case SPACERtype:
+				case ENDINGtype:
+					count = 0;
+					for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
+						if (ObjLType(pL)==h) count++;
+					lObjCount[h] = count;
+					break;
+				default:
+				/*
+				 * For other types, users care about the numbers of subobjects, which
+				 * we've already computed, or the type is uninteresting.
+				 */
+					if (theHeap->nObjs<=0)
 						lObjCount[h] = -1L;
-						break;
-		 			/*
-		 			 * For these types, users are interested in the numbers of objects.
-		 			 */
-		 			case BEAMSETtype:
-		 			case OTTAVAtype:
-		 			case TUPLETtype:
-		 			case TEMPOtype:
-		 			case SPACERtype:
-		 			case ENDINGtype:
-						count = 0;
-		 				for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
-		 					if (ObjLType(pL)==h) count++;
-		 				lObjCount[h] = count;
-		 				break;
-		 			default:
-		 			/*
-		 			 * For other types, users care about the numbers of subobjects, which
-		 			 * we've already computed, or the type is uninteresting.
-		 			 */
-						if (theHeap->nObjs<=0)
-							lObjCount[h] = -1L;
-						else
-							lObjCount[h] = objCount[h];
-		 		}
+					else
+						lObjCount[h] = objCount[h];
+			}
 
-				if (lObjCount[h]>=0) {
-					ps = NameHeapType(h, TRUE);
-					if (h==SYNCtype)	sprintf(str, "    %ld %s;  %d note attacks",
-												lObjCount[h], ps, noteAttackCount);
-		 			else				sprintf(str, "    %ld %s", lObjCount[h], ps);
-					SIDrawLine(str);
-					totalCount += lObjCount[h];
-				}
-		 	}
+			if (lObjCount[h]>=0) {
+				ps = NameHeapType(h, true);
+				if (h==SYNCtype)	sprintf(str, "    %ld %s;  %d note attacks",
+											lObjCount[h], ps, noteAttackCount);
+				else				sprintf(str, "    %ld %s", lObjCount[h], ps);
+				SIDrawLine(str);
+				totalCount += lObjCount[h];
+			}
+		}
 
-			objsTotal = 0;	
-			for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
-				objsTotal++;
+		objsTotal = 0;	
+		for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 			objsTotal++;
-			GetIndCString(fmtStr, SCOREINFO_STRS, 4);   		/* "%ld total symbols (%d objects)." */
-			sprintf(str, fmtStr, totalCount, objsTotal);
-			SIDrawLine(str);
+		objsTotal++;
+		GetIndCString(fmtStr, SCOREINFO_STRS, 4);   		/* "%ld total symbols (%d objects)." */
+		sprintf(str, fmtStr, totalCount, objsTotal);
+		SIDrawLine(str);
 
-			scoreDuration = GetScoreDuration(doc);
-			qtrNTicks = Code2LDur(QTR_L_DUR, 0);
-			sprintf(str, "------------------------------------------");
-			SIDrawLine(str);
-			GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "Duration: approx. %ld quarters." */
-			sprintf(str, fmtStr, scoreDuration/qtrNTicks); 
-			SIDrawLine(str);
-
-			if (!ShiftKeyDown()) {
-				WaitCursor();
-				nBad = SICheckMeasDur(doc, &firstBad);
-				if (nBad>0) {
-					GetIndCString(fmtStr, SCOREINFO_STRS, 5);   /* "Duration problems in %d measure(s) (first=%d)." */
-			 		sprintf(str, fmtStr, nBad, firstBad);
-				}
-				else {
-					GetIndCString(fmtStr, SCOREINFO_STRS, 6);   /* "No measures have duration problems." */
-			 		sprintf(str, fmtStr);
-			 	}
-				SIDrawLine(str);
-
-				nEmpty = SICheckEmptyMeas(doc, &firstEmpty);
-				if (nEmpty>0) {
-					GetIndCString(fmtStr, SCOREINFO_STRS, 9);   /* "%d empty staff-measure(s) (first in measure %d)." */
-			 		sprintf(str, fmtStr, nEmpty, firstEmpty);
-				}
-				else {
-					GetIndCString(fmtStr,  SCOREINFO_STRS, 10);   /* "No empty staff-measures found." */
-			 		sprintf(str, fmtStr);
-			 	}
-				SIDrawLine(str);
-
-				nOutOfRange = SICheckRange(doc, &firstOutOfRange);
-				if (nOutOfRange>0) {
-					GetIndCString(fmtStr, SCOREINFO_STRS, 11);   /* "%d out-of-range notes (first in measure %d)." */
-			 		sprintf(str, fmtStr, nOutOfRange, firstOutOfRange);
-				}
-				else {
-					GetIndCString(fmtStr,  SCOREINFO_STRS, 12);   /* "No out-of-range notes found." */
-			 		sprintf(str, fmtStr);
-			 	}
-				SIDrawLine(str);
-				ArrowCursor();
-			}
-			
-			
-			if (HasMidiMap(doc)) {
-				Str255 fName;
-				FSSpec *fsSpec = (FSSpec *)*doc->midiMapFSSpecHdl;
-				Pstrcpy(fName, fsSpec->name);
-				sprintf(str, "MidiMap %s", PtoCstr(fName));
-				SIDrawLine(str);
-			}
-			else {
-				sprintf(str, "%s", "No MidiMap");
-				SIDrawLine(str);
-			}
-			
-			strcpy(commentOrig, (char *)doc->comment);
-			CToPString(strcpy(commentNew, (char *)commentOrig));
-			PutDlgString(dialogp, COMMENT_DI, (unsigned char *)commentNew, TRUE);
+		scoreDuration = GetScoreDuration(doc);
+		qtrNTicks = Code2LDur(QTR_L_DUR, 0);
+		sprintf(str, "------------------------------------------");
+		SIDrawLine(str);
+		GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "Duration: approx. %ld quarters." */
+		sprintf(str, fmtStr, scoreDuration/qtrNTicks); 
+		SIDrawLine(str);
+		
+		WaitCursor();
+		nBad = SICheckMeasDur(doc, &firstBad);
+		if (nBad>0) {
+			GetIndCString(fmtStr, SCOREINFO_STRS, 5);   /* "Duration problems in %d measure(s) (first=%d)." */
+			sprintf(str, fmtStr, nBad, firstBad);
 		}
 		else {
-			GetIndCString(fmtStr, SCOREINFO_STRS, 7);   	/* "No score is open." */
+			GetIndCString(fmtStr, SCOREINFO_STRS, 6);   /* "No measures have duration problems." */
 			sprintf(str, fmtStr);
+		}
+		SIDrawLine(str);
+
+		nEmpty = SICheckEmptyMeas(doc, &firstEmpty);
+		if (nEmpty>0) {
+			GetIndCString(fmtStr, SCOREINFO_STRS, 9);   /* "%d empty staff-measure(s) (first in measure %d)." */
+			sprintf(str, fmtStr, nEmpty, firstEmpty);
+		}
+		else {
+			GetIndCString(fmtStr,  SCOREINFO_STRS, 10);   /* "No empty staff-measures found." */
+			sprintf(str, fmtStr);
+		}
+		SIDrawLine(str);
+
+		nOutOfRange = SICheckRange(doc, &firstOutOfRange);
+		if (nOutOfRange>0) {
+			GetIndCString(fmtStr, SCOREINFO_STRS, 11);   /* "%d out-of-range notes (first in measure %d)." */
+			sprintf(str, fmtStr, nOutOfRange, firstOutOfRange);
+		}
+		else {
+			GetIndCString(fmtStr,  SCOREINFO_STRS, 12);   /* "No out-of-range notes found." */
+			sprintf(str, fmtStr);
+		}
+		SIDrawLine(str);
+
+		startPageL = SSearch(doc->headL, PAGEtype, false);
+		nUnjustSys = CountUnjustifiedSystems(doc, startPageL, NILINK, &firstUnjustPg);
+		if (nUnjustSys>0) {
+			GetIndCString(fmtStr, SCOREINFO_STRS, 13);   /* "%d systems aren't right justified (first on page %d)." */
+			sprintf(str, fmtStr, nUnjustSys, firstUnjustPg);
+		}
+		else {
+			GetIndCString(fmtStr,  SCOREINFO_STRS, 14);   /* "All systems are right justified." */
+			sprintf(str, fmtStr);
+		}
+		SIDrawLine(str);
+		
+		ArrowCursor();
+					
+		if (HasMidiMap(doc)) {
+			Str255 fName;
+			FSSpec *fsSpec = (FSSpec *)*doc->midiMapFSSpecHdl;
+			Pstrcpy(fName, fsSpec->name);
+			sprintf(str, "MidiMap %s", PtoCstr(fName));
 			SIDrawLine(str);
 		}
-
-		keepGoing = TRUE;
+		else {
+			sprintf(str, "%s", "No MidiMap");
+			SIDrawLine(str);
+		}
+		
+		strcpy(commentOrig, (char *)doc->comment);
+		CToPString(strcpy(commentNew, (char *)commentOrig));
+		PutDlgString(dialogp, COMMENT_DI, (unsigned char *)commentNew, true);
+		keepGoing = true;
 
 		while (keepGoing) {
 			ModalDialog(filterUPP, &ditem);
-			if (ditem==OK_DI || ditem==CANCEL_DI) keepGoing = FALSE;
+			if (ditem==OK_DI || ditem==CANCEL_DI) keepGoing = false;
 		}
 		HideWindow(GetDialogWindow(dialogp));
 
@@ -399,7 +417,7 @@ void ScoreInfo()
 			}
 			if (doc && !streql(commentOrig, (char *)commentNew)) {
 				strcpy((char *)doc->comment, (char *)commentNew);
-				doc->changed = TRUE;
+				doc->changed = true;
 			}
 		}
 		

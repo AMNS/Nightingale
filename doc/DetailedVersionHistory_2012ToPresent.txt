@@ -1651,3 +1651,17 @@ improve error messages, etc. Affects DebugUtils, Debug2Utils, Scroll, UIFUtils.
 9-14 Aug.
 
 Minor cleanup. Affects Utility.h; CarbonPrinting, DebugUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+15-20 Aug.
+
+Added to Score Info display of the no. of non-right-justified systems. Affects .rsrc;
+ScoreInfo, Utility.
+
+Fixed bug in Score Info: It finds a duration problem with every multibar rest. Affects
+ScoreInfo.
+
+Minor cleanup: in Score Info dialog code, remove silly shift-key option, stop
+immediately if no score is open; etc. Affects Utility,h; CarbonPrinting, DebugUtils,
+InternalInput, ScoreInfo, SpaceTime, Utility.

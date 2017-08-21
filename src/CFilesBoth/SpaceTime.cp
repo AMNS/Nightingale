@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	SpaceTime.c
 *	PROJ:	Nightingale
 *	DESC:	Low- and medium-level space and time routines (welcome to the
@@ -23,14 +23,14 @@
 	GetVLDur				GetMeasDur					GetTimeSigMeasDur
 	GetStaffMeasDur			WholeMeasRestIsBreve
 
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -67,7 +67,7 @@ Boolean FillRelStaffSizes(Document *doc)
 }		
 
 
-/* -------------------------------------------------- SymWidthLeft, SymWidthRight -- */
+/* ------------------------------------------------------- SymWidthLeft, SymWidthRight -- */
 /* Return the horizontal space <pL> really occupies, i.e., the minimum required
 to avoid overwriting, for the given staff only or for all staves. SymWidthLeft
 returns width to left of symbol origin, SymWidthRight to right of symbol origin.
@@ -445,7 +445,7 @@ STDIST SymWidthRight(
 }
 
 
-/* ---------------------------------------------------------- SymLikelyWidthRight -- */
+/* --------------------------------------------------------------- SymLikelyWidthRight -- */
 /* SymLikelyWidthRight delivers a guess as to the space to right of symbol origin the
 given object needs. For most types of objects, it simply uses the graphic width; for
 Syncs, it uses the maximum of the Sync's ideal space (based on duration) and its graphic
@@ -480,7 +480,7 @@ STDIST SymLikelyWidthRight(
 }
 
 
-/* ----------------------------------------------- SymDWidthLeft, SymDWidthRight -- */
+/* ----------------------------------------------------- SymDWidthLeft, SymDWidthRight -- */
 /* Returns DDIST symWidthRight, symWidthLeft. */
 
 DDIST SymDWidthLeft(Document *doc, LINK pL, short staff, CONTEXT context)
@@ -497,7 +497,7 @@ DDIST SymDWidthRight(Document *doc, LINK pL, short staff, Boolean toHead, CONTEX
 }
 
 
-/* --------------------------------------------------------------- ConnectDWidth -- */
+/* --------------------------------------------------------------------- ConnectDWidth -- */
 
 DDIST ConnectDWidth(short srastral, char connectType)
 {
@@ -520,7 +520,7 @@ DDIST ConnectDWidth(short srastral, char connectType)
 }
 
 
-/* -------------------------------------------------------- GetClefSpace,GetTSWidth -- */
+/* ----------------------------------------------------------- GetClefSpace,GetTSWidth -- */
 /* Special-purpose functions used by routines to insert and delete before the 1st bar.
 FIXME: Accuracy of both is dependent on screen resolution; GetClefSpace's accuracy
 further depends on staff size--yeech! But it should be easy to fix these problems. */
@@ -594,7 +594,7 @@ DDIST GetTSWidth(LINK timeSigL)
 }
 
 
-/* ------------------------------------------------------ Get Keysig Width Functions -- */
+/* -------------------------------------------------------- Get Keysig Width Functions -- */
 /* ??Cf. KSDWidth and GetKeySigWidth to GetKSWidth and SymWidthRight: these functions
 should too. But much better, there should be only one way to get keysig width for a
 subobj and only one for an object, and it should use STD_ACCWIDTH and STD_KS_ACCSPACE. */
@@ -658,7 +658,7 @@ DDIST GetKeySigWidth(
 }
 
 
-/* ------------------------------------------------------ FillSpaceMap and helper -- */
+/* ----------------------------------------------------------- FillSpaceMap and helper -- */
 /* This routine installs the whichTable'th spacing table. If whichTable is positive,
 we use it as the resource ID of a 'SPTB' resource containing the spacings coded
 as longs each containing 100 times the desired value.  If If whichTable is 0 or we
@@ -700,7 +700,7 @@ void FillSpaceMap(Document *doc, short	whichTable)
 }
 
 
-/* ------------------------------------------------------ FIdealSpace,IdealSpace -- */
+/* ------------------------------------------------------------ FIdealSpace,IdealSpace -- */
 
 /* Return fine "ideal" horizontal space for the given duration and spacing. */
 
@@ -753,7 +753,7 @@ STDIST IdealSpace(
 }
 
 
-/* ------------------------------------------------------------- CalcSpaceNeeded -- */
+/* ------------------------------------------------------------------- CalcSpaceNeeded -- */
 /* Calculate the amount of space needed by the last object on the page before pL.
 ??Should probably call SymLikelyWidthRight instead of doing most of the work
 itself. */
@@ -807,7 +807,7 @@ DDIST CalcSpaceNeeded(Document *doc, LINK pL)
 }
 
 
-/* ------------------------------------------ MeasSpaceProp, SetMeasSpacePercent -- */
+/* ------------------------------------------------ MeasSpaceProp, SetMeasSpacePercent -- */
 
 short MeasSpaceProp(LINK pL)
 {
@@ -829,7 +829,7 @@ void SetMeasSpacePercent(LINK measL, long spaceProp)
 }
 
 
-/* -------------------------------------------------------------- GetMSpaceRange -- */
+/* -------------------------------------------------------------------- GetMSpaceRange -- */
 /* Return the range of Measure spacePercents for Measures in the given range
 of the given score. If an error is found, including no Measures in the range,
 return FALSE, else return TRUE. */
@@ -867,7 +867,7 @@ Boolean GetMSpaceRange(Document *doc, LINK startL, LINK endL, short *pSpMin,
 }
 
 
-/* -------------------------------------------------------------------- LDur2Code -- */
+/* ------------------------------------------------------------------------- LDur2Code -- */
 /* Convert logical duration <lDur> in PDUR ticks to a more-or-less equivalent note
 l_dur code and number of augmentation dots, with an error of no more than <errMax>
 playDur units. The error is always positive, i.e., we may return a duration that's
@@ -915,7 +915,7 @@ Boolean LDur2Code(short lDur, short errMax, short maxDots, char *pNewDur, char *
 }
 
 
-/* -------------------------------------------------------------------- Code2LDur -- */
+/* ------------------------------------------------------------------------- Code2LDur -- */
 /* Convert note l_dur code and number of augmentation dots to logical duration in
 PDUR ticks. */
 
@@ -931,7 +931,7 @@ long Code2LDur(char durCode, char nDots)
 }
 
 
-/* ------------------------------------------------------------------- SimpleLDur -- */
+/* ------------------------------------------------------------------------ SimpleLDur -- */
 /* Compute the "simple" logical duration of a note/rest in PDUR ticks, ignoring
 tuplet membership and whole-measure rests. */
 
@@ -950,7 +950,7 @@ long SimpleLDur(LINK aNoteL)
 }
 		
 
-/* ---------------------------------------------------------------- SimpleGRLDur -- */
+/* ---------------------------------------------------------------------- SimpleGRLDur -- */
 /* Compute the "simple" logical duration of a grace note. */
 
 long SimpleGRLDur(LINK aGRNoteL)
@@ -968,7 +968,7 @@ long SimpleGRLDur(LINK aGRNoteL)
 }
 		
 
-/* ------------------------------------------------------------------- GetMinDur -- */
+/* ------------------------------------------------------------------------- GetMinDur -- */
 /* Get the minimum SimpleLDur of any note/chord in the given range in the given
 voice. Intended to get a value to initialize the Fancy Tuplet dialog with. */
 
@@ -992,7 +992,7 @@ short GetMinDur(short voice, LINK voiceStartL, LINK voiceEndL)
 }
 
 
-/* ---------------------------------------------------------------- TupletTotDir -- */
+/* ---------------------------------------------------------------------- TupletTotDir -- */
 /* Get the total SimpleLDur of the given tuplet. */
 
 short TupletTotDir(LINK tupL)
@@ -1012,7 +1012,7 @@ short TupletTotDir(LINK tupL)
 }
 
 
-/* ----------------------------------------------------- GetDurUnit,GetMaxDurUnit -- */
+/* ---------------------------------------------------------- GetDurUnit,GetMaxDurUnit -- */
 /* Functions to infer the duration units of tuplets. It would be better simply to
 store tuplets' duration units, making it unnecessary to infer the unit. However,
 these procedures should be reliable and pretty fast.
@@ -1076,7 +1076,7 @@ short GetMaxDurUnit(LINK tupletL)
 }
 
 
-/* ------------------------------------------------------------------- TimeSigDur -- */
+/* ------------------------------------------------------------------------ TimeSigDur -- */
 /* Return the nominal duration of a measure with the given time signature. */
 
 long TimeSigDur(short /*timeSigType*/,		/* ignored */
@@ -1087,7 +1087,7 @@ long TimeSigDur(short /*timeSigType*/,		/* ignored */
 }
 
 
-/* ----------------------------------------------------------------- CalcNoteLDur -- */
+/* ---------------------------------------------------------------------- CalcNoteLDur -- */
 /* Compute the logical duration in PDUR ticks of a note/rest. For whole-measure rests,
 return one measure's duration according to the time signature; for multibar rests,
 multiply by the number of measures. If the note/rest's tuplet flag is set but the
@@ -1130,7 +1130,7 @@ long CalcNoteLDur(Document *doc, LINK aNoteL, LINK syncL)
 }
 
 
-/* -------------------------------------------------------------------SyncMaxDur -- */
+/* -------------------------------------------------------------------------SyncMaxDur -- */
 /*	Compute the maximum logical duration in PDUR ticks of all notes/rests in the
 given Sync. */
 
@@ -1147,7 +1147,7 @@ long SyncMaxDur(Document *doc, LINK syncL)
 }
 
 
-/* ------------------------------------------------------------ SyncNeighborTime -- */
+/* ------------------------------------------------------------------ SyncNeighborTime -- */
 /* Look for specified object's closest Sync in the given direction within the same
 Measure and get that Sync's logical time since previous Measure.  If there is no
 Sync in the given direction within this Measure, return -1. */
@@ -1173,7 +1173,7 @@ long SyncNeighborTime(Document */*doc*/, LINK target, Boolean goLeft)
 }
 
 
-/* -------------------------------------------------------------------- GetLTime -- */
+/* -------------------------------------------------------------------------- GetLTime -- */
 /*	Get "logical time" in PDUR ticks since previous Measure:
 	If there's no previous Measure, give an error and return -1.
 	If the argument is itself a Measure, return 0.
@@ -1223,7 +1223,7 @@ errorReturn:
 }
 
 
-/* ---------------------------------------------------------------- GetSpaceInfo -- */
+/* ---------------------------------------------------------------------- GetSpaceInfo -- */
 /*	Get information on Syncs needed for Gourlay's spacing algorithm: the controlling
 duration and fraction of that duration that affects spacing. Also fill in suitable
 values for non-Syncs in the spine. */
@@ -1307,7 +1307,7 @@ static void GetSpaceInfo(
 }
 
 
-/* ---------------------------------------------------------------- FixStaffTime -- */
+/* ---------------------------------------------------------------------- FixStaffTime -- */
 /* Set times for the given staff based on voices that most recently appeared on
 that staff. Intended to be called for objects (clefs, key signatures, time
 signatures) that are themselves attached to a staff but are affected by timings
@@ -1328,7 +1328,7 @@ static void FixStaffTime(
 }
 
 
-/* --------------------------------------------------------------- FixVoiceTimes -- */
+/* --------------------------------------------------------------------- FixVoiceTimes -- */
 /* Set times for all voices that most recently appeared on the given staff to
 at least <timeHere>. Intended to be called for objects (clefs, key signatures,
 time signatures) that are themselves attached to a staff but affect timings of
@@ -1388,7 +1388,7 @@ static void FixVoiceTimes(
 #endif
 
 
-/* ----------------------------------------------------------------- GetSpTimeInfo -- */
+/* --------------------------------------------------------------------- GetSpTimeInfo -- */
 /* Creates the rhythmic spine, i.e., the set of MEvent logical times integrated
 across all voices for symbols of either independent justification type, for one
 measure or less. It then uses the spine to fill in various information in
@@ -1593,7 +1593,7 @@ short GetSpTimeInfo(
 }
 
 
-/* ------------------------------------------------------------- RhythmUnderstood -- */
+/* ------------------------------------------------------------------ RhythmUnderstood -- */
 /* Decide if Nightingale "understands" rhythm in the given measure.
 
 If <strict>, return TRUE iff there are no unknown-duration notes in the measure.
@@ -1630,7 +1630,7 @@ Boolean RhythmUnderstood(Document *doc, LINK measL, Boolean strict)
 }
 
 
-/* ----------------------------------------------------------- FixMeasTimeStamps -- */
+/* ----------------------------------------------------------------- FixMeasTimeStamps -- */
 /* Recompute timeStamps for Syncs in the given Measure. Does not adjust the
 lTimeStamps of following Measures, but returns the Measure's change in duration
 to facilitate its caller doing so.
@@ -1695,7 +1695,7 @@ static long FixMeasTimeStamps(
 }
 
 
-/* --------------------------------------------------------------- FixTimeStamps -- */
+/* --------------------------------------------------------------------- FixTimeStamps -- */
 /* Recompute timeStamps for Syncs in the range of Measures [startL,endL] and
 adjust lTimeStamps of all following Measures accordingly. If startL is before the
 first Measure of the score, first set its lTimeStamp to 0. Note that if startL is
@@ -1740,7 +1740,7 @@ done:
 }
 
 
-/* --------------------------------------------------------------------- GetLDur -- */
+/* --------------------------------------------------------------------------- GetLDur -- */
 /* Get logical duration of an object for the given staff or for all staves. */
 				
 long GetLDur(
@@ -1768,7 +1768,7 @@ long GetLDur(
 }
 
 
-/* -------------------------------------------------------------------- GetVLDur -- */
+/* -------------------------------------------------------------------------- GetVLDur -- */
 /* Get logical duration of an object for the given voice or for all voices. */
 				
 long GetVLDur(
@@ -1797,7 +1797,7 @@ long GetVLDur(
 }
 
 
-/* ------------------------------------------------------------------- GetMeasDur -- */
+/* ------------------------------------------------------------------------ GetMeasDur -- */
 /* Get the actual -- based on notes and rests, not time signature -- logical duration
 of the Measure preceding the given Measure object, either for a single staff or across
 all staves. If something goes wrong, return -1L. */
@@ -1857,12 +1857,12 @@ long GetMeasDur(Document *doc,
 }
 
 
-/* -------------------------------------------------------------- GetTimeSigMeasDur -- */
+/* ----------------------------------------------------------------- GetTimeSigMeasDur -- */
 /* Get the notated (i.e., according to the time signature) duration of the Measure
-ending at the given link. Looks at all staves; if they don't all have the same time
-signature, returns -1. NB: If any staff changes time signature in the middle of the
-Measure, this will misbehave. Cf. GetMeasDur, which gets the Measure's actual
-duration. */
+ending (not starting!) at the given link. Looks at all staves; if they don't all have
+the same time signature, return -1. NB: If any staff changes time signature in the
+middle of the Measure, this will misbehave. Cf. GetMeasDur, which gets the Measure's
+actual duration. */
 
 long GetTimeSigMeasDur(Document */*doc*/,
 							LINK endMeasL)		/* Object ending a Measure */
@@ -1899,7 +1899,7 @@ long GetTimeSigMeasDur(Document */*doc*/,
 
 long GetStaffMeasDur(Document *doc, LINK endMeasL, short staffn);
 
-/* ------------------------------------------------------------------ GetStaffMeasDur -- */
+/* ------------------------------------------------------------------- GetStaffMeasDur -- */
 /* Get the actual -- based on notes and rests, not time signature -- logical duration
 of notes/rests on the given staff in the Measure preceding the given Measure object. If
 something goes wrong, return -1L. */
@@ -1934,7 +1934,7 @@ long GetStaffMeasDur(Document *doc,
 
 #endif
 
-/* --------------------------------------------------------- WholeMeasRestIsBreve -- */
+/* -------------------------------------------------------------- WholeMeasRestIsBreve -- */
 /* If, in a time signature with the given numerator and denominator, a whole-measure
 rest should look like a breve rest, return TRUE; otherwise, a whole-measure rest
 should look like a whole rest, and return FALSE.

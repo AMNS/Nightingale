@@ -17,10 +17,10 @@
 #include "Nightingale.appl.h"
 
 
-static Boolean FICombineInto1KeySig(Document *doc, LINK firstL, short numSubObjs, LINK aSourceKS[]);
+static Boolean IICombineInto1KeySig(Document *doc, LINK firstL, short numSubObjs, LINK aSourceKS[]);
 static Boolean GetTextStyleRec(Document *doc, short textStyle, PTEXTSTYLE pStyleRec);
 static LINK InsertAndInitGraphic(Document *doc, LINK insertBeforeL, short graphicType);
-static short FIGetFontIndex(Document *doc, unsigned char *fontName);
+static short IIGetFontIndex(Document *doc, unsigned char *fontName);
 static LINK AnchorSearch(Document *doc, LINK dependentL);
 static short GuessVoiceRole(Document *doc, short iVoice, LINK startL, LINK endL);
 
@@ -334,7 +334,7 @@ LINK FIInsertKeySig(Document *doc,
 /* ------------------------------------------------------------------ FICombine1KeySig -- */
 /* Helper function for FICombineKeySigs */
 
-static Boolean FICombineInto1KeySig(Document *doc,
+static Boolean IICombineInto1KeySig(Document *doc,
 									LINK firstL,
 									short numSubObjs,
 									LINK aSourceKS[])
@@ -418,14 +418,14 @@ Boolean FICombineKeySigs(Document *doc,
 			inSeries = false;
 		
 		if (!inSeries && firstL) {
-			if (!FICombineInto1KeySig(doc, firstL, numSubObjs, aSourceKS))
+			if (!IICombineInto1KeySig(doc, firstL, numSubObjs, aSourceKS))
 				return false;
 			firstL = NILINK;
 		}	
 	}
 	/* Handle case where score has: ksL - ksL - tailL */
 	if (firstL && numSubObjs>1)
-		if (!FICombineInto1KeySig(doc, firstL, numSubObjs, aSourceKS))
+		if (!IICombineInto1KeySig(doc, firstL, numSubObjs, aSourceKS))
 			return false;
 	return true;
 }
@@ -550,7 +550,7 @@ and returns the last legal font index. Calling this repeatedly could overwhelm t
 with repeated complaints: it should be used only if the font table overflowing by more
 than a few places is very unlikely. */
 
-static short FIGetFontIndex(Document *doc, unsigned char *fontName)
+static short IIGetFontIndex(Document *doc, unsigned char *fontName)
 {
 	short fontInd;
 	
@@ -607,7 +607,7 @@ PushLock(OBJheap);
 			goto getStyle;
 		}
 		else {
-			pGraphic->fontInd = FIGetFontIndex(doc, pStyleRec->fontName);
+			pGraphic->fontInd = IIGetFontIndex(doc, pStyleRec->fontName);
 			pGraphic->enclosure = pStyleRec->enclosure;
 			pGraphic->relFSize = pStyleRec->relFSize;
 			pGraphic->fontSize = pStyleRec->fontSize;
@@ -622,7 +622,7 @@ getStyle:
 			textStyle = TSRegular1STYLE;
 			GetTextStyleRec(doc, textStyle, &styleRec);
 		}
-		pGraphic->fontInd = FIGetFontIndex(doc, styleRec.fontName);
+		pGraphic->fontInd = IIGetFontIndex(doc, styleRec.fontName);
 		pGraphic->enclosure = styleRec.enclosure;
 		pGraphic->relFSize = styleRec.relFSize;
 		pGraphic->fontSize = styleRec.fontSize;

@@ -326,8 +326,8 @@ Boolean DCheckMBBox(
 		for (checkL = RightLINK(pL); !SystemTYPE(checkL); checkL = RightLINK(checkL)) {
 			if (SystemTYPE(checkL) || TailTYPE(checkL)) break;
 			if (!PageTYPE(checkL)) {
-				COMPLAIN2("DCheckMBBox: MEASURE L%u IS NON-EMPTY (L%u) BUT HAS WIDTH ZERO.\n",
-							pL, checkL);
+				COMPLAIN3("DCheckMBBox: MEASURE %d (L%u) IS NON-EMPTY (L%u) BUT HAS WIDTH ZERO.\n",
+							GetMeasNum(doc, pL), pL, checkL);
 				break;
 			}
 		}

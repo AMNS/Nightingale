@@ -29,7 +29,7 @@
 		Global2Paper			DRect2ScreenRect		RefreshScreen
 		GetMillisecTime			SleepMS					SleepTicks
 		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
-		PlayResource			FitStavesOnPaper		CountRightUnjustSystems
+		PlayResource			FitStavesOnPaper		CountUnjustifiedSystems
 /******************************************************************************************/
 
 /*
@@ -1677,18 +1677,18 @@ Boolean FitStavesOnPaper(Document *doc)
 }
 
 
-/* ----------------------------------------------------------- CountRightUnjustSystems -- */
-/* Return the number of systems in the given range of pages that are not within
-JUSTSLOP of being right justified. */
+/* ----------------------------------------------------------- CountUnjustifiedSystems -- */
+/* Return the number of systems in the given range of pages that are not within JUSTSLOP
+of being right justified. If <endPageL> is NILINK, go to the end of the score. */
 
 #define JUSTSLOP .001
 
-short CountRightUnjustSystems(Document *doc, LINK startPageL, LINK endPageL)
+short CountUnjustifiedSystems(Document *doc, LINK startPageL, LINK endPageL, short *pfirstUnjustPg)
 {
-	LINK pL, firstMeasL, termSysL, lastMeasL;
+	LINK pL, firstMeasL, termSysL, lastMeasL, pageL;
 	FASTFLOAT justFact;
 	DDIST staffWidth, lastMeasWidth;
-	short nUnjust;
+	short nUnjust, firstUnjustPg=0;
 	
 	if (!endPageL) endPageL = doc->tailL;
 	if (!startPageL) {
@@ -1699,12 +1699,20 @@ short CountRightUnjustSystems(Document *doc, LINK startPageL, LINK endPageL)
 	nUnjust = 0;
 	for (pL = startPageL; pL!=endPageL; pL = RightLINK(pL))
 		if (SystemTYPE(pL)) {
-			firstMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+			firstMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, false);
 			termSysL = EndSystemSearch(doc, pL);
-			lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+			lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, false);
 			justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
-			if (justFact<1.0-JUSTSLOP || justFact>1.0+JUSTSLOP) nUnjust++;
+			if (justFact<1.0-JUSTSLOP || justFact>1.0+JUSTSLOP) {
+LogPrintf(LOG_DEBUG, "CountUnjustifiedSystems: system L%u is unjustified\n", pL);
+				nUnjust++;
+				if (nUnjust==1) {
+					pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, false);	/* should never fail */
+					firstUnjustPg = SheetNUM(pageL)+doc->firstPageNumber;
+				};
+			}
 		}
 		
+	*pfirstUnjustPg = firstUnjustPg;
 	return nUnjust;
 }
