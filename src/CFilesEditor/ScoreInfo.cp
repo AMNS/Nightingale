@@ -1,4 +1,5 @@
-/* ScoreInfo.c for Nightingale */
+/* ScoreInfo.c for Nightingale - display statistics for the score, including the
+numbers of things of various types. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -10,15 +11,13 @@
 #include "Nightingale.appl.h"
 
 
-/* ------------------------------------------------------- ScoreInfo and helpers -- */
-/* Display statistics for the score, including the no. of things of various types. */
-
 static void SIDrawLine(char *);
 static short MeasCount(Document *);
 static short SICheckMeasDur(Document *doc, short *pFirstBad);
 static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty);
 static short SICheckRange(Document *doc, short *pFirstOutOfRange);
 static long GetScoreDuration(Document *doc);
+static long DisplayHeapAndNoteCounts(Document *doc, unsigned short objCount[]);
 
 #define LEADING 11			/* Vertical dist. between lines displayed (pixels) */
 
@@ -35,14 +34,22 @@ static void SIDrawLine(char *s)
 	++linenum;
 }
 
+/* Return the actual number of measures in the document. (Measure numbers in the object
+list always start at 0, so the starting measure number is irrelevant.) */
+
 static short MeasCount(Document *doc)
 {
-	LINK measL; PAMEASURE aMeasure;
+	LINK measL, syncL, theRestL;
+	short intMeasNum;
 
-	measL = MNSearch(doc, doc->tailL, ANYONE, GO_LEFT, true);
+	measL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, false);
 	if (measL) {
-		aMeasure = GetPAMEASURE(FirstSubLINK(measL));
-		return aMeasure->measureNum+1;
+		intMeasNum = FirstMeasMEASURENUM(measL);
+		syncL = LSSearch(measL, SYNCtype, ANYONE, GO_RIGHT, false);
+		if (!syncL) return intMeasNum;
+		theRestL = FirstSubLINK(syncL);
+		/* The subtype of a multibar rest is _minus_ the no. of measures. */
+		return intMeasNum+abs(NoteType(theRestL));
 	}
 	else
 		return 1;										/* should never happen */
@@ -81,8 +88,8 @@ static short SICheckMeasDur(Document *doc, short *pFirstBad)
 					if (NoteREST(aNoteL) && NoteType(aNoteL)<WHOLEMR_L_DUR) {
 						nextSyncL = LSSearch(RightLINK(syncL), SYNCtype, ANYONE, GO_RIGHT, false);
 						if (!nextSyncL || IsAfter(barTermL, nextSyncL)) continue;
-LogPrintf(LOG_DEBUG, "SICheckMeasDur: problem with multibar rest. syncL=%u barTermL=%u nextSyncL=%u\n",
-						syncL, barTermL, nextSyncL);
+						LogPrintf(LOG_NOTICE, "SICheckMeasDur: problem with multibar rest. syncL=%u barTermL=%u nextSyncL=%u\n",
+									syncL, barTermL, nextSyncL);
 					}
 					nBad++;
 					if (nBad==1) *pFirstBad = GetMeasNum(doc, pL);
@@ -97,8 +104,8 @@ LogPrintf(LOG_DEBUG, "SICheckMeasDur: problem with multibar rest. syncL=%u barTe
 
 
 /* Check for empty measures in the same way the Fill Empty Measures command does,
-on a staff-by-staff basis. Return the no. of empty measures; if the number is
-non-zero, also set *pFirstEmpty to the measure no. of the first one. */
+on a staff-by-staff basis. Return the no. of empty measures; if the number is non-zero,
+also set *pFirstEmpty to the measure no. of the first one. */
 
 static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty)
 {
@@ -170,9 +177,11 @@ static short SICheckRange(Document *doc, short *pFirstOutOfRange)
 }
 
 
-/* Return the approximate (see comments) duration of the score. */
+/* Return the duration of the score in units of our internal ticks, perhaps not exactly.
+If there's a Sync after the last Measure object, use the approximate (see comments) end
+time of the Sync; otherwise use the time of the last Measure.  */
 
-long GetScoreDuration(Document *doc)
+static long GetScoreDuration(Document *doc)
 {
 	LINK pL, lastMeasL;
 	long lastSyncTime;
@@ -187,8 +196,10 @@ long GetScoreDuration(Document *doc)
 				 */
 				lastSyncTime += NotePLAYDUR(FirstSubLINK(pL));
 				lastMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, false);
+LogPrintf(LOG_DEBUG, "GetScoreDuration: Sync L%u lastSyncTime=%ld\n", pL, lastSyncTime);
 				return lastSyncTime+MeasureTIME(lastMeasL);
 			case MEASUREtype:
+LogPrintf(LOG_DEBUG, "GetScoreDuration: Measure L%u MeasureTIME=%ld\n", pL, MeasureTIME(pL));
 				return MeasureTIME(pL);
 			default:
 				;
@@ -196,6 +207,74 @@ long GetScoreDuration(Document *doc)
 	
 	/* We found no Syncs (reasonable) and no Measures (should never happen). */
 	return 0L;
+}
+
+
+/* Find and display the number of subobjects of each type. NB that for some types,
+these numbers may not agree with the user's concept of things: for example, they
+include context-setting KeySig objects at the beginning of each system, which are
+invisible if there's no actual key signature in effect. */
+
+static long DisplayHeapAndNoteCounts(Document *doc, unsigned short objCount[])
+{
+	LINK pL;
+	HEAP *theHeap;
+	const char *ps;
+	short h;
+	long totalCount, lObjCount[LASTtype];
+	unsigned short count, noteAttackCount;
+	
+	noteAttackCount = CountNoteAttacks(doc);
+
+	totalCount = 0L;
+	for (h = SYNCtype; h<OBJtype; h++) {
+		theHeap = Heap+h;
+		
+		switch (h) {
+			/*
+			 *	Skip these types: they're uninteresting and/or info already given.
+			 */
+			case STAFFtype:
+			case MEASUREtype:
+			case CONNECTtype:
+				lObjCount[h] = -1L;
+				break;
+			/*
+			 * For these types, users are interested in the numbers of objects.
+			 */
+			case BEAMSETtype:
+			case OTTAVAtype:
+			case TUPLETtype:
+			case TEMPOtype:
+			case SPACERtype:
+			case ENDINGtype:
+				count = 0;
+				for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
+					if (ObjLType(pL)==h) count++;
+				lObjCount[h] = count;
+				break;
+			default:
+			/*
+			 * For other types, users care about the numbers of subobjects, which
+			 * we've already computed, or the type is uninteresting.
+			 */
+				if (theHeap->nObjs<=0)
+					lObjCount[h] = -1L;
+				else
+					lObjCount[h] = objCount[h];
+		}
+
+		if (lObjCount[h]>=0) {
+			ps = NameHeapType(h, true);
+			if (h==SYNCtype)	sprintf(str, "    %ld %s;  %d note attacks",
+										lObjCount[h], ps, noteAttackCount);
+			else				sprintf(str, "    %ld %s", lObjCount[h], ps);
+			SIDrawLine(str);
+			totalCount += lObjCount[h];
+		}
+	}
+	
+	return totalCount;
 }
 
 
@@ -209,10 +288,9 @@ void ScoreInfo()
 		DialogPtr dialogp;  GrafPtr oldPort;
 		short ditem, aShort;  Handle aHdl;
 		LINK pL, startPageL;
-		const char *ps;  HEAP *theHeap;
-		unsigned short h, count, objCount[LASTtype], objsTotal, noteAttackCount;
-		long lObjCount[LASTtype], totalCount, scoreDuration, qtrNTicks;
 		Document *doc=GetDocumentFromWindow(TopDocument);
+		unsigned short objCount[LASTtype], objsTotal;
+		long totalCount, scoreDuration, qtrNTicks;
 		short nBad, nEmpty, nOutOfRange, nUnjustSys, firstBad=0, firstEmpty=0,
 				firstOutOfRange=0, firstUnjustPg=0;
 		char fmtStr[256], commentOrig[256], commentNew[256];
@@ -248,7 +326,7 @@ void ScoreInfo()
 		OutlineOKButton(dialogp, true);
 	
 		linenum = 1;
-		GetIndCString(fmtStr, SCOREINFO_STRS, 1);   			/* "SCORE INFORMATION:" */
+		GetIndCString(fmtStr, SCOREINFO_STRS, 1);   		/* "SCORE INFORMATION" */
 		sprintf(str, fmtStr);
 		SIDrawLine(str);
 
@@ -261,61 +339,7 @@ void ScoreInfo()
 		SIDrawLine(str);
 
 		CountInHeaps(doc, objCount, false);
-		noteAttackCount = CountNoteAttacks(doc);
-
-		/* Find and display the number of subobjects of each type. NB that for some
-		   types, these numbers may not agree with the user's concept of things: for
-		   example, they include context-setting KeySig objects at the beginning of
-		   each system, which are invisible if there's no actual key signature in
-		   effect. */
-		
-		totalCount = 0L;
-		for (h = SYNCtype; h<OBJtype; h++) {
-			theHeap = Heap+h;
-			
-			switch (h) {
-				/*
-				 *	Skip these types: they're uninteresting and/or info already given.
-				 */
-				case STAFFtype:
-				case MEASUREtype:
-				case CONNECTtype:
-					lObjCount[h] = -1L;
-					break;
-				/*
-				 * For these types, users are interested in the numbers of objects.
-				 */
-				case BEAMSETtype:
-				case OTTAVAtype:
-				case TUPLETtype:
-				case TEMPOtype:
-				case SPACERtype:
-				case ENDINGtype:
-					count = 0;
-					for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
-						if (ObjLType(pL)==h) count++;
-					lObjCount[h] = count;
-					break;
-				default:
-				/*
-				 * For other types, users care about the numbers of subobjects, which
-				 * we've already computed, or the type is uninteresting.
-				 */
-					if (theHeap->nObjs<=0)
-						lObjCount[h] = -1L;
-					else
-						lObjCount[h] = objCount[h];
-			}
-
-			if (lObjCount[h]>=0) {
-				ps = NameHeapType(h, true);
-				if (h==SYNCtype)	sprintf(str, "    %ld %s;  %d note attacks",
-											lObjCount[h], ps, noteAttackCount);
-				else				sprintf(str, "    %ld %s", lObjCount[h], ps);
-				SIDrawLine(str);
-				totalCount += lObjCount[h];
-			}
-		}
+		totalCount = DisplayHeapAndNoteCounts(doc, objCount);
 
 		objsTotal = 0;	
 		for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
@@ -329,8 +353,8 @@ void ScoreInfo()
 		qtrNTicks = Code2LDur(QTR_L_DUR, 0);
 		sprintf(str, "------------------------------------------");
 		SIDrawLine(str);
-		GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "Duration: approx. %ld quarters." */
-		sprintf(str, fmtStr, scoreDuration/qtrNTicks); 
+		GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "Duration: approx. %ld quarter(s) (%ld ticks)." */
+		sprintf(str, fmtStr, scoreDuration/qtrNTicks, scoreDuration); 
 		SIDrawLine(str);
 		
 		WaitCursor();
@@ -407,7 +431,7 @@ void ScoreInfo()
 		/* If user OK'd dialog and changed the comment, save the change. */
 		if (ditem==OK_DI) {
 			GetDlgString(dialogp, COMMENT_DI, (unsigned char *)commentNew);
-			PToCString((unsigned char *)commentNew);
+			PToCString((StringPtr)commentNew);
 			if (strlen(commentNew)>MAX_COMMENT_LEN) {
 				GetIndCString(fmtStr, MISCERRS_STRS, 31);	/* "Comment exceeds the limit of %d characters: it will be truncated." */
 				sprintf(strBuf, fmtStr, MAX_COMMENT_LEN);

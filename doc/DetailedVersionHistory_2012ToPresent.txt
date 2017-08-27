@@ -1665,3 +1665,15 @@ ScoreInfo.
 Minor cleanup: in Score Info dialog code, remove silly shift-key option, stop
 immediately if no score is open; etc. Affects Utility,h; CarbonPrinting, DebugUtils,
 InternalInput, ScoreInfo, SpaceTime, Utility.
+
+-------------------------------------------------------------------------------
+
+24-26 Aug.
+
+Fixed bug: if the score ends with a multibar rest, the no. of measures Score Info
+reports is too low. Affects ScoreInfo.
+
+In Score Info, display the score duration in ticks as well as quarters.
+Affects .rsrc; ScoreInfo.
+
+Minor cleanup: refactor code slightly, etc. Affects .rsrc; ScoreInfo, SpaceTime.
