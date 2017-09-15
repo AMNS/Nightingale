@@ -630,7 +630,7 @@ void HeapBrowseObject(short itemIndex)
 	HeapDrawLine(s); q = GetPMEVENT(qL);
 	
 	sprintf(s, "xd=%d yd=%d type=%s nEntries=%d", 
-		q->xd, q->yd, NameNodeType(qL), q->nEntries);
+		q->xd, q->yd, NameObjType(qL), q->nEntries);
 	HeapDrawLine(s); q = GetPMEVENT(qL);
 	sprintf(s, "selected=%d visible=%d soft=%d", 
 		q->selected, q->visible, q->soft);

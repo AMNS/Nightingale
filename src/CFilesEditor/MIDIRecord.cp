@@ -16,7 +16,7 @@ By Donald Byrd, rev.for v. 3.5. FreeMIDI support added by John Gibson for v4.1.
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 /* Nightingale supports MOTU's FreeMIDI, Opcode's OMS, and Apple's MIDI Manager. It
@@ -2180,10 +2180,10 @@ Finished:
 
 static void PrintNote(MNOTEPTR pMNote, Boolean newLine)
 {
-	LogPrintf(LOG_NOTICE, "note=%3d chan=%2d ",pMNote->noteNumber,pMNote->channel);
-	LogPrintf(LOG_NOTICE, "vel=%3d/%3d ",pMNote->onVelocity,pMNote->offVelocity);
-	LogPrintf(LOG_NOTICE, "start=%5ld,dur=%4ld ms",pMNote->startTime, pMNote->duration);
-	if (newLine) LogPrintf(LOG_NOTICE, "\n");
+	LogPrintf(LOG_DEBUG, "note=%3d chan=%2d ",pMNote->noteNumber,pMNote->channel);
+	LogPrintf(LOG_DEBUG, "vel=%3d/%3d ",pMNote->onVelocity,pMNote->offVelocity);
+	LogPrintf(LOG_DEBUG, "start=%5ld,dur=%4ld ms",pMNote->startTime, pMNote->duration);
+	if (newLine) LogPrintf(LOG_DEBUG, "\n");
 }
 
 
@@ -2191,14 +2191,14 @@ static void PrintNBuffer(Document *doc, NotePacket nOnBuffer[], short nOnBufLen)
 {
 	short n, i;
 	
-	LogPrintf(LOG_NOTICE, "PNB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d nOnBufLen=%d:\n",
+	LogPrintf(LOG_DEBUG, "PNB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d nOnBufLen=%d:\n",
 					"built-in MIDI",
 					doc->deflamTime, config.minRecVelocity, config.minRecDuration, nOnBufLen);
 	for (n = 0; n<nOnBufLen; n++) {
-		LogPrintf(LOG_NOTICE, "  %x TS=%ld data=", nOnBuffer[n].flags, nOnBuffer[n].tStamp);
+		LogPrintf(LOG_DEBUG, "  %x TS=%ld data=", nOnBuffer[n].flags, nOnBuffer[n].tStamp);
 		for (i = 0; i<3; i++)
-			LogPrintf(LOG_NOTICE, "%x ", nOnBuffer[n].data[i]);
-		LogPrintf(LOG_NOTICE, "\n");
+			LogPrintf(LOG_DEBUG, "%x ", nOnBuffer[n].data[i]);
+		LogPrintf(LOG_DEBUG, "\n");
 	}
 }
 
@@ -2211,17 +2211,17 @@ static void PrintBuffer(Document *doc, long mBufLen)
 	MMMIDIPacket *p;
 	long loc; short i, len;
 	
-	LogPrintf(LOG_NOTICE, "PB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d mBufLen=%ld:\n",
+	LogPrintf(LOG_DEBUG, "PB:(%s) deflamTime=%d minRecVel=%d minRecDur=%d mBufLen=%ld:\n",
 				"built-in MIDI",
 				doc->deflamTime, config.minRecVelocity, config.minRecDuration, mBufLen);
 	loc = 0L;
 	while (loc<mBufLen) {
 		p = (MMMIDIPacket *)&mPacketBuffer[loc];
 		len = p->len;
-		LogPrintf(LOG_NOTICE, "  %x len=%d TS=%ld data=", p->flags, p->len, p->tStamp);
+		LogPrintf(LOG_DEBUG, "  %x len=%d TS=%ld data=", p->flags, p->len, p->tStamp);
 		for (i = 0; i<p->len-MM_HDR_SIZE; i++)
-			LogPrintf(LOG_NOTICE, "%x ", p->data[i]);
-		LogPrintf(LOG_NOTICE, "\n");
+			LogPrintf(LOG_DEBUG, "%x ", p->data[i]);
+		LogPrintf(LOG_DEBUG, "\n");
 		/* 
 		 * Increment position to the next MMMIDIPacket, making sure we move to an EVEN
 		 * (word) offset.

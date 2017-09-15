@@ -9,7 +9,7 @@
 		StopAdvise				Inform					NoteInform
 		CautionInform			StopInform				ProgressMsg
 		UserInterrupt			UserInterruptAndSel
-		NameHeapType			NameNodeType			NameGraphicType	
+		NameHeapType			NameObjType				NameGraphicType	
 		ConvertQuote			DrawBox					HiliteRect
 		Voice2UserStr			Staff2UserStr
 		DrawPUpTriangle			DrawPopUp				TruncPopUpString
@@ -516,7 +516,7 @@ Boolean UserInterruptAndSel()
 }
 
 
-/* -------------------------------------------------------- NameHeapType, NameNodeType -- */
+/* --------------------------------------------------------- NameHeapType, NameObjType -- */
 /* Given a "heap index" or object type, return the name of the corresponding object. */
 
 const char *NameHeapType(
@@ -548,7 +548,7 @@ const char *NameHeapType(
 		case OTTAVAtype:	ps = (friendly? "octave sign" : "OCTAVE"); break;
 		case SLURtype:		ps = (friendly? "slur and tie" : "SLUR"); break;
 		case GRSYNCtype:	ps = (friendly? "grace note" : "GRSYNC"); break;
-		case TEMPOtype:		ps = (friendly? "tempo mark" : "TEMPO"); break;
+		case TEMPOtype:		ps = (friendly? "tempo/MM" : "TEMPO"); break;
 		case SPACERtype:		ps = (friendly? "spacer" : "SPACER"); break;
 		case OBJtype:		ps = "OBJECT"; break;
 		default:			ps = "**UNKNOWN**";
@@ -558,9 +558,9 @@ const char *NameHeapType(
 }
 
 
-/* Given an object, return its "real" (and short) name. */
+/* Given an object, return its "real" (short but not user-friendly) name. */
 
-const char *NameNodeType(LINK pL)
+const char *NameObjType(LINK pL)
 {
 	return NameHeapType(ObjLType(pL), false);
 }

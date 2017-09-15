@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -23,9 +23,9 @@
 
 #define HDR_TYPE_ERR 217			/* Heap header in file contains incorrect type */
 #define HDR_SIZE_ERR 251			/* Heap header in file contains incorrect objSize */
-#define MEM_ERRINFO 	99				/* ExpandFreeList failed */
+#define MEM_ERRINFO 99				/* ExpandFreeList failed */
 
-#define EXTRAOBJS	10L
+#define EXTRAOBJS 10L
 
 static unsigned short objCount[LASTtype];
 
@@ -49,7 +49,7 @@ static void HeapFixLinks(Document *);
 static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObjs);
 static void PrepareClips(void);
 
-/* =========================== Functions for Writing Heaps ======================== */
+/* ============================== Functions for Writing Heaps =========================== */
 
 /* Write all heaps with their headers to the given file. Returns 0 if no error,
 else an error code (either a system result code or one of our own codes). */
@@ -464,7 +464,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 			const char *ps;
 			GetFPos(refNum, &position);
 			ps = NameHeapType(heapIndex, FALSE);
-			LogPrintf(LOG_NOTICE, "WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
+			LogPrintf(LOG_DEBUG, "WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
 							heapIndex, ps, objCount[heapIndex], myHeap->objSize, myHeap->type, position);
 		}
 
@@ -675,7 +675,7 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 }
 
 
-/* ============================ Functions for Reading Heaps ======================== */
+/* =============================== Functions for Reading Heaps ========================== */
 
 /* Read all heaps from the given file. Returns 0 if no error, else an error code
 (either a system result code or one of our own codes). */
@@ -1004,7 +1004,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 			const char *ps;
 			GetFPos(refNum, &position);
 			ps = NameHeapType(heapIndex, FALSE);
-			LogPrintf(LOG_NOTICE, "RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
+			LogPrintf(LOG_DEBUG, "RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
 							heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type, tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
 		}
 

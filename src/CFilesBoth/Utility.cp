@@ -1704,7 +1704,7 @@ short CountUnjustifiedSystems(Document *doc, LINK startPageL, LINK endPageL, sho
 			lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, false);
 			justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
 			if (justFact<1.0-JUSTSLOP || justFact>1.0+JUSTSLOP) {
-LogPrintf(LOG_DEBUG, "CountUnjustifiedSystems: system L%u is unjustified\n", pL);
+//LogPrintf(LOG_DEBUG, "CountUnjustifiedSystems: system L%u is unjustified\n", pL);
 				nUnjust++;
 				if (nUnjust==1) {
 					pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, false);	/* should never fail */

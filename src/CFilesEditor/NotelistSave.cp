@@ -12,7 +12,7 @@ the Notelist format should not change with locale. */
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -25,17 +25,18 @@ static Boolean firstKeySig, firstClef;
 
 OSErr WriteLine(void);
 
-Boolean ProcessNRGR(Document *, LINK, LINK, Boolean);
-Boolean ProcessMeasure(Document *, LINK, LINK);
-Boolean ProcessClef(Document *, LINK, LINK);
-Boolean ProcessKeySig(Document *, LINK, LINK);
-Boolean ProcessTimeSig(Document *, LINK, LINK);
-Boolean ProcessDynamic(Document *, LINK);
-Boolean ProcessGraphic(Document *, LINK);
-Boolean ProcessTempo(Document *, LINK);
-Boolean ProcessTuplet(Document *, LINK);
-Boolean ProcessBeamset(Document *, LINK);
-Boolean WriteScoreHeader(Document *doc, LINK);
+static Boolean ProcessNRGR(Document *, LINK, LINK, Boolean);
+static Boolean ProcessMeasure(Document *, LINK, LINK);
+static Boolean ProcessClef(Document *, LINK, LINK);
+static Boolean ProcessKeySig(Document *, LINK, LINK);
+static Boolean ProcessTimeSig(Document *, LINK, LINK);
+static Boolean ProcessDynamic(Document *, LINK);
+static Boolean ProcessGraphic(Document *, LINK);
+static Boolean ProcessTempo(Document *, LINK);
+static Boolean ProcessTuplet(Document *, LINK);
+static Boolean ProcessBeamset(Document *, LINK);
+static Boolean WriteScoreHeader(Document *doc, LINK);
+static unsigned short ProcessScore(Document *, short, Boolean, Boolean);
 
 /* Formats of lines in a Notelist file:
 
@@ -62,7 +63,7 @@ here was writing to a \r. The MSL handles platform conversion of special chars
 what they write and write what they are going to read. Thus, changing
 sprintf to write a \n here. */
 
-/* ---------------------------------------------------------------------- WriteLine -- */
+/* ------------------------------------------------------------------------- WriteLine -- */
 
 OSErr WriteLine()
 {
@@ -76,7 +77,7 @@ OSErr WriteLine()
 	return errCode;
 }
 
-/* -------------------------------------------------------------------- ProcessNRGR -- */
+/* ----------------------------------------------------------------------- ProcessNRGR -- */
 /* Process a note, rest, or grace note. This version of ProcessNRGR simply writes
 out the more important (for purposes of a Musicologist's Database or a composer's
 synthesis program) fields. Returns TRUE normally, FALSE if there's a problem.
@@ -88,7 +89,7 @@ aren't in chords and for rests, which Nightingale doesn't allow in chords. */
 
 #define MAX_MODNRS 50		/* Max. modifiers per note/rest we can handle */
 
-Boolean ProcessNRGR(
+static Boolean ProcessNRGR(
 				Document *doc,
 				LINK syncL, LINK aNoteL,	/* Sync or grace sync, note/rest or grace note */
 				Boolean modVals 				/* TRUE=write <data> values of modifiers */
@@ -183,7 +184,7 @@ Boolean ProcessNRGR(
 }
 
 
-/* ----------------------------------------------------------------- ProcessMeasure -- */
+/* -------------------------------------------------------------------- ProcessMeasure -- */
 /* Process a Measure object and subobject. This version also writes out information
 about the appearance of the given subobject, which may not apply to the other
 subobjects, i.e., barlines on other staves; but this is pretty minor, and barlines
@@ -191,7 +192,7 @@ on different staves aren't independent in any other way. Hence this does not wri
 out the staff number, and it should be called only once for a given Measure object!
 Returns TRUE normally, FALSE if there's a problem. */
 
-Boolean ProcessMeasure(Document *doc, LINK measL, LINK aMeasL)
+static Boolean ProcessMeasure(Document *doc, LINK measL, LINK aMeasL)
 {
 	short theSubType, measureNum;
 
@@ -215,12 +216,12 @@ and the simple solution (specifically for key signatures). */
 
 #define NL_KEEP_CONTEXT_CLEFS FALSE
 
-/* ------------------------------------------------------------------- ProcessClef -- */
+/* ----------------------------------------------------------------------- ProcessClef -- */
 /* Process a Clef subobject. This version skips it if it's just a context-setting clef
 at the beginning of a system (other than the first, of course); otherwise it simply
 writes it out. Returns TRUE normally, FALSE if there's a problem. */
 
-Boolean ProcessClef(Document */*doc*/, LINK tsL, LINK aClefL)
+static Boolean ProcessClef(Document */*doc*/, LINK tsL, LINK aClefL)
 {
 	PACLEF aClef;
 	
@@ -232,14 +233,14 @@ Boolean ProcessClef(Document */*doc*/, LINK tsL, LINK aClefL)
 }
 
 
-/* ------------------------------------------------------------------ ProcessKeySig -- */
+/* --------------------------------------------------------------------- ProcessKeySig -- */
 /* Process a KeySig subobject. This version skips it if it's just a context-setting
 key signature at the beginning of a system (other than the first, of course); otherwise
 it simply writes out some of its info. NB: assumes standard key signature (non-standard
 ones aren't implemented yet, anyway, as of v.5.7). Returns TRUE normally, FALSE if
 there's a problem. */
 
-Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
+static Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
 {
 	PAKEYSIG aKeySig;
 	
@@ -254,13 +255,13 @@ Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
 }
 
 
-/* ----------------------------------------------------------------- ProcessTimeSig -- */
+/* -------------------------------------------------------------------- ProcessTimeSig -- */
 /* Process a TimeSig subobject. This version skips it if it's at the very end of a
 system, since in that case it's presumably just a cautionary TimeSig anticipating
 the change at the beginning of the next system; otherwise it simply writes it out.
 Returns TRUE normally, FALSE if there's a problem. */
 
-Boolean ProcessTimeSig(Document */*doc*/, LINK tsL, LINK aTimeSigL)
+static Boolean ProcessTimeSig(Document */*doc*/, LINK tsL, LINK aTimeSigL)
 {
 	PATIMESIG aTimeSig;
 	
@@ -277,11 +278,11 @@ Boolean ProcessTimeSig(Document */*doc*/, LINK tsL, LINK aTimeSigL)
 }
 
 
-/* ----------------------------------------------------------------- ProcessDynamic -- */
+/* -------------------------------------------------------------------- ProcessDynamic -- */
 /* Process a Dynamic object. This version simply writes it out.
 Returns TRUE normally, FALSE if there's a problem. */
 
-Boolean ProcessDynamic(Document */*doc*/, LINK dynamL)
+static Boolean ProcessDynamic(Document */*doc*/, LINK dynamL)
 {
 	LINK aDynamicL; PADYNAMIC aDynamic;
 	
@@ -296,11 +297,11 @@ Boolean ProcessDynamic(Document */*doc*/, LINK dynamL)
 }
 
 
-/* ----------------------------------------------------------------- ProcessGraphic -- */
+/* -------------------------------------------------------------------- ProcessGraphic -- */
 /* Process a Graphic object. This version simply writes out GRStrings and GRLyrics,
 and ignores the other subtypes. Returns TRUE normally, FALSE if there's a problem. */
 
-Boolean ProcessGraphic(Document *doc, LINK graphicL)
+static Boolean ProcessGraphic(Document *doc, LINK graphicL)
 {
 	char typeCode, styleCode; short userVoice, np; LINK thePartL, aGraphicL;
 	PGRAPHIC pGraphic; PAGRAPHIC aGraphic;
@@ -352,11 +353,11 @@ Boolean ProcessGraphic(Document *doc, LINK graphicL)
 
 extern char gTempoCode[];
 
-/* ------------------------------------------------------------------- ProcessTempo -- */
+/* ---------------------------------------------------------------------- ProcessTempo -- */
 /* Process a Tempo object, with its tempo and metronome mark components. This version
 simply writes it out. Returns TRUE normally, FALSE if there's a problem. */
 
-Boolean ProcessTempo(Document *doc, LINK tempoL)
+static Boolean ProcessTempo(Document *doc, LINK tempoL)
 {
 	PTEMPO p; char noteChar;
 	char tempoStr[255];
@@ -370,10 +371,10 @@ PushLock(OBJheap);
 	}
 
 	/* The tempo mark string may contain embedded newline chars.; replace them with
-		a delimiter char. to keep what we write out on one line. */ 
+		a delimiter char. to keep everything on one line. */ 
 	Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(p->strOffset));
 	PtoCstr((StringPtr)tempoStr);
-	for (short k=1; k<=strlen(tempoStr); k++)
+	for (unsigned short k=1; k<=strlen(tempoStr); k++)
 		if (tempoStr[k]==CH_CR) tempoStr[k] = CH_NLDELIM;
 	sprintf(strBuf, "%c stf=%d '%s'", METRONOME_CHAR, TempoSTAFF(tempoL),
 				 tempoStr);
@@ -392,11 +393,11 @@ PopLock(OBJheap);
 }
 
 
-/* ------------------------------------------------------------------ ProcessTuplet -- */
+/* --------------------------------------------------------------------- ProcessTuplet -- */
 /* Process a Tuplet object. This version simply writes it out.
 Returns TRUE normally, FALSE if there's a problem. */
 
-Boolean ProcessTuplet(Document *doc, LINK tupletL)
+static Boolean ProcessTuplet(Document *doc, LINK tupletL)
 {
 	PTUPLET pTuplet;
 	short userVoice, np;
@@ -417,11 +418,11 @@ PopLock(OBJheap);
 }
 
 
-/* ----------------------------------------------------------------- ProcessBeamset -- */
+/* -------------------------------------------------------------------- ProcessBeamset -- */
 /* Process a Beamset object. This version simply writes it out.
 Returns TRUE normally, FALSE if there's a problem. */
 
-Boolean ProcessBeamset(Document *doc, LINK beamL)
+static Boolean ProcessBeamset(Document *doc, LINK beamL)
 {
 	short userVoice, np;
 	LINK thePartL;
@@ -439,14 +440,14 @@ PopLock(OBJheap);
 }
 
 
-/* --------------------------------------------------------------- WriteScoreHeader -- */
+/* ------------------------------------------------------------------ WriteScoreHeader -- */
 
 #define COMMENT_NLHEADER2	"%%Notelist-V2 file="	/* start of structured comment: Ngale 99 and after */
 
 /* Write out a "structured comment" (a la PostScript) describing the score the notelist
 comes from. */
 
-Boolean WriteScoreHeader(Document *doc, LINK startL)
+static Boolean WriteScoreHeader(Document *doc, LINK startL)
 {
 	char filename[256];
 	LINK partL, prevMeasL; PPARTINFO pPart;
@@ -478,17 +479,17 @@ Boolean WriteScoreHeader(Document *doc, LINK startL)
 	return (WriteLine()==noErr);
 }
 
-/* ------------------------------------------------------------------- ProcessScore -- */
-/* Traverse the given Document from beginning to end and call ProcessXXX for
-every selected object/subobject of certain types in the given voice or in all
-voices. N.B. <voice> is an INTERNAL voice number, which is rarely the same as
-the part-relative voice number Nightingale shows to users! Return value is the
-number of lines in the Notelist file. */
+/* ---------------------------------------------------------------------- ProcessScore -- */
+/* Traverse the given Document from beginning to end and call ProcessXXX for every
+selected object/subobject of certain types in the given voice or in all voices. NB:
+<voice> is an internal voice number, which is rarely the same as the voice number we
+show to users. Return value is the number of lines in the Notelist file. */
 
-unsigned short ProcessScore(
+static unsigned short ProcessScore(
 						Document *doc,
-						short voice,		/* voice number, or ANYONE to include all voices */
-						Boolean rests 		/* TRUE=include rests */
+						short voice,			/* voice number, or ANYONE to include all voices */
+						Boolean skeleton,		/* TRUE=skip everything but Measures and Timesigs */
+						Boolean rests			/* TRUE=include rests */
 						)
 {
 	LINK pL, aNoteL, aGRNoteL, aKeySigL, aTimeSigL, aMeasL, aClefL;
@@ -503,9 +504,10 @@ unsigned short ProcessScore(
 
 	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
 	
-		if (LinkSEL(pL)) {
+		if (LinkSEL(pL)) {			
 			switch (ObjLType(pL)) {
 				case SYNCtype:
+					if (skeleton) break;
 					aNoteL = FirstSubLINK(pL);
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 						if (NoteSEL(aNoteL))
@@ -516,6 +518,7 @@ unsigned short ProcessScore(
 								}
 					break;
 				case GRSYNCtype:
+					if (skeleton) break;
 					aGRNoteL = FirstSubLINK(pL);
 					for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
 						if (GRNoteSEL(aGRNoteL))
@@ -528,7 +531,7 @@ unsigned short ProcessScore(
 					/* Since Nightingale doesn't allow independent barlines on different
 						staves, we just report there's a barline for the whole score.
 						However, we pass the first selected subobject (barline on a staff)
-						to ProcessMeasure so it can describe its appearance--it's probably,
+						to ProcessMeasure so it can describe its appearance: it's probably,
 						though not necessarily, the same for all selected staves.  */
 
 					aMeasL = FirstSubLINK(pL);
@@ -540,6 +543,7 @@ unsigned short ProcessScore(
 						}
 					break;
 				case CLEFtype:
+					if (skeleton) break;
 					aClefL = FirstSubLINK(pL);
 					for ( ; aClefL; aClefL = NextCLEFL(aClefL))
 						if (ClefSEL(aClefL)) {
@@ -548,6 +552,7 @@ unsigned short ProcessScore(
 						}
 					break;
 				case KEYSIGtype:
+					if (skeleton) break;
 					aKeySigL = FirstSubLINK(pL);
 					for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL))
 						if (KeySigSEL(aKeySigL)) {
@@ -564,22 +569,27 @@ unsigned short ProcessScore(
 						}
 					break;
 				case DYNAMtype:
+					if (skeleton) break;
 					if (!ProcessDynamic(doc, pL)) goto Error;
 					count++;
 					break;
 				case GRAPHICtype:
+					if (skeleton) break;
 					if (!ProcessGraphic(doc, pL)) goto Error;
 					count++;
 					break;
 				case TEMPOtype:
+					if (skeleton) break;
 					if (!ProcessTempo(doc, pL)) goto Error;
 					count++;
 					break;
 				case TUPLETtype:
+					if (skeleton) break;
 					if (!ProcessTuplet(doc, pL)) goto Error;
 					count++;
 					break;
 				case BEAMSETtype:
+					if (skeleton) break;
 					/* Since Open Notelist can't yet handle Beamsets, make writing them optional. */
 					if (config.notelistWriteBeams==0) break;
 					if (!ProcessBeamset(doc, pL)) goto Error;
@@ -608,6 +618,9 @@ Error:
 	return count;		
 }
 
+
+#define SKELETON TRUE		/* Skip all but Measure and Timesig objs? For, e.g., comparing
+								versions of the same score. */
 
 static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
 
@@ -667,14 +680,16 @@ void SaveNotelist(
 		if (errCode && errCode!=fnfErr)									/* Ignore "file not found" */
 			{ MayErrMsg("SaveNotelist: FSDelete error"); return; }
 			
-		errCode = FSpCreate (&fsSpec, creatorType, 'TEXT', smRoman);	/* Create new file */
+		errCode = FSpCreate(&fsSpec, creatorType, 'TEXT', smRoman);	/* Create new file */
 		if (errCode) { MayErrMsg("SaveNotelist: Create error"); return; }
 
-		errCode = FSpOpenDF (&fsSpec, fsRdWrPerm, &fRefNum );			/* Open the temp file */
+		errCode = FSpOpenDF(&fsSpec, fsRdWrPerm, &fRefNum );			/* Open the temp file */
 		if (errCode) { MayErrMsg("SaveNotelist: FSOpen error"); return; }
 
 		WaitCursor();
-		ProcessScore(doc, ANYONE, TRUE);
+		ProcessScore(doc, ANYONE, SKELETON, TRUE);
+		LogPrintf(LOG_INFO, "Saved notelist file '%s'", PToCString(filename));
+		LogPrintf(LOG_INFO, (SKELETON? " as skeleton.\n" : ".\n"));
 
 		errCode = FSClose(fRefNum);
 	}
@@ -741,7 +756,9 @@ void SaveNotelist(
 	if (errCode) { MayErrMsg("SaveNotelist: FSOpen error"); return; }
 
 	WaitCursor();
-	(void)ProcessScore(doc, ANYONE, TRUE);
+	(void)ProcessScore(doc, ANYONE, SKELETON, TRUE);
+	LogPrintf(LOG_INFO, "Saved notelist file '%s'", PToCString(filename));
+	LogPrintf(LOG_INFO, (SKELETON? " as skeleton.\n" : ".\n"));
 
 	errCode = FSClose(fRefNum);
 }

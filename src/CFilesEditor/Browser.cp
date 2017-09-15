@@ -616,7 +616,7 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 	TextFont(SYSFONTID_MONOSPACED);
 	TextSize(9);
 
-	ps = NameNodeType(pL);
+	ps = NameObjType(pL);
 	sprintf(s, "%s%s [%d]", objList, ps, ObjLType(pL));
 	if (doc->selStartL==pL)
 		strcat(s, "  (selStartL)");

@@ -82,7 +82,7 @@ void DisplayNode(Document *doc, LINK pL,
 	if (show_links)
 		LogPrintf(LOG_NOTICE, " L%2d", pL);
 
-	ps = NameNodeType(pL);
+	ps = NameObjType(pL);
 	LogPrintf(LOG_NOTICE, " xd=%d yd=%d %s %c%c%c%c%c%c oRect.l=p%d",
 					p->xd, p->yd, ps,
 					(p->selected? 'S' : '.'),
@@ -499,7 +499,7 @@ void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLin
 	else if (pL==doc->selEndL)					selFlag = '}';
 	else										selFlag = ' ';
 	LogPrintf(LOG_NOTICE, "%c%d (L%2d) ", selFlag, kount, pL);
-	ps = NameNodeType(pL);
+	ps = NameObjType(pL);
 	LogPrintf(LOG_NOTICE, "%s", ps);
 	p = GetPMEVENT(pL);
 	switch (ObjLType(pL)) {

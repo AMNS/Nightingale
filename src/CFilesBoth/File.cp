@@ -1340,7 +1340,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	
 	/* If user has the secret keys down, pretend file is in current version. */
 	
-	if (CapsLockKeyDown() && ShiftKeyDown() && OptionKeyDown() && CmdKeyDown()) {
+	if (ShiftKeyDown() && OptionKeyDown() && CmdKeyDown() && ControlKeyDown()) {
 		LogPrintf(LOG_NOTICE, "IGNORING FILE'S VERSION CODE '%T'.\n", version);
 		GetIndCString(strBuf, FILEIO_STRS, 6);					/* "IGNORING FILE'S VERSION CODE!" */
 		CParamText(strBuf, "", "", "");

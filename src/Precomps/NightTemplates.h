@@ -616,7 +616,6 @@ pascal short	FindToolItem(Point pt);
 	void		NSInvisify(Document *doc);
 	void		OffsetSystem(LINK sysL, short dh, short dv);
 	void		PrefsDialog(Document *, Boolean, short *);
-	unsigned short ProcessScore(Document *, short, Boolean);
 	void		QuickScroll(Document *doc, short dx, short dy, Boolean relCoords, Boolean doCopyBits);
 	void		RecomputeView(Document *doc);
 	void		SaveEPSF(void);

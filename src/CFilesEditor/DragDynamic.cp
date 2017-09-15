@@ -81,7 +81,7 @@ PushLock(DYNAMheap);
 			dvTotal = newPt.v - origPt.v;
 			if (ABS(dhTotal)<DRAG_DYNAMIC_SLOP && ABS(dvTotal)<DRAG_DYNAMIC_SLOP) continue;
 			if (ShiftKeyDown()) {
-				horiz = ABS(dhTotal) > ABS(dvTotal);		/* 45 degree movement => vertical */
+				horiz = ABS(dhTotal) > ABS(dvTotal);		/* interpret 45-degree mvmt as vertical */
 				vert = !horiz;
 			}
 			/* And don't ever come back, you hear! */

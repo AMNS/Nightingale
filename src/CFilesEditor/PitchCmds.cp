@@ -168,8 +168,10 @@ void FlipSelDirection(Document *doc)
 		if (LinkSEL(pL)) {
 			switch (ObjLType(pL)) {
 				case SLURtype:
-					if (FlipSelSlur(pL))
-						InvalMeasures(SlurFIRSTSYNC(pL), SlurLASTSYNC(pL), ANYONE);
+					if (FlipSelSlur(pL)) {
+						if (SlurCrossSYS(pL))	InvalSystem(pL);
+						else					InvalMeasures(SlurFIRSTSYNC(pL), SlurLASTSYNC(pL), ANYONE);
+					}
 				 	break;
 				case SYNCtype:
 					for (v = 1; v<=MAXVOICES; v++)
@@ -835,7 +837,7 @@ void CheckRange(Document *doc)
 	LINK pL, partL, aNoteL;
 	PPARTINFO pPart;
 	PANOTE aNote;
-	short firstStaff, lastStaff, hiKeyNum, loKeyNum, nOutOfRange;
+	short firstStaff, lastStaff, hiKeyNum, loKeyNum;
 	short transposition, writtenNoteNum;
 	Boolean problemFound=false;
 	

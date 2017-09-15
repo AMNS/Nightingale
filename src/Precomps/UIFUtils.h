@@ -26,7 +26,7 @@ Boolean UserInterrupt(void);
 Boolean UserInterruptAndSel(void);
 
 const char *NameHeapType(short, Boolean);
-const char *NameNodeType(LINK);
+const char *NameObjType(LINK);
 const char *NameGraphicType(LINK, Boolean);
 
 short	ConvertQuote(TEHandle textH, short ch);

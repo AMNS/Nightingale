@@ -235,7 +235,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			hasStem = (aNote->ystem!=aNote->yd);
 			isRest = aNote->rest;
 			
-			strcpy(strBuf, NameNodeType(pL));
+			strcpy(strBuf, NameObjType(pL));
 			if (isRest) {
 				strcat(strBuf, " / Rest");
 				PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
@@ -257,7 +257,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			break;
 			
 		case GRSYNCtype:
-			strcpy(strBuf, NameNodeType(pL));
+			strcpy(strBuf, NameObjType(pL));
 			PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
 			
 			aGRNoteL = FirstSubLINK(pL);
@@ -696,7 +696,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
 
-	strcpy(strBuf, NameNodeType(pL));
+	strcpy(strBuf, NameObjType(pL));
 	if (GraphicTYPE(pL)) {
 		strcat(strBuf,  " / ");
 		strcat(strBuf, NameGraphicType(pL, TRUE));
@@ -1410,7 +1410,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	SetPort(GetDialogWindowPort(dlog));
 
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
-	strcpy(strBuf, NameNodeType(pL));
+	strcpy(strBuf, NameObjType(pL));
 	if (GraphicTYPE(pL)) {
 		strcat(strBuf, " / ");
 		strcat(strBuf, NameGraphicType(pL, TRUE));

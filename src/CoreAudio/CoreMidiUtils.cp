@@ -1513,11 +1513,12 @@ Boolean InitCoreMIDI()
 	
 	if (!gCoreMIDIInited) {
 	
-		if (FALSE && OptionKeyDown()) {
+#ifdef NOMORE
+		if (OptionKeyDown()) {
 			long lgDefaultChannel = (long)gDefaultChannel;
 			LogPrintf(LOG_NOTICE, "gDefaultChannel = %ld %ld %ld\n", gDefaultChannel, (long)gDefaultChannel, lgDefaultChannel);
 		}
-			
+#endif
 					
 		gCMBufferLength = kCMBufLen;		/* CoreMidi MIDI Buffer size in bytes */
 		gCMMIDIBufferFull = FALSE;

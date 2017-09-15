@@ -11,7 +11,7 @@ numbers of things of various types. */
 #include "Nightingale.appl.h"
 
 
-static void SIDrawLine(char *);
+static void SIDrawTextLine(char *);
 static short MeasCount(Document *);
 static short SICheckMeasDur(Document *doc, short *pFirstBad);
 static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty);
@@ -27,11 +27,12 @@ static char *str;
 
 /* Draw the specified C string on the next line in Score Info dialog */
 
-static void SIDrawLine(char *s)
+static void SIDrawTextLine(char *theStr)
 {
 	MoveTo(textRect.left, textRect.top+linenum*LEADING);
-	DrawCString(s);
+	DrawCString(theStr);
 	++linenum;
+	if (ShiftKeyDown() && OptionKeyDown()) LogPrintf(LOG_INFO, "%s\n", theStr);
 }
 
 /* Return the actual number of measures in the document. (Measure numbers in the object
@@ -196,10 +197,10 @@ static long GetScoreDuration(Document *doc)
 				 */
 				lastSyncTime += NotePLAYDUR(FirstSubLINK(pL));
 				lastMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, false);
-LogPrintf(LOG_DEBUG, "GetScoreDuration: Sync L%u lastSyncTime=%ld\n", pL, lastSyncTime);
+//LogPrintf(LOG_DEBUG, "GetScoreDuration: Sync L%u lastSyncTime=%ld\n", pL, lastSyncTime);
 				return lastSyncTime+MeasureTIME(lastMeasL);
 			case MEASUREtype:
-LogPrintf(LOG_DEBUG, "GetScoreDuration: Measure L%u MeasureTIME=%ld\n", pL, MeasureTIME(pL));
+//LogPrintf(LOG_DEBUG, "GetScoreDuration: Measure L%u MeasureTIME=%ld\n", pL, MeasureTIME(pL));
 				return MeasureTIME(pL);
 			default:
 				;
@@ -269,7 +270,7 @@ static long DisplayHeapAndNoteCounts(Document *doc, unsigned short objCount[])
 			if (h==SYNCtype)	sprintf(str, "    %ld %s;  %d note attacks",
 										lObjCount[h], ps, noteAttackCount);
 			else				sprintf(str, "    %ld %s", lObjCount[h], ps);
-			SIDrawLine(str);
+			SIDrawTextLine(str);
 			totalCount += lObjCount[h];
 		}
 	}
@@ -328,15 +329,15 @@ void ScoreInfo()
 		linenum = 1;
 		GetIndCString(fmtStr, SCOREINFO_STRS, 1);   		/* "SCORE INFORMATION" */
 		sprintf(str, fmtStr);
-		SIDrawLine(str);
+		SIDrawTextLine(str);
 
 		GetIndCString(fmtStr, SCOREINFO_STRS, 2);   		/* "%d pages, %d systems, %d measures." */
 		sprintf(str, fmtStr, doc->numSheets,
 						doc->nsystems, MeasCount(doc));
-		SIDrawLine(str);
+		SIDrawTextLine(str);
 		GetIndCString(fmtStr, SCOREINFO_STRS, 3);   		/* "    A system contains %d staves." */
 		sprintf(str, fmtStr, doc->nstaves);
-		SIDrawLine(str);
+		SIDrawTextLine(str);
 
 		CountInHeaps(doc, objCount, false);
 		totalCount = DisplayHeapAndNoteCounts(doc, objCount);
@@ -347,15 +348,15 @@ void ScoreInfo()
 		objsTotal++;
 		GetIndCString(fmtStr, SCOREINFO_STRS, 4);   		/* "%ld total symbols (%d objects)." */
 		sprintf(str, fmtStr, totalCount, objsTotal);
-		SIDrawLine(str);
+		SIDrawTextLine(str);
 
 		scoreDuration = GetScoreDuration(doc);
 		qtrNTicks = Code2LDur(QTR_L_DUR, 0);
 		sprintf(str, "------------------------------------------");
-		SIDrawLine(str);
+		SIDrawTextLine(str);
 		GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "Duration: approx. %ld quarter(s) (%ld ticks)." */
 		sprintf(str, fmtStr, scoreDuration/qtrNTicks, scoreDuration); 
-		SIDrawLine(str);
+		SIDrawTextLine(str);
 		
 		WaitCursor();
 		nBad = SICheckMeasDur(doc, &firstBad);
@@ -367,7 +368,7 @@ void ScoreInfo()
 			GetIndCString(fmtStr, SCOREINFO_STRS, 6);   /* "No measures have duration problems." */
 			sprintf(str, fmtStr);
 		}
-		SIDrawLine(str);
+		SIDrawTextLine(str);
 
 		nEmpty = SICheckEmptyMeas(doc, &firstEmpty);
 		if (nEmpty>0) {
@@ -378,7 +379,7 @@ void ScoreInfo()
 			GetIndCString(fmtStr,  SCOREINFO_STRS, 10);   /* "No empty staff-measures found." */
 			sprintf(str, fmtStr);
 		}
-		SIDrawLine(str);
+		SIDrawTextLine(str);
 
 		nOutOfRange = SICheckRange(doc, &firstOutOfRange);
 		if (nOutOfRange>0) {
@@ -389,7 +390,7 @@ void ScoreInfo()
 			GetIndCString(fmtStr,  SCOREINFO_STRS, 12);   /* "No out-of-range notes found." */
 			sprintf(str, fmtStr);
 		}
-		SIDrawLine(str);
+		SIDrawTextLine(str);
 
 		startPageL = SSearch(doc->headL, PAGEtype, false);
 		nUnjustSys = CountUnjustifiedSystems(doc, startPageL, NILINK, &firstUnjustPg);
@@ -401,7 +402,7 @@ void ScoreInfo()
 			GetIndCString(fmtStr,  SCOREINFO_STRS, 14);   /* "All systems are right justified." */
 			sprintf(str, fmtStr);
 		}
-		SIDrawLine(str);
+		SIDrawTextLine(str);
 		
 		ArrowCursor();
 					
@@ -410,11 +411,11 @@ void ScoreInfo()
 			FSSpec *fsSpec = (FSSpec *)*doc->midiMapFSSpecHdl;
 			Pstrcpy(fName, fsSpec->name);
 			sprintf(str, "MidiMap %s", PtoCstr(fName));
-			SIDrawLine(str);
+			SIDrawTextLine(str);
 		}
 		else {
 			sprintf(str, "%s", "No MidiMap");
-			SIDrawLine(str);
+			SIDrawTextLine(str);
 		}
 		
 		strcpy(commentOrig, (char *)doc->comment);

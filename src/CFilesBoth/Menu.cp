@@ -389,7 +389,7 @@ Boolean DoFileMenu(short choice)
 			case FM_ScoreInfo:
 				/* For users of public versions that don't have the Test menu, provide
 					a way to access our debugging and emergency-repair facilities. */
-				if (OptionKeyDown()) {
+				if (OptionKeyDown() && CmdKeyDown()) {
 					InstallDebugMenuItems(ControlKeyDown());
 				}
 				else {					

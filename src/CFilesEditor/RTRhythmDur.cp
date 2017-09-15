@@ -1438,16 +1438,16 @@ void DPrintLTIs(char *label, LINKTIMEINFO itemTab[], short nItems)
 #ifndef PUBLIC_VERSION
 	short i;
 	
-	LogPrintf(LOG_NOTICE, "DPrintLTIs '%s' nItems=%d:\n", label, nItems);
+	LogPrintf(LOG_INFO, "DPrintLTIs '%s' nItems=%d:\n", label, nItems);
 	
 	for (i = 0; i<nItems && i<(CapsLockKeyDown()? SHRT_MAX : PR_LIMIT); i++) {
-		LogPrintf(LOG_NOTICE, "  [%d] link=%u time=%ld mult=%u %s",
+		LogPrintf(LOG_INFO, "  [%d] link=%u time=%ld mult=%u %s",
 						i, itemTab[i].link, itemTab[i].time, itemTab[i].mult,
 						(itemTab[i].added? "added" : "")); 
 		if (itemTab[i].tupleNum)
-			LogPrintf(LOG_NOTICE, " tupleNum=%d Time=%u Dur=%d", itemTab[i].tupleNum,
+			LogPrintf(LOG_INFO, " tupleNum=%d Time=%u Dur=%d", itemTab[i].tupleNum,
 						itemTab[i].tupleTime, itemTab[i].tupleDur);
-		LogPrintf(LOG_NOTICE, "\n");
+		LogPrintf(LOG_INFO, "\n");
 	}
 #endif
 }

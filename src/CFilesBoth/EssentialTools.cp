@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -246,6 +246,9 @@ Boolean ControlKeyDown() {
 	return (GetCurrentKeyModifiers() & controlKey) != 0;
 }
 	
+/* As of v. 5.8b3, CommandKeyDown() is never used; instead, CmdKeyDown() is used.
+I don't know why, or even what the difference is! */
+
 Boolean CommandKeyDown() {
 	return (GetCurrentKeyModifiers() & cmdKey) != 0;
 }

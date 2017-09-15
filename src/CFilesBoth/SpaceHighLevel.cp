@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	SpaceHighLevel.c
 *	PROJ:	Nightingale
 *	DESC:	High-level spacing routines, including justifying.
@@ -11,14 +11,14 @@
 	Respace1Bar					GetJustProp					PositionSysByTable
 	RespaceBars					StretchToSysEnd				SysJustFact
 	JustifySystem				JustifySystems
-****************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -50,7 +50,7 @@ static void ConsidIPWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST [],
 static void ConsiderWidths(Document *, LINK, short, SPACETIMEINFO [], STDIST [], LONGSTDIST []);
 
 
-/* -------------------------------------------------------------------- CenterNR -- */
+/* -------------------------------------------------------------------------- CenterNR -- */
 /* Center the given note or rest (normally a whole-measure or multi-bar rest)
 around the given <measCenter> position. */
 
@@ -63,7 +63,7 @@ void CenterNR(Document *doc, LINK syncL, LINK aRestL, DDIST measCenter)
 	NoteXD(aRestL) = measCenter-LinkXD(syncL);
 }
 
-/* -------------------------------------------------------- CenterWholeMeasRests -- */
+/* -------------------------------------------------------------- CenterWholeMeasRests -- */
 /* Center all whole-measure and multi-bar rests in the given Measure. Makes no
 user-interface assumptions: in particular, does not Inval or redraw anything. */
 
@@ -105,7 +105,7 @@ void CenterWholeMeasRests(
 }
 
 
-/* --------------------------------------------------------------- RemoveObjSpace -- */
+/* -------------------------------------------------------------------- RemoveObjSpace -- */
 /* Move everything after <pL> on its system to the left by the amount of space currently
 occupied by <pL>. Return FALSE in the unlikely case there's nothing after <pL>, i.e.,
 it's the tail of the object list; else return TRUE. Does not adjust measureRects and
@@ -126,7 +126,7 @@ Boolean RemoveObjSpace(Document *doc, LINK pL)
 }
 
 
-/* ------------------------------------------------------------------ RespaceAll -- */
+/* ------------------------------------------------------------------------ RespaceAll -- */
 /* Go thru entire data structure and perform global punctuation by fixing up
 x-coordinates so each allows previous thing the correct space, scaled by a
 given percentage. */
@@ -142,7 +142,7 @@ void RespaceAll(Document *doc, short percent)
 }
 
 
-/* ------------------------------------------------------------------- PrevITSym -- */
+/* ------------------------------------------------------------------------- PrevITSym -- */
 /* Given a SPACETIMEINFO array, staff number, and starting index, deliver the index
 of the previous J_IT object on the staff; if there is none, deliver -1. */
 
@@ -160,7 +160,7 @@ static short PrevITSym(Document */*doc*/, short staff, short ind, SPACETIMEINFO 
 }
 
 
-/* ----------------------------------------------------- LyricWidthLR and friends -- */
+/* ---------------------------------------------------------- LyricWidthLR and friends -- */
 
 static Boolean IsLyricPunct(unsigned char);
 static Boolean AllowOverlap(LINK);
@@ -214,7 +214,7 @@ static void LyricWidthLR(Document *doc, LINK lyricL, short staff, STDIST *pNeedL
 	*pNeedLeft = d2std(dNeedLeft, context.staffHeight, context.staffLines);
 }
 
-/* ------------------------------------------------------------------ ArpWidthLR -- */
+/* ------------------------------------------------------------------------ ArpWidthLR -- */
 /* Return the distance the given arpeggio sign Graphic needs to the left and to
 the right of the origin of the object it's attached to, to avoid overlap. */
 
@@ -232,7 +232,7 @@ static void ArpWidthLR(Document *doc, LINK arpL, short staff, STDIST *pNeedLeft,
 	*pNeedLeft = d2std(dNeedLeft, context.staffHeight, context.staffLines);
 }
 
-/* ---------------------------------------------------------- SyncGraphicWidthLR -- */
+/* ---------------------------------------------------------------- SyncGraphicWidthLR -- */
 /* Return the extreme distance any lyric or arpeggio sign attached to the given Sync
 on the given staff needs to avoid overlap, both to the left and to the right, plus
 extra space in between as specified in the config struct. */
@@ -291,7 +291,7 @@ seconds. */
 #define STD2F(fd)	((fd)*FIDEAL_RESOLVE)	/* Convert STDIST to FIdealSpace units */
 #define F2STD(fd)	((fd)/FIDEAL_RESOLVE)	/* Convert FIdealSpace units to STDIST */
 
-/* ----------------------------------------------------------------- IPGroupWidth -- */
+/* ---------------------------------------------------------------------- IPGroupWidth -- */
 /* Given a staff number, SPACETIMEINFO and fine "space before/after" arrays, and an
 index into those arrays of a J_IP object, deliver the Fine STDIST width of a group of
 J_IP objects that ends there. Also return (in *pnInGroup) the number of objects in the
@@ -328,7 +328,7 @@ static STDIST IPGroupWidth(short staff, short ind, SPACETIMEINFO spaceTimeInfo[]
 }
 
 
-/* ---------------------------------------------------------------- IPMarginWidth -- */
+/* --------------------------------------------------------------------- IPMarginWidth -- */
 /* Given SPACETIMEINFO and indices into it for two objects, look at the second and
 find its maximum Fine SymWidthLeft for any staff that the first is on. Intended for use
 in positioning J_IP symbols, which are normally flush right against following J_IT
@@ -349,7 +349,7 @@ static STDIST IPMarginWidth(Document *doc, SPACETIMEINFO spaceTimeInfo[],
 }
 
 
-/* --------------------------------------------------------------- IPSpaceNeeded -- */
+/* --------------------------------------------------------------------- IPSpaceNeeded -- */
 /* Given a staff number, SPACETIMEINFO, fine "space before/after", and fine postion
 arrays, and an index into those arrays of a J_IP object, deliver the fine additional
 space needed by a group of J_IP objects on that staff that ends with the index'th
@@ -389,7 +389,7 @@ static STDIST IPSpaceNeeded(
 }
 
 
-/* ------------------------------------------------------------------- Utilities -- */
+/* ------------------------------------------------------------------------- Utilities -- */
 
 static void DebugPrintSpacing(short nLast, STDIST fSpBefore[]);
 static void FillIgnoreChordTable(Document *doc, short nLast, SPACETIMEINFO spaceTimeInfo[]);
@@ -397,10 +397,10 @@ static void FillIgnoreChordTable(Document *doc, short nLast, SPACETIMEINFO space
 static void DebugPrintSpacing(short nLast, STDIST fSpBefore[])
 {
 	short k;
-	LogPrintf(LOG_NOTICE, "fSpBefores:");
+	LogPrintf(LOG_DEBUG, "fSpBefores:");
 	for (k = 0; k<=nLast; k++)
-		LogPrintf(LOG_NOTICE, " %5d", fSpBefore[k]);
-	LogPrintf(LOG_NOTICE, "\n");
+		LogPrintf(LOG_DEBUG, " %5d", fSpBefore[k]);
+	LogPrintf(LOG_DEBUG, "\n");
 }
 
 
@@ -420,7 +420,7 @@ static void FillIgnoreChordTable(Document *doc, short nLast, SPACETIMEINFO space
 				if (aNoteL!=NILINK) {
 					aNote = GetPANOTE(aNoteL);
 					if (aNote->rspIgnore!=0) ignoreChord[i][v] = TRUE;
-if (aNote->rspIgnore!=0) LogPrintf(LOG_NOTICE, "FillIgnoreChordTable: i=%d v=%d: rspIgnore=%hd ignoreChord[]=%d\n",
+if (aNote->rspIgnore!=0) LogPrintf(LOG_DEBUG, "FillIgnoreChordTable: i=%d v=%d: rspIgnore=%hd ignoreChord[]=%d\n",
 	i, v, aNote->rspIgnore, ignoreChord[i][v]);
 				}
 			} 
@@ -430,7 +430,7 @@ if (aNote->rspIgnore!=0) LogPrintf(LOG_NOTICE, "FillIgnoreChordTable: i=%d v=%d:
 }
 
 
-/* -------------------------------------------------------------- ConsidITWidths -- */
+/* -------------------------------------------------------------------- ConsidITWidths -- */
 /* Consider widths of all J_IT objects (syncs, space objects, etc.) and adjust
 spacing accordingly. The effect of lyric-subtype and arpeggio-sign-subtype
 Graphics, the only J_D symbols that can affect spacing, are also considered here.
@@ -477,7 +477,7 @@ static void ConsidITWidths(
 
 #ifdef SPACEBUG
 	if (ShiftKeyDown() && OptionKeyDown()) {
-	//	LogPrintf(LOG_NOTICE, "CIT2. "); DebugPrintSpacing(nLast, fSpBefore);
+	//	LogPrintf(LOG_DEBUG, "CIT2. "); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
 				if (ObjOnStaff(spaceTimeInfo[i].link, s, FALSE)) {
@@ -486,7 +486,7 @@ static void ConsidITWidths(
 					else
 						gNeedLeft = gNeedRight = 0;
 					needLeft = SymWidthLeft(doc, spaceTimeInfo[i].link, s, -1);
-					//LogPrintf(LOG_NOTICE, "i=%d stf=%d gNeedLeft=%d needLeft=%d\n", i, s, gNeedLeft, needLeft);
+					//LogPrintf(LOG_DEBUG, "i=%d stf=%d gNeedLeft=%d needLeft=%d\n", i, s, gNeedLeft, needLeft);
 					if (needLeft<gNeedLeft) needLeft = gNeedLeft;
 
 					/*
@@ -530,7 +530,7 @@ static void ConsidITWidths(
 }
 
 
-/* ----------------------------------------------------------------- ConsidIPWidths -- */
+/* -------------------------------------------------------------------- ConsidIPWidths -- */
 /*	Consider widths of all J_IP objects (clefs, key signatures, time signatures, grace
 syncs, etc.) and adjust spacing accordingly. Handles one measure. */
 
@@ -606,7 +606,7 @@ static void ConsidIPWidths(
 
 #ifdef SPACEBUG
 	if (ShiftKeyDown() && OptionKeyDown()) {
-		LogPrintf(LOG_NOTICE, "Final "); DebugPrintSpacing(nLast, fSpBefore);
+		LogPrintf(LOG_DEBUG, "Final "); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
 
@@ -661,7 +661,7 @@ static void ConsidIPWidths(
 
 #define SpaceSPWIDTH(link)	( (GetPSPACER(link))->spWidth )
 
-/* -------------------------------------------------------------- ConsidSPWidths -- */
+/* -------------------------------------------------------------------- ConsidSPWidths -- */
 /*	Consider widths of all J_SP objects (only Spacers) and adjust spacing accordingly.
 Handles one measure. */
 
@@ -694,7 +694,7 @@ static void ConsidSPWidths(
 #endif
 
 
-/* -------------------------------------------------------------- ConsiderWidths -- */
+/* -------------------------------------------------------------------- ConsiderWidths -- */
 /* Consider objects' widths (both to left and right of their origins) and increase
 spacing as needed, not only to avoid overprinting, but to insure a separation of
 config.minRSpace between objects. First, handle all J_IT objects (syncs and
@@ -717,7 +717,7 @@ static void ConsiderWidths(
 
 #ifdef SPACEBUG
 	if (ShiftKeyDown() && OptionKeyDown()) {
-		LogPrintf(LOG_NOTICE, "Inter."); DebugPrintSpacing(nLast, fSpBefore);
+		LogPrintf(LOG_DEBUG, "Inter."); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
 	
@@ -737,7 +737,7 @@ static void ConsiderWidths(
 }
 
 
-/* ----------------------------------------------------------------- Respace1Bar -- */
+/* ----------------------------------------------------------------------- Respace1Bar -- */
 /* Perform global punctuation in the specified measure by fixing up object x-
 coordinates (xd's) so that each is allowed the "correct" space. For principles
 of operation, see Donald Byrd's dissertation, Sec. 4.6, and John Gourlay's
@@ -827,19 +827,19 @@ DDIST Respace1Bar(
 #ifdef SPACEBUG
 	if (ShiftKeyDown() && OptionKeyDown()) {
 		short k;
-		LogPrintf(LOG_NOTICE,   "Nodes: ---------");
+		LogPrintf(LOG_DEBUG,   "Nodes: ---------");
 		for (k = 0; k<=nLast; k++)
-			LogPrintf(LOG_NOTICE, " %5d", spaceTimeInfo[k].link);
-		LogPrintf(LOG_NOTICE, "\nTypes:          ");
+			LogPrintf(LOG_DEBUG, " %5d", spaceTimeInfo[k].link);
+		LogPrintf(LOG_DEBUG, "\nTypes:          ");
 		for (k = 0; k<=nLast; k++)
-			LogPrintf(LOG_NOTICE, "  %4.4s", NameNodeType(spaceTimeInfo[k].link));
-		LogPrintf(LOG_NOTICE, "\nTimes:          ");
+			LogPrintf(LOG_DEBUG, "  %4.4s", NameObjType(spaceTimeInfo[k].link));
+		LogPrintf(LOG_DEBUG, "\nTimes:          ");
 		for (k = 0; k<=nLast; k++)
-			LogPrintf(LOG_NOTICE, " %5ld", spaceTimeInfo[k].startTime);
-		LogPrintf(LOG_NOTICE, "\nIdeal fSpBefores:");
+			LogPrintf(LOG_DEBUG, " %5ld", spaceTimeInfo[k].startTime);
+		LogPrintf(LOG_DEBUG, "\nIdeal fSpBefores:");
 		for (k = 0; k<=nLast; k++)
-			LogPrintf(LOG_NOTICE, " %5d", fSpBefore[k]);
-		LogPrintf(LOG_NOTICE, "\n");
+			LogPrintf(LOG_DEBUG, " %5d", fSpBefore[k]);
+		LogPrintf(LOG_DEBUG, "\n");
 	}
 #endif
 
@@ -852,10 +852,10 @@ DDIST Respace1Bar(
 
 #ifdef SPACEBUG
 	if (ShiftKeyDown() && OptionKeyDown()) {
-		LogPrintf(LOG_NOTICE, "Final positions:");
+		LogPrintf(LOG_DEBUG, "Final positions:");
 		for (i = 0; i<=nLast; i++)
-			LogPrintf(LOG_NOTICE, " %5ld", position[i]);
-		LogPrintf(LOG_NOTICE, "\n");
+			LogPrintf(LOG_DEBUG, " %5ld", position[i]);
+		LogPrintf(LOG_DEBUG, "\n");
 	}
 #endif
 	
@@ -878,7 +878,7 @@ DDIST Respace1Bar(
 }
 
 
-/* ----------------------------------------------------------------- GetJustProp -- */
+/* ----------------------------------------------------------------------- GetJustProp -- */
 /* Given an RMEASDATA table and first and last indices into it that refer to the
 first and last Measures of a single System, return a "justification proportion"
 in (100L*RESFACTOR)ths by which to multiply coordinates to squeeze the Measures
@@ -914,7 +914,7 @@ long GetJustProp(Document *doc, RMEASDATA rmTable[], short first, short last,
 }
 
 
-/* --------------------------------------------------------- PositionSysByTable -- */
+/* ---------------------------------------------------------------- PositionSysByTable -- */
 /* Given an RMEASDATA table, first and last indices into it that refer to the first
 and last Measures of a single System, and an optional "justification proportion",
 fix up measures first thru last inclusive. If the justification proportion is given,
@@ -991,7 +991,7 @@ void PositionSysByTable(
 }
 
 
-/* ====================================================== RespaceBars and helpers == */
+/* =========================================================== RespaceBars and helpers == */
 
 static void		GetRespaceParams(Document *, LINK, LINK, LINK *, LINK *, LINK *, long *);
 static short	CountRespMeas(Document *, LINK, LINK);
@@ -1305,7 +1305,7 @@ static void InvalRespBars(LINK startInvalL, LINK endSysL)
 }
 
 
-/* ------------------------------------------------------------------ RespaceBars -- */
+/* ----------------------------------------------------------------------- RespaceBars -- */
 /* RespaceBars performs global punctuation in the area specified by fixing up
 object x-coordinates so that each is allowed the "correct" space. The area
 extends from the beginning of the Measure including <startL> to the end of the
@@ -1488,7 +1488,7 @@ Done:
 }
 
 
-/* -------------------------------------------------------------- StretchToSysEnd -- */
+/* ------------------------------------------------------------------- StretchToSysEnd -- */
 /* Stretch the range of measures from startL to endL by adding space to the various
 objects in the measures.  Use spaceProp/(RESFACTOR*100) of the existing spacing, so
 if spaceProp < (RESFACTOR*100), it actually compress the measures. startL and endL
@@ -1560,7 +1560,7 @@ Boolean StretchToSysEnd(
 }
 
 
-/* ----------------------------------------------------------------- SysJustFact -- */
+/* ----------------------------------------------------------------------- SysJustFact -- */
 /* Return the stretching factor needed to right-justify the System whose first
 Measure is <firstMeasL> and whose last Measure is <lastMeasL>. Also deliver two
 relevant numbers. */
@@ -1595,7 +1595,7 @@ FASTFLOAT SysJustFact(
 }
 
 
-/* ---------------------------------------------------------------- JustifySystem -- */
+/* --------------------------------------------------------------------- JustifySystem -- */
 /* Right-justify the System whose first Measure is <firstMeasL> and whose last
 Measure is <lastMeasL>. */
 
@@ -1626,7 +1626,7 @@ void JustifySystem(Document *doc, LINK firstMeasL, LINK lastMeasL)
 }
 
 
-/* ---------------------------------------------------------------- JustifySystems -- */
+/* -------------------------------------------------------------------- JustifySystems -- */
 /* Right-justify by (linear) stretching every System from the one containing startL
 thru the one containing endL . As Paul Sadowski made very clear, this is not a great
 way to justify music, but it works pretty well if it isn't making a drastic change,
