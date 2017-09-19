@@ -786,11 +786,11 @@ short BuildGRBeamDrawTable(LINK beamL,
 	}
 
 #ifdef BDEBUG
-	if (ShiftKeyDown()) {
+	if (ShiftKeyDown() && OptionKeyDown()) {
 		for (i = 0; i<count; i++) {
-			if (i==0) LogPrintf(LOG_NOTICE, " Beam at %d ", beamL);
-			else	  LogPrintf(LOG_NOTICE, "            ");
-			LogPrintf(LOG_NOTICE, "seg %d: start=%d stop=%d level=%d fracGoLeft=%d\n",
+			if (i==0) LogPrintf(LOG_DEBUG, " Beam at %d ", beamL);
+			else	  LogPrintf(LOG_DEBUG, "            ");
+			LogPrintf(LOG_DEBUG, "seg %d: start=%d stop=%d level=%d fracGoLeft=%d\n",
 							i, beamTab[i].start, beamTab[i].stop,
 							beamTab[i].level, beamTab[i].fracGoLeft);
 		}

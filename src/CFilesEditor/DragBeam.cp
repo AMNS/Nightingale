@@ -156,7 +156,7 @@ void DoBeamEdit(Document *doc, LINK beamL)
 			Rect2Window(doc, &newObjRect);
 			Rect2Window(doc, &oldObjRect);
 			UnionRect(&oldObjRect, &newObjRect, &updateRect);
-			if (ShiftKeyDown()) {
+			if (ShiftKeyDown() && ControlKeyDown()) {
 				FrameRect(&oldObjRect);							/* to debug update rect */
 				SleepTicks(90L);
 				FrameRect(&newObjRect);

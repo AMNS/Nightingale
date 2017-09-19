@@ -1680,7 +1680,7 @@ Minor cleanup: refactor code slightly, etc. Affects .rsrc; ScoreInfo, SpaceTime.
 
 ===============================================================================
 
-27 Aug. - 13 Sept.
+27 Aug. - 14 Sept.
 
 Changed version number from 5.8b2 to 5.8b3. Affects Info.plist.
 
@@ -1698,9 +1698,27 @@ Renamed NameNodeType() to NameObjType(). Affects UIFUtils.h; Browser, DebugDispl
 HeapBrowser, InfoDialog, SpaceHighLevel, UIFUtils.
 
 If the shift and option keys are down when the Score Info dialog is opened, the
-information it displays is also written to the log file. Affects ScoreInfo.
+information it displays is also written to the log file (Issue #155). Affects ScoreInfo.
 
 Minor cleanup: in calls to LogPrintf, changed LOG_NOTICE to LOG_DEBUG or LOG_INFO; made
-modifier key usage more consistent; etc. Affects CoreMidiUtils, DragDynamic,
-EssentialTools, File, HeapFileIO, Inval, Menu, MIDIFOCmd, MIDIRecord, RTRhythmDur,
-ScoreInfo, SpaceHighLevel, Transcribe, UIFUtils, Utility.
+modifier key usage, especially shift-option more consistent; etc. Affects CoreMidiUtils,
+DragDynamic, EssentialTools, File, HeapFileIO, Inval, Menu, MIDIFOCmd, MIDIRecord,
+RTRhythmDur, ScoreInfo, SpaceHighLevel, Transcribe, UIFUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+15-19 Sept.
+
+Save Notelist in "skeleton" mode now writes tempo mark/MMs as well as Measures and
+time signatures. Affects NotelistSave.
+
+Save Notelist now writes all tempo mark/MMs attached to a Measure (barline) before the
+Measure; previously it did that except for tempo/MMs attached to the invisible barline
+beginning a system. Affects NotelistSave.
+
+Made more changes to use of the shift-option modifier keys to increase consistency.
+Now (with few if any exceptions) Nightingale writes additional information to the log
+if and only if those modifier keys and no others are down. Affects DragBeam, GRBeam.
+
+Minor cleanup. Affects DSUtils, NotelistSave.
+

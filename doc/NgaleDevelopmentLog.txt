@@ -2149,4 +2149,39 @@ the menu and processing in Menu.cp... ??
 
 Following up comments of 1 Jan., another idea for artificial harmonics: (3) take a chord
 of three notes, meaning the obvious, as input. Do the same things as in idea #2, but
-also move the top note into another voice and give it stem length 0!
+also move the top note into another voice and give it stem length 0! But is any version
+of displaying artificial harmonics as such important enough to bother with? No, unless
+Madalyn thinks it's important!
+
+-------------------------------------------------------------------------------
+
+23 Aug. - 15 Sept.
+
+I need better tools for consistency checking of massaged parts against the score!
+Ideas:
+	+ Have Score Info display the score duration in ticks as well as measures & beats.
+		This would allow directly comparing info on the score to info on any part.
+
+For checks other than total duration, the easiest way is surely by comparing a NON-
+massaged newly-extracted part to the massaged one, but how?
+
+	+ Have Score Info optionally write its info to the log file, to facilitate
+		doing text comparisons on the info from two scores
+	+ Add a "skeleton" option to Save Notelist that writes out only general info:
+		definitely time signatures and Measures; maybe tempo/MMs -- but the latter
+		will be far more useful (i.e., far less confusing) if they always appear in
+		the same place relative to their barlines.
+	+ Make notelists more consistent to facilitate doing text comparisons on the
+		info from two scores. Important: make tempo/MMs attached to barlines always
+		appear in the same place relative to the barlines! Currently it's different
+		for tempo/MMs attached to systems' initial (invisible) barlines from tempo/MMs
+		attached to other barlines.
+
+Actually, if a system ends with a barline -- say, measureNum = 8 (usually displayed
+as 9) -- and it's not the last system in the score, then there are _two_ Measure objects
+w/ measureNum 8: that one and the one w/ invisible barline at the beginning of the next
+system! And a Tempo/MM attached to the invisible barline is in the object list
+before its Measure, as always; it's just that the visible measureNum 8 is the one
+that goes into the notelist, not the following and invisible one! How about just changing
+that? In that case, we're not exactly "Sav[ing] Selection Notelist", but I don't think
+anyone will notice... especially since probably noone but me is using notelists :-) .

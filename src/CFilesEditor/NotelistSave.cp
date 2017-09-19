@@ -26,7 +26,7 @@ static Boolean firstKeySig, firstClef;
 OSErr WriteLine(void);
 
 static Boolean ProcessNRGR(Document *, LINK, LINK, Boolean);
-static Boolean ProcessMeasure(Document *, LINK, LINK);
+static Boolean ProcessMeasure(Document *, LINK, LINK, short);
 static Boolean ProcessClef(Document *, LINK, LINK);
 static Boolean ProcessKeySig(Document *, LINK, LINK);
 static Boolean ProcessTimeSig(Document *, LINK, LINK);
@@ -55,7 +55,7 @@ Beam			B v=%d npt=%d count=%d
 Comment			% (anything)
 
 The only forms of text included now are GRStrings and GRLyrics.
-NB: the Beam line is not understood by the current (99b4) version of Open Notelist. 
+NB: the current (5.8b3) version of Open Notelist ignores Beam lines.
 
 CER-12.02.2002: fgets called by ReadLine [FileInput.c] reads to a \n. The sprintf
 here was writing to a \r. The MSL handles platform conversion of special chars
@@ -92,7 +92,7 @@ aren't in chords and for rests, which Nightingale doesn't allow in chords. */
 static Boolean ProcessNRGR(
 				Document *doc,
 				LINK syncL, LINK aNoteL,	/* Sync or grace sync, note/rest or grace note */
-				Boolean modVals 				/* TRUE=write <data> values of modifiers */
+				Boolean modVals 			/* Write <data> values of modifiers? */
 				)
 {
 	char rCode, mCode; PANOTE aNote; PAGRNOTE aGRNote;
@@ -192,11 +192,12 @@ on different staves aren't independent in any other way. Hence this does not wri
 out the staff number, and it should be called only once for a given Measure object!
 Returns TRUE normally, FALSE if there's a problem. */
 
-static Boolean ProcessMeasure(Document *doc, LINK measL, LINK aMeasL)
+static Boolean ProcessMeasure(Document *doc, LINK measL, LINK aMeasL, short useSubType)
 {
 	short theSubType, measureNum;
 
 	theSubType = MeasSUBTYPE(aMeasL);
+	if (useSubType>=0) theSubType = useSubType;
 	measureNum = MeasMEASURENUM(aMeasL)+doc->firstMNNumber;
 	sprintf(strBuf, "%c t=%ld type=%d number=%d", BAR_CHAR, MeasureTIME(measL), theSubType,
 				measureNum);
@@ -492,18 +493,36 @@ static unsigned short ProcessScore(
 						Boolean rests			/* TRUE=include rests */
 						)
 {
-	LINK pL, aNoteL, aGRNoteL, aKeySigL, aTimeSigL, aMeasL, aClefL;
-	Boolean anyVoice;
+
+	LINK pL, aNoteL, aGRNoteL, aKeySigL, aTimeSigL, aMeasL, aClefL, nextSyncL;
+	Boolean anyVoice, useNextMeasure, measIsEmpty;
 	unsigned short count=0;
+	short useSubType;
 	
 	if (!WriteScoreHeader(doc, doc->selStartL)) goto Error;
 	count++;
 
 	anyVoice = (voice==ANYONE);
 	firstClef = firstKeySig = TRUE;
+	useNextMeasure = FALSE;
+	useSubType = -1;
+
+	/* If there are no Syncs after a Measure object in its System, and the next Measure
+	exists and is in another System, they're really pieces of the same measure (and their
+	<measureNum>s reflect that). In such a case, in terms of order in the notelist, the
+	second one is the one we want; but the first has the barline type we want. This
+	requires handling with care. */
 
 	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
-	
+		if (useNextMeasure && ObjLType(pL)==MEASUREtype) {
+			/* Write this Measure whether it's selected or not. */
+			aMeasL = FirstSubLINK(pL);
+			if (!ProcessMeasure(doc, pL, aMeasL, useSubType)) goto Error;
+			count++;
+			useNextMeasure = FALSE;
+			useSubType = -1;
+		}
+		
 		if (LinkSEL(pL)) {			
 			switch (ObjLType(pL)) {
 				case SYNCtype:
@@ -528,16 +547,31 @@ static unsigned short ProcessScore(
 								}
 					break;
 				case MEASUREtype:
+					/* If there are no Syncs after this Measure object in its System, and the
+						next Measure exists and is in another System, they're really pieces of
+						the same measure -- and in terms of order, the next one is the one we
+						want! In that case, ignore this Measure and set the <useNextMeasure>
+						flag. */
+						
+					nextSyncL = LSSearch(pL, SYNCtype, ANYONE, GO_RIGHT, false);
+					measIsEmpty = (nextSyncL==NILINK || !SameSystem(pL, nextSyncL));
+					if (measIsEmpty && LinkRMEAS(pL)!=NILINK) {
+						useNextMeasure = TRUE;
+						aMeasL = FirstSubLINK(pL);
+						useSubType = MeasSUBTYPE(aMeasL);
+						break;
+					}
+					
 					/* Since Nightingale doesn't allow independent barlines on different
 						staves, we just report there's a barline for the whole score.
-						However, we pass the first selected subobject (barline on a staff)
-						to ProcessMeasure so it can describe its appearance: it's probably,
-						though not necessarily, the same for all selected staves.  */
+						However, we pass the first selected subobject (to the user, a
+						barline on one or more staves) to ProcessMeasure so it can describe
+						its appearance: it's very likely the same for all staves. */
 
 					aMeasL = FirstSubLINK(pL);
 					for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL))
 						if (MeasureSEL(aMeasL)) {
-							if (!ProcessMeasure(doc, pL, aMeasL)) goto Error;
+							if (!ProcessMeasure(doc, pL, aMeasL, useSubType)) goto Error;
 							count++;
 							break;
 						}
@@ -579,7 +613,6 @@ static unsigned short ProcessScore(
 					count++;
 					break;
 				case TEMPOtype:
-					if (skeleton) break;
 					if (!ProcessTempo(doc, pL)) goto Error;
 					count++;
 					break;
@@ -601,9 +634,9 @@ static unsigned short ProcessScore(
 		}
 	
 		/*
-		 * If we've just handled a keysig, we're past the first keysig of the score.
-		 * Reset <firstKeySig> so that, of the keysigs that are not in a measure, no
-		 * others are ever output in the Notelist. Likewise for clefs.
+		 * If we've just handled a Keysig, we're past the first Keysig of the score.
+		 * Reset <firstKeySig> so that, of the Keysigs that are not in a Measure, no
+		 * others are ever output in the Notelist. Likewise for Clefs.
 		 */
 		if (ObjLType(pL)==CLEFtype) firstClef = FALSE;
 		if (ObjLType(pL)==KEYSIGtype) firstKeySig = FALSE;
@@ -619,7 +652,7 @@ Error:
 }
 
 
-#define SKELETON TRUE		/* Skip all but Measure and Timesig objs? For, e.g., comparing
+#define SKELETON FALSE		/* Skip all but Measure and Timesig objs? For, e.g., comparing
 								versions of the same score. */
 
 static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
@@ -680,7 +713,7 @@ void SaveNotelist(
 		if (errCode && errCode!=fnfErr)									/* Ignore "file not found" */
 			{ MayErrMsg("SaveNotelist: FSDelete error"); return; }
 			
-		errCode = FSpCreate(&fsSpec, creatorType, 'TEXT', smRoman);	/* Create new file */
+		errCode = FSpCreate(&fsSpec, creatorType, 'TEXT', smRoman);		/* Create new file */
 		if (errCode) { MayErrMsg("SaveNotelist: Create error"); return; }
 
 		errCode = FSpOpenDF(&fsSpec, fsRdWrPerm, &fRefNum );			/* Open the temp file */
