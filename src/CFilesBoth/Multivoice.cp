@@ -67,15 +67,15 @@ static pascal void UserDimItem(DialogPtr d, short dItem)
 
 /* ------------------------------------------------------------ MultivoiceDialog -- */
 /* Find out whether user wants to apply upper, lower, or single voice
-notation rules to the selection. Delivers TRUE if OKed, FALSE if Cancelled. */
+notation rules to the selection. Delivers True if OKed, False if Cancelled. */
 
 #define LAST_RBUT SINGLE_DI
 
 Boolean MultivoiceDialog(
 				short nSelVoices,
 				short	*voiceRole,			/* Returns UPPER_DI,LOWER_DI,CROSS_DI or SINGLE_DI */
-				Boolean *measMulti,		/* Returns TRUE=only if measure has >=2 voices */
-				Boolean *assume 			/* Returns TRUE=assume this voiceRole from now on */
+				Boolean *measMulti,		/* Returns True=only if measure has >=2 voices */
+				Boolean *assume 			/* Returns True=assume this voiceRole from now on */
 				)
 {
 	DialogPtr	dialogp;
@@ -93,7 +93,7 @@ Boolean MultivoiceDialog(
 	if (userUPP==NULL) {
 		if (filterUPP) DisposeModalFilterUPP(filterUPP);
 		SysBeep(1);
-		return FALSE;
+		return False;
 	}
 	
 
@@ -112,7 +112,7 @@ Boolean MultivoiceDialog(
 		}
 		
 		radio = (*voiceRole<UPPER_DI || *voiceRole>LAST_RBUT) ? UPPER_DI : *voiceRole;
-		PutDlgChkRadio(dialogp, radio, TRUE);
+		PutDlgChkRadio(dialogp, radio, True);
 		GetDialogItem(dialogp, ONLY2V_DI, &aShort, (Handle *)&only2vHdl, &aRect);
 		GetDialogItem(dialogp, MVASSUME_DI, &aShort,(Handle *) &assumeHdl, &aRect);
 		SetControlValue((ControlHandle)only2vHdl, (*measMulti==0 ? 0 : 1));
@@ -191,7 +191,7 @@ static void FindMultivoice(Document *doc, LINK barFirstL, LINK barLastL,
 			
 	for (s = 0; s<=doc->nstaves; s++) {
 		voiceFound[s] = NOONE;								/* No voices found yet */
-		multivoice[s] = FALSE;								/* No staff has multiple v's yet */
+		multivoice[s] = False;								/* No staff has multiple v's yet */
 	}
 	
 	for (pL = barFirstL; pL!=barLastL; pL = RightLINK(pL))
@@ -202,7 +202,7 @@ static void FindMultivoice(Document *doc, LINK barFirstL, LINK barLastL,
 				if (voiceFound[aNote->staffn]==NOONE)
 					voiceFound[aNote->staffn] = aNote->voice;
 				else if (voiceFound[aNote->staffn]!=aNote->voice)
-					multivoice[aNote->staffn] = TRUE;
+					multivoice[aNote->staffn] = True;
 			}
 		}
 }
@@ -228,7 +228,7 @@ static void RebeamList(
 		nEntries = LinkNENTRIES(beamLA[i]);
 		UnbeamV(doc, startL, endL, BeamVOICE(beamLA[i]));
 		(void)CreateBEAMSET(doc, startL, RightLINK(endL), BeamVOICE(beamLA[i]),
-							nEntries, TRUE, voiceRole);
+							nEntries, True, voiceRole);
 	}
 	
 	UpdateSelection(doc);
@@ -300,7 +300,7 @@ static void SetNRCMultivoiceRole(
 		yqpit = GetRestMultivoiceRole(&context, voiceRole, makeLower);
 		aNote->yd = qd2d(yqpit, context.staffHeight,
 								context.staffLines);
-		LinkVALID(syncL) = FALSE;											/* Rest's sel. area may have moved */
+		LinkVALID(syncL) = False;											/* Rest's sel. area may have moved */
 	}
 	else if (aNote->inChord)
 		FixSyncForChord(doc, syncL, aNote->voice, aNote->beamed,
@@ -312,7 +312,7 @@ static void SetNRCMultivoiceRole(
 		tempystem = CalcYStem(doc, aNote->yd, NFLAGS(aNote->subType),
 										makeLower,
 										context.staffHeight, context.staffLines,
-										stemLen, FALSE);
+										stemLen, False);
 		aNote->ystem = tempystem;
 	}
 	
@@ -397,12 +397,12 @@ static void SetSelMultivoiceRules(
 						 * completely ineffective and should be skipped.
 						 */
 						if (NoteBEAMED(aNoteL)) {
-							owner = LVSearch(pL, BEAMSETtype, NoteVOICE(aNoteL), GO_LEFT, FALSE);
+							owner = LVSearch(pL, BEAMSETtype, NoteVOICE(aNoteL), GO_LEFT, False);
 							startL = FirstInBeam(owner);
 							endL = LastInBeam(owner);
 							if (nBeamsets<MAX_MEASNODES) {
-								for (found = FALSE, i = 0; i<nBeamsets; i++)
-									if (owner==beamLA[i]) found = TRUE;
+								for (found = False, i = 0; i<nBeamsets; i++)
+									if (owner==beamLA[i]) found = True;
 								if (!found)
 									beamLA[nBeamsets++] = owner;
 							}
@@ -421,7 +421,7 @@ static void SetSelMultivoiceRules(
 			FixAugDots(doc, pL, staff, context, voiceRole);
 
 	InvalMeasure(barFirstL, staff);
-	doc->changed = TRUE;
+	doc->changed = True;
 }
 
 
@@ -462,8 +462,8 @@ etc. etc. */
 void DoMultivoiceRules(
 		Document *doc,
 		short		voiceRole,	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
-		Boolean	measMulti,	/* TRUE=do nothing if measure has only 1 voice */
-		Boolean	assume 		/* TRUE=make this voiceRole default for selected voices */
+		Boolean	measMulti,	/* True=do nothing if measure has only 1 voice */
+		Boolean	assume 		/* True=make this voiceRole default for selected voices */
 		)
 {
 	LINK		startBarL, endBarL,
@@ -476,13 +476,13 @@ void DoMultivoiceRules(
 	PrepareUndo(doc, doc->selStartL, U_MultiVoice, 30);		/* "Undo Multivoice Notation" */
 	
  /* Start at previous Measure; if there isn't one, start at first Measure */
-	startBarL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, 1, GO_LEFT, FALSE);
+	startBarL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, 1, GO_LEFT, False);
 	if (!startBarL)
-		startBarL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, FALSE);
+		startBarL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, False);
 	endBarL = EndMeasSearch(doc, LeftLINK(doc->selEndL));				/* Stop at end of Measure */
 
 	GetAllContexts(doc, context, startBarL);
-	done = FALSE;
+	done = False;
 	barFirstL = startBarL;
 	while (barFirstL!=NILINK && !done) {
 		barLastL = EndMeasSearch(doc, barFirstL);
@@ -493,7 +493,7 @@ void DoMultivoiceRules(
 					SetSelMultivoiceRules(doc, barFirstL, barLastL, s, context[s], voiceRole);
 			}
 		}
-		if (barLastL==endBarL) done = TRUE;
+		if (barLastL==endBarL) done = True;
 		barFirstL = barLastL;									/* Skip to next MEASURE obj */		
 	}
 	

@@ -55,7 +55,7 @@ static char		gMMInBuf[MMLINELEN];
 /* --------------------------------------------------------------------------------- */
 
 /* ------------------------------------------------------------- OpenMidiMapFile -- */
-/* Top level, public function. Returns TRUE on success, FALSE if error. */
+/* Top level, public function. Returns True on success, False if error. */
 
 Boolean OpenMidiMapFile(Document *doc, Str255 fileName, NSClientDataPtr pNSD)
 {
@@ -69,7 +69,7 @@ Boolean OpenMidiMapFile(Document *doc, Str255 fileName, NSClientDataPtr pNSD)
 
 
 /* ------------------------------------------------------------- OpenMidiMapFile -- */
-/* Top level, public function. Returns TRUE on success, FALSE if error. */
+/* Top level, public function. Returns True on success, False if error. */
 
 Boolean OpenMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
 {
@@ -80,7 +80,7 @@ Boolean OpenMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
 }
 
 /* ------------------------------------------------------------- OpenMidiMapFile -- */
-/* Top level, public function. Returns TRUE on success, FALSE if error. */
+/* Top level, public function. Returns True on success, False if error. */
 
 Boolean OpenMidiMapFile(Document *doc, FSSpec *fsSpec)
 {
@@ -93,15 +93,15 @@ Boolean OpenMidiMapFile(Document *doc, FSSpec *fsSpec)
 }
 
 /* ------------------------------------------------------------- ParseMidiMapFile -- */
-/* The Midi Map parsing function. Returns TRUE on success, FALSE if error. */
+/* The Midi Map parsing function. Returns True on success, False if error. */
 
 static Boolean ParseMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
 {
-	Boolean		ok, printMidiMap = TRUE;
+	Boolean		ok, printMidiMap = True;
 	FILE			*f;
 
 	f = FSpOpenInputFile(fileName, fsSpec);
-	if (f==NULL) return FALSE;
+	if (f==NULL) return False;
 		
 	ok = ProcessMidiMap(doc, f);
 	CloseInputFile(f);													/* done with input file */
@@ -112,10 +112,10 @@ static Boolean ParseMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
 		PrintMidiMap(doc);
 #endif
 
-	return TRUE;
+	return True;
 
 MidiMapErr:
-	return FALSE;
+	return False;
 }
 
 static Boolean ExtractVal(char	*str,				/* source string */
@@ -123,9 +123,9 @@ static Boolean ExtractVal(char	*str,				/* source string */
 {
 	short ans = sscanf(str, "%ld", val);					/* read numerical value in string as a long */
 	if (ans > 0)
-		return TRUE;
+		return True;
 	*val = 0L;
-	return FALSE;
+	return False;
 }
 
 
@@ -134,7 +134,7 @@ static Boolean ExtractVal(char	*str,				/* source string */
 
 static Boolean ProcessMidiMap(Document *doc, FILE *f)
 {
-	Boolean ok = TRUE;
+	Boolean ok = True;
 	short ans = 0;
 	gMMLineCount = 0;
 	char patch[256],pn[64],nn[64],mn[64];
@@ -143,14 +143,14 @@ static Boolean ProcessMidiMap(Document *doc, FILE *f)
 	PMMMidiMap pMidiMap;
 	
 	ok = NewMidiMap(doc);
-	if (!ok) return FALSE;
+	if (!ok) return False;
 	pMidiMap = GetDocMidiMap(doc);
 		
 	while (ReadLine(gMMInBuf, MMLINELEN, f) && ok) {
 		if (gMMLineCount == 0) {
 			ans = sscanf(gMMInBuf, "%s %s", patch, pn);
 			if (ans < 2) {
-				ok = FALSE;
+				ok = False;
 			}
 			else {
 				ExtractVal(pn, &patchNum);
@@ -221,7 +221,7 @@ Boolean HasMidiMap(Document *doc)
 Boolean ChangedMidiMap(Document *doc, FSSpec *fsSpec)
 {
 	if (!HasMidiMap(doc)) {
-		return TRUE;
+		return True;
 	}
 	
 	Boolean changed = !EqualFSSpec((FSSpec *)*doc->midiMapFSSpecHdl, fsSpec);
@@ -254,12 +254,12 @@ void ReleaseMidiMapFSSpec(Document *doc)
 
 Boolean SaveMidiMap(Document *doc)
 {
-	Boolean ok = TRUE;
+	Boolean ok = True;
 	short refnum,err;
 	
 	if (THIS_VERSION < 'N105')  {
 		doc->midiMapFSSpecHdl = NULL;
-		return TRUE;
+		return True;
 	}
 	
 	if (HasMidiMap(doc))
@@ -292,7 +292,7 @@ Boolean SaveMidiMap(Document *doc)
 			UseResFile(appRFRefNum);						/* a precaution */
 		}
 		else {
-			ok = FALSE;
+			ok = False;
 		}
 	}
 	
@@ -352,12 +352,12 @@ void GetMidiMap(Document *doc, FSSpec *pfsSpec)
 static Boolean NewMidiMap(Document *doc)
 {
 	Handle	midiMapHdl;
-	Boolean	ok = FALSE;
+	Boolean	ok = False;
 	
 	midiMapHdl = NewHandleClear(sizeof(MMMidiMap));
 	if (GoodResource(midiMapHdl)) {
 		doc->midiMap = midiMapHdl;
-		ok = TRUE;
+		ok = True;
 	}
 	return ok;
 }
@@ -389,14 +389,14 @@ void ClearDocMidiMap(Document *doc)
 Boolean IsPatchMapped(Document *doc, short patchNum) 
 {
 	if (!HasMidiMap(doc)) 
-		return FALSE;
+		return False;
 	
 	PMMMidiMap pMidiMap = GetDocMidiMap(doc);
 	if (pMidiMap != NULL) {
 		return (patchNum == pMidiMap->midiPatch);
 	}
 	
-	return FALSE;
+	return False;
 }
 
 short GetDocMidiMapPatch(Document *doc) 

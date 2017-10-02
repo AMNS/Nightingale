@@ -7,7 +7,7 @@
 	Created by donbyrd on 25 May 2016.
  */
 
-#define CLEF8_ITAL TRUE						/* Use italic digits (normal) instead of roman for clef '8's? */
+#define CLEF8_ITAL True						/* Use italic digits (normal) instead of roman for clef '8's? */
 
 #define EXPAND_WIDER true					/* Stretch text in style Expand with two blanks btwn chars., else one */
 
@@ -45,8 +45,8 @@ with stems away from the staff are shortened. */
 #define NOTEHEAD_GRAPH_WIDTH 5				/* Width of tiny graphs drawn for noteheads
 												if <doNoteheadGraphs> (staff spaces) */
 
-#define ACC_IN_CONTEXT TRUE					/* Do accidentals last to end of measure, as usual in CMN?
-												NB: Value of FALSE is not fully implemented! */
+#define ACC_IN_CONTEXT True					/* Do accidentals last to end of measure, as usual in CMN?
+												NB: Value of False is not fully implemented! */
 
 #define FlagLeading(lnSp)	(3*(lnSp)*4/16)	/* Vertical distance between flags */
 

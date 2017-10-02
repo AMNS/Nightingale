@@ -33,7 +33,7 @@ Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(FILLEMPTY_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	GetPort(&oldPort);
@@ -41,15 +41,15 @@ Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MayErrMsg("FillEmptyDialog: unable to get dialog %ld", (long)FILLEMPTY_DLOG);
-		return FALSE;
+		return False;
 	}
  	SetPort(GetDialogWindowPort(dlog)); 			
 	
-	PutDlgWord(dlog, STARTMEAS_DI, *startMN, FALSE);
-	PutDlgWord(dlog, ENDMEAS_DI, *endMN, TRUE);
+	PutDlgWord(dlog, STARTMEAS_DI, *startMN, False);
+	PutDlgWord(dlog, ENDMEAS_DI, *endMN, True);
 
 	ShowWindow(GetDialogWindow(dlog));
-	OutlineOKButton(dlog,TRUE);
+	OutlineOKButton(dlog,True);
 	
 	dialogOver = 0;
 	do {
@@ -57,14 +57,14 @@ Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 		if (ditem==OK) {
 			if (!GetDlgWord(dlog,STARTMEAS_DI,&value)
 			||  value<doc->firstMNNumber
-			||  !MNSearch(doc, doc->headL, value-doc->firstMNNumber, GO_RIGHT, TRUE)) {
+			||  !MNSearch(doc, doc->headL, value-doc->firstMNNumber, GO_RIGHT, True)) {
 				GetIndCString(strBuf, MEASFILLERRS_STRS, 1);    /* "Start measure is not in the score." */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
 			}
 			else if (!GetDlgWord(dlog,ENDMEAS_DI,&value)
 			||  value<doc->firstMNNumber
-			||  !MNSearch(doc, doc->headL, value-doc->firstMNNumber, GO_RIGHT, TRUE)) {
+			||  !MNSearch(doc, doc->headL, value-doc->firstMNNumber, GO_RIGHT, True)) {
 				GetIndCString(strBuf, MEASFILLERRS_STRS, 2);    /* "End measure is not in the score." */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
@@ -88,24 +88,24 @@ Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 
 /* ----------------------------------------------------------------- IsRangeEmpty -- */
 
-/* Return TRUE if the given range and staff contains no notes or rests in any
+/* Return True if the given range and staff contains no notes or rests in any
 voice, and the staff's default voice contains no notes or rests on any staff.
 Intended for use by the Fill Empty Measures command. */
 
 Boolean IsRangeEmpty(LINK startL, LINK endL,
 						short staff,
-						Boolean *pNonEmptyVoice)	/* Return TRUE = staff's default voice is on another staff */
+						Boolean *pNonEmptyVoice)	/* Return True = staff's default voice is on another staff */
 {
 	Boolean staffEmpty, voiceEmpty; LINK pL;
 	
-	staffEmpty = voiceEmpty = TRUE;
+	staffEmpty = voiceEmpty = True;
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) {
 			if (NoteOnStaff(pL, staff)) {
-				staffEmpty = FALSE; break;
+				staffEmpty = False; break;
 			}
-			if (NoteInVoice(pL, staff, FALSE))		/* Is this staff's dflt voice on ANY staff? */
-				voiceEmpty = FALSE;					/* can't break bcs staff might not be empty */
+			if (NoteInVoice(pL, staff, False))		/* Is this staff's dflt voice on ANY staff? */
+				voiceEmpty = False;					/* can't break bcs staff might not be empty */
 		}
 
 	*pNonEmptyVoice = (staffEmpty && !voiceEmpty);
@@ -114,22 +114,22 @@ Boolean IsRangeEmpty(LINK startL, LINK endL,
 
 
 /* ---------------------------------------------------------------- Fill1EmptyMeas -- */
-/* If the given Measure is fake, do nothing and return FALSE. Otherwise, add a whole-
+/* If the given Measure is fake, do nothing and return False. Otherwise, add a whole-
 measure rest to each staff in the Measure that contains no notes or rests and whose
 default voice contains no notes or rests (they might be on another staff), and return
-TRUE. If the Measure already contains at least one Sync and we do add any whole-measure
+True. If the Measure already contains at least one Sync and we do add any whole-measure
 rests, we add all of them to the Measure's first Sync. FIXME: Should return an error
 indication: probably should return short FAILURE, NOTHING_TO_DO or OP_COMPLETE. */
 
 static Boolean Fill1EmptyMeas(
 					Document *doc,
 					LINK barL, LINK barTermL,
-					Boolean *nonEmptyVoice)	 /* TRUE=found at least 1 empty staff w/default voice nonempty */
+					Boolean *nonEmptyVoice)	 /* True=found at least 1 empty staff w/default voice nonempty */
 {
 	LINK syncL, pL, aNoteL; short staff; Boolean addRest, foundNonEmptyVoice;
-	Boolean didSomething=FALSE;
+	Boolean didSomething=False;
 	
-	*nonEmptyVoice = FALSE;
+	*nonEmptyVoice = False;
 	if (MeasISFAKE(barL)) return didSomething;
 	
 	/*
@@ -152,9 +152,9 @@ static Boolean Fill1EmptyMeas(
 				}
 
 				/* FIXME: Maybe we should initialize object YD and <tweaked> in NewNode? */
-				SetObject(syncL, 0, 0, FALSE, TRUE, FALSE);
-				LinkTWEAKED(syncL) = FALSE;
-				didSomething = TRUE;
+				SetObject(syncL, 0, 0, False, True, False);
+				LinkTWEAKED(syncL) = False;
+				didSomething = True;
 				aNoteL = FirstSubLINK(syncL);
 			}
 			else if (!ExpandNode(syncL, &aNoteL, 1)) {
@@ -171,12 +171,12 @@ static Boolean Fill1EmptyMeas(
 			{	short saveVRole;
 				saveVRole = doc->voiceTab[staff].voiceRole;				/* Dflt voice = staff */
 				doc->voiceTab[staff].voiceRole = SINGLE_DI;
-				SetupNote(doc, syncL, aNoteL, staff, 0, WHOLEMR_L_DUR, 0, staff, TRUE, 0, 0);
+				SetupNote(doc, syncL, aNoteL, staff, 0, WHOLEMR_L_DUR, 0, staff, True, 0, 0);
 				doc->voiceTab[staff].voiceRole = saveVRole;
 			}
-			didSomething = TRUE;
+			didSomething = True;
 		}
-		if (foundNonEmptyVoice) *nonEmptyVoice = TRUE;
+		if (foundNonEmptyVoice) *nonEmptyVoice = True;
 	}
 
 	return didSomething;
@@ -192,32 +192,32 @@ Boolean FillEmptyMeas(
 						LINK startBarL, LINK endBarL)		/* 1st and last Measures to fill or NILINK */
 {
 	LINK barFirstL, barTermL, barL;
-	Boolean nonEmptyVoice, anyNonEmptyVoice=FALSE, didSomething=FALSE;
+	Boolean nonEmptyVoice, anyNonEmptyVoice=False, didSomething=False;
 	DDIST mWidth;
 			
 	/* If start is after end Measure, there's nothing to do. */
 	
-	if (IsAfter(endBarL, startBarL)) return FALSE;
+	if (IsAfter(endBarL, startBarL)) return False;
 
 	if (!startBarL)
-		startBarL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		startBarL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	if (!endBarL)
-		endBarL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		endBarL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, False);
 
 	barL = startBarL;
 	for ( ; barL && barL!=LinkRMEAS(endBarL); barL = LinkRMEAS(barL)) {
 		barFirstL = RightLINK(barL);
 		barTermL = EndMeasSearch(doc, barL);
 		if (Fill1EmptyMeas(doc, barL, barTermL, &nonEmptyVoice))
-			didSomething = TRUE;
-		if (nonEmptyVoice) anyNonEmptyVoice = TRUE;
+			didSomething = True;
+		if (nonEmptyVoice) anyNonEmptyVoice = True;
 	}
 	
 	if (didSomething) {
-		doc->changed = TRUE;
+		doc->changed = True;
 		if (doc->autoRespace)
 			RespaceBars(doc, RightLINK(startBarL), RightLINK(endBarL), 0L,
-							FALSE, FALSE);
+							False, False);
 		else {
 			InvalMeasures(startBarL, endBarL, ANYONE);						/* Force redrawing */
 			if (config.alwaysCtrWholeMR) {
@@ -269,8 +269,8 @@ LINK NewRestSync(Document *doc, LINK pL, short time, LINK *pSyncL)
 	
 	pL = FindInsertPt(pL);
 	syncL = InsertNode(doc, pL, SYNCtype, 1);
-	SetObject(syncL, 0, 0, FALSE, TRUE, FALSE);
-	LinkTWEAKED(syncL) = FALSE;
+	SetObject(syncL, 0, 0, False, True, False);
+	LinkTWEAKED(syncL) = False;
 	SyncTIME(syncL) = time;
 	if (syncL) {
 		*pSyncL = syncL;
@@ -282,7 +282,7 @@ LINK NewRestSync(Document *doc, LINK pL, short time, LINK *pSyncL)
 	}
 }
 
-/* Generate rest(s) to fill the given amount of time. Return TRUE normally, FALSE
+/* Generate rest(s) to fill the given amount of time. Return True normally, False
 if there's an error. */
 
 static Boolean AddFillRest(Document *doc, LINK pL, short voice, short startTime, short fillDur)
@@ -296,17 +296,17 @@ static Boolean AddFillRest(Document *doc, LINK pL, short voice, short startTime,
 	syncL = FindTStampInMeas(LeftLINK(pL), startTime, GO_LEFT);
 	if (!syncL) {
 		aRestL = NewRestSync(doc, pL, startTime, &syncL);
-		if (!aRestL) return FALSE;
+		if (!aRestL) return False;
 	}
 	else {
 		if (SyncTIME(syncL)!=startTime) {
 			aRestL = NewRestSync(doc, RightLINK(syncL), startTime, &newSyncL);
-			if (!aRestL) return FALSE;
+			if (!aRestL) return False;
 			syncL = newSyncL;
 		}
 		else if (!ExpandNode(syncL, &aRestL, 1)) {
 			NoMoreMemory();
-			return FALSE;
+			return False;
 		}
 	}
 
@@ -315,13 +315,13 @@ static Boolean AddFillRest(Document *doc, LINK pL, short voice, short startTime,
 		call the standard function SetAndClarifyDur. Finally, we have to set the
 		timeStamps of the new Syncs to keep the data structure "normal". */
 		
-	SetupNote(doc, syncL, aRestL, voice, 0, UNKNOWN_L_DUR, 0, voice, TRUE, 0, 0);
+	SetupNote(doc, syncL, aRestL, voice, 0, UNKNOWN_L_DUR, 0, voice, True, 0, 0);
 	
 	nPieces = SetAndClarifyDur(doc, syncL, aRestL, fillDur);
 	prevEndTime = SyncTIME(syncL)+SimpleLDur(aRestL);
 	for (n = 1, pL = RightLINK(syncL); n<nPieces; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) {
-			aRestL = NoteInVoice(pL, voice, FALSE);
+			aRestL = NoteInVoice(pL, voice, False);
 			if (aRestL) {
 				SyncTIME(pL) = prevEndTime;
 				prevEndTime += SimpleLDur(aRestL);					
@@ -329,7 +329,7 @@ static Boolean AddFillRest(Document *doc, LINK pL, short voice, short startTime,
 			}
 		}
 
-	return TRUE;
+	return True;
 }
 
 
@@ -341,7 +341,7 @@ static Boolean Fill1NonemptyMeas(Document *doc, LINK barL, LINK barTermL, short 
 											short quantum)
 {
 	short timeUsed; LINK pL, aNoteL, nextBarL; short fillDur, measDur;
-	Boolean foundNotes=FALSE;
+	Boolean foundNotes=False;
 	
 	timeUsed = 0;
 	
@@ -350,13 +350,13 @@ static Boolean Fill1NonemptyMeas(Document *doc, LINK barL, LINK barTermL, short 
 			case MEASUREtype:												/* Should never get here */
 				break;
 			case SYNCtype:
-				aNoteL = NoteInVoice(pL, voice, FALSE);
+				aNoteL = NoteInVoice(pL, voice, False);
 				if (!aNoteL) break;
 
-				foundNotes = TRUE;				
+				foundNotes = True;				
 				fillDur = SyncTIME(pL)-timeUsed;
 				if (fillDur>=quantum) 
-					if (!AddFillRest(doc, pL, voice, timeUsed, fillDur)) return FALSE;
+					if (!AddFillRest(doc, pL, voice, timeUsed, fillDur)) return False;
 				timeUsed = SyncTIME(pL)+CalcNoteLDur(doc, aNoteL, pL);
 				break;
 			default:
@@ -371,10 +371,10 @@ static Boolean Fill1NonemptyMeas(Document *doc, LINK barL, LINK barTermL, short 
 			measDur = MeasureTIME(nextBarL)-MeasureTIME(barL);
 			fillDur = measDur-timeUsed;
 			if (fillDur>=quantum) 
-				if (!AddFillRest(doc, barTermL, voice, timeUsed, fillDur)) return FALSE;
+				if (!AddFillRest(doc, barTermL, voice, timeUsed, fillDur)) return False;
 		}
 	}	
-	return TRUE;
+	return True;
 }
 
 
@@ -390,9 +390,9 @@ Boolean FillNonemptyMeas(Document *doc,
 	LINK measL, lastL;
 	
 	if (!startMeasL)
-		startMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		startMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	if (!endMeasL)
-		endMeasL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		endMeasL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, False);
 
 	measL = startMeasL;
 	for ( ; measL && measL!=LinkRMEAS(endMeasL); measL = LinkRMEAS(measL)) {
@@ -400,9 +400,9 @@ Boolean FillNonemptyMeas(Document *doc,
 		
 		/* Treat staff and voice as identical because we always want the default voice. */
 		if (!Fill1NonemptyMeas(doc, measL, lastL, staff, quantum))
-			return FALSE;
+			return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 

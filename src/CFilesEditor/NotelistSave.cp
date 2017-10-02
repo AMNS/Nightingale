@@ -80,11 +80,11 @@ OSErr WriteLine()
 /* ----------------------------------------------------------------------- ProcessNRGR -- */
 /* Process a note, rest, or grace note. This version of ProcessNRGR simply writes
 out the more important (for purposes of a Musicologist's Database or a composer's
-synthesis program) fields. Returns TRUE normally, FALSE if there's a problem.
+synthesis program) fields. Returns True normally, False if there's a problem.
 
-If the <MainNote> macro returns FALSE, the given note is a "subordinate" note of
+If the <MainNote> macro returns False, the given note is a "subordinate" note of
 a chord, i.e., is not the note that has the stem or (for whole-note chords, etc.)
-that would have the stem if there was one. It always returns TRUE for notes that
+that would have the stem if there was one. It always returns True for notes that
 aren't in chords and for rests, which Nightingale doesn't allow in chords. */
 
 #define MAX_MODNRS 50		/* Max. modifiers per note/rest we can handle */
@@ -108,7 +108,7 @@ static Boolean ProcessNRGR(
 		else							 mCode = '.';
 		aNote = GetPANOTE(aNoteL);
 		if (!Int2UserVoice(doc, aNote->voice, &userVoice, &thePartL))
-			return FALSE;
+			return False;
 		np = PartL2Partn(doc, thePartL);
 
 		aNote = GetPANOTE(aNoteL);
@@ -116,7 +116,7 @@ static Boolean ProcessNRGR(
 				rCode, SyncAbsTime(syncL), userVoice, np, aNote->staffn,
 				aNote->subType, aNote->ndots);
 		if (!NoteREST(aNoteL)) {										/* These apply to notes only */
-			if (!FirstTiedNote(syncL, aNoteL, &firstSyncL, &bNoteL)) return FALSE;
+			if (!FirstTiedNote(syncL, aNoteL, &firstSyncL, &bNoteL)) return False;
 			effAcc = EffectiveAcc(doc, firstSyncL, bNoteL);
 			aNote = GetPANOTE(aNoteL);
 			sprintf(&strBuf[strlen(strBuf)], "nn=%d acc=%d eAcc=%d pDur=%d vel=%d ",
@@ -164,7 +164,7 @@ static Boolean ProcessNRGR(
 		else								mCode = '.';
 		aGRNote = GetPAGRNOTE(aNoteL);
 		if (!Int2UserVoice(doc, aGRNote->voice, &userVoice, &thePartL))
-			return FALSE;
+			return False;
 		np = PartL2Partn(doc, thePartL);
 
 		aGRNote = GetPAGRNOTE(aNoteL);
@@ -190,7 +190,7 @@ about the appearance of the given subobject, which may not apply to the other
 subobjects, i.e., barlines on other staves; but this is pretty minor, and barlines
 on different staves aren't independent in any other way. Hence this does not write
 out the staff number, and it should be called only once for a given Measure object!
-Returns TRUE normally, FALSE if there's a problem. */
+Returns True normally, False if there's a problem. */
 
 static Boolean ProcessMeasure(Document *doc, LINK measL, LINK aMeasL, short useSubType)
 {
@@ -215,18 +215,18 @@ symbols to appear in the notelist. Thanks to Tim Crawford for pointing out the p
 and the simple solution (specifically for key signatures). */
 
 
-#define NL_KEEP_CONTEXT_CLEFS FALSE
+#define NL_KEEP_CONTEXT_CLEFS False
 
 /* ----------------------------------------------------------------------- ProcessClef -- */
 /* Process a Clef subobject. This version skips it if it's just a context-setting clef
 at the beginning of a system (other than the first, of course); otherwise it simply
-writes it out. Returns TRUE normally, FALSE if there's a problem. */
+writes it out. Returns True normally, False if there's a problem. */
 
 static Boolean ProcessClef(Document */*doc*/, LINK tsL, LINK aClefL)
 {
 	PACLEF aClef;
 	
-	if (!firstClef && !ClefINMEAS(tsL) && !NL_KEEP_CONTEXT_CLEFS) return TRUE;
+	if (!firstClef && !ClefINMEAS(tsL) && !NL_KEEP_CONTEXT_CLEFS) return True;
 	aClef = GetPACLEF(aClefL);
 	sprintf(strBuf, "%c stf=%d type=%d", CLEF_CHAR, aClef->staffn, aClef->subType);
 
@@ -238,7 +238,7 @@ static Boolean ProcessClef(Document */*doc*/, LINK tsL, LINK aClefL)
 /* Process a KeySig subobject. This version skips it if it's just a context-setting
 key signature at the beginning of a system (other than the first, of course); otherwise
 it simply writes out some of its info. NB: assumes standard key signature (non-standard
-ones aren't implemented yet, anyway, as of v.5.7). Returns TRUE normally, FALSE if
+ones aren't implemented yet, anyway, as of v.5.7). Returns True normally, False if
 there's a problem. */
 
 static Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
@@ -246,7 +246,7 @@ static Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
 	PAKEYSIG aKeySig;
 	
 	if (!firstKeySig && !KeySigINMEAS(ksL)) {
-		return TRUE;
+		return True;
 	}
 	aKeySig = GetPAKEYSIG(aKeySigL);
 	sprintf(strBuf, "%c stf=%d KS=%d %c", KEYSIG_CHAR, aKeySig->staffn,
@@ -260,13 +260,13 @@ static Boolean ProcessKeySig(Document */*doc*/, LINK ksL, LINK aKeySigL)
 /* Process a TimeSig subobject. This version skips it if it's at the very end of a
 system, since in that case it's presumably just a cautionary TimeSig anticipating
 the change at the beginning of the next system; otherwise it simply writes it out.
-Returns TRUE normally, FALSE if there's a problem. */
+Returns True normally, False if there's a problem. */
 
 static Boolean ProcessTimeSig(Document */*doc*/, LINK tsL, LINK aTimeSigL)
 {
 	PATIMESIG aTimeSig;
 	
-	if (IsLastInSystem(tsL)) return TRUE;
+	if (IsLastInSystem(tsL)) return True;
 	
 	aTimeSig = GetPATIMESIG(aTimeSigL);
 	sprintf(strBuf, "%c stf=%d num=%d denom=%d", TIMESIG_CHAR, aTimeSig->staffn,
@@ -281,7 +281,7 @@ static Boolean ProcessTimeSig(Document */*doc*/, LINK tsL, LINK aTimeSigL)
 
 /* -------------------------------------------------------------------- ProcessDynamic -- */
 /* Process a Dynamic object. This version simply writes it out.
-Returns TRUE normally, FALSE if there's a problem. */
+Returns True normally, False if there's a problem. */
 
 static Boolean ProcessDynamic(Document */*doc*/, LINK dynamL)
 {
@@ -300,7 +300,7 @@ static Boolean ProcessDynamic(Document */*doc*/, LINK dynamL)
 
 /* -------------------------------------------------------------------- ProcessGraphic -- */
 /* Process a Graphic object. This version simply writes out GRStrings and GRLyrics,
-and ignores the other subtypes. Returns TRUE normally, FALSE if there's a problem. */
+and ignores the other subtypes. Returns True normally, False if there's a problem. */
 
 static Boolean ProcessGraphic(Document *doc, LINK graphicL)
 {
@@ -309,7 +309,7 @@ static Boolean ProcessGraphic(Document *doc, LINK graphicL)
 	StringOffset theStrOffset; StringPtr pStr; char str[256];
 	
 	if (GraphicSubType(graphicL)!=GRString && GraphicSubType(graphicL)!=GRLyric)
-		return TRUE;
+		return True;
 
 	typeCode = (GraphicSubType(graphicL)==GRString? 'S' : 'L');
 	
@@ -330,7 +330,7 @@ static Boolean ProcessGraphic(Document *doc, LINK graphicL)
 	
 	if (GraphicVOICE(graphicL)>0) {
 		if (!Int2UserVoice(doc, GraphicVOICE(graphicL), &userVoice, &thePartL))
-				return FALSE;
+				return False;
 		np = PartL2Partn(doc, thePartL);
 	}
 	else {
@@ -341,7 +341,7 @@ static Boolean ProcessGraphic(Document *doc, LINK graphicL)
 	aGraphic = GetPAGRAPHIC(aGraphicL);
 	theStrOffset = aGraphic->strOffset;
 	pStr = PCopy(theStrOffset);						/* FIXME: following would be simpler with CCopy */
-	if (!pStr) return FALSE;						/* should never happen */
+	if (!pStr) return False;						/* should never happen */
 	
 	Pstrcpy((StringPtr)str, pStr);
 	PToCString((StringPtr)str);
@@ -356,7 +356,7 @@ extern char gTempoCode[];
 
 /* ---------------------------------------------------------------------- ProcessTempo -- */
 /* Process a Tempo object, with its tempo and metronome mark components. This version
-simply writes it out. Returns TRUE normally, FALSE if there's a problem. */
+simply writes it out. Returns True normally, False if there's a problem. */
 
 static Boolean ProcessTempo(Document *doc, LINK tempoL)
 {
@@ -368,7 +368,7 @@ PushLock(OBJheap);
 	/* Avoid writing out the Tempo if there's no text string and MM is hidden. */
 	if (!p->strOffset && p->hideMM && !doc->showInvis) {
 		PopLock(OBJheap);
-		return TRUE;
+		return True;
 	}
 
 	/* The tempo mark string may contain embedded newline chars.; replace them with
@@ -396,7 +396,7 @@ PopLock(OBJheap);
 
 /* --------------------------------------------------------------------- ProcessTuplet -- */
 /* Process a Tuplet object. This version simply writes it out.
-Returns TRUE normally, FALSE if there's a problem. */
+Returns True normally, False if there's a problem. */
 
 static Boolean ProcessTuplet(Document *doc, LINK tupletL)
 {
@@ -408,7 +408,7 @@ PushLock(OBJheap);
  	pTuplet = GetPTUPLET(tupletL);
 
 	if (!Int2UserVoice(doc, pTuplet->voice, &userVoice, &thePartL))
-			return FALSE;
+			return False;
 	np = PartL2Partn(doc, thePartL);
 	sprintf(strBuf, "%c v=%d npt=%d num=%d denom=%d appear=%d%d%d", TUPLET_CHAR,
 				userVoice, np, pTuplet->accNum, pTuplet->accDenom, pTuplet->numVis,
@@ -421,7 +421,7 @@ PopLock(OBJheap);
 
 /* -------------------------------------------------------------------- ProcessBeamset -- */
 /* Process a Beamset object. This version simply writes it out.
-Returns TRUE normally, FALSE if there's a problem. */
+Returns True normally, False if there's a problem. */
 
 static Boolean ProcessBeamset(Document *doc, LINK beamL)
 {
@@ -431,7 +431,7 @@ static Boolean ProcessBeamset(Document *doc, LINK beamL)
 PushLock(OBJheap);
 
 	if (!Int2UserVoice(doc, BeamVOICE(beamL), &userVoice, &thePartL))
-		return FALSE;
+		return False;
 	np = PartL2Partn(doc, thePartL);
 	sprintf(strBuf, "%c v=%d npt=%d count=%d", BEAM_CHAR, userVoice, np,
 				LinkNENTRIES(beamL));
@@ -489,8 +489,8 @@ show to users. Return value is the number of lines in the Notelist file. */
 static unsigned short ProcessScore(
 						Document *doc,
 						short voice,			/* voice number, or ANYONE to include all voices */
-						Boolean skeleton,		/* TRUE=skip everything but Measures and Timesigs */
-						Boolean rests			/* TRUE=include rests */
+						Boolean skeleton,		/* True=skip everything but Measures and Timesigs */
+						Boolean rests			/* True=include rests */
 						)
 {
 
@@ -503,8 +503,8 @@ static unsigned short ProcessScore(
 	count++;
 
 	anyVoice = (voice==ANYONE);
-	firstClef = firstKeySig = TRUE;
-	useNextMeasure = FALSE;
+	firstClef = firstKeySig = True;
+	useNextMeasure = False;
 	useSubType = -1;
 
 	/* If there are no Syncs after a Measure object in its System, and the next Measure
@@ -519,7 +519,7 @@ static unsigned short ProcessScore(
 			aMeasL = FirstSubLINK(pL);
 			if (!ProcessMeasure(doc, pL, aMeasL, useSubType)) goto Error;
 			count++;
-			useNextMeasure = FALSE;
+			useNextMeasure = False;
 			useSubType = -1;
 		}
 		
@@ -532,7 +532,7 @@ static unsigned short ProcessScore(
 						if (NoteSEL(aNoteL))
 							if (anyVoice || NoteVOICE(aNoteL)==voice)
 								if (rests || !NoteREST(aNoteL)) {
-									if (!ProcessNRGR(doc, pL, aNoteL, TRUE)) goto Error;
+									if (!ProcessNRGR(doc, pL, aNoteL, True)) goto Error;
 									count++;
 								}
 					break;
@@ -542,7 +542,7 @@ static unsigned short ProcessScore(
 					for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
 						if (GRNoteSEL(aGRNoteL))
 							if (anyVoice || GRNoteVOICE(aGRNoteL)==voice) {
-									if (!ProcessNRGR(doc, pL, aGRNoteL, TRUE)) goto Error;
+									if (!ProcessNRGR(doc, pL, aGRNoteL, True)) goto Error;
 									count++;
 								}
 					break;
@@ -556,7 +556,7 @@ static unsigned short ProcessScore(
 					nextSyncL = LSSearch(pL, SYNCtype, ANYONE, GO_RIGHT, false);
 					measIsEmpty = (nextSyncL==NILINK || !SameSystem(pL, nextSyncL));
 					if (measIsEmpty && LinkRMEAS(pL)!=NILINK) {
-						useNextMeasure = TRUE;
+						useNextMeasure = True;
 						aMeasL = FirstSubLINK(pL);
 						useSubType = MeasSUBTYPE(aMeasL);
 						break;
@@ -638,8 +638,8 @@ static unsigned short ProcessScore(
 		 * Reset <firstKeySig> so that, of the Keysigs that are not in a Measure, no
 		 * others are ever output in the Notelist. Likewise for Clefs.
 		 */
-		if (ObjLType(pL)==CLEFtype) firstClef = FALSE;
-		if (ObjLType(pL)==KEYSIGtype) firstKeySig = FALSE;
+		if (ObjLType(pL)==CLEFtype) firstClef = False;
+		if (ObjLType(pL)==KEYSIGtype) firstKeySig = False;
 	}
 
 	return count;	
@@ -652,7 +652,7 @@ Error:
 }
 
 
-#define SKELETON FALSE		/* Skip all but Measure and Timesig objs? For, e.g., comparing
+#define SKELETON False		/* Skip all but Measure and Timesig objs? For, e.g., comparing
 								versions of the same score. */
 
 static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
@@ -665,7 +665,7 @@ should simply be a matter of passing them on to ProcessScore. */
 void SaveNotelist(
 			Document *doc,
 			short /*voice*/,		/* (ignored) voice number, or ANYONE to include all voices */
-			Boolean /*rests*/	 	/* (ignored) TRUE=include rests */
+			Boolean /*rests*/	 	/* (ignored) True=include rests */
 			)
 {
 	short sufIndex;
@@ -720,7 +720,7 @@ void SaveNotelist(
 		if (errCode) { MayErrMsg("SaveNotelist: FSOpen error"); return; }
 
 		WaitCursor();
-		ProcessScore(doc, ANYONE, SKELETON, TRUE);
+		ProcessScore(doc, ANYONE, SKELETON, True);
 		LogPrintf(LOG_INFO, "Saved notelist file '%s'", PToCString(filename));
 		LogPrintf(LOG_INFO, (SKELETON? " as skeleton.\n" : ".\n"));
 
@@ -736,7 +736,7 @@ should simply be a matter of passing them on to ProcessScore. */
 void SaveNotelist(
 			Document *doc,
 			short voice,		/* (ignored) voice number, or ANYONE to include all voices */
-			Boolean rests 		/* (ignored) TRUE=include rests */
+			Boolean rests 		/* (ignored) True=include rests */
 			)
 {
 	short	sufIndex;
@@ -789,7 +789,7 @@ void SaveNotelist(
 	if (errCode) { MayErrMsg("SaveNotelist: FSOpen error"); return; }
 
 	WaitCursor();
-	(void)ProcessScore(doc, ANYONE, SKELETON, TRUE);
+	(void)ProcessScore(doc, ANYONE, SKELETON, True);
 	LogPrintf(LOG_INFO, "Saved notelist file '%s'", PToCString(filename));
 	LogPrintf(LOG_INFO, (SKELETON? " as skeleton.\n" : ".\n"));
 

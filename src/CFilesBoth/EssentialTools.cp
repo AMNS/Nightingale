@@ -103,7 +103,7 @@ pascal long GrowMemory(Size /*nBytes*/)		/* nBytes is unused */
 		DisposeHandle(memoryBuffer);
 		memoryBuffer = NULL;
 	}
-	outOfMemory = TRUE;
+	outOfMemory = True;
 	
 	SetA5(oldA5);
 	return(bufferSize);
@@ -135,11 +135,11 @@ Boolean PreflightMem(short nKBytes)		/* if nKBytes<=0, assume max. size of a seg
 void WaitCursor()
 {
 	static CursHandle watchHandle;
-	static Boolean once = TRUE;
+	static Boolean once = True;
 	
 	if (once) {
 		watchHandle = GetCursor(watchCursor);	/* From system resources */
-		once = FALSE;
+		once = False;
 	}
 	if (watchHandle && *watchHandle) SetCursor(*watchHandle);
 }
@@ -155,7 +155,7 @@ void ArrowCursor()
 
 Boolean CheckAbort()
 {
-	EventRecord evt; int ch; Boolean quit = FALSE;
+	EventRecord evt; int ch; Boolean quit = False;
 
 	if (hasWaitNextEvent) {
 		if (!WaitNextEvent(keyDownMask+app4Mask, &evt, 0, NULL)) return(quit);
@@ -166,7 +166,7 @@ Boolean CheckAbort()
 	switch(evt.what) {
 		case keyDown:
 			ch = evt.message & charCodeMask;
-			if (ch=='.' && (evt.modifiers&cmdKey)!=0) quit = TRUE;
+			if (ch=='.' && (evt.modifiers&cmdKey)!=0) quit = True;
 			break;
 		case app4Evt:
 			DoSuspendResume(&evt);
@@ -183,7 +183,7 @@ Boolean CheckAbort()
 
 Boolean IsDoubleClick(Point pt, short tol, long now)
 	{
-		Rect box; Boolean ans=FALSE;
+		Rect box; Boolean ans=False;
 		static long lastTime; static Point thePt;
 		
 		if (now-lastTime<GetDblTime()) {
@@ -310,7 +310,7 @@ void TextEditState(DialogPtr dlog, Boolean save)
 /*
  *	These routines store various usual items into fields of dialogs.
  *	The routines that store deliver the handle of the item.  The
- *	routines that retrieve deliver FALSE or TRUE, according to 
+ *	routines that retrieve deliver False or True, according to 
  *	whether the edit field is empty or not.
  */
 
@@ -436,8 +436,8 @@ short GetDlgChkRadio(DialogPtr dlog, short item)
 	}
 
 /*
- *	Read a given editText item as a resource type, delivering TRUE if it was a
- *	legal 4-character string; FALSE otherwise.
+ *	Read a given editText item as a resource type, delivering True if it was a
+ *	legal 4-character string; False otherwise.
  */
 
 short GetDlgType(DialogPtr dlog, short item, ResType *type)
@@ -545,7 +545,7 @@ OSType CanPaste(short n, ...)
 
 /*
  *	Draw a grow icon at given position in given port.  Doesn't change the current port.
- *	The icon is assumed the usual 16 by 16 icon.  If drawit is FALSE, erase the area
+ *	The icon is assumed the usual 16 by 16 icon.  If drawit is False, erase the area
  *	it appears in but leave box framed. Not used in Ngale 3.0.
  */
 
@@ -624,7 +624,7 @@ void AdjustWinPosition(WindowPtr w)
 			if (ww==NULL || k>=n) break;
 			}
 			
-		if (i < n) MoveWindow(w,xx,yy,FALSE);
+		if (i < n) MoveWindow(w,xx,yy,False);
 	}
 
 /*
@@ -680,7 +680,7 @@ void PullInsideRect(Rect *r, Rect *inside, short margin)
 	}
 
 /*
- *	Deliver TRUE if r is completely inside the bounds rect; FALSE if outside or
+ *	Deliver True if r is completely inside the bounds rect; False if outside or
  *	partially outside. Not used in Ngale 3.0.
  */
 
@@ -721,7 +721,7 @@ void GetGlobalPort(WindowPtr w, Rect *r)
  *	in which case it returns 0.
  *
  *	N.B. An earlier version of this routine apparently had a feature whereby, if the
- *	caller wanted the Menu Bar area included, it could set a global <pureScreen> TRUE
+ *	caller wanted the Menu Bar area included, it could set a global <pureScreen> True
  *	before call; this could easily be added again.
  */
 
@@ -803,7 +803,7 @@ void PlaceAlert(short id, WindowPtr w, short left, short top)
 /*
  *	Given a window, dlog, place it with respect to another window, w, or the screen if w is NULL.
  *	If (left,top) == (0,0) center it; otherwise place it at offset (left,top) from the
- *	centering rectangle's upper left corner.  Deliver TRUE if position changed.
+ *	centering rectangle's upper left corner.  Deliver True if position changed.
  */
 
 Boolean PlaceWindow(WindowPtr dlog, WindowPtr w, short left, short top)
@@ -822,7 +822,7 @@ Boolean PlaceWindow(WindowPtr dlog, WindowPtr w, short left, short top)
 			GetMyScreen(&r,&inside);
 			PullInsideRect(&r,&inside,16);
 			
-			MoveWindow(dlog,r.left,r.top,FALSE);
+			MoveWindow(dlog,r.left,r.top,False);
 			dx = r.left - s.left;
 			dy = r.top  - s.top;
 			}
@@ -860,7 +860,7 @@ void CenterWindow(WindowPtr w,
 			margin >>= 1;
 			p.v = scr.top + margin;
 			}
-		MoveWindow(w,p.h,(top?top:p.v),FALSE);
+		MoveWindow(w,p.h,(top?top:p.v),False);
 	}
 
 /*
@@ -1001,21 +1001,21 @@ void UpdateMenu(MenuHandle menu, Boolean enable)
 				if (!IsMenuItemEnabled(menu, 0)) {
 //				if (!((**menu).enableFlags & 1)) {		/* Bit 0 is for whole menu */
 					EnableMenuItem(menu,0);
-					menuBarChanged = TRUE;
+					menuBarChanged = True;
 					}
 				}
 			 else
 				if (IsMenuItemEnabled(menu, 0)) {
 //				if ((**menu).enableFlags & 1) {
 					DisableMenuItem(menu,0);
-					menuBarChanged = TRUE;
+					menuBarChanged = True;
 					}
 	}
 
 void UpdateMenuBar()
 	{
 		if (menuBarChanged) DrawMenuBar();
-		menuBarChanged = FALSE;
+		menuBarChanged = False;
 	}
 
 /*
@@ -1088,7 +1088,7 @@ Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *n
 		anErr = SaveFileDialog( NULL, defaultName, 'TEXT', 'BYRD', nsData );
 		
 		if (anErr != noErr)
-			return FALSE;
+			return False;
 			
 		return (!nsData->nsOpCancel);
 	}
@@ -1109,8 +1109,8 @@ static pascal Boolean OurFilesOnly(ParmBlkPtr paramBlock)
 		stuff = file->ioFlFndrInfo;						/* Get file's finder info */
 		/* Filter away all but our input files of interest */
 		for (i=0; i<numGetTypes; i++)
-			if (stuff.fdType == inputType[i]) return(FALSE);
-		return(TRUE);
+			if (stuff.fdType == inputType[i]) return(False);
+		return(True);
 	}
 
 enum {
@@ -1144,7 +1144,7 @@ static pascal short DlgHook(short itemHit, DialogPtr /*dlog*/)
 		switch(itemHit) {
 			case ourNew:
 			case ourNewNew:
-				newButtonHit = TRUE;
+				newButtonHit = True;
 				itemHit = ourCancel;
 				break;
 			default:
@@ -1163,7 +1163,7 @@ static short selEnd = -1;
 
 static pascal Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	{
-		int ch; Boolean ans = FALSE,doHilite = FALSE; WindowPtr w;
+		int ch; Boolean ans = False,doHilite = False; WindowPtr w;
 		short type; Handle hndl; Rect box;
 		
 		w = (WindowPtr)(evt->message);
@@ -1172,7 +1172,7 @@ static pascal Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit)
 			if (w == GetDialogWindow(dlog))
 				SetPort(GetWindowPort(w));
 			 else
-				DoActivate(evt,(evt->modifiers&activeFlag)!=0,FALSE);
+				DoActivate(evt,(evt->modifiers&activeFlag)!=0,False);
 			}
 		
 		 else if (evt->what == updateEvt) {
@@ -1182,7 +1182,7 @@ static pascal Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit)
 					GetDialogItem(dlog,ourNewNew,&type,&hndl,&box);
 					HideDialogItem(dlog,ourNewNew);
 					}
-				FrameDefault(dlog,OK,TRUE);
+				FrameDefault(dlog,OK,True);
 				if (selEnd >= 0) { SelectDialogItemText(dlog,putName,0,selEnd); selEnd = -1; }
 				}
 			 else
@@ -1194,11 +1194,11 @@ static pascal Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit)
 		 	if (evt->modifiers & cmdKey) {
 				if (isupper(ch)) ch = tolower(ch);
 			 	if (ch == 'n' && !noNewButton) {
-			 			doHilite = TRUE; *itemHit = ourNewNew;
+			 			doHilite = True; *itemHit = ourNewNew;
 			 			returnCode = OP_NewFile;
 			 		}
 			 	 else if (ch=='.' || ch=='q') {
-			 	 	doHilite = TRUE;
+			 	 	doHilite = True;
 			 	 	*itemHit = ourCancel;
 			 	 	returnCode = (ch=='q' ? OP_QuitInstead : OP_Cancel);
 			 	 	}
@@ -1277,7 +1277,7 @@ short GetInputName(char *prompt, Boolean newButton, unsigned char *name, short *
 		returnCode = OP_Cancel;
 		
 		CParamText(prompt,"","","");
-		newButtonHit = FALSE;
+		newButtonHit = False;
 		SFPCGetFile(pt,prompt,fileFilterUPP,allTypes,list,hookUPP,&answer,id,
 						filterUPP);
 		if (newButtonHit) returnCode = OP_NewFile;
@@ -1303,7 +1303,7 @@ short GetInputName(char *prompt, Boolean newButton, unsigned char *name, short *
 		return(returnCode);
 	}
 
-/* Ask user for a possible output file; return TRUE if OK to proceed, FALSE if CANCEL.
+/* Ask user for a possible output file; return True if OK to proceed, False if CANCEL.
 Change the output file prompt according to id and i, and place name and working
 directory in name and wd.  When called, name has a default name in it that can be
 modified according to the prompt type before displaying in the dialog (item 7). */

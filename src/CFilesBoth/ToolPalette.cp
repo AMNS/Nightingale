@@ -68,7 +68,7 @@ static unsigned char shiftKeyPad[] = {
  * notes.) Also, if the currently selected palette item is a note, and the user hits
  * a toggle key, the corresponding rest should be selected in palette.
  *
- * Returns FALSE if error getting resource; else returns TRUE, even if no match
+ * Returns False if error getting resource; else returns True, even if no match
  * found. Maybe we shouldn't freak out if we can't find the resource, though probably
  * we should just ship a standard identity mapping. This 'PLMP' should probably go
  * into the setup file, and NightCustomizer should let the user edit it safely.
@@ -87,7 +87,7 @@ Boolean TranslatePalChar(
 	PCHARMAP theCharMap;
 	short		i,curResFile;
 	unsigned char mainTogChar, kpadTogChar;
-	static Boolean note = TRUE;		/* TRUE if note, FALSE if rest; changed only when doNoteRestToggle==TRUE */
+	static Boolean note = True;		/* True if note, False if rest; changed only when doNoteRestToggle==True */
 	Boolean	isNote;						/* whether the current remapped char represents a note (e.g., w,h,q,e rather than W,H,Q,E) */
 	Boolean	shiftIsDown;
 	
@@ -113,7 +113,7 @@ Boolean TranslatePalChar(
 	resH = Get1Resource('PLMP', THE_PLMP);
 	if (resH == NULL) {
 		UseResFile(curResFile);
-		return FALSE;
+		return False;
 	}
 	
 	UseResFile(curResFile);
@@ -138,9 +138,9 @@ Boolean TranslatePalChar(
 	if (doNoteRestToggle) {
 		if (IsDurKey((unsigned char)palChar, &isNote)) {			/* If user has clicked on a duration in palette, reset toggle state */
 			if (note && !isNote)
-				note = FALSE;
+				note = False;
 			else if (!note && isNote)
-				note = TRUE;		
+				note = True;		
 		}
 		if ((ch == kpadTogChar && IsOnKeyPad(ch)) ||
 			 (ch == mainTogChar && !IsOnKeyPad(ch))) {
@@ -157,7 +157,7 @@ Boolean TranslatePalChar(
 			else {
 				*theChar = ch = 0;						/* so GetPalItem won't do anything */
 				HUnlock(resH);
-				return TRUE;
+				return True;
 			}
 		}
 	}
@@ -193,7 +193,7 @@ skipMapping:
 	*theChar = ch;			/* convert back to short */
 
 	HUnlock(resH);	
-	return TRUE;
+	return True;
 }
 
 
@@ -212,9 +212,9 @@ Boolean IsOnKeyPad(unsigned char ch)
 	// MAS TODO -- figure this out
 //	if (theKeys[2]) {
 //		if (ch < 28 || ch > 31)
-//			return TRUE;							/* not an arrow key */
+//			return True;							/* not an arrow key */
 //	}
-	return FALSE;
+	return False;
 }
 
 
@@ -234,17 +234,17 @@ Boolean IsDurKey(register unsigned char ch, register Boolean *isNote)
 {
 	register short i;
 	
-	*isNote = FALSE;
+	*isNote = False;
 	
 	for (i=0; i<18; i++) {
 		if (ch == durKeys[i]) {
 			if (ch > 96)
-				*isNote = TRUE;
-			return TRUE;
+				*isNote = True;
+			return True;
 		}
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -418,7 +418,7 @@ void DoToolContent(Point pt, short modifiers)
 				 *	Keep FixCursor() from changing back to an arrow until user
 				 *	moves mouse outside of palette the first time from now.
 				 */
-				holdCursor = TRUE;
+				holdCursor = True;
 				}
 			 else {
 				/* Palette item is empty: revert to arrow */
@@ -458,7 +458,7 @@ void SwapTools(short firstItem, short lastItem)
 			grid[firstItem-1].ch = grid[lastItem-1].ch;
 			grid[lastItem-1].ch = tmp;
 			GetToolZoomBounds();
-			toolPalChanged = TRUE;
+			toolPalChanged = True;
 			}
 	}
 
@@ -607,7 +607,7 @@ void DoToolKeyDown(
 			}
 		 else {
 			if (key>=0)
-				if (!TranslatePalChar(&ch, (unsigned char)key, FALSE)) ;
+				if (!TranslatePalChar(&ch, (unsigned char)key, False)) ;
 				/* If not, GetResource failed. Maybe no need to warn. */
 
 			if (GetPalChar(toolGlobal->currentItem) != ch) {
@@ -615,7 +615,7 @@ void DoToolKeyDown(
 				if (item) {
 					HandleToolCursors(item);
 					PalKey(ch);
-					holdCursor = TRUE;
+					holdCursor = True;
 					}
 				}
 			}
@@ -646,7 +646,7 @@ void DoToolGrow(Point pt)
 			x = LoWord(newSize) - margin; y = HiWord(newSize) - margin;
 			across = (x + toolCellWidth/2) / toolCellWidth;
 			down   = (y + toolCellHeight/2) / toolCellHeight;
-			ChangeToolSize(across,down,FALSE);
+			ChangeToolSize(across,down,False);
 			}
 	}
 
@@ -666,7 +666,7 @@ void ChangeToolSize(short across, short down, Boolean doingZoom)
 		Rect portRect;
 		
 		SizeWindow(w,across*toolCellWidth +margin-1,
-					   down*toolCellHeight+margin-1,TRUE);
+					   down*toolCellHeight+margin-1,True);
 		(*paletteGlobals[TOOL_PALETTE])->across = across;
 		(*paletteGlobals[TOOL_PALETTE])->down = down;
 		GetWindowPortBounds(w,&toolsFrame);
@@ -712,9 +712,9 @@ void GetToolZoomBounds()
 
 /*
  *	If the user has rearranged the tools palette at all, then we inquire
- *	if they want to save the changes, and save them if yes.  We return TRUE
- *	if the user chooses either Save or Discard, FALSE if Cancel.  If inquire
- *	is FALSE, then we save without bringing the user into it.
+ *	if they want to save the changes, and save them if yes.  We return True
+ *	if the user chooses either Save or Discard, False if Cancel.  If inquire
+ *	is False, then we save without bringing the user into it.
  */
 
 #define DiscardButton 3
@@ -724,14 +724,14 @@ Boolean SaveToolPalette(Boolean inquire)
 		short itemHit, curResFile; PicHandle thePic,toolPicture;
 		Rect picRect; long size; GrafPtr port,oldPort;
 		
-		if (!toolPalChanged) return(TRUE);
+		if (!toolPalChanged) return(True);
 		
 		if (inquire) {
 			PlaceAlert(SAVEPALETTE_ALRT,NULL,0,80);
 			ArrowCursor();
 			itemHit = CautionAlert(SAVEPALETTE_ALRT,NULL);
-			if (itemHit == Cancel) return(FALSE);
-			if (itemHit == DiscardButton) return(TRUE);
+			if (itemHit == Cancel) return(False);
+			if (itemHit == DiscardButton) return(True);
 			}
 		
 		/* Return offscreen picture back to resource whence it came and write out */
@@ -743,7 +743,7 @@ Boolean SaveToolPalette(Boolean inquire)
 		if(!GoodResource((Handle)toolPicture)) {
 			MayErrMsg("SaveToolPalette: Can't load resource");
 			UseResFile(curResFile);
-			return(TRUE);
+			return(True);
 			}
 		LoadResource((Handle)toolPicture);
 		HNoPurge((Handle)toolPicture);
@@ -779,7 +779,7 @@ Boolean SaveToolPalette(Boolean inquire)
 		SetPort(oldPort);
 		UseResFile(curResFile);
 
-		return(TRUE);
+		return(True);
 	}
 
 /*

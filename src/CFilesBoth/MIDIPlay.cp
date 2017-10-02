@@ -84,7 +84,7 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 	if (pL!=NILINK)
 		measNum = GetMeasNum(doc, pL);
 
-	PrepareMessageDraw(doc,&messageRect, FALSE);
+	PrepareMessageDraw(doc,&messageRect, False);
 	GetIndCString(strBuf, MIDIPLAY_STRS, 1);				/* "Playing m. " */
 	DrawCString(strBuf);					
 	sprintf(strBuf, "%d", measNum);
@@ -110,7 +110,7 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 /* --------------------------------------------------------------- HiliteSyncRect -- */
 /* Given a rectange, r, in paper-relative coordinates, hilite it in the current
 window.  If it's not in view, "scroll" so its page is in the window (though r might
-still not be in the window!) and return TRUE; else return FALSE.
+still not be in the window!) and return True; else return False.
 
 Note that scrolling while playing screws up timing (simply by introducing a break)
 unless interrupt-driven, but after all, Nightingale is a notation program, not a
@@ -126,7 +126,7 @@ static Boolean HiliteSyncRect(
 					Boolean scroll)
 {
 	Rect result;  short x, y;
-	Boolean turnedPage=FALSE;
+	Boolean turnedPage=False;
 	
 	/* Temporarily convert r to window coords. Normally, we do this by offsetting
 	   by doc->currentPaper, but in this case, doc->currentPaper may have changed
@@ -141,8 +141,8 @@ static Boolean HiliteSyncRect(
 			/* Rect to be hilited is outside of window's view, so scroll paper */
 			x = doc->currentPaper.left - config.hPageSep;
 			y = doc->currentPaper.top  - config.vPageSep;
-			QuickScroll(doc,x,y,FALSE,TRUE);
-			turnedPage = TRUE;
+			QuickScroll(doc,x,y,False,True);
+			turnedPage = True;
 			}
 		}
 	
@@ -197,13 +197,13 @@ static Boolean TupletProblem(Document *doc, LINK insL)
 			{ tupStaff = s; break; }
 			
 	if (tupStaff<=0)
-		return FALSE;
+		return False;
 	else {
 		GetIndCString(fmtStr, MIDIPLAYERRS_STRS, 1);	/* "can't add a barline in middle of tuplet" */
 		sprintf(strBuf, fmtStr, tupStaff);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return TRUE;
+		return True;
 	}
 }
 
@@ -211,7 +211,7 @@ Boolean CloseAddBarlines(Document *doc)
 {
 	short symIndex, n;  CONTEXT context;
 	LINK insL, newMeasL, firstInsL, lastInsL, saveSelStartL, saveSelEndL, prevSync;
-	Boolean okay=TRUE;
+	Boolean okay=True;
 	char fmtStr[256];
 	
 	if (nBars==0) return okay;
@@ -258,7 +258,7 @@ Boolean CloseAddBarlines(Document *doc)
 			{ nBars = n; break; }
 		if (n==0) firstInsL = insL;
 		newMeasL = CreateMeasure(doc, insL, -1, symIndex, context);
-		if (!newMeasL) return FALSE;
+		if (!newMeasL) return False;
 		DeselectNode(newMeasL);
 	}
 
@@ -266,7 +266,7 @@ Boolean CloseAddBarlines(Document *doc)
 
 	lastInsL = insL;
 	okay = RespaceBars(doc, LeftLINK(firstInsL), RightLINK(lastInsL), 
-		RESFACTOR*(long)doc->spacePercent, FALSE, FALSE);
+		RESFACTOR*(long)doc->spacePercent, False, False);
 	InvalWindow(doc);
 	return okay;
 }
@@ -300,13 +300,13 @@ static void SelAndHiliteSync(Document *doc, LINK syncL)
 static Boolean CheckButton(void);
 static Boolean CheckButton()
 {
-	Boolean button = FALSE;
+	Boolean button = False;
 	
 	EventRecord evt; 
 
 	if (!GetNextEvent(mDownMask,&evt)) return(button);	/* Not Wait/GetNextEvent so we do as little as possible */
 
-	if (evt.what==mouseDown) button = TRUE;
+	if (evt.what==mouseDown) button = True;
 
  	return button;
 }
@@ -360,7 +360,7 @@ static Byte cmAllPanSetting[MAXSTAVES + 1];
 static Boolean PostMIDIPatchChange(Document *doc, LINK pL, unsigned char *partPatch,
 									 unsigned char *partChannel) 
 {
-	Boolean posted = FALSE;
+	Boolean posted = False;
 	PGRAPHIC p = GetPGRAPHIC(pL);
 	LINK firstL = p->firstObj;
 	if (ObjLType(firstL) == SYNCtype) {
@@ -371,7 +371,7 @@ static Boolean PostMIDIPatchChange(Document *doc, LINK pL, unsigned char *partPa
 			short partn = PartL2Partn(doc, partL);
 			SetPartPatch(partn, partPatch, partChannel, patchNum);
 			//CMMIDIProgram(doc, partPatch, partChannel);
-			posted = TRUE;
+			posted = True;
 		}
 	}
 	return posted;
@@ -379,17 +379,17 @@ static Boolean PostMIDIPatchChange(Document *doc, LINK pL, unsigned char *partPa
 
 static Boolean PostMIDISustain(Document *doc, LINK pL, Boolean susOn) 
 {
-	Boolean posted = FALSE;
+	Boolean posted = False;
 						
 	short stf = GraphicSTAFF(pL);
 	if (stf > 0) {
 		if (susOn) {
-			cmSustainOn[stf] = cmAllSustainOn[stf] = TRUE;
+			cmSustainOn[stf] = cmAllSustainOn[stf] = True;
 		}		
 		else {
-			cmSustainOff[stf] = TRUE;			
+			cmSustainOff[stf] = True;			
 		}
-		posted = TRUE;
+		posted = True;
 	}
 	
 	return posted;
@@ -397,13 +397,13 @@ static Boolean PostMIDISustain(Document *doc, LINK pL, Boolean susOn)
 
 static Boolean PostMIDIPan(Document *doc, LINK pL)
 {
-	Boolean posted = FALSE;
+	Boolean posted = False;
 	
 	short stf = GraphicSTAFF(pL);
 	if (stf > 0) {
 		Byte panSetting = GraphicINFO(pL);
 		cmPanSetting[stf] = cmAllPanSetting[stf] = panSetting;
-		posted = TRUE;
+		posted = True;
 	}
 	
 	return posted;
@@ -413,10 +413,10 @@ static void ClearMIDISustain(Boolean susOn)
 {
 	for (int j = 1; j<=MAXSTAVES; j++) {
 		if (susOn) {
-			cmSustainOn[j] = FALSE;
+			cmSustainOn[j] = False;
 		}		
 		else {
-			cmSustainOff[j] = FALSE;			
+			cmSustainOff[j] = False;			
 		}
 	}	
 }
@@ -431,7 +431,7 @@ static void ClearMIDIPan()
 static void ClearAllMIDISustainOn() 
 {
 	for (int j = 1; j<=MAXSTAVES; j++) {
-		cmAllSustainOn[j] = FALSE;
+		cmAllSustainOn[j] = False;
 	}
 }
 
@@ -485,7 +485,7 @@ static void ResetMIDISustain(Document *doc, unsigned char *partChannel)
 	}
 	
 	for (int j = 1; j<=MAXSTAVES; j++) {
-		cmAllSustainOn[j] = FALSE;
+		cmAllSustainOn[j] = False;
 	}
 }
 
@@ -564,7 +564,7 @@ static Boolean IsMIDIPatchChange(LINK pL)
 		return (p->graphicType == GRMIDIPatch);
 	}
 		
-	return FALSE;
+	return False;
 }
 
 static void SendMIDISustainOn(Document *doc, MIDIUniqueID destDevID, char channel) 
@@ -607,7 +607,7 @@ Boolean IsMidiSustainOn(LINK pL)
 		return (p->graphicType == GRMIDISustainOn);
 	}
 		
-	return FALSE;
+	return False;
 }
 
 Boolean IsMidiSustainOff(LINK pL) 
@@ -617,7 +617,7 @@ Boolean IsMidiSustainOff(LINK pL)
 		return (p->graphicType == GRMIDISustainOff);
 	}
 		
-	return FALSE;
+	return False;
 }
 
 Boolean IsMidiPan(LINK pL) 
@@ -627,7 +627,7 @@ Boolean IsMidiPan(LINK pL)
 		return (p->graphicType == GRMIDIPan);
 	}
 		
-	return FALSE;
+	return False;
 }
 
 Boolean IsMidiController(LINK pL) 
@@ -636,10 +636,10 @@ Boolean IsMidiController(LINK pL)
 		 IsMidiSustainOff(pL) ||
 		 IsMidiPan(pL)) 
 	{
-		return TRUE;
+		return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 Byte GetMidiControlNum(LINK pL) 
@@ -698,8 +698,8 @@ scribed in the MIDI Manager manual. I don't know if this also applies to Core MI
 void PlaySequence(
 			Document *doc,
 			LINK fromL,	LINK toL,			/* range to be played */
-			Boolean showit,					/* TRUE to hilite notes as they're played */
-			Boolean selectedOnly			/* TRUE if we want to play selected notes only */
+			Boolean showit,					/* True to hilite notes as they're played */
+			Boolean selectedOnly			/* True if we want to play selected notes only */
 			)
 {
 	PPAGE		pPage;
@@ -739,10 +739,10 @@ void PlaySequence(
 	
 	short		notePartn;
 	MIDIUniqueID partDevID;
-	Boolean		patchChangePosted = FALSE;
-	Boolean		sustainOnPosted = FALSE;
-	Boolean		sustainOffPosted = FALSE;
-	Boolean		panPosted = FALSE;
+	Boolean		patchChangePosted = False;
+	Boolean		sustainOnPosted = False;
+	Boolean		sustainOffPosted = False;
+	Boolean		panPosted = False;
 	
 
 	WaitCursor();
@@ -755,7 +755,7 @@ void PlaySequence(
 
 	doScroll = config.turnPagesInPlay;
 
-	systemL = LSSearch(fromL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	systemL = LSSearch(fromL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	pSystem = GetPSYSTEM(systemL);
 	D2Rect(&pSystem->systemRect, &sysRect);
 
@@ -789,9 +789,9 @@ void PlaySequence(
 	newMeasL = measL = SSearch(fromL, MEASUREtype, GO_LEFT); /* starting measure */
 	playCursor = GetCursor(MIDIPLAY_CURS);
 	if (playCursor) SetCursor(*playCursor);
-	moveSel = FALSE;										/* init. "move the selection" flag */
+	moveSel = False;										/* init. "move the selection" flag */
 	
-	pageL = LSSearch(fromL, PAGEtype, ANYONE, GO_LEFT, FALSE);
+	pageL = LSSearch(fromL, PAGEtype, ANYONE, GO_LEFT, False);
 	pPage = GetPPAGE(pageL);
 
 	oldCurrentSheet = doc->currentSheet;
@@ -825,8 +825,8 @@ void PlaySequence(
 		}
 	}
 	
-	ClearMIDISustain(TRUE);
-	ClearMIDISustain(FALSE);
+	ClearMIDISustain(True);
+	ClearMIDISustain(False);
 	ClearMIDIPan();
 	
 	ClearAllMIDISustainOn();
@@ -856,7 +856,7 @@ void PlaySequence(
 	 *	the first Sync's play time and use it as an offset on all play times.
 	 */
 	toffset = -1L;												/* Init. time offset to unknown */
-	newPage = FALSE;
+	newPage = False;
 	for (pL = fromL; pL!=toL; pL = RightLINK(pL)) {
 		switch (ObjLType(pL)) {
 			case PAGEtype:
@@ -865,7 +865,7 @@ void PlaySequence(
 				paperOnDesktop =
 					(GetSheetRect(doc,doc->currentSheet,&doc->currentPaper)==INARRAY_INRANGE);
 				pagePaper = doc->currentPaper;
-				newPage = TRUE;
+				newPage = True;
 				break;
 			case SYSTEMtype:									/* Remember system rectangles */
 				pSystem = GetPSYSTEM(pL);
@@ -935,7 +935,7 @@ void PlaySequence(
 					oldL = pL;
 					oldStartTime = startTime;
 					if (showit) {
-						if (showOldL) HiliteSyncRect(doc, &syncRect, &syncPaper, FALSE);  /* unhilite old Sync */
+						if (showOldL) HiliteSyncRect(doc, &syncRect, &syncPaper, False);  /* unhilite old Sync */
 						if (paperOnDesktop) {
 							syncRect = sysRect;
 							/*
@@ -955,29 +955,29 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 							tElapsed = GetMIDITime(pageTurnTOffset)-tBeforeTurn;
 							pageTurnTOffset += tElapsed;
 							showOldL = pL;								/* remember this Sync */
-							newPage = FALSE;
+							newPage = False;
 							}
 						else showOldL = NILINK;
 					}
 					
 					if (patchChangePosted) {
 						CMMIDIProgram(doc, partPatch, partChannel);
-						patchChangePosted = FALSE;
+						patchChangePosted = False;
 					}
 					if (sustainOnPosted) {
-						SendAllMIDISustains(doc, partChannel, TRUE);
-						ClearMIDISustain(TRUE);
-						sustainOnPosted = FALSE;
+						SendAllMIDISustains(doc, partChannel, True);
+						ClearMIDISustain(True);
+						sustainOnPosted = False;
 					}
 					if (sustainOffPosted) {
-						SendAllMIDISustains(doc, partChannel, FALSE);
-						ClearMIDISustain(FALSE);
-						sustainOffPosted = FALSE;
+						SendAllMIDISustains(doc, partChannel, False);
+						ClearMIDISustain(False);
+						sustainOffPosted = False;
 					}
 					if (panPosted) {
 						SendAllMIDIPans(doc, partChannel);
 						ClearMIDIPan();
-						panPosted = FALSE;
+						panPosted = False;
 					}
 		
 			/* Play all the notes in <<pL> we're supposed to, adding them to <eventList[]> too */
@@ -1057,11 +1057,11 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 					}
 					else if (IsMidiSustainOn(pL)) 
 					{
-						sustainOnPosted = PostMIDISustain(doc, pL, TRUE);
+						sustainOnPosted = PostMIDISustain(doc, pL, True);
 					}
 					else if (IsMidiSustainOff(pL)) 
 					{
-						sustainOffPosted = PostMIDISustain(doc, pL, FALSE);
+						sustainOffPosted = PostMIDISustain(doc, pL, False);
 					}
 					else if (IsMidiPan(pL)) 
 					{
@@ -1100,7 +1100,7 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 	}
 			
 done:
-	if (showit && showOldL) HiliteSyncRect(doc,&syncRect,&syncPaper,FALSE); /* unhilite last Sync */
+	if (showit && showOldL) HiliteSyncRect(doc,&syncRect,&syncPaper,False); /* unhilite last Sync */
 
 	doc->currentSheet = oldCurrentSheet;
 	doc->currentPaper = oldPaper;
@@ -1140,7 +1140,7 @@ done:
 
 		if (!selectedOnly) SelAndHiliteSync(doc, oldL);
 
-		LinkSEL(oldL) = TRUE;
+		LinkSEL(oldL) = True;
 		doc->selStartL = oldL;
 		doc->selEndL = RightLINK(oldL);
 	}
@@ -1162,8 +1162,8 @@ void PlayEntire(Document *doc)
 {
 	LINK firstPage;
 	
-	firstPage = LSSearch(doc->headL, PAGEtype, ANYONE, GO_RIGHT, FALSE);
-	PlaySequence(doc, RightLINK(firstPage), doc->tailL, TRUE, FALSE);
+	firstPage = LSSearch(doc->headL, PAGEtype, ANYONE, GO_RIGHT, False);
+	PlaySequence(doc, RightLINK(firstPage), doc->tailL, True, False);
 }
 
 
@@ -1172,5 +1172,5 @@ void PlayEntire(Document *doc)
 
 void PlaySelection(Document *doc)
 {
-	PlaySequence(doc, doc->selStartL, doc->selEndL, TRUE, TRUE);
+	PlaySequence(doc, doc->selStartL, doc->selEndL, True, True);
 }

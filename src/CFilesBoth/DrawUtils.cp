@@ -5,11 +5,11 @@
 *******************************************************************************************/
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright Â© 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -53,7 +53,7 @@ Rect ContextedObjRect(Document *doc, LINK pL, short staff, PCONTEXT pContext)
 	LINK contextL; Rect r; 
 
 	contextL = (LinkBefFirstMeas(pL) ?
-						LSSearch(pL,MEASUREtype,ANYONE,GO_RIGHT,FALSE) : pL);
+						LSSearch(pL,MEASUREtype,ANYONE,GO_RIGHT,False) : pL);
 
 	GetContext(doc, contextL, staff, pContext);
 	r = LinkOBJRECT(pL);
@@ -148,7 +148,7 @@ void DrawMChar(
 	
 	if (shape==NO_VIS) return;
 
-		kludgeFontMgr = TRUE;	/* Maybe should be FALSE if System>=6.0.x for some x? */
+		kludgeFontMgr = True;	/* Maybe should be False if System>=6.0.x for some x? */
 
 		
 	if (dim) {
@@ -207,11 +207,11 @@ void DrawMColon(Document *doc, Boolean italic, Boolean dim, DDIST lnSpace)
 	xoffset = d2p(MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace)/2);
 	yoffset = d2p(MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace)/2);
 	Move(xoffset, yoffset);
-	if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
+	if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, True);
 	else		DrawChar(glyph);
 	MoveTo(pt.h+xoffset, pt.v+yoffset);
 	Move((italic? colonSize/5 : 0), -2*colonSize/5);
-	if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
+	if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, True);
 	else		DrawChar(glyph);
 	TextSize(oldSize);
 }
@@ -611,7 +611,7 @@ void DrawRptBar(Document *doc,
 	Boolean hasRptDots;
 	Byte dotsGlyph;
 	
-	prevMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	prevMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, False);
 	mBBox = SDGetMeasRect(doc, pL, prevMeasL);
 	pContext = &context[staff];
 	switch (mode) {
@@ -629,7 +629,7 @@ void DrawRptBar(Document *doc,
 		if (pContext->showLines==1) dBottom -= LNSPACE(pContext);			
 	}
 	else {
-		pContext2 = &context[NextStaffn(doc,pL,FALSE,connStaff)];	/* Connected below */
+		pContext2 = &context[NextStaffn(doc,pL,False,connStaff)];	/* Connected below */
 		//pContext2 = &context[connStaff];							/* Connected below */
 		dBottom = pContext2->staffTop + pContext2->staffHeight;
 		dBotNorm = dTop + pContext->staffHeight;					/* draw rpt-dots on <staff>, NOT <connStaff> */
@@ -842,7 +842,7 @@ static void DrawFlat(
 			break;
 		case toPostScript:
 			yp = d2pt(halfLn2d(yPos, staffHeight, staffLines));
-			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, TRUE, 100);
+			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, True, 100);
 			break;
 		default:
 			;
@@ -891,7 +891,7 @@ static void DrawSharp(
 			break;
 		case toPostScript:
 			yp = d2pt(halfLn2d(yPos, staffHeight, staffLines));
-			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, TRUE, 100);
+			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, True, 100);
 			break;
 		default:
 			;
@@ -940,7 +940,7 @@ static void DrawNatural(
 			break;
 		case toPostScript:
 			yp = d2pt(halfLn2d(yPos, staffHeight, staffLines));
-			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, TRUE, 100);
+			PS_MusChar(doc, xd+tab*dWidth, yd+pt2d(yp), glyph, True, 100);
 			break;
 		default:
 			;
@@ -981,7 +981,7 @@ void DrawKSItems(Document *doc,
 		}
 	}
 	else {														/* No, so cancel previous key sig. */
-		prevKSL = LSSearch(LeftLINK(pL), KEYSIGtype, staffn, GO_LEFT, FALSE);
+		prevKSL = LSSearch(LeftLINK(pL), KEYSIGtype, staffn, GO_LEFT, False);
 		if (prevKSL)	{										/* Anything to change from? */
 			prevKS = GetPKEYSIG(prevKSL);
 			aPrevKSL = FirstSubLINK(prevKSL);
@@ -1197,8 +1197,8 @@ short GetRestDrawInfo(Document *doc,
 
 /* ---------------------------------------------------------------------- GetModNRInfo -- */
 /* GetModNRInfo is analagous to the various GetXXXDrawInfo routines in that it
-provides information necessary to draw a specififed note modifier. Returns TRUE if
-<code> is legal, else FALSE.
+provides information necessary to draw a specififed note modifier. Returns True if
+<code> is legal, else False.
 
 NB: In the Sonata font, The PostScript fingerings are smaller than the bitmapped ones;
 the PostScript circle is larger than the tiny bitmapped one. Check both PostScript and
@@ -1210,8 +1210,8 @@ Sonata compatible fonts. Oh well. */
 Boolean GetModNRInfo(
 				short code,
 				short noteType,
-				Boolean	small,						/* TRUE=note/rest modNR is attached to is small */
-				Boolean	above,						/* TRUE=modNR is above its note/rest */
+				Boolean	small,						/* True=note/rest modNR is attached to is small */
+				Boolean	above,						/* True=modNR is above its note/rest */
 				unsigned char *glyph,				/* Blank=not a char. in music font, else the char. */
 				short *xOffset, short *yOffset,		/* in eighth-spaces */
 				short *sizePct
@@ -1308,7 +1308,7 @@ Boolean GetModNRInfo(
 			*sizePct = (small? SMALLSIZE(FINGERING_SIZEPCT) : FINGERING_SIZEPCT);
 			break;
 		default:
-			return FALSE;
+			return False;
 	}
 	
 	/* Heads for long notes are wider, which affects centering */
@@ -1316,7 +1316,7 @@ Boolean GetModNRInfo(
 	*xOffset = xOff;
 	*yOffset = yOff;
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -1587,10 +1587,10 @@ static void VisStavesInRange(
 				short *firstVisStf, short *lastVisStf 	/* Output: first and last visible staves in range */
 				)
 {
-	*firstVisStf = NextStaffn(doc, staffL, TRUE, r1stStaff);
+	*firstVisStf = NextStaffn(doc, staffL, True, r1stStaff);
 	if (*firstVisStf<=0 || *firstVisStf>rLastStaff) *firstVisStf = -1;
 	
-	*lastVisStf = NextStaffn(doc, staffL, FALSE, rLastStaff);
+	*lastVisStf = NextStaffn(doc, staffL, False, rLastStaff);
 	if (*lastVisStf<=0 || *lastVisStf<r1stStaff) *lastVisStf = -1;
 }
 
@@ -1614,8 +1614,8 @@ void VisStavesForPart(
 
 
 /* ----------------------------------------------------------------- ShouldDrawConnect -- */
-/* For the given CONNECT subobject, if we should actually draw it, return TRUE;
-else return FALSE. */
+/* For the given CONNECT subobject, if we should actually draw it, return True;
+else return False. */
 
 Boolean ShouldDrawConnect(
 			Document *doc,
@@ -1629,7 +1629,7 @@ Boolean ShouldDrawConnect(
 	PACONNECT aConnect;
 	short firstStaff,lastStaff;
 	
-	drawThisOne = TRUE;
+	drawThisOne = True;
 
 	if (!doc->masterView) {
 		/*
@@ -1663,14 +1663,14 @@ Boolean ShouldDrawConnect(
 
 /* --------------------------------------------------------------- ShouldREDrawBarline -- */
 /* For the given RPTEND subobject, if we should draw draw the barline proper as well
-as the repeat dots (if there are any), return TRUE with *connStf set. If we should
-draw only the repeat dots (if any), simply return FALSE. */
+as the repeat dots (if there are any), return True with *connStf set. If we should
+draw only the repeat dots (if any), simply return False. */
 
 Boolean ShouldREDrawBarline(
 		Document *doc,
 		LINK rptEndObjL,		/* RptEnd object */
 		LINK theRptEndL,		/* RptEnd subobject */
-		short *connStf 			/* If function returns TRUE, staff no. to draw down to */
+		short *connStf 			/* If function returns True, staff no. to draw down to */
 		)
 {
 	PARPTEND theRptEnd, aRptEnd;
@@ -1698,20 +1698,20 @@ Boolean ShouldREDrawBarline(
 	for (aRptEndL = topRptEndL; aRptEndL; aRptEndL = NextRPTENDL(aRptEndL)) {
 		if (aRptEndL==theRptEndL) break;
 		aRptEnd = GetPARPTEND(aRptEndL);
-		if (aRptEnd->visible || doc->showInvis) return FALSE;
+		if (aRptEnd->visible || doc->showInvis) return False;
 	}
 	
 DrawAll:
 	aRptEnd = GetPARPTEND(topRptEndL);
 	*connStf = aRptEnd->connStaff;
-	return TRUE;
+	return True;
 }
 
 
 /* ----------------------------------------------------------------- ShouldDrawBarline -- */
 /* For the given MEASURE subobject,if we should draw the barline proper as well as
-the repeat dots (if there are any), return TRUE with the staff number to draw to;
-if we should draw only the repeat dots (if any), return FALSE. We consider staff
+the repeat dots (if there are any), return True with the staff number to draw to;
+if we should draw only the repeat dots (if any), return False. We consider staff
 visibility as well as barline grouping of staves.
 
 NB: This function should really ignore doc->showInvis, since "Show Invisibles"
@@ -1725,7 +1725,7 @@ Boolean ShouldDrawBarline(
 				Document *doc,
 				LINK measObjL,		/* Measure object */
 				LINK theMeasL,		/* Measure subobject */
-				short *connStf 		/* If function returns TRUE, staff no. to draw down to */
+				short *connStf 		/* If function returns True, staff no. to draw down to */
 				)
 {
 	PAMEASURE theMeas, aMeas;
@@ -1733,7 +1733,7 @@ Boolean ShouldDrawBarline(
 	short theStf, gTopStf, gBottomStf;
 	
 	theMeas = GetPAMEASURE(theMeasL);
-	if (!theMeas->visible && !doc->showInvis) return FALSE;
+	if (!theMeas->visible && !doc->showInvis) return False;
 
 	/* If this the top staff of a group or not in a group, draw barline. */
 	
@@ -1764,26 +1764,26 @@ Boolean ShouldDrawBarline(
 	for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL)) {
 		if (MeasureSTAFF(aMeasL)>=gTopStf && MeasureSTAFF(aMeasL)<theStf) {
 			aMeas = GetPAMEASURE(aMeasL);
-			if (aMeas->visible || doc->showInvis) return FALSE;
+			if (aMeas->visible || doc->showInvis) return False;
 		}
 	}
 	
 DrawAll:
 	*connStf = gBottomStf;
-	return TRUE;
+	return True;
 }
 
 
 /* -------------------------------------------------------------- ShouldPSMDrawBarline -- */
 /* For the given Pseudomeasure subobject,if we should draw the barline proper as well
-as any staff-specific stuff (if there is any), return TRUE with the staff number to
-draw to; if we should draw only the staff-specific stuff (if any), return  FALSE. */
+as any staff-specific stuff (if there is any), return True with the staff number to
+draw to; if we should draw only the staff-specific stuff (if any), return  False. */
 
 Boolean ShouldPSMDrawBarline(
 		Document *doc,
 		LINK measObjL,			/* Pseudomeasure object */
 		LINK thePSMeasL,		/* Pseudomeasure subobject */
-		short *connStf 			/* If function returns TRUE, staff no. to draw down to */
+		short *connStf 			/* If function returns True, staff no. to draw down to */
 		)
 {
 	PAPSMEAS thePSMeas, aPSMeas;
@@ -1820,19 +1820,19 @@ Boolean ShouldPSMDrawBarline(
 	for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
 		if (PSMeasSTAFF(aPSMeasL)>=gTopStf && PSMeasSTAFF(aPSMeasL)<theStf) {
 			aPSMeas = GetPAPSMEAS(aPSMeasL);
-			if (aPSMeas->visible || doc->showInvis) return FALSE;
+			if (aPSMeas->visible || doc->showInvis) return False;
 		}
 	}
 	
 DrawAll:
 	*connStf = gBottomStf;
-	return TRUE;
+	return True;
 }
 
 
 /* ----------------------------------------------------------------- ShouldDrawMeasNum -- */
 /* For the given Measure subobject,if we should draw the measure number above or below
-it, return TRUE. The rules are, draw a measure number if measure numbers are wanted
+it, return True. The rules are, draw a measure number if measure numbers are wanted
 at all; this is a "real" measure (see the IsFakeMeasure function); this is the top
 or bottom (depending on doc->aboveMN) visible staff of the system; and this
 particular measure is one whose number should be shown, given the current settings of
@@ -1848,25 +1848,25 @@ Boolean ShouldDrawMeasNum(
 	short measureNum, topVisStf, botVisStf;
 	LINK staffL;
 	
-	if (doc->numberMeas==0) return FALSE;	
+	if (doc->numberMeas==0) return False;	
 
-	if (MeasISFAKE(measObjL)) return FALSE;
+	if (MeasISFAKE(measObjL)) return False;
 
 	aMeasure = GetPAMEASURE(theMeasL);
 	measureNum = aMeasure->measureNum+doc->firstMNNumber;
 
-	staffL = LSSearch(measObjL, STAFFtype, ANYONE, GO_LEFT, FALSE);	/* Must always exist */
-	topVisStf = NextStaffn(doc, staffL, TRUE, 1);
-	botVisStf = NextStaffn(doc, staffL, FALSE, doc->nstaves);
-	if (doc->aboveMN && MeasureSTAFF(theMeasL)!=topVisStf) return FALSE;
-	if (!doc->aboveMN && MeasureSTAFF(theMeasL)!=botVisStf) return FALSE;
+	staffL = LSSearch(measObjL, STAFFtype, ANYONE, GO_LEFT, False);	/* Must always exist */
+	topVisStf = NextStaffn(doc, staffL, True, 1);
+	botVisStf = NextStaffn(doc, staffL, False, doc->nstaves);
+	if (doc->aboveMN && MeasureSTAFF(theMeasL)!=topVisStf) return False;
+	if (!doc->aboveMN && MeasureSTAFF(theMeasL)!=botVisStf) return False;
 	
-	if (measureNum<(doc->startMNPrint1? 1 : 2)) return FALSE;
+	if (measureNum<(doc->startMNPrint1? 1 : 2)) return False;
 	
 	if (doc->numberMeas>0? (measureNum % doc->numberMeas)!=0
-									: !FirstMeasInSys(measObjL)) return FALSE;
+									: !FirstMeasInSys(measObjL)) return False;
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -1974,7 +1974,7 @@ char TempoGlyph(LINK pL)
 	p = GetPTEMPO(pL);
 	switch (p->subType) {
 		case BREVE_L_DUR:
-			return 0xDD;			/* On Mac, 'Ý'=shift-option 4 */
+			return 0xDD;			/* On Mac, 'â€º'=shift-option 4 */
 		case WHOLE_L_DUR:
 			return 'w';
 		case HALF_L_DUR:
@@ -1988,9 +1988,9 @@ char TempoGlyph(LINK pL)
 		case THIRTY2ND_L_DUR:
 			return 'r';
 		case SIXTY4TH_L_DUR:
-			return 0xC6;			/* On Mac, 'Æ'=option j */
+			return 0xC6;			/* On Mac, 'âˆ†'=option j */
 		case ONE28TH_L_DUR:
-			return 0x8D;			/* On Mac, ''=option c */
+			return 0x8D;			/* On Mac, 'Ã§'=option c */
 		case NO_L_DUR:
 		default:
 			return '\0';
@@ -2016,7 +2016,7 @@ short GetGraphicOrTempoDrawInfo(
 	LINK measL;
 
 	if (PageTYPE(relObjL)) {
-		measL = LSSearch(relObjL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		measL = LSSearch(relObjL, MEASUREtype, ANYONE, GO_RIGHT, False);
 		GetContext(doc, measL, 1, pRelContext);
 		*xd = LinkXD(pL);
 		*yd = LinkYD(pL);
@@ -2143,20 +2143,20 @@ short Voice2Color(Document *doc, short iVoice)
 
 /* ------------------------------------------------------------------------- CheckZoom -- */
 /* If there is a mouse down event pending in the given Document's zoom box, return
-TRUE; otherwise return FALSE. */
+True; otherwise return False. */
 
-static Boolean doingCheckZoom = TRUE;
+static Boolean doingCheckZoom = True;
 
 Boolean CheckZoom(Document *doc)
 {
-	EventRecord event; Boolean gotZoom = FALSE;
+	EventRecord event; Boolean gotZoom = False;
 	short part; WindowPtr w;
 	
 	if (doingCheckZoom)
 		if (EventAvail(mDownMask,&event)) {
 			part = FindWindow(event.where,&w);
 			if (w==doc->theWindow && (part==inZoomIn || part==inZoomOut))
-				gotZoom = TRUE;
+				gotZoom = True;
 		}
 	return(gotZoom);
 }
@@ -2165,9 +2165,9 @@ Boolean CheckZoom(Document *doc)
 /*
 This scans the Operating System event queue for any of various command keys that
 should interrupt drawing. If one is found while the corresponding menu command is
-enabled, return TRUE to signify that the user thinks they have issued that command.
+enabled, return True to signify that the user thinks they have issued that command.
 Otherwise, we continue searching down the event queue for some other command that
-might be enabled.  If none are found, we return FALSE.  The problem this solves is,
+might be enabled.  If none are found, we return False.  The problem this solves is,
 for instance, that of changing magnification during the middle of updating. We
 want to stop drawing at the old magnification as soon as possible and start over
 at the new magnification. This is tricky for the following reason:
@@ -2191,7 +2191,7 @@ separate strings for the keys that have different enabling conditions. */
 
 Boolean DrawCheckInterrupt(Document */*doc*/)
 {
-	return FALSE;
+	return False;
 }
 
 

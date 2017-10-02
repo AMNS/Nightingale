@@ -966,8 +966,8 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 	q = GetPASTAFF(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
 	DrawTextLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "vis=%s sel=%s", q->visible ? "TRUE" : "false",
-									q->selected ? "TRUE" : "false");
+	sprintf(s, "vis=%s sel=%s", q->visible ? "True" : "false",
+									q->selected ? "True" : "false");
 	DrawTextLine(s); q = GetPASTAFF(qL);
 	
 	stfRect.left = q->staffLeft;  stfRect.right = systemRect.right-systemRect.left;
@@ -1225,7 +1225,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);	p = GetPMEASURE(pL);
 	sprintf(s, "systemL=%d staffL=%d", p->systemL, p->staffL);
 	DrawTextLine(s);	p = GetPMEASURE(pL);
-	sprintf(s, "fake=%s spPercent=%d", (p->fakeMeas ? "TRUE" : "false"), p->spacePercent);
+	sprintf(s, "fake=%s spPercent=%d", (p->fakeMeas ? "True" : "false"), p->spacePercent);
 	DrawTextLine(s);	p = GetPMEASURE(pL);
 	bbox = p->measureBBox;
 	sprintf(s, "measureBBox=%d %d %d %d",
@@ -1384,7 +1384,7 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "accident=%hd accSoft=%s xmoveAcc=%hd", q->accident,
-														q->accSoft ? "TRUE" : "false",
+														q->accSoft ? "True" : "false",
 														q->xmoveAcc);
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
@@ -1461,7 +1461,7 @@ void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 	sprintf(s, "accident=%hd accSoft=%s xmoveAcc=%hd", q->accident,
-														q->accSoft ? "TRUE" : "false",
+														q->accSoft ? "True" : "false",
 														q->xmoveAcc);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 	sprintf(s, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
@@ -1507,7 +1507,7 @@ void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
 	sprintf(s, "fracs=%d", q->fracs);
 	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
-	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "TRUE" : "false");
+	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "True" : "false");
 	DrawTextLine(s);
 }
 
@@ -1896,7 +1896,7 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 	
 	sprintf(s, "stf=%d voice=%d", p->staffn, p->voice);
 	DrawTextLine(s);	p = GetPSLUR(pL);
-	sprintf(s, "tie=%s", p->tie ? "TRUE" : "false");
+	sprintf(s, "tie=%s", p->tie ? "True" : "false");
 	DrawTextLine(s);	p = GetPSLUR(pL);
 	sprintf(s, "crossStf=%d crossStfBack=%d crossSys=%d",
 		p->crossStaff,p->crossStfBack,p->crossSystem);

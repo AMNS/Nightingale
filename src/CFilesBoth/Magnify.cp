@@ -165,7 +165,7 @@ short UseMTextSize(
 {
 	static short prevFontSize=-1, prevMagnify, size;
 	short actualSize;
-	Boolean doAdjust=TRUE;
+	Boolean doAdjust=True;
 	
 	if (!doAdjust) return fontSize;
 

@@ -90,19 +90,19 @@ static HYPHENSPAN	**hyphens = NULL;
 static short		numHyphens = 0;
 
 
-/* Display Flow In Text dialog. Return TRUE if OK, FALSE if CANCEL or error. */
+/* Display Flow In Text dialog. Return True if OK, False if CANCEL or error. */
 
 Boolean FlowInDialog(Document *doc, short *font)	/* ??should be static */
 {
 	short itemHit;
-	Boolean okay,keepGoing=TRUE;
+	Boolean okay,keepGoing=True;
 	DialogPtr dlog; GrafPtr oldPort;
 
 	/* Build dialog window and install its item values */
 	
 	GetPort(&oldPort);
 	dlog = OpenThisDialog(doc);
-	if (dlog == NULL) return(FALSE);
+	if (dlog == NULL) return(False);
 	
 	ReadDeskScrap();
 
@@ -159,7 +159,7 @@ Boolean FlowInDialog(Document *doc, short *font)	/* ??should be static */
 
 static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
-	Boolean		ans=FALSE, doHilite=FALSE;
+	Boolean		ans=False, doHilite=False;
 	WindowPtr	w;
 	short			ch, part;
 	Point			where;
@@ -173,7 +173,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 			if (w==GetDialogWindow(dlog)) {
 				/* Update our dialog contents */
 				DoDialogUpdate(dlog);
-				ans = TRUE; *itemHit = 0;
+				ans = True; *itemHit = 0;
 			}
 			else {
 				/*
@@ -205,11 +205,11 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 			if (part==inDrag && w==GetDialogWindow(dlog)) {
 				bounds = GetQDScreenBitsBounds();
 				DragWindow(w, evt->where, &bounds);
-				*itemHit = 0; ans = TRUE;
+				*itemHit = 0; ans = True;
 			}
 			else if (part==inContent && w==GetDialogWindow(dlog))
 				if (DoEditFieldClick(&myField, evt)) {
-					*itemHit = 0; ans = TRUE;
+					*itemHit = 0; ans = True;
 				}
 			ans = CheckUserItems(where,itemHit);
 			break;
@@ -218,14 +218,14 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 			ch = (unsigned char)evt->message;
 			if (ch == CH_ENTER) {
 				*itemHit = BUT1_Flow;
-				doHilite = ans = TRUE;
+				doHilite = ans = True;
 			}
 			/* Allow using cmd-' and cmd-" to override "smart quotes". */
 			else if ((evt->modifiers & cmdKey) && (ch!='"' && ch!='\'')) {
 				switch (ch) {
 					case '.':
 						*itemHit = CANCEL_ITEM;
-						doHilite = TRUE;
+						doHilite = True;
 						break;
 					case 'c':
 					case 'C':
@@ -240,7 +240,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 						DoTEEdit(&myField, TE_PASTE);
 						break;
 				}
-				ans = TRUE;		/* Other cmd-chars ignored */
+				ans = True;		/* Other cmd-chars ignored */
 			}
 			/* We expect DoTEFieldKeyEvent to call ConvertQuote.  */
 			else DoTEFieldKeyEvent(&myField, evt);
@@ -258,9 +258,9 @@ appropriate. */
 static Boolean CheckUserItems(Point where, short *itemHit)
 {
 	if (PtInRect(where, &popup5.shadow))
-		{ *itemHit = DoUserPopUp(&popup5) ? POP5 : 0; return TRUE; }
+		{ *itemHit = DoUserPopUp(&popup5) ? POP5 : 0; return True; }
 
-	return FALSE;
+	return False;
 }
 
 
@@ -319,12 +319,12 @@ static DialogPtr OpenThisDialog(Document *doc)
 	/* Fill in dialog's values here */
 	WaitCursor();
 	GetDialogItem(dlog, EDIT4, &type, &hndl, &box);
-	if (!CreateEditField(GetDialogWindow(dlog), box, textFontNum, textFontSize, 0, NULL, FALSE, &myField)) {
+	if (!CreateEditField(GetDialogWindow(dlog), box, textFontNum, textFontSize, 0, NULL, False, &myField)) {
 		DisposeDialog(dlog);
 		return NULL;
 	}
 	if (lyricBlk)
-		SetEditFieldText(&myField, lyricBlk, NULL, FALSE);
+		SetEditFieldText(&myField, lyricBlk, NULL, False);
 
 	TESetSelect(currWord, currWord, myField.teH);
 	ScrollToSelection(&myField);
@@ -360,7 +360,7 @@ Returns whether or not to the dialog should be closed (keepGoing). */
 static Boolean DoDialogItem(Document *doc, DialogPtr dlog, short itemHit)
 {
 	short type;
-	Boolean okay=FALSE,keepGoing=TRUE;
+	Boolean okay=False,keepGoing=True;
 	Handle hndl; Rect box;
 
 	if (itemHit<1 || itemHit>=LASTITEM) return keepGoing;
@@ -368,32 +368,32 @@ static Boolean DoDialogItem(Document *doc, DialogPtr dlog, short itemHit)
 	GetDialogItem(dlog,itemHit,&type,&hndl,&box);
 	switch (itemHit) {
 		case BUT1_Flow:
-			keepGoing = FALSE;
+			keepGoing = False;
 			break;
 		case BUT2_Cancel:
-			keepGoing = FALSE;
+			keepGoing = False;
 			break;
 		case POP5:
 			ShowLyricStyle(doc, dlog, popup5.currentChoice);
 			break;
 	}
 
-	if (okay) keepGoing = AnyBadValues(dlog);		/* ??okay IS NEVER TRUE! */
+	if (okay) keepGoing = AnyBadValues(dlog);		/* ??okay IS NEVER True! */
 	return keepGoing;
 }
 
 
-/* Pull values out of dialog items and deliver TRUE if any of them are
-illegal or inconsistent; otherwise deliver FALSE.  Doesn't need to do
+/* Pull values out of dialog items and deliver True if any of them are
+illegal or inconsistent; otherwise deliver False.  Doesn't need to do
 anything for this dialog. */
 
 static Boolean AnyBadValues(DialogPtr /*dlog*/)
 {
-	return FALSE;
+	return False;
 }
 
 
-/* Return TRUE if c is a delimiter for the units to be Flowed In: words (any white
+/* Return True if c is a delimiter for the units to be Flowed In: words (any white
 space is a delimiter) or explicitly-marked syllables ('-' is the delimiter). */
 
 static short IsFlowInDelim(char c)
@@ -497,19 +497,19 @@ static void ShowLyricStyle(Document *doc, DialogPtr dlog, short theFont)
 	GetIndString(lyricStyleStr, FLOWIN_STRS, 3);							/* "Lyric Style" */
 	switch (theFont) {
 		case TSRegular1STYLE:
-			PutDlgString(dlog,STXT6_Lyric,(unsigned char *)(doc->lyric1 ? lyricStyleStr : "\p"), FALSE);
+			PutDlgString(dlog,STXT6_Lyric,(unsigned char *)(doc->lyric1 ? lyricStyleStr : "\p"), False);
 			return;
 		case TSRegular2STYLE:
-			PutDlgString(dlog,STXT6_Lyric,(unsigned char *)(doc->lyric2 ? lyricStyleStr : "\p"), FALSE);
+			PutDlgString(dlog,STXT6_Lyric,(unsigned char *)(doc->lyric2 ? lyricStyleStr : "\p"), False);
 			return;
 		case TSRegular3STYLE:
-			PutDlgString(dlog,STXT6_Lyric,(unsigned char *)(doc->lyric3 ? lyricStyleStr : "\p"), FALSE);
+			PutDlgString(dlog,STXT6_Lyric,(unsigned char *)(doc->lyric3 ? lyricStyleStr : "\p"), False);
 			return;
 		case TSRegular4STYLE:
-			PutDlgString(dlog,STXT6_Lyric,(unsigned char *)(doc->lyric4 ? lyricStyleStr : "\p"), FALSE);
+			PutDlgString(dlog,STXT6_Lyric,(unsigned char *)(doc->lyric4 ? lyricStyleStr : "\p"), False);
 			return;			
 		case TSRegular5STYLE:
-			PutDlgString(dlog,STXT6_Lyric,(unsigned char *)(doc->lyric5 ? lyricStyleStr : "\p"), FALSE);
+			PutDlgString(dlog,STXT6_Lyric,(unsigned char *)(doc->lyric5 ? lyricStyleStr : "\p"), False);
 			return;			
 	}
 }
@@ -561,7 +561,7 @@ PushLock(OBJheap);
 		xd = 0;
 		yd = halfLn2d(pitchLev, context.staffHeight, context.staffLines);
 		NewObjSetup(doc, newpL, stf, xd);
-		SetObject(newpL, xd, yd, TRUE, TRUE, FALSE);
+		SetObject(newpL, xd, yd, True, True, False);
 	
 		graphicType = (theStyle.lyric? GRLyric : GRString);
 		fontInd = FontName2Index(doc, theStyle.fontName);
@@ -590,7 +590,7 @@ PushLock(OBJheap);
 		pGraphic->firstObj = pL;
 		pGraphic->lastObj = NILINK;
 
-		pGraphic->selected = FALSE;
+		pGraphic->selected = False;
 		pGraphic->justify = GRJustLeft;
 		pGraphic->info = User2HeaderFontNum(doc, font);
 	}
@@ -608,7 +608,7 @@ PopLock(OBJheap);
 short HandleOptionKeyMsgBox(Document *, Size);
 short HandleOptionKeyMsgBox(Document *doc, Size /*lyricLen*/)
 {
-	static Boolean	optDownNow, optDownBefore=FALSE;
+	static Boolean	optDownNow, optDownBefore=False;
 	Size tmpCurrWord;
 	
 	tmpCurrWord = currWord;
@@ -643,7 +643,7 @@ void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, short v,
 	}
 	else lastFlowL = pL;
 	
-	HiliteInsertNode(doc, pL, stf, FALSE);
+	HiliteInsertNode(doc, pL, stf, False);
 
 	/* If the user holds down the option key, don't increment the pointer
 		to the next word; this allows the user to insert the same word over
@@ -682,11 +682,11 @@ void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, short v,
 			CenterTextGraphic(doc, newL);
 	
 		GetAllContexts(doc, contextA, pL);
-		DrawGRAPHIC(doc, newL, contextA, TRUE);
+		DrawGRAPHIC(doc, newL, contextA, True);
 		if (!OptionKeyDown())
 			FlowDrawMsgBox(doc);
 		
-		RegisterHyphen(newL, prevWord, TRUE);
+		RegisterHyphen(newL, prevWord, True);
 	}
 }
 
@@ -702,7 +702,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 	EventRecord			evt;
 	Point				pt;
 	Rect				paper, portRect;
-	Boolean				gotEvent=FALSE;
+	Boolean				gotEvent=False;
 	ControlHandle		control;
 	CursHandle			flowInCursor;
 	ControlActionUPP	actionUPP;
@@ -772,8 +772,8 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 								SetControlValue(control, oldVal);
 								MEHideCaret(doc);
 								/* OK, now go ahead */
-								if (control == doc->vScroll) QuickScroll(doc, 0, change, TRUE, TRUE);
-								 else						 QuickScroll(doc, change, 0, TRUE, TRUE);
+								if (control == doc->vScroll) QuickScroll(doc, 0, change, True, True);
+								 else						 QuickScroll(doc, change, 0, True, True);
 								}
 							}
 						break;
@@ -793,7 +793,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 								/* To allow attaching to objects other than notes, remove
 									the following test for SyncTYPE. */
 								if (pL && SyncTYPE(pL) && (currWord<lyricLen || OptionKeyDown())) {
-									HiliteInsertNode(doc, pL, stf, TRUE);
+									HiliteInsertNode(doc, pL, stf, True);
 									status = InsTrackUpDown(doc, pt, &sym, pL, stf, &pitchLev);
 									
 									if (status) {
@@ -826,7 +826,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 							/* FIXME: DeleteNode doesn't get rid of string in StrMgr lib! */
 							DeleteNode(doc, lastGrL);
 							currWord = prevWord;
-							RegisterHyphen(lastGrL, currWord, FALSE);
+							RegisterHyphen(lastGrL, currWord, False);
 							lastGrL = prevGrL;
 							FlowDrawMsgBox(doc);
 						}
@@ -837,17 +837,17 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 					case '\t':
 						/* We won't enter this block until user flows once via InsTrackUpDown */
 						if (v && lastGrL && (currWord<lyricLen || OptionKeyDown())) {
-							pL = LVSearch(RightLINK(GraphicFIRSTOBJ(lastGrL)), SYNCtype, v, GO_RIGHT, FALSE);
+							pL = LVSearch(RightLINK(GraphicFIRSTOBJ(lastGrL)), SYNCtype, v, GO_RIGHT, False);
 							if (pL) {
-								aNoteL = NoteInVoice(pL, v, FALSE);
+								aNoteL = NoteInVoice(pL, v, False);
 								stf = NoteSTAFF(aNoteL);
-								HiliteInsertNode(doc, pL, stf, TRUE);
+								HiliteInsertNode(doc, pL, stf, True);
 								prevGrL = lastGrL;
 								InsertSyllable(doc, pL, &lastGrL, stf, v,
 														lyricLen, pitchLev, theFont, theStyle);
 
 								/* if new Graphic is offscreen, scroll it into view */
-								pt = LinkToPt(doc, pL, TRUE);
+								pt = LinkToPt(doc, pL, True);
 								if (!PtInRect(pt, &doc->viewRect)) {
 									LINK tmpSelStartL = doc->selStartL;
 									doc->selStartL = pL;
@@ -865,7 +865,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 				break;
 			case activateEvt:
 				activ = (evt.modifiers & activeFlag) != 0;
-				DoActivate(&evt,activ,FALSE);
+				DoActivate(&evt,activ,False);
 				if (flowInCursor) SetCursor(*flowInCursor);
 				break;
 			case updateEvt:
@@ -895,7 +895,7 @@ void DoTextFlowIn(Document *doc)
 
 	if (FlowInDialog(doc, &theFont)) {
 		CopyStyle(doc, theFont, &style);
-		DisableUndo(doc, FALSE);
+		DisableUndo(doc, False);
 		firstFlowL = lastFlowL = NILINK;
 		
 		FlowInTextObjects(doc, theFont, style);
@@ -911,12 +911,12 @@ void DoTextFlowIn(Document *doc)
 			if (firstFlowL && lastFlowL) {
 				LINK firstMeasL, prevMeasL;
 				
-				RespaceBars(doc, firstFlowL, lastFlowL, 0L, FALSE, FALSE);
+				RespaceBars(doc, firstFlowL, lastFlowL, 0L, False, False);
 				
 				/* First Graphic might overlap previous measure. Inval that measure,
 				 * if it's on the same system, just in case.
 				 */
-				firstMeasL = LSSearch(firstFlowL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+				firstMeasL = LSSearch(firstFlowL, MEASUREtype, ANYONE, GO_LEFT, False);
 				prevMeasL = LinkLMEAS(firstMeasL);
 				if (SameSystem(prevMeasL, firstMeasL))
 					InvalMeasure(prevMeasL, ANYONE);
@@ -938,7 +938,7 @@ to the Graphics that initiate and terminate a hyphen, as well as their voice num
 static void RegisterHyphen(
 				LINK	grL,			/* Graphic just inserted */
 				short	charOffset,		/* offset of Graphic's text in lyricBlk */
-				Boolean	add				/* if TRUE, register; if FALSE, un-register */
+				Boolean	add				/* if True, register; if False, un-register */
 			)
 {
 	short		i, numNodes;
@@ -968,9 +968,9 @@ static void RegisterHyphen(
 	
 	/* find out if it ends with hyphen */
 	if (syllable[strlen(syllable)-1]=='-')							/* test last letter of syllable */
-		hasHyphen = TRUE;
+		hasHyphen = True;
 	else
-		hasHyphen = FALSE;
+		hasHyphen = False;
 	
 	voice = GraphicVOICE(grL);
 	
@@ -1088,7 +1088,7 @@ short CreateHyphenRun(
 										/* NB: if endL is a measure, it may come *before* startL! */
 			DDIST		startXD,		/* left edge of space to fill with hyphen run */
 			DDIST		endXD,			/* right edge [ditto] */
-			Boolean		openSys,		/* TRUE if last meas in sys is not fake (i.e., syncs follow last bar line in sys) */
+			Boolean		openSys,		/* True if last meas in sys is not fake (i.e., syncs follow last bar line in sys) */
 			short		v,				/* Attach hyphen graphics to syncs in this voice */
 			DDIST		hyphenWid,		/* width of hyphen char in context of first syllable */
 			short		pitchLev,		/* halfLine pos of first syllable */
@@ -1120,7 +1120,7 @@ short CreateHyphenRun(
 			desiredXD = spcLeft + ((subSpace-hyphenWid)>>1);
 
 			for (lastL=prevL; ; lastL=pL) {									/* ...find best Sync to attach it to */
-				pL = LVSearch(RightLINK(lastL), SYNCtype, v, GO_RIGHT, FALSE);
+				pL = LVSearch(RightLINK(lastL), SYNCtype, v, GO_RIGHT, False);
 				if (pL==NILINK) break;						/* Should never happen because there has to be a Sync */
 															/* for last syllable, even if it's not on this system. */
 				if (!SameSystem(lastL, pL)) {
@@ -1129,7 +1129,7 @@ short CreateHyphenRun(
 					break;
 				}
 				thisXD = SysRelxd(pL);
-				measL = LSISearch(pL, MEASUREtype, ANYONE, TRUE, FALSE);	/* get next meas on same sys */
+				measL = LSISearch(pL, MEASUREtype, ANYONE, True, False);	/* get next meas on same sys */
 				if (measL) {
 					/* if hyphen appears before measL, attach to last sync */
 					if (LinkXD(measL)>desiredXD) {
@@ -1156,7 +1156,7 @@ short CreateHyphenRun(
 			   we could fiddle with pitchLev to make all hyphens appear at same height,
 			   regardless of which staff their parent notes are on. */
 			
-			aNoteL = NoteInVoice(pL, v, FALSE);
+			aNoteL = NoteInVoice(pL, v, False);
 			stf = NoteSTAFF(aNoteL);
 
 			/* create one hyphen Graphic */
@@ -1174,7 +1174,7 @@ short CreateHyphenRun(
 			   hyphens will end up off the right side of the page. */
 			
 			if (openSys) {
-				LINK syncL = LVSearch(RightLINK(pL), SYNCtype, v, GO_RIGHT, FALSE);
+				LINK syncL = LVSearch(RightLINK(pL), SYNCtype, v, GO_RIGHT, False);
 				if (!SameSystem(syncL, pL) && desiredXD>(SysRelxd(pL)-(subSpace>>2))) break;
 			}
 			
@@ -1244,7 +1244,7 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 	
 		if (SameSystem(firstSyncL, lastSyncL))
 			ans = CreateHyphenRun(doc, h->startL, firstSyncL, lastSyncL, startRtEdge,
-									endLeftEdge, FALSE, voice, hyphenWid, pitchLev, theFont,
+									endLeftEdge, False, voice, hyphenWid, pitchLev, theFont,
 									/* NB: this  ^^^^^ doesn't matter in this case */
 									theStyle, dMaxHyphenDist);
 
@@ -1263,7 +1263,7 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 					endL = GetLastMeasInSys(startSysL);
 					lastMeasFake = IsFakeMeasure(doc, endL);
 					if (FirstMeasInSys(endL))
-						lastMeasFake = FALSE;				/* if only 1 barline on sys, disregard fakeness */
+						lastMeasFake = False;				/* if only 1 barline on sys, disregard fakeness */
 					if (!lastMeasFake)
 						endXD = SysRectRIGHT(startSysL) - SysRectLEFT(startSysL);	/* sys-rel end of system */
 					else
@@ -1274,16 +1274,16 @@ static void AddHyphens(Document *doc, short theFont, TEXTSTYLE theStyle)
 					startXD = SysRelxd(startL);
 					endL = lastSyncL;
 					endXD = endLeftEdge;
-					lastMeasFake = TRUE;					/* doesn't matter in this case */
+					lastMeasFake = True;					/* doesn't matter in this case */
 				}
 				else {										/* any intervening systems */
-					midSysL = LSSearch(startSysL, SYSTEMtype, SystemNUM(startSysL)+j-1, GO_RIGHT, FALSE);
-					startL = LSSearch(midSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);	/* 1st meas in sys */
+					midSysL = LSSearch(startSysL, SYSTEMtype, SystemNUM(startSysL)+j-1, GO_RIGHT, False);
+					startL = LSSearch(midSysL, MEASUREtype, ANYONE, GO_RIGHT, False);	/* 1st meas in sys */
 					startXD = SysRelxd(startL);
 					endL = GetLastMeasInSys(midSysL);									/* last meas in sys */
 					lastMeasFake = IsFakeMeasure(doc, endL);
 					if (FirstMeasInSys(endL))
-						lastMeasFake = FALSE;				/* if only 1 barline on sys, disregard fakeness */
+						lastMeasFake = False;				/* if only 1 barline on sys, disregard fakeness */
 					if (!lastMeasFake)
 						endXD = SysRectRIGHT(midSysL) - SysRectLEFT(midSysL);
 					else
@@ -1319,10 +1319,10 @@ Do this by allocating a handle and assigning it lyricBlk. If lyricBlk was not NU
 first dispose it, without warning the user. This is not used by the Flow in Text
 command: it was written for the Open ETF command.
 
-If <pText> contains too much text, return FALSE. ??Probably we should truncate the
+If <pText> contains too much text, return False. ??Probably we should truncate the
 text in this case.
 
-Returns TRUE if all okay. Gives an error msg and returns FALSE if error. */
+Returns True if all okay. Gives an error msg and returns False if error. */
 
 Boolean SetFlowInText(Ptr pText)
 {
@@ -1331,16 +1331,16 @@ Boolean SetFlowInText(Ptr pText)
 	
 	if (!pText) {
 		MayErrMsg("SetFlowInText: <pText> is NULL!");
-		return FALSE;
+		return False;
 	}
 	pTextSize = GetPtrSize(pText);
 	if (pTextSize==0L) {
 		MayErrMsg("SetFlowInText: <pText> is empty.");
-		return FALSE;
+		return False;
 	}
 	if (pTextSize>(long)SHRT_MAX) {
 		MayErrMsg("SetFlowInText: <pText> contains more than 32K bytes.");
-		return FALSE;
+		return False;
 	}
 	
 	if (lyricBlk) {
@@ -1348,7 +1348,7 @@ Boolean SetFlowInText(Ptr pText)
 		err = MemError();
 		if (err) {
 			MayErrMsg("SetFlowInText: DisposHandle on <lyricBlk> failed (%d)", err);
-			return FALSE;
+			return False;
 		}
 	}
 	
@@ -1356,8 +1356,8 @@ Boolean SetFlowInText(Ptr pText)
 	if (err) {
 		NoMoreMemory();
 		lyricBlk = NULL;
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;
+	return True;
 }

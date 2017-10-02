@@ -275,7 +275,7 @@ Boolean ReportIOError(short errCode, short dlog)
 	StringHandle strHdl;
 	char fmtStr[256];
 	
-	if (errCode==noError) return FALSE;
+	if (errCode==noError) return False;
 
 	strHdl = GetString(errCode);
 	if (strHdl) {
@@ -288,13 +288,13 @@ Boolean ReportIOError(short errCode, short dlog)
 	}
 	CParamText(strBuf, "", "", "");
 	StopInform(dlog);
-	return TRUE;
+	return True;
 }
 
 
 /* -------------------------------------------------------------------- ReportResError -- */
 /* Check for a Resource Manager error and alert user to it, if there is one. Return
-TRUE if there's an error, FALSE if not. NB: Calling this after, e.g., GetResource
+True if there's an error, False if not. NB: Calling this after, e.g., GetResource
 is not good enough: even if the GetResource failed, ResError() can return noErr!
 (Cf. Inside Macintosh, I-119.) To check validity of newly-allocated resources, use
 ReportBadResource. */
@@ -311,15 +311,15 @@ Boolean ReportResError()
 		sprintf(buf,"Resource Manager error number %d.", theErr);
 		CParamText(buf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return TRUE;
+		return True;
 	}
-	return FALSE;
+	return False;
 }
 
 
 /* ----------------------------------------------------------------- ReportBadResource -- */
 /* Check for validity of the given resource, presumably just allocated, and alert
-user if there is a problem. Return TRUE if there's an error, FALSE if not. */
+user if there is a problem. Return True if there's an error, False if not. */
 
 Boolean ReportBadResource(Handle resH)
 {
@@ -331,10 +331,10 @@ Boolean ReportBadResource(Handle resH)
 			CParamText("Couldn't get a resource.", "", "", "");
 			StopInform(GENERIC_ALRT);
 		}
-		return TRUE;
+		return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 

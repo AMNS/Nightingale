@@ -55,11 +55,11 @@ static void NExitToShell(char *msg)
 }
 
 
-/* Display splash screen. If all OK, return TRUE; if there's a problem, return FALSE.
+/* Display splash screen. If all OK, return True; if there's a problem, return False.
 
 In commercial versions of Nightingale, the splash screen we displayed shows the owner's
 name and organization, to discourage illegal copying. We also checked (but didn't display)
-the copy serial number: if it's wrong, return FALSE. */
+the copy serial number: if it's wrong, return False. */
 
 #define NAME_DI 1
 #define ABOUT_DI 2
@@ -71,7 +71,7 @@ static Boolean DoSplashScreen()
 
 	GetPort(&oldPort);
 	dlog = GetNewDialog(OWNER_DLOG, NULL, BRING_TO_FRONT);
-	if (!dlog) return FALSE;
+	if (!dlog) return False;
 	SetPort(GetDialogWindowPort(dlog));
 
 	GetDialogItem(dlog, NAME_DI, &aShort, &aHdl, &aRect);
@@ -89,7 +89,7 @@ static Boolean DoSplashScreen()
 	DisposeDialog(dlog);										/* Free heap space */
 	SetPort(oldPort);
 
-	return TRUE;
+	return True;
 }
 
 
@@ -108,7 +108,7 @@ static Boolean InitAllCursors()
 	if (nsyms>MAX_CURSORS) {
 		MayErrMsg("InitAllCursors: Need %ld cursors but only allocated %ld",
 					(long)nsyms, (long)MAX_CURSORS);
-		return FALSE;
+		return False;
 	}
 	
 	for (i = 0;i<nsyms; i++)							/* Fill in list of cursor handles */
@@ -117,13 +117,13 @@ static Boolean InitAllCursors()
 		else
 			cursorList[i] = (CursHandle)0;
 	arrowCursor = currentCursor = GetCursor(ARROW_CURS);
-	return TRUE;
+	return True;
 	
 Error:
 	GetIndCString(strBuf, INITERRS_STRS, 7);			/* "Can't find cursor resources" */
 	CParamText(strBuf, "", "", "");
 	StopInform(GENERIC_ALRT);
-	return FALSE;
+	return False;
 }
 
 
@@ -197,9 +197,9 @@ static Boolean InitNightGlobals()
 	clickMode = ClickSelect;
 	lastCopy = COPYTYPE_CONTENT;
 
-	doNoteheadGraphs = FALSE;							/* Normal noteheads, not tiny graphs */
+	doNoteheadGraphs = False;							/* Normal noteheads, not tiny graphs */
 	playTempoPercent = 100;								/* Play using the tempi as marked */
-	unisonsOK = TRUE;									/* Don't complain about perfect unisons */
+	unisonsOK = True;									/* Don't complain about perfect unisons */
 
 	/* Find input char. codes for important symbol table entries */
 	
@@ -217,7 +217,7 @@ static Boolean InitNightGlobals()
 	maxEndingNum = InitEndingStrings();
 	if (maxEndingNum<0) {
 		NoMoreMemory();
-		return FALSE;
+		return False;
 	}
 	else if (maxEndingNum<5) {
 		GetIndCString(fmtStr, INITERRS_STRS, 26);	/* "Found only %d Ending strings: Ending labels may not be shown." */
@@ -226,12 +226,12 @@ static Boolean InitNightGlobals()
 		NoteInform(GENERIC_ALRT);
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
 /* Read 'BBX#', 'MCMp' and 'MCOf' resources for alternative music fonts, and store
-their information in newly allocated musFontInfo[]. Return TRUE if OK; FALSE if error.
+their information in newly allocated musFontInfo[]. Return True if OK; False if error.
 Assumes that each font, including Sonata, has one of all three types of resource
 mentioned above, and that the resource ID's for a font's three types match.  For
 example, "Petrucci" should have 'BBX#' 129, 'MCMp' 129 and 'MCOf' 129.
@@ -258,7 +258,7 @@ static Boolean InitMusFontTables()
 	musFontInfo = (MusFontRec *)NewPtr(nBytes);
 	if (!GoodNewPtr((Ptr)musFontInfo)) {
 		OutOfMemory((long)nBytes);
-		return FALSE;
+		return False;
 	}
 
 	/* Read 'BBX#' (character bounding box) info. */
@@ -341,18 +341,18 @@ static Boolean InitMusFontTables()
 	}
 
 	UseResFile(curResFile);
-	return TRUE;
+	return True;
 error:
 	GetIndCString(strBuf, INITERRS_STRS, 28);		/* "Trouble reading alternative music font information." */
 	CParamText(strBuf, "", "", "");
 	NoteInform(GENERIC_ALRT);
 	UseResFile(curResFile);
-	return FALSE;
+	return False;
 }
 
 
 /* Initialize duration, rastral size, dynam to MIDI velocity, etc. tables. If
-there's a serious problem, return FALSE, else TRUE. */
+there's a serious problem, return False, else True. */
 
 static Boolean InitTables()
 {
@@ -370,14 +370,14 @@ static Boolean InitTables()
 		
 	if (LAST_DYNAM!=24) {
 		MayErrMsg("InitTables: dynam2velo table setup problem.");
-		return FALSE;
+		return False;
 	}
 	midiStuff = (MIDIPreferences **)GetResource('MIDI',PREFS_MIDI);
 	if (midiStuff==NULL || *midiStuff==NULL) {
 		GetIndCString(strBuf, INITERRS_STRS, 8);	/* "Can't find MIDI resource" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	for (i = 1; i<LAST_DYNAM; i++)						/* Set up dynamic-mark-to-MIDI-velocity table */
 		dynam2velo[i] = (*midiStuff)->velocities[i-1];
@@ -387,7 +387,7 @@ static Boolean InitTables()
 		GetIndCString(strBuf, INITERRS_STRS, 31);		/* "Can't find MIDM resource" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	/* Set up MIDI modifier velocity offset and duration factor tables */
 	for (i = 0; i<32; i++) {
@@ -396,19 +396,19 @@ static Boolean InitTables()
 	}
 
 	if (!InitMusFontTables())
-		return FALSE;
+		return False;
 	if (!InitStringPools(256L, 0)) {
 		NoMoreMemory();
-		return FALSE;
+		return False;
 	}
 	
 	contextA = (CONTEXT *)NewPtr((MAXSTAVES+1)*(Size)sizeof(CONTEXT));
 	if (!GoodNewPtr((Ptr)contextA)) {
 		OutOfMemory((long)(MAXSTAVES+1)*(Size)sizeof(CONTEXT));
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;	
+	return True;	
 }
 
 
@@ -437,7 +437,7 @@ static void PrintInfo()
 
 
 /* GetFontNumber returns in the <fontNum> parameter the number for the font with
-the given font name. If there's no such font, it returns TRUE. From Inside Mac VI,
+the given font name. If there's no such font, it returns True. From Inside Mac VI,
 12-16. */
 
 Boolean GetFontNumber(const Str255, short *);
@@ -449,10 +449,10 @@ Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
 	if (*pFontNum==0) {
 		/* Either the font was not found, or it is the system font. */
 		GetFontName(0, systemFontName);
-		return EqualString(fontName, systemFontName, FALSE, FALSE);
+		return EqualString(fontName, systemFontName, False, False);
 	}
 	else
-		return TRUE;
+		return True;
 }
 
 
@@ -473,7 +473,7 @@ static void CheckScreenFonts()
 	/* FIXME: The following comment obviously predates OS X. What's the situation now?
 		--DAB, Mar. 2016
 		Under System 7, it seems that only the first call to RealFont is meaningful:
-		following calls for any size always return TRUE! So it's not obvious how to find
+		following calls for any size always return True! So it's not obvious how to find
 		out what sizes are really present without looking at the FONTs or NFNTs. */
 		
 	GetIndCString(strBuf, INITERRS_STRS, 16);			/* "Screen versions of the Sonata music font not available in size(s):" */
@@ -534,7 +534,7 @@ void InitMusicFontStuff()
 	maxMCharHt = maxMCharWid;
 #ifdef USE_GWORLDS
 	/* We lock the pixmap inside MakeGWorld and leave it that way. */
-	fontPort = (GrafPtr)MakeGWorld(maxMCharWid, maxMCharHt, TRUE);
+	fontPort = (GrafPtr)MakeGWorld(maxMCharWid, maxMCharHt, True);
 #else
 	fontPort = NewGrafPort(maxMCharWid, maxMCharHt);
 #endif
@@ -546,7 +546,7 @@ void InitMusicFontStuff()
 
 static Boolean InitChosenMIDISystem()
 {
-	Boolean midiOK = TRUE;
+	Boolean midiOK = True;
 	
 	if (useWhichMIDI == MIDIDR_CM)
 		midiOK = InitCoreMIDI();

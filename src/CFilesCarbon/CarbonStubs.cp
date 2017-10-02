@@ -1,7 +1,15 @@
+/* CarbonStubs.cp for Nightingale */
+
 // MAS
 #include "Nightingale_Prefix.pch"
 // MAS
 #include "CarbonStubs.h"
+
+/* Everywhere else in Nightingale they're used, True and False are defined, but I can't
+find the #defines;  here they're _not_ defined, and I can't see what the difference is!
+Strange.  --DAB, Oct. 2017 */
+#define True 1
+#define False 0
 
 short InstallConsole(short /*fd*/)
 { return 0; }
@@ -21,17 +29,17 @@ long ReadCharsFromConsole(char */*buffer*/, long /*n*/)
 
 /* OMSUtils */
 
-long		gmOMSBufferLength;	/* OMS MIDI Buffer size in bytes */
+long	gmOMSBufferLength;	/* OMS MIDI Buffer size in bytes */
 Boolean	gOMSMIDIBufferFull;
 
 void SetOMSConfigMenuTitles(void)
 {}
 
 Boolean OMSInit(void)
-{ return FALSE; }
+{ return False; }
 
 Boolean OMSClose(void)
-{ return FALSE; }
+{ return False; }
 
 void InitOMSBuffer(void)
 {}
@@ -134,7 +142,7 @@ void DeletePartLOMSDevice(Document */*doc*/, LINK /*partL*/)
 {}
 
 Boolean OMSChannelValid(OMSUniqueID /*device*/, short /*channel*/)
-{ return FALSE; }
+{ return False; }
 
 OMSErr OpenOMSInput(OMSUniqueID /*device*/)
 { return noErr; }
@@ -145,7 +153,7 @@ void CloseOMSInput(OMSUniqueID /*device*/)
 Boolean GetOMSPartPlayInfo(Document *, short [], Byte [],
 							Byte [], SignedByte [], short [],
 							OMSUniqueID [])
-{ return FALSE; }
+{ return False; }
 
 void GetOMSNotePlayInfo(Document *, LINK , short [],
 						Byte [], SignedByte [], short [],
@@ -153,7 +161,7 @@ void GetOMSNotePlayInfo(Document *, LINK , short [],
 {}
 
 OMSAPI(OMSBool) TestOMSDeviceMenu(OMSDeviceMenuH , OMSPoint )
-{ return FALSE; }
+{ return False; }
 
 OMSAPI(short)	ClickOMSDeviceMenu(OMSDeviceMenuH )
 { return 0; }
@@ -263,13 +271,13 @@ void DrawFMSPatchMenu(const Rect *, const fmsUniqueID , const short )
 {}
 
 Boolean RunFMSDeviceMenu(const Rect *, fmsUniqueID *, short *)
-{ return TRUE; }
+{ return True; }
 
 Boolean RunFMSPatchMenu(const Rect *, const fmsUniqueID , const short )
-{ return TRUE; }
+{ return True; }
 
 Boolean GetFMSCurrentPatchInfo(const fmsUniqueID , const short , short *, short *, short *)
-{ return TRUE; }
+{ return True; }
 
 fmsUniqueID GetFMSDeviceForPartn(Document *, short)
 { return (fmsUniqueID)0; }
@@ -280,11 +288,11 @@ fmsUniqueID GetFMSDeviceForPartL(Document *doc, LINK partL) { return (fmsUniqueI
 void SetFMSDeviceForPartL(Document *, LINK, fmsUniqueID)
 {}
 
-Boolean FMSChannelValid(fmsUniqueID device, short channel) { return TRUE; }
+Boolean FMSChannelValid(fmsUniqueID device, short channel) { return True; }
 
 Boolean GetFMSPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 						Byte partPatch[], Byte partBankSel0[], Byte partBankSel32[],
-						SignedByte partVelo[], fmsUniqueID partDevice[]) { return TRUE; }
+						SignedByte partVelo[], fmsUniqueID partDevice[]) { return True; }
 						
 void GetFMSNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 				Byte partChannel[], SignedByte partVelo[], fmsUniqueID partDevice[],
@@ -407,12 +415,12 @@ void MIDIStopTime(short /*refNum*/)
 // Called from DoFileMenu [Menu.c]
 
 Boolean	DoPostScript(Document */*doc*/)
-{ return FALSE; }
+{ return False; }
 
 // MIDIRecord.c
 
-//Boolean StepRecord(Document *, Boolean ) { return TRUE; }
+//Boolean StepRecord(Document *, Boolean ) { return True; }
 
-//Boolean Record(Document *) { return TRUE; }
+//Boolean Record(Document *) { return True; }
 
-//Boolean RTMRecord(Document *) { return TRUE; }
+//Boolean RTMRecord(Document *) { return True; }

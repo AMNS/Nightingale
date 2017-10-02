@@ -50,7 +50,7 @@ so often on NULL events.  Also maintain the cursor and try to purge all segments
 
 Boolean DoEvent()
 	{
-		Boolean haveEvent, keepGoing = TRUE, activ;
+		Boolean haveEvent, keepGoing = True, activ;
 		long soon;  short result;
 		static short fixCount = 1;
 		Point corner;
@@ -92,7 +92,7 @@ Boolean DoEvent()
 					break;
         	    case activateEvt:
         	    	activ = (theEvent.modifiers &activeFlag) != 0;
-        	    	DoActivate(&theEvent, activ, FALSE);
+        	    	DoActivate(&theEvent, activ, False);
         	    	break;
         	    case updateEvt:
         	    	DoUpdate((WindowPtr)(theEvent.message));
@@ -130,8 +130,8 @@ Boolean DoEvent()
 				if (TopWindow)
 					DoCloseWindow(TopWindow);
 				else {
-					closingAll = FALSE;
-					if (quitting) keepGoing = FALSE;
+					closingAll = False;
+					if (quitting) keepGoing = False;
 					}
 			 else {
 				/* Just a plain old vanilla null event */
@@ -182,7 +182,7 @@ dialogKind temporarily for the benefit of some too-smart-for-our-own-good Toolbo
 
 static void DoNullEvent(EventRecord *evt)
 	{
-		WindowPtr w;  short itemHit;  Boolean other = FALSE;
+		WindowPtr w;  short itemHit;  Boolean other = False;
 		Document *doc;
 		
 		w = TopWindow;
@@ -190,14 +190,14 @@ static void DoNullEvent(EventRecord *evt)
 			switch (GetWindowKind(w)) {
 				case dialogKind:
 					DialogSelect(evt, (DialogPtr *)&w, &itemHit);	/* Force carets to blink */
-					other = TRUE;
+					other = True;
 					break;
 				case PALETTEKIND:
 					break;
 				case DOCUMENTKIND:
 					break;
 				default:
-					other = TRUE;
+					other = True;
 					break;
 				}
 		
@@ -228,7 +228,7 @@ void DoUpdate(WindowPtr w)
 			case DOCUMENTKIND:
 				doc=GetDocumentFromWindow(w);
 				if (doc!=NULL) {
-					doView = TRUE;
+					doView = True;
 					/* Get bounding box of region to redraw in local coords */
 					RgnHandle visRgn = NewRgn();
 					GetPortVisibleRegion(GetWindowPort(w), visRgn);
@@ -236,7 +236,7 @@ void DoUpdate(WindowPtr w)
 					DisposeRgn(visRgn);
 					InstallDoc(doc);
 					DrawDocumentControls(doc);
-					DrawMessageBox(doc, TRUE);
+					DrawMessageBox(doc, True);
 					if (doView) DrawDocumentView(doc, &bBox);
 					topDoc = GetDocumentFromWindow(TopDocument);
 					if (topDoc!=NULL) InstallDoc(topDoc);
@@ -266,7 +266,7 @@ void UpdateAllWindows()
 	}
 
 
-/* Handle an activate/deactivate event.  If isJuggle is TRUE, then this is the final part
+/* Handle an activate/deactivate event.  If isJuggle is True, then this is the final part
 of a suspend/resume event. */
 
 void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
@@ -307,7 +307,7 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 				else
 					gNightScrap = scrap;
 				}
-			wasOurWindow = TRUE;
+			wasOurWindow = True;
 			}
 		 else {
 		 	/* 
@@ -319,7 +319,7 @@ void DoActivate(EventRecord *event, Boolean activ, Boolean isJuggle)
 			if (curAct!=NULL && GetWindowKind(curAct)<0) {
 				GetCurrentScrap(&gNightScrap);
 				TEToScrap();
-				wasOurWindow = FALSE;
+				wasOurWindow = False;
 				}
 			}
 		
@@ -382,7 +382,7 @@ void DoSuspendResume(EventRecord *event)
 						}
 					/* Convert to activate event */
 					event->modifiers |= activeFlag;
-					inBackground = FALSE;
+					inBackground = False;
 					if (clipShow) {
 						/* DoSelectWindow(clipboard->theWindow); */
 						ShowWindow(clipboard->theWindow);
@@ -393,7 +393,7 @@ void DoSuspendResume(EventRecord *event)
 					ArrowCursor();
 					}
 				 else {				/* Else it's a suspend event */
-					inBackground = TRUE;
+					inBackground = True;
 					/* Convert to deactivate event */
 					event->modifiers &= ~activeFlag;
 					clipShow = IsWindowVisible(clipboard->theWindow);
@@ -404,7 +404,7 @@ void DoSuspendResume(EventRecord *event)
 				event->message = (long)TopDocument;
 				event->what = activateEvt;
 				if (event->message) {
-					DoActivate(event, activ, TRUE);
+					DoActivate(event, activ, True);
 					}
 				break;
 			}
@@ -416,7 +416,7 @@ void DoSuspendResume(EventRecord *event)
 static Boolean DoMouseDown(EventRecord *event)
 	{
 		short part;
-		Boolean keepGoing = TRUE, option, shift, command, frontClick;
+		Boolean keepGoing = True, option, shift, command, frontClick;
 		WindowPtr w;  Point pt;
 		
 		option  = (event->modifiers & optionKey) != 0;
@@ -444,7 +444,7 @@ static Boolean DoMouseDown(EventRecord *event)
 			if (part == inSysWindow)
 				;
 			 else {
-			 	frontClick = TRUE;
+			 	frontClick = True;
 				if (!ActiveWindow(w)) {
 					/*
 					 *	If the window clicked in is a palette, bring it to front like
@@ -562,8 +562,8 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 									SetControlValue(control,oldVal);
 									MEHideCaret(doc);
 									/* OK, now go ahead */
-									if (control==doc->vScroll)	QuickScroll(doc, 0, change, TRUE, TRUE);
-									 else						QuickScroll(doc, change, 0, TRUE,TRUE);
+									if (control==doc->vScroll)	QuickScroll(doc, 0, change, True, True);
+									 else						QuickScroll(doc, change, 0, True,True);
 									}
 								}
 							break;
@@ -575,11 +575,11 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 					}
 				break;
 			case PALETTEKIND:
-				notMenu = TRUE;
+				notMenu = True;
 				index = GetWRefCon(w);
 				if (index == TOOL_PALETTE) DoToolContent(pt, modifiers);
 				if (index == CLAVIER_PALETTE) SysBeep(60);
-				notMenu = FALSE;
+				notMenu = False;
 				break;
 					
 			}
@@ -608,7 +608,7 @@ void AutoScroll()
 				 else if (pt.v >= theDoc->viewRect.bottom) dy = 24;
 				
 				GetPenState(&pen);
-				QuickScroll(theDoc, dx, dy, TRUE, TRUE);	/* Change coordinate system */
+				QuickScroll(theDoc, dx, dy, True, True);	/* Change coordinate system */
 				SetPenState(&pen);
 				}
 			}
@@ -645,13 +645,13 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 					
 					if (doc->masterView) {
 						didSomething = DoEditMaster(doc, pt, modifiers, doubleClick);
-						if (didSomething) doc->masterChanged = TRUE;
+						if (didSomething) doc->masterChanged = True;
 					}
 					else if (doc->showFormat) {
 						didSomething = DoEditFormat(doc, pt, modifiers, doubleClick);
 
 						if (didSomething)
-							/* doc->formatChanged TRUE; */
+							/* doc->formatChanged True; */
 							;
 					}
 					else
@@ -659,7 +659,7 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 
 #ifdef SHEETSSELECTION
 					if (didSomething)
-						doc->changed = TRUE;
+						doc->changed = True;
 					 else {
 						theSelectionType = MARCHING_ANTS;
 						GetSelection(w, &result, /*&paper*/NULL, AutoScroll);
@@ -682,7 +682,7 @@ static void DoDocContent(WindowPtr w, Point pt, short modifiers, long when)
 
 
 /* Move the selected symbol -- or, for some object types, symbols -- of certain types a
- teeny bit. Returns TRUE if it did anything. */
+ teeny bit. Returns True if it did anything. */
 
 #define NUDGE_DIST	p2d(1)		/* Distance to move: 1 pixel */
 
@@ -693,7 +693,7 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 	PTUPLET pTuplet;
 	Boolean moved;  DDIST nudgeSignedDist;
 
-	moved = FALSE;
+	moved = False;
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL))
 			switch (ObjLType(pL)) {
@@ -701,60 +701,60 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 				case SYNCtype:
 					if (arrowKeyCode==kLeftArrowCharCode) nudgeSignedDist = -NUDGE_DIST;
 					else if (arrowKeyCode==kRightArrowCharCode) nudgeSignedDist = NUDGE_DIST;
-					else return FALSE;								/* Attempt to move vertically */
+					else return False;								/* Attempt to move vertically */
 					aNoteL = FirstSubLINK(pL);
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 						if (NoteSEL(aNoteL))
 							NoteXD(aNoteL) += nudgeSignedDist;
 					}
-					return TRUE;
+					return True;
 					
 				/* Move the entire object in any direction. */
 				case TEMPOtype:
 				case GRAPHICtype:
-					if (arrowKeyCode==kLeftArrowCharCode) { LinkXD(pL) -= NUDGE_DIST; moved = TRUE; }
-					else if (arrowKeyCode==kRightArrowCharCode) { LinkXD(pL) += NUDGE_DIST; moved = TRUE; }
-					else if (arrowKeyCode==kUpArrowCharCode) { LinkYD(pL) -= NUDGE_DIST; moved = TRUE; }
-					else if (arrowKeyCode==kDownArrowCharCode) { LinkYD(pL) += NUDGE_DIST; moved = TRUE; }
+					if (arrowKeyCode==kLeftArrowCharCode) { LinkXD(pL) -= NUDGE_DIST; moved = True; }
+					else if (arrowKeyCode==kRightArrowCharCode) { LinkXD(pL) += NUDGE_DIST; moved = True; }
+					else if (arrowKeyCode==kUpArrowCharCode) { LinkYD(pL) -= NUDGE_DIST; moved = True; }
+					else if (arrowKeyCode==kDownArrowCharCode) { LinkYD(pL) += NUDGE_DIST; moved = True; }
 					return moved;
 				case DYNAMtype:
 					aDynamicL = FirstSubLINK(pL);
-					if (arrowKeyCode==kLeftArrowCharCode) { LinkXD(pL) -= NUDGE_DIST; moved = TRUE; }
-					else if (arrowKeyCode==kRightArrowCharCode) { LinkXD(pL) += NUDGE_DIST; moved = TRUE; }
-					else if (arrowKeyCode==kUpArrowCharCode) { DynamicYD(aDynamicL) -= NUDGE_DIST; moved = TRUE; }
-					else if (arrowKeyCode==kDownArrowCharCode) { DynamicYD(aDynamicL) += NUDGE_DIST; moved = TRUE; }
+					if (arrowKeyCode==kLeftArrowCharCode) { LinkXD(pL) -= NUDGE_DIST; moved = True; }
+					else if (arrowKeyCode==kRightArrowCharCode) { LinkXD(pL) += NUDGE_DIST; moved = True; }
+					else if (arrowKeyCode==kUpArrowCharCode) { DynamicYD(aDynamicL) -= NUDGE_DIST; moved = True; }
+					else if (arrowKeyCode==kDownArrowCharCode) { DynamicYD(aDynamicL) += NUDGE_DIST; moved = True; }
 					
 					if (IsHairpin(pL)) {
-						if (arrowKeyCode==kLeftArrowCharCode) { DynamicENDXD(aDynamicL) -= NUDGE_DIST; moved = TRUE; }
-						else if (arrowKeyCode==kRightArrowCharCode) { DynamicENDXD(aDynamicL) += NUDGE_DIST; moved = TRUE; }
-						else if (arrowKeyCode==kUpArrowCharCode) { DynamicENDYD(aDynamicL) -= NUDGE_DIST; moved = TRUE; }
-						else if (arrowKeyCode==kDownArrowCharCode) { DynamicENDYD(aDynamicL) += NUDGE_DIST; moved = TRUE; }
+						if (arrowKeyCode==kLeftArrowCharCode) { DynamicENDXD(aDynamicL) -= NUDGE_DIST; moved = True; }
+						else if (arrowKeyCode==kRightArrowCharCode) { DynamicENDXD(aDynamicL) += NUDGE_DIST; moved = True; }
+						else if (arrowKeyCode==kUpArrowCharCode) { DynamicENDYD(aDynamicL) -= NUDGE_DIST; moved = True; }
+						else if (arrowKeyCode==kDownArrowCharCode) { DynamicENDYD(aDynamicL) += NUDGE_DIST; moved = True; }
 					}
 					return moved;
 				case OTTAVAtype:
 					ottavap = GetPOTTAVA(pL);
 					if (arrowKeyCode==kLeftArrowCharCode) {
-						ottavap->xdFirst -= NUDGE_DIST; ottavap->xdLast -= NUDGE_DIST; moved = TRUE;
+						ottavap->xdFirst -= NUDGE_DIST; ottavap->xdLast -= NUDGE_DIST; moved = True;
 					}
 					else if (arrowKeyCode==kRightArrowCharCode) {
-						ottavap->xdFirst += NUDGE_DIST; ottavap->xdLast += NUDGE_DIST; moved = TRUE;
+						ottavap->xdFirst += NUDGE_DIST; ottavap->xdLast += NUDGE_DIST; moved = True;
 					}
-					else if (arrowKeyCode==kUpArrowCharCode) { ottavap->ydFirst -= NUDGE_DIST; moved = TRUE; }
-					else if (arrowKeyCode==kDownArrowCharCode) { ottavap->ydFirst += NUDGE_DIST; moved = TRUE; }
+					else if (arrowKeyCode==kUpArrowCharCode) { ottavap->ydFirst -= NUDGE_DIST; moved = True; }
+					else if (arrowKeyCode==kDownArrowCharCode) { ottavap->ydFirst += NUDGE_DIST; moved = True; }
 					return moved;
 				case TUPLETtype:
 		 			pTuplet = GetPTUPLET(pL);
 					if (arrowKeyCode==kLeftArrowCharCode) {
-						pTuplet->xdFirst -= NUDGE_DIST; pTuplet->xdLast -= NUDGE_DIST; moved = TRUE;
+						pTuplet->xdFirst -= NUDGE_DIST; pTuplet->xdLast -= NUDGE_DIST; moved = True;
 					}
 					else if (arrowKeyCode==kRightArrowCharCode) {
-						pTuplet->xdFirst += NUDGE_DIST; pTuplet->xdLast += NUDGE_DIST; moved = TRUE;
+						pTuplet->xdFirst += NUDGE_DIST; pTuplet->xdLast += NUDGE_DIST; moved = True;
 					}
 					else if (arrowKeyCode==kUpArrowCharCode) {
-						pTuplet->ydFirst -= NUDGE_DIST; pTuplet->ydLast -= NUDGE_DIST; moved = TRUE;
+						pTuplet->ydFirst -= NUDGE_DIST; pTuplet->ydLast -= NUDGE_DIST; moved = True;
 					}
 					else if (arrowKeyCode==kDownArrowCharCode) {
-						pTuplet->ydFirst += NUDGE_DIST; pTuplet->ydLast += NUDGE_DIST; moved = TRUE;
+						pTuplet->ydFirst += NUDGE_DIST; pTuplet->ydLast += NUDGE_DIST; moved = True;
 					}
 					return moved;
 				
@@ -765,20 +765,20 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 						if (SlurSEL(aSlurL)) {
 							if (arrowKeyCode==kLeftArrowCharCode) {
 								SlurKNOT(aSlurL).h -= NUDGE_DIST;
-								SlurENDKNOT(aSlurL).h -= NUDGE_DIST;  moved = TRUE;
+								SlurENDKNOT(aSlurL).h -= NUDGE_DIST;  moved = True;
 							}
 							else if (arrowKeyCode==kRightArrowCharCode) {
 								SlurKNOT(aSlurL).h += NUDGE_DIST;
-								SlurENDKNOT(aSlurL).h += NUDGE_DIST;  moved = TRUE;
+								SlurENDKNOT(aSlurL).h += NUDGE_DIST;  moved = True;
 							}
 							
 							else if (arrowKeyCode==kUpArrowCharCode) {
 								SlurKNOT(aSlurL).v -= NUDGE_DIST;
-								SlurENDKNOT(aSlurL).v -= NUDGE_DIST;  moved = TRUE;
+								SlurENDKNOT(aSlurL).v -= NUDGE_DIST;  moved = True;
 							}
 							else if (arrowKeyCode==kDownArrowCharCode) {
 								SlurKNOT(aSlurL).v += NUDGE_DIST;
-								SlurENDKNOT(aSlurL).v += NUDGE_DIST;  moved = TRUE;
+								SlurENDKNOT(aSlurL).v += NUDGE_DIST;  moved = True;
 							}
 													
 						}
@@ -787,10 +787,10 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 					return moved;
 					
 				default:
-					return FALSE;
+					return False;
 			}
 
-	return FALSE;
+	return False;
 }
 
 
@@ -813,17 +813,17 @@ static Boolean DoKeyDown(EventRecord *evt)
 		
 		if (evt->modifiers & cmdKey) {
 			if (ch>=kLeftArrowCharCode && ch<=kDownArrowCharCode) {
-				if (!doc) return TRUE;
+				if (!doc) return True;
 				CountSelection(doc, &nInRange, &nSelFlag);
-				if (nSelFlag!=1) return TRUE;
+				if (nSelFlag!=1) return True;
 				//LogPrintf(LOG_DEBUG, "DoKeyDown: char code=%d nInRange=%d nSelFlag=%d\n",
 				//			ch, nInRange, nSelFlag);
 				if (Nudge(doc, ch)) {
-					doc->changed = TRUE;
+					doc->changed = True;
 					InvalSelRange(doc);
 				}
 				else SysBeep(1);
-				return TRUE;
+				return True;
 			}
 #if TARGET_API_MAC_CARBON
 			//cmdCode = MenuKey((char)(evt->message & charCodeMask));
@@ -835,9 +835,9 @@ static Boolean DoKeyDown(EventRecord *evt)
 		}
 		
 		wp = FrontWindow();
-		if (wp == NULL) return(TRUE);
+		if (wp == NULL) return(True);
 		
-		scoreView = doc ? (!doc->masterView && !doc->showFormat) : FALSE;
+		scoreView = doc ? (!doc->masterView && !doc->showFormat) : False;
 
 		if (GetWindowKind(wp)== dialogKind) {
 			/* Deal with key down in modeless dialog, such as search results window. */
@@ -850,7 +850,7 @@ static Boolean DoKeyDown(EventRecord *evt)
 						if (scoreView && ContinSelection(doc, config.strictContin!=0)) {
 							if (BFSelClearable(doc, BeforeFirstMeas(doc->selStartL))) {
 								DoClear(doc);
-								doc->changed = TRUE;
+								doc->changed = True;
 								}
 							}
 						else if (doc && doc->masterView) {
@@ -870,7 +870,7 @@ static Boolean DoKeyDown(EventRecord *evt)
 							DoToolKeyDown(ch, key, evt->modifiers);
 				}
 			
-		return(TRUE);
+		return(True);
 	}
 
 
@@ -907,14 +907,14 @@ static void DoGrow(WindowPtr w, Point pt, Boolean /*command*/)
 				GetWindowPortBounds(w, &oldRect);
 				Document *doc = GetDocumentFromWindow(w);
 				if (doc)  {
-					PrepareMessageDraw(doc, &oldMessageRect, TRUE);
+					PrepareMessageDraw(doc, &oldMessageRect, True);
 					oldMessageRect.top--;		/* Include DrawGrowIcon line */
 					SetRect(&limitRect, MESSAGEBOX_WIDTH+70, 80, 20000, 20000);
 					newSize = GrowWindow(w, pt,&limitRect);
 					if (newSize) {
 						EraseAndInval(&oldMessageRect);
 						x = LoWord(newSize); y = HiWord(newSize);
-						SizeWindow(w,x,y,TRUE);
+						SizeWindow(w,x,y,True);
 						RecomputeWindow(w);
 						SetZoomState(w);
 						}					
@@ -942,7 +942,7 @@ pascal OSErr HandleOAPP(const AppleEvent *appleEvent, AppleEvent */*reply*/, lon
 				/* Use notification manager */
 				}
 			 else
-				DoOpenApplication(TRUE);				/* Ask for input file */
+				DoOpenApplication(True);				/* Ask for input file */
 		
 		return(err);
 	}
@@ -1023,7 +1023,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			CParamText(aStr, "", "", "");
 			CautionInform(READ_PROBLEM_ALRT);			/* Fall through and try to open it anyway */
 		case DOCUMENT_TYPE_NORMAL:
-			if (DoOpenDocument(theFile->name, theFile->vRefNum, FALSE, theFile)) {
+			if (DoOpenDocument(theFile->name, theFile->vRefNum, False, theFile)) {
 				LogPrintf(LOG_INFO, "Opened file '%s'.\n", PToCString(theFile->name));
 				break;
 			}
@@ -1058,7 +1058,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 	wdRec.ioWDDirID = theFile->parID;
 	wdRec.ioVRefNum = theFile->vRefNum;
 	wdRec.ioWDProcID = creatorType;
-	PBOpenWD(&wdRec,FALSE);
+	PBOpenWD(&wdRec,False);
 	if (wdRec.ioResult!=noErr) return NULL;
 		
 	result = FSpGetFInfo(theFile, &fndrInfo);
@@ -1066,7 +1066,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 
 	switch (fndrInfo.fdType) {
 		case DOCUMENT_TYPE_NORMAL:
-			if (DoOpenDocument(theFile->name, wdRec.ioVRefNum, FALSE)) break;
+			if (DoOpenDocument(theFile->name, wdRec.ioVRefNum, False)) break;
 			return NULL;
 		case 'TEXT':
 			if (OpenNotelistFile(theFile->name, wdRec.ioVRefNum)) break;
@@ -1098,9 +1098,9 @@ pascal OSErr HandlePDOC(const AppleEvent *appleEvent, AppleEvent *reply, long re
 	{
 		short err;
 		
-		printOnly = TRUE;
+		printOnly = True;
 		err = HandleODOC(appleEvent,reply,refcon);
-		printOnly = FALSE;
+		printOnly = False;
 		
 		return(err);
 	}

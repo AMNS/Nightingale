@@ -2,8 +2,8 @@
 //#include <ColorToolbox.h>
 //#include <stdio.h>
 
-//#define TRUE 1
-//#define FALSE 0
+//#define True 1
+//#define False 0
 //#define NIL (void *)0
 
 pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell lCell,

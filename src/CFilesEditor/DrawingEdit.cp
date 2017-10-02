@@ -66,7 +66,7 @@ void DoDrawingEdit(Document *doc, LINK pL)
 	InitGrips(doc, &context, pL);
 	DrawBothGrips(doc);
 	
-	while (TRUE) 
+	while (True) 
 	{
 		GetNextEvent(mDownMask, &eventRec);
 		if (eventRec.what == mouseDown) {
@@ -112,8 +112,8 @@ void DoDrawingEdit(Document *doc, LINK pL)
 	/* Update object in data structure and inval rect if it's changed. */
 	if (BlockCompare(&thisDrawObj, &origDrawObj, sizeof(DRAWOBJ))) {
 		UpdateDrawObjData(doc, &context, pL, &thisDrawObj);
-		doc->changed = TRUE;
-		DrawInvalRects(doc, pL, &thisDrawObj, TRUE);
+		doc->changed = True;
+		DrawInvalRects(doc, pL, &thisDrawObj, True);
 	}
 	MEHideCaret(doc);	
 }
@@ -269,7 +269,7 @@ static Boolean InitFeedback(Document */*doc*/,
 	pd->objRect = LinkOBJRECT(pL);
 	pd->objRect.bottom += 1;				/* make it easier to grab */
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -336,7 +336,7 @@ static void InitDrawObjBounds(Document *doc, LINK pL, short grip,
 	 */
 
 	/* Find the measure that will be the left boundary */
-	measL = LSSearch(firstL, MEASUREtype, staffn, GO_LEFT, FALSE);				/* meas containing 1st att.point */
+	measL = LSSearch(firstL, MEASUREtype, staffn, GO_LEFT, False);				/* meas containing 1st att.point */
 	prevMeasL = LinkLMEAS(measL);												/* meas before that */
 	if (SameSystem(prevMeasL, measL))
 		targetMeasL = prevMeasL;
@@ -344,14 +344,14 @@ static void InitDrawObjBounds(Document *doc, LINK pL, short grip,
 		targetMeasL = measL;
 		
 	/* Allow dragging into reserved area */
-	measL = LSSearch(MeasSYSL(targetMeasL), MEASUREtype, staffn, GO_RIGHT, FALSE); /* 1st meas in system */	
+	measL = LSSearch(MeasSYSL(targetMeasL), MEASUREtype, staffn, GO_RIGHT, False); /* 1st meas in system */	
 	if (targetMeasL == measL)														/* targetMeas is 1st in system */
 		bounds->left = d2p(sysLeft);
 	else
 		bounds->left = d2p(LinkXD(targetMeasL) + sysLeft);
 
 	/* Find the measure that will be the right boundary */
-	measL = LSSearch(lastL, MEASUREtype, staffn, GO_LEFT, FALSE);				/* meas containing last sync */
+	measL = LSSearch(lastL, MEASUREtype, staffn, GO_LEFT, False);				/* meas containing last sync */
 	nextMeasL = LinkRMEAS(measL);												/* meas after that */
 	if (SameSystem(nextMeasL, measL))
 		targetMeasL = nextMeasL;
@@ -457,7 +457,7 @@ static void DrawBothGrips(Document *doc)
 
 static void DrawInvalRects(Document *doc, LINK pL,
 							DRAWOBJ *pd,
-							Boolean	optimize	/* if TRUE erase & inval only the original objRect */
+							Boolean	optimize	/* if True erase & inval only the original objRect */
 							)
 {
 	Rect	oldObjRect, newObjRect, updateRect;
@@ -475,7 +475,7 @@ static void DrawInvalRects(Document *doc, LINK pL,
 	else
 		EraseAndInval(&updateRect);
 
-	LinkVALID(pL) = FALSE;										/* force objRect recomputation */
+	LinkVALID(pL) = False;										/* force objRect recomputation */
 }
 
 
@@ -502,5 +502,5 @@ static void UpdateDrawObjData(Document */*doc*/, PCONTEXT pContext, LINK pL, DRA
 	pGraphic->yd += p2d(pd->centerOffset);
 	pGraphic->info2 += p2d(pd->centerOffset);
 	
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }

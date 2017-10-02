@@ -27,9 +27,9 @@
 typedef struct {
 	LINK		measL;
 	LINK		systemL;
-	short		firstOfSys:1;		/* TRUE=first Measure of System */
-	short		lastOfSys:1;		/* TRUE=last Measure of System */
-	short		secondPiece:1;		/* TRUE=2nd piece of split Measure: combine if possible */
+	short		firstOfSys:1;		/* True=first Measure of System */
+	short		lastOfSys:1;		/* True=last Measure of System */
+	short		secondPiece:1;		/* True=2nd piece of split Measure: combine if possible */
 	short		newSysNum:13;
 	DDIST		width;				/* Normal width of Measure */
 	DDIST		lastWidth;			/* Width of Measure if it's last in its System */
@@ -169,8 +169,8 @@ static short BuildMeasTable(Document *doc, LINK startSysL, LINK endSysL,
 	DDIST mWidth, mLastWidth;
 	CONTEXT context;
 	
-	startMeasL = LSSearch(startSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
-	endMeasL = LSSearch(endSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	startMeasL = LSSearch(startSysL, MEASUREtype, ANYONE, GO_RIGHT, False);
+	endMeasL = LSSearch(endSysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 
 	mIndex = 0;
 	for (measL=startMeasL; measL!=endMeasL; mIndex++,measL=LinkRMEAS(measL)) {
@@ -253,7 +253,7 @@ static short NewSysNums(
 			sysWChecked[MAX_MEAS_RFMT],			/* Just so we can DebugPrintf later */
 			gutter1, gutter2, staffLengthUse,
 			staffLenUse1,staffLenUse2;
-	Boolean tooManyMeas, lastAndEmpty, doSomething=FALSE;
+	Boolean tooManyMeas, lastAndEmpty, doSomething=False;
 	LINK nextSysL, nextSysMeasL, endMeasL, sysL;
 	
 	startSysNum = SystemNUM(startSysL);
@@ -287,7 +287,7 @@ static short NewSysNums(
 	measThisSys = 0;
 	sysWidthUsed = gutter1;
 	staffLengthUse = staffLenUse1;
-	lastAndEmpty = FALSE;
+	lastAndEmpty = False;
 
 	for (m = 0; m<mCount; m++) {
 		if (!MeasISFAKE(measTable[m].measL))
@@ -324,7 +324,7 @@ static short NewSysNums(
 		 *	with the previous Measure, no matter what.
 		 */
 		if (measThisSys==1 && measTable[m].secondPiece)
-				measTable[m].secondPiece = FALSE;
+				measTable[m].secondPiece = False;
 	}
 
 	/* If every Measure will stay in the same System, nothing really needs to be done. */
@@ -337,7 +337,7 @@ static short NewSysNums(
 			sysL = measTable[m].systemL;
 		}
 		if (measTable[m].newSysNum!=oldSysNum)
-			doSomething = TRUE;
+			doSomething = True;
 	}
 		
 	return (doSomething? OP_COMPLETE : NOTHING_TO_DO);
@@ -357,7 +357,7 @@ static void FixMeasVis(Document */*doc*/, MEASDATA measTable[], short mCount)
 	for (m = 0; m<mCount; m++)
 		if (measTable[m].measL) {
 			if (measTable[m].systemL!=sysL && !FirstMeasInSys(measTable[m].measL))
-				SetMeasVisible(measTable[m].measL, TRUE);
+				SetMeasVisible(measTable[m].measL, True);
 			sysL = measTable[m].systemL;
 		}
 }
@@ -376,19 +376,19 @@ static Boolean AddFinalMeasure(Document *doc, LINK startSysL, LINK newSysL,
 	staffL = SSearch(startSysL, STAFFtype, GO_LEFT);
 	if (!prevMeasL || !staffL) {
 		MayErrMsg("AddFinalMeasure: SSearch from %ld couldn't find MEASURE or STAFF.", (long)startSysL);
-		return FALSE;
+		return False;
 	}
 	newMeasL = MakeMeasure(doc, LeftLINK(startSysL), prevMeasL, staffL, newSysL,
 													measWidth, staffTop, SuccMeas);
-	if (!newMeasL) return FALSE;
+	if (!newMeasL) return False;
 	
-	SetMeasVisible(newMeasL, TRUE);
+	SetMeasVisible(newMeasL, True);
 	aMeasureL = FirstSubLINK(newMeasL);
 	for ( ; aMeasureL; aMeasureL = NextMEASUREL(aMeasureL)) {
 		GetContext(doc, LeftLINK(newMeasL), MeasureSTAFF(aMeasureL), &theContext);
 		FixMeasureContext(aMeasureL, &theContext);
 	}
-	return TRUE;
+	return True;
 }
 
 
@@ -798,7 +798,7 @@ static void DebugSysTable(SYSDATA [], short, DDIST, DDIST, short)
 /* ---------------------------------------------------------------- NewSheetNums -- */
 /*	Fill in the new sheet number each System will have. Start a new Page when
 either the current Page overflows, or the desired number of Systems per Page is
-exceeded. Return TRUE if any System should be moved to another Page, else FALSE. */
+exceeded. Return True if any System should be moved to another Page, else False. */
 
 static Boolean NewSheetNums(
 					Document *doc,
@@ -811,7 +811,7 @@ static Boolean NewSheetNums(
 {
 	short s, prevSheetNum,pgSysNum,oldSheetNum,startSheetNum;
 	DDIST pgHtUsed,pgHtAvail,topMargin,firstMargin,prevPgHtUsed;
-	Boolean tooManySys,doSomething=FALSE;
+	Boolean tooManySys,doSomething=False;
 	LINK pageL;
 	
 	prevSheetNum = startSheetNum = SheetNUM(SysPAGE((startSysL)));
@@ -859,7 +859,7 @@ static Boolean NewSheetNums(
 			oldSheetNum++;
 			pageL = sysTable[s].pageL;
 		}
-		if (sysTable[s].newSheetNum!=oldSheetNum) doSomething = TRUE; 
+		if (sysTable[s].newSheetNum!=oldSheetNum) doSomething = True; 
 	}
 	
 	return doSomething;
@@ -877,13 +877,13 @@ static LINK RfmtResetSlurs(Document *doc, LINK startMoveL)
 {
 	LINK pL,measL,sysL;
 
-	measL = LSSearch(startMoveL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	measL = LSSearch(startMoveL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		if (SlurTYPE(pL) && SlurFIRSTSYNC(pL)==measL)
 			SlurFIRSTSYNC(pL) = NILINK;
 
 	/* Most of the time startMoveL is a System, but it might be a Page */
-	sysL = LSSearch(startMoveL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+	sysL = LSSearch(startMoveL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		if (SlurTYPE(pL) && SlurLASTSYNC(pL)==sysL)
 			SlurLASTSYNC(pL) = NILINK;
@@ -985,7 +985,7 @@ static void MoveSysJDObjs(
 
 /* Find every Graphic, Tempo, and Ending that's attached to the Measure <measL>, and
 set their object-attached-to links to NILINK to indicate they need updating. If we
-find any, return TRUE, else FALSE. */
+find any, return True, else False. */
 
 static Boolean PrepareMoveMeasJDObjs(
 					Document *doc,
@@ -995,7 +995,7 @@ static Boolean PrepareMoveMeasJDObjs(
 {
 	LINK pL, endMeasL; Boolean didSomething;
 	
-	if (!measL || !prevMeasL) return FALSE;
+	if (!measL || !prevMeasL) return False;
 	/*
 	 *	Objects attached to <measL> were originally in the Measure preceding it; the
 	 * contents of that Measure should already have been moved elsewhere, but they
@@ -1004,26 +1004,26 @@ static Boolean PrepareMoveMeasJDObjs(
 	if (MeasureTYPE(prevMeasL)) prevMeasL = RightLINK(prevMeasL);
 	endMeasL = EndMeasSearch(doc, prevMeasL);
 	
-	didSomething = FALSE;
+	didSomething = False;
 	for (pL = prevMeasL; pL!=endMeasL; pL = RightLINK(pL)) {
 		if (J_DTYPE(pL))
 			switch (ObjLType(pL)) {
 				case GRAPHICtype:
 					if (GraphicFIRSTOBJ(pL)==measL) {
 						GraphicFIRSTOBJ(pL) = NILINK;
-						didSomething = TRUE;
+						didSomething = True;
 					}
 					break;
 				case TEMPOtype:
 					if (TempoFIRSTOBJ(pL)==measL) {
 						TempoFIRSTOBJ(pL) = NILINK;
-						didSomething = TRUE;
+						didSomething = True;
 					}
 					break;
 				case ENDINGtype:
 					if (EndingFIRSTOBJ(pL)==measL) {
 						EndingFIRSTOBJ(pL) = NILINK;
-						didSomething = TRUE;
+						didSomething = True;
 					}
 			}
 	}
@@ -1044,7 +1044,7 @@ static Boolean MoveMeasJDObjs(
 {
 	LINK pL, endMeasL, newMeasL, nextL;
 	
-	if (!prevMeasL) return FALSE;
+	if (!prevMeasL) return False;
 
 	if (MeasureTYPE(prevMeasL)) prevMeasL = RightLINK(prevMeasL);
 	endMeasL = EndMeasSearch(doc, prevMeasL);
@@ -1074,7 +1074,7 @@ static Boolean MoveMeasJDObjs(
 			}
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -1086,7 +1086,7 @@ short GetTitleMargin(Document *doc)
 {
 	LINK startSysL; DDIST topMargin; PSYSTEM pSystem; short titleMargin;
 	
-	startSysL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+	startSysL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 	pSystem = GetPSYSTEM(startSysL);
 	topMargin = pSystem->systemRect.top;
 	titleMargin = d2pt(topMargin)-doc->marginRect.top;
@@ -1266,7 +1266,7 @@ static void FixFirstSysRectY(Document *doc, short titleMargin)
 {
 	LINK startSysL; DDIST topMargin, sysHeight; PSYSTEM pSystem;
 
-	startSysL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+	startSysL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 	topMargin = pt2d(doc->marginRect.top);
 	topMargin += pt2d(titleMargin);
 
@@ -1297,11 +1297,11 @@ Boolean DanglingContent(Document *doc, LINK sysL)
 Boolean RJustifySystems(
 				Document *doc,
 				LINK startL, LINK endL,
-				Boolean doAll				/* TRUE=justify all, FALSE=justify only systems that overflow */
+				Boolean doAll				/* True=justify all, False=justify only systems that overflow */
 				)
 {
 	LINK startSysL, endSysL, currSysL, nextSysL, termSysL, firstMeasL, lastMeasL;
-	Boolean didAnything=FALSE;
+	Boolean didAnything=False;
 
 	GetSysRange(doc, startL, endL, &startSysL, &endSysL);
 	endSysL = LinkRSYS(endSysL);							/* AFTER the last System to justify */
@@ -1312,9 +1312,9 @@ Boolean RJustifySystems(
 		
 		/* Get first and last Measure of this System and object ending it */
 		
-		firstMeasL = LSSearch(currSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		firstMeasL = LSSearch(currSysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 		termSysL = EndSystemSearch(doc, currSysL);
-		lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, False);
 		nextSysL = LinkRSYS(currSysL);
 		
 		/*
@@ -1326,7 +1326,7 @@ Boolean RJustifySystems(
 		if (lastMeasL!=firstMeasL) {
 			if (doAll || DanglingContent(doc, currSysL))
 				JustifySystem(doc, firstMeasL, lastMeasL);
-			didAnything = TRUE;
+			didAnything = True;
 		}
 	}
 	
@@ -1365,9 +1365,9 @@ short Reformat(
 	LINK startSysL, endSysL, newStartSysL, firstMeasL, beforeL, startPageL, endPageL,
 			pageL, pL;
 	short returnCode, nMeasures;
-	Boolean didAnything=FALSE, fixFirstSys, didChangeSBreaks=FALSE, nothingToDo=TRUE;
+	Boolean didAnything=False, fixFirstSys, didChangeSBreaks=False, nothingToDo=True;
 	Boolean exactMeasPerSys, foundHidden;
-	static Boolean alreadyWarned=FALSE;
+	static Boolean alreadyWarned=False;
 	
 	/*
 	 * We need to check in advance for possible screen-coordinate-overflow after
@@ -1398,10 +1398,10 @@ short Reformat(
 	GetSysRange(doc, startL, endL, &startSysL, &endSysL);
 	endSysL = EndSystemSearch(doc, endSysL);			/* AFTER the last System to reformat */
 
-	for (foundHidden = FALSE, pL = startSysL; pL!=endSysL; pL = RightLINK(pL))
+	for (foundHidden = False, pL = startSysL; pL!=endSysL; pL = RightLINK(pL))
 		if (SystemTYPE(pL))
 			if (NumVisStaves(pL)!=doc->nstaves) {
-				foundHidden = TRUE;
+				foundHidden = True;
 				break;
 			}
 	if (foundHidden)
@@ -1420,7 +1420,7 @@ short Reformat(
 		if (returnCode==FAILURE) return FAILURE;
 		didAnything = (returnCode==OP_COMPLETE);
 		didChangeSBreaks = (returnCode==OP_COMPLETE);
-		if (returnCode!=NOTHING_TO_DO) nothingToDo = FALSE;
+		if (returnCode!=NOTHING_TO_DO) nothingToDo = False;
 	}
 
 	if (didAnything) {
@@ -1428,7 +1428,7 @@ short Reformat(
 		endPageL = SSearch(endSysL,PAGEtype,GO_LEFT);
 
 		for ( ; pageL!=LinkRPAGE(endPageL); pageL=LinkRPAGE(pageL))
-			PageFixSysRects(doc, pageL, TRUE);
+			PageFixSysRects(doc, pageL, True);
 	}
 	else
 		newStartSysL = startSysL;
@@ -1443,13 +1443,13 @@ short Reformat(
 	returnCode = RfmtPages(doc, newStartSysL, endPageL, sysPerPage, titleMargin);
 	if (returnCode==FAILURE) return FAILURE;
 	if (returnCode==OP_COMPLETE) {
-		didAnything = TRUE;
+		didAnything = True;
 		if (ScreenPagesExceedView(doc) && !alreadyWarned) {
 			CautionInform(MANYPAGES_ALRT);
-			alreadyWarned = TRUE;
+			alreadyWarned = True;
 		}
 	}
-	if (returnCode!=NOTHING_TO_DO) nothingToDo = FALSE;
+	if (returnCode!=NOTHING_TO_DO) nothingToDo = False;
 
 	if (didAnything) {
 		GetAllSheets(doc);
@@ -1461,7 +1461,7 @@ short Reformat(
 		 *	systems at the top of each new page) and vertical coordinates from their Staffs'
 		 *	positions.
 		 */
-		firstMeasL = LSSearch(RightLINK(beforeL), MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		firstMeasL = LSSearch(RightLINK(beforeL), MEASUREtype, ANYONE, GO_RIGHT, False);
 		FixMeasRectXs(firstMeasL, NILINK);
 
 		/*
@@ -1474,25 +1474,25 @@ short Reformat(
 		if (fixFirstSys) FixFirstSysRectY(doc, titleMargin);
 
 		if (didChangeSBreaks)
-			FixMeasRectYs(doc, NILINK, TRUE, FALSE, TRUE);
+			FixMeasRectYs(doc, NILINK, True, False, True);
 		else
-			FixSystemRectYs(doc, FALSE);
+			FixSystemRectYs(doc, False);
 
 		if (exactMeasPerSys)
 			RJustifySystems(doc, RightLINK(beforeL), endSysL, justify);
 		else if (justify)
-			RJustifySystems(doc, RightLINK(beforeL), endSysL, TRUE);
+			RJustifySystems(doc, RightLINK(beforeL), endSysL, True);
 
 		doc->selStartL = doc->headL;
 		doc->selEndL = doc->tailL;
 		DeselAll(doc);
 		doc->selStartL = doc->selEndL = /*endSysL*/ doc->tailL;
-		MEAdjustCaret(doc, FALSE);
+		MEAdjustCaret(doc, False);
 		
 		InvalRange(RightLINK(beforeL), endSysL);
 		InvalWindow(doc);
 		
-		doc->changed = TRUE;
+		doc->changed = True;
 	}
 
 	return (nothingToDo? NOTHING_TO_DO : OP_COMPLETE);

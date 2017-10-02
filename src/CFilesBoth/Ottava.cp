@@ -73,7 +73,7 @@ void DoRemoveOttava(Document *doc)
 	}
 		
 	if (doc->autoRespace)
-		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, FALSE, FALSE);
+		RespaceBars(doc, doc->selStartL, doc->selEndL, 0L, False, False);
 }
 
 /* ------------------------------------------------------------ CreateOctStfRange -- */
@@ -85,10 +85,10 @@ static void CreateOctStfRange(Document *doc, short s, LINK stfStartL, LINK stfEn
 {
 	short nInOttava;  LINK ottavaL;
 
-	nInOttava = OctCountNotesInRange(s, stfStartL, stfEndL, TRUE);
+	nInOttava = OctCountNotesInRange(s, stfStartL, stfEndL, True);
 
 	if (nInOttava>0) {
-		ottavaL = CreateOTTAVA(doc,stfStartL,stfEndL,s,nInOttava,octType,TRUE,TRUE);
+		ottavaL = CreateOTTAVA(doc,stfStartL,stfEndL,s,nInOttava,octType,True,True);
 		if (doc->selStartL==FirstInOttava(ottavaL))
 			doc->selStartL = ottavaL;
 	}
@@ -102,8 +102,8 @@ static LINK GetOctStartL(LINK startL, short staff, Boolean needSel)
 {
 	LINK octStartL, GRStartL;
 
-	octStartL = LSSearch(startL, SYNCtype, staff, FALSE, needSel);
-	GRStartL = LSSearch(startL, GRSYNCtype, staff, FALSE, needSel);
+	octStartL = LSSearch(startL, SYNCtype, staff, False, needSel);
+	GRStartL = LSSearch(startL, GRSYNCtype, staff, False, needSel);
 
 	if (octStartL) {
 		if (GRStartL && IsAfter(GRStartL,octStartL))
@@ -164,7 +164,7 @@ void SetOttavaYPos(Document *doc, LINK octL)
 				octAltaYLim, octBassaYLim,			/* Closest possible positions to the staff */
 				lnSpace, dhalfLn;
 	LINK		firstSyncL;
-	Boolean  	isBassa=FALSE;
+	Boolean  	isBassa=False;
 
 	staff = OttavaSTAFF(octL);
 	GetContext(doc, octL, staff, &context);
@@ -182,12 +182,12 @@ void SetOttavaYPos(Document *doc, LINK octL)
 		case OTTAVA8va:
 		case OTTAVA15ma:
 		case OTTAVA22ma:
-			isBassa = FALSE;
+			isBassa = False;
 			break;
 		case OTTAVA8vaBassa:
 		case OTTAVA15maBassa:
 		case OTTAVA22maBassa:
-			isBassa = TRUE;
+			isBassa = True;
 			break;
 		default:
 			;
@@ -215,8 +215,8 @@ LINK CreateOTTAVA(
 			LINK startL, LINK endL,
 			short staff, short nInOttava,
 			Byte octSignType,
-			Boolean needSelected,	/* TRUE if we only want selected items */
-			Boolean doOct			/* TRUE if we're explicitly octaving notes (so Ottava will be selected) */
+			Boolean needSelected,	/* True if we only want selected items */
+			Boolean doOct			/* True if we're explicitly octaving notes (so Ottava will be selected) */
 			)
 {
 	POTTAVA 	ottavap;
@@ -254,27 +254,27 @@ LINK CreateOTTAVA(
 	
 	ottavaL = InsertNode(doc, startL, OTTAVAtype, nInOttava);
 	if (!ottavaL) { NoMoreMemory(); return NILINK; }
-	SetObject(ottavaL, 0, 0, FALSE, TRUE, FALSE);
+	SetObject(ottavaL, 0, 0, False, True, False);
 	ottavap = GetPOTTAVA(ottavaL);
-	ottavap->tweaked = FALSE;
+	ottavap->tweaked = False;
 	ottavap->staffn = staff;
 	ottavap->octSignType = octSignType;
 
-	if (doOct) ottavap->selected = TRUE;
+	if (doOct) ottavap->selected = True;
 
-	ottavap->numberVis = TRUE;
-	ottavap->brackVis = FALSE;
+	ottavap->numberVis = True;
+	ottavap->brackVis = False;
 
 	ottavap->nxd = ottavap->nyd = 0;
 	ottavap->xdFirst = OTTAVA_XDPOS_FIRST;
 	ottavap->xdLast = OTTAVA_XDPOS_LAST;
 
 	ottavap = GetPOTTAVA(ottavaL);
-	ottavap->noCutoff = ottavap->crossStaff = ottavap->crossSystem = FALSE;	
+	ottavap->noCutoff = ottavap->crossStaff = ottavap->crossSystem = False;	
 	ottavap->filler = 0;
 	ottavap->unused1 = ottavap->unused2 = 0;
 
-	doc->changed = TRUE;
+	doc->changed = True;
 
 	for (octElem = 0, pL = startL; pL!=endL; pL = RightLINK(pL))
 		if (!needSelected || LinkSEL(pL)) {
@@ -283,7 +283,7 @@ LINK CreateOTTAVA(
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					if (aNote->staffn==staff && !aNote->rest) {																/* Yes */
-						aNote->inOttava = TRUE;
+						aNote->inOttava = True;
 						if (MainNote(aNoteL)) {
 							opSync[octElem] = pL;
 							noteInSync[octElem] = aNoteL;
@@ -297,7 +297,7 @@ LINK CreateOTTAVA(
 				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 					if (GRNoteSTAFF(aGRNoteL)==staff) {																/* Yes */
 						aGRNote = GetPAGRNOTE(aGRNoteL);
-						aGRNote->inOttava = TRUE;
+						aGRNote->inOttava = True;
 						if (GRMainNote(aGRNoteL)) {
 							opSync[octElem] = pL;
 							noteInSync[octElem] = aGRNoteL;
@@ -346,7 +346,7 @@ LINK CreateOTTAVA(
 						NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
 														stemDown, 
 														context.staffHeight, context.staffLines,
-														qStemLen, FALSE);
+														qStemLen, False);
 					}
 					else
 						NoteYSTEM(aNoteL) = NoteYD(aNoteL);
@@ -370,14 +370,14 @@ LINK CreateOTTAVA(
 			}
 		}
 		else if (GRSyncTYPE(pL)) {
-			multiVoice = FALSE; 							/* FIXME: For now; needs GetGRMultiVoice! */
+			multiVoice = False; 							/* FIXME: For now; needs GetGRMultiVoice! */
 			/* Loop through the grace notes, fixing up notehead, stem, and aug.
 				dot y-positions. */
 			aGRNoteL = FirstSubLINK(pL);
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 				aGRNote = GetPAGRNOTE(aGRNoteL);
 				if (GRNoteSTAFF(aGRNoteL)==staff) {
-					stemDown = FALSE;						/* Assume grace notes stem up--FIXME: not always true */
+					stemDown = False;						/* Assume grace notes stem up--FIXME: not always true */
 					aGRNote->yd += yDelta;
 					aGRNote->yqpit += halfLn2qd(noteOffset[octSignType-1]);
 					/*
@@ -395,7 +395,7 @@ LINK CreateOTTAVA(
 												NFLAGS(aGRNote->subType),
 												stemDown,
 												context.staffHeight, context.staffLines,
-												stemLen, FALSE);
+												stemLen, False);
 				}
 			}
 			/* Loop through the grace notes again and fix up the ystems of the
@@ -423,7 +423,7 @@ LINK CreateOTTAVA(
 				if (SyncTYPE(pL)) {
 					mainNoteL = FindMainNote(pL, v);
 					if (mainNoteL && NoteBEAMED(mainNoteL)) {
-						beamL = LVSearch(pL, BEAMSETtype, v, GO_LEFT, FALSE);
+						beamL = LVSearch(pL, BEAMSETtype, v, GO_LEFT, False);
 						if (beamL)
 							if (BeamSTAFF(beamL)==staff
 							|| (BeamSTAFF(beamL)==staff-1 && BeamCrossSTAFF(beamL))) {
@@ -441,7 +441,7 @@ LINK CreateOTTAVA(
 				else if (GRSyncTYPE(pL)) {
 					mainGRNoteL = FindGRMainNote(pL,v);
 					if (mainGRNoteL && GRNoteBEAMED(mainGRNoteL)) {
-						beamL = LVSearch(pL,BEAMSETtype,v,GO_LEFT,FALSE);
+						beamL = LVSearch(pL,BEAMSETtype,v,GO_LEFT,False);
 						if (beamL)
 							if (BeamSTAFF(beamL)==staff
 							|| (BeamSTAFF(beamL)==staff-1 && BeamCrossSTAFF(beamL))) {
@@ -483,7 +483,7 @@ LINK CreateOTTAVA(
 		}
 		
 	if (doc->autoRespace)
-		RespaceBars(doc, startL, endL, 0L, FALSE, FALSE);
+		RespaceBars(doc, startL, endL, 0L, False, False);
 	else
 		InvalMeasures(startL, endL, staff);
 	
@@ -502,22 +502,22 @@ long GetOctTypeNum(LINK pL, Boolean *isBassa)
 	
 	switch (p->octSignType) {
 		case OTTAVA8va:
-			*isBassa = FALSE;
+			*isBassa = False;
 			return 8L;
 		case OTTAVA15ma:
-			*isBassa = FALSE;
+			*isBassa = False;
 			return 15L;
 		case OTTAVA22ma:
-			*isBassa = FALSE;
+			*isBassa = False;
 			return 22L;
 		case OTTAVA8vaBassa:
-			*isBassa = TRUE;
+			*isBassa = True;
 			return 8L;
 		case OTTAVA15maBassa:
-			*isBassa = TRUE;
+			*isBassa = True;
 			return 15L;
 		case OTTAVA22maBassa:
-			*isBassa = TRUE;
+			*isBassa = True;
 			return 22L;
 		default:
 			MayErrMsg("GetOctTypeNum: illegal Ottava %ld", (long)p->octSignType);
@@ -543,7 +543,7 @@ void DrawOTTAVA(Document *doc, LINK pL, CONTEXT context[])
 	short		octxp, octyp;
 	Rect		octRect;
 	unsigned char ottavaStr[20];
-	Boolean  	isBassa=FALSE;
+	Boolean  	isBassa=False;
 	long		number;
 	short		octaveNumSize;
 
@@ -559,8 +559,8 @@ PushLock(OBJheap);
 	dLeft = pContext->measureLeft;
 	firstSyncL = FirstInOttava(pL);
 	lastSyncL = LastInOttava(pL);
-	firstMeas = LSSearch(firstSyncL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
-	lastMeas = LSSearch(lastSyncL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	firstMeas = LSSearch(firstSyncL, MEASUREtype, ANYONE, GO_LEFT, False);
+	lastMeas = LSSearch(lastSyncL, MEASUREtype, ANYONE, GO_LEFT, False);
 	firstxd = dLeft+LinkXD(firstSyncL);
 	lastxd = dLeft+LinkXD(lastSyncL);
 	if (firstMeas!=lastMeas) lastxd += LinkXD(lastMeas)-LinkXD(firstMeas);
@@ -573,7 +573,7 @@ PushLock(OBJheap);
 		
 	octxdFirst = firstxd+p->xdFirst;
 	octydFirst = dTop+p->ydFirst;
-	lastNoteWidth = SymDWidthRight(doc, lastSyncL, staff, FALSE, *pContext);
+	lastNoteWidth = SymDWidthRight(doc, lastSyncL, staff, False, *pContext);
 	octxdLast = lastxd+lastNoteWidth+p->xdLast;
 	octydLast = dTop+p->ydLast;
 	
@@ -658,9 +658,9 @@ static void UnOttavaS(Document *doc, LINK fromL, LINK toL, short s)
 	if (lOctL) {
 		octFromL = FirstInOttava(lOctL);
 		UnOttavaRange(doc, octFromL, RightLINK(LastInOttava(lOctL)), s);
-		nInOttava = OctCountNotesInRange(s, octFromL, fromL, FALSE);
+		nInOttava = OctCountNotesInRange(s, octFromL, fromL, False);
 		if (nInOttava>0)
-			CreateOTTAVA(doc, octFromL, fromL, s, nInOttava, OTTAVA8va, FALSE, FALSE);
+			CreateOTTAVA(doc, octFromL, fromL, s, nInOttava, OTTAVA8va, False, False);
 	}	
 
 	if (rOctL)	{
@@ -668,9 +668,9 @@ static void UnOttavaS(Document *doc, LINK fromL, LINK toL, short s)
 
 		if (rOctL!=lOctL)
 			UnOttavaRange(doc, FirstInOttava(rOctL), octToL, s);
-		nInOttava = OctCountNotesInRange(s, toL, octToL, FALSE);
+		nInOttava = OctCountNotesInRange(s, toL, octToL, False);
 		if (nInOttava>0)
-			CreateOTTAVA(doc, toL, octToL, s, nInOttava, OTTAVA8va, FALSE, FALSE);
+			CreateOTTAVA(doc, toL, octToL, s, nInOttava, OTTAVA8va, False, False);
 	}
 	
 	/* Main loop: un-Ottava every octaved note within the range. */
@@ -695,14 +695,14 @@ static void UnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short 
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
 		if (aNote->staffn==s && aNote->inOttava) {
-			aNote->inOttava = FALSE;
+			aNote->inOttava = False;
 			aNote->yd -= yDelta;
 			aNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
 			stemDown = GetStemInfo(doc, pL, aNoteL, &qStemLen);
 			NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
 											stemDown, 
 											context.staffHeight, context.staffLines,
-											qStemLen, FALSE);
+											qStemLen, False);
 			if (odd(noteOffset[OctType(octL)-1]))
 				ToggleAugDotPos(doc, aNoteL, stemDown);
 			dystd = -halfLn2std(noteOffset[OctType(octL)-1]);
@@ -728,7 +728,7 @@ static void UnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, shor
 {
 	LINK aGRNoteL; 
 	PAGRNOTE aGRNote;
-	Boolean stemDown=FALSE, multiVoice=FALSE;
+	Boolean stemDown=False, multiVoice=False;
 	short stemLen;
 	
 	/* Loop through the grace notes and set their yds and ystems. */
@@ -736,13 +736,13 @@ static void UnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, shor
 	for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 		aGRNote = GetPAGRNOTE(aGRNoteL);
 		if (aGRNote->staffn==s && aGRNote->inOttava) {
-			aGRNote->inOttava = FALSE;
+			aGRNote->inOttava = False;
 			aGRNote->yd -= yDelta;
 			aGRNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
 			stemLen = QSTEMLEN(!multiVoice, ShortenStem(aGRNoteL, context, stemDown));
 			aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(aGRNote->subType),
 									   stemDown, context.staffHeight,
-									   context.staffLines, stemLen, FALSE);
+									   context.staffLines, stemLen, False);
 		}
 	}
 
@@ -791,7 +791,7 @@ void RemoveOctOnStf(Document *doc,
 	}
 	
 	DeleteNode(doc, octL);
-	doc->changed = TRUE;
+	doc->changed = True;
 	InvalMeasures(fromL, toL, s);
 }
 
@@ -807,7 +807,7 @@ static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short 
 		for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 			aNote = GetPANOTE(aNoteL);
 			if (aNote->staffn==s && aNote->inOttava) {
-				ottavaL = LSSearch(pL, OTTAVAtype, s, TRUE, FALSE);
+				ottavaL = LSSearch(pL, OTTAVAtype, s, True, False);
 				if (ottavaL==NILINK) {
 					MayErrMsg("UnOttavaRange: can't find Ottava for note in sync %ld on staff %ld",(long)pL,(long)s);
 					return;
@@ -821,7 +821,7 @@ static void RemoveItsOttava(Document *doc, LINK fromL, LINK toL, LINK pL, short 
 		for ( ; aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL)) {
 			aGRNote = GetPAGRNOTE(aGRNoteL);
 			if (aGRNote->staffn==s && aGRNote->inOttava) {
-				ottavaL = LSSearch(pL, OTTAVAtype, s, TRUE, FALSE);
+				ottavaL = LSSearch(pL, OTTAVAtype, s, True, False);
 				if (ottavaL==NILINK) {
 					MayErrMsg("UnOttavaRange: can't find Ottava for note in sync %ld on staff %ld", (long)pL,(long)s);
 					return;
@@ -882,7 +882,7 @@ Syncs only. */
 LINK HasOctAcross(
 				LINK node,
 				short staff,
-				Boolean skipNode	/* TRUE=look for Ottava status to right of <node> & skip <node> itself */
+				Boolean skipNode	/* True=look for Ottava status to right of <node> & skip <node> itself */
 				)	
 {
 	LINK lSyncL, rSyncL, lNoteL, rNoteL, ottavaL;
@@ -892,8 +892,8 @@ LINK HasOctAcross(
 
 	/* Get the syncs immediately to the right and left of the node. */
 	
-	lSyncL = LSSearch(LeftLINK(node), SYNCtype, staff, TRUE, FALSE);
-	rSyncL = LSSearch((skipNode? RightLINK(node) : node), SYNCtype, staff, FALSE, FALSE);
+	lSyncL = LSSearch(LeftLINK(node), SYNCtype, staff, True, False);
+	rSyncL = LSSearch((skipNode? RightLINK(node) : node), SYNCtype, staff, False, False);
 	
 	/* Check if they exist, and if they are inOttava; if not, return NILINK. */
 	
@@ -916,7 +916,7 @@ LINK HasOctAcross(
 			/* Otherwise, search for the right one's Ottava; if it is before the left
 				sync, both syncs belong to it, so return it. Otherwise return NILINK. */
 
-			ottavaL = LSSearch(rSyncL, OTTAVAtype, staff, TRUE, FALSE);
+			ottavaL = LSSearch(rSyncL, OTTAVAtype, staff, True, False);
 			return ( IsAfterIncl(ottavaL, lSyncL) ? ottavaL : NILINK );
 		}
 	}
@@ -936,8 +936,8 @@ LINK HasGROctAcross(LINK node, short staff)
 
 	/* Get the GRSyncs immediately to the right & left of the node. */
 	
-	lGRSyncL = LSSearch(LeftLINK(node), GRSYNCtype, staff, TRUE, FALSE);
-	rGRSyncL = LSSearch(node, GRSYNCtype, staff, FALSE, FALSE);
+	lGRSyncL = LSSearch(LeftLINK(node), GRSYNCtype, staff, True, False);
+	rGRSyncL = LSSearch(node, GRSYNCtype, staff, False, False);
 	
 	/* Check if they exist, and if they are inOttava; if not, return NILINK. */
 	
@@ -960,7 +960,7 @@ LINK HasGROctAcross(LINK node, short staff)
 			/* Otherwise, search for the right one's octave sign; if it is before the left
 				GRSync, both belong to it, so return it. Otherwise return NILINK. */
 
-			ottavaL = LSSearch(rGRSyncL, OTTAVAtype, staff, TRUE, FALSE);
+			ottavaL = LSSearch(rGRSyncL, OTTAVAtype, staff, True, False);
 			return ( IsAfterIncl(ottavaL, lGRSyncL) ? ottavaL : NILINK );
 		}
 	}
@@ -978,7 +978,7 @@ LINK HasOttavaAcross(LINK node, short staff)
 {
 	LINK octL;
 
-	octL = HasOctAcross(node,staff,FALSE);
+	octL = HasOctAcross(node,staff,False);
 	if (octL) return octL;
 	return (HasGROctAcross(node,staff));
 }
@@ -998,7 +998,7 @@ LINK OctOnStaff(LINK node, short staff)
 		if (NoteSTAFF(aNoteL)==staff) {
 			aNote = GetPANOTE(aNoteL);
 			if (aNote->inOttava)
-				return LSSearch(node, OTTAVAtype, staff, TRUE, FALSE);
+				return LSSearch(node, OTTAVAtype, staff, True, False);
 
 			return NILINK;
 		}
@@ -1021,7 +1021,7 @@ LINK GROctOnStaff(LINK node, short staff)
 		if (GRNoteSTAFF(aGRNoteL)==staff) {
 			aGRNote = GetPAGRNOTE(aGRNoteL);
 			if (aGRNote->inOttava)
-				return LSSearch(node, OTTAVAtype, staff, TRUE, FALSE);
+				return LSSearch(node, OTTAVAtype, staff, True, False);
 
 			return NILINK;
 		}
@@ -1051,8 +1051,8 @@ static LINK HasOctAcrossPt(Document *doc, Point pt, short staff)
 {
 	LINK lSyncL, rSyncL, octL, octR;
 	
-	lSyncL = GSSearch(doc, pt, SYNCtype, staff, TRUE, FALSE, FALSE, TRUE);
-	rSyncL = GSSearch(doc, pt, SYNCtype, staff, FALSE, FALSE, FALSE, TRUE);
+	lSyncL = GSSearch(doc, pt, SYNCtype, staff, True, False, False, True);
+	rSyncL = GSSearch(doc, pt, SYNCtype, staff, False, False, False, True);
 	if (lSyncL && rSyncL) {
 	
 		octL = OctOnStaff(lSyncL, staff);
@@ -1070,8 +1070,8 @@ static LINK HasGROctAcrossPt(Document *doc, Point pt, short staff)
 {
 	LINK lGRSyncL, rGRSyncL, octL, octR;
 	
-	lGRSyncL = GSSearch(doc, pt, GRSYNCtype, staff, TRUE, FALSE, FALSE, TRUE);
-	rGRSyncL = GSSearch(doc, pt, GRSYNCtype, staff, FALSE, FALSE, FALSE, TRUE);
+	lGRSyncL = GSSearch(doc, pt, GRSYNCtype, staff, True, False, False, True);
+	rGRSyncL = GSSearch(doc, pt, GRSYNCtype, staff, False, False, False, True);
 	if (lGRSyncL && rGRSyncL) {
 	
 		octL = GROctOnStaff(lGRSyncL, staff);
@@ -1110,7 +1110,7 @@ Boolean SelRangeChkOttava(short staff, LINK staffStartL, LINK staffEndL)
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
 					if (NoteSTAFF(aNoteL)==staff) {
 						aNote = GetPANOTE(aNoteL);
-						if (aNote->inOttava) return TRUE;
+						if (aNote->inOttava) return True;
 						else break;
 					}
 			}
@@ -1118,12 +1118,12 @@ Boolean SelRangeChkOttava(short staff, LINK staffStartL, LINK staffEndL)
 				for (aGRNoteL=FirstSubLINK(pL); aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL))
 					if (NoteSTAFF(aGRNoteL)==staff) {
 						aGRNote = GetPAGRNOTE(aGRNoteL);
-						if (aGRNote->inOttava) return TRUE;
+						if (aGRNote->inOttava) return True;
 						else break;
 					}
 			}
 
-	return FALSE;
+	return False;
 }
 
 
@@ -1133,7 +1133,7 @@ GRSyncs. Does NOT count rests. */
 
 short OctCountNotesInRange(short stf,
 							LINK startL, LINK endL,
-							Boolean selectedOnly)		/* TRUE=only selected notes/rests, FALSE=all */
+							Boolean selectedOnly)		/* True=only selected notes/rests, False=all */
 {
 	short notesInRange;
 	

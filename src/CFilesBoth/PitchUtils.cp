@@ -1988,7 +1988,7 @@ short InsNoteFixAccs(
 
 
 /* -------------------------------------------------------------------- AvoidUnisons -- */
-/* In the given chord, try to avoid any kind of unisons by respelling. Returns FALSE
+/* In the given chord, try to avoid any kind of unisons by respelling. Returns False
 if there's at least one unison it can't get rid of. Assumes the chord doesn't con-
 tain any fancy spellings (see below).  Handles only chords of normal notes, not
 grace notes.*/
@@ -2019,7 +2019,7 @@ Boolean AvoidUnisons(Document *doc, LINK syncL, short voice, PCONTEXT pContext)
 
 	halfSpTab[0] = halfSpTab[noteCount] = 999;
 	
-	for (anyChanged = FALSE, unisonCount = 0, i = 1; i<noteCount; i++) {
+	for (anyChanged = False, unisonCount = 0, i = 1; i<noteCount; i++) {
 		if (halfSpTab[i]==0) {
 		/*
 		 *	Found a unison. Try to avoid it by changing the first note of the two (the
@@ -2032,7 +2032,7 @@ Boolean AvoidUnisons(Document *doc, LINK syncL, short voice, PCONTEXT pContext)
 		 * are cases where this will fail, but just considering the notes in a different
 		 * order would work. Oh well.
 		 */
-		 	thisChanged = FALSE;
+		 	thisChanged = False;
 			if (halfSpTab[i-1]>1)
 				if (RespellNote(doc, syncL, chordNote[i-1].noteL, pContext))
 					thisChanged = anyChanged = true;

@@ -73,10 +73,10 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 		UseNumberFilter(dlog,NUMBER_DI,UpRect_DI,DownRect_DI);
 
 		voice = (initVoice<0? 1 : initVoice);
-		PutDlgWord(dlog,NUMBER_DI,voice,TRUE);
+		PutDlgWord(dlog,NUMBER_DI,voice,True);
 		pPart = GetPPARTINFO(partL);
 		strcpy(partName, (strlen(pPart->name)>14? pPart->shortName : pPart->name));
-		PutDlgString(dlog,PARTNAME_DI,CToPString(partName), FALSE);
+		PutDlgString(dlog,PARTNAME_DI,CToPString(partName), False);
 		GetDialogItem(dlog, NEW_DI, &itype, &newHdl, &tRect);
 	
 		CenterWindow(GetDialogWindow(dlog), 70);
@@ -93,7 +93,7 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 				if (ditem==OK || ditem==Cancel) break;
 				if (ditem==NEW_DI) {
 					voice = NewVoiceNum(doc, partL);
-					PutDlgWord(dlog,NUMBER_DI,voice,TRUE);
+					PutDlgWord(dlog,NUMBER_DI,voice,True);
 				}
 			}
 				
@@ -154,11 +154,11 @@ static void RMClickUp(
 	unsigned char markStr[64]; LINK theMark,nextMark;
 
 	GetDlgString(theDialog,NUMBER_DI,(unsigned char *)markStr);
-	theMark = RMSearch(gotoDoc, gotoDoc->headL, markStr, FALSE);
+	theMark = RMSearch(gotoDoc, gotoDoc->headL, markStr, False);
 	if (theMark) {
-		nextMark = RMSearch(gotoDoc, RightLINK(theMark), ANYMARK, FALSE);
+		nextMark = RMSearch(gotoDoc, RightLINK(theMark), ANYMARK, False);
 		if (nextMark)
-			PutDlgString(theDialog,NUMBER_DI,RMARKSTR(nextMark),TRUE);
+			PutDlgString(theDialog,NUMBER_DI,RMARKSTR(nextMark),True);
 	}
 }
 
@@ -171,11 +171,11 @@ static void RMClickDown(
 	unsigned char markStr[64]; LINK theMark,prevMark;
 	
 	GetDlgString(theDialog,NUMBER_DI,markStr);
-	theMark = RMSearch(gotoDoc, gotoDoc->headL, markStr, FALSE);
+	theMark = RMSearch(gotoDoc, gotoDoc->headL, markStr, False);
 	if (theMark) {
-		prevMark = RMSearch(gotoDoc, LeftLINK(theMark), ANYMARK, TRUE);
+		prevMark = RMSearch(gotoDoc, LeftLINK(theMark), ANYMARK, True);
 		if (prevMark)
-			PutDlgString(theDialog,NUMBER_DI,RMARKSTR(prevMark),TRUE);
+			PutDlgString(theDialog,NUMBER_DI,RMARKSTR(prevMark),True);
 	}
 }
 
@@ -188,14 +188,14 @@ static Boolean RMHandleKeyDown(EventRecord *theEvent, LINK firstMark, LINK lastM
 	ch = theEvent->message & charCodeMask;
 	if (ch==UPARROWKEY) {
 		RMClickUp(lastMark, theDialog);
-		return TRUE;
+		return True;
 	}
 	else if (ch==DOWNARROWKEY) {
 		RMClickDown(firstMark, theDialog);
-		return TRUE;
+		return True;
 	}
 	else
-		return FALSE;
+		return False;
 }
 
 
@@ -211,21 +211,21 @@ static Boolean RMHandleMouseDown(EventRecord *theEvent, LINK firstMark, LINK las
 	if (PtInRect(where, &upRect)) {
 		SelectDialogItemText(theDialog, NUMBER_DI, 0, ENDTEXT);			/* Select & unhilite number */
 		TrackNumberArrow(&upRect, &RMClickUp, lastMark, theDialog);
-		return TRUE;
+		return True;
 	}
 	else if (PtInRect(where, &downRect)) {
 		SelectDialogItemText(theDialog, NUMBER_DI, 0, ENDTEXT);			/* Select & unhilite number */
 		TrackNumberArrow(&downRect, &RMClickDown, firstMark, theDialog);
-		return TRUE;
+		return True;
 	}
 	else
-		return FALSE;
+		return False;
 }
 
 static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	Point where;
-	Boolean ans=FALSE; WindowPtr w;
+	Boolean ans=False; WindowPtr w;
 	short choice;
 
 	w = (WindowPtr)(evt->message);
@@ -236,9 +236,9 @@ static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, short *itemHi
 				BeginUpdate(GetDialogWindow(dlog));
 				UpdateDialogVisRgn(dlog);
 				DrawPopUp(&gotoPopUp8);
-				OutlineOKButton(dlog,TRUE);
+				OutlineOKButton(dlog,True);
 				EndUpdate(GetDialogWindow(dlog));
-				ans = TRUE; *itemHit = 0;
+				ans = True; *itemHit = 0;
 			}
 			else
 				DoUpdate(w);
@@ -254,37 +254,37 @@ static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, short *itemHi
 			GlobalToLocal(&where);
 			if (PtInRect(where,&gotoPopUp8.shadow)) {
 				*itemHit = DoUserPopUp(&gotoPopUp8) ? GOTOPOP_DI : 0;
-				ans = TRUE;
+				ans = True;
 				break;
 			}
 			if (choice==gotoPAGE || choice==gotoBAR)
 				if (HandleMouseDown(evt, minVal, maxVal, dlog)) {
 					SelectDialogItemText(dlog, NUMBER_DI, 0, ENDTEXT);
 					*itemHit = NUMBER_DI;
-					ans = TRUE;
+					ans = True;
 					break;
 				}
 			if (choice==gotoREHEARSALMARK)
 				if (RMHandleMouseDown(evt, firstMark, lastMark, dlog)) {
 					SelectDialogItemText(dlog, NUMBER_DI, 0, ENDTEXT);
 					*itemHit = NUMBER_DI;
-					ans = TRUE;
+					ans = True;
 					break;
 				}
 			break;
 		case keyDown:
 			choice = gotoPopUp8.currentChoice;
-			if (DlgCmdKey(dlog, evt, itemHit, FALSE))
-				return TRUE;
+			if (DlgCmdKey(dlog, evt, itemHit, False))
+				return True;
 			else if (choice==gotoPAGE || choice==gotoBAR)
 				if (HandleKeyDown(evt, minVal, maxVal, dlog)) {
 				*itemHit = NUMBER_DI;
-				ans = TRUE;
+				ans = True;
 				}
 			else if (choice==gotoREHEARSALMARK)
 				if (RMHandleKeyDown(evt, firstMark, lastMark, dlog)) {
 				*itemHit = NUMBER_DI;
-				ans = TRUE;
+				ans = True;
 				}
 			break;
 	}
@@ -302,7 +302,7 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 	short ditem,aShort;
 	short value,gotoType,minPageVal,maxPageVal,minMeasVal,maxMeasVal;
 	LINK pageL,measL,rMarkL,currMark; PPAGE pPage; PAMEASURE aMeasure;
-	GrafPtr oldPort; Boolean okay=FALSE,stillGoing;
+	GrafPtr oldPort; Boolean okay=False,stillGoing;
 	Handle rHdl; Rect aRect;
 	char fmtStr[256];
 	ModalFilterUPP	filterUPP;
@@ -335,22 +335,22 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 	/* Initialize values for Goto Page */
 	currPage = *currPageNum;
 
-	pageL = LSSearch(doc->headL, PAGEtype, ANYONE, GO_RIGHT, FALSE);
+	pageL = LSSearch(doc->headL, PAGEtype, ANYONE, GO_RIGHT, False);
 	pPage = GetPPAGE(pageL);
 	minPageVal = pPage->sheetNum+doc->firstPageNumber;
 
-	pageL = LSSearch(doc->tailL, PAGEtype, ANYONE, GO_LEFT, FALSE);
+	pageL = LSSearch(doc->tailL, PAGEtype, ANYONE, GO_LEFT, False);
 	pPage = GetPPAGE(pageL);
 	maxPageVal = pPage->sheetNum+doc->firstPageNumber;
 	
 	/* Initialize values for Goto Measure */
 	currMeas = *currBar;
 
-	measL = MNSearch(doc, doc->headL, ANYONE, GO_RIGHT, TRUE);
+	measL = MNSearch(doc, doc->headL, ANYONE, GO_RIGHT, True);
 	aMeasure = GetPAMEASURE(FirstSubLINK(measL));
 	minMeasVal = aMeasure->measureNum+doc->firstMNNumber;
 	
-	measL = MNSearch(doc, doc->tailL, ANYONE, GO_LEFT, TRUE);
+	measL = MNSearch(doc, doc->tailL, ANYONE, GO_LEFT, True);
 	aMeasure = GetPAMEASURE(FirstSubLINK(measL));
 	maxMeasVal = aMeasure->measureNum+doc->firstMNNumber;
 	
@@ -363,18 +363,18 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 
 	switch(gotoPopUp8.currentChoice) {
 		case gotoPAGE:
-			PutDlgWord(dlog,NUMBER_DI,*currPageNum,TRUE);
+			PutDlgWord(dlog,NUMBER_DI,*currPageNum,True);
 			minVal = minPageVal; maxVal = maxPageVal;
 			break;
 		case gotoBAR:
-			PutDlgWord(dlog,NUMBER_DI,*currBar,TRUE);
+			PutDlgWord(dlog,NUMBER_DI,*currBar,True);
 			minVal = minMeasVal; maxVal = maxMeasVal;
 			break;
 		case gotoREHEARSALMARK:
 			if (currMark)
-				PutDlgString(dlog,NUMBER_DI,RMARKSTR(currMark),TRUE);
+				PutDlgString(dlog,NUMBER_DI,RMARKSTR(currMark),True);
 			else
-				PutDlgString(dlog,NUMBER_DI,"\p",FALSE);
+				PutDlgString(dlog,NUMBER_DI,"\p",False);
 			break;
 		default:
 			break;
@@ -401,14 +401,14 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 					switch (gotoPopUp8.currentChoice) {
 						case gotoPAGE:
 							minVal = minPageVal; maxVal = maxPageVal;
-							PutDlgWord(dlog,NUMBER_DI,currPage,TRUE);
+							PutDlgWord(dlog,NUMBER_DI,currPage,True);
 							break;
 						case gotoBAR:
 							minVal = minMeasVal; maxVal = maxMeasVal;
-							PutDlgWord(dlog,NUMBER_DI,currMeas,TRUE);
+							PutDlgWord(dlog,NUMBER_DI,currMeas,True);
 							break;
 						case gotoREHEARSALMARK:
-							PutDlgString(dlog,NUMBER_DI,markStr,*markStr ? TRUE : FALSE);
+							PutDlgString(dlog,NUMBER_DI,markStr,*markStr ? True : False);
 							break;
 					}
 
@@ -447,10 +447,10 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 						CParamText(strBuf, "", "", "");
 						StopInform(GENERIC_ALRT);
 						SelectDialogItemText(dlog, NUMBER_DI, 0, ENDTEXT);
-						stillGoing = TRUE;
+						stillGoing = True;
 					}
 					else
-						stillGoing = FALSE;
+						stillGoing = False;
 					currPage = value;
 					break;
 				case gotoBAR:
@@ -461,23 +461,23 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 						CParamText(strBuf, "", "", "");
 						StopInform(GENERIC_ALRT);
 						SelectDialogItemText(dlog, NUMBER_DI, 0, ENDTEXT);
-						stillGoing = TRUE;
+						stillGoing = True;
 					}
 					else
-						stillGoing = FALSE;
+						stillGoing = False;
 					currMeas = value;
 					break;
 				case gotoREHEARSALMARK:
 					if (!GetDlgString(dlog,NUMBER_DI,markStr) ||
-						 !(rMarkL=RMSearch(doc, doc->headL, markStr, FALSE))) {
+						 !(rMarkL=RMSearch(doc, doc->headL, markStr, False))) {
 						GetIndCString(strBuf, DIALOGERRS_STRS, 11);			/* "no such rehearsal mark" */
 						CParamText(strBuf, "", "", "");
 						StopInform(GENERIC_ALRT);
 						SelectDialogItemText(dlog, NUMBER_DI, 0, ENDTEXT);
-						stillGoing = TRUE;
+						stillGoing = True;
 					}
 					else
-						stillGoing = FALSE;
+						stillGoing = False;
 					break;
 			}
 		}

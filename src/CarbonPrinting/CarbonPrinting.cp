@@ -242,7 +242,7 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 				doc->marginRect.bottom = rPaper.bottom - marginBottom;
 				doc->origPaperRect = rPaper;
 				MagnifyPaper(&doc->origPaperRect, &doc->paperRect, doc->magnify);
-				doc->changed = TRUE;
+				doc->changed = True;
 				InvalSheetView(doc);
 			}
 		}		
@@ -252,7 +252,7 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 			SignedByte oldLandscape = doc->landscape;
 	
 			doc->landscape = (pmOrientation==kPMLandscape || pmOrientation==kPMReverseLandscape);
-			if (doc->landscape != oldLandscape) doc->changed = TRUE;
+			if (doc->landscape != oldLandscape) doc->changed = True;
 		}
 	}
 	
@@ -275,7 +275,7 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 void NDoPageSetup(Document *doc)
 {
 	WindowRef w = doc->theWindow;
-	Boolean accepted = FALSE;
+	Boolean accepted = False;
 	
 	OSStatus status = DocSetupPageFormat(doc);
 	
@@ -404,10 +404,10 @@ static OSStatus GetPrintPageRange(Document *doc, UInt32 *firstPage, UInt32 *last
 
 static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPage)
 {
-	OSStatus status = PMSetFirstPage(doc->docPrintInfo.docPrintSettings, firstPage, FALSE);
+	OSStatus status = PMSetFirstPage(doc->docPrintInfo.docPrintSettings, firstPage, False);
 
 	if (status == noErr)
-		status = PMSetLastPage(doc->docPrintInfo.docPrintSettings, lastPage, FALSE);
+		status = PMSetLastPage(doc->docPrintInfo.docPrintSettings, lastPage, False);
 				
 	return status;
 }
@@ -417,7 +417,7 @@ static OSStatus SetPrintPageRange(Document *doc, UInt32 firstPage, UInt32 lastPa
 
 /* Check that systems in a range of pages are all justified. If SysJustFact() is
 significantly different from 1.0, tell user and give them a chance to cancel. Return
-FALSE if user says stop or there's an error, TRUE otherwise (all justified, or user
+False if user says stop or there's an error, True otherwise (all justified, or user
 sqys continue anyway). (It'd be nice some day to give them an opportunity to justify
 right now.) */
 
@@ -429,17 +429,17 @@ static Boolean IsRightJustOK(Document *doc,
 	DDIST staffWidth, lastMeasWidth;
 	short firstUnjustPg;
 	
-	startPageL = LSSearch(doc->headL, PAGEtype, firstSheet, GO_RIGHT, FALSE);
-	endPageL = LSSearch(doc->headL, PAGEtype, lastSheet+1, GO_RIGHT, FALSE);
+	startPageL = LSSearch(doc->headL, PAGEtype, firstSheet, GO_RIGHT, False);
+	endPageL = LSSearch(doc->headL, PAGEtype, lastSheet+1, GO_RIGHT, False);
 	if (!endPageL) endPageL = doc->tailL;
 	if (!startPageL) {
 		MayErrMsg("IsRightJustOK: can't find startPageL.");
-		return FALSE;
+		return False;
 	}
 	
 	if (CountUnjustifiedSystems(doc, startPageL, endPageL, &firstUnjustPg)>0)
 		return (CautionAdvise(NOTJUST_ALRT)!=Cancel);
-	return TRUE;
+	return True;
 }
 
 
@@ -610,7 +610,7 @@ static void NDoPrintLoop(Document *doc)
 	
 	UpdateAllWindows();
 	
-	status = DocFormatGetAdjustedPaperRect(doc, &imageRect, TRUE);
+	status = DocFormatGetAdjustedPaperRect(doc, &imageRect, True);
 	require(status==noErr,displayError);
 	
 #if USE_PREC103
@@ -745,7 +745,7 @@ static OSStatus PrintPostScript(Document *doc, UInt32 firstSheet, UInt32 lastShe
 		 */
 		//printRect = (**hPrint).prInfo.rPage;
 		//imageRect = (*hPrint)->rPaper;		
-		status = DocFormatGetAdjustedPaperRect(doc, &imageRect, TRUE);
+		status = DocFormatGetAdjustedPaperRect(doc, &imageRect, True);
 
 		paper = doc->paperRect;
 		
@@ -789,11 +789,11 @@ static OSStatus PrintPostScript(Document *doc, UInt32 firstSheet, UInt32 lastShe
 						 */
 						PS_NewPage(doc,NULL,sheet+doc->firstPageNumber);
 						
-						PS_OutOfQD(doc,TRUE,&imageRect);
-						//PrintDemoBanner(doc, TRUE);
+						PS_OutOfQD(doc,True,&imageRect);
+						//PrintDemoBanner(doc, True);
 						DrawPageContent(doc, sheet, &paper, &doc->currentPaper);
 //						PS_Print("showpage\r");
-						PS_IntoQD(doc,TRUE);
+						PS_IntoQD(doc,True);
 						
 						PS_EndPage();
 						SetPort(currPort);
@@ -867,8 +867,8 @@ static OSStatus DocFormatGetAdjustedPaperRect(Document *doc, Rect *rPaper, Boole
 
 static Boolean DocSessionOK(Document *doc, OSStatus status)
 {
-	if (status != noErr) return FALSE;
-	if (doc->docPrintInfo.docPrintSession == NULL) return FALSE;
+	if (status != noErr) return False;
+	if (doc->docPrintInfo.docPrintSession == NULL) return False;
 	
 	return (PMSessionError(doc->docPrintInfo.docPrintSession) == noErr);
 }
@@ -1046,13 +1046,13 @@ static void FillFontUsedTbl(Document *doc)
 	for (j = 0; j<doc->nfontsUsed; j++) {
 		Pstrcpy((StringPtr)fontUsedTbl[j].fontName, (StringPtr)doc->fontTable[j].fontName);
 		for (k = 0; k<4; k++)
-			fontUsedTbl[j].style[k] = FALSE;
+			fontUsedTbl[j].style[k] = False;
 		}
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		if (GraphicTYPE(pL)) {
 			p = GetPGRAPHIC(pL);
 			styleBits = p->fontStyle % 4;
-			fontUsedTbl[p->fontInd].style[styleBits] = TRUE;
+			fontUsedTbl[p->fontInd].style[styleBits] = True;
 			}
 }
 
@@ -1079,7 +1079,7 @@ Boolean NDoPostScript(Document *doc)
 		Sel2MeasPage(doc, &anInt, &pageNum);
 		newType = PSTypeDialog(type, pageNum);
 		sheetNum = pageNum-doc->firstPageNumber;
-		if (!newType) return FALSE;
+		if (!newType) return False;
 		type = newType;
 		
 		EPSFile = (type==1);
@@ -1112,7 +1112,7 @@ Boolean NDoPostScript(Document *doc)
 		/* Ask user where to put this PostScript file */
 
 		keepGoing = GetOutputName(MiscStringsID,EPSFile? 7:9, outname, &vref, &nscd);
-		if (!keepGoing) return FALSE;
+		if (!keepGoing) return False;
 		
 		rfSpec = nscd.nsFSSpec;
 		
@@ -1124,7 +1124,7 @@ Boolean NDoPostScript(Document *doc)
 		if (theErr == noErr) {
 			paperRect = doc->origPaperRect;
 			
-			PS_Header(doc, outname, (EPSFile? 1:doc->numSheets), 1.0, FALSE, TRUE, &paperRect, &paperRect);
+			PS_Header(doc, outname, (EPSFile? 1:doc->numSheets), 1.0, False, True, &paperRect, &paperRect);
 			
 			if (EPSFile) {
 				firstSheet = sheetNum;					/* Do current sheet only */
@@ -1205,7 +1205,7 @@ Boolean NDoPostScript(Document *doc)
 		outputTo = saveOutputTo;
 		ArrowCursor();
 
-		return TRUE;
+		return True;
 	}
 
 
@@ -1222,7 +1222,7 @@ static short group1;
 
 static short PSTypeDialog(short oldType, short pageNum)
 	{
-		short itemHit, okay, type, keepGoing=TRUE;
+		short itemHit, okay, type, keepGoing=True;
 		DialogPtr dlog; GrafPtr oldPort;
 		ModalFilterUPP filterUPP;
 		Handle hndl;
@@ -1265,11 +1265,11 @@ static short PSTypeDialog(short oldType, short pageNum)
 			ModalDialog(filterUPP, &itemHit);
 			switch(itemHit) {
 				case BUT1_OK:
-					keepGoing = FALSE;
+					keepGoing = False;
 					okay = (group1==RAD4_EPSF) ? 1 : 2;
 					break;
 				case BUT2_Cancel:
-					keepGoing = FALSE;
+					keepGoing = False;
 					okay = 0;
 					break;
 				case RAD4_EPSF:

@@ -28,9 +28,9 @@
 	#define nil			((void *)0)
 #endif
 
-#ifndef TRUE
-	#define TRUE		1
-	#define FALSE		0
+#ifndef True
+	#define True		1
+	#define False		0
 #endif
 
 #define MAXPOOLNEST		32
@@ -88,14 +88,14 @@ static void	DefaultNoMemory(OSErr err);
 /*
  *	Re-initialize the String Manager to use a push/pop context stack of given
  *	nesting size, maxNest, and to allocate a default string pool with given
- *	initial size, firstSize.  Deliver TRUE if done, FALSE if couldn't do it.
+ *	initial size, firstSize.  Deliver True if done, False if couldn't do it.
  *	All hell will break loose if this routine's failure is ignored.
  *	If either of the arguments is 0, then we use internal default sizes.
  */
 
 int InitStringPools(short maxNest, long firstSize)
 	{
-		int okay = FALSE; long size;
+		int okay = False; long size;
 		
 		// Allocate/reallocate the pushme/poolyou stack
 		
@@ -121,7 +121,7 @@ int InitStringPools(short maxNest, long firstSize)
 			if (theFirstPool) {									// Initializes it also
 				SetStringPool(theFirstPool);
 				NoStringMemoryFunc = DefaultNoMemory;
-				okay = TRUE;
+				okay = True;
 				}
 			 else {
 				DisposePtr((Ptr)poolStack);
@@ -221,13 +221,13 @@ StringPoolRef DisposeStringPool(StringPoolRef pool)
 /*
  *	Ditch all strings in a given StringPool, and reset it to allocate from
  *	the beginning.  Set the pool to initially have space for size bytes of
- *	storage.  Returns TRUE if okay to continue, FALSE if problem.  Attempts
+ *	storage.  Returns True if okay to continue, False if problem.  Attempts
  *	to initialize the nil pool are ignored.
  */
 
 int InitStringPool(StringPoolRef pool, long size)
 	{
-		int okay = TRUE;
+		int okay = True;
 		
 		if (pool) {
 			StringPool *p = *pool;							// Caution: floating ptr
@@ -245,7 +245,7 @@ int InitStringPool(StringPoolRef pool, long size)
 			SetHandleSize((Handle)pool, sizeof(StringPool) + size);
 			// Memory has moved; p invalid
 			if (MemError())
-				okay = FALSE;
+				okay = False;
 			 else
 				(*pool)->topFreeByte = (*pool)->firstFreeByte + size;
 			}
@@ -353,8 +353,8 @@ void UnlockStringsInPool(StringPoolRef pool)
 	}
 
 /*
- *	Bump the current save level of the given pool, returning FALSE for stack
- *	overflow or other problem, and TRUE if all okay to continue.
+ *	Bump the current save level of the given pool, returning False for stack
+ *	overflow or other problem, and True if all okay to continue.
  */
 
 int SaveStringsInPool(StringPoolRef pool)
@@ -367,11 +367,11 @@ int SaveStringsInPool(StringPoolRef pool)
 		p = *pool;
 		if (++p->saveLevel >= MAXSAVE) {
 			p->saveLevel--;
-			return(FALSE);
+			return(False);
 			}
 		
 		p->bottomByte[p->saveLevel] = p->firstFreeByte;
-		return(TRUE);
+		return(True);
 	}
 
 /*
@@ -448,7 +448,7 @@ short StringPoolProblem(StringPoolRef pool)
 
 /*
  *	Tell caller whether given string was stored as C string or not.
- *	Always TRUE for the empty string, and garbage if given offset
+ *	Always True for the empty string, and garbage if given offset
  *	is garbage.
  */
 
@@ -463,10 +463,10 @@ int IsCStringInPool(StringRef offset, StringPoolRef pool)
 		if (offset>=0 && offset<p->firstFreeByte) {
 			Byte *start = ((Byte *)p) + offset;
 			if (*start & C_String)
-				return(TRUE);
+				return(True);
 			}
 		
-		return(FALSE);
+		return(False);
 	}
 
 /*

@@ -117,7 +117,7 @@ static void CreateBeams(Document *doc, short voice)
 	nBeamable = CountBeamable(doc, doc->selStartL, doc->selEndL, voice, true);
 	if (nBeamable>1)
 		beamL = CreateBEAMSET(doc, doc->selStartL, doc->selEndL, voice,
-						nBeamable, TRUE, doc->voiceTab[voice].voiceRole);
+						nBeamable, True, doc->voiceTab[voice].voiceRole);
 
 	if (beamL)
 		if (doc->selStartL==FirstInBeam(beamL))				/* Does sel. start at beam's 1st note? */

@@ -93,7 +93,7 @@ static void MissingFontsDialog(Document *doc, short nMissing)
 		ShowWindow(GetDialogWindow(dialogp));
 						
 		ArrowCursor();
-		OutlineOKButton(dialogp, TRUE);
+		OutlineOKButton(dialogp, True);
 	
 		/* List the missing fonts. */
 
@@ -156,9 +156,9 @@ static void FillFontTable(Document *doc)
 	nFonts = CountResources('FOND');
 
 	for (i = 1; i<=nFonts; i++) {
-		SetResLoad(FALSE);
+		SetResLoad(False);
 		fontHdl = GetIndResource('FOND', i);
-		SetResLoad(TRUE);
+		SetResLoad(True);
 		GetResInfo(fontHdl, &fontID, &fontType, fontName);
 		for (j = 0; j<doc->nfontsUsed; j++)
 			if (Pstrneql((StringPtr)doc->fontTable[j].fontName,
@@ -273,7 +273,7 @@ static void GetPrintHandle(Document *doc, short /*vRefNum*/, FSSpec *pfsSpec)
 score file.  The resource fork may already exist or it may not. Should be called when
 saving a document.
 
-Leaves the resource fork closed and returns TRUE if all went well, FALSE if not. */
+Leaves the resource fork closed and returns True if all went well, False if not. */
 
 static Boolean WritePrintHandle(Document *doc)
 	{
@@ -282,7 +282,7 @@ static Boolean WritePrintHandle(Document *doc)
 		if (THIS_VERSION<'N104') {
 			// Nothing to write.. we should never get here anyway.
 			doc->flatFormatHandle = NULL;
-			return TRUE;
+			return True;
 		}
 		else {
 			short refnum, dummy;
@@ -353,7 +353,7 @@ static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point end
 		SignedByte	firstInd, lastInd;
 		Boolean		firstMEAS, lastSYS;
 
-		firstMEAS = lastSYS = FALSE;
+		firstMEAS = lastSYS = False;
 			
 		/* Handle special cases for crossSystem & crossStaff slurs. If p->firstSyncL
 		not a sync, it must be a measure; find the first sync to get the context from.
@@ -370,10 +370,10 @@ static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point end
 		if (SyncTYPE(p->firstSyncL))
 			GetContext(doc, p->firstSyncL, firstStaff, &localContext);	/* Get left end context */
 		else {
-			if (MeasureTYPE(p->firstSyncL)) firstMEAS = TRUE;
+			if (MeasureTYPE(p->firstSyncL)) firstMEAS = True;
 			else MayErrMsg("OldGetSlurContextontext: for pL=%ld firstSyncL=%ld is bad",
 								(long)pL, (long)p->firstSyncL);
-			firstSyncL = LSSearch(p->firstSyncL, SYNCtype, firstStaff, GO_RIGHT, FALSE);
+			firstSyncL = LSSearch(p->firstSyncL, SYNCtype, firstStaff, GO_RIGHT, False);
 			GetContext(doc, firstSyncL, firstStaff, &localContext);
 		}
 		dFirstLeft = localContext.measureLeft;							/* abs. origin of left end coords. */
@@ -387,9 +387,9 @@ static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point end
 			GetContext(doc, p->lastSyncL, lastStaff, &localContext);	/* Get right end context */
 		else {
 			if (SystemTYPE(p->lastSyncL) && LinkRSYS(p->lastSyncL)) {
-				lastSYS = TRUE;
+				lastSYS = True;
 				pSystemL = p->lastSyncL;
-				lastSyncL = LSSearch(LinkRSYS(pSystemL),SYNCtype,lastStaff,GO_LEFT,FALSE);
+				lastSyncL = LSSearch(LinkRSYS(pSystemL),SYNCtype,lastStaff,GO_LEFT,False);
 				GetContext(doc, lastSyncL, lastStaff, &localContext);
 			}
 			else MayErrMsg("OldGetSlurContextontext: for pL=%ld lastSyncL=%ld is bad",
@@ -471,15 +471,15 @@ static void ConvertChordSlurs(Document *doc)
 	
 	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
 		if (SlurTYPE(pL) && !SlurTIE(pL)) {
-			foundChordSlur = FALSE;
+			foundChordSlur = False;
 			v = SlurVOICE(pL);
 			if (SyncTYPE(SlurFIRSTSYNC(pL))) {
 				aNoteL = FindMainNote(SlurFIRSTSYNC(pL), v); 
-				if (NoteINCHORD(aNoteL)) foundChordSlur = TRUE;
+				if (NoteINCHORD(aNoteL)) foundChordSlur = True;
 			}
 			if (SyncTYPE(SlurLASTSYNC(pL))) {
 				aNoteL = FindMainNote(SlurLASTSYNC(pL), v); 
-				if (NoteINCHORD(aNoteL)) foundChordSlur = TRUE;
+				if (NoteINCHORD(aNoteL)) foundChordSlur = True;
 			}
 
 			if (foundChordSlur) {
@@ -579,7 +579,7 @@ static void ConvertStaffLines(LINK startL)
 					StaffSHOWLINES(aStaffL) = 1;
 				else
 					StaffSHOWLINES(aStaffL) = SHOW_ALL_LINES;
-				StaffSHOWLEDGERS(aStaffL) = TRUE;
+				StaffSHOWLEDGERS(aStaffL) = True;
 #ifdef STAFFRASTRAL
 				// NB: Bad if NightStaffSizer used! See StaffSize2Rastral in ResizeStaff.c
 				// from NightStaffSizer code as a way to a possible solution.
@@ -595,8 +595,8 @@ static void ConvertStaffLines(LINK startL)
 /* Any file-format-conversion code that doesn't affect the length of the header or
 lengths of objects should go here. This function should only be called after the
 header and entire object list have been read. (Tweaks that affect lengths must be
-done earlier: to the header, in OpenFile; to objects, in ReadObjHeap.) Return TRUE
-if all goes well, FALSE if not. */
+done earlier: to the header, in OpenFile; to objects, in ReadObjHeap.) Return True
+if all goes well, False if not. */
 
 static Boolean ConvertScore(Document *doc, long fileTime)
 {
@@ -696,14 +696,14 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 		any are found, offer to fix them. */
 		
 	if (version<='N100') {
-		LINK aSlurL; PASLUR aSlur; Boolean foundDashed=FALSE;
+		LINK aSlurL; PASLUR aSlur; Boolean foundDashed=False;
 		
 		for (pL = doc->headL; pL && !foundDashed; pL = RightLINK(pL)) 
 			if (SlurTYPE(pL)) {
 				aSlurL = FirstSubLINK(pL);
 				for ( ; aSlurL; aSlurL = NextSLURL(aSlurL)) {
 					aSlur = GetPASLUR(aSlurL);
-					if (aSlur->dashed) { foundDashed = TRUE; break; }
+					if (aSlur->dashed) { foundDashed = True; break; }
 				}
 			}
 
@@ -761,7 +761,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 				NumToString(beatsPM, string);
 				offset = PStore(string);
 				if (offset<0L)
-					{ NoMoreMemory(); return FALSE; }
+					{ NoMoreMemory(); return False; }
 				else
 					TempoMETROSTR(pL) = offset;
 			}
@@ -791,16 +791,16 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 	|| ShiftKeyDown()) {
 		short v; LINK aNoteL; Boolean foundChordSlur;
 		
-		for (foundChordSlur = FALSE, pL = doc->headL; pL; pL = RightLINK(pL)) {
+		for (foundChordSlur = False, pL = doc->headL; pL; pL = RightLINK(pL)) {
 			if (SlurTYPE(pL) && !SlurTIE(pL)) {
 				v = SlurVOICE(pL);
 				if (SyncTYPE(SlurFIRSTSYNC(pL))) {
 					aNoteL = FindMainNote(SlurFIRSTSYNC(pL), v); 
-					if (NoteINCHORD(aNoteL)) { foundChordSlur = TRUE; break; }
+					if (NoteINCHORD(aNoteL)) { foundChordSlur = True; break; }
 				}
 				if (SyncTYPE(SlurLASTSYNC(pL))) {
 					aNoteL = FindMainNote(SlurLASTSYNC(pL), v); 
-					if (NoteINCHORD(aNoteL)) { foundChordSlur = TRUE; break; }
+					if (NoteINCHORD(aNoteL)) { foundChordSlur = True; break; }
 				}
 			}
 		}
@@ -907,7 +907,7 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 				offset = PReplace(GraphicSTRING(aGraphicL), string);
 				if (offset<0L) {
 					NoMoreMemory();
-					return FALSE;
+					return False;
 				}
 				else
 					GraphicSTRING(aGraphicL) = offset;
@@ -931,15 +931,15 @@ static Boolean ConvertScore(Document *doc, long fileTime)
 
 	VisifyMasterStaves(doc);
 	
-	return TRUE;
+	return True;
 }
 
 
 /* ----------------------------------------------------------------------- ModifyScore -- */
 /* Any temporary file-content-updating code (a.k.a. hacking) that doesn't affect the
 length of the header or lengths of objects should go here. This function should only be
-called after the header and entire object list have been read. Return TRUE if all goes
-well, FALSE if not.
+called after the header and entire object list have been read. Return True if all goes
+well, False if not.
 
 NB: If code here considers changing something, and especially if it ends up actually
 doing so, it should call LogPrintf to display at least one very prominent message
@@ -958,7 +958,7 @@ static void ShowStfTops(Document *doc, LINK pL, short staffN1, short staffN2)
 {
 	CONTEXT context;
 	short staffTop1, staffTop2;
-	pL = SSearch(doc->headL, STAFFtype, FALSE);
+	pL = SSearch(doc->headL, STAFFtype, False);
 	GetContext(doc, pL, staffN1, &context);
 	staffTop1 =  context.staffTop;
 	GetContext(doc, pL, staffN2, &context);
@@ -1174,7 +1174,7 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
 	for (pL = doc->headL; pL; pL = RightLINK(pL)) {
 		SwapStaves(doc, pL, staffN1, staffN2);
 	}
-  	doc->changed = TRUE;
+  	doc->changed = True;
 
 #endif
 
@@ -1188,10 +1188,10 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
 
 	LogPrintf(LOG_NOTICE, "ModifyScore: fixing Master Page sysRects and staffTops...\n");
 	// Browser(doc,doc->masterHeadL, doc->masterTailL);
-	sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+	sysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 	SystemRECT(sysL).bottom = SystemRECT(sysL).top+pt2d(72);
 
-	staffL = SSearch(doc->masterHeadL, STAFFtype, FALSE);
+	staffL = SSearch(doc->masterHeadL, STAFFtype, False);
 	aStaffL = FirstSubLINK(staffL);
 	topStaffTop = pt2d(24);
 	/* The following assumes staff subobjects are in order from top to bottom! */
@@ -1200,7 +1200,7 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
 		aStaff->staffTop = topStaffTop;
 		topStaffTop += pt2d(36);
 	}
-  	doc->changed = TRUE;
+  	doc->changed = True;
 #endif
 
 #ifdef FIX_UNBEAMED_FLAGS_AUGDOT_PROB
@@ -1216,7 +1216,7 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
   /* TC Oct 7 1999 (modified by DB, 8 Oct.): quick and dirty hack to fix this problem
    * for Bill Hunt; on opening file, look at all unbeamed dotted notes with subtype >
    * quarter note and if they have stem up, increase xmovedots by 2; if we find any
-   * such notes, set doc-changed to TRUE then simply report to user. It'd probably
+   * such notes, set doc-changed to True then simply report to user. It'd probably
    * be better to consider stem length and not do this for notes with very long
    * stems, but we don't consider that. */
 
@@ -1237,7 +1237,7 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
     }
   
   if (alteredCount) {
-  	doc->changed = TRUE;
+  	doc->changed = True;
 
     NumToString((long)alteredCount,(unsigned char *)strBuf);
     ParamText((unsigned char *)strBuf, 
@@ -1255,11 +1255,11 @@ static Boolean ModifyScore(Document *doc, long /*fileTime*/)
 		if (pL>=492 && ObjLType(pL)==SYNCtype) {
 			LINK aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL))
-				NoteBEAMED(aNoteL) = FALSE;
+				NoteBEAMED(aNoteL) = False;
 		}
 #endif
 
-	return TRUE;
+	return True;
 }
 
 
@@ -1322,16 +1322,16 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 
 	WaitCursor();
 
-	fileIsOpen = FALSE;
+	fileIsOpen = False;
 	
 	fsSpec = *pfsSpec;
 	errCode = FSpOpenDF(&fsSpec, fsRdWrPerm, &refNum );			/* Open the file */
 	if (errCode == fLckdErr || errCode == permErr) {
-		doc->readOnly = TRUE;
+		doc->readOnly = True;
 		errCode = FSpOpenDF (&fsSpec, fsRdPerm, &refNum );		/* Try again - open the file read-only */
 	}
 	if (errCode) { errInfo = OPENcall; goto Error; }
-	fileIsOpen = TRUE;
+	fileIsOpen = True;
 
 	count = sizeof(version);									/* Read & check file version code */
 	errCode = FSRead(refNum, &count, &version);
@@ -1493,9 +1493,9 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 
 	Pstrcpy(doc->name, filename);						/* Remember filename and vol refnum after scoreHead is overwritten */
 	doc->vrefnum = vRefNum;
-	doc->changed = FALSE;
-	doc->saved = TRUE;									/* Has to be, since we just opened it! */
-	doc->named = TRUE;									/* Has to have a name, since we just opened it! */
+	doc->changed = False;
+	doc->saved = True;									/* Has to be, since we just opened it! */
+	doc->named = True;									/* Has to have a name, since we just opened it! */
 
 	ModifyScore(doc, fileTime);							/* Do any hacking needed--ordinarily none */
 
@@ -1588,11 +1588,11 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	 */
 	InvalRange(doc->headL, doc->tailL);					/* Force computing all objRects */
 
-	doc->hasCaret = FALSE;									/* Caret must still be set up */
+	doc->hasCaret = False;									/* Caret must still be set up */
 	doc->selStartL = doc->headL;							/* Set selection range */								
 	doc->selEndL = doc->tailL;								/*   to entire score, */
 	DeselAllNoHilite(doc);									/*   deselect it */
-	SetTempFlags(doc, doc, doc->headL, doc->tailL, FALSE);	/* Just in case */
+	SetTempFlags(doc, doc, doc->headL, doc->tailL, False);	/* Just in case */
 
 	if (ScreenPagesExceedView(doc))
 		CautionInform(MANYPAGES_ALRT);
@@ -1721,7 +1721,7 @@ static long GetOldFileSize(Document *doc)
 	fInfo.fileParam.ioDirID = doc->fsSpec.parID;
 	fInfo.fileParam.ioFDirIndex = 0;							/* ioNamePtr is INPUT, not output */
 	fInfo.fileParam.ioNamePtr = (unsigned char *)doc->name;
-	PBHGetFInfo(&fInfo,FALSE);
+	PBHGetFInfo(&fInfo,False);
 	
 	err = fInfo.fileParam.ioResult;
 	if (err==noErr) {
@@ -1747,7 +1747,7 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 	/* Get the total number of objects of each type and the number of note
 		modifiers in the data structure. */
 
-	CountInHeaps(doc, objCount, TRUE);
+	CountInHeaps(doc, objCount, True);
 
 	for (pL = doc->headL; pL!=RightLINK(doc->tailL); pL = RightLINK(pL))
 		fileSize += objLength[ObjLType(pL)];
@@ -1819,7 +1819,7 @@ static long GetFreeSpace(Document *doc, long *vAlBlkSize)
 	vInfo.volumeParam.ioVRefNum = doc->vrefnum;
 	vInfo.volumeParam.ioVolIndex = 0;					/* Use ioVRefNum alone to find vol. */
 	vInfo.volumeParam.ioNamePtr = NULL;
-	PBHGetVInfo(&vInfo,FALSE);
+	PBHGetVInfo(&vInfo,False);
 	
 	err = vInfo.volumeParam.ioResult;
 	if (err==noErr) {
@@ -1876,7 +1876,7 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 			GetIndCString(strBuf, FILEIO_STRS, 13);    /* "Can't get the existing file's size." */
 			CParamText(strBuf, "", "", "");
 			StopInform(SAFESAVEINFO_ALRT);
-			return AskSaveType(TRUE);					/* Let them try to save on this vol. anyway */
+			return AskSaveType(True);					/* Let them try to save on this vol. anyway */
 		}
 	}
 
@@ -1885,7 +1885,7 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 		GetIndCString(strBuf, FILEIO_STRS, 14);			/* "Can't get the disk free space." */
 		CParamText(strBuf, "", "", "");
 		StopInform(SAFESAVEINFO_ALRT);
-		return AskSaveType(TRUE);						/* Let them try to save on this vol. anyway */
+		return AskSaveType(True);						/* Let them try to save on this vol. anyway */
 	}
 
 	fileSize = GetFileSize(doc,vAlBlkSize);
@@ -1909,7 +1909,7 @@ which made it impossible to open some saved files. */
 
 static Boolean SFChkScoreOK(Document */*doc*/)
 {
-	return TRUE;
+	return True;
 }
 
 /* Actually write the file. Write header info, write the string pool, call WriteHeaps
@@ -2039,7 +2039,7 @@ static Boolean GetOutputFile(Document *doc)
 			GetIndCString(strBuf, FILEIO_STRS, 11);    /* "You can replace only files created by Nightingale." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			return FALSE;
+			return False;
 		}
 
 		//HSetVol(NULL,vrefnum,0);
@@ -2048,12 +2048,12 @@ static Boolean GetOutputFile(Document *doc)
 		Pstrcpy(doc->name,name);
 		doc->vrefnum = vrefnum;
 		SetWTitle((WindowPtr)doc,name);
-		doc->changed = FALSE;
-		doc->named = TRUE;
-		doc->readOnly = FALSE;
+		doc->changed = False;
+		doc->named = True;
+		doc->readOnly = False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -2070,7 +2070,7 @@ systems whose filenames have extensions, like MS Windows, we should probably rep
 the extension, though even here some disagree. For other systems, like MacOS and UNIX,
 it's really unclear what to do: this is particularly unfortunate because if a file
 exists with the resulting name, the calling routine may be planning to overwrite it!
-Return TRUE if we can do the job without truncating the given filename, FALSE if we
+Return True if we can do the job without truncating the given filename, False if we
 have to truncate (this is the more dangerous case). */
 
 Boolean MakeVariantFilename(Str255 filename, char *suffix, Str255 bkpName);
@@ -2081,7 +2081,7 @@ Boolean MakeVariantFilename(
 			)
 {
 	short bkpNameLen;
-	Boolean truncated = FALSE;
+	Boolean truncated = False;
 	
 	Pstrcpy(bkpName, filename);
 	PToCString(bkpName);
@@ -2089,7 +2089,7 @@ Boolean MakeVariantFilename(
 	if (strlen((char *)bkpName)+strlen(suffix)>FILENAME_MAXLEN) {
 		bkpNameLen = FILENAME_MAXLEN-strlen(suffix);
 		bkpName[bkpNameLen] = '\0';
-		truncated = TRUE;
+		truncated = True;
 	}
 
 	strcat((char *)bkpName, suffix);
@@ -2129,7 +2129,7 @@ static short RenameAsBackup(Str255 filename, short vRefNum, Str255 bkpName)
 
 short SaveFile(
 			Document *doc,
-			Boolean saveAs			/* TRUE if a Save As operation, FALSE if a Save */
+			Boolean saveAs			/* True if a Save As operation, False if a Save */
 			)
 {
 	Str255			filename, bkpName;
@@ -2150,7 +2150,7 @@ short SaveFile(
 	Pstrcpy(filename,doc->name);
 	vRefNum = doc->vrefnum;
 	fsSpec = doc->fsSpec;
-	fileIsOpen = FALSE;
+	fileIsOpen = False;
 
 TryAgain:
 	WaitCursor();
@@ -2198,7 +2198,7 @@ TryAgain:
 
 		/* The user may have just told us a new disk to save on, so start over. */
 		
-		saveAs = TRUE;
+		saveAs = True;
 		Pstrcpy(filename,doc->name);
 		vRefNum = doc->vrefnum;
 		fsSpec = doc->fsSpec;
@@ -2208,10 +2208,10 @@ TryAgain:
 	/* At this point, the file we want to write (either the temporary file or the
 		"real" one) is open and <refNum> is set for it. */
 		
-	doc->docNew = FALSE;
+	doc->docNew = False;
 	doc->vrefnum = vRefNum;
 	doc->fsSpec	= fsSpec;
-	fileIsOpen = TRUE;
+	fileIsOpen = True;
 
 	errCode = WriteFile(doc,refNum);
 	if (errCode) { errInfo = WRITEcall; goto Error; };
@@ -2265,8 +2265,8 @@ TryAgain:
 		if (errCode) { errInfo = CLOSEcall; goto Error; }
 	}
 
-	doc->changed = FALSE;											/* Score isn't dirty */
-	doc->saved = TRUE;												/* ...and it's been saved */
+	doc->changed = False;											/* Score isn't dirty */
+	doc->saved = True;												/* ...and it's been saved */
 
 	/* Save any print record or other resources in the resource fork */
 

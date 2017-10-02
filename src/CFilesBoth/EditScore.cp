@@ -14,7 +14,7 @@
 
 /* Handle mouse clicks in a currently active score. <pt> must be in paper-relative
 coordinates with respect to the current sheet, and the window local coordinates must
-have already been set to reflect the current sheet as well. Always returns TRUE.
+have already been set to reflect the current sheet as well. Always returns True.
 This should be called by DoDocContent. */
 
 Boolean DoEditScore(Document *doc, Point pt, short modifiers, short dblClick)
@@ -64,9 +64,9 @@ Boolean DoEditScore(Document *doc, Point pt, short modifiers, short dblClick)
 				DoClickFrame(doc, pt);
 				break;
 		}
-		DrawMessageBox(doc, TRUE);
+		DrawMessageBox(doc, True);
 
-	return TRUE;
+	return True;
 	}
 
 
@@ -104,8 +104,8 @@ void DoClickFrame(Document *doc, Point pt)
 		LINK	prevMeasL, pL, pLPIL;
 		
 		clickStaff = FindStaffSetSys(doc, pt);							/* Find staff clicked on... */
-		pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, TRUE);				/*   and Last Prev. Item on it */
-		prevMeasL = LSSearch(pLPIL, MEASUREtype, clickStaff, TRUE, FALSE);
+		pLPIL = FindLPI(doc, pt, clickStaff, ANYONE, True);				/*   and Last Prev. Item on it */
+		prevMeasL = LSSearch(pLPIL, MEASUREtype, clickStaff, True, False);
 		for (pL=RightLINK(prevMeasL); pL && !MeasureTYPE(pL); pL=RightLINK(pL)) {
 			FrameRect(&LinkOBJRECT(pL));
 			SleepTicks(30L);
@@ -122,7 +122,7 @@ void DoClickInsert(Document *doc, Point pt)
 		
 		DeselAll(doc);
 
-		doc->showWaitCurs = FALSE;		/* Avoid distracting cursor changes when inserting */
+		doc->showWaitCurs = False;		/* Avoid distracting cursor changes when inserting */
 		
 		index = GetSymTableIndex(palChar);
 		switch (symtable[index].objtype) {

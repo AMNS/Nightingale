@@ -17,30 +17,30 @@ static Boolean UpdateSetupFile(void);
 /* ----------------------------------------------------------- ReplaceSetupResource -- */
 
 /* In the current resource file, remove <resH> and replace it with <hndl> (which
-must not be a resource when this is called). Return TRUE if all OK, give an error
-message and return FALSE if there's a problem. */
+must not be a resource when this is called). Return True if all OK, give an error
+message and return False if there's a problem. */
 
 Boolean ReplaceSetupResource(Handle resH, Handle hndl, ResType type, short id,
 								const unsigned char *name)
 {
 	/* Remove the old resource */
 	RemoveResource(resH);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	DisposeHandle(resH);
 	UpdateResFile(CurResFile());
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	
 	/* Write the new resource */
 	AddResource(hndl, type, id, name);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	WriteResource(hndl);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	UpdateResFile(CurResFile());
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	ReleaseResource(hndl);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -49,8 +49,8 @@ Boolean ReplaceSetupResource(Handle resH, Handle hndl, ResType type, short id,
 MIDI dynamics table in Prefs file's 'MIDI' resource, and MIDI modifier prefs tables
 in Prefs file's 'MIDM' resource, if they've been changed. Does NOT update any other
 resources that may be in the Prefs file, e.g., MIDI Manager 'port' resources, tool
-palette 'PICT'/'PLCH', 'PLMP'. We assume Prefs file is open. Return TRUE if all OK,
-give an error message and return FALSE if there's a problem. */
+palette 'PICT'/'PLCH', 'PLMP'. We assume Prefs file is open. Return True if all OK,
+give an error message and return False if there's a problem. */
 
 #define CNFG_RES_NAME	"\pNew Config"
 #define MIDI_RES_NAME	"\pNew velocity table"
@@ -75,24 +75,24 @@ static Boolean UpdateSetupFile()
 	 * to our internal values. If either has been changed, update the file.
 	 */
 	cnfgResH = GetResource('CNFG', THE_CNFG);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	midiResH = GetResource('MIDI', PREFS_MIDI);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	midiModNRResH = GetResource('MIDM', PREFS_MIDI_MODNR);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 			
 	cnfgChanged = memcmp( (void *)*cnfgResH, (void *)&config,
 								(size_t)sizeof(Configuration) );
 	
-	for (midiTabChanged = FALSE, i = 1; i<LAST_DYNAM; i++)
+	for (midiTabChanged = False, i = 1; i<LAST_DYNAM; i++)
 		if (dynam2velo[i]!=((MIDIPreferences *)*midiResH)->velocities[i-1])
-			{ midiTabChanged = TRUE; break; }
+			{ midiTabChanged = True; break; }
 	
-	for (midiModNRTabChanged = FALSE, i = 0; i<32; i++) {
+	for (midiModNRTabChanged = False, i = 0; i<32; i++) {
 		if (modNRVelOffsets[i]!=((MIDIModNRPreferences *)*midiModNRResH)->velocityOffsets[i])
-			{ midiModNRTabChanged = TRUE; break; }
+			{ midiModNRTabChanged = True; break; }
 		if (modNRDurFactors[i]!=((MIDIModNRPreferences *)*midiModNRResH)->durationFactors[i])
-			{ midiModNRTabChanged = TRUE; break; }
+			{ midiModNRTabChanged = True; break; }
 	}
 
 	/* NB: With the addition of the MIDI Modifier Prefs, the wording of these warning
@@ -101,7 +101,7 @@ static Boolean UpdateSetupFile()
 		-JGG, 6/24/01 */
  
 	if (cnfgChanged || midiTabChanged || midiModNRTabChanged) {
-		if (config.dontAsk) save = TRUE;
+		if (config.dontAsk) save = True;
 		else {
 			if (cnfgChanged) {
 				if (midiTabChanged)
@@ -119,7 +119,7 @@ static Boolean UpdateSetupFile()
 			cnfgHndl = (Configuration **)NewHandle((long) sizeof(Configuration));
 			if ((result = MemError())) {
 				MayErrMsg("UpdateSetupFile: can't allocate cnfgHndl.  Error %d", result);
-				return FALSE;
+				return False;
 			}
 			BlockMove(&config, *cnfgHndl, (Size)sizeof(Configuration));
 	
@@ -130,7 +130,7 @@ static Boolean UpdateSetupFile()
 			midiHndl = (MIDIPreferences **)NewHandle((long) sizeof(MIDIPreferences));
 			if ((result = MemError())) {
 				MayErrMsg("UpdateSetupFile: can't allocate midiHndl.  Error %d", result);
-				return FALSE;
+				return False;
 			}
 			BlockMove(*midiResH, *midiHndl, (Size) sizeof(MIDIPreferences));
 			for (i = 1; i<LAST_DYNAM; i++)
@@ -143,7 +143,7 @@ static Boolean UpdateSetupFile()
 			midiModNRHndl = (MIDIModNRPreferences **)NewHandle((long) sizeof(MIDIModNRPreferences));
 			if ((result = MemError())) {
 				MayErrMsg("UpdateSetupFile: can't allocate midiModNRHndl.  Error %d", result);
-				return FALSE;
+				return False;
 			}
 			BlockMove(*midiModNRResH, *midiModNRHndl, (Size) sizeof(MIDIModNRPreferences));
 			for (i = 0; i<32; i++) {
@@ -156,23 +156,23 @@ static Boolean UpdateSetupFile()
  		}
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
 /* ----------------------------------------------------------------- CloseSetupFile -- */
-/* Closes the Prefs file; returns TRUE is successful, FALSE if error. From InsideMac:
+/* Closes the Prefs file; returns True is successful, False if error. From InsideMac:
 If there's no resource file open with the given reference number, CloseResFile will
 do nothing and the ResError function will return the result code resFNotFound. */
 
 Boolean CloseSetupFile()
 {	
-	Boolean anErr = FALSE;
+	Boolean anErr = False;
 
 	CloseResFile(setupFileRefNum);
-	if (ResError() != noErr) anErr = TRUE;
+	if (ResError() != noErr) anErr = True;
 	UseResFile(appRFRefNum);
-	if (ResError() != noErr) anErr = TRUE;
+	if (ResError() != noErr) anErr = True;
 	
 	return !anErr;
 }

@@ -232,7 +232,7 @@ static void NSHandleOpenEvent(NavCBRecPtr callbackParms)
 			break;
 			
 		case activateEvt:
-			DoActivate(pEvent,(pEvent->modifiers&activeFlag)!=0,FALSE);
+			DoActivate(pEvent,(pEvent->modifiers&activeFlag)!=0,False);
 			break;
 	}
 	
@@ -329,7 +329,7 @@ static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSel
 				case kNavUserActionCancel:
                     {
 						NSClientDataPtr pNSD = (NSClientDataPtr)callbackUD;
-						pNSD->nsOpCancel = TRUE;
+						pNSD->nsOpCancel = True;
                     }
 					break;
 					
@@ -387,7 +387,7 @@ static pascal void NSNavSaveEventProc( const NavEventCallbackMessage callbackSel
 				case kNavUserActionCancel:
                     {
 						NSClientDataPtr pNSD = (NSClientDataPtr)callbackUD;
-						pNSD->nsOpCancel = TRUE;
+						pNSD->nsOpCancel = True;
                     }
 					break;
 					
@@ -418,7 +418,7 @@ static void NSHandleSaveEvent(NavCBRecPtr callbackParms)
 			break;
 			
 		case activateEvt:
-			DoActivate(pEvent,(pEvent->modifiers&activeFlag)!=0,FALSE);
+			DoActivate(pEvent,(pEvent->modifiers&activeFlag)!=0,False);
 			break;
 	}
 	
@@ -533,7 +533,7 @@ static void NSGetOpenFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD
 		 	
 		 	strcpy(pNSD->nsFileName,openFileName);
 		 	pNSD->nsFSSpec = fsSpec;
-		 	pNSD->nsOpCancel = FALSE;	// 1 ???
+		 	pNSD->nsOpCancel = False;	// 1 ???
 		}
 	}
 }
@@ -581,7 +581,7 @@ static void NSGetSaveFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD
 				 	
 				 	strcpy(pNSD->nsFileName,saveFileName);
 				 	pNSD->nsFSSpec = fsSpec;
-				 	pNSD->nsOpCancel = FALSE;
+				 	pNSD->nsOpCancel = False;
 			 	}
 			 	else if (err == fnfErr) {
 					err = FSGetCatalogInfo (&fsRefParent, kFSCatInfoNodeID, 
@@ -603,7 +603,7 @@ static void NSGetSaveFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD
 					if (err == noErr || err == fnfErr) {
 					 	strcpy(pNSD->nsFileName,saveFileName);
 					 	pNSD->nsFSSpec = childFSSpec;
-					 	pNSD->nsOpCancel = FALSE;
+					 	pNSD->nsOpCancel = False;
 				 	}			 	
 			 	}
 			}

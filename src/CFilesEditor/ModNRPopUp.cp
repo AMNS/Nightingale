@@ -204,7 +204,7 @@ static short GetModNRPopItem(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, short modCode)
 
 /* Given a character code <theChar>, a popup <p> and its associated MODNR_POPKEY
 array <pk>, determine if the character should select a new modifier from the popup.
-If it should, call SetGPopUpChoice and return TRUE; if not, return FALSE. ModNRPopupKey
+If it should, call SetGPopUpChoice and return True; if not, return False. ModNRPopupKey
 calls TranslatePalChar before doing anything, so it recognizes remapped modifier key
 equivalents. */
 
@@ -215,7 +215,7 @@ Boolean ModNRPopupKey(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, unsigned char theChar)
 	
 	/* remap theChar according to the 'PLMP' resource */
 	intChar = (short)theChar;
-	TranslatePalChar(&intChar, 0, FALSE);
+	TranslatePalChar(&intChar, 0, False);
 	theChar = (unsigned char) intChar;
 	
 	newModCode = NOMATCH;
@@ -226,13 +226,13 @@ Boolean ModNRPopupKey(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, unsigned char theChar)
 		}
 	}
 	if (newModCode==NOMATCH)
-		return FALSE;										/* no action for this key */
+		return False;										/* no action for this key */
 	
 	newItem = GetModNRPopItem(p, pk, newModCode);
 	if (newItem && newItem!=p->currentChoice)
 		SetGPopUpChoice(p, newItem);
 
-	return TRUE;											/* the keystroke was directed at popup */
+	return True;											/* the keystroke was directed at popup */
 }
 
 
@@ -242,7 +242,7 @@ Boolean ModNRPopupKey(PGRAPHIC_POPUP p, MODNR_POPKEY *pk, unsigned char theChar)
 
 static GRAPHIC_POPUP	modNRPop, *curPop;
 static MODNR_POPKEY	*popKeysModNR;
-static short			popUpHilited = TRUE;
+static short			popUpHilited = True;
 
 #define CurEditField(dlog) (((DialogPeek)(dlog))->editField+1)
 
@@ -268,13 +268,13 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));			
 				UpdateDialogVisRgn(dlog);
-				FrameDefault(dlog, OK, TRUE);
+				FrameDefault(dlog, OK, True);
 				DrawGPopUp(curPop);		
 				HiliteGPopUp(curPop, popUpHilited);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
-				return TRUE;
+				return True;
 			}
 			break;
 		case activateEvt:
@@ -288,21 +288,21 @@ static pascal Boolean ModNRFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			if (PtInRect(where, &curPop->box)) {
 				DoGPopUp(curPop);
 				*itemHit = MODNR_POP_DI;
-				return TRUE;
+				return True;
 			}
 			break;
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (short *)itemHit, FALSE))
-				return TRUE;
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
+				return True;
 			ch = (unsigned char)evt->message;
 			ans = ModNRPopupKey(curPop, popKeysModNR, ch);
 			*itemHit = ans? MODNR_POP_DI : 0;
-			HiliteGPopUp(curPop, TRUE);
-			return TRUE;
+			HiliteGPopUp(curPop, True);
+			return True;
 			break;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -321,14 +321,14 @@ Boolean SetModNRDialog(Byte *modCode)
 	filterUPP = NewModalFilterUPP(ModNRFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(SETMOD_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	dlog = GetNewDialog(SETMOD_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(SETMOD_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	GetPort(&oldPort);
@@ -355,13 +355,13 @@ Boolean SetModNRDialog(Byte *modCode)
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
-	dialogOver = FALSE;
+	dialogOver = False;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
 			case OK:
 			case Cancel:
-				dialogOver = TRUE;
+				dialogOver = True;
 				break;
 			default:
 				;
@@ -399,14 +399,14 @@ Boolean AddModNRDialog(Byte *modCode)
 	filterUPP = NewModalFilterUPP(ModNRFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(ADDMOD_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	dlog = GetNewDialog(ADDMOD_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(ADDMOD_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	GetPort(&oldPort);
@@ -433,13 +433,13 @@ Boolean AddModNRDialog(Byte *modCode)
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
-	dialogOver = FALSE;
+	dialogOver = False;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
 			case OK:
 			case Cancel:
-				dialogOver = TRUE;
+				dialogOver = True;
 				break;
 			default:
 				;

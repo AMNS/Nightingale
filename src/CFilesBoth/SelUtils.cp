@@ -179,15 +179,15 @@ void GetSelPartList(Document *doc, LINK partL[])
 	GenSubObj	*subObj;
 	
 	for (i = 0; i<=MAXSTAVES; i++) {
-		selStaves[i] = FALSE;
-		selParts[i] = FALSE;
+		selStaves[i] = False;
+		selParts[i] = False;
 		partL[i] = NILINK;
 	}
 
 	/* Determine which staves have any selected items. */
 
 	if (doc->selStartL==doc->selEndL) {						/* insertion pt */
-		selStaves[doc->selStaff] = TRUE;
+		selStaves[doc->selStaff] = True;
 	}
 	else {
 		for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
@@ -208,7 +208,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 												subObjL = NextLink(tmpHeap, subObjL)) {
 							subObj = (GenSubObj *)LinkToPtr(tmpHeap, subObjL);
 							if (subObj->selected)
-								selStaves[subObj->staffn] = TRUE;
+								selStaves[subObj->staffn] = True;
 						}
 						break;
 					case BEAMSETtype:
@@ -223,7 +223,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 						
 						if (LinkSEL(pL)) {
 							short staffn = ((PEXTEND)p)->staffn;
-							selStaves[staffn] = TRUE;
+							selStaves[staffn] = True;
 						}
 						break;
 					default:
@@ -242,7 +242,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 	for (i = 1; i<=MAXSTAVES; i++)
 		if (selStaves[i]) {
 			j = Staff2Part(doc, i);
-			selParts[j] = TRUE;
+			selParts[j] = True;
 		}
 
 	for (i = 1, j = 0; i<=MAXSTAVES; i++)
@@ -263,9 +263,9 @@ Boolean IsSelPart(LINK partL, LINK partList[])
 		if (partList[i]==NILINK)		/* end of list */
 			break;
 		else if (partList[i]==partL)
-			return TRUE;
+			return True;
 	}
-	return FALSE;
+	return False;
 }
 
 
@@ -487,7 +487,7 @@ void Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
 		measL = doc->selStartL;
 	else
 		measL = LSSearch(LeftLINK(doc->selStartL), MEASUREtype, ANYONE,
-							GO_LEFT, FALSE);
+							GO_LEFT, False);
 	if (!measL) return;
 
 	if (BeforeFirstMeas(doc->selStartL)) measL = LinkRMEAS(measL);
@@ -563,7 +563,7 @@ LINK FindSelAcc(Document *doc, short acc)
 specified, ask user for permission to extend the selection to include all notes in
 them, and if they agree, extend it; if no alert is specified, just extend it.
 
-Return TRUE if we end up with no partly-selected chords, regardless of how it
+Return True if we end up with no partly-selected chords, regardless of how it
 happens. */
 
 Boolean HomogenizeSel(
@@ -575,23 +575,23 @@ Boolean HomogenizeSel(
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
-			aNoteL = FirstSubLINK(pL); homoSel = TRUE;
+			aNoteL = FirstSubLINK(pL); homoSel = True;
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 				if (MainNote(aNoteL) && NoteINCHORD(aNoteL)) {
 					if (!ChordHomoSel(pL, NoteVOICE(aNoteL), NoteSEL(aNoteL))) {
-						homoSel = FALSE;
+						homoSel = False;
 						break;
 					}
 				}
 		}
 
 	if (!homoSel) {
-		if (alertID && NoteAdvise(alertID)==Cancel) return FALSE;
+		if (alertID && NoteAdvise(alertID)==Cancel) return False;
 		
 		ExtendSelChords(doc);
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -701,21 +701,21 @@ static Point TrackStaffRect(
 	
 	topStartStf = GetStaff(doc, startPt);
 	SetRect(&oldR, 0, 0, 0, 0);							/* Nothing hilited yet */
-	cancelThis = TRUE;
+	cancelThis = True;
 	paperOrig = *paper;
 	OffsetRect(&paperOrig,-paperOrig.left,-paperOrig.top);
 	while (Button()) {
 		GetPaperMouse(&pt,paper);
 		if (ABS(pt.h-startPt.h)>=2) {
-			cancelThis = FALSE;
+			cancelThis = False;
 		}
 		ans = PinRect(&paperOrig,pt);
 		pt.h = LoWord(ans); pt.v = HiWord(ans);
 
 		stf = GetStaff(doc, pt);									/* Staff boundary above pt */
 		startStf = topStartStf;										/* Staff boundary above startPt */
-		if (stf<startStf)	startStf = GetNextStaffn(doc, startStf, TRUE);	/* We want the inclusive */
-		else					stf = GetNextStaffn(doc, stf, TRUE);		/*   range of staves */
+		if (stf<startStf)	startStf = GetNextStaffn(doc, startStf, True);	/* We want the inclusive */
+		else					stf = GetNextStaffn(doc, stf, True);		/*   range of staves */
 		SetRect(&aR, startPt.h, staffInfo[startStf].top, pt.h,
 							staffInfo[stf].top);
 		OffsetRect(&aR,paper->left,paper->top);
@@ -730,8 +730,8 @@ static Point TrackStaffRect(
 		pt.h = CANCEL_INT;
 	else {
 		*topStf = 	 (startStf>stf? stf : startStf);
-		*bottomStf = (startStf>stf? GetNextStaffn(doc, startStf, FALSE)
-										: GetNextStaffn(doc, stf, FALSE));
+		*bottomStf = (startStf>stf? GetNextStaffn(doc, startStf, False)
+										: GetNextStaffn(doc, stf, False));
 	}
 	
 	UnlockPortBits(docPort);
@@ -812,7 +812,7 @@ void FixEmptySelection(Document *doc, Point	pt)
 
 		doc->selStaff = staffn;
 
-		maySectL = LeftLINK(FindSymRight(doc, pt, TRUE, FALSE));
+		maySectL = LeftLINK(FindSymRight(doc, pt, True, False));
 		if (JustTYPE(maySectL)!=J_D) {
 			r = LinkOBJRECT(maySectL);
 			if (pt.h>=r.left &&  pt.h<=r.right)
@@ -821,7 +821,7 @@ void FixEmptySelection(Document *doc, Point	pt)
 
 		/* Make sure the insertion point is after the system's first measure. */
 		
-		selL = MESetCaret(doc, pt, FALSE);
+		selL = MESetCaret(doc, pt, False);
 		if (LinkBefFirstMeas(LeftLINK(selL))) {
 			selL = SSearch(selL, MEASUREtype, GO_RIGHT);
 			doc->selStartL = doc->selEndL = RightLINK(selL);
@@ -830,7 +830,7 @@ void FixEmptySelection(Document *doc, Point	pt)
 			selL = FindInsertPt(selL);
 			doc->selStartL = doc->selEndL = selL;
 		}
-		MEAdjustCaret(doc, TRUE);
+		MEAdjustCaret(doc, True);
 	}
 }
 
@@ -853,8 +853,8 @@ static void GetStaffLimits(Document *doc, Point pt, STAFFINFO staffInfo[],
 	if (staff==NOONE) MayErrMsg("GetStaffLimits: couldn't find staff");
 
 	/* Find the staff and system objects enclosing <pt>. */
-	systemL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, FALSE, FALSE);
-	staffL = LSSearch(systemL, STAFFtype, ANYONE, FALSE, FALSE);
+	systemL = LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, False, False);
+	staffL = LSSearch(systemL, STAFFtype, ANYONE, False, False);
 
 	/* Get the top point for the staff, which is halfway between the bottom line of
 	 *	the visible staff above and the top line of this staff, or, for the boundary 
@@ -867,7 +867,7 @@ static void GetStaffLimits(Document *doc, Point pt, STAFFINFO staffInfo[],
 
 	staffInfo[FirstStaffn(staffL)].top = sysRect.top;
 	for (s = FirstStaffn(staffL)+1; s<=LastStaffn(staffL); s++) {
-		staffAbove = NextStaffn(doc, staffL, FALSE, s-1);
+		staffAbove = NextStaffn(doc, staffL, False, s-1);
 		temp = ((long)context[staffAbove].staffTop + context[staffAbove].staffHeight
 						+ context[s].staffTop) / 2L;
 		staffInfo[s].top = d2p(temp);
@@ -878,14 +878,14 @@ static void GetStaffLimits(Document *doc, Point pt, STAFFINFO staffInfo[],
 		
 	/* Put a fake staff at the bottom in case nothing above is found. */
 	staffInfo[doc->nstaves+1].top = sysRect.bottom;
-	staffInfo[doc->nstaves+1].visible = TRUE;
+	staffInfo[doc->nstaves+1].visible = True;
 }
 
 
 /* -------------------------------------------------------------- SelectStaffRect -- */
 /* Track mouse dragging, give feedback by inverting one or more complete staves in
 the horizontal area, and (when the button is released) select enclosed symbols.
-Intended for "wipe" (one-dimensional) selection. Returns FALSE if the mouse was
+Intended for "wipe" (one-dimensional) selection. Returns False if the mouse was
 never moved horizontally more than a couple pixels. */
 
 Boolean SelectStaffRect(Document *doc, Point pt)
@@ -901,19 +901,19 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 	GetStaffLimits(doc, pt, staffInfo, context);			/* and set doc->currentSystem */
 
 	pageL = GetCurrentPage(doc);
-	pL = sysL = LSSearch(pageL, SYSTEMtype, doc->currentSystem, GO_RIGHT, FALSE);
-	firstMeasL = LSSearch(sysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	pL = sysL = LSSearch(pageL, SYSTEMtype, doc->currentSystem, GO_RIGHT, False);
+	firstMeasL = LSSearch(sysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	lastL = LastObjInSys(doc,RightLINK(sysL));
 	GetAllContexts(doc,context,firstMeasL);
 	
 	endPt = TrackStaffRect(doc, pt, &topStf, &bottomStf, &doc->currentPaper);	/* Give user feedback while selecting */
 	
 	if (endPt.h==CANCEL_INT) {
-		return FALSE;
+		return False;
 	}
 	
 	/* User dragged off the current page; set an insertion point at the end
-		of the system in the direction of the mouse drag, and return TRUE. */
+		of the system in the direction of the mouse drag, and return True. */
 
 	lastPageL = GetCurrentPage(doc);
 	if (lastPageL!=pageL) {
@@ -921,9 +921,9 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 			doc->selStartL = doc->selEndL = RightLINK(lastL);
 		else
 			doc->selStartL = doc->selEndL = RightLINK(firstMeasL);
-		MEAdjustCaret(doc, TRUE);
+		MEAdjustCaret(doc, True);
 		ArrowCursor();
-		return TRUE;
+		return True;
 	}
 
 	/*
@@ -942,10 +942,10 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 		ContextObject(doc, pL, context);
 		if (VISIBLE(pL))
 			if (SectRect(&selRect, &LinkOBJRECT(pL), &aRect)) {
-				found = FALSE;
+				found = False;
 				CheckObject(doc, pL, &found, (Ptr)&selRect, context, SMStaffDrag, &index, stfRange);
 				if (found) {
-					LinkSEL(pL) = TRUE;						/* update selection */
+					LinkSEL(pL) = True;						/* update selection */
 					if (!doc->selStartL)
 						doc->selStartL = pL;
 					doc->selEndL = RightLINK(pL);
@@ -961,11 +961,11 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		doc->selStartL = doc->selEndL = RightLINK(firstMeasL);
-		MEAdjustCaret(doc, TRUE);
+		MEAdjustCaret(doc, True);
 	}
 		
 	ArrowCursor();											/* Can only get here if cursor should become arrow */
-	return TRUE;		
+	return True;		
 }
 
 
@@ -997,7 +997,7 @@ void DoThreadSelect(Document *doc,
 #endif
 
 	pageL = GetCurrentPage(doc);
-	systemL = LSSearch(pageL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+	systemL = LSSearch(pageL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 	endL = LastObjOnPage(doc, pageL);
 	endL = RightLINK(endL);
 	ContextPage(doc, pageL, context);
@@ -1008,7 +1008,7 @@ void DoThreadSelect(Document *doc,
 	 */
 	StartThread();
 	while (StillDown()) {
-		found = FALSE;
+		found = False;
 		
 		AutoScroll();
 		GetPaperMouse(&newPt, &doc->currentPaper);
@@ -1019,7 +1019,7 @@ void DoThreadSelect(Document *doc,
 		if (overSheet && sheetNum!=doc->currentSheet) {			/* we've changed pages */
 			doc->currentSheet = sheetNum;
 			pageL = GetCurrentPage(doc);
-			systemL = LSSearch(pageL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+			systemL = LSSearch(pageL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 			endL = LastObjOnPage(doc, pageL);
 			endL = RightLINK(endL);
 			ContextPage(doc, pageL, context);
@@ -1166,15 +1166,15 @@ void TempFlags2NotesSel(Document *doc)
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL=RightLINK(pL))
 		if (SyncTYPE(pL)) {
-			anySel = FALSE;
+			anySel = False;
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
 				aNote->selected = aNote->tempFlag;
-				if (aNote->selected) anySel = TRUE;
+				if (aNote->selected) anySel = True;
 			}
 		LinkSEL(pL) = anySel;
 		}
 
 	UpdateSelection(doc);
-	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc,TRUE);
+	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc,True);
 }

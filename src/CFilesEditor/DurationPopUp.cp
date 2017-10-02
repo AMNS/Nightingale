@@ -89,7 +89,7 @@ Boolean InitGPopUp(
 	
 	/* Copy info from 'chgd' resource into popup struct */
 	resH = Get1Resource('chgd', menuID);
-	if (resH==NULL)	return FALSE;
+	if (resH==NULL)	return False;
 	HLock(resH);									/* NewPtr & GetFNum below can move memory */
 	cgP = (PCHARGRID) *resH;
 	p->numItems = cgP->numChars;
@@ -100,7 +100,7 @@ Boolean InitGPopUp(
     if (p->itemChars==NULL)
     {
         ReleaseResource(resH);
-        return FALSE;
+        return False;
     }
 
 	fontNameLen = cgP->fontName[0] + 1;
@@ -177,10 +177,10 @@ Boolean InitGPopUp(
 	else
 		goto broken;
 
-	return TRUE;
+	return True;
 broken:
 	ReleaseResource(resH);
-	return FALSE;
+	return False;
 }
 
 
@@ -265,13 +265,13 @@ void HiliteGPopUp(
 }
 
 
-/* Invoke a popup menu; return TRUE if new choice made, which will be in
+/* Invoke a popup menu; return True if new choice made, which will be in
 p->currentChoice. */
 
 Boolean DoGPopUp(PGRAPHIC_POPUP p)
 {
 	register long		choice;
-	register Boolean	ans = FALSE;
+	register Boolean	ans = False;
 	Point				pt, mPt;
 	GrafPtr				savePort;
 	
@@ -301,7 +301,7 @@ Boolean DoGPopUp(PGRAPHIC_POPUP p)
 		choice = LoWord(choice);
 		if (choice != p->currentChoice) {
 			SetGPopUpChoice(p, (short)choice);
-			ans = TRUE;
+			ans = True;
 		}
 	}
 	
@@ -470,7 +470,7 @@ static short DurPopChar2Dur(char token)
 
 /* Given a character code <theChar>, a popup <p> and its associated POPKEY array <pk>,
 determine if the character should select a new duration from the popup. If it should,
-call SetGPopUpChoice and return TRUE; if not, return FALSE. In addition to the familiar
+call SetGPopUpChoice and return True; if not, return False. In addition to the familiar
 duration key equivalents (symcodes in the symtable), DurPopupKey recognizes '.' as
 a way to cycle through the number of aug dots allowed by the popup, and '?' as an
 equivalent for the unknown duration item (if it's in the popup). (The latter is
@@ -483,12 +483,12 @@ changes to the static durKeys array above. */
 Boolean DurPopupKey(PGRAPHIC_POPUP p, POPKEY *pk, unsigned char theChar)
 {
 	register short	i, curItem, newItem=0, newDurCode, curDurCode, numItems, curNumDots;
-	Boolean			isDotChar=FALSE;
+	Boolean			isDotChar=False;
 	
 	/* remap theChar according to the 'PLMP' resource */
 	if (theChar!='?') {									/* because hard-wired below! */
 		short intChar = (short)theChar;
-		TranslatePalChar(&intChar, 0, FALSE);
+		TranslatePalChar(&intChar, 0, False);
 		theChar = (unsigned char) intChar;
 	}
 	
@@ -500,11 +500,11 @@ Boolean DurPopupKey(PGRAPHIC_POPUP p, POPKEY *pk, unsigned char theChar)
 	newDurCode = DurPopChar2Dur(theChar);
 	if (newDurCode==NOMATCH) {						/* maybe it's another char we recognize */
 		if (theChar=='.')							/* same as aug dot's symcode in symtable */
-			isDotChar = TRUE;
+			isDotChar = True;
 		else if (theChar=='?')						/* This certainly shouldn't be hard-wired, */
 			newDurCode = UNKNOWN_L_DUR;				/* but there's no symcode for it! */
 		else
-			return FALSE;							/* no action for this key */
+			return False;							/* no action for this key */
 	}
 	
 	if (isDotChar) {
@@ -527,5 +527,5 @@ Boolean DurPopupKey(PGRAPHIC_POPUP p, POPKEY *pk, unsigned char theChar)
 setChoice:	
 	if (newItem && newItem!=curItem)
 		SetGPopUpChoice(p, newItem);
-	return TRUE;									/* the keystroke was directed at popup */
+	return True;									/* the keystroke was directed at popup */
 }

@@ -1685,7 +1685,7 @@ Minor cleanup: refactor code slightly, etc. Affects .rsrc; ScoreInfo, SpaceTime.
 Changed version number from 5.8b2 to 5.8b3. Affects Info.plist.
 
 Fixed bug: Flipping the first piece of a cross-system tie/slur doesn't redraw the
-affected area. Affects PitchCmds.
+affected area (Issue #151). Affects PitchCmds.
 
 Reworded the "Delete stupidly?" alert. Affects .rsrc.
 
@@ -1707,7 +1707,7 @@ RTRhythmDur, ScoreInfo, SpaceHighLevel, Transcribe, UIFUtils, Utility.
 
 -------------------------------------------------------------------------------
 
-15-19 Sept.
+15-19 Sept.			 ======== NIGHTINGALE 5.8b3 (19 Sept. 2017) ========
 
 Save Notelist in "skeleton" mode now writes tempo mark/MMs as well as Measures and
 time signatures. Affects NotelistSave.
@@ -1722,3 +1722,15 @@ if and only if those modifier keys and no others are down. Affects DragBeam, GRB
 
 Minor cleanup. Affects DSUtils, NotelistSave.
 
+===============================================================================
+
+30 Sept. - 2 Oct.
+
+Changed version number from 5.8b3 to 5.8b4. Affects Info.plist.
+
+Replaced all occurrences of "TRUE" and "FALSE" with "True" and "False", which may not
+be more standard, but which fit Nightingale conventions better. Affects ca. 53
+files in CFilesEditor, 52 in CFilesBoth, 6 in Precomps, 6 in Headers, etc.
+
+Converted some C files with encoding ISO Latin-1 to UTF-8. Affects CarbonStubs, Double,
+DrawUtils.

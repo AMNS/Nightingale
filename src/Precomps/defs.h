@@ -241,11 +241,11 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 
 #define NOMATCH -1
 
-#define GO_LEFT TRUE					/* used in calls to search routines */
-#define GO_RIGHT FALSE
+#define GO_LEFT True					/* used in calls to search routines */
+#define GO_RIGHT False
 
-#define EXACT_TIME TRUE					/* used in calls to TimeSearch routines */
-#define MIN_TIME FALSE
+#define EXACT_TIME True					/* used in calls to TimeSearch routines */
+#define MIN_TIME False
 
 #define DFLT_CLEF TREBLE_CLEF			/* Default clefType for new staves */
 #define DFLT_NKSITEMS 0					/* Dflt. key sig. NB: !=0 has side effects: CAREFUL! */
@@ -301,7 +301,7 @@ moved there eventually). */
 
 /* Arithmetic, etc. */
 #define ABS(a) ( (a)<0 ? -(a) : (a) )							/* absolute value function */
-#define odd(a) ((a) & 1)										/* TRUE if a is odd */
+#define odd(a) ((a) & 1)										/* True if a is odd */
 
 // CER: 02.19.2003 changed min, max to n_min, n_max
 #define n_min(a,b)		( (a)<(b) ? (a) : (b) )					/* minimum functions */
@@ -325,7 +325,7 @@ moved there eventually). */
 #define IsSFDynam(link)		(DynamType(link)>=FIRSTSF_DYNAM && DynamType(link)<FIRSTHAIRPIN_DYNAM)
 #define IsHairpin(link)		(DynamType(link)>=FIRSTHAIRPIN_DYNAM)
 
-/* To skip subordinate notes in chords, return FALSE if note in chord & has no stem */
+/* To skip subordinate notes in chords, return False if note in chord & has no stem */
 #define MainNote(link) (!NoteINCHORD(link) || NoteYD(link)!=NoteYSTEM(link))
 #define GRMainNote(link) (!GRNoteINCHORD(link) || GRNoteYD(link)!=GRNoteYSTEM(link))
 
@@ -352,7 +352,7 @@ moved there eventually). */
 #define NFLAGS(l_dur)		( ((l_dur)>QTR_L_DUR)? (l_dur)-QTR_L_DUR : 0 )
 
 /* Does note with given y-offset "normally" have stem down? */ 
-#define DOWNSTEM(yd, staffHeight)	( ((yd) > (staffHeight)/2)? FALSE : TRUE )
+#define DOWNSTEM(yd, staffHeight)	( ((yd) > (staffHeight)/2)? False : True )
 
 /* Quarter-line stem length for single or multiple voices, shorter stem or normal */
 #define QSTEMLEN(singleV, shrt)	((singleV)? config.stemLenNormal :				\
@@ -375,7 +375,7 @@ moved there eventually). */
 /* Is the given voice in use? N.B. ALWAYS considers default voices to be in use. */
 #define VOICE_MAYBE_USED(doc, v)	((doc)->voiceTab[v].partn!=0)
 
-/* Return TRUE if object is visible or we are showing invisibles */
+/* Return True if object is visible or we are showing invisibles */
 #define VISIBLE(pL) (LinkVIS(pL) || doc->showInvis)
 
 #define ENABLE_REDUCE(doc)		((doc)!=NULL && (doc)->magnify>MIN_MAGNIFY)

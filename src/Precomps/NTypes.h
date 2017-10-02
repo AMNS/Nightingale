@@ -55,7 +55,7 @@ typedef struct {
 typedef struct						/* Key signature item: */
 {
 	char letcode:7;					/* LG: Code for letter name: A=5,B=4,C=3,D=2,E=1,F=0,G=6  */
-	Boolean sharp:1;				/* LG: Is it a sharp? (FALSE=flat) */
+	Boolean sharp:1;				/* LG: Is it a sharp? (False=flat) */
 } KSITEM;
 
 /* NB: We #define a WHOLE_KSINFO macro, then a struct that consists of nothing but an
@@ -156,11 +156,11 @@ other fields as well. */
 	LINK		firstSubObj;		/* link to first subObject */							\
 	DDIST		xd, yd;				/* position of object */								\
 	SignedByte	type;				/* (.+#10) object type */								\
-	Boolean		selected:1;			/* TRUE if any part of object selected */				\
-	Boolean		visible:1;			/* TRUE if any part of object is visible */				\
-	Boolean		soft:1;				/* TRUE if object is program-generated */				\
-	Boolean		valid:1;			/* TRUE if objRect (for Measures, measureBBox also) valid. */ \
-	Boolean		tweaked:1;			/* TRUE if object dragged or position edited with Get Info */ \
+	Boolean		selected:1;			/* True if any part of object selected */				\
+	Boolean		visible:1;			/* True if any part of object is visible */				\
+	Boolean		soft:1;				/* True if object is program-generated */				\
+	Boolean		valid:1;			/* True if objRect (for Measures, measureBBox also) valid. */ \
+	Boolean		tweaked:1;			/* True if object dragged or position edited with Get Info */ \
 	Boolean		spareFlag:1;		/* available for general use */							\
 	char		ohdrFiller1:2;		/* unused; could use for specific "tweak" flags */		\
 	Rect		objRect;			/* enclosing rectangle of object (paper-rel.pixels) */ 	\
@@ -172,9 +172,9 @@ other fields as well. */
 	LINK		next;				/* index of next subobj */								\
 	SignedByte	staffn;				/* staff number. For cross-stf objs, top stf (Slur,Beamset) or 1st stf (Tuplet) */									\
 	SignedByte	subType;			/* subobject subtype. N.B. Signed--see ANOTE. */		\
-	Boolean		selected:1;			/* TRUE if subobject is selected */						\
-	Boolean		visible:1;			/* TRUE if subobject is visible */						\
-	Boolean		soft:1;				/* TRUE if subobject is program-generated */
+	Boolean		selected:1;			/* True if subobject is selected */						\
+	Boolean		visible:1;			/* True if subobject is visible */						\
+	Boolean		soft:1;				/* True if subobject is program-generated */
 
 #define EXTOBJHEADER \
 	SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff FIXME: except tuplets! */
@@ -200,9 +200,9 @@ typedef struct sEXTEND {
 typedef struct xTEXTSTYLE {
 	unsigned char	fontName[32];	/* default font name: Pascal string */
 	unsigned short	filler2:5;
-	unsigned short	lyric:1;		/* TRUE means lyric spacing */
+	unsigned short	lyric:1;		/* True means lyric spacing */
 	unsigned short	enclosure:2;
-	unsigned short relFSize:1;		/* TRUE if size is relative to staff size */ 
+	unsigned short relFSize:1;		/* True if size is relative to staff size */ 
 	unsigned short	fontSize:7;		/* if relFSize, small..large code, else point size */
 	short			fontStyle;
 } TEXTSTYLE, *PTEXTSTYLE;
@@ -275,14 +275,14 @@ typedef struct {
 	short		nstaves,			/* number of staves in a system */							\
 				nsystems;			/* number of systems in score */							\
 	unsigned char comment[MAX_COMMENT_LEN+1]; /* User comment on score */						\
-	char		feedback:1;			/* TRUE if we want feedback on note insert */				\
+	char		feedback:1;			/* True if we want feedback on note insert */				\
 	char		dontSendPatches:1; /* 0 = when playing, send patch changes for channels */		\
-	char		saved:1;			/* TRUE if score has been saved */							\
-	char		named:1;			/* TRUE if file has been named */							\
-	char 		used:1;				/* TRUE if score contains any nonstructural info */			\
-	char		transposed:1;		/* TRUE if transposed score, else C score */				\
-	char		lyricText:1;		/* (no longer used) TRUE if last text entered was lyric */	\
-	char		polyTimbral:1;		/* TRUE for one part per MIDI channel */					\
+	char		saved:1;			/* True if score has been saved */							\
+	char		named:1;			/* True if file has been named */							\
+	char 		used:1;				/* True if score contains any nonstructural info */			\
+	char		transposed:1;		/* True if transposed score, else C score */				\
+	char		lyricText:1;		/* (no longer used) True if last text entered was lyric */	\
+	char		polyTimbral:1;		/* True for one part per MIDI channel */					\
 	Byte		currentPage;		/* (no longer used) */										\
 	short		spacePercent,		/* Percentage of normal horizontal spacing used */			\
 				srastral,			/* Standard staff size rastral no. */						\
@@ -292,10 +292,10 @@ typedef struct {
 				velocity;			/* global playback velocity offset */						\
 	STRINGOFFSET headerStrOffset;	/* index returned by String Manager */						\
 	STRINGOFFSET footerStrOffset;	/* index returned by String Manager */						\
-	char		topPGN:1;			/* TRUE=page numbers at top of page, else bottom */			\
+	char		topPGN:1;			/* True=page numbers at top of page, else bottom */			\
 	char		hPosPGN:3;			/* 1=page numbers at left, 2=center, 3=at right */			\
-	char		alternatePGN:1;		/* TRUE=page numbers alternately left and right */			\
-	char		useHeaderFooter:1;	/* TRUE=use header/footer text, not simple pagenum */		\
+	char		alternatePGN:1;		/* True=page numbers alternately left and right */			\
+	char		useHeaderFooter:1;	/* True=use header/footer text, not simple pagenum */		\
 	char		fillerPGN:2;		/* unused */												\
 	SignedByte	fillerMB;			/* unused */												\
 	DDIST		filler2,			/* unused */												\
@@ -306,9 +306,9 @@ typedef struct {
 				xMNOffset,			/* Horiz. pos. offset for meas. nos. (half-spaces) */		\
 				yMNOffset,			/* Vert. pos. offset for meas. nos. (half-spaces) */		\
 				xSysMNOffset;		/* Horiz. pos. offset for meas.nos.if 1st meas.in system */ \
-	short		aboveMN:1,			/* TRUE=measure numbers above staff, else below */			\
-				sysFirstMN:1,		/* TRUE=indent 1st meas. of system by xMNOffset */			\
-				startMNPrint1:1,	/* TRUE=First meas. number to print is 1, else 2 */			\
+	short		aboveMN:1,			/* True=measure numbers above staff, else below */			\
+				sysFirstMN:1,		/* True=indent 1st meas. of system by xMNOffset */			\
+				startMNPrint1:1,	/* True=First meas. number to print is 1, else 2 */			\
 				firstMNNumber:13;	/* Number of first measure */								\
 	LINK		masterHeadL,		/* Head of Master Page object list */						\
 				masterTailL;		/* Tail of Master Page object list */						\
@@ -318,121 +318,121 @@ typedef struct {
 																								\
 	unsigned char fontNameMN[32];	/* MEASURE NO. FONT: default name, size and style */		\
 	unsigned short	fillerMN:5;																	\
-	unsigned short	lyricMN:1;		/* TRUE if spacing like lyric (ignored) */					\
+	unsigned short	lyricMN:1;		/* True if spacing like lyric (ignored) */					\
 	unsigned short	enclosureMN:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSizeMN:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSizeMN:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSizeMN:7;	/* if relFSizeMN, small..large code, else point size */		\
 	short			fontStyleMN;																\
 																								\
 	unsigned char fontNamePN[32];	/* PART NAME FONT: default name, size and style */			\
 	unsigned short	fillerPN:5;																	\
-	unsigned short	lyricPN:1;		/* TRUE if spacing like lyric (ignored) */					\
+	unsigned short	lyricPN:1;		/* True if spacing like lyric (ignored) */					\
 	unsigned short	enclosurePN:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSizePN:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSizePN:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSizePN:7;	/* if relFSizePN, small..large code, else point size */		\
 	short			fontStylePN;																\
 																								\
 	unsigned char fontNameRM[32];	/* REHEARSAL MARK FONT: default name, size and style */		\
 	unsigned short	fillerRM:5;																	\
-	unsigned short	lyricRM:1;		/* TRUE if spacing like lyric (ignored) */					\
+	unsigned short	lyricRM:1;		/* True if spacing like lyric (ignored) */					\
 	unsigned short	enclosureRM:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSizeRM:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSizeRM:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSizeRM:7;	/* if relFSizeRM, small..large code, else point size */		\
 	short			fontStyleRM;																\
 																								\
 	unsigned char fontName1[32];	/* REGULAR FONT 1: default name, size and style */			\
 	unsigned short	fillerR1:5;																	\
-	unsigned short	lyric1:1;		/* TRUE if spacing like lyric	*/							\
+	unsigned short	lyric1:1;		/* True if spacing like lyric	*/							\
 	unsigned short	enclosure1:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSize1:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSize1:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSize1:7;	/* if relFSize1, small..large code, else point size */		\
 	short			fontStyle1;																	\
 																								\
 	unsigned char fontName2[32];	/* REGULAR FONT 2: default name, size and style */			\
 	unsigned short	fillerR2:5;																	\
-	unsigned short	lyric2:1;		/* TRUE if spacing like lyric	*/							\
+	unsigned short	lyric2:1;		/* True if spacing like lyric	*/							\
 	unsigned short	enclosure2:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSize2:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSize2:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSize2:7;	/* if relFSize2, small..large code, else point size */		\
 	short			fontStyle2;																	\
 																								\
 	unsigned char fontName3[32];	/* REGULAR FONT 3: default name, size and style */			\
 	unsigned short	fillerR3:5;																	\
-	unsigned short	lyric3:1;		/* TRUE if spacing like lyric	*/							\
+	unsigned short	lyric3:1;		/* True if spacing like lyric	*/							\
 	unsigned short	enclosure3:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSize3:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSize3:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSize3:7;	/* if relFSize3, small..large code, else point size */		\
 	short			fontStyle3;																	\
 																								\
 	unsigned char fontName4[32];	/* REGULAR FONT 4: default name, size and style */			\
 	unsigned short	fillerR4:5;																	\
-	unsigned short	lyric4:1;		/* TRUE if spacing like lyric	*/							\
+	unsigned short	lyric4:1;		/* True if spacing like lyric	*/							\
 	unsigned short	enclosure4:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSize4:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSize4:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSize4:7;	/* if relFSizeR4, small..large code, else point size */		\
 	short			fontStyle4;																	\
 																								\
 	unsigned char fontNameTM[32];	/* TEMPO MARK FONT: default name, size and style */			\
 	unsigned short	fillerTM:5;																	\
-	unsigned short	lyricTM:1;		/* TRUE if spacing like lyric (ignored) */					\
+	unsigned short	lyricTM:1;		/* True if spacing like lyric (ignored) */					\
 	unsigned short	enclosureTM:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSizeTM:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSizeTM:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSizeTM:7;	/* if relFSizeTM, small..large code, else point size */		\
 	short			fontStyleTM;																\
 																								\
 	unsigned char fontNameCS[32];	/* CHORD SYMBOL FONT: default name, size and style */		\
 	unsigned short	fillerCS:5;																	\
-	unsigned short	lyricCS:1;		/* TRUE if spacing like lyric (ignored) */					\
+	unsigned short	lyricCS:1;		/* True if spacing like lyric (ignored) */					\
 	unsigned short	enclosureCS:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSizeCS:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSizeCS:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSizeCS:7;	/* if relFSizeCS, small..large code, else point size */		\
 	short			fontStyleCS;																\
 																								\
 	unsigned char fontNamePG[32];	/* PAGE HEADER/FOOTER/NO.FONT: default name, size and style */	\
 	unsigned short	fillerPG:5;																	\
-	unsigned short	lyricPG:1;		/* TRUE if spacing like lyric (ignored) */					\
+	unsigned short	lyricPG:1;		/* True if spacing like lyric (ignored) */					\
 	unsigned short	enclosurePG:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSizePG:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSizePG:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSizePG:7;	/* if relFSizePG, small..large code, else point size */		\
 	short			fontStylePG;																\
 																								\
 	unsigned char fontName5[32];	/* REGULAR FONT 5: default name, size and style */			\
 	unsigned short	fillerR5:5;																	\
-	unsigned short	lyric5:1;		/* TRUE if spacing like lyric (ignored) */					\
+	unsigned short	lyric5:1;		/* True if spacing like lyric (ignored) */					\
 	unsigned short	enclosure5:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSize5:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSize5:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSize5:7;	/* if relFSize5, small..large code, else point size */		\
 	short			fontStyle5;																	\
 																								\
 	unsigned char fontName6[32];	/* REGULAR FONT 6: default name, size and style */			\
 	unsigned short	fillerR6:5;																	\
-	unsigned short	lyric6:1;		/* TRUE if spacing like lyric	*/							\
+	unsigned short	lyric6:1;		/* True if spacing like lyric	*/							\
 	unsigned short	enclosure6:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSize6:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSize6:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSize6:7;	/* if relFSizeR6, small..large code, else point size */		\
 	short			fontStyle6;																	\
 																								\
 	unsigned char fontName7[32];	/* REGULAR FONT 7: default name, size and style */			\
 	unsigned short	fillerR7:5;																	\
-	unsigned short	lyric7:1;		/* TRUE if spacing like lyric	*/							\
+	unsigned short	lyric7:1;		/* True if spacing like lyric	*/							\
 	unsigned short	enclosure7:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSize7:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSize7:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSize7:7;	/* if relFSizeR7, small..large code, else point size */		\
 	short			fontStyle7;																	\
 																								\
 	unsigned char fontName8[32];	/* REGULAR FONT 8: default name, size and style */			\
 	unsigned short	fillerR8:5;																	\
-	unsigned short	lyric8:1;		/* TRUE if spacing like lyric	*/							\
+	unsigned short	lyric8:1;		/* True if spacing like lyric	*/							\
 	unsigned short	enclosure8:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSize8:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSize8:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSize8:7;	/* if relFSizeR8, small..large code, else point size */		\
 	short			fontStyle8;																	\
 																								\
 	unsigned char fontName9[32];	/* REGULAR FONT 9: default name, size and style */			\
 	unsigned short	fillerR9:5;																	\
-	unsigned short	lyric9:1;		/* TRUE if spacing like lyric	*/							\
+	unsigned short	lyric9:1;		/* True if spacing like lyric	*/							\
 	unsigned short	enclosure9:2;	/* Enclosure: whether box, circular or none */				\
-	unsigned short	relFSize9:1;	/* TRUE if size is relative to staff size */				\
+	unsigned short	relFSize9:1;	/* True if size is relative to staff size */				\
 	unsigned short	fontSize9:7;	/* if relFSizeR9, small..large code, else point size */		\
 	short			fontStyle9;																	\
 																								\
@@ -467,7 +467,7 @@ typedef struct {
 					colorVoices:2,		/* 0=normal, 1=show non-dflt voices in color, 2=show all but voice 1 in color */ \
 					showInvis:1,		/* Display invisible objects? */						\
 					showDurProb:1,		/* Show measures with duration/time sig. problems? */	\
-					recordFlats;		/* TRUE if black-key notes recorded should use flats */ \
+					recordFlats;		/* True if black-key notes recorded should use flats */ \
 																									\
 	long			spaceMap[MAX_L_DUR];	/* Ideal spacing of basic (undotted, non-tuplet) durs. */ \
 	DDIST			firstIndent,		/* Amount to indent first System */						\
@@ -520,8 +520,8 @@ typedef struct sSYSTEM {
 typedef struct {
 	LINK		next;				/* index of next subobj */
 	SignedByte	staffn;				/* staff number */
-	Boolean		selected:1;			/* TRUE if subobject is selected */
-	Boolean		visible:1;			/* TRUE if object is visible */
+	Boolean		selected:1;			/* True if subobject is selected */
+	Boolean		visible:1;			/* True if object is visible */
 	Boolean		fillerStf:6;		/* unused */
 	DDIST		staffTop,			/* relative to systemRect.top */
 				staffLeft,			/* always 0 now; rel to systemRect.left */
@@ -542,7 +542,7 @@ typedef struct {
 				numerator,
 				denominator;
 	unsigned char filler:3,			/* unused */
-				showLedgers:1,		/* TRUE if drawing ledger lines of notes on this staff (the default if showLines>0) */
+				showLedgers:1,		/* True if drawing ledger lines of notes on this staff (the default if showLines>0) */
 				showLines:4;		/* 0=show 0 staff lines, 1=only middle line (of 5-line staff), 2-14 unused,
 										15=show all lines (default) (use SHOW_ALL_LINES for this) */
 } ASTAFF, *PASTAFF;
@@ -559,7 +559,7 @@ typedef struct sSTAFF {
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
-	Boolean		selected:1;			/* TRUE if subobject is selected */
+	Boolean		selected:1;			/* True if subobject is selected */
 	Byte 		filler:1;
 	Byte		connLevel:3;		/* Code from list below */
 	Byte		connectType:2;		/* Code from list below */
@@ -593,14 +593,14 @@ enum {								/* Codes for connLevel */
 typedef struct {
 	SUBOBJHEADER
 	Byte		filler1:3;
-	Byte		small:2;			/* TRUE to draw in small characters */
+	Byte		small:2;			/* True to draw in small characters */
 	Byte		filler2;
 	DDIST		xd, yd;				/* DDIST position */
 } ACLEF, *PACLEF;
 
 typedef struct {
 	OBJECTHEADER
-	Boolean	inMeasure:1;			/* TRUE if object is in a Measure, FALSE if not */
+	Boolean	inMeasure:1;			/* True if object is in a Measure, False if not */
 } CLEF, *PCLEF;
 
 enum {								/* clef subTypes: */
@@ -626,9 +626,9 @@ enum {								/* clef subTypes: */
 
 typedef struct {
 	SUBOBJHEADER					/* subType=no. of naturals, if nKSItems==0 */
-	Byte			nonstandard:1;	/* TRUE if not a standard CMN key sig. */
+	Byte			nonstandard:1;	/* True if not a standard CMN key sig. */
 	Byte			filler1:2;
-	Byte			small:2;		/* (unused so far) TRUE to draw in small characters */
+	Byte			small:2;		/* (unused so far) True to draw in small characters */
 	SignedByte		filler2;
 	DDIST			xd;				/* DDIST horizontal position */
 	WHOLE_KSINFO
@@ -636,7 +636,7 @@ typedef struct {
 
 typedef struct {
 	OBJECTHEADER
-	Boolean	inMeasure:1;			/* TRUE if object is in a Measure, FALSE if not */
+	Boolean	inMeasure:1;			/* True if object is in a Measure, False if not */
 } KEYSIG, *PKEYSIG;
 
 
@@ -645,7 +645,7 @@ typedef struct {
 typedef struct {
 	SUBOBJHEADER
 	Byte		filler:3;			/* Unused--put simple/compound/other:2 here? */
-	Byte		small:2;			/* (unused so far) TRUE to draw in small characters */
+	Byte		small:2;			/* (unused so far) True to draw in small characters */
 	SignedByte	connStaff;			/* (unused so far) bottom staff no. */
 	DDIST		xd, yd;				/* DDIST position */
 	SignedByte	numerator;			/* numerator */
@@ -654,7 +654,7 @@ typedef struct {
 
 typedef struct {
 	OBJECTHEADER
-	Boolean		inMeasure:1;		/* TRUE if object is in a Measure, FALSE if not */
+	Boolean		inMeasure:1;		/* True if object is in a Measure, False if not */
 } TIMESIG, *PTIMESIG;
 
 enum {								/* subtypes: */
@@ -678,8 +678,8 @@ enum {								/* subtypes: */
 
 typedef struct {
 	SUBOBJHEADER					/* subType=barline type (see enum below) */
-	Boolean		measureVisible:1;	/* TRUE if measure contents are visible */
-	Boolean		connAbove:1;		/* TRUE if connected to barline above */
+	Boolean		measureVisible:1;	/* True if measure contents are visible */
+	Boolean		connAbove:1;		/* True if connected to barline above */
 	char		filler1:3;
 	SignedByte	filler2;
 	short		oldFakeMeas:1,		/* OBSOLETE: now at the object level, so this is to be removed */
@@ -703,7 +703,7 @@ typedef struct sMEASURE	{
 					rMeasure;
 	LINK			systemL;		/* link to owning System */
 	LINK			staffL;			/* link to owning Staff */
-	short			fakeMeas:1,		/* TRUE=not really a measure (i.e., barline ending system) */
+	short			fakeMeas:1,		/* True=not really a measure (i.e., barline ending system) */
 					spacePercent:15;	/* Percentage of normal horizontal spacing used */
 	Rect			measureBBox;	/* enclosing Rect of all measure subObjs, in pixels, paper-rel. */
 	long			lTimeStamp;		/* P: PDURticks since beginning of score */
@@ -728,7 +728,7 @@ but have no semantics: dotted barlines and double bars that don't coincide with
 
 typedef struct {
 	SUBOBJHEADER					/* subType=barline type (see enum below) */
-	Boolean		connAbove:1;		/* TRUE if connected to barline above */
+	Boolean		connAbove:1;		/* True if connected to barline above */
 	char		filler1:4;			/* (unused) */
 	SignedByte	connStaff;			/* staff to connect to (valid if >0 and !connAbove) */
 } APSMEAS, *PAPSMEAS;
@@ -751,11 +751,11 @@ note. The main reason is that grace notes have no logical duration. */
 
 typedef struct {
 	SUBOBJHEADER					/* subType (l_dur): LG: <0=n measure rest, 0=unknown, >0=Logical (CMN) dur. code */
-	Boolean		inChord:1;			/* TRUE if note is part of a chord */
-	Boolean		rest:1;				/* LGP: TRUE=rest (=> ignore accident, ystem, etc.) */
-	Boolean		unpitched:1;		/* LGP: TRUE=unpitched note */
-	Boolean		beamed:1;			/* TRUE if beamed */
-	Boolean		otherStemSide:1;	/* G: TRUE if note goes on "wrong" side of stem */
+	Boolean		inChord:1;			/* True if note is part of a chord */
+	Boolean		rest:1;				/* LGP: True=rest (=> ignore accident, ystem, etc.) */
+	Boolean		unpitched:1;		/* LGP: True=unpitched note */
+	Boolean		beamed:1;			/* True if beamed */
+	Boolean		otherStemSide:1;	/* G: True if note goes on "wrong" side of stem */
 	SHORTQD		yqpit;				/* LG: clef-independent dist. below middle C ("pitch") (unused for rests) */
 	DDIST		xd, yd;				/* G: head position */
 	DDIST		ystem;				/* G: endpoint of stem (unused for rests) */
@@ -765,15 +765,15 @@ typedef struct {
 	Byte		noteNum;			/* P: MIDI note number (unused for rests) */
 	Byte		onVelocity;			/* P: MIDI note-on velocity, normally loudness (unused for rests) */
 	Byte		offVelocity;		/* P: MIDI note-off (release) velocity (unused for rests) */
-	Boolean		tiedL:1;			/* TRUE if tied to left */
-	Boolean		tiedR:1;			/* TRUE if tied to right */
+	Boolean		tiedL:1;			/* True if tied to left */
+	Boolean		tiedR:1;			/* True if tied to right */
 	Byte		ymovedots:2;		/* G: Y-offset on aug. dot pos. (halflines, 2=same as note, except 0=invisible) */
 	Byte		ndots:4;			/* LG: No. of aug. dots */
 	SignedByte	voice;				/* L: Voice number */
-	Byte		rspIgnore:1;		/* TRUE if note's chord should not affect automatic spacing (unused as of v. 5.5) */
+	Byte		rspIgnore:1;		/* True if note's chord should not affect automatic spacing (unused as of v. 5.5) */
 	Byte		accident:3;			/* LG: 0=none, 1--5=dbl. flat--dbl. sharp (unused for rests) */
 	Boolean		accSoft: 1;			/* L: Was accidental generated by Nightingale? */
-	Boolean		playAsCue: 1;		/* L: TRUE = play note as cue, ignoring dynamic marks (unused as of v. 5.7) */
+	Boolean		playAsCue: 1;		/* L: True = play note as cue, ignoring dynamic marks (unused as of v. 5.7) */
 	Byte		micropitch:2;		/* LP: Microtonal pitch modifier (unused as of v. 5.5) */
 	Byte		xmoveAcc:5;			/* G: X-offset to left on accidental position */
 	Byte		merged:1;			/* temporary flag for Merge functions */
@@ -782,11 +782,11 @@ typedef struct {
 	Byte		headShape:5;		/* G: Special notehead or rest shape; see list below */
 	Byte		xmovedots:3;		/* G: X-offset on aug. dot position */
 	LINK		firstMod;			/* LG: Note-related symbols (articulation, fingering, etc.) */
-	Byte		slurredL:2;			/* TRUE if endpoint of slur to left (extra bit for future use) */
-	Byte		slurredR:2;			/* TRUE if endpoint of slur to right (extra bit for future use) */
-	Byte		inTuplet:1;			/* TRUE if in a tuplet */
-	Byte		inOttava:1;			/* TRUE if in an octave sign */
-	Byte		small:1;			/* TRUE if a small (cue, etc.) note */
+	Byte		slurredL:2;			/* True if endpoint of slur to left (extra bit for future use) */
+	Byte		slurredR:2;			/* True if endpoint of slur to right (extra bit for future use) */
+	Byte		inTuplet:1;			/* True if in a tuplet */
+	Byte		inOttava:1;			/* True if in an octave sign */
+	Byte		small:1;			/* True if a small (cue, etc.) note */
 	Byte		tempFlag:1;			/* temporary flag for benefit of functions that need it */
 	SignedByte	fillerN;
 } ANOTE, *PANOTE;
@@ -826,13 +826,13 @@ typedef struct sBeam {
 	OBJECTHEADER
 	EXTOBJHEADER
 	SignedByte	voice;				/* Voice number */
-	Byte		thin:1;				/* TRUE=narrow lines, FALSE=normal width */
-	Byte		beamRests:1;		/* TRUE if beam can contain rests */
+	Byte		thin:1;				/* True=narrow lines, False=normal width */
+	Byte		beamRests:1;		/* True if beam can contain rests */
 	Byte		feather:2;			/* (unused) 0=normal,1=feather L end (accel.), 2=feather R (decel.) */
-	Byte		grace:1;			/* TRUE if beam consists of grace notes */
-	Byte		firstSystem:1;		/* TRUE if on first system of cross-system beam */	
-	Byte		crossStaff:1;		/* TRUE if the beam is cross-staff: staffn=top staff */
-	Byte		crossSystem:1;		/* TRUE if the beam is cross-system */
+	Byte		grace:1;			/* True if beam consists of grace notes */
+	Byte		firstSystem:1;		/* True if on first system of cross-system beam */	
+	Byte		crossStaff:1;		/* True if the beam is cross-staff: staffn=top staff */
+	Byte		crossSystem:1;		/* True if the beam is cross-system */
 } BEAMSET, *PBEAMSET;
 
 enum {
@@ -877,7 +877,7 @@ typedef struct sTuplet {
 	Byte			numVis:1,
 					denomVis:1,
 					brackVis:1,
-					small:2,		/* (unused so far) TRUE to draw in small characters */
+					small:2,		/* (unused so far) True to draw in small characters */
 					filler:3;
 	DDIST			acnxd, acnyd;	/* DDIST position of accNum (now unused) */
 	DDIST			xdFirst, ydFirst,	/* DDIST position of bracket */
@@ -889,9 +889,9 @@ typedef struct sTuplet {
 
 typedef struct {
 	SUBOBJHEADER					/* subType is in object so unused here */
-	Byte			connAbove:1;	/* TRUE if connected above */
+	Byte			connAbove:1;	/* True if connected above */
 	Byte			filler:4;		/* (unused) */
-	SignedByte		connStaff;		/* staff to connect to; valid if connAbove TRUE */
+	SignedByte		connStaff;		/* staff to connect to; valid if connAbove True */
 } ARPTEND, *PARPTEND;
 
 typedef struct {
@@ -921,8 +921,8 @@ typedef struct {
 	EXTOBJHEADER
 	LINK		firstObjL;			/* Object left end of ending is attached to */
 	LINK		lastObjL;			/* Object right end of ending is attached to or NILINK */
-	Byte		noLCutoff:1;		/* TRUE to suppress cutoff at left end of Ending */	
-	Byte		noRCutoff:1;		/* TRUE to suppress cutoff at right end of Ending */	
+	Byte		noLCutoff:1;		/* True to suppress cutoff at left end of Ending */	
+	Byte		noRCutoff:1;		/* True to suppress cutoff at right end of Ending */	
 	Byte		endNum:6;			/* 0=no ending number or label, else code for the ending label */
 	DDIST		endxd;				/* Position offset from lastObjL */
 } ENDING, *PENDING;
@@ -933,7 +933,7 @@ typedef struct {
 typedef struct {
 	SUBOBJHEADER					/* subType is unused */
 	Byte			mouthWidth:5;	/* Width of mouth for hairpin */
-	Byte			small:2;		/* TRUE to draw in small characters */
+	Byte			small:2;		/* True to draw in small characters */
 	Byte			otherWidth:6;	/* Width of other (non-mouth) end for hairpin */
 	DDIST			xd;				/* (unused) */
 	DDIST			yd;				/* Position offset from staff top */
@@ -985,9 +985,9 @@ enum {								/* FIXME: NEED MODIFIER BIT(S), E.G. FOR mpp, poco piu f */
 
 typedef struct {
 	LINK		next;					/* index of next subobj */
-	Boolean		selected:1;				/* TRUE if subobject is selected */
-	Boolean		visible:1;				/* TRUE if subobject is visible */
-	Boolean		soft:1;					/* TRUE if subobject is program-generated */
+	Boolean		selected:1;				/* True if subobject is selected */
+	Boolean		visible:1;				/* True if subobject is visible */
+	Boolean		soft:1;					/* True if subobject is program-generated */
 	unsigned char xstd:5;				/* FIXME: use "Byte"? Note-relative position (really signed STDIST: see below) */
 	Byte		modCode;				/* Which note modifier */
 	SignedByte	data;					/* Modifier-dependent */
@@ -1037,9 +1037,9 @@ typedef struct {
 	SignedByte	voice;				/* Voice number (only with some types of relObjs) */
 	Byte		enclosure:2;		/* Enclosure type; see list below */
 	Byte		justify:3;			/* (unused) justify left/center/right */
-	Boolean		vConstrain:1;		/* (unused) TRUE if object is vertically constrained */
-	Boolean		hConstrain:1;		/* (unused) TRUE if object is horizontally constrained */
-	Byte		multiLine:1;		/* TRUE if string contains multiple lines of text (delimited by CR) */
+	Boolean		vConstrain:1;		/* (unused) True if object is vertically constrained */
+	Boolean		hConstrain:1;		/* (unused) True if object is horizontally constrained */
+	Byte		multiLine:1;		/* True if string contains multiple lines of text (delimited by CR) */
 	short		info;				/* PICT res. ID (GRPICT); char (GRChar); length (GRArpeggio); */
 									/*   ref. to text style (FONT_R1, etc) (GRString,GRLyric); */
 									/*	  2nd x (GRDraw); draw extension parens (GRChordSym) */
@@ -1048,7 +1048,7 @@ typedef struct {
 		short		thickness;
 	} gu;
 	SignedByte	fontInd;			/* index into font name table (GRChar,GRString only) */
-	Byte		relFSize:1;			/* TRUE if size is relative to staff size (GRChar,GRString only) */ 
+	Byte		relFSize:1;			/* True if size is relative to staff size (GRChar,GRString only) */ 
 	Byte		fontSize:7;			/* if relSize, small..large code, else point size (GRChar,GRString only) */
 	short		fontStyle;			/* (GRChar,GRString only) */
 	short		info2;				/* sub-subtype (GRArpeggio), 2nd y (GRDraw), _expanded_ (GRString) */
@@ -1123,9 +1123,9 @@ typedef struct {
 typedef struct {
 	OBJECTHEADER
 	EXTOBJHEADER
-	Byte		noCutoff:1;				/* TRUE to suppress cutoff at right end of octave sign */	
-	Byte		crossStaff:1;			/* (unused) TRUE if the octave sign is cross-staff */
-	Byte		crossSystem:1;			/* (unused) TRUE if the octave sign is cross-system */	
+	Byte		noCutoff:1;				/* True to suppress cutoff at right end of octave sign */	
+	Byte		crossStaff:1;			/* (unused) True if the octave sign is cross-staff */
+	Byte		crossSystem:1;			/* (unused) True if the octave sign is cross-system */	
 	Byte		octSignType:5;			/* class of octave sign */
 	SignedByte	filler;					/* unused */
 	Boolean		numberVis:1,
@@ -1161,10 +1161,10 @@ typedef struct dknt {
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
-	Boolean		selected:1;			/* TRUE if subobject is selected */
-	Boolean		visible:1;			/* TRUE if subobject is visible */
-	Boolean		soft:1;				/* TRUE if subobject is program-generated */
-	Boolean		dashed:2;			/* TRUE if slur should be shown as dashed line */
+	Boolean		selected:1;			/* True if subobject is selected */
+	Boolean		visible:1;			/* True if subobject is visible */
+	Boolean		soft:1;				/* True if subobject is program-generated */
+	Boolean		dashed:2;			/* True if slur should be shown as dashed line */
 	Boolean		filler:3;
 	Rect		bounds;				/* Bounding box of whole slur */
 	SignedByte	firstInd,lastInd;	/* Starting, ending note indices in chord of tie */
@@ -1180,12 +1180,12 @@ typedef struct sSLUR{
 	EXTOBJHEADER
 	SignedByte	voice;				/* Voice number */
 	char		filler:2;
-	char		crossStaff:1;		/* TRUE if the slur is cross-staff: staffn=top staff(?) */
-	char		crossStfBack:1;		/* TRUE if the slur goes from a lower (position, not no.) stf to higher */
-	char		crossSystem:1;		/* TRUE if the slur is cross-system */	
+	char		crossStaff:1;		/* True if the slur is cross-staff: staffn=top staff(?) */
+	char		crossStfBack:1;		/* True if the slur goes from a lower (position, not no.) stf to higher */
+	char		crossSystem:1;		/* True if the slur is cross-system */	
 	Boolean		tempFlag:1;			/* temporary flag for benefit of functions that need it */
-	Boolean 	used:1;				/* TRUE if being used */
-	Boolean		tie:1;				/* TRUE if tie, else slur */
+	Boolean 	used:1;				/* True if being used */
+	Boolean		tie:1;				/* True if tie, else slur */
 	LINK		firstSyncL;			/* Link to sync with 1st slurred note or to slur's system's init. measure */
 	LINK		lastSyncL;			/* Link to sync with last slurred note or to slur's system */
 } SLUR, *PSLUR;
@@ -1208,7 +1208,7 @@ typedef struct {
 	EXTOBJHEADER
 	SignedByte		subType;		/* beat: same units as note's l_dur */
 	Boolean			expanded:1;
-	Boolean			noMM:1;			/* FALSE = play at _tempoMM_ BPM, TRUE = ignore it */
+	Boolean			noMM:1;			/* False = play at _tempoMM_ BPM, True = ignore it */
 	char			filler:4;
 	Boolean			dotted:1;
 	Boolean			hideMM:1;
@@ -1265,10 +1265,10 @@ typedef struct {
 /* ---------------------------------------------------------------------- CONTEXT -- */
 
 typedef struct {
-	Boolean		visible:1;			/* TRUE if (staffVisible && measureVisible) */
-	Boolean		staffVisible:1;		/* TRUE if staff is visible */
-	Boolean		measureVisible:1;	/* TRUE if measure is visible */
-	Boolean		inMeasure:1;		/* TRUE if currently in measure */
+	Boolean		visible:1;			/* True if (staffVisible && measureVisible) */
+	Boolean		staffVisible:1;		/* True if staff is visible */
+	Boolean		measureVisible:1;	/* True if measure is visible */
+	Boolean		inMeasure:1;		/* True if currently in measure */
 	Rect		paper;				/* SHEET:	paper rect in window coords */ 
 	short		sheetNum;			/* PAGE:		sheet number */
 	short		systemNum;			/* SYSTEM:	number (unused) */
@@ -1282,7 +1282,7 @@ typedef struct {
 	DDIST		staffHalfHeight;	/* 			height divided by 2 */
 	SignedByte	staffLines;			/* 			number of lines */
 	SignedByte	showLines;			/*			0=show no lines, 1=only middle line, or SHOW_ALL_LINES=show all */
-	Boolean		showLedgers;		/*			TRUE=show ledger lines for notes on this staff */
+	Boolean		showLedgers;		/*			True=show ledger lines for notes on this staff */
 	short		fontSize;			/* 			preferred font size */
 	DDIST		measureTop;			/* MEASURE:	page relative top */
 	DDIST		measureLeft;		/* 			page relative left */
@@ -1325,8 +1325,8 @@ typedef struct {
 				lastStf;				/* Last staff occupied by objs in this voice */
 	unsigned short singleStf:1,			/* Whether voice in this sys is on more than 1 stf */
 				hasV:1,
-				vOK:1,					/* TRUE if there is enough space in voice to merge */
-				vBad:1,					/* TRUE if check of this voice caused abort */
+				vOK:1,					/* True if there is enough space in voice to merge */
+				vBad:1,					/* True if check of this voice caused abort */
 				overlap:1,
 				unused:11;
 } VInfo;
@@ -1369,7 +1369,7 @@ typedef struct						/* Symbol table data for an object-list object: */
 	short		justType;
 	short		minEntries;
 	short		maxEntries;
-	Boolean		objRectOrdered;		/* TRUE=objRect meaningful & its .left should be in order */
+	Boolean		objRectOrdered;		/* True=objRect meaningful & its .left should be in order */
 } OBJDATA;
 
 
@@ -1431,10 +1431,10 @@ InitSearchParam accordingly! */
 typedef struct {
 	short		id;					/* target staff number (for Staff, Measure, Sync, etc) */
 									/*	or page number (for Page) */
-	Boolean		needSelected;		/* TRUE if we only want selected items */
-	Boolean		needInMeasure;		/* TRUE if we only want items inMeasure */
-	Boolean		inSystem;			/* TRUE if we want to stay within the System */
-	Boolean		optimize;			/* TRUE if use optimized search functions (LPageSearch, etc.) */
+	Boolean		needSelected;		/* True if we only want selected items */
+	Boolean		needInMeasure;		/* True if we only want items inMeasure */
+	Boolean		inSystem;			/* True if we want to stay within the System */
+	Boolean		optimize;			/* True if use optimized search functions (LPageSearch, etc.) */
 	short		subtype;			/* ANYSUBTYPE or code for subtype wanted */
 	short		voice;				/* target voice number (for Sync, Beamset, etc.) */
 	short		entryNum;			/* output: index of subitem found */
@@ -1459,9 +1459,9 @@ typedef struct {
 	short		param2;					/* another parameter for an operation which requires 2 */
 	Handle		undoRecord;				/* space for undo's private storage */
 	char		menuItem[64];			/* menu command: C string */
-	unsigned short redo : 1;			/* undo flag for menu: TRUE if redo, FALSE if undo */
-	unsigned short hasUndo : 1;			/* TRUE if Undo object list contains a System */
-	unsigned short canUndo : 1;			/* TRUE if operation is undoable */
+	unsigned short redo : 1;			/* undo flag for menu: True if redo, False if undo */
+	unsigned short hasUndo : 1;			/* True if Undo object list contains a System */
+	unsigned short canUndo : 1;			/* True if operation is undoable */
 	unsigned short unused : 13;			/* space for more flags */
 	unsigned short expand[6];			/*	room to move */
 } UNDOREC;
@@ -1600,7 +1600,7 @@ typedef struct {
 	Word			len;			/* Track length */
 	Word			loc;			/* Current position in the track (offset into *pChunk) */
 	DoubleWord		now;			/* Time at position <loc> in the track */
-	Boolean			okay;			/* TRUE=no problems parsing the track */
+	Boolean			okay;			/* True=no problems parsing the track */
 } TRACKINFO;
 
 

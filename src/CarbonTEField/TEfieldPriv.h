@@ -4,11 +4,11 @@
 #define S_BAR_WIDTH 16
 
 /* standard things */
-#ifndef TRUE
-#define TRUE 1
+#ifndef True
+#define True 1
 #endif
-#ifndef FALSE
-#define FALSE 0
+#ifndef False
+#define False 0
 #endif
 #ifndef NIL
 #define NIL (void *)0

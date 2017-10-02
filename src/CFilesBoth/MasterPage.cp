@@ -125,7 +125,7 @@ void UpdateMPSysRectHeight(Document *doc, DDIST dv)
 {
 	LINK sysL;
 
-	sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+	sysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 
 	SystemRECT(sysL).bottom += dv;
 
@@ -160,7 +160,7 @@ static void UpdateSystemRects(Document *doc, LINK sysL)
 /* -------------------------------------------- Routines for Exporting MasterPage -- */
 
 /*
- *	Return TRUE if exporting Master Page will result in contents dangling off the
+ *	Return True if exporting Master Page will result in contents dangling off the
  * end of one or more systems; can happen if user has edited marginRect.right or
  * left, or staff rastral size.
  */
@@ -190,9 +190,9 @@ static Boolean DanglingContents(Document *doc)
 			system, to account for possible editing of marginRect.left */
 
 		rMargDiff = SysRectLEFT(masterSysL) - SysRectLEFT(sysL);
-		if (endxd > SysRectRIGHT(masterSysL)-rMargDiff+DANGLING_SLOP) return TRUE;
+		if (endxd > SysRectRIGHT(masterSysL)-rMargDiff+DANGLING_SLOP) return True;
 	}
-	return FALSE;
+	return False;
 }
 
 
@@ -208,7 +208,7 @@ static short MaxSysOnPage(Document *doc)
 
 
 /*
- *	Return TRUE if exporting Master Page will result in one or more systems not
+ *	Return True if exporting Master Page will result in one or more systems not
  * fitting on their pages.
  */
 
@@ -218,16 +218,16 @@ static Boolean DanglingSystems(Document *doc)
 
 	maxOnPage = MaxSysOnPage(doc);
 
-	pageL = SSearch(doc->headL, PAGEtype, FALSE);
+	pageL = SSearch(doc->headL, PAGEtype, False);
 
 	for ( ; pageL; pageL = LinkRPAGE(pageL))
-		if (NSysOnPage(pageL) > maxOnPage) return TRUE;
+		if (NSysOnPage(pageL) > maxOnPage) return True;
 
-	return FALSE;
+	return False;
 }
 
 
-/* Return TRUE if either the system rects have been modified inside masterPg or
+/* Return True if either the system rects have been modified inside masterPg or
 the top or bottom page margins have been dragged or edited with the margins dialog.
 FIXME: Need to decide what to do about the margins: Should editing the top margin
 require only vertical translation downwards? How should editing top and bottom margins
@@ -239,9 +239,9 @@ static Boolean SysVChanged(Document *doc)
 }
 
 
-/* Return TRUE if the system rects have been modified inside masterPg: the left/right
+/* Return True if the system rects have been modified inside masterPg: the left/right
 margins have been either dragged or edited with the margins dialog. doc->sysHChangedMP
-is currently always FALSE. */
+is currently always False. */
 
 static Boolean SysHChanged(Document *doc)
 {
@@ -250,7 +250,7 @@ static Boolean SysHChanged(Document *doc)
 
 
 /*
- * Return TRUE if any of the staves have been dragged vertically, or if parts
+ * Return True if any of the staves have been dragged vertically, or if parts
  * have been added or deleted.
  */
 
@@ -260,7 +260,7 @@ static Boolean StaffChanged(Document *doc)
 }
 
 /*
- * Return TRUE if the user has edited the marginRect of the document.
+ * Return True if the user has edited the marginRect of the document.
  */
 
 static Boolean MarginVChanged(Document *doc)
@@ -275,7 +275,7 @@ static Boolean MarginHChanged(Document *doc)
 
 
 /*
- * Return TRUE if the user has changed the indent of either the first
+ * Return True if the user has changed the indent of either the first
  * system or of the succeeding systems of the document.
  */
 
@@ -304,7 +304,7 @@ static void MPFixSystemRectYs(Document *doc)
 	
 	yBetweenSys = doc->yBetweenSysMP;
 
-	masterSysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+	masterSysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 	pSystem = GetPSYSTEM(masterSysL);
 
 	sysHeight = pSystem->systemRect.bottom - pSystem->systemRect.top;
@@ -317,7 +317,7 @@ static void MPFixSystemRectYs(Document *doc)
 
 	topMargin = pt2d(doc->marginRect.top);
 	firstMargin = topMargin+pt2d(config.titleMargin);
-	firstSysL = SSearch(doc->headL, SYSTEMtype, FALSE);
+	firstSysL = SSearch(doc->headL, SYSTEMtype, False);
 	
 	for (sysL =  firstSysL; sysL; sysL = LinkRSYS(sysL)) {
 
@@ -332,7 +332,7 @@ static void MPFixSystemRectYs(Document *doc)
 			SetDRect(&SystemRECT(sysL), SysRectLEFT(sysL), sysTop, SysRectRIGHT(sysL), sysBottom);
 		}
 		lastSysBottom = sysBottom;
-		LinkVALID(sysL) = FALSE;
+		LinkVALID(sysL) = False;
 	}
 }
 
@@ -344,13 +344,13 @@ static void MPFixSystemRectXs(Document *doc)
 {
 	LINK sysL, masterSysL; PSYSTEM pSystem;
 	DDIST sysLeft, sysRight;
-	Boolean firstSys=TRUE;
+	Boolean firstSys=True;
 
-	masterSysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+	masterSysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 	sysLeft = SysRectLEFT(masterSysL);
 	sysRight = SysRectRIGHT(masterSysL);
 
-	sysL = SSearch(doc->headL, SYSTEMtype, FALSE);
+	sysL = SSearch(doc->headL, SYSTEMtype, False);
 	for ( ; sysL; sysL = LinkRSYS(sysL)) {
 		if (FirstSysInPage(sysL)) {
 			SetDRect(&SystemRECT(sysL), sysLeft, SysRectTOP(sysL), sysRight, SysRectBOTTOM(sysL));
@@ -358,13 +358,13 @@ static void MPFixSystemRectXs(Document *doc)
 			if (firstSys) {
 				pSystem = GetPSYSTEM(sysL);
 				pSystem->systemRect.left += (doc->firstIndentMP-doc->otherIndentMP);
-				firstSys = FALSE;
+				firstSys = False;
 			}
 		}
 		else {
 			SetDRect(&SystemRECT(sysL), sysLeft, SysRectTOP(sysL), sysRight, SysRectBOTTOM(sysL));
 		}
-		LinkVALID(sysL) = FALSE;
+		LinkVALID(sysL) = False;
 	}
 }
 
@@ -378,9 +378,9 @@ void FixLedgerYSp(Document *doc)
 {
 	LINK staffL; short hiPitchLim;
 	
-	staffL = SSearch(doc->headL, STAFFtype, FALSE);
+	staffL = SSearch(doc->headL, STAFFtype, False);
 	
-	hiPitchLim = GetPitchLim(doc, staffL, 1, TRUE);
+	hiPitchLim = GetPitchLim(doc, staffL, 1, True);
 	doc->ledgerYSp = -hiPitchLim;
 }
 
@@ -396,13 +396,13 @@ static void ConformRanges(Document *doc)
 	/* Update system rects of systems in doc. */
 	conformSysV = SysVChanged(doc);
 	if (conformSysV) {
-		doc->changed = TRUE;
+		doc->changed = True;
 		doc->yBetweenSys = doc->yBetweenSysMP = 0;
 		MPFixSystemRectYs(doc);
 	}
 	conformSysH = SysHChanged(doc);
 	if (conformSysH) {
-		doc->changed = TRUE;
+		doc->changed = True;
 		MPFixSystemRectXs(doc);
 	}
 
@@ -410,7 +410,7 @@ static void ConformRanges(Document *doc)
 		Master Page. */
 	conformStfTops = ( conformSysV || StaffChanged(doc) || MarginVChanged(doc) );
 	if (conformStfTops) {
-		doc->changed = TRUE;
+		doc->changed = True;
 		MPUpdateStaffTops(doc, doc->headL, doc->tailL);
 		MPUpdateStaffTops(doc, doc->masterHeadL, doc->masterTailL);
 	}
@@ -418,7 +418,7 @@ static void ConformRanges(Document *doc)
 		the document. FixMeasRectYs(doc) will be called in ExportChanges
 		after the Part/Staff structure of the document is fixed up. */
 	if (conformSysV || conformStfTops) {
-		doc->fixMeasRectYs = TRUE;
+		doc->fixMeasRectYs = True;
 	}
 
 	conformStfLens = ( MarginHChanged(doc) || IndentChanged(doc) );
@@ -426,7 +426,7 @@ static void ConformRanges(Document *doc)
 		SetAllStaffLengths(doc, doc->headL, doc->tailL);
 	}
 	if (conformSysH || conformStfLens) {
-		measL = SSearch(doc->headL, MEASUREtype, FALSE);
+		measL = SSearch(doc->headL, MEASUREtype, False);
 		FixMeasRectXs(measL, NILINK);
 	}
 }
@@ -435,7 +435,7 @@ static void ConformRanges(Document *doc)
 static void SetStaffSizeMP(Document *doc)
 {
 	if (doc->srastral!=doc->srastralMP) {
-		doc->changed = TRUE;
+		doc->changed = True;
 		SetStaffSize(doc, doc->headL, doc->tailL, doc->srastral, doc->srastralMP);
 		doc->srastral = doc->srastralMP;
 	}
@@ -458,7 +458,7 @@ static void SetStaffLinesMP(Document *doc)
 		showLines = StaffSHOWLINES(aMasterStaffL);
 		showLedgers = StaffSHOWLEDGERS(aMasterStaffL);
 		staffn = StaffSTAFF(aMasterStaffL);
-		staffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+		staffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, False);
 		for ( ; staffL; staffL = LinkRSTAFF(staffL)) {
 			aStaffL = StaffOnStaff(staffL, staffn);
 			if (aStaffL) {
@@ -474,7 +474,7 @@ static void SetStaffLinesMP(Document *doc)
 			}
 		}
 	}
-	doc->changed = TRUE;
+	doc->changed = True;
 }
 
 
@@ -496,8 +496,8 @@ static void FixSelStaff(Document *doc)
 			visible in the system where the insertion point is (or where the
 			selection begins). */
 			
-		staffL = EitherSearch(doc->selStartL, STAFFtype, ANYONE, GO_LEFT, FALSE);
-		botStaff = NextStaffn(doc, staffL, TRUE, doc->nstaves);
+		staffL = EitherSearch(doc->selStartL, STAFFtype, ANYONE, GO_LEFT, False);
+		botStaff = NextStaffn(doc, staffL, True, doc->nstaves);
 		doc->selStaff = botStaff;
 	}
 }
@@ -569,11 +569,11 @@ void UpdateDraggedSystem(Document *doc, long newPos)
 	LINK sysL, staffL, aStaffL;  DRect sysRect;
 	short v;
 	
-	sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+	sysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 	sysRect = SystemRECT(sysL);
 	SystemRECT(sysL).bottom += p2d(HiWord(newPos));
 	
-	staffL = SSearch(doc->masterHeadL, STAFFtype, FALSE);
+	staffL = SSearch(doc->masterHeadL, STAFFtype, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 		v = HiWord(newPos);
@@ -582,7 +582,7 @@ void UpdateDraggedSystem(Document *doc, long newPos)
 	MPUpdateStaffTops(doc, doc->masterHeadL, doc->masterTailL);
 
 	EraseAndInval(&doc->viewRect);
-	doc->masterChanged = TRUE;
+	doc->masterChanged = True;
 }
 
 
@@ -606,7 +606,7 @@ void UpdateDraggedStaff(Document *doc, LINK pL, LINK aStaffL, long newPos)
 		UpdateMPSysRectHeight(doc, p2d(HiWord(newPos)));
 
 	EraseAndInval(&doc->viewRect);
-	doc->masterChanged = TRUE;
+	doc->masterChanged = True;
 }
 
 
@@ -620,11 +620,11 @@ void UpdateMasterMargins(Document *doc)
 	LINK staffL, sysL;
 	
 	/* Update the system rect: top, bottom, left & right */
-	sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+	sysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 	UpdateSystemRects(doc, sysL);
 
 	/* Update the staff length: system right and staff right */
-	staffL = SSearch(doc->masterHeadL, STAFFtype, FALSE);
+	staffL = SSearch(doc->masterHeadL, STAFFtype, False);
 	SetStaffLengths(doc, staffL);
 
 	InvalWindow(doc);
@@ -640,7 +640,7 @@ static void ClearMasterStfSel(Document *doc)
 {
 	LINK staffL = SSearch(doc->masterHeadL, STAFFtype, GO_RIGHT);
 	DeselectSTAFF(staffL);	
-	LinkSEL(staffL) = FALSE;
+	LinkSEL(staffL) = False;
 }
 
 
@@ -658,17 +658,17 @@ static void ResetMasterFields(Document *doc)
 	}
 	OptimizeSelection(doc);
 
-	doc->masterChanged = FALSE;		/* Reset master changed flags */
-	doc->partChangedMP = FALSE;
-	doc->grpChangedMP = FALSE;
-	doc->sysVChangedMP = FALSE;
-	doc->sysHChangedMP = FALSE;
-	doc->stfChangedMP = FALSE;
-	doc->stfLinesChangedMP = FALSE;
-	doc->margVChangedMP = FALSE;
-	doc->margHChangedMP = FALSE;
-	doc->indentChangedMP = FALSE;
-	doc->fixMeasRectYs = FALSE;
+	doc->masterChanged = False;		/* Reset master changed flags */
+	doc->partChangedMP = False;
+	doc->grpChangedMP = False;
+	doc->sysVChangedMP = False;
+	doc->sysHChangedMP = False;
+	doc->stfChangedMP = False;
+	doc->stfLinesChangedMP = False;
+	doc->margVChangedMP = False;
+	doc->margHChangedMP = False;
+	doc->indentChangedMP = False;
+	doc->fixMeasRectYs = False;
 
 	doc->prevMargin = doc->marginRect;
 	doc->srastralMP = doc->srastral;
@@ -676,7 +676,7 @@ static void ResetMasterFields(Document *doc)
 }
 
 
-/* Return TRUE if any of:
+/* Return True if any of:
 		parts added/deleted
 		system dragged
 		staff dragged
@@ -766,9 +766,9 @@ If the user discards changes, we must call ReplaceMasterPage to regenerate Maste
 Page object list, since Add/DeletePart may have altered it. */
 
 /* Reformat parameters */
-#define CARE_MEASPERSYS FALSE
+#define CARE_MEASPERSYS False
 #define MEASPERSYS 4
-#define CARE_SYSPERPAGE FALSE
+#define CARE_SYSPERPAGE False
 #define SYSPERPAGE 6
 
 /* Alert item numbers */
@@ -793,8 +793,8 @@ Boolean ExitMasterView(Document *doc)
 	 		WaitCursor();
 	 		if (saveChanges==OK) {
 				ExportPartList(doc);
-				doc->changed = TRUE;
-				doc->locFmtChanged = FALSE;		/* Score has no local format changes */
+				doc->changed = True;
+				doc->locFmtChanged = False;		/* Score has no local format changes */
 				goto quit;
 			}
 			else
@@ -806,7 +806,7 @@ Boolean ExitMasterView(Document *doc)
 			PlaceAlert(NOPARTS_ALRT, doc->theWindow, 0, 30);
  			stayInMP = CautionAdvise(NOPARTS_ALRT);
  			if (stayInMP==OK)
- 				return FALSE;
+ 				return False;
  			else {
  				ResetMasterPage(doc);
 				goto quit;
@@ -854,14 +854,14 @@ Boolean ExitMasterView(Document *doc)
  		saveChanges = CautionAdvise(exportAlertID);
  		WaitCursor();
  		if (saveChanges==OK) {
-			DisableUndo(doc, FALSE);			/* Since we can't Undo across a structural change */
-			doc->changed = TRUE;
-			doc->locFmtChanged = FALSE;			/* Score has no local format changes */
+			DisableUndo(doc, False);			/* Since we can't Undo across a structural change */
+			doc->changed = True;
+			doc->locFmtChanged = False;			/* Score has no local format changes */
 			ExportMasterPage(doc);				/* Export all editing changes to score */
 			if (reformat!=RFMT_NONE) {
 				Reformat(doc, RightLINK(doc->headL), doc->tailL,
 							(reformat==RFMT_ChangeSBreaks),
-							(CARE_MEASPERSYS? MEASPERSYS : 9999), FALSE,
+							(CARE_MEASPERSYS? MEASPERSYS : 9999), False,
 							(CARE_SYSPERPAGE? SYSPERPAGE : 999), config.titleMargin);
 			}
 		}
@@ -872,9 +872,9 @@ Boolean ExitMasterView(Document *doc)
 quit:
 	ClearMasterStfSel(doc);
 	ResetMasterFields(doc);
-	SetupMasterMenu(doc, FALSE);		/* Restore the play/record menu and delete the masterPg menu */
+	SetupMasterMenu(doc, False);		/* Restore the play/record menu and delete the masterPg menu */
 	DisposeMasterData(doc);
-	return TRUE;
+	return True;
 }
 
 
@@ -886,7 +886,7 @@ quit:
 void EnterMasterView(Document *doc)
 {
 	SetupMasterView(doc);			/* Allocate memory for all necessary objects */
-	SetupMasterMenu(doc, TRUE);		/* Replace the play/record menu with masterPg menu */
+	SetupMasterMenu(doc, True);		/* Replace the play/record menu with masterPg menu */
 	ImportMasterPage(doc);			/* Get score parameters for Master Page use */
 }
 
@@ -901,7 +901,7 @@ void ImportMasterPage(Document *doc)
 	/* Fill in doc->staffTopMP, the array of staffTop coordinates. */
 	
 	doc->staffTopMP[0] = 0;
-	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, FALSE, FALSE);
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, False, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 		doc->staffTopMP[StaffSTAFF(aStaffL)] = StaffTOP(aStaffL);
@@ -918,16 +918,16 @@ void ImportMasterPage(Document *doc)
 	doc->oldSelStartL = doc->selStartL;
 	doc->oldSelEndL = doc->selEndL;
 
-	doc->partChangedMP = FALSE;
-	doc->grpChangedMP = FALSE;
-	doc->sysVChangedMP = FALSE;
-	doc->sysHChangedMP = FALSE;
-	doc->stfChangedMP = FALSE;
-	doc->stfLinesChangedMP = FALSE;
-	doc->margVChangedMP = FALSE;
-	doc->margHChangedMP = FALSE;
-	doc->indentChangedMP = FALSE;
-	doc->fixMeasRectYs = FALSE;
+	doc->partChangedMP = False;
+	doc->grpChangedMP = False;
+	doc->sysVChangedMP = False;
+	doc->sysHChangedMP = False;
+	doc->stfChangedMP = False;
+	doc->stfLinesChangedMP = False;
+	doc->margVChangedMP = False;
+	doc->margHChangedMP = False;
+	doc->indentChangedMP = False;
+	doc->fixMeasRectYs = False;
 	
 	ClearMasterStfSel(doc) ;
 }
@@ -948,7 +948,7 @@ static Boolean MPChkSysHt(Document *doc, short srastral, short newRastral)
 
 	fact = (FASTFLOAT)drSize[newRastral]/drSize[srastral];
 
-	sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+	sysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 	sysRect = SystemRECT(sysL);
 		
 	sysSize = sysRect.bottom-sysRect.top;
@@ -973,7 +973,7 @@ void DoMasterStfSize(Document *doc)
 	FASTFLOAT		fact;
 	double			sysSize, sysOffset;
 	char			fmtStr[256];
-	static Boolean	selPartsOnly=TRUE;
+	static Boolean	selPartsOnly=True;
 
 	partsSelected = PartIsSel(doc);
 	srastral = doc->srastralMP;
@@ -1000,7 +1000,7 @@ void DoMasterStfSize(Document *doc)
 			MPUpdateStaffTops(doc, doc->masterHeadL, doc->masterTailL);
 	
 			if (propRespace) {
-				sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+				sysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 				sysRect = SystemRECT(sysL);
 				
 				sysSize = sysRect.bottom-sysRect.top;
@@ -1009,9 +1009,9 @@ void DoMasterStfSize(Document *doc)
 			}
 
 			doc->srastralMP = newRastral;
-			doc->masterChanged = TRUE;
-			doc->stfChangedMP = TRUE;
-			doc->sysVChangedMP = TRUE;
+			doc->masterChanged = True;
+			doc->stfChangedMP = True;
+			doc->sysVChangedMP = True;
 	
 			InvalWindowRect(doc->theWindow, &doc->viewRect);
 		}
@@ -1031,7 +1031,7 @@ void DoMasterStfLines(Document *doc)
 	Boolean partsSelected;
 	LINK staffL, aStaffL;
 	static short apparentStaffLines=STFLINES;
-	static Boolean showLedgers=TRUE, selPartsOnly=TRUE;
+	static Boolean showLedgers=True, selPartsOnly=True;
 
 	partsSelected = PartIsSel(doc);
 	if (partsSelected) {
@@ -1049,7 +1049,7 @@ void DoMasterStfLines(Document *doc)
 	}
 	else {
 		apparentStaffLines = STFLINES;
-		showLedgers = TRUE;
+		showLedgers = True;
 	}
 	if (StaffLinesDialog(partsSelected, &apparentStaffLines, &showLedgers, &selPartsOnly)) {
 		if (apparentStaffLines==0 || apparentStaffLines==1) {
@@ -1066,22 +1066,22 @@ void DoMasterStfLines(Document *doc)
 				DDIST lnSpace = StaffHEIGHT(aStaffL) / (StaffSTAFFLINES(aStaffL)-1);
 				if (StaffSTAFFLINES(aStaffL)!=staffLines) {
 					StaffSTAFFLINES(aStaffL) = staffLines;
-					doc->stfLinesChangedMP = TRUE;
+					doc->stfLinesChangedMP = True;
 				}
 				if (StaffSHOWLINES(aStaffL)!=showLines) {
 					StaffSHOWLINES(aStaffL) = showLines;
-					doc->stfLinesChangedMP = TRUE;
+					doc->stfLinesChangedMP = True;
 				}
 				if (StaffSHOWLEDGERS(aStaffL)!=showLedgers) {
 					StaffSHOWLEDGERS(aStaffL) = showLedgers;
-					doc->stfLinesChangedMP = TRUE;
+					doc->stfLinesChangedMP = True;
 				}
 				/* Fix staff height -- compute using interline space. */
 				StaffHEIGHT(aStaffL) = lnSpace * (staffLines-1);
 			}
 		}
 		if (doc->stfLinesChangedMP) {
-			doc->masterChanged = TRUE;
+			doc->masterChanged = True;
 			InvalWindowRect(doc->theWindow, &doc->viewRect);
 		}
 	}
@@ -1098,7 +1098,7 @@ void MPEditMargins(Document *doc)
 	bMarg = doc->origPaperRect.bottom-doc->marginRect.bottom;
 
  	if (MarginsDialog(doc, &lMarg, &tMarg, &rMarg, &bMarg)) {
-		doc->masterChanged = TRUE;
+		doc->masterChanged = True;
 		doc->margVChangedMP = (doc->margVChangedMP || tMarg!=doc->marginRect.top || bMarg != doc->origPaperRect.bottom-doc->marginRect.bottom);
 		doc->margHChangedMP = (doc->margHChangedMP || lMarg!=doc->marginRect.left || rMarg != doc->origPaperRect.right-doc->marginRect.right);
 		doc->marginRect.left = lMarg;
@@ -1130,13 +1130,13 @@ static LINK CopyMasterPage(Document *doc, LINK headL, LINK *newTailL)
 {
 	LINK masterHeadL, pL, prevL, copyL;
 
-	masterHeadL = DuplicateObject(HEADERtype, headL, FALSE, doc, doc, FALSE);
+	masterHeadL = DuplicateObject(HEADERtype, headL, False, doc, doc, False);
 	if (!masterHeadL) return NILINK;
 
 	pL = RightLINK(headL);
 	prevL = masterHeadL;
 	for ( ; pL; pL=RightLINK(pL)) {
-		copyL = DuplicateObject(ObjLType(pL),  pL,  FALSE,  doc,  doc,  FALSE);
+		copyL = DuplicateObject(ObjLType(pL),  pL,  False,  doc,  doc,  False);
 		if (!copyL) return NILINK;
 
 		RightLINK(prevL) = copyL;
@@ -1159,18 +1159,18 @@ static LINK CopyMasterPage(Document *doc, LINK headL, LINK *newTailL)
 Boolean SetupMasterView(Document *doc)
 {
 	doc->nstavesMP = doc->nstaves;
-	doc->partChangedMP = FALSE;
+	doc->partChangedMP = False;
 
 	doc->staffTopMP = (DDIST *)NewPtr((Size)(MAXSTAVES+1)*sizeof(DDIST));
 	if (!GoodNewPtr((Ptr)doc->staffTopMP)) goto broken;
 
 	doc->oldMasterHeadL = CopyMasterPage(doc, doc->masterHeadL, &doc->oldMasterTailL);
 	
-	return TRUE;
+	return True;
 
 broken:
 	OutOfMemory((long)(MAXSTAVES+1)*sizeof(DDIST));
-	return FALSE;
+	return False;
 }
 
 
@@ -1192,7 +1192,7 @@ void Score2MasterPage(Document *doc)
 	DisposeNodeList(doc, &doc->masterHeadL, &doc->masterTailL);
 	
 	sysTop = SYS_TOP(doc);
-	NewMasterPage(doc, sysTop, TRUE);
+	NewMasterPage(doc, sysTop, True);
 }
 
 
@@ -1231,8 +1231,8 @@ void VisifyMasterStaves(Document *doc)
 
 
 /*
- *	Create a new Master Page object list, and return TRUE if OK; FALSE if not.
- *	If fromDoc is TRUE, create a Master Page from a document that doesn't
+ *	Create a new Master Page object list, and return True if OK; False if not.
+ *	If fromDoc is True, create a Master Page from a document that doesn't
  * have one, so copy its first system; otherwise, create a new default system
  * for the Master Page.
  *
@@ -1249,7 +1249,7 @@ Boolean NewMasterPage(Document *doc, DDIST sysTop, Boolean fromDoc)
 	if (fromDoc) {
 		/* DuplicateObject automatically copies all partInfo subObjs */
 
-		doc->masterHeadL = DuplicateObject(HEADERtype, doc->headL, FALSE, doc, doc, FALSE);
+		doc->masterHeadL = DuplicateObject(HEADERtype, doc->headL, False, doc, doc, False);
 		doc->masterTailL = NewNode(doc, TAILtype, 0);
 		if (!doc->masterHeadL || !doc->masterHeadL) goto broken;
 
@@ -1257,14 +1257,14 @@ Boolean NewMasterPage(Document *doc, DDIST sysTop, Boolean fromDoc)
 		LeftLINK(doc->masterTailL) = doc->masterHeadL;
 		LeftLINK(doc->masterHeadL) = RightLINK(doc->masterTailL) = NILINK;
 
-		endL = LSSearch(doc->headL, CONNECTtype, ANYONE, FALSE, FALSE);
+		endL = LSSearch(doc->headL, CONNECTtype, ANYONE, False, False);
 
 		if (!CopyMasterRange(doc, RightLINK(doc->headL), RightLINK(endL), doc->masterTailL))
 			goto broken;
 
 		FixStructureLinks(doc, doc, doc->masterHeadL, doc->masterTailL);
 
-		sysL = SSearch(doc->masterHeadL, SYSTEMtype, FALSE);
+		sysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 		UpdateSystemRects(doc, sysL);
 		SetAllStaffLengths(doc, doc->masterHeadL, doc->masterTailL);
 
@@ -1294,11 +1294,11 @@ Boolean NewMasterPage(Document *doc, DDIST sysTop, Boolean fromDoc)
 
 	VisifyMasterStaves(doc);
 
-	return TRUE;
+	return True;
 
 broken:
 	NoMoreMemory();
-	return FALSE;
+	return False;
 }
 
 
@@ -1317,9 +1317,9 @@ Boolean CopyMasterRange(Document *doc, LINK srcStartL, LINK srcEndL, LINK insert
 	for (pL=srcStartL; pL!=srcEndL; pL=RightLINK(pL)) {
 
 		if (JustTYPE(pL)==J_D && !ConnectTYPE(pL)) continue;
-		copyL = DuplicateObject(ObjLType(pL),  pL, FALSE, doc, doc, FALSE);
+		copyL = DuplicateObject(ObjLType(pL),  pL, False, doc, doc, False);
 		if (!copyL)
-			return FALSE;					/* Memory error or some other problem */
+			return False;					/* Memory error or some other problem */
 
 		RightLINK(copyL) = insertL;
 		LeftLINK(insertL) = copyL;
@@ -1329,7 +1329,7 @@ Boolean CopyMasterRange(Document *doc, LINK srcStartL, LINK srcEndL, LINK insert
 		prevL = copyL;
   	}
  	
-	return TRUE;							/* Successful copy */
+	return True;							/* Successful copy */
 }
 
 
@@ -1342,8 +1342,8 @@ static LINK MakeNewPage(Document *doc)
 	LINK pL; PPAGE pPage; 
 
 	if (pL = InsertNode(doc, RightLINK(doc->masterHeadL), PAGEtype, 0)) {
-		SetObject(pL, 0, 0, FALSE, TRUE, TRUE);
-		LinkTWEAKED(pL) = FALSE;
+		SetObject(pL, 0, 0, False, True, True);
+		LinkTWEAKED(pL) = False;
 
 		pPage = GetPPAGE(pL);
 		pPage->lPage = pPage->rPage = NILINK;
@@ -1366,8 +1366,8 @@ static LINK MakeNewSystem(Document *doc, LINK qL, LINK qPageL, DDIST sysTop)
 	if (pL = InsertNode(doc, RightLINK(qL), SYSTEMtype, 0)) {
 	
 		sysLeft = MARGLEFT(doc)+doc->otherIndent;
-		SetObject(pL, sysLeft, sysTop, FALSE, TRUE, TRUE);
-		LinkTWEAKED(pL) = FALSE;
+		SetObject(pL, sysLeft, sysTop, False, True, True);
+		LinkTWEAKED(pL) = False;
 		
 		pSystem = GetPSYSTEM(pL);
 		pSystem->systemNum = 1;					/* Only one System for Master Page */
@@ -1419,8 +1419,8 @@ static LINK MakeNewStaff(Document *doc, LINK qL, LINK qSystemL, DDIST sysTop)
 			MARGLEFT(doc)+indent+staffLength, sysTop+sysHeight);
 
 	if (qL = InsertNode(doc, RightLINK(qL), STAFFtype, 2)) {
-		SetObject(qL, 0, 0, FALSE, TRUE, TRUE);
-		LinkTWEAKED(qL) = FALSE;
+		SetObject(qL, 0, 0, False, True, True);
+		LinkTWEAKED(qL) = False;
 	
 		pStaff = GetPSTAFF(qL);
 		pStaff->lStaff = pStaff->rStaff = NILINK;
@@ -1456,14 +1456,14 @@ static LINK MakeNewConnect(Document *doc, LINK qL)
 
 	pL = InsertNode(doc, RightLINK(qL), CONNECTtype, 2);
 	if (pL) {
-		SetObject(pL, LinkXD(qL)+width, 0, FALSE, TRUE, TRUE);
-		LinkTWEAKED(pL) = FALSE;
+		SetObject(pL, LinkXD(qL)+width, 0, False, True, True);
+		LinkTWEAKED(pL) = False;
 	
 		pConnect = GetPCONNECT(pL);
 		pConnect->connFiller = 0;
 	
 		aConnectL = FirstSubLINK(pL);
-		ConnectSEL(aConnectL) = FALSE;
+		ConnectSEL(aConnectL) = False;
 		ConnectCONNLEVEL(aConnectL) = SystemLevel;				/* Connect entire system */
 		ConnectCONNTYPE(aConnectL) = CONNECTLINE;
 		ConnectSTAFFABOVE(aConnectL) = NOONE;
@@ -1474,7 +1474,7 @@ static LINK MakeNewConnect(Document *doc, LINK qL)
 		ConnectFILLER(aConnectL) = 0;
 	
 		aConnectL = NextCONNECTL(aConnectL);
-		ConnectSEL(aConnectL) = FALSE;
+		ConnectSEL(aConnectL) = False;
 		ConnectCONNLEVEL(aConnectL) = PartLevel;				/* Connect the part */
 		ConnectCONNTYPE(aConnectL) = CONNECTCURLY;
 		ConnectXD(aConnectL) = -ConnectDWidth(doc->srastral, CONNECTCURLY);
@@ -1526,7 +1526,7 @@ void StoreAllConnectParts(LINK headL)
 
 	connectL = SSearch(headL, CONNECTtype, GO_RIGHT);
 	
-	for ( ; connectL; connectL=LSSearch(RightLINK(connectL), CONNECTtype, ANYONE, GO_RIGHT, FALSE)) {
+	for ( ; connectL; connectL=LSSearch(RightLINK(connectL), CONNECTtype, ANYONE, GO_RIGHT, False)) {
 		aConnectL = FirstSubLINK(connectL);
 		for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL))
 			StoreConnectPart(headL, aConnectL);

@@ -35,13 +35,13 @@ MEASNUM_ACCEPT fof fields that affect measure numbers;  GRAF_ACCEPT for other fi
 that might immediately affect the display; GEN_ACCEPT for all others. */
 
 #define DIST_ACCEPT(field)	if (newval!=DD2I(field)) \
-									{ (field) = I2DD(newval);  graphicDirty = TRUE; }
+									{ (field) = I2DD(newval);  graphicDirty = True; }
 #define MEASNUM_ACCEPT(field)	if (newval!=(field)) \
-									{ (field) = newval;  measNumDirty = TRUE; }
+									{ (field) = newval;  measNumDirty = True; }
 #define GRAF_ACCEPT(field)	if (newval!=(field)) \
-									{ (field) = newval;  graphicDirty = TRUE; }
+									{ (field) = newval;  graphicDirty = True; }
 #define GEN_ACCEPT(field)	if (newval!=(field)) \
-									{ (field) = newval;  nodeDirty = TRUE; }
+									{ (field) = newval;  nodeDirty = True; }
 
 static short	scaleShift, scaleRound;
 static short	lastEditField = 0, lastObjType = 0;
@@ -102,10 +102,10 @@ static Boolean LegalVert(Document *doc, short newval)
 		GetIndCString(strBuf, INFOERRS_STRS, 2);			/* "Vertical position out of bounds" */
 		CParamText(strBuf, "", "", "");
 		Inform(GINFO_ALRT);
-		return FALSE;
+		return False;
 	}
 	else
-		return TRUE;
+		return True;
 }
 
 
@@ -181,7 +181,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				
 	GetPort(&oldPort);
 	ArrowCursor();
-	measNumDirty = graphicDirty = nodeDirty = FALSE;				/* Nothing changed yet */
+	measNumDirty = graphicDirty = nodeDirty = False;				/* Nothing changed yet */
 
 /* --- 1. Create the dialog and initialize its contents. --- */
 
@@ -201,13 +201,13 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	PushLock(NOTEheap);
 	PushLock(GRNOTEheap);
 	
-	PutDlgWord(dlog, OBJ_HORIZ, DD2I(LinkXD(pL)), FALSE);
+	PutDlgWord(dlog, OBJ_HORIZ, DD2I(LinkXD(pL)), False);
 	GetDialogItem(dlog, TWEAKED, &aShort, &twHdl, &tRect);
 	SetDialogItemCText(twHdl, (char *)(LinkTWEAKED(pL)? "T" : " "));
 	GetDialogItem(dlog, UNITLABEL_SYNC, &aShort, &ulHdl, &tRect);
 	SetDialogItemCText(ulHdl, unitLabel);
 
-	isRest = FALSE;													/* In case it's a GRSYNC */
+	isRest = False;													/* In case it's a GRSYNC */
 	
 	switch (ObjLType(pL)) {											/* Initialize by type... */
 		case SYNCtype:
@@ -216,21 +216,21 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				if (NoteSEL(aNoteL)) break;
 	
 			aNote = GetPANOTE(aNoteL);
-			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aNote->xd), FALSE);
-			PutDlgWord(dlog, STAFF_NO, aNote->staffn, FALSE);
+			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aNote->xd), False);
+			PutDlgWord(dlog, STAFF_NO, aNote->staffn, False);
 			Int2UserVoice(doc, aNote->voice, &userVoice, &partL);
-			PutDlgWord(dlog, VOICE_NO, userVoice, FALSE);
-			PutDlgWord(dlog, VERT, DD2I(aNote->yd), FALSE);
-			PutDlgWord(dlog, STEM_VERT, DD2I(aNote->ystem), FALSE);
-			PutDlgWord(dlog, P_TIME, aNote->playTimeDelta, FALSE);
-			PutDlgWord(dlog, P_DUR, aNote->playDur, FALSE);
-			PutDlgWord(dlog, L_DUR, aNote->subType, FALSE);			/* logical duration */
-			PutDlgWord(dlog, NDOTS, aNote->ndots, FALSE);
-			PutDlgWord(dlog, XMOVE_DOTS, aNote->xmovedots, FALSE);
-			PutDlgWord(dlog, YMOVE_DOTS, aNote->ymovedots, FALSE);
-			PutDlgWord(dlog, HEAD_SHAPE, aNote->headShape, FALSE);
-			PutDlgLong(dlog, START_TIME, SyncAbsTime(pL), FALSE);
-			PutDlgWord(dlog, RESPACE_IGNORES, aNote->rspIgnore, FALSE);
+			PutDlgWord(dlog, VOICE_NO, userVoice, False);
+			PutDlgWord(dlog, VERT, DD2I(aNote->yd), False);
+			PutDlgWord(dlog, STEM_VERT, DD2I(aNote->ystem), False);
+			PutDlgWord(dlog, P_TIME, aNote->playTimeDelta, False);
+			PutDlgWord(dlog, P_DUR, aNote->playDur, False);
+			PutDlgWord(dlog, L_DUR, aNote->subType, False);			/* logical duration */
+			PutDlgWord(dlog, NDOTS, aNote->ndots, False);
+			PutDlgWord(dlog, XMOVE_DOTS, aNote->xmovedots, False);
+			PutDlgWord(dlog, YMOVE_DOTS, aNote->ymovedots, False);
+			PutDlgWord(dlog, HEAD_SHAPE, aNote->headShape, False);
+			PutDlgLong(dlog, START_TIME, SyncAbsTime(pL), False);
+			PutDlgWord(dlog, RESPACE_IGNORES, aNote->rspIgnore, False);
 			
 			hasStem = (aNote->ystem!=aNote->yd);
 			isRest = aNote->rest;
@@ -238,49 +238,49 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			strcpy(strBuf, NameObjType(pL));
 			if (isRest) {
 				strcat(strBuf, " / Rest");
-				PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
-				PutDlgWord(dlog, SMALLNR, aNote->small, FALSE);		/* whether small note/rest */
+				PutDlgString(dlog, TYPE, CToPString(strBuf), False);
+				PutDlgWord(dlog, SMALLNR, aNote->small, False);		/* whether small note/rest */
 			}
 			else {
 				strcat(strBuf,  " / Note");
-				PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
-				PutDlgWord(dlog, ACCIDENT, aNote->accident, FALSE);
-				PutDlgWord(dlog, XMOVE_ACC, aNote->xmoveAcc, FALSE);
-				PutDlgWord(dlog, COURTESY_ACC, aNote->courtesyAcc, FALSE);
-				PutDlgWord(dlog, HEADSTEM_SIDE, aNote->otherStemSide, FALSE);
-				PutDlgWord(dlog, DOUBLEDUR, aNote->doubleDur, FALSE);
-				PutDlgWord(dlog, NOTENUM, aNote->noteNum, FALSE);
-				PutDlgWord(dlog, ON_VELOCITY, aNote->onVelocity, FALSE);
-				PutDlgWord(dlog, OFF_VELOCITY, aNote->offVelocity, FALSE);
-				PutDlgWord(dlog, SMALLNR, aNote->small, FALSE);		/* whether small note/rest */
+				PutDlgString(dlog, TYPE, CToPString(strBuf), False);
+				PutDlgWord(dlog, ACCIDENT, aNote->accident, False);
+				PutDlgWord(dlog, XMOVE_ACC, aNote->xmoveAcc, False);
+				PutDlgWord(dlog, COURTESY_ACC, aNote->courtesyAcc, False);
+				PutDlgWord(dlog, HEADSTEM_SIDE, aNote->otherStemSide, False);
+				PutDlgWord(dlog, DOUBLEDUR, aNote->doubleDur, False);
+				PutDlgWord(dlog, NOTENUM, aNote->noteNum, False);
+				PutDlgWord(dlog, ON_VELOCITY, aNote->onVelocity, False);
+				PutDlgWord(dlog, OFF_VELOCITY, aNote->offVelocity, False);
+				PutDlgWord(dlog, SMALLNR, aNote->small, False);		/* whether small note/rest */
 			}
 			break;
 			
 		case GRSYNCtype:
 			strcpy(strBuf, NameObjType(pL));
-			PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
+			PutDlgString(dlog, TYPE, CToPString(strBuf), False);
 			
 			aGRNoteL = FirstSubLINK(pL);
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
 				if (GRNoteSEL(aGRNoteL)) break;
 	
 			aGRNote = GetPAGRNOTE(aGRNoteL);
-			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aGRNote->xd), FALSE);
-			PutDlgWord(dlog, STAFF_NO, aGRNote->staffn, FALSE);
+			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aGRNote->xd), False);
+			PutDlgWord(dlog, STAFF_NO, aGRNote->staffn, False);
 			Int2UserVoice(doc, aGRNote->voice, &userVoice, &partL);
-			PutDlgWord(dlog, VOICE_NO, userVoice, FALSE);
-			PutDlgWord(dlog, VERT, DD2I(aGRNote->yd), FALSE);
-			PutDlgWord(dlog, L_DUR, aGRNote->subType, FALSE);
-			PutDlgWord(dlog, HEAD_SHAPE, aGRNote->headShape, FALSE);
-			PutDlgWord(dlog, ACCIDENT, aGRNote->accident, FALSE);
-			PutDlgWord(dlog, XMOVE_ACC, aGRNote->xmoveAcc, FALSE);
-			PutDlgWord(dlog, COURTESY_ACC, aGRNote->courtesyAcc, FALSE);
-			PutDlgWord(dlog, HEADSTEM_SIDE, aGRNote->otherStemSide, FALSE);
-			PutDlgWord(dlog, NOTENUM, aGRNote->noteNum, FALSE);
-			PutDlgWord(dlog, STEM_VERT, DD2I(aGRNote->ystem), FALSE);
-			PutDlgWord(dlog, ON_VELOCITY, aGRNote->onVelocity, FALSE);
-			PutDlgWord(dlog, OFF_VELOCITY, aGRNote->offVelocity, FALSE);
-			PutDlgWord(dlog, SMALLNR, aGRNote->small, FALSE);		/* whether small grace note */
+			PutDlgWord(dlog, VOICE_NO, userVoice, False);
+			PutDlgWord(dlog, VERT, DD2I(aGRNote->yd), False);
+			PutDlgWord(dlog, L_DUR, aGRNote->subType, False);
+			PutDlgWord(dlog, HEAD_SHAPE, aGRNote->headShape, False);
+			PutDlgWord(dlog, ACCIDENT, aGRNote->accident, False);
+			PutDlgWord(dlog, XMOVE_ACC, aGRNote->xmoveAcc, False);
+			PutDlgWord(dlog, COURTESY_ACC, aGRNote->courtesyAcc, False);
+			PutDlgWord(dlog, HEADSTEM_SIDE, aGRNote->otherStemSide, False);
+			PutDlgWord(dlog, NOTENUM, aGRNote->noteNum, False);
+			PutDlgWord(dlog, STEM_VERT, DD2I(aGRNote->ystem), False);
+			PutDlgWord(dlog, ON_VELOCITY, aGRNote->onVelocity, False);
+			PutDlgWord(dlog, OFF_VELOCITY, aGRNote->offVelocity, False);
+			PutDlgWord(dlog, SMALLNR, aGRNote->small, False);		/* whether small grace note */
 
 			hasStem = (aGRNote->ystem!=aGRNote->yd);
 
@@ -296,7 +296,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		SelectDialogItemText(dlog, OBJ_HORIZ, 0, ENDTEXT);
 
 	ShowWindow(GetDialogWindow(dlog));
-	OutlineOKButton(dlog,TRUE);
+	OutlineOKButton(dlog,True);
 
 /*--- 2. Interact with user til they push OK or Cancel. --- */
 
@@ -590,7 +590,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	SetPort(oldPort);
 	if (measNumDirty) {									/* Was anything changed that could affect measure nos.? */
 		UpdateMeasNums(doc, NILINK);
-		sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+		sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
 		EraseAndInvalRange(doc, sysL, doc->tailL);
 	}
 	else if (graphicDirty)	{							/* Was anything graphic changed? */
@@ -598,9 +598,9 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	}
 
 	if (measNumDirty || graphicDirty || nodeDirty) {	/* Was anything at all changed? */
-		doc->changed = TRUE;							/* Yes. */
-		LinkTWEAKED(pL) = TRUE;							/* Flag to show node was edited */
-		LinkVALID(pL) = FALSE;							/* Force recalc. objrect */
+		doc->changed = True;							/* Yes. */
+		LinkTWEAKED(pL) = True;							/* Flag to show node was edited */
+		LinkVALID(pL) = False;							/* Force recalc. objrect */
 	}
 	
 	lastEditField = GetDialogKeyboardFocusItem(dlog);	/* Save itemNum of last edit field */
@@ -616,15 +616,15 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 /* -------------------------------------------------------------- PageRelGraphic -- */
 
-/* Return TRUE if the given object is a Page-relative Graphic. */
+/* Return True if the given object is a Page-relative Graphic. */
 
 Boolean PageRelGraphic(LINK pL)
 {
 	PGRAPHIC pGraphic;
 	
-	if (!GraphicTYPE(pL)) return FALSE;
+	if (!GraphicTYPE(pL)) return False;
 	pGraphic = GetPGRAPHIC(pL);
-	if (pGraphic->firstObj==NILINK) return FALSE;
+	if (pGraphic->firstObj==NILINK) return False;
 	return PageTYPE(pGraphic->firstObj);
 }
 
@@ -679,7 +679,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				
 	GetPort(&oldPort);
 	ArrowCursor();
-	graphicDirty = nodeDirty = FALSE;								/* Nothing changed yet */
+	graphicDirty = nodeDirty = False;								/* Nothing changed yet */
 
 /* --- 1. Create the dialog and initialize its contents. --- */
 
@@ -699,13 +699,13 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	strcpy(strBuf, NameObjType(pL));
 	if (GraphicTYPE(pL)) {
 		strcat(strBuf,  " / ");
-		strcat(strBuf, NameGraphicType(pL, TRUE));
+		strcat(strBuf, NameGraphicType(pL, True));
 	}
 	else if (SlurTYPE(pL) && SlurTIE(pL))
 		strcat(strBuf, " / Tie");
-	PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
+	PutDlgString(dlog, TYPE, CToPString(strBuf), False);
 	
-	PutDlgWord(dlog, OBJ_HORIZ, DD2I(LinkXD(pL)), FALSE);
+	PutDlgWord(dlog, OBJ_HORIZ, DD2I(LinkXD(pL)), False);
 	GetDialogItem(dlog, TWEAKED, &aShort, &twHdl, &tRect);
 	SetDialogItemCText(twHdl, (char *)(LinkTWEAKED(pL)? "T" : " "));
 	GetDialogItem(dlog, UNITLABEL_GEN, &aShort, &ulHdl, &tRect);
@@ -740,7 +740,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	switch (ObjLType(pL))
 	{
 		case MEASUREtype:
-			PutDlgLong(dlog, MEASTIME, MeasureTIME(pL), FALSE);
+			PutDlgLong(dlog, MEASTIME, MeasureTIME(pL), False);
 
 		 	aMeasL = FirstSubLINK(pL);
 		 	for ( ; aMeasL; aMeasL = NextMEASUREL(aMeasL))
@@ -757,9 +757,9 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 			PushLock(MEASUREheap);
 		 	aMeas = GetPAMEASURE(aMeasL);
-			PutDlgWord(dlog, PARAM1, aMeas->subType, FALSE);
-			PutDlgWord(dlog, SUBOBJ_HORIZ, aMeas->xMNStdOffset, FALSE);
-			PutDlgWord(dlog, VERT, aMeas->yMNStdOffset, FALSE);
+			PutDlgWord(dlog, PARAM1, aMeas->subType, False);
+			PutDlgWord(dlog, SUBOBJ_HORIZ, aMeas->xMNStdOffset, False);
+			PutDlgWord(dlog, VERT, aMeas->yMNStdOffset, False);
 			PopLock(MEASUREheap);
 			break;
 			
@@ -767,7 +767,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			GetDialogItem(dlog, LBL_PARAM1, &aShort, &p1Hdl, &aRect);
 			SetDialogItemCText(p1Hdl, "Rpt bar type");
 
-			PutDlgWord(dlog, PARAM1, RptType(pL), FALSE);
+			PutDlgWord(dlog, PARAM1, RptType(pL), False);
 			break;
 			
 		case CLEFtype:
@@ -780,10 +780,10 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 			PushLock(CLEFheap);
 			aClef = GetPACLEF(aClefL);
-			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aClef->xd), FALSE);
-			PutDlgWord(dlog, STAFF_NO, aClef->staffn, FALSE);
-			PutDlgWord(dlog, VERT, DD2I(aClef->yd), FALSE);
-			PutDlgWord(dlog, PARAM1, aClef->small, FALSE);
+			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aClef->xd), False);
+			PutDlgWord(dlog, STAFF_NO, aClef->staffn, False);
+			PutDlgWord(dlog, VERT, DD2I(aClef->yd), False);
+			PutDlgWord(dlog, PARAM1, aClef->small, False);
 			PopLock(CLEFheap);
 		  	break;
 		  	
@@ -794,8 +794,8 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	
 			PushLock(KEYSIGheap);
 			aKeySig = GetPAKEYSIG(aKeySigL);
-			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aKeySig->xd), FALSE);
-			PutDlgWord(dlog, STAFF_NO, aKeySig->staffn, FALSE);
+			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aKeySig->xd), False);
+			PutDlgWord(dlog, STAFF_NO, aKeySig->staffn, False);
 			PopLock(KEYSIGheap);
 		  	break;
 	
@@ -809,10 +809,10 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 			PushLock(TIMESIGheap);
 			aTimeSig = GetPATIMESIG(aTimeSigL);
-			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aTimeSig->xd), FALSE);
-			PutDlgWord(dlog, STAFF_NO, aTimeSig->staffn, FALSE);
-			PutDlgWord(dlog, VERT, DD2I(aTimeSig->yd), FALSE);
-			PutDlgWord(dlog, PARAM1, aTimeSig->subType, FALSE);
+			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aTimeSig->xd), False);
+			PutDlgWord(dlog, STAFF_NO, aTimeSig->staffn, False);
+			PutDlgWord(dlog, VERT, DD2I(aTimeSig->yd), False);
+			PutDlgWord(dlog, PARAM1, aTimeSig->subType, False);
 			PopLock(TIMESIGheap);
 		  	break;
 		  	
@@ -823,7 +823,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	
 			PushLock(CONNECTheap);
 			aConnect = GetPACONNECT(aConnectL);
-			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aConnect->xd), FALSE);
+			PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aConnect->xd), False);
 			PopLock(CONNECTheap);
 			break;
 
@@ -848,15 +848,15 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 				SetDialogItemCText(tHdl, "Small");
 			}
 	
-			PutDlgWord(dlog, STAFF_NO, aDynamic->staffn, FALSE);
-			PutDlgWord(dlog, VERT, DD2I(aDynamic->yd), FALSE);
+			PutDlgWord(dlog, STAFF_NO, aDynamic->staffn, False);
+			PutDlgWord(dlog, VERT, DD2I(aDynamic->yd), False);
 			if (DynamType(pL)>=FIRSTHAIRPIN_DYNAM) {
-				PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aDynamic->endxd), FALSE);
-				PutDlgWord(dlog, PARAM1, aDynamic->mouthWidth, FALSE);
-				PutDlgWord(dlog, PARAM2, aDynamic->otherWidth, FALSE);
+				PutDlgWord(dlog, SUBOBJ_HORIZ, DD2I(aDynamic->endxd), False);
+				PutDlgWord(dlog, PARAM1, aDynamic->mouthWidth, False);
+				PutDlgWord(dlog, PARAM2, aDynamic->otherWidth, False);
 			}
 			else
-				PutDlgWord(dlog, SUBOBJ_HORIZ, aDynamic->small, FALSE);
+				PutDlgWord(dlog, SUBOBJ_HORIZ, aDynamic->small, False);
 			PopLock(DYNAMheap);
 		  	break;
 		  	
@@ -876,19 +876,19 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		 	
 			PushLock(OBJheap);
 		 	pGraphic = GetPGRAPHIC(pL);
-			PutDlgWord(dlog, STAFF_NO, pGraphic->staffn, FALSE);
+			PutDlgWord(dlog, STAFF_NO, pGraphic->staffn, False);
 			if (pGraphic->voice>=0)
 				Int2UserVoice(doc, pGraphic->voice, &userVoice, &partL);
 			else
 				userVoice = NOONE;
-			PutDlgWord(dlog, VOICE_NO, userVoice, FALSE);
-			PutDlgWord(dlog, VERT, DD2I(pGraphic->yd), FALSE);
+			PutDlgWord(dlog, VOICE_NO, userVoice, False);
+			PutDlgWord(dlog, VERT, DD2I(pGraphic->yd), False);
 			switch GraphicSubType(pL) {
 				case GRArpeggio:
-					PutDlgWord(dlog, PARAM1, pGraphic->info, FALSE);
+					PutDlgWord(dlog, PARAM1, pGraphic->info, False);
 					break;
 				case GRDraw:
-					PutDlgWord(dlog, PARAM1, pGraphic->gu.thickness, FALSE);
+					PutDlgWord(dlog, PARAM1, pGraphic->gu.thickness, False);
 					break;
 				default:
 					NULL;
@@ -900,11 +900,11 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			GetDialogItem(dlog, LBL_PARAM1, &aShort, &p1Hdl, &aRect);
 			SetDialogItemCText(p1Hdl, "Thin");
 		
-			PutDlgWord(dlog, STAFF_NO, BeamSTAFF(pL), FALSE);
+			PutDlgWord(dlog, STAFF_NO, BeamSTAFF(pL), False);
 			Int2UserVoice(doc, BeamVOICE(pL), &userVoice, &partL);
-			PutDlgWord(dlog, VOICE_NO, userVoice, FALSE);
+			PutDlgWord(dlog, VOICE_NO, userVoice, False);
 			pBeamset = GetPBEAMSET(pL);
-			PutDlgWord(dlog, PARAM1, pBeamset->thin, FALSE);
+			PutDlgWord(dlog, PARAM1, pBeamset->thin, False);
 			break;
 			
 		case SLURtype:
@@ -915,18 +915,18 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			GetDialogItem(dlog, LBL_PARAM1, &aShort, &p1Hdl, &aRect);
 			SetDialogItemCText(p1Hdl, "Dashed");
 
-			PutDlgWord(dlog, STAFF_NO, SlurSTAFF(pL), FALSE);
+			PutDlgWord(dlog, STAFF_NO, SlurSTAFF(pL), False);
 			Int2UserVoice(doc, SlurVOICE(pL), &userVoice, &partL);
-			PutDlgWord(dlog, VOICE_NO, userVoice, FALSE);
+			PutDlgWord(dlog, VOICE_NO, userVoice, False);
 			aSlur = GetPASLUR(aSlurL);
-			PutDlgWord(dlog, PARAM1, aSlur->dashed, FALSE);
+			PutDlgWord(dlog, PARAM1, aSlur->dashed, False);
 			break;
 			
 		case TEMPOtype:
 			PushLock(OBJheap);
 			pTempo = GetPTEMPO(pL);
-			PutDlgWord(dlog, STAFF_NO, pTempo->staffn, FALSE);
-			PutDlgWord(dlog, VERT, DD2I(pTempo->yd), FALSE);
+			PutDlgWord(dlog, STAFF_NO, pTempo->staffn, False);
+			PutDlgWord(dlog, VERT, DD2I(pTempo->yd), False);
 			PopLock(OBJheap);
 			break;
 
@@ -935,7 +935,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			SetDialogItemCText(p1Hdl, "Space width");
 			
 			pSpace = GetPSPACER(pL);
-			PutDlgWord(dlog, PARAM1, pSpace->spWidth, FALSE);
+			PutDlgWord(dlog, PARAM1, pSpace->spWidth, False);
 		 	break;
 			
 		case ENDINGtype:
@@ -945,9 +945,9 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			SetDialogItemCText(p2Hdl, "String number");
 
 			pEnding = GetPENDING(pL);
-			PutDlgWord(dlog, VERT, DD2I(pEnding->yd), FALSE);
-			PutDlgWord(dlog, PARAM1, DD2I(pEnding->endxd), FALSE);
-			PutDlgWord(dlog, PARAM2, pEnding->endNum, FALSE);
+			PutDlgWord(dlog, VERT, DD2I(pEnding->yd), False);
+			PutDlgWord(dlog, PARAM1, DD2I(pEnding->endxd), False);
+			PutDlgWord(dlog, PARAM2, pEnding->endNum, False);
 			break;
 			
 		default:
@@ -960,7 +960,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		SelectDialogItemText(dlog, OBJ_HORIZ, 0, ENDTEXT);
 
 	ShowWindow(GetDialogWindow(dlog));
-	OutlineOKButton(dlog,TRUE);
+	OutlineOKButton(dlog,True);
 
 /*--- 2. Interact with user til they push OK or Cancel. --- */
 
@@ -1337,9 +1337,9 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		InvalMeasure(pL, 1);
 	}
 	if (graphicDirty || nodeDirty) {					/* Was anything at all changed? */
-		doc->changed = TRUE;							/* Yes. */
-		LinkTWEAKED(pL) = TRUE;
-		LinkVALID(pL) = FALSE;							/* Force recalc. objrect */
+		doc->changed = True;							/* Yes. */
+		LinkTWEAKED(pL) = True;
+		LinkVALID(pL) = False;							/* Force recalc. objrect */
 	}
 	
 	lastEditField = GetDialogKeyboardFocusItem(dlog);	/* Save itemNum of last edit field */
@@ -1394,7 +1394,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 								
 	GetPort(&oldPort);
 	ArrowCursor();
-	graphicDirty = nodeDirty = FALSE;							/* Nothing changed yet */
+	graphicDirty = nodeDirty = False;							/* Nothing changed yet */
 
 /* --- 1. Create the dialog and initialize its contents. --- */
 
@@ -1413,11 +1413,11 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 	strcpy(strBuf, NameObjType(pL));
 	if (GraphicTYPE(pL)) {
 		strcat(strBuf, " / ");
-		strcat(strBuf, NameGraphicType(pL, TRUE));
+		strcat(strBuf, NameGraphicType(pL, True));
 	}
 
-	PutDlgString(dlog, TYPE, CToPString(strBuf), FALSE);
-	PutDlgWord(dlog, LEFT_HORIZ, DD2I(LinkXD(pL)), FALSE);
+	PutDlgString(dlog, TYPE, CToPString(strBuf), False);
+	PutDlgWord(dlog, LEFT_HORIZ, DD2I(LinkXD(pL)), False);
 	
 	GetDialogItem(dlog, TWEAKED, &aShort, &twHdl, &tRect);
 	SetDialogItemCText(twHdl, (char *)(LinkTWEAKED(pL)? "T" : " "));
@@ -1431,20 +1431,20 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		case GRAPHICtype:									/* NB: only GRDraw now */
 			PushLock(OBJheap);
 		 	pGraphic = GetPGRAPHIC(pL);
-			PutDlgWord(dlog, STAFF_NO, pGraphic->staffn, FALSE);
+			PutDlgWord(dlog, STAFF_NO, pGraphic->staffn, False);
 			if (pGraphic->voice>=0)
 				Int2UserVoice(doc, pGraphic->voice, &userVoice, &partL);
 			else
 				userVoice = NOONE;
-			PutDlgWord(dlog, VOICE_NO, userVoice, FALSE);
-			PutDlgWord(dlog, LEFT_VERT, DD2I(pGraphic->yd), FALSE);
+			PutDlgWord(dlog, VOICE_NO, userVoice, False);
+			PutDlgWord(dlog, LEFT_VERT, DD2I(pGraphic->yd), False);
 
 			GetDialogItem(dlog, LBL_EXPARAM1, &aShort, &tHdl, &aRect);
 			SetDialogItemCText(tHdl, "Thickness");
 			
-			PutDlgWord(dlog, EXPARAM1, pGraphic->gu.thickness, FALSE);
-			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(pGraphic->info), FALSE);
-			PutDlgWord(dlog, RIGHT_VERT, DD2I(pGraphic->info2), FALSE);		/* for GRDraw only */
+			PutDlgWord(dlog, EXPARAM1, pGraphic->gu.thickness, False);
+			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(pGraphic->info), False);
+			PutDlgWord(dlog, RIGHT_VERT, DD2I(pGraphic->info2), False);		/* for GRDraw only */
 
 			PopLock(OBJheap);
 			break;
@@ -1456,11 +1456,11 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 			SetDialogItemCText(tHdl, "(unused)");
 
 			ottavap = GetPOTTAVA(pL);
-			PutDlgWord(dlog, STAFF_NO, ottavap->staffn, FALSE);
-			PutDlgWord(dlog, LEFT_HORIZ, DD2I(ottavap->xdFirst), FALSE);
-			PutDlgWord(dlog, LEFT_VERT, DD2I(ottavap->ydFirst), FALSE);
-			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(ottavap->xdLast), FALSE);
-			PutDlgWord(dlog, EXPARAM1, ottavap->noCutoff, FALSE);
+			PutDlgWord(dlog, STAFF_NO, ottavap->staffn, False);
+			PutDlgWord(dlog, LEFT_HORIZ, DD2I(ottavap->xdFirst), False);
+			PutDlgWord(dlog, LEFT_VERT, DD2I(ottavap->ydFirst), False);
+			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(ottavap->xdLast), False);
+			PutDlgWord(dlog, EXPARAM1, ottavap->noCutoff, False);
 			break;
 
 		case TUPLETtype:
@@ -1471,16 +1471,16 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 
 			PushLock(OBJheap);
 		 	pTuplet = GetPTUPLET(pL);
-			PutDlgWord(dlog, LEFT_HORIZ, DD2I(pTuplet->xdFirst), FALSE);
-			PutDlgWord(dlog, LEFT_VERT, DD2I(pTuplet->ydFirst), FALSE);
-			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(pTuplet->xdLast), FALSE);
-			PutDlgWord(dlog, RIGHT_VERT, DD2I(pTuplet->ydLast), FALSE);
+			PutDlgWord(dlog, LEFT_HORIZ, DD2I(pTuplet->xdFirst), False);
+			PutDlgWord(dlog, LEFT_VERT, DD2I(pTuplet->ydFirst), False);
+			PutDlgWord(dlog, RIGHT_HORIZ, DD2I(pTuplet->xdLast), False);
+			PutDlgWord(dlog, RIGHT_VERT, DD2I(pTuplet->ydLast), False);
 
-			PutDlgWord(dlog, STAFF_NO, pTuplet->staffn, FALSE);
+			PutDlgWord(dlog, STAFF_NO, pTuplet->staffn, False);
 			Int2UserVoice(doc, pTuplet->voice, &userVoice, &partL);
-			PutDlgWord(dlog, VOICE_NO, userVoice, FALSE);
-			PutDlgWord(dlog, EXPARAM1, pTuplet->numVis, FALSE);
-			PutDlgWord(dlog, EXPARAM2, pTuplet->brackVis, FALSE);
+			PutDlgWord(dlog, VOICE_NO, userVoice, False);
+			PutDlgWord(dlog, EXPARAM1, pTuplet->numVis, False);
+			PutDlgWord(dlog, EXPARAM2, pTuplet->brackVis, False);
 			PopLock(OBJheap);
 		 	break;
 		 	
@@ -1494,7 +1494,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		SelectDialogItemText(dlog, OBJ_HORIZ, 0, ENDTEXT);
 
 	ShowWindow(GetDialogWindow(dlog));
-	OutlineOKButton(dlog,TRUE);
+	OutlineOKButton(dlog,True);
 
 /*--- 2. Interact with user til they push OK or Cancel. --- */
 
@@ -1664,9 +1664,9 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		InvalMeasure(pL, 1);
 	}
 	if (graphicDirty || nodeDirty) {						/* Was anything at all changed? */
-		doc->changed = TRUE;								/* Yes. */
-		LinkTWEAKED(pL) = TRUE;
-		LinkVALID(pL) = FALSE;								/* Force recalc. objRect */
+		doc->changed = True;								/* Yes. */
+		LinkTWEAKED(pL) = True;
+		LinkVALID(pL) = False;								/* Force recalc. objRect */
 	}
 	
 	lastEditField = GetDialogKeyboardFocusItem(dlog);		/* Save itemNum of last edit field */
@@ -1792,23 +1792,23 @@ static void PrepDrawModNR(AMODNR modNR, PCONTEXT pContext)
 	above = (ydMod<=noteYD);
 	center = (ydMod==0);
 
-	PutDlgWord(mDlog, HORIZ, modNR.xstd-XSTD_OFFSET, FALSE);
-	PutDlgWord(mDlog, DATA, modNR.data, FALSE);
-	PutDlgWord(mDlog, MVERT, modNR.ystdpit, TRUE);		/* Last so it can start out selected */
+	PutDlgWord(mDlog, HORIZ, modNR.xstd-XSTD_OFFSET, False);
+	PutDlgWord(mDlog, DATA, modNR.data, False);
+	PutDlgWord(mDlog, MVERT, modNR.ystdpit, True);		/* Last so it can start out selected */
 }
 
 
 static Boolean GetModNRValues(PAMODNR aModNR)
 {
 	short newval;
-	Boolean okay=TRUE;
+	Boolean okay=True;
 	
 	GetDlgWord(mDlog, HORIZ, &newval);
 	if (newval<-16 || newval>15) {
 		GetIndCString(strBuf, INFOERRS_STRS, 3);			/* "Horizontal must be..." */
 		CParamText(strBuf, "", "", "");
 		Inform(MODNRINFO_ALRT);
-		okay = FALSE;
+		okay = False;
 	}
 	aModNR->xstd = newval+XSTD_OFFSET;
 
@@ -1817,7 +1817,7 @@ static Boolean GetModNRValues(PAMODNR aModNR)
 		GetIndCString(strBuf, INFOERRS_STRS, 4);			/* "Vertical must be..." */
 		CParamText(strBuf, "", "", "");
 		Inform(MODNRINFO_ALRT);
-		okay = FALSE;
+		okay = False;
 	}
 	aModNR->ystdpit = newval;
 
@@ -1826,7 +1826,7 @@ static Boolean GetModNRValues(PAMODNR aModNR)
 		GetIndCString(strBuf, INFOERRS_STRS, 5);			/* "Data must be..." */
 		CParamText(strBuf, "", "", "");
 		Inform(MODNRINFO_ALRT);
-		okay = FALSE;
+		okay = False;
 	}
 	aModNR->data = newval;
 	
@@ -1836,7 +1836,7 @@ static Boolean GetModNRValues(PAMODNR aModNR)
 
 /* ----------------------------------------------------------------- ModNRDialog -- */
 /* Handler for note/rest modifier dialog. Assumes the first selected node is a
-Sync. Returns TRUE if dialog is OK'ed, FALSE if cancelled or an error occurs. */
+Sync. Returns True if dialog is OK'ed, False if cancelled or an error occurs. */
 
 Boolean ModNRDialog(Document *doc)
 {
@@ -1868,7 +1868,7 @@ Boolean ModNRDialog(Document *doc)
 		GetIndCString(strBuf, INFOERRS_STRS, 6);			/* "1st sel note/rest has no modifiers" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	
 	noteSubType = aNote->subType;
@@ -1883,18 +1883,18 @@ Boolean ModNRDialog(Document *doc)
 	}
 	modCount = i;
 	curr = 0;
-	dirty = FALSE;												/* Nothing changed yet */
+	dirty = False;												/* Nothing changed yet */
 
 	userDrawModNRUPP = NewUserItemUPP(UserDrawModNR);
 	if (userDrawModNRUPP==NULL) {
 		MissingDialog(MODNR_DLOG);
-		return FALSE;
+		return False;
 	}
 	filterUPP = NewModalFilterUPP(OKButDragFilter);
 	if (filterUPP == NULL) {
 		DisposeUserItemUPP(userDrawModNRUPP);
 		MissingDialog(MODNR_DLOG);
-		return FALSE;
+		return False;
 	}
 								
 	GetPort(&oldPort);
@@ -1903,7 +1903,7 @@ Boolean ModNRDialog(Document *doc)
 		DisposeUserItemUPP(userDrawModNRUPP);
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(MODNR_DLOG);
-		return FALSE;
+		return False;
 	}
 	SetPort(GetDialogWindowPort(mDlog));
 
@@ -1973,9 +1973,9 @@ Boolean ModNRDialog(Document *doc)
 				aModNRL = aNote->firstMod;
 				for (i = 0; aModNRL && i<modCount; aModNRL = NextMODNRL(aModNRL), i++) {
 					aModNR = GetPAMODNR(aModNRL);
-					if (aModNR->xstd!=modNR[i].xstd) dirty = TRUE;
-					if (aModNR->ystdpit!=modNR[i].ystdpit) dirty = TRUE;
-					if (aModNR->data!=modNR[i].data) dirty = TRUE;
+					if (aModNR->xstd!=modNR[i].xstd) dirty = True;
+					if (aModNR->ystdpit!=modNR[i].ystdpit) dirty = True;
+					if (aModNR->data!=modNR[i].data) dirty = True;
 					*aModNR = modNR[i];
 				}
 			}
@@ -1987,8 +1987,8 @@ Boolean ModNRDialog(Document *doc)
 	SetPort(oldPort);
 	if (dirty)	{												/* Was anything changed? */
 		InvalMeasure(pL, NoteSTAFF(aNoteL));
-		doc->changed = TRUE;									/* Yes. */
-		LinkTWEAKED(pL) = TRUE;									/* Flag to show node was edited */
+		doc->changed = True;									/* Yes. */
+		LinkTWEAKED(pL) = True;									/* Flag to show node was edited */
 	}
 
 	if (dialogOver==OK)

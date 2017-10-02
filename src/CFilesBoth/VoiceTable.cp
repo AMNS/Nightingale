@@ -97,12 +97,12 @@ void OffsetVoiceNums(Document *doc, short startSt, short nvDelta)
 /* Traverse the document's main object list and fill in voice numbers as they're
 actually used. Does not initialize the voice table, so initialization (with default
 voices, the voice Looked at, etc.) should be done before calling this function. Also,
-if the caller cares about the <unused> flags, it should set them to TRUE before
+if the caller cares about the <unused> flags, it should set them to True before
 calling us. */
 
 static void FillVoiceTable(
 					register Document *doc,
-					Boolean unused[])			/* On return, TRUE=nothing in voice */
+					Boolean unused[])			/* On return, True=nothing in voice */
 {
 	LINK pL, aNoteL, aGRNoteL;
 	short	v, iVoice, partn, lastUsedV;
@@ -119,7 +119,7 @@ static void FillVoiceTable(
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					iVoice = NoteVOICE(aNoteL);
-					unused[iVoice] = FALSE;
+					unused[iVoice] = False;
 					if (doc->voiceTab[iVoice].partn!=0) continue;
 					/*
 					 *	The table has no entry for this note's voice number. Fill the
@@ -140,7 +140,7 @@ static void FillVoiceTable(
 				aGRNoteL = FirstSubLINK(pL);
 				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 					iVoice = GRNoteVOICE(aGRNoteL);
-					unused[iVoice] = FALSE;
+					unused[iVoice] = False;
 					if (doc->voiceTab[iVoice].partn!=0) continue;
 					/*
 					 *	The table has no entry for this note's voice number. Fill the
@@ -293,7 +293,7 @@ void UpdateVoiceTable(Document *doc, Boolean defaults)
 	for (v = 1; v<=MAXVOICES; v++)
 		maybeEmpty[v] = (!defaults || v>doc->nstaves);
 		
-	if (doc->lookVoice>=0) maybeEmpty[doc->lookVoice] = FALSE;
+	if (doc->lookVoice>=0) maybeEmpty[doc->lookVoice] = False;
 
 	FillVoiceTable(doc, maybeEmpty);			
 
@@ -343,21 +343,21 @@ short User2IntVoice(Document *doc, short uVoice, LINK addPartL)
 
 /* --------------------------------------------------------------- Int2UserVoice -- */
 /* Return the user voice number and part corresponding to the given internal voice
-number, and return TRUE. We get the information from the voice-mapping table; if the
-table has no entry for the voice/part combination, return FALSE. */
+number, and return True. We get the information from the voice-mapping table; if the
+table has no entry for the voice/part combination, return False. */
 
 Boolean Int2UserVoice(Document *doc, short iVoice, short *puVoice, LINK *pPartL)
 {
 	short partn;
 
 	partn = doc->voiceTab[iVoice].partn;
-	if (partn<=0) return FALSE;
+	if (partn<=0) return False;
 	
 	*puVoice = doc->voiceTab[iVoice].relVoice;
 	*pPartL = FindPartInfo(doc, partn);
-	if (*pPartL==NILINK) return FALSE;
+	if (*pPartL==NILINK) return False;
 			
-	return TRUE;
+	return True;
 }
 
 

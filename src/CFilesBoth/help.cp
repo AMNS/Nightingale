@@ -151,7 +151,7 @@ void Center_Window(DialogPtr theWindow, short bumpUp, Boolean isModeless)
 	tempRect.top = tempRect.top - pixels;
 
 	/* Now center window & make it visible */
-	MoveWindow(GetDialogWindow(theWindow), tempRect.left, tempRect.top, TRUE);
+	MoveWindow(GetDialogWindow(theWindow), tempRect.left, tempRect.top, True);
 	SetPort(GetDialogWindowPort(theWindow));  			
   }
   
@@ -163,7 +163,7 @@ void Center_Window(DialogPtr theWindow, short bumpUp, Boolean isModeless)
 |-----------------------------------------------------------------------|
 | Arguments :: vRefNum and directory ID in which to look for Help file.	|
 |-----------------------------------------------------------------------|
-| Returns :: TRUE if all went well, FALSE otherwise.  					|
+| Returns :: True if all went well, False otherwise.  					|
 \***********************************************************************/
 
 #define HELP_STRS 530
@@ -205,7 +205,7 @@ void Center_Window(DialogPtr theWindow, short bumpUp, Boolean isModeless)
 		sprintf(strBuf, fmtStr, HELP_FILE_NAME, PROGRAM_NAME);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return(FALSE);
+		return(False);
 	}
 	
 	/* Set up pointers to the introduction screen */
@@ -215,7 +215,7 @@ void Center_Window(DialogPtr theWindow, short bumpUp, Boolean isModeless)
 	
 	/* -- Bring up the help screen -- */
 	helpPtr = GetNewDialog(Help_Window, NULL, FRONT);
-	Center_Window(helpPtr,0,TRUE);
+	Center_Window(helpPtr,0,True);
 	ShowWindow(GetDialogWindow(helpPtr));   		
 	SelectWindow(GetDialogWindow(helpPtr)); 		
 	SetPort(GetDialogWindowPort(helpPtr));  		
@@ -251,13 +251,13 @@ void Center_Window(DialogPtr theWindow, short bumpUp, Boolean isModeless)
 	/* Height of a cell */
 	cSize.v = ThisFontInfo.ascent + ThisFontInfo.descent + ThisFontInfo.leading;
 	/* Make the list */
-	My_List_Handle =  LNew(&tempRect, &dataBounds, cSize, 0, GetDialogWindow(helpPtr), TRUE, FALSE, FALSE, TRUE);
+	My_List_Handle =  LNew(&tempRect, &dataBounds, cSize, 0, GetDialogWindow(helpPtr), True, False, False, True);
 	/* Set the attributes */
 	(*My_List_Handle)->selFlags = lOnlyOne /* + lNoNilHilite */;
 	/* Turn drawing off while building list */
-	//LSetDrawingMode(FALSE, My_List_Handle);    	
+	//LSetDrawingMode(False, My_List_Handle);    	
 	cSize.v = 0;    					
-	LSetSelect(TRUE, cSize, My_List_Handle);
+	LSetSelect(True, cSize, My_List_Handle);
 	/* Refresh_Topics();  */
 	
 	/* -- Fill in the initial list contents -- */
@@ -265,7 +265,7 @@ void Center_Window(DialogPtr theWindow, short bumpUp, Boolean isModeless)
 	  Add_List_String((TopicStr *)topic_name[index], My_List_Handle);
 	  
 	/* Now enable drawing of list */
-	LSetDrawingMode(TRUE, My_List_Handle);
+	LSetDrawingMode(True, My_List_Handle);
 	
  	/* -- Compute critical info once & for all -- */
  	GetDialogItem(helpPtr, Display_Area, &DType, &DItem, &tempRect);
@@ -306,7 +306,7 @@ void Center_Window(DialogPtr theWindow, short bumpUp, Boolean isModeless)
 	
 	FlushDialogPortRect(helpPtr);
 	
-	return(TRUE);
+	return(True);
 }
 
 
@@ -446,11 +446,11 @@ void Center_Window(DialogPtr theWindow, short bumpUp, Boolean isModeless)
 
 	/* Bring up the control */
 	if (Last_Type != text)
-		myControl = NewControl(GetDialogWindow(helpPtr),&Scroller_Rect,"\p",FALSE,1,1,10,16,0L);
+		myControl = NewControl(GetDialogWindow(helpPtr),&Scroller_Rect,"\p",False,1,1,10,16,0L);
 	
  	/* Dim the picture scrolling buttons */
- 	Set_Button_State( Next_Button, FALSE );
-  	Set_Button_State( Prev_Button, FALSE );
+ 	Set_Button_State( Next_Button, False );
+  	Set_Button_State( Prev_Button, False );
 	 
 	/* Create a text record */
 	myTEHandle = TENew(&Dest_Rect,&View_Rect);
@@ -539,7 +539,7 @@ void   Do_Help( short helpVRefNum, long helpDirID )
 /*static*/ void Error_Message( ErrorTypes theError )
   {
   	Cell		aCell;					/* Change list selection when restoring previous topic */
-  	Boolean		goIntro = FALSE;		/* Go back to previous topic? */
+  	Boolean		goIntro = False;		/* Go back to previous topic? */
 	  	  
   	/* Alert with appropriate text message */
   	switch (theError) {
@@ -566,13 +566,13 @@ void   Do_Help( short helpVRefNum, long helpDirID )
   		case err_no_pict :
    			CParamText("The requested PICT for this topic does not exist!  Will return to introduction screen.", "", "", "");
 			StopInform(GENERIC_ALRT);
-  			goIntro = TRUE;
+  			goIntro = True;
   			break;
 
   		case err_no_text :
    			CParamText("The TEXT for this topic does not exist!  Will return to introduction screen.", "", "", "");
 			StopInform(GENERIC_ALRT);
-  			goIntro = TRUE;
+  			goIntro = True;
   			break;
    		
   		default :
@@ -582,7 +582,7 @@ void   Do_Help( short helpVRefNum, long helpDirID )
 	/* Return to intro screen if appropriate */
  	if (goIntro) {
  		aCell = (*My_List_Handle)->lastClick;		/* get cell of nonexistent topic */
- 		LSetSelect (FALSE, aCell, My_List_Handle);	/* de-select its name in list */
+ 		LSetSelect (False, aCell, My_List_Handle);	/* de-select its name in list */
  		Handle_List_Event(Help_Topic = START-1);	/* return to intro screen */
  	}
   }
@@ -606,12 +606,12 @@ void   Do_Help( short helpVRefNum, long helpDirID )
   	
   	/* If there are >1 screens, enable the "Next" button */
   	if (resource_end[Help_Topic] - resource_start[Help_Topic]) {
-  	  	Set_Button_State( Next_Button, TRUE );
-  	  	Set_Button_State( Prev_Button, FALSE );
+  	  	Set_Button_State( Next_Button, True );
+  	  	Set_Button_State( Prev_Button, False );
   	}
   	else {
-  	  	Set_Button_State( Next_Button, FALSE );
-  	  	Set_Button_State(Prev_Button, FALSE );
+  	  	Set_Button_State( Next_Button, False );
+  	  	Set_Button_State(Prev_Button, False );
   	}
   	
   	/* Display first screen in topic */
@@ -711,7 +711,7 @@ void   Do_Help( short helpVRefNum, long helpDirID )
 	/* -- Enter the event loop -- */
 	InitCursor();
 	HiliteMenu(0);
-	while (TRUE) {
+	while (True) {
 	SetPort(GetDialogWindowPort(helpPtr));  		
 		SelectWindow(GetDialogWindow(helpPtr));
 		InitCursor();
@@ -779,13 +779,13 @@ void   Do_Help( short helpVRefNum, long helpDirID )
   	  					  Scroll_Picture( whatHit );
 
 							/* Was it an event in the topics list? */
-						else if (PtInRect(myPt,&List_Rect) == TRUE)  {
+						else if (PtInRect(myPt,&List_Rect) == True)  {
 							lastHit = Help_Topic -1;
 							DoubleClick = LClick(myPt, theEvent.modifiers, My_List_Handle);
 							cellHit = LLastClick(My_List_Handle);			/* Click below last topic returns cell >= FINIS */
 							if (cellHit.v >= FINIS) continue;			/* Ignore click below last topic; go to top of event loop */
 							SetPt(&cellHit, 0, 0);
-							LGetSelect(TRUE, &cellHit, My_List_Handle);		/* Display topic selected on mouseUp */
+							LGetSelect(True, &cellHit, My_List_Handle);		/* Display topic selected on mouseUp */
 							itemHit = cellHit.v;						/* NB: MouseUp below last topic returns cell==0 (same as 1st topic) */
 							if ((itemHit >= 0) && (itemHit < FINIS) && (itemHit != lastHit)) {
 			  					Handle_List_Event(itemHit);
@@ -1142,20 +1142,20 @@ void Init_Help()
  	/* Compute the new picture to display! */
  	if ( (whatHit == Next_Button) && (Current_Pict < theMax) ) {
 		Current_Pict++;
- 		Set_Button_State( Prev_Button, TRUE );
+ 		Set_Button_State( Prev_Button, True );
  		if (Current_Pict < theMax)
- 		  Set_Button_State( Next_Button, TRUE );
+ 		  Set_Button_State( Next_Button, True );
  		else
- 		  Set_Button_State( Next_Button, FALSE );
+ 		  Set_Button_State( Next_Button, False );
  		Display_Pict( Current_Pict - theMin );
    	}
    	else if ( (whatHit == Prev_Button) && (Current_Pict > theMin) ) {
 		Current_Pict--;
- 		Set_Button_State( Next_Button, TRUE );
+ 		Set_Button_State( Next_Button, True );
  		if (Current_Pict > theMin)
- 		  Set_Button_State( Prev_Button, TRUE );
+ 		  Set_Button_State( Prev_Button, True );
  		else
- 		  Set_Button_State( Prev_Button, FALSE );
+ 		  Set_Button_State( Prev_Button, False );
  		Display_Pict( Current_Pict - theMin );
    	}
    	else
@@ -1188,7 +1188,7 @@ void Init_Help()
 |-----------------------------------------------------------------------|
 | Arguments ::															|
 | 	itemNum	-> Item within the dialog to modify.						|
-|	state	-> TRUE = on, FALSE = off.									|
+|	state	-> True = on, False = off.									|
 |-----------------------------------------------------------------------|
 | Returns :: void.														|
 \***********************************************************************/

@@ -32,7 +32,7 @@ void UpdateBFClefStaff(LINK firstClefL, short staffn, short subtype)
 {
 	LINK staffL,aStaffL;
 
-	staffL = LSSearch(firstClefL,STAFFtype,ANYONE,GO_LEFT,FALSE);
+	staffL = LSSearch(firstClefL,STAFFtype,ANYONE,GO_LEFT,False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffSTAFF(aStaffL)==staffn)
@@ -43,7 +43,7 @@ void UpdateBFKSStaff(LINK firstKSL, short staffn, KSINFO newKSInfo)
 {
 	LINK staffL,aStaffL;
 
-	staffL = LSSearch(firstKSL,STAFFtype,ANYONE,GO_LEFT,FALSE);
+	staffL = LSSearch(firstKSL,STAFFtype,ANYONE,GO_LEFT,False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffSTAFF(aStaffL)==staffn)
@@ -56,7 +56,7 @@ void UpdateBFTSStaff(LINK firstTSL, short staffn, short /*subType*/, short /*num
 {
 	LINK staffL,aStaffL;
 
-	staffL = LSSearch(firstTSL,STAFFtype,ANYONE,GO_LEFT,FALSE);
+	staffL = LSSearch(firstTSL,STAFFtype,ANYONE,GO_LEFT,False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		if (StaffSTAFF(aStaffL)==staffn) {
@@ -76,8 +76,8 @@ LINK ReplaceClef(Document *doc, LINK firstClefL, short staffn, char subtype)
 	LINK			aClefL,doneL;
 	char			oldClefType;
 	
-	LinkSEL(firstClefL) = TRUE;
-	ClefINMEAS(firstClefL) = FALSE;
+	LinkSEL(firstClefL) = True;
+	ClefINMEAS(firstClefL) = False;
 
 	aClefL = FirstSubLINK(firstClefL);
 	for ( ; aClefL; aClefL = NextCLEFL(aClefL))
@@ -85,12 +85,12 @@ LINK ReplaceClef(Document *doc, LINK firstClefL, short staffn, char subtype)
 			oldClefType = ClefType(aClefL);
 			InitClef(aClefL, staffn, 0, subtype);
 
-			ClefSEL(aClefL) = TRUE;
-			ClefVIS(aClefL) = TRUE;
+			ClefSEL(aClefL) = True;
+			ClefVIS(aClefL) = True;
 			
 			UpdateBFClefStaff(firstClefL,staffn,subtype);
 
-			doc->changed = TRUE;
+			doc->changed = True;
 			break;
 		}
 
@@ -113,15 +113,15 @@ LINK ReplaceKeySig(Document *doc, LINK firstKeySigL,
 	KSINFO		oldKSInfo,newKSInfo;
 	LINK			pL,endL,aKeySigL;
 	
-	LinkSEL(firstKeySigL) = TRUE;
-	KeySigINMEAS(firstKeySigL) = FALSE;
+	LinkSEL(firstKeySigL) = True;
+	KeySigINMEAS(firstKeySigL) = False;
 
 	endL = firstKeySigL;
 	aKeySigL = FirstSubLINK(firstKeySigL);
 	for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL)) 
 		if (KeySigSTAFF(aKeySigL)==staffn || staffn==ANYONE) {
 			if (sharpsOrFlats)
-				KeySigSEL(aKeySigL) = KeySigVIS(aKeySigL) = TRUE;
+				KeySigSEL(aKeySigL) = KeySigVIS(aKeySigL) = True;
 
 			KEYSIG_COPY((PKSINFO)(KeySigKSITEM(aKeySigL)), &oldKSInfo);			/* Copy old keysig. info */
 			InitKeySig(aKeySigL, KeySigSTAFF(aKeySigL), 0, sharpsOrFlats);
@@ -139,7 +139,7 @@ LINK ReplaceKeySig(Document *doc, LINK firstKeySigL,
 				if (IsAfter(endL, pL)) endL = pL;
 		}
 
-	doc->changed = TRUE;
+	doc->changed = True;
 	if (sharpsOrFlats) {
 		doc->selStartL = firstKeySigL;
 		doc->selEndL = RightLINK(doc->selStartL);
@@ -165,15 +165,15 @@ void ReplaceTimeSig(Document *doc,
 	TSINFO		timeSigInfo;
 
 	pTimeSig = GetPTIMESIG(firstTimeSigL);
-	pTimeSig->selected = TRUE;
-	pTimeSig->inMeasure = FALSE;
+	pTimeSig->selected = True;
+	pTimeSig->inMeasure = False;
 
 	aTimeSigL = FirstSubLINK(firstTimeSigL);
 	for ( ; aTimeSigL; aTimeSigL = NextTIMESIGL(aTimeSigL)) {
 		if (TimeSigSTAFFN(aTimeSigL)==staffn || staffn==ANYONE) {
 			InitTimeSig(aTimeSigL, TimeSigSTAFFN(aTimeSigL), 0, type, numerator, denominator);
-			TimeSigSEL(aTimeSigL) = TRUE;
-			TimeSigVIS(aTimeSigL) = TRUE;
+			TimeSigSEL(aTimeSigL) = True;
+			TimeSigVIS(aTimeSigL) = True;
 
 			UpdateBFTSStaff(firstTimeSigL,staffn,type,numerator,denominator);
 
@@ -181,7 +181,7 @@ void ReplaceTimeSig(Document *doc,
 			timeSigInfo.numerator = TimeSigNUMER(aTimeSigL);
 			timeSigInfo.denominator = TimeSigDENOM(aTimeSigL);
 			FixContextForTimeSig(doc,RightLINK(firstTimeSigL),TimeSigSTAFFN(aTimeSigL),timeSigInfo);
-			doc->changed = TRUE;
+			doc->changed = True;
 		}
 	}
 	FixTimeStamps(doc, firstTimeSigL, NILINK);			/* In case of whole-meas. rests */
@@ -212,7 +212,7 @@ static Boolean EnlargeResAreas(Document *doc, LINK startL, LINK endL, DDIST shif
 	MoveAllMeasures(pL, endSysL, shift);
 			
 	InvalContent(startL, endSysL);						/* Force updating all objRects */
-	return TRUE;
+	return True;
 }
 	
 /* #1. These numbers must be the same as those computed by DelClefBefFirst and
@@ -296,10 +296,10 @@ LINK CreateMeasure(register Document *doc,
 PushLock(OBJheap);
 PushLock(MEASUREheap);
 	prevMeasL = LSSearch(LeftLINK(insertL), MEASUREtype, ANYONE,
-													GO_LEFT, FALSE);
+													GO_LEFT, False);
 	if (!prevMeasL) goto Cleanup;										/* Should never happen */
 	
-	nextMeasureL = LSSearch(insertL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	nextMeasureL = LSSearch(insertL, MEASUREtype, ANYONE, GO_RIGHT, False);
 
 	measureL = InsertNode(doc, insertL, symtable[sym].objtype, doc->nstaves);
 	if (!measureL) { NoMoreMemory(); goto Cleanup; }
@@ -317,11 +317,11 @@ PushLock(MEASUREheap);
 		nextMeasure->lMeasure = measureL;
 	}
 	tmpL = LSSearch(LeftLINK(measureL), SYSTEMtype, ANYONE,
-													GO_LEFT, FALSE);			/* Must start search at left! */
+													GO_LEFT, False);			/* Must start search at left! */
 	pMeasure = GetPMEASURE(measureL);
 	pMeasure->systemL = tmpL;
 	tmpL = LSSearch(LeftLINK(measureL), STAFFtype, ANYONE,
-													GO_LEFT, FALSE);			/* Must start search at left! */
+													GO_LEFT, False);			/* Must start search at left! */
 	pMeasure = GetPMEASURE(measureL);
 	pMeasure->staffL = tmpL;
 	SetRect(&pMeasure->measureBBox, 0, 0, 0, 0);						/* Must init. but will be computed when drawn */ 
@@ -339,12 +339,12 @@ PushLock(MEASUREheap);
 		InitMeasure(aMeasureL, MeasureSTAFFN(aprevMeasL),
 							0, (MeasMRECT(aprevMeasL)).top,
 							newRight, (MeasMRECT(aprevMeasL)).bottom,
-							TRUE, MeasCONNABOVE(aprevMeasL), MeasCONNSTAFF(aprevMeasL),
+							True, MeasCONNABOVE(aprevMeasL), MeasCONNSTAFF(aprevMeasL),
 							MeasMEASURENUM(aprevMeasL)+1);
 
 		MeasSUBTYPE(aMeasureL) = symtable[sym].subtype;
-		MeasureSEL(aMeasureL) = TRUE;											/* Select the subobj */
-		MeasSOFT(aMeasureL) = FALSE;
+		MeasureSEL(aMeasureL) = True;											/* Select the subobj */
+		MeasSOFT(aMeasureL) = False;
 		
 		/* Make xd relative to the previous Measure. */
 	
@@ -357,7 +357,7 @@ PushLock(MEASUREheap);
 		FixMeasureContext(aMeasureL, &context);
 	}
 	
-	LinkVALID(prevMeasL) = LinkVALID(measureL) = FALSE;			/* recalc measureBBox */
+	LinkVALID(prevMeasL) = LinkVALID(measureL) = False;			/* recalc measureBBox */
 	if (nextMeasureL)															/* these have new objRects */
 		InvalRange(measureL, nextMeasureL);
 	else
@@ -385,7 +385,7 @@ PushLock(MEASUREheap);
 	 * Measures.
 	 */
 
-	nextSync = LSSearch(measureL, SYNCtype, ANYONE, GO_RIGHT, FALSE);
+	nextSync = LSSearch(measureL, SYNCtype, ANYONE, GO_RIGHT, False);
 	if (nextSync) {
 		/*
 		 * nextSync may not even be in our new Measure, but the following code will still
@@ -399,7 +399,7 @@ PushLock(MEASUREheap);
 		MoveTimeInMeasure(RightLINK(measureL), endMeasL, -offsetDur);
 	}
 
-	if (RhythmUnderstood(doc, LinkLMEAS(measureL), TRUE)) {
+	if (RhythmUnderstood(doc, LinkLMEAS(measureL), True)) {
 		pMeasure->lTimeStamp = prevMeas->lTimeStamp+GetMeasDur(doc, measureL, ANYONE);
 		FixTimeStamps(doc, measureL, measureL);
 	}
@@ -415,7 +415,7 @@ PushLock(MEASUREheap);
 		 *	previous Measure, if it contained any notes, else from the previous Measure
 		 *	itself.
 		 */
-		 	prevSync = LSSearch(measureL, SYNCtype, ANYONE, GO_LEFT, FALSE);
+		 	prevSync = LSSearch(measureL, SYNCtype, ANYONE, GO_LEFT, False);
 		 	if (IsAfter(prevMeasL, prevSync))
 		 		offsetDur = SyncTIME(prevSync)+SyncMaxDur(doc, prevSync);
 		 	else

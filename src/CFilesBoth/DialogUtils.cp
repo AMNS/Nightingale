@@ -68,17 +68,17 @@ pascal Boolean OKButFilter(DialogPtr theDialog, EventRecord *theEvent, short *it
 		case updateEvt:
 			BeginUpdate(GetDialogWindow(theDialog));
 			UpdateDialogVisRgn(theDialog);
-			FrameDefault(theDialog,OK,TRUE);
+			FrameDefault(theDialog,OK,True);
 			EndUpdate(GetDialogWindow(theDialog));
 			*item = 0;
-			return TRUE;
+			return True;
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, item, FALSE)) return TRUE;
+			if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
 			break;
 	}
-	return FALSE;
+	return False;
 }
 
 
@@ -97,7 +97,7 @@ pascal Boolean OKButDragFilter(DialogPtr theDialog, EventRecord *theEvent, short
 			if (wind==GetDialogWindow(theDialog)) {
 				BeginUpdate(GetDialogWindow(theDialog));
 				UpdateDialogVisRgn(theDialog);
-				FrameDefault(theDialog,OK,TRUE);
+				FrameDefault(theDialog,OK,True);
 				EndUpdate(GetDialogWindow(theDialog));
 			}
 			else if (IsDocumentKind(wind) || IsPaletteKind(wind)) {
@@ -105,21 +105,21 @@ pascal Boolean OKButDragFilter(DialogPtr theDialog, EventRecord *theEvent, short
 				ArrowCursor();
 			}
 			*item = 0;
-			return TRUE;
+			return True;
 		case mouseDown:
 			part = FindWindow(theEvent->where, &wind);
 			if (part==inDrag && wind==GetDialogWindow(theDialog)) {
 				bounds = GetQDScreenBitsBounds();
 				DragWindow(wind, theEvent->where, &bounds);
 				*item = 0;
-				return TRUE;
+				return True;
 			}
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, item, FALSE)) return TRUE;
+			if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
 			break;
 	}
-	return FALSE;
+	return False;
 }
 
 
@@ -128,7 +128,7 @@ pascal Boolean OKButDragFilter(DialogPtr theDialog, EventRecord *theEvent, short
 filter functions for keyDown and autoKey events, this recognizes Return and Enter
 as synonyms for clicking OK; command-. , X, C, V as Cancel, Cut, Copy, and Paste;
 and command keys at the end of any control title as clicks on that control. If it
-finds something it recognizes, it returns TRUE with *item set to the number of the
+finds something it recognizes, it returns True with *item set to the number of the
 item that the dialog function should consider to have been clicked on; for Cut,
 Copy, and Paste it returns with *item=0 (caveat!).
 
@@ -137,7 +137,7 @@ standard meanings of '.', 'X', 'C', and 'V'. */
 
 Boolean DlgCmdKey(register DialogPtr dlog, EventRecord *evt,
 				short *item,
-				Boolean hotKeys	/* TRUE=don't require cmd key to recognize keystrokes as ctl clicks */
+				Boolean hotKeys	/* True=don't require cmd key to recognize keystrokes as ctl clicks */
 				)
 {
 	register short i, key;
@@ -148,14 +148,14 @@ Boolean DlgCmdKey(register DialogPtr dlog, EventRecord *evt,
 	Str255 sT;
 	
 	if (evt->what != keyDown && evt->what != autoKey)			/* in case caller passed wrong event type */
-		return FALSE;
+		return False;
 	
 	key = evt->message & charCodeMask;
 	
 	if (key == CH_CR || key == CH_ENTER) {
 		FlashButton(dlog, OK);
 		*item = OK;
-		return TRUE;
+		return True;
 	}
 
 	if (islower(key)) key = toupper(key);
@@ -171,7 +171,7 @@ Boolean DlgCmdKey(register DialogPtr dlog, EventRecord *evt,
 					if (contrlHilite==CTL_ACTIVE) {			/* If the item is active */
 						FlashButton(dlog, i);
 						*item = i;
-						return TRUE;
+						return True;
 					}
 				}
 			}
@@ -184,25 +184,25 @@ Boolean DlgCmdKey(register DialogPtr dlog, EventRecord *evt,
 				if (TextSelected(dlog))
 					{ ClearCurrentScrap(); DialogCut(dlog); TEToScrap(); }
 				*item = 0;
-				return TRUE;
+				return True;
 			case 'C':
 				if (TextSelected(dlog))
 					{ ClearCurrentScrap(); DialogCopy(dlog); TEToScrap(); }
 				*item = 0;
-				return TRUE;
+				return True;
 			case 'V':
 				if (CanPaste(1,'TEXT'))
 					{ TEFromScrap(); DialogPaste(dlog); }
 				*item = 0;
-				return TRUE;
+				return True;
 			case '.':
 				FlashButton(dlog, Cancel);
 				*item = Cancel;
-				return TRUE;
+				return True;
 		}
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -211,8 +211,8 @@ Boolean DlgCmdKey(register DialogPtr dlog, EventRecord *evt,
 
 void SwitchRadio(DialogPtr dialogp, short *curButton, short newButton)
 {
-	PutDlgChkRadio(dialogp,*curButton,FALSE);
-	PutDlgChkRadio(dialogp,newButton,TRUE);
+	PutDlgChkRadio(dialogp,*curButton,False);
+	PutDlgChkRadio(dialogp,newButton,True);
 	*curButton = newButton;
 }
 
@@ -269,7 +269,7 @@ static void ClickUp(short maxVal, DialogPtr theDialog)
 	
 	GetDlgWord(theDialog, locDurItem, &pcNum);
 	if (pcNum<maxVal) pcNum++;
-	PutDlgWord(theDialog, locDurItem, pcNum, TRUE);
+	PutDlgWord(theDialog, locDurItem, pcNum, True);
 }
 
 static void ClickDown(short minVal, DialogPtr theDialog)
@@ -278,7 +278,7 @@ static void ClickDown(short minVal, DialogPtr theDialog)
 	
 	GetDlgWord(theDialog, locDurItem, &pcNum);
 	if (pcNum>minVal) pcNum--;
-	PutDlgWord(theDialog, locDurItem, pcNum, TRUE);
+	PutDlgWord(theDialog, locDurItem, pcNum, True);
 }
 
 
@@ -290,14 +290,14 @@ Boolean HandleKeyDown(EventRecord *theEvent, short minVal, short maxVal,
 	theChar =theEvent->message & charCodeMask;
 	if (theChar==UPARROWKEY) {
 		ClickUp(maxVal, theDialog);
-		return TRUE;
+		return True;
 	}
 	else if (theChar==DOWNARROWKEY) {
 		ClickDown(minVal, theDialog);
-		return TRUE;
+		return True;
 	}
 	else
-		return FALSE;
+		return False;
 }
 
 
@@ -311,15 +311,15 @@ Boolean HandleMouseDown(EventRecord *theEvent, short minVal, short maxVal,
 	if (PtInRect(where, &upRect)) {
 		SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);						/* Select & unhilite number */
 		TrackNumberArrow(&upRect, &ClickUp, maxVal, theDialog);
-		return TRUE;
+		return True;
 	}
 	else if (PtInRect(where, &downRect)) {
 		SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);						/* Select & unhilite number */
 		TrackNumberArrow(&downRect, &ClickDown, minVal, theDialog);
-		return TRUE;
+		return True;
 	}
 	else
-		return FALSE;
+		return False;
 }
 
 /*
@@ -347,13 +347,13 @@ pascal Boolean NumberFilter(register DialogPtr theDialog, EventRecord *theEvent,
 				BeginUpdate(GetDialogWindow(theDialog));
 				TextFace(0); TextFont(systemFont);
 				DrawDialog(theDialog);
-				OutlineOKButton(theDialog,TRUE);
+				OutlineOKButton(theDialog,True);
 				EndUpdate(GetDialogWindow(theDialog));
 				}
 			 else
 				DoUpdate((WindowPtr)theEvent->message);
 			*itemHit = 0;
-			return TRUE;
+			return True;
 			break;
 		case mouseDown:
 			/*
@@ -363,27 +363,27 @@ pascal Boolean NumberFilter(register DialogPtr theDialog, EventRecord *theEvent,
 			if (HandleMouseDown(theEvent, minVal, maxVal, theDialog)) {
 				SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);
 				*itemHit = locDurItem;
-				return TRUE;
+				return True;
 			}
 			break;
 		case keyDown:
 		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, itemHit, FALSE))
-				return TRUE;
+			if (DlgCmdKey(theDialog, theEvent, itemHit, False))
+				return True;
 			else {
 				/*
 				 * Arrow key was typed. Handle it, then select and hilite the number.
 				 */
 				if (HandleKeyDown(theEvent, minVal, maxVal, theDialog)) {
 					SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);
-					return TRUE;
+					return True;
 				}
 			}
 			break;
 		default:
 			;
 	}
-	return FALSE;
+	return False;
 }
 
 
@@ -393,13 +393,13 @@ char durStrs[MAX_L_DUR+2][16];	/* Plural forms of dur. units: "DUMMY", "breves",
 
 void InitDurStrings(void)
 {
-	static Boolean firstCall=TRUE;
+	static Boolean firstCall=True;
 	short n;
 	
 	if (firstCall) {
 		for (n = 0; n<MAX_L_DUR+2; n++)
 			GetIndCString(&durStrs[n][0], DURATION_STRS, n+1);
-		firstCall = FALSE;
+		firstCall = False;
 	}
 }
 

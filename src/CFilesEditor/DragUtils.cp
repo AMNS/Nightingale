@@ -34,8 +34,8 @@ void GetHDragLims(Document */*doc*/, LINK pL, LINK subObjL, short /*staff*/, CON
 	LINK leftL, rightL;
 
 	objXD = LinkXD(pL) + GetSubXD(pL,subObjL);
-	leftL = FirstValidxd(LeftLINK(pL), TRUE);
-	rightL = FirstValidxd(RightLINK(pL), FALSE);
+	leftL = FirstValidxd(LeftLINK(pL), True);
+	rightL = FirstValidxd(RightLINK(pL), False);
 
 	leftLimit = MeasureTYPE(leftL) ? objXD : objXD-LinkXD(leftL);
 
@@ -77,7 +77,7 @@ void SDInsertLedgers(LINK pL, LINK aNoteL, short halfLine, PCONTEXT pContext)
 	xd = LinkXD(pL);							/* DDIST horiz pos of note rel to portRect of SymDrag Ports */
 
 	staff = NoteSTAFF(aNoteL);
-	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, FALSE);
+	staffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, False);
 
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
@@ -266,14 +266,14 @@ static void FixXStfNoteStems(Document *doc, LINK beamL)
 	nInBeam = LinkNENTRIES(beamL);
 
 	/* Fill in the arrays of Sync and note LINKs for the benefit of beam subobjs. */
-	if (!GetBeamSyncs(doc, startL, RightLINK(endL), v, nInBeam, bpSync, noteInSync, FALSE))
+	if (!GetBeamSyncs(doc, startL, RightLINK(endL), v, nInBeam, bpSync, noteInSync, False))
 			return;
 
 	/* Handle cross-staff conditions. */
 	GetCrossStaff(nInBeam, noteInSync, &theRange);
 
 	/* Get the y level of the beam set and set the note stems of the beamset's notes. */
-	staffL = LSSearch(startL, STAFFtype, staff, GO_LEFT, FALSE);
+	staffL = LSSearch(startL, STAFFtype, staff, GO_LEFT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
 		aStaff = GetPASTAFF(aStaffL);
@@ -283,7 +283,7 @@ static void FixXStfNoteStems(Document *doc, LINK beamL)
 		}
 	} 
 	ystem = CalcBeamYLevel(doc, nInBeam, bpSync, noteInSync, &baseL, stfHeight, stfLines,
-									TRUE, doc->voiceTab[v].voiceRole, &upOrDown);
+									True, doc->voiceTab[v].voiceRole, &upOrDown);
 									
 	/* ??The following #if added by DAB to fix bug: can't call GetBeamEndYStems bcs
 		baseL is undefined. Just make beam horizontal for now, as when cross-staff
@@ -292,7 +292,7 @@ static void FixXStfNoteStems(Document *doc, LINK beamL)
 	firstystem = lastystem = ystem;
 
 	FillSlantBeam(doc, beamL, v, nInBeam, bpSync, noteInSync, firstystem,
-									lastystem, theRange, TRUE);
+									lastystem, theRange, True);
 }
 
 
@@ -463,7 +463,7 @@ static GrafPtr GetRectGrafPort(Rect r)
 	rWidth = r.right-r.left;
 	rHeight = r.bottom-r.top;
 #ifdef USE_GWORLDS
-	ourPort = (GrafPtr)MakeGWorld(rWidth, rHeight, TRUE);
+	ourPort = (GrafPtr)MakeGWorld(rWidth, rHeight, True);
 #else
 	ourPort = NewGrafPort(rWidth, rHeight);
 #endif
@@ -526,7 +526,7 @@ Rect GetSysRect(Document *doc, LINK pL)
 	LINK sysL;  PSYSTEM pSystem;
 	DRect sysR;  Rect r;
 	
-	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	pSystem = GetPSYSTEM(sysL);
 	sysR = pSystem->systemRect;
 	D2Rect(&sysR, &r);
@@ -583,45 +583,45 @@ Rect SDGetMeasRect(Document *doc, LINK pL, LINK measL)
 
 	switch (ObjLType(pL)) {
 		case MEASUREtype:
-			prevMeasL = LSSearch(LeftLINK(measL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+			prevMeasL = LSSearch(LeftLINK(measL), MEASUREtype, ANYONE, GO_LEFT, False);
 			mRect = Get2MeasRect(doc, prevMeasL, measL);
 			break;
 		case DYNAMtype:
 			if (IsHairpin(pL)) {
-				firstMeasL = LSSearch(DynamFIRSTSYNC(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-				lastMeasL = LSSearch(DynamLASTSYNC(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+				firstMeasL = LSSearch(DynamFIRSTSYNC(pL), MEASUREtype, 1, GO_LEFT, False);
+				lastMeasL = LSSearch(DynamLASTSYNC(pL), MEASUREtype, 1, GO_LEFT, False);
 				mRect = Get2MeasRect(doc, firstMeasL, lastMeasL);
 			}
 			else
 				mRect = GetMeasRect(doc, measL);
 			break;
 		case BEAMSETtype:
-			firstMeasL = LSSearch(FirstInBeam(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-			lastMeasL = LSSearch(LastInBeam(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+			firstMeasL = LSSearch(FirstInBeam(pL), MEASUREtype, 1, GO_LEFT, False);
+			lastMeasL = LSSearch(LastInBeam(pL), MEASUREtype, 1, GO_LEFT, False);
 			if (firstMeasL!=lastMeasL)
 				mRect = Get2MeasRect(doc, firstMeasL, lastMeasL);
 			else
 				mRect = GetMeasRect(doc, measL);
 			break;
 		case OTTAVAtype:
-			firstMeasL = LSSearch(FirstInOttava(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-			lastMeasL = LSSearch(LastInOttava(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+			firstMeasL = LSSearch(FirstInOttava(pL), MEASUREtype, 1, GO_LEFT, False);
+			lastMeasL = LSSearch(LastInOttava(pL), MEASUREtype, 1, GO_LEFT, False);
 			if (firstMeasL!=lastMeasL)
 				mRect = Get2MeasRect(doc, firstMeasL, lastMeasL);
 			else
 				mRect = GetMeasRect(doc, measL);
 			break;
 		case TUPLETtype:
-			firstMeasL = LSSearch(FirstInTuplet(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-			lastMeasL = LSSearch(LastInTuplet(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+			firstMeasL = LSSearch(FirstInTuplet(pL), MEASUREtype, 1, GO_LEFT, False);
+			lastMeasL = LSSearch(LastInTuplet(pL), MEASUREtype, 1, GO_LEFT, False);
 			if (firstMeasL!=lastMeasL)
 				mRect = Get2MeasRect(doc, firstMeasL, lastMeasL);
 			else
 				mRect = GetMeasRect(doc, measL);
 			break;
 		case SLURtype:
-			firstMeasL = LSSearch(SlurFIRSTSYNC(pL), MEASUREtype, 1, GO_LEFT, FALSE);
-			lastMeasL = LSSearch(SlurLASTSYNC(pL), MEASUREtype, 1, GO_LEFT, FALSE);
+			firstMeasL = LSSearch(SlurFIRSTSYNC(pL), MEASUREtype, 1, GO_LEFT, False);
+			lastMeasL = LSSearch(SlurLASTSYNC(pL), MEASUREtype, 1, GO_LEFT, False);
 			if (firstMeasL!=lastMeasL)
 				mRect = Get2MeasRect(doc, firstMeasL, lastMeasL);
 			else
@@ -675,7 +675,7 @@ GrafPtr New2MeasGrafPort(Document *doc, LINK measL)
 	
 	GetPort(&oldPort);
 
-	prevMeasL = LSSearch(LeftLINK(measL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	prevMeasL = LSSearch(LeftLINK(measL), MEASUREtype, ANYONE, GO_LEFT, False);
 	mBBox = Get2MeasRect(doc, prevMeasL, measL);
 
 	ourPort = GetRectGrafPort(mBBox);		/* Allocate GrafPort the combined size of two Measures */
@@ -715,9 +715,9 @@ GrafPtr NewBeamGrafPort(Document *doc, LINK beamL, Rect *beamRect)
 	
 	GetPort(&oldPort);
 
-	measL = LSSearch(beamL, MEASUREtype, BeamSTAFF(beamL), GO_LEFT, FALSE);
+	measL = LSSearch(beamL, MEASUREtype, BeamSTAFF(beamL), GO_LEFT, False);
 	lastSyncL = LastInBeam(beamL);
-	lastMeasL = LSSearch(lastSyncL, MEASUREtype, BeamSTAFF(beamL), GO_LEFT, FALSE);
+	lastMeasL = LSSearch(lastSyncL, MEASUREtype, BeamSTAFF(beamL), GO_LEFT, False);
 
 	mBBox = Get2MeasRect(doc, measL, lastMeasL);
 
@@ -767,7 +767,7 @@ GrafPtr Setup2MeasPorts(Document *doc, LINK measL)
 
 	if (!underBits || !offScrBits || !picBits) return NULL;
 
-	prevMeasL = LSSearch(LeftLINK(measL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	prevMeasL = LSSearch(LeftLINK(measL), MEASUREtype, ANYONE, GO_LEFT, False);
 	twoMeasRect = Get2MeasRect(doc, prevMeasL, measL);
 
 	dstRect = twoMeasRect;
@@ -786,8 +786,8 @@ GrafPtr SetupNMeasPorts(Document *doc, LINK startL, LINK endL)
 	Rect 	mBBox, dstRect;
 	LINK	firstMeasL, lastMeasL;
 	
-	firstMeasL = LSSearch(startL, MEASUREtype, 1, GO_LEFT, FALSE);
-	lastMeasL = LSSearch(endL, MEASUREtype, 1, GO_LEFT, FALSE);
+	firstMeasL = LSSearch(startL, MEASUREtype, 1, GO_LEFT, False);
+	lastMeasL = LSSearch(endL, MEASUREtype, 1, GO_LEFT, False);
 
 	mBBox = Get2MeasRect(doc, firstMeasL, lastMeasL);
 
@@ -869,7 +869,7 @@ void PageRelDrag(Document *doc, LINK pL, Point pt)
 	LinkXD(pL) += p2d(LoWord(newPos));
 	LinkYD(pL) += p2d(HiWord(newPos));
 	
-	if (newPos) doc->changed = TRUE;		/* If 0, neither h nor v has changed */
+	if (newPos) doc->changed = True;		/* If 0, neither h nor v has changed */
 	InvalWindow(doc);
 }
 
@@ -881,10 +881,10 @@ void SDSpaceMeasures(Document *doc, LINK pL, long spaceFactor)
 	LINK prevMeasL;
 
 	if (MeasureTYPE(pL)) {
-		prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, GO_LEFT, False);
 		if (doc->autoRespace && prevMeasL)
 			RespaceBars(doc, RightLINK(prevMeasL), LeftLINK(pL), spaceFactor,
-							FALSE, FALSE);
+							False, False);
 	}
 }
 
@@ -923,7 +923,7 @@ static void SDInvalMeasures(Document *doc, LINK pL)
 		InvalMeasures(drag1stMeas,dragLastMeas, ANYONE);
 	}
 	else {
-		measL = LSSearch(pL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+		measL = LSSearch(pL,MEASUREtype,ANYONE,GO_LEFT,False);
 		rMeas = LinkRMEAS(measL) ? LinkRMEAS(measL) : doc->tailL;
 		InvalMeasures(measL,rMeas, ANYONE);
 	}
@@ -959,7 +959,7 @@ void SDCleanUp(
 
 	if (dirty) {
 		SDSpaceMeasures(doc, pL, spaceFactor);
-		doc->changed = TRUE;
+		doc->changed = True;
 		switch (ObjLType(pL)) {
 			case MEASUREtype:
 				InvalMeasures(LinkLMEAS(pL), pL, ANYONE);
@@ -981,7 +981,7 @@ void SDCleanUp(
 				InvalMeasures(FirstInTuplet(pL), LastInTuplet(pL), ANYONE);
 				break;
 			case SLURtype:
-				InvalObject(doc,pL,FALSE);
+				InvalObject(doc,pL,False);
 				SDInvalObjRects(doc, pL, xdDiff, ydDiff, 1);
 				InvalMeasures(SlurFIRSTSYNC(pL), SlurLASTSYNC(pL), ANYONE);
 				break;
@@ -992,7 +992,7 @@ void SDCleanUp(
 				SDInvalObject(doc, pL, xdDiff, ydDiff, 1);
 				break;
 			case TEMPOtype:
-				InvalObject(doc,pL,FALSE);
+				InvalObject(doc,pL,False);
 				SDInvalObject(doc, pL, xdDiff, ydDiff, 1);
 				break;
 			default:

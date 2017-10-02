@@ -73,20 +73,20 @@ static Boolean CombinePartsDlog(unsigned char *firstPartName, unsigned char *las
 	GrafPtr oldPort;
 //	short aShort; Handle aHdl; Rect spacePanelBox;
 //	short newSpace;
-	Boolean dialogOver=FALSE;
+	Boolean dialogOver=False;
 //	UserItemUPP userDimUPP;
 	ModalFilterUPP filterUPP;
 	
 //	userDimUPP = NewUserItemUPP(UserDimPanel);
 //	if (userDimUPP==NULL) {
 //		MissingDialog((long)COMBINEPARTS_DLOG);  /* Missleading, but this isn't likely to happen. */
-//		return FALSE;
+//		return False;
 //	}
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
 //		DisposeUserItemUPP(userDimUPP);
 		MissingDialog((long)COMBINEPARTS_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	dlog = GetNewDialog(COMBINEPARTS_DLOG, NULL, BRING_TO_FRONT);
@@ -94,30 +94,30 @@ static Boolean CombinePartsDlog(unsigned char *firstPartName, unsigned char *las
 //		DisposeUserItemUPP(userDimUPP);
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog((long)COMBINEPARTS_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	GetPort(&oldPort);
 	SetPort(GetDialogWindowPort(dlog));
 
-	PutDlgString(dlog,FIRSTPART_DI,firstPartName, FALSE);
-	PutDlgString(dlog,LASTPART_DI,lastPartName, FALSE);
+	PutDlgString(dlog,FIRSTPART_DI,firstPartName, False);
+	PutDlgString(dlog,LASTPART_DI,lastPartName, False);
 
 //	radio1 = (*pInPlace ? COMBINEINPLACE_DI : EXTRACTTOSCORE_DI);
-//	PutDlgChkRadio(dlog, radio1, TRUE);
+//	PutDlgChkRadio(dlog, radio1, True);
 //	radio2 = (*pSave ? SAVE_DI : OPEN_DI);
-//	PutDlgChkRadio(dlog, radio2, TRUE);
+//	PutDlgChkRadio(dlog, radio2, True);
 //	PutDlgChkRadio(dlog, REFORMAT_DI, *pReformat);
 //	GetDialogItem(dlog, SPACEBOX_DI, &aShort, &aHdl, &spacePanelBox);
 //	SetDialogItem(dlog, SPACEBOX_DI, userItem, (Handle)userDimUPP, &spacePanelBox);
-//	PutDlgWord(dlog, SPACE_DI, *pSpacePercent, TRUE);
+//	PutDlgWord(dlog, SPACE_DI, *pSpacePercent, True);
 
 	CenterWindow(GetDialogWindow(dlog), 55);
 	ShowWindow(GetDialogWindow(dlog));
 //	DimSpacePanel(dlog, SPACEBOX_DI);			/* Prevent flashing if subordinates need to be dimmed right away */
 	ArrowCursor();
 
-	dialogOver = FALSE;
+	dialogOver = False;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
@@ -126,10 +126,10 @@ static Boolean CombinePartsDlog(unsigned char *firstPartName, unsigned char *las
 //				if (newSpace<MINSPACE || newSpace>MAXSPACE)
 //					Inform(SPACE_ALRT);
 //				else
-					dialogOver = TRUE;
+					dialogOver = True;
 				break;
 			case Cancel:
-				dialogOver = TRUE;
+				dialogOver = True;
 				break;
 //			case REFORMAT_DI:
 //				PutDlgChkRadio(dlog,REFORMAT_DI,!GetDlgChkRadio(dlog,REFORMAT_DI));
@@ -151,9 +151,9 @@ static Boolean CombinePartsDlog(unsigned char *firstPartName, unsigned char *las
 	/* The dialog is over and everything's legal. If it was OKed, pick up new values. */
 	
 	if (ditem==OK) {
-		*pInPlace = TRUE;
-		*pSave = FALSE;
-		*pReformat = FALSE;
+		*pInPlace = True;
+		*pSave = False;
+		*pReformat = False;
 		*pSpacePercent = 0;
 	}
 	
@@ -212,31 +212,31 @@ static void ReformatPart(Document *doc, short spacePercent, Boolean changeSBreak
 	NormalizePartFormat(doc);
 
 	InitAntikink(doc, doc->headL, doc->tailL);
-	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, FALSE); /* Start at first measure */
+	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, False); /* Start at first measure */
 	RespaceBars(doc, pL, doc->tailL,
-					RESFACTOR*(long)spacePercent, FALSE, FALSE);		/* Don't reformat! */
+					RESFACTOR*(long)spacePercent, False, False);		/* Don't reformat! */
 	doc->spacePercent = spacePercent;
 	Antikink();															/* ??SHOULD BE AFTER Reformat! */
 
 	Reformat(doc, RightLINK(doc->headL), doc->tailL,
 				changeSBreaks, (careMeasPerSys? measPerSys : 9999),
-				FALSE, 999, config.titleMargin);
+				False, 999, config.titleMargin);
 
-	(void)DelRedTimeSigs(doc, TRUE, &firstDelL, &lastDelL);
+	(void)DelRedTimeSigs(doc, True, &firstDelL, &lastDelL);
 }
 
 /* Need one document to hold combined parts */
 
 static Boolean EnoughFreeDocs()
 	{
-		return TRUE;		
+		return True;		
 	}
 	
 static Boolean CheckMultivoiceRoles(Document *doc, LINK firstPartL, LINK lastPartL)
 	{
-		Boolean ok = TRUE;
-		Boolean hasUpperVoice = FALSE;
-		Boolean hasLowerVoice = FALSE;
+		Boolean ok = True;
+		Boolean hasUpperVoice = False;
+		Boolean hasLowerVoice = False;
 		
 		LINK partL = firstPartL;
 		while (ok && partL != lastPartL) 		/* handle all the parts after the first */
@@ -247,17 +247,17 @@ static Boolean CheckMultivoiceRoles(Document *doc, LINK firstPartL, LINK lastPar
 				if (doc->voiceTab[v].voiceRole == UPPER_DI) 
 				{
 					if (hasUpperVoice)
-						ok = FALSE;
+						ok = False;
 					else
-						hasUpperVoice = TRUE;
+						hasUpperVoice = True;
 				}
 						
 				if (doc->voiceTab[v].voiceRole == LOWER_DI) 
 				{
 					if (hasLowerVoice)
-						ok = FALSE;
+						ok = False;
 					else
-						hasLowerVoice = TRUE;
+						hasLowerVoice = True;
 				}
 			}
 			
@@ -279,11 +279,11 @@ static Boolean HasGroupConnect(LINK connectL)
 		{
 			PACONNECT aConnect = GetPACONNECT(aConnectL);
 			if (aConnect->connLevel==GroupLevel) {
-				return TRUE;				
+				return True;				
 			}
 		}
 		
-		return FALSE;
+		return False;
 	}
 	
 static Boolean HasSpanningGroup(LINK connectL, short firstStf, short lastStf) 
@@ -295,12 +295,12 @@ static Boolean HasSpanningGroup(LINK connectL, short firstStf, short lastStf)
 			short stfBelow = ConnectSTAFFBELOW(aConnectL);
 			if (ConnectCONNLEVEL(aConnectL)==GroupLevel) {
 				if (stfAbove <= firstStf && stfBelow >= lastStf) {
-					return TRUE;
+					return True;
 				}
 			}
 		}
 		
-		return FALSE;
+		return False;
 	}
 
 static Boolean HasContainedGroup(LINK connectL, short firstStf, short lastStf) 
@@ -312,12 +312,12 @@ static Boolean HasContainedGroup(LINK connectL, short firstStf, short lastStf)
 			short stfBelow = ConnectSTAFFBELOW(aConnectL);
 			if (ConnectCONNLEVEL(aConnectL)==GroupLevel) {
 				if (stfAbove >= firstStf && stfBelow <= lastStf) {
-					return TRUE;
+					return True;
 				}
 			}
 		}
 		
-		return FALSE;
+		return False;
 	}
 
 static Boolean HasOverlappingGroup(LINK connectL, short firstStf, short lastStf) 
@@ -331,12 +331,12 @@ static Boolean HasOverlappingGroup(LINK connectL, short firstStf, short lastStf)
 				if (WithinStfRange(stfAbove, firstStf, lastStf) ||
 					 WithinStfRange(stfBelow, firstStf, lastStf)) 
 				{
-					return TRUE;
+					return True;
 				}
 			}
 		}
 		
-		return FALSE;
+		return False;
 	}
 
 static Boolean CheckGroupLevelConnects(Document *doc, LINK firstPartL, LINK lastPartL)
@@ -344,21 +344,21 @@ static Boolean CheckGroupLevelConnects(Document *doc, LINK firstPartL, LINK last
 		LINK connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
 				
 		if (!HasGroupConnect(connectL)) 
-			return TRUE;
+			return True;
 		
 		short firstStf = PartFirstSTAFF(firstPartL);
 		short lastStf = PartLastSTAFF(lastPartL);
 		
 		if (HasSpanningGroup(connectL, firstStf, lastStf))
-			return FALSE;
+			return False;
 		
 		if (HasContainedGroup(connectL, firstStf, lastStf))
-			return FALSE;
+			return False;
 		
 		if (HasOverlappingGroup(connectL, firstStf, lastStf))
-			return FALSE;
+			return False;
 		
-		return TRUE;
+		return True;
 	}
 
 static short FixStavesForPart(LINK firstPartL, LINK partL)
@@ -420,7 +420,7 @@ static void DeleteConnectSubObjs(LINK connectL)
 
 static Boolean UpdateConnect(LINK connectL, LINK firstPartL, LINK partL)
 	{
-		Boolean connectSel = FALSE;
+		Boolean connectSel = False;
 			
 		short firstStf = PartFirstSTAFF(firstPartL);
 		short lastStf = PartLastSTAFF(partL);		
@@ -434,9 +434,9 @@ static Boolean UpdateConnect(LINK connectL, LINK firstPartL, LINK partL)
 			}
 			else if (aConnect->connLevel==PartLevel && aConnect->staffAbove>firstStf && aConnect->staffBelow <= lastStf) 
 			{
-				aConnect->selected = TRUE;
+				aConnect->selected = True;
 				aConnect->staffBelow = lastStf;
-				connectSel = TRUE;
+				connectSel = True;
 			}		
 		}
 		
@@ -488,7 +488,7 @@ static LINK GetConnectForFirstPart(Document *doc, LINK firstPartL, LINK connectL
 		aConnect->staffBelow = connStf;
 		aConnect->firstPart = firstPartL;
 		aConnect->lastPart = firstPartL;
-		aConnect->selected = FALSE;
+		aConnect->selected = False;
 		return aConnectL;
 	}
 
@@ -500,10 +500,10 @@ static void DeselectCONNECT(LINK pL)
 	aConnectL = FirstSubLINK(pL);
 	for ( ; aConnectL; aConnectL=NextCONNECTL(aConnectL)) {
 		aConnect = GetPACONNECT(aConnectL);
-		aConnect->selected = FALSE;
+		aConnect->selected = False;
 	}
 	
-	LinkSEL(pL) = FALSE;
+	LinkSEL(pL) = False;
 }
 
 static void UpdateMasterConnectsForPart(Document *doc, LINK firstPartL, LINK partL)
@@ -511,7 +511,7 @@ static void UpdateMasterConnectsForPart(Document *doc, LINK firstPartL, LINK par
 		short firstStf = PartFirstSTAFF(partL);
 		short lastStf = PartLastSTAFF(partL);		
 
-		Boolean connectSel = FALSE;
+		Boolean connectSel = False;
 		
 		LINK connectL = SSearch(doc->masterHeadL,CONNECTtype,GO_RIGHT);
 		LINK firstConnL = GetConnectForFirstPart(doc, firstPartL, connectL);
@@ -519,7 +519,7 @@ static void UpdateMasterConnectsForPart(Document *doc, LINK firstPartL, LINK par
 		connectSel = UpdateConnect(connectL, firstPartL, partL);
 		if (connectSel) 
 		{
-			LinkSEL(connectL) = TRUE;
+			LinkSEL(connectL) = True;
 		}
 	}
 	
@@ -556,7 +556,7 @@ static void ClearConnFieldsForRptEnd(LINK rptEndL, LINK aConnRptEndL)
 				LINK aRptEndL = GetRptEndForStaff(rptEndL, i);
 				
 				if (aRptEndL!=NILINK && RptEndCONNABOVE(aRptEndL))
-					RptEndCONNABOVE(aRptEndL) = FALSE;
+					RptEndCONNABOVE(aRptEndL) = False;
 			}
 		}		
 	}
@@ -578,7 +578,7 @@ static void FixRptEndsForPart(LINK firstPartL, LINK rptEndL)
 		for (int i = firstStf+1; i<=lastStf; i++) {
 			LINK aRptEndL = GetRptEndForStaff(rptEndL, i);
 			
-			RptEndCONNABOVE(aRptEndL) = TRUE;
+			RptEndCONNABOVE(aRptEndL) = True;
 		}		
 	}
 	
@@ -601,7 +601,7 @@ static void ClearConnFieldsForPSMeasure(LINK psMeasL, LINK aConnPSMeasL)
 				LINK aPSMeasL = GetPSMeasureForStaff(psMeasL, i);
 				
 				if (aPSMeasL!=NILINK && PSMeasCONNABOVE(aPSMeasL))
-					PSMeasCONNABOVE(aPSMeasL) = FALSE;
+					PSMeasCONNABOVE(aPSMeasL) = False;
 			}
 		}		
 	}
@@ -623,7 +623,7 @@ static void FixPSMeasuresForPart(LINK firstPartL, LINK psMeasL)
 		for (int i = firstStf+1; i<=lastStf; i++) {
 			LINK aPSMeasL = GetPSMeasureForStaff(psMeasL, i);
 			
-			PSMeasCONNABOVE(aPSMeasL) = TRUE;
+			PSMeasCONNABOVE(aPSMeasL) = True;
 		}		
 	}
 	
@@ -646,7 +646,7 @@ static void ClearConnFieldsForMeasure(LINK measL, LINK aConnMeasL)
 				LINK aMeasL = GetMeasureForStaff(measL, i);
 				
 				if (MeasCONNABOVE(aMeasL))
-					MeasCONNABOVE(aMeasL) = FALSE;
+					MeasCONNABOVE(aMeasL) = False;
 			}
 		}		
 	}
@@ -668,7 +668,7 @@ static void FixMeasureForPart(LINK firstPartL, LINK measL)
 		for (int i = firstStf+1; i<=lastStf; i++) {
 			LINK aMeasL = GetMeasureForStaff(measL, i);
 			
-			MeasCONNABOVE(aMeasL) = TRUE;
+			MeasCONNABOVE(aMeasL) = True;
 		}		
 	}
 	
@@ -687,18 +687,18 @@ static void UpdateConnectsForPart(Document *doc, LINK firstPartL, LINK partL)
 		short firstStf = PartFirstSTAFF(partL);
 		short lastStf = PartLastSTAFF(partL);		
 
-		Boolean connectSel = FALSE;
+		Boolean connectSel = False;
 		
 		LINK connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
 		
-		for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,FALSE)) 
+		for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,False)) 
 		{
 			LINK aConnectL = GetConnectForFirstPart(doc, firstPartL, connectL);
 		
 			connectSel = UpdateConnect(connectL, firstPartL, partL);
 			if (connectSel) 
 			{
-				LinkSEL(connectL) = TRUE;
+				LinkSEL(connectL) = True;
 			}				
 		}	
 	}
@@ -707,7 +707,7 @@ static void DelSelectedConnects(Document *doc)
 	{
 		LINK connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
 		
-		for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,FALSE)) 
+		for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,False)) 
 		{
 			Boolean connectSel = LinkSEL(connectL);
 			if (connectSel) 
@@ -724,21 +724,21 @@ static void FixConnStaffsForPart(Document *doc, LINK firstPartL)
 	{
 		LINK measL = SSearch(doc->headL,MEASUREtype,GO_RIGHT);
 		
-		for ( ; measL; measL=LSSearch(RightLINK(measL),MEASUREtype,ANYONE,GO_RIGHT,FALSE)) 
+		for ( ; measL; measL=LSSearch(RightLINK(measL),MEASUREtype,ANYONE,GO_RIGHT,False)) 
 		{
 			FixMeasureForPart(firstPartL, measL);		
 		}
 			
 		LINK rptEndL = SSearch(doc->headL,RPTENDtype,GO_RIGHT);
 		
-		for ( ; rptEndL; rptEndL=LSSearch(RightLINK(rptEndL),RPTENDtype,ANYONE,GO_RIGHT,FALSE)) 
+		for ( ; rptEndL; rptEndL=LSSearch(RightLINK(rptEndL),RPTENDtype,ANYONE,GO_RIGHT,False)) 
 		{
 			FixRptEndsForPart(firstPartL, rptEndL);		
 		}	
 
 		LINK psMeasL = SSearch(doc->headL,PSMEAStype,GO_RIGHT);
 		
-		for ( ; psMeasL; psMeasL=LSSearch(RightLINK(psMeasL),PSMEAStype,ANYONE,GO_RIGHT,FALSE)) 
+		for ( ; psMeasL; psMeasL=LSSearch(RightLINK(psMeasL),PSMEAStype,ANYONE,GO_RIGHT,False)) 
 		{
 			FixPSMeasuresForPart(firstPartL, psMeasL);		
 		}	
@@ -1008,7 +1008,7 @@ static void ExtractToScore(Document *doc, LINK firstPartL, LINK lastPartL)
 		InstallDoc(partDoc);
 			
 		if (cpReformat)
-			ReformatPart(partDoc, cpSpacePercent, TRUE, cpCareMeasPerSys, cpMeasPerSys);
+			ReformatPart(partDoc, cpSpacePercent, True, cpCareMeasPerSys, cpMeasPerSys);
 		else
 			NormalizePartFormat(partDoc);
 		
@@ -1018,7 +1018,7 @@ static void ExtractToScore(Document *doc, LINK firstPartL, LINK lastPartL)
 		SetDefaultSelection(partDoc);
 		partDoc->selStaff = 1;
 		
-		MEAdjustCaret(partDoc, FALSE);		// ??AND REMOVE CALL IN CreatePartDoc!
+		MEAdjustCaret(partDoc, False);		// ??AND REMOVE CALL IN CreatePartDoc!
 		AnalyzeWindows();
 		if (cpCloseAndSave)
 			DoCloseDocument(partDoc);
@@ -1026,14 +1026,14 @@ static void ExtractToScore(Document *doc, LINK firstPartL, LINK lastPartL)
 	
 static void RedrawDocument(Document *doc) 
 	{
-		doc->changed = TRUE;
+		doc->changed = True;
 		EraseAndInval(&doc->viewRect);
 		DoUpdate(doc->theWindow);		
 	}
 	
 /* 
  * Extract parts into separate documents and optionally reformat and/or save them.
- * If all goes well, return TRUE; if theres a problem, return FALSE. 
+ * If all goes well, return True; if theres a problem, return False. 
  */
 Boolean DoCombineParts(Document *doc)
 	{
@@ -1044,9 +1044,9 @@ Boolean DoCombineParts(Document *doc)
 		//LINK partL; 
 		PPARTINFO pPart;
 		LINK selPartList[MAXSTAVES+1];
-		Boolean keepGoing=TRUE;
-		static Boolean inPlace=TRUE, closeAndSave=FALSE, reformat=TRUE;
-		static Boolean firstCall=TRUE, careMeasPerSys;
+		Boolean keepGoing=True;
+		static Boolean inPlace=True, closeAndSave=False, reformat=True;
+		static Boolean firstCall=True, careMeasPerSys;
 		static short measPerSys;
 		short i;
 		
@@ -1082,10 +1082,10 @@ Boolean DoCombineParts(Document *doc)
 		
 		spacePercent = doc->spacePercent;
 		if (!CombinePartsDlog(firstPartName, lastPartName, &inPlace, &closeAndSave, &reformat, &spacePercent))
-			return FALSE;
+			return False;
 
 		if (firstCall) {
-			careMeasPerSys = FALSE; measPerSys = 4; firstCall = FALSE;
+			careMeasPerSys = False; measPerSys = 4; firstCall = False;
 		}
 		
 		DeselAll(doc);
@@ -1111,5 +1111,5 @@ Boolean DoCombineParts(Document *doc)
 		RedrawDocument(doc);
 		
 Done:
-		return TRUE;
+		return True;
 	}

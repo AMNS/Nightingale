@@ -67,7 +67,7 @@ void DoBeamEdit(Document *doc, LINK beamL)
 	InitBeamGrips(&thisBeam);
 	DrawBothGrips(doc);
 	
-	while (TRUE) {
+	while (True) {
 		if (GetNextEvent(updateMask, &beamEventRec)) {
 			if (grip != DRAGBEAM)
 				DrawBothGrips(doc);								/* erase grips */
@@ -169,7 +169,7 @@ void DoBeamEdit(Document *doc, LINK beamL)
 	}
 	
 	if (BlockCompare(&thisBeam, &origBeam, sizeof(BEAMFEEDBACK)))
-		doc->changed = TRUE;
+		doc->changed = True;
 	DrawBothGrips(doc);	
 	MEHideCaret(doc);	
 }
@@ -184,7 +184,7 @@ position: see Ross' book, p. 98ff. But NB: there are four quarter-space position
 besides hang, straddle, sit, there's a "center" position that doesn't touch the staff
 lines; so if <noCenter>, we also avoid the center position.
 
-Returns TRUE if it changes anything, FALSE if not.
+Returns True if it changes anything, False if not.
 
 Not recommended for cross-staff beams: their stems will normally be outside the staff,
 but even if not, this probably doesn't make sense for them. Also, this assumes
@@ -198,7 +198,7 @@ static Boolean QuantizeYStemsForBeam(CONTEXT context, Boolean stemUp, Boolean no
 static Boolean QuantizeYStemsForBeam(
 					CONTEXT context,
 					Boolean stemUp,
-					Boolean noCenter,						/* TRUE=don't allow the "center" position */
+					Boolean noCenter,						/* True=don't allow the "center" position */
 					short ledgerSpaces,						/* How far above/below staff to go (spaces) */
 					DDIST *pFirstystem, DDIST *pLastystem	/* Both inputs and outputs! */
 					)
@@ -215,9 +215,9 @@ static Boolean QuantizeYStemsForBeam(
 	/* If either endpoint is well outside the staff, do nothing. */
 	
 	if (*pFirstystem<-dTolerance || *pFirstystem>context.staffHeight+dTolerance)
-		return FALSE;
+		return False;
 	if (*pLastystem<-dTolerance || *pLastystem>context.staffHeight+dTolerance)
-		return FALSE;
+		return False;
 	
 	origFirstystem = firstystem = *pFirstystem;
 	origLastystem = lastystem = *pLastystem;
@@ -229,7 +229,7 @@ static Boolean QuantizeYStemsForBeam(
 	firstystem = (DDIST)RoundSignedInt((short)firstystem, (short)dQuarterSpace);
 	lastystem = (DDIST)RoundSignedInt((short)lastystem, (short)dQuarterSpace);
 	
-	/* NB: as of v. 3.1b39, <noCenter> is never TRUE, so this code isn't well tested. */
+	/* NB: as of v. 3.1b39, <noCenter> is never True, so this code isn't well tested. */
 	
 	if (noCenter) {
 		centerPos = (stemUp? 1 : 3);
@@ -248,11 +248,11 @@ static Boolean QuantizeYStemsForBeam(
 		lastystem += (lastystem>0? dQuarterSpace : -dQuarterSpace);
 	}
 
-	if (firstystem==origFirstystem && lastystem==origLastystem) return FALSE;
+	if (firstystem==origFirstystem && lastystem==origLastystem) return False;
 
 	*pFirstystem = firstystem;
 	*pLastystem = lastystem;	
-	return TRUE;
+	return True;
 }
 
 
@@ -262,7 +262,7 @@ multiples of a quarter space. This is intended to help get each end of a beam in
 quarter-space positions: besides hang, straddle, sit, there's a "center" position that
 doesn't touch the staff lines; it's up to the user to avoid the center position.
 
-Returns TRUE if it changes anything, FALSE if not.
+Returns True if it changes anything, False if not.
 
 Not recommended for cross-staff beams: their stems will normally be outside the staff,
 but even if not, this probably doesn't make sense for them. Also, this assumes
@@ -309,14 +309,14 @@ static Boolean QuantizeBeamEndYStems(
 	origFirstystem = firstystem;
 	origLastystem = lastystem;
 	
-	if (QuantizeYStemsForBeam(context, !stemDown, FALSE, ledgerSpaces, &firstystem,
+	if (QuantizeYStemsForBeam(context, !stemDown, False, ledgerSpaces, &firstystem,
 			&lastystem)) {
 		*pDeltaFirst = firstystem-origFirstystem;
 		*pDeltaLast = lastystem-origLastystem;
-		return TRUE;
+		return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -560,7 +560,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	GetContext(doc, beamL, lastStaff, &lastContext);
 	sysLeft = firstContext.systemLeft;
 	
-	staffL = LSSearch(lastSyncL, STAFFtype, lastStaff, GO_LEFT, FALSE);
+	staffL = LSSearch(lastSyncL, STAFFtype, lastStaff, GO_LEFT, False);
 	aStaffL = StaffOnStaff(staffL, firstStaff);
 	firstStaffTop = StaffTOP(aStaffL) + firstContext.systemTop;
 	aStaffL = StaffOnStaff(staffL, lastStaff);
@@ -581,19 +581,19 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	/* Fill in BEAMFEEDBACK struct. First, set up leftPt and rightPt. */
 	
 	stemUOD = ( (leftYstem < NoteYD(firstNoteL)) ? STEM_UP : STEM_DOWN );
-	measL = LSSearch(firstSyncL, MEASUREtype, firstStaff, GO_LEFT, FALSE);
+	measL = LSSearch(firstSyncL, MEASUREtype, firstStaff, GO_LEFT, False);
 	if (GraceBEAM(beamL))
-		firstXStem = CalcGRXStem(doc, firstSyncL, voice, stemUOD, LinkXD(measL), &firstContext, TRUE);
+		firstXStem = CalcGRXStem(doc, firstSyncL, voice, stemUOD, LinkXD(measL), &firstContext, True);
 	else
-		firstXStem = CalcXStem(doc, firstSyncL, voice, stemUOD, LinkXD(measL), &firstContext, TRUE);
+		firstXStem = CalcXStem(doc, firstSyncL, voice, stemUOD, LinkXD(measL), &firstContext, True);
 	bm->leftUOD = stemUOD;
 	
 	stemUOD = ( (rightYstem < NoteYD(lastNoteL)) ? STEM_UP : STEM_DOWN );
-	measL = LSSearch(lastSyncL, MEASUREtype, lastStaff, GO_LEFT, FALSE);
+	measL = LSSearch(lastSyncL, MEASUREtype, lastStaff, GO_LEFT, False);
 	if (GraceBEAM(beamL))
-		lastXStem = CalcGRXStem(doc, lastSyncL, voice, stemUOD, LinkXD(measL), &lastContext, FALSE);
+		lastXStem = CalcGRXStem(doc, lastSyncL, voice, stemUOD, LinkXD(measL), &lastContext, False);
 	else
-		lastXStem = CalcXStem(doc, lastSyncL, voice, stemUOD, LinkXD(measL), &lastContext, FALSE);
+		lastXStem = CalcXStem(doc, lastSyncL, voice, stemUOD, LinkXD(measL), &lastContext, False);
 	bm->rightUOD = stemUOD;
 	
 	SetPt(&bm->leftPt, d2p(firstXStem+sysLeft), d2p(firstStaffTop+leftYstem));
@@ -638,7 +638,7 @@ static void SetBeamFeedback(Document *doc, LINK beamL, BEAMFEEDBACK *bm)
 	 
 	xtraWidD = SymDWidthLeft(doc, firstSyncL, firstStaff, firstContext);
 	bm->objRect.left = d2p(sysLeft + SysRelxd(firstSyncL) + NoteXD(firstNoteL) - xtraWidD);
-	xtraWidD = SymDWidthRight(doc, lastSyncL, lastStaff, FALSE, lastContext);
+	xtraWidD = SymDWidthRight(doc, lastSyncL, lastStaff, False, lastContext);
 	bm->objRect.right = d2p(sysLeft + SysRelxd(lastSyncL) + NoteXD(lastNoteL) + xtraWidD);
 
 	/* in case beam has a cross-system extension */
@@ -787,7 +787,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 	PANOTE		qSub;
 	short		h, stemUp, oldStemUp;
 	FASTFLOAT 	fhDiff, fnoteDiff, fyDiff;
-	Boolean		stemDirChange, didFixChordForYStem = FALSE;
+	Boolean		stemDirChange, didFixChordForYStem = False;
 
 	firstSyncL = FirstInBeam(beamL);
 	lastSyncL = LastInBeam(beamL);
@@ -797,7 +797,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 		case RGRIP:
 		case LGRIP:
 			for (h=0, qL=RightLINK(beamL); qL && h<LinkNENTRIES(beamL); qL=RightLINK(qL)) {
-				stemDirChange = FALSE;
+				stemDirChange = False;
 				if (ObjLType(qL)==SYNCtype) {
 					for (qSubL=FirstSubLINK(qL); qSubL; qSubL=NextNOTEL(qSubL)) {
 						if ((NoteVOICE(qSubL)==BeamVOICE(beamL)) && MainNote(qSubL)) {
@@ -822,7 +822,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 						 		qSub->ystem += stemChange;						/* change stem length */
 								if (qSub->ystem>qSub->yd) stemUp = -1;			/* get new stem direction */
 								else stemUp = 1;
-								if (oldStemUp != stemUp) stemDirChange = TRUE;
+								if (oldStemUp != stemUp) stemDirChange = True;
 							}
 							else if (!NoteREST(qSubL))
 								MayErrMsg("FixStemLengths: Unbeamed note in sync %ld where beamed note expected", (long)qL);
@@ -844,7 +844,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 								if (qSub->ystem>qSub->yd) stemUp = -1;
 								else stemUp = 1;
 								FixChordForYStem(qL, NoteVOICE(qSubL), stemUp, qSub->ystem);
-								didFixChordForYStem = TRUE;
+								didFixChordForYStem = True;
 								break;
 							}
 						}
@@ -855,7 +855,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 
 		case DRAGBEAM:
 			for (h=0, qL=RightLINK(beamL); qL && h<LinkNENTRIES(beamL); qL=RightLINK(qL)) {
-				stemDirChange = FALSE;
+				stemDirChange = False;
 				if (ObjLType(qL)==SYNCtype) {
 					for (qSubL=FirstSubLINK(qL); qSubL; qSubL=NextNOTEL(qSubL)) {
 						if ((NoteVOICE(qSubL)==BeamVOICE(beamL)) && MainNote(qSubL)) {
@@ -866,7 +866,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 						 		qSub->ystem += yDiff;						/* change stem length */
 								if (qSub->ystem>qSub->yd) stemUp = -1;		/* get new stem direction */
 								else stemUp = 1;
-								if (oldStemUp != stemUp) stemDirChange = TRUE;
+								if (oldStemUp != stemUp) stemDirChange = True;
 							}
 							else
 								if (!NoteREST(qSubL))
@@ -889,7 +889,7 @@ Boolean FixStemLengths(LINK beamL, DDIST yDiff, short grip)
 								if (qSub->ystem>qSub->yd) stemUp = -1;
 								else stemUp = 1;
 								FixChordForYStem(qL, NoteVOICE(qSubL), stemUp, qSub->ystem);
-								didFixChordForYStem = TRUE;
+								didFixChordForYStem = True;
 								break;
 							}
 						}
@@ -917,7 +917,7 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 	PANOTE		qSub;
 	short		h, stemUp, oldStemUp;
 	FASTFLOAT 	fhDiff, fnoteDiff, fyDiff;
-	Boolean		stemDirChange, didFixChordForYStem = FALSE;
+	Boolean		stemDirChange, didFixChordForYStem = False;
 
 	firstGRSyncL = FirstInBeam(beamL);
 	lastGRSyncL = LastInBeam(beamL);
@@ -927,7 +927,7 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 		case RGRIP:
 		case LGRIP:
 			for (h=0, qL=RightLINK(beamL); qL && h<LinkNENTRIES(beamL); qL=RightLINK(qL)) {
-				stemDirChange = FALSE;
+				stemDirChange = False;
 				if (GRSyncTYPE(qL)) {
 					for (qSubL=FirstSubLINK(qL); qSubL; qSubL=NextGRNOTEL(qSubL)) {
 						if ((GRNoteVOICE(qSubL)==BeamVOICE(beamL)) && GRMainNote(qSubL)) {
@@ -952,7 +952,7 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 						 		qSub->ystem += stemChange;					/* change stem length */
 								if (qSub->ystem>qSub->yd) stemUp = -1;		/* get new stem direction */
 								else stemUp = 1;
-								if (oldStemUp != stemUp) stemDirChange = TRUE;
+								if (oldStemUp != stemUp) stemDirChange = True;
 							}
 							else
 								MayErrMsg("FixGRStemLengths: Unbeamed note in sync %ld where beamed note expected", (long)qL);
@@ -973,7 +973,7 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 								if (qSub->ystem>qSub->yd) stemUp = -1;
 								else stemUp = 1;
 								FixGRChordForYStem(qL, GRNoteVOICE(qSubL), stemUp, qSub->ystem);
-								didFixChordForYStem = TRUE;
+								didFixChordForYStem = True;
 								break;
 							}
 						}
@@ -984,7 +984,7 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 
 		case DRAGBEAM:
 			for (h=0, qL=RightLINK(beamL); qL && h<LinkNENTRIES(beamL); qL=RightLINK(qL)) {
-				stemDirChange = FALSE;
+				stemDirChange = False;
 				if (GRSyncTYPE(qL)) {
 					for (qSubL=FirstSubLINK(qL); qSubL; qSubL=NextGRNOTEL(qSubL)) {
 						if ((GRNoteVOICE(qSubL)==BeamVOICE(beamL)) && GRMainNote(qSubL)) {
@@ -995,7 +995,7 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 						 		qSub->ystem += yDiff;						/* change stem length */
 								if (qSub->ystem>qSub->yd) stemUp = -1;		/* get new stem direction */
 								else stemUp = 1;
-								if (oldStemUp != stemUp) stemDirChange = TRUE;
+								if (oldStemUp != stemUp) stemDirChange = True;
 							}
 							else
 								MayErrMsg("FixGRStemLengths: Unbeamed note in sync %ld where beamed note expected", (long)qL);
@@ -1016,7 +1016,7 @@ Boolean FixGRStemLengths(LINK beamL, DDIST yDiff, short grip)
 								if (qSub->ystem>qSub->yd) stemUp = -1;
 								else stemUp = 1;
 								FixGRChordForYStem(qL, GRNoteVOICE(qSubL), stemUp, qSub->ystem);
-								didFixChordForYStem = TRUE;
+								didFixChordForYStem = True;
 								break;
 							}
 						}

@@ -117,7 +117,7 @@ char *LinkToPtr(HEAP *heap, LINK link)
 
 
 /* Allocate all the object heaps for a given document, with initial free list sizes
-taken from the initialNumbers array, and deliver TRUE or FALSE according to
+taken from the initialNumbers array, and deliver True or False according to
 success or not. */
 
 Boolean InitAllHeaps(Document *doc)
@@ -135,11 +135,11 @@ Boolean InitAllHeaps(Document *doc)
 			hp->nFree = 0;
 			hp->firstFree = NILINK;
 			hp->block = NewHandle(0L);			/* Initially empty data block */
-			if (MemError()) return(FALSE);
-			if (!ExpandFreeList(hp,initialNumbers[i])) return(FALSE);
+			if (MemError()) return(False);
+			if (!ExpandFreeList(hp,initialNumbers[i])) return(False);
 			}
 			
-		return(TRUE);
+		return(True);
 	}
 
 /* Dispose of all heap blocks in a given document record.  This routine can be (but
@@ -159,7 +159,7 @@ void DestroyAllHeaps(Document *doc)
 
 /* This is called to expand the size of a given heap by deltaObjs objects of the
 size associated with the given heap.  It links these into the freelist, and
-delivers TRUE if okay, FALSE on an error (LINK count overflow or memory wasn't
+delivers True if okay, False on an error (LINK count overflow or memory wasn't
 available).  This routine works whether or not there are any free objects left
 in the heap's freelist.
 
@@ -188,7 +188,7 @@ Boolean ExpandFreeList(HEAP *heap,
 		long newSize; unsigned short i;
 		char *p; short err;
 		
-		if (deltaObjs<=0 || heap->objSize<=0) return(TRUE);		/* Do nothing */
+		if (deltaObjs<=0 || heap->objSize<=0) return(True);		/* Do nothing */
 		
 		/*
 		 *	Add extra space for deltaObjs>0 objects at the end of this Heap's block, but
@@ -201,7 +201,7 @@ Boolean ExpandFreeList(HEAP *heap,
 			GetIndCString(str, ErrorStringsID, 16);	/* "The operation failed because the score requires more objects... */
 			CParamText(str, "", "", "");
 			StopInform(GENERIC_ALRT);
-	 				return(FALSE);
+	 				return(False);
  		}
 		
 		/* Temporarily unlock the data block, if necessary, and expand it. */
@@ -216,7 +216,7 @@ Boolean ExpandFreeList(HEAP *heap,
 		SetHandleSize(heap->block,newSize * heap->objSize);
 		err = MemError();
 		if (heap->lockLevel != 0) HLock(heap->block);
-		if (err) return(FALSE);
+		if (err) return(False);
 		
 		/*
 		 *	For all but last added object, link object to following object.
@@ -245,7 +245,7 @@ Boolean ExpandFreeList(HEAP *heap,
 			if (--heap->nFree > 0) heap->firstFree = 1;
 
 		heap->nObjs = newSize;
-		return(TRUE);
+		return(True);
 	}
 
 

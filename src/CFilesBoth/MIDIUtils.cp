@@ -102,7 +102,7 @@ long TiedDur(Document */*doc*/, LINK syncL, LINK aNoteL, Boolean selectedOnly)
 	aNotePrevL = aNoteL;
 	while (NoteTIEDR(aNotePrevL)) {
 		continL = LVSearch(RightLINK(syncPrevL),			/* Tied note should always exist */
-						SYNCtype, voice, GO_RIGHT, FALSE);
+						SYNCtype, voice, GO_RIGHT, False);
 		continNoteL = NoteNum2Note(continL, voice, NoteNUM(aNotePrevL));
 		if (continNoteL==NILINK) break;						/* Should never happen */
 		if (selectedOnly && !NoteSEL(continNoteL)) break;
@@ -158,8 +158,8 @@ short UseMIDINoteNum(Document *doc, LINK aNoteL, short transpose)
 
 /* ------------------------------------------------------------- GetModNREffects -- */
 /* Given a note, if it has any modifiers, get information about how its
-modifiers should affect playback, and return TRUE. If it has no modifiers,
-just return FALSE. NB: The time factor is unimplemented. */
+modifiers should affect playback, and return True. If it has no modifiers,
+just return False. NB: The time factor is unimplemented. */
 
 Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 			short *pTimeFactor)
@@ -168,10 +168,10 @@ Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 	short		velOffset, durFactor, timeFactor;
 
 	if (!config.useModNREffects)
-		return FALSE;
+		return False;
 
 	aModNRL = NoteFIRSTMOD(aNoteL);
-	if (!aModNRL) return FALSE;
+	if (!aModNRL) return False;
 
 	velOffset = 0;
 	durFactor = timeFactor = 100;
@@ -189,7 +189,7 @@ Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 	*pDurFactor = durFactor;
 	*pTimeFactor = timeFactor;
 
-	return TRUE;
+	return True;
 }
 
 
@@ -226,9 +226,9 @@ long GetTempoMM(
 		tempoL = NILINK;
 		tmpL = startL;
 		while (tempoL==NILINK) {
-			tmpL = LSSearch(tmpL, TEMPOtype, ANYONE, GO_LEFT, FALSE);
+			tmpL = LSSearch(tmpL, TEMPOtype, ANYONE, GO_LEFT, False);
 			if (!tmpL) break;
-			if (TempoNOMM(tmpL)==FALSE) tempoL = tmpL;
+			if (TempoNOMM(tmpL)==False) tempoL = tmpL;
 			tmpL = LeftLINK(tmpL);
 		}
 		if (tempoL) timeScale = Tempo2TimeScale(tempoL);
@@ -295,7 +295,7 @@ short MakeTConvertTable(
 			  	/* If no tempo found yet, our initial tempo is the last previous one. */
 			  	
 			  	if (tempoCount==0) {
-					syncL = LSSearch(fromL, SYNCtype, ANYONE, GO_RIGHT, FALSE);
+					syncL = LSSearch(fromL, SYNCtype, ANYONE, GO_RIGHT, False);
 					timeScale = GetTempoMM(doc, syncL);			/* OK even if syncL is NILINK */
 					microbeats = TSCALE2MICROBEATS(timeScale);
 					tConvertTab[0].microbeats = microbeats;
@@ -353,7 +353,7 @@ void StartMIDITime()
 	};
 }
 
-#define TURN_PAGES_WAIT TRUE	/* After "turning" page, TRUE=resume in tempo, FALSE="catch up" */
+#define TURN_PAGES_WAIT True	/* After "turning" page, True=resume in tempo, False="catch up" */
 
 long GetMIDITime(long pageTurnTOffset)
 {
@@ -414,17 +414,17 @@ LogPrintf(LOG_NOTICE,
 (short)(pEvent->note), note, (short)(pEvent->channel), channel, (short)(pEvent->endTime), endTime);
 #endif
 		if (pEvent->note == note && pEvent->channel == channel && pEvent->endTime>endTime)
-			return TRUE;
+			return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
 /*	Insert the specified note into the event list. Exception FIXME: NOT IMPLEMENTED! :
 if _playMaxDur_ and there's already an event for that note no. on the same channel
-with a later end time, do nothing. If we succeed, return TRUE; if we fail (because the
-list is full), give an error message and return FALSE. */
+with a later end time, do nothing. If we succeed, return True; if we fail (because the
+list is full), give an error message and return False. */
 
 static Boolean InsertEvent(short note, SignedByte channel, long endTime, Boolean playMaxDur,
 					short ioRefNum)
@@ -435,7 +435,7 @@ static Boolean InsertEvent(short note, SignedByte channel, long endTime, Boolean
 
 	/* If _playMaxDur_ and there's already an event for that note no. on the same channel
 		with a later end time, we have nothing to do. */
-	// if (playMaxDur && HaveLaterEnding(note, channel, endTime)) return TRUE;
+	// if (playMaxDur && HaveLaterEnding(note, channel, endTime)) return True;
 		
 	/* Find first free slot in list, which may be at lastEvent (end of list) */
 	
@@ -449,7 +449,7 @@ static Boolean InsertEvent(short note, SignedByte channel, long endTime, Boolean
 		pEvent->channel = channel;
 		pEvent->endTime = endTime;
 		pEvent->omsIORefNum = ioRefNum;
-		return TRUE;
+		return True;
 	}
 	else {
 		lastEvent--;
@@ -457,7 +457,7 @@ static Boolean InsertEvent(short note, SignedByte channel, long endTime, Boolean
 		sprintf(strBuf, fmtStr, MAXEVENTLIST);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 }
 
@@ -474,8 +474,8 @@ static void AddToEventList(short note, SignedByte channel, long endTime, long io
 
 /*	Insert the specified note into the event list.  Exception: if _playMaxDur_ and
 there's already an event for that note no. on the same channel with a later end time,
-do nothing. If we succeed, return TRUE; if we fail (because the list is full),
-give an error message and return FALSE. */
+do nothing. If we succeed, return True; if we fail (because the list is full),
+give an error message and return False. */
 
 static Boolean CMInsertEvent(short note, SignedByte channel, long endTime, Boolean playMaxDur,
 					long ioRefNum)
@@ -488,7 +488,7 @@ static Boolean CMInsertEvent(short note, SignedByte channel, long endTime, Boole
 		with a later end time, we have nothing to do. */
 		if (playMaxDur && CMHaveLaterEnding(note, channel, endTime)) {
 //LogPrintf(LOG_NOTICE, "CMInsertEvent: HaveLaterEnding for note=%d\n", note);
-			return TRUE;
+			return True;
 		}
 
 //LogPrintf(LOG_NOTICE, "CMInsertEvent note=%d\n", note);
@@ -505,7 +505,7 @@ LogPrintf(LOG_NOTICE,
 #endif
 		if (pEvent->note == note && pEvent->channel == channel && pEvent->endTime<endTime) {
 			AddToEventList(note, channel, endTime, ioRefNum, pEvent);
-			return TRUE;
+			return True;
 		}
 		if (pEvent->note == 0) break;
 	}
@@ -514,7 +514,7 @@ LogPrintf(LOG_NOTICE,
 	
 	if (i<lastEvent || lastEvent++<MAXEVENTLIST) {
 		AddToEventList(note, channel, endTime, ioRefNum, pEvent);
-		return TRUE;
+		return True;
 	}
 	else {
 		lastEvent--;
@@ -522,13 +522,13 @@ LogPrintf(LOG_NOTICE,
 		sprintf(strBuf, fmtStr, MAXEVENTLIST);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 }
 
 /*	Checks eventList[] to see if any notes are ready to be turned off; if so,
 frees their slots in the eventList and (if we're not using MIDI Manager) turns
-them off. Returns TRUE if the list is empty. */
+them off. Returns True if the list is empty. */
 
 Boolean CheckEventList(long pageTurnTOffset)
 {
@@ -538,10 +538,10 @@ Boolean CheckEventList(long pageTurnTOffset)
 	long		t;
 	
 	t = GetMIDITime(pageTurnTOffset);
-	empty = TRUE;
+	empty = True;
 	for (i=0, pEvent = eventList; i<lastEvent; i++, pEvent++)
 		if (pEvent->note) {
-			empty = FALSE;
+			empty = False;
 			if (pEvent->endTime<=t) {							/* note is done, t = now */
 				EndNoteNow(pEvent->note, pEvent->channel);
 				pEvent->note = 0;								/* slot available now */
@@ -553,7 +553,7 @@ Boolean CheckEventList(long pageTurnTOffset)
 
 /*	Checks eventList[] to see if any notes are ready to be turned off; if so,
 frees their slots in the eventList and (if we're not using MIDI Manager) turns
-them off. Returns TRUE if the list is empty. */
+them off. Returns True if the list is empty. */
 
 Boolean CMCheckEventList(long pageTurnTOffset)
 {
@@ -563,11 +563,11 @@ Boolean CMCheckEventList(long pageTurnTOffset)
 	long		t;
 	
 	t = GetMIDITime(pageTurnTOffset);
-	empty = TRUE;
+	empty = True;
 	for (i=0, pEvent = cmEventList; i<lastEvent; i++, pEvent++)
 		if (pEvent->note) {
 //LogPrintf(LOG_NOTICE, "CMCheckEventList pEvent-note=%d\n", pEvent->note);
-			empty = FALSE;
+			empty = False;
 			if (pEvent->endTime<=t) {							/* note is done, t = now */
 				CMEndNoteNow(pEvent->cmIORefNum, pEvent->note, pEvent->channel);
 				pEvent->note = 0;								/* slot available now */
@@ -700,7 +700,7 @@ OSStatus EndNoteNow(short noteNum, SignedByte channel)
 but end at different times, do we hold the note till the last one ends or stop playing
 the note when the first one ends? Ngale has always done the latter, but the former makes
 more sense in most cases. MULTNOTES_PLAYMAXDUR controls this. */
-#define MULTNOTES_PLAYMAXDUR TRUE		/* Hold the note till the last instance ends? */ 
+#define MULTNOTES_PLAYMAXDUR True		/* Hold the note till the last instance ends? */ 
 
 Boolean EndNoteLater(
 			short noteNum,
@@ -764,13 +764,13 @@ void MMEndNoteAtTime(
 
 
 /* --------------------------------------------------------------- MIDIConnected -- */
-/*	Return TRUE if a MIDI device is connected. */
+/*	Return True if a MIDI device is connected. */
 
 Boolean MIDIConnected()
 {
 	Boolean	result;
 	
-	result = FALSE;								/* FIXME: ABOVE CODE ALWAYS SAYS "TRUE" ?HUH? */
+	result = False;								/* FIXME: ABOVE CODE ALWAYS SAYS "True" ?HUH? */
 	return result;
 }
 
@@ -880,17 +880,17 @@ Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly)
 	LINK aNoteL;
 	INT16 notePartn;
 	
-	if (!LinkSEL(syncL) && selectedOnly) return FALSE;
+	if (!LinkSEL(syncL) && selectedOnly) return False;
 	
 	/* Is _any_ real note in the Sync in an unmuted part? */
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		if (NoteREST(aNoteL)) continue;
 		notePartn = Staff2Part(doc, NoteSTAFF(aNoteL));
-		if (notePartn!=doc->mutedPartNum && !NoteREST(aNoteL)) return TRUE;
+		if (notePartn!=doc->mutedPartNum && !NoteREST(aNoteL)) return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -901,13 +901,13 @@ Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly)
 {
 	INT16 notePartn;
 
-	if (!NoteSEL(aNoteL) && selectedOnly) return FALSE;
+	if (!NoteSEL(aNoteL) && selectedOnly) return False;
 	
-	if (NoteREST(aNoteL)) return FALSE;
+	if (NoteREST(aNoteL)) return False;
 	notePartn = Staff2Part(doc, NoteSTAFF(aNoteL));
-	if (notePartn==doc->mutedPartNum) return FALSE;
+	if (notePartn==doc->mutedPartNum) return False;
 	
-	return TRUE;
+	return True;
 }
 
 

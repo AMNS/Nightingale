@@ -32,7 +32,7 @@ but she recommends a fixed angle, and that's what we do, */
 
 static void DrawSlashes(DDIST xdh, DDIST ydh,
 					short nslashes,
-					Boolean centerAroundNote,	/* TRUE=horizontally center at note center, else at stem */
+					Boolean centerAroundNote,	/* True=horizontally center at note center, else at stem */
 					Boolean stemUp,
 					PCONTEXT pContext,
 					Boolean dim
@@ -134,7 +134,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 				case MOD_DOWNBOW:
 				case MOD_HEAVYACC_STACC:
 				case MOD_LONG_INVMORDENT:
-					if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
+					if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, True);
 					else		DrawChar(glyph);
 					break;
 				case MOD_CIRCLE:
@@ -145,7 +145,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 				case 4:
 				case 5:
 					TextSize(useTxSize);
-					if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, TRUE);
+					if (dim)	DrawMChar(doc, glyph, NORMAL_VIS, True);
 					else		DrawChar(glyph);
 					TextSize(oldTxSize);
 					break;
@@ -178,7 +178,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 				case 3:
 				case 4:
 				case 5:
-					PS_MusChar(doc, xdh, yd, glyph, TRUE, sizePercent);
+					PS_MusChar(doc, xdh, yd, glyph, True, sizePercent);
 					break;
 				default:
 					;
@@ -342,7 +342,7 @@ static void DrawAugDots(Document *doc,
 			if (doc->srastral==7) ydDots += pt2d(1)/8;				/* Tiny empirical correction */
 			while (ndots>0) {
 				xdDots += 2*dhalfLn;
-				PS_MusChar(doc, xdDots, ydDots, glyph, TRUE, 100);
+				PS_MusChar(doc, xdDots, ydDots, glyph, True, 100);
 				ndots--;
 			}
 			break;
@@ -458,12 +458,12 @@ void DrawAcc(Document *doc,
 
 			break;
 		case toPostScript:
-			PS_MusChar(doc, xdAcc, yd, accGlyph, TRUE, sizePercent);
+			PS_MusChar(doc, xdAcc, yd, accGlyph, True, sizePercent);
 
 			/* If it's a courtesy accidental, draw parentheses around it. */
 			if (theNote->courtesyAcc) {
-				PS_MusChar(doc, xdLParen, ydParens, lparenGlyph, TRUE, scalePercent);
-				PS_MusChar(doc, xdRParen, ydParens, rparenGlyph, TRUE, scalePercent);
+				PS_MusChar(doc, xdLParen, ydParens, lparenGlyph, True, scalePercent);
+				PS_MusChar(doc, xdRParen, ydParens, rparenGlyph, True, scalePercent);
 			}
 
 			break;
@@ -845,8 +845,8 @@ void DrawNote(Document *doc,
 				LINK	pL,				/* Sync note belongs to */
 				PCONTEXT pContext,		/* Current context[] entry */
 				LINK	aNoteL,			/* Subobject (note) to draw */
-				Boolean	*drawn,			/* FALSE until a subobject has been drawn */
-				Boolean	*recalc			/* TRUE if we need to recalc enclosing rectangle */
+				Boolean	*drawn,			/* False until a subobject has been drawn */
+				Boolean	*recalc			/* True if we need to recalc enclosing rectangle */
 				)	
 {
 	PANOTE		aNote, bNote;
@@ -1172,7 +1172,7 @@ EndQDrawing:
 			if (*drawn)
 				UnionRect(&LinkOBJRECT(pL), &rSub, &LinkOBJRECT(pL));
 			else {
-				*drawn = TRUE;
+				*drawn = True;
 				LinkOBJRECT(pL) = rSub;
 			}
 		}
@@ -1186,7 +1186,7 @@ EndQDrawing:
 
 		/* First draw any accidental symbol to left of note */
 		 
-		DrawAcc(doc, pContext, aNoteL, xdNorm, yd, FALSE, sizePercent, chordNoteToL);
+		DrawAcc(doc, pContext, aNoteL, xdNorm, yd, False, sizePercent, chordNoteToL);
 
 		/*
 		 *	If note is not a stemless note in a chord, add any ledger lines needed:
@@ -1217,10 +1217,10 @@ EndQDrawing:
 			 *	UNKNOWN DURATION, WHOLE NOTE, OR BREVE
 			 */
 			if (noteType==UNKNOWN_L_DUR)
-				PS_NoteStem(doc, xd+xoff, yd+yoff, xd+xoff, glyph, (DDIST)0, (DDIST)0, FALSE,
+				PS_NoteStem(doc, xd+xoff, yd+yoff, xd+xoff, glyph, (DDIST)0, (DDIST)0, False,
 								appearance!=NO_VIS, headSizePct);
 			else if (noteType<=WHOLE_L_DUR)
-				PS_NoteStem(doc, xd+xoff, yd+yoff+breveFudgeHeadY, xd+xoff, glyph, (DDIST)0, (DDIST)0, FALSE,
+				PS_NoteStem(doc, xd+xoff, yd+yoff+breveFudgeHeadY, xd+xoff, glyph, (DDIST)0, (DDIST)0, False,
 							appearance!=NO_VIS, headSizePct);
 			
 			else {
@@ -1249,23 +1249,23 @@ EndQDrawing:
 							switch (flagCount) {
 								case 1:
 									PS_MusChar(doc, xd, ypStem, stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp,
-												TRUE, sizePercent);
+												True, sizePercent);
 									break;
 								case 2:
-									PS_MusChar(doc, xd, ypStem, stemDown? MCH_16thFlagDown : MCH_16thFlagUp, TRUE, sizePercent);
+									PS_MusChar(doc, xd, ypStem, stemDown? MCH_16thFlagDown : MCH_16thFlagUp, True, sizePercent);
 									break;
 								default:
 									if (stemDown) {
 										ypStem = yd + dStemLen;
 										while (flagCount-- > 0) {
-											PS_MusChar(doc, xd, ypStem, MCH_extendFlagDown, TRUE, sizePercent);
+											PS_MusChar(doc, xd, ypStem, MCH_extendFlagDown, True, sizePercent);
 											ypStem -= FlagLeading(lnSpace);
 											}
 										}
 									 else {
 										ypStem = yd + dStemLen;
 										while (flagCount-- > 0) {
-											PS_MusChar(doc, xd, ypStem, MCH_extendFlagUp, TRUE, sizePercent);
+											PS_MusChar(doc, xd, ypStem, MCH_extendFlagUp, True, sizePercent);
 											ypStem += FlagLeading(lnSpace);
 											}
 										}
@@ -1284,14 +1284,14 @@ EndQDrawing:
 																	(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, True, sizePercent);
 							}
 							else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 								flagGlyph = MapMusChar(doc->musFontInfoIndex, 
 																	(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, True, sizePercent);
 							}
 							else {
 								DDIST ypos;
@@ -1310,7 +1310,7 @@ EndQDrawing:
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
 								ypos = ydStem;
 								while (count-- > 1) {
-									PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff, flagGlyph, TRUE, sizePercent);
+									PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff, flagGlyph, True, sizePercent);
 									ypos += flagLeading;
 								}
 
@@ -1326,7 +1326,7 @@ EndQDrawing:
 								}
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff+flagLeading, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff+flagLeading, flagGlyph, True, sizePercent);
 							}
 						}
 					}
@@ -1417,7 +1417,7 @@ static void DrawMBRest(Document *doc, PCONTEXT pContext,
 				LineTo(restBar.right, pContext->paper.top+d2p(endTop));
 	
 				MoveTo(pContext->paper.left+d2p(xdNum), pContext->paper.top+d2p(ydNum));
-				if (dim) DrawMString(doc, numStr, NORMAL_VIS, TRUE);
+				if (dim) DrawMString(doc, numStr, NORMAL_VIS, True);
 				else		DrawString(numStr);
 	
 				PenNormal();
@@ -1448,8 +1448,8 @@ void DrawRest(Document *doc,
 				LINK pL,
 				PCONTEXT pContext,	/* current context[] entry */
 				LINK aRestL,		/* current subobject */
-				Boolean *drawn,		/* FALSE until a subobject has been drawn */
-				Boolean *recalc		/* TRUE if we need to recalc enclosing rectangle */
+				Boolean *drawn,		/* False until a subobject has been drawn */
+				Boolean *recalc		/* True if we need to recalc enclosing rectangle */
 				)
 {
 	PANOTE		aRest;
@@ -1559,7 +1559,7 @@ PushLock(NOTEheap);
 					Line(d2p(LedgerLen(lnSpace)+LedgerOtherLen(lnSpace)),0);
 				}
 				DrawModNR(doc, aRestL, xd, pContext);					/* Draw all modifiers */
-				DrawAugDots(doc, aRestL, xd, ydNorm, pContext, FALSE);
+				DrawAugDots(doc, aRestL, xd, ydNorm, pContext, False);
 	
 				/* If we're supposed to draw stemlets on beamed rests, do so. */
 				
@@ -1606,7 +1606,7 @@ PushLock(NOTEheap);
 			if (*drawn)
 				UnionRect(&LinkOBJRECT(pL), &rSub, &LinkOBJRECT(pL));
 			else {
-				*drawn = TRUE;
+				*drawn = True;
 				LinkOBJRECT(pL) = rSub;
 			}
 		}
@@ -1618,17 +1618,17 @@ PushLock(NOTEheap);
 	
 		if (appearance!=NO_VIS) {
 			if (aRest->subType<WHOLEMR_L_DUR)
-				DrawMBRest(doc, pContext, aRestL, xd, yd, appearance, FALSE, &rSub);
+				DrawMBRest(doc, pContext, aRestL, xd, yd, appearance, False, &rSub);
 			else {
 				glyph = MapMusChar(doc->musFontInfoIndex, glyph);
 				restxd += SizePercentSCALE(MusCharXOffset(doc->musFontInfoIndex, glyph, lnSpace));
 				restyd += SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, glyph, lnSpace));
-				PS_MusChar(doc, restxd, restyd, glyph, TRUE, sizePercent);
+				PS_MusChar(doc, restxd, restyd, glyph, True, sizePercent);
 				if (xledg)
 					PS_LedgerLine(yd-yledg,xd-xledg,LedgerLen(lnSpace)+LedgerOtherLen(lnSpace));
 
 				/*	Rest drawn: now add augmentation dots, if any */
-				DrawAugDots(doc, aRestL, xd, ydNorm, pContext, FALSE);
+				DrawAugDots(doc, aRestL, xd, ydNorm, pContext, False);
 			}
 		}
 		
@@ -1680,12 +1680,12 @@ void DrawSYNC(Document *doc, LINK pL, CONTEXT context[])
 	PANOTE		aNote;
 	LINK		aNoteL;
 	PCONTEXT	pContext;
-	Boolean		drawn;				/* FALSE until a subobject has been drawn */
-	Boolean		recalc;				/* TRUE if we need to recalc enclosing rectangle */
+	Boolean		drawn;				/* False until a subobject has been drawn */
+	Boolean		recalc;				/* True if we need to recalc enclosing rectangle */
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 	
-	drawn = FALSE;
+	drawn = False;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);
 	
 	aNoteL = FirstSubLINK(pL);
@@ -1701,7 +1701,7 @@ void DrawSYNC(Document *doc, LINK pL, CONTEXT context[])
 		}
 	}
 
-	if (recalc) LinkVALID(pL) = TRUE;
+	if (recalc) LinkVALID(pL) = True;
 	if (LinkSEL(pL))
 		if (doc->showFormat)
 			CheckSYNC(doc, pL, context, NULL, SMFind, stfRange, enlarge, enlarge);
@@ -1799,12 +1799,12 @@ static void DrawGRAcc(Document *doc,
 			
 			break;
 		case toPostScript:
-			PS_MusChar(doc, xdAcc, yd, accGlyph, TRUE, sizePercent);
+			PS_MusChar(doc, xdAcc, yd, accGlyph, True, sizePercent);
 
 			/* If it's a courtesy accidental, draw parentheses around it. */
 			if (theGRNote->courtesyAcc) {
-				PS_MusChar(doc, xdLParen, ydParens, lparenGlyph, TRUE, scalePercent);
-				PS_MusChar(doc, xdRParen, ydParens, rparenGlyph, TRUE, scalePercent);
+				PS_MusChar(doc, xdLParen, ydParens, lparenGlyph, True, scalePercent);
+				PS_MusChar(doc, xdRParen, ydParens, rparenGlyph, True, scalePercent);
 			}
 			
 			break;
@@ -1864,8 +1864,8 @@ void DrawGRNote(Document *doc,
 						LINK pL,			/* GRSYNC grace note belongs to */
 						PCONTEXT pContext,	/* current context[] entry */
 						LINK aGRNoteL,		/* Subobject (grace note) to draw */
-						Boolean	*drawn,		/* FALSE until a subobject has been drawn */
-						Boolean	*recalc)	/* TRUE if we need to recalc enclosing rectangle */
+						Boolean	*drawn,		/* False until a subobject has been drawn */
+						Boolean	*recalc)	/* True if we need to recalc enclosing rectangle */
 {
 	PAGRNOTE	aGRNote;
 	short		flagCount,			/* number of flags on grace note */
@@ -1955,14 +1955,14 @@ glyph TO GET HEADWIDTH! THE SAME GOES FOR DrawMODNR AND DrawRest. */
 	/*	Suppress flags if the grace note is beamed. */
 	flagCount = (aGRNote->beamed? 0 : NFLAGS(aGRNote->subType));
 
-	slashStem = FALSE;
+	slashStem = False;
 	if (config.slashGraceStems!=0) {
-		if (flagCount==1) slashStem = TRUE;
+		if (flagCount==1) slashStem = True;
 		else {
 			if (config.slashGraceStems>1 && aGRNote->beamed) {
 				voice = GRNoteVOICE(aGRNoteL);
-				beamL = LVSearch(pL, BEAMSETtype, voice, GO_LEFT, FALSE);	/* Should always succeed */
-				if (pL==FirstInBeam(beamL)) slashStem = TRUE;
+				beamL = LVSearch(pL, BEAMSETtype, voice, GO_LEFT, False);	/* Should always succeed */
+				if (pL==FirstInBeam(beamL)) slashStem = True;
 			}
 		}
 	}
@@ -2191,7 +2191,7 @@ EndQDrawing:
 			if (*drawn)
 				UnionRect(&LinkOBJRECT(pL), &rSub, &LinkOBJRECT(pL));
 			else {
-				*drawn = TRUE;
+				*drawn = True;
 				LinkOBJRECT(pL) = rSub;
 			}
 		}
@@ -2204,7 +2204,7 @@ EndQDrawing:
 
 		/* First draw any accidental symbol to left of grace note */
 		 
-		DrawGRAcc(doc, pContext, aGRNoteL, xdNorm, yd, FALSE, sizePercent);
+		DrawGRAcc(doc, pContext, aGRNoteL, xdNorm, yd, False, sizePercent);
 
 		/*
 		 * If grace note is not a stemless note in a chord, draw any ledger lines needed
@@ -2265,23 +2265,23 @@ EndQDrawing:
 							switch (flagCount) {
 								case 1:
 									PS_MusChar(doc, xd, ypStem, stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp,
-												TRUE, sizePercent);
+												True, sizePercent);
 									break;
 								case 2:
-									PS_MusChar(doc, xd, ypStem, stemDown? MCH_16thFlagDown : MCH_16thFlagUp, TRUE, sizePercent);
+									PS_MusChar(doc, xd, ypStem, stemDown? MCH_16thFlagDown : MCH_16thFlagUp, True, sizePercent);
 									break;
 								default:
 									if (stemDown) {
 										ypStem = yd + dStemLen;
 										while (flagCount-- > 0) {
-											PS_MusChar(doc, xd, ypStem, MCH_extendFlagDown, TRUE, sizePercent);
+											PS_MusChar(doc, xd, ypStem, MCH_extendFlagDown, True, sizePercent);
 											ypStem -= FlagLeading(lnSpace);
 											}
 										}
 									 else {
 										ypStem = yd + dStemLen;
 										while (flagCount-- > 0) {
-											PS_MusChar(doc, xd, ypStem, MCH_extendFlagUp, TRUE, sizePercent);
+											PS_MusChar(doc, xd, ypStem, MCH_extendFlagUp, True, sizePercent);
 											ypStem += FlagLeading(lnSpace);
 											}
 										}
@@ -2300,14 +2300,14 @@ EndQDrawing:
 																	(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, True, sizePercent);
 							}
 							else if (flagCount==2 && MusFontHas16thFlag(doc->musFontInfoIndex)) {	/* Draw 16th flag using one flag char. */
 								flagGlyph = MapMusChar(doc->musFontInfoIndex, 
 																	(stemDown? MCH_16thFlagDown : MCH_16thFlagUp));
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ydStem+yoff, flagGlyph, True, sizePercent);
 							}
 							else {
 								DDIST ypos;
@@ -2326,7 +2326,7 @@ EndQDrawing:
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
 								ypos = ydStem;
 								while (count-- > 1) {
-									PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff, flagGlyph, TRUE, sizePercent);
+									PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff, flagGlyph, True, sizePercent);
 									ypos += flagLeading;
 								}
 
@@ -2342,7 +2342,7 @@ EndQDrawing:
 								}
 								xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
 								yoff = SizePercentSCALE(MusCharYOffset(doc->musFontInfoIndex, flagGlyph, lnSpace));
-								PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff+flagLeading, flagGlyph, TRUE, sizePercent);
+								PS_MusChar(doc, xd+xoff+dHeadWidth, ypos+yoff+flagLeading, flagGlyph, True, sizePercent);
 							}
 						}
 					}
@@ -2383,10 +2383,10 @@ void DrawGRSYNC(Document *doc, LINK pL, CONTEXT context[])
 	PAGRNOTE	aGRNote;
 	LINK		aGRNoteL;
 	PCONTEXT	pContext;
-	Boolean		drawn;			/* FALSE until a subobject has been drawn */
-	Boolean		recalc;			/* TRUE if we need to recalc enclosing rectangle */
+	Boolean		drawn;			/* False until a subobject has been drawn */
+	Boolean		recalc;			/* True if we need to recalc enclosing rectangle */
 	
-	drawn = FALSE;
+	drawn = False;
 	recalc = (!LinkVALID(pL) && outputTo==toScreen);
 	
 	aGRNoteL = FirstSubLINK(pL);
@@ -2399,7 +2399,7 @@ void DrawGRSYNC(Document *doc, LINK pL, CONTEXT context[])
 		}
 	}
 
-	if (recalc) LinkVALID(pL) = TRUE;
+	if (recalc) LinkVALID(pL) = True;
 #ifdef USE_HILITESCORERANGE
 	if (LinkSEL(pL)) CheckGRSYNC(doc, pL, context, NULL, SMHilite, stfRange, enlarge);
 #endif

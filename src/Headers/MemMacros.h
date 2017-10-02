@@ -738,7 +738,7 @@
    that condition makes it possible for FixCrossSysSlurs to use SlurFirstIsSYSTEM. */
  
 #define _SlurFirstSYSTEM(pL)		( (SystemTYPE(SlurLASTSYNC(pL))) )			/* Boolean, not link */
-#define SlurFirstIsSYSTEM(pL)		(SlurLASTSYNC(pL)? _SlurFirstSYSTEM(pL) : TRUE)	/* Boolean, not link */		
+#define SlurFirstIsSYSTEM(pL)		(SlurLASTSYNC(pL)? _SlurFirstSYSTEM(pL) : True)	/* Boolean, not link */		
 #define SlurKNOT(link)				( (GetPASLUR(link))->seg.knot)
 #define SlurLASTIND(link)			( (GetPASLUR(link))->lastInd)	
 #define SlurLASTSYNC(link)	 		( (GetPSLUR(link))->lastSyncL )		

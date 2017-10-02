@@ -41,10 +41,10 @@ void CreateGRBeams(Document *doc, short v)
 	LINK beamL; short nBeamable;
 
 	beamL=NILINK;
-	nBeamable = CountGRBeamable(doc, doc->selStartL, doc->selEndL, v, TRUE);
+	nBeamable = CountGRBeamable(doc, doc->selStartL, doc->selEndL, v, True);
 	if (nBeamable>1)
 		beamL = CreateGRBEAMSET(doc, doc->selStartL, doc->selEndL, v,
-						nBeamable, TRUE, TRUE);
+						nBeamable, True, True);
 
 	if (beamL)
 		if (doc->selStartL==FirstInBeam(beamL))				/* Does sel. start at beam's 1st note? */
@@ -73,7 +73,7 @@ static void SetBeamGRNoteStems(Document *, LINK, short, short, LINK [], LINK [],
 static LINK AddNewGRBeam(Document *doc, LINK startL, short v, short nInBeam,
 									short *staff,
 									Boolean needSel,
-									Boolean leaveSel	/* TRUE=leave the new Beamset selected */
+									Boolean leaveSel	/* True=leave the new Beamset selected */
 									)
 {
 	SearchParam pbSearch; LINK beamL; PBEAMSET beamp;
@@ -82,23 +82,23 @@ static LINK AddNewGRBeam(Document *doc, LINK startL, short v, short nInBeam,
 	pbSearch.id = ANYONE;
 	pbSearch.voice = v;
 	pbSearch.needSelected = needSel;
-	pbSearch.inSystem = FALSE;
+	pbSearch.inSystem = False;
 	startL = L_Search(startL, GRSYNCtype, GO_RIGHT, &pbSearch);
 	*staff = GRNoteSTAFF(pbSearch.pEntry);
 
 	beamL = InsertNode(doc, startL, BEAMSETtype, nInBeam);
 	if (beamL) {
-		SetObject(beamL, 0, 0, FALSE, TRUE, FALSE);
+		SetObject(beamL, 0, 0, False, True, False);
 		beamp = GetPBEAMSET(beamL);
-		beamp->tweaked = FALSE;
+		beamp->tweaked = False;
 		beamp->staffn = *staff;
 		beamp->voice = v;
-		if (leaveSel) beamp->selected = TRUE;
+		if (leaveSel) beamp->selected = True;
 		beamp->feather = beamp->thin = 0;
-		beamp->grace = TRUE;
-		beamp->beamRests = FALSE;
+		beamp->grace = True;
+		beamp->beamRests = False;
 		
-		doc->changed = TRUE;
+		doc->changed = True;
 	}
 	else
 		NoMoreMemory();
@@ -107,19 +107,19 @@ static LINK AddNewGRBeam(Document *doc, LINK startL, short v, short nInBeam,
 }
 
 /* --------------------------------------------------------------- GetGRCrossStaff -- */
-/* If the given grace notes are all on the same staff, return FALSE; else fill in the
-stfRange and return TRUE. In the latter case, we assume the grace notes are on only
+/* If the given grace notes are all on the same staff, return False; else fill in the
+stfRange and return True. In the latter case, we assume the grace notes are on only
 two different staves; we don't check this, nor that the staves are consecutive. */
 
 static Boolean GetGRCrossStaff(short nElem, LINK grNotes[], STFRANGE *stfRange)
 {
-	short i, firstStaff, stf; STFRANGE theRange; Boolean crossStaff=FALSE;
+	short i, firstStaff, stf; STFRANGE theRange; Boolean crossStaff=False;
 	
 	firstStaff = GRNoteSTAFF(grNotes[0]);
 	theRange.topStaff = theRange.bottomStaff = firstStaff;
 	for (i=0; i<nElem; i++)
 		if ((stf = GRNoteSTAFF(grNotes[i]))!=firstStaff) {
-			crossStaff = TRUE;
+			crossStaff = True;
 			if (stf<theRange.topStaff) theRange.topStaff = stf;
 			else if (stf>theRange.bottomStaff) theRange.bottomStaff = stf;
 		}
@@ -144,10 +144,10 @@ static short GetGRBeamXStf(LINK beamL, short bel, LINK GRNoteInSync[], STFRANGE 
 		}
 		else {
 			BeamSTAFF(beamL) = theRange->topStaff;
-			beamp->crossStaff = TRUE;
+			beamp->crossStaff = True;
 		}
 	}
-	else beamp->crossStaff = FALSE;
+	else beamp->crossStaff = False;
 
 	return crossStaff;
 }
@@ -198,13 +198,13 @@ static DDIST CalcGRBeamYLevel(
 				maxYHead = n_max(maxYHead, aGRNote->yd);
 				minYHead = n_min(minYHead, aGRNote->yd);
 				trystem = CalcYStem(doc, aGRNote->yd,						/* Get upstem end pos. */
-							  		NFLAGS(aGRNote->subType), FALSE, stfHeight, stfLines,
-							  		config.stemLenGrace, FALSE);
+							  		NFLAGS(aGRNote->subType), False, stfHeight, stfLines,
+							  		config.stemLenGrace, False);
 				abovePos = n_min(abovePos, trystem);
 				aGRNote = GetPAGRNOTE(aGRNoteL);
 				trystem = CalcYStem(doc, aGRNote->yd,						/* Get downstem end pos. */
-							  		NFLAGS(aGRNote->subType), TRUE, stfHeight, stfLines,
-							  		config.stemLenGrace, FALSE);
+							  		NFLAGS(aGRNote->subType), True, stfHeight, stfLines,
+							  		config.stemLenGrace, False);
 				belowPos = n_max(belowPos, trystem);
 			}
 		}
@@ -212,14 +212,14 @@ static DDIST CalcGRBeamYLevel(
 	
 	if (stemDown) {
 		belowPos = n_max(belowPos,
-							CalcYStem(doc, minYHead, 0, TRUE, stfHeight, stfLines,
-											config.stemLenGrace, FALSE));
+							CalcYStem(doc, minYHead, 0, True, stfHeight, stfLines,
+											config.stemLenGrace, False));
 		return belowPos;													/* Beam below notes */
 	}
 	else {
 		abovePos = n_min(abovePos,
-							CalcYStem(doc, maxYHead, 0, FALSE, stfHeight, stfLines,
-											config.stemLenGrace, FALSE));
+							CalcYStem(doc, maxYHead, 0, False, stfHeight, stfLines,
+											config.stemLenGrace, False));
 		return abovePos;													/* Beam above notes */
 	}
 }
@@ -341,7 +341,7 @@ static void SetBeamGRNoteStems(Document *doc, LINK beamL,
 			aNoteBeam->startend = 0;
 
 		aNoteBeam->fracs = 0;
-		aNoteBeam->fracGoLeft = FALSE;
+		aNoteBeam->fracGoLeft = False;
 	}
 }
 
@@ -358,8 +358,8 @@ LINK CreateGRBEAMSET(Document *doc,
 						LINK startL, LINK endL,
 						short v,
 						short nInBeam,
-						Boolean needSel,		/* TRUE if we only want selected items */
-						Boolean doBeam			/* TRUE if we are explicitly beaming notes (so beamset will be selected) */
+						Boolean needSel,		/* True if we only want selected items */
+						Boolean doBeam			/* True if we are explicitly beaming notes (so beamset will be selected) */
 						)
 {
 	short			staff;
@@ -370,17 +370,17 @@ LINK CreateGRBEAMSET(Document *doc,
 	PBEAMSET		pBeam;
 	DDIST			ystem, stfHeight;
 	short			stfLines;
-	Boolean		crossStaff;					/* TRUE if beam is cross-staff */
+	Boolean		crossStaff;					/* True if beam is cross-staff */
 	STFRANGE		theRange;					/* The range of staves occupied by a crossStaff beam */
 	short			returnCode;
 
-	returnCode = CheckBeamVars(nInBeam, FALSE, 0, 0);
+	returnCode = CheckBeamVars(nInBeam, False, 0, 0);
 	if (BAD_CODE(returnCode)) return NILINK;
 
 	/* Add the beamset object to the data structure. */
 	beamL = AddNewGRBeam(doc, startL, v, nInBeam, &staff, needSel, doBeam);
 	pBeam = GetPBEAMSET(beamL);
-	pBeam->crossSystem = pBeam->firstSystem = FALSE;
+	pBeam->crossSystem = pBeam->firstSystem = False;
 
 	/* Fill in the arrays of sync and note LINKs for the benefit of beam subObjs. */
 	if (!GetBeamGRSyncs(doc, startL, endL, v, nInBeam, bpGRSync, GRNoteInSync, needSel))
@@ -391,7 +391,7 @@ LINK CreateGRBEAMSET(Document *doc,
 	if (crossStaff) return NILINK;
 
 	/* Get the y level of the beamset and set the note stems of the beamset's notes. */
-	staffL = LSSearch(startL, STAFFtype, staff, TRUE, FALSE);
+	staffL = LSSearch(startL, STAFFtype, staff, True, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
 		aStaff = GetPASTAFF(aStaffL);
@@ -401,7 +401,7 @@ LINK CreateGRBEAMSET(Document *doc,
 		}
 	} 
 	ystem = CalcGRBeamYLevel(doc, nInBeam, bpGRSync, GRNoteInSync, stfHeight, stfLines,
-								crossStaff, FALSE);
+								crossStaff, False);
 	SetBeamGRNoteStems(doc, beamL, v, nInBeam, bpGRSync, GRNoteInSync, ystem,
 									theRange, crossStaff);
 
@@ -440,13 +440,13 @@ void GRUnbeamx(Document *doc, LINK fromL, LINK toL, short voice)
 		beamFromL = FirstInBeam(lBeamL);
 		if (GRUnbeamRange(doc, beamFromL, RightLINK(LastInBeam(lBeamL)), voice))
 			InvalMeasures(beamFromL, RightLINK(LastInBeam(lBeamL)), ANYONE);				/* Force redrawing all affected measures */
-		if ( (nInBeam = CountGRBeamable(doc, beamFromL, fromL, voice, FALSE)) >=2 ) {	/* Beam remainder */
-			newBeamL = CreateGRBEAMSET(doc, beamFromL, fromL, voice, nInBeam, FALSE,
+		if ( (nInBeam = CountGRBeamable(doc, beamFromL, fromL, voice, False)) >=2 ) {	/* Beam remainder */
+			newBeamL = CreateGRBEAMSET(doc, beamFromL, fromL, voice, nInBeam, False,
 												doc->voiceTab[voice].voiceRole);	/* ??LAST PARAM?? */
 			if (crossSys && !firstSys) {
 				newBeam = GetPBEAMSET(newBeamL);
-				newBeam->crossSystem = TRUE;
-				newBeam->firstSystem = FALSE;
+				newBeam->crossSystem = True;
+				newBeam->firstSystem = False;
 			}
 					
 		}
@@ -459,12 +459,12 @@ void GRUnbeamx(Document *doc, LINK fromL, LINK toL, short voice)
 			if (GRUnbeamRange(doc, FirstInBeam(rBeamL), beamToL, voice))
 				InvalMeasures(FirstInBeam(rBeamL), beamToL, ANYONE);						/* Force redrawing all affected measures */
 		}
-		if ( (nInBeam = CountGRBeamable(doc, toL, beamToL, voice, FALSE)) >=2 ) {	/* Beam remainder */
-			newBeamL = CreateGRBEAMSET(doc, toL, beamToL, voice, nInBeam, FALSE,
+		if ( (nInBeam = CountGRBeamable(doc, toL, beamToL, voice, False)) >=2 ) {	/* Beam remainder */
+			newBeamL = CreateGRBEAMSET(doc, toL, beamToL, voice, nInBeam, False,
 												doc->voiceTab[voice].voiceRole);
 			if (crossSys && firstSys) {
 				newBeam = GetPBEAMSET(newBeamL);
-				newBeam->crossSystem = newBeam->firstSystem = TRUE;
+				newBeam->crossSystem = newBeam->firstSystem = True;
 			}
 		}		
 	}
@@ -481,27 +481,27 @@ void GRUnbeamx(Document *doc, LINK fromL, LINK toL, short voice)
 void FixGRStem(Document *doc, LINK syncL, LINK grNoteL, CONTEXT context)
 {
 		if (GRNoteINCHORD(grNoteL))
-			FixGRSyncForChord(doc, syncL, GRNoteVOICE(grNoteL), FALSE, 0, 0, &context);
+			FixGRSyncForChord(doc, syncL, GRNoteVOICE(grNoteL), False, 0, 0, &context);
 		else
 			FixGRSyncNote(doc, syncL, GRNoteVOICE(grNoteL), &context);
 }
 
 /* Unbeam every beamed grace note within the range and voice. If we actually find
-any, return TRUE. */
+any, return True. */
 
 Boolean GRUnbeamRange(Document *doc, LINK fromL, LINK toL, short voice)
 {
 	LINK			pL, beamL, noteBeamL, syncL, aGRNoteL, bGRNoteL;
 	PANOTEBEAM	pNoteBeam;
 	SearchParam	pbSearch;
-	Boolean		didAnything=FALSE, needContext=TRUE;
+	Boolean		didAnything=False, needContext=True;
 	CONTEXT		context;
 	
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.voice = voice;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = FALSE;
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = False;
 
 	for (pL = fromL; pL!=toL; pL = RightLINK(pL)) {
 		if (ObjLType(pL)==GRSYNCtype) {
@@ -518,7 +518,7 @@ Boolean GRUnbeamRange(Document *doc, LINK fromL, LINK toL, short voice)
 
 					if (needContext) {
 						GetContext(doc, beamL, BeamSTAFF(beamL), &context);
-						needContext = FALSE;
+						needContext = False;
 					}
 
 					noteBeamL = FirstSubLINK(beamL);
@@ -528,20 +528,20 @@ Boolean GRUnbeamRange(Document *doc, LINK fromL, LINK toL, short voice)
 						bGRNoteL = FirstSubLINK(syncL);
 						for ( ; bGRNoteL; bGRNoteL = NextGRNOTEL(bGRNoteL)) {
 							if (GRNoteVOICE(bGRNoteL)==voice) {						/* This note in desired voice? */
-								GRNoteBEAMED(bGRNoteL) = FALSE;							/* Yes */
+								GRNoteBEAMED(bGRNoteL) = False;							/* Yes */
 								if (GRMainNote(bGRNoteL))
 									FixGRStem(doc, syncL, bGRNoteL, context);
 							}
 						}
 					}
 					DeleteNode(doc, beamL);												/* Delete beam */		
-					didAnything = TRUE;
+					didAnything = True;
 				}
 			}
 		}
 	}
 	
-	if (didAnything) doc->changed = TRUE;
+	if (didAnything) doc->changed = True;
 	return didAnything;
 }
 
@@ -578,7 +578,7 @@ note/chord in that GRSync and voice. */
 
 DDIST CalcGRXStem(Document *doc, LINK grSyncL, short voice, short stemDir, DDIST measLeft,
 						PCONTEXT pContext,
-						Boolean /*left*/				/* TRUE=left end of beam, else right */
+						Boolean /*left*/				/* True=left end of beam, else right */
 						)
 {
 	DDIST		dHeadWidth, xd, xdNorm;
@@ -837,11 +837,11 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 	Rect			beamRect, oldBeamRect,			/* Aux. rects for computing objRect. N.B. Really DRects. */
 					newBeamRect;
 	Rect			tempRect;
-	Boolean		rectSet,								/* TRUE if objRect aux. rects inited */
+	Boolean		rectSet,								/* True if objRect aux. rects inited */
 					crossStaff,
 					dim,									/* Should it be dimmed bcs in a voice not being looked at? */
 					crossSys, firstSys,				/* Whether beam is crossSystem, on firstSystem */
-					allOneWay;							/* TRUE if all stems are up or all stems are down */
+					allOneWay;							/* True if all stems are up or all stems are down */
 	STFRANGE		stfRange;
 	BEAMINFO		beamTab[BEAMTABLEN];
 
@@ -852,9 +852,9 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 	 *	order to call GetCrossStaff to get the stfRange.
 	 */
 	pB = GetPBEAMSET(beamL);
-	crossStaff = FALSE;
+	crossStaff = False;
 	if (pB->crossStaff) {
-		crossStaff = TRUE;
+		crossStaff = True;
 		GetBeamGRNotes(beamL, grNotesInBeam);
 		GetGRCrossStaff(LinkNENTRIES(beamL), grNotesInBeam, &stfRange);
 	}
@@ -926,7 +926,7 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 	 * We've got all the information we need. Draw the beam segments.
 	 */
 	
-	rectSet = FALSE;
+	rectSet = False;
 	
 	for (n = 0; n<beamCount; n++) {
 		if (beamTab[n].start!=beamTab[n].stop) {	
@@ -935,7 +935,7 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 			startUOD = ( (GRNoteYSTEM(startNoteL) < GRNoteYD(startNoteL)) ? 1 : -1 );
 	
 			startXStem = CalcGRXStem(doc, startSyncL, voice, startUOD,
-											dLeft[beamTab[n].start], pContext, TRUE);
+											dLeft[beamTab[n].start], pContext, True);
 			
 			yStem = GRNoteXStfYStem(startNoteL,stfRange,firstStfTop,lastStfTop,crossStaff);
 			if (startUOD>0) yStem += extension;
@@ -947,7 +947,7 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 			stopUOD = ( (GRNoteYSTEM(stopNoteL) < GRNoteYD(stopNoteL)) ? 1 : -1 );
 
 			stopXStem = CalcGRXStem(doc, stopSyncL, voice, stopUOD,
-											dLeft[beamTab[n].stop], pContext, FALSE);
+											dLeft[beamTab[n].stop], pContext, False);
 			
 			yStem = GRNoteXStfYStem(stopNoteL,stfRange,firstStfTop,lastStfTop,crossStaff);
 			if (stopUOD>0) yStem += extension;
@@ -986,7 +986,7 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 						}
 						else {
 							beamRect = oldBeamRect = newBeamRect;
-							rectSet = TRUE;
+							rectSet = True;
 						}
 					}
 					break;
@@ -1037,7 +1037,7 @@ void DrawGRBEAMSET(Document *doc, register LINK beamL, CONTEXT context[])
 
 /* ---------------------------------------------------------------- GetBeamGRSyncs -- */
 /*	Fill in arrays of grSync LINKs and grNote LINKs which can be used to fill in the
-beamset's subobjects; return TRUE if things are OK, FALSE if not. */
+beamset's subobjects; return True if things are OK, False if not. */
 	
 static Boolean GetBeamGRSyncs(Document */*doc*/, LINK startL, LINK endL, short v,
 										short nInBeam, LINK bpGRSync[], LINK GRNoteInSync[],
@@ -1051,7 +1051,7 @@ static Boolean GetBeamGRSyncs(Document */*doc*/, LINK startL, LINK endL, short v
 			for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 				aGRNote = GetPAGRNOTE(aGRNoteL);
 				if (aGRNote->voice==v)	{							/* This note in desired voice */
-					aGRNote->beamed = TRUE;
+					aGRNote->beamed = True;
 					if (GRMainNote(aGRNoteL)) {
 						bpGRSync[bel] = thisL;	
 						GRNoteInSync[bel] = aGRNoteL;
@@ -1064,10 +1064,10 @@ static Boolean GetBeamGRSyncs(Document */*doc*/, LINK startL, LINK endL, short v
 	if (bel!=nInBeam) {
 		MayErrMsg("GetBeamGRSyncs: expected %ld beamable notes but found %ld.",
 					(long)nInBeam, (long)bel);
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -1079,7 +1079,7 @@ the result is 1. */
 short CountGRBeamable(Document */*doc*/,			/* unused */
 							LINK startL, LINK endL,
 							short voice,
-							Boolean needSelected		/* TRUE if we only want selected items */
+							Boolean needSelected		/* True if we only want selected items */
 							)
 {
 	short		nbeamable,dur,staff;
@@ -1146,8 +1146,8 @@ LINK VHasGRBeamAcross(LINK node, short voice)
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.voice = voice;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = FALSE;
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = False;
 	lSyncL = L_Search(LeftLINK(node), GRSYNCtype, GO_LEFT, &pbSearch); 	/* Look for 1st note left */
 	rSyncL = L_Search(node, GRSYNCtype, GO_RIGHT, &pbSearch);			  	/* Look for 1st note right */
 	if (lSyncL==NILINK || rSyncL==NILINK)	return NILINK; 			/* No */
@@ -1187,8 +1187,8 @@ LINK VCheckGRBeamAcross(LINK node, short voice)
 	InitSearchParam(&pbSearch);
 	pbSearch.id = ANYONE;
 	pbSearch.voice = voice;
-	pbSearch.needSelected = FALSE;
-	pbSearch.inSystem = FALSE;
+	pbSearch.needSelected = False;
+	pbSearch.inSystem = False;
 
 	lGRSyncL = L_Search(LeftLINK(node), GRSYNCtype, GO_LEFT, &pbSearch);		/* Look for 1st note left */
 	rGRSyncL = L_Search(RightLINK(node), GRSYNCtype, GO_RIGHT, &pbSearch);	/* Look for 1st note right */
@@ -1229,7 +1229,7 @@ LINK VCheckGRBeamAcrossIncl(LINK node, short voice)
 				InitSearchParam(&pbSearch);
 				pbSearch.id = ANYONE;
 				pbSearch.voice = voice;
-				pbSearch.needSelected = pbSearch.inSystem = FALSE;
+				pbSearch.needSelected = pbSearch.inSystem = False;
 				pbSearch.subtype = GRNoteBeam;
 				return L_Search(node, BEAMSETtype, GO_LEFT, &pbSearch);
 			}
@@ -1238,7 +1238,7 @@ LINK VCheckGRBeamAcrossIncl(LINK node, short voice)
 	return NILINK;
 }
 
-/* Truncated version of Unbeam which simply sets aGRNote->beamed FALSE for
+/* Truncated version of Unbeam which simply sets aGRNote->beamed False for
 all notes in Beamset, deletes the Beamset, and optionally fixes stems of
 notes/chords in the Beamset. */
 
@@ -1255,7 +1255,7 @@ void RemoveGRBeam(Document *doc, LINK beamL, short	voice, Boolean /*fixStems*/)
 			aGRNoteL = FirstSubLINK(pL);
 			for ( ; aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL)) {
 				aGRNote = GetPAGRNOTE(aGRNoteL);
-				if (aGRNote->voice==voice) aGRNote->beamed = FALSE;
+				if (aGRNote->voice==voice) aGRNote->beamed = False;
 			}
 		}
 	DeleteNode(doc, beamL);
@@ -1275,7 +1275,7 @@ void RecomputeGRNoteStems(Document *doc, LINK startL, LINK endL, short v)
 			if (aGRNoteL) {
 				GetContext(doc, startL, GRNoteSTAFF(aGRNoteL), &context);
 				if (GRNoteINCHORD(aGRNoteL))
-					FixGRSyncForChord(doc, pL, v, FALSE, 0, 0, &context);
+					FixGRSyncForChord(doc, pL, v, False, 0, 0, &context);
 				else
 					FixGRSyncNote(doc, pL, v, &context);
 			}

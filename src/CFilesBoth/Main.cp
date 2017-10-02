@@ -67,7 +67,7 @@ which means that the UnloadSeg(Initialize) above can leave a hole in the heap. *
 
 static void FileStartup()
 	{
-		DoOpenApplication(FALSE);
+		DoOpenApplication(False);
 	}
 
 void DoOpenApplication(Boolean askForFile)

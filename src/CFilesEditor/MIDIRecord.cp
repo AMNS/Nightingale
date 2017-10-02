@@ -60,7 +60,7 @@ long		*rawBuffer;					/* Input buffer: word's 1st 3 bytes=time in ms., last byte
 short		transpose=0,				/* Amount to subtract from MIDI note nos. */
 			splitPoint=MIDI_MIDDLE_C,	/* MIDI note no. to split notes between staves */
 			otherStaff;					/* Staff no. for split-off notes */
-Boolean		printDebug=TRUE,			/* Show debug info in Current Events window? */
+Boolean		printDebug=True,			/* Show debug info in Current Events window? */
 			split;						/* Split between selStaff & otherStaff (else evrythng on selStaff)? */
 			
 #define LAST_REC_MARGIN (4*PDURUNIT)	/* (Unused) Assumed silent time after last rec. note */
@@ -115,7 +115,7 @@ static void SetRecordFlats(Document *doc)
 	
 	recordFlats = doc->recordFlats;
 
-	keySigL = LSSearch(doc->selStartL, KEYSIGtype, doc->selStaff, GO_LEFT, FALSE);
+	keySigL = LSSearch(doc->selStartL, KEYSIGtype, doc->selStaff, GO_LEFT, False);
 	if (keySigL) {
 		aKeySigL = KeySigOnStaff(keySigL, doc->selStaff);
 		if (aKeySigL) {
@@ -168,7 +168,7 @@ static Boolean RecordDlogMsg(short which, Rect *flashRect)
 	if (which>0) {
 		if (!dlog) {
 			dlog = GetNewDialog(RECORDING_DLOG, NULL, BRING_TO_FRONT);
-			if (!dlog) return FALSE;
+			if (!dlog) return False;
 		}
 
 		GetPort(&oldPort);
@@ -189,7 +189,7 @@ static Boolean RecordDlogMsg(short which, Rect *flashRect)
 		}
 	}
 
-	return TRUE;
+	return True;
 }
 
 
@@ -197,7 +197,7 @@ static Boolean RecordDlogMsg(short which, Rect *flashRect)
 
 /* --------------------------------------------------------------- CMPrepareRecord -- */
 /* Do some initialization of CoreMIDI, and return information needed for recording. Return
-FALSE if there's a problem, TRUE if all is well. */
+False if there's a problem, True if all is well. */
 
 static Boolean CMPrepareRecord(Document *doc, LINK partL, short *pUseChan, MIDIUniqueID *pThruDevice, MIDIUniqueID *pInputDevice, short *pThruChannel);
 
@@ -224,7 +224,7 @@ static Boolean CMPrepareRecord(
 			GetIndCString(errStr, MIDIERRS_STRS, 35);		/* "CoreMIDI Input Device not Connected." */
 			CParamText(errStr, "", "", "");
 			StopInform(GENERIC_ALRT);
-			return FALSE;
+			return False;
 		}
 	}
 	CoreMidiSetSelectedInputDevice(*pInputDevice, *pUseChan);
@@ -250,10 +250,10 @@ static Boolean CMPrepareRecord(
 		sprintf(errStr, fmtStr, errCM);
 		CParamText(errStr, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 /* ---------------------------------------------------------------- RecordDialog -- */
@@ -278,7 +278,7 @@ Boolean RecordDialog(
 				Document *doc,
 				short staffn, short partn, short useChan,
 				Boolean noSplit,
-				Boolean	playAlong,	/* TRUE=play back existing score while recording */
+				Boolean	playAlong,	/* True=play back existing score while recording */
 				short *pOtherStaff,
 				Boolean *pMetronome,
 				long *ptLeadInOffset	/* Time occupied by playback lead-in (PDUR ticks) */ 
@@ -315,7 +315,7 @@ Boolean RecordDialog(
 
 	tempoMM = config.defaultTempoMM;
 	timeScale = tempoMM*DFLT_BEATDUR;				/* Default in case no tempo marks found */
-	tempoL = LSSearch(doc->selStartL, TEMPOtype, ANYONE, GO_LEFT, FALSE);
+	tempoL = LSSearch(doc->selStartL, TEMPOtype, ANYONE, GO_LEFT, False);
 	if (tempoL) {
 		pTempo = GetPTEMPO(tempoL);
 		tempoMM = pTempo->tempoMM;
@@ -333,7 +333,7 @@ Boolean RecordDialog(
 #if CM_DEBUG
 			LogPrintf(LOG_NOTICE, "doc inputDevice=%ld cfg defltInputDev=%ld defltChannel=%ld\n", doc->cmInputDevice,  config.defaultInputDevice, config.defaultChannel);
 #endif			
-			return FALSE;
+			return False;
 		}
 		sprintf(param2, "%d", kCMBufLen/0x0400); //kCMBufLen/1024L);
 	}
@@ -353,14 +353,14 @@ Boolean RecordDialog(
 	if (filterUPP == NULL) {
 		MissingDialog(RECORD_DLOG);
 		PopLock(OBJheap);
-		return FALSE;
+		return False;
 	}
 	dlog = GetNewDialog(RECORD_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(RECORD_DLOG);
 		PopLock(OBJheap);
-		return FALSE;
+		return False;
 	}
 	SetPort(GetDialogWindowPort(dlog));
 	
@@ -376,7 +376,7 @@ Boolean RecordDialog(
 		SetControlValue(instTranspHdl, 0);
 		SetControlValue(noTranspHdl, 1);
 	}
-	PutDlgWord(dlog, SEMITONES_DI, partTranspose, FALSE);
+	PutDlgWord(dlog, SEMITONES_DI, partTranspose, False);
 	PutDlgChkRadio(dlog, METRONOME_DI, *pMetronome);
 	
 	GetDialogItem(dlog, DEBUG_DI, &anInt, (Handle *)&debugHdl, &aRect);
@@ -390,7 +390,7 @@ Boolean RecordDialog(
 	if (split) {
 		HiliteControl(splitHdl, CTL_ACTIVE);
 		SetControlValue(splitHdl, 1);
-		PutDlgWord(dlog, SPLITPOINT_DI, splitPoint, TRUE);
+		PutDlgWord(dlog, SPLITPOINT_DI, splitPoint, True);
 	}
 	else {
 		//HiliteControl(splitHdl, CTL_INACTIVE);
@@ -404,7 +404,7 @@ Boolean RecordDialog(
 
 	CenterWindow(GetDialogWindow(dlog), 70);
 	ShowWindow(GetDialogWindow(dlog));
-	OutlineOKButton(dlog,TRUE);
+	OutlineOKButton(dlog,True);
 	
 /*--- 2. Interact with user til they push OK or Cancel. --- */
 
@@ -422,12 +422,12 @@ Boolean RecordDialog(
 					dialogOver = ditem;
 					break;
 				case NOTRANSP_DI:
-					SetControlValue(instTranspHdl, FALSE);
-					SetControlValue(noTranspHdl, TRUE);
+					SetControlValue(instTranspHdl, False);
+					SetControlValue(noTranspHdl, True);
 					break;
 				case INSTTRANSP_DI:
-					SetControlValue(instTranspHdl, TRUE);
-					SetControlValue(noTranspHdl, FALSE);
+					SetControlValue(instTranspHdl, True);
+					SetControlValue(noTranspHdl, False);
 					break;
 				case METRONOME_DI:
 					PutDlgChkRadio(dlog, METRONOME_DI,
@@ -466,7 +466,7 @@ Boolean RecordDialog(
 			DisposeDialog(dlog);										/* Free heap space */
 			PopLock(OBJheap);
 			SetPort(oldPort);
-			return FALSE;
+			return False;
 		}
 		else
 		{
@@ -498,7 +498,7 @@ Boolean RecordDialog(
 	DisposeDialog(dlog);												/* Free heap space */
 	PopLock(OBJheap);
 	SetPort(oldPort);
-	return TRUE; 
+	return True; 
 }
 
 
@@ -526,10 +526,10 @@ static Boolean FillCMMNote(MIDIPacket *p, Byte channel, MNOTEPTR pMNote)
 	pMNote->offVelocity = config.noteOffVel;
 
 	if (pMNote->onVelocity==0)										/* Really a Note Off */
-		return FALSE;
+		return False;
 
-	done = FALSE;
-	first = TRUE;
+	done = False;
+	first = True;
 	while ((nextP = PeekAtNextCMMIDIPacket(first)) && !done)
 	{
 		if (nextP->data[0] & MSTATUSMASK) {
@@ -544,10 +544,10 @@ static Boolean FillCMMNote(MIDIPacket *p, Byte channel, MNOTEPTR pMNote)
 					pMNote->duration = offTime-pMNote->startTime;
 					if (pMNote->onVelocity<config.minRecVelocity				/* Too soft and */
 							&& pMNote->duration<config.minRecDuration)		/*   too short? */
-						 return FALSE;
+						 return False;
 					pMNote->offVelocity = nextP->data[2];
 					DeletePeekedAtCMMIDIPacket();
-					done = TRUE;
+					done = True;
 				}
 				break;
 				
@@ -558,10 +558,10 @@ static Boolean FillCMMNote(MIDIPacket *p, Byte channel, MNOTEPTR pMNote)
 						pMNote->duration = offTime-pMNote->startTime;
 						if (pMNote->onVelocity<config.minRecVelocity			/* Too soft and */
 								&& pMNote->duration<config.minRecDuration) 	/*   too short? */
-						 	return FALSE;
+						 	return False;
 						pMNote->offVelocity = config.noteOffVel;
 						DeletePeekedAtCMMIDIPacket();
-						done = TRUE;
+						done = True;
 					}
 				}
 				break;
@@ -570,7 +570,7 @@ static Boolean FillCMMNote(MIDIPacket *p, Byte channel, MNOTEPTR pMNote)
 				break;
 		}
 		
-		first = FALSE;
+		first = False;
 	}
 
 	if (!done) {
@@ -582,7 +582,7 @@ static Boolean FillCMMNote(MIDIPacket *p, Byte channel, MNOTEPTR pMNote)
 		pMNote->duration = 0;
 		pMNote->offVelocity = config.noteOffVel;
 	}
-	return TRUE;
+	return True;
 }
 
 
@@ -592,9 +592,9 @@ the MIDI Manager packet at mPacketBuffer[startLoc].
 
 It looks forward in mPacketBuffer for the matching Note Off on the specified channel.
 (Since a Note Off can be sent as a Note On with 0 velocity, it checks Note Ons as
-well.) It returns TRUE if it finds a valid note whose velocity or duration is above
-the threshhold, else FALSE. NB: the temporary MIDI struct may be filled in even if we
-return FALSE! */						 
+well.) It returns True if it finds a valid note whose velocity or duration is above
+the threshhold, else False. NB: the temporary MIDI struct may be filled in even if we
+return False! */						 
 
 static Boolean FillMNote(
 						long 			startLoc,	/* mBuffer location of Note On packet */
@@ -620,15 +620,15 @@ static Boolean FillMNote(
 	pMNote->noteNumber = p->data[1];
 	pMNote->channel = channel;
 	pMNote->startTime = p->tStamp;
-	if (loc>mRecLen) return FALSE;
+	if (loc>mRecLen) return False;
 	pMNote->onVelocity = p->data[2];
 	pMNote->duration = 0;											/* To be filled in later */
 	pMNote->offVelocity = config.noteOffVel;
 
 	if (pMNote->onVelocity==0)										/* Really a Note Off */
-		return FALSE;
+		return False;
 
-	done = FALSE;
+	done = False;
 	loc += ROUND_UP_EVEN(p->len);
 	while (!done && loc<=mRecLen) {								/* Look for the desired Note Off	*/
 		/* Point p to the beginning of the next MMMIDIPacket and get its length */
@@ -647,9 +647,9 @@ static Boolean FillMNote(
 					pMNote->duration = offTime-pMNote->startTime;
 					if (pMNote->onVelocity<config.minRecVelocity			/* Too soft and */
 					&& pMNote->duration<config.minRecDuration)			/*   too short? */
-						 	return FALSE;
+						 	return False;
 					pMNote->offVelocity = p->data[2];
-					done = TRUE;
+					done = True;
 				}
 				break;
 				
@@ -660,9 +660,9 @@ static Boolean FillMNote(
 						pMNote->duration = offTime-pMNote->startTime;
 						if (pMNote->onVelocity<config.minRecVelocity		/* Too soft and */
 						&& pMNote->duration<config.minRecDuration)		/*   too short? */
-						 		return FALSE;
+						 		return False;
 						pMNote->offVelocity = config.noteOffVel;
-						done = TRUE;
+						done = True;
 					}
 				}
 				break;
@@ -683,7 +683,7 @@ static Boolean FillMNote(
 		pMNote->duration = 0;
 		pMNote->offVelocity = config.noteOffVel;
 	}
-	return TRUE;
+	return True;
 }
 
 
@@ -769,7 +769,7 @@ static long MIDI2Night(
 		CMNormalizeTimeStamps();
 	}
 	 
-	while (TRUE) {
+	while (True) {
 		/* Point p to the beginning of the next MMMIDIPacket and get its length */
 		if (useWhichMIDI == MIDIDR_CM) {
 			pCM = (MIDIPacket *)GetNextMidiPacket(mRecLen, loc);
@@ -791,7 +791,7 @@ static long MIDI2Night(
 				noteFilled = FillMNote(loc, mRecLen, channel, &theNote);
 				
 			if (noteFilled) {
-				if (printDebug) PrintNote(&theNote, FALSE);
+				if (printDebug) PrintNote(&theNote, False);
 
 				/*
 				 * Convert time (milliseconds to PDUR ticks). If the note started during
@@ -832,13 +832,13 @@ static long MIDI2Night(
 												USESTAFF(doc, theNote.noteNumber),
 												UNKNOWN_L_DUR, 0,
 												USEVOICE(doc, USESTAFF(doc, theNote.noteNumber)),
-												FALSE, timeShift);
+												False, timeShift);
 				else {
 					aNoteL = CreateSync(doc, theNote, &lSync,
 												USESTAFF(doc, theNote.noteNumber), 
 												UNKNOWN_L_DUR, 0,
 												USEVOICE(doc, USESTAFF(doc, theNote.noteNumber)),
-												FALSE, timeShift);
+												False, timeShift);
 					lastEndTime = theNote.startTime+theNote.duration;
 					if (printDebug) LogPrintf(LOG_DEBUG, " L%d", lSync);
 				}
@@ -871,7 +871,7 @@ NextEvent:
 		if (split) AvoidUnisonsInRange(doc, doc->selStartL, doc->selEndL, otherStaff);
 
 		if (config.delRedundantAccs) DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
-		if (config.ignoreRecVel) SetVelFromContext(doc, TRUE);
+		if (config.ignoreRecVel) SetVelFromContext(doc, True);
 
 		return (lastEndTime-timeShift>=0L? lastEndTime-timeShift : 0L);
 	}
@@ -937,7 +937,7 @@ static void RecordBuffer(
 	}
 	StartMIDITime();
 	
-	recordingNow = TRUE;
+	recordingNow = True;
 
 	InvertRect(&flashRect);									/* Confirm recording is in progress */
 
@@ -948,7 +948,7 @@ static void RecordBuffer(
 	 *	them here--until such time as Nightingale can start using them.
 	 */
  	ignoredRTM = 0L;
-	done = FALSE;
+	done = False;
 	while (!done) {
 		if (metronome) {
 			timeMS = GetMIDITime(0L);
@@ -964,7 +964,7 @@ static void RecordBuffer(
 			GetIndCString(strBuf, MIDIERRS_STRS, 4);		/* "You've reached the time limit" */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			done = TRUE;
+			done = True;
 		}
 
 		switch (useWhichMIDI) {
@@ -975,7 +975,7 @@ static void RecordBuffer(
 					sprintf(strBuf, fmtStr, mRecIndex);
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
-					done = TRUE;
+					done = True;
 				}
 				else if (mRecIndex > oldRecIndex) {
 					QuickFlashRect(&flashRect);						/* Flash to reassure user */
@@ -987,11 +987,11 @@ static void RecordBuffer(
 		}
 
 		if (Button()) {
-			done = TRUE;
+			done = True;
 		}
 	}
 	
-	recordingNow = FALSE;
+	recordingNow = False;
 	StopMIDITime();
 
 /* *** END SEMI-REALTIME, LOW-LEVEL CODE. *** */
@@ -1042,32 +1042,32 @@ Boolean EncloseSel(Document *doc)
 	prevL = FirstValidxd(LeftLINK(startL), GO_LEFT);
 	if (!prevL || !MeasureTYPE(prevL)) {
 		measL = RNewMeasure(doc, startL);				/* Destroys the selection range */
-		if (!measL) return FALSE;
+		if (!measL) return False;
 		DeselRangeNoHilite(doc, measL, RightLINK(measL));
 	}
 
 	nextL = FirstValidxd(endL, GO_RIGHT);
 	if (!nextL || !MeasureTYPE(nextL)) {
 		measL = RNewMeasure(doc, endL);					/* Destroys the selection range */
-		if (!measL) return FALSE;
+		if (!measL) return False;
 		DeselRangeNoHilite(doc, measL, RightLINK(measL));
 	}
 	
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
 		if (SyncTYPE(pL))
 			for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))
-				NoteSEL(aNoteL) = TRUE;
+				NoteSEL(aNoteL) = True;
 	
 	doc->selStartL = startL; doc->selEndL = endL;
 	OptimizeSelection(doc);									/* At least if we added end barline */
 	
-	return TRUE;
+	return True;
 }
 
 /* ---------------------------------------------------------------------- Record -- */
 /* Record data from MIDI, generate Nightingale notes of unknown duration, and
-add them to the object list at the insertion point. Returns TRUE if it adds
-at least one note to the object list, else FALSE (due to the user cancelling
+add them to the object list at the insertion point. Returns True if it adds
+at least one note to the object list, else False (due to the user cancelling
 the record, an error condition, or just no note on the right channel).
 
 Record does not format the material recorded so it can be drawn; to do so, after
@@ -1082,7 +1082,7 @@ FMSReadHook.) */
 
 Boolean Record(Document *doc)
 {
-	static Boolean metronome=TRUE;
+	static Boolean metronome=True;
 	long timeChange, tLeadInOffset;
 	short partn, useChan;
 	LINK endMeasL;
@@ -1093,7 +1093,7 @@ Boolean Record(Document *doc)
 		GetIndCString(strBuf, MIDIERRS_STRS, 6);		/* "Can't record without insertion pt" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 
 	timeChange = -1L;
@@ -1113,7 +1113,7 @@ Boolean Record(Document *doc)
 	
 	partn = Staff2Part(doc, doc->selStaff);
 	useChan = doc->channel;
-	if (!RecordDialog(doc, doc->selStaff, partn, useChan, FALSE, FALSE, &otherStaff,
+	if (!RecordDialog(doc, doc->selStaff, partn, useChan, False, False, &otherStaff,
 							&metronome, &tLeadInOffset)) {
 #if CMDEBUG
 		LogPrintf(LOG_NOTICE, "doc inputDev=%ld useChan=%ld\n", doc->cmInputDevice, (long)useChan);
@@ -1139,7 +1139,7 @@ Boolean Record(Document *doc)
 		MoveTimeInMeasure(doc->selEndL, doc->tailL, timeChange);	/* Move remainder of meas. */		
 		MoveTimeMeasures(doc->selEndL, doc->tailL, timeChange);	/* Move following meas. */
 		UpdateMeasNums(doc, NILINK);
-		UpdateVoiceTable(doc, TRUE);
+		UpdateVoiceTable(doc, True);
 
 		/*
 		 * Reformatting may destroy selection status, so we use notes' tempFlags to
@@ -1157,7 +1157,7 @@ Boolean Record(Document *doc)
 		 */
 		EncloseSel(doc);
 		RespaceBars(doc, LeftLINK(doc->selStartL), endMeasL,
-						MeasSpaceProp(doc->selStartL), FALSE, FALSE);
+						MeasSpaceProp(doc->selStartL), False, False);
 	}
 	else {
 		LogPrintf(LOG_NOTICE, "4. No Nightingale objects created\n");
@@ -1175,9 +1175,9 @@ deliver the logical duration and number of dots for that many ticks. */
 
 static Boolean Clocks2Dur(short clocks, short clockLDur, short *pLDur, short *pnDots)
 {
-	Boolean allOK=TRUE; short k,nOnes,highestBit;
+	Boolean allOK=True; short k,nOnes,highestBit;
 	
-	if (clocks<1) { allOK = FALSE; clocks = 1; }
+	if (clocks<1) { allOK = False; clocks = 1; }
 
 	/* Find highest order bit number */
 	for (k=15; k>=0; k--)
@@ -1195,7 +1195,7 @@ static Boolean Clocks2Dur(short clocks, short clockLDur, short *pLDur, short *pn
 	*pLDur = clockLDur-highestBit;
 	*pnDots = nOnes-1;
 
-	if (*pLDur<BREVE_L_DUR) { allOK = FALSE; *pLDur = BREVE_L_DUR; }
+	if (*pLDur<BREVE_L_DUR) { allOK = False; *pLDur = BREVE_L_DUR; }
 
 	if (!allOK) SysBeep(1);
 	return allOK;
@@ -1250,7 +1250,7 @@ static LINK StepMIDI2Night(
 
 	Clocks2Dur(clocks, noteDur, &lDur, &ndots);
 
-	firstNote = TRUE;
+	firstNote = True;
 	link = NILINK;
 
 	for (i = 0; i<nChord; i++) {
@@ -1267,7 +1267,7 @@ static LINK StepMIDI2Night(
 			theNote.duration = 0;
 			theNote.offVelocity = config.noteOffVel;
 
-			if (printDebug) PrintNote(&theNote, TRUE);
+			if (printDebug) PrintNote(&theNote, True);
 			if (firstNote) {
 				if (symType==SR_BARLINE) {
 					GetContext(doc, LeftLINK(doc->selStartL), 1, &context);
@@ -1289,10 +1289,10 @@ static LINK StepMIDI2Night(
 											USESTAFF(doc, theNote.noteNumber), lDur,
 											ndots,
 											USEVOICE(doc, USESTAFF(doc, theNote.noteNumber)),
-											FALSE, 0L);
+											False, 0L);
 				if (!aNoteL) return NILINK;
 			}
-			firstNote = FALSE;
+			firstNote = False;
 		}
 
 		/* If we want something other than notes and we already created one, we're done. */
@@ -1337,7 +1337,7 @@ static void ShowNRCInBox(
 	DDIST savexd;
 	short slideStep, i, xNRC;
 	LINK aNoteL;
-	Boolean drawn=FALSE, recalc=FALSE;
+	Boolean drawn=False, recalc=False;
 		
 	switch (mode) {
 		case ShowINIT:
@@ -1496,9 +1496,9 @@ static void HiliteRecSync(Document *doc, long absTimeStamp, LINKTIMEINFO syncs[]
 	for (i = 0; i<nSyncs; i++)
 		if (SyncTYPE(syncs[i].link))
 			if (syncs[i].time==absTimeStamp) {
-				HiliteInsertNode(doc, syncs[i].link, doc->selStaff, FALSE);
+				HiliteInsertNode(doc, syncs[i].link, doc->selStaff, False);
 				SleepTicks(HILITE_TICKS);
-				HiliteInsertNode(doc, syncs[i].link, doc->selStaff, FALSE);
+				HiliteInsertNode(doc, syncs[i].link, doc->selStaff, False);
 				return;
 			}
 }
@@ -1530,7 +1530,7 @@ static void QuickFlashMsgRect(Document *doc)
 }
 
 
-/* Return TRUE if and only if the given MMMIDIPacket is a (non-zero-velocity) Note On
+/* Return True if and only if the given MMMIDIPacket is a (non-zero-velocity) Note On
 for the given channel. */
 
 static Boolean IsOurNoteOn(void *pv,
@@ -1602,7 +1602,7 @@ short GetAllNoteOns(NotePacket nOnBuffer[],
 					return NONBUF_SIZE;
 				}
 				if (srFirstNote) {
-					srFirstNote = FALSE;
+					srFirstNote = False;
 					cmTimeStamp = 0;
 					srFirstTimeStamp = pCM->timeStamp;
 				}
@@ -1673,8 +1673,8 @@ static long timeRecorded;
 static WindowPtr wDoc;
 
 /* Handle a keyDown event while Step Recording. Special case: if *pNoteDur==NOMATCH,
-initialize (and ignore <theEvent>). If all is well, return TRUE; if there's a
-problem (reached the recording time limit), return FALSE. */
+initialize (and ignore <theEvent>). If all is well, return True; if there's a
+problem (reached the recording time limit), return False. */
 
 Boolean SRKeyDown(
 	Document *doc,
@@ -1690,7 +1690,7 @@ Boolean SRKeyDown(
 	short symIndex, noteDur, clocks, nAugDots, addClocks; 
 	char theChar;
 	short intChar, sym, ch, key;
-	Boolean okay=TRUE;
+	Boolean okay=True;
 	Rect portRect;
 
 	if (*pNoteDur==NOMATCH) {
@@ -1711,7 +1711,7 @@ Boolean SRKeyDown(
 		*pClocks = 1;
 		*pNAugDots = 0;
 		
-		return TRUE;
+		return True;
 	}
 
 	symIndex = *pSymIndex;
@@ -1727,7 +1727,7 @@ Boolean SRKeyDown(
 	if ((theEvent.modifiers & !btnState)==0) {
 		theChar = (char)theEvent.message & charCodeMask;
 		intChar = (short)theChar;
-		if (TranslatePalChar(&intChar, 0, FALSE))
+		if (TranslatePalChar(&intChar, 0, False))
 			theChar = (unsigned char)intChar;
 		sym = GetSymTableIndex(theChar);
 		
@@ -1792,7 +1792,7 @@ Boolean SRKeyDown(
 				GetIndCString(strBuf, MIDIERRS_STRS, 4);		/* "You've reached the time limit" */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
-				okay = FALSE;
+				okay = False;
 			}
 		}
 		else if (theChar==PAUSE_CHAR) {
@@ -1816,7 +1816,7 @@ user on the Mac keyboard as they play, giving visual feedback for the notes. Als
 allow the user to specify they want rests instead of notes, and to switch back and
 forth. Depending on <merge>, either add new Syncs containing the notes to the object
 list at the insertion point, or (based on duration) merge the notes into the object
-list. Returns TRUE if we add at least one note or rest to the object list, else FALSE
+list. Returns True if we add at least one note or rest to the object list, else False
 (due either to an error condition, or just no note data on the right channel).
 
 StepRecord does not format the material recorded so it can be drawn; to do so, after
@@ -1824,7 +1824,7 @@ calling StepRecord, call RespAndRfmtRaw or RespaceBars. */
 
 Boolean StepRecord(
 				Document *doc,
-				Boolean merge				/* TRUE=merge with existing stuff, else add new Syncs */
+				Boolean merge				/* True=merge with existing stuff, else add new Syncs */
 				)
 {
 	long				ignoredRTM, nowTime,
@@ -1849,19 +1849,19 @@ Boolean StepRecord(
 	// MAS definitions moved here, before first jump to 'Finished'
 	int k = 0;
 	long midiNow = 0;
-	bool first = TRUE;
+	bool first = True;
 	
 	if (doc->selStartL!=doc->selEndL) {
 		GetIndCString(strBuf, MIDIERRS_STRS, 7);		/* "Can't Step Record w/o insertion pt" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 
 	wDoc = (WindowPtr)doc;
 	printDebug = CapsLockKeyDown() && OptionKeyDown();
 	SetRecordFlats(doc);
-	gotSomething = FALSE;
+	gotSomething = False;
 
 	WaitCursor();
 
@@ -1870,13 +1870,13 @@ Boolean StepRecord(
 			NoMoreMemory();
 			goto Finished;
 		}
-		srFirstNote = TRUE;
+		srFirstNote = True;
 		srFirstTimeStamp = 0;
 	}
 	
 	//doc->deflamTime = 200;
 		
-	paused = FALSE;
+	paused = False;
 	RecordMessage(doc, paused);
 	
 	if (merge) {
@@ -1896,10 +1896,10 @@ Boolean StepRecord(
 				OutOfMemory(FEEDBACK_TAB_SIZE*sizeof(LINKTIMEINFO));
 				goto Finished;
 			}
-			nMergeObjs = FillMergeBuffer(insSyncL, mergeObjs, FEEDBACK_TAB_SIZE, FALSE);
+			nMergeObjs = FillMergeBuffer(insSyncL, mergeObjs, FEEDBACK_TAB_SIZE, False);
 		}
 		else
-			merge = FALSE;													/* Nothing to merge with */
+			merge = False;													/* Nothing to merge with */
 	}
 		
 	oldSelStart = doc->selStartL;
@@ -1911,11 +1911,11 @@ Boolean StepRecord(
 		if (doc->cmInputDevice == kInvalidMIDIUniqueID)
 			doc->cmInputDevice = gSelectedInputDevice;
 		if (!CMPrepareRecord(doc, partL, &useChan, &cmThruDevice, &cmInputDevice, &thruChannel)) {
-			return FALSE;
+			return False;
 		}
 	}
 	
-	split = FALSE;															/* No split pt in Step Record */
+	split = False;															/* No split pt in Step Record */
 
 	noteDur = NOMATCH;													/* To initialize SRKeyDown */
 	theEvent.what = nullEvent;											/* So compiler doesn't think it's uninitialized */
@@ -1942,10 +1942,10 @@ Boolean StepRecord(
 
 	StartMIDITime();
 	
-	recordingNow = TRUE;
+	recordingNow = True;
 
 	InvertMsgRect(doc);												/* Confirm recording is in progress */
-	done = FALSE;
+	done = False;
 	while (!done)
 	{		
 		/* Look for and handle a relevant operating system event. */
@@ -1958,7 +1958,7 @@ Boolean StepRecord(
 					break;
 				case keyDown:
 					if (!SRKeyDown(doc, theEvent, syncL, voice, &symIndex, &noteDur,
-						&clocks, &nAugDots)) done = TRUE;
+						&clocks, &nAugDots)) done = True;
 					break;
 				default:
 					break;
@@ -1975,7 +1975,7 @@ Boolean StepRecord(
 		 * again. If we have a gap now, build a Sync for the chord preceding it.
 		 */
 		if (first) {
-			midiNow = GetMIDITime(0L); first = FALSE;
+			midiNow = GetMIDITime(0L); first = False;
 		}
 		nOnBufLen = GetAllNoteOns(nOnBuffer, nOnBufLen, useChan-1, 1);
 		if (nOnBufLen>0) {
@@ -2011,7 +2011,7 @@ Boolean StepRecord(
 					syncL = StepMIDI2Night(doc, nOnBuffer, nChord, symIndex, noteDur, 1);
 					if (syncL) {
 						/* We successfully built a Sync of the <nChord> notes. */
-						gotSomething = TRUE;
+						gotSomething = True;
 						GetWindowPortBounds(wDoc,&portRect);
 						ShowNRCInBox(doc, syncL, voice, doc->selStaff, &portRect,
 												(firstSync? ShowADD : ShowINIT));
@@ -2023,7 +2023,7 @@ Boolean StepRecord(
 							GetIndCString(strBuf, MIDIERRS_STRS, 4);	/* "You've reached the time limit" */
 							CParamText(strBuf, "", "", "");
 							StopInform(GENERIC_ALRT);
-							done = TRUE;
+							done = True;
 						}
 
 						syncsSoFar++;
@@ -2032,7 +2032,7 @@ Boolean StepRecord(
 							sprintf(strBuf, fmtStr, MAX_MEASNODES-2);
 							CParamText(strBuf, "", "", "");
 							StopInform(GENERIC_ALRT);
-							done = TRUE;
+							done = True;
 						}
 						
 						QuickFlashMsgRect(doc);							/* Flash to reassure user */
@@ -2050,7 +2050,7 @@ Boolean StepRecord(
 	
 		/* If mouse button is down, we're done. */
 		
-		if (Button()) done = TRUE;
+		if (Button()) done = True;
 	}
 
 	/*
@@ -2060,12 +2060,12 @@ Boolean StepRecord(
 	if (!paused && timeRecorded<=MAX_SAFE_MEASDUR) {
 		syncL = StepMIDI2Night(doc, nOnBuffer, nOnBufLen, symIndex, noteDur, clocks);
 		if (syncL) {
-			gotSomething = TRUE;
+			gotSomething = True;
 			if (!firstSync) firstSync = syncL;
 		}
 	}
 
-	recordingNow = FALSE;
+	recordingNow = False;
 	StopMIDITime();
 	
 /* *** END SEMI-REALTIME, LOW-LEVEL CODE. *** */
@@ -2098,7 +2098,7 @@ Boolean StepRecord(
 				OutOfMemory(maxNewSyncs*sizeof(LINKTIMEINFO));
 				goto Finished;
 			}
-			nNewSyncs = FillMergeBuffer(firstSync, newSyncs, maxNewSyncs, TRUE);
+			nNewSyncs = FillMergeBuffer(firstSync, newSyncs, maxNewSyncs, True);
 
 			MRMerge(doc, voice, newSyncs, nNewSyncs, mergeObjs, nMergeObjs, &lastL);
 		}
@@ -2107,15 +2107,15 @@ Boolean StepRecord(
 			doc->selEndL = oldSelStart;
 		}
 		if (config.delRedundantAccs) DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
-		if (config.ignoreRecVel) SetVelFromContext(doc, TRUE);
+		if (config.ignoreRecVel) SetVelFromContext(doc, True);
 
 		FixTimeStamps(doc, doc->selStartL, doc->selEndL);
 	
 		WaitCursor();
 		UpdateMeasNums(doc, NILINK);
-		UpdateVoiceTable(doc, TRUE);
+		UpdateVoiceTable(doc, True);
 	}
-	DrawMessageBox(doc, TRUE);									/* Also sets ClipRect to viewRect */
+	DrawMessageBox(doc, True);									/* Also sets ClipRect to viewRect */
 	FlushEvents(mDownMask, 0);									/* Discard mouse click that ended recording */
 
 Finished:
@@ -2129,7 +2129,7 @@ Finished:
 
 /* ------------------------------------------------------------------- RTMRecord -- */
 /* Record data from MIDI and generate Nightingale notes of unknown duration.
-Returns TRUE if it adds at least one note to the object list, else FALSE
+Returns True if it adds at least one note to the object list, else False
 (due to the user cancelling the record or the transcribe, an error condition, or
 simply no note on the right channel). Intended for use by the Record Merge command.
 
@@ -2140,7 +2140,7 @@ space; pitch bend and other continuous controllers are particularly piggish. */
 
 Boolean RTMRecord(Document *doc)
 {
-	static Boolean metronome=TRUE;
+	static Boolean metronome=True;
 	long timeChange, tLeadInOffset;
 	short partn, useChan;
 	
@@ -2159,7 +2159,7 @@ Boolean RTMRecord(Document *doc)
 		
 	partn = Staff2Part(doc, doc->selStaff);
 	useChan = doc->channel;
-	if (!RecordDialog(doc, doc->selStaff, partn, useChan, TRUE, TRUE, &otherStaff,
+	if (!RecordDialog(doc, doc->selStaff, partn, useChan, True, True, &otherStaff,
 							&metronome, &tLeadInOffset))
 		goto Finished;
 	
@@ -2167,7 +2167,7 @@ Boolean RTMRecord(Document *doc)
 	timeChange = MIDI2Night(doc, useChan-1, mRecIndex, tLeadInOffset);	/* Build Nightingale object list */
 
 	if (timeChange>=0L) {
-		UpdateVoiceTable(doc, TRUE);	/* ??DO THIS LATER? OR NOT AT ALL? */
+		UpdateVoiceTable(doc, True);	/* ??DO THIS LATER? OR NOT AT ALL? */
 	}
 
 Finished:

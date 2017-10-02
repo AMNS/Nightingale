@@ -66,7 +66,7 @@ void DoHairpinEdit(Document *doc, LINK pL)
 	InitHairGrips(doc, &context, pL);
 	DrawBothGrips(doc);
 	
-	while (TRUE) {
+	while (True) {
 		if (EventAvail(everyEvent, &eventRec)) {
 		
 			if (eventRec.what == mouseDown) {
@@ -118,8 +118,8 @@ void DoHairpinEdit(Document *doc, LINK pL)
 	/* Update hairpin in data structure and inval rect if it's changed. */
 	if (BlockCompare(&thisHair, &origHair, sizeof(HAIRPIN))) {
 		UpdateHairData(doc, &context, pL, &thisHair);
-		doc->changed = TRUE;
-		HairInvalRects(doc, pL, &thisHair, TRUE);
+		doc->changed = True;
+		HairInvalRects(doc, pL, &thisHair, True);
 	}
 	MEHideCaret(doc);	
 }
@@ -141,9 +141,9 @@ static void EditHairpin(
 	long		aLong;
 	Rect		boundsRect;				/* in paper coords */
 	short		dh, dv;
-	Boolean	allowTilt = TRUE;		/* FALSE only if shiftKeyDown */
+	Boolean	allowTilt = True;		/* False only if shiftKeyDown */
 	
-	if (ShiftKeyDown()) allowTilt = FALSE;		/* ??but should also allow vert constraint */
+	if (ShiftKeyDown()) allowTilt = False;		/* ??but should also allow vert constraint */
 		
 	if (grip==DRAGOBJ)				/* Erase the boxes before dragging the hairpin. */
 		DrawBothGrips(doc);
@@ -259,8 +259,8 @@ void DragHairpin(Document	*doc, LINK pL)
 	PenPat(NGetQDGlobalsBlack());
 
 	origPt = newPt = oldPt;
-	stillWithinSlop = TRUE;
-	horiz = vert = TRUE;
+	stillWithinSlop = True;
+	horiz = vert = True;
 	if (StillDown()) {
 		while (WaitMouseUp()) {
 			GetPaperMouse(&newPt, &doc->currentPaper);
@@ -281,7 +281,7 @@ void DragHairpin(Document	*doc, LINK pL)
 					vert = !horiz;
 				}
 				/* And don't ever come back, you hear! */
-				stillWithinSlop = FALSE;
+				stillWithinSlop = False;
 			}
 			dh = (horiz? newPt.h - oldPt.h : 0);
 			dv = (vert? newPt.v - oldPt.v : 0);
@@ -310,19 +310,19 @@ void DragHairpin(Document	*doc, LINK pL)
 	/* Update hairpin in data structure and inval rect if it's changed. */
 	if (BlockCompare(&thisHair, &origHair, sizeof(HAIRPIN))) {
 		UpdateHairData(doc, &context, pL, &thisHair);
-		doc->changed = TRUE;
+		doc->changed = True;
 	}
-	HairInvalRects(doc, pL, &thisHair, FALSE);			/* must do this even if hairpin not changed (affects hiliting) */
+	HairInvalRects(doc, pL, &thisHair, False);			/* must do this even if hairpin not changed (affects hiliting) */
 	MEHideCaret(doc);	
 
-	LinkSEL(pL) = TRUE;								/* so that hairpin will hilite after we're done dragging */
-	DynamicSEL(FirstSubLINK(pL)) = TRUE;
+	LinkSEL(pL) = True;								/* so that hairpin will hilite after we're done dragging */
+	DynamicSEL(FirstSubLINK(pL)) = True;
 	doc->selStartL = pL;	doc->selEndL = RightLINK(pL);
 }
 
 
 /* -------------------------------------------------------------- InitHairFeedback -- */
-/* Fill in the HAIRPIN struct we use for feedback; return FALSE if error. */
+/* Fill in the HAIRPIN struct we use for feedback; return False if error. */
 
 static Boolean InitHairFeedback(Document */*doc*/, PCONTEXT pContext, LINK pL, HAIRPIN *hp)
 {
@@ -341,7 +341,7 @@ static Boolean InitHairFeedback(Document */*doc*/, PCONTEXT pContext, LINK pL, H
 	lastSyncL = DynamLASTSYNC(pL);
 	if (!SyncTYPE(firstSyncL) || !SyncTYPE(lastSyncL)) {
 		MayErrMsg("InitHairFeedback: firstSyncL or lastSyncL is not a sync.");
-		return FALSE;
+		return False;
 	}
 	firstSyncXD = SysRelxd(firstSyncL);
 	lastSyncXD = SysRelxd(lastSyncL);
@@ -371,7 +371,7 @@ static Boolean InitHairFeedback(Document */*doc*/, PCONTEXT pContext, LINK pL, H
 	if (hp->penThick<1) hp->penThick = 1;
 	if (hp->penThick>2) hp->penThick = 2;
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -445,7 +445,7 @@ static void InitHairBounds(
 	 */
 
 	/* Find the measure that will be the left boundary */
-	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, FALSE);			/* meas containing 1st sync */
+	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, False);			/* meas containing 1st sync */
 	prevMeasL = LinkLMEAS(measL);												/* meas before that */
 	if (SameSystem(prevMeasL, measL))
 		targetMeasL = prevMeasL;
@@ -453,14 +453,14 @@ static void InitHairBounds(
 		targetMeasL = measL;
 		
 	/* Allow dragging into reserved area */
-	measL = LSSearch(MeasSYSL(targetMeasL), MEASUREtype, staffn, GO_RIGHT, FALSE);	/* 1st meas in system */	
+	measL = LSSearch(MeasSYSL(targetMeasL), MEASUREtype, staffn, GO_RIGHT, False);	/* 1st meas in system */	
 	if (targetMeasL == measL)														/* targetMeas is 1st in system */
 		bounds->left = d2p(sysLeft);
 	else
 		bounds->left = d2p(LinkXD(targetMeasL) + sysLeft);
 
 	/* Find the measure that will be the right boundary */
-	measL = LSSearch(lastSyncL, MEASUREtype, staffn, GO_LEFT, FALSE);			/* meas containing last sync */
+	measL = LSSearch(lastSyncL, MEASUREtype, staffn, GO_LEFT, False);			/* meas containing last sync */
 	nextMeasL = LinkRMEAS(measL);												/* meas after that */
 	if (SameSystem(nextMeasL, measL))
 		targetMeasL = nextMeasL;
@@ -605,7 +605,7 @@ static void HairInvalRects(
 		Document	*doc,
 		LINK pL,
 		HAIRPIN *hp,
-		Boolean optimize		/* if TRUE erase and inval only the original objRect */
+		Boolean optimize		/* if True erase and inval only the original objRect */
 		)
 {
 	Rect	oldObjRect, newObjRect, updateRect;
@@ -627,7 +627,7 @@ static void HairInvalRects(
 	else
 		EraseAndInval(&updateRect);
 
-	LinkVALID(pL) = FALSE;							/* force objRect recomputation */
+	LinkVALID(pL) = False;							/* force objRect recomputation */
 }
 
 
@@ -660,6 +660,6 @@ static void UpdateHairData(Document */*doc*/, PCONTEXT pContext, LINK pL, HAIRPI
 /* ?? Someday when it's possible to graphically edit mouth and other
 widths, update those fields in the data structure here. */
 	
-	LinkTWEAKED(pL) = TRUE;
+	LinkTWEAKED(pL) = True;
 }
 

@@ -161,7 +161,7 @@ typedef struct {
 	NLOBJHEADER
 	char	numAcc;					/* number of accidentals in keysig: 0-7 */
 	char	filler;
-	Boolean	sharp;					/* TRUE if sharps in keysig, FALSE if flats */
+	Boolean	sharp;					/* True if sharps in keysig, False if flats */
 	char	data[];					/* (additional bytes in union used by NL_NRGR) */
 } NL_KEYSIG, *PNL_KEYSIG;
 

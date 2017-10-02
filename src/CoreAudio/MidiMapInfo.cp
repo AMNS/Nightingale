@@ -59,12 +59,12 @@ static Boolean GetMidiMapFile(Str255 macfName, NSClientDataPtr pNSD)
 	err = OpenFileDialog(kNavGenericSignature, 0, inputType, pNSD);
 	
 	if (err != noErr || pNSD->nsOpCancel) {
-		return FALSE;
+		return False;
 	}		
 	
 	FSSpec fsSpec = pNSD->nsFSSpec;
 	Pstrcpy(macfName, fsSpec.name);
-	return TRUE;
+	return True;
 }
 
 
@@ -204,10 +204,10 @@ void MidiMapInfo()
 		ShowWindow(GetDialogWindow(dialogp));
 						
 		ArrowCursor();
-		OutlineOKButton(dialogp, TRUE);
+		OutlineOKButton(dialogp, True);
 	
 		DrawMidiMapText(doc);
-		keepGoing = TRUE;
+		keepGoing = True;
 
 		while (keepGoing) {
 			ModalDialog(filterUPP, &ditem);
@@ -223,7 +223,7 @@ void MidiMapInfo()
 						{
 							if (ChangedMidiMap(doc,  &mmnsData.nsFSSpec)) 
 							{
-								doc->changed = TRUE;
+								doc->changed = True;
 								InstallMidiMap(doc, &mmnsData.nsFSSpec);
 								OpenMidiMapFile(doc, mmfilename, &mmnsData);
 								
@@ -236,7 +236,7 @@ void MidiMapInfo()
 				case CLEAR_DI:
 					if (doc) {
 						if (HasMidiMap(doc)) {
-							doc->changed = TRUE;
+							doc->changed = True;
 							ClearMidiMap(doc);
 							ClearDocMidiMap(doc);
 							RedrawMidiMapText(doc, &textRect);
@@ -246,7 +246,7 @@ void MidiMapInfo()
 			
 				case OK_DI:
 				case CANCEL_DI:
-					keepGoing = FALSE;
+					keepGoing = False;
 					break;
 				
 			}

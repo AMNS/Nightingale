@@ -242,7 +242,7 @@ void SetTextSize(Document *doc)
 	/* Following is OK as long as all the staves are the same size. */
 	
 	headL = doc->masterView ? doc->masterHeadL : doc->headL;
-	pL = LSSearch(headL, STAFFtype, ANYONE, FALSE, FALSE);
+	pL = LSSearch(headL, STAFFtype, ANYONE, False, False);
 	aStaffL = FirstSubLINK(pL);
 	aStaff = GetPASTAFF(aStaffL);
 	TextSize(UseTextSize(aStaff->fontSize, doc->magnify));

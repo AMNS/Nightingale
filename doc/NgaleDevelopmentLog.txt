@@ -2185,3 +2185,25 @@ before its Measure, as always; it's just that the visible measureNum 8 is the on
 that goes into the notelist, not the following and invisible one! How about just changing
 that? In that case, we're not exactly "Sav[ing] Selection Notelist", but I don't think
 anyone will notice... especially since probably noone but me is using notelists :-) .
+
+-------------------------------------------------------------------------------
+
+30 Sept.
+
+Change all "TRUE" to "True" and all "FALSE" to "False" => CarbonStubs.cp gets 6-11
+compilation errors!? Everywhere else in Ngale, True and False are defined, but I can't
+find the #defines;  here they're _not_ defined, but I can't see what the difference is!
+Anyway, at least for now, just #define them in CarbonStubs.cp.
+
+-------------------------------------------------------------------------------
+
+2 Oct.
+
+According to BBEdit, a number of C files still have encodings other than UTF-8, mostly
+ISO Latin-1. This could cause problems, e.g., with compiled-in non-ASCII chars., so
+they should be converted to UTF-8:
++ CarbonStubs, Double, DrawUtils
+- About, ChordSym, MIDIFOCmd, UIFUtils
+
+The vast majority of .h's seem to be in ISO Latin-1, etc., not UTF-8; these should also
+be converted, but it's less likely to cause problems.

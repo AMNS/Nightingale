@@ -74,8 +74,8 @@ void ExportEnvironment(Document *doc,
 	ExportPartList(doc);
 	
 	if (doc->partChangedMP) {
-		mStaffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
-		staffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+		mStaffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, False);
+		staffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, False);
 		for ( ; staffL; staffL = LinkRSTAFF(staffL)) {
 			aStaffL = FirstSubLINK(staffL);
 			for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
@@ -123,7 +123,7 @@ LINK MPFindPartInfo(Document *doc, short partn)
 }
 
 /* Run Instrument dialog to edit information for the part staff <firstStf> belongs
-to. Return TRUE if user OKs the dialog, FALSE if cancel. */
+to. Return True if user OKs the dialog, False if cancel. */
 
 short SDInstrDialog(Document *doc, short firstStf)
 {
@@ -139,13 +139,13 @@ short SDInstrDialog(Document *doc, short firstStf)
 			MPSetInstr(doc, &partInfo);
 			SetCMDeviceForPartn(doc, partn, device);
 			//SetCMDeviceForPartL(doc, partL, partn, device);
-			doc->masterChanged = TRUE;
+			doc->masterChanged = True;
 		}
 	}
 	else
 		if ((changed = InstrDialog(doc, &partInfo))!=0) {
 			MPSetInstr(doc, &partInfo);
-			doc->masterChanged = TRUE;
+			doc->masterChanged = True;
 		}
 
 	return changed;
@@ -167,10 +167,10 @@ static Boolean TooManyChanges(Document *doc)
 		GetIndCString(strBuf, MPERRS_STRS, 12);    /* "Too many Adds, Deletes, Groups, Ungroups, and Make One-Staff Parts in one batch." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return TRUE;
+		return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 /* Add change record to delete a part. */
@@ -183,14 +183,14 @@ void DelChangePart(Document *doc, short firstStf, short lastStf)
 	doc->change[doc->nChangeMP].staff = firstStf;
 	doc->change[doc->nChangeMP].p1 = lastStf;
 	doc->nChangeMP++;
-	doc->masterChanged = doc->partChangedMP = TRUE;
+	doc->masterChanged = doc->partChangedMP = True;
 }
 
 /* Add change record to add a part. */
 
 void AddChangePart(Document *doc, short firstStf, short nadd, short nper, short showLines)
 {
-	static Boolean firstDelAdd = TRUE;
+	static Boolean firstDelAdd = True;
 	char msg[20];
 
 	if (nper<1 || nper>MAXSTPART) {
@@ -214,7 +214,7 @@ void AddChangePart(Document *doc, short firstStf, short nadd, short nper, short 
 		doc->change[doc->nChangeMP].p3 = showLines;
 		doc->nChangeMP++;
 		
-		doc->masterChanged = doc->partChangedMP = TRUE;
+		doc->masterChanged = doc->partChangedMP = True;
 	}
 }
 
@@ -229,7 +229,7 @@ void Make1StaffChangeParts(Document *doc, short stf, short nadd, short showLines
 	doc->change[doc->nChangeMP].p2 = showLines;
 	doc->nChangeMP++;
 
-	doc->masterChanged = doc->partChangedMP = TRUE;
+	doc->masterChanged = doc->partChangedMP = True;
 }
 
 
@@ -237,7 +237,7 @@ void Make1StaffChangeParts(Document *doc, short stf, short nadd, short showLines
 
 void GroupChangeParts(Document *doc,
 						short firstStf, short lastStf,
-						Boolean connectBars,			/* TRUE=extend barlines to connect staves */ 
+						Boolean connectBars,			/* True=extend barlines to connect staves */ 
 						short connectType				/* CONNECTBRACKET or CONNECTCURLY */
 						)
 {
@@ -249,7 +249,7 @@ void GroupChangeParts(Document *doc,
 	doc->change[doc->nChangeMP].p2 = connectBars;
 	doc->change[doc->nChangeMP].p3 = connectType;
 	doc->nChangeMP++;
-	doc->masterChanged = doc->grpChangedMP = TRUE;
+	doc->masterChanged = doc->grpChangedMP = True;
 }
 
 /* Add a change record of type SDUngroup to ungroup parts. */
@@ -263,7 +263,7 @@ void UngroupChangeParts(Document *doc, short firstStf, short lastStf)
 	doc->change[doc->nChangeMP].p1 = lastStf;
 	doc->nChangeMP++;
 
-	doc->masterChanged = doc->grpChangedMP = TRUE;
+	doc->masterChanged = doc->grpChangedMP = True;
 }
 
 
@@ -282,12 +282,12 @@ static void GroupMeas(Document */*doc*/, LINK measL, short firstStf, short lastS
 	for ( ; aMeasL; aMeasL=NextMEASUREL(aMeasL)) {
 		if (MeasureSTAFF(aMeasL) == firstStf) {
 			aMeas = GetPAMEASURE(aMeasL);
-			aMeas->connAbove = FALSE;
+			aMeas->connAbove = False;
 			aMeas->connStaff = lastStf;
 		}
 		if (MeasureSTAFF(aMeasL)>firstStf && MeasureSTAFF(aMeasL)<=lastStf) {
 			aMeas = GetPAMEASURE(aMeasL);
-			aMeas->connAbove = TRUE;
+			aMeas->connAbove = True;
 			aMeas->connStaff = 0;
 		}		
 	}
@@ -303,7 +303,7 @@ static void UngroupMeas(Document *doc, LINK measL, short firstStf, short lastStf
 	for ( ; aMeasL; aMeasL=NextMEASUREL(aMeasL))
 		if (MeasureSTAFF(aMeasL)>=firstStf && MeasureSTAFF(aMeasL)<=lastStf) {
 			aMeas = GetPAMEASURE(aMeasL);
-			aMeas->connAbove = FALSE;
+			aMeas->connAbove = False;
 			aMeas->connStaff = 0;
 		}
 
@@ -323,7 +323,7 @@ static void UngroupMeas(Document *doc, LINK measL, short firstStf, short lastStf
 			for (s = partFirstStf+1; s<=partLastStf; s++) {
 				aMeasL = MeasOnStaff(measL, s);
 				aMeas = GetPAMEASURE(aMeasL);
-				aMeas->connAbove = TRUE;
+				aMeas->connAbove = True;
 			}
 		}
 	}
@@ -339,7 +339,7 @@ exiting Master Page. */
 
 static void GroupPart(Document *doc,
 							short firstStf, short lastStf,
-							Boolean connectBars,			/* TRUE=extend barlines to connect staves */ 
+							Boolean connectBars,			/* True=extend barlines to connect staves */ 
 							short connectType
 							)
 {
@@ -348,7 +348,7 @@ static void GroupPart(Document *doc,
 
 	connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
 
-	for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,FALSE)) {
+	for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,False)) {
 
 		/* Get the Connect subObj immediately following the range to be grouped */
 
@@ -396,7 +396,7 @@ static void GroupPart(Document *doc,
 			GroupMeas(doc,measL,firstStf,lastStf);
 	}
 
-	doc->masterChanged = TRUE;
+	doc->masterChanged = True;
 }
 
 /* Export a part ungrouping from Master Page by removing the appropriate subobject
@@ -410,7 +410,7 @@ static void UngroupPart(Document *doc, short firstStf, short lastStf)
 
 	connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
 
-	for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,FALSE)) {
+	for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,False)) {
 
 		/* Get the Connect grouping the range to be ungrouped */
 
@@ -486,7 +486,7 @@ void StoreAllConnects(LINK headL)
 
 	connectL = SSearch(headL,CONNECTtype,GO_RIGHT);
 	
-	for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,FALSE)) {
+	for ( ; connectL; connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,False)) {
 		aConnectL = FirstSubLINK(connectL);
 		for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
 			aConnect = GetPACONNECT(aConnectL);
@@ -533,7 +533,7 @@ void DelBadGroupConnects(Document *doc)
 
 	connectL = SSearch(doc->headL,CONNECTtype,GO_RIGHT);
 	for ( ; connectL;
-		 		connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,FALSE)) {
+		 		connectL=LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,False)) {
 		aConnectL = FirstSubLINK(connectL);
 		for ( ; aConnectL; aConnectL=nextL) {
 			nextL = NextCONNECTL(aConnectL);						/* In case this one gets removed */
@@ -562,7 +562,7 @@ static Boolean Add1StaffParts(Document *doc, LINK prevPartL, short nadd, short /
 		parts after prevPartL. */
 
 	partList = HeapAlloc(PARTINFOheap,nadd);
-	if (!partList) { NoMoreMemory(); return FALSE; }
+	if (!partList) { NoMoreMemory(); return False; }
 
 	nextPartL = NextPARTINFOL(prevPartL);							/* OK if it's NILINK */
 
@@ -589,7 +589,7 @@ static Boolean Add1StaffParts(Document *doc, LINK prevPartL, short nadd, short /
 	}
 
 	InvalWindow(doc);
-	return TRUE;
+	return True;
 }
 	
 #define CONNECT_GROUP CONNECTBRACKET	/* Default type. NB: must agree with MPImportExport.c! */
@@ -602,10 +602,10 @@ static void Finish1StaffParts(Document *doc, LINK origPartL, LINK lastPartL)
 {
 	LINK connectL, aConnectL; PACONNECT aConnect; DDIST squareWider; short firstStf;
 	
-	connectL = LSSearch(doc->headL,CONNECTtype,ANYONE,GO_RIGHT,FALSE);
+	connectL = LSSearch(doc->headL,CONNECTtype,ANYONE,GO_RIGHT,False);
 	
 	for ( ; connectL;
-			connectL = LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,FALSE)) {
+			connectL = LSSearch(RightLINK(connectL),CONNECTtype,ANYONE,GO_RIGHT,False)) {
 		aConnectL = FirstSubLINK(connectL);
 		for ( ; aConnectL; aConnectL=NextCONNECTL(aConnectL)) {
 			aConnect = GetPACONNECT(aConnectL);
@@ -621,7 +621,7 @@ static void Finish1StaffParts(Document *doc, LINK origPartL, LINK lastPartL)
 		}
 	}
 	
-	BuildVoiceTable(doc, TRUE);
+	BuildVoiceTable(doc, True);
 }
 
 static void Make1StaffParts(Document *, short, short, short);
@@ -651,13 +651,13 @@ short ExportChanges(Document *doc)
 
  	if (doc->nChangeMP>=MAX_CHANGES) {
  		MayErrMsg("ExportChanges: Too many changes: doc->nChangeMP=%ld.", (long)doc->nChangeMP);
- 		return FALSE;
+ 		return False;
  	}
 
 	/* Turn off autoRespace temporarily, to prevent bad meas XD's when deleting
 		parts that have content.  -JGG, 7/20/00 */
  	savedAutoRespace = doc->autoRespace;
-	doc->autoRespace = FALSE;
+	doc->autoRespace = False;
 
 	for (i = 0; i<doc->nChangeMP; i++) {
 		switch (doc->change[i].oper) {
@@ -705,7 +705,7 @@ short ExportChanges(Document *doc)
 				up the entire score and to derive information from the master System. */
 	
 			FixLedgerYSp(doc);
-	 		FixMeasRectYs(doc, NILINK, TRUE, FALSE, TRUE);
+	 		FixMeasRectYs(doc, NILINK, True, False, True);
 	 	}
 	
 		ArrowCursor();
@@ -713,5 +713,5 @@ short ExportChanges(Document *doc)
 	
 	doc->nChangeMP = 0;
 
-	return TRUE;
+	return True;
 }

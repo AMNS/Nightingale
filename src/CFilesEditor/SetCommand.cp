@@ -295,7 +295,7 @@ static short modifiers;
 
 static pascal Boolean SetFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	{
-		Boolean ans=FALSE; WindowPtr w;
+		Boolean ans=False; WindowPtr w;
 		short ch;	
 			
 		w = (WindowPtr)(evt->message);
@@ -311,7 +311,7 @@ static pascal Boolean SetFilter(DialogPtr dlog, EventRecord *evt, short *itemHit
 						DrawPopUp(&setPopups[index]); }
 					FrameDefault(dlog,BUT1_OK,1);				
 					EndUpdate(GetDialogWindow(dlog));
-					ans = TRUE; *itemHit = 0;
+					ans = True; *itemHit = 0;
 				}
 				break;
 			case activateEvt:
@@ -326,33 +326,33 @@ static pascal Boolean SetFilter(DialogPtr dlog, EventRecord *evt, short *itemHit
 				modifiers = evt->modifiers;
 				
 				if (PtInRect(where,&setPopups[MAIN_SET].shadow)) {
-					if (hilitedPop>-1) HilitePopUp(&setPopups[hilitedPop],FALSE);
+					if (hilitedPop>-1) HilitePopUp(&setPopups[hilitedPop],False);
 					hilitedPop = -1;
 					*itemHit = DoUserPopUp(&setPopups[MAIN_SET]) ? POP3 : 0;
 					if (*itemHit) DoMainPopChoice(dlog,setPopups[MAIN_SET].currentChoice);
-					ans = TRUE; break; }
+					ans = True; break; }
 					
 				if (currPropertyPop>-1)
 					if (PtInRect(where,&setPopups[currPropertyPop].shadow)) {
-						if (hilitedPop>-1) HilitePopUp(&setPopups[hilitedPop],FALSE); 
+						if (hilitedPop>-1) HilitePopUp(&setPopups[hilitedPop],False); 
 						hilitedPop = -1;
 						*itemHit = DoUserPopUp(&setPopups[currPropertyPop]) ? POP4 : 0;
 						if (*itemHit) DoPropPopChoice(dlog,setPopups[currPropertyPop].currentChoice);
-						ans = TRUE; break;
+						ans = True; break;
 					}
 					
 				if (currValuePop>-1)
 					if (PtInRect(where,&setPopups[currValuePop].shadow)) {
-						if (hilitedPop>-1) HilitePopUp(&setPopups[hilitedPop],FALSE); 
+						if (hilitedPop>-1) HilitePopUp(&setPopups[hilitedPop],False); 
 						hilitedPop = -1;
 						*itemHit = DoUserPopUp(&setPopups[currValuePop]) ? POP5 : 0;
-						ans = TRUE; break;
+						ans = True; break;
 					}	
 				break;
 			case autoKey:
 			case keyDown:
-				if (DlgCmdKey(dlog, evt, itemHit, FALSE))
-					return TRUE;
+				if (DlgCmdKey(dlog, evt, itemHit, False))
+					return True;
 				else {
 					ch = (unsigned char)evt->message;
 					switch (ch) {
@@ -361,7 +361,7 @@ static pascal Boolean SetFilter(DialogPtr dlog, EventRecord *evt, short *itemHit
 						case LEFTARROWKEY:
 						case RIGHTARROWKEY:
 							DoSetArrowKey(dlog,ch);
-							ans = TRUE; break;						
+							ans = True; break;						
 					}
 				}
 				break;		
@@ -396,7 +396,7 @@ static Boolean SetStfBadValues(Document *doc, short staff)
 					if (NoteSTAFF(aNoteL)<firstStaff
 					|| NoteSTAFF(aNoteL)>lastStaff) {
 						GetIndCString(strBuf, SETERRS_STRS, 15);    /* "Can't Set Staff because not all selected notes/rests are in the same part." */
-						return TRUE;
+						return True;
 					}
 				}
 			}
@@ -406,15 +406,15 @@ static Boolean SetStfBadValues(Document *doc, short staff)
 	maxStaff = lastStaff-firstStaff+1;
 	if (staff<1 || staff>maxStaff) {
 		GetIndCString(strBuf, SETERRS_STRS, 16);    /* "Staff number can't be less than 1 or larger than the number of staves in the part." */
-		return TRUE;
+		return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 static Boolean AnyBadValues(DialogPtr dlog, Document *doc)
 {
-	Boolean	anError=FALSE;
+	Boolean	anError=False;
 	short		badField, value;
 	
 	switch (setPopups[MAIN_SET].currentChoice) {
@@ -424,7 +424,7 @@ static Boolean AnyBadValues(DialogPtr dlog, Document *doc)
 				GetDlgWord(dlog,EDIT14,&value);
 				if (value<0 || value>127) {							/* MAX_VELOCITY */
 					GetIndCString(strBuf, SETERRS_STRS, 17);		/* "Velocity must be from 0 to 127." */
-					anError = TRUE; badField = EDIT14;
+					anError = True; badField = EDIT14;
 				}
 			}
 			
@@ -435,18 +435,18 @@ static Boolean AnyBadValues(DialogPtr dlog, Document *doc)
 			if (setPopups[NOTE_PROPERTY].currentChoice==voiceITEM) {
 				if (value<1 || value>=31) {							/* VOICEINFO's relVoice is a 5-bit field */
 					GetIndCString(strBuf, SETERRS_STRS, 18);		/* "Voice number must be from 1 to 31." */
-					anError = TRUE; badField = EDIT9;
+					anError = True; badField = EDIT9;
 				}
 			}
 			if (setPopups[NOTE_PROPERTY].currentChoice==staffITEM) {
 				if (SetStfBadValues(doc, value)) {
-					anError = TRUE; badField = EDIT9;
+					anError = True; badField = EDIT9;
 				}
 			}
 			if (setPopups[NOTE_PROPERTY].currentChoice==stemLengthITEM) {
 				if (value<0) {
 					GetIndCString(strBuf, SETERRS_STRS, 19);		/* "Stem length can't be negative." */
-					anError = TRUE; badField = EDIT9;
+					anError = True; badField = EDIT9;
 				}
 			}
 			break;
@@ -455,7 +455,7 @@ static Boolean AnyBadValues(DialogPtr dlog, Document *doc)
 			GetDlgWord(dlog,EDIT9,&value);
 			if (value<1 || value>127) {
 				GetIndCString(strBuf, SETERRS_STRS, 21);			/* "Line thickness must be..." */
-				anError = TRUE; badField = EDIT9;
+				anError = True; badField = EDIT9;
 			}
 			break;
 			
@@ -467,22 +467,22 @@ static Boolean AnyBadValues(DialogPtr dlog, Document *doc)
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		SelectDialogItemText(dlog, badField, 0, ENDTEXT);		/* Select bad field so user can easily fix it. */
-		return TRUE;														/* Keep dialog on screen */
+		return True;														/* Keep dialog on screen */
 	}
 	else
-		return FALSE;
+		return False;
 }
 
 
 /* ---------------------------------------------------------------- IsSetEnabled -- */
-/* Return TRUE if the Set command should be enabled (because something is selected
+/* Return True if the Set command should be enabled (because something is selected
 that it can handle). */
 
 Boolean IsSetEnabled(Document *doc)
 {
 	LINK pL;
 
-	if (doc==NULL) return FALSE;
+	if (doc==NULL) return False;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 	{
@@ -498,74 +498,74 @@ Boolean IsSetEnabled(Document *doc)
 				case TUPLETtype:
 				case TEMPOtype:
 				case BEAMSETtype:
-					return TRUE;
+					return True;
 				case GRAPHICtype:
 					if (GraphicSubType(pL)==GRString || GraphicSubType(pL)==GRLyric
 					||  GraphicSubType(pL)==GRChordSym || GraphicSubType(pL)==GRDraw 
 					|| GraphicSubType(pL)==GRMIDIPatch
 					//|| GraphicSubType(pL)==GRMIDISustainOn
 					|| GraphicSubType(pL)==GRMIDIPan)
-						return TRUE;
+						return True;
 				default:
 					;
 			}
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
 /* ---------------------------------------------------------------- InitSetItems -- */
 /* Set global variables to indicate what types of objects are selected. Then, if
 type *pChoice is disabled, set it to the first one that's enabled. If any of the
-items are enabled, return TRUE, else return FALSE. */
+items are enabled, return True, else return False. */
 
 static Boolean InitSetItems(Document *doc, short *pChoice)
 {
 	LINK pL;
 	
-	haveSync = haveSlur = haveText = haveLyric = haveChordSym = FALSE;
-	haveTempo = haveBarline = haveDynamic = haveClef = haveKeySig = FALSE;
-	haveTimeSig = haveTuplet = haveDraw = havePatchChange = FALSE, havePan = FALSE;
+	haveSync = haveSlur = haveText = haveLyric = haveChordSym = False;
+	haveTempo = haveBarline = haveDynamic = haveClef = haveKeySig = False;
+	haveTimeSig = haveTuplet = haveDraw = havePatchChange = False, havePan = False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 	{
 		if (LinkSEL(pL))
 			switch (ObjLType(pL)) {
 				case SYNCtype:
-					haveSync = TRUE; break;
+					haveSync = True; break;
 				case SLURtype:
-					haveSlur = TRUE; break;
+					haveSlur = True; break;
 				case GRAPHICtype:
-					if (GraphicSubType(pL)==GRString) haveText = TRUE;
-					else if (GraphicSubType(pL)==GRLyric) haveLyric = TRUE;
-					else if (GraphicSubType(pL)==GRChordSym) haveChordSym = TRUE;
-					else if (GraphicSubType(pL)==GRDraw) haveDraw = TRUE;
-					else if (GraphicSubType(pL)==GRMIDIPatch) havePatchChange = TRUE;
-					else if (GraphicSubType(pL)==GRMIDIPan) havePan = TRUE;
+					if (GraphicSubType(pL)==GRString) haveText = True;
+					else if (GraphicSubType(pL)==GRLyric) haveLyric = True;
+					else if (GraphicSubType(pL)==GRChordSym) haveChordSym = True;
+					else if (GraphicSubType(pL)==GRDraw) haveDraw = True;
+					else if (GraphicSubType(pL)==GRMIDIPatch) havePatchChange = True;
+					else if (GraphicSubType(pL)==GRMIDIPan) havePan = True;
 					break;
 				case TEMPOtype:
-					haveTempo = TRUE; break;
+					haveTempo = True; break;
 				case MEASUREtype:
-					haveBarline = TRUE; break;
+					haveBarline = True; break;
 				case DYNAMtype:
-					haveDynamic = TRUE; break;
+					haveDynamic = True; break;
 				case CLEFtype:
-					haveClef = TRUE; break;
+					haveClef = True; break;
 				case KEYSIGtype:
-					haveKeySig = TRUE; break;
+					haveKeySig = True; break;
 				case TIMESIGtype:
-					haveTimeSig = TRUE; break;
+					haveTimeSig = True; break;
 				case TUPLETtype:
-					haveTuplet = TRUE; break;
+					haveTuplet = True; break;
 				case BEAMSETtype:
-					haveBeamset = TRUE; break;
+					haveBeamset = True; break;
 				default:
 					;
 			}
 	}
 
-	*pChoice = FindMainEnabledItem(*pChoice, FALSE, TRUE);
+	*pChoice = FindMainEnabledItem(*pChoice, False, True);
 
 	return (haveSync || haveSlur || haveText || haveLyric || haveChordSym ||
 				haveTempo || haveBarline || haveDynamic || haveClef || haveKeySig ||
@@ -647,8 +647,8 @@ short FindMainEnabledItem(short currItem, Boolean up, Boolean wrap)
 
 /* ------------------------------------------------------------------- SetDialog -- */
 /* If OK'ed, sets its parameters to the new value and to describe the object type
-and property to set to that value, and returns TRUE. If Cancelled or an error
-occurs, returns FALSE. */
+and property to set to that value, and returns True. If Cancelled or an error
+occurs, returns False. */
 
 Boolean SetDialog(
 				Document *doc,
@@ -657,7 +657,7 @@ Boolean SetDialog(
 				short		*finalVal 			/* Return value (vvv) */
 				)
 {
-	short itemHit,type,okay=FALSE,dialogOver,value,index;
+	short itemHit,type,okay=False,dialogOver,value,index;
 	Handle hndl; Rect box;
 	DialogPtr dlog; GrafPtr oldPort;		
 	ModalFilterUPP	filterUPP;
@@ -665,7 +665,7 @@ Boolean SetDialog(
 	filterUPP = NewModalFilterUPP(SetFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(SET_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	GetPort(&oldPort);
@@ -674,7 +674,7 @@ Boolean SetDialog(
 	if (dlog == NULL) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(SET_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	CenterWindow(GetDialogWindow(dlog),80);
@@ -682,7 +682,7 @@ Boolean SetDialog(
 
 	/* Initialize all PopUps. First, though, we have to set <mainSetChoice>. */
 	 
-	if (!InitSetItems(doc, &mainSetChoice)) return(FALSE);
+	if (!InitSetItems(doc, &mainSetChoice)) return(False);
 	
 	/* ------------------ Initialize PopUps for Main position. ------------------ */
 	
@@ -822,10 +822,10 @@ Boolean SetDialog(
 	XableSetItems(doc);
 	DoMainPopChoice(dlog,mainSetChoice); 		/* Set up items after mainSetPopup to agree with sticky choice. */		
 		
-	PutDlgWord(dlog,EDIT9,edit9Value,FALSE);
-	PutDlgChkRadio(dlog,RAD12_fromContext,(group1==RAD12_fromContext? TRUE:FALSE));
-	PutDlgChkRadio(dlog,RAD13_to,(group1==RAD13_to? TRUE:FALSE));
-	PutDlgWord(dlog,EDIT14,edit14Value,FALSE);
+	PutDlgWord(dlog,EDIT9,edit9Value,False);
+	PutDlgChkRadio(dlog,RAD12_fromContext,(group1==RAD12_fromContext? True:False));
+	PutDlgChkRadio(dlog,RAD13_to,(group1==RAD13_to? True:False));
+	PutDlgWord(dlog,EDIT14,edit14Value,False);
 	if (notePropertyChoice==velocityITEM)
 		SelectDialogItemText(dlog,EDIT14,0,(group1==RAD13_to? ENDTEXT:0));
 	else SelectDialogItemText(dlog,EDIT9,0,ENDTEXT);
@@ -855,7 +855,7 @@ Boolean SetDialog(
 							if (itemHit != group1) {
 								SetControlValue((ControlHandle)hndl,value=!GetControlValue((ControlHandle)hndl));
 								GetDialogItem(dlog,group1,&type,&hndl,&box);
-								SetControlValue((ControlHandle)hndl,FALSE);
+								SetControlValue((ControlHandle)hndl,False);
 								group1 = itemHit;
 								/* If "to" radio hit, select its edit field; else deselect field */
 								SelectDialogItemText(dlog,EDIT14,0,group1==RAD13_to?ENDTEXT:0);
@@ -868,9 +868,9 @@ Boolean SetDialog(
 						case EDIT14:
 							/* If edit field hit, choose its radio button */
 							GetDialogItem(dlog,RAD12_fromContext,&type,&hndl,&box);
-							SetControlValue((ControlHandle)hndl,FALSE);
+							SetControlValue((ControlHandle)hndl,False);
 							GetDialogItem(dlog,group1=RAD13_to,&type,&hndl,&box);
-							SetControlValue((ControlHandle)hndl,TRUE);
+							SetControlValue((ControlHandle)hndl,True);
 							break;
 						}
 					break;
@@ -1082,7 +1082,7 @@ static void DoConstPropPopChoice(DialogPtr dlog, short choice)
 
 			for (index=1;index<HOW_MANY_POPS;index++) {
 				EraseRect(&setPopups[index].shadow);
-				ShowPopUp(&setPopups[index],FALSE);
+				ShowPopUp(&setPopups[index],False);
 			}
 			currPropertyPop = -1;
 			HideDialogItem(dlog,EDIT9);
@@ -1102,7 +1102,7 @@ static void DoConstPropPopChoice(DialogPtr dlog, short choice)
 			}
 			else {
 				HideDialogItem(dlog,STXT7_Property);
-				ShowPopUp(&setPopups[VISIBILITY],TRUE);
+				ShowPopUp(&setPopups[VISIBILITY],True);
 				DrawPopUp(&setPopups[VISIBILITY]);
 				currValuePop = VISIBILITY;
 			}
@@ -1126,8 +1126,8 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 		case noteITEM:
 			for (index=2;index<HOW_MANY_POPS;index++) {		/* Erase all but note property popup. */
 				EraseRect(&setPopups[index].shadow);
-				ShowPopUp(&setPopups[index],FALSE); }		
-			ShowPopUp(&setPopups[NOTE_PROPERTY],TRUE);
+				ShowPopUp(&setPopups[index],False); }		
+			ShowPopUp(&setPopups[NOTE_PROPERTY],True);
 			DrawPopUp(&setPopups[NOTE_PROPERTY]);
 			currPropertyPop = NOTE_PROPERTY;
 			ShowDialogItem(dlog,STXT8_To);
@@ -1153,14 +1153,14 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 				case noteAppearanceITEM:
 					HideDialogItem(dlog,EDIT9);
 					HideDialogItem(dlog,STXT11_qtr);
-					ShowPopUp(&setPopups[NOTE_APPEARANCE],TRUE);
+					ShowPopUp(&setPopups[NOTE_APPEARANCE],True);
 					DrawPopUp(&setPopups[NOTE_APPEARANCE]);
 					currValuePop = NOTE_APPEARANCE;
 					break;
 				case noteSizeITEM:
 					HideDialogItem(dlog,EDIT9);
 					HideDialogItem(dlog,STXT11_qtr);				
-					ShowPopUp(&setPopups[NOTE_SIZE],TRUE);
+					ShowPopUp(&setPopups[NOTE_SIZE],True);
 					DrawPopUp(&setPopups[NOTE_SIZE]);
 					currValuePop = NOTE_SIZE;				
 					break;
@@ -1173,7 +1173,7 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 				case parenITEM:
 					HideDialogItem(dlog,EDIT9);
 					HideDialogItem(dlog,STXT11_qtr);				
-					ShowPopUp(&setPopups[NOTE_ACC_PARENS],TRUE);
+					ShowPopUp(&setPopups[NOTE_ACC_PARENS],True);
 					DrawPopUp(&setPopups[NOTE_ACC_PARENS]);
 					currValuePop = NOTE_ACC_PARENS;				
 					break;
@@ -1184,10 +1184,10 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 		case lyricITEM:
 			for (index=1;index<HOW_MANY_POPS;index++) {	/* Erase all but main popup. */
 				EraseRect(&setPopups[index].shadow);
-				ShowPopUp(&setPopups[index],FALSE);
+				ShowPopUp(&setPopups[index],False);
 			}
 			ShowDialogItem(dlog,STXT8_To);
-			ShowPopUp(&setPopups[TEXT_PROPERTY],TRUE);
+			ShowPopUp(&setPopups[TEXT_PROPERTY],True);
 			DrawPopUp(&setPopups[TEXT_PROPERTY]);
 			currPropertyPop = TEXT_PROPERTY;	
 						
@@ -1220,7 +1220,7 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 					}
 					ResizePopUp(&setPopups[TEXT_STYLE]);
 					ChangePopUpChoice(&setPopups[TEXT_STYLE],setPopups[TEXT_STYLE].currentChoice);
-					ShowPopUp(&setPopups[TEXT_STYLE],TRUE);
+					ShowPopUp(&setPopups[TEXT_STYLE],True);
 					DrawPopUp(&setPopups[TEXT_STYLE]);
 					currValuePop = TEXT_STYLE;
 					break;
@@ -1238,10 +1238,10 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 		case chordSymITEM:
 			for (index=1;index<HOW_MANY_POPS;index++) {	/* Erase all but main popup. */
 				EraseRect(&setPopups[index].shadow);
-				ShowPopUp(&setPopups[index],FALSE);
+				ShowPopUp(&setPopups[index],False);
 			}
 			ShowDialogItem(dlog,STXT8_To);
-			ShowPopUp(&setPopups[CHORDSYM_PROPERTY],TRUE);
+			ShowPopUp(&setPopups[CHORDSYM_PROPERTY],True);
 			DrawPopUp(&setPopups[CHORDSYM_PROPERTY]);
 			currPropertyPop = CHORDSYM_PROPERTY;
 
@@ -1254,10 +1254,10 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 		case tempoITEM:
 			for (index=1;index<HOW_MANY_POPS;index++) {	/* Erase all but main popup. */
 				EraseRect(&setPopups[index].shadow);
-				ShowPopUp(&setPopups[index],FALSE);
+				ShowPopUp(&setPopups[index],False);
 			}
 			ShowDialogItem(dlog,STXT8_To);
-			ShowPopUp(&setPopups[TEMPO_PROPERTY],TRUE);
+			ShowPopUp(&setPopups[TEMPO_PROPERTY],True);
 			DrawPopUp(&setPopups[TEMPO_PROPERTY]);
 			currPropertyPop = TEMPO_PROPERTY;
 
@@ -1271,7 +1271,7 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 					ShowDialogItem(dlog,STXT11_qtr);
 					break;
 				case hideMM_ITEM:
-					ShowPopUp(&setPopups[VISIBILITY],TRUE);
+					ShowPopUp(&setPopups[VISIBILITY],True);
 					DrawPopUp(&setPopups[VISIBILITY]);
 					currValuePop = VISIBILITY;
 					HideDialogItem(dlog,EDIT9);
@@ -1284,10 +1284,10 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 		case tupletITEM:
 			for (index=1;index<HOW_MANY_POPS;index++) {	/* Erase all but main popup. */
 				EraseRect(&setPopups[index].shadow);
-				ShowPopUp(&setPopups[index],FALSE);
+				ShowPopUp(&setPopups[index],False);
 			}
 			ShowDialogItem(dlog,STXT8_To);
-			ShowPopUp(&setPopups[TUPLET_PROPERTY],TRUE);
+			ShowPopUp(&setPopups[TUPLET_PROPERTY],True);
 			DrawPopUp(&setPopups[TUPLET_PROPERTY]);
 			currPropertyPop = TUPLET_PROPERTY;	
 			HideDialogItem(dlog,EDIT9);
@@ -1295,12 +1295,12 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 						
 			switch (choice)	{
 				case bracketITEM:
-					ShowPopUp(&setPopups[VISIBILITY],TRUE);
+					ShowPopUp(&setPopups[VISIBILITY],True);
 					DrawPopUp(&setPopups[VISIBILITY]);
 					currValuePop = VISIBILITY;
 					break;
 				case accNumsITEM:
-					ShowPopUp(&setPopups[ACCNUMVIS],TRUE);
+					ShowPopUp(&setPopups[ACCNUMVIS],True);
 					DrawPopUp(&setPopups[ACCNUMVIS]);
 					currValuePop = ACCNUMVIS;
 					break;
@@ -1310,10 +1310,10 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 		case slurTieITEM:
 			for (index=1;index<HOW_MANY_POPS;index++) {	/* Erase all but main popup. */
 				EraseRect(&setPopups[index].shadow);
-				ShowPopUp(&setPopups[index],FALSE);
+				ShowPopUp(&setPopups[index],False);
 			}
 			ShowDialogItem(dlog,STXT8_To);
-			ShowPopUp(&setPopups[SLUR_PROPERTY],TRUE);
+			ShowPopUp(&setPopups[SLUR_PROPERTY],True);
 			DrawPopUp(&setPopups[SLUR_PROPERTY]);
 			currPropertyPop = SLUR_PROPERTY;	
 			HideDialogItem(dlog,EDIT9);
@@ -1330,7 +1330,7 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 					currValuePop = -1;
 					break;
 				case slurAppearanceITEM:
-					ShowPopUp(&setPopups[SLUR_APPEARANCE],TRUE);
+					ShowPopUp(&setPopups[SLUR_APPEARANCE],True);
 					DrawPopUp(&setPopups[SLUR_APPEARANCE]);
 					currValuePop = SLUR_APPEARANCE;
 					break;
@@ -1340,10 +1340,10 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 		case barlineITEM:
 			for (index=1;index<HOW_MANY_POPS;index++) {	/* Erase all but main popup. */
 				EraseRect(&setPopups[index].shadow);
-				ShowPopUp(&setPopups[index],FALSE);
+				ShowPopUp(&setPopups[index],False);
 			}
 			ShowDialogItem(dlog,STXT8_To);
-			ShowPopUp(&setPopups[BARLINE_PROPERTY],TRUE);
+			ShowPopUp(&setPopups[BARLINE_PROPERTY],True);
 			DrawPopUp(&setPopups[BARLINE_PROPERTY]);
 			currPropertyPop = BARLINE_PROPERTY;	
 			HideDialogItem(dlog,EDIT9);
@@ -1351,12 +1351,12 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 						
 			switch (choice)	{
 				case barlineVisibleITEM:
-					ShowPopUp(&setPopups[VISIBILITY],TRUE);
+					ShowPopUp(&setPopups[VISIBILITY],True);
 					DrawPopUp(&setPopups[VISIBILITY]);
 					currValuePop = VISIBILITY;
 					break;
 				case barlineTypeITEM:
-					ShowPopUp(&setPopups[BARLINE_TYPE],TRUE);
+					ShowPopUp(&setPopups[BARLINE_TYPE],True);
 					DrawPopUp(&setPopups[BARLINE_TYPE]);
 					currValuePop = BARLINE_TYPE;
 					break;
@@ -1366,22 +1366,22 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 		case dynamicITEM:			/* no property popup for this yet */
 			for (index=1;index<HOW_MANY_POPS;index++) {	/* Erase all but main popup. */
 				EraseRect(&setPopups[index].shadow);
-				ShowPopUp(&setPopups[index],FALSE);
+				ShowPopUp(&setPopups[index],False);
 			}
 			ShowDialogItem(dlog,STXT8_To);
-			ShowPopUp(&setPopups[DYNAMIC_PROPERTY],TRUE);
+			ShowPopUp(&setPopups[DYNAMIC_PROPERTY],True);
 			DrawPopUp(&setPopups[DYNAMIC_PROPERTY]);
 			currPropertyPop = DYNAMIC_PROPERTY;	
 			HideDialogItem(dlog,EDIT9);
 			HideDialogItem(dlog,STXT11_qtr);
 			switch (choice)	{
 				case dynamVisibleITEM:
-					ShowPopUp(&setPopups[VISIBILITY],TRUE);
+					ShowPopUp(&setPopups[VISIBILITY],True);
 					DrawPopUp(&setPopups[VISIBILITY]);
 					currValuePop = VISIBILITY;
 					break;
 				case dynamSmallITEM:
-					ShowPopUp(&setPopups[DYNAMIC_SIZE],TRUE);
+					ShowPopUp(&setPopups[DYNAMIC_SIZE],True);
 					DrawPopUp(&setPopups[DYNAMIC_SIZE]);
 					currValuePop = DYNAMIC_SIZE;
 					break;
@@ -1391,17 +1391,17 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 		case beamsetITEM:
 			for (index=1;index<HOW_MANY_POPS;index++) {	/* Erase all but main popup. */
 				EraseRect(&setPopups[index].shadow);
-				ShowPopUp(&setPopups[index],FALSE);
+				ShowPopUp(&setPopups[index],False);
 			}
 			ShowDialogItem(dlog,STXT8_To);
-			ShowPopUp(&setPopups[BEAMSET_PROPERTY],TRUE);
+			ShowPopUp(&setPopups[BEAMSET_PROPERTY],True);
 			DrawPopUp(&setPopups[BEAMSET_PROPERTY]);
 			currPropertyPop = BEAMSET_PROPERTY;	
 			HideDialogItem(dlog,EDIT9);
 			HideDialogItem(dlog,STXT11_qtr);
 			switch (choice)	{
 				case beamsetThicknessITEM:
-					ShowPopUp(&setPopups[BEAMSET_THICKNESS],TRUE);
+					ShowPopUp(&setPopups[BEAMSET_THICKNESS],True);
 					DrawPopUp(&setPopups[BEAMSET_THICKNESS]);
 					currValuePop = BEAMSET_THICKNESS;
 					break;
@@ -1442,7 +1442,7 @@ void DoSetArrowKey(DialogPtr dlog, short whichKey)
 		case DOWNARROWKEY:
 			if (hilitedPop==-1) {
 				hilitedPop = MAIN_SET;
-				HilitePopUp(&setPopups[MAIN_SET],TRUE);
+				HilitePopUp(&setPopups[MAIN_SET],True);
 			}
 			else {
 				p = &setPopups[hilitedPop];
@@ -1454,7 +1454,7 @@ void DoSetArrowKey(DialogPtr dlog, short whichKey)
         			GetMenuItemText(p->menu, newChoice, str);
         			if (str[1] == '-') newChoice -= 1;			/* Skip over the dash item */
 					if (hilitedPop == MAIN_SET)
-						newChoice = FindMainEnabledItem(newChoice, TRUE, FALSE);
+						newChoice = FindMainEnabledItem(newChoice, True, False);
 					if (newChoice <= 0) return;					/* Top of menu reached; don't wrap around. */
 				}
 				else {
@@ -1463,7 +1463,7 @@ void DoSetArrowKey(DialogPtr dlog, short whichKey)
         			GetMenuItemText(p->menu, newChoice, str);
         			if (str[1] == '-') newChoice += 1;			/* Skip over the dash item */
 					if (hilitedPop == MAIN_SET)
-						newChoice = FindMainEnabledItem(newChoice, FALSE, FALSE);
+						newChoice = FindMainEnabledItem(newChoice, False, False);
 					if (newChoice <= 0) return;					/* Bottom of menu reached; don't wrap around. */
 				}
 
@@ -1481,7 +1481,7 @@ void DoSetArrowKey(DialogPtr dlog, short whichKey)
 				||       p == &setPopups[DYNAMIC_PROPERTY]
 				||       p == &setPopups[BEAMSET_PROPERTY])
 								DoPropPopChoice(dlog,newChoice);
-				HilitePopUp(p,TRUE);
+				HilitePopUp(p,True);
 			}
 			return;										/* avoid the statements after switch(whichKey) */
 						
@@ -1523,8 +1523,8 @@ void DoSetArrowKey(DialogPtr dlog, short whichKey)
 			break;			
 	}	/* end switch (whichKey) */
 				
-	if (oldHilitedPop>-1) HilitePopUp(&setPopups[oldHilitedPop],FALSE);
-	HilitePopUp(&setPopups[newHilitedPop],TRUE);
+	if (oldHilitedPop>-1) HilitePopUp(&setPopups[oldHilitedPop],False);
+	HilitePopUp(&setPopups[newHilitedPop],True);
 	hilitedPop = newHilitedPop;
 }
 
@@ -1540,7 +1540,7 @@ void DoSet(Document *doc)
 		if (SetDialog(doc, &newTypeSet, &newParamSet, &newValSet)) {
 			PrepareUndo(doc, doc->selStartL, U_Set, 34);			/* "Undo QuickChange" */
 			WaitCursor();
-			didAnything = FALSE;
+			didAnything = False;
 
 			switch (newTypeSet) {
 				case noteITEM:
@@ -1553,7 +1553,7 @@ void DoSet(Document *doc)
 							break;
 						case velocityITEM:
 							if (newValSet<0)
-								didAnything = SetVelFromContext(doc, TRUE);
+								didAnything = SetVelFromContext(doc, True);
 							else
 								didAnything = SetSelVelocity(doc, newValSet);
 							break;
@@ -1730,7 +1730,7 @@ void DoSet(Document *doc)
 			}
 			
 			if (didAnything) {
-				doc->changed = TRUE;
+				doc->changed = True;
 				InvalWindow(doc);
 			}
 		}

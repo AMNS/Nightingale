@@ -51,9 +51,9 @@ static Boolean InitQuantize(Document *doc, Boolean merge)
 		measInfoTab[0].count = 1;
 	else {
 		measDur = TimeSigDur(0, context.numerator, context.denominator);
-		measL = LSSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		measL = LSSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, False);
 		selStartTime = MeasureTIME(measL);
-		syncL = LSSearch(LeftLINK(doc->selEndL), SYNCtype, ANYONE, GO_LEFT, FALSE);
+		syncL = LSSearch(LeftLINK(doc->selEndL), SYNCtype, ANYONE, GO_LEFT, False);
 		selEndTime = SyncAbsTime(syncL)+SyncMaxDur(doc, syncL);
 		count = (selEndTime-selStartTime)/measDur;
 		if (count*measDur<selEndTime-selStartTime) count++;			/* Always round up */
@@ -64,7 +64,7 @@ static Boolean InitQuantize(Document *doc, Boolean merge)
 	measInfoTab[0].denominator = context.denominator;
 	measTabLen = 1;
 	
-	return TRUE;
+	return True;
 }
 
 /* -------------------------------------------------------------- Voice2RTStructs -- */
@@ -144,7 +144,7 @@ static short Voice2RTStructs(
 		}
 	}
 
-	rawNoteAux[++nAux].first = TRUE;											/* Sentinel at end */
+	rawNoteAux[++nAux].first = True;											/* Sentinel at end */
 
 	*pnSyncs = iSync+1;
 	*pnAux = nAux;
@@ -197,7 +197,7 @@ static short Voice2KnownDurs(
 	LINK endMeasL, lastL, endFillL;
 	short nNewSyncs, nMergeObjs, tVErr, i;
 	unsigned short maxNewSyncs;
-	Boolean okay=FALSE;
+	Boolean okay=False;
 	char fmtStr[256];
 	
 	if (nRawSyncs<=0 || nAux<=0) return NOTHING_TO_DO;
@@ -241,7 +241,7 @@ static short Voice2KnownDurs(
 	if (!GoodNewPtr((Ptr)mergeObjs))
 		{ NoMoreMemory(); mergeObjs = NULL; goto Done; }
 
-	nMergeObjs = FillMergeBuffer(qStartMeasL, mergeObjs, MERGE_TAB_SIZE, FALSE);
+	nMergeObjs = FillMergeBuffer(qStartMeasL, mergeObjs, MERGE_TAB_SIZE, False);
 	if (nMergeObjs>MERGE_TAB_SIZE) {
 		GetIndCString(fmtStr, MIDIERRS_STRS, 12);			/* "Can't Transcribe more than..." */
 		sprintf(strBuf, fmtStr, MERGE_TAB_SIZE);
@@ -261,10 +261,10 @@ static short Voice2KnownDurs(
 		{ NoMoreMemory(); goto Done; }
 	
 	endFillL = (qEndL? LeftLINK(qEndL) : lastL);
-	endMeasL = LSSearch(endFillL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	endMeasL = LSSearch(endFillL, MEASUREtype, ANYONE, GO_LEFT, False);
 	if (!FillNonemptyMeas(doc, qStartMeasL, endMeasL, voice, quantum)) goto Done;
 	
-	okay = TRUE;
+	okay = True;
 
 Done:
 	//if (rawSyncTab) DisposePtr((Ptr)rawSyncTab);		// BAD BAD BAD - Dont do this here!!
@@ -357,7 +357,7 @@ static LINK GDAddMeasures(Document *doc, LINK qEndL)
 {
 	short count, m;
 	LINK measL, newMeasL, startFixL, endFixL;
-	Boolean okay=FALSE;
+	Boolean okay=False;
 	
 	/* Add the "extra" Measure and all the other Measures (if any!) we need. */
 	
@@ -368,7 +368,7 @@ static LINK GDAddMeasures(Document *doc, LINK qEndL)
 		if (m==0) newMeasL = measL;
 	}
 	
-	okay = TRUE;
+	okay = True;
 
 Done:
 	if (!okay) {
@@ -400,12 +400,12 @@ static void DelAndMoveMeasure(Document *doc, LINK measL)
 		keep them in the same place on the page. */
 
  	if (!MeasureTYPE(RightLINK(measL))) {
-		prevMeasL = LSSearch(LeftLINK(measL),MEASUREtype,ANYONE,GO_LEFT,FALSE);
+		prevMeasL = LSSearch(LeftLINK(measL),MEASUREtype,ANYONE,GO_LEFT,False);
  		xMove = SysRelxd(measL)-SysRelxd(prevMeasL);
  		MoveInMeasure(RightLINK(measL), doc->tailL, xMove);
  	}
  	
-	prevMeasL = LSSearch(LeftLINK(measL),MEASUREtype,ANYONE,GO_LEFT,FALSE);
+	prevMeasL = LSSearch(LeftLINK(measL),MEASUREtype,ANYONE,GO_LEFT,False);
 	prevWidth = MeasWidth(prevMeasL);
 	width = MeasWidth(measL);
 	SetMeasWidth(prevMeasL, prevWidth+width);
@@ -443,7 +443,7 @@ static LINK QuantAllVoices(
 	short timeOffset=0;								/* BEFORE quantizing, in PDUR ticks: normally 0 */
 	long startTime, len;
 	long postQTimeOffset;							/* AFTER quantizing, in PDUR ticks: normally 0 */
-	Boolean gotNotes=FALSE, okay=FALSE;
+	Boolean gotNotes=False, okay=False;
 	LINKTIMEINFO *rawSyncTab[MAXVOICES+1];			/* Arrays of pointers to tables */
 	NOTEAUX	*rawNoteAux[MAXVOICES+1];
 	short maxSyncs[MAXVOICES+1], nRawSyncs[MAXVOICES+1], nAux[MAXVOICES+1];
@@ -469,7 +469,7 @@ static LINK QuantAllVoices(
 	
 	for (v = 1; v<=MAXVOICES; v++) {
 		if (VOICE_MAYBE_USED(doc, v)) {
-			nSyncs = VCountNotes(v, doc->selStartL, doc->selEndL, TRUE);
+			nSyncs = VCountNotes(v, doc->selStartL, doc->selEndL, True);
 			/* If nothing in voice in range, set variables to safe values. */
 			if (nSyncs<=0) {
 				nRawSyncs[v] = nAux[v] = 0;
@@ -478,7 +478,7 @@ static LINK QuantAllVoices(
 				continue;
 			}
 			maxSyncs[v] = 2*nSyncs+EXTRA_OBJS;
-			nNotes = VCountNotes(v, doc->selStartL, doc->selEndL, FALSE);
+			nNotes = VCountNotes(v, doc->selStartL, doc->selEndL, False);
 	
 			len = maxSyncs[v]*sizeof(LINKTIMEINFO);
 			rawSyncTab[v] = (LINKTIMEINFO *)NewPtr(len);
@@ -542,7 +542,7 @@ static LINK QuantAllVoices(
 									nRawSyncs[v], rawNoteAux[v], nAux[v], postQTimeOffset,
 									qStartL, (merge? NILINK : qEndL), &lastL);
 		if (status==FAILURE) break;
-		if (status==OP_COMPLETE) gotNotes = TRUE;
+		if (status==OP_COMPLETE) gotNotes = True;
 
 		if (v<MAXVOICES && CheckAbort()) {						/* Check for user cancelling */
 			ProgressMsg(SKIPVOICE_PMSTR, "");
@@ -579,7 +579,7 @@ static LINK QuantAllVoices(
 		doc->selStartL = qStartL;
 		doc->selEndL = qEndL;
 
-		okay = TRUE;
+		okay = True;
 	}
 
 Done:
@@ -602,15 +602,15 @@ static Boolean SyncOKToQuantize(LINK syncL)
 	
 	for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
-		if (aNote->rest) return FALSE;
-		if (aNote->subType!=UNKNOWN_L_DUR) return FALSE;
+		if (aNote->rest) return False;
+		if (aNote->subType!=UNKNOWN_L_DUR) return False;
 		if (aNote->beamed || aNote->tiedL || aNote->tiedR
 		||  aNote->slurredL || aNote->slurredR || aNote->inTuplet)
-			return FALSE;
-		if (aNote->firstMod) return FALSE;
+			return False;
+		if (aNote->firstMod) return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 /* ------------------------------------------------------ SyncHasNondefaultVoice -- */
@@ -621,9 +621,9 @@ static Boolean SyncHasNondefaultVoice(LINK syncL)
 	LINK aNoteL;
 	
 	for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL))
-		if (NoteVOICE(aNoteL)!=NoteSTAFF(aNoteL)) return TRUE;
+		if (NoteVOICE(aNoteL)!=NoteSTAFF(aNoteL)) return True;
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -674,8 +674,8 @@ static void SelectRange2(Document *doc, LINK startL, LINK endL, short firstStf,
 				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
 					subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
 					if (subObj->staffn>=firstStf && subObj->staffn<=lastStf) {
-						LinkSEL(pL) = TRUE;
-						subObj->selected = TRUE;
+						LinkSEL(pL) = True;
+						subObj->selected = True;
 					}
 				}	
 				break;
@@ -687,15 +687,15 @@ static void SelectRange2(Document *doc, LINK startL, LINK endL, short firstStf,
 			case GRAPHICtype:
 			case TEMPOtype:
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf)
-					LinkSEL(pL) = TRUE;
+					LinkSEL(pL) = True;
 				break;
 
 			case SLURtype:
 				if (SlurSTAFF(pL)>=firstStf && SlurSTAFF(pL)<=lastStf) {
-					LinkSEL(pL) = TRUE;
+					LinkSEL(pL) = True;
 					aSlurL = FirstSubLINK(pL);
 					for ( ; aSlurL; aSlurL=NextSLURL(aSlurL))
-						SlurSEL(aSlurL) = TRUE;
+						SlurSEL(aSlurL) = True;
 				}
 				break;
 		}
@@ -711,12 +711,12 @@ void GetSelMeasNums(Document *doc, short *pStartNum, short *pEndNum)
 {
 	LINK startL, endL, aMeasureL; PAMEASURE aMeasure;
 	
-	startL = LSSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+	startL = LSSearch(doc->selStartL, MEASUREtype, ANYONE, GO_LEFT, False);
 	aMeasureL = FirstSubLINK(startL);
 	aMeasure = GetPAMEASURE(aMeasureL);
 	*pStartNum = aMeasure->measureNum;
 
-	endL = LSSearch(doc->selEndL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	endL = LSSearch(doc->selEndL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	if (endL) {
 		aMeasureL = FirstSubLINK(endL);
 		aMeasure = GetPAMEASURE(aMeasureL);
@@ -728,14 +728,14 @@ void GetSelMeasNums(Document *doc, short *pStartNum, short *pEndNum)
 
 
 /* If any Measure in the score exceeds the maximum legal no. of objects, give an
-error message and return TRUE. */
+error message and return True. */
 
 Boolean AnyOverfullMeasure(Document *doc)
 {
 	LINK measL, pL; short nInMeasure;
 	char fmtStr[256];
 	
-	measL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, FALSE);		/* Start at first measure */
+	measL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, False);		/* Start at first measure */
 	nInMeasure = 0;
 	
 	/* We should really skip reserved areas, but that shouldn't make much difference
@@ -750,11 +750,11 @@ Boolean AnyOverfullMeasure(Document *doc)
 			sprintf(strBuf, fmtStr, MAX_MEASNODES);
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			return TRUE;
+			return True;
 		}
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -774,7 +774,7 @@ Boolean GDRespAndRfmt(
 		It would be much better to just add Measures as needed to keep under the limit,
 		but this should very rarely happen anyway. */
 		
-	if (AnyOverfullMeasure(doc)) return FALSE;
+	if (AnyOverfullMeasure(doc)) return False;
 	
 	/* Take care of graphical matters: Respace and set slur shapes. If we KNOW there
 		aren't going to be any short notes, save some space. Also, if RespaceBars
@@ -794,7 +794,7 @@ Boolean GDRespAndRfmt(
 		 
 	GetSelMeasNums(doc, &startMeasNum, &endMeasNum);
 	
-	RespaceBars(doc, doc->selStartL, doc->selEndL, RESFACTOR*spacePercent, FALSE, TRUE);
+	RespaceBars(doc, doc->selStartL, doc->selEndL, RESFACTOR*spacePercent, False, True);
 
 	/* If RespaceBars didn't reformat at all or didn't reformat everything, we might
 		have normal, non-cross-system ties crossing system breaks. Turn any of these
@@ -804,9 +804,9 @@ Boolean GDRespAndRfmt(
 		
 	if (merge) FixCrossSysObjects(doc, doc->selStartL, doc->selEndL);
 
-	startL = MNSearch(doc, doc->headL, startMeasNum, GO_RIGHT, TRUE);
+	startL = MNSearch(doc, doc->headL, startMeasNum, GO_RIGHT, True);
 	if (endMeasNum>=0)
-		endL = MNSearch(doc, doc->tailL, endMeasNum, GO_LEFT, FALSE);
+		endL = MNSearch(doc, doc->tailL, endMeasNum, GO_LEFT, False);
 	else
 		endL = doc->tailL;
 	if (startL && endL) {
@@ -823,9 +823,9 @@ Boolean GDRespAndRfmt(
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (SlurTYPE(pL))
-			SetAllSlursShape(doc, pL, TRUE);
+			SetAllSlursShape(doc, pL, True);
 
-	return TRUE;
+	return True;
 }
 
 
@@ -833,11 +833,11 @@ Boolean GDRespAndRfmt(
 /* Extend the selection to include everything in every measure in the selection
 range; then quantize the attack time and duration of every selected note/rest/chord
 to a grid whose points are separated by the duration described by <quantumDur>. If
-there are pauses between the notes, intersperse rests as necessary. Return TRUE if
+there are pauses between the notes, intersperse rests as necessary. Return True if
 successful. NB: leaves timestamps in an inconsistent state: the calling function
 should call FixTimeStamps afterwards. */
 
-#define RESET_PLAYDURS TRUE
+#define RESET_PLAYDURS True
 
 Boolean QuantizeSelDurs(Document *doc, short quantumDur, Boolean tuplets)
 {
@@ -846,7 +846,7 @@ Boolean QuantizeSelDurs(Document *doc, short quantumDur, Boolean tuplets)
 	LINK			startL, endL, pL, nextL, startMeasL, saveEndL;
 	char			fmtStr[256];
 	
-	didAnything = FALSE;
+	didAnything = False;
 	
 	/* This routine is very sensitive to selection anomalies, so get rid of any. */
 	
@@ -917,7 +917,7 @@ Boolean QuantizeSelDurs(Document *doc, short quantumDur, Boolean tuplets)
 	
 	saveEndL = doc->selEndL;
 	
-	didAnything = (QuantAllVoices(doc, quantum, tripletBias, FALSE)!=NILINK);
+	didAnything = (QuantAllVoices(doc, quantum, tripletBias, False)!=NILINK);
 
 	doc->selStartL = startMeasL;
 	doc->selEndL = saveEndL;
@@ -925,9 +925,9 @@ Boolean QuantizeSelDurs(Document *doc, short quantumDur, Boolean tuplets)
 	if (didAnything) {
 		if (config.delRedundantAccs) DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
 
-		if (RESET_PLAYDURS) SetPDur(doc, config.legatoPct, TRUE);
+		if (RESET_PLAYDURS) SetPDur(doc, config.legatoPct, True);
 		ProgressMsg(RESPACE_PMSTR, "");
-		GDRespAndRfmt(doc, quantumDur, ANYONE, FALSE);				/* Fixes selection range */
+		GDRespAndRfmt(doc, quantumDur, ANYONE, False);				/* Fixes selection range */
 		ProgressMsg(0, "");
 	}		
 
@@ -944,7 +944,7 @@ Trouble:
 
 static GRAPHIC_POPUP	durPop0dot, *curPop;
 static POPKEY			*popKeys0dot;
-static short			popUpHilited=TRUE;
+static short			popUpHilited=True;
 
 static enum
 {
@@ -968,13 +968,13 @@ static pascal Boolean QuantFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));			
 				UpdateDialogVisRgn(dlog);
-				FrameDefault(dlog, OK, TRUE);
+				FrameDefault(dlog, OK, True);
 				DrawGPopUp(curPop);		
 				HiliteGPopUp(curPop, popUpHilited);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
-				return TRUE;
+				return True;
 			}
 			break;
 		case activateEvt:
@@ -988,20 +988,20 @@ static pascal Boolean QuantFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			if (PtInRect(where, &curPop->box)) {
 				DoGPopUp(curPop);
 				*itemHit = QDURPOPUP_DI;
-				return TRUE;
+				return True;
 			}
 			break;
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (short *)itemHit, FALSE))
-				return TRUE;
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
+				return True;
 			ch = (unsigned char)evt->message;
 			ans = DurPopupKey(curPop, popKeys0dot, ch);
 			*itemHit = ans? QDURPOPUP_DI : 0;
-			HiliteGPopUp(curPop, TRUE);
-			return TRUE;
+			HiliteGPopUp(curPop, True);
+			return True;
 	}
 
-	return FALSE;
+	return False;
 }
 
 Boolean QuantizeDialog(Document *doc,
@@ -1022,14 +1022,14 @@ Boolean QuantizeDialog(Document *doc,
 	filterUPP = NewModalFilterUPP(QuantFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(QUANTIZE_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	dlog = GetNewDialog(QUANTIZE_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(QUANTIZE_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	GetPort(&oldPort);
@@ -1068,7 +1068,7 @@ Boolean QuantizeDialog(Document *doc,
 	ArrowCursor();
 	oldDur = newDur;
 	
-	done = FALSE;
+	done = False;
 	while (!done) {
 		ModalDialog(filterUPP, &ditem);
 		oldDur = newDur;
@@ -1083,21 +1083,21 @@ Boolean QuantizeDialog(Document *doc,
 			tups = GetDlgChkRadio(dlog,QTUPLET_DI);
 			if (!(ControlKeyDown()) && tups && newDur>SIXTEENTH_L_DUR) {
 				StopInform(TOO_FINE_QUANT_ALRT);
-				done = FALSE;
+				done = False;
 				break;
 			}
 			
 			*dur = newDur;
 			*tuplet = GetDlgChkRadio(dlog,QTUPLET_DI);
 			*autoBeam = GetDlgChkRadio(dlog,AUTOBEAM_DI);
-			done = TRUE;
+			done = True;
 			break;
 		case Cancel:
-			done = TRUE;
+			done = True;
 			break;
 		case QDURPOPUP_DI:
 			newDur = popKeys0dot[curPop->currentChoice].durCode;
-			HiliteGPopUp(curPop, popUpHilited = TRUE);
+			HiliteGPopUp(curPop, popUpHilited = True);
 			break;
 		case QTUPLET_DI:
 			PutDlgChkRadio(dlog,QTUPLET_DI,!GetDlgChkRadio(dlog,QTUPLET_DI));
@@ -1127,7 +1127,7 @@ dialog. */
 void DoQuantize(Document *doc)
 {
 	static short newDur = EIGHTH_L_DUR;
-	static Boolean tuplet = FALSE, autoBeam = FALSE;
+	static Boolean tuplet = False, autoBeam = False;
 
 	if (QuantizeDialog(doc, &newDur, &tuplet, &autoBeam)) {
 		PrepareUndo(doc, doc->selStartL, U_Quantize, 37);		/* "Undo Transcribe Recording" */
@@ -1153,7 +1153,7 @@ void DoQuantize(Document *doc)
 /* Quantize the attack time and duration of every selected note/rest/chord
 to a grid whose points are separated by the duration described by <quantumDur>
 and merge by time with following Syncs. If there are pauses between the quantized
-notes, intersperse rests as necessary. Return TRUE if successful. Intended for
+notes, intersperse rests as necessary. Return True if successful. Intended for
 the Record/Transcribe Merge command, this is analogous to QuantizeSelDurs, but
 simpler mostly because this is intended to be called immediately after recording,
 so the selection should contain only unknown-duration notes with no anomalies. On
@@ -1180,7 +1180,7 @@ static Boolean RTMQuantizeSelDurs(Document *doc, short quantumDur, Boolean tuple
 	
 	saveStartL = LeftLINK(doc->selStartL);
 
-	lastL = QuantAllVoices(doc, quantum, tripletBias, TRUE);
+	lastL = QuantAllVoices(doc, quantum, tripletBias, True);
 	
 	doc->selStartL = RightLINK(saveStartL);
 	
@@ -1190,15 +1190,15 @@ static Boolean RTMQuantizeSelDurs(Document *doc, short quantumDur, Boolean tuple
 		doc->selEndL = RightLINK(lastL);
 		if (config.delRedundantAccs) DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
 
-		if (RESET_PLAYDURS) SetPDur(doc, config.legatoPct, TRUE);
+		if (RESET_PLAYDURS) SetPDur(doc, config.legatoPct, True);
 		ProgressMsg(RESPACE_PMSTR, "");
-		GDRespAndRfmt(doc, quantumDur, staffn, TRUE);					/* Fixes selection range */
+		GDRespAndRfmt(doc, quantumDur, staffn, True);					/* Fixes selection range */
 		ProgressMsg(0, "");
-		return TRUE;
+		return True;
 	}
 	
 	doc->selEndL = doc->selStartL;
-	return FALSE;		
+	return False;		
 }
 
 /* --------------------------------------------------------------- RecTransMerge -- */
@@ -1210,28 +1210,28 @@ point. */
 Boolean RecTransMerge(Document *doc)
 {
 	static short newDur = EIGHTH_L_DUR;
-	static Boolean tuplet = FALSE, autoBeam = FALSE;
+	static Boolean tuplet = False, autoBeam = False;
 	short staffn;
 
 	if (doc->selStartL!=doc->selEndL) {
 		GetIndCString(strBuf, MIDIERRS_STRS, 6);		/* "Can't record without insertion pt" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 
 	if (doc->lookVoice>=0 && doc->lookVoice!=doc->selStaff) {
 		GetIndCString(strBuf, MIDIERRS_STRS, 20);		/* "Can't Record Merge in non-dflt voice" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	
-	if (SyncNeighborTime(doc, doc->selStartL, TRUE)>=0L) {
+	if (SyncNeighborTime(doc, doc->selStartL, True)>=0L) {
 		GetIndCString(strBuf, MIDIERRS_STRS, 21);		/* "Can Record Merge only at start of a measure" */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 
 /* If the Measure where we're starting the merge begins with a time signature (other
@@ -1243,29 +1243,29 @@ we're on the verge of shipping v. 3.0, just warn the poor user. Sigh. */
 
 	for (pL = doc->selStartL; pL && !MeasureTYPE(pL); pL = LeftLINK(pL))
 		if (TimeSigTYPE(pL)) {
-			if (CautionAdvise(RTM_TIMESIG_ALRT)==Cancel) return FALSE;
+			if (CautionAdvise(RTM_TIMESIG_ALRT)==Cancel) return False;
 			break;
 		}
 }
 
 	staffn = doc->selStaff;
 
-	if (!RTMRecord(doc)) return FALSE;
+	if (!RTMRecord(doc)) return False;
 
-	if (!QuantizeDialog(doc, &newDur, &tuplet, &autoBeam)) return FALSE;
+	if (!QuantizeDialog(doc, &newDur, &tuplet, &autoBeam)) return False;
 
-	if (!RTMQuantizeSelDurs(doc, newDur, tuplet, staffn)) return FALSE;
+	if (!RTMQuantizeSelDurs(doc, newDur, tuplet, staffn)) return False;
 
 	/* Start fixing timestamps before the range quantized so the Measure starting
 		the range has the correct timestamp. */
 	FixTimeStamps(doc, LeftLINK(doc->selStartL), doc->selEndL);
 
 	if (autoBeam) {
-		if (!AutoBeam(doc)) return FALSE;
+		if (!AutoBeam(doc)) return False;
 		/* Set visibility of tuplet brackets to the conventional default: hide the
 			bracket iff some beam has elements identical to the tuplet's. */
 		SetBracketsVis(doc, doc->selStartL, doc->selEndL);
 	}
 	
-	return TRUE;
+	return True;
 }

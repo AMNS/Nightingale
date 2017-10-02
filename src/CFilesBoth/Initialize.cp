@@ -10,7 +10,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 
@@ -125,7 +125,7 @@ void Initialize()
 #ifdef TARGET_API_MAC_CARBON	
 	// WaitNextEvent is always available in OS X
 	
-	hasWaitNextEvent = TRUE;
+	hasWaitNextEvent = True;
 #else
 	hasWaitNextEvent = TrapAvailable(_WaitNextEvent);
 #endif
@@ -141,7 +141,7 @@ void Initialize()
 		BadInit();
 		ExitToShell();
 	}
-	outOfMemory = FALSE;
+	outOfMemory = False;
 	growZoneUPP = NewGrowZoneUPP(GrowMemory);
 	if (growZoneUPP)
 		SetGrowZone(growZoneUPP);			/* Install simple grow zone function */
@@ -179,7 +179,7 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 	OSStatus err;
 	
 	/* Find the preferences folder, normally ~/Library/Preferences */
-	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, true, &pvol, &pdir);
+	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
 	LogPrintf(LOG_NOTICE, "Prefs File: FindFolder: err=%d\n", err);
 	if (err!=noErr) return err;
 	
@@ -211,8 +211,8 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 
 /* -------------------------------------------------------------- CreateSetupFile -- */
 /* Create a new Nightingale Prefs file. (We used to call the "Prefs" file the "Setup"
-file: hence all the xxSetupxx names.) If we succeed, return TRUE; if we fail, return
-FALSE without giving an error message. */
+file: hence all the xxSetupxx names.) If we succeed, return True; if we fail, return
+False without giving an error message. */
 
 static short rfVRefNum;
 static long rfVolDirID;
@@ -235,11 +235,11 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	Pstrcpy(rfSpec->name, SETUP_FILE_PATH);	
 	FSpCreateResFile(rfSpec, creatorType, 'NSET', scriptCode);
 	theErr = ResError();
-	if (theErr) return FALSE;
+	if (theErr) return False;
 
 //	CreateResFile(SETUP_FILE_NAME);
 //	theErr = ResError();
-	if (theErr!=noErr) return FALSE;
+	if (theErr!=noErr) return False;
 	
 	/* Open it, setting global setupFileRefNum.  NB: HOpenResFile makes the file it
 		opens the current resource file. */
@@ -248,7 +248,7 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	setupFileRefNum = FSpOpenResFile(rfSpec, fsRdWrPerm);
 	
 	theErr = ResError();
-	if (theErr!=noErr) return FALSE;				/* Otherwise we'll write in the app's resource fork! */
+	if (theErr!=noErr) return False;				/* Otherwise we'll write in the app's resource fork! */
 	
 	/*
 	 * Get various resources and copy them to the new Prefs file.  Since the Prefs
@@ -257,75 +257,75 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	 * First copy the config and its template.
 	 */	
 	resH = GetResource('CNFG', THE_CNFG);
-	if (!GoodResource(resH)) return FALSE;	
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;	
+	if (!AddSetupResource(resH)) return False;
 
 	resH = GetNamedResource('TMPL', "\pCNFG");
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	/* Now copy the instrument list. */
 	resH = GetResource('STR#', INSTR_STRS);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	/* Next, the MIDI velocity table and its template. */
 	resH = GetResource('MIDI', PREFS_MIDI);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	resH = GetNamedResource('TMPL', "\pMIDI");
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	/* The MIDI modifier prefs table and its template. */
 	resH = GetResource('MIDM', PREFS_MIDI_MODNR);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	resH = GetNamedResource('TMPL', "\pMIDM");
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	/* Now copy the palette, palette char. map, and palette translation map and template. */
 	resH = GetResource('PICT', ToolPaletteID);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	resH = GetResource('PLCH', ToolPaletteID);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	resH = GetResource('PLMP', THE_PLMP);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 	
 	resH = GetNamedResource('TMPL', "\pPLMP");
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	/* Now copy the MIDI Manager port resources. */
 	resH = GetResource('port', time_port);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 	
 	resH = GetResource('port', input_port);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	resH = GetResource('port', output_port);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	/* And finally copy the built-in MIDI parameter resource. */
 	resH = GetResource('BIMI', THE_BIMI);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	/* Nightingale Prefs uses the same version number resource as Nightingale. */
 	resH = GetResource('vers', 1);
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	/* Copy all the spacing tables we can find into the Prefs file. We use
 	 * Get1IndResource instead of GetIndResource to avoid getting a resource
@@ -336,19 +336,19 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	nSPTB = CountResources('SPTB');
 	for (i = 1; i<=nSPTB; i++) {
 		resH = Get1IndResource('SPTB', i);
-		if (!GoodResource(resH)) return FALSE;		
-		if (!AddSetupResource(resH)) return FALSE;
+		if (!GoodResource(resH)) return False;		
+		if (!AddSetupResource(resH)) return False;
 	}
 	
 	resH = GetNamedResource('TMPL', "\pSPTB");
-	if (!GoodResource(resH)) return FALSE;		
-	if (!AddSetupResource(resH)) return FALSE;
+	if (!GoodResource(resH)) return False;		
+	if (!AddSetupResource(resH)) return False;
 
 	/* Finally, close the setup file. */
 
 	CloseResFile(setupFileRefNum);
 	
-	return TRUE;
+	return True;
 }
 
 /* ---------------------------------------------------------------- OpenSetupFile -- */
@@ -357,15 +357,15 @@ System Folder, generate a new one using resources from the application and open 
 Also make the Prefs file the current resource file.
 
 If we find a problem, including the Prefs file resource fork already open with
-write permission, we give an error message and return FALSE. (If the Prefs file
+write permission, we give an error message and return False. (If the Prefs file
 resource fork is open but with only read permission, I suspect we won't detect that
 and it won't be made the current resource file--bad but unlikely. Note that
 NightCustomizer doesn't keep the Prefs file open while it's running.) If all goes
-well, return TRUE. */
+well, return True. */
 
 Boolean OpenSetupFile()
 {
-	OSErr result; Boolean okay=TRUE; Str63 volName;
+	OSErr result; Boolean okay=True; Str63 volName;
 	StringHandle strHdl; char fmtStr[256];
 	Str255 setupFileName;
 
@@ -415,7 +415,7 @@ Boolean OpenSetupFile()
 			GetIndCString(strBuf, INITERRS_STRS, 2);	/* "Can't create Prefs file" */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			okay = FALSE;
+			okay = False;
 			goto done;
 		}
 		/* Try opening the brand-new Prefs file. */
@@ -437,7 +437,7 @@ Boolean OpenSetupFile()
 		}
 		CParamText(strBuf, "", "", "");
 		StopInform(OPENPREFS_ALRT);
-		okay = FALSE;
+		okay = False;
 	}
 	
 done:
@@ -447,7 +447,7 @@ done:
 }
 
 /* Adds the resource pointed to by resH to the current resource file. Returns
-TRUE if OK, FALSE if error. */
+True if OK, False if error. */
 
 static Boolean AddSetupResource(Handle resH)
 {
@@ -459,21 +459,21 @@ static Boolean AddSetupResource(Handle resH)
 	UseResFile(setupFileRefNum);				/* safeguard against writing in app's res fork */
 
 	GetResInfo(resH, &id, &type, name);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	
 	tempH = resH;
 	HandToHand(&tempH);	
 	ReleaseResource(resH);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	AddResource(tempH, type, id, name);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	WriteResource(tempH);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	ReleaseResource(tempH);
-	if (ReportResError()) return FALSE;
+	if (ReportResError()) return False;
 	
 	UseResFile(appRFRefNum);
-	return TRUE;
+	return True;
 }
 
 
@@ -636,7 +636,7 @@ static Boolean GetConfig()
 		GetIndCString(strBuf, INITERRS_STRS, 4);		/* "Can't find the CNFG resource" */
 		CParamText(strBuf, "", "", "");
 		if (CautionAdvise(CNFG_ALRT)==OK) ExitToShell();
-		else							  gotCnfg = FALSE;
+		else							  gotCnfg = False;
 		
 		/*
 		 * Since we couldn't find the configuration data, set all checkable fields to
@@ -765,7 +765,7 @@ static Boolean GetConfig()
 		if (cnfgSize!=(long)sizeof(Configuration))
 			if (CautionAdvise(CNFGSIZE_ALRT)==OK) ExitToShell();
 		config = *(Configuration *)(*cnfgH);
-		gotCnfg = TRUE;
+		gotCnfg = True;
 
 		if (ControlKeyDown()) {
 			GetIndCString(strBuf, INITERRS_STRS, 11);		/* "Skipping checking the CNFG" */
@@ -994,13 +994,13 @@ Finish:
 	
 	config.maxDocuments++;								/* to allow for clipboard doc */
 
-	return TRUE;
+	return True;
 }
 
 
 /* Make the heap _almost_ as large as possible (so we have a little extra stack space),
-and allocate as many Master Pointers as possible up to numMasters. Return TRUE if
-all went well, FALSE if not. */
+and allocate as many Master Pointers as possible up to numMasters. Return True if
+all went well, False if not. */
 
 static Boolean InitMemory(short numMasters)
 {
@@ -1042,7 +1042,7 @@ static Boolean NInitFloatingWindows()
 			/* Get a handle to a PaletteGlobals structure for this palette */
 			
 			paletteGlobals[index] = (PaletteGlobals **)GetResource('PGLB', ToolPaletteWDEF_ID+index);
-			if (!GoodResource((Handle)paletteGlobals[index])) return FALSE;
+			if (!GoodResource((Handle)paletteGlobals[index])) return False;
 
 			MoveHHi((Handle)paletteGlobals[index]);
 			HLock((Handle)paletteGlobals[index]);
@@ -1062,13 +1062,13 @@ static Boolean NInitFloatingWindows()
 			
 			if (thisMac.hasColorQD)
 				palettes[index] = (WindowPtr)NewCWindow(NULL, &windowRects[index],
-										"\p", FALSE, wdefID, BRING_TO_FRONT, TRUE,
+										"\p", False, wdefID, BRING_TO_FRONT, True,
 										(long)index);
 			 else
 				palettes[index] = (WindowPtr)NewWindow(NULL, &windowRects[index],
-										"\p", FALSE, wdefID, BRING_TO_FRONT, TRUE,
+										"\p", False, wdefID, BRING_TO_FRONT, True,
 										(long)index);
-			if (!GoodNewPtr((Ptr)palettes[index])) return FALSE;
+			if (!GoodNewPtr((Ptr)palettes[index])) return False;
 		
 			//	((WindowPeek)palettes[index])->spareFlag = (index==TOOL_PALETTE || index==HELP_PALETTE);
 			
@@ -1087,7 +1087,7 @@ static Boolean NInitFloatingWindows()
 			HUnlock((Handle)paletteGlobals[index]);
 			}
 	
-	return TRUE;
+	return True;
 	}
 
 
@@ -1161,7 +1161,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 #else
 		SaveGWorld();
 		
-		GWorldPtr gwPtr = MakeGWorld(picRect.right, picRect.bottom, TRUE);
+		GWorldPtr gwPtr = MakeGWorld(picRect.right, picRect.bottom, True);
 		SetGWorld(gwPtr, NULL);
 		
 		HLock((Handle)toolPicture);
@@ -1266,35 +1266,35 @@ static Boolean PrepareClipDoc()
 		WindowPtr w; char title[256]; LINK pL; long junkVersion;
 
 		clipboard = documentTable;
-		clipboard->inUse = TRUE;
+		clipboard->inUse = True;
 		w = GetNewWindow(docWindowID, NULL, (WindowPtr)-1);
-		if (w == NULL) return(FALSE);
+		if (w == NULL) return(False);
 		
 		clipboard->theWindow = w;
 		SetWindowKind(w, DOCUMENTKIND);
 
-		//		((WindowPeek)w)->spareFlag = TRUE;
+		//		((WindowPeek)w)->spareFlag = True;
 		ChangeWindowAttributes(w, kWindowFullZoomAttribute, kWindowNoAttributes);
 
-		if (!BuildDocument(clipboard, NULL, 0, NULL, &junkVersion, TRUE))
-			return FALSE;
+		if (!BuildDocument(clipboard, NULL, 0, NULL, &junkVersion, True))
+			return False;
 		for (pL=clipboard->headL; pL!=clipboard->tailL; pL=DRightLINK(clipboard, pL))
 			if (DObjLType(clipboard, pL)==MEASUREtype)
 				{ clipFirstMeas = pL; break; }
-		clipboard->canCutCopy = FALSE;
+		clipboard->canCutCopy = False;
 		GetIndCString(title, MiscStringsID, 2);
 		SetWCTitle((WindowPtr)clipboard, title);
-		return TRUE;
+		return True;
 	}
 	
 Boolean BuildEmptyDoc(Document *doc) 
 	{
-		if (!InitAllHeaps(doc)) { NoMoreMemory(); return FALSE; }
+		if (!InitAllHeaps(doc)) { NoMoreMemory(); return False; }
 		InstallDoc(doc);
 		BuildEmptyList(doc,&doc->headL,&doc->tailL);
 		
 		doc->selStartL = doc->selEndL = doc->tailL;			/* Empty selection  */	
-		return TRUE;
+		return True;
 	}
 
 	
@@ -1306,7 +1306,7 @@ static void AddSampleItems(MenuRef menu)
 	MenuItemIndex	item;
 	
 	AppendMenuItemTextWithCFString(menu, CFSTR("Checkmark"), 0, 0, &item);
-	CheckMenuItem(menu, item, true);
+	CheckMenuItem(menu, item, True);
 	AppendMenuItemTextWithCFString(menu, CFSTR("Dash"), 0, 0, &item);
 	SetItemMark(menu, item, '-');
 	AppendMenuItemTextWithCFString(menu, CFSTR("Diamond"), 0, 0, &item);
@@ -1339,13 +1339,13 @@ Boolean InitGlobals()
 		size = (long)sizeof(Document) * config.maxDocuments;
 		documentTable = (Document *)NewPtr(size);
 		if (!GoodNewPtr((Ptr)documentTable))
-			{ OutOfMemory(size);  return FALSE; }
+			{ OutOfMemory(size);  return False; }
 		
 		topTable = documentTable + config.maxDocuments;
-		for (doc=documentTable; doc<topTable; doc++) doc->inUse = FALSE;
+		for (doc=documentTable; doc<topTable; doc++) doc->inUse = False;
 		
 		/* Preallocate the clipboard and search documents */
-		if (!PrepareClipDoc()) return FALSE;
+		if (!PrepareClipDoc()) return False;
 			
 		/* Set up the global scrap reference */
 		GetCurrentScrap(&gNightScrap);
@@ -1354,22 +1354,22 @@ Boolean InitGlobals()
 		
 		tmpStr = (unsigned char *)NewPtr(256);
 		if (!GoodNewPtr((Ptr)tmpStr))
-			{ OutOfMemory(256L); return FALSE; }
+			{ OutOfMemory(256L); return False; }
 		
 		updateRectTable = (Rect *)NewPtr(MAX_UPDATE_RECTS * sizeof(Rect));
 		if (!GoodNewPtr((Ptr)updateRectTable))
-			{ OutOfMemory((long)MAX_UPDATE_RECTS * sizeof(Rect)); return FALSE; }
+			{ OutOfMemory((long)MAX_UPDATE_RECTS * sizeof(Rect)); return False; }
 		
 		/* Pull in the permanent menus from resources and install in menu bar. */
 		
-		appleMenu = GetMenu(appleID);		if (!appleMenu) return FALSE;
+		appleMenu = GetMenu(appleID);		if (!appleMenu) return False;
 		AppendResMenu(appleMenu, 'DRVR');
 		InsertMenu(appleMenu, 0);
 		
-		fileMenu = GetMenu(fileID);			if (!fileMenu) return FALSE;
+		fileMenu = GetMenu(fileID);			if (!fileMenu) return False;
 		InsertMenu(fileMenu, 0);
 		
-		editMenu = GetMenu(editID);			if (!editMenu) return FALSE;
+		editMenu = GetMenu(editID);			if (!editMenu) return False;
 		InsertMenu(editMenu, 0);
 		
 #ifdef PUBLIC_VERSION
@@ -1381,28 +1381,28 @@ Boolean InitGlobals()
 			AppendMenu(editMenu, "\pDelete Objects");
 		}
 #else
-		testMenu = GetMenu(testID);			if (!testMenu) return FALSE;
+		testMenu = GetMenu(testID);			if (!testMenu) return False;
 		InsertMenu(testMenu, 0);
 #endif
 		
-		scoreMenu = GetMenu(scoreID);		if (!scoreMenu) return FALSE;
+		scoreMenu = GetMenu(scoreID);		if (!scoreMenu) return False;
 		InsertMenu(scoreMenu, 0);
 		
-		notesMenu = GetMenu(notesID);		if (!notesMenu) return FALSE;
+		notesMenu = GetMenu(notesID);		if (!notesMenu) return False;
 		InsertMenu(notesMenu, 0);
 		
-		groupsMenu = GetMenu(groupsID);		if (!groupsMenu) return FALSE;
+		groupsMenu = GetMenu(groupsID);		if (!groupsMenu) return False;
 		InsertMenu(groupsMenu, 0);
 		
-		viewMenu = GetMenu(viewID);			if (!viewMenu) return FALSE;
+		viewMenu = GetMenu(viewID);			if (!viewMenu) return False;
 		InsertMenu(viewMenu, 0);
 		
-		magnifyMenu = GetMenu(magnifyID);	if (!magnifyMenu) return FALSE;
+		magnifyMenu = GetMenu(magnifyID);	if (!magnifyMenu) return False;
 		InsertMenu(magnifyMenu, hierMenu);
 		
 		/* We install only one of the following menus at a time. */
 		
-		playRecMenu = GetMenu(playRecID);	if (!playRecMenu) return FALSE;
+		playRecMenu = GetMenu(playRecID);	if (!playRecMenu) return False;
 		InsertMenu(playRecMenu, 0);
 		
 #ifdef TEST_MDEF_CODE
@@ -1423,9 +1423,9 @@ Boolean InitGlobals()
 		AddSampleItems(customMenu);
 #endif
 		
-		masterPgMenu = GetMenu(masterPgID);	if (!masterPgMenu) return FALSE;
+		masterPgMenu = GetMenu(masterPgID);	if (!masterPgMenu) return False;
 		
-		formatMenu = GetMenu(formatID);		if (!formatMenu) return FALSE;
+		formatMenu = GetMenu(formatID);		if (!formatMenu) return False;
 		
 		DrawMenuBar();
 		
@@ -1442,7 +1442,7 @@ Boolean InitGlobals()
 
 		XLoadEditScoreSeg();
 		
-		return TRUE;
+		return True;
 	}
 
 
@@ -1465,13 +1465,13 @@ static void InstallCoreEventHandlers()
 	quitUPP = NewAEEventHandlerUPP(HandleQUIT);
 
 	if (quitUPP) {
-		err = AEInstallEventHandler(kCoreEventClass,kAEOpenApplication,oappUPP,0,FALSE);
+		err = AEInstallEventHandler(kCoreEventClass,kAEOpenApplication,oappUPP,0,False);
 		if (err) goto broken;
-		err = AEInstallEventHandler(kCoreEventClass,kAEOpenDocuments,odocUPP,0,FALSE);
+		err = AEInstallEventHandler(kCoreEventClass,kAEOpenDocuments,odocUPP,0,False);
 		if (err) goto broken;
-		err = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,pdocUPP,0,FALSE);
+		err = AEInstallEventHandler(kCoreEventClass,kAEPrintDocuments,pdocUPP,0,False);
 		if (err) goto broken;
-		err = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,quitUPP,0,FALSE);
+		err = AEInstallEventHandler(kCoreEventClass,kAEQuitApplication,quitUPP,0,False);
 		if (err) goto broken;
 	}
 	
@@ -1482,9 +1482,9 @@ static void InstallCoreEventHandlers()
 	closUPP = NewAEEventHandlerUPP(HandleClose);
 
 	if (closUPP) {
-		err = AEInstallEventHandler(myAppType,'Edit',editUPP,0,FALSE);
+		err = AEInstallEventHandler(myAppType,'Edit',editUPP,0,False);
 		if (err) goto broken;
-		err = AEInstallEventHandler(myAppType,'Clos',closeUPP,0,FALSE);
+		err = AEInstallEventHandler(myAppType,'Clos',closeUPP,0,False);
 	}
 #endif
 

@@ -29,7 +29,7 @@ void DragGraphic(Document *doc, LINK graphicL)
 	GrafPtr		scrnPort, graphicPort;
 	long		aLong;
 	short		dh, dv, oldTxMode, constrain = NOCONSTRAIN;
-	Boolean		suppressRedraw = FALSE, firstLoop = TRUE;
+	Boolean		suppressRedraw = False, firstLoop = True;
 	CONTEXT		context[MAXSTAVES+1];
 	LINK		measL;
 	GRAPHIC		origGraphic, tmpGraphic;
@@ -55,11 +55,11 @@ PushLock(GRAPHICheap);
 	InsetRect(&oldObjRect, -pt2p(4), -pt2p(5));
 	
 	if (thisGraphic->firstObj && PageTYPE(thisGraphic->firstObj))		/* is page-relative */
-		measL = LSSearch(thisGraphic->firstObj, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		measL = LSSearch(thisGraphic->firstObj, MEASUREtype, ANYONE, GO_RIGHT, False);
 	else {
-		measL = LSSearch(graphicL, MEASUREtype, thisGraphic->staffn, GO_LEFT, FALSE);	/* meas containing Graphic */
+		measL = LSSearch(graphicL, MEASUREtype, thisGraphic->staffn, GO_LEFT, False);	/* meas containing Graphic */
 		if (measL==NILINK || !SameSystem(measL, thisGraphic->firstObj))					/* Graphic attached to, or to left of, initial barline */
-			measL = LSSearch(thisGraphic->firstObj, MEASUREtype, thisGraphic->staffn, GO_RIGHT, FALSE);
+			measL = LSSearch(thisGraphic->firstObj, MEASUREtype, thisGraphic->staffn, GO_RIGHT, False);
 	}
 	GetAllContexts(doc, context, measL);
 	
@@ -74,12 +74,12 @@ PushLock(GRAPHICheap);
 /*#define DRAW_IN_GRAY*/
 #ifdef DRAW_IN_GRAY
 	TextMode(srcXor);
-	DrawGRAPHIC(doc, graphicL, context, TRUE);		/* erase black Graphic */
+	DrawGRAPHIC(doc, graphicL, context, True);		/* erase black Graphic */
 /* ??GROSS HACK ALERT !! Should have a lookAtNoVoice value for this purpose. */
 	lookAtVal = doc->lookVoice;
 	doc->lookVoice = MAXVOICES+1;							/* to make DrawGRAPHIC... */
 	TextMode(srcOr);
-	DrawGRAPHIC(doc, graphicL, context, TRUE);		/* draw it in gray */
+	DrawGRAPHIC(doc, graphicL, context, True);		/* draw it in gray */
 	doc->lookVoice = lookAtVal;
 #endif
 
@@ -87,7 +87,7 @@ PushLock(GRAPHICheap);
 //#undef USE_GWORLDS	/* because can't use srcXor mode with color grafports */
 #ifdef USE_GWORLDS
 	graphicPort = (GrafPtr)MakeGWorld(oldObjRect.right-oldObjRect.left,
-														oldObjRect.bottom-oldObjRect.top, TRUE);
+														oldObjRect.bottom-oldObjRect.top, True);
 #else
 	graphicPort = NewGrafPort(oldObjRect.right-oldObjRect.left, oldObjRect.bottom-oldObjRect.top);
 #endif
@@ -104,7 +104,7 @@ PushLock(GRAPHICheap);
 	GetPortBounds(graphicPort,&bounds);
 	ClipRect(&bounds);
 
-	DrawGRAPHIC(doc, graphicL, context, TRUE);			/* draw Graphic into bitmap */
+	DrawGRAPHIC(doc, graphicL, context, True);			/* draw Graphic into bitmap */
 
 	SetPort(scrnPort);
 
@@ -126,7 +126,7 @@ PushLock(GRAPHICheap);
 			if (ShiftKeyDown())
 				constrain = (ABS(newPt.h-oldPt.h) >= ABS(newPt.v-oldPt.v)) ?
 												H_CONSTRAIN : V_CONSTRAIN;
-			firstLoop = FALSE;
+			firstLoop = False;
 		}
 		
 #ifndef DRAW_IN_GRAY
@@ -178,7 +178,7 @@ PushLock(GRAPHICheap);
 		oldPt = newPt;
 	}
 	
-	DrawGRAPHIC(doc, graphicL, context, TRUE);		/* draw final black Graphic */
+	DrawGRAPHIC(doc, graphicL, context, True);		/* draw final black Graphic */
 
 	TextMode(oldTxMode);
 
@@ -186,8 +186,8 @@ PushLock(GRAPHICheap);
 	newObjRect = LinkOBJRECT(graphicL);							/* DrawGRAPHIC has updated this */
 	Rect2Window(doc, &newObjRect);
 	if (BlockCompare(thisGraphic, &origGraphic, sizeof(GRAPHIC))) {
-		doc->changed = TRUE;
-		LinkTWEAKED(graphicL) = TRUE;									/* Flag to show node was edited */
+		doc->changed = True;
+		LinkTWEAKED(graphicL) = True;									/* Flag to show node was edited */
 		Rect2Window(doc, &oldObjRect);
 		if (!suppressRedraw)
 			EraseAndInval(&oldObjRect);
@@ -202,8 +202,8 @@ InsetRect(&newObjRect, -pt2p(2), -pt2p(2));	/* ??seems to fix problem with chord
 #endif
 
 	MEHideCaret(doc);
-	LinkSEL(graphicL) = TRUE;								/* so that Graphic will hilite after we're done dragging */
-	thisGraphic->selected = TRUE;
+	LinkSEL(graphicL) = True;								/* so that Graphic will hilite after we're done dragging */
+	thisGraphic->selected = True;
 	doc->selStartL = graphicL;	doc->selEndL = RightLINK(graphicL);
 
 PopLock(OBJheap);
@@ -222,7 +222,7 @@ static void InitGraphicBounds(Document *doc, LINK graphicL,
 {
 	short			staffn, mouseFromLeft, mouseFromRight, mouseFromTop, mouseFromBottom;
 	Rect			objRect;
-	Boolean		dragIntoReserved = FALSE;
+	Boolean		dragIntoReserved = False;
 	CONTEXT		context;
 	PAMEASURE	aMeasP;
 	DDIST			sysLeft, sysTop, sysRight, sysBot, measWid;
@@ -266,9 +266,9 @@ static void InitGraphicBounds(Document *doc, LINK graphicL,
 			else leftTargetMeasL = LinkLMEAS(inMeasL);
 		}
 		else {
-			inMeasL = LSSearch(firstObjL, MEASUREtype, staffn, GO_LEFT, FALSE);	/* meas containing firstObjL */
+			inMeasL = LSSearch(firstObjL, MEASUREtype, staffn, GO_LEFT, False);	/* meas containing firstObjL */
 			if (inMeasL==NILINK || !SameSystem(inMeasL, firstObjL))				/* firstObjL is before 1st meas of its system */
-				leftTargetMeasL = inMeasL = LSSearch(firstObjL, MEASUREtype, staffn, GO_RIGHT, FALSE);
+				leftTargetMeasL = inMeasL = LSSearch(firstObjL, MEASUREtype, staffn, GO_RIGHT, False);
 			else {
 				prevMeasL = LinkLMEAS(inMeasL);									/* meas before meas containing firstObjL */
 				if (SameSystem(prevMeasL, inMeasL))
@@ -279,10 +279,10 @@ static void InitGraphicBounds(Document *doc, LINK graphicL,
 		}
 
 		/* Allow dragging into reserved area if leftTargetMeasL is first meas of system. */
-		firstMeasL = LSSearch(MeasSYSL(leftTargetMeasL), MEASUREtype, staffn, GO_RIGHT, FALSE);	/* 1st meas in system */	
+		firstMeasL = LSSearch(MeasSYSL(leftTargetMeasL), MEASUREtype, staffn, GO_RIGHT, False);	/* 1st meas in system */	
 		if (leftTargetMeasL == firstMeasL) {									/* targetMeas is 1st in system */
 			bounds->left = d2p(sysLeft);
-			dragIntoReserved = TRUE;			/* ??unused below! */
+			dragIntoReserved = True;			/* ??unused below! */
 		}
 		else
 			bounds->left = d2p(LinkXD(leftTargetMeasL) + sysLeft);

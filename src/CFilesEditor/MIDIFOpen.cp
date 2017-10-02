@@ -131,17 +131,17 @@ static Boolean TimeSigBad(short tsNum, short tsDenom)
 		sprintf(strBuf, fmtStr, tsNum, tsDenom); 
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return TRUE;
+		return True;
 	}
 	if (TSDUR_BAD(tsNum, tsDenom)) {
 		GetIndCString(fmtStr, MIDIFILE_STRS, 21);    /* "Time signature %d/%d has too long a duration for Nightingale." */
 		sprintf(strBuf, fmtStr, tsNum, tsDenom); 
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return TRUE;
+		return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -152,23 +152,23 @@ Boolean ReadMFHeader(Byte *pFormat, Word *pnTracks, Word *pTimeBase)
 	DoubleWord len;
 	
 	SkipChunksUntil('MThd');
-	if (errCode!=noError) return FALSE;
+	if (errCode!=noError) return False;
 	len = getl(infile);
-	if (errCode!=noError) return FALSE;
+	if (errCode!=noError) return False;
 	*pFormat = getw(infile);
-	if (errCode!=noError) return FALSE;
+	if (errCode!=noError) return False;
 	*pnTracks = getw(infile);
-	if (errCode!=noError) return FALSE;
+	if (errCode!=noError) return False;
 	*pTimeBase = getw(infile);
-	if (errCode!=noError) return FALSE;
+	if (errCode!=noError) return False;
 	if (len!=6) {
 		errCode = SetFPos(infile, 0, len-6);
-		if (errCode!=noError) return FALSE;
+		if (errCode!=noError) return False;
 	}
 
 	LogPrintf(LOG_NOTICE, "ReadMFHeader: MThd len=%ld format=%d nTracks=%d timeBase=%d (qtrNTicks=%d)\n",
 					len, *pFormat, *pnTracks, *pTimeBase, qtrNTicks);
-	return TRUE;
+	return True;
 }
 
 
@@ -305,7 +305,7 @@ problem, return FAILURE. */
 
 static short GetNextMFEvent(DoubleWord *pDeltaTime,
 										Byte eventData[],
-										Boolean *pRunning)		/* TRUE=used running status */
+										Boolean *pRunning)		/* True=used running status */
 {
 	Byte command, i;
 	Word n;
@@ -393,7 +393,7 @@ write MIDI files in which one Note Off really does terminate multiple Note Ons! 
 I don't know if this code will ever be useful; oh well. The "one Note Off for many
 Note Ons" case can be handled either by not calling any of these functions, or
 calling InitNoteOffList but never InsertNoteOffLoc: then the usedNoteOff list will
-stay empty and MayBeNoteOff will always return TRUE.  */
+stay empty and MayBeNoteOff will always return True.  */
 
 static short usedNoteOff[MAXMFEVENTLIST];
 static short noteOffLim;
@@ -423,7 +423,7 @@ Boolean InsertNoteOffLoc(short locOn, short locOff)
 	
 	if (i<noteOffLim || noteOffLim++<MAXMFEVENTLIST) {
 		usedNoteOff[i] = locOff;
-		return TRUE;
+		return True;
 	}
 	else {
 		noteOffLim--;			
@@ -431,13 +431,13 @@ Boolean InsertNoteOffLoc(short locOn, short locOff)
 		sprintf(strBuf, fmtStr, MAXMFEVENTLIST); 
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 }
 
 
 /*	Check usedNoteOff[] to see if any its entries are no longer needed; if so, free
-their slots in the list. Return TRUE if the list ends up empty. */
+their slots in the list. Return True if the list ends up empty. */
 
 Boolean CheckNoteOffList(short locOn)
 {
@@ -464,16 +464,16 @@ void InitNoteOffList()
 }
 
 /* If the given location could not possibly be the first data byte of a valid Note
-Off because it's in the usedNoteOff list, return FALSE, else return TRUE. */
+Off because it's in the usedNoteOff list, return False, else return True. */
 
 Boolean MayBeNoteOff(short locOff)
 {
 	short i;
 	
 	for (i = 0; i<noteOffLim; i++)
-		if (usedNoteOff[i]==locOff) return FALSE;
+		if (usedNoteOff[i]==locOff) return False;
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -486,7 +486,7 @@ for very strange MIDI files: see comments on InsertNoteOffLoc. */
 
 static Boolean FindNoteOff(
 			DoubleWord loc,
-			Boolean oneEndsOne,		/* TRUE=one Note Off ends only one current note w/its note no. */
+			Boolean oneEndsOne,		/* True=one Note Off ends only one current note w/its note no. */
 			Byte noteOffData[],		/* Byte 0=off velocity, 1+2=duration */
 			Boolean *tooLong		/* Output: is the note longer than the longest we can handle? */
 			)
@@ -496,9 +496,9 @@ static Boolean FindNoteOff(
 	DoubleWord oldLoc;
 	Byte oldStatus;
 	Byte eventData[255];
-	Boolean okay=FALSE, runStatus;
+	Boolean okay=False, runStatus;
 	
-	*tooLong = FALSE;
+	*tooLong = False;
 	noteNumber = pChunkMF[loc];
 	
 	SaveMFEventQue(&oldLoc, &oldStatus);
@@ -506,7 +506,7 @@ static Boolean FindNoteOff(
 	while (GetNextMFEvent(&deltaTime, eventData, &runStatus)==OP_COMPLETE) {
 		duration += deltaTime;
 		if (duration>65535L) {
-			*tooLong = TRUE;
+			*tooLong = True;
 			duration = 65535L;
 		}
 
@@ -522,7 +522,7 @@ static Boolean FindNoteOff(
 
 				if (oneEndsOne) InsertNoteOffLoc(loc, locMF-2);
 
-				okay = TRUE;
+				okay = True;
 				break;
 			}
 		}
@@ -582,8 +582,8 @@ short Time2LDurQuantum(long time, Boolean allowTrips)
 	- a value that says, e.g., "all attacks fit a 16th-note grid" or "some attacks
 		don't fit any metric grid Nightingale can handle" (perhaps due to tuplets);
 	- the time of the last event in the track (normally the End-of-Track event).
-Return FALSE if we have trouble parsing the track (in which case values returned
-are as of the point where we had trouble), else TRUE. */
+Return False if we have trouble parsing the track (in which case values returned
+are as of the point where we had trouble), else True. */
 
 Boolean GetTrackInfo(
 				short *noteCount,
@@ -599,10 +599,10 @@ Boolean GetTrackInfo(
 	Byte command;
 	short qLDur, qLDHere, i, opStatus;
 	short totCount=0;
-	Boolean runStatus, tooLong, okay=FALSE, trips=FALSE;
+	Boolean runStatus, tooLong, okay=False, trips=False;
 
 	for (i = 0; i<MAXCHANNEL; i++)
-		chanUsed[i] = FALSE;
+		chanUsed[i] = False;
 	*nTooLong = 0;
 	tickTime = 0L;
 	qLDur = WHOLE_L_DUR;
@@ -618,13 +618,13 @@ Boolean GetTrackInfo(
 		
 		switch (command) {
 			case MNOTEON:
-				if (FindNoteOff(locMF-2, FALSE, dummy, &tooLong)) {
-					chanUsed[MCHANNEL(eventData[0])] = TRUE;
+				if (FindNoteOff(locMF-2, False, dummy, &tooLong)) {
+					chanUsed[MCHANNEL(eventData[0])] = True;
 					totCount++;
 					if (tooLong) (*nTooLong)++;
 					if  (qLDur!=UNKNOWN_L_DUR) {
-						qLDHere = Time2LDurQuantum(tickTime, TRUE);
-						if (qLDHere<0) trips = TRUE;
+						qLDHere = Time2LDurQuantum(tickTime, True);
+						if (qLDHere<0) trips = True;
 						if (qLDHere==UNKNOWN_L_DUR) qLDur = UNKNOWN_L_DUR;
 						else								 qLDur = n_max(qLDur, qLDHere);
 					}
@@ -658,8 +658,8 @@ but not necessarily the timing track:
 	- the number of illegal time signatures;
 	- a value that gives the shortest time signature denominator;
 	- the time of the last event in the track (normally the End-of-Track event).
-Return FALSE if we have trouble parsing the track (in which case values returned
-are as of the point where we had trouble), else TRUE. */
+Return False if we have trouble parsing the track (in which case values returned
+are as of the point where we had trouble), else True. */
 
 Boolean GetTimingTrackInfo(
 				short *tsCount,
@@ -672,7 +672,7 @@ Boolean GetTimingTrackInfo(
 	Byte eventData[255];
 	Byte command;
 	short tsDenom, maxDenom, totCount=0;
-	Boolean runStatus, okay=FALSE;
+	Boolean runStatus, okay=False;
 	long tickDur;
 	short denomTab[MAX_DENOM_POW2+1] = { 1, 2, 4, 8, 16, 32, 64 };
 
@@ -698,12 +698,12 @@ Boolean GetTimingTrackInfo(
 		}
 	}
 	
-	okay = TRUE;
+	okay = True;
 
 Done:
 	if (totCount==0) maxDenom = 1;
 	tickDur = l2p_durs[WHOLE_L_DUR]/(long)maxDenom;
-	*quantumLDur = Time2LDurQuantum(tickDur, FALSE);
+	*quantumLDur = Time2LDurQuantum(tickDur, False);
 	*tsCount = totCount;
 	*lastEvent = tickTime;
 	return okay;
@@ -794,7 +794,7 @@ Word MF2MIDNight(
 				BlockMove(&tickTime, pChunk+outLoc, sizeof(long));
 				outLoc += sizeof(long);
 	
-				if (FindNoteOff(locMF-2, FALSE, &eventData[3], &tooLong)) {	/* Get off vel. and dur. */
+				if (FindNoteOff(locMF-2, False, &eventData[3], &tooLong)) {	/* Get off vel. and dur. */
 					BlockMove(eventData, pChunk+outLoc, MN_NOTELEN);
 					/* Round up to an even (word) address for the benefit of 68000s. */
 					outLoc += ROUND_UP_EVEN(MN_NOTELEN);
@@ -970,7 +970,7 @@ static Boolean MakeMNote(MFNote *pn, Byte channel, MNOTE *pMNote)
 	 */	
 	if (pMNote->offVelocity==0) pMNote->offVelocity = config.noteOffVel;
 
-	return TRUE;
+	return True;
 }
 
 
@@ -1027,7 +1027,7 @@ to give them the durations indicated by the time signatures. */
 static Boolean MFAddMeasures(Document *doc, short maxMeasures, long *pStopTime)
 {
 	long measTime=0L, measDur; short i, count, m, measNum=0; LINK measL, lastMeasL;
-	Boolean firstMeas=TRUE;
+	Boolean firstMeas=True;
 	char fmtStr[256];
 	
 	for (i = 0; i<measTabLen; i++) {
@@ -1042,7 +1042,7 @@ static Boolean MFAddMeasures(Document *doc, short maxMeasures, long *pStopTime)
 			NewTimeSig(doc, 0, ' ', ANYONE, N_OVER_D,
 							measInfoTab[i].numerator, measInfoTab[i].denominator);
 
-		firstMeas = FALSE;
+		firstMeas = False;
 		
 		/* If this is the first time signature, add one extra Measure, since the
 			second Measure object is removed at the end of Track2Night. */
@@ -1059,7 +1059,7 @@ static Boolean MFAddMeasures(Document *doc, short maxMeasures, long *pStopTime)
 			}
 	
 			measL = MFNewMeasure(doc, doc->tailL);
-			if (!measL) return FALSE;
+			if (!measL) return False;
 			MeasureTIME(measL) = measTime;
 			measTime += measDur;
 		}
@@ -1071,7 +1071,7 @@ Done:
 
 	lastMeasL = SSearch(doc->tailL, MEASUREtype, GO_LEFT);
 	*pStopTime = MeasureTIME(lastMeasL);
-	return TRUE;
+	return True;
 }
 
 
@@ -1096,7 +1096,7 @@ static unsigned long GetTempoMicrosecsPQ(MFEvent *p)
 }
 
 
-#define IGNORE_TIMESIGS		FALSE			/* TRUE = ignore any timesigs in the MIDI file */
+#define IGNORE_TIMESIGS		False			/* True = ignore any timesigs in the MIDI file */
 
 static Boolean DoMetaEvent(
 						Document *doc,
@@ -1126,37 +1126,37 @@ static Boolean DoMetaEvent(
 		case ME_SEQTRACKNAME:
 			partL = FirstSubLINK(doc->headL);				/* Skip 1st part: it's never used */
 			for (i = 1; i<track; i++) {
-				if (!partL) return FALSE;
+				if (!partL) return False;
 				partL = NextPARTINFOL(partL);
 			}
 			NamePart(partL, string);
 
 			partL = FirstSubLINK(doc->masterHeadL);			/* Skip 1st part: it's never used */
 			for (i = 1; i<track; i++) {
-				if (!partL) return FALSE;
+				if (!partL) return False;
 				partL = NextPARTINFOL(partL);
 			}
 			NamePart(partL, string);
 
-			return TRUE;
+			return True;
 
 		case ME_TEMPO:	
-			if (tempoTabLen >= MAX_TEMPOCHANGE) return FALSE;
+			if (tempoTabLen >= MAX_TEMPOCHANGE) return False;
 			
 			unsigned long microsecsPQ = GetTempoMicrosecsPQ(p);
 			tempoInfoTab[tempoTabLen].tStamp = timeNow;
 			tempoInfoTab[tempoTabLen].microsecPQ = microsecsPQ;
 			tempoTabLen++;
 
-			return TRUE;
+			return True;
 
 		case ME_TIMESIG:
-			if (IGNORE_TIMESIGS) return FALSE;
+			if (IGNORE_TIMESIGS) return False;
 			
 			newDenom = (p->data[4]<=MAX_DENOM_POW2 ?
 							denomTab[p->data[4]] : denomTab[MAX_DENOM_POW2]);
 			if (p->data[3]!=tsNum || newDenom!=tsDenom) {
-				if (TimeSigBad(p->data[3], newDenom)) return FALSE;
+				if (TimeSigBad(p->data[3], newDenom)) return False;
 
 				/* If <timeNow> is 0, we're just replacing the initial time sig.;
 					otherwise, store count for previous time sig. and index to new one */
@@ -1198,22 +1198,22 @@ static Boolean DoMetaEvent(
 				measInfoTab[measTabLen-1].denominator = tsDenom;
 				timeSigTime = timeNow;
 			}
-			return TRUE;
+			return True;
 
 		case ME_KEYSIG:
-			if ((SignedByte)p->data[3]==fileSharpsOrFlats) return FALSE;
+			if ((SignedByte)p->data[3]==fileSharpsOrFlats) return False;
 			fileSharpsOrFlats = (SignedByte)p->data[3];
 			if (timeNow!=0L) {
 				GetIndCString(fmtStr, MIDIFILE_STRS, 26);    /* "Found key signature change at time %ld: Nightingale will ignore it and use enharmonic spelling." */
 				sprintf(strBuf, fmtStr, timeNow); 
 				CParamText(strBuf, "", "", "");
 				CautionInform(GENERIC_ALRT);
-				return FALSE;
+				return False;
 			}
 			sharpsOrFlats = (SignedByte)p->data[3];
 			KeySigBeforeBar(doc, doc->headL, (track==1? ANYONE : track-1), sharpsOrFlats);
 			recordFlats = (sharpsOrFlats<0);
-			return TRUE;
+			return True;
 
 		default:
 #ifdef NOTYET
@@ -1224,11 +1224,11 @@ static Boolean DoMetaEvent(
 				sprintf(strBuf, fmtStr, p->data[1], track); 
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
-				return FALSE;
+				return False;
 			}
 #endif
 		
-			return FALSE;
+			return False;
 	}
 }
 
@@ -1259,8 +1259,8 @@ static LINK NewClefPrepare(Document *doc, LINK insL, short nstaves)
 	
 	newL = InsertNode(doc, insL, CLEFtype, nstaves);
 	if (newL) {
-		SetObject(newL, 0, 0, FALSE, TRUE, FALSE);
-	 	LinkTWEAKED(newL) = FALSE;
+		SetObject(newL, 0, 0, False, True, False);
+	 	LinkTWEAKED(newL) = False;
 	}
 	else
 		NoMoreMemory();
@@ -1278,7 +1278,7 @@ LINK Replace1Clef(Document *doc, LINK firstClefL, short staffn, char subtype)
 	LINK	aClefL, doneL;
 	char	oldClefType;
 	
-	ClefINMEAS(firstClefL) = FALSE;
+	ClefINMEAS(firstClefL) = False;
 
 	aClefL = FirstSubLINK(firstClefL);
 	for ( ; aClefL; aClefL = NextCLEFL(aClefL))
@@ -1287,11 +1287,11 @@ LINK Replace1Clef(Document *doc, LINK firstClefL, short staffn, char subtype)
 			oldClefType = aClef->subType;
 			InitClef(aClefL, staffn, 0, subtype);
 
-			ClefVIS(aClefL) = TRUE;
+			ClefVIS(aClefL) = True;
 			
 			UpdateBFClefStaff(firstClefL,staffn,subtype);
 
-			doc->changed = TRUE;
+			doc->changed = True;
 			break;
 		}
 
@@ -1303,7 +1303,7 @@ static Boolean ReplaceClefs(Document *doc, char /*curClef*/[], char newClef[], s
 {
 	LINK firstClefL; short i, s, staff;
 	
-	firstClefL = LSSearch(doc->headL, CLEFtype, 1, GO_RIGHT, FALSE);
+	firstClefL = LSSearch(doc->headL, CLEFtype, 1, GO_RIGHT, False);
 	
 	for (i = 0; i<nToChange; i++) {
 		for (staff = -1, s = 1; s<=doc->nstaves; s++)			/* Inefficient but not very */
@@ -1312,7 +1312,7 @@ static Boolean ReplaceClefs(Document *doc, char /*curClef*/[], char newClef[], s
 	}
 	DeselectNode(firstClefL);									/* Since ReplaceClef selects */
 	
-	return TRUE;
+	return True;
 }
 
 static Boolean AddClefs(Document *doc, LINK measL, char curClef[], char newClef[],
@@ -1321,9 +1321,9 @@ static Boolean AddClefs(Document *doc, LINK measL, char curClef[], char newClef[
 	LINK newL, aClefL; PACLEF aClef; short i, s, staff;
 	
 	newL = NewClefPrepare(doc, measL, nToChange);
-	if (!newL) return FALSE;
+	if (!newL) return False;
 	
-	ClefINMEAS(newL) = TRUE;
+	ClefINMEAS(newL) = True;
 		
 	aClefL = FirstSubLINK(newL);
 	for (i = 0; aClefL && i<nToChange; aClefL = NextCLEFL(aClefL), i++) {
@@ -1333,14 +1333,14 @@ static Boolean AddClefs(Document *doc, LINK measL, char curClef[], char newClef[
 		InitClef(aClefL, s, 0, newClef[s]);
 	
 		aClef = GetPACLEF(aClefL);
-		aClef->selected = FALSE;
+		aClef->selected = False;
 		aClef->small = ClefINMEAS(newL);
-		aClef->soft = FALSE;
+		aClef->soft = False;
 	
 		FixContextForClef(doc, RightLINK(newL), s, curClef[s], newClef[s]);
 	}
 	
-	return TRUE;
+	return True;
 }
 
 static Boolean ChangeClefs(
@@ -1364,13 +1364,13 @@ static Boolean ChangeClefs(
 			newClef[s] = 0;
 	}
 	
-	if (nToChange==0) return TRUE;
+	if (nToChange==0) return True;
 	
-	firstMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	firstMeasL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	beforeFirst = (measL==firstMeasL);
 	if (beforeFirst) {
 		ReplaceClefs(doc, curClef, newClef, nToChange);
-		okay = TRUE;
+		okay = True;
 	}
 	else
 		okay = AddClefs(doc, measL, curClef, newClef, nToChange);
@@ -1412,17 +1412,17 @@ static Boolean AddClefChanges(Document *doc)
 {
 	LINK measL, clefL, aClefL; char curClef[MAXSTAVES+1];
 			
-	clefL = LSSearch(doc->headL, CLEFtype, ANYONE, GO_RIGHT, FALSE);
+	clefL = LSSearch(doc->headL, CLEFtype, ANYONE, GO_RIGHT, False);
 	aClefL = FirstSubLINK(clefL);
 	for ( ; aClefL; aClefL = NextCLEFL(aClefL))
 		curClef[ClefSTAFF(aClefL)] = ClefType(aClefL);
 	
-	measL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	measL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	for ( ; measL; measL = LinkRMEAS(measL)) {
-		if (!AddClefs1Measure(doc, measL, curClef)) return FALSE;
+		if (!AddClefs1Measure(doc, measL, curClef)) return False;
 	}
 
-	return TRUE;
+	return True;
 }
 
 /* ------------------------------------------------ Functions for AddTempoChanges -- */
@@ -1607,7 +1607,7 @@ of a previous tempo change. */
 static Boolean CompactTempoTab() 
 {
 	if (tempoTabLen <= 1)
-		return TRUE;
+		return True;
 	
 	TEMPOINFO *tempoInfoTabOrig = tempoInfoTab;	
 	
@@ -1615,7 +1615,7 @@ static Boolean CompactTempoTab()
 	tempoInfoTab = (TEMPOINFO *)NewPtr(tLen);
 	if (!GoodNewPtr((Ptr)tempoInfoTab)) {
 		OutOfMemory(tLen);
-		return FALSE;
+		return False;
 	}
 	
 	int tempoTabLenOrig = tempoTabLen;
@@ -1641,14 +1641,14 @@ static Boolean CompactTempoTab()
 	if (tempoInfoTabOrig != NULL)
 		DisposePtr((Ptr)tempoInfoTabOrig);
 	
-	return TRUE;	
+	return True;	
 }
 
 #define MICROBEATS2TSCALE(mb) (60*1000000L/(mb))
 
 static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short tabSize) 
 {
-	if (!CompactTempoTab()) return FALSE;
+	if (!CompactTempoTab()) return False;
 	
 	for (int i = 0; i<tempoTabLen; i++) {
 		TEMPOINFO tempoInfo = tempoInfoTab[i];
@@ -1683,12 +1683,12 @@ static Boolean AddTempoChanges(Document *doc, LINKTIMEINFO *docSyncTab, short ta
 			pt.v = 164;
 			palChar = 'M';
 			
-			NewTempo(doc, pt, palChar, clickStaff, pitchLev, TRUE, TRUE, dur, FALSE,
-						FALSE, tempoStr, metroStr);
+			NewTempo(doc, pt, palChar, clickStaff, pitchLev, True, True, dur, False,
+						False, tempoStr, metroStr);
 		}
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -1727,7 +1727,7 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short 
 					string[0] = 3; string[1] = '1'; string[2] = '2'; string[3] = '7';
 					newRelSize = doc->relFSizeRM;
 					newSize = doc->fontSizeRM;
-					newRelSize = TRUE;
+					newRelSize = True;
 					newSize = GRStaffHeight;
 					newStyle = doc->fontStyleRM;
 					newEncl = ENCL_NONE;
@@ -1738,7 +1738,7 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short 
 					string[0] = 1; string[1] = '0';
 					newRelSize = doc->relFSizeRM;
 					newSize = doc->fontSizeRM;
-					newRelSize = TRUE;
+					newRelSize = True;
 					newSize = GRStaffHeight;
 					newStyle = doc->fontStyleRM;
 					newEncl = ENCL_NONE;
@@ -1760,11 +1760,11 @@ static Boolean AddControlChanges(Document *doc, LINKTIMEINFO *docSyncTab, short 
 			clickStaff = ctrlInfo.track - 1;
 
 			NewGraphic(doc, pt, palChar, clickStaff, voice, 0, newRelSize, newSize, newStyle,
-							newEncl, 0, FALSE, FALSE, newFont, string, hStyleChoice);
+							newEncl, 0, False, False, newFont, string, hStyleChoice);
 		}
 	}
 	
-	return TRUE;
+	return True;
 }
 
 static Boolean AddRelObjects(Document *doc, LINKTIMEINFO *rawSyncTab, short rawTabSize)
@@ -1776,7 +1776,7 @@ static Boolean AddRelObjects(Document *doc, LINKTIMEINFO *rawSyncTab, short rawT
 	
  	short tabSize;
 	LINKTIMEINFO *docSyncTab = DocSyncTab(doc, &tabSize, rawSyncTab, rawTabSize);
-	if (docSyncTab == NULL) return FALSE;
+	if (docSyncTab == NULL) return False;
 	
 	if (!AddTempoChanges(doc, docSyncTab, tabSize))
 		goto done;
@@ -1787,7 +1787,7 @@ done:
 	if (docSyncTab != NULL)
 		DisposePtr((Ptr)docSyncTab);
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -2040,7 +2040,7 @@ IncrementLoc:
 
 	}
 
-	rawNoteAux[++nAux].first = TRUE;								/* Sentinel at end */
+	rawNoteAux[++nAux].first = True;								/* Sentinel at end */
 
 	*pnSyncs = iSync+1;
 	*pnAux = nAux;
@@ -2079,7 +2079,7 @@ static short Track2Night(
 				nRawSyncs, nAux, status, tVErr;
 	short		timeOffset=0;						/* in PDUR ticks: normally 0 */
 	unsigned short maxNewSyncs;
-	Boolean		isTempoMap, isLastTrack, okay=FALSE;
+	Boolean		isTempoMap, isLastTrack, okay=False;
 	char		fmtStr[256];
 
 	isTempoMap = (track==1);						/* an OK assumption for format 1 MIDI files */
@@ -2172,7 +2172,7 @@ static short Track2Night(
 		if (!GoodNewPtr((Ptr)mergeObjs))
 			{ NoMoreMemory(); goto Done; }
 
-		nMergeObjs = FillMergeBuffer(firstL, mergeObjs, mergeTabSize, FALSE);
+		nMergeObjs = FillMergeBuffer(firstL, mergeObjs, mergeTabSize, False);
 		/* ??The following check is currently pointless: if mergeTabSize isn't
 			enough, FillMergeBuffer just stops without saying so! */ 
 		if (nMergeObjs>mergeTabSize) {
@@ -2196,7 +2196,7 @@ static short Track2Night(
 		AddRelObjects(doc, rawSyncTab, nRawSyncs);
 	}
 	
-	okay = TRUE;
+	okay = True;
 
 Done:
 	if (rawSyncTab) DisposePtr((Ptr)rawSyncTab);
@@ -2210,8 +2210,8 @@ Done:
 
 
 /* --------------------------------------------------------------- MIDNight2Night -- */
-/* Convert an entire MIDNight data structure into a Nightingale score. Return TRUE
-if we succeed, FALSE if either there's an error or nothing useful in the MIDI file.
+/* Convert an entire MIDNight data structure into a Nightingale score. Return True
+if we succeed, False if either there's an error or nothing useful in the MIDI file.
 
 NB: Time resolution globals must be initialized first! See MFTicks2NTicks. */
 
@@ -2227,7 +2227,7 @@ short MIDNight2Night(
 			long lastEvent				/* End-of-track time, in MIDI file (not PDUR!) ticks */
 			)
 {
-	short t, status; long len, endTime; Boolean gotNotes=FALSE;
+	short t, status; long len, endTime; Boolean gotNotes=False;
 	LINK measL;
 	char fmtStr[256];
 	long tLen;
@@ -2270,7 +2270,7 @@ short MIDNight2Night(
 			endTime = MFTicks2NTicks(lastEvent);
 			status = Track2Night(doc, trackInfo, t, quantum, tripletBias, maxMeasures, endTime);
 			if (status==FAILURE) break;
-			if (status==OP_COMPLETE) gotNotes = TRUE;
+			if (status==OP_COMPLETE) gotNotes = True;
 		}
 		if (t<nTracks && CheckAbort()) {							/* Check for user cancelling */
 			ProgressMsg(SKIPTRACKS_PMSTR, "");
@@ -2282,7 +2282,7 @@ short MIDNight2Night(
 	
 	if (status==FAILURE) {
 		/* Bail out gracefully. */
-			doc->changed = FALSE;
+			doc->changed = False;
 			DoCloseDocument(doc);
 		goto Done;
 	}
@@ -2309,7 +2309,7 @@ short MIDNight2Night(
 
 		if (clefChanges) (void)AddClefChanges(doc);
 		
-		if (setPlayDurs && quantum>1) SetPDur(doc, config.legatoPct, FALSE);
+		if (setPlayDurs && quantum>1) SetPDur(doc, config.legatoPct, False);
 
 #ifdef NOTYET
 		if (contains empty measures and user asked) NMFillEmptyMeas(doc);	/* ??too high level? */
@@ -2335,9 +2335,9 @@ Boolean MFRespAndRfmt(Document *doc, short quantCode)
 	/* If any Measure has too much in it, for now, give up. But it would be MUCH
 		better to just add Measures as needed to keep under the limit. */
 		
-	if (AnyOverfullMeasure(doc)) return FALSE;
+	if (AnyOverfullMeasure(doc)) return False;
 
-	measL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, FALSE);		/* Start at first measure */
+	measL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, False);		/* Start at first measure */
 	
 	/* If we KNOW there aren't going to be any short notes, save some space. */
 	
@@ -2346,11 +2346,11 @@ Boolean MFRespAndRfmt(Document *doc, short quantCode)
 	else if (quantCode<EIGHTH_L_DUR && quantCode!=UNKNOWN_L_DUR) spacePercent = 70L;
 	doc->spacePercent = spacePercent;
 
-	RespaceBars(doc, measL, doc->tailL, RESFACTOR*spacePercent, FALSE, TRUE);
+	RespaceBars(doc, measL, doc->tailL, RESFACTOR*spacePercent, False, True);
 
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		if (SlurTYPE(pL))
-			SetAllSlursShape(doc, pL, TRUE);
+			SetAllSlursShape(doc, pL, True);
 
-	return TRUE;
+	return True;
 }

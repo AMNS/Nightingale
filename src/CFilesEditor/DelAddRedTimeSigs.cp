@@ -25,7 +25,7 @@ static DDIST GetNormalStaffLength(Document *doc, LINK pL)
 {
 	LINK systemL;  DDIST staffLength;
 	
-	systemL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	systemL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	if (!LinkLSYS(systemL))
 		staffLength = MARGWIDTH(doc)-doc->firstIndent;
 	else
@@ -48,7 +48,7 @@ static void FixMeasureRect(Document *doc, LINK measL)
 		MayErrMsg("FixMeasureRect: argument %ld not a Measure", (long)measL);
 
 	endOfSystem = LastMeasInSys(measL);
-	systemL = LSSearch(measL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	systemL = LSSearch(measL, SYSTEMtype, ANYONE, GO_LEFT, False);
 
 	/* If measL is the last Measure of the system or the score, get the width
 		of its system, and set the measureRect.right of measL to that minus measL's
@@ -79,11 +79,11 @@ static void FixMeasureRect(Document *doc, LINK measL)
 	/* Then reset the measSizeRect of the last Measure in the system the same as above. */
 
 	if (LinkRSYS(systemL))
-		measL = LSSearch(LinkRSYS(systemL), MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		measL = LSSearch(LinkRSYS(systemL), MEASUREtype, ANYONE, GO_LEFT, False);
 	else
-		measL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		measL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, False);
 
-	LinkVALID(measL) = FALSE;								/* So Draw updates measureBBox */
+	LinkVALID(measL) = False;								/* So Draw updates measureBBox */
 
 	/* As in Score.c:MakeMeasure(). This is almost certainly the right idea. */
 	measWidth = GetNormalStaffLength(doc, measL) - LinkXD(measL);
@@ -109,7 +109,7 @@ Boolean SameTimeSigOnAllStaves(Document *doc, LINK timeSigL)
 	LINK aTimeSigL;  PATIMESIG aTimeSig;
 	short subType, numerator, denominator;
 	
-	if (LinkNENTRIES(timeSigL)!=doc->nstaves) return FALSE;
+	if (LinkNENTRIES(timeSigL)!=doc->nstaves) return False;
 	
 	aTimeSigL = FirstSubLINK(timeSigL);
 	aTimeSig = GetPATIMESIG(aTimeSigL);		
@@ -119,12 +119,12 @@ Boolean SameTimeSigOnAllStaves(Document *doc, LINK timeSigL)
 	for (aTimeSigL = NextTIMESIGL(aTimeSigL); aTimeSigL; 
 			aTimeSigL = NextTIMESIGL(aTimeSigL)) {
 		aTimeSig = GetPATIMESIG(aTimeSigL);		
-		if (aTimeSig->subType!=subType) return FALSE;
-		if (aTimeSig->numerator!=numerator) return FALSE;
-		if (aTimeSig->denominator!=denominator) return FALSE;
+		if (aTimeSig->subType!=subType) return False;
+		if (aTimeSig->numerator!=numerator) return False;
+		if (aTimeSig->denominator!=denominator) return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -144,10 +144,10 @@ static Boolean WarnTimeSigsInconsistency(Document *doc, LINK timeSigL)
 		sprintf(strBuf, fmtStr, measNum);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return TRUE;
+		return True;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -157,18 +157,18 @@ static Boolean WarnTimeSigsInconsistency(Document *doc, LINK timeSigL)
 the same numerator/denominator with no Measures or Syncs in between". (Recall that in
 Nightingale every new System starts a new Measure.) Since it's affected by system breaks,
 this should be called after any Reformatting that might change system breaks. Returns
-FALSE if it finds a problem, else TRUE. */
+False if it finds a problem, else True. */
 
 Boolean DelRedTimeSigs(
 			Document *doc,
-			Boolean respace,					/* TRUE=remove the space deleted timesigs occupied */
+			Boolean respace,					/* True=remove the space deleted timesigs occupied */
 			LINK *pFirstDelL, LINK *pLastDelL	/* Output: first and last timesigs deleted */
 		)
 {
 	LINK pL, aTimeSigL, prevTSL, firstDelL, lastDelL;
 	PATIMESIG aTimeSig;
 	char prevNumerator, prevDenominator;
-	Boolean okay=TRUE;
+	Boolean okay=True;
 
 	prevTSL = firstDelL = lastDelL = NILINK;
 	
@@ -179,7 +179,7 @@ Boolean DelRedTimeSigs(
 					/* If the time signature isn't identical on all staves, things are
 					   more complex than we want to bother with: warn user and give up. */
 					if (WarnTimeSigsInconsistency(doc, pL)) {
-						okay = FALSE;
+						okay = False;
 						goto Finish;
 					}
 					aTimeSigL = FirstSubLINK(pL);
@@ -251,18 +251,18 @@ short AddCautionaryTimeSigs(Document *doc)
 	   Measure. */
 	numAdded = 0;
 	systemNum = 0;
-	beforeFirstNRGR = TRUE;
-	firstChange = TRUE;
+	beforeFirstNRGR = True;
+	firstChange = True;
 	for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
 		switch (ObjLType(pL)) {
 			case SYSTEMtype:
 				systemNum++;
 				systemL = pL;
-				beforeFirstNRGR = TRUE;
+				beforeFirstNRGR = True;
 				break;
 			case SYNCtype:
 			case GRSYNCtype:
-				beforeFirstNRGR = FALSE;
+				beforeFirstNRGR = False;
 				break;
 			case TIMESIGtype:
 				if (systemNum>1 && beforeFirstNRGR) {				
@@ -279,7 +279,7 @@ short AddCautionaryTimeSigs(Document *doc)
 					if (MeasureTYPE(endPrevSysL)) {
 						if (firstChange) PrepareUndo(doc, endPrevSysL,
 											U_AddCautionaryTS, 50);    /* "Add Cautionary TimeSigs" */
-						firstChange = FALSE;
+						firstChange = False;
 						aTimeSigL = FirstSubLINK(pL);
 						type = TimeSigType(aTimeSigL);
 						numer = TimeSigNUMER(aTimeSigL);
@@ -298,7 +298,7 @@ short AddCautionaryTimeSigs(Document *doc)
 						timeSigInfo.denominator = denom;
 						for (int s=1; s<=doc->nstaves; s++)
 							FixContextForTimeSig(doc, RightLINK(timeSigL), s, timeSigInfo);
-						RespaceBars(doc, timeSigL, timeSigL, 0, FALSE, FALSE);
+						RespaceBars(doc, timeSigL, timeSigL, 0, False, False);
 						numAdded++;
 					}
 				}

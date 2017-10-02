@@ -110,7 +110,7 @@ static void FixStaffNums(Document *doc,
 					if (aMeasureL) {
 						aMeasure = GetPAMEASURE(aMeasureL);
 						aMeasure->connStaff = measConnStaff[afterStf+nDelta+1];
-						if (aMeasure->connStaff>0) aMeasure->connAbove = FALSE;
+						if (aMeasure->connStaff>0) aMeasure->connAbove = False;
 					}
 				}
 			}
@@ -193,7 +193,7 @@ static Boolean APFixVoiceNums(Document *doc, short afterStf, short nDelta)
 	for (tableLast = -1, v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn<=0)
 			{ tableLast = v-1; break; }
-	if (tableLast<0 || tableLast+nDelta>=MAXVOICES) return FALSE;
+	if (tableLast<0 || tableLast+nDelta>=MAXVOICES) return False;
 			
 	/*
 	 * The part no. of the new part is one more than the current part no. of the
@@ -213,7 +213,7 @@ static Boolean APFixVoiceNums(Document *doc, short afterStf, short nDelta)
 	}
 
 	OffsetVoiceNums(doc, afterStf, nDelta);
-	return TRUE;
+	return True;
 }
 
 static void DPFixVoiceNums(Document *doc, short afterStf, short nDelta, short delPartn)
@@ -252,7 +252,7 @@ static DDIST InitPartGetStfLen(Document *doc)
 {
 	DDIST staffLen; LINK staffL,bStaffL; PASTAFF bStaff;
 
-	staffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, FALSE);
+	staffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, False);
 	bStaffL = FirstSubLINK(staffL);
 	bStaff = GetPASTAFF(bStaffL);
 	staffLen = bStaff->staffRight;
@@ -322,7 +322,7 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 	CONTEXT context; DDIST staffLen,ydelta,halfpt,dLineSp;
 	PASTAFF aStaff,bStaff,cStaff; PACONNECT aConnect; PAMEASURE aMeas;
 	PATIMESIG aTimeSig;
-	Boolean addToGroup=FALSE,connAbove; char subType;
+	Boolean addToGroup=False,connAbove; char subType;
 
 	GetSysLinks(sysL,&staffL,&measL,&clefL,&keySigL,&timeSigL,&connectL);
 	staffLen = InitPartGetStfLen(doc);
@@ -410,7 +410,7 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 
 			connStaff = (m==1 && nstAdd>1 ? afterStf+nstAdd : 0);
 			InitMeasure(aMeasL, thisSt, p2d(0), 999,
-								staffLen-LinkXD(measL), 999, FALSE,
+								staffLen-LinkXD(measL), 999, False,
 								m>1, connStaff, 0);
 			GetContext(doc, LeftLINK(measL), thisSt, &context);		/* Put default context */
 			FixMeasureContext(aMeasL, &context);							/*   into measure */
@@ -449,7 +449,7 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 		aConnect = GetPACONNECT(aConnectL);
 		if (aConnect->connLevel==GroupLevel)
 			if (aConnect->staffAbove<=afterStf && aConnect->staffBelow>afterStf) {		/* #1. */
-				addToGroup = TRUE;
+				addToGroup = True;
 				groupConnType = aConnect->connectType;
 				break;
 			}
@@ -467,7 +467,7 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 				halfpt = pt2d(1)/2;
 				dLineSp = STHEIGHT/(5-1);										/* Get space between staff lines */
 				aConnect = GetPACONNECT(aConnectL);
-				aConnect->selected = FALSE;
+				aConnect->selected = False;
 				aConnect->connLevel = PartLevel;								/* Yes. Connect the part */
 				aConnect->connectType = CONNECTCURLY;
 				aConnect->staffAbove = afterStf+1;
@@ -479,10 +479,10 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 			}
 	}
 	
-	nextTSL = LSISearch(RightLINK(timeSigL),TIMESIGtype,ANYONE,GO_RIGHT,FALSE);
+	nextTSL = LSISearch(RightLINK(timeSigL),TIMESIGtype,ANYONE,GO_RIGHT,False);
 
 	for ( ; nextTSL; nextTSL =
-				LSISearch(RightLINK(nextTSL),TIMESIGtype,ANYONE,GO_RIGHT,FALSE)) {
+				LSISearch(RightLINK(nextTSL),TIMESIGtype,ANYONE,GO_RIGHT,False)) {
 		
 		/* Only grew timeSigs which were previously on all staves */
 
@@ -521,10 +521,10 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 
 				connAbove = m>1;
 				if (addToGroup)
-					{ connStaff = 0; connAbove = TRUE; }
+					{ connStaff = 0; connAbove = True; }
 
 				InitMeasure(aMeasL, thisSt, p2d(0), 999,
-									staffLen-LinkXD(nextMeasL), 999, TRUE,
+									staffLen-LinkXD(nextMeasL), 999, True,
 									connAbove, connStaff, 0);		
 				aMeas = GetPAMEASURE(aMeasL);
 				aMeas->subType = measType;
@@ -544,7 +544,7 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 			if (j>prevNEntries) {
 				aMeas = GetPAMEASURE(aMeasL);
 				aMeas->connStaff = 0;
-				aMeas->connAbove = TRUE;
+				aMeas->connAbove = True;
 			}
 	}
 
@@ -561,7 +561,7 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 				if (j>prevNEntries) {
 					thisSt = afterStf+m;
 					connStaff = (m==1 && nstAdd>1 ? afterStf+nstAdd : 0);
-					InitPSMeasure(aPSMeasL, thisSt, TRUE, m>1, connStaff, subType);
+					InitPSMeasure(aPSMeasL, thisSt, True, m>1, connStaff, subType);
 					m++;
 				}
 		}
@@ -635,7 +635,7 @@ LINK AddPart(Document *doc,
 	UpdateMeasNums(doc, NILINK);
 
 	measL = SSearch(doc->headL,MEASUREtype,GO_RIGHT);
-	lastMeasL = LSSearch(doc->tailL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+	lastMeasL = LSSearch(doc->tailL,MEASUREtype,ANYONE,GO_LEFT,False);
 	FixMeasRectXs(measL,lastMeasL);
 
 	doc->selStartL = doc->headL;
@@ -732,7 +732,7 @@ static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
 	PMEVENT p; HEAP *tmpHeap; GenSubObj *subObj;
 				
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
-		selObject = FALSE;
+		selObject = False;
 		switch (ObjLType(pL)) {
 			case HEADERtype:
 			case PAGEtype:
@@ -744,9 +744,9 @@ static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
 				for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL)) {
 					aStaff = GetPASTAFF(aStaffL);
 					if (aStaff->staffn>=startStf && aStaff->staffn<=endStf)
-						aStaff->selected = selObject = TRUE;
+						aStaff->selected = selObject = True;
 					else 
-						aStaff->selected = FALSE;
+						aStaff->selected = False;
 				}
 				break;
 				
@@ -780,9 +780,9 @@ static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
 				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
 					subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
 					if (subObj->staffn>=startStf && subObj->staffn<=endStf)
-						subObj->selected = selObject = TRUE;
+						subObj->selected = selObject = True;
 					else
-						subObj->selected = FALSE;
+						subObj->selected = False;
 				}
 				break;
 
@@ -796,13 +796,13 @@ static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
 			case ENDINGtype:
 				p = GetPMEVENT(pL);
 				if (((PEXTEND)p)->staffn>=startStf && ((PEXTEND)p)->staffn<=endStf)
-					LinkSEL(pL) = TRUE;
+					LinkSEL(pL) = True;
 				break;
 
 			default:
 				MayErrMsg("SelPartRange: can't handle type=%ld at %ld",(long)ObjLType(pL),pL);
 		}
-		if (selObject) LinkSEL(pL) = TRUE;
+		if (selObject) LinkSEL(pL) = True;
 	}
 }
 
@@ -857,9 +857,9 @@ Boolean DeletePart(Document *doc,
 	SelPartRange(doc,doc->headL,doc->tailL,startStf,endStf);
 
 	UpdateSelection(doc);
-	DeleteSelection(doc, FALSE, &dontResp);
+	DeleteSelection(doc, False, &dontResp);
 	measL = SSearch(doc->headL,MEASUREtype,GO_RIGHT);
-	lastMeasL = LSSearch(doc->tailL,MEASUREtype,ANYONE,GO_LEFT,FALSE);
+	lastMeasL = LSSearch(doc->tailL,MEASUREtype,ANYONE,GO_LEFT,False);
 	FixMeasRectXs(measL,lastMeasL);
 
 	/*
@@ -909,5 +909,5 @@ Boolean DeletePart(Document *doc,
 	DeselAll(doc);
 
 	InvalRange(doc->headL, doc->tailL);
-	return TRUE;
+	return True;
 }

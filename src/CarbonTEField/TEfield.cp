@@ -45,7 +45,7 @@ Boolean CreateEditField(
 		short				fontSize,
 		short				fontStyle,
 		Handle			textH,			/* put this text in the field */
-		Boolean			sel,				/* TRUE: selAll, FALSE: insertion pt at end */
+		Boolean			sel,				/* True: selAll, False: insertion pt at end */
 		PEDITFIELD		theField
 		)
 {
@@ -82,10 +82,10 @@ still see a white border around edges, like in THINK C.) */
 	
 	/* create TE field and scrollbar */
 	teH = TENew(&destRect, &viewRect);
-	scrollH = NewControl(wind, &scrollRect, "\p", TRUE, 0, 0, 100, scrollBarProc, 0L);
+	scrollH = NewControl(wind, &scrollRect, "\p", True, 0, 0, 100, scrollBarProc, 0L);
 	if (teH == NIL || scrollH == NIL) {
 		SysBeep(10);		/* ***FIXME: need more than this! */
-		return FALSE;
+		return False;
 	}
 	
 	/* set font for TE record */
@@ -114,11 +114,11 @@ still see a white border around edges, like in THINK C.) */
 	theField->teH = teH;
 	theField->scrollH = scrollH;
 	theField->bounds = boundsRect;
-	theField->active = TRUE;
+	theField->active = True;
 	
 	AdjustScrollBar(theField);
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -132,7 +132,7 @@ void DisposeEditField(PEDITFIELD theField)
 /* Stuffs into the edit field the text contained in either <textH>, a handle
  * to raw text (not a Pascal or C string), or <textP>, a (null terminated) 
  * C string. The choice is yours; pass NIL for the one not used.  This 
- * replaces any text already in the field. Returns TRUE if ok, FALSE if error.
+ * replaces any text already in the field. Returns True if ok, False if error.
  */
 
 /* ••••••InsideMac says:
@@ -155,11 +155,11 @@ Boolean SetEditFieldText(PEDITFIELD theField, Handle textH, unsigned char *textP
 		TESetText(textH, len, theField->teH);
 	}
 	else
-		return FALSE;
+		return False;
 
 	TESetSelect(sel? 0L : (long)32767, (long)32767, theField->teH);
 	AdjustScrollBar(theField);
-	return TRUE;
+	return True;
 }
 
 
@@ -312,7 +312,7 @@ static pascal Boolean EditFieldAutoScroll(TERec*)
 	
 	SetClip(saveClip);
 	DisposeRgn(saveClip);
-	return TRUE;
+	return True;
 }
 
 
@@ -334,9 +334,9 @@ void ScrollToSelection(PEDITFIELD theField)
 	if (GetControlMaximum(scrollH) == 0)
 		AdjustText(teH, scrollH);
 	else if ((**teH).selEnd < (**teH).lineStarts[topLine])
-		ScrollCharacter(theField, (**teH).selStart, FALSE);
+		ScrollCharacter(theField, (**teH).selStart, False);
 	else if ((**teH).selStart >= (**teH).lineStarts[botLine])
-		ScrollCharacter(theField, (**teH).selEnd, TRUE);
+		ScrollCharacter(theField, (**teH).selEnd, True);
 
 	HUnlock((Handle)teH);
 }
@@ -373,11 +373,11 @@ void DoTEEdit(PEDITFIELD theField, short cmd)
 	switch (cmd) {
 		case TE_CUT:
 			TECut(theField->teH);
-			scrapDirty = TRUE;
+			scrapDirty = True;
 			break;
 		case TE_COPY:
 			TECopy(theField->teH);
-			scrapDirty = TRUE;
+			scrapDirty = True;
 			return;								/* skip stuff at bottom that the others need */
 			break;
 		case TE_PASTE:
@@ -403,7 +403,7 @@ void DoTEEdit(PEDITFIELD theField, short cmd)
 
 /* Call this in response to a mouseDown in the window's content area.
  * If click was in the TE viewrect or scrollbar rect, handles click
- * and returns TRUE; FALSE if not in either rect.
+ * and returns True; False if not in either rect.
  */
 Boolean DoEditFieldClick(PEDITFIELD theField, EventRecord *event)
 {
@@ -420,7 +420,7 @@ Boolean DoEditFieldClick(PEDITFIELD theField, EventRecord *event)
 	localPt = event->where;
 	GlobalToLocal(&localPt);
 
-	if (!PtInRect(localPt, &theField->bounds)) return FALSE;		/* not in our field */
+	if (!PtInRect(localPt, &theField->bounds)) return False;		/* not in our field */
 	
 	tmpTEH = theField->teH;													/* so clikloop routine can get them */
 	tmpScrollH = theField->scrollH;
@@ -428,17 +428,17 @@ Boolean DoEditFieldClick(PEDITFIELD theField, EventRecord *event)
  	
 	if (PtInRect(localPt, &(**tmpTEH).viewRect)) {
 		TEClick(localPt, extend, tmpTEH);
-		return TRUE;
+		return True;
 	}
 //	else if (PtInRect(localPt, &(**tmpScrollH).contrlRect)) {
 	else if (PtInRect(localPt, &tmpCtlRect)) {
 		part = FindControl(localPt, wind, &whichCntlH);
 		if (part!=0 && part!=254 && whichCntlH==tmpScrollH)
 			DoScroll(theField, part, localPt);
-		return TRUE;															/* even though we may have hit an inactive cntl */
+		return True;															/* even though we may have hit an inactive cntl */
 	}
 	
-	return FALSE;		
+	return False;		
 }
 
 
@@ -566,12 +566,12 @@ void DoTEFieldActivateEvent(PEDITFIELD theField, EventRecord *event)
 	GetPort(&oldPort); SetPort(GetWindowPort(wind));
 
 	if (event->modifiers & activeFlag != 0) {
-		theField->active = TRUE;
+		theField->active = True;
 		HiliteControl(theField->scrollH, CTL_ACTIVE);
 		TEActivate(theField->teH);
 	}
 	else {
-		theField->active = FALSE;
+		theField->active = False;
 		TEDeactivate(theField->teH);
 		HiliteControl(theField->scrollH, CTL_INACTIVE);
 	}
@@ -582,9 +582,9 @@ void DoTEFieldActivateEvent(PEDITFIELD theField, EventRecord *event)
 
 /* Call this in response to a nullEvent, or even every time through the event
  * loop (or dlog filter). It adjusts the cursor shape and causes the caret to blink.
- * Returns TRUE if mouse in field (we changed cursor); FALSE if not. It's the caller's
+ * Returns True if mouse in field (we changed cursor); False if not. It's the caller's
  * responsibility to set the cursor shape to something reasonable (e.g., arrow) when
- * this function returns FALSE.
+ * this function returns False.
  * NB: uses the QuickDraw global <arrow>.
  */
 Boolean DoTEFieldIdle(PEDITFIELD theField, EventRecord *event)
@@ -609,9 +609,9 @@ Boolean DoTEFieldIdle(PEDITFIELD theField, EventRecord *event)
 	else if (PtInRect(localWhere, &tmpCtlRect))
 		ArrowCursor();
 	else
-		return FALSE;						/* not in our edit field */
+		return False;						/* not in our edit field */
 	
-	return TRUE;							/* we changed cursor */
+	return True;							/* we changed cursor */
 }
 
 

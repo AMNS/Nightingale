@@ -130,7 +130,7 @@ static short GetDynamicPopItem(PGRAPHIC_POPUP p, DYN_POPKEY *pk, short dynamicTy
 
 /* Given a character code <theChar>, a popup <p> and its associated DYN_POPKEY
 array <pk>, determine if the character should select a new dynamic from the popup.
-If it should, call SetGPopUpChoice and return TRUE; if not, return FALSE.
+If it should, call SetGPopUpChoice and return True; if not, return False.
 DynamicPopupKey calls TranslatePalChar before doing anything, so it recognizes
 remapped modifier key equivalents. */
 
@@ -141,7 +141,7 @@ Boolean DynamicPopupKey(PGRAPHIC_POPUP p, DYN_POPKEY *pk, unsigned char theChar)
 	
 	/* remap theChar according to the 'PLMP' resource */
 	intChar = (short)theChar;
-	TranslatePalChar(&intChar, 0, FALSE);
+	TranslatePalChar(&intChar, 0, False);
 	theChar = (unsigned char) intChar;
 	
 	newDynamicType = NOMATCH;
@@ -152,13 +152,13 @@ Boolean DynamicPopupKey(PGRAPHIC_POPUP p, DYN_POPKEY *pk, unsigned char theChar)
 		}
 	}
 	if (newDynamicType==NOMATCH)
-		return FALSE;										/* no action for this key */
+		return False;										/* no action for this key */
 	
 	newItem = GetDynamicPopItem(p, pk, newDynamicType);
 	if (newItem && newItem!=p->currentChoice)
 		SetGPopUpChoice(p, newItem);
 
-	return TRUE;											/* the keystroke was directed at popup */
+	return True;											/* the keystroke was directed at popup */
 }
 
 
@@ -168,7 +168,7 @@ Boolean DynamicPopupKey(PGRAPHIC_POPUP p, DYN_POPKEY *pk, unsigned char theChar)
 
 static GRAPHIC_POPUP	dynamicPop, *curPop;
 static DYN_POPKEY		*popKeysDynamic;
-static short			popUpHilited = TRUE;
+static short			popUpHilited = True;
 
 static enum {
 	DYNAM_POP_DI=4
@@ -190,13 +190,13 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
 				BeginUpdate(GetDialogWindow(dlog));
 				UpdateDialogVisRgn(dlog);
-				FrameDefault(dlog, OK, TRUE);
+				FrameDefault(dlog, OK, True);
 				DrawGPopUp(curPop);		
 				HiliteGPopUp(curPop, popUpHilited);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
-				return TRUE;
+				return True;
 			}
 			break;
 		case activateEvt:
@@ -210,21 +210,21 @@ static pascal Boolean DynamicFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			if (PtInRect(where, &curPop->box)) {
 				DoGPopUp(curPop);
 				*itemHit = DYNAM_POP_DI;
-				return TRUE;
+				return True;
 			}
 			break;
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (short *)itemHit, FALSE))
-				return TRUE;
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
+				return True;
 			ch = (unsigned char)evt->message;
 			ans = DynamicPopupKey(curPop, popKeysDynamic, ch);
 			*itemHit = ans? DYNAM_POP_DI : 0;
-			HiliteGPopUp(curPop, TRUE);
-			return TRUE;
+			HiliteGPopUp(curPop, True);
+			return True;
 			break;
 	}
 	
-	return FALSE;
+	return False;
 }
 
 
@@ -241,14 +241,14 @@ Boolean SetDynamicDialog(SignedByte *dynamicType)
 	filterUPP = NewModalFilterUPP(DynamicFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(SETDYN_DLOG);
-		return FALSE;
+		return False;
 	}
 	
 	dlog = GetNewDialog(SETDYN_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(SETDYN_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	GetPort(&oldPort);
@@ -275,13 +275,13 @@ Boolean SetDynamicDialog(SignedByte *dynamicType)
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 	
-	dialogOver = FALSE;
+	dialogOver = False;
 	while (!dialogOver) {
 		ModalDialog(filterUPP, &ditem);
 		switch (ditem) {
 			case OK:
 			case Cancel:
-				dialogOver = TRUE;
+				dialogOver = True;
 				break;
 			default:
 				;

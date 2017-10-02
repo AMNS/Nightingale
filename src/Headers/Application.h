@@ -9,11 +9,11 @@
 #endif
 
 #define	NIL			((void *)0)			/* ??This should go away: change all NIL to NULL! */
-#ifndef TRUE
-	#define TRUE		1
+#ifndef True
+	#define True		1
 #endif
-#ifndef FALSE
-	#define FALSE		0
+#ifndef False
+	#define False		0
 #endif
 
 #define BRING_TO_FRONT	((WindowPtr)(-1L))

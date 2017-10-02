@@ -25,8 +25,8 @@ void DoCloseWindow(WindowPtr w)
 		if (kind == DOCUMENTKIND) {
 			if (!DoCloseDocument(GetDocumentFromWindow(w))) {
 				/* User canceled, or error */
-				quitting = FALSE;
-				closingAll = FALSE;
+				quitting = False;
+				closingAll = False;
 				return;
 				}
 			
@@ -34,7 +34,7 @@ void DoCloseWindow(WindowPtr w)
 				/* Find the new TopDocument, and insure it and its controls are hilited properly. */
 				AnalyzeWindows();
 				if (TopDocument)
-					ActivateDocument(GetDocumentFromWindow(TopDocument), TRUE);
+					ActivateDocument(GetDocumentFromWindow(TopDocument), True);
 				}
 			}
 		 else {
@@ -46,7 +46,7 @@ void DoCloseWindow(WindowPtr w)
 				 */
 				MEHideCaret(GetDocumentFromWindow(TopDocument));
 				/* Don't generate any events that might cause the TopDocument to be unhilited. */
-				ShowHide(w, FALSE);
+				ShowHide(w, False);
 				}
 			 else
 				/*
@@ -63,8 +63,8 @@ void DoCloseWindow(WindowPtr w)
 				switch (GetWRefCon(w)) {
 					case TOOL_PALETTE:
 						pg = *paletteGlobals[TOOL_PALETTE];
-						palettesVisible[TOOL_PALETTE] = FALSE;
-						ChangeToolSize(pg->firstAcross,pg->firstDown,TRUE);
+						palettesVisible[TOOL_PALETTE] = False;
+						ChangeToolSize(pg->firstAcross,pg->firstDown,True);
 						break;
 					}
 			}
@@ -106,7 +106,7 @@ short DoCloseAllDocWindows()
 				/* Find the new TopDocument, and insure it and its controls are hilited properly. */
 				AnalyzeWindows();
 				if (TopDocument)
-					ActivateDocument(GetDocumentFromWindow(w), TRUE);
+					ActivateDocument(GetDocumentFromWindow(w), True);
 			}
 		}
 	}
@@ -154,7 +154,7 @@ void DoZoom(WindowPtr w, short part)
 				GetWindowPortBounds(w,&portRect);
 				ClipRect(&portRect);
 				EraseRect(&portRect);
-				ZoomWindow(w, part, FALSE);
+				ZoomWindow(w, part, False);
 				RecomputeWindow(w);
 				InvalWindowRect(w,&portRect);
 				ClipRect(&doc->viewRect);
@@ -176,10 +176,10 @@ void DoZoom(WindowPtr w, short part)
 						{ across = pg->zoomAcross; down = pg->zoomDown; }
 					if (pg->across==across && pg->down==down)
 						/* Zoom in or back to old values */
-						ChangeToolSize(pg->oldAcross,pg->oldDown,TRUE);
+						ChangeToolSize(pg->oldAcross,pg->oldDown,True);
 					 else
 						/* Zoom it to the macs */
-						ChangeToolSize(across,down,TRUE);
+						ChangeToolSize(across,down,True);
 					break;
 				}
 			break;
@@ -202,7 +202,7 @@ static void sprintfMagnify(Document *doc, char str[])
 }
 
 
-/* Deliver the message box's bounds as defined here. If boundsOnly is TRUE, that's all;
+/* Deliver the message box's bounds as defined here. If boundsOnly is True, that's all;
 otherwise, also erase the message box; position the pen so that subsequent strings
 are drawn at an appropriate point; change the clipping to the message box; and change
 the font to the message box font (saving the old font in some local globals for
@@ -268,7 +268,7 @@ void DrawMessageString(Document *doc, char *msgStr)
 {
 	Rect messageRect;
 	
-	PrepareMessageDraw(doc,&messageRect,FALSE);
+	PrepareMessageDraw(doc,&messageRect,False);
 	DrawCString(msgStr);
 	FinishMessageDraw(doc);
 }
@@ -277,7 +277,7 @@ void DrawMessageString(Document *doc, char *msgStr)
 /* Draw the normal contents of the message box (information like selection page
 and measure numbers, viewing magnification, and voice number and part name being
 Looked At) in the area to the left of the horizontal scroll bar in <doc>, if
-reallyDraw is TRUE; otherwise, just Inval the message box. */
+reallyDraw is True; otherwise, just Inval the message box. */
 
 void DrawMessageBox(Document *doc, Boolean reallyDraw)
 {
@@ -292,7 +292,7 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 	
 	if (!reallyDraw) {
 		GetPort(&oldPort); SetPort(GetWindowPort(w));
-		PrepareMessageDraw(doc, &messageRect,TRUE);					/* Get messageRect only */
+		PrepareMessageDraw(doc, &messageRect,True);					/* Get messageRect only */
 		InvalWindowRect(w, &messageRect);
 		SetPort(oldPort);
 		return;
@@ -334,7 +334,7 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 		}
 	}
 
-	PrepareMessageDraw(doc, &messageRect, FALSE);
+	PrepareMessageDraw(doc, &messageRect, False);
 	DrawCString(strBuf);
 	TextFace(bold); DrawCString(strBuf2);
 	FinishMessageDraw(doc);
@@ -365,7 +365,7 @@ void AnalyzeWindows()
 		TopWindow = TopPalette = TopDocument = NULL;
 		BottomPalette = BRING_TO_FRONT;
 		
-		inOrder = TRUE;
+		inOrder = True;
 		palettesFound = 0;
 		
 		for (next=FrontWindow(); next; next=GetNextWindow(next)) {
@@ -390,7 +390,7 @@ void AnalyzeWindows()
 				 else
 					if (TopDocument!=NULL || TopPalette!=NULL)
 						/* Some other (?) window is visible between the palettes and TopDocument */
-						inOrder = FALSE;
+						inOrder = False;
 				}
 			
 			/* All windows before the last palette get to this point */
@@ -414,7 +414,7 @@ void AnalyzeWindows()
 		TopWindow = TopPalette = TopDocument = NULL;
 		BottomPalette = BRING_TO_FRONT;
 		
-		inOrder = TRUE;
+		inOrder = True;
 		palettesFound = 0;
 		
 		for (next=FrontWindow(); next; next=GetNextWindow(next)) {
@@ -434,7 +434,7 @@ void AnalyzeWindows()
 				 else
 					if (TopDocument!=NULL || TopPalette!=NULL)
 						/* Some other (?) window is visible between the palettes and TopDocument */
-						inOrder = FALSE;
+						inOrder = False;
 				}
 			
 			/* All windows before the last palette get to this point */
@@ -492,14 +492,14 @@ void HiliteUserWindows()
 			/* Unhilite the remaining document windows */
 			for (next=GetNextWindow(TopDocument); next; next=GetNextWindow(next))
 				if (GetWindowKind(next) == DOCUMENTKIND) {
-					ActivateDocument(GetDocumentFromWindow(next), FALSE);
+					ActivateDocument(GetDocumentFromWindow(next), False);
 				}
 		}
 	}
 }
 
 
-/* Return TRUE if w is a palette in front, or it's TopDocument and the application is
+/* Return True if w is a palette in front, or it's TopDocument and the application is
 active. */
 
 Boolean ActiveWindow(WindowPtr w)
@@ -508,12 +508,12 @@ Boolean ActiveWindow(WindowPtr w)
 	
 	if (w) {
 		kind = GetWindowKind(TopWindow);
-		if (kind<OURKIND || kind>=TOPKIND) return(FALSE);			/* Not us */
+		if (kind<OURKIND || kind>=TOPKIND) return(False);			/* Not us */
 		if (w==TopDocument || (GetWindowKind(w)==PALETTEKIND && w==TopPalette))
-			return(TRUE);
+			return(True);
 	}
 		
-	return(FALSE);
+	return(False);
 }
 
 
@@ -563,11 +563,11 @@ void SendToBack(WindowPtr w)
 			SendBehind(w, NULL);		/* Send the document all the way to the back */
 			if (TopPalette == TopWindow) {
 				/* Ensure w and its controls are unhilited properly */
-				ActivateDocument(GetDocumentFromWindow(w), FALSE);
+				ActivateDocument(GetDocumentFromWindow(w), False);
 				/* Find the new TopDocument */
 				AnalyzeWindows();
 				/* Ensure the TopDocument and its controls are hilited properly */
-				ActivateDocument(GetDocumentFromWindow(TopDocument), TRUE);
+				ActivateDocument(GetDocumentFromWindow(TopDocument), True);
 			}
 		}
 	} 
@@ -618,13 +618,13 @@ void ShowHidePalettes(Boolean show)
 			if (*wp) {
 				if (show) {
 					//ShowHide(*wp, *pv);
-					ShowHide(*wp, TRUE);
-					//*pv = FALSE;
+					ShowHide(*wp, True);
+					//*pv = False;
 					}
 				else {
 //					*pv = (IsWindowVisible(*wp) != 0);
 					if (*pv)
-						ShowHide(*wp, FALSE);
+						ShowHide(*wp, False);
 					}
 				}
 				if (index == TOOL_PALETTE) break;
@@ -638,7 +638,7 @@ void UpdatePalette(WindowPtr whichPalette)
 	{
 		/* Use the palette's refCon to determine which palette needs updating */
 		
-		notMenu = TRUE;
+		notMenu = True;
 		switch (GetWRefCon(whichPalette)) {
 			case TOOL_PALETTE:
 				Rect portRect;
@@ -652,7 +652,7 @@ void UpdatePalette(WindowPtr whichPalette)
 				SysBeep(60);
 				break;
 		}
-		notMenu = FALSE;
+		notMenu = False;
 	}
 
 

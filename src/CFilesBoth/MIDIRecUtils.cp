@@ -55,9 +55,9 @@ PushLock(NOTEheap);
 	
 	aNote->staffn = staffn;
 	aNote->voice = voice;										/* Must set before calling GetStemInfo */
-	aNote->selected = FALSE;
-	aNote->visible = TRUE;
-	aNote->soft = FALSE;
+	aNote->selected = False;
+	aNote->visible = True;
+	aNote->soft = False;
 	aNote->xd = 0;
 	aNote->rest = isRest;
 	if (isRest) {
@@ -79,7 +79,7 @@ PushLock(NOTEheap);
 		stemDown = GetStemInfo(doc, syncL, aNoteL, &qStemLen);
 		aNote->ystem = CalcYStem(doc, aNote->yd, NFLAGS(lDur), stemDown,
 											context.staffHeight, context.staffLines,
-											qStemLen, FALSE);
+											qStemLen, False);
 		aNote->accident = acc;
 		
 		aNote->noteNum = MIDINote.noteNumber;
@@ -92,24 +92,24 @@ PushLock(NOTEheap);
 	aNote->xmovedots = 3;
 	aNote->ymovedots = (halfLn%2==0 ? 1 : 2);
 
-	aNote->inChord = FALSE;
-	aNote->unpitched = FALSE;
-	aNote->beamed = FALSE;
-	aNote->otherStemSide = FALSE;
-	aNote->rspIgnore = FALSE;	
-	aNote->accSoft = TRUE;
+	aNote->inChord = False;
+	aNote->unpitched = False;
+	aNote->beamed = False;
+	aNote->otherStemSide = False;
+	aNote->rspIgnore = False;	
+	aNote->accSoft = True;
 	aNote->micropitch = 0;
 	aNote->xmoveAcc = DFLT_XMOVEACC;
 	aNote->courtesyAcc = 0;
-	aNote->doubleDur = FALSE;
+	aNote->doubleDur = False;
 	aNote->headShape = NORMAL_VIS;
 	aNote->firstMod = NILINK;
-	aNote->tiedR = aNote->tiedL = FALSE;
-	aNote->slurredR = aNote->slurredL = FALSE;
-	aNote->inTuplet = FALSE;
-	aNote->inOttava = FALSE;
-	aNote->small = FALSE;
-	aNote->tempFlag = FALSE;
+	aNote->tiedR = aNote->tiedL = False;
+	aNote->slurredR = aNote->slurredL = False;
+	aNote->inTuplet = False;
+	aNote->inOttava = False;
+	aNote->small = False;
+	aNote->tempFlag = False;
 	aNote->fillerN = 0;
 
 	aNote->playTimeDelta = 0;										/* For the moment */
@@ -148,13 +148,13 @@ LINK CreateSync(register Document *doc,
 	}
 	else {
 		GetContext(doc, newpL, staffn, &context);
-		SetObject(newpL, 0, 0, FALSE, TRUE, FALSE);
-		doc->changed = doc->used = LinkSEL(newpL) = TRUE;
-		LinkTWEAKED(newpL) = FALSE;
+		SetObject(newpL, 0, 0, False, True, False);
+		doc->changed = doc->used = LinkSEL(newpL) = True;
+		LinkTWEAKED(newpL) = False;
 		aNoteL = FirstSubLINK(newpL);
 		SetupMIDINote(doc, newpL, aNoteL, MIDINote, context, staffn, lDur, ndots,
 							voice, isRest, timeShift);
-		NoteSEL(aNoteL) = TRUE;
+		NoteSEL(aNoteL) = True;
 		SyncTIME(newpL) = MIDINote.startTime-timeShift;
 		*syncL = newpL;
 	}
@@ -182,10 +182,10 @@ LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn,
 
 	SetupMIDINote(doc, syncL, aNoteL, MIDINote, context, staffn, lDur, ndots,
 						voice, isRest, timeShift);	 	
-	NoteSEL(aNoteL) = TRUE;
+	NoteSEL(aNoteL) = True;
 	
 	/* If there was already a note in this note's voice, it's now a chord. */
-	if (inVoice) FixSyncForChord(doc, syncL, voice, FALSE, 0, 0, &context);
+	if (inVoice) FixSyncForChord(doc, syncL, voice, False, 0, 0, &context);
 
 	return aNoteL;
 }
@@ -228,7 +228,7 @@ static short MIDI2HalfLn(Document */*doc*/, Byte noteNum, short midCHalfLn,
 static Boolean IsMeasAndMergable(LINK);
 static Boolean IsMeasAndMergable(LINK pL)
 {
-	if (!MeasureTYPE(pL)) return FALSE;
+	if (!MeasureTYPE(pL)) return False;
 	
 	return !FirstMeasInSys(pL);
 }
@@ -247,7 +247,7 @@ short FillMergeBuffer(
 				LINK startL,
 				LINKTIMEINFO mergeObjs[],
 				short maxObjs,
-				Boolean syncsOnly		/* TRUE=include Syncs only, else Syncs and Measures */
+				Boolean syncsOnly		/* True=include Syncs only, else Syncs and Measures */
 				)
 {
 	short i;  LINK pL;
@@ -301,10 +301,10 @@ static void MRFixTieLinks(
 				MayErrMsg("MRFixTieLinks: cross-system Slur %ld", (long)pL);
 				continue;
 			}
-			firstSyncL = LVSearch(pL, SYNCtype, voice, GO_RIGHT, FALSE);
+			firstSyncL = LVSearch(pL, SYNCtype, voice, GO_RIGHT, False);
 			SlurFIRSTSYNC(pL) = firstSyncL;
 			lastSyncL = LVSearch(RightLINK(firstSyncL), SYNCtype, voice,
-										GO_RIGHT, FALSE);
+										GO_RIGHT, False);
 			SlurLASTSYNC(pL) = lastSyncL;
 		}
 	
@@ -332,7 +332,7 @@ static void MRFixTupletLinks(
 			aNoteTupleL = FirstSubLINK(pL);
 			syncL = pL;
 			for (i=0; i<nInTuplet; i++, aNoteTupleL = NextNOTETUPLEL(aNoteTupleL)) {
-				syncL = LVSearch(RightLINK(syncL), SYNCtype, voice, GO_RIGHT, FALSE);
+				syncL = LVSearch(RightLINK(syncL), SYNCtype, voice, GO_RIGHT, False);
 				aNoteTuple = GetPANOTETUPLE(aNoteTupleL);
 				aNoteTuple->tpSync = syncL;
 			}
@@ -348,8 +348,8 @@ in <voice>; the range may also contain structure objects, which will be discarde
 Also, if <voice> is used in the area we're merging into, the results will be a bit
 strange, though not disasterously so.
 
-If we succeed, or if there's nothing to do, return TRUE; if not (probably because of
-lack of memory), FALSE. In the latter case the object list will probably be a mess
+If we succeed, or if there's nothing to do, return True; if not (probably because of
+lack of memory), False. In the latter case the object list will probably be a mess
 and the caller had better do something drastic--probably inform the user and close the
 document. (It'd be nice for this function to try to avoid that by checking there's
 plenty of memory before doing anything, but it'd be difficult to estimate how much
@@ -374,8 +374,8 @@ Boolean MRMerge(
 	short match, i;
 	
 	*pLastL = NILINK;
-	if (nNewSyncs<=0) return TRUE;			/* If nothing to do */
-	if (nMergeObjs<=0) return TRUE;			/* Should never happen, but just in case */
+	if (nNewSyncs<=0) return True;			/* If nothing to do */
+	if (nMergeObjs<=0) return True;			/* Should never happen, but just in case */
 
 	startL = newSyncs[0].link;
 	while (J_DTYPE(LeftLINK(startL)))		/* In case the first Sync is tied or inTuplet */
@@ -426,10 +426,10 @@ for (i = 0; i<n_min(nMergeObjs, 5); i++) {
 			 */
 			if (mergeObjs[match].time==newSyncs[i].time && SyncTYPE(matchL)
 			&&  !SyncInVoice(matchL, voice)) {
-				copyL = DuplicateObject(SYNCtype, newL, FALSE, doc, doc, FALSE);
-				if (!copyL) return FALSE;					/* A serious problem for caller */
+				copyL = DuplicateObject(SYNCtype, newL, False, doc, doc, False);
+				if (!copyL) return False;					/* A serious problem for caller */
 				MergeObject(doc, copyL, matchL);
-				LinkSEL(matchL) = TRUE;
+				LinkSEL(matchL) = True;
 				selEndL = RightLINK(matchL);
 				if (slurL) MoveNode(slurL, matchL);		/* Must fix firstSyncL later */
 				if (tupL) MoveNode(tupL, matchL);		/* Must fix subobj tpSyncs later */
@@ -457,7 +457,7 @@ for (i = 0; i<n_min(nMergeObjs, 5); i++) {
 		}
 		
 		/* Update newL's time. This could probably be done much more efficiently. */
-		measL = LSSearch(newL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		measL = LSSearch(newL, MEASUREtype, ANYONE, GO_LEFT, False);
 		SyncTIME(newL) = newSyncs[i].time-MeasureTIME(measL);
 	}
 
@@ -473,5 +473,5 @@ for (i = 0; i<n_min(nMergeObjs, 5); i++) {
 	*pLastL = lastL;
 	doc->selStartL = endL;
 	doc->selEndL = selEndL;
-	return TRUE;
+	return True;
 }

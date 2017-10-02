@@ -59,7 +59,7 @@ short NSysOnMasterPage(Document *doc)
 	
 	count = 1;
 
-	sysL = LSSearch(doc->masterHeadL, SYSTEMtype, ANYONE, GO_RIGHT, FALSE);
+	sysL = LSSearch(doc->masterHeadL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 	sysRect = SystemRECT(sysL);
 
 	sysHeight = SystemRECT(sysL).bottom - SystemRECT(sysL).top;
@@ -132,17 +132,17 @@ static void DrawMarginParams(Document *doc,
 
 
 /* If the user is editing the Master Page, find out here if she is editing the
-document margin; if so, edit it here, and return TRUE; otherwise return FALSE. */
+document margin; if so, edit it here, and return True; otherwise return False. */
 
 static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short /*doubleClick*/)
 	{
-		Boolean didSomething = FALSE; Point oldPt;
+		Boolean didSomething = False; Point oldPt;
 		Rect topMargin,leftMargin,rightMargin,bottomMargin,margin;		/* in pixels */
 		Rect origMarginRect;											/* in points */
 		CursHandle upDownCursor,rightLeftCursor;
 		short *dragVal,oldVal,dx,dy,minVal,maxVal;
-		Boolean horiz=FALSE,vert=FALSE,moved;
-		Boolean inTop=FALSE,inBottom=FALSE,inRight=FALSE,inLeft=FALSE;
+		Boolean horiz=False,vert=False,moved;
+		Boolean inTop=False,inBottom=False,inRight=False,inLeft=False;
 		short whichMarg, margv, margh, hdiff, vdiff;
 		
 		/*
@@ -211,7 +211,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 						}
 					minVal += doc->currentPaper.top;
 					maxVal += doc->currentPaper.top;
-					didSomething = vert = TRUE;
+					didSomething = vert = True;
 					}
 				}
 			}
@@ -236,7 +236,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 						}
 					minVal += doc->currentPaper.left;
 					maxVal += doc->currentPaper.left;
-					didSomething = horiz = TRUE;
+					didSomething = horiz = True;
 					}
 				}
 			}
@@ -252,7 +252,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 			oldVal = horiz ? pt.h : pt.v;
 			if (StillDown()) while (WaitMouseUp()) {
 				GetMouse(&pt);
-				moved = FALSE;
+				moved = False;
 				if (horiz) {
 					if (pt.h < minVal) pt.h = minVal; else if (pt.h > maxVal) pt.h = maxVal;
 					if (pt.h != oldVal) {
@@ -269,8 +269,8 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 						*dragVal = pt.h - dx;	/* Set new margin */
 						oldVal = pt.h;
 						FrameRect(&margin);		/* Draw new margin */
-						moved = TRUE;
-						doc->margHChangedMP = TRUE;
+						moved = True;
+						doc->margHChangedMP = True;
 						}
 					}
 				 else if (vert) {
@@ -289,8 +289,8 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 						oldVal = pt.v;
 						*dragVal = pt.v - dy;		/* Set new margin */
 						FrameRect(&margin);			/* Draw new margin */
-						moved = TRUE;
-						doc->margVChangedMP = TRUE;
+						moved = True;
+						doc->margVChangedMP = True;
 						}
 					}
 				if (moved) {
@@ -307,7 +307,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 				}
 
 			/* Mouse button off: doc->marginRect is already set for the new margins. */
-			if (!EqualRect(&origMarginRect,&doc->marginRect)) didSomething = TRUE;
+			if (!EqualRect(&origMarginRect,&doc->marginRect)) didSomething = True;
 			
 			if (horiz) DisposeHandle((Handle)rightLeftCursor);
 			 else if (vert) DisposeHandle((Handle)upDownCursor);
@@ -362,10 +362,10 @@ void SelectMasterRectangle(Document *doc, Point pt)
 		if (VISIBLE(pL))
 			/* ObjRect of staffobject is NULL here. */
 			if (/* SectRect(&selRect, &LinkOBJRECT(pL), &aRect) */ 1 ) {
-				found = FALSE;
+				found = False;
 				CheckMasterObject(doc, pL, &found, (Ptr)&selRect, context, SMDrag, &pIndex, stfRange);
 				if (found) {
-					LinkSEL(pL) = TRUE;							/* update selection */
+					LinkSEL(pL) = True;							/* update selection */
 					if (!doc->selStartL)
 						doc->selStartL = pL;
 					doc->selEndL = RightLINK(pL);
@@ -425,7 +425,7 @@ void DoMasterObject(Document *doc, Point pt, short modifiers)
 	doc->nstaves = doc->nstavesMP;
 	
 	selStaffL = NILINK;
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,FALSE);
+	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
 		if (StaffSEL(aStaffL)) { selStaffL = aStaffL; break; }
@@ -462,16 +462,16 @@ void DoMasterObject(Document *doc, Point pt, short modifiers)
 /*
  *	Search for something (including both objects in the usual Nightingale sense
  * and page margins!) in the Master Page the user may have clicked on.  If something
- * found, handle dragging, selecting, and double-clicking, and return TRUE.  If nothing
- *	clickable, return FALSE.  The pt provided is expected in paper-relative pixels.
+ * found, handle dragging, selecting, and double-clicking, and return True.  If nothing
+ *	clickable, return False.  The pt provided is expected in paper-relative pixels.
  */
 
 Boolean DoEditMaster(Document *doc, Point pt, short modifiers, short doubleClick)
 	{
-		Boolean didSomething=FALSE;
+		Boolean didSomething=False;
 
 		if (EditDocMargin(doc,pt,modifiers,doubleClick)) {
-			didSomething = TRUE;
+			didSomething = True;
 			UpdateMasterMargins(doc);
 			}
 		 else {	

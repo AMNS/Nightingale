@@ -23,7 +23,7 @@ void DragDynamic(Document *doc, LINK dynamL)
 	long		aLong;
 	short		staffn, dh, dv, dhTotal, dvTotal, oldTxMode;
 	Rect		oldObjRect, newObjRect, boundsRect;		/* in paper coords */
-	Boolean		dynamVis, firstTime = TRUE, suppressRedraw = FALSE,
+	Boolean		dynamVis, firstTime = True, suppressRedraw = False,
 				stillWithinSlop, horiz, vert;
 	CONTEXT		context[MAXSTAVES+1];
 	LINK		dynSubL, measL;
@@ -52,7 +52,7 @@ PushLock(DYNAMheap);
 	staffn = DynamicSTAFF(dynSubL);
 	dynamVis = thisDynSubObj->visible;
 	
-	measL = LSSearch(dynamL, MEASUREtype, staffn, GO_LEFT, FALSE);		/* meas containing dynamic */
+	measL = LSSearch(dynamL, MEASUREtype, staffn, GO_LEFT, False);		/* meas containing dynamic */
 	GetAllContexts(doc, context, measL);
 	
 	InitDynamicBounds(doc, dynamL, oldPt, &boundsRect);
@@ -64,8 +64,8 @@ PushLock(DYNAMheap);
 	FlushEvents(everyEvent, 0);
 
 	origPt = newPt = oldPt;
-	stillWithinSlop = TRUE;
-	horiz = vert = TRUE;
+	stillWithinSlop = True;
+	horiz = vert = True;
 	if (StillDown()) while (WaitMouseUp()) {
 		GetPaperMouse(&newPt, &doc->currentPaper);
 
@@ -85,15 +85,15 @@ PushLock(DYNAMheap);
 				vert = !horiz;
 			}
 			/* And don't ever come back, you hear! */
-			stillWithinSlop = FALSE;
+			stillWithinSlop = False;
 		}
 		dh = (horiz? newPt.h - oldPt.h : 0);
 		dv = (vert? newPt.v - oldPt.v : 0);
 
 		if (firstTime)							/* ???if we get it to draw in gray above, remove this firstTime business */
-			firstTime = FALSE;
+			firstTime = False;
 		else
-			DrawDYNAMIC(doc, dynamL, context, TRUE);		/* erase old dynamic */
+			DrawDYNAMIC(doc, dynamL, context, True);		/* erase old dynamic */
 
 		thisDynObj->xd += p2d(dh);
 		thisDynSubObj->yd += p2d(dv);
@@ -103,18 +103,18 @@ PushLock(DYNAMheap);
 		 * ???NB: also need to turn off ShowInvisibles if it's on!!
 		 */
 		TextMode(srcOr);									/* so staff lines won't cut through notes */
-		thisDynSubObj->visible = FALSE;
+		thisDynSubObj->visible = False;
 		AutoScroll();
 		thisDynSubObj->visible = dynamVis;
 		TextMode(srcXor);
 
-		DrawDYNAMIC(doc, dynamL, context, TRUE);			/* draw new dynamic */
+		DrawDYNAMIC(doc, dynamL, context, True);			/* draw new dynamic */
 		
 		oldPt = newPt;
 	}
 	TextMode(srcOr);
-	LinkVALID(dynamL) = FALSE;								/* force objRect recomputation */
-	DrawDYNAMIC(doc, dynamL, context, TRUE);				/* draw final black dynamic */
+	LinkVALID(dynamL) = False;								/* force objRect recomputation */
+	DrawDYNAMIC(doc, dynamL, context, True);				/* draw final black dynamic */
 
 	TextMode(oldTxMode);
 
@@ -123,8 +123,8 @@ PushLock(DYNAMheap);
 	Rect2Window(doc, &newObjRect);
 	if (BlockCompare(thisDynObj, &origDynObj, sizeof(DYNAMIC)) ||
 		 BlockCompare(thisDynSubObj, &origDynSubObj, sizeof(ADYNAMIC))) {
-		doc->changed = TRUE;
-		LinkTWEAKED(dynamL) = TRUE;							/* Flag to show node was edited */
+		doc->changed = True;
+		LinkTWEAKED(dynamL) = True;							/* Flag to show node was edited */
 		Rect2Window(doc, &oldObjRect);
 		InsetRect(&oldObjRect, -pt2p(5), -pt2p(3));			/* ??wouldn't have to be 4 if objrects far enuf to the right for wide dynamics (fff, ppp) */ 
 		if (!suppressRedraw)
@@ -134,10 +134,10 @@ PushLock(DYNAMheap);
 	EraseAndInval(&newObjRect);					/* must do this even if no change, to keep hiliting in sync */
 
 	MEHideCaret(doc);
-	LinkSEL(dynamL) = TRUE;								/* so that dynamic will hilite after we're done dragging */
-	thisDynObj->selected = TRUE;						/* mark obj and subobj as selected */
-	DynamicSEL(dynSubL) = TRUE;
-	LinkVALID(dynamL) = FALSE;							/* force objRect recomputation */
+	LinkSEL(dynamL) = True;								/* so that dynamic will hilite after we're done dragging */
+	thisDynObj->selected = True;						/* mark obj and subobj as selected */
+	DynamicSEL(dynSubL) = True;
+	LinkVALID(dynamL) = False;							/* force objRect recomputation */
 	doc->selStartL = dynamL;	doc->selEndL = RightLINK(dynamL);
 
 PopLock(OBJheap);
@@ -185,7 +185,7 @@ static void InitDynamicBounds(Document *doc, LINK dynamL,
 	 */
 
 	/* Find the measure that will be the left boundary */
-	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, FALSE);			/* meas containing 1st sync */
+	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, False);			/* meas containing 1st sync */
 	prevMeasL = LinkLMEAS(measL);												/* meas before that */
 	if (SameSystem(prevMeasL, measL))
 		targetMeasL = prevMeasL;
@@ -193,14 +193,14 @@ static void InitDynamicBounds(Document *doc, LINK dynamL,
 		targetMeasL = measL;
 		
 	/* Allow dragging into reserved area */
-	measL = LSSearch(MeasSYSL(targetMeasL), MEASUREtype, staffn, GO_RIGHT, FALSE);	/* 1st meas in system */	
+	measL = LSSearch(MeasSYSL(targetMeasL), MEASUREtype, staffn, GO_RIGHT, False);	/* 1st meas in system */	
 	if (targetMeasL == measL)														/* targetMeas is 1st in system */
 		bounds->left = d2p(sysLeft);
 	else
 		bounds->left = d2p(LinkXD(targetMeasL) + sysLeft);
 
 	/* Find the measure that will be the right boundary */
-	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, FALSE);			/* meas containing 1st sync */
+	measL = LSSearch(firstSyncL, MEASUREtype, staffn, GO_LEFT, False);			/* meas containing 1st sync */
 	nextMeasL = LinkRMEAS(measL);												/* meas after the one containing 1st sync */
 	if (SameSystem(nextMeasL, measL))
 		targetMeasL = nextMeasL;

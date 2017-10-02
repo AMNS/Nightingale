@@ -84,30 +84,30 @@ typedef struct {
 	Point			scaleCenter;		/* Window coord of last mouse click to enlarge from */
 	
 	unsigned short inUse:1,				/* This slot in table is in use */
-					changed:1,			/* TRUE if Document should be saved on close */
-					canCutCopy:1,		/* TRUE if something is cuttable/copyiable */
-					active:1,			/* TRUE when Document is active window */
+					changed:1,			/* True if Document should be saved on close */
+					canCutCopy:1,		/* True if something is cuttable/copyiable */
+					active:1,			/* True when Document is active window */
 #if TARGET_API_MAC_CARBON
 					docNew:1,
 #else
-					new:1,				/* TRUE when Document is untitled new one */
+					new:1,				/* True when Document is untitled new one */
 #endif
-					masterView:1,		/* TRUE when editing master sheet */
-					overview:1,			/* TRUE when viewing all pages from on high */
-					hasCaret:1,			/* TRUE when the Document's caret is initialized */
-					cvisible:1,			/* TRUE when the Document's caret is visible */
-					idleOff:1,			/* TRUE when caret not idle */
-					caretOn:1,			/* TRUE if caret is now in its visible blink state */
-					caretActive:1,		/* TRUE if caret should be blinking at all */
+					masterView:1,		/* True when editing master sheet */
+					overview:1,			/* True when viewing all pages from on high */
+					hasCaret:1,			/* True when the Document's caret is initialized */
+					cvisible:1,			/* True when the Document's caret is visible */
+					idleOff:1,			/* True when caret not idle */
+					caretOn:1,			/* True if caret is now in its visible blink state */
+					caretActive:1,		/* True if caret should be blinking at all */
 					fillSI:1,			/* unused */
-					readOnly:1,			/* TRUE if Document was opened Read Only */
-					masterChanged:1,	/* Always FALSE outside masterView */
-					showFormat:1;		/* TRUE when showing format rather than content */
-	unsigned short	enterFormat:1,		/* TRUE when entering show format */
-					converted:1,		/* TRUE if Document converted from older file format */
-					locFmtChanged:1,	/* TRUE if any "local" format changes (via Work on Format) */
-					nonstdStfSizes:1,	/* TRUE = not all staves are of size doc->srastral */
-					showWaitCurs:1,		/* TRUE means show "please wait" cursor while drawing */
+					readOnly:1,			/* True if Document was opened Read Only */
+					masterChanged:1,	/* Always False outside masterView */
+					showFormat:1;		/* True when showing format rather than content */
+	unsigned short	enterFormat:1,		/* True when entering show format */
+					converted:1,		/* True if Document converted from older file format */
+					locFmtChanged:1,	/* True if any "local" format changes (via Work on Format) */
+					nonstdStfSizes:1,	/* True = not all staves are of size doc->srastral */
+					showWaitCurs:1,		/* True means show "please wait" cursor while drawing */
 					moreUnused:11;
 	UNDOREC			undo;				/* Undo record for the Document */
 	
@@ -317,7 +317,7 @@ typedef struct {
 	SignedByte	leastSquares;		/* L: Least-squares fit to decide tuplets from real time (else least-linear)? */
 	SignedByte	altPitchCtl;		/* U: Use alternate accidental-pitch-entry method? */
 
-	SignedByte	metroViaMIDI;		/* U: TRUE=use MIDI for metronome, FALSE=internal sound */
+	SignedByte	metroViaMIDI;		/* U: True=use MIDI for metronome, False=internal sound */
 	SignedByte	metroChannel;		/* U: MIDI metronome channel number, 1 to MAXCHANNEL */
 	SignedByte	metroNote;			/* U: MIDI metronome note number */
 	SignedByte	metroVelo;			/* U: MIDI metronome note velocity */
@@ -473,8 +473,8 @@ typedef struct {
 typedef struct NSClientData {
 	char 		nsFileName[256];		/* Name of file for open or save dialog */
 	FSSpec 		nsFSSpec;				/* FSSpec to uniquely id the file */
-	Boolean		nsIsClosing;			/* TRUE if the window is closing [not supported or used] */
-	Boolean		nsOpCancel;				/* TRUE if cancel is issued */
+	Boolean		nsIsClosing;			/* True if the window is closing [not supported or used] */
+	Boolean		nsOpCancel;				/* True if cancel is issued */
 	OSStatus	nsStatus;				/* Status of navservices operation [not supported or used] */
 } NSClientData,*NSClientDataPtr;
 

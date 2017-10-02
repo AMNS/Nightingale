@@ -1,11 +1,11 @@
 /* Double.c for Nightingale */
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALE» PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEâ„¢ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright Â© 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -36,13 +36,13 @@ static enum
 
 static UserPopUp popupPart;
 
-static Boolean hilitedItem = FALSE;  	/* Is an item currently hilited by using arrow keys? */
+static Boolean hilitedItem = False;  	/* Is an item currently hilited by using arrow keys? */
 
 
 static pascal Boolean DoubleFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	Point where;
-	Boolean ans=FALSE; WindowPtr w;
+	Boolean ans=False; WindowPtr w;
 	short ch;
 
 	w = (WindowPtr)(evt->message);
@@ -53,9 +53,9 @@ static pascal Boolean DoubleFilter(DialogPtr dlog, EventRecord *evt, short *item
 				BeginUpdate(GetDialogWindow(dlog));
 				UpdateDialogVisRgn(dlog);
 				DrawPopUp(&popupPart);
-				FrameDefault(dlog, OK, TRUE);
+				FrameDefault(dlog, OK, True);
 				EndUpdate(GetDialogWindow(dlog));
-				ans = TRUE; *itemHit = 0;
+				ans = True; *itemHit = 0;
 			}
 			break;
 		case activateEvt:
@@ -69,22 +69,22 @@ static pascal Boolean DoubleFilter(DialogPtr dlog, EventRecord *evt, short *item
 			GlobalToLocal(&where);
 			if (PtInRect(where,&popupPart.shadow)) {
 				*itemHit = DoUserPopUp(&popupPart) ? PART_POPUP_DI : 0;
-				hilitedItem = FALSE;
-				HilitePopUp(&popupPart, FALSE);
-				ans = TRUE;
+				hilitedItem = False;
+				HilitePopUp(&popupPart, False);
+				ans = True;
 			}
 			break;
 		case autoKey:
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (short *)itemHit, FALSE))
-				return TRUE;
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, False))
+				return True;
 			else {
 				ch = (unsigned char)evt->message;
 				switch (ch) {
 					case UPARROWKEY:
 					case DOWNARROWKEY:
 						HiliteArrowKey(dlog, ch, &popupPart, &hilitedItem);
-						ans = TRUE;
+						ans = True;
 						break;						
 				}
 			}
@@ -103,7 +103,7 @@ static Boolean DoubleDialog(Document *doc,
 	DialogPtr	dlog;
 	short			ditem = Cancel, staffn, partChoice, nPart, partMaxStf;
 	GrafPtr		oldPort;
-	Boolean		keepGoing = TRUE;
+	Boolean		keepGoing = True;
 	LINK			thePartL, partL;
 	PPARTINFO	pPart;
 	char			partName[256], fmtStr[256];	
@@ -112,7 +112,7 @@ static Boolean DoubleDialog(Document *doc,
 	filterUPP = NewModalFilterUPP(DoubleFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(DOUBLE_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	GetPort(&oldPort);
@@ -120,7 +120,7 @@ static Boolean DoubleDialog(Document *doc,
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(DOUBLE_DLOG);
-		return FALSE;
+		return False;
 	}
 	SetPort(GetDialogWindowPort(dlog));
 
@@ -130,7 +130,7 @@ static Boolean DoubleDialog(Document *doc,
 	 */ 
 	thePartL = Staff2PartL(doc, doc->headL, srcStf);
 	staffn = srcStf-PartFirstSTAFF(thePartL)+1;
-	PutDlgWord(dlog, ORIGSTAFFN_DI, staffn, TRUE);
+	PutDlgWord(dlog, ORIGSTAFFN_DI, staffn, True);
 	partL = FirstSubLINK(doc->headL);
 	partChoice = nPart = 1;
 	for (partL = NextPARTINFOL(partL); partL; partL = NextPARTINFOL(partL), nPart++) {
@@ -138,12 +138,12 @@ static Boolean DoubleDialog(Document *doc,
 			pPart = GetPPARTINFO(partL);
 			strcpy(partName, pPart->name);
 			CtoPstr((StringPtr)partName);
-			PutDlgString(dlog, ORIGPART_DI, (unsigned char *)partName, FALSE);
+			PutDlgString(dlog, ORIGPART_DI, (unsigned char *)partName, False);
 		}
 	}
 	thePartL = Staff2PartL(doc, doc->headL, *pDstStf);
 	staffn = *pDstStf-PartFirstSTAFF(thePartL)+1;
-	PutDlgWord(dlog, STAFFN_DI, staffn, TRUE);
+	PutDlgWord(dlog, STAFFN_DI, staffn, True);
 	
 	if (!InitPopUp(dlog, &popupPart, PART_POPUP_DI, 0, PARTS_MENU, 0))
 			goto Done;
@@ -156,7 +156,7 @@ static Boolean DoubleDialog(Document *doc,
 		AppendCMenu(popupPart.menu, partName);
 	}
 	ChangePopUpChoice(&popupPart, partChoice);
-	hilitedItem = FALSE;
+	hilitedItem = False;
 
 	CenterWindow(GetDialogWindow(dlog), 60);
 	ShowWindow(GetDialogWindow(dlog));
@@ -167,7 +167,7 @@ static Boolean DoubleDialog(Document *doc,
 		switch (ditem) {
 			case OK:
 			case Cancel:
-				keepGoing = FALSE;
+				keepGoing = False;
 				break;
 		}
 	if (ditem==OK) {
@@ -189,7 +189,7 @@ static Boolean DoubleDialog(Document *doc,
 					CParamText(strBuf, "", "", "");
 				}
 				StopInform(GENERIC_ALRT);
-				keepGoing = TRUE;
+				keepGoing = True;
 			}
 		}
 	}
@@ -209,7 +209,7 @@ Done:
 /*  If the given staff and range is OK as a source for the Double command
 (meaning there are no clefs or keysigs. on the given staff in the given range:
 fixing context for these is more difficult than I want to bother with now),
-return TRUE. */
+return True. */
 
 static Boolean DblSrcStaffOK(LINK startL, LINK endL, short staffn)
 {
@@ -219,24 +219,24 @@ static Boolean DblSrcStaffOK(LINK startL, LINK endL, short staffn)
 		switch (ObjLType(pL)) {
 			case CLEFtype:
 				if (ClefOnStaff(pL, staffn))
-					if (ClefINMEAS(pL)) return FALSE;			/* Ignore clefs in gutter */
+					if (ClefINMEAS(pL)) return False;			/* Ignore clefs in gutter */
 				break;
 			case KEYSIGtype:
 				if (KeySigOnStaff(pL, staffn))
-					if (KeySigINMEAS(pL)) return FALSE;			/* Ignore keysigs in gutter */
+					if (KeySigINMEAS(pL)) return False;			/* Ignore keysigs in gutter */
 				break;
 			default:
 				;
 		}
 	}
 		
-	return TRUE;
+	return True;
 }
 
 /* ------------------------------------------------------------- DblDstStaffOK -- */
 /*  If the given staff and range is OK as a destination for the Double command
 (meaning there are no "content" objects on the given staff in the given range),
-return TRUE. If the staff is the other staff of cross-staff objects, don't worry
+return True. If the staff is the other staff of cross-staff objects, don't worry
 about it.
 
 We use the term "content" here in a rather specialized sense: time signature
@@ -264,15 +264,15 @@ static Boolean DblDstStaffOK(LINK startL, LINK endL, short staffn)
 			case TEMPOtype:
 			case SPACERtype:
 			case ENDINGtype:
-				if (ObjOnStaff(pL, staffn, FALSE)) return FALSE;
+				if (ObjOnStaff(pL, staffn, False)) return False;
 				break;
 			case CLEFtype:
 				if (ClefOnStaff(pL, staffn))
-					if (ClefINMEAS(pL)) return FALSE;			/* Ignore clefs in gutter */
+					if (ClefINMEAS(pL)) return False;			/* Ignore clefs in gutter */
 				break;
 			case KEYSIGtype:
 				if (KeySigOnStaff(pL, staffn))
-					if (KeySigINMEAS(pL)) return FALSE;			/* Ignore keysigs in gutter */
+					if (KeySigINMEAS(pL)) return False;			/* Ignore keysigs in gutter */
 				break;
 			/* Ignore TIMESIGtype (see comments above) */
 			default:
@@ -280,7 +280,7 @@ static Boolean DblDstStaffOK(LINK startL, LINK endL, short staffn)
 		}
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -317,7 +317,7 @@ destination staff. */
 
 short DblNewVoice(Document *doc, short vMap[],
 						short srcIV, short dstStf,
-						Boolean sameRel		/* TRUE=srcStf and dstStf are same staffn rel. to their parts */
+						Boolean sameRel		/* True=srcStf and dstStf are same staffn rel. to their parts */
 						)
 {
 	LINK srcPartL, dstPartL; short uV;
@@ -355,7 +355,7 @@ void DblSetNewVoices(Document *doc, short vMap[], LINK pL, short srcStf, short d
 
 void DblSetNewVoices(Document *doc, short vMap[], LINK pL,
 							short srcStf, short dstStf,
-							Boolean sameRel	/* TRUE=srcStf and dstStf are same staffn rel. to their parts */
+							Boolean sameRel	/* True=srcStf and dstStf are same staffn rel. to their parts */
 							)
 {
 	LINK aNoteL,aGRNoteL; short voice;
@@ -461,7 +461,7 @@ void DblSetupVMap(Document *doc, short vMap[], LINK startL, LINK endL, short src
 	for (v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn!=0)
 			LogPrintf(LOG_NOTICE, "%ciVoice %d part %d relVoice=%d\n",
-							(v==1? 'Ç' : ' '),
+							(v==1? 'Â‚' : ' '),
 							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
 #endif	
 }
@@ -583,7 +583,7 @@ void FixChordsForClef(Document *doc, LINK syncL,
 														NFLAGS(NoteType(aNoteL)),
 														stemDown,
 														newContext.staffHeight, newContext.staffLines,
-														qStemLen, FALSE);
+														qStemLen, False);
 				}
 			}
 	}
@@ -626,7 +626,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 	
 	switch (ObjLType(pL)) {
 		case SYNCtype:
-			nSubs = SVCountNotes(srcStf, copyVoice, pL, RightLINK(pL), FALSE);
+			nSubs = SVCountNotes(srcStf, copyVoice, pL, RightLINK(pL), False);
 			if (nSubs==0) return NOTHING_TO_DO;
 			if (!ExpandNode(pL, &aNoteL, nSubs))	/* ??Cf. GrowObject */
 				return FAILURE;
@@ -672,7 +672,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 					/* If note has no accidental, handle accidental context on new staff. */
 					if (!NoteACC(dstNoteL)) {
 						NoteACC(dstNoteL) = effAcc;
-						NoteACCSOFT(dstNoteL) = TRUE;
+						NoteACCSOFT(dstNoteL) = True;
 					}
 					InsNoteFixAccs(doc, pL, dstStf, halfLn, NoteACC(dstNoteL));
 				}
@@ -683,7 +683,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			break;
 			
 		case GRSYNCtype:
-			nSubs = SVCountGRNotes(srcStf, copyVoice, pL, RightLINK(pL), FALSE);
+			nSubs = SVCountGRNotes(srcStf, copyVoice, pL, RightLINK(pL), False);
 			if (nSubs==0) return NOTHING_TO_DO;
 			if (!ExpandNode(pL, &aGRNoteL, nSubs))	/* ??Cf. GrowObject */
 				return FAILURE;
@@ -717,7 +717,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 				/* If grace note has no accidental, handle accidental context on new staff. */
 				if (!GRNoteACC(dstGRNoteL)) {
 					GRNoteACC(dstGRNoteL) = effAcc;
-					GRNoteACCSOFT(dstGRNoteL) = TRUE;
+					GRNoteACCSOFT(dstGRNoteL) = True;
 				}
 			}
 
@@ -727,7 +727,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			
 		case BEAMSETtype:
 			if (!anyVoice && BeamVOICE(pL)!=copyVoice) break;
-			copyL = DuplicateObject(BEAMSETtype, pL, FALSE, doc, doc, FALSE);
+			copyL = DuplicateObject(BEAMSETtype, pL, False, doc, doc, False);
 			if (!copyL) return FAILURE;
 			InsNodeIntoSlot(copyL, pL);
 			BeamSTAFF(copyL) = dstStf;
@@ -735,7 +735,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			break;
 			
 		case OTTAVAtype:
-			copyL = DuplicateObject(OTTAVAtype, pL, FALSE, doc, doc, FALSE);
+			copyL = DuplicateObject(OTTAVAtype, pL, False, doc, doc, False);
 			if (!copyL) return FAILURE;
 			InsNodeIntoSlot(copyL, pL);
 			OttavaSTAFF(copyL) = dstStf;
@@ -745,7 +745,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			{
 				PADYNAMIC aDynamic;
 				
-				copyL = DuplicateObject(DYNAMtype, pL, FALSE, doc, doc, FALSE);
+				copyL = DuplicateObject(DYNAMtype, pL, False, doc, doc, False);
 				if (!copyL) return FAILURE;
 				InsNodeIntoSlot(copyL, pL);
 				aDynamic = GetPADYNAMIC(FirstSubLINK(copyL));
@@ -754,7 +754,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			break;
 
 		case GRAPHICtype:
-			copyL = DuplicateObject(GRAPHICtype, pL, FALSE, doc, doc, FALSE);
+			copyL = DuplicateObject(GRAPHICtype, pL, False, doc, doc, False);
 			if (!copyL) return FAILURE;
 			InsNodeIntoSlot(copyL, pL);
 			GraphicSTAFF(copyL) = dstStf;
@@ -762,7 +762,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			
 		case SLURtype:
 			if (!anyVoice && SlurVOICE(pL)!=copyVoice) break;
-			copyL = DuplicateObject(SLURtype, pL, FALSE, doc, doc, FALSE);
+			copyL = DuplicateObject(SLURtype, pL, False, doc, doc, False);
 			if (!copyL) return FAILURE;
 			InsNodeIntoSlot(copyL, pL);
 			SlurSTAFF(copyL) = dstStf;
@@ -770,7 +770,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			break;
 		
 		case TUPLETtype:
-			copyL = DuplicateObject(TUPLETtype, pL, FALSE, doc, doc, FALSE);
+			copyL = DuplicateObject(TUPLETtype, pL, False, doc, doc, False);
 			if (!copyL) return FAILURE;
 			InsNodeIntoSlot(copyL, pL);
 			TupletSTAFF(copyL) = dstStf;
@@ -778,7 +778,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			break;
 			
 		case TEMPOtype:
-			copyL = DuplicateObject(TEMPOtype, pL, FALSE, doc, doc, FALSE);
+			copyL = DuplicateObject(TEMPOtype, pL, False, doc, doc, False);
 			if (!copyL) return FAILURE;
 			InsNodeIntoSlot(copyL, pL);
 			TempoSTAFF(copyL) = dstStf;
@@ -796,7 +796,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 
 /* ----------------------------------------------------------- StfHasSmthgAcross -- */
 /* If any "extended object" has a range that crosses the point just before the
-given link on the given staff, return TRUE and a message string. However, this does
+given link on the given staff, return True and a message string. However, this does
 NOT check for slurs/ties crossing the point. Similar (identical?) to HasSmthgAcross,
 except that function checks all staves. ??Should probably move this to DSUtils.c
 near that function. */
@@ -808,14 +808,14 @@ Boolean StfHasSmthgAcross(
 				char str[])			/* string describing the problem voice or staff */
 {
 	short number;
-	Boolean isVoice, foundSmthg=FALSE;
+	Boolean isVoice, foundSmthg=False;
 	
 	if (HasBeamAcross(link, staff)
 	||  HasTupleAcross(link, staff)
 	||  HasOttavaAcross(link, staff) ) {
-		isVoice = FALSE;
+		isVoice = False;
 		number = staff;
-		foundSmthg = TRUE;
+		foundSmthg = True;
 	}
 
 	if (foundSmthg) {
@@ -837,17 +837,17 @@ Boolean RangeHasUnmatchedSlurs(Document */*doc*/, LINK startL, LINK endL, short 
 		if (SlurTYPE(pL) && SlurSTAFF(pL)==staff)
 			/* Slur starts before, so it's unmatched if it ends between [startL, endL). */
 				if (WithinRange(startL, SlurLASTSYNC(pL), endL))
-					return TRUE;
+					return True;
 	}
 	
 	for (pL = startL; pL!=endL; pL = RightLINK(pL)) {
 		if (SlurTYPE(pL) && SlurSTAFF(pL)==staff)
 			/* Slur starts between, so it's unmatched if it ends after [startL, endL). */
 				if (IsAfter(LeftLINK(endL), SlurLASTSYNC(pL)))
-					return TRUE;
+					return True;
 	}
 
-	return FALSE;
+	return False;
 }
 
 
@@ -856,8 +856,8 @@ Boolean RangeHasUnmatchedSlurs(Document */*doc*/, LINK startL, LINK endL, short 
 static LINK LSContextDynamicSearch(
 				LINK startL,				/* Place to start looking */
 				short staff,				/* target staff number */
-				Boolean goLeft,			/* TRUE if we should search left */
-				Boolean needSelected		/* TRUE if we only want selected items */
+				Boolean goLeft,			/* True if we should search left */
+				Boolean needSelected		/* True if we only want selected items */
 				)
 {
 	LINK dynL;
@@ -949,14 +949,14 @@ static Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 		GetIndCString(strBuf, DOUBLE_STRS, 7);			/* "...range contains clefs or keysigs" */
 		CParamText(strBuf, "", "", "");
 		StopInform(DOUBLE_ALRT);
-		return FALSE;
+		return False;
 	}
 
 	if (!DblDstStaffOK(doc->selStartL, doc->selEndL, dstStf)) {
 		GetIndCString(strBuf, DOUBLE_STRS, 4);			/* "can't Double into a non-empty range" */
 		CParamText(strBuf, "", "", "");
 		StopInform(DOUBLE_ALRT);
-		return FALSE;
+		return False;
 	}
 	
 	/* ??The following checks the legality of the range in the source staff; it should do
@@ -966,40 +966,40 @@ static Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 		hasSmthgAcross = StfHasSmthgAcross(doc, doc->selEndL, srcStf, str);
 	if (hasSmthgAcross) {
 		StopInform(DEXTOBJ_ALRT);
-		return FALSE;
+		return False;
 	}
 	if (RangeHasUnmatchedSlurs(doc, doc->selStartL, doc->selEndL, srcStf)) {
 		GetIndCString(strBuf, DOUBLE_STRS, 5);			/* "Slurs extend into/out of range" */
 		CParamText(strBuf, "", "", "");
 		StopInform(DOUBLE_ALRT);
-		return FALSE;
+		return False;
 	}
 
 	srcPart = Staff2Part(doc, srcStf);
 	dstPart = Staff2Part(doc, dstStf);
 
-	crossStaff = FALSE;
+	crossStaff = False;
 	for (pL = doc->selStartL; !crossStaff && pL!=doc->selEndL; pL = RightLINK(pL)) {
 		switch (ObjLType(pL)) {
 			case BEAMSETtype:
 				if (BeamCrossSTAFF(pL)) {
 					short beamPart = Staff2Part(doc, BeamSTAFF(pL));
 					if (beamPart==srcPart || beamPart==dstPart)
-						crossStaff = TRUE;
+						crossStaff = True;
 				}
 				break;
 			case SLURtype:
 				if (SlurCrossSTAFF(pL)) {
 					short slurPart = Staff2Part(doc, SlurSTAFF(pL));
 					if (slurPart==srcPart || slurPart==dstPart)
-						crossStaff = TRUE;	/* may not be possible but just in case */
+						crossStaff = True;	/* may not be possible but just in case */
 				}
 				break;
 			case TUPLETtype:
 				if (IsTupletCrossStf(pL)) {
 					short tuplPart = Staff2Part(doc, TupletSTAFF(pL));
 					if (tuplPart==srcPart || tuplPart==dstPart)
-						crossStaff = TRUE;
+						crossStaff = True;
 				}
 				break;
 			default:
@@ -1010,10 +1010,10 @@ static Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 		GetIndCString(strBuf, DOUBLE_STRS, 8);			/* "can't Double cross-staff..." */
 		CParamText(strBuf, "", "", "");
 		StopInform(DOUBLE_ALRT);
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -1041,7 +1041,7 @@ short Double(Document *doc)
 	static short dstStf=1;
 	short srcStf, status;
 	LINK pL, selStartL, selEndL;
-	Boolean didSomething=FALSE, skipping;
+	Boolean didSomething=False, skipping;
 	short voiceMap[MAXVOICES+1];
 	
 	srcStf = GetSelStaff(doc);
@@ -1063,21 +1063,21 @@ short Double(Document *doc)
 
 	/* We're ready to go. Duplicate everything in the range, skipping system gutters. */
 	
-	skipping = FALSE;
+	skipping = False;
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
-		if (PageTYPE(pL) || SystemTYPE(pL)) skipping = TRUE;
-		if (!skipping && ObjOnStaff(pL, srcStf, FALSE)) {
+		if (PageTYPE(pL) || SystemTYPE(pL)) skipping = True;
+		if (!skipping && ObjOnStaff(pL, srcStf, False)) {
 			status = DupAndSetStaff(doc, voiceMap, pL, srcStf, dstStf, doc->lookVoice);
 			if (status==FAILURE) return FAILURE;
 			if (status==OP_COMPLETE) {
-				didSomething = TRUE;
+				didSomething = True;
 			}
 		}
-		if (MeasureTYPE(pL)) skipping = FALSE;
+		if (MeasureTYPE(pL)) skipping = False;
 	}
 
 	if (didSomething) {
-		doc->changed = TRUE;
+		doc->changed = True;
 		DblFixContext(doc, dstStf);
 		/*
 		 * We may have newly-created beams and so on preceding the selection range. The
@@ -1105,7 +1105,7 @@ short Double(Document *doc)
 			DeselAllNoHilite(doc);
 			doc->selStaff = dstStf;
 			doc->selStartL = doc->selEndL = selStartL;
-			MEAdjustCaret(doc,TRUE);
+			MEAdjustCaret(doc,True);
 		}
 	}
 	

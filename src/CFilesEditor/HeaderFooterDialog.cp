@@ -81,7 +81,7 @@ Boolean GetHeaderFooterStrings(
 	
 	offset = (isHeader? doc->headerStrOffset : doc->footerStrOffset);
 	pSrc = PCopy(offset);
-	if (pSrc[0] == 0) return TRUE;						/* not an error for string to be empty */
+	if (pSrc[0] == 0) return True;						/* not an error for string to be empty */
 
 	if (usePageNum) NumToString(pageNum, pageNumStr);
 
@@ -96,7 +96,7 @@ Boolean GetHeaderFooterStrings(
 			else if (pDst == centerStr)
 				pDst = rightStr;
 			else
-				return FALSE;							/* "can't happen" */
+				return False;							/* "can't happen" */
 		}
 		else if (pSrc[i] == PAGENUM_CHAR && usePageNum) {
 			for (j = 1; j <= pageNumStr[0]; j++) {
@@ -113,7 +113,7 @@ Boolean GetHeaderFooterStrings(
 
 // say("retrieving: %p => %p | %p | %p\n", pSrc, leftStr, centerStr, rightStr);
 
-	return TRUE;
+	return True;
 }
 
 
@@ -136,7 +136,7 @@ static Boolean StoreHeaderFooterStrings(
 		// program error
 		LogPrintf(LOG_ERR, "StoreHeaderFooterStrings: program error: total string length exceeds %d",
 						MAX_HEADERFOOTER_STRLEN);
-		return FALSE;
+		return False;
 	}
 	delim[0] = 1;
 	delim[1] = HEADERFOOTER_DELIM_CHAR;
@@ -156,14 +156,14 @@ static Boolean StoreHeaderFooterStrings(
 		newOffset = PStore(string);
 	if (newOffset < 0L) {
 		NoMoreMemory();
-		return FALSE;
+		return False;
 	}
 	if (isHeader)
 		doc->headerStrOffset = newOffset;
 	else
 		doc->footerStrOffset = newOffset;
 
-	return TRUE;
+	return True;
 }
 
 
@@ -212,15 +212,15 @@ static void SetOptionState(DialogPtr dlog)
 	
 	/* Set position of OK and Cancel buttons. */
 	top = showMoreOptions? okButMoreOptionsTop : okButFewerOptionsTop;
-	OutlineOKButton(dlog, FALSE);
+	OutlineOKButton(dlog, False);
 	MoveDialogControl(dlog, OK, okButLeft, top);
-	OutlineOKButton(dlog, TRUE);
+	OutlineOKButton(dlog, True);
 	MoveDialogControl(dlog, Cancel, cancelButLeft, top);
 
 	/* Set size of dialog window. */
 	GetDialogItem(dlog, OK, &type, &hndl, &box);
 	GetWindowPortBounds(GetDialogWindow(dlog),&portRect);
-	SizeWindow(GetDialogWindow(dlog), portRect.right, box.bottom+10, TRUE);
+	SizeWindow(GetDialogWindow(dlog), portRect.right, box.bottom+10, True);
 }
 
 
@@ -238,7 +238,7 @@ static void FixTextFontAscent(DialogPtr dlog)
 
 /* ----------------------------------------------------------- HeaderFooterDialog -- */
 /* Conduct dialog to get page header and footer info and store them in <doc>.
-Delivers FALSE on Cancel or error, TRUE on OK. */
+Delivers False on Cancel or error, True on OK. */
 
 Boolean HeaderFooterDialog(Document *doc)
 {
@@ -259,7 +259,7 @@ Boolean HeaderFooterDialog(Document *doc)
 	filterUPP = NewModalFilterUPP(OKButFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(HEADERFOOTER_DLOG);
-		return FALSE;
+		return False;
 	}
 
 	GetPort(&oldPort);
@@ -267,7 +267,7 @@ Boolean HeaderFooterDialog(Document *doc)
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(HEADERFOOTER_DLOG);
-		return FALSE;
+		return False;
 	}
 		
 	SetPort(GetDialogWindowPort(dlog));
@@ -285,11 +285,11 @@ Boolean HeaderFooterDialog(Document *doc)
 		showGroup = EVERYBUT_DI;
 	else
 		showGroup = NEVER_DI;
-	PutDlgChkRadio(dlog, showGroup, TRUE);
+	PutDlgChkRadio(dlog, showGroup, True);
 	oldShowGroup = showGroup;
 	
 	vPosGroup = (doc->topPGN? TOP_DI : BOTTOM_DI);
-	PutDlgChkRadio(dlog, vPosGroup, TRUE);
+	PutDlgChkRadio(dlog, vPosGroup, True);
 	oldVPosGroup = vPosGroup;
 	
 	if (doc->hPosPGN == LEFT_SIDE)
@@ -298,33 +298,33 @@ Boolean HeaderFooterDialog(Document *doc)
 		hPosGroup = CENTER_DI;
 	else
 		hPosGroup = RIGHT_DI;
-	PutDlgChkRadio(dlog, hPosGroup, TRUE);
+	PutDlgChkRadio(dlog, hPosGroup, True);
 	oldHPosGroup = hPosGroup;	
 
 	PutDlgChkRadio(dlog, ALTERNATE_DI, doc->alternatePGN);
 
 	firstNumber = doc->firstPageNumber;
-	PutDlgWord(dlog, FIRSTNUM_DI, firstNumber, FALSE);
+	PutDlgWord(dlog, FIRSTNUM_DI, firstNumber, False);
 
-	PutDlgWord(dlog, TOFFSET_DI, doc->headerFooterMargins.top, FALSE);
-	PutDlgWord(dlog, BOFFSET_DI, doc->headerFooterMargins.bottom, FALSE);
-	PutDlgWord(dlog, LOFFSET_DI, doc->headerFooterMargins.left, FALSE);
-	PutDlgWord(dlog, ROFFSET_DI, doc->headerFooterMargins.right, FALSE);
+	PutDlgWord(dlog, TOFFSET_DI, doc->headerFooterMargins.top, False);
+	PutDlgWord(dlog, BOFFSET_DI, doc->headerFooterMargins.bottom, False);
+	PutDlgWord(dlog, LOFFSET_DI, doc->headerFooterMargins.left, False);
+	PutDlgWord(dlog, ROFFSET_DI, doc->headerFooterMargins.right, False);
 	
 	if (!GetHeaderFooterStrings(doc, oldLeftHdrStr, oldCenterHdrStr, oldRightHdrStr,
-									0, FALSE, TRUE)) {
+									0, False, True)) {
 		// FIXME: what?
 	}
 	if (!GetHeaderFooterStrings(doc, oldLeftFtrStr, oldCenterFtrStr, oldRightFtrStr,
-									0, FALSE, FALSE)) {
+									0, False, False)) {
 		// FIXME: what?
 	}
-	PutDlgString(dlog, HDRLEFT_DI, oldLeftHdrStr, FALSE);
-	PutDlgString(dlog, HDRCENTER_DI, oldCenterHdrStr, FALSE);
-	PutDlgString(dlog, HDRRIGHT_DI, oldRightHdrStr, FALSE);
-	PutDlgString(dlog, FTRLEFT_DI, oldLeftFtrStr, FALSE);
-	PutDlgString(dlog, FTRCENTER_DI, oldCenterFtrStr, FALSE);
-	PutDlgString(dlog, FTRRIGHT_DI, oldRightFtrStr, FALSE);
+	PutDlgString(dlog, HDRLEFT_DI, oldLeftHdrStr, False);
+	PutDlgString(dlog, HDRCENTER_DI, oldCenterHdrStr, False);
+	PutDlgString(dlog, HDRRIGHT_DI, oldRightHdrStr, False);
+	PutDlgString(dlog, FTRLEFT_DI, oldLeftFtrStr, False);
+	PutDlgString(dlog, FTRCENTER_DI, oldCenterFtrStr, False);
+	PutDlgString(dlog, FTRRIGHT_DI, oldRightFtrStr, False);
 
 	SelectDialogItemText(dlog, FIRSTNUM_DI, 0, ENDTEXT);
 
@@ -379,9 +379,9 @@ Boolean HeaderFooterDialog(Document *doc)
 						continue;
 					}
 					else {
-						StoreHeaderFooterStrings(doc, leftHdrStr, centerHdrStr, rightHdrStr, TRUE);
-						StoreHeaderFooterStrings(doc, leftFtrStr, centerFtrStr, rightFtrStr, FALSE);
-						doc->changed = TRUE;
+						StoreHeaderFooterStrings(doc, leftHdrStr, centerHdrStr, rightHdrStr, True);
+						StoreHeaderFooterStrings(doc, leftFtrStr, centerFtrStr, rightFtrStr, False);
+						doc->changed = True;
 					}
 				}
 				
@@ -423,7 +423,7 @@ Boolean HeaderFooterDialog(Document *doc)
 					
 					doc->alternatePGN = GetDlgChkRadio(dlog, ALTERNATE_DI);
 
-					doc->changed = TRUE;
+					doc->changed = True;
 				}												/* drop thru... */
 			case Cancel:
 				dialogOver = ditem;
@@ -442,7 +442,7 @@ Boolean HeaderFooterDialog(Document *doc)
 			case RIGHT_DI:
 				if (ditem!=hPosGroup) SwitchRadio(dlog, &hPosGroup, ditem);
 				if (GetDlgChkRadio(dlog,ALTERNATE_DI) && hPosGroup==CENTER_DI)
-					PutDlgChkRadio(dlog,ALTERNATE_DI,FALSE);	
+					PutDlgChkRadio(dlog,ALTERNATE_DI,False);	
 				break;
 			case ALTERNATE_DI:
 				alternate = !GetDlgChkRadio(dlog, ALTERNATE_DI);

@@ -44,11 +44,11 @@ static Boolean CMEndOfBuffer(MIDIPacket *pkt, int len)
 
 static Boolean CMAcceptPacket(MIDIPacket *pkt)
 {
-	if (CMIsNoteOnPacket(pkt)) return TRUE;
+	if (CMIsNoteOnPacket(pkt)) return True;
 	
-	if (CMIsNoteOffPacket(pkt)) return TRUE;
+	if (CMIsNoteOffPacket(pkt)) return True;
 	
-	return FALSE;
+	return False;
 }
 
 static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *connRefCon)
@@ -254,7 +254,7 @@ void CMNormalizeTimeStamps()
 	
 		if (CMIsNoteOnPacket(packet) || CMIsNoteOffPacket(packet) ) {
 			if (!haveTimeStamp) {
-				haveTimeStamp = TRUE;
+				haveTimeStamp = True;
 				firstTimeStamp = packet->timeStamp;
 				packet->timeStamp = 0;
 			}
@@ -306,7 +306,7 @@ void CMInitTimer(void)
 {
 	//OMSClaimTimer(myClientID);
 	
-	appOwnsBITimer = TRUE;
+	appOwnsBITimer = True;
 	NTMInit();                              /* initialize timer */
 }
 
@@ -321,7 +321,7 @@ void CMStartTime(void)
 {
 	//OMSClaimTimer(myClientID);
 	
-	appOwnsBITimer = TRUE;
+	appOwnsBITimer = True;
 	NTMStartTimer(1);
 }
 
@@ -339,7 +339,7 @@ void CMStopTime(void)
 	if (appOwnsBITimer) {						/* use built-in */
 		NTMStopTimer();							/* we're done with the millisecond timer */
 		NTMClose();
-		appOwnsBITimer = FALSE;
+		appOwnsBITimer = False;
 	}
 }
 
@@ -379,7 +379,7 @@ void CMSetup(Document *doc, Byte *partChannel)
 		
 		if (ok)
 		{
-			gCMSoftMIDIActive = TRUE;
+			gCMSoftMIDIActive = True;
 		}
 	}
 }
@@ -393,7 +393,7 @@ void CMTeardown(void)
 		{
 			TeardownSoftMIDI();
 		
-			gCMSoftMIDIActive = FALSE;
+			gCMSoftMIDIActive = False;
 		}
 	}
 }
@@ -498,7 +498,7 @@ void CMFBOn(Document *doc)
 {
 	if (doc->feedback) {
 		//OMSClaimTimer(myClientID);				/* use built-in */
-		appOwnsBITimer = TRUE;
+		appOwnsBITimer = True;
 		CMStartTime();
 	}
 }
@@ -605,10 +605,10 @@ void CMAllNotesOff()
 	for (i = 0; i < MAXSTAVES; i++, partDevicePtr++) {
 		if (*partDevicePtr) {
 			endPtID = *partDevicePtr;
-			deviceFound = FALSE;
+			deviceFound = False;
 			for (j = 0; j < numNoteOffDevices; j++) {
 				if (noteOffDeviceList[j] == endPtID) {	/* already listed */
-					deviceFound = TRUE;
+					deviceFound = True;
 					break;
 				}
 			}
@@ -761,18 +761,18 @@ static void GetInitialDefaultInputDevice()
 static Boolean CMChannelValidRange(int channel)
 {
 	if (channel < kCMMinMIOIChannel)
-		return FALSE;
+		return False;
 		
 	if (channel > kCMMaxMIDIChannel)
-		return FALSE;
+		return False;
 		
-	return TRUE;
+	return True;
 }
 
 Boolean CMRecvChannelValid(MIDIUniqueID endPtID, int channel)
 {
 	if (!CMChannelValidRange(channel))
-		return FALSE;
+		return False;
 
 	MIDIEndpointRef endpt = GetMIDIEndpointByID(endPtID);
 	long channelMap, channelValid = 0;
@@ -791,7 +791,7 @@ Boolean CMRecvChannelValid(MIDIUniqueID endPtID, int channel)
 		//channelValid = (channelMap >> (channel)) & 0x01;
 	}
 	else if (err == kMIDIUnknownProperty) {
-		channelValid = TRUE;
+		channelValid = True;
 	}
 		
 	return channelValid;
@@ -800,17 +800,17 @@ Boolean CMRecvChannelValid(MIDIUniqueID endPtID, int channel)
 Boolean CMTransmitChannelValid(MIDIUniqueID endPtID, int channel)
 {
 	if (!CMChannelValidRange(channel))
-		return FALSE;
+		return False;
 
 	// Check cannot be made unless there are destinations.
 	// If no destinations, will play with software AudioUnit,
 	// which is active on all channels [I think. CER 7/16/2003]
 	
 	if (gCMNoDestinations)
-		return TRUE;
+		return True;
 		
 	if (endPtID == gAuMidiControllerID)
-		return TRUE;
+		return True;
 		
 	MIDIEndpointRef endpt = GetMIDIEndpointByID(endPtID);
 	long channelMap, channelValid = 0;
@@ -824,7 +824,7 @@ Boolean CMTransmitChannelValid(MIDIUniqueID endPtID, int channel)
 		channelValid = (channelMap >> (channel-CM_CHANNEL_BASE)) & 0x01;
 	}
 	else if (err == kMIDIUnknownProperty) {
-		channelValid = TRUE;
+		channelValid = True;
 	}
 		
 	return channelValid;
@@ -1280,7 +1280,7 @@ Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 		if (!CMTransmitChannelValid(partDevice[i], (short)partChannel[i])) {
 			partChannel[i] = config.defaultChannel;
 			if (!CMTransmitChannelValid(partDevice[i], (short)partChannel[i])) {
-				if (CautionAdvise(NO_OMS_DEVS_ALRT)==1) return FALSE;			/* Cancel playback button (item 1 in this ALRT!) */
+				if (CautionAdvise(NO_OMS_DEVS_ALRT)==1) return False;			/* Cancel playback button (item 1 in this ALRT!) */
 			}
 		}
 		
@@ -1291,7 +1291,7 @@ Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 
 		partIORefNum[i] = CMInvalidRefNum;		// No IORefNums for CoreMIDI
 	}
-	return TRUE;
+	return True;
 }
 
 
@@ -1521,19 +1521,19 @@ Boolean InitCoreMIDI()
 #endif
 					
 		gCMBufferLength = kCMBufLen;		/* CoreMidi MIDI Buffer size in bytes */
-		gCMMIDIBufferFull = FALSE;
+		gCMMIDIBufferFull = False;
 		
-		gCMNoDestinations = FALSE;			/* For SoftMIDI playback */
-		gCMSoftMIDIActive = FALSE;
+		gCMNoDestinations = False;			/* For SoftMIDI playback */
+		gCMSoftMIDIActive = False;
 
 		if (!AllocCMPacketList()) {
 			LogPrintf(LOG_NOTICE, "Out of memory allocating global packet list\n");
-			return FALSE;
+			return False;
 		}
 			
 		if (!AllocCMWritePacketList()) {
 			LogPrintf(LOG_NOTICE, "Out of memory allocating playNote packet list\n");
-			return FALSE;		
+			return False;		
 		}	
 			
 		// create client and ports
@@ -1610,7 +1610,7 @@ Boolean InitCoreMIDI()
 			LogPrintf(LOG_NOTICE, "Got MIDI Destination: gDest = %ld\n", gDest);
 		}
 		else {
-			gCMNoDestinations = TRUE;
+			gCMNoDestinations = True;
 
 			LogPrintf(LOG_NOTICE, "No available MIDI Destinations\n");
 		}
@@ -1638,6 +1638,6 @@ Boolean InitCoreMIDI()
 		gCoreMIDIInited = true;
 	}
 	
-	return TRUE;
+	return True;
 }
 

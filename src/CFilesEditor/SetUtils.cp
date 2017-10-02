@@ -52,20 +52,20 @@ static Boolean SSVChkNote(Document *doc, LINK pL, LINK aNoteL, short uVoice)
 		GetIndCString(strBuf, SETERRS_STRS, 1);    /* "Set can't change the voice of..." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 
 	partL = Staff2PartL(doc, doc->headL, NoteSTAFF(aNoteL));
 	iVoice = User2IntVoice(doc, uVoice, partL);
-	vNoteL = NoteInVoice(pL, iVoice, FALSE);
+	vNoteL = NoteInVoice(pL, iVoice, False);
 	if (vNoteL) {
 		GetIndCString(strBuf, SETERRS_STRS, 2);    /* "Set can't move notes into a voice that's already used in the same Sync." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 
-	return TRUE;
+	return True;
 }
 
 Boolean SSVCheck(Document *doc, LINK syncL, short uVoice)
@@ -80,7 +80,7 @@ Boolean SSVCheck(Document *doc, LINK syncL, short uVoice)
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		if (NoteSEL(aNoteL))
-			if (!SSVChkNote(doc, syncL, aNoteL, uVoice)) return FALSE;
+			if (!SSVChkNote(doc, syncL, aNoteL, uVoice)) return False;
 	}
 
 	/*
@@ -91,7 +91,7 @@ Boolean SSVCheck(Document *doc, LINK syncL, short uVoice)
 	 */
 	for (np = 0; np<=MAXSTAVES; np++) {
 		durCode[np] = 999;
-		haveRest[np] = FALSE;
+		haveRest[np] = False;
 	}
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
@@ -104,21 +104,21 @@ Boolean SSVCheck(Document *doc, LINK syncL, short uVoice)
 					GetIndCString(strBuf, SETERRS_STRS, 3);    /* "You can't have a chord containing a rest." */
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
-					return FALSE;
+					return False;
 				}
 			
 			if (NoteType(aNoteL)!=durCode[np]) {
 				GetIndCString(strBuf, SETERRS_STRS, 4);    /* "You can't move notes of different durations into a chord." */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
-				return FALSE;
+				return False;
 			}
 			
-			if (NoteREST(aNoteL)) haveRest[np] = TRUE;
+			if (NoteREST(aNoteL)) haveRest[np] = True;
 		}
 	}
 	
-	return TRUE;
+	return True;
 }
 
 void FixSyncVoice(Document *doc,
@@ -151,10 +151,10 @@ void FixSyncVoice(Document *doc,
 												NFLAGS(NoteType(vNoteL)),
 												stemDown,
 												context.staffHeight, context.staffLines,
-												qStemLen, FALSE);
+												qStemLen, False);
 			}
 
-			FixAugDotPos(doc, pL, voice, TRUE);
+			FixAugDotPos(doc, pL, voice, True);
 		}
 	}
 }
@@ -170,45 +170,45 @@ Boolean SetSelVoice(Document *doc, short uVoice)
 	short v, tempV;
 	Boolean didAnything, syncChanged, voiceChanged[MAXVOICES+1];
 	
-	didAnything = FALSE;
+	didAnything = False;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		if (LinkSEL(pL) && SyncTYPE(pL))
-			if (!SSVCheck(doc, pL, uVoice)) return FALSE;
+			if (!SSVCheck(doc, pL, uVoice)) return False;
 	}
 
 	/* See if there are any chords that are partly selected. If so, ask user for
 		permission to extend the selection to include all notes in them: this is to
 		avoid various nasty situations. */
 
-	if (!HomogenizeSel(doc, SETVOICE_CHORD_ALRT)) return FALSE;
+	if (!HomogenizeSel(doc, SETVOICE_CHORD_ALRT)) return False;
 
 	/* All chords are fully selected. Here we go. */
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
-			syncChanged = FALSE;
+			syncChanged = False;
 			for (v = 0; v<=MAXVOICES; v++)
-				voiceChanged[v] = FALSE;
+				voiceChanged[v] = False;
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				if (NoteSEL(aNoteL)) {
-					syncChanged = TRUE;
+					syncChanged = True;
 					partL = Staff2PartL(doc, doc->headL, NoteSTAFF(aNoteL));
 					/* The note's old and new voices are both affected. */
 					
-					voiceChanged[NoteVOICE(aNoteL)] = TRUE;
+					voiceChanged[NoteVOICE(aNoteL)] = True;
 					tempV = User2IntVoice(doc, uVoice, partL);
 					NoteVOICE(aNoteL) = tempV;
-					voiceChanged[NoteVOICE(aNoteL)] = TRUE;
+					voiceChanged[NoteVOICE(aNoteL)] = True;
 					if (!LOOKING_AT(doc, NoteVOICE(aNoteL)))
-						NoteSEL(aNoteL) = FALSE;
+						NoteSEL(aNoteL) = False;
 				}
 			}
 			if (syncChanged) {
 				for (v = 0; v<=MAXVOICES; v++)
 					if (voiceChanged[v]) FixSyncVoice(doc, pL, v);
-				didAnything = TRUE;
+				didAnything = True;
 			}
 		}
 	}
@@ -245,12 +245,12 @@ static Boolean SSSObjCheck(Document *doc, LINK syncL, short absStaff)
 	selected and therefore about to be moved to another staff. */
 	
 	for (s = 1; s<=doc->nstaves; s++) {
-		movingAll[s] = FALSE;
+		movingAll[s] = False;
 		if (s!=absStaff && NoteOnStaff(syncL, s))
-			if (!SSNoteOnStaff(syncL, s)) movingAll[s] = TRUE;
+			if (!SSNoteOnStaff(syncL, s)) movingAll[s] = True;
 	}
 	
-	dynamL = LSISearch(LeftLINK(syncL), DYNAMtype, ANYONE, GO_LEFT, FALSE);
+	dynamL = LSISearch(LeftLINK(syncL), DYNAMtype, ANYONE, GO_LEFT, False);
 	if (dynamL)
 		if (movingAll[DynamicSTAFF(dynamL)]
 		&&  (DynamFIRSTSYNC(dynamL)==syncL
@@ -258,10 +258,10 @@ static Boolean SSSObjCheck(Document *doc, LINK syncL, short absStaff)
 			GetIndCString(strBuf, SETERRS_STRS, 5);    /* "Set can't change staff of notes with dynamics attached to them." */
 			CParamText(strBuf, "", "", "");
 			StopInform(SETSTAFF_ALRT);
-			return FALSE;
+			return False;
 		}
 		
-	graphicL = LSISearch(LeftLINK(syncL), GRAPHICtype, ANYONE, GO_LEFT, FALSE);
+	graphicL = LSISearch(LeftLINK(syncL), GRAPHICtype, ANYONE, GO_LEFT, False);
 	if (graphicL)
 		if (movingAll[GraphicSTAFF(graphicL)]) {
 			syncHasGraphic = (GraphicFIRSTOBJ(graphicL)==syncL
@@ -270,30 +270,30 @@ static Boolean SSSObjCheck(Document *doc, LINK syncL, short absStaff)
 				GetIndCString(strBuf, SETERRS_STRS, 6);    /* "Set can't change staff of notes with Graphics (text, rehearsal mark, chord symbol, line, or arpeggio sign) attached to them." */
 				CParamText(strBuf, "", "", "");
 				StopInform(SETSTAFF_ALRT);
-				return FALSE;
+				return False;
 			}
 		}
 
-	tempoL = LSISearch(LeftLINK(syncL), TEMPOtype, ANYONE, GO_LEFT, FALSE);
+	tempoL = LSISearch(LeftLINK(syncL), TEMPOtype, ANYONE, GO_LEFT, False);
 	if (tempoL)
 		if (movingAll[TempoSTAFF(tempoL)] && TempoFIRSTOBJ(tempoL)==syncL) {
 			GetIndCString(strBuf, SETERRS_STRS, 8);    /* "Set can't change staff of notes with tempo marks attached to them." */
 			CParamText(strBuf, "", "", "");
 			StopInform(SETSTAFF_ALRT);
-			return FALSE;
+			return False;
 		}
 
-	endingL = LSISearch(LeftLINK(syncL), ENDINGtype, ANYONE, GO_LEFT, FALSE);
+	endingL = LSISearch(LeftLINK(syncL), ENDINGtype, ANYONE, GO_LEFT, False);
 	if (endingL)
 		if (movingAll[EndingSTAFF(endingL)]
 		&&  (EndingFIRSTOBJ(endingL)==syncL || EndingLASTOBJ(endingL)==syncL)) {
 			GetIndCString(strBuf, SETERRS_STRS, 9);    /* "Set can't change staff of notes with Endings attached to them." */
 			CParamText(strBuf, "", "", "");
 			StopInform(SETSTAFF_ALRT);
-			return FALSE;
+			return False;
 		}
 
-	return TRUE;
+	return True;
 }
 
 static Boolean SSSCheck(Document *doc, LINK /*syncL*/, LINK aNoteL, short absStaff)
@@ -306,16 +306,16 @@ static Boolean SSSCheck(Document *doc, LINK /*syncL*/, LINK aNoteL, short absSta
 		GetIndCString(strBuf, SETERRS_STRS, 10);    /* "Set can't change staff of beamed, slurred, or tied notes." */
 		CParamText(strBuf, "", "", "");
 		StopInform(SETSTAFF_ALRT);
-		return FALSE;
+		return False;
 	}
 	if (Staff2Part(doc, absStaff)!=Staff2Part(doc, NoteSTAFF(aNoteL))) {
 		GetIndCString(strBuf, SETERRS_STRS, 11);    /* "Set can't move notes/rests to a staff in a different part. To do this, Cut, then Paste Merge." */
 		CParamText(strBuf, "", "", "");
 		StopInform(SETSTAFF_ALRT);
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -348,11 +348,11 @@ Boolean SetSelStaff(Document *doc,
 StaffFound:
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
-			if (!SSSObjCheck(doc,pL,absStaff)) return FALSE;
+			if (!SSSObjCheck(doc,pL,absStaff)) return False;
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				if (NoteSEL(aNoteL))
-					if (!SSSCheck(doc,pL,aNoteL,absStaff)) return FALSE;
+					if (!SSSCheck(doc,pL,aNoteL,absStaff)) return False;
 			}
 		}
 	}
@@ -362,11 +362,11 @@ StaffFound:
 		keep any individual voice in a Sync from ending up with notes on more than
 		one staff. */
 
-	if (!HomogenizeSel(doc, SETSTAFF_CHORD_ALRT)) return FALSE;
+	if (!HomogenizeSel(doc, SETSTAFF_CHORD_ALRT)) return False;
 
 	/* All chords are fully selected. Here we go. */
 	
-	didAnything = FALSE;
+	didAnything = False;
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
 			aNoteL = FirstSubLINK(pL);
@@ -387,12 +387,12 @@ StaffFound:
 						/* Handle accidental context on new staff. */
 						if (!NoteACC(aNoteL)) {
 							NoteACC(aNoteL) = effAcc;
-							NoteACCSOFT(aNoteL) = TRUE;
+							NoteACCSOFT(aNoteL) = True;
 						}
 						InsNoteFixAccs(doc, pL, absStaff, halfLn, NoteACC(aNoteL));
 					}
 
-					didAnything = TRUE;
+					didAnything = True;
 				}
 		}
 
@@ -439,19 +439,19 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 	Boolean	didAnything;
 	short	voice, upDown;
 
-	didAnything = FALSE;
+	didAnything = False;
 		
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
 			for (voice = 1; voice<=MAXVOICES; voice++)
 				if (VOICE_MAYBE_USED(doc, voice))
-					if (NoteInVoice(pL, voice, TRUE)) {
+					if (NoteInVoice(pL, voice, True)) {
 						aNoteL = FindMainNote(pL, voice);
 						if (aNoteL && NoteType(aNoteL)==UNKNOWN_L_DUR) {
 							GetIndCString(strBuf, SETERRS_STRS, 12);    /* "Nightingale doesn't draw stems on unknown-duration notes. Use Set Duration." */
 							CParamText(strBuf, "", "", "");
 							StopInform(GENERIC_ALRT);
-							return FALSE;
+							return False;
 						}						
 					}
 		}
@@ -461,7 +461,7 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
 			for (voice = 1; voice<=MAXVOICES; voice++)
 				if (VOICE_MAYBE_USED(doc, voice))
-					if (NoteInVoice(pL, voice, TRUE)) {
+					if (NoteInVoice(pL, voice, True)) {
 						aNoteL = FindMainNote(pL, voice);
 						if (!aNoteL) {
 							MayErrMsg("SetSelStemlen: illegal note/chord: no Main note.");
@@ -496,7 +496,7 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 						else
 							extend = 0;
 						NoteYSTEM(aNoteL) = NoteYD(aNoteL)-upDown*(dStemlen+extend);
-						didAnything = TRUE;
+						didAnything = True;
 					}
 		}
 	}
@@ -512,7 +512,7 @@ Boolean SetSelNRAppear(Document *doc, short appearance)
 {
 	PANOTE	aNote;
 	LINK	pL, aNoteL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL))
@@ -520,7 +520,7 @@ Boolean SetSelNRAppear(Document *doc, short appearance)
 				if (NoteSEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					aNote->headShape = appearance;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 
 	return didAnything;
@@ -534,7 +534,7 @@ Boolean SetSelNRSmall(Document *doc, short small)
 {
 	PANOTE	aNote;
 	LINK	pL, aNoteL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL))
@@ -542,7 +542,7 @@ Boolean SetSelNRSmall(Document *doc, short small)
 				if (NoteSEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					aNote->small = small;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 
 	return didAnything;
@@ -556,7 +556,7 @@ Boolean SetSelNRParens(Document *doc, short inParens)
 {
 	PANOTE	aNote;
 	LINK	pL, aNoteL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL))
@@ -564,7 +564,7 @@ Boolean SetSelNRParens(Document *doc, short inParens)
 				if (NoteSEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					aNote->courtesyAcc = inParens;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 
 	return didAnything;
@@ -584,7 +584,7 @@ Boolean SetVelFromContext(Document *doc, Boolean selectedOnly)
 	LINK pL, aNoteL, aDynamicL;
 	PANOTE aNote;
 	PADYNAMIC aDynamic;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (s = 1; s<=doc->nstaves; s++) {
 		GetContext(doc, doc->selStartL, s, &context);
@@ -598,7 +598,7 @@ Boolean SetVelFromContext(Document *doc, Boolean selectedOnly)
 							 && !NoteREST(aNoteL) && NoteSTAFF(aNoteL)==s) {
 								aNote = GetPANOTE(aNoteL);
 								aNote->onVelocity = curVelocity;
-								didAnything = TRUE;
+								didAnything = True;
 							}
 					break;
 				case DYNAMtype:
@@ -625,7 +625,7 @@ Boolean SetSelVelocity(Document *doc, short velocity)
 {
 	PANOTE	aNote;
 	LINK	pL, aNoteL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	if (velocity>=0) {
 		for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
@@ -634,7 +634,7 @@ Boolean SetSelVelocity(Document *doc, short velocity)
 					if (NoteSEL(aNoteL) && !NoteREST(aNoteL)) {
 						aNote = GetPANOTE(aNoteL);
 						aNote->onVelocity = (unsigned)velocity;
-						didAnything = TRUE;
+						didAnything = True;
 					}
 	}
 
@@ -667,10 +667,10 @@ static Boolean SSGXCheck(Document *doc, LINK graphicL, DDIST dxd)
 		sprintf(strBuf, fmtStr, wordStr);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -690,7 +690,7 @@ Boolean SetSelGraphicX(
 	LINK		contL;
 	DDIST		dxd=-32767;
 	CONTEXT		context;
-	Boolean		didAnything=FALSE;
+	Boolean		didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && GraphicTYPE(pL))
@@ -713,7 +713,7 @@ Boolean SetSelGraphicX(
 			||  (GraphicSubType(pL)==GRChordSym && subtype==GRChordSym)) {
 			p = GetPGRAPHIC(pL);
 			p->xd = dxd;
-			didAnything = TRUE;
+			didAnything = True;
 		}
 	}
 	return didAnything;
@@ -746,10 +746,10 @@ static Boolean SSGYCheck(Document *doc, LINK graphicL, DDIST dyd)
 		sprintf(strBuf, fmtStr, wordStr);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 /* ------------------------------------------------------------------ SetSelGraphicY -- */
@@ -761,7 +761,7 @@ Boolean SetSelGraphicY(
 				Document *doc,
 				STDIST sty,
 				short subtype,					/* GRString, GRLyric, or GRChordSym */
-				Boolean	above 					/* TRUE=above, FALSE=below */
+				Boolean	above 					/* True=above, False=below */
 				)
 {
 	PGRAPHIC	p;
@@ -769,7 +769,7 @@ Boolean SetSelGraphicY(
 	LINK		contL;
 	DDIST		dyd=-32767;
 	CONTEXT		context;
-	Boolean		didAnything=FALSE;
+	Boolean		didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && GraphicTYPE(pL))
@@ -794,7 +794,7 @@ Boolean SetSelGraphicY(
 			||  (GraphicSubType(pL)==GRChordSym && subtype==GRChordSym)) {
 			p = GetPGRAPHIC(pL);
 			p->yd = dyd;
-			didAnything = TRUE;
+			didAnything = True;
 		}
 	}
 	return didAnything;
@@ -826,10 +826,10 @@ static Boolean SSTXCheck(Document *doc, LINK tempoL, DDIST dxd)
 		sprintf(strBuf, fmtStr, wordStr);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -847,7 +847,7 @@ Boolean SetSelTempoX(
 	register LINK pL;
 	DDIST	dxd=-32767;
 	CONTEXT	context;							/* current context */
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && TempoTYPE(pL)) {
@@ -863,7 +863,7 @@ Boolean SetSelTempoX(
 		if (LinkSEL(pL) && TempoTYPE(pL)) {
 			p = GetPTEMPO(pL);
 			p->xd = dxd;
-			didAnything = TRUE;
+			didAnything = True;
 		}
 	}
 	return didAnything;
@@ -896,10 +896,10 @@ static Boolean SSTYCheck(Document *doc, LINK tempoL, DDIST dyd)
 		sprintf(strBuf, fmtStr, wordStr);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return FALSE;
+		return False;
 	}
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -911,14 +911,14 @@ staff lines. */
 Boolean SetSelTempoY(
 				Document *doc,
 				STDIST	sty,
-				Boolean	above 				/* TRUE=above, FALSE=below */
+				Boolean	above 				/* True=above, False=below */
 				)
 {
 	PTEMPO	p;
 	register LINK pL;
 	DDIST	dyd=-32767;
 	CONTEXT	context;							/* current context */
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && TempoTYPE(pL)) {
@@ -936,7 +936,7 @@ Boolean SetSelTempoY(
 		if (LinkSEL(pL) && TempoTYPE(pL)) {
 			p = GetPTEMPO(pL);
 			p->yd = dyd;
-			didAnything = TRUE;
+			didAnything = True;
 		}
 	}
 	return didAnything;
@@ -950,13 +950,13 @@ Boolean SetSelTempoVisible(Document *doc, Boolean visible)
 {
 	LINK		pL;
 	PTEMPO		pTempo;
-	Boolean		didAnything=FALSE;
+	Boolean		didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && TempoTYPE(pL)) {
 			pTempo = GetPTEMPO(pL);
 			pTempo->hideMM = !visible;
-			didAnything = TRUE;
+			didAnything = True;
 		}
 	}
 	return didAnything;
@@ -974,7 +974,7 @@ Boolean SetSelGraphicStyle(
 {
 	PGRAPHIC	pGraphic;
 	LINK		pL;
-	Boolean		didAnything=FALSE, toOrFromLyric;
+	Boolean		didAnything=False, toOrFromLyric;
 	TEXTSTYLE	style;
 	short		fontInd, info;
 
@@ -989,7 +989,7 @@ Boolean SetSelGraphicStyle(
 	else if (styleChoice==TSRegular9STYLE) BlockMove(doc->fontName9,&style,sizeof(TEXTSTYLE));
 	else if (styleChoice!=TSThisItemOnlySTYLE) {
 		MayErrMsg("SetSelGraphicStyle: illegal style %ld", (long)styleChoice);
-		return FALSE;
+		return False;
 	}
 
 	fontInd = FontName2Index(doc, style.fontName);
@@ -997,14 +997,14 @@ Boolean SetSelGraphicStyle(
 		GetIndCString(strBuf, MISCERRS_STRS, 27);    /* "The font won't be changed" */
 		CParamText(strBuf, "", "", "");
 		StopInform(MANYFONTS_ALRT);
-		return FALSE;
+		return False;
 	}
 
 	/* In all cases, set the Graphic's <info> field to reflect the new style. If the
 	 *	new style is "This Item Only", leave all of its font information alone, else
 	 *	change it to reflect the current settings for that style.
 	 */
-	toOrFromLyric = FALSE;
+	toOrFromLyric = False;
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && GraphicTYPE(pL)) {
 			if ((GraphicSubType(pL)==GRString && subtype==GRString)
@@ -1015,7 +1015,7 @@ Boolean SetSelGraphicStyle(
 					if (styleChoice!=TSThisItemOnlySTYLE) {
 						if (pGraphic->graphicType!=(style.lyric? GRLyric : GRString)) {
 							pGraphic->graphicType = (style.lyric? GRLyric : GRString);
-							toOrFromLyric = TRUE;
+							toOrFromLyric = True;
 						}
 						pGraphic->relFSize = style.relFSize;
 						pGraphic->fontSize = style.fontSize;
@@ -1026,7 +1026,7 @@ Boolean SetSelGraphicStyle(
 					info = User2HeaderFontNum(doc, styleChoice);
 					pGraphic = GetPGRAPHIC(pL);
 					pGraphic->info = info;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 			}
 		}
@@ -1056,7 +1056,7 @@ Boolean SetSelMeasVisible(Document *doc, Boolean visible)
 {
 	PAMEASURE	aMeasure;
 	LINK		pL, aMeasureL;
-	Boolean		didAnything=FALSE;
+	Boolean		didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && MeasureTYPE(pL)) {
@@ -1065,7 +1065,7 @@ Boolean SetSelMeasVisible(Document *doc, Boolean visible)
 				if (MeasureSEL(aMeasureL)) {
 					aMeasure = GetPAMEASURE(aMeasureL);
 					aMeasure->visible = visible;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 		}
 	}
@@ -1080,7 +1080,7 @@ Boolean SetSelMeasType(Document *doc, short subtype)
 {
 	PAMEASURE	aMeasure;
 	LINK		pL, aMeasureL;
-	Boolean		didAnything=FALSE;
+	Boolean		didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && MeasureTYPE(pL)) {
@@ -1089,7 +1089,7 @@ Boolean SetSelMeasType(Document *doc, short subtype)
 				if (MeasureSEL(aMeasureL)) {
 					aMeasure = GetPAMEASURE(aMeasureL);
 					aMeasure->subType = subtype;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 		}
 	}
@@ -1103,7 +1103,7 @@ Boolean SetSelMeasType(Document *doc, short subtype)
 Boolean SetSelDynamVisible(Document *doc, Boolean visible)
 {
 	LINK	pL, aDynamicL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && DynamTYPE(pL)) {
@@ -1111,7 +1111,7 @@ Boolean SetSelDynamVisible(Document *doc, Boolean visible)
 			for ( ; aDynamicL; aDynamicL=NextDYNAMICL(aDynamicL))
 				if (DynamicSEL(aDynamicL)) {
 					DynamicVIS(aDynamicL) = visible;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 		}
 	}
@@ -1125,7 +1125,7 @@ Boolean SetSelDynamVisible(Document *doc, Boolean visible)
 Boolean SetSelDynamSmall(Document *doc, Boolean small)
 {
 	LINK	pL, aDynamicL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && DynamTYPE(pL)) {
@@ -1133,7 +1133,7 @@ Boolean SetSelDynamSmall(Document *doc, Boolean small)
 			for ( ; aDynamicL; aDynamicL=NextDYNAMICL(aDynamicL))
 				if (DynamicSEL(aDynamicL)) {
 					DynamicSMALL(aDynamicL) = small;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 		}
 	}
@@ -1147,14 +1147,14 @@ Boolean SetSelDynamSmall(Document *doc, Boolean small)
 Boolean SetSelBeamsetThin(Document *doc, Boolean thin)
 {
 	LINK		pL;
-	Boolean		didAnything=FALSE;
+	Boolean		didAnything=False;
 	PBEAMSET	pBeamset;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && BeamsetTYPE(pL)) {
 			pBeamset = GetPBEAMSET(pL);
 			pBeamset->thin = thin;
-			didAnything = TRUE;
+			didAnything = True;
 		}
 	}
 	return didAnything;
@@ -1167,7 +1167,7 @@ Boolean SetSelBeamsetThin(Document *doc, Boolean thin)
 Boolean SetSelClefVisible(Document *doc, Boolean visible)
 {
 	LINK	pL, aClefL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && ClefTYPE(pL)) {
@@ -1175,7 +1175,7 @@ Boolean SetSelClefVisible(Document *doc, Boolean visible)
 			for ( ; aClefL; aClefL=NextCLEFL(aClefL))
 				if (ClefSEL(aClefL)) {
 					ClefVIS(aClefL) = visible;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 		}
 	}
@@ -1189,7 +1189,7 @@ Boolean SetSelClefVisible(Document *doc, Boolean visible)
 Boolean SetSelKeySigVisible(Document *doc, Boolean visible)
 {
 	LINK	pL, aKeySigL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && KeySigTYPE(pL)) {
@@ -1197,7 +1197,7 @@ Boolean SetSelKeySigVisible(Document *doc, Boolean visible)
 			for ( ; aKeySigL; aKeySigL=NextKEYSIGL(aKeySigL))
 				if (KeySigSEL(aKeySigL)) {
 					KeySigVIS(aKeySigL) = visible;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 		}
 	}
@@ -1211,7 +1211,7 @@ Boolean SetSelKeySigVisible(Document *doc, Boolean visible)
 Boolean SetSelTimeSigVisible(Document *doc, Boolean visible)
 {
 	LINK	pL, aTimeSigL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && TimeSigTYPE(pL)) {
@@ -1219,7 +1219,7 @@ Boolean SetSelTimeSigVisible(Document *doc, Boolean visible)
 			for ( ; aTimeSigL; aTimeSigL=NextTIMESIGL(aTimeSigL))
 				if (TimeSigSEL(aTimeSigL)) {
 					TimeSigVIS(aTimeSigL) = visible;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 		}
 	}
@@ -1234,13 +1234,13 @@ Boolean SetSelTupBracket(Document *doc, Boolean visible)
 {
 	PTUPLET	pTuplet;
 	LINK	pL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && TupletTYPE(pL)) {
 			pTuplet = GetPTUPLET(pL);
 			pTuplet->brackVis = visible;
-			didAnything = TRUE;
+			didAnything = True;
 		}
 	}
 	return didAnything;
@@ -1259,14 +1259,14 @@ Boolean SetSelTupNums(Document *doc, short showWhich)
 {
 	PTUPLET		pTuplet;
 	LINK		pL;
-	Boolean		didAnything=FALSE;
+	Boolean		didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && TupletTYPE(pL)) {
 			pTuplet = GetPTUPLET(pL);
 			pTuplet->numVis = (showWhich==BOTH_VIS || showWhich==NUM_VIS);
 			pTuplet->denomVis = showWhich==BOTH_VIS;
-			didAnything = TRUE;
+			didAnything = True;
 		}
 	}
 	return didAnything;
@@ -1279,7 +1279,7 @@ Boolean SetSelTupNums(Document *doc, short showWhich)
 void SetAllSlursShape(
 			Document *doc,
 			LINK slurL,
-			Boolean recalc 		/* TRUE=recompute slur/ties' startPt and endPt fields */
+			Boolean recalc 		/* True=recompute slur/ties' startPt and endPt fields */
 			)
 {
 	LINK	aSlurL, aNoteL, firstSyncL, lastSyncL;
@@ -1347,7 +1347,7 @@ Boolean SetSelSlurShape(Document *doc)
 	CONTEXT	context;
 	Boolean	curveUp, curveUps[MAXCHORD], didAnything;
 
-	didAnything = FALSE;
+	didAnything = False;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL) && ObjLType(pL)==SLURtype) {
@@ -1367,7 +1367,7 @@ Boolean SetSelSlurShape(Document *doc)
 				aSlur = GetPASLUR(aSlurL);
 				SetSlurCtlPoints(doc, pL, aSlurL, pSlur->firstSyncL, pSlur->lastSyncL,
 										staff, voice, context, curveUp);
-				didAnything = TRUE;
+				didAnything = True;
 			}
 			/* Handle a set of ties. */
 			else {
@@ -1377,7 +1377,7 @@ Boolean SetSelSlurShape(Document *doc)
 					if (aSlur->selected) {
 						SetSlurCtlPoints(doc, pL, aSlurL, pSlur->firstSyncL, pSlur->lastSyncL,
 												staff, voice, context, curveUps[i]);
-						didAnything = TRUE;
+						didAnything = True;
 					}
 				}
 			}
@@ -1394,7 +1394,7 @@ Boolean SetSelSlurAppear(Document *doc, short appearance)
 {
 	PASLUR	aSlur;
 	LINK	pL, aSlurL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && SlurTYPE(pL))
@@ -1402,7 +1402,7 @@ Boolean SetSelSlurAppear(Document *doc, short appearance)
 				if (SlurSEL(aSlurL)) {
 					aSlur = GetPASLUR(aSlurL);
 					aSlur->dashed = appearance;
-					didAnything = TRUE;
+					didAnything = True;
 				}
 
 	return didAnything;
@@ -1416,13 +1416,13 @@ Boolean SetSelLineThickness(Document *doc, short thickness)
 {
 	PGRAPHIC	pGraphic;
 	LINK		pL;
-	Boolean		didAnything=FALSE;
+	Boolean		didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 		if (LinkSEL(pL) && GraphicTYPE(pL) && GraphicSubType(pL)==GRDraw) {
 			pGraphic = GetPGRAPHIC(pL);
 			pGraphic->gu.thickness = thickness;
-			didAnything = TRUE;
+			didAnything = True;
 		}
 
 	return didAnything;
@@ -1435,13 +1435,13 @@ Boolean SetSelLineThickness(Document *doc, short thickness)
 Boolean SetSelPatchChangeVisible(Document *doc, Boolean visible)
 {
 	LINK	pL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && GraphicTYPE(pL)) {		
 			if (GraphicSubType(pL)==GRMIDIPatch) {
 				LinkVIS(pL) = visible;
-				didAnything = TRUE;
+				didAnything = True;
 			}
 		}
 	}
@@ -1455,13 +1455,13 @@ Boolean SetSelPatchChangeVisible(Document *doc, Boolean visible)
 Boolean SetSelPanVisible(Document *doc, Boolean visible)
 {
 	LINK	pL;
-	Boolean	didAnything=FALSE;
+	Boolean	didAnything=False;
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (LinkSEL(pL) && GraphicTYPE(pL)) {		
 			if (GraphicSubType(pL)==GRMIDIPan) {
 				LinkVIS(pL) = visible;
-				didAnything = TRUE;
+				didAnything = True;
 			}
 		}
 	}

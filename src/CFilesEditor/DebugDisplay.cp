@@ -437,14 +437,14 @@ void MemUsageStats(Document *doc)
 	/* Compute the total number of objects of each type and the number of note
 		modifiers in the object list. */
 
-	CountInHeaps(doc, objCount, TRUE);
+	CountInHeaps(doc, objCount, True);
 
 	LogPrintf(LOG_NOTICE, "HEAP USAGE:\n");
  	for (h = FIRSTtype; h<LASTtype; h++) {
  		theHeap = Heap + h;
 		if (theHeap->nObjs<=0) continue;
  		
-		ps = NameHeapType(h, FALSE);
+		ps = NameHeapType(h, False);
  		if (!OptionKeyDown())
  			LogPrintf(LOG_NOTICE, "  %s Heap: %u in use (%d bytes each)\n", ps, objCount[h],
  							subObjLength[h]);

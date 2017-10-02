@@ -100,7 +100,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
 	GetFPos(refNum,&startPosition);
 	count = sizeof(long);
 	ioErr = FSWrite(refNum,&count,&zero);
-	if (ioErr) { SaveError(TRUE, refNum, ioErr, OBJtype); return ioErr; }
+	if (ioErr) { SaveError(True, refNum, ioErr, OBJtype); return ioErr; }
 	
 	for (j=1, pL=doc->headL; ioErr==noErr && pL != NILINK; j++, pL=RightLINK(pL)) {
 	
@@ -234,7 +234,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
 		if (ioErr!=noError) return ioErr;
 		count = sizeof(long);
 		ioErr = FSWrite(refNum,&count,&sizeAllObjs);
-		if (ioErr) { SaveError(TRUE, refNum, ioErr, OBJtype); return ioErr; }
+		if (ioErr) { SaveError(True, refNum, ioErr, OBJtype); return ioErr; }
 		/* And move back to where we just were so as not to truncate anything */
 		ioErr = SetFPos(refNum,fsFromStart,endPosition);
 		if (ioErr!=noError) return ioErr;
@@ -452,7 +452,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	/* Write the total number of objects of type heapIndex */
 	count = sizeof(short);
 	ioErr = FSWrite(refNum, &count, &objCount[heapIndex]);
-	if (ioErr) { SaveError(TRUE, refNum, ioErr, heapIndex); return(ioErr); }
+	if (ioErr) { SaveError(True, refNum, ioErr, heapIndex); return(ioErr); }
 
 	/* Write the HEAP struct header */
 	count = sizeof(HEAP);
@@ -463,12 +463,12 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 			long position;
 			const char *ps;
 			GetFPos(refNum, &position);
-			ps = NameHeapType(heapIndex, FALSE);
+			ps = NameHeapType(heapIndex, False);
 			LogPrintf(LOG_DEBUG, "WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
 							heapIndex, ps, objCount[heapIndex], myHeap->objSize, myHeap->type, position);
 		}
 
-	if (ioErr) SaveError(TRUE, refNum, ioErr, heapIndex);
+	if (ioErr) SaveError(True, refNum, ioErr, heapIndex);
 	return(ioErr);
 }
 
@@ -591,7 +591,7 @@ static short WriteObject(short refNum, short heapIndex, LINK pL)
 	p = LinkToPtr(myHeap, pL);
 	ioErr = FSWrite(refNum, &count, p);
 
-	if (ioErr) SaveError(TRUE, refNum, ioErr, heapIndex);
+	if (ioErr) SaveError(True, refNum, ioErr, heapIndex);
 	return(ioErr);
 }
 
@@ -643,7 +643,7 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 		for (j=0; j<OBJheap->nObjs+1; j++)
 			(*firstSubLINKA)[j] = NILINK;
 	else
-		{ OutOfMemory((OBJheap->nObjs+1)*sizeof(LINK)); return FALSE; }
+		{ OutOfMemory((OBJheap->nObjs+1)*sizeof(LINK)); return False; }
 
 	/* Allocate an array of links to temporarily hold the values of all objLinks to
 		be written to file. */
@@ -653,7 +653,7 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 		for (j=0; j<OBJheap->nObjs+1; j++)
 			(*objA)[j] = NILINK;
 	else
-		{ OutOfMemory((OBJheap->nObjs+1)*sizeof(LINK)); return FALSE; }
+		{ OutOfMemory((OBJheap->nObjs+1)*sizeof(LINK)); return False; }
 	
 	for (j=1, pL = doc->headL; pL!=RightLINK(doc->tailL); j++, pL = RightLINK(pL)) 
 		(*objA)[pL] = j;
@@ -669,9 +669,9 @@ Boolean ComputeObjCounts(Document *doc, LINK **firstSubLINKA, LINK **objA, LINK 
 		for (j=0; j<numMods+1; j++)
 			(*modA)[j] = NILINK;
 	else
-		{ OutOfMemory((MODNRheap->nObjs+1)*sizeof(LINK)); return FALSE; }
+		{ OutOfMemory((MODNRheap->nObjs+1)*sizeof(LINK)); return False; }
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -741,13 +741,13 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 		AlwaysErrMsg("ReadObjHeap: sizeAllObjs=%ld but nFObjs=%ld gives heapSizeAllObjs=%ld",
 					sizeAllObjs, (long)nFObjs, heapSizeAllObjs);
 		ioErr = -9999;
-		OpenError(TRUE, refNum, ioErr, OBJtype);
+		OpenError(True, refNum, ioErr, OBJtype);
 		return(ioErr);
 	}
 	
 	nExpand = (long)nFObjs - (long)myHeap->nObjs + EXTRAOBJS;
 	if (!ExpandFreeList(myHeap, nExpand))
-		{ OpenError(TRUE, refNum, memFullErr, MEM_ERRINFO); return memFullErr; }
+		{ OpenError(True, refNum, memFullErr, MEM_ERRINFO); return memFullErr; }
 	
 	PushLock(myHeap);			/* Should lock it after expanding free list above */
 	
@@ -795,7 +795,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	
 	PopLock(myHeap);
 	if (ioErr)
-		{ OpenError(TRUE, refNum, ioErr, OBJtype); return(ioErr); }
+		{ OpenError(True, refNum, ioErr, OBJtype); return(ioErr); }
 	RebuildFreeList(doc, OBJtype, nFObjs);
 	return(ioErr);
 }
@@ -878,7 +878,7 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 			if (nFObjs+1 >= myHeap->nObjs) {
 				nExpand = (long)nFObjs - (long)myHeap->nObjs + EXTRAOBJS;
 				if (!ExpandFreeList(myHeap, nExpand))
-					{ OpenError(TRUE, refNum, memFullErr, MEM_ERRINFO); return memFullErr; }
+					{ OpenError(True, refNum, memFullErr, MEM_ERRINFO); return memFullErr; }
 			}
 
 			/* Read nFObjs+1 objects from the file, since the zeroth object is not used. */
@@ -964,7 +964,7 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 			PopLock(myHeap);
 
 			if (ioErr) 
-				{ OpenError(TRUE, refNum, ioErr, i); return(ioErr); }
+				{ OpenError(True, refNum, ioErr, i); return(ioErr); }
 			RebuildFreeList(doc, i, nFObjs);
 		}
 	}
@@ -988,14 +988,14 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 	ioErr = FSRead(refNum, &count, pnFObjs);
 	fix_end(*pnFObjs);
 	if (ioErr)
-		{ OpenError(TRUE, refNum, ioErr, heapIndex); return ioErr; }
+		{ OpenError(True, refNum, ioErr, heapIndex); return ioErr; }
 	
  	count = sizeof(HEAP);
 	ioErr = FSRead(refNum,&count,&tempHeap);
 	fix_end(tempHeap.type);
 	fix_end(tempHeap.objSize);
 	if (ioErr)
-		{ OpenError(TRUE, refNum, ioErr, heapIndex); return ioErr; }
+		{ OpenError(True, refNum, ioErr, heapIndex); return ioErr; }
 	
 	myHeap = doc->Heap + heapIndex;
 
@@ -1003,16 +1003,16 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 			long position;
 			const char *ps;
 			GetFPos(refNum, &position);
-			ps = NameHeapType(heapIndex, FALSE);
+			ps = NameHeapType(heapIndex, False);
 			LogPrintf(LOG_DEBUG, "RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
 							heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type, tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
 		}
 
 	if (myHeap->type!=tempHeap.type)
-		{ OpenError(TRUE, refNum, HDR_TYPE_ERR, heapIndex); return HDR_TYPE_ERR; }
+		{ OpenError(True, refNum, HDR_TYPE_ERR, heapIndex); return HDR_TYPE_ERR; }
 		
 	if (myHeap->objSize!=tempHeap.objSize)
-		{ OpenError(TRUE, refNum, HDR_SIZE_ERR, heapIndex); return HDR_SIZE_ERR; }
+		{ OpenError(True, refNum, HDR_SIZE_ERR, heapIndex); return HDR_SIZE_ERR; }
 
 	return 0;
 }
@@ -1036,7 +1036,7 @@ assumes that headL is always at LINK 1. */
 void HeapFixLinks(Document *doc)
 {
 	LINK 	pL, prevPage, prevSystem, prevStaff, prevMeasure;
-	Boolean tailFound=FALSE;
+	Boolean tailFound=False;
 	
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
@@ -1054,7 +1054,7 @@ void HeapFixLinks(Document *doc)
 
 				if (doc->masterHeadL)
 					doc->masterHeadL = pL+1;
-				tailFound = TRUE;
+				tailFound = True;
 				DRightLINK(doc, doc->tailL) = NILINK;
 				break;
 			case PAGEtype:

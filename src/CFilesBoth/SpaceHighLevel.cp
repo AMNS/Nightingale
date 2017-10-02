@@ -59,7 +59,7 @@ void CenterNR(Document *doc, LINK syncL, LINK aRestL, DDIST measCenter)
 	CONTEXT	context;
 
 	GetContext(doc, syncL, NoteSTAFF(aRestL), &context);
-	measCenter -= SymDWidthRight(doc, syncL, NoteSTAFF(aRestL), FALSE, context)/2;
+	measCenter -= SymDWidthRight(doc, syncL, NoteSTAFF(aRestL), False, context)/2;
 	NoteXD(aRestL) = measCenter-LinkXD(syncL);
 }
 
@@ -107,8 +107,8 @@ void CenterWholeMeasRests(
 
 /* -------------------------------------------------------------------- RemoveObjSpace -- */
 /* Move everything after <pL> on its system to the left by the amount of space currently
-occupied by <pL>. Return FALSE in the unlikely case there's nothing after <pL>, i.e.,
-it's the tail of the object list; else return TRUE. Does not adjust measureRects and
+occupied by <pL>. Return False in the unlikely case there's nothing after <pL>, i.e.,
+it's the tail of the object list; else return True. Does not adjust measureRects and
 measureBBoxes. ??In-line code in DeleteWhole, etc., should be replace by calls to this
 or something similar. */
 
@@ -116,13 +116,13 @@ Boolean RemoveObjSpace(Document *doc, LINK pL)
 {
 	DDIST xMove; LINK tempL;
 
-	if (!RightLINK(pL)) return FALSE;
+	if (!RightLINK(pL)) return False;
 	
-	xMove = PMDist(pL, ObjWithValidxd(RightLINK(pL), TRUE));
+	xMove = PMDist(pL, ObjWithValidxd(RightLINK(pL), True));
 	tempL = MoveInMeasure(RightLINK(pL), doc->tailL, -xMove);
 	MoveMeasures(tempL, doc->tailL, -xMove);
 	
-	return TRUE;
+	return True;
 }
 
 
@@ -137,8 +137,8 @@ void RespaceAll(Document *doc, short percent)
 	
 	if (RightLINK(doc->headL)==doc->tailL) return;					/* If nothing in data structure, do nothing */
 	WaitCursor();
-	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, FALSE);		/* Start at first measure */
-	RespaceBars(doc, pL, doc->tailL, RESFACTOR*(long)percent, FALSE, FALSE);
+	pL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, False);		/* Start at first measure */
+	RespaceBars(doc, pL, doc->tailL, RESFACTOR*(long)percent, False, False);
 }
 
 
@@ -152,7 +152,7 @@ static short PrevITSym(Document */*doc*/, short staff, short ind, SPACETIMEINFO 
 	
 	for (j = ind-1; j>=0; j--) {
 		if (spaceTimeInfo[j].justType==J_IT)
-			if (staff==ANYONE || ObjOnStaff(spaceTimeInfo[j].link, staff, FALSE))
+			if (staff==ANYONE || ObjOnStaff(spaceTimeInfo[j].link, staff, False))
 				return j;
 	}
 	
@@ -170,7 +170,7 @@ static Boolean IsLyricPunct(unsigned char ch)
 	return (ch==':' || ch==';' || ch=='.' || ch==',' || ch=='?');
 }
 
-/* Return TRUE if the lyric should be allowed to overlap following notes, i.e., if
+/* Return True if the lyric should be allowed to overlap following notes, i.e., if
 its last non-whitespace, non-punctuation character is hyphen or underline (poor
 person's extender) or hard blank. ??Should use C string (via CCopy) instead of Pascal. */
 
@@ -252,7 +252,7 @@ void SyncGraphicWidthLR(Document *doc,
 	 *	Scan the entire system looking for lyrics attached to the Sync. This is
 	 * probably overkill; just its measure should be enough.
 	 */
-	pL = LSSearch(syncL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
+	pL = LSSearch(syncL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	endL = LinkRSYS(pL);
 	for ( ; pL!=endL; pL = RightLINK(pL)) {
 		if (GraphicTYPE(pL))
@@ -313,7 +313,7 @@ static STDIST IPGroupWidth(short staff, short ind, SPACETIMEINFO spaceTimeInfo[]
 		 * not even have reached the beginning of the group yet.
 		 */
 		if (spaceTimeInfo[j].justType!=J_IP) break;
-		if (!ObjOnStaff(spaceTimeInfo[j].link, staff, FALSE)) {
+		if (!ObjOnStaff(spaceTimeInfo[j].link, staff, False)) {
 			if (count>0)	break;
 			else			continue;
 		}
@@ -341,7 +341,7 @@ static STDIST IPMarginWidth(Document *doc, SPACETIMEINFO spaceTimeInfo[],
 	
 	widthLeft = 0;	
 	for (s = 1; s<=doc->nstaves; s++) {
-		if (ObjOnStaff(spaceTimeInfo[iFirst].link, s, FALSE))
+		if (ObjOnStaff(spaceTimeInfo[iFirst].link, s, False))
 			widthLeft = n_max(widthLeft, SymWidthLeft(doc, spaceTimeInfo[iSecond].link, s, -1));
 	}
 	
@@ -376,7 +376,7 @@ static STDIST IPSpaceNeeded(
 	 */
 	prevIT = PrevITSym(doc, staff, ind, spaceTimeInfo);
 	if (prevIT>=0) {
-		needRight = SymWidthRight(doc, spaceTimeInfo[prevIT].link, staff, FALSE);
+		needRight = SymWidthRight(doc, spaceTimeInfo[prevIT].link, staff, False);
 		prevRightEnd = fPosition[prevIT]+STD2F(needRight);
 	}
 	else
@@ -413,13 +413,13 @@ static void FillIgnoreChordTable(Document *doc, short nLast, SPACETIMEINFO space
 
 	for (i = 0; i<=nLast; i++) {
 		for (v = 1; v<=MAXVOICES; v++) {
-			ignoreChord[i][v] = FALSE;
+			ignoreChord[i][v] = False;
 			
 			if (SyncTYPE(spaceTimeInfo[i].link)) {
 				aNoteL = FindMainNote(spaceTimeInfo[i].link, v);
 				if (aNoteL!=NILINK) {
 					aNote = GetPANOTE(aNoteL);
-					if (aNote->rspIgnore!=0) ignoreChord[i][v] = TRUE;
+					if (aNote->rspIgnore!=0) ignoreChord[i][v] = True;
 if (aNote->rspIgnore!=0) LogPrintf(LOG_DEBUG, "FillIgnoreChordTable: i=%d v=%d: rspIgnore=%hd ignoreChord[]=%d\n",
 	i, v, aNote->rspIgnore, ignoreChord[i][v]);
 				}
@@ -470,7 +470,7 @@ static void ConsidITWidths(
 		if (spaceTimeInfo[i].justType==J_IT) {
 			for (s = 1; s<=doc->nstaves; s++) {
 				fAvailSp[s] += fSpBefore[i];			/* Accumulate space avail. on all staves */
-				staffUsed[s] = FALSE;
+				staffUsed[s] = False;
 			}
 			
 			for (s = 1; s<=doc->nstaves; s++) {
@@ -480,7 +480,7 @@ static void ConsidITWidths(
 	//	LogPrintf(LOG_DEBUG, "CIT2. "); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
-				if (ObjOnStaff(spaceTimeInfo[i].link, s, FALSE)) {
+				if (ObjOnStaff(spaceTimeInfo[i].link, s, False)) {
 					if (SyncTYPE(spaceTimeInfo[i].link))
 						SyncGraphicWidthLR(doc, spaceTimeInfo[i].link, s, &gNeedLeft, &gNeedRight);
 					else
@@ -513,9 +513,9 @@ static void ConsidITWidths(
 					/*
 					 *	Re-initialize for the next J_IT object on this staff.
 					 */
-					prevNeedRight[s] = SymWidthRight(doc, spaceTimeInfo[i].link, s, FALSE);	/* Incl. stuff fllwng notehead */
+					prevNeedRight[s] = SymWidthRight(doc, spaceTimeInfo[i].link, s, False);	/* Incl. stuff fllwng notehead */
 					if (prevNeedRight[s]<gNeedRight) prevNeedRight[s] = gNeedRight;
-					staffUsed[s] = TRUE;
+					staffUsed[s] = True;
 				}
 			}
 			
@@ -592,7 +592,7 @@ static void ConsidIPWidths(
 				spNeeded += config.minRSpace;
 				fSpBefore[i] = STD2F(spNeeded);
 			}
-			spNeeded = SymWidthRight(doc, spaceTimeInfo[i].link, ANYONE, FALSE);
+			spNeeded = SymWidthRight(doc, spaceTimeInfo[i].link, ANYONE, False);
 
 			/* Key sig. or time sig. followed by Sync or grace Sync has special min. space. */
 			
@@ -781,7 +781,7 @@ DDIST Respace1Bar(
 	if (!prevBarL || !SameSystem(prevBarL, LeftLINK(barTermL)))
 		prevBarWidth = 0;
 	else
-		prevBarWidth = SymWidthRight(doc, prevBarL, ANYONE, FALSE);
+		prevBarWidth = SymWidthRight(doc, prevBarL, ANYONE, False);
 		
 	minWidth = std2d(prevBarWidth+config.spAfterBar+EMPTYMEAS_WIDTH, STFHEIGHT, STFLINES);
 
@@ -868,7 +868,7 @@ DDIST Respace1Bar(
 		currentxd = std2d(position[i], STFHEIGHT, STFLINES);
 		if (pL!=barTermL && HasValidxd(pL)) {
 			LinkXD(pL) = currentxd;
-			LinkVALID(pL) = FALSE;							/* Make draw routines recompute objRect */
+			LinkVALID(pL) = False;							/* Make draw routines recompute objRect */
 		}
 	}
 	
@@ -1014,10 +1014,10 @@ static void GetRespaceParams(
 {
 	LINK startSysL;
 	
-	startSysL = LSSearch(startBarL, SYSTEMtype, ANYONE, GO_LEFT, FALSE);
-	*startSysBarL = LSSearch(startSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+	startSysL = LSSearch(startBarL, SYSTEMtype, ANYONE, GO_LEFT, False);
+	*startSysBarL = LSSearch(startSysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	*endSysL = EndSystemSearch(doc, LeftLINK(endBarL));							/* May be tail */
-	*endSysBarL = LSSearch(*endSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);		/* May be NILINK */
+	*endSysBarL = LSSearch(*endSysL, MEASUREtype, ANYONE, GO_RIGHT, False);		/* May be NILINK */
 	if (*endSysBarL==NILINK) *endSysBarL = doc->tailL;
 	
 	if (*spaceProp<=0) *spaceProp = MeasSpaceProp(startBarL);
@@ -1053,9 +1053,9 @@ static Boolean GetXDTabIndex(LINK pL, XDDATA *xdTable, unsigned short tabLen, un
 	for (i = 0; i < tabLen; i++)
 		if (xdTable[i].link == pL) {
 			*id = i;
-			return TRUE;
+			return True;
 		}
-	return FALSE;
+	return False;
 }
 
 
@@ -1175,16 +1175,16 @@ static short RespWithinMeasures(
 	if (!spTimeInfo) return -1;
 
 	mindex = 0;
-	inSel = FALSE;
+	inSel = False;
 	measL = startSysBarL;
 	for ( ; measL && measL!=endSysBarL; mindex++,measL=LinkRMEAS(measL)) {
 		firstL = RightLINK(measL);
 		lastL = EndMeasSearch(doc, measL);		/* Start from firstL fails if Measure empty */
-		if (measL==startBarL) inSel = TRUE;
+		if (measL==startBarL) inSel = True;
 		
 		if (inSel) {
 			oldMWidth = MeasWidth(measL);
-			nLast = GetSpTimeInfo(doc, firstL, lastL, spTimeInfo, TRUE); 		
+			nLast = GetSpTimeInfo(doc, firstL, lastL, spTimeInfo, True); 		
 			newMWidth = Respace1Bar(doc, lastL, nLast, spTimeInfo, spaceProp);
 			SetMeasSpacePercent(measL, spaceProp);
 			CenterWholeMeasRests(doc, firstL, lastL, newMWidth);
@@ -1199,7 +1199,7 @@ static short RespWithinMeasures(
 		rmTable[mindex].measL = measL;
 		rmTable[mindex].width = newMWidth;
 
-		if (lastL==endBarL) inSel = FALSE;
+		if (lastL==endBarL) inSel = False;
 	}
 	
 	DisposePtr((Ptr)spTimeInfo);
@@ -1243,7 +1243,7 @@ static Boolean PositionWholeMeasures(
 	}
 
 	first = 0;
-	for (reformat = FALSE, m = 0; m<mCount; m++) {
+	for (reformat = False, m = 0; m<mCount; m++) {
 		if (FirstMeasInSys(rmTable[m].measL))
 			first = m;
 		if (LastMeasInSys(rmTable[m].measL)) {
@@ -1256,7 +1256,7 @@ static Boolean PositionWholeMeasures(
 			 */
 			if (command || doRfmt) {
 				PositionSysByTable(doc, rmTable, first, m, 0L, context);
-				if (newSpProp>0L) reformat = TRUE;
+				if (newSpProp>0L) reformat = True;
 			}
 			else
 				PositionSysByTable(doc, rmTable, first, m, newSpProp, context);
@@ -1273,21 +1273,21 @@ static Boolean PositionWholeMeasures(
 
 	if (reformat) {
 		if (doRfmt)
-			goAhead = TRUE;
+			goAhead = True;
 		else {
 			goAhead = (NoteAdvise(RSP_OVERFLOW_ALRT)==OK);
 		}
 		
 		if (goAhead) {
-			Reformat(doc, startBarL, LeftLINK(endSysL), TRUE, 9999, FALSE, 999,
+			Reformat(doc, startBarL, LeftLINK(endSysL), True, 9999, False, 999,
 							config.titleMargin);
 		}
 		else
-			return FALSE;
+			return False;
 	}
 	
 	*invalStartL = startInvalL;
-	return TRUE;
+	return True;
 }
 
 
@@ -1324,8 +1324,8 @@ TERMINATE Measures rather than beginning them, so if there's an insertion point
 "at" a barline--selStartL=selEndL=the barline, so the insertion point appears to
 the left of the barline--the preceding Measure is respaced. Areas before the initial
 barlines of systems, which are not part of any Measure, are always left alone, even
-if they're within the specified area. It returns TRUE if it successfully respaces
-anything, FALSE if not (either because of an error or because the specified area is
+if they're within the specified area. It returns True if it successfully respaces
+anything, False if not (either because of an error or because the specified area is
 entirely before a System's initial barline).
 
 N.B.2. If RespaceBars reformats, it sets the selection range to an insertion point
@@ -1364,19 +1364,19 @@ Boolean RespaceBars(
 	MSPDATA		*measA;
 	PMEASURE	pMeas;
 	PAMEASURE	aMeas;
-	Boolean		okay=FALSE, posOkay;
+	Boolean		okay=False, posOkay;
 	
 	/*
 	 *	Start at the beginning of the Measure startL is in; if there is no such
 	 *	Measure, start at the first Measure of the score. If end is not after start
 	 *	Measure, there's nothing to do.
 	 */
-	startBarL = EitherSearch(LeftLINK(startL),MEASUREtype,ANYONE, GO_LEFT, FALSE);
-	if (endL==startBarL || IsAfter(endL, startBarL)) return FALSE;
+	startBarL = EitherSearch(LeftLINK(startL),MEASUREtype,ANYONE, GO_LEFT, False);
+	if (endL==startBarL || IsAfter(endL, startBarL)) return False;
 	endBarL = EndMeasSearch(doc, LeftLINK(endL));
 
 	rmTable = (RMEASDATA *)NewPtr(MAX_MEASURES*sizeof(RMEASDATA));
-	if (!GoodNewPtr((Ptr)rmTable)) { NoMoreMemory(); return FALSE; }
+	if (!GoodNewPtr((Ptr)rmTable)) { NoMoreMemory(); return False; }
 
 	if (command) {
 		PrepareUndo(doc, startL, U_Respace, 35);    				/* "Undo Respace Bars" */
@@ -1474,16 +1474,16 @@ Boolean RespaceBars(
 
 	InvalRespBars(startInvalL,endSysL);
 
-	doc->changed = TRUE;
-	okay = TRUE;
+	doc->changed = True;
+	okay = True;
 
 Done:
 	if (rmTable) DisposePtr((Ptr)rmTable);
 	if (positionA) DisposePtr((Ptr)positionA);
 #ifdef NO_COMPRENDE_ASK_CHARLIE
-	if (command) DisableUndo(doc,TRUE);
+	if (command) DisableUndo(doc,True);
 #endif
-	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc,TRUE);
+	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc,True);
 	return okay;
 }
 
@@ -1494,7 +1494,7 @@ objects in the measures.  Use spaceProp/(RESFACTOR*100) of the existing spacing,
 if spaceProp < (RESFACTOR*100), it actually compress the measures. startL and endL
 are expected to be LINKs to Measure objects within a System, and endL must occur
 after startL in the score data structure and must end that System. Does not attempt
-to keep symbols from overlapping. Returns TRUE if  OK or the range is empty, FALSE if
+to keep symbols from overlapping. Returns True if  OK or the range is empty, False if
 it finds a problem. */
 
 Boolean StretchToSysEnd(
@@ -1510,11 +1510,11 @@ Boolean StretchToSysEnd(
 	long		temp, startChange, resUnit;
 	short		tempPercent;
 
-	if (startL==endL) return TRUE;
+	if (startL==endL) return True;
 	
 	/* Going below MINSPACE is no problem as long as <spaceProp> is positive. */
 	
-	if (spaceProp<=0 || spaceProp/RESFACTOR>MAXSPACE) return FALSE;
+	if (spaceProp<=0 || spaceProp/RESFACTOR>MAXSPACE) return False;
 
 	resUnit = 100L*RESFACTOR;
 	startChange = LinkXD(startL);
@@ -1556,7 +1556,7 @@ Boolean StretchToSysEnd(
 	
 	SetMeasWidth(endL, lastMeasWidth);
 
-	return TRUE;
+	return True;
 }
 
 
@@ -1638,7 +1638,7 @@ void JustifySystems(Document *doc, LINK startL, LINK endL)
 	LINK startSysL, endSysL, currSysL, nextSysL, termSysL, firstMeasL, lastMeasL;
 	DDIST lastMeasWidth, staffWidth;
 	FASTFLOAT justFact, maxJustFact;
-	Boolean didAnything=FALSE;
+	Boolean didAnything=False;
 
 	WaitCursor();
 
@@ -1649,9 +1649,9 @@ void JustifySystems(Document *doc, LINK startL, LINK endL)
 	
 	maxJustFact = 0.0;
 	for (currSysL = startSysL; currSysL!=endSysL; currSysL = nextSysL) {
-		firstMeasL = LSSearch(currSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		firstMeasL = LSSearch(currSysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 		termSysL = EndSystemSearch(doc, currSysL);
-		lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, False);
 		nextSysL = LinkRSYS(currSysL);
 
 		if (lastMeasL!=firstMeasL) {
@@ -1673,9 +1673,9 @@ void JustifySystems(Document *doc, LINK startL, LINK endL)
 		
 		/* Get first and last Measure of this System and object ending it */
 		
-		firstMeasL = LSSearch(currSysL, MEASUREtype, ANYONE, GO_RIGHT, FALSE);
+		firstMeasL = LSSearch(currSysL, MEASUREtype, ANYONE, GO_RIGHT, False);
 		termSysL = EndSystemSearch(doc, currSysL);
-		lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, FALSE);
+		lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, False);
 		nextSysL = LinkRSYS(currSysL);
 		
 		/*
@@ -1684,11 +1684,11 @@ void JustifySystems(Document *doc, LINK startL, LINK endL)
 		 */
 		if (lastMeasL!=firstMeasL) {
 			JustifySystem(doc, firstMeasL, lastMeasL);
-			didAnything = TRUE;
+			didAnything = True;
 		}
 	}
 	
 	Antikink();
 	
-	if (didAnything) doc->changed = TRUE;
+	if (didAnything) doc->changed = True;
 }

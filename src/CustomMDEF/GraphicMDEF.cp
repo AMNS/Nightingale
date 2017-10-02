@@ -24,7 +24,7 @@
 
 	/* Returns 1 if entire menu is enabled */
 #define MenuEnabled(menuH) IsMenuItemEnabled(menuH,0)
-#define odd(a) ((a) & 1)							/* TRUE if a is odd */
+#define odd(a) ((a) & 1)							/* True if a is odd */
 
 static void InitGlobals(MenuHandle);
 static void DrawMenu(MenuHandle, Rect *, MenuTrackingData*, CGContextRef);
@@ -69,7 +69,7 @@ static short			gItemWid;
 static Boolean			gIsAPopUp;				/* If this MDEF is used for a popup AND a normal menu, you */
 													/* must call CalcMenuSize for the normal menu EVERY time */
 													/* the user clicks in menu bar. This generates a mSizeMsg */
-													/* for the MDEF, giving it a chance to reset gIsAPopUp to FALSE. */
+													/* for the MDEF, giving it a chance to reset gIsAPopUp to False. */
 #if USE_COLOR
 static short			gPixelDepth;
 static RGBColor		gSavedForeColor;
@@ -105,7 +105,7 @@ enum {
 #define kSysEnvironsVersion 1
 
 #if USE_COLOR
-static Boolean gHasColorQD=FALSE;
+static Boolean gHasColorQD=False;
 #endif
 
 
@@ -247,27 +247,27 @@ static void DrawMenu(MenuHandle theMenu, Rect *menuRect, MenuTrackingData* track
 		/* draw menu chars into menuRect */
 		for (i=1; i<=gNumItems; i++) {
 			GetItemRect(i, menuRect, &theRect);
-			DrawItem(i, &theRect, theMenu, FALSE);
+			DrawItem(i, &theRect, theMenu, False);
 		}
 	}
 	else {
 		if (gScrollStatus & SCROLLUP) {
-			DrawEraseScrollArrow(menuRect, UP, TRUE);
+			DrawEraseScrollArrow(menuRect, UP, True);
 			for (i=gTopVisRow; i<=gNumRows; i++)
 				DrawRow(theMenu, menuRect, i);
 		}
 		else if (gScrollStatus & SCROLLDOWN) {
-			DrawEraseScrollArrow(menuRect, DOWN, TRUE);
+			DrawEraseScrollArrow(menuRect, DOWN, True);
 			for (i=gBotVisRow; i>=1; i--)
 				DrawRow(theMenu, menuRect, i);
 		}
 		if (gScrollStatus & SCROLLLEFT) {
-			DrawEraseScrollArrow(menuRect, LEFT, TRUE);
+			DrawEraseScrollArrow(menuRect, LEFT, True);
 			for (i=gLeftVisColumn; i<=gNumCols; i++)
 				DrawColumn(theMenu, menuRect, i);
 		}
 		else if (gScrollStatus & SCROLLRIGHT) {
-			DrawEraseScrollArrow(menuRect, RIGHT, TRUE);
+			DrawEraseScrollArrow(menuRect, RIGHT, True);
 			for (i=gRightVisColumn; i>=1; i--)
 				DrawColumn(theMenu, menuRect, i);
 		}
@@ -284,7 +284,7 @@ static void DrawItem(short item, Rect *itemRect, MenuHandle theMenu, Boolean lea
 	register unsigned char theChar, *p;
 	register GrafPtr	gp;
 	register short		saveFontNum, saveFontSize;
-	register Boolean	drawInColor = FALSE;
+	register Boolean	drawInColor = False;
 	
 	if (item < 1) return;
 	
@@ -296,9 +296,9 @@ static void DrawItem(short item, Rect *itemRect, MenuHandle theMenu, Boolean lea
 		if (MenuEnabled(theMenu))
 			SetColors(&gItemNameColor, &gMenuBgColor, leaveBlack);
 		else
-			SetColors(&gMyGrayColor, &gMenuBgColor, FALSE);
+			SetColors(&gMyGrayColor, &gMenuBgColor, False);
 		if (gPixelDepth > 1)
-			drawInColor = TRUE;
+			drawInColor = True;
 	}
 #endif
 
@@ -350,7 +350,7 @@ static void DrawRow(MenuHandle theMenu, Rect *menuR, short rowNum)
 
 	for (i = firstItem; i <= lastItem; i++) {
 		GetItemRect(i, menuR, &itemR);
-		DrawItem(i, &itemR, theMenu, FALSE);
+		DrawItem(i, &itemR, theMenu, False);
 	}
 }
 
@@ -362,7 +362,7 @@ static void DrawColumn(MenuHandle theMenu, Rect *menuR, short columnNum)
 
 	for (i = columnNum; i <= gNumItems; i += gNumCols) {
 		GetItemRect(i, menuR, &itemR);
-		DrawItem(i, &itemR, theMenu, FALSE);
+		DrawItem(i, &itemR, theMenu, False);
 	}
 }
 
@@ -407,7 +407,7 @@ static void InvertItem(short item, Boolean leaveBlack, Rect *menuRect, MenuHandl
 static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTrackingData* trackingData, CGContextRef /*context*/ )
 {
 	register short		newItem, vFromTop, hFromLeft, direction, row, col;
-	Boolean				hitPtInMenuRect = FALSE, doScroll = FALSE;
+	Boolean				hitPtInMenuRect = False, doScroll = False;
 	short					currentItem = trackingData->itemSelected;
 	
 	if (!MenuEnabled(theMenu)) {
@@ -423,11 +423,11 @@ static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTr
 	if (!hitPtInMenuRect && gScrollStatus != NOSCROLL) {
 		if (gScrollStatus & SCROLLUP || gScrollStatus & SCROLLDOWN) {
 			if (hitPt.h > menuRect->left && hitPt.h < menuRect->right)
-				doScroll = TRUE;
+				doScroll = True;
 		}
 		if (gScrollStatus & SCROLLLEFT || gScrollStatus & SCROLLRIGHT) {
 			if (hitPt.v > menuRect->top && hitPt.v < menuRect->bottom)
-				doScroll = TRUE;
+				doScroll = True;
 		}
 	}		
 
@@ -513,10 +513,10 @@ static void HiliteMenuItem( MenuRef theMenu, const Rect* menuRect, HiliteMenuIte
 		p = (char *) *gCharGridH;						/* no need to lock handle here */
 		p += gItemCharsOffset;							/* point at beginning of item chars */
 		if (newItem <= gNumItems && p[newItem-1] != '\0')
-			InvertItem(newItem, TRUE, (Rect *)menuRect, theMenu);
+			InvertItem(newItem, True, (Rect *)menuRect, theMenu);
 		else
 			newItem = 0;										/* it's a blank item */
-		InvertItem(previousItem, FALSE, (Rect *)menuRect, theMenu);
+		InvertItem(previousItem, False, (Rect *)menuRect, theMenu);
 		//LogPrintf(LOG_NOTICE, "currItem=%d, newItem=%d\n", previousItem, newItem);
 	}
 }
@@ -530,9 +530,9 @@ static Boolean ItemIsVisible(short item)
 	
 	if (row < gTopVisRow || row > gBotVisRow ||
 		 col < gLeftVisColumn || col > gRightVisColumn)
-		return FALSE;
+		return False;
 	else
-		return TRUE;
+		return True;
 }
 
 
@@ -547,7 +547,7 @@ static Boolean InScrollRect(Point pt, Rect *menuRect)
 	if (gScrollStatus & SCROLLRIGHT)
 		return (pt.h > menuRect->right - gArrowRectWid);
 		
-	return FALSE;		/* in case we somehow got called while gScrollStatus==NOSCROLL */
+	return False;		/* in case we somehow got called while gScrollStatus==NOSCROLL */
 }
 
 
@@ -591,12 +591,12 @@ static void ScrollMenu(MenuHandle theMenu, Rect *menuRect, short direction)
 			gScrollStatus -= SCROLLRIGHT;
 	}
 
-	DrawEraseScrollArrow(menuRect, direction, FALSE);		/* erase before ScrollRect */
+	DrawEraseScrollArrow(menuRect, direction, False);		/* erase before ScrollRect */
 
 #if USE_COLOR
 	if (gHasColorQD) {
 		SaveCurColors();
-		SetColors(&gItemNameColor, &gMenuBgColor, FALSE);
+		SetColors(&gItemNameColor, &gMenuBgColor, False);
 	}
 #endif
 
@@ -612,7 +612,7 @@ static void ScrollMenu(MenuHandle theMenu, Rect *menuRect, short direction)
 	if (direction == UP) {
 		if (gScrollStatus & SCROLLUP) {
 			DrawRow(theMenu, menuRect, gTopVisRow);
-			DrawEraseScrollArrow(menuRect, UP, TRUE);
+			DrawEraseScrollArrow(menuRect, UP, True);
 		}
 		else {
 			EraseMenu(menuRect);
@@ -623,7 +623,7 @@ static void ScrollMenu(MenuHandle theMenu, Rect *menuRect, short direction)
 	else if (direction == DOWN) {
 		if (gScrollStatus & SCROLLDOWN) {
 			DrawRow(theMenu, menuRect, gBotVisRow);
-			DrawEraseScrollArrow(menuRect, DOWN, TRUE);
+			DrawEraseScrollArrow(menuRect, DOWN, True);
 		}
 		else {
 			EraseMenu(menuRect);
@@ -635,7 +635,7 @@ static void ScrollMenu(MenuHandle theMenu, Rect *menuRect, short direction)
 	if (direction == LEFT) {
 		if (gScrollStatus & SCROLLLEFT) {
 			DrawColumn(theMenu, menuRect, gLeftVisColumn);
-			DrawEraseScrollArrow(menuRect, LEFT, TRUE);
+			DrawEraseScrollArrow(menuRect, LEFT, True);
 		}
 		else {
 			EraseMenu(menuRect);
@@ -646,7 +646,7 @@ static void ScrollMenu(MenuHandle theMenu, Rect *menuRect, short direction)
 	else if (direction == RIGHT) {
 		if (gScrollStatus & SCROLLRIGHT) {
 			DrawColumn(theMenu, menuRect, gRightVisColumn);
-			DrawEraseScrollArrow(menuRect, RIGHT, TRUE);
+			DrawEraseScrollArrow(menuRect, RIGHT, True);
 		}
 		else {
 			EraseMenu(menuRect);
@@ -714,7 +714,7 @@ static void DrawEraseScrollArrow(Rect *menuRect, short arrow, Boolean draw)
 #if USE_COLOR
 	if (gHasColorQD) {
 		SaveCurColors();
-		SetColors(&gItemNameColor, &gMenuBgColor, FALSE);
+		SetColors(&gItemNameColor, &gMenuBgColor, False);
 	}
 #endif
 
@@ -742,7 +742,7 @@ static void EraseMenu(Rect *menuRect)
 #if USE_COLOR
 	if (gHasColorQD) {
 		SaveCurColors();
-		SetColors(&gItemNameColor, &gMenuBgColor, FALSE);
+		SetColors(&gItemNameColor, &gMenuBgColor, False);
 	}
 #endif
 	
@@ -773,7 +773,7 @@ static void SizeMenu(MenuHandle theMenu, Point hitPt)
 	 * have clicked a popup that uses this MDEF after the initial
 	 * call to SizeMenu, when the menu bar is drawn).
 	 */
-	gIsAPopUp = FALSE;
+	gIsAPopUp = False;
 	gScrollStatus = NOSCROLL;
 	gArrowRectWid = 0;
 	
@@ -983,7 +983,7 @@ static void PopUpMenu(MenuHandle theMenu, Rect *menuRect, short v, short h, shor
 /*	*item = ; ••••• What goes here? */
 
 broken:
-	gIsAPopUp = TRUE;
+	gIsAPopUp = True;
 }
 
 
