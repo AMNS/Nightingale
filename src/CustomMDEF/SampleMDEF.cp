@@ -362,7 +362,7 @@ static void DrawMenu( MenuRef menu, const Rect* bounds, MenuTrackingData* tracki
 		CalcItemSize( menu, &drawInfo.calcInfo, NULL, &height );
 		itemRect.bottom = itemRect.top + height;
         if ( ! ( itemRect.bottom <= bounds->top || itemRect.top >= bounds->bottom ) )
-	        DrawItem( menu, i, bounds, &itemRect, trackingData, false, &drawInfo, context );
+	        DrawItem( menu, i, bounds, &itemRect, trackingData, False, &drawInfo, context );
 		ReleaseMenuItemData( &drawInfo.calcInfo.itemData );
 		
 		trackingData->virtualMenuBottom = itemRect.bottom;
@@ -370,10 +370,10 @@ static void DrawMenu( MenuRef menu, const Rect* bounds, MenuTrackingData* tracki
     }
 
 	if ( trackingData->virtualMenuTop < bounds->top )
-		DrawScrollArrow( menu, bounds, trackingData, false, &drawInfo.calcInfo.metrics, context );
+		DrawScrollArrow( menu, bounds, trackingData, False, &drawInfo.calcInfo.metrics, context );
 
 	if ( trackingData->virtualMenuBottom > bounds->bottom )
-		DrawScrollArrow( menu, bounds, trackingData, true, &drawInfo.calcInfo.metrics, context );
+		DrawScrollArrow( menu, bounds, trackingData, True, &drawInfo.calcInfo.metrics, context );
 }
 
 /*--------------------------------------------------------------------------------------------------*/
@@ -383,7 +383,7 @@ static void SetupItemDrawInfo( MenuRef menu, CGContextRef context, MenuItemDrawI
 	GetMenuAttributes( menu, &outDrawInfo->menuAttr );
 	GetMenuMetrics( &outDrawInfo->calcInfo.metrics );
 	outDrawInfo->context = context;
-	outDrawInfo->itemSelected = false;
+	outDrawInfo->itemSelected = False;
 }
 
 /*--------------------------------------------------------------------------------------------------*/
@@ -432,7 +432,7 @@ static void FetchMenuItemData( MenuRef menu, MenuItemIndex item, MenuItemDataRec
 							| kMenuItemDataCFString
 							| kMenuItemDataIndent;
 					   
-	CopyMenuItemData( menu, item, false, outItemData );
+	CopyMenuItemData( menu, item, False, outItemData );
 }
 
 /*--------------------------------------------------------------------------------------------------*/
@@ -542,7 +542,7 @@ static pascal void ItemDrawingProc(const Rect *inBounds, SInt16 inDepth, Boolean
 		boundsT = bounds;
 		boundsT.left += drawInfo->calcInfo.metrics.textLeadingMargin;
 		DrawThemeTextBox( drawInfo->calcInfo.itemData.cfText, kThemeMenuItemFont, drawState,
-						  false, &boundsT, teFlushDefault, GetTextContext( drawInfo->context ) );
+						  False, &boundsT, teFlushDefault, GetTextContext( drawInfo->context ) );
 	}
 	
 	// command key
@@ -571,7 +571,7 @@ static void DrawCharTextBox( Byte ch, TextEncoding encoding, ThemeFontID font, T
 				 const Rect* bounds, int baseline, int just, CGContextRef context )
 {
 	Rect			adjustedBounds = *bounds;
-	CFStringRef string = CFStringCreateWithBytes( NULL, &ch, 1, encoding, false );
+	CFStringRef string = CFStringCreateWithBytes( NULL, &ch, 1, encoding, False );
 	
 	/*
 		Menu item text drawn with the .Keyboard font (used for kThemeMenuItemCmdKeyFont) won't
@@ -585,11 +585,11 @@ static void DrawCharTextBox( Byte ch, TextEncoding encoding, ThemeFontID font, T
 		Point 	size;
 		SInt16 	cmdKeyBaseline;
 		
-		GetThemeTextDimensions( string, kThemeMenuItemCmdKeyFont, drawState, false, &size, &cmdKeyBaseline );
+		GetThemeTextDimensions( string, kThemeMenuItemCmdKeyFont, drawState, False, &size, &cmdKeyBaseline );
 		OffsetRect( &adjustedBounds, 0, baseline - bounds->top - size.v - cmdKeyBaseline );
 	}
 	
-	DrawThemeTextBox( string, font, drawState, false, &adjustedBounds, just, GetTextContext( context ) );
+	DrawThemeTextBox( string, font, drawState, False, &adjustedBounds, just, GetTextContext( context ) );
 	CFRelease( string );
 }
 
@@ -600,7 +600,7 @@ static int MeasureUnicode( const UniChar* chars, ByteCount length, ThemeFontID f
 	Point			pt = {0, 0};
 	SInt16		baseline;
 	
-	GetThemeTextDimensions( str, font, kThemeStateActive, false, &pt, &baseline );
+	GetThemeTextDimensions( str, font, kThemeStateActive, False, &pt, &baseline );
 	CFRelease( str );
 	return pt.h;
 }
@@ -624,11 +624,11 @@ static void DrawUnicode( const UniChar* chars, ByteCount length, ThemeFontID fon
 		Point 	size;
 		SInt16 	cmdKeyBaseline;
 		
-		GetThemeTextDimensions( string, kThemeMenuItemCmdKeyFont, drawState, false, &size, &cmdKeyBaseline );
+		GetThemeTextDimensions( string, kThemeMenuItemCmdKeyFont, drawState, False, &size, &cmdKeyBaseline );
 		OffsetRect( &adjustedBounds, 0, baseline - bounds->top - size.v - cmdKeyBaseline );
 	}
 	
-	DrawThemeTextBox( string, font, drawState, false, &adjustedBounds, just, GetTextContext( context ) );
+	DrawThemeTextBox( string, font, drawState, False, &adjustedBounds, just, GetTextContext( context ) );
 	CFRelease( string );
 }
 
@@ -686,7 +686,7 @@ static void SizeMenu( MenuRef menu, Point maxSizes )
 	SInt32				result;
 	int					maxWidth;
 	int					maxHeight;
-	Boolean				hasCmdKey = false;
+	Boolean				hasCmdKey = False;
 
 	// determine the maximum allowed width and height of the menu
 	if (	( Gestalt( gestaltMenuMgrAttr, &result ) == noErr )
@@ -705,7 +705,7 @@ static void SizeMenu( MenuRef menu, Point maxSizes )
 	GetMenuMetrics( &calcInfo.metrics );
 	
 	//
-	// Determine the true width and height of the menu. Note that we must examine every item,
+	// Determine the True width and height of the menu. Note that we must examine every item,
 	// even if the height of the menu has already exceeded the maximum height, because we need
 	// to calculate the maximum width based on the width of every item.
 	//
@@ -783,7 +783,7 @@ static void CalcItemSize( MenuRef menu, const MenuItemCalcInfo* calcInfo, int* o
 		Point	pt;
 		SInt16	baseline;
 		
-		GetThemeTextDimensions( calcInfo->itemData.cfText, kThemeMenuItemFont, kThemeStateActive, false, &pt, &baseline );
+		GetThemeTextDimensions( calcInfo->itemData.cfText, kThemeMenuItemFont, kThemeStateActive, False, &pt, &baseline );
 		*outWidth += pt.h + calcInfo->metrics.textLeadingMargin + calcInfo->metrics.textTrailingMargin;
 	}
 	
@@ -865,7 +865,7 @@ static const UniChar* BuildModifierString( UInt32 modifiers, ByteCount* outLengt
 	if ( ( modifiers & kMenuNoCommandModifier ) == 0 )
 		str[cch++] = kMenuCommandGlyph;
 	
-	cfString = CFStringCreateWithBytes( NULL, str, cch, kTextEncodingMacKeyboardGlyphs, false );
+	cfString = CFStringCreateWithBytes( NULL, str, cch, kTextEncodingMacKeyboardGlyphs, False );
 	check( cfString != NULL );
 	check( CFStringGetLength( cfString ) <= 4 );
 	CFStringGetCharacters( cfString, CFRangeMake( 0, cch ), ustr );
@@ -1031,7 +1031,7 @@ static void AutoScroll( MenuRef menu, const Rect* bounds, Point hitPt, MenuTrack
 	
 	// turn off the hilite on the previous item
 	if ( prevItemSelected != 0 )
-		HiliteItem( menu, bounds, trackingData, prevItemSelected, false, context );
+		HiliteItem( menu, bounds, trackingData, prevItemSelected, False, context );
 	
 	// scroll me, baby
 	DoScrollMenuImage( menu, &scrollRect, 0, scrollDist, context );
@@ -1044,10 +1044,10 @@ static void AutoScroll( MenuRef menu, const Rect* bounds, Point hitPt, MenuTrack
 	
 	// draw the arrows, if necessary
 	if ( scrollDist < 0 && trackingData->virtualMenuTop < bounds->top )
-		DrawScrollArrow( menu, bounds, trackingData, false, metrics, context );
+		DrawScrollArrow( menu, bounds, trackingData, False, metrics, context );
 
 	if ( scrollDist > 0 && trackingData->virtualMenuBottom > bounds->bottom )
-		DrawScrollArrow( menu, bounds, trackingData, true, metrics, context );
+		DrawScrollArrow( menu, bounds, trackingData, True, metrics, context );
 	
 	Delay( delayTime, &temp );
 }
@@ -1064,7 +1064,7 @@ static void DrawScrolledItem( MenuRef menu, MenuTrackingData* trackingData, cons
 	
 	SetupItemDrawInfo( menu, context, &drawInfo );
 	FetchMenuItemData( menu, i, &drawInfo.calcInfo.itemData );
-	DrawItem( menu, i, menuRect, itemRect, trackingData, true, &drawInfo, context );
+	DrawItem( menu, i, menuRect, itemRect, trackingData, True, &drawInfo, context );
 	ReleaseMenuItemData( &drawInfo.calcInfo.itemData );
 }
 
@@ -1072,8 +1072,8 @@ static void DrawScrolledItem( MenuRef menu, MenuTrackingData* trackingData, cons
 static void HiliteMenuItem( MenuRef menu, const Rect* bounds, HiliteMenuItemData* hiliteData, CGContextRef context )
 {
 	MenuTrackingData	trackingData;
-	Boolean				oldFirst = false;
-	Boolean				oldLast = false;
+	Boolean				oldFirst = False;
+	Boolean				oldLast = False;
 	MenuItemDrawInfo	oldDrawInfo;
 	MenuItemDrawInfo	newDrawInfo;
 	Rect					oldItemRect;
@@ -1116,15 +1116,15 @@ static void HiliteMenuItem( MenuRef menu, const Rect* bounds, HiliteMenuItemData
 	
 	if ( hiliteData->previousItem != 0 )
 	{
-		check( oldDrawInfo.itemSelected == false );
-		DrawItem( menu, hiliteData->previousItem, bounds, &oldItemRect, &trackingData, true, &oldDrawInfo, context );
+		check( oldDrawInfo.itemSelected == False );
+		DrawItem( menu, hiliteData->previousItem, bounds, &oldItemRect, &trackingData, True, &oldDrawInfo, context );
 		ReleaseMenuItemData( &oldDrawInfo.calcInfo.itemData );
 	}
 	
 	if ( hiliteData->newItem != 0 )
 	{
-		newDrawInfo.itemSelected = true;
-		DrawItem( menu, hiliteData->newItem, bounds, &newItemRect, &trackingData, true, &newDrawInfo, context );
+		newDrawInfo.itemSelected = True;
+		DrawItem( menu, hiliteData->newItem, bounds, &newItemRect, &trackingData, True, &newDrawInfo, context );
 		ReleaseMenuItemData( &newDrawInfo.calcInfo.itemData );
 	}
 }
@@ -1143,7 +1143,7 @@ static void HiliteItem( MenuRef menu, const Rect* bounds, MenuTrackingData* trac
 	
 	FetchMenuItemData( menu, i, &drawInfo.calcInfo.itemData );
     GetItemRect( menu, trackingData, bounds, i, 0, 0, &drawInfo.calcInfo, &itemRect );
-	DrawItem( menu, i, bounds, &itemRect, trackingData, true, &drawInfo, context );
+	DrawItem( menu, i, bounds, &itemRect, trackingData, True, &drawInfo, context );
 	ReleaseMenuItemData( &drawInfo.calcInfo.itemData );
 }
 
@@ -1256,7 +1256,7 @@ static UniChar GetCommandGlyph( void )
 	if ( uch == 0 )
 	{
 		ch = kMenuCommandGlyph;
-		str = CFStringCreateWithBytes( NULL, &ch, sizeof( ch ), kTextEncodingMacKeyboardGlyphs, false );
+		str = CFStringCreateWithBytes( NULL, &ch, sizeof( ch ), kTextEncodingMacKeyboardGlyphs, False );
 		CFStringGetCharacters( str, CFRangeMake( 0, 1 ), &uch );
 		CFRelease( str );
 	}
@@ -1371,7 +1371,7 @@ static Boolean HasNoBackground()
 		SInt32 result;
 		Gestalt( gestaltSystemVersion, &result );
 		sHasNoBackground = result >= 0x1000;
-		sInited = true;
+		sInited = True;
 	}
 	
 	return sHasNoBackground;
@@ -1392,9 +1392,9 @@ static Boolean HasAqua()
 		GetTheme( c );
 		sHasAqua = GetTheme( c ) == noErr
 				&& GetCollectionItem( c, kThemeNameTag, 0, &size, name ) == noErr
-				&& EqualString( name, "\pAqua", true, true );
+				&& EqualString( name, "\pAqua", True, True );
 		DisposeCollection( c );
-		sInited = true;
+		sInited = True;
 	}
 	
 	return sHasAqua;
@@ -1411,7 +1411,7 @@ static void DoEraseMenuBackground( MenuRef menu, const Rect* rect, CGContextRef 
 	{
 		CFBundleRef bundle = CFBundleGetBundleWithIdentifier( CFSTR("com.apple.Carbon") );
 		eraseProc = (EraseMenuBackgroundProc)CFBundleGetFunctionPointerForName( bundle, CFSTR("EraseMenuBackground") );
-		checked = true;
+		checked = True;
 	}
 	
 	if ( eraseProc != NULL )
@@ -1438,7 +1438,7 @@ static void DoCGContextClearRect( CGContextRef context, const Rect* rect )
 	{
 		CFBundleRef bundle = CFBundleGetBundleWithIdentifier( CFSTR("com.apple.CoreGraphics") );
 		clearProc = (CGContextClearRectProc)CFBundleGetFunctionPointerForName( bundle, CFSTR("CGContextClearRect") );
-		checked = true;
+		checked = True;
 	}
 #endif
 		
@@ -1467,7 +1467,7 @@ static void DoScrollMenuImage( MenuRef menu, const Rect* bounds, int dh, int dv,
 	{
 		CFBundleRef bundle = CFBundleGetBundleWithIdentifier( CFSTR("com.apple.Carbon") );
 		scrollProc = (ScrollMenuImageProc)CFBundleGetFunctionPointerForName( bundle, CFSTR("ScrollMenuImage") );
-		checked = true;
+		checked = True;
 	}
 	
 	if ( scrollProc != NULL )

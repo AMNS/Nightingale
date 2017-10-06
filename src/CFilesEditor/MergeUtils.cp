@@ -60,12 +60,12 @@ static void GetMrgdUnmrgd(LINK syncL, short v, Boolean *merged, Boolean *unMerge
 {
 	LINK aNoteL;
 
-	*merged = *unMerged = false;
+	*merged = *unMerged = False;
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 		if (NoteVOICE(aNoteL)==v) {
-			if (NoteMERGED(aNoteL))	*merged = true;
-			else					*unMerged = true;
+			if (NoteMERGED(aNoteL))	*merged = True;
+			else					*unMerged = True;
 		}
 }
 
@@ -83,7 +83,7 @@ static void MFixOverlapSync(Document *doc, LINK syncL, short v)
 {
 	short vNotes=0,staff,noteDur,noteNDots;
 	LINK aNoteL;
-	Boolean hasMerged=false,hasUnmerged=false,hadRest;
+	Boolean hasMerged=False,hasUnmerged=False,hadRest;
 	CONTEXT context;
 	PANOTE aNote;
 
@@ -132,12 +132,12 @@ static void MFixOverlapSync(Document *doc, LINK syncL, short v)
 		there is one, get its duration, which will be used to set duration of merged
 		notes, and delete the rest from the data structure. */
 
-	hadRest = false;
+	hadRest = False;
 	aNoteL = FirstSubLINK(syncL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 		if (NoteVOICE(aNoteL)==v && NoteREST(aNoteL)) {
 			if (!NoteMERGED(aNoteL)) {
-				hadRest = true;
+				hadRest = True;
 				aNote = GetPANOTE(aNoteL);
 				noteDur = aNote->subType;							/* Use score note's values for duration */
 				noteNDots = aNote->ndots;							/*   and no. of dots */
@@ -154,9 +154,9 @@ static void MFixOverlapSync(Document *doc, LINK syncL, short v)
 
 	vNotes = CountVNotes(syncL,v);
 	if (vNotes==1) {
-		aNoteL = NoteInVoice(syncL, v, false);
+		aNoteL = NoteInVoice(syncL, v, False);
 		aNote = GetPANOTE(aNoteL);
-		aNote->inChord = false;
+		aNote->inChord = False;
 	}
 	
 	/* If the score had a rest in the voice, set the duration of all the notes
@@ -253,11 +253,11 @@ static void MergeFixBeamRange(Document *doc, LINK startL, LINK endL, short v)
 
 		if (SyncTYPE(pL))
 			if (SyncInVoice(pL,v)) {
-				docBeamed = false;
+				docBeamed = False;
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 					aNote = GetPANOTE(aNoteL);
 					if (NoteVOICE(aNoteL)==v && aNote->beamed && !aNote->merged) {
-						docBeamed = true;
+						docBeamed = True;
 						break;
 					}
 				}
@@ -277,9 +277,9 @@ static void MergeFixBeamRange(Document *doc, LINK startL, LINK endL, short v)
 	for (pL=startL; pL!=endL && beamL==NILINK; pL=RightLINK(pL)) {
 		if (SyncTYPE(pL))
 			if (SyncInVoice(pL,v)) {
-				aNoteL = NoteInVoice(pL,v,false);
+				aNoteL = NoteInVoice(pL,v,False);
 				if (NoteBEAMED(aNoteL)) {
-					beamL = LVSearch(pL,BEAMSETtype,v,GO_LEFT,false);
+					beamL = LVSearch(pL,BEAMSETtype,v,GO_LEFT,False);
 				}
 			}
 	}
@@ -291,7 +291,7 @@ static void MergeFixBeamRange(Document *doc, LINK startL, LINK endL, short v)
 			nInBeam = LinkNENTRIES(beamL);
 			firstSyncL = FirstInBeam(beamL);
 			lastSyncL = LastInBeam(beamL);
-			needRebeam = false;
+			needRebeam = False;
 
 			/* Prologue to CreateBEAMSET says: 'The range must contain <nInBeam> notes 
 				(counting each chord as one note)'. Here nInBeam seems to require
@@ -307,15 +307,15 @@ static void MergeFixBeamRange(Document *doc, LINK startL, LINK endL, short v)
 							aNote = GetPANOTE(aNoteL);
 							if (NoteVOICE(aNoteL)==v && aNote->merged) {
 								aNote->ystem = aNote->yd;	/* So multiple main notes won't confuse CreateBEAMSET */
-								aNote->inChord = true;
-								needRebeam = true;
+								aNote->inChord = True;
+								needRebeam = True;
 							}
 						}
 					}
 		
 			if (needRebeam) {
-				RemoveBeam(doc,beamL,v,false);
-				CreateBEAMSET(doc,firstSyncL,RightLINK(lastSyncL),v,nInBeam,false,
+				RemoveBeam(doc,beamL,v,False);
+				CreateBEAMSET(doc,firstSyncL,RightLINK(lastSyncL),v,nInBeam,False,
 										doc->voiceTab[v].voiceRole);
 			}
 		}
@@ -343,7 +343,7 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
 		if (aNote->staffn==s && aNote->inOttava && aNote->merged==merged) {
-			aNote->inOttava = false;
+			aNote->inOttava = False;
 			aNote->yd -= yDelta;
 			aNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
 
@@ -351,7 +351,7 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 			NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
 											stemDown,
 											context.staffHeight, context.staffLines,
-											qStemLen, false);
+											qStemLen, False);
 			if (odd(noteOffset[OctType(octL)-1]))
 				ToggleAugDotPos(doc, aNoteL, stemDown);
 
@@ -377,7 +377,7 @@ static void MUnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
 {
 	LINK aGRNoteL;
 	PAGRNOTE aGRNote;
-	Boolean stemDown=false, multiVoice=false;
+	Boolean stemDown=False, multiVoice=False;
 	short stemLen;
 	
 	/* Loop through the grace notes and set their yds and ystems. */
@@ -385,14 +385,14 @@ static void MUnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
 	for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 		aGRNote = GetPAGRNOTE(aGRNoteL);
 		if (aGRNote->staffn==s && aGRNote->inOttava) {
-			aGRNote->inOttava = false;
+			aGRNote->inOttava = False;
 			aGRNote->yd -= yDelta;
 			aGRNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
 			stemLen = QSTEMLEN(!multiVoice, ShortenStem(aGRNoteL, context, stemDown));
 			aGRNote->ystem = CalcYStem(doc, aGRNote->yd, NFLAGS(aGRNote->subType),
 											stemDown,
 											context.staffHeight, context.staffLines,
-											stemLen, false);
+											stemLen, False);
 		}
 	}
 
@@ -418,7 +418,7 @@ Specifically for use by Merge. */
 
 static void MRemoveOctOnStf(Document *doc, LINK octL,
 							short s,
-							Boolean merged			/* true if removing merged-in Ottava */
+							Boolean merged			/* True if removing merged-in Ottava */
 							)
 {
 	DDIST yDelta;
@@ -482,7 +482,7 @@ static void MergeFixOctRange(Document *doc, LINK startL, LINK endL, VInfo *vInfo
 		for (pL=startL; pL!=endL; pL=RightLINK(pL)) {
 			if (OttavaTYPE(pL) && OttavaSTAFF(pL)==s) {
 				if (LinkSPAREFLAG(pL)) {
-					hasUnmerged = false;
+					hasUnmerged = False;
 					aNoteOctL = FirstSubLINK(pL);
 					for ( ; aNoteOctL; aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
 						aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
@@ -493,7 +493,7 @@ static void MergeFixOctRange(Document *doc, LINK startL, LINK endL, VInfo *vInfo
 							if (NoteSTAFF(aNoteL)==OttavaSTAFF(pL) && !NoteREST(aNoteL)) {
 								if (aNote->inOttava) {
 									if (!NoteMERGED(aNoteL))
-										hasUnmerged = true;
+										hasUnmerged = True;
 										goto doneCheck;
 								}
 							}
@@ -501,13 +501,13 @@ static void MergeFixOctRange(Document *doc, LINK startL, LINK endL, VInfo *vInfo
 					}	
 
 doneCheck:
-					/* This is a merged Ottava. If hasUnmerged is true, we have problems
+					/* This is a merged Ottava. If hasUnmerged is True, we have problems
 						and must remove the Ottava, taking into account that its internal
 						structure may be inconsistent at this point due to the presence of
 						unmerged notes. */
 				
 					if (hasUnmerged) {
-						MRemoveOctOnStf(doc, pL, s, true);
+						MRemoveOctOnStf(doc, pL, s, True);
 					}
 				
 				}
@@ -519,7 +519,7 @@ doneCheck:
 		for (pL=startL; pL!=endL; pL=RightLINK(pL)) {
 			if (OttavaTYPE(pL) && OttavaSTAFF(pL)==s) {
 				if (!LinkSPAREFLAG(pL)) {
-					hasMerged = false;
+					hasMerged = False;
 					aNoteOctL = FirstSubLINK(pL);
 					for ( ; aNoteOctL; aNoteOctL=NextNOTEOTTAVAL(aNoteOctL)) {
 						aNoteOct = GetPANOTEOTTAVA(aNoteOctL);
@@ -530,7 +530,7 @@ doneCheck:
 							if (NoteSTAFF(aNoteL)==OttavaSTAFF(pL) && !NoteREST(aNoteL)) {
 								if (aNote->inOttava) {
 									if (NoteMERGED(aNoteL))
-										hasMerged = true;
+										hasMerged = True;
 										goto doneCheck1;
 								}
 							}
@@ -538,7 +538,7 @@ doneCheck:
 					}	
 
 doneCheck1:
-					/* This is an Ottava from the score. If hasMerged is true, we have
+					/* This is an Ottava from the score. If hasMerged is True, we have
 						problems; we must remove and recreate the Ottava, taking into
 						account that its internal structure may be inconsistent at this
 						point due to the presence of merged notes. To recreate the Ottava,
@@ -550,8 +550,8 @@ doneCheck1:
 						lastSyncL = LastInOttava(pL);
 						nInOct = LinkNENTRIES(pL);
 						octType = OctType(pL);
-						MRemoveOctOnStf(doc, pL, s, false);
-						CreateOTTAVA(doc,firstSyncL,lastSyncL,s,nInOct,octType,false,false);
+						MRemoveOctOnStf(doc, pL, s, False);
+						CreateOTTAVA(doc,firstSyncL,lastSyncL,s,nInOct,octType,False,False);
 					}
 				
 				}
@@ -638,7 +638,7 @@ void MEFixContForClef(Document *doc,
 															NFLAGS(NoteType(aNoteL)),
 															stemDown,
 															context.staffHeight, context.staffLines,
-															qStemLen, false);
+															qStemLen, False);
 						}
 					}
 				}
@@ -651,7 +651,7 @@ void MEFixContForClef(Document *doc,
 						aGRNote->yd += yDelta;
 						if (aGRNote->inChord)
 							FixGRSyncForChord(doc, pL, aGRNote->voice, aGRNote->beamed, 0,
-													true, NULL);
+													True, NULL);
 						else
 							FixGRSyncNote(doc, pL, aGRNote->voice, &context);
 					}
@@ -700,7 +700,7 @@ Cleanup:
 
 static void MFixAllAccidentals(LINK fixFirstL, LINK fixLastL,
 						short staff,
-						Boolean pitchMod	/* true=<accTable> has pitch modifers, else accidentals */
+						Boolean pitchMod	/* True=<accTable> has pitch modifers, else accidentals */
 						)
 {
 	PANOTE		aNote;
@@ -722,7 +722,7 @@ static void MFixAllAccidentals(LINK fixFirstL, LINK fixLastL,
 							if (accTable[halfLn]>0 && 
 									(!pitchMod || accTable[halfLn]!=AC_NATURAL)) {
 								aNote->accident = accTable[halfLn];
-								aNote->accSoft = true;
+								aNote->accSoft = True;
 							}
 							accTable[halfLn] = -1;						/* Mark this line/space OK */
 						}
@@ -740,7 +740,7 @@ static void MFixAllAccidentals(LINK fixFirstL, LINK fixLastL,
 							if (accTable[halfLn]>0 && 
 									(!pitchMod || accTable[halfLn]!=AC_NATURAL)) {
 								aGRNote->accident = accTable[halfLn];
-								aGRNote->accSoft = true;
+								aGRNote->accSoft = True;
 							}
 							accTable[halfLn] = -1;						/* Mark this line/space OK */
 						}
@@ -777,8 +777,8 @@ static void MEFixAccsForKeySig(Document *doc,
 	/*	Now use the table <oldKSTab> to correct accidentals of notes on the staff, one
 	 * measure at a time. 
 	 */
-	barFirstL = EitherSearch(startL,MEASUREtype,staffn,GO_LEFT,false);
-	barLastL = LSSearch(doneL,MEASUREtype,staffn,GO_LEFT,false);
+	barFirstL = EitherSearch(startL,MEASUREtype,staffn,GO_LEFT,False);
+	barLastL = LSSearch(doneL,MEASUREtype,staffn,GO_LEFT,False);
 
 	firstL = startL;
 	measL = barFirstL;
@@ -787,7 +787,7 @@ static void MEFixAccsForKeySig(Document *doc,
 		
 		CopyTables(oldKSTab,accTable);
 	
-		MFixAllAccidentals(firstL, lastL, staffn, false);
+		MFixAllAccidentals(firstL, lastL, staffn, False);
 	}
 }
 
@@ -841,7 +841,7 @@ void MergeFixContext(Document *doc, LINK initL, LINK succL, short minStf, short 
 	LINK clipMeasL;
 
 	InstallDoc(clipboard);
-	clipMeasL = LSSearch(clipboard->headL, MEASUREtype, ANYONE, false, false);
+	clipMeasL = LSSearch(clipboard->headL, MEASUREtype, ANYONE, False, False);
 
 	/* First measure in clipboard establishes old context; LINK before pasted in
 	material establishes new context for range pasted in. Fix up context for range
@@ -931,7 +931,7 @@ static void MFixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LIN
 							i++;
 						}
 						if (NoteSTAFF(aNoteL)==OttavaSTAFF(pL) && aNote->inOttava)
-							aNote->tempFlag = true;
+							aNote->tempFlag = True;
 					}
 				}
 				else if (GRSyncTYPE(qL)) {
@@ -953,7 +953,7 @@ static void MFixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LIN
 							i++;
 						}
 						if (NoteSTAFF(aGRNoteL)==OttavaSTAFF(pL) && aGRNote->inOttava)
-							aGRNote->tempFlag = true;
+							aGRNote->tempFlag = True;
 					}
 				}
 
@@ -999,7 +999,7 @@ static void MFixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK 
 							}
 						}
 						if (NoteVOICE(aNoteL)==BeamVOICE(pL) && aNote->beamed)
-							aNote->tempFlag = true;
+							aNote->tempFlag = True;
 					}
 				}
 		}

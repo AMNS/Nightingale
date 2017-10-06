@@ -246,7 +246,7 @@ long CMGetHostTimeMillis()
 void CMNormalizeTimeStamps()
 {
 	MIDITimeStamp firstTimeStamp;
-	Boolean haveTimeStamp = false;
+	Boolean haveTimeStamp = False;
 	
 	MIDIPacket *packet = gCurrPktListBegin;
 
@@ -1635,7 +1635,7 @@ Boolean InitCoreMIDI()
 		
 		CMDebugPrintXMission();
 
-		gCoreMIDIInited = true;
+		gCoreMIDIInited = True;
 	}
 	
 	return True;

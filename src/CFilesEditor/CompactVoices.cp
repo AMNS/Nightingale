@@ -157,9 +157,9 @@ static Boolean CVComputePlayTimes(Document *doc, SELRANGE /*selRange*/[], char m
 	
 			notes=0;
 			totalGap = gapTime = 0L;
-			firstNote = true;
+			firstNote = True;
 			
-			/* Traverse all syncs in the measure. If firstNote is true, and notes>0, then
+			/* Traverse all syncs in the measure. If firstNote is True, and notes>0, then
 				the first note in the voice is not in the first sync in the measure; it
 				must be left justified by subtracting from its time the currTime.
 				Otherwise, determine if there is a gap; if there is, reduce the time
@@ -174,7 +174,7 @@ static Boolean CVComputePlayTimes(Document *doc, SELRANGE /*selRange*/[], char m
 
 							if (notes>0) {
 								if (firstNote) {
-									firstNote = false;
+									firstNote = False;
 									gapTime = totalGap = currTime;
 								}
 								else {
@@ -190,7 +190,7 @@ static Boolean CVComputePlayTimes(Document *doc, SELRANGE /*selRange*/[], char m
 									}
 								}
 							}
-							else firstNote = false;
+							else firstNote = False;
 
 							prevNotes = notes;
 	
@@ -205,11 +205,11 @@ static Boolean CVComputePlayTimes(Document *doc, SELRANGE /*selRange*/[], char m
 	/* Sort the pDurArray in order of increasing pTimes. */
 
 	CVSortPTimes(nInMeas, MAXVOICES+1);
-	return true;
+	return True;
 	
 broken:
 	NoMoreMemory();
-	return false;
+	return False;
 }
 
 
@@ -259,7 +259,7 @@ static Boolean CVRearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nN
 	}
 	else {
 		NoMoreMemory();
-		return false;
+		return False;
 	}
 
 	pTime = qDurArray;
@@ -300,7 +300,7 @@ static Boolean CVRearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nN
 	for (i=0; i<arrBound; pTime=qTime) {
 
 		subCount = 0;
-		objSel = false;
+		objSel = False;
 
 		/* Get the number of notes in this sync. */
 		while (qTime->pTime==pTime->pTime) {
@@ -333,7 +333,7 @@ static Boolean CVRearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nN
 				This refers to the sync still in the data structure. */
 
 			while (qTime->pTime==pTime->pTime) {
-				if (NoteSEL(subL)) objSel = true;
+				if (NoteSEL(subL)) objSel = True;
 
 				if (qTime->mult > 1) {
 					v = NoteVOICE(subL);
@@ -400,7 +400,7 @@ static Boolean CVRearrangeNotes(Document *doc, SELRANGE /*selRange*/[], short nN
 	DeleteRange(doc, RightLINK(headL), tailL);
 	DeleteNode(doc, headL);
 	DeleteNode(doc, tailL);
-	return true;
+	return True;
 	
 broken:
 	DeleteRange(doc, RightLINK(headL), tailL);
@@ -409,7 +409,7 @@ broken:
 	
 broken1:
 	NoMoreMemory();
-	return false;
+	return False;
 }
 
 
@@ -417,9 +417,9 @@ static Boolean CheckCompactVoice(Document *doc)
 {
 	/* If the voices are already continuous, there's nothing to do. */
 	
-	if (CheckContinVoice(doc)) return false;
+	if (CheckContinVoice(doc)) return False;
 
-	return true;
+	return True;
 }
 
 
@@ -441,8 +441,8 @@ static void SetupSelRange(Document *doc, SELRANGE selRange[])
 	for (v = 1; v<=MAXVOICES; v++) {
 		GetNoteSelRange(doc, v, &vStartL, &vEndL, NOTES_ONLY);
 		if (vStartL && vEndL) {
-			startMeasL = LSSearch(vStartL, MEASUREtype, ANYONE, GO_LEFT, false);
-			endMeasL = LSSearch(vEndL, MEASUREtype, ANYONE, GO_RIGHT, false);
+			startMeasL = LSSearch(vStartL, MEASUREtype, ANYONE, GO_LEFT, False);
+			endMeasL = LSSearch(vEndL, MEASUREtype, ANYONE, GO_RIGHT, False);
 			selRange[v].startL = startMeasL;
 			selRange[v].endL = endMeasL;
 		}
@@ -480,24 +480,24 @@ void DoCompactVoices(Document *doc)
 	WaitCursor();
 	PrepareUndo(doc, doc->selStartL, U_CompactVoice, 8);		/* "Undo Remove Gaps" */
 
-	SetSpareFlags(doc->headL,doc->tailL,false);
+	SetSpareFlags(doc->headL,doc->tailL,False);
 	SetupSelRange(doc,selRange);
 
-	measL = firstMeasL = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_LEFT,false);
+	measL = firstMeasL = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_LEFT,False);
 	if (measL)
 		selStartL = measL;
 	else {
-		measL = firstMeasL = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_RIGHT,false);
+		measL = firstMeasL = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_RIGHT,False);
 		selStartL = doc->selStartL;
 	}
 
-	lastMeasL = LSSearch(doc->selEndL,MEASUREtype,ANYONE,GO_RIGHT,false);
+	lastMeasL = LSSearch(doc->selEndL,MEASUREtype,ANYONE,GO_RIGHT,False);
 	endL = lastMeasL ? lastMeasL : doc->tailL;
 	
 	/* Traverse range to be compacted measure by measure. For each measure, fill
 		in measVRange[] to indicate which voices contain selected syncs in the
 		measure and will therefore need compacting. Then compact the voices in
-		the measure for which measVRange[v] is true. */
+		the measure for which measVRange[v] is True. */
 
 	for ( ; measL && measL!=lastMeasL; measL=LinkRMEAS(measL)) {
 		GetMeasVRange(doc,measL,selRange,measVRange);
@@ -519,7 +519,7 @@ void DoCompactVoices(Document *doc)
 	FixOttavaLinks(doc,doc,doc->headL,doc->tailL);
 
 	if (doc->autoRespace)
-		RespaceBars(doc, firstMeasL, endL, 0L, false, false);
+		RespaceBars(doc, firstMeasL, endL, 0L, False, False);
 	else
 		InvalMeasures(firstMeasL, endL, ANYONE);
 
@@ -529,11 +529,11 @@ void DoCompactVoices(Document *doc)
 
 	DeselRange(doc, selStartL, endL);
 	doc->selStartL = doc->selEndL = endL;
-	MEAdjustCaret(doc,true);
+	MEAdjustCaret(doc,True);
 	return;
 
 broken:
-	DisableUndo(doc,true);
+	DisableUndo(doc,True);
 	CVDisposeArrays();
 }
 
@@ -570,7 +570,7 @@ static Boolean SDCVComputePlayTimes(Document *doc, SELRANGE  /*selRange*/[],
 	
 			notes=0;
 			totalGap = gapTime = 0L;
-			firstNote = true;
+			firstNote = True;
 			
 			/* Traverse all syncs in the measure. Determine if there is a gap;
 				if there is, reduce the time of the sync after the gap by the
@@ -615,11 +615,11 @@ static Boolean SDCVComputePlayTimes(Document *doc, SELRANGE  /*selRange*/[],
 	/* Sort the pDurArray in order of increasing pTimes. */
 
 	CVSortPTimes(nInMeas, MAXVOICES+1);
-	return true;
+	return True;
 	
 broken:
 	NoMoreMemory();
-	return false;
+	return False;
 }
 
 
@@ -638,11 +638,11 @@ void SetDurCptV(Document *doc)
 	
 	if (!CheckCompactVoice(doc)) return;
 
-	SetSpareFlags(doc->headL,doc->tailL,false);
+	SetSpareFlags(doc->headL,doc->tailL,False);
 	SetupSelRange(doc,selRange);
 
-	measL = firstMeasL = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_LEFT,false);
-	lastMeasL = LSSearch(doc->selEndL,MEASUREtype,ANYONE,GO_RIGHT,false);
+	measL = firstMeasL = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_LEFT,False);
+	lastMeasL = LSSearch(doc->selEndL,MEASUREtype,ANYONE,GO_RIGHT,False);
 	
 	/* Return if before the first measure of the score. Should not be able to get
 		here, for if selStartL is before the first measure of the score, the selRange
@@ -654,7 +654,7 @@ void SetDurCptV(Document *doc)
 	/* Traverse range to be compacted measure by measure. For each measure,
 		fill in measVRange[] to indicate which voices contain selected syncs
 		in the measure, and will need compacting. Then compact the voices
-		in the measure for which measVRange[v] is true. Compact introduced
+		in the measure for which measVRange[v] is True. Compact introduced
 		gaps between the first and last notes whose duration was modified. */
 
 	for ( ; measL && measL!=lastMeasL; measL=LinkRMEAS(measL)) {
@@ -691,17 +691,17 @@ Boolean CompactVoices(Document *doc)
 	SELRANGE		selRange[MAXVOICES+1];
 	LINK			measL,firstMeasL,lastMeasL,endL;
 
-	SetSpareFlags(doc->headL,doc->tailL,false);
+	SetSpareFlags(doc->headL,doc->tailL,False);
 	SetupSelRange(doc,selRange);
 
-	measL = firstMeasL = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_LEFT,false);
-	lastMeasL = LSSearch(doc->selEndL,MEASUREtype,ANYONE,GO_RIGHT,false);
+	measL = firstMeasL = LSSearch(doc->selStartL,MEASUREtype,ANYONE,GO_LEFT,False);
+	lastMeasL = LSSearch(doc->selEndL,MEASUREtype,ANYONE,GO_RIGHT,False);
 	endL = lastMeasL ? lastMeasL : doc->tailL;
 	
 	/* Traverse range to be compacted measure by measure. For each measure,
 		fill in measVRange[] to indicate which voices contain selected syncs
 		in the measure, and will need compacting. Then compact the voices
-		in the measure for which measVRange[v] is true. */
+		in the measure for which measVRange[v] is True. */
 
 	for ( ; measL && measL!=lastMeasL; measL=LinkRMEAS(measL)) {
 		GetMeasVRange(doc,measL,selRange,measVRange);
@@ -724,9 +724,9 @@ Boolean CompactVoices(Document *doc)
 
 	FixTimeStamps(doc,firstMeasL,endL);
 	
-	return true;
+	return True;
 	
 broken:
 	CVDisposeArrays();
-	return false;
+	return False;
 }

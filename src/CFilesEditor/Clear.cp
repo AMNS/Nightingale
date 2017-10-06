@@ -29,18 +29,18 @@ void SelRangeCases(Document *doc, Boolean *hasClef, Boolean *hasKS, Boolean *has
 {
 	LINK pL;
 
-	*hasClef = *hasKS = *hasTS = false;
+	*hasClef = *hasKS = *hasTS = False;
 	for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
-		if (ClefTYPE(pL)) *hasClef = true;
-		else if (KeySigTYPE(pL)) *hasKS = true;
-		else if (TimeSigTYPE(pL)) *hasTS = true;
+		if (ClefTYPE(pL)) *hasClef = True;
+		else if (KeySigTYPE(pL)) *hasKS = True;
+		else if (TimeSigTYPE(pL)) *hasTS = True;
 	}
 	*befFirst = BeforeFirstMeas(doc->selStartL);
 	if (*befFirst) {
-		*hasPRelGraphic = false;
+		*hasPRelGraphic = False;
 		for (pL = doc->headL; !MeasureTYPE(pL); pL = RightLINK(pL))
 			if (LinkSEL(pL) && GraphicTYPE(pL))
-				{ *hasPRelGraphic = true; break; }
+				{ *hasPRelGraphic = True; break; }
 	}
 }
 
@@ -51,31 +51,31 @@ static void RespaceAfterDelete(Document *doc, LINK prevSelL)
 
 	if (doc->autoRespace) {
 		resFact = RESFACTOR*(long)doc->spacePercent;
-		RespaceBars(doc, prevSelL, doc->selEndL, resFact, false, false);
+		RespaceBars(doc, prevSelL, doc->selEndL, resFact, False, False);
 	}
 }
 
 
-/* Return true if pL is between firstL and lastL (including firstL, excluding lastL). */
+/* Return True if pL is between firstL and lastL (including firstL, excluding lastL). */
 
 static Boolean IsBetween(LINK node, LINK firstL, LINK lastL)
 {
 	LINK pL;
 
 	if (firstL==lastL)										/* Empty range. */
-		return false;
+		return False;
 	if (IsAfter(lastL, firstL))								/* Backwards range. */
-		return false;
+		return False;
 	for (pL=firstL; pL!=lastL; pL=RightLINK(pL))
-		if (node==pL) return true;							/* Node in range. */
+		if (node==pL) return True;							/* Node in range. */
 		
-	return false;
+	return False;
 }
 
 
 /* This can add a call to InvalObject (and if needed, a slot for the objType inside
 InvalObject) for any object which isn't erased completely when extending outside
-the systemRect. after should be true if the ranges are to be invalled for objects
+the systemRect. after should be True if the ranges are to be invalled for objects
 extending beyond the selRange. */
 
 static void InvalObjRanges(Document *doc, LINK startL, LINK endL, Boolean after)
@@ -86,7 +86,7 @@ static void InvalObjRanges(Document *doc, LINK startL, LINK endL, Boolean after)
 		switch (ObjLType(pL)) {
 			case SLURtype:
 				if (after || IsBetween(SlurLASTSYNC(pL),doc->selStartL,doc->selEndL))
-					InvalObject(doc,pL,false);
+					InvalObject(doc,pL,False);
 				break;
 			case BEAMSETtype:
 				if (after || IsBetween(LastInBeam(pL),doc->selStartL,doc->selEndL))
@@ -110,11 +110,11 @@ static void InvalObjRanges(Document *doc, LINK startL, LINK endL, Boolean after)
 				break;
 			case GRAPHICtype:
 				if (after)
-					InvalObject(doc,pL,false);
+					InvalObject(doc,pL,False);
 				break;
 			case TEMPOtype:	
 				if (after)
-					InvalObject(doc,pL,false);
+					InvalObject(doc,pL,False);
 				break;
 			case ENDINGtype:
 				firstL = EndingFIRSTOBJ(pL);
@@ -142,13 +142,13 @@ static void ExtendInvalRange(Document *doc)
 
 	InvalMeasures(doc->selStartL,doc->selEndL,ANYONE);
 
-	sysL = EitherSearch(doc->selStartL,SYSTEMtype,ANYONE,GO_LEFT,false);
+	sysL = EitherSearch(doc->selStartL,SYSTEMtype,ANYONE,GO_LEFT,False);
 
 	/* Inval ranges for all objects extending into the range to be deleted. */
-	InvalObjRanges(doc,sysL,doc->selStartL,false);
+	InvalObjRanges(doc,sysL,doc->selStartL,False);
 
 	/* Inval ranges for all objects extending beyond the range to be deleted. */
-	InvalObjRanges(doc,doc->selStartL,doc->selEndL,true);
+	InvalObjRanges(doc,doc->selStartL,doc->selEndL,True);
 }
 
 
@@ -161,8 +161,8 @@ static void InvalBefFirst(Document *doc, LINK startL)
 	DRect sysRect;
 	Rect r; 
 	
-	sysL = EitherSearch(startL,SYSTEMtype,ANYONE,GO_LEFT,false);
-	measL = LSSearch(startL,MEASUREtype,ANYONE,GO_RIGHT,false);
+	sysL = EitherSearch(startL,SYSTEMtype,ANYONE,GO_LEFT,False);
+	measL = LSSearch(startL,MEASUREtype,ANYONE,GO_RIGHT,False);
 
 	sysRect = SystemRECT(sysL);
 	sysRect.right = sysRect.left + LinkXD(measL);
@@ -207,13 +207,13 @@ static void InvalForClear(Document *doc, LINK prevSelL, Boolean hasClef, Boolean
 }
 
 
-/* Return true if we actually Clear anything, false if not. */
+/* Return True if we actually Clear anything, False if not. */
 
 Boolean Clear(Document *doc)
 {
 	LINK prevSelL, pL;
 	Boolean hasClef,hasKS,hasTS,befFirst,hasPgRelGraphic, dontResp;		/* for special cases */
-	Boolean delMeas, anyStillSel, deselAnyMeas, didClear=false;
+	Boolean delMeas, anyStillSel, deselAnyMeas, didClear=False;
 
    MEHideCaret(doc);
 
@@ -227,11 +227,11 @@ Boolean Clear(Document *doc)
 		delMeas = (CautionAdvise(CLEAR_BARS_ALRT)==OK);
 		if (delMeas) SelPartlySelMeasSubobjs(doc);
 		else {
-			anyStillSel = false;
+			anyStillSel = False;
 			deselAnyMeas = DeselPartlySelMeasSubobjs(doc);
 			if (deselAnyMeas) {
 				for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
-					if (LinkSEL(pL)) { anyStillSel = true; break; }
+					if (LinkSEL(pL)) { anyStillSel = True; break; }
 				if (!anyStillSel) {
 					doc->selEndL = doc->selStartL;
 					goto Cleanup;
@@ -248,9 +248,9 @@ Boolean Clear(Document *doc)
 
 	/* Find the rightmost LINK before the selection that certainly won't be deleted. */
 
-	prevSelL = FirstValidxd(LeftLINK(doc->selStartL), true);
-	DeleteSelection(doc, true, &dontResp);							/* true to only hide init clef,keysig,timesig */
-	didClear = true;
+	prevSelL = FirstValidxd(LeftLINK(doc->selStartL), True);
+	DeleteSelection(doc, True, &dontResp);							/* True to only hide init clef,keysig,timesig */
+	didClear = True;
 
 	if (MeasureTYPE(prevSelL))
 		prevSelL = RightLINK(prevSelL);
@@ -261,7 +261,7 @@ Boolean Clear(Document *doc)
 
  	InvalForClear(doc, prevSelL, hasClef, hasKS, hasTS, befFirst, hasPgRelGraphic);
 Cleanup:
-	MEAdjustCaret(doc, true);
+	MEAdjustCaret(doc, True);
 	return didClear;
 }
 

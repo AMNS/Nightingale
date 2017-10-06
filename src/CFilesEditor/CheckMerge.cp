@@ -58,11 +58,11 @@ static UserList list2;
 static ModalFilterUPP dlogFilterUPP;
 
 
-/* Display the CheckMerge dialog.  Return true if OK, false if CANCEL or error. */
+/* Display the CheckMerge dialog.  Return True if OK, False if CANCEL or error. */
 
 short DoChkMergeDialog(Document *doc)
 	{
-		short itemHit,okay,keepGoing=true;
+		short itemHit,okay,keepGoing=True;
 		register DialogPtr dlog;
 		GrafPtr oldPort;
 
@@ -70,7 +70,7 @@ short DoChkMergeDialog(Document *doc)
 		
 		GetPort(&oldPort);
 		dlog = OpenThisDialog(doc);
-		if (dlog == NULL) return(false);
+		if (dlog == NULL) return(False);
 
 		/* Entertain filtered user events until dialog is dismissed */
 		
@@ -99,7 +99,7 @@ short DoChkMergeDialog(Document *doc)
 
 static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	{
-		Boolean ans=false,doHilite=false; WindowPtr w;
+		Boolean ans=False,doHilite=False; WindowPtr w;
 		short type,ch; Handle hndl; Rect box;
 		
 		w = (WindowPtr)(evt->message);
@@ -108,7 +108,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				if (w == GetDialogWindow(dlog)) {
 					/* Update our dialog contents */
 					DoDialogUpdate(dlog);
-					ans = true; *itemHit = 0;
+					ans = True; *itemHit = 0;
 					}
 				 else {
 					}
@@ -131,7 +131,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 			case keyDown:
 				if ((ch=(unsigned char)evt->message)=='\r' || ch==CH_ENTER) {
 					*itemHit = OK_ITEM;
-					doHilite = ans = true;
+					doHilite = ans = True;
 					}
 				 else if (evt->modifiers & cmdKey) {
 					ch = (unsigned char)evt->message;
@@ -172,10 +172,10 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 							break;
 						case '.':
 							*itemHit = CANCEL_ITEM;
-							doHilite = true;
+							doHilite = True;
 							break;
 						}
-					ans = true;		/* Other cmd-chars ignored */
+					ans = True;		/* Other cmd-chars ignored */
 					}
 				break;
 			}
@@ -197,7 +197,7 @@ Check if it's in some user item, and convert to itemHit if appropriate. */
 
 static Boolean CheckUserItems(Point /*where*/, short */*itemHit*/)
 	{
-		return(false);
+		return(False);
 	}
 
 
@@ -211,7 +211,7 @@ static void DoDialogUpdate(DialogPtr dlog)
 		BeginUpdate(GetDialogWindow(dlog));
 
 		UpdateDialogVisRgn(dlog);
-		FrameDefault(dlog,BUT1_OK,true);
+		FrameDefault(dlog,BUT1_OK,True);
 		FrameRect(&list2.bounds);
 		LUpdateDVisRgn(dlog,list2.hndl);
 
@@ -284,7 +284,7 @@ Returns whether or not the dialog should be closed (keepGoing). */
 
 static short DoDialogItem(DialogPtr dlog, short itemHit)
 	{
-		short okay=false,keepGoing=true,val;
+		short okay=False,keepGoing=True,val;
 		Str255 str;
 
 		if (itemHit<1 || itemHit>=LASTITEM)
@@ -292,7 +292,7 @@ static short DoDialogItem(DialogPtr dlog, short itemHit)
 
 		switch(itemHit) {
 			case BUT1_OK:
-				keepGoing = false; okay = true;
+				keepGoing = False; okay = True;
 				break;
 			case LIST2:
 				/*
@@ -311,12 +311,12 @@ static short DoDialogItem(DialogPtr dlog, short itemHit)
 	}
 
 
-/* Pull values out of dialog items and deliver true if any of them are
-illegal or inconsistent; otherwise deliver false. */
+/* Pull values out of dialog items and deliver True if any of them are
+illegal or inconsistent; otherwise deliver False. */
 
 static short AnyBadValues(DialogPtr /*dlog*/)
 	{
-		return(false);
+		return(False);
 	}
 
 /* -------------------------------------------------------------------------------- */
@@ -352,9 +352,9 @@ static void GetChkMergeData(Document *doc, UserList *l)
 			clipVInfo[v].clipEndTime = -1L;
 			clipVInfo[v].firstStf = -1;
 			clipVInfo[v].lastStf = -1;
-			clipVInfo[v].singleStf = true;
-			clipVInfo[v].hasV = false;
-			clipVInfo[v].vBad = false;
+			clipVInfo[v].singleStf = True;
+			clipVInfo[v].hasV = False;
+			clipVInfo[v].vBad = False;
 		}
 
 		stfDiff = CheckMerge1(doc,clipVInfo);
@@ -381,8 +381,8 @@ static void GetChkMergeData(Document *doc, UserList *l)
 
 
 /* Build a new list in given user item box of dialog, dlog, with cell height,
-csize.  If success, delivers true; if couldn't allocate ListMgr list (no more memory
-or whatever), delivers false. */
+csize.  If success, delivers True; if couldn't allocate ListMgr list (no more memory
+or whatever), delivers False. */
 
 static short BuildList(Document *doc, DialogPtr dlog, short item, short csize, UserList *l)
 	{
@@ -403,33 +403,33 @@ static short BuildList(Document *doc, DialogPtr dlog, short item, short csize, U
 		l->cSize.v = csize > 0 ? csize : 1;
 		l->cSize.h = l->content.right - l->content.left;
 
-		l->hndl = LNew(&l->content,&l->dataBounds,l->cSize,0,GetDialogWindow(dlog),false,
-						false,false,true);
-		if (!l->hndl) return false;
+		l->hndl = LNew(&l->content,&l->dataBounds,l->cSize,0,GetDialogWindow(dlog),False,
+						False,False,True);
+		if (!l->hndl) return False;
 
 		(*l->hndl)->selFlags = lOnlyOne;		/* Or whatever */
 		
 		GetChkMergeData(doc,l);
 
 		l->cell.v = 0;
-		LSetSelect(true,l->cell,l->hndl);
+		LSetSelect(True,l->cell,l->hndl);
 		EraseRect(&l->content);
 		InvalWindowRect(doc->theWindow,&l->bounds);
-		LSetDrawingMode(true,l->hndl);
+		LSetDrawingMode(True,l->hndl);
 
-		return(true);
+		return(True);
 	}
 
 
-/* Do whatever when user double clicks (opens) on a list cell.  Delivers true or
-false according to whether any cell was selected or not. */
+/* Do whatever when user double clicks (opens) on a list cell.  Delivers True or
+False according to whether any cell was selected or not. */
 
 static short DoOpenCell(UserList *l, StringPtr buf, short *len)
 	{
 		short ans;
 
 		l->cell.h = l->cell.v = 0;
-		ans = LGetSelect(true,&l->cell,l->hndl);
+		ans = LGetSelect(True,&l->cell,l->hndl);
 		if (ans) {
 			LGetCell((Ptr)buf,len,l->cell,l->hndl);
 			/* Got data for first selected cell: do whatever with it */

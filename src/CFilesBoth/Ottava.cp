@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
 
 	DoOttava				DoRemoveOttava			GetNoteyd
 	SetOttavaYPos			CreateOTTAVA			UnOttava
@@ -35,7 +35,7 @@ static LINK HasOctAcrossPt(Document *, Point, short);
 static LINK HasGROctAcrossPt(Document *, Point, short);
 
 
-/* -------------------------------------------------------------------- DoOttava -- */
+/* -------------------------------------------------------------------------- DoOttava -- */
 /* Put an octave sign around the selection. */
 
 void DoOttava(Document *doc)

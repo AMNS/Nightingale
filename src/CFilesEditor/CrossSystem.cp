@@ -47,23 +47,23 @@ static Boolean MakeSlurCrossSys(Document *doc, LINK pL, LINK thisLastObj,
 	/* Duplicate the slur and insert it on the second system immediately after
 		that system's first invis measure */
 
-	otherSlurL = DuplicateObject(SLURtype, pL, false, doc, doc, false);
-	if (!otherSlurL) { NoMoreMemory(); return false; }
-	sysL = LSSearch(otherLastObj,SYSTEMtype,ANYONE,GO_LEFT,false);
-	firstMeasL = LSSearch(sysL,MEASUREtype,ANYONE,GO_RIGHT,false);
+	otherSlurL = DuplicateObject(SLURtype, pL, False, doc, doc, False);
+	if (!otherSlurL) { NoMoreMemory(); return False; }
+	sysL = LSSearch(otherLastObj,SYSTEMtype,ANYONE,GO_LEFT,False);
+	firstMeasL = LSSearch(sysL,MEASUREtype,ANYONE,GO_RIGHT,False);
 	InsNodeInto(otherSlurL, RightLINK(firstMeasL));
 
-	SlurCrossSYS(pL) = true;
+	SlurCrossSYS(pL) = True;
 	SlurLASTSYNC(pL) = thisLastObj;
-	SetAllSlursShape(doc, pL, true);
+	SetAllSlursShape(doc, pL, True);
 	
-	LinkSOFT(otherSlurL) = true;
-	SlurCrossSYS(otherSlurL) = true;
+	LinkSOFT(otherSlurL) = True;
+	SlurCrossSYS(otherSlurL) = True;
 	SlurFIRSTSYNC(otherSlurL) = otherFirstObj;
 	SlurLASTSYNC(otherSlurL) = otherLastObj;
-	SetAllSlursShape(doc, otherSlurL, true);
+	SetAllSlursShape(doc, otherSlurL, True);
 
-	return true;
+	return True;
 }
 
 /* Given the two pieces of a cross-system slur that should no longer be cross-system
@@ -75,8 +75,8 @@ to another, e.g., Reformat, MoveBarsUp/Down. */
 static void MakeSlurNoncrossSys(Document *doc, LINK pL, LINK otherSlurL)
 {
 	SlurLASTSYNC(pL) = SlurLASTSYNC(otherSlurL);
-	SlurCrossSYS(pL) = false;
-	SetAllSlursShape(doc, pL, true);
+	SlurCrossSYS(pL) = False;
+	SetAllSlursShape(doc, pL, True);
 	DeleteNode(doc, otherSlurL);
 }
 
@@ -94,15 +94,15 @@ static void MoveSlurEnd(short voice, LINK oldSyncL, LINK newSyncL, Boolean isTie
 	aNoteL = FirstSubLINK(oldSyncL);
 	for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 		if (NoteVOICE(aNoteL)==voice) {
-			if (isTie) NoteTIEDL(aNoteL) = false;
-			else       NoteSLURREDL(aNoteL) = false;
+			if (isTie) NoteTIEDL(aNoteL) = False;
+			else       NoteSLURREDL(aNoteL) = False;
 		}
 	}
 	
 	/* For the new right-end Sync/voice MainNote, set slurred- or tied-left flag. */
 	aNoteL = FindMainNote(newSyncL, voice);
-	if (isTie) NoteTIEDL(aNoteL) = true;
-	else       NoteSLURREDL(aNoteL) = true;
+	if (isTie) NoteTIEDL(aNoteL) = True;
+	else       NoteSLURREDL(aNoteL) = True;
 }
 
 /* --------------------------------------------------------------- FixCrossSysSlurs -- */
@@ -138,13 +138,13 @@ short FixCrossSysSlurs(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 					 * ends in the system after the one it begins in, create its other
 					 *	piece, and make this piece cross-system.
 					 */
-			 		firstSys = LSSearch(SlurFIRSTSYNC(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
-			 		lastSys = LSSearch(SlurLASTSYNC(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
+			 		firstSys = LSSearch(SlurFIRSTSYNC(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
+			 		lastSys = LSSearch(SlurLASTSYNC(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
 					if (firstSys!=lastSys) {
-						slurRemoved = slurTruncated = false;
+						slurRemoved = slurTruncated = False;
 						secondSys = LinkRSYS(firstSys);
 						thisLastObj = firstSys;
-						otherFirstObj = LSSearch(secondSys,MEASUREtype,ANYONE,GO_RIGHT,false);
+						otherFirstObj = LSSearch(secondSys,MEASUREtype,ANYONE,GO_RIGHT,False);
 				 		
 				 		/*
 				 		 * If slur ends on the system after <firstSys>, no problem. Otherwise
@@ -163,16 +163,16 @@ short FixCrossSysSlurs(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 							otherLastObj = SlurLASTSYNC(pL);
 						else {
 							thirdSys = LinkRSYS(secondSys);					/* must exist */
-							otherLastObj = LVSearch(thirdSys, SYNCtype, v, GO_LEFT, false);
-							lastObjSys = LSSearch(otherLastObj,SYSTEMtype,ANYONE,GO_LEFT,false);
+							otherLastObj = LVSearch(thirdSys, SYNCtype, v, GO_LEFT, False);
+							lastObjSys = LSSearch(otherLastObj,SYSTEMtype,ANYONE,GO_LEFT,False);
 
 							/* Pathological case: delete the slur */
 							if (lastObjSys!=secondSys) {
 								DeleteXSysSlur(doc, pL);
-								slurRemoved = true;
+								slurRemoved = True;
 							}
 							else {
-								slurTruncated = true;
+								slurTruncated = True;
 								thisMeas = GetMeasNum(doc, pL);
 								truncFirstMeas = n_min(thisMeas, truncFirstMeas);
 								truncLastMeas = n_max(thisMeas, truncLastMeas);
@@ -205,7 +205,7 @@ short FixCrossSysSlurs(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 						/* It should stay cross-system. Update its System LINK. */
 						
 						thisLastObj = LSSearch(SlurFIRSTSYNC(pL), SYSTEMtype, ANYONE,
-				 										GO_LEFT, false);
+				 										GO_LEFT, False);
 						SlurLASTSYNC(pL) = thisLastObj;						
 					}
 				}
@@ -220,9 +220,9 @@ short FixCrossSysSlurs(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 					 * the one the first piece is in.
 					 */
 					 thisFirstObj = LSSearch(SlurLASTSYNC(pL), SYSTEMtype, ANYONE, GO_LEFT,
-					 									false);
+					 									False);
 					 thisFirstObj = LSSearch(thisFirstObj,MEASUREtype, ANYONE, GO_RIGHT,
-					 									false);
+					 									False);
 					 SlurFIRSTSYNC(pL) = thisFirstObj;
 				}
 			}
@@ -247,16 +247,16 @@ static Boolean MakeBeamCrossSys(Document *doc, LINK pL)
 	qL,prevL,qL2,prevL2,noteBeamL,beamL1,beamL2;
 	short i,v,nInBeamOrig,nInBeam1,nInBeam2;
 	PANOTEBEAM aNoteBeam;
-	Boolean truncate=false;
+	Boolean truncate=False;
 	
 	firstSyncL = FirstInBeam(pL);
 	lastSyncL = LastInBeam(pL);
 	v = BeamVOICE(pL);
 	nInBeamOrig = LinkNENTRIES(pL);
 
- 	firstSys = LSSearch(FirstInBeam(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
- 	lastSys = LSSearch(LastInBeam(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
-	if (firstSys==lastSys) return false;
+ 	firstSys = LSSearch(FirstInBeam(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
+ 	lastSys = LSSearch(LastInBeam(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
+	if (firstSys==lastSys) return False;
 	secondSys = LinkRSYS(firstSys);
 
 	/*
@@ -285,7 +285,7 @@ static Boolean MakeBeamCrossSys(Document *doc, LINK pL)
 	}
 	nInBeam2 = i;
 
-	RemoveBeam(doc, pL, v, false);
+	RemoveBeam(doc, pL, v, False);
 
 	/*
 	 * For now, don't rebeam either System unless it has at least 2 beamable notes.
@@ -294,14 +294,14 @@ static Boolean MakeBeamCrossSys(Document *doc, LINK pL)
 	 */
 	if (nInBeam1>1) {
 		beamL1 = CreateNonXSysBEAMSET(doc, firstSyncL, RightLINK(prevL), v, nInBeam1,
-										false, false, doc->voiceTab[v].voiceRole);
+										False, False, doc->voiceTab[v].voiceRole);
 		if (nInBeam2>1) {
 			beamL2 = CreateNonXSysBEAMSET(doc, qL, RightLINK(prevL2), v, nInBeam2,
-											false, false, doc->voiceTab[v].voiceRole);
-			BeamCrossSYS(beamL1) = true;
-			BeamFirstSYS(beamL1) = true;
-			BeamCrossSYS(beamL2) = true;
-			BeamFirstSYS(beamL2) = false;
+											False, False, doc->voiceTab[v].voiceRole);
+			BeamCrossSYS(beamL1) = True;
+			BeamFirstSYS(beamL1) = True;
+			BeamCrossSYS(beamL2) = True;
+			BeamFirstSYS(beamL2) = False;
 		}
 		else
 			;
@@ -323,13 +323,13 @@ static LINK MakeBeamNoncrossSys(Document *doc, LINK pL, LINK otherBeamL)
 	newFirstSyncL = FirstInBeam(pL);
 	newLastSyncL = LastInBeam(otherBeamL);
 
-	RemoveBeam(doc, pL, v, false);	
-	RemoveBeam(doc, otherBeamL, v, false);
+	RemoveBeam(doc, pL, v, False);	
+	RemoveBeam(doc, otherBeamL, v, False);
 		
-	nInBeam = CountBeamable(doc, newFirstSyncL, RightLINK(newLastSyncL), v, false);
+	nInBeam = CountBeamable(doc, newFirstSyncL, RightLINK(newLastSyncL), v, False);
 	if (nInBeam>=2)														/* Should always succeed */
 		beamL = CreateBEAMSET(doc, newFirstSyncL, RightLINK(newLastSyncL), v,
-										nInBeam, false, doc->voiceTab[v].voiceRole);
+										nInBeam, False, doc->voiceTab[v].voiceRole);
 	
 	return beamL;
 }
@@ -354,16 +354,16 @@ static LINK RebeamXStf(Document *doc, LINK beamL1, LINK beamL2)
 	lastSyncL2 = LastInBeam(beamL2);
 
 	if (GraceBEAM(beamL1)) {
-		RemoveGRBeam(doc, beamL1, voice, false);
-		RemoveGRBeam(doc, beamL2, voice, false);
+		RemoveGRBeam(doc, beamL1, voice, False);
+		RemoveGRBeam(doc, beamL2, voice, False);
 		return CreateGRBEAMSET(doc, firstSyncL1, RightLINK(lastSyncL2), voice,
-										nInBeam1+nInBeam2, false, false);
+										nInBeam1+nInBeam2, False, False);
 	}
 
-	RemoveBeam(doc, beamL1, voice, false);
-	RemoveBeam(doc, beamL2, voice, false);
+	RemoveBeam(doc, beamL1, voice, False);
+	RemoveBeam(doc, beamL2, voice, False);
 	return CreateBEAMSET(doc, firstSyncL1, RightLINK(lastSyncL2), voice,
-									nInBeam1+nInBeam2, false,
+									nInBeam1+nInBeam2, False,
 									doc->voiceTab[voice].voiceRole);
 }
 
@@ -383,7 +383,7 @@ static Boolean UpdateCrossSysBeam(Document *doc, LINK pL, LINK otherBeamL)
 		aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
 		if (!SameSystem(pL, aNoteBeam->bpSync)) {
 			RebeamXStf(doc, pL, otherBeamL);
-			return false;
+			return False;
 		}
 	}
 	
@@ -393,11 +393,11 @@ static Boolean UpdateCrossSysBeam(Document *doc, LINK pL, LINK otherBeamL)
 		aNoteBeam = GetPANOTEBEAM(aNoteBeamL);
 		if (!SameSystem(otherBeamL, aNoteBeam->bpSync)) {
 			RebeamXStf(doc, pL, otherBeamL);
-			return false;
+			return False;
 		}
 	}
 	
-	return true;
+	return True;
 }
 
 
@@ -451,7 +451,7 @@ short FixCrossSysBeams(Document *doc, LINK startL, LINK endL, short *pTruncFirst
 				   pieces hasn't changed, i.e., that Syncs in the 1st piece don't belong
 				   in the 2nd and vice-versa. */
 				   
-					otherBeamL = LVSearch(RightLINK(pL), BEAMSETtype, v, GO_RIGHT, false);
+					otherBeamL = LVSearch(RightLINK(pL), BEAMSETtype, v, GO_RIGHT, False);
 					if (!otherBeamL)
 						MayErrMsg("FixCrossSysBeams: can't find 2nd piece for Beamset at %ld",
 									(long)pL);
@@ -505,12 +505,12 @@ short FixCrossSysHairpins(Document *doc, LINK startL, LINK endL, short *pTruncFi
 			 * set its lastSync to the last Sync on its staff of the first system, and
 			 * set its endxd so it extends to just short of the right edge of the system.
 			 */
-			 firstSys = LSSearch(DynamFIRSTSYNC(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
-			 lastSys = LSSearch(DynamLASTSYNC(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
+			 firstSys = LSSearch(DynamFIRSTSYNC(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
+			 lastSys = LSSearch(DynamLASTSYNC(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
 			if (firstSys!=lastSys) {
 				dynamL = FirstSubLINK(pL);
 				staff = DynamicSTAFF(dynamL);
-				lastSync = LSSearch(LinkRSYS(firstSys), SYNCtype, staff, GO_LEFT, false);
+				lastSync = LSSearch(LinkRSYS(firstSys), SYNCtype, staff, GO_LEFT, False);
 				DynamLASTSYNC(pL) = lastSync;
 				endxd = StaffLength(lastSync)-pt2d(4)-SysRelxd(lastSync);
  				aDynamic = GetPADYNAMIC(dynamL);
@@ -554,8 +554,8 @@ short FixCrossSysDrawObjs(Document *doc, LINK startL, LINK endL, short *pTruncFi
 			 * first system, and set its endxd so it extends to just short of the right
 			 * edge of the system.
 			 */
-			 firstSys = LSSearch(GraphicFIRSTOBJ(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
-			 lastSys = LSSearch(GraphicLASTOBJ(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
+			 firstSys = LSSearch(GraphicFIRSTOBJ(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
+			 lastSys = LSSearch(GraphicLASTOBJ(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
 			if (firstSys!=lastSys) {
 				staff = GraphicSTAFF(pL);
 				lastObj = LeftLINK(LinkRSYS(firstSys));
@@ -608,7 +608,7 @@ static void MakeOctCrossSys(Document *doc, LINK octL, LINK firstSys,
 	RemoveOctOnStf(doc, octL, firstSyncL, RightLINK(lastSyncL), s);
 
 	if (nInOttava1>0) CreateOTTAVA(doc, firstSyncL, RightLINK(prevL), s,
-											nInOttava1, octType, false, false);
+											nInOttava1, octType, False, False);
 }
 
 
@@ -633,8 +633,8 @@ short FixCrossSysOttavas(Document *doc, LINK startL, LINK endL, short *pTruncFir
 			/*
 			 *	If this Ottava crosses systems, clip it at the end of its first system.
 			 */
-			firstSys = LSSearch(FirstInOttava(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
-			lastSys = LSSearch(LastInOttava(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
+			firstSys = LSSearch(FirstInOttava(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
+			lastSys = LSSearch(LastInOttava(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
 			if (firstSys!=lastSys) {
 				MakeOctCrossSys(doc, pL, firstSys, lastSys);
 				thisMeas = GetMeasNum(doc, pL);
@@ -642,7 +642,7 @@ short FixCrossSysOttavas(Document *doc, LINK startL, LINK endL, short *pTruncFir
 				truncLastMeas = n_max(thisMeas, truncLastMeas);
 				nTrunc++;
 				pOttava = GetPOTTAVA(pL);
-				pOttava->noCutoff = true;
+				pOttava->noCutoff = True;
 			}
 		}
 	}
@@ -678,16 +678,16 @@ short FixCrossSysEndings(Document *doc, LINK startL, LINK endL, short *pTruncFir
 			 * set its lastSync to the last Sync on its staff of the first system, and
 			 * set its endxd so it extends to just short of the right edge of the system.
 			 */
-			 firstSys = LSSearch(EndingFIRSTOBJ(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
-			 lastSys = LSSearch(EndingLASTOBJ(pL), SYSTEMtype, ANYONE, GO_LEFT, false);
+			 firstSys = LSSearch(EndingFIRSTOBJ(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
+			 lastSys = LSSearch(EndingLASTOBJ(pL), SYSTEMtype, ANYONE, GO_LEFT, False);
 			if (firstSys!=lastSys) {
 				staff = EndingSTAFF(pL);
-				lastSync = LSSearch(LinkRSYS(firstSys), SYNCtype, staff, GO_LEFT, false);
+				lastSync = LSSearch(LinkRSYS(firstSys), SYNCtype, staff, GO_LEFT, False);
 				EndingLASTOBJ(pL) = lastSync;
 				endxd = StaffLength(lastSync)-pt2d(4)-SysRelxd(lastSync);
 				p = GetPENDING(pL);
 				p->endxd = endxd;
-				p->noRCutoff = true;
+				p->noRCutoff = True;
 				thisMeas = GetMeasNum(doc, pL);
 				truncFirstMeas = n_min(thisMeas, truncFirstMeas);
 				truncLastMeas = n_max(thisMeas, truncLastMeas);

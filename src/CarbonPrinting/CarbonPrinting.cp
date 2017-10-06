@@ -506,7 +506,7 @@ static OSStatus SetupPagesToPrint(Document *doc, UInt32 *firstPg, UInt32 *lastPg
 
 static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 {
-	Boolean		includePostScript = false;
+	Boolean		includePostScript = False;
 	OSStatus	status;
 	CFArrayRef	supportedFormats = NULL;
 	SInt32		i, numSupportedFormats;
@@ -542,7 +542,7 @@ static Boolean IncludePostScriptInSpoolFile(PMPrintSession printSession)
 																	arrayOfGraphicsContexts, NULL);
 
 					if (status == noErr)
-						includePostScript = true;	// Enable use of PS PicComments in DrawPage.
+						includePostScript = True;	// Enable use of PS PicComments in DrawPage.
 
 					// Deallocate the array used for the list of graphics contexts.
 					CFRelease(arrayOfGraphicsContexts);

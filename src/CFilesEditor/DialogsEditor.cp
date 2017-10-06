@@ -933,7 +933,7 @@ static enum
 } E_OttavaItems;
 
 /* Determine whether to initialize the ottava dialog with OCT8va or
-OCT8vaBassa. Returns true if the average position of all notes on <selStf>
+OCT8vaBassa. Returns True if the average position of all notes on <selStf>
 in the selection range is above the staffTop. */
 
 Boolean GetOttavaAlta(Document *doc, short selStf)

@@ -20,11 +20,11 @@
 /******************************************************************************************/
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALE� PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright � 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -40,7 +40,7 @@ bottom + 6 half-lines. */
 static DDIST GetStaffLim(
 					Document *doc, LINK pL,
 					short staffn,
-					Boolean top,					/* true if getting top staff limit. */
+					Boolean top,					/* True if getting top staff limit. */
 					PCONTEXT pContext)
 {
 	DDIST blackTop, blackBottom,
@@ -70,7 +70,7 @@ void HiliteInsertNode(
 			Document *doc,
 			LINK	pL,
 			short	staffn,			/* No. of "special" staff to emphasize or NOONE */
-			Boolean	flash			/* true=flash to emphasize special staff */
+			Boolean	flash			/* True=flash to emphasize special staff */
 			)
 {
 	short		xd, xp, ypTop, ypBot;
@@ -83,8 +83,8 @@ void HiliteInsertNode(
 		if (staffn==NOONE)
 			GetContext(doc, pL, 1, &context);
 		else {
-			blackTop = GetStaffLim(doc, pL, staffn, true, &context);
-			blackBottom = GetStaffLim(doc, pL, staffn, false, &context);
+			blackTop = GetStaffLim(doc, pL, staffn, True, &context);
+			blackBottom = GetStaffLim(doc, pL, staffn, False, &context);
 		}
 		xd = SysRelxd(pL)+context.systemLeft;					/* abs. origin of object */
 		
@@ -125,16 +125,16 @@ or twice. */
 
 void HiliteTwoNodesOn(Document *doc, LINK node1, LINK node2, short staffn)
 {	
-	HiliteInsertNode(doc, node1, staffn, true);							/* Hiliting on */
+	HiliteInsertNode(doc, node1, staffn, True);							/* Hiliting on */
 	/* If both ends are the same, wait, erase, wait, and draw again */ 
 	if (node1==node2) {
 		SleepTicks(HILITE_TICKS);
-		HiliteInsertNode(doc, node1, staffn, false);
+		HiliteInsertNode(doc, node1, staffn, False);
 		SleepTicks(HILITE_TICKS);
-		HiliteInsertNode(doc, node1, staffn, false);
+		HiliteInsertNode(doc, node1, staffn, False);
 	}
 	else
-		HiliteInsertNode(doc, node2, staffn, true);						/* Hiliting on */
+		HiliteInsertNode(doc, node2, staffn, True);						/* Hiliting on */
 }
 
 
@@ -153,13 +153,13 @@ void HiliteAttPoints(
 	if (!firstL) return;
 	
 	if (lastL) HiliteTwoNodesOn(doc, firstL, lastL, staffn);					/* On */
-	else	   HiliteInsertNode(doc, firstL, staffn, true);						/* On */
+	else	   HiliteInsertNode(doc, firstL, staffn, True);						/* On */
 
 	SleepTicks(HILITE_TICKS);
 	while (Button()) ;
 	
-	HiliteInsertNode(doc, firstL, staffn, false);								/* Off */
-	if (lastL && firstL!=lastL) HiliteInsertNode(doc, lastL, staffn, false);	/* Off */
+	HiliteInsertNode(doc, firstL, staffn, False);								/* Off */
+	if (lastL && firstL!=lastL) HiliteInsertNode(doc, lastL, staffn, False);	/* Off */
 }
 
 static void DebugLogPrint(char *str);
@@ -186,7 +186,7 @@ void FixCursor()
 	static long 	now, soon, nextcheck;
 	PaletteGlobals *toolPalette;
 	char			message[256];
-	Boolean			foundPalette = false;
+	Boolean			foundPalette = False;
 	
 	toolPalette = *paletteGlobals[TOOL_PALETTE];
 	
@@ -204,20 +204,20 @@ void FixCursor()
 	/* If no windows at all, use arrow */
 	
 	if (TopWindow == NULL) {
-		holdCursor = false; DebugLogPrint("1. TopWindow is null\n"); ArrowCursor(); return;
+		holdCursor = False; DebugLogPrint("1. TopWindow is null\n"); ArrowCursor(); return;
 		}
 	
 	/* If mouse over any palette, use arrow unless a tool was just chosen */
 
 	if (GetWindowKind(TopWindow) == PALETTEKIND) {
-		holdCursor = true;
+		holdCursor = True;
 		for (wp=TopPalette; wp!=NULL && GetWindowKind(wp)==PALETTEKIND; wp=GetNextWindow(wp)) {
 			RgnHandle strucRgn = NewRgn();
 			GetWindowRegion(wp, kWindowStructureRgn, strucRgn);
 			if (PtInRgn(globalpt, strucRgn)) {
 				//if (!holdCursor) ArrowCursor();
 				DisposeRgn(strucRgn);
-				foundPalette = true;
+				foundPalette = True;
 				}
 				else {
 				DisposeRgn(strucRgn);
@@ -225,7 +225,7 @@ void FixCursor()
 			}
 		}
 
-	holdCursor = false;			/* OK to change cursor back to arrow when it's over a palette */
+	holdCursor = False;			/* OK to change cursor back to arrow when it's over a palette */
 	
 	/* If no Documents, use arrow */
 	
@@ -461,7 +461,7 @@ Boolean ProgressMsg(short which,
 		
 		if (!dialogp) {
 			dialogp = GetNewDialog(MESSAGE_DLOG, NULL, BRING_TO_FRONT);
-			if (!dialogp) return false;
+			if (!dialogp) return False;
 		}
 
 		SetPort(GetDialogWindowPort(dialogp));
@@ -486,33 +486,33 @@ Boolean ProgressMsg(short which,
 	}
 
 	SetPort(oldPort);
-	return true;
+	return True;
 }
 
 
 /* --------------------------------------------------------------------- UserInterrupt -- */
-/*	Returns true if COMMAND and PERIOD (.) keys are both currently down; all other
+/*	Returns True if COMMAND and PERIOD (.) keys are both currently down; all other
 keys are ignored. FIXME: Should be internationalized! */
 
 Boolean UserInterrupt()
 {
-	if (!CmdKeyDown()) return false;
-	if (!KeyIsDown(47)) return false;
+	if (!CmdKeyDown()) return False;
+	if (!KeyIsDown(47)) return False;
 	
-	return true;
+	return True;
 }
 
 
 /* --------------------------------------------------------------- UserInterruptAndSel -- */
-/* Returns true if COMMAND and SLASH (/) keys are both currently down; all other
+/* Returns True if COMMAND and SLASH (/) keys are both currently down; all other
 keys are ignored. FIXME: Should be internationalized! */
 
 Boolean UserInterruptAndSel()
 {
-	if (!CmdKeyDown()) return false;
-	if (!KeyIsDown(44)) return false;
+	if (!CmdKeyDown()) return False;
+	if (!KeyIsDown(44)) return False;
 	
-	return true;
+	return True;
 }
 
 
@@ -521,7 +521,7 @@ Boolean UserInterruptAndSel()
 
 const char *NameHeapType(
 			short heapIndex,
-			Boolean friendly)		/* true=give user-friendly names, false=give "real" names */
+			Boolean friendly)		/* True=give user-friendly names, False=give "real" names */
 {
 	const char *ps;
 
@@ -562,7 +562,7 @@ const char *NameHeapType(
 
 const char *NameObjType(LINK pL)
 {
-	return NameHeapType(ObjLType(pL), false);
+	return NameHeapType(ObjLType(pL), False);
 }
 
 
@@ -571,7 +571,7 @@ const char *NameObjType(LINK pL)
 
 const char *NameGraphicType(
 			LINK pL,
-			Boolean friendly)		/* true=give user-friendly names, false=give "real" names */
+			Boolean friendly)		/* True=give user-friendly names, False=give "real" names */
 {
 	const char *ps;
 
@@ -620,10 +620,10 @@ short ConvertQuote(TEHandle textH, short ch)
 			if (ch=='"' || ch=='\'') {
 				n = (*textH)->selStart;
 				prev = (n > 0) ? ((unsigned char) *(*((*textH)->hText) + n-1)) : 0;
-				if (prev=='\r' || prev==' ' || prev==' ' || prev=='\t' || n==0)
-					ch = (ch=='"' ? '“' : '‘');
+				if (prev=='\r' || prev==' ' || prev=='¬†' || prev=='\t' || n==0)
+					ch = (ch=='"' ? '‚Äú' : '‚Äò');
 				 else
-					ch = (ch=='"' ? '”' : '’');
+					ch = (ch=='"' ? '‚Äù' : '‚Äô');
 				}
 		return(ch);
 	}
@@ -778,16 +778,16 @@ void TruncPopUpString(UserPopUp *p)
 		width = StringWidth(p->str);
 		if (width > space) {
 			len = *p->str;
-			width -= CharWidth('…');
+			width -= CharWidth('‚Ä¶');
 			while (len>0 && width>space)
 				width -= CharWidth(p->str[len--]);
-			p->str[++len] = '…';
+			p->str[++len] = '‚Ä¶';
 			*p->str = len;
 			}
 	}
 
 
-/* Initialise a UserPopUp data structure; return false if error. If firstChoice=0,
+/* Initialise a UserPopUp data structure; return False if error. If firstChoice=0,
 no item is initially chosen. */
 
 short InitPopUp(
@@ -809,19 +809,19 @@ short InitPopUp(
 		p->shadow = p->bounds;
 		p->shadow.right++; p->shadow.bottom++;
 		p->menu = GetMenu(p->menuID = menuID);
-		if (!p->menu) { SysBeep(1); return(false); }
+		if (!p->menu) { SysBeep(1); return(False); }
 		p->currentChoice = firstChoice;
 		TruncPopUpString(p);
 
-		return(true);
+		return(True);
 	}
 
 
-/* Invoke a popup menu; return true if new choice was made */
+/* Invoke a popup menu; return True if new choice was made */
 
 short DoUserPopUp(UserPopUp *p)
 	{
-		long choice; Point pt; short ans = false;
+		long choice; Point pt; short ans = False;
 
 		InvertRect(&p->prompt);
 		InsertMenu(p->menu,-1);
@@ -835,7 +835,7 @@ short DoUserPopUp(UserPopUp *p)
 			choice = LoWord(choice);
 			if (choice != p->currentChoice) {
 				ChangePopUpChoice(p,(short)choice);
-				ans = true;
+				ans = True;
 				}
 			}
 		return(ans);
@@ -924,12 +924,12 @@ dialog items. */
 void ShowPopUp(UserPopUp *p, short vis)
 	{
 		switch (vis)	{
-			case true:
+			case True:
 				if (p->box.left > 16000)	{
 					p->box.left -= 16384;
 					p->box.right -= 16384;}
 				break;
-			case false:
+			case False:
 				if (p->box.left < 16000)	{
 					p->box.left += 16384;
 					p->box.right += 16384;}	
@@ -952,8 +952,8 @@ void HiliteArrowKey(DialogPtr /*dlog*/, short whichKey, UserPopUp *pPopup,
 	UserPopUp *p;
 					
 	if (!*pHilitedItem) {
-		*pHilitedItem = true;
-		HilitePopUp(pPopup, true);
+		*pHilitedItem = True;
+		HilitePopUp(pPopup, True);
 	}
 	else {
 		p = pPopup;
@@ -972,7 +972,7 @@ void HiliteArrowKey(DialogPtr /*dlog*/, short whichKey, UserPopUp *pPopup,
 			if (p->str[1] == '-') newChoice += 1;		/* Skip over the dash item */ 						
 		}
 		ChangePopUpChoice (p, newChoice);
-		HilitePopUp(p,true);
+		HilitePopUp(p,True);
 	}
 }
 
@@ -1015,12 +1015,12 @@ Rect *GetQDScreenBitsBounds(Rect *bounds)
 Pattern *NGetQDGlobalsDarkGray()
 {
 	static Pattern sDkGray;
-	static Boolean once = true;
+	static Boolean once = True;
 	
 	if (once)
 	{	
 		GetQDGlobalsDarkGray(&sDkGray);
-		once = false;
+		once = False;
 	}
 	
 	return &sDkGray;
@@ -1029,12 +1029,12 @@ Pattern *NGetQDGlobalsDarkGray()
 Pattern *NGetQDGlobalsLightGray()
 {
 	static Pattern sLtGray;
-	static Boolean once = true;
+	static Boolean once = True;
 	
 	if (once)
 	{	
 		GetQDGlobalsLightGray(&sLtGray);
-		once = false;
+		once = False;
 	}
 	
 	return &sLtGray;
@@ -1043,12 +1043,12 @@ Pattern *NGetQDGlobalsLightGray()
 Pattern *NGetQDGlobalsGray()
 {
 	static Pattern sGray;
-	static Boolean once = true;
+	static Boolean once = True;
 	
 	if (once)
 	{	
 		GetQDGlobalsGray(&sGray);
-		once = false;
+		once = False;
 	}
 	
 	return &sGray;
@@ -1057,12 +1057,12 @@ Pattern *NGetQDGlobalsGray()
 Pattern *NGetQDGlobalsBlack()
 {
 	static Pattern sBlack;
-	static Boolean once = true;
+	static Boolean once = True;
 	
 	if (once)
 	{	
 		GetQDGlobalsBlack(&sBlack);
-		once = false;
+		once = False;
 	}
 	
 	return &sBlack;
@@ -1071,12 +1071,12 @@ Pattern *NGetQDGlobalsBlack()
 Pattern *NGetQDGlobalsWhite()
 {
 	static Pattern sWhite;
-	static Boolean once = true;
+	static Boolean once = True;
 	
 	if (once)
 	{	
 		GetQDGlobalsWhite(&sWhite);
-		once = false;
+		once = False;
 	}
 	
 	return &sWhite;
@@ -1375,7 +1375,7 @@ large number (not a small one!), say 999. --DAB, July 2017. */
 
 #define MIN_LOG_LEVEL LOG_NOTICE			/* Force lower levels (higher codes) to this */
 
-#define LOG_TO_STDERR false					/* Print to stderr as well as system log? */
+#define LOG_TO_STDERR False					/* Print to stderr as well as system log? */
 
 static Boolean HaveNewline(const char *str);
 
@@ -1384,18 +1384,18 @@ char inStr[1000], outStr[1000];
 static Boolean HaveNewline(const char *str)
 {
 	while (*str!='\0') {
-		if (*str=='\n') return true;
+		if (*str=='\n') return True;
 		str++;
 	}
-	return false;
+	return False;
 }
 
 
 Boolean VLogPrintf(const char *fmt, va_list argp)
 {
-	//if (strlen(inStr)+strlen(str)>=1000) return false;	FIXME: How to check for buffer overflow?
+	//if (strlen(inStr)+strlen(str)>=1000) return False;	FIXME: How to check for buffer overflow?
 	vsprintf(inStr, fmt, argp);
-	return true;
+	return True;
 }
 
 

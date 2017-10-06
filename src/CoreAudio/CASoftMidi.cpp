@@ -191,7 +191,7 @@ home:
 
 Boolean SetupSoftMIDI(Byte *activeChannel)
 {
-	Boolean debug = false;
+	Boolean debug = False;
 	
 	if (debug) {
  		//PlaySoftMIDI(0, NULL);
@@ -262,7 +262,7 @@ Boolean SetupSoftMIDI(Byte *activeChannel)
 											), home);
 	}
 	
-	require_noerr (result = AUMIDIControllerMapChannelToAU(auMidiController, -1, synthUnit, -1, true), home);
+	require_noerr (result = AUMIDIControllerMapChannelToAU(auMidiController, -1, synthUnit, -1, True), home);
 	
 home:
 	return (result == noErr);

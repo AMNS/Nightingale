@@ -51,8 +51,8 @@
 #include <Carbon.h>
 #endif
 
-#define kDoPrintOne			true
-#define kDoPrintWithPrintDialog		false
+#define kDoPrintOne			True
+#define kDoPrintWithPrintDialog		False
 
 typedef char char5200[5200];
 

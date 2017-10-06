@@ -9,7 +9,7 @@
 
 #define CLEF8_ITAL True						/* Use italic digits (normal) instead of roman for clef '8's? */
 
-#define EXPAND_WIDER true					/* Stretch text in style Expand with two blanks btwn chars., else one */
+#define EXPAND_WIDER True					/* Stretch text in style Expand with two blanks btwn chars., else one */
 
 #define STD_ACCWIDTH (9*STD_LINEHT/8)		/* Width of common accidentals (STDIST). A bit less than Ross, p.131, says. */
 #define STD_KS_ACCSPACE STD_ACCWIDTH		/* Space between accidentals in key sigs. */

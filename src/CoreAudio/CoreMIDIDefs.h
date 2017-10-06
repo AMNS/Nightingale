@@ -13,6 +13,13 @@ using namespace std;
 #define CORE_MIDIGLOBAL extern
 #endif
 
+#ifndef True
+	#define True		1
+#endif
+#ifndef False
+	#define False		0
+#endif
+
 typedef vector<MIDIUniqueID> MIDIUniqueIDVector;
 
 const MIDIUniqueID kInvalidMIDIUniqueID = 0;

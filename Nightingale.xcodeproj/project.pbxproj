@@ -24,6 +24,9 @@
 		15683E8A1F826BEA00355A40 /* CarbonStubs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683E891F826BEA00355A40 /* CarbonStubs.cp */; };
 		15683E8C1F826D0F00355A40 /* Double.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683E8B1F826D0F00355A40 /* Double.cp */; };
 		15683E9D1F8279EF00355A40 /* DrawUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683E9C1F8279EF00355A40 /* DrawUtils.cp */; };
+		15683EB21F851B3B00355A40 /* About.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683EB11F851B3B00355A40 /* About.cp */; };
+		15683EC51F851CB500355A40 /* UIFUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683EC41F851CB500355A40 /* UIFUtils.cp */; };
+		15683ED01F851D7200355A40 /* MIDIFOCmd.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683ECF1F851D7200355A40 /* MIDIFOCmd.cp */; };
 		157437C51D05153300C5A4DF /* DelAddRedAccs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157437C41D05153300C5A4DF /* DelAddRedAccs.cp */; };
 		15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */; };
 		15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B639401ECDA9E00029EDD7 /* CompactVoices.cp */; };
@@ -41,14 +44,12 @@
 		D03E6D5A0D5F9349005FD177 /* CarbonPrinting.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6D590D5F9349005FD177 /* CarbonPrinting.cp */; };
 		D03E6D710D5F9457005FD177 /* Menu.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6D700D5F9457005FD177 /* Menu.cp */; };
 		D03E6DA50D5F95C8005FD177 /* Event.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DA40D5F95C8005FD177 /* Event.cp */; };
-		D03E6DB10D5F9644005FD177 /* About.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DAE0D5F9644005FD177 /* About.cp */; };
 		D03E6DB20D5F9644005FD177 /* Context.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DAF0D5F9644005FD177 /* Context.cp */; };
 		D03E6DB30D5F9644005FD177 /* Copy.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DB00D5F9644005FD177 /* Copy.cp */; };
 		D03E6DC70D5F9720005FD177 /* CrossLinks.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DC10D5F9720005FD177 /* CrossLinks.cp */; };
 		D03E6DC80D5F9720005FD177 /* Documents.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DC20D5F9720005FD177 /* Documents.cp */; };
 		D03E6DC90D5F9720005FD177 /* Slurs.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DC30D5F9720005FD177 /* Slurs.cp */; };
 		D03E6DCA0D5F9720005FD177 /* StringUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DC40D5F9720005FD177 /* StringUtils.cp */; };
-		D03E6DCB0D5F9720005FD177 /* UIFUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DC50D5F9720005FD177 /* UIFUtils.cp */; };
 		D03E6DFD0D5F986D005FD177 /* Beam.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD70D5F986D005FD177 /* Beam.cp */; };
 		D03E6DFE0D5F986D005FD177 /* Check.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD80D5F986D005FD177 /* Check.cp */; };
 		D03E6DFF0D5F986D005FD177 /* CheckUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E6DD90D5F986D005FD177 /* CheckUtils.cp */; };
@@ -118,7 +119,6 @@
 		D03E70C10D5FA5B2005FD177 /* MeasFill.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E707A0D5FA5B2005FD177 /* MeasFill.cp */; };
 		D03E70C20D5FA5B2005FD177 /* Merge.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E707B0D5FA5B2005FD177 /* Merge.cp */; };
 		D03E70C30D5FA5B2005FD177 /* MergeUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E707C0D5FA5B2005FD177 /* MergeUtils.cp */; };
-		D03E70C40D5FA5B2005FD177 /* MIDIFOCmd.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E707D0D5FA5B2005FD177 /* MIDIFOCmd.cp */; };
 		D03E70C50D5FA5B2005FD177 /* MIDIFOpen.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E707E0D5FA5B2005FD177 /* MIDIFOpen.cp */; };
 		D03E70C60D5FA5B2005FD177 /* MIDIFSave.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E707F0D5FA5B2005FD177 /* MIDIFSave.cp */; };
 		D03E70C70D5FA5B2005FD177 /* MIDIPlayWhileRec.cp in Sources */ = {isa = PBXBuildFile; fileRef = D03E70800D5FA5B2005FD177 /* MIDIPlayWhileRec.cp */; };
@@ -224,6 +224,9 @@
 		15683E891F826BEA00355A40 /* CarbonStubs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CarbonStubs.cp; sourceTree = "<group>"; };
 		15683E8B1F826D0F00355A40 /* Double.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Double.cp; sourceTree = "<group>"; };
 		15683E9C1F8279EF00355A40 /* DrawUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DrawUtils.cp; sourceTree = "<group>"; };
+		15683EB11F851B3B00355A40 /* About.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = About.cp; sourceTree = "<group>"; };
+		15683EC41F851CB500355A40 /* UIFUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UIFUtils.cp; sourceTree = "<group>"; };
+		15683ECF1F851D7200355A40 /* MIDIFOCmd.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIFOCmd.cp; sourceTree = "<group>"; };
 		157437C41D05153300C5A4DF /* DelAddRedAccs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedAccs.cp; sourceTree = "<group>"; };
 		15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedTimeSigs.cp; sourceTree = "<group>"; };
 		15B639401ECDA9E00029EDD7 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
@@ -328,14 +331,12 @@
 		D03E6D6E0D5F942F005FD177 /* MidiMap.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MidiMap.h; sourceTree = "<group>"; };
 		D03E6D700D5F9457005FD177 /* Menu.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = Menu.cp; sourceTree = "<group>"; };
 		D03E6DA40D5F95C8005FD177 /* Event.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Event.cp; sourceTree = "<group>"; };
-		D03E6DAE0D5F9644005FD177 /* About.cp */ = {isa = PBXFileReference; explicitFileType = sourcecode.cpp.cpp; fileEncoding = 5; path = About.cp; sourceTree = "<group>"; };
 		D03E6DAF0D5F9644005FD177 /* Context.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Context.cp; sourceTree = "<group>"; };
 		D03E6DB00D5F9644005FD177 /* Copy.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Copy.cp; sourceTree = "<group>"; };
 		D03E6DC10D5F9720005FD177 /* CrossLinks.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CrossLinks.cp; sourceTree = "<group>"; };
 		D03E6DC20D5F9720005FD177 /* Documents.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Documents.cp; sourceTree = "<group>"; };
 		D03E6DC30D5F9720005FD177 /* Slurs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Slurs.cp; sourceTree = "<group>"; };
 		D03E6DC40D5F9720005FD177 /* StringUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = StringUtils.cp; sourceTree = "<group>"; };
-		D03E6DC50D5F9720005FD177 /* UIFUtils.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = UIFUtils.cp; sourceTree = "<group>"; };
 		D03E6DD70D5F986D005FD177 /* Beam.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Beam.cp; sourceTree = "<group>"; };
 		D03E6DD80D5F986D005FD177 /* Check.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Check.cp; sourceTree = "<group>"; };
 		D03E6DD90D5F986D005FD177 /* CheckUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CheckUtils.cp; sourceTree = "<group>"; };
@@ -412,7 +413,6 @@
 		D03E707A0D5FA5B2005FD177 /* MeasFill.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MeasFill.cp; sourceTree = "<group>"; };
 		D03E707B0D5FA5B2005FD177 /* Merge.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Merge.cp; sourceTree = "<group>"; };
 		D03E707C0D5FA5B2005FD177 /* MergeUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MergeUtils.cp; sourceTree = "<group>"; };
-		D03E707D0D5FA5B2005FD177 /* MIDIFOCmd.cp */ = {isa = PBXFileReference; fileEncoding = 30; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIFOCmd.cp; sourceTree = "<group>"; };
 		D03E707E0D5FA5B2005FD177 /* MIDIFOpen.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIFOpen.cp; sourceTree = "<group>"; };
 		D03E707F0D5FA5B2005FD177 /* MIDIFSave.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIFSave.cp; sourceTree = "<group>"; };
 		D03E70800D5FA5B2005FD177 /* MIDIPlayWhileRec.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIPlayWhileRec.cp; sourceTree = "<group>"; };
@@ -699,7 +699,7 @@
 		D03E6AAB0D5F6C3D005FD177 /* CFilesBoth */ = {
 			isa = PBXGroup;
 			children = (
-				D03E6DAE0D5F9644005FD177 /* About.cp */,
+				15683EB11F851B3B00355A40 /* About.cp */,
 				D03E6DD70D5F986D005FD177 /* Beam.cp */,
 				D03E6DD80D5F986D005FD177 /* Check.cp */,
 				D03E6DD90D5F986D005FD177 /* CheckUtils.cp */,
@@ -772,7 +772,7 @@
 				D03E6DC40D5F9720005FD177 /* StringUtils.cp */,
 				D088B8DC0D5FB7710028C2BC /* ToolPalette.cp */,
 				D088B8DD0D5FB7710028C2BC /* Tuplet.cp */,
-				D03E6DC50D5F9720005FD177 /* UIFUtils.cp */,
+				15683EC41F851CB500355A40 /* UIFUtils.cp */,
 				D088B8DE0D5FB7710028C2BC /* Utility.cp */,
 				151D712F1C4FA1A900B49302 /* VoiceTable.cp */,
 				D088B8BB0D5FB4F30028C2BC /* Windows.cp */,
@@ -881,7 +881,7 @@
 				D03E707A0D5FA5B2005FD177 /* MeasFill.cp */,
 				D03E707B0D5FA5B2005FD177 /* Merge.cp */,
 				D03E707C0D5FA5B2005FD177 /* MergeUtils.cp */,
-				D03E707D0D5FA5B2005FD177 /* MIDIFOCmd.cp */,
+				15683ECF1F851D7200355A40 /* MIDIFOCmd.cp */,
 				D03E707E0D5FA5B2005FD177 /* MIDIFOpen.cp */,
 				D03E707F0D5FA5B2005FD177 /* MIDIFSave.cp */,
 				D03E70800D5FA5B2005FD177 /* MIDIPlayWhileRec.cp */,
@@ -1033,14 +1033,12 @@
 				D03E6D5A0D5F9349005FD177 /* CarbonPrinting.cp in Sources */,
 				D03E6D710D5F9457005FD177 /* Menu.cp in Sources */,
 				D03E6DA50D5F95C8005FD177 /* Event.cp in Sources */,
-				D03E6DB10D5F9644005FD177 /* About.cp in Sources */,
 				D03E6DB20D5F9644005FD177 /* Context.cp in Sources */,
 				D03E6DB30D5F9644005FD177 /* Copy.cp in Sources */,
 				D03E6DC70D5F9720005FD177 /* CrossLinks.cp in Sources */,
 				D03E6DC80D5F9720005FD177 /* Documents.cp in Sources */,
 				D03E6DC90D5F9720005FD177 /* Slurs.cp in Sources */,
 				D03E6DCA0D5F9720005FD177 /* StringUtils.cp in Sources */,
-				D03E6DCB0D5F9720005FD177 /* UIFUtils.cp in Sources */,
 				D03E6DFD0D5F986D005FD177 /* Beam.cp in Sources */,
 				D03E6DFE0D5F986D005FD177 /* Check.cp in Sources */,
 				D03E6DFF0D5F986D005FD177 /* CheckUtils.cp in Sources */,
@@ -1110,7 +1108,6 @@
 				D03E70C10D5FA5B2005FD177 /* MeasFill.cp in Sources */,
 				D03E70C20D5FA5B2005FD177 /* Merge.cp in Sources */,
 				D03E70C30D5FA5B2005FD177 /* MergeUtils.cp in Sources */,
-				D03E70C40D5FA5B2005FD177 /* MIDIFOCmd.cp in Sources */,
 				D03E70C50D5FA5B2005FD177 /* MIDIFOpen.cp in Sources */,
 				D03E70C60D5FA5B2005FD177 /* MIDIFSave.cp in Sources */,
 				D03E70C70D5FA5B2005FD177 /* MIDIPlayWhileRec.cp in Sources */,
@@ -1188,6 +1185,9 @@
 				15683E8A1F826BEA00355A40 /* CarbonStubs.cp in Sources */,
 				15683E8C1F826D0F00355A40 /* Double.cp in Sources */,
 				15683E9D1F8279EF00355A40 /* DrawUtils.cp in Sources */,
+				15683EB21F851B3B00355A40 /* About.cp in Sources */,
+				15683EC51F851CB500355A40 /* UIFUtils.cp in Sources */,
+				15683ED01F851D7200355A40 /* MIDIFOCmd.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

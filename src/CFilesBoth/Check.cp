@@ -106,16 +106,16 @@ short CheckPAGE(Document *doc, LINK pL, CONTEXT context[],
 				break;
 			case SMSelect:
 				if (!LinkSEL(pL)) {
-					LinkSEL(pL) = true;
+					LinkSEL(pL) = True;
 					HiliteRect(&r);
 				}
 				break;
 			case SMSelNoHilite:
-				LinkSEL(pL) = true;
+				LinkSEL(pL) = True;
 				break;
 			case SMDeselect:
 				if (LinkSEL(pL)) {
-					LinkSEL(pL) = false;
+					LinkSEL(pL) = False;
 					HiliteRect(&r);
 				}
 				break;
@@ -162,7 +162,7 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 	DDIST		sysOffset;
 
 	p = GetPSYSTEM(pL);
-	pageL = SSearch(pL, PAGEtype, true);
+	pageL = SSearch(pL, PAGEtype, True);
 	result = NOMATCH;
 	if (VISIBLE(pL)) {
 		pContext = &context[1];
@@ -198,8 +198,8 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 					sysObjRect = LinkOBJRECT(pL);
 					
 					if (EditSysRect(doc,*(Point *)ptr,pL)) {
-						FixMeasRectYs(doc, NILINK, false, false, false);
-						doc->locFmtChanged = doc->changed = true;
+						FixMeasRectYs(doc, NILINK, False, False, False);
+						doc->locFmtChanged = doc->changed = True;
 						result = 0;
 					}
 					else if (PtInRect(mousePt, &sysRect))
@@ -218,16 +218,16 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 				break;
 			case SMSelect:
 				if (!LinkSEL(pL)) {
-					LinkSEL(pL) = true;
+					LinkSEL(pL) = True;
 					HiliteRect(&r);
 				}
 				break;
 			case SMSelNoHilite:
-				LinkSEL(pL) = true;
+				LinkSEL(pL) = True;
 				break;
 			case SMDeselect:
 				if (LinkSEL(pL)) {
-					LinkSEL(pL) = false;
+					LinkSEL(pL) = False;
 					HiliteRect(&r);
 				}
 				break;
@@ -278,17 +278,17 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 	Rect rSub, wSub, aRect;
 	short i, result, staffn;
 	DDIST	dTop, dLeft, dBottom, dRight;
-	Boolean objSel=false;
+	Boolean objSel=False;
 	LINK partL;
 
 	/* In some cases, toggle hiliting and deselect staves first. FIXME: This should either
 		be moved out to the calling functions, or be controlled by a new parameter. */
 		
 	if (doc->showFormat && (mode!=SMHilite && mode!=SMSelectRange))
-		HiliteAllStaves(doc, true);
+		HiliteAllStaves(doc, True);
 
 	if (doc->masterView && (mode!=SMHilite && mode!=SMSelectRange))
-		HiliteStaves(doc, pL, context, true);
+		HiliteStaves(doc, pL, context, True);
 
 	result = NOMATCH;
 	if (VISIBLE(pL)) {
@@ -319,15 +319,15 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 							if (DragGrayStaffRect(doc, pL, aStaffL, staffn, ptr, rSub, wSub, context)) {
 								result = 0;
 								if (doc->showFormat) {
-									StaffSEL(aStaffL) = LinkSEL(pL) = true;
+									StaffSEL(aStaffL) = LinkSEL(pL) = True;
 									doc->selStartL = pL; doc->selEndL = RightLINK(pL);
-									HiliteStaves(doc, pL, context, false);
+									HiliteStaves(doc, pL, context, False);
 								}
 								else if (doc->masterView) {
 									SelectStaff(doc,pL,staffn);	/* Selects all staves in its part! */
 									
 									doc->selStartL = pL; doc->selEndL = RightLINK(pL);
-									HiliteStaves(doc, pL, context, false);
+									HiliteStaves(doc, pL, context, False);
 								}
 							}
 						}
@@ -344,9 +344,9 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 						if (doc->masterView && (PtInRect(*(Point *)ptr, &rSub))) {
 							partL = SelectStaff(doc,pL,staffn);				/* Selects all staves in its part! */
 
-							HiliteStaves(doc, pL, context, false);				/* Call this here to prevent chunky hiliting */
+							HiliteStaves(doc, pL, context, False);				/* Call this here to prevent chunky hiliting */
 							if (SDInstrDialog(doc,PartFirstSTAFF(partL))) {
-								doc->masterChanged = true;
+								doc->masterChanged = True;
 								InvalWindow(doc);
 							}
 							
@@ -367,23 +367,23 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 						break;
 					case SMSelect:
 						if (!StaffSEL(aStaffL)) {
-							StaffSEL(aStaffL) = true;
+							StaffSEL(aStaffL) = True;
 							HiliteRect(&wSub);
 						}
 						break;
 					case SMSelectRange:
 						if (!StaffSEL(aStaffL) && staffn>=stfRange.topStaff && 
 					 			staffn<=stfRange.bottomStaff) {
-							StaffSEL(aStaffL) = true;
+							StaffSEL(aStaffL) = True;
 							HiliteRect(&wSub);
 						}
 						break;
 					case SMSelNoHilite:
-						LinkSEL(pL) = true;
+						LinkSEL(pL) = True;
 						break;
 					case SMDeselect:
 						if (StaffSEL(aStaffL)) {
-							StaffSEL(aStaffL) = false;
+							StaffSEL(aStaffL) = False;
 							HiliteRect(&wSub);
 						}
 						break;
@@ -407,12 +407,12 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 						;
 				}
 				if (StaffSEL(aStaffL))
-					objSel = true;
+					objSel = True;
 			}
 		}
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSel;
-	if (mode==SMDrag) HiliteStaves(doc, pL, context, false);	/* Call this here to prevent chunky hiliting */
+	if (mode==SMDrag) HiliteStaves(doc, pL, context, False);	/* Call this here to prevent chunky hiliting */
 	return result;
 }
 
@@ -433,11 +433,11 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 	PCONTEXT pContext;
 	short i, j, result, staffAbove, staffBelow;
 	DDIST dTop, dLeft, xd, yd, dBottom, dRight, rSubRight;
-	Boolean entire,objSel=false;
+	Boolean entire,objSel=False;
 	RgnHandle connectRgn;  long newPos;
 	Point dragPt;
 
-	cStaffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, false);			/* must exist */
+	cStaffL = LSSearch(pL, STAFFtype, ANYONE, GO_LEFT, False);			/* must exist */
 
 	result = NOMATCH;
 	if (VISIBLE(pL)) {
@@ -450,12 +450,12 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 			aConnect = GetPACONNECT(aConnectL);
 			entire = aConnect->connLevel==0;
 			pContext = entire ? &context[FirstStaffn(pL)] :
-								&context[NextStaffn(doc, pL, true, aConnect->staffAbove)];
+								&context[NextStaffn(doc, pL, True, aConnect->staffAbove)];
 			dLeft = pContext->staffLeft;
 			dTop = pContext->staffTop;
 
 			pContext = entire ? &context[FirstStaffn(pL)] :
-										&context[NextStaffn(doc, pL, false, aConnect->staffBelow)];
+										&context[NextStaffn(doc, pL, False, aConnect->staffBelow)];
 			dBottom = pContext->staffTop + pContext->staffHeight;
 			dRight = pContext->staffRight;
 	
@@ -492,7 +492,7 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 								InsetRect(&limitR, -4, 0);
 								slopR = doc->currentPaper;
 
-								staffAbove = NextStaffn(doc,pL,false,aConnect->staffAbove-1);
+								staffAbove = NextStaffn(doc,pL,False,aConnect->staffAbove-1);
 								if (staffAbove>1) {
 									pContext = &context[staffAbove];
 									limitR.top = d2p(pContext->staffTop+pContext->staffHeight)+
@@ -502,7 +502,7 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 								else {
 									limitR.top = doc->currentPaper.top;
 								}
-								staffBelow = NextStaffn(doc,pL,true,aConnect->staffBelow+1);
+								staffBelow = NextStaffn(doc,pL,True,aConnect->staffBelow+1);
 								if (staffBelow>0 && staffBelow<doc->nstaves) {
 									pContext = &context[staffBelow];
 									limitR.bottom = d2p(pContext->staffTop)+pContext->paper.top
@@ -518,9 +518,9 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 
 								if (HiWord(newPos) && HiWord(newPos)!=0x8000)
 									if (doc->masterView) {
-										staffL = SSearch(doc->masterHeadL,STAFFtype,false);
-										staffAbove = NextStaffn(doc,pL,true,aConnect->staffAbove);
-										staffBelow = NextStaffn(doc,pL,false,aConnect->staffBelow);
+										staffL = SSearch(doc->masterHeadL,STAFFtype,False);
+										staffAbove = NextStaffn(doc,pL,True,aConnect->staffAbove);
+										staffBelow = NextStaffn(doc,pL,False,aConnect->staffBelow);
 										j = staffAbove;
 										for ( ; j<=staffBelow; j++) {
 											aStaffL = FirstSubLINK(staffL);
@@ -528,12 +528,12 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 												if (StaffSTAFF(aStaffL)==j)
 													UpdateDraggedStaff(doc, staffL, aStaffL, newPos);
 										}
-										doc->stfChangedMP = true;
+										doc->stfChangedMP = True;
 									}
 									else if (doc->showFormat) {
-										staffL = SSearch(pL,STAFFtype,true);
-										staffAbove = NextStaffn(doc,pL,true,aConnect->staffAbove);
-										staffBelow = NextStaffn(doc,pL,false,aConnect->staffBelow);
+										staffL = SSearch(pL,STAFFtype,True);
+										staffAbove = NextStaffn(doc,pL,True,aConnect->staffAbove);
+										staffBelow = NextStaffn(doc,pL,False,aConnect->staffBelow);
 										UpdateFormatConnect(doc, staffL,
 																staffAbove, staffBelow, newPos);
 									}
@@ -554,16 +554,16 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 					break;
 				case SMSelect:
 					if (!ConnectSEL(aConnectL)) {
-						ConnectSEL(aConnectL) = true;
+						ConnectSEL(aConnectL) = True;
 						HiliteRect(&wSub);
 					}
 					break;
 				case SMSelNoHilite:
-					LinkSEL(pL) = true;
+					LinkSEL(pL) = True;
 					break;
 				case SMDeselect:
 					if (ConnectSEL(aConnectL)) {
-						ConnectSEL(aConnectL) = false;
+						ConnectSEL(aConnectL) = False;
 						HiliteRect(&wSub);
 					}
 					break;
@@ -583,7 +583,7 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 					;
 			}
 			if (ConnectSEL(aConnectL))
-				objSel = true;
+				objSel = True;
 		}
 	}
 
@@ -612,14 +612,14 @@ short CheckCLEF(Document *doc, LINK pL, CONTEXT context[],
 					lnSpace;
 	unsigned char	glyph;			/* clef symbol */
 	short			result;			/* =NOMATCH unless object/subobject clicked in */
-	Boolean			objSelected;	/* false unless something in the object is selected */
+	Boolean			objSelected;	/* False unless something in the object is selected */
 	Rect			rSub,			/* paper-relative bounding box for sub-object */
 					wSub,			/* Window relative of above */
 					aRect;			/* scratch */
 
 PushLock(OBJheap);
 PushLock(CLEFheap);
-	objSelected = false;
+	objSelected = False;
 	result = NOMATCH;
 	oldtxSize = GetPortTxSize();
 
@@ -661,7 +661,7 @@ PushLock(CLEFheap);
 				 aClef->staffn<=stfRange.bottomStaff && !aClef->selected) {
 				UnionRect(&rSub, (Rect *)ptr, &aRect);		/* does (Rect *)ptr enclose rSub? */
 				if (EqualRect(&aRect, (Rect *)ptr)) {
-					aClef->selected = true;
+					aClef->selected = True;
 					HiliteRect(&wSub);
 					result = stfRange.topStaff;
 				}
@@ -669,16 +669,16 @@ PushLock(CLEFheap);
 			break;
 		case SMSelect:
 			if (!aClef->selected) {
-				aClef->selected = true;
+				aClef->selected = True;
 				HiliteRect(&wSub);
 			}
 			break;
 		case SMSelNoHilite:
-			aClef->selected = true;
+			aClef->selected = True;
 			break;
 		case SMDeselect:
 			if (aClef->selected) {
-				aClef->selected = false;
+				aClef->selected = False;
 				HiliteRect(&wSub);
 			}
 			break;
@@ -705,7 +705,7 @@ PushLock(CLEFheap);
 			break;
 		}
 		if (aClef->selected)
-			objSelected = true;
+			objSelected = True;
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
 	TextSize(oldtxSize);
@@ -735,7 +735,7 @@ short CheckDYNAMIC(Document *doc, LINK pL, CONTEXT context[],
 	DDIST			xd, yd;			/* scratch DDIST coordinates */
 	unsigned char	glyph;			/* dynamic symbol */
 	short			result;			/* =NOMATCH unless object/subobject clicked in */
-	Boolean			objSelected;	/* false unless something in the object is selected */
+	Boolean			objSelected;	/* False unless something in the object is selected */
 	Rect			rSub,			/* bounding box for sub-object */
 					wSub,			/* window-relative of above */
 					aRect;			/* scratch */
@@ -745,7 +745,7 @@ short CheckDYNAMIC(Document *doc, LINK pL, CONTEXT context[],
 PushLock(OBJheap);
 PushLock(DYNAMheap);
 	result = NOMATCH;
-	objSelected = false;
+	objSelected = False;
 	aDynamicL = FirstSubLINK(pL);
 	for (i = 0; aDynamicL; i++, aDynamicL=NextDYNAMICL(aDynamicL)) {
 		aDynamic = GetPADYNAMIC(aDynamicL);
@@ -800,21 +800,21 @@ PushLock(DYNAMheap);
 				SignedByte oldDynamType, newDynamType;
 				Boolean change;
 
-				HiliteInsertNode(doc, firstSync, staffn, true);		/* Hiliting on */
-				DisableUndo(doc, false);
+				HiliteInsertNode(doc, firstSync, staffn, True);		/* Hiliting on */
+				DisableUndo(doc, False);
 				oldDynamType = newDynamType = DynamType(pL);
 				change = SetDynamicDialog(&newDynamType);
 				if (change && newDynamType!=oldDynamType) {
 					/* FIXME: objRects of dynamics aren't right in all cases, so the inval's
 					here don't always work. See comments in body of InvalObject. Use
 					EraseAndInval on <wsub> instead? */
-					InvalObject(doc, pL, true);						/* inval old symbol */
+					InvalObject(doc, pL, True);						/* inval old symbol */
 					DynamType(pL) = newDynamType;
 					FixContextForDynamic(doc, RightLINK(pL), staffn, oldDynamType, newDynamType);
-					InvalObject(doc, pL, true);						/* inval new symbol */
-					doc->changed = true;
+					InvalObject(doc, pL, True);						/* inval new symbol */
+					doc->changed = True;
 				}
-				HiliteInsertNode(doc, firstSync, staffn, false);	/* Hiliting off */
+				HiliteInsertNode(doc, firstSync, staffn, False);	/* Hiliting off */
 			}
 			break;
 		case SMDrag:
@@ -830,7 +830,7 @@ PushLock(DYNAMheap);
 				 aDynamic->staffn<=stfRange.bottomStaff && !aDynamic->selected) {
 				UnionRect(&rSub, (Rect *)ptr, &aRect);		/* does (Rect *)ptr enclose rSub? */
 				if (EqualRect(&aRect, (Rect *)ptr)) {
-					aDynamic->selected = true;
+					aDynamic->selected = True;
 					HiliteRect(&wSub);
 					result = stfRange.topStaff;
 				}
@@ -838,16 +838,16 @@ PushLock(DYNAMheap);
 			break;
 		case SMSelect:
 			if (!aDynamic->selected) {
-				aDynamic->selected = true;
+				aDynamic->selected = True;
 				HiliteRect(&wSub);
 			}
 			break;
 		case SMSelNoHilite:
-			aDynamic->selected = true;
+			aDynamic->selected = True;
 			break;
 		case SMDeselect:
 			if (aDynamic->selected) {
-				aDynamic->selected = false;
+				aDynamic->selected = False;
 				HiliteRect(&wSub);
 			}
 			break;
@@ -873,7 +873,7 @@ PushLock(DYNAMheap);
 			break;
 		}
 		if (aDynamic->selected)
-			objSelected = true;
+			objSelected = True;
 	}
 
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
@@ -910,7 +910,7 @@ PushLock(OBJheap);
 PushLock(RPTENDheap);
 
 	result = NOMATCH;
-	objSelected = false;
+	objSelected = False;
 	aRptL = FirstSubLINK(pL);
 	aRpt = GetPARPTEND(aRptL);
 	
@@ -958,23 +958,23 @@ PushLock(RPTENDheap);
 						tempR = *(Rect *)ptr;
 						UnionRect(&rSub, &tempR, &aRect);	/* does (Rect *)ptr enclose rSub? */
 						if (EqualRect(&aRect, &tempR)) {
-							aRpt->selected = true;
+							aRpt->selected = True;
 							if (!aRpt->connAbove) HiliteRect(&wSub);
 						}
 					}
 					break;
 				case SMSelect:
 					if (!aRpt->selected) {
-						aRpt->selected = true;
+						aRpt->selected = True;
 						if (!aRpt->connAbove) HiliteRect(&wSub);
 					}
 					break;
 				case SMSelNoHilite:
-					aRpt->selected = true;
+					aRpt->selected = True;
 					break;
 				case SMDeselect:
 					if (aRpt->selected) {
-						aRpt->selected = false;
+						aRpt->selected = False;
 						if (!aRpt->connAbove) HiliteRect(&wSub);
 					}
 					break;
@@ -1002,7 +1002,7 @@ PushLock(RPTENDheap);
 				default:
 					break;
 			}
-			if (aRpt->selected) objSelected = true;
+			if (aRpt->selected) objSelected = True;
 		}
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
@@ -1072,19 +1072,19 @@ PushLock(GRAPHICheap);
 				}
 				break;
 			case SMDblClick:
-				InvalObject(doc,pL,false);								/* Insure objRect is correct */
+				InvalObject(doc,pL,False);								/* Insure objRect is correct */
 				oldObjRect = p->objRect;
 				if (GraphicSubType(pL)==GRDraw) {
 					HiliteAttPoints(doc, p->firstObj, p->lastObj, staffn);
 					if (LinkSEL(pL)) HiliteRect(&r);
 				}
 				else
-					HiliteInsertNode(doc, p->firstObj, staffn, true);		/* Hiliting on */
+					HiliteInsertNode(doc, p->firstObj, staffn, True);		/* Hiliting on */
 				while (Button()) ;
 
 				/* Double-clicking all subtypes but GRArpeggio allows editing them. */
 				if (p->graphicType==GRArpeggio) {
-					HiliteInsertNode(doc, p->firstObj, staffn, false);		/* Hiliting off */
+					HiliteInsertNode(doc, p->firstObj, staffn, False);		/* Hiliting off */
 					break;
 				}
 				
@@ -1098,7 +1098,7 @@ PushLock(GRAPHICheap);
 						fontSize = p->fontSize;
 						fontStyle = p->fontStyle;
 						enclosure = p->enclosure;
-						lyric = (p->graphicType==GRLyric? true : false);
+						lyric = (p->graphicType==GRLyric? True : False);
 						expanded = (p->info2!=0);
 						styleChoice = Header2UserFontNum(p->info);
 						change = TextDialog(doc, &styleChoice, &relFSize, &fontSize,
@@ -1129,7 +1129,7 @@ PushLock(GRAPHICheap);
 							PrepareUndo(doc, pL, U_EditText, 51);			/* "Undo Edit Text" */
 							p = GetPGRAPHIC(pL);
 #else
-							DisableUndo(doc, false);
+							DisableUndo(doc, False);
 #endif
 							p->graphicType = (lyric? GRLyric : GRString);
 							p->relFSize = relFSize;
@@ -1140,28 +1140,28 @@ PushLock(GRAPHICheap);
 							p->info = User2HeaderFontNum(doc, styleChoice);
 							p->info2 = (expanded? 1 : 0);
 
-							p->multiLine = false;
+							p->multiLine = False;
 							for (i = 1; i <= string[0]; i++)
 								if (string[i] == CH_CR) {
-									p->multiLine = true;
+									p->multiLine = True;
 									break;
 								}
 						}
 						break;
 					case GRRehearsal:
 						change = RehearsalMarkDialog(string);
-						if (change) doc->changed = true;
+						if (change) doc->changed = True;
 						break;
 					case GRMIDIPatch:
 						change = PatchChangeDialog(string);
-						if (change) doc->changed = true;
+						if (change) doc->changed = True;
 						if (string[0]>16-1) string[0] = 16-1;		//if (string[0]>MPATCH_LEN-1) string[0] = MPATCH_LEN-1;
 						short patchNum = FindIntInString(string);
 						p->info = patchNum;
 						break;
 					case GRMIDIPan:
 						change = PanSettingDialog(string);
-						if (change) doc->changed = true;
+						if (change) doc->changed = True;
 						if (string[0]>16-1) string[0] = 16-1;		//if (string[0]>MPATCH_LEN-1) string[0] = MPATCH_LEN-1;
 						short pansetting = FindIntInString(string);
 						p->info = pansetting;
@@ -1172,7 +1172,7 @@ PushLock(GRAPHICheap);
 							change = ChordSymDialog(doc, string, &auxInfo);
 							if (change)	{
 								p->info = auxInfo;
-								doc->changed = true;
+								doc->changed = True;
 							}
 						}
 						break;
@@ -1184,14 +1184,14 @@ PushLock(GRAPHICheap);
 							change = ChordFrameDialog(doc, &dummyRelSize, &dummySize, &dummyStyle,
 								&dummyEncl, dummyFont, &string[1]);
 						}
-						if (change) doc->changed = true;
+						if (change) doc->changed = True;
 						break;
 					case GRDraw:
 						DoDrawingEdit(doc, pL);
 						break;
 					case GRMIDISustainOn:
 					case GRMIDISustainOff:
-						HiliteInsertNode(doc, p->firstObj, staffn, true);
+						HiliteInsertNode(doc, p->firstObj, staffn, True);
 						SleepTicks(30L);
 						break;
 					default:
@@ -1199,7 +1199,7 @@ PushLock(GRAPHICheap);
 				}
 				
 				if (GraphicSubType(pL)!=GRDraw)
-					HiliteInsertNode(doc, p->firstObj, staffn, false);			/* Hiliting off */
+					HiliteInsertNode(doc, p->firstObj, staffn, False);			/* Hiliting off */
 				if (change) {
 					EraseAndInval(&oldObjRect);
 					aGraphicL = FirstSubLINK(pL);
@@ -1235,7 +1235,7 @@ PushLock(GRAPHICheap);
 					if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 					UnionRect(&r, &tempR, &aRect);			/* does (Rect *)ptr enclose r? */
 					if (EqualRect(&aRect, &tempR)) {
-						p->selected = true;
+						p->selected = True;
 						HiliteRect(&r);
 						result = stfRange.topStaff;
 					}
@@ -1243,16 +1243,16 @@ PushLock(GRAPHICheap);
 				break;
 			case SMSelect:
 				if (!LinkSEL(pL)) {
-					LinkSEL(pL) = true;
+					LinkSEL(pL) = True;
 					HiliteRect(&r);
 				}
 				break;
 			case SMSelNoHilite:
-				LinkSEL(pL) = true;
+				LinkSEL(pL) = True;
 				break;
 			case SMDeselect:
 				if (LinkSEL(pL)) {
-					LinkSEL(pL) = false;
+					LinkSEL(pL) = False;
 					HiliteRect(&r);
 				}
 				break;
@@ -1269,7 +1269,7 @@ PushLock(GRAPHICheap);
 			case SMSymDrag:
 				if (PtInRect(*(Point *)ptr, &LinkOBJRECT(pL))) {
 #ifdef TRY_TO_CONSTRAIN
-					InvalObject(doc,pL,false);
+					InvalObject(doc,pL,False);
 #endif
 					HandleSymDrag(doc, pL, NILINK, *(Point *)ptr, dummy);
 					LinkSEL(pL) = !LinkSEL(pL);
@@ -1347,7 +1347,7 @@ PushLock(OBJheap);
 				break;
 			case SMDblClick:
 				oldObjRect = p->objRect;
-				HiliteInsertNode(doc, p->firstObjL, staffn, true);		/* Hiliting on */
+				HiliteInsertNode(doc, p->firstObjL, staffn, True);		/* Hiliting on */
 				while (Button()) ;
 				p = GetPTEMPO(pL);
 				Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(p->strOffset));
@@ -1363,9 +1363,9 @@ PushLock(OBJheap);
 				if (tempoStr[0]>63) tempoStr[0] = 63;				/* Limit length for consistency with InsertTempo */
 				if (metroStr[0]>63) metroStr[0] = 63;				/* Limit length for consistency with InsertTempo */
 				p = GetPTEMPO(pL);
-				HiliteInsertNode(doc, p->firstObjL, staffn, false);	/* Hiliting off */
+				HiliteInsertNode(doc, p->firstObjL, staffn, False);	/* Hiliting off */
 				if (ok) {
-					DisableUndo(doc, false);
+					DisableUndo(doc, False);
 					offset = PReplace(p->strOffset, tempoStr);
 					if (offset<0L)
 						{ NoMoreMemory(); goto Cleanup; }
@@ -1389,7 +1389,7 @@ PushLock(OBJheap);
 
 					newWidth = StringWidth(tempoStr);		/* FIXME: BUT MUST SET FONT FIRST! */
 					LinkOBJRECT(pL).right = LinkOBJRECT(pL).left + newWidth;
-					doc->changed = true;
+					doc->changed = True;
 				}
 
 				newObjRect = p->objRect;
@@ -1421,7 +1421,7 @@ PushLock(OBJheap);
 					if (r.bottom>tempR.bottom)	tempR.bottom = r.bottom;
 					UnionRect(&r, &tempR, &aRect);			/* does (Rect *)ptr enclose r? */
 					if (EqualRect(&aRect, &tempR)) {
-						p->selected = true;
+						p->selected = True;
 						HiliteRect(&r);
 						result = stfRange.topStaff;
 					}
@@ -1429,16 +1429,16 @@ PushLock(OBJheap);
 				break;
 			case SMSelect:
 				if (!LinkSEL(pL)) {
-					LinkSEL(pL) = true;
+					LinkSEL(pL) = True;
 					HiliteRect(&r);
 				}
 				break;
 			case SMSelNoHilite:
-				LinkSEL(pL) = true;
+				LinkSEL(pL) = True;
 				break;
 			case SMDeselect:
 				if (LinkSEL(pL)) {
-					LinkSEL(pL) = false;
+					LinkSEL(pL) = False;
 					HiliteRect(&r);
 				}
 				break;
@@ -1530,7 +1530,7 @@ short CheckSPACER(Document *doc, LINK pL, CONTEXT context[],
 					if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 					UnionRect(&r, &tempR, &aRect);			/* does (Rect *)ptr enclose r? */
 					if (EqualRect(&aRect, &tempR)) {
-						p->selected = true;
+						p->selected = True;
 						HiliteRect(&r);
 						result = stfRange.topStaff;
 					}
@@ -1538,16 +1538,16 @@ short CheckSPACER(Document *doc, LINK pL, CONTEXT context[],
 				break;
 			case SMSelect:
 				if (!LinkSEL(pL)) {
-					LinkSEL(pL) = true;
+					LinkSEL(pL) = True;
 					HiliteRect(&r);
 				}
 				break;
 			case SMSelNoHilite:
-				LinkSEL(pL) = true;
+				LinkSEL(pL) = True;
 				break;
 			case SMDeselect:
 				if (LinkSEL(pL)) {
-					LinkSEL(pL) = false;
+					LinkSEL(pL) = False;
 					HiliteRect(&r);
 				}
 				break;
@@ -1616,9 +1616,9 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 				cutoffs = (p->noLCutoff << 1) + p->noRCutoff;
 				okay = EndingDialog(endNum, &newNumber, cutoffs, &newCutoffs);
 
-				HiliteInsertNode(doc, EndingFIRSTOBJ(pL), EndingSTAFF(pL), false);		/* Hiliting off */
+				HiliteInsertNode(doc, EndingFIRSTOBJ(pL), EndingSTAFF(pL), False);		/* Hiliting off */
 				if (EndingFIRSTOBJ(pL)!=EndingLASTOBJ(pL))
-					HiliteInsertNode(doc, EndingLASTOBJ(pL), EndingSTAFF(pL), false);	/* Hiliting off */
+					HiliteInsertNode(doc, EndingLASTOBJ(pL), EndingSTAFF(pL), False);	/* Hiliting off */
 
 				if (okay) {
 					p = GetPENDING(pL);
@@ -1626,7 +1626,7 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 					p->noRCutoff = (newCutoffs & 1);
 					p->endNum = newNumber;
 					InvalSystem(pL);
-					doc->changed = true;
+					doc->changed = True;
 				}
 				break;
 			case SMDrag:
@@ -1652,7 +1652,7 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 					if (r.bottom>tempR.bottom) tempR.bottom = r.bottom;
 					UnionRect(&r, &tempR, &aRect);				/* does (Rect *)ptr enclose r? */
 					if (EqualRect(&aRect, &tempR)) {
-						LinkSEL(pL) = true;
+						LinkSEL(pL) = True;
 						HiliteRect(&r);
 						result = stfRange.topStaff;
 					}
@@ -1660,16 +1660,16 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 				break;
 			case SMSelect:
 				if (!LinkSEL(pL)) {
-					LinkSEL(pL) = true;
+					LinkSEL(pL) = True;
 					HiliteRect(&r);
 				}
 				break;
 			case SMSelNoHilite:
-				LinkSEL(pL) = true;
+				LinkSEL(pL) = True;
 				break;
 			case SMDeselect:
 				if (LinkSEL(pL)) {
-					LinkSEL(pL) = false;
+					LinkSEL(pL) = False;
 					HiliteRect(&r);
 				}
 				break;
@@ -1704,8 +1704,8 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 
 /* -------------------------------------------------------------------- DoOpenKeysig -- */
 /* Handle a double-click in a keysig subobj rect. Present a dlog letting user
-change the keysig on this staff or all staves. Return true if there was any
-change, false if not.  <pL> is the keysig object; <aKeySigL> is a LINK to the
+change the keysig on this staff or all staves. Return True if there was any
+change, False if not.  <pL> is the keysig object; <aKeySigL> is a LINK to the
 subobject the user clicked. Assumes keysig and object heaps have been locked. */
 
 static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
@@ -1715,12 +1715,12 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 	PAKEYSIG aKeySig;
 	KSINFO oldKSInfo, newKSInfo;
 	Boolean beforeFirstMeas, change;
-	static Boolean onAllStaves = true;
+	static Boolean onAllStaves = True;
 
 	/* Don't let user replace gutter keysigs other than the first. */
 	beforeFirstMeas = LinkBefFirstMeas(pL);
 	if (beforeFirstMeas && doc->currentSystem!=1)
-		return false;
+		return False;
 
 	aKeySig = GetPAKEYSIG(aKeySigL);
 
@@ -1733,13 +1733,13 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 	else
 		flats = -oldSharpsOrFlats;
 
-	change = KeySigDialog(&sharps, &flats, &onAllStaves, false);
+	change = KeySigDialog(&sharps, &flats, &onAllStaves, False);
 	if (change) {
 		if (sharps>0) newSharpsOrFlats = sharps;
 		else if (flats>0) newSharpsOrFlats = -flats;
 		else newSharpsOrFlats = 0;
 
-		DisableUndo(doc, false);
+		DisableUndo(doc, False);
 
 		endL = pL;
 		
@@ -1779,7 +1779,7 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 		if (beforeFirstMeas)
 			initKSL = pL;
 		else
-			initKSL = LSSearch(RightLINK(pL), KEYSIGtype, ANYONE, GO_RIGHT, false);
+			initKSL = LSSearch(RightLINK(pL), KEYSIGtype, ANYONE, GO_RIGHT, False);
 		if (initKSL) {
 			short staff = onAllStaves? ANYONE : aKeySig->staffn;
 			FixInitialKSxds(doc, initKSL, endL, staff);
@@ -1790,9 +1790,9 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 		if (doc->autoRespace) {
 			long resFact = RESFACTOR*(long)doc->spacePercent;
 			endL = EndMeasSearch(doc, pL);
-			RespaceBars(doc, LeftLINK(pL), endL, resFact, false, false);
+			RespaceBars(doc, LeftLINK(pL), endL, resFact, False, False);
 		}
-		doc->changed = true;
+		doc->changed = True;
 	}
 
 	return change;
@@ -1815,7 +1815,7 @@ short CheckKEYSIG(Document *doc, LINK pL, CONTEXT context[],
 	short		i, width;		/* total pixel width of key sig. */
 	short 		lines;
 	short		result;			/* =NOMATCH unless object/subobject clicked in */
-	Boolean		objSelected;	/* false unless something in the object is selected */
+	Boolean		objSelected;	/* False unless something in the object is selected */
 	DDIST		xd, yd,			/* scratch DDIST coordinates */
 				dTop,			/* absolute DDIST position of origin (staff or measure) */
 				height;			/* height of current staff */
@@ -1827,7 +1827,7 @@ short CheckKEYSIG(Document *doc, LINK pL, CONTEXT context[],
 PushLock(OBJheap);
 PushLock(KEYSIGheap);
 
-	objSelected = false;
+	objSelected = False;
 	result = NOMATCH;
 	aKeySigL = FirstSubLINK(pL);
 	for (i = 0; aKeySigL; i++, aKeySigL=NextKEYSIGL(aKeySigL)) {
@@ -1867,7 +1867,7 @@ PushLock(KEYSIGheap);
 				 aKeySig->staffn<=stfRange.bottomStaff && !aKeySig->selected) {
 				UnionRect(&rSub, (Rect *)ptr, &aRect);		/* does (Rect *)ptr enclose rSub? */
 				if (EqualRect(&aRect, (Rect *)ptr)) {
-					aKeySig->selected = true;
+					aKeySig->selected = True;
 					HiliteRect(&wSub);
 					result = stfRange.topStaff;
 				}
@@ -1875,16 +1875,16 @@ PushLock(KEYSIGheap);
 			break;
 		case SMSelect:
 			if (!aKeySig->selected) {
-				aKeySig->selected = true;
+				aKeySig->selected = True;
 				HiliteRect(&wSub);
 			}
 			break;
 		case SMSelNoHilite:
-			aKeySig->selected = true;
+			aKeySig->selected = True;
 			break;
 		case SMDeselect:
 			if (aKeySig->selected) {
-				aKeySig->selected = false;
+				aKeySig->selected = False;
 				HiliteRect(&wSub);
 			}
 			break;
@@ -1910,7 +1910,7 @@ PushLock(KEYSIGheap);
 			break;
 		}
 		if (aKeySig->selected)
-			objSelected = true;
+			objSelected = True;
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
 	
@@ -1955,7 +1955,7 @@ short CheckSYNC(Document *doc, LINK pL, CONTEXT context[],
 	short		glyph;				/* symbol */
 	short		result,				/* =NOMATCH unless object/subobject clicked in */
 				oldtxSize;			/* get & restore the port's textSize */
-	Boolean		objSelected,		/* false unless something in the object is selected */
+	Boolean		objSelected,		/* False unless something in the object is selected */
 				upOrDown,			/* needed for otherStemSide to offset rect correctly */
 				noteFound;			/* for SMThread */
 	Rect		rSub,				/* paper-relative bounding box for subobject */
@@ -1967,8 +1967,8 @@ PushLock(OBJheap);
 PushLock(NOTEheap);
 	oldtxSize = GetPortTxSize();
 
-	objSelected = false;
-	noteFound = false;
+	objSelected = False;
+	noteFound = False;
 	result = NOMATCH;
 	aNoteL = FirstSubLINK(pL);
 	for (i = 0; aNoteL; i++, aNoteL=NextNOTEL(aNoteL)) {
@@ -2060,7 +2060,7 @@ PushLock(NOTEheap);
 					InsetRect(&rSub, -(1+enlarge.h), -enlarge.v);
 					UnionRect(&rSub, (Rect *)ptr, &aRect);		/* does (Rect *)ptr enclose rSub? */
 					if (EqualRect(&aRect, (Rect *)ptr)) {
-						aNote->selected = true;
+						aNote->selected = True;
 						InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
 						HiliteRect(&wSub);
 						result = stfRange.topStaff;
@@ -2069,17 +2069,17 @@ PushLock(NOTEheap);
 				break;
 			case SMSelect:
 				if (!aNote->selected) {
-					aNote->selected = true;
+					aNote->selected = True;
 					InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
 					HiliteRect(&wSub);
 				}
 				break;
 			case SMSelNoHilite:
-				aNote->selected = true;
+				aNote->selected = True;
 				break;
 			case SMDeselect:
 				if (aNote->selected) {
-					aNote->selected = false;
+					aNote->selected = False;
 					InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
 					if (CapsLockKeyDown() && OptionKeyDown())
 						if (SUSPICIOUS_WREL_RECT(wSub))
@@ -2099,7 +2099,7 @@ PushLock(NOTEheap);
 						selOldRect = aRect;
 					}
 					result = i;
-					noteFound = true;					/* Look at no more subObjects! */
+					noteFound = True;					/* Look at no more subObjects! */
 				}
 				break;
 			case SMSymDrag:
@@ -2138,7 +2138,7 @@ PushLock(NOTEheap);
 				break;
 			}
 			if (aNote->selected)
-				objSelected = true;
+				objSelected = True;
 		}
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
@@ -2172,7 +2172,7 @@ short CheckGRSYNC(Document *doc, LINK pL, CONTEXT context[],
 	short			glyph;			/* symbol */
 	short			result,			/* =NOMATCH unless object/subobject clicked in */
 					oldtxSize;		/* get & restore the port's textSize */
-	Boolean			objSelected,	/* false unless something in the object is selected */
+	Boolean			objSelected,	/* False unless something in the object is selected */
 					upOrDown,		/* needed for otherStemSide to offset rect correctly */
 					noteFound;		/* for SMThread */
 	Rect			rSub,				/* bounding box for sub-object */
@@ -2183,8 +2183,8 @@ PushLock(OBJheap);
 PushLock(GRNOTEheap);
 	oldtxSize = GetPortTxSize();
 
-	objSelected = false;
-	noteFound = false;
+	objSelected = False;
+	noteFound = False;
 	result = NOMATCH;
 	aGRNoteL = FirstSubLINK(pL);
 	for (i = 0; aGRNoteL; i++, aGRNoteL=NextGRNOTEL(aGRNoteL)) {
@@ -2247,7 +2247,7 @@ PushLock(GRNOTEheap);
 					 aGRNote->staffn<=stfRange.bottomStaff && !aGRNote->selected) {
 					UnionRect(&rSub, (Rect *)ptr, &aRect);		/* does (Rect *)ptr enclose rSub? */
 					if (EqualRect(&aRect, (Rect *)ptr)) {
-						aGRNote->selected = true;
+						aGRNote->selected = True;
 						HiliteRect(&wSub);
 						result = stfRange.topStaff;
 					}
@@ -2255,16 +2255,16 @@ PushLock(GRNOTEheap);
 				break;
 			case SMSelect:
 				if (!aGRNote->selected) {
-					aGRNote->selected = true;
+					aGRNote->selected = True;
 					HiliteRect(&wSub);
 				}
 				break;
 			case SMSelNoHilite:
-				aGRNote->selected = true;
+				aGRNote->selected = True;
 				break;
 			case SMDeselect:
 				if (aGRNote->selected) {
-					aGRNote->selected = false;
+					aGRNote->selected = False;
 					HiliteRect(&wSub);
 				}
 				break;
@@ -2278,7 +2278,7 @@ PushLock(GRNOTEheap);
 						selOldRect = aRect;
 					}
 					result = i;
-					noteFound = true;					/* Look at no more subObjects! */
+					noteFound = True;					/* Look at no more subObjects! */
 				}
 				break;
 			case SMSymDrag:
@@ -2310,7 +2310,7 @@ PushLock(GRNOTEheap);
 				break;
 			}
 			if (aGRNote->selected)
-				objSelected = true;
+				objSelected = True;
 		}
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
@@ -2323,8 +2323,8 @@ PopLock(GRNOTEheap);
 
 /* ------------------------------------------------------------------- DoOpenTimesig -- */
 /* Handle a double-click in a timesig subobj rect. Present a dlog letting user
-change the timesig on this staff or all staves. Return true if there was any
-change, false if not.  <pL> is the timesig object; <aTimeSigL> is a LINK to the
+change the timesig on this staff or all staves. Return True if there was any
+change, False if not.  <pL> is the timesig object; <aTimeSigL> is a LINK to the
 subobject the user clicked. Assumes timesig and object heaps have been locked. */
 
 static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL)
@@ -2332,14 +2332,14 @@ static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL)
 	short subType, numerator, denominator;
 	PATIMESIG aTimeSig;
 	Boolean beforeFirstMeas, change;
-	static Boolean onAllStaves = true;
+	static Boolean onAllStaves = True;
 
 	beforeFirstMeas = LinkBefFirstMeas(pL);
 	aTimeSig = GetPATIMESIG(aTimeSigL);
 	subType = aTimeSig->subType;
 	numerator = aTimeSig->numerator;
 	denominator = aTimeSig->denominator;
-	change = TimeSigDialog(&subType, &numerator, &denominator, &onAllStaves, false);
+	change = TimeSigDialog(&subType, &numerator, &denominator, &onAllStaves, False);
 	if (change) {
 		TSINFO timeSigInfo;
 
@@ -2347,7 +2347,7 @@ static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL)
 		timeSigInfo.numerator = numerator;
 		timeSigInfo.denominator = denominator;
 
-		DisableUndo(doc, false);
+		DisableUndo(doc, False);
 
 		if (onAllStaves) {
 			aTimeSigL = FirstSubLINK(pL);
@@ -2372,8 +2372,8 @@ static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL)
 			FixContextForTimeSig(doc, RightLINK(pL), aTimeSig->staffn, timeSigInfo);
 		}
 		FixTimeStamps(doc, pL, NILINK);			/* In case of whole-meas. rests */
-		InvalObject(doc, pL, true);
-		doc->changed = true;
+		InvalObject(doc, pL, True);
+		doc->changed = True;
 	}
 	return change;
 }
@@ -2395,7 +2395,7 @@ short CheckTIMESIG(Document *doc, LINK pL, CONTEXT context[],
 	PCONTEXT		pContext;
 	short			i, width;
 	short			result;			/* =NOMATCH unless object/subobject clicked in */
-	Boolean			objSelected;	/* false unless something in the object is selected */
+	Boolean			objSelected;	/* False unless something in the object is selected */
 	short			xp, yp;			/* scratch pixel coordinates */
 	DDIST			dTop, dLeft;	/* absolute DDIST position of origin (staff or measure) */
 	Rect			rSub,			/* paper-relative subobject rectangle */
@@ -2408,7 +2408,7 @@ PushLock(OBJheap);
 PushLock(TIMESIGheap);
 
 	p = GetPTIMESIG(pL);
-	objSelected = false;
+	objSelected = False;
 	result = NOMATCH;
 	aTimeSigL = FirstSubLINK(pL);
 	for (i = 0; aTimeSigL; i++, aTimeSigL=NextTIMESIGL(aTimeSigL)) {
@@ -2475,7 +2475,7 @@ PushLock(TIMESIGheap);
 				 aTimeSig->staffn<=stfRange.bottomStaff && !aTimeSig->selected) {
 				UnionRect(&rSub, (Rect *)ptr, &aRect);		/* does (Rect *)ptr enclose rSub? */
 				if (EqualRect(&aRect, (Rect *)ptr)) {
-					aTimeSig->selected = true;
+					aTimeSig->selected = True;
 					HiliteRect(&wSub);
 					result = stfRange.topStaff;
 				}
@@ -2483,16 +2483,16 @@ PushLock(TIMESIGheap);
 			break;
 		case SMSelect:
 			if (!aTimeSig->selected) {
-				aTimeSig->selected = true;
+				aTimeSig->selected = True;
 				HiliteRect(&wSub);
 			}
 			break;
 		case SMSelNoHilite:
-			aTimeSig->selected = true;
+			aTimeSig->selected = True;
 			break;
 		case SMDeselect:
 			if (aTimeSig->selected) {
-				aTimeSig->selected = false;
+				aTimeSig->selected = False;
 				HiliteRect(&wSub);
 			}
 			break;
@@ -2518,7 +2518,7 @@ PushLock(TIMESIGheap);
 			break;
 		}
 		if (aTimeSig->selected)
-			objSelected = true;
+			objSelected = True;
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
 	
@@ -2548,7 +2548,7 @@ short CheckMEASURE(Document *doc, LINK pL, CONTEXT context[],
 				groupTopStf, groupBottomStf;	/* Top/bottom staff nos. for current group */
 	short		result,				/* =NOMATCH unless object/subobject clicked in */
 				measureStf,connStaff;
-	Boolean		objSelected,		/* false unless something in the object is selected */
+	Boolean		objSelected,		/* False unless something in the object is selected */
 				measDrag,
 				firstMeas;
 	DDIST		xd,					/* scratch DDIST coordinates */
@@ -2575,8 +2575,8 @@ PushLock(MEASUREheap);
 		
 	if (firstMeas) return NOMATCH;
 
-	objSelected = false;
-	measDrag = true;
+	objSelected = False;
+	measDrag = True;
 	result = NOMATCH;
 	halfWidth = 2;
 	p = GetPMEASURE(pL);
@@ -2584,7 +2584,7 @@ PushLock(MEASUREheap);
 	for (i = 0; aMeasureL; i++, aMeasureL=NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
 		if (!firstMeas) {
-			measureStf = NextLimStaffn(doc,pL,true,aMeasure->staffn);
+			measureStf = NextLimStaffn(doc,pL,True,aMeasure->staffn);
 			pContext = &context[measureStf];
 			dTop = pContext->staffTop;
 			dLeft = pContext->staffLeft;
@@ -2603,7 +2603,7 @@ PushLock(MEASUREheap);
 			if (!aMeasure->connAbove) {
 				groupTopStf = measureStf;
 				if (aMeasure->connStaff!=0) {
-					connStaff = NextLimStaffn(doc,pL,false,aMeasure->connStaff);
+					connStaff = NextLimStaffn(doc,pL,False,aMeasure->connStaff);
 					dBottom = context[connStaff].staffTop
 									+context[connStaff].staffHeight;
 					switch (aMeasure->subType) {
@@ -2689,7 +2689,7 @@ PushLock(MEASUREheap);
 				&& !aMeasure->selected) {
 					UnionRect(&rSub, (Rect *)ptr, &aRect);		/* does (Rect *)ptr enclose rSub (the group)? */
 					if (EqualRect(&aRect, (Rect *)ptr)) {
-						aMeasure->selected = true;
+						aMeasure->selected = True;
 						if (!aMeasure->connAbove) HiliteRect(&wSub);
 						result = stfRange.topStaff;				/* ??OR SHOULD IT BE groupTopStf? */
 					}
@@ -2697,16 +2697,16 @@ PushLock(MEASUREheap);
 				break;
 			case SMSelect:
 				if (!aMeasure->selected) {
-					aMeasure->selected = true;
+					aMeasure->selected = True;
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 				}
 				break;
 			case SMSelNoHilite:
-				aMeasure->selected = true;
+				aMeasure->selected = True;
 				break;
 			case SMDeselect:
 				if (aMeasure->selected) {
-					aMeasure->selected = false;
+					aMeasure->selected = False;
 					if (CapsLockKeyDown() && OptionKeyDown())
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							if (!aMeasure->connAbove)
@@ -2721,7 +2721,7 @@ PushLock(MEASUREheap);
 					
 				if (PtInRect(*(Point *)ptr, &rSub) && measDrag) {
 					HandleSymDrag(doc, pL, aMeasureL, *(Point *)ptr, dummy);
-					measDrag = false;
+					measDrag = False;
 					aMeasure->selected = !aMeasure->selected;
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 				}
@@ -2744,7 +2744,7 @@ PushLock(MEASUREheap);
 				break;
 		}
 		if (aMeasure->selected)
-			objSelected = true;
+			objSelected = True;
 	}
 
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
@@ -2773,7 +2773,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 					groupTopStf, groupBottomStf;	/* Top/bottom staff nos. for current group */
 	short			result,				/* =NOMATCH unless object/subobject clicked in */
 					measureStf,connStaff;
-	Boolean			objSelected,		/* false unless something in the object is selected */
+	Boolean			objSelected,		/* False unless something in the object is selected */
 					measDrag;
 	DDIST			xd,					/* scratch DDIST coordinates */
 					dTop, dLeft,		/* absolute DDIST position of origin (staff or measure) */
@@ -2783,8 +2783,8 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 					aRect;				/* scratch */
 	unsigned char	dummy=0;
 
-	objSelected = false;
-	measDrag = true;
+	objSelected = False;
+	measDrag = True;
 	result = NOMATCH;
 	halfWidth = 2;
 	p = GetPPSMEAS(pL);
@@ -2792,7 +2792,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 	for (i = 0; aPSMeasL; i++, aPSMeasL=NextPSMEASL(aPSMeasL)) {
 		aPSMeas = GetPAPSMEAS(aPSMeasL);
 		if (aPSMeas->visible || doc->showInvis) {
-			measureStf = NextLimStaffn(doc,pL,true,aPSMeas->staffn);
+			measureStf = NextLimStaffn(doc,pL,True,aPSMeas->staffn);
 			pContext = &context[measureStf];
 			dTop = pContext->staffTop;
 			dLeft = pContext->measureLeft;
@@ -2810,7 +2810,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 			if (!aPSMeas->connAbove) {
 				groupTopStf = measureStf;
 				if (aPSMeas->connStaff!=0) {
-					connStaff = NextLimStaffn(doc,pL,false,aPSMeas->connStaff);
+					connStaff = NextLimStaffn(doc,pL,False,aPSMeas->connStaff);
 					dBottom = context[connStaff].staffTop+context[connStaff].staffHeight;
 					switch (aPSMeas->subType) {
 						case PSM_DOTTED:
@@ -2878,7 +2878,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 					!aPSMeas->selected) {
 					UnionRect(&rSub, (Rect *)ptr, &aRect);		/* does (Rect *)ptr enclose rSub (the group)? */
 					if (EqualRect(&aRect, (Rect *)ptr)) {
-						aPSMeas->selected = true;
+						aPSMeas->selected = True;
 						if (!aPSMeas->connAbove) HiliteRect(&wSub);
 						result = stfRange.topStaff;				/* ??OR SHOULD IT BE groupTopStf? */
 					}
@@ -2886,16 +2886,16 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 				break;
 			case SMSelect:
 				if (!aPSMeas->selected) {
-					aPSMeas->selected = true;
+					aPSMeas->selected = True;
 					if (!aPSMeas->connAbove) HiliteRect(&wSub);
 				}
 				break;
 			case SMSelNoHilite:
-				aPSMeas->selected = true;
+				aPSMeas->selected = True;
 				break;
 			case SMDeselect:
 				if (aPSMeas->selected) {
-					aPSMeas->selected = false;
+					aPSMeas->selected = False;
 					if (!aPSMeas->connAbove) HiliteRect(&wSub);
 				}
 				break;
@@ -2908,7 +2908,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 
 				if (PtInRect(*(Point *)ptr, &rSub) && measDrag) {
 					HandleSymDrag(doc, pL, aPSMeasL, *(Point *)ptr, dummy);
-					measDrag = false;
+					measDrag = False;
 					aPSMeas->selected = !aPSMeas->selected;
 					if (!aPSMeas->connAbove) HiliteRect(&wSub);
 				}
@@ -2931,7 +2931,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 				break;
 		}
 	if (aPSMeas->selected)
-		objSelected = true;
+		objSelected = True;
 	}
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;
 	return result;
@@ -2958,7 +2958,7 @@ short CheckBEAMSET(Document *doc, LINK pL, CONTEXT context[],
 PushLock(OBJheap);
 	p = GetPBEAMSET(pL);
 	if (!LOOKING_AT(doc, p->voice)) {
-		LinkSEL(pL) = false;
+		LinkSEL(pL) = False;
 		PopLock(OBJheap);
 		return NOMATCH;
 	}
@@ -2998,7 +2998,7 @@ PushLock(OBJheap);
 			 p->staffn<=stfRange.bottomStaff && !p->selected) {
 			UnionRect(&rSub, (Rect *)ptr, &aRect);			/* does (Rect *)ptr enclose rSub? */
 			if (EqualRect(&aRect, (Rect *)ptr)) {
-				p->selected = true;
+				p->selected = True;
 				HiliteRect(&wSub);
 				result = stfRange.topStaff;
 			}
@@ -3006,16 +3006,16 @@ PushLock(OBJheap);
 		break;
 	case SMSelect:
 		if (!LinkSEL(pL)) {
-			LinkSEL(pL) = true;
+			LinkSEL(pL) = True;
 			HiliteRect(&wSub);
 		}
 		break;
 	case SMSelNoHilite:
-		LinkSEL(pL) = true;
+		LinkSEL(pL) = True;
 		break;
 	case SMDeselect:
 		if (LinkSEL(pL)) {
-			LinkSEL(pL) = false;
+			LinkSEL(pL) = False;
 			if (CapsLockKeyDown() && OptionKeyDown())
 				if (SUSPICIOUS_WREL_RECT(wSub))
 					LogPrintf(LOG_NOTICE, " %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
@@ -3070,7 +3070,7 @@ short CheckTUPLET(Document *doc, LINK pL, CONTEXT context[],
 PushLock(OBJheap);
 	p = GetPTUPLET(pL);
 	if (!LOOKING_AT(doc, p->voice)) {
-		LinkSEL(pL) = false;
+		LinkSEL(pL) = False;
 		PopLock(OBJheap);
 		return NOMATCH;
 	}
@@ -3102,11 +3102,11 @@ PushLock(OBJheap);
 		tParam.numVis = p->numVis;
 		tParam.denomVis = p->denomVis;
 		tParam.brackVis = p->brackVis;
-		okay = TupletDialog(doc, &tParam, false);
+		okay = TupletDialog(doc, &tParam, False);
 
-		HiliteInsertNode(doc, FirstInTuplet(pL), p->staffn, false);		/* Hiliting off */
+		HiliteInsertNode(doc, FirstInTuplet(pL), p->staffn, False);		/* Hiliting off */
 		if (FirstInTuplet(pL)!=LastInTuplet(pL))
-			HiliteInsertNode(doc, LastInTuplet(pL), p->staffn, false);	/* Hiliting off */
+			HiliteInsertNode(doc, LastInTuplet(pL), p->staffn, False);	/* Hiliting off */
 
 		if (okay) {
 			p->accNum = tParam.accNum;
@@ -3114,7 +3114,7 @@ PushLock(OBJheap);
 			p->numVis = tParam.numVis;
 			p->denomVis = tParam.denomVis;
 			p->brackVis = tParam.brackVis;
-			doc->changed = true;
+			doc->changed = True;
 			/* FIXME: THIS IS EXCESSIVE */
 			InvalMeasure(pL, TupletSTAFF(pL));
 		}
@@ -3132,7 +3132,7 @@ PushLock(OBJheap);
 			 p->staffn<=stfRange.bottomStaff && !p->selected) {
 			UnionRect(&rSub, (Rect *)ptr, &aRect);			/* does (Rect *)ptr enclose rSub? */
 			if (EqualRect(&aRect, (Rect *)ptr)) {
-				p->selected = true;
+				p->selected = True;
 				HiliteRect(&wSub);
 				result = stfRange.topStaff;
 			}
@@ -3140,16 +3140,16 @@ PushLock(OBJheap);
 		break;
 	case SMSelect:
 		if (!LinkSEL(pL)) {
-			LinkSEL(pL) = true;
+			LinkSEL(pL) = True;
 			HiliteRect(&wSub);
 		}
 		break;
 	case SMSelNoHilite:
-		LinkSEL(pL) = true;
+		LinkSEL(pL) = True;
 		break;
 	case SMDeselect:
 		if (LinkSEL(pL)) {
-			LinkSEL(pL) = false;
+			LinkSEL(pL) = False;
 			HiliteRect(&wSub);
 		}
 		break;
@@ -3228,7 +3228,7 @@ PushLock(OBJheap);
 			 p->staffn<=stfRange.bottomStaff && !p->selected) {
 			UnionRect(&rSub, (Rect *)ptr, &aRect);			/* does (Rect *)ptr enclose rSub? */
 			if (EqualRect(&aRect, (Rect *)ptr)) {
-				p->selected = true;
+				p->selected = True;
 				HiliteRect(&wSub);
 				result = stfRange.topStaff;
 			}
@@ -3236,16 +3236,16 @@ PushLock(OBJheap);
 		break;
 	case SMSelect:
 		if (!LinkSEL(pL)) {
-			LinkSEL(pL) = true;
+			LinkSEL(pL) = True;
 			HiliteRect(&wSub);
 		}
 		break;
 	case SMSelNoHilite:
-		LinkSEL(pL) = true;
+		LinkSEL(pL) = True;
 		break;
 	case SMDeselect:
 		if (LinkSEL(pL)) {
-			LinkSEL(pL) = false;
+			LinkSEL(pL) = False;
 			HiliteRect(&wSub);
 		}
 		break;
@@ -3295,7 +3295,7 @@ short CheckSLUR(Document *doc, LINK pL, CONTEXT context[],
 	Boolean		objSelected;
 
 	if (!LOOKING_AT(doc, SlurVOICE(pL))) {
-		LinkSEL(pL) = false;
+		LinkSEL(pL) = False;
 		return NOMATCH;
 	}
 	
@@ -3303,7 +3303,7 @@ PushLock(OBJheap);
 
 	p = GetPSLUR(pL);
 	result = NOMATCH;
-	objSelected = false;
+	objSelected = False;
 	pContext = &context[SlurSTAFF(pL)];
 	aSlurL = FirstSubLINK(pL);
 
@@ -3342,7 +3342,7 @@ PushLock(OBJheap);
 				 p->staffn<=stfRange.bottomStaff && !aSlur->selected) {
 				UnionRect(&rSub, (Rect *)ptr, &aRect);			/* does (Rect *)ptr enclose rSub? */
 				if (EqualRect(&aRect, (Rect *)ptr)) {
-					aSlur->selected = true;
+					aSlur->selected = True;
 					HiliteRect(&wSub);
 					result = stfRange.topStaff;
 				}
@@ -3350,16 +3350,16 @@ PushLock(OBJheap);
 			break;
 		case SMSelect:
 			if (!aSlur->selected) {
-				aSlur->selected = true;
+				aSlur->selected = True;
 				HiliteRect(&wSub);
 			}
 			break;
 		case SMSelNoHilite:
-			aSlur->selected = true;
+			aSlur->selected = True;
 			break;
 		case SMDeselect:
 			if (aSlur->selected) {
-				aSlur->selected = false;
+				aSlur->selected = False;
 				if (CapsLockKeyDown() && OptionKeyDown())
 					if (SUSPICIOUS_WREL_RECT(wSub))
 						LogPrintf(LOG_NOTICE, " %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
@@ -3368,7 +3368,7 @@ PushLock(OBJheap);
 			break;
 		case SMSymDrag:
 			if (PtInRect(*(Point *)ptr, &rSub)) {
-				aSlur->selected = true;			/* This & only this slur must be selected */
+				aSlur->selected = True;			/* This & only this slur must be selected */
 												/* 	so that SymDragLoop knows which one to drag */
 				HandleSymDrag(doc, pL, NILINK, *(Point *)ptr, (unsigned char)0);
 				LinkSEL(pL) = !LinkSEL(pL);
@@ -3388,7 +3388,7 @@ PushLock(OBJheap);
 			HiliteRect(&wSub);
 			break;
 		}
-		if (aSlur->selected) objSelected = true;
+		if (aSlur->selected) objSelected = True;
 	}
 
 	if (mode!=SMFind) LinkSEL(pL) = objSelected;

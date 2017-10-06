@@ -819,7 +819,7 @@ Boolean StfHasSmthgAcross(
 	}
 
 	if (foundSmthg) {
-		if (isVoice)														/* ??this will never be true! */
+		if (isVoice)														/* ??this will never be True! */
 			Voice2UserStr(doc, number, str);
 		else
 			Staff2UserStr(doc, number, str);

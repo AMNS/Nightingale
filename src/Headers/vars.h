@@ -47,11 +47,11 @@ GLOBAL OSType		creatorType;			/* Application signature ('BYRD') */
 GLOBAL OSType		documentType;			/* Document file signature */
 
 GLOBAL LINK			clipFirstMeas;			/* first measure of clipboard */
-GLOBAL Boolean		doneFlag,				/* false until program is done */
-					cursorValid,			/* true while cursor is valid */
+GLOBAL Boolean		doneFlag,				/* False until program is done */
+					cursorValid,			/* True while cursor is valid */
 					hasWaitNextEvent,		/* Is the WaitNextEvent trap available (e.g., MultiFinder)? */
 					bestQualityPrint,		/* "Best Quality Print" requested (on ImageWriter)? */
-					toolPalChanged;			/* true if user has rearranged tool palette */
+					toolPalChanged;			/* True if user has rearranged tool palette */
 GLOBAL CursHandle	handCursor,				/* various cursors */
 					threadCursor,
 					genlDragCursor,
@@ -96,7 +96,7 @@ GLOBAL Rect			revertWinPosition;		/* Where to replace Document window */
 GLOBAL short		theSelectionType;		/* Current selection type (for autoscrolling) */
 GLOBAL short		dragOffset;				/* Diff between measureRect and portRect */
 GLOBAL CONTEXT		*contextA;				/* Allocate context[MAXSTAVES+1] on the heap */
-GLOBAL Boolean		initedBIMIDI;			/* true=hardware/interrupts set for MIDI use, false=normal */
+GLOBAL Boolean		initedBIMIDI;			/* True=hardware/interrupts set for MIDI use, False=normal */
 GLOBAL short		portSettingBIMIDI;		/* Port to use for built-in MIDI */	
 GLOBAL short		interfaceSpeedBIMIDI;	/* Interface speed for built-in MIDI */
 GLOBAL short		maxEndingNum;			/* Maximum Ending number available */
@@ -121,7 +121,7 @@ GLOBAL long			mPacketBufferLen;		/* Length of mPacketBuffer */
 GLOBAL long			mRecIndex;				/* For our MIDI Mgr readHook or built-in MIDI */		
 GLOBAL long			mFirstTime;				/* For our MIDI Mgr readHook: time stamp of 1st data message */
 GLOBAL long			mFinalTime;				/* For our MIDI Mgr readHook: time stamp of last data message */
-GLOBAL Boolean		recordingNow;			/* true = MIDI recording in progress */
+GLOBAL Boolean		recordingNow;			/* True = MIDI recording in progress */
 GLOBAL Boolean		recordFlats;			/* Use flats for black key notes from MIDI, else sharps */
 GLOBAL short		playTempoPercent;		/* For "variable-speed playback": scale marked tempi by this */
 
@@ -150,7 +150,7 @@ GLOBAL ScrapRef 	gNightScrap;
 
 GLOBAL Boolean		gCoreMIDIInited;
 
-GLOBAL Boolean		unisonsOK;				/* If true, don't object to unisons (perfect or augmented) in a chord */
+GLOBAL Boolean		unisonsOK;				/* If True, don't object to unisons (perfect or augmented) in a chord */
 
 GLOBAL Boolean		ignoreChord[MAX_MEASNODES][MAXVOICES+1];
 
@@ -276,34 +276,34 @@ short nsyms=(sizeof(symtable)/sizeof(SYMDATA));	/* Length of symtable */
  
 OBJDATA objTable[] = {
 	/*	objtype  	justType	minEnt	maxEnt		objRectOrd */
-	{ HEADERtype,	0,			2,		MAXSTAVES+1,false },
-	{ TAILtype,		J_IT,		0,		0,			false },
-	{ SYNCtype,		J_IT,		1,		255,		true },
-	{ RPTENDtype,	J_IT,		1,		MAXSTAVES,	true },
-	{ PAGEtype,		J_STRUC,	0,		0,			false },
+	{ HEADERtype,	0,			2,		MAXSTAVES+1,False },
+	{ TAILtype,		J_IT,		0,		0,			False },
+	{ SYNCtype,		J_IT,		1,		255,		True },
+	{ RPTENDtype,	J_IT,		1,		MAXSTAVES,	True },
+	{ PAGEtype,		J_STRUC,	0,		0,			False },
 
-	{ SYSTEMtype,	J_STRUC,	0,		0,			false },
-	{ STAFFtype,	J_STRUC,	1,		MAXSTAVES,	false },
-	{ MEASUREtype,	J_IT,		1,		MAXSTAVES,	true },
-	{ CLEFtype,		J_IP,		1,		MAXSTAVES,	true },
-	{ KEYSIGtype,	J_IP,		1,		MAXSTAVES,	true },
+	{ SYSTEMtype,	J_STRUC,	0,		0,			False },
+	{ STAFFtype,	J_STRUC,	1,		MAXSTAVES,	False },
+	{ MEASUREtype,	J_IT,		1,		MAXSTAVES,	True },
+	{ CLEFtype,		J_IP,		1,		MAXSTAVES,	True },
+	{ KEYSIGtype,	J_IP,		1,		MAXSTAVES,	True },
 
-	{ TIMESIGtype,	J_IP,		1,		MAXSTAVES,	true },
-	{ BEAMSETtype,	J_D,		2,		127,		false },
-	{ CONNECTtype,	J_D,		1,		MAXSTAVES,	true },
-	{ DYNAMtype,	J_D,		1,		MAXSTAVES,	false },
-	{ MODNRtype,	0,			0,		0,			false },
+	{ TIMESIGtype,	J_IP,		1,		MAXSTAVES,	True },
+	{ BEAMSETtype,	J_D,		2,		127,		False },
+	{ CONNECTtype,	J_D,		1,		MAXSTAVES,	True },
+	{ DYNAMtype,	J_D,		1,		MAXSTAVES,	False },
+	{ MODNRtype,	0,			0,		0,			False },
 
-	{ GRAPHICtype,	J_D,		1,		255,		false },
-	{ OTTAVAtype,	J_D,		1,		MAXINOTTAVA,true },
-	{ SLURtype,		J_D,		1,		MAXCHORD,	false },
-	{ TUPLETtype,	J_D,		2,		127,		false },
-	{ GRSYNCtype,	J_IP,		1,		255,		true },
-	{ TEMPOtype,	J_D,		0,		0,			false },
-	{ SPACERtype,	J_IT,		0,		0,			true },	
-	{ ENDINGtype,	J_D,		0,		0,			false },
-	{ PSMEAStype, 	J_IT,		1,		MAXSTAVES,	true },	
-	{ OBJtype,		J_STRUC,	0,		0,			false }
+	{ GRAPHICtype,	J_D,		1,		255,		False },
+	{ OTTAVAtype,	J_D,		1,		MAXINOTTAVA,True },
+	{ SLURtype,		J_D,		1,		MAXCHORD,	False },
+	{ TUPLETtype,	J_D,		2,		127,		False },
+	{ GRSYNCtype,	J_IP,		1,		255,		True },
+	{ TEMPOtype,	J_D,		0,		0,			False },
+	{ SPACERtype,	J_IT,		0,		0,			True },	
+	{ ENDINGtype,	J_D,		0,		0,			False },
+	{ PSMEAStype, 	J_IT,		1,		MAXSTAVES,	True },	
+	{ OBJtype,		J_STRUC,	0,		0,			False }
 };
 
 /*

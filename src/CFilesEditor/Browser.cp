@@ -61,17 +61,17 @@ static pascal Boolean BrowserFilter(DialogPtr, EventRecord *, short *);
 static Boolean DynamicToString(short dynamicType)
 {
 	switch (dynamicType) {
-		case PPP_DYNAM: strcpy(dynStr, "ppp"); return true;
-		case PP_DYNAM: strcpy(dynStr, "pp"); return true;
-		case P_DYNAM: strcpy(dynStr, "p"); return true;
-		case MP_DYNAM: strcpy(dynStr, "mp"); return true;
-		case MF_DYNAM: strcpy(dynStr, "mf"); return true;
-		case F_DYNAM: strcpy(dynStr, "f"); return true;
-		case FF_DYNAM: strcpy(dynStr, "ff"); return true;
-		case FFF_DYNAM: strcpy(dynStr, "fff"); return true;
-		case DIM_DYNAM: strcpy(dynStr, "hairpin dim."); return true;
-		case CRESC_DYNAM: strcpy(dynStr, "hairpin cresc."); return true;
-		default: strcpy(dynStr, "unknown"); return false;
+		case PPP_DYNAM: strcpy(dynStr, "ppp"); return True;
+		case PP_DYNAM: strcpy(dynStr, "pp"); return True;
+		case P_DYNAM: strcpy(dynStr, "p"); return True;
+		case MP_DYNAM: strcpy(dynStr, "mp"); return True;
+		case MF_DYNAM: strcpy(dynStr, "mf"); return True;
+		case F_DYNAM: strcpy(dynStr, "f"); return True;
+		case FF_DYNAM: strcpy(dynStr, "ff"); return True;
+		case FFF_DYNAM: strcpy(dynStr, "fff"); return True;
+		case DIM_DYNAM: strcpy(dynStr, "hairpin dim."); return True;
+		case CRESC_DYNAM: strcpy(dynStr, "hairpin cresc."); return True;
+		default: strcpy(dynStr, "unknown"); return False;
 	}
 }
 
@@ -79,20 +79,20 @@ static Boolean DynamicToString(short dynamicType)
 static Boolean ClefToString(short clefType)
 {
 	switch (clefType) {
-		case TREBLE8_CLEF: strcpy(clefStr, "treble-8va"); return true;
-		case FRVIOLIN_CLEF: strcpy(clefStr, "French violin"); return true;
-		case TREBLE_CLEF: strcpy(clefStr, "treble"); return true;
-		case SOPRANO_CLEF: strcpy(clefStr, "soprano"); return true;
-		case MZSOPRANO_CLEF: strcpy(clefStr, "mezzo-soprano"); return true;
-		case ALTO_CLEF: strcpy(clefStr, "alto"); return true;
-		case TRTENOR_CLEF: strcpy(clefStr, "treble-tenor"); return true;
-		case TENOR_CLEF: strcpy(clefStr, "tenor"); return true;
-		case BARITONE_CLEF: strcpy(clefStr, "baritone"); return true;
-		case BASS_CLEF: strcpy(clefStr, "bass"); return true;
-		case BASS8B_CLEF: strcpy(clefStr, "bass-8vb"); return true;
-		case PERC_CLEF: strcpy(clefStr, "percussion"); return true;
+		case TREBLE8_CLEF: strcpy(clefStr, "treble-8va"); return True;
+		case FRVIOLIN_CLEF: strcpy(clefStr, "French violin"); return True;
+		case TREBLE_CLEF: strcpy(clefStr, "treble"); return True;
+		case SOPRANO_CLEF: strcpy(clefStr, "soprano"); return True;
+		case MZSOPRANO_CLEF: strcpy(clefStr, "mezzo-soprano"); return True;
+		case ALTO_CLEF: strcpy(clefStr, "alto"); return True;
+		case TRTENOR_CLEF: strcpy(clefStr, "treble-tenor"); return True;
+		case TENOR_CLEF: strcpy(clefStr, "tenor"); return True;
+		case BARITONE_CLEF: strcpy(clefStr, "baritone"); return True;
+		case BASS_CLEF: strcpy(clefStr, "bass"); return True;
+		case BASS8B_CLEF: strcpy(clefStr, "bass-8vb"); return True;
+		case PERC_CLEF: strcpy(clefStr, "percussion"); return True;
 		
-		default: strcpy(clefStr, "unknown"); return false;
+		default: strcpy(clefStr, "unknown"); return False;
 	}
 }
 
@@ -122,7 +122,7 @@ enum {
 
 pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
-		Boolean ans = false;
+		Boolean ans = False;
 		short itype; Handle tHdl; Rect textRect; Point where;
 		WindowPtr w = (WindowPtr)theEvent->message;
 		int part;
@@ -132,11 +132,11 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 				if (w == GetDialogWindow(theDialog)) {
 					BeginUpdate(GetDialogWindow(theDialog));
 					DrawDialog(theDialog);
-//					OutlineOKButton(theDialog,true);
+//					OutlineOKButton(theDialog,True);
 					EndUpdate(GetDialogWindow(theDialog));
 					}
 				*item = 0;
-				ans = true;
+				ans = True;
 				break;
 			case mouseDown:
 				where = theEvent->where;
@@ -144,7 +144,7 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 				GetDialogItem(theDialog, iText, &itype, &tHdl, &textRect);	
 				if (PtInRect(where, &textRect)) {
 					*item = iShowMore;
-					ans = true;
+					ans = True;
 					break;
 				}
 				else {
@@ -161,7 +161,7 @@ pascal Boolean BrowserFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 
 			case keyDown:
 			case autoKey:
-				if (DlgCmdKey(theDialog, theEvent, item, false)) return true;
+				if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
 				break;
 			}
 		return ans;
@@ -230,7 +230,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 		GetDialogItem(dlog, iGo, &itype, (Handle *)&tHdl, &tRect);
 		HiliteControl(tHdl, CTL_INACTIVE);
 	}
-	else PutDlgWord(dlog, iGoNum, pL, true);
+	else PutDlgWord(dlog, iGoNum, pL, True);
 
 	ArrowCursor();
 
@@ -245,7 +245,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	oldIndex = -1;
 	oldShowBPage = -1;
 
-	done = false;
+	done = False;
 	ShowWindow(GetDialogWindow(dlog));
 	
 	do {
@@ -276,7 +276,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 		scrollHdl = NULL;
 		switch (ditem) {
 			case iOK:
-			  	done = true;
+			  	done = True;
 				index = 0;
 			  	break;
 			case iHead:
@@ -401,7 +401,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			   break;
 			case iDeselect:
 			 	if (headL==doc->headL)
-					ChangeSelectObj(doc, pL, index, SMDeselect, false, &objRect);
+					ChangeSelectObj(doc, pL, index, SMDeselect, False, &objRect);
 			 	break;
 			case iScrollUp:
 			 	scrollHdl = doc->vScroll; part = kControlPageUpPart;
@@ -511,23 +511,23 @@ static void SelSubObj(LINK pL, LINK subL)
 	if (pL && subL)
 		switch (ObjLType(pL)) {
 			case CONNECTtype:
-				ConnectSEL(subL) = true; break;
+				ConnectSEL(subL) = True; break;
 			case STAFFtype:
-				StaffSEL(subL) = true; break;
+				StaffSEL(subL) = True; break;
 			case SYNCtype:
-				NoteSEL(subL) = true; break;
+				NoteSEL(subL) = True; break;
 			case CLEFtype:
-				ClefSEL(subL) = true; break;
+				ClefSEL(subL) = True; break;
 			case KEYSIGtype:
-				KeySigSEL(subL) = true; break;
+				KeySigSEL(subL) = True; break;
 			case TIMESIGtype:
-				TimeSigSEL(subL) = true; break;
+				TimeSigSEL(subL) = True; break;
 			case DYNAMtype:
-				DynamicSEL(subL) = true; break;
+				DynamicSEL(subL) = True; break;
 			case MEASUREtype:
-				MeasureSEL(subL) = true; break;
+				MeasureSEL(subL) = True; break;
 			case SLURtype:
-				SlurSEL(subL) = true; break;
+				SlurSEL(subL) = True; break;
 			default:
 				SysBeep(1);
 				LogPrintf(LOG_WARNING, "Browser/SelSubObj: can't select subobject of this type.");
@@ -544,7 +544,7 @@ work in the safest possible way. */
 static void ChangeSelectObj(Document *doc, LINK pL,
 				short	index,		/* Index of subobject currently displayed */
 				short	mode,
-				Boolean selSub,		/* If SMSelect, true=select only current subobject */
+				Boolean selSub,		/* If SMSelect, True=select only current subobject */
 				Rect *pObjRect
 				)
 {
@@ -596,7 +596,7 @@ static void ChangeSelectObj(Document *doc, LINK pL,
 	}
 	LinkSEL(pL) = (mode==SMSelect);
 	UpdateSelection(doc);
-	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc,true);
+	if (doc->selStartL==doc->selEndL) MEAdjustCaret(doc,True);
 	EraseRect(&bRect);
 	ShowObject(doc, pL, index, pObjRect);						/*	Show the thing again */
 }
@@ -776,11 +776,11 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 		 */
 		startV = showBPage*VOICEPAGESIZE+1;
 		if (startV>MAXVOICES)
-			pageEmpty = true;
+			pageEmpty = True;
 		else
-			for (pageEmpty = true, v = startV;
+			for (pageEmpty = True, v = startV;
 				  v<=startV+VOICEPAGESIZE && v<=MAXVOICES; v++)
-				if (doc->voiceTab[v].partn!=0) pageEmpty = false;
+				if (doc->voiceTab[v].partn!=0) pageEmpty = False;
 		if (pageEmpty) {
 			showBPage = 0;
 			startV = showBPage*VOICEPAGESIZE+1;
@@ -966,8 +966,8 @@ void BrowseStaff(LINK pL, short index, Rect *pObjRect)
 	q = GetPASTAFF(qL);
 	sprintf(s, "link=%u @%lx stf=%d next=%d", qL, q, q->staffn, q->next);
 	DrawTextLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "vis=%s sel=%s", q->visible ? "True" : "false",
-									q->selected ? "True" : "false");
+	sprintf(s, "vis=%s sel=%s", q->visible ? "True" : "False",
+									q->selected ? "True" : "False");
 	DrawTextLine(s); q = GetPASTAFF(qL);
 	
 	stfRect.left = q->staffLeft;  stfRect.right = systemRect.right-systemRect.left;
@@ -1225,7 +1225,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);	p = GetPMEASURE(pL);
 	sprintf(s, "systemL=%d staffL=%d", p->systemL, p->staffL);
 	DrawTextLine(s);	p = GetPMEASURE(pL);
-	sprintf(s, "fake=%s spPercent=%d", (p->fakeMeas ? "True" : "false"), p->spacePercent);
+	sprintf(s, "fake=%s spPercent=%d", (p->fakeMeas ? "True" : "False"), p->spacePercent);
 	DrawTextLine(s);	p = GetPMEASURE(pL);
 	bbox = p->measureBBox;
 	sprintf(s, "measureBBox=%d %d %d %d",
@@ -1384,7 +1384,7 @@ void BrowseSync(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "accident=%hd accSoft=%s xmoveAcc=%hd", q->accident,
-														q->accSoft ? "True" : "false",
+														q->accSoft ? "True" : "False",
 														q->xmoveAcc);
 	DrawTextLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
@@ -1461,7 +1461,7 @@ void BrowseGRSync(LINK pL, short index, Rect *pObjRect)
 	sprintf(s, "headShape=%d firstMod=%d", q->headShape, q->firstMod);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 	sprintf(s, "accident=%hd accSoft=%s xmoveAcc=%hd", q->accident,
-														q->accSoft ? "True" : "false",
+														q->accSoft ? "True" : "False",
 														q->xmoveAcc);
 	DrawTextLine(s);	q = GetPAGRNOTE(qL);
 	sprintf(s, "playTDelta=%d playDur=%d noteNum=%hd", q->playTimeDelta, q->playDur,
@@ -1507,7 +1507,7 @@ void BrowseBeamset(LINK pL, short index, Rect *pObjRect)
 	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
 	sprintf(s, "fracs=%d", q->fracs);
 	DrawTextLine(s);	q = GetPANOTEBEAM(qL);
-	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "True" : "false");
+	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "True" : "False");
 	DrawTextLine(s);
 }
 
@@ -1730,7 +1730,7 @@ void BrowseGraphic(LINK pL, Rect *pObjRect)
 	
 	sprintf(s, "stf=%d voice=%d", p->staffn, p->voice);
 	DrawTextLine (s);
-	strcpy(strBuf, NameGraphicType(pL, false));
+	strcpy(strBuf, NameGraphicType(pL, False));
 	sprintf(s, "graphicType=%s", strBuf);
 	DrawTextLine (s);
 
@@ -1896,7 +1896,7 @@ void BrowseSlur(LINK pL, short index, Rect *pObjRect)
 	
 	sprintf(s, "stf=%d voice=%d", p->staffn, p->voice);
 	DrawTextLine(s);	p = GetPSLUR(pL);
-	sprintf(s, "tie=%s", p->tie ? "True" : "false");
+	sprintf(s, "tie=%s", p->tie ? "True" : "False");
 	DrawTextLine(s);	p = GetPSLUR(pL);
 	sprintf(s, "crossStf=%d crossStfBack=%d crossSys=%d",
 		p->crossStaff,p->crossStfBack,p->crossSystem);
@@ -1988,7 +1988,7 @@ void ShowContext(Document *doc)
 
 	GetDialogItem(dlog, iText, &itype, &tHdl, &bRect);
 
-	done = false;
+	done = False;
 	TextFont(SYSFONTID_MONOSPACED);
 	TextSize(9);
 	EraseRect(&bRect);
@@ -2048,7 +2048,7 @@ void ShowContext(Document *doc)
 		of the context in the normal sense, and the last previous Graphic may well be
 		(e.g., if it's "solo", "pizz.", etc.) and both are worth showing. */
 	DrawTextLine("----------------------------");
-	tempoL = LSSearch(pL, TEMPOtype, ANYONE, GO_LEFT, false);
+	tempoL = LSSearch(pL, TEMPOtype, ANYONE, GO_LEFT, False);
 	if (tempoL==NILINK) {
 		DrawTextLine("No TEMPO object preceding this.");
 	}
@@ -2058,7 +2058,7 @@ void ShowContext(Document *doc)
 		DrawTextLine(s);
 	}
 
-	graphicL = LSSearch(pL, GRAPHICtype, doc->selStaff, GO_LEFT, false);
+	graphicL = LSSearch(pL, GRAPHICtype, doc->selStaff, GO_LEFT, False);
 	if (graphicL==NILINK) {
 		DrawTextLine("No GRAPHIC obj on staff before this.");
 	}
@@ -2097,10 +2097,10 @@ void ShowContext(Document *doc)
 		}
 	}
 
-	done = false;
+	done = False;
 	do {
 		ModalDialog(NULL, &ditem);					/* Handle dialog events */
-		if (ditem==OK) done = true;
+		if (ditem==OK) done = True;
 	} while (!done);
 	DisposeDialog(dlog);
 	SetPort(oldPort);

@@ -30,7 +30,7 @@ static void MoveUpDownErr(LINK pL, short errNum);
 
 /* --------------------------------------------------------------- Various Utilities -- */
 
-/* Return range of bars to move in startBarL and endBarL. Returns false if startMeasL
+/* Return range of bars to move in startBarL and endBarL. Returns False if startMeasL
 is not before endL. startBarL is first measure before startL, or first measure of score
 if startL is before all measures. endBarL is object terminating measure containing
 endL considered as selRange ptr.   */
@@ -40,16 +40,16 @@ static Boolean InitMoveBars(Document *doc, LINK startL, LINK endL, LINK *startBa
 {
 	LINK startMeasL;
 
-	startMeasL = LSISearch(LeftLINK(startL), MEASUREtype, ANYONE, true, false); /* Start at previous Measure */
+	startMeasL = LSISearch(LeftLINK(startL), MEASUREtype, ANYONE, True, False); /* Start at previous Measure */
 	if (!startMeasL) {
 		startMeasL = FirstSysMeas(LeftLINK(startL));
 		if (!startMeasL) startMeasL = FirstDocMeas(doc);
-		if (endL==startMeasL || IsAfter(endL, startMeasL)) return false;
+		if (endL==startMeasL || IsAfter(endL, startMeasL)) return False;
 	}
 
 	*startBarL = startMeasL;
 	*endBarL = EndMeasSearch(doc, LeftLINK(endL));							/* Stop at end of Measure */
-	return true;
+	return True;
 }
 
 
@@ -88,11 +88,11 @@ static void CleanupMoveBars(Document *doc, LINK startL, LINK endL)
 		all possible. */
 
 	if (!MeasureTYPE(startL))
-		startL = LSSearch(startL, MEASUREtype, ANYONE, GO_LEFT, false);
+		startL = LSSearch(startL, MEASUREtype, ANYONE, GO_LEFT, False);
 	if (endL && !MeasureTYPE(endL))
-		endL = LSSearch(endL, MEASUREtype, ANYONE, GO_RIGHT, false);
+		endL = LSSearch(endL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	if (!endL)
-		endL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, false);
+		endL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, False);
 
 	if (startL) {
 		FixMeasRectXs(startL, endL);
@@ -103,8 +103,8 @@ static void CleanupMoveBars(Document *doc, LINK startL, LINK endL)
 	DeselRangeNoHilite(doc,doc->headL,doc->tailL);
 	doc->selStartL = doc->selEndL = doc->tailL;
 
-	MEAdjustCaret(doc,false);
-	doc->changed = true;
+	MEAdjustCaret(doc,False);
+	doc->changed = True;
 }
 
 
@@ -128,7 +128,7 @@ static void MoveUpDownErr(LINK pL, short errNum)
 
 /* ---------------------------------------------------------------------- MoveJDObjs -- */
 /*	Find all Graphics, Tempos and Endings that are attached to <srcAnchorL>, and
-attach them to <dstAnchorL>. Return true if we did anything, false if there were
+attach them to <dstAnchorL>. Return True if we did anything, False if there were
 no J_D objects to move.
 
 A question in case this function is ever generalized: Does this assume that these
@@ -139,12 +139,12 @@ Boolean MoveJDObjs(Document *doc, LINK srcAnchorL, LINK dstAnchorL);
 Boolean MoveJDObjs(Document *doc, LINK srcAnchorL, LINK dstAnchorL)
 {
 	LINK	pL, stopL, prevL;
-	Boolean	didSomething = false;
+	Boolean	didSomething = False;
 	
-	if (srcAnchorL==dstAnchorL) return false;
+	if (srcAnchorL==dstAnchorL) return False;
 	
 	/* No need to search before previous measure for objects attached to srcAnchorL. */
-	stopL = LSSearch(LeftLINK(srcAnchorL), MEASUREtype, ANYONE, GO_LEFT, false);
+	stopL = LSSearch(LeftLINK(srcAnchorL), MEASUREtype, ANYONE, GO_LEFT, False);
 	if (stopL==NILINK) stopL = doc->headL;
 
 	for (pL = LeftLINK(srcAnchorL); pL!=stopL; pL = prevL) {
@@ -155,21 +155,21 @@ Boolean MoveJDObjs(Document *doc, LINK srcAnchorL, LINK dstAnchorL)
 					if (GraphicFIRSTOBJ(pL)==srcAnchorL) {
 						GraphicFIRSTOBJ(pL) = dstAnchorL;
 						MoveNode(pL, dstAnchorL);
-						didSomething = true;
+						didSomething = True;
 					}
 					break;
 				case TEMPOtype:
 					if (TempoFIRSTOBJ(pL)==srcAnchorL) {
 						TempoFIRSTOBJ(pL) = dstAnchorL;
 						MoveNode(pL, dstAnchorL);
-						didSomething = true;
+						didSomething = True;
 					}
 					break;
 				case ENDINGtype:
 					if (EndingFIRSTOBJ(pL)==srcAnchorL) {
 						EndingFIRSTOBJ(pL) = dstAnchorL;
 						MoveNode(pL, dstAnchorL);
-						didSomething = true;
+						didSomething = True;
 					}
 			}
 	}
@@ -183,7 +183,7 @@ preceding System. The range extends from the barLine prior to startL (which must
 be the first Measure of its System) to the end of the measure including endL.
 Areas before the initial barlines of systems, which are not part of any Measure,
 are always left alone, even if they're within the specified area.
-MoveBarsUp returns true if it successfully moves anything, false if not (either
+MoveBarsUp returns True if it successfully moves anything, False if not (either
 because of an error or because the specified area is entirely before a system's
 initial barline).
 
@@ -214,7 +214,7 @@ Boolean MoveBarsUp(Document *doc, LINK startL, LINK endL)
 		If startL is before all measures, startBarL is the first barLine of score. */
 
 	if (!InitMoveBars(doc, startL, endL, &startBarL, &endBarL))
-		return false;
+		return False;
 
 	PrepareUndo(doc, startL, U_MoveMeasUp, 44);    				/* "Move Measures Up" */
 	
@@ -225,22 +225,22 @@ Boolean MoveBarsUp(Document *doc, LINK startL, LINK endL)
 		System. */
 
 	if (!MeasureTYPE(endBarL))
-		endBarL = LSSearch(endL, MEASUREtype, ANYONE, GO_LEFT, false);
+		endBarL = LSSearch(endL, MEASUREtype, ANYONE, GO_LEFT, False);
 
-	sys2L = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, false);
+	sys2L = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	if (!sys2L)
-		{ MoveUpDownErr(startL,1); return false; }
+		{ MoveUpDownErr(startL,1); return False; }
 
 	sys1L = LinkLSYS(sys2L);
 	if (!sys1L)	
-		{ MoveUpDownErr(startL,2); return false; }
+		{ MoveUpDownErr(startL,2); return False; }
 
 	sys3L = LinkRSYS(sys2L);
 	endRangeL = (sys3L ? sys3L : doc->tailL);
 
 	lastL = LastOnPrevSys(sys2L);
 	if (!MeasureTYPE(lastL)) {
-		nextBarL = LSSearch(RightLINK(lastL), MEASUREtype, ANYONE, GO_RIGHT, false);
+		nextBarL = LSSearch(RightLINK(lastL), MEASUREtype, ANYONE, GO_RIGHT, False);
 		nextBarXD = SysRelxd(nextBarL);
 	}
 
@@ -271,7 +271,7 @@ Boolean MoveBarsUp(Document *doc, LINK startL, LINK endL)
 		LINK dstAnchorL;
 		
 		if (MeasureTYPE(lastL)) dstAnchorL = lastL;
-		else dstAnchorL = LSSearch(LeftLINK(lastL), MEASUREtype, ANYONE, GO_LEFT, false);
+		else dstAnchorL = LSSearch(LeftLINK(lastL), MEASUREtype, ANYONE, GO_LEFT, False);
 		
 		MoveJDObjs(doc, startBarL, dstAnchorL);
 		
@@ -311,7 +311,7 @@ Boolean MoveBarsUp(Document *doc, LINK startL, LINK endL)
 		MoveMeasures(RightLINK(lastL), RightLINK(endBarL), xMove1);
 	else {
 		linkXD = LinkXD(lastL) + ObjSpaceUsed(doc,lastL)-LinkXD(RightLINK(lastL));
-		nextBarL = LSSearch(RightLINK(lastL),MEASUREtype,ANYONE,GO_RIGHT,false);
+		nextBarL = LSSearch(RightLINK(lastL),MEASUREtype,ANYONE,GO_RIGHT,False);
 		MoveInMeasure(RightLINK(lastL),nextBarL,linkXD);
 
 		if (SameSystem(lastL,nextBarL)) {
@@ -329,7 +329,7 @@ Boolean MoveBarsUp(Document *doc, LINK startL, LINK endL)
 	MeasureTIME(startBarL) = MeasureTIME(endBarL);
 
 	CleanupMoveBars(doc, lastL, sys3L);
-	return true;
+	return True;
 }
 
 /* -------------------------------------------------------------------- MoveBarsDown -- */
@@ -338,7 +338,7 @@ the following System. The range extends from the barLine prior to startL to
 the end of the measure including endL.
 Areas before the initial barlines of systems, which are not part of any Measure,
 are always left alone, even if they're within the specified area.
-MoveBarsDown returns true if it successfully moves anything, false if not (either
+MoveBarsDown returns True if it successfully moves anything, False if not (either
 because of an error or because the specified area is entirely before a system's
 initial barline).
 
@@ -368,13 +368,13 @@ Boolean MoveBarsDown(Document *doc, LINK startL, LINK endL)
 		If startL is before all measures, startBarL is the first barLine of score. */
 
 	if (!InitMoveBars(doc, startL, endL, &startBarL, &endBarL))
-		return false;
+		return False;
 
 	PrepareUndo(doc, startL, U_MoveMeasDown, 45);    		/* "Move Measures Down" */
 	
-	sys1L = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, false);
+	sys1L = LSSearch(startL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	if (!sys1L)
-		{ MoveUpDownErr(startL,4); return false; }
+		{ MoveUpDownErr(startL,4); return False; }
 
 	/* If sys2L is NILINK, there is no system following the measures to be moved
 		down. Insert a system after on this page, if possible; if not, insert a
@@ -395,7 +395,7 @@ Boolean MoveBarsDown(Document *doc, LINK startL, LINK endL)
 		endBarL = RightLINK(prevL);
 	}
 
-	rightBarL = LSSearch(sys2L, MEASUREtype, ANYONE, GO_RIGHT, false);
+	rightBarL = LSSearch(sys2L, MEASUREtype, ANYONE, GO_RIGHT, False);
 	rNextBarL = LinkRMEAS(rightBarL);
 
 	sys3L = LinkRSYS(sys2L);
@@ -425,7 +425,7 @@ Boolean MoveBarsDown(Document *doc, LINK startL, LINK endL)
 		xMoveB = SysRelxd(endBarL)-SysRelxd(startBarL);
  	}
  	else{
- 		prevBarL = LSSearch(endBarL,MEASUREtype,ANYONE,GO_LEFT,false);
+ 		prevBarL = LSSearch(endBarL,MEASUREtype,ANYONE,GO_LEFT,False);
 		xMoveB = MeasOccupiedWidth(doc, prevBarL, MeasSpaceProp(prevBarL));
  		if (prevBarL!=startBarL)
  			xMoveB += SysRelxd(prevBarL)-SysRelxd(startBarL);
@@ -449,7 +449,7 @@ Boolean MoveBarsDown(Document *doc, LINK startL, LINK endL)
 	else {
 		LINK dstAnchorL;
 
-		dstAnchorL = LSSearch(LeftLINK(endBarL), MEASUREtype, ANYONE, GO_LEFT, false);
+		dstAnchorL = LSSearch(LeftLINK(endBarL), MEASUREtype, ANYONE, GO_LEFT, False);
 
 		MoveRange(RightLINK(startBarL), endBarL, RightLINK(rightBarL));
 
@@ -479,14 +479,14 @@ Boolean MoveBarsDown(Document *doc, LINK startL, LINK endL)
 	MeasureTIME(rightBarL) = MeasureTIME(startBarL);
 	
 	CleanupMoveBars(doc, startBarL, endRangeL);
-	return true;
+	return True;
 }
 
 
 /* -------------------------------------------------------------------- MoveSystemUp -- */
 /* Move a System "up" from the top of one page to the bottom of the preceding one. The
-System is the one containing <startL>. MoveSystemUp returns true if it successfully
-moves a System, false if not (because of an error). */
+System is the one containing <startL>. MoveSystemUp returns True if it successfully
+moves a System, False if not (because of an error). */
 
 Boolean MoveSystemUp(Document *doc, LINK startL)
 {
@@ -498,13 +498,13 @@ Boolean MoveSystemUp(Document *doc, LINK startL)
 	
 	/* First, figure out what to move and collect relevant links. */
 
-	sys2L = LSSearch(startL, SYSTEMtype, ANYONE, true, false);
+	sys2L = LSSearch(startL, SYSTEMtype, ANYONE, True, False);
 	if (!sys2L) MayErrMsg("MoveSystemUp: no containing System for %ld", (long)startL);
 	if (IsLastSysInPage(sys2L)) {
 		GetIndCString(strBuf, MISCERRS_STRS, 15);    /* "Nightingale can't remove the only system on a page. Use Reformat to combine pages." */
 		CParamText(strBuf,	"", "", "");
 		StopInform(GENERIC_ALRT);
-		return false;
+		return False;
 	}
 	endSysL = EndSystemSearch(doc, sys2L);
 	sys1L = LinkLSYS(sys2L);
@@ -528,20 +528,20 @@ Boolean MoveSystemUp(Document *doc, LINK startL)
 	sysHeight = pSys->systemRect.bottom-pSys->systemRect.top;
 	pSys->systemRect.top = sysTop;								/* Fix first System top & bottom */
 	pSys->systemRect.bottom = pSys->systemRect.top+sysHeight;
-	FixSystemRectYs(doc, false);								/* Fix all Systems' top & bottom */
+	FixSystemRectYs(doc, False);								/* Fix all Systems' top & bottom */
 
 	/* Insure selection range is legal, update screen, and do miscellaneous cleanup. */
 	InvalRange(destPageL, LinkRPAGE(srcPageL));
 	InvalWindow(doc);
-	doc->changed = true;
-	return true;
+	doc->changed = True;
+	return True;
 }
 
 
 /* ------------------------------------------------------------------ MoveSystemDown -- */
 /* Move a System "down" from the bottom of one page to the top of the next one. The
-System is the one containing <startL>. MoveSystemDown returns true if it successfully
-moves a System, false if not (because of an error). */
+System is the one containing <startL>. MoveSystemDown returns True if it successfully
+moves a System, False if not (because of an error). */
 
 Boolean MoveSystemDown(Document *doc, LINK startL)
 {
@@ -554,13 +554,13 @@ Boolean MoveSystemDown(Document *doc, LINK startL)
 	
 	/* First, figure out what to move and collect relevant links. */
 
-	sys1L = LSSearch(startL, SYSTEMtype, ANYONE, true, false);
+	sys1L = LSSearch(startL, SYSTEMtype, ANYONE, True, False);
 	if (!sys1L) MayErrMsg("MoveSystemDown: no containing System for %ld", (long)startL);
 	if (FirstSysInPage(sys1L)) {
 		GetIndCString(strBuf, MISCERRS_STRS, 15);    /* "Nightingale can't remove the only system on a page. Use Reformat to combine pages." */
 		CParamText(strBuf,	"", "", "");
 		StopInform(GENERIC_ALRT);
-		return false;
+		return False;
 	}
 	destPageL = EndSystemSearch(doc, sys1L);
 	if (!PageTYPE(destPageL))
@@ -585,13 +585,13 @@ Boolean MoveSystemDown(Document *doc, LINK startL)
 	sysHeight = pSys->systemRect.bottom-pSys->systemRect.top;
 	pSys->systemRect.top = sysTop;								/* Fix first System top & bottom */
 	pSys->systemRect.bottom = pSys->systemRect.top+sysHeight;
-	FixSystemRectYs(doc, false);								/* Fix other Systems top & bottom */
+	FixSystemRectYs(doc, False);								/* Fix other Systems top & bottom */
 
 	/* Insure selection range is legal, update screen, and do miscellaneous cleanup. */
 	if (doc->selEndL==destPageL) doc->selEndL = sys2L;
 	InvalRange(destPageL, nextPageL);
 	InvalWindow(doc);
-	MEAdjustCaret(doc, false);
-	doc->changed = true;
-	return true;
+	MEAdjustCaret(doc, False);
+	doc->changed = True;
+	return True;
 }

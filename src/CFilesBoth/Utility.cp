@@ -53,11 +53,11 @@ DDIST CalcYStem(
 			Document *doc,
 			DDIST	yhead,			/* position of note head */
 			short	nflags,			/* number of flags or beams */
-			Boolean	stemDown,		/* true if stem is down, else stem is up */
+			Boolean	stemDown,		/* True if stem is down, else stem is up */
 			DDIST	staffHeight,	/* staff height */
 			short	staffLines,
 			short	qtrSp,			/* desired "normal" (w/2 or less flags) stem length (qtr-spaces) */
-			Boolean	noExtend 		/* true means don't extend stem to midline */
+			Boolean	noExtend 		/* True means don't extend stem to midline */
 			)
 {
 	DDIST	midline, dLen, ystem;
@@ -102,7 +102,7 @@ DDIST GetNoteYStem(Document *doc, LINK syncL, LINK aNoteL, CONTEXT context)
 	ystem = CalcYStem(doc, NoteYD(aNoteL), NFLAGS(NoteType(aNoteL)),
 							stemDown,
 							context.staffHeight, context.staffLines,
-							qStemLen, false);
+							qStemLen, False);
 	return ystem;
 }
 
@@ -128,7 +128,7 @@ DDIST GetGRNoteYStem(LINK aGRNoteL, CONTEXT context)
 
 
 /* ----------------------------------------------------------------------- ShortenStem -- */
-/*	Returns true if the given note and stem direction require a shorter-than-normal
+/*	Returns True if the given note and stem direction require a shorter-than-normal
 stem; intended for use in 2-voice notation. */
 
 Boolean ShortenStem(LINK aNoteL, CONTEXT context, Boolean stemDown)
@@ -142,10 +142,10 @@ Boolean ShortenStem(LINK aNoteL, CONTEXT context, Boolean stemDown)
 	yqpit = aNote->yqpit+halfLn2qd(midCHalfLn);						/* For notehead... */
 	halfLn = qd2halfLn(yqpit);										/* Half-lines below stftop */
 	
-	if (halfLn<(0+STRICT_SHORTSTEM) && !stemDown) return true;			/* Above staff so shorten */
+	if (halfLn<(0+STRICT_SHORTSTEM) && !stemDown) return True;			/* Above staff so shorten */
 	if (halfLn>(2*(context.staffLines-1)-STRICT_SHORTSTEM) && stemDown)	/* Below staff so shorten */
-		 return true;
-	return false;
+		 return True;
+	return False;
 }
 
 
@@ -171,24 +171,24 @@ Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context
 			yqpit = aNote->yqpit+halfLn2qd(midCHalfLn);
 			halfLn = qd2halfLn(yqpit);								/* Number of half lines from stftop */
 			stemDown = (halfLn<=context.staffLines-1);
-			*qStemLen = QSTEMLEN(true, ShortenStem(aNoteL, context, stemDown));
+			*qStemLen = QSTEMLEN(True, ShortenStem(aNoteL, context, stemDown));
 			break;
 		case UPPER_DI:
-			stemDown = false;
-			*qStemLen = QSTEMLEN(false, ShortenStem(aNoteL, context, stemDown));
+			stemDown = False;
+			*qStemLen = QSTEMLEN(False, ShortenStem(aNoteL, context, stemDown));
 			break;
 		case LOWER_DI:
-			stemDown = true;
-			*qStemLen = QSTEMLEN(false, ShortenStem(aNoteL, context, stemDown));
+			stemDown = True;
+			*qStemLen = QSTEMLEN(False, ShortenStem(aNoteL, context, stemDown));
 			break;
 		case CROSS_DI:
 			partL = FindPartInfo(doc, Staff2Part(doc, NoteSTAFF(aNoteL)));
 			pPart = GetPPARTINFO(partL);
 			stemDown = (NoteSTAFF(aNoteL)==pPart->firstStaff);
-			*qStemLen = QSTEMLEN(false, ShortenStem(aNoteL, context, stemDown));
+			*qStemLen = QSTEMLEN(False, ShortenStem(aNoteL, context, stemDown));
 			break;
 		default:													/* Should never get here */
-			return false;
+			return False;
 	}
 	
 	return stemDown;
@@ -225,10 +225,10 @@ Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /
 	switch (voiceRole) {
 		case SINGLE_DI:
 		case UPPER_DI:
-			stemDown = false;
+			stemDown = False;
 			break;
 		case LOWER_DI:
-			stemDown = true;
+			stemDown = True;
 			break;
 		case CROSS_DI:
 			partL = FindPartInfo(doc, Staff2Part(doc, GRNoteSTAFF(aGRNoteL)));
@@ -236,7 +236,7 @@ Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /
 			stemDown = (GRNoteSTAFF(aGRNoteL)==pPart->firstStaff);
 			break;
 		default:													/* Should never get here */
-			return false;
+			return False;
 	}
 	
 	*qStemLen = config.stemLenGrace;
@@ -379,14 +379,14 @@ Rect StrToObjRect(unsigned char *string)
 {
 	short	nchars;
 	Rect	strRect, tempR;
-	Boolean	rectNotSet = true;
+	Boolean	rectNotSet = True;
 	
 	nchars = string[0];
 	while (nchars > 0) {
 		if (rectNotSet) {
 			strRect = CharRect(string[nchars]);
 			OffsetRect(&strRect, -strRect.left, 0);
-			rectNotSet = false;
+			rectNotSet = False;
 		}
 		else {
 			tempR = CharRect(string[nchars]);
@@ -620,7 +620,7 @@ short MaxPartNameWidth(
 	
 	maxWidth = 0;
 
-	measL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, false);
+	measL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	partL = FirstSubLINK(doc->masterHeadL);
 	for (partL=NextPARTINFOL(partL); partL; partL=NextPARTINFOL(partL)) {	/* Skip unused first partL */
 		pPart = GetPPARTINFO(partL);
@@ -732,7 +732,7 @@ These make it easy to work with color images.  See Apple documentation
 
 /* ------------------------------------------------------------------------- MakeGWorld -- */
 /* Create a new graphics world (GWorld) for offscreen drawing, having
-the given dimensions.  If <lock> is true, the PixMap of this GWorld will be
+the given dimensions.  If <lock> is True, the PixMap of this GWorld will be
 locked on return.  Returns the new GWorldPtr, or NULL if error. */
 
 GWorldPtr MakeGWorld(short width, short height, Boolean lock)
@@ -798,19 +798,19 @@ static GDHandle saveDevice = NULL;
 Boolean SaveGWorld()
 {
 	if (savePort!=NULL || saveDevice!=NULL)
-		return false;				/* our temporary data already in use */
+		return False;				/* our temporary data already in use */
 	GetGWorld(&savePort, &saveDevice);
-	return true;
+	return True;
 }
 
 Boolean RestoreGWorld()
 {
 	if (savePort==NULL || saveDevice==NULL)
-		return false;		/* SaveGWorld hasn't been called since last RestoreGWorld. */
+		return False;		/* SaveGWorld hasn't been called since last RestoreGWorld. */
 	SetGWorld(savePort, saveDevice);
 	savePort = NULL;
 	saveDevice = NULL;
-	return true;
+	return True;
 }
 
 
@@ -1046,13 +1046,13 @@ long FindIntInString(unsigned char *string)
 	Boolean foundDigits;
 	
 	number = 0L;
-	foundDigits = false;
+	foundDigits = False;
 	for (short i = 1; i<=string[0]; i++) {
 		if (isdigit(string[i])) {
 			if (number>BIGNUM/10L) return number;			/* Avoid overflow */
 			digit = string[i]-'0';
 			number = (10L*number)+digit;
-			foundDigits = true;
+			foundDigits = True;
 		}
 		else if (foundDigits)
 			return number;
@@ -1192,11 +1192,11 @@ Boolean FontID2Name(Document *doc, short fontID, StringPtr fontName)
 	for (i = 0; i<nfontsUsed; i++) {
 		if (doc->fontTable[i].fontID==fontID) {
 			PStrncpy((StringPtr)fontName, (StringPtr)doc->fontTable[i].fontName, 32);
-			return true;
+			return True;
 		}
 	}
 	
-	return false;
+	return False;
 }
 
 
@@ -1341,7 +1341,7 @@ gettimeofday() is very likely to work fine for that. */
 
 static long GetMillisecTime()
 {
-	static bool firstTime=true;
+	static bool firstTime=True;
 	static time_t offsetSec;
 	struct timeval tv;
 	time_t timeSec;
@@ -1359,7 +1359,7 @@ static long GetMillisecTime()
   
 	if (firstTime) {
 		offsetSec = tv.tv_sec;
-		firstTime = false;
+		firstTime = False;
 	}
 	timeSec = tv.tv_sec-offsetSec;
 	timeUsec = tv.tv_usec;
@@ -1495,13 +1495,13 @@ char *StdVerNumToStr(long verNum, char *verStr)
 
 
 /* ---------------------------------------------------------------------- PlayResource -- */
-/* Play a 'snd ' resource, as found in the given handle.  If sync is true, play it
-synchronously here and return when it's done.  If sync is false, start the sound
+/* Play a 'snd ' resource, as found in the given handle.  If sync is True, play it
+synchronously here and return when it's done.  If sync is False, start the sound
 playing and return before it's finished.  Deliver any error.  To stop a currently
 playing sound, call this with snd == NULL.
 
 Disposing of the sound handle is the caller's responsibility.  If this is called with
-sync==false, then at some point in the future, it should be called again with
+sync==False, then at some point in the future, it should be called again with
 snd==NULL, to unlock the locked sound. (But it'd be better to do that in a completion
 routine that's called automatically when the sound ends.) */
 
@@ -1514,7 +1514,7 @@ short PlayResource(Handle snd, Boolean sync)
 		/* First turn any current sound off if we're called for any reason */
 		
 		if (theSound) {
-			err = SndDisposeChannel(theChanPtr, true);
+			err = SndDisposeChannel(theChanPtr, True);
 			HUnlock(theSound);
 			theSound = NULL;
 			}
@@ -1523,7 +1523,7 @@ short PlayResource(Handle snd, Boolean sync)
 		MoveHHi(snd); HLock(snd);								/* Get data out of the way (may not be necessary) */
 
 		if (sync) {
-			err = SndPlay(NULL, (SndListHandle)snd, false);		/* Doesn't return until sound is finished */
+			err = SndPlay(NULL, (SndListHandle)snd, False);		/* Doesn't return until sound is finished */
 			HUnlock(snd);
 			}
 		 else {
@@ -1533,7 +1533,7 @@ short PlayResource(Handle snd, Boolean sync)
 		 	theChanPtr = (SndChannel *)NewPtr(sizeof(SndChannel));
 			if (!(err = SndNewChannel(&theChanPtr, 0, 0L, NULL))) {
 			
-				err = SndPlay(theChanPtr, (SndListHandle)snd, true);	/* Channel initialized: start it up */
+				err = SndPlay(theChanPtr, (SndListHandle)snd, True);	/* Channel initialized: start it up */
 				
 				/* Continues playing after we return: we'll unlock sound when channel is disposed */
 				
@@ -1587,7 +1587,7 @@ void FixForStaffSize(Document *doc, DDIST staffTop[], short newRastral)
 	MFUpdateStaffTops(staffTop, doc->masterHeadL, doc->masterTailL);
 
 	/* Adjust heights of systemRects, both in Master Page and in the score proper. */
-	sysL = SSearch(doc->masterHeadL, SYSTEMtype, false);
+	sysL = SSearch(doc->masterHeadL, SYSTEMtype, False);
 	sysRect = SystemRECT(sysL);
 	
 	sysSize = sysRect.bottom-sysRect.top;
@@ -1596,13 +1596,13 @@ void FixForStaffSize(Document *doc, DDIST staffTop[], short newRastral)
 	SystemRECT(sysL).bottom += sysOffset;
 	LinkOBJRECT(sysL).bottom += d2p(sysOffset);
 	
-	sysL = SSearch(doc->headL, SYSTEMtype, false);
+	sysL = SSearch(doc->headL, SYSTEMtype, False);
 	for ( ; sysL; sysL = LinkRSYS(sysL)) {
 		SystemRECT(sysL).bottom += sysOffset;
 		LinkOBJRECT(sysL).bottom += d2p(sysOffset);
 	}
 	
-	FixMeasRectYs(doc, NILINK, false, true, false);		/* Fix measure tops & bottoms */
+	FixMeasRectYs(doc, NILINK, False, True, False);		/* Fix measure tops & bottoms */
 
 	doc->srastral = newRastral;
 }
@@ -1612,13 +1612,13 @@ reducing the staff size and asking the user to increase the paper size. (??Proba
 needs to consider reducing distance between staves: this could be done in an intelligent
 way after filling in the score object list and adding clef changes but only in a dumb
 way before.) Decides what to do by looking at the Master system, which is fine if
-nothing has been done in Work on Format. Returns false if it's unable to get everything
-on the page, true if it can do so or if the system already fits.
+nothing has been done in Work on Format. Returns False if it's unable to get everything
+on the page, True if it can do so or if the system already fits.
 
 NB: this doesn't worry about multiple systems going off the bottom of a page; for
 that, use Reformat. What IS a problem is its assumption that the (top or only) system
 of every page is vertically positioned like the Master system on the Master Page,
-which is generally false for the first page of a score because of config.titleMargin.
+which is generally False for the first page of a score because of config.titleMargin.
 FIXME. */
 
 Boolean FitStavesOnPaper(Document *doc)
@@ -1699,15 +1699,15 @@ short CountUnjustifiedSystems(Document *doc, LINK startPageL, LINK endPageL, sho
 	nUnjust = 0;
 	for (pL = startPageL; pL!=endPageL; pL = RightLINK(pL))
 		if (SystemTYPE(pL)) {
-			firstMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, false);
+			firstMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_RIGHT, False);
 			termSysL = EndSystemSearch(doc, pL);
-			lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, false);
+			lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, False);
 			justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
 			if (justFact<1.0-JUSTSLOP || justFact>1.0+JUSTSLOP) {
 //LogPrintf(LOG_DEBUG, "CountUnjustifiedSystems: system L%u is unjustified\n", pL);
 				nUnjust++;
 				if (nUnjust==1) {
-					pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, false);	/* should never fail */
+					pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, False);	/* should never fail */
 					firstUnjustPg = SheetNUM(pageL)+doc->firstPageNumber;
 				};
 			}

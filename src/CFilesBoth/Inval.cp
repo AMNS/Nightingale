@@ -54,7 +54,7 @@ in (or, if it's not in a Measure, the next Measure) through and including the on
 second specified object is in. Actually, since computers now are hundreds (if not
 thousands!) of times faster than when this routine was written (in the 1980's or
 1990's), we just Inval every system involved in its entirety. NB: As of v. 5.7, we
-require all barlines to align on every staff; as long as that's true, <theStaff> is
+require all barlines to align on every staff; as long as that's True, <theStaff> is
 irrelevant.
 
 Going beyond the specified Measures is helpful because objects of some types --
@@ -89,13 +89,13 @@ void InvalSystem(LINK pL)
 	oldSheet = doc->currentSheet;
 	oldPaper = doc->currentPaper;
 
-	systemL = LSSearch(pL, SYSTEMtype, ANYONE, true, false);
+	systemL = LSSearch(pL, SYSTEMtype, ANYONE, True, False);
 	if (systemL!=NILINK) {
 		r = LinkOBJRECT(systemL);
 		r.left = 0;
 		r.right = doc->paperRect.right;
 
-		pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, false);
+		pageL = LSSearch(pL, PAGEtype, ANYONE, GO_LEFT, False);
 		ContextPage(doc, pageL, contextA);
 		OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
 		EraseAndInval(&r);
@@ -113,7 +113,7 @@ void InvalSystems(LINK fromL, LINK toL)
 {
 	LINK sysL, pL;
 	
-	sysL = LSSearch(fromL, SYSTEMtype, ANYONE, GO_LEFT, false);
+	sysL = LSSearch(fromL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	for (pL=sysL; pL && pL!=toL; pL = RightLINK(pL))
 		if (SystemTYPE(pL))
 			InvalSystem(pL);
@@ -161,7 +161,7 @@ void InvalRange(LINK fromL, LINK toL)
 
 	SetRect(&emptyRect, 0, 0, 0, 0);
 	for (pL=fromL; pL && pL!=toL; pL=RightLINK(pL)) {
-		LinkVALID(pL) = false;
+		LinkVALID(pL) = False;
 		LinkOBJRECT(pL) = emptyRect;
 
 		switch (ObjLType(pL)) {
@@ -192,7 +192,7 @@ void EraseAndInvalRange(Document *doc, LINK fromL, LINK toL)
 		r = LinkOBJRECT(pL);
 		Rect2Window(doc,&r);
 		EraseAndInval(&r);
-		LinkVALID(pL) = false;
+		LinkVALID(pL) = False;
 		LinkOBJRECT(pL) = emptyRect;
 	}
 }
@@ -209,7 +209,7 @@ void InvalContent(LINK fromL, LINK toL)
 	SetRect(&emptyRect, 0, 0, 0, 0);
 	for (pL=fromL; pL && pL!=toL; pL=RightLINK(pL)) {
 		if (!J_STRUCTYPE(pL)) {
-			LinkVALID(pL) = false;
+			LinkVALID(pL) = False;
 			LinkOBJRECT(pL) = emptyRect;
 		}
 	}
@@ -238,13 +238,13 @@ void InvalObject(Document *doc, LINK pL, short doErase)
 	GetAllContexts(doc,contextA,pL);
 	switch (ObjLType(pL)) {
 		case GRAPHICtype:
-			DrawGRAPHIC(doc, pL, contextA, false);
+			DrawGRAPHIC(doc, pL, contextA, False);
 			break;
 		case TEMPOtype:
-			DrawTEMPO(doc, pL, contextA, false);
+			DrawTEMPO(doc, pL, contextA, False);
 			break;
 		case DYNAMtype:
-			DrawDYNAMIC(doc, pL, contextA, false);
+			DrawDYNAMIC(doc, pL, contextA, False);
 			break;
 		case SLURtype:
 			/* Need to handle slurBBox specially. */

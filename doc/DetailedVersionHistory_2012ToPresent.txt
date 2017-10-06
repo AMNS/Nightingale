@@ -1717,8 +1717,8 @@ Measure; previously it did that except for tempo/MMs attached to the invisible b
 beginning a system. Affects NotelistSave.
 
 Made more changes to use of the shift-option modifier keys to increase consistency.
-Now (with few if any exceptions) Nightingale writes additional information to the log
-if and only if those modifier keys and no others are down. Affects DragBeam, GRBeam.
+Now (with no exceptions I know of) Nightingale writes additional information to the log
+if and only if those modifier keys are down and no others are. Affects DragBeam, GRBeam.
 
 Minor cleanup. Affects DSUtils, NotelistSave.
 
@@ -1728,9 +1728,21 @@ Minor cleanup. Affects DSUtils, NotelistSave.
 
 Changed version number from 5.8b3 to 5.8b4. Affects Info.plist.
 
-Replaced all occurrences of "TRUE" and "FALSE" with "True" and "False", which may not
-be more standard, but which fit Nightingale conventions better. Affects ca. 53
-files in CFilesEditor, 52 in CFilesBoth, 6 in Precomps, 6 in Headers, etc.
+Replaced all occurrences of "TRUE" and "FALSE" with "True" and "False": the latter may
+not be more standard, but they fit Nightingale conventions better and lead (I think) to
+more readable code. Affects ca. 53 files in CFilesEditor, 52 in CFilesBoth, 6 in
+Precomps, 6 in Headers, etc.
 
 Converted some C files with encoding ISO Latin-1 to UTF-8. Affects CarbonStubs, Double,
 DrawUtils.
+
+-------------------------------------------------------------------------------
+
+4 - 5 Oct.
+
+Converted some C files with other encodings to UTF-8. Affects About, ChordSym, MIDIFOCmd,
+UIFUtils.
+
+Replaced all occurrences of "true" and "false" (other than in comments) with "True" and
+"False": the latter are probably less standard, but they fit Nightingale conventions
+better and lead (I think) to more readable code. Affects at least 60 files.

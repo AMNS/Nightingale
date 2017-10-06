@@ -1,11 +1,11 @@
 /*	MIDIFOCmd.c for Nightingale: user interface for opening Standard MIDI Files */
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALE¬™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright ¬© 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -186,7 +186,7 @@ static void MFInfoDialog(
 	ShowWindow(GetDialogWindow(dialogp));
 					
 	ArrowCursor();
-	OutlineOKButton(dialogp, true);
+	OutlineOKButton(dialogp, True);
 
 	nPages = nTracks/linesPerPage;
 	if (nTracks%linesPerPage!=0) nPages++;
@@ -214,7 +214,7 @@ static void MFInfoDialog(
 	
 	dialogOver = 0;
 	do {
-		while (true) {
+		while (True) {
 			ModalDialog(NULL, &ditem);
 			if (ditem==OK || ditem==Cancel) { dialogOver = ditem; break; }
 			switch (ditem) {
@@ -242,7 +242,7 @@ static void MFInfoDialog(
 
 static GRAPHIC_POPUP	durPop0dot, *curPop;
 static POPKEY			*popKeys0dot;
-static short			popUpHilited=true;
+static short			popUpHilited=True;
 
 #define CurEditField(dlog) (((DialogPeek)(dlog))->editField+1)
 
@@ -282,13 +282,13 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 				BeginUpdate(GetDialogWindow(dlog));	
 				UpdateDialogVisRgn(dlog);		
 				//UpdateDialog(dlog, dlog->visRgn);
-				FrameDefault(dlog, OK, true);
+				FrameDefault(dlog, OK, True);
 				DrawGPopUp(curPop);		
 				HiliteGPopUp(curPop, popUpHilited);
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 				*itemHit = 0;
-				return true;
+				return True;
 			}
 			break;
 		case activateEvt:
@@ -302,11 +302,11 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			if (PtInRect(where, &curPop->box)) {
 				DoGPopUp(curPop);
 				*itemHit = MFDURPOP_DI;
-				return true;
+				return True;
 			}
 			break;
 		case keyDown:
-			if (DlgCmdKey(dlog, evt, (short *)itemHit, false)) return true;
+			if (DlgCmdKey(dlog, evt, (short *)itemHit, False)) return True;
 			ch = (unsigned char)evt->message;
 			field = GetDialogKeyboardFocusItem(dlog);
 			/*
@@ -316,23 +316,23 @@ static pascal Boolean TransMFFilter(DialogPtr dlog, EventRecord *evt, short *ite
 			 */
 			if (ch=='\t') {
 				field = field==MAXMEAS_DI? MFDUMMY_DI : MAXMEAS_DI;
-				popUpHilited = (field==MAXMEAS_DI)? false : true;
+				popUpHilited = (field==MAXMEAS_DI)? False : True;
 				SelectDialogItemText(dlog, field, 0, ENDTEXT);
 				HiliteGPopUp(curPop, popUpHilited);
 				*itemHit = 0;
-				return true;
+				return True;
 			}
 			else {
 				if (field==MFDUMMY_DI) {
 					ans = DurPopupKey(curPop, popKeys0dot, ch);
 					*itemHit = ans? MFDURPOP_DI : 0;
-					HiliteGPopUp(curPop, true);
-					return true;							/* so no chars get through to MFDUMMY_DI edit field */
+					HiliteGPopUp(curPop, True);
+					return True;							/* so no chars get through to MFDUMMY_DI edit field */
 				}											/* NB: however, DlgCmdKey will let you paste into MFDUMMY_DI! */
 			}
 			break;
 	}
-	return false;
+	return False;
 }
 
 #define XACTIVEATE_CTLS	\
@@ -374,14 +374,14 @@ Boolean TranscribeMFDialog(
 	filterUPP = NewModalFilterUPP(TransMFFilter);
 	if (filterUPP == NULL) {
 		MissingDialog(TRANSMIDI_DLOG);
-		return false;
+		return False;
 	}
 	
 	dlog = GetNewDialog(TRANSMIDI_DLOG, NULL, BRING_TO_FRONT);
 	if (!dlog) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(TRANSMIDI_DLOG);
-		return false;
+		return False;
 	}
 	
 	GetPort(&oldPort);
@@ -401,11 +401,11 @@ Boolean TranscribeMFDialog(
 	curPop = &durPop0dot;
 	
 	Pstrcpy((StringPtr)strBuf, filename);
-	PStrCat((StringPtr)strBuf, "\p”");
-	PutDlgString(dlog, FILENAME_DI, (StringPtr)strBuf, false);
+	PStrCat((StringPtr)strBuf, "\p√ì");
+	PutDlgString(dlog, FILENAME_DI, (StringPtr)strBuf, False);
 
-	PutDlgWord(dlog, NNOTES_DI, nNotes, false);
-	PutDlgWord(dlog, NTRACKS_DI, nTracks, false);
+	PutDlgWord(dlog, NNOTES_DI, nNotes, False);
+	PutDlgWord(dlog, NTRACKS_DI, nTracks, False);
 
 	GetDialogItem(dlog, NEEDDUR_DI, &aShort, &ndHdl, &aRect);
 	if (qAllLDur==UNKNOWN_L_DUR) {
@@ -413,9 +413,9 @@ Boolean TranscribeMFDialog(
 		SetDialogItemCText(ndHdl, strBuf);
 	} else {
 		strcpy(durStr, &durStrs[qAllLDur][0]);
-		for (needTrips = false, t = 1; t<=nTracks; t++)
+		for (needTrips = False, t = 1; t<=nTracks; t++)
 			if (qTrLDur[t]!=UNKNOWN_L_DUR)
-				if (qTrTriplets[t]) needTrips = true;
+				if (qTrTriplets[t]) needTrips = True;
 		if (needTrips) {
 			GetIndCString(tripletsStr, MIDIFILE_STRS, 34); 	/* " with triplets" */
 			strcat(durStr, tripletsStr);
@@ -428,7 +428,7 @@ Boolean TranscribeMFDialog(
 	/* Set up radio button group for quantize/noquantize */
 	
 	rButGroup = (*qDur==UNKNOWN_L_DUR? NOQUANTIZE_DI : QUANTIZE_DI);
-	PutDlgChkRadio(dlog, rButGroup, true);
+	PutDlgChkRadio(dlog, rButGroup, True);
 
 	/* Set the suggested (initial) quantization unit. Use the finest value among
 		tracks whose attacks fit a (non-tuplet) metric grid and time sig. denoms. But
@@ -447,7 +447,7 @@ Boolean TranscribeMFDialog(
 
 	PutDlgChkRadio(dlog, AUTOBEAM_DI, *autoBeam);
 	PutDlgChkRadio(dlog, TRIPLETS_DI, *triplets);
-	PutDlgWord(dlog, MAXMEAS_DI, *maxMeasures, false);
+	PutDlgWord(dlog, MAXMEAS_DI, *maxMeasures, False);
 	PutDlgChkRadio(dlog, CLEFCHANGE_DI, *clefChanges);
 
 	GetDialogItem(dlog, AUTOBEAM_DI, &aShort, &beamHdl, &aRect);
@@ -460,7 +460,7 @@ Boolean TranscribeMFDialog(
 	ArrowCursor();
 	
 	oldDur = newDur;
-	done = false;
+	done = False;
 	while (!done) {
 		ModalDialog(filterUPP, &ditem);
 		if (newDur!=oldDur) {
@@ -470,7 +470,7 @@ Boolean TranscribeMFDialog(
 		oldDur = newDur;
 		switch (ditem) {
 		case OK:
-			done = true;
+			done = True;
 			autoBm = GetDlgChkRadio(dlog,AUTOBEAM_DI);
 			trips = GetDlgChkRadio(dlog,TRIPLETS_DI);
 			clefs = GetDlgChkRadio(dlog,CLEFCHANGE_DI);
@@ -479,18 +479,18 @@ Boolean TranscribeMFDialog(
 				GetIndCString(strBuf, MIDIFILE_STRS, 2);    /* "The maximum number of measures must be greater than 0." */
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
-				done = false;
+				done = False;
 			}
 			if (rButGroup==QUANTIZE_DI) {
 				*qDur = newDur;
 				if (trips && newDur<qTrLDur[1]) {
 					StopInform(TOO_COARSE_QUANT_ALRT);
-					done = false;
+					done = False;
 				}
 				else if (!(ControlKeyDown())
 							&& trips && newDur>SIXTEENTH_L_DUR) {
 					StopInform(TOO_FINE_QUANT_ALRT);
-					done = false;
+					done = False;
 				}
 				else if (newDur<qAllLDur && qAllLDur!=UNKNOWN_L_DUR)
 					done = (CautionAdvise(COARSE_QUANTIZE_ALRT)==OK);
@@ -499,7 +499,7 @@ Boolean TranscribeMFDialog(
 				*qDur = UNKNOWN_L_DUR;
 			break;
 		case Cancel:
-			done = true;
+			done = True;
 			break;
 		case QUANTIZE_DI:
 		case NOQUANTIZE_DI:
@@ -511,7 +511,7 @@ Boolean TranscribeMFDialog(
 		case MFDURPOP_DI:
 			newDur = popKeys0dot[curPop->currentChoice].durCode;
 			SelectDialogItemText(dlog, MFDUMMY_DI, 0, ENDTEXT);
-			HiliteGPopUp(curPop, popUpHilited = true);
+			HiliteGPopUp(curPop, popUpHilited = True);
 			break;
 		case AUTOBEAM_DI:
 			PutDlgChkRadio(dlog,AUTOBEAM_DI,!GetDlgChkRadio(dlog,AUTOBEAM_DI));
@@ -580,13 +580,13 @@ static Boolean MFHeaderOK(Byte midiFileFormat, Word nTracks, Word timeBase)
 		sprintf(strBuf, fmtStr, midiFileFormat); 
 		CParamText(strBuf, "", "", "");
 		StopInform(READMIDI_ALRT);
-		return false;
+		return False;
 	}
 	if ((timeBase & 0x8000)!=0) {
 		GetIndCString(strBuf, MIDIFILE_STRS, 3);    /* "Can't handle MIDI files with non-metric timing." */
 		CParamText(strBuf, "", "", "");
 		StopInform(READMIDI_ALRT);
-		return false;
+		return False;
 	}
 	if (nTracks<= 0 || nTracks>MAXTRACKS) {
 		if (nTracks<= 0) {
@@ -597,10 +597,10 @@ static Boolean MFHeaderOK(Byte midiFileFormat, Word nTracks, Word timeBase)
 		}
 		CParamText(strBuf, "", "", "");
 		StopInform(READMIDI_ALRT);
-		return false;
+		return False;
 	}	
 
-	return true;
+	return True;
 }
 
 
@@ -636,10 +636,10 @@ Boolean GetMIDIFileInfo(
 		GetIndCString(strBuf, MIDIFILE_STRS, 4);    /* "Unable to read MIDI file header." */
 		CParamText(strBuf, "", "", "");
 		StopInform(READMIDI_ALRT);
-		return false;
+		return False;
 	}
 	if (!MFHeaderOK(midiFileFormat, nTracks, timeBase))
-		return false;
+		return False;
 	
 	/* Get information about the notes and check that the file can be read and parsed;
 		then restore its previous position. */
@@ -651,9 +651,9 @@ Boolean GetMIDIFileInfo(
 	for (t = 1; t<=nTracks; t++) {
 		lenMF = ReadTrack(&pChunkMF);
 		if (lenMF==0)
-			return false;
+			return False;
 
-		trackInfo[t].okay = true;
+		trackInfo[t].okay = True;
 		if (GetTrackInfo(&nTrackNotes[t], &nTooLong[t], chanUsed[t], &qTrLDur[t],
 								&qTrTriplets[t], &lastTrEvent[t])) {
 
@@ -672,7 +672,7 @@ Boolean GetMIDIFileInfo(
 			for (nChanUsed = 0, i = 0; i<MAXCHANNEL; i++)
 				if (chanUsed[t][i]) nChanUsed++;
 			if (nChanUsed>1) {
-				trackInfo[t].okay = false;
+				trackInfo[t].okay = False;
 				GetIndCString(fmtStr, MIDIFILE_STRS, 17);	/* "Track %d has notes on more than one channel: it will be skipped and its staff left blank." */
 				sprintf(strBuf, fmtStr, t); 
 				CParamText(strBuf, "", "", "");
@@ -692,7 +692,7 @@ Boolean GetMIDIFileInfo(
 			*pLastEvent = n_max(*pLastEvent, lastTrEvent[t]);
 		}
 		else {
-			trackInfo[t].okay = false;
+			trackInfo[t].okay = False;
 			if (t==1) {
 				GetIndCString(strBuf, MIDIFILE_STRS, 41);	/* "Track 1 (the timing track) appears to be damaged or incomplete." */
 				break;										/* since we won't try to open the file */
@@ -720,14 +720,14 @@ Boolean GetMIDIFileInfo(
 		GetIndCString(strBuf, MIDIFILE_STRS, 5);    /* "Error reading MIDI file header: SetFPos failed." */
 		CParamText(strBuf, "", "", "");
 		StopInform(READMIDI_ALRT);
-		return false;
+		return False;
 	}
 
 	if (!trackInfo[1].okay) {
 		GetIndCString(strBuf, MIDIFILE_STRS, 6);    /* "Can't open a MIDI file with a bad timing track." */
 		CParamText(strBuf, "", "", "");
 		StopInform(READMIDI_ALRT);
-		return false;
+		return False;
 	}
 	
 	for (nGoodTrs = 0, t = 2; t<=nTracks; t++)
@@ -736,14 +736,14 @@ Boolean GetMIDIFileInfo(
 		GetIndCString(strBuf, MIDIFILE_STRS, 7);    /* "None of the tracks are good except the timing track." */
 		CParamText(strBuf, "", "", "");
 		StopInform(READMIDI_ALRT);
-		return false;
+		return False;
 	}
 	
 	*pNNotes = nNotes;
 	*pNGoodTrs = nGoodTrs;
 	*pqAllLDur = qAllLDur;
 	
-	return true;
+	return True;
 }
 
 /* ------------------------------------------------------------------- CheckAndConsult -- */
@@ -765,7 +765,7 @@ static Boolean CheckAndConsult(
 	
 	if (!GetMIDIFileInfo(trackInfo, pQuantCode, pLastEvent, nTrackNotes, nTooLong, chanUsed,
 							qTrLDur, qTrTriplets, lastTrEvent, &nNotes, &nGoodTrs, &qAllLDur))
-			return false;
+			return False;
 	
 	/* Tell user what we found and ask them what to do now. */
 	
@@ -778,9 +778,9 @@ static Boolean CheckAndConsult(
 
 /* ---------------------------------------------------------------------- OpenMIDIFile -- */
 /* Create a new score and read a format 1 MIDI file into it, mapping each track (except
-the timing track) to a one-staff part. Return true if successful. */
+the timing track) to a one-staff part. Return True if successful. */
 
-#define RESET_PLAYDURS true
+#define RESET_PLAYDURS True
 #define COMMENT_MIDIFILE "(origin: imported MIDI file)"	/* FIXME: Should be in resource for I18N */
 
 static Boolean OpenMIDIFile()
@@ -792,7 +792,7 @@ static Boolean OpenMIDIFile()
 	TRACKINFO trackInfo[MAXTRACKS+1];
 	Byte *pChunk;
 	short durQuantum, tripletBias, status;
-	static Boolean autoBeam=false, triplets=false, clefChanges=true;
+	static Boolean autoBeam=False, triplets=False, clefChanges=True;
 	static short maxMeasures=9999;
 	long lastEvent;
 	FSSpec fsSpec;
@@ -805,13 +805,13 @@ static Boolean OpenMIDIFile()
 	
 	if (!CheckAndConsult(trackInfo, &quantCode, &autoBeam, &triplets, &clefChanges,
 								&maxMeasures, &lastEvent))
-			return false;
+			return False;
 
 	WaitCursor();
 
 	/* Create a score, then read the tracks and put their content into that score. */
 	
-	if (DoOpenDocumentX(NULL, 0, false, &fsSpec, &doc)) {
+	if (DoOpenDocumentX(NULL, 0, False, &fsSpec, &doc)) {
 		AnalyzeWindows();
 		InstallDoc(doc);
 		//doc = (Document *)TopDocument;
@@ -827,12 +827,12 @@ static Boolean OpenMIDIFile()
 		 */
 		for (stf = 1; stf<nTracks; stf++) {
 			partL = AddPart(doc, 2+(stf-1), 1, SHOW_ALL_LINES);
-			if (partL==NILINK) return false;
+			if (partL==NILINK) return False;
 			InitPart(partL, 2+stf, 2+stf);
 		}
 		DeletePart(doc, 1, 2);
 
-		FixMeasRectYs(doc, NILINK, true, true, false);		/* Fix measure & system tops & bottoms */
+		FixMeasRectYs(doc, NILINK, True, True, False);		/* Fix measure & system tops & bottoms */
 		Score2MasterPage(doc);
 		/*
 		 * Read in each track and convert okay ones to our "MIDNight" intermediate form.
@@ -845,7 +845,7 @@ static Boolean OpenMIDIFile()
 				if (pChunkMF) DisposePtr((Ptr)pChunkMF);
 				for (td = 1; td<t; td++)
 					if (trackInfo[td].pChunk) DisposePtr((Ptr)trackInfo[td].pChunk);
-				return false;
+				return False;
 			}
 			if (ShiftKeyDown() && CmdKeyDown()) {
 				LogPrintf(LOG_INFO, "MTrk(%d) lenMF=%d:\n", t, lenMF);
@@ -864,7 +864,7 @@ static Boolean OpenMIDIFile()
 					if (pChunk) DisposePtr((Ptr)pChunk);
 					for (td = 1; td<t; td++)
 						if (trackInfo[td].pChunk) DisposePtr((Ptr)trackInfo[td].pChunk);
-					return false;
+					return False;
 				}
 				trackInfo[t].len = len;
 				trackInfo[t].pChunk = pChunk;
@@ -889,7 +889,7 @@ static Boolean OpenMIDIFile()
 		for (t = 1; t<=nTracks; t++)
 			if (trackInfo[t].pChunk) DisposePtr((Ptr)trackInfo[t].pChunk);
 
-		if (status==FAILURE) return false;
+		if (status==FAILURE) return False;
 		
 		if (status==OP_COMPLETE) {
 			if (durQuantum>1)								/* Only if quantizing */
@@ -912,10 +912,10 @@ static Boolean OpenMIDIFile()
 
 		GetAllSheets(doc);
 		RecomputeView(doc);
-		MEAdjustCaret(doc, false);
+		MEAdjustCaret(doc, False);
 	}
 
-	return true;
+	return True;
 }
 
 
@@ -923,7 +923,7 @@ static Boolean OpenMIDIFile()
 
 Boolean	ImportMIDIFile(FSSpec *fsSpec)
 {
-	Boolean okay = false;
+	Boolean okay = False;
 	errCode =  FSpOpenDF (fsSpec, fsRdWrPerm, &infile);
 	if (errCode!=noError) goto Done;
 
@@ -934,7 +934,7 @@ Boolean	ImportMIDIFile(FSSpec *fsSpec)
 
 	OpenMIDIFile();
 	FSClose(infile);
-	okay = true;
+	okay = True;
 
 Done:
 	ReportIOError(errCode, READMIDI_ALRT);

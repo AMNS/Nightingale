@@ -63,7 +63,7 @@ static OSStatus FindTextPreferencesFile(OSType fType, OSType fCreator, FSSpec *p
 	OSStatus err;
 	
 	// find the preferences folder
-	err = FindFolder( kOnSystemDisk, kPreferencesFolderType, true, &pvol, &pdir);
+	err = FindFolder( kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
 	if (err != noErr) return err;
 	
 	// search the folder for the file

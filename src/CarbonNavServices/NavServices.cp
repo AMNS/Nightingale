@@ -15,10 +15,10 @@
 #include "NavServices.h"
 
 #ifndef nrequire
-	#define nrequire(CONDITION, LABEL) if (true) {if ((CONDITION)) goto LABEL; }
+	#define nrequire(CONDITION, LABEL) if (True) {if ((CONDITION)) goto LABEL; }
 #endif
 #ifndef require
-#define require(CONDITION, LABEL) if (true) {if (!(CONDITION)) goto LABEL; }
+#define require(CONDITION, LABEL) if (True) {if (!(CONDITION)) goto LABEL; }
 #endif
 
 FSSpec gFSSpec;
@@ -436,16 +436,16 @@ static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUse
 	{
 		// The context data is a window data pointer
 		NSClientDataPtr 	pNSD = (NSClientDataPtr)inContextData;	//	pData
-		Boolean				discard = false;
+		Boolean				discard = False;
 				
-		pNSD->nsOpCancel = false;
+		pNSD->nsOpCancel = False;
 
 		switch( inUserAction )
 		{
 			case kNavUserActionCancel:
 				// If we were closing, we're not now.
-				pNSD->nsIsClosing = false;
-				pNSD->nsOpCancel = true;
+				pNSD->nsIsClosing = False;
+				pNSD->nsOpCancel = True;
 				break;
 			
 			case kNavUserActionSaveChanges:
@@ -453,7 +453,7 @@ static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUse
 			
 			case kNavUserActionDontSaveChanges:
 				// OK to throw away this document
-				discard = true;
+				discard = True;
 				break;
 			
 			case kNavUserActionSaveAs:

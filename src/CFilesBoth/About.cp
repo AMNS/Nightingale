@@ -1,11 +1,11 @@
 /* About.c: routines for the About box, including animating the credits, etc. */
 
 /*
- * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
+ * THIS FILE IS PART OF THE NIGHTINGALEÂª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright Â© 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -14,9 +14,9 @@
 /* --------------------------------------------------------------- DoAboutBox et al -- */
 
 #define	CR_LEADING			14		/* Vert. dist. between baselines of credit text */
-#define	PAUSE_CODE			'¹'		/* [opt-p] If line of TEXT resource begins with this,
+#define	PAUSE_CODE			'Â¹'		/* [opt-p] If line of TEXT resource begins with this,
 										animation will pause at this line (cf. SCROLL_PAUSE_DELAY). */
-#define	BOLD_CODE			'º'		/* [opt-b] If this begins a line of TEXT resource, or follows
+#define	BOLD_CODE			'Âº'		/* [opt-b] If this begins a line of TEXT resource, or follows
 										PAUSE_CODE, that line will be drawn in bold. */
 #define	SCROLL_PAUSE_DELAY	210		/* Ticks to pause at lines begining with PAUSE_CODE before scrolling */
 #define	SCROLL_NORM_DELAY	4		/* Approx. ticks to wait before scrolling credit list up 1 pixel */
@@ -47,7 +47,7 @@ void DoAboutBox(
 {
 	short			type, itemHit;
 	short			x, y;
-	Boolean			okay, keepGoing=true;
+	Boolean			okay, keepGoing=True;
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
 	Handle			hndl;
@@ -98,7 +98,7 @@ void DoAboutBox(
 		vstr[0] = 0;
 		Pstrcpy(vstr, "\pv. ");
 		PStrCat(vstr, vers_str);
-		PutDlgString(dlog, STXT_VERS, vstr, false);
+		PutDlgString(dlog, STXT_VERS, vstr, False);
 	}
 
 	GetDialogItem(dlog, BUT2_Special, &type, &hndl, &box);
@@ -114,7 +114,7 @@ void DoAboutBox(
 	ShowWindow(GetDialogWindow(dlog));
 	
 	/* Show the first "screen" of animated text */
-	firstAnimateCall = true;
+	firstAnimateCall = True;
 	
 	const BitMap *ftpPortBits = GetPortBitMapForCopyBits(fullTextPort);
 	const BitMap *dlogPortBits = GetPortBitMapForCopyBits(GetDialogWindowPort(dlog));
@@ -134,7 +134,7 @@ void DoAboutBox(
 		GetDialogItem(dlog, itemHit, &type, &hndl, &box);
 		switch(itemHit) {
 			case BUT1_OK:
-				keepGoing = false; okay = true;
+				keepGoing = False; okay = True;
 				break;
 			case BUT2_Special:
 				SysBeep(1);		/* For future use; maybe a simple "Debug Check" */
@@ -153,7 +153,7 @@ broken:
 
 static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
-	Boolean		ans=false;
+	Boolean		ans=False;
 	WindowPtr	w;
 	GrafPtr		oldPort;
 	int			ch;
@@ -168,12 +168,12 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 				BeginUpdate(GetDialogWindow(dlog));
 		
 				UpdateDialogVisRgn(dlog);
-				FrameDefault(dlog, BUT1_OK, true);
+				FrameDefault(dlog, BUT1_OK, True);
 		
 				EndUpdate(GetDialogWindow(dlog));
 				SetPort(oldPort);
 
-				ans = true; *itemHit = 0;
+				ans = True; *itemHit = 0;
 			}
 			break;
 		case activateEvt:
@@ -190,7 +190,7 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 			if (ch=='\r' || ch==CH_ENTER) {
 				FlashButton(dlog, BUT1_OK);
 				*itemHit = BUT1_OK;
-				ans = true;
+				ans = True;
 			}
 			break;
 	}
@@ -214,7 +214,7 @@ Boolean SetupCredits()
 	creditText = GetResource('TEXT', ABOUT_TEXT);
 	if (!creditText) {
 		MayErrMsg("AboutBox: Can't get credit text.");
-		return false;
+		return False;
 	}
 	textLen = GetResourceSizeOnDisk(creditText);
 	
@@ -233,7 +233,7 @@ Boolean SetupCredits()
 	/* Create offscreen port to hold formatted text */
 
 	portWid = creditRect.right - creditRect.left;				/* creditRect is static global declared above */
-	GWorldPtr gwPtr = MakeGWorld(portWid, numLines * CR_LEADING, true);
+	GWorldPtr gwPtr = MakeGWorld(portWid, numLines * CR_LEADING, True);
 	SetGWorld(gwPtr, NULL);
 	
 	TextFont(textFontNum);
@@ -282,7 +282,7 @@ Boolean SetupCredits()
 	HUnlock(creditText);
 	ReleaseResource(creditText);	
 	
-	return true;
+	return True;
 }
 
 
@@ -297,14 +297,14 @@ void AnimateCredits(DialogPtr dlog)
 	static long		lastTime;
 	static short	pixelCount;
 	short			i, thisLineNum;
-	Boolean			doPause=false;
+	Boolean			doPause=False;
 
 	thisTime = TickCount();
 	
 	/* Is this first time called since the dialog was put up? [AboutBox() initializes
-		firstAnimateCall to true.] If so, we must initialize some static variables. */
-	if (firstAnimateCall == true) {
-		firstAnimateCall = false;
+		firstAnimateCall to True.] If so, we must initialize some static variables. */
+	if (firstAnimateCall == True) {
+		firstAnimateCall = False;
 		lastTime = thisTime;
 		pixelCount = CR_LEADING;
 	}
@@ -315,7 +315,7 @@ void AnimateCredits(DialogPtr dlog)
 	/* If line number has changed, check array to see if we should pause on this line. */
 	if (!(pixelCount % CR_LEADING)) {
 		for (i=0; i<MAX_PAUSE_LINES; i++) {
-			if (pauseLines[i]==thisLineNum) doPause = true;
+			if (pauseLines[i]==thisLineNum) doPause = True;
 		}
 	}
 			

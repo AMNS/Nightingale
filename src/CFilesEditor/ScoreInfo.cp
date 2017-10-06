@@ -43,10 +43,10 @@ static short MeasCount(Document *doc)
 	LINK measL, syncL, theRestL;
 	short intMeasNum;
 
-	measL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, false);
+	measL = LSSearch(doc->tailL, MEASUREtype, ANYONE, GO_LEFT, False);
 	if (measL) {
 		intMeasNum = FirstMeasMEASURENUM(measL);
-		syncL = LSSearch(measL, SYNCtype, ANYONE, GO_RIGHT, false);
+		syncL = LSSearch(measL, SYNCtype, ANYONE, GO_RIGHT, False);
 		if (!syncL) return intMeasNum;
 		theRestL = FirstSubLINK(syncL);
 		/* The subtype of a multibar rest is _minus_ the no. of measures. */
@@ -84,10 +84,10 @@ static short SICheckMeasDur(Document *doc, short *pFirstBad)
 					/* If the "measure" contains an n-measure multibar rest, the only
 						problem case is if there's another Sync in the measure. */
 //LogPrintf(LOG_DEBUG, "SICheckMeasDur: suspicious measDurActual=%d\n", measDurActual);
-					syncL = LSSearch(pL, SYNCtype, ANYONE, GO_RIGHT, false);
+					syncL = LSSearch(pL, SYNCtype, ANYONE, GO_RIGHT, False);
 					aNoteL = FirstSubLINK(syncL);
 					if (NoteREST(aNoteL) && NoteType(aNoteL)<WHOLEMR_L_DUR) {
-						nextSyncL = LSSearch(RightLINK(syncL), SYNCtype, ANYONE, GO_RIGHT, false);
+						nextSyncL = LSSearch(RightLINK(syncL), SYNCtype, ANYONE, GO_RIGHT, False);
 						if (!nextSyncL || IsAfter(barTermL, nextSyncL)) continue;
 						LogPrintf(LOG_NOTICE, "SICheckMeasDur: problem with multibar rest. syncL=%u barTermL=%u nextSyncL=%u\n",
 									syncL, barTermL, nextSyncL);
@@ -116,7 +116,7 @@ static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty)
 	short nEmpty;
 
 	nEmpty = 0;
-	barL = SSearch(doc->headL, MEASUREtype, false);
+	barL = SSearch(doc->headL, MEASUREtype, False);
 	for ( ; barL && barL!=NILINK; barL = LinkRMEAS(barL)) {
 		if (MeasISFAKE(barL)) continue;
 		barFirstL = RightLINK(barL);
@@ -196,7 +196,7 @@ static long GetScoreDuration(Document *doc)
 				 * enough for the purpose.
 				 */
 				lastSyncTime += NotePLAYDUR(FirstSubLINK(pL));
-				lastMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, false);
+				lastMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, False);
 //LogPrintf(LOG_DEBUG, "GetScoreDuration: Sync L%u lastSyncTime=%ld\n", pL, lastSyncTime);
 				return lastSyncTime+MeasureTIME(lastMeasL);
 			case MEASUREtype:
@@ -266,7 +266,7 @@ static long DisplayHeapAndNoteCounts(Document *doc, unsigned short objCount[])
 		}
 
 		if (lObjCount[h]>=0) {
-			ps = NameHeapType(h, true);
+			ps = NameHeapType(h, True);
 			if (h==SYNCtype)	sprintf(str, "    %ld %s;  %d note attacks",
 										lObjCount[h], ps, noteAttackCount);
 			else				sprintf(str, "    %ld %s", lObjCount[h], ps);
@@ -324,7 +324,7 @@ void ScoreInfo()
 		ShowWindow(GetDialogWindow(dialogp));
 						
 		ArrowCursor();
-		OutlineOKButton(dialogp, true);
+		OutlineOKButton(dialogp, True);
 	
 		linenum = 1;
 		GetIndCString(fmtStr, SCOREINFO_STRS, 1);   		/* "SCORE INFORMATION" */
@@ -339,7 +339,7 @@ void ScoreInfo()
 		sprintf(str, fmtStr, doc->nstaves);
 		SIDrawTextLine(str);
 
-		CountInHeaps(doc, objCount, false);
+		CountInHeaps(doc, objCount, False);
 		totalCount = DisplayHeapAndNoteCounts(doc, objCount);
 
 		objsTotal = 0;	
@@ -392,7 +392,7 @@ void ScoreInfo()
 		}
 		SIDrawTextLine(str);
 
-		startPageL = SSearch(doc->headL, PAGEtype, false);
+		startPageL = SSearch(doc->headL, PAGEtype, False);
 		nUnjustSys = CountUnjustifiedSystems(doc, startPageL, NILINK, &firstUnjustPg);
 		if (nUnjustSys>0) {
 			GetIndCString(fmtStr, SCOREINFO_STRS, 13);   /* "%d systems aren't right justified (first on page %d)." */
@@ -420,12 +420,12 @@ void ScoreInfo()
 		
 		strcpy(commentOrig, (char *)doc->comment);
 		CToPString(strcpy(commentNew, (char *)commentOrig));
-		PutDlgString(dialogp, COMMENT_DI, (unsigned char *)commentNew, true);
-		keepGoing = true;
+		PutDlgString(dialogp, COMMENT_DI, (unsigned char *)commentNew, True);
+		keepGoing = True;
 
 		while (keepGoing) {
 			ModalDialog(filterUPP, &ditem);
-			if (ditem==OK_DI || ditem==CANCEL_DI) keepGoing = false;
+			if (ditem==OK_DI || ditem==CANCEL_DI) keepGoing = False;
 		}
 		HideWindow(GetDialogWindow(dialogp));
 
@@ -442,7 +442,7 @@ void ScoreInfo()
 			}
 			if (doc && !streql(commentOrig, (char *)commentNew)) {
 				strcpy((char *)doc->comment, (char *)commentNew);
-				doc->changed = true;
+				doc->changed = True;
 			}
 		}
 		

@@ -104,10 +104,10 @@ static void FixClipBeams(Document *doc, LINK startL, LINK endL)
 			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
 				if (aNote->beamed && !aNote->tempFlag) {
-					aNote->beamed = false;
+					aNote->beamed = False;
 					if (aNote->inChord) {
 						if (MainNote(aNoteL)) {
-							FixSyncForChord(clipboard, pL, NoteVOICE(aNoteL), false, 0, 1,
+							FixSyncForChord(clipboard, pL, NoteVOICE(aNoteL), False, 0, 1,
 												&context[aNote->staffn]);
 						}
 					}
@@ -123,7 +123,7 @@ static void FixClipBeams(Document *doc, LINK startL, LINK endL)
 			for ( ; aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL)) {
 				aGRNote = GetPAGRNOTE(aGRNoteL);
 				if (aGRNote->beamed && !aGRNote->tempFlag) {
-					aGRNote->beamed = false;
+					aGRNote->beamed = False;
 					tempystem = GetGRNoteYStem(aGRNoteL, context[aGRNote->staffn]);
 					GRNoteYSTEM(aGRNoteL) = tempystem;
 				}
@@ -152,7 +152,7 @@ static void FixClipTuplets(Document *doc, LINK startL, LINK endL)
 			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
 				if (aNote->inTuplet && !aNote->tempFlag) {
-					aNote->inTuplet = false;
+					aNote->inTuplet = False;
 					tempLDur = SimplePlayDur(aNoteL);
 					aNote = GetPANOTE(aNoteL);
 					aNote->playDur = tempLDur;
@@ -186,7 +186,7 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 			for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
 				if (aNote->inOttava && !aNote->tempFlag) {
-					aNote->inOttava = false;
+					aNote->inOttava = False;
 					staff = aNote->staffn;
 					
 					/* Get ottava in score for note that was copied to the clipboard */
@@ -200,7 +200,7 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 
 					InstallDoc(doc);
 
-					ottavaL = LSSearch(qL, OTTAVAtype, staff, GO_LEFT, false);
+					ottavaL = LSSearch(qL, OTTAVAtype, staff, GO_LEFT, False);
 					octType = OctType(ottavaL);
 
 					/* Update note's y position. */
@@ -220,7 +220,7 @@ static void FixClipOttavas(Document *doc, LINK startL, LINK endL, COPYMAP *clipM
 					aNote->ystem = CalcYStem(doc, aNote->yd, NFLAGS(aNote->subType),
 												stemDown,
 												context.staffHeight, context.staffLines,
-												stemLen, false);
+												stemLen, False);
 	
 					/* Loop through the notes again and fix up the ystems of the
 						non-extreme notes. */
@@ -253,9 +253,9 @@ static Boolean ChkSrcDocSlur(LINK slurL, COPYMAP *clipMap, short numObjs)
 	if (slurL && LinkSEL(slurL)) 
 		for (i = 0; i<numObjs; i++)
 			if (clipMap[i].srcL && clipMap[i].srcL==slurL)
-				return true;
+				return True;
 				
-	return false;
+	return False;
 }
 
 /* ------------------------------------------------------------------ SrcSlurInRange -- */
@@ -314,40 +314,40 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 	for (pL = startL; pL!=endL; pL = RightLINK(pL)) {
 		switch (ObjLType(pL)) {
 			case PAGEtype:
-				lPage = LSUSearch(LeftLINK(pL), PAGEtype, ANYONE, true, false);
+				lPage = LSUSearch(LeftLINK(pL), PAGEtype, ANYONE, True, False);
 				LinkLPAGE(pL) = lPage;
 				
-				rPage = LSUSearch(RightLINK(pL), PAGEtype, ANYONE, false, false);
+				rPage = LSUSearch(RightLINK(pL), PAGEtype, ANYONE, False, False);
 				LinkRPAGE(pL) = rPage;
 				break;
 			case SYSTEMtype:
-				lPage = LSUSearch(LeftLINK(pL), PAGEtype, ANYONE, true, false);
+				lPage = LSUSearch(LeftLINK(pL), PAGEtype, ANYONE, True, False);
 				SysPAGE(pL) = lPage;
 				
-				lSystem = LSUSearch(LeftLINK(pL), SYSTEMtype, ANYONE, true, false);
+				lSystem = LSUSearch(LeftLINK(pL), SYSTEMtype, ANYONE, True, False);
 				LinkLSYS(pL) = lSystem;
-				rSystem = LSUSearch(RightLINK(pL), SYSTEMtype, ANYONE, false, false);
+				rSystem = LSUSearch(RightLINK(pL), SYSTEMtype, ANYONE, False, False);
 				LinkRSYS(pL) = rSystem;
 				break;
 			case STAFFtype:
-				lSystem = LSUSearch(LeftLINK(pL), SYSTEMtype, ANYONE, true, false);
+				lSystem = LSUSearch(LeftLINK(pL), SYSTEMtype, ANYONE, True, False);
 				StaffSYS(pL) = lSystem;
 				
-				lStaff = LSUSearch(LeftLINK(pL), STAFFtype, ANYONE, true, false);
+				lStaff = LSUSearch(LeftLINK(pL), STAFFtype, ANYONE, True, False);
 				LinkLSTAFF(pL) = lStaff;
-				rStaff = LSUSearch(RightLINK(pL), STAFFtype, ANYONE, false, false);
+				rStaff = LSUSearch(RightLINK(pL), STAFFtype, ANYONE, False, False);
 				LinkRSTAFF(pL) = rStaff;
 			case CONNECTtype:
 				break;
 			case MEASUREtype:
-				lSystem = LSUSearch(LeftLINK(pL), SYSTEMtype, ANYONE, true, false);
+				lSystem = LSUSearch(LeftLINK(pL), SYSTEMtype, ANYONE, True, False);
 				MeasSYSL(pL) = lSystem;
-				lStaff = LSUSearch(LeftLINK(pL), STAFFtype, ANYONE, true, false);
+				lStaff = LSUSearch(LeftLINK(pL), STAFFtype, ANYONE, True, False);
 				MeasSTAFFL(pL) = lStaff;
 
-				lMeas = LSUSearch(LeftLINK(pL), MEASUREtype, ANYONE, true, false);
+				lMeas = LSUSearch(LeftLINK(pL), MEASUREtype, ANYONE, True, False);
 				LinkLMEAS(pL) = lMeas;
-				rMeas = LSUSearch(RightLINK(pL), MEASUREtype, ANYONE, false, false);
+				rMeas = LSUSearch(RightLINK(pL), MEASUREtype, ANYONE, False, False);
 				LinkRMEAS(pL) = rMeas;
 				break;
 			case SYNCtype:
@@ -376,43 +376,43 @@ static void FixClipLinks(Document *srcDoc, Document *dstDoc, LINK startL, LINK e
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					
 						pbSearch.voice = NoteVOICE(aNoteL)-stfDiff;			/* #1. */
-						pbSearch.inSystem = true;
-						pbSearch.optimize = false;
+						pbSearch.inSystem = True;
+						pbSearch.optimize = False;
 
 						/* For each note copied from srcDoc to dstDoc, check all tied/slurred
 							flags to see if any tie/slur begins/ends at that note. If so, check
 							if the tie/slur was also copied to the dst doc; if not, mark the
-							corresponding flag in the note false. */
+							corresponding flag in the note False. */
 
 						if (NoteTIEDL(aNoteL)) {
 							/* See if the tie was copied to the dst doc. */
 
-							inRange = SrcSlurInRange(srcDoc,qL,true,true,clipMap,numObjs,
+							inRange = SrcSlurInRange(srcDoc,qL,True,True,clipMap,numObjs,
 																	&pbSearch);
 
 							/* If the tie was not in the range, the note in the dst doc
 								must be marked not tied. */
 
-							if (!inRange) NoteTIEDL(aNoteL) = false;
+							if (!inRange) NoteTIEDL(aNoteL) = False;
 						}
 						if (NoteTIEDR(aNoteL)) {
-							inRange = SrcSlurInRange(srcDoc,qL,true,false,clipMap,numObjs,
+							inRange = SrcSlurInRange(srcDoc,qL,True,False,clipMap,numObjs,
 																	&pbSearch);
 
-							if (!inRange) NoteTIEDR(aNoteL) = false;
+							if (!inRange) NoteTIEDR(aNoteL) = False;
 						}
 
 						if (NoteSLURREDL(aNoteL)) {
-							inRange = SrcSlurInRange(srcDoc,qL,false,true,clipMap,numObjs,
+							inRange = SrcSlurInRange(srcDoc,qL,False,True,clipMap,numObjs,
 																	&pbSearch);
 
-							if (!inRange) NoteSLURREDL(aNoteL) = false;
+							if (!inRange) NoteSLURREDL(aNoteL) = False;
 						}
 						if (NoteSLURREDR(aNoteL)) {
-							inRange = SrcSlurInRange(srcDoc,qL,false,false,clipMap,numObjs,
+							inRange = SrcSlurInRange(srcDoc,qL,False,False,clipMap,numObjs,
 																	&pbSearch);
 							
-							if (!inRange) NoteSLURREDR(aNoteL) = false;
+							if (!inRange) NoteSLURREDR(aNoteL) = False;
 						}
 					}
 				}
@@ -500,9 +500,9 @@ static void UpdateClipContext(Document *doc)
 	LINK firstClef, firstKSL, firstTSL;
 
 	InstallDoc(clipboard);
-	firstClef = LSSearch(clipboard->headL, CLEFtype, ANYONE, GO_RIGHT, false);
-	firstKSL = LSSearch(clipboard->headL, KEYSIGtype, ANYONE, GO_RIGHT, false);
-	firstTSL = LSSearch(clipboard->headL, TIMESIGtype, ANYONE, GO_RIGHT, false);
+	firstClef = LSSearch(clipboard->headL, CLEFtype, ANYONE, GO_RIGHT, False);
+	firstKSL = LSSearch(clipboard->headL, KEYSIGtype, ANYONE, GO_RIGHT, False);
+	firstTSL = LSSearch(clipboard->headL, TIMESIGtype, ANYONE, GO_RIGHT, False);
 	InstallDoc(doc);
 
 	for (s=1; s<=doc->nstaves; s++) {
@@ -547,7 +547,7 @@ static DDIST SyncSpaceNeeded(Document *doc, LINK pL)
 		}
 	}
 	space = IdealSpace(doc, maxLen, RESFACTOR*doc->spacePercent);
-	symWidth = SymWidthRight(doc, pL, staff, false);
+	symWidth = SymWidthRight(doc, pL, staff, False);
 	GetContext(doc, pL, staff, &context);
 	space = n_max(space,symWidth);
 	return (std2d(space,context.staffHeight,5));
@@ -568,7 +568,7 @@ static DDIST GetNeededSpace(Document *doc, LINK pL)
 
 	for (j=1; j<=doc->nstaves; j++) {
 		GetContext(doc, pL, j, &context);
-		width = n_max(width, SymDWidthRight(doc, pL, j, false, context));
+		width = n_max(width, SymDWidthRight(doc, pL, j, False, context));
 	}
 	return width;
 }
@@ -583,7 +583,7 @@ static void SetupClip(Document *doc, LINK startL, LINK endL, COPYMAP **clipMap,
 	LINK pL,baseL,nextL; DDIST diff;
 
 	DeleteClip(doc);											/* Kill current clipboard */
-	SetupClipDoc(doc,true);
+	SetupClipDoc(doc,True);
 	clipxd = 0;
 	UpdateTailxd(doc);
 
@@ -656,7 +656,7 @@ static void FixClipChords(Document *doc, LINK syncL)
 
 
 /* Given a Sync or GRSync, if any of its notes or grace notes has an explicit
-accidental, even a natural, return true; else return false. */
+accidental, even a natural, return True; else return False. */
  
 static Boolean HasAnyAccidentals(LINK pL);
 static Boolean HasAnyAccidentals(LINK pL)
@@ -666,17 +666,17 @@ static Boolean HasAnyAccidentals(LINK pL)
 	if (SyncTYPE(pL)) {
 		aNoteL = FirstSubLINK(pL);
 		for ( ; aNoteL; aNoteL=NextNOTEL(aNoteL)) {
-			if (!NoteREST(aNoteL) && NoteACC(aNoteL)!=0) return true;
+			if (!NoteREST(aNoteL) && NoteACC(aNoteL)!=0) return True;
 		}
 	}
 	else if (GRSyncTYPE(pL)) {
 		aGRNoteL = FirstSubLINK(pL);
 		for ( ; aGRNoteL; aGRNoteL=NextGRNOTEL(aGRNoteL)) {
-			if (GRNoteACC(aGRNoteL)!=0) return true;
+			if (GRNoteACC(aGRNoteL)!=0) return True;
 		}
 	}
 	
-	return false;
+	return False;
 }
 
 /* ---------------------------------------------------------------------- CopyToClip -- */
@@ -694,7 +694,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 		we're not copying and that have accidentals, set a flag to tell us to make
 		implied accidentals explicit. */
 	
-	addAccidentals = addAccsKnown = false;
+	addAccidentals = addAccsKnown = False;
 	
 	/* Scanning the object list to left, if we find a Sync or GRSync with accidentals
 		before we find a Measure, we'll add accidentals, otherwise we won't. */
@@ -702,13 +702,13 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 	for (pL = LeftLINK(startL); pL && !addAccsKnown; pL = LeftLINK(pL)) {
 		switch (ObjLType(pL)) {
 			case MEASUREtype:
-				addAccsKnown = true;
+				addAccsKnown = True;
 				break;
 			case SYNCtype:
 			case GRSYNCtype:
 				if (HasAnyAccidentals(pL)) {
-					addAccidentals = true;
-					addAccsKnown = true;
+					addAccidentals = True;
+					addAccsKnown = True;
 				}
 				break;
 			default:
@@ -731,31 +731,31 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 						(long)ObjLType(pL));
 					break;
 				case MEASUREtype:
-					copyL = DuplicateObject(MEASUREtype, pL, false, doc, clipboard, false);
+					copyL = DuplicateObject(MEASUREtype, pL, False, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case PSMEAStype:
-					copyL = DuplicateObject(PSMEAStype, pL, false, doc, clipboard, false);
+					copyL = DuplicateObject(PSMEAStype, pL, False, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case CLEFtype:
-					copyL = DuplicateObject(CLEFtype, pL, true, doc, clipboard, false);
+					copyL = DuplicateObject(CLEFtype, pL, True, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case KEYSIGtype:
-					copyL = DuplicateObject(KEYSIGtype, pL, true, doc, clipboard, false);
+					copyL = DuplicateObject(KEYSIGtype, pL, True, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case TIMESIGtype:
-					copyL = DuplicateObject(TIMESIGtype, pL, true, doc, clipboard, false);
+					copyL = DuplicateObject(TIMESIGtype, pL, True, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case SYNCtype:
-					copyL = DuplicateObject(SYNCtype, pL, true, doc, clipboard, false);
+					copyL = DuplicateObject(SYNCtype, pL, True, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case GRSYNCtype:
-					copyL = DuplicateObject(GRSYNCtype, pL, true, doc, clipboard, false);
+					copyL = DuplicateObject(GRSYNCtype, pL, True, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case DYNAMtype:
@@ -764,11 +764,11 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 					if (IsHairpin(pL) && !LinkSEL(DynamLASTSYNC(pL)))
 						break;
 
-					copyL = DuplicateObject(DYNAMtype, pL, true, doc, clipboard, false);
+					copyL = DuplicateObject(DYNAMtype, pL, True, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case RPTENDtype:
-					copyL = DuplicateObject(RPTENDtype, pL, true, doc, clipboard, false);
+					copyL = DuplicateObject(RPTENDtype, pL, True, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case ENDINGtype:
@@ -777,7 +777,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 					if (EndingLASTOBJ(pL) && !LinkSEL(EndingLASTOBJ(pL)))
 						break;
 
-					copyL = DuplicateObject(ENDINGtype, pL, true, doc, clipboard, false);
+					copyL = DuplicateObject(ENDINGtype, pL, True, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case GRAPHICtype:
@@ -785,17 +785,17 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 						break;
 					if (GraphicSubType(pL)==GRDraw && !LinkSEL(GraphicLASTOBJ(pL)))
 						break;
-					copyL = DuplicateObject(GRAPHICtype, pL, false, doc, clipboard, false);
+					copyL = DuplicateObject(GRAPHICtype, pL, False, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case TEMPOtype:
 					if (!LinkSEL(TempoFIRSTOBJ(pL)))
 						break;
-					copyL = DuplicateObject(TEMPOtype, pL, false, doc, clipboard, false);
+					copyL = DuplicateObject(TEMPOtype, pL, False, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case SPACERtype:
-					copyL = DuplicateObject(SPACERtype, pL, false, doc, clipboard, false);
+					copyL = DuplicateObject(SPACERtype, pL, False, doc, clipboard, False);
 					clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 					break;
 				case BEAMSETtype: {
@@ -810,7 +810,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 										IsAfter(endL,pSub->bpSync))
 									 goto BDone;
 							}
-						copyL = DuplicateObject(BEAMSETtype, pL, true, doc, clipboard, false);
+						copyL = DuplicateObject(BEAMSETtype, pL, True, doc, clipboard, False);
 						clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 						BDone:
 							;
@@ -828,7 +828,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 										IsAfter(endL,pSub->tpSync))
 									 goto TDone;
 							}
-						copyL = DuplicateObject(TUPLETtype, pL, true, doc, clipboard, false);
+						copyL = DuplicateObject(TUPLETtype, pL, True, doc, clipboard, False);
 						clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 						TDone:
 							;
@@ -859,7 +859,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 							pSub = GetPANOTEOTTAVA(pSubL);
 							if (!LinkSEL(pSub->opSync))			/* ??But may be sel. on another stf! */
 								if (ncopy) {
-									copyL = DuplicateObject(OTTAVAtype, pL, true, doc, clipboard, false);
+									copyL = DuplicateObject(OTTAVAtype, pL, True, doc, clipboard, False);
 									InstallDoc(clipboard);
 									subL = FirstSubLINK(copyL);
 									for ( ; subL; oPrevL=subL,subL=NextNOTEOTTAVAL(subL)) {
@@ -876,7 +876,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 								InstallDoc(doc);
 								}
 						}
-						copyL = DuplicateObject(OTTAVAtype, pL, true, doc, clipboard, false);
+						copyL = DuplicateObject(OTTAVAtype, pL, True, doc, clipboard, False);
 						clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 						ODone:
 							;
@@ -906,7 +906,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 								if (NoteVOICE(aNoteL)==SlurVOICE(pL) && !NoteSEL(aNoteL))
 									goto SDone;
 	
-							copyL = DuplicateObject(SLURtype, pL, true, doc, clipboard, false);
+							copyL = DuplicateObject(SLURtype, pL, True, doc, clipboard, False);
 							clipMap[i].srcL = pL;	clipMap[i].dstL = copyL;
 							SDone:
 								;
@@ -946,19 +946,19 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 		fix up beam ptrs for notes in beamsets completely copied, then fix up notes
 		whose beamsets are not copied to the clipboard. Do the same for tuplets &
 		ottavas. */
-	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, false);
+	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, False);
 	FixAllBeamLinks(doc, clipboard, clipboard->headL, clipboard->tailL);
 	FixClipBeams(doc, clipboard->headL, clipboard->tailL);
 	
-	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, false);
+	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, False);
 	FixTupletLinks(doc, clipboard, clipboard->headL, clipboard->tailL);
 	FixClipTuplets(doc, clipboard->headL, clipboard->tailL);
 	
-	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, false);
+	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, False);
 	FixOttavaLinks(doc, clipboard, clipboard->headL, clipboard->tailL);
 	FixClipOttavas(doc, clipboard->headL, clipboard->tailL, clipMap, numObjs);
 	
-	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, false);
+	SetTempFlags(doc, clipboard, clipboard->headL, clipboard->tailL, False);
 	FixClipLinks(doc,clipboard,clipboard->headL,clipboard->tailL,clipMap,numObjs,0);
 	/* clipboard's heaps are now installed. */
 	
@@ -975,7 +975,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 
 		if (MeasureTYPE(pL) || PSMeasTYPE(pL)) {
 			SelAllSubObjs(pL);
-			LinkSEL(pL) = true;
+			LinkSEL(pL) = True;
 		}
 
 		/* Fix stem, inChord flags, etc. of notes in case any chords were only
@@ -983,7 +983,7 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 		if (SyncTYPE(pL)) FixClipChords(clipboard, pL);
 	}
 
-	BuildVoiceTable(clipboard, true);
+	BuildVoiceTable(clipboard, True);
 
 	/* If we haven't copied the beginning of the first measure of the score, notes
 		in the clipboard's first measure with implied accidentals may no longer
@@ -991,23 +991,23 @@ static void CopyToClip(Document *doc, LINK startL, LINK endL)
 		extreme: should then remove redundant accs in the clipboard, or add them only
 		if not in the keysig, etc.! */
 		
-	clipHasAddedAccs = false;
+	clipHasAddedAccs = False;
 	if (addAccidentals) {
 		LINK endAddAccsL; Boolean addNaturals; short s;
 		CONTEXT	context[MAXSTAVES+1];
 	
-		endAddAccsL = LSUSearch(RightLINK(clipFirstMeas), MEASUREtype, ANYONE, GO_RIGHT, false);
+		endAddAccsL = LSUSearch(RightLINK(clipFirstMeas), MEASUREtype, ANYONE, GO_RIGHT, False);
 
 		/* If no staff has a key signature, there's no need to add redundant naturals. */
-		addNaturals = false;
+		addNaturals = False;
 		GetAllContexts(clipboard, context, clipFirstMeas);
 		for (s=1; s<=clipboard->nstaves; s++)
 			if (context[s].nKSItems!=0) {
-				addNaturals = true;
+				addNaturals = True;
 				break;
 			}
 		
-		clipHasAddedAccs = AddMIDIRedundantAccs(clipboard, endAddAccsL, false, addNaturals);
+		clipHasAddedAccs = AddMIDIRedundantAccs(clipboard, endAddAccsL, False, addNaturals);
 	}
 	
 
@@ -1084,7 +1084,7 @@ void SetupClipDoc(Document *doc, Boolean updContext)
 static void DeleteClip(Document *doc)
 {
 	LINK	pL, prevL, startL, endL, copyL, pageL, sysL, staffL;
-	Boolean loopDone = false;
+	Boolean loopDone = False;
 
 	InstallDoc(clipboard);
 	startL = clipboard->headL; endL = clipboard->tailL;
@@ -1100,40 +1100,40 @@ static void DeleteClip(Document *doc)
 	for (pL=doc->headL; !loopDone; pL=DRightLINK(doc,pL)) {
 		switch (DObjLType(doc, pL)) {
 			case HEADERtype:
-				copyL = DuplicateObject(HEADERtype, pL, false, doc, clipboard, false);
+				copyL = DuplicateObject(HEADERtype, pL, False, doc, clipboard, False);
 				clipboard->headL = copyL;
 				break;
 			case PAGEtype:
-				copyL = DuplicateObject(PAGEtype, pL, false, doc, clipboard, false);
+				copyL = DuplicateObject(PAGEtype, pL, False, doc, clipboard, False);
 				LinkLPAGE(copyL) = LinkRPAGE(copyL) = NILINK;
 				pageL = copyL;
 				break;
 			case SYSTEMtype:
-				copyL = DuplicateObject(SYSTEMtype, pL, false, doc, clipboard, false);
+				copyL = DuplicateObject(SYSTEMtype, pL, False, doc, clipboard, False);
 				LinkLSYS(copyL) = LinkRSYS(copyL) = NILINK;
 				SysPAGE(copyL) = pageL;
 				sysL = copyL;
 				break;
 			case STAFFtype:
-				copyL = DuplicateObject(STAFFtype, pL, false, doc, clipboard, false);
+				copyL = DuplicateObject(STAFFtype, pL, False, doc, clipboard, False);
 				LinkLSTAFF(copyL) = LinkRSTAFF(copyL) = NILINK;
 				StaffSYS(copyL) = sysL;
 				staffL = copyL;
 				break;
 			case CONNECTtype:
-				copyL = DuplicateObject(CONNECTtype, pL, false, doc, clipboard, false);
+				copyL = DuplicateObject(CONNECTtype, pL, False, doc, clipboard, False);
 				break;
 			case CLEFtype:
 			case KEYSIGtype:
 			case TIMESIGtype:
-				copyL = DuplicateObject(DObjLType(doc, pL), pL, false, doc, clipboard, false);
+				copyL = DuplicateObject(DObjLType(doc, pL), pL, False, doc, clipboard, False);
 				break;
 			case MEASUREtype:
-				copyL = DuplicateObject(MEASUREtype, pL, false, doc, clipboard, false);
+				copyL = DuplicateObject(MEASUREtype, pL, False, doc, clipboard, False);
 				clipFirstMeas = copyL;
 				LinkLMEAS(copyL) = LinkRMEAS(copyL) = NILINK;
 				MeasSYSL(copyL) = sysL; MeasSTAFFL(copyL) = staffL; 
-				loopDone = true;
+				loopDone = True;
 				break;
 			default:
 				break;
@@ -1164,12 +1164,12 @@ static void DeleteClip(Document *doc)
 if only some of its subobjects are selected, deselect it completely and unhilite it.
 If called by Cut and Clear before they call DeleteSelection, partly-selected measure
 objects will be left alone; likewise for pseudoMeasures. If it does anything, 
-returns true, else false. */
+returns True, else False. */
 
 Boolean DeselPartlySelMeasSubobjs(Document *doc)
 {
 	LINK 		pL;
-	Boolean		didSomething=false;
+	Boolean		didSomething=False;
 	CONTEXT		context[MAXSTAVES+1];
 	Boolean		found;
 	short		pIndex;
@@ -1181,9 +1181,9 @@ Boolean DeselPartlySelMeasSubobjs(Document *doc)
 		ContextObject(doc, pL, context);
 		if (MeasureTYPE(pL) || PSMeasTYPE(pL))
 			if (LinkSEL(pL))
-				if (!MeasHomoSel(pL, true)) {
+				if (!MeasHomoSel(pL, True)) {
 					CheckObject(doc, pL, &found, NULL, context, SMDeselect, &pIndex, stfRange);
-					didSomething = true;
+					didSomething = True;
 				}
 	}
 	
@@ -1205,7 +1205,7 @@ void SelPartlySelMeasSubobjs(Document *doc)
 	}
 }
 	
-/* Return true iff every subobject in <measL> (which must be a Measure or pseudoMeasure)
+/* Return True iff every subobject in <measL> (which must be a Measure or pseudoMeasure)
 has the specified selection status. */
 
 Boolean MeasHomoSel(LINK measL, Boolean selected)
@@ -1214,17 +1214,17 @@ Boolean MeasHomoSel(LINK measL, Boolean selected)
 	
 	if (MeasureTYPE(measL)) {
 		for (aMeasL = FirstSubLINK(measL); aMeasL; aMeasL = NextMEASUREL(aMeasL))
-			if (MeasureSEL(aMeasL)!=selected) return false;
+			if (MeasureSEL(aMeasL)!=selected) return False;
 	}
 	else if (PSMeasTYPE(measL)) {
 		for (aMeasL = FirstSubLINK(measL); aMeasL; aMeasL = NextPSMEASL(aMeasL))
-			if (PSMeasSEL(aMeasL)!=selected) return false;
+			if (PSMeasSEL(aMeasL)!=selected) return False;
 	}
 		
-	return true;
+	return True;
 }
 
-/* Return true iff every subobject in every selected Measure or pseudoMeasure has
+/* Return True iff every subobject in every selected Measure or pseudoMeasure has
 the specified selection status. */
 
 Boolean AllMeasHomoSel(Document *doc)
@@ -1234,10 +1234,10 @@ Boolean AllMeasHomoSel(Document *doc)
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL)) {
 		if (MeasureTYPE(pL) || PSMeasTYPE(pL))
 			if (LinkSEL(pL))
-				if (!MeasHomoSel(pL, true)) return false;
+				if (!MeasHomoSel(pL, True)) return False;
 	}
 	
-	return true;
+	return True;
 }
 
 
@@ -1249,10 +1249,10 @@ void DoCut(Document *doc)
 	Boolean haveJI;
 	LINK pL;
 	
-	haveJI = false;
+	haveJI = False;
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL) && (J_ITTYPE(pL) || J_IPTYPE(pL)))
-			{ haveJI = true; break; }
+			{ haveJI = True; break; }
 
 	if (!haveJI) {
 		GetIndCString(strBuf, CLIPERRS_STRS, 1);		/* "You can't Cut: the only symbols selected are attached to unselected symbols." */
@@ -1278,10 +1278,10 @@ void DoCopy(Document *doc)
 	Boolean haveJI;
 	LINK pL;
 	
-	haveJI = false;
+	haveJI = False;
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL) && (J_ITTYPE(pL) || J_IPTYPE(pL)))
-			{ haveJI = true; break; }
+			{ haveJI = True; break; }
 	if (!haveJI) {
 		GetIndCString(strBuf, CLIPERRS_STRS, 2);		/* "You can't Copy: the only symbols selected are attached to unselected symbols." */
 		CParamText(strBuf, "", "", "");
@@ -1306,11 +1306,11 @@ static void ClipCases(Document *doc, Boolean *hasClef, Boolean *hasKS, Boolean *
 
 	InstallDoc(clipboard);
 
-	*hasClef = *hasKS = *hasTS = false;
+	*hasClef = *hasKS = *hasTS = False;
 	for (pL=clipFirstMeas; pL!=clipboard->tailL; pL=RightLINK(pL)) {
-		if (ClefTYPE(pL)) *hasClef = true;
-		else if (KeySigTYPE(pL)) *hasKS = true;
-		else if (TimeSigTYPE(pL)) *hasTS = true;
+		if (ClefTYPE(pL)) *hasClef = True;
+		else if (KeySigTYPE(pL)) *hasKS = True;
+		else if (TimeSigTYPE(pL)) *hasTS = True;
 	}
 	
 	InstallDoc(doc);	
@@ -1350,8 +1350,8 @@ static void InvalForPaste(Document *doc, LINK prevSelL, Boolean hasClef, Boolean
 
 
 /* ----------------------------------------------------------- PasteDelRedAccsDialog -- */
-/* Delete redundant accidentals in material just pasted in? Return true to delete
-them, false to leave them alone. If user has answered this question before and
+/* Delete redundant accidentals in material just pasted in? Return True to delete
+them, False to leave them alone. If user has answered this question before and
 said not to ask again, just return the previous answer; else ask them. */
 
 static enum {
@@ -1378,7 +1378,7 @@ Boolean DoPaste(Document *doc)
 	char		fmtStr[256];
 
 	pasteType = CheckMainClip(doc, DRightLINK(clipboard, clipFirstMeas), clipboard->tailL);
-	if (pasteType==PasteCancel) return false;
+	if (pasteType==PasteCancel) return False;
 
 	/* If there are any tuplets spanning the insertion point and notes are to be
 		pasted in the tuplet's voice, we can't paste. */
@@ -1386,7 +1386,7 @@ Boolean DoPaste(Document *doc)
 	stfDiff  = GetAnyStfDiff(doc,doc,pasteType,&dummy1,&dummy2);
 	for (v=1; v<=MAXVOICES; v++)
 		if (VOICE_MAYBE_USED(clipboard,v) && VOICE_MAYBE_USED(doc,v+stfDiff)) {
-			tupletL = VHasTupleAcross(doc->selEndL, v+stfDiff, false);
+			tupletL = VHasTupleAcross(doc->selEndL, v+stfDiff, False);
 			if (tupletL && ClipNoteInV(doc,v)) {
 				Int2UserVoice(doc, v+stfDiff, &userV, &partL);
 				pPart = GetPPARTINFO(partL);
@@ -1397,7 +1397,7 @@ Boolean DoPaste(Document *doc)
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
 				InstallDoc(doc);
-				return false;
+				return False;
 			}
 		}
 	InstallDoc(doc);
@@ -1425,16 +1425,16 @@ Boolean DoPaste(Document *doc)
 	ClipCases(doc,&chasClef,&chasKS,&chasTS);
 	hasClef |= chasClef;  hasKS |= chasKS;  hasTS |= chasTS;
 
-	delRedAccs = false;
+	delRedAccs = False;
 
 	prevSelStartL = LeftLINK(doc->selStartL);
-	DeleteSelection(doc, true, &dontResp);							/* Kill selection */
+	DeleteSelection(doc, True, &dontResp);							/* Kill selection */
 	PasteFromClip(doc, doc->selEndL,pasteType,delRedAccs);	/* Paste in clipboard */
 
 	InitAntikink(doc, prevSelStartL, doc->selEndL);
-	MEAdjustCaret(doc,false);
+	MEAdjustCaret(doc,False);
 	if (doc->autoRespace) {
-		RespaceBars(doc,prevSelStartL,doc->selEndL,RESFACTOR*(long)doc->spacePercent,false,false);
+		RespaceBars(doc,prevSelStartL,doc->selEndL,RESFACTOR*(long)doc->spacePercent,False,False);
 	}
 	Antikink();																/* Fix slur shapes */
 
@@ -1442,7 +1442,7 @@ Boolean DoPaste(Document *doc)
 	FixWholeRests(doc, RightLINK(prevSelStartL));
 	FixTimeStamps(doc, RightLINK(prevSelStartL), doc->tailL); /* Overcautious but easy */
 
-	return true;
+	return True;
 }
 
 
@@ -1458,7 +1458,7 @@ static DDIST GetClipDiffxd(Document *doc, LINK a, LINK b, DDIST c, DDIST d)
 
 #define SP_PASTEAFTERBAR 	std2d(config.spAfterBar,context.staffHeight,5)		
 #define STAFF1 				1
-#define pLeftxd				( DLinkXD(clipboard, DFirstValidxd(doc, clipboard, DLeftLINK(clipboard,pL),true)) )
+#define pLeftxd				( DLinkXD(clipboard, DFirstValidxd(doc, clipboard, DLeftLINK(clipboard,pL),True)) )
 
 /* ------------------------------------------------------------------- RecalcClipxds -- */
 /* Recalculate the clipboard xds so that objects in the clipboard will be properly
@@ -1480,9 +1480,9 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 	
 	/* Precompute objects for calculation of xds. */
 	insertLeft = LeftLINK(insertL);
-	validLeft = FirstValidxd(insertLeft,true);
-	startRight = DFirstValidxd(doc, clipboard, startL, false);
-	endLeft = DFirstValidxd(doc, clipboard, DLeftLINK(clipboard, endL),true);
+	validLeft = FirstValidxd(insertLeft,True);
+	startRight = DFirstValidxd(doc, clipboard, startL, False);
+	endLeft = DFirstValidxd(doc, clipboard, DLeftLINK(clipboard, endL),True);
 	GetContext(doc, insertL, STAFF1, &context);
 	
 	switch (ObjLType(insertL)) {
@@ -1502,7 +1502,7 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 			}
 			else {
 				if (DMeasureTYPE(clipboard,startL)) {				
-					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, true, false);
+					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 					clipDiffxd = GetClipDiffxd(doc,prevMeasL,startL,0,0);
 					clipDiffxd += CalcSpaceNeeded(doc, insertL);
 					DMoveMeasures(doc, clipboard, startL, endL, clipDiffxd);	/* Move following measures */
@@ -1517,7 +1517,7 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 					if (SystemTYPE(insertL)) clipDiffxd -= LinkXD(insertL);
 
 					pL = DMoveInMeasure(doc, clipboard, startL, endL, clipDiffxd);
-					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, true, false);
+					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 					clipDiffxd = GetClipDiffxd(doc,prevMeasL,pL,pLeftxd,barxd);
 					DMoveMeasures(doc, clipboard, pL, endL, clipDiffxd);		/* Move following measures */
 				}
@@ -1538,14 +1538,14 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 			}
 			else {
 				if (DMeasureTYPE(clipboard,startL)) {				
-					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, true, false);
+					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 					clipDiffxd = GetClipDiffxd(doc,prevMeasL,startL,LinkXD(validLeft),insertpxd);
 					DMoveMeasures(doc, clipboard, startL, endL, clipDiffxd);	/* Move following measures */
 				}
 				else {
 					clipDiffxd = GetClipDiffxd(doc,insertL,startRight,0,0);
 					pL = DMoveInMeasure(doc, clipboard, startL, endL, clipDiffxd + LinkXD(insertLeft));
-					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, true, false);
+					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 					clipDiffxd = GetClipDiffxd(doc,prevMeasL,pL,pLeftxd,barxd);
 					DMoveMeasures(doc, clipboard, pL, endL, clipDiffxd);		/* Move following measures */
 				}
@@ -1566,14 +1566,14 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 			}
 			else {
 				if (DMeasureTYPE(clipboard,startL)) {				
-					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, true, false);
+					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 					clipDiffxd = GetClipDiffxd(doc,prevMeasL,startL,LinkXD(validLeft),insertpxd);
 					DMoveMeasures(doc, clipboard, startL, endL, clipDiffxd);				/* Move following measures */
 				}
 				else {
 					clipDiffxd = GetClipDiffxd(doc,validLeft,startRight,insertpxd,0);
 					pL = DMoveInMeasure(doc, clipboard, startL, endL, clipDiffxd);
-					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, true, false);
+					prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 					clipDiffxd = GetClipDiffxd(doc,prevMeasL,pL,pLeftxd,barxd);
 					DMoveMeasures(doc, clipboard, pL, endL, clipDiffxd);		/* Move following measures */
 				}
@@ -1581,16 +1581,16 @@ static void RecalcClipxds(Document *doc, LINK insertL)
 			break;
 		default:
 			if (DMeasureTYPE(clipboard,startL)) {
-				prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, true, false);
+				prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 				clipDiffxd = GetClipDiffxd(doc,prevMeasL,startL,insertpxd,
 									(MeasureTYPE(insertLeft)?SP_PASTEAFTERBAR:LinkXD(validLeft)));
 				DMoveMeasures(doc, clipboard, startL, endL, clipDiffxd);					/* Move following measures */
 			}
 			else {
-				clipDiffxd = GetClipDiffxd(doc,FirstValidxd(insertL,false),startRight,0,0);
+				clipDiffxd = GetClipDiffxd(doc,FirstValidxd(insertL,False),startRight,0,0);
 				pL = DMoveInMeasure(doc, clipboard, startL, endL, clipDiffxd);
 				
-				prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, true, false);
+				prevMeasL = LSSearch(insertLeft, MEASUREtype, STAFF1, True, False);
 				clipDiffxd = GetClipDiffxd(doc,prevMeasL,pL,pLeftxd,barxd);
 				DMoveMeasures(doc, clipboard, pL, endL, clipDiffxd);		  				/* Move following measures */
 			}
@@ -1608,8 +1608,8 @@ static DDIST PreparePaste(Document *doc, LINK insertL, LINK *startL, LINK *endL)
 {
 	LINK insertLeft;
 	
-	insertLeft = FirstValidxd(LeftLINK(insertL), true);
-	pasteInsertpxd = PMDist(insertLeft, FirstValidxd(insertL, false));
+	insertLeft = FirstValidxd(LeftLINK(insertL), True);
+	pasteInsertpxd = PMDist(insertLeft, FirstValidxd(insertL, False));
 	UpdateTailxd(doc);		/* Force calculation of tail xd, needed by RecalcClipxds */
 										
 	*startL = DRightLINK(clipboard, clipFirstMeas);
@@ -1692,7 +1692,7 @@ PasteCancel; else return PasteOK. Assumes clipboard document is installed. */
 static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 {
 	short		staff,stfDiff,partDiff,stfOff,pasteType=PasteOK,minStf,maxStf;
-	Boolean		staffOK=true;
+	Boolean		staffOK=True;
 	PMEVENT		p;
 	HEAP		*tmpHeap;
 	GenSubObj 	*subObj;
@@ -1723,7 +1723,7 @@ static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 				for (subObjL=FirstSubObjPtr(p,pL); subObjL; subObjL = NextLink(tmpHeap,subObjL)) {
 					subObj = (GenSubObj *)LinkToPtr(tmpHeap,subObjL);
 					if (subObj->staffn+stfDiff>doc->nstaves)
-						{ staffOK = false; staff = subObj->staffn; break; }
+						{ staffOK = False; staff = subObj->staffn; break; }
 				}	
 				break;
 			case SLURtype:
@@ -1734,15 +1734,15 @@ static short CheckStaffMapping(Document *doc, LINK startL, LINK endL)
 			case ENDINGtype:
 				p = GetPMEVENT(pL);
 				if (((PEXTEND)p)->staffn+stfDiff>doc->nstaves)
-					{ staffOK = false; staff = ((PEXTEND)p)->staffn; }
+					{ staffOK = False; staff = ((PEXTEND)p)->staffn; }
 				break;
 			case TEMPOtype:
 				if (TempoSTAFF(pL)+stfDiff>doc->nstaves)
-					{ staffOK = false; staff = TempoSTAFF(pL); }
+					{ staffOK = False; staff = TempoSTAFF(pL); }
 				break;
 			case SPACERtype:
 				if (SpacerSTAFF(pL)+stfDiff>doc->nstaves)
-					{ staffOK = false; staff = SpacerSTAFF(pL); }
+					{ staffOK = False; staff = SpacerSTAFF(pL); }
 				break;
 			default:
 				;
@@ -1802,7 +1802,7 @@ static short GetTupletTopStaff(LINK tupL)
 	return topStaff;
 }
 
-/* Return true if pasting the given (potentially cross-staff) object with the given
+/* Return True if pasting the given (potentially cross-staff) object with the given
 <staffDiff> would cross parts. */
 
 static Boolean CrossStaff2CrossPart(LINK pL, short staffDiff, short staffTab[])
@@ -1811,11 +1811,11 @@ static Boolean CrossStaff2CrossPart(LINK pL, short staffDiff, short staffTab[])
 	
 	switch (ObjLType(pL)) {
 		case BEAMSETtype:
-			if (!BeamCrossSTAFF(pL)) return false;
+			if (!BeamCrossSTAFF(pL)) return False;
 			topStf = BeamSTAFF(pL)+staffDiff;
 			return (staffTab[topStf]!=staffTab[topStf+1]);
 		case SLURtype:
-			if (!SlurCrossSTAFF(pL)) return false;
+			if (!SlurCrossSTAFF(pL)) return False;
 			topStf = SlurSTAFF(pL)+staffDiff;
 			return (staffTab[topStf]!=staffTab[topStf+1]);
 		case TUPLETtype:
@@ -1824,16 +1824,16 @@ static Boolean CrossStaff2CrossPart(LINK pL, short staffDiff, short staffTab[])
 				of the upper stuff. But that'd be tricky and affect existing files and
 				other code (e.g., for drawing), and this inconsistency doesn't seem to cause
 				any other problems. For now, we'll just handle it here. */
-			if (!IsTupletCrossStf(pL)) return false;
+			if (!IsTupletCrossStf(pL)) return False;
 			topStf = GetTupletTopStaff(pL)+staffDiff;
 			return (staffTab[topStf]!=staffTab[topStf+1]);
 		default:
-			return false;
+			return False;
 	}
 }
 
 /* ------------------------------------------------------------ MultipleVoicesInClip -- */
-/* Return true if the clipboard contains stuff in two or more different voices. */
+/* Return True if the clipboard contains stuff in two or more different voices. */
 
 static Boolean MultipleVoicesInClip(void);
 static Boolean MultipleVoicesInClip()
@@ -1847,36 +1847,36 @@ static Boolean MultipleVoicesInClip()
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 					if (voice==NOONE) voice = NoteVOICE(aNoteL);
-					else if (NoteVOICE(aNoteL)!=voice) return true;
+					else if (NoteVOICE(aNoteL)!=voice) return True;
 				break;
 			case GRSYNCtype:
 				aGRNoteL = FirstSubLINK(pL);
 				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
 					if (voice==NOONE) voice = GRNoteVOICE(aGRNoteL);
-					else if (GRNoteVOICE(aGRNoteL)!=voice) return true;
+					else if (GRNoteVOICE(aGRNoteL)!=voice) return True;
 				break;
 			case SLURtype:
 				if (voice==NOONE) voice = SlurVOICE(pL);
-				else if (SlurVOICE(pL)!=voice) return true;
+				else if (SlurVOICE(pL)!=voice) return True;
 				break;
 			case BEAMSETtype:
 				if (voice==NOONE) voice = BeamVOICE(pL);
-				else if (BeamVOICE(pL)!=voice) return true;
+				else if (BeamVOICE(pL)!=voice) return True;
 				break;
 			case TUPLETtype:
 				if (voice==NOONE) voice = TupletVOICE(pL);
-				else if (TupletVOICE(pL)!=voice) return true;
+				else if (TupletVOICE(pL)!=voice) return True;
 				break;
 			case GRAPHICtype:
 				if (voice==NOONE) voice = GraphicVOICE(pL);
-				else if (GraphicVOICE(pL)!=voice) return true;
+				else if (GraphicVOICE(pL)!=voice) return True;
 				break;
 			default:
 				;
 		}
 	}
 	
-	return false;
+	return False;
 }
 
 
@@ -1898,7 +1898,7 @@ static short CountSpanSlurs(Document *doc, short v, LINK slurL)
 		if (!LinkSEL(slurL) && !LinkSEL(SlurFIRSTSYNC(slurL)) && !LinkSEL(SlurLASTSYNC(slurL)))
 			nSlurs++;
 
-		slurL = LVSearch(LeftLINK(slurL),SLURtype,v,GO_LEFT,false);
+		slurL = LVSearch(LeftLINK(slurL),SLURtype,v,GO_LEFT,False);
 	}
 	
 	return nSlurs;
@@ -1917,9 +1917,9 @@ static LINK GetSlurAcrRange(Document *doc, short v, short *numSlurs)
 {
 	LINK slurL=NILINK;
 	short nSlurs=0;
-	Boolean foundSlur=false;
+	Boolean foundSlur=False;
 
-	slurL = LVSearch(LeftLINK(doc->selStartL),SLURtype,v,GO_LEFT,false);
+	slurL = LVSearch(LeftLINK(doc->selStartL),SLURtype,v,GO_LEFT,False);
 	nSlurs = CountSpanSlurs(doc,v,slurL);
 	
 	/*
@@ -1929,9 +1929,9 @@ static LINK GetSlurAcrRange(Document *doc, short v, short *numSlurs)
 	while (slurL && IsAfterIncl(doc->selEndL,SlurLASTSYNC(slurL)) && !foundSlur) {
 
 		if (!LinkSEL(slurL) && !LinkSEL(SlurFIRSTSYNC(slurL)) && !LinkSEL(SlurLASTSYNC(slurL)))
-			foundSlur=true;
+			foundSlur=True;
 		else
-			slurL = LVSearch(LeftLINK(slurL),SLURtype,v,GO_LEFT,false);
+			slurL = LVSearch(LeftLINK(slurL),SLURtype,v,GO_LEFT,False);
 
 	}
 	
@@ -1939,23 +1939,23 @@ static LINK GetSlurAcrRange(Document *doc, short v, short *numSlurs)
 	return slurL;
 }
 
-/* Check to see if paste will create illegal slur nesting; return true if nesting is
-okay, false if there's a problem. */
+/* Check to see if paste will create illegal slur nesting; return True if nesting is
+okay, False if there's a problem. */
 
 static Boolean CheckSlurNest(Document *doc, short stfDiff)
 {
 	short v,nSlurs;
-	Boolean noSlur=false;
+	Boolean noSlur=False;
 	LINK firstMeasL,slurL,clipSlurL;
 	
 	InstallDoc(doc);
 
 	/* If we are before the first measure of the score, there can be no slur
 		across the insertion pt after the doc's selRange has been deleted, so
-		illegal nesting will not be possible; return true. */
+		illegal nesting will not be possible; return True. */
 
-	firstMeasL = LSSearch(LeftLINK(doc->selStartL),MEASUREtype,ANYONE,GO_LEFT,false);
-	if (!firstMeasL) return true;
+	firstMeasL = LSSearch(LeftLINK(doc->selStartL),MEASUREtype,ANYONE,GO_LEFT,False);
+	if (!firstMeasL) return True;
 
 	/* If there is a slur in any voice in the doc before doc->selStartL, check if
 		it spans the selRange by testing if its lastSync is after or equal to
@@ -1964,35 +1964,35 @@ static Boolean CheckSlurNest(Document *doc, short stfDiff)
 		the clip slur a tie for the paste to be legal. If there is more than
 		one slur in the clip's corresponding voice, the paste cannot be legal. */
 
-	for (v=1; v<=MAXVOICES; v++,noSlur=false) {
+	for (v=1; v<=MAXVOICES; v++,noSlur=False) {
 		if (VOICE_MAYBE_USED(doc,v+stfDiff) && VOICE_MAYBE_USED(clipboard,v)) {
 			
 			slurL = GetSlurAcrRange(doc,v+stfDiff,&nSlurs);
 			if (nSlurs<1) continue;
-			if (nSlurs>1) noSlur = true;
-			if (slurL && SlurTIE(slurL)) noSlur = true;
+			if (nSlurs>1) noSlur = True;
+			if (slurL && SlurTIE(slurL)) noSlur = True;
 			
 			if (slurL) {
 				InstallDoc(clipboard);
 				
-				clipSlurL = LVSearch(clipboard->headL,SLURtype,v,GO_RIGHT,false);
+				clipSlurL = LVSearch(clipboard->headL,SLURtype,v,GO_RIGHT,False);
 				
 				/* Clipboard slur illegal: already a spanning nest, or tie. */
 	
 				if (clipSlurL && noSlur)
-					{ InstallDoc(doc); return false; }
+					{ InstallDoc(doc); return False; }
 				
 				/* Clipboard slur must be a tie */
 	
 				if (clipSlurL && !SlurTIE(clipSlurL))
-					{ InstallDoc(doc); return false; }
+					{ InstallDoc(doc); return False; }
 				
 				/* Must be only one */
 				
 				while (clipSlurL) {
-					clipSlurL = LVSearch(RightLINK(clipSlurL),SLURtype,v,GO_RIGHT,false);
+					clipSlurL = LVSearch(RightLINK(clipSlurL),SLURtype,v,GO_RIGHT,False);
 					if (clipSlurL && !SlurTIE(clipSlurL))
-						{ InstallDoc(doc); return false; }
+						{ InstallDoc(doc); return False; }
 				}
 	
 				InstallDoc(doc);
@@ -2000,7 +2000,7 @@ static Boolean CheckSlurNest(Document *doc, short stfDiff)
 		}
 	}
 	
-	return true;
+	return True;
 }
 
 
@@ -2101,9 +2101,9 @@ static void UpdateMeasRects(LINK init, LINK succ, DDIST systemWidth)
 {
 	LINK prevMeasL, pasteLastMeasL;
 	
-	prevMeasL = LSSearch(init, MEASUREtype, 1, true, false);
+	prevMeasL = LSSearch(init, MEASUREtype, 1, True, False);
 	PasteFixMeasureRect(prevMeasL, systemWidth);
-	pasteLastMeasL = LSSearch(succ, MEASUREtype, 1, true, false);
+	pasteLastMeasL = LSSearch(succ, MEASUREtype, 1, True, False);
 	PasteFixMeasureRect(pasteLastMeasL, systemWidth);
 }
 
@@ -2128,7 +2128,7 @@ void PasteFixMeasureRect(LINK pMeasureL,
 		aMeasure->measSizeRect.left = 0;
 		aMeasure->measSizeRect.right = measureWidth;
 	}
-	LinkVALID(pMeasureL) = false;
+	LinkVALID(pMeasureL) = False;
 }
 
 
@@ -2147,7 +2147,7 @@ static void ClipMovexd(Document *doc, LINK insertL)
 		clipboard. Then move all following measures by the total length
 		of the clipboard. */
 
-	pL = FirstValidxd(insertL, false);
+	pL = FirstValidxd(insertL, False);
 	pL = MoveInMeasure(pL, doc->tailL, clipxd);
 	MoveMeasures(pL, doc->tailL, clipxd);
 }
@@ -2157,8 +2157,8 @@ static void ClipMovexd(Document *doc, LINK insertL)
 
 /* Required for mapping clipboard staves. The contents of the clipboard
 are guaranteed to begin with a measure object. From that point on to the
-tail, if there are only measures or PSMeasures, return true, else return
-false. */
+tail, if there are only measures or PSMeasures, return True, else return
+False. */
 
 static short OnlyMeasures()
 {
@@ -2172,7 +2172,7 @@ static short OnlyMeasures()
 	return (measL==clipboard->tailL);
 }
 
-/* Return true if the clipboard has any notes in v. Installs doc before
+/* Return True if the clipboard has any notes in v. Installs doc before
 returning. */
 
 static Boolean ClipNoteInV(Document *doc, short v)
@@ -2183,15 +2183,15 @@ static Boolean ClipNoteInV(Document *doc, short v)
 	
 	for (pL = clipFirstMeas; pL!=clipboard->tailL; pL=RightLINK(pL)) {
 		if (SyncTYPE(pL)) {
-			aNoteL = NoteInVoice(pL,v,false);
+			aNoteL = NoteInVoice(pL,v,False);
 			if (aNoteL) {
-				InstallDoc(doc); return true;
+				InstallDoc(doc); return True;
 			}
 		}
 	}	
 
 	InstallDoc(doc);
-	return false;
+	return False;
 }
 
 /*
@@ -2705,7 +2705,7 @@ void SetupVMap(Document *doc, short *vMap, short stfDiff)
 
 	InstallDoc(clipboard);
 	
-	clipFirstMeas = LSSearch(clipboard->headL,MEASUREtype,ANYONE,GO_RIGHT,false);
+	clipFirstMeas = LSSearch(clipboard->headL,MEASUREtype,ANYONE,GO_RIGHT,False);
 
 	for (pL=clipFirstMeas; pL!=clipboard->tailL; pL=RightLINK(pL)) {
 		SetNewVoices(doc,vMap,pL,stfDiff);
@@ -2753,17 +2753,17 @@ void PasteFixMeasStruct(Document *doc, LINK startL, LINK endL, Boolean fixMeasur
 {
 	LINK pL, beforeStartL;
 	LINK measL,aMeasL,fixMeasL,staffL,newMeas,insertL,copyL,rightL,sysL;
-	PAMEASURE aMeas,fixMeas; Boolean replaceMeas=false;
+	PAMEASURE aMeas,fixMeas; Boolean replaceMeas=False;
 	DDIST xd; Rect bbox;
 	
-	measL = LSSearch(LeftLINK(startL),MEASUREtype,ANYONE,GO_LEFT,false);
-	staffL = LSSearch(LeftLINK(startL),STAFFtype,ANYONE,GO_LEFT,false);
+	measL = LSSearch(LeftLINK(startL),MEASUREtype,ANYONE,GO_LEFT,False);
+	staffL = LSSearch(LeftLINK(startL),STAFFtype,ANYONE,GO_LEFT,False);
 
 	for (pL=startL; pL!=endL; pL=RightLINK(pL))
 		if (MeasureTYPE(pL)) {
 			newMeas = pL;
 			if (LinkNENTRIES(newMeas)!=LinkNENTRIES(measL))
-				replaceMeas = true;
+				replaceMeas = True;
 			break;
 		}
 
@@ -2776,12 +2776,12 @@ void PasteFixMeasStruct(Document *doc, LINK startL, LINK endL, Boolean fixMeasur
 					insertL = RightLINK(pL);
 					xd = LinkXD(pL);
 					bbox = MeasureBBOX(pL);
-					copyL = DuplicateObject(MEASUREtype,measL,false,doc,doc,false);
-					LinkVALID(copyL) = false;
-					LinkVIS(copyL) = true;
+					copyL = DuplicateObject(MEASUREtype,measL,False,doc,doc,False);
+					LinkVALID(copyL) = False;
+					LinkVIS(copyL) = True;
 					LinkXD(copyL) = xd;
 					MeasureBBOX(copyL) = bbox;
-					SetMeasVisible(copyL, true);
+					SetMeasVisible(copyL, True);
 					DeleteNode(doc,pL);
 					InsNodeInto(copyL, insertL);
 				}
@@ -2814,12 +2814,12 @@ void PasteFixMeasStruct(Document *doc, LINK startL, LINK endL, Boolean fixMeasur
 		if (MeasureTYPE(pL)) {
 			LINK prevMeasL,aMeasL,bMeasL; DRect mRectA,mRectB;
 
-			sysL = LSSearch(pL,SYSTEMtype,ANYONE,GO_LEFT,false);
+			sysL = LSSearch(pL,SYSTEMtype,ANYONE,GO_LEFT,False);
 			bbox = MeasureBBOX(pL);
 			bbox.top = d2p(SystemRECT(sysL).top);
 			bbox.bottom = d2p(SystemRECT(sysL).bottom);
 			MeasureBBOX(pL) = bbox;
-			prevMeasL = LSSearch(LeftLINK(pL),MEASUREtype,ANYONE,GO_LEFT,false);
+			prevMeasL = LSSearch(LeftLINK(pL),MEASUREtype,ANYONE,GO_LEFT,False);
 			aMeasL = FirstSubLINK(pL);
 			bMeasL = FirstSubLINK(prevMeasL);
 			for ( ; aMeasL; aMeasL=NextMEASUREL(aMeasL),bMeasL=NextMEASUREL(bMeasL)) {
@@ -2840,7 +2840,7 @@ void PasteUpdate(Document *doc, LINK initL, LINK succL, DDIST systemWidth)
 	WaitCursor();
 
 	ClipMovexd(doc, succL);
-	doc->changed = true;
+	doc->changed = True;
 	UpdateTailxd(doc);
 	
 	PasteFixStfSize(doc, RightLINK(initL), succL);
@@ -2872,11 +2872,11 @@ static void FixOctNotes(Document *doc, LINK octL, short s)
 
 	firstL = FirstInOttava(octL);
 	lastL = LastInOttava(octL);
-	numNotes = OctCountNotesInRange(s,firstL,RightLINK(lastL), false);
+	numNotes = OctCountNotesInRange(s,firstL,RightLINK(lastL), False);
 	
 	if (numNotes!=LinkNENTRIES(octL)) {
 		UnOttavaRange(doc,firstL,RightLINK(lastL),s);
-		CreateOTTAVA(doc,firstL,RightLINK(lastL),s,numNotes,octType,false,false);
+		CreateOTTAVA(doc,firstL,RightLINK(lastL),s,numNotes,octType,False,False);
 	}
 }
 
@@ -2898,7 +2898,7 @@ void PasteFixOttavas(Document *doc, LINK startL, short s)
 {
 	LINK octL;
 	
-	octL = LSSearch(startL,OTTAVAtype,s,GO_LEFT,false);
+	octL = LSSearch(startL,OTTAVAtype,s,GO_LEFT,False);
 	
 	if (octL) FixOctNotes(doc,octL,s);
 }
@@ -2917,19 +2917,19 @@ static void PasteRebeam(Document *doc, LINK pL, short nInRange)
 	LINK firstSyncL,lastSyncL; Boolean graceBeam; short v;
 
 	graceBeam = GraceBEAM(pL); v = BeamVOICE(pL);
-	RemoveBeam(doc, pL, v, false);
+	RemoveBeam(doc, pL, v, False);
 	firstSyncL = FirstInBeam(pL);
 	lastSyncL = LastInBeam(pL);
 
 	if (graceBeam) {
 		if (nInRange>1)
 			CreateGRBEAMSET(doc, firstSyncL, RightLINK(lastSyncL), v,
-				nInRange, false, false);
+				nInRange, False, False);
 	}
 	else {
 		if (nInRange>1)
 			CreateBEAMSET(doc, firstSyncL, RightLINK(lastSyncL), v,
-				nInRange, false, doc->voiceTab[v].voiceRole);
+				nInRange, False, doc->voiceTab[v].voiceRole);
 	}
 }
 
@@ -2946,8 +2946,8 @@ short PFCountBeamable(
 			Document *doc,
 			LINK startL, LINK endL,
 			short voice,
-			Boolean beamRests,		/* true=treat rests like notes (as in doc->beamRests) */
-			Boolean /*needSelected*//* true if we only want selected items */
+			Boolean beamRests,		/* True=treat rests like notes (as in doc->beamRests) */
+			Boolean /*needSelected*//* True if we only want selected items */
 			)
 {
 	short	nbeamable;
@@ -3006,7 +3006,7 @@ static short GRBeamNotesInRange(
 that beamset. We decide if notes have been pasted into it by comparing the
 number of notes (counting chords as 1) in its range now to the number of
 subobjs in the beamset. For ordinary (non-grace) beams, this method has the
-following problem: Say the user changes doc->beamRests from true to false.
+following problem: Say the user changes doc->beamRests from True to False.
 Beam previously contained <n> rests, user pastes <n> notes. => numNotes will
 equal LinkNENTRIES(beamL), but beamL still needs to be re-created.
 Solution: We store the value of doc->beamRests inside the beam object when
@@ -3038,9 +3038,9 @@ static void FixBeamNotes(Document *doc, LINK beamL, short v)
 			PasteRebeam(doc, beamL, numNotes);
 	}
 	else {
-		prevNumNotes = PFCountBeamable(doc,firstL,RightLINK(lastL),v,BeamRESTS(beamL),false);
+		prevNumNotes = PFCountBeamable(doc,firstL,RightLINK(lastL),v,BeamRESTS(beamL),False);
 		if (prevNumNotes!=LinkNENTRIES(beamL)) {
-			numNotes = PFCountBeamable(doc,firstL,RightLINK(lastL),v,doc->beamRests,false);
+			numNotes = PFCountBeamable(doc,firstL,RightLINK(lastL),v,doc->beamRests,False);
 			PasteRebeam(doc, beamL, numNotes);
 		}
 	}
@@ -3065,7 +3065,7 @@ void PasteFixBeams(Document *doc, LINK startL, short v)
 {
 	LINK beamL;
 
-	beamL = LVSearch(startL,BEAMSETtype,v,GO_LEFT,false); /* ??MAY BE FAR BEFORE RANGE! */
+	beamL = LVSearch(startL,BEAMSETtype,v,GO_LEFT,False); /* ??MAY BE FAR BEFORE RANGE! */
 
 	if (beamL) FixBeamNotes(doc,beamL,v);
 }
@@ -3123,7 +3123,7 @@ static void PasteFixSysMeasContexts(Document *doc, LINK initL)
 	PATIMESIG aTimeSig;
 
 	InstallDoc(doc);
-	sysL = LSSearch(initL,SYSTEMtype,ANYONE,GO_LEFT,false);
+	sysL = LSSearch(initL,SYSTEMtype,ANYONE,GO_LEFT,False);
 	prevMeasL = measL = SSearch(sysL,MEASUREtype,GO_RIGHT);
 
 	nextSysL = LinkRSYS(sysL);
@@ -3131,9 +3131,9 @@ static void PasteFixSysMeasContexts(Document *doc, LINK initL)
 
 	InitSearchParam(&pbSearch);
 	pbSearch.voice = ANYONE;
-	pbSearch.needSelected = false;
-	pbSearch.needInMeasure = true;
-	pbSearch.inSystem = true;
+	pbSearch.needSelected = False;
+	pbSearch.needInMeasure = True;
+	pbSearch.inSystem = True;
 
 	measL=LinkRMEAS(measL);
 	for ( ; measL!=endMeasL; prevMeasL=measL,measL=LinkRMEAS(measL))
@@ -3215,7 +3215,7 @@ void PasteFixContext(Document *doc, LINK initL, LINK succL, short staffDiff)
 	if (staffDiff) PasteFixSysMeasContexts(doc,initL);
 
 	InstallDoc(clipboard);
-	clipMeasL = LSSearch(clipboard->headL, MEASUREtype, ANYONE, false, false);
+	clipMeasL = LSSearch(clipboard->headL, MEASUREtype, ANYONE, False, False);
 
 	/* First measure in clipboard establishes old context; LINK before
 		pasted in material establishes new context for range pasted in.
@@ -3278,7 +3278,7 @@ static void PasteFromClip(Document *doc, LINK insertL, short pasteType, Boolean
 {
 	LINK	pL, copyL, prevL, succL, initL, startL, endL;
 	DDIST	systemWidth;
-	short	i, numObjs,stfDiff,fixMeas=false;
+	short	i, numObjs,stfDiff,fixMeas=False;
 	COPYMAP	*clipMap;
 		
 	clipMap = NULL;
@@ -3294,7 +3294,7 @@ static void PasteFromClip(Document *doc, LINK insertL, short pasteType, Boolean
 		InstallDoc(clipboard);
 		for (pL=RightLINK(clipFirstMeas); pL!=clipboard->tailL; pL=RightLINK(pL))
 			if (MeasureTYPE(pL)) 
-				{ fixMeas = true; break; }
+				{ fixMeas = True; break; }
 		InstallDoc(doc);
 	}
 
@@ -3319,7 +3319,7 @@ static void PasteFromClip(Document *doc, LINK insertL, short pasteType, Boolean
 		is its copy in the score. */
 
 	for (pL=startL, i=0; pL!=endL; pL=DRightLINK(clipboard, pL), i++) {
-		copyL = DuplicateObject(DObjLType(clipboard, pL),pL,false,clipboard,doc,false);
+		copyL = DuplicateObject(DObjLType(clipboard, pL),pL,False,clipboard,doc,False);
 		if (!copyL) continue;
 
 		clipMap[i].srcL = pL; clipMap[i].dstL = copyL;
@@ -3330,7 +3330,7 @@ static void PasteFromClip(Document *doc, LINK insertL, short pasteType, Boolean
 		LeftLINK(copyL) = prevL;
 		prevL = copyL;
 		DeselectNode(copyL);
-		LinkVALID(copyL) = false;
+		LinkVALID(copyL) = False;
 		if (GraphicTYPE(copyL)) FixGraphicFont(doc, copyL);
   	}
 
@@ -3345,5 +3345,5 @@ static void PasteFromClip(Document *doc, LINK insertL, short pasteType, Boolean
 	PasteFixContext(doc, initL, succL, stfDiff);
 
 	if (clipMap) DisposePtr((Ptr)clipMap);
-	UpdateVoiceTable(doc, true);
+	UpdateVoiceTable(doc, True);
 }

@@ -43,5 +43,12 @@
 	Copyright © 2000-2001 Apple Computer, Inc., All Rights Reserved
 */
 
+#ifndef True
+	#define True		1
+#endif
+#ifndef False
+	#define False		0
+#endif
+
 pascal void SampleMDEF( short msg, MenuRef menu, Rect* bounds, Point hitPt, short* whichItem );
 

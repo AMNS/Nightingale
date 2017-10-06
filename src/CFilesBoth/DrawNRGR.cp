@@ -1,15 +1,15 @@
-/***************************************************************************
+/*****************************************************************************************
 *	FILE:	DrawNRGR.c
 *	PROJ:	Nightingale
 *	DESC:	Routines to draw notes, rests, grace notes, and modifers
-***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -25,7 +25,7 @@ static void ShowNGRSync(Document *, LINK, CONTEXT []);
 static void DrawGRAcc(Document *, PCONTEXT, LINK, DDIST, DDIST, Boolean, short);
 static void DrawGRNCLedgers(LINK, PCONTEXT, LINK, DDIST, DDIST, short);
 
-/* ----------------------------------------------------------------- DrawSlashes -- */
+/* ----------------------------------------------------------------------- DrawSlashes -- */
 /* Draw the specified number of tremolo slashes at the given position. Some editions
 vary the angle of the slashes for beamed notes; Gould says that's OK (in _Behind Bars_),
 but she recommends a fixed angle, and that's what we do, */
@@ -100,7 +100,7 @@ static void DrawSlashes(DDIST xdh, DDIST ydh,
 }
 
 
-/* ------------------------------------------------------------------ Draw1ModNR -- */
+/* ------------------------------------------------------------------------ Draw1ModNR -- */
 
 void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char glyph,
 						CONTEXT *pContext, short sizePercent, Boolean dim)
@@ -188,7 +188,7 @@ void Draw1ModNR(Document *doc, DDIST xdh, DDIST ydMod, short code, unsigned char
 }
 
 
-/* ------------------------------------------------------------------- DrawModNR -- */
+/* ------------------------------------------------------------------------- DrawModNR -- */
 /* Draw all of <aNoteL>'s note/rest modifiers. Assumes the NOTEheap is locked;
 does not assume the MODNRheap is. */
 
@@ -245,7 +245,7 @@ void DrawModNR(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------- DrawAugDots -- */
+/* ----------------------------------------------------------------------- DrawAugDots -- */
 /* Draw all the augmentation dots for the given note or rest. */
 
 static DDIST AugDotXOffset(LINK theNoteL,			/* Subobject (note/rest) to draw dots for */
@@ -350,7 +350,7 @@ static void DrawAugDots(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------- AccXOffset -- */
+/* ------------------------------------------------------------------------ AccXOffset -- */
 
 DDIST AccXOffset(short xmoveAcc, PCONTEXT pContext)
 {
@@ -365,7 +365,7 @@ DDIST AccXOffset(short xmoveAcc, PCONTEXT pContext)
 }
 
 
-/* ---------------------------------------------------------------------- DrawAcc -- */
+/* --------------------------------------------------------------------------- DrawAcc -- */
 /* Draw an accidental, if there is one, for the given note. */
 
 void DrawAcc(Document *doc,
@@ -471,7 +471,7 @@ void DrawAcc(Document *doc,
 }
 
 
-/* ------------------------------------------------------------- GetNoteheadInfo -- */
+/* ------------------------------------------------------------------- GetNoteheadInfo -- */
 /* Given a notehead's <appearance> and <subType>, return the music font <glyph> as
 function value, plus <sizePct> and <stemShorten>. Note that if <sizePct> is very far
 from 100, the calling routine may have to adjust horizontal positions of upstems. */
@@ -485,7 +485,7 @@ unsigned char GetNoteheadInfo(short appearance, short subType,
 	
 	if (appearance==X_SHAPE) glyph = MCH_xShapeHead;
 	else if (appearance==HARMONIC_SHAPE) glyph = MCH_harmonicHead;
-	else if (appearance==SLASH_SHAPE) glyph = '\0';					/* Not in  font, must be drawn */
+	else if (appearance==SLASH_SHAPE) glyph = '\0';					/* Not in font, must be drawn */
 	else if (appearance==SQUAREH_SHAPE) glyph = MCH_squareHHead;
 	else if (appearance==SQUAREF_SHAPE) glyph = MCH_squareFHead;
 	else if (appearance==DIAMONDH_SHAPE) glyph = MCH_diamondHHead;
@@ -518,7 +518,7 @@ unsigned char GetNoteheadInfo(short appearance, short subType,
 }
 
 
-/* --------------------------------------------------------------- DrawNCLedgers -- */
+/* --------------------------------------------------------------------- DrawNCLedgers -- */
 /* Draw any ledger lines needed: if note is in a chord, for the chord's extreme
 notes on both sides of the staff; if it's not in a chord, just for the note. Should
 be called only once per chord, e.g., just for the MainNote. Assumes the NOTE and
@@ -533,11 +533,11 @@ static void DrawNCLedgers(
 		short		ledgerSizePct
 		)
 {
-	LINK		bNoteL, mainNoteL;
+	LINK	bNoteL, mainNoteL;
 	PANOTE	aNote, bNote;
-	QDIST		yqpitRel, yqpitRelSus,		/* y QDIST positions relative to staff top */
-				hiyqpit, lowyqpit,			/* "hi" is pitch, i.e., low y-coord. */
-				hiyqpitSus, lowyqpitSus;
+	QDIST	yqpitRel, yqpitRelSus,		/* y QDIST positions relative to staff top */
+			hiyqpit, lowyqpit,			/* "hi" is pitch, i.e., low y-coord. */
+			hiyqpitSus, lowyqpitSus;
 	Boolean	stemDown;
 
 	if (!pContext->showLedgers)
@@ -592,7 +592,7 @@ static void DrawNCLedgers(
 }
 
 
-/* --------------------------------------------------------------- DrawNotehead -- */
+/* ---------------------------------------------------------------------- DrawNotehead -- */
 /* QuickDraw only */
 
 static void DrawNotehead(Document *doc,
@@ -839,7 +839,7 @@ static void DrawNoteheadGraph(Document *doc,
 #endif
 }
 
-/* ----------------------------------------------------------------------- DrawNote -- */
+/* -------------------------------------------------------------------------- DrawNote -- */
 
 void DrawNote(Document *doc,
 				LINK	pL,				/* Sync note belongs to */
@@ -1360,7 +1360,7 @@ PopLock(NOTEheap);
 }
 
 
-/* ----------------------------------------------------------------- DrawMBRest -- */
+/* ------------------------------------------------------------------------ DrawMBRest -- */
 /* Draw a multibar rest. */
 
 static void DrawMBRest(Document *doc, PCONTEXT pContext,
@@ -1442,7 +1442,7 @@ static void DrawMBRest(Document *doc, PCONTEXT pContext,
 }
 
 
-/* ------------------------------------------------------------------- DrawRest -- */
+/* -------------------------------------------------------------------------- DrawRest -- */
 
 void DrawRest(Document *doc,
 				LINK pL,
@@ -1643,7 +1643,7 @@ PopLock(NOTEheap);
 }
 
 
-/* ------------------------------------------------------------------- ShowNGRSync -- */
+/* ----------------------------------------------------------------------- ShowNGRSync -- */
 /* Draw a dotted vertical line from near the bottom to near the top of the objRect
 of the given object, but only if it's tall enough to help clarify what's related to
 what. Intended for Syncs and GRSyncs, but should work for any non-J_STRUC object. */
@@ -1671,7 +1671,7 @@ static void ShowNGRSync(Document *doc, LINK pL, CONTEXT context[])
 }
 
 
-/* -------------------------------------------------------------------- DrawSYNC -- */
+/* -------------------------------------------------------------------------- DrawSYNC -- */
 /* Draw a SYNC object, i.e., all of its notes and rests with their augmentation dots,
 modifiers, and accidentals. */
 
@@ -1715,7 +1715,7 @@ void DrawSYNC(Document *doc, LINK pL, CONTEXT context[])
 }
 
 
-/* ------------------------------------------------------------------- DrawGRAcc -- */
+/* ------------------------------------------------------------------------- DrawGRAcc -- */
 /* Draw accidental, if any, for the given grace note. */
 
 static void DrawGRAcc(Document *doc,
@@ -1811,7 +1811,7 @@ static void DrawGRAcc(Document *doc,
 	}
 }
 
-/* --------------------------------------------------------------- DrawGRNCLedgers -- */
+/* ------------------------------------------------------------------- DrawGRNCLedgers -- */
 /* Draw any ledger lines needed: if grace note is in a chord, for the chord's
 extreme notes on both sides of the staff; if it's not in a chord, just for itself.
 Should be called only once per chord. Assumes the GRNOTE and OBJECT heaps are locked! */
@@ -1858,7 +1858,7 @@ static void DrawGRNCLedgers(LINK syncL, PCONTEXT pContext, LINK aGRNoteL, DDIST 
 }
 
 
-/* ------------------------------------------------------------------ DrawGRNote -- */
+/* ------------------------------------------------------------------------ DrawGRNote -- */
 
 void DrawGRNote(Document *doc,
 						LINK pL,			/* GRSYNC grace note belongs to */
@@ -2374,7 +2374,7 @@ PopLock(GRNOTEheap);
 }
 
 
-/* ------------------------------------------------------------------ DrawGRSYNC -- */
+/* ------------------------------------------------------------------------ DrawGRSYNC -- */
 /* Draw a GRSYNC object, i.e., all of its grace notes with their augmentation dots
 and accidentals. */
 

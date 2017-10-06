@@ -206,7 +206,7 @@ void ClearMidiMap(Document *doc)
 }
 
 /* ------------------------------------------------------------ HasMidiMap -- */
-/* Return true if the document has an installed Midi Map */
+/* Return True if the document has an installed Midi Map */
 
 Boolean HasMidiMap(Document *doc)
 {
@@ -214,7 +214,7 @@ Boolean HasMidiMap(Document *doc)
 }
 
 /* ------------------------------------------------------------ HasMidiMap -- */
-/* Return true if the given midiMap fsSpec is different from the document's
+/* Return True if the given midiMap fsSpec is different from the document's
  * installed Midi Map 
  */
 
@@ -249,7 +249,7 @@ void ReleaseMidiMapFSSpec(Document *doc)
 
 /* ------------------------------------------------------------ SaveMidiMap -- */
 /* Save the document's installed Midi Map.
- *	Return true if the operation succeeded, false if it failed. 
+ *	Return True if the operation succeeded, False if it failed. 
  */
 
 Boolean SaveMidiMap(Document *doc)
@@ -347,7 +347,7 @@ void GetMidiMap(Document *doc, FSSpec *pfsSpec)
 
 /* ------------------------------------------------------------ NewMidiMap -- */
 /* Get the Midi Map stored in the document's resource fork.
- * Return true if the operation succeeded.
+ * Return True if the operation succeeded.
  */
 static Boolean NewMidiMap(Document *doc)
 {

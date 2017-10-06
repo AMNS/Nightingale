@@ -254,7 +254,7 @@ void HeapBrowseStaff(short itemIndex)
 	q = GetPASTAFF(qL);
 	sprintf(s, "link=%d staffn=%d next=%d", qL, q->staffn, q->next);
 	HeapDrawLine(s); q = GetPASTAFF(qL);
-	sprintf(s, "visible=%s", q->visible ? "True" : "false");
+	sprintf(s, "visible=%s", q->visible ? "True" : "False");
 	HeapDrawLine(s); q = GetPASTAFF(qL);
 	sprintf(s, "staff top/left/right=%d %d %d",
 				q->staffTop,
@@ -464,18 +464,18 @@ void HeapBrowseSync(short itemIndex)
 	sprintf(s, "ndots=%hd xmovedots=%hd ymovedots=%hd", q->ndots, q->xmovedots,
 					q->ymovedots);
 	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "rest=%s", q->rest ? "True" : "false");
+	sprintf(s, "rest=%s", q->rest ? "True" : "False");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "accident=%hd accSoft=%s", q->accident,
-													  q->accSoft ? "True" : "false");
+													  q->accSoft ? "True" : "False");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "xmoveAcc=%hd", q->xmoveAcc);
 	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "beamed=%s otherStemSide==%s", q->beamed ? "True" : "false",
-															q->otherStemSide ? "True" : "false");
+	sprintf(s, "beamed=%s otherStemSide==%s", q->beamed ? "True" : "False",
+															q->otherStemSide ? "True" : "False");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
-	sprintf(s, "inTuplet=%s inOttava=%s", q->inTuplet ? "True" : "false",
-														 q->inOttava ? "True" : "false");
+	sprintf(s, "inTuplet=%s inOttava=%s", q->inTuplet ? "True" : "False",
+														 q->inOttava ? "True" : "False");
 	HeapDrawLine(s);	q = GetPANOTE(qL);
 	sprintf(s, "firstMod=%d", q->firstMod);
 	HeapDrawLine(s);
@@ -496,7 +496,7 @@ void HeapBrowseBeamset(short itemIndex)
 	HeapDrawLine(s);	q = GetPANOTEBEAM(qL);
 	sprintf(s, "fracs=%d", q->fracs);
 	HeapDrawLine(s);	q = GetPANOTEBEAM(qL);
-	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "True" : "false");
+	sprintf(s, "fracGoLeft=%s", q->fracGoLeft ? "True" : "False");
 	HeapDrawLine(s);
 }
 

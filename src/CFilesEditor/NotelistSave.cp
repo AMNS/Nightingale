@@ -553,7 +553,7 @@ static unsigned short ProcessScore(
 						want! In that case, ignore this Measure and set the <useNextMeasure>
 						flag. */
 						
-					nextSyncL = LSSearch(pL, SYNCtype, ANYONE, GO_RIGHT, false);
+					nextSyncL = LSSearch(pL, SYNCtype, ANYONE, GO_RIGHT, False);
 					measIsEmpty = (nextSyncL==NILINK || !SameSystem(pL, nextSyncL));
 					if (measIsEmpty && LinkRMEAS(pL)!=NILINK) {
 						useNextMeasure = True;

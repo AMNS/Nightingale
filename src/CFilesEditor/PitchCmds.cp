@@ -124,10 +124,10 @@ static void FlipBeamList(Document *doc, LINK beamLA[], short nBeamsets)
 
 		UnbeamV(doc, startL, endL, voice);
 		if (graceBeam)
-			newBeamL = CreateGRBEAMSET(doc, startL, RightLINK(endL), voice, nEntries, true,
-												true);
+			newBeamL = CreateGRBEAMSET(doc, startL, RightLINK(endL), voice, nEntries, True,
+												True);
 		else
-			newBeamL = CreateBEAMSET(doc, startL, RightLINK(endL), voice, nEntries, true,
+			newBeamL = CreateBEAMSET(doc, startL, RightLINK(endL), voice, nEntries, True,
 												newRole);
 
 		BeamCrossSYS(newBeamL) = crossSystem;
@@ -176,7 +176,7 @@ void FlipSelDirection(Document *doc)
 				case SYNCtype:
 					for (v = 1; v<=MAXVOICES; v++)
 						if (VOICE_MAYBE_USED(doc, v)) {
-							aNoteL = NoteInVoice(pL, v, true);
+							aNoteL = NoteInVoice(pL, v, True);
 							if (aNoteL) {
 								aNoteL = FindMainNote(pL, NoteVOICE(aNoteL));
 								/*
@@ -188,12 +188,12 @@ void FlipSelDirection(Document *doc)
 								 */
 								if (NoteBEAMED(aNoteL)) {
 									beamL = LVSearch(pL, BEAMSETtype, NoteVOICE(aNoteL), GO_LEFT,
-															false);
+															False);
 									startL = FirstInBeam(beamL);
 									endL = LastInBeam(beamL);
 									if (nBeamsets<MAX_MEASNODES) {
-										for (found = false, i = 0; i<nBeamsets; i++)
-											if (beamL==beamLA[i]) found = true;
+										for (found = False, i = 0; i<nBeamsets; i++)
+											if (beamL==beamLA[i]) found = True;
 										if (!found)
 											beamLA[nBeamsets++] = beamL;
 									}
@@ -211,7 +211,7 @@ void FlipSelDirection(Document *doc)
 				case GRSYNCtype:
 					for (v = 1; v<=MAXVOICES; v++)
 						if (VOICE_MAYBE_USED(doc, v)) {
-							aGRNoteL = GRNoteInVoice(pL, v, true);
+							aGRNoteL = GRNoteInVoice(pL, v, True);
 							if (aGRNoteL) {
 								aGRNoteL = FindGRMainNote(pL, GRNoteVOICE(aGRNoteL));
 								/*
@@ -223,12 +223,12 @@ void FlipSelDirection(Document *doc)
 								 */
 								if (GRNoteBEAMED(aGRNoteL)) {
 									beamL = LVSearch(pL, BEAMSETtype, GRNoteVOICE(aGRNoteL),
-															GO_LEFT, false);
+															GO_LEFT, False);
 									startL = FirstInBeam(beamL);
 									endL = LastInBeam(beamL);
 									if (nBeamsets<MAX_MEASNODES) {
-										for (found = false, i = 0; i<nBeamsets; i++)
-											if (beamL==beamLA[i]) found = true;
+										for (found = False, i = 0; i<nBeamsets; i++)
+											if (beamL==beamLA[i]) found = True;
 										if (!found)
 											beamLA[nBeamsets++] = beamL;
 									}
@@ -249,7 +249,7 @@ void FlipSelDirection(Document *doc)
 		}
 			
 	FlipBeamList(doc, beamLA, nBeamsets);
-	doc->changed = true;
+	doc->changed = True;
 }
 
 
@@ -263,8 +263,8 @@ and the first unselected note in that voice is C with no barlines between, the t
 notes again get changed to C#,C-natural. After doing the respelling, we fix notes'
 and chords' graphic characteristics (stem length and direction, etc.) and delete
 redundant accidentals, which the process tends to produce, both because of iteration
-and as described just before and in RespellNote. Return true if we do anything, else
-false. */
+and as described just before and in RespellNote. Return True if we do anything, else
+False. */
 
 Boolean Respell(Document *doc)
 {
@@ -278,8 +278,8 @@ Boolean Respell(Document *doc)
 	WaitCursor();
 
 	for (v = 0; v<=MAXVOICES; v++)
-		voiceChanged[v] = false;
-	changedNotes = changedChords = false;
+		voiceChanged[v] = False;
+	changedNotes = changedChords = False;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL)) {
@@ -288,7 +288,7 @@ Boolean Respell(Document *doc)
 					pGraphic = GetPGRAPHIC(pL);
 					if (pGraphic->graphicType==GRChordSym)
 						if (RespellChordSym(doc, pL))
-							changedChords = true;
+							changedChords = True;
 					break;
 				case SYNCtype:
 					GetAllContexts(doc, context, pL);
@@ -297,8 +297,8 @@ Boolean Respell(Document *doc)
 						if (NoteSEL(aNoteL) && !NoteREST(aNoteL)) {
 							pContext = &context[NoteSTAFF(aNoteL)];
 							if (RespellNote(doc, pL, aNoteL, pContext)) {
-								changedNotes = true;
-								voiceChanged[NoteVOICE(aNoteL)] = true;
+								changedNotes = True;
+								voiceChanged[NoteVOICE(aNoteL)] = True;
 							}
 
 						}
@@ -312,8 +312,8 @@ Boolean Respell(Document *doc)
 						if (GRNoteSEL(aGRNoteL) ) {
 							pContext = &context[GRNoteSTAFF(aGRNoteL)];
 							if (RespellGRNote(doc, pL, aGRNoteL, pContext)) {
-								changedNotes = true;
-								voiceChanged[GRNoteVOICE(aGRNoteL)] = true;
+								changedNotes = True;
+								voiceChanged[GRNoteVOICE(aGRNoteL)] = True;
 							}
 
 						}
@@ -327,29 +327,29 @@ Boolean Respell(Document *doc)
 	if (changedNotes) {
 		DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
 		for (s = 1; s<=doc->nstaves; s++)
-			FixBeamsInRange(doc, doc->selStartL, doc->selEndL, s, true);
+			FixBeamsInRange(doc, doc->selStartL, doc->selEndL, s, True);
 	}
 	if (changedNotes || changedChords) {
 		InvalRange(doc->selStartL, doc->selEndL);					/* Update objRects */
-		doc->changed = true;
-		return true;
+		doc->changed = True;
+		return True;
 	}
 	else
-		return false;
+		return False;
 }
 
 
 /* ------------------------------------------------------------------------- Transpose -- */
 /* Transpose every selected note and chord symbol by the specified amount. For
-example, transposing down a minor 10th would be indicated goUp=false, octaves=1,
-steps=2, semitones=15; down an augmented unison goUp=false, octaves=0, steps=0,
+example, transposing down a minor 10th would be indicated goUp=False, octaves=1,
+steps=2, semitones=15; down an augmented unison goUp=False, octaves=0, steps=0,
 semitones=1.  Also add accidentals to following notes where necessary to keep their
 pitches the same, as described in comments on the Respell function above. Return
-true if we actually change anything, else false. */
+True if we actually change anything, else False. */
 
 Boolean Transpose(
 			Document *doc,
-			Boolean goUp,				/* true=transpose up, else down */
+			Boolean goUp,				/* True=transpose up, else down */
 			short octaves,				/* Unsigned no. of octaves transposition */
 			short steps,				/* Unsigned no. of diatonic steps transposition */
 			short semiChange,			/* Unsigned total transposition in semitones */
@@ -366,7 +366,7 @@ Boolean Transpose(
 				voiceChanged[MAXVOICES+1];
 	char		fmtStr[256];
 	
-	if (octaves==0 && steps==0 && semiChange==0) return false;
+	if (octaves==0 && steps==0 && semiChange==0) return False;
 	
 	if (!goUp) { octaves *= -1; steps *= -1; semiChange *= -1; }
 	semiChangeOct = semiChange+12*octaves;
@@ -376,7 +376,7 @@ Boolean Transpose(
 			GetIndCString(strBuf, PITCHERRS_STRS, 1);	/* "Nightingale can't transpose double-sharps up an augmented unison." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			return false;
+			return False;
 		}
 
 	GetSelMIDIRange(doc, &lowMIDINum, &hiMIDINum);
@@ -385,14 +385,14 @@ Boolean Transpose(
 		GetIndCString(strBuf, PITCHERRS_STRS, 2);		/* "Transposing would lead to MIDI note number(s) below 1 or above 127." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return false;
+		return False;
 	}
 
 	WaitCursor();
 
 	for (v = 0; v<=MAXVOICES; v++)
-		voiceChanged[v] = false;
-	changedNotes = changedChords = false;
+		voiceChanged[v] = False;
+	changedNotes = changedChords = False;
 	spellingBad = chordSpellingBad = 0;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
@@ -403,7 +403,7 @@ Boolean Transpose(
 					if (pGraphic->graphicType==GRChordSym) {
 						if (!TranspChordSym(doc, pL, steps, semiChange))
 							chordSpellingBad++;
-						changedChords = true;
+						changedChords = True;
 					}
 					break;
 				case SYNCtype:
@@ -415,8 +415,8 @@ Boolean Transpose(
 								if (!TranspNote(doc, pL, aNoteL, context[NoteSTAFF(aNoteL)],
 														octaves, steps, semiChange))
 										spellingBad++;
-								changedNotes = true;
-								voiceChanged[NoteVOICE(aNoteL)] = true;
+								changedNotes = True;
+								voiceChanged[NoteVOICE(aNoteL)] = True;
 							}
 						}
 					for (v = 0; v<=MAXVOICES; v++)
@@ -430,8 +430,8 @@ Boolean Transpose(
 							if (!TranspGRNote(doc, pL, aGRNoteL, context[GRNoteSTAFF(aGRNoteL)],
 													octaves, steps, semiChange))
 									spellingBad++;
-							changedNotes = true;
-							voiceChanged[GRNoteVOICE(aGRNoteL)] = true;
+							changedNotes = True;
+							voiceChanged[GRNoteVOICE(aGRNoteL)] = True;
 						}
 					for (v = 0; v<=MAXVOICES; v++)
 						if (voiceChanged[v]) FixVoiceForPitchChange(doc, pL, v);
@@ -456,26 +456,26 @@ Boolean Transpose(
 	if (changedNotes) {
 		DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
 		for (s = 1; s<=doc->nstaves; s++)
-			FixBeamsInRange(doc, doc->selStartL, doc->selEndL, s, true);
+			FixBeamsInRange(doc, doc->selStartL, doc->selEndL, s, True);
 	}
 
 	if (changedNotes || changedChords) {
 		InvalRange(doc->selStartL, doc->selEndL);		/* Update objRects */
-		doc->changed = true;
-		return true;
+		doc->changed = True;
+		return True;
 	}
 	else
-		return false;
+		return False;
 }
 
 
 /* ------------------------------------------------------------------------ DTranspose -- */
 /* Diatonically (according to the current key signature) transpose every selected
 note by the specified amount. For example, transposing down a 10th would be indicated
-goUp=false, octaves=1, steps=2; up a second goUp=true, octaves=0, steps=1.  Also add
+goUp=False, octaves=1, steps=2; up a second goUp=True, octaves=0, steps=1.  Also add
 accidentals to following notes where necessary to keep their pitches the same, as
-described in comments on the Respell function above. Return true if we actually change
-anything, else false.
+described in comments on the Respell function above. Return True if we actually change
+anything, else False.
 
 Like Semipro Composer, we leave all accidentals on transposed notes alone and simply
 move the notes up or down, although we may change accidentals on following notes to
@@ -485,7 +485,7 @@ accidentals.
 
 Boolean DTranspose(
 			Document *doc,
-			Boolean goUp,				/* true=transpose up, else down */
+			Boolean goUp,				/* True=transpose up, else down */
 			short octaves,				/* Unsigned no. of octaves transposition */
 			short steps,				/* Unsigned no. of diatonic steps transposition */
 			Boolean	slashes 			/* Transpose notes with slash-appearance heads? */
@@ -499,15 +499,15 @@ Boolean DTranspose(
 	Boolean		changedNotes, changedChords,
 				voiceChanged[MAXVOICES+1];
 	
-	if (octaves==0 && steps==0) return false;
+	if (octaves==0 && steps==0) return False;
 	
 	if (!goUp) { octaves *= -1; steps *= -1; }
 
 	WaitCursor();
 
 	for (v = 0; v<=MAXVOICES; v++)
-		voiceChanged[v] = false;
-	changedNotes = changedChords = false;
+		voiceChanged[v] = False;
+	changedNotes = changedChords = False;
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL)) {
@@ -516,7 +516,7 @@ Boolean DTranspose(
 					pGraphic = GetPGRAPHIC(pL);
 					if (pGraphic->graphicType==GRChordSym) {
 						DTranspChordSym(doc, pL, steps);
-						changedChords = true;
+						changedChords = True;
 					}
 					break;
 				case SYNCtype:
@@ -527,8 +527,8 @@ Boolean DTranspose(
 							if (NoteAPPEAR(aNoteL)!=SLASH_SHAPE || slashes) {
 								DTranspNote(doc, pL, aNoteL, context[NoteSTAFF(aNoteL)],
 													goUp, octaves, steps);
-								changedNotes = true;
-								voiceChanged[NoteVOICE(aNoteL)] = true;
+								changedNotes = True;
+								voiceChanged[NoteVOICE(aNoteL)] = True;
 							}
 						}
 					for (v = 0; v<=MAXVOICES; v++)
@@ -541,8 +541,8 @@ Boolean DTranspose(
 						if (GRNoteSEL(aGRNoteL)) {
 							DTranspGRNote(doc, pL, aGRNoteL, context[GRNoteSTAFF(aGRNoteL)],
 												goUp, octaves, steps);
-							changedNotes = true;
-							voiceChanged[GRNoteVOICE(aGRNoteL)] = true;
+							changedNotes = True;
+							voiceChanged[GRNoteVOICE(aGRNoteL)] = True;
 						}
 					for (v = 0; v<=MAXVOICES; v++)
 						if (voiceChanged[v]) FixVoiceForPitchChange(doc, pL, v);
@@ -555,15 +555,15 @@ Boolean DTranspose(
 	if (changedNotes) {
 		DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
 		for (s = 1; s<=doc->nstaves; s++)
-			FixBeamsInRange(doc, doc->selStartL, doc->selEndL, s, true);
+			FixBeamsInRange(doc, doc->selStartL, doc->selEndL, s, True);
 	}
 	if (changedNotes || changedChords) {
 		InvalRange(doc->selStartL, doc->selEndL);							/* Update objRects */
-		doc->changed = true;
-		return true;
+		doc->changed = True;
+		return True;
 	}
 	else
-		return false;
+		return False;
 }
 
 
@@ -571,13 +571,13 @@ Boolean DTranspose(
 /* On the given staves, if code=DELSOFT_REDUNDANTACCS_DI, delete soft accidentals
 that are redundant (because of the key signature and/or accidentals earlier in the
 bar); if code=DELALL_REDUNDANTACCS_DI, delete all accidentals that are redundant;
-otherwise do nothing. If it found any to delete, return true, else false. Takes no
+otherwise do nothing. If it found any to delete, return True, else False. Takes no
 user-interface actions, e.g., redrawing. Cf. DelRedundantAccs, which does the same
 thing but decides what to do it to based on selection and either one or all staff,
 instead of on any no. of staves in their entirety.
 
 This assumes standard CMN accidental-carrying rules including ties across barlines.
-If ACC_IN_CONTEXT is false, it should probably do nothing.
+If ACC_IN_CONTEXT is False, it should probably do nothing.
 */
 
 static Boolean StfDelRedundantAccs(Document *, short, Boolean []);
@@ -588,29 +588,29 @@ static Boolean StfDelRedundantAccs(Document *doc, short code, Boolean trStaff[])
 	Boolean didAnything, syncVChanged[MAXVOICES+1];
 	short v;
 
-	if (code!=DELALL_REDUNDANTACCS_DI && code!=DELSOFT_REDUNDANTACCS_DI) return false;
+	if (code!=DELALL_REDUNDANTACCS_DI && code!=DELSOFT_REDUNDANTACCS_DI) return False;
 
-	didAnything = false;
+	didAnything = False;
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
 			case SYNCtype:
 				for (v = 1; v<=MAXVOICES; v++)
-					syncVChanged[v] = false;
+					syncVChanged[v] = False;
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 					if (trStaff[NoteSTAFF(aNoteL)])
 						if (DelNoteRedAcc(doc, code, pL, aNoteL, syncVChanged))
-							didAnything = true;						
+							didAnything = True;						
 				ArrangeSyncAccs(pL, syncVChanged);
 				break;
 			case GRSYNCtype:
 				for (v = 1; v<=MAXVOICES; v++)
-					syncVChanged[v] = false;
+					syncVChanged[v] = False;
 				aGRNoteL = FirstSubLINK(pL);
 				for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL))
 					if (trStaff[GRNoteSTAFF(aGRNoteL)])
 						if (DelGRNoteRedAcc(doc, code, pL, aGRNoteL, syncVChanged))
-							didAnything = true;						
+							didAnything = True;						
 				/* ArrangeGRSyncAccs(pL, syncVChanged); FIXME: NOT WRITTEN YET */
 				break;
 		default:
@@ -618,7 +618,7 @@ static Boolean StfDelRedundantAccs(Document *doc, short code, Boolean trStaff[])
 		}
 		
 
-	if (didAnything) doc->changed = true;
+	if (didAnything) doc->changed = True;
 	return didAnything;
 }
 
@@ -626,15 +626,15 @@ static Boolean StfDelRedundantAccs(Document *doc, short code, Boolean trStaff[])
 /* ---------------------------------------------------------------- TransposeKey -- */
 /* In staves with the given numbers, for the entire score, transpose zero or more of
 key signatures, notes, and chord symbols by the specified amount. For example,
-transposing down a minor 3rd would be indicated goUp=false, steps=2, semitones=3;
-down an augmented unison goUp=false, steps=0, semitones=1.  Also add accidentals to
+transposing down a minor 3rd would be indicated goUp=False, steps=2, semitones=3;
+down an augmented unison goUp=False, steps=0, semitones=1.  Also add accidentals to
 following notes where necessary to keep their pitches the same, as described in
-comments on the Respell function above. Return true if we actually change anything,
-else false. */
+comments on the Respell function above. Return True if we actually change anything,
+else False. */
 
 Boolean TransposeKey(
 			Document *doc,
-			Boolean goUp,				/* true=transpose up, else down */
+			Boolean goUp,				/* True=transpose up, else down */
 			short octaves,				/* Unsigned no. of octaves transposition */
 			short steps,				/* Unsigned no. of diatonic steps transposition */
 			short semiChange,			/*	Unsigned total transposition in semitones */
@@ -654,7 +654,7 @@ Boolean TransposeKey(
 				voiceChanged[MAXVOICES+1];
 	char		fmtStr[256];
 	
-	if (octaves==0 && steps==0 && semiChange==0) return false;
+	if (octaves==0 && steps==0 && semiChange==0) return False;
 		
 	if (!goUp) { octaves *= -1; steps *= -1; semiChange *= -1; }
 	semiChangeOct = semiChange+12*octaves;
@@ -665,7 +665,7 @@ Boolean TransposeKey(
 		GetIndCString(strBuf, PITCHERRS_STRS, 4);		/* "Nightingale can't transpose key signatures a diminished second." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return false;
+		return False;
 	}
 	
 	/* FIXME: Following checking is wrong, since notes are affected even if they're not selected! */
@@ -674,7 +674,7 @@ Boolean TransposeKey(
 			GetIndCString(strBuf, PITCHERRS_STRS, 5);	/* "Nightingale can't transpose double-sharps up an augmented unison." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			return false;
+			return False;
 		}
 
 	GetSelMIDIRange(doc, &lowMIDINum, &hiMIDINum);
@@ -683,14 +683,14 @@ Boolean TransposeKey(
 		GetIndCString(strBuf, PITCHERRS_STRS, 2);			/* "Transposing would lead to MIDI note number(s) below 1 or above 127." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
-		return false;
+		return False;
 	}
 
 	WaitCursor();
 
 	for (v = 0; v<=MAXVOICES; v++)
-		voiceChanged[v] = false;
-	changedNotes = changedChords = false;
+		voiceChanged[v] = False;
+	changedNotes = changedChords = False;
 	ksSpellingBad = spellingBad = chordSpellingBad = 0;
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
@@ -707,7 +707,7 @@ Boolean TransposeKey(
 						if (!TranspKeySig(doc, pL, aKeySigL, context[KeySigSTAFF(aKeySigL)],
 												steps, semiChange))
 							ksSpellingBad++;
-						changedKeys = true;
+						changedKeys = True;
 					}
 				break;
 			case GRAPHICtype:
@@ -718,7 +718,7 @@ Boolean TransposeKey(
 					if (pGraphic->graphicType==GRChordSym) {
 						if (!TranspChordSym(doc, pL, steps, semiChange))
 							chordSpellingBad++;
-						changedChords = true;
+						changedChords = True;
 					}
 				}
 				break;
@@ -732,8 +732,8 @@ Boolean TransposeKey(
 							if (!TranspNote(doc, pL, aNoteL, context[NoteSTAFF(aNoteL)],
 													octaves, steps, semiChange))
 								spellingBad++;
-							changedNotes = true;
-							voiceChanged[NoteVOICE(aNoteL)] = true;
+							changedNotes = True;
+							voiceChanged[NoteVOICE(aNoteL)] = True;
 						}
 					}
 				for (v = 0; v<=MAXVOICES; v++)
@@ -749,8 +749,8 @@ Boolean TransposeKey(
 						if (!TranspGRNote(doc, pL, aGRNoteL, context[GRNoteSTAFF(aGRNoteL)],
 												0, steps, semiChange))
 							spellingBad++;
-						changedNotes = true;
-						voiceChanged[GRNoteVOICE(aGRNoteL)] = true;
+						changedNotes = True;
+						voiceChanged[GRNoteVOICE(aGRNoteL)] = True;
 					}
 				for (v = 0; v<=MAXVOICES; v++)
 					if (voiceChanged[v]) FixVoiceForPitchChange(doc, pL, v);
@@ -782,7 +782,7 @@ Boolean TransposeKey(
 		StfDelRedundantAccs(doc, DELSOFT_REDUNDANTACCS_DI, trStaff);
 		for (s = 1; s<=doc->nstaves; s++)
 			if (trStaff[s])
-				FixBeamsInRange(doc, doc->headL, doc->tailL, s, false);
+				FixBeamsInRange(doc, doc->headL, doc->tailL, s, False);
 	}
 
 	if (changedKeys) {
@@ -806,7 +806,7 @@ Boolean TransposeKey(
 
 			spaceProp = RESFACTOR*doc->spacePercent;
 			ProgressMsg(RESPACE_PMSTR, "");
-			RespaceBars(doc, doc->headL, doc->tailL, spaceProp, false, true);
+			RespaceBars(doc, doc->headL, doc->tailL, spaceProp, False, True);
 
 			ProgressMsg(0, "");
 		}
@@ -816,11 +816,11 @@ Boolean TransposeKey(
 
 	if (changedKeys || changedNotes || changedChords) {
 		InvalRange(doc->headL, doc->tailL);						/* Update objRects */
-		doc->changed = true;
-		return true;
+		doc->changed = True;
+		return True;
 	}
 	else
-		return false;
+		return False;
 }
 
 
@@ -839,7 +839,7 @@ void CheckRange(Document *doc)
 	PANOTE aNote;
 	short firstStaff, lastStaff, hiKeyNum, loKeyNum;
 	short transposition, writtenNoteNum;
-	Boolean problemFound=false;
+	Boolean problemFound=False;
 	
 	DeselAll(doc);
 	partL = FirstSubLINK(doc->headL);
@@ -861,9 +861,9 @@ void CheckRange(Document *doc)
 						writtenNoteNum = aNote->noteNum;
 						if (!doc->transposed) writtenNoteNum -= transposition;
 						if (writtenNoteNum>hiKeyNum || writtenNoteNum<loKeyNum) {
-							LinkSEL(pL) = true;
-							NoteSEL(aNoteL) = true;
-							problemFound = true;
+							LinkSEL(pL) = True;
+							NoteSEL(aNoteL) = True;
+							problemFound = True;
 						}
 					}
 		}

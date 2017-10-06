@@ -40,14 +40,14 @@ LINK GetDstLink(LINK srcL, COPYMAP *copyMap, short numObjs)
 
 /* ---------------------------------------------------------------------- SetupCopyMap -- */
 /* Set up the copyMap array for use in updating links to objects (slurs, Graphics,
-dynamics, etc.) that refer to objects of other types. Returns true if it succeeds, false
+dynamics, etc.) that refer to objects of other types. Returns True if it succeeds, False
 if it fails (due to lack of memory). */
 
 Boolean SetupCopyMap(LINK startL, LINK endL, COPYMAP **copyMap, short *objCount)
 {
 	LINK pL;
 	short i, numObjs=0;
-	Boolean okay=true;
+	Boolean okay=True;
 
 	for (pL=startL; pL!=endL; pL = RightLINK(pL))
 		numObjs++;						
@@ -57,7 +57,7 @@ Boolean SetupCopyMap(LINK startL, LINK endL, COPYMAP **copyMap, short *objCount)
 		for (i=0; i<numObjs; i++)
 			(*copyMap)[i].srcL = (*copyMap)[i].dstL = NILINK;
 	else
-		{ NoMoreMemory(); okay = false; }
+		{ NoMoreMemory(); okay = False; }
 
 	*objCount = numObjs;					/* Return number of objects in range. */
 	return okay;
@@ -176,9 +176,9 @@ Boolean CopyRange(Document *srcDoc, Document *dstDoc, LINK srcStartL, LINK srcEn
 	initL = prevL = LeftLINK(insertL);
 
 	for (i=0, pL=srcStartL; pL!=srcEndL; i++, pL=DRightLINK(srcDoc, pL)) {
-		copyL = DuplicateObject(DObjLType(srcDoc, pL), pL, false, srcDoc, dstDoc, false);
+		copyL = DuplicateObject(DObjLType(srcDoc, pL), pL, False, srcDoc, dstDoc, False);
 		if (!copyL)
-			return false;
+			return False;
 
 		RightLINK(copyL) = insertL;
 		LeftLINK(insertL) = copyL;
@@ -200,5 +200,5 @@ Boolean CopyRange(Document *srcDoc, Document *dstDoc, LINK srcStartL, LINK srcEn
 	
 	InstallDoc(srcDoc);
 
-	return true;
+	return True;
 }

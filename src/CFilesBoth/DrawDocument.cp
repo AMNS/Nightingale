@@ -30,7 +30,7 @@ void DrawDocumentControls(Document *doc)
 		DrawGrowIcon(doc->theWindow);
 		DrawControls(doc->theWindow);
 		ClipRect(&doc->viewRect);
-		alreadyDrawn = false;
+		alreadyDrawn = False;
 	}
 }
 
@@ -44,7 +44,7 @@ void DrawDocumentView(Document *doc, Rect *updateRect)
 		short i;
 		
 		if (doc->showWaitCurs) WaitCursor();
-		doc->showWaitCurs = true;
+		doc->showWaitCurs = True;
 		
 		if (updateRect) {
 			SectRect(&doc->viewRect,updateRect,&updater);
@@ -155,7 +155,7 @@ void DrawDocumentView(Document *doc, Rect *updateRect)
 		
 		/* Clear "entering Show Format" flag and update any carets or selections. */
 		
-		doc->enterFormat = false;
+		doc->enterFormat = False;
 		DrawTheSelection();
 
 		ClipRect(&doc->viewRect);
@@ -183,7 +183,7 @@ void RecomputeView(Document *doc)
 		
 		/* Get new view and move grow rectangle to new position */
 
-		PrepareMessageDraw(doc,&messageRect,true);
+		PrepareMessageDraw(doc,&messageRect,True);
 		EraseAndInval(&doc->growRect);
 		
 		GetControlBounds(doc->hScroll, &contrlRect);
@@ -232,7 +232,7 @@ void RecomputeView(Document *doc)
 		OffsetRect(&doc->growRect,doc->viewRect.right,doc->viewRect.bottom);
 		pt = TOP_LEFT(doc->growRect);
 		DrawGrowIcon(w);
-		/* DrawGrowBox(w,pt,true); */
+		/* DrawGrowBox(w,pt,True); */
 		ValidWindowRect(w,&doc->growRect);
 
 		/*

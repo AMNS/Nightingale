@@ -45,12 +45,12 @@ static void MEMoveCaret(Document *doc, LINK pL, short selx, Boolean now);
 
 /* Initialise whatever is needed to implement the blinking caret.  The CopyBits method
 entails allocating an offscreen port to hold a bitmap that contains background bits to
-be restored whenever the caret turns OFF.  Delivers false if out of memory or other
+be restored whenever the caret turns OFF.  Delivers False if out of memory or other
 error.  The offscreen port is large enough to hold the largest (tallest) caret. */
 
 Boolean MEInitCaretSystem()
 	{
-		return true;
+		return True;
 	}
 
 /*
@@ -74,7 +74,7 @@ void MEActivateCaret(Document *doc, Boolean active)
 
 void MEUpdateCaret(Document *doc)
 	{
-		if (doc->caretOn) {			/* Always false if caret inactive */
+		if (doc->caretOn) {			/* Always False if caret inactive */
 			InvertRect(&doc->caret);
 			}
 	}
@@ -91,7 +91,7 @@ void MEHideCaret(Document *doc)
 	{
 		if (doc==NULL) return;
 		
-		METurnCaret(doc,false);
+		METurnCaret(doc,False);
 		doc->nextBlink = TickCount();
 	}
 
@@ -196,7 +196,7 @@ void MEAdjustCaret(Document *doc, Boolean moveNow)
 		  	case SLURtype:
 		  	case TUPLETtype:
 		  	case OTTAVAtype:
-				pL = FirstValidxd(RightLINK(doc->selStartL), false);
+				pL = FirstValidxd(RightLINK(doc->selStartL), False);
 				GetContext(doc, pL, doc->selStaff, &context);
 				xObj = PageRelxd(pL, &context);
 		      break;
@@ -229,9 +229,9 @@ LINK Point2InsPt(Document *doc, Point selPt)
 	/* If GSSearch finds a LINK, get the head of its slot; otherwise call FindSymRight
 		to get the next symbol (presumably the following System or Page). */
 
-	pL = GSSearch(doc, selPt, ANYTYPE, ANYONE, GO_RIGHT, false, false, false);	 /* #1 */
+	pL = GSSearch(doc, selPt, ANYTYPE, ANYONE, GO_RIGHT, False, False, False);	 /* #1 */
 	if (pL) pL = FindInsertPt(pL);
-	else	pL = FindSymRight(doc, selPt, false, true);
+	else	pL = FindSymRight(doc, selPt, False, True);
 	
 	return pL;
 }
@@ -240,19 +240,19 @@ LINK Point2InsPt(Document *doc, Point selPt)
 /*
  *	Move the given document's caret to a new point whose x-coord. in window-relative
  * pixels is <selPt.h> and whose y-coord. is the staff <selPt.v> is on or closest to.
- *	If moveNow is true, draw the caret in its new position immediately; otherwise, it
+ *	If moveNow is True, draw the caret in its new position immediately; otherwise, it
  *	will presumably be drawn at MEIdle time. Delivers the link to an object representing
  *	the new insertion position in the data structure.
  *
  * #1. Next-to-last parameter to GSSearch is useJD.
- * Previous situation: If false, which was passed to FindSymRight before v.97,
+ * Previous situation: If False, which was passed to FindSymRight before v.97,
  * sets selStartL to link following a J_D object when user sets insertion point
  * immediately before that object, as in a click just before a beamset. This
  * caused a bug in pasting, because the pasted-in range is inserted between
  * the J_D object and its owned Syncs.
  * Current situation: As of v.997, all J_D symbols (except CONNECTs, whose J_Type
  * should be changed) are located in a d.s. slot before the J_IT/J_IP objs
- * they depend on. Call GSSearch with useJD false, and then call FindInsertPt
+ * they depend on. Call GSSearch with useJD False, and then call FindInsertPt
  * to get the insertion point at the head of the slot, prior to any J_D objects
  * which depend on the J_IT/J_IP obj found.
  */
@@ -270,7 +270,7 @@ LINK MESetCaret(Document *doc, Point selPt, Boolean moveNow)
 
 /* Move the given document's caret to a new point whose x-coord. in window-relative
 pixels is <selx> and whose y-coord. is determined by doc->selStaff.  If moveNow
-is true, draw the caret in its new position immediately; otherwise, it will
+is True, draw the caret in its new position immediately; otherwise, it will
 presumably be drawn at MEIdle time. */
 
 static void MEMoveCaret(Document *doc, LINK pL, short selx, Boolean moveNow)
@@ -290,5 +290,5 @@ static void MEMoveCaret(Document *doc, LINK pL, short selx, Boolean moveNow)
 		SetRect(&doc->caret,selx,d2p(yd-ascent), selx+CARET_WIDTH, d2p(yd+descent));
 		/* doc->caret is kept in window coordinates */
 		OffsetRect(&doc->caret,context.paper.left,context.paper.top);
-		if (moveNow) METurnCaret(doc,true);
+		if (moveNow) METurnCaret(doc,True);
 	}

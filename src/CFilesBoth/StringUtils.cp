@@ -89,7 +89,7 @@ Boolean streql(char *s1, char *s2)
 {
 	/* FIXME: It would be best to replace this body with a call to strcmp. */
 	
-	while (*s1) if (*s1++ != *s2++) return false;
+	while (*s1) if (*s1++ != *s2++) return False;
 	return (*s1 == *s2);
 }
 
@@ -99,11 +99,11 @@ Boolean streql(char *s1, char *s2)
 Boolean strneql(char *s1, char *s2, short n)
 {
 	/* FIXME: It would be best to replace this body with a call to strncmp. */
-	if (n++ == 0) return true;
+	if (n++ == 0) return True;
 	
-	while (*s1 && --n>0) if (*s1++ != *s2++) return false;
+	while (*s1 && --n>0) if (*s1++ != *s2++) return False;
 	n--;
-	if (n == 0) return true;
+	if (n == 0) return True;
 	return (*s1 == *s2);
 }
 
@@ -117,9 +117,9 @@ Boolean Pstreql(StringPtr s1, StringPtr s2)
 	
 	len = *u1;
 	while (len-- >= 0)
-		if (*u1++ != *u2++) return false;
+		if (*u1++ != *u2++) return False;
 	
-	return true;
+	return True;
 }
 
 /* Are the first n chars of two Pascal strings the same? */
@@ -129,10 +129,10 @@ Boolean Pstrneql(StringPtr p1, StringPtr p2, short n)
 	short len;
 	
 	len = *p2;
-	if (*p2++!=*p1++) return false;			/* Compare length byte */
+	if (*p2++!=*p1++) return False;			/* Compare length byte */
 	while (--len>=0 && --n>=0)
-		if (*p2++!=*p1++) return false;		/* Compare content */
-	return true;
+		if (*p2++!=*p1++) return False;		/* Compare content */
+	return True;
 }
 
 /* Length of a Pascal string */
@@ -187,7 +187,7 @@ Boolean ExpandPString(StringPtr dstStr, StringPtr srcStr, bool wider)
 	PToCString(dstStr);
 	/* Pascal strings can't be longer than 255 chars. */
 	maxLenExpanded = (wider? 255/3 : 255/2);
-	if (origLen>maxLenExpanded) return false;
+	if (origLen>maxLenExpanded) return False;
 	
 	for (in = 1, out = 0; in<=origLen; in++) {
 		*(dstStr+out) = *(srcStr+in);
@@ -204,7 +204,7 @@ Boolean ExpandPString(StringPtr dstStr, StringPtr srcStr, bool wider)
 	*(dstStr+out) = '\0';
 	CToPString((char *)dstStr);
 
-	return true;
+	return True;
 }
 
 
@@ -217,11 +217,11 @@ Boolean GetFinalSubstring(char *str, char *substr, char delimChar) {
     const char *delim = strrchr(str, delimChar);
     if (!delim || delim==str) {
         strcpy(substr, "");
-        return false;
+        return False;
     }
     else {
         strcpy(substr, delim+1);
-        return true;
+        return True;
     }
 }
 
@@ -230,10 +230,10 @@ Boolean GetInitialSubstring(char *str, char *substr, short len)
 {
 	if (len>strlen(str)) {
 		*substr = '\0';
-		return false;
+		return False;
 	}
 	
 	strcpy(substr, str);
 	*(substr+len) = '\0';
-	return true;
+	return True;
 }

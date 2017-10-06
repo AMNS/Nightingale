@@ -50,7 +50,7 @@ pascal void ScrollDocument(ControlHandle control, short part)
 		if (part) {
 			if (control == theDoc->vScroll)	dy = change;
 			else							dx = change;
-			QuickScroll(theDoc,dx,dy,true,true);
+			QuickScroll(theDoc,dx,dy,True,True);
 			}
 	}
 
@@ -63,7 +63,7 @@ repeatedly from TrackControl(), and from AutoScroll. If either of dx or dy are s
 large that the entire view would be scrolled offscreen, it just erases and redraws;
 otherwise, it BitBlt's the view rectangle the appropriate distance, and redraws only
 the newly scrolled-in rectangle(s).  Essentially, it implements an update region using
-the document's view rectangle.  If doCopy is false, then we don't muck with anything
+the document's view rectangle.  If doCopy is False, then we don't muck with anything
 in the view rectangle, but do everything else. This gets complicated by any floating
 palettes, since each one of them brings in 1 or 2 more rectangular areas to be
 updated.  Whether we should just go back to standard update regions or not depends on
@@ -308,7 +308,7 @@ void QuickScroll(register Document *doc, register short dx, register short dy,
 			/* Got our list: now update them all in reverse order (palettes first) */
 			
 			for (nr=updateRectTable; nr!=nextRect; nr++) {
-				doc->showWaitCurs = false;	/* Avoid distracting cursor changes when auto-scrolling */
+				doc->showWaitCurs = False;	/* Avoid distracting cursor changes when auto-scrolling */
 				DrawDocumentView(doc,nr);
 				}
 		

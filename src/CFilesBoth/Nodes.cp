@@ -23,8 +23,8 @@
 
 /*
  *	Create a head and tail for an empty node list, allocating the objects out of
- *	the given document's objHeap and linking them to one another.  Delivers true
- *	if success, false if no memory.
+ *	the given document's objHeap and linking them to one another.  Delivers True
+ *	if success, False if no memory.
  */
 
 Boolean BuildEmptyList(Document *doc, LINK *headL, LINK *tailL)
@@ -36,8 +36,8 @@ Boolean BuildEmptyList(Document *doc, LINK *headL, LINK *tailL)
 	
 	ans = (*headL!=NILINK && *tailL!=NILINK);
 	if (ans) {
-		SetObject(*headL, 0, 0, false, false, true);
-		SetObject(*tailL, 0, 0, false, false, true);
+		SetObject(*headL, 0, 0, False, False, True);
+		SetObject(*tailL, 0, 0, False, False, True);
 		
 		/* Turn two objects into linked sentinel objects for an empty node list */
 		
@@ -45,7 +45,7 @@ Boolean BuildEmptyList(Document *doc, LINK *headL, LINK *tailL)
 		RightLINK(*headL) = *tailL;
 		LeftLINK(*tailL) = *headL;
 		RightLINK(*tailL) = NILINK;
-		LinkTWEAKED(*headL) = LinkTWEAKED(*tailL) = false;
+		LinkTWEAKED(*headL) = LinkTWEAKED(*tailL) = False;
 	}
 	
 	return(ans);
@@ -91,11 +91,11 @@ void DisposeNodeList(Document *doc, LINK *headL, LINK *tailL)
 
 /*
  *	Given a <link> to a node, expand the node's subobject list by numEntries subobjects,
- *	and deliver true if success, false is no memory.  The newly allocated subobjects are
+ *	and deliver True if success, False is no memory.  The newly allocated subobjects are
  *	appended to the <link>'s subobject list and are left minimally initialized.  The link
  *	to the first appended subobject is delivered in subList.  If numEntries<0, then
  *	ShrinkNode() is called to remove the final -numEntries subobjects from the given
- *	node's list, and true is delivered.  If numEntries==0, nothing happens and true is
+ *	node's list, and True is delivered.  If numEntries==0, nothing happens and True is
  *	delivered.
  */
 
@@ -113,7 +113,7 @@ Boolean ExpandNode(LINK link, LINK *subList, short numEntries)
 		/* Allocate sub-object list to append */
 		
 		*subList = HeapAlloc(subHeap, numEntries);
-		if (*subList == NILINK) return(false);		/* No memory */
+		if (*subList == NILINK) return(False);		/* No memory */
 		
 		InitNode(type,*subList);					/* Minimal setup */
 		LinkNENTRIES(link) += numEntries;
@@ -129,7 +129,7 @@ Boolean ExpandNode(LINK link, LINK *subList, short numEntries)
 		*subList = NILINK;
 	}
 	
-	return(true);
+	return(True);
 }
 
 
@@ -208,8 +208,8 @@ void InitNode(short type, LINK subList)
 			 */
 			for (subL=subList; subL; subL=NextLink(subHeap,subL)) {
 				subObj = (GenSubObj *)LinkToPtr(subHeap,subL);
-				subObj->selected = subObj->soft = false;
-				subObj->visible = true;
+				subObj->selected = subObj->soft = False;
+				subObj->visible = True;
 				}
 			break;
 		case GRAPHICtype:
@@ -490,24 +490,24 @@ LINK NewNode(Document *doc, short type, short subCount)
 				DLinkNENTRIES(doc,objHead) = subCount;
 				
 				DObjLType(doc,objHead) = type;					/* Compound object is of given type */
-				DLinkSEL(doc,objHead) = false;
-				DLinkSOFT(doc,objHead) = false;					/* Not user created */
-				DLinkVIS(doc,objHead) = true;
+				DLinkSEL(doc,objHead) = False;
+				DLinkSOFT(doc,objHead) = False;					/* Not user created */
+				DLinkVIS(doc,objHead) = True;
 
-				DLinkTWEAKED(doc,objHead) = false;
+				DLinkTWEAKED(doc,objHead) = False;
 				DLinkYD(doc,objHead) = 0;
 				
 				/* Initial objRect is empty and needs to be recomputed */
 				
 				SetRect(&DLinkOBJRECT(doc,objHead), 0, 0, 0, 0);
-				DLinkVALID(doc,objHead) = false;
+				DLinkVALID(doc,objHead) = False;
 	
 				/* And initialize various other fields according to type */
 				
 				switch (type) {
 					case HEADERtype:
 					case TAILtype:
-						DLinkSOFT(doc,objHead) = true;
+						DLinkSOFT(doc,objHead) = True;
 						break;
 					case STAFFtype:
 					case CONNECTtype:
@@ -522,8 +522,8 @@ LINK NewNode(Document *doc, short type, short subCount)
 					case RPTENDtype:
 						for (subL=subHead; subL; subL=NextLink(subHeap,subL)) {
 							GenSubObj *subObj = (GenSubObj *)LinkToPtr(subHeap,subL);
-							subObj->selected = subObj->soft = false;
-							subObj->visible = true;
+							subObj->selected = subObj->soft = False;
+							subObj->visible = True;
 							}
 						break;
 					case GRAPHICtype:

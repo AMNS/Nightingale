@@ -63,7 +63,7 @@ LINK FICreateTUPLET(Document	*doc,
 		return NILINK;
 	}
 	
-	SetObject(tupletL, 0, 0, false, true, false);
+	SetObject(tupletL, 0, 0, False, True, False);
 	InitTuplet(tupletL, staffn, voice, tupleNum, tupleDenom, numVis, denomVis, brackVis);
 
 	return tupletL;
@@ -74,7 +74,7 @@ LINK FICreateTUPLET(Document	*doc,
 /* In the range [startL,endL), fix the tpSyncs of every Tuplet to agree with the order
 of objects in the data structure, i.e., set the first tpSync to the next Sync in its
 voice, the next tpSync to the next Sync after that, etc. In addition:
-   1) set the inTuplet flag of every note in each of these syncs to true, and
+   1) set the inTuplet flag of every note in each of these syncs to True, and
    2) set the performance durations of these notes to their logical duration modified
       by config.legatoPct.
 (FIFixTupletLinks was adapted from FixTupletLinks in MIDIRecUtils.c.) */
@@ -92,12 +92,12 @@ void FIFixTupletLinks(Document *doc, LINK startL, LINK endL, short voice)
 			aNoteTupleL = FirstSubLINK(pL);
 			syncL = pL;
 			for (i = 0; i<nInTuplet; i++, aNoteTupleL = NextNOTETUPLEL(aNoteTupleL)) {
-				syncL = LVSearch(RightLINK(syncL), SYNCtype, voice, GO_RIGHT, false);
+				syncL = LVSearch(RightLINK(syncL), SYNCtype, voice, GO_RIGHT, False);
 				aNoteTuple = GetPANOTETUPLE(aNoteTupleL);
 				aNoteTuple->tpSync = syncL;
 				for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					if (NoteVOICE(aNoteL)==voice) {
-						NoteINTUPLET(aNoteL) = true;
+						NoteINTUPLET(aNoteL) = True;
 						lDur = CalcNoteLDur(doc, aNoteL, syncL);
 						NotePLAYDUR(aNoteL) = (config.legatoPct*lDur)/100L;
 					}
@@ -121,14 +121,14 @@ Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsO
 	KSINFO		oldKSInfo, newKSInfo;
 	LINK		endL, aKeySigL;
 	
-	if (KeySigINMEAS(keySigL)==false) return false;				/* Can't handle this yet */
+	if (KeySigINMEAS(keySigL)==False) return False;				/* Can't handle this yet */
 
 	endL = keySigL;
 	aKeySigL = FirstSubLINK(keySigL);
 	for ( ; aKeySigL; aKeySigL = NextKEYSIGL(aKeySigL)) {
 		if (KeySigSTAFF(aKeySigL)==staffn) {
 			if (sharpsOrFlats)
-				KeySigVIS(aKeySigL) = true;
+				KeySigVIS(aKeySigL) = True;
 
 			aKeySig = GetPAKEYSIG(aKeySigL);
 			KEYSIG_COPY((PKSINFO)aKeySig->KSItem, &oldKSInfo);	/* Copy old keysig. info */
@@ -143,14 +143,14 @@ Boolean FIReplaceKeySig(Document *doc, LINK keySigL, short staffn, short sharpsO
 		}
 	}
 
-	return true;
+	return True;
 }
 
 
 /* ------------------------------------------------------------- FIInsertWholeMeasRest -- */
 /* Insert a whole-measure rest before <insertBeforeL> on the given staff in the given
 (internal) voice. Does NOT attempt to create a sync with notes on other staves.
-Returns true if OK, false if error. */
+Returns True if OK, False if error. */
 
 Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 										short iVoice, Boolean visible)
@@ -161,18 +161,18 @@ Boolean FIInsertWholeMeasRest(Document *doc, LINK insertBeforeL, short staffn,
 	syncL = InsertNode(doc, insertBeforeL, SYNCtype, 1);
 	if (syncL==NILINK) {
 		NoMoreMemory();
-		return false;
+		return False;
 	}
 	
-	SetObject(syncL, 0, 0, true, true, false);
-	LinkTWEAKED(syncL) = false;
+	SetObject(syncL, 0, 0, True, True, False);
+	LinkTWEAKED(syncL) = False;
 	aNoteL = FirstSubLINK(syncL);
 	SetupNote(doc, syncL, aNoteL, staffn, -1/*halfLn*/, WHOLEMR_L_DUR, 0, iVoice,
-				true, 0, 0);
+				True, 0, 0);
 	aNote = GetPANOTE(aNoteL);
 	aNote->visible = visible;
 	
-	return true;
+	return True;
 }
 
 
@@ -197,20 +197,20 @@ LINK FIInsertBarline(Document *doc, LINK insertBeforeL, short barlineType)
 
 /* ----------------------------------------------------------------- SetMeasureSubType -- */
 /* Set all subobjects of the given measure to <subType>, a code indicating the
-type of barline (e.g., single bar, double bar, end bar, etc.) Returns true if okay,
-false if error. */
+type of barline (e.g., single bar, double bar, end bar, etc.) Returns True if okay,
+False if error. */
 
 Boolean SetMeasureSubType(LINK measL, short subType)
 {
 	LINK	aMeasL;
 
 	if (measL==NILINK || subType<BAR_SINGLE || subType>BAR_LAST)	/* subType out of range */
-		return false;
+		return False;
 
 	for (aMeasL = FirstSubLINK(measL); aMeasL; aMeasL = NextMEASUREL(aMeasL))
 		MeasSUBTYPE(aMeasL) = subType;
 	
-	return true;
+	return True;
 }
 
 
@@ -234,10 +234,10 @@ LINK FIInsertClef(Document *doc, short staffn, LINK insertBeforeL, short clefTyp
 		NoMoreMemory();
 		return NILINK;
 	}	
-	ClefINMEAS(clefL) = true;
+	ClefINMEAS(clefL) = True;
 	aClefL = FirstSubLINK(clefL);
 	InitClef(aClefL, staffn, 0, clefType);
-	SetObject(clefL, 0, 0, false, true, false);
+	SetObject(clefL, 0, 0, False, True, False);
 	aClef = GetPACLEF(aClefL);
 	aClef->small = small;
 	
@@ -270,15 +270,15 @@ LINK FIInsertTimeSig(Document *doc,
 	}
 	
 	timeSig = GetPTIMESIG(timeSigL);
-	InitObject(timeSigL, timeSig->left, timeSig->right, 0, 0, false, true, false);	
-	TimeSigINMEAS(timeSigL) = true;
+	InitObject(timeSigL, timeSig->left, timeSig->right, 0, 0, False, True, False);	
+	TimeSigINMEAS(timeSigL) = True;
 
 	aTimeSigL = FirstSubLINK(timeSigL);		
 	for (i = 1; i<=stfCount; i++, aTimeSigL = NextTIMESIGL(aTimeSigL)) {
 		useStaff = (staff==ANYONE ? i : staff);
 		InitTimeSig(aTimeSigL, useStaff, 0, type, numerator, denominator);
 		aTimeSig = GetPATIMESIG(aTimeSigL);
-		aTimeSig->soft = aTimeSig->selected = false;
+		aTimeSig->soft = aTimeSig->selected = False;
 	}
 
 	return timeSigL;
@@ -308,8 +308,8 @@ LINK FIInsertKeySig(Document *doc,
 	}
 	
 	keySig = GetPKEYSIG(keySigL);
-	InitObject(keySigL, keySig->left, keySig->right, 0, 0, false, true, false);	
-	KeySigINMEAS(keySigL) = true;
+	InitObject(keySigL, keySig->left, keySig->right, 0, 0, False, True, False);	
+	KeySigINMEAS(keySigL) = True;
 
 	aKeySigL = FirstSubLINK(keySigL);
 	for (i = 1; i<=stfCount; i++, aKeySigL = NextKEYSIGL(aKeySigL)) {
@@ -321,10 +321,10 @@ LINK FIInsertKeySig(Document *doc,
 			GetContext(doc, LeftLINK(keySigL), useStaff, &context);
 			aKeySig = GetPAKEYSIG(aKeySigL);
 			aKeySig->subType = context.nKSItems;		/* number of cancelling naturals */
-			aKeySig->visible = true;					/* InitKeySig should have set this to false */
+			aKeySig->visible = True;					/* InitKeySig should have set this to False */
 		}
 		aKeySig = GetPAKEYSIG(aKeySigL);
-		aKeySig->soft = aKeySig->selected = false;
+		aKeySig->soft = aKeySig->selected = False;
 	}
 
 	return keySigL;
@@ -346,7 +346,7 @@ static Boolean IICombineInto1KeySig(Document *doc,
 	
 	if (!ExpandNode(firstL, &secondKSsubL, numSubObjs-1)) {
 		NoMoreMemory();
-		return false;
+		return False;
 	}
 	xd = KeySigXD(FirstSubLINK(firstL));
 	
@@ -361,11 +361,11 @@ static Boolean IICombineInto1KeySig(Document *doc,
 			KEYSIG_COPY((PKSINFO)srcKeySig->KSItem, (PKSINFO)dstKeySig->KSItem);
 			dstKeySig->subType = srcKeySig->subType;
 			if (dstKeySig->nKSItems==0 && dstKeySig->subType)
-				dstKeySig->visible = true;						/* show cancelling naturals ks */
+				dstKeySig->visible = True;						/* show cancelling naturals ks */
 			dstKSsubL = NextKEYSIGL(dstKSsubL);			
 			DeleteNode(doc, aSourceKS[s]);
 		}
-	return true;
+	return True;
 }
 
 
@@ -377,7 +377,7 @@ these conditions:
 	2) each must have a unique staff number within the series, and
 	3) the series must be strictly continuous; that is, no object of
 		another type may fall between any two members of the series.
-Return true if OK, false if out of memory (after alerting user).
+Return True if OK, False if out of memory (after alerting user).
 
 CAVEAT: Currently this function ignores any Graphics attached to keysigs. If it deletes
 a keysig with an attached Graphic, the Graphic is orphaned. */
@@ -387,7 +387,7 @@ Boolean FICombineKeySigs(Document *doc,
 						 LINK endL)
 {
 	short	s, staffn, numSubObjs=0;
-	Boolean	inSeries = false;
+	Boolean	inSeries = False;
 	LINK	pL, firstL, aSourceKS[MAXSTAVES+1];
 
 	firstL = NILINK;
@@ -395,7 +395,7 @@ Boolean FICombineKeySigs(Document *doc,
 		if (KeySigTYPE(pL)) {
 			if (LinkNENTRIES(pL)==1) {
 				if (!inSeries) {
-					inSeries = true;
+					inSeries = True;
 					firstL = pL;
 					for (s = 1; s<=doc->nstaves; s++)
 						aSourceKS[s] = NILINK;
@@ -403,7 +403,7 @@ Boolean FICombineKeySigs(Document *doc,
 				staffn = KeySigSTAFF(FirstSubLINK(pL));
 				if (aSourceKS[staffn]) {
 					/* We already have a keysig on this staff, so terminate series. */
-					inSeries = false;
+					inSeries = False;
 					pL = LeftLINK(pL);			/* So we'll catch this ks again in next iteration. (It might begin a new ks series.) */
 				}
 				else {
@@ -412,22 +412,22 @@ Boolean FICombineKeySigs(Document *doc,
 				}
 			}
 			else
-				inSeries = false;
+				inSeries = False;
 		}
 		else
-			inSeries = false;
+			inSeries = False;
 		
 		if (!inSeries && firstL) {
 			if (!IICombineInto1KeySig(doc, firstL, numSubObjs, aSourceKS))
-				return false;
+				return False;
 			firstL = NILINK;
 		}	
 	}
 	/* Handle case where score has: ksL - ksL - tailL */
 	if (firstL && numSubObjs>1)
 		if (!IICombineInto1KeySig(doc, firstL, numSubObjs, aSourceKS))
-			return false;
-	return true;
+			return False;
+	return True;
 }
 
 
@@ -454,11 +454,11 @@ LINK FIInsertDynamic(Document *doc, short staffn, LINK insertBeforeL, LINK ancho
 	
 	/* Init object */
 	dynamic = GetPDYNAMIC(dynamicL);
-	InitObject(dynamicL, dynamic->left, dynamic->right, 0, 0, false, true, false);
+	InitObject(dynamicL, dynamic->left, dynamic->right, 0, 0, False, True, False);
 	dynamic = GetPDYNAMIC(dynamicL);
 	dynamic->dynamicType = dynamicType;
 	dynamic->filler = 0;
-	dynamic->crossSys = false;
+	dynamic->crossSys = False;
 	dynamic->firstSyncL = anchorL;
 	dynamic->lastSyncL = NILINK;
 	
@@ -466,9 +466,9 @@ LINK FIInsertDynamic(Document *doc, short staffn, LINK insertBeforeL, LINK ancho
 	aDynamic = GetPADYNAMIC(FirstSubLINK(dynamicL));
 	aDynamic->staffn = staffn;
 	aDynamic->subType = 0;										/* Unused; obj has the type */
-	aDynamic->selected = false;
-	aDynamic->visible = true;
-	aDynamic->soft = false;
+	aDynamic->selected = False;
+	aDynamic->visible = True;
+	aDynamic->soft = False;
 	aDynamic->mouthWidth = aDynamic->otherWidth = 0;
 	aDynamic->small = 0;
 	aDynamic->xd = aDynamic->endxd = 0;
@@ -480,7 +480,7 @@ LINK FIInsertDynamic(Document *doc, short staffn, LINK insertBeforeL, LINK ancho
 
 /* ------------------------------------------------------------------- GetTextStyleRec -- */
 /*	Copy the data from the specified text style (stored in document's SCOREHEADER)
-into the supplied TEXTSTYLE record. Return true if OK, false if <textStyle> is out of
+into the supplied TEXTSTYLE record. Return True if OK, False if <textStyle> is out of
 range. */
 	
 static Boolean GetTextStyleRec(Document *doc, short textStyle, PTEXTSTYLE pStyleRec)
@@ -493,12 +493,12 @@ static Boolean GetTextStyleRec(Document *doc, short textStyle, PTEXTSTYLE pStyle
 		case TSRegular3STYLE:	address = (char *) doc->fontName3;	break;
 		case TSRegular4STYLE:	address = (char *) doc->fontName4;	break;
 		case TSRegular5STYLE:	address = (char *) doc->fontName5;	break;
-		default:				return false;
+		default:				return False;
 	}
 	
 	BlockMove(address, pStyleRec, sizeof(TEXTSTYLE));
 
-	return true;
+	return True;
 }
 
 
@@ -518,7 +518,7 @@ static LINK InsertAndInitGraphic(Document *doc, LINK insertBeforeL, short graphi
 	}
 
 	pGraphic = GetPGRAPHIC(graphicL);
-	InitObject(graphicL, pGraphic->left, pGraphic->right, 0, 0, false, true, false);
+	InitObject(graphicL, pGraphic->left, pGraphic->right, 0, 0, False, True, False);
 
 	pGraphic = GetPGRAPHIC(graphicL);
 	pGraphic->staffn = NOONE;
@@ -526,7 +526,7 @@ static LINK InsertAndInitGraphic(Document *doc, LINK insertBeforeL, short graphi
 	pGraphic->voice = NOONE;
 	pGraphic->enclosure = ENCL_NONE;
 	pGraphic->justify = GRJustLeft;
-	pGraphic->vConstrain = pGraphic->hConstrain = false;
+	pGraphic->vConstrain = pGraphic->hConstrain = False;
 	pGraphic->multiLine = 0;
 	pGraphic->info = 0;
 	pGraphic->gu.handle = NULL;
@@ -678,11 +678,11 @@ LINK FIInsertTempo(Document	*doc,
 	
 PushLock(OBJheap);
 	pTempo = GetPTEMPO(tempoL);
-	InitObject(tempoL, pTempo->left, pTempo->right, 0, 0, false, true, false);
+	InitObject(tempoL, pTempo->left, pTempo->right, 0, 0, False, True, False);
 	pTempo->staffn = staffn;
 	pTempo->subType = durCode;
 	pTempo->dotted = dotted;
-	pTempo->noMM = false;
+	pTempo->noMM = False;
 	pTempo->filler = 0;
 	pTempo->hideMM = hideMM;
 	pTempo->firstObjL = anchorL;
@@ -726,8 +726,8 @@ LINK FIInsertSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 		return NILINK;
 	}
 
-	SetObject(syncL, 0, 0, true, true, false);
-	LinkTWEAKED(syncL) = false;
+	SetObject(syncL, 0, 0, True, True, False);
+	LinkTWEAKED(syncL) = False;
 	
 	return syncL;
 }
@@ -747,8 +747,8 @@ LINK FIInsertGRSync(Document *doc, LINK insertBeforeL, short numSubobjects)
 		return NILINK;
 	}
 
-	SetObject(GRSyncL, 0, 0, true, true, false);
-	LinkTWEAKED(GRSyncL) = false;
+	SetObject(GRSyncL, 0, 0, True, True, False);
+	LinkTWEAKED(GRSyncL) = False;
 	
 	return GRSyncL;
 }
@@ -816,7 +816,7 @@ LINK FIInsertSlur(Document *doc,
 	/* Initialize object */
 
 	pSlur = GetPSLUR(slurL);
-	InitObject(slurL, pSlur->left, pSlur->right, 0, 0, false, true, false);	
+	InitObject(slurL, pSlur->left, pSlur->right, 0, 0, False, True, False);	
 	
 	aNote = GetPANOTE(firstNoteL);
 	staffn1 = aNote->staffn;
@@ -829,10 +829,10 @@ LINK FIInsertSlur(Document *doc,
 	pSlur->filler = 0;
  	pSlur->crossStaff = (staffn1!=staffn2);
  	pSlur->crossStfBack = (pSlur->crossStaff && staffn1>staffn2);	// ??What if staffn1 is lower num but also lower in score pos?
- 	pSlur->crossSystem = false;
+ 	pSlur->crossSystem = False;
 	pSlur->tempFlag = 0;
-	pSlur->used = false;
-	pSlur->tie = false;
+	pSlur->used = False;
+	pSlur->tie = False;
  	pSlur->firstSyncL = firstSyncL;
  	pSlur->lastSyncL = lastSyncL;
 
@@ -840,10 +840,10 @@ LINK FIInsertSlur(Document *doc,
 
 	aSlurL = FirstSubLINK(slurL);
 	aSlur = GetPASLUR(aSlurL);
-	aSlur->selected = false;
-	aSlur->visible = true;
-	aSlur->soft = false;
-	aSlur->dashed = false;								/* Caller can override this. */
+	aSlur->selected = False;
+	aSlur->visible = True;
+	aSlur->soft = False;
+	aSlur->dashed = False;								/* Caller can override this. */
 	aSlur->filler = 0;
 	SetRect(&aSlur->bounds, 0, 0, 0, 0);
 	aSlur->firstInd = 0;
@@ -857,7 +857,7 @@ LINK FIInsertSlur(Document *doc,
 	aSlur->endKnot.h = aSlur->endKnot.v = 0;
 
 	if (setShapeNow)
-		SetAllSlursShape(doc, slurL, true);
+		SetAllSlursShape(doc, slurL, True);
 
 	return slurL;
 }
@@ -886,17 +886,17 @@ short FICreateAllSlurs(Document *doc)
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 				if (NoteSLURREDR(aNoteL)) {
 					voice = NoteVOICE(aNoteL);
-					found = false;
+					found = False;
 					for (prevL = pL; ; prevL = qL) {
-						qL = LVSearch(RightLINK(prevL), SYNCtype, voice, GO_RIGHT, false);
+						qL = LVSearch(RightLINK(prevL), SYNCtype, voice, GO_RIGHT, False);
 						if (qL) {
 							bNoteL = FirstSubLINK(qL);
 							for ( ; bNoteL; bNoteL = NextNOTEL(bNoteL)) {
 								bNote = GetPANOTE(bNoteL);
 								if (bNote->voice==voice && bNote->slurredL) {
-									slurL = FIInsertSlur(doc, pL, aNoteL, qL, bNoteL, false);
+									slurL = FIInsertSlur(doc, pL, aNoteL, qL, bNoteL, False);
 									if (!slurL) errCnt++;		/* probably cross-system */
-									found = true;
+									found = True;
 								}
 							}
 							if (found) break;
@@ -922,7 +922,7 @@ void FIReshapeSlursTies(Document *doc)
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		if (SlurTYPE(pL))
-			SetAllSlursShape(doc, pL, true);
+			SetAllSlursShape(doc, pL, True);
 }
 
 
@@ -948,7 +948,7 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 					InitSearchParam(&pbSearch);
 					pbSearch.id = ANYONE;							/* Prepare for search */
 					voice = pbSearch.voice = NoteVOICE(aNoteL);
-					pbSearch.subtype = true;						/* Tieset, not slur */
+					pbSearch.subtype = True;						/* Tieset, not slur */
 			
 					if (tiedL) {
 						/* If we start searching for the tie here, we may find one that
@@ -959,24 +959,24 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 						   one; in this case, search to right from the previous Measure.
 						   Cf. LeftSlurSearch. */
 							
-						prevSyncL = LVSearch(LeftLINK(pL), SYNCtype, voice, GO_LEFT, false);
+						prevSyncL = LVSearch(LeftLINK(pL), SYNCtype, voice, GO_LEFT, False);
 						if (prevSyncL && SameSystem(pL, prevSyncL)) {
 							searchL = prevSyncL;
 							tieL = L_Search(searchL, SLURtype, GO_LEFT, &pbSearch);
 						}
 						else {
-							searchL = LSSearch(pL, MEASUREtype, 1, GO_LEFT, false);
+							searchL = LSSearch(pL, MEASUREtype, 1, GO_LEFT, False);
 							tieL = L_Search(searchL, SLURtype, GO_RIGHT, &pbSearch);
 						}
 				
 						if (!tieL || SlurLASTSYNC(tieL)!=pL)
-							NoteTIEDL(aNoteL) = false;
+							NoteTIEDL(aNoteL) = False;
 					}
 				
 					if (tiedR) {
 						tieL = L_Search(pL, SLURtype, GO_LEFT, &pbSearch);
 						if (!tieL || SlurFIRSTSYNC(tieL)!=pL)
-							NoteTIEDR(aNoteL) = false;
+							NoteTIEDR(aNoteL) = False;
 					}
 				}
 				slurredL = NoteSLURREDL(aNoteL);
@@ -985,26 +985,26 @@ void FIFixAllNoteSlurTieFlags(Document *doc)
 					InitSearchParam(&pbSearch);
 					pbSearch.id = ANYONE;
 					voice = pbSearch.voice = NoteVOICE(aNoteL);
-					pbSearch.subtype = false;							/* Slur, not tieset */
+					pbSearch.subtype = False;							/* Slur, not tieset */
 					if (slurredL) {
 						/* See comments for ties above. */
-						prevSyncL = LVSearch(LeftLINK(pL), SYNCtype, voice, GO_LEFT, false);
+						prevSyncL = LVSearch(LeftLINK(pL), SYNCtype, voice, GO_LEFT, False);
 						if (prevSyncL && SameSystem(pL, prevSyncL)) {
 							searchL = prevSyncL;
 							slurL = L_Search(searchL, SLURtype, GO_LEFT, &pbSearch);
 						}
 						else {
-							searchL = LSSearch(pL, MEASUREtype, 1, GO_LEFT, false);
+							searchL = LSSearch(pL, MEASUREtype, 1, GO_LEFT, False);
 							slurL = L_Search(searchL, SLURtype, GO_RIGHT, &pbSearch);
 						}
 				
 						if (!slurL || SlurLASTSYNC(slurL)!=pL)
-							NoteSLURREDL(aNoteL) = false;
+							NoteSLURREDL(aNoteL) = False;
 					}
 					if (slurredR) {
 						slurL = L_Search(pL, SLURtype, GO_LEFT, &pbSearch);
 						if (!slurL || SlurFIRSTSYNC(slurL)!=pL)
-							NoteSLURREDR(aNoteL) = false;
+							NoteSLURREDR(aNoteL) = False;
 					}
 				}
 			}
@@ -1082,7 +1082,7 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 				break;
 			case RPTENDtype:
 				if (dType==GRAPHICtype || dType==TEMPOtype)
-					if (ObjOnStaff(pL, staff, false))
+					if (ObjOnStaff(pL, staff, False))
 						return pL;
 				break;
 			case MEASUREtype:
@@ -1115,7 +1115,7 @@ static LINK AnchorSearch(Document *doc, LINK dependentL)
 				break;
 			case PSMEAStype:
 				if (dType==GRAPHICtype || dType==TEMPOtype || dType==ENDINGtype)
-					if (ObjOnStaff(pL, staff, false))
+					if (ObjOnStaff(pL, staff, False))
 						return pL;
 				break;
 		}		
@@ -1165,11 +1165,11 @@ Boolean FIAnchorAllJDObjs(Document *doc)
 					}
 					break;
 			}
-	return true;
+	return True;
 	
 broken:
 	MayErrMsg("FIAnchorAllJDObjs: can't find an anchor for dependent symbol at %d.", pL);
-	return false;
+	return False;
 }
 
 
@@ -1183,7 +1183,7 @@ void FIAutoMultiVoice(Document	*doc,
 	short	voiceRole, v;
 	LINK	startL, endL;
 	
-	startL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, false);
+	startL = LSSearch(doc->headL, MEASUREtype, ANYONE, GO_RIGHT, False);
 
 	for (endL = NILINK; startL!=doc->tailL; startL = endL) {
 		endL = EndMeasSearch(doc, RightLINK(startL));
@@ -1193,7 +1193,7 @@ void FIAutoMultiVoice(Document	*doc,
 				if (voiceRole!=SINGLE_DI || doSingle) {
 					doc->lookVoice = v;
 					SelRangeNoHilite(doc, startL, endL);
-					DoMultivoiceRules(doc, voiceRole, true, false);
+					DoMultivoiceRules(doc, voiceRole, True, False);
 					DeselRangeNoHilite(doc, doc->headL, doc->tailL);
 				}
 			}
@@ -1243,14 +1243,14 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 		If it shares with more than one voice, give up and return SINGLE_DI. */
 	
 	for (v = 1; v<=MAXVOICES; v++)
-		sharingVoices[v] = false;
+		sharingVoices[v] = False;
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) {
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				aNote = GetPANOTE(aNoteL);
 				if (aNote->staffn==ourStaff)
-					sharingVoices[aNote->voice] = true;
+					sharingVoices[aNote->voice] = True;
 			}
 		}
 	voiceCnt = otherVoice = 0;
@@ -1299,7 +1299,7 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 	3) then justify again.
 This produces better looking spacing than the normal justify command, especially when
 there isn't much content on a system. NB: Does not complain if the space percentage
-exceeds the limit. Returns true if OK, false if error. */
+exceeds the limit. Returns True if OK, False if error. */
 
 Boolean FIJustifySystem(Document *doc, LINK systemL)
 {
@@ -1311,9 +1311,9 @@ Boolean FIJustifySystem(Document *doc, LINK systemL)
 	Boolean		ok;
 
 	/* Get first and last Measure of System and object ending it. */
-	firstMeasL = LSSearch(systemL, MEASUREtype, ANYONE, GO_RIGHT, false);
+	firstMeasL = LSSearch(systemL, MEASUREtype, ANYONE, GO_RIGHT, False);
 	termSysL = EndSystemSearch(doc, systemL);
-	lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, false);
+	lastMeasL = LSSearch(termSysL, MEASUREtype, ANYONE, GO_LEFT, False);
 	
 	/* If the System isn't empty (e.g., the invisible barline isn't the last
 		barline in the System), then we can justify the measures in it. */
@@ -1325,27 +1325,27 @@ Boolean FIJustifySystem(Document *doc, LINK systemL)
 		
 		/* Respace, using the percentage that JustifySystem placed in first meas of this system. */
 		pMeas = GetPMEASURE(firstMeasL);
-		ok = RespaceBars(doc, firstMeasL, termSysL, RESFACTOR*pMeas->spacePercent, false, false);
+		ok = RespaceBars(doc, firstMeasL, termSysL, RESFACTOR*pMeas->spacePercent, False, False);
 	
 		/* Now justify again! */
 		justFact = SysJustFact(doc, firstMeasL, lastMeasL, &staffWidth, &lastMeasWidth);
 		justProp = (long)(justFact*100L*RESFACTOR);
 		ok = StretchToSysEnd(doc, firstMeasL, lastMeasL, (long)justProp, staffWidth, lastMeasWidth);
 	}
-	return true;
+	return True;
 }
 
 
 /* ---------------------------------------------------------------------- FIJustifyAll -- */
 /* Justify the entire score using the "smart" justification algorithm described in
-FIJustifySystem. Returns true if OK, false if error. */
+FIJustifySystem. Returns True if OK, False if error. */
 
 Boolean FIJustifyAll(Document *doc)
 {
 	LINK	sysL, startSysL;
-	Boolean	ok = false;
+	Boolean	ok = False;
 	
-	startSysL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, false);
+	startSysL = LSSearch(doc->headL, SYSTEMtype, ANYONE, GO_RIGHT, False);
 	for (sysL = startSysL; sysL; sysL = LinkRSYS(sysL)) {
 		ok = FIJustifySystem(doc, sysL);
 		if (!ok) break;
@@ -1401,8 +1401,8 @@ last byte of <inBuf>. (Does not append a newline to the string.)  The purpose of
 function is to avoid using the standard C library's gets, which doesn't guarantee that
 the given buffer will not be overwritten by a very long line.
 
-If the read was successful, return true. If we reach EOF without reading a character,
-or if there is some kind of error, return false.
+If the read was successful, return True. If we reach EOF without reading a character,
+or if there is some kind of error, return False.
 
 For example, if the stream contains "now is the time for all bytes to stand up and
 be counted\n", and <maxChars> is 9, ReadLine will not reach the newline and will
@@ -1442,10 +1442,10 @@ Boolean ReadLine1(char inBuf[], short maxChars, FILE *f)
 		long len = strlen(inBuf);		/* length of string, including any terminating newline, but not including the terminating null */
 		if (inBuf[len-1]=='\n')			/* if last char of string is newline, replace with null */
 			inBuf[len-1] = '\0';
-		return true;
+		return True;
 	}
 	else
-		return false;
+		return False;
 }
 
 /* Linebreak chars/sequences:
@@ -1527,7 +1527,7 @@ Boolean FSReadLine(char inBuf[], short maxChars, short refNum)
 	char c,cc;
 	
 	errCode = FSReadChar(refNum, &c);
-	if (errCode != noError) return false;
+	if (errCode != noError) return False;
 	
 	char *p = inBuf;
 	
@@ -1566,7 +1566,7 @@ Boolean FSReadLine(char inBuf[], short maxChars, short refNum)
 	return (c != EOF);
 	
 errorReturn:
-	return false;	// don't keep reading file if error
+	return False;	// don't keep reading file if error
 }
 
 short FSCloseInputFile(short refNum)

@@ -37,7 +37,7 @@ We could also check other symbols with voice nos. */
 
 Boolean DCheckPlayDurs(
 				Document *doc,
-				Boolean maxCheck		/* false=skip less important checks */
+				Boolean maxCheck		/* False=skip less important checks */
 				)
 {
 	register LINK pL, aNoteL;
@@ -46,7 +46,7 @@ Boolean DCheckPlayDurs(
 	short v, shortDurThresh, tupletNum[MAXVOICES+1], tupletDenom[MAXVOICES+1];
 	long lDur;
 
-	bad = false;
+	bad = False;
 
 	shortDurThresh = PDURUNIT/2;
 	for (v = 0; v<=MAXVOICES; v++)
@@ -112,14 +112,14 @@ Boolean DCheckTempi(Document *doc)
 	StringOffset theStrOffset;
 	char tempoStr[256], metroStr[256], prevTempoStr[256], prevMetroStr[256];
 		
-	bad = false;
-	havePrevTempo = havePrevMetro = false;
+	bad = False;
+	havePrevTempo = havePrevMetro = False;
 		
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
 		
 		/* If we found a Sync, we're no longer "at the same point in the score". */
-		if (SyncTYPE(pL)) havePrevTempo = havePrevMetro = false;
+		if (SyncTYPE(pL)) havePrevTempo = havePrevMetro = False;
 		
 		if (TempoTYPE(pL)) {
 			if (havePrevTempo) {
@@ -152,8 +152,8 @@ Boolean DCheckTempi(Document *doc)
 				theStrOffset = TempoMETROSTR(pL);
 				Pstrcpy((StringPtr)prevMetroStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)prevMetroStr);
-				if (strlen(tempoStr)>0) havePrevTempo = true;
-				if (!TempoNOMM(pL)) havePrevMetro = true;
+				if (strlen(tempoStr)>0) havePrevTempo = True;
+				if (!TempoNOMM(pL)) havePrevMetro = True;
 				prevTempoL = pL;
 			}
 		}
@@ -175,8 +175,8 @@ Boolean DCheckRedundantKS(Document *doc)
 	Boolean bad, firstKS;
 	short lastKSNAcc[MAXSTAVES+1], s, nRedundant;
 	
-	bad = false;
-	firstKS = true;
+	bad = False;
+	firstKS = True;
 		
 	for (s = 1; s<=doc->nstaves; s++)
 		lastKSNAcc[s] = 99;
@@ -191,7 +191,7 @@ Boolean DCheckRedundantKS(Document *doc)
 				 * All other non-inMeasure key sigs. are just repeating the context.
 				 */
 				if (!firstKS && !KeySigINMEAS(pL)) break;
-				firstKS = false;
+				firstKS = False;
 				nRedundant = 0;
 				for (aKSL = FirstSubLINK(pL); aKSL; aKSL = NextKEYSIGL(aKSL)) {
 					aKeySig = GetPAKEYSIG(aKSL);
@@ -227,10 +227,10 @@ Boolean DCheckExtraTS(Document *doc)
 	Boolean haveTS[MAXSTAVES+1], bad;
 	short s, nRedundant;
 	
-	bad = false;
+	bad = False;
 		
 	for (s = 1; s<=doc->nstaves; s++)
-		haveTS[s] = false;
+		haveTS[s] = False;
 
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
@@ -246,11 +246,11 @@ Boolean DCheckExtraTS(Document *doc)
 									pL, GetMeasNum(doc, pL), nRedundant);
 
 				for (aTSL = FirstSubLINK(pL); aTSL; aTSL = NextTIMESIGL(aTSL))
-					haveTS[TimeSigSTAFF(aTSL)] = true;
+					haveTS[TimeSigSTAFF(aTSL)] = True;
 				break;
 			case MEASUREtype:
 				for (s = 1; s<=doc->nstaves; s++)
-					haveTS[s] = false;
+					haveTS[s] = False;
 				break;
 			default:
 				;
@@ -271,10 +271,10 @@ Boolean DCheckCautionaryTS(Document *doc)
 	Boolean haveEndSysTS[MAXSTAVES+1], inNewSys[MAXSTAVES+1], bad;
 	short s, stf, numerator[MAXSTAVES+1], denominator[MAXSTAVES+1];
 	
-	bad = false;
+	bad = False;
 		
 	for (s = 1; s<=doc->nstaves; s++) {
-		haveEndSysTS[s] = false;
+		haveEndSysTS[s] = False;
 	}
 
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
@@ -297,25 +297,25 @@ Boolean DCheckCautionaryTS(Document *doc)
 							COMPLAIN3("DCheckCautionaryTS: Timesig at start of system in measure %d, staff %d (L%u) disagrees with anticipating timesig.\n",
 										GetMeasNum(doc, pL), stf, pL);
 					}
-					haveEndSysTS[stf] = true;
+					haveEndSysTS[stf] = True;
 					numerator[stf] = TimeSigNUMER(aTSL);
 					denominator[stf] = TimeSigDENOM(aTSL);
 				}
 				break;
 			case MEASUREtype:
 				/* If this is the 1st (invisible barline) Measure of the system, ignore it */
-				prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, 1, GO_LEFT, false);
+				prevMeasL = LSSearch(LeftLINK(pL), MEASUREtype, 1, GO_LEFT, False);
 				if (prevMeasL==NILINK || !SameSystem(prevMeasL, pL)) break;
 				for (s = 1; s<=doc->nstaves; s++)
-					haveEndSysTS[s] = false;
+					haveEndSysTS[s] = False;
 				break;
 			case SYSTEMtype:
 				for (s = 1; s<=doc->nstaves; s++)
-					inNewSys[s] = true;
+					inNewSys[s] = True;
 				break;
 			case SYNCtype:
 				for (s = 1; s<=doc->nstaves; s++)
-					inNewSys[s] = false;
+					inNewSys[s] = False;
 				break;
 			default:
 				;
@@ -348,7 +348,7 @@ Boolean DCheckMeasDur(Document *doc)
 	short staffn;
 	Boolean bad;
 	
-	bad = false;
+	bad = False;
 		
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
@@ -395,9 +395,9 @@ Boolean DCheckUnisons(Document *doc)
 {
 	LINK pL;  Boolean bad;  short voice;
 	
-	if (unisonsOK) return false;		/* If they're not a problem now, skip checking! */
+	if (unisonsOK) return False;		/* If they're not a problem now, skip checking! */
 	
-	bad = false;
+	bad = False;
 		
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		if (DErrLimit()) break;
@@ -410,7 +410,7 @@ Boolean DCheckUnisons(Document *doc)
 										GetMeasNum(doc, pL), pL, voice);
 	}
 	
-	return false;
+	return False;
 }
 
 
@@ -434,7 +434,7 @@ short DBadNoteNum(
 	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
 
 	if (!FirstTiedNote(syncL, theNoteL, &firstSyncL, &firstNoteL))
-		return false;											/* Object list is messed up */
+		return False;											/* Object list is messed up */
 	effectiveAcc = EffectiveAcc(doc, firstSyncL, firstNoteL);
 	if (octType>0)
 		noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1],
@@ -452,7 +452,7 @@ both grace notes and rests. */
 
 Boolean DCheckNoteNums(Document *doc)
 {
-	Boolean bad=false, haveAccs;
+	Boolean bad=False, haveAccs;
 	short staff, clefType, octType[MAXSTAVES+1], useOctType, nnDiff;
 	LINK pL, aNoteL, aClefL;
 	SignedByte accTable[MAX_STAFFPOS];
@@ -472,12 +472,12 @@ Boolean DCheckNoteNums(Document *doc)
 	
 				case SYNCtype:
 					aNoteL = FirstSubLINK(pL);
-					haveAccs = false;
+					haveAccs = False;
 					for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL))
 						if (NoteSTAFF(aNoteL)==staff && !NoteREST(aNoteL)) {
 							if (!haveAccs) {
 								GetAccTable(doc, accTable, pL, staff);
-								haveAccs = true;
+								haveAccs = True;
 							}
 
 							useOctType = (NoteINOTTAVA(aNoteL)? octType[staff] : 0);

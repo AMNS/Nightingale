@@ -21,7 +21,7 @@ static short CountPrimaries(LINK);
 
 /* ----------------------------------------------------------------- BreakBeamBefore -- */
 /* Given a Beamset and a Sync (or GRSync), try to add a secondary break to the
-Beamset just before the Sync. If we can do so, return true, else false. Regardless,
+Beamset just before the Sync. If we can do so, return True, else False. Regardless,
 if there's a link preceding the Sync in the Beamset, return it in *pPrevL. Takes no
 user-interface actions. */
 
@@ -53,7 +53,7 @@ Boolean BreakBeamBefore(Document */*doc*/, LINK beamL, LINK syncL, LINK *pPrevL)
 				bNoteBeam = GetPANOTEBEAM(bNoteBeamL);		
 				beamsNow += bNoteBeam->startend;
 			}
-			if (beamsNow<=1) return false;
+			if (beamsNow<=1) return False;
 
 			/* If another break here would require a fractional beam on this or the
 				preceding note, no good. This would certainly happen if this is the
@@ -61,21 +61,21 @@ Boolean BreakBeamBefore(Document */*doc*/, LINK beamL, LINK syncL, LINK *pPrevL)
 				preceding note is now starting a beam and the break would cause it also
 				to end one, or vice-versa. */
 				
-			if (i<=1 || i==nInBeam-1) return false;
-			if (prevNoteBeam->startend>0) return false;
-			if (aNoteBeam->startend<0) return false;
+			if (i<=1 || i==nInBeam-1) return False;
+			if (prevNoteBeam->startend>0) return False;
+			if (aNoteBeam->startend<0) return False;
 
 			/* Everything's OK. Break away! */
 			
 			prevNoteBeam->startend -= 1;
 			aNoteBeam->startend += 1;
-			return true;
+			return True;
 		}
 		prevNoteBeam = aNoteBeam;
 	}
 	
 	*pPrevL = NILINK;
-	return false;
+	return False;
 }
 
 
@@ -106,7 +106,7 @@ static Boolean BBFixCenterSecBeams(Document *doc, LINK beamLA[], short beamNPrim
 			lastystem = NoteYSTEM(lastNoteL);
 			nInBeam = LinkNENTRIES(beamL);
 			if (!GetBeamSyncs(doc, firstL, RightLINK(lastL), voice, nInBeam, bpSync,
-				noteInSync, false)) return false;
+				noteInSync, False)) return False;
 			crossStaff = BeamCrossSTAFF(beamL);
 			theRange.topStaff = BeamSTAFF(beamL);
 			theRange.bottomStaff = (crossStaff? theRange.topStaff+1 : theRange.topStaff);
@@ -144,7 +144,7 @@ static Boolean BBFixCenterSecBeams(Document *doc, LINK beamLA[], short beamNPrim
 		}
 	}
 	
-	return true;
+	return True;
 }
 
 /* ------------------------------------------------------------------ CountPrimaries -- */
@@ -207,18 +207,18 @@ void DoBreakBeam(Document *doc)
 	short nBeamsets=0, i, nPrimary;
 	Boolean found;
 	
-	DisableUndo(doc, false);
+	DisableUndo(doc, False);
 	
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
 		if (LinkSEL(pL) && SyncTYPE(pL)) {
 			for (v = 1; v<=MAXVOICES; v++) {
 				if (VOICE_MAYBE_USED(doc, v))
-					if (NoteInVoice(pL, v, true)) {
-						beamL = LVSearch(pL, BEAMSETtype, v, GO_LEFT, false);
+					if (NoteInVoice(pL, v, True)) {
+						beamL = LVSearch(pL, BEAMSETtype, v, GO_LEFT, False);
 						if (beamL) {
 							nPrimary = CountPrimaries(beamL);
 							if (BreakBeamBefore(doc, beamL, pL, &prevL)) {
-								doc->changed = true;
+								doc->changed = True;
 								InvalMeasures(pL, prevL, BeamSTAFF(beamL));
 
 							/*
@@ -229,8 +229,8 @@ void DoBreakBeam(Document *doc)
 							 * least we won't end up with stems and beams that disagree.
 							 */
 								if (nBeamsets<MAX_BEAMSETS) {
-									for (found = false, i = 0; i<nBeamsets; i++)
-										if (beamL==beamLA[i]) { found = true; break; }
+									for (found = False, i = 0; i<nBeamsets; i++)
+										if (beamL==beamLA[i]) { found = True; break; }
 									if (!found) {
 										beamLA[nBeamsets] = beamL;
 										beamNPrimaryA[nBeamsets] = nPrimary;

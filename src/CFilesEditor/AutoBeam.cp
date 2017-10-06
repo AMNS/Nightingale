@@ -209,7 +209,7 @@ static void CreateBEAMandResetBeamCounter(Document *doc, Byte voice, LINK endL)
 {
 	if (beamCounterPtr->BeamState == BEAMING) {
 		CreateBEAMSET(doc, beamCounterPtr->Syncs[0], endL, voice,
-							beamCounterPtr->nextLINK, true,
+							beamCounterPtr->nextLINK, True,
 							doc->voiceTab[voice].voiceRole);
 		}
 	beamCounterPtr->BeamState = NOTBEAMING;
@@ -318,8 +318,8 @@ static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamSt
 
 
 /* ----------------------------------------------------------------------- AutoBeam -- */
-/* Beam the selection "automatically", i.e., according to the meter. Return true
-normally, false if unable to allocate temporary memory blocks. */
+/* Beam the selection "automatically", i.e., according to the meter. Return True
+normally, False if unable to allocate temporary memory blocks. */
 
 Boolean AutoBeam(Document *doc)
 {
@@ -328,7 +328,7 @@ Boolean AutoBeam(Document *doc)
 	LINK pL,measL,endMeasL,aTimeSigL;
 	Byte voice;
 	LINK aNoteL;
-	Boolean okay=false;
+	Boolean okay=False;
 	
 	CurrentBeamCondition = (doc->beamRests? CROSSRESTS + AUTOBEAM : AUTOBEAM);
 
@@ -362,7 +362,7 @@ Boolean AutoBeam(Document *doc)
 	for (voice = 1; voice<=MAXVOICES; voice++) {
 		if (!VOICE_MAYBE_USED(doc, voice)) continue;
 		
-		firstNoteInVoice = true;
+		firstNoteInVoice = True;
 		FillMem (0, beamCounterPtr, sizeof(struct BeamCounter));
 		
 		beamCounterPtr->LCDsIntoThisMeasure =
@@ -382,7 +382,7 @@ Boolean AutoBeam(Document *doc)
 						if (NoteSEL(aNoteL) && NoteVOICE(aNoteL) == voice) {
 							if (firstNoteInVoice) {
 								CreateBeatList(doc,pL,aNoteL);
-								firstNoteInVoice = false;
+								firstNoteInVoice = False;
 							}
 
 							nextBeamState = SetBeamCounter(doc,pL,aNoteL);
@@ -419,7 +419,7 @@ Boolean AutoBeam(Document *doc)
 	/* Expand selRange to include possibly-added beams. */
 	
 	ExpandSelRange(doc);
-	okay = true;
+	okay = True;
 
 	PopLock(OBJheap);
 	PopLock(NOTEheap);
@@ -451,5 +451,5 @@ void DoAutoBeam(Document *doc)
 
 	WaitCursor();
 	if (!AutoBeam(doc))
-		DisableUndo(doc, true);
+		DisableUndo(doc, True);
 }

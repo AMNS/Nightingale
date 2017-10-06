@@ -1022,7 +1022,7 @@ static void ShowInit(rangeMaster *M)
 /* Put the note names and accidentals in the dialog (naturals not shown). */
 
 static void DrawNoteNames(
-					Boolean drawAll)		/* If false, draw only currently moving note. */
+					Boolean drawAll)		/* If False, draw only currently moving note. */
 {
 	extern struct scaleTblEnt *noteInfo[3];
 	extern rangeMaster master;
