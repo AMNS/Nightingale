@@ -1746,3 +1746,12 @@ UIFUtils.
 Replaced all occurrences of "true" and "false" (other than in comments) with "True" and
 "False": the latter are probably less standard, but they fit Nightingale conventions
 better and lead (I think) to more readable code. Affects at least 60 files.
+
+-------------------------------------------------------------------------------
+
+12 Oct.
+
+Fixed bug (Issue #156): "Neutral" apostrophes and quote marks in text entered are
+garbled. Affects UIFUtils.
+
+Minor cleanup. Affects UIFUtils.h; FlowInText, TEfield, TextDialog, UIFUtils.

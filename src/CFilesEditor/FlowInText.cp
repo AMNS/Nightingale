@@ -37,7 +37,7 @@ static enum {
 	LASTITEM
 } E_FlowinTextItems;
 	
-#define CANCEL_ITEM 	BUT2_Cancel
+#define CANCEL_ITEM BUT2_Cancel
 
 #define DEFAULT_VPOS 14			/* Default vertical position (pitch level) for new lyrics */
 
@@ -80,10 +80,10 @@ static Handle		lyricBlk = NULL;
 static ModalFilterUPP	dlogFilterUPP;
 
 typedef struct {
-	LINK			startL;	/* if NILINK, was a node that was deleted but never freed */
-	LINK			termL;	/* if NILINK, we never got hyphen completor syllable in same voice */
+	LINK		startL;	/* if NILINK, was a node that was deleted but never freed */
+	LINK		termL;	/* if NILINK, we never got hyphen completor syllable in same voice */
 	SignedByte	voice;
-	char			filler;	/* ??numHyphens between startL and termL? */
+	char		filler;	/* ??numHyphens between startL and termL? */
 } HYPHENSPAN;
 
 static HYPHENSPAN	**hyphens = NULL;
@@ -127,11 +127,11 @@ Boolean FlowInDialog(Document *doc, short *font)	/* ??should be static */
 		len = GetHandleSize(lyricBlk);
 		
 		currWord = (**myField.teH).selStart;
-		if (currWord==len) currWord = 0;						/* if selStart at end, move to beginning */
+		if (currWord==len) currWord = 0;					/* if selStart at end, move to beginning */
 		else if (currWord) {
 			p = *lyricBlk + currWord;
-			currWord++; p++;										/* wind up for loop */
-			while (p>*lyricBlk) {								/* if selStart in middle of word, set currWord to start of word */
+			currWord++; p++;								/* wind up for loop */
+			while (p>*lyricBlk) {							/* if selStart in middle of word, set currWord to start of word */
 				p--; currWord--;
 				if (IsFlowInDelim(*p)) break;
 			}
@@ -140,9 +140,9 @@ Boolean FlowInDialog(Document *doc, short *font)	/* ??should be static */
 		while (IsFlowInDelim(*p++) && currWord<len)		/* in case multiple whitespace precedes first syllable (not handled by GetWord, etc.) */
 			currWord++;
 		if (currWord==len) {
-			currWord = 0;											/* if currWord now at end, move to beginning */
+			currWord = 0;									/* if currWord now at end, move to beginning */
 			p = *lyricBlk + currWord;
-			while (IsFlowInDelim(*p++) && currWord<len)	/* do this yet again */
+			while (IsFlowInDelim(*p++) && currWord<len)		/* do this yet again */
 				currWord++;
 		}
 		
@@ -161,9 +161,9 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	Boolean		ans=False, doHilite=False;
 	WindowPtr	w;
-	short			ch, part;
-	Point			where;
-	Rect			bounds;
+	short		ch, part;
+	Point		where;
+	Rect		bounds;
 	
 	if (!DoTEFieldIdle(&myField, evt)) ArrowCursor();
 
@@ -242,7 +242,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				}
 				ans = True;		/* Other cmd-chars ignored */
 			}
-			/* We expect DoTEFieldKeyEvent to call ConvertQuote.  */
+			/* We expect DoTEFieldKeyEvent to call SmartenQuote.  */
 			else DoTEFieldKeyEvent(&myField, evt);
 			break;
 		}
@@ -294,7 +294,8 @@ static void DoDialogUpdate(DialogPtr dlog)
 
 static DialogPtr OpenThisDialog(Document *doc)
 {
-	short type; Handle hndl; Rect box; GrafPtr oldPort;
+	short type;  Handle hndl;  Rect box;
+	GrafPtr oldPort;
 	DialogPtr dlog;
 
 	dlogFilterUPP = NewModalFilterUPP(MyFilter);

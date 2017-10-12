@@ -436,17 +436,17 @@ static void SetStyleBoxes(DialogPtr dlog, short style, short lyric)
 
 
 /* Maintain state of items subordinate to the main style choice popup.  If style is
-not "This Item Only", disable the popups, check boxes, and radio buttons, hide
-the EditText field, and dim everything.  Otherwise, do the opposite. */
+not "This Item Only", disable the popups, check boxes, and radio buttons, hide the
+EditText field, and dim everything.  Otherwise, do the opposite. */
 		
 #define HILITE_DITEM(itm, active) 	{	GetDialogItem(dlog, (itm), &type, &hndl, &box);		\
 										HiliteControl((ControlHandle)hndl, (active)); }
 
 static void DimStylePanels(DialogPtr dlog, Boolean dim)
 {
-	short		type, newType, ctlActive;
-	Handle		hndl;
-	Rect		box;
+	short	type, newType, ctlActive;
+	Handle	hndl;
+	Rect	box;
 	
 	newType = (dim? statText+itemDisable : statText);
 	
@@ -506,9 +506,10 @@ stuff. */
 
 static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 	{
-		Boolean ans=False, doHilite=False; WindowPtr w;
-		short type, ch, currentStyle; Handle hndl;
-		Rect box; Point where; unsigned char str[256];
+		Boolean ans=False, doHilite=False;  WindowPtr w;
+		short type, ch, currentStyle;  Handle hndl;
+		Rect box;  Point where;
+		unsigned char str[256];
 		
 		w = (WindowPtr)(evt->message);
 		switch(evt->what) {
@@ -627,7 +628,7 @@ static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 				 else {
 				 	/* Do smart-quote conversion on single and double quotes */
 				 	TEHandle textH = GetDialogTextEditHandle(dlog);
-					ch = ConvertQuote(textH,ch);
+					ch = SmartenQuote(textH,ch);
 					evt->message &= ~charCodeMask;
 					evt->message |= (ch & charCodeMask);
 					ans = False;
@@ -801,9 +802,9 @@ static void UpdateDocStyles(Document *doc)
 }
 
 
-/* Apply the given text style to <pL>, which must be a graphic of an 
-appropriate type for the style. Return True if ok, False if no more
-room for fonts in the document's font index table. */
+/* Apply the given text style to <pL>, which must be a graphic of an appropriate type
+for the style. Return True if okay, False if no more room for fonts in the document's
+font index table. */
 
 static Boolean ApplyDocStyle(Document *doc, LINK pL, TEXTSTYLE *style)
 {

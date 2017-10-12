@@ -25,7 +25,6 @@ static void DoScroll(PEDITFIELD, short, Point);
 static pascal Boolean EditFieldAutoScroll(TERec*);
 static pascal void ScrollText(ControlHandle, short);
 static void ScrollCharacter(PEDITFIELD, short, Boolean);
-//int ConvertQuote(TEHandle, int);
 
 static Boolean			scrapDirty;
 static short			scrapCompare;
@@ -495,10 +494,10 @@ void DoTEFieldKeyEvent(PEDITFIELD theField, EventRecord *event)
 #ifdef SMART_QUOTES
 	/*
 	 * Leave command-quote/-double-quote as std ASCII quotes so user can
-	 * bypass "smart" quotes; covert all other chars.
+	 * bypass "smart" quotes; convert all other quote marks.
 	 */
 	if (!(event->modifiers & cmdKey))
-		ch = ConvertQuote(theField->teH,ch);
+		ch = SmartenQuote(theField->teH,ch);
 #endif
 
 	/* Map forward delete char to delete and fiddle w/ sel range to make if work right. */

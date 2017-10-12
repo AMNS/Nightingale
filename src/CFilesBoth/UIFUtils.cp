@@ -10,7 +10,7 @@
 		CautionInform			StopInform				ProgressMsg
 		UserInterrupt			UserInterruptAndSel
 		NameHeapType			NameObjType				NameGraphicType	
-		ConvertQuote			DrawBox					HiliteRect
+		SmartenQuote			DrawBox					HiliteRect
 		Voice2UserStr			Staff2UserStr
 		DrawPUpTriangle			DrawPopUp				TruncPopUpString
 		InitPopUp				DoUserPopUp				ChangePopUpChoice
@@ -600,47 +600,55 @@ const char *NameGraphicType(
 }
 
 
-/* ---------------------------------------------------------------------- ConvertQuote -- */
+/* ---------------------------------------------------------------------- SmartenQuote -- */
 /*	Given a TextEdit handle and a character, presumably one being inserted, if that
 character is a (neutral) double quote or apostrophe, change it to its open/close
 equivalent character according to the type of character that precedes it, if any;
 return the converted character.  If the character not a neutral quote or apostrophe,
 then just return it unchanged.
- *
-The conversion to open quote is done if the previous char was a space, tab, option-
-space or return; closed quote otherwise, unless it's the first character in the
-string, in which case it's always open. If you want to allow the typing of standard
-ASCII single or double quote, do it as a Command key char. */
 
-short ConvertQuote(TEHandle textH, short ch)
-	{
-		short n; unsigned char prev;
+The conversion to open quote is done if the previous char was a space, tab, option-space
+or return; closed quote otherwise, unless it's the first character in the string, in
+which case it's always open. If you want to allow the typing of standard ASCII single or
+double quote, do it as a Command key char. */
 
-		if (textH)
-			if (ch=='"' || ch=='\'') {
-				n = (*textH)->selStart;
-				prev = (n > 0) ? ((unsigned char) *(*((*textH)->hText) + n-1)) : 0;
-				if (prev=='\r' || prev==' ' || prev=='¬†' || prev=='\t' || n==0)
-					ch = (ch=='"' ? '‚Äú' : '‚Äò');
-				 else
-					ch = (ch=='"' ? '‚Äù' : '‚Äô');
-				}
-		return(ch);
-	}
+/* NB: The following codes are for Macintosh Roman, as required by the Carbon toolkit. */
+#define OPEN_DOUBLE_QUOTE	0xD2
+#define CLOSE_DOUBLE_QUOTE	0xD3
+#define OPEN_SINGLE_QUOTE	0xD4
+#define CLOSE_SINGLE_QUOTE	0xD5
+
+short SmartenQuote(TEHandle textH, short ch)
+{
+	short n;  unsigned char prev;
+
+	if (textH)
+		if (ch=='"' || ch=='\'') {
+			n = (*textH)->selStart;
+			prev = (n > 0) ? ((unsigned char) *(*((*textH)->hText) + n-1)) : 0;
+			if (prev=='\r' || prev==' ' || prev==' ' || prev=='\t' || n==0)
+				ch = (ch=='"' ? OPEN_DOUBLE_QUOTE : OPEN_SINGLE_QUOTE);
+			 else
+				ch = (ch=='"' ? CLOSE_DOUBLE_QUOTE : CLOSE_SINGLE_QUOTE);
+		}
+
+	return ch;
+}
 
 
 /* --------------------------------------------------------------------------- DrawBox -- */
 /* Use a wide line to draw a filled box centered at the given point.  Size should
-normally be 4 so that the special drag cursor fits in with it. Intended to draw
-handles for dragging.*/
+normally be 4 so that the special drag cursor fits in with it. Intended to draw handles
+for dragging.*/
 
 void DrawBox(Point pt, short size)
-	{
-		PenSize(size,size); size >>= 1;
-		MoveTo(pt.h -= size,pt.v -= size);
-		LineTo(pt.h,pt.v);
-		PenSize(1,1);
-	}
+{
+	PenSize(size, size);
+	size >>= 1;
+	MoveTo(pt.h -= size, pt.v -= size);
+	LineTo(pt.h, pt.v);
+	PenSize(1, 1);
+}
 
 
 /* ------------------------------------------------------------------------ HiliteRect -- */
@@ -689,8 +697,8 @@ void Staff2UserStr(Document *doc,
 						char str[])			/* user-friendly string describing the staff */
 {
 	short relStaff;
-	LINK partL; PPARTINFO pPart;
-	char fmtStr[256]; short len;
+	LINK partL;  PPARTINFO pPart;
+	char fmtStr[256];  short len;
 
 	partL = Staff2PartL(doc, doc->headL, staffn);
 	pPart = GetPPARTINFO(partL);
@@ -787,8 +795,8 @@ void TruncPopUpString(UserPopUp *p)
 	}
 
 
-/* Initialise a UserPopUp data structure; return False if error. If firstChoice=0,
-no item is initially chosen. */
+/* Initialise a UserPopUp data structure; return False if error. If firstChoice=0, no
+item is initially chosen. */
 
 short InitPopUp(
 			DialogPtr dlog,
@@ -799,10 +807,10 @@ short InitPopUp(
 			short firstChoice		/* Initial choice, or 0=none */
 			)
 	{
-		short type; Handle hndl;
+		short type;  Handle hndl;
 
-		if (pItem) GetDialogItem(dlog,pItem,&type,&hndl,&p->prompt);
-		 else		  SetRect(&p->prompt,0,0,0,0);
+		if (pItem)	GetDialogItem(dlog,pItem,&type,&hndl,&p->prompt);
+		 else		SetRect(&p->prompt,0,0,0,0);
 		
 		GetDialogItem(dlog,item,&type,&hndl,&p->box);
 		p->bounds = p->box; InsetRect(&p->bounds,-1,-1);
@@ -888,9 +896,9 @@ void HilitePopUp(UserPopUp *p, short activ)
 	}
 
 
-/* ResizePopUp changes the widths of an existing popup's rects to accommodate
-its longest menu item string, and returns 1. The top left point isn't changed.
-If no change is necessary, ResizePopUp returns 0. */
+/* ResizePopUp changes the widths of an existing popup's rects to accommodate its
+longest menu item string, and returns 1. The top left point isn't changed. If no change
+is necessary, ResizePopUp returns 0. */
  
 short ResizePopUp(UserPopUp *p)
 	{
@@ -941,9 +949,9 @@ void ShowPopUp(UserPopUp *p, short vis)
 	}
 
 
-/* Let the user select popup items using arrow keys. Doesn't work if the menu
-has any disabled items, unless they are the '--------' kind and are not the first
-or last items. Probably by John Gibson, not Resorcerer. */
+/* Let the user select popup items using arrow keys. Doesn't work if the menu has any
+disabled items, unless they are the '--------' kind and are not the first or last items.
+Probably by John Gibson, not Resorcerer. */
 
 void HiliteArrowKey(DialogPtr /*dlog*/, short whichKey, UserPopUp *pPopup,
 										Boolean *pHilitedItem)

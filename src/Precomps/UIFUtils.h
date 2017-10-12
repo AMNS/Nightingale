@@ -29,7 +29,7 @@ const char *NameHeapType(short, Boolean);
 const char *NameObjType(LINK);
 const char *NameGraphicType(LINK, Boolean);
 
-short	ConvertQuote(TEHandle textH, short ch);
+short SmartenQuote(TEHandle textH, short ch);
 
 void DrawBox(Point pt,short size);
 void HiliteRect(Rect *);
@@ -37,9 +37,9 @@ void HiliteRect(Rect *);
 void Voice2UserStr(Document *doc, short voice, char str[]);
 void Staff2UserStr(Document *doc, short staffn, char str[]);
 
-void    DrawPopUp(UserPopUp *popup);
-void    TruncPopUpString(UserPopUp *popup);
-short    InitPopUp(DialogPtr dlog, UserPopUp *p, short item, short pItem,
+void DrawPopUp(UserPopUp *popup);
+void TruncPopUpString(UserPopUp *popup);
+short InitPopUp(DialogPtr dlog, UserPopUp *p, short item, short pItem,
 					short menuID, short choice);
 short	DoUserPopUp(UserPopUp *p);
 void	ChangePopUpChoice(UserPopUp *p, short choice);
