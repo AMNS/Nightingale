@@ -23,8 +23,6 @@ enum {
  *	Prototypes for routines in EssentialTools.c
  */
 
-char		*ftoa(char *str, double val);
-
 pascal long GrowMemory(Size memoryNeeded);
 Boolean		PreflightMem(short nKBytes);
 void		ZeroMem(void *m, long nBytes);

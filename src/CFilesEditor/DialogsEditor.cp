@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /*
@@ -58,7 +58,7 @@ static void TrackArrow(Rect *, TrackArrowFunc func);
 #define UpRect_DI	5				/* DITL index of up button rect */
 #define DownRect_DI	6				/* DITL index of down button rect */
 
-extern short minVal, maxVal;
+extern short minDlogVal, maxDlogVal;
 
 
 /* ---------------------------------------------------------- LeftEndDialog et al -- */
@@ -341,8 +341,8 @@ short SpaceDialog(
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 		
-		minVal = MINSPACE;
-		maxVal = MAXSPACE;
+		minDlogVal = MINSPACE;
+		maxDlogVal = MAXSPACE;
 		
 		do {
 			while (True) {
@@ -401,8 +401,8 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 
-		minVal = 1;
-		maxVal = 6;
+		minDlogVal = 1;
+		maxDlogVal = 6;
 	
 		do {
 			while (True) {
@@ -411,16 +411,16 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 				}
 			if (ditem==OK) {
 				GetDlgWord(dlog, NUMBER_DI, &nslashes);
-				if (nslashes>=minVal && nslashes<=maxVal) break;
+				if (nslashes>=minDlogVal && nslashes<=maxDlogVal) break;
 				GetIndCString(fmtStr, DIALOGERRS_STRS, 4);				/* "Number of slashes..." */
-				sprintf(strBuf, fmtStr, minVal, maxVal);
+				sprintf(strBuf, fmtStr, minDlogVal, maxDlogVal);
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
 				nslashes = CANCEL_INT;
 				}
 			 else
 				break;
-			} while (nslashes<minVal || nslashes>maxVal);
+			} while (nslashes<minDlogVal || nslashes>maxDlogVal);
 			
 		DisposeDialog(dlog);
 		}
@@ -561,8 +561,8 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 
-		minVal = 0;
-		maxVal = maxEndingNum;
+		minDlogVal = 0;
+		maxDlogVal = maxEndingNum;
 	
 		do {
 			while (True) {
@@ -575,7 +575,7 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 			}
 			if (ditem==OK) {
 				number = endingPopup.currentChoice-1;
-				if (number>=minVal && number<=maxVal) {
+				if (number>=minDlogVal && number<=maxDlogVal) {
 					*pNewNumber = number;
 					if (group1==CLOSED_OPEN_DI)		*pNewCutoffs = 1;
 					else if (group1==OPEN_CLOSED_DI) *pNewCutoffs = 2;
@@ -583,7 +583,7 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 				}
 				else {
 					GetIndCString(fmtStr, DIALOGERRS_STRS, 5);			/* "Ending/bracket number..." */
-					sprintf(strBuf, fmtStr, minVal, maxVal);
+					sprintf(strBuf, fmtStr, minDlogVal, maxDlogVal);
 					CParamText(strBuf, "", "", "");
 					StopInform(GENERIC_ALRT);
 					number = CANCEL_INT;
@@ -591,7 +591,7 @@ Boolean EndingDialog(short initNumber, short *pNewNumber, short initCutoffs,
 			}
 			 else
 				break;
-		} while (number<minVal || number>maxVal);
+		} while (number<minDlogVal || number>maxDlogVal);
 			
 		DisposeDialog(dlog);
 	}
@@ -683,8 +683,8 @@ Boolean MeasNumDialog(Document *doc)
 	ShowWindow(GetDialogWindow(dlog));
 	ArrowCursor();
 
-	minVal = 0;
-	maxVal = 100;
+	minDlogVal = 0;
+	maxDlogVal = 100;
 	dialogOver = 0;
 	while (dialogOver==0) {
 		do {
@@ -1401,7 +1401,7 @@ Boolean TupletDialog(
 	tempNum = accNum;
 	for (evenNum=0; !odd(tempNum); tempNum /= 2) evenNum++;
 	maxChange = n_min(logDenom-1, evenNum);
-	minVal = tupleDur-maxChange;
+	minDlogVal = tupleDur-maxChange;
 	
 	GetDialogItem(dlog, SAMPLE_ITEM, &type, &tHdl, &staffRect);
 	/* Sample is a user Item */
@@ -1448,8 +1448,8 @@ Boolean TupletDialog(
 	 			 *	If user just set the popup for a duration longer than the maximum
 	 			 * allowable, change it to the maximum now.
 	 			 */
-				if (newLDur<minVal) {
-					newLDur = minVal;
+				if (newLDur<minDlogVal) {
+					newLDur = minDlogVal;
 					choice = GetDurPopItem(curPop, popKeys0dot, newLDur, 0);
 					if (choice==NOMATCH) choice = 1;
 					SetGPopUpChoice(curPop, choice);
@@ -2258,8 +2258,8 @@ Boolean SetMBRestDialog(Document */*doc*/, short *nMeas)
 		PutDlgWord(dlog, MBR_NMEAS_DI, newNMeas,True);
 		
 		UseNumberFilter(dlog, MBR_NMEAS_DI, UP_MBR_DI, DOWN_MBR_DI);
-		minVal = 1;
-		maxVal = 127;
+		minDlogVal = 1;
+		maxDlogVal = 127;
 		
 		CenterWindow(GetDialogWindow(dlog), 50);
 		ShowWindow(GetDialogWindow(dlog));
@@ -2272,7 +2272,7 @@ Boolean SetMBRestDialog(Document */*doc*/, short *nMeas)
 				case OK:
 					GetDlgWord(dlog, MBR_NMEAS_DI, &newNMeas);
 					if (newNMeas<1 || newNMeas>127) {
-						GetIndCString(strBuf, DIALOGERRS_STRS, 15);			/* "measures rest must be..." */
+						GetIndCString(strBuf, DIALOGERRS_STRS, 15);		/* "measures rest must be..." */
 						CParamText(strBuf, "", "", "");
 						StopInform(GENERIC_ALRT);
 					}

@@ -1,7 +1,7 @@
 /******************************************************************************************
 *	FILE:	vars.h
 *	PROJ:	Nightingale
-*	DESC:	global variables*
+*	DESC:	global variables
 ******************************************************************************************/
 
 /*
@@ -49,7 +49,6 @@ GLOBAL OSType		documentType;			/* Document file signature */
 GLOBAL LINK			clipFirstMeas;			/* first measure of clipboard */
 GLOBAL Boolean		doneFlag,				/* False until program is done */
 					cursorValid,			/* True while cursor is valid */
-					hasWaitNextEvent,		/* Is the WaitNextEvent trap available (e.g., MultiFinder)? */
 					bestQualityPrint,		/* "Best Quality Print" requested (on ImageWriter)? */
 					toolPalChanged;			/* True if user has rearranged tool palette */
 GLOBAL CursHandle	handCursor,				/* various cursors */

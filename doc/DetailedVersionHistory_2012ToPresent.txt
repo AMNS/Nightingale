@@ -1755,3 +1755,13 @@ Fixed bug (Issue #156): "Neutral" apostrophes and quote marks in text entered ar
 garbled. Affects UIFUtils.
 
 Minor cleanup. Affects UIFUtils.h; FlowInText, TEfield, TextDialog, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+16 - 19 Oct.
+
+Minor cleanup: change unsigned char xxx[256] to Str255 xxx; rename globals <minVal>
+and <maxVal> to <minDlogVal> and <maxDlogVal>; get rid of code relating to GetNextEvent(),
+which has been obsolete for 20 years or so; etc. Affects EssentialTools.h, Style.h;
+DialogsBoth, DialogsEditor, DialogUtils, EssentialTools, Event, Initialize, MIDIDialogs,
+TextDialog.

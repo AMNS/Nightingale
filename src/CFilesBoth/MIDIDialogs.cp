@@ -1602,7 +1602,7 @@ Boolean MutePartDialog(Document *doc)
 
 /* ------------------------------------------------------------- SetPlaySpeedDialog -- */
 
-extern short minVal, maxVal;
+extern short minDlogVal, maxDlogVal;
 
 static enum {
 	 SPS_PERCENT_DI=3,
@@ -1633,8 +1633,8 @@ Boolean SetPlaySpeedDialog(void)
 		PutDlgWord(dlog, SPS_PERCENT_DI, newPercent,True);
 		
 		UseNumberFilter(dlog, SPS_PERCENT_DI, UP_SPS_DI, DOWN_SPS_DI);
-		minVal = 10;
-		maxVal = 500;
+		minDlogVal = 10;
+		maxDlogVal = 500;
 		
 		CenterWindow(GetDialogWindow(dlog), 50);
 		ShowWindow(GetDialogWindow(dlog));
@@ -1646,7 +1646,7 @@ Boolean SetPlaySpeedDialog(void)
 			switch (ditem) {
 				case OK:
 					GetDlgWord(dlog, SPS_PERCENT_DI, &newPercent);
-					if (newPercent<minVal || newPercent>maxVal) {
+					if (newPercent<minDlogVal || newPercent>maxDlogVal) {
 						GetIndCString(strBuf, DIALOGERRS_STRS, 22);			/* Play tempo percent must be between..." */
 						CParamText(strBuf, "", "", "");
 						StopInform(GENERIC_ALRT);

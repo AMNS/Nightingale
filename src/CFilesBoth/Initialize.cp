@@ -122,13 +122,6 @@ void Initialize()
 	if (!InitMemory(config.numMasters))				/* needs the CNFG resource */
 		{ BadInit(); ExitToShell(); }
 
-#ifdef TARGET_API_MAC_CARBON	
-	// WaitNextEvent is always available in OS X
-	
-	hasWaitNextEvent = True;
-#else
-	hasWaitNextEvent = TrapAvailable(_WaitNextEvent);
-#endif
 	/*
 	 *	Allocate a large grow zone handle, which gets freed when we run out of memory,
 	 *	so that whoever is asking for memory will probably get what they need without

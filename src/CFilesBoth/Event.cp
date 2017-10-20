@@ -51,19 +51,14 @@ so often on NULL events.  Also maintain the cursor and try to purge all segments
 Boolean DoEvent()
 	{
 		Boolean haveEvent, keepGoing = True, activ;
-		long soon;  short result;
-		static short fixCount = 1;
+		long soon;
+		short result;
 		Point corner;
+		static short fixCount = 1;
 		static long checkMemTime=BIGNUM, checkDSTime=BIGNUM;
 
-		if (hasWaitNextEvent) {
-			soon = (config.mShakeThresh ? 0 : 8);
-			haveEvent = WaitNextEvent(everyEvent, &theEvent, soon, NULL);
-		}
-		else {
-			haveEvent = GetNextEvent(everyEvent, &theEvent);
-			}
-
+		soon = (config.mShakeThresh ? 0 : 8);
+		haveEvent = WaitNextEvent(everyEvent, &theEvent, soon, NULL);
 
 		AnalyzeWindows();			/* After event has been gotten */
 		

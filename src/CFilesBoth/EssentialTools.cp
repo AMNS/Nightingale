@@ -1,8 +1,8 @@
 /*	EssentialTools.c
 	These are miscellaneous routines that are generally-useful extensions to the Mac
-	Toolbox routines. Doug McKenna, 1989; numerous revisions by Donald Byrd.  NB: Quite
-	a few of these are for use in dialogs; they should probably be moved someday to
-	DialogUtils.c. */
+	Toolbox routines. Doug McKenna, 1989; numerous revisions by Donald Byrd.  FIXME: Quite
+	a few of these are for use in dialogs; they should probably be moved to DialogUtils.c.
+	Many others are user-interface related, and probably belong in UIFUtils.c. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -21,13 +21,14 @@
 #include "NavServices.h"
 
 static void	DrawSelBox(short index);
+static char *ftoa(char *str, double val);
 
 /* Given a double and a buffer, format the double as a C string. The obvious way to
-do this is with sprintf, but in THINK C (ca. 2000 A.D.), we couldn't, for reasons
-explained in the comments on ftoaTC; it's probably okay to change now (2017).
-Delivers its first argument. */
+do this is with sprintf, but in THINK C (ca. 2000 A.D.), we couldn't because, to 
+avoid linking problems, we used a "small" version of the ANSI library, in which
+floating-point conversion wasn't supported! Delivers its first argument. */
 
-char *ftoa(char *buffer, double arg)
+static char *ftoa(char *buffer, double arg)
 {
 	sprintf(buffer, "%.2f", arg);		/* JGG: Just use 2 decimal places */
 	return buffer;
@@ -155,13 +156,9 @@ void ArrowCursor()
 
 Boolean CheckAbort()
 {
-	EventRecord evt; int ch; Boolean quit = False;
+	EventRecord evt;  int ch;  Boolean quit = False;
 
-	if (hasWaitNextEvent) {
-		if (!WaitNextEvent(keyDownMask+app4Mask, &evt, 0, NULL)) return(quit);
-	}
-	 else
-		if (!GetNextEvent(keyDownMask, &evt)) return(quit);
+	if (!WaitNextEvent(keyDownMask+app4Mask, &evt, 0, NULL)) return(quit);
 
 	switch(evt.what) {
 		case keyDown:
@@ -199,13 +196,15 @@ Boolean IsDoubleClick(Point pt, short tol, long now)
 		return ans;
 	}
 
-/****************************************************************************************
- KeyIsDown	(from THINK C class library)
+
+/* ------------------------------------------------- Checking if various keys are down -- */
+
+/* KeyIsDown (from the THINK C class library of the 1990's)
  
 		Determine whether or not the specified key is being pressed. Keys
 		are specified by hardware-specific key code (NOT the character).
 		Charts of key codes appear in Inside Macintosh, p. V-191.
- ***************************************************************************************/
+*/
 
 Boolean KeyIsDown(short theKeyCode)
 {
@@ -246,12 +245,15 @@ Boolean ControlKeyDown() {
 	return (GetCurrentKeyModifiers() & controlKey) != 0;
 }
 	
-/* As of v. 5.8b3, CommandKeyDown() is never used; instead, CmdKeyDown() is used.
+/* FIXME: As of v. 5.8b3, CommandKeyDown() is never used; instead, CmdKeyDown() is used.
 I don't know why, or even what the difference is! */
 
 Boolean CommandKeyDown() {
 	return (GetCurrentKeyModifiers() & cmdKey) != 0;
 }
+
+
+/* ----------------------------------------------------------- Dialog-related routines -- */
 
 /*
  *	Outline the given item in the given dialog to show it's the default item, or
@@ -260,27 +262,27 @@ Boolean CommandKeyDown() {
 
 #if TARGET_API_MAC_CARBON
 void FrameDefault(DialogPtr dlog, short item, short)
-	{
-		SetDialogDefaultItem(dlog, item);
-	}
+{
+	SetDialogDefaultItem(dlog, item);
+}
 #else
 void FrameDefault(DialogPtr dlog, short item, short draw)	/* ??<draw> should be Boolean */
-	{
-		short type; Handle hndl; Rect box;
-		GrafPtr oldPort;
-		
-		GetPort(&oldPort);
-		SetPort(GetDialogWindowPort(dlog));
-		
-		GetDialogItem(dlog,item,&type,&hndl,&box);
-		InsetRect(&box,-4,-4);
-		PenSize(3,3);
-		if (!draw) PenPat(NGetQDGlobalsWhite());
-		FrameRoundRect(&box,16,16);
-		PenNormal();
-		
-		SetPort(oldPort);
-	}
+{
+	short type; Handle hndl; Rect box;
+	GrafPtr oldPort;
+	
+	GetPort(&oldPort);
+	SetPort(GetDialogWindowPort(dlog));
+	
+	GetDialogItem(dlog,item,&type,&hndl,&box);
+	InsetRect(&box,-4,-4);
+	PenSize(3,3);
+	if (!draw) PenPat(NGetQDGlobalsWhite());
+	FrameRoundRect(&box,16,16);
+	PenNormal();
+	
+	SetPort(oldPort);
+}
 #endif
 
 /*
@@ -290,28 +292,27 @@ void FrameDefault(DialogPtr dlog, short item, short draw)	/* ??<draw> should be 
  */
 
 void TextEditState(DialogPtr dlog, Boolean save)
-	{
-		static short k,n,m; static TEHandle textH;
-		
-		if (save) {	
-			k = GetDialogKeyboardFocusItem(dlog);
-			textH = GetDialogTextEditHandle(dlog);			
-			n = (*textH)->selStart; m = (*textH)->selEnd;
-			/* Force reselection of all if any selected to current end */
-			if (m == (*textH)->teLength) {
-				if (m == n) n = ENDTEXT;
-				m = ENDTEXT;
-				}
-			}
-		 else
-			SelectDialogItemText(dlog,k,n,m);
+{
+	static short k,n,m; static TEHandle textH;
+	
+	if (save) {	
+		k = GetDialogKeyboardFocusItem(dlog);
+		textH = GetDialogTextEditHandle(dlog);			
+		n = (*textH)->selStart; m = (*textH)->selEnd;
+		/* Force reselection of all if any selected to current end */
+		if (m == (*textH)->teLength) {
+			if (m == n) n = ENDTEXT;
+			m = ENDTEXT;
+		}
 	}
+	else
+		SelectDialogItemText(dlog,k,n,m);
+}
 
 /*
- *	These routines store various usual items into fields of dialogs.
- *	The routines that store deliver the handle of the item.  The
- *	routines that retrieve deliver False or True, according to 
- *	whether the edit field is empty or not.
+ *	These routines store various usual items into fields of dialogs. Those that store
+ *	deliver the handle of the item. Those that retrieve deliver False or True, according
+ *	to whether the edit field is empty or not.
  */
 
 Handle PutDlgWord(DialogPtr dlog, short item, short val, Boolean sel)
@@ -491,6 +492,8 @@ short TextSelected(DialogPtr dlog)
 				item = GetDialogKeyboardFocusItem(dlog);
 		return(item);
 	}
+
+/* ----------------------------------------------------------- Other routines -- */
 
 /* If any of the variable argument scrap types are available for pasting from
 the scrap, deliver the first one.  Otherwise, deliver 0.  For example,
@@ -918,14 +921,12 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
   		GetPort(&oldPort);
   		deskPort = CreateNewPort();
   		
-  		if (deskPort == (GrafPtr)NIL)
-  			Debugger();
+  		if (!deskPort) Debugger();
   			
 		GetPortVisibleRegion(deskPort, deskPortVisRgn);
   		grayRgn = GetGrayRgn();
    		
-   	if (grayRgn == (RgnHandle)NIL)
-  			Debugger();
+		if (!grayRgn) Debugger();
  		
   		CopyRgn(grayRgn,deskPortVisRgn);
   		
@@ -1157,7 +1158,7 @@ static pascal short DlgHook(short itemHit, DialogPtr /*dlog*/)
 semi-standard input and output dialogs below, as well as entertain various
 keyboard commands. */
 
-pascal Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit);
+static pascal Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit);
 
 static short selEnd = -1;
 

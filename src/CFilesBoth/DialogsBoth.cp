@@ -28,7 +28,7 @@
 #define UpRect_DI	5			/* DITL index of up button rect */
 #define DownRect_DI	6			/* DITL index of down button rect */
 
-extern short minVal, maxVal;
+extern short minDlogVal, maxDlogVal;
 
 
 /* ----------------------------------------------------------------- LookAtDialog -- */
@@ -83,8 +83,8 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 		ShowWindow(GetDialogWindow(dlog));
 		ArrowCursor();
 	
-		minVal = 1;
-		maxVal = n_min(MAXVOICES, 31);		/* bcs VOICEINFO's relVoice is a 5-bit field */
+		minDlogVal = 1;
+		maxDlogVal = n_min(MAXVOICES, 31);		/* bcs VOICEINFO's relVoice is a 5-bit field */
 		oldVoice = voice;
 
 		do {
@@ -99,9 +99,9 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 				
 			if (ditem==Cancel) { voice = CANCEL_INT; break; }
 			GetDlgWord(dlog,NUMBER_DI,&voice);
-			if (voice<1 || voice>maxVal) {
+			if (voice<1 || voice>maxDlogVal) {
 				GetIndCString(fmtStr, DIALOGERRS_STRS, 8);			/* "Voice number must be..." */
-				sprintf(strBuf, fmtStr, maxVal);
+				sprintf(strBuf, fmtStr, maxDlogVal);
 				CParamText(strBuf, "", "", "");
 				StopInform(GENERIC_ALRT);
 				voice = -99;
@@ -258,7 +258,7 @@ static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, short *itemHi
 				break;
 			}
 			if (choice==gotoPAGE || choice==gotoBAR)
-				if (HandleMouseDown(evt, minVal, maxVal, dlog)) {
+				if (HandleMouseDown(evt, minDlogVal, maxDlogVal, dlog)) {
 					SelectDialogItemText(dlog, NUMBER_DI, 0, ENDTEXT);
 					*itemHit = NUMBER_DI;
 					ans = True;
@@ -277,7 +277,7 @@ static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, short *itemHi
 			if (DlgCmdKey(dlog, evt, itemHit, False))
 				return True;
 			else if (choice==gotoPAGE || choice==gotoBAR)
-				if (HandleKeyDown(evt, minVal, maxVal, dlog)) {
+				if (HandleKeyDown(evt, minDlogVal, maxDlogVal, dlog)) {
 				*itemHit = NUMBER_DI;
 				ans = True;
 				}
@@ -321,13 +321,13 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 	}
 
 	SetPort(GetDialogWindowPort(dlog));
-	PlaceWindow(GetDialogWindow(dlog),doc->theWindow,0,40);
+	PlaceWindow(GetDialogWindow(dlog), doc->theWindow, 0, 40);
 	gotoDoc = doc;
 	
 	if (!gotoPopUp8.currentChoice) gotoPopUp8.currentChoice = gotoPAGE;
 	
 	if (!InitPopUp(dlog, &gotoPopUp8, GOTOPOP_DI, GOTOSTXT_DI, gotoPopID,
-																		gotoPopUp8.currentChoice))
+															gotoPopUp8.currentChoice))
 		goto broken;
 	
 	UseNumberFilter(dlog,NUMBER_DI,UpRect_DI,DownRect_DI);
@@ -364,11 +364,11 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 	switch(gotoPopUp8.currentChoice) {
 		case gotoPAGE:
 			PutDlgWord(dlog,NUMBER_DI,*currPageNum,True);
-			minVal = minPageVal; maxVal = maxPageVal;
+			minDlogVal = minPageVal; maxDlogVal = maxPageVal;
 			break;
 		case gotoBAR:
 			PutDlgWord(dlog,NUMBER_DI,*currBar,True);
-			minVal = minMeasVal; maxVal = maxMeasVal;
+			minDlogVal = minMeasVal; maxDlogVal = maxMeasVal;
 			break;
 		case gotoREHEARSALMARK:
 			if (currMark)
@@ -386,7 +386,7 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 		SetDialogItemCText(rHdl, "");
 	else {
 		GetIndCString(fmtStr, DIALOG_STRS, 2);    								/* "%d to %d" */
-		sprintf(strBuf, fmtStr, minVal, maxVal); 
+		sprintf(strBuf, fmtStr, minDlogVal, maxDlogVal); 
 		SetDialogItemCText(rHdl, strBuf);
 	}
 	
@@ -400,11 +400,11 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 				case GOTOPOP_DI:
 					switch (gotoPopUp8.currentChoice) {
 						case gotoPAGE:
-							minVal = minPageVal; maxVal = maxPageVal;
+							minDlogVal = minPageVal; maxDlogVal = maxPageVal;
 							PutDlgWord(dlog,NUMBER_DI,currPage,True);
 							break;
 						case gotoBAR:
-							minVal = minMeasVal; maxVal = maxMeasVal;
+							minDlogVal = minMeasVal; maxDlogVal = maxMeasVal;
 							PutDlgWord(dlog,NUMBER_DI,currMeas,True);
 							break;
 						case gotoREHEARSALMARK:
@@ -416,7 +416,7 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 						SetDialogItemCText(rHdl, "");
 					else {
 						GetIndCString(fmtStr, DIALOG_STRS, 2);    				/* "%d to %d" */
-						sprintf(strBuf, fmtStr, minVal, maxVal); 
+						sprintf(strBuf, fmtStr, minDlogVal, maxDlogVal); 
 						SetDialogItemCText(rHdl, strBuf);
 					}
 					break;

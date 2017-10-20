@@ -1,15 +1,15 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	DialogUtils.c
 *	PROJ:	Nightingale
 *	DESC:	General dialog-handling utilities
-/***************************************************************************
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /*
@@ -26,7 +26,7 @@
 #include "Nightingale.appl.h"
 
 
-/* -------------------------------------------------------------- OutlineOKButton -- */
+/* ------------------------------------------------------------------- OutlineOKButton -- */
 /* Outline the OK button to indicate it's the default. */
 
 #ifdef TARGET_API_MAC_CARBON
@@ -42,7 +42,7 @@ void OutlineOKButton(DialogPtr theDialog, Boolean wantBlack)
 #endif
 
 
-/* ------------------------------------------------------------------ FlashButton -- */
+/* ----------------------------------------------------------------------- FlashButton -- */
 /* If the given item is a button, flash it to indicate it's been pressed. */
 
 void FlashButton(DialogPtr theDialog, short item)
@@ -58,7 +58,7 @@ void FlashButton(DialogPtr theDialog, short item)
 }
  
  
-/* ------------------------------------------------------------------ OKButFilter -- */
+/* ----------------------------------------------------------------------- OKButFilter -- */
 /* This filter outlines the OK Button and performs standard key and command-
 key filtering. */
 
@@ -82,7 +82,7 @@ pascal Boolean OKButFilter(DialogPtr theDialog, EventRecord *theEvent, short *it
 }
 
 
-/* -------------------------------------------------------------- OKButDragFilter -- */
+/* ------------------------------------------------------------------- OKButDragFilter -- */
 /* This filter outlines the OK Button, performs standard key and command-key
 filtering, and allows dragging the dialog, i.e., does the moving part of "movable
 modal" dialogs. */
@@ -123,7 +123,7 @@ pascal Boolean OKButDragFilter(DialogPtr theDialog, EventRecord *theEvent, short
 }
 
 
-/* -------------------------------------------------------------------- DlgCmdKey -- */
+/* ------------------------------------------------------------------------- DlgCmdKey -- */
 /*	Adapted from DlgCmdKeyFilter by Douglas Wyatt. Intended to be called by dialog
 filter functions for keyDown and autoKey events, this recognizes Return and Enter
 as synonyms for clicking OK; command-. , X, C, V as Cancel, Cut, Copy, and Paste;
@@ -206,7 +206,7 @@ Boolean DlgCmdKey(register DialogPtr dlog, EventRecord *evt,
 }
 
 
-/* ------------------------------------------------------------------ SwitchRadio -- */
+/* ----------------------------------------------------------------------- SwitchRadio -- */
 /* Change the state of a set of radio buttons, and set the variables accordingly. */
 
 void SwitchRadio(DialogPtr dialogp, short *curButton, short newButton)
@@ -220,7 +220,7 @@ void SwitchRadio(DialogPtr dialogp, short *curButton, short newButton)
 #define MOUSETHRESHTIME 24			/* ticks before arrows auto-repeat */
 #define MOUSEREPEATTIME 3			/* ticks between auto-repeats */
 
-/* ------------------------------------------------------------- TrackNumberArrow -- */
+/* ------------------------------------------------------------------ TrackNumberArrow -- */
 /*	Track arrow (elevator button) control, calling <actionProc> after MOUSETHRESHTIME
 ticks, and repeating every MOUSEREPEATTIME ticks thereafter, as long as the mouse is
 still down inside of <arrowRect>. Modified from DBW's TrackArrow. */
@@ -232,14 +232,14 @@ void TrackNumberArrow(Rect *arrowRect, TrackNumberFunc actionProc, short limit,
 	Point	pt;
 
 	(*actionProc)(limit, dialogp);								/* do it once */
-	t = TickCount();													/* delay until auto-repeat */
+	t = TickCount();											/* delay until auto-repeat */
 	while (StillDown() && TickCount() < t+MOUSETHRESHTIME)
 		;
 	GetMouse(&pt);
 	if (StillDown() && PtInRect(pt, arrowRect))
 		(*actionProc)(limit, dialogp);							/* do it again */
 	while (StillDown()) {
-		t = TickCount();												/* auto-repeat rate */
+		t = TickCount();										/* auto-repeat rate */
 		while (StillDown() && TickCount() < t+MOUSEREPEATTIME)
 			;
 		GetMouse(&pt);
@@ -249,13 +249,13 @@ void TrackNumberArrow(Rect *arrowRect, TrackNumberFunc actionProc, short limit,
 }
 
 
-/* ----------------------------------------------------- NumberFilter and friends -- */
+/* ---------------------------------------------------------- NumberFilter and friends -- */
 
 /* Globals for modal dialogs with elevator buttons */
 
-/* Before using NumberFilter, caller must set these externals. ??It would be
+/* Before using NumberFilter, caller must set these externals. FIXME: It would be
 MUCH better to make these explicit, e.g., as parameters to UseNumberFilter. */
-short minVal, maxVal;					/* Number range */
+short minDlogVal, maxDlogVal;					/* Number range */
 
 static Rect upRect, downRect;
 static short locDurItem;
@@ -309,12 +309,12 @@ Boolean HandleMouseDown(EventRecord *theEvent, short minVal, short maxVal,
 	where = theEvent->where;
 	GlobalToLocal(&where);
 	if (PtInRect(where, &upRect)) {
-		SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);						/* Select & unhilite number */
+		SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);		/* Select & unhilite number */
 		TrackNumberArrow(&upRect, &ClickUp, maxVal, theDialog);
 		return True;
 	}
 	else if (PtInRect(where, &downRect)) {
-		SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);						/* Select & unhilite number */
+		SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);		/* Select & unhilite number */
 		TrackNumberArrow(&downRect, &ClickDown, minVal, theDialog);
 		return True;
 	}
@@ -323,9 +323,8 @@ Boolean HandleMouseDown(EventRecord *theEvent, short minVal, short maxVal,
 }
 
 /*
- *	Before using NumberFilter in a call to ModalDialog, this routine should be
- *	called to declare the item numbers of the duration label item and the up and
- * down buttons.
+ *	Before using NumberFilter in a call to ModalDialog, this routine must be called
+ *	declare the item numbers of the duration label item and the up and down buttons.
  */
 
 void UseNumberFilter(DialogPtr dialogp, short durItem, short upItem, short downItem)
@@ -360,7 +359,7 @@ pascal Boolean NumberFilter(register DialogPtr theDialog, EventRecord *theEvent,
 			 * Mouse down in elevator button. Handle it, select and hilite the number,
 			 * and make it look like a number was typed, just in case the caller cares.
 			 */
-			if (HandleMouseDown(theEvent, minVal, maxVal, theDialog)) {
+			if (HandleMouseDown(theEvent, minDlogVal, maxDlogVal, theDialog)) {
 				SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);
 				*itemHit = locDurItem;
 				return True;
@@ -374,7 +373,7 @@ pascal Boolean NumberFilter(register DialogPtr theDialog, EventRecord *theEvent,
 				/*
 				 * Arrow key was typed. Handle it, then select and hilite the number.
 				 */
-				if (HandleKeyDown(theEvent, minVal, maxVal, theDialog)) {
+				if (HandleKeyDown(theEvent, minDlogVal, maxDlogVal, theDialog)) {
 					SelectDialogItemText(theDialog, locDurItem, 0, ENDTEXT);
 					return True;
 				}
@@ -387,7 +386,7 @@ pascal Boolean NumberFilter(register DialogPtr theDialog, EventRecord *theEvent,
 }
 
 
-/* -------------------------------------------------------------- InitDurStrings -- */
+/* -------------------------------------------------------------------- InitDurStrings -- */
 
 char durStrs[MAX_L_DUR+2][16];	/* Plural forms of dur. units: "DUMMY", "breves", wholes"", etc. */
 
@@ -404,9 +403,9 @@ void InitDurStrings(void)
 }
 
 
-/* ----------------------------------------------------------------- XableControl -- */ 
-/* Enable or disable a control item in the given dialog.  Assumes that <item>
-refers to a control!  JGG, 2/24/01 */
+/* ---------------------------------------------------------------------- XableControl -- */ 
+/* Enable or disable a control item in the given dialog.  Assumes that <item> refers
+to a control!  JGG, 2/24/01 */
 
 void XableControl(DialogPtr dlog, short item, Boolean enable)
 {
@@ -418,9 +417,9 @@ void XableControl(DialogPtr dlog, short item, Boolean enable)
 }
 
 
-/* ------------------------------------------------------------ MoveDialogControl -- */
-/* Move the control dialog item to the given <left>, <top> position, without
-changing its width or height.  JGG, 2/24/01 */
+/* ----------------------------------------------------------------- MoveDialogControl -- */
+/* Move the control dialog item to the given <left>, <top> position, without changing
+its width or height.  JGG, 2/24/01 */
 
 void MoveDialogControl(DialogPtr dlog, short item, short left, short top)
 {
@@ -438,7 +437,7 @@ void MoveDialogControl(DialogPtr dlog, short item, short left, short top)
 }
 
 
-/* ------------------------------------------------------------ GetHiddenDItemBox -- */ 
+/* ----------------------------------------------------------------- GetHiddenDItemBox -- */ 
 /* Given a dialog and item no., get the on-screen position of the bounding box for
 the item. Intended to be used for items hidden with HideDialogItem, though also works
 correctly for visible items. */
@@ -456,7 +455,7 @@ void GetHiddenDItemBox(DialogPtr dlog, short item, Rect *visRect)
 }
 
 
-/* ------------------------------------------------------------------ SetDlgFont -- */ 
+/* ----------------------------------------------------------------------- SetDlgFont -- */ 
 /* Set the font and size to use for static text and edit text items in the given
 dialog. Does not affect buttons. */
 
