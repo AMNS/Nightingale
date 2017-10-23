@@ -1,4 +1,4 @@
-/* applicationTypes.h for Nightingale - revised some time after v. 4.0 */
+/* NMiscTypes.h (formerly applicationTypes.h) for Nightingale */
 
 // MAS
 #include <CoreMIDI/MIDIServices.h>		/* for MIDIUniqueID */
@@ -489,6 +489,6 @@ struct SysEnvRec {
   short               atDrvrVersNum;
   short               sysVRefNum;
 };
-typedef struct SysEnvRec                SysEnvRec;
+typedef struct SysEnvRec			SysEnvRec;
 
 #pragma options align=reset

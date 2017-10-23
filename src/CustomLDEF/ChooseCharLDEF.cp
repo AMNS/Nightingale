@@ -68,7 +68,7 @@ pascal void	MyLDEFproc(short lMessage, Boolean lSelect, Rect *lRect, Cell /*lCel
 			FrameRect(&cellRect);
 			SetPenState(&pnState);
 
-	  		if (lDataLen > 0) { // && charPort != NIL) {  			  		
+	  		if (lDataLen > 0) { // && charPort != NULL) {  			  		
 				p = cellData + lDataOffset;
 				
 				cellRect.top++; cellRect.left++;

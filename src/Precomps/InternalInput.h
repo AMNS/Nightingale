@@ -1,4 +1,4 @@
-/* FileInput.h for Nightingale */
+/* InternalInput.h for Nightingale */
 
 LINK FICreateTUPLET(Document *doc, short voice, short staffn, LINK beforeL, short nInTuple,
 							short tupleNum, short tupleDenom, Boolean numVis, Boolean denomVis, Boolean brackVis);

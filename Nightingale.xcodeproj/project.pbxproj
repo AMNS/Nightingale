@@ -27,6 +27,8 @@
 		15683EB21F851B3B00355A40 /* About.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683EB11F851B3B00355A40 /* About.cp */; };
 		15683EC51F851CB500355A40 /* UIFUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683EC41F851CB500355A40 /* UIFUtils.cp */; };
 		15683ED01F851D7200355A40 /* MIDIFOCmd.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15683ECF1F851D7200355A40 /* MIDIFOCmd.cp */; };
+		1573CCCB1F9B779D00C967E6 /* InternalInput.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1573CCCA1F9B779D00C967E6 /* InternalInput.h */; };
+		1573CD1F1F9CB85100C967E6 /* NMiscTypes.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1573CD1E1F9CB85100C967E6 /* NMiscTypes.h */; };
 		157437C51D05153300C5A4DF /* DelAddRedAccs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 157437C41D05153300C5A4DF /* DelAddRedAccs.cp */; };
 		15989C3C1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */; };
 		15B639411ECDA9E00029EDD7 /* CompactVoices.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15B639401ECDA9E00029EDD7 /* CompactVoices.cp */; };
@@ -201,6 +203,8 @@
 				D099DB1B0DB2FE0300C228DB /* EndianUtils.h in CopyFiles */,
 				1544E9B31E645DA400431548 /* Style.h in CopyFiles */,
 				1544E9B51E645DEF00431548 /* Defs.h in CopyFiles */,
+				1573CCCB1F9B779D00C967E6 /* InternalInput.h in CopyFiles */,
+				1573CD1F1F9CB85100C967E6 /* NMiscTypes.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -227,6 +231,8 @@
 		15683EB11F851B3B00355A40 /* About.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = About.cp; sourceTree = "<group>"; };
 		15683EC41F851CB500355A40 /* UIFUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = UIFUtils.cp; sourceTree = "<group>"; };
 		15683ECF1F851D7200355A40 /* MIDIFOCmd.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIFOCmd.cp; sourceTree = "<group>"; };
+		1573CCCA1F9B779D00C967E6 /* InternalInput.h */ = {isa = PBXFileReference; fileEncoding = 5; lastKnownFileType = sourcecode.c.h; path = InternalInput.h; sourceTree = "<group>"; };
+		1573CD1E1F9CB85100C967E6 /* NMiscTypes.h */ = {isa = PBXFileReference; fileEncoding = 12; lastKnownFileType = sourcecode.c.h; path = NMiscTypes.h; sourceTree = "<group>"; };
 		157437C41D05153300C5A4DF /* DelAddRedAccs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedAccs.cp; sourceTree = "<group>"; };
 		15989C3B1E9FAE7600D30D86 /* DelAddRedTimeSigs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DelAddRedTimeSigs.cp; sourceTree = "<group>"; };
 		15B639401ECDA9E00029EDD7 /* CompactVoices.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CompactVoices.cp; sourceTree = "<group>"; };
@@ -241,7 +247,6 @@
 		4A9504CAFFE6A41611CA0CBA /* CoreServices.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreServices.framework; path = /System/Library/Frameworks/CoreServices.framework; sourceTree = "<absolute>"; };
 		8D0C4E960486CD37000505A6 /* Info.plist */ = {isa = PBXFileReference; explicitFileType = text.plist; fileEncoding = 4; path = Info.plist; sourceTree = "<group>"; };
 		D03AF84F0D6F4F9C0018F558 /* Main.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Main.cp; sourceTree = "<group>"; };
-		D03E69730D5F60AB005FD177 /* applicationTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = applicationTypes.h; sourceTree = "<group>"; };
 		D03E69740D5F60AB005FD177 /* CarbonCompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CarbonCompat.h; sourceTree = "<group>"; };
 		D03E69750D5F60AB005FD177 /* CarbonTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CarbonTemplates.h; sourceTree = "<group>"; };
 		D03E69760D5F60AB005FD177 /* FreeMIDICompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FreeMIDICompat.h; sourceTree = "<group>"; };
@@ -260,10 +265,7 @@
 		D03E69830D5F60B9005FD177 /* SResourceID.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SResourceID.h; sourceTree = "<group>"; };
 		D03E69840D5F60B9005FD177 /* vars.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = vars.h; sourceTree = "<group>"; };
 		D03E69850D5F60B9005FD177 /* VersionStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VersionStrings.h; sourceTree = "<group>"; };
-		D03E699B0D5F61F7005FD177 /* FreeMIDIUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FreeMIDIUtils.h; sourceTree = "<group>"; };
 		D03E69B10D5F62E6005FD177 /* MIDICompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDICompat.h; sourceTree = "<group>"; };
-		D03E69C30D5F63AD005FD177 /* FMTypes.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMTypes.h; sourceTree = "<group>"; };
-		D03E69CE0D5F643B005FD177 /* FMData.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FMData.h; sourceTree = "<group>"; };
 		D03E69FA0D5F65DC005FD177 /* OpcodeNightingaleDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpcodeNightingaleDefs.h; sourceTree = "<group>"; };
 		D03E6A370D5F6680005FD177 /* Nightingale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nightingale.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D03E6A670D5F69BE005FD177 /* NightTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NightTemplates.h; sourceTree = "<group>"; };
@@ -291,7 +293,6 @@
 		D03E6B9D0D5F7807005FD177 /* DurationPopUp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DurationPopUp.h; sourceTree = "<group>"; };
 		D03E6B9E0D5F7807005FD177 /* DynamicPopUp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DynamicPopUp.h; sourceTree = "<group>"; };
 		D03E6BA00D5F7807005FD177 /* File.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = File.h; sourceTree = "<group>"; };
-		D03E6BA10D5F7807005FD177 /* FileInput.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FileInput.h; sourceTree = "<group>"; };
 		D03E6BA20D5F7807005FD177 /* GRBeam.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GRBeam.h; sourceTree = "<group>"; };
 		D03E6BA30D5F7807005FD177 /* Heaps.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Heaps.h; sourceTree = "<group>"; };
 		D03E6BA40D5F7807005FD177 /* help.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = help.h; sourceTree = "<group>"; };
@@ -302,7 +303,7 @@
 		D03E6BA90D5F7807005FD177 /* MasterPage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MasterPage.h; sourceTree = "<group>"; };
 		D03E6BAA0D5F7807005FD177 /* MCaret.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MCaret.h; sourceTree = "<group>"; };
 		D03E6BAB0D5F7807005FD177 /* Merge.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Merge.h; sourceTree = "<group>"; };
-		D03E6BAF0D5F7870005FD177 /* MIDIGeneral.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = MIDIGeneral.h; path = MIDI/MIDIGeneral.h; sourceTree = "<group>"; };
+		D03E6BAF0D5F7870005FD177 /* MIDIGeneral.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDIGeneral.h; sourceTree = "<group>"; };
 		D03E6BB00D5F7870005FD177 /* ModNRPopUp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ModNRPopUp.h; sourceTree = "<group>"; };
 		D03E6BB10D5F7870005FD177 /* MPImportExport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MPImportExport.h; sourceTree = "<group>"; };
 		D03E6BB20D5F7870005FD177 /* Multivoice.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Multivoice.h; sourceTree = "<group>"; };
@@ -610,7 +611,6 @@
 		D03E69700D5F608F005FD177 /* Precomps */ = {
 			isa = PBXGroup;
 			children = (
-				D03E69730D5F60AB005FD177 /* applicationTypes.h */,
 				D03E6B8E0D5F7807005FD177 /* Beam.h */,
 				D03E6B8F0D5F7807005FD177 /* Browser.h */,
 				D03E69740D5F60AB005FD177 /* CarbonCompat.h */,
@@ -634,7 +634,6 @@
 				D099DB1A0DB2FE0300C228DB /* EndianUtils.h */,
 				D03E6A9E0D5F6B8A005FD177 /* EssentialTools.h */,
 				D03E6BA00D5F7807005FD177 /* File.h */,
-				D03E6BA10D5F7807005FD177 /* FileInput.h */,
 				D03E6BA20D5F7807005FD177 /* GRBeam.h */,
 				D03E6BA30D5F7807005FD177 /* Heaps.h */,
 				D03E6BA40D5F7807005FD177 /* help.h */,
@@ -642,17 +641,18 @@
 				D03E6BA60D5F7807005FD177 /* InsNew.h */,
 				D03E6BA70D5F7807005FD177 /* InstrDialog.h */,
 				D03E6BA80D5F7807005FD177 /* InsUtils.h */,
+				1573CCCA1F9B779D00C967E6 /* InternalInput.h */,
 				D03E6BA90D5F7807005FD177 /* MasterPage.h */,
 				D03E6BAA0D5F7807005FD177 /* MCaret.h */,
 				D03E6BAB0D5F7807005FD177 /* Merge.h */,
 				D03E69A30D5F625D005FD177 /* MIDI */,
-				D03E6BAF0D5F7870005FD177 /* MIDIGeneral.h */,
 				D03E6BB00D5F7870005FD177 /* ModNRPopUp.h */,
 				D03E6BB10D5F7870005FD177 /* MPImportExport.h */,
 				D03E6BB20D5F7870005FD177 /* Multivoice.h */,
 				D03E6BB30D5F7870005FD177 /* MusicFont.h */,
 				D03E6A670D5F69BE005FD177 /* NightTemplates.h */,
 				D03E69770D5F60AB005FD177 /* NLimits.h */,
+				1573CD1E1F9CB85100C967E6 /* NMiscTypes.h */,
 				D03E6BB40D5F7870005FD177 /* Nodes.h */,
 				D03E69780D5F60AB005FD177 /* NTypes.h */,
 				D03E6BB50D5F7870005FD177 /* Objects.h */,
@@ -685,12 +685,10 @@
 		D03E69A30D5F625D005FD177 /* MIDI */ = {
 			isa = PBXGroup;
 			children = (
-				D03E6A690D5F69E8005FD177 /* MIDIRecUtils.h */,
-				D03E69CE0D5F643B005FD177 /* FMData.h */,
-				D03E69C30D5F63AD005FD177 /* FMTypes.h */,
-				D03E69B10D5F62E6005FD177 /* MIDICompat.h */,
-				D03E699B0D5F61F7005FD177 /* FreeMIDIUtils.h */,
 				D03E69760D5F60AB005FD177 /* FreeMIDICompat.h */,
+				D03E69B10D5F62E6005FD177 /* MIDICompat.h */,
+				D03E6BAF0D5F7870005FD177 /* MIDIGeneral.h */,
+				D03E6A690D5F69E8005FD177 /* MIDIRecUtils.h */,
 				D03E69790D5F60AB005FD177 /* OMSCompat.h */,
 			);
 			path = MIDI;

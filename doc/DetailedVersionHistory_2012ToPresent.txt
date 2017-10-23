@@ -1765,3 +1765,12 @@ and <maxVal> to <minDlogVal> and <maxDlogVal>; get rid of code relating to GetNe
 which has been obsolete for 20 years or so; etc. Affects EssentialTools.h, Style.h;
 DialogsBoth, DialogsEditor, DialogUtils, EssentialTools, Event, Initialize, MIDIDialogs,
 TextDialog.
+
+-------------------------------------------------------------------------------
+
+21 - 23 Oct.
+
+Minor cleanup; change all references to NIL to NULL, get rid of long-obsolete MIDI
+cruft, avoid a possible uninitialized variable, etc. Affects Application.h,
+InternalInput.h (renamed from FileInput.h), NMiscTypes.h (renamed from
+applicationTypes.h), NTypes.h; CarbonStubs, CoreMIDIUtils, NotelistSave, TEField.

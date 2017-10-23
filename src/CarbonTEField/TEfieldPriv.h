@@ -10,8 +10,8 @@
 #ifndef False
 #define False 0
 #endif
-#ifndef NIL
-#define NIL (void *)0
+#ifndef NULL
+#define NULL (void *)0
 #endif
 
 #ifndef CH_ENTER

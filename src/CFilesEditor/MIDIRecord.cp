@@ -19,20 +19,18 @@ By Donald Byrd, rev.for v. 3.5. FreeMIDI support added by John Gibson for v4.1.
  * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
-/* Nightingale supports MOTU's FreeMIDI, Opcode's OMS, and Apple's MIDI Manager. It
-used to support its own "built-in" MIDI routines -- Altech Systems' MIDI Pascal 3.0, 
-used here and in MIDIGeneral.c -- but we don't have the right library for CodeWarrior,
-so "built-in" MIDI is now disabled. All four run at interrupt time and transfer data
-via buffers. Thus, we don't have to worry much about losing data by not paying enough
-attention to real-time activity.
+/* Nightingale's MIDI code is kind of a mess. As of v. 5.8b4, Nightingale supports only
+only Apple's CoreMIDI. At various times, it supported (more or less in this order) the
+MacTutor MIDI driver, Altech Systems' MIDI Pascal 3.0, Opcode's OMS, MOTU's FreeMIDI,
+and Apple's old MIDI Manager. But I doubt if it's worth the trouble (or even possible!)
+to support any of these any longer. But quite a bit of the code still reflects this
+history.
 
-MIDI Pascal returns single bytes of MIDI data plus timestamp. MIDI Manager and OMS
-do a lot more for the user and returns complete "MIDI Packets", each containing a
-complete timestamped MIDI command (except for SysEx messages, which may occupy
-several packets).
-
-NB: we used to use the MacTutor MIDI driver instead of MIDI Pascal; unfortunately,
-some of the code still reflects that. */
+An ancient but possibly still helpful comment: 'MIDI Pascal returns single bytes of MIDI
+data plus timestamp. MIDI Manager and OMS do a lot more for the user and returns complete
+"MIDI Packets", each containing a complete timestamped MIDI command (except for SysEx
+messages, which may occupy several packets)'.
+*/
 
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
@@ -42,10 +40,11 @@ some of the code still reflects that. */
 #include "CarbonStubs.h"
 #include "CoreMIDIDefs.h"
 
-extern long		gmFMSBufferLength;	/* FreeMIDI MIDI Buffer size in bytes */
-extern Boolean	gFMSMIDIBufferFull;
+#ifdef NOMORE
 extern long		gmOMSBufferLength;	/* OMS MIDI Buffer size in bytes */
 extern Boolean	gOMSMIDIBufferFull;
+#endif
+
 /*
 extern long		gCMBufferLength;		// CoreMidi MIDI Buffer size in bytes //
 extern Boolean	gCMMIDIBufferFull;
@@ -1568,19 +1567,17 @@ If any of the buffers overflows, we give an error message. NB: <nOnBuffer> is sm
 but I've never heard of it overflowing except in test versions when we're printing
 debug information. */
 
-// ••
-// •• Need to rewrite to handle the fact that we are using MIDIPackets, not MMMIDIPackets.
-// ••
+// FIXME: rewrite to handle the fact that we are using MIDIPackets, not MMMIDIPackets.
 
 static long cmNowTime;
 
 short GetAllNoteOns(NotePacket nOnBuffer[],
 						short nOnBufPos,			/* On entry, first unused slot in <nOnBuffer> */
-						short channel, long kk)				/* 0 to 15 */
+						short channel, long kk)		/* 0 to 15 */
 {
-	long				loc;
-	Byte				command;
-	short				i, n;
+	long			loc;
+	Byte			command;
+	short			i, n;
 //	MMMIDIPacket	*p;
 	MIDIPacket		*pCM;
 	MIDITimeStamp	cmTimeStamp;
@@ -1592,7 +1589,7 @@ short GetAllNoteOns(NotePacket nOnBuffer[],
 	loc = 0L; n = nOnBufPos;
 
 	if (useWhichMIDI == MIDIDR_CM) {
-		while (pCM = GetCMMIDIPacket()) {
+		while ((pCM = GetCMMIDIPacket())) {
 			command = pCM->data[0] & MCOMMANDMASK;
 			if (IsOurNoteOn(pCM, channel)) {
 				if (n>=NONBUF_SIZE) {

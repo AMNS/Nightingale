@@ -45,7 +45,6 @@ static Boolean CMEndOfBuffer(MIDIPacket *pkt, int len)
 static Boolean CMAcceptPacket(MIDIPacket *pkt)
 {
 	if (CMIsNoteOnPacket(pkt)) return True;
-	
 	if (CMIsNoteOffPacket(pkt)) return True;
 	
 	return False;
@@ -139,7 +138,7 @@ MIDIPacket *GetCMMIDIPacket(void)
 	return pmPkt;
 }
 
-/* ----------------------------------------------------------- PeekAtNextOMSMIDIPacket -- */
+/* ------------------------------------------------------------ PeekAtNextCMMIDIPacket -- */
 
 MIDIPacket *PeekAtNextCMMIDIPacket(Boolean first)
 {
@@ -175,7 +174,7 @@ MIDIPacket *PeekAtNextCMMIDIPacket(Boolean first)
 */
 }
 
-/* ------------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
+/* -------------------------------------------------------- DeletePeekedAtCMMIDIPacket -- */
 
 void DeletePeekedAtCMMIDIPacket(void)
 {
@@ -204,9 +203,9 @@ static Boolean CMIsActiveSensingPacket(MIDIPacket *p)
 	return (p->length == kActiveSensingLen && p->data[0] == kActiveSensingData);
 }
 
-/* ------------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
+/* ------------------------------------------------------------ AddActiveSensingPacket -- */
 
-static MIDIPacket *AddActiveSensingPacket(MIDIPacket *p)
+static MIDIPacket *AddActiveSensingPacket(MIDIPacket *pm)
 {
 	MIDIPacket mPkt;
 	
@@ -214,10 +213,10 @@ static MIDIPacket *AddActiveSensingPacket(MIDIPacket *p)
 	mPkt.length = kActiveSensingLen;
 	mPkt.data[0] = kActiveSensingData;
 
-	p = MIDIPacketListAdd(gMIDIPacketList, sizeof(gMIDIPacketListBuf), p, 
+	pm = MIDIPacketListAdd(gMIDIPacketList, sizeof(gMIDIPacketListBuf), pm, 
 									mPkt.timeStamp, mPkt.length, mPkt.data);
 													
-	return p;
+	return pm;
 }
 
 /* --------------------------------------------------------------- CMTimeStampToMillis -- */
@@ -241,7 +240,7 @@ long CMGetHostTimeMillis()
 	return hostMillis;
 }
 
-/* ------------------------------------------------------- DeletePeekedAtOMSMIDIPacket -- */
+/* ------------------------------------------------------------- CMNormalizeTimeStamps -- */
 
 void CMNormalizeTimeStamps()
 {

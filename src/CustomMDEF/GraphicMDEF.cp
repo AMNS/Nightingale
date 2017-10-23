@@ -187,7 +187,7 @@ static void InitGlobals(MenuHandle theMenu)
 	register short	fontNameLen;
 	short menuID = GetMenuID(theMenu);
 	gCharGridH = (HCHARGRID) Get1Resource('chgd', menuID);
-	if (gCharGridH==NIL) {
+	if (gCharGridH==NULL) {
 		SysBeep(10);												/* character grid rsrc missing */
 		return;
 	}
@@ -703,7 +703,7 @@ static void DrawEraseScrollArrow(Rect *menuRect, short arrow, Boolean draw)
 	if (draw) {
 		/* get the SICNs */
 		SICNHdl = Get1Resource('SICN', SICN_ID);
-		if (SICNHdl == NIL) return;
+		if (SICNHdl == NULL) return;
 	
 		/* make it a bitmap */
 		HNoPurge(SICNHdl);
@@ -725,7 +725,7 @@ static void DrawEraseScrollArrow(Rect *menuRect, short arrow, Boolean draw)
 		HLock((Handle)SICNHdl);
 		bm.baseAddr = (Ptr) (*SICNHdl + (32 * (sicnIndex-1)));
 		const BitMap *gpPortBits = GetPortBitMapForCopyBits(gp);
-		CopyBits(&bm, gpPortBits, &bm.bounds, &sicnRect, srcOr, (RgnHandle)NIL);
+		CopyBits(&bm, gpPortBits, &bm.bounds, &sicnRect, srcOr, (RgnHandle)NULL);
 		HUnlock((Handle)SICNHdl);
 		HPurge(SICNHdl);
 	}
@@ -782,7 +782,7 @@ static void SizeMenu(MenuHandle theMenu, Point hitPt)
 	 * before any of our menus are invoked.
 	 */
 	resH = Get1Resource('chgd', GetMenuID(theMenu));
-	if (resH==NIL) {
+	if (resH==NULL) {
 		SysBeep(10);											/* character grid rsrc missing */
 		return;
 	}
@@ -1050,7 +1050,7 @@ void GetColors(MenuHandle theMenu, short menuItem)
 		gCmdKeyColor = BlackRGB;
 	}
 	
-	/* Now override mbar defaults if titlePtr != NIL */
+	/* Now override mbar defaults if titlePtr != NULL */
 	if (titlePtr) {
 		gMenuTitleColor = titlePtr->mctRGB1;
 		gMenuBgColor = titlePtr->mctRGB4;
@@ -1058,7 +1058,7 @@ void GetColors(MenuHandle theMenu, short menuItem)
 		gCmdKeyColor = titlePtr->mctRGB3;
 	}
 	
-	/* Override defaults if itemPtr != NIL */
+	/* Override defaults if itemPtr != NULL */
 	if (itemPtr) {
 		gItemNameColor = itemPtr->mctRGB2;
 		gCmdKeyColor = itemPtr->mctRGB3;

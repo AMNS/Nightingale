@@ -1,8 +1,11 @@
 /* NLimits.h for Nightingale */
 
-/* MacOS 9's limit on filename length was 31 characters; OS X's limit is 255, but
-problems have often been reported with anything over 31 chars. FIXME: FILENAME_MAXLEN
-should be used in several more places, e.g., DoPostScript, SaveNotelist, NameMFScore. */
+/* MacOS 9's limit on filename length was 31 characters; OS X's limit is 255. In the
+early days of OS X, problems were often reported with anything over 31 chars., but not
+in recent years. However, the Carbon toolkit seems to retain the OS 9 limit, so that's
+all we can handle. --DAB, Oct. 2017. FIXME: FILENAME_MAXLEN should be used in several
+more places, e.g., DoPostScript, NameMFScore. */
+
 #define FILENAME_MAXLEN 31
 
 #define MAXSTAVES 64		/* Maximum number of staves attached to a system */

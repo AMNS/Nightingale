@@ -17,11 +17,11 @@
 //#include "CarbonCompat.h" // needed by FMData.h
 // #include "FMData.h" // pulls in FMTypes.h
 //#include "NTypes.h" // needs FMData.h above
-//#include "StringPool.h" // needed by applicationTypes
-//#include "OMSCompat.h" // needed by applicationTypes
+//#include "StringPool.h" // needed by NMiscTypes
+//#include "OMSCompat.h" // needed by NMiscTypes
 #include "MIDICompat.h"
-//#include "applicationTypes.h"
-//#include "FreeMIDIUtils.h" // needs applicationTypes
+//#include "NMiscTypes.h"
+//#include "FreeMIDIUtils.h" // needs NMiscTypes
 //#include "CarbonTemplates.h"
 //
 //#include "OpcodeNightingaleDefs.h"
@@ -87,7 +87,7 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 //#include "StandardFile.h"
 #endif
 
-#include "applicationTypes.h"
+#include "NMiscTypes.h"
 
 /* Other Nightingale headers */
 
@@ -110,7 +110,7 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 #include "DynamicPopUp.h"
 #include "EndianUtils.h"
 #include "EssentialTools.h"
-#include "FileInput.h"
+#include "InternalInput.h"
 #include "File.h"
 #include "GRBeam.h"
 #include "Heaps.h"

@@ -108,7 +108,7 @@ typedef void (*NoMemoryFunc)(OSErr err);
 
 /*--------------------------------------
 	Declare an out-of-memory handler and the error code to pass to it.  If the
-	ErrorFunc argument is non-NIL, it will be called by every routine that delivers
+	ErrorFunc argument is non-NULL, it will be called by every routine that delivers
 	a StringRef value of -1.  Delivers the old value.
 																							*/
 	NoMemoryFunc SetNoStringMemoryHandler(NoMemoryFunc func, OSErr err);

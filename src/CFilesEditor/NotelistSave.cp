@@ -1,11 +1,11 @@
 /* NotelistSave.c for Nightingale - write Notelist file */
 
-/* Besides doing something, useful, this file is intended as a model for user-
-written functions. Hence, (1) the overly-generic name, and (2) the exceptionally
+/* Besides doing something useful, this file is intended as a model for user-written
+written functions. Hence, (1) the overly-generic name, and (2) the exceptionally detailed
 detailed comments that refer to what "you" might do.
 
-NB: The compiled-in English words are not an internationalization problem, since
-the Notelist format should not change with locale. */
+NB: The compiled-in English words are not an internationalization problem, since the
+Notelist format should not change with locale. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -19,8 +19,8 @@ the Notelist format should not change with locale. */
 #include "Nightingale.appl.h"
 #include "Notelist.h"
 
-static short fRefNum;					/* ID of currently open file */
-static OSErr errCode;					/* Latest report from the front */
+static short fRefNum;						/* ID of currently open file */
+static OSErr errCode;						/* Latest report from the front */
 static Boolean firstKeySig, firstClef;
 
 OSErr WriteLine(void);
@@ -55,13 +55,13 @@ Beam			B v=%d npt=%d count=%d
 Comment			% (anything)
 
 The only forms of text included now are GRStrings and GRLyrics.
-NB: the current (5.8b3) version of Open Notelist ignores Beam lines.
+NB: the current (Nightingale 5.8) version of Open Notelist ignores Beam lines.
 
-CER-12.02.2002: fgets called by ReadLine [FileInput.c] reads to a \n. The sprintf
+CER-12.02.2002: fgets called by ReadLine [InternalInput.c] reads to a \n. The sprintf
 here was writing to a \r. The MSL handles platform conversion of special chars
 (in this case, line-ending chars) but the read & write functions have to read
-what they write and write what they are going to read. Thus, changing
-sprintf to write a \n here. */
+what they write and write what they are going to read. Thus, changing sprintf to
+write a \n here. */
 
 /* ------------------------------------------------------------------------- WriteLine -- */
 
@@ -95,17 +95,19 @@ static Boolean ProcessNRGR(
 				Boolean modVals 			/* Write <data> values of modifiers? */
 				)
 {
-	char rCode, mCode; PANOTE aNote; PAGRNOTE aGRNote;
+	char rCode, mCode;
+	PANOTE aNote;  PAGRNOTE aGRNote;
 	short userVoice, np, i, effAcc;
-	LINK thePartL, aModNRL; PAMODNR aModNR;
+	LINK thePartL, aModNRL;
+	PAMODNR aModNR;
 	LINK firstSyncL, bNoteL;
 	
 	/* Handle notes and rests */
 	
 	if (SyncTYPE(syncL)) {
 		rCode = (NoteREST(aNoteL)? REST_CHAR : NOTE_CHAR);
-		if (NoteINCHORD(aNoteL)) mCode = (MainNote(aNoteL)? '+' : '-');
-		else							 mCode = '.';
+		if (NoteINCHORD(aNoteL))	mCode = (MainNote(aNoteL)? '+' : '-');
+		else						mCode = '.';
 		aNote = GetPANOTE(aNoteL);
 		if (!Int2UserVoice(doc, aNote->voice, &userVoice, &thePartL))
 			return False;
@@ -160,8 +162,8 @@ static Boolean ProcessNRGR(
 	/* Handle grace notes */
 	
 	else if (GRSyncTYPE(syncL)) {
-		if (GRNoteINCHORD(aNoteL)) mCode = (GRMainNote(aNoteL)? '+' : '-');
-		else								mCode = '.';
+		if (GRNoteINCHORD(aNoteL))	mCode = (GRMainNote(aNoteL)? '+' : '-');
+		else						mCode = '.';
 		aGRNote = GetPAGRNOTE(aNoteL);
 		if (!Int2UserVoice(doc, aGRNote->voice, &userVoice, &thePartL))
 			return False;
@@ -285,7 +287,7 @@ Returns True normally, False if there's a problem. */
 
 static Boolean ProcessDynamic(Document */*doc*/, LINK dynamL)
 {
-	LINK aDynamicL; PADYNAMIC aDynamic;
+	LINK aDynamicL;  PADYNAMIC aDynamic;
 	
 	/* Dynamics are unique: they have exactly one subobject. */
 	
@@ -304,9 +306,11 @@ and ignores the other subtypes. Returns True normally, False if there's a proble
 
 static Boolean ProcessGraphic(Document *doc, LINK graphicL)
 {
-	char typeCode, styleCode; short userVoice, np; LINK thePartL, aGraphicL;
-	PGRAPHIC pGraphic; PAGRAPHIC aGraphic;
-	StringOffset theStrOffset; StringPtr pStr; char str[256];
+	char typeCode, styleCode;  short userVoice, np;
+	LINK thePartL, aGraphicL;
+	PGRAPHIC pGraphic;  PAGRAPHIC aGraphic;
+	StringOffset theStrOffset;  StringPtr pStr;
+	char str[256];
 	
 	if (GraphicSubType(graphicL)!=GRString && GraphicSubType(graphicL)!=GRLyric)
 		return True;
@@ -360,8 +364,8 @@ simply writes it out. Returns True normally, False if there's a problem. */
 
 static Boolean ProcessTempo(Document *doc, LINK tempoL)
 {
-	PTEMPO p; char noteChar;
-	char tempoStr[255];
+	PTEMPO p;
+	char noteChar, tempoStr[255];
 	
 PushLock(OBJheap);
  	p = GetPTEMPO(tempoL);
@@ -451,7 +455,8 @@ comes from. */
 static Boolean WriteScoreHeader(Document *doc, LINK startL)
 {
 	char filename[256];
-	LINK partL, prevMeasL; PPARTINFO pPart;
+	LINK partL, prevMeasL;
+	PPARTINFO pPart;
 	short startMeas;
 
 	if (doc->named) {
@@ -489,7 +494,7 @@ show to users. Return value is the number of lines in the Notelist file. */
 static unsigned short ProcessScore(
 						Document *doc,
 						short voice,			/* voice number, or ANYONE to include all voices */
-						Boolean skeleton,		/* True=skip everything but Measures and Timesigs */
+						Boolean skeleton,		/* True=skip everything but "structural" objects */
 						Boolean rests			/* True=include rests */
 						)
 {
@@ -652,10 +657,11 @@ Error:
 }
 
 
-#define SKELETON False		/* Skip all but Measure and Timesig objs? For, e.g., comparing
-								versions of the same score. */
+/* For special purposes, e.g., comparing versions of the same score, SKELETON allows
+leaving non-"structural" objects (as of v. 5.8b4, Measures, Timesigs, and Tempos) out of
+the notelist. */
 
-static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
+#define SKELETON False	/* Omit non-structural objects? */
 
 #ifdef TARGET_API_MAC_CARBON_FILEIO
 
@@ -674,7 +680,7 @@ void SaveNotelist(
 	CFStringRef	nlFileName;
 	NSClientData nsData;
 	OSStatus anErr=noErr;
-		
+	
 	/*
 	 *	Create a default notelist filename by looking up the suffix string and appending
 	 *	it to the current name.  If the current name is so long that there would not
@@ -687,8 +693,8 @@ void SaveNotelist(
 
 	/* Get current name and its length, and truncate name to make room for suffix */
 	
-	if (doc->named) Pstrcpy((StringPtr)filename, (StringPtr)doc->name);
-	else				 GetIndString(filename, MiscStringsID, 1);		/* "Untitled" */
+	if (doc->named)	Pstrcpy((StringPtr)filename, (StringPtr)doc->name);
+	else			GetIndString(filename, MiscStringsID, 1);		/* "Untitled" */
 	len = *(StringPtr)filename;
 	if (len >= (FILENAME_MAXLEN-suffixLen)) len = (FILENAME_MAXLEN-suffixLen);
 	
@@ -729,6 +735,8 @@ void SaveNotelist(
 }
 
 #else
+
+static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
 
 /* NB: While the <voice> and <rests> parameters are currently ignored, handling them
 should simply be a matter of passing them on to ProcessScore. */
