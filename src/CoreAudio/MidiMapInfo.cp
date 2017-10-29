@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -13,10 +13,9 @@
 
 #include "MidiMap.h"
 
-/* ----------------------------------------------------------------  MidiMapInfo -- */
+/* ----------------------------------------------------------------------  MidiMapInfo -- */
 
-/* -------------------------------------------------------------------------------- */
-/* Constants */
+/* Constants and module globals */
 
 #define OK_DI 1
 #define CANCEL_DI 2
@@ -26,18 +25,17 @@
 
 #define LEADING 11			/* Vertical dist. between lines displayed (pixels) */
 
-/* -------------------------------------------------------------------------------- */
-/* Module globals */
-
 static Rect textRect;
 static short linenum;
-static char *s;
+static char *str;
 
-/* -------------------------------------------------------------------------------- */
 /* Local Prototypes */
 
 static void SIDrawLine(char *);
 static Boolean GetMidiMapFile(Str255 macfName, NSClientDataPtr pNSD);
+
+
+/* -------------------------------------------------------------------------------------- */
 
 /* Draw the specified C string on the next line in Score Info dialog */
 
@@ -72,16 +70,16 @@ static Boolean GetMidiMapFile(Str255 macfName, NSClientDataPtr pNSD)
  * Draw text border 
  */
 	
-static void FrameTextRect(Rect *textRect) 
+static void FrameTextRect(Rect *txRect) 
 {
 	PenState pnState;
 	GetPenState(&pnState);
 	PenPat(NGetQDGlobalsGray());
-	FrameRect(textRect);
+	FrameRect(txRect);
 	SetPenState(&pnState);	
 }
 
-/* ------------------------------------------------------------ PrintMidiMap -- */
+/* ------------------------------------------------------------------------- PrintMidiMap -- */
 /* Print the array of note list mappings */
 
 static void PrintMidiMap(Document *doc)
@@ -89,8 +87,8 @@ static void PrintMidiMap(Document *doc)
 	char fmtStr[256];
 	
 	GetIndCString(fmtStr, MIDIMAPINFO_STRS, 7);   		/* "        A system contains %d staves." */
-	sprintf(s, fmtStr);
-	SIDrawLine(s);
+	sprintf(str, fmtStr);
+	SIDrawLine(str);
 	
 	GetIndCString(fmtStr, MIDIMAPINFO_STRS, 8);   		/* "        A system contains %d staves." */
 	PMMMidiMap pMidiMap = GetDocMidiMap(doc); 
@@ -98,12 +96,12 @@ static void PrintMidiMap(Document *doc)
 	short i=0, j=0;
 	
 	for ( ; j < 32; j++, i+=4) {		
-		sprintf(s, fmtStr, i, pMidiMap->noteNumMap[i], 
+		sprintf(str, fmtStr, i, pMidiMap->noteNumMap[i], 
 								 i + 1, pMidiMap->noteNumMap[i+1],
 								 i + 2, pMidiMap->noteNumMap[i+2],
 								 i + 3,  pMidiMap->noteNumMap[i+3]);
 								 
-		SIDrawLine(s);
+		SIDrawLine(str);
 	}
 	ReleaseDocMidiMap(doc);
 }
@@ -115,55 +113,55 @@ static void DrawMidiMapText(Document *doc)
 	char fmtStr[256];
 	
 	linenum = 1;
-	GetIndCString(fmtStr, MIDIMAPINFO_STRS, 1);   			/* "SCORE INFORMATION:" */
-	sprintf(s, fmtStr);
-	SIDrawLine(s);
+	GetIndCString(fmtStr, MIDIMAPINFO_STRS, 1);					/* "MIDI Map Information" */
+	sprintf(str, fmtStr);
+	SIDrawLine(str);
 	if (doc) {
 		if (HasMidiMap(doc)) {
 			Str255 fName;
 			FSSpec *fsSpec = (FSSpec *)*doc->midiMapFSSpecHdl;
 			Pstrcpy(fName, fsSpec->name);
-			GetIndCString(fmtStr, MIDIMAPINFO_STRS, 4);   		/* "        A system contains %d staves." */
-			sprintf(s, fmtStr, PtoCstr(fName));
-			SIDrawLine(s);
+			GetIndCString(fmtStr, MIDIMAPINFO_STRS, 4);   		/* "    MIDI Map File: %s" */
+			sprintf(str, fmtStr, PtoCstr(fName));
+			SIDrawLine(str);
 			
 			patchNum = GetDocMidiMapPatch(doc);
 			if (patchNum < 0)  {
-				GetIndCString(fmtStr, MIDIMAPINFO_STRS, 6);   		/* "        A system contains %d staves." */
-				sprintf(s, fmtStr, doc->name);
-				SIDrawLine(s);
+				GetIndCString(fmtStr, MIDIMAPINFO_STRS, 6);   	/* "    No MIDI patch for score %s" */
+				sprintf(str, fmtStr, doc->name);
+				SIDrawLine(str);
 			}
 			else {
-				GetIndCString(fmtStr, MIDIMAPINFO_STRS, 2);   		/* "    Patch %d " */
-				sprintf(s, fmtStr, patchNum);
-				SIDrawLine(s);				
+				GetIndCString(fmtStr, MIDIMAPINFO_STRS, 2);   	/* "    Patch:  %d" */
+				sprintf(str, fmtStr, patchNum);
+				SIDrawLine(str);				
 			}
 			
 			PrintMidiMap(doc);
 		}
 		else {
-			GetIndCString(fmtStr, MIDIMAPINFO_STRS, 5);   		/* "        A system contains %d staves." */
-			sprintf(s, fmtStr, doc->name);
-			SIDrawLine(s);
+			GetIndCString(fmtStr, MIDIMAPINFO_STRS, 5);   		/* "    No MIDI Map for document %s." */
+			sprintf(str, fmtStr, doc->name);
+			SIDrawLine(str);
 		}
 	}
 	else {
-		GetIndCString(fmtStr, SCOREINFO_STRS, 7);   			/* "    No score is open." */
-		sprintf(s, fmtStr);
-		SIDrawLine(s);
+		GetIndCString(fmtStr, SCOREINFO_STRS, 7);   			/* "    Map:" */
+		sprintf(str, fmtStr);
+		SIDrawLine(str);
 	}
 
 }
 
-static void EraseMidiMapText(Rect *textRect) 
+static void EraseMidiMapText(Rect *txRect)
 {
-	EraseRect(textRect);
+	EraseRect(txRect);
 }
 
-static void RedrawMidiMapText(Document *doc, Rect *textRect) 
+static void RedrawMidiMapText(Document *doc, Rect *txRect) 
 {
-	FrameTextRect(textRect);
-	EraseMidiMapText(textRect);
+	FrameTextRect(txRect);
+	EraseMidiMapText(txRect);
 	DrawMidiMapText(doc);
 }
 
@@ -182,8 +180,8 @@ void MidiMapInfo()
 			return;
 		}
 		 
-		s = (char *)NewPtr(256);
-		if (!GoodNewPtr((Ptr)s))
+		str = (char *)NewPtr(256);
+		if (!GoodNewPtr((Ptr)str))
 			{ OutOfMemory(256L); return; }
 
 		GetPort(&oldPort);
@@ -253,11 +251,11 @@ void MidiMapInfo()
 		}
 		HideWindow(GetDialogWindow(dialogp));
 
-		/* If user OK'd dialog and changed the comment, save the change. */
+		/* If user OK'd dialog and changed the comment, save the change. FIXME: NOPE! */
 		if (ditem==OK_DI) {
 		}
 		
-		DisposePtr((Ptr)s);
+		DisposePtr((Ptr)str);
 		DisposeModalFilterUPP(filterUPP);
 		DisposeDialog(dialogp);										/* Free heap space */
 		SetPort(oldPort);

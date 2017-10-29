@@ -2214,3 +2214,13 @@ they should be converted to UTF-8:
 
 The vast majority of .h's seem to be in ISO Latin-1, etc., not UTF-8; these should also
 be converted, but it's less likely to cause problems.
+
+-------------------------------------------------------------------------------
+
+27 Oct.
+
+In DanceNotesDontPlayBug.ngl, play from start of m. 7 or earlier => the notes on the 3rd
+eighth usually sound for a _very_ short time or not at all! Very occasionally they
+sound for the correct duration. They're the same pitches as the notes on the 2nd eighth,
+but with voices swapped. Play duration of notes on the 2nd eighth is 95% of written (228
+ticks); shorten them to 83% (199 ticks) or less => all is well!

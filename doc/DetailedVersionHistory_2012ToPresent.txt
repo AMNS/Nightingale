@@ -1774,3 +1774,13 @@ Minor cleanup; change all references to NIL to NULL, get rid of long-obsolete MI
 cruft, avoid a possible uninitialized variable, etc. Affects Application.h,
 InternalInput.h (renamed from FileInput.h), NMiscTypes.h (renamed from
 applicationTypes.h), NTypes.h; CarbonStubs, CoreMIDIUtils, NotelistSave, TEField.
+
+-------------------------------------------------------------------------------
+
+25 - 28 Oct.
+
+Change instances of the shift and control keys together displaying additional information
+in the log to our standard of shift and option keys. Affects DrawHighLevel, MIDIFOpen,
+MIDIFSave.
+
+Minor cleanup. Affects DrawHighLevel, GRBeam, MidiMap, MidiMapInfo, MIDIPlay.

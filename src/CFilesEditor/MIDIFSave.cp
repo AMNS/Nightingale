@@ -17,7 +17,7 @@ in MIDIPlay.c.
 
 //#include "MidiGeneral.h"
 
-#define DBG (ShiftKeyDown() && ControlKeyDown())
+#define DBG (ShiftKeyDown() && OptionKeyDown())
 
 static OSErr fRefNum;						/* ID of currently open file */
 static OSErr errCode;						/* Latest report from the front */

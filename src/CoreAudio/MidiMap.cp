@@ -1,17 +1,11 @@
-/***************************************************************************
-*	FILE:	MidiMap.c
-*	PROJ:	Nightingale
-*	DESC:	Routines for creating a native Nightingale file from a temporary
-*			data structure representing a Nightingale Notelist file.
-*			Written by John Gibson with help from Tim Crawford.
-***************************************************************************/
+/* MidiMap.c for Nightingale */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -23,7 +17,7 @@
 #include "MidiMap.h"
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Constants */
 
 #define MMLINELEN	256			/* Aside from lyrics, the longest line we've seen is 61 chars. */
@@ -33,10 +27,10 @@
 #define MIN_NOTENUM	1
 
 #undef MMPrintMidiMap
-#define MMPrintMidiMap	1		// Override setting in MidiMap.h - change June 1, 2011 1 to 0
+#define MMPrintMidiMap	1		/* Override setting in MidiMap.h - change June 1, 2011 1 to 0 */
 
-/* --------------------------------------------------------------------------------- */
-/* Local prototypes */
+/* -------------------------------------------------------------------------------------- */
+/* Local prototypes and module globals*/
 
 static Boolean ParseMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec);
 //static FILE *FSpOpenInputFile(Str255 macfName, FSSpec *fsSpec);
@@ -44,17 +38,11 @@ static Boolean ProcessMidiMap(Document *doc, FILE *f);
 static Boolean NewMidiMap(Document *doc);
 static void PrintMidiMap(Document *doc);
 
-
-/* --------------------------------------------------------------------------------- */
-/* Module globals */
-
 static long		gMMLineCount = 0L;
 static char		gMMInBuf[MMLINELEN];
 
 
-/* --------------------------------------------------------------------------------- */
-
-/* ------------------------------------------------------------- OpenMidiMapFile -- */
+/* ------------------------------------------------------------------- OpenMidiMapFile -- */
 /* Top level, public function. Returns True on success, False if error. */
 
 Boolean OpenMidiMapFile(Document *doc, Str255 fileName, NSClientDataPtr pNSD)
@@ -69,7 +57,8 @@ Boolean OpenMidiMapFile(Document *doc, Str255 fileName, NSClientDataPtr pNSD)
 
 
 /* ------------------------------------------------------------- OpenMidiMapFile -- */
-/* Top level, public function. Returns True on success, False if error. */
+/* Top level, public function. Returns True on success, False if error. FIXME: don't
+give multiple functions the same name: that's a C++ feature not in C99!  */
 
 Boolean OpenMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
 {
@@ -80,7 +69,8 @@ Boolean OpenMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
 }
 
 /* ------------------------------------------------------------- OpenMidiMapFile -- */
-/* Top level, public function. Returns True on success, False if error. */
+/* Top level, public function. Returns True on success, False if error. FIXME: don't
+give multiple functions the same name: that's a C++ feature not in C99! */
 
 Boolean OpenMidiMapFile(Document *doc, FSSpec *fsSpec)
 {
@@ -92,19 +82,19 @@ Boolean OpenMidiMapFile(Document *doc, FSSpec *fsSpec)
 	return result;
 }
 
-/* ------------------------------------------------------------- ParseMidiMapFile -- */
+/* ------------------------------------------------------------------ ParseMidiMapFile -- */
 /* The Midi Map parsing function. Returns True on success, False if error. */
 
 static Boolean ParseMidiMapFile(Document *doc, Str255 fileName, FSSpec *fsSpec)
 {
 	Boolean		ok, printMidiMap = True;
-	FILE			*f;
+	FILE		*f;
 
 	f = FSpOpenInputFile(fileName, fsSpec);
 	if (f==NULL) return False;
 		
 	ok = ProcessMidiMap(doc, f);
-	CloseInputFile(f);													/* done with input file */
+	CloseInputFile(f);									/* done with input file */
 	if (!ok) goto MidiMapErr;
 
 #if MMPrintMidiMap
@@ -118,10 +108,10 @@ MidiMapErr:
 	return False;
 }
 
-static Boolean ExtractVal(char	*str,				/* source string */
-								  long	*val)				/* pass back extracted value */
+static Boolean ExtractVal(char	*str,					/* source string */
+								  long	*val)			/* pass back extracted value */
 {
-	short ans = sscanf(str, "%ld", val);					/* read numerical value in string as a long */
+	short ans = sscanf(str, "%ld", val);				/* read numerical value in string as a long */
 	if (ans > 0)
 		return True;
 	*val = 0L;
@@ -129,8 +119,8 @@ static Boolean ExtractVal(char	*str,				/* source string */
 }
 
 
-/* ------------------------------------------------------------ ProcessMidiMap -- */
-/* Process the midi map to create the array of note list mappings */
+/* -------------------------------------------------------------------- ProcessMidiMap -- */
+/* Process the MIDI map to create the array of note list mappings */
 
 static Boolean ProcessMidiMap(Document *doc, FILE *f)
 {
@@ -176,7 +166,7 @@ static Boolean ProcessMidiMap(Document *doc, FILE *f)
 	return ok;
 }
 
-/* ------------------------------------------------------------ InstallMidiMap -- */
+/* -------------------------------------------------------------------- InstallMidiMap -- */
 /* Install the fsSpec of the midi map in the document */
 
 void InstallMidiMap(Document *doc, Handle fsSpecHdl)
@@ -185,7 +175,8 @@ void InstallMidiMap(Document *doc, Handle fsSpecHdl)
 }
 
 /* ------------------------------------------------------------ InstallMidiMap -- */
-/* Install the fsSpec of the midi map in the document */
+/* Install the fsSpec of the midi map in the document. FIXME: don't
+give multiple functions the same name: that's a C++ feature not in C99! */
 
 void InstallMidiMap(Document *doc, FSSpec *fsSpec)
 {
@@ -197,7 +188,7 @@ void InstallMidiMap(Document *doc, FSSpec *fsSpec)
 	}
 }
 
-/* ------------------------------------------------------------ ClearMidiMap -- */
+/* ---------------------------------------------------------------------- ClearMidiMap -- */
 /* Clear the fsSpec of the midi map from the document */
 
 void ClearMidiMap(Document *doc)
@@ -205,7 +196,7 @@ void ClearMidiMap(Document *doc)
 	doc->midiMapFSSpecHdl = NULL;	
 }
 
-/* ------------------------------------------------------------ HasMidiMap -- */
+/* ------------------------------------------------------------------------ HasMidiMap -- */
 /* Return True if the document has an installed Midi Map */
 
 Boolean HasMidiMap(Document *doc)
@@ -213,7 +204,7 @@ Boolean HasMidiMap(Document *doc)
 	return(doc->midiMapFSSpecHdl != NULL);	
 }
 
-/* ------------------------------------------------------------ HasMidiMap -- */
+/* ------------------------------------------------------------------------ HasMidiMap -- */
 /* Return True if the given midiMap fsSpec is different from the document's
  * installed Midi Map 
  */
@@ -227,6 +218,7 @@ Boolean ChangedMidiMap(Document *doc, FSSpec *fsSpec)
 	Boolean changed = !EqualFSSpec((FSSpec *)*doc->midiMapFSSpecHdl, fsSpec);
 	return(changed);	
 }
+
 
 FSSpec *GetMidiMapFSSpec(Document *doc) 
 {
@@ -247,7 +239,7 @@ void ReleaseMidiMapFSSpec(Document *doc)
 }
 
 
-/* ------------------------------------------------------------ SaveMidiMap -- */
+/* ----------------------------------------------------------------------- SaveMidiMap -- */
 /* Save the document's installed Midi Map.
  *	Return True if the operation succeeded, False if it failed. 
  */
@@ -299,7 +291,7 @@ Boolean SaveMidiMap(Document *doc)
 	return ok;
 }
 	
-/* ------------------------------------------------------------GetMidiMap -- */
+/* -------------------------------------------------------------------------GetMidiMap -- */
 /* Get the Midi Map stored in the document's resource fork.
  */
 
@@ -312,7 +304,7 @@ void GetMidiMap(Document *doc, FSSpec *pfsSpec)
 		doc->midiMapFSSpecHdl = NULL;
 	}
 	else {
-		FSpOpenResFile(pfsSpec, fsRdWrPerm);	/* Open the file */	
+		FSpOpenResFile(pfsSpec, fsRdWrPerm);		/* Open the file */	
 		
 		err = ResError();
 		if (err!=noErr) {
@@ -345,7 +337,7 @@ void GetMidiMap(Document *doc, FSSpec *pfsSpec)
 }
 
 
-/* ------------------------------------------------------------ NewMidiMap -- */
+/* ------------------------------------------------------------------------ NewMidiMap -- */
 /* Get the Midi Map stored in the document's resource fork.
  * Return True if the operation succeeded.
  */
@@ -412,7 +404,7 @@ short GetDocMidiMapPatch(Document *doc)
 	return (pMidiMap->midiPatch);
 }
 
-/* ------------------------------------------------------------ GetMappedNoteNum -- */
+/* ------------------------------------------------------------------ GetMappedNoteNum -- */
 /* Return the mapped noteNum corresponding to noteNum for the document's map.
  */
  
@@ -435,13 +427,9 @@ short GetMappedNoteNum(Document *doc, short noteNum)
 	return mappedNum;
 }
  
-/* ------------------------------------------------------------ PrintMidiMap -- */
+/* ---------------------------------------------------------------------- PrintMidiMap -- */
 /* Print the array of note list mappings */
 
 static void PrintMidiMap(Document *doc)
 {
-	}
-
-
-
-
+}

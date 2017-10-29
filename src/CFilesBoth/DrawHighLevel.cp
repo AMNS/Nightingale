@@ -1,15 +1,15 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	DrawHighLevel.c
 *	PROJ:	Nightingale
 *	DESC:	Routines for drawing object-list ranges
-***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -24,7 +24,7 @@ static void HiliteScoreRange(Document *, LINK, LINK, CONTEXT [], Rect *, Rect *)
 static void SetMusicPort(Document *);
 
 
-/* ---------------------------------------------------------------- FrameSysRect -- */
+/* ---------------------------------------------------------------------- FrameSysRect -- */
 
 void FrameSysRect(
 			Rect *r,
@@ -38,36 +38,36 @@ void FrameSysRect(
 }
 
 
-/* -------------------------------------------------------------- DrawPageContent -- */
+/* ------------------------------------------------------------------- DrawPageContent -- */
 /* Draw all objects in the specified page. */
 
 void DrawPageContent(Document *doc, short sheetNum, Rect *paper, Rect *updateRect)
 {
-	PPAGE pPage; LINK	pageL;
+	PPAGE pPage;  LINK pageL;
 	
-	if (pageL = LSSearch(doc->headL, PAGEtype, sheetNum, False, False)) {
+	pageL = LSSearch(doc->headL, PAGEtype, sheetNum, False, False);
+	if (pageL) {
 		pPage = GetPPAGE(pageL);
 		DrawRange(doc, pageL, pPage->rPage ? pPage->rPage : doc->tailL, paper, updateRect);
 	}
 }
 
-/* ------------------------------------------------------------- DrawMasterSystem -- */
+/* ------------------------------------------------------------------ DrawMasterSystem -- */
 /* Draw the objects in the given range, which should be the Master Page system. If
 drawing the system the first time, the page object needs to be included in the
 range to be drawn. */
 
 static void DrawMasterSystem(Document *doc, LINK fromL, LINK toL, CONTEXT context[],
-Rect *paper, Rect *updateRect, short sysNum)
+								Rect *paper, Rect *updateRect, short sysNum)
 {
-	LINK pL; Rect r, result, paperUpdate;
+	LINK pL;
+	Rect r, result, paperUpdate;
 	PSYSTEM pSystem;
 	short ground;
 
 	paperUpdate = *updateRect;
 	OffsetRect(&paperUpdate, -paper->left, -paper->top);
-	ground = (sysNum==1? TOPSYS_STAFF :
-					(sysNum==2? SECONDSYS_STAFF :
-						OTHERSYS_STAFF ));
+	ground = (sysNum==1? TOPSYS_STAFF : (sysNum==2? SECONDSYS_STAFF : OTHERSYS_STAFF ));
 	
 	for (pL=fromL; pL!=toL; pL=RightLINK(pL))
 		switch (ObjLType(pL)) {
@@ -104,7 +104,7 @@ Rect *paper, Rect *updateRect, short sysNum)
 static void DrawMasterRange(Document *doc, LINK /*fromL*/, LINK /*toL*/, CONTEXT context[],
 										Rect *paper, Rect *updateRect)
 {
-	LINK sysL, staffL; DRect oldSysRect; Rect r;
+	LINK sysL, staffL;  DRect oldSysRect;  Rect r;
 	DDIST sysHeight, sysOffset;
 	short sysNum=0;
 
@@ -355,7 +355,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 	paperUpdate = *updateRect;
 	OffsetRect(&paperUpdate, -paper->left, -paper->top);
 	
-	if (ShiftKeyDown() && ControlKeyDown())
+	if (ShiftKeyDown() && OptionKeyDown())
 		LogPrintf(LOG_DEBUG, "DrawScoreRange: fromL=%u toL=%u outputTo=%d\n", fromL, toL, outputTo);
 	
 	for (pL=fromL; pL!=toL; pL=RightLINK(pL))
@@ -539,7 +539,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 				
 				if (VISIBLE(pL) && SectRect(&r,updateRect,&result) || outputTo!=toScreen)
 					ContextSystem(pL, context);
-				else { 															/* Skip ahead to next system: this one's not visible */
+				else { 												/* Skip ahead to next system: this one's not visible */
 					pL = LinkRSYS(pL);
 					if (pL==NILINK || IsAfter(toL, pL)) pL = toL;	/* Rewind for increment part of for loop above */
 					pL = LeftLINK(pL);
@@ -673,7 +673,7 @@ static void HiliteScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT contex
 }
 
 
-/* ---------------------------------------------------------------- SetMusicPort -- */
+/* ---------------------------------------------------------------------- SetMusicPort -- */
 /* Set general characteristics of the port, presumably in preparation for drawing
 the score. Set the font, the font size, and the magnification globals, and build the
 charRect cache. NB: if staves are not all the same size, this approach will have
@@ -692,7 +692,7 @@ static void SetMusicPort(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ DrawRange -- */
+/* ------------------------------------------------------------------------- DrawRange -- */
 /*	Draw all objects and subobjects in the specified range that
 	1. are in measures that overlap the updateRect, and
 	2. are supposed to be visible, i.e., have their "visible" flags set.

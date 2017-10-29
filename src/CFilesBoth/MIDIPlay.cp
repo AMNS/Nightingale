@@ -1,15 +1,15 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	MIDIPlay.c
 *	PROJ:	Nightingale
 *	DESC:	MIDI playback routines
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -35,7 +35,7 @@ much more powerful, and slightly less ancient (sigh)."
 FIXME: The old code should be removed!  --DAB */
 
 
-/* ================================== LOCAL STUFF ================================== */
+/* ==================================== LOCAL STUFF ==================================== */
 
 static long		pageTurnTOffset;
 
@@ -44,6 +44,7 @@ static short	DoGeneralAlert(unsigned char *str);
 static void		PlayMessage(Document *, LINK, short);
 static Boolean	HiliteSyncRect(Document *doc, Rect *syncRect, Rect *rPaper, Boolean scroll);
 static long		ScaleDurForVariableSpeed(long dur);
+static void		DisplayNotesToPlay(Document *doc, LINK fromL, LINK toL, Boolean selectedOnly);
 
 #define CMDEBUG 0
 #define TDEBUG 1
@@ -71,7 +72,7 @@ static short DoGeneralAlert(unsigned char *str)
 }
 
 
-/* ------------------------------------------------------------------ PlayMessage -- */
+/* ----------------------------------------------------------------------- PlayMessage -- */
 /* Write a message into the message area saying what measure is playing; if not
 playing at the "correct" (marked) tempo, what the relative speed is; and, if a part
 is muted, saying that. If <pL> is NILINK, use <measNum> as measure no., else get it
@@ -107,7 +108,7 @@ static void PlayMessage(Document *doc, LINK pL, short measNum)
 }
 
 
-/* --------------------------------------------------------------- HiliteSyncRect -- */
+/* -------------------------------------------------------------------- HiliteSyncRect -- */
 /* Given a rectange, r, in paper-relative coordinates, hilite it in the current
 window.  If it's not in view, "scroll" so its page is in the window (though r might
 still not be in the window!) and return True; else return False.
@@ -155,7 +156,7 @@ static Boolean HiliteSyncRect(
 }
 
 
-/* -------------------------------------------------------- AddBarlines functions -- */
+/* ------------------------------------------------------------- AddBarlines functions -- */
 /* For the "add barlines while playing" feature, build up a list of places to add
 single barlines (actually Measure objects):
 	InitAddBarlines()			Initialize these functions
@@ -272,7 +273,7 @@ Boolean CloseAddBarlines(Document *doc)
 }
 
 
-/* ------------------------------------------------------------ SelAndHiliteSync -- */
+/* ------------------------------------------------------------------ SelAndHiliteSync -- */
 /* Select and hilite the given Sync, and set the document's scaleCenter (for
 magnification) to it. */
 
@@ -295,7 +296,7 @@ static void SelAndHiliteSync(Document *doc, LINK syncL)
 }
 
 
-/* ----------------------------------------------------------------- CheckButton -- */
+/* ----------------------------------------------------------------------- CheckButton -- */
 
 static Boolean CheckButton(void);
 static Boolean CheckButton()
@@ -318,7 +319,7 @@ long kStartTime[MAXKEEPTIMES];
 short nkt;
 #endif
 
-/* ---------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 static void SetPartPatch(short partn, Byte partPatch[], Byte partChannel[], Byte patchNum)
 {
@@ -344,7 +345,7 @@ static Byte cmPanSetting[MAXSTAVES + 1];
 static Boolean cmAllSustainOn[MAXSTAVES + 1];
 static Byte cmAllPanSetting[MAXSTAVES + 1];
 
-/* ----------------------------------------------------------- SendMIDIPatchChange -- */
+/* --------------------------------------------------------------- SendMIDIPatchChange -- */
 /* Steps:
 
 	1. Get the Graphic
@@ -671,11 +672,8 @@ Byte GetMidiControlVal(LINK pL)
 }
 
 
-#define ERR_STOPNOTE -1000000
-#define ERR_PLAYNOTE -1000001
+/* --------------------------------------------------------------- PlaySequence et al. -- */
 
-
-/* ----------------------------------------------------------------- ScaleDuration -- */
 /* Scale the given real-time duration by some factor. Intended to support playback at
 "variable speed", modifying the tempi marked in the score. */
 
@@ -684,8 +682,32 @@ static long ScaleDurForVariableSpeed(long rtDur)
 	return rtDur*(100.0/playTempoPercent);
 }
 
+static void ListNotesToPlay(Document *doc, LINK fromL, LINK toL, Boolean selectedOnly)
+{
+	LINK pL, aNoteL;
+	short iVoice;
+	long playDur;
+	
+	for (pL = fromL; pL!=toL; pL = RightLINK(pL)) {
+		if (SyncTYPE(pL) && AnyNoteToPlay(doc, pL, selectedOnly)) {
+			//LogPrintf(LOG_DEBUG, "PlaySequence: pL=%u\n", pL);
+			aNoteL = FirstSubLINK(pL);
+			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
+				if (NoteToBePlayed(doc, aNoteL, selectedOnly)) {
+					iVoice = NoteVOICE(aNoteL);
+					playDur = TiedDur(doc, pL, aNoteL, selectedOnly);
+					LogPrintf(LOG_DEBUG, "PlaySequence: pL=%u voice=%d noteNum=%d playDur=%ld\n",
+								pL, iVoice, NoteNUM(aNoteL), playDur);
+					}
+			}
+		}
+	}
+}
 
-/* ----------------------------------------------------------------- PlaySequence -- */
+
+#define ERR_STOPNOTE -1000000
+#define ERR_PLAYNOTE -1000001
+
 /*	Play [fromL,toL) of the given score and, if user hits the correct keys while
 playing, add barlines.  While playing, we maintain a list of currently-playing notes,
 which we use to decide when to stop playing each note. (With the ancient MIDI Manager v.2,
@@ -851,6 +873,8 @@ void PlaySequence(
 	pageTurnTOffset = 0L;
 	StartMIDITime();
 
+	if (ShiftKeyDown() && OptionKeyDown()) ListNotesToPlay(doc, fromL, toL, selectedOnly);
+
 	/* The stored play time of the first Sync we're going to play might be any
 	 *	positive value but we want to start playing immediately, so we'll pick up
 	 *	the first Sync's play time and use it as an offset on all play times.
@@ -910,8 +934,8 @@ void PlaySequence(
 					do {
 						t = GetMIDITime(pageTurnTOffset);
 						
-						if (moveSel = UserInterruptAndSel()) goto done;	/* Check for Stop/Select */
-						if (moveSel = CheckButton()) goto done;			/* Check for Stop/Select */
+						if ((moveSel = UserInterruptAndSel())) goto done;	/* Check for Stop/Select */
+						if ((moveSel = CheckButton())) goto done;			/* Check for Stop/Select */
 						if (UserInterrupt()) goto done;					/* Check for Cancel */
 						
 						GetNextEvent(keyDownMask, &theEvent);			/* Not Wait/GetNextEvent so we do as little as possible */
@@ -1076,8 +1100,8 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 
 	if (useWhichMIDI==MIDIDR_CM) {
 		while (!CMCheckEventList(pageTurnTOffset)) {			/* Wait til eventList[] empty... */
-			if (moveSel = UserInterruptAndSel()) goto done;		/* Check for Stop/Select */
-			if (moveSel = CheckButton()) goto done;				/* Check for Stop/Select */
+			if ((moveSel = UserInterruptAndSel())) goto done;	/* Check for Stop/Select */
+			if ((moveSel = CheckButton())) goto done;			/* Check for Stop/Select */
 			if (UserInterrupt()) goto done;						/* Check for Cancel */
 
 			GetNextEvent(keyDownMask, &theEvent);
@@ -1088,8 +1112,8 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 	}
 	else {
 		while (!CheckEventList(pageTurnTOffset)) {				/* Wait til eventList[] empty... */
-			if (moveSel = UserInterruptAndSel()) goto done;		/* Check for Stop/Select */
-			if (moveSel = CheckButton()) goto done;				/* Check for Stop/Select */
+			if ((moveSel = UserInterruptAndSel())) goto done;	/* Check for Stop/Select */
+			if ((moveSel = CheckButton())) goto done;			/* Check for Stop/Select */
 			if (UserInterrupt()) goto done;						/* Check for Cancel */
 
 			GetNextEvent(keyDownMask, &theEvent);
@@ -1155,7 +1179,7 @@ done:
 }
 
 
-/* ------------------------------------------------------------------ PlayEntire -- */
+/* ------------------------------------------------------------------------ PlayEntire -- */
 /*	Play the entire score. */
 
 void PlayEntire(Document *doc)
@@ -1167,7 +1191,7 @@ void PlayEntire(Document *doc)
 }
 
 
-/* --------------------------------------------------------------- PlaySelection -- */
+/* --------------------------------------------------------------------- PlaySelection -- */
 /*	Play the current selection. */
 
 void PlaySelection(Document *doc)

@@ -67,7 +67,7 @@ Byte statusByteMF=0;				/* MIDI file track status in case of running status */
 
 /* --------------------------------------------------------------------------------- */
 
-#define DBG (ShiftKeyDown() && ControlKeyDown())
+#define DBG (ShiftKeyDown() && OptionKeyDown())
 
 #define TEMPO_WINDOW 65
 
