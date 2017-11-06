@@ -21,7 +21,8 @@ LINK CreateNonXSysBEAMSET(Document *, LINK, LINK, short, short, Boolean, Boolean
 LINK CreateBEAMSET(Document *, LINK, LINK, short, short, Boolean, short);
 void UnbeamV(Document *, LINK, LINK, short);
 Boolean UnbeamRange(Document *, LINK, LINK, short);
-void FixBeamsInRange(Document *, LINK, LINK, short, Boolean);
+void FixBeamsOnStaff(Document *, LINK, LINK, short, Boolean);
+void FixBeamsInVoice(Document *, LINK, LINK, short, Boolean);
 void RemoveBeam(Document *, LINK, short, Boolean);
 void DoBreakBeam(Document *);
 void DoFlipFractionalBeam(Document *);

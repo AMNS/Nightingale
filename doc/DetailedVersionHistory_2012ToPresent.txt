@@ -1783,4 +1783,16 @@ Change instances of the shift and control keys together displaying additional in
 in the log to our standard of shift and option keys. Affects DrawHighLevel, MIDIFOpen,
 MIDIFSave.
 
-Minor cleanup. Affects DrawHighLevel, GRBeam, MidiMap, MidiMapInfo, MIDIPlay.
+Minor cleanup. Affects Beam, DrawHighLevel, GRBeam, MidiMap, MidiMapInfo, MIDIPlay.
+
+-------------------------------------------------------------------------------
+
+31 Oct. - 5 Nov.
+
+In multivoice (>=2 voices on the staff) notation, when notes are transposed or
+respelled, don't change stem direction, but try to preserve stem length (Issue #142).
+Affects DSUtils.h, DSUtils: add IsContextMultivoice() function; Beam.h; Beam,
+PitchCmds,PitchUtils.
+
+Minor cleanup. Affects MergeUtils, MIDIPlay, PitchCmds, PitchUtils, Utility, VoiceTable.
+

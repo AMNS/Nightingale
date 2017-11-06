@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	VoiceTable.c (formerly called VoiceNumbers.c)
 *	PROJ:	Nightingale
 *	DESC:	Routines for handling the voice-mapping table
@@ -6,26 +6,26 @@
 		MapVoiceNums			CompactVoiceNums
 		UpdateVoiceTable		User2IntVoice			Int2UserVoice
 		NewVoiceNum				CountVoices
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
 /* About voice tables:
-	A document's "voice-mapping table" or (for short) "voice table" says what internal
+	A document's "voice-mapping table" or (for short) "voice table" says which internal
 voice numbers are in use and, for each one that is in use: what part it belongs to;
-its "voice position" or "role" (upper, lower, cross-staff, or single); and its
-user voice number, by which Nightingale lets the user refer to the voice. Internal
-voice numbers must be unique, but user voice numbers need not be; in fact, they start
-with 1 for each part.
+its "voice position" or "role" (upper, lower, cross-staff, or single); and its user
+voice number, by which Nightingale lets the user refer to the voice. Internal voice
+numbers must be unique, but user voice numbers need not be; in fact, they start with
+1 for each part.
 
 The voice table, doc->voiceTab, is indexed by the internal voice number. Every staff
 has a default voice whose internal number is the same as its staff number, and we
@@ -45,7 +45,7 @@ static void FillVoiceTable(Document *, Boolean []);
 static void CompactVoiceNums(Document *);
 
 
-/* ------------------------------------------------------------- OffsetVoiceNums -- */
+/* ------------------------------------------------------------------- OffsetVoiceNums -- */
 /* Add <nvDelta> to voice numbers of objects and subobjects that currently have voice
 numbers of at least <startSt>. Intended to open up space in the voice mapping
 table for newly-added staves' default voices, or to remove space formerly needed
@@ -93,7 +93,7 @@ void OffsetVoiceNums(Document *doc, short startSt, short nvDelta)
 }
 
 
-/* -------------------------------------------------------------- FillVoiceTable -- */
+/* -------------------------------------------------------------------- FillVoiceTable -- */
 /* Traverse the document's main object list and fill in voice numbers as they're
 actually used. Does not initialize the voice table, so initialization (with default
 voices, the voice Looked at, etc.) should be done before calling this function. Also,
@@ -163,7 +163,7 @@ static void FillVoiceTable(
 }
 
 
-/* ------------------------------------------------------------ BuildVoiceTable -- */
+/* ------------------------------------------------------------------- BuildVoiceTable -- */
 /* Create, from scratch, the table that maps internal voice numbers to combinations
 of part number and user voice number and specifies voices' <voiceRole> (upper, lower,
 etc.). Should not be used to update an existing voice mapping table because it sets
@@ -208,7 +208,7 @@ void BuildVoiceTable(Document *doc, Boolean defaults)
 }
 
 
-/* ---------------------------------------------------------------- MapVoiceNums -- */
+/* ---------------------------------------------------------------------- MapVoiceNums -- */
 
 void MapVoiceNums(Document *doc, short newVoiceTab[])
 {
@@ -246,7 +246,7 @@ void MapVoiceNums(Document *doc, short newVoiceTab[])
 }
 
 
-/* ------------------------------------------------------------ CompactVoiceNums -- */
+/* ------------------------------------------------------------------ CompactVoiceNums -- */
 /* Update voice numbers of objects in the Document so there are no gaps and
 create a voice-mapping table that reflects the new situation. Does not assume
 the existing voice-mapping table is accurate. */
@@ -276,7 +276,7 @@ static void CompactVoiceNums(Document *doc)
 }
 
 
-/* ------------------------------------------------------------ UpdateVoiceTable -- */
+/* ------------------------------------------------------------------ UpdateVoiceTable -- */
 /* Update the table that maps internal voice numbers to combinations of part number
 and user voice number and specifies voices' <voiceRole> (upper, lower, etc.). Preserves
 <voiceRole> and user voice numbers of voices in the table that are still in use. */
@@ -307,7 +307,7 @@ void UpdateVoiceTable(Document *doc, Boolean defaults)
 }
 
 
-/* --------------------------------------------------------------- User2IntVoice -- */
+/* --------------------------------------------------------------------- User2IntVoice -- */
 /* Return the voice-mapping table slot number (the internal voice number) for the
 given user voice number and part. If the voice-mapping table doesn't have an entry
 for the user-voice-number/part combination, also put it into the first empty slot,
@@ -341,7 +341,7 @@ short User2IntVoice(Document *doc, short uVoice, LINK addPartL)
 }
  
 
-/* --------------------------------------------------------------- Int2UserVoice -- */
+/* --------------------------------------------------------------------- Int2UserVoice -- */
 /* Return the user voice number and part corresponding to the given internal voice
 number, and return True. We get the information from the voice-mapping table; if the
 table has no entry for the voice/part combination, return False. */
@@ -361,7 +361,7 @@ Boolean Int2UserVoice(Document *doc, short iVoice, short *puVoice, LINK *pPartL)
 }
 
 
-/* ----------------------------------------------------------------- NewVoiceNum -- */
+/* ----------------------------------------------------------------------- NewVoiceNum -- */
 /* Find a "new" voice number for the given part: the lowest unused voice number
 greater than the number of staves in that part (since we reserve voice numbers 1
 thru n for default voice numbers on staves 1 thru n). */
@@ -387,9 +387,9 @@ short NewVoiceNum(Document *doc, LINK partL)
 }
 
 
-/* ---------------------------------------------------------------- CountVoices -- */
-
+/* ----------------------------------------------------------------------- CountVoices -- */
 /* Return the number of voices in use in the given document. */
+
 short CountVoices(Document *doc) 
 {
 	short nv = 0;
@@ -405,8 +405,7 @@ short CountVoices(Document *doc)
 	return nv;
 }
 
-/* ------------------------------------------------------------ GetVoiceTableLine -- */
-
+/* ----------------------------------------------------------------- GetVoiceTableLine -- */
 /* Get the content of the given line of the voice table in human-readable form. */
 
 void GetVoiceTableLine(Document *doc, short vNum, char *str)
@@ -424,9 +423,9 @@ void GetVoiceTableLine(Document *doc, short vNum, char *str)
 			case SINGLE_DI: ch = '.'; break;
 			default: ch = '?';
 		}
-		sprintf(str, "%c%ciVoice %d in part %d Role=%c relVoice=%d",
-					(vNum==doc->lookVoice? 'L' : ' '),
-					(vNum>1 && doc->voiceTab[vNum-1].partn==0? '�' : ' '),
+		sprintf(str, "%s%ciVoice %d in part %d Role=%c relVoice=%d",
+					(vNum==doc->lookVoice? "(Look)" : "      "),
+					(vNum>1 && doc->voiceTab[vNum-1].partn==0? '*' : ' '),
 					vNum, doc->voiceTab[vNum].partn, ch,
 					doc->voiceTab[vNum].relVoice);
 	}

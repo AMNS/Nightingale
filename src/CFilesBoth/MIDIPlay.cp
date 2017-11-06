@@ -134,15 +134,15 @@ static Boolean HiliteSyncRect(
 	   (if r's Sync was the last played on a page), so we have to use the currentPaper
 	   for r's Sync. */
 
-	OffsetRect(r,rPaper->left,rPaper->top);
+	OffsetRect(r, rPaper->left, rPaper->top);
 	
 	/* Code to scroll while playing. See comment on timing above. */
 	if (scroll) {
-		if (!SectRect(r,&doc->viewRect,&result)) {
+		if (!SectRect(r, &doc->viewRect, &result)) {
 			/* Rect to be hilited is outside of window's view, so scroll paper */
 			x = doc->currentPaper.left - config.hPageSep;
 			y = doc->currentPaper.top  - config.vPageSep;
-			QuickScroll(doc,x,y,False,True);
+			QuickScroll(doc, x, y, False, True);
 			turnedPage = True;
 			}
 		}
@@ -150,7 +150,7 @@ static Boolean HiliteSyncRect(
 	HiliteRect(r);
 	/* Convert back to paper coords */
 
-	OffsetRect(r,-rPaper->left,-rPaper->top);
+	OffsetRect(r, -rPaper->left, -rPaper->top);
 	
 	return turnedPage;
 }

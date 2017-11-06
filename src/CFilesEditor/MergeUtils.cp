@@ -12,7 +12,6 @@
 #include "Nightingale.appl.h"
 
 
-/* ------------------------------------------------------------------------------------ */
 /* Local prototypes. */
 
 static short CountVNotes(LINK syncL,short v);
@@ -34,9 +33,9 @@ static void MFixOttavaLinks(Document *oldDoc,Document *fixDoc,LINK startL,LINK e
 static void MFixBeamLinks(Document *oldDoc,Document *fixDoc,LINK startL,LINK endL);
 static void MFixAllBeamLinks(Document *oldDoc,Document *fixDoc,LINK startL,LINK endL);
 
-/* ------------------------------------------------------------------------------------ */
+/* -------------------------------------------------------------------------------------- */
 
-/* --------------------------------------------------------------------- CountVNotes -- */
+/* ----------------------------------------------------------------------- CountVNotes -- */
 /* Return the number of notes in voice v in sync syncL. */
 
 static short CountVNotes(LINK syncL, short v)
@@ -52,7 +51,7 @@ static short CountVNotes(LINK syncL, short v)
 	return vNotes;
 }
 
-/* ------------------------------------------------------------------- GetMrgdUnmrgd -- */
+/* --------------------------------------------------------------------- GetMrgdUnmrgd -- */
 /* Does the given voice and sync contain merged notes (from the clipboard)? Does it
 contain unmerged notes (from the doc)? */
 
@@ -70,7 +69,7 @@ static void GetMrgdUnmrgd(LINK syncL, short v, Boolean *merged, Boolean *unMerge
 }
 
 
-/* ----------------------------------------------------------------- MFixOverlapSync -- */
+/* ------------------------------------------------------------------- MFixOverlapSync -- */
 /* Fix up syncL for possible inconsistencies which may have resulted from its having
 been merged in a region of temporal overlap. May want to avoid calling FixSyncForChord
 for every chord in overlap-voices in merged range; many or all of these chords may be
@@ -226,7 +225,7 @@ static void MFixOverlapSync(Document *doc, LINK syncL, short v)
 }
 
 
-/* --------------------------------------------------------------- MergeFixBeamRange -- */
+/* ----------------------------------------------------------------- MergeFixBeamRange -- */
 /* Remove all merged beams in the range merged and set the beamed flags of all
 merged notes to the beamed status of the chords they entered in the doc. Then
 traverse the range again and fix up beams which remain and include notes that
@@ -323,11 +322,11 @@ static void MergeFixBeamRange(Document *doc, LINK startL, LINK endL, short v)
 }
 
 
-/* --------------------------------------------------- MUnOttavaSync,MUnOttavaGRSync -- */
+/* ----------------------------------------------------- MUnOttavaSync,MUnOttavaGRSync -- */
 /* Unottava a Sync or GRSync of whose notes only those with merged status <merged>
 actually require un-Ottava-ing. */
 
-static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short s,
+static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short staffn,
 									CONTEXT context, Boolean merged)
 {
 	LINK aNoteL; 
@@ -336,13 +335,13 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 	QDIST qStemLen;
 	STDIST dystd;
 	
-	multiVoice = IsSyncMultiVoice(pL, s);
+	multiVoice = IsSyncMultiVoice(pL, staffn);
 
 	/* Loop through the notes and set their yds and ystems. */
 	aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
-		if (aNote->staffn==s && aNote->inOttava && aNote->merged==merged) {
+		if (aNote->staffn==staffn && aNote->inOttava && aNote->merged==merged) {
 			aNote->inOttava = False;
 			aNote->yd -= yDelta;
 			aNote->yqpit -= halfLn2qd(noteOffset[OctType(octL)-1]);
@@ -364,7 +363,7 @@ static void MUnOttavaSync(Document *doc, LINK octL, LINK pL, DDIST yDelta, short
 	aNoteL = FirstSubLINK(pL);
 	for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 		aNote = GetPANOTE(aNoteL);
-		if (aNote->inChord && NoteSTAFF(aNoteL)==s && aNote->merged==merged) {
+		if (aNote->inChord && NoteSTAFF(aNoteL)==staffn && aNote->merged==merged) {
 			FixSyncForChord(doc,pL,NoteVOICE(aNoteL),aNote->beamed,0,
 											(multiVoice? -1 : 1), &context);
 			break;
@@ -396,8 +395,7 @@ static void MUnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
 		}
 	}
 
-	/* Loop through the grace notes again and fix up the ystems of the non-extreme
-		notes. */
+	/* Loop through the grace notes again and fix up the ystems of the non-extreme notes. */
 	aGRNoteL = FirstSubLINK(pL);
 	for ( ; aGRNoteL; aGRNoteL = NextGRNOTEL(aGRNoteL)) {
 		aGRNote = GetPAGRNOTE(aGRNoteL);
@@ -412,7 +410,7 @@ static void MUnOttavaGRSync(Document *doc, LINK octL, LINK pL, DDIST yDelta,
 }
 
 
-/* ----------------------------------------------------------------- MRemoveOctOnStf -- */
+/* ------------------------------------------------------------------- MRemoveOctOnStf -- */
 /* Remove the octave sign and change notes and grace notes it affected accordingly.
 Specifically for use by Merge. */
 
@@ -447,7 +445,7 @@ static void MRemoveOctOnStf(Document *doc, LINK octL,
 }
 
 
-/* ---------------------------------------------------------------- MergeFixOctRange -- */
+/* ------------------------------------------------------------------ MergeFixOctRange -- */
 /* ??It's totally unclear how to write this function, for the following reason:
 In order to rebeam properly, it appears necessary to pre-process notes
 merged into a beamset from the score, by: i. setting aNote->ystem = aNote->yd
@@ -561,7 +559,7 @@ doneCheck1:
 }
 
 
-/* --------------------------------------------------------------- MergeFixVOverlaps -- */
+/* ----------------------------------------------------------------- MergeFixVOverlaps -- */
 /* Fix up all syncs in merged range for voices which had temporal overlaps. */
 
 void MergeFixVOverlaps(Document *doc, LINK initL, LINK succL, short *vMap, VInfo *vInfo)
@@ -586,7 +584,7 @@ void MergeFixVOverlaps(Document *doc, LINK initL, LINK succL, short *vMap, VInfo
 }
 
 
-/* ---------------------------------------------------------------- MEFixContForClef -- */
+/* ------------------------------------------------------------------ MEFixContForClef -- */
 /* In the range [startL,doneL), update (1) the clef in context fields of following
 STAFFs and MEASUREs for the given staff, (2) notes' y-positions, and (3) beam positions
 to match the new note positions. context just picks up staffHeight and staffLines. If
@@ -696,7 +694,7 @@ Cleanup:
 }
 
 
-/* ---------------------------------------------------------- MFixAllAccidentals -- */
+/* ---------------------------------------------------------------- MFixAllAccidentals -- */
 
 static void MFixAllAccidentals(LINK fixFirstL, LINK fixLastL,
 						short staff,
@@ -752,7 +750,7 @@ static void MFixAllAccidentals(LINK fixFirstL, LINK fixLastL,
 }
 
 
-/* -------------------------------------------------------------- MEFixAccsForKeySig -- */
+/* ---------------------------------------------------------------- MEFixAccsForKeySig -- */
 /* Go through staff in range [startL,doneL) and change accidentals where
 appropriate to keep notes' pitches the same. */
 
@@ -792,7 +790,7 @@ static void MEFixAccsForKeySig(Document *doc,
 }
 
 
-/* ------------------------------------------------------------- MergeFixAllContexts -- */
+/* --------------------------------------------------------------- MergeFixAllContexts -- */
 /* After merging, fix up clef, keySig, timeSig, and dynamic contexts starting at
 <startL>, on staff <s>. */
 
@@ -825,7 +823,7 @@ static void MergeFixAllContexts(Document *doc, LINK startL, LINK endL, short s,
 		EFixContForDynamic(startL, endL, s, newContext.dynamicType);
 }
 
-/* ----------------------------------------------------------------- MergeFixContext -- */
+/* ------------------------------------------------------------------- MergeFixContext -- */
 /* Fix up clef, keysig, timesig and dynamic contexts for the range pasted in, both at
 the initial and final boundaries of the range.
 initL is the node before the selection range; succL is the node after it:
@@ -894,7 +892,7 @@ void MergeFixContext(Document *doc, LINK initL, LINK succL, short minStf, short 
 }
 
 
-/* ----------------------------------------------------------------- MFixOttavaLinks -- */
+/* ------------------------------------------------------------------- MFixOttavaLinks -- */
 /* Update opSync links for all Ottava objects in range. */
 
 static void MFixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
@@ -963,7 +961,7 @@ static void MFixOttavaLinks(Document *oldDoc, Document *fixDoc, LINK startL, LIN
 }
 
 
-/* -------------------------------------------------------------------- FixBeamLinks -- */
+/* ---------------------------------------------------------------------- FixBeamLinks -- */
 /* Update bpSync links for all note beamset objects in range. */
 
 static void MFixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK endL)
@@ -1007,7 +1005,7 @@ static void MFixBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LINK 
 }
 
 
-/* ---------------------------------------------------------------- MFixAllBeamLinks -- */
+/* ------------------------------------------------------------------ MFixAllBeamLinks -- */
 /* Update bpSync links for all Beamset objects in range, either note beams or
 grace note beams. */
 
@@ -1019,7 +1017,7 @@ static void MFixAllBeamLinks(Document *oldDoc, Document *fixDoc, LINK startL, LI
 }
 
 
-/* ------------------------------------------------------------------- MFixCrossPtrs -- */
+/* --------------------------------------------------------------------- MFixCrossPtrs -- */
 /* Update all cross links after reconstructing the data structure. Version for
 merge which fixes up selectively depending on origin of object to update. Needed
 for overlapped voices, which can superimpose beams, ottavas in the same voice. */

@@ -159,6 +159,7 @@ char *StaffPartName(Document *doc, short staff);
 void SetTempFlags(Document *, Document *, LINK, LINK, Boolean);
 void SetSpareFlags(LINK, LINK, Boolean);
 Boolean IsSyncMultiVoice(LINK pL, short staff);
+Boolean IsContextMultiVoice(LINK syncL, short staff, short voice);
 short GetSelectionStaff(Document *doc);
 void TweakSubRects(Rect *r, LINK aNoteL, CONTEXT *pContext);
 Boolean CompareScoreFormat(Document *doc1, Document *doc2, short pasteType);

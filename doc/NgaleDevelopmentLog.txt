@@ -2223,4 +2223,42 @@ In DanceNotesDontPlayBug.ngl, play from start of m. 7 or earlier => the notes on
 eighth usually sound for a _very_ short time or not at all! Very occasionally they
 sound for the correct duration. They're the same pitches as the notes on the 2nd eighth,
 but with voices swapped. Play duration of notes on the 2nd eighth is 95% of written (228
-ticks); shorten them to 83% (199 ticks) or less => all is well!
+ticks); shorten them to 83% (199 ticks) or less => all is well!  But it's not at all
+clear what's causing this, and I suspect it won't be easy to track down or fix. TBC; put
+it aside for now.
+
+-------------------------------------------------------------------------------
+
+31 Oct. - 5 Nov.
+
+Open RespellAndTransp_2Voice.ngl, select all, transpose up 1 octave => the stem endpoints
+are just where they used to be, so down stems are now way too long and up stems way too
+short. This bug was introduced in 5.8b1; comment on the change is: "Partly fixed bug: When
+notes are transposed or respelled, we always 'normalize' the new notation according to the
+standard one-voice notation rules even if there are two voices on the staff." It's very
+likely in FixVoiceForPitchChange(): the comment "In multivoice (>=2 voices on the staff)
+notation, don't change stem direction, but preserve stem length" is immediately followed
+by <return>, so it _doesn't_ preserve stem length. BUT preserving stem length isn't
+right either! For unbeamed notes, probably call CalcYStem() with the current stem dir;
+for beamed notes, probably just unbeam and rebeam... Actually, CalcYStem seems to handle
+beamed notes too!
+
+W/ Cadenza2VoiceTranspTest.ngl, sel. notes on last beat, respell => notes in voice 2 are
+unchanged, so notation should be unchanged -- but they end up upstemmed. The cause:
+FixBeamsInRange() rebeams all selected notes; it doesn't know they're unchanged, and it
+knows nothing at all about multivoice notation!
+
+FixBeamsInRange just calls Rebeam(doc, beamL); Rebeam calls
+
+	CreateBEAMSET(doc, firstSyncL, RightLINK(lastSyncL), voice,
+					nInBeam, False, doc->voiceTab[voice].voiceRole);
+
+But the voiceRole recorded in the voice table is just the voice's _current_ role; it's
+only weakly correlated with the role played by the notes in a given beamed group! Rebeam
+should probably check if the beam's notes are involved in multivoice notation, and if
+so, preserve the stem direction => done. What if they aren't involved in multivoice
+notation? Currently we use the voiceRole; again, that's only weakly correlated with the
+note(s)' role; would it be better to use single-voice rules? Probably, but maybe put
+that off for now.
+
+

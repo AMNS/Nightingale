@@ -3,7 +3,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /* Beam.c for Nightingale - beaming-related functions for regular notes/rests, plus
@@ -18,9 +18,9 @@ functions that are common to grace notes and regular notes/rests.
 	FillSlantBeam			FillHorizBeam			CreateXSysBEAMSET
 	CheckBeamVars			CreateNonXSysBEAMSET	CreateBEAMSET
 	UnbeamV					Unbeamx					FixNCStem
-	UnbeamRange				BeamHasSelNote			FixBeamsInRange
-	UnbeamFixNotes			RemoveBeam				FlipFractional
-	DoFlipFractionalBeam
+	UnbeamRange				BeamHasSelNote			FixBeamsOnStaff
+	FixBeamsInVoice			UnbeamFixNotes			RemoveBeam
+	FlipFractional			DoFlipFractionalBeam
 
 	CalcXStem				NoteXStfYStem			AnalyzeBeamset
 	BuildBeamDrawTable		SetBeamRect				DrawBEAMSET
@@ -46,11 +46,12 @@ static void Unbeamx(Document *, LINK, LINK, short);
 static void FixNCStem(Document *, LINK, LINK, CONTEXT);
 static Boolean BeamHasSelNote(LINK);
 static void UnbeamFixNotes(Document *, LINK, LINK, short);
+static Boolean IsBeamStemUp(LINK beamL);
 
 
-/* ==================================================== CREATING/REMOVING/MODIFYING == */
+/* ======================================================= CREATING/REMOVING/MODIFYING == */
 
-/* ------------------------------------------------------------------------- DoBeam -- */
+/* ---------------------------------------------------------------------------- DoBeam -- */
 /* Beam the selection, both regular notes/rests and grace notes. User-interface
 level. */
 
@@ -69,7 +70,7 @@ void DoBeam(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------------- DoUnbeam -- */
+/* -------------------------------------------------------------------------- DoUnbeam -- */
 /* Unbeam the selection. Remove both regular and grace beams. User-interface level. */
 
 void DoUnbeam(Document *doc)
@@ -83,7 +84,7 @@ void DoUnbeam(Document *doc)
 	Unbeam(doc);
 }
 
-/* ------------------------------------------------------------------------- Unbeam -- */
+/* ---------------------------------------------------------------------------- Unbeam -- */
 /* Unbeam the selection. Remove both regular and grace beams. */
 
 void Unbeam(Document *doc)
@@ -105,7 +106,7 @@ void Unbeam(Document *doc)
 }
 
 
-/* -------------------------------------------------------------------- CreateBeams -- */
+/* ----------------------------------------------------------------------- CreateBeams -- */
 /* Beam the selection range in the given voice. */
 
 static void CreateBeams(Document *doc, short voice)
@@ -125,7 +126,7 @@ static void CreateBeams(Document *doc, short voice)
 }
 
 
-/* ------------------------------------------------------------------- RangeChkBeam -- */
+/* ---------------------------------------------------------------------- RangeChkBeam -- */
 /* Are any notes, rests, or grace notes in the given voice and range beamed? */
 
 static Boolean RangeChkBeam(short voice, LINK vStartL, LINK vEndL)
@@ -154,13 +155,14 @@ static Boolean RangeChkBeam(short voice, LINK vStartL, LINK vEndL)
 }
 
 
-/* ------------------------------------------------------------------------ Rebeam -- */
+/* --------------------------------------------------------------------------- Rebeam -- */
 /* Rebeam the notes/rests beamed by <beamL>. Handles both grace and regular beams. */
 
 LINK Rebeam(Document *doc, LINK beamL)
 {
-	short nInBeam, voice;
+	short nInBeam, voice, voiceRole;
 	LINK firstSyncL, lastSyncL;
+	Boolean stemUp;
 
 	nInBeam = LinkNENTRIES(beamL);
 	firstSyncL = FirstInBeam(beamL);
@@ -173,13 +175,22 @@ LINK Rebeam(Document *doc, LINK beamL)
 							nInBeam, False, False);
 	}
 
+	/* If notes in the beam are involved in multivoice notation, preserve the beam's
+		stem up or down characteristic. Otherwise, use the voice's current voiceRole,
+		though that can change and it may not be desirable for this beam. */
+	if (IsContextMultiVoice(firstSyncL, BeamSTAFF(beamL), voice)) {
+		stemUp = IsBeamStemUp(beamL);
+		voiceRole = (stemUp? UPPER_DI : LOWER_DI);
+	}
+	else
+		voiceRole = doc->voiceTab[voice].voiceRole;
 	RemoveBeam(doc, beamL, voice, False);
-	return CreateBEAMSET(doc, firstSyncL, RightLINK(lastSyncL), voice,
-							nInBeam, False, doc->voiceTab[voice].voiceRole);
+	return CreateBEAMSET(doc, firstSyncL, RightLINK(lastSyncL), voice, nInBeam, False,
+							voiceRole);
 }
 
 
-/* --------------------------------------------------------------- GetBeamEndYStems -- */
+/* ------------------------------------------------------------------ GetBeamEndYStems -- */
 /* Get the slant to use when creating a beamset, and find the positions to use for the
 endpoints of stems beginning and ending the beam. Slope used is a percentage given
 by config.relBeamSlope of the angle from ystem of firstInBeam to ystem of
@@ -238,7 +249,7 @@ Boolean GetBeamEndYStems(
 }
 
 
-/* ------------------------------------------------- TopStaff2Staff, Staff2TopStaff -- */
+/* ---------------------------------------------------- TopStaff2Staff, Staff2TopStaff -- */
 
 /* Given yd relative to the top staff for something in a cross-staff object, get
 yd relative to the given staff. If the staff is the top staff of the stfRange,
@@ -271,7 +282,7 @@ DDIST Staff2TopStaff(DDIST yd, short staffn,
 }
 
 
-/* --------------------------------------------------------------- FixSyncInBeamset -- */
+/* ------------------------------------------------------------------ FixSyncInBeamset -- */
 /* Given a voice in a beamed Sync, fix stem end coordinates and (if the voice has
 a chord) stem sides and accidental positions for the note(s). If the voice has a
 chord, set all its stems to zero length except the MainNote's. */
@@ -303,7 +314,7 @@ static void FixSyncInBeamset(Document *doc, LINK bpSyncL, short voice,
 }
 
 
-/* ------------------------------------------------------------------ GetBeamNotes -- */
+/* --------------------------------------------------------------------- GetBeamNotes -- */
 /* Fill in an array of notes/chords contained in the given beamset. */
 
 void GetBeamNotes(LINK beamL, LINK notes[])
@@ -326,7 +337,7 @@ void GetBeamNotes(LINK beamL, LINK notes[])
 }
 
 
-/* -------------------------------------------------------- CreateBEAMSET utilities -- */
+/* ----------------------------------------------------------- CreateBEAMSET utilities -- */
 /* Functions used by CreateBEAMSET. */
 
 #define PROG_ERR 	-3		/* Code for program error */
@@ -427,7 +438,7 @@ Boolean SetBeamXStf(LINK beamL, short bel, LINK noteInSync[], STFRANGE *theRange
 }
 
 
-/* -------------------------------------------------------------------- Extend1Stem -- */
+/* ----------------------------------------------------------------------- Extend1Stem -- */
 
 static DDIST Extend1Stem(Boolean stemDown, short nPrimary, short nSecsA, short nSecsB,
 													DDIST beamThick, DDIST flagYDelta)
@@ -448,7 +459,7 @@ static DDIST Extend1Stem(Boolean stemDown, short nPrimary, short nSecsA, short n
 }
 
 
-/* -------------------------------------------------------------------- ExtendStems -- */
+/* ----------------------------------------------------------------------- ExtendStems -- */
 /* Extend every stem in the given beamset by the appropriate distance so they
 extend to all secondary beams:
 	for a downstem, if it has secondary beams below the primaries, extend it to
@@ -486,7 +497,7 @@ void ExtendStems(Document *doc, LINK beamL, short nInBeam,
 }
 
 
-/* ------------------------------------------------------------- SlantBeamNoteStems -- */
+/* ---------------------------------------------------------------- SlantBeamNoteStems -- */
 /* Set each note/chord's stem to end at the beam, which extends diagonally from
 height <firstystem> to <lastystem>. */
 
@@ -516,7 +527,7 @@ void SlantBeamNoteStems(Document *doc, LINK bpSync[],
 }
 	
 
-/* ------------------------------------------------------------------ FillSlantBeam -- */
+/* --------------------------------------------------------------------- FillSlantBeam -- */
 /* Fill fields for a slanted beam, both in the BEAMSET and in the notes of the
 beam (their ystems).
 
@@ -598,7 +609,7 @@ void FillSlantBeam(Document *doc, LINK beamL, short voice, short nInBeam,
 }
 
 
-/* --------------------------------------------------------------- FillHorizBeam -- */
+/* --------------------------------------------------------------------- FillHorizBeam -- */
 /* Fill fields for a horizontal beam, both in the BEAMSET and in the notes of the
 beam (their ystems). Set each note/chord's stem to end at the beam, which is
 horizontal at height <ystem>.
@@ -681,7 +692,7 @@ static void FillHorizBeam(Document *doc, LINK beamL, short voice, short nInBeam,
 }
 
 
-/* -------------------------------------------------------------- CreateXSysBEAMSET -- */
+/* ----------------------------------------------------------------- CreateXSysBEAMSET -- */
 /* If the range to be beamed spans two systems, create a cross system beamset with
 a piece in the first system and one in the second. */
 
@@ -776,7 +787,7 @@ short CheckBeamVars(short nInBeam, Boolean crossSystem, short nBeamable1, short 
 }
 
 
-/* ----------------------------------------------------------- CreateNonXSysBEAMSET -- */
+/* -------------------------------------------------------------- CreateNonXSysBEAMSET -- */
 
 LINK CreateNonXSysBEAMSET(Document *doc, LINK startL, LINK endL, short voice,
 							short nInBeam, Boolean needSel, Boolean doBeam,
@@ -830,7 +841,7 @@ LINK CreateNonXSysBEAMSET(Document *doc, LINK startL, LINK endL, short voice,
 }
 
 
-/* ------------------------------------------------------------------ CreateBEAMSET -- */
+/* --------------------------------------------------------------------- CreateBEAMSET -- */
 /* Create a beamset, i.e., a primary beam with appropriate secondary and frac-
 tional beams, for the specified range. The range must contain <nInBeam> notes 
 (counting each chord as one note under the usual assumption that every chord has
@@ -873,7 +884,7 @@ LINK CreateBEAMSET(
 }
 
 
-/* ------------------------------------------------------------------ UnbeamV et al -- */
+/* --------------------------------------------------------------------- UnbeamV et al -- */
 /* Remove all beams in the specified range for the specified voice and set the
 selection range. */
 	
@@ -926,7 +937,7 @@ static void Unbeamx(Document *doc, LINK fromL, LINK toL, short voice)
 		firstSys = lBeam->firstSystem;
 		beamFromL = FirstInBeam(lBeamL);
 		if (UnbeamRange(doc, beamFromL, RightLINK(LastInBeam(lBeamL)), voice))
-			InvalMeasures(beamFromL, RightLINK(LastInBeam(lBeamL)), ANYONE);				/* Force redrawing all affected measures */
+			InvalMeasures(beamFromL, RightLINK(LastInBeam(lBeamL)), ANYONE);		/* Force redrawing all affected measures */
 		if ( (nInBeam = CountBeamable(doc, beamFromL, fromL, voice, False)) >=2 ) {	/* Beam remainder */
 			newBeamL = CreateBEAMSET(doc, beamFromL, fromL, voice, nInBeam, False,
 												doc->voiceTab[voice].voiceRole);
@@ -944,7 +955,7 @@ static void Unbeamx(Document *doc, LINK fromL, LINK toL, short voice)
 			crossSys = rBeam->crossSystem;
 			firstSys = rBeam->firstSystem;
 			if (UnbeamRange(doc, FirstInBeam(rBeamL), beamToL, voice))
-				InvalMeasures(FirstInBeam(rBeamL), beamToL, ANYONE);						/* Force redrawing all affected measures */
+				InvalMeasures(FirstInBeam(rBeamL), beamToL, ANYONE);			/* Force redrawing all affected measures */
 		}
 		if ( (nInBeam = CountBeamable(doc, toL, beamToL, voice, False)) >=2 ) {	/* Beam remainder */
 			newBeamL = CreateBEAMSET(doc, toL, beamToL, voice, nInBeam, False,
@@ -1039,7 +1050,7 @@ Boolean UnbeamRange(Document *doc, LINK fromL, LINK toL, short voice)
 }
 
 
-/* ----------------------------------------------------------------- BeamHasSelNote -- */
+/* -------------------------------------------------------------------- BeamHasSelNote -- */
 /* Does the given Beamset contain any selected notes? */
 
 static Boolean BeamHasSelNote(LINK beamL)
@@ -1059,11 +1070,11 @@ static Boolean BeamHasSelNote(LINK beamL)
 }
 
 
-/* ---------------------------------------------------------------- FixBeamsInRange -- */
-/* Remove and recreate all Beamsets in or partly in the range [startL, endL) on
-the given staff. Handles both grace and regular Beamsets. */
+/* ------------------------------------------------------------------- FixBeamsOnStaff -- */
+/* Remove and recreate all Beamsets in or partly in the range [startL, endL) on the
+given staff. Handles both grace and regular Beamsets. */
 
-void FixBeamsInRange(Document *doc,
+void FixBeamsOnStaff(Document *doc,
 					LINK startL, LINK endL,
 					short staffn,
 					Boolean needSelected		/* True if we only want selected items */
@@ -1071,15 +1082,17 @@ void FixBeamsInRange(Document *doc,
 {
 	LINK	firstBeamL, lastBeamL, pL;
 	
-	firstBeamL = LSSearch(startL, BEAMSETtype, staffn, True, False);	/* 1st beam that might be affected */
+	firstBeamL = LSSearch(startL, BEAMSETtype, staffn, GO_LEFT, False);	/* 1st beam that might be affected */
 	if (firstBeamL) {
 		if (IsAfter(LastInBeam(firstBeamL), startL))					/* Is it really affected? */
 			firstBeamL = startL;										/* No */
 	}
 	else
 		 firstBeamL = startL;											/* No beams before range on staff */
-	lastBeamL = LSSearch(endL, BEAMSETtype, staffn, False, False);		/* 1st beam that's definitely NOT affected*/
+	lastBeamL = LSSearch(endL, BEAMSETtype, staffn, GO_RIGHT, False);	/* 1st beam that's definitely NOT affected */
 
+LogPrintf(LOG_DEBUG, "FixBeamsOnStaff: startL=%u endL=%u staffn=%d firstBeamL=%u\n",
+			startL, endL, staffn, firstBeamL);
 	for (pL = firstBeamL; pL!=lastBeamL; pL=RightLINK(pL))
 		if (BeamsetTYPE(pL))
 			if (BeamSTAFF(pL)==staffn && (!needSelected || BeamHasSelNote(pL)))
@@ -1087,7 +1100,37 @@ void FixBeamsInRange(Document *doc,
 }
 
 
-/* ----------------------------------------------------------------- UnbeamFixNotes -- */
+/* ------------------------------------------------------------------- FixBeamsInVoice -- */
+/* Remove and recreate all Beamsets in or partly in the range [startL, endL) in the
+given voice. Handles both grace and regular Beamsets. */
+
+void FixBeamsInVoice(Document *doc,
+					LINK startL, LINK endL,
+					short voice,
+					Boolean needSelected		/* True if we only want selected items */
+					)
+{
+	LINK	firstBeamL, lastBeamL, pL;
+	
+	firstBeamL = LVSearch(startL, BEAMSETtype, voice, GO_LEFT, False);	/* 1st beam that might be affected */
+	if (firstBeamL) {
+		if (IsAfter(LastInBeam(firstBeamL), startL))					/* Is it really affected? */
+			firstBeamL = startL;										/* No */
+	}
+	else
+		 firstBeamL = startL;											/* No beams before range on staff */
+	lastBeamL = LVSearch(endL, BEAMSETtype, voice, GO_RIGHT, False);	/* 1st beam that's definitely NOT affected */
+
+LogPrintf(LOG_DEBUG, "FixBeamsInVoice: startL=%u endL=%u voice=%d firstBeamL=%u\n",
+			startL, endL, voice, firstBeamL);
+	for (pL = firstBeamL; pL!=lastBeamL; pL=RightLINK(pL))
+		if (BeamsetTYPE(pL))
+			if (BeamVOICE(pL)==voice && (!needSelected || BeamHasSelNote(pL)))
+				Rebeam(doc, pL);
+}
+
+
+/* -------------------------------------------------------------------- UnbeamFixNotes -- */
 /* Fix stems, note stem sides, etc. of notes, rests, and grace notes in the given
 range, presumably because they used to be beamed. N.B. Should probably call
 FixNCStem instead of doing the fixing itself. */
@@ -1136,7 +1179,7 @@ static void UnbeamFixNotes(Document *doc, LINK vStartL, LINK vEndL, short voice)
 }
 
 
-/* --------------------------------------------------------------------- RemoveBeam -- */
+/* ------------------------------------------------------------------------ RemoveBeam -- */
 /* Truncated version of Unbeam which simply sets NoteBEAMED(aNoteL) False for all
 notes in Beamset, deletes the Beamset, and optionally updates stems of notes/chords
 in the Beamset. */
@@ -1161,15 +1204,15 @@ void RemoveBeam(Document *doc, LINK beamL, short voice, Boolean fixStems)
 }
 
 
-/* ----------------------------------------------------------------- FlipFractional -- */
+/* -------------------------------------------------------------------- FlipFractional -- */
 /* Given a Beamset <beamL> and a Sync <syncL> (or GRSync), find out if the beam
 subobject whose bpSync is <syncL> has a fractional beam; if not, return
 NOTHING_TO_DO. Otherwise, if this subobject either starts or ends a primary
 or secondary beam (i.e., if startend!=0), return FAILURE. Otherwise, flip the
 fractional beam and return OP_COMPLETE. Takes no user-interface actions. */
 
-short FlipFractional(LINK, LINK);
-short FlipFractional(LINK beamL, LINK syncL)
+static short FlipFractional(LINK, LINK);
+static short FlipFractional(LINK beamL, LINK syncL)
 {
 	register short	nInBeam, i;
 	register LINK	aNoteBeamL;
@@ -1192,7 +1235,7 @@ short FlipFractional(LINK beamL, LINK syncL)
 }
 
 
-/* ----------------------------------------------------------- DoFlipFractionalBeam -- */
+/* -------------------------------------------------------------- DoFlipFractionalBeam -- */
 /* Try to flip fractional beams for every selected note/chord. Handles user
 interface on the assumption the given document is on the screen. */
 
@@ -1236,9 +1279,9 @@ void DoFlipFractionalBeam(Document *doc)
 }
 
 
-/* ======================================================================== DRAWING == */
+/* =========================================================================== DRAWING == */
 
-/* ---------------------------------------------------------------------- CalcXStem -- */
+/* ------------------------------------------------------------------------- CalcXStem -- */
 /* Given a Sync, voice number, stem direction, and standard notehead width,
 return the page-relative x-coordinate of the given end of a beam for the
 note/chord in that Sync and voice. */
@@ -1286,7 +1329,7 @@ DDIST CalcXStem(Document *doc, LINK syncL, short voice, short stemDir,
 }
 
 
-/* ------------------------------------------------------------------ NoteXStfYStem -- */
+/* --------------------------------------------------------------------- NoteXStfYStem -- */
 /* Return a ystem value for <aNoteL>, including an offset if the note is in
 a cross-staff beamset and is not on the top staff of the range. */
 
@@ -1305,7 +1348,7 @@ DDIST NoteXStfYStem(LINK aNoteL, STFRANGE stfRange, DDIST firstStfTop, DDIST las
 }
 
 
-/* ----------------------------------------------------------------- AnalyzeBeamset -- */
+/* -------------------------------------------------------------------- AnalyzeBeamset -- */
 /* Get information about the given BEAMSET. Return (in *nPrimary) the number of
 primary beams; (in nSecsA[i]) the number of secondary beams in progress and above
 primaries at the i'th note of the beamset; (in nSecsB[i]) the number of secondary
@@ -1406,7 +1449,7 @@ short AnalyzeBeamset(LINK beamL, short *nPrimary,
 
 #define BEAMTABLEN 300	/* Should be enough: even 127 alternate 128ths & 8ths need only 257 */
 
-/* ------------------------------------------------------------- BuildBeamDrawTable -- */
+/* ---------------------------------------------------------------- BuildBeamDrawTable -- */
 /* Given a Beamset and information about it, normally compiled by AnalyzeBeamset,
 build a table of beam segments to be drawn by DrawBEAMSET or by the beam-dragging
 feedback routine. Returns -1 if there's a problem, else the number of segments to
@@ -1539,7 +1582,7 @@ short BuildBeamDrawTable(
 }
 
 
-/* -------------------------------------------------------------------- SetBeamRect -- */
+/* ----------------------------------------------------------------------- SetBeamRect -- */
 
 void SetBeamRect(Rect *r, short x0, short y0, short x1, short y1,
 				Boolean topEdge,		/* True=y0->y1 is top edge of Rect, else bottom */
@@ -1559,7 +1602,7 @@ void SetBeamRect(Rect *r, short x0, short y0, short x1, short y1,
 }
 
 
-/* -------------------------------------------------------------------- DrawBEAMSET -- */
+/* ----------------------------------------------------------------------- DrawBEAMSET -- */
 /* Draw all primary, secondary, and fractional beam segments of a BEAMSET object. NB:
 sets QuickDraw port parameters even if drawing to PostScript, very likely for no
 reason! */
@@ -1844,7 +1887,7 @@ void DrawBEAMSET(Document *doc, LINK beamL, CONTEXT context[])
 }
 
 
-/* ---------------------------------------------------------------------- Draw1Beam -- */
+/* ------------------------------------------------------------------------- Draw1Beam -- */
 /* Draw one beam segment, i.e., a single horizontal or not-too-far-from-horizontal
 thickened line. yl and yr may refer to either the top or the bottom edge of the
 line. */
@@ -1887,9 +1930,28 @@ void Draw1Beam(DDIST xl, DDIST yl, DDIST xr, DDIST yr,	/* Absolute left & right 
 }
 
 
-/* ============================================================== GENERAL UTILITIES == */
+/* ================================================================= GENERAL UTILITIES == */
 
-/* ------------------------------------------------------------------ GetBeamSyncs -- */
+/* ---------------------------------------------------------------------- IsBeamStemUp -- */
+
+static Boolean IsBeamStemUp(LINK beamL)
+{
+	LINK aNoteBeamL, syncL, aNoteL;  short voice;
+
+	/* Cross-staff beams in Nightingale are stem down on the upper staff, stem up
+		on the lower staff, so arbitrarily choose one. */ 
+	if (BeamCrossSTAFF(beamL)) return False;
+	
+	aNoteBeamL = FirstSubLINK(beamL);
+	syncL = NoteBeamBPSYNC(aNoteBeamL);
+	voice = BeamVOICE(beamL);
+//LogPrintf(LOG_DEBUG, "IsBeamStemUp: beamL=%u syncL=%u voice=%d\n", beamL, syncL, voice);
+	aNoteL = NoteInVoice(syncL, voice, False);
+	return (NoteYD(aNoteL)>NoteYSTEM(aNoteL));
+}
+
+
+/* ---------------------------------------------------------------------- GetBeamSyncs -- */
 /*	Fill in arrays of Sync LINKs and note LINKs which can be used to fill in the
 beamset's subobjects; return True if things are OK, False if not. */
 	
@@ -1927,7 +1989,7 @@ Boolean GetBeamSyncs(Document *doc, LINK startL, LINK endL, short voice, short n
 }
 
 
-/* ------------------------------------------------------------------ SelBeamedNote -- */
+/* --------------------------------------------------------------------- SelBeamedNote -- */
 /* If the selection includes any beamed notes/rests (not grace notes), return the
 first one found. */
 
@@ -1945,7 +2007,7 @@ LINK SelBeamedNote(Document *doc)
 }
 
 
-/* -------------------------------------------------------------- CountXSysBeamable -- */
+/* ----------------------------------------------------------------- CountXSysBeamable -- */
 /* If range is cross system and is beamable for the specified voice, returns True
 with no. of Syncs with notes in each separate range in each system in nBeamable1 & 2;
 otherwise returns False. Notice that range must be beamable if the result is 1 in
@@ -1966,7 +2028,7 @@ Boolean CountXSysBeamable(Document *doc, LINK startL, LINK endL, short voice,
 }
 
 
-/* --------------------------------------------------------------- CountBeamable -- */
+/* --------------------------------------------------------------------- CountBeamable -- */
 /* If range is beamable for the specified voice and nothing in it is currently
 beamed, returns the no. of Syncs with notes in the voice;  otherwise returns 0.
 
@@ -2019,9 +2081,9 @@ short CountBeamable(Document *doc,
 }
 
 
-/* ------------------------------------------------------------ GetCrossStaffYLevel -- */
-/* Get the beam y-level for cross staff beams. For now, the beam should be horizontal
-halfway between the two staves. */
+/* --------------------------------------------------------------- GetCrossStaffYLevel -- */
+/* Decide at what vertical position a cross-staff beam should go. We assume the beam will
+be halfway between the two staves (and horizontal). */
 
 DDIST GetCrossStaffYLevel(Document *doc, LINK pL, STFRANGE theRange)
 {
@@ -2045,13 +2107,11 @@ DDIST GetCrossStaffYLevel(Document *doc, LINK pL, STFRANGE theRange)
 	
 	/* Return the position halfway inbetween these two staves. */
 	GetContext(doc, staffL, theRange.topStaff, &context);
-	/* topStaff = GetPASTAFF(topStaffL); */
-	/* bottomStaff = GetPASTAFF(bottomStaffL); */
 	return ((StaffTOP(bottomStaffL)+context.staffHeight-StaffTOP(topStaffL))/2);
 }
 
 
-/* ----------------------------------------------------------------- CalcBeamYLevel -- */
+/* -------------------------------------------------------------------- CalcBeamYLevel -- */
 /* Decide at what vertical position a (for now, horizontal) beam should go. For
 now, use the "extreme position dominates" rule alone; an improved version might
 use Gomberg's, Gourlay's, or SMUT's rules. */
@@ -2157,7 +2217,7 @@ DDIST CalcBeamYLevel(
 }
 
 
-/* -------------------------------------------------------------- VHasBeamAcross -- */
+/* -------------------------------------------------------------------- VHasBeamAcross -- */
 /* If the point just before <node> in the given voice is in the middle of a beam,
 VHasBeamAcross returns the Beamset's link, otherwise NILINK.  */
 
@@ -2172,30 +2232,30 @@ LINK VHasBeamAcross(LINK node, short voice)
 	pbSearch.voice = voice;
 	pbSearch.needSelected = False;
 	pbSearch.inSystem = False;
-	lSyncL = L_Search(LeftLINK(node), SYNCtype, GO_LEFT, &pbSearch);	/* Look for 1st note left and right */
+	lSyncL = L_Search(LeftLINK(node), SYNCtype, GO_LEFT, &pbSearch);/* Look for 1st note left and right */
 	rSyncL = L_Search(node, SYNCtype, GO_RIGHT, &pbSearch);
-	if (lSyncL==NILINK || rSyncL==NILINK)								/* Were there any? */						
-		return NILINK;													/* No */
+	if (lSyncL==NILINK || rSyncL==NILINK)							/* Were there any? */						
+		return NILINK;												/* No */
 	else
-	{																	/* Yes */
-		lNoteL = FirstSubLINK(lSyncL);									/* At left... */
+	{																/* Yes */
+		lNoteL = FirstSubLINK(lSyncL);								/* At left... */
 		for ( ; lNoteL; lNoteL = NextNOTEL(lNoteL)) {
 			/* lNote = GetPANOTE(lNoteL); */
-			if (NoteVOICE(lNoteL)==voice)								/* This note in desired voice? */
-				if (!NoteBEAMED(lNoteL)) return NILINK;					/* Yes. Beamed? If not, we're done. */
+			if (NoteVOICE(lNoteL)==voice)							/* This note in desired voice? */
+				if (!NoteBEAMED(lNoteL)) return NILINK;				/* Yes. Beamed? If not, we're done. */
 		}
 		
-		rNoteL = FirstSubLINK(rSyncL);									/* At right... */
+		rNoteL = FirstSubLINK(rSyncL);								/* At right... */
 		for ( ; rNoteL; rNoteL = NextNOTEL(rNoteL)) {
 			/* rNote = GetPANOTE(rNoteL); */
-			if (NoteVOICE(rNoteL)==voice)								/* This note in desired voice? */
-				if (!NoteBEAMED(rNoteL)) return NILINK;					/* Yes. Beamed? If not, we're done. */
-				else {													/* Both are beamed.  */
+			if (NoteVOICE(rNoteL)==voice)							/* This note in desired voice? */
+				if (!NoteBEAMED(rNoteL)) return NILINK;				/* Yes. Beamed? If not, we're done. */
+				else {												/* Both are beamed.  */
 					pbSearch.subtype = NoteBeam;
 					beamL = L_Search(rSyncL, BEAMSETtype, GO_LEFT,
-											&pbSearch); 				/* Are they in the same beam? */
-					if (IsAfter(beamL, lSyncL)) return beamL;			/* Yes */
-					else								 return NILINK;	/* No */
+											&pbSearch); 			/* Are they in the same beam? */
+					if (IsAfter(beamL, lSyncL))	return beamL;		/* Yes */
+					else						return NILINK;		/* No */
 				}
 		}
 	}
@@ -2203,7 +2263,7 @@ LINK VHasBeamAcross(LINK node, short voice)
 	return NILINK;
 }
 
-/* ------------------------------------------------------------------ HasBeamAcross -- */
+/* --------------------------------------------------------------------- HasBeamAcross -- */
 /* If the point just before <node> on the given staff is in the middle of a beam,
 HasBeamAcross returns the Beamset's link, otherwise NILINK.  NB: Probably
 should be replaced completely by VHasBeamAcross. */
@@ -2244,7 +2304,7 @@ LINK HasBeamAcross(LINK node, short staff)
 }
 
 
-/* --------------------------------------- VCheckBeamAcross,VCheckBeamAcrossIncl -- */
+/* --------------------------------------------- VCheckBeamAcross,VCheckBeamAcrossIncl -- */
 /* If the point just before <node> in the given voice is in the middle of a beam,
 VCheckBeamAcross returns the Beamset's link, otherwise NILINK. Identical to
 VHasBeamAcross except that the search to the right starts just after node. This
@@ -2313,7 +2373,7 @@ LINK VCheckBeamAcrossIncl(LINK node, short voice)
 }
 
 
-/* -------------------------------------------------------- FirstInBeam, LastInBeam -- */
+/* ----------------------------------------------------------- FirstInBeam, LastInBeam -- */
 
 LINK FirstInBeam(LINK beamL)
 {

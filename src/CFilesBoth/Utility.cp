@@ -52,28 +52,27 @@
 DDIST CalcYStem(
 			Document *doc,
 			DDIST	yhead,			/* position of note head */
-			short	nflags,			/* number of flags or beams */
+			short	nFlags,			/* number of flags or beams */
 			Boolean	stemDown,		/* True if stem is down, else stem is up */
 			DDIST	staffHeight,	/* staff height */
 			short	staffLines,
-			short	qtrSp,			/* desired "normal" (w/2 or less flags) stem length (qtr-spaces) */
-			Boolean	noExtend 		/* True means don't extend stem to midline */
+			short	qtrSp,			/* desired "normal" (w/ 2 or less flags) stem length (qtr-spaces) */
+			Boolean	noExtend 		/* True = don't extend stem to midline */
 			)
 {
 	DDIST	midline, dLen, ystem;
 
 	/*
 	 * There are two reasons why we may have to make the stem longer than requested:
-	 * the stem has to be long enough to accomodate any flags, and if the stem is
-	 * pointing towards the center of the staff (the normal case), it should extend
-	 * at least to the center of the staff.
+	 * (1) to accomodate flags, and (2), if the stem is pointing towards the center of
+	 * the staff, to extend it to the center of the staff.
 	 */
-// FIXME: Perhaps use flag leading info, instead of just assuming leading == 1 space
+// FIXME: use flag leading info, instead of just assuming leading == 1 space
 	if (MusFontHas16thFlag(doc->musFontInfoIndex)) {
-		if (nflags>2) qtrSp += 4*(nflags-2);			/* Every flag after 1st 2 adds a space */
+		if (nFlags>2) qtrSp += 4*(nFlags-2);			/* Every flag after 1st 2 adds a space */
 	}
 	else {
-		if (nflags>1) qtrSp += 4*(nflags-1);			/* Every flag after 1st adds a space */
+		if (nFlags>1) qtrSp += 4*(nFlags-1);			/* Every flag after 1st adds a space */
 	}
 	dLen = qtrSp*staffHeight/(4*(staffLines-1));
 	ystem = (stemDown ? yhead+dLen : yhead-dLen);		/* Initially, set length to <qtrSp> */
@@ -725,15 +724,14 @@ SPACETIMEINFO *AllocSpTimeInfo()
 }
 
 
-/* ------------------------------------------------------------- MakeGWorld and friends -- */
+/* ------------------------------------------------------------ MakeGWorld and friends -- */
 /* Functions for managing offscreen graphics ports using Apple's GWorld mechanism.
 These make it easy to work with color images.  See Apple documentation
 ("Offscreen Graphics Worlds.pdf") for more.   JGG, 8/11/01 */
 
-/* ------------------------------------------------------------------------- MakeGWorld -- */
-/* Create a new graphics world (GWorld) for offscreen drawing, having
-the given dimensions.  If <lock> is True, the PixMap of this GWorld will be
-locked on return.  Returns the new GWorldPtr, or NULL if error. */
+/* Create a new graphics world (GWorld) for offscreen drawing, having the given\
+dimensions.  If <lock> is True, the PixMap of this GWorld will be locked on return.
+Returns the new GWorldPtr, or NULL if error. */
 
 GWorldPtr MakeGWorld(short width, short height, Boolean lock)
 {
@@ -778,7 +776,6 @@ GWorldPtr MakeGWorld(short width, short height, Boolean lock)
 }
 
 
-/* --------------------------------------------------------------------- DestroyGWorld -- */
 void DestroyGWorld(GWorldPtr theGWorld)
 {
 	PixMapHandle pixMapH;
@@ -789,8 +786,8 @@ void DestroyGWorld(GWorldPtr theGWorld)
 }
 
 
-/* ------------------------------------------------------ SaveGWorld and RestoreGWorld -- */
-/* NOTE: These are not reentrant!  So be careful to keep things in sync. */
+/* NOTE: SaveGWorld and RestoreGWorld are not reentrant!  So be careful to keep things
+in sync. */
 
 static CGrafPtr savePort = NULL;		/* NB: Can also represent GrafPtr or GWorldPtr */
 static GDHandle saveDevice = NULL;
@@ -814,7 +811,6 @@ Boolean RestoreGWorld()
 }
 
 
-/* ------------------------------------------------------- LockGWorld and UnlockGWorld -- */
 Boolean LockGWorld(GWorldPtr theGWorld)
 {
 	PixMapHandle	pixMapH;

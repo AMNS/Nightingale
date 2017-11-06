@@ -43,7 +43,7 @@
 		SyncVoiceOnStaff		SyncInBEAMSET			SyncInOTTAVA
 		PrevTiedNote			FirstTiedNote			ChordNextNR
 		GetCrossStaff			SetTempFlags			SetSpareFlags
-		IsSyncMultiVoice		TweakSubRects
+		IsSyncMultiVoice		IsContextMultiVoice		TweakSubRects
 		CompareScoreFormat		DisposeMODNRs			Staff2PartL
 		PartL2Partn				VHasTieAcross			HasSmthgAcross
 		LineSpace2Rastral		Rastral2LineSpace		StaffRastral
@@ -533,13 +533,13 @@ DDIST ObjSpaceUsed(Document *doc, LINK pL)
 {
 	LINK	aNoteL;
 	long	maxLen, tempLen;
-	short	noteStaff;
+	short	noteStaff=1;
 	CONTEXT	context;
 	STDIST	symWidth, space;
 	
 	switch(ObjLType(pL)) {
 		case SYNCtype:
-				maxLen = space = 0L;
+				maxLen = tempLen = space = 0L;
 				aNoteL = FirstSubLINK(pL);
 				for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 					tempLen = CalcNoteLDur(doc, aNoteL, pL);
@@ -548,7 +548,7 @@ DDIST ObjSpaceUsed(Document *doc, LINK pL)
 						noteStaff = NoteSTAFF(aNoteL);
 					}
 				}
-				maxLen = n_max(tempLen,maxLen);
+				maxLen = n_max(tempLen, maxLen);
 				space = IdealSpace(doc, maxLen, RESFACTOR*doc->spacePercent);
 				symWidth = SymWidthRight(doc, pL, noteStaff, False);
 				GetContext(doc, pL, noteStaff, &context);
@@ -2744,7 +2744,7 @@ LINK MeasOnStaff(LINK measL, short s)
   	return NILINK;
 }
 
-/* If pL has a subobj (note or rest) on staff s, return it. pL must be a Sync. */
+/* If pL has a subobj (note or rest) on staff s, return the first one. pL must be a Sync. */
 
 LINK NoteOnStaff(LINK pL, short s)
 {
@@ -2757,7 +2757,7 @@ LINK NoteOnStaff(LINK pL, short s)
 	return NILINK;
 }			
 
-/* If pL has a subobj (grace note) on staff s, return it. pL must be a GRSync. */
+/* If pL has a subobj (grace note) on staff s, return the first one. pL must be a GRSync. */
 
 LINK GRNoteOnStaff(LINK pL, short s)
 {
@@ -2771,7 +2771,7 @@ LINK GRNoteOnStaff(LINK pL, short s)
 }			
 
 /* --------------------------------------------------------------- "InVoice" utilities -- */
-/* If syncL has a subobj (note or rest) in voice v, return it. */
+/* If syncL has a subobj (note or rest) in voice v, return the first one. */
 
 LINK NoteInVoice(LINK syncL, short v, Boolean needSel)
 {
@@ -2784,7 +2784,7 @@ LINK NoteInVoice(LINK syncL, short v, Boolean needSel)
 	return NILINK;
 }			
 
-/* If grSyncL has a subobj (grace note) in voice v, return it. */
+/* If grSyncL has a subobj (grace note) in voice v, return the first one. */
 
 LINK GRNoteInVoice(LINK grSyncL, short v, Boolean needSel)
 {
@@ -3050,7 +3050,7 @@ void SetSpareFlags(LINK startL, LINK endL, Boolean value)
 }
 
 
-/* ---------------------------------------------------------------------- IsMultiVoice -- */
+/* -------------------------------------------------------------------- IsXXMultiVoice -- */
 /* Determine if syncL has notes in multiple voices on <staff>. ??Ignores rests; this
 is probably a bug, but as of v. 5.7, this function isn't used for much, so probably
 not serious. */
@@ -3081,6 +3081,35 @@ Boolean IsSyncMultiVoice(LINK syncL, short staff)
 	return multiVoice;
 }
 
+/* If note(s) in syncL in the given voice are beamed, see if any of the notes/chords in
+that beam are in Syncs with multiple voices on <staff>; if not, just see if syncL itself
+has multiple voices on <staff>. */
+
+Boolean IsContextMultiVoice(LINK syncL, short staff, short voice)
+{
+	LINK aNoteL, beamL, aNoteBeamL, pL;
+	Boolean multiVoice;
+	short i;
+	
+	if (ObjLType(syncL)!=SYNCtype) return False;
+	
+	aNoteL = FindMainNote(syncL, voice);
+	if (!NoteBEAMED(aNoteL)) return IsSyncMultiVoice(syncL, staff);
+	else {
+		beamL = LVSearch(syncL, BEAMSETtype, voice, True, False);
+		aNoteBeamL = FirstSubLINK(beamL);
+//LogPrintf(LOG_DEBUG, "IsContextMultiVoice: syncL=%u staff=%d voice=%d beamL=%u\n",
+//			syncL, staff, voice, beamL);
+		for (i=0; aNoteBeamL; i++, aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
+			pL = NoteBeamBPSYNC(aNoteBeamL);
+			multiVoice = IsSyncMultiVoice(pL, staff);
+			if (multiVoice) return True;
+		}
+		return False;
+	}
+}
+
+	
 /* ----------------------------------------------------------------- GetSelectionStaff -- */
 /* If all selected notes/rests are on one staff, returns that staff, else returns
 NOONE. Ignores other selected objects. */

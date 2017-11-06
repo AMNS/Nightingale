@@ -1,8 +1,7 @@
 /*****************************************************************************************
 	FILE:	PitchCmds.c
 	PROJ:	Nightingale
-	DESC:	Commands that affect or check pitch or pitch notation, plus
-			Flip Direction.
+	DESC:	Commands that affect or check pitch or pitch notation, plus Flip Direction.
 		
 	FindExtremeNote			SetNRCStem				FlipBeamList
 	FlipSelDirection		Respell
@@ -23,15 +22,15 @@
 
 /* Local variables and functions */
 
-LINK FindExtremeNote(LINK, short, short);
-LINK FindExtremeGRNote(LINK, short, short);
-void SetNRCStem(LINK, LINK, Boolean, DDIST);
-void SetGRNStem(LINK, LINK, Boolean, DDIST);
+static LINK FindExtremeNote(LINK, short, short);
+static LINK FindExtremeGRNote(LINK, short, short);
+static void SetNRCStem(LINK, LINK, Boolean, DDIST);
+static void SetGRNStem(LINK, LINK, Boolean, DDIST);
 static void FlipBeamList(Document *, LINK [], short);
 
 /* --------------------------------------------------------------- FindExtreme(GR)Note -- */
 
-LINK FindExtremeNote(LINK syncL,
+static LINK FindExtremeNote(LINK syncL,
 						short voice,
 						short stemUpDown)			/* 1=up, -1=down */
 {
@@ -42,7 +41,7 @@ LINK FindExtremeNote(LINK syncL,
 	return (stemUpDown<0? hiNoteL : lowNoteL);
 }
 
-LINK FindExtremeGRNote(LINK grSyncL,
+static LINK FindExtremeGRNote(LINK grSyncL,
 						short voice,
 						short stemUpDown)			/* 1=up, -1=down */
 {
@@ -55,7 +54,7 @@ LINK FindExtremeGRNote(LINK grSyncL,
 
 /* -------------------------------------------------------------------- SetNRC/GRNStem -- */
 
-void SetNRCStem(LINK syncL, LINK aNoteL, Boolean makeLower, DDIST stemLen)
+static void SetNRCStem(LINK syncL, LINK aNoteL, Boolean makeLower, DDIST stemLen)
 {
 	DDIST ystem;  short voice;
 	
@@ -71,7 +70,7 @@ void SetNRCStem(LINK syncL, LINK aNoteL, Boolean makeLower, DDIST stemLen)
 	}
 }
 
-void SetGRNStem(LINK grSyncL, LINK aGRNoteL, Boolean makeLower, DDIST stemLen)
+static void SetGRNStem(LINK grSyncL, LINK aGRNoteL, Boolean makeLower, DDIST stemLen)
 {
 	DDIST ystem;  short voice;
 	
@@ -257,7 +256,7 @@ void FlipSelDirection(Document *doc)
 /* Respell every selected note in the "obvious" way, if there is one, as described
 in the comments for RespellNote. Also add accidentals to following notes where
 necessary to keep their pitches the same. For example, if one voice ??STAFF? of the
-selection contains Db,C with no barlines between, the Db gets changed to C# and the
+selection contains Db, C with no barlines between, the Db gets changed to C# and the
 C has a natural added to it. Similarly, if the last selected note in a voice is Db
 and the first unselected note in that voice is C with no barlines between, the two
 notes again get changed to C#,C-natural. After doing the respelling, we fix notes'
@@ -270,7 +269,7 @@ Boolean Respell(Document *doc)
 {
 	LINK		pL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
-	short		v, s;
+	short		v;
 	CONTEXT		context[MAXSTAVES+1];
 	PCONTEXT	pContext;
 	Boolean		changedNotes, changedChords, voiceChanged[MAXVOICES+1];
@@ -326,8 +325,8 @@ Boolean Respell(Document *doc)
 		}
 	if (changedNotes) {
 		DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
-		for (s = 1; s<=doc->nstaves; s++)
-			FixBeamsInRange(doc, doc->selStartL, doc->selEndL, s, True);
+		for (v = 0; v<=MAXVOICES; v++)
+			if (voiceChanged[v]) FixBeamsInVoice(doc, doc->selStartL, doc->selEndL, v, True);
 	}
 	if (changedNotes || changedChords) {
 		InvalRange(doc->selStartL, doc->selEndL);					/* Update objRects */
@@ -359,7 +358,7 @@ Boolean Transpose(
 	LINK		pL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
 	short		semiChangeOct,							/* Including octave change */
-				v, s,
+				v,
 				spellingBad, chordSpellingBad, lowMIDINum, hiMIDINum;
 	CONTEXT		context[MAXSTAVES+1];
 	Boolean		changedNotes, changedChords,
@@ -455,8 +454,8 @@ Boolean Transpose(
 	}
 	if (changedNotes) {
 		DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
-		for (s = 1; s<=doc->nstaves; s++)
-			FixBeamsInRange(doc, doc->selStartL, doc->selEndL, s, True);
+		for (v = 0; v<=MAXVOICES; v++)
+			if (voiceChanged[v]) FixBeamsInVoice(doc, doc->selStartL, doc->selEndL, v, True);
 	}
 
 	if (changedNotes || changedChords) {
@@ -477,10 +476,9 @@ accidentals to following notes where necessary to keep their pitches the same, a
 described in comments on the Respell function above. Return True if we actually change
 anything, else False.
 
-Like Semipro Composer, we leave all accidentals on transposed notes alone and simply
-move the notes up or down, although we may change accidentals on following notes to
-keep their pitches constant. After making this transformation, we remove redundant
-accidentals.
+We leave all accidentals on transposed notes alone and simply move the notes up or down,
+although we may change accidentals on following notes to keep their pitches constant.
+After making this transformation, we remove redundant accidentals.
 */
 
 Boolean DTranspose(
@@ -493,7 +491,7 @@ Boolean DTranspose(
 {
 	LINK		pL, aNoteL, aGRNoteL;
 	PGRAPHIC	pGraphic;
-	short		v, s;
+	short		v;
 	//short		lowMIDINum, hiMIDINum;
 	CONTEXT		context[MAXSTAVES+1];
 	Boolean		changedNotes, changedChords,
@@ -554,8 +552,8 @@ Boolean DTranspose(
 		
 	if (changedNotes) {
 		DelRedundantAccs(doc, ANYONE, DELSOFT_REDUNDANTACCS_DI);
-		for (s = 1; s<=doc->nstaves; s++)
-			FixBeamsInRange(doc, doc->selStartL, doc->selEndL, s, True);
+		for (v = 0; v<=MAXVOICES; v++)
+			if (voiceChanged[v]) FixBeamsInVoice(doc, doc->selStartL, doc->selEndL, v, True);
 	}
 	if (changedNotes || changedChords) {
 		InvalRange(doc->selStartL, doc->selEndL);							/* Update objRects */
@@ -690,7 +688,7 @@ Boolean TransposeKey(
 
 	for (v = 0; v<=MAXVOICES; v++)
 		voiceChanged[v] = False;
-	changedNotes = changedChords = False;
+	changedKeys = changedNotes = changedChords = False;
 	ksSpellingBad = spellingBad = chordSpellingBad = 0;
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
@@ -782,7 +780,7 @@ Boolean TransposeKey(
 		StfDelRedundantAccs(doc, DELSOFT_REDUNDANTACCS_DI, trStaff);
 		for (s = 1; s<=doc->nstaves; s++)
 			if (trStaff[s])
-				FixBeamsInRange(doc, doc->headL, doc->tailL, s, False);
+				FixBeamsOnStaff(doc, doc->headL, doc->tailL, s, False);
 	}
 
 	if (changedKeys) {
