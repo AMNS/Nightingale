@@ -262,6 +262,7 @@ Boolean DoFileMenu(short choice)
 			case FM_New:
 				doSymbol = (TopDocument==NULL);
 				DoOpenDocument(NULL, 0, False, NULL);
+				LogPrintf(LOG_INFO, "Opened new score.\n");
 				if (doSymbol && !IsWindowVisible(palettes[TOOL_PALETTE])) {
 					AnalyzeWindows();
 					DoViewMenu(VM_SymbolPalette);
@@ -517,7 +518,7 @@ static void DeleteObj(Document *doc, LINK pL)
 {
 	LogPrintf(LOG_NOTICE, "About to DeleteNode(%u) of type=%d...", pL, ObjLType(pL));
 
-	if (InDataStruct(doc, pL, MAIN_DSTR)) {
+	if (InObjectList(doc, pL, MAIN_DSTR)) {
 		DeleteNode(doc, pL);
 		LogPrintf(LOG_NOTICE, "done.\n");
 		doc->changed = True;
@@ -545,8 +546,8 @@ static void DeleteSelObjs(Document *doc)
 
 	/* Our only attempt to preserve consistency is to make the selection range legal. */
 	
-	if (!InDataStruct(doc, doc->selStartL, MAIN_DSTR)
-	||  !InDataStruct(doc, doc->selEndL, MAIN_DSTR)) {
+	if (!InObjectList(doc, doc->selStartL, MAIN_DSTR)
+	||  !InObjectList(doc, doc->selEndL, MAIN_DSTR)) {
 		firstMeasL = LSSearch(doc->headL, MEASUREtype, 1, GO_RIGHT, False);
 		doc->selStartL = doc->selEndL = RightLINK(firstMeasL);
 	}

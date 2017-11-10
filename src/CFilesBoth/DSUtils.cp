@@ -34,7 +34,7 @@
 		HasOtherStemSide		IsNoteLeftOfStem		GetStemUpDown
 		GetGRStemUpDown			GetExtremeNotes			GetExtremeGRNotes
 		FindMainNote			FindGRMainNote			GetObjectLimits
-		InDataStruct			GetSubObjStaff			GetSubObjVoice
+		InObjectList			GetSubObjStaff			GetSubObjVoice
 		ObjOnStaff				CommonStaff				ObjHasVoice
 		ObjSelInVoice			StaffOnStaff			ClefOnStaff
 		KeySigOnStaff			TimeSigOnStaff			MeasOnStaff
@@ -43,7 +43,7 @@
 		SyncVoiceOnStaff		SyncInBEAMSET			SyncInOTTAVA
 		PrevTiedNote			FirstTiedNote			ChordNextNR
 		GetCrossStaff			SetTempFlags			SetSpareFlags
-		IsSyncMultiVoice		IsContextMultiVoice		TweakSubRects
+		IsSyncMultiVoice		IsNeighborhoodMultiVoice TweakSubRects
 		CompareScoreFormat		DisposeMODNRs			Staff2PartL
 		PartL2Partn				VHasTieAcross			HasSmthgAcross
 		LineSpace2Rastral		Rastral2LineSpace		StaffRastral
@@ -2388,10 +2388,10 @@ void GetObjectLimits(short type,
 }
 
 
-/* ---------------------------------------------------------------------- InDataStruct -- */
-/* See if pL is in data structure (object list) indicated by whichList. */
+/* ---------------------------------------------------------------------- InObjectList -- */
+/* See if pL is in the object list indicated by whichList. */
 
-Boolean InDataStruct(Document *doc, LINK pL,
+Boolean InObjectList(Document *doc, LINK pL,
 						short whichList				/* Whether main, clipboard, or Undo */
 						)
 {
@@ -2414,16 +2414,16 @@ Boolean InDataStruct(Document *doc, LINK pL,
 			;
 	}
 
-	MayErrMsg("InDataStruct: illegal type %ld.", whichList);
+	MayErrMsg("InObjectList: illegal type %ld.", whichList);
 	return False;
 }
 
 
 /* -------------------------------------------------------------------- GetSubObjStaff -- */
-/* Given an index into the subobj list of an object, return the staffn of the
-subobj corresponding to that index, or NOONE if no such subobj exists. For
-objects of type PEXTEND, ignores index and returns the staffn of the object
-as a whole. Default gives error message and returns NOONE. PAGEs return NOONE. */
+/* Given an index into the subobj list of an object, return the staffn of the subobj
+corresponding to that index, or NOONE if no such subobj exists. For objects of type
+PEXTEND, ignores index and returns the staffn of the object as a whole. Default gives
+error message and returns NOONE. PAGEs return NOONE. */
 
 short GetSubObjStaff(LINK pL, short index)
 {
@@ -2525,9 +2525,9 @@ short GetSubObjVoice(LINK pL, short index)
 
 
 /* ------------------------------------------------------------------------ ObjOnStaff -- */
-/* Return True if pL or one of its subobjects is on the given staff. Does not
-consider cross-staff objects: a cross-staff slur with staffn=3 is also (in some
-sense) on staff 4, but this function will not detect that. */
+/* Return True if pL or one of its subobjects is on the given staff. Does not consider
+cross-staff objects: a cross-staff slur with staffn=3 is in some sense also on staff 4,
+but this function will not detect that. */
 
 Boolean ObjOnStaff(LINK pL, short staff, Boolean selectedOnly)
 {
@@ -2649,7 +2649,7 @@ and rename it ObjInVoice. */
 
 LINK ObjSelInVoice(LINK pL, short v)
 {
-	LINK link, aNoteL;
+	LINK link=NILINK, aNoteL;
 
 	if (ObjHasVoice(pL)) {
 		switch (ObjLType(pL)) {
@@ -2669,12 +2669,13 @@ LINK ObjSelInVoice(LINK pL, short v)
 				if (GraphicVOICE(pL) == v) link = pL; break;
 			case SLURtype:
 				if (SlurVOICE(pL) == v) link = pL; break;
-
 			default:
 				return NILINK;
 		}
 	}
-	return (LinkSEL(link) ? link : NILINK);
+	
+	if (link==NILINK)	return NILINK;
+	else				return (LinkSEL(link) ? link : NILINK);
 }
 
 /* --------------------------------------------------------------- "OnStaff" utilities -- */
@@ -3051,6 +3052,7 @@ void SetSpareFlags(LINK startL, LINK endL, Boolean value)
 
 
 /* -------------------------------------------------------------------- IsXXMultiVoice -- */
+
 /* Determine if syncL has notes in multiple voices on <staff>. ??Ignores rests; this
 is probably a bug, but as of v. 5.7, this function isn't used for much, so probably
 not serious. */
@@ -3081,32 +3083,53 @@ Boolean IsSyncMultiVoice(LINK syncL, short staff)
 	return multiVoice;
 }
 
-/* If note(s) in syncL in the given voice are beamed, see if any of the notes/chords in
-that beam are in Syncs with multiple voices on <staff>; if not, just see if syncL itself
-has multiple voices on <staff>. */
+/* Should 2-voice notation be used for the notes in the given voice and staff of syncL?
+The proper musical criteria are ill-defined. We return True, i.e., use 2-voice notation:
+(1) if note(s) in syncL in the given voice are beamed, and any of the notes/chords in
+that beam are in Syncs with multiple voices on <staff>.
+If they're not beamed, use 2-voice notation:
+(2) if syncL or either of the adjacent Syncs on <staff> have multiple voices on <staff>, or
+(3) if _both_ adjacent Syncs on <staff> involving <voice> have multiple voices. */
 
-Boolean IsContextMultiVoice(LINK syncL, short staff, short voice)
+Boolean IsNeighborhoodMultiVoice(LINK syncL, short staff, short voice)
 {
-	LINK aNoteL, beamL, aNoteBeamL, pL;
+	LINK aNoteL, beamL, aNoteBeamL, pL, lSyncL, rSyncL;
 	Boolean multiVoice;
 	short i;
 	
 	if (ObjLType(syncL)!=SYNCtype) return False;
 	
 	aNoteL = FindMainNote(syncL, voice);
-	if (!NoteBEAMED(aNoteL)) return IsSyncMultiVoice(syncL, staff);
-	else {
+	if (NoteBEAMED(aNoteL)) {
+		/* Criterion #1 */
 		beamL = LVSearch(syncL, BEAMSETtype, voice, True, False);
 		aNoteBeamL = FirstSubLINK(beamL);
-//LogPrintf(LOG_DEBUG, "IsContextMultiVoice: syncL=%u staff=%d voice=%d beamL=%u\n",
-//			syncL, staff, voice, beamL);
 		for (i=0; aNoteBeamL; i++, aNoteBeamL=NextNOTEBEAML(aNoteBeamL)) {
 			pL = NoteBeamBPSYNC(aNoteBeamL);
 			multiVoice = IsSyncMultiVoice(pL, staff);
 			if (multiVoice) return True;
 		}
-		return False;
 	}
+	else {
+		/* Criterion #2 */
+LogPrintf(LOG_DEBUG, "IsNeighborhoodMultiVoice #2: syncL=%u staff=%d voice=%d\n",
+			syncL, staff, voice);
+		if (IsSyncMultiVoice(syncL, staff)) return True;
+		lSyncL = LSSearch(LeftLINK(syncL), SYNCtype, staff, GO_LEFT, False);
+		if (lSyncL && IsSyncMultiVoice(lSyncL, staff)) return True;
+		rSyncL = LSSearch(RightLINK(syncL), SYNCtype, staff, GO_RIGHT, False);
+		if (rSyncL && IsSyncMultiVoice(rSyncL, staff)) return True;		
+
+		/* Criterion #3 */
+LogPrintf(LOG_DEBUG, "IsNeighborhoodMultiVoice #3: syncL=%u staff=%d voice=%d\n",
+			syncL, staff, voice);
+		lSyncL = LVSearch(LeftLINK(syncL), SYNCtype, voice, GO_LEFT, False);
+		if (lSyncL && IsSyncMultiVoice(lSyncL, staff)) return True;
+		rSyncL = LVSearch(RightLINK(syncL), SYNCtype, voice, GO_RIGHT, False);
+		if (rSyncL && IsSyncMultiVoice(rSyncL, staff)) return True;		
+	}
+
+	return False;
 }
 
 	

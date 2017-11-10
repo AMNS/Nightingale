@@ -2229,7 +2229,7 @@ it aside for now.
 
 -------------------------------------------------------------------------------
 
-31 Oct. - 5 Nov.
+31 Oct. - 8 Nov.
 
 Open RespellAndTransp_2Voice.ngl, select all, transpose up 1 octave => the stem endpoints
 are just where they used to be, so down stems are now way too long and up stems way too
@@ -2256,9 +2256,10 @@ FixBeamsInRange just calls Rebeam(doc, beamL); Rebeam calls
 But the voiceRole recorded in the voice table is just the voice's _current_ role; it's
 only weakly correlated with the role played by the notes in a given beamed group! Rebeam
 should probably check if the beam's notes are involved in multivoice notation, and if
-so, preserve the stem direction => done. What if they aren't involved in multivoice
-notation? Currently we use the voiceRole; again, that's only weakly correlated with the
-note(s)' role; would it be better to use single-voice rules? Probably, but maybe put
-that off for now.
+so, preserve the stem direction; likewise for unbeamed notes/chrds => done. Except
+what does "involved in..." mean? The "neighborhood" matters too, especially for unbeamed
+notes/chords; consider at least adjacent notes/chords on the staff => ??
 
-
+And what if they _aren't_ involved in multivoice notation? Currently we use the
+voiceRole, but again, that's only weakly correlated with the note(s)' role. Would it be
+better to use single-voice rules? Probably, but maybe put that off for now??

@@ -11,7 +11,7 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-/* -------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Local prototypes */
 
 static void SetStaffLengths(Document *, LINK);
@@ -57,13 +57,11 @@ static LINK MakeNewStaff(Document *, LINK, LINK, DDIST);
 static LINK MakeNewConnect(Document *, LINK);
 
 
-/* ---------------------------------------------------- General Editing utilities -- */
+/* --------------------------------------------------------- General Editing utilities -- */
 
-/*
- * Update the staffTop field of all staff subObjects in range [headL, tailL).
- * Set all staffTops to equal the corresponding value in the staffTop array
- * allocated by Master Page & indexed by staffn. FIXME: Should call UpdateStaffTops.
- */
+/* Update the staffTop field of all staff subObjects in range [headL, tailL). Set
+all staffTops to equal the corresponding value in the staffTop array allocated by
+Master Page & indexed by staffn. FIXME: Should call UpdateStaffTops. */
 
 void MPUpdateStaffTops(Document *doc, LINK headL, LINK tailL)
 {
@@ -79,11 +77,9 @@ void MPUpdateStaffTops(Document *doc, LINK headL, LINK tailL)
 }
 
 
-/*
- * Update the staffRight field of subObjects of staffL to reflect the current
- * position of the rightMargin of doc. Called in response to editing or other
- * change of document marginRect.
- */
+/* Update the staffRight field of subObjects of staffL to reflect the current position
+position of the rightMargin of doc. Should be called in response to editing or other
+change of document marginRect. */
 
 static void SetStaffLengths(Document *doc, LINK staffL)
 {
@@ -99,10 +95,8 @@ static void SetStaffLengths(Document *doc, LINK staffL)
 }
 
 
-/*
- * Set the staffLengths of all staves in range [headL, tailL) to reflect
- * the current rightMargin of doc.
- */
+/* Set the staffLengths of all staves in range [headL, tailL) to reflect the current
+rightMargin of doc. */
 
 static void SetAllStaffLengths(Document *doc, LINK headL, LINK tailL)
 {
@@ -115,7 +109,7 @@ static void SetAllStaffLengths(Document *doc, LINK headL, LINK tailL)
 
 
 /*
- *	Fix System Rect inside the Master Page object list itself. To be done after
+ * Fix System Rect inside the Master Page object list itself. To be done after
  * dragging the last staff up or down, in order to keep systemRect consistent
  * with the new position of the staves, or after adding/removing parts or changing
  * staff size. dv is the amount by which the height of the System Rect should change.
@@ -134,8 +128,8 @@ void UpdateMPSysRectHeight(Document *doc, DDIST dv)
 
 
 /*
- * Update the systemRect of sysL to reflect doc->marginRect; called in response
- * to editing or other change of doc->marginRect.
+ * Update the systemRect of sysL to reflect doc->marginRect; called in response to
+ * editing or other change of doc->marginRect.
  */
 
 static void UpdateSystemRects(Document *doc, LINK sysL)
@@ -157,13 +151,11 @@ static void UpdateSystemRects(Document *doc, LINK sysL)
 }
 
 
-/* -------------------------------------------- Routines for Exporting MasterPage -- */
+/* ------------------------------------------------- Routines for Exporting MasterPage -- */
 
-/*
- *	Return True if exporting Master Page will result in contents dangling off the
- * end of one or more systems; can happen if user has edited marginRect.right or
- * left, or staff rastral size.
- */
+/* Return True if exporting Master Page will result in contents dangling off the end
+end of one or more systems; can happen if user has edited marginRect.right or left, or
+staff rastral size. */
 
 #define DANGLING_SLOP pt2d(1)
 
@@ -207,10 +199,8 @@ static short MaxSysOnPage(Document *doc)
 }
 
 
-/*
- *	Return True if exporting Master Page will result in one or more systems not
- * fitting on their pages.
- */
+/* Return True if exporting Master Page will result in one or more systems not
+fitting on their pages. */
 
 static Boolean DanglingSystems(Document *doc)
 {
@@ -320,7 +310,6 @@ static void MPFixSystemRectYs(Document *doc)
 	firstSysL = SSearch(doc->headL, SYSTEMtype, False);
 	
 	for (sysL =  firstSysL; sysL; sysL = LinkRSYS(sysL)) {
-
 		if (FirstSysInPage(sysL)) {
 			sysTop = (sysL==firstSysL? firstMargin : topMargin); 
 			sysBottom = sysTop+(masterSysBottom-masterSysTop);
@@ -337,8 +326,8 @@ static void MPFixSystemRectYs(Document *doc)
 }
 
 
-/* Update systemRectXs of all Systems in doc's main object list according to
-the current Master Page settings. */
+/* Update systemRectXs of all Systems in doc's main object list according to the current
+Master Page settings. */
 
 static void MPFixSystemRectXs(Document *doc)
 {
@@ -370,8 +359,8 @@ static void MPFixSystemRectXs(Document *doc)
 
 
 /*
- * Get the ledgerYSp of the document based upon the hiPitchLim above the
- * top staff of the first staff object in the document.
+ * Get the ledgerYSp of the document based upon the hiPitchLim above the top staff
+ * of the first staff object in the document.
  */
 
 void FixLedgerYSp(Document *doc)
@@ -385,8 +374,7 @@ void FixLedgerYSp(Document *doc)
 }
 
 
-/* Conform all ranges [system, connect] in the score to the Master Page
-object list. */
+/* Conform all ranges [system, connect] in the score to the Master Page object list. */
 
 static void ConformRanges(Document *doc)
 {
@@ -414,9 +402,9 @@ static void ConformRanges(Document *doc)
 		MPUpdateStaffTops(doc, doc->headL, doc->tailL);
 		MPUpdateStaffTops(doc, doc->masterHeadL, doc->masterTailL);
 	}
-	/* Set a flag to fix ledgers and measure rects of measures in
-		the document. FixMeasRectYs(doc) will be called in ExportChanges
-		after the Part/Staff structure of the document is fixed up. */
+	/* Set a flag to fix ledgers and measure rects of measures in the document.
+		FixMeasRectYs(doc) should be called in ExportChanges after the Part/Staff
+		structure of the document is fixed up. */
 	if (conformSysV || conformStfTops) {
 		doc->fixMeasRectYs = True;
 	}
@@ -543,7 +531,7 @@ void ExportMasterPage(Document *doc)
 }
 
 
-/* ------------------------------------------------- MasterPage Editing Routines -- */
+/* ------------------------------------------------------- MasterPage Editing Routines -- */
 
 /*
  * Change the staffTop value in Master Page's staffTop array for the staff
@@ -559,10 +547,8 @@ static void ChangeStaffTops(Document *doc, LINK /*pL*/, LINK aStaffL, long newPo
 }
 
 
-/*
- *	Update the Master Page to reflect changes resulting from dragging the
- * system up or down.
- */
+/* Update the Master Page to reflect changes resulting from dragging the system up or
+down. */
 
 void UpdateDraggedSystem(Document *doc, long newPos)
 {
@@ -586,10 +572,8 @@ void UpdateDraggedSystem(Document *doc, long newPos)
 }
 
 
-/*
- *	Update the Master Page to reflect changes resulting from dragging a
- * staff up or down.
- */
+/* Update the Master Page to reflect changes resulting from dragging a staff up or 
+down. */
 
 void UpdateDraggedStaff(Document *doc, LINK pL, LINK aStaffL, long newPos)
 {
@@ -610,10 +594,7 @@ void UpdateDraggedStaff(Document *doc, LINK pL, LINK aStaffL, long newPos)
 }
 
 
-/*
- *	Update the Master Page to reflect changes resulting from editing the
- * margin rect.
- */
+/* Update the Master Page to reflect changes resulting from editing the margin rect. */
 
 void UpdateMasterMargins(Document *doc)
 {
@@ -631,9 +612,9 @@ void UpdateMasterMargins(Document *doc)
 }
 
 
-/* --------------------------------------------- Routines for exiting MasterPage -- */
+/* --------------------------------------------------- Routines for exiting MasterPage -- */
 
-/* ------------------------------------------------------------ FixMasterStfSel -- */
+/* ------------------------------------------------------------------- FixMasterStfSel -- */
 /* Clear any left-over selection from the mastarpage staff. */
 
 static void ClearMasterStfSel(Document *doc) 
@@ -644,15 +625,15 @@ static void ClearMasterStfSel(Document *doc)
 }
 
 
-/* ------------------------------------------------------------ ResetMasterFields -- */
+/* ----------------------------------------------------------------- ResetMasterFields -- */
 /* Reset Master Page fields to default values. */
 
 static void ResetMasterFields(Document *doc)
 {
-	/*	JGG did this as part of lifting restrictions on deleting parts.
-		Old selection may no longer be in data structure. */
-	if (InDataStruct(doc, doc->oldSelStartL, MAIN_DSTR)
-			&& InDataStruct(doc, doc->oldSelEndL, MAIN_DSTR)) {
+	/*	JGG did this as part of lifting restrictions on deleting parts. The old
+		selection may no longer be in the object list. */
+	if (InObjectList(doc, doc->oldSelStartL, MAIN_DSTR)
+			&& InObjectList(doc, doc->oldSelEndL, MAIN_DSTR)) {
 		doc->selStartL = doc->oldSelStartL;
 		doc->selEndL = doc->oldSelEndL;
 	}
@@ -703,7 +684,7 @@ static Boolean AnyMPChanged(Document *doc)
 }
 
 
-/* -------------------------------------------------------------- ResetMasterPage -- */
+/* ------------------------------------------------------------------- ResetMasterPage -- */
 /* Revert Master Page fields and replace Master Page object list. FIXME: Need to
 decide what to do about Master Page fields handled in ResetMasterFields. */
 
@@ -717,7 +698,7 @@ static void ResetMasterPage(Document *doc)
 }
 
 
-/* --------------------------------------------------------------- GetExportAlert -- */
+/* -------------------------------------------------------------------- GetExportAlert -- */
 /* Determine whether local format changes (from Work on Format) will be lost when
 exporting changes made inside Master Page. If so, return EXPORTFMT_ALRT; otherwise, 
 return EXPORT_ALRT. */
@@ -757,7 +738,7 @@ static enum {
 	RFMT_ChangeSBreaks
 } E_ReformatItems;
 
-/* --------------------------------------------------------------- ExitMasterView -- */
+/* -------------------------------------------------------------------- ExitMasterView -- */
 /* Do everything necessary to leave Master Page. Call ExportMasterPage to export
 all of Master Page's state variables to the main object list, if needed; then reset
 all of them.
@@ -878,9 +859,9 @@ quit:
 }
 
 
-/* ------------------------------------------- Routines for setting up MasterPage -- */
+/* ------------------------------------------------ Routines for setting up MasterPage -- */
 
-/* -------------------------------------------------------------- EnterMasterView -- */
+/* ------------------------------------------------------------------- EnterMasterView -- */
 /* Call all routines needed to get into masterView. */
 
 void EnterMasterView(Document *doc)
@@ -891,7 +872,7 @@ void EnterMasterView(Document *doc)
 }
 
 
-/* ------------------------------------------------------------- ImportMasterPage -- */
+/* ------------------------------------------------------------------ ImportMasterPage -- */
 /* Import score parameters: array of staffTops, yBetweenSys, etc. */
 
 void ImportMasterPage(Document *doc)
@@ -933,17 +914,17 @@ void ImportMasterPage(Document *doc)
 }
 
 
-/* Check if a single system will fit on a single page in Master Page with
-rastral size newRastral, assuming the current size is srastral and "proportional
-respacing". This check is necessary because if at least one system will fit, we
-can reformat to satisfaction upon exiting Master Page; otherwise, we will be
-unable to reformat, with error resulting. */
+/* Check if a single system will fit on a single page in Master Page with rastral
+size newRastral, assuming the current size is srastral and "proportional respacing".
+This check is necessary because if at least one system will fit, we can reformat to
+satisfaction upon exiting Master Page; otherwise, we won't be able to reformat, with
+error resulting. */
 
 static Boolean MPChkSysHt(Document *doc, short srastral, short newRastral)
 {
-	LINK sysL; DRect sysRect;
+	LINK sysL;  DRect sysRect;
 	double sysSize, sysOffset;
-	long docPageHt; LONGDDIST pageHt;
+	long docPageHt;  LONGDDIST pageHt;
 	FASTFLOAT fact;
 
 	fact = (FASTFLOAT)drSize[newRastral]/drSize[srastral];
@@ -987,8 +968,8 @@ void DoMasterStfSize(Document *doc)
 				doc->staffTopMP[i] += ymove;
 	
 			/* If doing "proportional respace", change the distance between staves as
-				well as the staves themselves. Don't change the top margin, so 
-				start moving with staff 2. */
+				well as the staves themselves. Don't change the top margin, so start 
+				moving with staff 2. */
 	
 			if (propRespace) {
 				for (i=2; i<=doc->nstavesMP; i++)
@@ -1111,7 +1092,7 @@ void MPEditMargins(Document *doc)
 }
 
 
-/* -------------------------------------------------------------- SetupMasterMenu -- */
+/* ------------------------------------------------------------------- SetupMasterMenu -- */
 /* Replace the play/record menu with the Master Page menu. */
 
 void SetupMasterMenu(Document *doc, Boolean /*enter*/)
@@ -1120,7 +1101,7 @@ void SetupMasterMenu(Document *doc, Boolean /*enter*/)
 }
 
 
-/* -------------------------------------------------------------- CopyMasterPage -- */
+/* -------------------------------------------------------------------- CopyMasterPage -- */
 /* Copy the Master Page object list at headL, and return the headL of the
 copy. Not valid for general object list: does minimal updating necessary for
 Master Page object list, and is not guaranteed for more. All copying is in
@@ -1153,7 +1134,7 @@ static LINK CopyMasterPage(Document *doc, LINK headL, LINK *newTailL)
 }
 
 
-/* ------------------------------------------------------------- SetupMasterView -- */
+/* ------------------------------------------------------------------- SetupMasterView -- */
 /* Allocate memory for all necessary objects in Master Page view. */
 
 Boolean SetupMasterView(Document *doc)
@@ -1174,16 +1155,13 @@ broken:
 }
 
 
-/* --------------------------------------------- Routines to re-create MasterPage -- */
+/* -------------------------------------------------- Routines to re-create MasterPage -- */
 
-/* Replace the Master Page for doc with a Master Page created from the current
- * Master Page object list; used to re-generate the Master Page if its object
- * list has become obsolete, for example, if the structure of the score
- * is changed by MPImport
- =. This is not something that should be done
- * lightly: under normal circumstances, the content of the score should never affect
- * the Master Page. (Formerly called ReplaceMasterPage.)
- */
+/* Replace the Master Page for doc with one created from the current Master Page object
+list; used to re-generate the Master Page if, for example, if the structure of the score
+is changed by MPImport. This is not something that should be done lightly: under normal
+circumstances, the content of the score should never affect the Master Page. (Formerly
+called ReplaceMasterPage.) */
 
 void Score2MasterPage(Document *doc)
 {
@@ -1197,8 +1175,7 @@ void Score2MasterPage(Document *doc)
 
 
 /* Replace the Master Page for doc with a copy of a previously-saved Master Page
- *	object list.
- */
+object list. */
 
 void ReplaceMasterPage(Document *doc)
 {
@@ -1208,11 +1185,11 @@ void ReplaceMasterPage(Document *doc)
 }
 
 
-/* ----------------------------------------------- Routines to create MasterPage -- */
+/* ----------------------------------------------------- Routines to create MasterPage -- */
 
-/* Visify invisible staves in the Master system. Master page staves should never
-EVER be invisible; this can be called whenever there's a chance they might be,
-e.g., after constructing a Master Page object list from an ordinary system. */
+/* Visify invisible staves in the Master system. Master Page staves should _never_
+be invisible!; this can be called whenever there's a chance they might be, e.g., after
+constructing a Master Page object list from an ordinary system. */
 
 void VisifyMasterStaves(Document *doc)
 {
@@ -1230,17 +1207,13 @@ void VisifyMasterStaves(Document *doc)
 }
 
 
-/*
- *	Create a new Master Page object list, and return True if OK; False if not.
- *	If fromDoc is True, create a Master Page from a document that doesn't
- * have one, so copy its first system; otherwise, create a new default system
- * for the Master Page.
- *
- *	The list consists of head and tail, the head followed by a single range from
- * page to connect inclusive. The range [system, connect] will be re-drawn
- * repeatedly offset downwards by sysHeight+doc->yBetweenSysMP to display a
- * page full of systems.
- */
+/* Create a new Master Page object list, and return True if OK; False if not. If fromDoc
+is True, create a Master Page from a document that doesn't have one, so copy its first
+system; otherwise, create a new default system for the Master Page.
+
+The list consists of head and tail, the head followed by a single range from page to
+connect inclusive. The range [system, connect] will be re-drawn repeatedly offset
+downwards by sysHeight+doc->yBetweenSysMP to display a page full of systems. */
 
 Boolean NewMasterPage(Document *doc, DDIST sysTop, Boolean fromDoc)
 {
@@ -1303,7 +1276,7 @@ broken:
 
 
 /*
- *	A version of CopyRange for the creation of the Master Page. Assumes all copying is
+ * A version of CopyRange for the creation of the Master Page. Assumes all copying is
  * from/to objects in the same heap. Does not use a COPYMAP, since it only copies
  * objects of type J_STRUC and CONNECTs.
  */
@@ -1341,7 +1314,8 @@ static LINK MakeNewPage(Document *doc)
 {
 	LINK pL; PPAGE pPage; 
 
-	if (pL = InsertNode(doc, RightLINK(doc->masterHeadL), PAGEtype, 0)) {
+	pL = InsertNode(doc, RightLINK(doc->masterHeadL), PAGEtype, 0);
+	if (pL) {
 		SetObject(pL, 0, 0, False, True, True);
 		LinkTWEAKED(pL) = False;
 
@@ -1363,8 +1337,8 @@ static LINK MakeNewSystem(Document *doc, LINK qL, LINK qPageL, DDIST sysTop)
 {
 	LINK pL; PSYSTEM pSystem; DDIST sysLeft;
 	
-	if (pL = InsertNode(doc, RightLINK(qL), SYSTEMtype, 0)) {
-	
+	pL = InsertNode(doc, RightLINK(qL), SYSTEMtype, 0);
+	if (pL) {
 		sysLeft = MARGLEFT(doc)+doc->otherIndent;
 		SetObject(pL, sysLeft, sysTop, False, True, True);
 		LinkTWEAKED(pL) = False;
@@ -1379,14 +1353,12 @@ static LINK MakeNewSystem(Document *doc, LINK qL, LINK qPageL, DDIST sysTop)
 }
 
 
-/*
- *	This sets up the PARTINFO objects for the masterHead. It is only to be
- * called when creating the first system in the entire Master Page object list.
- */
+/* This sets up the PARTINFO objects for the masterHead. It should be called only
+when creating the first system in the entire Master Page object list. */
 	
 static void SetMasterPParts(Document *doc)
 {
-	LINK partL; PPARTINFO pPart;
+	LINK partL;  PPARTINFO pPart;
 
 	partL = FirstSubLINK(doc->masterHeadL);
 
@@ -1402,9 +1374,10 @@ static void SetMasterPParts(Document *doc)
 
 static LINK MakeNewStaff(Document *doc, LINK qL, LINK qSystemL, DDIST sysTop)
 {
-	LINK aStaffL; short MPinitStfTop1, MPinitStfTop2, MPledgerYSp;
+	LINK aStaffL;
+	short MPinitStfTop1, MPinitStfTop2, MPledgerYSp;
 	DDIST staffLength, sysHeight, indent;
-	PSYSTEM qSystem; PSTAFF pStaff;
+	PSYSTEM qSystem;  PSTAFF pStaff;
 
 	MPledgerYSp = doc->ledgerYSp;
 	MPinitStfTop1 = (short)(MPledgerYSp*drSize[doc->srastral]/STFHALFLNS);
@@ -1447,7 +1420,8 @@ static LINK MakeNewStaff(Document *doc, LINK qL, LINK qSystemL, DDIST sysTop)
 
 static LINK MakeNewConnect(Document *doc, LINK qL)
 {
-	LINK pL, aConnectL; DDIST halfpt, dLineSp, width;
+	LINK pL, aConnectL;
+	DDIST halfpt, dLineSp, width;
 	PCONNECT pConnect;
 
 	dLineSp = STHEIGHT/(STFLINES-1);							/* Space between staff lines */
@@ -1491,11 +1465,11 @@ static LINK MakeNewConnect(Document *doc, LINK qL)
 }
 
 
-/* ---------------------------------------------------------------- Miscellaneous -- */
+/* --------------------------------------------------------------------- Miscellaneous -- */
 
-/* Store the PARTINFO LINK to the part connected by aConnectL. The firstStaff
-and lastStaff fields of the connect subObj must be inited, and the connLevel
-must be PartLevel. */
+/* Store the PARTINFO LINK to the part connected by aConnectL. The firstStaff and
+lastStaff fields of the connect subObj must be init'ed, and the connLevel must be
+PartLevel. */
 
 void StoreConnectPart(LINK headL, LINK aConnectL)
 {

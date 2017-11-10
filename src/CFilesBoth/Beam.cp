@@ -177,10 +177,11 @@ LINK Rebeam(Document *doc, LINK beamL)
 
 	/* If notes in the beam are involved in multivoice notation, preserve the beam's
 		stem up or down characteristic. Otherwise, use the voice's current voiceRole,
-		though that can change and it may not be desirable for this beam. */
-	if (IsContextMultiVoice(firstSyncL, BeamSTAFF(beamL), voice)) {
+		though that can change and it may not be desirable for this beam. FIXME:
+		use single-voice rules! */
+	if (IsNeighborhoodMultiVoice(firstSyncL, BeamSTAFF(beamL), voice)) {
 		stemUp = IsBeamStemUp(beamL);
-		voiceRole = (stemUp? UPPER_DI : LOWER_DI);
+		voiceRole = (stemUp? UPPER_DI : LOWER_DI);  //??NO! USE SINGLE VOICE RULE//
 	}
 	else
 		voiceRole = doc->voiceTab[voice].voiceRole;
@@ -898,7 +899,7 @@ void UnbeamV(Document *doc, LINK fromL, LINK toL, short voice)
 		newSelStart = doc->selStartL;
 	Unbeamx(doc, fromL, toL, voice);								/* Remove normal beams */
 	GRUnbeamx(doc, fromL, toL, voice);								/* Remove grace beams */
-	if (InDataStruct(doc, newSelStart, MAIN_DSTR))
+	if (InObjectList(doc, newSelStart, MAIN_DSTR))
 		doc->selStartL = newSelStart;
 	else 
 		for (pL=doc->headL; pL; pL = RightLINK(pL))

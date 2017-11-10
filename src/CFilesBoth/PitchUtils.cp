@@ -350,12 +350,14 @@ void FixVoiceForPitchChange(
 		aNoteL = FindMainNote(pL, voice);
 		if (!aNoteL) return;
 		GetContext(doc, pL, NoteSTAFF(aNoteL), &context);
-		/* See if the "group" -- everything in the note's beam if it's beamed, else
+		/* See if the "neighborhood" -- everything in the note's beam if it's beamed, else
 			just the note/chord -- is in multivoice (>=2 voices on the staff) notation.
 			If so, keep the stem's current direction and try to preserve its length. */
-		if (IsContextMultiVoice(pL, NoteSTAFF(aNoteL), voice)) {
-LogPrintf(LOG_DEBUG, "FixVoiceForPitchChange: pL=%u voice=%d staff=%d is multivoice\n",
-	pL,  voice, NoteSTAFF(aNoteL));
+//LogPrintf(LOG_DEBUG, "FixVoiceForPitchChange: pL=%u voice=%d staff=%d\n",
+//	pL,  voice, NoteSTAFF(aNoteL));
+		if (IsNeighborhoodMultiVoice(pL, NoteSTAFF(aNoteL), voice)) {
+//LogPrintf(LOG_DEBUG, "FixVoiceForPitchChange: pL=%u voice=%d staff=%d is multivoice\n",
+//	pL,  voice, NoteSTAFF(aNoteL));
 			stemDown = NoteYD(aNoteL)<NoteYSTEM(aNoteL);
 			stemDirCode = (stemDown? -1 : 1);
 			if (NoteINCHORD(aNoteL)) FixSyncForChord(doc, pL, voice,
@@ -369,8 +371,8 @@ LogPrintf(LOG_DEBUG, "FixVoiceForPitchChange: pL=%u voice=%d staff=%d is multivo
 												qStemLen, False);
 			}
 
-LogPrintf(LOG_DEBUG, "FixVoiceForPitchChange: stemDown=%d qStemLen=%d yStem=%d\n",
-stemDown,  qStemLen, NoteYSTEM(aNoteL));
+//LogPrintf(LOG_DEBUG, "FixVoiceForPitchChange: stemDown=%d qStemLen=%d yStem=%d\n",
+// stemDown,  qStemLen, NoteYSTEM(aNoteL));
 			return;
 		}
 
@@ -1533,7 +1535,7 @@ void ArrangeNCAccs(CHORDNOTE chordNote[], short noteCount, Boolean stemDown)
 	}
 	
 	/*
-	 * Count the accidentals in the chord, and find the smallest diatonic interval
+	 *	Count the accidentals in the chord, and find the smallest diatonic interval
 	 *	between two notes with accidentals. Then, if the smallest interval is wide
 	 *	enough so no overlapping is possible, put all the accidentals in the default
 	 *	horizontal position; otherwise, position them with the middle note's
@@ -1542,10 +1544,11 @@ void ArrangeNCAccs(CHORDNOTE chordNote[], short noteCount, Boolean stemDown)
 	 *	choose the lower of the two possible middle notes--important if the number is
 	 *	just 2.
 	 *
-	 *	This algorithm could be improved greatly, though it would have to be much
-	 * more complex, e.g., taking into account the different heights (both ascent
-	 *	and descent) of different accidentals to reset partly or completely. Cf.
-	 * Ross, pp. 130-135.
+	 *	This is really not a good way to arrange accidentals, but it does a decent
+	 *	job as long as there are no more than about three accidentals, and not many
+	 *	chords have more! Doing a much better job would be much complex: it'd have to
+	 *	consider the different heights (both ascent and descent) of the accidentals 
+	 *	to look for places to reset partly or completely. Cf. Ross, pp. 130-135.
 	 */
 	for (closest = 9999, accCount = 0, i = 0; i<noteCount; i++) {
 		aNote = GetPANOTE(chordNote[i].noteL);

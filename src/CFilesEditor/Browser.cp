@@ -418,7 +418,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			case iGo:
 				SelectDialogItemText(dlog, iGoNum, 0, ENDTEXT); 		/* hilite number */
 			 	if (GetDlgWord(dlog, iGoNum, &goLoc))
-					if (InDataStruct(doc, (LINK)goLoc, MAIN_DSTR)) {
+					if (InObjectList(doc, (LINK)goLoc, MAIN_DSTR)) {
 						pL = (LINK)goLoc;
 						index = 0;
 						break;

@@ -1796,3 +1796,15 @@ PitchCmds,PitchUtils.
 
 Minor cleanup. Affects MergeUtils, MIDIPlay, PitchCmds, PitchUtils, Utility, VoiceTable.
 
+-------------------------------------------------------------------------------
+
+7 - 9 Nov.
+
+When a new score is opened, write an INFO message to the log. Affects Menu.
+
+When transposing or respelling, decide whether notation is multivoice, requiring
+adjustment of stem direction and length, by some rather complex rules (Issue 142).
+Affects Beam, DSUtils, PitchUtils.
+
+Minor cleanup: rename InDataStruct to InObjectList, avoid possibly uninitialized
+variables, etc. Affects Beam, Browser, DebugUtils, Delete, MasterPage, Menu, Utility.

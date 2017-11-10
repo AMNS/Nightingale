@@ -2312,11 +2312,11 @@ static void DelSelCleanup(
 {
 	LINK pL, endL;
 	
-	/* If any subObjs or objs were actually deleted, determine the
-		correct location and set selStartL and selEndL. */
+	/* If any subObjs or objs were actually deleted, determine the correct location
+		and set selStartL and selEndL. */
 
 	if (didAnything) {
-		if (InDataStruct(doc, newSelL, MAIN_DSTR)) {
+		if (InObjectList(doc, newSelL, MAIN_DSTR)) {
 			if (content) {
 				if (IsAfter(newSelL, RightLINK(firstMeasL)))
 					doc->selStartL = doc->selEndL = RightLINK(firstMeasL);
@@ -2336,25 +2336,22 @@ static void DelSelCleanup(
 			}
 		}
 		else 
-			MayErrMsg("DelSelCleanup: newSelL = %ld not in object list.",
+			MayErrMsg("DelSelCleanup: newSelL = %ld is not in object list.",
 						(long)newSelL);
 	}
 
-	/* Fix the measSizeRect.rights of the Measures whose width changes;
-		post-process the beamsets on the boundary of the selection range,
-		and constrain the selRange to be consistent with the actual range
-		of selected objects. */
+	/* Fix the measSizeRect.rights of the Measures whose width changes; post-
+		process the beamsets on the boundary of the selection range, and constrain
+		the selRange to be consistent with the actual range of selected objects. */
 
 	if (content && prevMeasL) FixDelMeasures(doc, prevMeasL);
 	PostFixDelBeams(doc);
 	BoundSelRange(doc);
 	
-	/*
-	 * Fix status of whole/whole-measure rests in every measure affected by the
-	 * delete. If deletion was before the first measure of any system, since
-	 * no selection that extends from such a point into a measure can be deleted,
-	 * we don't need to do anything at all.
-	 */
+	/* Fix status of whole/whole-measure rests in every measure affected by the
+		delete. If deletion was before the first measure of any system, since no
+		selection that extends from such a point into a measure can be deleted, we
+		don't need to do anything at all. */
 
 	if (prevMeasL) {
 		endL = EndMeasSearch(doc, newSelL);

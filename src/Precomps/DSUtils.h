@@ -121,7 +121,7 @@ LINK FindMainNote(LINK, short);
 LINK FindGRMainNote(LINK, short);
 
 void GetObjectLimits(short, short *, short *, Boolean *);
-Boolean InDataStruct(Document *doc, LINK, short);
+Boolean InObjectList(Document *doc, LINK, short);
 short GetSubObjStaff(LINK, short);
 short GetSubObjVoice(LINK, short);
 Boolean ObjOnStaff(LINK, short, Boolean);
@@ -159,7 +159,7 @@ char *StaffPartName(Document *doc, short staff);
 void SetTempFlags(Document *, Document *, LINK, LINK, Boolean);
 void SetSpareFlags(LINK, LINK, Boolean);
 Boolean IsSyncMultiVoice(LINK pL, short staff);
-Boolean IsContextMultiVoice(LINK syncL, short staff, short voice);
+Boolean IsNeighborhoodMultiVoice(LINK syncL, short staff, short voice);
 short GetSelectionStaff(Document *doc);
 void TweakSubRects(Rect *r, LINK aNoteL, CONTEXT *pContext);
 Boolean CompareScoreFormat(Document *doc1, Document *doc2, short pasteType);

@@ -46,6 +46,7 @@
 
 #include "CarbonPrinting.h"
 
+
 /* ------------------------------------------------------------------------- CalcYStem -- */
 /*	Calculate optimum stem endpoint for a note. */
 
@@ -521,7 +522,7 @@ Normally gets the height from the ascent and descent returned by GetNFontInfo, w
 calls GetFontInfo. For "normal" fonts, this will often be more than it really should
 be, but the difference will rarely be too great; but Sonata and compatible music fonts
 have enormous ascent and descent, so the height would be much too large. To avoid this
-problem, if the font is either Sonata OR the current music font, we use the ascent and
+problem, if the font is either Sonata or the current music font, we use the ascent and
 descent of the actual characters in the string as given by GetMusicAscDesc instead of
 the font's ascent and descent. */
 
@@ -537,12 +538,13 @@ void GetNPtStringBBox(
 	short width, ascent, descent, nLines, lineHt;
 	FontInfo fInfo;
 
+	nLines = 1;
+	
 	if (multiLine) {
 		/* Count lines; take width from the longest line. */
 		short i, j, totalLen, curLineLen, curLineWidth;
 		Str255 tempStr;
 		Byte *p;
-		nLines = 1;
 
 		Pstrcpy(tempStr, string);
 
@@ -729,7 +731,7 @@ SPACETIMEINFO *AllocSpTimeInfo()
 These make it easy to work with color images.  See Apple documentation
 ("Offscreen Graphics Worlds.pdf") for more.   JGG, 8/11/01 */
 
-/* Create a new graphics world (GWorld) for offscreen drawing, having the given\
+/* Create a new graphics world (GWorld) for offscreen drawing, having the given
 dimensions.  If <lock> is True, the PixMap of this GWorld will be locked on return.
 Returns the new GWorldPtr, or NULL if error. */
 

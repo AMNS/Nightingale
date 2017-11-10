@@ -821,8 +821,9 @@ short DCheckNode(
 						sidestep the problem with negligible side effects. --DAB, 10/2015
 					 */
 					if (d2pt(pSystem->systemRect.right-2*ExtraSysWidth(doc))>doc->marginRect.right)
-							COMPLAIN("*DCheckNode: SYSTEM L%u RECT PAST RIGHT MARGIN.\n", pL);
-//LogPrintf(LOG_NOTICE, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->systemRect.right, ExtraSysWidth(doc), doc->marginRect.right);
+							COMPLAIN3("*DCheckNode: SYSTEM L%u RECT PAST RIGHT MARGIN (%d vs. %d).\n", pL,
+								d2pt(pSystem->systemRect.right), doc->marginRect.right);
+LogPrintf(LOG_DEBUG, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->systemRect.right, ExtraSysWidth(doc), doc->marginRect.right);
 
 					if (pSystem->lSystem) {
 						lSystem = GetPSYSTEM(pSystem->lSystem);				
@@ -841,20 +842,20 @@ short DCheckNode(
 				break;
 				
 			case STAFFtype: {
-				PSTAFF	lStaff, rStaff;
-				DDIST		sysWidth, sysHeight;
-				Boolean	isFirstStaff;
+				PSTAFF lStaff, rStaff;
+				DDIST sysWidth, sysHeight;
+				Boolean isFirstStaff;
 				
 					pStaff = GetPSTAFF(pL);
 					if (pStaff->lStaff) {
 						lStaff = GetPSTAFF(pStaff->lStaff);
 						if (lStaff->rStaff != pL)
-							COMPLAIN("�DCheckNode: STAFF L%u HAS INCONSISTENT STAFF LINK.\n", pL);
+							COMPLAIN("�DCheckNode: STAFF L%u LEFT STAFF HAS INCONSISTENT RIGHT LINK.\n", pL);
 					}
 					if (pStaff->rStaff) {
 						rStaff = GetPSTAFF(pStaff->rStaff);
 						if (rStaff->lStaff != pL)
-							COMPLAIN("�DCheckNode: STAFF L%u HAS INCONSISTENT STAFF LINK.\n", pL);
+							COMPLAIN("�DCheckNode: STAFF L%u RIGHT STAFF HAS INCONSISTENT LEFT LINK.\n", pL);
 					}
 					isFirstStaff = !pStaff->lStaff;
 
@@ -1575,11 +1576,11 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 	CountSelection(doc, pnInRange, pnSelFlag);
 
 	if (!doc->masterView) {
-		if (!InDataStruct(doc, doc->selStartL, MAIN_DSTR))
+		if (!InObjectList(doc, doc->selStartL, MAIN_DSTR))
 			COMPLAIN("�DCheckSel: selStartL=%d NOT IN MAIN OBJECT LIST.\n",
 						doc->selStartL);
 	
-		if (!InDataStruct(doc, doc->selEndL, MAIN_DSTR)) {
+		if (!InObjectList(doc, doc->selEndL, MAIN_DSTR)) {
 			COMPLAIN("�DCheckSel: selEndL=%d NOT IN MAIN OBJECT LIST.\n",
 						doc->selEndL);
 			return True;
@@ -1928,7 +1929,7 @@ Boolean DCheckJDOrder(Document *doc)
 			if (PageTYPE(attL)) break;
 			for (qL = RightLINK(pL); qL!=attL; qL = RightLINK(qL))
 				if (!J_DTYPE(qL)) {
-					if (!InDataStruct(doc, attL, MAIN_DSTR)) {
+					if (!InObjectList(doc, attL, MAIN_DSTR)) {
 						COMPLAIN3("�DCheckJDOrder: GRAPHIC ON STAFF %d L%u firstObj=%d NOT IN MAIN OBJECT LIST.\n",
 									GraphicSTAFF(pL), pL, attL);
 					}
