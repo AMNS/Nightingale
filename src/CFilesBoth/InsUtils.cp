@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	InsUtils.c
 *	PROJ:	Nightingale
 *	DESC:	Utility routines for inserting symbols.
@@ -24,14 +24,14 @@
 	UpdateTailxd			CenterTextGraphic
 	NewObjInit				NewObjSetup				NewObjPrepare			 	
 	NewObjCleanup			XLoadInsUtilsSeg
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -45,7 +45,7 @@ static void AddGRNoteUnbeam(Document *, LINK, LINK, LINK, short);
 static DDIST GetTopStfLim(Document *, LINK, LINK, PCONTEXT);
 static DDIST GetBotStfLim(Document *, LINK, LINK, PCONTEXT);
 
-/* --------------------------------------------------------------- GetPaperMouse -- */
+/* --------------------------------------------------------------------- GetPaperMouse -- */
 /* Deliver mouse position in paper-relative coordinates, and deliver True or
 False, according to whether it's inside paper or not.  Paper is a rectangle
 in window-relative coordinates. */
@@ -62,7 +62,7 @@ Boolean GetPaperMouse(Point *pt, Rect *paper)
 	return(ans);
 }
 
-/* -------------------------------------------------------------- ForceInMeasure -- */
+/* -------------------------------------------------------------------- ForceInMeasure -- */
 /* Given a horizontal position in in window-local coordinates, if it's before
 doc->currentSystem's initial (invisible) barline, return a value 1 pixel to right
 of the that barline. Intended to be used by insertion routines that want to avoid
@@ -81,7 +81,7 @@ short ForceInMeasure(Document *doc, short x)
 }
 
 
-/* ------------------------------------------------------------------ GetInsRect -- */
+/* ------------------------------------------------------------------------ GetInsRect -- */
 /* Given a link where something is to be inserted, return a Rect (in paper-relative)
 coordinates that the cursor should be within to insert it, i.e., if the cursor ends
 up outside that Rect, the insert should be cancelled. */
@@ -105,7 +105,7 @@ void GetInsRect(Document *doc, LINK startL, Rect *tRectp)
 }
 
 
-/* -------------------------------------------------------------------- Hairpins -- */
+/* ------------------------------------------------------------------- Handle Hairpins -- */
 
 /* Draw the hairpin during the dragging loop. */
 
@@ -228,7 +228,7 @@ Boolean TrackAndAddHairpin(Document *doc, LINK insSyncL, Point pt, short clickSt
 				goto Done;
 			}
 		}
-		HiliteInsertNode(doc, lastSyncL, clickStaff, True);
+		InvertSymbolHilite(doc, lastSyncL, clickStaff, True);			/* Hilite on */
 		SleepTicks(HILITE_TICKS);
 		/*
 		 * Determine if the hairpin was drawn backwards or forwards and, if backwards,
@@ -272,7 +272,7 @@ Done:
 }
 
 
-/* ---------------------------------------------------------------------- Endings -- */
+/* -------------------------------------------------------------------- Handle Endings -- */
 
 static void IDrawEndingBracket(Point downPt, Point pt, DDIST lnSpace);
 static Boolean TrackEnding(Document *, LINK, Point, Point *, short);
@@ -352,12 +352,12 @@ Boolean TrackAndAddEnding(Document *doc, Point pt, short clickStaff)
 
 	insertL = doc->selStartL;
 
-	HiliteInsertNode(doc, insertL, clickStaff, True);
+	InvertSymbolHilite(doc, insertL, clickStaff, True);			/* Hilite on */
 	if (TrackEnding(doc, insertL, pt, &newPt, clickStaff)) {
 		Pt2Paper(doc, &newPt);
 		crossSys = GetCrossStatus(doc, pt, newPt, &firstStf, &lastStf);
 		if (crossSys) {
-			GetIndCString(strBuf, INSERTERRS_STRS, 10);    /* "An ending can't start & end on different systems." */
+			GetIndCString(strBuf, INSERTERRS_STRS, 10);			/* "An ending can't start & end on different systems." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
 			InvalMeasures(doc->selStartL, doc->selStartL, clickStaff);
@@ -371,11 +371,11 @@ Boolean TrackAndAddEnding(Document *doc, Point pt, short clickStaff)
 		else				findPt = pt;
 		lastL = FindLPI(doc, findPt, clickStaff, ANYONE, True);
 
-		HiliteInsertNode(doc, lastL, clickStaff, True);
+		InvertSymbolHilite(doc, lastL, clickStaff, True);
 		SleepTicks(HILITE_TICKS);
 
 		if (!EndingDialog(number, &newNumber, cutoffs, &newCutoffs)) {
-			InvalSystem(insertL);									/* Redraw the system to erase feedback */
+			InvalSystem(insertL);								/* Redraw the system to erase feedback */
 			return False;
 		}
 		
@@ -399,7 +399,7 @@ Boolean TrackAndAddEnding(Document *doc, Point pt, short clickStaff)
 	}
 }
 
-/* -------------------------------------------------------------------------- Lines -- */
+/* ---------------------------------------------------------------------- Handle Lines -- */
 
 static void IDrawLine(Point downPt, Point pt);
 static Boolean TrackLine(Document *, LINK, Point, Point *, short);
@@ -530,7 +530,7 @@ Boolean TrackAndAddLine(Document *doc, Point pt, short clickStaff, short voice)
 
 	insertL = doc->selStartL;
 
-	HiliteInsertNode(doc, insertL, clickStaff, True);
+	InvertSymbolHilite(doc, insertL, clickStaff, True);			/* Hilite on */
 	if (!TrackLine(doc, insertL, pt, &newPt, clickStaff)) goto Nope;
 
 	Pt2Paper(doc, &newPt);
@@ -564,7 +564,7 @@ Boolean TrackAndAddLine(Document *doc, Point pt, short clickStaff, short voice)
 		pt = tempPt;
 	}
 
-	HiliteInsertNode(doc, lastL, clickStaff, True);
+	InvertSymbolHilite(doc, lastL, clickStaff, True);			/* Hilite off */
 	SleepTicks(HILITE_TICKS);
 
 	doc->selEndL = doc->selStartL = insertL;
@@ -573,23 +573,23 @@ Boolean TrackAndAddLine(Document *doc, Point pt, short clickStaff, short voice)
 	/* Following code assumes both endpoints are Syncs or GRSyncs. */
 	
 	syncL = InsFindNRG(doc, pt, &aNoteL);
-	if (!syncL) goto Nope;											/* Should never happen */
+	if (!syncL) goto Nope;										/* Should never happen */
 	firstHalfLn = GetNRGHalfSpaces(syncL, aNoteL, context);
 
 	syncL = InsFindNRG(doc, newPt, &aNoteL);
-	if (!syncL) goto Nope;											/* Can happen: need err msg? */
+	if (!syncL) goto Nope;										/* Can happen: ??need err msg? */
 	lastHalfLn = GetNRGHalfSpaces(syncL, aNoteL, context);
 
 	NewLine(doc,firstHalfLn,lastHalfLn,palChar,clickStaff,voice,lastL);
 	return True;
 
 Nope:
-	InvalSystem(insertL);											/* Redraw the system to erase feedback */
+	InvalSystem(insertL);										/* Redraw the system to erase feedback */
 	return False;
 }
 
 
-/* -------------------------------------------------------------------- FindSync -- */
+/* -------------------------------------------------------------------------- FindSync -- */
 /* Find a Sync very close to given point, or return NULL.  If !isGraphic, the Sync
 must already have a note/rest on the given staff. */
 
@@ -724,7 +724,7 @@ LINK FindSync(Document *doc, Point pt,
 }
 
 
-/* ---------------------------------------------------------- AddCheckVoiceTable -- */
+/* ---------------------------------------------------------------- AddCheckVoiceTable -- */
 
 Boolean AddCheckVoiceTable(Document *doc, short staff)
 {
@@ -744,7 +744,7 @@ Boolean AddCheckVoiceTable(Document *doc, short staff)
 }
 
 
-/* ------------------------------------------------------------------- AddNoteCheck -- */
+/* ---------------------------------------------------------------------- AddNoteCheck -- */
 /*	Check whether it's OK to add a note/rest in the current voice and the given staff
 to the given Sync, and deliver True if it is OK. (As of v. 5.7, the insertion user
 interface distinguishes chord slashes, but they're really just funny notes.) */
@@ -772,10 +772,9 @@ Boolean AddNoteCheck(Document *doc,
 			if (!Int2UserVoice(doc, voice, &userVoice, &partL))
 					userVoice = -1;
 					
-			/* The error conditions result from Nightingale's inability to handle
-			 *	a voice in a Sync on more than one staff, and our refusal to allow
-			 *	a voice in a Sync to have a rest and anything else.
-			 */
+			/* The error conditions result from the facts that a voice in a Sync with
+				a rest can't have anything else, and that Nightingale can't handle a
+				voice in a Sync on more than one staff. */
 			if (NoteSTAFF(aNoteL)!=staff) {		
 				GetIndCString(fmtStr, INSERTERRS_STRS, 24);    /* "Can't insert in voice %d here; already has something on staff %d." */
 				sprintf(strBuf, fmtStr, userVoice, NoteSTAFF(aNoteL)); 
@@ -800,14 +799,14 @@ Boolean AddNoteCheck(Document *doc,
 	}
 	
 	if (!okay) {
-		HiliteInsertNode(doc, addToSyncL, staff, True);
+		InvertSymbolHilite(doc, addToSyncL, staff, True);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 	}
 	return okay;
 }
 
-/* ------------------------------------------------------------------- FindGRSync -- */
+/* ------------------------------------------------------------------------ FindGRSync -- */
 /* Find a GRSync very close to given point, or return NULL.  If !isGraphic, the
 GRSync must already have a grace note on the given staff. */
 
@@ -923,7 +922,7 @@ LINK FindGRSync(Document *doc, Point pt,
 }
 
 
-/* ----------------------------------------------------------------- AddGRNoteCheck -- */
+/* -------------------------------------------------------------------- AddGRNoteCheck -- */
 /* Check whether it's OK to add a grace note in the current voice and the given
 staff to the given GRSync. */
 
@@ -933,16 +932,16 @@ Boolean AddGRNoteCheck(
 				short	staff
 				)
 {
-	short		voice, userVoice;
-	LINK		aNoteL, partL;
-	char		fmtStr[256];
+	short	voice, userVoice;
+	LINK	aNoteL, partL;
+	char	fmtStr[256];
 	
 	voice = USEVOICE(doc, staff);
 	aNoteL = FirstSubLINK(addToGRSyncL);
 	for ( ; aNoteL; aNoteL = NextGRNOTEL(aNoteL)) {
 		if (GRNoteVOICE(aNoteL)==voice) {
 			if (GRNoteSTAFF(aNoteL)!=staff) {						/* Is new symbol on different staff? */
-				HiliteInsertNode(doc, addToGRSyncL, staff, True);
+				InvertSymbolHilite(doc, addToGRSyncL, staff, True);
 				if (!Int2UserVoice(doc, voice, &userVoice, &partL)) userVoice = -1;
 				GetIndCString(fmtStr, INSERTERRS_STRS, 28);			/* "Can't insert in voice %d here: that voice already has something on staff %d." */
 				sprintf(strBuf, fmtStr, voice, GRNoteSTAFF(aNoteL)); 
@@ -955,7 +954,7 @@ Boolean AddGRNoteCheck(
 	return True;
 }
 
-/* ------------------------------------------------------------------ FindSyncRight -- */
+/* --------------------------------------------------------------------- FindSyncRight -- */
 /* Returns the first Sync whose objRect.left is to the right of pt.h */
 
 LINK FindSyncRight(Document *doc, Point pt, Boolean needVisible)
@@ -971,7 +970,7 @@ LINK FindSyncRight(Document *doc, Point pt, Boolean needVisible)
 }
 
 
-/* ------------------------------------------------------------------- FindSyncLeft -- */
+/* ---------------------------------------------------------------------- FindSyncLeft -- */
 /* Returns the first Sync whose objRect.left is to the left of pt.h */
 
 LINK FindSyncLeft(Document *doc, Point pt, Boolean needVisible)
@@ -987,7 +986,7 @@ LINK FindSyncLeft(Document *doc, Point pt, Boolean needVisible)
 }
 
 
-/* ---------------------------------------------------------------- FindGRSyncRight -- */
+/* ------------------------------------------------------------------- FindGRSyncRight -- */
 /* Returns the first GRSync whose objRect.left is to the right of pt.h */
 
 LINK FindGRSyncRight(Document *doc, Point pt, Boolean needVisible)
@@ -1003,7 +1002,7 @@ LINK FindGRSyncRight(Document *doc, Point pt, Boolean needVisible)
 }
 
 
-/* ----------------------------------------------------------------- FindGRSyncLeft -- */
+/* -------------------------------------------------------------------- FindGRSyncLeft -- */
 /* Returns the first GRSync whose objRect.left is to the left of pt.h */
 
 LINK FindGRSyncLeft(Document *doc, Point pt, Boolean needVisible)
@@ -1019,7 +1018,7 @@ LINK FindGRSyncLeft(Document *doc, Point pt, Boolean needVisible)
 }
 
 
-/* ------------------------------------------------------------------- FindSymRight -- */
+/* ---------------------------------------------------------------------- FindSymRight -- */
 /* Returns first node on doc->currentSystem whose objRect.left is to the right of
 pt.h.
 
@@ -1031,7 +1030,7 @@ This will not find page-relative Graphics, which we do not want anyway. */
 
 LINK FindSymRight(Document *doc, Point pt,
 						Boolean needVisible,
-						Boolean useJD			/* If True, find JD symbols, else ignore them */
+						Boolean useJD		/* If True, find JD symbols, else ignore them */
 						)
 {
 	register LINK	pL,resultL,endL;
@@ -1054,7 +1053,7 @@ LINK FindSymRight(Document *doc, Point pt,
 }	
 
 
-/* ------------------------------------------------------------------------ FindLPI -- */
+/* --------------------------------------------------------------------------- FindLPI -- */
 	
 /* Find the last item on <staff> prior to <pt>, where needVisible indicates 
 whether the first symbol to the right of <pt> needs to be visible in order to be
@@ -1133,7 +1132,7 @@ LINK FindLPI(Document *doc,
 	return pLPIL;
 }
 
-/* ---------------------------------------------------------------- ObjAtEndTime -- */
+/* ---------------------------------------------------------------------- ObjAtEndTime -- */
 /* Return the object in staff or voice <id> which ends at the exact end time of or
 after the end time of pL, depending on useV and exact.
 GetLTime is called once by this function and multiple times by TimeSearchRight;
@@ -1160,7 +1159,7 @@ LINK ObjAtEndTime(
 }
 
 
-/* ------------------------------------------------------------------- FindInsertPt -- */
+/* ---------------------------------------------------------------------- FindInsertPt -- */
 /* Locate the insertion point corresponding to pL's slot in the data structure. The
 slot consists of all J_D objects dependent on a J_IP or J_IT object terminating the
 slot, plus the J_IP/J_IT symbol; the insertion point corresponding to the slot is
@@ -1180,7 +1179,7 @@ LINK FindInsertPt(LINK pL)
 }
 
 
-/* -------------------------------------------------------------------- GetPitchLim -- */
+/* ----------------------------------------------------------------------- GetPitchLim -- */
 /* Given a staff subobject, deliver its extreme usable pitch level, in half-spaces
 relative to the top of the staff (negative values are going up). That pitch level
 is the most restrictive of:
@@ -1242,7 +1241,7 @@ short GetPitchLim(Document *doc, LINK staffL,
 }
 
 
-/* -------------------------------------------------------------- CalcPitchLevel -- */
+/* -------------------------------------------------------------------- CalcPitchLevel -- */
 /*	For a given cursor y-position, returns pitch level (vertical position) in
 half-lines, relative to the staff top line, negative values going up. */
 
@@ -1306,7 +1305,7 @@ short CalcPitchLevel(
 	}
 }	
 
-/* ---------------------------------------------------------- FindStaffSetSys et al -- */
+/* ------------------------------------------------------------- FindStaffSetSys et al -- */
 /* Return the staffn of the staff nearest to the given point, presumably a mouse
 click location, or NOONE of the point isn't within any system.  Also sets global
 doc->currentSystem. */
@@ -1347,7 +1346,7 @@ static DDIST GetBotStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT context
 
 short FindStaffSetSys(Document *doc, Point pt)
 {
-	register LINK		pL,aStaffL;
+	register LINK	pL, aStaffL;
 	register PCONTEXT	pContext;
 	Rect			r;
 	PCONTEXT		contextTbl;
@@ -1390,7 +1389,7 @@ done:
 }
 
 
-/* ------------------------------------------------------------ SetCurrentSystem -- */
+/* ------------------------------------------------------------------ SetCurrentSystem -- */
 /* Set doc->currentSystem to be the number of the system containing pt, normally a
 mouse click location, and returns that system. If pt is not within a system, leaves
 doc->currentSystem alone and returns NILINK. Assumes doc->currentSheet is already
@@ -1423,7 +1422,7 @@ LINK SetCurrentSystem(Document *doc, Point pt)
 	return NILINK;
 }
 
-/* ------------------------------------------------------------ GetCurrentSystem -- */
+/* ------------------------------------------------------------------ GetCurrentSystem -- */
 /*	Get the system referenced by doc->currentSystem. */
 
 LINK GetCurrentSystem(Document *doc)
@@ -1431,7 +1430,7 @@ LINK GetCurrentSystem(Document *doc)
 	return LSSearch(doc->headL, SYSTEMtype, doc->currentSystem, GO_RIGHT, False);
 }
 
-/* ------------------------------------------------------------- AddGRNoteUnbeam -- */
+/* ------------------------------------------------------------------- AddGRNoteUnbeam -- */
 /* Deletes beamL, and traverses from startL to endL not inclusive, setting
 aGRNote->beamed False for all grace notes on <staff>. Unlike UnbeamRange,
 AddGRNoteUnbeam does not FixSyncForChord, etc., so it leaves things in a
@@ -1457,7 +1456,7 @@ static void AddGRNoteUnbeam(Document *doc, LINK beamL, LINK startL, LINK endL,
 	}
 }
 
-/* ------------------------------------------------------------- AddNoteFixBeams -- */
+/* ------------------------------------------------------------------- AddNoteFixBeams -- */
 /* AddNoteFixBeams should be called ONLY if <newNoteL> is being inserted in the
 middle of a beamset; it fixes things up appropriately. It assumes inChord flags are
 set properly for notes in the Sync in <newNoteL>'s voice. */ 
@@ -1570,7 +1569,7 @@ void AddNoteFixBeams(Document *doc,
 }
 
 
-/* -------------------------------------------------------------- AddGRNoteFixBeams -- */
+/* ----------------------------------------------------------------- AddGRNoteFixBeams -- */
 /* AddGRNoteFixBeams should be called ONLY if <newGRNoteL> is being inserted in the
 middle of a beamset; it unbeams the GRBeamset and leaves it unbeamed. */ 
 
@@ -1629,7 +1628,7 @@ void AddNoteFixTuplets(Document *doc,
 }
 
 
-/* ----------------------------------------------------------- AddNoteFixOttavas -- */
+/* ----------------------------------------------------------------- AddNoteFixOttavas -- */
 /* Given a note that's being inserted into an ottava'd range, set its inOttava
 flag True and adjust its yd and ystem. If the note is not being chorded with an
 existing note, also insert a subobject into the ottava object for its Sync.
@@ -1686,7 +1685,7 @@ Boolean AddNoteFixOttavas(LINK newL, LINK newNoteL)	/* Sync and new note (in tha
 }
 
 
-/* ---------------------------------------------------------------- AddNoteFixSlurs -- */
+/* ------------------------------------------------------------------- AddNoteFixSlurs -- */
 /* If there's a tie crossing the added note, remove it. Ignore slurs, which can
 cross any intervening notes: maybe this function should be renamed AddNoteFixTies.
 ??This function should certainly work by voice, not by staff! */
@@ -1717,7 +1716,7 @@ void AddNoteFixSlurs(Document *doc, LINK newL, short staff)
 }
 
 
-/* ---------------------------------------------------------- AddNoteFixGraphics -- */
+/* ---------------------------------------------------------------- AddNoteFixGraphics -- */
 /* Make firstObj pointers of all Graphics that now point to oldpL point to newpL. */
 
 void AddNoteFixGraphics(LINK newpL, LINK oldpL)
@@ -1726,7 +1725,7 @@ void AddNoteFixGraphics(LINK newpL, LINK oldpL)
 	LINK		systemL, graphicL;
 	
 	systemL = LSSearch(newpL, SYSTEMtype, 1, True, False);
-	for (graphicL = LSSearch(newpL, GRAPHICtype, ANYONE, True,False);
+	for (graphicL = LSSearch(newpL, GRAPHICtype, ANYONE, True, False);
 		  graphicL && !IsAfter(graphicL, systemL);
 		  graphicL = LSSearch(LeftLINK(graphicL), GRAPHICtype,
 		  								ANYONE, True, False)) {
@@ -1737,7 +1736,7 @@ void AddNoteFixGraphics(LINK newpL, LINK oldpL)
 }
 
 
-/* ---------------------------------------------------------------- FixWholeRests -- */
+/* --------------------------------------------------------------------- FixWholeRests -- */
 /* In <thisL>'s measure, correct whole rest/whole measure rest status: make whole
 rests be whole-measure rests iff there are no other notes/rests in their voice in
 the measure. Exception: in some time signatures, we also make breve rests be
@@ -1791,7 +1790,7 @@ void FixWholeRests(Document *doc, LINK thisL)
 }
 
 
-/* -------------------------------------------------------------- FixNewMeasAccs -- */
+/* -------------------------------------------------------------------- FixNewMeasAccs -- */
 /*	FixNewMeasAccs should be called when the given Measure object has just been
 created by inserting it and may already contain notes. Notes within it that
 formerly inherited accidentals from preceding notes on their line/space in what
@@ -1816,7 +1815,7 @@ void FixNewMeasAccs(Document *doc, LINK measureL)
 }
 
 
-/* --------------------------------------------------------------- InsFixMeasNums -- */
+/* -------------------------------------------------------------------- InsFixMeasNums -- */
 /* Update fakeMeas and measureNum fields of appropriate Measures and Measure subobjs
 in the given document. <newL> is assumed to be an object whose insertion occasions the
 update; if its insertion could not affect measure numbers, we do nothing. Specifically,
@@ -1858,7 +1857,7 @@ Boolean InsFixMeasNums(Document *doc, LINK newL)
 }
 
 
-/* ------------------------------------------------------------ FindGraphicObject -- */
+/* ----------------------------------------------------------------- FindGraphicObject -- */
 /* Get the relObj for a graphic which is to be inserted. */
 
 LINK FindGraphicObject(Document *doc, Point pt,
@@ -1881,12 +1880,12 @@ LINK FindGraphicObject(Document *doc, Point pt,
 }
 
 
-/* ------------------------------------------------------------- ChkGraphicRelObj -- */
+/* ------------------------------------------------------------------ ChkGraphicRelObj -- */
 /* Check the type of the relObj for a Graphic which is to be inserted and return
 True iff it's OK; otherwise, give an error message and return False. */
 
 Boolean ChkGraphicRelObj(LINK pL,
-							char subtype)			/* ??SignedByte May be pseudo-code <GRChar> */
+							char subtype)	/* ??SignedByte May be pseudo-code <GRChar> */
 {
 	if (!pL) return False;
 	
@@ -1945,10 +1944,9 @@ Boolean ChkGraphicRelObj(LINK pL,
 		case RPTENDtype:
 			break;
 		default:
-			/*
-			 * ??Users don't think rehearsal marks, chord symbols, and music symbols are
-			 * Graphics; it'd be better if this error message distinguished them.
-			 */ 
+			/* FIXME: Users don't think rehearsal marks, chord symbols, and music symbols
+				are Graphics; it'd be better if this error message distinguished them. */
+				 
 			GetIndCString(strBuf, INSERTERRS_STRS, 16);    /* "A Graphic within a system must be attached to a barline, note/rest, clef, key signature, time signature, or spacer." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
@@ -1959,7 +1957,7 @@ Boolean ChkGraphicRelObj(LINK pL,
 }
 
 
-/* -------------------------------------------------------------- FindTempoObject -- */
+/* ------------------------------------------------------------------- FindTempoObject -- */
 /* Get the relObj for a Tempo object which is to be inserted. */
 
 LINK FindTempoObject(Document *doc, Point pt, short *staff, short *voice)
@@ -1999,11 +1997,11 @@ LINK FindTempoObject(Document *doc, Point pt, short *staff, short *voice)
 }
 
 
-/* --------------------------------------------------------------- FindEndingObject -- */
+/* ------------------------------------------------------------------ FindEndingObject -- */
 /* Get the relObj for an Ending which is to be inserted. For objects with connStaffs
 and subObjects which span staff ranges the CheckObject and FindObject routines do
 not work well (??apparently in the sense of finding the correct subObjects); for
-these objects FindStaffSetSys should provide unambiguous results and is used. */
+these objects FindStaffSetSys should provide unambiguous results. */
 
 LINK FindEndingObject(Document *doc, Point pt, short *staff)
 {
@@ -2033,11 +2031,11 @@ LINK FindEndingObject(Document *doc, Point pt, short *staff)
 	return pL;
 }
 
-/* ---------------------------------------------------------------- UpdateTailxd -- */
+/* ---------------------------------------------------------------------- UpdateTailxd -- */
 /* Maintain a valid xd for the tailL of the document to indicate horizontal position
 of objects pasted or inserted at the end of the score. This will not always give
 good results, e.g., if the score ends with a Sync with a whole note in voice 1
-followed by a Sync with just a 16th in voice 2. Cf. MeasOccupiedWidth, which
+followed by a Sync with just a 16th in voice 2. FIXME: Cf. MeasOccupiedWidth, which
 does something similar; its help function SymLikelyWidthRight and CalcSpaceNeeded
 should be combined or, better, this function should just call MeasOccupiedWidth. */
 
@@ -2061,7 +2059,7 @@ void UpdateTailxd(Document *doc)
 }
 
 
-/* ------------------------------------------------------------ CenterTextGraphic -- */
+/* ----------------------------------------------------------------- CenterTextGraphic -- */
 /* Center the Graphic with respect to a normal-width note (half or shorter) we assume
 it's attached to; if it's attached to anything else, it probably won't be well
 centered. FIXME: Uses the width of the Graphic's objRect, the accuracy of which is
@@ -2079,7 +2077,7 @@ void CenterTextGraphic(Document *doc, LINK graphicL)
 }
 
 
-/* ------------------------------------------------------------------ NewObjInit -- */
+/* ------------------------------------------------------------------------ NewObjInit -- */
 
 Boolean NewObjInit(Document *doc, short type, short *sym, char inchar, short staff,
 							PCONTEXT context)
@@ -2113,7 +2111,7 @@ Boolean NewObjInit(Document *doc, short type, short *sym, char inchar, short sta
 }
 
 
-/* ----------------------------------------------------------------- NewObjSetup -- */
+/* ----------------------------------------------------------------------- NewObjSetup -- */
 
 void NewObjSetup(Document *doc,
 						LINK newpL,
@@ -2128,13 +2126,13 @@ void NewObjSetup(Document *doc,
 }
 
 
-/* --------------------------------------------------------------- NewObjPrepare -- */
+/* --------------------------------------------------------------------- NewObjPrepare -- */
 
 LINK NewObjPrepare(Document *doc, short type, short *sym, char inchar, short staff,
 							short x, CONTEXT *context)
 {
 	LINK	newpL;
-	DDIST	xd;
+	DDIST	xd=0;
 	short	insertType;
 
 	NewObjInit(doc, type, sym, inchar, staff, context);
@@ -2174,15 +2172,15 @@ LINK NewObjPrepare(Document *doc, short type, short *sym, char inchar, short sta
 }
 
 
-/* --------------------------------------------------------------- NewObjCleanup -- */
+/* --------------------------------------------------------------------- NewObjCleanup -- */
 
 void NewObjCleanup(Document *doc, LINK newpL, short staff)
 {
 	LINK		pMeasL,sysL;
 	DDIST		measxd;
 	
-	doc->selStartL = newpL; 													/* Update selection first ptr */
-	doc->selEndL = RightLINK(newpL);											/* ...and last ptr */
+	doc->selStartL = newpL; 											/* Update selection first ptr */
+	doc->selEndL = RightLINK(newpL);									/* ...and last ptr */
 
 	if (doc->selEndL==doc->tailL) UpdateTailxd(doc);
 	if (doc->autoRespace && objTable[ObjLType(newpL)].justType!=J_D) {
@@ -2193,9 +2191,9 @@ void NewObjCleanup(Document *doc, LINK newpL, short staff)
 			if (LinkXD(pMeasL)!=measxd || pMeasL==LeftLINK(doc->selStartL)) {	/* Did meas. length change? */
 				sysL = LSSearch(doc->selStartL,SYSTEMtype,ANYONE,False,False);
 				if (sysL) 
-					RespaceBars(doc,doc->selStartL,sysL,0L,False,False);		/* Probably--make space in following meas. for new symbol */
+					RespaceBars(doc,doc->selStartL,sysL,0L,False,False);		/* Probably; make space in following meas. for new symbol */
 				else
-					RespaceBars(doc,doc->selStartL,doc->tailL,0L,False,False);	/* Probably--make space in following meas. for new symbol */
+					RespaceBars(doc,doc->selStartL,doc->tailL,0L,False,False);	/* Probably; make space in following meas. for new symbol */
 			}
 		}
 		else

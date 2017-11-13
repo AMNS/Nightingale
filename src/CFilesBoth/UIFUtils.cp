@@ -2,7 +2,7 @@
 *	FILE:	UIFUtils.c
 *	PROJ:	Nightingale
 *	DESC:	General-purpose utility routines for implementing the user interface.
-		GetStaffLim				HiliteInsertNode		HiliteTwoNodesOn
+		GetStaffLim				InvertSymbolHilite		InvertTwoSymbolHilite
 		HiliteAttPoints
 		FixCursor				FlashRect				SamePoint
 		Advise					NoteAdvise				CautionAdvise
@@ -59,14 +59,14 @@ static DDIST GetStaffLim(
 	return blackBottom;
 }
 
-/* ------------------------------------------------------------------ HiliteInsertNode -- */
-/* Hilite an object in a distinctive way to show it's the one into which a
-subobject is about to be inserted, or to which an object is or will be attached.
-The hiliting we do is a vertical dotted line thru the object, thickened slightly
-at the "special" staff if there is one. If pL is a structural element--SYSTEM, PAGE,
-STAFF, etc.--do nothing. */
+/* ---------------------------------------------------------------- InvertSymbolHilite -- */
+/* Hilite a symbol, the graphical representation of an object, in a distinctive way to
+show it's the one into which a subobject is about to be inserted, or to which something
+is or will be attached. The hiliting we do is a vertical dotted line thru the object,
+thickened slightly at the "special" staff if there is one. If pL is a structural element
+-- SYSTEM, PAGE, STAFF, etc. -- do nothing. */
 
-void HiliteInsertNode(
+void InvertSymbolHilite(
 			Document *doc,
 			LINK	pL,
 			short	staffn,			/* No. of "special" staff to emphasize or NOONE */
@@ -78,72 +78,64 @@ void HiliteInsertNode(
 	CONTEXT		context;
 
 	if (!pL) return;											/* Just in case */
+	if (objTable[ObjLType(pL)].justType==J_STRUC) return;
 	
-	if (objTable[ObjLType(pL)].justType!=J_STRUC) {
-		if (staffn==NOONE)
-			GetContext(doc, pL, 1, &context);
-		else {
-			blackTop = GetStaffLim(doc, pL, staffn, True, &context);
-			blackBottom = GetStaffLim(doc, pL, staffn, False, &context);
-		}
-		xd = SysRelxd(pL)+context.systemLeft;					/* abs. origin of object */
+	if (staffn==NOONE)
+		GetContext(doc, pL, 1, &context);
+	else {
+		blackTop = GetStaffLim(doc, pL, staffn, True, &context);
+		blackBottom = GetStaffLim(doc, pL, staffn, False, &context);
+	}
+	xd = SysRelxd(pL)+context.systemLeft;					/* abs. origin of object */
+	
+	/* Draw with gray pattern (to make dotted lines), in XOR mode (to invert the pixels'
+		existing colors). */
+	PenMode(patXor);
+	PenPat(NGetQDGlobalsGray());
+	xp = context.paper.left+d2p(xd);
+	ypTop = context.paper.top+d2p(context.systemTop)+1;
+	ypBot = context.paper.top+d2p(context.systemBottom)-1;
+	MoveTo(xp+1, ypTop);									/* Draw thru whole system */
+	LineTo(xp+1, ypBot);
+	
+	if (staffn!=NOONE) {
+		PenSize(3, 1);										/* Draw thicker on special staff */
+		MoveTo(xp, context.paper.top+d2p(blackTop));
+		LineTo(xp, context.paper.top+d2p(blackBottom));
 		
-		/* Draw with gray pattern (to make dotted lines), in XOR mode (to invert the
-			pixels' existing colors). */
-		PenMode(patXor);
-		PenPat(NGetQDGlobalsGray());
-		xp = context.paper.left+d2p(xd);
-		ypTop = context.paper.top+d2p(context.systemTop)+1;
-		ypBot = context.paper.top+d2p(context.systemBottom)-1;
-		MoveTo(xp+1, ypTop);									/* Draw thru whole system */
-		LineTo(xp+1, ypBot);
-		
-		if (staffn!=NOONE) {
-			PenSize(3, 1);										/* Draw thicker on special staff */
+		if (flash) {
+			/* Pause; erase the thickened line; pause; and redraw it. */
+			SleepTicks(6);
 			MoveTo(xp, context.paper.top+d2p(blackTop));
 			LineTo(xp, context.paper.top+d2p(blackBottom));
 			
-			if (flash) {
-				SleepTicks(4);
-				MoveTo(xp, context.paper.top+d2p(blackTop));
-				LineTo(xp, context.paper.top+d2p(blackBottom));
-				
-				SleepTicks(4);
-				MoveTo(xp, context.paper.top+d2p(blackTop));
-				LineTo(xp, context.paper.top+d2p(blackBottom));
-			}
+			SleepTicks(6);
+			MoveTo(xp, context.paper.top+d2p(blackTop));
+			LineTo(xp, context.paper.top+d2p(blackBottom));
 		}
-		PenNormal();											/* Restore normal drawing */
 	}
+	PenNormal();											/* Restore normal drawing */
 }
 
 
-/* ------------------------------------------------------------------ HiliteTwoNodesOn -- */
-/* Show in a sensible way insert-type hiliting on two nodes that may be identical.
-Should NOT be used to erase the hiliting: for that, call HiliteInsertNode once
-or twice. */
+/* ------------------------------------------------------------- InvertTwoSymbolHilite -- */
+/* Hilite two symbols, the graphical representations of objects, in a distinctive way to
+show where a subobject is about to be inserted, or where something is or will be
+attached. */
 
-void HiliteTwoNodesOn(Document *doc, LINK node1, LINK node2, short staffn)
+void InvertTwoSymbolHilite(Document *doc, LINK node1, LINK node2, short staffn)
 {	
-	HiliteInsertNode(doc, node1, staffn, True);							/* Hiliting on */
-	/* If both ends are the same, wait, erase, wait, and draw again */ 
-	if (node1==node2) {
-		SleepTicks(HILITE_TICKS);
-		HiliteInsertNode(doc, node1, staffn, False);
-		SleepTicks(HILITE_TICKS);
-		HiliteInsertNode(doc, node1, staffn, False);
-	}
-	else
-		HiliteInsertNode(doc, node2, staffn, True);						/* Hiliting on */
+	InvertSymbolHilite(doc, node1, staffn, True);
+	if (node2 && node2!=node1) InvertSymbolHilite(doc, node2, staffn, True);
 }
 
 
 /* ------------------------------------------------------------------- HiliteAttPoints -- */
-/* Hilite attachment point(s) and wait as long as the mouse button is down, or in
-any case for a short minimum time; then erase the hiliting. If <firstL> is NILINK,
-we do nothing at all. <lastL> may be NILINK (to indicate there's really only one
-attachment point) or may be identical to <firstL>. In the latter case, we simply
-hilite that link twice. */
+/* Hilite attachment point(s) and wait as long as the mouse button is down, or in any
+case for a short minimum time; then erase the hiliting. If <firstL> is NILINK, do
+nothing at all. <lastL> may be NILINK (to indicate there's really only one attachment
+point) or may be identical to <firstL>. In the latter case, simply hilite that link
+twice. */
 
 void HiliteAttPoints(
 			Document *doc,
@@ -152,20 +144,20 @@ void HiliteAttPoints(
 {
 	if (!firstL) return;
 	
-	if (lastL) HiliteTwoNodesOn(doc, firstL, lastL, staffn);					/* On */
-	else	   HiliteInsertNode(doc, firstL, staffn, True);						/* On */
+	if (lastL) InvertTwoSymbolHilite(doc, firstL, lastL, staffn);			/* On */
+	else	   InvertSymbolHilite(doc, firstL, staffn, True);				/* On */
 
 	SleepTicks(HILITE_TICKS);
 	while (Button()) ;
 	
-	HiliteInsertNode(doc, firstL, staffn, False);								/* Off */
-	if (lastL && firstL!=lastL) HiliteInsertNode(doc, lastL, staffn, False);	/* Off */
+	InvertSymbolHilite(doc, firstL, staffn, False);								/* Off */
+	if (lastL && firstL!=lastL) InvertSymbolHilite(doc, lastL, staffn, False);	/* Off */
 }
 
-static void DebugLogPrint(char *str);
-static void DebugLogPrint(char *str) 
+static void FixCursorLogPrint(char *str);
+static void FixCursorLogPrint(char *str) 
 {
-	//LogPrintf(LOG_NOTICE, str);
+	//LogPrintf(LOG_DEBUG, str);
 }
 
 /* ------------------------------------------------------------------------- FixCursor -- */
@@ -204,7 +196,7 @@ void FixCursor()
 	/* If no windows at all, use arrow */
 	
 	if (TopWindow == NULL) {
-		holdCursor = False; DebugLogPrint("1. TopWindow is null\n"); ArrowCursor(); return;
+		holdCursor = False; FixCursorLogPrint("1. TopWindow is null\n"); ArrowCursor(); return;
 		}
 	
 	/* If mouse over any palette, use arrow unless a tool was just chosen */
@@ -229,31 +221,31 @@ void FixCursor()
 	
 	/* If no Documents, use arrow */
 	
-	if (TopDocument==NULL) { DebugLogPrint("3. TopDocument is null\n"); ArrowCursor(); return; }
+	if (TopDocument==NULL) { FixCursorLogPrint("2. TopDocument is null\n"); ArrowCursor(); return; }
 
 	/* If mouse over any kind of window other than a Document, use arrow */
 	
 	FindWindow(globalpt, (WindowPtr *)&wp);
 	
-	if (wp==NULL) { DebugLogPrint("3-1. FoundWindow is null\n"); ArrowCursor(); return; }
-	if (GetWindowKind(wp)==PALETTEKIND) { DebugLogPrint("3-2. FoundWindow is a palette\n"); return; }	
+	if (wp==NULL) { FixCursorLogPrint("3-1. FoundWindow is null\n"); ArrowCursor(); return; }
+	if (GetWindowKind(wp)==PALETTEKIND) { FixCursorLogPrint("3-2. FoundWindow is a palette\n"); return; }	
 	if (GetWindowKind(wp)!=DOCUMENTKIND) {
-		DebugLogPrint("3-3. FoundWindow not our Document\n"); ArrowCursor(); return;
+		FixCursorLogPrint("3-3. FoundWindow not our Document\n"); ArrowCursor(); return;
 		}
 	
 	doc = GetDocumentFromWindow(wp);
 	
-	if (doc==NULL) { ArrowCursor(); DebugLogPrint("4. FixCursor: doc is null\n"); return; }
+	if (doc==NULL) { ArrowCursor(); FixCursorLogPrint("4. FixCursor: doc is null\n"); return; }
 	sprintf(message, "4.1 found document %s\n", doc->name);
-	DebugLogPrint(message);
+	FixCursorLogPrint(message);
 	
 	/* If mouse not over the Document's viewRect, use arrow */
 	
-	if (!PtInRect(mousept,&doc->viewRect)) { DebugLogPrint("5. Not in viewRect\n");  ArrowCursor(); return; }
+	if (!PtInRect(mousept,&doc->viewRect)) { FixCursorLogPrint("5. Not in viewRect\n");  ArrowCursor(); return; }
 	
 	/* If Document showing Master Page or Work on Format, use arrow */
 	
-	if (doc->masterView || doc->showFormat) { DebugLogPrint("6. MasterPage or ShowFormat\n"); ArrowCursor(); return; }
+	if (doc->masterView || doc->showFormat) { FixCursorLogPrint("6. MasterPage or ShowFormat\n"); ArrowCursor(); return; }
 	
 	/*
 	 * Mouse is over the viewRect of a Document that is showing the "normal" (not
@@ -321,7 +313,7 @@ void FixCursor()
 
 	if (OptionKeyDown() && !ShiftKeyDown()) newCursor = genlDragCursor;
 	
-	DebugLogPrint("7. Installing current cursor\n");
+	FixCursorLogPrint("7. Installing current cursor\n");
 	
 	/* Install the new cursor, whatever it may be. */
 	SetCursor(*newCursor);

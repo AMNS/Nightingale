@@ -1,5 +1,5 @@
 /* MIDIRecord.c for Nightingale - from MIDI input to simple Syncs.
-By Donald Byrd, rev.for v. 3.5. FreeMIDI support added by John Gibson for v4.1.
+By Donald Byrd. FreeMIDI support added by John Gibson for v4.1.
 		SetRecordFlats			RecordMessage
 		RawMIDI2MMNote			RecordDlogMsg				OMSPrepareRecord
 		RecordDialog			SoundClickNow
@@ -20,7 +20,7 @@ By Donald Byrd, rev.for v. 3.5. FreeMIDI support added by John Gibson for v4.1.
  */
  
 /* Nightingale's MIDI code is kind of a mess. As of v. 5.8b4, Nightingale supports only
-only Apple's CoreMIDI. At various times, it supported (more or less in this order) the
+Apple's CoreMIDI. At various times, it supported (more or less in this order) the
 MacTutor MIDI driver, Altech Systems' MIDI Pascal 3.0, Opcode's OMS, MOTU's FreeMIDI,
 and Apple's old MIDI Manager. But I doubt if it's worth the trouble (or even possible!)
 to support any of these any longer. But quite a bit of the code still reflects this
@@ -1484,7 +1484,7 @@ short PowerOf2Floor(short num)
 
 
 /* Look for a Sync with the given absolute (i.e., from the beginning of the score)
-timestamp. If we find one, call HiliteInsertNode on it. */
+timestamp. If we find one, use InvertSymbolHilite on it. */
 
 static void HiliteRecSync(Document *doc, long absTimeStamp, LINKTIMEINFO syncs[],
 									short nSyncs)
@@ -1495,9 +1495,9 @@ static void HiliteRecSync(Document *doc, long absTimeStamp, LINKTIMEINFO syncs[]
 	for (i = 0; i<nSyncs; i++)
 		if (SyncTYPE(syncs[i].link))
 			if (syncs[i].time==absTimeStamp) {
-				HiliteInsertNode(doc, syncs[i].link, doc->selStaff, False);
+				InvertSymbolHilite(doc, syncs[i].link, doc->selStaff, False);
 				SleepTicks(HILITE_TICKS);
-				HiliteInsertNode(doc, syncs[i].link, doc->selStaff, False);
+				InvertSymbolHilite(doc, syncs[i].link, doc->selStaff, False);
 				return;
 			}
 }

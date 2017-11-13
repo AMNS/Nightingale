@@ -3053,22 +3053,18 @@ void SetSpareFlags(LINK startL, LINK endL, Boolean value)
 
 /* -------------------------------------------------------------------- IsXXMultiVoice -- */
 
-/* Determine if syncL has notes in multiple voices on <staff>. ??Ignores rests; this
-is probably a bug, but as of v. 5.7, this function isn't used for much, so probably
-not serious. */
+/* Determine if syncL has notes or rests in multiple voices on <staff>. */
 
 Boolean IsSyncMultiVoice(LINK syncL, short staff)
 {
 	LINK aNoteL;
-	PANOTE aNote;
 	Boolean multiVoice=False;
 	short lastVoice = -1;
 
 	if (ObjLType(syncL) == SYNCtype) {
 		aNoteL = FirstSubLINK(syncL);
 		for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
-			aNote = GetPANOTE(aNoteL);
-			if (!aNote->rest && NoteSTAFF(aNoteL)==staff) {
+			if (NoteSTAFF(aNoteL)==staff) {
 				if (lastVoice!=NoteVOICE(aNoteL)) {
 					if (lastVoice>0) {
 						multiVoice = True;

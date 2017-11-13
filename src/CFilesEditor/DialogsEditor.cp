@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	DialogsEditor.c
 *	PROJ:	Nightingale
 *	DESC:	Dialog-handling routines for miscellaneous score-editing dialogs
-***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -52,7 +52,7 @@ typedef void (*TrackArrowFunc)(void);
 static void TrackArrow(Rect *, TrackArrowFunc func);
 
 
-/* --------------------------------- Declarations for simple "set number" Dialogs -- */
+/* -------------------------------------- Declarations for simple "set number" Dialogs -- */
 
 #define NUMBER_DI 	3				/* DITL index of number to be adjusted */
 #define UpRect_DI	5				/* DITL index of up button rect */
@@ -61,7 +61,7 @@ static void TrackArrow(Rect *, TrackArrowFunc func);
 extern short minDlogVal, maxDlogVal;
 
 
-/* ---------------------------------------------------------- LeftEndDialog et al -- */
+/* --------------------------------------------------------------- LeftEndDialog et al -- */
 /*	Handler for the "Left End of Systems" dialog and its help functions. */
 
 Rect firstRect, otherRect;
@@ -286,7 +286,7 @@ broken:
 }
 
 
-/* ----------------------------------------------------------------- SpaceDialog --- */
+/* ---------------------------------------------------------------------- SpaceDialog --- */
 /* Handle Respace and (obsolete) Tightness dialogs.  Returns new percent if dialog
 OKed, CANCEL_INT if Cancelled. N.B. Tightness should really be handled by a separate
 routine, since this contains some code that could misbehave for it, e.g., if
@@ -370,10 +370,9 @@ short SpaceDialog(
 }
 
 
-/* ------------------------------------------------------------ TremSlashesDialog -- */
+/* ---------------------------------------------------------------- TremSlashesDialog -- */
 /* Conduct dialog to get number of slashes in "bowed" tremolo from user.  Returns
 result, or CANCEL_INT for Cancel. */
-
 
 short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 {
@@ -432,7 +431,7 @@ short TremSlashesDialog(short initSlashes)		/* Initial (default) value */
 }
 
 
-/* ----------------------------------------------------------------- EndingDialog -- */
+/* ---------------------------------------------------------------------- EndingDialog -- */
 /* Conduct dialog to get Ending symbol attributes from user. Returns True if OK'ed,
 False if cancelled. */
 
@@ -604,7 +603,7 @@ Cleanup:
 }
 
 
-/* ---------------------------------------------------------------- MeasNumDialog -- */
+/* --------------------------------------------------------------------- MeasNumDialog -- */
 /* Conduct dialog to get information on how to number measures.  Delivers False on
 Cancel or error, True on OK. */
 
@@ -774,7 +773,7 @@ Boolean MeasNumDialog(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- PageNumDialog -- */
+/* --------------------------------------------------------------------- PageNumDialog -- */
 /* Conduct dialog to get info on how to number pages.  Delivers False on
 Cancel or error, True on OK. */
 
@@ -920,7 +919,7 @@ Boolean PageNumDialog(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------- OttavaDialog -- */
+/* ---------------------------------------------------------------------- OttavaDialog -- */
 
 static enum 
 {
@@ -932,9 +931,9 @@ static enum
 	OCT22maBassa_DI
 } E_OttavaItems;
 
-/* Determine whether to initialize the ottava dialog with OCT8va or
-OCT8vaBassa. Returns True if the average position of all notes on <selStf>
-in the selection range is above the staffTop. */
+/* Determine whether to initialize the ottava dialog with OCT8va or OCT8vaBassa.
+Returns True if the average position of all notes on <selStf> in the selection range
+is above the staffTop. */
 
 Boolean GetOttavaAlta(Document *doc, short selStf)
 {
@@ -1011,7 +1010,7 @@ Boolean OttavaDialog(Document *doc, Byte *octSignType)
 }
 
 
-/* ===================================================== TupletDialog and friends == */
+/* ========================================================== TupletDialog and friends == */
 
 static short VoiceTotDur(short, LINK, LINK);
 static short VoiceTotDur(short voice, LINK voiceStartL, LINK voiceEndL)
@@ -1108,7 +1107,7 @@ static GRAPHIC_POPUP	durPop0dot, durPop1dot, durPop2dot, *curPop;
 static POPKEY			*popKeys0dot, *popKeys1dot, *popKeys2dot;
 static short			popUpHilited=True, show2dots=False;
 
-/* ----------------------------------- Declarations & Help Funcs. for TupletDialog -- */
+/* --------------------------------------- Declarations & Help Funcs. for TupletDialog -- */
 
 static enum	{
 	TUPLE_NUM=4,										/* Item numbers */
@@ -1292,9 +1291,9 @@ static void DrawTupletItems(DialogPtr dlog, short /*ditem*/)
 	}
 }
 
-/* ----------------------------------------------------------------- TupletDialog -- */
-/* Conduct the "Fancy Tuplet" dialog for a new or used tuplet whose initial
-state is described by <ptParam>. */
+/* ---------------------------------------------------------------------- TupletDialog -- */
+/* Conduct the "Fancy Tuplet" dialog for a new or used tuplet whose initial state
+is described by <ptParam>. Return False on Cancel or error, True on OK. */
 
 Boolean TupletDialog(
 					Document */*doc*/,
@@ -1503,7 +1502,7 @@ broken:
 }
 
 
-/* ----------------------------------------------------------------- SetDurDialog -- */
+/* ---------------------------------------------------------------------- SetDurDialog -- */
 
 static Boolean IsSelInTuplet(Document *doc);
 static Boolean IsSelInTupletNotTotallySel(Document *doc);
@@ -1912,7 +1911,7 @@ broken:
 }
 
 
-/* ----------------------------------------------- Tempo Dialog & helper functions -- */
+/* --------------------------------------------------- Tempo Dialog & helper functions -- */
 
 static pascal Boolean TempoFilter(DialogPtr, EventRecord *, short *);
 static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char *metroStr);
@@ -2227,7 +2226,7 @@ broken:
 }
 
 
-/* -------------------------------------------------------------- SetMBRestDialog -- */
+/* ------------------------------------------------------------------- SetMBRestDialog -- */
 
 static enum {
 	 MBR_NMEAS_DI=3,
@@ -2298,7 +2297,7 @@ Boolean SetMBRestDialog(Document */*doc*/, short *nMeas)
 }
 
 
-/* ============================ RastralDialog and friends =========================== */
+/* ============================= RastralDialog and friends ============================= */
 
 static enum {
 	SizeITM=3,										/* Staff Size dialog items */
@@ -2317,7 +2316,7 @@ DialogPtr rDialogp;								/* Dialog pointer for Rastral dialog */
 Rect staffArea, rUpRect, rDownRect;
 Handle ptHdl;
 
-/* --------------------------------------------------------------- DrawSampleStaff -- */
+/* ------------------------------------------------------------------- DrawSampleStaff -- */
 
 #define GOOD_SCREENSIZE(r) ((r)==1 || (r)==2 || (r)==5 || (r)==7)
 
@@ -2386,7 +2385,7 @@ static void DrawSampleStaff()
 }
 
 
-/* --------------------------------------------------------- RLarger/SmallerStaff -- */
+/* -------------------------------------------------------------- RLarger/SmallerStaff -- */
 
 static void RLargerStaff()
 {
@@ -2412,7 +2411,7 @@ static void RSmallerStaff()
 	}
 }
 
-/* ---------------------------------------------------- RHandleKeyDown/MouseDown -- */
+/* ---------------------------------------------------------- RHandleKeyDown/MouseDown -- */
 
 static Boolean RHandleKeyDown(EventRecord *theEvent)
 {
@@ -2454,7 +2453,7 @@ static Boolean RHandleMouseDown(EventRecord *theEvent)
 }
 
 
-/* --------------------------------------------------------------------- RFilter -- */
+/* --------------------------------------------------------------------------- RFilter -- */
 
 static pascal Boolean RFilter(DialogPtr theDialog, EventRecord *theEvent, short *itemHit)
 {
@@ -2480,7 +2479,7 @@ static pascal Boolean RFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 			return True;
 			break;
 		case mouseDown: 
-			if (RHandleMouseDown(theEvent)) {									/* Click in elevator btn? Handle &... */
+			if (RHandleMouseDown(theEvent)) {								/* Click in elevator btn? Handle &... */
 				SelectDialogItemText(rDialogp, SizeITM, 0, ENDTEXT);		/*   select & unhilite number */
 				return False;
 			}
@@ -2490,7 +2489,7 @@ static pascal Boolean RFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 			if (DlgCmdKey(theDialog, theEvent, (short *)itemHit, False))
 				return True;
 			else {
-				if (RHandleKeyDown(theEvent))										/* Arrow key? Handle it &... */
+				if (RHandleKeyDown(theEvent))								/* Arrow key? Handle it &... */
 					SelectDialogItemText(rDialogp, SizeITM, 0, ENDTEXT);	/*   select & unhilite number */
 				return False;
 			}
@@ -2502,7 +2501,7 @@ static pascal Boolean RFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 }
 
 
-/* ---------------------------------------------------------------- RastralDialog -- */
+/* --------------------------------------------------------------------- RastralDialog -- */
 /* Conduct dialog to get staff rastral size from user.  Returns result, or
 CANCEL_INT for Cancel. */
 
@@ -2622,7 +2621,7 @@ short RastralDialog(
 }
 
 
-/* =========================== StaffLinesDialog and friends ========================= */
+/* ============================ StaffLinesDialog and friends ============================ */
 
 static enum {
 	STAFFLINES_DI=5,
@@ -2723,7 +2722,7 @@ static short MenuItemNum2StaffLines(short itemNum)
 	}
 }
 
-/* ------------------------------------------------------------- StaffLinesDialog -- */
+/* ------------------------------------------------------------------ StaffLinesDialog -- */
 /* Conduct dialog to get from user the number of staff lines, whether to show
 ledger lines, and whether to make these changes for all parts or only selected
 parts. Returns True if OK, False if user cancelled or there was an error. */
@@ -2816,7 +2815,7 @@ broken:
 }
 
 
-/* ---------------------------------------------------------------- MarginsDialog -- */
+/* --------------------------------------------------------------------- MarginsDialog -- */
 
 static enum {
 	LMARG_DI=3,
@@ -2964,7 +2963,7 @@ Boolean MarginsDialog(Document *doc,
 }
 
 
-/* =============== LOCAL TYPES, VARIABLES & FUNCTIONS for KeySigDialog ============= */
+/* ================ LOCAL TYPES, VARIABLES & FUNCTIONS for KeySigDialog ================ */
 
 static enum {									/* Key Signature Dialog items */
 	iKSUp=5,
@@ -2988,7 +2987,7 @@ static Boolean KSHandleMouseDown(EventRecord *);
 static void KSMoreFlats(void);
 static void KSMoreSharps(void);
 
-/* ---------------------------------------------------------------- KeySigDialog -- */
+/* ---------------------------------------------------------------------- KeySigDialog -- */
 /*	Handle dialog box to get key signature from user.  Returns True if
 user accepts dialog via OK, or False if they CANCEL.  If <insert> is True,
 user is inserting a new keysig; else they're modifying an existing keysig.
@@ -3081,7 +3080,7 @@ Boolean KeySigDialog(short *sharpParam, short *flatParam, Boolean *onAllStaves,
 }
 
 
-/* -------------------------------------------------------------- SetKSDialogGuts -- */
+/* ------------------------------------------------------------------- SetKSDialogGuts -- */
 
 static enum {
 	STAFFN_DI=4,
@@ -3159,7 +3158,7 @@ Boolean SetKSDialogGuts(short staffn, short *sharpParam, short *flatParam,
 }
 
 
-/* ----------------------------------------------------------------- KSDrawStaff -- */
+/* ----------------------------------------------------------------------- KSDrawStaff -- */
 /*	Draw the KeySignature staff user item.  Expects <ksStaffRect>, <sharps> and
 <flats> to be initialized. */
 
@@ -3198,7 +3197,7 @@ static void KSDrawStaff()
 }
 
 
-/* -------------------------------------------------------------------- KSFilter -- */
+/* -------------------------------------------------------------------------- KSFilter -- */
 
 static pascal Boolean KSFilter(DialogPtr theDialog, EventRecord *theEvent, short *itemHit)
 {
@@ -3233,7 +3232,7 @@ static pascal Boolean KSFilter(DialogPtr theDialog, EventRecord *theEvent, short
 }
 
 
-/* ------------------------------------------- KSHandleKeyDown,KSHandleMouseDown -- */
+/* ------------------------------------------------ KSHandleKeyDown, KSHandleMouseDown -- */
 
 static Boolean KSHandleKeyDown(EventRecord *theEvent)
 {
@@ -3273,7 +3272,7 @@ static Boolean KSHandleMouseDown(EventRecord *theEvent)
 }
 
 
-/* -------------------------------------------------- KSMoreFlats, KSMoreSharps -- */
+/* --------------------------------------------------------- KSMoreFlats, KSMoreSharps -- */
 /*	Move <sharps> and <flats> one step in the direction of more flats. */
 
 static void KSMoreFlats()
@@ -3297,7 +3296,7 @@ static void KSMoreSharps()
 }
 
 
-/* =============== LOCAL TYPES, VARIABLES & FUNCTIONS for TimeSigDialog ============ */
+/* =============== LOCAL TYPES, VARIABLES & FUNCTIONS for TimeSigDialog =============== */
 
 static enum {								/* Time Signature Dialog items */
 	iTSNumUp=6,
@@ -3319,7 +3318,7 @@ short	numerator, denominator, radio1, radio2;
 Rect tsStaffRect, tsNumUpRect,tsNumDownRect, tsDenomUpRect, tsDenomDownRect;
 ControlHandle cTimeHdl, cutTimeHdl;
 
-/* ---------------------------------------------------------------- TimeSigDialog -- */
+/* --------------------------------------------------------------------- TimeSigDialog -- */
 /*	Handle dialog box to get time signature from user.  Returns True if user
 accepts dialog via OK, or False if they CANCEL. All parameters are both inputs
 and outputs. If <insert> is True, user is inserting a new timesig; else they're
@@ -3442,7 +3441,7 @@ Boolean TimeSigDialog(short *type, short *numParam, short *denomParam,
 }
 
 
-/* ----------------------------------------------------------------- TSDrawStaff -- */
+/* ----------------------------------------------------------------------- TSDrawStaff -- */
 /*	Draw the TimeSignature staff user item.  Expects <numerator> and
 <denominator> to be initialized. */
 
@@ -3485,7 +3484,7 @@ static void TSDrawStaff()
 }
 
 
-/* -------------------------------------------------------------------- TSFilter -- */
+/* -------------------------------------------------------------------------- TSFilter -- */
 
 static pascal Boolean TSFilter(DialogPtr theDialog, EventRecord *theEvent,
 											short *itemHit)
@@ -3531,7 +3530,7 @@ static pascal Boolean TSFilter(DialogPtr theDialog, EventRecord *theEvent,
 }
 
 
-/* ----------------------------------------------------------- TSHandleMouseDown -- */
+/* ----------------------------------------------------------------- TSHandleMouseDown -- */
 
 static Boolean TSHandleMouseDown(EventRecord *theEvent)
 {
@@ -3559,7 +3558,7 @@ static Boolean TSHandleMouseDown(EventRecord *theEvent)
 }
 
 
-/* ------------------------------------------ TSDenominatorDown, TSDenominatorUp -- */
+/* ------------------------------------------------ TSDenominatorDown, TSDenominatorUp -- */
 /*	Decrement <denominator> to the next legal value. */
 
 static void TSDenominatorDown()
@@ -3581,7 +3580,7 @@ static void TSDenominatorUp()
 }
 
 
-/* ----------------------------------------------- TSNumeratorDown, TSNumeratorUp -- */
+/* ---------------------------------------------------- TSNumeratorDown, TSNumeratorUp -- */
 /*	Decrement <numerator>. */
 
 static void TSNumeratorDown()
@@ -3606,7 +3605,7 @@ static void TSNumeratorUp()
 #define MOUSETHRESHTIME 24			/* ticks before arrows auto-repeat */
 #define MOUSEREPEATTIME 3			/* ticks between auto-repeats */
 
-/* ------------------------------------------------------------------- TrackArrow -- */
+/* ------------------------------------------------------------------------ TrackArrow -- */
 /*	Track arrow, calling <actionProc> after MOUSETHRESHTIME ticks, and
 	repeating every MOUSEREPEATTIME ticks thereafter, as long as the mouse
 	is still down inside of <arrowRect>. ??Should replace with TrackNumberArrow.*/
@@ -3634,7 +3633,7 @@ void TrackArrow(Rect *arrowRect, TrackArrowFunc actionProc)
 }
 
 
-/* ------------------------------------------ RehearsalMarkDialog, ChordSymDialog -- */ 
+/* ----------------------------------------------- RehearsalMarkDialog, ChordSymDialog -- */ 
  
 static enum {
 	STXT3_Add = 3,
@@ -3841,7 +3840,7 @@ Boolean ChordFrameDialog(Document *doc,
 }
 
 
-/* --------------------------------------------------------------- SymbolIsBarline -- */
+/* ------------------------------------------------------------------- SymbolIsBarline -- */
 /* Decide whether user wants a newly-inserted symbol (presumably a double bar or repeat
 bar) to be a genuine barline or not. If the user hasn't said which to assume, ask them
 which they want. Returns True for barline, False for not barline. */
@@ -4001,7 +4000,7 @@ Boolean InsMeasUnkDurDialog()
 }
 
 
-/* -------------------------------------------------------------- XLoadDialogsSeg -- */
+/* ------------------------------------------------------------------- XLoadDialogsSeg -- */
 /* Null function to allow loading or unloading Dialogs.c's segment. */
 
 void XLoadDialogsSeg()

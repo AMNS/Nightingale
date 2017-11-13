@@ -39,7 +39,7 @@ static void			AddSampleItems(MenuRef menu);
 static void			InstallCoreEventHandlers(void);
 
 
-/* ----------------------------------------------------------- Initialize and ally -- */
+/* --------------------------------------------------------------- Initialize and ally -- */
 /* Do everything that must be done prior to entering main event loop. A great deal of
 this is platform-dependent. */
 
@@ -202,7 +202,7 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 } 
 
 
-/* -------------------------------------------------------------- CreateSetupFile -- */
+/* ------------------------------------------------------------------- CreateSetupFile -- */
 /* Create a new Nightingale Prefs file. (We used to call the "Prefs" file the "Setup"
 file: hence all the xxSetupxx names.) If we succeed, return True; if we fail, return
 False without giving an error message. */
@@ -344,22 +344,22 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	return True;
 }
 
-/* ---------------------------------------------------------------- OpenSetupFile -- */
+/* --------------------------------------------------------------------- OpenSetupFile -- */
 /* Open the resource fork of the Prefs file.  If we can't find a Prefs file in the
 System Folder, generate a new one using resources from the application and open it.
 Also make the Prefs file the current resource file.
 
-If we find a problem, including the Prefs file resource fork already open with
-write permission, we give an error message and return False. (If the Prefs file
-resource fork is open but with only read permission, I suspect we won't detect that
-and it won't be made the current resource file--bad but unlikely. Note that
-NightCustomizer doesn't keep the Prefs file open while it's running.) If all goes
-well, return True. */
+If we find a problem, including the Prefs file resource fork already open with write
+permission, we give an error message and return False. (If the Prefs file resource
+fork is open but with only read permission, I suspect we won't detect that and it
+won't be made the current resource file: bad, but unlikely.) If all goes well, return
+True. */
 
 Boolean OpenSetupFile()
 {
-	OSErr result; Boolean okay=True; Str63 volName;
-	StringHandle strHdl; char fmtStr[256];
+	OSErr result;  Boolean okay=True;
+	Str63 volName;
+	StringHandle strHdl;  char fmtStr[256];
 	Str255 setupFileName;
 
 	short oldVRefNum; long oldDirID;
@@ -619,7 +619,7 @@ correct any illegal values. Assumes the Prefs file is the current resource file.
 static Boolean GetConfig()
 {
 	Handle cnfgH;
-	Boolean gotCnfg;
+	Boolean gotCnfg=False;
 	short nerr, firstErr;
 	long cnfgSize;
 	char fmtStr[256];
@@ -629,7 +629,6 @@ static Boolean GetConfig()
 		GetIndCString(strBuf, INITERRS_STRS, 4);		/* "Can't find the CNFG resource" */
 		CParamText(strBuf, "", "", "");
 		if (CautionAdvise(CNFG_ALRT)==OK) ExitToShell();
-		else							  gotCnfg = False;
 		
 		/*
 		 * Since we couldn't find the configuration data, set all checkable fields to

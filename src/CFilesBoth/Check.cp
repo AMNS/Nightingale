@@ -1,4 +1,4 @@
-/****************************************************************************************
+/******************************************************************************************
 *	FILE:	Check.c
 *	PROJ:	Nightingale
 *	DESC:	Selection-related routines.
@@ -10,7 +10,7 @@
 		CheckKEYSIG			CheckSYNC			CheckGRSYNC
 		CheckTIMESIG		CheckMEASURE		CheckBEAMSET
 		CheckTUPLET			CheckOTTAVA			CheckSLUR
-/****************************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -792,15 +792,17 @@ PushLock(DYNAMheap);
 			lastSync = DynamLASTSYNC(pL);
 						
 			if (IsHairpin(pL)) {
-				HiliteAttPoints(doc, firstSync, lastSync, staffn);
-				if (aDynamic->selected)	HiliteRect(&wSub);		/* in case 1st click wasn't in rSub (case SMClick) */
+//				HiliteAttPoints(doc, firstSync, lastSync, staffn);
+				InvertTwoSymbolHilite(doc, firstSync, lastSync, staffn);	/* Hiliting on */
+				if (aDynamic->selected)	HiliteRect(&wSub);			/* in case 1st click wasn't in rSub (case SMClick) */
 				DoHairpinEdit(doc, pL);
+				InvertTwoSymbolHilite(doc, firstSync, lastSync, staffn);	/* Hiliting off */
 			}
 			else {
 				SignedByte oldDynamType, newDynamType;
 				Boolean change;
 
-				HiliteInsertNode(doc, firstSync, staffn, True);		/* Hiliting on */
+				InvertSymbolHilite(doc, firstSync, staffn, True);			/* Hiliting on */
 				DisableUndo(doc, False);
 				oldDynamType = newDynamType = DynamType(pL);
 				change = SetDynamicDialog(&newDynamType);
@@ -808,13 +810,13 @@ PushLock(DYNAMheap);
 					/* FIXME: objRects of dynamics aren't right in all cases, so the inval's
 					here don't always work. See comments in body of InvalObject. Use
 					EraseAndInval on <wsub> instead? */
-					InvalObject(doc, pL, True);						/* inval old symbol */
+					InvalObject(doc, pL, True);							/* inval old symbol */
 					DynamType(pL) = newDynamType;
 					FixContextForDynamic(doc, RightLINK(pL), staffn, oldDynamType, newDynamType);
-					InvalObject(doc, pL, True);						/* inval new symbol */
+					InvalObject(doc, pL, True);							/* inval new symbol */
 					doc->changed = True;
 				}
-				HiliteInsertNode(doc, firstSync, staffn, False);	/* Hiliting off */
+				InvertSymbolHilite(doc, firstSync, staffn, False);		/* Hiliting off */
 			}
 			break;
 		case SMDrag:
@@ -1079,12 +1081,12 @@ PushLock(GRAPHICheap);
 					if (LinkSEL(pL)) HiliteRect(&r);
 				}
 				else
-					HiliteInsertNode(doc, p->firstObj, staffn, True);		/* Hiliting on */
+					InvertSymbolHilite(doc, p->firstObj, staffn, True);			/* Hiliting on */
 				while (Button()) ;
 
 				/* Double-clicking all subtypes but GRArpeggio allows editing them. */
 				if (p->graphicType==GRArpeggio) {
-					HiliteInsertNode(doc, p->firstObj, staffn, False);		/* Hiliting off */
+					InvertSymbolHilite(doc, p->firstObj, staffn, False);		/* Hiliting off */
 					break;
 				}
 				
@@ -1191,7 +1193,7 @@ PushLock(GRAPHICheap);
 						break;
 					case GRMIDISustainOn:
 					case GRMIDISustainOff:
-						HiliteInsertNode(doc, p->firstObj, staffn, True);
+						InvertSymbolHilite(doc, p->firstObj, staffn, True);
 						SleepTicks(30L);
 						break;
 					default:
@@ -1199,7 +1201,7 @@ PushLock(GRAPHICheap);
 				}
 				
 				if (GraphicSubType(pL)!=GRDraw)
-					HiliteInsertNode(doc, p->firstObj, staffn, False);			/* Hiliting off */
+					InvertSymbolHilite(doc, p->firstObj, staffn, False);		/* Hiliting off */
 				if (change) {
 					EraseAndInval(&oldObjRect);
 					aGraphicL = FirstSubLINK(pL);
@@ -1347,8 +1349,7 @@ PushLock(OBJheap);
 				break;
 			case SMDblClick:
 				oldObjRect = p->objRect;
-				HiliteInsertNode(doc, p->firstObjL, staffn, True);		/* Hiliting on */
-				while (Button()) ;
+				InvertSymbolHilite(doc, p->firstObjL, staffn, True);	/* Hiliting on */
 				p = GetPTEMPO(pL);
 				Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(p->strOffset));
 				p = GetPTEMPO(pL);
@@ -1363,7 +1364,7 @@ PushLock(OBJheap);
 				if (tempoStr[0]>63) tempoStr[0] = 63;				/* Limit length for consistency with InsertTempo */
 				if (metroStr[0]>63) metroStr[0] = 63;				/* Limit length for consistency with InsertTempo */
 				p = GetPTEMPO(pL);
-				HiliteInsertNode(doc, p->firstObjL, staffn, False);	/* Hiliting off */
+				InvertSymbolHilite(doc, p->firstObjL, staffn, False);	/* Hiliting off */
 				if (ok) {
 					DisableUndo(doc, False);
 					offset = PReplace(p->strOffset, tempoStr);
@@ -1608,7 +1609,7 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 				}
 				break;
 			case SMDblClick:
-				HiliteTwoNodesOn(doc, EndingFIRSTOBJ(pL), EndingLASTOBJ(pL), EndingSTAFF(pL)); /* On */
+				InvertTwoSymbolHilite(doc, EndingFIRSTOBJ(pL), EndingLASTOBJ(pL), EndingSTAFF(pL)); /* On */
 				while (Button()) ;
 				
 				p = GetPENDING(pL);
@@ -1616,9 +1617,9 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 				cutoffs = (p->noLCutoff << 1) + p->noRCutoff;
 				okay = EndingDialog(endNum, &newNumber, cutoffs, &newCutoffs);
 
-				HiliteInsertNode(doc, EndingFIRSTOBJ(pL), EndingSTAFF(pL), False);		/* Hiliting off */
+				InvertSymbolHilite(doc, EndingFIRSTOBJ(pL), EndingSTAFF(pL), False);	/* Hiliting off */
 				if (EndingFIRSTOBJ(pL)!=EndingLASTOBJ(pL))
-					HiliteInsertNode(doc, EndingLASTOBJ(pL), EndingSTAFF(pL), False);	/* Hiliting off */
+					InvertSymbolHilite(doc, EndingLASTOBJ(pL), EndingSTAFF(pL), False);	/* Hiliting off */
 
 				if (okay) {
 					p = GetPENDING(pL);
@@ -2938,7 +2939,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 }
 
 
-/* -------------------------------------------------------------------- CheckBEAMSET -- */
+/* ---------------------------------------------------------------------- CheckBEAMSET -- */
 /* BEAMSET object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -2948,10 +2949,10 @@ short CheckBEAMSET(Document *doc, LINK pL, CONTEXT context[],
 						STFRANGE stfRange)
 {
 	PBEAMSET 	p;
-	short			result;			/* =NOMATCH unless object/subobject clicked in */
-	Rect			rSub,				/* bounding box for sub-object */
-					wSub,				/* window-relative of above */
-					aRect;			/* scratch */
+	short		result;			/* =NOMATCH unless object/subobject clicked in */
+	Rect		rSub,			/* bounding box for sub-object */
+				wSub,			/* window-relative of above */
+				aRect;			/* scratch */
 	CONTEXT		*pContext;
 	unsigned char dummy=0;
 
@@ -3090,7 +3091,7 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMDblClick:
-		HiliteTwoNodesOn(doc, FirstInTuplet(pL), LastInTuplet(pL), p->staffn);	/* On */
+		InvertTwoSymbolHilite(doc, FirstInTuplet(pL), LastInTuplet(pL), p->staffn);	/* On */
 		while (Button()) ;
 
 		oldObjRect = p->objRect;
@@ -3104,9 +3105,9 @@ PushLock(OBJheap);
 		tParam.brackVis = p->brackVis;
 		okay = TupletDialog(doc, &tParam, False);
 
-		HiliteInsertNode(doc, FirstInTuplet(pL), p->staffn, False);		/* Hiliting off */
+		InvertSymbolHilite(doc, FirstInTuplet(pL), p->staffn, False);		/* Hiliting off */
 		if (FirstInTuplet(pL)!=LastInTuplet(pL))
-			HiliteInsertNode(doc, LastInTuplet(pL), p->staffn, False);	/* Hiliting off */
+			InvertSymbolHilite(doc, LastInTuplet(pL), p->staffn, False);	/* Hiliting off */
 
 		if (okay) {
 			p->accNum = tParam.accNum;
@@ -3200,7 +3201,7 @@ PushLock(OBJheap);
 	p = GetPOTTAVA(pL);
 	result = NOMATCH;
 	rSub = LinkOBJRECT(pL);
-	pContext = &context[p->staffn];
+	pContext = &context[OttavaSTAFF(pL)];
 	wSub = rSub;
 	OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
 
@@ -3213,7 +3214,9 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMDblClick:
-		HiliteAttPoints(doc, FirstInOttava(pL), LastInOttava(pL), p->staffn);
+		InvertSymbolHilite(doc, FirstInOttava(pL), OttavaSTAFF(pL), True);		/* Hiliting on */
+		SleepTicks(30L);
+		InvertSymbolHilite(doc, FirstInOttava(pL), OttavaSTAFF(pL), True);		/* Hiliting off */
 		break;
 	case SMDrag:
 		UnionRect(&rSub, (Rect *)ptr, &aRect);				/* does (Rect *)ptr enclose rSub? */

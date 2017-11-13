@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -627,7 +627,7 @@ short HandleOptionKeyMsgBox(Document *doc, Size /*lyricLen*/)
 
 
 void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, short v,
-							short lyricLen, short pitchLev, short theFont, TEXTSTYLE theStyle)
+						short lyricLen, short pitchLev, short theFont, TEXTSTYLE theStyle)
 {
 	LINK	newL;
 	char	w[256], *p;
@@ -644,7 +644,7 @@ void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, short v,
 	}
 	else lastFlowL = pL;
 	
-	HiliteInsertNode(doc, pL, stf, False);
+	InvertSymbolHilite(doc, pL, stf, False);
 
 	/* If the user holds down the option key, don't increment the pointer
 		to the next word; this allows the user to insert the same word over
@@ -794,7 +794,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 								/* To allow attaching to objects other than notes, remove
 									the following test for SyncTYPE. */
 								if (pL && SyncTYPE(pL) && (currWord<lyricLen || OptionKeyDown())) {
-									HiliteInsertNode(doc, pL, stf, True);
+									InvertSymbolHilite(doc, pL, stf, True);
 									status = InsTrackUpDown(doc, pt, &sym, pL, stf, &pitchLev);
 									
 									if (status) {
@@ -842,10 +842,10 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 							if (pL) {
 								aNoteL = NoteInVoice(pL, v, False);
 								stf = NoteSTAFF(aNoteL);
-								HiliteInsertNode(doc, pL, stf, True);
+								InvertSymbolHilite(doc, pL, stf, True);
 								prevGrL = lastGrL;
 								InsertSyllable(doc, pL, &lastGrL, stf, v,
-														lyricLen, pitchLev, theFont, theStyle);
+													lyricLen, pitchLev, theFont, theStyle);
 
 								/* if new Graphic is offscreen, scroll it into view */
 								pt = LinkToPt(doc, pL, True);

@@ -998,14 +998,14 @@ void HiliteSlurNodes(Document *doc, LINK pL)
 	/* We don't flash here because it's unnecessary (the slur's staff is obvious
 		in any reasonable situation) and it slows down a common operation. */
 	
-	p = GetPSLUR(pL); HiliteInsertNode(doc, p->firstSyncL, p->staffn, False);	/* Hiliting on... */
-	p = GetPSLUR(pL); HiliteInsertNode(doc, p->lastSyncL, p->staffn, False);
+	p = GetPSLUR(pL); InvertSymbolHilite(doc, p->firstSyncL, p->staffn, False);	/* Hiliting on... */
+	p = GetPSLUR(pL); InvertSymbolHilite(doc, p->lastSyncL, p->staffn, False);
 	SleepTicks(HILITE_TICKS);
 
 	while (Button()) ;
 
-	p = GetPSLUR(pL); HiliteInsertNode(doc, p->firstSyncL, p->staffn, False);	/* Off. */
-	p = GetPSLUR(pL); HiliteInsertNode(doc, p->lastSyncL, p->staffn, False);
+	p = GetPSLUR(pL); InvertSymbolHilite(doc, p->firstSyncL, p->staffn, False);	/* Off. */
+	p = GetPSLUR(pL); InvertSymbolHilite(doc, p->lastSyncL, p->staffn, False);
 
 	SetPenState(&pn);
 }

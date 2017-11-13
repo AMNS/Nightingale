@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 	FILE:	NewSlur.c
 	PROJ:	Nightingale
 	DESC:	Slur creating routines.
@@ -11,7 +11,7 @@
 		GetTiesCurveDir			GetSlurTieCurveDir		NewSlurSetCtlPts
 		CrossSysSetCtlPts		NewSlurCleanup			NewCrossSystemSlur
 		SlurToNext				NewSlur					AddNoteTies
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -48,7 +48,7 @@ static void NewCrossSystemSlur(Document *, short staff, short voice, CONTEXT con
 static Boolean SlurToNext(Document *, short *, short);
 static short BuildTieArrays(LINK, LINK, short, char [], char[]);
 
-/* --------------------------------------------------- NewSlur and Help Functions -- */
+/* -------------------------------------------------------- NewSlur and Help Functions -- */
 /* Functions for NewSlur. Functions called by NewSlur return one of these codes to
 indicate whether they were successful, or if not, the reason why. */
 
@@ -98,7 +98,7 @@ static char HandleFirstSync(Document *doc, short staff, short voice)
 	}
 	if (!noteFound) return F_ABORT;						/* No note on this staff & voice? */
 
-	HiliteInsertNode(doc, firstSyncL, staff, True);
+	InvertSymbolHilite(doc, firstSyncL, staff, True);
 	return NF_OK;
 }
 
@@ -276,7 +276,7 @@ static char HandleLastSync(Document *doc, short staff, short voice, Point pt)
 		InvalMeasure(doc->selStartL, staff);
 		return USR_ALERT;
 	}
-	HiliteInsertNode(doc, lastSyncL, staff, True);
+	InvertSymbolHilite(doc, lastSyncL, staff, True);
 	SleepTicks(HILITE_TICKS);
 	return NF_OK;
 }
@@ -320,7 +320,7 @@ static void SwapEndpoints(Document *doc, short *staff)
 }
 
 
-/* ----------------------------------------------------------------- NestingIsOK -- */
+/* ----------------------------------------------------------------------- NestingIsOK -- */
 /* NestingIsOK checks whether a slur/tie to be added would be nested in or over-
 lapping an existing slur or tie; it should be called before making any changes
 to the data structure such as actually inserting the slur object. It returns
@@ -449,7 +449,7 @@ static Boolean NestingIsOK(
 	pbSearch.inSystem = True;
 
 	oldSlurL = newLastL;
-	while (oldSlurL = L_Search(LeftLINK(oldSlurL), SLURtype, GO_LEFT, &pbSearch)) {
+	while ((oldSlurL = L_Search(LeftLINK(oldSlurL), SLURtype, GO_LEFT, &pbSearch))) {
 		if (IsAfter(SlurLASTSYNC(oldSlurL), newFirstL)) break;
 		CheckProposedSlur(newFirstL, newLastL, oldSlurL,  &canTieThis, &canSlurThis);
 		if (!canTieThis) canTie = False;
@@ -463,7 +463,7 @@ static Boolean NestingIsOK(
 }
 
 
-/* --------------------------------------------------------------- FillTieArrays -- */
+/* --------------------------------------------------------------------- FillTieArrays -- */
 /* For ties, fills firstIndA and lastIndA with indices to the tied notes within
 their respective chords in the given Syncs (first note=0), as specified by parallel
 arrays fChordNote and lChordNote (presumably filled by CompareNCNotes, to handle
@@ -531,7 +531,7 @@ static short FillTieArrays(
 }
 
 
-/* -------------------------------------------------------------------- WantTies -- */
+/* -------------------------------------------------------------------------- WantTies -- */
 /* Decide whether user wants a set of ties or a single slur. If the <config> struct
 doesn't specify and the user hasn't said which to assume, ask them which they want.
 Returns True for ties, False for slur. */
@@ -624,7 +624,7 @@ static Boolean WantTies(
 }
 
 
-/* ------------------------------------------------------------------- HandleTie -- */
+/* ------------------------------------------------------------------------- HandleTie -- */
 /* HandleTie decides whether the curve connecting the given Syncs should be
 a tie or set of ties, or a slur. If the situation is ambiguous, it asks the user.
 Should be called only for consecutive Syncs, since otherwise it must be a slur. 
@@ -701,7 +701,7 @@ static short HandleTie(LINK firstL, LINK lastL, short voice, short *subCount,
 }
 
 
-/* ---------------------------------------------------------------- NewSlurOrTie -- */
+/* ---------------------------------------------------------------------- NewSlurOrTie -- */
 /* Determine whether new "slur" is a tie or not. First check whether the new
 slur/tie is nested within or overlapping an existing slur; if so, it must
 (according to Nightingale's rules) be a tie. Then check if its endpts are
@@ -1150,7 +1150,7 @@ static void NewCrossSystemSlur(Document *doc, short staff, short voice, CONTEXT 
 }
 
 
-/* ------------------------------------------------------------------ SlurToNext -- */
+/* ------------------------------------------------------------------------ SlurToNext -- */
 /* Assuming <firstSyncL> is set, set <lastSyncL> and cross-staff/system variables
 to make slur/tie go to next note/chord in <voice>. */
 
@@ -1191,7 +1191,7 @@ static Boolean SlurToNext(Document *doc,
 }
 
 
-/* --------------------------------------------------------------------- NewSlur -- */
+/* --------------------------------------------------------------------------- NewSlur -- */
 /*	Add a slur or tie on <staff> and <voice> at <pt>. The firstSync is the node
 immediately to the left of <pt> on <staff>/<voice>; NewSlur checks that this is a
 Sync, tracks the slur, checks systems and staves, finds a valid last Sync, checks
@@ -1291,7 +1291,7 @@ Disable:
 }
 
 
-/* -------------------------------------------------------------- BuildTieArrays -- */
+/* -------------------------------------------------------------------- BuildTieArrays -- */
 /* For ties, fills firstIndA and lastIndA with indices to the tied notes within
 their respective chords in the given Syncs (first note=0). If there's no chord, only
 a single note, in that Sync, it just sets firstIndA[0] or lastIndA[0] to 0. In any
@@ -1335,7 +1335,7 @@ static short BuildTieArrays(LINK firstL, LINK lastL, short voice,
 }
 
 
-/* ----------------------------------------------------------------- AddNoteTies -- */
+/* ----------------------------------------------------------------------- AddNoteTies -- */
 /* Generate a set of ties between the given Syncs for the given staff and voice.
 Also set the tiedR and tiedL flags for the notes involved. Restrictions:
 1. Since the staff must be specified, not just the voice, this can't be used to

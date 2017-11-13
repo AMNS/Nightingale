@@ -1,9 +1,10 @@
-/***************************************************************************
+/******************************************************************************************
 	PROJ:   Nightingale
 	DESC:   Higher-level routines to add music symbols to the score interactively,
 			including deciding where the inserted symbol should go, tracking,
 			cancelling, etc. They generally call analagous low-level routines in
 			InsNew.c to modify the object list.
+			
 		AddNewGRSync
 		TrkInsSync				TrkInsNote				TrkInsGRSync
 		TrkInsGRNote			InsertNote				InsertGRNote
@@ -13,7 +14,7 @@
 		InsertClef				InsertKeySig			InsertTimeSig
 		InsertDynamic			InsertSlur				InsertTempo
 		InsertSpace				XLoadInsertSeg
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -52,11 +53,12 @@ static Boolean AddNewGRSync(Document *doc,
 	/* Look for a GRSync immediately prior to the start link. If it exists and
 		has a note in the voice, create a new GRSync before it; else add to it. */
 
-	if (addToGRSyncL = FindGRSync(doc, pt, True, clickStaff))	{	/* Does it already have note/rest in this voice? */
+	addToGRSyncL = FindGRSync(doc, pt, True, clickStaff);
+	if (addToGRSyncL)					{	/* Does it already have note/rest in this voice? */
 		if (GRSyncInVoice(addToGRSyncL, voice))
 			return TrkInsGRSync(doc, addToGRSyncL, pt, &sym, clickStaff);
 			
-		HiliteInsertNode(doc, addToGRSyncL, clickStaff, True);
+		InvertSymbolHilite(doc, addToGRSyncL, clickStaff, True);
 		doc->selStartL = addToGRSyncL;
 		doc->selEndL = RightLINK(doc->selStartL);
 		if (TrkInsGRNote(doc, pt, &sym, clickStaff))
@@ -72,7 +74,7 @@ static Boolean AddNewGRSync(Document *doc,
 }
 
 
-/* ----------------------------------------------------------------- AddChordSlash -- */
+/* --------------------------------------------------------------------- AddChordSlash -- */
 /* Insert a new "chord slash" to the left of <rightL>. More precisely, it inserts a
 specialized note--a quarter note on the middle line of the staff, with slash
 appearance, zero stemlength, and zero velocity. If necessary, it also adds a new
@@ -120,8 +122,8 @@ static Boolean TrkInsSync(Document *doc, LINK rightL, Point pt, short *sym, shor
 
 	/* Check if the note is being added into an ottava'd range; if so, get the ottava
 	 	type to correct for it when adding the note. */
-	if (octL = HasOttavaAcrossPt(doc, pt, staff))
-		octType = OctType(octL);
+	octL = HasOttavaAcrossPt(doc, pt, staff);
+	if (octL) octType = OctType(octL);
 
 	/* Track the note insertion and if possible, add the new note to the data
 	 	structure. */
@@ -146,8 +148,8 @@ static Boolean TrkInsNote(Document *doc, Point pt, short *sym, short staff)
 	short pitchLev, acc; LINK octL;
 	short octType=-1;
 
-	if (octL = OctOnStaff(doc->selStartL, staff))
-		octType = OctType(octL);
+	octL = OctOnStaff(doc->selStartL, staff);
+	if (octL) octType = OctType(octL);
 
 	if (InsTrackPitch(doc, pt, sym, doc->selStartL, staff, &pitchLev, &acc, octType)) {
 		if (symtable[*sym].subtype==2)
@@ -207,7 +209,7 @@ static Boolean TrkInsGRNote(Document *doc, Point pt, short *sym, short staff)
 	return False;
 }
 
-/*	--------------------------------------------------------------------- FindJIP -- */
+/*	-------------------------------------------------------------------------- FindJIP -- */
 /* Return the first J_IP type object at or to the right of startL in the
 range [startL,endL), or NILINK. */
 
@@ -222,7 +224,7 @@ static LINK FindJIP(LINK startL, LINK endL)
 }
 
 
-/*	------------------------------------------------------------------ InsertNote -- */
+/*	----------------------------------------------------------------------- InsertNote -- */
 /* Insert a note (or rest) at a place in the object list suitable for a
 mousedown at the given point. Handles feedback and allows cancelling. (This
 also handles chord slashes: the insertion user interface distinguishes chord
@@ -297,7 +299,7 @@ Boolean InsertNote(
 				InvalMeasure(addToSyncL, clickStaff);
 				return False;
 			}
-			HiliteInsertNode(doc, addToSyncL, clickStaff, True);
+			InvertSymbolHilite(doc, addToSyncL, clickStaff, True);
 			doc->selStartL = addToSyncL;
 			doc->selEndL = RightLINK(doc->selStartL);
 	
@@ -346,7 +348,7 @@ Boolean InsertNote(
 				InvalMeasure(addToSyncL, clickStaff);
 				return False;
 			}
-			HiliteInsertNode(doc, addToSyncL, clickStaff, True);
+			InvertSymbolHilite(doc, addToSyncL, clickStaff, True);
 			doc->selStartL = addToSyncL;
 			doc->selEndL = RightLINK(doc->selStartL);
 			if (TrkInsNote(doc, pt, &sym, clickStaff))
@@ -366,7 +368,7 @@ Cancelled:
 }
 
 
-/* -----------------------------------------------------------------InsertGRNote -- */
+/* ----------------------------------------------------------------------InsertGRNote -- */
 /* Insert a grace note at a place in the object list suitable for a
 mousedown at the given point. Handles feedback and allows cancelling. */
 
@@ -400,7 +402,7 @@ Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 			InvalMeasure(addToGRSyncL, clickStaff);
 			return False;
 		}
-		HiliteInsertNode(doc, addToGRSyncL, clickStaff, True);
+		InvertSymbolHilite(doc, addToGRSyncL, clickStaff, True);
 		doc->selStartL = addToGRSyncL;
 		doc->selEndL = RightLINK(doc->selStartL);
 
@@ -446,7 +448,7 @@ Boolean InsertGRNote(Document *doc, Point pt, Boolean isGraphic)
 }
 
 
-/* --------------------------------------------------------------- InsertArpSign -- */
+/* --------------------------------------------------------------------- InsertArpSign -- */
 /* Insert an arpeggio sign at a place in the object list suitable for a
 mousedown at the given point. The point must be on a note (and not a rest). */
 
@@ -466,7 +468,7 @@ Boolean InsertArpSign(Document *doc, Point pt)
 }
 
 
-/* ------------------------------------------------------------------ InsertLine -- */
+/* ------------------------------------------------------------------------ InsertLine -- */
 /* Insert a line GRAPHIC into the object list at a place in the object list
 suitable for a mousedown at the given point. Handles feedback and allows cancelling. */
 
@@ -485,7 +487,7 @@ Boolean InsertLine(Document *doc, Point pt)
 }
 
 
-/* ---------------------------------------------------------------- InsertGraphic -- */
+/* --------------------------------------------------------------------- InsertGraphic -- */
 /* Insert a GRAPHIC object in the object list, including chord symbols and rehearsal
 marks. Handles feedback and allows cancelling.
 #1. When user tries to insert a Graphic on the final barline of a justified system,
@@ -543,7 +545,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 							(long)clickStaff, (long)pL);
 				return False;
 			}
-			HiliteInsertNode(doc, pL, clickStaff, True);			
+			InvertSymbolHilite(doc, pL, clickStaff, True);			
 	}
 															/* #2 */
 
@@ -724,7 +726,7 @@ static short Type2SymTableIndex(SignedByte objtype, SignedByte subtype)
 	return NOMATCH;									/* Not found - illegal */
 }
 
-/* -------------------------------------------------------------- InsertMusicChar -- */
+/* ------------------------------------------------------------------- InsertMusicChar -- */
 /* Insert a music character as a GRAPHIC object in the object list. Handles feedback
 and allows cancelling. */
 
@@ -764,7 +766,7 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 							(long)clickStaff, (long)pL);
 				return False;
 			}
-			HiliteInsertNode(doc, pL, clickStaff, True);			
+			InvertSymbolHilite(doc, pL, clickStaff, True);			
 	}
 
 	/* GRAPHICs must be after the page they are attached to, to avoid problems with
@@ -797,7 +799,7 @@ Boolean InsertMusicChar(Document *doc, Point pt)
 }
 
 
-/* -------------------------------------------------------------------- ChkInsMODNR -- */
+/* ----------------------------------------------------------------------- ChkInsMODNR -- */
 /* Return False to indicate we won't handle addition of MODNR in this situation. If
 object is not a note or rest, we won't handle it, but will give the user some advice
 on how to get what they seem to want. */
@@ -820,7 +822,7 @@ static Boolean ChkInsMODNR(LINK insSyncL, short sym)
 	return True;
 }
 
-/* ---------------------------------------------------------------------InsertMODNR -- */
+/* ------------------------------------------------------------------------InsertMODNR -- */
 /* Adds a MODNR ("Modify Note/Rest") or augmentation dot to a note or rest at
 the given point. Handles feedback and (other than for aug. dots) and allows
 cancelling. */
@@ -859,7 +861,7 @@ Boolean InsertMODNR(Document *doc, Point pt)
 		return True;
 	}
 
-	HiliteInsertNode(doc, insSyncL, staff, True);
+	InvertSymbolHilite(doc, insSyncL, staff, True);
 	status = InsTrackUpDown(doc, pt, &sym, doc->selStartL, staff, &pitchLev);
 	if (status!=0) {
 		if (symtable[sym].subtype==MOD_TREMOLO1) {
@@ -901,7 +903,7 @@ Boolean InsertMODNR(Document *doc, Point pt)
 }
 
 
-/* -----------------------------------------------------------------InsertRptEnd -- */
+/* ----------------------------------------------------------------------InsertRptEnd -- */
 /* Insert a RepeatEnd at a place in the object list suitable for a mousedown
 at the given point. RptEnds are J_IT objects. */
 
@@ -920,7 +922,7 @@ Boolean InsertRptEnd(Document *doc, Point pt)
 }
 
 
-/* ---------------------------------------------------------------- InsertEnding -- */
+/* --------------------------------------------------------------------- InsertEnding -- */
 /* Insert an ending when the user clicks in the score with the Ending tool. Find
 the relative object for the ending located at pt, if one exists, and add the
 ending to the object list. Endings are J_D objects. */
@@ -982,7 +984,7 @@ static Boolean InsMeasUnkDurOK(Document *doc)
 	return True;
 }
 
-/* --------------------------------------------------------------- InsertMeasure -- */
+/* --------------------------------------------------------------------- InsertMeasure -- */
 /* Insert a Measure at a place in the object list suitable for a mousedown at
 the given point. */
 
@@ -1008,7 +1010,7 @@ Boolean InsertMeasure(Document *doc, Point pt)
 }
 
 
-/* ------------------------------------------------------------ InsertPseudoMeas -- */
+/* ------------------------------------------------------------------ InsertPseudoMeas -- */
 /* Insert a pseudomeasure at a place in the object list suitable for a mousedown
 at the given point. */
 
@@ -1032,7 +1034,7 @@ Boolean InsertPseudoMeas(Document *doc, Point pt)
 }
 
 
-/* ------------------------------------------------------------------ InsertClef -- */
+/* ------------------------------------------------------------------------ InsertClef -- */
 /* Insert a clef at a place in the object list suitable for a mousedown at the
 given point. */
 
@@ -1071,7 +1073,7 @@ Boolean InsertClef(Document *doc, Point pt)
 }
 
 
-/* ---------------------------------------------------------------- InsertKeySig -- */
+/* ---------------------------------------------------------------------- InsertKeySig -- */
 /* Insert a key signature at a place in the object list suitable for a mousedown
 at the given point. */
 
@@ -1115,7 +1117,7 @@ Boolean InsertKeySig(Document *doc, Point pt)
 }
 
 
-/* --------------------------------------------------------------- InsertTimeSig -- */
+/* --------------------------------------------------------------------- InsertTimeSig -- */
 /* Insert a time signature at a place in the object list suitable for a	mousedown
 at the given point. */
 
@@ -1155,7 +1157,7 @@ Boolean InsertTimeSig(Document *doc, Point pt)
 }
 
 
-/*	---------------------------------------------------------------- InsertHairpin -- */
+/*	-------------------------------------------------------------------- InsertHairpin -- */
 /* Handle hairpin insertion. */
 
 static Boolean InsertHairpin(Document *doc, Point pt, LINK /*pL*/, short clickStaff)
@@ -1185,13 +1187,13 @@ static Boolean InsertHairpin(Document *doc, Point pt, LINK /*pL*/, short clickSt
 		if (!insSyncL) return False;
 	}
 
-	HiliteInsertNode(doc, insSyncL, clickStaff, True);
+	InvertSymbolHilite(doc, insSyncL, clickStaff, True);
 	GetContext(doc, insSyncL, clickStaff, &context);
 	return TrackAndAddHairpin(doc, insSyncL, pt, clickStaff, sym, subtype, &context); 
 }
 
 
-/* ------------------------------------------------------------------ InsertDynamic -- */
+/* --------------------------------------------------------------------- InsertDynamic -- */
 /* Insert a dynamic marking at a place in the object list suitable for a
 mousedown at the given point. Handles feedback and allows cancelling. */
 
@@ -1234,7 +1236,7 @@ Boolean InsertDynamic(Document *doc, Point pt)
 	insSyncL = GSSearch(doc, startPt, SYNCtype, clickStaff, GO_RIGHT, False, False, True);
 	if (!insSyncL) return False;
 
-	HiliteInsertNode(doc, insSyncL, clickStaff, True);
+	InvertSymbolHilite(doc, insSyncL, clickStaff, True);
 	GetContext(doc, insSyncL, clickStaff, &context);
 	doc->selEndL = doc->selStartL = insSyncL;
 	if (InsTrackUpDown(doc, pt, &sym, doc->selStartL, clickStaff, &pitchLev)) {
@@ -1247,7 +1249,7 @@ Boolean InsertDynamic(Document *doc, Point pt)
 }
 
 
-/* ---------------------------------------------------------------- GetNoteStfVoice -- */
+/* ------------------------------------------------------------------- GetNoteStfVoice -- */
 
 static short GetNoteStfVoice(LINK pL, short index, short *v)
 {
@@ -1265,7 +1267,7 @@ static short GetNoteStfVoice(LINK pL, short index, short *v)
 }
 
 
-/* --------------------------------------------------------------------- InsertSlur -- */
+/* ------------------------------------------------------------------------ InsertSlur -- */
 /* Insert a slur (or set of ties) at a place in the object list suitable
 for a mousedown at the given point. */
 
@@ -1297,7 +1299,7 @@ Boolean InsertSlur(Document *doc, Point pt)
 }
 
 
-/* ------------------------------------------------------------------ InsertTempo -- */
+/* ----------------------------------------------------------------------- InsertTempo -- */
 /* Insert a tempo mark at a place in the object list suitable for a mousedown at
 the given point. Handles feedback and allows cancelling. */
 
@@ -1315,7 +1317,7 @@ Boolean InsertTempo(Document *doc, Point pt)
 	if (pL==NILINK) return False;
 	if (MeasureTYPE(pL)) clickStaff = FindStaffSetSys(doc, pt);
 	
-	if (!(SystemTYPE(pL) || PageTYPE(pL))) HiliteInsertNode(doc, pL, clickStaff, True);
+	if (!(SystemTYPE(pL) || PageTYPE(pL))) InvertSymbolHilite(doc, pL, clickStaff, True);
 	
 	if (InsTrackUpDown(doc, pt, &sym, pL, clickStaff, &pitchLev)) {
 		if (firstCall) {

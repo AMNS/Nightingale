@@ -4,8 +4,8 @@
 #pragma once
 // MAS
 
-void HiliteInsertNode(Document *, LINK, short, Boolean);
-void HiliteTwoNodesOn(Document *, LINK, LINK, short);
+void InvertSymbolHilite(Document *, LINK, short, Boolean);
+void InvertTwoSymbolHilite(Document *, LINK, LINK, short);
 void HiliteAttPoints(Document *, LINK, LINK, short);
 void FixCursor(void);
 void FlashRect(Rect *);

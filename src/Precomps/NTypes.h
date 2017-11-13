@@ -461,7 +461,7 @@ typedef struct {
 					insertMode,			/* Graphic insertion logic (else temporal)? */			\
 					beamRests,			/* In beam handling, treat rests like notes? */			\
 					pianoroll,			/* Display everything in pianoroll, not CMN, form? */	\
-					showSyncs,			/* Show (w/HiliteInsertNode) lines on every sync? */	\
+					showSyncs,			/* Show (with InvertSymbolHilite) lines on every Sync? */	\
 					frameSystems,		/* Frame systemRects (for debugging)? */				\
 					fillerEM:4,			/* unused */											\
 					colorVoices:2,		/* 0=normal, 1=show non-dflt voices in color, 2=show all but voice 1 in color */ \

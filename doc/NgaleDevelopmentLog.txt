@@ -2263,3 +2263,40 @@ notes/chords; consider at least adjacent notes/chords on the staff => ??
 And what if they _aren't_ involved in multivoice notation? Currently we use the
 voiceRole, but again, that's only weakly correlated with the note(s)' role. Would it be
 better to use single-voice rules? Probably, but maybe put that off for now??
+
+-------------------------------------------------------------------------------
+
+10 - 12 Nov.
+
+GitHub comment on Issue #57 says "HiliteAttPoints() is used for double clicks on
+Graphics, Syncs, Ottavas, and hairpin Dynamics: of these, currently only hairpin
+Dynamics have two attachment points. It works for the one attachment point of Graphics
+(bringing up a dialog), but does nothing visible for Syncs, Ottavas, and hairpin
+Dynamics (which don't bring up a dialog)! Its failure is no problem for Syncs (which
+can't be attached to anything anyway) and Ottavas, but for hairpin Dynamics, it means
+the user has no indication that they're inserting the hairpin on the wrong staff (one
+adjacent to the intended one)." Actually, hiliting works on Tempo/MMs and chord symbols
+as well as Graphics, all of which bring up a dialog! So, regardless of implementation
+details, the hilite lines show up if and only if there's a dialog on the screen; why?
+
+In CheckTEMPO() calls HiliteInsertNode before putting its dialog up and after taking
+it down. Comment out both => no hiliting appears, as expected.  Comment out only the 2nd
+=> hiliting appears and disappears on alternate double-clicks, as expected. So ??
+
+Status (for double-clicking):
+
+Symbol					before	after
+-------------------------------------
+Sync (note or rest)		n		n
+Dynamic, hairpin		n		Y		<-- Better.
+Dynamic, other			Y		Y
+Graphic, text			Y		Y
+Graphic, chord symbol	Y		Y
+Ottava					n		n
+Slur					n		n
+Tuplet					Y		Y
+Tempo/MM				Y		Y
+Ending					Y		Y
+
+NB: What it works for on insertion is a different issue!
+
