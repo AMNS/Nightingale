@@ -1288,19 +1288,14 @@ short ModNRPitchLev(Document *doc,
 	alwaysBelow = False;
 
 	/* NB: <alwaysAbove> and <alwaysBelow> can both be False, but only one can be True. */
-	if (doc->voiceTab[voice].voiceRole==UPPER_DI)
-		alwaysAbove = True;
-	else if (doc->voiceTab[voice].voiceRole==LOWER_DI)
-		alwaysBelow = True;
+	if (doc->voiceTab[voice].voiceRole==VCROLE_UPPER) alwaysAbove = True;
+	else if (doc->voiceTab[voice].voiceRole==VCROLE_LOWER) alwaysBelow = True;
 
-	if (alwaysAbove)
-		putModAbove = True;
-	else if (alwaysBelow)
-		putModAbove = False;
-	else
-		putModAbove = stemDown;
+	if (alwaysAbove)		putModAbove = True;
+	else if (alwaysBelow)	putModAbove = False;
+	else					putModAbove = stemDown;
 
-	yqpit = NoteYQPIT(mainNoteL) + halfLn2qd(midCHalfLn);					/* main notehead: qtr-lines below stftop */
+	yqpit = NoteYQPIT(mainNoteL) + halfLn2qd(midCHalfLn);				/* main notehead: qtr-lines below stftop */
 	yqstem = d2qd(NoteYSTEM(mainNoteL), context.staffHeight, context.staffLines);	/* and its stem end in qtr-lines below stftop */
 
 	hasMod = (NoteFIRSTMOD(mainNoteL)!=NILINK);

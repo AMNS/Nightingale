@@ -132,7 +132,7 @@ static void FillVoiceTable(
 						if (doc->voiceTab[v].partn==partn)
 							lastUsedV = n_max(lastUsedV, doc->voiceTab[v].relVoice);
 					doc->voiceTab[iVoice].partn = partn;
-					doc->voiceTab[iVoice].voiceRole = SINGLE_DI;
+					doc->voiceTab[iVoice].voiceRole = VCROLE_SINGLE;
 					doc->voiceTab[iVoice].relVoice = lastUsedV+1;
 				}
 				break;
@@ -153,7 +153,7 @@ static void FillVoiceTable(
 						if (doc->voiceTab[v].partn==partn)
 							lastUsedV = n_max(lastUsedV, doc->voiceTab[v].relVoice);
 					doc->voiceTab[iVoice].partn = partn;
-					doc->voiceTab[iVoice].voiceRole = SINGLE_DI;
+					doc->voiceTab[iVoice].voiceRole = VCROLE_SINGLE;
 					doc->voiceTab[iVoice].relVoice = lastUsedV+1;
 				}
 				break;
@@ -197,7 +197,7 @@ void BuildVoiceTable(Document *doc, Boolean defaults)
 			
 			for (s = pPart->firstStaff; s<=pPart->lastStaff; s++) {
 				doc->voiceTab[s].partn = partn;
-				doc->voiceTab[s].voiceRole = SINGLE_DI;
+				doc->voiceTab[s].voiceRole = VCROLE_SINGLE;
 				doc->voiceTab[s].relVoice = s-pPart->firstStaff+1;
 			}
 		}
@@ -331,7 +331,7 @@ short User2IntVoice(Document *doc, short uVoice, LINK addPartL)
 		}
 		if (doc->voiceTab[v].partn<=0) {				/* Voice not in the table; add it */
 			doc->voiceTab[v].partn = partn;
-			doc->voiceTab[v].voiceRole = SINGLE_DI;
+			doc->voiceTab[v].voiceRole = VCROLE_SINGLE;
 			doc->voiceTab[v].relVoice = uVoice;
 			voiceSlot = v;
 			break;
@@ -417,10 +417,10 @@ void GetVoiceTableLine(Document *doc, short vNum, char *str)
 
 	if (doc->voiceTab[vNum].partn!=0) {
 		switch (doc->voiceTab[vNum].voiceRole) {
-			case UPPER_DI: ch = 'U'; break;
-			case LOWER_DI: ch = 'L'; break;
-			case CROSS_DI: ch = 'C'; break;
-			case SINGLE_DI: ch = '.'; break;
+			case VCROLE_UPPER: ch = 'U'; break;
+			case VCROLE_LOWER: ch = 'L'; break;
+			case VCROLE_CROSS: ch = 'C'; break;
+			case VCROLE_SINGLE: ch = '.'; break;
 			default: ch = '?';
 		}
 		sprintf(str, "%s%ciVoice %d in part %d Role=%c relVoice=%d",

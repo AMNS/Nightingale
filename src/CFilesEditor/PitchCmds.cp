@@ -111,7 +111,7 @@ static void FlipBeamList(Document *doc, LINK beamLA[], short nBeamsets)
 			mainNoteL = FindMainNote(startL, voice);
 			stemDown = NoteYSTEM(mainNoteL)>NoteYD(mainNoteL);
 		}
-		newRole = (stemDown? UPPER_DI : LOWER_DI);
+		newRole = (stemDown? VCROLE_UPPER : VCROLE_LOWER);
 		nEntries = LinkNENTRIES(beamLA[i]);
 
 		/*

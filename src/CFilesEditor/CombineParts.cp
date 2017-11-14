@@ -244,7 +244,7 @@ static Boolean CheckMultivoiceRoles(Document *doc, LINK firstPartL, LINK lastPar
 			short partn = PartL2Partn(doc, partL);
 			for (short v = 0; v<MAXVOICES+1; v++) 
 			{
-				if (doc->voiceTab[v].voiceRole == UPPER_DI) 
+				if (doc->voiceTab[v].voiceRole == VCROLE_UPPER) 
 				{
 					if (hasUpperVoice)
 						ok = False;
@@ -252,7 +252,7 @@ static Boolean CheckMultivoiceRoles(Document *doc, LINK firstPartL, LINK lastPar
 						hasUpperVoice = True;
 				}
 						
-				if (doc->voiceTab[v].voiceRole == LOWER_DI) 
+				if (doc->voiceTab[v].voiceRole == VCROLE_LOWER) 
 				{
 					if (hasLowerVoice)
 						ok = False;

@@ -1,11 +1,11 @@
-/***************************************************************************
+/******************************************************************************************
 	FILE:	Part.c
 	PROJ:	Nightingale
 	DESC:	Part manipulation routines:
 		FixStaffNums				APFixVoiceNums			DPFixVoiceNums
 		AddPart						Staff2Part				Staff2PartLINK
 		Sel2Part					SelPartRange			DeletePart
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -25,7 +25,7 @@ static Boolean APFixVoiceNums(Document *, short, short);
 static void DPFixVoiceNums(Document *, short, short, short);
 static void SelPartRange(Document *doc,LINK startL,LINK endL,short startStf,short endStf);
 
-/* ============== Functions for updating staff and voice nos. and the voice table == */
+/* =================== Functions for updating staff and voice nos. and the voice table == */
 
 /* Update the staff numbers of everything in the object list, after the part of
 <ABS(nDelta)> staves whose maximum staff number was <afterStf> was added or deleted.
@@ -38,17 +38,17 @@ Connect subobj for the group is different. Adding is simpler because you can't a
 the top or bottom staff of a group. */
 
 static void FixStaffNums(Document *doc,
-									short afterStf,
-									short nDelta,
-									SignedByte measConnStaff[])	/* Ignored if nDelta>0 */
+							short afterStf,
+							short nDelta,
+							SignedByte measConnStaff[])	/* Ignored if nDelta>0 */
 {
 	PMEVENT		p;
 	PASTAFF		aStaff;
 	PAMEASURE	aMeasure;
-	PAPSMEAS		aPseudoMeas;
+	PAPSMEAS	aPseudoMeas;
 	PACONNECT	aConnect;
-	LINK			pL,aStaffL, aMeasureL, aPseudoMeasL, aConnectL, subObjL;
-	HEAP			*tmpHeap;
+	LINK		pL, aStaffL, aMeasureL, aPseudoMeasL, aConnectL, subObjL;
+	HEAP		*tmpHeap;
 	GenSubObj	*subObj;
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
@@ -208,7 +208,7 @@ static Boolean APFixVoiceNums(Document *doc, short afterStf, short nDelta)
 	}
 	for (v = afterStf+1; v<=afterStf+nDelta; v++) {
 		doc->voiceTab[v].partn = addPartn;
-		doc->voiceTab[v].voiceRole = SINGLE_DI;
+		doc->voiceTab[v].voiceRole = VCROLE_SINGLE;
 		doc->voiceTab[v].relVoice = v-afterStf;
 	}
 
@@ -239,7 +239,7 @@ static void DPFixVoiceNums(Document *doc, short afterStf, short nDelta, short de
 }
 
 
-/* ================================================================================= */
+/* ====================================================================================== */
 /* AddPart and auxiliary functions. */
 
 static DDIST InitPartGetStfLen(Document *doc);
@@ -250,7 +250,7 @@ static void InitSysPart(Document *doc,LINK sysL,short nstAdd,short afterStf,shor
 
 static DDIST InitPartGetStfLen(Document *doc)
 {
-	DDIST staffLen; LINK staffL,bStaffL; PASTAFF bStaff;
+	DDIST staffLen; LINK staffL, bStaffL; PASTAFF bStaff;
 
 	staffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, False);
 	bStaffL = FirstSubLINK(staffL);
@@ -276,8 +276,8 @@ static void GrowAllObjects(Document *doc, short nstAdd)
 				GrowObject(doc, pL, nstAdd);
 				break;
 			case CLEFtype:
-				if (!ClefINMEAS(pL))					/* Only add new subobjects to clefs/keySigs/timeSigs */
-					GrowObject(doc, pL, nstAdd);	/*		at beginning of systems. */
+				if (!ClefINMEAS(pL))				/* Only add new subobjects to clefs/keySigs/timeSigs */
+					GrowObject(doc, pL, nstAdd);	/*   at beginning of systems. */
 				break;
 			case KEYSIGtype:
 				if (!KeySigINMEAS(pL))
@@ -290,8 +290,8 @@ static void GrowAllObjects(Document *doc, short nstAdd)
 					GrowObject(doc, pL, nstAdd);
 				break;
 			case CONNECTtype:
-				if (nstAdd>1) 							/* Parts with more than 1 staff will require */
-					GrowObject(doc, pL, 1);			/*		connection by new	Connect subObj. */
+				if (nstAdd>1) 						/* Parts with more than 1 staff will require */
+					GrowObject(doc, pL, 1);			/*   connection by new Connect subObj. */
 				break;
 			default:
 				;
@@ -319,10 +319,12 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 			tsType,tsNum,tsDenom, groupConnType;
 	LINK staffL,measL,clefL,keySigL,timeSigL,connectL,nextMeasL,nextTSL,
 			aStaffL,aMeasL,aClefL,aKeySigL,aTimeSigL,aConnectL,pL,aPSMeasL;
-	CONTEXT context; DDIST staffLen,ydelta,halfpt,dLineSp;
-	PASTAFF aStaff,bStaff,cStaff; PACONNECT aConnect; PAMEASURE aMeas;
-	PATIMESIG aTimeSig;
-	Boolean addToGroup=False,connAbove; char subType;
+	CONTEXT context;
+	DDIST staffLen,ydelta,halfpt,dLineSp;
+	PASTAFF aStaff,bStaff,cStaff;
+	PACONNECT aConnect;  PAMEASURE aMeas;  PATIMESIG aTimeSig;
+	Boolean addToGroup=False,connAbove;
+	char subType;
 
 	GetSysLinks(sysL,&staffL,&measL,&clefL,&keySigL,&timeSigL,&connectL);
 	staffLen = InitPartGetStfLen(doc);
@@ -352,10 +354,10 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 	aTimeSigL = FirstSubLINK(timeSigL);
 	
 	for (j=1,m=1; j<=newNEntries; j++,aStaffL=NextSTAFFL(aStaffL),
-												aClefL=NextCLEFL(aClefL),
-												aKeySigL=NextKEYSIGL(aKeySigL),
-												aTimeSigL=GetNextTIMESIGL(aTimeSigL),
-												aMeasL=NextMEASUREL(aMeasL))
+										aClefL=NextCLEFL(aClefL),
+										aKeySigL=NextKEYSIGL(aKeySigL),
+										aTimeSigL=GetNextTIMESIGL(aTimeSigL),
+										aMeasL=NextMEASUREL(aMeasL))
 		if (j>prevNEntries) {
 			thisSt = afterStf+m;
 
@@ -387,11 +389,11 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 
 			staffLA[thisSt] = aStaffL;
 			aStaff = GetPASTAFF(aStaffL);
-			if (thisSt==1)															/* This is top staff in score */
+			if (thisSt==1)										/* This is top staff in score */
 				aStaff->staffTop = initStfTop1;
-			else if (thisSt==2)													/* 2nd staff--use fixed space */
+			else if (thisSt==2)									/* 2nd staff: use fixed space */
 				aStaff->staffTop = initStfTop1+initStfTop2;
-			else	{																	/* Later staff--repeat prev. space */ 
+			else	{											/* Later staff: repeat prev. space */ 
 				bStaff = GetPASTAFF(staffLA[thisSt-1]);
 				cStaff = GetPASTAFF(staffLA[thisSt-2]);
 				aStaff->staffTop = bStaff->staffTop+(bStaff->staffTop-cStaff->staffTop);
@@ -400,8 +402,8 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 			/* Clef, key sig., and time sig. must be set before Measure so context
 				will be correct. */
 	
-			InitClef(aClefL, thisSt, p2d(0),
-												(nstAdd>1 && m==nstAdd) ? BASS_CLEF:DFLT_CLEF);
+			InitClef(aClefL, thisSt, p2d(0), (nstAdd>1 && m==nstAdd) ?
+													BASS_CLEF : DFLT_CLEF);
 			InitKeySig(aKeySigL, thisSt, p2d(0), DFLT_NKSITEMS);
 			
 			if (timeSigL) {
@@ -413,7 +415,7 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 								staffLen-LinkXD(measL), 999, False,
 								m>1, connStaff, 0);
 			GetContext(doc, LeftLINK(measL), thisSt, &context);		/* Put default context */
-			FixMeasureContext(aMeasL, &context);							/*   into measure */
+			FixMeasureContext(aMeasL, &context);					/*   into measure */
 			m++;
 		}
 	
@@ -448,7 +450,7 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 	for ( ; aConnectL; aConnectL = NextCONNECTL(aConnectL)) {
 		aConnect = GetPACONNECT(aConnectL);
 		if (aConnect->connLevel==GroupLevel)
-			if (aConnect->staffAbove<=afterStf && aConnect->staffBelow>afterStf) {		/* #1. */
+			if (aConnect->staffAbove<=afterStf && aConnect->staffBelow>afterStf) {	/* #1. */
 				addToGroup = True;
 				groupConnType = aConnect->connectType;
 				break;
@@ -465,10 +467,10 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 		for (j=0; j<LinkNENTRIES(connectL); j++,aConnectL=NextCONNECTL(aConnectL))
 			if (j==LinkNENTRIES(connectL)-1) {
 				halfpt = pt2d(1)/2;
-				dLineSp = STHEIGHT/(5-1);										/* Get space between staff lines */
+				dLineSp = STHEIGHT/(5-1);								/* Get space between staff lines */
 				aConnect = GetPACONNECT(aConnectL);
 				aConnect->selected = False;
-				aConnect->connLevel = PartLevel;								/* Yes. Connect the part */
+				aConnect->connLevel = PartLevel;						/* Yes. Connect the part */
 				aConnect->connectType = CONNECTCURLY;
 				aConnect->staffAbove = afterStf+1;
 				aConnect->staffBelow = afterStf+nstAdd;
@@ -568,7 +570,8 @@ static void InitSysPart(Document *doc, LINK sysL, short nstAdd, short afterStf,
 	}
 }
 
-/* --------------------------------------------------------------------- AddPart -- */
+
+/* --------------------------------------------------------------------------- AddPart -- */
 /* Add a part of nstAdd staves below staff afterStf (0 = above 1st). We do not fix
 up measure and system bounding Rects; the caller must do so.
 
@@ -582,7 +585,7 @@ LINK AddPart(Document *doc,
 					short showLines)		/* 0=show 0 staff lines, 1=only middle line, SHOW_ALL_LINES=show all */
 {
 	short partn, np; LINK partL,newPartL,sysL,measL,lastMeasL;
-	SignedByte measConnStaff[MAXSTAVES+1];										/* Unused */
+	SignedByte measConnStaff[MAXSTAVES+1];									/* Unused */
 				
 	/*
 	 * Update score header and document fields.
@@ -647,7 +650,7 @@ LINK AddPart(Document *doc,
 }
 
 
-/* ------------------------------------------- Get part corresponding to something -- */
+/* ----------------------------------------------- Get part corresponding to something -- */
 /* NB: There are several more utilities for doing this kind of thing in DSUtils.cp!
 they should probably be moved here, or maybe vice-versa. */
 
@@ -655,9 +658,9 @@ they should probably be moved here, or maybe vice-versa. */
 
 short Staff2Part(Document *doc, short nstaff)
 {
-	short			np;
+	short		np;
 	PPARTINFO	pPart;
-	LINK			partL;
+	LINK		partL;
 	
 	if (nstaff<=0) return 0;
 	
@@ -716,7 +719,7 @@ LINK Sel2Part(Document *doc)
 
 
 
-/* ================================================================================= */
+/* ====================================================================================== */
 /* DeletePart and auxiliary functions. */
 
 /* Traverse range from startL to endL, and select subobjects/objects on staves from
@@ -728,8 +731,8 @@ static void SelPartRange(Document *doc, LINK /*startL*/, LINK /*endL*/,
 {
 	LINK pL,aStaffL,aConnectL,subObjL;
 	Boolean selObject;
-	PASTAFF aStaff; PACONNECT aConnect;
-	PMEVENT p; HEAP *tmpHeap; GenSubObj *subObj;
+	PASTAFF aStaff;  PACONNECT aConnect;
+	PMEVENT p;  HEAP *tmpHeap;  GenSubObj *subObj;
 				
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
 		selObject = False;
@@ -813,16 +816,16 @@ GroupLevel Connects that include only one part, which should normally be removed
 by the calling routine. */
 
 Boolean DeletePart(Document *doc,
-							short startStf, short endStf)		/* Inclusive range of staves */
+							short startStf, short endStf)	/* Inclusive range of staves */
 {
 	register PASTAFF aStaff;
-	short			deltaNStf, ydelta, ns, np, thisPart;
-	LINK			pL,aStaffL,partL,qPartL,measL,lastMeasL,aMeasL;
-	DDIST			startStfTop, endStfTop;
+	short		deltaNStf, ydelta, ns, np, thisPart;
+	LINK		pL,aStaffL,partL,qPartL,measL,lastMeasL,aMeasL;
+	DDIST		startStfTop, endStfTop;
 	Boolean		dontResp;
 	PAMEASURE	aMeasure;
 	SignedByte	measConnStaff[MAXSTAVES+1];
-	short			staffn;
+	short		staffn;
 
 	pL = SSearch(doc->headL, STAFFtype, GO_RIGHT);
 	aStaffL = FirstSubLINK(pL);
@@ -873,15 +876,15 @@ Boolean DeletePart(Document *doc,
 	for ( ; aStaffL; aStaffL=NextSTAFFL(aStaffL))
 		staffLA[StaffSTAFF(aStaffL)] = aStaffL;
 
-	if (doc->nstaves>endStf)	{										/* Fix any staves below this. */
+	if (doc->nstaves>endStf)	{							/* Fix any staves below this. */
 		ydelta = endStfTop-startStfTop;
 		for (ns=endStf+1; ns<=doc->nstaves; ns++) {																	
-			aStaff = GetPASTAFF(staffLA[ns]);						/* Fix up staff y-positions for */
-			aStaff->staffTop = aStaff->staffTop-ydelta;			/*		following staves */
+			aStaff = GetPASTAFF(staffLA[ns]);				/* Fix up staff y-positions for */
+			aStaff->staffTop = aStaff->staffTop-ydelta;		/* following staves */
 		}
 	}
 
-	deltaNStf = endStf-startStf+1;									/* No. of staves deleted */
+	deltaNStf = endStf-startStf+1;							/* No. of staves deleted */
 
 	/* Fix up parts-relative info for following parts. NB: assumes they have higher staff nos.! */
 
@@ -894,7 +897,7 @@ Boolean DeletePart(Document *doc,
 			PartLastSTAFF(partL) = PartLastSTAFF(qPartL)-deltaNStf;
 		}
 	
-	GrowObject(doc, doc->headL, -1);									/* Finish fixing header */
+	GrowObject(doc, doc->headL, -1);						/* Finish fixing header */
 	doc->nstaves -= deltaNStf;
 	
 	/*

@@ -165,7 +165,7 @@ Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context
 	voiceRole = doc->voiceTab[NoteVOICE(aNoteL)].voiceRole;
 
 	switch (voiceRole) {
-		case SINGLE_DI:
+		case VCROLE_SINGLE:
 			midCHalfLn = ClefMiddleCHalfLn(context.clefType);		/* Get middle C staff pos. */		
 			aNote = GetPANOTE(aNoteL);
 			yqpit = aNote->yqpit+halfLn2qd(midCHalfLn);
@@ -173,15 +173,15 @@ Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context
 			stemDown = (halfLn<=context.staffLines-1);
 			*qStemLen = QSTEMLEN(True, ShortenStem(aNoteL, context, stemDown));
 			break;
-		case UPPER_DI:
+		case VCROLE_UPPER:
 			stemDown = False;
 			*qStemLen = QSTEMLEN(False, ShortenStem(aNoteL, context, stemDown));
 			break;
-		case LOWER_DI:
+		case VCROLE_LOWER:
 			stemDown = True;
 			*qStemLen = QSTEMLEN(False, ShortenStem(aNoteL, context, stemDown));
 			break;
-		case CROSS_DI:
+		case VCROLE_CROSS:
 			partL = FindPartInfo(doc, Staff2Part(doc, NoteSTAFF(aNoteL)));
 			pPart = GetPPARTINFO(partL);
 			stemDown = (NoteSTAFF(aNoteL)==pPart->firstStaff);
@@ -223,14 +223,14 @@ Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /
 	voiceRole = doc->voiceTab[GRNoteVOICE(aGRNoteL)].voiceRole;
 
 	switch (voiceRole) {
-		case SINGLE_DI:
-		case UPPER_DI:
+		case VCROLE_SINGLE:
+		case VCROLE_UPPER:
 			stemDown = False;
 			break;
-		case LOWER_DI:
+		case VCROLE_LOWER:
 			stemDown = True;
 			break;
-		case CROSS_DI:
+		case VCROLE_CROSS:
 			partL = FindPartInfo(doc, Staff2Part(doc, GRNoteSTAFF(aGRNoteL)));
 			pPart = GetPPARTINFO(partL);
 			stemDown = (GRNoteSTAFF(aGRNoteL)==pPart->firstStaff);
@@ -262,12 +262,12 @@ Boolean GetGRStemInfo(Document *doc, LINK grSyncL, LINK aGRNoteL, short *qStemLe
 /* Return the normal augmentation dot y-position for a note on a line. */
 							
 short GetLineAugDotPos(
-			short	voiceRole,	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+			short	voiceRole,	/*  VCROLE_UPPER, ..._LOWER, _CROSS or _SINGLE */
 			Boolean	stemDown
 			)
 {
-	if (voiceRole==SINGLE_DI) return 1;
-	else					  return (stemDown? 3 : 1);
+	if (voiceRole==VCROLE_SINGLE)	return 1;
+	else							return (stemDown? 3 : 1);
 }
 
 

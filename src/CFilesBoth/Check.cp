@@ -52,8 +52,8 @@
 /* Offset the Rect along the given axis only if it's not set to "infinite" (wide
 open); if it is, leave it alone. */
 
-void COffsetRect(Rect *, short, short);
-void COffsetRect(Rect *r, short h, short v)
+static void COffsetRect(Rect *, short, short);
+static void COffsetRect(Rect *r, short h, short v)
 {
 	if (r->left>-32767 && r->right<32767) {
 		r->left += h;
@@ -1709,6 +1709,7 @@ change the keysig on this staff or all staves. Return True if there was any
 change, False if not.  <pL> is the keysig object; <aKeySigL> is a LINK to the
 subobject the user clicked. Assumes keysig and object heaps have been locked. */
 
+static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL);
 static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 {
 	short sharps, flats, oldSharpsOrFlats, newSharpsOrFlats;
@@ -2328,6 +2329,7 @@ change the timesig on this staff or all staves. Return True if there was any
 change, False if not.  <pL> is the timesig object; <aTimeSigL> is a LINK to the
 subobject the user clicked. Assumes timesig and object heaps have been locked. */
 
+static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL);
 static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL)
 {
 	short subType, numerator, denominator;
@@ -3198,7 +3200,6 @@ short CheckOTTAVA(Document *doc, LINK pL, CONTEXT context[],
 	CONTEXT		*pContext;
 
 PushLock(OBJheap);
-	p = GetPOTTAVA(pL);
 	result = NOMATCH;
 	rSub = LinkOBJRECT(pL);
 	pContext = &context[OttavaSTAFF(pL)];
@@ -3227,6 +3228,7 @@ PushLock(OBJheap);
 		}
 		break;
 	case SMStaffDrag:
+		p = GetPOTTAVA(pL);
 		if (p->staffn>=stfRange.topStaff && 
 			 p->staffn<=stfRange.bottomStaff && !p->selected) {
 			UnionRect(&rSub, (Rect *)ptr, &aRect);			/* does (Rect *)ptr enclose rSub? */

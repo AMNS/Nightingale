@@ -1,8 +1,8 @@
-/****************************************************************************************
+/******************************************************************************************
 *	FILE:	SetUtils.c
 *	PROJ:	Nightingale
 *	DESC:	Set data-structure-manipulating routines, by DAB and John Gibson
-/****************************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -142,7 +142,7 @@ void FixSyncVoice(Document *doc,
 
 			if (notesInChord>1) {
 				FixSyncForChord(doc, pL, voice, NoteBEAMED(vNoteL), 0, 0, NULL);
-				stemDown = (voiceRole==LOWER_DI);				/* Not quite: CROSS_DI is more complex, but... */
+				stemDown = (voiceRole==VCROLE_LOWER);				/* Not quite: VCROLE_CROSS is more complex, but... */
 			}
 			else {
 				stemDown = GetStemInfo(doc, pL, vNoteL, &qStemLen);
@@ -160,7 +160,7 @@ void FixSyncVoice(Document *doc,
 }
 
 
-/* --------------------------------------------------------------------- SetSelVoice -- */
+/* ----------------------------------------------------------------------- SetSelVoice -- */
 /* Set the voice number of every selected note or rest to the internal voice number
 for its part that's equivalent to the given user voice number. */
 
@@ -218,7 +218,7 @@ Boolean SetSelVoice(Document *doc, short uVoice)
 }
 
 
-/* ---------------------------------------------------------------------- SSSCheck's -- */
+/* ------------------------------------------------------------------------ SSSCheck's -- */
 
 /* If the given Sync has an UNSELECTED subobj (note or rest) on the given staff,
 return the first one found. */
@@ -319,7 +319,7 @@ static Boolean SSSCheck(Document *doc, LINK /*syncL*/, LINK aNoteL, short absSta
 }
 
 
-/* --------------------------------------------------------------------- SetSelStaff -- */
+/* ----------------------------------------------------------------------- SetSelStaff -- */
 /* Set the staff number of every selected note or rest. NB: it looks like the
 restriction to unbeamed notes could be eliminated simply by calling Unbeam. */
 
@@ -404,7 +404,7 @@ StaffFound:
 }
 
 
-/* --------------------------------------------------------------------- ExtremeNote -- */
+/* ----------------------------------------------------------------------- ExtremeNote -- */
 /* Return the note in the given Sync and voice that's closest to the stem, i.e.,
 furthest from the MainNote. */
 
@@ -426,7 +426,7 @@ LINK ExtremeNote(LINK syncL, short voice, Boolean stemDown)
 }
 
 
-/* ------------------------------------------------------------------- SetSelStemlen -- */
+/* --------------------------------------------------------------------- SetSelStemlen -- */
 /* Set the stem length of every selected note/rest/chord to a positive value,
 leaving stem direction as it is. If any note in a chord is selected, the chord
 is considered selected. */
@@ -505,7 +505,7 @@ Boolean SetSelStemlen(Document *doc, unsigned STDIST stemlen)
 }
 
 
-/* ------------------------------------------------------------------ SetSelNRAppear -- */
+/* -------------------------------------------------------------------- SetSelNRAppear -- */
 /* Set the appearance (shape and visibility) of every selected note or rest. */
 
 Boolean SetSelNRAppear(Document *doc, short appearance)
@@ -549,7 +549,7 @@ Boolean SetSelNRSmall(Document *doc, short small)
 }
 
 
-/* ------------------------------------------------------------------ SetSelNRParens -- */
+/* -------------------------------------------------------------------- SetSelNRParens -- */
 /* Set the <courtesyAcc> flag of every selected note or rest. */
 
 Boolean SetSelNRParens(Document *doc, short inParens)
@@ -571,7 +571,7 @@ Boolean SetSelNRParens(Document *doc, short inParens)
 }
 
 
-/* --------------------------------------------------------------- SetVelFromContext -- */
+/* ----------------------------------------------------------------- SetVelFromContext -- */
 /* Set the On velocity of a note according to its context, i.e, the last dynamic
 marking on its staff and the current dynamics-to-velocity table. Works either on
 all notes in the score or only on selected notes. */
@@ -617,7 +617,7 @@ Boolean SetVelFromContext(Document *doc, Boolean selectedOnly)
 }
 
 
-/* ------------------------------------------------------------------ SetSelVelocity -- */
+/* -------------------------------------------------------------------- SetSelVelocity -- */
 /* Set the On velocity of every selected note to a specific unsigned value. If the
 value specified is negative, does nothing. */
 
@@ -642,7 +642,7 @@ Boolean SetSelVelocity(Document *doc, short velocity)
 }
 
 
-/* ----------------------------------------------------------------------- SSGXCheck -- */
+/* ------------------------------------------------------------------------- SSGXCheck -- */
 
 static Boolean SSGXCheck(Document *doc, LINK graphicL, DDIST dxd)
 {
@@ -674,7 +674,7 @@ static Boolean SSGXCheck(Document *doc, LINK graphicL, DDIST dxd)
 }
 
 
-/* -------------------------------------------------------------- SetSelGraphicX -- */
+/* -------------------------------------------------------------------- SetSelGraphicX -- */
 /* Set the xd of every selected Graphic of the given subtype to a signed value.
 Assumes all staves containing selected Graphics of the given subtype have the same
 height and number of staff lines. */
@@ -720,7 +720,7 @@ Boolean SetSelGraphicX(
 }
 
 
-/* ------------------------------------------------------------------- SSGYCheck -- */
+/* ------------------------------------------------------------------------- SSGYCheck -- */
 
 static Boolean SSGYCheck(Document *doc, LINK graphicL, DDIST dyd)
 {
@@ -752,7 +752,7 @@ static Boolean SSGYCheck(Document *doc, LINK graphicL, DDIST dyd)
 	return True;
 }
 
-/* ------------------------------------------------------------------ SetSelGraphicY -- */
+/* -------------------------------------------------------------------- SetSelGraphicY -- */
 /* Set the yd of every selected Graphic of the given subtype to a signed value.
 Assumes all staves containing selected Graphics of the given subtype have the same
 height and number of staff lines. */
@@ -801,7 +801,7 @@ Boolean SetSelGraphicY(
 }
 
 
-/* ----------------------------------------------------------------------- SSTXCheck -- */
+/* ------------------------------------------------------------------------- SSTXCheck -- */
 
 static Boolean SSTXCheck(Document *doc, LINK tempoL, DDIST dxd)
 {
@@ -833,7 +833,7 @@ static Boolean SSTXCheck(Document *doc, LINK tempoL, DDIST dxd)
 }
 
 
-/* -------------------------------------------------------------------- SetSelTempoX -- */
+/* ---------------------------------------------------------------------- SetSelTempoX -- */
 /* Set the xd of every selected tempo mark to a signed value. Assumes all staves
 containing selected Graphics of the given subtype have same height and number of
 staff lines. */
@@ -870,7 +870,7 @@ Boolean SetSelTempoX(
 }
 
 
-/* ----------------------------------------------------------------------- SSTYCheck -- */
+/* ------------------------------------------------------------------------- SSTYCheck -- */
 
 static Boolean SSTYCheck(Document *doc, LINK tempoL, DDIST dyd)
 {
@@ -903,7 +903,7 @@ static Boolean SSTYCheck(Document *doc, LINK tempoL, DDIST dyd)
 }
 
 
-/* -------------------------------------------------------------------- SetSelTempoY -- */
+/* ---------------------------------------------------------------------- SetSelTempoY -- */
 /* Set the yd of every selected tempo mark to a signed value. Assumes all staves
 containing selected Graphics of the given subtype have same height and number of
 staff lines. */
@@ -943,7 +943,7 @@ Boolean SetSelTempoY(
 }
 
 
-/* -------------------------------------------------------------- SetSelTempoVisible -- */
+/* ---------------------------------------------------------------- SetSelTempoVisible -- */
 /* Set visibility of every selected Tempo's M.M. */
 
 Boolean SetSelTempoVisible(Document *doc, Boolean visible)
@@ -963,7 +963,7 @@ Boolean SetSelTempoVisible(Document *doc, Boolean visible)
 }
 
 
-/* -------------------------------------------------------------- SetSelGraphicStyle -- */
+/* ---------------------------------------------------------------- SetSelGraphicStyle -- */
 /* Set the style of every selected Graphic of the given subtype to a given value. */
 
 Boolean SetSelGraphicStyle(
@@ -1048,7 +1048,7 @@ Boolean SetSelGraphicStyle(
 }
 
 
-/* --------------------------------------------------------------- SetSelMeasVisible -- */
+/* ----------------------------------------------------------------- SetSelMeasVisible -- */
 /* Set visibility of every selected Measure and its subobjects, i.e., of the barlines,
 not the contents of the measures. */
 
@@ -1073,7 +1073,7 @@ Boolean SetSelMeasVisible(Document *doc, Boolean visible)
 }
 
 
-/* ------------------------------------------------------------------ SetSelMeasType -- */
+/* -------------------------------------------------------------------- SetSelMeasType -- */
 /* Set "type" (the subType field) of every selected Measure subobject. */
 
 Boolean SetSelMeasType(Document *doc, short subtype)
@@ -1097,7 +1097,7 @@ Boolean SetSelMeasType(Document *doc, short subtype)
 }
 
 
-/* -------------------------------------------------------------- SetSelDynamVisible -- */
+/* ---------------------------------------------------------------- SetSelDynamVisible -- */
 /* Set visibility of every selected Dynamic. */
 
 Boolean SetSelDynamVisible(Document *doc, Boolean visible)
@@ -1119,7 +1119,7 @@ Boolean SetSelDynamVisible(Document *doc, Boolean visible)
 }
 
 
-/* ---------------------------------------------------------------- SetSelDynamSmall -- */
+/* ------------------------------------------------------------------ SetSelDynamSmall -- */
 /* Set visibility of every selected Dynamic. */
 
 Boolean SetSelDynamSmall(Document *doc, Boolean small)
@@ -1141,7 +1141,7 @@ Boolean SetSelDynamSmall(Document *doc, Boolean small)
 }
 
 
-/* --------------------------------------------------------------- SetSelBeamsetThin -- */
+/* ----------------------------------------------------------------- SetSelBeamsetThin -- */
 /* Set thickness of selected beamset. */
 
 Boolean SetSelBeamsetThin(Document *doc, Boolean thin)
@@ -1161,7 +1161,7 @@ Boolean SetSelBeamsetThin(Document *doc, Boolean thin)
 }
 
 
-/* --------------------------------------------------------------- SetSelClefVisible -- */
+/* ----------------------------------------------------------------- SetSelClefVisible -- */
 /* Set visibility of every selected Clef. */
 
 Boolean SetSelClefVisible(Document *doc, Boolean visible)
@@ -1183,7 +1183,7 @@ Boolean SetSelClefVisible(Document *doc, Boolean visible)
 }
 
 
-/* ------------------------------------------------------------- SetSelKeySigVisible -- */
+/* --------------------------------------------------------------- SetSelKeySigVisible -- */
 /* Set visibility of every selected KeySig. */
 
 Boolean SetSelKeySigVisible(Document *doc, Boolean visible)
@@ -1205,7 +1205,7 @@ Boolean SetSelKeySigVisible(Document *doc, Boolean visible)
 }
 
 
-/* ------------------------------------------------------------ SetSelTimeSigVisible -- */
+/* -------------------------------------------------------------- SetSelTimeSigVisible -- */
 /* Set visibility of every selected TimeSig. */
 
 Boolean SetSelTimeSigVisible(Document *doc, Boolean visible)
@@ -1227,7 +1227,7 @@ Boolean SetSelTimeSigVisible(Document *doc, Boolean visible)
 }
 
 
-/* ---------------------------------------------------------------- SetSelTupBracket -- */
+/* ------------------------------------------------------------------ SetSelTupBracket -- */
 /* Set visibility of every selected Tuplet bracket. */
 
 Boolean SetSelTupBracket(Document *doc, Boolean visible)
@@ -1247,7 +1247,7 @@ Boolean SetSelTupBracket(Document *doc, Boolean visible)
 }
 
 
-/* ------------------------------------------------------------------- SetSelTupNums -- */
+/* --------------------------------------------------------------------- SetSelTupNums -- */
 /* Set visibility of accessory numerals in every selected Tuplet. */
 
 enum {
@@ -1273,7 +1273,7 @@ Boolean SetSelTupNums(Document *doc, short showWhich)
 }
 
 
-/* ---------------------------------------------------------------- SetAllSlursShape -- */
+/* ------------------------------------------------------------------ SetAllSlursShape -- */
 /* Set all slur/tie subobjects to the default shape. */
 
 void SetAllSlursShape(
@@ -1311,7 +1311,7 @@ void SetAllSlursShape(
 	/*
 	 * One slur/tie: decide whether it should curve up or down based on 1st note stem
 	 * direction. The stem dir. test works even for stemless durations, since SetupNote
-	 * always sets the stem endpoint.  ??BUT SHOULD CONSIDER ALL NOTES IN THE SLUR!
+	 * always sets the stem endpoint.  FIXME: BUT SHOULD CONSIDER ALL NOTES IN THE SLUR!
 	 */
 		firstSyncL = SlurFIRSTSYNC(slurL);
 		lastSyncL = SlurLASTSYNC(slurL);
@@ -1334,7 +1334,7 @@ void SetAllSlursShape(
 }
 
 
-/* ----------------------------------------------------------------- SetSelSlurShape -- */
+/* ------------------------------------------------------------------- SetSelSlurShape -- */
 /* Set every selected slur or tie subobject to the default shape by resetting its
 control points. */
 
@@ -1387,7 +1387,7 @@ Boolean SetSelSlurShape(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- SetSelSlurAppear -- */
+/* ------------------------------------------------------------------ SetSelSlurAppear -- */
 /* Set the appearance (line style) of every selected slur/tie. */
 
 Boolean SetSelSlurAppear(Document *doc, short appearance)
@@ -1409,7 +1409,7 @@ Boolean SetSelSlurAppear(Document *doc, short appearance)
 }
 
 
-/* ------------------------------------------------------------- SetSelLineThickness -- */
+/* --------------------------------------------------------------- SetSelLineThickness -- */
 /* Set the line thickness of every selected GRDraw Graphic to a given value. */
 
 Boolean SetSelLineThickness(Document *doc, short thickness)
@@ -1429,7 +1429,7 @@ Boolean SetSelLineThickness(Document *doc, short thickness)
 }
 
 
-/* -------------------------------------------------------- SetSelPatchChangeVisible -- */
+/* ---------------------------------------------------------- SetSelPatchChangeVisible -- */
 /* Set visibility of every selected PatchChange. */
 
 Boolean SetSelPatchChangeVisible(Document *doc, Boolean visible)
@@ -1449,7 +1449,7 @@ Boolean SetSelPatchChangeVisible(Document *doc, Boolean visible)
 }
 
 
-/* ---------------------------------------------------------------- SetSelPanVisible -- */
+/* ------------------------------------------------------------------ SetSelPanVisible -- */
 /* Set visibility of every selected Pan. */
 
 Boolean SetSelPanVisible(Document *doc, Boolean visible)

@@ -155,7 +155,7 @@ static Boolean RangeChkBeam(short voice, LINK vStartL, LINK vEndL)
 }
 
 
-/* --------------------------------------------------------------------------- Rebeam -- */
+/* ---------------------------------------------------------------------------- Rebeam -- */
 /* Rebeam the notes/rests beamed by <beamL>. Handles both grace and regular beams. */
 
 LINK Rebeam(Document *doc, LINK beamL)
@@ -181,7 +181,7 @@ LINK Rebeam(Document *doc, LINK beamL)
 		use single-voice rules! */
 	if (IsNeighborhoodMultiVoice(firstSyncL, BeamSTAFF(beamL), voice)) {
 		stemUp = IsBeamStemUp(beamL);
-		voiceRole = (stemUp? UPPER_DI : LOWER_DI);  //??NO! USE SINGLE VOICE RULE//
+		voiceRole = (stemUp? VCROLE_UPPER : VCROLE_LOWER);  //??NO! USE SINGLE VOICE RULE//
 	}
 	else
 		voiceRole = doc->voiceTab[voice].voiceRole;
@@ -205,7 +205,7 @@ Boolean GetBeamEndYStems(
 				Document *doc, short nInBeam,
 				LINK bpSync[], LINK noteInSync[],
 				LINK baseL, DDIST ystem,
-				short voiceRole,			/* UPPER_DI,LOWER_DI,CROSS_DI,SINGLE_DI (see Multivoice.h) */
+				short voiceRole,			/* VCROLE_UPPER, etc. (see Multivoice.h) */
 				Boolean stemUp,				/* True if up */
 				DDIST *pFirstystem,			/* Output */
 				DDIST *pLastystem			/* Output */
@@ -220,7 +220,7 @@ Boolean GetBeamEndYStems(
 	staff = NoteSTAFF(noteInSync[0]);
 	GetContext(doc, bpSync[0], staff, &context);
 	yd = NoteYD(noteInSync[0]); subType = NoteType(noteInSync[0]);
-	stemLen = (voiceRole==SINGLE_DI? config.stemLenNormal : config.stemLen2v);
+	stemLen = (voiceRole==VCROLE_SINGLE? config.stemLenNormal : config.stemLen2v);
 	firstystem1 = CalcYStem(doc, yd, NFLAGS(subType), !stemUp,
 											context.staffHeight, context.staffLines,
 					  						stemLen, False);
@@ -792,7 +792,7 @@ short CheckBeamVars(short nInBeam, Boolean crossSystem, short nBeamable1, short 
 
 LINK CreateNonXSysBEAMSET(Document *doc, LINK startL, LINK endL, short voice,
 							short nInBeam, Boolean needSel, Boolean doBeam,
-							short voiceRole		/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI (see Dialogs.h) */
+							short voiceRole			/* VCROLE_UPPER, etc. (see Multivoice.h) */
 							)
 {
 	short		staff;
@@ -861,8 +861,8 @@ LINK CreateBEAMSET(
 		LINK endL,
 		short voice,
 		short nInBeam,
-		Boolean	doBeam,	/* True if we are explicitly beaming notes (so beamset will be selected) */
-		short voiceRole	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI (see Dialogs.h) */
+		Boolean	doBeam,	/* True if we're explicitly beaming notes (so Beamset will be selected) */
+		short voiceRole	/* VCROLE_UPPER, etc. (see Multivoice.h) */
 		)
 {
 	Boolean	crossSystem;
@@ -2126,7 +2126,7 @@ DDIST CalcBeamYLevel(
 	DDIST stfHeight,
 	short stfLines,
 	Boolean	crossStaff,
-	short voiceRole,		/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI (see Multivoice.h) */
+	short voiceRole,		/* VCROLE_UPPER, etc. (see Multivoice.h) */
 	Boolean	*stemUp			/* If !crossStaff */
 	)
 
@@ -2148,7 +2148,7 @@ DDIST CalcBeamYLevel(
 	voice = NoteVOICE(noteInSync[0]);
 	staffn = NoteSTAFF(noteInSync[0]);
 
-	stemLen = (voiceRole==SINGLE_DI? config.stemLenNormal : config.stemLen2v);
+	stemLen = (voiceRole==VCROLE_SINGLE? config.stemLenNormal : config.stemLen2v);
 	for (maxYHead=-9999, minYHead=9999, iel=0; iel<nElts; iel++) {
 
 /* To decide whether beams go above or below, get high and low notehead
@@ -2176,14 +2176,12 @@ DDIST CalcBeamYLevel(
 	}
 	
 	belowPos = n_max(belowPos,
-						CalcYStem(doc, minYHead, 0, True, stfHeight, stfLines,
-									stemLen, False));
+						CalcYStem(doc, minYHead, 0, True, stfHeight, stfLines, stemLen, False));
 	abovePos = n_min(abovePos,
-						CalcYStem(doc, maxYHead, 0, False, stfHeight, stfLines,
-									stemLen, False));
+						CalcYStem(doc, maxYHead, 0, False, stfHeight, stfLines, stemLen, False));
 						
 	switch (voiceRole) {
-		case SINGLE_DI:
+		case VCROLE_SINGLE:
 			midline = std2d(STD_LINEHT*2, stfHeight, stfLines);
 			if ( maxYHead>midline && minYHead>midline )				/* All notes below midline? */
 				*stemUp = True;
@@ -2194,13 +2192,13 @@ DDIST CalcBeamYLevel(
 			else
 				*stemUp = False;
 			break;
-		case UPPER_DI:
+		case VCROLE_UPPER:
 			*stemUp = True;
 			break;
-		case LOWER_DI:
+		case VCROLE_LOWER:
 			*stemUp = False;
 			break;
-		case CROSS_DI:
+		case VCROLE_CROSS:
 			partL = FindPartInfo(doc, Staff2Part(doc, staffn));
 			pPart = GetPPARTINFO(partL);
 			*stemUp = (staffn!=pPart->firstStaff);

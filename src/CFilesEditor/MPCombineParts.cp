@@ -237,21 +237,19 @@ static Boolean EnoughFreeDocs()
 	}
 	
 static short MaxRelVoice(Document *doc, short partn)
-	{
-		short maxrv = -1;
-		
-		for (short v = 0; v<=MAXVOICES; v++) 
-		{
-			short vpartn = doc->voiceTab[v].partn;
-			if (vpartn == partn) 
-			{
-				if (doc->voiceTab[v].relVoice > maxrv)
-					maxrv = doc->voiceTab[v].relVoice;
-			}
-		}
+{
+	short maxrv = -1;
 	
-		return maxrv;
+	for (short v = 0; v<=MAXVOICES; v++) {
+		short vpartn = doc->voiceTab[v].partn;
+		if (vpartn == partn) {
+			if (doc->voiceTab[v].relVoice > maxrv)
+				maxrv = doc->voiceTab[v].relVoice;
+		}
 	}
+
+	return maxrv;
+}
 
 static void FixVoicesForPart(Document *doc, LINK destPartL, LINK partL, short stfDiff)
 	{
@@ -285,13 +283,10 @@ static void FixVoicesForPart(Document *doc, LINK destPartL, LINK partL, short st
 		short maxrv = MaxRelVoice(doc, dpartn) + 1;
 		
 		/* Fix up all the remaining relvoices */
-		for (v = 0; v<MAXVOICES+1; v++) 
-		{
+		for (v = 0; v<MAXVOICES+1; v++) {
 			short vpartn = doc->voiceTab[v].partn;
-			if (vpartn == dpartn) 
-			{
-				if (doc->voiceTab[v].relVoice < 0)
-				{
+			if (vpartn == dpartn) {
+				if (doc->voiceTab[v].relVoice < 0) {
 					doc->voiceTab[v].relVoice = maxrv++;
 				}
 			}
@@ -299,46 +294,38 @@ static void FixVoicesForPart(Document *doc, LINK destPartL, LINK partL, short st
 	}
 	
 static Boolean CheckMultivoiceRoles(Document *doc, LINK firstPartL, LINK lastPartL)
-	{
-		Boolean ok = True;
-		Boolean hasUpperVoice = False;
-		Boolean hasLowerVoice = False;
-		
-		LINK partL = firstPartL;
-		while (ok && partL != lastPartL) 		/* handle all the parts after the first */
-		{
-			short partn = PartL2Partn(doc, partL);
-			for (short v = 0; v<MAXVOICES+1; v++) 
-			{
-				if (doc->voiceTab[v].voiceRole == UPPER_DI) 
-				{
-					if (hasUpperVoice)
-						ok = False;
-					else
-						hasUpperVoice = True;
-				}
-						
-				if (doc->voiceTab[v].voiceRole == LOWER_DI) 
-				{
-					if (hasLowerVoice)
-						ok = False;
-					else
-						hasLowerVoice = True;
-				}
-			}
-			
-			partL = NextPARTINFOL(partL);			
-		}
+{
+	Boolean ok = True;
+	Boolean hasUpperVoice = False;
+	Boolean hasLowerVoice = False;
 	
-		return ok;
+	LINK partL = firstPartL;
+	while (ok && partL != lastPartL) {		/* handle all the parts after the first */
+		short partn = PartL2Partn(doc, partL);
+		for (short v = 0; v<MAXVOICES+1; v++) {
+			if (doc->voiceTab[v].voiceRole == VCROLE_UPPER) {
+				if (hasUpperVoice)	ok = False;
+				else				hasUpperVoice = True;
+			}
+					
+			if (doc->voiceTab[v].voiceRole == VCROLE_LOWER) {
+				if (hasLowerVoice)	ok = False;
+				else				hasLowerVoice = True;
+			}
+		}
+		
+		partL = NextPARTINFOL(partL);			
 	}
 
+	return ok;
+}
+
 static short FixStavesForPart(LINK firstPartL, LINK partL)
-	{
-		PartLastSTAFF(firstPartL) = PartLastSTAFF(partL);
-		short stfDiff = PartFirstSTAFF(partL) - PartFirstSTAFF(firstPartL);
-		return stfDiff;
-	}
+{
+	PartLastSTAFF(firstPartL) = PartLastSTAFF(partL);
+	short stfDiff = PartFirstSTAFF(partL) - PartFirstSTAFF(firstPartL);
+	return stfDiff;
+}
 	
 static void DeletePartInfoList(Document *doc, LINK firstPartL, LINK lastPartL) 
 	{

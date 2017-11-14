@@ -1,0 +1,27 @@
+IDEAS FOR A NEW NIGHTINGALE FILE FORMAT - DAB, mid November 2017
+
+ANOTE:
+	* 1-2 more bits for accidental offset
+	* 2 more bits for microtone
+	* 2 bits for harmonics: values = normal note (non-harmonic), touched,
+		stopped, sounding; touched & stopped normally play at velocity 0
+	* Add bit to say if cue note (=> small, always play at cue velocity, etc.)
+	* Consolidate fragmented fields
+	* Add voice role, w/ same values as in VOICEINFO (VCROLE_UPPER, etc., incl.
+		unknown)
+	* Add 4-byte field for ID that can be referenced externally
+	* Add 4 bytes for future use, initialized to 0
+	* Expand ANOTE to >=38 bytes
+
+DYNAMIC:
+	* Add modifier bits (e.g., for "mpp", adding "subito", "piu")
+	* Add "cross staff" bits: 1 to mean also affects staff below, 1 to say
+		show curly brace or not
+	
+CLEF:
+	* Change codes to leave space for more 8ve-transposing clefs, e.g.,
+		SOPRANO8B and/or TENOR8B for basses
+
+Add >=2 bytes for future expansion to everything!
+
+Initialize all unused fields for everything!

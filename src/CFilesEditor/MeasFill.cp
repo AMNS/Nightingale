@@ -170,7 +170,7 @@ static Boolean Fill1EmptyMeas(
 			 */
 			{	short saveVRole;
 				saveVRole = doc->voiceTab[staff].voiceRole;				/* Dflt voice = staff */
-				doc->voiceTab[staff].voiceRole = SINGLE_DI;
+				doc->voiceTab[staff].voiceRole = VCROLE_SINGLE;
 				SetupNote(doc, syncL, aNoteL, staff, 0, WHOLEMR_L_DUR, 0, staff, True, 0, 0);
 				doc->voiceTab[staff].voiceRole = saveVRole;
 			}

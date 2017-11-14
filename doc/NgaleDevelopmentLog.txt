@@ -2281,7 +2281,8 @@ details, the hilite lines show up if and only if there's a dialog on the screen;
 
 In CheckTEMPO() calls HiliteInsertNode before putting its dialog up and after taking
 it down. Comment out both => no hiliting appears, as expected.  Comment out only the 2nd
-=> hiliting appears and disappears on alternate double-clicks, as expected. So ??
+=> hiliting appears and disappears on alternate double-clicks, as expected. Add the
+obvious code to hilite/unhilite hairpins => OK!
 
 Status (for double-clicking):
 
@@ -2298,5 +2299,33 @@ Tuplet					Y		Y
 Tempo/MM				Y		Y
 Ending					Y		Y
 
-NB: What it works for on insertion is a different issue!
+-------------------------------------------------------------------------------
+
+What about feedback on inserting symbols?
+
+Status (for insertion):
+
+Symbol					now
+-------------------------------------
+Sync (note or rest)		Y
+Dynamic, hairpin		1st pt.		
+Dynamic, other			Y
+Graphic, text			Y
+Graphic, chord symbol	Y
+Ottava					n
+Slur					1st pt.
+Tuplet					n
+Tempo/MM				Y
+Ending					Y, both pts.!
+
+So we _do_ have code still gives proper feedback on insertion! ??
+
+-------------------------------------------------------------------------------
+
+13 Nov.
+
+Minor cleanup: made voice role constants (now called VCROLE_xxx) independent of
+Multivoice dialog item numbers, etc. Affects Check, Multivoice, and a bunch of other
+files. Oops: it seems to handle Upper & Lower roles correctly, but not Single or
+Cross-staff! Ah, a tiny mistake in the Multivoice dialog handler.
 

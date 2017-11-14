@@ -1802,16 +1802,18 @@ Minor cleanup. Affects MergeUtils, MIDIPlay, PitchCmds, PitchUtils, Utility, Voi
 
 When a new score is opened, write an INFO message to the log. Affects Menu.
 
-When transposing or respelling, we now decide whether notation is multivoice, requiring
-adjustment of stem direction and length, by some rather complex rules (Issue 142).
-Affects Beam, DSUtils, PitchUtils.
+Fixed bug (Issue #142): Transposing/respelling ignores multivoice notation rules and
+messes up stem directions. We now decide whether notation is multivoice by some rather
+complex rules. Affects Beam, DSUtils, PitchUtils.
 
 Minor cleanup: renamed InDataStruct to InObjectList, avoid possibly uninitialized
 variables, etc. Affects Beam, Browser, DebugUtils, Delete, MasterPage, Menu, Utility.
 
--------------------------------------------------------------------------------
+===============================================================================
 
 10 - 12 Nov.
+
+Changed version number from 5.8b4 to 5.8b5. Affects Info.plist.
 
 When hairpins are double clicked, they now show their attachment points the way
 other dynamics, Graphics, tuplets, etc. do. Affects Check.
@@ -1824,3 +1826,12 @@ Minor cleanup: cleaned the HiliteInsertNode/HiliteTwoNodesOn/HiliteAttPoints mes
 (Issue #57), avoided possible uninitialized variables, etc. Affects NTypes.h,
 UIFUtils.h; Check, DialogsEditor, FlowInText, Initialize, Insert, InsUtils, MIDIRecord,
 NewSlur, Slurs, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+13 Nov.
+
+Minor cleanup: made voice role constants (now called VCROLE_xxx) independent of
+Multivoice dialog item numbers, etc. Affects Multivoice.h; Beam, Check, CombineParts,
+DebugUtils, InsNew, InternalInput, MeasFill, MPCombineParts, Multivoice, Objects,
+Part, PitchCmds, RhythmDur, SetUtils, Utility, VoiceTable.

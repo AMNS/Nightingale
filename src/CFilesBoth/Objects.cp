@@ -766,18 +766,18 @@ short CalcPlayDur(LINK syncL, LINK aNoteL, char lDur, Boolean isRest, PCONTEXT p
 static Boolean IsRestPosLower(
 				Document *doc,
 				short staff,
-				short voiceRole 	/* UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI */
+				short voiceRole 	/* VCROLE_UPPER, etc. */
 				)
 {
 	LINK partL;  PPARTINFO pPart;
 
 	switch (voiceRole) {
-		case CROSS_DI:
+		case VCROLE_CROSS:
 			partL = FindPartInfo(doc, Staff2Part(doc, staff));
 			pPart = GetPPARTINFO(partL);
 			return (staff==pPart->firstStaff);
 		default:
-			return (voiceRole==LOWER_DI);
+			return (voiceRole==VCROLE_LOWER);
 	}
 }
 
@@ -1464,14 +1464,14 @@ static short NormalStemUpDown(Document *doc, LINK syncL, short voice, CONTEXT *p
 	PPARTINFO pPart;
 
 	switch (doc->voiceTab[voice].voiceRole) {
-		case SINGLE_DI:
+		case VCROLE_SINGLE:
 			maxy = (DDIST)(-9999);
 			miny = (DDIST)9999;
 			for (aNoteL = FirstSubLINK(syncL); aNoteL; aNoteL = NextNOTEL(aNoteL))
 				if (NoteVOICE(aNoteL)==voice) {
 					if (NoteYD(aNoteL)>maxy) {
 						maxy = NoteYD(aNoteL);
-						lowNoteL = aNoteL;							/* yd's increase going downward */
+						lowNoteL = aNoteL;						/* yd's increase going downward */
 					}
 					if (NoteYD(aNoteL)<miny) {
 						miny = NoteYD(aNoteL);
@@ -1481,18 +1481,18 @@ static short NormalStemUpDown(Document *doc, LINK syncL, short voice, CONTEXT *p
 		
 			midLine = pContext->staffHeight/2;
 			return (maxy-midLine<=midLine-miny? -1 : 1);
-		case UPPER_DI:
+		case VCROLE_UPPER:
 			return 1;
-		case LOWER_DI:
+		case VCROLE_LOWER:
 			return -1;
-		case CROSS_DI:
+		case VCROLE_CROSS:
 			aNoteL = NoteInVoice(syncL, voice, False);
 			partL = FindPartInfo(doc, Staff2Part(doc, NoteSTAFF(aNoteL)));
 			pPart = GetPPARTINFO(partL);
 			stemDown = (NoteSTAFF(aNoteL)==pPart->firstStaff);
 			return (stemDown? -1 : 1);
 		default:
-			return 1;												/* Should never get here */
+			return 1;											/* Should never get here */
 	}
 }
 
@@ -1669,7 +1669,7 @@ Boolean FixSyncForChord(
 	if (!stemUpDown)
 		stemUpDown = NormalStemUpDown(doc, syncL, voice, &context);
 		
-	if (voices1orMore==0)	singleVoice = (doc->voiceTab[voice].voiceRole==SINGLE_DI);
+	if (voices1orMore==0)	singleVoice = (doc->voiceTab[voice].voiceRole==VCROLE_SINGLE);
 	else					singleVoice = (voices1orMore==1);
 	
 	/* In all cases, <context>, <stemUpDown>, and <singleVoice> are now defined. */
@@ -1958,10 +1958,10 @@ Boolean FixGRSyncForChord(
 	if (beamed && mainNoteL!=NILINK)
 		stemUpDown = (GRNoteYSTEM(mainNoteL)>GRNoteYD(mainNoteL)? -1 : 1);
 	if (!stemUpDown)
-		stemUpDown = 1;		/* Probably should call GRNormalStemUpDown instead */
+		stemUpDown = 1;					/* ??Probably should call GRNormalStemUpDown instead */
 		
-	if (voices1orMore==0) singleVoice = (doc->voiceTab[voice].voiceRole==SINGLE_DI);
-	else						 singleVoice = (voices1orMore==1);
+	if (voices1orMore==0)	singleVoice = (doc->voiceTab[voice].voiceRole==VCROLE_SINGLE);
+	else					singleVoice = (voices1orMore==1);
 	
 	/* In all cases, <context>, <stemUpDown>, and <singleVoice> are now defined. */
 	

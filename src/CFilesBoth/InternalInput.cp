@@ -1178,7 +1178,7 @@ broken:
 basis, and apply the appropriate multi-voice rules. */
 
 void FIAutoMultiVoice(Document	*doc,
-						Boolean	doSingle)		/* Call DoMultivoiceRules even when a voice is SINGLE_DI */
+						Boolean	doSingle)		/* Call DoMultivoiceRules even when a voice is VCROLE_SINGLE */
 {
 	short	voiceRole, v;
 	LINK	startL, endL;
@@ -1190,7 +1190,7 @@ void FIAutoMultiVoice(Document	*doc,
 		for (v = 1; v<=MAXVOICES; v++)
 			if (VOICE_MAYBE_USED(doc, v)) {
 				voiceRole = GuessVoiceRole(doc, v, startL, endL);
-				if (voiceRole!=SINGLE_DI || doSingle) {
+				if (voiceRole!=VCROLE_SINGLE || doSingle) {
 					doc->lookVoice = v;
 					SelRangeNoHilite(doc, startL, endL);
 					DoMultivoiceRules(doc, voiceRole, True, False);
@@ -1204,14 +1204,13 @@ void FIAutoMultiVoice(Document	*doc,
 
 /* -------------------------------------------------------------------- GuessVoiceRole -- */
 /* Guess the role of the given voice over the range (startL, endL], and return
-UPPER_DI, LOWER_DI, CROSS_DI, or SINGLE_DI (see Dialogs.h). If the range contains
-no notes in the given voice, return SINGLE_DI. If the voice occurs on more than one
-staff, return CROSS_DI. If more than one voice shares iVoice's staff, give up and
-return SINGLE_DI. Specify <iVoice> with an internal, not a part-relative, voice
-number. NB: the algorithm for guessing voice role is quite crude, but usually 
-should be satisfactory when there are no more than 2 voices on a staff. The caller
-will get the best results if the range comprises exactly one measure's worth of
-notes. */
+VCROLE_UPPER, VCROLE_LOWER, VCROLE_CROSS, or VCROLE_SINGLE. If the range contains
+no notes in the given voice, return VCROLE_SINGLE. If the voice occurs on more than one
+staff, return VCROLE_CROSS. If more than one voice shares iVoice's staff, give up and
+return VCROLE_SINGLE. Specify <iVoice> with an internal, not a part-relative, voice
+number. NB: the algorithm for guessing voice role is quite crude, but should usually 
+be satisfactory when there are no more than 2 voices on a staff. The caller will get
+the best results if the range comprises exactly one measure's worth of notes. */
 	
 static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK endL)
 {
@@ -1222,7 +1221,7 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 	float	ourAvg, otherAvg;
 	Boolean	sharingVoices[MAXVOICES+1];
 
-	/* Does <iVoice> span more than one staff over the given range? If so, return CROSS_DI. */
+	/* Does <iVoice> span more than one staff over the given range? If so, return VCROLE_CROSS. */
 	ourStaff = 0;
 	for (pL = startL; pL!=endL; pL = RightLINK(pL))
 		if (SyncTYPE(pL)) {
@@ -1233,14 +1232,14 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 					if (ourStaff==0)
 						ourStaff = aNote->staffn;
 					else if (aNote->staffn!=ourStaff)
-						return CROSS_DI;
+						return VCROLE_CROSS;
 				}
 			}
 		}
-	if (ourStaff==0) return SINGLE_DI;				/* range contains no notes in the given voice */
+	if (ourStaff==0) return VCROLE_SINGLE;				/* range contains no notes in the given voice */
 	
-	/* Does <iVoice> share its staff with other voices? If not, return SINGLE_DI.
-		If it shares with more than one voice, give up and return SINGLE_DI. */
+	/* Does <iVoice> share its staff with other voices? If not, return VCROLE_SINGLE.
+		If it shares with more than one voice, give up and return VCROLE_SINGLE. */
 	
 	for (v = 1; v<=MAXVOICES; v++)
 		sharingVoices[v] = False;
@@ -1259,12 +1258,12 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 			if (v!=iVoice) otherVoice = v;
 			voiceCnt++;
 		}
-	if (voiceCnt==1) return SINGLE_DI;
-	if (voiceCnt>2) return SINGLE_DI;
+	if (voiceCnt==1) return VCROLE_SINGLE;
+	if (voiceCnt>2) return VCROLE_SINGLE;
 
 	/* Loop through the range once more to find out which voice, iVoice or otherVoice,
-		is higher in pitch on average. If iVoice is higher, return UPPER_DI; if lower,
-		return LOWER_DI. */
+		is higher in pitch on average. If iVoice is higher, return VCROLE_UPPER; if
+		lower, return VCROLE_LOWER. */
 	
 	ourNoteCnt = otherNoteCnt = 0;
 	ourPitchTotal = otherPitchTotal = 0L;
@@ -1286,9 +1285,8 @@ static short GuessVoiceRole(Document */*doc*/, short iVoice, LINK startL, LINK e
 	ourAvg = (float)ourPitchTotal / ourNoteCnt;
 	otherAvg = (float)otherPitchTotal / otherNoteCnt;
 	
-	if (ourAvg<otherAvg)						/* NB: yqpit goes up when pitch goes down */
-		return UPPER_DI;
-	else return LOWER_DI;					
+	if (ourAvg<otherAvg)	return VCROLE_UPPER;		/* NB: yqpit goes up when pitch goes down */
+	else					return VCROLE_LOWER;					
 }
 
 

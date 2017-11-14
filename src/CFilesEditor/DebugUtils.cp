@@ -1731,7 +1731,7 @@ Boolean DCheckVoiceTable(Document *doc,
 
 	for (v = 1; v<=MAXVOICES; v++) {
 		if (doc->voiceTab[v].partn!=0) {
-			if (doc->voiceTab[v].voiceRole<UPPER_DI || doc->voiceTab[v].voiceRole>SINGLE_DI)
+			if (doc->voiceTab[v].voiceRole<VCROLE_UPPER || doc->voiceTab[v].voiceRole>VCROLE_SINGLE)
 				COMPLAIN("*DCheckVoiceTable: voiceTab[%ld].voiceRole IS ILLEGAL.\n", (long)v);
 			if (doc->voiceTab[v].relVoice<1 || doc->voiceTab[v].relVoice>MAXVOICES)
 				COMPLAIN("*DCheckVoiceTable: voiceTab[%ld].relVoice IS ILLEGAL.\n", (long)v);
