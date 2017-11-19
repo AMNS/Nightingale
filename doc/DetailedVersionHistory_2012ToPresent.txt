@@ -1835,3 +1835,20 @@ Minor cleanup: made voice role constants (now called VCROLE_xxx) independent of
 Multivoice dialog item numbers, etc. Affects Multivoice.h; Beam, Check, CombineParts,
 DebugUtils, InsNew, InternalInput, MeasFill, MPCombineParts, Multivoice, Objects,
 Part, PitchCmds, RhythmDur, SetUtils, Utility, VoiceTable.
+
+-------------------------------------------------------------------------------
+
+14 - 19 Nov.
+
+Fixed bug: Debug Check gives a spurious complaint "SYSTEM RECT EXTENDS INTO RIGHT
+MARGIN" if right margin is narrow than the default (Issue #160). Affects DebugUtils.
+
+Clarified the message about adding cautionary time signatures. Affects .rsrc: STR# 279.
+
+Clarified the messages about not being able to save the score the safest or best way
+to point out that the file may have been moved. Affects .rsrc: ALRT 380, 385.
+
+Minor cleanup: changed all instances of "while (1)" to "while (True)", avoid possibly
+uninitialized variables, etc. Affects DebugUtils, DialogsBoth, FlowInText, Menu,
+Multivoice.
+

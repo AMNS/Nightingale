@@ -1,10 +1,10 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	DialogsBoth.c
 *	PROJ:	Nightingale
 *	DESC:	Dialog-handling routines for misc. dialogs needed in "viewer version"
 *			("viewer version" removed by chirgwin at Mon Jun 25 15:57:30 PDT 2012)
 *			as well as the full version.
-***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -22,7 +22,7 @@
 #include "Nightingale.appl.h"
 
 
-/* --------------------------------- Declarations for simple "set number" Dialogs -- */
+/* -------------------------------------- Declarations for simple "set number" Dialogs -- */
 
 #define NUMBER_DI 	3			/* DITL index of number to be adjusted */
 #define UpRect_DI	5			/* DITL index of up button rect */
@@ -31,7 +31,7 @@
 extern short minDlogVal, maxDlogVal;
 
 
-/* ----------------------------------------------------------------- LookAtDialog -- */
+/* ---------------------------------------------------------------------- LookAtDialog -- */
 /* Conduct dialog to get (part-relative user, not internal) voice number to look
 at.  Returns new voice number or CANCEL_INT for Cancel. */
 
@@ -88,7 +88,7 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 		oldVoice = voice;
 
 		do {
-			while (1) {
+			while (True) {
 				ModalDialog(filterUPP, &ditem);
 				if (ditem==OK || ditem==Cancel) break;
 				if (ditem==NEW_DI) {
@@ -122,7 +122,7 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 }
 
 
-/* -------------------------------------------------------------- GoToDialog et al -- */
+/* ------------------------------------------------------------------ GoToDialog et al -- */
 
 static enum
 {
@@ -222,10 +222,12 @@ static Boolean RMHandleMouseDown(EventRecord *theEvent, LINK firstMark, LINK las
 		return False;
 }
 
+
 static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, short *itemHit)
 {
 	Point where;
-	Boolean ans=False; WindowPtr w;
+	Boolean ans=False;
+	WindowPtr w;
 	short choice;
 
 	w = (WindowPtr)(evt->message);
@@ -298,12 +300,13 @@ if cancel. */
 short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 						LINK *currRMark)
 {	
-	DialogPtr dlog; unsigned char markStr[64];
-	short ditem,aShort;
+	DialogPtr dlog;
+	unsigned char markStr[64];
+	short ditem, aShort;
 	short value,gotoType,minPageVal,maxPageVal,minMeasVal,maxMeasVal;
-	LINK pageL,measL,rMarkL,currMark; PPAGE pPage; PAMEASURE aMeasure;
-	GrafPtr oldPort; Boolean okay=False,stillGoing;
-	Handle rHdl; Rect aRect;
+	LINK pageL,measL,rMarkL,currMark;  PPAGE pPage;  PAMEASURE aMeasure;
+	GrafPtr oldPort;  Boolean okay=False,stillGoing;
+	Handle rHdl;  Rect aRect;
 	char fmtStr[256];
 	ModalFilterUPP	filterUPP;
 
@@ -394,7 +397,7 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 	ArrowCursor();
 
 	do {
-		while (1) {
+		while (True) {
 			ModalDialog(filterUPP, &ditem);
 			switch (ditem) {
 				case GOTOPOP_DI:
@@ -479,6 +482,8 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 					else
 						stillGoing = False;
 					break;
+				default:
+						stillGoing = False;						/* should never get here */
 			}
 		}
 	} while (okay && stillGoing);

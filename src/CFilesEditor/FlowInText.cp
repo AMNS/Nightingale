@@ -720,7 +720,7 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 
 	FlowDrawMsgBox(doc);
 
-	while (1) {
+	while (True) {
 		gotEvent = GetNextEvent(everyEvent, &evt);
 		FlowInFixCursor(doc, evt.where, flowInCursor);
 		HandleOptionKeyMsgBox(doc, (Size)lyricLen);

@@ -1,8 +1,9 @@
 /* Multivoice.h for Nightingale	*/
 
 /* Constants for voice roles. Caution: These item numbers appear in files, so changing
-them is an issue for compatibility! The current values start at 3 because the Multivoice
-dialog formerly returned its item numbers for voice roles.  --DAB, Nov. 2017 */
+them is an issue for compatibility! The current values start at 3 for compatibility
+because the Multivoice dialog formerly returned its item numbers for voice roles and
+these are its corresponding item numbers.  --DAB, Nov. 2017 */
 
 #define	VCROLE_UPPER 3
 #define	VCROLE_LOWER 4

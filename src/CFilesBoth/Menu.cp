@@ -1456,9 +1456,9 @@ static void EMAddCautionaryTimeSigs(Document *doc)
 		NoteInform(GENERIC_ALRT);
 	}
 	else {
-		LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: added %d time signature(s).\n",
+		LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: added %d time signature set(s).\n",
 					numAdded);
-		GetIndCString(fmtStr, MENUCMDMSGS_STRS, 9);	/* "Added %d cautionary time sig(s)." */
+		GetIndCString(fmtStr, MENUCMDMSGS_STRS, 9);	/* "Added %d cautionary time signature set(s)." */
 		sprintf(strBuf, fmtStr, numAdded);
 	}
 	if (numAdded!=0) InvalWindow(doc);

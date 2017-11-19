@@ -75,8 +75,8 @@ static pascal void UserDimItem(DialogPtr d, short dItem)
 
 
 /* ------------------------------------------------------------------ MultivoiceDialog -- */
-/* Find out whether user wants to apply upper, lower, or single voice notation rules
-to the selection. Delivers True if OKed, False if Cancelled. */
+/* Find out whether user wants to apply upper, lower, single, or cross-staff voice notation
+rules to the selection. Delivers True if OKed, False if Cancelled. */
 
 Boolean MultivoiceDialog(
 				short	nSelVoices,

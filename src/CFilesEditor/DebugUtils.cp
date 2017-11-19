@@ -441,7 +441,7 @@ consistency checks on an individual node. Returns:
 short DCheckNode(
 			Document *doc,
 			LINK pL,
-			short where,		/* Which object list: MAIN_DSTR,CLIP_DSTR,UNDO_DSTR,or MP_DSTR */
+			short where,		/* Which object list: MAIN_DSTR, CLIP_DSTR, UNDO_DSTR, or MP_DSTR */
 			Boolean fullCheck	/* False=skip less important checks */
 			)
 {
@@ -810,8 +810,9 @@ short DCheckNode(
 					if (GARBAGE_Q1RECT(pSystem->systemRect))
 							COMPLAIN("*DCheckNode: SYSTEM L%u HAS GARBAGE systemRect.\n", pL);
 
-					if (d2pt(pSystem->systemRect.bottom)>doc->marginRect.bottom)
-							COMPLAIN("*DCheckNode: SYSTEM L%u RECT BELOW BOTTOM MARGIN.\n", pL);
+					if (where!=CLIP_DSTR && d2pt(pSystem->systemRect.bottom)>doc->marginRect.bottom)
+							COMPLAIN3("*DCheckNode: SYSTEM L%u RECT BELOW BOTTOM MARGIN (%d vs. %d).\n", pL,
+								d2pt(pSystem->systemRect.bottom), doc->marginRect.bottom);
 							
 					/* The expression for checking systemRect.right has always involved subtracting
 						ExtraSysWidth(doc) , the width of the widest barline (final double). That's
@@ -820,10 +821,11 @@ short DCheckNode(
 						Probably not hard to fix, but subtracting 2*ExtraSysWidth(doc) should
 						sidestep the problem with negligible side effects. --DAB, 10/2015
 					 */
-					if (d2pt(pSystem->systemRect.right-2*ExtraSysWidth(doc))>doc->marginRect.right)
-							COMPLAIN3("*DCheckNode: SYSTEM L%u RECT PAST RIGHT MARGIN (%d vs. %d).\n", pL,
+					if (where!=CLIP_DSTR && d2pt(pSystem->systemRect.right-2*ExtraSysWidth(doc))>doc->marginRect.right)
+							COMPLAIN3("*DCheckNode: SYSTEM L%u RECT EXTENDS INTO RIGHT MARGIN (%d vs. %d).\n", pL,
 								d2pt(pSystem->systemRect.right), doc->marginRect.right);
-LogPrintf(LOG_DEBUG, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->systemRect.right, ExtraSysWidth(doc), doc->marginRect.right);
+//LogPrintf(LOG_DEBUG, "sysR.right=%d=%d pt, ESWidth=%d, margR.right=%d\n", pSystem->systemRect.right, d2pt(pSystem->systemRect.right),
+//ExtraSysWidth(doc), doc->marginRect.right);
 
 					if (pSystem->lSystem) {
 						lSystem = GetPSYSTEM(pSystem->lSystem);				
@@ -918,7 +920,7 @@ LogPrintf(LOG_DEBUG, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->sys
 						
 						if (pMeasure->lMeasure) {
 							lMeasure = GetPMEASURE(pMeasure->lMeasure);
-						/* Can't use standard Search here because it assumes links are OK */
+						/* Can't use standard Search here because it assumes links are OK. */
 							for (qL = LeftLINK(pL); qL; qL = LeftLINK(qL))
 								if (ObjLType(qL)==MEASUREtype) break;
 							if (!qL)
@@ -936,7 +938,7 @@ LogPrintf(LOG_DEBUG, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->sys
 	
 						if (pMeasure->rMeasure) {
 							rMeasure = GetPMEASURE(pMeasure->rMeasure);
-						/* Can't use standard Search here because it assumes links are OK */
+						/* Can't use standard Search here because it assumes links are OK. */
 							for (qL = RightLINK(pL); qL; qL = RightLINK(qL))
 								if (ObjLType(qL)==MEASUREtype) break;
 							if (!qL)
@@ -955,7 +957,7 @@ LogPrintf(LOG_DEBUG, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->sys
 							COMPLAIN("�DCheckNode: MEASURE L%u HAS GARBAGE SYSTEM LINK.\n", pL);
 						}
 						else {
-						/* Can't use standard Search here because it assumes links are OK */
+						/* Can't use standard Search here because it assumes links are OK. */
 							for (qL = LeftLINK(pL); qL; qL = LeftLINK(qL))
 								if (ObjLType(qL)==SYSTEMtype) break;
 							if (!qL)
@@ -968,7 +970,7 @@ LogPrintf(LOG_DEBUG, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->sys
 							COMPLAIN("�DCheckNode: MEASURE L%u HAS GARBAGE STAFF LINK.\n", pL);
 						}
 						else {
-						/* Can't use standard Search here because it assumes links are OK */
+						/* Can't use standard Search here because it assumes links are OK. */
 							for (qL = LeftLINK(pL); qL; qL = LeftLINK(qL))
 								if (ObjLType(qL)==STAFFtype) break;
 							if (!qL)
@@ -1190,7 +1192,7 @@ LogPrintf(LOG_DEBUG, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->sys
 				break;
 				
 			case SLURtype: {
-				short theInd, firstNoteNum, lastNoteNum;
+				short theInd, firstNoteNum=-1, lastNoteNum=-1;
 				PANOTE firstNote, lastNote;
 				LINK firstNoteL, lastNoteL;
 				Boolean foundFirst, foundLast;
@@ -1271,10 +1273,10 @@ LogPrintf(LOG_DEBUG, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->sys
 									}
 								}
 							}
-							if (!firstNote->tiedR)
+							if (firstNote && !firstNote->tiedR)
 								COMPLAIN3("*DCheckNode: TIE IN VOICE %d L%u IN MEASURE %d FIRST NOTE NOT tiedR.\n",
 											SlurVOICE(pL), pL, GetMeasNum(doc, pL));
-							if (!lastNote->tiedL)
+							if (lastNote && !lastNote->tiedL)
 								COMPLAIN3("*DCheckNode: TIE IN VOICE %d L%u IN MEASURE %d LAST NOTE NOT tiedL.\n",
 											SlurVOICE(pL), pL, GetMeasNum(doc, pL));
 							if (firstNoteNum!=lastNoteNum)
@@ -1283,7 +1285,7 @@ LogPrintf(LOG_DEBUG, "sysR.right=%d, ESWidth=%d, margR.right=%d\n", pSystem->sys
 						}
 					}
 						
-					else {													/* Slur, not set of ties */
+					else {												/* Real slur, not set of ties */
 						if (!pSlur->crossSystem) {
 							foundFirst = False;
 							for (firstNoteL = FirstSubLINK(pSlur->firstSyncL); firstNoteL;
