@@ -766,10 +766,10 @@ PushLock(GRAPHICheap);
 		panSetting = FindIntInString(string);
 		pGraphic->info = panSetting;
 	}
-	else if (graphicType==GRMIDISustainOn) {
+	else if (graphicType==GRSustainOn) {
 		pGraphic->info = MIDISustainOn;
 	}
-	else if (graphicType==GRMIDISustainOff) {
+	else if (graphicType==GRSustainOff) {
 		pGraphic->info = MIDISustainOff;
 	}
 

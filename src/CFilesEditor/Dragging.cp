@@ -290,8 +290,7 @@ PushLock(NOTEheap);
 	xd = dLeft + aNote->xd;									/* measure-rel position of note */
 	xd = DragXD(xd);
 	if (aNote->otherStemSide) {
-		for (extNoteL=FirstSubLINK(pL);extNoteL;
-				extNoteL=NextNOTEL(extNoteL)) {
+		for (extNoteL=FirstSubLINK(pL); extNoteL; extNoteL=NextNOTEL(extNoteL)) {
 			extNote = GetPANOTE(extNoteL);
 			if (extNote->staffn==aNote->staffn && MainNote(extNoteL)) {
 				stemDown = (extNote->ystem > extNote->yd);		/* Is stem up or down? */
@@ -300,8 +299,8 @@ PushLock(NOTEheap);
 		}
 		headRect = CharRect(MapMusChar(doc->musFontInfoIndex, MCH_halfNoteHead));
 		headWidth = p2d(headRect.right-headRect.left)+1;
-		if (stemDown) xd -= headWidth;
-		else			  xd += headWidth;
+		if (stemDown)	xd -= headWidth;
+		else			xd += headWidth;
 	}
 	lnSpace = LNSPACE(&context);
 	dhalfLn = lnSpace/2;
@@ -1094,13 +1093,13 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			SDDrawGRDraw(doc, xd, yd, xd2, yd2, lineLW, &context);
 			break;
 
-		case GRMIDISustainOn:
+		case GRSustainOn:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
 			oldStyle = GetPortTxFace();
 			
 			oneChar[0] = 1;
-			oneChar[1] = '';						// Shift-option 8
+			oneChar[1] = 0xA1;						// Mac OS Roman keys: shift-option 8
 			TextFont(doc->musicFontNum);
 			TextSize(UseTextSize(fontSize, doc->magnify));
 			MoveTo(d2p(DragXD(xd)), d2p(yd));
@@ -1108,7 +1107,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			DrawString(oneChar);
 			break;
 			
-		case GRMIDISustainOff:
+		case GRSustainOff:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
 			oldStyle = GetPortTxFace();

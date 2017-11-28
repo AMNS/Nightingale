@@ -734,10 +734,10 @@ Boolean ObjectTest(Rect *paper, Point pt, LINK pL)
 }
 
 
-/* ---------------------------------------------------------------------- FindObject -- */
-/*	Find the object that <pt> is within, optionally set its selected flag, and
-return its LINK, or just return NILINK if point is not within any object.  The
-calling routine is responsible for updating the selection range. */
+/* ------------------------------------------------------------------------ FindObject -- */
+/*	Find the object that <pt> is within; handle _checkMode_ for it; optionally set its 
+selected flag; and return its LINK. If point is not within any object, just return NILINK.
+The calling routine is responsible for updating the selection range. */
 
 LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 {
@@ -775,8 +775,9 @@ LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 			default:
 				break;
 		}
+
 		if (VISIBLE(pL))
-			if (ObjectTest(&context->paper,pt,pL)) {
+			if (ObjectTest(&context->paper, pt, pL)) {
 				switch (ObjLType(pL)) {
 					case PAGEtype:
 					case SYSTEMtype:
@@ -812,6 +813,7 @@ LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 							return pL;
 						break;
 					case GRAPHICtype:
+LogPrintf(LOG_DEBUG, "FindObject: <CheckGRAPHIC\n");
 						if ((*pIndex = CheckGRAPHIC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;

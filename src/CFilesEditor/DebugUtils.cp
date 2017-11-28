@@ -1618,6 +1618,16 @@ Boolean DCheckSel(Document *doc, short *pnInRange, short *pnSelFlag)
 }
 
 
+/* ------------------------------------------------------------------ DCheckVoiceTable -- */
+/* Check the voice-mapping table and its relationship to the object list:
+		that the voice table contains no empty slots;
+		that every default voice belongs to the correct part;
+		that the voice no. of every note, rest, and grace note appears in the voice table;
+		agreement between voice table part numbers and note, rest, and grace note part
+			numbers;
+		the legality of voiceRole fields.
+We could also check other symbols with voice nos. */
+
 Boolean DCheckVoiceTable(Document *doc,
 			Boolean fullCheck,				/* False=skip less important checks */
 			short *pnVoicesUsed)
@@ -1629,7 +1639,7 @@ Boolean DCheckVoiceTable(Document *doc,
 	PPARTINFO pPart;
 	Boolean voiceInWrongPart;
 
-	bad = False;
+	bad = voiceInWrongPart = False;
 
 	for (foundEmptySlot = False, v = 1; v<=MAXVOICES; v++) {
 		if (doc->voiceTab[v].partn==0) foundEmptySlot = True;
@@ -1650,7 +1660,6 @@ Boolean DCheckVoiceTable(Document *doc,
 			return True;
 		}
 		
-		voiceInWrongPart = False;
 		for (stf = pPart->firstStaff; stf<=pPart->lastStaff; stf++) {
 			if (doc->voiceTab[stf].partn!=partn) {
 				COMPLAIN2("*DCheckVoiceTable: VOICE %ld SHOULD BELONG TO PART %ld BUT DOESN'T.\n",

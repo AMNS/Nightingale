@@ -92,11 +92,11 @@ static short		numHyphens = 0;
 
 /* Display Flow In Text dialog. Return True if OK, False if CANCEL or error. */
 
-Boolean FlowInDialog(Document *doc, short *font)	/* ??should be static */
+static Boolean FlowInDialog(Document *doc, short *font)
 {
 	short itemHit;
-	Boolean okay,keepGoing=True;
-	DialogPtr dlog; GrafPtr oldPort;
+	Boolean okay, keepGoing=True;
+	DialogPtr dlog;  GrafPtr oldPort;
 
 	/* Build dialog window and install its item values */
 	
@@ -273,8 +273,8 @@ static void DoDialogUpdate(DialogPtr dlog)
 	GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
 	BeginUpdate(GetDialogWindow(dlog));
 
-	/* No need to restore the previous font because the only item not in
-		the system font is the TE record, which has its own font. */
+	/* No need to restore the previous font because the only item not in the system
+		font is the TE record, which has its own font. */
 	TextFont(systemFont);
 	UpdateDialogVisRgn(dlog);
 	DrawPopUp(&popup5);
@@ -384,9 +384,8 @@ static Boolean DoDialogItem(Document *doc, DialogPtr dlog, short itemHit)
 }
 
 
-/* Pull values out of dialog items and deliver True if any of them are
-illegal or inconsistent; otherwise deliver False.  Doesn't need to do
-anything for this dialog. */
+/* Pull values out of dialog items and deliver True if any of them are illegal or
+inconsistent; otherwise deliver False.  Doesn't need to do anything for this dialog. */
 
 static Boolean AnyBadValues(DialogPtr /*dlog*/)
 {
@@ -546,11 +545,11 @@ static LINK InsertNewGraphic(Document *doc, LINK pL,
 						short pitchLev
 						)
 {
-	DDIST					xd, yd;
-	LINK					newpL, aGraphicL;
-	short					graphicType, fontInd;
+	DDIST				xd, yd;
+	LINK				newpL, aGraphicL;
+	short				graphicType, fontInd;
 	CONTEXT				context;
-	PGRAPHIC				pGraphic;
+	PGRAPHIC			pGraphic;
 	PAGRAPHIC			aGraphic;
 	STRINGOFFSET		offset;
 
@@ -606,8 +605,8 @@ PopLock(OBJheap);
 
 #define EXIT_NOW -1
 
-short HandleOptionKeyMsgBox(Document *, Size);
-short HandleOptionKeyMsgBox(Document *doc, Size /*lyricLen*/)
+static short HandleOptionKeyMsgBox(Document *, Size);
+static short HandleOptionKeyMsgBox(Document *doc, Size /*lyricLen*/)
 {
 	static Boolean	optDownNow, optDownBefore=False;
 	Size tmpCurrWord;
@@ -626,7 +625,7 @@ short HandleOptionKeyMsgBox(Document *doc, Size /*lyricLen*/)
 }
 
 
-void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, short v,
+static void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, short v,
 						short lyricLen, short pitchLev, short theFont, TEXTSTYLE theStyle)
 {
 	LINK	newL;
@@ -646,11 +645,11 @@ void InsertSyllable(Document *doc, LINK pL, LINK *lastGrL, short stf, short v,
 	
 	InvertSymbolHilite(doc, pL, stf, False);
 
-	/* If the user holds down the option key, don't increment the pointer
-		to the next word; this allows the user to insert the same word over
-		and over again; for example, into each of a number of voices. Rather,
-		return to the word just inserted, insert it again, and then increment
-		the point back to the place it was when we started the whole thing. */
+	/* If the user holds down the option key, don't increment the pointer to the next
+		word. This allows the user to insert the same word over and over again; for
+		example, into each of a number of voices. Rather, return to the word just
+		inserted, insert it again, and then increment the point back to the place it
+		was when we started the whole thing. */
 
 	HLock(lyricBlk);
 	if (OptionKeyDown()) {
@@ -816,12 +815,12 @@ static void FlowInTextObjects(Document	*doc, short theFont, TEXTSTYLE theStyle)
 			case autoKey:
 				ch = (unsigned int)(evt.message & charCodeMask);
 				switch (ch) {
-					case CH_BS:							/* Handle backspace to delete */
+					case CH_BS:								/* Handle backspace to delete */
 						if (lastGrL && lastGrL!=prevGrL) {
 							/* Erase and inval the objrect of this Graphic. */
 							Rect r = LinkOBJRECT(lastGrL);
 							r.left -= pt2p(2);
-							r.right += pt2p(4);			/* bbox often not wide enough on right */
+							r.right += pt2p(4);				/* bbox often not wide enough on right */
 							OffsetRect(&r, doc->currentPaper.left, doc->currentPaper.top);
 							EraseAndInval(&r);
 							/* FIXME: DeleteNode doesn't get rid of string in StrMgr lib! */
@@ -1077,9 +1076,9 @@ might push 2nd note to right in order to place hyphen after barline! (Try it.) *
 not even be in this system. Returns number of errors encountered, or -1 in case of a
 fatal error. */
 
-short CreateHyphenRun(Document *, LINK, LINK, LINK, DDIST, DDIST, Boolean, short, DDIST,
+static short CreateHyphenRun(Document *, LINK, LINK, LINK, DDIST, DDIST, Boolean, short, DDIST,
 								short, short, TEXTSTYLE, DDIST);
-short CreateHyphenRun(
+static short CreateHyphenRun(
 			Document	*doc,
 			LINK		firstSylL,		/* first syllable's graphic, or NILINK if it's not on this system */
 			LINK		startL,			/* If a sync, it's the first one we can attach hyphen to; */
@@ -1102,7 +1101,7 @@ short CreateHyphenRun(
 	LINK			pL, lastL, prevL, measL, newL, aGraphicL, aNoteL;
 	DDIST			emptySpace, subSpace, desiredXD, spcLeft, thisXD;
 	STRINGOFFSET	offset;
-	char			hyphStr[256];
+	char			hyphStr[256];		/* C string */
 
 	emptySpace = endXD - startXD;
 	
@@ -1171,7 +1170,7 @@ short CreateHyphenRun(
 			
 			/* This prevents hyphens from continuing to end of system when the last
 			   Sync in the system is substantially to the left of the end of the
-			   system. If we don't do this, and user later justifies the system,
+			   system. If we don't do this and user later justifies the system,
 			   hyphens will end up off the right side of the page. */
 			
 			if (openSys) {
@@ -1317,10 +1316,10 @@ static void DisposeHyphenList()
 /* Given a pointer to a non-relocatable block <pText>, place a copy of this text into
 the relocatable block used by the Flow In Text dialog (the static global lyricBlk).
 Do this by allocating a handle and assigning it lyricBlk. If lyricBlk was not NULL,
-first dispose it, without warning the user. This is not used by the Flow in Text
-command: it was written for the Open ETF command.
+first dispose it, without warning the user. NB: As of Nov. 2017, this function is not
+used by the Flow in Text command: it was written for the old Open ETF command.
 
-If <pText> contains too much text, return False. ??Probably we should truncate the
+If <pText> contains too much text, return False. FIXME: Probably we should truncate the
 text in this case.
 
 Returns True if all okay. Gives an error msg and returns False if error. */

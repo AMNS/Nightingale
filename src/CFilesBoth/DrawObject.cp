@@ -1,15 +1,15 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	DrawObject.c
 *	PROJ:	Nightingale
 *	DESC:	General object-drawing routines
-****************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -34,7 +34,7 @@ static Boolean GetTempoDBox(Document *, LINK, Boolean, short, short, short, DRec
 static void DrawBarline(Document *, LINK, short, short, CONTEXT [], SignedByte);
 
 
-/* -------------------------------------------------------------------- D2ObjRect -- */
+/* ------------------------------------------------------------------------- D2ObjRect -- */
 /* Convert DRect to Rect. If Rect has zero width or height, move the edges apart
 slightly. Intended for computing objRects, which aren't useful if they're empty! But
 note that this doesn't guarantee non-empty objRects: if the edges cross, it does
@@ -54,7 +54,7 @@ static void D2ObjRect(DRect *pdEnclBox, Rect *pobjRect)
 }
 
 
-/* ------------------------------------------------------------- DrawHeaderFooter -- */
+/* ------------------------------------------------------------------ DrawHeaderFooter -- */
 /* Draw a page header/footer. */
 
 static void DrawHeaderFooter(Document *doc,
@@ -176,7 +176,7 @@ static void DrawHeaderFooter(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ DrawPageNum -- */
+/* ----------------------------------------------------------------------- DrawPageNum -- */
 /* Draw a page number. */
 
 static void DrawPageNum(Document *doc,
@@ -242,7 +242,7 @@ static void DrawPageNum(Document *doc,
 }
 
 
-/* --------------------------------------------------------------------- DrawPAGE -- */
+/* -------------------------------------------------------------------------- DrawPAGE -- */
 /* Draw a PAGE object, including the page number, if it should be shown. */
 
 void DrawPAGE(Document *doc, LINK pL, Rect *paper, CONTEXT context[])
@@ -258,7 +258,7 @@ void DrawPAGE(Document *doc, LINK pL, Rect *paper, CONTEXT context[])
 }
 
 
-/* ------------------------------------------------------------------- DrawSYSTEM -- */
+/* ------------------------------------------------------------------------ DrawSYSTEM -- */
 /* Draw a SYSTEM object from given document, in page whose window coordinates
 	are specified in paper.  */
 
@@ -299,7 +299,7 @@ void DrawSYSTEM(Document *doc,
 }
 
 
-/* --------------------------------------------------------- SetFontFromTEXTSTYLE -- */
+/* -------------------------------------------------------------- SetFontFromTEXTSTYLE -- */
 /* For screen only: set the port's text characteristics from the given TEXTSTYLE. */
 
 void SetFontFromTEXTSTYLE(Document *doc, TEXTSTYLE *pTextStyle, DDIST lineSpace)
@@ -316,7 +316,7 @@ void SetFontFromTEXTSTYLE(Document *doc, TEXTSTYLE *pTextStyle, DDIST lineSpace)
 }
 
 
-/* ----------------------------------------------------------------- DrawPartName -- */
+/* ---------------------------------------------------------------------- DrawPartName -- */
 /* If the given staff is the last staff of its part, draw the part name at the
 left end of the system vertically centered between the top and bottom visible
 staves of the part. If no staves of the part are visible, do nothing. We draw the
@@ -412,7 +412,7 @@ static void DrawPartName(Document *doc, LINK staffL,
 }
 
 
-/* --------------------------------------------------------------- DrawInstrInfo -- */
+/* --------------------------------------------------------------------- DrawInstrInfo -- */
 /* If the given staff is the first staff of its part, draw the part's instrument
 information across the left end of the staff. Intended for use in Master Page. */
 
@@ -499,7 +499,7 @@ static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT cont
 }
 
 
-/* ----------------------------------------------------------------- Draw1Staff -- */
+/* ------------------------------------------------------------------------ Draw1Staff -- */
 
 void Draw1Staff(Document *doc,
 				short /*staffn*/,
@@ -585,7 +585,7 @@ void Draw1Staff(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------- DrawSTAFF -- */
+/* ------------------------------------------------------------------------- DrawSTAFF -- */
 /* Draw all subobjects of a STAFF object and update their context[] entries. */
 
 void DrawSTAFF(Document *doc, LINK pL, Rect *paper,
@@ -664,7 +664,7 @@ PopLock(STAFFheap);
 }
 
 
-/* ---------------------------------------------------------------- DrawCONNECT -- */
+/* ----------------------------------------------------------------------- DrawCONNECT -- */
 /* Draw all subobjects of a CONNECT object. */
 
 void DrawCONNECT(Document *doc, LINK pL,
@@ -828,7 +828,7 @@ PopLock(CONNECTheap);
 }
 
 
-/* --------------------------------------------------------------------- DrawCLEF -- */
+/* -------------------------------------------------------------------------- DrawCLEF -- */
 /* Draw a CLEF object. Handles zero-sized objRects for invisible clefs. */
 
 void DrawCLEF(Document *doc, LINK pL, CONTEXT context[])
@@ -942,7 +942,7 @@ PopLock(CLEFheap);
 }
 
 
-/* ------------------------------------------------------------------ DrawKEYSIG -- */
+/* ------------------------------------------------------------------------ DrawKEYSIG -- */
 /* Draw a KEYSIG object */
 
 void DrawKEYSIG(Document *doc, LINK pL, CONTEXT context[])
@@ -997,7 +997,7 @@ PopLock(KEYSIGheap);
 }
 
 
-/* ----------------------------------------------------------------- DrawTIMESIG -- */
+/* ----------------------------------------------------------------------- DrawTIMESIG -- */
 /* Draw a TIMESIG object */
 
 void DrawTIMESIG(Document *doc, LINK pL, CONTEXT context[])
@@ -1108,7 +1108,7 @@ PopLock(TIMESIGheap);
 }
 
 
-/* ----------------------------------------------------------------- DrawHairpin -- */
+/* ----------------------------------------------------------------------- DrawHairpin -- */
 /* Draw a hairpin dynamic. X-coord. of left end = xd; x-coord. of right end
 (relative to the symbol it's attached to) = aDynamic->endxd. */
 
@@ -1206,7 +1206,7 @@ static void DrawHairpin(LINK pL, LINK aDynamicL, PCONTEXT pContext, DDIST xd, DD
 }
 
 
-/* ------------------------------------------------------------------ DrawDYNAMIC -- */
+/* ----------------------------------------------------------------------- DrawDYNAMIC -- */
 /* Draw a DYNAMIC object, a set (as of v. 5.7, always one) of hairpins and/or
 "simple" dynamics, and if necessary recompute its objRect. */
 
@@ -1311,7 +1311,7 @@ PopLock(DYNAMheap);
 }
 
 
-/* ----------------------------------------------------------------- DrawRPTEND -- */
+/* ------------------------------------------------------------------------ DrawRPTEND -- */
 /* Draw a REPEATEND object */
 
 void DrawRPTEND(Document *doc, LINK pL, CONTEXT context[])
@@ -1368,7 +1368,7 @@ PopLock(OBJheap);
 }
 
 
-/* ------------------------------------------------------------------ DrawENDING -- */
+/* ------------------------------------------------------------------------ DrawENDING -- */
 /* Draw an ENDING object: bracket and optional label. */
 
 #define MOVE_AND_LINE(x1, y1, x2, y2)	{ MoveTo((x1), (y1)); LineTo((x2), (y2)); }
@@ -1434,7 +1434,7 @@ PushLock(OBJheap);
 																			papTop+yp);
 				MOVE_AND_LINE(papLeft+xp, papTop+yp, papLeft+endxp, papTop+yp);
 				if (!p->noRCutoff) MOVE_AND_LINE(papLeft+endxp, papTop+yp, papLeft+endxp,
-																			papTop+yp+risePxl);
+																		papTop+yp+risePxl);
 
 				if (endNum!=0 && endNum<maxEndingNum) {
 					oldFont = GetPortTxFont();
@@ -1475,7 +1475,7 @@ PopLock(OBJheap);
 }
 
 
-/* -------------------------------------------------------------- DrawEnclosure -- */
+/* --------------------------------------------------------------------- DrawEnclosure -- */
 /* Draw an enclosure, e.g., around a rehearsal mark. At the moment, the only type
 is a rectangle. */
 
@@ -1523,22 +1523,23 @@ static void DrawEnclosure(Document */*doc*/,
 }
 
 
-/* ------------------------------------------------------------- GetGraphicDBox -- */
+/* -------------------------------------------------------------------- GetGraphicDBox -- */
 /* Return the DDIST bounding box for the given Graphic, with origin at (0,0). If
-the Graphic is a text type and _expandN_, it's stretched out. */
+the Graphic is a text type and _expandN_, it's stretched out. As function value,
+return True normally, False if we can't compute the bounding box. */
 
 static Boolean GetGraphicDBox(Document *doc,
 					LINK pL,
 					Boolean expandN,
 					PCONTEXT pContext,
 					short fontID, short fontSize, short fontStyle,
-					DRect *dBox				/* Bounding box (TOP_LEFT at 0,0 and no margin) */
+					DRect *pDBox				/* Bounding box (TOP_LEFT at 0,0 and no margin) */
 					)
 {
- 	PGRAPHIC p; DDIST dHeight;
+ 	PGRAPHIC p;  DDIST dHeight;
 	Str255 string;
 	StringPtr pStr;
-	LINK aGraphicL; PAGRAPHIC aGraphic;
+	LINK aGraphicL;  PAGRAPHIC aGraphic;
 	StringOffset theStrOffset;
 	Rect bBox;
 	
@@ -1546,7 +1547,7 @@ static Boolean GetGraphicDBox(Document *doc,
 	switch (GraphicSubType(pL)) {
 		case GRPICT:
 			{
-				Handle picH; Rect r; short width, height;
+				Handle picH;  Rect r;  short width, height;
 				
 				/*
 				 * Get the bounding box of the PICT resource. If the resource isn't available,
@@ -1576,25 +1577,25 @@ static Boolean GetGraphicDBox(Document *doc,
 					r = (*(PicHandle)picH)->picFrame;
 				width = r.right - r.left;					/* calculate width and height */
 				height = r.bottom - r.top;
-				SetDRect(dBox, 0, 0, pt2d(width), pt2d(height));
+				SetDRect(pDBox, 0, 0, pt2d(width), pt2d(height));
 			}
 			return True;
 		case GRArpeggio:
 			dHeight = qd2d(p->info, pContext->staffHeight, pContext->staffLines);
-			SetDRect(dBox, 0, 0, pt2d(3), dHeight);			/* Width is crude but seems acceptable */
+			SetDRect(pDBox, 0, 0, pt2d(3), dHeight);			/* Width is crude but seems acceptable */
 			return True;
 		case GRChar:
 			string[0] = 1;
 			string[1] = p->info;
 			pStr = string;
 			break;
-		case GRMIDISustainOn:
+		case GRSustainOn:
 			string[0] = 1;
 			string[1] = 0xA1;								// Mac OS Roman keys: shift-option 8
 			pStr = string;
 			fontID = doc->musicFontNum;
 			break;
-		case GRMIDISustainOff:
+		case GRSustainOff:
 			string[0] = 2;
 			string[1] = '*';								// Shift 8
 			string[2] = '*';
@@ -1622,9 +1623,9 @@ static Boolean GetGraphicDBox(Document *doc,
 	/* If we get here, the Graphic is some sort of text. */
 	p = GetPGRAPHIC(pL);
 	GetNPtStringBBox(doc, pStr, fontID, fontSize, fontStyle, p->multiLine, &bBox);
-//char cStr[256]; Pstrcpy((unsigned char *)cStr, pStr); PToCString((unsigned char *)cStr);
-//LogPrintf(LOG_DEBUG, "GetGraphicDBox: count lines=%d fontID, Size, Style=%d, %d, %d str='%s'\n",
-//			CountTextLines(string), fontID, fontSize, fontStyle, cStr);
+char cStr[256]; Pstrcpy((unsigned char *)cStr, pStr); PToCString((unsigned char *)cStr);
+LogPrintf(LOG_DEBUG, "GetGraphicDBox: count lines=%d fontID, Size, Style=%d, %d, %d str='%s'\n",
+CountTextLines(string), fontID, fontSize, fontStyle, cStr);
 
 	/* 
 	 *	Pure fudgery: for mysterious reasons, if the style is not plain, what we have
@@ -1634,11 +1635,13 @@ static Boolean GetGraphicDBox(Document *doc,
 	 */
 	if (fontStyle!=0) bBox.right += 2*(*pStr)/3;
 
-	PtRect2D(&bBox, dBox);	
+	PtRect2D(&bBox, pDBox);	
+LogPrintf(LOG_DEBUG, "GetGraphicDBox: pDBox=%d,%d,%d,%d\n", pDBox->top, pDBox->left,
+		pDBox->bottom, pDBox->right);
 	return True;
 }
 
-/* ------------------------------------------------------------------ DrawGRPICT -- */
+/* ------------------------------------------------------------------------ DrawGRPICT -- */
 /* Draw the GRPICT Graphic with the given resource ID or handle. NB: PostScript
 drawing isn't yet implemented! */
 
@@ -1679,7 +1682,7 @@ static void DrawGRPICT(Document */*doc*/,
 }
 
 
-/* ----------------------------------------------------------------- DrawArpSign -- */
+/* ----------------------------------------------------------------------- DrawArpSign -- */
 /* Draw an arpeggio or non-arpeggio sign. */
 
 static void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
@@ -1728,7 +1731,7 @@ static void DrawArpSign(Document *doc, DDIST xd, DDIST yd, DDIST dHeight,
 }
 
 
-/* ----------------------------------------------------------------- DrawGRDraw -- */
+/* ------------------------------------------------------------------------ DrawGRDraw -- */
 /* Draw a MiniDraw-subtype Graphic. Returns half its line thickness.  */
 
 static DDIST DrawGRDraw(Document */*doc*/,
@@ -1794,7 +1797,7 @@ Done:
 }
 
 
-/* ------------------------------------------------------------------ DrawTextBlock -- */
+/* --------------------------------------------------------------------- DrawTextBlock -- */
 
 static short CountTextLines(StringPtr pString)
 {
@@ -1976,10 +1979,10 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 }
 
 
-/* -------------------------------------------------------------------- DrawGRAPHIC -- */
+/* ----------------------------------------------------------------------- DrawGRAPHIC -- */
 /* Draw a GRAPHIC object, including its enclosure, if it needs one, and/or
 recompute its objRect. (Thus far, our UI doesn't support entering strings over
-255 chars., so we don't need to support longer strings here.  --DAB, Sept. 2015) */
+255 chars., so we don't need to support longer strings here.  --DAB, Nov. 2017) */
 
 #define SWAP(a, b)	{ short temp; temp = (a); (a) = (b); (b) = temp; }
 
@@ -2027,8 +2030,14 @@ PushLock(GRAPHICheap);
 
 	expandN = False;
 	if (p->graphicType==GRString) expandN = (p->info2!=0);
-	if (GetGraphicDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox))
-		OffsetDRect(&dEnclBox, xd, yd);
+	if (!GetGraphicDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox)) {
+		LogPrintf(LOG_WARNING, "DrawGRAPHIC: GetGraphicDBox failed. pL=%u", pL);
+		return;
+	}
+//LogPrintf(LOG_DEBUG, "DrawGRAPHIC>GetGraphicDBox: doDraw=%d pDBox=%d,%d,%d,%d\n\n", doDraw,
+//dEnclBox.top, dEnclBox.left, dEnclBox.bottom, dEnclBox.right);
+
+	OffsetDRect(&dEnclBox, xd, yd);
 
 	dim = (outputTo==toScreen && !LOOKING_AT(doc, p->voice));
 
@@ -2121,24 +2130,24 @@ PushLock(GRAPHICheap);
 					case GRChordFrame:
 					case GRRehearsal:
 					case GRMIDIPatch:
-						if (dim) DrawMString(doc, (StringPtr)PCopy(theStrOffset),
+						if (dim)	DrawMString(doc, (StringPtr)PCopy(theStrOffset),
 														NORMAL_VIS, True);
 						else		DrawString(PCopy(theStrOffset));
 						break;
 					case GRMIDIPan:
 						TextFace(italic);
-						if (dim) DrawMString(doc, (StringPtr)PCopy(theStrOffset),
+						if (dim)	DrawMString(doc, (StringPtr)PCopy(theStrOffset),
 														NORMAL_VIS, True);
 						else		DrawString(PCopy(theStrOffset));
 						break;
-					case GRMIDISustainOn:
+					case GRSustainOn:
 						oneChar[0] = 1;
 						oneChar[1] = 0xA1;					// Mac OS Roman keys: shift-option 8
 						TextFace(normal);
 						TextFont(doc->musicFontNum);
 						DrawString(oneChar);
 						break;
-					case GRMIDISustainOff:
+					case GRSustainOff:
 						oneChar[0] = 1;
 						oneChar[1] = '*';					// Shift 8
 						TextFace(normal);
@@ -2188,14 +2197,14 @@ PushLock(GRAPHICheap);
 										fontSize, fontStyle);
 					break;
 				/* For sustain on/off (=pedal down/up), always use the document's music font. */
-				case GRMIDISustainOn:
+				case GRSustainOn:
 					oneChar[0] = 1;
 					oneChar[1] = 0xA1;									// Mac OS Roman keys: shift-option 8
 					PS_FontString(doc, xd, yd,oneChar,
 										doc->musFontName,
 										fontSize, fontStyle);
 					break;
-				case GRMIDISustainOff:
+				case GRSustainOff:
 					oneChar[0] = 1;
 					oneChar[1] = '*';									// Shift 8
 					PS_FontString(doc, xd, yd,oneChar,
@@ -2214,8 +2223,7 @@ Cleanup:
 	/* Strings in Sonata have been seen with zero-height objRects. That's not good, so
 		prevent possibility of zero-height objRect. */
 
-	if (outputTo==toScreen && objRect.bottom==objRect.top)
-		objRect.bottom++;
+	if (outputTo==toScreen && objRect.bottom==objRect.top) objRect.bottom++;
 	LinkOBJRECT(pL) = objRect;
 
 PopLock(OBJheap);
@@ -2223,7 +2231,7 @@ PopLock(GRAPHICheap);
 }
 
 
-/* ------------------------------------------------------------------- GetTempoDBox -- */
+/* ---------------------------------------------------------------------- GetTempoDBox -- */
 /* Return the DDIST bounding box for the given Tempo object, with origin at (0,0).
 If _expandN_, it's stretched out. */
 
@@ -2271,7 +2279,7 @@ static Boolean GetTempoDBox(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ DrawTEMPO -- */
+/* ------------------------------------------------------------------------- DrawTEMPO -- */
 /* Draw a TEMPO object: verbal tempo string and/or metronome mark (consisting of a
 duration-unit note, perhaps dotted, and an M.M. number string). */
 
@@ -2461,7 +2469,7 @@ PopLock(TEMPOheap);
 }
 
 
-/* --------------------------------------------------------------------- DrawSPACER -- */
+/* ------------------------------------------------------------------------ DrawSPACER -- */
 /* Draw a SPACER object */
 
 void DrawSPACER(Document *doc, LINK pL, CONTEXT context[])
@@ -2553,7 +2561,7 @@ static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 }
 
 
-/* ------------------------------------------------------------- ShadeDurPblmMeasure -- */
+/* --------------------------------------------------------------- ShadeDurPblmMeasure -- */
 
 static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat)
 {
@@ -2644,7 +2652,7 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 }
 
 
-/* -------------------------------------------------------------------- DrawBarline -- */
+/* ----------------------------------------------------------------------- DrawBarline -- */
 /* Draw a barline (not a repeat bar) across one or more staves. */
 
 void DrawBarline(Document *doc,
@@ -2765,10 +2773,10 @@ void DrawBarline(Document *doc,
 }
 
 
-/* ----------------------------------------------------------------- DrawMEASURE -- */
-/* Draw a MEASURE object, i.e., all its barlines or repeat bars. If !LinkVALID(pL)
-and we're drawing to the screen, also update the MEASURE's <measureBBox> based on
-the <measSizeRect>s of the subobjects. */
+/* ----------------------------------------------------------------------- DrawMEASURE -- */
+/* Draw the graphical manifestation of a MEASURE object, i.e., all its barlines or
+repeat bars. If !LinkVALID(pL) and we're drawing to the screen, also update the MEASURE's
+<measureBBox> based on the <measSizeRect>s of the subobjects. */
 
 void DrawMEASURE(Document *doc, LINK pL, CONTEXT context[])
 {
@@ -2956,7 +2964,7 @@ PopLock(MEASUREheap);
 }
 
 
-/* ----------------------------------------------------------------- DrawPSMEAS -- */
+/* ------------------------------------------------------------------------ DrawPSMEAS -- */
 /* Draw all subobjects of a PSMEAS object. */
 
 void DrawPSMEAS(Document *doc, LINK pL, CONTEXT context[])
@@ -3043,7 +3051,7 @@ PopLock(PSMEASheap);
 }
 
 
-/* -------------------------------------------------------------------- DrawSLUR -- */
+/* --------------------------------------------------------------------------k DrawSLUR -- */
 /* Draw a SLUR object, i.e., a slur or set of ties. */
 
 void DrawSLUR(Document *doc, LINK pL, CONTEXT context[])

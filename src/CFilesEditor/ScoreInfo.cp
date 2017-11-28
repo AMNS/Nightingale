@@ -17,7 +17,7 @@ static short SICheckMeasDur(Document *doc, short *pFirstBad);
 static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty);
 static short SICheckRange(Document *doc, short *pFirstOutOfRange);
 static long GetScoreDuration(Document *doc);
-static long DisplayHeapAndNoteCounts(Document *doc, unsigned short objCount[]);
+static long DisplayHeapAndNoteCounts(Document *doc, unsigned short symbolCount[]);
 
 #define LEADING 11			/* Vertical dist. between lines displayed (pixels) */
 
@@ -211,67 +211,101 @@ static long GetScoreDuration(Document *doc)
 }
 
 
-/* Find and display the number of subobjects of each type. NB that for some types,
-these numbers may not agree with the user's concept of things: for example, they
-include context-setting KeySig objects at the beginning of each system, which are
-invisible if there's no actual key signature in effect. */
+#define PLURALQ(n) ((n)!=1? "s" : "")
 
-static long DisplayHeapAndNoteCounts(Document *doc, unsigned short objCount[])
+/* Find and display the number of symbols and "sets" of symbols (ordinarily objects) of
+each type, with a few exceptions. NB these numbers must agree with the user's concept
+of things. In particular, they can't include invisible context-setting KeySigs: see
+comments below. Return the total number of symbols listed. */
+
+static long DisplayHeapAndNoteCounts(Document *doc, unsigned short symbolCount[])
 {
-	LINK pL;
+	LINK pL, aKeySigL;
 	HEAP *theHeap;
 	const char *ps;
-	short h;
-	long totalCount, lObjCount[LASTtype];
+	short nInvisibleKSSets, objCount[LASTtype];
+	long totalCount;
 	unsigned short count, noteAttackCount;
+	char strSets[256];
+	Boolean allInvisibleInSet;
 	
 	noteAttackCount = CountNoteAttacks(doc);
 
+	/* The symbolCount[KEYSIGtype] we've been given might context-setting KeySigs at
+		the beginning of each system; if there's no actual key signature in effect,
+		i.e., it's no sharps or flats, the user doesn't think they exist, so leave
+		them out. */
+		
+	nInvisibleKSSets = 0;
+	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL)) {
+		if (ObjLType(pL)==KEYSIGtype) {
+			allInvisibleInSet = True;
+			aKeySigL = FirstSubLINK(pL);
+			for ( ; aKeySigL; aKeySigL=NextKEYSIGL(aKeySigL)) {
+				if (KeySigNKSITEMS(aKeySigL)==0) symbolCount[KEYSIGtype]--;
+				else allInvisibleInSet = False;
+			}
+			if (allInvisibleInSet) nInvisibleKSSets++;
+		}
+	}
+
 	totalCount = 0L;
-	for (h = SYNCtype; h<OBJtype; h++) {
+	for (short h = SYNCtype; h<OBJtype; h++) {
 		theHeap = Heap+h;
 		
+		objCount[h] = 0;
+		count = 0;
+		for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
+			if (ObjLType(pL)==h) count++;
+		objCount[h] = count;
+
+		if (h==KEYSIGtype) objCount[h] -= nInvisibleKSSets;
+		
 		switch (h) {
-			/*
-			 *	Skip these types: they're uninteresting and/or info already given.
-			 */
+		
+			/* Skip these types: they're uninteresting and/or we assume the info about
+				them is given elsewhere. */
+
+			case PAGEtype:
+			case SYSTEMtype:
 			case STAFFtype:
 			case MEASUREtype:
 			case CONNECTtype:
-				lObjCount[h] = -1L;
 				break;
-			/*
-			 * For these types, users are interested in the numbers of objects.
-			 */
+
+			/* For these types, there are no "sets". */
+			 
 			case BEAMSETtype:
 			case OTTAVAtype:
 			case TUPLETtype:
 			case TEMPOtype:
-			case SPACERtype:
-			case ENDINGtype:
-				count = 0;
-				for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
-					if (ObjLType(pL)==h) count++;
-				lObjCount[h] = count;
+				symbolCount[h] = objCount[h];
+				if (objCount[h]>=0) {
+					ps = NameHeapType(h, True);
+					sprintf(str, "    %d %s%s", symbolCount[h], ps,
+													PLURALQ(symbolCount[h]));
+					SIDrawTextLine(str);
+					totalCount += symbolCount[h];
+				}
 				break;
-			default:
-			/*
-			 * For other types, users care about the numbers of subobjects, which
-			 * we've already computed, or the type is uninteresting.
-			 */
-				if (theHeap->nObjs<=0)
-					lObjCount[h] = -1L;
-				else
-					lObjCount[h] = objCount[h];
-		}
 
-		if (lObjCount[h]>=0) {
-			ps = NameHeapType(h, True);
-			if (h==SYNCtype)	sprintf(str, "    %ld %s;  %d note attacks",
-										lObjCount[h], ps, noteAttackCount);
-			else				sprintf(str, "    %ld %s", lObjCount[h], ps);
-			SIDrawTextLine(str);
-			totalCount += lObjCount[h];
+			/* These types are the most complex. */
+			
+			default:
+				if (objCount[h]>=0) {
+					ps = NameHeapType(h, True);
+					if (objCount[h]>0)	sprintf(strSets, " (%d set%s)", objCount[h],
+														PLURALQ(objCount[h]));
+					else				sprintf(strSets, " ");
+
+					if (h==SYNCtype)	sprintf(str, "    %d %s %s, %d note attack%s",
+											symbolCount[h], ps, strSets, noteAttackCount,
+														PLURALQ(noteAttackCount));
+					else				sprintf(str, "    %d %s%s%s", symbolCount[h], ps,
+														PLURALQ(symbolCount[h]), strSets);
+					SIDrawTextLine(str);
+					totalCount += symbolCount[h];
+				}
 		}
 	}
 	
@@ -290,7 +324,7 @@ void ScoreInfo()
 		short ditem, aShort;  Handle aHdl;
 		LINK pL, startPageL;
 		Document *doc=GetDocumentFromWindow(TopDocument);
-		unsigned short objCount[LASTtype], objsTotal;
+		unsigned short subobjCount[LASTtype], objsTotal;
 		long totalCount, scoreDuration, qtrNTicks;
 		short nBad, nEmpty, nOutOfRange, nUnjustSys, firstBad=0, firstEmpty=0,
 				firstOutOfRange=0, firstUnjustPg=0;
@@ -331,22 +365,23 @@ void ScoreInfo()
 		sprintf(str, fmtStr);
 		SIDrawTextLine(str);
 
-		GetIndCString(fmtStr, SCOREINFO_STRS, 2);   		/* "%d pages, %d systems, %d measures." */
-		sprintf(str, fmtStr, doc->numSheets,
-						doc->nsystems, MeasCount(doc));
+		GetIndCString(fmtStr, SCOREINFO_STRS, 2);   		/* "%d page{s}, %d system{s}, %d measure{s}." */
+		sprintf(str, fmtStr, doc->numSheets, PLURALQ(doc->numSheets),
+						doc->nsystems, PLURALQ(doc->nsystems),
+						MeasCount(doc), PLURALQ(MeasCount(doc)));
 		SIDrawTextLine(str);
-		GetIndCString(fmtStr, SCOREINFO_STRS, 3);   		/* "    A system contains %d staves." */
-		sprintf(str, fmtStr, doc->nstaves);
+		GetIndCString(fmtStr, SCOREINFO_STRS, 3);   		/* "    A system contains %d stave{s}." */
+		sprintf(str, fmtStr, doc->nstaves, PLURALQ(doc->nstaves));
 		SIDrawTextLine(str);
 
-		CountInHeaps(doc, objCount, False);
-		totalCount = DisplayHeapAndNoteCounts(doc, objCount);
+		CountSubobjsByHeap(doc, subobjCount, False);
+		totalCount = DisplayHeapAndNoteCounts(doc, subobjCount);
 
 		objsTotal = 0;	
 		for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 			objsTotal++;
 		objsTotal++;
-		GetIndCString(fmtStr, SCOREINFO_STRS, 4);   		/* "%ld total symbols (%d objects)." */
+		GetIndCString(fmtStr, SCOREINFO_STRS, 4);   		/* "%ld total symbols (%d object{s})." */
 		sprintf(str, fmtStr, totalCount, objsTotal);
 		SIDrawTextLine(str);
 
@@ -354,15 +389,15 @@ void ScoreInfo()
 		qtrNTicks = Code2LDur(QTR_L_DUR, 0);
 		sprintf(str, "------------------------------------------");
 		SIDrawTextLine(str);
-		GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "Duration: approx. %ld quarter(s) (%ld ticks)." */
-		sprintf(str, fmtStr, scoreDuration/qtrNTicks, scoreDuration); 
+		GetIndCString(fmtStr, SCOREINFO_STRS, 8);   		/* "Duration: approx. %ld quarter{s} (%ld ticks)." */
+		sprintf(str, fmtStr, scoreDuration/qtrNTicks, PLURALQ(scoreDuration/qtrNTicks), scoreDuration); 
 		SIDrawTextLine(str);
 		
 		WaitCursor();
 		nBad = SICheckMeasDur(doc, &firstBad);
 		if (nBad>0) {
-			GetIndCString(fmtStr, SCOREINFO_STRS, 5);   /* "Duration problems in %d measure(s) (first=%d)." */
-			sprintf(str, fmtStr, nBad, firstBad);
+			GetIndCString(fmtStr, SCOREINFO_STRS, 5);   /* "Duration problems in %d measure{s} (first=%d)." */
+			sprintf(str, fmtStr, nBad, PLURALQ(nBad), firstBad);
 		}
 		else {
 			GetIndCString(fmtStr, SCOREINFO_STRS, 6);   /* "No measures have duration problems." */
@@ -372,8 +407,8 @@ void ScoreInfo()
 
 		nEmpty = SICheckEmptyMeas(doc, &firstEmpty);
 		if (nEmpty>0) {
-			GetIndCString(fmtStr, SCOREINFO_STRS, 9);   /* "%d empty staff-measure(s) (first in measure %d)." */
-			sprintf(str, fmtStr, nEmpty, firstEmpty);
+			GetIndCString(fmtStr, SCOREINFO_STRS, 9);   /* "%d empty staff-measure{s} (first in measure %d)." */
+			sprintf(str, fmtStr, nEmpty, PLURALQ(nEmpty), firstEmpty);
 		}
 		else {
 			GetIndCString(fmtStr,  SCOREINFO_STRS, 10);   /* "No empty staff-measures found." */
@@ -383,8 +418,8 @@ void ScoreInfo()
 
 		nOutOfRange = SICheckRange(doc, &firstOutOfRange);
 		if (nOutOfRange>0) {
-			GetIndCString(fmtStr, SCOREINFO_STRS, 11);   /* "%d out-of-range notes (first in measure %d)." */
-			sprintf(str, fmtStr, nOutOfRange, firstOutOfRange);
+			GetIndCString(fmtStr, SCOREINFO_STRS, 11);   /* "%d out-of-range note{s} (first in measure %d)." */
+			sprintf(str, fmtStr, nOutOfRange, PLURALQ(nOutOfRange), firstOutOfRange);
 		}
 		else {
 			GetIndCString(fmtStr,  SCOREINFO_STRS, 12);   /* "No out-of-range notes found." */

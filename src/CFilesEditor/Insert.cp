@@ -675,7 +675,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				newEncl = doc->enclosureRM;
 				Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 				break;
-			case GRMIDISustainOn:
+			case GRSustainOn:
 				string[0] = 3; string[1] = '1'; string[2] = '2'; string[3] = '7';
 				newRelSize = doc->relFSizeRM;
 				newSize = doc->fontSizeRM;
@@ -685,7 +685,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				newEncl = ENCL_NONE;
 				Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 				break;
-			case GRMIDISustainOff:
+			case GRSustainOff:
 				string[0] = 1; string[1] = '0';
 				newRelSize = doc->relFSizeRM;
 				newSize = doc->fontSizeRM;

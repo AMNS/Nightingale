@@ -1070,13 +1070,13 @@ enum {								/* graphicType values: */
 	GRArpeggio,						/*	arpeggio or non-arpeggio sign */
 	GRChordFrame,					/*	chord frame (for guitar, etc.) */
 	GRMIDIPan,
-	GRMIDISustainOn,
-	GRMIDISustainOff,
-	GRLastType=GRMIDISustainOff
+	GRSustainOn,
+	GRSustainOff,
+	GRLastType=GRSustainOff
 };
 
 /* Our internal codes for sustain on/off. FIXME: Should these be here or in a header file
- (MIDIGeneral.h)? */
+ (MIDIGeneral.h)? (Are these really MIDI specific, or do they apply to notation too?) */
 
 #define MIDISustainOn	127
 #define MIDISustainOff	0

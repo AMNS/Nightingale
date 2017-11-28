@@ -24,23 +24,25 @@
 #include "Nightingale.appl.h"
 
 /* The Check routines do different things depending on their <mode> parameter:
-		mode=SMClick	Determines whether *(Point *)ptr is inside any
-						subobject(s), toggling selection status and 
-						highliting as appropriate.
-		=SMDrag			Determines whether *(Rect *)ptr encloses any
-						subobject(s); selects and highlites as appropriate.
-		=SMStaffDrag	Determines whether *(Rect *)ptr encloses any
-						subobjects on staves within stfRange; selects and
-						highlites as appropriate.
+		mode=SMClick	Determines whether *(Point *)ptr is inside any subobject(s)
+						(or objects if the object type has no subobjects), toggling
+						selection status and	highliting as appropriate.
+		=SMDblClick		Open the subobject for editing, if it's editable.
+		=SMDrag			Determines whether *(Rect *)ptr encloses any subobject(s);
+						selects and highlites as appropriate.
+		=SMStaffDrag	Determines whether *(Rect *)ptr encloses any subobject(s)
+						on staves within stfRange; selects and highlites as appropriate.
 		=SMSelect		Selects and highlites all subobjects.
 		=SMSelectRange	Selects and highlites all subobjects within stfRange.
 		=SMSelNoHilite	Selects all subobjects but does no highliting.
 		=SMDeselect		Deselects and unhighlites all subobjects.
 		=SMHilite		Highlites all selected subobjects.
-		=SMSymDrag		Determines whether *(Point *)ptr is inside any
-	                 	subobject(s), calling HandleSymDrag if so.
+		=SMSymDrag		Determines whether *(Point *)ptr is inside any subobject(s),
+	                 	calling HandleSymDrag if so.
 	Not all routines handle all modes, and a couple of routines have an additional
 	mode, SMThread.
+	
+	These routines should normally be called in response to a mouse click.
 
 	For objects with subobjects, in most cases, return value is either NOMATCH or the
 	subobject sequence number (NOT staff or voice number!) of the subobject found.
@@ -66,7 +68,7 @@ static void COffsetRect(Rect *r, short h, short v)
 }
 
 
-/* ----------------------------------------------------------------------- CheckPAGE -- */
+/* ------------------------------------------------------------------------- CheckPAGE -- */
 /*	PAGE object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -143,7 +145,7 @@ short CheckPAGE(Document *doc, LINK pL, CONTEXT context[],
 }
 
 
-/* --------------------------------------------------------------------- CheckSYSTEM -- */
+/* ----------------------------------------------------------------------- CheckSYSTEM -- */
 /* SYSTEM object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -263,7 +265,7 @@ short CheckSYSTEM(Document *doc, LINK pL, CONTEXT context[],
 	return result;
 }
 
-/* ----------------------------------------------------------------- CheckSTAFF -- */
+/* ------------------------------------------------------------------------ CheckSTAFF -- */
 /* STAFF object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -417,7 +419,7 @@ short CheckSTAFF(Document *doc, LINK pL, CONTEXT context[],
 }
 
 
-/* -------------------------------------------------------------------- CheckCONNECT -- */
+/* ---------------------------------------------------------------------- CheckCONNECT -- */
 /* CONNECT object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -592,7 +594,7 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 }
 
 
-/* ----------------------------------------------------------------------- CheckCLEF -- */
+/* ------------------------------------------------------------------------- CheckCLEF -- */
 /* CLEF object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -716,7 +718,7 @@ PopLock(CLEFheap);
 }
 
 
-/* -------------------------------------------------------------------- CheckDYNAMIC -- */
+/* ---------------------------------------------------------------------- CheckDYNAMIC -- */
 /* DYNAMIC object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -885,7 +887,7 @@ PopLock(DYNAMheap);
 }
 
 
-/* --------------------------------------------------------------------- CheckRPTEND -- */
+/* ----------------------------------------------------------------------- CheckRPTEND -- */
 /* REPEATEND object selecter/highliter.  Does different things depending on the value
 of <mode> (see the list above). */
 
@@ -1021,11 +1023,11 @@ PopLock(RPTENDheap);
 Boolean ChordFrameDialog(Document *doc, Boolean *relFSize, short *size, short *style,
 				short *enclosure, unsigned char *fontname, unsigned char *pTheChar);
 
-/* -------------------------------------------------------------------- CheckGRAPHIC -- */
+/* ---------------------------------------------------------------------- CheckGRAPHIC -- */
 /* GRAPHIC object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above), plus:
-	=SMThread      Determines whether *(Point *)ptr is inside any 
-	               subobject(s), selecting & highliting if so.
+	=SMThread      Determines whether *(Point *)ptr is inside any subobject(s),
+	               selecting & highliting if so.
 */
 
 short CheckGRAPHIC(Document *doc, LINK pL, CONTEXT /*context*/[],
@@ -1050,7 +1052,7 @@ short CheckGRAPHIC(Document *doc, LINK pL, CONTEXT /*context*/[],
 	STRINGOFFSET	offset;
 	Str63			newFont;
 	Str255			string;
-	Boolean 		change,
+	Boolean 		change=False,
 					relFSize, lyric, expanded;
 
 PushLock(OBJheap);
@@ -1074,7 +1076,8 @@ PushLock(GRAPHICheap);
 				}
 				break;
 			case SMDblClick:
-				InvalObject(doc,pL,False);								/* Insure objRect is correct */
+LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 1\n");
+				InvalObject(doc, pL, True);								/* Insure objRect is correct */
 				oldObjRect = p->objRect;
 				if (GraphicSubType(pL)==GRDraw) {
 					HiliteAttPoints(doc, p->firstObj, p->lastObj, staffn);
@@ -1107,7 +1110,7 @@ PushLock(GRAPHICheap);
 												&fontStyle, &enclosure, &lyric, &expanded,
 												newFont, string, pContext);
 						if (change) {
-							short i, newFontIndex;
+							short newFontIndex;
 							/*
 							 * Get the new font's index, adding it to the table if necessary.
 							 * But if the table overflows, give up.
@@ -1143,11 +1146,19 @@ PushLock(GRAPHICheap);
 							p->info2 = (expanded? 1 : 0);
 
 							p->multiLine = False;
-							for (i = 1; i <= string[0]; i++)
+							for (short i = 1; i <= string[0]; i++)
 								if (string[i] == CH_CR) {
 									p->multiLine = True;
 									break;
 								}
+LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 2/EraseAndInval pL=%u strlen=%d\n", pL, Pstrlen(string));
+#if 0
+							DrawGRAPHIC(doc, pL, contextA, False);
+							r = LinkOBJRECT(pL);
+							EraseAndInval(&r);
+#elif 0
+							InvalObject(doc, pL, True);					/* In case it's gotten larger */
+#endif
 						}
 						break;
 					case GRRehearsal:
@@ -1191,8 +1202,8 @@ PushLock(GRAPHICheap);
 					case GRDraw:
 						DoDrawingEdit(doc, pL);
 						break;
-					case GRMIDISustainOn:
-					case GRMIDISustainOff:
+					case GRSustainOn:
+					case GRSustainOff:
 						InvertSymbolHilite(doc, p->firstObj, staffn, True);
 						SleepTicks(30L);
 						break;
@@ -1203,6 +1214,8 @@ PushLock(GRAPHICheap);
 				if (GraphicSubType(pL)!=GRDraw)
 					InvertSymbolHilite(doc, p->firstObj, staffn, False);		/* Hiliting off */
 				if (change) {
+LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <EraseAndInval\n");
+					/* FIXME: EraseAndInval'ing the OLD objRect MAY NOT BE ENUF! */
 					EraseAndInval(&oldObjRect);
 					aGraphicL = FirstSubLINK(pL);
 					offset = PReplace(GraphicSTRING(aGraphicL), string);
@@ -1304,7 +1317,7 @@ PopLock(OBJheap);
 }
 
 
-/* ---------------------------------------------------------------------- CheckTEMPO -- */
+/* ------------------------------------------------------------------------ CheckTEMPO -- */
 /* TEMPO object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -1475,7 +1488,7 @@ PopLock(OBJheap);
 }
 
 
-/* --------------------------------------------------------------------- CheckSPACER -- */
+/* ----------------------------------------------------------------------- CheckSPACER -- */
 /* SPACER object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -1576,7 +1589,7 @@ short CheckSPACER(Document *doc, LINK pL, CONTEXT context[],
 }
 
 
-/* --------------------------------------------------------------------- CheckENDING -- */
+/* ----------------------------------------------------------------------- CheckENDING -- */
 /* ENDING object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -1703,7 +1716,7 @@ short CheckENDING(Document *doc, LINK pL, CONTEXT context[],
 }
 
 
-/* -------------------------------------------------------------------- DoOpenKeysig -- */
+/* ---------------------------------------------------------------------- DoOpenKeysig -- */
 /* Handle a double-click in a keysig subobj rect. Present a dlog letting user
 change the keysig on this staff or all staves. Return True if there was any
 change, False if not.  <pL> is the keysig object; <aKeySigL> is a LINK to the
@@ -1801,7 +1814,7 @@ static Boolean DoOpenKeysig(Document *doc, LINK pL, LINK aKeySigL)
 }
 
 
-/* --------------------------------------------------------------------- CheckKEYSIG -- */
+/* ----------------------------------------------------------------------- CheckKEYSIG -- */
 /* KEYSIG object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -1930,13 +1943,13 @@ PopLock(KEYSIGheap);
 	|| r.right<-24000 || r.right>-22000      \
 	|| r.bottom<-24000 || r.bottom>-22000 )
 
-/* ----------------------------------------------------------------------- CheckSYNC -- */
+/* ------------------------------------------------------------------------- CheckSYNC -- */
 /* SYNC object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above), plus:
-	=SMThread		Determines whether *(Point *)ptr is inside any 
-					subobject(s), selecting & highliting if so.
-	=SMFindNote		Used by InsertSlur to find the note that will have
-					a new slur. 
+	=SMThread      Determines whether *(Point *)ptr is inside any subobject(s),
+	               selecting & highliting if so.
+	=SMFindNote		Used by InsertSlur to find the note that will have a new
+					slur. 
 */
 
 short CheckSYNC(Document *doc, LINK pL, CONTEXT context[],
@@ -1983,12 +1996,12 @@ PushLock(NOTEheap);
 			xd = dLeft + aNote->xd;							/* absolute position of subobject */
 			yd = dTop + aNote->yd;
 
-			if (aNote->rest)									/* note is really a rest */
+			if (aNote->rest)									/* "note" is really a rest */
 				if (aNote->subType<=WHOLEMR_L_DUR)
 					glyph = MCH_rests[WHOLE_L_DUR-1];
 				else
 					glyph = MCH_rests[aNote->subType-1];
-			else {												/* note is really a note */
+			else {												/* "note" is really a note */
 				if (aNote->subType==UNKNOWN_L_DUR)
 					glyph = MCH_quarterNoteHead;
 				else if (aNote->subType<=WHOLE_L_DUR)
@@ -2101,7 +2114,7 @@ PushLock(NOTEheap);
 						selOldRect = aRect;
 					}
 					result = i;
-					noteFound = True;					/* Look at no more subObjects! */
+					noteFound = True;					/* Look at no more subobjects! */
 				}
 				break;
 			case SMSymDrag:
@@ -2151,11 +2164,11 @@ PopLock(NOTEheap);
 }
 
 
-/* --------------------------------------------------------------------- CheckGRSYNC -- */
+/* ----------------------------------------------------------------------- CheckGRSYNC -- */
 /* GRSYNC object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above), plus:
-	=SMThread      Determines whether *(Point *)ptr is inside any 
-	               subobject(s), selecting & highliting if so.
+	=SMThread      Determines whether *(Point *)ptr is inside any subobject(s),
+	               selecting & highliting if so.
 */
 
 short CheckGRSYNC(Document *doc, LINK pL, CONTEXT context[],
@@ -2164,9 +2177,9 @@ short CheckGRSYNC(Document *doc, LINK pL, CONTEXT context[],
 						STFRANGE stfRange,
 						Point enlarge)
 {
-	PAGRNOTE		aGRNote;			/* ptr to current sub object */
+	PAGRNOTE		aGRNote;		/* ptr to current sub object */
 	LINK			aGRNoteL, bGRNoteL;
-	short			i;					/* scratch */
+	short			i;				/* scratch */
 	PCONTEXT		pContext;
 	DDIST			xd, yd,			/* scratch DDIST coordinates */
 					dTop, dLeft;	/* absolute DDIST position of origin (staff or measure) */
@@ -2177,8 +2190,8 @@ short CheckGRSYNC(Document *doc, LINK pL, CONTEXT context[],
 	Boolean			objSelected,	/* False unless something in the object is selected */
 					upOrDown,		/* needed for otherStemSide to offset rect correctly */
 					noteFound;		/* for SMThread */
-	Rect			rSub,				/* bounding box for sub-object */
-					wSub,				/* window-relative of above */
+	Rect			rSub,			/* bounding box for sub-object */
+					wSub,			/* window-relative of above */
 					aRect;			/* scratch */
 
 PushLock(OBJheap);
@@ -2280,7 +2293,7 @@ PushLock(GRNOTEheap);
 						selOldRect = aRect;
 					}
 					result = i;
-					noteFound = True;					/* Look at no more subObjects! */
+					noteFound = True;					/* Look at no more subobjects! */
 				}
 				break;
 			case SMSymDrag:
@@ -2323,7 +2336,7 @@ PopLock(GRNOTEheap);
 }
 
 
-/* ------------------------------------------------------------------- DoOpenTimesig -- */
+/* --------------------------------------------------------------------- DoOpenTimesig -- */
 /* Handle a double-click in a timesig subobj rect. Present a dlog letting user
 change the timesig on this staff or all staves. Return True if there was any
 change, False if not.  <pL> is the timesig object; <aTimeSigL> is a LINK to the
@@ -2382,7 +2395,7 @@ static Boolean DoOpenTimesig(Document *doc, LINK pL, LINK aTimeSigL)
 }
 
 
-/* -------------------------------------------------------------------- CheckTIMESIG -- */
+/* ---------------------------------------------------------------------- CheckTIMESIG -- */
 /* TIMESIG object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -2532,7 +2545,7 @@ PopLock(TIMESIGheap);
 }
 
 
-/* -------------------------------------------------------------------- CheckMEASURE -- */
+/* ---------------------------------------------------------------------- CheckMEASURE -- */
 /* MEASURE object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -2575,7 +2588,6 @@ PushLock(MEASUREheap);
 	 *	etc. But we'd still have to prevent deleting it! Anyway, for now, if this
 	 *	is the first Measure of its System, skip all of this.
 	 */
-		
 	if (firstMeas) return NOMATCH;
 
 	objSelected = False;
@@ -2718,7 +2730,7 @@ PushLock(MEASUREheap);
 				}
 				break;
 			case SMSymDrag:
-				/* Given a measure with n subObjects, we'll get here n times. To keep
+				/* Given a measure with n subobjects, we'll get here n times. To keep
 					the measure from being moved n times as far as the user actually
 					dragged it, use measDrag to insure only one call to HandleSymDrag. */
 					
@@ -2757,7 +2769,7 @@ PopLock(MEASUREheap);
 	return result;
 }
 
-/* --------------------------------------------------------------------- CheckPSMEAS -- */
+/* ----------------------------------------------------------------------- CheckPSMEAS -- */
 /* PSMEAS object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -2904,7 +2916,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 				break;
 			case SMSymDrag:
 
-				/* Given a measure with n subObjects, HandleSymDrag will be called
+				/* Given a measure with n subobjects, HandleSymDrag will be called
 					n times, resulting in the measure being translated n times as
 					far as the user actually dragged it. => use measDrag to insure
 					only one call to HandleSymDrag. */
@@ -3049,7 +3061,7 @@ PopLock(OBJheap);
 }
 
 
-/* --------------------------------------------------------------------- CheckTUPLET -- */
+/* ----------------------------------------------------------------------- CheckTUPLET -- */
 /* TUPLET object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -3182,7 +3194,7 @@ PopLock(OBJheap);
 }
 
 
-/* --------------------------------------------------------------------- CheckOTTAVA -- */
+/* ----------------------------------------------------------------------- CheckOTTAVA -- */
 /* OTTAVA object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 
@@ -3280,7 +3292,7 @@ PopLock(OBJheap);
 }
 
 
-/* ----------------------------------------------------------------------- CheckSLUR -- */
+/* ------------------------------------------------------------------------- CheckSLUR -- */
 /* SLUR object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above). */
 

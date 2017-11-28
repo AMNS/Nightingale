@@ -582,8 +582,8 @@ const char *NameGraphicType(
 		case GRArpeggio:		ps = (friendly? "Arpeggio" : "GRArpeggio");  break;
 		case GRChordFrame:		ps = (friendly? "Chord Frame" : "GRChordFrame");  break;
 		case GRMIDIPatch:		ps = (friendly? "MIDI Patch" : "GRMIDIPatch");  break;
-		case GRMIDISustainOn:	ps = (friendly? "Sustain On" : "GRMIDISustainOn");  break;
-		case GRMIDISustainOff:	ps = (friendly? "Sustain Off" : "GRMIDISustainOff");  break;
+		case GRSustainOn:		ps = (friendly? "Sustain On" : "GRSustainOn");  break;
+		case GRSustainOff:		ps = (friendly? "Sustain Off" : "GRSustainOff");  break;
 		case GRMIDIPan:			ps = (friendly? "Pan" : "GRMIDIPan");  break;
 		default:				ps = (friendly? "*UNKNOWN*" : "*UNKNOWN*");
 	}

@@ -44,7 +44,6 @@ static short	DoGeneralAlert(unsigned char *str);
 static void		PlayMessage(Document *, LINK, short);
 static Boolean	HiliteSyncRect(Document *doc, Rect *syncRect, Rect *rPaper, Boolean scroll);
 static long		ScaleDurForVariableSpeed(long dur);
-static void		DisplayNotesToPlay(Document *doc, LINK fromL, LINK toL, Boolean selectedOnly);
 
 #define CMDEBUG 0
 #define TDEBUG 1
@@ -605,7 +604,7 @@ Boolean IsMidiSustainOn(LINK pL)
 {
 	if (ObjLType(pL) == GRAPHICtype) {
 		PGRAPHIC p = GetPGRAPHIC(pL);
-		return (p->graphicType == GRMIDISustainOn);
+		return (p->graphicType == GRSustainOn);
 	}
 		
 	return False;
@@ -615,7 +614,7 @@ Boolean IsMidiSustainOff(LINK pL)
 {
 	if (ObjLType(pL) == GRAPHICtype) {
 		PGRAPHIC p = GetPGRAPHIC(pL);
-		return (p->graphicType == GRMIDISustainOff);
+		return (p->graphicType == GRSustainOff);
 	}
 		
 	return False;

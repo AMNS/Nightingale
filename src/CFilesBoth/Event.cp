@@ -519,7 +519,7 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 				if (doc) {
 					//switch( code = FindControl(pt, w,&control) ) {
 					control = FindControlUnderMouse(pt, w, &code);
-					switch( code ) {
+					switch (code) {
 						case kControlUpButtonPart:
 						case kControlPageUpPart:
 						case kControlDownButtonPart:
@@ -548,7 +548,7 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 								if (change) {
 									if (change & 7)
 										/* Keep change a multiple of 8 */
-										if (change > 0) change += (8-(change&7));
+										if (change > 0) change += (8 - (change & 7));
 										 else			change -= (change & 7);
 									/*
 									 *	Reset it, because QuickScroll expects old value,

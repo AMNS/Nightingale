@@ -250,13 +250,13 @@ SYMDATA symtable[] = {
 		{ 271,		MODNRtype,	5,				'5',	0 },		/* Note modifier: fingering 5 */
 		{ 280,		GRAPHICtype,GRString,		'A',	0 },		/* Text */
 		{ 281,		GRAPHICtype,GRRehearsal,	'c',	0 },		/* Rehearsal mark */
-		{ 282,		GRAPHICtype,GRMIDIPatch,	'z',	0 },		/* Patch change */
+		{ 282,		GRAPHICtype,GRMIDIPatch,	'z',	0 },		/* MIDI patch change */
 		{ 280,		GRAPHICtype,GRChordSym,		'7',	0 },		/* Chord symbol */
 		{ 271,		GRAPHICtype,GRArpeggio,		'g',	ARP },		/* Arpeggio sign */
 		{ 271,		GRAPHICtype,GRArpeggio,		'G',	NONARP },	/* Non-arpeggio sign */
 		{ 275,		GRAPHICtype,GRDraw,			'_',	0 },		/* Line */
-		{ 341,		GRAPHICtype,GRMIDISustainOn, 0xB6,	0 },		/* Music char. "Ped." (pedal down) */
-		{ 342,		GRAPHICtype,GRMIDISustainOff, 0xFA,	1 },		/* Music char. pedal up */
+		{ 341,		GRAPHICtype,GRSustainOn,	0xB6,	0 },		/* Music char. "Ped." (pedal down) */
+		{ 342,		GRAPHICtype,GRSustainOff,	0xFA,	1 },		/* Music char. pedal up */
 		{ 340,		GRAPHICtype,GRMIDIPan,		0x7C,	1 },		/* MIDI Pan Controller */
 		{ 271,		GRAPHICtype,GRChordFrame,	0xB1,	0 },		/* Chord frame */
 		{ 300,		MEASUREtype, BAR_RPT_L,		'[',	0 },		/* left repeat */

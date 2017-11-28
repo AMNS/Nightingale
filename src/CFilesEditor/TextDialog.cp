@@ -150,33 +150,33 @@ static void		InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpan
 
 static void DebugPrintFonts(Document *doc)
 {
-	LogPrintf(LOG_NOTICE, "fontName1=%p\n relFSize1=%d fontSize1=%d fontStyle1=%d\n",
+	LogPrintf(LOG_DEBUG, "fontName1=%p\n relFSize1=%d fontSize1=%d fontStyle1=%d\n",
 		doc->fontName1,doc->relFSize1,doc->fontSize1,doc->fontStyle1);
-	LogPrintf(LOG_NOTICE, "fontName2=%p\n relFSize2=%d fontSize2=%d fontStyle2=%d\n",
+	LogPrintf(LOG_DEBUG, "fontName2=%p\n relFSize2=%d fontSize2=%d fontStyle2=%d\n",
 		doc->fontName2,doc->relFSize2,doc->fontSize2,doc->fontStyle2);
-	LogPrintf(LOG_NOTICE, "fontName3=%p\n relFSize3=%d fontSize3=%d fontStyle3=%d\n",
+	LogPrintf(LOG_DEBUG, "fontName3=%p\n relFSize3=%d fontSize3=%d fontStyle3=%d\n",
 		doc->fontName3,doc->relFSize3,doc->fontSize3,doc->fontStyle3);
-	LogPrintf(LOG_NOTICE, "fontName4=%p\n relFSize4=%d fontSize4=%d fontStyle4=%d\n",
+	LogPrintf(LOG_DEBUG, "fontName4=%p\n relFSize4=%d fontSize4=%d fontStyle4=%d\n",
 		doc->fontName4,doc->relFSize4,doc->fontSize4,doc->fontStyle4);
-	LogPrintf(LOG_NOTICE, "fontName5=%p\n relFSize5=%d fontSize5=%d fontStyle5=%d\n",
+	LogPrintf(LOG_DEBUG, "fontName5=%p\n relFSize5=%d fontSize5=%d fontStyle5=%d\n",
 		doc->fontName5,doc->relFSize5,doc->fontSize5,doc->fontStyle5);
-	LogPrintf(LOG_NOTICE, "fontName6=%p\n relFSize6=%d fontSize6=%d fontStyle6=%d\n",
+	LogPrintf(LOG_DEBUG, "fontName6=%p\n relFSize6=%d fontSize6=%d fontStyle6=%d\n",
 		doc->fontName6,doc->relFSize6,doc->fontSize6,doc->fontStyle6);
-	LogPrintf(LOG_NOTICE, "fontName7=%p\n relFSize7=%d fontSize7=%d fontStyle7=%d\n",
+	LogPrintf(LOG_DEBUG, "fontName7=%p\n relFSize7=%d fontSize7=%d fontStyle7=%d\n",
 		doc->fontName7,doc->relFSize7,doc->fontSize7,doc->fontStyle7);
-	LogPrintf(LOG_NOTICE, "fontName8=%p\n relFSize8=%d fontSize8=%d fontStyle8=%d\n",
+	LogPrintf(LOG_DEBUG, "fontName8=%p\n relFSize8=%d fontSize8=%d fontStyle8=%d\n",
 		doc->fontName8,doc->relFSize8,doc->fontSize8,doc->fontStyle8);
-	LogPrintf(LOG_NOTICE, "fontName9=%p\n relFSize9=%d fontSize9=%d fontStyle9=%d\n",
+	LogPrintf(LOG_DEBUG, "fontName9=%p\n relFSize9=%d fontSize9=%d fontStyle9=%d\n",
 		doc->fontName9,doc->relFSize9,doc->fontSize9,doc->fontStyle9);
 		
-	LogPrintf(LOG_NOTICE, "fontNameTM=%p\n relFSizeTM=%d fontSizeTM=%d fontStyleTM=%d\n",
+	LogPrintf(LOG_DEBUG, "fontNameTM=%p\n relFSizeTM=%d fontSizeTM=%d fontStyleTM=%d\n",
 		doc->fontNameTM,doc->relFSizeTM,doc->fontSizeTM,doc->fontStyleTM);
 
-	LogPrintf(LOG_NOTICE, "fontNameMN=%p\n relFSizeMN=%d fontSizeMN=%d fontStyleMN=%d\n",
+	LogPrintf(LOG_DEBUG, "fontNameMN=%p\n relFSizeMN=%d fontSizeMN=%d fontStyleMN=%d\n",
 		doc->fontNameMN,doc->relFSizeMN,doc->fontSizeMN,doc->fontStyleMN);
-	LogPrintf(LOG_NOTICE, "fontNamePN=%p\n relFSizePN=%d fontSizePN=%d fontStylePN=%d\n",
+	LogPrintf(LOG_DEBUG, "fontNamePN=%p\n relFSizePN=%d fontSizePN=%d fontStylePN=%d\n",
 		doc->fontNamePN,doc->relFSizePN,doc->fontSizePN,doc->fontStylePN);
-	LogPrintf(LOG_NOTICE, "fontNameRM=%p\n relFSizeRM=%d fontSizeRM=%d fontStyleRM=%d\n",
+	LogPrintf(LOG_DEBUG, "fontNameRM=%p\n relFSizeRM=%d fontSizeRM=%d fontStyleRM=%d\n",
 		doc->fontNameRM,doc->relFSizeRM,doc->fontSizeRM,doc->fontStyleRM);
 }
 
@@ -887,7 +887,7 @@ static void DrawExampleText(DialogPtr dlog, StringPtr string)
 
 			if (theExpanded) {
 				if (!ExpandPString(str2, str1, EXPAND_WIDER)) {
-					LogPrintf(LOG_NOTICE, "DrawExampleText: ExpandPString failed.\n");
+					LogPrintf(LOG_WARNING, "DrawExampleText: ExpandPString failed.\n");
 					return;
 					}
 				}
@@ -1037,7 +1037,7 @@ Boolean TextDialog(
 
 	/* At this point, all arguments are defined whether it's a new or old string */
 	
-	LogPrintf(LOG_NOTICE, "TextDialog: *expanded=%d theExpanded=%d\n", *expanded, theExpanded);
+	//LogPrintf(LOG_DEBUG, "TextDialog: *expanded=%d theExpanded=%d\n", *expanded, theExpanded);
 	theLineSpacing = LNSPACE(context);
 	
 	isRelative = theCurrent.relFSize;

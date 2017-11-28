@@ -30,7 +30,7 @@
 		CountNotesInRange		CountGRNotesInRange		CountNotes
 		VCountNotes				CountGRNotes			SVCountNotes
 		SVCountGRNotes			CountNoteAttacks		CountObjects
-		CountInHeaps
+		CountSubobjsByHeap
 		HasOtherStemSide		IsNoteLeftOfStem		GetStemUpDown
 		GetGRStemUpDown			GetExtremeNotes			GetExtremeGRNotes
 		FindMainNote			FindGRMainNote			GetObjectLimits
@@ -112,9 +112,9 @@ Boolean IsFakeMeasure(Document *doc, LINK measL)
 }
 
 /* -------------------------------------------------------------------- UpdatePageNums -- */
-/* Update the sheetNum field for all pages in the score by simply re-numbering
-them by starting at 0 for the first page and incrementing for all remaining
-pages. Also update the header's numSheets field. */
+/* Update the sheetNum field for all pages in the score by simply re-numbering them
+by starting at 0 for the first page and incrementing for all remaining pages. Also
+update the header's numSheets field. */
 
 void UpdatePageNums(Document *doc)
 {
@@ -2117,16 +2117,16 @@ unsigned short CountObjects(LINK startL, LINK endL,
 }
 
 
-/* ---------------------------------------------------------------------- CountInHeaps -- */
-/* Count the subobjects in each heap of the given score. These numbers may not agree
-with the user's concept of things: for example, they include context-setting KeySig
-objects at the beginning of each system, which are invisible if there's no actual key
-signature in effect. */
+/* ---------------------------------------------------------------- CountSubobjsByHeap -- */
+/* Count the subobjects in each heap of the given score. NB: The numbers it returns may
+not agree with the user's concept of things: in particular, they include context-setting
+KeySig subobjects at the beginning of each system, which are invisible if there's not a
+"real" key signature in effect. */
 
-void CountInHeaps(Document *doc,
-			unsigned short subobjCount[],
-			Boolean includeMP				/* True=include Master Page object list */
-			)
+void CountSubobjsByHeap(Document *doc,
+					unsigned short subobjCount[],
+					Boolean includeMP				/* True=include Master Page object list */
+					)
 {
 	unsigned short h, numMods=0;
 	LINK pL, aNoteL, aModNRL;  PANOTE aNote;	

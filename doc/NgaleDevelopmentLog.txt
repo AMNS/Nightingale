@@ -2327,5 +2327,51 @@ So we _do_ have code still gives proper feedback on insertion! ??
 Minor cleanup: made voice role constants (now called VCROLE_xxx) independent of
 Multivoice dialog item numbers, etc. Affects Check, Multivoice, and a bunch of other
 files. Oops: it seems to handle Upper & Lower roles correctly, but not Single or
-Cross-staff! Ah, a tiny mistake in the Multivoice dialog handler.
+Cross-staff! Ah, a tiny mistake in the Multivoice dialog handler... Done.
 
+-------------------------------------------------------------------------------
+
+14 - 16 Nov.
+
+For the last few days, I've been getting these messages from Debug Check while working
+on All You Need Is Love:
+
+--CHECK MASTER: sysR.right=9568, ESWidth=64, margR.right=594
+ Done.    --CHECK CLIPBOARD: *DCheckNode: SYSTEM L4 RECT PAST RIGHT MARGIN (580 vs. 567).
+sysR.right=9280, ESWidth=64, margR.right=567
+
+Where does the "right margin" come from? Close the score, open a New score, do
+Debug Check => the same messages, so it seems to have nothing to do with the
+currently-open score. The rects being compared are d2pt(pSystem->systemRect.right)
+and doc->marginRect.right, so it _is_ coming from the score! ??
+
+Quit Ngale, re-launch, New, Debug Check =>
+
+	DEBUG 'Menu'-Standard: --CHECK MAIN:
+	sysR.right=9136, ESWidth=64, margR.right=567
+	Discont. sel, 0 objs in range, 0 sel, 10 total.  0 voices.
+	--CHECK MASTER: sysR.right=9072, ESWidth=64, margR.right=567
+	 Done.    --CHECK CLIPBOARD: sysR.right=9136, ESWidth=64, margR.right=567
+
+...no complaint. Open "All You Need Is Love", Debug Check =>
+
+	--CHECK MASTER: sysR.right=9280=580 pt, ESWidth=64, margR.right=576
+	 Done.    --CHECK CLIPBOARD: sysR.right=9136=571 pt, ESWidth=64, margR.right=567
+
+...still no complaint. But do a Copy, Debug Check =>
+
+	--CHECK MASTER: sysR.right=9280=580 pt, ESWidth=64, margR.right=576
+	 Done.    --CHECK CLIPBOARD: *DCheckNode: SYSTEM L4 RECT EXTENDS INTO RIGHT MARGIN (580 vs. 567).
+	sysR.right=9280=580 pt, ESWidth=64, margR.right=567
+
+The expression for checking systemRect.right has always involved subtracting
+ExtraSysWidth(doc) , the width of the widest barline (final double). In Oct. 2015, I
+kludged that by subtracting 2*ExtraSysWidth(doc) to sidestep the problem, but that's not
+enough for the Clipboard after a Copy operation in All You Need Is Love, presumably bcs
+its right margin is 0.50" instead of the default 0.63", so systemRect.right is
+larger, but marginRect.right is unchanged. What should this be?
+
+We're obviously comparing a systemRect from the main object list that's been copied to
+the clipboard to one from the clipboard! But this complaint is about soomething very
+unimportant; just skip this check on the clipboard => OK. (And likewise for "SYSTEM RECT
+BELOW BOTTOM MARGIN".)

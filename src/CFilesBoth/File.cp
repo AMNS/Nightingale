@@ -1744,10 +1744,10 @@ static long GetFileSize(Document *doc, long vAlBlkSize)
 	LINK pL;
 	Handle stringHdl;
 
-	/* Get the total number of objects of each type and the number of note
-		modifiers in the data structure. */
+	/* Get the total number of objects of each type and the number of note modifiers
+		in both the main and the Master Page object lists. */
 
-	CountInHeaps(doc, objCount, True);
+	CountSubobjsByHeap(doc, objCount, True);
 
 	for (pL = doc->headL; pL!=RightLINK(doc->tailL); pL = RightLINK(pL))
 		fileSize += objLength[ObjLType(pL)];

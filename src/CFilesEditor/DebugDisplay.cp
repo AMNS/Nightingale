@@ -434,10 +434,10 @@ void MemUsageStats(Document *doc)
 	const char *ps; LINK pL; register HEAP *theHeap;
 	unsigned short objCount[LASTtype], h;
 
-	/* Compute the total number of objects of each type and the number of note
-		modifiers in the object list. */
+	/* Get the total number of objects of each type and the number of note modifiers
+		in both the main and the Master Page object lists. */
 
-	CountInHeaps(doc, objCount, True);
+	CountSubobjsByHeap(doc, objCount, True);
 
 	LogPrintf(LOG_NOTICE, "HEAP USAGE:\n");
  	for (h = FIRSTtype; h<LASTtype; h++) {

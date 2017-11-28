@@ -61,14 +61,14 @@ in a file of notation style parameters, but where is better?  --DAB, June 2017 *
 
 /* ---------------- Chord symbols ---------------- */
 
-#define CS_GAPBTWFIELDS		8				/* distance between fields (e.g., btw. root & qual strings); % of csSmallSize */
-#define CS_PAREN_YOFFSET	18				/* offset of parentheses from baseline (above); % of csSmallSize */
+#define CS_GAPBTWFIELDS		8				/* Distance between fields (e.g., btw. root & qual strings); % of csSmallSize */
+#define CS_PAREN_YOFFSET	18				/* Offset of parentheses from baseline (above); % of csSmallSize */
 #define CS_BASELINE_FROMBOT 16				/* pixels */
 
 /* ---------------- Octave signs ---------------- */
 
 #define OTTAVA_XDPOS_FIRST -pt2d(2)			/* Default x-position of left end rel. to first Sync */
-#define OTTAVA_XDPOS_LAST (pt2d(1)/2)		/* Default x-position of right end rel. to first Sync */
+#define OTTAVA_XDPOS_LAST (pt2d(1))			/* Default x-position of right end rel. to last Sync */
 
 #define OTTAVA_STANDOFF_ALTA 1				/* Minimum half-line distance from octave sign to staff */
 #define OTTAVA_STANDOFF_BASSA 2
@@ -81,7 +81,7 @@ in a file of notation style parameters, but where is better?  --DAB, June 2017 *
 /* ---------------- Tuplets ---------------- */
 
 #define TUPLE_BRACKTHICK(lnSp) ((6*(lnSp))/50)	/* PostScript thickness of lines in tuplet bracket (DDIST) */
-#define TUPLE_CUTOFFLEN (STD_LINEHT/2)			/* Length of vertical cutoff line (STDIST, not DDIST) */
+#define TUPLE_CUTOFFLEN (STD_LINEHT/2)			/* Length of vertical cutoff line (NB: STDIST, not DDIST) */
 
 /* ---------------- Endings ---------------- */
 

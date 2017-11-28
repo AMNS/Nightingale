@@ -108,7 +108,7 @@ unsigned short SVCountGRNotes(short, short, LINK, LINK, Boolean);
 unsigned short CountNoteAttacks(Document *doc);
 unsigned short CountObjects(LINK, LINK, short);
 
-void CountInHeaps(Document *, unsigned short [], Boolean);
+void CountSubobjsByHeap(Document *, unsigned short [], Boolean);
 
 Boolean HasOtherStemSide(LINK, short);
 Boolean IsNoteLeftOfStem(LINK, LINK, Boolean);

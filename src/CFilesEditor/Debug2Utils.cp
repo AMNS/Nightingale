@@ -22,16 +22,6 @@ obey musical and music-notation constraints?
 #define DDB
 
 
-/* ------------------------------------------------------------------ DCheckVoiceTable -- */
-/* Check the voice-mapping table and its relationship to the object list:
-		that the voice table contains no empty slots;
-		that every default voice belongs to the correct part;
-		that the voice no. of every note, rest, and grace note appears in the voice table;
-		agreement between voice table part numbers and note, rest, and grace note part
-			numbers;
-		the legality of voiceRole fields.
-We could also check other symbols with voice nos. */
-
 /* -------------------------------------------------------------------- DCheckPlayDurs -- */
 /* Check that playDurs of notes appear reasonable for their logical durations. */
 

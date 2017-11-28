@@ -238,6 +238,9 @@ void InvalObject(Document *doc, LINK pL, short doErase)
 	GetAllContexts(doc,contextA,pL);
 	switch (ObjLType(pL)) {
 		case GRAPHICtype:
+Str255 string;  short strlen;
+Pstrcpy((StringPtr)string, (StringPtr)PCopy(GetPAGRAPHIC(FirstSubLINK(pL))->strOffset));
+LogPrintf(LOG_DEBUG, "InvalObject: pL=%u strlen=%d\n", pL, Pstrlen(string));
 			DrawGRAPHIC(doc, pL, contextA, False);
 			break;
 		case TEMPOtype:
@@ -257,6 +260,7 @@ void InvalObject(Document *doc, LINK pL, short doErase)
 	}
 
 	r = LinkOBJRECT(pL);
+LogPrintf(LOG_DEBUG, "InvalObject: r=%d,%d,%d,%d doErase=%d\n", r.top, r.left, r.bottom, r.right, doErase);
 
 	/* The objRect of dynamics is not quite big enough; that is not our problem here,
 		but inset the rect to partially compensate. FIXME: The amount of inset should

@@ -1751,8 +1751,8 @@ void BrowseGraphic(LINK pL, Rect *pObjRect)
 		case GRChordSym:
 		case GRChordFrame:
 		case GRMIDIPatch:
-		case GRMIDISustainOn:
-		case GRMIDISustainOff:		
+		case GRSustainOn:
+		case GRSustainOff:		
 			sprintf(s, "fontInd=%d fontStyle=%d encl=%d", p->fontInd, p->fontStyle,
 													p->enclosure);
 			DrawTextLine(s);	p = GetPGRAPHIC(pL);
