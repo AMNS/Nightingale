@@ -20,7 +20,7 @@ static void SFInvalMeasures(Document *doc,LINK sysL);
 void MoveSysOnPage(Document *doc, LINK sysL, long newPos);
 
 
-/* ------------- Routines for graphical updating of objects edited in showFormat -- */
+/* ------------------- Routines for graphical updating of objects edited in showFormat -- */
 
 static void UpdateScoreMargins(Document */*doc*/)
 {
@@ -177,9 +177,8 @@ void UpdateSysMeasYs(
 	}	
 }
 
-/* Offset all systems after sysL in sysL's page by dh=LoWord(newPos),
-dv=HiWord(newPos). Update measure Rects of measures in the system to
-reflect the offset. */
+/* Offset all systems after sysL in sysL's page by dh=LoWord(newPos), dv=HiWord(newPos).
+Update measure Rects of measures in the system to reflect the offset. */
 
 void MoveSysOnPage(Document *doc, LINK sysL, long newPos)
 {	
@@ -213,11 +212,10 @@ void UpdateFormatSystem(Document *doc, LINK sysL, long newPos)
 		SFUpdateStfPos(doc, sysL, newPos);
 	}
 	
-	/* If a system has been dragged down, the new upper boundary of its
-		sysRect and the lower boundary of the previous system's sysRect
-		will each get half of the added space. Update the measureRects
-		of both the previous system, if one exists on the page, and this
-		system accordingly. */
+	/* If a system has been dragged down, the new upper boundary of its sysRect and
+		the lower boundary of the previous system's sysRect will each get half of
+		the added space. Update the measureRects of both the previous system, if one
+		exists on the page, and this system accordingly. */
 
 	if (LinkLSYS(sysL))
 		if (SamePage(sysL, LinkLSYS(sysL)))
@@ -238,8 +236,8 @@ void UpdateFormatStaff(Document *doc, LINK staffL, LINK aStaffL, long newPos)
 {
 	PASTAFF aStaff; LINK sysL; Rect r;
 
-	/* Treat dragging the staff of a single-staff system as a system drag, not
-		as a staff drag. */
+	/* Treat dragging the staff of a single-staff system as a system drag, not as
+		a staff drag. */
 
 	sysL = SSearch(staffL, SYSTEMtype, True);
 	if (LinkNENTRIES(staffL)==1) {
@@ -252,8 +250,8 @@ void UpdateFormatStaff(Document *doc, LINK staffL, LINK aStaffL, long newPos)
 	
 	InvalSystem(sysL);
 
-	/* Inval the area to the left of the system, containing the Connect and
-		the part name. */
+	/* Inval the area to the left of the system, containing the Connect and the
+		part name. */
 
 	r = LinkOBJRECT(sysL);
 	r.left = 0;
@@ -282,7 +280,7 @@ void UpdateFormatConnect(Document *doc, LINK staffL, short stfAbove, short stfBe
 }
 
 
-/* -------------------------------- Routines for showFormat editing and selection -- */
+/* ------------------------------------- Routines for showFormat editing and selection -- */
 
 static Boolean EditFormatMargin(Document *, Point, short, short)
 {
@@ -296,7 +294,7 @@ void DoFormatSelect(Document *doc, Point pt)
 {
 	short index;
 
-	FindFormatObject(doc, pt, &index, SMClick);
+	FindAndActOnFormatObj(doc, pt, &index, SMClick);
 }
 
 
@@ -326,7 +324,7 @@ Boolean DoEditFormat(Document *doc, Point pt, short modifiers, short doubleClick
 }
 
 
-/* -------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Routines to handle menu commands from the Show Format menu. */
 
 /* Return staff number of top visible staff in first System at or to left of <pL>. */
@@ -361,7 +359,7 @@ short LastStaffn(LINK pL)
 }
 
 
-/* ---------------------------------------------------- NextStaffn,NextLimStaffn -- */
+/* ---------------------------------------------------------- NextStaffn,NextLimStaffn -- */
 /* Get the staff no. of the next visible staff subObject in staff obj <pL>, starting
 from staffn <base>, going in direction <up>. <up> means in direction of increasing
 staffn, physically downward. E.g., to get the staffn of the first visible staff at
@@ -414,7 +412,8 @@ short NextLimStaffn(Document *doc, LINK pL, short up, short base)
 
 short NumVisStaves(LINK pL)
 {
-	LINK staffL,aStaffL,sysL; short numVis=0;
+	LINK staffL,aStaffL,sysL;
+	short numVis=0;
 	
 	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	staffL = LSSearch(sysL, STAFFtype, ANYONE, GO_RIGHT, False);
@@ -428,15 +427,15 @@ short NumVisStaves(LINK pL)
 #define VIS		True
 #define INVIS	False
 
-/* --------------------------------------------------------------- VisifySubObjs -- */
-/* Visify any subObjs of pL on staffn, or pL itself if it is on staffn,
-according to vis: True if make them visible, False if invisible. */
+/* --------------------------------------------------------------------- VisifySubObjs -- */
+/* Visify any subObjs of pL on staffn, or pL itself if it is on staffn, according to
+vis: True if make them visible, False if invisible. */
 
 static void VisifySubObjs(LINK pL, short staffn, short vis)
 {
 	PMEVENT		p;
-	HEAP			*tmpHeap;
-	LINK			subObjL;
+	HEAP		*tmpHeap;
+	LINK		subObjL;
 	GenSubObj 	*subObj;
 	
 	switch (ObjLType(pL)) {
@@ -503,9 +502,8 @@ void VisifyAllObjs(Document *doc, LINK pL, LINK aStaffL, short vis)
 
 /* Set the first invisible measure of staffL invisible; make the object and all
 subobjects invisible. Note that when we visify a staff, we have no way of knowing
-whether the first invisible measure on that staff was intended to be invisible
-or not. The caller simply calls this routine to unconditionally insure its
-invisibility. */
+whether the first invisible measure on that staff was intended to be invisible or
+not. The caller simply calls this routine to unconditionally insure its invisibility. */
 
 void InvisFirstMeas(LINK staffL)
 {
@@ -526,7 +524,7 @@ checking for cross-staff objs for the Split Part command. */
 
 Boolean XStfObjOnStaff(LINK pL, short staffn)
 {
-	LINK sysL, qL; PSLUR pSlur; PBEAMSET pBeam;
+	LINK sysL, qL;  PSLUR pSlur;  PBEAMSET pBeam;
 	
 	sysL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	
@@ -545,14 +543,14 @@ Boolean XStfObjOnStaff(LINK pL, short staffn)
 }
 
 
-/* -------------------------------------------------------------- GrayFormatPage -- */
+/* -------------------------------------------------------------------- GrayFormatPage -- */
 /* Paint the sheetRect with gray in penMode notPatBic. This should be called during
 the drawing loop in ShowFormat after all the objects have been drawn, in order to
 gray out the objects in the page. */
 
 void GrayFormatPage(Document *doc, LINK fromL, LINK toL)
 {
-	LINK startPage, endPage, pL; Rect aRect,paper;
+	LINK startPage, endPage, pL;  Rect aRect, paper;
 
 	PenPat(NGetQDGlobalsGray());
 	startPage = LSSearch(fromL, PAGEtype, ANYONE, True, True);

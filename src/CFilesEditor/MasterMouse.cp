@@ -45,13 +45,13 @@ static void sprintfInches(char *label, short points)
 }
 
 
-/* ------------------------------------------------------------ NSysOnMasterPage -- */
+/* ------------------------------------------------------------------ NSysOnMasterPage -- */
 /* Returns number of copies of the Master Page's system that fit on a page. */
 
 short NSysOnMasterPage(Document *);
 short NSysOnMasterPage(Document *doc)
 {
-	LINK sysL; DRect sysRect;
+	LINK sysL;  DRect sysRect;
 	DDIST sysHeight, sysOffset;
 	short count;
 
@@ -317,7 +317,7 @@ static Boolean EditDocMargin(Document *doc, Point pt, short /*modifiers*/, short
 	}
 
 
-/* Handle a double-click in Master Page: call FindMasterObject with selection mode
+/* Handle a double-click in Master Page: call FindAndActOnMasterObj with selection mode
 SMDblClick to bring up InstrDialog to edit a part.
 
 Must save and restore doc->nstaves, since the number of staves in Master Page may be
@@ -330,12 +330,12 @@ static void DoMasterDblClick(Document *doc, Point pt, short /*modifiers*/)
 
 	oldnstaves = doc->nstaves;
 	doc->nstaves = doc->nstavesMP;
-	FindMasterObject(doc, pt, &index, SMDblClick);
+	FindAndActOnMasterObj(doc, pt, &index, SMDblClick);
 	doc->nstaves = oldnstaves;
 }
 
 
-/* ------------------------------------------------ Master Page Selection Routines -- */
+/* ---------------------------------------------------- Master Page Selection Routines -- */
 
 /* Track mouse dragging and select all Master Page objects in rectangular area.
 The origin and clip region should already be set correctly.
@@ -432,7 +432,7 @@ void DoMasterObject(Document *doc, Point pt, short modifiers)
 
 	/* Look for an object clicked on: if it's draggable, track dragging with feedback. */
 	
-	pL = FindMasterObject(doc, pt, &index, SMClick);
+	pL = FindAndActOnMasterObj(doc, pt, &index, SMClick);
 
 	/*
 	 * If there was already a staff selected and user shift-clicked on a staff, extend
@@ -458,7 +458,7 @@ void DoMasterObject(Document *doc, Point pt, short modifiers)
 }
 
 
-/* ----------------------------------------------------------------- DoEditMaster -- */
+/* ---------------------------------------------------------------------- DoEditMaster -- */
 /*
  *	Search for something (including both objects in the usual Nightingale sense
  * and page margins!) in the Master Page the user may have clicked on.  If something

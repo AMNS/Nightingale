@@ -1070,9 +1070,9 @@ enum {								/* graphicType values: */
 	GRArpeggio,						/*	arpeggio or non-arpeggio sign */
 	GRChordFrame,					/*	chord frame (for guitar, etc.) */
 	GRMIDIPan,
-	GRSustainOn,
-	GRSustainOff,
-	GRLastType=GRSustainOff
+	GRSusPedalDown,
+	GRSusPedalUp,
+	GRLastType=GRSusPedalUp
 };
 
 /* Our internal codes for sustain on/off. FIXME: Should these be here or in a header file

@@ -1589,13 +1589,13 @@ static Boolean GetGraphicDBox(Document *doc,
 			string[1] = p->info;
 			pStr = string;
 			break;
-		case GRSustainOn:
+		case GRSusPedalDown:
 			string[0] = 1;
 			string[1] = 0xA1;								// Mac OS Roman keys: shift-option 8
 			pStr = string;
 			fontID = doc->musicFontNum;
 			break;
-		case GRSustainOff:
+		case GRSusPedalUp:
 			string[0] = 2;
 			string[1] = '*';								// Shift 8
 			string[2] = '*';
@@ -2140,14 +2140,14 @@ PushLock(GRAPHICheap);
 														NORMAL_VIS, True);
 						else		DrawString(PCopy(theStrOffset));
 						break;
-					case GRSustainOn:
+					case GRSusPedalDown:
 						oneChar[0] = 1;
 						oneChar[1] = 0xA1;					// Mac OS Roman keys: shift-option 8
 						TextFace(normal);
 						TextFont(doc->musicFontNum);
 						DrawString(oneChar);
 						break;
-					case GRSustainOff:
+					case GRSusPedalUp:
 						oneChar[0] = 1;
 						oneChar[1] = '*';					// Shift 8
 						TextFace(normal);
@@ -2196,15 +2196,15 @@ PushLock(GRAPHICheap);
 										doc->fontTable[p->fontInd].fontName,
 										fontSize, fontStyle);
 					break;
-				/* For sustain on/off (=pedal down/up), always use the document's music font. */
-				case GRSustainOn:
+				/* For pedal down and up, always use the document's music font. */
+				case GRSusPedalDown:
 					oneChar[0] = 1;
 					oneChar[1] = 0xA1;									// Mac OS Roman keys: shift-option 8
 					PS_FontString(doc, xd, yd,oneChar,
 										doc->musFontName,
 										fontSize, fontStyle);
 					break;
-				case GRSustainOff:
+				case GRSusPedalUp:
 					oneChar[0] = 1;
 					oneChar[1] = '*';									// Shift 8
 					PS_FontString(doc, xd, yd,oneChar,

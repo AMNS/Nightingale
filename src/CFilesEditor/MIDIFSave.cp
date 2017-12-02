@@ -417,8 +417,8 @@ static void WriteMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, l
 	LINK graphicL = LSSearch(pL, GRAPHICtype, stf, GO_LEFT, False);
 	
 	while (graphicL != NILINK && GraphicFIRSTOBJ(graphicL) == pL) {
-		if (susOn == True && IsMidiSustainOn(graphicL) ||
-			 susOn == False && IsMidiSustainOff(graphicL)) {
+		if (susOn == True && IsPedalDown(graphicL) ||
+			 susOn == False && isPedalUp(graphicL)) {
 			Byte ctrlNum = MSUSTAIN;
 			Byte ctrlVal = GetSustainCtrlVal(susOn);
 			
@@ -494,7 +494,7 @@ static void WriteMIDIPans(Document *doc, Byte *partChannel, long startTime, LINK
 {	
 	LINK graphicL = LSSearch(pL, GRAPHICtype, stf, GO_LEFT, False);
 	while (graphicL != NILINK && GraphicFIRSTOBJ(graphicL) == pL) {
-		if (IsMidiPan(graphicL)) {
+		if (IsMIDIPan(graphicL)) {
 			Byte ctrlNum = MPAN;
 			Byte ctrlVal = GraphicINFO(graphicL);
 			
@@ -954,11 +954,10 @@ static short WriteMFNotes(
 				break;
 				
 			case GRAPHICtype:			
-				if (IsMidiController(pL)) 
-				{
+				if (IsMIDIController(pL)) {
 #if 0
-					Byte ctrlNum = GetMidiControlNum(pL);
-					Byte ctrlVal = GetMidiControlVal(pL);
+					Byte ctrlNum = GetMIDIControlNum(pL);
+					Byte ctrlVal = GetMIDIControlVal(pL);
 					short stf = GraphicSTAFF(pL);
 					//if (anyStaff || stf == staffn) {
 					if (stf==staffn) {
@@ -977,13 +976,13 @@ static short WriteMFNotes(
 	//					}
 	//					else 
 						
-						if (IsMidiSustainOn(pL)) {
+						if (IsPedalDown(pL)) {
 							sustainOnPosted = MFSPostMIDISustain(doc, pL, staffn, True);
 						}
-						else if (IsMidiSustainOff(pL)) {
+						else if (isPedalUp(pL)) {
 							sustainOffPosted = MFSPostMIDISustain(doc, pL, staffn, False);
 						}
-						else if (IsMidiPan(pL)) {
+						else if (IsMIDIPan(pL)) {
 							panPosted = MFSPostMIDIPan(doc, pL, staffn);
 						}					
 					}

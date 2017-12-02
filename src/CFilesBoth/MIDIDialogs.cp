@@ -1,23 +1,22 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	MIDIDialogs.c
 *	PROJ:	Nightingale
-*	DESC:	General MIDI dialog routines (no relation to the "General MIDI"
-*			standard)
-/***************************************************************************/
+*	DESC:	General MIDI dialog routines (no relation to the "General MIDI" standard!)
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
 
-/* ------------------------------------------------------------------- MIDIDialog -- */
+/* ------------------------------------------------------------------------ MIDIDialog -- */
 /*	Setup MIDI channel assignment, tempo, port, etc. N.B. Does not handle SCCA
 for MIDI Thru! */
 
@@ -176,7 +175,8 @@ static pascal Boolean MIDIFilter(DialogPtr theDialog, EventRecord *theEvent,
 			if (useWhichMIDI == MIDIDR_CM && cmInputMenuH != NULL) {
 				GetDialogItem (theDialog, INPUT_DEVICE_MENU, &type, &hndl, &box);
 				if (PtInRect(mouseLoc, &box))	{
-					if (ans = DoUserPopUp(&cmInputPopup)) {
+					ans = DoUserPopUp(&cmInputPopup);
+					if (ans) {
 						*item = INPUT_DEVICE_MENU;
 					}
 				}
@@ -471,14 +471,14 @@ void MIDIDialog(Document *doc)
 	return; 
 }
 
-/* --------------------------------------------------------------- MIDIThruDialog -- */
+/* -------------------------------------------------------------------- MIDIThruDialog -- */
 
 static enum {
 	CHK_UseMIDIThru = 3,
 	POP_Device,
 	STXT_WhenRecording,
 	STXT_WhenNotRecording
-} E_MidiThruItems;
+} E_MIDIThruItems;
 
 static Rect deviceMenuBox;
 static fmsUniqueID thruDevice;
@@ -525,12 +525,11 @@ pascal Boolean MIDIThruFilter(DialogPtr dlog, EventRecord *theEvent, short *item
 Boolean MIDIThruDialog()
 {
 	short			itemHit, dialogOver, scratch;
-	DialogPtr	dlog;
-	GrafPtr		oldPort;
-	Handle		hndl;
+	DialogPtr		dlog;
+	GrafPtr			oldPort;
+	Handle			hndl;
 	ModalFilterUPP	filterUPP;
 	
-	/* ??Could support OMS later, but need a channel text field? */
 //	if (useWhichMIDI!=MIDIDR_FMS)
 	if (useWhichMIDI!=MIDIDR_NONE)
 		return False;
@@ -589,7 +588,7 @@ broken:
 	return (itemHit==OK);
 }
 
-/* ------------------------------------------------------------------ MetroDialog -- */
+/* ----------------------------------------------------------------------- MetroDialog -- */
 
 /* Symbolic Dialog Item Numbers */
 
@@ -669,8 +668,8 @@ static DialogPtr OpenOMSMetroDialog(
 }
 
 static DialogPtr OpenMetroDialog(
-								Boolean viaMIDI,
-								short channel, short note, short velocity, short duration)
+							Boolean viaMIDI,
+							short channel, short note, short velocity, short duration)
 {
 	GrafPtr oldPort;
 	DialogPtr dlog;
@@ -723,7 +722,7 @@ static Boolean MetroDialogItem(DialogPtr dlog, short itemHit)
 			break;
 		case ctrlItem+radCtrl:
 			switch(itemHit) {
-				case RAD4_Use:												/* Group 1 */
+				case RAD4_Use:											/* Group 1 */
 				case RAD5_Use:
 					if (itemHit!=group1) {
 						SetControlValue((ControlHandle)hndl,val=!GetControlValue((ControlHandle)hndl));
@@ -749,7 +748,7 @@ problem before delivering True. */
 
 static Boolean MetroBadValues(DialogPtr dlog)
 {
-	short val; Boolean bad=False;
+	short val;  Boolean bad=False;
 
 	GetDlgWord(dlog,EDIT7_Chan,&val);
 	if (useWhichMIDI == MIDIDR_CM) {
@@ -758,20 +757,20 @@ static Boolean MetroBadValues(DialogPtr dlog)
 			GetIndCString(strBuf, MIDIPLAYERRS_STRS, 19);	/* "Channel not valid for device" */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
-			bad = True;													/* Keep dialog on screen */
+			bad = True;										/* Keep dialog on screen */
 		}
 	}
 
 	GetDlgWord(dlog,EDIT8_Note,&val);
-	if (val<1 || val>127) {											/* 127=MAX_NOTENUM */
-		GetIndCString(strBuf, MIDIPLAYERRS_STRS, 9);			/* "Note number must be..." */
+	if (val<1 || val>127) {									/* 127=MAX_NOTENUM */
+		GetIndCString(strBuf, MIDIPLAYERRS_STRS, 9);		/* "Note number must be..." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		bad = True;
 	}
 
 	GetDlgWord(dlog,EDIT9_Vel,&val);
-	if (val<1 || val>127) {											/* 127=MAX_VELOCITY */
+	if (val<1 || val>127) {									/* 127=MAX_VELOCITY */
 		GetIndCString(strBuf, MIDIPLAYERRS_STRS, 10);		/* "Velocity must be..." */
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
@@ -789,16 +788,16 @@ static Boolean MetroBadValues(DialogPtr dlog)
 	return bad;
 }
 
-/* --------------------------------------------------------------- FMSMetroFilter -- */
+/* -------------------------------------------------------------------- FMSMetroFilter -- */
 
 pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item);
 pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
-	GrafPtr		oldPort;
-	short			type;
-	Handle		hndl;
-	Rect			box;
-	Point mouseLoc;
+	GrafPtr	oldPort;
+	short	type;
+	Handle	hndl;
+	Rect	box;
+	Point	mouseLoc;
 
 	switch (theEvent->what) {
 		case updateEvt:
@@ -816,7 +815,7 @@ pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 			mouseLoc = theEvent->where;
 			GlobalToLocal(&mouseLoc);
 			
-			/* If we've hit the OK or Cancel button, bypass the rest of the control stuff below. */
+			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
 			GetDialogItem(theDialog, BUT1_OK, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	{*item = BUT1_OK; break;};
 			GetDialogItem(theDialog, BUT2_Cancel, &type, &hndl, &box);
@@ -843,8 +842,8 @@ pascal Boolean FMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 Boolean FMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 								SignedByte *velocity, short *duration, fmsUniqueID *device)
 {
-	short				aNote, vel, dur;
-	short				scratch, itemHit, okay, keepGoing=True;
+	short			aNote, vel, dur;
+	short			scratch, itemHit, okay, keepGoing=True;
 	Handle			hndl;
 	DialogPtr		dlog;
 	GrafPtr			oldPort;
@@ -896,7 +895,8 @@ Boolean FMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *not
 		keepGoing = MetroDialogItem(dlog,itemHit);
 	}
 	
-	if (okay = (itemHit==BUT1_OK)) {
+	okay = (itemHit==BUT1_OK);
+	if (okay) {
 		*viaMIDI = GetDlgChkRadio(dlog, RAD4_Use);
 		GetDlgWord(dlog, EDIT8_Note, &aNote); *note = aNote;
 		GetDlgWord(dlog, EDIT9_Vel, &vel); *velocity = vel;
@@ -912,19 +912,19 @@ Boolean FMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *not
 }
 
 
-/* --------------------------------------------------------------- OMSMetroFilter -- */
+/* -------------------------------------------------------------------- OMSMetroFilter -- */
 /* This filter outlines the OK Button and performs standard key and command-
 key filtering. */
 
 pascal Boolean OMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item);
 pascal Boolean OMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
-	GrafPtr		oldPort;
-	short			type;
-	Handle		hndl;
-	Rect			box;
-	Point mouseLoc;
-	short omsMenuItem;
+	GrafPtr	oldPort;
+	short	type;
+	Handle	hndl;
+	Rect	box;
+	Point	mouseLoc;
+	short	omsMenuItem;
 
 	switch (theEvent->what) {
 		case updateEvt:
@@ -945,7 +945,7 @@ pascal Boolean OMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 			mouseLoc = theEvent->where;
 			GlobalToLocal(&mouseLoc);
 			
-			/* If we've hit the OK or Cancel button, bypass the rest of the control stuff below. */
+			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
 			GetDialogItem(theDialog, BUT1_OK, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	{*item = BUT1_OK; break;};
 			GetDialogItem(theDialog, BUT2_Cancel, &type, &hndl, &box);
@@ -977,9 +977,9 @@ Boolean OMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *not
 								SignedByte *velocity, short *duration, OMSUniqueID *device)
 {
 	short chan, aNote, vel, dur;
-	short itemHit,okay,keepGoing=True;
+	short itemHit, okay, keepGoing=True;
 	DialogPtr dlog; GrafPtr oldPort;
-	ModalFilterUPP	filterUPP;
+	ModalFilterUPP filterUPP;
 
 	/* Build dialog window and install its item values */
 	
@@ -1008,7 +1008,8 @@ Boolean OMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *not
 	 *	MetroBadValues().
 	 */
 	
-	if (okay = (itemHit==BUT1_OK)) {
+	okay = (itemHit==BUT1_OK);
+	if (okay) {
 		*viaMIDI = GetDlgChkRadio(dlog, RAD4_Use);
 		GetDlgWord(dlog,EDIT7_Chan,&chan); *channel = chan;
 		GetDlgWord(dlog,EDIT8_Note,&aNote); *note = aNote;
@@ -1046,13 +1047,12 @@ static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MI
 {
 
 	Boolean popupOk = InitPopUp(dlog, p,
-											CM_METRO_MENU,	/* Dialog item to set p->box from */
-											0,							/* Dialog item to set p->prompt from, or 0=set it empty */
-											kCMPopupID,				/* CoreMidi popup ID */
-											0							/* Initial choice, or 0=none */
-											);
-	if (!popupOk || p->menu==NULL)
-		return NULL;
+									CM_METRO_MENU,	/* Dialog item to set p->box from */
+									0,				/* Dialog item to set p->prompt from, or 0=set it empty */
+									kCMPopupID,		/* CoreMidi popup ID */
+									0				/* Initial choice, or 0=none */
+									);
+	if (!popupOk || p->menu==NULL) return NULL;
 		
 	cmVecDevices = new MIDIUniqueIDVector();
 	long numItems = FillCMDestinationPopup(p->menu, cmVecDevices);
@@ -1072,23 +1072,23 @@ static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MI
 the dlog opened, or NULL if error (no resource, no memory). */
 
 static DialogPtr OpenCMMetroDialog(
-								Boolean viaMIDI,
-								short channel, short note, short velocity, short duration,
-								MIDIUniqueID device)
+							Boolean viaMIDI,
+							short channel, short note, short velocity, short duration,
+							MIDIUniqueID device)
 {
-	Handle hndl; GrafPtr oldPort;
-	short scratch; Str255 deviceStr; DialogPtr dlog;
+	Handle hndl;  GrafPtr oldPort;
+	short scratch;  Str255 deviceStr;  DialogPtr dlog;
 
 	GetPort(&oldPort);
-	dlog = GetNewDialog(OMS_METRO_DLOG,NULL,BRING_TO_FRONT);
+	dlog = GetNewDialog(OMS_METRO_DLOG, NULL, BRING_TO_FRONT);
 	if (dlog==NULL) { MissingDialog(OMS_METRO_DLOG); return(NULL); }
 	
-	CenterWindow(GetDialogWindow(dlog),70);
+	CenterWindow(GetDialogWindow(dlog), 70);
 	SetPort(GetDialogWindowPort(dlog));
 
 	GetDialogItem(dlog, CM_METRO_MENU, &scratch, &hndl, &metroMenuBox);
 	cmMetroMenuH = CreateCMOutputMenu(dlog, &cmOutputPopup, &metroMenuBox, device);
-	if (cmMetroMenuH==NULL) { SysBeep(5); SetPort(oldPort); return(NULL);}
+	if (cmMetroMenuH==NULL) { SysBeep(5); SetPort(oldPort); return(NULL); }
 
 	/* Fill in dialog's values here */
 
@@ -1105,26 +1105,26 @@ static DialogPtr OpenCMMetroDialog(
 	PutDlgWord(dlog,EDIT8_Note, note, False);
 	PutDlgWord(dlog,EDIT9_Vel, velocity, False);
 	PutDlgWord(dlog,EDIT10_Dur, duration, False);
-	PutDlgWord(dlog,EDIT7_Chan, channel, True);			/* last so it can be selected */
+	PutDlgWord(dlog,EDIT7_Chan, channel, True);				/* last so it can be selected */
 
 	ShowWindow(GetDialogWindow(dlog));
 	DrawPopUp(&cmOutputPopup);
 	return dlog;
 }
 
-/* --------------------------------------------------------------- OMSMetroFilter -- */
+/* -------------------------------------------------------------------- OMSMetroFilter -- */
 /* This filter outlines the OK Button and performs standard key and command-
 key filtering. */
 
 pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item);
 pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
 {
-	GrafPtr		oldPort;
-	short			type;
-	Handle		hndl;
-	Rect			box;
-	Point 		mouseLoc;
-	short			ans;
+	GrafPtr	oldPort;
+	short	type;
+	Handle	hndl;
+	Rect	box;
+	Point 	mouseLoc;
+	short	ans;
 
 	switch (theEvent->what) {
 		case updateEvt:
@@ -1132,8 +1132,7 @@ pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 			BeginUpdate(GetDialogWindow(theDialog));
 			UpdateDialogVisRgn(theDialog);
 			FrameDefault(theDialog,OK,True);
-			if (cmMetroMenuH != NULL)
-				DrawPopUp(&cmOutputPopup);
+			if (cmMetroMenuH != NULL) DrawPopUp(&cmOutputPopup);
 			EndUpdate(GetDialogWindow(theDialog));
 			SetPort(oldPort);
 			*item = 0;
@@ -1144,7 +1143,7 @@ pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 			mouseLoc = theEvent->where;
 			GlobalToLocal(&mouseLoc);
 			
-			/* If we've hit the OK or Cancel button, bypass the rest of the control stuff below. */
+			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
 			GetDialogItem(theDialog, BUT1_OK, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	{*item = BUT1_OK; break;};
 			GetDialogItem(theDialog, BUT2_Cancel, &type, &hndl, &box);
@@ -1154,9 +1153,8 @@ pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 				GetDialogItem(theDialog, CM_METRO_MENU, &type, &hndl, &box);
 				
 				if (PtInRect(mouseLoc, &box)) {
-					if (ans = DoUserPopUp(&cmOutputPopup)) {
-						*item = CM_METRO_MENU;
-					}
+					ans = DoUserPopUp(&cmOutputPopup);
+					if (ans) *item = CM_METRO_MENU;
 				}
 			}
 			break;
@@ -1208,7 +1206,8 @@ Boolean CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note
 	 *	MetroBadValues().
 	 */
 	
-	if (okay = (itemHit==BUT1_OK)) {
+	okay = (itemHit==BUT1_OK);
+	if (okay) {
 		*viaMIDI = GetDlgChkRadio(dlog, RAD4_Use);
 		GetDlgWord(dlog,EDIT7_Chan,&chan); *channel = chan;
 		GetDlgWord(dlog,EDIT8_Note,&aNote); *note = aNote;
@@ -1275,7 +1274,8 @@ Boolean MetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 	 *	MetroBadValues().
 	 */
 	
-	if (okay = (itemHit==BUT1_OK)) {
+	okay = (itemHit==BUT1_OK);
+	if (okay) {
 		*viaMIDI = GetDlgChkRadio(dlog, RAD4_Use);
 		GetDlgWord(dlog,EDIT7_Chan,&chan); *channel = chan;
 		GetDlgWord(dlog,EDIT8_Note,&aNote); *note = aNote;
@@ -1292,7 +1292,7 @@ Boolean MetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 	return okay;
 }
 
-/* -------------------------------------------------------------- MIDIDynamDialog -- */
+/* ------------------------------------------------------------------- MIDIDynamDialog -- */
 
 static Boolean ItemValInRange(DialogPtr, short, short, short);
 static Boolean ItemValInRange(DialogPtr dlog, short DI, short minVal, short maxVal)
@@ -1312,10 +1312,10 @@ static enum {
 
 Boolean MIDIDynamDialog(Document */*doc*/, Boolean *apply)
 {
-	DialogPtr	dlog;
+	DialogPtr		dlog;
 	short			i, ditem, velo;
-	GrafPtr		oldPort;
-	Boolean		badValue;
+	GrafPtr			oldPort;
+	Boolean			badValue;
 	char			fmtStr[256];
 	ModalFilterUPP	filterUPP;
 
@@ -1384,7 +1384,7 @@ Boolean MIDIDynamDialog(Document */*doc*/, Boolean *apply)
 }
 
 
-/* ----------------------------------------------------------- MIDIModifierDialog -- */
+/* ---------------------------------------------------------------- MIDIModifierDialog -- */
 
 static enum {
 	STAC_VEL_DI=7,
@@ -1513,7 +1513,7 @@ Boolean MIDIModifierDialog(Document */*doc*/)
 }
 
 
-/* ---------------------------------------------------------------- MutePartDialog -- */
+/* -------------------------------------------------------------------- MutePartDialog -- */
 
 static enum {
 	RAD3_MutePart = 3,
@@ -1600,7 +1600,7 @@ Boolean MutePartDialog(Document *doc)
 }
 
 
-/* ------------------------------------------------------------- SetPlaySpeedDialog -- */
+/* ---------------------------------------------------------------- SetPlaySpeedDialog -- */
 
 extern short minDlogVal, maxDlogVal;
 
@@ -1616,7 +1616,7 @@ Boolean SetPlaySpeedDialog(void)
 	GrafPtr oldPort;
 	short newPercent, ditem;
 	Boolean done;
-	ModalFilterUPP	filterUPP;
+	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(NumberFilter);
 	if (filterUPP == NULL) {
@@ -1647,7 +1647,7 @@ Boolean SetPlaySpeedDialog(void)
 				case OK:
 					GetDlgWord(dlog, SPS_PERCENT_DI, &newPercent);
 					if (newPercent<minDlogVal || newPercent>maxDlogVal) {
-						GetIndCString(strBuf, DIALOGERRS_STRS, 22);			/* Play tempo percent must be between..." */
+						GetIndCString(strBuf, DIALOGERRS_STRS, 22);			/* "Play tempo percent must be between..." */
 						CParamText(strBuf, "", "", "");
 						StopInform(GENERIC_ALRT);
 					}
@@ -1671,4 +1671,3 @@ Boolean SetPlaySpeedDialog(void)
 	SetPort(oldPort);
 	return (ditem==OK);
 }
-

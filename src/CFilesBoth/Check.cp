@@ -1202,8 +1202,8 @@ LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 2/EraseAndInval pL=%u strlen=%d
 					case GRDraw:
 						DoDrawingEdit(doc, pL);
 						break;
-					case GRSustainOn:
-					case GRSustainOff:
+					case GRSusPedalDown:
+					case GRSusPedalUp:
 						InvertSymbolHilite(doc, p->firstObj, staffn, True);
 						SleepTicks(30L);
 						break;

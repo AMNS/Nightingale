@@ -6,7 +6,7 @@
  * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
-/* MidiMap.h for Nightingale, rev. for v. 5.1 File format 'N105' and ;ater */
+/* MidiMap.h for Nightingale, rev. for v. 5.1 File format 'N105' and later */
 
 #ifdef PUBLIC_VERSION
 	#define MMPrintMidiMap		0
@@ -16,18 +16,18 @@
 
 #define MMNumMaps				128
 
-/* Midi Note Number Mapping 
+/* MIDI Note Number Mapping 
  * map from noteNum to mappedNum
- *	unused: simply map noteNum at map index to mappedNum
+ *	unused: simply map noteNum at map index to mappedNum.
  */
  
 typedef struct {
-	short 	noteNum;				/* Original Midi Note Number */
-	short	mappedNum;				/* Mapped Midi Note Number */
+	short 	noteNum;				/* Original MIDI note number */
+	short	mappedNum;				/* Mapped MIDI note number */
 } MMNoteNumMap, *PMMNoteNumMap;
 
 
-/* Midi Mapping 
+/* MIDI Mapping 
  * maps midiPatch using map noteNumMap
  * noteNumMap[noteNum] = mappedNum
  */

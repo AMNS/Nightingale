@@ -503,7 +503,7 @@ Boolean IsSetEnabled(Document *doc)
 					if (GraphicSubType(pL)==GRString || GraphicSubType(pL)==GRLyric
 					||  GraphicSubType(pL)==GRChordSym || GraphicSubType(pL)==GRDraw 
 					|| GraphicSubType(pL)==GRMIDIPatch
-					//|| GraphicSubType(pL)==GRSustainOn
+					//|| GraphicSubType(pL)==GRSusPedalDown
 					|| GraphicSubType(pL)==GRMIDIPan)
 						return True;
 				default:

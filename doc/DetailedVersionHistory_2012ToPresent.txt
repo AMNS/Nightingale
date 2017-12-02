@@ -1874,3 +1874,14 @@ Minor cleanup: rename GRMIDISustainOn/Off to GRSustainOn/Off, avoid uninitialize
 variables, etc. Affects DSUtils.h, NTypes.h, style.h, vars.h; Browser, Check,
 CheckUtils, DebugUtils, Debug2Utils, DebugDisplay, Dragging, DrawObject, DSUtils, Event,
 File, FlowInText, Insert, InsNew, Inval, MIDIPlay, ScoreInfo, TextDialog, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+28 Nov. - 1 Dec.
+
+Minor cleanup: rename GRSustainOn/Off to GRSusPedalDown/Up; rename FindObject to
+FindAndActOnObject; change instances of "Midi" to "MIDI"; etc. Affects CheckUtils.h,
+MIDIGeneral.h, MidiMap.h, NTypes.h, vars.h; Browser, Check, CheckUtils, CoreMIDIUtils,
+Dragging, DrawObject, InitNightingale, Insert, InsNew, InsUtils, MasterMouse,
+MIDIDialogs, MIDIFSave, MIDIPlay, NewSlur, Select, SetCommand, SFormat, UIFUtils.
+

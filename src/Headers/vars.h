@@ -2,7 +2,7 @@
 *	FILE:	vars.h
 *	PROJ:	Nightingale
 *	DESC:	global variables
-******************************************************************************************/
+*******************************************************************************************/
 
 /*
 #ifdef MAIN
@@ -154,20 +154,19 @@ GLOBAL Boolean		unisonsOK;				/* If True, don't object to unisons (perfect or au
 GLOBAL Boolean		ignoreChord[MAX_MEASNODES][MAXVOICES+1];
 
 
-/* ------------------------------------------------------------- With Initialization -- */
+/* --------------------------------------------------------------- With Initialization -- */
 
 #ifdef MAIN
 
-/* <symtable> gives information for <symcode>, the input key code, i.e., it gives
-the mapping from input character codes to musical symbols. A mapping from
-palette squares to key codes is specified by a 'PLCH' resource (see Palette.c
-for details).
+/* <symtable> gives information for <symcode>, the input key code, i.e., it gives the
+mapping from input character codes to musical symbols. A mapping from palette squares to
+key codes is specified by a 'PLCH' resource (see Palette.c for details).
 
-Re <symcode>: (1) Note that chars. that aren't in 7-bit ASCII may display differently
-in different fonts and may generate different code on different platforms: to avoid
-these problems, they should be given in hex. (2) Our palette re-mapping feature can
-override the chars. given here (via a 'PLMP' resource), and in fact the default
-re-mapping as of 3.5b8 makes dozens of changes, so caveat! */
+Re <symcode>: (1) Note that chars. that aren't in 7-bit ASCII may display differently in
+different fonts and may generate different code on different platforms: to avoid these
+problems, they should be given in hex. (2) Our palette re-mapping feature can override
+the chars. given here (via a 'PLMP' resource), and in fact the default re-mapping as of
+v. 3.5b8 makes dozens of changes, so caveat! */
  
 SYMDATA symtable[] = {
 		/* cursor	objtype   	subtype			symcode durcode */
@@ -255,8 +254,8 @@ SYMDATA symtable[] = {
 		{ 271,		GRAPHICtype,GRArpeggio,		'g',	ARP },		/* Arpeggio sign */
 		{ 271,		GRAPHICtype,GRArpeggio,		'G',	NONARP },	/* Non-arpeggio sign */
 		{ 275,		GRAPHICtype,GRDraw,			'_',	0 },		/* Line */
-		{ 341,		GRAPHICtype,GRSustainOn,	0xB6,	0 },		/* Music char. "Ped." (pedal down) */
-		{ 342,		GRAPHICtype,GRSustainOff,	0xFA,	1 },		/* Music char. pedal up */
+		{ 341,		GRAPHICtype,GRSusPedalDown,	0xB6,	0 },		/* Music char. "Ped." (pedal down = sustain) */
+		{ 342,		GRAPHICtype,GRSusPedalUp,	0xFA,	1 },		/* Music char. pedal up */
 		{ 340,		GRAPHICtype,GRMIDIPan,		0x7C,	1 },		/* MIDI Pan Controller */
 		{ 271,		GRAPHICtype,GRChordFrame,	0xB1,	0 },		/* Chord frame */
 		{ 300,		MEASUREtype, BAR_RPT_L,		'[',	0 },		/* left repeat */
@@ -269,7 +268,7 @@ SYMDATA symtable[] = {
 		{ GENLDRAG_CURS, 0,		0,				'j',	0 }			/* General object dragging tool */
 };
 
-short nsyms=(sizeof(symtable)/sizeof(SYMDATA));	/* Length of symtable */ 
+short nsyms=(sizeof(symtable)/sizeof(SYMDATA));			/* Length of symtable */ 
 
 /*	objTable gives information for each object type */
  

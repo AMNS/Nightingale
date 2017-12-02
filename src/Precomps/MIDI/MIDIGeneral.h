@@ -169,12 +169,12 @@ Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly);
 
 /* High (UI)-level MIDI play routines */
 
-Boolean IsMidiSustainOn(LINK pL);
-Boolean IsMidiSustainOff(LINK pL);
-Boolean IsMidiPan(LINK pL);
-Boolean IsMidiController(LINK pL);
-Byte GetMidiControlNum(LINK pL);
-Byte GetMidiControlVal(LINK pL);
+Boolean IsPedalDown(LINK pL);
+Boolean isPedalUp(LINK pL);
+Boolean IsMIDIPan(LINK pL);
+Boolean IsMIDIController(LINK pL);
+Byte GetMIDIControlNum(LINK pL);
+Byte GetMIDIControlVal(LINK pL);
 
 void PlaySequence(Document *, LINK, LINK, Boolean, Boolean);
 void PlayEntire(Document *);

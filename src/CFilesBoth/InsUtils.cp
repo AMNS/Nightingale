@@ -479,7 +479,7 @@ static LINK InsFindNRG(Document *doc, Point pt, LINK *paNoteL)
 {
 	LINK syncL, aNoteL;  short index; short i;  Boolean isSync;
 	
-	syncL = FindObject(doc, pt, &index, SMFind);
+	syncL = FindAndActOnObject(doc, pt, &index, SMFind);
 	if (!syncL) return NILINK;
 
 	if (!SyncTYPE(syncL) && !GRSyncTYPE(syncL)) return NILINK;
@@ -1999,8 +1999,8 @@ LINK FindTempoObject(Document *doc, Point pt, short *staff, short *voice)
 
 /* ------------------------------------------------------------------ FindEndingObject -- */
 /* Get the relObj for an Ending which is to be inserted. For objects with connStaffs
-and subObjects which span staff ranges the CheckObject and FindObject routines do
-not work well (??apparently in the sense of finding the correct subObjects); for
+and subObjects which span staff ranges the CheckObject and FindAndActOnObject routines
+do not work well (??apparently in the sense of finding the correct subObjects); for
 these objects FindStaffSetSys should provide unambiguous results. */
 
 LINK FindEndingObject(Document *doc, Point pt, short *staff)
@@ -2008,7 +2008,7 @@ LINK FindEndingObject(Document *doc, Point pt, short *staff)
 	short index,staffn; LINK pL;
 
 	staffn = FindStaffSetSys(doc, pt);
-	pL = FindObject(doc, pt, &index, SMFind);
+	pL = FindAndActOnObject(doc, pt, &index, SMFind);
 
 	switch (ObjLType(pL)) {
 		case SYNCtype:

@@ -161,19 +161,19 @@ static short GetSyncStaff(LINK pL, short index)
 }
 
 
-/* Check whether the slur ended on the same system or staff as it began. If the
-system was different, it's a cross-system slur, so set crossSystem True. If the
-staff was different, it's a cross-staff slur, so set crossStaff True.
+/* Check whether the slur ended on the same system or staff as it began. If the system
+was different, it's a cross-system slur, so set crossSystem True. If the staff was
+different, it's a cross-staff slur, so set crossStaff True.
 
-#1. Get staff containing mouseClick. Need to call FindObject in case the note
-terminating slur-tracking operation is so high or low that it overlaps a staff
-which it is not on, with the result that FindStaffSetSys will find the staff that
-the note is not on. However, slur tracking routines eventually call ValidSlurEndpt
-to get a valid note at the end of the slur-tracking operation, and ValidSlurEndpt
-uses different logic from FindObject, so it may be possible for FindObject to miss
-a sync that ValidSlurEndpt will accept. Therefore, if FindObject actually finds
-the endnote of the tracking operation, use that note's staff here; otherwise, the
-best that can be done is to use the results of FindStaffSetSys. */
+#1. Get staff containing mouseClick. Need to call FindAndActOnObject in case the note
+terminating slur-tracking operation is so high or low that it overlaps a staff which it
+is not on, with the result that FindStaffSetSys will find the staff that the note is not
+on. However, slur tracking routines eventually call ValidSlurEndpt to get a valid note
+at the end of the slur-tracking operation, and ValidSlurEndpt uses different logic from
+FindAndActOnObject, so it may be possible for FindAndActOnObject to miss a sync that
+ValidSlurEndpt will accept. Therefore, if FindAndActOnObject actually finds the endnote
+of the tracking operation, use that note's staff here; otherwise, the best that can be
+done is to use the results of FindStaffSetSys. */
 
 
 static void CheckCrossness(Document *doc, short	staff, Point pt)
@@ -184,7 +184,7 @@ static void CheckCrossness(Document *doc, short	staff, Point pt)
 	oldSystem = doc->currentSystem;
 
 	endStaff = FindStaffSetSys(doc, pt);					/* #1. */
-	pL = FindObject(doc, pt, &index, SMFind);
+	pL = FindAndActOnObject(doc, pt, &index, SMFind);
 	if (pL) objEndStaff = GetSyncStaff(pL, index);
 
 	if (objEndStaff!=NOONE)

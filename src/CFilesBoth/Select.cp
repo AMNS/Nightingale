@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	Select.c
 *	PROJ:	Nightingale
 *	DESC:	Selection-related routines.
@@ -16,14 +16,14 @@
 	ContinSelection			OptimizeSelection		UpdateSelection	
 	GetStfSelRange			GetVSelRange			GetNoteSelRange
 	BFSelClearable			XLoadSelectSeg
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -45,7 +45,7 @@ static Boolean NewContinSel(Document *doc);
 static void SetSelEnds(LINK, LINK *, LINK *);
 
 
-/* --------------------------------------------------------------- DeselectSTAFF -- */
+/* --------------------------------------------------------------------- DeselectSTAFF -- */
 /* Crude, but all that's needed, since staves can only be selected during
 DeleteParts. */
 
@@ -62,7 +62,7 @@ void DeselectSTAFF(LINK pL)
 }
 
 
-/* ------------------------------------------------------------- DeselectCONNECT -- */
+/* ------------------------------------------------------------------- DeselectCONNECT -- */
 /* Crude, but all that's needed for DeselAll. */
 
 static void DeselectCONNECT(LINK pL)
@@ -78,7 +78,7 @@ static void DeselectCONNECT(LINK pL)
 }
 
 
-/* --------------------------------------------------------- SetDefaultSelection -- */
+/* --------------------------------------------------------------- SetDefaultSelection -- */
 /* Set empty selection (insertion point) just after the first invisible Measure.
 After calling this, it may be desirable to set doc->selStaff, and to call
 MEAdjustCaret to position the caret. */
@@ -91,14 +91,14 @@ void SetDefaultSelection(Document *doc)
 }
 
 
-/* -------------------------------------------------------------------- DeselAll -- */
+/* -------------------------------------------------------------------------- DeselAll -- */
 /*	Deselect current selection, make selection range null, and unhilite. */
 
 void DeselAll(Document *doc)
 {
 	MEHideCaret(doc);
 	
-	if (!doc->selStartL || doc->selStartL==doc->selEndL)				/* check for empty selection */
+	if (!doc->selStartL || doc->selStartL==doc->selEndL)		/* check for empty selection */
 		return;
 
 	DeselRange(doc, doc->selStartL, doc->selEndL);
@@ -106,7 +106,7 @@ void DeselAll(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ DeselRange -- */
+/* ------------------------------------------------------------------------ DeselRange -- */
 /*	Deselect and unhilite the given range. Leaves the selection range endpoints
 untouched. */
 
@@ -154,13 +154,13 @@ void DeselRange(Document *doc, LINK startL, LINK endL)
 }
 
 
-/* ------------------------------------------------------------ DeselAllNoHilite -- */
+/* ------------------------------------------------------------------ DeselAllNoHilite -- */
 /* Deselect current selection, make selection range null. Don't change screen
 hiliting. */
 
 void DeselAllNoHilite(Document *doc)
 {
-	if (!doc->selStartL || doc->selStartL==doc->selEndL)				/* check for empty selection */
+	if (!doc->selStartL || doc->selStartL==doc->selEndL)		/* check for empty selection */
 		return;
 
 	DeselRangeNoHilite(doc, doc->selStartL, doc->selEndL);
@@ -168,7 +168,7 @@ void DeselAllNoHilite(Document *doc)
 }
 
 
-/* ---------------------------------------------------------- DeselRangeNoHilite -- */
+/* ---------------------------------------------------------------- DeselRangeNoHilite -- */
 /* Deselect given range.  Don't change screen hiliting. Leaves the selection
 range endpoints untouched. */
 
@@ -182,7 +182,7 @@ void DeselRangeNoHilite(Document */*doc*/, LINK startL, LINK endL)
 }
 
 
-/* ---------------------------------------------------------------- DoOpenSymbol -- */
+/* ---------------------------------------------------------------------- DoOpenSymbol -- */
 /* Open symbol for editing. Currently (v. 5.7b9) this just handles double clicks,
 but it could also be used by an "Edit Symbol" command. Returns LINK of object
 opened, or NILINK if no object found for mouse click. */
@@ -193,12 +193,12 @@ LINK DoOpenSymbol(Document *doc, Point pt)
 
 	FindStaffSetSys(doc, pt);
 
-	pL = FindObject(doc, pt, &index, SMFind);
+	pL = FindAndActOnObject(doc, pt, &index, SMFind);
 	if (pL)
 		if (BeamsetTYPE(pL) || SlurTYPE(pL))
 			DeselAll(doc);
 
-	pL = FindObject(doc, pt, &index, SMDblClick);
+	pL = FindAndActOnObject(doc, pt, &index, SMDblClick);
 	if (pL) {
 		LimitSelRange(doc);
 	}
@@ -207,7 +207,7 @@ LINK DoOpenSymbol(Document *doc, Point pt)
 }
 
 
-/* --------------------------------------------------------------- DoAccumSelect -- */
+/* --------------------------------------------------------------------- DoAccumSelect -- */
 /*	Handle user cmd-selection: accumulate selected objects into selection range,
 optimize selection, and set blinking caret if user deselected everything. The
 resulting selection can be discontinuous. */
@@ -223,7 +223,7 @@ static void DoAccumSelect(Document	*doc, LINK oldSelStartL, LINK oldSelEndL)
 }
 
 
-/* -------------------------------------------------------------- DoExtendSelect -- */
+/* -------------------------------------------------------------------- DoExtendSelect -- */
 /*	Handle user shift-selection: accumulate selected objects into selection range,
 optimize selection, and set blinking caret if user deselected everything. The
 resulting selection will be continuous. */
@@ -258,7 +258,7 @@ static void DoExtendSelect(
 	soon = TickCount()+60L;
 
 	/* Extend selection to include J_D symbols to left of sync. */
-	if (SyncTYPE(doc->selStartL) || J_DTYPE(doc->selStartL))	{ 			/*???should I include other types? */
+	if (SyncTYPE(doc->selStartL) || J_DTYPE(doc->selStartL))	{ 		/*???should I include other types? */
 		for (pL = LeftLINK(doc->selStartL); J_DTYPE(pL); pL = LeftLINK(pL))
 			doc->selStartL = pL;
 	}
@@ -296,7 +296,7 @@ static void DoExtendSelect(
 		if (PageTYPE(fooL)) pL = fooL;			/* ... pL=its page, so that we get correct pg context below */
 	}
 
-	for (pL; pL!=doc->selEndL; pL = RightLINK(pL)) {
+	for ( ; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		if (PageTYPE(pL)) {
 			sheet = SheetNUM(pL);
 			GetSheetRect(doc, sheet, &paper);
@@ -321,7 +321,7 @@ static void DoExtendSelect(
 }
 
 
-/* ----------------------------------------------------------------- DoPageSelect -- */
+/* ---------------------------------------------------------------------- DoPageSelect -- */
 /*	Handle selection of objects attached to page. */
 
 static void DoPageSelect(
@@ -337,11 +337,11 @@ static void DoPageSelect(
 	LINK	pL;
 	short	index;
 		
-	pL = FindObject(doc, pt, &index, SMClick);			/* Look for PAGEs to which to attach GRAPHICs */
+	pL = FindAndActOnObject(doc, pt, &index, SMClick);		/* Look for PAGEs to which to attach GRAPHICs */
 	if (pL) {
 		doc->selStartL = pL; doc->selEndL = RightLINK(pL);
 		if (shiftFlag)
-			;													/* Formerly called DoExtendSelect here */
+			;												/* Formerly called DoExtendSelect here */
 		else if (cmdFlag)
 			DoAccumSelect(doc, oldSelStartL, oldSelEndL);
 	}
@@ -353,7 +353,7 @@ static void DoPageSelect(
 }
 
 
-/* ----------------------------------------------------------------- SetInsPoint -- */
+/* ----------------------------------------------------------------------- SetInsPoint -- */
 /* Set the selection range and staff, plus doc->currentSystem, appropriately for a
 click that sets an insertion point at the given point. NB: does NOT check that the
 click really is setting an insertion point (i.e., isn't within an object or a click
@@ -372,7 +372,7 @@ Boolean SetInsPoint(Document *doc, Point pt)
 	return True;
 }
 
-/* -------------------------------------------------------------------- DoSelect -- */
+/* -------------------------------------------------------------------------- DoSelect -- */
 /*	Let user indicate what they want selected, and select it. */
 
 void DoSelect(
@@ -407,7 +407,7 @@ void DoSelect(
 	else {
 		if (!SelectStaffRect(doc, pt)) {					/* Try one-dimensional wipe selection */
 			/* Mouse not moved horizontally, so select object clicked in, if any. */
-			pL = FindObject(doc, pt, &index, SMClick);
+			pL = FindAndActOnObject(doc, pt, &index, SMClick);
 			if (pL) 
 				{ doc->selStartL = pL; doc->selEndL = RightLINK(pL); }
 			 else {
@@ -426,7 +426,7 @@ void DoSelect(
 }
 
 
-/* ---------------------------------------------------------------------- SelectAll -- */
+/* ------------------------------------------------------------------------- SelectAll -- */
 /*	Select and hilite all objects in score. Handles all user-interface details,
 including redrawing the message box. */
 
@@ -479,7 +479,7 @@ void SelectAll(register Document *doc)
 }
 
 
-/* ------------------------------------------------------------- SelRangeNoHilite -- */
+/* ------------------------------------------------------------------ SelRangeNoHilite -- */
 /* Select all visible objects in the range (startL, endL]; doesn't change 
 hiliting or make any other user-interface assumptions. Written for use 
 in file importing routines. */
@@ -509,7 +509,7 @@ void SelRangeNoHilite(Document *doc, LINK startL, LINK endL)
 }
 
 
-/* --------------------------------------------------------------- SelAllNoHilite -- */
+/* -------------------------------------------------------------------- SelAllNoHilite -- */
 /* Select all objects in score; doesn't change hiliting or make any other
 user-interface assumptions. Written for use in file importing routines. */
 
@@ -537,7 +537,7 @@ void SelAllNoHilite(register Document *doc)
 }
 
 
-/* ------------------------------------------------------------------- DeselectNode -- */
+/* ---------------------------------------------------------------------- DeselectNode -- */
 /* Deselect pL and all its subobjects, if it has any and they can be selected. */
 
 void DeselectNode(LINK pL)
@@ -605,7 +605,7 @@ void DeselectNode(LINK pL)
 }
 
 
-/* --------------------------------------------------------------- SelAllSubObjs -- */
+/* --------------------------------------------------------------------- SelAllSubObjs -- */
 /* Select all the subObjs of pL. Doesn't change hiliting or make any other
 user-interface assumptions. Doesn't select the object itself; for that, call
 SelectObject instead.
@@ -673,7 +673,7 @@ void SelAllSubObjs(LINK pL)
 }
 
 
-/* ---------------------------------------------------------------- SelectObject -- */
+/* ---------------------------------------------------------------------- SelectObject -- */
 
 void SelectObject(LINK pL)
 {
@@ -682,7 +682,7 @@ void SelectObject(LINK pL)
 }
 
 
-/* ----------------------------------------------------------------- SelectRange -- */
+/* ----------------------------------------------------------------------- SelectRange -- */
 /* For every content object in the range of LINKs [startL, endL), SelectRange
 selects the object in the INCLUSIVE range of staves [firstStf, lastStf]: if it or
 any of its subobjects are in the range of staves, it selects the object and those
@@ -747,7 +747,7 @@ void SelectRange(Document *doc, LINK startL, LINK endL, short firstStf, short la
 }
 
 
-/* ---------------------------------------------------------------- ExtendSelection -- */
+/* ------------------------------------------------------------------- ExtendSelection -- */
 /* For every object that has at least one subobject selected, select all its
 subobjects. Handles all user-interface details, assuming the score is on screen. */
 
@@ -770,7 +770,7 @@ void ExtendSelection(Document *doc)
 }
 
 
-/* --------------------------------------------------------------------- ObjTypeSel -- */
+/* ------------------------------------------------------------------------ ObjTypeSel -- */
 /* If at least one object of the specified type is selected, deliver the first
 one's link, else deliver NILINK. */
 
@@ -794,7 +794,7 @@ LINK ObjTypeSel(Document *doc, short type, short graphicSubType)
 }
 
 
-/* --------------------------------------------------------------- BoundSelRange -- */
+/* --------------------------------------------------------------------- BoundSelRange -- */
 /* Deselect every object outside the selection range. */
 
 void BoundSelRange(Document *doc)
@@ -812,7 +812,7 @@ void BoundSelRange(Document *doc)
 }
 
 
-/* --------------------------------------------------------------- LimitSelRange -- */
+/* --------------------------------------------------------------------- LimitSelRange -- */
 /* Bound selection-range endpoint LINKs to actual range of selected objects. First,
 deselect any objects outside the range established by the current endpoints, then 
 move the endpoint LINKs inward as far as possible. */
@@ -836,7 +836,7 @@ void LimitSelRange(Document *doc)
 	}
 }
 
-/* --------------------------------------------------------------- GetOptSelEnds -- */
+/* --------------------------------------------------------------------- GetOptSelEnds -- */
 /* Move the endpoints of the selection range in as much as possible and return
 the new endpoints. Cf. OptimizeSelection: this doesn't consider subobjects so
 it's faster, probably by a lot. */
@@ -877,7 +877,7 @@ void CountSelection(Document *doc, short *nInRange, short *nSelFlag)
 }
 
 
-/* -------------------------------------------------------------------- ChordSetSel -- */
+/* ----------------------------------------------------------------------- ChordSetSel -- */
 /* If any note in the chord in the given Sync and voice is selected, set all notes in
 in the chord to be selected and return True; if none is selected, just return False. If
 the given Sync and voice does not contain a chord, i.e., it contains zero or one
@@ -906,7 +906,7 @@ Boolean ChordSetSel(LINK syncL, short voice)
 }
 
 
-/* ---------------------------------------------------------------- ExtendSelChords -- */
+/* ------------------------------------------------------------------- ExtendSelChords -- */
 /* Extend the selection to include all notes in every chord that has any note(s)
 selected. If it does anything, return True, else False. */
 
@@ -926,7 +926,7 @@ Boolean ExtendSelChords(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------- ChordHomoSel -- */
+/* ---------------------------------------------------------------------- ChordHomoSel -- */
 /* Return True iff every note in the voice in <pL> (which must be a Sync) has the
 specified selection status. */
 
@@ -941,7 +941,7 @@ Boolean ChordHomoSel(LINK pL, short voice, Boolean selected)
 }
 
 
-/* ------------------------------------------------------------------- ChordHomoSel -- */
+/* ---------------------------------------------------------------------- ChordHomoSel -- */
 /* Is anything in the selection attached to a Page rather than to a System or something
 within a System? If so, return True, else False. This is so a calling function can know
 if redrawing the entire Page is necessary.  As of this writing (v. 5.7b9), only Graphics
@@ -961,7 +961,7 @@ Boolean SelAttachedToPage(Document *doc)
 }
 
 
-/* ======================================================== Continuity of Selection == */
+/* =========================================================== Continuity of Selection == */
 
 static Boolean ContinSelChks(Document *doc)
 {
@@ -1009,8 +1009,8 @@ static short NextEverSel(Document *doc, Boolean *stEverSel, short s)
 
 static Boolean CSChkSelRanges(LINK s1, LINK e1, LINK s2, LINK e2)
 {
-	if (IsAfter(e2, s1)) return False;			/* is startL1 after endL2 */
-	if (IsAfter(e1, s2)) return False;			/* is startL2 after endL1 */
+	if (IsAfter(e2, s1)) return False;			/* Is startL1 after endL2? */
+	if (IsAfter(e1, s2)) return False;			/* Is startL2 after endL1? */
 	
 	return True;
 }
@@ -1205,7 +1205,7 @@ static Boolean NewContinSel(Document *doc)
 }
 
 
-/* ------------------------------------------------------------- ContinSelection -- */
+/* ------------------------------------------------------------------ ContinSelection -- */
 /* Check whether the selection is nonempty, entirely within one system, and
 continuous in each staff (current version) or voice (someday); if so, return True. */
 
@@ -1221,7 +1221,7 @@ Boolean ContinSelection(Document *doc,
 }
 
 
-/* ----------------------------------------------------------- OptimizeSelection -- */
+/* ----------------------------------------------------------------- OptimizeSelection -- */
 /* Assuming everything selected is between doc->selStartL and selEndL, clear 
 selected flags for every object with no selected subobjects, and move selStartL
 and selEndL inward as far as possible. If nothing is selected, set an insertion
@@ -1285,7 +1285,7 @@ void OptimizeSelection(Document *doc)
 }
 
 
-/* ------------------------------------------------------------- UpdateSelection -- */
+/* ------------------------------------------------------------------- UpdateSelection -- */
 /* Clear object selected flags where appropriate for their subobjects, and set
 selStartL, selEndL to the narrowest range that includes all selected objects. Does NOT
 assume the current values of selStartL, selEndL are meaningful. NB: at the moment, if

@@ -2375,3 +2375,62 @@ We're obviously comparing a systemRect from the main object list that's been cop
 the clipboard to one from the clipboard! But this complaint is about soomething very
 unimportant; just skip this check on the clipboard => OK. (And likewise for "SYSTEM RECT
 BELOW BOTTOM MARGIN".)
+
+-------------------------------------------------------------------------------
+
+25 - 26 Nov.
+
+New, insert text Graphic, double-click it, do anything to enlarge it => only the area it
+formerly occupied is redrawn. The same thing happens with tempo marks and dynamics. Why?
+
+In CheckGRAPHIC(), at end of case SMDblClick, add
+
+	InvalObject(doc, pL, True)
+	
+=> no change. That's strange, since InvalObject ends with
+
+		if (doErase)	EraseAndInval(&r);
+
+...and True = doErase. But it looks like the call to InvalObject happens before we call
+DrawGRAPHIC and get the new, enlarged bbox:
+
+Nov 27 10:33:35 DonDualG5 Ngale[74259]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 10:33:35 DonDualG5 Ngale[74259]: DrawGRAPHIC>GetGraphicDBox: doDraw=0 pDBox=-128,0,32,240
+Nov 27 10:33:35 DonDualG5 Ngale[74259]: InvalObject: r=123,169,138,192 doErase=0
+Nov 27 10:33:35 DonDualG5 Ngale[74259]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 10:33:35 DonDualG5 Ngale[74259]: DrawGRAPHIC>GetGraphicDBox: doDraw=1 pDBox=-128,0,32,240
+Nov 27 10:33:51 DonDualG5 Ngale[74259]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 10:33:51 DonDualG5 Ngale[74259]: DrawGRAPHIC>GetGraphicDBox: doDraw=0 pDBox=-128,0,32,240
+Nov 27 10:33:51 DonDualG5 Ngale[74259]: InvalObject: r=123,169,138,192 doErase=1
+Nov 27 10:33:51 DonDualG5 Ngale[74259]: TextDialog: *expanded=0 theExpanded=0
+Nov 27 10:34:24 DonDualG5 Ngale[74259]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 10:34:24 DonDualG5 Ngale[74259]: DrawGRAPHIC>GetGraphicDBox: doDraw=0 pDBox=-128,0,32,240
+Nov 27 10:34:24 DonDualG5 Ngale[74259]: InvalObject: r=123,169,138,192 doErase=1
+Nov 27 10:34:25 DonDualG5 Ngale[74259]: GetGraphicDBox: pDBox=-128,0,32,768
+Nov 27 10:34:25 DonDualG5 Ngale[74259]: DrawGRAPHIC>GetGraphicDBox: doDraw=1 pDBox=-128,0,32,768
+
+Wrong. InvalObject itself calls DrawGRAPHIC, which call GetGraphicDBox, but GetGraphicDBox
+still returns the old bbox. Why?
+
+Nov 27 13:10:01 DonDualG5 com.apple.launchd[1] (org.postfix.master[76341]): Stray process with PGID equal to this dead job: PID 76343 PPID 1 qmgr
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: CheckGRAPHIC: <InvalObject 1
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: GetGraphicDBox: count lines=1 fontID, Size, Style=20, 9, 0 str='asdf'
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: DrawGRAPHIC>GetGraphicDBox: doDraw=0 pDBox=-128,0,32,240
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: InvalObject: r=120,169,135,192 doErase=1
+Nov 27 13:10:06 DonDualG5 Ngale[76329]: TextDialog: *expanded=0 theExpanded=0
+
+Double-click, lengthen string =>
+
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: CheckGRAPHIC: <InvalObject 2
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: GetGraphicDBox: count lines=1 fontID, Size, Style=20, 9, 0 str='asdf'
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: GetGraphicDBox: pDBox=-128,0,32,240
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: DrawGRAPHIC>GetGraphicDBox: doDraw=0 pDBox=-128,0,32,240
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: InvalObject: r=120,169,135,192 doErase=1
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: GetGraphicDBox: count lines=1 fontID, Size, Style=20, 9, 0 str='asdfXXXXX'
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: GetGraphicDBox: pDBox=-128,0,32,768
+Nov 27 13:10:21 DonDualG5 Ngale[76329]: DrawGRAPHIC>GetGraphicDBox: doDraw=1 pDBox=-128,0,32,768
+
+No, right! InvalObject calls DrawGRAPHIC, which call GetGraphicDBox, which returns the old bbox;
+then _somebody_ calls DrawGRAPHIC and gets the new, enlarged bbox, but it's too late. ??
+

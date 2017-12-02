@@ -178,8 +178,8 @@ static Boolean TrkInsGRSync(Document *doc, LINK rightL, Point pt, short *sym, sh
 	qL = FindInsertPt(rightL);
 
 	doc->selStartL = doc->selEndL = qL;
-	if (octL = HasOttavaAcrossPt(doc, pt, staff))
-		octType = OctType(octL);
+	octL = HasOttavaAcrossPt(doc, pt, staff);
+	if (octL) octType = OctType(octL);
 
 	if (InsTrackPitch(doc, pt, sym, doc->selStartL, staff, &pitchLev, &acc, octType)) {
 		AddGRNote(doc, pt.h, symtable[*sym].symcode, staff, pitchLev, acc, octType);
@@ -199,8 +199,8 @@ static Boolean TrkInsGRNote(Document *doc, Point pt, short *sym, short staff)
 	short pitchLev, acc;  LINK octL;
 	short octType=-1;
 
-	if (octL = OctOnStaff(doc->selStartL, staff))
-		octType = OctType(octL);
+	octL = OctOnStaff(doc->selStartL, staff);
+	if (octL) octType = OctType(octL);
 
 	if (InsTrackPitch(doc, pt, sym, doc->selStartL, staff, &pitchLev, &acc, octType)) {
 		AddGRNote(doc, -99, symtable[*sym].symcode, staff, pitchLev, acc, octType);
@@ -675,7 +675,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				newEncl = doc->enclosureRM;
 				Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 				break;
-			case GRSustainOn:
+			case GRSusPedalDown:
 				string[0] = 3; string[1] = '1'; string[2] = '2'; string[3] = '7';
 				newRelSize = doc->relFSizeRM;
 				newSize = doc->fontSizeRM;
@@ -685,7 +685,7 @@ Boolean InsertGraphic(Document *doc, Point pt)
 				newEncl = ENCL_NONE;
 				Pstrcpy((StringPtr)newFont, (StringPtr)doc->fontNameRM);
 				break;
-			case GRSustainOff:
+			case GRSusPedalUp:
 				string[0] = 1; string[1] = '0';
 				newRelSize = doc->relFSizeRM;
 				newSize = doc->fontSizeRM;
@@ -837,7 +837,7 @@ Boolean InsertMODNR(Document *doc, Point pt)
 	if (staff==NOONE) return False;
 	
 	/* Find the symbol clicked on. */
-	insSyncL = FindObject(doc, pt, &index, SMFind);
+	insSyncL = FindAndActOnObject(doc, pt, &index, SMFind);
 	if (!insSyncL) return False;
 
 	sym = GetSymTableIndex(palChar);
@@ -1212,7 +1212,7 @@ Boolean InsertDynamic(Document *doc, Point pt)
 	sym = GetSymTableIndex(palChar);
  	subtype = symtable[sym].subtype;
 
-	pL = FindObject(doc, pt, &index, SMFind);
+	pL = FindAndActOnObject(doc, pt, &index, SMFind);
 
 	if (pL && !SystemTYPE(pL)) {
 		staff = GetSubObjStaff(pL, index);
@@ -1283,7 +1283,7 @@ Boolean InsertSlur(Document *doc, Point pt)
 		be fixed by moving down the hotspot, which is moved down all it can be. */
 
 	localPt = pt; localPt.v += 1;							/* Correct for "optical illusion" */
-	pL = FindObject(doc, localPt, &index, SMFindNote);
+	pL = FindAndActOnObject(doc, localPt, &index, SMFindNote);
 	if (!pL) return False;
 	if (!SyncTYPE(pL)) return False;
 

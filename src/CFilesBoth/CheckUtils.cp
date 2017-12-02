@@ -15,7 +15,7 @@
 
 static short ComputeLimitRTop(Document *, LINK, Rect, Rect, short, PCONTEXT);
 
-/* ------------------------------------------------------------------------------------ */
+
 /* Utilities for CheckSYSTEM */
 
 Rect SetStaffRect(LINK aStaffL, PCONTEXT pContext)
@@ -184,6 +184,7 @@ Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
 	return sysRect;
 }
 
+
 /*
  * Routine to drag a grayRgn corresponding to the system sysL, when in showFormat
  * or masterPage. ptr is a ptr to the location of the mouseDown, sysL is the system
@@ -196,7 +197,6 @@ Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
  * user is in masterPage, drags the region, and then updates the location of the
  * system in question.
  */
-
 
 Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr, Rect sysObjRect,
 									Rect sysRect, Rect r, PCONTEXT pContext)
@@ -249,7 +249,7 @@ Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr, Rect sysObjRect,
 }
 
 
-/* ------------------------------------------------------------------------------------ */
+/* ====================================================================================== */
 /* Utilities for CheckSTAFF */
 
 /*
@@ -456,11 +456,11 @@ void HiliteAllStaves(Document *doc, short doDeselect)
 	}
 }
 
-/* ------------------------------------------------------------------------------------ */
+/* ====================================================================================== */
 /* Utilities for CheckGRAPHIC */
 
 
-/* -------------------------------------------------------------------- GraphicWidth -- */
+/* ---------------------------------------------------------------------- GraphicWidth -- */
 /* Compute and return the StringWidth (in pixels) of the given Graphic in the
 current view. */
 
@@ -485,11 +485,11 @@ short GraphicWidth(Document *doc, LINK pL, PCONTEXT pContext)
 }
 
 
-/* ------------------------------------------------------------------------------------ */
+/* ====================================================================================== */
 /* Utilities for CheckKEYSIG */
 
 
-/* ---------------------------------------------------------------------- SetSubRect -- */
+/* ------------------------------------------------------------------------ SetSubRect -- */
 
 Rect SetSubRect(DDIST xd, DDIST dTop, short width, PCONTEXT pContext)
 {
@@ -505,11 +505,11 @@ Rect SetSubRect(DDIST xd, DDIST dTop, short width, PCONTEXT pContext)
 }
 
 
-/* ------------------------------------------------------------------------------------ */
-/* FindObject and utilities */
+/* ====================================================================================== */
+/* FindAndActOnObject and utilities */
 
 
-/* ------------------------------------------------------------------- ContextObject -- */
+/* --------------------------------------------------------------------- ContextObject -- */
 /* During traversal of data structure, update the context array by calling the
  * appropriate Context routine at any structural object encountered.
  */
@@ -537,7 +537,7 @@ void ContextObject(Document *doc, LINK pL, CONTEXT context[])
 }
 
 
-/* --------------------------------------------------------------------- CheckObject -- */
+/* ----------------------------------------------------------------------- CheckObject -- */
 /* Perform the action selected by <mode> on object <pL>. See Check.h for a list of
 possible values for <mode>. stfRange passes the staff parameters for SMStaffDrag
 mode. */
@@ -684,7 +684,7 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 	return NILINK;
 }
 
-/* ---------------------------------------------------------------------- ObjectTest -- */
+/* ------------------------------------------------------------------------ ObjectTest -- */
 /* Determine if mousedown at <pt> is a candidate for Check routine to handle selection
 of pL or one of pL's subObjects. */
 
@@ -734,12 +734,12 @@ Boolean ObjectTest(Rect *paper, Point pt, LINK pL)
 }
 
 
-/* ------------------------------------------------------------------------ FindObject -- */
+/* ---------------------------------------------------------------- FindAndActOnObject -- */
 /*	Find the object that <pt> is within; handle _checkMode_ for it; optionally set its 
 selected flag; and return its LINK. If point is not within any object, just return NILINK.
 The calling routine is responsible for updating the selection range. */
 
-LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
+LINK FindAndActOnObject(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK		pL, firstMeas, endL;
 	CONTEXT		context[MAXSTAVES+1];
@@ -813,7 +813,7 @@ LINK FindObject(Document *doc, Point pt, short *pIndex, short checkMode)
 							return pL;
 						break;
 					case GRAPHICtype:
-LogPrintf(LOG_DEBUG, "FindObject: <CheckGRAPHIC\n");
+LogPrintf(LOG_DEBUG, "FindAndActOnObject: <CheckGRAPHIC\n");
 						if ((*pIndex = CheckGRAPHIC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;
@@ -865,9 +865,9 @@ LogPrintf(LOG_DEBUG, "FindObject: <CheckGRAPHIC\n");
 }
 
 
-/* ------------------------------------------------------------------- FindRelObject -- */
-/* Version of FindObject called when we need to find a relative object, e.g., the
-firstObj of a GRAPHIC, etc. */
+/* --------------------------------------------------------------------- FindRelObject -- */
+/* Version of FindAndActOnObject called when we need to find a relative object, e.g.,
+the firstObj of a GRAPHIC, etc. */
 
 LINK FindRelObject(Document *doc, Point pt, short *pIndex, short checkMode)
 {
@@ -876,7 +876,7 @@ LINK FindRelObject(Document *doc, Point pt, short *pIndex, short checkMode)
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 
-	pL = FindObject(doc, pt, pIndex, checkMode);
+	pL = FindAndActOnObject(doc, pt, pIndex, checkMode);
 	if (pL) return pL;
 	
 	/* Desperately seeking places for GRAPHICs */
@@ -905,11 +905,11 @@ LINK FindRelObject(Document *doc, Point pt, short *pIndex, short checkMode)
 	return NILINK;
 }
 
-/* ------------------------------------------------------------------------------------ */
-/* FindMasterObject and utilities */
+/* ====================================================================================== */
+/* FindAndActOnMasterObj and utilities */
 
 
-/* --------------------------------------------------------------- CheckMasterObject -- */
+/* ----------------------------------------------------------------- CheckMasterObject -- */
 /* Perform the action selected by <mode> on object <pL>. See Check.h for a list of
 possible values for <mode>. stfRange passes the staff parameters for SMStaffDrag mode. */
 
@@ -949,7 +949,7 @@ LINK CheckMasterObject (Document *doc, LINK pL, Boolean *found, Ptr ptr,
 }
 
 
-/* ------------------------------------------------------------ MasterObjectTest -- */
+/* ------------------------------------------------------------------ MasterObjectTest -- */
 /* Determine if mousedown at <pt> is a candidate for Check routine to handle
 selection of pL or one of pL's subObjects. */
 
@@ -979,7 +979,7 @@ Boolean MasterObjectTest(
 }
 
 
-/* --------------------------------------------------------------- FindMasterObject -- */
+/* ------------------------------------------------------------- FindAndActOnMasterObj -- */
 /* Find the object and subObject in the masterPage containing the mousedown <pt>.
 Traverse the masterPage data structure from tailL to headL, in order to correctly
 handle the spatial nesting of the objRects of connects, staves, systems and pages.
@@ -989,7 +989,7 @@ with the net result that PAGEs mask everything. But a traversal from tailL to he
 will correctly find STAFFs before their enclosing SYSTEMs, and SYSTEMs before their
 enclosing PAGEs. */
 
-LINK FindMasterObject(Document *doc, Point pt, short *pIndex, short checkMode)
+LINK FindAndActOnMasterObj(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK		pL, endL;
 	CONTEXT		context[MAXSTAVES+1];
@@ -1038,12 +1038,12 @@ LINK FindMasterObject(Document *doc, Point pt, short *pIndex, short checkMode)
 }
 
 
-/* ------------------------------------------------------------------------------------ */
-/* FindFormatObject and utilities */
+/* ====================================================================================== */
+/* FindAndActOnFormatObj and utilities */
 
-/* ---------------------------------------------------------------- FormatObjectTest -- */
+/* ------------------------------------------------------------------ FormatObjectTest -- */
 /* Determine if mousedown at <pt> is a candidate for Check routine to handle
-selection of pL or one of pL's subObjects. ??As of v. 5.7, this is unused. */
+selection of pL or one of pL's subObjects. NB; As of v. 5.7, this is unused. */
 
 Boolean FormatObjectTest(
 					Rect */*paper*/,			/* unused */
@@ -1071,7 +1071,7 @@ Boolean FormatObjectTest(
 }
 
 
-/* ---------------------------------------------------------------- FindFormatObject -- */
+/* ------------------------------------------------------------- FindAndActOnFormatObj -- */
 /* In the showFormat mode, find the object and subObject containing the mousedown
 <pt>.
 
@@ -1083,7 +1083,7 @@ net result that PAGEs mask everything. But a traversal from tailL to headL will
 correctly find STAFFs before their enclosing SYSTEMs, and SYSTEMs before their
 enclosing PAGEs. */
 
-LINK FindFormatObject(Document *doc, Point pt, short *pIndex, short checkMode)
+LINK FindAndActOnFormatObj(Document *doc, Point pt, short *pIndex, short checkMode)
 {
 	LINK		pL, endL;
 	CONTEXT		context[MAXSTAVES+1];
@@ -1107,7 +1107,7 @@ LINK FindFormatObject(Document *doc, Point pt, short *pIndex, short checkMode)
 		}
 		
 		/* ??I have no idea why the call to FormatObjectTest is replaced with True! */
-		if ( /* FormatObjectTest(&context->paper,pt,pL) */ 1 ) {
+		if ( /* FormatObjectTest(&context->paper,pt,pL) */ True ) {
 			switch (ObjLType(pL)) {
 				case PAGEtype:
 					if ((*pIndex=CheckPAGE(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)

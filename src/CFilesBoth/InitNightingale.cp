@@ -44,7 +44,7 @@ void InitNightingale()
 	if (!InitTables()) NExitToShell("Init Tables");
 	PrintInfo();
 	InitMusicFontStuff();
-	if (!InitMIDISystem()) NExitToShell("Init Midi");
+	if (!InitMIDISystem()) NExitToShell("Init MIDI");
 }
 
 static void NExitToShell(char *msg)

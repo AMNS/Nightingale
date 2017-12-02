@@ -53,7 +53,7 @@ static void SDDrawSlur(Document *doc, LINK pL, LINK measureL);
 static Boolean SymDragLoop(Document *doc, LINK, LINK, unsigned char, Point, LINK);
 
 
-/* ================================================================================= */
+/* ====================================================================================== */
 /* Functions for drawing individual symbols into the offScreen bitmap picBits, for the
 benefit of SymDragLoop. */
 
@@ -145,7 +145,7 @@ static void SDDrawTimeSig(Document *doc, LINK pL, LINK subObjL, LINK measureL)
 	}
 }
 
-/* --------------------------------------------------- Notes, rests, grace notes -- */
+/* --------------------------------------------------------- Notes, rests, grace notes -- */
 
 /* Draw augmentation dots for the note or rest <aNoteL>. */
 
@@ -693,9 +693,9 @@ PushLock(GRNOTEheap);
 					if (MusFontUpstemFlagsHaveXOffset(doc->musFontInfoIndex))
 						stemSpace = 0;
 
-					MoveTo(xhead+stemSpace, ypStem);						/* x, y of stem end */
+					MoveTo(xhead+stemSpace, ypStem);					/* x, y of stem end */
 
-					if (flagCount==1) {										/* Draw 8th flag. */
+					if (flagCount==1) {									/* Draw 8th flag. */
 						flagGlyph = MapMusChar(doc->musFontInfoIndex, 
 															(stemDown? MCH_eighthFlagDown : MCH_eighthFlagUp));
 						xoff = MusCharXOffset(doc->musFontInfoIndex, flagGlyph, lnSpace);
@@ -713,7 +713,7 @@ PushLock(GRNOTEheap);
 							Move(d2p(xoff), d2p(yoff));
 						DrawChar(flagGlyph);
 					}
-					else {														/* Draw using multiple flag chars */
+					else {												/* Draw using multiple flag chars */
 						short count = flagCount;
 
 						/* Draw extension flag(s) */
@@ -1093,7 +1093,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			SDDrawGRDraw(doc, xd, yd, xd2, yd2, lineLW, &context);
 			break;
 
-		case GRSustainOn:
+		case GRSusPedalDown:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
 			oldStyle = GetPortTxFace();
@@ -1107,7 +1107,7 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 			DrawString(oneChar);
 			break;
 			
-		case GRSustainOff:
+		case GRSusPedalUp:
 			oldFont = GetPortTxFont();
 			oldSize = GetPortTxSize();
 			oldStyle = GetPortTxFace();
@@ -1405,7 +1405,7 @@ PopLock(OBJheap);
 }
 
 
-/* ----------------------------------------------------------------------- Beams -- */
+/* ----------------------------------------------------------------------------- Beams -- */
 
 /* Draw a single beam (not a complete set), for either normal or grace-note beamsets. */
 
@@ -1739,7 +1739,7 @@ static void SDDrawBeamset(Document *doc, LINK pL, LINK measL)
 }
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 {
@@ -1797,9 +1797,9 @@ static void SDDrawSlur(Document *doc, LINK pL, LINK measL)
 }
 
 
-/* =================================================================================== */
+/* ====================================================================================== */
 
-/* ------------------------------------------------------------------ HandleSymDrag -- */
+/* --------------------------------------------------------------------- HandleSymDrag -- */
 /* Should be called by all CheckXXX routines to handle normal dragging. See comments
 on DoSymbolDrag for a description of the torturous route we take to get here. */
 
@@ -1812,7 +1812,7 @@ Boolean HandleSymDrag(Document *doc, LINK pL, LINK subObjL, Point pt, unsigned c
 }
 
 
-/* -------------------------------------------------------------------- SymDragLoop -- */
+/* ----------------------------------------------------------------------- SymDragLoop -- */
 /* Routine that is actually responsible for dragging the object. First calls the
 SDDraw routine for the object's type to draw the to-be-dragged object into the
 offscreen bitmap; then enters the loop where the user drags the object; and finally
@@ -2411,7 +2411,7 @@ noteDragDone:
 }
 
 
-/* ------------------------------------------------------------------- DoSymbolDrag -- */
+/* ---------------------------------------------------------------------- DoSymbolDrag -- */
 /* This is the entry point for all dragging routines handling normal dragging.
 If symbol is beforeFirstMeas, handle it as a special case and return. Otherwise,
 set up the three offscreen bitmaps and call CheckObject, which should call the
@@ -2431,7 +2431,7 @@ Boolean DoSymbolDrag(Document *doc, Point pt)
 	
 	/* If there is no object, do nothing. */
 
-	pL = FindObject(doc, pt, &index, SMFind);
+	pL = FindAndActOnObject(doc, pt, &index, SMFind);
 	if (!pL) return False;
 	
 	DisableUndo(doc, False);

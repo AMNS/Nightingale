@@ -19,12 +19,13 @@
 
 #include "CoreMIDIDefs.h"
 
-/* As of version 5.4 or earlier, Nightingale supports Apple's Core MIDI and no other
-MIDI driver. It formerly supported, in (I think) chronological order, the "MacTutor"
+/* As of version 5.4, if not earlier, Nightingale supports Apple's Core MIDI and no
+other MIDI driver. It formerly supported, in more-or-less this order, the "MacTutor"
 driver, MIDI Pascal, Apple MIDI Manager, Opcode's OMS, and Mark of the Unicorn's
 FreeMIDI. The earlier drivers all predate OS X, and if it's even possible, I seriously
 doubt if it's desirable to revive any of the earlier drivers. Unfortunately, there's
 still a lot of code here and in other MIDI-related files left over from earlier drivers.
+
 The following comment dates back to the 20th century: "Nightingale supports both MIDI
 Manager and its own 'built-in' MIDI routines. The latter, used here and in MIDIRecord.c,
 are Altech Systems' MIDI Pascal 3.0. We used to use a driver from Kirk Austin's articles
@@ -147,8 +148,8 @@ static Boolean HiliteSyncRect(
 		}
 	
 	HiliteRect(r);
+	
 	/* Convert back to paper coords */
-
 	OffsetRect(r, -rPaper->left, -rPaper->top);
 	
 	return turnedPage;
@@ -600,27 +601,27 @@ static void SendMIDIPan(Document *doc,MIDIUniqueID destDevID, char channel, Byte
 	CMMIDIPan(destDevID, channel, panSetting, tStamp);	
 }
 
-Boolean IsMidiSustainOn(LINK pL) 
+Boolean IsPedalDown(LINK pL) 
 {
 	if (ObjLType(pL) == GRAPHICtype) {
 		PGRAPHIC p = GetPGRAPHIC(pL);
-		return (p->graphicType == GRSustainOn);
+		return (p->graphicType == GRSusPedalDown);
 	}
 		
 	return False;
 }
 
-Boolean IsMidiSustainOff(LINK pL) 
+Boolean isPedalUp(LINK pL) 
 {
 	if (ObjLType(pL) == GRAPHICtype) {
 		PGRAPHIC p = GetPGRAPHIC(pL);
-		return (p->graphicType == GRSustainOff);
+		return (p->graphicType == GRSusPedalUp);
 	}
 		
 	return False;
 }
 
-Boolean IsMidiPan(LINK pL) 
+Boolean IsMIDIPan(LINK pL) 
 {
 	if (ObjLType(pL) == GRAPHICtype) {
 		PGRAPHIC p = GetPGRAPHIC(pL);
@@ -630,11 +631,11 @@ Boolean IsMidiPan(LINK pL)
 	return False;
 }
 
-Boolean IsMidiController(LINK pL) 
+Boolean IsMIDIController(LINK pL) 
 {
-	if (IsMidiSustainOn(pL) ||
-		 IsMidiSustainOff(pL) ||
-		 IsMidiPan(pL)) 
+	if (IsPedalDown(pL) ||
+		 isPedalUp(pL) ||
+		 IsMIDIPan(pL)) 
 	{
 		return True;
 	}
@@ -642,28 +643,28 @@ Boolean IsMidiController(LINK pL)
 	return False;
 }
 
-Byte GetMidiControlNum(LINK pL) 
+Byte GetMIDIControlNum(LINK pL) 
 {
-	if (IsMidiSustainOn(pL) || IsMidiSustainOff(pL)) {
+	if (IsPedalDown(pL) || isPedalUp(pL)) {
 		return MSUSTAIN;
 	}
-	if (IsMidiPan(pL)) {
+	if (IsMIDIPan(pL)) {
 		return MPAN;
 	}
 	return 0;	
 }
 
-Byte GetMidiControlVal(LINK pL) 
+Byte GetMIDIControlVal(LINK pL) 
 {
 	Byte ctrlVal = 0;
 	
-	if (IsMidiSustainOn(pL)) {
+	if (IsPedalDown(pL)) {
 		ctrlVal = 127;
 	}
-	if (IsMidiSustainOff(pL)) {
+	if (isPedalUp(pL)) {
 		ctrlVal = 0;		
 	}
-	if (IsMidiPan(pL)) {
+	if (IsMIDIPan(pL)) {
 		ctrlVal = GraphicINFO(pL);
 	}
 
@@ -1078,16 +1079,13 @@ pL,syncRect.left,syncRect.right,syncPaper.left,syncPaper.right);
 					if (IsMIDIPatchChange(pL)) {
 						patchChangePosted = PostMIDIPatchChange(doc, pL, partPatch, partChannel);						
 					}
-					else if (IsMidiSustainOn(pL)) 
-					{
+					else if (IsPedalDown(pL)) {
 						sustainOnPosted = PostMIDISustain(doc, pL, True);
 					}
-					else if (IsMidiSustainOff(pL)) 
-					{
+					else if (isPedalUp(pL)) {
 						sustainOffPosted = PostMIDISustain(doc, pL, False);
 					}
-					else if (IsMidiPan(pL)) 
-					{
+					else if (IsMIDIPan(pL)) {
 						panPosted = PostMIDIPan(doc, pL);
 					}					
 				}

@@ -402,7 +402,7 @@ void CMTeardown(void)
 // Sending Notes
 
 // Need a 1 packet long list to send
-// 	Set the packet's timeStamp to zero [= now, see Core Midi Doc, MIDIPacket]
+// 	Set the packet's timeStamp to zero [= now, see Core MIDI Doc, MIDIPacket]
 //		Call MIDISend
 //
 // Need separate packet list (not gMIDIPacketList)
@@ -939,7 +939,7 @@ static void CheckDefaultDevices()
 // These calls use a selected input / MIDI thru device & channel, check if the
 // device / channel combos are valid, and get IORefNums for each for the MidiReadProc.
 //
-// Does Core Midi have an IORefNum for its read proc that needs to do this?
+// Does Core MIDI have an IORefNum for its read proc that needs to do this?
 
 void CoreMidiSetSelectedInputDevice(MIDIUniqueID inputDevice, short inputChannel)
 {
