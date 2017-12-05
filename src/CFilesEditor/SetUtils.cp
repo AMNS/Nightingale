@@ -344,6 +344,9 @@ Boolean SetSelStaff(Document *doc,
 					goto StaffFound;					
 				}
 		}
+		
+	/* No notes or rests are selected, so there's nothing to do. */
+	return False;
 
 StaffFound:
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
@@ -1078,7 +1081,6 @@ Boolean SetSelMeasVisible(Document *doc, Boolean visible)
 
 Boolean SetSelMeasType(Document *doc, short subtype)
 {
-	PAMEASURE	aMeasure;
 	LINK		pL, aMeasureL;
 	Boolean		didAnything=False;
 
@@ -1087,8 +1089,8 @@ Boolean SetSelMeasType(Document *doc, short subtype)
 			aMeasureL = FirstSubLINK(pL);
 			for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL))
 				if (MeasureSEL(aMeasureL)) {
-					aMeasure = GetPAMEASURE(aMeasureL);
-					aMeasure->subType = subtype;
+LogPrintf(LOG_DEBUG, "SetSelMeasType: aMeasureL=%u subtype=%d\n", aMeasureL, subtype);
+					MeasType(aMeasureL) = subtype;
 					didAnything = True;
 				}
 		}

@@ -156,6 +156,7 @@ Boolean TrackHairpin(Document *doc, LINK pL, Point pt, Point *endPt, Boolean lef
 	Rect2Window(doc, &tRect);
 	Pt2Window(doc, &pt);
 	oldPt = newPt = pt;
+	endv = pt.v;
 	
 	if (StillDown())
 		while (WaitMouseUp()) {
@@ -196,9 +197,9 @@ static Boolean GetCrossStatus(Document *doc, Point pt, Point newPt,
 	return (firstDynSys != lastDynSys);			/* True if crossSystem */
 }
 
-/* Track the hairpin; determine (1) if it's crossSystem and (2) considering whether
-it was entered forwards or backwards, if it's a crescendo or diminuendo; and
-add it to the data structure. */
+/* Track the hairpin; determine (1) if it's crossSystem and (2) considering whether it
+was entered forwards or backwards, if it's a crescendo or diminuendo; and add it to
+the object list. */
 
 Boolean TrackAndAddHairpin(Document *doc, LINK insSyncL, Point pt, short clickStaff,
 										short sym, short subtype, PCONTEXT pContext)
@@ -312,6 +313,7 @@ Boolean TrackEnding(Document *doc, LINK pL, Point pt, Point *endPt, short staff)
 	Rect2Window(doc, &tRect);
 	Pt2Window(doc, &pt);
 	oldPt = newPt = pt;
+	endv = pt.v;
 	
 	if (StillDown())
 		while (WaitMouseUp()) {
@@ -340,7 +342,7 @@ Boolean TrackEnding(Document *doc, LINK pL, Point pt, Point *endPt, short staff)
 	else return True;
 }
 
-/* Track the ending and add it to the data structure. Handles cancelling. */
+/* Track the ending and add it to the object list. Handles cancelling. */
  
 Boolean TrackAndAddEnding(Document *doc, Point pt, short clickStaff)
 {
@@ -1160,7 +1162,7 @@ LINK ObjAtEndTime(
 
 
 /* ---------------------------------------------------------------------- FindInsertPt -- */
-/* Locate the insertion point corresponding to pL's slot in the data structure. The
+/* Locate the insertion point corresponding to pL's slot in the object list. The
 slot consists of all J_D objects dependent on a J_IP or J_IT object terminating the
 slot, plus the J_IP/J_IT symbol; the insertion point corresponding to the slot is
 before the first J_D symbol of the slot, and the first J_D symbol of the slot is
@@ -1181,14 +1183,14 @@ LINK FindInsertPt(LINK pL)
 
 /* ----------------------------------------------------------------------- GetPitchLim -- */
 /* Given a staff subobject, deliver its extreme usable pitch level, in half-spaces
-relative to the top of the staff (negative values are going up). That pitch level
-is the most restrictive of:
+relative to the top of the staff (negative values are going up). That pitch level is
+the most restrictive of:
 	the distance to the top/bottom of the systemRect;
 	the distance to the FAR edge of the staff above or below (if there is one); and
 	MAX_LEDGERS ledger lines.
 Note that this does NOT guarantee legal MIDI note numbers, which depends on the clef
-and possibly octave sign. Having at most MAX_LEDGERS ledger lines is necessary but
-not sufficient for a note to be a legal MIDI note. */
+and possibly octave sign. Having at most MAX_LEDGERS ledger lines is necessary but not
+sufficient for a note to be a legal MIDI note. */
 
 short GetPitchLim(Document *doc, LINK staffL,
 						short staffn,
@@ -1198,7 +1200,8 @@ short GetPitchLim(Document *doc, LINK staffL,
 	register LINK aStaffL, bStaffL;
 	LINK sysL;
 	register PASTAFF aStaff, bStaff;
-	DRect dr;  DDIST dAway, aStaffBottom;
+	DRect dr;
+	DDIST dAway, aStaffBottom;
 	short staffAbove, staffBelow, limit;
 	CONTEXT context;
 	
@@ -1306,13 +1309,13 @@ short CalcPitchLevel(
 }	
 
 /* ------------------------------------------------------------- FindStaffSetSys et al -- */
-/* Return the staffn of the staff nearest to the given point, presumably a mouse
-click location, or NOONE of the point isn't within any system.  Also sets global
+/* Return the staff no. of the staff nearest to the given point -- probably a mouse
+click location -- or NOONE of the point isn't within any system.  Also set global
 doc->currentSystem. */
 
 static DDIST GetTopStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT contextTbl)
 {
-	short staffAbove;  PCONTEXT pContext,qContext;
+	short staffAbove;  PCONTEXT pContext, qContext;
 	DDIST topLimit;
 	
 	pContext = &contextTbl[StaffSTAFF(aStaffL)];
@@ -1328,7 +1331,7 @@ static DDIST GetTopStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT context
 
 static DDIST GetBotStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT contextTbl)
 {
-	short staffBelow; PCONTEXT pContext,qContext;
+	short staffBelow; PCONTEXT pContext, qContext;
 	DDIST bottomLimit;
 
 	pContext = &contextTbl[StaffSTAFF(aStaffL)];
@@ -1356,10 +1359,10 @@ short FindStaffSetSys(Document *doc, Point pt)
 	contextTbl = AllocContext();
 	if (!contextTbl) return NOONE;
 
-	pL = SetCurrentSystem(doc,pt);
+	pL = SetCurrentSystem(doc, pt);
 	if (!pL) return NOONE;
 	
-	pL = SSearch(pL,STAFFtype,GO_RIGHT);
+	pL = SSearch(pL, STAFFtype, GO_RIGHT);
 
 	ContextSystem(StaffSYS(pL), contextTbl);
 	ContextStaff(pL, contextTbl);
@@ -1368,8 +1371,8 @@ short FindStaffSetSys(Document *doc, Point pt)
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL)) {
 		if (StaffVIS(aStaffL)) {
 
-			topLimit = GetTopStfLim(doc,pL,aStaffL,contextTbl);
-			bottomLimit = GetBotStfLim(doc,pL,aStaffL,contextTbl);
+			topLimit = GetTopStfLim(doc, pL, aStaffL, contextTbl);
+			bottomLimit = GetBotStfLim(doc, pL, aStaffL, contextTbl);
 
 			pContext = &contextTbl[StaffSTAFF(aStaffL)];
 			SetRect(&r, pContext->staffLeft, topLimit,

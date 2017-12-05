@@ -162,7 +162,7 @@ Rect ComputeSysRect(LINK sysL, Rect paper, PCONTEXT pContext)
 	numStaves = NumVisStaves(sysL);
 	if (numStaves<=0) return emptyR;
 	
-	/* Get the box bounding the staff rects of all staff subObjects in the system. */
+	/* Get the box bounding the staff rects of all staff subobjects in the system. */
 
 	staffL = SSearch(sysL, STAFFtype, False);
 	aStaffL = FirstSubLINK(staffL);
@@ -253,7 +253,7 @@ Boolean DragGraySysRect(Document *doc, LINK sysL, Ptr ptr, Rect sysObjRect,
 /* Utilities for CheckSTAFF */
 
 /*
- * Select all subObjects of staff object pL in the part containing the staff <staffn>.
+ * Select all subobjects of staff object pL in the part containing the staff <staffn>.
  * Returns the LINK to the part containing <staffn>.
  */
 
@@ -686,7 +686,7 @@ LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT contex
 
 /* ------------------------------------------------------------------------ ObjectTest -- */
 /* Determine if mousedown at <pt> is a candidate for Check routine to handle selection
-of pL or one of pL's subObjects. */
+of pL or one of pL's subobjects. */
 
 Boolean ObjectTest(Rect *paper, Point pt, LINK pL)
 {
@@ -950,8 +950,8 @@ LINK CheckMasterObject (Document *doc, LINK pL, Boolean *found, Ptr ptr,
 
 
 /* ------------------------------------------------------------------ MasterObjectTest -- */
-/* Determine if mousedown at <pt> is a candidate for Check routine to handle
-selection of pL or one of pL's subObjects. */
+/* Determine if mousedown at <pt> is a candidate for Check routine to handle selection
+of pL or one of pL's subobjects. */
 
 Boolean MasterObjectTest(
 						Rect */*paper*/,				/* unused */
@@ -980,14 +980,13 @@ Boolean MasterObjectTest(
 
 
 /* ------------------------------------------------------------- FindAndActOnMasterObj -- */
-/* Find the object and subObject in the masterPage containing the mousedown <pt>.
+/* Find the object and subobject in the masterPage containing the mousedown <pt>.
 Traverse the masterPage data structure from tailL to headL, in order to correctly
 handle the spatial nesting of the objRects of connects, staves, systems and pages.
 That is, PAGEs enclose SYSTEMs, and SYSTEMs enclose STAFFs, so if we traverse from
 masterHeadL to masterTailL, STAFFs will be masked by SYSTEMs and SYSTEMs by PAGEs,
-with the net result that PAGEs mask everything. But a traversal from tailL to headL
-will correctly find STAFFs before their enclosing SYSTEMs, and SYSTEMs before their
-enclosing PAGEs. */
+with the net result that PAGEs mask everything. But traversing backwards will correctly
+find STAFFs before their enclosing SYSTEMs, and SYSTEMs before their enclosing PAGEs. */
 
 LINK FindAndActOnMasterObj(Document *doc, Point pt, short *pIndex, short checkMode)
 {
@@ -1043,7 +1042,7 @@ LINK FindAndActOnMasterObj(Document *doc, Point pt, short *pIndex, short checkMo
 
 /* ------------------------------------------------------------------ FormatObjectTest -- */
 /* Determine if mousedown at <pt> is a candidate for Check routine to handle
-selection of pL or one of pL's subObjects. NB; As of v. 5.7, this is unused. */
+selection of pL or one of pL's subobjects. NB; As of v. 5.7, this is unused. */
 
 Boolean FormatObjectTest(
 					Rect */*paper*/,			/* unused */
@@ -1072,7 +1071,7 @@ Boolean FormatObjectTest(
 
 
 /* ------------------------------------------------------------- FindAndActOnFormatObj -- */
-/* In the showFormat mode, find the object and subObject containing the mousedown
+/* In the showFormat mode, find the object and subobjectsubobject containing the mousedown
 <pt>.
 
 Traverse the main data structure from tailL to headL, in order to correctly handle

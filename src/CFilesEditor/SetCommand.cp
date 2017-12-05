@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	SetCommand.c
 *	PROJ:	Nightingale
 *	DESC:	Set dialog-handling routines, by John Gibson and DAB
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -204,7 +204,7 @@ static enum {
 	} E_SetDlogItems;
 	
 	
-/* --------------------------------------------------------------  static globals -- */
+/* -------------------------------------------------------------------  static globals -- */
 
 static enum {			/* Popup array indices */
 	MAIN_SET = 0,
@@ -273,10 +273,10 @@ static short	edit14Value = 0;
 
 /* For enabling/disabling items in the main popup */
 static Boolean haveSync, haveSlur, haveText, haveLyric, haveChordSym,
-					haveTempo, haveBarline, haveDynamic, haveClef, haveKeySig,
-					haveTimeSig, haveTuplet, haveBeamset, haveDraw, havePatchChange, havePan;
+				haveTempo, haveBarline, haveDynamic, haveClef, haveKeySig,
+				haveTimeSig, haveTuplet, haveBeamset, haveDraw, havePatchChange, havePan;
 
-/* ------------------------------------------------------------------- Prototypes -- */
+/* ------------------------------------------------------------------------ Prototypes -- */
 
 static pascal	Boolean SetFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 static Boolean	AnyBadValues(DialogPtr, Document *);
@@ -288,7 +288,7 @@ static void		DoConstPropPopChoice(DialogPtr dlog,short choice);
 static void		DoPropPopChoice(DialogPtr dlog,short choice);
 static void 	DoSetArrowKey(DialogPtr dlog, short whichKey);
 
-/* ================================================================================= */
+/* ====================================================================================== */
 
 static Point where;
 static short modifiers;
@@ -316,8 +316,9 @@ static pascal Boolean SetFilter(DialogPtr dlog, EventRecord *evt, short *itemHit
 				break;
 			case activateEvt:
 				if (w == GetDialogWindow(dlog)) {
-					short activ = (evt->modifiers & activeFlag)!=0;
-					SetPort(GetWindowPort(w)); }
+					//short activ = (evt->modifiers & activeFlag)!=0;
+					SetPort(GetWindowPort(w));
+				}
 				break;
 			case mouseDown:
 			case mouseUp:
@@ -371,12 +372,14 @@ static pascal Boolean SetFilter(DialogPtr dlog, EventRecord *evt, short *itemHit
 	}
 
 
-/* -------------------------------------------------------------- AnyBadValues -- */
+/* ---------------------------------------------------------------------- AnyBadValues -- */
 
 static Boolean SetStfBadValues(Document *, short);
 static Boolean SetStfBadValues(Document *doc, short staff)
 {
-	LINK partL, pL, aNoteL; PPARTINFO pPart; short firstStaff, lastStaff, maxStaff;
+	LINK partL, pL, aNoteL;
+	PPARTINFO pPart;
+	short firstStaff, lastStaff, maxStaff;
 
 	/* Use the first selected note/rest to find the part, then check that every
 		selected note/rest is on one of that part's staves. */
@@ -415,7 +418,7 @@ static Boolean SetStfBadValues(Document *doc, short staff)
 static Boolean AnyBadValues(DialogPtr dlog, Document *doc)
 {
 	Boolean	anError=False;
-	short		badField, value;
+	short	badField, value;
 	
 	switch (setPopups[MAIN_SET].currentChoice) {
 		case noteITEM:
@@ -467,14 +470,14 @@ static Boolean AnyBadValues(DialogPtr dlog, Document *doc)
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 		SelectDialogItemText(dlog, badField, 0, ENDTEXT);		/* Select bad field so user can easily fix it. */
-		return True;														/* Keep dialog on screen */
+		return True;											/* Keep dialog on screen */
 	}
 	else
 		return False;
 }
 
 
-/* ---------------------------------------------------------------- IsSetEnabled -- */
+/* ---------------------------------------------------------------------- IsSetEnabled -- */
 /* Return True if the Set command should be enabled (because something is selected
 that it can handle). */
 
@@ -484,8 +487,7 @@ Boolean IsSetEnabled(Document *doc)
 
 	if (doc==NULL) return False;
 	
-	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
-	{
+	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		if (LinkSEL(pL))
 			switch (ObjLType(pL)) {
 				case SYNCtype:
@@ -515,7 +517,7 @@ Boolean IsSetEnabled(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- InitSetItems -- */
+/* ---------------------------------------------------------------------- InitSetItems -- */
 /* Set global variables to indicate what types of objects are selected. Then, if
 type *pChoice is disabled, set it to the first one that's enabled. If any of the
 items are enabled, return True, else return False. */
@@ -528,8 +530,7 @@ static Boolean InitSetItems(Document *doc, short *pChoice)
 	haveTempo = haveBarline = haveDynamic = haveClef = haveKeySig = False;
 	haveTimeSig = haveTuplet = haveDraw = havePatchChange = False, havePan = False;
 
-	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))
-	{
+	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 		if (LinkSEL(pL))
 			switch (ObjLType(pL)) {
 				case SYNCtype:
@@ -573,7 +574,7 @@ static Boolean InitSetItems(Document *doc, short *pChoice)
 }
 
 
-/* --------------------------------------------------------------- XableSetItems -- */
+/* --------------------------------------------------------------------- XableSetItems -- */
 /* Enable/disable items in the main popup according to what types of objects are
 selected (actually, we only have to disable, since they're always initially enabled).
 */
@@ -599,7 +600,7 @@ static void XableSetItems(Document */*doc*/)		/* doc is no longer used */
 }
 
 
-/* --------------------------------------------------------- FindMainEnabledItem -- */
+/* --------------------------------------------------------------- FindMainEnabledItem -- */
 /* Find the next enabled item in the main popup, wrapping around if <wrap>. Returns
 the enabled item's number, or -1 if none is found without wrapping. Assumes the
 <haveXXX> variables have been set, presumably by XableSetItems. */
@@ -645,13 +646,13 @@ short FindMainEnabledItem(short currItem, Boolean up, Boolean wrap)
 }
 
 
-/* ------------------------------------------------------------------- SetDialog -- */
+/* ------------------------------------------------------------------------- SetDialog -- */
 /* If OK'ed, sets its parameters to the new value and to describe the object type
 and property to set to that value, and returns True. If Cancelled or an error
 occurs, returns False. */
 
 Boolean SetDialog(
-				Document *doc,
+				Document	*doc,
 				short		*objType,			/* Type of object to be set (ttt) */
 				short		*param,				/* Property of object to be set (ppp) */
 				short		*finalVal 			/* Return value (vvv) */
@@ -670,14 +671,14 @@ Boolean SetDialog(
 
 	GetPort(&oldPort);
 	
-	dlog = GetNewDialog(SET_DLOG,NULL,BRING_TO_FRONT);
+	dlog = GetNewDialog(SET_DLOG, NULL, BRING_TO_FRONT);
 	if (dlog == NULL) {
 		DisposeModalFilterUPP(filterUPP);
 		MissingDialog(SET_DLOG);
 		return False;
 	}
 
-	CenterWindow(GetDialogWindow(dlog),80);
+	CenterWindow(GetDialogWindow(dlog), 80);
 	SetPort(GetDialogWindowPort(dlog));
 
 	/* Initialize all PopUps. First, though, we have to set <mainSetChoice>. */
@@ -945,12 +946,12 @@ Boolean SetDialog(
 			case barlineITEM:
 				*param = barlinePropertyChoice;
 				if (barlinePropertyChoice==barlineTypeITEM) *finalVal = barlineTypeChoice;
-				else													  *finalVal = visibleChoice;
+				else											*finalVal = visibleChoice;
 				break;
 			case dynamicITEM:
 				*param = dynamicPropertyChoice;
 				if (dynamicPropertyChoice==dynamSmallITEM) *finalVal = dynamicSizeChoice;
-				else													  *finalVal = visibleChoice;
+				else											*finalVal = visibleChoice;
 //LogPrintf(LOG_NOTICE, "dynamicITEM: visibleChoice=%d *finalVal=%d\n", visibleChoice, *finalVal);
 				break;
 			case clefITEM:
@@ -968,7 +969,7 @@ Boolean SetDialog(
 			case tupletITEM:
 				*param = tupletPropertyChoice;
 				if (tupletPropertyChoice==bracketITEM) *finalVal = visibleChoice;
-				else												*finalVal = accNumVisChoice;
+				else											*finalVal = accNumVisChoice;
 				break;
 			case beamsetITEM:
 				*param = beamsetPropertyChoice;
@@ -1010,9 +1011,9 @@ broken:
 
 static void DoMainPopChoice(DialogPtr dlog, short choice)
 {
-	short			type;
+	short		type;
 	Handle		hndl;
-	Rect			box;
+	Rect		box;
 	Str255		str;
 	
 	switch (choice)	{
@@ -1022,7 +1023,7 @@ static void DoMainPopChoice(DialogPtr dlog, short choice)
 		case slurTieITEM:
 			DoPropPopChoice(dlog,setPopups[SLUR_PROPERTY].currentChoice);
 			GetDialogItem(dlog,STXT10_Value,&type,&hndl,&box);
-			GetIndString(str,SET_STRS,1);											/* "default" */
+			GetIndString(str,SET_STRS,1);								/* "default" */
 			SetDialogItemText(hndl,str);
 			ShowDialogItem(dlog,STXT10_Value);
 			break;
@@ -1094,7 +1095,7 @@ static void DoConstPropPopChoice(DialogPtr dlog, short choice)
 
 			if (choice==drawITEM) {
 				GetDialogItem(dlog,STXT7_Property,&type,&hndl,&box);
-				GetIndString(str,SET_STRS,2);											/* "thickness" */
+				GetIndString(str,SET_STRS,2);							/* "thickness" */
 				SetDialogItemText(hndl,str);
 				ShowDialogItem(dlog,STXT7_Property);
 				ShowDialogItem(dlog,EDIT9);			
@@ -1141,14 +1142,14 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 					SelectDialogItemText(dlog,EDIT9,0,ENDTEXT);
 					break;
 				case velocityITEM:
-					HideDialogItem(dlog,STXT8_To);
-					HideDialogItem(dlog,EDIT9);
-					HideDialogItem(dlog,STXT11_qtr);
+					HideDialogItem(dlog, STXT8_To);
+					HideDialogItem(dlog, EDIT9);
+					HideDialogItem(dlog, STXT11_qtr);
 					currValuePop = -1;	
-					ShowDialogItem(dlog,RAD12_fromContext);
-					ShowDialogItem(dlog,RAD13_to);
-					ShowDialogItem(dlog,EDIT14);
-					SelectDialogItemText(dlog,EDIT14,0,group1==RAD13_to?ENDTEXT:0);
+					ShowDialogItem(dlog, RAD12_fromContext);
+					ShowDialogItem(dlog, RAD13_to);
+					ShowDialogItem(dlog, EDIT14);
+					SelectDialogItemText(dlog, EDIT14, 0, group1==RAD13_to? ENDTEXT:0);
 					break;
 				case noteAppearanceITEM:
 					HideDialogItem(dlog,EDIT9);
@@ -1417,10 +1418,10 @@ static void DoPropPopChoice(DialogPtr dlog, short choice)
 		case timeSigITEM:			/* no property popup for this yet */
 			break;
 			
-		case patchChangeITEM:			/* no property popup for this yet */
+		case patchChangeITEM:		/* no property popup for this yet */
 			break;
 
-		case panITEM:			/* no property popup for this yet */
+		case panITEM:				/* no property popup for this yet */
 			break;
 
 	}
@@ -1434,7 +1435,8 @@ items. */
 
 void DoSetArrowKey(DialogPtr dlog, short whichKey)
 {
-	short lastItemNum,newChoice,oldHilitedPop,newHilitedPop; UserPopUp *p;
+	short lastItemNum, newChoice, oldHilitedPop, newHilitedPop;
+	UserPopUp *p;
 	Str255 str;
 					
 	switch (whichKey) {
@@ -1442,7 +1444,7 @@ void DoSetArrowKey(DialogPtr dlog, short whichKey)
 		case DOWNARROWKEY:
 			if (hilitedPop==-1) {
 				hilitedPop = MAIN_SET;
-				HilitePopUp(&setPopups[MAIN_SET],True);
+				HilitePopUp(&setPopups[MAIN_SET], True);
 			}
 			else {
 				p = &setPopups[hilitedPop];
@@ -1483,7 +1485,7 @@ void DoSetArrowKey(DialogPtr dlog, short whichKey)
 								DoPropPopChoice(dlog,newChoice);
 				HilitePopUp(p,True);
 			}
-			return;										/* avoid the statements after switch(whichKey) */
+			return;									/* avoid the statements after switch(whichKey) */
 						
 		case LEFTARROWKEY:
 			if (hilitedPop == -1) {					/* If no popup is hilited, hilite main popup. */
@@ -1492,7 +1494,7 @@ void DoSetArrowKey(DialogPtr dlog, short whichKey)
 			}
 			else if (hilitedPop == currPropertyPop) {
 				oldHilitedPop = currPropertyPop;
-				newHilitedPop = MAIN_SET;							/* Move to main popup. */
+				newHilitedPop = MAIN_SET;						/* Move to main popup. */
 			}
 			else if (hilitedPop == currValuePop) {
 				oldHilitedPop = currValuePop;
@@ -1512,14 +1514,14 @@ void DoSetArrowKey(DialogPtr dlog, short whichKey)
 				oldHilitedPop = MAIN_SET;
 				if (currPropertyPop>-1) newHilitedPop = currPropertyPop;
 				else if (currValuePop>-1) newHilitedPop = currValuePop;
-				else return; }											/* Main popup stays hilited. */
+				else return; }									/* Main popup stays hilited. */
 			else if (hilitedPop == currPropertyPop) {
 				if (currValuePop>-1) {
 					oldHilitedPop = currPropertyPop;
 					newHilitedPop = currValuePop; }
-				else return; }											/* Don't remove hiliting. */
+				else return; }									/* Don't remove hiliting. */
 			else if (hilitedPop == currValuePop) {
-				return;	}												/* Don't remove hiliting. */
+				return;	}										/* Don't remove hiliting. */
 			break;			
 	}	/* end switch (whichKey) */
 				
@@ -1529,7 +1531,7 @@ void DoSetArrowKey(DialogPtr dlog, short whichKey)
 }
 
 
-/* ----------------------------------------------------------------------- DoSet -- */
+/* ----------------------------------------------------------------------------- DoSet -- */
 /* Handle the "QuickChange" (originally "Set") menu item. */
 
 void DoSet(Document *doc)

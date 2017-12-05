@@ -72,7 +72,7 @@ void UMoveMeasures(LINK startL, LINK endL, DDIST diffxd)
 in that Measure's System, move that following stuff left or right as appropriate
 so it starts where the Measure ends. Identical to CanMoveRestOfSystem (q.v.) except
 that it treats xd's as unsigned, instead of signed, numbers. ??SHOULD IT JUST
-SKIP MeasFillSystem, SINCE IT'S NOT NEEDED AND CAN'T BE RELIABLE? */
+SKIP SetMeasFillSystem, SINCE IT'S NOT NEEDED AND CAN'T BE RELIABLE? */
 
 void UMoveRestOfSystem(Document *doc, LINK measL, DDIST measWidth)
 {

@@ -47,7 +47,7 @@ DDIST MeasWidth(LINK);
 DDIST MeasOccupiedWidth(Document *, LINK, long);
 DDIST MeasJustWidth(Document *, LINK, CONTEXT);
 Boolean SetMeasWidth(LINK, DDIST);
-Boolean MeasFillSystem(LINK);
+Boolean SetMeasFillSystem(LINK);
 
 Boolean IsAfter(LINK, LINK);
 Boolean IsAfterIncl(LINK, LINK);

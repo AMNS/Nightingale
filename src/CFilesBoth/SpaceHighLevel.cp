@@ -987,7 +987,7 @@ void PositionSysByTable(
 	
 	/* Set the subobj rects of the last Measure to go to the end of the System. */
 	
-	MeasFillSystem(endL);
+	SetMeasFillSystem(endL);
 }
 
 

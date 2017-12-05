@@ -2434,3 +2434,35 @@ Nov 27 13:10:21 DonDualG5 Ngale[76329]: DrawGRAPHIC>GetGraphicDBox: doDraw=1 pDB
 No, right! InvalObject calls DrawGRAPHIC, which call GetGraphicDBox, which returns the old bbox;
 then _somebody_ calls DrawGRAPHIC and gets the new, enlarged bbox, but it's too late. ??
 
+To Be Continued.
+
+-------------------------------------------------------------------------------
+
+3 - 5 Dec.
+
+Issue #163: The current version of my arrangement of All You Need Is Love, on four
+staves in one group, has a repeat bar that should just be a double barline. However,
+setting the type to double barline with the QuickChange command affects only two staves;
+it should affect the entire group. This is especially serious because there's no way to
+fix this with Get Info.
+
+Cause: SetMeasType() correctly operates only on Measure subobjects that are selected.
+But clicking anywhere on the barline in question selects only staves 1 and 3. This is
+a bug in CheckMEASURE(), case SMClick:
+
+ * Measure subobjects are unusual in that they may be grouped as indicated by
+ * connAbove and connStaff, and groups can only be selected as a whole. If this
+ * measure is the top one of a group, set rSub and groupTopStf/groupBottomStf
+ * to include the entire group; if it's a lower one of a group, they will then
+ * already be set correctly. Notice that this code assumes that when a lower
+ * subobject of a group is encountered, we've already set rSub from the top one
+ * of the group; this is safe as long as we insert subobjects for all staves at
+ * once and in order (FIXME: this is questionable -- check it!), and don't
+ * allow deleting anything but the entire object.
+
+That assumption isn't just questionable, it's wrong! But CheckMEASURE() does a lot of
+different things and the code is a mess, so it's difficult to undo properly. Well, find
+the visible staves in the group 1st and operate on all and only those => W%^)(#%$% just
+inserting a barline crashes in CheckMEASURE for a different case! But it shouldn't be
+hard to fix just case SMClick by using my new utility routines GetStaffGroupBounds() and
+GetMeasureVisStaffBounds().

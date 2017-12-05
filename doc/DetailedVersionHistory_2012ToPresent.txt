@@ -1885,3 +1885,9 @@ MIDIGeneral.h, MidiMap.h, NTypes.h, vars.h; Browser, Check, CheckUtils, CoreMIDI
 Dragging, DrawObject, InitNightingale, Insert, InsNew, InsUtils, MasterMouse,
 MIDIDialogs, MIDIFSave, MIDIPlay, NewSlur, Select, SetCommand, SFormat, UIFUtils.
 
+-------------------------------------------------------------------------------
+
+2 - 5 Dec.
+
+Minor cleanup. Affects DSUtils.h, MemMacros.h; Check, CheckUtils, DSUtils, InsUtils,
+MasterMouse, RfmtRaw, Score, SetCommand, SetUtils, SpaceHighLevel.

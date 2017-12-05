@@ -140,6 +140,7 @@
 #define MeasureVIS(link)	( (GetPAMEASURE(link))->visible )
 #define PSMeasVIS(link)		( (GetPAPSMEAS(link))->visible )
 
+#define MeasType(link)		( (GetPAMEASURE(link))->subType )
 #define PSMeasType(link)	( (GetPAPSMEAS(link))->subType )
 #define DynamType(link) 	( (GetPDYNAMIC(link))->dynamicType )
 #define RptType(link) 		( (GetPRPTEND(link))->subType )

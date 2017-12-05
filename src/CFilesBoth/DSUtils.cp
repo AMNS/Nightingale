@@ -14,7 +14,7 @@
 		GetSysWidth				GetSysLeft
 		StaffHeight				StaffLength				MeasWidth
 		MeasOccupiedWidth		MeasJustWidth			SetMeasWidth
-		MeasFillSystem
+		SetMeasFillSystem
 		IsAfter					IsAfterIncl				BetweenIncl
 		WithinRange				SamePage				SameSystem
 		SameMeasure
@@ -1039,18 +1039,18 @@ Boolean SetMeasWidth(LINK measL, DDIST width)
 }
 
 
-/* -------------------------------------------------------------------- MeasFillSystem -- */
+/* ----------------------------------------------------------------- SetMeasFillSystem -- */
 /* Set the measureRects of all subobjects of <measL>, which must be a Measure, to
 extend to the end of their System (which ends at the same point as the Staff). If
 any of the subobjects starts at or past the end of their Staff, return False, else
 True. */
 
-Boolean MeasFillSystem(LINK measL)
+Boolean SetMeasFillSystem(LINK measL)
 {
 	DDIST	staffLen;
 
 	if (!MeasureTYPE(measL)) {
-		MayErrMsg("MeasFillSystem: %ld isn't a Measure.", (long)measL);
+		MayErrMsg("SetMeasFillSystem: %ld isn't a Measure.", (long)measL);
 		return False;
 	}
 	staffLen = StaffLength(measL);
@@ -1393,7 +1393,7 @@ void GetSysRange(Document */*doc*/, LINK startL, LINK endL, LINK *startSysL, LIN
 }
 
 
-/* ---------------------------------------------------- Find "First" of various things -- */
+/* --------------------------------------- Find or check for "First" of various things -- */
 
 /* Return the first Measure of the System containing pL. pL is regarded as a
 LINK, not a selRange ptr. If no System can be found, or no Measure, return
@@ -1852,7 +1852,7 @@ Boolean CanMoveRestOfSystem(Document *doc, LINK measL, DDIST measWidth)
 			if (!IsAfter(endSysL, nextMeasL)) {
 				MoveMeasures(nextMeasL, endSysL, diffxd);
 				lastMeasL = LSSearch(endSysL, MEASUREtype, ANYONE, True, False);
-				if (!MeasFillSystem(lastMeasL)) return False;
+				if (!SetMeasFillSystem(lastMeasL)) return False;
 			}
 		}
 	}

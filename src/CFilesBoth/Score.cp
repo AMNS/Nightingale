@@ -597,7 +597,7 @@ Boolean FixMeasRectXs(LINK startBarL, LINK endBarL)
 
 	for (barL = startBarL; barL; barL = LinkRMEAS(barL)) {
 		if (LastMeasInSys(barL))
-			MeasFillSystem(barL);
+			SetMeasFillSystem(barL);
 		else {
 			measWidth = LinkXD(LinkRMEAS(barL))-LinkXD(barL);
 			if (measWidth<=0) {

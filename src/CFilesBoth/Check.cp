@@ -32,6 +32,8 @@
 						selects and highlites as appropriate.
 		=SMStaffDrag	Determines whether *(Rect *)ptr encloses any subobject(s)
 						on staves within stfRange; selects and highlites as appropriate.
+						FIXME: In calls to these routines from FindAndActOnObject(),
+						stfRange is undefined!
 		=SMSelect		Selects and highlites all subobjects.
 		=SMSelectRange	Selects and highlites all subobjects within stfRange.
 		=SMSelNoHilite	Selects all subobjects but does no highliting.
@@ -2098,7 +2100,7 @@ PushLock(NOTEheap);
 					InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
 					if (CapsLockKeyDown() && OptionKeyDown())
 						if (SUSPICIOUS_WREL_RECT(wSub))
-							LogPrintf(LOG_NOTICE, " %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
+							LogPrintf(LOG_INFO, " %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
 								enlargeSpecial.h, enlargeSpecial.v);
 					HiliteRect(&wSub);
 				}
@@ -2563,10 +2565,9 @@ short CheckMEASURE(Document *doc, LINK pL, CONTEXT context[],
 				halfWidth,			/* half of pixel width */
 				groupTopStf, groupBottomStf;	/* Top/bottom staff nos. for current group */
 	short		result,				/* =NOMATCH unless object/subobject clicked in */
-				measureStf,connStaff;
+				measureStf, connStaff;
 	Boolean		objSelected,		/* False unless something in the object is selected */
-				measDrag,
-				firstMeas;
+				measDrag;
 	DDIST		xd,					/* scratch DDIST coordinates */
 				dTop, dLeft,		/* absolute DDIST position of origin (staff or measure) */
 				dBottom;
@@ -2577,18 +2578,17 @@ short CheckMEASURE(Document *doc, LINK pL, CONTEXT context[],
 
 PushLock(OBJheap);
 PushLock(MEASUREheap);
-	firstMeas = FirstMeasInSys(pL);
 
 	/*
 	 *	From the user's standpoint, the first Measure (barline) of every System behaves
 	 *	as if it doesn't exist: it's unselectable as well as invisible, and nothing
-	 *	can be explicitly attached to it. This is probably not ideal: it'd be very
-	 *	nice to be able to select it so it could be moved with Get Info, at least if
-	 *	Show Invisibles is on, and it might be good to let the user make it visible,
-	 *	etc. But we'd still have to prevent deleting it! Anyway, for now, if this
-	 *	is the first Measure of its System, skip all of this.
+	 *	can be explicitly attached to it. (This is not ideal: it'd be very nice to be
+	 *	able to select it so it could be moved with Get Info, at least if Show Invisibles
+	 *	is on, and it might be good to let the user make it visible, etc. But we'd still
+	 *	want to prevent deleting it!) So if this is the first Measure of its System, do
+	 *	nothing.
 	 */
-	if (firstMeas) return NOMATCH;
+	if (FirstMeasInSys(pL)) return NOMATCH;
 
 	objSelected = False;
 	measDrag = True;
@@ -2598,84 +2598,83 @@ PushLock(MEASUREheap);
 	aMeasureL = FirstSubLINK(pL);
 	for (i = 0; aMeasureL; i++, aMeasureL=NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
-		if (!firstMeas) {
-			measureStf = NextLimStaffn(doc,pL,True,aMeasure->staffn);
-			pContext = &context[measureStf];
-			dTop = pContext->staffTop;
-			dLeft = pContext->staffLeft;
-			xd = dLeft+LinkXD(pL);
-			/*		
-			 * Measure subobjects are unusual in that they may be grouped as indicated by
-			 * connAbove and connStaff, and groups can only be selected as a whole. If this
-			 * measure is the top one of a group, set rSub and groupTopStf/groupBottomStf
-			 * to include the entire group; if it's a lower one of a group, they will then
-			 * already be set correctly. Notice that this code assumes that when a lower
-			 * subobject of a group is encountered, we've already set rSub from the top one
-			 * of the group; this is safe as long as we insert subobjects for all staves at
-			 * once and in order (FIXME: questionable--this should be checked!), and don't
-			 * allow deleting anything but the entire object.
-			 */ 
-			if (!aMeasure->connAbove) {
-				groupTopStf = measureStf;
-				if (aMeasure->connStaff!=0) {
-					connStaff = NextLimStaffn(doc,pL,False,aMeasure->connStaff);
-					dBottom = context[connStaff].staffTop
-									+context[connStaff].staffHeight;
-					switch (aMeasure->subType) {
-						case BAR_SINGLE:
-							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
-										d2p(xd)+halfWidth, d2p(dBottom));
-							break;
-						case BAR_DOUBLE:
-							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
-										d2p(xd)+halfWidth+2, d2p(dBottom));
-							break;
-						case BAR_FINALDBL:
-							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
-										d2p(xd)+halfWidth+3, d2p(dBottom));
-							break;
-						case BAR_RPT_L:
-						case BAR_RPT_R:
-						case BAR_RPT_LR:
-					/* FIXME: NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
-							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
-										d2p(xd)+halfWidth+2, d2p(dBottom));
-							break;
-						default:
-							break;
-					}
-					groupBottomStf = connStaff;
+		groupTopStf = groupBottomStf = aMeasure->staffn;
+		measureStf = NextLimStaffn(doc,pL,True,aMeasure->staffn);
+		pContext = &context[measureStf];
+		dTop = pContext->staffTop;
+		dLeft = pContext->staffLeft;
+		xd = dLeft+LinkXD(pL);
+		/*		
+		 * Measure subobjects are unusual in that they may be grouped as indicated by
+		 * connAbove and connStaff, and groups can only be selected as a whole. If this
+		 * measure is the top one of a group, set rSub and groupTopStf/groupBottomStf
+		 * to include the entire group; if it's a lower one of a group, they will then
+		 * already be set correctly. Notice that this code assumes that when a lower
+		 * subobject of a group is encountered, we've already set rSub from the top one
+		 * of the group; this is safe as long as we insert subobjects for all staves at
+		 * once and in order (FIXME: they really may _not_ be in order!) and don't
+		 * allow deleting anything but the entire object.
+		 */ 
+		if (!aMeasure->connAbove) {
+			groupTopStf = measureStf;
+			if (aMeasure->connStaff!=0) {
+				connStaff = NextLimStaffn(doc,pL,False,aMeasure->connStaff);
+				dBottom = context[connStaff].staffTop
+								+context[connStaff].staffHeight;
+				switch (aMeasure->subType) {
+					case BAR_SINGLE:
+						SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
+									d2p(xd)+halfWidth, d2p(dBottom));
+						break;
+					case BAR_DOUBLE:
+						SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
+									d2p(xd)+halfWidth+2, d2p(dBottom));
+						break;
+					case BAR_FINALDBL:
+						SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
+									d2p(xd)+halfWidth+3, d2p(dBottom));
+						break;
+					case BAR_RPT_L:
+					case BAR_RPT_R:
+					case BAR_RPT_LR:
+				/* FIXME: NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
+						SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
+									d2p(xd)+halfWidth+2, d2p(dBottom));
+						break;
+					default:
+						break;
 				}
-				else {
-					switch (aMeasure->subType) {
-						case BAR_SINGLE:
-							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
-										d2p(xd)+halfWidth,
-										d2p(dTop+pContext->staffHeight));
-							break;
-						case BAR_DOUBLE:
-							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
-										d2p(xd)+halfWidth+2,
-										d2p(dTop+pContext->staffHeight));
-							break;
-						case BAR_FINALDBL:
-							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
-										d2p(xd)+halfWidth+3,
-										d2p(dTop+pContext->staffHeight));
-							break;
-						case BAR_RPT_L:
-						case BAR_RPT_R:
-						case BAR_RPT_LR:
-					/* ?FIXME: NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
-							SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
-										d2p(xd)+halfWidth+2,
-										d2p(dTop+pContext->staffHeight));
-							break;
-						default:
-							break;
-					}
-					groupBottomStf = measureStf;
+				groupBottomStf = connStaff;
+			}
+			else {
+				switch (aMeasure->subType) {
+					case BAR_SINGLE:
+						SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
+									d2p(xd)+halfWidth,
+									d2p(dTop+pContext->staffHeight));
+						break;
+					case BAR_DOUBLE:
+						SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
+									d2p(xd)+halfWidth+2,
+									d2p(dTop+pContext->staffHeight));
+						break;
+					case BAR_FINALDBL:
+						SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
+									d2p(xd)+halfWidth+3,
+									d2p(dTop+pContext->staffHeight));
+						break;
+					case BAR_RPT_L:
+					case BAR_RPT_R:
+					case BAR_RPT_LR:
+				/* ?FIXME: NEED GetMeasureDrawInfo THAT SHARES CODE WITH GetRptEndDrawInfo */
+						SetRect(&rSub, d2p(xd)-halfWidth, d2p(dTop), 
+									d2p(xd)+halfWidth+2,
+									d2p(dTop+pContext->staffHeight));
+						break;
+					default:
+						break;
 				}
+				groupBottomStf = measureStf;
 			}
 		}
 		
@@ -2779,7 +2778,6 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 						STFRANGE stfRange,
 						Point enlarge)
 {
-	PPSMEAS			p;
 	PAPSMEAS		aPSMeas;
 	LINK			aPSMeasL;
 	PCONTEXT		pContext;
@@ -2802,10 +2800,10 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 	measDrag = True;
 	result = NOMATCH;
 	halfWidth = 2;
-	p = GetPPSMEAS(pL);
 	aPSMeasL = FirstSubLINK(pL);
 	for (i = 0; aPSMeasL; i++, aPSMeasL=NextPSMEASL(aPSMeasL)) {
 		aPSMeas = GetPAPSMEAS(aPSMeasL);
+		groupTopStf = groupBottomStf = aPSMeas->staffn;
 		if (aPSMeas->visible || doc->showInvis) {
 			measureStf = NextLimStaffn(doc,pL,True,aPSMeas->staffn);
 			pContext = &context[measureStf];
@@ -2821,6 +2819,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
  *	subobject of a group is encountered, we've already set rSub from the top one
  *	of the group; this is safe as long as we insert subobjects for all staves at
  * once and in order, and don't allow deleting anything but the entire object.
+ *  FIXME: staff subobjects may _not_ be in order!
  */ 
 			if (!aPSMeas->connAbove) {
 				groupTopStf = measureStf;

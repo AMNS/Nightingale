@@ -413,9 +413,9 @@ static LINK SelPartStaves(Document *doc, LINK staffL, CONTEXT context[], short s
 }
 
 
-/* Handle clicking on objects in the Master Page: track dragging, when the object
-is draggable, and selection. */
-	
+/* Handle clicking on objects in the Master Page: track selection and (when the object
+is draggable) dragging. */
+
 void DoMasterObject(Document *doc, Point pt, short modifiers)
 {
 	short index, oldnstaves, lowStaffn, hiStaffn, stf;
@@ -425,7 +425,7 @@ void DoMasterObject(Document *doc, Point pt, short modifiers)
 	doc->nstaves = doc->nstavesMP;
 	
 	selStaffL = NILINK;
-	staffL = LSSearch(doc->masterHeadL,STAFFtype,ANYONE,GO_RIGHT,False);
+	staffL = LSSearch(doc->masterHeadL, STAFFtype, ANYONE, GO_RIGHT, False);
 	aStaffL = FirstSubLINK(staffL);
 	for ( ; aStaffL; aStaffL = NextSTAFFL(aStaffL))
 		if (StaffSEL(aStaffL)) { selStaffL = aStaffL; break; }
