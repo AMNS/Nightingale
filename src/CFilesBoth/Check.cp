@@ -26,7 +26,7 @@
 /* The Check routines do different things depending on their <mode> parameter:
 		mode=SMClick	Determines whether *(Point *)ptr is inside any subobject(s)
 						(or objects if the object type has no subobjects), toggling
-						selection status and	highliting as appropriate.
+						selection status and highliting as appropriate.
 		=SMDblClick		Open the subobject for editing, if it's editable.
 		=SMDrag			Determines whether *(Rect *)ptr encloses any subobject(s);
 						selects and highlites as appropriate.
@@ -1020,11 +1020,6 @@ PopLock(RPTENDheap);
 }
 
 
-// FIXME: BELONGS ELSEWHERE!
-
-Boolean ChordFrameDialog(Document *doc, Boolean *relFSize, short *size, short *style,
-				short *enclosure, unsigned char *fontname, unsigned char *pTheChar);
-
 /* ---------------------------------------------------------------------- CheckGRAPHIC -- */
 /* GRAPHIC object selecter/highliter.  Does different things depending on the value of
 <mode> (see the list above), plus:
@@ -1126,13 +1121,13 @@ LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 1\n");
 							}
 
 #ifdef NOTYET
-							/* The PrepareUndo below should be all that's needed
-							   to implement undoing editing a text graphic, but
-							   -- by itself -- it crashes consistently. Adding the
-							   stmt to reset p avoids that problem, which makes no
-							   sense (since the relevant heaps are locked); but then
-							   Undoing often fails, apparently because we're not
-							   saving and restoring the string pool. Sigh. */
+							/* The PrepareUndo below should be all that's needed to
+							   implement undoing editing a text graphic, but -- by
+							   itself -- it crashes consistently. Adding the stmt to
+							   reset p avoids that problem, which makes no sense (since
+							   the relevant heaps are locked); but then Undoing often
+							   fails, apparently because we're not saving and restoring
+							   the string pool. Sigh. */
 							PrepareUndo(doc, pL, U_EditText, 51);			/* "Undo Edit Text" */
 							p = GetPGRAPHIC(pL);
 #else
@@ -1194,7 +1189,7 @@ LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 2/EraseAndInval pL=%u strlen=%d
 					case GRChordFrame:
 						{
 							short dummySize, dummyStyle, dummyEncl;
-							Str63 dummyFont; Boolean dummyRelSize;
+							Str63 dummyFont;  Boolean dummyRelSize;
 
 							change = ChordFrameDialog(doc, &dummyRelSize, &dummySize, &dummyStyle,
 								&dummyEncl, dummyFont, &string[1]);
@@ -2547,9 +2542,17 @@ PopLock(TIMESIGheap);
 }
 
 
+
+
 /* ---------------------------------------------------------------------- CheckMEASURE -- */
 /* MEASURE object selecter/highliter.  Does different things depending on the value of
-<mode> (see the list above). */
+<mode> (see the list above).
+
+CheckMEASURE's code is a mess, and it's difficult to fix because it does so many things!
+In versions through 5.8b4, case SMClick malfunctions (Issue #163 in GitHub); it's now
+handled in a clean way, but it depends on having a point in the affected staff group;
+for SMClick, ptr contains that point, but for some other cases, it doesn't, and I don't
+see a way to fix it without changing the calling sequence. */
 
 short CheckMEASURE(Document *doc, LINK pL, CONTEXT context[],
 						Ptr ptr,
@@ -2561,13 +2564,14 @@ short CheckMEASURE(Document *doc, LINK pL, CONTEXT context[],
 	PAMEASURE	aMeasure;
 	LINK		aMeasureL;
 	PCONTEXT	pContext;
-	short		i,
+	short		i, staffn,
 				halfWidth,			/* half of pixel width */
-				groupTopStf, groupBottomStf;	/* Top/bottom staff nos. for current group */
-	short		result,				/* =NOMATCH unless object/subobject clicked in */
+				clkGroupTopStf, clkGroupBottomStf,	/* Top/bottom staff nos. for current group (SMClick) */
+				groupTopStf, groupBottomStf,		/* Top/bottom staff nos. for current group (other) */
+				result,				/* =NOMATCH unless object/subobject clicked in */
 				measureStf, connStaff;
 	Boolean		objSelected,		/* False unless something in the object is selected */
-				measDrag;
+				measDrag, firstTime;
 	DDIST		xd,					/* scratch DDIST coordinates */
 				dTop, dLeft,		/* absolute DDIST position of origin (staff or measure) */
 				dBottom;
@@ -2595,6 +2599,7 @@ PushLock(MEASUREheap);
 	result = NOMATCH;
 	halfWidth = 2;
 	p = GetPMEASURE(pL);
+	firstTime = True;
 	aMeasureL = FirstSubLINK(pL);
 	for (i = 0; aMeasureL; i++, aMeasureL=NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
@@ -2678,10 +2683,24 @@ PushLock(MEASUREheap);
 			}
 		}
 		
-		wSub = rSub; OffsetRect(&wSub,pContext->paper.left,pContext->paper.top);
+		wSub = rSub;
+		OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
 		switch (mode) {
 			case SMClick:
-				if (PtInRect(*(Point *)ptr, &rSub)) {
+				if (firstTime) {
+					firstTime = False;
+					staffn = FindStaffSetSys(doc, *(Point *)ptr);
+					if (staffn==NOONE) return NOMATCH;
+					GetStaffGroupBounds(doc, staffn, &clkGroupTopStf, &clkGroupBottomStf);
+LogPrintf(LOG_DEBUG, "CheckMEASURE: staffn=%d clkGroupTopStf=%d clkGroupBottomStf=%d\n", staffn,
+clkGroupTopStf, clkGroupBottomStf);
+				}
+
+				/* If the staff is within the desired group and is visible, select the Measure */
+				if (aMeasure->staffn>=clkGroupTopStf && aMeasure->staffn<=clkGroupBottomStf
+						&& aMeasure->visible) {
+//LogPrintf(LOG_DEBUG, "CheckMEASURE: clkGroupTopStf=%d clkGroupBottomStf=%d staffn=%d\n",
+//clkGroupTopStf, clkGroupBottomStf, aMeasure->staffn);
 					aMeasure->selected = !aMeasure->selected;
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 					result = i;

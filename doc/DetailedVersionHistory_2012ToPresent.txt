@@ -1867,8 +1867,8 @@ and tuplets. Affects .rsrc; ScoreInfo.
 Increased the default distance to the right for the right end of an ottava sign relative
 to the last note/chord in the ottava. Affects style.h.
 
-Fixed bug: Feedback while dragging a pedal-down mark shows a 128th note instead of a
-pedal-down mark (Issue #162). Affects Dragging.
+Fixed bug (Issue #162): Feedback while dragging a pedal-down mark shows a 128th note
+instead of a pedal-down mark. Affects Dragging.
 
 Minor cleanup: rename GRMIDISustainOn/Off to GRSustainOn/Off, avoid uninitialized
 variables, etc. Affects DSUtils.h, NTypes.h, style.h, vars.h; Browser, Check,
@@ -1891,3 +1891,15 @@ MIDIDialogs, MIDIFSave, MIDIPlay, NewSlur, Select, SetCommand, SFormat, UIFUtils
 
 Minor cleanup. Affects DSUtils.h, MemMacros.h; Check, CheckUtils, DSUtils, InsUtils,
 MasterMouse, RfmtRaw, Score, SetCommand, SetUtils, SpaceHighLevel.
+
+-------------------------------------------------------------------------------
+
+6 - 8 Dec.
+
+Fixed bug (Issue #163): clicking on a barline should select all staves in its group,
+but -- notwithstanding the selection hilighting -- it may not, resulting in, e.g.,
+setting the type to (or from) repeat bar with the QuickChange command not affecting
+all staves in the group. Affects DSUtils.h; Check, DSUtils.
+
+Minor cleanup: rewrite some incredibly confusing code in DrawMEASURE(), etc. Affects
+Check, DrawObject, SetUtils.

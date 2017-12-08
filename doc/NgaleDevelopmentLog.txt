@@ -2446,8 +2446,8 @@ setting the type to double barline with the QuickChange command affects only two
 it should affect the entire group. This is especially serious because there's no way to
 fix this with Get Info.
 
-Cause: SetMeasType() correctly operates only on Measure subobjects that are selected.
-But clicking anywhere on the barline in question selects only staves 1 and 3. This is
+Cause: SetMeasType() correctly operates only on Measure subobjects that are selected,
+but clicking anywhere on the barline in question selects only staves 1 and 3. This is
 a bug in CheckMEASURE(), case SMClick:
 
  * Measure subobjects are unusual in that they may be grouped as indicated by
@@ -2464,5 +2464,24 @@ That assumption isn't just questionable, it's wrong! But CheckMEASURE() does a l
 different things and the code is a mess, so it's difficult to undo properly. Well, find
 the visible staves in the group 1st and operate on all and only those => W%^)(#%$% just
 inserting a barline crashes in CheckMEASURE for a different case! But it shouldn't be
-hard to fix just case SMClick by using my new utility routines GetStaffGroupBounds() and
-GetMeasureVisStaffBounds().
+hard to avoid impacting any case other than SMClick by using my new utility routines
+GetStaffGroupBounds() and GetMeasureVisStaffBounds()... Done!
+
+-------------------------------------------------------------------------------
+
+6 - 7 Dec.
+
+With the latest, New, insert chord symbol => log message "GetGraphicDBox failed. pL=10" and
+nothing is drawn. Open file containing chord symbol => it's not drawn. With 5.8b4, no
+problem. Huh?
+
+With either version, an apparently-correct Graphic of subtype GRChordSym is added to the
+object list. Ah, but the code in GetGraphicDBox, case GRChordSym:
+
+			return False;									/* Handled by DrawChordSym */
+
+So it shouldn't even be getting called! But how has this ever worked?? I see; until very
+recently, the return False was ignored; everything for chord symbols is handled by
+DrawChordSym! Not wonderful. But by far the easiest acceptable fix is to really skip
+calling GetGraphicDBox for chord symbols, _and_ add a comment to explain => done.
+

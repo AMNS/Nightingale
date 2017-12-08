@@ -48,6 +48,7 @@ DDIST MeasOccupiedWidth(Document *, LINK, long);
 DDIST MeasJustWidth(Document *, LINK, CONTEXT);
 Boolean SetMeasWidth(LINK, DDIST);
 Boolean SetMeasFillSystem(LINK);
+void GetStaffGroupBounds(Document *, short, short *, short *);
 
 Boolean IsAfter(LINK, LINK);
 Boolean IsAfterIncl(LINK, LINK);

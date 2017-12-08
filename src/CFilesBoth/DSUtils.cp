@@ -14,7 +14,7 @@
 		GetSysWidth				GetSysLeft
 		StaffHeight				StaffLength				MeasWidth
 		MeasOccupiedWidth		MeasJustWidth			SetMeasWidth
-		SetMeasFillSystem
+		SetMeasFillSystem		GetStaffGroupBounds
 		IsAfter					IsAfterIncl				BetweenIncl
 		WithinRange				SamePage				SameSystem
 		SameMeasure
@@ -1058,6 +1058,45 @@ Boolean SetMeasFillSystem(LINK measL)
 	
 	SetMeasWidth(measL, staffLen-LinkXD(measL));
 	return True;
+}
+
+
+/* --------------------------------------------------------------- GetStaffGroupBounds -- */
+/* Get the top and bottom staff numbers of the group containing <staffn>. */
+
+void GetStaffGroupBounds(Document *doc, short staffn, short *pTopStf, short *pBottomStf)
+{
+	LINK	pL, aMeasL=NILINK, bMeasL;
+	short	groupTopStf=0, groupBottomStf=0;	/* Top/bottom staff nos. for staffn's group */
+	
+	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
+		if (MeasureTYPE(pL)) {				
+			aMeasL = MeasOnStaff(pL, staffn);
+			break;
+		}
+	if (aMeasL==NILINK)	{					/* Should never happen with a valid score */
+		AlwaysErrMsg("GetStaffGroupBounds: no Measure found in score. Something is seriously wrong!");
+		goto Done;
+	}
+	
+	/* The highest-numbered staff with !<connAbove> whose number is below <staffn> is
+		the top staff of our group; its <connStaff> is the bottom staff. */
+	groupTopStf = -SHRT_MIN;
+	for (short stf = staffn; stf>0; stf--) {
+		bMeasL = MeasOnStaff(pL, stf);
+		if (!MeasCONNABOVE(bMeasL)) {
+			groupTopStf = stf;
+			groupBottomStf = MeasCONNSTAFF(bMeasL);
+			if (groupBottomStf==0) groupBottomStf = stf;
+//LogPrintf(LOG_DEBUG, "pL=L%u bMeasL=%Lu staffn=%d, stf=%d, groupTopStf=%d groupBottomStf=%d\n",
+//pL, bMeasL, staffn, stf, groupTopStf, groupBottomStf);
+			break;
+		}
+	}
+
+Done:
+	*pTopStf = groupTopStf;
+	*pBottomStf = groupBottomStf;
 }
 
 

@@ -530,7 +530,7 @@ Boolean SetSelNRAppear(Document *doc, short appearance)
 }
 
 
-/* ------------------------------------------------------------------- SetSelNRSmall -- */
+/* --------------------------------------------------------------------- SetSelNRSmall -- */
 /* Set the <small> flag of every selected note or rest. */
 
 Boolean SetSelNRSmall(Document *doc, short small)
@@ -1089,7 +1089,6 @@ Boolean SetSelMeasType(Document *doc, short subtype)
 			aMeasureL = FirstSubLINK(pL);
 			for ( ; aMeasureL; aMeasureL=NextMEASUREL(aMeasureL))
 				if (MeasureSEL(aMeasureL)) {
-LogPrintf(LOG_DEBUG, "SetSelMeasType: aMeasureL=%u subtype=%d\n", aMeasureL, subtype);
 					MeasType(aMeasureL) = subtype;
 					didAnything = True;
 				}

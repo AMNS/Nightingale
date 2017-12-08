@@ -1531,7 +1531,7 @@ return True normally, False if we can't compute the bounding box. */
 static Boolean GetGraphicDBox(Document *doc,
 					LINK pL,
 					Boolean expandN,
-					PCONTEXT pContext,
+					PCONTEXT pContext,			/* NILINK iff Graphic is attached to Page */
 					short fontID, short fontSize, short fontStyle,
 					DRect *pDBox				/* Bounding box (TOP_LEFT at 0,0 and no margin) */
 					)
@@ -1581,6 +1581,10 @@ static Boolean GetGraphicDBox(Document *doc,
 			}
 			return True;
 		case GRArpeggio:
+			if (pContext==NILINK) {
+				LogPrintf(LOG_WARNING, "GetGraphicDBox: can't handle arpeggio sign attached to Page.\n");
+				return False;
+			}
 			dHeight = qd2d(p->info, pContext->staffHeight, pContext->staffLines);
 			SetDRect(pDBox, 0, 0, pt2d(3), dHeight);			/* Width is crude but seems acceptable */
 			return True;
@@ -1623,9 +1627,9 @@ static Boolean GetGraphicDBox(Document *doc,
 	/* If we get here, the Graphic is some sort of text. */
 	p = GetPGRAPHIC(pL);
 	GetNPtStringBBox(doc, pStr, fontID, fontSize, fontStyle, p->multiLine, &bBox);
-char cStr[256]; Pstrcpy((unsigned char *)cStr, pStr); PToCString((unsigned char *)cStr);
-LogPrintf(LOG_DEBUG, "GetGraphicDBox: count lines=%d fontID, Size, Style=%d, %d, %d str='%s'\n",
-CountTextLines(string), fontID, fontSize, fontStyle, cStr);
+//char cStr[256]; Pstrcpy((unsigned char *)cStr, pStr); PToCString((unsigned char *)cStr);
+//LogPrintf(LOG_DEBUG, "GetGraphicDBox: count lines=%d fontID, Size, Style=%d, %d, %d str='%s'\n",
+//CountTextLines(string), fontID, fontSize, fontStyle, cStr);
 
 	/* 
 	 *	Pure fudgery: for mysterious reasons, if the style is not plain, what we have
@@ -1636,8 +1640,8 @@ CountTextLines(string), fontID, fontSize, fontStyle, cStr);
 	if (fontStyle!=0) bBox.right += 2*(*pStr)/3;
 
 	PtRect2D(&bBox, pDBox);	
-LogPrintf(LOG_DEBUG, "GetGraphicDBox: pDBox=%d,%d,%d,%d\n", pDBox->top, pDBox->left,
-		pDBox->bottom, pDBox->right);
+//LogPrintf(LOG_DEBUG, "GetGraphicDBox: pDBox=%d,%d,%d,%d\n", pDBox->top, pDBox->left,
+//		pDBox->bottom, pDBox->right);
 	return True;
 }
 
@@ -1653,8 +1657,8 @@ static void DrawGRPICT(Document */*doc*/,
 				Boolean /*dim*/			/* ignored */
 				)
 {
-	Rect r; short width, height;
-	short xp, yp, yTop; DDIST lnSpace;
+	Rect r;  short width, height;
+	short xp, yp, yTop;  DDIST lnSpace;
 	
 	lnSpace = LNSPACE(pContext);
 	yTop = pContext->paper.top;
@@ -2023,21 +2027,19 @@ PushLock(GRAPHICheap);
  	staffn = GetGraphicOrTempoDrawInfo(doc, pL, p->firstObj, p->staffn, &xd, &yd, &relContext);
 	GetGraphicFontInfo(doc, pL, &relContext, &fontID, &fontSize, &fontStyle);
 	
-	if (staffn!=NOONE) {
+	if (staffn==NOONE) pContext = NILINK;
+	else {
 		pContext = &context[staffn];
 		if (!pContext->staffVisible && !PageTYPE(p->firstObj)) goto Cleanup;
 	}
 
 	expandN = False;
 	if (p->graphicType==GRString) expandN = (p->info2!=0);
-	if (!GetGraphicDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox)) {
-		LogPrintf(LOG_WARNING, "DrawGRAPHIC: GetGraphicDBox failed. pL=%u", pL);
-		return;
-	}
-//LogPrintf(LOG_DEBUG, "DrawGRAPHIC>GetGraphicDBox: doDraw=%d pDBox=%d,%d,%d,%d\n\n", doDraw,
-//dEnclBox.top, dEnclBox.left, dEnclBox.bottom, dEnclBox.right);
-
-	OffsetDRect(&dEnclBox, xd, yd);
+	/* DrawChordSym gets the bounding box of chord symbols as well as drawing them, so
+		GetGraphicDBox doesn't handle chord symbols. */ 
+	if (p->graphicType!=GRChordSym &&
+			GetGraphicDBox(doc, pL, expandN, pContext, fontID, fontSize, fontStyle, &dEnclBox))
+		OffsetDRect(&dEnclBox, xd, yd);
 
 	dim = (outputTo==toScreen && !LOOKING_AT(doc, p->voice));
 
@@ -2221,7 +2223,7 @@ DrawEnclosure:
 
 Cleanup:
 	/* Strings in Sonata have been seen with zero-height objRects. That's not good, so
-		prevent possibility of zero-height objRect. */
+		avoid the possibility. */
 
 	if (outputTo==toScreen && objRect.bottom==objRect.top) objRect.bottom++;
 	LinkOBJRECT(pL) = objRect;
