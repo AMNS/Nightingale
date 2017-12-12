@@ -625,12 +625,12 @@ void DrawRptBar(Document *doc,
 	}
 
 	if (connStaff==0) {
-		dBotNorm = dBottom = dTop + pContext->staffHeight;			/* Not connected below */
+		dBotNorm = dBottom = dTop + pContext->staffHeight;				/* Not connected below */
 		if (pContext->showLines==1) dBottom -= LNSPACE(pContext);			
 	}
 	else {
-		pContext2 = &context[NextStaffn(doc,pL,False,connStaff)];	/* Connected below */
-		//pContext2 = &context[connStaff];							/* Connected below */
+		pContext2 = &context[NextVisStaffn(doc,pL,False,connStaff)];	/* Connected below */
+		//pContext2 = &context[connStaff];								/* Connected below */
 		dBottom = pContext2->staffTop + pContext2->staffHeight;
 		dBotNorm = dTop + pContext->staffHeight;					/* draw rpt-dots on <staff>, NOT <connStaff> */
 		if (pContext2->showLines==1) dBottom -= LNSPACE(pContext2);			
@@ -1587,10 +1587,10 @@ static void VisStavesInRange(
 				short *firstVisStf, short *lastVisStf 	/* Output: first and last visible staves in range */
 				)
 {
-	*firstVisStf = NextStaffn(doc, staffL, True, r1stStaff);
+	*firstVisStf = NextVisStaffn(doc, staffL, True, r1stStaff);
 	if (*firstVisStf<=0 || *firstVisStf>rLastStaff) *firstVisStf = -1;
 	
-	*lastVisStf = NextStaffn(doc, staffL, False, rLastStaff);
+	*lastVisStf = NextVisStaffn(doc, staffL, False, rLastStaff);
 	if (*lastVisStf<=0 || *lastVisStf<r1stStaff) *lastVisStf = -1;
 }
 
@@ -1856,8 +1856,8 @@ Boolean ShouldDrawMeasNum(
 	measureNum = aMeasure->measureNum+doc->firstMNNumber;
 
 	staffL = LSSearch(measObjL, STAFFtype, ANYONE, GO_LEFT, False);	/* Must always exist */
-	topVisStf = NextStaffn(doc, staffL, True, 1);
-	botVisStf = NextStaffn(doc, staffL, False, doc->nstaves);
+	topVisStf = NextVisStaffn(doc, staffL, True, 1);
+	botVisStf = NextVisStaffn(doc, staffL, False, doc->nstaves);
 	if (doc->aboveMN && MeasureSTAFF(theMeasL)!=topVisStf) return False;
 	if (!doc->aboveMN && MeasureSTAFF(theMeasL)!=botVisStf) return False;
 	

@@ -320,7 +320,7 @@ void SetLimitRect(Document *doc, LINK pL, short staffn, Point dragPt,
 									+d2p(LNSPACE(pContext));
 	}
 	else {
-		prevStaffn = NextLimStaffn(doc,pL,False,staffn-1);
+		prevStaffn = NextLimVisStaffn(doc,pL,False,staffn-1);
 		pContext = &context[prevStaffn];
 		stfHeight = pContext->staffHeight;
 		lnSpace = LNSPACE(pContext);
@@ -332,7 +332,7 @@ void SetLimitRect(Document *doc, LINK pL, short staffn, Point dragPt,
 	/* Set limit Rect bottom */
 
 	if (staffn<doc->nstaves) {
-		nextStaffn = NextLimStaffn(doc,pL,True,staffn+1);
+		nextStaffn = NextLimVisStaffn(doc,pL,True,staffn+1);
 		pContext = &context[nextStaffn];
 		limitR->bottom = d2p(pContext->staffTop)+pContext->paper.top
 								+(dragPt.v-wSub.bottom)

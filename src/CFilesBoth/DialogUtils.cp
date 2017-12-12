@@ -13,17 +13,301 @@
  */
 
 /*
-	OutlineOKButton				FlashButton				OKButFilter
-	OKButDragFilter				DlgCmdKey				SwitchRadio
-	TrackNumberArrow			ClickUp					ClickDown
-	HandleKeyDown				HandleMouseDown
-	UseNumberFilter				NumberFilter,etc.
-	InitDurStrings				GetHiddenDItemBox		SetDlgFont
+	FrameDefault			TextEditState			PutDlgWord
+	PutDlgLong				PutDlgDouble			PutDlgType
+	PutDlgString			PutDlgChkRadio			GetDlgLong
+	GetDlgWord				GetDlgDouble			GetDlgString
+	GetDlgChkRadio			GetDlgType				AnyEmptyDlgItems
+	ShowHideItem			TextSelected			BlinkCaret
+	OutlineOKButton			FlashButton				OKButFilter
+	OKButDragFilter			DlgCmdKey				SwitchRadio
+	TrackNumberArrow		ClickUp					ClickDown
+	HandleKeyDown			HandleMouseDown
+	UseNumberFilter			NumberFilter,etc.
+	InitDurStrings			GetHiddenDItemBox		SetDlgFont
 */
 
 #include "Nightingale_Prefix.pch"
 #include <ctype.h>
 #include "Nightingale.appl.h"
+
+/* The first set of routines are from EssentialTools.c, all originally by Doug McKenna. */
+
+static char *ftoa(char *str, double val);
+
+/* Given a double and a buffer, format the double as a C string. The obvious way to
+do this is with sprintf, but in THINK C (ca. 2000 A.D.), we couldn't because, to 
+avoid linking problems, we used a "small" version of the ANSI library, in which
+floating-point conversion wasn't supported! Delivers its first argument. */
+
+static char *ftoa(char *buffer, double arg)
+{
+	sprintf(buffer, "%.2f", arg);		/* JGG: Just use 2 decimal places */
+	return buffer;
+}
+
+
+/*
+ *	Outline the given item in the given dialog to show it's the default item, or
+ *	erase its outline to show its window isn't active.
+ */
+
+#if TARGET_API_MAC_CARBON
+void FrameDefault(DialogPtr dlog, short item, short)
+{
+	SetDialogDefaultItem(dlog, item);
+}
+#else
+void FrameDefault(DialogPtr dlog, short item, short draw)	/* ??<draw> should be Boolean */
+{
+	short type;  Handle hndl;  Rect box;
+	GrafPtr oldPort;
+	
+	GetPort(&oldPort);
+	SetPort(GetDialogWindowPort(dlog));
+	
+	GetDialogItem(dlog,item,&type,&hndl,&box);
+	InsetRect(&box,-4,-4);
+	PenSize(3,3);
+	if (!draw) PenPat(NGetQDGlobalsWhite());
+	FrameRoundRect(&box,16,16);
+	PenNormal();
+	
+	SetPort(oldPort);
+}
+#endif
+
+/*
+ *	Note the current editText item and its selection state, or restore state and item.
+ *	This lets us install various editText items in dialogs while they're open,
+ *	and especially when the user is typing.
+ */
+
+void TextEditState(DialogPtr dlog, Boolean save)
+{
+	static short k,n,m; static TEHandle textH;
+	
+	if (save) {	
+		k = GetDialogKeyboardFocusItem(dlog);
+		textH = GetDialogTextEditHandle(dlog);			
+		n = (*textH)->selStart; m = (*textH)->selEnd;
+		/* Force reselection of all if any selected to current end */
+		if (m == (*textH)->teLength) {
+			if (m == n) n = ENDTEXT;
+			m = ENDTEXT;
+		}
+	}
+	else
+		SelectDialogItemText(dlog,k,n,m);
+}
+
+
+/* ------------------------------------------------- Store and retrieve dialog fields  -- */
+/*
+ *	These routines store various usual items into fields of dialogs. Those that store
+ *	deliver the handle of the item. Those that retrieve deliver False or True according
+ *	to whether the edit field is empty or not.
+ */
+
+Handle PutDlgWord(DialogPtr dlog, short item, short val, Boolean sel)
+{
+	return(PutDlgLong(dlog,item,(long)val,sel));
+}
+
+Handle PutDlgLong(DialogPtr dlog, short item, long val, Boolean sel)
+{
+	unsigned char str[32];
+	
+	NumToString(val,str);
+	return(PutDlgString(dlog,item,str,sel));
+}
+
+Handle PutDlgDouble(DialogPtr dlog, short item, double val, Boolean sel)
+{
+	char str[64];
+	
+	return(PutDlgString(dlog,item,CToPString(ftoa(str,val)),sel));
+}
+
+Handle PutDlgType(DialogPtr dlog, short item, ResType type, Boolean sel)
+{
+	unsigned char str[1+sizeof(OSType)];
+	
+	BlockMove(&type,str+1,sizeof(OSType));
+	str[0] = sizeof(OSType);
+	return(PutDlgString(dlog,item,str,sel));
+}
+
+/*
+ *	Install a string into a given text item of a given dialog and, if item is
+ *	an editText item, leave it entirely selected or not, according to <sel>.
+ *	In all cases, deliver handle of item.
+ */
+
+Handle PutDlgString(DialogPtr dlog, short item, const unsigned char *str, Boolean sel)
+{
+	short type; Handle hndl; Rect box; GrafPtr oldPort;
+	
+	GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
+	
+	GetDialogItem(dlog,item,&type,&hndl,&box);
+	SetDialogItemText(hndl,str);
+	type &= ~itemDisable;
+	
+	if (type == editText) {
+		SelectDialogItemText(dlog,item,(sel?0:ENDTEXT),ENDTEXT);
+		/* It's not clear if the following InvalRect is necessary. */
+		InvalWindowRect(GetDialogWindow(dlog),&box);
+	}
+	
+	SetPort(oldPort);
+	return(hndl);
+}
+
+Handle PutDlgChkRadio(DialogPtr dlog, short item, short val)
+{
+	short type; Handle hndl; Rect box;
+	
+	GetDialogItem(dlog,item,&type,&hndl,&box);
+	SetControlValue((ControlHandle)hndl,val!=0);
+	return(hndl);
+}
+
+/*
+ *	Retrieval routines return 0 or 1 if edit item is empty or not, and value if any
+ *	or 0 if no characters in editText item.
+ */
+
+short GetDlgLong(DialogPtr dlog, short item, long *num)
+{
+	Str255 str;
+
+	GetDlgString(dlog,item,str);
+	*num = 0;
+	if (*str>0 && ((str[1]>='0' && str[1]<='9') || str[1]=='-' || str[1]=='+'))
+		StringToNum(str,num);
+	return(*str != 0);
+}
+
+short GetDlgWord(DialogPtr dlog, short item, short *num)
+{
+	Str255 str; long n;
+
+	GetDlgString(dlog,item,str);
+	n = 0;
+	if (*str>0 && ((str[1]>='0' && str[1]<='9') || str[1]=='-' || str[1]=='+'))
+		StringToNum(str,&n);
+	*num = n;
+	return(*str != 0);
+}
+
+short GetDlgDouble(DialogPtr dlog, short item, double *val)
+{
+	Str255 str;
+
+	GetDlgString(dlog,item,str);
+	*val = 0.0;
+	if (*str>0 && ((str[1]>='0' && str[1]<='9') || str[1]=='-' || str[1]=='+' || str[1]=='.'))
+		*val = atof(PToCString(str));
+	
+	return(*str != 0);
+}
+
+short GetDlgString(DialogPtr dlog, short item, unsigned char *str)
+{
+	short type; Handle hndl; Rect box;
+	
+	GetDialogItem(dlog,item,&type,&hndl,&box);
+	GetDialogItemText(hndl,str);
+	return(*str != 0);
+}
+
+short GetDlgChkRadio(DialogPtr dlog, short item)
+{
+	short type; Handle hndl; Rect box;
+	
+	GetDialogItem(dlog,item,&type,&hndl,&box);
+	return (GetControlValue((ControlHandle)hndl) != 0);
+}
+
+/*
+ *	Read a given editText item as a resource type, delivering True if it was a
+ *	legal 4-character string; False otherwise.
+ */
+
+short GetDlgType(DialogPtr dlog, short item, ResType *type)
+{
+	Str255 str;
+
+	GetDlgString(dlog,item,str);
+	PToCString(str);
+	BlockMove(str+1,&type,sizeof(OSType));
+	return(*str == sizeof(OSType));
+}
+
+/*
+ *	Deliver the item number of the first empty item in given range, or 0 if none.
+ *	Not used in Ngale 5.7.
+ */
+
+short AnyEmptyDlgItems(DialogPtr dlog, short fromItem, short toItem)
+{
+	short i; Str255 str;
+
+	for (i=fromItem; i<=toItem; i++)
+		if (!GetDlgString(dlog,i,str)) break;
+	
+	if (i >= toItem) i = 0;
+	return(i);
+}
+
+
+/* --------------------------------------------------------------------- Miscellaneous -- */
+
+/*
+ *	Show or hide a given item from a given dialog
+ */
+
+void ShowHideItem(DialogPtr dlog, short item, Boolean show)
+{
+	if (show) ShowDialogItem(dlog, item);
+	 else	  HideDialogItem(dlog, item);
+}
+
+/*
+ *	Deliver the number of the current editText item in given dialog if any text
+ *	is selected in it, or 0 if none selected.
+ */
+
+short TextSelected(DialogPtr dlog)
+{
+	TEHandle textH;  short item = 0;
+	
+	textH = GetDialogTextEditHandle(dlog);			
+	if (*textH)
+		if ( (*textH)->selStart != (*textH)->selEnd )
+			item = GetDialogKeyboardFocusItem(dlog);
+	return(item);
+}
+
+/*
+ *	Dialogs like to use null events to force any editText items to have a blinking
+ *	caret.  However, if our dialogs have special windowKind fields, they can confuse
+ *	the toolbox dialog calls.  So we used to use this routine to temporarily reset the
+ *	windowKind field before calling the toolbox to blink the caret. It's unused since
+ *	v. 5.4, probably much earlier, and should probably be discarded.
+ */
+
+void BlinkCaret(DialogPtr dlog, EventRecord *evt)
+	{
+		short kind,itemHit;  DialogPtr foo;
+		
+		kind = GetWindowKind(GetDialogWindow(dlog));
+		SetWindowKind(GetDialogWindow(dlog),dialogKind);
+		if (IsDialogEvent(evt)) DialogSelect(evt,&foo,&itemHit);
+		SetWindowKind(GetDialogWindow(dlog),kind);
+	}
+
 
 
 /* ------------------------------------------------------------------- OutlineOKButton -- */
@@ -223,7 +507,7 @@ void SwitchRadio(DialogPtr dialogp, short *curButton, short newButton)
 /* ------------------------------------------------------------------ TrackNumberArrow -- */
 /*	Track arrow (elevator button) control, calling <actionProc> after MOUSETHRESHTIME
 ticks, and repeating every MOUSEREPEATTIME ticks thereafter, as long as the mouse is
-still down inside of <arrowRect>. Modified from DBW's TrackArrow. */
+still down inside of <arrowRect>. Modified from Dave Winzler's TrackArrow. */
 
 void TrackNumberArrow(Rect *arrowRect, TrackNumberFunc actionProc, short limit,
 								DialogPtr dialogp)
@@ -462,9 +746,9 @@ dialog. Does not affect buttons. */
 void SetDlgFont(DialogPtr dlog,
 				short font,
 				short size,
-				short style)						/* If <0, don't change */
+				short style)						/* If <0, don't change style */
 {
-	TEHandle		textHdl;
+	TEHandle textHdl;
 
 	/* Set the DialogRecord's TextEdit font. */
 	

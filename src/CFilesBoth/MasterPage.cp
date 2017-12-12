@@ -480,12 +480,11 @@ static void FixSelStaff(Document *doc)
 	LINK staffL; short botStaff;
 	
 	if (doc->selStaff>doc->nstaves) {
-		/* doc->selStaff doesn't exist. Use the highest-numbered staff that's
-			visible in the system where the insertion point is (or where the
-			selection begins). */
+		/* doc->selStaff doesn't exist. Use the highest-numbered staff that's visible
+			in the system where the insertion point is (or where the selection begins). */
 			
 		staffL = EitherSearch(doc->selStartL, STAFFtype, ANYONE, GO_LEFT, False);
-		botStaff = NextStaffn(doc, staffL, True, doc->nstaves);
+		botStaff = NextVisStaffn(doc, staffL, True, doc->nstaves);
 		doc->selStaff = botStaff;
 	}
 }

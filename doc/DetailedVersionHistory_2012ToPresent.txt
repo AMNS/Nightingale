@@ -1903,3 +1903,16 @@ all staves in the group. Affects DSUtils.h; Check, DSUtils.
 
 Minor cleanup: rewrite some incredibly confusing code in DrawMEASURE(), etc. Affects
 Check, DrawObject, SetUtils.
+
+-------------------------------------------------------------------------------
+
+9 - 12 Dec.
+
+Move dialog-related routines from EssentialTools to DialogUtils, and other user-
+interface-related routines from EssentialTools to UIFUtils. Affects DialogUtils.h,
+EssentialTools.h, UIFUtils.h; DialogUtils, EssentialTools, UIFUtils.
+
+Minor cleanup. Affects ShowFormat.h; Check, CheckUtils, DialogUtils, DrawObject,
+DrawUtils, EssentialTools, InsUtils, MasterPage, Score, SelUtils, SFormat,
+SFormatHighLevel, ToolPalette.
+

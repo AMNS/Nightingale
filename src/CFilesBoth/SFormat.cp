@@ -131,7 +131,7 @@ void UpdateSysMeasYs(
 			aMeas = GetPAMEASURE(measures[i]);
 	
 			if (StaffVIS(staves[i])) {
-				aStaff = GetPASTAFF(staves[NextLimStaffn(doc,staffL,True,i+1)]);
+				aStaff = GetPASTAFF(staves[NextLimVisStaffn(doc,staffL,True,i+1)]);
 	
 				aMeas->measSizeRect.bottom = aStaff->staffTop;
 			}
@@ -165,7 +165,7 @@ void UpdateSysMeasYs(
 				/* ??If the staff above is invisible, setting measSizeRect.top as follows
 					is very questionable! E.g., if i=2 and staff 1 is invisible, we want
 					measSizeRect.top = 0. But it's not clear how to fix this in general. */
-				aStaff = GetPASTAFF(staves[NextLimStaffn(doc,staffL,False,i-1)]);
+				aStaff = GetPASTAFF(staves[NextLimVisStaffn(doc,staffL,False,i-1)]);
 	
 				aMeas->measSizeRect.top = aStaff->staffTop+aStaff->staffHeight;
 			}
@@ -359,17 +359,17 @@ short LastStaffn(LINK pL)
 }
 
 
-/* ---------------------------------------------------------- NextStaffn,NextLimStaffn -- */
+/* --------------------------------------------------- NextVisStaffn, NextLimVisStaffn -- */
 /* Get the staff no. of the next visible staff subObject in staff obj <pL>, starting
 from staffn <base>, going in direction <up>. <up> means in direction of increasing
 staffn, physically downward. E.g., to get the staffn of the first visible staff at
-or after aConnect->staffAbove, call NextStaffn(doc,pL,True,aConnect->staffAbove);
+or after aConnect->staffAbove, call NextVisStaffn(doc, pL, True, aConnect->staffAbove);
 to get the staffn of the first visible staff at or before aConnect->staffBelow, call
-NextStaffn(doc,pL,False,aConnect->staffBelow).
+NextVisStaffn(doc, pL, False, aConnect->staffBelow).
 
 Returns 0 if there is no visible staff satisfying the given conditions. */
 
-short NextStaffn(Document *doc, LINK pL, short up, short base)
+short NextVisStaffn(Document *doc, LINK pL, short up, short base)
 {
 	LINK staffL,aStaffL; short theStaffn;
 	
@@ -395,15 +395,15 @@ short NextStaffn(Document *doc, LINK pL, short up, short base)
 }
 
 /* Get the staff no. of the next visible staff subObject in staff obj <pL>, starting
-from staffn <base>, going in direction <up>. Identical to NextStaffn, except if
+from staffn <base>, going in direction <up>. Identical to NextVisStaffn, except if
 there's no visible staff satisfying the conditions, this returns the extreme staff
 no. in the given direction. */
 
-short NextLimStaffn(Document *doc, LINK pL, short up, short base)
+short NextLimVisStaffn(Document *doc, LINK pL, short up, short base)
 {
 	short theStaffn;
 	
-	theStaffn = NextStaffn(doc,pL,up,base);
+	theStaffn = NextVisStaffn(doc, pL, up, base);
 	if (theStaffn==0) theStaffn = up? doc->nstaves : 1;
 
 	return theStaffn;

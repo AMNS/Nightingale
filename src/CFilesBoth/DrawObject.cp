@@ -713,7 +713,7 @@ PushLock(CONNECTheap);
 									&context[stfA=aConnect->staffAbove];
 		else
 			pContext = entire ? &context[FirstStaffn(pL)] :
-									&context[stfA=NextStaffn(doc,pL,True,aConnect->staffAbove)];
+								&context[stfA=NextVisStaffn(doc,pL,True,aConnect->staffAbove)];
 		dLeft = pContext->staffLeft;
 		dTop = pContext->staffTop;
 
@@ -722,7 +722,7 @@ PushLock(CONNECTheap);
 									&context[stfB=aConnect->staffBelow];
 		else
 			pContext = entire ? &context[LastStaffn(pL)] :
-									&context[stfB=NextStaffn(doc,pL,False,aConnect->staffBelow)];
+								&context[stfB=NextVisStaffn(doc,pL,False,aConnect->staffBelow)];
 		dBottom = pContext->staffTop + pContext->staffHeight;
 		xd = dLeft+aConnect->xd;
 		
@@ -2685,11 +2685,11 @@ void DrawBarline(Document *doc,
 	}
 
 	if (connStaff==0) {
-		dBottom = dTop + pContext->staffHeight;					/* Not connected below */
+		dBottom = dTop + pContext->staffHeight;						/* Not connected below */
 		if (pContext->showLines==1) dBottom -= lnSpace;			
 	}
 	else {
-		pContext2 = &context[NextStaffn(doc,pL,False,connStaff)]; /* Connected below */
+		pContext2 = &context[NextVisStaffn(doc,pL,False,connStaff)]; /* Connected below */
 		dBottom = pContext2->staffTop + pContext2->staffHeight;
 		if (pContext2->showLines==1) dBottom -= LNSPACE(pContext2);			
 	}
@@ -2994,7 +2994,7 @@ PushLock(PSMEASheap);
 	for ( ; aPSMeasL; aPSMeasL = NextPSMEASL(aPSMeasL)) {
 		aPSMeas = GetPAPSMEAS(aPSMeasL);
 		
-		pContext = &context[NextLimStaffn(doc, pL, True, PSMeasSTAFF(aPSMeasL))];
+		pContext = &context[NextLimVisStaffn(doc, pL, True, PSMeasSTAFF(aPSMeasL))];
 		dTop = pContext->staffTop;
 		dLeft = pContext->measureLeft + LinkXD(pL);
 		lnSpace = LNSPACE(pContext);
@@ -3004,7 +3004,7 @@ PushLock(PSMEASheap);
 			if (pContext->showLines==1) dBottom -= lnSpace;			
 		}
 		else {
-			pContext2 = &context[NextLimStaffn(doc,pL,False,aPSMeas->connStaff)]; /* Connected below */
+			pContext2 = &context[NextLimVisStaffn(doc,pL,False,aPSMeas->connStaff)]; /* Connected below */
 			dBottom = pContext2->staffTop + pContext2->staffHeight;
 			if (pContext2->showLines==1) dBottom -= LNSPACE(pContext2);			
 		}

@@ -1,6 +1,6 @@
 /*	EssentialTools.c
 	These are miscellaneous routines that are generally-useful extensions to the Mac
-	Toolbox routines. Doug McKenna, 1989; numerous revisions by Donald Byrd.  FIXME: Quite
+	Toolbox routines. Doug McKenna, 1989; numerous revisions by Donald Byrd.  FIXME: A few
 	a few of these are for use in dialogs; they should probably be moved to DialogUtils.c.
 	Many others are user-interface related, and probably belong in UIFUtils.c. */
 
@@ -21,19 +21,8 @@
 #include "NavServices.h"
 
 static void	DrawSelBox(short index);
-static char *ftoa(char *str, double val);
 
-/* Given a double and a buffer, format the double as a C string. The obvious way to
-do this is with sprintf, but in THINK C (ca. 2000 A.D.), we couldn't because, to 
-avoid linking problems, we used a "small" version of the ANSI library, in which
-floating-point conversion wasn't supported! Delivers its first argument. */
-
-static char *ftoa(char *buffer, double arg)
-{
-	sprintf(buffer, "%.2f", arg);		/* JGG: Just use 2 decimal places */
-	return buffer;
-}
-
+/* ------------------------------------------------- Pointers, memory management, etc. -- */
 
 /* Set a block of nBytes bytes, starting at m, to zero.  m must be even. Cf. FillMem. */
 
@@ -129,30 +118,7 @@ Boolean PreflightMem(short nKBytes)		/* if nKBytes<=0, assume max. size of a seg
 	return (FreeMem()>=nBytes);
 }
 
-/*
- *	Display the watch cursor to indicate lengthy operations
- */
-
-void WaitCursor()
-{
-	static CursHandle watchHandle;
-	static Boolean once = True;
-	
-	if (once) {
-		watchHandle = GetCursor(watchCursor);	/* From system resources */
-		once = False;
-	}
-	if (watchHandle && *watchHandle) SetCursor(*watchHandle);
-}
-
-void ArrowCursor()
-{
-	Cursor arrow;
-	
-	GetQDGlobalsArrow(&arrow);
-
-	SetCursor(&arrow);
-}
+/* ----------------------------------------------------------- Special keyboard things -- */
 
 Boolean CheckAbort()
 {
@@ -179,321 +145,25 @@ Boolean CheckAbort()
  */
 
 Boolean IsDoubleClick(Point pt, short tol, long now)
-	{
-		Rect box; Boolean ans=False;
-		static long lastTime; static Point thePt;
-		
-		if (now-lastTime<GetDblTime()) {
-			SetRect(&box,thePt.h-tol,thePt.v-tol,thePt.h+tol+1,thePt.v+tol+1);
-			ans = PtInRect(pt,&box);
-			lastTime = 0;
-			thePt.h = thePt.v = 0;
-		}
-		else {
-			lastTime = now;
-			thePt = pt;
-		}
-		return ans;
-	}
-
-
-/* ------------------------------------------------- Checking if various keys are down -- */
-
-/* KeyIsDown (from the THINK C class library of the 1990's)
- 
-		Determine whether or not the specified key is being pressed. Keys
-		are specified by hardware-specific key code (NOT the character).
-		Charts of key codes appear in Inside Macintosh, p. V-191.
-*/
-
-Boolean KeyIsDown(short theKeyCode)
 {
-	KeyMap theKeys;
+	Rect box; Boolean ans=False;
+	static long lastTime; static Point thePt;
 	
-	GetKeys(theKeys);					/* Get state of each key */
-										
-	/* Ordering of bits in a KeyMap is truly bizarre. A KeyMap is a 16-byte (128
-		bits) array where each bit specifies the state of a key (0 = up, 1 = down). We
-		isolate the bit for the specified key code by first determining the byte
-		position in the KeyMap and then the bit position within that byte. Key codes
-		0-7 are in the first byte (offset 0 from the start), codes 8-15 are in the
-		second, etc. The BitTst() trap counts bits starting from the high-order bit of
-		the byte. For example, for key code 58 (the option key), we look at the 8th
-		byte (7 offset from the first byte) and the 5th bit within that byte.	*/
-		
-	return( BitTst( ((char*) &theKeys) + theKeyCode / 8,
-					(long) 7 - (theKeyCode % 8) )!=0 );
-}
-
-Boolean CmdKeyDown() {
-	return (KeyIsDown(55));
-}
-
-Boolean OptionKeyDown() {
-	return (GetCurrentKeyModifiers() & optionKey) != 0;
-}
-
-Boolean ShiftKeyDown() {
-	return (GetCurrentKeyModifiers() & shiftKey) != 0;
-}
-
-Boolean CapsLockKeyDown() {
-	return (GetCurrentKeyModifiers() & alphaLock) != 0;
-}
-
-Boolean ControlKeyDown() {
-	return (GetCurrentKeyModifiers() & controlKey) != 0;
-}
-	
-/* FIXME: As of v. 5.8b3, CommandKeyDown() is never used; instead, CmdKeyDown() is used.
-I don't know why, or even what the difference is! */
-
-Boolean CommandKeyDown() {
-	return (GetCurrentKeyModifiers() & cmdKey) != 0;
+	if (now-lastTime<GetDblTime()) {
+		SetRect(&box,thePt.h-tol,thePt.v-tol,thePt.h+tol+1,thePt.v+tol+1);
+		ans = PtInRect(pt,&box);
+		lastTime = 0;
+		thePt.h = thePt.v = 0;
+	}
+	else {
+		lastTime = now;
+		thePt = pt;
+	}
+	return ans;
 }
 
 
-/* ----------------------------------------------------------- Dialog-related routines -- */
-
-/*
- *	Outline the given item in the given dialog to show it's the default item, or
- *	erase its outline to show its window isn't active.
- */
-
-#if TARGET_API_MAC_CARBON
-void FrameDefault(DialogPtr dlog, short item, short)
-{
-	SetDialogDefaultItem(dlog, item);
-}
-#else
-void FrameDefault(DialogPtr dlog, short item, short draw)	/* ??<draw> should be Boolean */
-{
-	short type; Handle hndl; Rect box;
-	GrafPtr oldPort;
-	
-	GetPort(&oldPort);
-	SetPort(GetDialogWindowPort(dlog));
-	
-	GetDialogItem(dlog,item,&type,&hndl,&box);
-	InsetRect(&box,-4,-4);
-	PenSize(3,3);
-	if (!draw) PenPat(NGetQDGlobalsWhite());
-	FrameRoundRect(&box,16,16);
-	PenNormal();
-	
-	SetPort(oldPort);
-}
-#endif
-
-/*
- *	Note the current editText item and its selection state, or restore state and item.
- *	This lets us install various editText items in dialogs while they're open,
- *	and especially when the user is typing.
- */
-
-void TextEditState(DialogPtr dlog, Boolean save)
-{
-	static short k,n,m; static TEHandle textH;
-	
-	if (save) {	
-		k = GetDialogKeyboardFocusItem(dlog);
-		textH = GetDialogTextEditHandle(dlog);			
-		n = (*textH)->selStart; m = (*textH)->selEnd;
-		/* Force reselection of all if any selected to current end */
-		if (m == (*textH)->teLength) {
-			if (m == n) n = ENDTEXT;
-			m = ENDTEXT;
-		}
-	}
-	else
-		SelectDialogItemText(dlog,k,n,m);
-}
-
-/*
- *	These routines store various usual items into fields of dialogs. Those that store
- *	deliver the handle of the item. Those that retrieve deliver False or True, according
- *	to whether the edit field is empty or not.
- */
-
-Handle PutDlgWord(DialogPtr dlog, short item, short val, Boolean sel)
-	{
-		return(PutDlgLong(dlog,item,(long)val,sel));
-	}
-
-Handle PutDlgLong(DialogPtr dlog, short item, long val, Boolean sel)
-	{
-		unsigned char str[32];
-		
-		NumToString(val,str);
-		return(PutDlgString(dlog,item,str,sel));
-	}
-
-Handle PutDlgDouble(DialogPtr dlog, short item, double val, Boolean sel)
-	{
-		char str[64];
-		
-		return(PutDlgString(dlog,item,CToPString(ftoa(str,val)),sel));
-	}
-
-Handle PutDlgType(DialogPtr dlog, short item, ResType type, Boolean sel)
-	{
-		unsigned char str[1+sizeof(OSType)];
-		
-		BlockMove(&type,str+1,sizeof(OSType));
-		str[0] = sizeof(OSType);
-		return(PutDlgString(dlog,item,str,sel));
-	}
-
-/*
- *	Install a string into a given text item of a given dialog and, if item is
- *	an editText item, leave it entirely selected or not, according to <sel>.
- *	In all cases, deliver handle of item.
- */
-
-Handle PutDlgString(DialogPtr dlog, short item, const unsigned char *str, Boolean sel)
-	{
-		short type; Handle hndl; Rect box; GrafPtr oldPort;
-		
-		GetPort(&oldPort); SetPort(GetDialogWindowPort(dlog));
-		
-		GetDialogItem(dlog,item,&type,&hndl,&box);
-		SetDialogItemText(hndl,str);
-		type &= ~itemDisable;
-		
-		if (type == editText) {
-			SelectDialogItemText(dlog,item,(sel?0:ENDTEXT),ENDTEXT);
-			/* It's not clear if the following InvalRect is necessary. */
-			InvalWindowRect(GetDialogWindow(dlog),&box);
-			}
-		
-		SetPort(oldPort);
-		return(hndl);
-	}
-
-Handle PutDlgChkRadio(DialogPtr dlog, short item, short val)
-	{
-		short type; Handle hndl; Rect box;
-		
-		GetDialogItem(dlog,item,&type,&hndl,&box);
-		SetControlValue((ControlHandle)hndl,val!=0);
-		return(hndl);
-	}
-
-/*
- *	Retrieval routines return 0 or 1 if edit item is empty or not, and value if any
- *	or 0 if no characters in editText item.
- */
-
-short GetDlgLong(DialogPtr dlog, short item, long *num)
-	{
-		Str255 str;
-
-		GetDlgString(dlog,item,str);
-		*num = 0;
-		if (*str>0 && ((str[1]>='0' && str[1]<='9') || str[1]=='-' || str[1]=='+'))
-			StringToNum(str,num);
-		return(*str != 0);
-	}
-
-short GetDlgWord(DialogPtr dlog, short item, short *num)
-	{
-		Str255 str; long n;
-
-		GetDlgString(dlog,item,str);
-		n = 0;
-		if (*str>0 && ((str[1]>='0' && str[1]<='9') || str[1]=='-' || str[1]=='+'))
-			StringToNum(str,&n);
-		*num = n;
-		return(*str != 0);
-	}
-
-short GetDlgDouble(DialogPtr dlog, short item, double *val)
-	{
-		Str255 str;
-
-		GetDlgString(dlog,item,str);
-		*val = 0.0;
-		if (*str>0 && ((str[1]>='0' && str[1]<='9') || str[1]=='-' || str[1]=='+' || str[1]=='.'))
-			*val = atof(PToCString(str));
-		
-		return(*str != 0);
-	}
-
-short GetDlgString(DialogPtr dlog, short item, unsigned char *str)
-	{
-		short type; Handle hndl; Rect box;
-		
-		GetDialogItem(dlog,item,&type,&hndl,&box);
-		GetDialogItemText(hndl,str);
-		return(*str != 0);
-	}
-
-short GetDlgChkRadio(DialogPtr dlog, short item)
-	{
-		short type; Handle hndl; Rect box;
-		
-		GetDialogItem(dlog,item,&type,&hndl,&box);
-		return (GetControlValue((ControlHandle)hndl) != 0);
-	}
-
-/*
- *	Read a given editText item as a resource type, delivering True if it was a
- *	legal 4-character string; False otherwise.
- */
-
-short GetDlgType(DialogPtr dlog, short item, ResType *type)
-	{
-		Str255 str;
-
-		GetDlgString(dlog,item,str);
-		PToCString(str);
-		BlockMove(str+1,&type,sizeof(OSType));
-		return(*str == sizeof(OSType));
-	}
-
-/*
- *	Deliver the item number of the first empty item in given range, or 0 if none.
- *	Not used in Ngale 3.0.
- */
-
-short AnyEmptyDlgItems(DialogPtr dlog, short fromItem, short toItem)
-	{
-		short i; Str255 str;
-
-		for (i=fromItem; i<=toItem; i++)
-			if (!GetDlgString(dlog,i,str)) break;
-		
-		if (i >= toItem) i = 0;
-		return(i);
-	}
-
-/*
- *	Show or hide a given item from a given dialog
- */
-
-void ShowHideItem(DialogPtr dlog, short item, Boolean show)
-{
-	if (show) ShowDialogItem(dlog, item);
-	 else	  HideDialogItem(dlog, item);
-}
-
-/*
- *	Deliver the number of the current editText item in given dialog if any text
- *	is selected in it, or 0 if none selected.
- */
-
-short TextSelected(DialogPtr dlog)
-	{
-		TEHandle textH; short item = 0;
-		
-		textH = GetDialogTextEditHandle(dlog);			
-		if (*textH)
-			if ( (*textH)->selStart != (*textH)->selEnd )
-				item = GetDialogKeyboardFocusItem(dlog);
-		return(item);
-	}
-
-/* ----------------------------------------------------------- Other routines -- */
+/* -------------------------------------------------------------------- Other routines -- */
 
 /* If any of the variable argument scrap types are available for pasting from
 the scrap, deliver the first one.  Otherwise, deliver 0.  For example,
@@ -573,6 +243,7 @@ void DrawGrowBox(WindowPtr w, Point pt, Boolean drawit)
 		SetPort(oldPort);
 	}
 
+/* --------------------------------------------------------------------- Windows, etc. -- */
 /*
  *	Given an origin, orig, 0 <= i < n, compute the offset position, ans, for that
  *	index into n.  This is used to position multiple windows being opened at the
@@ -867,24 +538,6 @@ void CenterWindow(WindowPtr w,
 	}
 
 /*
- *	Dialogs like to use null events to force any editText items to have a
- *	blinking caret.  However, if our dialogs have special windowKind
- *	fields, they can confuse the toolbox dialog calls.  So we use this routine
- *	to temporarily reset the windowKind field before calling the toolbox to
- *	blink the caret.
- */
-
-void BlinkCaret(DialogPtr dlog, EventRecord *evt)
-	{
-		short kind,itemHit; DialogPtr foo;
-		
-		kind = GetWindowKind(GetDialogWindow(dlog));
-		SetWindowKind(GetDialogWindow(dlog),dialogKind);
-		if (IsDialogEvent(evt)) DialogSelect(evt,&foo,&itemHit);
-		SetWindowKind(GetDialogWindow(dlog),kind);
-	}
-
-/*
  *	Draw a series of rectangles interpolated between two given rectangles, from
  *	small to big if zoomUp, from big to small if not zoomUp.  As described in
  *	TechNote 194, we draw not into WMgrPort, but into a new port covering the
@@ -978,46 +631,6 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
 		SetPort(oldPort);
 	}
 
-/*
- *	Enable or disable a menu item
- */
-
-void XableItem(MenuHandle menu, short item, short enable)	/* ??<enable> should be Boolean */
-	{
-		if (enable) EnableMenuItem(menu,item);
-		 else		DisableMenuItem(menu,item);
-	}
-
-/*
- *	For disabling or enabling entire menus, we call this any number of times
- *	before calling UpdateMenuBar() to make the changes all at once (if any).
- */
-
-static Boolean menuBarChanged;
-
-void UpdateMenu(MenuHandle menu, Boolean enable)
-	{
-		if (menu)
-			if (enable) {
-				if (!IsMenuItemEnabled(menu, 0)) {
-//				if (!((**menu).enableFlags & 1)) {		/* Bit 0 is for whole menu */
-					EnableMenuItem(menu,0);
-					menuBarChanged = True;
-					}
-				}
-			 else
-				if (IsMenuItemEnabled(menu, 0)) {
-//				if ((**menu).enableFlags & 1) {
-					DisableMenuItem(menu,0);
-					menuBarChanged = True;
-					}
-	}
-
-void UpdateMenuBar()
-	{
-		if (menuBarChanged) DrawMenuBar();
-		menuBarChanged = False;
-	}
 
 /*
  *	Erase and invalidate a rectangle in the current port

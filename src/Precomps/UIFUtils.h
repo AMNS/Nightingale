@@ -4,6 +4,19 @@
 #pragma once
 // MAS
 
+void		WaitCursor(void);
+void		ArrowCursor(void);
+void		XableItem(MenuHandle menu, short item, short enable);
+void		UpdateMenu(MenuHandle menu, Boolean enable);
+void		UpdateMenuBar(void);
+
+Boolean		KeyIsDown(short);
+Boolean		CmdKeyDown(void);
+Boolean		OptionKeyDown(void);
+Boolean		ShiftKeyDown(void);
+Boolean		CapsLockKeyDown(void);
+Boolean		ControlKeyDown(void);
+
 void InvertSymbolHilite(Document *, LINK, short, Boolean);
 void InvertTwoSymbolHilite(Document *, LINK, LINK, short);
 void HiliteAttPoints(Document *, LINK, LINK, short);

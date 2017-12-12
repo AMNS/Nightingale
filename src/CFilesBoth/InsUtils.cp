@@ -1216,7 +1216,7 @@ short GetPitchLim(Document *doc, LINK staffL,
 	GetContext(doc, staffL, staffn, &context);
 	if (above) {
 		dAway = aStaff->staffTop;								/* Dist. to systemRect top */
-		staffAbove = NextStaffn(doc, staffL, False, staffn-1);
+		staffAbove = NextVisStaffn(doc, staffL, False, staffn-1);
 		if (staffAbove) {
 			bStaffL = FirstSubLINK(staffL);
 			for ( ; bStaffL; bStaffL = NextSTAFFL(bStaffL))
@@ -1230,7 +1230,7 @@ short GetPitchLim(Document *doc, LINK staffL,
 	else {
 		aStaffBottom = aStaff->staffTop+aStaff->staffHeight;
 		dAway = dr.bottom-(dr.top+aStaffBottom);				/* Dist. to systemRect bottom */
-		staffBelow = NextStaffn(doc, staffL, True, staffn+1);
+		staffBelow = NextVisStaffn(doc, staffL, True, staffn+1);
 		if (staffBelow) {
 			bStaffL = FirstSubLINK(staffL);
 			for ( ; bStaffL; bStaffL = NextSTAFFL(bStaffL))
@@ -1322,7 +1322,7 @@ static DDIST GetTopStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT context
 	if (StaffSTAFF(aStaffL)==FirstStaffn(pL))
 		return pContext->systemTop;
 
-	staffAbove = NextStaffn(doc, pL, False, StaffSTAFF(aStaffL)-1);
+	staffAbove = NextVisStaffn(doc, pL, False, StaffSTAFF(aStaffL)-1);
 	qContext = &contextTbl[staffAbove];
 	topLimit = ((long)qContext->staffTop + qContext->staffHeight + pContext->staffTop) / 2L;
 						
@@ -1338,7 +1338,7 @@ static DDIST GetBotStfLim(Document *doc, LINK pL, LINK aStaffL, PCONTEXT context
 	if (StaffSTAFF(aStaffL)==LastStaffn(pL))
 		return pContext->systemBottom;
 
-	staffBelow = NextStaffn(doc, pL, True, StaffSTAFF(aStaffL)+1);
+	staffBelow = NextVisStaffn(doc, pL, True, StaffSTAFF(aStaffL)+1);
 	qContext = &contextTbl[staffBelow];
 	bottomLimit = ((long)qContext->staffTop +
 						pContext->staffTop +

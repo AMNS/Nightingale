@@ -229,7 +229,7 @@ DDIST SetStfInvis(Document *doc, LINK pL, LINK aStaffL)
 		bStaffL = FirstSubLINK(pL);
 		for ( ; bStaffL; bStaffL = NextSTAFFL(bStaffL)) {
 			staffn = StaffSTAFF(bStaffL);
-			if (staffn == NextLimStaffn(doc, pL, True, StaffSTAFF(aStaffL)+1)) {
+			if (staffn == NextLimVisStaffn(doc, pL, True, StaffSTAFF(aStaffL)+1)) {
 				bStaff = GetPASTAFF(bStaffL);
 				aStaff = GetPASTAFF(aStaffL);
 				vDiff = bStaff->staffTop - aStaff->staffTop;

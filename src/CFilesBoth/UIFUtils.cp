@@ -2,6 +2,8 @@
 *	FILE:	UIFUtils.c
 *	PROJ:	Nightingale
 *	DESC:	General-purpose utility routines for implementing the user interface.
+		WaitCursor				ArrowCursor				XableItem
+		UpdateMenu				UpdateMenuBar
 		GetStaffLim				InvertSymbolHilite		InvertTwoSymbolHilite
 		HiliteAttPoints
 		FixCursor				FlashRect				SamePoint
@@ -30,13 +32,136 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static DDIST GetStaffLim(Document *doc, LINK pL, short s, Boolean top, PCONTEXT pContext);
+
+/* --------------------------------------------------------------------------- Cursors -- */
+
+/* Display the watch cursor to indicate lengthy operations. */
+
+void WaitCursor()
+{
+	static CursHandle watchHandle;
+	static Boolean once = True;
 	
+	if (once) {
+		watchHandle = GetCursor(watchCursor);	/* From system resources */
+		once = False;
+	}
+	if (watchHandle && *watchHandle) SetCursor(*watchHandle);
+}
+
+void ArrowCursor()
+{
+	Cursor arrow;
+	
+	GetQDGlobalsArrow(&arrow);
+
+	SetCursor(&arrow);
+}
+
+
+/* ----------------------------------------------------------------------------- Menus -- */
+
+/* Enable or disable a menu item .*/
+
+void XableItem(MenuHandle menu, short item, short enable)	/* ??<enable> should be Boolean */
+{
+	if (enable) EnableMenuItem(menu,item);
+	 else		DisableMenuItem(menu,item);
+}
+
+/* Enable or disable an entire menu. Call this any number of times before calling
+UpdateMenuBar() to make the changes all at once (if any). */
+
+static Boolean menuBarChanged;
+
+void UpdateMenu(MenuHandle menu, Boolean enable)
+{
+	if (menu)
+		if (enable) {
+			if (!IsMenuItemEnabled(menu, 0)) {
+//				if (!((**menu).enableFlags & 1)) {		/* Bit 0 is for whole menu */
+				EnableMenuItem(menu,0);
+				menuBarChanged = True;
+			}
+		}
+		 else
+			if (IsMenuItemEnabled(menu, 0)) {
+//				if ((**menu).enableFlags & 1) {
+				DisableMenuItem(menu,0);
+				menuBarChanged = True;
+			}
+}
+
+void UpdateMenuBar()
+{
+	if (menuBarChanged) DrawMenuBar();
+	menuBarChanged = False;
+}
+
+
+
+/* ------------------------------------------------- Checking if various keys are down -- */
+
+/* KeyIsDown (from the THINK C class library of the 1990's)
+ 
+		Determine whether or not the specified key is being pressed. Keys
+		are specified by hardware-specific key code (NOT the character).
+		Charts of key codes appear in Inside Macintosh, p. V-191.
+*/
+
+Boolean KeyIsDown(short theKeyCode)
+{
+	KeyMap theKeys;
+	
+	GetKeys(theKeys);					/* Get state of each key */
+										
+	/* Ordering of bits in a KeyMap is truly bizarre. A KeyMap is a 16-byte (128
+		bits) array where each bit specifies the state of a key (0 = up, 1 = down). We
+		isolate the bit for the specified key code by first determining the byte
+		position in the KeyMap and then the bit position within that byte. Key codes
+		0-7 are in the first byte (offset 0 from the start), codes 8-15 are in the
+		second, etc. The BitTst() trap counts bits starting from the high-order bit of
+		the byte. For example, for key code 58 (the option key), we look at the 8th
+		byte (7 offset from the first byte) and the 5th bit within that byte.	*/
+		
+	return( BitTst( ((char*) &theKeys) + theKeyCode / 8,
+					(long) 7 - (theKeyCode % 8) )!=0 );
+}
+
+Boolean CmdKeyDown() {
+	return (KeyIsDown(55));
+}
+
+Boolean OptionKeyDown() {
+	return (GetCurrentKeyModifiers() & optionKey) != 0;
+}
+
+Boolean ShiftKeyDown() {
+	return (GetCurrentKeyModifiers() & shiftKey) != 0;
+}
+
+Boolean CapsLockKeyDown() {
+	return (GetCurrentKeyModifiers() & alphaLock) != 0;
+}
+
+Boolean ControlKeyDown() {
+	return (GetCurrentKeyModifiers() & controlKey) != 0;
+}
+	
+/* FIXME: As of v. 5.8b3, CommandKeyDown() is never used; instead, CmdKeyDown() is used.
+I don't know why, or even what the difference is! */
+
+Boolean CommandKeyDown() {
+	return (GetCurrentKeyModifiers() & cmdKey) != 0;
+}
+
 
 /* ----------------------------------------------------------------------- GetStaffLim -- */
-/* Return a rough top or bottom staff limit: staffTop - 6 half-lines, or staff
-bottom + 6 half-lines. */
+/* Return a rough top or bottom staff limit: 6 half-spaces above the top line, or 6 half-
+spaces below the bottom line. Intended for use in InvertSymbolHilite, for which the
+crudeness is not a problem. */
 
+static DDIST GetStaffLim(Document *doc, LINK pL, short s, Boolean top, PCONTEXT pContext);
 static DDIST GetStaffLim(
 					Document *doc, LINK pL,
 					short staffn,
@@ -44,7 +169,7 @@ static DDIST GetStaffLim(
 					PCONTEXT pContext)
 {
 	DDIST blackTop, blackBottom,
-			dhalfLn;								/* Distance between staff half-lines */
+			dhalfLn;								/* Distance between staff half-spaces */
 
 	GetContext(doc, pL, staffn, pContext);
 	dhalfLn = pContext->staffHeight/(2*(pContext->staffLines-1));
@@ -90,6 +215,7 @@ void InvertSymbolHilite(
 	
 	/* Draw with gray pattern (to make dotted lines), in XOR mode (to invert the pixels'
 		existing colors). */
+		
 	PenMode(patXor);
 	PenPat(NGetQDGlobalsGray());
 	xp = context.paper.left+d2p(xd);
@@ -157,7 +283,9 @@ void HiliteAttPoints(
 static void FixCursorLogPrint(char *str);
 static void FixCursorLogPrint(char *str) 
 {
-	//LogPrintf(LOG_DEBUG, str);
+#ifdef DEBUG_CURSOR
+	LogPrintf(LOG_DEBUG, str);
+#endif
 }
 
 /* ------------------------------------------------------------------------- FixCursor -- */
@@ -183,11 +311,10 @@ void FixCursor()
 	toolPalette = *paletteGlobals[TOOL_PALETTE];
 	
 	/*
-	 * <currentCursor> is a global that Nightingale uses elsewhere to keep
-	 * track of the cursor. <newCursor> is a temporary variable used solely to
-	 * set the cursor here. They'll always be the same except when a modifier
-	 * key is down that forces a specific cursor temporarily--at the moment,
-	 * only the <genlDragCursor>.
+	 * <currentCursor> is a global that Nightingale uses elsewhere to keep track of
+	 * the cursor. <newCursor> is a temporary variable used solely to set the cursor
+	 * here. They'll always be the same except when a modifier key is down that forces
+	 * a specific cursor temporarily -- at the moment, only the <genlDragCursor>.
 	 */
 	GetMouse(&mousept);
 	globalpt = mousept;
@@ -196,8 +323,10 @@ void FixCursor()
 	/* If no windows at all, use arrow */
 	
 	if (TopWindow == NULL) {
-		holdCursor = False; FixCursorLogPrint("1. TopWindow is null\n"); ArrowCursor(); return;
-		}
+		holdCursor = False;
+		ArrowCursor();
+		return;
+	}
 	
 	/* If mouse over any palette, use arrow unless a tool was just chosen */
 
@@ -210,12 +339,12 @@ void FixCursor()
 				//if (!holdCursor) ArrowCursor();
 				DisposeRgn(strucRgn);
 				foundPalette = True;
-				}
+			}
 				else {
 				DisposeRgn(strucRgn);
-				}
 			}
 		}
+	}
 
 	holdCursor = False;			/* OK to change cursor back to arrow when it's over a palette */
 	
@@ -286,29 +415,29 @@ void FixCursor()
 							shook = currentCursor;
 							PalKey(CH_ENTER);
 							newCursor = arrowCursor;
-							}
+						}
 						 else {
 							PalKey(shookey);
 							newCursor = shook;
 							shookey = 0;
-							}
+						}
 						shaker = 0;
 						currentCursor = newCursor;
 						nextcheck += SWAPMIN;
-						}
+					}
 					 else
 						soon = now + config.mShakeThresh;
 				 else
 					shaker = 0;												/* Too late: reset */
 
 		dxOld = dx; xOld = x;
-		}
+	}
 	
 	/*
 	 * If option key is down and shift key is NOT down, use "general drag" cursor, no
-	 *	matter what. The shift key test is unfortunately necessary so we can use
+	 * matter what. The shift key test is unfortunately necessary so we can use
 	 * shift-option-E (for example) as the keyboard equivalent for eighth grace
-	 *	note without confusing users by having the wrong cursor as long they actually
+	 * note without confusing users by having the wrong cursor as long they actually
 	 * have the option key down. */
 
 	if (OptionKeyDown() && !ShiftKeyDown()) newCursor = genlDragCursor;

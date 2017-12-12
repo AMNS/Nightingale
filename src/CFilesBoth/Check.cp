@@ -454,12 +454,12 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 			aConnect = GetPACONNECT(aConnectL);
 			entire = aConnect->connLevel==0;
 			pContext = entire ? &context[FirstStaffn(pL)] :
-								&context[NextStaffn(doc, pL, True, aConnect->staffAbove)];
+								&context[NextVisStaffn(doc, pL, True, aConnect->staffAbove)];
 			dLeft = pContext->staffLeft;
 			dTop = pContext->staffTop;
 
 			pContext = entire ? &context[FirstStaffn(pL)] :
-										&context[NextStaffn(doc, pL, False, aConnect->staffBelow)];
+								&context[NextVisStaffn(doc, pL, False, aConnect->staffBelow)];
 			dBottom = pContext->staffTop + pContext->staffHeight;
 			dRight = pContext->staffRight;
 	
@@ -496,7 +496,7 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 								InsetRect(&limitR, -4, 0);
 								slopR = doc->currentPaper;
 
-								staffAbove = NextStaffn(doc,pL,False,aConnect->staffAbove-1);
+								staffAbove = NextVisStaffn(doc,pL,False,aConnect->staffAbove-1);
 								if (staffAbove>1) {
 									pContext = &context[staffAbove];
 									limitR.top = d2p(pContext->staffTop+pContext->staffHeight)+
@@ -506,7 +506,7 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 								else {
 									limitR.top = doc->currentPaper.top;
 								}
-								staffBelow = NextStaffn(doc,pL,True,aConnect->staffBelow+1);
+								staffBelow = NextVisStaffn(doc,pL,True,aConnect->staffBelow+1);
 								if (staffBelow>0 && staffBelow<doc->nstaves) {
 									pContext = &context[staffBelow];
 									limitR.bottom = d2p(pContext->staffTop)+pContext->paper.top
@@ -523,8 +523,8 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 								if (HiWord(newPos) && HiWord(newPos)!=0x8000)
 									if (doc->masterView) {
 										staffL = SSearch(doc->masterHeadL,STAFFtype,False);
-										staffAbove = NextStaffn(doc,pL,True,aConnect->staffAbove);
-										staffBelow = NextStaffn(doc,pL,False,aConnect->staffBelow);
+										staffAbove = NextVisStaffn(doc,pL,True,aConnect->staffAbove);
+										staffBelow = NextVisStaffn(doc,pL,False,aConnect->staffBelow);
 										j = staffAbove;
 										for ( ; j<=staffBelow; j++) {
 											aStaffL = FirstSubLINK(staffL);
@@ -536,8 +536,8 @@ short CheckCONNECT(Document *doc, LINK pL, CONTEXT context[],
 									}
 									else if (doc->showFormat) {
 										staffL = SSearch(pL,STAFFtype,True);
-										staffAbove = NextStaffn(doc,pL,True,aConnect->staffAbove);
-										staffBelow = NextStaffn(doc,pL,False,aConnect->staffBelow);
+										staffAbove = NextVisStaffn(doc,pL,True,aConnect->staffAbove);
+										staffBelow = NextVisStaffn(doc,pL,False,aConnect->staffBelow);
 										UpdateFormatConnect(doc, staffL,
 																staffAbove, staffBelow, newPos);
 									}
@@ -2604,7 +2604,7 @@ PushLock(MEASUREheap);
 	for (i = 0; aMeasureL; i++, aMeasureL=NextMEASUREL(aMeasureL)) {
 		aMeasure = GetPAMEASURE(aMeasureL);
 		groupTopStf = groupBottomStf = aMeasure->staffn;
-		measureStf = NextLimStaffn(doc,pL,True,aMeasure->staffn);
+		measureStf = NextLimVisStaffn(doc,pL,True,aMeasure->staffn);
 		pContext = &context[measureStf];
 		dTop = pContext->staffTop;
 		dLeft = pContext->staffLeft;
@@ -2623,7 +2623,7 @@ PushLock(MEASUREheap);
 		if (!aMeasure->connAbove) {
 			groupTopStf = measureStf;
 			if (aMeasure->connStaff!=0) {
-				connStaff = NextLimStaffn(doc,pL,False,aMeasure->connStaff);
+				connStaff = NextLimVisStaffn(doc,pL,False,aMeasure->connStaff);
 				dBottom = context[connStaff].staffTop
 								+context[connStaff].staffHeight;
 				switch (aMeasure->subType) {
@@ -2824,7 +2824,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 		aPSMeas = GetPAPSMEAS(aPSMeasL);
 		groupTopStf = groupBottomStf = aPSMeas->staffn;
 		if (aPSMeas->visible || doc->showInvis) {
-			measureStf = NextLimStaffn(doc,pL,True,aPSMeas->staffn);
+			measureStf = NextLimVisStaffn(doc, pL, True, aPSMeas->staffn);
 			pContext = &context[measureStf];
 			dTop = pContext->staffTop;
 			dLeft = pContext->measureLeft;
@@ -2843,7 +2843,7 @@ short CheckPSMEAS(Document *doc, LINK pL, CONTEXT context[],
 			if (!aPSMeas->connAbove) {
 				groupTopStf = measureStf;
 				if (aPSMeas->connStaff!=0) {
-					connStaff = NextLimStaffn(doc,pL,False,aPSMeas->connStaff);
+					connStaff = NextLimVisStaffn(doc,pL,False,aPSMeas->connStaff);
 					dBottom = context[connStaff].staffTop+context[connStaff].staffHeight;
 					switch (aPSMeas->subType) {
 						case PSM_DOTTED:

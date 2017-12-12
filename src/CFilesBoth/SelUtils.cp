@@ -1,4 +1,4 @@
-/****************************************************************************************
+/******************************************************************************************
 *	FILE:	SelUtils.c
 *	PROJ:	Nightingale
 *	DESC:	Routines to handle the user interface for selection, get info
@@ -12,14 +12,14 @@
 	FixEmptySelection		GetStaffLimits			SelectStaffRect
 	DoThreadSelect			InsertSpaceTrackStf
 	NotesSel2TempFlags		TempFlags2NotesSel
-/****************************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -38,7 +38,7 @@ static void GetStaffLimits(Document *, Point, STAFFINFO [], CONTEXT []);
 static void StartThread(void);
 
 
-/* -------------------------------------------------------------------- GetSelStaff -- */
+/* ----------------------------------------------------------------------- GetSelStaff -- */
 /* Get the staff number of the insertion point or selection. If anything is selected,
 if the first selected object or subobject actually has a staff number (almost always
 the case unless it's a page-relative Graphic) return that number; if it doesn't,
@@ -55,7 +55,7 @@ short GetSelStaff(Document *doc)
 }
 
 
-/* ------------------------------------------------------------- GetStaffFromSel -- */
+/* ------------------------------------------------------------------- GetStaffFromSel -- */
 /* Get staff number from selection. If the first selected object or subobject
 actually has a staff number (almost always the case unless it's a page-relative
 Graphic) return that number; if it doesn't or if nothing is selected, return
@@ -161,7 +161,7 @@ short GetStaffFromSel(Document *doc, LINK *pSelL)
 }
 
 
-/* --------------------------------------------------------------- GetSelPartList -- */
+/* -------------------------------------------------------------------- GetSelPartList -- */
 /*	Determine which parts contain selected items. Deliver an array, <partL>, of
 links to these parts. <partL> is an array of MAXSTAVES+1, dimensioned by caller.
 Caller should walk array until finding a NILINK element, which represents the
@@ -251,7 +251,7 @@ void GetSelPartList(Document *doc, LINK partL[])
 }
 
 
-/* -------------------------------------------------------------------- IsSelPart -- */
+/* ------------------------------------------------------------------------- IsSelPart -- */
 /* Does <partL> refer to a part that contains selected items? Before using this
 function, call GetSelPartList to build the <partList> array.  -JGG */
 
@@ -269,7 +269,7 @@ Boolean IsSelPart(LINK partL, LINK partList[])
 }
 
 
-/* ---------------------------------------------------------------- CountSelParts -- */
+/* --------------------------------------------------------------------- CountSelParts -- */
 /* How many parts contain selected items? Before using this function, call
 GetSelPartList to build the <partList> array.  -JGG */
 
@@ -285,7 +285,7 @@ short CountSelParts(LINK partList[])
 }
 
 
-/* ------------------------------------------------------------------ GetSelPart -- */
+/* ------------------------------------------------------------------------ GetSelPart -- */
 /* Get part LINK from the insertion point or selection. */
 
 LINK GetSelPart(Document *doc)
@@ -300,7 +300,7 @@ LINK GetSelPart(Document *doc)
 }
 
 
-/* ------------------------------------------------------------  GetVoiceFromSel -- */
+/* ------------------------------------------------------------------  GetVoiceFromSel -- */
 /* Get (internal) voice number from selection. If the first selected object or
 subobject actually has a voice number (see ObjHasVoice for the current list of
 types) return that number; otherwise return its staff number (since that's the
@@ -392,7 +392,7 @@ short GetVoiceFromSel(Document *doc)
 }
 
 
-/* ------------------------------------------------------------- GetStfRangeOfSel -- */
+/* ------------------------------------------------------------------ GetStfRangeOfSel -- */
 /*	Return the minimum range of staves that includes everything selected. Fills in a
 STFRANGE struct allocated by caller. Depends on validity of doc->selStartL and
 doc->selEndL. */
@@ -466,7 +466,7 @@ void GetStfRangeOfSel(Document *doc, STFRANGE *stfRange)
 }
 
 
-/* ---------------------------------------------------------------- Sel2MeasPage -- */
+/* ---------------------------------------------------------------------- Sel2MeasPage -- */
 /* Get the measure number and page number of the start of the selection in the given
 doc. */
 
@@ -499,7 +499,7 @@ void Sel2MeasPage(Document *doc, short *pMeasNum, short *pPageNum)
 }
 
 
-/* ------------------------------------------------------------- GetSelMIDIRange -- */
+/* ------------------------------------------------------------------- GetSelMIDIRange -- */
 /* Return the lowest and highest MIDI note numbers in selected notes in the given
 score. */
 
@@ -526,7 +526,7 @@ void GetSelMIDIRange(Document *doc, short *pLow, short *pHi)
 }
 
 
-/* ------------------------------------------------------------------ FindSelAcc -- */
+/* ------------------------------------------------------------------------ FindSelAcc -- */
 /* Look for a selected note or grace note with the given accidental. If it's found,
 return it, else return NILINK.*/
 
@@ -558,7 +558,7 @@ LINK FindSelAcc(Document *doc, short acc)
 }
 
 
-/* ------------------------------------------------------------------- HomogenizeSel -- */
+/* --------------------------------------------------------------------- HomogenizeSel -- */
 /* See if there are any chords that are partly selected. If so, if an alert ID is
 specified, ask user for permission to extend the selection to include all notes in
 them, and if they agree, extend it; if no alert is specified, just extend it.
@@ -595,7 +595,7 @@ Boolean HomogenizeSel(
 }
 
 
-/* ------------------------------------- Help Functions, etc. for TrackStaffRect -- */
+/* ------------------------------------------- Help Functions, etc. for TrackStaffRect -- */
 
 STAFFINFO staffInfo[MAXSTAVES+1+1];			/* Need 1 extra fake "staff" at bottom! */
 
@@ -610,7 +610,7 @@ void UnemptyRect(register Rect *r)
 }
 
 
-/* ----------------------------------------------------- GetStaff, GetNextStaffn -- */
+/* ----------------------------------------------------------- GetStaff, GetNextStaffn -- */
 /* Functions which find the staffn of the next visible staff, in relation to
 mousePt or staffn, using staff location and visibility as contained in the
 staffInfo array. */
@@ -663,7 +663,7 @@ static short GetNextStaffn(Document *doc, short base, Boolean up)
 }
 
 
-/* -------------------------------------------------------------- TrackStaffRect -- */
+/* -------------------------------------------------------------------- TrackStaffRect -- */
 /* Track mouse motion and give visual feedback by inverting a rectangle in the
 same way most Mac word processors do, but on one or more staves instead of one
 or more lines. Vertical positions are quantized to the staff level, inclusive;
@@ -741,7 +741,7 @@ static Point TrackStaffRect(
 }
 
 
-/* --------------------------------------------------------------- ChangeInvRect -- */
+/* --------------------------------------------------------------------- ChangeInvRect -- */
 /* Change the InvertRect display of <pr1> to a display of <pr2> without
 unsightly flashing. N.B. If either rect has negative size along either axis,
 it is not considered empty; rather its bounds on that axis are assumed to be
@@ -792,7 +792,7 @@ void DrawTheSweepRects()
 }
 
 
-/* ----------------------------------------------------------- FixEmptySelection -- */
+/* ----------------------------------------------------------------- FixEmptySelection -- */
 /* If the selection is empty, set doc->selStaff to the staff <pt.v> is on or
 closest to, and set selStartL and selEndL to create an insertion point near <pt>;
 also move the caret there, but avoid putting it right in the middle of a symbol.
@@ -835,7 +835,7 @@ void FixEmptySelection(Document *doc, Point	pt)
 }
 
 
-/* --------------------------------------------------------------- GetStaffLimits -- */
+/* -------------------------------------------------------------------- GetStaffLimits -- */
 /* Fills in the staffInfo array with pixel vertical coordinates of the points
 halfway between corresponding staves in the system enclosing <pt> and visibility
 flags for the staves. */
@@ -867,7 +867,7 @@ static void GetStaffLimits(Document *doc, Point pt, STAFFINFO staffInfo[],
 
 	staffInfo[FirstStaffn(staffL)].top = sysRect.top;
 	for (s = FirstStaffn(staffL)+1; s<=LastStaffn(staffL); s++) {
-		staffAbove = NextStaffn(doc, staffL, False, s-1);
+		staffAbove = NextVisStaffn(doc, staffL, False, s-1);
 		temp = ((long)context[staffAbove].staffTop + context[staffAbove].staffHeight
 						+ context[s].staffTop) / 2L;
 		staffInfo[s].top = d2p(temp);
@@ -882,7 +882,7 @@ static void GetStaffLimits(Document *doc, Point pt, STAFFINFO staffInfo[],
 }
 
 
-/* -------------------------------------------------------------- SelectStaffRect -- */
+/* ------------------------------------------------------------------- SelectStaffRect -- */
 /* Track mouse dragging, give feedback by inverting one or more complete staves in
 the horizontal area, and (when the button is released) select enclosed symbols.
 Intended for "wipe" (one-dimensional) selection. Returns False if the mouse was
@@ -969,7 +969,7 @@ Boolean SelectStaffRect(Document *doc, Point pt)
 }
 
 
-/* --------------------------------------------------- DoThreadSelect and helper -- */
+/* --------------------------------------------------------- DoThreadSelect and helper -- */
 
 static void StartThread()
 {
@@ -1054,7 +1054,7 @@ void DoThreadSelect(Document *doc,
 }
 
 
-/* --------------------------------------------------------- InsertSpaceTrackStf -- */
+/* --------------------------------------------------------------- InsertSpaceTrackStf -- */
 /* Track the staff rect to provide feedback for insertion of space objects. */
 
 Point InsertSpaceTrackStf(Document *doc, Point pt, short *topStf, short *bottomStf)
@@ -1066,24 +1066,23 @@ Point InsertSpaceTrackStf(Document *doc, Point pt, short *topStf, short *bottomS
 }
 
 
-/* ----------------------------------------------------------------- GetUserRect -- */
-/* This routine is used to drag an anchored rectangle around within a window.
-When the mouse is clicked down, you can call this with the cursor position
-in pt, the anchored rectangle corner in other, an offset (xoff,yoff) from the
-current mouse position that will be the corner of the rectangle that tracks
-the mouse, and a pointer to the rectangle into which the answer should be
-placed when the mouse button is let up.  The outline of the rectangle is
-drawn in gray using XOR so that nothing is disturbed graphically, and we
-wait until a tick just happens before updating, which helps reduce flicker
-for large rectangles.
+/* ----------------------------------------------------------------------- GetUserRect -- */
+/* This routine is used to drag an anchored rectangle around within a window. When the
+mouse is clicked down, you can call this with the cursor position in pt, the anchored
+rectangle corner in other, an offset (xoff,yoff) from the current mouse position that
+will be the corner of the rectangle that tracks the mouse, and a pointer to the
+rectangle into which the answer should be placed when the mouse button is let up.  The
+outline of the rectangle is drawn in gray using XOR so that nothing is disturbed
+graphically, and we wait until a tick just happens before updating, which helps reduce
+flicker for large rectangles.
 
-For simple clicking and dragging, pt and other should initially be the
-same; when they are different, you can use the routine to "pick out and
-stretch" an already existing rectangle on the screen by setting pt and
-other to opposite corners of the starting rectangle.
+For simple clicking and dragging, pt and other should initially be the same; when they
+are different, you can use the routine to "pick out and stretch" an already existing
+rectangle on the screen by setting pt and other to opposite corners of the starting
+rectangle.
 
-The offsets are used when you want some slop in picking up a corner of an
-already existing rectangle, as in the case of grow handles for objects, etc. */
+The offsets are used when you want some slop in picking up a corner of an already
+existing rectangle, as in the case of grow handles for objects, etc. */
 
 void GetUserRect(Document *doc, Point pt, Point other, short xoff, short yoff, Rect *box)
 {

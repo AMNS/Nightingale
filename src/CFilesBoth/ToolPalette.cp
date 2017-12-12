@@ -18,13 +18,13 @@ static short oldItem;
  *	Prototypes for local functions
  */	
 
-static Boolean IsOnKeyPad(unsigned char);
-static Boolean IsDurKey(unsigned char, Boolean *);
+static Boolean	IsOnKeyPad(unsigned char);
+static Boolean	IsDurKey(unsigned char, Boolean *);
 
 static short	GetPalItem(short ch);
-static void	SwapTools(short firstItem, short lastItem);
-static void	PalCopy(GrafPtr dstPort, GrafPtr srcPort, short dstItem, short srcItem);
-static void	UpdateGridCoords(void);
+static void		SwapTools(short firstItem, short lastItem);
+static void		PalCopy(GrafPtr dstPort, GrafPtr srcPort, short dstItem, short srcItem);
+static void		UpdateGridCoords(void);
 
 /* ------------------------------------------------- TranslatePalChar and friends -- */
 
@@ -76,20 +76,20 @@ static unsigned char shiftKeyPad[] = {
 
 Boolean TranslatePalChar(
 				short *theChar,					/* character code */
-				short /*theKey*/,						/* key code */
+				short /*theKey*/,				/* key code */
 				Boolean doNoteRestToggle 		/* allow a key to toggle between notes and rests */
 				)
 {
-	Handle	resH;
+	Handle		resH;
 	unsigned char ch;
 	char		*resP;
 	short		numPairs;
-	PCHARMAP theCharMap;
+	PCHARMAP	theCharMap;
 	short		i,curResFile;
 	unsigned char mainTogChar, kpadTogChar;
-	static Boolean note = True;		/* True if note, False if rest; changed only when doNoteRestToggle==True */
-	Boolean	isNote;						/* whether the current remapped char represents a note (e.g., w,h,q,e rather than W,H,Q,E) */
-	Boolean	shiftIsDown;
+	static Boolean note = True;			/* True if note, False if rest; changed only when doNoteRestToggle==True */
+	Boolean		isNote;					/* whether the current remapped char represents a note (e.g., w,h,q,e rather than W,H,Q,E) */
+	Boolean		shiftIsDown;
 	
 	shiftIsDown = ShiftKeyDown();
 	
@@ -178,19 +178,19 @@ skipMapping:
 				if (ch == 0xDD)							/* take care of unruly breve */
 					ch = '@';
 				else
-					ch -= 32;								/* turn the note into a rest */
+					ch -= 32;							/* turn the note into a rest */
 			}
 			/* NB: Code below used only when hitting a toggle key. See goto skipMapping above. */
 			else if (!isNote && note && !shiftIsDown) {	/* don't defeat shiftkey=>rest action */
-				if (ch == '@')								/* breve */
+				if (ch == '@')							/* breve */
 					ch = 0xDD;
 				else
-					ch += 32;								/* turn the rest into a note */
+					ch += 32;							/* turn the rest into a note */
 			}
 		}
 	}
 	
-	*theChar = ch;			/* convert back to short */
+	*theChar = ch;										/* convert back to short */
 
 	HUnlock(resH);	
 	return True;
@@ -219,7 +219,7 @@ Boolean IsOnKeyPad(unsigned char ch)
 
 
 static unsigned char durKeys[18] = {
-	0xDD,'@',	/* breve (0xDD == opt-$) */
+	0xDD,'@',		/* breve (0xDD == opt-$) */
 	'w','W',		/* whole */
 	'h','H',		/* half */
 	'q','Q',		/* qtr */
@@ -227,7 +227,7 @@ static unsigned char durKeys[18] = {
 	'x','X',		/* 16th */
 	'r','R',		/* 32nd */
 	't','T',		/* 64th */
-	'y','Y'		/* 128th */
+	'y','Y'			/* 128th */
 };
 
 Boolean IsDurKey(register unsigned char ch, register Boolean *isNote)
