@@ -358,8 +358,6 @@ static void SelectPart(
 				the tempo appears above the top staff and somewhere in the middle), so
 				we want only the first one. */
 			case TEMPOtype:
-//if (pL>900 &&  pL<1000)
-//LogPrintf(LOG_DEBUG, "Extract/SelectPart: consider pL=%u, inTempoSeries=%d\n", pL, inTempoSeries);
 				if (inTempoSeries) break;
 				if (((PEXTEND)p)->staffn>=firstStf && ((PEXTEND)p)->staffn<=lastStf) {
 					LinkSEL(pL) = True;

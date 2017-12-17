@@ -2692,15 +2692,13 @@ PushLock(MEASUREheap);
 					staffn = FindStaffSetSys(doc, *(Point *)ptr);
 					if (staffn==NOONE) return NOMATCH;
 					GetStaffGroupBounds(doc, staffn, &clkGroupTopStf, &clkGroupBottomStf);
-LogPrintf(LOG_DEBUG, "CheckMEASURE: staffn=%d clkGroupTopStf=%d clkGroupBottomStf=%d\n", staffn,
-clkGroupTopStf, clkGroupBottomStf);
+//LogPrintf(LOG_DEBUG, "CheckMEASURE: staffn=%d clkGroupTopStf=%d clkGroupBottomStf=%d\n", staffn,
+//clkGroupTopStf, clkGroupBottomStf);
 				}
 
 				/* If the staff is within the desired group and is visible, select the Measure */
 				if (aMeasure->staffn>=clkGroupTopStf && aMeasure->staffn<=clkGroupBottomStf
 						&& aMeasure->visible) {
-//LogPrintf(LOG_DEBUG, "CheckMEASURE: clkGroupTopStf=%d clkGroupBottomStf=%d staffn=%d\n",
-//clkGroupTopStf, clkGroupBottomStf, aMeasure->staffn);
 					aMeasure->selected = !aMeasure->selected;
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 					result = i;

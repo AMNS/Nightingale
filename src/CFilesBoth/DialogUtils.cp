@@ -31,7 +31,8 @@
 #include <ctype.h>
 #include "Nightingale.appl.h"
 
-/* The first set of routines are from EssentialTools.c, all originally by Doug McKenna. */
+/* The first set of routines are from MiscUtils.c (formerly EssentialTools.c), all
+originally by Doug McKenna. */
 
 static char *ftoa(char *str, double val);
 

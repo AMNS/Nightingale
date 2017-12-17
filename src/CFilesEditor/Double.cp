@@ -898,10 +898,8 @@ static void DblFixContext(Document *doc, short dstStf)
 		context-bearing objects (Measure and Staff) in the selection range, considering
 		Dynamics we encounter along the way. */
 
-//LogPrintf(LOG_NOTICE, "DblFixContext0: doc->selStartL=%d dstStf=%d\n", doc->selStartL, dstStf);
 	GetContext(doc, doc->selStartL, dstStf, &context);
 	startDynamType = currentDynamType = context.dynamicType;
-//LogPrintf(LOG_NOTICE, "DblFixContext1: currentDynamType=%d\n", currentDynamType);
 
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL)) {
 			switch (ObjLType(pL)) {
@@ -910,12 +908,10 @@ static void DblFixContext(Document *doc, short dstStf)
 						aDynamicL = FirstSubLINK(pL);
 					if (DynamicSTAFF(aDynamicL)==dstStf) {
 						currentDynamType = DynamType(pL);
-//LogPrintf(LOG_NOTICE, "DblFixContext: Dynamic pL=%d dynam=%d\n", pL, currentDynamType);
 					}
 				}
 				continue;
 				case MEASUREtype:
-//LogPrintf(LOG_NOTICE, "DblFixContext: Measure pL=%d dynam=%d\n", pL, currentDynamType);
 					dstMeasL = MeasOnStaff(pL, dstStf);
 					dstMeas = GetPAMEASURE(dstMeasL);
 					dstMeas->dynamicType = currentDynamType;

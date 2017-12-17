@@ -682,7 +682,9 @@ static long ScaleDurForVariableSpeed(long rtDur)
 	return rtDur*(100.0/playTempoPercent);
 }
 
-static void ListNotesToPlay(Document *doc, LINK fromL, LINK toL, Boolean selectedOnly)
+/* Display in the log file all notes that are to be played. */
+
+static void DebugListNotesToPlay(Document *doc, LINK fromL, LINK toL, Boolean selectedOnly)
 {
 	LINK pL, aNoteL;
 	short iVoice;
@@ -690,7 +692,6 @@ static void ListNotesToPlay(Document *doc, LINK fromL, LINK toL, Boolean selecte
 	
 	for (pL = fromL; pL!=toL; pL = RightLINK(pL)) {
 		if (SyncTYPE(pL) && AnyNoteToPlay(doc, pL, selectedOnly)) {
-			//LogPrintf(LOG_DEBUG, "PlaySequence: pL=%u\n", pL);
 			aNoteL = FirstSubLINK(pL);
 			for ( ; aNoteL; aNoteL = NextNOTEL(aNoteL)) {
 				if (NoteToBePlayed(doc, aNoteL, selectedOnly)) {
@@ -698,7 +699,7 @@ static void ListNotesToPlay(Document *doc, LINK fromL, LINK toL, Boolean selecte
 					playDur = TiedDur(doc, pL, aNoteL, selectedOnly);
 					LogPrintf(LOG_DEBUG, "PlaySequence: pL=%u voice=%d noteNum=%d playDur=%ld\n",
 								pL, iVoice, NoteNUM(aNoteL), playDur);
-					}
+				}
 			}
 		}
 	}
@@ -873,7 +874,7 @@ void PlaySequence(
 	pageTurnTOffset = 0L;
 	StartMIDITime();
 
-	if (ShiftKeyDown() && OptionKeyDown()) ListNotesToPlay(doc, fromL, toL, selectedOnly);
+	if (DEBUG_PRINT) DebugListNotesToPlay(doc, fromL, toL, selectedOnly);
 
 	/* The stored play time of the first Sync we're going to play might be any
 	 *	positive value but we want to start playing immediately, so we'll pick up
@@ -910,7 +911,7 @@ void PlaySequence(
 			  		plStartTime = MeasureTIME(measL)+SyncTIME(pL);
 					/* Convert play time to nominal millisecs. using tempi marked in the
 						score; then, to handle variable-speed playback, convert that 
-						time to actual millisec. . */
+						time to actual millisec. */
 					startTimeNorm = PDur2RealTime(plStartTime, tConvertTab, tempoCount);
 					//LogPrintf(LOG_NOTICE, "PlaySequence: plStartTime=%ld, startTimeNorm=%ld\n", plStartTime, startTimeNorm);
 			  		if (toffset<0L) toffset = startTimeNorm;

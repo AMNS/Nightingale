@@ -487,11 +487,11 @@ static Boolean CMInsertEvent(short note, SignedByte channel, long endTime, Boole
 	/* If _playMaxDur_ and there's already an event for that note no. on the same channel
 		with a later end time, we have nothing to do. */
 		if (playMaxDur && CMHaveLaterEnding(note, channel, endTime)) {
-//LogPrintf(LOG_NOTICE, "CMInsertEvent: HaveLaterEnding for note=%d\n", note);
+//LogPrintf(LOG_DEBUG, "CMInsertEvent: HaveLaterEnding for note=%d\n", note);
 			return True;
 		}
 
-//LogPrintf(LOG_NOTICE, "CMInsertEvent note=%d\n", note);
+//LogPrintf(LOG_DEBUG, "CMInsertEvent note=%d\n", note);
 
 	/* If _playMaxDur_ and there's already an event for that note no. on the same channel
 		with an earlier end time, replace it with this event. Otherwise, just find the
@@ -499,7 +499,7 @@ static Boolean CMInsertEvent(short note, SignedByte channel, long endTime, Boole
 	
 	for (i = 0, pEvent = cmEventList; i<lastEvent; i++, pEvent++) {
 #if PMDDEBUG
-LogPrintf(LOG_NOTICE,
+LogPrintf(LOG_DEBUG,
 "CMInsertEvent: pEvent->note=%hd, pEvent->channel=%hd, pEvent->endTime=%hd\n",
 (short)(pEvent->note), note, (short)(pEvent->channel), channel, (short)(pEvent->endTime), endTime);
 #endif

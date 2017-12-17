@@ -1,4 +1,4 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	InsNew.c
 *	PROJ:   Nightingale
 *	DESC:   Lower-level routines to add music symbols. These functions actually
@@ -12,7 +12,7 @@
 		NewDynamic				
 		NewRptEnd				NewEnding				NewTempo
 		XLoadInsertSeg
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -26,7 +26,7 @@
 #include "Nightingale.appl.h"
 
 
-/* -------------------------------------------------- Clef/KeySig/TimeSigBeforeBar -- */
+/* ------------------------------------------------------ Clef/KeySig/TimeSigBeforeBar -- */
 
 Boolean ClefBeforeBar(Document *doc,
 							LINK pLPIL,
@@ -142,7 +142,7 @@ Boolean TimeSigBeforeBar(Document *doc, LINK pLPIL, short staffn, short type,
 }
 
 
-/* ---------------------------------------------------------------------- AddDot -- */
+/* ---------------------------------------------------------------------------- AddDot -- */
 /* Add an augmentation dot to the note/rest or chord in the given Sync and voice.
 If it's a chord, assumes all the notes have the same duration. */
 
@@ -196,7 +196,7 @@ void AddDot(Document *doc,
 }
 
 
-/* --------------------------------------------------------------------- AddNote -- */
+/* --------------------------------------------------------------------------- AddNote -- */
 /* Add a note or rest to the object list at <doc->selStartL> */
 
 LINK AddNote(Document *doc,
@@ -340,7 +340,7 @@ LINK AddNote(Document *doc,
 }
 	
 
-/* --------------------------------------------------------------------- AddGRNote -- */
+/* ------------------------------------------------------------------------- AddGRNote -- */
 /* Add a grace note to the object list at doc->selStartL. */
 
 LINK AddGRNote(Document *doc,
@@ -449,7 +449,7 @@ LINK AddGRNote(Document *doc,
 }
 	
 
-/* -------------------------------------------------------------- GetChordEndpts -- */
+/* -------------------------------------------------------------------- GetChordEndpts -- */
 
 Boolean GetChordEndpts(Document *, LINK, short, DDIST *, DDIST *);
 Boolean GetChordEndpts(Document */*doc*/, LINK syncL, short voice, DDIST *ydTop,
@@ -474,7 +474,7 @@ Boolean GetChordEndpts(Document */*doc*/, LINK syncL, short voice, DDIST *ydTop,
 }
 
 
-/* ------------------------------------------------------------------ NewArpSign -- */
+/* ------------------------------------------------------------------------ NewArpSign -- */
 
 /* Ross says the arpeggio sign should be 3/4 space before note but that's much closer
 than his example shows; anyway, his arpeggio sign looks narrower than Sonata's.
@@ -541,7 +541,7 @@ PopLock(OBJheap);
 }
 
 
-/* ---------------------------------------------------------- NewLine and helpers -- */
+/* --------------------------------------------------------------- NewLine and helpers -- */
 
 #define L_HDIST_TO_NOTE (2*STD_LINEHT/4)		/* Horiz. distance from attached line to note */
 #define L_VOFFSET (3*STD_LINEHT/8)				/* Vertical offset for within-Sync lines */
@@ -694,7 +694,7 @@ PopLock(OBJheap);
 }
 
 
-/* ------------------------------------------------------------------ NewGraphic -- */
+/* ------------------------------------------------------------------------ NewGraphic -- */
 /* Add a Graphic (including character or string) to the object list. */
 
 void NewGraphic(
@@ -837,7 +837,7 @@ PopLock(OBJheap);
 }
 
 
-/* ------------------------------------------------------------------ NewMeasure -- */
+/* ------------------------------------------------------------------------ NewMeasure -- */
 /*	Add a Measure to the object list for all staves. */
 
 void NewMeasure(Document *doc,
@@ -875,7 +875,7 @@ void NewMeasure(Document *doc,
 }
 
 
-/* --------------------------------------------------------------- NewPseudoMeas -- */
+/* --------------------------------------------------------------------- NewPseudoMeas -- */
 /*	Add a Pseudomeasure to the object list for all staves. */
 
 void NewPseudoMeas(Document *doc,
@@ -953,7 +953,7 @@ PopLock(OBJheap);
 PopLock(PSMEASheap);
 }
 
-/* ------------------------------------------------------------------- AddToClef -- */
+/* ------------------------------------------------------------------------- AddToClef -- */
 
 void AddToClef(Document *doc, char inchar, short staff)
 {
@@ -981,7 +981,7 @@ void AddToClef(Document *doc, char inchar, short staff)
 		NoMoreMemory();
 }
 
-/* --------------------------------------------------------------------- NewClef -- */
+/* --------------------------------------------------------------------------- NewClef -- */
 /* Add a Clef to the object list. */
 
 void NewClef(Document *doc,
@@ -1025,7 +1025,7 @@ void NewClef(Document *doc,
 }
 
 
-/* ---------------------------------------------- Utilities for inserting KeySigs -- */
+/* --------------------------------------------------- Utilities for inserting KeySigs -- */
 
 static Boolean ChkIns1KSCancel(LINK ksL, short staff);
 static Boolean ChkInsKSCancel(Document *doc, LINK insL, short staff);
@@ -1062,7 +1062,7 @@ static Boolean ChkInsKSCancel(Document *doc, LINK insL, short staff)
 	return True;
 }
 
-/* ------------------------------------------------------------------- NewKeySig -- */
+/* ------------------------------------------------------------------------- NewKeySig -- */
 /* Add a KeySig to the object list at the insertion point. Assumes the
 insertion point is not in the first system's reserved area! */
 
@@ -1146,7 +1146,7 @@ PopLock(KEYSIGheap);
 }
 
 
-/* ------------------------------------------------------------------ NewTimeSig -- */
+/* ------------------------------------------------------------------------ NewTimeSig -- */
 /* Add a TimeSig to the object list. */
 
 #define TIMESIG_PALCHAR '8'		/* Substitute this for blank <inchar> */
@@ -1193,7 +1193,7 @@ void NewTimeSig(Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ ModNRPitchLev -- */
+/* --------------------------------------------------------------------- ModNRPitchLev -- */
 typedef struct {
 	Byte	canBeInStaff;	/* can put modifier inside staff, if note head pos. allows (boolean) */
 	Byte	alwaysAbove;	/* if only 1 voice on staff, put modifier above staff, even if stem is up (boolean) */
@@ -1379,7 +1379,7 @@ short ModNRPitchLev(Document *doc,
 }
 
 
-/* ----------------------------------------------------------------------- NewMODNR -- */
+/* -------------------------------------------------------------------------- NewMODNR -- */
 /*	Add a note/rest modifier. */
 
 void NewMODNR(Document *doc,
@@ -1434,7 +1434,7 @@ void NewMODNR(Document *doc,
 	MEAdjustCaret(doc, True);
 }
 
-/* ------------------------------------------------------------------- AutoNewModNR -- */
+/* ---------------------------------------------------------------------- AutoNewModNR -- */
 /* Add the specified modifier to the given note. Return the LINK of the new
 modifier, or NILINK if error. (Based on NewMODNR(). FIXME: The two should be
 merged, at least in part.) */
@@ -1486,7 +1486,7 @@ LINK AutoNewModNR(Document *doc, char modCode, char data, LINK syncL, LINK aNote
 }
 
 
-/* ------------------------------------------------------- Functions for NewDynamic -- */
+/* ---------------------------------------------------------- Functions for NewDynamic -- */
 
 /* Call to InvalMeasures takes measL rather than lastSyncL as a parameter in an
 effort to avoid passing one more parameter. */
@@ -1521,7 +1521,7 @@ LINK AddNewDynamic(Document *doc, short staff, short x, DDIST *sysLeft,
 	return newL;
 }
 
-/* --------------------------------------------------------------------- NewDynamic -- */
+/* ------------------------------------------------------------------------ NewDynamic -- */
 /* Add a dynamic marking to the object list. */
 
 void NewDynamic(
@@ -1556,7 +1556,7 @@ void NewDynamic(
 	NewObjCleanup(doc, newL, staff);
 }
 
-/* ------------------------------------------------------------------- NewRptEnd -- */
+/* ------------------------------------------------------------------------- NewRptEnd -- */
 /*	Add a Repeat/End to the object list. */
 
 void NewRptEnd(Document *doc,
@@ -1612,7 +1612,7 @@ void NewRptEnd(Document *doc,
 	NewObjCleanup(doc, newL, staff);
 }
 
-/* -------------------------------------------------------------------- NewEnding -- */
+/* ------------------------------------------------------------------------- NewEnding -- */
 /*	Add an ending to the object list. */
 
 void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clickStaff,
@@ -1656,7 +1656,7 @@ void NewEnding(Document *doc, short firstx, short lastx, char inchar, short clic
 	InvalMeasures(firstL,lastL,ANYONE);
 }
 
-/* ----------------------------------------------------------------------- NewTempo -- */
+/* -------------------------------------------------------------------------- NewTempo -- */
 /*	Add a Tempo/metronome mark to the object list. One slightly tricky thing: if _noMM_
 is False, the metronome mark is to be ignored. */
 
@@ -1675,7 +1675,6 @@ PushLock(OBJheap);
 	pTempo = GetPTEMPO(pL);
 	pTempo->staffn = staff;
 	pTempo->expanded = expanded;
-//LogPrintf(LOG_DEBUG, "NewTempo: expanded=%d, pTempo->expanded=%d\n", expanded, pTempo->expanded);
 	pTempo->yd = halfLn2d(pitchLev, context.staffHeight, context.staffLines);
 	pTempo->xd = 0;											/* same horiz position as note */
 	pTempo->filler = 0;										/* Added in v. 5.6. --DAB */
@@ -1706,7 +1705,7 @@ PopLock(OBJheap);
 }
 
 
-/* ----------------------------------------------------------------------- NewSpace -- */
+/* -------------------------------------------------------------------------- NewSpace -- */
 /*	Add a Space mark to the object list. */
 
 void NewSpace(Document *doc, Point pt, char inchar, short topStaff, short bottomStaff,

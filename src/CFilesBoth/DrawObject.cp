@@ -2368,8 +2368,6 @@ PushLock(TEMPOheap);
 		}
 		ydMM = yd;
 	}
-//LogPrintf(LOG_DEBUG, "dEnclBox.bottom=%d dTextLineHeight=%d xd,yd=%d,%d xdMM,ydMM=%d,%d\n",
-//dEnclBox.bottom, dTextLineHeight, xd, yd, xdMM, ydMM);
 	
 	/* We'll cheat and get the width of the note and dot in the current font/size/style
 	 * instead of the ones it'll be drawn in. FIXME: This shouldn't make much difference,
@@ -2425,8 +2423,6 @@ PushLock(TEMPOheap);
 				TextFace(0);											/* Plain */
 				DrawChar(noteChar);
 				if (p->dotted) {
-//LogPrintf(LOG_DEBUG, "xdDot, ydDot=%d. %d  pap.left=%d pap.top=%d\n", xdDot, ydDot,
-//			pContext->paper.left, pContext->paper.top);
 					MoveTo(pContext->paper.left+d2p(xdDot), pContext->paper.top+d2p(ydDot));
 					DrawChar(dotChar);
 				}
@@ -2607,9 +2603,6 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 		if (measDurFromTS<0) okay = False;
 		else {
 			measDurActual = GetMeasDur(doc, barTermL, ANYONE);
-//if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT)
-//LogPrintf(LOG_DEBUG, "ShadeDurPblmMeasure: for measureL=%d, dur from TS=%d durActual=%d\n",
-//				measureL, measDurFromTS, measDurActual);
 			/* If the first Sync following the Measure object is a multibar rest, assume
 			   the "measure" is OK. (NB that if the "measure" we're checking contains no
 			   Syncs, the first Sync following won't be in it, but that shouldn't cause

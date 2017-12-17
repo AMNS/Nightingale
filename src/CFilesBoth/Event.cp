@@ -811,8 +811,6 @@ static Boolean DoKeyDown(EventRecord *evt)
 				if (!doc) return True;
 				CountSelection(doc, &nInRange, &nSelFlag);
 				if (nSelFlag!=1) return True;
-				//LogPrintf(LOG_DEBUG, "DoKeyDown: char code=%d nInRange=%d nSelFlag=%d\n",
-				//			ch, nInRange, nSelFlag);
 				if (Nudge(doc, ch)) {
 					doc->changed = True;
 					InvalSelRange(doc);

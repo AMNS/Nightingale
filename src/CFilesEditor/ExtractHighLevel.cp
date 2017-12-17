@@ -242,13 +242,7 @@ static Boolean BuildPartFilename(Document *doc, LINK partL, unsigned char *partF
 	GetFinalSubstring(tempStr, extStr, '.');
     wantLen = strlen(tempStr)-strlen(extStr)-1;						/* -1 to leave out the "." */
     okay = GetInitialSubstring(tempStr, nameStr, wantLen);
-    if (okay) {
-        //LogPrintf(LOG_DEBUG, "BuildPartFilename: OK. tempStr='%s' wantLen=%d name='%s' ext='%s'\n",
-		//			tempStr, wantLen, nameStr, extStr);
-    } else {
-        //LogPrintf(LOG_DEBUG, "BuildPartFilename: Not OK. tempStr=%s wantLen=%d.\n", tempStr, wantLen);
-		return False;
-	}
+    if (!okay) return False;
 	strcat(nameStr, "-");
 	
 	/* With the Carbon toolkit, filenames can't be longer than the modest length MacOS 9
@@ -373,7 +367,6 @@ Boolean DoExtract(Document *doc)
 		if (pStr[0]!=0) {
 			Pstrcpy((StringPtr)headerStr, (StringPtr)pStr);
 			PToCString((StringPtr)headerStr);
-			//LogPrintf(LOG_DEBUG, "page header='%s'\n", headerStr);
 		}
 
 		fOffset = doc->footerStrOffset;
@@ -381,7 +374,6 @@ Boolean DoExtract(Document *doc)
 		if (pStr[0]!=0) {
 			Pstrcpy((StringPtr)footerStr, (StringPtr)pStr);
 			PToCString((StringPtr)footerStr);
-			//LogPrintf(LOG_DEBUG, "page footer='%s'\n", footerStr);
 		}
 	}
 

@@ -476,8 +476,8 @@ static void ConsidITWidths(
 			for (s = 1; s<=doc->nstaves; s++) {
 
 #ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
-	//	LogPrintf(LOG_DEBUG, "CIT2. "); DebugPrintSpacing(nLast, fSpBefore);
+	if (DEBUG_PRINT) {
+		LogPrintf(LOG_DEBUG, "CIT2. "); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
 				if (ObjOnStaff(spaceTimeInfo[i].link, s, False)) {
@@ -486,7 +486,6 @@ static void ConsidITWidths(
 					else
 						gNeedLeft = gNeedRight = 0;
 					needLeft = SymWidthLeft(doc, spaceTimeInfo[i].link, s, -1);
-					//LogPrintf(LOG_DEBUG, "i=%d stf=%d gNeedLeft=%d needLeft=%d\n", i, s, gNeedLeft, needLeft);
 					if (needLeft<gNeedLeft) needLeft = gNeedLeft;
 
 					/*
@@ -605,7 +604,7 @@ static void ConsidIPWidths(
 		}
 
 #ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
+	if (DEBUG_PRINT) {
 		LogPrintf(LOG_DEBUG, "Final "); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
@@ -716,7 +715,7 @@ static void ConsiderWidths(
 	ConsidITWidths(doc, barTermL, nLast, spaceTimeInfo, fSpBefore);
 
 #ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
+	if (DEBUG_PRINT) {
 		LogPrintf(LOG_DEBUG, "Inter."); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
@@ -825,7 +824,7 @@ DDIST Respace1Bar(
 	}
 
 #ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
+	if (DEBUG_PRINT) {
 		short k;
 		LogPrintf(LOG_DEBUG,   "Nodes: ---------");
 		for (k = 0; k<=nLast; k++)
@@ -851,7 +850,7 @@ DDIST Respace1Bar(
 	ConsiderWidths(doc, barTermL, nLast, spaceTimeInfo, fSpBefore, position);
 
 #ifdef SPACEBUG
-	if (ShiftKeyDown() && OptionKeyDown()) {
+	if (DEBUG_PRINT) {
 		LogPrintf(LOG_DEBUG, "Final positions:");
 		for (i = 0; i<=nLast; i++)
 			LogPrintf(LOG_DEBUG, " %5ld", position[i]);

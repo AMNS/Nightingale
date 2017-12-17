@@ -1,7 +1,7 @@
 /* Defs.h for Nightingale - general global #defines and enums. Limits are in NLimits.h.
 Some other #defines, dependent on _VERSION, are in versionStrings. */
 
-/* ----------------------------------------------------- Miscellaneous global enums -- */
+/* -------------------------------------------------------- Miscellaneous global enums -- */
 
 enum {										/* In the order of TEXTSTYLEs in NIGHTSCOREHDR */
 	FONT_THISITEMONLY=0,
@@ -115,7 +115,7 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 };
 
 
-/* --------------------------------------------------------------- MUSIC CHARACTERS -- */
+/* ------------------------------------------------------------------ MUSIC CHARACTERS -- */
 /* Characters in our music font, Adobe's "Sonata" and compatible fonts: */
 
 #define MCH_trebleclef '&'
@@ -195,7 +195,7 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 
 #define BREVEYOFFSET 2						/* Correction for Sonata error in breve origin (half-lines) */
 
-/* -------------------------------------------------- OTHER CHARACTER AND KEY CODES -- */
+/* ----------------------------------------------------- OTHER CHARACTER AND KEY CODES -- */
 
 #define CH_ENTER 0x03					/* ASCII character code for enter key */
 #define CH_BS 0x08						/* ASCII character code for backspace (delete) */
@@ -213,7 +213,7 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 
 #define CS_DELIMITER	FWDDEL_KEY		/* Chord symbol field delimiter */
 
-/* -------------------------------------------------------- MISCELLANEOUS CONSTANTS -- */
+/* ----------------------------------------------------------- MISCELLANEOUS CONSTANTS -- */
 
 #define FIDEAL_RESOLVE 10				/* Fractional STDIST resolution in parts of an STDIST */
 
@@ -296,7 +296,7 @@ moved there eventually). */
 #define TSCALE2MICROBEATS(ts) (60*1000000L/(ts))
 
 
-/* ----------------------------------------------------------- MISCELLANEOUS MACROS -- */
+/* -------------------------------------------------------------- MISCELLANEOUS MACROS -- */
 /* FIXME: These should probably be in a new file, <genlMacros.h> or some such. */
 
 /* Arithmetic, etc. */
@@ -399,7 +399,7 @@ equiv. KSINFO is necessarily even, so BlockMove(ks1, ks2, sizeof(KSINFO)) doesn'
 /* Simple compound-meter identifying heuristic. Better for fast tempi than slow ones! */
 #define COMPOUND(numer) (numer%3==0 && numer>3)
 
-/* ---------------------------------------------------------------- ERROR CHECKING -- */ 
+/* -------------------------------------------------------------------- ERROR CHECKING -- */ 
 		
 /* calls to be replaced by calls to GARBAGELX */						 
 #define GARBAGEL(pL) 0
@@ -429,7 +429,9 @@ with MAX_TSDENOM, above! */
 #define RIGHT_HLIM(doc) 	(pt2d((doc)->marginRect.right-(doc)->marginRect.left))
 #define LEFT_HLIM(doc, pL)	(J_DTYPE(pL)? -RIGHT_HLIM(doc) : 0)
 
-/* ------------------------------------------------------------- CONVERSION MACROS -- */
+#define DEBUG_PRINT			(ShiftKeyDown() && OptionKeyDown())
+
+/* ----------------------------------------------------------------- CONVERSION MACROS -- */
 
 /* Convert STDIST to DDIST and vice-versa */
 #define std2d(std, stfHt, lines)	( ((long)(std)*(stfHt)) / (8*((lines)-1)) )
@@ -470,7 +472,7 @@ with MAX_TSDENOM, above! */
 #define pt2p(p)	d2p(pt2d(p))							/* points to pixels */
 
 
-/* ------------------------------------------------ MISCELLANEOUS SYSTEM-DEPENDENT -- */
+/* ---------------------------------------------------- MISCELLANEOUS SYSTEM-DEPENDENT -- */
 
 
 /* Convert OS ticks (in Carbon, 1/60 sec.) to milliseconds. */

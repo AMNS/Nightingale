@@ -1088,8 +1088,6 @@ void GetStaffGroupBounds(Document *doc, short staffn, short *pTopStf, short *pBo
 			groupTopStf = stf;
 			groupBottomStf = MeasCONNSTAFF(bMeasL);
 			if (groupBottomStf==0) groupBottomStf = stf;
-//LogPrintf(LOG_DEBUG, "pL=L%u bMeasL=%Lu staffn=%d, stf=%d, groupTopStf=%d groupBottomStf=%d\n",
-//pL, bMeasL, staffn, stf, groupTopStf, groupBottomStf);
 			break;
 		}
 	}

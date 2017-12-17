@@ -257,8 +257,6 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 			
 			InvertObjRect(doc, &objRect);				/* Restore previous objRect */
 			ShowObject(doc, pL, index, &objRect); 		/* Write out info and get new objRect */
-//LogPrintf(LOG_DEBUG, "Browser: objRect (t l b r)=%d %d %d %d\n",
-//objRect.top, objRect.left, objRect.bottom, objRect.right);
 			InvertObjRect(doc, &objRect);				/* Hilite this objRect */
 			
 			if (ObjLType(pL)==HEADERtype

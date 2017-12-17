@@ -355,7 +355,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 	paperUpdate = *updateRect;
 	OffsetRect(&paperUpdate, -paper->left, -paper->top);
 	
-	if (ShiftKeyDown() && OptionKeyDown())
+	if (DEBUG_PRINT)
 		LogPrintf(LOG_DEBUG, "DrawScoreRange: fromL=%u toL=%u outputTo=%d\n", fromL, toL, outputTo);
 	
 	for (pL=fromL; pL!=toL; pL=RightLINK(pL))
@@ -425,7 +425,6 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 				if (VISIBLE(pL) && drawAll) DrawTIMESIG(doc, pL, context);
 				break;
 			case SYNCtype:
-				//LogPrintf(LOG_NOTICE, "DrawScoreRange <DrawSYNC: pL=%u visible=%d drawAll=%d\n", pL, VISIBLE(pL), drawAll);
 				if (VISIBLE(pL) && drawAll) DrawSYNC(doc, pL, context);
 				break;
 			case GRSYNCtype:

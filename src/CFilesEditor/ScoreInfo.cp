@@ -32,7 +32,7 @@ static void SIDrawTextLine(char *theStr)
 	MoveTo(textRect.left, textRect.top+linenum*LEADING);
 	DrawCString(theStr);
 	++linenum;
-	if (ShiftKeyDown() && OptionKeyDown()) LogPrintf(LOG_INFO, "%s\n", theStr);
+	if (DEBUG_PRINT) LogPrintf(LOG_INFO, "%s\n", theStr);
 }
 
 /* Return the actual number of measures in the document. (Measure numbers in the object
@@ -83,13 +83,12 @@ static short SICheckMeasDur(Document *doc, short *pFirstBad)
 				if (measDurActual!=0 && ABS(measDurFromTS-measDurActual)>=PDURUNIT) {
 					/* If the "measure" contains an n-measure multibar rest, the only
 						problem case is if there's another Sync in the measure. */
-//LogPrintf(LOG_DEBUG, "SICheckMeasDur: suspicious measDurActual=%d\n", measDurActual);
 					syncL = LSSearch(pL, SYNCtype, ANYONE, GO_RIGHT, False);
 					aNoteL = FirstSubLINK(syncL);
 					if (NoteREST(aNoteL) && NoteType(aNoteL)<WHOLEMR_L_DUR) {
 						nextSyncL = LSSearch(RightLINK(syncL), SYNCtype, ANYONE, GO_RIGHT, False);
 						if (!nextSyncL || IsAfter(barTermL, nextSyncL)) continue;
-						LogPrintf(LOG_NOTICE, "SICheckMeasDur: problem with multibar rest. syncL=%u barTermL=%u nextSyncL=%u\n",
+						LogPrintf(LOG_WARNING, "SICheckMeasDur: problem with multibar rest. syncL=%u barTermL=%u nextSyncL=%u\n",
 									syncL, barTermL, nextSyncL);
 					}
 					nBad++;
@@ -128,7 +127,6 @@ static short SICheckEmptyMeas(Document *doc, short *pFirstEmpty)
 						if (nEmpty==1) *pFirstEmpty = GetMeasNum(doc, barL);
 			}
 		}
-	//LogPrintf(LOG_DEBUG, "SICheckEmptyMeas >: barL=%d nEmpty=%d\n", barL, nEmpty);
 	}
 		
 	return nEmpty;
@@ -154,7 +152,6 @@ static short SICheckRange(Document *doc, short *pFirstOutOfRange)
 		hiKeyNum = pPart->hiKeyNum;
 		loKeyNum = pPart->loKeyNum;
 		transposition = pPart->transpose;
-		//LogPrintf(LOG_DEBUG, "SICheckRange: firstStaff=%d loKeyNum=%d hiKeyNum=%d\n", firstStaff, loKeyNum, hiKeyNum);
 		for (pL=doc->headL; pL!=doc->tailL; pL=RightLINK(pL)) {
 			if (SyncTYPE(pL))
 				for (aNoteL=FirstSubLINK(pL); aNoteL; aNoteL=NextNOTEL(aNoteL))

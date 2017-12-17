@@ -1459,7 +1459,6 @@ short GetSpTimeInfo(
 					noteDur = CalcNoteLDur(doc, aNoteL, pL);
 					aNote = GetPANOTE(aNoteL);
 					vLTimes[aNote->voice] = timeHere+noteDur;
-//LogPrintf(LOG_DEBUG, "GetSpTimeInfo0: voice=%d pL=%u timeHere=%ld noteDur=%ld\n", aNote->voice, pL, timeHere, noteDur);
 					voiceInSync[aNote->voice] = True;
 					vStaves[aNote->voice] = aNote->staffn;
 					if (noteDur<minDur) minDur = noteDur;
@@ -1827,7 +1826,6 @@ long GetMeasDur(Document *doc,
 			if (NoteSTAFFN(aNoteL)==staffn)
 			maxDur = max(maxDur, CalcNoteLDur(doc, aNoteL, syncL));
 		}
-		//LogPrintf(LOG_DEBUG, "GetMeasDur: endMeasL=%d SyncTIME(syncL)=%d maxDur=%ld\n", endMeasL, SyncTIME(syncL), maxDur);
 		return SyncTIME(syncL)+maxDur;
 	}
 	

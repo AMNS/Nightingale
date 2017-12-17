@@ -1453,7 +1453,6 @@ void DPrintLTIs(char *label, LINKTIMEINFO itemTab[], short nItems)
 }
 
 
-#define DBG (ShiftKeyDown() && OptionKeyDown())
 
 /* -------------------------------------------------------------- TranscribeVoice -- */
 /* The top-level rhythm clarification and quantization function: starting with tables
@@ -1502,7 +1501,7 @@ LINK TranscribeVoice(
 	LINK firstSync; short q;
 	
 	if (quantum>1) {
-if (DBG) DPrintLTIs("<ClarAllToMeas",rawSyncTab,nRawSyncs);
+if (DEBUG_PRINT) DPrintLTIs("<ClarAllToMeas",rawSyncTab,nRawSyncs);
 		if (!ClarAllToMeas(doc,rawSyncTab,maxRawSyncs,&nRawSyncs,quantum,measInfoTab,nMeasTab))
 			{ *errCode = 1; return NILINK; }
 			
@@ -1510,23 +1509,23 @@ if (DBG) DPrintLTIs("<ClarAllToMeas",rawSyncTab,nRawSyncs);
 										measInfoTab,nMeasTab))
 			{ *errCode = 2; return NILINK; }
 								
-if (DBG) DPrintLTIs("<ChooseChords",rawSyncTab,nRawSyncs);
+if (DEBUG_PRINT) DPrintLTIs("<ChooseChords",rawSyncTab,nRawSyncs);
 		if (!ChooseChords(doc,voice,rawSyncTab,maxRawSyncs,&nRawSyncs,rawNoteAux,quantum))
 			{ *errCode = 3; return NILINK; }
 	
 	
-if (DBG) DPrintLTIs("<ClarAllToTuplets",rawSyncTab,nRawSyncs);
+if (DEBUG_PRINT) DPrintLTIs("<ClarAllToTuplets",rawSyncTab,nRawSyncs);
 		if (!ClarAllToTuplets(doc,voice,rawSyncTab,maxRawSyncs,&nRawSyncs,quantum))
 			{ *errCode = 4; return NILINK; }
 	
-if (DBG) DPrintLTIs("<QuantizeAndClip",rawSyncTab,nRawSyncs);
+if (DEBUG_PRINT) DPrintLTIs("<QuantizeAndClip",rawSyncTab,nRawSyncs);
 		QuantizeAndClip(doc,voice,rawSyncTab,&nRawSyncs,quantum);
 		
 		RemoveZeroDurItems(rawSyncTab,&nRawSyncs);
 		RemoveOneItemTuplets(rawSyncTab,nRawSyncs);
 	}
 	
-if (DBG) DPrintLTIs("<BuildSyncs",rawSyncTab,nRawSyncs);
+if (DEBUG_PRINT) DPrintLTIs("<BuildSyncs",rawSyncTab,nRawSyncs);
 	firstSync =	BuildSyncs(doc,voice,rawSyncTab,nRawSyncs,rawNoteAux,nAux,measL);
 	if (!firstSync)
 			{ *errCode = 5; return NILINK; }
@@ -1539,7 +1538,7 @@ if (DBG) DPrintLTIs("<BuildSyncs",rawSyncTab,nRawSyncs);
 										newSyncTab,maxNewSyncs,pnNewSyncs))
 			{ *errCode = 7; return NILINK; }
 
-if (DBG) DPrintLTIs("<AddTuplets",newSyncTab,*pnNewSyncs);
+if (DEBUG_PRINT) DPrintLTIs("<AddTuplets",newSyncTab,*pnNewSyncs);
 		if (!AddTuplets(doc,voice,newSyncTab,*pnNewSyncs))
 			{ *errCode = 8; return NILINK; }
 	}

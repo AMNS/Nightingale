@@ -2,11 +2,10 @@
 *	FILE:	UIFUtils.c
 *	PROJ:	Nightingale
 *	DESC:	General-purpose utility routines for implementing the user interface.
-		WaitCursor				ArrowCursor				XableItem
-		UpdateMenu				UpdateMenuBar
+		WaitCursor				ArrowCursor				FixCursor
+		XableItem				UpdateMenu				UpdateMenuBar
 		GetStaffLim				InvertSymbolHilite		InvertTwoSymbolHilite
-		HiliteAttPoints
-		FixCursor				FlashRect				SamePoint
+		HiliteAttPoints			FlashRect				SamePoint
 		Advise					NoteAdvise				CautionAdvise
 		StopAdvise				Inform					NoteInform
 		CautionInform			StopInform				ProgressMsg
@@ -35,6 +34,14 @@
 
 /* --------------------------------------------------------------------------- Cursors -- */
 
+static void FixCursorLogPrint(char *str);
+static void FixCursorLogPrint(char *str) 
+{
+#ifdef DEBUG_CURSOR
+	LogPrintf(LOG_DEBUG, str);
+#endif
+}
+
 /* Display the watch cursor to indicate lengthy operations. */
 
 void WaitCursor()
@@ -56,6 +63,166 @@ void ArrowCursor()
 	GetQDGlobalsArrow(&arrow);
 
 	SetCursor(&arrow);
+}
+
+
+/*	Set cursor shape based on window and mouse position. This version allows "shaking
+off the mode".	*/
+
+#define MAXSHAKES	4		/* Changes in X direction before a good shake */
+#define CHECKMIN	2		/* Number ticks before next dx check */
+#define SWAPMIN		30		/* Number ticks between consecutive shakeoffs */
+
+void FixCursor()
+{
+	Point			mousept, globalpt;
+	WindowPtr		wp;
+	CursHandle		newCursor;
+	Document		*doc;
+	static short	x, xOld, dx, dxOld, shaker, shookey;
+	static long 	now, soon, nextcheck;
+	PaletteGlobals *toolPalette;
+	char			message[256];
+	Boolean			foundPalette = False;
+	
+	toolPalette = *paletteGlobals[TOOL_PALETTE];
+	
+	/*
+	 * <currentCursor> is a global that Nightingale uses elsewhere to keep track of
+	 * the cursor. <newCursor> is a temporary variable used solely to set the cursor
+	 * here. They'll always be the same except when a modifier key is down that forces
+	 * a specific cursor temporarily -- at the moment, only the <genlDragCursor>.
+	 */
+	GetMouse(&mousept);
+	globalpt = mousept;
+	LocalToGlobal(&globalpt);
+	
+	/* If no windows at all, use arrow */
+	
+	if (TopWindow == NULL) {
+		holdCursor = False;
+		ArrowCursor();
+		return;
+	}
+	
+	/* If mouse over any palette, use arrow unless a tool was just chosen */
+
+	if (GetWindowKind(TopWindow) == PALETTEKIND) {
+		holdCursor = True;
+		for (wp=TopPalette; wp!=NULL && GetWindowKind(wp)==PALETTEKIND; wp=GetNextWindow(wp)) {
+			RgnHandle strucRgn = NewRgn();
+			GetWindowRegion(wp, kWindowStructureRgn, strucRgn);
+			if (PtInRgn(globalpt, strucRgn)) {
+				//if (!holdCursor) ArrowCursor();
+				DisposeRgn(strucRgn);
+				foundPalette = True;
+			}
+				else {
+				DisposeRgn(strucRgn);
+			}
+		}
+	}
+
+	holdCursor = False;			/* OK to change cursor back to arrow when it's over a palette */
+	
+	/* If no Documents, use arrow */
+	
+	if (TopDocument==NULL) { FixCursorLogPrint("2. TopDocument is null\n"); ArrowCursor(); return; }
+
+	/* If mouse over any kind of window other than a Document, use arrow */
+	
+	FindWindow(globalpt, (WindowPtr *)&wp);
+	
+	if (wp==NULL) { FixCursorLogPrint("3-1. FoundWindow is null\n"); ArrowCursor(); return; }
+	if (GetWindowKind(wp)==PALETTEKIND) { FixCursorLogPrint("3-2. FoundWindow is a palette\n"); return; }	
+	if (GetWindowKind(wp)!=DOCUMENTKIND) {
+		FixCursorLogPrint("3-3. FoundWindow not our Document\n"); ArrowCursor(); return;
+		}
+	
+	doc = GetDocumentFromWindow(wp);
+	
+	if (doc==NULL) { ArrowCursor(); FixCursorLogPrint("4. FixCursor: doc is null\n"); return; }
+	sprintf(message, "4.1 found document %s\n", doc->name);
+	FixCursorLogPrint(message);
+	
+	/* If mouse not over the Document's viewRect, use arrow */
+	
+	if (!PtInRect(mousept,&doc->viewRect)) { FixCursorLogPrint("5. Not in viewRect\n");  ArrowCursor(); return; }
+	
+	/* If Document showing Master Page or Work on Format, use arrow */
+	
+	if (doc->masterView || doc->showFormat) { FixCursorLogPrint("6. MasterPage or ShowFormat\n"); ArrowCursor(); return; }
+	
+	/*
+	 * Mouse is over the viewRect of a Document that is showing the "normal" (not
+	 * Master Page or Work on Format) view. Now we have to think harder.
+	 */
+	 
+	newCursor = currentCursor;
+	
+	/*
+	 *	At this point, we check for shakeoffs.  We do this by keeping track of the 
+	 * times at which the mouse changes horizontal direction, but no oftener than
+	 * CHECKMIN ticks, since otherwise we won't pick up the direction changes
+	 * (dx == 0 most of the time). Each time the direction does change we check to
+	 * see if it has happened within mShakeThresh ticks of the last change.  If it
+	 * hasn't, we start over.  If it has, we keep track of the number of consecutive
+	 * shakes, each occurring within mShakeThresh ticks of each other, until there are
+	 * MAXSHAKES of them, in which case we change the cursor to the arrow cursor.
+	 *	We save the previous cursor (in shook), so that on the next shakeoff, we can
+	 *	go back to whatever used to be there, if it's still the arrow. Finally, we
+	 *	don't allow consecutive shakeoffs to occur more often than SWAPMIN ticks.
+	 *	Yours truly, Doug McKenna.
+	 */
+	now = TickCount();
+	if (now > nextcheck) {
+		x = mousept.h;
+		dx = x - xOld;
+		nextcheck = now + CHECKMIN;
+		
+		if ((dx<0 && dxOld>0) || (dx>0 && dxOld<0))
+		
+			if (shaker++ == 0)
+				soon = now + config.mShakeThresh;					/* Start timing */
+			 else
+				if (now < soon)										/* A quick-enough shake ? */
+					if (shaker >= MAXSHAKES) {
+						if (shookey==0 || currentCursor!=arrowCursor) {
+							shookey = GetPalChar((*paletteGlobals[TOOL_PALETTE])->currentItem);
+							shook = currentCursor;
+							PalKey(CH_ENTER);
+							newCursor = arrowCursor;
+						}
+						 else {
+							PalKey(shookey);
+							newCursor = shook;
+							shookey = 0;
+						}
+						shaker = 0;
+						currentCursor = newCursor;
+						nextcheck += SWAPMIN;
+					}
+					 else
+						soon = now + config.mShakeThresh;
+				 else
+					shaker = 0;												/* Too late: reset */
+
+		dxOld = dx; xOld = x;
+	}
+	
+	/*
+	 * If option key is down and shift key is NOT down, use "general drag" cursor, no
+	 * matter what. The shift key test is unfortunately necessary so we can use
+	 * shift-option-E (for example) as the keyboard equivalent for eighth grace
+	 * note without confusing users by having the wrong cursor as long they actually
+	 * have the option key down. */
+
+	if (OptionKeyDown() && !ShiftKeyDown()) newCursor = genlDragCursor;
+	
+	FixCursorLogPrint("7. Installing current cursor\n");
+	
+	/* Install the new cursor, whatever it may be. */
+	SetCursor(*newCursor);
 }
 
 
@@ -98,6 +265,411 @@ void UpdateMenuBar()
 	menuBarChanged = False;
 }
 
+
+/* ------------------------------------------------------------------------ Rectangles -- */
+
+/* Set ans to be the centered version of r with respect to inside.  We do this by
+computing the centers of each rectangle, and offseting the centeree by the distance
+between the two centers.  If inside is NULL, then we assume it to be the main screen. */
+
+void CenterRect(Rect *r, Rect *inside, Rect *ans)
+{
+	short rx,ry,ix,iy;
+
+	rx = r->left + ((r->right - r->left) / 2);
+	ry = r->top + ((r->bottom - r->top) / 2);
+	
+	if (inside == NULL) //inside = &qd.screenBits.bounds;
+		GetQDScreenBitsBounds(inside);
+
+	ix = inside->left + ((inside->right - inside->left) / 2);
+	iy = inside->top + ((inside->bottom - inside->top) / 2);
+	
+	*ans = *r;
+	OffsetRect(ans,ix-rx,iy-ry);
+}
+
+/*
+ *	Force a rectangle to be entirely enclosed by another (presumably) larger one.
+ *	If the "enclosed" rectangle is larger, then we leave the bottom right within.
+ *	margin is a slop factor to bring the rectangle a little farther in than just
+ *	to the outer rectangle's border.
+ */
+
+void PullInsideRect(Rect *r, Rect *inside, short margin)
+{
+	Rect ans,tmp;
+	
+	tmp = *inside;
+	InsetRect(&tmp,margin,margin);
+	
+	SectRect(r,&tmp,&ans);
+	if (!EqualRect(r,&ans)) {
+		if (r->top < tmp.top)
+			OffsetRect(r,0,tmp.top-r->top);
+		 else if (r->bottom > tmp.bottom)
+			OffsetRect(r,0,tmp.bottom-r->bottom);
+			
+		if (r->left < tmp.left)
+			OffsetRect(r,tmp.left-r->left,0);
+		 else if (r->right > tmp.right)
+			OffsetRect(r,tmp.right-r->right,0);
+	}
+}
+
+/*
+ *	Deliver True if r is completely inside the bounds rect; False if outside or
+ *	partially outside.
+ */
+
+Boolean ContainedRect(Rect *r, Rect *bounds)
+{
+	Rect tmp;
+	
+	UnionRect(r,bounds,&tmp);
+	return (EqualRect(bounds,&tmp));
+}
+
+
+/*
+ *	Draw a series of rectangles interpolated between two given rectangles, from
+ *	small to big if zoomUp, from big to small if not zoomUp.  As described in
+ *	TechNote 194, we draw not into WMgrPort, but into a new port covering the
+ *	same area.  Both rectangles should be specified in global screen coordinates.
+ */
+
+static short blend1(short sc, short bc);
+static Fixed fract,factor,one;
+
+static short blend1(short smallCoord, short bigCoord)
+{
+	Fixed smallFix,bigFix,tmpFix;
+	
+	smallFix = one * smallCoord;		/* Scale up to fixed point */
+	bigFix	 = one * bigCoord;
+	tmpFix	 = FixMul(fract,bigFix) + FixMul(one-fract,smallFix);
+	
+	return(FixRound(tmpFix));
+}
+
+void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
+{
+	short i,zoomSteps = 16;
+	Rect r1,r2,r3,r4,rgnBBox;
+	GrafPtr oldPort,deskPort;
+	
+	RgnHandle grayRgn = NewRgn();
+	RgnHandle deskPortVisRgn = NewRgn();		
+		
+	GetPort(&oldPort);
+	deskPort = CreateNewPort();
+	
+	if (!deskPort) Debugger();
+		
+	GetPortVisibleRegion(deskPort, deskPortVisRgn);
+	grayRgn = GetGrayRgn();
+	
+	if (!grayRgn) { LogPrintf(LOG_WARNING, "ZoomRect: can't create grayRgn\n"); Debugger(); }
+	
+	CopyRgn(grayRgn,deskPortVisRgn);
+	
+	GetRegionBounds(grayRgn,&rgnBBox);  		
+	SetPortBounds(deskPort,&rgnBBox);
+	
+	DisposeRgn(grayRgn);
+	DisposeRgn(deskPortVisRgn);
+	
+	SetPort(deskPort);
+	PenPat(NGetQDGlobalsGray());
+	PenMode(notPatXor);
+
+	one = 65536;						/* fixed point 'const' */
+	if (zoomUp) {
+		r1 = *smallRect;
+		factor = FixRatio(6,5);			/* Make bigger each time */
+		fract =  FixRatio(541,10000);	/* 5/6 ^ 16 = 0.540877 */
+	}
+	 else {
+		r1 = *bigRect;
+		factor = FixRatio(5,6);			/* Make smaller each time */
+		fract  = one;
+	}
+	
+	r2 = r1;
+	r3 = r1;
+	FrameRect(&r1);						/* Draw initial image */
+
+	for (i=0; i<zoomSteps; i++) {
+		r4.left   = blend1(smallRect->left,bigRect->left);
+		r4.right  = blend1(smallRect->right,bigRect->right);
+		r4.top	  = blend1(smallRect->top,bigRect->top);
+		r4.bottom = blend1(smallRect->bottom,bigRect->bottom);
+		
+		FrameRect(&r4);					/* Draw newest */
+		FrameRect(&r1);					/* Erase oldest */
+		r1 = r2; r2 = r3; r3 = r4;
+		
+		fract = FixMul(fract,factor);	/* Bump interpolation factor */
+	}
+	
+	FrameRect(&r1);						/* Erase final image */
+	FrameRect(&r2);
+	FrameRect(&r3);
+	
+	PenNormal();
+	DisposePort(deskPort);
+	SetPort(oldPort);
+}
+
+
+/* --------------------------------------------------------------------------- Windows -- */
+
+/*
+ *	Given a window, compute the global coords of its port
+ */
+
+void GetGlobalPort(WindowPtr w, Rect *r)
+{
+	GrafPtr oldPort; Point pt;
+	
+	GetWindowPortBounds(w,r);
+	pt.h = r->left; pt.v = r->top;
+	GetPort(&oldPort); SetPort(GetWindowPort(w)); LocalToGlobal(&pt); SetPort(oldPort);
+	SetRect(r,pt.h,pt.v,pt.h+r->right-r->left,pt.v+r->bottom-r->top);
+}
+
+
+/*
+ *	Given an origin, orig, 0 <= i < n, compute the offset position, ans, for that
+ *	index into n.  This is used to position multiple windows being opened at the same
+ *	time.  All coords are expected to be global.  All windows are expected to be
+ *	standard sized. This function is not used in v. 5.8b5.
+ */
+
+void GetIndWinPosition(WindowPtr w, short i, short n, Point *ans)
+{
+	short x, y; Rect box;
+	
+	GetGlobalPort(w, &box);
+	ans->h = box.left;
+	ans->v = box.top;
+	
+	if (n <= 0) n = 8;
+	x = i / n;
+	y = i % n;
+	
+	ans->h += 5 + 30*x + 5*y;
+	ans->v += 20 + 20*y + 5*x;
+}
+
+/*
+ *	Find a nice spot in global coordinates to place a window by looking down
+ *	the window list n windows for any conflicts. Larger values of n should give
+ *	nicer results at the expense of slightly more running time.
+ */
+
+void AdjustWinPosition(WindowPtr w)
+{
+	short n=7,i,k,xx,yy; Rect box; WindowPtr ww;
+	
+	GetGlobalPort(w,&box);
+	xx = box.left;
+	yy = box.top;
+	
+	i = 0;
+	while (i < n) {
+		k = 0;
+		for (ww=FrontWindow(); ww!=NULL && k<n; ww=GetNextWindow(ww))
+			if (ww!=w && IsWindowVisible(ww) && GetWindowKind(w)==DOCUMENTKIND) {
+				k++;
+				GetGlobalPort(ww,&box);
+				if (box.left==xx && box.top==yy) {
+					xx -= 5;
+					yy += 20;
+					i++;
+					break;
+				}
+				}
+		if (ww==NULL || k>=n) break;
+	}
+		
+	if (i < n) MoveWindow(w,xx,yy,False);
+}
+
+
+/*
+ *	Given a global rect, r, deliver the bounds of the screen device that best "contains"
+ *	that rect. If we're running on a machine that that <hasColorQD> (almost any machine
+ *	since the Mac II), we do this by scanning the device list, and for each active
+ *	screen device we intersect the rect with the device's bounds, keeping track of
+ *	that device whose intersection's area is the largest. If the machine doesn't
+ *	<hasColorQD>, we assume it has only one screen and just deliver the usual
+ *	qd.screenBits.bounds. The one problem with this is it doesn't handle some old Macs
+ *	with more than one screen, e.g., SEs and SE/30s with third-party large monitors.
+ * 
+ *	The two arguments can point to the same rectangle. Returns the number of screens
+ *	with which the given rectangle intersects unless it's a non-<hasColorQD> machine,
+ *	in which case it returns 0.
+ *
+ *	N.B. An earlier version of this routine apparently had a feature whereby, if the
+ *	caller wanted the Menu Bar area included, it could set a global <pureScreen> True
+ *	before call; this could easily be added again.
+ */
+
+short GetMyScreen(Rect *r, Rect *bnds)
+{
+	GDHandle dev;  Rect test,ans,bounds;
+	long area,maxArea=0L;  short nScreens = 0;
+	
+	bounds = GetQDScreenBitsBounds();
+	bounds.top += GetMBarHeight();			/* Exclude menu bar */
+	if (thisMac.hasColorQD)
+		for (dev=GetDeviceList(); dev; dev=GetNextDevice(dev))
+			if (TestDeviceAttribute(dev,screenDevice) &&
+										TestDeviceAttribute(dev,screenActive)) {
+				test = (*dev)->gdRect;
+				if (TestDeviceAttribute(dev,mainScreen))
+					test.top += GetMBarHeight();
+				if (SectRect(r,&test,&ans)) {
+					nScreens++;
+					OffsetRect(&ans,-ans.left,-ans.top);
+					area = (long)ans.right * (long)ans.bottom;
+					if (area > maxArea) { maxArea = area; bounds = test; }
+				}
+			}
+	*bnds = bounds;
+	return(nScreens);
+}
+
+/*
+ *	Given an Alert Resource ID, get its port rectangle and center it within a given window
+ *	or with a given offset if (left,top)!=(0,0).  If w is NULL, use screen bounds.  This
+ *	routine should be called immediately before displaying the alert, since it might be
+ *	purged.  For multi-screen devices, we look for that device on which a given window
+ *	is most affiliated, and we don't allow alert outside of that device's global bounds.
+ */
+
+void PlaceAlert(short id, WindowPtr w, short left, short top)
+{
+	Handle alrt; Rect r,inside,bounds;
+	Boolean sect;
+	
+	/*
+	 * This originally used Get1Resource, but it should get the ALRT from any
+	 * available resource file.
+	 */  
+	alrt = GetResource('ALRT',id);
+	if (alrt!=NULL && *alrt!=NULL && ResError()==noErr) {
+		ArrowCursor();
+		LoadResource(alrt);
+		r = *(Rect *)(*alrt);
+		if (w) {
+			GetGlobalPort(w,&inside);
+		}
+		 else {
+			inside = GetQDScreenBitsBounds();
+			inside.top += 36;
+		}
+		CenterRect(&r,&inside,&r);
+		if (top) OffsetRect(&r,0,(inside.top+top)-r.top);
+		if (left) OffsetRect(&r,(inside.left+left)-r.left,0);
+		/*
+		 *	If we're centering w/r/t a window, don't let alert get out of bounds.
+		 *	We look for that graphics device that contains the window more than
+		 *	any other, and use its bounds to bring the alert back into if its outside.
+		 */
+		if (w) {
+			GetMyScreen(&inside,&bounds);
+			sect = SectRect(&r,&bounds,&inside);
+			if ((sect && !EqualRect(&r,&inside)) || !sect) {
+				/* if (!sect) */inside = bounds;
+				PullInsideRect(&r,&inside,16);
+			}
+		}
+		LoadResource(alrt);	/* Probably not necessary, but we do it for good luck */
+		*((Rect *)(*alrt)) = r;
+	}
+}
+
+/*
+ *	Given a window, dlog, place it with respect to another window, w, or the screen if w is NULL.
+ *	If (left,top) == (0,0) center it; otherwise place it at offset (left,top) from the
+ *	centering rectangle's upper left corner.  Deliver True if position changed.
+ */
+
+Boolean PlaceWindow(WindowPtr dlog, WindowPtr w, short left, short top)
+{
+	Rect r,s,inside;  short dx=0,dy=0;
+	
+	if (dlog) {
+		GetGlobalPort(dlog,&r);
+		s = r;
+		if (w) GetGlobalPort(w,&inside);
+		 else  GetMyScreen(&r,&inside);
+		CenterRect(&r,&inside,&r);
+		if (top) OffsetRect(&r,0,(inside.top+top)-r.top);
+		if (left) OffsetRect(&r,(inside.left+left)-r.left,0);
+		
+		GetMyScreen(&r,&inside);
+		PullInsideRect(&r,&inside,16);
+		
+		MoveWindow(dlog,r.left,r.top,False);
+		dx = r.left - s.left;
+		dy = r.top  - s.top;
+		}
+	return(dx!=0 || dy!=0);
+}
+
+/*
+ * Center w horizontally and place it <top> pixels from the top of the screen.
+ */
+
+void CenterWindow(WindowPtr w,
+					short top)	/* 0=center vertically, else put top at this position */
+{
+	Rect scr, portRect; Point p;
+	short margin;
+	short rsize,size;
+
+	scr = GetQDScreenBitsBounds();
+	SetPort(GetWindowPort(w));
+	GetWindowPortBounds(w,&portRect);
+	p.h = portRect.left; p.v = portRect.top;
+	LocalToGlobal(&p);
+
+	size = scr.right - scr.left;
+	rsize = portRect.right - portRect.left;
+	margin = size - rsize;
+	if (margin > 0) {
+		margin >>= 1;
+		p.h = scr.left + margin;
+	}
+	size = scr.bottom - scr.top;
+	rsize = portRect.bottom - portRect.top;
+	margin = size - rsize;
+	if (margin > 0) {
+		margin >>= 1;
+		p.v = scr.top + margin;
+	}
+	MoveWindow(w,p.h,(top?top:p.v),False);
+}
+
+
+/*
+ *	Erase and invalidate a rectangle in the current port
+ */
+
+void EraseAndInval(Rect *r)
+{
+	GrafPtr port;
+	WindowPtr w;
+	
+	GetPort(&port);
+	w = GetWindowFromPort(port);
+	
+	EraseRect(r);
+	InvalWindowRect(w,r);
+}
 
 
 /* ------------------------------------------------- Checking if various keys are down -- */
@@ -279,175 +851,6 @@ void HiliteAttPoints(
 	InvertSymbolHilite(doc, firstL, staffn, False);								/* Off */
 	if (lastL && firstL!=lastL) InvertSymbolHilite(doc, lastL, staffn, False);	/* Off */
 }
-
-static void FixCursorLogPrint(char *str);
-static void FixCursorLogPrint(char *str) 
-{
-#ifdef DEBUG_CURSOR
-	LogPrintf(LOG_DEBUG, str);
-#endif
-}
-
-/* ------------------------------------------------------------------------- FixCursor -- */
-/*	Set cursor shape based on window and mouse position. This version allows "shaking
-off the mode".	*/
-
-#define MAXSHAKES	4		/* Changes in X direction before a good shake */
-#define CHECKMIN	2		/* Number ticks before next dx check */
-#define SWAPMIN		30		/* Number ticks between consecutive shakeoffs */
-
-void FixCursor()
-{
-	Point			mousept, globalpt;
-	WindowPtr		wp;
-	CursHandle		newCursor;
-	Document		*doc;
-	static short	x, xOld, dx, dxOld, shaker, shookey;
-	static long 	now, soon, nextcheck;
-	PaletteGlobals *toolPalette;
-	char			message[256];
-	Boolean			foundPalette = False;
-	
-	toolPalette = *paletteGlobals[TOOL_PALETTE];
-	
-	/*
-	 * <currentCursor> is a global that Nightingale uses elsewhere to keep track of
-	 * the cursor. <newCursor> is a temporary variable used solely to set the cursor
-	 * here. They'll always be the same except when a modifier key is down that forces
-	 * a specific cursor temporarily -- at the moment, only the <genlDragCursor>.
-	 */
-	GetMouse(&mousept);
-	globalpt = mousept;
-	LocalToGlobal(&globalpt);
-	
-	/* If no windows at all, use arrow */
-	
-	if (TopWindow == NULL) {
-		holdCursor = False;
-		ArrowCursor();
-		return;
-	}
-	
-	/* If mouse over any palette, use arrow unless a tool was just chosen */
-
-	if (GetWindowKind(TopWindow) == PALETTEKIND) {
-		holdCursor = True;
-		for (wp=TopPalette; wp!=NULL && GetWindowKind(wp)==PALETTEKIND; wp=GetNextWindow(wp)) {
-			RgnHandle strucRgn = NewRgn();
-			GetWindowRegion(wp, kWindowStructureRgn, strucRgn);
-			if (PtInRgn(globalpt, strucRgn)) {
-				//if (!holdCursor) ArrowCursor();
-				DisposeRgn(strucRgn);
-				foundPalette = True;
-			}
-				else {
-				DisposeRgn(strucRgn);
-			}
-		}
-	}
-
-	holdCursor = False;			/* OK to change cursor back to arrow when it's over a palette */
-	
-	/* If no Documents, use arrow */
-	
-	if (TopDocument==NULL) { FixCursorLogPrint("2. TopDocument is null\n"); ArrowCursor(); return; }
-
-	/* If mouse over any kind of window other than a Document, use arrow */
-	
-	FindWindow(globalpt, (WindowPtr *)&wp);
-	
-	if (wp==NULL) { FixCursorLogPrint("3-1. FoundWindow is null\n"); ArrowCursor(); return; }
-	if (GetWindowKind(wp)==PALETTEKIND) { FixCursorLogPrint("3-2. FoundWindow is a palette\n"); return; }	
-	if (GetWindowKind(wp)!=DOCUMENTKIND) {
-		FixCursorLogPrint("3-3. FoundWindow not our Document\n"); ArrowCursor(); return;
-		}
-	
-	doc = GetDocumentFromWindow(wp);
-	
-	if (doc==NULL) { ArrowCursor(); FixCursorLogPrint("4. FixCursor: doc is null\n"); return; }
-	sprintf(message, "4.1 found document %s\n", doc->name);
-	FixCursorLogPrint(message);
-	
-	/* If mouse not over the Document's viewRect, use arrow */
-	
-	if (!PtInRect(mousept,&doc->viewRect)) { FixCursorLogPrint("5. Not in viewRect\n");  ArrowCursor(); return; }
-	
-	/* If Document showing Master Page or Work on Format, use arrow */
-	
-	if (doc->masterView || doc->showFormat) { FixCursorLogPrint("6. MasterPage or ShowFormat\n"); ArrowCursor(); return; }
-	
-	/*
-	 * Mouse is over the viewRect of a Document that is showing the "normal" (not
-	 * Master Page or Work on Format) view. Now we have to think harder.
-	 */
-	 
-	newCursor = currentCursor;
-	
-	/*
-	 *	At this point, we check for shakeoffs.  We do this by keeping track of the 
-	 * times at which the mouse changes horizontal direction, but no oftener than
-	 * CHECKMIN ticks, since otherwise we won't pick up the direction changes
-	 * (dx == 0 most of the time). Each time the direction does change we check to
-	 * see if it has happened within mShakeThresh ticks of the last change.  If it
-	 * hasn't, we start over.  If it has, we keep track of the number of consecutive
-	 * shakes, each occurring within mShakeThresh ticks of each other, until there are
-	 * MAXSHAKES of them, in which case we change the cursor to the arrow cursor.
-	 *	We save the previous cursor (in shook), so that on the next shakeoff, we can
-	 *	go back to whatever used to be there, if it's still the arrow. Finally, we
-	 *	don't allow consecutive shakeoffs to occur more often than SWAPMIN ticks.
-	 *	Yours truly, Doug McKenna.
-	 */
-	now = TickCount();
-	if (now > nextcheck) {
-		x = mousept.h;
-		dx = x - xOld;
-		nextcheck = now + CHECKMIN;
-		
-		if ((dx<0 && dxOld>0) || (dx>0 && dxOld<0))
-		
-			if (shaker++ == 0)
-				soon = now + config.mShakeThresh;					/* Start timing */
-			 else
-				if (now < soon)										/* A quick-enough shake ? */
-					if (shaker >= MAXSHAKES) {
-						if (shookey==0 || currentCursor!=arrowCursor) {
-							shookey = GetPalChar((*paletteGlobals[TOOL_PALETTE])->currentItem);
-							shook = currentCursor;
-							PalKey(CH_ENTER);
-							newCursor = arrowCursor;
-						}
-						 else {
-							PalKey(shookey);
-							newCursor = shook;
-							shookey = 0;
-						}
-						shaker = 0;
-						currentCursor = newCursor;
-						nextcheck += SWAPMIN;
-					}
-					 else
-						soon = now + config.mShakeThresh;
-				 else
-					shaker = 0;												/* Too late: reset */
-
-		dxOld = dx; xOld = x;
-	}
-	
-	/*
-	 * If option key is down and shift key is NOT down, use "general drag" cursor, no
-	 * matter what. The shift key test is unfortunately necessary so we can use
-	 * shift-option-E (for example) as the keyboard equivalent for eighth grace
-	 * note without confusing users by having the wrong cursor as long they actually
-	 * have the option key down. */
-
-	if (OptionKeyDown() && !ShiftKeyDown()) newCursor = genlDragCursor;
-	
-	FixCursorLogPrint("7. Installing current cursor\n");
-	
-	/* Install the new cursor, whatever it may be. */
-	SetCursor(*newCursor);
-}
-
 
 /* ------------------------------------------------------------------------- FlashRect -- */
 

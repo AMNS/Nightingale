@@ -284,8 +284,6 @@ short AddCautionaryTimeSigs(Document *doc)
 						type = TimeSigType(aTimeSigL);
 						numer = TimeSigNUMER(aTimeSigL);
 						denom = TimeSigDENOM(aTimeSigL);
-						//LogPrintf(LOG_DEBUG, "AddCautionaryTimeSigs: adding TS type %d, %d/%d before measure %d\n",
-						//				type, numer, denom, GetMeasNum(doc, pL));						
 						/* Insert the cautionary time signature on all staves. */
 						timeSigL = FIInsertTimeSig(doc, ANYONE, RightLINK(endPrevSysL),
 													type, numer, denom);

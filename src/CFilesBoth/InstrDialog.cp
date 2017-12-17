@@ -11,8 +11,8 @@
 /* The Instrument Dialog displays a List Manager list of instruments; selecting
 one initializes its full and short name, range, and transposition.  This
 information is obtained from STR# resource ID INSTR_STRS, each string of which
-is an "instrument record". An instrument record consists of 14 colon-separated
-fields that are all on one line (with no extra characters).
+is an "instrument record". An instrument record consists of 15 colon-separated
+fields, all on one line.
  
 Here are descriptions and sizes of each field, with each field on a separate line
 for readability:
@@ -35,10 +35,10 @@ for readability:
 	channel (1-2 chars):
 	patch (1-3 chars):
 	velocity (1-3 chars):
-	OMS unique device ID (1-5 chars)
-NB: There is currently no FreeMIDI support for this resource.
+	
+	OMS unique device ID (1-5 chars)		??Ignored?
  
-Here is a complete correct entry. N.B., all on one line!
+Here is a complete correct entry.
  
 	Contrabassoon:Contrabsn.:51:E:b:60:C:n:22:B:b:1:71:0:53
  
@@ -74,7 +74,7 @@ static void				ShowLSelect(DialogPtr, short);
 static void 			ClickEraseRange(void);
 
 
-/* -------------------------- ( FORMERLY iDialogModal.c) -------------------------- */
+/* ----------------------------- ( FORMERLY iDialogModal.c) ----------------------------- */
 
 /* Dialog item numbers */
 #define OKBTN			OK
@@ -130,7 +130,7 @@ static rangeMaster master;
 struct scaleTblEnt *noteInfo[T_TRNS_B];
 static short sLeft, sTop;
 
-static Rect noteNameRect;				/* Valid in all cases, OMS or not */
+static Rect noteNameRect;
 
 static unsigned long *origMPDevice;		/* can be either MIDIUniqueID, OMSUniqueID or fmsUniqueID */
 static Rect deviceMenuBox;
@@ -151,7 +151,7 @@ static rangeMaster dfault =
 	0			/* device */
 };
 
-// ---------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 const short 				kCMPopupID = 300;
 
@@ -191,15 +191,14 @@ static MIDIUniqueID GetCMOutputDeviceID()
 
 static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MIDIUniqueID device, short item)
 {
-	Boolean popupOk = InitPopUp(dlog, p,
+	Boolean popupOK = InitPopUp(dlog, p,
 								item,			/* Dialog item to set p->box from */
 								0,				/* Dialog item to set p->prompt from, or 0=set it empty */
 								kCMPopupID,		/* CoreMidi popup ID */
 								0				/* Initial choice, or 0=none */
 								);
 								
-	if (!popupOk || p->menu==NULL)
-		return NULL;
+	if (!popupOK || p->menu==NULL) return NULL;
 		
 	cmVecDevices = new MIDIUniqueIDVector();
 	long numItems = FillCMDestinationPopup(p->menu, cmVecDevices);
@@ -214,7 +213,7 @@ static MenuHandle CreateCMOutputMenu(DialogPtr dlog, UserPopUp *p, Rect *box, MI
 }
 
 
-// ---------------------------------------------------------------------------------
+/* -------------------------------------------------------------------------------------- */
 
 short CMInstrDialog(Document *doc, PARTINFO *mp, MIDIUniqueID *mpDevice)
 {
@@ -319,7 +318,6 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 		cmOutputMenuH = CreateCMOutputMenu(theDialog, &cmOutputPopup, &deviceMenuBox, NULL, OMS_OUTPUT_MENU);
 	}
 
-	/* Added following to genericize noteName placement as part of USING_OMS changes */
 	GetDialogItem(theDialog, NOTE_NAME_BOX, &scratch, &hndl, &noteNameRect);
 
 	radSet.defaultOn = TOP_RAD;
@@ -415,15 +413,12 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 	PutDlgString(theDialog, INSTRNAME, str, True);			/* Do last so we can select it */
 		
 	dialogOver = 0;
-	while (dialogOver==0)
-	{
-		do
-		{	
+	while (dialogOver==0) {
+		do {	
 			ModalDialog(filterUPP, &itemHit);
 			if (itemHit<1) continue;									/* in case returned by filter */
 			GetDialogItem(theDialog, itemHit, &theType, &itemHdl, &itemBox);
-			switch(theType)
-			{
+			switch(theType) {
 				case ctrlItem+btnCtrl:
 					switch(itemHit) {
 						case OKBTN:
@@ -541,8 +536,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 	
 	DisposeHandle((Handle)rangeHdl);
 	
-	if (useWhichMIDI==MIDIDR_CM)
-	{
+	if (useWhichMIDI==MIDIDR_CM) {
 		if (master.validDeviceChannel && master.changedDeviceChannel) {
 			/* Ask user if they want to save the entered device/channel/patch as default
 			 * for instrument, or... could add a new instrument type (need more flags
@@ -579,11 +573,9 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, shor
 	Cell 			lSelection;
 	short			range, part;
 	
-	switch(theEvent->what)
-	{
+	switch(theEvent->what) {
 		case updateEvt:
-			if ((WindowPtr)theEvent->message == GetDialogWindow(theDialog))
-			{
+			if ((WindowPtr)theEvent->message == GetDialogWindow(theDialog)) {
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(theDialog));
 				BeginUpdate(GetDialogWindow(theDialog));
 				
@@ -613,9 +605,8 @@ static pascal Boolean TheFilter(DialogPtr theDialog, EventRecord *theEvent, shor
 
 			if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH != NULL) {
 				if (PtInRect(mouseLoc, &deviceMenuBox)) {
-					if (ans = DoUserPopUp(&cmOutputPopup)) {
-						*itemHit = OMS_OUTPUT_MENU;
-					}
+					ans = DoUserPopUp(&cmOutputPopup);
+					if (ans) *itemHit = OMS_OUTPUT_MENU;
 					break;
 				}
 			}
@@ -739,7 +730,7 @@ static void ShowLSelect(DialogPtr theDialog, short cell)
 	HUnlock((Handle)rangeHdl);
 }
 
-/* -------------------------- ( FORMERLY iDialogMove.c) -------------------------- */
+/* ----------------------------- ( FORMERLY iDialogMove.c) ----------------------------- */
 
 
 #define HORIZONTAL			40
@@ -1104,7 +1095,7 @@ static void DrawNoteNames(
 	}
 }
 
-/* -------------------------- ( FORMERLY iDialogRange.c) -------------------------- */
+/* ----------------------------- ( FORMERLY iDialogRange.c) ----------------------------- */
 
 /* 
  * This table gives the vertical position of C for a given octave.
@@ -1478,7 +1469,7 @@ Boolean MpCheck(PARTINFO *p)
 }
 
 
-/* --------------------------------------------------------------- PartMIDIDialog -- */
+/* -------------------------------------------------------------------- PartMIDIDialog -- */
 
 /* Dialog item numbers */
 #define PM_INSTRNAME	5
@@ -1782,7 +1773,7 @@ pascal Boolean TheOMSPMFilter(DialogPtr theDialog, EventRecord *theEvent, short 
 			mouseLoc = theEvent->where;
 			GlobalToLocal(&mouseLoc);
 			
-				/* If we've hit the OK or Cancel button, bypass the rest of the control stuff below. */
+				/* If user hit hit the OK or Cancel button, bypass the rest of the control stuff below. */
 			GetDialogItem(theDialog, OKBTN, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box)) break;
 			GetDialogItem(theDialog, CANCELBTN, &type, &hndl, &box);
@@ -1811,8 +1802,7 @@ pascal Boolean TheCMPMFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 	Rect		box;
 	short		ans = 0;
 	
-	switch(theEvent->what)
-	{
+	switch(theEvent->what) {
 		case updateEvt:
 			if ((WindowPtr)theEvent->message == GetDialogWindow(theDialog)) {
 				GetPort(&oldPort); SetPort(GetDialogWindowPort(theDialog));
@@ -1833,7 +1823,7 @@ pascal Boolean TheCMPMFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 			mouseLoc = theEvent->where;
 			GlobalToLocal(&mouseLoc);
 			
-				/* If we've hit the OK or Cancel button, bypass the rest of the control stuff below. */
+			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
 			GetDialogItem(theDialog, OKBTN, &type, &hndl, &box);
 			if (PtInRect(mouseLoc, &box))	break;
 			GetDialogItem(theDialog, CANCELBTN, &type, &hndl, &box);
@@ -1861,7 +1851,7 @@ pascal Boolean TheCMPMFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 	return(filterVal);
 }
 
-/* --------------------------------------------------------- XLoadInstrDialogSeg -- */
+/* --------------------------------------------------------------- XLoadInstrDialogSeg -- */
 /* Null function to allow loading or unloading InstrDialog.c's segment. */
 
 void XLoadInstrDialogSeg()

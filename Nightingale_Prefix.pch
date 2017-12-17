@@ -30,7 +30,7 @@
 //#include "MIDIRecUtils.h" // used in NightTemplates
 //#include "NightTemplates.h"
 //
-//#include "EssentialTools.h" // CapsLockKeyDown etc.
+//#include "MiscUtils.h" // CapsLockKeyDown etc.
 //
 //#include "UIFUtils.h"
 
@@ -109,7 +109,6 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 #include "DurationPopUp.h"
 #include "DynamicPopUp.h"
 #include "EndianUtils.h"
-#include "EssentialTools.h"
 #include "InternalInput.h"
 #include "File.h"
 #include "GRBeam.h"
@@ -125,6 +124,7 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 #include "Merge.h"
 #include "MIDIGeneral.h"
 #include "MIDIRecUtils.h"
+#include "MiscUtils.h"
 #include "ModNRPopUp.h"
 #include "MPImportExport.h"
 #include "Multivoice.h"

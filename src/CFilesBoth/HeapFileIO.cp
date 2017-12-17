@@ -459,7 +459,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	ioErr = FSWrite(refNum, &count, (Ptr)myHeap);
 	
 
-		if (ShiftKeyDown() && OptionKeyDown()) {
+		if (DEBUG_PRINT) {
 			long position;
 			const char *ps;
 			GetFPos(refNum, &position);
@@ -999,7 +999,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 	
 	myHeap = doc->Heap + heapIndex;
 
-		if (ShiftKeyDown() && OptionKeyDown()) {
+		if (DEBUG_PRINT) {
 			long position;
 			const char *ps;
 			GetFPos(refNum, &position);

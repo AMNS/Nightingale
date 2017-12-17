@@ -1799,7 +1799,7 @@ Minor cleanup. Affects MergeUtils, MIDIPlay, PitchCmds, PitchUtils, Utility, Voi
 
 -------------------------------------------------------------------------------
 
-7 - 9 Nov.
+7 - 9 Nov.			 ======== NIGHTINGALE 5.8b4 (9 Nov. 2017) ========
 
 When a new score is opened, write an INFO message to the log. Affects Menu.
 
@@ -1906,13 +1906,18 @@ Check, DrawObject, SetUtils.
 
 -------------------------------------------------------------------------------
 
-9 - 12 Dec.
+9 - 16 Dec.
 
 Move dialog-related routines from EssentialTools to DialogUtils, and other user-
-interface-related routines from EssentialTools to UIFUtils. Affects DialogUtils.h,
-EssentialTools.h, UIFUtils.h; DialogUtils, EssentialTools, UIFUtils.
+interface-related routines from EssentialTools to UIFUtils; rename EssentialTools to
+MiscUtils. Affects DialogUtils.h, MiscUtils.h, UIFUtils.h; DialogUtils, MiscUtils,
+UIFUtils.
 
-Minor cleanup. Affects ShowFormat.h; Check, CheckUtils, DialogUtils, DrawObject,
-DrawUtils, EssentialTools, InsUtils, MasterPage, Score, SelUtils, SFormat,
-SFormatHighLevel, ToolPalette.
+Minor cleanup: remove commented-out LogPrintf's, #define and use DEBUG_PRINT macro, etc.
+Affects Defs.h, ShowFormat.h; Browser, Check, CheckUtils, DelAddRedTimeSigs,
+DialogUtils, Double, DrawHighLevel, DrawObject, DrawUtils, DSUtils, EssentialTools,
+Event, Extract, ExtractHighLevel, GRBeam, HeapFileIO, InsNew, InstrDialog, InsUtils,
+MasterPage, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIUtils, Score, ScoreInfo,
+SelUtils, SFormat, SFormatHighLevel, SpaceHighLevel, SpaceTime, ToolPalette, Transcribe,
+UIFUtils.
 
