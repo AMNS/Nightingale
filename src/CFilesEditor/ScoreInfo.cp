@@ -194,10 +194,8 @@ static long GetScoreDuration(Document *doc)
 				 */
 				lastSyncTime += NotePLAYDUR(FirstSubLINK(pL));
 				lastMeasL = LSSearch(pL, MEASUREtype, ANYONE, GO_LEFT, False);
-//LogPrintf(LOG_DEBUG, "GetScoreDuration: Sync L%u lastSyncTime=%ld\n", pL, lastSyncTime);
 				return lastSyncTime+MeasureTIME(lastMeasL);
 			case MEASUREtype:
-//LogPrintf(LOG_DEBUG, "GetScoreDuration: Measure L%u MeasureTIME=%ld\n", pL, MeasureTIME(pL));
 				return MeasureTIME(pL);
 			default:
 				;

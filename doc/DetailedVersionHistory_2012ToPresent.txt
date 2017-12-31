@@ -1906,7 +1906,7 @@ Check, DrawObject, SetUtils.
 
 -------------------------------------------------------------------------------
 
-9 - 16 Dec.
+9 - 16 Dec.			 ======== NIGHTINGALE 5.8b5 (17 Dec. 2017) ========
 
 Move dialog-related routines from EssentialTools to DialogUtils, and other user-
 interface-related routines from EssentialTools to UIFUtils; rename EssentialTools to
@@ -1920,4 +1920,16 @@ Event, Extract, ExtractHighLevel, GRBeam, HeapFileIO, InsNew, InstrDialog, InsUt
 MasterPage, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIUtils, Score, ScoreInfo,
 SelUtils, SFormat, SFormatHighLevel, SpaceHighLevel, SpaceTime, ToolPalette, Transcribe,
 UIFUtils.
+
+===============================================================================
+
+17 - 31 Dec.
+
+Changed version number from 5.8b5 to 5.8b6. Affects Info.plist.
+
+Fill Empty Measures now reports (in the log) the number of staff-measures it added
+whole rests to (Issue #59). Affects MeasFill, Menu.
+
+Minor cleanup. Affects DialogsBoth, MeasFill, Menu, MiscUtils, MPCommands, Score,
+ScoreInfo, SetCommand, UIFUtils.
 

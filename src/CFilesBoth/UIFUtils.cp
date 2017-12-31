@@ -4,7 +4,14 @@
 *	DESC:	General-purpose utility routines for implementing the user interface.
 		WaitCursor				ArrowCursor				FixCursor
 		XableItem				UpdateMenu				UpdateMenuBar
-		GetStaffLim				InvertSymbolHilite		InvertTwoSymbolHilite
+		CenterRect				PullInsideRect			ContainedRect
+		ZoomRect				GetGlobalPort			GetIndWinPosition
+		AdjustWinPosition		GetMyScreen	PlaceAlert	PlaceWindow
+		CenterWindow			EraseAndInval
+		KeyIsDown				CmdKeyDown				OptionKeyDown
+		ShiftKeyDown			CapsLockKeyDown			ControlKeyDown
+		GetStaffLim
+		InvertSymbolHilite		InvertTwoSymbolHilite
 		HiliteAttPoints			FlashRect				SamePoint
 		Advise					NoteAdvise				CautionAdvise
 		StopAdvise				Inform					NoteInform
@@ -161,7 +168,7 @@ void FixCursor()
 	newCursor = currentCursor;
 	
 	/*
-	 *	At this point, we check for shakeoffs.  We do this by keeping track of the 
+	 * At this point, we check for shakeoffs.  We do this by keeping track of the 
 	 * times at which the mouse changes horizontal direction, but no oftener than
 	 * CHECKMIN ticks, since otherwise we won't pick up the direction changes
 	 * (dx == 0 most of the time). Each time the direction does change we check to
@@ -169,10 +176,10 @@ void FixCursor()
 	 * hasn't, we start over.  If it has, we keep track of the number of consecutive
 	 * shakes, each occurring within mShakeThresh ticks of each other, until there are
 	 * MAXSHAKES of them, in which case we change the cursor to the arrow cursor.
-	 *	We save the previous cursor (in shook), so that on the next shakeoff, we can
-	 *	go back to whatever used to be there, if it's still the arrow. Finally, we
-	 *	don't allow consecutive shakeoffs to occur more often than SWAPMIN ticks.
-	 *	Yours truly, Doug McKenna.
+	 * We save the previous cursor (in shook), so that on the next shakeoff, we can
+	 * go back to whatever used to be there, if it's still the arrow. Finally, we
+	 * don't allow consecutive shakeoffs to occur more often than SWAPMIN ticks.
+	 * Yours truly, Doug McKenna.
 	 */
 	now = TickCount();
 	if (now > nextcheck) {
@@ -720,8 +727,9 @@ Boolean ControlKeyDown() {
 	return (GetCurrentKeyModifiers() & controlKey) != 0;
 }
 	
-/* FIXME: As of v. 5.8b3, CommandKeyDown() is never used; instead, CmdKeyDown() is used.
-I don't know why, or even what the difference is! */
+/* FIXME: As of v. 5.8b5, CommandKeyDown() is never used; instead, CmdKeyDown() is used.
+I don't know why, or even what the practical difference is; but CommandKeyDown() is the
+one that's analogous to the other key-down functions, and it looks less system-dependent. */
 
 Boolean CommandKeyDown() {
 	return (GetCurrentKeyModifiers() & cmdKey) != 0;

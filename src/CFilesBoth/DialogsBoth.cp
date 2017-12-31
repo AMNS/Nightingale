@@ -51,7 +51,7 @@ short LookAtDialog(Document *doc, short initVoice, LINK partL)
 	Rect			tRect;
 	GrafPtr			oldPort;
 	PPARTINFO		pPart;
-	char			partName[256];		/* Pascal string */
+	char			partName[256];
 	char			fmtStr[256];
 	ModalFilterUPP	filterUPP;
 
@@ -143,7 +143,7 @@ static void RMClickUp(short, DialogPtr);
 static void RMClickDown(short, DialogPtr);
 static Boolean RMHandleKeyDown(EventRecord *, LINK, LINK, DialogPtr);
 static Boolean RMHandleMouseDown(EventRecord *, LINK, LINK, DialogPtr);
-static pascal Boolean GoToFilter(DialogPtr,EventRecord *,short *);
+static pascal Boolean GoToFilter(DialogPtr, EventRecord *, short *);
 
 
 static void RMClickUp(
@@ -151,7 +151,8 @@ static void RMClickUp(
 					DialogPtr theDialog
 					)
 {
-	unsigned char markStr[64]; LINK theMark,nextMark;
+	Str63 markStr;
+	LINK theMark, nextMark;
 
 	GetDlgString(theDialog,NUMBER_DI,(unsigned char *)markStr);
 	theMark = RMSearch(gotoDoc, gotoDoc->headL, markStr, False);
@@ -168,7 +169,8 @@ static void RMClickDown(
 					DialogPtr theDialog
 					)
 {
-	unsigned char markStr[64]; LINK theMark,prevMark;
+	Str63 markStr;
+	LINK theMark, prevMark;
 	
 	GetDlgString(theDialog,NUMBER_DI,markStr);
 	theMark = RMSearch(gotoDoc, gotoDoc->headL, markStr, False);
@@ -231,7 +233,7 @@ static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, short *itemHi
 	short choice;
 
 	w = (WindowPtr)(evt->message);
-	switch(evt->what) {
+	switch (evt->what) {
 		case updateEvt:
 			if (w == GetDialogWindow(dlog)) {
 				SetPort(GetWindowPort(w));
@@ -294,21 +296,25 @@ static pascal Boolean GoToFilter(DialogPtr dlog, EventRecord *evt, short *itemHi
 }
 
 /* Conduct dialog to get from user the new page number, measure number, or rehearsal
-mark to display. Returns the type of thing to go to if okay, <goDirectlyToJAIL>
-if cancel. */
+mark to display. Returns the type of thing to go to if okay, <goDirectlyToJAIL> if
+cancel. */
 
 short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 						LINK *currRMark)
 {	
 	DialogPtr dlog;
-	unsigned char markStr[64];
+	Str63 markStr;
 	short ditem, aShort;
-	short value,gotoType,minPageVal,maxPageVal,minMeasVal,maxMeasVal;
-	LINK pageL,measL,rMarkL,currMark;  PPAGE pPage;  PAMEASURE aMeasure;
-	GrafPtr oldPort;  Boolean okay=False,stillGoing;
-	Handle rHdl;  Rect aRect;
+	short value, gotoType, minPageVal, maxPageVal, minMeasVal, maxMeasVal;
+	LINK pageL, measL, currMark, rMarkL=NILINK;
+	PPAGE pPage;
+	PAMEASURE aMeasure;
+	GrafPtr oldPort;
+	Boolean okay=False, stillGoing;
+	Handle rHdl;
+	Rect aRect;
 	char fmtStr[256];
-	ModalFilterUPP	filterUPP;
+	ModalFilterUPP filterUPP;
 
 	filterUPP = NewModalFilterUPP(GoToFilter);
 	if (filterUPP == NULL) {
@@ -364,7 +370,7 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 	firstMark = RMSearch(doc, doc->headL, ANYMARK, GO_RIGHT);
 	lastMark = RMSearch(doc, doc->tailL, ANYMARK, GO_LEFT);
 
-	switch(gotoPopUp8.currentChoice) {
+	switch (gotoPopUp8.currentChoice) {
 		case gotoPAGE:
 			PutDlgWord(dlog,NUMBER_DI,*currPageNum,True);
 			minDlogVal = minPageVal; maxDlogVal = maxPageVal;
@@ -471,8 +477,8 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 					currMeas = value;
 					break;
 				case gotoREHEARSALMARK:
-					if (!GetDlgString(dlog,NUMBER_DI,markStr) ||
-						 !(rMarkL=RMSearch(doc, doc->headL, markStr, False))) {
+					rMarkL = RMSearch(doc, doc->headL, markStr, False);
+					if (!GetDlgString(dlog,NUMBER_DI,markStr) || !rMarkL) {
 						GetIndCString(strBuf, DIALOGERRS_STRS, 11);			/* "no such rehearsal mark" */
 						CParamText(strBuf, "", "", "");
 						StopInform(GENERIC_ALRT);
@@ -482,8 +488,9 @@ short GoToDialog(Document *doc, short *currPageNum, short *currBar,
 					else
 						stillGoing = False;
 					break;
-				default:
-						stillGoing = False;						/* should never get here */
+				default:													/* should never get here */
+					LogPrintf(LOG_WARNING, "GoToDialog: unrecognized type.\n");
+					stillGoing = False;
 			}
 		}
 	} while (okay && stillGoing);

@@ -1,8 +1,9 @@
 /*	MiscUtils.c
 	These are miscellaneous routines that are generally-useful extensions to the Mac
-	Toolbox routines; formerly called EssentialTools.c. Doug McKenna, 1989; numerous
-	revisions by Donald Byrd. Most of the functions that were originally in this file
-	have been moved to DialogUtils.c or UIFUtils.c. */
+	Toolbox routines. Nihgtingale formerly contained a module called EssentialTools.c,
+	original version by Doug McKenna, 1989. Most of the functions that were originally
+	in that file were for dialog or other user-interface support, and they've been moved
+	to DialogUtils.c or UIFUtils.c; this is what remains. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC

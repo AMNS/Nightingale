@@ -267,8 +267,8 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 	Boolean		FillEmptyDialog(Document *, short *, short *);
 	Boolean		IsRangeEmpty(LINK, LINK, short, Boolean *);
-	Boolean		FillEmptyMeas(Document *, LINK, LINK);
-	Boolean		FillNonemptyMeas(Document *,LINK, LINK, short, short);
+	short		FillEmptyMeas(Document *, LINK, LINK);
+	Boolean		FillNonemptyMeas(Document *, LINK, LINK, short, short);
 
 /* Menu.c */
 

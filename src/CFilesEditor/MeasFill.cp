@@ -13,11 +13,12 @@ the notes/rests/chords. */
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-static Boolean Fill1EmptyMeas(Document *, LINK, LINK, Boolean *);
 
-/* ========================================================= Fill empty measures == */
+/* =============================================================== Fill empty measures == */
 
-/* ------------------------------------------------------------- FillEmptyDialog -- */
+static short Fill1EmptyMeas(Document *, LINK, LINK, Boolean *);
+
+/* ------------------------------------------------------------------- FillEmptyDialog -- */
 
 static enum {
 	STARTMEAS_DI=4,
@@ -86,7 +87,7 @@ Boolean FillEmptyDialog(Document *doc, short *startMN, short *endMN)
 	return (ditem==OK);
 }
 
-/* ----------------------------------------------------------------- IsRangeEmpty -- */
+/* ---------------------------------------------------------------------- IsRangeEmpty -- */
 
 /* Return True if the given range and staff contains no notes or rests in any
 voice, and the staff's default voice contains no notes or rests on any staff.
@@ -113,7 +114,7 @@ Boolean IsRangeEmpty(LINK startL, LINK endL,
 }
 
 
-/* ---------------------------------------------------------------- Fill1EmptyMeas -- */
+/* -------------------------------------------------------------------- Fill1EmptyMeas -- */
 /* If the given Measure is fake, do nothing and return False. Otherwise, add a whole-
 measure rest to each staff in the Measure that contains no notes or rests and whose
 default voice contains no notes or rests (they might be on another staff), and return
@@ -121,24 +122,27 @@ True. If the Measure already contains at least one Sync and we do add any whole-
 rests, we add all of them to the Measure's first Sync. FIXME: Should return an error
 indication: probably should return short FAILURE, NOTHING_TO_DO or OP_COMPLETE. */
 
-static Boolean Fill1EmptyMeas(
+static short Fill1EmptyMeas(
 					Document *doc,
 					LINK barL, LINK barTermL,
 					Boolean *nonEmptyVoice)	 /* True=found at least 1 empty staff w/default voice nonempty */
 {
-	LINK syncL, pL, aNoteL; short staff; Boolean addRest, foundNonEmptyVoice;
-	Boolean didSomething=False;
+	LINK syncL, pL, aRestL;
+	short staff, saveVRole;
+	Boolean addRest, foundNonEmptyVoice;
+	short nFilled=0;
 	
 	*nonEmptyVoice = False;
-	if (MeasISFAKE(barL)) return didSomething;
+	if (MeasISFAKE(barL)) return 0;
 	
 	/*
-	 * If the Measure contains any Syncs now, use the first one to add the whole-
-	 * measure rests to; otherwise we'll have to create a Sync.
+	 * If the Measure contains any Syncs now, use the first one to add the whole-measure
+	 * rests to; otherwise we'll have to create a Sync.
 	 */
 	for (syncL = NILINK, pL = barL; pL!=barTermL; pL = RightLINK(pL))
-		if (SyncTYPE(pL)) { 
-			syncL = pL; break;
+		if (SyncTYPE(pL)) {
+			syncL = pL;
+			break;
 		}
 
 	for (staff = 1; staff<=doc->nstaves; staff++) {
@@ -148,18 +152,17 @@ static Boolean Fill1EmptyMeas(
 				syncL = InsertNode(doc, barTermL, SYNCtype, 1);
 				if (!syncL) {
 					NoMoreMemory();
-					return didSomething;
+					return nFilled;
 				}
 
 				/* FIXME: Maybe we should initialize object YD and <tweaked> in NewNode? */
 				SetObject(syncL, 0, 0, False, True, False);
 				LinkTWEAKED(syncL) = False;
-				didSomething = True;
-				aNoteL = FirstSubLINK(syncL);
+				aRestL = FirstSubLINK(syncL);
 			}
-			else if (!ExpandNode(syncL, &aNoteL, 1)) {
+			else if (!ExpandNode(syncL, &aRestL, 1)) {
 				NoMoreMemory();
-				return didSomething;
+				return nFilled;
 			}
 
 			/*
@@ -168,32 +171,33 @@ static Boolean Fill1EmptyMeas(
 			 *	calling SetupNote and restore its old value afterwards (we could also
 			 * accomplish this by just setting the rest's yd after SetupNote).
 			 */
-			{	short saveVRole;
-				saveVRole = doc->voiceTab[staff].voiceRole;				/* Dflt voice = staff */
-				doc->voiceTab[staff].voiceRole = VCROLE_SINGLE;
-				SetupNote(doc, syncL, aNoteL, staff, 0, WHOLEMR_L_DUR, 0, staff, True, 0, 0);
-				doc->voiceTab[staff].voiceRole = saveVRole;
-			}
-			didSomething = True;
+			saveVRole = doc->voiceTab[staff].voiceRole;				/* Default voice no. = staff no. */
+			doc->voiceTab[staff].voiceRole = VCROLE_SINGLE;
+			SetupNote(doc, syncL, aRestL, staff, 0, WHOLEMR_L_DUR, 0, staff, True, 0, 0);
+			doc->voiceTab[staff].voiceRole = saveVRole;
+			nFilled++;
 		}
 		if (foundNonEmptyVoice) *nonEmptyVoice = True;
 	}
 
-	return didSomething;
+	return nFilled;
 }
 
 
-/* --------------------------------------------------------------- FillEmptyMeas -- */
-/* In each non-fake Measure of the given INCLUSIVE range of Measures, in each staff
-that contains no notes or rests, put a whole-measure rest in the default voice. */
+/* --------------------------------------------------------------------- FillEmptyMeas -- */
+/* In each non-fake Measure of the given inclusive range of Measures, in each staff that
+contains no notes or rests, put a whole-measure rest in the default voice. Exception:
+if the staff's default voice is on another staff, do nothing. Return the number of rests
+added. */
 
-Boolean FillEmptyMeas(
-						Document *doc,
-						LINK startBarL, LINK endBarL)		/* 1st and last Measures to fill or NILINK */
+short FillEmptyMeas(
+					Document *doc,
+					LINK startBarL, LINK endBarL)		/* 1st and last Measures to fill or NILINK */
 {
 	LINK barFirstL, barTermL, barL;
-	Boolean nonEmptyVoice, anyNonEmptyVoice=False, didSomething=False;
+	Boolean nonEmptyVoice, anyNonEmptyVoice=False;
 	DDIST mWidth;
+	short nFilled=0;
 			
 	/* If start is after end Measure, there's nothing to do. */
 	
@@ -208,16 +212,15 @@ Boolean FillEmptyMeas(
 	for ( ; barL && barL!=LinkRMEAS(endBarL); barL = LinkRMEAS(barL)) {
 		barFirstL = RightLINK(barL);
 		barTermL = EndMeasSearch(doc, barL);
-		if (Fill1EmptyMeas(doc, barL, barTermL, &nonEmptyVoice))
-			didSomething = True;
+		nFilled += Fill1EmptyMeas(doc, barL, barTermL, &nonEmptyVoice);
 		if (nonEmptyVoice) anyNonEmptyVoice = True;
 	}
 	
-	if (didSomething) {
+	if (nFilled>0) {
 		doc->changed = True;
 		if (doc->autoRespace)
-			RespaceBars(doc, RightLINK(startBarL), RightLINK(endBarL), 0L,
-							False, False);
+			RespaceBars(doc, RightLINK(startBarL), RightLINK(endBarL), 0L, False,
+							False);
 		else {
 			InvalMeasures(startBarL, endBarL, ANYONE);						/* Force redrawing */
 			if (config.alwaysCtrWholeMR) {
@@ -240,11 +243,11 @@ Boolean FillEmptyMeas(
 		NoteInform(GENERIC_ALRT);
 	}
 	
-	return didSomething;
+	return nFilled;
 }
 
 
-/* ===================================================== Fill non-empty measures == */
+/* =========================================================== Fill non-empty measures == */
 
 static LINK FindTStampInMeas(LINK, short, Boolean);
 static Boolean AddFillRest(Document *, LINK, short, short, short);

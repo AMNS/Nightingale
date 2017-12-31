@@ -118,7 +118,7 @@ Boolean DoMenu(long menuChoice)
 		menu = HiWord(menuChoice); choice = LoWord(menuChoice);
 		if (TopDocument) MEHideCaret(GetDocumentFromWindow(TopDocument));
 
-		switch(menu) {
+		switch (menu) {
 			case appleID:
 				DoAppleMenu(choice);
 				break;
@@ -166,26 +166,26 @@ Boolean DoMenu(long menuChoice)
  */
 
 static void DoAppleMenu(short choice)
-	{
-		switch(choice) {
-			case AM_About:
+{
+	switch (choice) {
+		case AM_About:
 #ifdef PUBLIC_VERSION
-				DoAboutBox(False);
+			DoAboutBox(False);
 #else
-				if (ShiftKeyDown() && OptionKeyDown() && CmdKeyDown())
-					Debugger();
-				 else
-					DoAboutBox(False);
+			if (ShiftKeyDown() && OptionKeyDown() && CmdKeyDown())
+				Debugger();
+			 else
+				DoAboutBox(False);
 #endif
-				break;
-			case AM_Help:
-				Do_Help(appVRefNum, appDirID);
-				UseResFile(appRFRefNum);				/* a precaution */
-				break;
-			default:
-				break;
-			}
-	}
+			break;
+		case AM_Help:
+			Do_Help(appVRefNum, appDirID);
+			UseResFile(appRFRefNum);				/* a precaution */
+			break;
+		default:
+			break;
+		}
+}
 
 
 /* -------------------------------------------------------------------------------------- */
@@ -258,7 +258,7 @@ Boolean DoFileMenu(short choice)
 		char str[256];
 		NSClientData nscd;  FSSpec fsSpec;
 		
-		switch(choice) {
+		switch (choice) {
 			case FM_New:
 				doSymbol = (TopDocument==NULL);
 				DoOpenDocument(NULL, 0, False, NULL);
@@ -423,7 +423,7 @@ void DoEditMenu(short choice)
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 		if (doc==NULL) return;
 		
-		switch(choice) {
+		switch (choice) {
 			case EM_Undo:
 				DoUndo(doc);
 				break;
@@ -591,7 +591,7 @@ static void DoTestMenu(short choice)
 #ifndef PUBLIC_VERSION
 		register Document *doc = GetDocumentFromWindow(TopDocument);			
 
-		switch(choice) {
+		switch (choice) {
 			case TS_Browser:
 				if (doc) {
 					if (OptionKeyDown())
@@ -666,7 +666,7 @@ static void DoScoreMenu(short choice)
 		
 		if (doc==NULL) return;
 		
-		switch(choice) {
+		switch (choice) {
 			case SM_MasterSheet:
 				DoMasterSheet(doc);
 				break;
@@ -798,7 +798,7 @@ static void DoNotesMenu(short choice)
 		
 		if (doc==NULL) return;
 		
-		switch(choice) {
+		switch (choice) {
 			case NM_SetDuration:
 				NMSetDuration(doc);
 				break;
@@ -899,7 +899,7 @@ void DoGroupsMenu(short choice)
 		
 		if (doc==NULL) return;
 		
-		switch(choice) {
+		switch (choice) {
 			case GM_AutomaticBeam:
 				DoAutoBeam(doc);
 				break;
@@ -950,7 +950,7 @@ void DoViewMenu(short choice)
 		short palIndex;
 		Rect screen, pal, docRect;
 		
-		switch(choice) {
+		switch (choice) {
 			case VM_GoTo:
 				if (doc) GoTo(doc);
 				break;
@@ -1167,7 +1167,7 @@ void DoPlayRecMenu(short choice)
 		register Document *doc=GetDocumentFromWindow(TopDocument);
 //		short oldMIDIThru;
 
-		switch(choice) {
+		switch (choice) {
 			case PL_PlayEntire:
 				MEHideCaret(doc);
 				if (doc) PlayEntire(doc);
@@ -1292,7 +1292,7 @@ static void DoMasterPgMenu(short choice)
 	Document *doc=GetDocumentFromWindow(TopDocument);
 	if (doc==NULL) return;
 	
-	switch(choice) {
+	switch (choice) {
 		case MP_AddPart:
 			MPAddPart(doc);
 			break;
@@ -1343,7 +1343,7 @@ static void DoFormatMenu(short choice)
 	Document *doc=GetDocumentFromWindow(TopDocument);
 	if (doc==NULL) return;
 	
-	switch(choice) {
+	switch (choice) {
 		case FT_Invisify:
 			SFInvisify(doc);
 			break;
@@ -1352,7 +1352,7 @@ static void DoFormatMenu(short choice)
 			break;
 		default:
 			break;
-		}
+	}
 }
 
 
@@ -1450,13 +1450,13 @@ static void EMAddCautionaryTimeSigs(Document *doc)
 	
 	numAdded = AddCautionaryTimeSigs(doc);
 	if (numAdded==0) {
-		LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: No new time signatures needed.\n");
+		LogPrintf(LOG_INFO, "No new time signatures needed. (EMAddCautionaryTimeSigs)\n");
 		GetIndCString(strBuf, MENUCMDMSGS_STRS, 10);	/* "No new cautionary time signatures needed." */
 		CParamText(strBuf, "", "", "");
 		NoteInform(GENERIC_ALRT);
 	}
 	else {
-		LogPrintf(LOG_INFO, "EMAddCautionaryTimeSigs: added %d time signature set(s).\n",
+		LogPrintf(LOG_INFO, "Added %d time signature set(s). (EMAddCautionaryTimeSigs)\n",
 					numAdded);
 		GetIndCString(fmtStr, MENUCMDMSGS_STRS, 9);	/* "Added %d cautionary time signature set(s)." */
 		sprintf(strBuf, fmtStr, numAdded);
@@ -1831,7 +1831,7 @@ static void NMSetMBRest(Document *doc)
 	
 static void NMFillEmptyMeas(Document *doc)
 {
-	short startMN, endMN;
+	short startMN, endMN, nFilled;
 	LINK startMeasL, endMeasL, aMeasureL, startL, endL;
 	
 	/* Get default start and end measures from the selection. */
@@ -1846,8 +1846,8 @@ static void NMFillEmptyMeas(Document *doc)
 	endMN = MeasMEASURENUM(aMeasureL)+doc->firstMNNumber;
 
 	if (FillEmptyDialog(doc, &startMN, &endMN)) {
-		LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMN=%d endMN=%d firstMNNumber=%d startL=%u endL=%u\n",
-					startMN, endMN, doc->firstMNNumber, startMeasL, endMeasL);
+		//LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMN=%d endMN=%d firstMNNumber=%d startL=%u endL=%u\n",
+		//			startMN, endMN, doc->firstMNNumber, startMeasL, endMeasL);
 		startL = MNSearch(doc, doc->headL, startMN-doc->firstMNNumber, GO_RIGHT, True);
 		endL = MNSearch(doc, doc->headL, endMN-doc->firstMNNumber, GO_RIGHT, True);
 		if (startL && endL) {
@@ -1860,10 +1860,16 @@ static void NMFillEmptyMeas(Document *doc)
 			doc->selStartL = saveSelStartL; doc->selEndL = saveSelEndL;
 
 			WaitCursor();
-			if (FillEmptyMeas(doc, startL, endL)) {
+			nFilled = FillEmptyMeas(doc, startL, endL);
+			if (nFilled>0) {
+				LogPrintf(LOG_INFO, "Filled %d empty staff-measure(s). startMN=%d endMN=%d (NMFillEmptyMeas)\n",
+							nFilled, startMN, endMN);
 				FixTimeStamps(doc, startL, endL);
 				UpdateMeasNums(doc, NILINK);
 			}
+			else
+				LogPrintf(LOG_INFO, "No empty staff-measure(s) to fill. startMN=%d endMN=%d (NMFillEmptyMeas)\n",
+							startMN, endMN);
 		}
 	}
 }
@@ -2898,7 +2904,7 @@ knowOttavad:
 			if (ottavaNum > 0) {
 				if (!SelRangeChkOct(staff, stfStartL, stfEndL)) break;
 				ottavaNum = 0;
-				}
+			}
 		}
 	}
 
@@ -2985,102 +2991,102 @@ void AddWindowList()
 	}
 }
 
-/* Fix all items in the View menu and add a list of open Documents (windows);
-disable the entire menu if there's nothing to view. */
+/* Fix all items in the View menu and add a list of open Documents (windows); disable
+the entire menu if there's nothing to view. */
 
 static void FixViewMenu(Document *doc)
-	{
+{
 //		Boolean disableWholeMenu;
-		
-		AddWindowList();
-		UpdateMenu(viewMenu, doc!=NULL);
-		/* FIXME: If doc is NULL, we should return at this point--continuing is dangerous! */
-		
-		XableItem(viewMenu,VM_GoTo,ENABLE_GOTO(doc));
-		XableItem(viewMenu,VM_GotoSel,ENABLE_GOTO(doc));
+	
+	AddWindowList();
+	UpdateMenu(viewMenu, doc!=NULL);
+	/* FIXME: If doc is NULL, we should return at this point--continuing is dangerous! */
+	
+	XableItem(viewMenu,VM_GoTo,ENABLE_GOTO(doc));
+	XableItem(viewMenu,VM_GotoSel,ENABLE_GOTO(doc));
 
-		XableItem(viewMenu,VM_Reduce,ENABLE_REDUCE(doc));
-		XableItem(viewMenu,VM_Enlarge,ENABLE_ENLARGE(doc));
-		
-		XableItem(viewMenu,VM_LookAtV,doc!=NULL && !doc->masterView && !doc->showFormat);
-		XableItem(viewMenu,VM_LookAtAllV,doc!=NULL && !doc->masterView && !doc->showFormat);
-		XableItem(viewMenu,VM_ShowDurProb,doc!=NULL && !doc->masterView);
-		XableItem(viewMenu,VM_ShowSyncL,doc!=NULL && !doc->masterView);
-		XableItem(viewMenu,VM_ShowInvis,doc!=NULL && doc!=clipboard && !doc->masterView);
-		XableItem(viewMenu,VM_ShowSystems,doc!=NULL && doc!=clipboard);
+	XableItem(viewMenu,VM_Reduce,ENABLE_REDUCE(doc));
+	XableItem(viewMenu,VM_Enlarge,ENABLE_ENLARGE(doc));
+	
+	XableItem(viewMenu,VM_LookAtV,doc!=NULL && !doc->masterView && !doc->showFormat);
+	XableItem(viewMenu,VM_LookAtAllV,doc!=NULL && !doc->masterView && !doc->showFormat);
+	XableItem(viewMenu,VM_ShowDurProb,doc!=NULL && !doc->masterView);
+	XableItem(viewMenu,VM_ShowSyncL,doc!=NULL && !doc->masterView);
+	XableItem(viewMenu,VM_ShowInvis,doc!=NULL && doc!=clipboard && !doc->masterView);
+	XableItem(viewMenu,VM_ShowSystems,doc!=NULL && doc!=clipboard);
 
-		XableItem(viewMenu,VM_PianoRoll,doc!=NULL && !doc->masterView);
-		
-		XableItem(viewMenu, VM_ShowClipboard, doc!=NULL && doc!=clipboard);
-		
-		XableItem(viewMenu, VM_SymbolPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
+	XableItem(viewMenu,VM_PianoRoll,doc!=NULL && !doc->masterView);
+	
+	XableItem(viewMenu, VM_ShowClipboard, doc!=NULL && doc!=clipboard);
+	
+	XableItem(viewMenu, VM_SymbolPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
 
-		CheckMenuItem(viewMenu,VM_GoTo,doc!=NULL && doc->overview);
-		CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);
-		CheckMenuItem(viewMenu,VM_ShowDurProb,doc!=NULL && doc->showDurProb);
-		CheckMenuItem(viewMenu,VM_ShowSyncL,doc!=NULL && doc->showSyncs);
-		CheckMenuItem(viewMenu,VM_ShowInvis,doc!=NULL && doc->showInvis);
-		CheckMenuItem(viewMenu, VM_ShowSystems, doc!=NULL && doc->frameSystems);
-		CheckMenuItem(viewMenu,VM_PianoRoll,doc!=NULL && doc->pianoroll);
-	}
+	CheckMenuItem(viewMenu,VM_GoTo,doc!=NULL && doc->overview);
+	CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);
+	CheckMenuItem(viewMenu,VM_ShowDurProb,doc!=NULL && doc->showDurProb);
+	CheckMenuItem(viewMenu,VM_ShowSyncL,doc!=NULL && doc->showSyncs);
+	CheckMenuItem(viewMenu,VM_ShowInvis,doc!=NULL && doc->showInvis);
+	CheckMenuItem(viewMenu, VM_ShowSystems, doc!=NULL && doc->frameSystems);
+	CheckMenuItem(viewMenu,VM_PianoRoll,doc!=NULL && doc->pianoroll);
+}
 
-/* Fix all items in Play/Record menu; disable entire menu if there's no score or
-we're looking at the Master Page. */
+/* Fix all items in Play/Record menu; disable entire menu if there's no score or we're
+looking at the Master Page. */
 
 static void FixPlayRecordMenu(Document *doc, short nSel)
-	{
-		Boolean disableWholeMenu, noteSel, haveMIDI=(useWhichMIDI!=MIDIDR_NONE);
+{
+	Boolean disableWholeMenu, noteSel, haveMIDI=(useWhichMIDI!=MIDIDR_NONE);
 
-		disableWholeMenu = (doc==NULL || doc->masterView);
+	disableWholeMenu = (doc==NULL || doc->masterView);
 
-		if (!disableWholeMenu) {
-			XableItem(playRecMenu, PL_PlayEntire, haveMIDI);
-			XableItem(playRecMenu, PL_PlaySelection, doc!=clipboard && nSel!=0 && haveMIDI);
-			XableItem(playRecMenu, PL_PlayFromSelection, doc!=clipboard && haveMIDI);
-			XableItem(playRecMenu, PL_MutePart, haveMIDI);
-			XableItem(playRecMenu, PL_PlayVarSpeed, haveMIDI);
-			XableItem(playRecMenu, PL_AllNotesOff, haveMIDI);
-	
-			noteSel = ObjTypeSel(doc, SYNCtype, 0)!=NILINK;
-			XableItem(playRecMenu, PL_Quantize, noteSel);
-	
-			XableItem(playRecMenu, PL_RecordInsert, doc!=clipboard && haveMIDI);
-			XableItem(playRecMenu, PL_RecordMerge, doc!=clipboard && haveMIDI);
-			XableItem(playRecMenu, PL_StepRecInsert, doc!=clipboard && haveMIDI);
-			XableItem(playRecMenu, PL_StepRecMerge, doc!=clipboard && haveMIDI);
-	 		XableItem(playRecMenu, PL_MIDISetup, doc!=clipboard);
-	 		XableItem(playRecMenu, PL_Metronome, haveMIDI);		/* Metro and thru are global options */
-			XableItem(playRecMenu, PL_MIDIDynPrefs, doc!=clipboard);
-			XableItem(playRecMenu, PL_MIDIModPrefs, doc!=clipboard);
-			XableItem(playRecMenu, PL_PartMIDI, doc!=clipboard);
-			XableItem(playRecMenu, PL_Transpose, doc!=clipboard);
-			CheckMenuItem(playRecMenu, PL_Transpose, doc->transposed);
-		}
-		else {
-			XableItem(playRecMenu, PL_PlayEntire, False);
-			XableItem(playRecMenu, PL_PlaySelection, False);
-			XableItem(playRecMenu, PL_PlayFromSelection, False);
-			XableItem(playRecMenu, PL_MutePart, False);
-			XableItem(playRecMenu, PL_PlayVarSpeed, False);
-			XableItem(playRecMenu, PL_AllNotesOff, False);	
-			XableItem(playRecMenu, PL_Quantize, False);
-			XableItem(playRecMenu, PL_RecordInsert, False);
-			XableItem(playRecMenu, PL_RecordMerge, False);
-			XableItem(playRecMenu, PL_StepRecInsert, False);
-			XableItem(playRecMenu, PL_StepRecMerge, False);
-	 		XableItem(playRecMenu, PL_MIDISetup, False);
-	 		XableItem(playRecMenu, PL_Metronome, False);
-	 		XableItem(playRecMenu, PL_MIDIThru, False);
-			XableItem(playRecMenu, PL_MIDIDynPrefs, False);
-			XableItem(playRecMenu, PL_MIDIModPrefs, False);
-			XableItem(playRecMenu, PL_PartMIDI, False);
-			XableItem(playRecMenu, PL_Transpose, False);
-			CheckMenuItem(playRecMenu, PL_Transpose, False);
-		}
+	if (!disableWholeMenu) {
+		XableItem(playRecMenu, PL_PlayEntire, haveMIDI);
+		XableItem(playRecMenu, PL_PlaySelection, doc!=clipboard && nSel!=0 && haveMIDI);
+		XableItem(playRecMenu, PL_PlayFromSelection, doc!=clipboard && haveMIDI);
+		XableItem(playRecMenu, PL_MutePart, haveMIDI);
+		XableItem(playRecMenu, PL_PlayVarSpeed, haveMIDI);
+		XableItem(playRecMenu, PL_AllNotesOff, haveMIDI);
+
+		noteSel = ObjTypeSel(doc, SYNCtype, 0)!=NILINK;
+		XableItem(playRecMenu, PL_Quantize, noteSel);
+
+		XableItem(playRecMenu, PL_RecordInsert, doc!=clipboard && haveMIDI);
+		XableItem(playRecMenu, PL_RecordMerge, doc!=clipboard && haveMIDI);
+		XableItem(playRecMenu, PL_StepRecInsert, doc!=clipboard && haveMIDI);
+		XableItem(playRecMenu, PL_StepRecMerge, doc!=clipboard && haveMIDI);
+		XableItem(playRecMenu, PL_MIDISetup, doc!=clipboard);
+		XableItem(playRecMenu, PL_Metronome, haveMIDI);		/* Metro and thru are global options */
+		XableItem(playRecMenu, PL_MIDIDynPrefs, doc!=clipboard);
+		XableItem(playRecMenu, PL_MIDIModPrefs, doc!=clipboard);
+		XableItem(playRecMenu, PL_PartMIDI, doc!=clipboard);
+		XableItem(playRecMenu, PL_Transpose, doc!=clipboard);
+		CheckMenuItem(playRecMenu, PL_Transpose, doc->transposed);
 	}
+	else {
+		XableItem(playRecMenu, PL_PlayEntire, False);
+		XableItem(playRecMenu, PL_PlaySelection, False);
+		XableItem(playRecMenu, PL_PlayFromSelection, False);
+		XableItem(playRecMenu, PL_MutePart, False);
+		XableItem(playRecMenu, PL_PlayVarSpeed, False);
+		XableItem(playRecMenu, PL_AllNotesOff, False);	
+		XableItem(playRecMenu, PL_Quantize, False);
+		XableItem(playRecMenu, PL_RecordInsert, False);
+		XableItem(playRecMenu, PL_RecordMerge, False);
+		XableItem(playRecMenu, PL_StepRecInsert, False);
+		XableItem(playRecMenu, PL_StepRecMerge, False);
+		XableItem(playRecMenu, PL_MIDISetup, False);
+		XableItem(playRecMenu, PL_Metronome, False);
+		XableItem(playRecMenu, PL_MIDIThru, False);
+		XableItem(playRecMenu, PL_MIDIDynPrefs, False);
+		XableItem(playRecMenu, PL_MIDIModPrefs, False);
+		XableItem(playRecMenu, PL_PartMIDI, False);
+		XableItem(playRecMenu, PL_Transpose, False);
+		CheckMenuItem(playRecMenu, PL_Transpose, False);
+	}
+}
 
-/* Fix all items in Master Page menu. If no score or we're not in Master Page,
-this menu shouldn't be installed, so we don't even need to disable it. */
+/* Fix all items in Master Page menu. If no score or we're not in Master Page, this
+menu shouldn't be installed, so we don't need to disable it. */
 
 static void FixMasterPgMenu(Document *doc)
 {
