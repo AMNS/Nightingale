@@ -1,1 +1,33 @@
-NIGHTINGALE CONVENTIONS FOR MODIFIER KEYSNightingale Technical Note #9Don Byrd, December 1999; rev. early January 2018These key combinations are used in consistent ways:Shift-control			Display additional information (mostly for debugging) in the system log			file (accessible via the Console utility).Caps lock-option			Display debug info: usually in the log file, but when PostScript printing,			on the printed page.And here are the conventions for keys used alone, but, regrettably, there are manyexceptions, especially in debug (including Browser) code.Caps lock	Use sparingly, and NEVER in public versions! Often for break into the			old low-level debugger; otherwise all bets are off.Command		Standard Mac OS usage, for menu command shortcuts; also used for shortcuts			to dialog items.Control		Skip checks to disallow situations where Ngale may have problems: e.g.,			when inserting notes or dragging them vertically, skip checking for and			hence allow unisons.Option		Not often used alone outside debug code. In flow-in text, repeat the last			word; in editing slurs, move the other endpoint or control point			symmetrically.Shift		Constrain: e.g., in dragging, to horizontal or vertical motion only. This			is pretty much standard Mac OS usage.
+NIGHTINGALE CONVENTIONS FOR MODIFIER KEYS
+Nightingale Technical Note #9
+Don Byrd, December 1999; rev. early January 2018
+
+These key combinations are used in consistent ways:
+
+Shift-control
+			Display additional information (mostly for debugging) in the system log
+			file (accessible via the Console utility).
+
+Caps lock-option
+			Display debug info: usually in the log file, but when PostScript printing,
+			on the printed page.
+
+And here are the conventions for keys used alone, but, regrettably, there are many
+exceptions, especially in debug (including Browser) code.
+
+Caps lock	Use sparingly, and NEVER in public versions! Often for break into the
+			old low-level debugger; otherwise all bets are off.
+
+Command		Standard Mac OS usage, for menu command shortcuts; also used for shortcuts
+			to dialog items.
+
+Control		Skip checks to disallow situations where Ngale may have problems: e.g.,
+			when inserting notes or dragging them vertically, skip checking for and
+			hence allow unisons.
+
+Option		Not often used alone outside debug code. In flow-in text, repeat the last
+			word; in editing slurs, move the other endpoint or control point
+			symmetrically.
+
+Shift		Constrain: e.g., in dragging, to horizontal or vertical motion only. This
+			is pretty much standard Mac OS usage.
