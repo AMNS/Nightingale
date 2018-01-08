@@ -31,10 +31,9 @@ static Boolean	CMInsertEvent(short note, SignedByte channel, long endTime, Boole
 								long ioRefNum);
 static void		KillEventList(void);
 static void		CMKillEventList(void);
-static void		SendAllNotesOff(void);
 
 
-/* -------------------------------------------------------------- UseMIDIChannel -- */
+/* -------------------------------------------------------------------- UseMIDIChannel -- */
 /* Return the MIDI channel number to use for the given part. */
 
 /*
@@ -64,7 +63,7 @@ short UseMIDIChannel(Document *doc, short partn)
 }
 
 
-/* ---------------------------------------------------------------- NoteNum2Note -- */
+/* ---------------------------------------------------------------------- NoteNum2Note -- */
 /* Return the note (not rest) in the given sync and voice with the given MIDI note
 number, if there is one; else return NILINK. If the sync and voice have more than
 one note with the same note number, finds the first one. Intended for finding ties'
@@ -83,7 +82,7 @@ LINK NoteNum2Note(LINK syncL, short voice, short noteNum)
 }
 
 
-/* --------------------------------------------------------------------- TiedDur -- */
+/* --------------------------------------------------------------------------- TiedDur -- */
 /* Return total performance duration of <aNoteL> and all following notes tied to
 <aNoteL>. If <selectedOnly>, only includes tied notes until the first unselected
 one. We use the note's <playDur> only for the last note of the series, its NOTATED
@@ -119,7 +118,7 @@ long TiedDur(Document */*doc*/, LINK syncL, LINK aNoteL, Boolean selectedOnly)
 }
 
 
-/* -------------------------------------------------------------- UseMIDINoteNum -- */
+/* -------------------------------------------------------------------- UseMIDINoteNum -- */
 /* Return the MIDI note number that should be used to play the given note,
 considering transposition. If the "note" is a rest or the continuation of a
 tied note, or has velocity 0, it should not be played: indicate by returning
@@ -144,19 +143,19 @@ short UseMIDINoteNum(Document *doc, LINK aNoteL, short transpose)
 		if (midiNote<1) midiNote = 1;					/* Clip to legal range */
 		if (midiNote>MAX_NOTENUM) midiNote = MAX_NOTENUM;
 	}
-#ifdef TARGET_API_MAC_CARBON_MIDI
+
 	partL = Staff2PartLINK(doc, NoteSTAFF(aNoteL));
 	pPart = GetPPARTINFO(partL);
 	patchNum = pPart->patchNum;
 	if (IsPatchMapped(doc, patchNum)) {
 		midiNote = GetMappedNoteNum(doc, midiNote);
 	}	
-#endif
+
 	return midiNote;
 }
 
 
-/* ------------------------------------------------------------- GetModNREffects -- */
+/* ------------------------------------------------------------------- GetModNREffects -- */
 /* Given a note, if it has any modifiers, get information about how its
 modifiers should affect playback, and return True. If it has no modifiers,
 just return False. NB: The time factor is unimplemented. */
@@ -193,7 +192,7 @@ Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 }
 
 
-/* ------------------------------------------------------- Tempo/time conversion -- */
+/* ------------------------------------------------------------- Tempo/time conversion -- */
 
 /* Given a TEMPO object, return its "timeScale", i.e., tempo in PDUR ticks per minute. */
 
@@ -339,7 +338,7 @@ short MakeTConvertTable(
 }
 
 
-/* ------------------------------------------- MIDI Manager/Driver glue functions -- */
+/* ------------------------------------------------ MIDI Manager/Driver glue functions -- */
 /* The following functions support Apple Core MIDI. */
 
 void StartMIDITime()
@@ -357,7 +356,7 @@ void StartMIDITime()
 
 long GetMIDITime(long pageTurnTOffset)
 {
-	long time;
+	long time=0L;
 
 	switch (useWhichMIDI) {
 		case MIDIDR_CM:
@@ -392,7 +391,7 @@ void StopMIDI()
 }
 
 
-/* --------------------------------------------------------- Event list functions -- */
+/* -------------------------------------------------------------- Event list functions -- */
 
 /* Initialize the Event list to empty. */
 
@@ -608,7 +607,7 @@ static void KillEventList()
 	InitEventList();
 }
 
-/* ------------------------------------------------------------- GetPartPlayInfo -- */
+/* ------------------------------------------------------------------- GetPartPlayInfo -- */
 
 void GetPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 						Byte channelPatch[], SignedByte partVelo[])
@@ -628,7 +627,7 @@ void GetPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 	}
 }
 
-/* ------------------------------------------------------------- GetNotePlayInfo -- */
+/* ------------------------------------------------------------------- GetNotePlayInfo -- */
 /* Given a note and tables of part transposition, channel, and offset velocity, return
 the note's MIDI note number, including transposition; channel number; and velocity,
 limited to legal range. */
@@ -651,15 +650,13 @@ void GetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 	if (*pUseVelo>MAX_VELOCITY) *pUseVelo = MAX_VELOCITY;
 }
 
-/* ----------------------------------------------------------------- SetMIDIProgram -- */
+/* -------------------------------------------------------------------- SetMIDIProgram -- */
 
 #define PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
 
-/* ----------------------------------------- StartNoteNow, EndNoteNow, EndNoteLater -- */
-/* Functions to start and end notes; handle OMS, FreeMIDI, MIDI Manager, and built-in
-MIDI (MIDI Pascal or MacTutor driver). ??NOT ANY MORE! Caveat: EndNoteLater does not
-communicate with the MIDI system, it simply adds the note to our event-list routines'
-queue. */
+/* -------------------------------------------- StartNoteNow, EndNoteNow, EndNoteLater -- */
+/* Functions to start and end notes. NB: EndNoteLater does not communicate with the
+MIDI system, it simply adds the note to our event-list routines' queue. */
 
 OSStatus StartNoteNow(short noteNum, SignedByte channel, SignedByte velocity)
 {
@@ -698,8 +695,8 @@ OSStatus EndNoteNow(short noteNum, SignedByte channel)
 
 /* If multiple notes are simultaneously playing the same note number on the same channel
 but end at different times, do we hold the note till the last one ends or stop playing
-the note when the first one ends? Ngale has always done the latter, but the former makes
-more sense in most cases. MULTNOTES_PLAYMAXDUR controls this. */
+the note when the first one ends? For many years, Nightingale always did the latter, but
+the former makes more sense in most cases. */
 #define MULTNOTES_PLAYMAXDUR True		/* Hold the note till the last instance ends? */ 
 
 Boolean EndNoteLater(
@@ -722,7 +719,7 @@ Boolean CMEndNoteLater(
 
 
 
-/* -------------------------------------------- MMStartNoteNow, MMEndNoteAtTime -- */
+/* --------------------------------------------------- MMStartNoteNow, MMEndNoteAtTime -- */
 /* For MIDI Manager: start the note now, end the note at the given time. */
  
 void MMStartNoteNow(
@@ -763,7 +760,7 @@ void MMEndNoteAtTime(
 }
 
 
-/* --------------------------------------------------------------- MIDIConnected -- */
+/* --------------------------------------------------------------------- MIDIConnected -- */
 /*	Return True if a MIDI device is connected. */
 
 Boolean MIDIConnected()
@@ -775,9 +772,9 @@ Boolean MIDIConnected()
 }
 
 
-/* ====================================================== MIDI Feedback Functions == */
+/* =========================================================== MIDI Feedback Functions == */
 
-/* -------------------------------------------------------------------- MIDIFBOn -- */
+/* --------------------------------------------------------------- MIDIFBOn, MIDIFBOff -- */
 /*	If feedback is enabled, turn on MIDI stuff. Exception: if the port is busy,
 do nothing. */
 
@@ -794,8 +791,6 @@ void MIDIFBOn(Document *doc)
 	}
 }
 
-
-/* ------------------------------------------------------------------- MIDIFBOff -- */
 /*	If feedback is enabled, turn off MIDI stuff. Exception: if the port is busy,
 do nothing. */
 
@@ -813,7 +808,7 @@ void MIDIFBOff(Document *doc)
 }
 
 
-/* ---------------------------------------------------------------- MIDIFBNoteOn -- */
+/* ------------------------------------------------------- MIDIFBNoteOn, MIDIFBNoteOff -- */
 /*	Start MIDI "feedback" note by sending a MIDI NoteOn command for the specified
 note and channel. Exception: if the port is busy, do nothing. */
 
@@ -840,8 +835,6 @@ void MIDIFBNoteOn(
 	}
 }
 
-
-/* --------------------------------------------------------------- MIDIFBNoteOff -- */
 /*	End MIDI "feedback" note by sending a MIDI NoteOn command for the specified
 note and channel with velocity 0 (which acts as NoteOff).  Exception: if the port
 is busy, do nothing. */
@@ -870,7 +863,7 @@ void MIDIFBNoteOff(
 }
 
 
-/* ------------------------------------------------ AnyNoteToPlay, NoteToBePlayed -- */
+/* ----------------------------------------------------- AnyNoteToPlay, NoteToBePlayed -- */
 /* Given a Sync, should at least one "note" be played? A given "note" should be played
 if it's really a note (not a rest); is in a part that's not muted; and, if we're
 interested only in selected notes, is selected. */
@@ -911,7 +904,7 @@ Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly)
 }
 
 
-/* ------------------------------------------------------------- DisplayMIDIEvent -- */
+/* ------------------------------------------------------------------ DisplayMIDIEvent -- */
 
 void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 {

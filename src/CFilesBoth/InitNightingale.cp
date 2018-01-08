@@ -1,11 +1,13 @@
-/* InitNightingale.c for Nightingale */
+/* InitNightingale.c for Nightingale
+One-time initialization of Nightingale-specific stuff. Assumes the Macintosh
+toolbox has already been initialized and the config struct filled in. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -27,13 +29,9 @@ static Boolean	InitMIDISystem(void);
 
 static void		NExitToShell(char *msg);
 
-/* ------------------------------------------------------------- InitNightingale -- */
-/* One-time initialization of Nightingale-specific stuff. Assumes the Macintosh
-toolbox has already been initialized and the config struct filled in. */
-
 void InitNightingale()
 {
-	InitNightFonts();									/* Do this first to be ready for dialogs */
+	InitNightFonts();								/* Do this first to be ready for dialogs */
 
 	if (!config.fastLaunch)
 		if (!DoSplashScreen()) NExitToShell("Splash Screen");
@@ -460,7 +458,7 @@ Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
 
 static void CheckScreenFonts()
 {
-	short	origLen, foundSizes=0;
+	unsigned short	origLen, foundSizes=0;
 	short	fontNum;
 
 	if (!GetFontNumber("\pSonata", &fontNum)) {
@@ -542,8 +540,6 @@ void InitMusicFontStuff()
 }
 
 
-#ifdef TARGET_API_MAC_CARBON_MIDI
-
 static Boolean InitChosenMIDISystem()
 {
 	Boolean midiOK = True;
@@ -562,7 +558,3 @@ Boolean InitMIDISystem()
 
 	return InitChosenMIDISystem();
 }
-
-#endif // TARGET_API_MAC_CARBON_MIDI
-
-

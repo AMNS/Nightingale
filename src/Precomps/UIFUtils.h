@@ -31,6 +31,7 @@ Boolean		OptionKeyDown(void);
 Boolean		ShiftKeyDown(void);
 Boolean		CapsLockKeyDown(void);
 Boolean		ControlKeyDown(void);
+Boolean		CommandKeyDown(void);
 
 void InvertSymbolHilite(Document *, LINK, short, Boolean);
 void InvertTwoSymbolHilite(Document *, LINK, LINK, short);

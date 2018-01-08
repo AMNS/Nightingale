@@ -417,11 +417,11 @@ equiv. KSINFO is necessarily even, so BlockMove(ks1, ks2, sizeof(KSINFO)) doesn'
 
 /* Check timeSigType, numerator, denominator for legality. TSDENOM_BAD must agree
 with MAX_TSDENOM, above! */
-#define TSTYPE_BAD(t)		(	(t)<LOW_TStype || (t)>HIGH_TStype)
+#define TSTYPE_BAD(t)			(	(t)<LOW_TStype || (t)>HIGH_TStype)
 #define TSNUM_BAD(t)			(	(t)<1 || (t)>MAX_TSNUM )
-#define TSDENOM_BAD(t)		(	(t)!=1 && (t)!=2 && (t)!=4 && (t)!=8		\
+#define TSDENOM_BAD(t)			(	(t)!=1 && (t)!=2 && (t)!=4 && (t)!=8		\
 									&&	(t)!=16 && (t)!=32 && (t)!=64 )
-#define TSDUR_BAD(tn,td)	(TimeSigDur(N_OVER_D, (tn), (td))>MAX_SAFE_MEASDUR )
+#define TSDUR_BAD(tn, td)		(TimeSigDur(N_OVER_D, (tn), (td))>MAX_SAFE_MEASDUR )
 
 /* Crude checks for object and subobject vertical and horizontal positions */
 #define ABOVE_VLIM(doc) 	(-pt2d((doc)->marginRect.bottom))
@@ -429,7 +429,7 @@ with MAX_TSDENOM, above! */
 #define RIGHT_HLIM(doc) 	(pt2d((doc)->marginRect.right-(doc)->marginRect.left))
 #define LEFT_HLIM(doc, pL)	(J_DTYPE(pL)? -RIGHT_HLIM(doc) : 0)
 
-#define DEBUG_PRINT			(ShiftKeyDown() && OptionKeyDown())
+#define DEBUG_PRINT			(ShiftKeyDown() && ControlKeyDown())
 
 /* ----------------------------------------------------------------- CONVERSION MACROS -- */
 

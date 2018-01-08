@@ -28,7 +28,7 @@
 		Rect2Window				Pt2Window				Pt2Paper		
 		Global2Paper			DRect2ScreenRect		RefreshScreen
 		GetMillisecTime			SleepMS					SleepTicks
-		SleepTicksWaitButton	NMIDIVersion			StdVerNumToStr
+		SleepTicksWaitButton	StdVerNumToStr
 		PlayResource			FitStavesOnPaper		CountUnjustifiedSystems
 /******************************************************************************************/
 
@@ -1405,32 +1405,6 @@ void SleepTicksWaitButton(unsigned long ticks)
 		;
 }
 
-
-/* ---------------------------------------------------------------------- NMIDIVersion -- */
-/* Return MIDI Manager version numbers as a <long>. Why is this function useful?
-MIDIVersion() and OMSVersion() both return <NumVersion>. The CodeWarrior header
-indeed declares MIDIVersion that way, but THINK's declares it <unsigned long>;
-this function is just to insulate calling routines from that ugliness. (And Opcode's
-header declares OMSVersion as returning <long>. Yeech.) */
-
-#ifdef TARGET_API_MAC_CARBON_MIDI
-
-long NMIDIVersion()
-{
-	return -1L;
-}
-
-#else
-
-long NMIDIVersion()
-{
-	long verNumMM;
-	verNumMM = MIDIVersion();
-
-	return verNumMM;
-}
-
-#endif
 
 /* -------------------------------------------------------------------- StdVerNumToStr -- */
 /* Get String representation of given Version Number. See Mac Tech Note #189 for

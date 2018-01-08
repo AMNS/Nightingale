@@ -81,7 +81,6 @@ But I don't think OS X ever ran on a 68K, and Intel Macs surely can't handle 68K
 #if TARGET_API_MAC_CARBON
 // MAS
 #define TARGET_API_MAC_CARBON_FILEIO 1
-#define TARGET_API_MAC_CARBON_MIDI   1
 // MAS
 #include "CarbonCompat.h"
 //#include "StandardFile.h"

@@ -84,7 +84,6 @@ void SleepMS(long millisec);
 void SleepTicks(unsigned long ticks);
 void SleepTicksWaitButton(unsigned long ticks);
 
-long NMIDIVersion(void);
 char *StdVerNumToStr(long verNum, char *verStr);
 
 short PlayResource(Handle, Boolean);

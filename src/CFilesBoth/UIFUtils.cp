@@ -728,8 +728,8 @@ Boolean ControlKeyDown() {
 }
 	
 /* FIXME: As of v. 5.8b5, CommandKeyDown() is never used; instead, CmdKeyDown() is used.
-I don't know why, or even what the practical difference is; but CommandKeyDown() is the
-one that's analogous to the other key-down functions, and it looks less system-dependent. */
+I don't know why, but CommandKeyDown() is the one that's analogous to the other key-down
+functions, and it looks less system-dependent. So we should probably switch. */
 
 Boolean CommandKeyDown() {
 	return (GetCurrentKeyModifiers() & cmdKey) != 0;

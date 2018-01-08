@@ -54,8 +54,6 @@ allow the caller to cancel the operation. If called with a rest, does minimal
 tracking, allowing the user to cancel, but giving no feedback. If the cursor
 is inside the music area, returns True.
 
-WARNING: This routine calls SetMouse, which stores into low-memory globals.
-
 NOTE: The standard MIDIFBNoteOn and MIDIFBNoteOff include an intentional delay;
 that was slowing this routine down AltInsTrackPitch in chromatic mode. So this
 file used to contain special versions without the delay; of course, they got
@@ -791,12 +789,10 @@ Boolean InsTrackPitch(
 	}
 	noteNum = Pitch2MIDI(middleCHalfLn-halfLn+octTransp, prevAccident)+transp;
 	MIDIFBOn(doc);
-#ifdef TARGET_API_MAC_CARBON_MIDI
 	if (IsPatchMapped(doc, patchNum)) {
 		noteNum = GetMappedNoteNum(doc, noteNum);		
 	}
 	CMMIDIFBNoteOn(doc, noteNum, useChan, partDevID);
-#endif
 	InsertLedgers(p2d(downPt.h), halfLn, &context);
 	halfLnLo = halfLnHi = halfLn;
 
@@ -840,9 +836,7 @@ Boolean InsTrackPitch(
 				GetPaperMouse(&pt,&context.paper);
 				if (!PtInRect(pt, &tRect)) {							/* Mouse out of System? */
 					outOfBounds = True;
-#ifdef TARGET_API_MAC_CARBON_MIDI
 					CMMIDIFBNoteOff(doc, noteNum, useChan, partDevID);
-#endif
 					InvertCrossbar(doc);
 					do {
 						GetPaperMouse(&pt,&context.paper);
@@ -905,9 +899,7 @@ Boolean InsTrackPitch(
 							DrawChar(SonataAcc[accident]);			/* Draw new accidental */
 						}
 					}
-#ifdef TARGET_API_MAC_CARBON_MIDI
 					CMMIDIFBNoteOff(doc, noteNum, useChan, partDevID);
-#endif
 					if (accident==0) {
 						if (ACC_IN_CONTEXT)
 							prevAccident = accTable[halfLn-middleCHalfLn+ACCTABLE_OFF];			
@@ -918,12 +910,10 @@ Boolean InsTrackPitch(
 						noteNum = Pitch2MIDI(middleCHalfLn-halfLn+octTransp, accident)
 										+transp;
 					}
-#ifdef TARGET_API_MAC_CARBON_MIDI
 					if (IsPatchMapped(doc, patchNum)) {
 						noteNum = GetMappedNoteNum(doc, noteNum);		
 					}
 					CMMIDIFBNoteOn(doc, noteNum, useChan, partDevID);
-#endif
 				}
 				
 			}
@@ -931,10 +921,8 @@ Boolean InsTrackPitch(
 
 	InvertCrossbar(doc);
 	
-#ifdef TARGET_API_MAC_CARBON_MIDI
 	CMMIDIFBNoteOff(doc, noteNum, useChan, partDevID);
 	MIDIFBOff(doc);
-#endif
 	
 	/* Restore bits under accBox so we'll never have to redraw previous Measure. */
 	

@@ -1901,7 +1901,7 @@ but -- notwithstanding the selection hilighting -- it may not, resulting in, e.g
 setting the type to (or from) repeat bar with the QuickChange command not affecting
 all staves in the group. Affects DSUtils.h; Check, DSUtils.
 
-Minor cleanup: rewrite some incredibly confusing code in DrawMEASURE(), etc. Affects
+Minor cleanup: rewrote some incredibly confusing code in DrawMEASURE(), etc. Affects
 Check, DrawObject, SetUtils.
 
 -------------------------------------------------------------------------------
@@ -1933,3 +1933,13 @@ whole rests to (Issue #59). Affects MeasFill, Menu.
 Minor cleanup. Affects DialogsBoth, MeasFill, Menu, MiscUtils, MPCommands, Score,
 ScoreInfo, SetCommand, UIFUtils.
 
+-------------------------------------------------------------------------------
+
+7 Jan.
+
+Changed the keydown combination to add more detailed debug info to the log file from
+shift-option to shift-command. Affects Defs.h.
+
+Minor cleanup: remove all references to TARGET_API_MAC_CARBON_MIDI, etc. Affects
+Nightingale.precomp.pch, Defs.h, UIFUtils.h, Utility.h; InitNightingale, MIDIUtils,
+TrackVMove, UIFUtils, Utility.
