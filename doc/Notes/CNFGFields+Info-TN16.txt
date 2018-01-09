@@ -132,7 +132,7 @@ typedef struct {
 146	SignedByte	leastSquares;		/* Least-squares fit to decide tuplets from real time (else least-linear)? */
 147	SignedByte	altPitchCtl;		/* Use alternate accidental-pitch-entry method? */
 
-148	SignedByte	metroViaMIDI;		/* TRUE=use MIDI for metronome, FALSE=internal sound */
+148	SignedByte	metroViaMIDI;		/* True=use MIDI for metronome, False=internal sound */
 149	SignedByte	metroChannel;		/* MIDI metronome channel number, 1 to MAXCHANNEL */
 150	SignedByte	metroNote;			/* MIDI metronome note number */
 151	SignedByte	metroVelo;			/* MIDI metronome note velocity */

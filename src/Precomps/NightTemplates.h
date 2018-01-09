@@ -459,10 +459,6 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	void		GetWCTitle(WindowPtr theWindow, char theCTitle[]);
 	void		SetWCTitle(WindowRef theWindow, char theCTitle[]);
 	void		SetDialogItemCText(Handle lHdl, char cStr[]);
-
-//	void		SFPCGetFile(Point where, char cPrompt[], FileFilterUPP fileFilterUPP,
-//					short numTypes, ConstSFTypeListPtr typeList, DlgHookUPP hookUPP,
-//					SFReply *pReply, short dlogID, ModalFilterUPP filterUPP);
 	void		SetMenuItemCText(MenuHandle theMenu, short item, char cItemString[]);
 	void		AppendCMenu(MenuHandle theMenu, char cItemText[]);
 

@@ -209,7 +209,6 @@ Boolean IsSafeToQuit()
 		return True;
 }
 
-#ifdef TARGET_API_MAC_CARBON_FILEIO
 
 static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD);
 static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD)
@@ -225,26 +224,6 @@ static Boolean GetNotelistFile(Str255 macfName, NSClientDataPtr pNSD)
 	Pstrcpy(macfName, fsSpec.name);
 	return True;
 }
-#else
-static Boolean GetNotelistFile(Str255 macfName, short *vRefNum);
-static Boolean GetNotelistFile(Str255 macfName, short *vRefNum)
-{
-	OSType 		myTypes[MAXINPUTTYPE];
-	SFReply		reply;
-	Point		dialogWhere = { 90, 82 };
-	
-	myTypes[0] = 'TEXT';
-	
-	SFGetFile(dialogWhere, "\p", 0L, 1, myTypes, 0L, &reply);
-	if (reply.good) {
-		Pstrcpy(macfName, reply.fName);
-		*vRefNum = reply.vRefNum;
-		return True;
-	}
-
-	return False;
-}
-#endif
 
 
 /*
@@ -512,7 +491,7 @@ void DoEditMenu(short choice)
 /* Functions to delete selected objects from the score "stupidly", i.e., with almost
 no attempt to maintain consistency. This is intended to allow wizards to repair
 messed-up files and to help debug Nightingale, but it's obviously very dangerous:
-ordinary users should never be allowed to do it! */
+ordinary users should never do it! */
  
 static void DeleteObj(Document *doc, LINK pL)
 {
@@ -554,10 +533,10 @@ static void DeleteSelObjs(Document *doc)
 }
 
 
-void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset);
-void ResetAllMeasNumPos(Document *doc);
+static void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset);
+static void ResetAllMeasNumPos(Document *doc);
 
-void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset)
+static void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short yOffset)
 {
 	PAMEASURE	aMeasure;
 	LINK		pL, aMeasureL;
@@ -576,7 +555,7 @@ void SetMeasNumPos(Document *doc, LINK startL, LINK endL, short xOffset, short y
 }
 
 
-void ResetAllMeasNumPos(Document *doc)
+static void ResetAllMeasNumPos(Document *doc)
 {
 	SetMeasNumPos(doc, doc->headL, doc->tailL, 0, 0);
 	InvalWindow(doc);
@@ -621,9 +600,7 @@ static void DoTestMenu(short choice)
 				LogPrintf(LOG_INFO, "ClickMode set to ClickFrame\n");
 				break;
 			case TS_Debug:
-#ifndef PUBLIC_VERSION
 				DoDebug("Menu");
-#endif				
 				break;
 			case TS_ShowDebug:
 //				static Boolean showDbgWin = False;
@@ -747,10 +724,10 @@ to indicate Transpose Key shouldn't be allowed. */
 
 static Boolean SetTranspKeyStaves(Document *doc, Boolean trStaff[])
 {
-	short s;  LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
+	short s;
+	LINK pL, aClefL, aKeySigL, aTimeSigL, measL;
 	
-	/* If anything is selected after the initial reserved area, don't allow
-		Transpose Key. */
+	/* If anything is selected after the initial reserved area, don't allow Transpose Key. */
 	
 	measL = LSSearch(LeftLINK(doc->selEndL), MEASUREtype, ANYONE, GO_LEFT, False);
 	if (measL) return False;
@@ -1014,8 +991,8 @@ void DoViewMenu(short choice)
 					GetWindowRgnBounds(TopDocument, kWindowContentRgn, &docRect);					
 					docRect.right = docRect.left + pal.right;
 					docRect.bottom = docRect.top + pal.bottom;
-					GetMyScreen(&docRect,&screen);
-					OffsetRect(&docRect,config.toolsPosition.h,config.toolsPosition.v);
+					GetMyScreen(&docRect, &screen);
+					OffsetRect(&docRect, config.toolsPosition.h, config.toolsPosition.v);
 					PullInsideRect(&docRect,&screen,2);
 				}
 				 else {

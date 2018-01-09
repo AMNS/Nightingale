@@ -1,6 +1,6 @@
 /*	MiscUtils.c
 	These are miscellaneous routines that are generally-useful extensions to the Mac
-	Toolbox routines. Nihgtingale formerly contained a module called EssentialTools.c,
+	Toolbox routines. Nightingale formerly contained a module called EssentialTools.c,
 	original version by Doug McKenna, 1989. Most of the functions that were originally
 	in that file were for dialog or other user-interface support, and they've been moved
 	to DialogUtils.c or UIFUtils.c; this is what remains. */
@@ -247,12 +247,9 @@ void DrawGrowBox(WindowPtr w, Point pt, Boolean drawit)
 
 /* ----------------------------------------------------------------------- Files, etc. -- */
 
-/*
- *	This routine should be called any number of times with a file type argument
- *	just prior to calling GetInputName(), below.  It declares for the benefit
- *	of GetInputName() those types of document files to display in the standard
- *	input dialog.
- */
+/* UseStandardType should be called any number of times with a file type argument just
+before calling GetInputName(), below.  It declares for the benefit of GetInputName()
+those types of document files to display in the standard input dialog. */
 
 static short numGetTypes = 0;
 static OSType inputType[MAXINPUTTYPE];
@@ -267,7 +264,6 @@ void ClearStandardTypes()
 	numGetTypes = 0;
 }
 
-#ifdef TARGET_API_MAC_CARBON_FILEIO
 
 short GetInputName(char */*prompt*/, Boolean /*newButton*/, unsigned char *name, short */*wd*/, NSClientDataPtr nsData)
 {
@@ -295,7 +291,7 @@ Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *n
 	CFStringRef	defaultName;
 	
 	//defaultName = CFSTR("Nightingale Document");
-	defaultName = CFStringCreateWithPascalString(NULL,name,smRoman);
+	defaultName = CFStringCreateWithPascalString(NULL, name, smRoman);
 
 	anErr = SaveFileDialog( NULL, defaultName, 'TEXT', 'BYRD', nsData );
 	
@@ -304,261 +300,6 @@ Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *n
 	return (!nsData->nsOpCancel);
 }
 	
-#else
-
-
-/*
- *	Filter function that allows only document files of our type to be displayed
- *	in Standard Input dialog.
- */
-
-static pascal Boolean OurFilesOnly(ParmBlkPtr paramBlock)
-{
-	FileParam *file; FInfo stuff; short i;
-	
-	file = (FileParam *)paramBlock;					/* Access block as file parameters */
-	stuff = file->ioFlFndrInfo;						/* Get file's finder info */
-	/* Filter away all but our input files of interest */
-	for (i=0; i<numGetTypes; i++)
-		if (stuff.fdType == inputType[i]) return(False);
-	return(True);
-}
-
-enum {
-	/* getOpen = 1, */
-	ourNew = 2,
-	ourCancel = 3,
-	getDisk = 4,
-	/* getEject = 5,
-	getDrive,
-	getNmList,
-	getScroll, */
-	getLine = 9,
-	getPrompt,
-	getNullEvt = 100,
-	getClipboard = 10,
-	ourNewNew,
-	getEatComma
-};
-
-/*
- *	This routine is called by standard GetInput package so we can have extra buttons
- */
-
-static Boolean newButtonHit,noNewButton;
-static short returnCode;
-
-static pascal short DlgHook(short itemHit, DialogPtr dlog);
-
-static pascal short DlgHook(short itemHit, DialogPtr /*dlog*/)
-{
-	switch(itemHit) {
-		case ourNew:
-		case ourNewNew:
-			newButtonHit = True;
-			itemHit = ourCancel;
-			break;
-		default:
-			break;
-	}
-	return(itemHit);
-}
-
-/* This filters the events so that we can hilite the default button in our semi-standard
-input and output dialogs below, as well as entertain various keyboard commands. */
-
-static pascal Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit);
-
-static short selEnd = -1;
-
-static pascal Boolean Defilt(DialogPtr dlog, EventRecord *evt, short *itemHit)
-{
-	int ch; Boolean ans = False,doHilite = False; WindowPtr w;
-	short type; Handle hndl; Rect box;
-	
-	w = (WindowPtr)(evt->message);
-	
-	if (evt->what == activateEvt) {
-		if (w == GetDialogWindow(dlog))
-			SetPort(GetWindowPort(w));
-		 else
-			DoActivate(evt,(evt->modifiers&activeFlag)!=0,False);
-	}
-	
-	 else if (evt->what == updateEvt) {
-		if (w == GetDialogWindow(dlog)) {
-			SetPort(GetWindowPort(w));
-			if (noNewButton) {
-				GetDialogItem(dlog,ourNewNew,&type,&hndl,&box);
-				HideDialogItem(dlog,ourNewNew);
-				}
-			FrameDefault(dlog,OK,True);
-			if (selEnd >= 0) { SelectDialogItemText(dlog,putName,0,selEnd); selEnd = -1; }
-		}
-		 else
-			DoUpdate(w);
-	}
-		
-	 else if (evt->what == keyDown) {
-		ch = (unsigned char)evt->message;
-		if (evt->modifiers & cmdKey) {
-			if (isupper(ch)) ch = tolower(ch);
-			if (ch == 'n' && !noNewButton) {
-					doHilite = True; *itemHit = ourNewNew;
-					returnCode = OP_NewFile;
-			}
-			 else if (ch=='.' || ch=='q') {
-				doHilite = True;
-				*itemHit = ourCancel;
-				returnCode = (ch=='q' ? OP_QuitInstead : OP_Cancel);
-			}
-			ans = doHilite;
-			if (ans) {
-				GetDialogItem(dlog,*itemHit,&type,&hndl,&box);
-				HiliteControl((ControlHandle)hndl,1);
-			}
-		}
-	}
-
-	return(ans);
-}
-	
-	
-/* Get the name and working directory of a file from the user. We use a
-homegrown input dialog, which lets us support a New button. The function
-returns an OP_ code indicating the user's wishes. */
-
-short GetInputName(char *prompt, Boolean newButton, unsigned char *name, short *wd)
-	{
-		static Point pt; Rect r;
-		static SFTypeList list = { 0L, 0L, 0L, 0L };
-		static SFReply answer;
-		short allTypes = -1,id;
-		Handle dlog;
-		GrafPtr oldPort;
-		FileFilterUPP fileFilterUPP;
-		DlgHookUPP hookUPP;
-		ModalFilterUPP filterUPP;
-		
-		fileFilterUPP = NewFileFilterUPP(OurFilesOnly);
-		hookUPP = NewDlgHookUPP(DlgHook);
-		filterUPP = NewModalFilterUPP(Defilt);
-		if (filterUPP == NULL) {
-			if (hookUPP == NULL)
-				DisposeDlgHookUPP(hookUPP);
-			if (fileFilterUPP == NULL)
-				DisposeFileFilterUPP(fileFilterUPP);
-			MissingDialog(OPENFILE_DLOG);
-			return(OP_Cancel);
-			}
-		
-		GetPort(&oldPort);
-
-		/* Configure according to type of input dialog desired */
-
-		id = OPENFILE_DLOG;
-		noNewButton = !newButton;
-		
-		/* Get dialog resource, and if all is OK, center dialog before it gets drawn */
-		
-		dlog = GetResource('DLOG',id);
-		if (dlog==NULL || *dlog==NULL || ResError()!=noErr) {
-			DisposeModalFilterUPP(filterUPP);
-			DisposeDlgHookUPP(hookUPP);
-			DisposeFileFilterUPP(fileFilterUPP);
-			MissingDialog(id);
-			return(OP_Cancel);
-		}
-		else {
-			WindowPtr w; Rect scrn,r;
-
-			LoadResource(dlog);
-			r = *(Rect *)(*dlog);
-			w = TopDocument;
-			if (w)
-				GetMyScreen(&w->portRect,&scrn);
-			else
-				scrn = qd.screenBits.bounds;
-			CenterRect(&r,&scrn,&r);
-			pt.h = r.left; pt.v = r.top;
-		}
-		
-		/* Entertain dialog: a homebrew one with prompt and New button */
-		
-		returnCode = OP_Cancel;
-		
-		CParamText(prompt,"","","");
-		newButtonHit = False;
-		SFPCGetFile(pt,prompt,fileFilterUPP,allTypes,list,hookUPP,&answer,id,
-						filterUPP);
-		if (newButtonHit) returnCode = OP_NewFile;
-		
-		/* Return the file name and working directory if user said okay */
-		
-		if (answer.good) {
-			SetVol(NULL,*wd = answer.vRefNum);
-			Pstrcpy(name,answer.fName);
-			UpdateAllWindows();
-			returnCode = OP_OpenFile;
-			}
-		 else {
-			/* returnCode set by filter functions */
-			}
-		
-		numGetTypes = 0;		/* Prepare for next time */
-		SetPort(oldPort);
-		
-		DisposeModalFilterUPP(filterUPP);
-		DisposeDlgHookUPP(hookUPP);
-		DisposeFileFilterUPP(fileFilterUPP);
-		return(returnCode);
-	}
-
-/* Ask user for a possible output file; return True if OK to proceed, False if CANCEL.
-Change the output file prompt according to id and i, and place name and working
-directory in name and wd.  When called, name has a default name in it that can be
-modified according to the prompt type before displaying in the dialog (item 7). */
-
-Boolean GetOutputName(short promptsID, short promptInd, unsigned char *name, short *wd)
-	{
-		Point pt; Rect r,scrn; short id,len;
-		static SFReply answer; WindowPtr w;
-		Handle dlog; Str255 str;
-		void *hookFunc = NULL;
-
-		dlog = GetResource('DLOG',putDlgID);
-		if (dlog) {
-			r = *(Rect *)(*dlog);
-			w = TopDocument;
-			if (w)
-				GetMyScreen(&w->portRect,&scrn);
-			else
-				scrn = qd.screenBits.bounds;
-			CenterRect(&r,&scrn,&r);
-			pt.h = r.left; pt.v = r.top;
-			}
-		
-		/* Entertain dialog */
-		
-		GetIndString(str,promptsID,promptInd);
-		
-		ParamText("\p","\p","\p","\p");
-		
-		SFPutFile(pt,str,name,hookFunc,&answer);
-		
-		/* Return the file name and working directory, and set it as well */
-		
-		if (answer.good) {
-			SetVol(NULL,*wd = answer.vRefNum);
-			Pstrcpy(name,answer.fName);
-			UpdateAllWindows();
-			answer.good = 1;
-			}
-
-		return(answer.good);
-	}
-
-#endif // TARGET_API_MAC_CARBON_FILEIO
 
 /* -------------------------------------------------------------------------------------- */
 

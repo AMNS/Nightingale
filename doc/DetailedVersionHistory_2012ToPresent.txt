@@ -1943,3 +1943,11 @@ shift-option to shift-command. Affects Defs.h.
 Minor cleanup: remove all references to TARGET_API_MAC_CARBON_MIDI, etc. Affects
 Nightingale.precomp.pch, Defs.h, UIFUtils.h, Utility.h; InitNightingale, MIDIUtils,
 TrackVMove, UIFUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+8 Jan.
+
+Minor cleanup: remove all references to TARGET_API_MAC_CARBON_FILEIO, etc. Affects
+Nightingale.precomp.pch, NightTemplates.h; Documents, Event, Menu, MiscUtils,
+NotelistSave, StringToolbox.

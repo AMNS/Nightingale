@@ -13,8 +13,6 @@
 
 /* Prototypes for private routines */
 
-static short NumFreeDocuments(void);
-static short NumOpenDocuments(void);
 static Boolean AllStavesSameSize(Document *);
 
 /* --------------------------------------------------------- InstallDoc and associates -- */
@@ -57,16 +55,16 @@ void InstallMagnify(Document *doc)
 		magRound = 8>>(doc->magnify/2);
 	}
 	
-#ifdef TEST_MAG
-	{
-		DDIST d;  short pxl, dummy;
-		pxl = d2p(160); d = p2d(pxl);
-		d = p2d(1); pxl = d2p(d);
-		d = p2d(2); pxl = d2p(d);
-		d = p2d(3); pxl = d2p(d);
-		d = p2d(4); pxl = d2p(d);
-		dummy = 0;		/* Need a breakpoint to look at vars. in debugger */
-	}
+#ifdef TEST_MAGNIFY
+{
+	DDIST d;  short pxl, dummy;
+	pxl = d2p(160); d = p2d(pxl);
+	d = p2d(1); pxl = d2p(d);
+	d = p2d(2); pxl = d2p(d);
+	d = p2d(3); pxl = d2p(d);
+	d = p2d(4); pxl = d2p(d);
+	dummy = 0;		/* Need a breakpoint to look at vars. in debugger */
+}
 #endif
 
 }
@@ -119,8 +117,8 @@ void InstallStrPool(Document *doc)
 
 
 /*
- *	Deliver pointer to first free (current unused) slot in document table, or
- *	NULL if none.  All data in the record is set to 0 first.
+ *	Deliver pointer to first free (current unused) slot in document table, or NULL
+ *	if none.  All data in the record is set to 0 first.
  */
 
 Document *FirstFreeDocument()
@@ -137,8 +135,8 @@ Document *FirstFreeDocument()
 }
 
 /*
- * Deliver pointer to document table whose window is w. Analagous to Carbon
- * functions that cast up, e.g. GetDialogFromWindow(WindowPtr)
+ * Deliver pointer to document table whose window is w. Analagous to Carbon functions
+ * that cast up, e.g. GetDialogFromWindow(WindowPtr).
  */
 
 Document *GetDocumentFromWindow(WindowPtr w)
@@ -154,7 +152,8 @@ Document *GetDocumentFromWindow(WindowPtr w)
 	
 	return(NULL);
 }
-	
+
+
 Boolean EqualFSSpec(FSSpec *fs1, FSSpec *fs2)
 {
 	if (fs1->parID != fs2->parID) return False;
@@ -180,6 +179,10 @@ Document *AlreadyInUse(unsigned char *name, short /*vrefnum*/, FSSpec *pfsSpec)
 	return(NULL);
 }
 
+#ifdef NOMORE	These functions might be useful in the future, so keep the code.
+static short NumFreeDocuments(void);
+static short NumOpenDocuments(void);
+
 static short NumFreeDocuments()
 {
 	Document *doc;  short n = 0;
@@ -199,7 +202,7 @@ static short NumOpenDocuments()
 	
 	return(n);
 }
-
+#endif
 
 /*
  *	Either show or bring to front the clipboard document. If this is the first time
@@ -625,7 +628,7 @@ Boolean DocumentSaved(register Document *doc)
 
 Boolean DoSaveDocument(register Document *doc)
 {
-	Boolean keepGoing = False; short err;
+	Boolean keepGoing = False;  short err;
 	
 	if (doc->docNew || doc->readOnly) return(DoSaveAs(doc));
 	
@@ -648,7 +651,7 @@ Boolean DoSaveDocument(register Document *doc)
 Boolean DoSaveAs(register Document *doc)
 {
 	Boolean keepGoing;
-	Str255 name; short vrefnum, err;
+	Str255 name;  short vrefnum, err;
 	OSErr result;
 	FInfo theInfo;
 	FSSpec fsSpec;
@@ -1047,17 +1050,17 @@ Boolean BuildDocument(
 	if (!InitDocUndo(doc)) return False;
 
 	doc->yBetweenSysMP = doc->yBetweenSys = 0;				/* No longer used */
-	SetOrigin(doc->origin.h,doc->origin.v);
+	SetOrigin(doc->origin.h, doc->origin.v);
 	GetAllSheets(doc);
 
 	/* Finally, set empty selection just after the first Measure and put caret there.
-		N.B. This will not necessarily be on the screen! We should eventually make
+		NB: This will not necessarily be on the screen! We should eventually make
 		the initial selection agree with the doc's scrolled position. */
 	
 	SetDefaultSelection(doc);
 	doc->selStaff = 1;
 	
-	MEAdjustCaret(doc,False);
+	MEAdjustCaret(doc, False);
 	
 	return True;
 }

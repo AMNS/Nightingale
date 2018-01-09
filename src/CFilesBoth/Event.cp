@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	Event.c
 *	PROJ:	Nightingale
 *	DESC:	Event-related routines
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -917,7 +917,7 @@ static void DoGrow(WindowPtr w, Point pt, Boolean /*command*/)
 		SetPort(oldPort);
 	}
 
-/* ============================= APPLE EVENT ROUTINES ============================= */
+/* ================================ APPLE EVENT ROUTINES ================================ */
 /* For AppleEvent-handling routines, THINK C 7 (with Univ Interfaces 2.1) wanted the
 third param to be just <long> but didn't insist; CodeWarrior Pro 2 (with Universal
 Interfaces 3.0.1) insisted the third param be <unsigned long>. All versions of Xcode
@@ -926,76 +926,75 @@ we've tried -- 2.5, 3.4, and 7 -- are happy with just <long>. */
 /* Open-an-application event. */
 
 pascal OSErr HandleOAPP(const AppleEvent *appleEvent, AppleEvent */*reply*/, long /*refcon*/)
-	{
-		OSErr err = noErr;
-		
-		err = MyGotRequiredParams(appleEvent);
-		if (!err)
-			if (inBackground) {
-				/* Use notification manager */
-				}
-			 else
-				DoOpenApplication(True);				/* Ask for input file */
-		
-		return(err);
-	}
+{
+	OSErr err = noErr;
+	
+	err = MyGotRequiredParams(appleEvent);
+	if (!err)
+		if (inBackground) {
+			/* Use notification manager */
+		}
+		else
+			DoOpenApplication(True);				/* Ask for input file */
+	
+	return(err);
+}
 
 
 /* Finder (or someone) has asked us to open a document, usually when user double-
 clicks on or drag-drops a score in Finder. */
 
 pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, long /*refcon*/)
-	{
-		OSErr err = noErr;
-		long iFile,nFiles;
-		Size actualSize;
-		AEKeyword keywd;
-		DescType returnedType;
-		AEDescList docList;
-		FSSpec theFile; Document *doc;
-		Boolean isFirst;
-		
-		err = AEGetParamDesc(appleEvent, keyDirectObject, typeAEList, &docList);
-		if (err) AppleEventError("HandleODOC-PDOC/AEGetParamDesc",err);
-		
-		err = MyGotRequiredParams(appleEvent);
-		if (!err) {
-			AECountItems(&docList,&nFiles);
-			for (iFile=1; iFile<=nFiles; iFile++) {
-				err = AEGetNthPtr(&docList, iFile, typeFSS, &keywd, &returnedType,
-											(Ptr)&theFile, sizeof(FSSpec), &actualSize);
-				if (err) {
-					AppleEventError("HandleODOC-PDOC/AEGetNthPtr",err);
-					break;
-					}
-				
-				isFirst = (TopDocument==NULL);
-				doc = FSpecOpenDocument(&theFile);
-				if (doc) {
-					if (printOnly) {
-						UpdateAllWindows();
-						/* FIXME: Is TopDocument the right way to get the document just opened? */
-						NDoPrintScore(doc);
-						DoCloseWindow(doc->theWindow);
-						}
-					else if (isFirst)
-						DoViewMenu(VM_SymbolPalette);
-					}
-				 else
-					break;					/* Couldn't open; error already reported */
-				}
+{
+	OSErr err = noErr;
+	long iFile, nFiles;
+	Size actualSize;
+	AEKeyword keywd;
+	DescType returnedType;
+	AEDescList docList;
+	FSSpec theFile;
+	Document *doc;
+	Boolean isFirst;
+	
+	err = AEGetParamDesc(appleEvent, keyDirectObject, typeAEList, &docList);
+	if (err) AppleEventError("HandleODOC-PDOC/AEGetParamDesc",err);
+	
+	err = MyGotRequiredParams(appleEvent);
+	if (!err) {
+		AECountItems(&docList,&nFiles);
+		for (iFile=1; iFile<=nFiles; iFile++) {
+			err = AEGetNthPtr(&docList, iFile, typeFSS, &keywd, &returnedType,
+										(Ptr)&theFile, sizeof(FSSpec), &actualSize);
+			if (err) {
+				AppleEventError("HandleODOC-PDOC/AEGetNthPtr", err);
+				break;
 			}
-
-		AEDisposeDesc(&docList);
-		return(err);
+			
+			isFirst = (TopDocument==NULL);
+			doc = FSpecOpenDocument(&theFile);
+			if (doc) {
+				if (printOnly) {
+					UpdateAllWindows();
+					/* FIXME: Is TopDocument the right way to get the document just opened? */
+					NDoPrintScore(doc);
+					DoCloseWindow(doc->theWindow);
+				}
+				else if (isFirst)
+					DoViewMenu(VM_SymbolPalette);
+			}
+			 else
+				break;					/* Couldn't open; error already reported */
+		}
 	}
+
+	AEDisposeDesc(&docList);
+	return(err);
+}
 
 
 /* Open the given file as specified in an FSSpec record, presumably from an Apple event.
 The file may be a regular score, a Notelist file, or a MIDI file. If we succeed, return
 the score, else give an error message and return NULL. */
-
-#ifdef TARGET_API_MAC_CARBON_FILEIO
 
 Document *FSpecOpenDocument(FSSpec *theFile)
 {
@@ -1035,93 +1034,42 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 	return doc;
 }
 
-#else
-
-Document *FSpecOpenDocument(FSSpec *theFile)
-{
-	Document *doc;
-	WDPBRec wdRec;
-	OSErr result; FInfo fndrInfo;
-	char aStr[256], fmtStr[256];
-	
-	/* Convert FSSpec to a new working directory */
-	
-	wdRec.ioCompletion = NULL;
-	wdRec.ioNamePtr = NULL;
-	wdRec.ioWDDirID = theFile->parID;
-	wdRec.ioVRefNum = theFile->vRefNum;
-	wdRec.ioWDProcID = creatorType;
-	PBOpenWD(&wdRec,False);
-	if (wdRec.ioResult!=noErr) return NULL;
-		
-	result = FSpGetFInfo(theFile, &fndrInfo);
-	if (result!=noErr) return NULL;
-
-	switch (fndrInfo.fdType) {
-		case DOCUMENT_TYPE_NORMAL:
-			if (DoOpenDocument(theFile->name, wdRec.ioVRefNum, False)) break;
-			return NULL;
-		case 'TEXT':
-			if (OpenNotelistFile(theFile->name, wdRec.ioVRefNum)) break;
-			return NULL;
-		case 'Midi':
-			if (ImportMIDIFile(theFile->name, wdRec.ioVRefNum)) break;			
-			return NULL;
-		default:
-			/* FIXME: We should give a specific, more helpful error message if it's a Help file. */		
-			GetIndCString(fmtStr, FILEIO_STRS, 7);			/* "file version is illegal" */
-			sprintf(aStr, fmtStr, ACHAR(fndrInfo.fdType,3), ACHAR(fndrInfo.fdType,2),
-						 ACHAR(fndrInfo.fdType,1), ACHAR(fndrInfo.fdType,0));
-			LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
-			CParamText(aStr, "", "", "");
-			StopInform(READ_ALRT);
-			return NULL;
-	}
-
-	AnalyzeWindows();
-	doc = GetDocumentFromWindow(TopDocument);
-	
-	return doc;
-}
-
-#endif	//	TARGET_API_MAC_CARBON_FILEIO
-
 
 pascal OSErr HandlePDOC(const AppleEvent *appleEvent, AppleEvent *reply, long refcon)
-	{
-		short err;
-		
-		printOnly = True;
-		err = HandleODOC(appleEvent,reply,refcon);
-		printOnly = False;
-		
-		return(err);
-	}
+{
+	short err;
+	
+	printOnly = True;
+	err = HandleODOC(appleEvent,reply,refcon);
+	printOnly = False;
+	
+	return(err);
+}
 
 
 pascal OSErr HandleQUIT(const AppleEvent */*appleEvent*/, AppleEvent */*reply*/, long /*refcon*/)
-	{
-		short keepGoing = DoFileMenu(FM_Quit);
-		
-		return(keepGoing);	/* FIXME: Return value is nonsense! But unused as of v. 3.1 */
-	}
+{
+	short keepGoing = DoFileMenu(FM_Quit);
+	
+	return(keepGoing);	/* FIXME: Return value is nonsense! But unused as of v. 3.1 */
+}
 
 
 /* Check to see that all required parameters have been retrieved (Inside Mac 6-47). */
 
 static OSErr MyGotRequiredParams(const AppleEvent *appleEvent)
-	{
-		DescType returnedType;
-		Size actualSize;
-		OSErr err;
-		
-		err = AEGetAttributePtr(appleEvent, keyMissedKeywordAttr, typeWildCard,
-										&returnedType, NULL, 0, &actualSize);
-		if (err == errAEDescNotFound) return(noErr);
-		if (!err) err = errAEEventNotHandled;
-		
-		return(err);
-	}
+{
+	DescType returnedType;
+	Size actualSize;
+	OSErr err;
+	
+	err = AEGetAttributePtr(appleEvent, keyMissedKeywordAttr, typeWildCard,
+									&returnedType, NULL, 0, &actualSize);
+	if (err == errAEDescNotFound) return(noErr);
+	if (!err) err = errAEEventNotHandled;
+	
+	return(err);
+}
 
 
 /* Call this when event manager says a high level event has happened.  This just
@@ -1130,14 +1078,14 @@ event class: our own events or the core events.  Right now, we support only the
 core events. */
 
 static void DoHighLevelEvent(EventRecord *evt)
-	{
-		OSErr err = noErr;
+{
+	OSErr err = noErr;
 
 #ifdef FUTUREEVENTS
-		if (evt->message==myAppType || evt->message==(long)kCoreEventClass) {
+	if (evt->message==myAppType || evt->message==(long)kCoreEventClass) {
 #else
-		if (evt->message == (long)kCoreEventClass) {
+	if (evt->message == (long)kCoreEventClass) {
 #endif
-			err = AEProcessAppleEvent(evt);
-			}
-	}
+		err = AEProcessAppleEvent(evt);
+		}
+}

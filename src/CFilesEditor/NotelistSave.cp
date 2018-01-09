@@ -663,7 +663,6 @@ the notelist. */
 
 #define SKELETON False	/* Omit non-structural objects? */
 
-#ifdef TARGET_API_MAC_CARBON_FILEIO
 
 /* NB: While the <voice> and <rests> parameters are currently ignored, handling them
 should simply be a matter of passing them on to ProcessScore. */
@@ -733,75 +732,3 @@ void SaveNotelist(
 		errCode = FSClose(fRefNum);
 	}
 }
-
-#else
-
-static Point SFPwhere = { 106, 104 };	/* Where we want SFPutFile dialog */
-
-/* NB: While the <voice> and <rests> parameters are currently ignored, handling them
-should simply be a matter of passing them on to ProcessScore. */
-
-void SaveNotelist(
-			Document *doc,
-			short voice,		/* (ignored) voice number, or ANYONE to include all voices */
-			Boolean rests 		/* (ignored) True=include rests */
-			)
-{
-	short	sufIndex;
-	short	len, suffixLen, ch;
-	short	vRefNum;
-	Str255	filename, prompt;
-	Rect	paperRect;
-	SFReply	reply;
-
-	/*
-	 *	Create a default notelist filename by looking up the suffix string and appending
-	 *	it to the current name.  If the current name is so long that there would not
-	 *	be room to append the suffix, we truncate the file name before appending the
-	 *	suffix so that we don't run the risk of overwriting the original score file.
-	 */
-	sufIndex = 11;
-	GetIndString(filename,MiscStringsID,sufIndex);			/* Get suffix length */
-	suffixLen = *(StringPtr)filename;
-
-	/* Get current name and its length, and truncate name to make room for suffix */
-	
-	if (doc->named)	Pstrcpy((StringPtr)filename, (StringPtr)doc->name);
-	else			GetIndString(filename,MiscStringsID,1);		/* "Untitled" */
-	len = *(StringPtr)filename;
-	if (len >= (FILENAME_MAXLEN-suffixLen)) len = (FILENAME_MAXLEN-suffixLen);
-	
-	/* Finally append suffix FIXME: with unreadable low-level code: change to PStrCat! */
-	
-	ch = filename[len];										/* Hold last character of name */
-	GetIndString(filename+len, MiscStringsID, sufIndex);	/* Append suffix, obliterating last char */
-	filename[len] = ch;										/* Overwrite length byte with saved char */
-	*filename = (len + suffixLen);							/* And ensure new string knows new length */
-	
-	/* Ask user where to put this notelist file */
-	
-	GetIndString(prompt, MiscStringsID, 12);
-	SFPutFile(SFPwhere, prompt, filename, NULL, &reply);
-	if (!reply.good) return;
-	Pstrcpy((StringPtr)filename, reply.fName);
-	vRefNum = reply.vRefNum;
-	
-	errCode = FSDelete(filename, vRefNum);							/* Delete old file */
-	if (errCode && errCode!=fnfErr)									/* Ignore "file not found" */
-		{ MayErrMsg("SaveNotelist: FSDelete error"); return; }
-		
-	errCode = Create(filename, vRefNum, creatorType, 'TEXT'); 		/* Create new file */
-	if (errCode) { MayErrMsg("SaveNotelist: Create error"); return; }
-	
-	errCode = FSOpen(filename, vRefNum, &fRefNum);					/* Open it */
-	if (errCode) { MayErrMsg("SaveNotelist: FSOpen error"); return; }
-
-	WaitCursor();
-	(void)ProcessScore(doc, ANYONE, SKELETON, True);
-	LogPrintf(LOG_INFO, "Saved notelist file '%s'", PToCString(filename));
-	LogPrintf(LOG_INFO, (SKELETON? " as skeleton.\n" : ".\n"));
-
-	errCode = FSClose(fRefNum);
-}
-
-#endif // TARGET_API_MAC_CARBON_FILEIO
