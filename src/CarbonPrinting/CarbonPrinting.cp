@@ -272,7 +272,7 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 
 // --------------------------------------------------------------------------------------------------------------
 
-void NDoPageSetup(Document *doc)
+void DoPageSetup(Document *doc)
 {
 	WindowRef w = doc->theWindow;
 	Boolean accepted = False;
@@ -313,10 +313,10 @@ static pascal void NPrintDialogDoneProc(PMPrintSession /*printSession*/,
 
 // --------------------------------------------------------------------------------------------------------------
 
-/* Despite its name, NDoPrintScore doesn't actually do any printing; it handles interaction
+/* Despite its name, DoPrintScore doesn't actually do any printing; it handles interaction
 with the user and sets things up for printing. */
 
-void NDoPrintScore(Document *doc)
+void DoPrintScore(Document *doc)
 {
 	OSStatus status = DocSetupPageFormat(doc);
 	PMPrintSettings printSettings;
@@ -1057,7 +1057,7 @@ static void FillFontUsedTbl(Document *doc)
 }
 
 
-Boolean NDoPostScript(Document *doc)
+Boolean DoPostScript(Document *doc)
 	{
 		short			saveOutputTo, saveMagnify, sheet, sufIndex;
 		short			len, vref, rfNum, suffixLen, ch, firstSheet, topSheet;

@@ -45,9 +45,7 @@ this is platform-dependent. */
 
 static void InitToolbox()
 {
-#if TARGET_API_MAC_CARBON
-	FlushEvents(everyEvent, 0);		// FIXME: DO WE NEED THIS?
-#endif
+	FlushEvents(everyEvent, 0);
 }
 		
 
@@ -153,11 +151,12 @@ void Initialize()
 	
 	/*
 	 * See if we have enough memory that the user should be able to do SOMETHING
-	 * useful -- and enough to get back to the main event loop, where we do our
-	 * we do our regular low-memory checking. As of v.999, 250K was enough; but now,
-	 * in the 21st century, we might as well make the minimum a lot higher.
+	 * useful, and enough to get back to the main event loop, where we do our
+	 * regular low-memory checking. As of v.999, 250K was enough; but now, in the
+	 * 21st century, we might as well make the minimum a lot higher -- though it's
+	 * not clear if this is even meaningful anymore!
 	 */
-	if (!PreflightMem(600))
+	if (!PreflightMem(1000))
 		{ BadInit(); ExitToShell(); }
 }
 
@@ -217,27 +216,20 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	OSType			theErr;
 	short			nSPTB, i;
 	ScriptCode		scriptCode = smRoman;
-//	FSSpec			rfSpec;
 	
 	/* Create a new file in the ~/Library/Preferences and give it a resource fork.
 		If there is no Preferences folder in ~/Library, create it. */
 	
-//	theErr = Create(, thisMac.sysVRefNum, creatorType, 'NSET'); /* Create new file */
-//	theErr = FSMakeFSSpec(rfVRefNum, rfVolDirID, "\pNightingale 2001 Prefs", &rfSpec);
-
 	Pstrcpy(rfSpec->name, SETUP_FILE_PATH);	
 	FSpCreateResFile(rfSpec, creatorType, 'NSET', scriptCode);
 	theErr = ResError();
 	if (theErr) return False;
 
-//	CreateResFile(SETUP_FILE_NAME);
-//	theErr = ResError();
 	if (theErr!=noErr) return False;
 	
 	/* Open it, setting global setupFileRefNum.  NB: HOpenResFile makes the file it
 		opens the current resource file. */
 		
-	//setupFileRefNum = OpenResFile(SETUP_FILE_NAME);
 	setupFileRefNum = FSpOpenResFile(rfSpec, fsRdWrPerm);
 	
 	theErr = ResError();

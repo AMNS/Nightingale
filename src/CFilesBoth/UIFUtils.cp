@@ -437,7 +437,7 @@ void ZoomRect(Rect *smallRect, Rect *bigRect, Boolean zoomUp)
 
 void GetGlobalPort(WindowPtr w, Rect *r)
 {
-	GrafPtr oldPort; Point pt;
+	GrafPtr oldPort;  Point pt;
 	
 	GetWindowPortBounds(w,r);
 	pt.h = r->left; pt.v = r->top;
@@ -455,7 +455,7 @@ void GetGlobalPort(WindowPtr w, Rect *r)
 
 void GetIndWinPosition(WindowPtr w, short i, short n, Point *ans)
 {
-	short x, y; Rect box;
+	short x, y; Rect  box;
 	
 	GetGlobalPort(w, &box);
 	ans->h = box.left;
@@ -470,26 +470,27 @@ void GetIndWinPosition(WindowPtr w, short i, short n, Point *ans)
 }
 
 /*
- *	Find a nice spot in global coordinates to place a window by looking down
- *	the window list n windows for any conflicts. Larger values of n should give
+ *	Find a nice spot in global coordinates to place a window by looking down the
+ *	window list nLook windows for any conflicts. Larger values of nLook should give
  *	nicer results at the expense of slightly more running time.
  */
 
 void AdjustWinPosition(WindowPtr w)
 {
-	short n=7,i,k,xx,yy; Rect box; WindowPtr ww;
+	short nLook=7, i, k, xx, yy;
+	Rect box;  WindowPtr ww;
 	
-	GetGlobalPort(w,&box);
+	GetGlobalPort(w, &box);
 	xx = box.left;
 	yy = box.top;
 	
 	i = 0;
-	while (i < n) {
+	while (i < nLook) {
 		k = 0;
-		for (ww=FrontWindow(); ww!=NULL && k<n; ww=GetNextWindow(ww))
+		for (ww=FrontWindow(); ww!=NULL && k<nLook; ww=GetNextWindow(ww))
 			if (ww!=w && IsWindowVisible(ww) && GetWindowKind(w)==DOCUMENTKIND) {
 				k++;
-				GetGlobalPort(ww,&box);
+				GetGlobalPort(ww, &box);
 				if (box.left==xx && box.top==yy) {
 					xx -= 5;
 					yy += 20;
@@ -497,10 +498,10 @@ void AdjustWinPosition(WindowPtr w)
 					break;
 				}
 				}
-		if (ww==NULL || k>=n) break;
+		if (ww==NULL || k>=nLook) break;
 	}
 		
-	if (i < n) MoveWindow(w,xx,yy,False);
+	if (i < nLook) MoveWindow(w, xx, yy, False);
 }
 
 
@@ -779,7 +780,7 @@ void InvertSymbolHilite(
 			)
 {
 	short		xd, xp, ypTop, ypBot;
-	DDIST		blackTop, blackBottom;
+	DDIST		blackTop=0, blackBottom=0;
 	CONTEXT		context;
 
 	if (!pL) return;											/* Just in case */
@@ -1688,11 +1689,8 @@ void LUpdateDVisRgn(DialogPtr d, ListHandle lHdl)
 	RgnHandle visRgn;
 
 	visRgn = NewRgn();
-	
 	GetPortVisibleRegion(GetDialogWindowPort(d), visRgn);
-
 	LUpdate(visRgn, lHdl);			
-	
 	DisposeRgn(visRgn);
 }
 
@@ -1701,44 +1699,37 @@ void LUpdateWVisRgn(WindowPtr w, ListHandle lHdl)
 	RgnHandle visRgn;
 
 	visRgn = NewRgn();
-	
 	GetPortVisibleRegion(GetWindowPort(w), visRgn);
-
 	LUpdate(visRgn, lHdl);			
-	
 	DisposeRgn(visRgn);
 }
 
 void FlushPortRect(Rect *r)
 {
-#if TARGET_API_MAC_CARBON
 	GrafPtr port;
 	RgnHandle rgn;
 	GetPort(&port);
 	if (QDIsPortBuffered(port)) {
 		rgn = NewRgn();
-		RectRgn(rgn,r);
-		QDFlushPortBuffer(port,rgn);
+		RectRgn(rgn, r);
+		QDFlushPortBuffer(port, rgn);
 		DisposeRgn(rgn);
 	}
-#endif
 }
 
 void FlushWindowPortRect(WindowPtr w)
 {
-#if TARGET_API_MAC_CARBON
 	Rect portRect;
 	GrafPtr port;
 	RgnHandle rgn;
 	port = GetWindowPort(w);
 	if (QDIsPortBuffered(port)) {
-		GetPortBounds(port,&portRect);
+		GetPortBounds(port, &portRect);
 		rgn = NewRgn();
-		RectRgn(rgn,&portRect);
-		QDFlushPortBuffer(port,rgn);
+		RectRgn(rgn, &portRect);
+		QDFlushPortBuffer(port, rgn);
 		DisposeRgn(rgn);
 	}
-#endif
 }
 
 void FlushDialogPortRect(DialogPtr d)

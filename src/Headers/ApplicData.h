@@ -25,12 +25,7 @@ GLOBAL Rect			clavierFrame;		/* Same for clavier palette */
 GLOBAL Boolean		outOfMemory;		/* True when grow zone function has been called */
 GLOBAL Handle		memoryBuffer;		/* Handle to grow zone free block */
 
-#if TARGET_API_MAC_CARBON
-GLOBAL MenuRef
-#else
-GLOBAL MenuHandle
-#endif	
-					appleMenu,			/* Standard menus */
+GLOBAL MenuRef		appleMenu,			/* Standard menus */
 					fileMenu,
 					editMenu,
 					testMenu,

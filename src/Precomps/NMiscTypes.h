@@ -62,10 +62,8 @@ typedef struct {
 /* These first fields don't need to be saved. */
 	WindowPtr		theWindow;			/* The window being used to show this doc */
 	unsigned char name[256];			/* File name */
-#if TARGET_API_MAC_CARBON
 	FSSpec			fsSpec;
-#endif	
-	short			vrefnum;				/* Directory file name is local to */
+	short			vrefnum;			/* Directory file name is local to */
 	Rect			viewRect;			/* Port rect minus scroll bars */
 	Rect			growRect;			/* Grow box */
 
@@ -87,11 +85,7 @@ typedef struct {
 					changed:1,			/* True if Document should be saved on close */
 					canCutCopy:1,		/* True if something is cuttable/copyiable */
 					active:1,			/* True when Document is active window */
-#if TARGET_API_MAC_CARBON
 					docNew:1,
-#else
-					new:1,				/* True when Document is untitled new one */
-#endif
 					masterView:1,		/* True when editing master sheet */
 					overview:1,			/* True when viewing all pages from on high */
 					hasCaret:1,			/* True when the Document's caret is initialized */

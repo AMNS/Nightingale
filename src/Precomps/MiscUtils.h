@@ -39,13 +39,8 @@ void		DrawGrowBox(WindowPtr w, Point pt, Boolean drawit);
 void		UseStandardType(OSType type);
 void		ClearStandardTypes(void);
 
-#if TARGET_API_MAC_CARBON
 short		GetInputName(char *prompt, Boolean newName, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
 Boolean		GetOutputName(short promptsID, short promptInd, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
-#else
-short		GetInputName(char *prompt, Boolean new, unsigned char *name, short *vrefnum);
-Boolean		GetOutputName(short promptsID, short promptInd, unsigned char *name, short *vrefnum);
-#endif
 
 void		GetSelection(WindowPtr w, Rect *sel, Rect *pin, void (*CallBack)());
 void		DrawTheSelection(void);

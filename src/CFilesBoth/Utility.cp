@@ -1639,7 +1639,7 @@ Boolean FitStavesOnPaper(Document *doc)
 			GetIndCString(strBuf, MIDIFILE_STRS, 8);	/* "Nightingale is having trouble getting an entire system..." */
 			CParamText(strBuf, "", "", "");
 			CautionInform(GENERIC_ALRT);
-			NDoPageSetup(doc);
+			DoPageSetup(doc);
 		}
 
 		FixForStaffSize(doc, staffTop, newRastral);

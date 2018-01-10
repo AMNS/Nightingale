@@ -818,12 +818,8 @@ static Boolean DoKeyDown(EventRecord *evt)
 				else SysBeep(1);
 				return True;
 			}
-#if TARGET_API_MAC_CARBON
 			//cmdCode = MenuKey((char)(evt->message & charCodeMask));
 			cmdCode = MenuEvent(evt);
-#else
-			cmdCode = MDEF_MenuKey(evt->message, evt->modifiers, hMenu);
-#endif
 			return(DoMenu(cmdCode));
 		}
 		
@@ -976,7 +972,7 @@ pascal OSErr HandleODOC(const AppleEvent *appleEvent, AppleEvent */*reply*/, lon
 				if (printOnly) {
 					UpdateAllWindows();
 					/* FIXME: Is TopDocument the right way to get the document just opened? */
-					NDoPrintScore(doc);
+					DoPrintScore(doc);
 					DoCloseWindow(doc->theWindow);
 				}
 				else if (isFirst)

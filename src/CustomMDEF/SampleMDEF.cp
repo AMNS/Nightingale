@@ -43,8 +43,6 @@
 	Copyright © 2000-2001 Apple Computer, Inc., All Rights Reserved
 */
 
-#define TARGET_API_MAC_CARBON 1
-
 #include <Carbon/Carbon.h>
 
 #include "SampleMDEF.h"

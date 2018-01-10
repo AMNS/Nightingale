@@ -342,26 +342,13 @@ Boolean DoFileMenu(short choice)
 				if (doc) DoSheetSetup(doc);
 				break;
 			case FM_PageSetup:
-#if TARGET_API_MAC_CARBON
-				if (doc) NDoPageSetup(doc);
-#else
 				if (doc) DoPageSetup(doc);
-#endif
 				break;
 			case FM_Print:
-#if TARGET_API_MAC_CARBON
-				if (doc) NDoPrintScore(doc);
-				LogPrintf(LOG_DEBUG, "FM_Print >NDoPrintScore\n");
-#else
 				if (doc) DoPrintScore(doc);
-#endif
 				break;
 			case FM_SavePostScript:
-#if TARGET_API_MAC_CARBON
-				if (doc) NDoPostScript(doc);
-#else
 				if (doc) DoPostScript(doc);
-#endif
 				break;
 			case FM_SaveText:
 				if (doc) SaveNotelist(doc, ANYONE, True);
@@ -1823,8 +1810,6 @@ static void NMFillEmptyMeas(Document *doc)
 	endMN = MeasMEASURENUM(aMeasureL)+doc->firstMNNumber;
 
 	if (FillEmptyDialog(doc, &startMN, &endMN)) {
-		//LogPrintf(LOG_DEBUG, "NMFillEmptyMeas: startMN=%d endMN=%d firstMNNumber=%d startL=%u endL=%u\n",
-		//			startMN, endMN, doc->firstMNNumber, startMeasL, endMeasL);
 		startL = MNSearch(doc, doc->headL, startMN-doc->firstMNNumber, GO_RIGHT, True);
 		endL = MNSearch(doc, doc->headL, endMN-doc->firstMNNumber, GO_RIGHT, True);
 		if (startL && endL) {

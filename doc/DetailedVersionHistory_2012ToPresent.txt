@@ -1938,7 +1938,7 @@ ScoreInfo, SetCommand, UIFUtils.
 7 Jan.
 
 Changed the keydown combination to add more detailed debug info to the log file from
-shift-option to shift-command. Affects Defs.h.
+shift-option to shift-control. Affects Defs.h.
 
 Minor cleanup: remove all references to TARGET_API_MAC_CARBON_MIDI, etc. Affects
 Nightingale.precomp.pch, Defs.h, UIFUtils.h, Utility.h; InitNightingale, MIDIUtils,
@@ -1951,3 +1951,13 @@ TrackVMove, UIFUtils, Utility.
 Minor cleanup: remove all references to TARGET_API_MAC_CARBON_FILEIO, etc. Affects
 Nightingale.precomp.pch, NightTemplates.h; Documents, Event, Menu, MiscUtils,
 NotelistSave, StringToolbox.
+
+-------------------------------------------------------------------------------
+
+9 - 10 Nov.
+
+Minor cleanup: remove all references to TARGET_API_MAC_CARBON, etc. Affects
+ApplicData.h, CarbonPrinting.h, MiscUtils.h, NMiscTypes.h, NightTemplates.h;
+CarbonPrinting, CarbonStubs, Documents, DurationPopUp, Event, File, Initialize, Menu,
+MiscUtils, PS_Stdio, StringToolbox, UIFUtils, Utility, Windows; SampleMDEF.
+

@@ -674,14 +674,10 @@ Boolean DoSaveAs(register Document *doc)
 			StopInform(GENERIC_ALRT);
 			return False;
 		}
-#if TARGET_API_MAC_CARBON
+
 		result = HSetVol(NULL,fsSpec.vRefNum,fsSpec.parID);
-#else
-		result = HSetVol(NULL,vrefnum,0);
-#endif
 		
 		if (result == noErr) {
-			
 			/* Save the file under this name */
 			Pstrcpy(doc->name,name);
 			doc->vrefnum = fsSpec.vRefNum;
@@ -898,7 +894,6 @@ Boolean InitDocFields(Document *doc)
 	}
 	InitDocMusicFont(doc);
 
-#if TARGET_API_MAC_CARBON
 	/* initialize Carbon Printing data structures */
 	doc->docPrintInfo.docPrintSession = NULL;
 	doc->docPrintInfo.docPageFormat = kPMNoPageFormat;
@@ -907,7 +902,6 @@ Boolean InitDocFields(Document *doc)
 	doc->docPrintInfo.docPrintDialogDoneUPP = NULL;
 	
 	doc->midiMapFSSpecHdl = NULL;
-#endif
 	
 	return True;
 }

@@ -6,7 +6,7 @@ box, Message box, etc. */
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -91,7 +91,7 @@ short DoCloseAllDocWindows()
 		
 		if (kind == DOCUMENTKIND) {
 #ifdef TEST_SEARCH_NG
-                       if (w==clipboard->theWindow || w==searchPatDoc->theWindow) continue;
+				if (w==clipboard->theWindow || w==searchPatDoc->theWindow) continue;
 #else
 				if (w==clipboard->theWindow) continue;
 #endif
@@ -189,7 +189,7 @@ void DoZoom(WindowPtr w, short part)
 }
 
 
-/* --------------------------------------------------- DrawMessageBox and friends -- */
+/* -------------------------------------------------------- DrawMessageBox and friends -- */
 
 static void sprintfMagnify(Document *doc, char str[]);
 
@@ -341,7 +341,7 @@ void DrawMessageBox(Document *doc, Boolean reallyDraw)
 }
 
 	
-/* ==================================================== FLOATING PALETTE ROUTINES == */
+/* ========================================================= FLOATING PALETTE ROUTINES == */
 
 /* Analyze the current window list in order to set the four globals that tell us about 
 it. The globals are TopWindow, TopPalette, BottomPallete, and TopDocument, which all
@@ -349,125 +349,49 @@ point to visible windows, or NULL. If the TopDocument is above any visible palet
 we adjust the order of the windows. If a visible non-application window is between any
 palettes and the TopDocument, adjust the order also. This function can replace most
 uses of FrontWindow() in the rest of the program. */
-
-#if TARGET_API_MAC_CARBON
 	
 void AnalyzeWindows()
-	{
-		short palettesFound; Boolean inOrder;
-		WindowPtr next;
-		//WindowPtr bottom;
-				
-		/*
-		 *	Make sure all SendBehind() and NewWindow() calls bring a window to the front
-		 *	if there are no visible palettes
-		 */
-		TopWindow = TopPalette = TopDocument = NULL;
-		BottomPalette = BRING_TO_FRONT;
-		
-		inOrder = True;
-		palettesFound = 0;
-		
-		for (next=FrontWindow(); next; next=GetNextWindow(next)) {
-			if (IsWindowVisible(next)) {
-				if (TopWindow == NULL) TopWindow = next;				/* Record 1st visible window */
-				if (GetWindowKind(next) == DOCUMENTKIND) {
-					if (TopDocument == NULL) {
-						TopDocument = next;									/* Record 1st visible Document */
-						if (palettesFound == TOTAL_PALETTES) break;
-						}
-					}
-//				else if (GetWindowKind(next) == RESLISTKIND) {
-//					if (TopDocument == NULL) {
-//						TopDocument = next;									/* Record 1st visible Document */
-//						if (palettesFound == TOTAL_PALETTES) break;
-//						}
-//					}
-				 else if (GetWindowKind(next) == PALETTEKIND) {
-					if (TopPalette == NULL) TopPalette = next;		/* Record 1st visible palette */
-					BottomPalette = next;									/* Valid when we stop looping */
-					}
-				 else
-					if (TopDocument!=NULL || TopPalette!=NULL)
-						/* Some other (?) window is visible between the palettes and TopDocument */
-						inOrder = False;
-				}
+{
+	short palettesFound;  Boolean inOrder;
+	WindowPtr next;
 			
-			/* All windows before the last palette get to this point */
-			
-			if (GetWindowKind(next) == PALETTEKIND) {
-				palettesFound++;
-				}
-			}
-		
-	}
-#else
-void AnalyzeWindows()
-	{
-		short palettesFound; Boolean inOrder;
-		WindowPtr next,bottom;
-		
-		/*
-		 *	Make sure all SendBehind() and NewWindow() calls bring a window to the front
-		 *	if there are no visible palettes
-		 */
-		TopWindow = TopPalette = TopDocument = NULL;
-		BottomPalette = BRING_TO_FRONT;
-		
-		inOrder = True;
-		palettesFound = 0;
-		
-		for (next=FrontWindow(); next; next=GetNextWindow(next)) {
-		
-			if (IsWindowVisible(next)) {
-				if (TopWindow == NULL) TopWindow = next;				/* Record 1st visible window */
-				if (GetWindowKind(next) == DOCUMENTKIND) {
-					if (TopDocument == NULL) {
-						TopDocument = next;									/* Record 1st visible Document */
-						if (palettesFound == TOTAL_PALETTES) break;
-						}
-					}
-				 else if (GetWindowKind(next) == PALETTEKIND) {
-					if (TopPalette == NULL) TopPalette = next;		/* Record 1st visible palette */
-					BottomPalette = next;									/* Valid when we stop looping */
-					}
-				 else
-					if (TopDocument!=NULL || TopPalette!=NULL)
-						/* Some other (?) window is visible between the palettes and TopDocument */
-						inOrder = False;
-				}
-			
-			/* All windows before the last palette get to this point */
-			
-			if (GetWindowKind(next) == PALETTEKIND) {
-				palettesFound++;
-				if (TopDocument!=NULL && IsWindowVisible(next)) {
-					/* A visible palette is beneath the TopDocument */
-					if (TopDocument == TopWindow) {
-						/* Bring the TopPalette to the front. */
-						SelectWindow(next);
-						TopWindow = next;
-						}
-					 else
-						SendBehind(TopDocument, next);					/* Send TopDocument behind BottomPalette */
-					next = TopDocument;
+	/*
+	 *	Make sure all SendBehind() and NewWindow() calls bring a window to the front
+	 *	if there are no visible palettes.
+	 */
+	TopWindow = TopPalette = TopDocument = NULL;
+	BottomPalette = BRING_TO_FRONT;
+	
+	inOrder = True;
+	palettesFound = 0;
+	
+	for (next=FrontWindow(); next; next=GetNextWindow(next)) {
+		if (IsWindowVisible(next)) {
+			if (TopWindow == NULL) TopWindow = next;				/* Record 1st visible window */
+			if (GetWindowKind(next) == DOCUMENTKIND) {
+				if (TopDocument == NULL) {
+					TopDocument = next;								/* Record 1st visible Document */
 					if (palettesFound == TOTAL_PALETTES) break;
-					}
 				}
 			}
-		
-		if (TopPalette!=NULL && !inOrder) {
-			bottom = TopDocument ? TopDocument : BottomPalette;
-			for (next=TopPalette; next!=NULL && next!=bottom; next=GetNextWindow(next))
-				if (GetWindowKind(next)<OURKIND || GetWindowKind(next)>=TOPKIND) {
-					/* Remove the non-application window. */
-					SendBehind(next, bottom);
-					/* Start over. */
-					next = TopPalette;
-					}
+			 else if (GetWindowKind(next) == PALETTEKIND) {
+				if (TopPalette == NULL) TopPalette = next;			/* Record 1st visible palette */
+				BottomPalette = next;								/* Valid when we stop looping */
 			}
+			 else
+				if (TopDocument!=NULL || TopPalette!=NULL)
+					/* Some other (?) window is visible between the palettes and TopDocument. */
+					inOrder = False;
+		}
+		
+		/* All windows before the last palette get to this point. */
+		
+		if (GetWindowKind(next) == PALETTEKIND) {
+			palettesFound++;
+		}
 	}
-#endif
+	
+}
 
 /* Make sure hilites are all proper for given window list state. */
 

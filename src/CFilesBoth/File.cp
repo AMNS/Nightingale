@@ -122,52 +122,13 @@ extern void EnumerateFonts(Document *doc);
 
 static void FillFontTable(Document *doc)
 {
-	short		j;
-	//short		nFonts, i;
-	short		nMissing;
-	//short		fontID;
-	//Handle	fontHdl;
-	//ResType	fontType;
-	//Str255	fontName;
+	short	j, nMissing;
 	
 	fix_end(doc->nfontsUsed);
 	if (doc->nfontsUsed>MAX_SCOREFONTS || doc->nfontsUsed<0)
 		MayErrMsg("FillFontTable: %ld fonts is illegal.", (long)doc->nfontsUsed);
 
-#if TARGET_API_MAC_CARBON
-
 	EnumerateFonts(doc);	
-	
-#else
-	/*
-	 * Except for one thing, this could be done very simply with GetFNum, like this:
-  	 *		for (j = 0; j<doc->nfontsUsed; j++) {
-	 *			GetFNum(doc->fontTable[j].fontName, &fNum);
-	 *			doc->fontTable[j].fontID = (fNum? fNum : 1);
-	 *		}
-	 * The problem is, GetFNum doesn't distinguish between "no such font" and "font
-	 * is the System font". So do it ourselves: for each font name, search the available
-	 *	FOND resources until we find a match. If we don't find one, substitute the
-	 * application font.
-	 */
-	for (j = 0; j<doc->nfontsUsed; j++)
-		doc->fontTable[j].fontID = -1;
-		
-	nFonts = CountResources('FOND');
-
-	for (i = 1; i<=nFonts; i++) {
-		SetResLoad(False);
-		fontHdl = GetIndResource('FOND', i);
-		SetResLoad(True);
-		GetResInfo(fontHdl, &fontID, &fontType, fontName);
-		for (j = 0; j<doc->nfontsUsed; j++)
-			if (Pstrneql((StringPtr)doc->fontTable[j].fontName,
-							 (StringPtr)fontName, 32)) {
-				doc->fontTable[j].fontID = fontID;
-		}
-	}
-	
-#endif
 
 	for (nMissing = j = 0; j<doc->nfontsUsed; j++) {
 		if (doc->fontTable[j].fontID<0) {

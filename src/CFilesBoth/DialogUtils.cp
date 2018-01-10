@@ -53,30 +53,10 @@ static char *ftoa(char *buffer, double arg)
  *	erase its outline to show its window isn't active.
  */
 
-#if TARGET_API_MAC_CARBON
 void FrameDefault(DialogPtr dlog, short item, short)
 {
 	SetDialogDefaultItem(dlog, item);
 }
-#else
-void FrameDefault(DialogPtr dlog, short item, short draw)	/* ??<draw> should be Boolean */
-{
-	short type;  Handle hndl;  Rect box;
-	GrafPtr oldPort;
-	
-	GetPort(&oldPort);
-	SetPort(GetDialogWindowPort(dlog));
-	
-	GetDialogItem(dlog,item,&type,&hndl,&box);
-	InsetRect(&box,-4,-4);
-	PenSize(3,3);
-	if (!draw) PenPat(NGetQDGlobalsWhite());
-	FrameRoundRect(&box,16,16);
-	PenNormal();
-	
-	SetPort(oldPort);
-}
-#endif
 
 /*
  *	Note the current editText item and its selection state, or restore state and item.
@@ -86,7 +66,7 @@ void FrameDefault(DialogPtr dlog, short item, short draw)	/* ??<draw> should be 
 
 void TextEditState(DialogPtr dlog, Boolean save)
 {
-	static short k,n,m; static TEHandle textH;
+	static short k, n, m; static TEHandle textH;
 	
 	if (save) {	
 		k = GetDialogKeyboardFocusItem(dlog);
@@ -300,31 +280,23 @@ short TextSelected(DialogPtr dlog)
  */
 
 void BlinkCaret(DialogPtr dlog, EventRecord *evt)
-	{
-		short kind,itemHit;  DialogPtr foo;
-		
-		kind = GetWindowKind(GetDialogWindow(dlog));
-		SetWindowKind(GetDialogWindow(dlog),dialogKind);
-		if (IsDialogEvent(evt)) DialogSelect(evt,&foo,&itemHit);
-		SetWindowKind(GetDialogWindow(dlog),kind);
-	}
-
+{
+	short kind,itemHit;  DialogPtr foo;
+	
+	kind = GetWindowKind(GetDialogWindow(dlog));
+	SetWindowKind(GetDialogWindow(dlog),dialogKind);
+	if (IsDialogEvent(evt)) DialogSelect(evt,&foo,&itemHit);
+	SetWindowKind(GetDialogWindow(dlog),kind);
+}
 
 
 /* ------------------------------------------------------------------- OutlineOKButton -- */
 /* Outline the OK button to indicate it's the default. */
 
-#ifdef TARGET_API_MAC_CARBON
 void OutlineOKButton(DialogPtr dlog, Boolean)
 {
-	SetDialogDefaultItem(dlog,OK);
+	SetDialogDefaultItem(dlog, OK);
 }
-#else
-void OutlineOKButton(DialogPtr theDialog, Boolean wantBlack)
-{
-	FrameDefault(theDialog, OK, wantBlack);
-}
-#endif
 
 
 /* ----------------------------------------------------------------------- FlashButton -- */

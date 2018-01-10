@@ -201,18 +201,12 @@ OSType CanPaste(short n, ...)
 	
 	nextType = (OSType *) ( ((char *)(&n)) + sizeof(n) );	/* Second argument */
 	while (n-- > 0) {
-#if TARGET_API_MAC_CARBON
 		ScrapFlavorFlags flavorFlags;
 		ScrapFlavorType flavorType = (ScrapFlavorType)*nextType;
 
 		err = GetScrapFlavorFlags(scrap, flavorType, &flavorFlags);
 		if (err >= noErr) return(*nextType);
 		nextType++;	
-#else
-		err = GetScrap(NULL, *nextType, &offset);
-		if (err >= -1) return(*nextType);
-		nextType++;	
-#endif
 	}
 	return(0L);
 }

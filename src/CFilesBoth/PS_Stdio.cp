@@ -2051,9 +2051,9 @@ Boolean PS_SetMusicFont(Document *doc, short sizePercent)
 	}
 
 /*
- *	Call this to change to given font and size.
- *	We must be inside PicComment mode, which we get out of temporarily to do the 
- *	font stuff in QuickDraw mode.
+ *	Call this to change to given font and size. An old and likely obsolete comment:
+ *	"We must be inside PicComment mode, which we get out of temporarily to do the 
+ *	font stuff in QuickDraw mode."
  */
 
 static void PS_FontRunAround(Document *doc, short fontNum, short fontSize, short fontStyle)
@@ -2081,14 +2081,12 @@ static void PS_FontRunAround(Document *doc, short fontNum, short fontSize, short
 	}
 
 /*
- *	Finished calling Quickdraw stuff, begin a PicComment to start sending our own
- *	stuff.
- *
- *	Calls to this routine must be matched by calls to PS_IntoQD to end the PicComment.
- *	We use inQD as a reality check, but it should not be necessary.
- *
- *	If this is the first time we're opening a PicComment on the current page,
- *	first should be True; otherwise False.
+ *	Old and likely obsolete (since we no longer use PicComment) comments:
+ *	"Finished calling Quickdraw stuff, begin a PicComment to start sending our own
+ *	stuff. Calls to this routine must be matched by calls to PS_IntoQD to end the
+ *	PicComment. We use inQD as a reality check, but it should not be necessary.
+ *	If this is the first time we're opening a PicComment on the current page, first
+ *	should be True; otherwise False."
  */
 
 OSErr PS_OutOfQD(Document *doc, short /*first*/, Rect *imageRect)
@@ -2096,12 +2094,7 @@ OSErr PS_OutOfQD(Document *doc, short /*first*/, Rect *imageRect)
 		Rect box;
 		
 		if (inQD) {
-#if TARGET_API_MAC_CARBON
 			PMSessionPostScriptBegin(doc->docPrintInfo.docPrintSession);
-#else
-			PicComment( PostScriptBeginNoSave, 0, NULL);
-			PicComment( TextIsPostScript, 0, NULL);
-#endif
 			PS_Print("\r%%%% Into PostScript %%%%\r\r");
 			
 			/*
@@ -2119,7 +2112,6 @@ OSErr PS_OutOfQD(Document *doc, short /*first*/, Rect *imageRect)
 			 *	printing, then we do things the old way, which generates a whole
 			 *	lot more PostScript traffic.
 			 */
-			
 			if (prec103 == NULL) {
 				SetRect(&box,0,0,0,0);
 				PS_Header(doc,"\p??",1,1.0,False,False,&box,imageRect);
@@ -2174,11 +2166,7 @@ OSErr PS_IntoQD(Document *doc,short last)
 			PS_Print("\r%%%% Into QuickDraw %%%%\r\r");
 			PS_Flush();
 			
-#if TARGET_API_MAC_CARBON
 			PMSessionPostScriptEnd(doc->docPrintInfo.docPrintSession);
-#else
-			PicComment( PostScriptEnd, 0, NULL);
-#endif
 			inQD = True;
 			}
 		return(thisError);
@@ -2329,13 +2317,12 @@ static char *PS_PrtLong(unsigned long arg, Boolean negArg, Boolean doSign,
 
 
 /*
- *	This sends the given buffer of text out to the printer via a DrawString call
+ *	Old and likely obsolete (since we no longer use PicComment) comments:
+ *	"This sends the given buffer of text out to the printer via a DrawString call
  *	within PicComment mode.  We do this by byting off consecuting Pascal string-sized
- *	chunks of the given buffer, and "drawing" them within the confines of an open
- *	comment.
- *
- *	NOTE: DrawString appears to append carriage returns when using PostScriptBegin,
- *		  but not when using PostScriptBeginNoSave.
+ *	chunks of the given buffer, and 'drawing' them within the confines of an open
+ *	comment. NOTE: DrawString appears to append carriage returns when using
+ *	 PostScriptBegin, but not when using PostScriptBeginNoSave."
  */
 
 static OSErr PS_Comment(char *buffer, long remaining)
@@ -2356,8 +2343,6 @@ static OSErr PS_Comment(char *buffer, long remaining)
 			remaining -= size;
 			/* Send the next chunk of PostScript on its way */
 
-
-#if TARGET_API_MAC_CARBON
 			//OSStatus status = PMSessionPostScriptData (psDoc->docPrintInfo.docPrintSession, (char*)&str[1], (long)str[0]);
 			OSStatus status = PMSessionPostScriptData (psDoc->docPrintInfo.docPrintSession, (char*)str+1, size);
 			if (status!=0) {
@@ -2367,9 +2352,6 @@ static OSErr PS_Comment(char *buffer, long remaining)
 			if (status!=0) {
 				temp--;			// Homemade conditional breakpoint
 			}
-#else
-			DrawString(str);
-#endif
 			}
 			
 		return(noErr);
