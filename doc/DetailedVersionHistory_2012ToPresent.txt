@@ -1956,8 +1956,16 @@ NotelistSave, StringToolbox.
 
 9 - 10 Nov.
 
-Minor cleanup: remove all references to TARGET_API_MAC_CARBON, etc. Affects
+Minor cleanup: remove all references to TARGET_API_MAC_CARBON (Issue #76), etc. Affects
 ApplicData.h, CarbonPrinting.h, MiscUtils.h, NMiscTypes.h, NightTemplates.h;
 CarbonPrinting, CarbonStubs, Documents, DurationPopUp, Event, File, Initialize, Menu,
 MiscUtils, PS_Stdio, StringToolbox, UIFUtils, Utility, Windows; SampleMDEF.
 
+-------------------------------------------------------------------------------
+
+11-16 Nov.
+
+Increase max. no. of tempo changes on playback from 300 to 500. Affects MIDIPlay.
+
+Minor cleanup. Affects NightTemplates.h, OpcodeNightingaleData.h; Menu, MIDIDialogs,
+MIDIPlay, MIDIUtils, MusicFont.

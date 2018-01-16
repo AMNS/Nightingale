@@ -1136,13 +1136,13 @@ void DoPlayRecMenu(short choice)
 				MEHideCaret(doc);
 				if (doc) PlayEntire(doc);
 				break;
-			case PL_PlaySelection:
-				MEHideCaret(doc);
-				if (doc) PlaySelection(doc);
-				break;
 			case PL_PlayFromSelection:
 				MEHideCaret(doc);
 				if (doc) PlaySequence(doc, doc->selStartL, doc->tailL, True, False);
+				break;
+			case PL_PlaySelection:
+				MEHideCaret(doc);
+				if (doc) PlaySelection(doc);
 				break;
 			case PL_MutePart:
 				MEHideCaret(doc);
@@ -1151,6 +1151,10 @@ void DoPlayRecMenu(short choice)
 			case PL_PlayVarSpeed:
 				MEHideCaret(doc);
 				if (doc) SetPlaySpeedDialog();
+				break;
+			case PL_AllNotesOff:
+				if (useWhichMIDI==MIDIDR_CM)
+					CMAllNotesOff();
 				break;
 			case PL_RecordInsert:
 				if (doc) PLRecord(doc, False);
@@ -1167,14 +1171,10 @@ void DoPlayRecMenu(short choice)
 			case PL_StepRecMerge:
 				if (doc) PLStepRecord(doc, True);
 				break;
-			case PL_AllNotesOff:
-				if (useWhichMIDI==MIDIDR_CM)
-					CMAllNotesOff();
-				break;
 			case PL_MIDISetup:
 				MEHideCaret(doc);
 //				oldMIDIThru = config.midiThru;
-				if (doc) MIDIDialog(doc);
+				if (doc) MIDIPrefsDialog(doc);
 				break;
 			case PL_Metronome:
 				if (useWhichMIDI==MIDIDR_CM)

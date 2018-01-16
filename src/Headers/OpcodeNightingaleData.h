@@ -12,10 +12,6 @@ now (v. 3.1). */
 #define GLOBAL extern
 #endif
 
-/* exporting features */
-
-GLOBAL struct TSig xTS;
-
 /* Sequencer to SIM variables */
 
 /* Watersheds which break analysis-regions (strength > -1 per D. Byrd) */
@@ -25,4 +21,4 @@ GLOBAL struct RhythmClarification *RCP;
 
 /* Durations in 26880ths, i.e., units of FineFactor * LCD4 = 14 * 1920 */
 
-GLOBAL long CurrentTimEX, MeasureLengthEX, MeasureStartEX, MeasureEndEX;
+GLOBAL long CurrentTimEX, MeasureLengthEX;

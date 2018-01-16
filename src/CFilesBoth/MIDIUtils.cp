@@ -242,24 +242,26 @@ If we can't convert it, return -1L. */
 
 long PDur2RealTime(
 			long t,						/* time in PDUR ticks */
-			TCONVERT	tConvertTab[],
+			TCONVERT tConvertTab[],
 			short tabSize)
 {
-	short i; long msAtPrevTempo, msSincePrevTempo;
+	short i, iPos=1;
+	long msAtPrevTempo, msSincePrevTempo;
 	
-	/*
-	 * If the table is empty, just return zero. Otherwise, find the 1st entry in the
-	 * table for a PDUR time after <t>; if there's no such entry, assume the last entry 
-	 * in the table applies.
-	 */	
+	/* If the table is empty, just return zero. Otherwise, find the 1st entry in the
+		table for a PDUR time after <t>, and use the previous entry; if there's no such
+		entry, assume the last entry in the table applies. */
 	if (tabSize<=0) return 0L;
 	
 	for (i = 1; i<tabSize; i++)
-		if (tConvertTab[i].pDurTime>t) break;
-	if (tConvertTab[i].pDurTime<=t) i = tabSize;	/* FIXME: IS i GUARANTEED TO BE MEANINGFUL? */
-	msAtPrevTempo = tConvertTab[i-1].realTime;
+		if (tConvertTab[i].pDurTime>t) {
+			iPos = i;
+			break;
+		}
+	if (tConvertTab[iPos].pDurTime<=t) iPos = tabSize;
+	msAtPrevTempo = tConvertTab[iPos-1].realTime;
 	
-	msSincePrevTempo = PDUR2MS(t-tConvertTab[i-1].pDurTime, tConvertTab[i-1].microbeats);
+	msSincePrevTempo = PDUR2MS(t-tConvertTab[iPos-1].pDurTime, tConvertTab[iPos-1].microbeats);
 	if (msSincePrevTempo<0) return -1L;
 	
 	return msAtPrevTempo+msSincePrevTempo;
@@ -327,13 +329,12 @@ short MakeTConvertTable(
 		}
 	}
 
-#ifdef TDEBUG
-{	short i;
-	for (i = 0; i<tempoCount; i++)
-		LogPrintf(LOG_NOTICE, "tConvertTab[%d].microbeats=%ld pDurTime=%ld realTime=%ld\n",
-			i, tConvertTab[i].microbeats, tConvertTab[i].pDurTime, tConvertTab[i].realTime);
-}
-#endif
+	if (DEBUG_PRINT) {
+		for (short i = 0; i<tempoCount; i++)
+			LogPrintf(LOG_DEBUG, "tConvertTab[%d].microbeats=%ld pDurTime=%ld realTime=%ld\n",
+				i, tConvertTab[i].microbeats, tConvertTab[i].pDurTime, tConvertTab[i].realTime);
+	}
+
 	return tempoCount;
 }
 

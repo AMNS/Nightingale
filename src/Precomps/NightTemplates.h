@@ -282,13 +282,11 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* MIDIDialogs.c */
 
-	void		MIDIDialog(Document *);
+	void		MIDIPrefsDialog(Document *);
 	Boolean		MIDIThruDialog(void);
 	
 	Boolean		MetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 						SignedByte *velocity, short *duration);
-	Boolean		FMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
-						SignedByte *velocity, short *duration, fmsUniqueID *device);
 	Boolean		OMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 						SignedByte *velocity, short *duration, OMSUniqueID *device);
 	Boolean		CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,

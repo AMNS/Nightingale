@@ -1,18 +1,18 @@
-/***************************************************************************
+/******************************************************************************************
 	FILE:	MusicFont.c
 	PROJ:	Nightingale, revised for v.2.1
-	DESC:	Routines for dealing with the music font or characters in it as a
-			font. "The music font" is ordinarily Sonata: it can be set to another
-			font, but many of these routines (as well as some other parts of
-			Nightingale) just assume it's Sonata, so results with other music
-			fonts are a bit strange.
+	DESC:	Routines for dealing with the music font or characters in it as a font.
+			"The music font" is ordinarily Sonata: it can be set to another font,
+			but many of these routines (as well as some other parts of Nightingale)
+			just assume it's Sonata, so results with other music fonts may be a bit
+			strange.
 			
 		SetTextSize				MusCharRect			BuildCharRectCache
 		CharRect									NumToSonataStr
 		GetMusicAscDesc			GetMNamedFontSize	Staff2MFontSize
 		GetMFontSizeIndex		GetActualFontSize	GetYHeadFudge
 		GetYRestFudge
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -28,12 +28,12 @@
 static void MusCharRect(Rect [], unsigned char, long, Rect *);
 
 
-/* ---------------------------------------------------------- PrintMusFontTables -- */
+/* ---------------------------------------------------------------- PrintMusFontTables -- */
 
 void PrintMusFontTables(Document *doc)
 {
 #ifndef PUBLIC_VERSION
-	short		i, j;
+	short	i, j;
 
 	say("Top document's music font is \"%p\".\n\n", doc->musFontName);
 
@@ -61,9 +61,9 @@ void PrintMusFontTables(Document *doc)
 }
 
 
-/* Given a character in the current music font, return a character transformed
-by the mapping table for that font.  We use this, for example, in case the ASCII
-code of the treble clef in our music font is different from Sonata. */
+/* Given a character in the current music font, return a character transformed by the
+mapping table for that font.  We use this, for example, in case the ASCII code of the
+treble clef in our music font is different from Sonata. */
 
 Byte MapMusChar(short musFontInfoIndex, Byte mchar)
 {
@@ -71,8 +71,8 @@ Byte MapMusChar(short musFontInfoIndex, Byte mchar)
 }
 
 
-/* Modify in place the given Pascal string so that all its chars are mapped
-according to the current music font. */
+/* Modify in place the given Pascal string so that all its chars are mapped according
+to the current music font. */
 
 void MapMusPString(short musFontInfoIndex, Byte str[])
 {
@@ -83,11 +83,11 @@ void MapMusPString(short musFontInfoIndex, Byte str[])
 }
 
 
-/* Return the horizontal offset for the character given as <glyph>, relative
-to the corresponding Sonata character (whose horizontal offset is always zero).
-<lnSpace> is interline space, computed by caller as LNSPACE(pContext).  The
-offset returned is a DDIST value, derived from the offset table, whose values
-are in percent of interline space.  Assumes that <glyph> has already been remapped. */
+/* Return the horizontal offset for the character given as <glyph>, relative to the
+corresponding Sonata character (whose horizontal offset is always zero). <lnSpace> is
+interline space, computed by caller as LNSPACE(pContext).  The offset returned is a
+DDIST value, derived from the offset table, whose values are in percent of interline
+space.  Assumes that <glyph> has already been remapped. */
 
 DDIST MusCharXOffset(short musFontInfoIndex, Byte glyph, DDIST lnSpace)
 {
@@ -99,11 +99,11 @@ DDIST MusCharXOffset(short musFontInfoIndex, Byte glyph, DDIST lnSpace)
 }
 
 
-/* Return the vertical offset for the character given as <glyph>, relative
-to the corresponding Sonata character (whose vertical offset is always zero).
-<lnSpace> is interline space, computed by caller as LNSPACE(pContext).  The
-offset returned is a DDIST value, derived from the offset table, whose values
-are in percent of interline space.  Assumes that <glyph> has already been remapped. */
+/* Return the vertical offset for the character given as <glyph>, relative to the
+corresponding Sonata character (whose vertical offset is always zero). <lnSpace> is
+interline space, computed by caller as LNSPACE(pContext).  The offset returned is a
+DDIST value, derived from the offset table, whose values are in percent of interline
+space.  Assumes that <glyph> has already been remapped. */
 
 DDIST MusCharYOffset(short musFontInfoIndex, Byte glyph, DDIST lnSpace)
 {
@@ -198,8 +198,8 @@ static short GetMusFontIndex(short fontNum)
 
 
 /* Use the doc's stored music font name to find the index into the global music font table
-of this font; store this index into doc->musFontInfoIndex. If this fails, use Sonata instead,
-and notify user. */
+of this font; store this index into doc->musFontInfoIndex. If that fails, use Sonata
+instead and notify the user. */
 
 void InitDocMusicFont(Document *doc)
 {
@@ -208,7 +208,7 @@ void InitDocMusicFont(Document *doc)
 
 	GetFNum(doc->musFontName, &fNum);
 	if (fNum==0) {
-		GetIndCString(fmtStr, INITERRS_STRS, 29);		/* "This document uses %s as the music font, but ..." */
+		GetIndCString(fmtStr, INITERRS_STRS, 29);	/* "This document uses %s as the music font, but ..." */
 		sprintf(strBuf, fmtStr, doc->musFontName);
 		CParamText(strBuf, "", "", "");
 		NoteInform(GENERIC_ALRT);
@@ -217,7 +217,7 @@ void InitDocMusicFont(Document *doc)
 	}
 	index = GetMusFontIndex(fNum);
 	if (index==-1) {
-		GetIndCString(fmtStr, INITERRS_STRS, 30);		/* "The music font used by this document (%s) is not supported by this copy of Nightingale." */
+		GetIndCString(fmtStr, INITERRS_STRS, 30);	/* "The music font used by this document (%s) is not supported by this copy of Nightingale." */
 		sprintf(strBuf, fmtStr, doc->musFontName);
 		CParamText(strBuf, "", "", "");
 		NoteInform(GENERIC_ALRT);
@@ -230,16 +230,15 @@ void InitDocMusicFont(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------- SetTextSize -- */
-/* Set the text size of the port, presumably in preparation for drawing the
-score. Get the first staff object of the list to be drawn and use its fontSize
-field to determine the correct text size. */
+/* ----------------------------------------------------------------------- SetTextSize -- */
+/* Set the text size of the port, presumably in preparation for drawing the score. Get
+the first staff object of the list to be drawn and use its fontSize field to determine
+the correct text size. NB: It assumes all staves are the same size! To handle scores
+with more than one staff size, it'd need to be told which staff to consider. */
 
 void SetTextSize(Document *doc)
 {
-	LINK pL, headL, aStaffL; PASTAFF aStaff;
-
-	/* Following is OK as long as all the staves are the same size. */
+	LINK pL, headL, aStaffL;  PASTAFF aStaff;
 	
 	headL = doc->masterView ? doc->masterHeadL : doc->headL;
 	pL = LSSearch(headL, STAFFtype, ANYONE, False, False);
@@ -249,7 +248,7 @@ void SetTextSize(Document *doc)
 }
 
 
-/* ----------------------------------------------------------------- MusCharRect -- */
+/* ----------------------------------------------------------------------- MusCharRect -- */
 
 static void MusCharRect(Rect bbox[], unsigned char ch, long scale, Rect *r)
 {
@@ -266,14 +265,14 @@ static void MusCharRect(Rect bbox[], unsigned char ch, long scale, Rect *r)
 }
 
 
-/* ---------------------------------------------------------- BuildCharRectCache -- */
+/* ---------------------------------------------------------------- BuildCharRectCache -- */
 /*	If the given document's window's current font is the music font, builds a table of
 CharRects for all characters in the current size, using metric information in the
 cBBox array. If the document's current font is not the music font, does nothing. */
 
 #define REFERENCE_CODE MCH_trebleclef		/* Code for reference symbol */
 #define REFERENCE_SIZE 36.0					/* Point size of reference symbol */
-#define REFERENCE_HEIGHT 61.0					/* Height of reference symbol in ref. size */
+#define REFERENCE_HEIGHT 61.0				/* Height of reference symbol in ref. size */
 	
 void BuildCharRectCache(Document *doc)
 {
@@ -281,7 +280,7 @@ void BuildCharRectCache(Document *doc)
 	short		ic, refCode;
 	short		actualSize;
 	long		scale;
-	WindowPtr ourPort=doc->theWindow;
+	WindowPtr	ourPort=doc->theWindow;
 
 	if (GetWindowTxFont(ourPort)!=doc->musicFontNum) return;
 
@@ -311,12 +310,12 @@ void BuildCharRectCache(Document *doc)
 }
 
 
-/* -------------------------------------------------------------------- CharRect -- */
+/* -------------------------------------------------------------------------- CharRect -- */
 /*	Get the enclosing rectangle for a given Sonata character in the size cached. */
 
 Rect CharRect(short ic)
 {
-	Rect		r;
+	Rect	r;
 
 #ifdef MFDEBUG
 	if (qd.thePort->txFont!=charRectCache.fontNum)
@@ -331,7 +330,7 @@ Rect CharRect(short ic)
 }
 
 
-/* -------------------------------------------------------------- NumToSonataStr -- */
+/* -------------------------------------------------------------------- NumToSonataStr -- */
 /*	Convert an integer to a Pascal string of Sonata italic digits, e.g., for tuplet
 accessory numerals. */
 
@@ -348,7 +347,7 @@ void NumToSonataStr(long number, unsigned char *string)
 }
 
 
-/* ------------------------------------------------------------- GetMusicAscDesc -- */
+/* ------------------------------------------------------------------- GetMusicAscDesc -- */
 /* Get the ascender height and descender height of the given string in the current
 music font. */
 
@@ -383,15 +382,15 @@ void GetMusicAscDesc(
 }
 
 
-/* ------------------------------------- Actual/Font Manager Font Size Conversion -- */
+/* ------------------------------------- Actual size/Font Manager font size conversion -- */
 
-/* N.B. Choosing the appropriate screen font size is complicated by the facts
-	that (1) the standard Sonata screen font sizes are named in a very misleading
-	way, and (2) the Font Manager won't tell you what RealFont size it will scale
-	to generate non-RealFonts. Solutions that might be better than the following
-	code: (1) rename the sizes so they're not misleading, (2) simulate the Font
-	Manager's scaling rules. Unfortunately, (1) has compatibility problems with
-	people's existing installed fonts, and (2) is difficult and might change. */
+/* NB: Choosing the appropriate screen font size is complicated by the facts that (1)
+the standard Sonata screen font sizes are named in a very misleading way, and (2) the
+Font Manager won't tell you what RealFont size it will scale to generate non-RealFonts.
+Solutions that might be better than the following code: (1) rename the sizes so they're
+not misleading, (2) simulate the Font Manager's scaling rules. Unfortunately, (1) has
+compatibility problems with people's existing installed fonts, and (2) is difficult and
+might change. */
 	
 #define SFSIZES 7				/* No. of sizes of music screen font to check */
 
@@ -462,37 +461,36 @@ short GetActualFontSize(short fMgrSize)
 }
 
 
-/* ------------------------------------------------- GetYHeadFudge, GetYRestFudge -- */
-/* These routines compute corrections for minor discrepancies in vertical
-origins of symbols in the screen fonts. The problems with noteheads seem to
-be simple roundoff error of at most 1 pixel; the problems with rests, however,
-result at least partly from inconsistencies. Specifically, the origins of the
-rests agree with that of the staff line character, which we don't use, since
-we draw the staff (in gray); unfortunately, the bottom line of the staff
-character is above the origin in Sonata 14, 24, and 36, but below it in Sonata
-18. Oh well. */
+/* ------------------------------------------------------ GetYHeadFudge, GetYRestFudge -- */
+/* These routines compute corrections for minor discrepancies in vertical origins of
+symbols in the screen fonts. The problems with noteheads seem to be simple roundoff
+error of at most 1 pixel; the problems with rests, however, result at least partly
+from inconsistencies. Specifically, the origins of the rests agree with that of the
+staff line character, which we don't use, since we draw the staff (in gray);
+unfortunately, the bottom line of the staff character is above the origin in Sonata
+14, 24, and 36, but below it in Sonata 18. Oh well. */
 
 /* fudgeHeadY and fudgeRestY parallel the list of available Sonata screen font sizes. */
 static short fudgeHeadY[SFSIZES] = {			/* In pixels downward */
 /* Sonata  7 12 14 18 24  28 36 */
 			  0, 1, 1, 1, 1, 0, 0
-	};
+};
 
-static short fudgeRestY[6][SFSIZES] = {		/* In pixels downward */
+static short fudgeRestY[6][SFSIZES] = {			/* In pixels downward */
 /* Sonata  7 12 14 18 24 28 36 */
-			{ 1, 1, 1, 0, 1, 1, 0 },				/* Breve */
-			{ 0, 0, 1, 0, 0, 1, 0 },				/* Whole */
-			{ 0, 1, 0, 0, 1, 0, 0 },				/* Half */
-			{ 0, 1, 0, 0, 0, 0, 0 },				/* Quarter */
-			{ 0, 1, 1, 0, 0, 0, 0 },				/* Eighth */
-			{ 0, 1, 1, 0, 0, 0, 0 }					/* 16th */
-	};
+			{ 1, 1, 1, 0, 1, 1, 0 },			/* Breve */
+			{ 0, 0, 1, 0, 0, 1, 0 },			/* Whole */
+			{ 0, 1, 0, 0, 1, 0, 0 },			/* Half */
+			{ 0, 1, 0, 0, 0, 0, 0 },			/* Quarter */
+			{ 0, 1, 1, 0, 0, 0, 0 },			/* Eighth */
+			{ 0, 1, 1, 0, 0, 0, 0 }				/* 16th */
+};
 
 /* Get pixel Y-offset for noteheads */
 
 short GetYHeadFudge(short fontSize)
 {
-	short	mFSizeIndex;					/* Index of font size in list of music screen fonts */
+	short	mFSizeIndex;						/* Index of font size in list of music screen fonts */
 
 	mFSizeIndex = GetMFontSizeIndex(fontSize);
 	return fudgeHeadY[mFSizeIndex];
@@ -502,7 +500,7 @@ short GetYHeadFudge(short fontSize)
 
 short GetYRestFudge(short fontSize, short durCode)
 {
-	short	mFSizeIndex;					/* Index of font size in list of music screen fonts */
+	short	mFSizeIndex;						/* Index of font size in list of music screen fonts */
 
 	mFSizeIndex = GetMFontSizeIndex(fontSize);
 	if (durCode>6) durCode = 6;						/* Treat shorter durs. as 16ths */
