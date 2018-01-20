@@ -377,7 +377,7 @@ Boolean AddMIDIRedundantAccs(
 			 		if (acc!=0) continue;
 			 		staff = NoteSTAFF(aNoteL);
 					if (CapsLockKeyDown() && OptionKeyDown())
-						LogPrintf(LOG_NOTICE, "AddMIDIRedundantAccs: pL=%d aNoteL=%d stf=%d clf=%d oct=%d\n",
+						LogPrintf(LOG_DEBUG, "AddMIDIRedundantAccs: pL=%d aNoteL=%d stf=%d clf=%d oct=%d\n",
 							pL, aNoteL, staff, clefType[staff], octType[staff]);
 				   eAcc = MIDI2EffectiveAcc(doc, clefType[staff], octType[staff], pL, aNoteL);
 				   if (eAcc==ERROR_INT) {

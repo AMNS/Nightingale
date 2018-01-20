@@ -30,6 +30,11 @@ static void		FixConnects(Document *);
 
 
 #ifndef PUBLIC_VERSION
+
+/* FIXME: The check for illegal codes is in DCheckNode(); the one for suspicious links should
+probably be there, too -- and maybe Extract should call DCheckNode! Anyway, this function
+isn't used in v. 5.8b5. */
+
 void DCheckSyncs(Document *doc)
 {
 	LINK	pL, aNoteL, aModNRL;

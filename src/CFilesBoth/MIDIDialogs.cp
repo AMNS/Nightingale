@@ -226,13 +226,12 @@ void MIDIPrefsDialog(Document *doc)
 	GetPort(&oldPort);
 	omsInputDeviceChanged = False;
 
-	/* We use the same dialog resource for OMS and FreeMIDI.  For the
-		latter, we hide the channel edit field. */
+	/* We use the same dialog resource for Core MIDI (and formerly OMS and FreeMIDI). */
 	if (useWhichMIDI == MIDIDR_CM) {
-		dlog = GetNewDialog(OMS_MIDISETUP_DLOG, NULL, BRING_TO_FRONT);
+		dlog = GetNewDialog(CM_MIDISETUP_DLOG, NULL, BRING_TO_FRONT);
 		if (dlog == NULL) {
 			DisposeModalFilterUPP(filterUPP);
-			MissingDialog(OMS_MIDISETUP_DLOG);
+			MissingDialog(CM_MIDISETUP_DLOG);
 			return;
 		}
 	}
@@ -536,7 +535,6 @@ Boolean MIDIThruDialog()
 	Handle			hndl;
 	ModalFilterUPP	filterUPP;
 	
-//	if (useWhichMIDI!=MIDIDR_FMS)
 	if (useWhichMIDI!=MIDIDR_NONE)
 		return False;
 
@@ -612,7 +610,6 @@ static enum {
 	EDIT10_Dur,
 	STXT11_Device,
 	OMS_METRO_MENU,
-	FMS_METRO_MENU = OMS_METRO_MENU,
 	CM_METRO_MENU = OMS_METRO_MENU,
 	LASTITEM
 	} E_MetroItems;
@@ -645,8 +642,8 @@ static DialogPtr OpenOMSMetroDialog(
 	short scratch;  Str255 deviceStr;  DialogPtr dlog;
 
 	GetPort(&oldPort);
-	dlog = GetNewDialog(OMS_METRO_DLOG,NULL,BRING_TO_FRONT);
-	if (dlog==NULL) { MissingDialog(OMS_METRO_DLOG); return(NULL); }
+	dlog = GetNewDialog(CM_METRO_DLOG,NULL,BRING_TO_FRONT);
+	if (dlog==NULL) { MissingDialog(CM_METRO_DLOG); return(NULL); }
 	
 	CenterWindow(GetDialogWindow(dlog),70);
 	SetPort(GetDialogWindowPort(dlog));
@@ -796,124 +793,6 @@ static Boolean MetroBadValues(DialogPtr dlog)
 }
 
 
-/* ----------------------------------------------------------- OMSMetroFilter, -Dialog -- */
-
-/* This filter outlines the OK Button and performs standard key and command-
-key filtering. */
-
-pascal Boolean OMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item);
-pascal Boolean OMSMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)
-{
-	GrafPtr	oldPort;
-	short	type;
-	Handle	hndl;
-	Rect	box;
-	Point	mouseLoc;
-	short	omsMenuItem;
-
-	switch (theEvent->what) {
-		case updateEvt:
-			GetPort(&oldPort); SetPort(GetDialogWindowPort(theDialog));
-			BeginUpdate(GetDialogWindow(theDialog));
-			UpdateDialogVisRgn(theDialog);
-			FrameDefault(theDialog,OK,True);
-			if (omsMetroMenuH != NULL)
-				DrawOMSDeviceMenu(omsMetroMenuH);
-			TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-			EndUpdate(GetDialogWindow(theDialog));
-			SetPort(oldPort);
-			*item = 0;
-			return True;
-			break;
-			
-		case mouseDown:
-			mouseLoc = theEvent->where;
-			GlobalToLocal(&mouseLoc);
-			
-			/* If user hit the OK or Cancel button, bypass the rest of the control stuff below. */
-			GetDialogItem(theDialog, BUT1_OK, &type, &hndl, &box);
-			if (PtInRect(mouseLoc, &box))	{*item = BUT1_OK; break;};
-			GetDialogItem(theDialog, BUT2_Cancel, &type, &hndl, &box);
-			if (PtInRect(mouseLoc, &box))	{*item = BUT2_Cancel; break;};
-			
-			if (omsMetroMenuH != 0) {
-				if (TestOMSDeviceMenu(omsMetroMenuH, mouseLoc)) {
-					*item = OMS_METRO_MENU;
-					omsMenuItem = ClickOMSDeviceMenu(omsMetroMenuH);
-					TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-					break;
-				}
-			}
-			break;
-
-		case keyDown:
-		case autoKey:
-			if (DlgCmdKey(theDialog, theEvent, item, False)) return True;
-			break;
-	}
-	return False;
-}
-
-/*
- *	Display the Metronome dialog.  Return True if OK, False if Cancel or error.
- */
-
-Boolean OMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
-								SignedByte *velocity, short *duration, OMSUniqueID *device)
-{
-	short chan, aNote, vel, dur;
-	short itemHit, okay, keepGoing=True;
-	DialogPtr dlog; GrafPtr oldPort;
-	ModalFilterUPP filterUPP;
-
-	/* Build dialog window and install its item values */
-	
-	filterUPP = NewModalFilterUPP(OMSMetroFilter);
-	if (filterUPP==NULL) {
-		MissingDialog(OMS_METRO_DLOG);
-		return False;
-	}
-	GetPort(&oldPort);
-	dlog = OpenOMSMetroDialog((Boolean)*viaMIDI, *channel, *note, *velocity,
-									*duration, *device);
-	if (dlog==NULL) {
-		DisposeModalFilterUPP(filterUPP);
-		return False;
-	}
-
-	/* Entertain filtered user events until dialog is dismissed */
-	
-	while (keepGoing) {
-		ModalDialog(filterUPP,&itemHit);
-		keepGoing = MetroDialogItem(dlog,itemHit);
-	}
-	
-	/*
-	 *	Export item values to caller. MetroDialogItem() should have already called
-	 *	MetroBadValues().
-	 */
-	
-	okay = (itemHit==BUT1_OK);
-	if (okay) {
-		*viaMIDI = GetDlgChkRadio(dlog, RAD4_Use);
-		GetDlgWord(dlog,EDIT7_Chan,&chan); *channel = chan;
-		GetDlgWord(dlog,EDIT8_Note,&aNote); *note = aNote;
-		GetDlgWord(dlog,EDIT9_Vel,&vel); *velocity = vel;
-		GetDlgWord(dlog,EDIT10_Dur,&dur); *duration = dur;
-		*device = 0;
-	}
-
-	/* That's all, folks! */
-	
-	DisposeOMSDeviceMenu(omsMetroMenuH);
-	DisposeModalFilterUPP(filterUPP);
-	DisposeDialog(dlog);								/* Return dialog to primordial mists */
-	SetPort(oldPort);
-	
-	return okay;
-}
-
-
 /* -------------------------------------------------------------------------------------- */
 
 //static MenuHandle cmMetroMenuH;
@@ -966,8 +845,8 @@ static DialogPtr OpenCMMetroDialog(
 	short scratch;  Str255 deviceStr;  DialogPtr dlog;
 
 	GetPort(&oldPort);
-	dlog = GetNewDialog(OMS_METRO_DLOG, NULL, BRING_TO_FRONT);
-	if (dlog==NULL) { MissingDialog(OMS_METRO_DLOG); return(NULL); }
+	dlog = GetNewDialog(CM_METRO_DLOG, NULL, BRING_TO_FRONT);
+	if (dlog==NULL) { MissingDialog(CM_METRO_DLOG); return(NULL); }
 	
 	CenterWindow(GetDialogWindow(dlog), 70);
 	SetPort(GetDialogWindowPort(dlog));
@@ -1070,7 +949,7 @@ Boolean CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note
 	
 	filterUPP = NewModalFilterUPP(CMMetroFilter);
 	if (filterUPP==NULL) {
-		MissingDialog(OMS_METRO_DLOG);
+		MissingDialog(CM_METRO_DLOG);
 		return False;
 	}
 	GetPort(&oldPort);

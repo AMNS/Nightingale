@@ -244,14 +244,8 @@ typedef struct						/* A part (for an instrument or voice): */
 	Byte		bankNumber32;		/* If device uses cntl 32 for bank select msgs */
 									/* NB: some devices use both cntl 0 and cntl 32 */
 
-	/* The following fields are for FreeMIDI support. We use an fmsUniqueID to identify
-		the output device while running. We use a destinationMatch to allow FreeMIDI
-		to match the characteristics of a stored device with devices that are currently
-		available to the system. (This is recommended by "FreeMIDI API.pdf.") E.g.,
-		if we just save an fmsUniqueID, then this may be invalid when opening the
-		file on another system or on the user's own reconfigured system. FreeMIDI
-		can make a good guess about what to do by analyzing info about the device
-		in the destinationMatch union, so we save that also. */
+	/* The following fields were for FreeMIDI support. FreeMIDI is obsolete -- it's a
+		pre-OS X technology -- but we keep the fields for file compatability. */
 	fmsUniqueID	fmsOutputDevice;
 	destinationMatch fmsOutputDestination;	/* NB: about 280 bytes */
 } PARTINFO, *PPARTINFO;

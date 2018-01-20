@@ -16,7 +16,7 @@
 
 #define DDB
 
-/* -------------------------------------------------------------------- DKSPrintf -- */
+/* ------------------------------------------------------------------------- DKSPrintf -- */
 /* Print the context-independent information on a key signature. */
 
 void DKSPrintf(PKSINFO KSInfo)
@@ -35,7 +35,7 @@ void DKSPrintf(PKSINFO KSInfo)
 }
 
 
-/* ------------------------------------------------------------------ DisplayNode -- */
+/* ----------------------------------------------------------------------- DisplayNode -- */
 /* Show information about the given object (node), and optionally its subobjects. If
 <abnormal>, ignores <doc>. */
 
@@ -425,7 +425,7 @@ void DisplayNode(Document *doc, LINK pL,
 }
 
 
-/* ---------------------------------------------------------------- MemUsageStats -- */
+/* --------------------------------------------------------------------- MemUsageStats -- */
 
 void MemUsageStats(Document *doc)
 {
@@ -485,7 +485,7 @@ void MemUsageStats(Document *doc)
 }
 
 
-/* ------------------------------------------------------------- DisplayIndexNode -- */
+/* ------------------------------------------------------------------ DisplayIndexNode -- */
 
 void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLinep)
 {
@@ -525,7 +525,7 @@ void DisplayIndexNode(Document *doc, register LINK pL, short kount, short *inLin
 }
 
 
-/* --------------------------------------------------------------------- DHexDump -- */
+/* -------------------------------------------------------------------------- DHexDump -- */
 /* Dump the specified area as bytes in hexadecimal into the log file. */
 
 void DHexDump(unsigned char *pBuffer,
@@ -536,10 +536,10 @@ void DHexDump(unsigned char *pBuffer,
 {
 	long l;
 	
-	/*
-	 *	We'd like to just DebugPrintf one item at a time, but that is VERY slow, so
-	 *	we assemble and print a whole line at a time.
-	 */
+	/*	We'd like to just DebugPrintf one item at a time, but that was very slow, at
+		least when this function was written in the 1990's. So we assemble and print a
+		whole line at a time. */
+	
 	strBuf[0] = 0;
 	for (l = 0; l<limit; l++) {
 		sprintf(&strBuf[strlen(strBuf)], "%x", pBuffer[l]); 

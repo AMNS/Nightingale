@@ -417,17 +417,17 @@ static void PrintInfo()
 #ifndef PUBLIC_VERSION
 #ifdef IDEBUG
 
-	LogPrintf(LOG_NOTICE, "Size of PARTINFO=%ld\n", sizeof(PARTINFO));
+	LogPrintf(LOG_DEBUG, "Size of PARTINFO=%ld\n", sizeof(PARTINFO));
 	
-	LogPrintf(LOG_NOTICE, "Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
+	LogPrintf(LOG_DEBUG, "Size of HEADER=%ld TAIL=%ld SYNC=%ld RPTEND=%ld PAGE=%ld\n",
 		sizeof(HEADER), sizeof(TAIL), sizeof(SYNC), sizeof(RPTEND), sizeof(PAGE));
-	LogPrintf(LOG_NOTICE, "Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
+	LogPrintf(LOG_DEBUG, "Size of SYSTEM=%ld STAFF=%ld MEASURE=%ld CLEF=%ld KEYSIG=%ld\n",
 		sizeof(SYSTEM), sizeof(STAFF), sizeof(MEASURE), sizeof(CLEF), sizeof(KEYSIG));
-	LogPrintf(LOG_NOTICE, "Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
+	LogPrintf(LOG_DEBUG, "Size of TIMESIG=%ld BEAMSET=%ld CONNECT=%ld DYNAMIC=%ld\n",
 		sizeof(TIMESIG), sizeof(BEAMSET), sizeof(CONNECT), sizeof(DYNAMIC));
-	LogPrintf(LOG_NOTICE, "Size of GRAPHIC=%ld OTTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
+	LogPrintf(LOG_DEBUG, "Size of GRAPHIC=%ld OTTAVA=%ld SLUR=%ld TUPLET=%ld GRSYNC=%ld\n",
 		sizeof(GRAPHIC), sizeof(OTTAVA), sizeof(SLUR), sizeof(TUPLET), sizeof(GRSYNC));
-	LogPrintf(LOG_NOTICE, "Size of TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
+	LogPrintf(LOG_DEBUG, "Size of TEMPO=%ld SPACER=%ld ENDING=%ld PSMEAS=%ld •SUPEROBJ=%ld\n",
 		sizeof(TEMPO), sizeof(SPACER), sizeof(ENDING), sizeof(PSMEAS), sizeof(SUPEROBJ));
 #endif
 #endif
@@ -503,7 +503,7 @@ static void CheckScreenFonts()
 		StopInform(GENERIC_ALRT);
 	}
 
-	if (strlen(strBuf)<=origLen) LogPrintf(LOG_NOTICE,
+	if (strlen(strBuf)<=origLen) LogPrintf(LOG_INFO,
 		"CheckScreenFonts: found all %d screen sizes of the Sonata music font.\n", foundSizes);
 	else LogPrintf(LOG_WARNING, "CheckScreenFonts: %s\n", strBuf);
 }
@@ -547,7 +547,7 @@ static Boolean InitChosenMIDISystem()
 	if (useWhichMIDI == MIDIDR_CM)
 		midiOK = InitCoreMIDI();
 	
-	LogPrintf(LOG_NOTICE, "useWhichMIDI=%d midiOK=%d\n", useWhichMIDI, midiOK);
+	LogPrintf(LOG_INFO, "useWhichMIDI=%d midiOK=%d\n", useWhichMIDI, midiOK);
 	return midiOK;
 }
 

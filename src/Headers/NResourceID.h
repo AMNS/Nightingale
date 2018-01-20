@@ -7,7 +7,7 @@
 #define HIDDENSTAVES_ALRT 184
 #define STFSIZE_ALRT 190				/* Staves aren't the same size as the standard size */
 #define MANYPAGES_ALRT 200				/* More pages than can be viewed w/just scroll bar */
-#define NO_OMS_DEVS_ALRT 201			/* With OMS, no devices avail. for playback */
+#define NO_CM_DEVS_ALRT 201				/* With Core MIDI (& formerly OMS), no devices avail. for playback */
 #define EXPORT_ALRT 202					/* Export master page changes to score? */
 #define EXPORTFMT_ALRT 203				/* Export master page changes and lose Work on Format changes? */
 #define DANGLING_ALRT 204				/* Export master page results in dangling systems */
@@ -114,11 +114,11 @@
 #define ADDPART_DLOG 456				/* Add part dialog */
 #define MARGINS_DLOG 460
 #define USEMIDIDR_DLOG 485				/* This replaces all the USE... ALRTs (332-337) */
-#define MIDISETUP_DLOG 489				/* MIDI setup dialog */
-#define OMS_MIDISETUP_DLOG 490			/* MIDI setup dialog for OMS */
+#define MIDISETUP_DLOG 489				/* Old MIDI setup dialog */
+#define CM_MIDISETUP_DLOG 490			/* MIDI setup dialog for Core MIDI (and formerly OMS) */
 
-#define METRO_DLOG 491 					/* Metronome setup dialog */
-#define OMS_METRO_DLOG 492				/* OMS Metronome setup dialog */
+#define METRO_DLOG 491 					/* Old metronome setup dialog */
+#define CM_METRO_DLOG 492				/* Metronome setup dialog for Core MIDI (and formerly OMS) */
 #define MIDITHRU_DLOG 493				/* MIDI Thru Preferences */
 #define	KEYSIG_DLOG 500					/* Key Signature dialog */
 #define	TIMESIG_DLOG 510				/* Time Signature dialog */

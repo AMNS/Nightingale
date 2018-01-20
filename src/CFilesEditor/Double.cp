@@ -24,7 +24,7 @@ static LINK LSContextDynamicSearch(LINK, short, Boolean, Boolean);
 static void DblFixContext(Document *, short);
 static Boolean IsDoubleOK(Document *, short, short);
 
-/* =========================================================== DoubleDialog, etc. == */
+/* ================================================================ DoubleDialog, etc. == */
 
 static enum
 {
@@ -100,12 +100,12 @@ static Boolean DoubleDialog(Document *doc,
 							short *pDstStf		/* Destination staff no. */
 							)
 {
-	DialogPtr	dlog;
+	DialogPtr		dlog;
 	short			ditem = Cancel, staffn, partChoice, nPart, partMaxStf;
-	GrafPtr		oldPort;
-	Boolean		keepGoing = True;
+	GrafPtr			oldPort;
+	Boolean			keepGoing = True;
 	LINK			thePartL, partL;
-	PPARTINFO	pPart;
+	PPARTINFO		pPart;
 	char			partName[256], fmtStr[256];	
 	ModalFilterUPP	filterUPP;
 
@@ -205,11 +205,10 @@ Done:
 }
 
 
-/* ------------------------------------------------------------- DblSrcStaffOK -- */
-/*  If the given staff and range is OK as a source for the Double command
-(meaning there are no clefs or keysigs. on the given staff in the given range:
-fixing context for these is more difficult than I want to bother with now),
-return True. */
+/* --------------------------------------------------------------------- DblSrcStaffOK -- */
+/* If the given staff and range is OK as a source for the Double command (meaning there
+are no clefs or keysigs. on the given staff in the given range: fixing context for these
+is more difficult than I want to bother with now), return True. */
 
 static Boolean DblSrcStaffOK(LINK startL, LINK endL, short staffn)
 {
@@ -233,19 +232,18 @@ static Boolean DblSrcStaffOK(LINK startL, LINK endL, short staffn)
 	return True;
 }
 
-/* ------------------------------------------------------------- DblDstStaffOK -- */
+/* --------------------------------------------------------------------- DblDstStaffOK -- */
 /*  If the given staff and range is OK as a destination for the Double command
-(meaning there are no "content" objects on the given staff in the given range),
-return True. If the staff is the other staff of cross-staff objects, don't worry
-about it.
+(meaning there are no "content" objects on the given staff in the given range), return
+True. If the staff is the other staff of cross-staff objects, don't worry about it.
 
-We use the term "content" here in a rather specialized sense: time signature
-changes don't count, since they'll normally agree with those on the staff we're
-Doubling from (and even if they don't, no disasters will result).
+We use the term "content" here in a rather specialized sense: time signature changes
+don't count, since they'll normally agree with those on the staff we're Doubling from
+(and even if they don't, no disasters will result).
 
-Cf. SFStaffNonempty in SFormatHighLevel.c. Like there, it'd be good eventually
-to differentiate between notes and rests: for Double, we'd optionally remove any
-rests found, instead of refusing to proceed if any are found. Not yet, though. */
+Cf. SFStaffNonempty in SFormatHighLevel.c. Like there, it'd be good eventually to
+differentiate between notes and rests: for Double, we'd optionally remove any rests
+found, instead of refusing to proceed if any are found. Not yet, though. */
 
 static Boolean DblDstStaffOK(LINK startL, LINK endL, short staffn)
 {
@@ -284,14 +282,14 @@ static Boolean DblDstStaffOK(LINK startL, LINK endL, short staffn)
 }
 
 
-/* =================================================== Voice-remapping functions == */
-/* Utilities for voice remapping, based on those for Past Insert and Paste Merge. */
+/* ========================================================= Voice-remapping functions == */
+/* Utilities for voice remapping, based on those for Paste Insert and Paste Merge. */
 
 static void DblMapVoices(Document *, short [], LINK, short);
 short AssignNewVoice(Document *, LINK);
 short DblNewVoice(Document *, short [], short, short, Boolean);
 
-/* ------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 /* Add a new voice number in the given part. Find the lowest user voice number
 that's higher than any used in the part, add an entry for it to <doc->voiceTab>,
@@ -344,7 +342,7 @@ short DblNewVoice(Document *doc, short vMap[],
 unused voices on the destination staff, they can have entries added later, or they
 could be handled entirely "on the fly". */
 
-/* -------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 void DblSetNewVoices(Document *doc, short vMap[], LINK pL, short srcStf, short dstStf,
 							Boolean sameRel);
@@ -426,7 +424,7 @@ short PartRelStaffn(Document *doc, short staffn)
 	return partRelStf;
 }
 
-/* -------------------------------------------------------------- DblSetupVMap -- */
+/* ---------------------------------------------------------------------- DblSetupVMap -- */
 /* Given source and destination staves, set up a voice-remapping table for moving
 stuff from one to the other.
 
@@ -457,17 +455,17 @@ void DblSetupVMap(Document *doc, short vMap[], LINK startL, LINK endL, short src
 		DblSetNewVoices(doc, vMap, pL, srcStf, dstStf, sameRel);
 
 #ifdef DEBUG_VMAPTABLE
-	LogPrintf(LOG_NOTICE, "srcStf=%d dstStf=%d sameRel=%d\n", srcStf, dstStf, sameRel);
+	LogPrintf(LOG_DEBUG, "srcStf=%d dstStf=%d sameRel=%d\n", srcStf, dstStf, sameRel);
 	for (v = 1; v<=MAXVOICES; v++)
 		if (doc->voiceTab[v].partn!=0)
-			LogPrintf(LOG_NOTICE, "%ciVoice %d part %d relVoice=%d\n",
+			LogPrintf(LOG_DEBUG, "%ciVoice %d part %d relVoice=%d\n",
 							(v==1? '' : ' '),
 							v, doc->voiceTab[v].partn, doc->voiceTab[v].relVoice);
 #endif	
 }
 
 
-/* ----------------------------------------------------------------- DblMapVoices -- */
+/* ---------------------------------------------------------------------- DblMapVoices -- */
 /* If the given object has voice nos., update its voice no. or those of all its
 subobjects on the given staff according to the given voice-remapping table. */
 
@@ -524,16 +522,16 @@ static void DblMapVoices(Document */*doc*/, short vMap[], LINK pL, short dstStf)
 }
 
 
-/* --------------------------------------------------------------- FixXXXForClef -- */
+/* --------------------------------------------------------------------- FixXXXForClef -- */
 /* Fix the given note's Y-position for the IMPENDING move of the note to a different
 staff and clef. If the clef in effect on the new staff is the same as the note's
 current clef, do nothing. Handles grace AND regular notes. */
 
 void FixNoteYForClef(Document */*doc*/,
 							LINK syncL,
-							LINK aNoteL,					/* Note or grace note */
-							short /*absStaff*/,			/* Destination staff */
-							CONTEXT oldContext,			/* Current and future, respectively */
+							LINK aNoteL,			/* Note or grace note */
+							short /*absStaff*/,		/* Destination staff */
+							CONTEXT oldContext,		/* Current and future, respectively */
 							CONTEXT newContext
 							)
 {
@@ -593,7 +591,7 @@ void FixChordsForClef(Document *doc, LINK syncL,
 }
 
 
-/* ------------------------------------------------------------- DupAndSetStaff -- */
+/* -------------------------------------------------------------------- DupAndSetStaff -- */
 /* Given an object and source and destination staves, duplicate whatever pieces of
 the object are on the source staff and put the duplicates on the destination staff.
 If we're Looking at a Voice, we duplicate only what's in that voice on the source
@@ -608,14 +606,13 @@ Return FAILURE if there's an error (probably out of memory), else NOTHING_TO_DO
 or OP_COMPLETE. */
 
 short DupAndSetStaff(Document *doc, short voiceMap[],
-						LINK pL,							/* Original object */
+						LINK pL,						/* Original object */
 						short srcStf, short dstStf,
-						short copyVoice				/* Single voice to copy, or -1 for all */
+						short copyVoice					/* Single voice to copy, or -1 for all */
 						)
 {
 	short nSubs, halfLn, effAcc;
-	LINK tmpL, copyL, firstMod,
-			aNoteL, srcNoteL, nextSrcNoteL, dstNoteL,
+	LINK tmpL, copyL, firstMod, aNoteL, srcNoteL, nextSrcNoteL, dstNoteL,
 			aGRNoteL, srcGRNoteL, nextGRNoteL, dstGRNoteL;
 	PANOTE srcNote, dstNote, srcGRNote, dstGRNote;
 	CONTEXT oldContext, newContext;
@@ -637,12 +634,12 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 			 * Copy the note/rest as a whole, then replace its ModNR list with a
 			 *	duplicate of the original's and restore its <next> field.
 			 */
-			dstNoteL = aNoteL;												/* The first new one */
+			dstNoteL = aNoteL;										/* The first new one */
 			nextSrcNoteL = FirstSubLINK(pL);
 			for ( ; dstNoteL; dstNoteL = NextNOTEL(dstNoteL)) {
 				for (srcNoteL = nextSrcNoteL; srcNoteL; srcNoteL = NextNOTEL(srcNoteL))
 					if (NoteSTAFF(srcNoteL)==srcStf && (anyVoice || NoteVOICE(srcNoteL)==copyVoice)) {
-						nextSrcNoteL = NextNOTEL(srcNoteL);				/* Don't find this one again */
+						nextSrcNoteL = NextNOTEL(srcNoteL);			/* Don't find this one again */
 						break;
 					}
 
@@ -650,7 +647,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 				srcNote = GetPANOTE(srcNoteL);
 				dstNote = GetPANOTE(dstNoteL);
 				tmpL = dstNote->next;
-				*dstNote = *srcNote;											/* Copy, then restore link */
+				*dstNote = *srcNote;								/* Copy, then restore link */
 				dstNote->next = tmpL;
 				if (dstNote->firstMod) {
 					firstMod = CopyModNRList(doc, doc, srcNote->firstMod);
@@ -794,7 +791,7 @@ short DupAndSetStaff(Document *doc, short voiceMap[],
 	return OP_COMPLETE;
 }
 
-/* ----------------------------------------------------------- StfHasSmthgAcross -- */
+/* ----------------------------------------------------------------- StfHasSmthgAcross -- */
 /* If any "extended object" has a range that crosses the point just before the
 given link on the given staff, return True and a message string. However, this does
 NOT check for slurs/ties crossing the point. Similar (identical?) to HasSmthgAcross,
@@ -819,7 +816,7 @@ Boolean StfHasSmthgAcross(
 	}
 
 	if (foundSmthg) {
-		if (isVoice)														/* ??this will never be True! */
+		if (isVoice)									/* FIXME: this will never be True! */
 			Voice2UserStr(doc, number, str);
 		else
 			Staff2UserStr(doc, number, str);
@@ -851,13 +848,13 @@ Boolean RangeHasUnmatchedSlurs(Document */*doc*/, LINK startL, LINK endL, short 
 }
 
 
-/* Look for a Dynamic, ignoring hairpins. */
+/* Look for a Dynamic, ignoring hairpins. Not used as of v. 5.8b5. */
 
 static LINK LSContextDynamicSearch(
-				LINK startL,				/* Place to start looking */
-				short staff,				/* target staff number */
+				LINK startL,			/* Place to start looking */
+				short staff,			/* target staff number */
 				Boolean goLeft,			/* True if we should search left */
-				Boolean needSelected		/* True if we only want selected items */
+				Boolean needSelected	/* True if we only want selected items */
 				)
 {
 	LINK dynL;
@@ -955,7 +952,7 @@ static Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 		return False;
 	}
 	
-	/* ??The following checks the legality of the range in the source staff; it should do
+	/* FIXME: The following checks the legality of the range in the source staff; it should
 		do similar checks on the destination staff! */
 	hasSmthgAcross = StfHasSmthgAcross(doc, doc->selStartL, srcStf, str);
 	if (!hasSmthgAcross)
@@ -1013,7 +1010,7 @@ static Boolean IsDoubleOK(Document *doc, short srcStf, short dstStf)
 }
 
 
-/* --------------------------------------------------------------------- Double -- */
+/* ---------------------------------------------------------------------------- Double -- */
 /* Ask user for a destination staff; then duplicate "everything" in the selection
 range (whether it's actually selected or not!) on the first selected staff, and
 put the duplicates on the destination staff. The source staff in the range must not
@@ -1023,14 +1020,16 @@ NOTHING_TO_DO or OP_COMPLETE.
 
 The "everything" that's duplicated and "empty" destination need more explanation,
 especially as regards the objects that affect context:
-							Source staff						Destination staff
-							------------						-----------------
-	Clefs					not allowed (except gutter)	not allowed (except gutter)
-	Key signatures		not allowed (except gutter)	not allowed (except gutter)
-	Time signatures	ignored 								allowed, left alone
-	Dynamics				copied								not allowed
-These rules let us keep the context consistent without too much trouble while (I
-hope) not being too restrictive. */
+
+					Source staff					Destination staff
+					------------					-----------------
+	Clefs			not allowed (except gutter)		not allowed (except gutter)
+	Key signatures	not allowed (except gutter)		not allowed (except gutter)
+	Time signatures	ignored 						allowed, left alone
+	Dynamics		copied							not allowed
+	
+These rules let us keep the context consistent without too much trouble while (I hope)
+not being too restrictive. */
 
 short Double(Document *doc)
 {

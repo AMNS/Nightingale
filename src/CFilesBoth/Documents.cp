@@ -770,7 +770,7 @@ static Boolean AllStavesSameSize(Document *doc)
 
 /* --------------------------------------------------------------------- InitDocFields -- */
 /* Initialize miscellaneous fields in the given Document. If there's a problem (out
-of memory), give an error message and return False, else True. */
+of memory), give an error message and return False, else return True. */
 
 Boolean InitDocFields(Document *doc)
 {
@@ -782,7 +782,7 @@ Boolean InitDocFields(Document *doc)
 	doc->sheetOrigin.h = config.origin.h - config.hPageSep;
 	doc->sheetOrigin.v = config.origin.v - config.vPageSep;
 	
-	/* Have to reset the document's origin (scroll position) after reading from file */
+	/* Have to reset the document's origin (scroll position) after reading from file. */
 	doc->origin = doc->sheetOrigin;
 	
 	doc->numRows = config.numRows;
@@ -838,9 +838,9 @@ Boolean InitDocFields(Document *doc)
 	doc->deflamTime = 50;
 	
 	doc->srastral = config.defaultRastral;			/* Default staff rastral size */
-	
 	doc->altsrastral = 2;							/* Default alternate staff rastral size */
 	
+	/* Options for measure number value, visibility, and graphic location */
 	doc->numberMeas = -1;							/* Show measure nos. on every system */
 	doc->otherMNStaff = 0;
 	doc->firstMNNumber = 1;
@@ -854,13 +854,16 @@ Boolean InitDocFields(Document *doc)
 	doc->beamRests = False;
 	doc->recordFlats = False;
 
-	for (i=0; i<MAXSTAVES; i++)
-		doc->omsPartDeviceList[i] = 0;
-	doc->omsInputDevice = 0;
-
+	/* Initialize stuff for MIDI drivers: Core MIDI and (to avoid problems till we can
+		remove them completely) the obsolete OMS and FreeMIDI. */
+	
 	for (i=0; i<MAXSTAVES; i++)
 		doc->cmPartDeviceList[i] = 0;
 	doc->cmInputDevice = 0;
+
+	for (i=0; i<MAXSTAVES; i++)
+		doc->omsPartDeviceList[i] = 0;
+	doc->omsInputDevice = 0;
 
 	doc->fmsInputDevice = noUniqueID;
 	/* ??We're probably not supposed to play with these fields... */
@@ -869,7 +872,7 @@ Boolean InitDocFields(Document *doc)
 
 	doc->nonstdStfSizes = False;
 
-	/* Avoid certain Debugger complaints in MEHideCaret */
+	/* Avoid certain Debugger complaints in MEHideCaret under the Mac Classic OS. */
 	SetRect(&doc->viewRect, 0, 0, 0, 0);
 	SetRect(&doc->growRect, 0, 0, 0, 0);
 
@@ -934,8 +937,8 @@ Boolean InitDocUndo(Document *doc)
 /* --------------------------------------------------------------------- BuildDocument -- */
 /*
  *	Initialise a Document.  If <isNew>, make a new Document, untitled and empty;
- *	otherwise, read the given file, decode it, and attach it to this Document.
- *	In any case, make the Document the current grafPort and install it, including
+ *	otherwise, read the given file, decode it, and attach it to this Document. In
+ *	any case, make the Document the current grafPort and install it, including
  *	magnification. Return True normally, False in case of error.
  */
 
@@ -983,23 +986,23 @@ Boolean BuildDocument(
 	 *	are created with a maximum value of 0 here, but that will have no effect if
 	 *	we call RecomputeView, since it resets the max.
 	 */
-	GetWindowPortBounds(w,&r);
+	GetWindowPortBounds(w, &r);
 	r.left = r.right - (SCROLLBAR_WIDTH+1);
 	r.bottom -= SCROLLBAR_WIDTH;
 	r.top--;
 	
-	doc->vScroll = NewControl(w,&r,"\p",True,doc->origin.h,doc->origin.h,
-														0,scrollBarProc,0L);
-	GetWindowPortBounds(w,&r);
+	doc->vScroll = NewControl(w, &r, "\p", True, doc->origin.h, doc->origin.h,
+														0, scrollBarProc, 0L);
+	GetWindowPortBounds(w, &r);
 	r.top = r.bottom - (SCROLLBAR_WIDTH+1);
 	r.right -= SCROLLBAR_WIDTH;
 	r.left += MESSAGEBOX_WIDTH;
 	
-	doc->hScroll = NewControl(w,&r,"\p",True,doc->origin.v,doc->origin.v,
-														0,scrollBarProc,0L);
+	doc->hScroll = NewControl(w, &r, "\p", True, doc->origin.v, doc->origin.v,
+														0, scrollBarProc, 0L);
 	if (!InitAllHeaps(doc)) { NoMoreMemory(); return False; }
 	InstallDoc(doc);
-	BuildEmptyList(doc,&doc->headL,&doc->tailL);
+	BuildEmptyList(doc, &doc->headL,&doc->tailL);
 	
 	doc->selStartL = doc->selEndL = doc->tailL;				/* Empty selection  */
 	
@@ -1020,7 +1023,7 @@ Boolean BuildDocument(
 		doc->currentSheet = 0;
 		doc->origin = doc->sheetOrigin;						/* Ignore position recorded in file */
 	}
-	else {													/* Finally READ THE FILE! */
+	else {													/* Finally read the file! */
 		if (OpenFile(doc,(unsigned char *)fileName,vRefNum,pfsSpec,fileVersion)!=noErr)
 			return False;
 		doc->firstSheet = 0;								/* Or whatever; may be document specific! */
@@ -1048,8 +1051,8 @@ Boolean BuildDocument(
 	GetAllSheets(doc);
 
 	/* Finally, set empty selection just after the first Measure and put caret there.
-		NB: This will not necessarily be on the screen! We should eventually make
-		the initial selection agree with the doc's scrolled position. */
+		NB: This will not necessarily be on the screen! We should eventually make the
+		initial selection agree with the doc's scrolled position. */
 	
 	SetDefaultSelection(doc);
 	doc->selStaff = 1;

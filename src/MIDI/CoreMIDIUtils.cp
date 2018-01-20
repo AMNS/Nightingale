@@ -1,7 +1,9 @@
 /* 
  * CoreMIDIUtils.c
  * 
- * Implementation of OMSUtils functionality for CoreMIDI for Nightingale
+ * An old comment here: "Implementation of OMSUtils functionality for Core MIDI for
+ * Nightingale"; presumably "OMSUtils" means our old C module of that name, written
+ * by Ken Brockman.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -298,7 +300,7 @@ Boolean ResetMIDIWritePacketList()
 
 
 
-// --------------------------------------------------------- Timing calls for CoreMidi -- */
+// -------------------------------------------------------- Timing calls for Core MIDI -- */
 // Use the Nightingale Time Manager.
 
 void CMInitTimer(void)
@@ -349,7 +351,7 @@ static void InitCoreMidiTimer()
 	CMInitTimer();
 }
 
-// --------------------------------------------------- Setup and teardown for CoreMidi -- */
+// --------------------------------------------------- Setup and teardown for Core MIDI -- */
 // Setup for playback and teardown after playback
 
 static void CMGetUsedChannels(Document *doc, Byte *partChannel, Byte *activeChannel)
@@ -1279,7 +1281,7 @@ Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 		if (!CMTransmitChannelValid(partDevice[i], (short)partChannel[i])) {
 			partChannel[i] = config.defaultChannel;
 			if (!CMTransmitChannelValid(partDevice[i], (short)partChannel[i])) {
-				if (CautionAdvise(NO_OMS_DEVS_ALRT)==1) return False;			/* Cancel playback button (item 1 in this ALRT!) */
+				if (CautionAdvise(NO_CM_DEVS_ALRT)==1) return False;			/* Cancel playback button (item 1 in this ALRT!) */
 			}
 		}
 		
@@ -1519,7 +1521,7 @@ Boolean InitCoreMIDI()
 		}
 #endif
 					
-		gCMBufferLength = kCMBufLen;		/* CoreMidi MIDI Buffer size in bytes */
+		gCMBufferLength = kCMBufLen;		/* Core MIDI's MIDI buffer size in bytes */
 		gCMMIDIBufferFull = False;
 		
 		gCMNoDestinations = False;			/* For SoftMIDI playback */

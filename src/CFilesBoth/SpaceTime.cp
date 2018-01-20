@@ -1682,7 +1682,7 @@ static long FixMeasTimeStamps(
 		GetIndCString(fmtStr, MISCERRS_STRS, 4);		/* "Meas. has note(s) > 65500 ticks" */
 		sprintf(strBuf, fmtStr, aMeasure->measureNum+doc->firstMNNumber);
 		CParamText(strBuf, "", "", "");
-		LogPrintf(LOG_NOTICE, strBuf);
+		LogPrintf(LOG_WARNING, strBuf);
 		NoteInform(GENERIC_ALRT);
 	}
 

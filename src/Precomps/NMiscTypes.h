@@ -112,15 +112,15 @@ typedef struct {
 	HEAP 			Heap[LASTtype];			/* One HEAP for every type of object */
 	NIGHTSCOREHEADER
 
-/* MIDI driver fields, for OMS and FreeMIDI support */
-	/* OMS */
+/* MIDI driver fields. We now support only Core MIDI; OMS and FreeMIDI are pre-OS X. */
+	/* OMS (obsolete) */
 	OMSUniqueID omsPartDeviceList[MAXSTAVES];	/* OMS MIDI dev data for each part on MP, */
 												/* indexed by partn associated with PARTINFOheap */
 	OMSUniqueID	omsInputDevice;  				/* OMS MIDI dev data for recording inputs */
-	/* FreeMIDI */
+	/* FreeMIDI (obsolete) */
 	fmsUniqueID	fmsInputDevice;					/* FreeMIDI dev data for recording inputs */
 	destinationMatch	fmsInputDestination;	/* (See comment at PARTINFO in NTypes.h.) */
-	/* CoreMIDI */
+	/* Core MIDI */
 	MIDIUniqueID	cmPartDeviceList[MAXSTAVES];	/* CoreMIDI dev data for each part on MP, */
 													/* indexed by partn associated with PARTINFOheap */
 	MIDIUniqueID	cmInputDevice;  				/* CoreMIDI dev data for recording inputs */

@@ -2,10 +2,10 @@
 	FILE:	MusicFont.c
 	PROJ:	Nightingale, revised for v.2.1
 	DESC:	Routines for dealing with the music font or characters in it as a font.
-			"The music font" is ordinarily Sonata: it can be set to another font,
-			but many of these routines (as well as some other parts of Nightingale)
-			just assume it's Sonata, so results with other music fonts may be a bit
-			strange.
+			"The music font" is ordinarily Sonata: it can be set to another font, but
+			many of these routines (as well as some other parts of Nightingale) just
+			assume it's Sonata. So results with Sonata-compatible music fonts may be a
+			bit strange; non-Sonata-compatible fonts are likely to be unusuable.
 			
 		SetTextSize				MusCharRect			BuildCharRectCache
 		CharRect									NumToSonataStr
@@ -319,10 +319,10 @@ Rect CharRect(short ic)
 
 #ifdef MFDEBUG
 	if (qd.thePort->txFont!=charRectCache.fontNum)
-		LogPrintf(LOG_NOTICE, "CharRect: port's font is %ld but font cached is %ld.",
+		LogPrintf(LOG_DEBUG, "CharRect: port's font is %ld but font cached is %ld.",
 				(long)qd.thePort->txFont, (long)charRectCache.fontNum);
 	if (qd.thePort->txSize!=charRectCache.fontSize)
-		LogPrintf(LOG_NOTICE, "CharRect: port's font size is %ld but size cached is %ld.",
+		LogPrintf(LOG_DEBUG, "CharRect: port's font size is %ld but size cached is %ld.",
 				(long)qd.thePort->txSize, (long)charRectCache.fontSize);
 #endif
 	r = charRectCache.charRect[ic];

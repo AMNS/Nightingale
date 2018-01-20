@@ -1954,7 +1954,7 @@ NotelistSave, StringToolbox.
 
 -------------------------------------------------------------------------------
 
-9 - 10 Nov.
+9 - 10 Jan.
 
 Minor cleanup: remove all references to TARGET_API_MAC_CARBON (Issue #76), etc. Affects
 ApplicData.h, CarbonPrinting.h, MiscUtils.h, NMiscTypes.h, NightTemplates.h;
@@ -1963,9 +1963,25 @@ MiscUtils, PS_Stdio, StringToolbox, UIFUtils, Utility, Windows; SampleMDEF.
 
 -------------------------------------------------------------------------------
 
-11-16 Nov.
+11-16 Jan.
 
 Increase max. no. of tempo changes on playback from 300 to 500. Affects MIDIPlay.
 
 Minor cleanup. Affects NightTemplates.h, OpcodeNightingaleData.h; Menu, MIDIDialogs,
 MIDIPlay, MIDIUtils, MusicFont.
+
+-------------------------------------------------------------------------------
+
+17-19 Jan.
+
+Renamed the "CoreAudio" folder to "MIDI". Affects the xcodeproj.
+
+Minor cleanup: removed references to and code and resources to handle FMS, renamed
+"OMS..." entities that support Core MIDI to "CM..."; changed LOG_NOTICE-level calls to
+LogPrintf to lower or higher levels; etc. Affects Check, CarbonStubs.h, CoreMIDIDefs.h,
+FreeMIDICompat.h, InstrDialog.h, MIDICompat.h, MIDIGeneral.h, NMiscTypes.h,
+NightTemplates.h, NMiscTypes.h, NResourceID.h, NTypes.h, OpcodeNightingaleData.h,
+OMSCompat.h, .rsrc; CarbonPrinting, CarbonStubs, CoreMIDIUtils, DebugDisplay,
+DelRedAccs, Documents, Double, Extract, InstrDialog, MIDIDialogs, MIDIFOCmd, MIDIPlay,
+MIDIRecord, MIDIRecUtils, MIDIUtils, MusicFont, Objects, PS_Stdio, RhythmDur, SpaceTime.
+

@@ -27,7 +27,7 @@ static void MRFixTieLinks(Document *, LINK, LINK, short);
 static void MRFixTupletLinks(Document *, LINK, LINK, short);
 
 
-/* ---------------------------------------------------------------- SetupMIDINote -- */
+/* --------------------------------------------------------------------- SetupMIDINote -- */
 /* Setup a vanilla (what some people call "B-flat") note or rest, presumably
 entered via MIDI or MIDI File, so its logical duration may not be known and its
 accidental must be inferred as best we can. lDur may be UNKNOWN_L_DUR or any
@@ -41,7 +41,7 @@ static void SetupMIDINote(Document *doc,
 							short lDur, short ndots,
 							SignedByte voice,
 							Boolean isRest,
-							long /*timeShift*/						/* obsolete and ignored */
+							long /*timeShift*/					/* obsolete and ignored */
 							)
 {
 	register PANOTE aNote;
@@ -54,7 +54,7 @@ PushLock(NOTEheap);
 	aNote = GetPANOTE(aNoteL);
 	
 	aNote->staffn = staffn;
-	aNote->voice = voice;										/* Must set before calling GetStemInfo */
+	aNote->voice = voice;									/* Must set before calling GetStemInfo */
 	aNote->selected = False;
 	aNote->visible = True;
 	aNote->soft = False;
@@ -65,10 +65,10 @@ PushLock(NOTEheap);
 		yqpit = halfLn2qd(context.staffLines-1);
 		aNote->yd = qd2d(yqpit, context.staffHeight,
 						context.staffLines);
-		aNote->yqpit = -1;										/* No QDIST pitch */
-		aNote->accident = 0;									/* No accidental */
-		aNote->noteNum = 0;										/* No MIDI note number */
-		aNote->ystem = 0;										/* No stem end pos. */
+		aNote->yqpit = -1;									/* No QDIST pitch */
+		aNote->accident = 0;								/* No accidental */
+		aNote->noteNum = 0;									/* No MIDI note number */
+		aNote->ystem = 0;									/* No stem end pos. */
 	}
 	else {
 		midCHalfLn = ClefMiddleCHalfLn(context.clefType);
@@ -112,20 +112,20 @@ PushLock(NOTEheap);
 	aNote->tempFlag = False;
 	aNote->fillerN = 0;
 
-	aNote->playTimeDelta = 0;										/* For the moment */
+	aNote->playTimeDelta = 0;								/* For the moment */
 
-	if (lDur>UNKNOWN_L_DUR)											/* Known dur. & not MB rest? */
+	if (lDur>UNKNOWN_L_DUR)									/* Known dur. & not multibar rest? */
 		aNote->playDur = SimplePlayDur(aNoteL);
 	else
 		aNote->playDur = MIDINote.duration;
 
-	aNote->pTime = 0;												/* Used by Tuplet routines */
+	aNote->pTime = 0;										/* Used by Tuplet routines */
 		
 PopLock(NOTEheap);
 }
 
 
-/* ------------------------------------------------------------------- CreateSync -- */
+/* ------------------------------------------------------------------------ CreateSync -- */
 /* Create a new Sync at the insertion point containing one note. */
 
 LINK CreateSync(register Document *doc,
@@ -135,7 +135,7 @@ LINK CreateSync(register Document *doc,
 						short lDur, short ndots,
 						SignedByte voice,
 						Boolean isRest,
-						long timeShift							/* startTime offset for timeStamp */
+						long timeShift						/* startTime offset for timeStamp */
 						)
 {
 	register LINK	newpL, aNoteL;
@@ -163,7 +163,7 @@ LINK CreateSync(register Document *doc,
 }
 
 
-/* ------------------------------------------------------------------ AddNoteToSync -- */
+/* --------------------------------------------------------------------- AddNoteToSync -- */
 /* Add a note to the given Sync. */
 
 LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn, short
@@ -191,10 +191,10 @@ LINK AddNoteToSync(Document *doc, MNOTE MIDINote, LINK syncL, SignedByte staffn,
 }
 
 
-/* ------------------------------------------------------------------ MIDI2HalfLn -- */
-/* Given MIDI note number <noteNum> and half-line position of middle C
-<midCHalfLn>, return the note's half-line number as function value (where
-top line of staff = 0??) and the accidental in <*pAcc>. */
+/* ----------------------------------------------------------------------- MIDI2HalfLn -- */
+/* Given MIDI note number <noteNum> and half-line position of middle C <midCHalfLn>,
+return the note's half-line number as function value (where top line of staff = 0??)
+and the accidental in <*pAcc>. */
 
 static short MIDI2HalfLn(Document */*doc*/, Byte noteNum, short midCHalfLn,
 								Boolean useFlats, SignedByte *pAcc)
@@ -234,7 +234,7 @@ static Boolean IsMeasAndMergable(LINK pL)
 }
 
 
-/* -------------------------------------------------------------- FillMergeBuffer -- */
+/* ------------------------------------------------------------------- FillMergeBuffer -- */
 /* Fill one of MRMerge's buffers with objects from <startL> to the end of the score,
 but at most <maxObjs> objects. If there are more objects than that, return <maxObjs+1>
 (in which case only the first <maxObjs> go into the buffer), else return the number
@@ -262,7 +262,7 @@ short FillMergeBuffer(
 }
 
 
-/* --------------------------------------------------------------- ObjTimeInTable -- */
+/* -------------------------------------------------------------------- ObjTimeInTable -- */
 /* Return the index of the last object (Sync or Measure) in the given LINKTIMEINFO
 table whose absolute time is no greater than <lTime>. (If, for example, we have
 several empty Measures, then a Measure containing several Syncs, all the Measures
@@ -281,11 +281,11 @@ static short ObjTimeInTable(long lTime, LINKTIMEINFO *mergeObjs, short nObjs)
 }
 
 
-/* ---------------------------------------------------------------- MRFixTieLinks -- */
-/* In the range [startL,endL), fix the firstSyncL and lastSyncL of every tie-
-subtype Slur in the given voice to agree with the order of objects in the data
-structure, i.e., set the firstSyncL to the next Sync in voice and the lastSyncL
-to the next Sync after that. */
+/* --------------------------------------------------------------------- MRFixTieLinks -- */
+/* In the range [startL,endL), fix the firstSyncL and lastSyncL of every tie-subtype
+Slur in the given voice to agree with the order of objects in the object list, i.e.,
+set the firstSyncL to the next Sync in voice and the lastSyncL to the next Sync after
+that. */
 
 static void MRFixTieLinks(
 				Document */*doc*/,
@@ -311,7 +311,7 @@ static void MRFixTieLinks(
 }
 
 
-/* ------------------------------------------------------------- MRFixTupletLinks -- */
+/* ------------------------------------------------------------------ MRFixTupletLinks -- */
 /* In the range [startL,endL), fix the tpSyncs of every Tuplet to agree with the order
 of objects in the data structure, i.e., set the first tpSync to the next Sync in its
 voice, the next tpSync to the next Sync after that, etc. */
@@ -340,7 +340,7 @@ static void MRFixTupletLinks(
 }
 
 
-/* ---------------------------------------------------------------------- MRMerge -- */
+/* --------------------------------------------------------------------------- MRMerge -- */
 /* Merge objects in the object list described by <newSyncs> into the object list by
 time. The range [newSyncs[0], newSyncs[nNewSyncs-1]) should not contain any content
 objects other than Slurs of subtype tie, Tuplets, and Syncs, and all of them should be
@@ -366,7 +366,7 @@ Boolean MRMerge(
 			short nNewSyncs,
 			LINKTIMEINFO *mergeObjs,	/* Info about range to merge into (e.g, from FillMergeBuffer) */
 			short nMergeObjs,
-			LINK *pLastL					/* Last affected LINK, if any */
+			LINK *pLastL				/* Last affected LINK, if any */
 			)
 {
 	LINK startL, endL, beforeStartL, newL, matchL, copyL, insL, selEndL,
@@ -385,10 +385,10 @@ Boolean MRMerge(
 	
 #ifdef MRDEBUG
 for (i = 0; i<nNewSyncs; i++) {
-	LogPrintf(LOG_NOTICE, "newSyncs[%d].link=%d time=%ld\n",
+	LogPrintf(LOG_DEBUG, "newSyncs[%d].link=%d time=%ld\n",
 	i, newSyncs[i].link, newSyncs[i].time); }
 for (i = 0; i<n_min(nMergeObjs, 5); i++) {
-	LogPrintf(LOG_NOTICE, "mergeObjs[%d].link=%d time=%ld\n",
+	LogPrintf(LOG_DEBUG, "mergeObjs[%d].link=%d time=%ld\n",
 	i, mergeObjs[i].link, mergeObjs[i].time); }
 #endif
 
@@ -431,8 +431,8 @@ for (i = 0; i<n_min(nMergeObjs, 5); i++) {
 				MergeObject(doc, copyL, matchL);
 				LinkSEL(matchL) = True;
 				selEndL = RightLINK(matchL);
-				if (slurL) MoveNode(slurL, matchL);		/* Must fix firstSyncL later */
-				if (tupL) MoveNode(tupL, matchL);		/* Must fix subobj tpSyncs later */
+				if (slurL) MoveNode(slurL, matchL);			/* Must fix firstSyncL later */
+				if (tupL) MoveNode(tupL, matchL);			/* Must fix subobj tpSyncs later */
 				lastL = matchL;
 			}
 			else {

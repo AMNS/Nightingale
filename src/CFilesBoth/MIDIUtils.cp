@@ -409,7 +409,7 @@ static Boolean CMHaveLaterEnding(short note, SignedByte channel, long endTime)
 
 	for (i = 0, pEvent = cmEventList; i<lastEvent; i++, pEvent++) {
 #if PMDDEBUG
-LogPrintf(LOG_NOTICE,
+LogPrintf(LOG_DEBUG,
 "CMHaveLaterEnding: pEvent->note,note=%hd,%d   pEvent->channel,channel=%hd,%d   pEvent->endTime,endTime=%hd,%d\n",
 (short)(pEvent->note), note, (short)(pEvent->channel), channel, (short)(pEvent->endTime), endTime);
 #endif
@@ -566,7 +566,7 @@ Boolean CMCheckEventList(long pageTurnTOffset)
 	empty = True;
 	for (i=0, pEvent = cmEventList; i<lastEvent; i++, pEvent++)
 		if (pEvent->note) {
-//LogPrintf(LOG_NOTICE, "CMCheckEventList pEvent-note=%d\n", pEvent->note);
+//LogPrintf(LOG_DEBUG, "CMCheckEventList pEvent-note=%d\n", pEvent->note);
 			empty = False;
 			if (pEvent->endTime<=t) {							/* note is done, t = now */
 				CMEndNoteNow(pEvent->cmIORefNum, pEvent->note, pEvent->channel);
@@ -776,7 +776,7 @@ Boolean MIDIConnected()
 /* =========================================================== MIDI Feedback Functions == */
 
 /* --------------------------------------------------------------- MIDIFBOn, MIDIFBOff -- */
-/*	If feedback is enabled, turn on MIDI stuff. Exception: if the port is busy,
+/*	If feedback is enabled, turn on MIDI apparatus. Exception: if the port is busy,
 do nothing. */
 
 void MIDIFBOn(Document *doc)
@@ -792,7 +792,7 @@ void MIDIFBOn(Document *doc)
 	}
 }
 
-/*	If feedback is enabled, turn off MIDI stuff. Exception: if the port is busy,
+/*	If feedback is enabled, turn off MIDI apparatus. Exception: if the port is busy,
 do nothing. */
 
 void MIDIFBOff(Document *doc)
@@ -810,13 +810,13 @@ void MIDIFBOff(Document *doc)
 
 
 /* ------------------------------------------------------- MIDIFBNoteOn, MIDIFBNoteOff -- */
-/*	Start MIDI "feedback" note by sending a MIDI NoteOn command for the specified
-note and channel. Exception: if the port is busy, do nothing. */
+/*	Start MIDI "feedback" note by sending a MIDI NoteOn command for the specified note
+and channel. Exception: if the port is busy, do nothing. */
 
 void MIDIFBNoteOn(
 			Document *doc,
 			short noteNum, short channel,
-			short useIORefNum)			/* Ignored unless we're using OMS or FreeMIDI */
+			short useIORefNum)
 {
 	if (doc->feedback) {
 		switch (useWhichMIDI) {
@@ -836,14 +836,14 @@ void MIDIFBNoteOn(
 	}
 }
 
-/*	End MIDI "feedback" note by sending a MIDI NoteOn command for the specified
-note and channel with velocity 0 (which acts as NoteOff).  Exception: if the port
-is busy, do nothing. */
+/*	End MIDI "feedback" note by sending a MIDI NoteOn command for the specified note
+and channel with velocity 0 (which acts as NoteOff).  Exception: if the port is busy,
+do nothing. */
 
 void MIDIFBNoteOff(
 			Document *doc,
 			short	noteNum, short	channel,
-			short useIORefNum)			/* Ignored unless we're using OMS or FreeMIDI */
+			short useIORefNum)
 {
 	if (doc->feedback) {
 		switch (useWhichMIDI) {
@@ -888,8 +888,8 @@ Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly)
 }
 
 
-/* Given a "note", should it be played? The answer is no if it's actually a rest
-or if it belongs to a part that's curremntly muted. */
+/* Given a "note", should it be played? The answer is no if it's actually a rest or
+if it belongs to a part that's curremntly muted. */
 
 Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly)
 {
@@ -930,11 +930,9 @@ void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 		case MCHANPRES:
 			strcpy(strDisp, "ChannelPressure"); break;
 		case MSYSEX:
-			/* 
-			 *	This handles only the original one-chunk form of SysEx message. See
-			 *	midifile.c in Tim Thompson's mftext for some elegant code for
-			 *	collecting arbitrary chunks of SysEx.
-			 */
+			/*	This handles only the original one-chunk form of SysEx message. For some
+				elegant code for collecting arbitrary chunks of SysEx, see midifile.c in
+				Tim Thompson's old program mftext. */
 			strcpy(strDisp, "SysEx"); break;
 		case METAEVENT:									/* No. of data bytes is in the command */
 			strcpy(strDisp, "Metaevent"); break;

@@ -97,7 +97,7 @@ typedef struct myEvent				/* MIDI event list item: */
 	SignedByte	channel;			/* MIDI channel number of note, in range [1..MAXCHANNEL] */
 	long		endTime;			/* Ending time of note, in milliseconds */
 	SignedByte	offVel;				/* Note Off velocity */
-	short		omsIORefNum;		/* Used by OMS to identify device to receive packet */
+	short		omsIORefNum;		/* Obsolete; was used by OMS to identify device to receive packet */
 } MIDIEvent;
 
 typedef struct myCMEvent			/* MIDI event list item: */

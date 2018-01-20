@@ -287,8 +287,6 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	
 	Boolean		MetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 						SignedByte *velocity, short *duration);
-	Boolean		OMSMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
-						SignedByte *velocity, short *duration, OMSUniqueID *device);
 	Boolean		CMMetroDialog(SignedByte *viaMIDI, SignedByte *channel, SignedByte *note,
 						SignedByte *velocity, short *duration, MIDIUniqueID *device);
 

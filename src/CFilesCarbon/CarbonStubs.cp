@@ -14,12 +14,6 @@ here and in the actual MIDI support files! --DAB, Oct. 2017 */
 
 /* OMSUtils */
 
-#ifdef NOMORE
-long	gmOMSBufferLength;	/* OMS MIDI Buffer size in bytes */
-Boolean	gOMSMIDIBufferFull;
-#endif
-
-
 OMSAPI(OMSBool) TestOMSDeviceMenu(OMSDeviceMenuH, OMSPoint )
 { return False; }
 

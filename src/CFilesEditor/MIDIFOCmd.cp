@@ -146,7 +146,6 @@ void ShowMFInfoPage(
  				sprintf(&strBuf[strlen(strBuf)], "\t.");
 		DMFDrawLine(strBuf);
  	}
-
 }
 
 
@@ -166,8 +165,8 @@ static void MFInfoDialog(
 					long lastTrEvent[]
 					)
 {
-	DialogPtr dialogp; GrafPtr oldPort;
-	Handle prevHdl, nextHdl, aHdl; Rect aRect, ticksRect;
+	DialogPtr dialogp;  GrafPtr oldPort;
+	Handle prevHdl, nextHdl, aHdl;  Rect aRect, ticksRect;
 	short ditem, aShort;
 	short dialogOver, linesPerPage, nPages, pageNum, t;
 	long lastEvTime;
@@ -178,11 +177,11 @@ static void MFInfoDialog(
 	if (!dialogp) { MissingDialog(MFINFO_DLOG); return; }
 	SetPort(GetDialogWindowPort(dialogp));
 	GetDialogItem(dialogp, TEXT_DI, &aShort, &aHdl, &textRect);
-	linesPerPage = (textRect.bottom-textRect.top-5)/LEADING-1;		/* Allow 1 for title */
+	linesPerPage = (textRect.bottom-textRect.top-5)/LEADING-1;			/* Allow a bit of space for title */
 
 	GetDialogItem(dialogp, TICKS_DI, &aShort, &aHdl, &ticksRect);
 
-	CenterWindow(GetDialogWindow(dialogp),110);
+	CenterWindow(GetDialogWindow(dialogp), 110);
 	ShowWindow(GetDialogWindow(dialogp));
 					
 	ArrowCursor();

@@ -231,9 +231,9 @@ static pascal void NPageSetupDoneProc(PMPrintSession printSession,
 			rPaper.right = pmRPaper.right;
 			
 			OffsetRect(&rPaper, -rPaper.left, -rPaper.top);
-			LogPrintf(LOG_NOTICE, "NPageSetupDoneProc: origPaperRect= %d,%d,%d,%d\n", doc->origPaperRect.left,
+			LogPrintf(LOG_INFO, "NPageSetupDoneProc: origPaperRect= %d,%d,%d,%d\n", doc->origPaperRect.left,
 						doc->origPaperRect.top, doc->origPaperRect.right, doc->origPaperRect.bottom);
-			LogPrintf(LOG_NOTICE, "                    rPaper=        %d,%d,%d,%d\n", rPaper.left,
+			LogPrintf(LOG_INFO, "                    rPaper=        %d,%d,%d,%d\n", rPaper.left,
 							rPaper.top, rPaper.right, rPaper.bottom);
 			if (!EqualRect(&doc->origPaperRect, &rPaper)) {
 				short marginRight = doc->origPaperRect.right - doc->marginRect.right;

@@ -99,7 +99,7 @@ LINK DuplicateObject(short type, LINK objL, Boolean selectedOnly, Document *srcD
 	Boolean subsNeeded = True;
 	
 #ifdef DODEBUG
-LogPrintf(LOG_NOTICE, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
+LogPrintf(LOG_DEBUG, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 #endif
 
 	if (objL==NILINK) {
@@ -253,8 +253,8 @@ LogPrintf(LOG_NOTICE, "DuplicateObject:\n\tobjL=%d type=%d\n", objL, type);
 	
 #ifdef DODEBUG
 if (type==TEMPOtype) {
-LogPrintf(LOG_NOTICE, "\tSub-object list is %d long\n", subcount);
-LogPrintf(LOG_NOTICE, "\tsubsNeeded=%d\n", subsNeeded);
+LogPrintf(LOG_DEBUG, "\tSub-object list is %d long\n", subcount);
+LogPrintf(LOG_DEBUG, "\tsubsNeeded=%d\n", subsNeeded);
 }
 #endif
 	if (subcount<=0 && subsNeeded) return NILINK;
@@ -267,14 +267,6 @@ LogPrintf(LOG_NOTICE, "\tsubsNeeded=%d\n", subsNeeded);
 
 	if (newObjL == NILINK) return NILINK;
 	
-/*
-LogPrintf(LOG_NOTICE, "\tLINK of new Object = %d\n",newObjL);
-LogPrintf(LOG_NOTICE, "\tsizeof(SUPEROBJECT) = %ld\n",(long)sizeof(SUPEROBJECT));
-LogPrintf(LOG_NOTICE, "\tsizeof(Object from OBJheap) = %ld\n",(long)OBJheap->objSize);
-LogPrintf(LOG_NOTICE, "\tsizeof(ANOTE) = %ld\n",(long)sizeof(ANOTE));
-LogPrintf(LOG_NOTICE, "\tsizeof(Subobject from NOTEheap) = %ld\n",(long)NOTEheap->objSize);
-*/
-
 	/* Copy obj's information into newObj's information */
 	
 	pObj    = (PMEVENT)LinkToPtr(srcDoc->Heap+OBJtype,objL);

@@ -94,8 +94,6 @@ static void 			ClickEraseRange(void);
 
 #define NOTE_NAME_BOX	23
 #define OMS_OUTPUT_MENU 25				/* in OMS version only */
-#define FMS_OUTPUT_MENU OMS_OUTPUT_MENU
-#define FMS_PATCH_MENU 27				/* in FreeMIDI version only */
 
 #define BTNOFF			0
 #define BTNON			1
@@ -486,7 +484,7 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 				GetIndCString(strBuf, INSTRERRS_STRS, 5);		/* Patch no. must be between..." */
 				sprintf(strBuf, fmtStr, MAXPATCHNUM);
 				CParamText(strBuf, "", "", "");
-				LogPrintf(LOG_NOTICE, "Patch no. error: strBuf='%s'\n", strBuf);	// FIXME: MESSAGE IS BLANK!?!
+				LogPrintf(LOG_WARNING, "Patch no. error: strBuf='%s'\n", strBuf);	// FIXME: MESSAGE IS BLANK!?!
 				StopInform(GENERIC_ALRT);
 				GetDialogItem(theDialog, OKBTN, &theType, &hndl, &itemBox);
 				HiliteControl((ControlHandle)hndl,0);			/* so OK btn doesn't stay hilited */
@@ -1480,9 +1478,6 @@ Boolean MpCheck(PARTINFO *p)
 #define PM_DEVICE_OMS	16
 #define PM_DEVICE_CM	16
 
-#define PM_PATCH_FMS	8		/* For FreeMIDI dlog, these used instead of */
-#define PM_DEVICE_FMS	9		/* PM_CHANNEL, PM_PATCH, and PM_DEVICE_OMS */
-
 #define PM_ALLPARTS		17
 
 
@@ -1832,7 +1827,7 @@ pascal Boolean TheCMPMFilter(DialogPtr theDialog, EventRecord *theEvent, short *
 			if (useWhichMIDI==MIDIDR_CM && cmOutputMenuH != NULL) {
 				GetDialogItem(theDialog, PM_DEVICE_CM, &type, &hndl, &box);
 				if (PtInRect(mouseLoc, &box)) {
-					if (ans = DoUserPopUp(&cmOutputPopup)) {
+					if ((ans = DoUserPopUp(&cmOutputPopup))) {
 						*itemHit = PM_DEVICE_CM;
 					}
 				}

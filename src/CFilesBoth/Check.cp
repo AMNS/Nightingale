@@ -2741,7 +2741,7 @@ PushLock(MEASUREheap);
 					if (CapsLockKeyDown() && OptionKeyDown())
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							if (!aMeasure->connAbove)
-						LogPrintf(LOG_NOTICE, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+						LogPrintf(LOG_INFO, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 				}
 				break;
@@ -3049,7 +3049,7 @@ PushLock(OBJheap);
 			LinkSEL(pL) = False;
 			if (CapsLockKeyDown() && OptionKeyDown())
 				if (SUSPICIOUS_WREL_RECT(wSub))
-					LogPrintf(LOG_NOTICE, " %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+					LogPrintf(LOG_INFO, " %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 			HiliteRect(&wSub);
 		}
 		break;
@@ -3395,7 +3395,7 @@ PushLock(OBJheap);
 				aSlur->selected = False;
 				if (CapsLockKeyDown() && OptionKeyDown())
 					if (SUSPICIOUS_WREL_RECT(wSub))
-						LogPrintf(LOG_NOTICE, " %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+						LogPrintf(LOG_INFO, " %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 				HiliteRect(&wSub);
 			}
 			break;

@@ -714,8 +714,8 @@ it would probably be better to do this with invisible input and output ports, as
 scribed in the MIDI Manager manual. I don't know if this also applies to Core MIDI.)
 
 If <selectedOnly>, we play only the selected notes. The selection need not be continuous.
-Notes are played at their correct relative times, even if that means waiting for the next
-selected note's time. */
+Notes are played at their correct relative times, even if that means there's silence until
+the next selected note's time. */
 
 #define CH_BARTAP 0x09						/* Character code for insert-barline key  */
 #define MAX_TEMPO_CHANGES 500				/* Max. no. of tempo changes we handle */
@@ -743,7 +743,7 @@ void PlaySequence(
 	long		tBeforeTurn, tElapsed;
 	Rect		syncRect, sysRect, r,
 				oldPaper, syncPaper, pagePaper;
-	Boolean		paperOnDesktop, moveSel, newPage,
+	Boolean		paperIsOnDesktop, moveSel, newPage,
 				doScroll, tooManyTempi;
 	SignedByte	partVelo[MAXSTAVES];
 	Byte		partChannel[MAXSTAVES];
@@ -884,14 +884,14 @@ void PlaySequence(
 				;
 		}
 	
-	/* Make final preparations and enter the main loop that plays everything. */
+	/* Make final preparations and enter the main loop to play everything. */
 	
 	pageL = LSSearch(fromL, PAGEtype, ANYONE, GO_LEFT, False);
 	pPage = GetPPAGE(pageL);
 	oldCurrentSheet = doc->currentSheet;
 	oldPaper = doc->currentPaper;
 	doc->currentSheet = pPage->sheetNum;
-	paperOnDesktop =
+	paperIsOnDesktop =
 		(GetSheetRect(doc, doc->currentSheet, &doc->currentPaper)==INARRAY_INRANGE);
 	pagePaper = doc->currentPaper;
 
@@ -914,7 +914,7 @@ void PlaySequence(
 			case PAGEtype:
 				pPage = GetPPAGE(pL);
 				doc->currentSheet = pPage->sheetNum;
-				paperOnDesktop =
+				paperIsOnDesktop =
 					(GetSheetRect(doc, doc->currentSheet, &doc->currentPaper)==INARRAY_INRANGE);
 				pagePaper = doc->currentPaper;
 				newPage = True;
@@ -987,7 +987,7 @@ void PlaySequence(
 					oldStartTime = startTime;
 					if (showit) {
 						if (showOldL) HiliteSyncRect(doc, &syncRect, &syncPaper, False);  /* unhilite old Sync */
-						if (paperOnDesktop) {
+						if (paperIsOnDesktop) {
 							syncRect = sysRect;
 							/*
 							 * We use the objRect to determine what to hilite. FIXME: If this

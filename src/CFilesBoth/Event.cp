@@ -1007,7 +1007,7 @@ Document *FSpecOpenDocument(FSSpec *theFile)
 			GetIndCString(fmtStr, FILEIO_STRS, 20);		/* "Finder type is incorrect" */
 			sprintf(aStr, fmtStr);
 			strcat(aStr, "\n");
-			LogPrintf(LOG_NOTICE, aStr);
+			LogPrintf(LOG_WARNING, aStr);
 			CParamText(aStr, "", "", "");
 			CautionInform(READ_PROBLEM_ALRT);			/* Fall through and try to open it anyway */
 		case DOCUMENT_TYPE_NORMAL:

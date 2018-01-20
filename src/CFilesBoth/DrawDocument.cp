@@ -21,7 +21,7 @@ void DrawDocumentControls(Document *doc)
 	Rect portRect;
 	
 	if (!alreadyDrawn) {
-		GetWindowPortBounds(doc->theWindow,&portRect);
+		GetWindowPortBounds(doc->theWindow, &portRect);
 		ClipRect(&portRect);
 		pt = TOP_LEFT(doc->growRect);
 
@@ -40,7 +40,7 @@ window background and the visible sheets of paper. Within each sheet, draw its c
 
 void DrawDocumentView(Document *doc, Rect *updateRect)
 	{
-		Rect updater,margin,paper,result;
+		Rect updater, margin, paper, result;
 		short i;
 		
 		if (doc->showWaitCurs) WaitCursor();
@@ -258,11 +258,10 @@ void RecomputeView(Document *doc)
 		SizeControl(doc->hScroll,r.right-(r.left+MESSAGEBOX_WIDTH),r.bottom-r.top);
 
 		/*
-		 *	Now reset the maximum and minimum values for the scroll bars.
-		 *	These values are designed to allow the user to always scroll
-		 *	in any direction, but never so far as to allow allSheets
-		 *	to disappear from the window.  The control values
-		 *	are the origin of the window the controls are in.  This is
+		 *	Now reset the maximum and minimum values for the scroll bars. These
+		 *	values are designed to allow the user to always scroll in any direction,
+		 *	but never so far as to allow allSheets to disappear from the window. The
+		 *	control values are the origin of the window the controls are in.  This is
 		 *	all done while the controls are still hidden.
 		 */
 		r = doc->viewRect;
@@ -306,7 +305,7 @@ void RecomputeView(Document *doc)
 #ifdef DEBUG_RECOMPUTEVIEW
 			Rect paper;
 			GetSheetRect(doc,doc->currentSheet,&paper);
-			LogPrintf(LOG_NOTICE, "RecomputeView: viewRect(%R), currentPaper(%R)\r",
+			LogPrintf(LOG_DEBUG, "RecomputeView: viewRect(%R), currentPaper(%R)\r",
 						&doc->viewRect,&paper);
 #endif
 		}

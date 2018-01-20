@@ -721,9 +721,9 @@ Boolean MakeClarifyList(
 	}
 #ifdef RDEBUG
 for (k=0; k<kount; k++)
-	LogPrintf(LOG_NOTICE, ">Piece %d time=%ld dur=%d dots=%d\n", k, piece[k].time,
+	LogPrintf(LOG_DEBUG, ">Piece %d time=%ld dur=%d dots=%d\n", k, piece[k].time,
 						(k>0? piece[k].lDur : -1), (k>0? piece[k].nDots : -1));
-	LogPrintf(LOG_NOTICE, ">End     time=%ld dur=%d dots=%d\n", piece[kount].time,piece[kount].lDur,piece[kount].nDots);
+	LogPrintf(LOG_DEBUG, ">End     time=%ld dur=%d dots=%d\n", piece[kount].time,piece[kount].lDur,piece[kount].nDots);
 #endif
 
 	*pKount = kount;
