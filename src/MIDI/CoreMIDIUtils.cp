@@ -314,7 +314,7 @@ void CMInitTimer(void)
 void CMLoadTimer(short interruptPeriod)
 {
 	if (appOwnsBITimer) {
-			;												/* There's nothing to do here. */
+			;									/* There's nothing to do here. */
 	}
 }
 
@@ -330,7 +330,7 @@ long CMGetCurTime(void)
 {
 	long time;
 
-	time = NTMGetTime();								/* use built-in */
+	time = NTMGetTime();						/* use built-in */
 
 	return time;
 }

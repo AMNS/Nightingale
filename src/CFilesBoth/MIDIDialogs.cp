@@ -51,11 +51,9 @@ static enum				/* Dialog item numbers */
 /* ----------------------------------------------------------------------------- Input -- */
 
 static Rect					inputDeviceMenuBox;
-static OMSDeviceMenuH		omsInputMenuH;
 static MenuHandle			cmInputMenuH;
 static UserPopUp			cmInputPopup;
 static MIDIUniqueIDVector	*cmVecDevices;
-static Boolean				omsInputDeviceChanged;
 
 static Rect divRect1, divRect2;
 
@@ -224,7 +222,6 @@ void MIDIPrefsDialog(Document *doc)
 		return;
 	}
 	GetPort(&oldPort);
-	omsInputDeviceChanged = False;
 
 	/* We use the same dialog resource for Core MIDI (and formerly OMS and FreeMIDI). */
 	if (useWhichMIDI == MIDIDR_CM) {
@@ -459,9 +456,6 @@ void MIDIPrefsDialog(Document *doc)
 	config.turnPagesInPlay = (GetDlgChkRadio(dlog, TURNPAGES_DI)!=0? 1 : 0);
 	config.useModNREffects = (GetDlgChkRadio(dlog, USE_MODIFIER_EFFECTS_DI)!=0? 1 : 0);
 
-	if (omsInputMenuH)
-		DisposeOMSDeviceMenu(omsInputMenuH);
-
 	if (cmVecDevices != NULL) {
 		delete cmVecDevices;
 		cmVecDevices = NULL;
@@ -609,19 +603,14 @@ static enum {
 	EDIT9_Vel,
 	EDIT10_Dur,
 	STXT11_Device,
-	OMS_METRO_MENU,
-	CM_METRO_MENU = OMS_METRO_MENU,
+	CM_METRO_MENU,
 	LASTITEM
 	} E_MetroItems;
 
-static OMSDeviceMenuH omsMetroMenuH;
 static Rect metroMenuBox;
-static fmsUniqueID fmsMetroDevice = noUniqueID;
-static short fmsMetroChannel = 0;
 
 /* Prototypes */
 
-static DialogPtr	OpenOMSMetroDialog(Boolean, short, short, short, short, OMSUniqueID);
 static DialogPtr	OpenMetroDialog(Boolean, short, short, short, short);
 static Boolean		MetroDialogItem(DialogPtr dlog, short itemHit);
 static Boolean		MetroBadValues(DialogPtr dlog);
@@ -629,47 +618,6 @@ static Boolean		MetroBadValues(DialogPtr dlog);
 /* Current button (item number) for the radio group */
 
 static short group1;
-
-/* Build this dialog's window on desktop, and install initial item values. Return
-the dlog opened, or NULL if error (no resource, no memory). */
-
-static DialogPtr OpenOMSMetroDialog(
-								Boolean viaMIDI,
-								short channel, short note, short velocity, short duration,
-								OMSUniqueID device)
-{
-	Handle hndl;  GrafPtr oldPort;
-	short scratch;  Str255 deviceStr;  DialogPtr dlog;
-
-	GetPort(&oldPort);
-	dlog = GetNewDialog(CM_METRO_DLOG,NULL,BRING_TO_FRONT);
-	if (dlog==NULL) { MissingDialog(CM_METRO_DLOG); return(NULL); }
-	
-	CenterWindow(GetDialogWindow(dlog),70);
-	SetPort(GetDialogWindowPort(dlog));
-
-	GetDialogItem(dlog, OMS_METRO_MENU, &scratch, &hndl, &metroMenuBox);
-	if (omsMetroMenuH==NULL) { SysBeep(5); SetPort(oldPort); return(NULL);}
-
-	/* Fill in dialog's values here */
-
-	GetIndString(deviceStr, MIDIPLAYERRS_STRS, 16);			/* "No devices available" */
-	SetOMSDeviceMenuSelection(omsMetroMenuH, 0, device, deviceStr, True);
-
-	group1 = (viaMIDI? RAD4_Use : RAD5_Use);
-	PutDlgChkRadio(dlog,RAD4_Use,group1==RAD4_Use);
-	PutDlgChkRadio(dlog,RAD5_Use,group1==RAD5_Use);
-
-	PutDlgWord(dlog,EDIT8_Note, note, False);
-	PutDlgWord(dlog,EDIT9_Vel, velocity, False);
-	PutDlgWord(dlog,EDIT10_Dur, duration, False);
-	PutDlgWord(dlog,EDIT7_Chan, channel, True);			/* last so it can be selected */
-
-	ShowWindow(GetDialogWindow(dlog));
-	DrawOMSDeviceMenu(omsMetroMenuH);
-	TextFont(0); TextSize(0); /* Prevent OMS menu's font from infecting the other items. */
-	return dlog;
-}
 
 static DialogPtr OpenMetroDialog(
 							Boolean viaMIDI,

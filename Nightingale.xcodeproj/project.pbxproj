@@ -17,6 +17,7 @@
 		154FABBD1EF2ADF300666F3F /* Reconstruct.cp in Sources */ = {isa = PBXBuildFile; fileRef = 154FABBC1EF2ADF300666F3F /* Reconstruct.cp */; };
 		1556A2F61D3FA4E700A0B147 /* InsNew.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1556A2F51D3FA4E700A0B147 /* InsNew.cp */; };
 		1556A2F81D3FA4F200A0B147 /* InsNewUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 1556A2F71D3FA4F200A0B147 /* InsNewUtils.cp */; };
+		155F2FE22012E88600E6A344 /* CoreMIDIUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 155F2FE12012E88600E6A344 /* CoreMIDIUtils.cp */; };
 		15602EE71D20BEF300BAEBF6 /* Browser.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EE61D20BEF300BAEBF6 /* Browser.cp */; };
 		15602EEF1D20BF7400BAEBF6 /* Dragging.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EEE1D20BF7400BAEBF6 /* Dragging.cp */; };
 		15602EF81D20C03300BAEBF6 /* DebugUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15602EF71D20C03300BAEBF6 /* DebugUtils.cp */; };
@@ -41,7 +42,6 @@
 		15F774521FE21610005E7B1E /* MiscUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15F774361FE20F26005E7B1E /* MiscUtils.cp */; };
 		15FD35C72012A11C00198184 /* CASoftMidi.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 15FD35C22012A11C00198184 /* CASoftMidi.cpp */; };
 		15FD35C82012A11C00198184 /* CoreMIDIDefs.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = 15FD35C32012A11C00198184 /* CoreMIDIDefs.h */; };
-		15FD35C92012A11C00198184 /* CoreMIDIUtils.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15FD35C42012A11C00198184 /* CoreMIDIUtils.cp */; };
 		15FD35CA2012A11C00198184 /* MidiMap.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15FD35C52012A11C00198184 /* MidiMap.cp */; };
 		15FD35CB2012A11C00198184 /* MidiMapInfo.cp in Sources */ = {isa = PBXBuildFile; fileRef = 15FD35C62012A11C00198184 /* MidiMapInfo.cp */; };
 		8D0C4E8D0486CD37000505A6 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0867D6AAFE840B52C02AAC07 /* InfoPlist.strings */; };
@@ -225,6 +225,7 @@
 		154FABBC1EF2ADF300666F3F /* Reconstruct.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Reconstruct.cp; sourceTree = "<group>"; };
 		1556A2F51D3FA4E700A0B147 /* InsNew.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNew.cp; sourceTree = "<group>"; };
 		1556A2F71D3FA4F200A0B147 /* InsNewUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = InsNewUtils.cp; sourceTree = "<group>"; };
+		155F2FE12012E88600E6A344 /* CoreMIDIUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMIDIUtils.cp; sourceTree = "<group>"; };
 		15602EE61D20BEF300BAEBF6 /* Browser.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Browser.cp; sourceTree = "<group>"; };
 		15602EEE1D20BF7400BAEBF6 /* Dragging.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Dragging.cp; sourceTree = "<group>"; };
 		15602EF71D20C03300BAEBF6 /* DebugUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DebugUtils.cp; sourceTree = "<group>"; };
@@ -248,7 +249,6 @@
 		15F774381FE20F8A005E7B1E /* MiscUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MiscUtils.h; sourceTree = "<group>"; };
 		15FD35C22012A11C00198184 /* CASoftMidi.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CASoftMidi.cpp; sourceTree = "<group>"; };
 		15FD35C32012A11C00198184 /* CoreMIDIDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CoreMIDIDefs.h; sourceTree = "<group>"; };
-		15FD35C42012A11C00198184 /* CoreMIDIUtils.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CoreMIDIUtils.cp; sourceTree = "<group>"; };
 		15FD35C52012A11C00198184 /* MidiMap.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MidiMap.cp; sourceTree = "<group>"; };
 		15FD35C62012A11C00198184 /* MidiMapInfo.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MidiMapInfo.cp; sourceTree = "<group>"; };
 		20286C33FDCF999611CA2CEA /* Carbon.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Carbon.framework; path = /System/Library/Frameworks/Carbon.framework; sourceTree = "<absolute>"; };
@@ -519,7 +519,7 @@
 			children = (
 				15FD35C22012A11C00198184 /* CASoftMidi.cpp */,
 				15FD35C32012A11C00198184 /* CoreMIDIDefs.h */,
-				15FD35C42012A11C00198184 /* CoreMIDIUtils.cp */,
+				155F2FE12012E88600E6A344 /* CoreMIDIUtils.cp */,
 				15FD35C52012A11C00198184 /* MidiMap.cp */,
 				15FD35C62012A11C00198184 /* MidiMapInfo.cp */,
 			);
@@ -1187,9 +1187,9 @@
 				15683ED01F851D7200355A40 /* MIDIFOCmd.cp in Sources */,
 				15F774521FE21610005E7B1E /* MiscUtils.cp in Sources */,
 				15FD35C72012A11C00198184 /* CASoftMidi.cpp in Sources */,
-				15FD35C92012A11C00198184 /* CoreMIDIUtils.cp in Sources */,
 				15FD35CA2012A11C00198184 /* MidiMap.cp in Sources */,
 				15FD35CB2012A11C00198184 /* MidiMapInfo.cp in Sources */,
+				155F2FE22012E88600E6A344 /* CoreMIDIUtils.cp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1221,7 +1221,10 @@
 		C0E91AC708A95435008D54AB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = ppc;
+				ARCHS = (
+					i386,
+					ppc,
+				);
 				DEAD_CODE_STRIPPING = YES;
 				GCC_VERSION = 4.0;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -1249,7 +1252,10 @@
 		C0E91ACB08A95435008D54AB /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ARCHS = ppc;
+				ARCHS = (
+					i386,
+					ppc,
+				);
 				COPYING_PRESERVES_HFS_DATA = YES;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;

@@ -2485,3 +2485,62 @@ recently, the return False was ignored; everything for chord symbols is handled 
 DrawChordSym! Not wonderful. But by far the easiest acceptable fix is to really skip
 calling GetGraphicDBox for chord symbols, _and_ add a comment to explain => done.
 
+-------------------------------------------------------------------------------
+
+22 - 24 Jan. 2018
+
+I've been thinking for a long time that Carbon-based applications can't work past OS
+10.6, but that's dumb: It's obvious now (from statements by Michel Salim and many
+others) they work fine all the way thru OS 10.12; it's just PowerPC apps, like all
+versions of Nightingale to date, that croak at 10.7! Xcode 2.5 & 3.2 both claim to be
+able to compile to i386 code, and on both, the SDK I'm using is "MacOSX10.4u.sdk" -- "u"
+presumably meaning "Universal". So:
+
+In the Ngale project in Xcode 2.5 (on my G5), for Configuration "Release", select both
+PPC and i386; clean and build => Nope, result is still PPC only. Select only i386 =>
+still PPC only. Quit Xcode, re-launch, compile for only i386 again => still PPC only!
+
+In the Ngale project in Xcode 3.2 (on my MacBook Air), for Configuration "Release",
+select "Standard (32/64-bit Universal", clean & build => still PPC only! #^**)E%$()_* .
+Select "Native Architecture of Build Machine" (it'a an Intel Core 2 Duo) => STILL PPC
+only!!??
+
+From http://www.cocoabuilder.com/archive/xcode :
+	
+	"When I upgraded from Xcode 3.2.3 to 3.2.6, Xcode "erased" my universal build
+	settings, as many of you probably know or experienced. I've tried to restore them
+	with some info found on the web, but what I've wound up with is builds that are
+	universal, but do not actually run in 64 bit mode. Can someone please tell me
+	precisely what the correct build settings should be? This is what I have:
+	
+	Architectures: i386 ppc
+	Base SDK: Current Mac OS  (** now on SL)
+	Valid Architectures: x86_64 i386 ppc ppc7400 ppc970
+	Mac OS X 10.5:  x86_64 i386 ppc64
+	
+	Compiler Version: GCC 4.2
+	Mac OS X Deployment Target: Mac OS X 10.4
+	
+	"Note that I created an additional "valid architecture" at one point, because I need
+	to weak link some frameworks for 10.5+ It must run on OS X 10.4"
+
+It's not clear if this helps. What's the relationship between "Architectures" and "Valid
+Architectures" and what Xcode does? According to the Xcode Build Setting Reference, Xcode
+intersects the two lists and that's what it actually builds for. Okay, but Xcode's Get
+Info for Nightingale.xcodeproj, "All Settings", dosn't even show Valid Architectures!
+But they're probably in the xcodeproj in an intelligible form? Yes! project.pbxproj is in
+a JSON-like format; its XCBuildConfiguration section shows Debug and Release configs --
+in fact, two of each! And of the two Release configs, the 2nd has
+
+				ARCHS = (
+					i386,
+					ppc,
+				);
+
+...which agrees with what Get Info shows; but the 1st just has ARCHS = ppc. Also, the
+1st has VALID_ARCHS = "i386 ppc"; the 2nd doesn't have a VALID_ARCHS. Maybe Xcode
+is paying attention to the 1st? Try hand editing its ARCHS to the same as the 2nd; clean;
+build => it says it's compiling 320 source files, about twice the usual number!! Yay!!
+And, sure enough, it builds a Universal app, one that runs on my Intel MacBook... sort
+of :-| .
+

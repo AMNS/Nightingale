@@ -551,7 +551,8 @@ static Boolean NotatableDur(
 
 
 /* ------------------------------------------------------------------------- SetNRCDur -- */
-/* Set the logical and physical duration of the given note/rest/chord. Will not work
+/* Set the logical and physical duration of the note/rest/chord specified by the given
+Sync and voice number. If there are no notes or rests, do nothing. Will not work
 within tuplets or for whole-measure rests or unknown duration! */
 
 void SetNRCDur(
@@ -563,7 +564,7 @@ void SetNRCDur(
 				Boolean setPDur
 				)
 {
-	LINK aNoteL, vNoteL;
+	LINK aNoteL, vNoteL=NILINK;
 	PANOTE aNote;
 	long pDur;
 	
@@ -578,6 +579,8 @@ void SetNRCDur(
 			if (setPDur) aNote->playDur = pDur;
 		}
 
+	if (vNoteL==NILINK) return;						/* Found no notes or rests */
+	
 	if (!NoteREST(vNoteL)) FixNCStem(doc, syncL, NoteVOICE(vNoteL), pContext);
 }
 
@@ -731,7 +734,7 @@ for (k=0; k<kount; k++)
 }
 
 
-/* ------------------------------------------------------------- ClarifyFromList -- */
+/* ------------------------------------------------------------------- ClarifyFromList -- */
 /* Given a note/rest/chord and a list <piece> of start times and durations for
 segments we want to divide it into, divide the note/rest/chord (henceforth, "NRC")
 up. Merge the segments into existing Syncs when possible, otherwise put them into
@@ -815,7 +818,7 @@ Boolean ClarifyFromList(
 }
 
 
-/* ------------------------------------------------------------ ClarifyNRCRhythm -- */
+/* ------------------------------------------------------------------ ClarifyNRCRhythm -- */
 /* Clarify the rhythm of a single note/rest/chord by dividing it, if necessary, into
 two or more tied notes/rests/chords. Return values are:
 	-1		Miscellaneous error

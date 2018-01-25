@@ -1972,11 +1972,11 @@ MIDIPlay, MIDIUtils, MusicFont.
 
 -------------------------------------------------------------------------------
 
-17-19 Jan.
+17 - 19 Jan.
 
 Renamed the "CoreAudio" folder to "MIDI". Affects the xcodeproj.
 
-Minor cleanup: removed references to and code and resources to handle FMS, renamed
+Minor cleanup: removed references to and code and resources to handle FreeMIDI, renamed
 "OMS..." entities that support Core MIDI to "CM..."; changed LOG_NOTICE-level calls to
 LogPrintf to lower or higher levels; etc. Affects Check, CarbonStubs.h, CoreMIDIDefs.h,
 FreeMIDICompat.h, InstrDialog.h, MIDICompat.h, MIDIGeneral.h, NMiscTypes.h,
@@ -1984,4 +1984,17 @@ NightTemplates.h, NMiscTypes.h, NResourceID.h, NTypes.h, OpcodeNightingaleData.h
 OMSCompat.h, .rsrc; CarbonPrinting, CarbonStubs, CoreMIDIUtils, DebugDisplay,
 DelRedAccs, Documents, Double, Extract, InstrDialog, MIDIDialogs, MIDIFOCmd, MIDIPlay,
 MIDIRecord, MIDIRecUtils, MIDIUtils, MusicFont, Objects, PS_Stdio, RhythmDur, SpaceTime.
+
+-------------------------------------------------------------------------------
+
+21 - 24 Jan.
+
+Remove resources for FreeMIDI and OMS and #defines for them: 10 ALRTs, 2 DLOGs, 1 string.
+Affects .rsrc; NResource.h.
+
+Hack project file so it builds a "Universal" binary instead of PowerPC-only! But NB: It's
+pretty much unusable with Intel processors so far, probably because of Endian issues.
+
+Minor cleanup: removed references to and code and resources to handle OMS and FreeMIDI,
+etc. Affects CoreMIDIUtils, MIDIDialogs, RhythmDur.
 
