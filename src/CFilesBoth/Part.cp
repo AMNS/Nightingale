@@ -666,7 +666,7 @@ short Staff2Part(Document *doc, short nstaff)
 	
 	partL = NextPARTINFOL(FirstSubLINK(doc->headL));
 	for (np = 1; partL; np++, partL = NextPARTINFOL(partL)) {
-		//fix_end(partL);
+		//FIX_END(partL);
 		pPart = GetPPARTINFO(partL);
 		if (pPart->lastStaff>=nstaff) return np;
 	}

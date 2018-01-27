@@ -2487,7 +2487,7 @@ calling GetGraphicDBox for chord symbols, _and_ add a comment to explain => done
 
 -------------------------------------------------------------------------------
 
-22 - 24 Jan. 2018
+22 - 25 Jan. 2018
 
 I've been thinking for a long time that Carbon-based applications can't work past OS
 10.6, but that's dumb: It's obvious now (from statements by Michel Salim and many
@@ -2542,5 +2542,17 @@ in fact, two of each! And of the two Release configs, the 2nd has
 is paying attention to the 1st? Try hand editing its ARCHS to the same as the 2nd; clean;
 build => it says it's compiling 320 source files, about twice the usual number!! Yay!!
 And, sure enough, it builds a Universal app, one that runs on my Intel MacBook... sort
-of :-| .
+of. It's pretty much unusable with Intel processors so far, probably because of Endian
+issues. It gives 11 CNFG errors:
 
+	Checking CNFG:  err #1, err #36, err #36, err #46, err #47, err #62, err #65,
+		err #68, err #78, err #79, err #84, TOTAL OF 11 ERROR(S) FOUND.
+
+...and doesn't even seem to be able to draw a staff!
+
+-------------------------------------------------------------------------------
+
+26 Jan.
+
+Try the Endian approach to Ngale's problems on Intel processors. Using Michel Salim's
+nice fix_end macro, in EndianUtils.h, ??

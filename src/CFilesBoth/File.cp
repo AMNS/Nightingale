@@ -124,7 +124,7 @@ static void FillFontTable(Document *doc)
 {
 	short	j, nMissing;
 	
-	fix_end(doc->nfontsUsed);
+	FIX_END(doc->nfontsUsed);
 	if (doc->nfontsUsed>MAX_SCOREFONTS || doc->nfontsUsed<0)
 		MayErrMsg("FillFontTable: %ld fonts is illegal.", (long)doc->nfontsUsed);
 
@@ -1296,7 +1296,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 
 	count = sizeof(version);									/* Read & check file version code */
 	errCode = FSRead(refNum, &count, &version);
-	fix_end(version);
+	FIX_END(version);
 	if (errCode) { errInfo = VERSIONobj; goto Error;}
 	
 	/* If user has the secret keys down, pretend file is in current version. */
@@ -1321,7 +1321,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 
 	count = sizeof(fileTime);									/* Time file was written */
 	errCode = FSRead(refNum, &count, &fileTime);
-	fix_end(fileTime);
+	FIX_END(fileTime);
 	if (errCode) { errInfo = VERSIONobj; goto Error; }
 		
 	/* Read and, if necessary, convert document (i.e., Sheets) and score headers. */
@@ -1394,7 +1394,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 			;
 	}
 
-	fix_end(doc->nstaves);
+	FIX_END(doc->nstaves);
 	if (doc->nstaves>MAXSTAVES) {
 		errCode = TOOMANYSTAVES_ERR;
 		errInfo = doc->nstaves;
@@ -1404,7 +1404,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	count = sizeof(lastType);
 	errCode = FSRead(refNum, &count, &lastType);
 	if (errCode) { errInfo = HEADERobj; goto Error; }
-	fix_end(lastType);
+	FIX_END(lastType);
 
 	if (lastType!=LASTtype) {
 		errCode = LASTTYPE_ERR;
@@ -1415,7 +1415,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	count = sizeof(stringPoolSize);
 	errCode = FSRead(refNum, &count, &stringPoolSize);
 	if (errCode) { errInfo = STRINGobj; goto Error; }
-	fix_end(stringPoolSize);
+	FIX_END(stringPoolSize);
 	if (doc->stringPool)
 		DisposeStringPool(doc->stringPool);
 	/*

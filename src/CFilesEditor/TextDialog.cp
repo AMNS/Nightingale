@@ -127,7 +127,7 @@ static Rect fontRect, sizeRect, faceRect, styleRect, dimRect;		/* Panel frames *
 static void		DimStylePanels(DialogPtr dlog, Boolean dim);
 static pascal Boolean MyFilter(DialogPtr dlog, EventRecord *evt, short *itemHit);
 
-static void		DebugPrintFonts(Document *doc);
+static void		DebugShowFonts(Document *doc);
 static void		SetFontPopUp(StringPtr fontName, StringPtr strbuf);
 static void		SetAbsSizePopUp(short size, StringPtr strbuf);
 static void		SetStyleBoxes(DialogPtr dlog, short style, short lyric);
@@ -148,7 +148,7 @@ static Boolean	AllIsWell(DialogPtr dlog);
 static void		InstallTextStyle(DialogPtr dlog, TEXTSTYLE *aStyle, Boolean anExpanded);
 
 
-static void DebugPrintFonts(Document *doc)
+static void DebugShowFonts(Document *doc)
 {
 	LogPrintf(LOG_DEBUG, "fontName1=%p\n relFSize1=%d fontSize1=%d fontStyle1=%d\n",
 		doc->fontName1,doc->relFSize1,doc->fontSize1,doc->fontStyle1);
@@ -1164,8 +1164,8 @@ Boolean TextDialog(
 						DimStylePanels(dlog, True);
 					else
 						InvalWindowRect(GetDialogWindow(dlog), &dimRect);		/* force redrawing by DimStylePanels */
-#ifdef DEBUG_PRINTFONTS
-					DebugPrintFonts(doc);
+#ifdef DEBUG_SHOWFONTS
+					DebugShowFonts(doc);
 #endif
 					}
 				break;
@@ -1524,8 +1524,8 @@ Boolean DefineStyleDialog(Document *doc,
 					InstallTextStyle(dlog, &theCurrent, False);
 					TextEditState(dlog, False);
 					DrawExampleText(dlog, NULL);
-#ifdef DEBUG_PRINTFONTS
-					DebugPrintFonts(doc);
+#ifdef DEBUG_SHOWFONTS
+					DebugShowFonts(doc);
 #endif
 				}
 				break;

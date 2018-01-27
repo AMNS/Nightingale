@@ -329,7 +329,7 @@ short MakeTConvertTable(
 		}
 	}
 
-	if (DEBUG_PRINT) {
+	if (DEBUG_SHOW) {
 		for (short i = 0; i<tempoCount; i++)
 			LogPrintf(LOG_DEBUG, "tConvertTab[%d].microbeats=%ld pDurTime=%ld realTime=%ld\n",
 				i, tConvertTab[i].microbeats, tConvertTab[i].pDurTime, tConvertTab[i].realTime);

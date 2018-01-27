@@ -416,7 +416,7 @@ void ClearFromStringInPool(StringRef offset, StringPoolRef pool)
 
 void StringPoolEndianFix(StringPoolRef pool) {
 	StringPool *p = *pool;
-	fix_end(p->sizeJump);
+	FIX_END(p->sizeJump);
 }
 
 /*

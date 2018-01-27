@@ -787,7 +787,7 @@ short BuildGRBeamDrawTable(LINK beamL,
 	}
 
 #ifdef BDEBUG
-	if (DEBUG_PRINT) {
+	if (DEBUG_SHOW) {
 		for (i = 0; i<count; i++) {
 			if (i==0) LogPrintf(LOG_DEBUG, " Beam at %d ", beamL);
 			else	  LogPrintf(LOG_DEBUG, "            ");

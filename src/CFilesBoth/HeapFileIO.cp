@@ -1,8 +1,8 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	HeapFileIO.c
 *	PROJ:	Nightingale
 *	DESC:	Routines to read and write object and subobject heaps
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -309,21 +309,20 @@ static short WriteModHeap(Document *doc, short refNum, LINK **modA)
 }
 
 
-/* Write the note modifier subobjects to file, updating the subobject 
-<next> links to reflect the new position of the subobjects in their 
-in-file heap, and filling in the modA array so that notes can update
-their firstMod field in the WriteSubObjs routine. */
+/* Write the note modifier subobjects to file, updating the subobject <next> links to
+reflect the new position of the subobjects in their in-file heap, and filling in the
+modA array so that notes can update their firstMod field in the WriteSubObjs routine. */
 
 static short WriteModSubs(short refNum, LINK aNoteL, LINK	link, LINK **/*modA*/,
 									unsigned short *nMods)
 {
-	LINK 		nextL, subL, tempL;
-	HEAP 		*myHeap;
+	LINK 	nextL, subL, tempL;
+	HEAP 	*myHeap;
 	PANOTE 	aNote;
-	short		ioErr = noErr;
+	short	ioErr = noErr;
 	
-	/* The links are now being allocated sequentially, so that the <next> link
-		of the current link <link> is link+1. */	
+	/* The links are now being allocated sequentially, so that the <next> link of
+		the current link <link> is link+1. */	
 	nextL = link+1;
 	myHeap = Heap + MODNRtype;
 	PushLock(myHeap);
@@ -459,7 +458,7 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	ioErr = FSWrite(refNum, &count, (Ptr)myHeap);
 	
 
-		if (DEBUG_PRINT) {
+		if (DEBUG_SHOW) {
 			long position;
 			const char *ps;
 			GetFPos(refNum, &position);
@@ -736,7 +735,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	
 	count = sizeof(long);
 	FSRead(refNum,&count,&sizeAllObjs);
-	fix_end(sizeAllObjs);
+	FIX_END(sizeAllObjs);
 	if (sizeAllObjs>heapSizeAllObjs) {
 		AlwaysErrMsg("ReadObjHeap: sizeAllObjs=%ld but nFObjs=%ld gives heapSizeAllObjs=%ld",
 					sizeAllObjs, (long)nFObjs, heapSizeAllObjs);
@@ -986,20 +985,20 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 	/* Read the total number of objects of type heapIndex */
 	count = sizeof(short);
 	ioErr = FSRead(refNum, &count, pnFObjs);
-	fix_end(*pnFObjs);
+	FIX_END(*pnFObjs);
 	if (ioErr)
 		{ OpenError(True, refNum, ioErr, heapIndex); return ioErr; }
 	
  	count = sizeof(HEAP);
 	ioErr = FSRead(refNum,&count,&tempHeap);
-	fix_end(tempHeap.type);
-	fix_end(tempHeap.objSize);
+	FIX_END(tempHeap.type);
+	FIX_END(tempHeap.objSize);
 	if (ioErr)
 		{ OpenError(True, refNum, ioErr, heapIndex); return ioErr; }
 	
 	myHeap = doc->Heap + heapIndex;
 
-		if (DEBUG_PRINT) {
+		if (DEBUG_SHOW) {
 			long position;
 			const char *ps;
 			GetFPos(refNum, &position);
@@ -1040,9 +1039,9 @@ void HeapFixLinks(Document *doc)
 	
 	prevPage = prevSystem = prevStaff = prevMeasure = NILINK;
 
-	fix_end(doc->headL);
+	FIX_END(doc->headL);
 	for (pL = doc->headL; !tailFound; pL = DRightLINK(doc, pL)) {
-		fix_end(DRightLINK(doc, pL));
+		FIX_END(DRightLINK(doc, pL));
 		switch(DObjLType(doc, pL)) {
 			case TAILtype:
 				doc->tailL = pL;

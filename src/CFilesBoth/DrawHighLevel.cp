@@ -355,7 +355,7 @@ static void DrawScoreRange(Document *doc, LINK fromL, LINK toL, CONTEXT context[
 	paperUpdate = *updateRect;
 	OffsetRect(&paperUpdate, -paper->left, -paper->top);
 	
-	if (DEBUG_PRINT)
+	if (DEBUG_SHOW)
 		LogPrintf(LOG_DEBUG, "DrawScoreRange: fromL=%u toL=%u outputTo=%d\n", fromL, toL, outputTo);
 	
 	for (pL=fromL; pL!=toL; pL=RightLINK(pL))

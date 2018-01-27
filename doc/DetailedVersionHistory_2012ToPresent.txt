@@ -1940,7 +1940,7 @@ ScoreInfo, SetCommand, UIFUtils.
 Changed the keydown combination to add more detailed debug info to the log file from
 shift-option to shift-control. Affects Defs.h.
 
-Minor cleanup: remove all references to TARGET_API_MAC_CARBON_MIDI, etc. Affects
+Minor cleanup: removed all references to TARGET_API_MAC_CARBON_MIDI, etc. Affects
 Nightingale.precomp.pch, Defs.h, UIFUtils.h, Utility.h; InitNightingale, MIDIUtils,
 TrackVMove, UIFUtils, Utility.
 
@@ -1948,7 +1948,7 @@ TrackVMove, UIFUtils, Utility.
 
 8 Jan.
 
-Minor cleanup: remove all references to TARGET_API_MAC_CARBON_FILEIO, etc. Affects
+Minor cleanup: removed all references to TARGET_API_MAC_CARBON_FILEIO, etc. Affects
 Nightingale.precomp.pch, NightTemplates.h; Documents, Event, Menu, MiscUtils,
 NotelistSave, StringToolbox.
 
@@ -1956,7 +1956,7 @@ NotelistSave, StringToolbox.
 
 9 - 10 Jan.
 
-Minor cleanup: remove all references to TARGET_API_MAC_CARBON (Issue #76), etc. Affects
+Minor cleanup: removed all references to TARGET_API_MAC_CARBON (Issue #76), etc. Affects
 ApplicData.h, CarbonPrinting.h, MiscUtils.h, NMiscTypes.h, NightTemplates.h;
 CarbonPrinting, CarbonStubs, Documents, DurationPopUp, Event, File, Initialize, Menu,
 MiscUtils, PS_Stdio, StringToolbox, UIFUtils, Utility, Windows; SampleMDEF.
@@ -1965,7 +1965,7 @@ MiscUtils, PS_Stdio, StringToolbox, UIFUtils, Utility, Windows; SampleMDEF.
 
 11-16 Jan.
 
-Increase max. no. of tempo changes on playback from 300 to 500. Affects MIDIPlay.
+Increased max. no. of tempo changes on playback from 300 to 500. Affects MIDIPlay.
 
 Minor cleanup. Affects NightTemplates.h, OpcodeNightingaleData.h; Menu, MIDIDialogs,
 MIDIPlay, MIDIUtils, MusicFont.
@@ -1989,12 +1989,28 @@ MIDIRecord, MIDIRecUtils, MIDIUtils, MusicFont, Objects, PS_Stdio, RhythmDur, Sp
 
 21 - 24 Jan.
 
-Remove resources for FreeMIDI and OMS and #defines for them: 10 ALRTs, 2 DLOGs, 1 string.
+Removed resources for FreeMIDI and OMS and #defines for them: 10 ALRTs, 2 DLOGs, 1 string.
 Affects .rsrc; NResource.h.
 
-Hack project file so it builds a "Universal" binary instead of PowerPC-only! But NB: It's
-pretty much unusable with Intel processors so far, probably because of Endian issues.
+Hacked the project file (project.pbxproj) so it builds a "Universal" binary instead of
+PowerPC-only! But NB: It's pretty much unusable with Intel processors so far, probably
+because of Endian issues.
 
 Minor cleanup: removed references to and code and resources to handle OMS and FreeMIDI,
 etc. Affects CoreMIDIUtils, MIDIDialogs, RhythmDur.
 
+-------------------------------------------------------------------------------
+
+25 - 26 Jan.
+
+Replaced hardcoded inline constants for checking CNFG fields with #defines. Affects
+Initialize.
+
+Enlarged a button in ALRT 190 whose text is wider than the button. Affects .rsrc.
+
+Minor cleanup: removed references to OMS; rename DEBUG_PRINT to DEBUG_SHOW; etc. Affects
+ApplicData.h, Defs.h, EndianUtils.h, NMiscTypes.h; CarbonStubs, DrawHighLevel, File,
+GRBeam, HeapFileIO, Initialize, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIUtils, Part,
+RTRhythmDur, ScoreInfo, SpaceHighLevel, StringPool, TextDialog, Transcribe.
+
+Built separately for PowerPC and Intel. Affects project.pbxproj (in Nightingale.xcodeproj).

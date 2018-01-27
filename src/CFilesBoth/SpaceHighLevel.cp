@@ -476,7 +476,7 @@ static void ConsidITWidths(
 			for (s = 1; s<=doc->nstaves; s++) {
 
 #ifdef SPACEBUG
-	if (DEBUG_PRINT) {
+	if (DEBUG_SHOW) {
 		LogPrintf(LOG_DEBUG, "CIT2. "); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
@@ -604,7 +604,7 @@ static void ConsidIPWidths(
 		}
 
 #ifdef SPACEBUG
-	if (DEBUG_PRINT) {
+	if (DEBUG_SHOW) {
 		LogPrintf(LOG_DEBUG, "Final "); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
@@ -715,7 +715,7 @@ static void ConsiderWidths(
 	ConsidITWidths(doc, barTermL, nLast, spaceTimeInfo, fSpBefore);
 
 #ifdef SPACEBUG
-	if (DEBUG_PRINT) {
+	if (DEBUG_SHOW) {
 		LogPrintf(LOG_DEBUG, "Inter."); DebugPrintSpacing(nLast, fSpBefore);
 	}
 #endif
@@ -824,7 +824,7 @@ DDIST Respace1Bar(
 	}
 
 #ifdef SPACEBUG
-	if (DEBUG_PRINT) {
+	if (DEBUG_SHOW) {
 		short k;
 		LogPrintf(LOG_DEBUG,   "Nodes: ---------");
 		for (k = 0; k<=nLast; k++)
@@ -850,7 +850,7 @@ DDIST Respace1Bar(
 	ConsiderWidths(doc, barTermL, nLast, spaceTimeInfo, fSpBefore, position);
 
 #ifdef SPACEBUG
-	if (DEBUG_PRINT) {
+	if (DEBUG_SHOW) {
 		LogPrintf(LOG_DEBUG, "Final positions:");
 		for (i = 0; i<=nLast; i++)
 			LogPrintf(LOG_DEBUG, " %5ld", position[i]);

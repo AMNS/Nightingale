@@ -383,15 +383,15 @@ typedef struct {
 	/* Following fields were added after Nightingale 4.0. */
 
 	SignedByte	useModNREffects;		/* P: Use modifier prefs for velocity, duration, etc. changes when playing? */
-	SignedByte	thruChannel;			/* U: Channel and device (either FreeMIDI or OMS) for MIDI thru output */
+	SignedByte	thruChannel;			/* U: Channel and device for MIDI thru output */
 	fmsUniqueID	thruDevice;
 
 	/* Following fields were added after Nightingale 4.0, file format version "N104". */
 	
-	MIDIUniqueID cmMetroDevice;				/* P: CoreMIDI identifier for metronome synth */
-	MIDIUniqueID cmDefaultInputDevice;		/* P: CoreMIDI identifier for default input synth */
-	MIDIUniqueID cmDefaultOutputDevice; 	/* P: CoreMIDI identifier for default output synth */
-	SignedByte	cmDefaultOutputChannel; 	/* P: channel for dflt out device; input uses defaultChannel */
+	MIDIUniqueID cmMetroDevice;				/* P: Core MIDI identifier for metronome synth */
+	MIDIUniqueID cmDefaultInputDevice;		/* P: Core MIDI identifier for default input synth */
+	MIDIUniqueID cmDefaultOutputDevice; 	/* P: Core MIDI identifier for default output synth */
+	SignedByte	 cmDefaultOutputChannel; 	/* P: channel for dflt out device; input uses defaultChannel */
 
 	/* Padding and final stuff. NOTE: Cf. comments on <unused> above before adding fields! */
 	

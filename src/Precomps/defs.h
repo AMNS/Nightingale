@@ -429,7 +429,7 @@ with MAX_TSDENOM, above! */
 #define RIGHT_HLIM(doc) 	(pt2d((doc)->marginRect.right-(doc)->marginRect.left))
 #define LEFT_HLIM(doc, pL)	(J_DTYPE(pL)? -RIGHT_HLIM(doc) : 0)
 
-#define DEBUG_PRINT			(ShiftKeyDown() && ControlKeyDown())
+#define DEBUG_SHOW			(ShiftKeyDown() && ControlKeyDown())
 
 /* ----------------------------------------------------------------- CONVERSION MACROS -- */
 

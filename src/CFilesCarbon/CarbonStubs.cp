@@ -8,9 +8,10 @@
 #define True 1
 #define False 0
 
-/* Nightingale hasn't supported OMS and FreeMIDI for many years, and it's unlikely it
-ever will again, so I've removed a lot of stuff for them. But there's more to do, both
-here and in the actual MIDI support files! --DAB, Oct. 2017 */
+/* Nightingale hasn't supported OMS and FreeMIDI for many years -- they're relics of Mac
+Classic (OS 9 and eariler), and it's unlikely it ever will again -- so I've removed a lot
+of stuff for them. But there's more to do, both here and in the actual MIDI support files!
+--DAB, Oct. 2017 */
 
 /* OMSUtils */
 
