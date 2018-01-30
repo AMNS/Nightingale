@@ -340,10 +340,10 @@ static void DrawSelBox(short index)
 	FrameRect(&theSelection);
 }
 
-/*
- *	Return the address of a static copy of the 'vers' resource's short string (Pascal).
- *	We assume a 'vers' resource ID of 1.  Delivers "\p??" if it finds a problem.
- */
+/* Return the address of a static copy of the 'vers' resource's short string (Pascal).
+We assume a 'vers' resource ID of 1.  Delivers "\p??" if it finds a problem. FIXME: This
+method is unreliable and obsolete! We need to get the version from Info.plist, the way
+DoAboutBox() does. */
 
 typedef struct {
 	char bytes[4];
@@ -365,6 +365,7 @@ unsigned char *VersionString()
 
 	Pstrcpy(versStr,"\p??");		/* Start with default for any errors */
 	
+#ifdef NOMORE
 	vers = GetResource('vers',1);
 	if (vers) {
 		LoadResource(vers);
@@ -376,6 +377,7 @@ unsigned char *VersionString()
 			Pstrcpy(versStr,p);
 		}
 	}
+#endif
 
 	UseResFile(curResFile);
 	

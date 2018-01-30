@@ -2025,7 +2025,7 @@ PushLock(NOTEheap);
 			OffsetRect(&rSub, d2p(xd), d2p(yd));
 			if (aNote->otherStemSide)	{					/* adjust note for wrong stem side in chord */
 				width = rSub.right-rSub.left;
-				for (bNoteL=FirstSubLINK(pL);bNoteL;bNoteL=NextNOTEL(bNoteL))
+				for (bNoteL=FirstSubLINK(pL); bNoteL; bNoteL=NextNOTEL(bNoteL))
 					if (NoteVOICE(bNoteL)==NoteVOICE(aNoteL) && MainNote(bNoteL)) {	/* get stem up/down from note in voice w/ stem */
 						upOrDown = NoteYD(bNoteL)>NoteYSTEM(bNoteL);
 						break;
@@ -2093,7 +2093,7 @@ PushLock(NOTEheap);
 				if (aNote->selected) {
 					aNote->selected = False;
 					InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
-					if (CapsLockKeyDown() && OptionKeyDown())
+					if (DEBUG_SHOW)
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							LogPrintf(LOG_INFO, " %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
 								enlargeSpecial.h, enlargeSpecial.v);
@@ -2738,7 +2738,7 @@ PushLock(MEASUREheap);
 			case SMDeselect:
 				if (aMeasure->selected) {
 					aMeasure->selected = False;
-					if (CapsLockKeyDown() && OptionKeyDown())
+					if (DEBUG_SHOW)
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							if (!aMeasure->connAbove)
 						LogPrintf(LOG_INFO, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
@@ -3047,7 +3047,7 @@ PushLock(OBJheap);
 	case SMDeselect:
 		if (LinkSEL(pL)) {
 			LinkSEL(pL) = False;
-			if (CapsLockKeyDown() && OptionKeyDown())
+			if (DEBUG_SHOW)
 				if (SUSPICIOUS_WREL_RECT(wSub))
 					LogPrintf(LOG_INFO, " %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 			HiliteRect(&wSub);
@@ -3393,7 +3393,7 @@ PushLock(OBJheap);
 		case SMDeselect:
 			if (aSlur->selected) {
 				aSlur->selected = False;
-				if (CapsLockKeyDown() && OptionKeyDown())
+				if (DEBUG_SHOW)
 					if (SUSPICIOUS_WREL_RECT(wSub))
 						LogPrintf(LOG_INFO, " %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 				HiliteRect(&wSub);

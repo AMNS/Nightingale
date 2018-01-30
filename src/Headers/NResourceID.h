@@ -562,7 +562,7 @@ enum {							/* Format menu */
 #define RESPACE_PMSTR 7
 #define SKIPTRACKS_PMSTR 8
 #define SKIPPARTS_PMSTR 9
-#define CREATESETUP_PMSTR 10
+#define CREATE_PREFS_PMSTR 10
 #define MIDIDR_NONE_PMSTR 11
 #define VOICE_PMSTR 12
 #define SKIPVOICE_PMSTR 13

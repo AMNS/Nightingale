@@ -50,7 +50,7 @@ long		*rawBuffer;					/* Input buffer: word's 1st 3 bytes=time in ms., last byte
 short		transpose=0,				/* Amount to subtract from MIDI note nos. */
 			splitPoint=MIDI_MIDDLE_C,	/* MIDI note no. to split notes between staves */
 			otherStaff;					/* Staff no. for split-off notes */
-Boolean		printDebug=True,			/* Show debug info in Current Events window? */
+Boolean		printDebug=True,			/* Show debug info in system log? */
 			split;						/* Split between selStaff & otherStaff (else evrythng on selStaff)? */
 			
 #define LAST_REC_MARGIN (4*PDURUNIT)	/* (Unused) Assumed silent time after last rec. note */
@@ -225,8 +225,8 @@ static Boolean CMPrepareRecord(
 		pPart = GetPPARTINFO(partL);
 		*pThruChannel = pPart->channel;
 		if (!CMTransmitChannelValid(*pThruDevice, *pThruChannel)) {
-			*pThruDevice = config.defaultOutputDevice;
-			*pThruChannel = config.defaultOutputChannel;
+			*pThruDevice = config.cmDfltOutputDev;
+			*pThruChannel = config.cmDfltOutputChannel;
 		}
 	}
 	else {
@@ -325,10 +325,10 @@ Boolean RecordDialog(
 #endif			
 			return False;
 		}
-		sprintf(param2, "%d", kCMBufLen/0x0400); //kCMBufLen/1024L);
+		sprintf(param2, "%ld", kCMBufLen/0x0400); //kCMBufLen/1024L);
 	}
 	else
-		sprintf(param2, "%d", rawBufferLength/1024L);
+		sprintf(param2, "%ld", rawBufferLength/1024L);
 
 	sprintf(param1, "%d", useChan);
 
@@ -1843,7 +1843,7 @@ Boolean StepRecord(
 	}
 
 	wDoc = (WindowPtr)doc;
-	printDebug = CapsLockKeyDown() && OptionKeyDown();
+	printDebug = DEBUG_SHOW;
 	SetRecordFlats(doc);
 	gotSomething = False;
 

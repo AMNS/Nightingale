@@ -1514,9 +1514,9 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	}
 	else {
 		for (i = 1; i<=LinkNENTRIES(doc->headL)-1; i++)
-			doc->cmPartDeviceList[i] = config.cmDefaultOutputDevice;
+			doc->cmPartDeviceList[i] = config.cmDfltOutputDev;
 	}
-	doc->cmInputDevice = config.cmDefaultInputDevice;
+	doc->cmInputDevice = config.cmDfltInputDev;
 
 	errCode = FSClose(refNum);
 	if (errCode) { errInfo = CLOSEcall; goto Error; }

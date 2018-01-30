@@ -203,7 +203,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* Finalize.c */
 
-	Boolean		CloseSetupFile(void);
+	Boolean		ClosePrefsFile(void);
 	void		Finalize(void);
 
 /* FlowInText.c */
@@ -237,10 +237,10 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 /* Initialize.c */
 
-	Boolean		CreateSetupFile(void);
+	Boolean		CreatePrefsFile(void);
 	Boolean		InitGlobals(void);
 	void		Initialize(void);
-	Boolean		OpenSetupFile(void);
+	Boolean		OpenPrefsFile(void);
 	Boolean		BuildEmptyDoc(Document *doc);
 
 /* InitNightingale.c */

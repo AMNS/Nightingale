@@ -24,9 +24,12 @@
 /* Private routines */
 
 static void			InitToolbox(void);
-static Boolean		AddSetupResource(Handle);
+static Boolean		AddPrefsResource(Handle);
 static OSStatus		FindPrefsFile(unsigned char *name, OSType fType, OSType fCreator, FSSpec *prefsSpec);
 static void			DisplayConfig(void);
+static Boolean		CheckRect(Rect aRect, short legalMin, short legalMax);
+static Boolean		CheckConfig(void);
+static void			EndianFix(void);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
 static Boolean		NInitFloatingWindows(void);
@@ -106,12 +109,12 @@ void Initialize()
 	
 	InitLogPrintf();
 
-	if (!OpenSetupFile())							/* needs creatorType */
+	if (!OpenPrefsFile())							/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
 	GetConfig();									/* needs the Prefs (Setup) file open */
 	if (!OpenTextSetupFile())						/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
-	GetTextConfig();								/* needs the Prefs (Setup) file open */
+	GetTextConfig();								/* needs the Prefs file open */
 	
 //	char *foo = GetPrefsValue("foo");
 //	char *bazz = GetPrefsValue("bazz");
@@ -202,16 +205,16 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 } 
 
 
-/* ------------------------------------------------------------------- CreateSetupFile -- */
+/* ------------------------------------------------------------------- CreatePrefsFile -- */
 /* Create a new Nightingale Prefs file. (We used to call the "Prefs" file the "Setup"
-file: hence all the xxSetupxx names.) If we succeed, return True; if we fail, return
-False without giving an error message. */
+file, and some names may still reflect that.) If we succeed, return True; if we fail,
+return False without giving an error message. */
 
 static short rfVRefNum;
 static long rfVolDirID;
 static OSType prefsFileType = 'NSET';
 
-Boolean CreateSetupFile(FSSpec *rfSpec)
+Boolean CreatePrefsFile(FSSpec *rfSpec)
 {
 	Handle			resH;
 	OSType			theErr;
@@ -221,7 +224,7 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	/* Create a new file in the ~/Library/Preferences and give it a resource fork.
 		If there is no Preferences folder in ~/Library, create it. */
 	
-	Pstrcpy(rfSpec->name, SETUP_FILE_PATH);	
+	Pstrcpy(rfSpec->name, PREFS_FILE_PATH);	
 	FSpCreateResFile(rfSpec, creatorType, 'NSET', scriptCode);
 	theErr = ResError();
 	if (theErr) return False;
@@ -244,91 +247,91 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	 */	
 	resH = GetResource('CNFG', THE_CNFG);
 	if (!GoodResource(resH)) return False;	
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetNamedResource('TMPL', "\pCNFG");
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Now copy the instrument list. */
 	resH = GetResource('STR#', INSTR_STRS);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Next, the MIDI velocity table and its template. */
 	resH = GetResource('MIDI', PREFS_MIDI);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetNamedResource('TMPL', "\pMIDI");
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	/* The MIDI modifier prefs table and its template. */
 	resH = GetResource('MIDM', PREFS_MIDI_MODNR);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetNamedResource('TMPL', "\pMIDM");
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Now copy the palette, palette char. map, and palette translation map and template. */
 	resH = GetResource('PICT', ToolPaletteID);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetResource('PLCH', ToolPaletteID);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetResource('PLMP', THE_PLMP);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 	
 	resH = GetNamedResource('TMPL', "\pPLMP");
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Now copy the MIDI Manager port resources. */
 	resH = GetResource('port', time_port);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 	
 	resH = GetResource('port', input_port);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	resH = GetResource('port', output_port);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	/* And finally copy the built-in MIDI parameter resource. */
 	resH = GetResource('BIMI', THE_BIMI);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Nightingale Prefs uses the same version number resource as Nightingale. */
 	resH = GetResource('vers', 1);
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
-	/* Copy all the spacing tables we can find into the Prefs file. We use
-	 * Get1IndResource instead of GetIndResource to avoid getting a resource
-	 * from the Prefs file we've just written out! Of course, this means we
-	 * have to be sure the current resource file is the application; we're
-	 * relying on AddSetupResource to take care of that. Also copy the template.
-	 */
+	/* Copy all the spacing tables we can find into the Prefs file. We use Get1IndResource
+		instead of GetIndResource to avoid getting a resource from the Prefs file we've
+		just written out! (Of course, this means we have to be sure the current resource
+		file is the application; we're relying on AddPrefsResource to take care of that.)
+		Also copy the template. */
+	
 	nSPTB = CountResources('SPTB');
 	for (i = 1; i<=nSPTB; i++) {
 		resH = Get1IndResource('SPTB', i);
 		if (!GoodResource(resH)) return False;		
-		if (!AddSetupResource(resH)) return False;
+		if (!AddPrefsResource(resH)) return False;
 	}
 	
 	resH = GetNamedResource('TMPL', "\pSPTB");
 	if (!GoodResource(resH)) return False;		
-	if (!AddSetupResource(resH)) return False;
+	if (!AddPrefsResource(resH)) return False;
 
 	/* Finally, close the setup file. */
 
@@ -337,7 +340,7 @@ Boolean CreateSetupFile(FSSpec *rfSpec)
 	return True;
 }
 
-/* --------------------------------------------------------------------- OpenSetupFile -- */
+/* --------------------------------------------------------------------- OpenPrefsFile -- */
 /* Open the resource fork of the Prefs file.  If we can't find a Prefs file in the
 System Folder, generate a new one using resources from the application and open it.
 Also make the Prefs file the current resource file.
@@ -348,7 +351,7 @@ fork is open but with only read permission, I suspect we won't detect that and i
 won't be made the current resource file: bad, but unlikely.) If all goes well, return
 True. */
 
-Boolean OpenSetupFile()
+Boolean OpenPrefsFile()
 {
 	OSErr result;  Boolean okay=True;
 	Str63 volName;
@@ -366,8 +369,8 @@ Boolean OpenSetupFile()
 
 	theErr = FindFolder(kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder, &vRefNum, &dirID);
 	
-	HGetVol(volName,&oldVRefNum,&oldDirID);
-	HSetVol(volName,vRefNum,dirID);					// Need to specify a location for setup file
+	HGetVol(volName, &oldVRefNum, &oldDirID);
+	HSetVol(volName, vRefNum, dirID);					// Need to specify a location for setup file
 
 	rfVRefNum = vRefNum;
 	rfVolDirID = dirID;
@@ -375,9 +378,9 @@ Boolean OpenSetupFile()
 	/* Try to open the Prefs file. Under "classic" Mac OS (9 and before), it was normally
 	in  the System Folder; under OS X, it's in ~/Library/Preferences . */
 	
-	Pstrcpy(setupFileName, SETUP_FILE_NAME);
+	Pstrcpy(setupFileName, PREFS_FILE_NAME);
 	theErr = FindPrefsFile(setupFileName, prefsFileType, creatorType, &rfSpec);
-	LogPrintf(LOG_NOTICE, "OpenSetupFile: FindPrefsFile (filename '%s') returned theErr=%d\n",
+	LogPrintf(LOG_NOTICE, "OpenPrefsFile: FindPrefsFile (filename '%s') returned theErr=%d\n",
 				PToCString(setupFileName), theErr);
 	if (theErr==noErr)
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
@@ -391,13 +394,13 @@ Boolean OpenSetupFile()
 //	if (result==fnfErr || result==dirNFErr) {
 	if (result==fnfErr) {
 		/* Note that the progress message has the setup filename embedded in it: this is
-		 * lousy--it should use SETUP_FILE_NAME, of course--but ProgressMsg() can't
+		 * lousy--it should use PREFS_FILE_NAME, of course--but ProgressMsg() can't
 		 * handle that!
 		 */
 		LogPrintf(LOG_NOTICE, "Can\'t find a '%s' (Preferences) file: creating a new one.\n", PToCString(setupFileName));
-		ProgressMsg(CREATESETUP_PMSTR, "");
+		ProgressMsg(CREATE_PREFS_PMSTR, "");
 		SleepTicks((unsigned)(5*60L));					/* Give user time to read the msg */
-		if (!CreateSetupFile(&rfSpec)) {
+		if (!CreatePrefsFile(&rfSpec)) {
 			GetIndCString(strBuf, INITERRS_STRS, 2);	/* "Can't create Prefs file" */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);
@@ -435,7 +438,7 @@ done:
 /* Adds the resource pointed to by resH to the current resource file. Returns
 True if OK, False if error. */
 
-static Boolean AddSetupResource(Handle resH)
+static Boolean AddPrefsResource(Handle resH)
 {
 	Handle	tempH;
 	OSType	type;
@@ -471,10 +474,6 @@ static void DisplayConfig()
 	LogPrintf(LOG_NOTICE, "  (2)stemLenNormal=%d", config.stemLenNormal);
 	LogPrintf(LOG_NOTICE, "  (3)stemLen2v=%d", config.stemLen2v);
 	LogPrintf(LOG_NOTICE, "  (4)stemLenOutside=%d\n", config.stemLenOutside);
-	
-FIX_END(config.maxDocuments);
-LogPrintf(LOG_DEBUG, "maxDocuments=%d\n", config.maxDocuments);
-
 	LogPrintf(LOG_NOTICE, "  (5)stemLenGrace=%d", config.stemLenGrace);
 
 	LogPrintf(LOG_NOTICE, "  (6)spAfterBar=%d", config.spAfterBar);
@@ -511,7 +510,12 @@ LogPrintf(LOG_DEBUG, "maxDocuments=%d\n", config.maxDocuments);
 	LogPrintf(LOG_NOTICE, "  (32)crossStaffBeamExt=%d\n", config.crossStaffBeamExt);
 	LogPrintf(LOG_NOTICE, "  (33)titleMargin=%d", config.titleMargin);
 
-	LogPrintf(LOG_NOTICE, "  (35)pageMarg.top=%d", config.pageMarg.top);
+	LogPrintf(LOG_NOTICE, "  (34)paperRect.top=%d", config.paperRect.top);
+	LogPrintf(LOG_NOTICE, "  .left=%d", config.paperRect.left);
+	LogPrintf(LOG_NOTICE, "  .bottom=%d", config.paperRect.bottom);
+	LogPrintf(LOG_NOTICE, "  .right=%d\n", config.paperRect.right);
+
+	LogPrintf(LOG_NOTICE, "  (35-36)pageMarg.top=%d", config.pageMarg.top);
 	LogPrintf(LOG_NOTICE, "  .left=%d", config.pageMarg.left);
 	LogPrintf(LOG_NOTICE, "  .bottom=%d", config.pageMarg.bottom);
 	LogPrintf(LOG_NOTICE, "  .right=%d\n", config.pageMarg.right);
@@ -609,21 +613,37 @@ LogPrintf(LOG_DEBUG, "maxDocuments=%d\n", config.maxDocuments);
 	LogPrintf(LOG_NOTICE, "  (107)pianorollLenFact=%d", config.pianorollLenFact);
 	LogPrintf(LOG_NOTICE, "  (108)useModNREffects=%d", config.useModNREffects);
 	LogPrintf(LOG_NOTICE, "  (109)thruChannel=%d", config.thruChannel);
-	LogPrintf(LOG_NOTICE, "  (110)thruDevice=%d", config.thruDevice);
+	LogPrintf(LOG_NOTICE, "  (110)thruDevice=%d\n", config.thruDevice);
 
+	LogPrintf(LOG_NOTICE, "  (111)cmMetroDevice=%ld", config.cmMetroDevice);
+	LogPrintf(LOG_NOTICE, "  (112)cmDfltInputDev=%ld", config.cmDfltInputDev );
+	LogPrintf(LOG_NOTICE, "  (113)cmDfltOutputDev=%ld", config.cmDfltOutputDev);
+	LogPrintf(LOG_NOTICE, "  (114)cmDfltOutputChannel=%d", config.cmDfltOutputChannel);
 	LogPrintf(LOG_NOTICE, "\n");
 }
 
 
+static Boolean CheckRect(Rect aRect, short legalMin, short legalMax)
+{
+	if (aRect.top<legalMin || aRect.top>legalMax) return False;
+	if (aRect.left<legalMin || aRect.top>legalMax) return False;
+	if (aRect.bottom<legalMin || aRect.top>legalMax) return False;
+	if (aRect.right<legalMin || aRect.top>legalMax) return False;
+	
+	return True;
+}
+
 #define ERR(fn) { nerr++; LogPrintf(LOG_NOTICE, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
 
 /* Do a reality check for config values that might be bad. We can't easily check origin,
-toolsPosition, musicFontID, or the fields that represent Boolean values. Almost all other
-fields are checked, though not all as strictly as possible (of course there's often no well
-defined limit). For each problem case we find, give an error message and set the field to a
-reasonable default value. */
+toolsPosition, font IDs, or the fields that represent Boolean values or MIDI system info.
+Almost all other fields are checked, though not all as strictly as possible -- and of
+course most don't have well-defined limits. For each problem case we find, give an error
+message and set the field to a reasonable default value. If no problems are found,
+return TRUE. If problems are found, tell user and give them a chance to quit immediately;
+if they decline, return FALSE. */
 
-static void CheckConfig()
+static Boolean CheckConfig()
 {
 	short nerr, firstErr;
 	char fmtStr[256];
@@ -632,7 +652,7 @@ static void CheckConfig()
 	nerr = 0;
 	firstErr = 0;
 
-	if (config.maxDocuments <= 0 || config.maxDocuments > 100)
+	if (config.maxDocuments < 1 || config.maxDocuments > 150)
 		{ config.maxDocuments = 10; ERR(1); }
 
 #define STEMLEN_NORMAL_MIN 1
@@ -719,22 +739,29 @@ static void CheckConfig()
 #define PAPERRECT_HT_DFLT in2pt(11)
 	if (config.titleMargin < 0) { config.titleMargin = TITLEMARGIN_DFLT;  ERR(33); };
 
-	if (EmptyRect(&config.paperRect))
+	if (config.paperRect.top!=0 || config.paperRect.left!=0)
+		{ SetRect(&config.paperRect, 0, 0, PAPERRECT_WIDTH_DFLT, PAPERRECT_HT_DFLT); ERR(34); }
+	if (config.paperRect.bottom<in2pt(3) || config.paperRect.bottom>in2pt(30)
+		|| config.paperRect.right<in2pt(3) || config.paperRect.right>in2pt(30))
 		{ SetRect(&config.paperRect, 0, 0, PAPERRECT_WIDTH_DFLT, PAPERRECT_HT_DFLT); ERR(34); }
 
 #define PAGEMARG_TOP_DFLT in2pt(1)/2
 #define PAGEMARG_LEFT_DFLT in2pt(1)/2
 #define PAGEMARG_BOTTOM_DFLT in2pt(1)/2
 #define PAGEMARG_RIGHT_DFLT in2pt(1)/2
-	if (config.pageMarg.top<1 || config.pageMarg.left<1 || config.pageMarg.bottom<1
-		|| config.pageMarg.right<1) {
-		if (config.pageMarg.top<1) { config.pageMarg.top = PAGEMARG_TOP_DFLT; }
-		if (config.pageMarg.left<1) { config.pageMarg.left = PAGEMARG_LEFT_DFLT; }
-		if (config.pageMarg.bottom<1) { config.pageMarg.bottom = PAGEMARG_BOTTOM_DFLT; }
-		if (config.pageMarg.right<1) { config.pageMarg.right = PAGEMARG_RIGHT_DFLT; }
+	/* Check for ridiculously small or large margins. */
+	if (!CheckRect(config.pageMarg, 4, in2pt(5))) {
+		if (config.pageMarg.top<4 || config.pageMarg.top>in2pt(5))
+			{ config.pageMarg.top = PAGEMARG_TOP_DFLT; }
+		if (config.pageMarg.left<4 || config.pageMarg.left>in2pt(5))
+			{ config.pageMarg.left = PAGEMARG_LEFT_DFLT; }
+		if (config.pageMarg.bottom<4 || config.pageMarg.bottom>in2pt(5))
+			{ config.pageMarg.bottom = PAGEMARG_BOTTOM_DFLT; }
+		if (config.pageMarg.right<4 || config.pageMarg.right>in2pt(5))
+			{ config.pageMarg.right = PAGEMARG_RIGHT_DFLT; }
 		ERR(35);
 	}
-	/* Crudely try to insure that even for smallest paper size, margins don't cross */
+	/* Check for margins crossing. */
 	if (config.pageMarg.top+config.pageMarg.bottom>in2pt(6)) {
 		config.pageMarg.top = PAGEMARG_TOP_DFLT;
 		config.pageMarg.bottom = PAGEMARG_BOTTOM_DFLT;
@@ -750,12 +777,15 @@ static void CheckConfig()
 #define PAGENUMMARG_LEFT_DFLT in2pt(1)/2
 #define PAGENUMMARG_BOTTOM_DFLT in2pt(1)/2
 #define PAGENUMMARG_RIGHT_DFLT in2pt(1)/2
-	if (config.pageNumMarg.top<1 || config.pageNumMarg.left<1 || config.pageNumMarg.bottom<1
-		|| config.pageNumMarg.right<1) {
-		if (config.pageNumMarg.top<1) { config.pageNumMarg.top = PAGENUMMARG_TOP_DFLT; }
-		if (config.pageNumMarg.left<1) { config.pageNumMarg.left = PAGENUMMARG_LEFT_DFLT; }
-		if (config.pageNumMarg.bottom<1) { config.pageNumMarg.bottom = PAGENUMMARG_BOTTOM_DFLT; }
-		if (config.pageNumMarg.right<1) { config.pageNumMarg.right = PAGENUMMARG_RIGHT_DFLT; }
+	if (!CheckRect(config.pageNumMarg, 4, in2pt(5))) {
+		if (config.pageNumMarg.top<4 || config.pageNumMarg.top>in2pt(5))
+			{ config.pageNumMarg.top = PAGENUMMARG_TOP_DFLT; }
+		if (config.pageNumMarg.left<4 || config.pageNumMarg.left>in2pt(5))
+			{ config.pageNumMarg.left = PAGENUMMARG_LEFT_DFLT; }
+		if (config.pageNumMarg.bottom<4 || config.pageNumMarg.bottom>in2pt(5))
+			{ config.pageNumMarg.bottom = PAGENUMMARG_BOTTOM_DFLT; }
+		if (config.pageNumMarg.right<4 || config.pageNumMarg.right>in2pt(5))
+			{ config.pageNumMarg.right = PAGENUMMARG_RIGHT_DFLT; }
 		ERR(37);
 	}
 	
@@ -796,20 +826,20 @@ static void CheckConfig()
 	if (config.minMemory < 1) { config.minMemory = MINMEMORY_DFLT; ERR(48); }
 #define NUMROWS_DFLT 4
 #define NUMCOLS_DFLT 4
-#define MAXROWS_DFLT 16
-#define MAXCOLS_DFLT 8
-	if (config.numRows < 1) { config.numRows = NUMROWS_DFLT; ERR(49); }
-	if (config.numCols < 1) { config.numCols = NUMCOLS_DFLT; ERR(50); }
-	if (config.maxRows < 1) { config.maxRows = MAXROWS_DFLT; ERR(51); }
-	if (config.maxCols < 1) { config.maxCols = MAXCOLS_DFLT; ERR(52); }
+#define MAXROWS_DFLT 256
+#define MAXCOLS_DFLT 256
+	if (config.numRows < 1 || config.numRows > 100) { config.numRows = NUMROWS_DFLT; ERR(49); }
+	if (config.numCols < 1 || config.numCols > 100) { config.numCols = NUMCOLS_DFLT; ERR(50); }
+	if (config.maxRows < 1 || config.maxRows > 256) { config.maxRows = MAXROWS_DFLT; ERR(51); }
+	if (config.maxCols < 1 || config.maxCols > 256) { config.maxCols = MAXCOLS_DFLT; ERR(52); }
 #define HPAGESEP_DFLT 8
 #define VPAGESEP_DFLT 8
 #define HSCROLLSLOP_DFLT 16
 #define VSCROLLSLOP_DFLT 16
-	if (config.hPageSep < 0) { config.hPageSep = HPAGESEP_DFLT; ERR(53); }
-	if (config.vPageSep < 0) { config.vPageSep = VPAGESEP_DFLT; ERR(54); }
-	if (config.hScrollSlop < 0) { config.hScrollSlop = HSCROLLSLOP_DFLT; ERR(55); }
-	if (config.vScrollSlop < 0) { config.vScrollSlop = VSCROLLSLOP_DFLT; ERR(56); }
+	if (config.hPageSep < 0 || config.hPageSep > 80) { config.hPageSep = HPAGESEP_DFLT; ERR(53); }
+	if (config.vPageSep < 0 || config.vPageSep > 80) { config.vPageSep = VPAGESEP_DFLT; ERR(54); }
+	if (config.hScrollSlop < 0 || config.hScrollSlop > 80) { config.hScrollSlop = HSCROLLSLOP_DFLT; ERR(55); }
+	if (config.vScrollSlop < 0 || config.vScrollSlop > 80) { config.vScrollSlop = VSCROLLSLOP_DFLT; ERR(56); }
 
 #define MAX_SYNC_TOLERANCE_DFLT 60
 #define ENLARGE_HILITE_DFLT 1
@@ -831,7 +861,7 @@ static void CheckConfig()
 #define ENCLMARGIN_DFLT 2
 	if (config.indent1st < 0) { config.indent1st = INDENT1ST_DFLT; ERR(63); }
 	if (config.mbRestHeight < 1) { config.mbRestHeight = MBREST_HT_DFLT; ERR(64); }
-	if (config.chordSymMusSize < 10) { config.chordSymMusSize = CHORDSYM_MUS_SIZE_DFLT; ERR(65); }
+	if (config.chordSymMusSize < 20 || config.chordSymMusSize > 400) { config.chordSymMusSize = CHORDSYM_MUS_SIZE_DFLT; ERR(65); }
 	if (config.enclMargin < 0) { config.enclMargin = ENCLMARGIN_DFLT; ERR(66); }
 
 #define LEGATO_PCT_DFLT 95
@@ -849,7 +879,7 @@ static void CheckConfig()
 #define NOTEOFF_VELOCITY_DFLT 64
 #define FEEDBACK_NOTEON_VELOCITY_DFLT 64
 #define DEFAULT_CHANNEL_DFLT 1
-#define RAINYDAY_MEMORY_DFLT 32
+#define RAINYDAY_MEMORY_DFLT 640
 #define TRY_TUP_LEVELS_DFLT 21
 #define JUSTIFY_WARN_THRESH 15
 	/* Set min. for musFontSizeOffset so even if rastral 0 is only 4 pts, will still give >0 PS size */
@@ -865,7 +895,7 @@ static void CheckConfig()
 			{ config.feedbackNoteOnVel = FEEDBACK_NOTEON_VELOCITY_DFLT; ERR(75); }
 	if (config.defaultChannel < 1 || config.defaultChannel > MAXCHANNEL)
 			{ config.defaultChannel = DEFAULT_CHANNEL_DFLT; ERR(76); }
-	if (config.rainyDayMemory < 32 || config.rainyDayMemory > 1024)
+	if (config.rainyDayMemory < 32 || config.rainyDayMemory > 2048)
 			{ config.rainyDayMemory = RAINYDAY_MEMORY_DFLT; ERR(78); }
 	if (config.tryTupLevels < 1 || config.tryTupLevels > 321)
 			{ config.tryTupLevels = TRY_TUP_LEVELS_DFLT; ERR(79); }
@@ -941,11 +971,57 @@ static void CheckConfig()
 		sprintf(strBuf, fmtStr, nerr, firstErr);
 		CParamText(strBuf, "", "", "");
 		if (CautionAdvise(CNFG_ALRT)==OK) ExitToShell();
+		return False;
 	}
     else
         LogPrintf(LOG_NOTICE, "(no errors)\n");
+		return True;
 }
 
+
+/* The CNFG resource is stored in Big-Endian form. If we're running on a Little-Endian
+processor (no doubt Intel), correct the byte order in fields of more than one byte. */
+
+static void EndianFix()
+{
+	FIX_END(config.maxDocuments);
+	
+	FIX_END(config.paperRect.top);		FIX_END(config.paperRect.left);
+	FIX_END(config.paperRect.bottom);	FIX_END(config.paperRect.right);
+	FIX_END(config.pageMarg.top);		FIX_END(config.pageMarg.left);
+	FIX_END(config.pageMarg.bottom);	FIX_END(config.pageMarg.right);
+	FIX_END(config.pageNumMarg.top);	FIX_END(config.pageNumMarg.left);
+	FIX_END(config.pageNumMarg.bottom);	FIX_END(config.pageNumMarg.right);
+
+	FIX_END(config.defaultTempoMM);
+	FIX_END(config.lowMemory);
+	FIX_END(config.minMemory);
+	
+	FIX_END(config.toolsPosition.v);	FIX_END(config.toolsPosition.h);
+	
+	FIX_END(config.numRows);			FIX_END(config.numCols);
+	FIX_END(config.maxRows);			FIX_END(config.maxCols);
+	FIX_END(config.vPageSep);			FIX_END(config.hPageSep);
+	FIX_END(config.vScrollSlop);		FIX_END(config.hScrollSlop);
+	FIX_END(config.origin.v);			FIX_END(config.origin.h);
+
+	FIX_END(config.musicFontID);
+	FIX_END(config.numMasters);
+	
+	FIX_END(config.chordSymMusSize);
+	FIX_END(config.defaultPatch);
+	FIX_END(config.rainyDayMemory);
+	FIX_END(config.tryTupLevels);
+	
+	FIX_END(config.metroDur);
+	
+	FIX_END(config.trebleVOffset);
+	FIX_END(config.cClefVOffset);
+	FIX_END(config.bassVOffset);
+	
+	FIX_END(config.chordFrameFontID);
+	FIX_END(config.thruDevice);
+}
 
 /* Install our configuration data from the Prefs file; also check for, report, and
 correct any illegal values. Assumes the Prefs file is the current resource file. */
@@ -996,7 +1072,7 @@ static Boolean GetConfig()
 
 		config.titleMargin = -1;
 
-		SetRect(&config.paperRect,0, 0, 0, 0);
+		SetRect(&config.paperRect, 0, 0, 0, 0);
 		SetRect(&config.pageMarg, 0, 0, 0, 0);
 		SetRect(&config.pageNumMarg, 0, 0, 0, 0);
 		
@@ -1073,7 +1149,7 @@ static Boolean GetConfig()
 		config.courtesyAccYD = -127;
 		config.courtesyAccSize = -127;
 
-		/* FIXME: What about Core MIDI fields (cmMetroDevice thru cmDefaultOutputChannel)? */
+		/* FIXME: What about Core MIDI fields (cmMetroDevice thru cmDfltOutputChannel)? */
 		
 		config.quantizeBeamYPos = -1;
 
@@ -1089,6 +1165,8 @@ static Boolean GetConfig()
 			if (CautionAdvise(CNFGSIZE_ALRT)==OK) ExitToShell();
 		config = *(Configuration *)(*cnfgH);
 
+		EndianFix();
+		
 		if (OptionKeyDown() && ControlKeyDown()) {
 			GetIndCString(strBuf, INITERRS_STRS, 11);		/* "Skipping checking the CNFG" */
 			CParamText(strBuf, "", "", "");
@@ -1098,9 +1176,13 @@ static Boolean GetConfig()
 
 	}
 
+	/* Display CNFG fields in the log. Then check for problems, and, if any are found,
+		display the (presumably corrected) values. */
 	DisplayConfig();
-	CheckConfig();
-	if (DEBUG_SHOW) DisplayConfig();
+	if (!CheckConfig()) {
+		LogPrintf(LOG_NOTICE, "Illegal fields have been set to default values.\n");
+		DisplayConfig();
+	}
 	
 Finish:
 	/* Make any final adjustments. NB: Must undo these in UpdateSetupFile()! */

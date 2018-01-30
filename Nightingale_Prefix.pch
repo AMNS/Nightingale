@@ -26,7 +26,7 @@ in the Nightingale project. */
 //#include "MIDIRecUtils.h" // used in NightTemplates
 //#include "NightTemplates.h"
 //
-//#include "MiscUtils.h" // CapsLockKeyDown etc.
+//#include "MiscUtils.h"
 //
 //#include "UIFUtils.h"
 

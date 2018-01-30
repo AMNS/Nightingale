@@ -790,7 +790,8 @@ static DialogPtr OpenCMMetroDialog(
 							MIDIUniqueID device)
 {
 	Handle hndl;  GrafPtr oldPort;
-	short scratch;  Str255 deviceStr;  DialogPtr dlog;
+	short scratch;  Str255 deviceStr;
+	DialogPtr dlog;
 
 	GetPort(&oldPort);
 	dlog = GetNewDialog(CM_METRO_DLOG, NULL, BRING_TO_FRONT);
@@ -806,14 +807,14 @@ static DialogPtr OpenCMMetroDialog(
 	/* Fill in dialog's values here */
 
 	if (!CMTransmitChannelValid(device, channel)) {
-		device = config.cmDefaultOutputDevice;
-		channel = config.cmDefaultOutputChannel;
+		device = config.cmDfltOutputDev;
+		channel = config.cmDfltOutputChannel;
 	}
 	GetIndString(deviceStr, MIDIPLAYERRS_STRS, 16);			/* "No devices available" */
 
 	group1 = (viaMIDI? RAD4_Use : RAD5_Use);
-	PutDlgChkRadio(dlog,RAD4_Use,group1==RAD4_Use);
-	PutDlgChkRadio(dlog,RAD5_Use,group1==RAD5_Use);
+	PutDlgChkRadio(dlog,RAD4_Use, group1==RAD4_Use);
+	PutDlgChkRadio(dlog,RAD5_Use, group1==RAD5_Use);
 
 	PutDlgWord(dlog,EDIT8_Note, note, False);
 	PutDlgWord(dlog,EDIT9_Vel, velocity, False);
@@ -827,8 +828,8 @@ static DialogPtr OpenCMMetroDialog(
 
 /* ------------------------------------------------------------ CMMetroFilter, -Dialog -- */
 
-/* This filter outlines the OK Button and performs standard key and command-
-key filtering. */
+/* This filter outlines the OK Button and performs standard key and command-key
+filtering. */
 
 pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item);
 pascal Boolean CMMetroFilter(DialogPtr theDialog, EventRecord *theEvent, short *item)

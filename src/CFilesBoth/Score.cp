@@ -239,9 +239,9 @@ Boolean NewDocScore(Document *doc)
 	for (i=0; i<MAXSTAVES; i++)
 		doc->omsPartDeviceList[i] = config.defaultOutputDevice;
 
-	doc->cmInputDevice = config.cmDefaultInputDevice;
+	doc->cmInputDevice = config.cmDfltInputDev;
 	
-	MIDIUniqueID cmDefaultID = config.cmDefaultOutputDevice;
+	MIDIUniqueID cmDefaultID = config.cmDfltOutputDev;
 	if (cmDefaultID == kInvalidMIDIUniqueID)
 		cmDefaultID = gAuMidiControllerID;
 	

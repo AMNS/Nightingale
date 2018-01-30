@@ -11,16 +11,16 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-Boolean ReplaceSetupResource(Handle, Handle, ResType, short, const unsigned char *);
-static Boolean UpdateSetupFile(void);
+static Boolean ReplacePrefsResource(Handle, Handle, ResType, short, const unsigned char *);
+static Boolean UpdatePrefsFile(void);
 
-/* ----------------------------------------------------------- ReplaceSetupResource -- */
+/* -------------------------------------------------------------- ReplacePrefsResource -- */
 
 /* In the current resource file, remove <resH> and replace it with <hndl> (which
 must not be a resource when this is called). Return True if all OK, give an error
 message and return False if there's a problem. */
 
-Boolean ReplaceSetupResource(Handle resH, Handle hndl, ResType type, short id,
+Boolean ReplacePrefsResource(Handle resH, Handle hndl, ResType type, short id,
 								const unsigned char *name)
 {
 	/* Remove the old resource */
@@ -44,7 +44,7 @@ Boolean ReplaceSetupResource(Handle resH, Handle hndl, ResType type, short id,
 }
 
 
-/* --------------------------------------------------------------- UpdateSetupFile -- */
+/* ------------------------------------------------------------------- UpdatePrefsFile -- */
 /* Save current config struct in Prefs (formerly "Setup") file's 'CNFG' resource,
 MIDI dynamics table in Prefs file's 'MIDI' resource, and MIDI modifier prefs tables
 in Prefs file's 'MIDM' resource, if they've been changed. Does NOT update any other
@@ -56,7 +56,7 @@ give an error message and return False if there's a problem. */
 #define MIDI_RES_NAME	"\pNew velocity table"
 #define MIDM_RES_NAME	"\pMIDI modifier prefs"
 
-static Boolean UpdateSetupFile()
+static Boolean UpdatePrefsFile()
 {
 	Handle			cnfgResH, midiResH, midiModNRResH;	/* Handles to resource */
 	Configuration	**cnfgHndl;							/* Handle to global struct */
@@ -118,31 +118,31 @@ static Boolean UpdateSetupFile()
 			/* Create a handle to global config struct */
 			cnfgHndl = (Configuration **)NewHandle((long) sizeof(Configuration));
 			if ((result = MemError())) {
-				MayErrMsg("UpdateSetupFile: can't allocate cnfgHndl.  Error %d", result);
+				MayErrMsg("UpdatePrefsFile: can't allocate cnfgHndl.  Error %d", result);
 				return False;
 			}
 			BlockMove(&config, *cnfgHndl, (Size)sizeof(Configuration));
 	
-			ReplaceSetupResource(cnfgResH, (Handle)cnfgHndl, 'CNFG', THE_CNFG,
+			ReplacePrefsResource(cnfgResH, (Handle)cnfgHndl, 'CNFG', THE_CNFG,
 									CNFG_RES_NAME);
 
 			/* Create a handle to a MIDIPreferences and fill it with updated values. */
 			midiHndl = (MIDIPreferences **)NewHandle((long) sizeof(MIDIPreferences));
 			if ((result = MemError())) {
-				MayErrMsg("UpdateSetupFile: can't allocate midiHndl.  Error %d", result);
+				MayErrMsg("UpdatePrefsFile: can't allocate midiHndl.  Error %d", result);
 				return False;
 			}
 			BlockMove(*midiResH, *midiHndl, (Size) sizeof(MIDIPreferences));
 			for (i = 1; i<LAST_DYNAM; i++)
 				(*midiHndl)->velocities[i-1] = dynam2velo[i];
 	
-			ReplaceSetupResource(midiResH, (Handle)midiHndl, 'MIDI', PREFS_MIDI,
+			ReplacePrefsResource(midiResH, (Handle)midiHndl, 'MIDI', PREFS_MIDI,
 									MIDI_RES_NAME);
 
 			/* Create a handle to a MIDIModNRPreferences and fill it with updated values. */
 			midiModNRHndl = (MIDIModNRPreferences **)NewHandle((long) sizeof(MIDIModNRPreferences));
 			if ((result = MemError())) {
-				MayErrMsg("UpdateSetupFile: can't allocate midiModNRHndl.  Error %d", result);
+				MayErrMsg("UpdatePrefsFile: can't allocate midiModNRHndl.  Error %d", result);
 				return False;
 			}
 			BlockMove(*midiModNRResH, *midiModNRHndl, (Size) sizeof(MIDIModNRPreferences));
@@ -151,7 +151,7 @@ static Boolean UpdateSetupFile()
 				(*midiModNRHndl)->durationFactors[i] = modNRDurFactors[i];
 			}
 
-			ReplaceSetupResource(midiModNRResH, (Handle)midiModNRHndl, 'MIDM', PREFS_MIDI_MODNR,
+			ReplacePrefsResource(midiModNRResH, (Handle)midiModNRHndl, 'MIDM', PREFS_MIDI_MODNR,
 									MIDM_RES_NAME);
  		}
 	}
@@ -160,12 +160,12 @@ static Boolean UpdateSetupFile()
 }
 
 
-/* ----------------------------------------------------------------- CloseSetupFile -- */
+/* -------------------------------------------------------------------- ClosePrefsFile -- */
 /* Closes the Prefs file; returns True is successful, False if error. From InsideMac:
 If there's no resource file open with the given reference number, CloseResFile will
 do nothing and the ResError function will return the result code resFNotFound. */
 
-Boolean CloseSetupFile()
+Boolean ClosePrefsFile()
 {	
 	Boolean anErr = False;
 
@@ -178,14 +178,14 @@ Boolean CloseSetupFile()
 }
 
 
-/* ----------------------------------------------------------------------- Finalize -- */
+/* -------------------------------------------------------------------------- Finalize -- */
 /* Do final cleanup before quitting. */
 
 void Finalize()
 {
-	if (!OpenSetupFile()) return;			/* If it fails, there's nothing worth doing ??REALLY? */
+	if (!OpenPrefsFile()) return;			/* If it fails, there's nothing worth doing ??REALLY? */
 	
-	(void)UpdateSetupFile();
+	(void)UpdatePrefsFile();
 
-	CloseSetupFile();
+	ClosePrefsFile();
 }

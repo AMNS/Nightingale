@@ -2014,3 +2014,21 @@ GRBeam, HeapFileIO, Initialize, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIU
 RTRhythmDur, ScoreInfo, SpaceHighLevel, StringPool, TextDialog, Transcribe.
 
 Built separately for PowerPC and Intel. Affects project.pbxproj (in Nightingale.xcodeproj).
+
+-------------------------------------------------------------------------------
+
+27 - 29 Jan.
+
+Added numerous calls to FIX_END to fix "endian" byte order in config fields, for the
+benefit of the Intel version. Affects Initialize.
+
+Replace tests involving the caps-lock key: with SHOW_DEBUG for displaying debug info;
+with shift-option for the alternative "Color Voices" method. Affects Check, DelAddRedAccs,
+Menu, MIDIRecord, NotelistParse, PS_Stdio.
+
+On startup, display more CNFG fields & check them more closely. Affects Initialize.
+
+Minor cleanup. Affects Defs.h, NightTemplates.h, NMiscTypes.h, NResourceID.h,
+VersionStrings.h; Check, CoreMIDIUtils, DebugDisplay, File, Finalize, Initialize,
+InstrDialog, MIDIDialogs, MIDIRecord, MiscUtils, Preferences, PS_Stdio, Score.
+

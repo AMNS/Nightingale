@@ -1,4 +1,9 @@
-/*	PS_Stdio.c for Nightingale - medium- and low-level PostScript output. */
+/*	PS_Stdio.c for Nightingale - medium- and low-level PostScript output. Originally by
+Doug McKenna.
+
+FIXME: This file has gotten almost no attention since the beginning of the 21st century,
+and it shows it! References to the original Macintosh bitmap fonts, to the truly ancient
+LaserWriter reference manual, etc., should really be updated. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -86,17 +91,17 @@ static DDIST pageWidth,				/* Sizes of page in whatever coordinates */
 			 stemFudge;				/* For shortening stems at notehead end */
 
 
-/* ================================================================ PUBLIC ROUTINES == */
+/* =================================================================== Public Routines == */
 
 /* Open file and prepare to output PostScript.  If another file is already open,
 then we close it before opening the new one.
 
-If usingWhat is USING_FILE, PostScript text we create is sent to the
-given filename and directory.
-If usingWhat is USING_PRINTER, the PostScript text is sent to the
-current printer, and the other arguments are ignored.
-If usingWhat is USING_HANDLE, the PostScript text is stored in the buffer
-as a handle, to be retrieved later, and other args are ignored. */
+* If usingWhat is USING_FILE, PostScript text we create is sent to the given filename
+and directory.
+* If usingWhat is USING_PRINTER, the PostScript text is sent to the current printer, and
+the other arguments are ignored.
+* If usingWhat is USING_HANDLE, the PostScript text is stored in the buffer as a handle,
+to be retrieved later, and other args are ignored. */
 
 OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
 										short usingWhat, ResType fileType, FSSpec *fsSpec)
@@ -159,7 +164,7 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
 			handleOpened = True;
 			}
 		
-		printLinewidths = (CapsLockKeyDown() && OptionKeyDown());
+		printLinewidths = DEBUG_SHOW;
 
 		PS_InitGlobals(doc);
 
@@ -826,7 +831,7 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 			baseName = p; p += 1 + *p;					/* Get font base name from 1st string */
 			
 			/* Convert from Mac style bits to 'FOND' style-mapping table style bits */
-			/* See p. 32, LaserWriter Reference Manual. */
+			/* See p. 32 of the ancient LaserWriter Reference Manual. */
 			
 			newStyle = 0;
 			if (style & bold) newStyle += bold;
@@ -1041,15 +1046,14 @@ OSErr PS_PString(unsigned char *str)
 	}
 
 /*
- *	Print the characters found in a given resource of a given open resource
- *	file, presumably containing PostScript code.  Make sure that we leave
- *	the current resource file the same.  If resFile is -1, then the current
- *	resource file is searched first.
+ *	Print the characters found in a given resource of a given open resource file,
+ *	presumably containing PostScript code.  Make sure that we leave the current resource
+ *	file the same.  If resFile is -1, then the current resource file is searched first.
  */
 
 OSErr PS_Resource(short resFile, ResType type, short id)
 	{
-		short thisResFile; Handle rsrc;
+		short thisResFile;  Handle rsrc;
 		long len;
 		char *p;
 		
@@ -1777,16 +1781,17 @@ OSErr PS_MusSize(Document *doc, short ptSize)
 			if (wLedger != oldLedger) PS_Print("/ldw %ld def\r",(long)wLedger);
 			if (wStaff != oldStaff) PS_Print("/sfw %ld def\r",(long)wStaff);
 			
-			/*
-			 *	If requested, print linewidths at top of music page. Unfortunately, many
-			 *	printers have rather large unprintable margins, so we have to position
-			 *	the text fairly well in--half an inch or so from the top and left.
-			 */
+			/* If requested, print linewidths, etc. at top of page and in system log.
+				Unfortunately, many printers have rather large unprintable margins, so
+				we have to position the text fairly well in, half an inch or so from
+				the top and left. */
 			if (printLinewidths)
 				if (wStaff != oldStaff) {
-					sprintf(strBuf, "ptSize=%d stw=%d blw=%d ldw=%d sfw=%d (%s %s)",
+					sprintf(strBuf, "ptSize=%d wStem=%d wBar=%d wLedger=%d wStaff=%d (%s %s)",
 							ptSize, wStem, wBar, wLedger, wStaff, PROGRAM_NAME, applVerStr);
 					PS_FontString(doc,pt2d(36), pt2d(30+10), CToPString(strBuf), "\pCourier", 10, 0);
+					LogPrintf(LOG_INFO, "ptSize=%d wStem=%d wBar=%d wLedger=%d wStaff=%d (%s %s)\n",
+							ptSize, wStem, wBar, wLedger, wStaff, PROGRAM_NAME, applVerStr);
 					}
 
 			oldStem = wStem;
@@ -1800,8 +1805,8 @@ OSErr PS_MusSize(Document *doc, short ptSize)
 
 
 /*
- *	Given a position on the page and a symbol from the music font, print it
- *	at <sizePercent> of normal size.
+ *	Given a position on the page and a symbol from the music font, print it at
+ *	<sizePercent> of normal size.
  */
 
 OSErr PS_MusChar(Document *doc, DDIST x, DDIST y, char sym, Boolean visible, short sizePercent)
@@ -1959,7 +1964,7 @@ OSErr PS_Brace(Document *doc, DDIST x, DDIST yTop, DDIST yBot)
 	}
 
 
-/*  ============================================================ PRIVATE ROUTINES == */
+/*  ================================================================= Private Routines == */
 
 /*
  *	Set all non-zero local global variables
@@ -1990,7 +1995,7 @@ static void PS_RestartPageVars()
 /*
  *	Whenever the Music Font point size changes, this function should be called to
  *	recompute everything that depends on it. The distance between staff lines is
- *	1/4 the point size, scaled to our 1/16 point unit system.
+ *	1/4 the point size, scaled to our DDIST (1/16 point) unit system.
  */
 
 static void PS_Recompute()
@@ -2007,8 +2012,8 @@ static void PS_Recompute()
 		 * DPI, sfw=4 is fine, sfw=3 is too thin to photocopy well. But at 300 DPI
 		 * and rastral 5, with our old XF operator, which always rounded line
 		 * thicknesses to an even no. of device pixels (see "setlinewidth" in the
-		 * first edition of the Red Book), sfw=0 was the ONLY setting that wasn't
-		 * too thick! With the new, improved XF of Sept. '91, should be better but
+		 * 1st edition of the Adobe Red Book), sfw=0 was the ONLY setting that wasn't
+		 * too thick! With the new, improved XF of Sept. 1991, should be better but
 		 * I don't know.
 		 */
 		lineSpLong = lineSpace;

@@ -362,12 +362,12 @@ short InstrDialog(Document *doc, PARTINFO *mp)
 			if (CMTransmitChannelValid(*origMPDevice, (short)(mp->channel)))
 				master.cmDevice = *origMPDevice;
 			else
-				master.cmDevice = config.cmDefaultOutputDevice;
+				master.cmDevice = config.cmDfltOutputDev;
 			/* It's possible our device has changed, so validate again. */
 			if (CMTransmitChannelValid(master.cmDevice, (short)(mp->channel)))
 				master.channel = mp->channel;
 			else
-				master.channel = config.cmDefaultOutputChannel;
+				master.channel = config.cmDfltOutputChannel;
 
 			if ((master.channel != mp->channel) || master.cmDevice != *origMPDevice)
 				master.changedDeviceChannel = 1;
@@ -1447,8 +1447,8 @@ Boolean MpCheck(PARTINFO *p)
 	if (p!=NULL)
 	{
 		if (useWhichMIDI==MIDIDR_CM && !CMTransmitChannelValid(*origMPDevice , p->channel)) {
-			master.cmDevice = config.cmDefaultOutputDevice;
-			master.channel = config.cmDefaultOutputChannel;
+			master.cmDevice = config.cmDfltOutputDev;
+			master.channel = config.cmDfltOutputChannel;
 		}
 
 		if (p->hiKeyNum<=MAXMIDI
@@ -1555,12 +1555,12 @@ Boolean PartMIDIDialog(Document *doc, PARTINFO *mp, Boolean *allParts)
 			if (CMTransmitChannelValid(*origMPDevice, (short)(mp->channel)))
 				master.cmDevice = *origMPDevice;
 			else
-				master.cmDevice = config.cmDefaultOutputDevice;
+				master.cmDevice = config.cmDfltOutputDev;
 			/* It's possible our device has changed, so validate again. */
 			if (CMTransmitChannelValid(master.cmDevice, (short)(mp->channel)))
 				master.channel = mp->channel;
 			else
-				master.channel = config.cmDefaultOutputChannel;
+				master.channel = config.cmDfltOutputChannel;
 
 			if ((master.channel != mp->channel) || master.cmDevice != *origMPDevice)
 				master.changedDeviceChannel = 1;

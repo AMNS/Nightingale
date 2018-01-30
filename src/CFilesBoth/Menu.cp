@@ -1953,12 +1953,12 @@ static void VMColorVoices()
 	Document *doc=GetDocumentFromWindow(TopDocument);
 
 	/*
-	 * Toggle with care: I'm not sure ISO C guarantees the "!" operator with
-	 * multibit fields like <colorVoices>.
+	 * Toggle with care: I'm not sure ISO C guarantees the "!" operator with multibit
+	 *	fields like <colorVoices>.
 	 */
 	if (doc) {
 		if (doc->colorVoices==0)
-			doc->colorVoices = ((CapsLockKeyDown() && ShiftKeyDown())? 1 : 2);
+			doc->colorVoices = ((ShiftKeyDown() && OptionKeyDown())? 1 : 2);
 		else
 			doc->colorVoices = 0;
 		CheckMenuItem(viewMenu, VM_ColorVoices, doc->colorVoices);

@@ -735,7 +735,7 @@ static MIDIEndpointRef GetMIDIEndpointByID(MIDIUniqueID id)
 
 static void GetInitialDefaultInputDevice()
 {
-	MIDIEndpointRef cfg = GetMIDIEndpointByID(config.cmDefaultInputDevice);
+	MIDIEndpointRef cfg = GetMIDIEndpointByID(config.cmDfltInputDev );
 	
 	MIDIEndpointRef src = NULL;
 	MIDIEndpointRef s = NULL;
@@ -862,7 +862,7 @@ static void CheckDefaultInputDevice()
 
 static void GetInitialDefaultOutputDevice()
 {
-	MIDIEndpointRef cfg = GetMIDIEndpointByID(config.cmDefaultOutputDevice);
+	MIDIEndpointRef cfg = GetMIDIEndpointByID(config.cmDfltOutputDev);
 	
 	MIDIEndpointRef dest = NULL;
 	MIDIEndpointRef d = NULL;
@@ -1274,7 +1274,7 @@ Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 		/* Validate device / channel combination. */
 		if (!CMTransmitChannelValid(partDevice[i], (short)partChannel[i])) {
 			partDevice[i] = CoreMidiGetSelectedOutputDevice(&channel);
-			//partDevice[i] = config.cmDefaultOutputDevice;
+			//partDevice[i] = config.cmDfltOutputDev;
 		}
 
 		/* It's possible our device has changed, so validate again (and again, if necc.). */
@@ -1561,14 +1561,13 @@ Boolean InitCoreMIDI()
 			LogPrintf(LOG_NOTICE, "Created MIDI Output Port: gOutPort = %ld\n", gOutPort);
 		}
 		
-		if (config.cmDefaultOutputChannel > 0 && 
-				config.cmDefaultOutputChannel <= MAXCHANNEL) {
-			gDefaultChannel = config.cmDefaultOutputChannel;
+		if (config.cmDfltOutputChannel > 0 && config.cmDfltOutputChannel <= MAXCHANNEL) {
+			gDefaultChannel = config.cmDfltOutputChannel;
 		}
 		else {
 			LogPrintf(LOG_NOTICE, "No config setting for default channel; using: gDefaultChannel = %ld\n", gDefaultChannel);
 			
-			config.cmDefaultOutputChannel = 1;
+			config.cmDfltOutputChannel = 1;
 			LogPrintf(LOG_NOTICE, "Setting config val for default channel to 1\n");
 		}
 
@@ -1629,7 +1628,7 @@ Boolean InitCoreMIDI()
 		CoreMidiSetSelectedMidiThruDevice(gDefaultOutputDevID, gDefaultChannel);
 		CoreMidiSetSelectedOutputDevice(gDefaultOutputDevID, gDefaultChannel);
 		
-		//CoreMidiSetSelectedInputDevice(config.cmDefaultInputDevice, config.defaultChannel);		
+		//CoreMidiSetSelectedInputDevice(config.cmDfltInputDev , config.defaultChannel);		
 		//CoreMidiSetSelectedMidiThruDevice(config.cmMetroDevice, config.defaultChannel);
 		
 		DisplayMIDIDevices();

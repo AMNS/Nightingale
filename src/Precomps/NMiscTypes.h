@@ -61,7 +61,7 @@ typedef struct {
 typedef struct {
 /* These first fields don't need to be saved. */
 	WindowPtr		theWindow;			/* The window being used to show this doc */
-	unsigned char name[256];			/* File name */
+	unsigned char	name[256];			/* File name */
 	FSSpec			fsSpec;
 	short			vrefnum;			/* Directory file name is local to */
 	Rect			viewRect;			/* Port rect minus scroll bars */
@@ -114,15 +114,15 @@ typedef struct {
 
 /* MIDI driver fields. We now support only Core MIDI; OMS and FreeMIDI are pre-OS X. */
 	/* OMS (obsolete) */
-	OMSUniqueID omsPartDeviceList[MAXSTAVES];	/* OMS MIDI dev data for each part on MP, */
-												/* indexed by partn associated with PARTINFOheap */
-	OMSUniqueID	omsInputDevice;  				/* OMS MIDI dev data for recording inputs */
+	OMSUniqueID		omsPartDeviceList[MAXSTAVES];	/* OMS MIDI dev data for each part on MP, */
+													/*   indexed by partn associated with PARTINFOheap */
+	OMSUniqueID		omsInputDevice;  				/* OMS MIDI dev data for recording inputs */
 	/* FreeMIDI (obsolete) */
-	fmsUniqueID	fmsInputDevice;					/* FreeMIDI dev data for recording inputs */
-	destinationMatch	fmsInputDestination;	/* (See comment at PARTINFO in NTypes.h.) */
+	fmsUniqueID		fmsInputDevice;					/* FreeMIDI dev data for recording inputs */
+	destinationMatch	fmsInputDestination;		/* (See comment at PARTINFO in NTypes.h.) */
 	/* Core MIDI */
 	MIDIUniqueID	cmPartDeviceList[MAXSTAVES];	/* CoreMIDI dev data for each part on MP, */
-													/* indexed by partn associated with PARTINFOheap */
+													/*   indexed by partn associated with PARTINFOheap */
 	MIDIUniqueID	cmInputDevice;  				/* CoreMIDI dev data for recording inputs */
 
 /* The remaining fields don't need to be saved. */
@@ -356,10 +356,10 @@ typedef struct {
 
 	/* Following fields were added after Nightingale 2.5. */
 	
-	OMSUniqueID metroDevice;			/* P: OMS identifier for metronome synth */
-	OMSUniqueID defaultInputDevice;		/* P: OMS identifier for default input synth */
-	OMSUniqueID defaultOutputDevice;	/* P: OMS identifier for default output synth */
-	SignedByte	defaultOutputChannel;	/* P: channel for dflt out device; input uses defaultChannel */
+	OMSUniqueID metroDevice;			/* P: OMS identifier for metronome synth (no longer used) */
+	OMSUniqueID defaultInputDevice;		/* P: OMS identifier for default input synth (no longer used) */
+	OMSUniqueID defaultOutputDevice;	/* P: OMS identifier for default output synth (no longer used) */
+	SignedByte	defaultOutputChannel;	/* P: channel for dflt out device; input uses defaultChannel (no longer used) */
 
 	/* Following fields were added after Nightingale 3.0. */
 
@@ -383,15 +383,15 @@ typedef struct {
 	/* Following fields were added after Nightingale 4.0. */
 
 	SignedByte	useModNREffects;		/* P: Use modifier prefs for velocity, duration, etc. changes when playing? */
-	SignedByte	thruChannel;			/* U: Channel and device for MIDI thru output */
-	fmsUniqueID	thruDevice;
+	SignedByte	thruChannel;			/* U: Channel for MIDI thru output */
+	unsigned short thruDevice;			/* U: Device for MIDI thru output */
 
 	/* Following fields were added after Nightingale 4.0, file format version "N104". */
 	
-	MIDIUniqueID cmMetroDevice;				/* P: Core MIDI identifier for metronome synth */
-	MIDIUniqueID cmDefaultInputDevice;		/* P: Core MIDI identifier for default input synth */
-	MIDIUniqueID cmDefaultOutputDevice; 	/* P: Core MIDI identifier for default output synth */
-	SignedByte	 cmDefaultOutputChannel; 	/* P: channel for dflt out device; input uses defaultChannel */
+	MIDIUniqueID cmMetroDevice;			/* P: Core MIDI identifier for metronome synth */
+	MIDIUniqueID cmDfltInputDev;		/* P: Core MIDI identifier for default input synth */
+	MIDIUniqueID cmDfltOutputDev;		/* P: Core MIDI identifier for default output synth */
+	SignedByte	 cmDfltOutputChannel;	/* P: channel for dflt out device; input uses defaultChannel */
 
 	/* Padding and final stuff. NOTE: Cf. comments on <unused> above before adding fields! */
 	

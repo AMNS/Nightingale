@@ -419,8 +419,6 @@ void DisplayNode(Document *doc, LINK pL,
 	}
 	PopLock(OBJheap);
 
-#else
-	DebugStr("\pDisplayNode called without Current Events");
 #endif
 }
 

@@ -1,16 +1,13 @@
 NIGHTINGALE CONVENTIONS FOR MODIFIER KEYS
 Nightingale Technical Note #9
-Don Byrd, December 1999; rev. early January 2018
+Don Byrd, December 1999; rev. late January 2018
 
-These key combinations are used in consistent ways:
+This key combination is used in a consistent way:
 
 Shift-control
-			Display additional information (mostly for debugging) in the system log
-			file (accessible via the Console utility).
-
-Caps lock-option
-			Display debug info: usually in the log file, but when PostScript printing,
-			on the printed page.
+			Display additional information, mostly for debugging, and normally in the
+			system log file (accessible via the Console utility), but for PostScript
+			printing, on the printed page.
 
 And here are the conventions for keys used alone, but, regrettably, there are many
 exceptions, especially in debug (including Browser) code.

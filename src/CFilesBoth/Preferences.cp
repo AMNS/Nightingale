@@ -5,7 +5,7 @@
 			containing a list of key value pairs in the format
 				key=value
 			Nomenclature follows that of config file routines in Initialize.c .
-			NB: This is really a work in progress, but there are already calls to
+			NB: THIS IS REALLY A WORK IN PROGRESS, but there are already calls to
 			it elsewhere in Nightingale code! They don't seem to cause any trouble,
 			but beware!
 ****************************************************************************************/
@@ -196,7 +196,7 @@ Boolean OpenTextSetupFile()
 		 * lousy--it should use SETUP_FILE_NAME, of course--but ProgressMsg() can't
 		 * handle that!
 		 */
-		ProgressMsg(CREATESETUP_PMSTR, "");
+		ProgressMsg(CREATE_PREFS_PMSTR, "");
 		SleepTicks(60L);								/* Be sure user can read the msg */
 		if (!CreateTextSetupFile(&prefsFSSpec)) {
 			GetIndCString(strBuf, INITERRS_STRS, 2);	/* "Can't create Prefs file" */

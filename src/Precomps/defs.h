@@ -278,7 +278,7 @@ enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
 #define DOCUMENT_TYPE_VIEWER 'SCOV'
 #define CREATOR_TYPE_VIEWER 'BYRV'		/* "signature" */
 
-/* ------------------------------------------------------------ MIDI and real-time -- */
+/* ---------------------------------------------------------------- MIDI and real-time -- */
 
 /* Some MIDI parameters. Others are in the CNFG resource (and most of these should be
 moved there eventually). */
@@ -473,7 +473,6 @@ with MAX_TSDENOM, above! */
 
 
 /* ---------------------------------------------------- MISCELLANEOUS SYSTEM-DEPENDENT -- */
-
 
 /* Convert OS ticks (in Carbon, 1/60 sec.) to milliseconds. */
 #define TICKS2MS(ticks) (1000*(ticks)/60)
