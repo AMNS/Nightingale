@@ -9,7 +9,7 @@
  */
 
 /* NB: If the app uses AppendResMenu to build a font menu, take this advice from
-Inside Mac:
+Inside Macintosh:
 	So that you can have resources of the given type that won't appear in
 	the menu, any resource names that begin with a period (.) or a percent
 	sign (%) aren't apppended by AppendResMenu.
@@ -91,14 +91,13 @@ Boolean InitGPopUp(
 	resH = Get1Resource('chgd', menuID);
 	if (resH==NULL)	return False;
 	HLock(resH);									/* NewPtr & GetFNum below can move memory */
-	cgP = (PCHARGRID) *resH;
+	cgP = (PCHARGRID)*resH;
 	p->numItems = cgP->numChars;
 	p->numColumns = cgP->numColumns;
 	p->fontSize = cgP->fontSize;
 	p->itemChars = (char *) NewPtr((Size)p->numItems);
 //	if (p->itemChars==NULL) goto broken;    // -ls
-    if (p->itemChars==NULL)
-    {
+    if (p->itemChars==NULL) {
         ReleaseResource(resH);
         return False;
     }
@@ -118,7 +117,7 @@ Boolean InitGPopUp(
 	ReleaseResource(resH);
 
 	if (p->fontNum==kInvalidFontFamily) goto broken;
-
+	
 	GetPort(&gp);
 	saveFontNum = GetPortTextFont(gp);
 	saveFontSize = GetPortTextSize(gp);
@@ -165,7 +164,9 @@ Boolean InitGPopUp(
 		goto broken;
 
 	return True;
+	
 broken:
+	LogPrintf(LOG_WARNING, "Can't create the duration pop-up. The font may not be available.\n");
 	ReleaseResource(resH);
 	return False;
 }
@@ -252,8 +253,7 @@ void HiliteGPopUp(
 }
 
 
-/* Invoke a popup menu; return True if new choice made, which will be in
-p->currentChoice. */
+/* Invoke a popup menu; return True if new choice made, which will be in p->currentChoice. */
 
 Boolean DoGPopUp(PGRAPHIC_POPUP p)
 {
@@ -469,7 +469,7 @@ Boolean DurPopupKey(PGRAPHIC_POPUP p, POPKEY *pk, unsigned char theChar)
 	if (theChar!='?') {									/* because hard-wired below! */
 		short intChar = (short)theChar;
 		TranslatePalChar(&intChar, 0, False);
-		theChar = (unsigned char) intChar;
+		theChar = (unsigned char)intChar;
 	}
 	
 	numItems = p->numItems;

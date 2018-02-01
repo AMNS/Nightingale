@@ -11,8 +11,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-extern void EnumerateFonts(Document *doc);
-
 void EnumerateFonts(Document *doc)
 {
 	FMFontFamilyIterator         	fontFamilyIterator;

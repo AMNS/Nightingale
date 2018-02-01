@@ -1,16 +1,23 @@
 /******************************************************************************************
 	FILE:	MusicFont.c
-	PROJ:	Nightingale, revised for v.2.1
+	PROJ:	Nightingale
 	DESC:	Routines for dealing with the music font or characters in it as a font.
 			"The music font" is ordinarily Sonata: it can be set to another font, but
 			many of these routines (as well as some other parts of Nightingale) just
 			assume it's Sonata. So results with Sonata-compatible music fonts may be a
 			bit strange; non-Sonata-compatible fonts are likely to be unusuable.
 			
-		SetTextSize				MusCharRect			BuildCharRectCache
-		CharRect									NumToSonataStr
-		GetMusicAscDesc			GetMNamedFontSize	Staff2MFontSize
-		GetMFontSizeIndex		GetActualFontSize	GetYHeadFudge
+		PrintMusFontTables			MapMusChar				MapMusPString
+		MusCharXOffset				MusCharYOffset			MusFontHas16thFlag
+		MusFontHasCurlyBraces		MusFontHasRepeatDots
+		MusFontUpstemFlagsHaveXOffset	MusFontStemSpaceWidthPixels
+		MusFontStemSpaceWidthDDIST	UpstemExtFlagLeading	DownstemExtFlagLeading
+		Upstem8thFlagLeading		Downstem8thFlagLeading	GetMusFontIndex
+		InitDocMusicFont
+		SetTextSize					MusCharRect				BuildCharRectCache
+		CharRect					NumToSonataStr
+		GetMusicAscDesc				GetMNamedFontSize		Staff2MFontSize
+		GetMFontSizeIndex			GetActualFontSize		GetYHeadFudge
 		GetYRestFudge
 /******************************************************************************************/
 
@@ -19,7 +26,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -183,7 +190,7 @@ DDIST Downstem8thFlagLeading(short musFontInfoIndex, DDIST lnSpace)
 
 
 /* Return the index into the global musFontInfo table for the font whose font number
-is <fontNum>, or -1 if this font name isn't in the table. */
+is <fontNum>, or -1 if this font number isn't in the table. */
 
 static short GetMusFontIndex(short fontNum)
 {
@@ -204,12 +211,15 @@ instead and notify the user. */
 void InitDocMusicFont(Document *doc)
 {
 	short	fNum, index;
-	char	fmtStr[256];
+	char	fmtStr[256], musFontName[64];
 
 	GetFNum(doc->musFontName, &fNum);
+	Pstrcpy((StringPtr)musFontName, doc->musFontName);
+	PToCString((StringPtr)musFontName);
+	LogPrintf(LOG_INFO, "Music font is '%s' (font no. %d).  (InitDocMusicFont)\n", musFontName, fNum);
 	if (fNum==0) {
-		GetIndCString(fmtStr, INITERRS_STRS, 29);	/* "This document uses %s as the music font, but ..." */
-		sprintf(strBuf, fmtStr, doc->musFontName);
+		GetIndCString(fmtStr, INITERRS_STRS, 29);	/* "The music font this document uses, %s, is not installed..." */
+		sprintf(strBuf, fmtStr, musFontName);
 		CParamText(strBuf, "", "", "");
 		NoteInform(GENERIC_ALRT);
 
@@ -217,8 +227,8 @@ void InitDocMusicFont(Document *doc)
 	}
 	index = GetMusFontIndex(fNum);
 	if (index==-1) {
-		GetIndCString(fmtStr, INITERRS_STRS, 30);	/* "The music font used by this document (%s) is not supported by this copy of Nightingale." */
-		sprintf(strBuf, fmtStr, doc->musFontName);
+		GetIndCString(fmtStr, INITERRS_STRS, 30);	/* "The music font this document uses, %s, is not supported by...." */
+		sprintf(strBuf, fmtStr, musFontName);
 		CParamText(strBuf, "", "", "");
 		NoteInform(GENERIC_ALRT);
 
@@ -268,7 +278,7 @@ static void MusCharRect(Rect bbox[], unsigned char ch, long scale, Rect *r)
 /* ---------------------------------------------------------------- BuildCharRectCache -- */
 /*	If the given document's window's current font is the music font, builds a table of
 CharRects for all characters in the current size, using metric information in the
-cBBox array. If the document's current font is not the music font, does nothing. */
+cBBox array. If the window's current font is not the music font, does nothing. */
 
 #define REFERENCE_CODE MCH_trebleclef		/* Code for reference symbol */
 #define REFERENCE_SIZE 36.0					/* Point size of reference symbol */
@@ -290,14 +300,24 @@ void BuildCharRectCache(Document *doc)
 
 	refCode = MapMusChar(doc->musFontInfoIndex, REFERENCE_CODE);
 	bbox = musFontInfo[doc->musFontInfoIndex].cBBox;
+	if (bbox[refCode].bottom==bbox[refCode].top) {
+		LogPrintf(LOG_INFO, "fontNum=%d refCode=%d bbox[].bottom=%d .top=%d.  (BuildCharRectCache)\n",
+					doc->musicFontNum, refCode, bbox[refCode].bottom, bbox[refCode].top);
+		MayErrMsg("Can't scale the music font: reference symbol has height zero.  (BuildCharRectCache)\n");
+		return;
+	}
 
 	charRectCache.fontNum = GetWindowTxFont(ourPort);
 	charRectCache.fontSize = GetWindowTxSize(ourPort);
 	actualSize = GetActualFontSize(charRectCache.fontSize);
 	scale = 100000.*(REFERENCE_HEIGHT*(actualSize/REFERENCE_SIZE)
 			/(bbox[refCode].bottom-bbox[refCode].top));
-	if (scale<200) MayErrMsg("BuildCharRectCache: scaling roundoff error 1/%ld",
-									scale);
+	if (scale<200) {
+		LogPrintf(LOG_INFO, " fontNum=%d refCode=%d bbox[].bottom=%d .top=%d actualSize=%d.  (BuildCharRectCache)\n",
+					doc->musicFontNum, refCode, bbox[refCode].bottom, bbox[refCode].top);
+		MayErrMsg("Can't scale the music font: roundoff error 1/%ld.  (BuildCharRectCache)", scale);
+		return;
+	}
 
 	for (ic = 0; ic<256; ic++) {
 		MusCharRect(bbox, (unsigned char)ic, scale, &charRectCache.charRect[ic]);
@@ -319,7 +339,7 @@ Rect CharRect(short ic)
 
 #ifdef MFDEBUG
 	if (qd.thePort->txFont!=charRectCache.fontNum)
-		LogPrintf(LOG_DEBUG, "CharRect: port's font is %ld but font cached is %ld.",
+		LogPrintf(LOG_DEBUG, "CharRect: port's font no. is %ld but font cached is %ld.",
 				(long)qd.thePort->txFont, (long)charRectCache.fontNum);
 	if (qd.thePort->txSize!=charRectCache.fontSize)
 		LogPrintf(LOG_DEBUG, "CharRect: port's font size is %ld but size cached is %ld.",
@@ -334,7 +354,7 @@ Rect CharRect(short ic)
 /*	Convert an integer to a Pascal string of Sonata italic digits, e.g., for tuplet
 accessory numerals. */
 
-void NumToSonataStr(long number, unsigned char *string)
+void NumToSonataStr(long number, StringPtr string)
 {
 	short	nchars;
 	
@@ -353,7 +373,7 @@ music font. */
 
 void GetMusicAscDesc(
 			Document *doc,
-			unsigned char *string,			/* Pascal string */
+			StringPtr string,				/* Pascal string */
 			short size,						/* in points, i.e., pixels at 100% magnification */
 			short *pAsc, short *pDesc		/* in points */
 			)
@@ -503,6 +523,6 @@ short GetYRestFudge(short fontSize, short durCode)
 	short	mFSizeIndex;						/* Index of font size in list of music screen fonts */
 
 	mFSizeIndex = GetMFontSizeIndex(fontSize);
-	if (durCode>6) durCode = 6;						/* Treat shorter durs. as 16ths */
+	if (durCode>6) durCode = 6;					/* Treat shorter durs. as 16ths */
 	return fudgeRestY[durCode-1][mFSizeIndex];
 }

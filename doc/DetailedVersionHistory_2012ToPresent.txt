@@ -2032,3 +2032,15 @@ Minor cleanup. Affects Defs.h, NightTemplates.h, NMiscTypes.h, NResourceID.h,
 VersionStrings.h; Check, CoreMIDIUtils, DebugDisplay, File, Finalize, Initialize,
 InstrDialog, MIDIDialogs, MIDIRecord, MiscUtils, Preferences, PS_Stdio, Score.
 
+-------------------------------------------------------------------------------
+
+30 Jan. - 1 Feb.
+
+Remove 'vers' (version) resource. Affects .rsrc.
+
+Before quitting, undo endian changes to config fields, for the benefit of the Intel
+version. Affects Finalize.
+
+Minor cleanup: reword an ALRT, add error checking, etc. Affects .rsrc, MiscUtils.h,
+MusicFont.h, NightTemplates.h, NMiscTypes.h; CoreMIDIUtils, DurationPopUp, File,
+Finalize, FontUtils, Initialize, Menu, MiscUtils, MusicFont, PrefsDialog, ToolPalette.

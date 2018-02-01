@@ -1179,7 +1179,7 @@ void DoPlayRecMenu(short choice)
 			case PL_Metronome:
 				if (useWhichMIDI==MIDIDR_CM)
 					CMMetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
-									&config.metroVelo, &config.metroDur, &config.cmMetroDevice);
+									&config.metroVelo, &config.metroDur, &config.cmMetroDev);
 				else
 					MetroDialog(&config.metroViaMIDI, &config.metroChannel, &config.metroNote,
 									&config.metroVelo, &config.metroDur);

@@ -293,7 +293,55 @@ Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *n
 		
 	return (!nsData->nsOpCancel);
 }
+
+
+/* The CNFG resource is stored in Big Endian form. If we're running on a Little Endian
+processor (no doubt Intel), correct the byte order in fields of more than one byte; if
+we're on a Big Endian processor (PowerPC), do nothing. This function should be called
+immediately after opening the CNFG resource to convert from Big Endian to Little Endian,
+and immediately before saving it to convert from Little Endian to Big Endian. */
+
+void EndianFixConfig()
+{
+	FIX_END(config.maxDocuments);
 	
+	FIX_END(config.paperRect.top);		FIX_END(config.paperRect.left);
+	FIX_END(config.paperRect.bottom);	FIX_END(config.paperRect.right);
+	FIX_END(config.pageMarg.top);		FIX_END(config.pageMarg.left);
+	FIX_END(config.pageMarg.bottom);	FIX_END(config.pageMarg.right);
+	FIX_END(config.pageNumMarg.top);	FIX_END(config.pageNumMarg.left);
+	FIX_END(config.pageNumMarg.bottom);	FIX_END(config.pageNumMarg.right);
+
+	FIX_END(config.defaultTempoMM);
+	FIX_END(config.lowMemory);
+	FIX_END(config.minMemory);
+	
+	FIX_END(config.toolsPosition.v);	FIX_END(config.toolsPosition.h);
+	
+	FIX_END(config.numRows);			FIX_END(config.numCols);
+	FIX_END(config.maxRows);			FIX_END(config.maxCols);
+	FIX_END(config.vPageSep);			FIX_END(config.hPageSep);
+	FIX_END(config.vScrollSlop);		FIX_END(config.hScrollSlop);
+	FIX_END(config.origin.v);			FIX_END(config.origin.h);
+
+	FIX_END(config.musicFontID);
+	FIX_END(config.numMasters);
+	
+	FIX_END(config.chordSymMusSize);
+	FIX_END(config.defaultPatch);
+	FIX_END(config.rainyDayMemory);
+	FIX_END(config.tryTupLevels);
+	
+	FIX_END(config.metroDur);
+	
+	FIX_END(config.trebleVOffset);
+	FIX_END(config.cClefVOffset);
+	FIX_END(config.bassVOffset);
+	
+	FIX_END(config.chordFrameFontID);
+	FIX_END(config.thruDevice);
+}
+
 
 /* -------------------------------------------------------------------------------------- */
 

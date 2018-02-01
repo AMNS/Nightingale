@@ -115,10 +115,8 @@ static void MissingFontsDialog(Document *doc, short nMissing)
 
 
 /* --------------------------------------------------------------------- FillFontTable -- */
-/* Fill score header's fontTable, which maps internal font numbers to system
-font numbers for the Macintosh system we're running on so we can call TextFont. */
-
-extern void EnumerateFonts(Document *doc);
+/* Fill score header's fontTable, which maps internal font numbers to system font
+numbers for the computer we're running on so we can call TextFont. */
 
 static void FillFontTable(Document *doc)
 {

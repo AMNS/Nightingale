@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -20,7 +20,7 @@ static Boolean UpdatePrefsFile(void);
 must not be a resource when this is called). Return True if all OK, give an error
 message and return False if there's a problem. */
 
-Boolean ReplacePrefsResource(Handle resH, Handle hndl, ResType type, short id,
+static Boolean ReplacePrefsResource(Handle resH, Handle hndl, ResType type, short id,
 								const unsigned char *name)
 {
 	/* Remove the old resource */
@@ -45,12 +45,11 @@ Boolean ReplacePrefsResource(Handle resH, Handle hndl, ResType type, short id,
 
 
 /* ------------------------------------------------------------------- UpdatePrefsFile -- */
-/* Save current config struct in Prefs (formerly "Setup") file's 'CNFG' resource,
-MIDI dynamics table in Prefs file's 'MIDI' resource, and MIDI modifier prefs tables
-in Prefs file's 'MIDM' resource, if they've been changed. Does NOT update any other
-resources that may be in the Prefs file, e.g., MIDI Manager 'port' resources, tool
-palette 'PICT'/'PLCH', 'PLMP'. We assume Prefs file is open. Return True if all OK,
-give an error message and return False if there's a problem. */
+/* If they've been changed, save current config struct in Prefs (formerly "Setup") file's
+'CNFG' resource, MIDI dynamics table in its 'MIDI' resource, and MIDI modifier prefs tables
+in its 'MIDM' resource, . Doesn't update any other resources that may be in the Prefs file,
+.e.g., tool palette 'PICT'/'PLCH', 'PLMP'. We assume Prefs file is open. Return True if all
+OK, give an error message and return False if there's a problem. */
 
 #define CNFG_RES_NAME	"\pNew Config"
 #define MIDI_RES_NAME	"\pNew velocity table"
@@ -68,7 +67,8 @@ static Boolean UpdatePrefsFile()
 	
 	/* Undo any changes to config made internally by Nightingale. */
 	
-		config.maxDocuments--;		/* So that we're not including clipboard doc in count */
+	config.maxDocuments--;		/* So that we're not including clipboard doc in count */
+	EndianFixConfig();
 		
 	/*
 	 * Get the config resource and the MIDI resource from file and compare them
@@ -83,7 +83,7 @@ static Boolean UpdatePrefsFile()
 			
 	cnfgChanged = memcmp( (void *)*cnfgResH, (void *)&config,
 								(size_t)sizeof(Configuration) );
-	
+		
 	for (midiTabChanged = False, i = 1; i<LAST_DYNAM; i++)
 		if (dynam2velo[i]!=((MIDIPreferences *)*midiResH)->velocities[i-1])
 			{ midiTabChanged = True; break; }
@@ -101,7 +101,7 @@ static Boolean UpdatePrefsFile()
 		-JGG, 6/24/01 */
  
 	if (cnfgChanged || midiTabChanged || midiModNRTabChanged) {
-		if (config.dontAsk) save = True;
+		if (config.dontAskSavePrefs) save = True;
 		else {
 			if (cnfgChanged) {
 				if (midiTabChanged)
@@ -114,7 +114,9 @@ static Boolean UpdatePrefsFile()
 			CParamText(strBuf, "", "", "");
 			save = CautionAdvise(SAVECNFG_ALRT);
 		}
- 		if (save==OK) {
+
+ 		if (save) {
+			LogPrintf(LOG_NOTICE, "Updating the Prefs file...\n");
 			/* Create a handle to global config struct */
 			cnfgHndl = (Configuration **)NewHandle((long) sizeof(Configuration));
 			if ((result = MemError())) {

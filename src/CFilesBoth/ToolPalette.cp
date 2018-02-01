@@ -26,7 +26,7 @@ static void		SwapTools(short firstItem, short lastItem);
 static void		PalCopy(GrafPtr dstPort, GrafPtr srcPort, short dstItem, short srcItem);
 static void		UpdateGridCoords(void);
 
-/* ------------------------------------------------- TranslatePalChar and friends -- */
+/* ------------------------------------------------------ TranslatePalChar and friends -- */
 
 typedef struct {
 	unsigned char origChar;
@@ -93,7 +93,7 @@ Boolean TranslatePalChar(
 	
 	shiftIsDown = ShiftKeyDown();
 	
-	ch = (unsigned char) *theChar;		/* convert to unsigned char */
+	ch = (unsigned char)*theChar;
 	
 	/* If the shift key is down and theChar is still a digit, it means theChar
 	 * was produced on the keypad. Remap it so that it appears to have resulted
@@ -248,14 +248,12 @@ Boolean IsDurKey(register unsigned char ch, register Boolean *isNote)
 }
 
 
-/* ------------------------------------------------ regular Tool Palette routines -- */
-/* 
- *  Draw the tool menu palette.  The argument rect will be in either global
- *	screen coordinates if the palette is being drawn from the MDEF (i.e., it's
- *	still in the menu bar), or in local palette window coordinates if it's in
- *	a standalone window or the menu has been torn off (i.e., this is part of an
- *	update event).
- */
+/* ----------------------------------------------------- regular Tool Palette routines -- */
+
+/* Draw the tool menu palette.  The argument rect will be in global screen coordinates
+if the palette is being drawn from the MDEF (i.e., it's still in the menu bar), or in
+local palette window coordinates if it's in a standalone window or the menu has been
+torn off (i.e., this is part of an update event). */
 
 pascal void DrawToolMenu(Rect *r)
 	{
@@ -275,7 +273,7 @@ pascal void DrawToolMenu(Rect *r)
 		OffsetRect(&src,-src.left,-src.top);
 		const BitMap *palPortBits = GetPortBitMapForCopyBits(palPort);
 		const BitMap *thePortBits = GetPortBitMapForCopyBits(GetQDGlobalsThePort());
-		CopyBits(palPortBits,thePortBits, &src, &port, srcCopy, NULL);
+		CopyBits(palPortBits, thePortBits, &src, &port, srcCopy, NULL);
 
 		/* Add frame surrounding picture */
 		

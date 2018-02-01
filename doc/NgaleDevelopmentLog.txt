@@ -2530,7 +2530,7 @@ intersects the two lists and that's what it actually builds for. Okay, but Xcode
 Info for Nightingale.xcodeproj, "All Settings", dosn't even show Valid Architectures!
 But they're probably in the xcodeproj in an intelligible form? Yes! project.pbxproj is in
 a JSON-like format; its XCBuildConfiguration section shows Debug and Release configs --
-in fact, two of each! And of the two Release configs, the 2nd has
+in fact, two of each! And of the two Release configs, the 2nd has 
 
 				ARCHS = (
 					i386,
@@ -2538,21 +2538,51 @@ in fact, two of each! And of the two Release configs, the 2nd has
 				);
 
 ...which agrees with what Get Info shows; but the 1st just has ARCHS = ppc. Also, the
-1st has VALID_ARCHS = "i386 ppc"; the 2nd doesn't have a VALID_ARCHS. Maybe Xcode
-is paying attention to the 1st? Try hand editing its ARCHS to the same as the 2nd; clean;
+1st has VALID_ARCHS = "i386 ppc"; the 2nd doesn't have a VALID_ARCHS. Maybe Xcode is
+paying attention to the 1st? Try hand editing its ARCHS to the same as the 2nd; clean;
 build => it says it's compiling 320 source files, about twice the usual number!! Yay!!
-And, sure enough, it builds a Universal app, one that runs on my Intel MacBook... sort
-of. It's pretty much unusable with Intel processors so far, probably because of Endian
+And, sure enough, it builds a Universal app, one that runs on my OS 10.8.x Intel MacBook
+-- sort of. It's still unusable with Intel processors so far, probably because of Endian
 issues. It gives 11 CNFG errors:
 
 	Checking CNFG:  err #1, err #36, err #36, err #46, err #47, err #62, err #65,
 		err #68, err #78, err #79, err #84, TOTAL OF 11 ERROR(S) FOUND.
 
-...and doesn't even seem to be able to draw a staff!
+...and doesn't even seem to be able to draw a staff! ??
 
 -------------------------------------------------------------------------------
 
-26 Jan.
+26 - 31 Jan.
 
-Try the Endian approach to Ngale's problems on Intel processors. Using Michel Salim's
-nice fix_end macro, in EndianUtils.h, ??
+On my MacBook Air: Try the Endian approach to Ngale's problems on Intel processors,
+which are little Endian: use  Michel Salim's nice FIX_END macro, in EndianUtils.h. New
+function EndianFixConfig() calls FIX_END for ca. 40 config fields => all config fields
+are (I think) OK! -- but when I quit, Ngale always thinks the config has changed and
+writes it out in little Endian form :-( . Add call to EndianFixConfig() in
+UpdatePrefsFile() => that's OK too.
+
+Next problem: click "New Nightingale File" => error message in BuildCharRectCache():
+"Can't scale the music font: reference symbol has height zero." In fact, for
+the reference char, the bbox.bottom = bbox.top = 0! From the system log:
+
+	Ngale[47090]: Music font is 'Sonata' (font no. 242).  (InitDocMusicFont)
+	coreaudiod[196]: Disabled automatic stack shots because audio IO is active
+	Ngale[47090]: Music font is 'Sonata' (font no. 242).  (InitDocMusicFont)
+	Ngale[47090]: ATS: Invalid FontObjectID (3) - only low 16 bits are being passed in.
+	Ngale[47090]: fontNum=242 refCode=38 bbox[].bottom=0 .top=0.  (BuildCharRectCache)
+
+"ATS: Invalid FontObjectID (3)" sounds bad; could be a symptom of the problem.
+
+On my OS 10.11.x Mac mini, launch the latest => says "Can't create a Nightingale Prefs
+file"! Try again => this time it creates one!; "New Nightingale File" => the same
+error message, this time for Briard.
+
+Possibly related, the palette on both computers is blank, though it behaves correctly,
+i.e., hiliting clicked-on squares and changing the cursor.
+
+-------------------------------------------------------------------------------
+
+1 Feb.
+
+On my OS 10.6 MacBook 3: The PowerPC build works fine, as expected.  The Intel build
+fails in exactly the same ways as on MacBook Air.

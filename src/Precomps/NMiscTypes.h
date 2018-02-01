@@ -291,7 +291,7 @@ typedef struct {
 	SignedByte	whichMIDI;			/* P: Use MIDI Mgr, built-in MIDI, or none: see InitMIDI */
 	SignedByte	restMVOffset; 		/* G: Rest multivoice offset from normal ht. (half-spaces) */
 	SignedByte	autoBeamOptions; 	/* U: Control beam breaks for Autobeam */
-	SignedByte	dontAsk; 			/* U: !0 = save Preference and palette changes without asking */
+	SignedByte	dontAskSavePrefs; 	/* U: !0 = save Preference and palette changes without asking */
 	SignedByte	noteOffVel;			/* P: Default MIDI Note Off velocity */
 	SignedByte	feedbackNoteOnVel;	/* P: Note On velocity to use for feedback on input, etc. */
 	SignedByte	defaultChannel;		/* P: MIDI default channel number, 1 to MAXCHANNEL */
@@ -388,7 +388,7 @@ typedef struct {
 
 	/* Following fields were added after Nightingale 4.0, file format version "N104". */
 	
-	MIDIUniqueID cmMetroDevice;			/* P: Core MIDI identifier for metronome synth */
+	MIDIUniqueID cmMetroDev;			/* P: Core MIDI identifier for metronome synth */
 	MIDIUniqueID cmDfltInputDev;		/* P: Core MIDI identifier for default input synth */
 	MIDIUniqueID cmDfltOutputDev;		/* P: Core MIDI identifier for default output synth */
 	SignedByte	 cmDfltOutputChannel;	/* P: channel for dflt out device; input uses defaultChannel */

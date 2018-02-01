@@ -29,7 +29,6 @@ static OSStatus		FindPrefsFile(unsigned char *name, OSType fType, OSType fCreato
 static void			DisplayConfig(void);
 static Boolean		CheckRect(Rect aRect, short legalMin, short legalMax);
 static Boolean		CheckConfig(void);
-static void			EndianFix(void);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
 static Boolean		NInitFloatingWindows(void);
@@ -311,10 +310,15 @@ Boolean CreatePrefsFile(FSSpec *rfSpec)
 	if (!GoodResource(resH)) return False;		
 	if (!AddPrefsResource(resH)) return False;
 
-	/* Nightingale Prefs uses the same version number resource as Nightingale. */
+	/* Nightingale Prefs uses the same version number resource as Nightingale. FIXME: This
+	method is unreliable and obsolete! We need to get the version from Info.plist, the way
+	DoAboutBox() does.  */
+	
+#ifdef NOMORE
 	resH = GetResource('vers', 1);
 	if (!GoodResource(resH)) return False;		
 	if (!AddPrefsResource(resH)) return False;
+#endif
 
 	/* Copy all the spacing tables we can find into the Prefs file. We use Get1IndResource
 		instead of GetIndResource to avoid getting a resource from the Prefs file we've
@@ -615,7 +619,7 @@ static void DisplayConfig()
 	LogPrintf(LOG_NOTICE, "  (109)thruChannel=%d", config.thruChannel);
 	LogPrintf(LOG_NOTICE, "  (110)thruDevice=%d\n", config.thruDevice);
 
-	LogPrintf(LOG_NOTICE, "  (111)cmMetroDevice=%ld", config.cmMetroDevice);
+	LogPrintf(LOG_NOTICE, "  (111)cmMetroDev=%ld", config.cmMetroDev);
 	LogPrintf(LOG_NOTICE, "  (112)cmDfltInputDev=%ld", config.cmDfltInputDev );
 	LogPrintf(LOG_NOTICE, "  (113)cmDfltOutputDev=%ld", config.cmDfltOutputDev);
 	LogPrintf(LOG_NOTICE, "  (114)cmDfltOutputChannel=%d", config.cmDfltOutputChannel);
@@ -979,50 +983,6 @@ static Boolean CheckConfig()
 }
 
 
-/* The CNFG resource is stored in Big-Endian form. If we're running on a Little-Endian
-processor (no doubt Intel), correct the byte order in fields of more than one byte. */
-
-static void EndianFix()
-{
-	FIX_END(config.maxDocuments);
-	
-	FIX_END(config.paperRect.top);		FIX_END(config.paperRect.left);
-	FIX_END(config.paperRect.bottom);	FIX_END(config.paperRect.right);
-	FIX_END(config.pageMarg.top);		FIX_END(config.pageMarg.left);
-	FIX_END(config.pageMarg.bottom);	FIX_END(config.pageMarg.right);
-	FIX_END(config.pageNumMarg.top);	FIX_END(config.pageNumMarg.left);
-	FIX_END(config.pageNumMarg.bottom);	FIX_END(config.pageNumMarg.right);
-
-	FIX_END(config.defaultTempoMM);
-	FIX_END(config.lowMemory);
-	FIX_END(config.minMemory);
-	
-	FIX_END(config.toolsPosition.v);	FIX_END(config.toolsPosition.h);
-	
-	FIX_END(config.numRows);			FIX_END(config.numCols);
-	FIX_END(config.maxRows);			FIX_END(config.maxCols);
-	FIX_END(config.vPageSep);			FIX_END(config.hPageSep);
-	FIX_END(config.vScrollSlop);		FIX_END(config.hScrollSlop);
-	FIX_END(config.origin.v);			FIX_END(config.origin.h);
-
-	FIX_END(config.musicFontID);
-	FIX_END(config.numMasters);
-	
-	FIX_END(config.chordSymMusSize);
-	FIX_END(config.defaultPatch);
-	FIX_END(config.rainyDayMemory);
-	FIX_END(config.tryTupLevels);
-	
-	FIX_END(config.metroDur);
-	
-	FIX_END(config.trebleVOffset);
-	FIX_END(config.cClefVOffset);
-	FIX_END(config.bassVOffset);
-	
-	FIX_END(config.chordFrameFontID);
-	FIX_END(config.thruDevice);
-}
-
 /* Install our configuration data from the Prefs file; also check for, report, and
 correct any illegal values. Assumes the Prefs file is the current resource file. */
 
@@ -1149,7 +1109,7 @@ static Boolean GetConfig()
 		config.courtesyAccYD = -127;
 		config.courtesyAccSize = -127;
 
-		/* FIXME: What about Core MIDI fields (cmMetroDevice thru cmDfltOutputChannel)? */
+		/* FIXME: What about Core MIDI fields (cmMetroDev thru cmDfltOutputChannel)? */
 		
 		config.quantizeBeamYPos = -1;
 
@@ -1165,7 +1125,7 @@ static Boolean GetConfig()
 			if (CautionAdvise(CNFGSIZE_ALRT)==OK) ExitToShell();
 		config = *(Configuration *)(*cnfgH);
 
-		EndianFix();
+		EndianFixConfig();
 		
 		if (OptionKeyDown() && ControlKeyDown()) {
 			GetIndCString(strBuf, INITERRS_STRS, 11);		/* "Skipping checking the CNFG" */
@@ -1286,7 +1246,7 @@ static Boolean NInitFloatingWindows()
 	}
 
 
-/* Initialise the Symbol Palette: We use the size of the PICT in resources as well as
+/* Initialise the tool palette: We use the size of the PICT in resources as well as
 the grid dimensions in the PLCH resource to determine the size of the palette, with a
 margin around the cells so that there is space in the lower right corner for a grow box.
 The PICT should have a frame size that is (TOOLS_ACROSS * TOOLS_CELL_WIDTH)-1 pixels
@@ -1342,18 +1302,6 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		
 		/* Put picture into offscreen port so that any rearrangements can be saved */
 
-#if 0	
-		GrafPtr oldPort;
-		palPort = NewGrafPort(picRect.right, picRect.bottom);
-		if (palPort == NULL) { BadInit(); ExitToShell(); }
-		GetPort(&oldPort); SetPort(palPort);
-		
-		HLock((Handle)toolPicture);
-		DrawPicture(toolPicture, &picRect);
-		HUnlock((Handle)toolPicture);
-		ReleaseResource((Handle)toolPicture);
-		SetPort(oldPort);
-#else
 		SaveGWorld();
 		
 		GWorldPtr gwPtr = MakeGWorld(picRect.right, picRect.bottom, True);
@@ -1367,20 +1315,20 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		palPort = gwPtr;
 //		UnlockGWorld(gwPtr);
 		RestoreGWorld();
-#endif
 	}
 
 
 /* Allocate a grid of characters from the 'PLCH' resource; uses GridRec dataType to
-store the information for a maximal maxRow by maxCol grid, where the dimensions
-are stored in the PLCH resource itself and should match the PICT that is being
-used to draw the palette.  Deliver the item number of the default tool (arrow),
-or 0 if problem. */
+store the information for a maximal maxRow by maxCol grid, where the dimensions are
+stored in the PLCH resource itself and should match the PICT that is being used to draw
+the palette.  Deliver the item number of the default tool (arrow), or 0 if problem. */
 
 static short GetToolGrid(PaletteGlobals *whichPalette)
 	{
-		short maxRow, maxCol, row, col, item, defItem = 0;  short curResFile;
-		GridRec *pGrid;  Handle hdl;
+		short maxRow, maxCol, row, col, item, defItem = 0; 
+		short curResFile;
+		GridRec *pGrid;
+		Handle hdl;
 		unsigned char *p;			/* Careful: contains both binary and char data! */
 		
 		curResFile = CurResFile();
@@ -1399,7 +1347,7 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 
 		/* Pull in the maximum and suggested sizes for palette */
 		
-		p = (unsigned char *) *hdl;
+		p = (unsigned char *)*hdl;
 		maxCol = whichPalette->maxAcross = *p++;
 		maxRow = whichPalette->maxDown = *p++;
 		whichPalette->firstAcross = whichPalette->oldAcross = whichPalette->across = *p++;
@@ -1415,12 +1363,12 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 
 		/* And scan through resource to install grid cells */
 		
-		p = (unsigned char *) (*hdl + 4*sizeof(long));		/* Skip header stuff */
+		p = (unsigned char *) (*hdl + 4*sizeof(long));			/* Skip header stuff */
 		pGrid = grid;
 		item = 1;
-		for (row=0; row<maxRow; row++)						/* initialize grid[] */
+		for (row=0; row<maxRow; row++)							/* initialize grid[] */
 			for (col=0; col<maxCol; col++,pGrid++,item++) {
-				SetPt(&pGrid->cell, col, row);				/* Doesn't move memory */
+				SetPt(&pGrid->cell, col, row);					/* Doesn't move memory */
 				if ((pGrid->ch = *p++) == CH_ENTER)
 					if (defItem == 0) defItem = item; 
 				}
@@ -1569,8 +1517,7 @@ Boolean InitGlobals()
 		InsertMenu(editMenu, 0);
 		
 #ifdef PUBLIC_VERSION
-		if (CmdKeyDown() && OptionKeyDown())
-		{
+		if (CmdKeyDown() && OptionKeyDown()) {
 			AppendMenu(editMenu, "\p(-");
 			AppendMenu(editMenu, "\pBrowser");
 			AppendMenu(editMenu, "\pDebug...");

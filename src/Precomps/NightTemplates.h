@@ -211,6 +211,10 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 	void		DoTextFlowIn(Document *doc);
 	Boolean		SetFlowInText(Ptr pText);
 
+/* FontUtils.c */
+
+	void		EnumerateFonts(Document *doc);
+
 /* HairpinEdit.c, DragDynamic.c */
 
 	void		DoHairpinEdit(Document *, LINK);
@@ -617,4 +621,4 @@ pascal void		ScrollDocument(ControlHandle control, short part);
 	void		UpdateSysMeasYs(Document *doc, LINK sysL, Boolean useLedg, Boolean masterPg);
 	void		XLoadEditScoreSeg(void);
 	void		XLoadSheetSetupSeg(void);
-	Boolean	XStfObjOnStaff(LINK, short);
+	Boolean		XStfObjOnStaff(LINK, short);

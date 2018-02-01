@@ -63,8 +63,8 @@ static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *c
 		unsigned int j = 0;
 		for ( ; j < pktlist->numPackets && !CMEndOfBuffer(MIDIPacketNext(packetToAdd), packet->length); j++) {
 		
-			// Only take packets that are acceptable to us.
-			// For example, active sensing is sent once every 300 milliseconds
+			/* Take only packets that are acceptable to us. For example, active sensing is
+				sent once every 300 milliseconds. */
 			
 			if (CMAcceptPacket(packet)) {
 				packetToAdd = MIDIPacketListAdd(gMIDIPacketList, sizeof(gMIDIPacketListBuf), packetToAdd, 
@@ -351,8 +351,8 @@ static void InitCoreMidiTimer()
 	CMInitTimer();
 }
 
-// --------------------------------------------------- Setup and teardown for Core MIDI -- */
-// Setup for playback and teardown after playback
+/* -------------------------------------------------- Setup and teardown for Core MIDI -- */
+/* Setup for playback and teardown after playback */
 
 static void CMGetUsedChannels(Document *doc, Byte *partChannel, Byte *activeChannel)
 {
@@ -400,7 +400,7 @@ void CMTeardown(void)
 }
 
 
-// ----------------------------------------------------------------------------------------
+// -----------------------------------------------------------------------------------------
 // Sending Notes
 
 // Need a 1 packet long list to send
@@ -416,7 +416,7 @@ void CMTeardown(void)
 //
 // Need to figure out how to set up the packet
 
-//  ------------------------------------------------------------ CM End/Start Note Now -- */ 
+//  ------------------------------------------------------------ CM End/Start Note Now -- */
 
 
 OSStatus CMWritePacket(MIDIUniqueID destDevID, MIDITimeStamp tStamp, UInt16 pktLen, Byte *data)
@@ -504,7 +504,6 @@ void CMFBOn(Document *doc)
 	}
 }
 
-
 void CMMIDIFBNoteOn(Document *doc, short noteNum, short channel, MIDIUniqueID devID)
 {
 	if (doc->feedback) {
@@ -523,8 +522,8 @@ void CMMIDIFBNoteOff(Document *doc, short noteNum, short channel, MIDIUniqueID d
 
 /* ---------------------------------------------------------------- CMMIDIFBNoteOn/Off -- */
 
-/* Start MIDI "feedback" note by sending a MIDI NoteOn command for the
-specified note and channel. */
+/* Start MIDI "feedback" note by sending a MIDI NoteOn command for the specified note
+and channel. */
 
 static void CMFBNoteOnDevID(Document *doc, short noteNum, short channel, MIDIUniqueID devID)
 {
@@ -536,13 +535,12 @@ static void CMFBNoteOnDevID(Document *doc, short noteNum, short channel, MIDIUni
 	}
 }
 
-/* End MIDI "feedback" note by sending a MIDI NoteOn command for the
-specified note and channel with velocity 0 (which acts as NoteOff). */
+/* End MIDI "feedback" note by sending a MIDI NoteOn command for the specified note
+and channel with velocity 0 (which acts as NoteOff). */
 
 static void CMFBNoteOffDevID(Document *doc, short noteNum, short channel, MIDIUniqueID devID)
 {
 //	MIDIUniqueID gDestID = GetMIDIObjectId(gDest);
-	
 	
 	if (doc->feedback) {
 		CMEndNoteNow(devID, noteNum, channel);
@@ -550,9 +548,8 @@ static void CMFBNoteOffDevID(Document *doc, short noteNum, short channel, MIDIUn
 	}
 }
 
-
-/* Start MIDI "feedback" note by sending a MIDI NoteOn command for the
-specified note and channel. */
+/* Start MIDI "feedback" note by sending a MIDI NoteOn command for the specified note
+and channel. */
 
 void CMFBNoteOn(Document *doc, short noteNum, short channel, short ioRefNum)
 {
@@ -564,8 +561,8 @@ void CMFBNoteOn(Document *doc, short noteNum, short channel, short ioRefNum)
 	}
 }
 
-/* End MIDI "feedback" note by sending a MIDI NoteOn command for the
-specified note and channel with velocity 0 (which acts as NoteOff). */
+/* End MIDI "feedback" note by sending a MIDI NoteOn command for the specified note
+and channel with velocity 0 (which acts as NoteOff). */
 
 void CMFBNoteOff(Document *doc, short noteNum, short channel, short ioRefNum)
 {
@@ -1083,7 +1080,7 @@ MIDIUniqueID GetCMDeviceForPartL(Document *doc, LINK partL)
 	return doc->cmPartDeviceList[partn];
 }
 
-/* ---------------------------------------------------------------- SetCMDeviceForPart -- */
+/* ------------------------------------------------------------- SetCMDeviceForPartxxx -- */
 
 void SetCMDeviceForPartn(Document *doc, short partn, MIDIUniqueID device)
 {
@@ -1100,8 +1097,8 @@ void SetCMDeviceForPartL(Document *doc, LINK partL, short partn, MIDIUniqueID de
 	doc->cmPartDeviceList[partn] = device;
 }
 
-/* --------------------------------------------------------- InsertPartnCMDevice -- */
-/* Insert a null device in front of partn's device */
+/* ------------------------------------------------------------- InsertPartxxxCMDevice -- */
+/* Insert a null device in front of partn's device. */
 
 void InsertPartnCMDevice(Document *doc, short partn, short numadd)
 {
@@ -1127,7 +1124,7 @@ void InsertPartLCMDevice(Document *doc, LINK partL, short numadd)
 }
 
 
-/* --------------------------------------------------------- DeletePartnCMDevice -- */
+/* ------------------------------------------------------------- DeletePartxxxCMDevice -- */
 
 void DeletePartnCMDevice(Document *doc, short partn)
 {
@@ -1152,7 +1149,7 @@ void DeletePartLCMDevice(Document *doc, LINK partL)
 }
 
 
-/* -------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* MIDI Programs & Patches */
 
 /*
@@ -1214,7 +1211,7 @@ OSErr CMMIDIProgram(Document *doc, unsigned char *partPatch, unsigned char *part
 }
 
 
-/* ------------------------------------------------------------- CMGetUseChannel -- */
+/* ------------------------------------------------------------------- CMGetUseChannel -- */
 
 short CMGetUseChannel(Byte partChannel[], short partn) 
 {
@@ -1223,7 +1220,7 @@ short CMGetUseChannel(Byte partChannel[], short partn)
 }
 
 
-/* ------------------------------------------------------------- CMGetNotePlayInfo -- */
+/* ----------------------------------------------------------------- CMGetNotePlayInfo -- */
 /* Given a note and tables of part transposition, channel, and offset velocity, return
 the note's MIDI note number, including transposition; channel number; and velocity,
 limited to legal range. */
@@ -1247,7 +1244,7 @@ void CMGetNotePlayInfo(Document *doc, LINK aNoteL, short partTransp[],
 }
 
 
-/* ----------------------------------------------------------- GetCMPartPlayInfo -- */
+/* ----------------------------------------------------------------- GetCMPartPlayInfo -- */
 /* Similar to the non-CM GetPartPlayInfo. */
 
 Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
@@ -1296,7 +1293,7 @@ Boolean GetCMPartPlayInfo(Document *doc, short partTransp[], Byte partChannel[],
 }
 
 
-/* ----------------------------------------------------------- GetCMNotePlayInfo -- */
+/* ----------------------------------------------------------------- GetCMNotePlayInfo -- */
 /* Given a note and tables of part transposition, channel, and offset velocity, return
 the note's MIDI note number, including transposition; channel number; and velocity,
 limited to legal range. Similar to the non-CM GetNotePlayInfo. */
@@ -1323,8 +1320,7 @@ void GetCMNotePlayInfo(
 
 
 
-// --------------------------------------------------------------------------------------
-
+/* -------------------------------------------------------------------------------------- */
 
 static void DisplayMIDIDevices()
 {
@@ -1521,10 +1517,10 @@ Boolean InitCoreMIDI()
 		}
 #endif
 					
-		gCMBufferLength = kCMBufLen;		/* Core MIDI's MIDI buffer size in bytes */
+		gCMBufferLength = kCMBufLen;			/* Core MIDI's MIDI buffer size in bytes */
 		gCMMIDIBufferFull = False;
 		
-		gCMNoDestinations = False;			/* For SoftMIDI playback */
+		gCMNoDestinations = False;				/* For SoftMIDI playback */
 		gCMSoftMIDIActive = False;
 
 		if (!AllocCMPacketList()) {
@@ -1629,7 +1625,7 @@ Boolean InitCoreMIDI()
 		CoreMidiSetSelectedOutputDevice(gDefaultOutputDevID, gDefaultChannel);
 		
 		//CoreMidiSetSelectedInputDevice(config.cmDfltInputDev , config.defaultChannel);		
-		//CoreMidiSetSelectedMidiThruDevice(config.cmMetroDevice, config.defaultChannel);
+		//CoreMidiSetSelectedMidiThruDevice(config.cmMetroDev, config.defaultChannel);
 		
 		DisplayMIDIDevices();
 		

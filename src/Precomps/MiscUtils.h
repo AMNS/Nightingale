@@ -41,6 +41,7 @@ void		ClearStandardTypes(void);
 
 short		GetInputName(char *prompt, Boolean newName, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
 Boolean		GetOutputName(short promptsID, short promptInd, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
+void		EndianFixConfig(void);
 
 void		GetSelection(WindowPtr w, Rect *sel, Rect *pin, void (*CallBack)());
 void		DrawTheSelection(void);
