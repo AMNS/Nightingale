@@ -3,7 +3,7 @@
 	Toolbox routines. Nightingale formerly contained a module called EssentialTools.c,
 	original version by Doug McKenna, 1989. Most of the functions that were originally
 	in that file were for dialog or other user-interface support, and they've been moved
-	to DialogUtils.c or UIFUtils.c; this is what remains. */
+	to DialogUtils.c or UIFUtils.c; other functions have been moved to DSUtils.c, etc. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -20,8 +20,6 @@
 
 #include "Nightingale.appl.h"
 #include "NavServices.h"
-
-static void	DrawSelBox(short index);
 
 /* ------------------------------------------------- Pointers, memory management, etc. -- */
 
@@ -119,6 +117,59 @@ Boolean PreflightMem(short nKBytes)		/* if nKBytes<=0, assume max. size of a seg
 	return (FreeMem()>=nBytes);
 }
 
+
+/* If we're running on a Little Endian processor (very likely Intel or Intel-compatible),
+reorder bytes to give the Big Endian result C expects. If we're on a Big Endian processor
+(probably PowerPC), do nothing. Cf. our FIX_END and related macros. */
+
+void FixEndian2(unsigned short *arg)
+{
+#if TARGET_RT_LITTLE_ENDIAN
+	*arg = CFSwapInt16BigToHost(*arg);
+	return;
+#else
+	return;
+#endif
+}
+
+void FixEndian4(unsigned long *arg)
+{
+#if TARGET_RT_LITTLE_ENDIAN
+	*arg = CFSwapInt32BigToHost(*arg);
+	return;
+#else
+	return;
+#endif
+}
+
+/* Count the number of set bits in a block of memory. Intended for debugging, specifically
+for comparing two bitmaps that should be identical. */
+
+static short BitCount(unsigned char ch);
+static short BitCount(unsigned char ch)
+{
+	short count;
+	
+	for (count = 0; ch!=0; ch >>= 1)
+		if (ch & 01) count++;
+		
+	return count;
+}
+
+long MemBitCount(unsigned char *pCh, long n)
+{
+	long count;
+	
+	for (count = 0; n>0; n--) {
+  		//printf("BitCount(%d) = %d\n",  *pCh, BitCount(*pCh));
+		count += BitCount(*pCh);
+		pCh++;
+	}
+		
+	return count;
+}
+
+
 /* ----------------------------------------------------------- Special keyboard things -- */
 
 Boolean CheckAbort()
@@ -211,33 +262,6 @@ OSType CanPaste(short n, ...)
 	return(0L);
 }
 
-/*
- *	Draw a grow icon at given position in given port.  Doesn't change the current port.
- *	The icon is assumed the usual 16 by 16 icon.  If drawit is False, erase the area
- *	it appears in but leave box framed. This function is not used in Ngale 5.7.
- */
-
-void DrawGrowBox(WindowPtr w, Point pt, Boolean drawit)
-{
-	Rect r,t,grow;  GrafPtr oldPort;
-	
-	GetPort(&oldPort); SetPort(GetWindowPort(w));
-	
-	SetRect(&grow,pt.h,pt.v,pt.h+SCROLLBAR_WIDTH+1,pt.v+SCROLLBAR_WIDTH+1);
-	t = grow; InsetRect(&t,1,1);
-	EraseRect(&t);
-	FrameRect(&grow);
-	if (drawit) {
-		SetRect(&r,3,3,10,10);
-		SetRect(&t,5,5,14,14);
-		OffsetRect(&r,grow.left,grow.top);
-		OffsetRect(&t,grow.left,grow.top);
-		FrameRect(&t);
-		EraseRect(&r); FrameRect(&r);
-	}
-	SetPort(oldPort);
-}
-
 
 /* ----------------------------------------------------------------------- Files, etc. -- */
 
@@ -296,13 +320,15 @@ Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *n
 
 
 /* The CNFG resource is stored in Big Endian form. If we're running on a Little Endian
-processor (no doubt Intel), correct the byte order in fields of more than one byte; if
-we're on a Big Endian processor (PowerPC), do nothing. This function should be called
-immediately after opening the CNFG resource to convert from Big Endian to Little Endian,
-and immediately before saving it to convert from Little Endian to Big Endian. */
+processor (no doubt Intel or compatible), correct the byte order in fields of more than
+one byte; if we're on a Big Endian processor (PowerPC), do nothing. This function should
+be called immediately after opening the CNFG resource to perhaps convert from Big
+Endian to Little Endian, and immediately before saving it to perhaps convert from
+Little Endian back to Big Endian. */
 
 void EndianFixConfig()
 {
+#if TARGET_RT_LITTLE_ENDIAN		// If not little endian, avoid compiler warnings "stmt has no effect"
 	FIX_END(config.maxDocuments);
 	
 	FIX_END(config.paperRect.top);		FIX_END(config.paperRect.left);
@@ -340,53 +366,13 @@ void EndianFixConfig()
 	
 	FIX_END(config.chordFrameFontID);
 	FIX_END(config.thruDevice);
-}
-
-
-/* -------------------------------------------------------------------------------------- */
-
-/*
- *	Draw the current selection box into the current port.  This is called during
- *	update and redraw events.  Does nothing if the current selection rectangle is empty.
- */
-
-void DrawTheSelection()
-{
-	switch (theSelectionType) {
-		case MARCHING_ANTS:
-			PenMode(patXor);
-			DrawSelBox(0);
-			PenNormal();
-			break;
-		case SWEEPING_RECTS:
-			PenMode(patXor);
-			DrawTheSweepRects();
-			PenNormal();
-			break;
-		case SLURSOR:
-			PenMode(patXor);
-			DrawTheSlursor();
-			PenNormal();
-			break;
-		default:
-			;
-	}
-}
-
-/*
- *	Frame the current selection box, using the index'th pattern, or 0 for the
- *	last pattern used.
- */
-
-static void DrawSelBox(short index)
-{
-	static Pattern pat;
-			
-	if (index) GetIndPattern(&pat,MarchingAntsID,index);
-	PenPat(&pat);
 	
-	FrameRect(&theSelection);
+	FIX_END(config.cmMetroDev);
+	FIX_END(config.cmDfltInputDev);
+	FIX_END(config.cmDfltOutputDev);
+#endif
 }
+
 
 /* Return the address of a static copy of the 'vers' resource's short string (Pascal).
 We assume a 'vers' resource ID of 1.  Delivers "\p??" if it finds a problem. FIXME: This
@@ -457,7 +443,7 @@ OSErr SysEnvirons(
   SysEnvRec *  theWorld)
 {
 	SInt32 gestaltResponse;
-   OSErr err = noErr;
+	OSErr err = noErr;
    
 	theWorld->environsVersion = versionRequested;
 	

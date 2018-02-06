@@ -228,22 +228,24 @@ static Boolean InitNightGlobals()
 }
 
 
-/* Read 'BBX#', 'MCMp' and 'MCOf' resources for alternative music fonts, and store
-their information in newly allocated musFontInfo[]. Return True if OK; False if error.
-Assumes that each font, including Sonata, has one of all three types of resource
-mentioned above, and that the resource ID's for a font's three types match.  For
-example, "Petrucci" should have 'BBX#' 129, 'MCMp' 129 and 'MCOf' 129.
--JGG, 4/25/01 */
+/* Read 'BBX#', 'MCMp', 'MCOf', and 'MFEx' resources for music fonts we can handle and
+store their information in newly allocated musFontInfo[]. Return True if OK; False if
+error. Assumes that each font has one of all four types of resource mentioned above,
+and that the resource ID's for a font's four types match.  For example, "Petrucci"
+should have 'BBX#' 129, 'MCMp' 129, 'MCOf' 129, and 'MFEx' 129. -JGG, 4/25/01; rev.
+by DAB, 2/1/18. */
 
 static Boolean InitMusFontTables()
 {
 	short	i, nRes, resID, curResFile;
-	short	*w, ch, count, xw, xl, yt, xr, yb, index;
+	short	*w, index;
+	unsigned short ch, chCount, xw, xl, yt, xr, yb;
 	unsigned char *b;
 	Handle	resH;
 	Size	nBytes;
 	OSType	resType;
 	Str255	resName;
+	char	musFontName[32];
 
 	curResFile = CurResFile();
 	UseResFile(appRFRefNum);
@@ -262,7 +264,7 @@ static Boolean InitMusFontTables()
 	/* Read 'BBX#' (character bounding box) info. */
 	index = 0;
 	for (i = 1; i<=nRes; i++) {
-		resH = Get1IndResource('BBX#', i);
+		resH = Get1IndResource('BBX#', i); 
 		if (!GoodResource(resH)) goto error;
 		GetResInfo(resH, &resID, &resType, resName);
 		if (ReportResError()) goto error;
@@ -271,30 +273,43 @@ static Boolean InitMusFontTables()
 		Pstrcpy(musFontInfo[index].fontName, resName);
 		GetFNum(resName, &musFontInfo[index].fontID);
 
-		for (ch = 0; ch<256; ch++)
+		/* Set all bounding boxes to empty, then fill in actual values for chars.
+			that exist in this font. */
+		
+		for (ch = 0; ch<256; ch++) {
 			musFontInfo[index].cBBox[ch].left = 
 			musFontInfo[index].cBBox[ch].top = 
 			musFontInfo[index].cBBox[ch].right = 
 			musFontInfo[index].cBBox[ch].bottom = 0;
+		}
 
 		w = (short *)(*resH);
-		count = *w++;
-		while (count-- > 0) {
-			ch = *w++;
-			xw = *w++;
-			xl = *w++; yb = -(*w++); xr = *w++; yt = -(*w++);
+		chCount = *w++;
+		FixEndian2(&chCount);
+		Pstrcpy((StringPtr)musFontName, resName);
+		PToCString((StringPtr)musFontName);
+		LogPrintf(LOG_INFO, "Setting up music font '%s': %d chars.  (InitMusFontTables)\n",
+						musFontName, chCount);
+		while (chCount-- > 0) {
+			ch = *w++; FIX_END(ch);
+			xw = *w++; FIX_END(xw);
+			xl = *w++; FIX_END(xl);
+			yb = -(*w++); FIX_END(yb);
+			xr = *w++; FIX_END(xr);
+			yt = -(*w++); FIX_END(yt);
 			if (ch>=0 && ch<256)
 				SetRect(&musFontInfo[index].cBBox[ch], xl, yt, xr, yb);
 			else
-				MayErrMsg("InitMusFontTables: 'BBX#' %d: ch=%d IS ILLEGAL\n", resID);
+				MayErrMsg("Info on font '%s' refers to illegal char code %d.  (InitMusFontTables)\n",
+							musFontName, ch);
 		}
 		ReleaseResource(resH);
 		index++;
 	}
 
-	/* NOTE: For the other resources, we use Get1NamedResource instead of 
-		Count1Resources, because we can't rely on the order of resources in
-		the resource map being the same as with the 'BBX#' resource. */
+	/* For the other resources, we use Get1NamedResource instead of Count1Resources
+		because we can't rely on the order of resources in the resource map being the
+		same as with the 'BBX#' resource. */
 
 	/* Read 'MCMp' (music character mapping) info. */
 	for (i = 0; i < numMusFonts; i++) {
@@ -312,8 +327,8 @@ static Boolean InitMusFontTables()
 		if (!GoodResource(resH)) goto error;
 		w = (short *)(*resH);
 		for (ch = 0; ch<256; ch++) {
-			musFontInfo[i].xd[ch] = *w++;
-			musFontInfo[i].yd[ch] = *w++;
+			musFontInfo[i].xd[ch] = *w++; FIX_END(musFontInfo[i].xd[ch]);
+			musFontInfo[i].yd[ch] = *w++; FIX_END(musFontInfo[i].yd[ch]);
 		}
 		ReleaseResource(resH);
 	}
@@ -329,11 +344,11 @@ static Boolean InitMusFontTables()
 		musFontInfo[i].hasRepeatDotsChar = (*w++ != 0);
 		musFontInfo[i].upstemFlagsHaveXOffset = (*w++ != 0);
 		musFontInfo[i].hasStemSpaceChar = (*w++ != 0);
-		musFontInfo[i].stemSpaceWidth = *w++;
-		musFontInfo[i].upstemExtFlagLeading = *w++;
-		musFontInfo[i].downstemExtFlagLeading = *w++;
-		musFontInfo[i].upstem8thFlagLeading = *w++;
-		musFontInfo[i].downstem8thFlagLeading = *w++;
+		musFontInfo[i].stemSpaceWidth = *w++; FIX_END(musFontInfo[i].stemSpaceWidth);
+		musFontInfo[i].upstemExtFlagLeading = *w++; FIX_END(musFontInfo[i].upstemExtFlagLeading);
+		musFontInfo[i].downstemExtFlagLeading = *w++; FIX_END(musFontInfo[i].downstemExtFlagLeading);
+		musFontInfo[i].upstem8thFlagLeading = *w++; FIX_END(musFontInfo[i].upstem8thFlagLeading);
+		musFontInfo[i].downstem8thFlagLeading = *w++; FIX_END(musFontInfo[i].downstem8thFlagLeading);
 		Pstrcpy(musFontInfo[i].postscriptFontName, (StringPtr)w);
 		ReleaseResource(resH);
 	}
@@ -341,7 +356,7 @@ static Boolean InitMusFontTables()
 	UseResFile(curResFile);
 	return True;
 error:
-	GetIndCString(strBuf, INITERRS_STRS, 28);		/* "Trouble reading alternative music font information." */
+	GetIndCString(strBuf, INITERRS_STRS, 28);		/* "Nightingale can't get its information on music font..." */
 	CParamText(strBuf, "", "", "");
 	NoteInform(GENERIC_ALRT);
 	UseResFile(curResFile);
@@ -349,8 +364,8 @@ error:
 }
 
 
-/* Initialize duration, rastral size, dynam to MIDI velocity, etc. tables. If
-there's a serious problem, return False, else True. */
+/* Initialize duration, rastral size, dynam to MIDI velocity, etc. tables. If there's
+a serious problem, return False, else True. */
 
 static Boolean InitTables()
 {
@@ -358,7 +373,7 @@ static Boolean InitTables()
 	MIDIModNRPreferences **midiModNRH;
 	short i;
 
-	l2p_durs[MAX_L_DUR] = PDURUNIT;					/* Set up lookup table to convert; assign 15 to 128th for tuplets */
+	l2p_durs[MAX_L_DUR] = PDURUNIT;					/* Set up lookup table to convert */
 	for (i = MAX_L_DUR-1; i>0; i--)					/*   logical to physical durations */
 		l2p_durs[i] = 2*l2p_durs[i+1];
 		
@@ -370,7 +385,7 @@ static Boolean InitTables()
 		MayErrMsg("InitTables: dynam2velo table setup problem.");
 		return False;
 	}
-	midiStuff = (MIDIPreferences **)GetResource('MIDI',PREFS_MIDI);
+	midiStuff = (MIDIPreferences **)GetResource('MIDI', PREFS_MIDI);
 	if (midiStuff==NULL || *midiStuff==NULL) {
 		GetIndCString(strBuf, INITERRS_STRS, 8);	/* "Can't find MIDI resource" */
 		CParamText(strBuf, "", "", "");
@@ -380,7 +395,7 @@ static Boolean InitTables()
 	for (i = 1; i<LAST_DYNAM; i++)						/* Set up dynamic-mark-to-MIDI-velocity table */
 		dynam2velo[i] = (*midiStuff)->velocities[i-1];
 
-	midiModNRH = (MIDIModNRPreferences **)GetResource('MIDM',PREFS_MIDI_MODNR);
+	midiModNRH = (MIDIModNRPreferences **)GetResource('MIDM', PREFS_MIDI_MODNR);
 	if (midiModNRH==NULL || *midiModNRH==NULL) {
 		GetIndCString(strBuf, INITERRS_STRS, 31);		/* "Can't find MIDM resource" */
 		CParamText(strBuf, "", "", "");
@@ -389,8 +404,8 @@ static Boolean InitTables()
 	}
 	/* Set up MIDI modifier velocity offset and duration factor tables */
 	for (i = 0; i<32; i++) {
-		modNRVelOffsets[i] = (*midiModNRH)->velocityOffsets[i];
-		modNRDurFactors[i] = (*midiModNRH)->durationFactors[i];
+		modNRVelOffsets[i] = (*midiModNRH)->velocityOffsets[i]; FIX_END(modNRVelOffsets[i]);
+		modNRDurFactors[i] = (*midiModNRH)->durationFactors[i]; FIX_END(modNRDurFactors[i]);
 	}
 
 	if (!InitMusFontTables())
@@ -438,8 +453,8 @@ static void PrintInfo()
 the given font name. If there's no such font, it returns True. From Inside Mac VI,
 12-16. */
 
-Boolean GetFontNumber(const Str255, short *);
-Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
+static Boolean GetFontNumber(const Str255, short *);
+static Boolean GetFontNumber(const Str255 fontName, short *pFontNum)
 {
 	Str255 systemFontName;
 	
@@ -470,9 +485,9 @@ static void CheckScreenFonts()
 
 	/* FIXME: The following comment obviously predates OS X. What's the situation now?
 		--DAB, Mar. 2016
-		Under System 7, it seems that only the first call to RealFont is meaningful:
+		"Under System 7, it seems that only the first call to RealFont is meaningful:
 		following calls for any size always return True! So it's not obvious how to find
-		out what sizes are really present without looking at the FONTs or NFNTs. */
+		out what sizes are really present without looking at the FONTs or NFNTs." */
 		
 	GetIndCString(strBuf, INITERRS_STRS, 16);			/* "Screen versions of the Sonata music font not available in size(s):" */
 	origLen = strlen(strBuf);
@@ -504,8 +519,8 @@ static void CheckScreenFonts()
 	}
 
 	if (strlen(strBuf)<=origLen) LogPrintf(LOG_INFO,
-		"CheckScreenFonts: found all %d screen sizes of the Sonata music font.\n", foundSizes);
-	else LogPrintf(LOG_WARNING, "CheckScreenFonts: %s\n", strBuf);
+		"Found all %d screen sizes of the Sonata music font.  (CheckScreenFonts)\n", foundSizes);
+	else LogPrintf(LOG_WARNING, "%s (CheckScreenFonts)\n", strBuf);
 }
 
 
@@ -547,7 +562,7 @@ static Boolean InitChosenMIDISystem()
 	if (useWhichMIDI == MIDIDR_CM)
 		midiOK = InitCoreMIDI();
 	
-	LogPrintf(LOG_INFO, "useWhichMIDI=%d midiOK=%d\n", useWhichMIDI, midiOK);
+	LogPrintf(LOG_INFO, "useWhichMIDI=%d midiOK=%d  (InitChosenMIDISystem)\n", useWhichMIDI, midiOK);
 	return midiOK;
 }
 

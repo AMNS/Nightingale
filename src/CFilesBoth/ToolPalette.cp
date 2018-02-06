@@ -257,27 +257,35 @@ torn off (i.e., this is part of an update event). */
 
 pascal void DrawToolMenu(Rect *r)
 	{
-		Rect frame,port,tmp,src; PaletteGlobals *whichPalette;
+		Rect frame, port, tmp, src;
+		PaletteGlobals *whichPalette;
 		
 		whichPalette = *paletteGlobals[TOOL_PALETTE];
 		
 		/* Get the area within palette to draw picture */
 		
 		frame = *r;
-		InsetRect(&frame,TOOLS_MARGIN,TOOLS_MARGIN);
-		SetRect(&port,0,0,	whichPalette->maxAcross*toolCellWidth-1,
-							whichPalette->maxDown*toolCellHeight-1);
-		OffsetRect(&port,r->left+TOOLS_MARGIN,r->top+TOOLS_MARGIN);
+		InsetRect(&frame, TOOLS_MARGIN, TOOLS_MARGIN);
+		SetRect(&port, 0, 0,	whichPalette->maxAcross*toolCellWidth-1,
+								whichPalette->maxDown*toolCellHeight-1);
+		OffsetRect(&port, r->left+TOOLS_MARGIN, r->top+TOOLS_MARGIN);
 		
 		src = port;
-		OffsetRect(&src,-src.left,-src.top);
+		OffsetRect(&src, -src.left, -src.top);
 		const BitMap *palPortBits = GetPortBitMapForCopyBits(palPort);
 		const BitMap *thePortBits = GetPortBitMapForCopyBits(GetQDGlobalsThePort());
 		CopyBits(palPortBits, thePortBits, &src, &port, srcCopy, NULL);
+{ Rect portRect;
+LogPrintf(LOG_NOTICE, "DrawToolMenu: TEST\n");
+long len = 600; GetPortBounds(palPort, &portRect);
+LogPrintf(LOG_NOTICE, "DrawToolMenu: MemBitCount(palPortBits, %ld)=%ld portRect tlbr=%d,%d,%d,%d\n",
+len, MemBitCount((unsigned char *)palPortBits, len),
+portRect.top, portRect.left, portRect.bottom, portRect.right);
+}
 
 		/* Add frame surrounding picture */
 		
-		InsetRect(&frame,-1,-1);
+		InsetRect(&frame, -1, -1);
 		FrameRect(&frame);
 		
 		/* Erase area to right and below frame, in case window was just shrunk */

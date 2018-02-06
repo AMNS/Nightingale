@@ -18,7 +18,8 @@
 		CautionInform			StopInform				ProgressMsg
 		UserInterrupt			UserInterruptAndSel
 		NameHeapType			NameObjType				NameGraphicType	
-		SmartenQuote			DrawBox					HiliteRect
+		SmartenQuote			DrawBox					DrawGrowBox
+		DrawTheSelection		HiliteRect
 		Voice2UserStr			Staff2UserStr
 		DrawPUpTriangle			DrawPopUp				TruncPopUpString
 		InitPopUp				DoUserPopUp				ChangePopUpChoice
@@ -1169,7 +1170,7 @@ short SmartenQuote(TEHandle textH, short ch)
 }
 
 
-/* --------------------------------------------------------------------------- DrawBox -- */
+/* ----------------------------------------------------------------- DrawBox, -GrowBox -- */
 /* Use a wide line to draw a filled box centered at the given point.  Size should
 normally be 4 so that the special drag cursor fits in with it. Intended to draw handles
 for dragging.*/
@@ -1181,6 +1182,80 @@ void DrawBox(Point pt, short size)
 	MoveTo(pt.h -= size, pt.v -= size);
 	LineTo(pt.h, pt.v);
 	PenSize(1, 1);
+}
+
+
+/* Draw a grow icon at given position in given port.  Doesn't change the current port.
+The icon is assumed the usual 16 by 16 icon.  If drawit is False, erase the area it
+appears in but leave box framed. This function is not used in Ngale 5.8 and I suspect
+it'll never be needed again.  --DAB, Feb. 2018 */
+
+void DrawGrowBox(WindowPtr w, Point pt, Boolean drawit)
+{
+	Rect r,t,grow;  GrafPtr oldPort;
+	
+	GetPort(&oldPort); SetPort(GetWindowPort(w));
+	
+	SetRect(&grow,pt.h,pt.v,pt.h+SCROLLBAR_WIDTH+1,pt.v+SCROLLBAR_WIDTH+1);
+	t = grow; InsetRect(&t,1,1);
+	EraseRect(&t);
+	FrameRect(&grow);
+	if (drawit) {
+		SetRect(&r,3,3,10,10);
+		SetRect(&t,5,5,14,14);
+		OffsetRect(&r,grow.left,grow.top);
+		OffsetRect(&t,grow.left,grow.top);
+		FrameRect(&t);
+		EraseRect(&r); FrameRect(&r);
+	}
+	SetPort(oldPort);
+}
+
+
+/* ------------------------------------------------------------------------ DrawTheSelection -- */
+/*
+ *	Frame the current selection box, using the index'th pattern, or 0 for the last
+ *	pattern used.
+ */
+
+static void	DrawSelBox(short index);
+static void DrawSelBox(short index)
+{
+	static Pattern pat;
+			
+	if (index) GetIndPattern(&pat,MarchingAntsID,index);
+	PenPat(&pat);
+	
+	FrameRect(&theSelection);
+}
+
+
+/*
+ *	Draw the current selection box into the current port.  This should be called during
+ *	update and redraw events.  Does nothing if the current selection rectangle is empty.
+ */
+
+void DrawTheSelection()
+{
+	switch (theSelectionType) {
+		case MARCHING_ANTS:
+			PenMode(patXor);
+			DrawSelBox(0);
+			PenNormal();
+			break;
+		case SWEEPING_RECTS:
+			PenMode(patXor);
+			DrawTheSweepRects();
+			PenNormal();
+			break;
+		case SLURSOR:
+			PenMode(patXor);
+			DrawTheSlursor();
+			PenNormal();
+			break;
+		default:
+			;
+	}
 }
 
 
@@ -1939,7 +2014,7 @@ Boolean VLogPrintf(const char *fmt, va_list argp)
 
 Boolean LogPrintf(short priLevel, const char *fmt, ...)
 {
-	Boolean okay, fullLine;
+	Boolean okay, endLine;
 	char *pch;
 	
 	if (priLevel>MIN_LOG_LEVEL) priLevel = LOG_NOTICE;
@@ -1949,12 +2024,12 @@ Boolean LogPrintf(short priLevel, const char *fmt, ...)
 	okay = VLogPrintf(fmt, argp); 
 	va_end(argp);
 	/* inStr now contains the results of this call. Handle both cases. */
-	fullLine = HaveNewline(inStr);
-	pch = strtok(inStr, "\n");
-	//LogPrintf(LOG_NOTICE, "1------inStr='%s' fullLine=%d &inStr=%x pch=%x\n",
-	//			inStr, fullLine, &inStr, pch);
-	if (pch!='\0') strcat(outStr, pch);
-	if (fullLine) {
+	//endLine = HaveNewline(inStr);
+	//pch = strtok(inStr, "\n");
+	strcat(outStr, inStr);
+	endLine = (inStr[strlen(inStr)-1]=='\n');
+	//if (pch!='\0') strcat(outStr, pch);
+	if (endLine) {
 		syslog(priLevel, outStr);
 		outStr[0] = '\0';									/* Set <outStr> to empty */
 	}
@@ -1973,26 +2048,26 @@ short InitLogPrintf()
 	outStr[0] = '\0';										/* Set <outStr> to empty */
 	
 #ifdef TEST_LOGGING_FUNCS
-	LogPrintf(LOG_NOTICE, "A simple one-line LogPrintf.\n");
-	LogPrintf(LOG_NOTICE, "Another one-line LogPrintf.\n");
-	LogPrintf(LOG_NOTICE, "This line is ");
-	LogPrintf(LOG_NOTICE, "built from 2 pieces.\n");
-	LogPrintf(LOG_NOTICE, "This line was ");
-	LogPrintf(LOG_NOTICE, "built from 3 ");
-	LogPrintf(LOG_NOTICE, "pieces.\n");
+	LogPrintf(LOG_INFO, "A simple one-line LogPrintf.\n");
+	LogPrintf(LOG_INFO, "Another one-line LogPrintf.\n");
+	LogPrintf(LOG_INFO, "This line is ");
+	LogPrintf(LOG_INFO, "built from 2 pieces.\n");
+	LogPrintf(LOG_INFO, "This line was ");
+	LogPrintf(LOG_INFO, "built from 3 ");
+	LogPrintf(LOG_INFO, "pieces.\n");
 #endif
 	
-	LogPrintf(LOG_NOTICE, "InitLogPrintf: oldLevelMask = %d, MIN_LOG_LEVEL=%d\n", oldLevelMask, MIN_LOG_LEVEL);
+	LogPrintf(LOG_NOTICE, "oldLevelMask = %d, MIN_LOG_LEVEL=%d  (InitLogPrintf)\n", oldLevelMask, MIN_LOG_LEVEL);
 	
 #ifdef TEST_LOGGING_LEVELS
 	SysBeep(1);
-	LogPrintf(LOG_ALERT, "InitLogPrintf: LogPrintf LOG_ALERT message. Magic no. %d\n", 1729);
-	LogPrintf(LOG_CRIT, "InitLogPrintf: LogPrintf LOG_CRIT message. Magic no. %d\n", 1729);
-	LogPrintf(LOG_ERR, "InitLogPrintf: LogPrintf LOG_ERR message. Magic no. %d\n", 1729);
-	LogPrintf(LOG_WARNING, "InitLogPrintf: LogPrintf LOG_WARNING message. Magic nos. %d, %f%d.\n", 1729, 3.14159265359);
-	LogPrintf(LOG_NOTICE, "InitLogPrintf: LogPrintf LOG_NOTICE message. Magic no. %d\n", 1729);
-	LogPrintf(LOG_INFO, "InitLogPrintf: LogPrintf LOG_INFO message. Magic no. %d\n", 1729);
-	LogPrintf(LOG_DEBUG, "InitLogPrintf: LogPrintf LOG_DEBUG message. Magic no. %d\n\n", 1729);
+	LogPrintf(LOG_ALERT, "LogPrintf LOG_ALERT message. Magic no. %d  (InitLogPrintf)\n", 1729);
+	LogPrintf(LOG_CRIT, "LogPrintf LOG_CRIT message. Magic no. %d  (InitLogPrintf)\n", 1729);
+	LogPrintf(LOG_ERR, "LogPrintf LOG_ERR message. Magic no. %d  (InitLogPrintf)\n", 1729);
+	LogPrintf(LOG_WARNING, "LogPrintf LOG_WARNING message. Magic nos. %d, %f.  (InitLogPrintf)\n", 1729, 3.14159265359);
+	LogPrintf(LOG_NOTICE, "LogPrintf LOG_NOTICE message. Magic no. %d  (InitLogPrintf)\n", 1729);
+	LogPrintf(LOG_INFO, "LogPrintf LOG_INFO message. Magic no. %d  (InitLogPrintf)\n", 1729);
+	LogPrintf(LOG_DEBUG, "LogPrintf LOG_DEBUG message. Magic no. %d  (InitLogPrintf)\n\n", 1729);
 #endif
 	
 	return oldLevelMask;

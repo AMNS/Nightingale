@@ -3,7 +3,7 @@ Some other #defines, dependent on _VERSION, are in versionStrings. */
 
 /* -------------------------------------------------------- Miscellaneous global enums -- */
 
-enum {										/* In the order of TEXTSTYLEs in NIGHTSCOREHDR */
+enum {									/* In the order of TEXTSTYLEs in NIGHTSCOREHDR */
 	FONT_THISITEMONLY=0,
 	FONT_MN,
 	FONT_PN,
@@ -22,13 +22,13 @@ enum {										/* In the order of TEXTSTYLEs in NIGHTSCOREHDR */
 	FONT_R9
 	};
 
-enum {										/* Selection types */
+enum {									/* Selection types */
 	MARCHING_ANTS = 1,
 	SWEEPING_RECTS,
 	SLURSOR
 };
 
-enum {										/* Goto types */
+enum {									/* Goto types */
 	goDirectlyToJAIL = 0,
 	gotoPAGE,
 	gotoBAR,
@@ -36,21 +36,21 @@ enum {										/* Goto types */
 };
 
 enum {
-	WHOLEMR_L_DUR=-1,						/* l_dur code (subType) for whole measure rest */
-	UNKNOWN_L_DUR=0,						/*							unknown CMN value */
-	BREVE_L_DUR=1,							/*							breve */
-	WHOLE_L_DUR,							/* 							whole note/rest */
-	HALF_L_DUR,								/* 							half note/rest */
-	QTR_L_DUR,								/* 							quarter note/rest */
-	EIGHTH_L_DUR,							/*							eighth note/rest */
-	SIXTEENTH_L_DUR,						/*							16th note/rest */
-	THIRTY2ND_L_DUR,						/*							32nd note/rest */
-	SIXTY4TH_L_DUR,							/*							64th note/rest */
-	ONE28TH_L_DUR,							/*							128th note/rest */
+	WHOLEMR_L_DUR=-1,					/* l_dur code (subType) for whole measure rest */
+	UNKNOWN_L_DUR=0,					/*							unknown CMN value */
+	BREVE_L_DUR=1,						/*							breve */
+	WHOLE_L_DUR,						/* 							whole note/rest */
+	HALF_L_DUR,							/* 							half note/rest */
+	QTR_L_DUR,							/* 							quarter note/rest */
+	EIGHTH_L_DUR,						/*							eighth note/rest */
+	SIXTEENTH_L_DUR,					/*							16th note/rest */
+	THIRTY2ND_L_DUR,					/*							32nd note/rest */
+	SIXTY4TH_L_DUR,						/*							64th note/rest */
+	ONE28TH_L_DUR,						/*							128th note/rest */
 	NO_L_DUR	
 };
 
-enum {										/* Accidental codes */
+enum {									/* Accidental codes */
 	AC_DBLFLAT=1,
 	AC_FLAT,
 	AC_NATURAL,
@@ -58,58 +58,58 @@ enum {										/* Accidental codes */
 	AC_DBLSHARP
 };
 
-enum {										/* Output device types */
+enum {									/* Output device types */
 	toScreen=0,
-	toBitmapPrint,							/* I.e., QuickDraw printer */
+	toBitmapPrint,						/* I.e., QuickDraw printer */
 	toPostScript,
 	toPICT,
-	toVoid									/* (for debugging: do everything but actual drawing) */
+	toVoid								/* (for debugging: do everything but actual drawing) */
 };
 
-enum {										/* Location for adding Systems and Measures: */
-	FirstSystem,							/* Adding the very first System of the score, when it is created */
-	BeforeFirstSys,							/* Adding before the first System of the score */
-	FirstOnPage,							/* Adding a new first System to some page other than the first */
-	SuccSystem,								/* Adding a System following the first to any page */
-	SuccMeas								/* Adding a Measure following the first to any System */
+enum {									/* Location for adding Systems and Measures: */
+	FirstSystem,						/* Adding the very first System of the score, when it is created */
+	BeforeFirstSys,						/* Adding before the first System of the score */
+	FirstOnPage,						/* Adding a new first System to some page other than the first */
+	SuccSystem,							/* Adding a System following the first to any page */
+	SuccMeas							/* Adding a Measure following the first to any System */
 };
 
-enum {										/* DrawSTAFF foreground/background codes: */
-	BACKGROUND_STAFF,
+enum {									/* DrawSTAFF foreground/background codes */
+	BACKGROUND_STAFF=0,
 	OTHERSYS_STAFF,
 	SECONDSYS_STAFF,
-	TOPSYS_STAFF	
+	TOPSYS_STAFF
 };
 
 enum {
-	LEFT_SIDE=1,							/* Page number position codes */
+	LEFT_SIDE=1,						/* Page number position codes */
 	CENTER,
 	RIGHT_SIDE
 };
 
-enum {										/* Note/rest/grace note codes: */
-	NOTES_ONLY,								/* Notes and rests */
-	GRNOTES_ONLY,							/* Grace notes */
-	NOTES_BOTH								/* All */
+enum {									/* Note/rest/grace note codes: */
+	NOTES_ONLY,							/* Notes and rests */
+	GRNOTES_ONLY,						/* Grace notes */
+	NOTES_BOTH							/* All */
 };
 
-enum {										/* Function return values: */
+enum {									/* Function return values: */
 	FAILURE=-1,
 	NOTHING_TO_DO=0,
 	OP_COMPLETE=1
 };
 
-enum {										/* MIDI Driver: */
-	MIDIDR_CM,								/* Core MIDI */
-	MIDIDR_NONE								/* No MIDI driver */
+enum {									/* MIDI Driver: */
+	MIDIDR_CM,							/* Core MIDI */
+	MIDIDR_NONE							/* No MIDI driver */
 };
 
-enum {										/* MIDI Driver config settings */
-	MIDISYS_CM=0,							/* Core MIDI */
+enum {									/* MIDI Driver config settings: */
+	MIDISYS_CM=0,						/* Core MIDI */
 	MIDISYS_NONE
 };
 
-enum {										/*  Dialog buttons FIXME: lousy old names, should change  */
+enum {									/*  Dialog buttons FIXME: lousy old names; should change!  */
 	OK = 1,
 	Cancel
 };

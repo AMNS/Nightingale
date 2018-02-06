@@ -13,7 +13,7 @@
 
 #pragma options align=mac68k
 
-/* ----------------------------- Data-structure Things ----------------------------- */
+/* -------------------------------- Data-structure Things ------------------------------- */
 
 /* We assume already-included headers (on the Macintosh, Types.h) say:
 	typedef unsigned char Byte;
@@ -146,9 +146,9 @@ typedef struct {
 } HEAP;
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Macros in MemMacros.h depend on the positions of the first five fields of the
-object header, which must not be re-positioned. In the future, this may apply to
+object header, which MUST NOT be re-positioned! In the future, this may apply to
 other fields as well. */
 
 #define OBJECTHEADER \
@@ -180,14 +180,14 @@ other fields as well. */
 	SignedByte	staffn;				/* staff number: for cross-staff objs, of top staff FIXME: except tuplets! */
 
 
-/* ----------------------------------------------------------------------- MEVENT -- */
+/* ---------------------------------------------------------------------------- MEVENT -- */
 
 typedef struct sMEVENT {
 	OBJECTHEADER
 } MEVENT, *PMEVENT;
 
 
-/* ----------------------------------------------------------------------- EXTEND -- */
+/* ---------------------------------------------------------------------------- EXTEND -- */
 
 typedef struct sEXTEND {
 	OBJECTHEADER
@@ -195,7 +195,7 @@ typedef struct sEXTEND {
 } EXTEND, *PEXTEND;
 
 
-/* -------------------------------------------------------------------- TEXTSTYLE -- */
+/* ------------------------------------------------------------------------- TEXTSTYLE -- */
 
 typedef struct xTEXTSTYLE {
 	unsigned char	fontName[32];	/* default font name: Pascal string */
@@ -208,7 +208,7 @@ typedef struct xTEXTSTYLE {
 } TEXTSTYLE, *PTEXTSTYLE;
 
 
-/* -------------------------------------------------------------------- VOICEINFO -- */
+/* ------------------------------------------------------------------------- VOICEINFO -- */
 
 typedef struct {
 	Byte		partn;				/* No. of part using voice, or 0 if voice is unused */
@@ -217,7 +217,7 @@ typedef struct {
 } VOICEINFO;
 
 
-/* ----------------------------------------------------------------- SCORE HEADER -- */
+/* ---------------------------------------------------------------------- SCORE HEADER -- */
 
 typedef struct						/* A part (for an instrument or voice): */
 {
@@ -475,14 +475,14 @@ typedef struct {
 } SCOREHEADER, *PSCOREHEADER;
 
 
-/* ------------------------------------------------------------------------- TAIL -- */
+/* ------------------------------------------------------------------------------ TAIL -- */
 
 typedef struct {
 	OBJECTHEADER
 } TAIL, *PTAIL;
 
 
-/* ------------------------------------------------------------------------- PAGE -- */
+/* ------------------------------------------------------------------------------ PAGE -- */
 
 typedef struct sPAGE {
 	OBJECTHEADER
@@ -494,7 +494,7 @@ typedef struct sPAGE {
 } PAGE, *PPAGE;
 
 
-/* ----------------------------------------------------------------------- SYSTEM -- */
+/* ---------------------------------------------------------------------------- SYSTEM -- */
 
 typedef struct sSYSTEM {
 	OBJECTHEADER
@@ -507,7 +507,7 @@ typedef struct sSYSTEM {
 } SYSTEM, *PSYSTEM;
 
 
-/* ------------------------------------------------------------------------ STAFF -- */
+/* ----------------------------------------------------------------------------- STAFF -- */
 
 #define SHOW_ALL_LINES	15
 
@@ -538,7 +538,7 @@ typedef struct {
 	unsigned char filler:3,			/* unused */
 				showLedgers:1,		/* True if drawing ledger lines of notes on this staff (the default if showLines>0) */
 				showLines:4;		/* 0=show 0 staff lines, 1=only middle line (of 5-line staff), 2-14 unused,
-										15=show all lines (default) (use SHOW_ALL_LINES for this) */
+										SHOW_ALL_LINES=show all lines (default) */
 } ASTAFF, *PASTAFF;
 
 typedef struct sSTAFF {
@@ -549,7 +549,7 @@ typedef struct sSTAFF {
 } STAFF, *PSTAFF;
 
 
-/* ---------------------------------------------------------------------- CONNECT -- */
+/* --------------------------------------------------------------------------- CONNECT -- */
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -582,7 +582,7 @@ enum {								/* Codes for connLevel */
 };
 
 
-/* ------------------------------------------------------------------ ACLEF, CLEF -- */
+/* ----------------------------------------------------------------------- ACLEF, CLEF -- */
 
 typedef struct {
 	SUBOBJHEADER
@@ -616,7 +616,7 @@ enum {								/* clef subTypes: */
 #define HIGH_CLEF PERC_CLEF
 
 
-/* ----------------------------------------------------------------------- KEYSIG -- */
+/* ---------------------------------------------------------------------------- KEYSIG -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType=no. of naturals, if nKSItems==0 */
@@ -634,7 +634,7 @@ typedef struct {
 } KEYSIG, *PKEYSIG;
 
 
-/* --------------------------------------------------------------------- TIMESIG -- */
+/* --------------------------------------------------------------------------- TIMESIG -- */
 
 typedef struct {
 	SUBOBJHEADER
@@ -668,7 +668,7 @@ enum {								/* subtypes: */
 #define HIGH_TStype N_OVER_DOTTEDEIGHTH
 
 
-/* ---------------------------------------------------------------------- MEASURE -- */
+/* --------------------------------------------------------------------------- MEASURE -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType=barline type (see enum below) */
@@ -715,7 +715,7 @@ enum {								/* barline types */
 };
 
 
-/* -------------------------------------------------------------------- PSEUDOMEAS -- */
+/* ------------------------------------------------------------------------ PSEUDOMEAS -- */
 /* Pseudomeasures are symbols that have similar graphic appearance to barlines
 but have no semantics: dotted barlines and double bars that don't coincide with
 "real" barlines. */
@@ -739,9 +739,9 @@ enum {								/* pseudomeasure types: codes follow those for MEASUREs */
 };
 
 
-/* -------------------------------------------------------------------- NOTE, SYNC -- */
-/* A "note" is a normal- or small note or rest, perhaps a cue note, but not a grace
-note. The main reason is that grace notes have no logical duration. */
+/* ------------------------------------------------------------------------ NOTE, SYNC -- */
+/* A "note" is a normal or small note or rest, perhaps a cue note, but not a grace
+note. (The main reason is that grace notes have no logical duration.) */
 
 typedef struct {
 	SUBOBJHEADER					/* subType (l_dur): LG: <0=n measure rest, 0=unknown, >0=Logical (CMN) dur. code */
@@ -805,7 +805,7 @@ enum {								/* Notehead and rest appearances: */
 };
 
 
-/* ---------------------------------------------------------------------- BEAMSET -- */
+/* --------------------------------------------------------------------------- BEAMSET -- */
 
 typedef struct {
 	LINK		next;				/* index of next subobj */
@@ -843,7 +843,7 @@ typedef struct {
 } BEAMINFO;
 
 
-/* ----------------------------------------------------------------------- TUPLET -- */
+/* ---------------------------------------------------------------------------- TUPLET -- */
 
 /* This struct is used to get information from TupletDialog. */
 
@@ -879,7 +879,7 @@ typedef struct sTuplet {
 } TUPLET, *PTUPLET;
 
 
-/* -------------------------------------------------------------------- REPEATEND -- */
+/* ------------------------------------------------------------------------- REPEATEND -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType is in object so unused here */
@@ -908,7 +908,7 @@ enum {
 };
 
 
-/* ----------------------------------------------------------------------- ENDING -- */
+/* ---------------------------------------------------------------------------- ENDING -- */
 
 typedef struct {
 	OBJECTHEADER
@@ -922,7 +922,7 @@ typedef struct {
 } ENDING, *PENDING;
 
 
-/* ------------------------------------------------------------ ADYNAMIC, DYNAMIC -- */
+/* ----------------------------------------------------------------- ADYNAMIC, DYNAMIC -- */
 
 typedef struct {
 	SUBOBJHEADER					/* subType is unused */
@@ -975,7 +975,7 @@ enum {								/* FIXME: NEED MODIFIER BIT(S), E.G. FOR mpp, poco piu f */
 };
 
 
-/* ----------------------------------------------------------------------- AMODNR -- */
+/* ---------------------------------------------------------------------------- AMODNR -- */
 
 typedef struct {
 	LINK		next;					/* index of next subobj */
@@ -1017,7 +1017,7 @@ enum {								/* modCode values */
 };
 
 
-/* ---------------------------------------------------------------------- GRAPHIC -- */
+/* --------------------------------------------------------------------------- GRAPHIC -- */
 
 typedef struct {
 	LINK next;
@@ -1107,10 +1107,10 @@ enum {								/* GRArpeggio sub-subtypes */
 };
 
 
-/* ----------------------------------------------------------------------- OTTAVA -- */
+/* ---------------------------------------------------------------------------- OTTAVA -- */
 
 typedef struct {
-	LINK		next;						/* index of next subobj */
+	LINK		next;					/* index of next subobj */
 	LINK		opSync;					/* link to Sync containing note/chord (not rest) */
 } ANOTEOTTAVA, *PANOTEOTTAVA;
 
@@ -1141,7 +1141,7 @@ enum {
 };
 
 
-/* ------------------------------------------------------------------------- SLUR -- */
+/* ------------------------------------------------------------------------------ SLUR -- */
 
 /* Types of Slursor behavior: */
 
@@ -1185,7 +1185,7 @@ typedef struct sSLUR{
 } SLUR, *PSLUR;
 
 
-/* --------------------------------------------------------------- GRNOTE, GRSYNC -- */
+/* -------------------------------------------------------------------- GRNOTE, GRSYNC -- */
 
 typedef ANOTE AGRNOTE;				/* Same struct, though not all fields are used here */
 typedef PANOTE PAGRNOTE;
@@ -1195,7 +1195,7 @@ typedef struct {
 } GRSYNC, *PGRSYNC;
 
 
-/* ------------------------------------------------------------------------ TEMPO -- */
+/* ----------------------------------------------------------------------------- TEMPO -- */
 
 typedef struct {
 	OBJECTHEADER
@@ -1213,7 +1213,7 @@ typedef struct {
 } TEMPO, *PTEMPO;
 
 
-/* ----------------------------------------------------------------------- SPACER -- */
+/* ---------------------------------------------------------------------------- SPACER -- */
 
 typedef struct {
 	OBJECTHEADER
@@ -1223,7 +1223,7 @@ typedef struct {
 } SPACER, *PSPACER;
 
 
-/* --------------------------------------------------------------------- SUPEROBJ -- */
+/* -------------------------------------------------------------------------- SUPEROBJ -- */
 /* This struct is the union of all Object structs, and its size is the maximum size of
 any record kept in the object heap. */
 
@@ -1256,7 +1256,7 @@ typedef struct {
 } SUPEROBJECT, *PSUPEROBJECT;
 
 
-/* ---------------------------------------------------------------------- CONTEXT -- */
+/* --------------------------------------------------------------------------- CONTEXT -- */
 
 typedef struct {
 	Boolean		visible:1;			/* True if (staffVisible && measureVisible) */
@@ -1289,7 +1289,7 @@ typedef struct {
 } CONTEXT, *PCONTEXT;
 
 
-/* ---------------------------------------------------------------------- STFRANGE -- */
+/* -------------------------------------------------------------------------- STFRANGE -- */
 
 typedef struct {					/* Staff range for staffRect selection mode. */
 	short		topStaff;
@@ -1297,7 +1297,7 @@ typedef struct {					/* Staff range for staffRect selection mode. */
 } STFRANGE;
 
 
-/* --------------------------------------------------------------------- Clipboard -- */
+/* ------------------------------------------------------------------------- Clipboard -- */
 
 enum {								/* Most recently copied objects */
 	COPYTYPE_CONTENT=0,
@@ -1311,7 +1311,7 @@ typedef struct {
 } COPYMAP;
 
 
-/* ------------------------------------------------------------ Structs for Merge -- */
+/* ----------------------------------------------------------------- Structs for Merge -- */
 
 typedef struct {
 	long		startTime;				/* Start time in this voice */
@@ -1337,7 +1337,7 @@ typedef struct {
 } ClipVInfo;
 
 
-/* -------------------------------------------------------------------- CHORDNOTE -- */
+/* ------------------------------------------------------------------------- CHORDNOTE -- */
 
 typedef struct {
 	SHORTQD		yqpit;
@@ -1346,7 +1346,7 @@ typedef struct {
 } CHORDNOTE;
 
 
-/* ------------------------------------------------------------- SYMDATA, OBJDATA -- */
+/* ------------------------------------------------------------------ SYMDATA, OBJDATA -- */
 
 typedef struct						/* Symbol table data for a CMN symbol: */
 {
@@ -1367,7 +1367,7 @@ typedef struct						/* Symbol table data for an object-list object: */
 } OBJDATA;
 
 
-/* ------------------------------------------------------ JUSTTYPE, SPACETIMEINFO -- */
+/* ----------------------------------------------------------- JUSTTYPE, SPACETIMEINFO -- */
 
 enum {
 	J_IT=1,							/* Justification type Independent, Totally ordered */
@@ -1393,7 +1393,7 @@ typedef struct {
 } RMEASDATA;
 
 
-/* ---------------------------------------------------- Reconstruction algorithms -- */
+/* --------------------------------------------------------- Reconstruction algorithms -- */
 	
 typedef struct {
 	LINK startL;
@@ -1418,7 +1418,7 @@ typedef struct {
 } PTIME;
 
 
-/* ------------------------------------------------------------------ SEARCHPARAM -- */
+/* ----------------------------------------------------------------------- SEARCHPARAM -- */
 /*	PARAMETER BLOCK FOR Search functions. If you change it, be sure to change
 InitSearchParam accordingly! */
 
@@ -1436,7 +1436,7 @@ typedef struct {
 } SearchParam;
 
 
-/* ---------------------------------------------------------------------- UNDOREC -- */
+/* --------------------------------------------------------------------------- UNDOREC -- */
 /* struct and constants for use by Undo routines */
 
 typedef struct {				
@@ -1527,7 +1527,7 @@ enum									/* Undo op codes */
 };
 
 
-/* -------------------------------------------------------------------- MPCHANGED -- */
+/* ------------------------------------------------------------------------- MPCHANGED -- */
 /*	Changed flags for exporting Master Page. */
 
 #define MPCHANGEDFLAGS				\
@@ -1548,7 +1548,7 @@ typedef struct {
 } MPCHGDFLAGS;
 
 
-/* ---------------------------------------------------------------- CHANGE_RECORD -- */
+/* --------------------------------------------------------------------- CHANGE_RECORD -- */
 /* "Change part" record for exporting operations (add/delete, group/ungroup, etc.)
 from Master Page. */
 
@@ -1562,14 +1562,14 @@ enum {								/* Opcodes for change part records. */
 
 typedef struct	{
 	short		oper;				/* Operation: SDAdd,SDDelete,SDGroup,SDUngroup. */
-	short		staff;				/*	Starting staff no. */
+	short		staff;				/* Starting staff no. */
 	short		p1;					/* Operation-dependent */
 	short		p2;					/* Operation-dependent */
 	short		p3;					/* Operation-dependent */
 } CHANGE_RECORD;
 
 
-/* ---------------------------------------------------------------- CharRectCache -- */
+/* --------------------------------------------------------------------- CharRectCache -- */
 
 typedef struct {
 	short		fontNum, fontSize;
@@ -1577,7 +1577,7 @@ typedef struct {
 } CharRectCache, *CharRectCachePtr;
 
 
-/* ----------------------------------------------------------------- FONTUSEDITEM -- */
+/* ---------------------------------------------------------------------- FONTUSEDITEM -- */
 
 typedef struct {
 	Boolean			style[4];		/* styles used (bold and italic attribs. only) */
@@ -1585,7 +1585,7 @@ typedef struct {
 } FONTUSEDITEM;
 
 
-/* ----------------------------------------------------- MIDI-file-handling stuff -- */
+/* ---------------------------------------------------------- MIDI-file-handling stuff -- */
 
 /* Information on a MIDI file track */
 
@@ -1617,7 +1617,7 @@ typedef struct CTRLINFO {
 	short			track;
 } CTRLINFO;
 
-/* ----------------------------------------------------- Document printing stuff -- */
+/* ----------------------------------------------------------- Document printing stuff -- */
 
 //typedef struct Document *DocumentPtr;
 //typedef OSStatus (*NDocDrawPageProc)(int doc, UInt32 pageNum);

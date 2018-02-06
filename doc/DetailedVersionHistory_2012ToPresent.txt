@@ -2022,7 +2022,7 @@ Built separately for PowerPC and Intel. Affects project.pbxproj (in Nightingale.
 Added numerous calls to FIX_END to fix "endian" byte order in config fields, for the
 benefit of the Intel version. Affects Initialize.
 
-Replace tests involving the caps-lock key: with SHOW_DEBUG for displaying debug info;
+Replaced tests involving the caps-lock key: with SHOW_DEBUG for displaying debug info;
 with shift-option for the alternative "Color Voices" method. Affects Check, DelAddRedAccs,
 Menu, MIDIRecord, NotelistParse, PS_Stdio.
 
@@ -2036,11 +2036,28 @@ InstrDialog, MIDIDialogs, MIDIRecord, MiscUtils, Preferences, PS_Stdio, Score.
 
 30 Jan. - 1 Feb.
 
-Remove 'vers' (version) resource. Affects .rsrc.
+Removed the 'vers' (version) resource. Affects .rsrc.
 
-Before quitting, undo endian changes to config fields, for the benefit of the Intel
+Before quitting, we now undo endian changes to config fields, for the benefit of the Intel
 version. Affects Finalize.
 
-Minor cleanup: reword an ALRT, add error checking, etc. Affects .rsrc, MiscUtils.h,
+Minor cleanup: reworded an ALRT, added error checking, etc. Affects .rsrc, MiscUtils.h,
 MusicFont.h, NightTemplates.h, NMiscTypes.h; CoreMIDIUtils, DurationPopUp, File,
 Finalize, FontUtils, Initialize, Menu, MiscUtils, MusicFont, PrefsDialog, ToolPalette.
+
+-------------------------------------------------------------------------------
+
+1 - 6 Feb.
+
+Added calls to FIX_END to InitMusFontTables(), etc., for benefit of the Intel version.
+Affects InitNightingale.
+
+Fixed a mysterious bug in LogPrintf() that sometimes resulted in lines never appearing
+in the log. Affects UIFUtils.
+
+For Config field values, improved error checking and changed some defaults. Affects
+Initialize.
+
+Minor cleanup: move UI utilities from MiscUtils to a better home, reword an alert, etc.
+Affects Defs.h, MiscUtils.h, NTypes.h, UIFUtils.h., .rsrc; CoreMIDIUtils, DrawObject,
+Finalize, GraphicMDEF, Initialize, InitNightingale, MiscUtils, ToolPalette, UIFUtils.

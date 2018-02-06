@@ -175,7 +175,7 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 	
 	/* Find the preferences folder, normally ~/Library/Preferences */
 	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
-	LogPrintf(LOG_NOTICE, "Prefs File: FindFolder: err=%d\n", err);
+	LogPrintf(LOG_INFO, "FindFolder: err=%d  (FindPrefsFile)\n", err);
 	if (err!=noErr) return err;
 	
 	/* Search the folder for the file */
@@ -199,7 +199,7 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 	}
 	
 	err = FSMakeFSSpec(pvol, pdir, PREFS_PATH, prefsSpec);
-	LogPrintf(LOG_NOTICE, "Prefs File: FSMakeFSSpec: err=%d (fnfErr=%d)\n", err, fnfErr);
+	LogPrintf(LOG_INFO, "FSMakeFSSpec: err=%d (fnfErr=%d)  (FindPrefsFile)\n", err, fnfErr);
 	return fnfErr;		// FIXME: HUH? ALWAYS RETURN AN ERROR? ISN'T THIS "FILE NOT FOUND"?
 } 
 
@@ -362,8 +362,8 @@ Boolean OpenPrefsFile()
 	StringHandle strHdl;  char fmtStr[256];
 	Str255 setupFileName;
 
-	short oldVRefNum; long oldDirID;
-	short vRefNum; long dirID;
+	short oldVRefNum, vRefNum;
+	long oldDirID, dirID;
 
 	FSSpec rfSpec; OSErr theErr;
 	
@@ -374,7 +374,7 @@ Boolean OpenPrefsFile()
 	theErr = FindFolder(kOnSystemDisk, kPreferencesFolderType, kDontCreateFolder, &vRefNum, &dirID);
 	
 	HGetVol(volName, &oldVRefNum, &oldDirID);
-	HSetVol(volName, vRefNum, dirID);					// Need to specify a location for setup file
+	HSetVol(volName, vRefNum, dirID);				/* Need to specify a location for setup file */
 
 	rfVRefNum = vRefNum;
 	rfVolDirID = dirID;
@@ -384,7 +384,7 @@ Boolean OpenPrefsFile()
 	
 	Pstrcpy(setupFileName, PREFS_FILE_NAME);
 	theErr = FindPrefsFile(setupFileName, prefsFileType, creatorType, &rfSpec);
-	LogPrintf(LOG_NOTICE, "OpenPrefsFile: FindPrefsFile (filename '%s') returned theErr=%d\n",
+	LogPrintf(LOG_INFO, "FindPrefsFile (filename '%s') returned theErr=%d  (OpenPrefsFile)\n",
 				PToCString(setupFileName), theErr);
 	if (theErr==noErr)
 		setupFileRefNum = FSpOpenResFile(&rfSpec, fsRdWrPerm);
@@ -637,7 +637,7 @@ static Boolean CheckRect(Rect aRect, short legalMin, short legalMax)
 	return True;
 }
 
-#define ERR(fn) { nerr++; LogPrintf(LOG_NOTICE, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
+#define ERR(fn) { nerr++; LogPrintf(LOG_WARNING, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
 
 /* Do a reality check for config values that might be bad. We can't easily check origin,
 toolsPosition, font IDs, or the fields that represent Boolean values or MIDI system info.
@@ -822,20 +822,23 @@ static Boolean CheckConfig()
 #endif		
 
 #define DEFAULT_TEMPO_MM_DFLT 96
-#define MINMEMORY_DFLT 200
-#define LOWMEMORY_DFLT config.minMemory
+#define LOWMEMORY_DFLT 800
+#define MINMEMORY_DFLT 320
 	if (config.defaultTempoMM < MIN_BPM || config.defaultTempoMM > MAX_BPM)
 			{ config.defaultTempoMM = DEFAULT_TEMPO_MM_DFLT; ERR(46); }
+	if (config.lowMemory < 320 || config.lowMemory > 4096) { config.lowMemory = LOWMEMORY_DFLT; ERR(47); }
 	if (config.lowMemory < config.minMemory) { config.lowMemory = LOWMEMORY_DFLT; ERR(47); }
-	if (config.minMemory < 1) { config.minMemory = MINMEMORY_DFLT; ERR(48); }
-#define NUMROWS_DFLT 4
-#define NUMCOLS_DFLT 4
+	if (config.minMemory < 320 || config.minMemory > 4096) { config.minMemory = MINMEMORY_DFLT; ERR(48); }
+#define NUMROWS_DFLT 1
+#define NUMCOLS_DFLT 20
 #define MAXROWS_DFLT 256
 #define MAXCOLS_DFLT 256
 	if (config.numRows < 1 || config.numRows > 100) { config.numRows = NUMROWS_DFLT; ERR(49); }
 	if (config.numCols < 1 || config.numCols > 100) { config.numCols = NUMCOLS_DFLT; ERR(50); }
 	if (config.maxRows < 1 || config.maxRows > 256) { config.maxRows = MAXROWS_DFLT; ERR(51); }
+	if (config.numRows > config.maxRows) { config.maxRows = config.numRows; ERR(51); }
 	if (config.maxCols < 1 || config.maxCols > 256) { config.maxCols = MAXCOLS_DFLT; ERR(52); }
+	if (config.numCols > config.maxCols) { config.maxCols = config.numCols; ERR(52); }
 #define HPAGESEP_DFLT 8
 #define VPAGESEP_DFLT 8
 #define HSCROLLSLOP_DFLT 16
@@ -899,7 +902,7 @@ static Boolean CheckConfig()
 			{ config.feedbackNoteOnVel = FEEDBACK_NOTEON_VELOCITY_DFLT; ERR(75); }
 	if (config.defaultChannel < 1 || config.defaultChannel > MAXCHANNEL)
 			{ config.defaultChannel = DEFAULT_CHANNEL_DFLT; ERR(76); }
-	if (config.rainyDayMemory < 32 || config.rainyDayMemory > 2048)
+	if (config.rainyDayMemory < 320 || config.rainyDayMemory > 4096)
 			{ config.rainyDayMemory = RAINYDAY_MEMORY_DFLT; ERR(78); }
 	if (config.tryTupLevels < 1 || config.tryTupLevels > 321)
 			{ config.tryTupLevels = TRY_TUP_LEVELS_DFLT; ERR(79); }
@@ -970,7 +973,8 @@ static Boolean CheckConfig()
 	/* No validity check at this time for MIDI fields. */
 
 	if (nerr>0) {
-        LogPrintf(LOG_NOTICE, " TOTAL OF %d ERROR(S) FOUND.\n", nerr);
+		LogPrintf(LOG_NOTICE, "\n");
+        LogPrintf(LOG_NOTICE, "TOTAL OF %d ERROR(S) FOUND.\n", nerr);
 		GetIndCString(fmtStr, INITERRS_STRS, 5);		/* "CNFG resource in Prefs has [n] illegal value(s)" */
 		sprintf(strBuf, fmtStr, nerr, firstErr);
 		CParamText(strBuf, "", "", "");
@@ -978,7 +982,7 @@ static Boolean CheckConfig()
 		return False;
 	}
     else
-        LogPrintf(LOG_NOTICE, "(no errors)\n");
+        LogPrintf(LOG_NOTICE, "No errors found.  (CheckConfig)\n");
 		return True;
 }
 
@@ -991,7 +995,7 @@ static Boolean GetConfig()
 	Handle cnfgH;
 	long cnfgSize;
 	
-	cnfgH = Get1Resource('CNFG',THE_CNFG);
+	cnfgH = Get1Resource('CNFG', THE_CNFG);
 	if (!GoodResource(cnfgH)) {
 		GetIndCString(strBuf, INITERRS_STRS, 4);		/* "Can't find the CNFG resource" */
 		CParamText(strBuf, "", "", "");
@@ -1140,7 +1144,7 @@ static Boolean GetConfig()
 		display the (presumably corrected) values. */
 	DisplayConfig();
 	if (!CheckConfig()) {
-		LogPrintf(LOG_NOTICE, "Illegal fields have been set to default values.\n");
+		LogPrintf(LOG_WARNING, "Illegal fields have been set to default values.\n");
 		DisplayConfig();
 	}
 	
@@ -1154,8 +1158,8 @@ Finish:
 
 
 /* Make the heap _almost_ as large as possible (so we have a little extra stack space),
-and allocate as many Master Pointers as possible up to numMasters. Return True if
-all went well, False if not. */
+and allocate as many Master Pointers as possible up to numMasters. Return True if all
+went well, False if not. */
 
 static Boolean InitMemory(short numMasters)
 {
@@ -1291,7 +1295,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		windowRect->right += 2*TOOLS_MARGIN;
 		windowRect->bottom += 2*TOOLS_MARGIN;
 		toolsFrame = *windowRect;
-		InsetRect(&toolsFrame,TOOLS_MARGIN,TOOLS_MARGIN);
+		InsetRect(&toolsFrame, TOOLS_MARGIN, TOOLS_MARGIN);
 		
 		/* Initialize the PaletteGlobals structure */
 		
@@ -1300,6 +1304,8 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		whichPalette->findItemProc = (short (*)())FindToolItem;
 		whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
 		
+//LogPrintf(LOG_DEBUG, "SetupToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
+
 		/* Put picture into offscreen port so that any rearrangements can be saved */
 
 		SaveGWorld();
@@ -1313,6 +1319,12 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		ReleaseResource((Handle)toolPicture);
 		
 		palPort = gwPtr;
+{ Rect portRect;
+const BitMap *palPortBits = GetPortBitMapForCopyBits(palPort);
+long len = 600; GetPortBounds(palPort, &portRect);
+LogPrintf(LOG_NOTICE, "SetupToolPalette: MemBitCount(palPortBits, %ld)=%ld portRect tlbr=%d,%d,%d,%d\n",
+len, MemBitCount((unsigned char *)palPortBits, len),
+portRect.top, portRect.left, portRect.bottom, portRect.right); }
 //		UnlockGWorld(gwPtr);
 		RestoreGWorld();
 	}
@@ -1504,7 +1516,7 @@ Boolean InitGlobals()
 		if (!GoodNewPtr((Ptr)updateRectTable))
 			{ OutOfMemory((long)MAX_UPDATE_RECTS * sizeof(Rect)); return False; }
 		
-		/* Pull in the permanent menus from resources and install in menu bar. */
+		/* Pull the permanent menus in from resources and install them in menu bar. */
 		
 		appleMenu = GetMenu(appleID);		if (!appleMenu) return False;
 		AppendResMenu(appleMenu, 'DRVR');

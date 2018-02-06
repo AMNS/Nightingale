@@ -60,6 +60,8 @@ const char *NameGraphicType(LINK, Boolean);
 short SmartenQuote(TEHandle textH, short ch);
 
 void DrawBox(Point pt,short size);
+void DrawGrowBox(WindowPtr w, Point pt, Boolean drawit);
+void DrawTheSelection(void);
 void HiliteRect(Rect *);
 
 void Voice2UserStr(Document *doc, short voice, char str[]);

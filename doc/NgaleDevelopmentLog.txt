@@ -2577,12 +2577,57 @@ On my OS 10.11.x Mac mini, launch the latest => says "Can't create a Nightingale
 file"! Try again => this time it creates one!; "New Nightingale File" => the same
 error message, this time for Briard.
 
-Possibly related, the palette on both computers is blank, though it behaves correctly,
-i.e., hiliting clicked-on squares and changing the cursor.
-
 -------------------------------------------------------------------------------
 
-1 Feb.
+1 - 5 Feb.
 
 On my OS 10.6 MacBook 3: The PowerPC build works fine, as expected.  The Intel build
 fails in exactly the same ways as on MacBook Air.
+
+BuildCharRectCache() gets the ref. symbol's bbox from InitMusFontTables() -- which gets
+font info directly from a resource, so is vulnerable to endian problems. Add some calls
+to FIX_END => no complaints from BuildCharRectCache(), and Ngale displays clefs, time
+sigs., notes, & rests correctly!, except (a) no flags, & selection hiliting for most
+symbols is a bit too low. Also, in a New score, the only staff line visible is the bottom
+line of the lower staff -- but there's some mysterious heavily streeeetched out stuff,
+very likely supposed to be the other staff lines! Add staff below => It's fine in both
+regular & Master Page; add staff above => likewise. ??
+Do I need more calls to FIX_END? Probably :-| . TO BE CONTINUED.
+
+Possibly related: the palette on both computers is blank, though it behaves correctly,
+i.e., hiliting clicked-on squares, changing the cursor, and causing subsequent clicks
+in the score to do the right thing. DrawToolMenu() does the drawing, assuming an
+image of the palette is in global _palPort_ where SetupToolPalette() puts it. But is
+it really ever getting into palPort?? How can I tell??? Well, I can compare the port
+bitmaps on Intel (where it isn't drawn) to PowerPC (where it is) -- e.g., crudely via
+counting the no. of set bits in each. Write MemBitCount() => ??
+MemBitCount(blah, 300) on PPC: 369, then 380(?)
+"	"	"	" on Intel: 353, then 364: different, but not by nearly enuf to explain
+the difference between a blank palette and a correct one!?! Of course 300 bytes is
+nowhere near the size of the bitmap,which should be the same as the portRect: roughly
+(399*271)/8 = 13500. What about the port bitmap Rect? On PPC:
+
+	DrawToolMenu: ...portRect tlbr=0,0,399,271
+	
+but on Intel (MBAir):
+
+	DrawToolMenu: ...portRect tlbr=0,0,399,-1073750488
+	
+!! So why is portRect.Right garbage on Intel??
+
+!! After some bizarre behavior from LogPrintf and finagling w/ calls to it, I get this
+on both PPC _and_ Intel:
+
+	SetupToolPalette: MemBitCount(palPortBits, -)=262 portRect tlbr=0,0,399,271
+	DrawToolMenu: MemBitCount(palPortBits, -)=262 portRect tlbr=0,0,399,271	
+
+-- exactly the same on both, and all reasonable values! Now what??
+
+For 400 bytes:
+on PPC, MemBitCount from SetupToolPalette = 262, from DrawToolMenu = 262
+on Intel, MemBitCount from SetupToolPalette = 388, from DrawToolMenu = 388
+
+For 600 bytes:
+on PPC, MemBitCount from SetupToolPalette = 427 or 412, from DrawToolMenu = 427 or 412
+on Intel, MemBitCount from SetupToolPalette = 546 or 572, from DrawToolMenu = 546 or 572
+

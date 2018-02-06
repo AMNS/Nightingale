@@ -71,8 +71,8 @@ static Boolean UpdatePrefsFile()
 	EndianFixConfig();
 		
 	/*
-	 * Get the config resource and the MIDI resource from file and compare them
-	 * to our internal values. If either has been changed, update the file.
+	 * Get the config resource and the MIDI resources from file and compare them
+	 * to our internal values. If any have been changed, update the file.
 	 */
 	cnfgResH = GetResource('CNFG', THE_CNFG);
 	if (ReportResError()) return False;
@@ -116,19 +116,21 @@ static Boolean UpdatePrefsFile()
 		}
 
  		if (save) {
-			LogPrintf(LOG_NOTICE, "Updating the Prefs file...\n");
+			LogPrintf(LOG_NOTICE, "Updating the Prefs file...  (UpdatePrefsFile)\n");
+			
 			/* Create a handle to global config struct */
+			
 			cnfgHndl = (Configuration **)NewHandle((long) sizeof(Configuration));
 			if ((result = MemError())) {
 				MayErrMsg("UpdatePrefsFile: can't allocate cnfgHndl.  Error %d", result);
 				return False;
 			}
 			BlockMove(&config, *cnfgHndl, (Size)sizeof(Configuration));
-	
 			ReplacePrefsResource(cnfgResH, (Handle)cnfgHndl, 'CNFG', THE_CNFG,
 									CNFG_RES_NAME);
 
 			/* Create a handle to a MIDIPreferences and fill it with updated values. */
+			
 			midiHndl = (MIDIPreferences **)NewHandle((long) sizeof(MIDIPreferences));
 			if ((result = MemError())) {
 				MayErrMsg("UpdatePrefsFile: can't allocate midiHndl.  Error %d", result);
@@ -137,11 +139,11 @@ static Boolean UpdatePrefsFile()
 			BlockMove(*midiResH, *midiHndl, (Size) sizeof(MIDIPreferences));
 			for (i = 1; i<LAST_DYNAM; i++)
 				(*midiHndl)->velocities[i-1] = dynam2velo[i];
-	
 			ReplacePrefsResource(midiResH, (Handle)midiHndl, 'MIDI', PREFS_MIDI,
 									MIDI_RES_NAME);
 
 			/* Create a handle to a MIDIModNRPreferences and fill it with updated values. */
+			
 			midiModNRHndl = (MIDIModNRPreferences **)NewHandle((long) sizeof(MIDIModNRPreferences));
 			if ((result = MemError())) {
 				MayErrMsg("UpdatePrefsFile: can't allocate midiModNRHndl.  Error %d", result);
@@ -152,7 +154,6 @@ static Boolean UpdatePrefsFile()
 				(*midiModNRHndl)->velocityOffsets[i] = modNRVelOffsets[i];
 				(*midiModNRHndl)->durationFactors[i] = modNRDurFactors[i];
 			}
-
 			ReplacePrefsResource(midiModNRResH, (Handle)midiModNRHndl, 'MIDM', PREFS_MIDI_MODNR,
 									MIDM_RES_NAME);
  		}

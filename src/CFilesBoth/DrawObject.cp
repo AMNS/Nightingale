@@ -502,19 +502,21 @@ static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT cont
 /* ------------------------------------------------------------------------ Draw1Staff -- */
 
 void Draw1Staff(Document *doc,
-				short /*staffn*/,
+				short staffn,
 				Rect *paper,
 				PCONTEXT pContext,
 				short ground			/* _STAFF foreground/background code; see enum */
 				)
 {
 	DDIST	yd;
-	short	lines,		/* Number of lines in the staff */
+	short	nLines,			/* Number of lines in the staff */
 			line,
 			showLines;
 
-	lines = pContext->staffLines;
+	nLines = pContext->staffLines;
 	showLines = pContext->showLines;
+LogPrintf(LOG_DEBUG, "Draw1Staff: staffn=%d ground=%d nLines=%d showLines=%d staffTop=%d staffHeight=%d\n",
+		staffn, ground, nLines, showLines, pContext->staffTop, pContext->staffHeight);
 	
 	switch (outputTo) {
 		case toScreen:
@@ -536,10 +538,10 @@ void Draw1Staff(Document *doc,
 		case toBitmapPrint:
 		case toPICT:
 			if (showLines>0) {
-				for (line=0; line<lines; line++) {
+				for (line=0; line<nLines; line++) {
 					yd = pContext->staffTop + 
-							halfLn2d(2*line, pContext->staffHeight, lines);
-					if (showLines!=1 || line==(lines-1)/2) {
+							halfLn2d(2*line, pContext->staffHeight, nLines);
+					if (showLines!=1 || line==(nLines-1)/2) {
 						MoveTo(paper->left+d2p(pContext->staffLeft), paper->top+d2p(yd));
 						LineTo(paper->left+d2p(pContext->staffRight), paper->top+d2p(yd));
 					}
@@ -553,26 +555,23 @@ void Draw1Staff(Document *doc,
 			// CER 11.2006 Rastral 8 2stf lines => ptSize of 3
 			
 			short ptSize;
-			if (lines == 5) {
+			if (nLines == 5) {
 				ptSize = d2pt(pContext->staffHeight)+config.musFontSizeOffset;
 			}
 			else {
 				short stfHeight = drSize[doc->srastral];
 				ptSize = d2pt(stfHeight)+config.musFontSizeOffset;
 			}
-			if (ptSize < 3) 
-				ptSize = 3;
 			
-			if (ptSize >= 3)
-				PS_MusSize(doc, ptSize);
-			else
-				PS_MusSize(doc, 3);
+			if (ptSize < 3) ptSize = 3;
+			if (ptSize >= 3)	PS_MusSize(doc, ptSize);
+			else				PS_MusSize(doc, 3);
 			
 			if (showLines>0) {
-				for (line=0; line<lines; line++) {
+				for (line=0; line<nLines; line++) {
 					yd = pContext->staffTop + 
-							halfLn2d(2*line, pContext->staffHeight, lines);
-					if (showLines!=1 || line==(lines-1)/2)
+							halfLn2d(2*line, pContext->staffHeight, nLines);
+					if (showLines!=1 || line==(nLines-1)/2)
 						PS_StaffLine(yd, pContext->staffLeft, pContext->staffRight);
 				}
 			}

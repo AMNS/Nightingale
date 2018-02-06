@@ -23,28 +23,30 @@ enum {
  *	Prototypes for routines in MiscUtils.c
  */
 
-pascal long GrowMemory(Size memoryNeeded);
-Boolean		PreflightMem(short nKBytes);
-void		ZeroMem(void *m, long nBytes);
-Boolean		GoodNewPtr(Ptr p);
-Boolean		GoodNewHandle(Handle hndl);
-Boolean		GoodResource(Handle hndl);
-void		*NewZPtr(Size size);
+void			ZeroMem(void *m, long nBytes);
+Boolean			GoodNewPtr(Ptr p);
+Boolean			GoodNewHandle(Handle hndl);
+Boolean			GoodResource(Handle hndl);
+void			*NewZPtr(Size size);
+pascal long		GrowMemory(Size memoryNeeded);
+Boolean			PreflightMem(short nKBytes);
 
-Boolean		CheckAbort(void);
-Boolean		IsDoubleClick(Point clickPt, short tol, long now);
-OSType		CanPaste(short n, ...);
-void		DrawGrowBox(WindowPtr w, Point pt, Boolean drawit);
+void			FixEndian2(unsigned short *arg);
+void			FixEndian4(unsigned long *arg);
+long			MemBitCount(unsigned char *pCh, long n);
 
-void		UseStandardType(OSType type);
-void		ClearStandardTypes(void);
+Boolean			CheckAbort(void);
+Boolean			IsDoubleClick(Point clickPt, short tol, long now);
+OSType			CanPaste(short n, ...);
 
-short		GetInputName(char *prompt, Boolean newName, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
-Boolean		GetOutputName(short promptsID, short promptInd, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
-void		EndianFixConfig(void);
+void			UseStandardType(OSType type);
+void			ClearStandardTypes(void);
 
-void		GetSelection(WindowPtr w, Rect *sel, Rect *pin, void (*CallBack)());
-void		DrawTheSelection(void);
+short			GetInputName(char *prompt, Boolean newName, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
+Boolean			GetOutputName(short promptsID, short promptInd, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
+void			EndianFixConfig(void);
+
+void			GetSelection(WindowPtr w, Rect *sel, Rect *pin, void (*CallBack)());
 
 unsigned char	*VersionString(void);
-OSErr		SysEnvirons(short versionRequested,SysEnvRec *theWorld);
+OSErr			SysEnvirons(short versionRequested,SysEnvRec *theWorld);
