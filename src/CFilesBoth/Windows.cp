@@ -568,7 +568,7 @@ void UpdatePalette(WindowPtr whichPalette)
 				Rect portRect;
 				
 				GetWindowPortBounds(whichPalette, &portRect);
-				DrawToolMenu(&portRect);
+				DrawToolPalette(&portRect);
 				HiliteToolItem(&portRect, (*paletteGlobals[TOOL_PALETTE])->currentItem);
 				break;
 			case HELP_PALETTE:

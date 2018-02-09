@@ -57,6 +57,7 @@ void Initialize()
 {
 	OSErr err;
 	Str63 dummyVolName;
+	Str255 versionPStr;
 	
 	InitToolbox();
 
@@ -107,6 +108,13 @@ void Initialize()
 	InstallCoreEventHandlers();
 	
 	InitLogPrintf();
+
+	/* Fill global _applVerStr_ with our version string, and display it in the log. */
+	
+	Pstrcpy((unsigned char *)strBuf, VersionString(versionPStr));
+	PToCString((unsigned char *)strBuf);
+	GoodStrncpy(applVerStr, strBuf, 15);			/* Allow one char. for terminator */
+	LogPrintf(LOG_INFO, "Running Nightingale %s  (Initialize)\n", applVerStr);
 
 	if (!OpenPrefsFile())							/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
@@ -1300,7 +1308,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		/* Initialize the PaletteGlobals structure */
 		
 	 	whichPalette->currentItem = defaultToolItem;
-		whichPalette->drawMenuProc = (void (*)())DrawToolMenu;
+		whichPalette->drawMenuProc = (void (*)())DrawToolPalette;
 		whichPalette->findItemProc = (short (*)())FindToolItem;
 		whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
 		
@@ -1482,13 +1490,10 @@ static void AddSampleItems(MenuRef menu)
 
 Boolean InitGlobals()
 	{
-		long size; Document *doc;
+		long size;
+		Document *doc;
 		
 		InitNightingale();
-				
-		Pstrcpy((unsigned char *)strBuf, VersionString());
-		PToCString((unsigned char *)strBuf);
-		GoodStrncpy(applVerStr, strBuf, 15); 	/* Allow one char. for terminator */
 
 		/* Create an empty Document table for max number of docs in configuration */
 		

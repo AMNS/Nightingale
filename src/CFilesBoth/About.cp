@@ -53,6 +53,7 @@ void DoAboutBox(
 	Handle			hndl;
 	Rect			box;
 	char			fmtStr[256], str[256], serialStr[256], userName[256], userOrg[256];
+	Str255			versionPStr;
 	ModalFilterUPP	filterUPP;
 
 	/* Build dialog window and install its item values */
@@ -84,22 +85,9 @@ void DoAboutBox(
 	HideDialogItem(dlog, PICT_DEMO);
 	
 	/* Get version number string and display it in a static text item. */
-	{
-		Str255 vstr;
-		StringPtr vers_str;
-		const char *bundle_version_str;
-		
-		/* Get version number from main bundle (Info.plist); 
-		   this is the string value for key "CFBundleVersion" aka "Bundle version" 
-		 */
-		CFStringRef vsr = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(), kCFBundleVersionKey);
-		bundle_version_str = CFStringGetCStringPtr(vsr, kCFStringEncodingMacRoman);
-		vers_str = CToPString((char *)bundle_version_str);
-		vstr[0] = 0;
-		Pstrcpy(vstr, "\pv. ");
-		PStrCat(vstr, vers_str);
-		PutDlgString(dlog, STXT_VERS, vstr, False);
-	}
+	strcpy((char *)versionPStr, applVerStr);
+	CToPString((char *)versionPStr);
+	PutDlgString(dlog, STXT_VERS, versionPStr, False);
 
 	GetDialogItem(dlog, BUT2_Special, &type, &hndl, &box);
 	HiliteControl((ControlHandle)hndl, CTL_INACTIVE);
@@ -204,11 +192,11 @@ static pascal Boolean AboutFilter(DialogPtr dlog, EventRecord *evt, short *itemH
 	
 Boolean SetupCredits()
 {
-	Handle		creditText;
-	char		*textPtr, *strP, *thisStr;
-	short		numLines, lineNum, strWid, offset, pauseLineCount, i;
-	long		textLen;
-	short		portWid;
+	Handle	creditText;
+	char	*textPtr, *strP, *thisStr;
+	short	numLines, lineNum, strWid, offset, pauseLineCount, i;
+	long	textLen;
+	short	portWid;
 	
 	/* Get credit text from TEXT resource. (Get1Resource isn't worth the trouble.) */
 	creditText = GetResource('TEXT', ABOUT_TEXT);
@@ -239,16 +227,15 @@ Boolean SetupCredits()
 	TextFont(textFontNum);
 	TextSize(textFontSmallSize);
 
-	/* Initialize pauseLines[], so that we won't pause inadvertantly
-		on a line whose number happens to be given by garbage. */
+	/* Initialize pauseLines[], so that we won't pause inadvertantly on a line whose
+	   number happens to be given by garbage. */
 	for (i=0; i<MAX_PAUSE_LINES; i++)
 		pauseLines[i] = -1;
 	
-	/* Break text into lines, draw them into offscreen port, interpreting
-		the codes that might begin a line.
-		NB: the pause code must precede the bold code if both are used in
-		the same line.  After the first MAX_PAUSE_LINES pause codes have been
-		interpreted, any following ones are ignored. */
+	/* Break text into lines, draw them into offscreen port, interpreting the codes
+	   that might begin a line. NB: the pause code must precede the bold code if both
+	   are used in the same line.  After the first MAX_PAUSE_LINES pause codes have been
+	   interpreted, any following ones are ignored. */
 	thisStr = strP = textPtr;
 	for (i=0, lineNum=1, pauseLineCount=0; i<textLen; i++) {
 		if (*textPtr == CH_CR) {
@@ -343,3 +330,4 @@ void AnimateCredits(DialogPtr dlog)
 
 	lastTime = thisTime;
 }
+

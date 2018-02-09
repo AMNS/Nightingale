@@ -319,16 +319,16 @@ Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *n
 }
 
 
-/* The CNFG resource is stored in Big Endian form. If we're running on a Little Endian
-processor (no doubt Intel or compatible), correct the byte order in fields of more than
-one byte; if we're on a Big Endian processor (PowerPC), do nothing. This function should
-be called immediately after opening the CNFG resource to perhaps convert from Big
-Endian to Little Endian, and immediately before saving it to perhaps convert from
-Little Endian back to Big Endian. */
+/* The CNFG and MIDI ModNR table resources are stored in Big Endian form. If we're
+running on a Little Endian processor (no doubt Intel or compatible), correct the byte
+order in fields of more than one byte; if we're on a Big Endian processor (PowerPC),
+do nothing. This function should be called immediately after opening the resources
+to ensure they're in the appropriate Endian form internally, and immediately before
+saving them them to ensure they're saved in the appropriate Endian form. */
 
 void EndianFixConfig()
 {
-#if TARGET_RT_LITTLE_ENDIAN		// If not little endian, avoid compiler warnings "stmt has no effect"
+#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END(config.maxDocuments);
 	
 	FIX_END(config.paperRect.top);		FIX_END(config.paperRect.left);
@@ -373,50 +373,39 @@ void EndianFixConfig()
 #endif
 }
 
+void EndianFixMIDIModNRTable()
+{
+#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
+	
+	for (short i = 0; i<32; i++) {
+		FIX_END(modNRVelOffsets[i]);
+		FIX_END(modNRDurFactors[i]);
+	}
+#endif
+}
 
 /* Return the address of a static copy of the 'vers' resource's short string (Pascal).
 We assume a 'vers' resource ID of 1.  Delivers "\p??" if it finds a problem. FIXME: This
 method is unreliable and obsolete! We need to get the version from Info.plist, the way
 DoAboutBox() does. */
 
-typedef struct {
-	char bytes[4];
-	short countryCode;
-	/* char shortStr[256]; */
-} versHeader;
-
-#define MAXVERS 32
-
-unsigned char *VersionString()
+StringPtr VersionString(StringPtr verPStr)
 {
-	Handle vers;
-	unsigned char *p;
-	static unsigned char versStr[MAXVERS];
-	short curResFile;
-
-	curResFile = CurResFile();
-	UseResFile(appRFRefNum);
-
-	Pstrcpy(versStr,"\p??");		/* Start with default for any errors */
+	char verStr[64];
+	const char *bundleVersionStr;
 	
-#ifdef NOMORE
-	vers = GetResource('vers',1);
-	if (vers) {
-		LoadResource(vers);
-		if (*vers!=NULL && ResError()==noErr) {
-			/* Truncate short string to MAXVERS-1 chars */
-			p = (unsigned char *)((*vers) + sizeof(versHeader));
-			if (*(unsigned char *)p >= MAXVERS) *(unsigned char *)p = MAXVERS-1;
-			/* Copy short string to our local storage */
-			Pstrcpy(versStr,p);
-		}
-	}
-#endif
-
-	UseResFile(curResFile);
-	
-	return(versStr);				/* Deliver copy of Pascal version string */
+	/* Get version number from main bundle (Info.plist); this is the string value
+	   for key "CFBundleVersion", a.k.a. "Bundle version". */
+	CFStringRef verRef = (CFStringRef)CFBundleGetValueForInfoDictionaryKey(CFBundleGetMainBundle(),
+										kCFBundleVersionKey);
+	bundleVersionStr = CFStringGetCStringPtr(verRef, kCFStringEncodingMacRoman);
+	strcpy(verStr, "v. ");
+	strcat(verStr, bundleVersionStr);
+	CToPString(verStr);
+	Pstrcpy(verPStr, (StringPtr)verStr);
+	return verPStr;
 }
+
 
 /*
 struct SysEnvRec {

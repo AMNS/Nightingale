@@ -506,24 +506,22 @@ void AdjustWinPosition(WindowPtr w)
 }
 
 
-/*
- *	Given a global rect, r, deliver the bounds of the screen device that best "contains"
- *	that rect. If we're running on a machine that that <hasColorQD> (almost any machine
- *	since the Mac II), we do this by scanning the device list, and for each active
- *	screen device we intersect the rect with the device's bounds, keeping track of
- *	that device whose intersection's area is the largest. If the machine doesn't
- *	<hasColorQD>, we assume it has only one screen and just deliver the usual
- *	qd.screenBits.bounds. The one problem with this is it doesn't handle some old Macs
- *	with more than one screen, e.g., SEs and SE/30s with third-party large monitors.
- * 
- *	The two arguments can point to the same rectangle. Returns the number of screens
- *	with which the given rectangle intersects unless it's a non-<hasColorQD> machine,
- *	in which case it returns 0.
- *
- *	N.B. An earlier version of this routine apparently had a feature whereby, if the
- *	caller wanted the Menu Bar area included, it could set a global <pureScreen> True
- *	before call; this could easily be added again.
- */
+/* Given a global rect, r, deliver the bounds of the screen device that best "contains"
+that rect. If we're running on a machine that that <hasColorQD> (almost certainly any
+machine Nightingale can run on!), we do this by scanning the device list, and for each
+active screen device we intersect the rect with the device's bounds, keeping track of
+that device whose intersection's area is the largest. If the machine doesn't
+<hasColorQD>, we assume it has only one screen and just deliver the usual screenBits.bounds.
+The one problem with this is it doesn't handle some ancient Macs with more than one
+screen, e.g., SE/30s with third-party large monitors; who cares.
+
+The two arguments can point to the same rectangle. Returns the number of screens with
+which the given rectangle intersects unless it's a non-<hasColorQD> machine, in which
+case it returns 0.
+
+NB: An earlier version of this routine apparently had a feature whereby, if the
+caller wanted the menu bar area included, it could set a global <pureScreen> True
+before call; this could easily be added again. */
 
 short GetMyScreen(Rect *r, Rect *bnds)
 {
@@ -531,7 +529,7 @@ short GetMyScreen(Rect *r, Rect *bnds)
 	long area,maxArea=0L;  short nScreens = 0;
 	
 	bounds = GetQDScreenBitsBounds();
-	bounds.top += GetMBarHeight();			/* Exclude menu bar */
+	bounds.top += GetMBarHeight();						/* Exclude menu bar */
 	if (thisMac.hasColorQD)
 		for (dev=GetDeviceList(); dev; dev=GetNextDevice(dev))
 			if (TestDeviceAttribute(dev,screenDevice) &&
@@ -636,31 +634,32 @@ Boolean PlaceWindow(WindowPtr dlog, WindowPtr w, short left, short top)
 void CenterWindow(WindowPtr w,
 					short top)	/* 0=center vertically, else put top at this position */
 {
-	Rect scr, portRect; Point p;
+	Rect scr, portRect;
+	Point pt;
 	short margin;
 	short rsize,size;
 
 	scr = GetQDScreenBitsBounds();
 	SetPort(GetWindowPort(w));
-	GetWindowPortBounds(w,&portRect);
-	p.h = portRect.left; p.v = portRect.top;
-	LocalToGlobal(&p);
+	GetWindowPortBounds(w, &portRect);
+	pt.h = portRect.left; pt.v = portRect.top;
+	LocalToGlobal(&pt);
 
 	size = scr.right - scr.left;
 	rsize = portRect.right - portRect.left;
 	margin = size - rsize;
 	if (margin > 0) {
 		margin >>= 1;
-		p.h = scr.left + margin;
+		pt.h = scr.left + margin;
 	}
 	size = scr.bottom - scr.top;
 	rsize = portRect.bottom - portRect.top;
 	margin = size - rsize;
 	if (margin > 0) {
 		margin >>= 1;
-		p.v = scr.top + margin;
+		pt.v = scr.top + margin;
 	}
-	MoveWindow(w,p.h,(top?top:p.v),False);
+	MoveWindow(w, pt.h, (top? top : pt.v), False);
 }
 
 
@@ -775,14 +774,14 @@ thickened slightly at the "special" staff if there is one. If pL is a structural
 
 void InvertSymbolHilite(
 			Document *doc,
-			LINK	pL,
-			short	staffn,			/* No. of "special" staff to emphasize or NOONE */
-			Boolean	flash			/* True=flash to emphasize special staff */
+			LINK pL,
+			short staffn,			/* No. of "special" staff to emphasize or NOONE */
+			Boolean flash			/* True=flash to emphasize special staff */
 			)
 {
-	short		xd, xp, ypTop, ypBot;
-	DDIST		blackTop=0, blackBottom=0;
-	CONTEXT		context;
+	short	xd, xp, ypTop, ypBot;
+	DDIST	blackTop=0, blackBottom=0;
+	CONTEXT	context;
 
 	if (!pL) return;											/* Just in case */
 	if (objTable[ObjLType(pL)].justType==J_STRUC) return;
@@ -827,8 +826,8 @@ void InvertSymbolHilite(
 
 
 /* ------------------------------------------------------------- InvertTwoSymbolHilite -- */
-/* Hilite two symbols, the graphical representations of objects, in a distinctive way to
-show where a subobject is about to be inserted, or where something is or will be
+/* Hilite two symbols, the graphical representations of objects, in a distinctive way
+to show where a subobject is about to be inserted, or where something is or will be
 attached. */
 
 void InvertTwoSymbolHilite(Document *doc, LINK node1, LINK node2, short staffn)
@@ -861,6 +860,7 @@ void HiliteAttPoints(
 	InvertSymbolHilite(doc, firstL, staffn, False);								/* Off */
 	if (lastL && firstL!=lastL) InvertSymbolHilite(doc, lastL, staffn, False);	/* Off */
 }
+
 
 /* ------------------------------------------------------------------------- FlashRect -- */
 
@@ -990,7 +990,7 @@ Boolean ProgressMsg(short which,
 
 	if (which>0 && which<=MAX_MESSAGE_STR) {
 	
-		if (dialogp && which!=lastWhich) ProgressMsg(0, "");		/* Remove existing msg window */
+		if (dialogp && which!=lastWhich) ProgressMsg(0, "");	/* Remove existing msg window */
 		lastWhich = which;
 		
 		if (!dialogp) {
@@ -1014,7 +1014,7 @@ Boolean ProgressMsg(short which,
 	else if (which==0) {
 		if (dialogp) {
 			HideWindow(GetDialogWindow(dialogp));
-			DisposeDialog(dialogp);										/* Free heap space */
+			DisposeDialog(dialogp);								/* Free heap space */
 			dialogp = NULL;
 		}
 	}
@@ -1024,9 +1024,9 @@ Boolean ProgressMsg(short which,
 }
 
 
-/* --------------------------------------------------------------------- UserInterrupt -- */
-/*	Returns True if COMMAND and PERIOD (.) keys are both currently down; all other
-keys are ignored. FIXME: Should be internationalized! */
+/* ------------------------------------------------------------ UserInterrupt, -AndSel -- */
+/* Returns True if COMMAND and PERIOD (.) keys are both currently down; all other
+keys are ignored. FIXME: Should this be internationalized? */
 
 Boolean UserInterrupt()
 {
@@ -1036,10 +1036,8 @@ Boolean UserInterrupt()
 	return True;
 }
 
-
-/* --------------------------------------------------------------- UserInterruptAndSel -- */
 /* Returns True if COMMAND and SLASH (/) keys are both currently down; all other
-keys are ignored. FIXME: Should be internationalized! */
+keys are ignored. FIXME: Should this be internationalized? */
 
 Boolean UserInterruptAndSel()
 {
@@ -1170,7 +1168,7 @@ short SmartenQuote(TEHandle textH, short ch)
 }
 
 
-/* ----------------------------------------------------------------- DrawBox, -GrowBox -- */
+/* --------------------------------------------------------------------------- DrawBox -- */
 /* Use a wide line to draw a filled box centered at the given point.  Size should
 normally be 4 so that the special drag cursor fits in with it. Intended to draw handles
 for dragging.*/
@@ -1185,38 +1183,10 @@ void DrawBox(Point pt, short size)
 }
 
 
-/* Draw a grow icon at given position in given port.  Doesn't change the current port.
-The icon is assumed the usual 16 by 16 icon.  If drawit is False, erase the area it
-appears in but leave box framed. This function is not used in Ngale 5.8 and I suspect
-it'll never be needed again.  --DAB, Feb. 2018 */
+/* ------------------------------------------------------------------ DrawTheSelection -- */
 
-void DrawGrowBox(WindowPtr w, Point pt, Boolean drawit)
-{
-	Rect r,t,grow;  GrafPtr oldPort;
-	
-	GetPort(&oldPort); SetPort(GetWindowPort(w));
-	
-	SetRect(&grow,pt.h,pt.v,pt.h+SCROLLBAR_WIDTH+1,pt.v+SCROLLBAR_WIDTH+1);
-	t = grow; InsetRect(&t,1,1);
-	EraseRect(&t);
-	FrameRect(&grow);
-	if (drawit) {
-		SetRect(&r,3,3,10,10);
-		SetRect(&t,5,5,14,14);
-		OffsetRect(&r,grow.left,grow.top);
-		OffsetRect(&t,grow.left,grow.top);
-		FrameRect(&t);
-		EraseRect(&r); FrameRect(&r);
-	}
-	SetPort(oldPort);
-}
-
-
-/* ------------------------------------------------------------------------ DrawTheSelection -- */
-/*
- *	Frame the current selection box, using the index'th pattern, or 0 for the last
- *	pattern used.
- */
+/* Frame the current selection box, using the index'th pattern, or 0 for the last
+pattern used.  */
 
 static void	DrawSelBox(short index);
 static void DrawSelBox(short index)
@@ -1230,10 +1200,8 @@ static void DrawSelBox(short index)
 }
 
 
-/*
- *	Draw the current selection box into the current port.  This should be called during
- *	update and redraw events.  Does nothing if the current selection rectangle is empty.
- */
+/* Draw the current selection box into the current port.  This should be called during
+update and redraw events.  Does nothing if the current selection rectangle is empty. */
 
 void DrawTheSelection()
 {
@@ -2015,7 +1983,7 @@ Boolean VLogPrintf(const char *fmt, va_list argp)
 Boolean LogPrintf(short priLevel, const char *fmt, ...)
 {
 	Boolean okay, endLine;
-	char *pch;
+	//char *pch;
 	
 	if (priLevel>MIN_LOG_LEVEL) priLevel = LOG_NOTICE;
 	

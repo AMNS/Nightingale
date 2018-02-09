@@ -2589,7 +2589,7 @@ font info directly from a resource, so is vulnerable to endian problems. Add som
 to FIX_END => no complaints from BuildCharRectCache(), and Ngale displays clefs, time
 sigs., notes, & rests correctly!, except (a) no flags, & selection hiliting for most
 symbols is a bit too low. Also, in a New score, the only staff line visible is the bottom
-line of the lower staff -- but there's some mysterious heavily streeeetched out stuff,
+line of the lower staff -- but there's some mysterious heavily strrrretched out stuff,
 very likely supposed to be the other staff lines! Add staff below => It's fine in both
 regular & Master Page; add staff above => likewise. ??
 Do I need more calls to FIX_END? Probably :-| . TO BE CONTINUED.
@@ -2630,4 +2630,15 @@ on Intel, MemBitCount from SetupToolPalette = 388, from DrawToolMenu = 388
 For 600 bytes:
 on PPC, MemBitCount from SetupToolPalette = 427 or 412, from DrawToolMenu = 427 or 412
 on Intel, MemBitCount from SetupToolPalette = 546 or 572, from DrawToolMenu = 546 or 572
+
+-------------------------------------------------------------------------------
+
+7 Feb.
+
+Back to the "in a New score, the only staff line visible is the bottom line of the lower
+staff -- but there's some mysterious heavily strrrretched-out stuff, very likely
+supposed to be the other staff lines" bug: actually, the strrrretched-out stuff is the
+Connect! Which is a curly read from a resource, so it's vulnerable to the endian
+problem. Skip DrawCONNECT => yep: strrrretched-out stuff disappears, and all staff lines
+appear! Put DrawCONNECT back, add FIX_END()'s => yep: Connect appears!
 

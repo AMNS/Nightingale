@@ -517,7 +517,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 /* ToolPalette.c */
 
 	Boolean		TranslatePalChar(short *, short, Boolean);
-pascal void		DrawToolMenu(Rect *r);
+pascal void		DrawToolPalette(Rect *r);
 pascal void		HiliteToolItem(Rect *r, short item);
 pascal short	FindToolItem(Point pt);
 	void		DoToolContent(Point pt, short modifiers);

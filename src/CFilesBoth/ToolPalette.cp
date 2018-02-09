@@ -250,66 +250,65 @@ Boolean IsDurKey(register unsigned char ch, register Boolean *isNote)
 
 /* ----------------------------------------------------- regular Tool Palette routines -- */
 
-/* Draw the tool menu palette.  The argument rect will be in global screen coordinates
+/* Draw the tool menu palette.  The argument rect must be in global screen coordinates
 if the palette is being drawn from the MDEF (i.e., it's still in the menu bar), or in
 local palette window coordinates if it's in a standalone window or the menu has been
 torn off (i.e., this is part of an update event). */
 
-pascal void DrawToolMenu(Rect *r)
-	{
-		Rect frame, port, tmp, src;
-		PaletteGlobals *whichPalette;
-		
-		whichPalette = *paletteGlobals[TOOL_PALETTE];
-		
-		/* Get the area within palette to draw picture */
-		
-		frame = *r;
-		InsetRect(&frame, TOOLS_MARGIN, TOOLS_MARGIN);
-		SetRect(&port, 0, 0,	whichPalette->maxAcross*toolCellWidth-1,
-								whichPalette->maxDown*toolCellHeight-1);
-		OffsetRect(&port, r->left+TOOLS_MARGIN, r->top+TOOLS_MARGIN);
-		
-		src = port;
-		OffsetRect(&src, -src.left, -src.top);
-		const BitMap *palPortBits = GetPortBitMapForCopyBits(palPort);
-		const BitMap *thePortBits = GetPortBitMapForCopyBits(GetQDGlobalsThePort());
-		CopyBits(palPortBits, thePortBits, &src, &port, srcCopy, NULL);
+pascal void DrawToolPalette(Rect *r)
+{
+	Rect frame, port, tmp, src;
+	PaletteGlobals *whichPalette;
+	
+	whichPalette = *paletteGlobals[TOOL_PALETTE];
+	
+	/* Get the area within palette to draw picture */
+	
+	frame = *r;
+	InsetRect(&frame, TOOLS_MARGIN, TOOLS_MARGIN);
+	SetRect(&port, 0, 0,	whichPalette->maxAcross*toolCellWidth-1,
+							whichPalette->maxDown*toolCellHeight-1);
+	OffsetRect(&port, r->left+TOOLS_MARGIN, r->top+TOOLS_MARGIN);
+	
+	src = port;
+	OffsetRect(&src, -src.left, -src.top);
+	const BitMap *palPortBits = GetPortBitMapForCopyBits(palPort);
+	const BitMap *thePortBits = GetPortBitMapForCopyBits(GetQDGlobalsThePort());
+	CopyBits(palPortBits, thePortBits, &src, &port, srcCopy, NULL);
 { Rect portRect;
-LogPrintf(LOG_NOTICE, "DrawToolMenu: TEST\n");
+//LogPrintf(LOG_NOTICE, "DrawToolPalette: TEST\n");
 long len = 600; GetPortBounds(palPort, &portRect);
-LogPrintf(LOG_NOTICE, "DrawToolMenu: MemBitCount(palPortBits, %ld)=%ld portRect tlbr=%d,%d,%d,%d\n",
+LogPrintf(LOG_NOTICE, "DrawToolPalette: MemBitCount(palPortBits, %ld)=%ld portRect tlbr=%d,%d,%d,%d\n",
 len, MemBitCount((unsigned char *)palPortBits, len),
 portRect.top, portRect.left, portRect.bottom, portRect.right);
 }
 
-		/* Add frame surrounding picture */
-		
-		InsetRect(&frame, -1, -1);
-		FrameRect(&frame);
-		
-		/* Erase area to right and below frame, in case window was just shrunk */
-		
-		tmp = *r; tmp.left = tmp.right - (TOOLS_MARGIN-1);
+	/* Add frame surrounding picture */
+	
+	InsetRect(&frame, -1, -1);
+	FrameRect(&frame);
+	
+	/* Erase area to right and below frame, in case window was just shrunk */
+	
+	tmp = *r; tmp.left = tmp.right - (TOOLS_MARGIN-1);
+	EraseRect(&tmp);
+	tmp = *r; tmp.top = tmp.bottom - (TOOLS_MARGIN-1);
+	EraseRect(&tmp);
+	
+	/* Place a poor person's grow box in lower right only when not in the menu bar */
+	
+	if (notMenu) {
+		tmp = *r;
+		tmp.left = tmp.right - (TOOLS_MARGIN+1);
+		tmp.top = tmp.bottom - (TOOLS_MARGIN+1);
 		EraseRect(&tmp);
-		tmp = *r; tmp.top = tmp.bottom - (TOOLS_MARGIN-1);
-		EraseRect(&tmp);
 		
-		/* Place a poor person's grow box in lower right only when not in the menu bar */
-		
-		if (notMenu) {
-			tmp = *r;
-			tmp.left = tmp.right - (TOOLS_MARGIN+1);
-			tmp.top = tmp.bottom - (TOOLS_MARGIN+1);
-			EraseRect(&tmp);
-			
-			MoveTo(frame.right-2,frame.bottom-2); Line(TOOLS_MARGIN, 0);
-			MoveTo(frame.right-2, frame.bottom-2); Line(0, TOOLS_MARGIN);
-			
-			MoveTo(frame.right+1,frame.bottom+1); Line(TOOLS_MARGIN, 0);
-			MoveTo(frame.right+1, frame.bottom+1); Line(0, TOOLS_MARGIN);
-			}
+		MoveTo(frame.right-2, frame.bottom-2); Line(TOOLS_MARGIN, 0);
+		MoveTo(frame.right-2, frame.bottom-2); Line(0, TOOLS_MARGIN);
+		MoveTo(frame.right+1, frame.bottom+1); Line(TOOLS_MARGIN, 0);
+		MoveTo(frame.right+1, frame.bottom+1); Line(0, TOOLS_MARGIN);
 	}
+}
 
 /* 
  *  Toggle hiliting the given item in the tool palette.
@@ -317,10 +316,10 @@ portRect.top, portRect.left, portRect.bottom, portRect.right);
 
 pascal void HiliteToolItem(Rect *r, short item)
 	{
-		Rect hiliteRect; short row,col;
+		Rect hiliteRect;
+		short row, col;
 		
 		if (item) {
-		
 			/* Don't hilite items outside of current palette if it's been shrunk */
 			row = (item-1) / (*paletteGlobals[TOOL_PALETTE])->maxAcross;
 			col = (item-1) % (*paletteGlobals[TOOL_PALETTE])->maxAcross;
@@ -329,7 +328,6 @@ pascal void HiliteToolItem(Rect *r, short item)
 			if (col >= (*paletteGlobals[TOOL_PALETTE])->across) return;
 			
 			/* Otherwise, it's a visible item */
-	
 			hiliteRect = toolRects[item];
 			hiliteRect.bottom -= 1;
 			hiliteRect.right -= 1;
@@ -344,18 +342,18 @@ pascal void HiliteToolItem(Rect *r, short item)
  */
 
 pascal short FindToolItem(Point mousePt)
-	{
-		short index,count;
-		PaletteGlobals *pg = *paletteGlobals[TOOL_PALETTE];
-		
-		if (PtInRect(mousePt,&toolsFrame)) {
-			count = pg->maxAcross * pg->maxDown;
-			for (index=1; index<=count; index++)
-				if (PtInRect(mousePt,&toolRects[index]))
-					return(index);
-			}
-		return(0);
+{
+	short index, count;
+	PaletteGlobals *pg = *paletteGlobals[TOOL_PALETTE];
+	
+	if (PtInRect(mousePt, &toolsFrame)) {
+		count = pg->maxAcross * pg->maxDown;
+		for (index=1; index<=count; index++)
+			if (PtInRect(mousePt, &toolRects[index]))
+				return(index);
 	}
+	return(0);
+}
 
 /*
  *	Handle a mouse down in the Tool Palette.  This tracks the mouse as

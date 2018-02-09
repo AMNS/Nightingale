@@ -45,8 +45,9 @@ void			ClearStandardTypes(void);
 short			GetInputName(char *prompt, Boolean newName, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
 Boolean			GetOutputName(short promptsID, short promptInd, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
 void			EndianFixConfig(void);
+void			EndianFixMIDIModNRTable(void);
 
 void			GetSelection(WindowPtr w, Rect *sel, Rect *pin, void (*CallBack)());
 
-unsigned char	*VersionString(void);
+StringPtr		VersionString(StringPtr verPStr);
 OSErr			SysEnvirons(short versionRequested,SysEnvRec *theWorld);

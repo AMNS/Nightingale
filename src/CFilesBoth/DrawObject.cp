@@ -511,12 +511,12 @@ void Draw1Staff(Document *doc,
 	DDIST	yd;
 	short	nLines,			/* Number of lines in the staff */
 			line,
-			showLines;
+			showLines;		/* 0, 1, or SHOW_ALL_LINES */
 
 	nLines = pContext->staffLines;
 	showLines = pContext->showLines;
-LogPrintf(LOG_DEBUG, "Draw1Staff: staffn=%d ground=%d nLines=%d showLines=%d staffTop=%d staffHeight=%d\n",
-		staffn, ground, nLines, showLines, pContext->staffTop, pContext->staffHeight);
+//LogPrintf(LOG_DEBUG, "Draw1Staff: staffn=%d ground=%d nLines=%d showLines=%d staffTop=%d staffHeight=%d\n",
+//		staffn, ground, nLines, showLines, pContext->staffTop, pContext->staffHeight);
 	
 	switch (outputTo) {
 		case toScreen:
@@ -551,8 +551,9 @@ LogPrintf(LOG_DEBUG, "Draw1Staff: staffn=%d ground=%d nLines=%d showLines=%d sta
 			ForeColor(blackColor);
 			break;
 		case toPostScript:
-			// CER: 7.2005 Staff lines are too thin for 2 line staves. Put a floor of 24 under the font size.
-			// CER 11.2006 Rastral 8 2stf lines => ptSize of 3
+			/* CER: 7.2005 Staff lines are too thin for 2 line staves. Put a floor of
+					24 under the font size.
+			   CER 11.2006 Rastral 8 2stf lines => ptSize of 3 */
 			
 			short ptSize;
 			if (nLines == 5) {
@@ -575,7 +576,7 @@ LogPrintf(LOG_DEBUG, "Draw1Staff: staffn=%d ground=%d nLines=%d showLines=%d sta
 						PS_StaffLine(yd, pContext->staffLeft, pContext->staffRight);
 				}
 			}
-			// Leave the routine with pt size as before calculated.
+			// Leave the routine with point size as before calculated.
 			PS_MusSize(doc, ptSize);
 			break;
 		default:
@@ -674,7 +675,7 @@ void DrawCONNECT(Document *doc, LINK pL,
 	PACONNECT	aConnect;				/* ptr to current subobj */
 	LINK		aConnectL, staffL;
 	PCONTEXT	pContext;				/* ptr to current context[] entry */
-	Rect		r;						/* Rect of current staff */
+	Rect		cBox;					/* bounding box of curly brace */
 	short		width,					/* Width of curly brace */
 				xwidth, brackHt,
 				px, pyTop, pyBot,
@@ -712,7 +713,7 @@ PushLock(CONNECTheap);
 									&context[stfA=aConnect->staffAbove];
 		else
 			pContext = entire ? &context[FirstStaffn(pL)] :
-								&context[stfA=NextVisStaffn(doc,pL,True,aConnect->staffAbove)];
+								&context[stfA=NextVisStaffn(doc, pL, True, aConnect->staffAbove)];
 		dLeft = pContext->staffLeft;
 		dTop = pContext->staffTop;
 
@@ -721,7 +722,7 @@ PushLock(CONNECTheap);
 									&context[stfB=aConnect->staffBelow];
 		else
 			pContext = entire ? &context[LastStaffn(pL)] :
-								&context[stfB=NextVisStaffn(doc,pL,False,aConnect->staffBelow)];
+								&context[stfB=NextVisStaffn(doc, pL, False, aConnect->staffBelow)];
 		dBottom = pContext->staffTop + pContext->staffHeight;
 		xd = dLeft+aConnect->xd;
 		
@@ -737,7 +738,7 @@ PushLock(CONNECTheap);
 						MoveTo(px, pyTop); LineTo(px, pyBot);
 						break;
 					case toPostScript:
-						PS_ConLine(dTop,dBottom,xd);
+						PS_ConLine(dTop, dBottom, xd);
 						break;
 				}
 				break;
@@ -752,22 +753,25 @@ PushLock(CONNECTheap);
 						case toScreen:
 						case toBitmapPrint:
 						case toPICT:
-							pictRsrc = (PicHandle)GetResource('PICT',200);
-							if (!GoodResource((Handle)pictRsrc))
-								goto Cleanup;								
-							r = (*pictRsrc)->picFrame;
+							pictRsrc = (PicHandle)GetResource('PICT', 200);
+							if (!GoodResource((Handle)pictRsrc)) goto Cleanup;								
+							cBox = (*pictRsrc)->picFrame;
+							FIX_END(cBox.top); FIX_END(cBox.left);
+							FIX_END(cBox.bottom); FIX_END(cBox.right);
+							
 							/* PICT 200 was created from the Sonata 36 brace */
-							width = ((r.right-r.left)*(UseTextSize(pContext->fontSize, doc->magnify)))/36;
-							SetRect(&r, d2p(xd), d2p(dTop), d2p(xd)+width, d2p(dBottom));
-							OffsetRect(&r, pContext->paper.left, pContext->paper.top);
-							/* FIXME: DrawPicture OVERWRITES ANYTHING ALREADY THERE--SHOULD BE OR'ED
-								IN, PROBABLY VIA DrawPicture TO BITMAP, THEN CopyBits. */
-							DrawPicture(pictRsrc,&r);
+							width = ((cBox.right-cBox.left)*(UseTextSize(pContext->fontSize, doc->magnify))) / 36;
+							SetRect(&cBox, d2p(xd), d2p(dTop), d2p(xd)+width, d2p(dBottom));
+							OffsetRect(&cBox, pContext->paper.left, pContext->paper.top);
+							
+							/* FIXME: DrawPicture OVERWRITES ANYTHING ALREADY THERE. Should be or'd
+								in, probably via DrawPicture to bitmap, then CopyBits. */
+							DrawPicture(pictRsrc, &cBox);
 							HUnlock((Handle)pictRsrc); HPurge((Handle)pictRsrc);
 							if (doc->masterView && ground==OTHERSYS_STAFF) {
 								PenPat(NGetQDGlobalsGray());
 								PenMode(notPatBic);
-								PaintRect(&r);
+								PaintRect(&cBox);
 								PenNormal();
 							}
 							break;
@@ -783,7 +787,7 @@ PushLock(CONNECTheap);
 					curlyWider = ConnectDWidth(doc->srastral, CONNECTCURLY)
 										-ConnectDWidth(doc->srastral, CONNECTBRACKET);
 					xd += curlyWider;
-				}
+				}								/* Drop thru... */
 			case CONNECTBRACKET:				/* Must immediately follow case CONNECTCURLY */
 				switch (outputTo) {
 					case toScreen:
@@ -803,10 +807,10 @@ PushLock(CONNECTheap);
 						if (doc->masterView && ground==OTHERSYS_STAFF) {
 							PenPat(NGetQDGlobalsGray());
 							PenMode(notPatBic);
-							/* Assume brackets are almost square--good enuf for this */
+							/* Assume brackets are almost square: good enuf for this */
 							brackHt = CharWidth(MCH_topbracket)+1;
-							SetRect(&r, px, pyTop-brackHt, px+2*xwidth, pyBot+brackHt);
-							PaintRect(&r);
+							SetRect(&cBox, px, pyTop-brackHt, px+2*xwidth, pyBot+brackHt);
+							PaintRect(&cBox);
 						}
 						PenNormal();
 						break;
