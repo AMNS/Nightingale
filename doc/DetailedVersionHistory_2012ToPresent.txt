@@ -2019,14 +2019,14 @@ Built separately for PowerPC and Intel. Affects project.pbxproj (in Nightingale.
 
 27 - 29 Jan.
 
-Added numerous calls to FIX_END to fix "endian" byte order in config fields, for the
+Added numerous calls to FIX_END to fix Endian byte order in config fields, for the
 benefit of the Intel version. Affects Initialize.
 
 Replaced tests involving the caps-lock key: with SHOW_DEBUG for displaying debug info;
 with shift-option for the alternative "Color Voices" method. Affects Check, DelAddRedAccs,
 Menu, MIDIRecord, NotelistParse, PS_Stdio.
 
-On startup, display more CNFG fields & check them more closely. Affects Initialize.
+On startup, we now display more CNFG fields & check them more closely. Affects Initialize.
 
 Minor cleanup. Affects Defs.h, NightTemplates.h, NMiscTypes.h, NResourceID.h,
 VersionStrings.h; Check, CoreMIDIUtils, DebugDisplay, File, Finalize, Initialize,
@@ -2038,7 +2038,7 @@ InstrDialog, MIDIDialogs, MIDIRecord, MiscUtils, Preferences, PS_Stdio, Score.
 
 Removed the 'vers' (version) resource. Affects .rsrc.
 
-Before quitting, we now undo endian changes to config fields, for the benefit of the Intel
+Before quitting, we now undo Endian changes to config fields, for the benefit of the Intel
 version. Affects Finalize, MiscUtils.
 
 Minor cleanup: reworded an ALRT, added error checking, etc. Affects .rsrc, MiscUtils.h,
@@ -2066,7 +2066,7 @@ Finalize, GraphicMDEF, Initialize, InitNightingale, MiscUtils, ToolPalette, UIFU
 
 6 - 8 Feb.
 
-Fixed endian-caused bug in Intel version: curly braces aren't drawn and the only staff
+Fixed Endian-caused bug in Intel version: curly braces aren't drawn and the only staff
 line drawn is the bottom line of the bottom staff of the group; instead, there's just a
 hugely strrrrreched-out gray pattern. Affects DrawObject.
 
@@ -2074,8 +2074,27 @@ Extracted a new function VersionString() from DoAboutBox(); we call it to get th
 version string for an initial log message and for the About box. Affects MiscUtils.h;
 About, MiscUtils.
 
-Before quitting, we now undo endian changes to MIDI modNR tables, for the benefit of the
+Before quitting, we now undo Endian changes to MIDI modNR tables, for the benefit of the
 Intel version. Affects Finalize, MiscUtils.
 
 Minor cleanup: renamed DrawToolMenu to DrawToolPalette, etc. Affects NightTemplates.h;
 About, DrawObject, Finalize, Initialize, ToolPalette, UIFUtils, Windows.
+
+-------------------------------------------------------------------------------
+
+10 - 12 Feb.
+
+Added EndianFixPaletteGlobals(), with numerous calls to FIX_END to fix "Endian" byte
+order, for the benefit of the Intel version. Affects MiscUtils.h; Initialize, MiscUtils.
+
+Fixed bug (Issue #170): changing instrument name display with Left End of Systems doesn't
+redraw the screen. Affects Menu.
+
+Added an error message for illegal tool palette values in the Prefs file, which we now
+check for; reworded error messages, include all referring to "AMNS Tech Support"; enlarged
+the "Generic" ALRTs. Affects .rsrc.
+
+Minor cleanup: removed comment referring to a 'TOMG' resource, etc. Affects
+PaletteGlobals.h; AccModNRMouse, Event, Initialize, MiscUtils, SpaceTime, ToolPalette,
+UIFUtils.
+

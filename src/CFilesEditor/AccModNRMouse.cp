@@ -13,7 +13,7 @@
 
 static short FindAccModNR(Document *, Point, LINK *, LINK *, LINK *, Rect *);
 static void GetAccidentalBbox(Document *, LINK, LINK, Rect *);
-static void DoAccidentalDrag(Document *, Point, LINK, LINK, Rect *);
+static void DragAccidental(Document *, Point, LINK, LINK, Rect *);
 static DDIST GetAccXOffset(PANOTE, short, PCONTEXT);
 static void ShowAccidentalParams(Document *doc, short);
 static Boolean GetModNRBbox(Document *, LINK, LINK, LINK, Rect *);
@@ -161,7 +161,7 @@ Boolean DoAccModNRClick(Document *doc, Point pt)
 	}
 	if (result==ACCIDENTAL) {
 		DisableUndo(doc, False);
-		DoAccidentalDrag(doc, pt, syncL, noteL, &bbox);
+		DragAccidental(doc, pt, syncL, noteL, &bbox);
 		return True;
 	}
 	
@@ -238,7 +238,7 @@ static void GetAccidentalBbox(Document *doc, LINK syncL, LINK noteL, Rect *accBB
 }
 
 
-static void DoAccidentalDrag(Document *doc, Point pt, LINK syncL, LINK noteL,
+static void DragAccidental(Document *doc, Point pt, LINK syncL, LINK noteL,
 									Rect *origAccBBox)				/* in paper coords */
 {
 	DDIST	noteXD, noteYD, xdNorm, xdNormAdjusted, xOffset, accXOffset, dAccWidth;

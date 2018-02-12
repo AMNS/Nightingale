@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -197,19 +197,17 @@ skipMapping:
 }
 
 
-/* The third long in the keymap consists only of key codes on the numeric
- * keypad, none of which appear elsewhere in the keymap. The only exception
- * is that the arrow keys on the Mac Plus fall in this long as well, so we
- * screen those out based on their character codes.
- * Assumes no other keys have been pressed since ch.
- */
+/* The third long in the keymap consists only of key codes on the numeric keypad, none
+of which appear elsewhere in the keymap. A very ancient comment: "The only exception is
+that the arrow keys on the Mac Plus fall in this long as well, so we screen those out
+based on their character codes." Assumes no other keys have been pressed since ch. */
 
 Boolean IsOnKeyPad(unsigned char ch)
 {
 	KeyMap theKeys;
 	
 	GetKeys(theKeys);
-	// MAS TODO -- figure this out
+	// MAS FIXME -- figure this out
 //	if (theKeys[2]) {
 //		if (ch < 28 || ch > 31)
 //			return True;							/* not an arrow key */
@@ -315,26 +313,26 @@ portRect.top, portRect.left, portRect.bottom, portRect.right);
  */
 
 pascal void HiliteToolItem(Rect *r, short item)
-	{
-		Rect hiliteRect;
-		short row, col;
+{
+	Rect hiliteRect;
+	short row, col;
+	
+	if (item) {
+		/* Don't hilite items outside of current palette if it's been shrunk */
+		row = (item-1) / (*paletteGlobals[TOOL_PALETTE])->maxAcross;
+		col = (item-1) % (*paletteGlobals[TOOL_PALETTE])->maxAcross;
 		
-		if (item) {
-			/* Don't hilite items outside of current palette if it's been shrunk */
-			row = (item-1) / (*paletteGlobals[TOOL_PALETTE])->maxAcross;
-			col = (item-1) % (*paletteGlobals[TOOL_PALETTE])->maxAcross;
-			
-			if (row >= (*paletteGlobals[TOOL_PALETTE])->down) return;
-			if (col >= (*paletteGlobals[TOOL_PALETTE])->across) return;
-			
-			/* Otherwise, it's a visible item */
-			hiliteRect = toolRects[item];
-			hiliteRect.bottom -= 1;
-			hiliteRect.right -= 1;
-			OffsetRect(&hiliteRect, r->left, r->top);
-			InvertRect(&hiliteRect);
-			}
+		if (row >= (*paletteGlobals[TOOL_PALETTE])->down) return;
+		if (col >= (*paletteGlobals[TOOL_PALETTE])->across) return;
+		
+		/* Otherwise, it's a visible item */
+		hiliteRect = toolRects[item];
+		hiliteRect.bottom -= 1;
+		hiliteRect.right -= 1;
+		OffsetRect(&hiliteRect, r->left, r->top);
+		InvertRect(&hiliteRect);
 	}
+}
 
 /*
  *	Locate which item in tools palette a point is within.  Returns an item
@@ -362,8 +360,11 @@ pascal short FindToolItem(Point mousePt)
 
 void DoToolContent(Point pt, short modifiers)
 	{
-		short item = 0,firstItem=0, ch; WindowPtr w = palettes[TOOL_PALETTE];
-		GrafPtr oldPort; Rect frame,portRect,itemCell; Boolean doSwap;
+		short item = 0,firstItem=0, ch;
+		WindowPtr w = palettes[TOOL_PALETTE];
+		GrafPtr oldPort;
+		Rect frame, portRect, itemCell;
+		Boolean doSwap;
 		
 		GetPort(&oldPort);
 		SetPort(GetWindowPort(w));
@@ -550,9 +551,9 @@ void PalKey(char ch)
  */
  
 char GetPalChar(short item)
-	{
-		return grid[item-1].ch;
-	}
+{
+	return grid[item-1].ch;
+}
 
 /*
  *	Search the tools palette for the arrow item, which can be anywhere since
@@ -561,33 +562,35 @@ char GetPalChar(short item)
  */
 
 short GetPalItem(short ch)
-	{
-		register short item,n; short maxRow,maxCol;
-		
-		maxRow = (*paletteGlobals[TOOL_PALETTE])->maxDown;
-		maxCol = (*paletteGlobals[TOOL_PALETTE])->maxAcross;
-		n = maxRow * maxCol;
-		
-		if (ch!=' ')
-			for (item=0; item<n; item++)
-				if (grid[item].ch == ch) return(item+1);
-		
-		return(0);
-	}
+{
+	register short item, n;
+	short maxRow, maxCol;
+	
+	maxRow = (*paletteGlobals[TOOL_PALETTE])->maxDown;
+	maxCol = (*paletteGlobals[TOOL_PALETTE])->maxAcross;
+	n = maxRow * maxCol;
+	
+	if (ch!=' ')
+		for (item=0; item<n; item++)
+			if (grid[item].ch == ch) return(item+1);
+	
+	return(0);
+}
 
 /*
- *	Handle a key down as a choice from the tool palette, regardless of whether
- *	the tool palette is currently visible or not.
+ *	Handle a key down as a choice from the tool palette, regardless of whether the
+ *	tool palette is currently visible or not.
  */
 
 void DoToolKeyDown(
 			short ch,
 			short key,				/* <0 means simulated key down so key is undef. and NO REMAPPING */
-			short /*modifiers*/	/* <0 means simulated key down so modifiers are undefined */
+			short /*modifiers*/		/* <0 means simulated key down so modifiers are undefined */
 			)
 	{
 		GrafPtr oldPort;
-		PaletteGlobals *toolGlobal; short item;
+		PaletteGlobals *toolGlobal;
+		short item;
 		WindowPtr w = palettes[TOOL_PALETTE];
 		Rect portRect;
 		
@@ -654,72 +657,67 @@ void DoToolGrow(Point pt)
 			}
 	}
 
-/*
- *	Set the tools palette window to show the first across columns by the
- *	first down rows of the palette.  Force everything to be redrawn.  If
- *	we're not zooming, record the previous palette size so that we can
- *	zoom in later.
- */
+/* Set the tools palette window to show the first across columns by the first down
+rows of the palette.  Force everything to be redrawn. If we're not zooming, record
+the previous palette size so that we can zoom in later. */
 
 void ChangeToolSize(short across, short down, Boolean doingZoom)
-	{
-		GrafPtr oldPort;
-		
-		short margin = 2*TOOLS_MARGIN;
-		WindowPtr w = palettes[TOOL_PALETTE];
-		Rect portRect;
-		
-		SizeWindow(w,across*toolCellWidth +margin-1,
-					   down*toolCellHeight+margin-1,True);
-		(*paletteGlobals[TOOL_PALETTE])->across = across;
-		(*paletteGlobals[TOOL_PALETTE])->down = down;
-		GetWindowPortBounds(w,&toolsFrame);
-		InsetRect(&toolsFrame,TOOLS_MARGIN,TOOLS_MARGIN);
-		
-		if (!doingZoom) {
-			(*paletteGlobals[TOOL_PALETTE])->oldAcross = across;
-			(*paletteGlobals[TOOL_PALETTE])->oldDown = down;
-			}
-		if (IsWindowVisible(w)) {
-			GetPort(&oldPort); SetPort(GetWindowPort(w));
-			GetWindowPortBounds(w,&portRect);
-			InvalWindowRect(w,&portRect);
-			SetPort(oldPort);
-			}
+{
+	GrafPtr oldPort;
+	
+	short margin = 2*TOOLS_MARGIN;
+	WindowPtr w = palettes[TOOL_PALETTE];
+	Rect portRect;
+	
+	SizeWindow(w,across*toolCellWidth +margin-1,
+				   down*toolCellHeight+margin-1, True);
+	(*paletteGlobals[TOOL_PALETTE])->across = across;
+	(*paletteGlobals[TOOL_PALETTE])->down = down;
+	GetWindowPortBounds(w,&toolsFrame);
+	InsetRect(&toolsFrame,TOOLS_MARGIN,TOOLS_MARGIN);
+	
+	if (!doingZoom) {
+		(*paletteGlobals[TOOL_PALETTE])->oldAcross = across;
+		(*paletteGlobals[TOOL_PALETTE])->oldDown = down;
 	}
+	if (IsWindowVisible(w)) {
+		GetPort(&oldPort); SetPort(GetWindowPort(w));
+		GetWindowPortBounds(w, &portRect);
+		InvalWindowRect(w, &portRect);
+		SetPort(oldPort);
+	}
+}
 
-/*
- *	Compute the smallest grid rectangle that encloses all defined tools.  Undefined
- *	tools are marked in the grid[] array with a space.
- */
+/* Compute the smallest grid rectangle that encloses all defined tools.  Undefined
+tools are marked in the grid[] array with a space. */
 
 void GetToolZoomBounds()
-	{
-		register short r,c; short rMax,cMax; register GridRec *g;
-		
-		PaletteGlobals *pg = *paletteGlobals[TOOL_PALETTE];
-		
-		rMax = cMax = 0;
-		r = c = 0;
-		g = grid;
-		
-		for (r=0; r<pg->maxDown; r++)
-			for (c=0; c<pg->maxAcross; c++,g++)
-				if (g->ch != ' ') {
-					if (r > rMax) rMax = r;
-					if (c > cMax) cMax = c;
-					}
-		
-		pg->zoomAcross = cMax + 1;
-		pg->zoomDown =   rMax + 1;
-	}
+{
+	register short r, c;
+	short rMax, cMax;
+	register GridRec *g;
+	
+	PaletteGlobals *pg = *paletteGlobals[TOOL_PALETTE];
+	
+	rMax = cMax = 0;
+	r = c = 0;
+	g = grid;
+	
+	for (r=0; r<pg->maxDown; r++)
+		for (c=0; c<pg->maxAcross; c++,g++)
+			if (g->ch != ' ') {
+				if (r > rMax) rMax = r;
+				if (c > cMax) cMax = c;
+			}
+	
+	pg->zoomAcross = cMax + 1;
+	pg->zoomDown =   rMax + 1;
+}
 
-/*
- *	If the user has rearranged the tools palette at all, then we inquire
- *	if they want to save the changes, and save them if yes.  We return True
- *	if the user chooses either Save or Discard, False if Cancel.  If inquire
- *	is False, then we save without bringing the user into it.
- */
+/* If the user has rearranged the tools palette at all, we ask if they want to save
+the changes, and save them if yes.  Return True if the user chooses either Save or
+Discard, False if Cancel.  If inquire is False, then we save without bringing the user
+into it. */
 
 #define DiscardButton 3
 

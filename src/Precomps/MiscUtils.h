@@ -31,21 +31,23 @@ void			*NewZPtr(Size size);
 pascal long		GrowMemory(Size memoryNeeded);
 Boolean			PreflightMem(short nKBytes);
 
-void			FixEndian2(unsigned short *arg);
-void			FixEndian4(unsigned long *arg);
 long			MemBitCount(unsigned char *pCh, long n);
 
 Boolean			CheckAbort(void);
 Boolean			IsDoubleClick(Point clickPt, short tol, long now);
 OSType			CanPaste(short n, ...);
 
-void			UseStandardType(OSType type);
-void			ClearStandardTypes(void);
-
-short			GetInputName(char *prompt, Boolean newName, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
-Boolean			GetOutputName(short promptsID, short promptInd, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
 void			EndianFixConfig(void);
 void			EndianFixMIDIModNRTable(void);
+void			EndianFixPaletteGlobals(short idx);
+void			EndianFixSpaceMap(Document *doc);
+void			FixEndian2(unsigned short *arg);
+void			FixEndian4(unsigned long *arg);
+
+void			UseStandardType(OSType type);
+void			ClearStandardTypes(void);
+short			GetInputName(char *prompt, Boolean newName, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
+Boolean			GetOutputName(short promptsID, short promptInd, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);
 
 void			GetSelection(WindowPtr w, Rect *sel, Rect *pin, void (*CallBack)());
 

@@ -118,30 +118,6 @@ Boolean PreflightMem(short nKBytes)		/* if nKBytes<=0, assume max. size of a seg
 }
 
 
-/* If we're running on a Little Endian processor (very likely Intel or Intel-compatible),
-reorder bytes to give the Big Endian result C expects. If we're on a Big Endian processor
-(probably PowerPC), do nothing. Cf. our FIX_END and related macros. */
-
-void FixEndian2(unsigned short *arg)
-{
-#if TARGET_RT_LITTLE_ENDIAN
-	*arg = CFSwapInt16BigToHost(*arg);
-	return;
-#else
-	return;
-#endif
-}
-
-void FixEndian4(unsigned long *arg)
-{
-#if TARGET_RT_LITTLE_ENDIAN
-	*arg = CFSwapInt32BigToHost(*arg);
-	return;
-#else
-	return;
-#endif
-}
-
 /* Count the number of set bits in a block of memory. Intended for debugging, specifically
 for comparing two bitmaps that should be identical. */
 
@@ -201,7 +177,7 @@ Boolean IsDoubleClick(Point pt, short tol, long now)
 	Rect box; Boolean ans=False;
 	static long lastTime; static Point thePt;
 	
-	if (now-lastTime<GetDblTime()) {
+	if ((unsigned long)(now-lastTime)<GetDblTime()) {
 		SetRect(&box,thePt.h-tol,thePt.v-tol,thePt.h+tol+1,thePt.v+tol+1);
 		ans = PtInRect(pt,&box);
 		lastTime = 0;
@@ -263,68 +239,15 @@ OSType CanPaste(short n, ...)
 }
 
 
-/* ----------------------------------------------------------------------- Files, etc. -- */
+/* --------------------------------------------------------------------- Endian issues -- */
 
-/* UseStandardType should be called any number of times with a file type argument just
-before calling GetInputName(), below.  It declares for the benefit of GetInputName()
-those types of document files to display in the standard input dialog. */
-
-static short numGetTypes = 0;
-static OSType inputType[MAXINPUTTYPE];
-
-void UseStandardType(OSType type)
-{
-	if (numGetTypes < MAXINPUTTYPE) inputType[numGetTypes++] = type;
-}
-
-void ClearStandardTypes()
-{
-	numGetTypes = 0;
-}
-
-
-short GetInputName(char */*prompt*/, Boolean /*newButton*/, unsigned char *name, short */*wd*/, NSClientDataPtr nsData)
-{
-	OSStatus err = noErr;
-	
-	//err = OpenFileDialog(CREATOR_TYPE_NORMAL, numGetTypes, inputType, nsData);
-	err = OpenFileDialog(kNavGenericSignature, numGetTypes, inputType, nsData);
-	
-	strncpy((char *)name, nsData->nsFileName, 255);
-	CToPString((char *)name);
-	
-	if (err == noErr) {
-		if (nsData->nsOpCancel)
-			return OP_Cancel;
-			
-		return OP_OpenFile;
-	}
-		
-	return OP_Cancel;
-}
-
-Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *name, short */*wd*/, NSClientDataPtr nsData)
-{
-	OSStatus anErr;
-	CFStringRef	defaultName;
-	
-	//defaultName = CFSTR("Nightingale Document");
-	defaultName = CFStringCreateWithPascalString(NULL, name, smRoman);
-
-	anErr = SaveFileDialog( NULL, defaultName, 'TEXT', 'BYRD', nsData );
-	
-	if (anErr != noErr) return False;
-		
-	return (!nsData->nsOpCancel);
-}
-
-
-/* The CNFG and MIDI ModNR table resources are stored in Big Endian form. If we're
-running on a Little Endian processor (no doubt Intel or compatible), correct the byte
-order in fields of more than one byte; if we're on a Big Endian processor (PowerPC),
-do nothing. This function should be called immediately after opening the resources
-to ensure they're in the appropriate Endian form internally, and immediately before
-saving them them to ensure they're saved in the appropriate Endian form. */
+/* The CNFG and MIDI ModNR table, and PaletteGlobals resources are stored in Big Endian
+form. If we're running on a Little Endian processor (no doubt Intel or compatible),
+these functions correct the byte order in fields of more than one byte; if we're on a
+Big Endian processor (PowerPC), they do nothing. These functions should be called
+immediately after opening the resources to ensure they're in the appropriate Endian
+form internally, and immediately before saving them them to ensure they're saved in Big
+Endian form. */
 
 void EndianFixConfig()
 {
@@ -384,10 +307,118 @@ void EndianFixMIDIModNRTable()
 #endif
 }
 
-/* Return the address of a static copy of the 'vers' resource's short string (Pascal).
-We assume a 'vers' resource ID of 1.  Delivers "\p??" if it finds a problem. FIXME: This
-method is unreliable and obsolete! We need to get the version from Info.plist, the way
-DoAboutBox() does. */
+void EndianFixPaletteGlobals(short idx)
+{
+#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
+	short totalPalettes = TOTAL_PALETTES;
+	
+	FIX_END((*paletteGlobals[idx])->currentItem);
+	FIX_END((*paletteGlobals[idx])->itemHilited);
+	FIX_END((*paletteGlobals[idx])->maxAcross);
+	FIX_END((*paletteGlobals[idx])->maxDown);
+	FIX_END((*paletteGlobals[idx])->across);
+	FIX_END((*paletteGlobals[idx])->down);
+	FIX_END((*paletteGlobals[idx])->oldAcross);
+	FIX_END((*paletteGlobals[idx])->oldDown);
+	FIX_END((*paletteGlobals[idx])->firstAcross);
+	FIX_END((*paletteGlobals[idx])->firstDown);
+
+	FIX_END((*paletteGlobals[idx])->origPort.top);		FIX_END((*paletteGlobals[idx])->origPort.left);
+	FIX_END((*paletteGlobals[idx])->origPort.bottom);	FIX_END((*paletteGlobals[idx])->origPort.right);
+	FIX_END((*paletteGlobals[idx])->position.v);		FIX_END((*paletteGlobals[idx])->position.h);
+	FIX_END((*paletteGlobals[idx])->zoomAcross);
+	FIX_END((*paletteGlobals[idx])->zoomDown);
+#endif
+}
+
+void EndianFixSpaceMap(Document *doc)
+{
+	for (short i=0; i<MAX_L_DUR; i++)
+		FIX_END(doc->spaceMap[i]);
+}
+
+/* If we're running on a Little Endian processor (very likely Intel or Intel-compatible),
+reorder bytes to give the Big Endian result C expects. If we're on a Big Endian processor
+(probably PowerPC), do nothing. Cf. our FIX_END and related macros. */
+
+void FixEndian2(unsigned short *arg)
+{
+#if TARGET_RT_LITTLE_ENDIAN
+	*arg = CFSwapInt16BigToHost(*arg);
+	return;
+#else
+	return;
+#endif
+}
+
+void FixEndian4(unsigned long *arg)
+{
+#if TARGET_RT_LITTLE_ENDIAN
+	*arg = CFSwapInt32BigToHost(*arg);
+	return;
+#else
+	return;
+#endif
+}
+
+
+/* ----------------------------------------------------------------------- Files, etc. -- */
+
+/* UseStandardType should be called any number of times with a file type argument just
+before calling GetInputName(), below.  It declares for the benefit of GetInputName()
+those types of document files to display in the standard input dialog. */
+
+static short numGetTypes = 0;
+static OSType inputType[MAXINPUTTYPE];
+
+void UseStandardType(OSType type)
+{
+	if (numGetTypes < MAXINPUTTYPE) inputType[numGetTypes++] = type;
+}
+
+void ClearStandardTypes()
+{
+	numGetTypes = 0;
+}
+
+
+short GetInputName(char */*prompt*/, Boolean /*newButton*/, unsigned char *name, short */*wd*/, NSClientDataPtr nsData)
+{
+	OSStatus err = noErr;
+	
+	//err = OpenFileDialog(CREATOR_TYPE_NORMAL, numGetTypes, inputType, nsData);
+	err = OpenFileDialog(kNavGenericSignature, numGetTypes, inputType, nsData);
+	
+	strncpy((char *)name, nsData->nsFileName, 255);
+	CToPString((char *)name);
+	
+	if (err == noErr) {
+		if (nsData->nsOpCancel)
+			return OP_Cancel;
+			
+		return OP_OpenFile;
+	}
+		
+	return OP_Cancel;
+}
+
+Boolean GetOutputName(short /*promptsID*/, short /*promptInd*/, unsigned char *name, short */*wd*/, NSClientDataPtr nsData)
+{
+	OSStatus anErr;
+	CFStringRef	defaultName;
+	
+	//defaultName = CFSTR("Nightingale Document");
+	defaultName = CFStringCreateWithPascalString(NULL, name, smRoman);
+
+	anErr = SaveFileDialog( NULL, defaultName, 'TEXT', 'BYRD', nsData );
+	
+	if (anErr != noErr) return False;
+		
+	return (!nsData->nsOpCancel);
+}
+
+
+/* Return the version number string (in Pascal string form), from Info.plist. */
 
 StringPtr VersionString(StringPtr verPStr)
 {

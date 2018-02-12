@@ -2621,7 +2621,7 @@ on both PPC _and_ Intel:
 	SetupToolPalette: MemBitCount(palPortBits, -)=262 portRect tlbr=0,0,399,271
 	DrawToolMenu: MemBitCount(palPortBits, -)=262 portRect tlbr=0,0,399,271	
 
--- exactly the same on both, and all reasonable values! Now what??
+-- exactly the same on both, and all reasonable values now! Now what??
 
 For 400 bytes:
 on PPC, MemBitCount from SetupToolPalette = 262, from DrawToolMenu = 262
@@ -2638,7 +2638,20 @@ on Intel, MemBitCount from SetupToolPalette = 546 or 572, from DrawToolMenu = 54
 Back to the "in a New score, the only staff line visible is the bottom line of the lower
 staff -- but there's some mysterious heavily strrrretched-out stuff, very likely
 supposed to be the other staff lines" bug: actually, the strrrretched-out stuff is the
-Connect! Which is a curly read from a resource, so it's vulnerable to the endian
+Connect! Which is a curly brace read from a resource, so it's vulnerable to the Endian
 problem. Skip DrawCONNECT => yep: strrrretched-out stuff disappears, and all staff lines
 appear! Put DrawCONNECT back, add FIX_END()'s => yep: Connect appears!
 
+-------------------------------------------------------------------------------
+
+10 - 11 Feb.
+
+Everything from any call to GetResource() could be vulnerable to the Endian problem,
+except for Apple-defined resources like 'PAT ', 'PICT', 'STR#', 'TEXT'.
+Specifically, all multibyte fields containing numbers in:
+
++Config
++MIDI ModNR table
++-PaletteGlobals
+-spaceMap (doc specific)
+-??

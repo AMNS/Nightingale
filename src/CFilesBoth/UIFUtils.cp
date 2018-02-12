@@ -1025,8 +1025,8 @@ Boolean ProgressMsg(short which,
 
 
 /* ------------------------------------------------------------ UserInterrupt, -AndSel -- */
-/* Returns True if COMMAND and PERIOD (.) keys are both currently down; all other
-keys are ignored. FIXME: Should this be internationalized? */
+/* Returns True if COMMAND and PERIOD (.) keys are both currently down; all other keys
+are ignored. */
 
 Boolean UserInterrupt()
 {
@@ -1036,8 +1036,8 @@ Boolean UserInterrupt()
 	return True;
 }
 
-/* Returns True if COMMAND and SLASH (/) keys are both currently down; all other
-keys are ignored. FIXME: Should this be internationalized? */
+/* Returns True if COMMAND and SLASH (/) keys are both currently down; all other keys
+are ignored. */
 
 Boolean UserInterruptAndSel()
 {
@@ -1983,7 +1983,6 @@ Boolean VLogPrintf(const char *fmt, va_list argp)
 Boolean LogPrintf(short priLevel, const char *fmt, ...)
 {
 	Boolean okay, endLine;
-	//char *pch;
 	
 	if (priLevel>MIN_LOG_LEVEL) priLevel = LOG_NOTICE;
 	
@@ -1992,11 +1991,8 @@ Boolean LogPrintf(short priLevel, const char *fmt, ...)
 	okay = VLogPrintf(fmt, argp); 
 	va_end(argp);
 	/* inStr now contains the results of this call. Handle both cases. */
-	//endLine = HaveNewline(inStr);
-	//pch = strtok(inStr, "\n");
 	strcat(outStr, inStr);
 	endLine = (inStr[strlen(inStr)-1]=='\n');
-	//if (pch!='\0') strcat(outStr, pch);
 	if (endLine) {
 		syslog(priLevel, outStr);
 		outStr[0] = '\0';									/* Set <outStr> to empty */

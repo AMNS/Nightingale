@@ -1,3 +1,5 @@
+/* PaletteGlobals.h for Nightingale */
+
 /* Constants for tear-off palettes */
 
 #define PALETTE_GLOBALS_TYPE		'PGLB'
@@ -29,11 +31,7 @@
 #define DEFAULT_HELP				1
 
 /*
- *	The shared structure for palettes and their MDEF that lets them be torn off
- *
- *	IMPORTANT:  The TOMG resource MUST be the same size as this record, since
- *	each TOMG is being used as a communication channel between the MDEF and the
- *	application.
+ *	The shared structure for palettes and their MDEF that lets them be torn off.
  */
 
 #pragma options align=mac68k
@@ -41,19 +39,19 @@
 typedef struct {
 	short		currentItem;
 	short		itemHilited;
-	short		maxAcross;
-	short		maxDown;
+	short		maxAcross;				/* used when zooming */
+	short		maxDown;				/* used when zooming */
 	short		across;
 	short		down;
-	short		oldAcross;
-	short		oldDown;
+	short		oldAcross;				/* used when zooming */
+	short		oldDown;				/* used when zooming */
 	short		firstAcross;
 	short		firstDown;
-	void		(*drawMenuProc)();
-	short		(*findItemProc)();
-	void		(*hiliteItemProc)();
-	SysEnvRec	*environment;
-	WindowPtr	paletteWindow;
+	void		(*drawMenuProc)();		/* not saved; filled in during initialization */
+	short		(*findItemProc)();		/* not saved; filled in during initialization */
+	void		(*hiliteItemProc)();	/* not saved; filled in during initialization */
+	SysEnvRec	*environment;			/* not saved; filled in during initialization */
+	WindowPtr	paletteWindow;			/* not saved; filled in during initialization */
 	Rect		origPort;
 	Point		position;
 	short		zoomAcross;

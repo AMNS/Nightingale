@@ -583,31 +583,34 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 	}
 
 
-/* This routine is called from GetSelection() and other click and drag loops so that
-the view of the Document can be scrolled automatically if the user pulls the mouse
-outside the viewRect of the window. */
+/* This routine should be called from TrackStaffRect() and other click and drag loops
+(in DragAccidental, DragBeam, etc.) so that the view of the Document can be scrolled
+automatically if the user moes the mouse outside the viewRect of the window. */
+
+#define SCROLL_UNIT 24		/* in pixels */
 
 void AutoScroll()
-	{
-		Point pt; short dx, dy;
-		Document *theDoc = GetDocumentFromWindow(TopDocument);
-		PenState pen;
-		
-		if (theDoc) {
-			GetMouse(&pt);
-			if (!PtInRect(pt, &theDoc->viewRect)) {
-				dx = dy = 0;
-				if (pt.h < theDoc->viewRect.left) dx = -24;
-				 else if (pt.h >= theDoc->viewRect.right) dx = 24;
-				if (pt.v < theDoc->viewRect.top) dy = -24;
-				 else if (pt.v >= theDoc->viewRect.bottom) dy = 24;
-				
-				GetPenState(&pen);
-				QuickScroll(theDoc, dx, dy, True, True);	/* Change coordinate system */
-				SetPenState(&pen);
-				}
-			}
+{
+	Point pt;
+	short dx, dy;
+	Document *theDoc = GetDocumentFromWindow(TopDocument);
+	PenState pen;
+	
+	if (theDoc) {
+		GetMouse(&pt);
+		if (!PtInRect(pt, &theDoc->viewRect)) {
+			dx = dy = 0;
+			if (pt.h < theDoc->viewRect.left) dx = -SCROLL_UNIT;
+			 else if (pt.h >= theDoc->viewRect.right) dx = SCROLL_UNIT;
+			if (pt.v < theDoc->viewRect.top) dy = -SCROLL_UNIT;
+			 else if (pt.v >= theDoc->viewRect.bottom) dy = SCROLL_UNIT;
+			
+			GetPenState(&pen);
+			QuickScroll(theDoc, dx, dy, True, True);	/* Change coordinate system */
+			SetPenState(&pen);
+		}
 	}
+}
 
 
 /* Handle a mouse down event in Document content area, i.e., in a Document window

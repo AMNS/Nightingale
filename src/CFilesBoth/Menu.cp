@@ -980,7 +980,7 @@ void DoViewMenu(short choice)
 					docRect.bottom = docRect.top + pal.bottom;
 					GetMyScreen(&docRect, &screen);
 					OffsetRect(&docRect, config.toolsPosition.h, config.toolsPosition.v);
-					PullInsideRect(&docRect,&screen,2);
+					PullInsideRect(&docRect, &screen, 2);
 				}
 				 else {
 					/* Initial position is upper left corner of main screen */
@@ -993,7 +993,7 @@ void DoViewMenu(short choice)
 				palettesVisible[TOOL_PALETTE] = True;
 				break;
 			case VM_ShowSearchPattern:
-				//Do nothing; Nigthingale Search has been removed
+				//Do nothing; Nightingale Search has been temporarily removed
 				break;
 			default:
 				VMActivate(choice);
@@ -1435,35 +1435,41 @@ static void EMAddCautionaryTimeSigs(Document *doc)
  
 static void SMLeftEnd(Document *doc)
 {
-	short	changeFirstIndent, changeOtherIndent;
+	short	deltaFirstIndent, deltaOtherIndent;
+	Boolean	changedNameVis;
 	short	firstNames, firstDist, otherNames, otherDist;
 	
+	changedNameVis = False;
 	firstNames = doc->firstNames;
 	firstDist = d2pt(doc->firstIndent);
 	otherNames = doc->otherNames;
 	otherDist = d2pt(doc->otherIndent);
+	
 	if (LeftEndDialog(&firstNames, &firstDist, &otherNames, &otherDist)) {
 		if (firstNames!=doc->firstNames) {
 			doc->firstNames = firstNames;
+			changedNameVis = True;
 			doc->changed = True;
 		}
-		changeFirstIndent = pt2d(firstDist)-doc->firstIndent;
-		if (changeFirstIndent!=0) {
+		deltaFirstIndent = pt2d(firstDist)-doc->firstIndent;
+		if (deltaFirstIndent!=0) {
 			doc->firstIndent = pt2d(firstDist);
-			IndentSystems(doc, changeFirstIndent, True);
+			IndentSystems(doc, deltaFirstIndent, True);
 		}
 
 		if (otherNames!=doc->otherNames) {
 			doc->otherNames = otherNames;
+			changedNameVis = True;
 			doc->changed = True;
 		}
-		changeOtherIndent = pt2d(otherDist)-doc->otherIndent;
-		if (changeOtherIndent!=0) {
+		deltaOtherIndent = pt2d(otherDist)-doc->otherIndent;
+		if (deltaOtherIndent!=0) {
 			doc->otherIndent = pt2d(otherDist);
-			IndentSystems(doc, changeOtherIndent, False);
+			IndentSystems(doc, deltaOtherIndent, False);
 		}
 
-		if (changeFirstIndent || changeOtherIndent) InvalWindow(doc);
+		if (deltaFirstIndent!=0 || deltaOtherIndent!=0 || changedNameVis)
+			InvalWindow(doc);
 	}
 }
 

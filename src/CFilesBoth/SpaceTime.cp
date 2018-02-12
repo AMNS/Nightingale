@@ -678,25 +678,29 @@ static void SpaceMapErr()
 FASTFLOAT dfltSpaceMap[MAX_L_DUR] =
 	{.625, 1.0, 1.625, 2.50,  3.75,  5.50,  8.00,  11.5,  16.25 };	/* new Fib/sqrt(2) */
 
-void FillSpaceMap(Document *doc, short	whichTable)
+void FillSpaceMap(Document *doc, short whichTable)
 {
-	short i, saveResFile; Boolean useDefault=True; Handle rsrc;
+#ifdef NOTYET
+	short i, saveResFile; Boolean useDefault=True; Handle spRsrc;
 	
 	saveResFile = CurResFile();
 	UseResFile(setupFileRefNum);
-	{
-		doc->spaceTable = whichTable;
-		if (whichTable > 0) {
-			rsrc = GetResource('SPTB', whichTable);
-			if (!GoodResource(rsrc))	SpaceMapErr();
-			else						useDefault = False;
+
+	doc->spaceTable = whichTable;
+	if (whichTable > 0) {
+		spRsrc = GetResource('SPTB', whichTable);
+		if (!GoodResource(spRsrc))	SpaceMapErr();
+		else {
+			EndianFixSpaceMap(doc ??NO, FIX spRsrc!!);
+			useDefault = False;
 		}
 	}
 
-	for (i=0; i<MAX_L_DUR; i++) 
+	for (i=0; i<MAX_L_DUR; i++)
 		doc->spaceMap[i] = STD_LINEHT * (useDefault ? dfltSpaceMap[i] :
-											((long *)(*rsrc))[i] / 100.0);
+											((long *)(*spRsrc))[i] / 100.0);
 		UseResFile(saveResFile);
+#endif
 }
 
 
