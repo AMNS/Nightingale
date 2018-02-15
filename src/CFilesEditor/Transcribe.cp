@@ -69,7 +69,7 @@ static Boolean InitQuantize(Document *doc, Boolean merge)
 
 /* -------------------------------------------------------------- Voice2RTStructs -- */
 
-#define DEBUG_NOTE if (DEBUG_SHOW)										\
+#define DEBUG_NOTE if (DETAIL_SHOW)										\
 						LogPrintf(LOG_DEBUG, "iSync=%d %cvoice=%d [%d] noteNum=%d dur=%ld\n",	\
 						iSync, (nInChord>1? '+' : ' '), voice, nAux,							\
 						rawNoteAux[nAux].noteNumber, rawNoteAux[nAux].duration)

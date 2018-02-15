@@ -1843,7 +1843,7 @@ Boolean StepRecord(
 	}
 
 	wDoc = (WindowPtr)doc;
-	printDebug = DEBUG_SHOW;
+	printDebug = DETAIL_SHOW;
 	SetRecordFlats(doc);
 	gotSomething = False;
 

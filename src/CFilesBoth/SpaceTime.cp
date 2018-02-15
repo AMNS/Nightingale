@@ -680,7 +680,6 @@ FASTFLOAT dfltSpaceMap[MAX_L_DUR] =
 
 void FillSpaceMap(Document *doc, short whichTable)
 {
-#ifdef NOTYET
 	short i, saveResFile; Boolean useDefault=True; Handle spRsrc;
 	
 	saveResFile = CurResFile();
@@ -689,9 +688,11 @@ void FillSpaceMap(Document *doc, short whichTable)
 	doc->spaceTable = whichTable;
 	if (whichTable > 0) {
 		spRsrc = GetResource('SPTB', whichTable);
-		if (!GoodResource(spRsrc))	SpaceMapErr();
+		if (!GoodResource(spRsrc)) SpaceMapErr();
 		else {
+#ifdef NOTYET
 			EndianFixSpaceMap(doc ??NO, FIX spRsrc!!);
+#endif
 			useDefault = False;
 		}
 	}
@@ -699,8 +700,12 @@ void FillSpaceMap(Document *doc, short whichTable)
 	for (i=0; i<MAX_L_DUR; i++)
 		doc->spaceMap[i] = STD_LINEHT * (useDefault ? dfltSpaceMap[i] :
 											((long *)(*spRsrc))[i] / 100.0);
-		UseResFile(saveResFile);
-#endif
+	if (DETAIL_SHOW) {
+		LogPrintf(LOG_INFO, "spaceMap");
+		for (i=0; i<MAX_L_DUR; i++) LogPrintf(LOG_DEBUG, "[%d]=%ld ", i, doc->spaceMap[i]);
+		LogPrintf(LOG_INFO, "  (FillSpaceMap)\n");		
+	}
+	UseResFile(saveResFile);
 }
 
 

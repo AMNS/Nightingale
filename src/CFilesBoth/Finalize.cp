@@ -147,7 +147,7 @@ static Boolean CheckUpdatePrefsFile()
 			{ midiModNRTabChanged = True; break; }
 	}
 
-	if (DEBUG_SHOW) LogPrintf(LOG_DEBUG,
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG,
 						"Prefs changed: cnfg=%d midiTab=%d midiModNRTab=%d  (CheckUpdatePrefsFile)\n",
 							cnfgChanged, midiVeloTabChanged, midiModNRTabChanged);
 

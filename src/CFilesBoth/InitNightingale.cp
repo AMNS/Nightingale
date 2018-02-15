@@ -404,8 +404,8 @@ static Boolean InitTables()
 	}
 	/* Set up MIDI modifier velocity offset and duration factor tables */
 	for (i = 0; i<32; i++) {
-		modNRVelOffsets[i] = (*midiModNRH)->velocityOffsets[i]; FIX_END(modNRVelOffsets[i]);
-		modNRDurFactors[i] = (*midiModNRH)->durationFactors[i]; FIX_END(modNRDurFactors[i]);
+		modNRVelOffsets[i] = (*midiModNRH)->velocityOffsets[i];  FIX_END(modNRVelOffsets[i]);
+		modNRDurFactors[i] = (*midiModNRH)->durationFactors[i];  FIX_END(modNRDurFactors[i]);
 	}
 
 	if (!InitMusFontTables())

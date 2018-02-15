@@ -850,7 +850,7 @@ void PlaySequence(
 	}
 	SleepTicks(10L);			/* Let synth settle after patch change, before playing notes. */
 
-	if (DEBUG_SHOW) DebugListNotesToPlay(doc, fromL, toL, selectedOnly);
+	if (DETAIL_SHOW) DebugListNotesToPlay(doc, fromL, toL, selectedOnly);
 
 	/*  The stored play time of the first Sync we're going to play might be any positive
 		value, but we want to start playing immediately, so pick up our first Sync's play

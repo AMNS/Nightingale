@@ -40,7 +40,7 @@ enum {
 	F_None,
 	F_Music,
 	F_Other
-	};
+};
 
 /* Prototypes for private routines */
 
@@ -164,7 +164,7 @@ OSErr PS_Open(Document *doc, unsigned char */*fileName*/, short vRefNum,
 			handleOpened = True;
 			}
 		
-		printLinewidths = DEBUG_SHOW;
+		printLinewidths = DETAIL_SHOW;
 
 		PS_InitGlobals(doc);
 
@@ -669,40 +669,40 @@ PSRErr:
  */
 
 void PS_PreparePrintDict(Document *doc, Rect *imageRect)
-	{
-		Handle text; long size; Rect box;
-		short oldFile = CurResFile();
-		FSSpec fsSpec;
+{
+	Handle text; long size; Rect box;
+	short oldFile = CurResFile();
+	FSSpec fsSpec;
+	
+	UseResFile(appRFRefNum);
+	prec103 = Get1Resource('PREC',103);
+	UseResFile(oldFile);
+	
+	if (GoodResource(prec103)) {
+		HNoPurge(prec103);
+		thisError = PS_Open(doc, NULL, 0, USING_HANDLE, 0L, &fsSpec);
+		if (thisError) { ReleaseResource(prec103); return; }
 		
-		UseResFile(appRFRefNum);
-		prec103 = Get1Resource('PREC',103);
-		UseResFile(oldFile);
+		/* Now stuff prec103 with stuff from our resources */
 		
-		if (GoodResource(prec103)) {
-			HNoPurge(prec103);
-			thisError = PS_Open(doc, NULL, 0, USING_HANDLE, 0L, &fsSpec);
-			if (thisError) { ReleaseResource(prec103); return; }
-			
-			/* Now stuff prec103 with stuff from our resources */
-			
-			SetRect(&box,0,0,0,0);
-			PS_Header(doc,"\p??",1,1.0,False,True,&box,imageRect);
-			SetHandleSize(prec103,size=GetHandleSize(text = PS_GetTextHandle()));
-			BlockMove(*text,*prec103,size);
+		SetRect(&box,0,0,0,0);
+		PS_Header(doc,"\p??",1,1.0,False,True,&box,imageRect);
+		SetHandleSize(prec103,size=GetHandleSize(text = PS_GetTextHandle()));
+		BlockMove(*text,*prec103,size);
 #ifdef FOR_DEBUGGING_ONLY
-			ChangedResource(prec103);
-			WriteResource(prec103);
-			UpdateResFile(appRFRefNum);
-			ExitToShell();
+		ChangedResource(prec103);
+		WriteResource(prec103);
+		UpdateResFile(appRFRefNum);
+		ExitToShell();
 #endif
-			}
 	}
+}
 
 void PS_FinishPrintDict()
-	{
-		if (prec103)
-			ReleaseResource(prec103);
-	}
+{
+	if (prec103)
+		ReleaseResource(prec103);
+}
 
 
 typedef struct {
@@ -718,9 +718,9 @@ with the equivalent PostScript font name, based on information in the FOND resou
 For example, given useFont = "Helvetica Narrow" and style (bold + italic), deliver
 useFont as "Helvetica-Narrow-BoldOblique". */
 
-static Boolean Res2FontName(unsigned char *,short);
+static Boolean Res2FontName(unsigned char *, short);
 
-OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle* oHandle) 
+OSStatus GetFontFamilyResource(FMFontFamily iFontFamily, Handle *oHandle) 
 {
 	FMFont font;
 	Str255 fontFamilyName;
@@ -800,22 +800,21 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 		unsigned char *deFont;
 		FMFontFamily iFontFamily;
 		OSStatus status = noErr;
-		/*
-		 *  Get the suffixes for the desired style from the style-mapping table in the
-		 *	FOND resource. This is (poorly) documented in the ancient LaserWriter
-		 *	Reference manual, p. 27ff.
-		 */
+		
+		/* Get the suffixes for the desired style from the style-mapping table in the
+		   FOND resource. This is (poorly) documented in the ancient LaserWriter
+		   Reference manual, p. 27ff. */
+		   
 		iFontFamily = FMGetFontFamilyFromName(useFont); 
 		
 		//resH = GetNamedResource('FOND', useFont);
 		//if (ResError()==noErr) {
-		status = GetFontFamilyResource( iFontFamily, &resH);
+		status = GetFontFamilyResource(iFontFamily, &resH);
 		
-		if (status == noErr) 
-		{
-			short count,index,newStyle,nSuffices,state;
+		if (status == noErr) {
+			short count, index, newStyle, nSuffices, state;
 			/* Careful: <suffix>, at least, points to a P string some of the time. */
-			Byte *p,*styleIndex,*suffix,*stringList;
+			Byte *p, *styleIndex, *suffix, *stringList;
 			unsigned char *baseName;
 			FamRec *fond;
 			
@@ -824,14 +823,17 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 			fond = (FamRec *)(*resH);
 			
 			p = (Byte *)(*resH + fond->ffStylOff);		/* Start of style-mapping table */
+LogPrintf(LOG_DEBUG, "Res2FontName: fond->ffStylOff=%d\n", fond->ffStylOff);
 			p += sizeof(short) + 2*sizeof(long);		/* Past header to 48 style indices */
 			styleIndex = p; p += 48;					/* Save table start for later */
 			stringList = p;								/* Save start of string list */
 			count = *(short *)p; p += sizeof(short);	/* Get past string count */
+			FIX_END(count);
+LogPrintf(LOG_DEBUG, "Res2FontName: count=%d\n", count);
 			baseName = p; p += 1 + *p;					/* Get font base name from 1st string */
 			
-			/* Convert from Mac style bits to 'FOND' style-mapping table style bits */
-			/* See p. 32 of the ancient LaserWriter Reference Manual. */
+			/* Convert from Mac style bits to 'FOND' style-mapping table style bits.
+			   See p. 32 of the ancient LaserWriter Reference Manual. */
 			
 			newStyle = 0;
 			if (style & bold) newStyle += bold;
@@ -841,11 +843,11 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 
 			if (style & outline) newStyle += (outline>>1);
 			if (style & shadow) newStyle += (shadow>>1);
-			/*
-			 *	If both condense and extend are on, they would cancel out, and the FOND
-			 *	style-mapping table doesn't even have slots for styles that have both
-			 *	on, so avoid the situation.
-			 */
+			
+			/* If both condense and extend are on, they would cancel out, and the FOND
+			   style-mapping table doesn't even have slots for styles that have both on,
+			   so avoid the situation. */
+			   
 			if ((style & (condense+extend)) == (condense+extend))
 				style &= ~(condense+extend);
 			if (style & condense) newStyle += (condense>>1);
@@ -862,9 +864,9 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 			/* Start with base name */
 			
 			Pstrcpy(useFont, (StringPtr)baseName);
-			for (p=suffix+1; nSuffices>0; nSuffices--,p++) {
-				short lenSuff,lenName;
-				suffix = PS_NthString(stringList,*p);
+			for (p=suffix+1; nSuffices>0; nSuffices--, p++) {
+				short lenSuff, lenName;
+				suffix = PS_NthString(stringList, *p);
 				lenName = *useFont;							/* What we've built so far */
 				lenSuff = *(unsigned char *)suffix;			/* What we're about to append */
 				if ((lenName+lenSuff) <= 255)
@@ -888,99 +890,99 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 
 /* Given a Pascal string of the Mac font name, convert it to the PostScript version,
 with any style (usually italic or bold) modifications, and print the result as a
-PostScript literal name.  Conversion is needed because the PostScript font names are,
-shall we say, less than systematically named with respect to the Mac names. The
-PostScript names appear in the style-mapping table at the end of FOND resources in a
-complex format. Returns (in *known) True=font name known; False=unknown, using the
-default. */
+PostScript literal name.  Conversion is needed for the original Mac bitmap font names
+because the PostScript font names are, shall we say, less than systematically named
+with respect to them; however, as of Feb. 2018, those fonts are very rarely used, so
+this isn't really a big deal. The PostScript names appear in the style-mapping table
+at the end of FOND resources in a complex format. Returns (in *known) True=font name
+known; False=name unknown, using the default. */
 
 static OSErr PS_PrintFontName(const unsigned char *font, short style, Boolean *known);
 static OSErr PS_PrintFontName(const unsigned char *font, short style, Boolean *known)
-	{
-		//FontNameMap *fnt; 
-		Str255 useFont;
-		
-		Pstrcpy(useFont, font);
-		if (FONTSUBST) {
-			if (Pstreql((StringPtr)"\pGeneva", useFont))
-					Pstrcpy(useFont, (StringPtr)"\pHelvetica");
-			if (Pstreql((StringPtr)"\pNew York", useFont))
-					Pstrcpy(useFont, (StringPtr)"\pTimes");
-			if (Pstreql((StringPtr)"\pMonaco", useFont))
-					Pstrcpy(useFont, (StringPtr)"\pCourier");
-			}
-
-		*known = Res2FontName(useFont,style);
-		PS_Print("%p",useFont);
-		
-		return(thisError);
+{
+	Str255 useFont;
+	
+	Pstrcpy(useFont, font);
+	if (FONTSUBST) {
+		if (Pstreql((StringPtr)"\pGeneva", useFont))
+				Pstrcpy(useFont, (StringPtr)"\pHelvetica");
+		if (Pstreql((StringPtr)"\pNew York", useFont))
+				Pstrcpy(useFont, (StringPtr)"\pTimes");
+		if (Pstreql((StringPtr)"\pMonaco", useFont))
+				Pstrcpy(useFont, (StringPtr)"\pCourier");
 	}
+
+	*known = Res2FontName(useFont, style);
+	PS_Print("%p", useFont);
+	
+	return(thisError);
+}
 
 static Byte *PS_NthString(Byte *stringList, short n)
-	{
-		short count; Byte *p;
-		
-		BlockMove(stringList,&count,sizeof(short));		/* In case of odd address */
-		if (n>0 && n<=count) {
-			p = stringList + sizeof(short);
-			while (n-- > 1) p += 1 + *p;
-			return(p);
-			}
-		 else
-			return((Byte *)"\p");
+{
+	short count; Byte *p;
+	
+	BlockMove(stringList,&count,sizeof(short));		/* In case of odd address */
+	if (n>0 && n<=count) {
+		p = stringList + sizeof(short);
+		while (n-- > 1) p += 1 + *p;
+		return(p);
 	}
+	else
+		return((Byte *)"\p");
+}
 
 /*
  *	Write out the PostScript trailer stuff. This should be called for writing
  *	PostScript files only, not when using the Print Manager.
  */
 
-OSErr PS_Trailer(Document *doc, short nfontsUsed, FONTUSEDITEM *fontUsedTbl, unsigned char *measNumFont,
-					Rect */*bBox*/)
-	{
-		short	j, k;
-		Boolean	fontKnown;
-		char	fmtStr[256];
-		
-		PS_Print("\r%%%%Trailer\r\r");
-		PS_Print("NightTopSave restore\r\r");
-		PS_Print("%%%%Pages: %ld\r",(long)numPages);
-		
-		/* Correct "DocumentFonts" are needed for EPSF files. */
-		
-		PS_Print("%%%%DocumentFonts: %p\r", musFontInfo[doc->musFontInfoIndex].postscriptFontName);
+OSErr PS_Trailer(Document *doc, short nfontsUsed, FONTUSEDITEM *fontUsedTbl,
+					unsigned char *measNumFont, Rect */*bBox*/)
+{
+	short	j, k;
+	Boolean	fontKnown;
+	char	fmtStr[256];
+	
+	PS_Print("\r%%%%Trailer\r\r");
+	PS_Print("NightTopSave restore\r\r");
+	PS_Print("%%%%Pages: %ld\r",(long)numPages);
+	
+	/* Correct "DocumentFonts" are needed for EPSF files. */
+	
+	PS_Print("%%%%DocumentFonts: %p\r", musFontInfo[doc->musFontInfoIndex].postscriptFontName);
 
-		if (measNumFont) {
-			/*
-			 *	??This is a mess. First, we don't know what style measNumFont is, but
-			 *	in any case, what's special about the measure no. font?
-			 */
-			PS_Print("%%%%+");
-			PS_PrintFontName(measNumFont,0,&fontKnown);			/* ??what style? */
-			PS_Print("\r");
-		}
-		for (j = 0; j<nfontsUsed; j++)
-			for (k = 0; k<4; k++) {
-				if (fontUsedTbl[j].style[k]) {
-					PS_Print("%%%%+");
-					PS_PrintFontName(fontUsedTbl[j].fontName,k,&fontKnown);
-					PS_Print("\r");
-				}
-		}
-
+	if (measNumFont) {
 		/*
-		 * If any unknown fonts were used in the score, complain. We ignore any
-		 * unknown fonts found in the fontUsedTbl by the loop above, since the user
-		 * probably only cares about fonts they actually used.
+		 *	??This is a mess. First, we don't know what style measNumFont is, but
+		 *	in any case, what's special about the measure no. font?
 		 */
-		if (unknownFonts!=0) {
-			GetIndCString(fmtStr, PRINTERRS_STRS, 6);    /* "%d piece(s) of text in PostScript fonts Nightingale doesn't know will be printed in the default font." */
-			sprintf(strBuf, fmtStr, unknownFonts); 
-			CParamText(strBuf, "", "", "");
-			StopInform(GENERIC_ALRT);
-			}
-		return(thisError);
+		PS_Print("%%%%+");
+		PS_PrintFontName(measNumFont,0,&fontKnown);			/* ??what style? */
+		PS_Print("\r");
 	}
+	for (j = 0; j<nfontsUsed; j++)
+		for (k = 0; k<4; k++) {
+			if (fontUsedTbl[j].style[k]) {
+				PS_Print("%%%%+");
+				PS_PrintFontName(fontUsedTbl[j].fontName,k,&fontKnown);
+				PS_Print("\r");
+			}
+		}
+
+	/*
+	 * If any unknown fonts were used in the score, complain. We ignore any
+	 * unknown fonts found in the fontUsedTbl by the loop above, since the user
+	 * probably only cares about fonts they actually used.
+	 */
+	if (unknownFonts!=0) {
+		GetIndCString(fmtStr, PRINTERRS_STRS, 6);    /* "%d piece(s) of text in PostScript fonts Nightingale doesn't know will be printed in the default font." */
+		sprintf(strBuf, fmtStr, unknownFonts); 
+		CParamText(strBuf, "", "", "");
+		StopInform(GENERIC_ALRT);
+	}
+	return(thisError);
+}
 
 /*
  *	Declare a new page to begin.  The page is known under the name/number as found in
@@ -990,19 +992,19 @@ OSErr PS_Trailer(Document *doc, short nfontsUsed, FONTUSEDITEM *fontUsedTbl, uns
  */
 
 OSErr PS_NewPage(Document *doc, char *page, short n)
-	{
-		if (page==NULL || *page=='\0') page = "?";
-		
-		if (usingFile) {
-			PS_Print("%%%%Page: %s %ld\r",page,(long)n);
-			PS_Print("NightingaleDict begin\rBP\rMX concat\r\r");
-			}
-
-		/* Make sure PS_MusSize initializes everything related to music font size. */
-		PS_MusSize(doc, -1);
-		
-		return(thisError);
+{
+	if (page==NULL || *page=='\0') page = "?";
+	
+	if (usingFile) {
+		PS_Print("%%%%Page: %s %ld\r",page,(long)n);
+		PS_Print("NightingaleDict begin\rBP\rMX concat\r\r");
 	}
+
+	/* Make sure PS_MusSize initializes everything related to music font size. */
+	PS_MusSize(doc, -1);
+	
+	return(thisError);
+}
 
 
 /*
@@ -1010,26 +1012,27 @@ OSErr PS_NewPage(Document *doc, char *page, short n)
  */
 
 OSErr PS_EndPage()
-	{
-		if (usingFile)
-			PS_Print("\rshowpage\rEP\rend        %% NightingaleDict\r");
-		
-		PS_RestartPageVars();
-		pageEnded = True;
-		return(thisError);
-	}
+{
+	if (usingFile)
+		PS_Print("\rshowpage\rEP\rend        %% NightingaleDict\r");
+	
+	PS_RestartPageVars();
+	pageEnded = True;
+	return(thisError);
+}
 
 /*
- *	Send a given C string out to the open file.  This could be made more efficient by
- *	doing it a room-left-sized chunk at a time instead of the simpler character at a time.
+ *	Send a given C string out to the open file. This could be made more efficient by
+ *	doing it a room-left-sized chunk at a time instead of the simpler character at a
+ *	time, but I doubt it's important.
  */
 
 OSErr PS_String(char *str)
-	{
+{
 
-		while (*str) PS_Char(*(unsigned char *)str++);
-		return(thisError);
-	}
+	while (*str) PS_Char(*(unsigned char *)str++);
+	return(thisError);
+}
 
 /*
  *	Send a given Pascal string out to the open file.  This may not be necessary, but
@@ -1037,13 +1040,13 @@ OSErr PS_String(char *str)
  */
 
 OSErr PS_PString(unsigned char *str)
-	{
-		unsigned short len;
-		
-		len = *str++;
-		while (len-- > 0) PS_Char(*str++);
-		return(thisError);
-	}
+{
+	unsigned short len;
+	
+	len = *str++;
+	while (len-- > 0) PS_Char(*str++);
+	return(thisError);
+}
 
 /*
  *	Print the characters found in a given resource of a given open resource file,
@@ -1286,10 +1289,10 @@ void PS_Print(char *msg, ...)
  */
 
 void PS_PageSize(DDIST x, DDIST y)
-	{
-		pageWidth = (x < 0) ? -x : x;
-		pageHeight = (y < 0) ? -y : y;
-	}
+{
+	pageWidth = (x < 0) ? -x : x;
+	pageHeight = (y < 0) ? -y : y;
+}
 
 /*
  *	Set any or all of the current line widths for staff lines, ledger lines,
@@ -1297,22 +1300,22 @@ void PS_PageSize(DDIST x, DDIST y)
  */
 
 void PS_SetWidths(DDIST staff, DDIST ledger, DDIST stem, DDIST bar)
-	{
-		if (staff >= 0) wStaff = staff;
-		if (ledger >= 0) wLedger = ledger;
-		if (stem >= 0) wStem = stem;
-		if (bar >= 0) wBar = bar;
-	}
+{
+	if (staff >= 0) wStaff = staff;
+	if (ledger >= 0) wLedger = ledger;
+	if (stem >= 0) wStem = stem;
+	if (bar >= 0) wBar = bar;
+}
 
 /*
  *	Change the current line width in PostScript to whatever
  */
 
 OSErr PS_SetLineWidth(DDIST width)
-	{
-		PS_Print("%ld setlinewidth\r",(long)width);
-		return(thisError);
-	}
+{
+	PS_Print("%ld setlinewidth\r",(long)width);
+	return(thisError);
+}
 
 /*
  *	Line-drawing routines:
@@ -1325,35 +1328,35 @@ OSErr PS_SetLineWidth(DDIST width)
  */
  
 OSErr PS_Line(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
-	{
-		PS_Print("%ld %ld %ld %ld %ld ML\r",
-								(long)x1,(long)y1,(long)x0,(long)y0,(long)width);
-		return(thisError);
-	}
+{
+	PS_Print("%ld %ld %ld %ld %ld ML\r",
+							(long)x1,(long)y1,(long)x0,(long)y0,(long)width);
+	return(thisError);
+}
 
 OSErr PS_LineVT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
-	{
-		/* y-coordinates refer to the TOP of the line! */
-		PS_Print("%ld %ld %ld %ld %ld BM\r",(long)x0,(long)y0,(long)x1,(long)y1,
-					(long)width);
-		return(thisError);
-	}
+{
+	/* y-coordinates refer to the TOP of the line! */
+	PS_Print("%ld %ld %ld %ld %ld BM\r",(long)x0,(long)y0,(long)x1,(long)y1,
+				(long)width);
+	return(thisError);
+}
 
 OSErr PS_LineHT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width);
 OSErr PS_LineHT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
-	{
-		/* The new definition in the 'TEXT' preamble for this is:
+{
+	/* The new definition in the 'TEXT' preamble for this is:
 
-            /LHT {/th XD newpath 2 copy XF moveto exch th add exch XF lineto
-                                 2 copy exch th add exch XF lineto XF lineto
-                                 closepath fill} BD
-		*/
-		
-		/* y-coordinates refer to the TOP of the line! */
-		PS_Print("%ld %ld %ld %ld %ld LHT\r",(long)x0,(long)y0,(long)x1,(long)y1,
-					(long)width);
-		return(thisError);
-	}
+		/LHT {/th XD newpath 2 copy XF moveto exch th add exch XF lineto
+							 2 copy exch th add exch XF lineto XF lineto
+							 closepath fill} BD
+	*/
+	
+	/* y-coordinates refer to the TOP of the line! */
+	PS_Print("%ld %ld %ld %ld %ld LHT\r",(long)x0,(long)y0,(long)x1,(long)y1,
+				(long)width);
+	return(thisError);
+}
 
 /*
  * The dashed-line routines below draw lots of tiny lines. FIXME: They really should
@@ -1361,49 +1364,49 @@ OSErr PS_LineHT(DDIST x0, DDIST y0, DDIST x1, DDIST y1, DDIST width)
  */
 
 OSErr PS_HDashedLine(DDIST x0, DDIST y, DDIST x1, DDIST width, DDIST dashLen)
-	{
-		DDIST xstart, xend=0, spaceLen;
-		
-		spaceLen = dashLen;		
+{
+	DDIST xstart, xend=0, spaceLen;
+	
+	spaceLen = dashLen;		
 
-		for (xstart = x0; xstart+dashLen<=x1; xstart += dashLen+spaceLen) {
-			xend = xstart+dashLen;
-			PS_Print("%ld %ld %ld %ld %ld ML\r",(long)xend,(long)y,
-						(long)xstart,(long)y,(long)width);
-			}
-		if (xend<x1)										/* If necessary, extend final dash */
-			PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x1,(long)y,
-						(long)xend,(long)y,(long)width);
-		return(thisError);
+	for (xstart = x0; xstart+dashLen<=x1; xstart += dashLen+spaceLen) {
+		xend = xstart+dashLen;
+		PS_Print("%ld %ld %ld %ld %ld ML\r",(long)xend,(long)y,
+					(long)xstart,(long)y,(long)width);
 	}
+	if (xend<x1)										/* If necessary, extend final dash */
+		PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x1,(long)y,
+					(long)xend,(long)y,(long)width);
+	return(thisError);
+}
 
 OSErr PS_VDashedLine(DDIST x, DDIST y0, DDIST y1, DDIST width, DDIST dashLen)
-	{
-		DDIST ystart, yend, spaceLen;
-		
-		spaceLen = dashLen;
-		
-		for (ystart = y0; ystart+dashLen<=y1; ystart += dashLen+spaceLen) {
-			yend = ystart+dashLen;
-			PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x,(long)yend,
-						(long)x,(long)ystart,(long)width);
-			}
+{
+	DDIST ystart, yend, spaceLen;
+	
+	spaceLen = dashLen;
+	
+	for (ystart = y0; ystart+dashLen<=y1; ystart += dashLen+spaceLen) {
+		yend = ystart+dashLen;
+		PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x,(long)yend,
+					(long)x,(long)ystart,(long)width);
+		}
 
-		if (ystart<y1)										/* Draw short final dash */
-			PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x,(long)y1,
-						(long)x,(long)ystart,(long)width);
-		return(thisError);
-	}
+	if (ystart<y1)										/* Draw short final dash */
+		PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x,(long)y1,
+					(long)x,(long)ystart,(long)width);
+	return(thisError);
+}
 
 OSErr PS_FrameRect(DRect *dr, DDIST width)
-	{
-		PS_Line(dr->left, dr->top, dr->right, dr->top, width);
-		PS_Line(dr->right, dr->top, dr->right, dr->bottom, width);
-		PS_Line(dr->right, dr->bottom, dr->left, dr->bottom, width);
-		PS_Line(dr->left, dr->bottom, dr->left, dr->top, width);
+{
+	PS_Line(dr->left, dr->top, dr->right, dr->top, width);
+	PS_Line(dr->right, dr->top, dr->right, dr->bottom, width);
+	PS_Line(dr->right, dr->bottom, dr->left, dr->bottom, width);
+	PS_Line(dr->left, dr->bottom, dr->left, dr->top, width);
 
-		return(thisError);
-	}
+	return(thisError);
+}
 
 /*
  *	Given the Y distance from the origin and the starting and ending X values,
@@ -1411,11 +1414,11 @@ OSErr PS_FrameRect(DRect *dr, DDIST width)
  */
 
 OSErr PS_StaffLine(DDIST height, DDIST x0, DDIST x1)
-	{
-		PS_Print("%ld %ld %ld %ld SFL\r",(long)x1,(long)height,
-											(long)x0,(long)height);
-		return(thisError);
-	}
+{
+	PS_Print("%ld %ld %ld %ld SFL\r",(long)x1,(long)height,
+										(long)x0,(long)height);
+	return(thisError);
+}
 
 /*
  *	Given the Y distance from the origin and the starting and ending X values,
@@ -1428,13 +1431,13 @@ OSErr PS_StaffLine(DDIST height, DDIST x0, DDIST x1)
  */
 
 OSErr PS_Staff(DDIST height, DDIST x0, DDIST x1, short nLines, DDIST *dy)
-	{
-		DDIST y;
-		
-		if (*dy <= 0) *dy = lineSpace; else lineSpace = *dy;
-		for (y=height; nLines-- > 0; y+=lineSpace) PS_StaffLine(y,x0,x1);
-		return(thisError);
-	}
+{
+	DDIST y;
+	
+	if (*dy <= 0) *dy = lineSpace; else lineSpace = *dy;
+	for (y=height; nLines-- > 0; y+=lineSpace) PS_StaffLine(y,x0,x1);
+	return(thisError);
+}
 
 /*
  *	Draw barline on page at given x using current bar width. type is
@@ -1447,29 +1450,29 @@ OSErr PS_Staff(DDIST height, DDIST x0, DDIST x1, short nLines, DDIST *dy)
 #define THICKBARLINE(lnSpace)	((lnSpace)/2)		/* Thickness of thick barline */
 
 OSErr PS_BarLine(DDIST top, DDIST bot,DDIST x, char type)
-	{
-		short thickWidth, thickx;
+{
+	short thickWidth, thickx;
 
-		switch (type) {
-			case BAR_SINGLE:
-				PS_Print("%ld %ld %ld %ld BL\r",(long)x,(long)bot,(long)x,(long)top);
-				break;
-			case BAR_DOUBLE:
-				PS_Print("%ld %ld %ld %ld BL\r",(long)x,(long)bot,(long)x,(long)top);
-				PS_Print("%ld %ld %ld %ld BL\r",(long)(x+INTERLNSPACE(lineSpace)),(long)bot,
-												(long)(x+INTERLNSPACE(lineSpace)),(long)top);
-				break;
-			case BAR_FINALDBL:
-				thickWidth = THICKBARLINE(lineSpace);
-				thickx = x+INTERLNSPACE(lineSpace)+thickWidth/2;
-				PS_Print("%ld %ld %ld %ld BL\r",(long)x,(long)bot,(long)x,(long)top);
-				PS_Print("%ld %ld %ld %ld %ld ML\r",(long)thickx,(long)bot,
-													(long)thickx,(long)top,
-													(long)thickWidth);
-				break;
-		}
-		return(thisError);
+	switch (type) {
+		case BAR_SINGLE:
+			PS_Print("%ld %ld %ld %ld BL\r",(long)x,(long)bot,(long)x,(long)top);
+			break;
+		case BAR_DOUBLE:
+			PS_Print("%ld %ld %ld %ld BL\r",(long)x,(long)bot,(long)x,(long)top);
+			PS_Print("%ld %ld %ld %ld BL\r",(long)(x+INTERLNSPACE(lineSpace)),(long)bot,
+											(long)(x+INTERLNSPACE(lineSpace)),(long)top);
+			break;
+		case BAR_FINALDBL:
+			thickWidth = THICKBARLINE(lineSpace);
+			thickx = x+INTERLNSPACE(lineSpace)+thickWidth/2;
+			PS_Print("%ld %ld %ld %ld BL\r",(long)x,(long)bot,(long)x,(long)top);
+			PS_Print("%ld %ld %ld %ld %ld ML\r",(long)thickx,(long)bot,
+												(long)thickx,(long)top,
+												(long)thickWidth);
+			break;
 	}
+	return(thisError);
+}
 
 /*
  *	Draw vertical thin connect line on page at given x using current bar width. This
@@ -1478,11 +1481,11 @@ OSErr PS_BarLine(DDIST top, DDIST bot,DDIST x, char type)
  */
 
 OSErr PS_ConLine(DDIST top, DDIST bot, DDIST x)
-	{
-		PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x,(long)bot+(wStaff>>1),
-											(long)x,(long)top-(wStaff>>1),(long)wBar);
-		return(thisError);
-	}
+{
+	PS_Print("%ld %ld %ld %ld %ld ML\r",(long)x,(long)bot+(wStaff>>1),
+										(long)x,(long)top-(wStaff>>1),(long)wBar);
+	return(thisError);
+}
 
 /*
  *	Draw Repeat bar on page at given x from given top to bottom, using current bar

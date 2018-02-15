@@ -456,9 +456,8 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	/* Write the HEAP struct header */
 	count = sizeof(HEAP);
 	ioErr = FSWrite(refNum, &count, (Ptr)myHeap);
-	
 
-		if (DEBUG_SHOW) {
+		if (DETAIL_SHOW) {
 			long position;
 			const char *ps;
 			GetFPos(refNum, &position);
@@ -998,7 +997,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 	
 	myHeap = doc->Heap + heapIndex;
 
-		if (DEBUG_SHOW) {
+		if (DETAIL_SHOW) {
 			long position;
 			const char *ps;
 			GetFPos(refNum, &position);
@@ -1016,21 +1015,9 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 	return 0;
 }
 
-//typedef struct {
-//	Handle block;					/* Handle to floating array of objects */
-//	short objSize;					/* Size in bytes of each object in array */
-//	short type;						/* Type of object for this heap */
-//	LINK firstFree;				/* Index of head of free list */
-//	unsigned short nObjs;		/* Maximum number of objects in heap block */
-//	unsigned short nFree;		/* Size of the free list */
-//	short lockLevel;				/* Nesting lock level: >0 ==> locked */
-//} HEAP;
 
-
-
-
-/* Traverse the main object list and fix up the cross pointers. This code 
-assumes that headL is always at LINK 1. */
+/* Traverse the main object list and fix up the cross pointers. NB: This code assumes
+that headL is always at LINK 1. */
 
 void HeapFixLinks(Document *doc)
 {
@@ -1048,7 +1035,7 @@ void HeapFixLinks(Document *doc)
 				
 				/* If there is no Master Page object list (I think this should happen
 					only with ancient scores), then doc->masterHeadL will have just
-					been read in as NILINK; do not set it here and confuse the for
+					been read in as NILINK; do not set it here and confuse the "for"
 					(pL = doc->masterHeadL... ) loop below. */
 
 				if (doc->masterHeadL)

@@ -1501,7 +1501,7 @@ LINK TranscribeVoice(
 	LINK firstSync; short q;
 	
 	if (quantum>1) {
-if (DEBUG_SHOW) DPrintLTIs("<ClarAllToMeas",rawSyncTab,nRawSyncs);
+if (DETAIL_SHOW) DPrintLTIs("<ClarAllToMeas",rawSyncTab,nRawSyncs);
 		if (!ClarAllToMeas(doc,rawSyncTab,maxRawSyncs,&nRawSyncs,quantum,measInfoTab,nMeasTab))
 			{ *errCode = 1; return NILINK; }
 			
@@ -1509,23 +1509,23 @@ if (DEBUG_SHOW) DPrintLTIs("<ClarAllToMeas",rawSyncTab,nRawSyncs);
 										measInfoTab,nMeasTab))
 			{ *errCode = 2; return NILINK; }
 								
-if (DEBUG_SHOW) DPrintLTIs("<ChooseChords",rawSyncTab,nRawSyncs);
+if (DETAIL_SHOW) DPrintLTIs("<ChooseChords",rawSyncTab,nRawSyncs);
 		if (!ChooseChords(doc,voice,rawSyncTab,maxRawSyncs,&nRawSyncs,rawNoteAux,quantum))
 			{ *errCode = 3; return NILINK; }
 	
 	
-if (DEBUG_SHOW) DPrintLTIs("<ClarAllToTuplets",rawSyncTab,nRawSyncs);
+if (DETAIL_SHOW) DPrintLTIs("<ClarAllToTuplets",rawSyncTab,nRawSyncs);
 		if (!ClarAllToTuplets(doc,voice,rawSyncTab,maxRawSyncs,&nRawSyncs,quantum))
 			{ *errCode = 4; return NILINK; }
 	
-if (DEBUG_SHOW) DPrintLTIs("<QuantizeAndClip",rawSyncTab,nRawSyncs);
+if (DETAIL_SHOW) DPrintLTIs("<QuantizeAndClip",rawSyncTab,nRawSyncs);
 		QuantizeAndClip(doc,voice,rawSyncTab,&nRawSyncs,quantum);
 		
 		RemoveZeroDurItems(rawSyncTab,&nRawSyncs);
 		RemoveOneItemTuplets(rawSyncTab,nRawSyncs);
 	}
 	
-if (DEBUG_SHOW) DPrintLTIs("<BuildSyncs",rawSyncTab,nRawSyncs);
+if (DETAIL_SHOW) DPrintLTIs("<BuildSyncs",rawSyncTab,nRawSyncs);
 	firstSync =	BuildSyncs(doc,voice,rawSyncTab,nRawSyncs,rawNoteAux,nAux,measL);
 	if (!firstSync)
 			{ *errCode = 5; return NILINK; }
@@ -1538,7 +1538,7 @@ if (DEBUG_SHOW) DPrintLTIs("<BuildSyncs",rawSyncTab,nRawSyncs);
 										newSyncTab,maxNewSyncs,pnNewSyncs))
 			{ *errCode = 7; return NILINK; }
 
-if (DEBUG_SHOW) DPrintLTIs("<AddTuplets",newSyncTab,*pnNewSyncs);
+if (DETAIL_SHOW) DPrintLTIs("<AddTuplets",newSyncTab,*pnNewSyncs);
 		if (!AddTuplets(doc,voice,newSyncTab,*pnNewSyncs))
 			{ *errCode = 8; return NILINK; }
 	}

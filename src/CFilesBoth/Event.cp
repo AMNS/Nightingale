@@ -585,7 +585,7 @@ static void DoContent(WindowPtr w, Point pt, short modifiers, long when)
 
 /* This routine should be called from TrackStaffRect() and other click and drag loops
 (in DragAccidental, DragBeam, etc.) so that the view of the Document can be scrolled
-automatically if the user moes the mouse outside the viewRect of the window. */
+automatically if the user moves the mouse outside the viewRect of the window. */
 
 #define SCROLL_UNIT 24		/* in pixels */
 
@@ -689,7 +689,8 @@ static Boolean Nudge(Document *doc, short arrowKeyCode)
 	LINK pL, aNoteL, aDynamicL, aSlurL;
 	POTTAVA ottavap;
 	PTUPLET pTuplet;
-	Boolean moved;  DDIST nudgeSignedDist;
+	Boolean moved;
+	DDIST nudgeSignedDist;
 
 	moved = False;
 	for (pL = doc->selStartL; pL!=doc->selEndL; pL = RightLINK(pL))

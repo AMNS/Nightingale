@@ -2644,14 +2644,29 @@ appear! Put DrawCONNECT back, add FIX_END()'s => yep: Connect appears!
 
 -------------------------------------------------------------------------------
 
-10 - 11 Feb.
+10 - 14 Feb.
 
-Everything from any call to GetResource() could be vulnerable to the Endian problem,
-except for Apple-defined resources like 'PAT ', 'PICT', 'STR#', 'TEXT'.
-Specifically, all multibyte fields containing numbers in:
+Everything from any call to GetResource(), Get1Resource, etc.,  could be vulnerable to
+the Endian problem, except (I think!) for Apple-defined resources like 'DITL', 'PAT ',
+'PICT', 'STR#', 'TEXT'. Specifically, all multibyte fields containing numbers in:
 
 +Config
 +MIDI ModNR table
 +-PaletteGlobals
 -spaceMap (doc specific)
 -??
+
+Need to go thru _all_ the calls in Ngale! See list in QGetResourceQ.txt .
+
+GitHub Issues 171 & 172 are probably both Endian-related:
+
+When you launch Ngale on an Intel machine, problems appear instantly. On Don's MacBook
+Air and (old) MacBook, the palette is never drawn. On the MBAir, the opening dialog is
+much too tall and, the vast majority of the time,doesn't show the "New Nightingale
+Score" and "Cancel" buttons -- until you resize it, that is. On the old MacBook, that
+dialog is fine.
+
+Trying to open an existing Ngale file on Intel CPUs gives a series of strange error
+messages and, on Don's MacBook Air, crashes or at best displays just the background
+image; on his old white MacBook, it hangs.
+

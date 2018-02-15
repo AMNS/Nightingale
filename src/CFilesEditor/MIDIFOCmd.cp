@@ -66,7 +66,7 @@ static void DMFDrawLine(char *s)
 							 307,317,330,343, 363,376,389,402};	/* Second 8 channels */
 
 	char aStr[256], *q;
-	if (DEBUG_SHOW) {
+	if (DETAIL_SHOW) {
 		p = s; q = aStr;
 		while (*p) {
 			*q = (*p=='\t'? ' ' : *p);

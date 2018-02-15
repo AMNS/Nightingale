@@ -2093,9 +2093,9 @@ PushLock(NOTEheap);
 				if (aNote->selected) {
 					aNote->selected = False;
 					InsetRect(&wSub, -(1+enlargeSpecial.h), -enlargeSpecial.v);
-					if (DEBUG_SHOW)
+					if (DETAIL_SHOW)
 						if (SUSPICIOUS_WREL_RECT(wSub))
-							LogPrintf(LOG_INFO, " %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
+							LogPrintf(LOG_DEBUG, " %d:N/R %d,%d,%d,%d   %d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom,
 								enlargeSpecial.h, enlargeSpecial.v);
 					HiliteRect(&wSub);
 				}
@@ -2738,10 +2738,10 @@ PushLock(MEASUREheap);
 			case SMDeselect:
 				if (aMeasure->selected) {
 					aMeasure->selected = False;
-					if (DEBUG_SHOW)
+					if (DETAIL_SHOW)
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							if (!aMeasure->connAbove)
-						LogPrintf(LOG_INFO, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+						LogPrintf(LOG_DEBUG, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 				}
 				break;
@@ -3047,9 +3047,9 @@ PushLock(OBJheap);
 	case SMDeselect:
 		if (LinkSEL(pL)) {
 			LinkSEL(pL) = False;
-			if (DEBUG_SHOW)
+			if (DETAIL_SHOW)
 				if (SUSPICIOUS_WREL_RECT(wSub))
-					LogPrintf(LOG_INFO, " %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+					LogPrintf(LOG_DEBUG, " %d:Beam %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 			HiliteRect(&wSub);
 		}
 		break;
@@ -3393,9 +3393,9 @@ PushLock(OBJheap);
 		case SMDeselect:
 			if (aSlur->selected) {
 				aSlur->selected = False;
-				if (DEBUG_SHOW)
+				if (DETAIL_SHOW)
 					if (SUSPICIOUS_WREL_RECT(wSub))
-						LogPrintf(LOG_INFO, " %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+						LogPrintf(LOG_DEBUG, " %d:Slur %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 				HiliteRect(&wSub);
 			}
 			break;

@@ -123,6 +123,7 @@ Boolean TranslatePalChar(
 	mainTogChar = *(unsigned char *)resP++;
 	kpadTogChar = *(unsigned char *)resP++;
 	numPairs = *(short *)resP;
+	FIX_END(numPairs);
 	resP += 2;
 	theCharMap = (PCHARMAP)resP;
 
@@ -274,9 +275,8 @@ pascal void DrawToolPalette(Rect *r)
 	const BitMap *thePortBits = GetPortBitMapForCopyBits(GetQDGlobalsThePort());
 	CopyBits(palPortBits, thePortBits, &src, &port, srcCopy, NULL);
 { Rect portRect;
-//LogPrintf(LOG_NOTICE, "DrawToolPalette: TEST\n");
 long len = 600; GetPortBounds(palPort, &portRect);
-LogPrintf(LOG_NOTICE, "DrawToolPalette: MemBitCount(palPortBits, %ld)=%ld portRect tlbr=%d,%d,%d,%d\n",
+LogPrintf(LOG_DEBUG, "DrawToolPalette: MemBitCount(palPortBits, %ld)=%ld portRect tlbr=%d,%d,%d,%d\n",
 len, MemBitCount((unsigned char *)palPortBits, len),
 portRect.top, portRect.left, portRect.bottom, portRect.right);
 }
@@ -360,7 +360,7 @@ pascal short FindToolItem(Point mousePt)
 
 void DoToolContent(Point pt, short modifiers)
 	{
-		short item = 0,firstItem=0, ch;
+		short item = 0, firstItem=0, ch;
 		WindowPtr w = palettes[TOOL_PALETTE];
 		GrafPtr oldPort;
 		Rect frame, portRect, itemCell;

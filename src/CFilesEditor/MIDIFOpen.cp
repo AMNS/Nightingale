@@ -54,7 +54,7 @@ static DoubleWord GetDeltaTime(Byte [], DoubleWord *);
 static short GetNextMFEvent(DoubleWord *, Byte [], Boolean *);
 static Boolean FindNoteOff(DoubleWord, Boolean, Byte [], Boolean *);
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 /* Variables ending in <MF> are for our "MIDI Event queue"; they should never
 be stored into except by the routines that manage the MIDI Event queue, viz.,
@@ -65,15 +65,15 @@ Word lenMF;							/* MIDI file track length */
 DoubleWord locMF;					/* MIDI file track current position */
 Byte statusByteMF=0;				/* MIDI file track status in case of running status */
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
-#define DBG DEBUG_SHOW
+#define DBG DETAIL_SHOW
 
 #define TEMPO_WINDOW 65
 
 //#define PUBLIC_VERSION_1
 
-/* ------------------------------------------------------------ Utility functions -- */
+/* ----------------------------------------------------------------- Utility functions -- */
 
 static Boolean eof(Word refnum)
 {
@@ -145,7 +145,7 @@ static Boolean TimeSigBad(short tsNum, short tsDenom)
 }
 
 
-/* ----------------------------------------------------------------- ReadMFHeader -- */
+/* ---------------------------------------------------------------------- ReadMFHeader -- */
 
 Boolean ReadMFHeader(Byte *pFormat, Word *pnTracks, Word *pTimeBase)
 {
@@ -172,7 +172,7 @@ Boolean ReadMFHeader(Byte *pFormat, Word *pnTracks, Word *pTimeBase)
 }
 
 
-/* -------------------------------------------------------------------- GetVarLen -- */
+/* ------------------------------------------------------------------------- GetVarLen -- */
 /* Get the value of a MIDI file "variable-length number" whose first byte is at
 chunk[*pLoc], and increment *pLoc to point to the first byte after the number.
 According to the Standard MIDI File spec, a variable-length number must fit in four
@@ -213,10 +213,10 @@ conservative. */
 
 #define MAX_TRACK_SIZE 2*65535L		/* in bytes */
 
-/* -------------------------------------------------------------------- ReadTrack -- */
-/* Allocate a block and read the next track of the current MIDI file into it. If
-the track is too large for us, doesn't exist, or can't be read, return 0; else
-return the length of the track. */
+/* ------------------------------------------------------------------------- ReadTrack -- */
+/* Allocate a block and read the next track of the current MIDI file into it. If the
+track is too large for us, doesn't exist, or can't be read, return 0; else return the
+length of the track. */
 
 Word ReadTrack(Byte **ppChunk)
 {
@@ -250,7 +250,7 @@ Word ReadTrack(Byte **ppChunk)
 }
 
 
-/* ---------------------------------------------------------- Init/SaveMFEventQue -- */
+/* --------------------------------------------------------------- Init/SaveMFEventQue -- */
 /* Initialize or save the MIDI File event queue environment. */
 
 static void InitMFEventQue(DoubleWord initLoc, Byte initStatus)
@@ -266,7 +266,7 @@ static void SaveMFEventQue(DoubleWord *pLoc, Byte *pStatus)
 }
 
 
-/* ----------------------------------------------------------------- GetDeltaTime -- */
+/* ---------------------------------------------------------------------- GetDeltaTime -- */
 /* GetDeltaTime calls GetVarLen, then skips over any "no-ops" that have replaced
 following commands and adds in their delta times, and returns the resulting value.
 If an error is found, it returns 0xFFFFFFFF. */
@@ -297,7 +297,7 @@ Another:
 }
 
 
-/* --------------------------------------------------------------- GetNextMFEvent -- */
+/* -------------------------------------------------------------------- GetNextMFEvent -- */
 /* Try to find the next MIDI File event. If successful, deliver its delta time and
 event data and return OP_COMPLETE, and leave <locMF> pointing at the first byte after
 the event. If there are no more MIDI events, just return NOTHING_TO_DO. If there's a
@@ -380,7 +380,7 @@ static short GetNextMFEvent(DoubleWord *pDeltaTime,
 }
 
 
-/* ------------------------------------------------------ Note-Off List Functions -- */
+/* ----------------------------------------------------------- Note-Off List Functions -- */
 /* The following functions are to maintain a list of locations of Note Offs that
 have already been matched with Note Ons, so we can avoid matching them again. This
 can only be a problem when two or more instances of the same note number are play-
@@ -393,7 +393,7 @@ write MIDI files in which one Note Off really does terminate multiple Note Ons! 
 I don't know if this code will ever be useful; oh well. The "one Note Off for many
 Note Ons" case can be handled either by not calling any of these functions, or
 calling InitNoteOffList but never InsertNoteOffLoc: then the usedNoteOff list will
-stay empty and MayBeNoteOff will always return True.  */
+stay empty and MayBeNoteOff will always return True.  --DAB  */
 
 static short usedNoteOff[MAXMFEVENTLIST];
 static short noteOffLim;
@@ -477,7 +477,7 @@ Boolean MayBeNoteOff(short locOff)
 }
 
 
-/* ------------------------------------------------------------------ FindNoteOff -- */
+/* ----------------------------------------------------------------------- FindNoteOff -- */
 /* Find the Note Off for the Note On whose first data byte, i.e., the byte holding
 the note number, is pChunkMF[loc]; optionally mark it so it won't be found again
 so, if there are multiple notes with the same note number simultaneously in the
@@ -532,7 +532,7 @@ static Boolean FindNoteOff(
 	return okay;
 }
 
-/* ------------------------------------------------------------- Time2LDurQuantum -- */
+/* ------------------------------------------------------------------ Time2LDurQuantum -- */
 /* Given a duration in PDUR ticks, normally return the corresponding duration code.
 However, if triplets are allowed and the duration can be represented as one, instead
 return the negative duration code. If there is no corresponding duration code,
@@ -574,7 +574,7 @@ short Time2LDurQuantum(long time, Boolean allowTrips)
 	return UNKNOWN_L_DUR;
 }
 
-/* ----------------------------------------------------------------- GetTrackInfo -- */
+/* ---------------------------------------------------------------------- GetTrackInfo -- */
 /* Deliver certain information about the current MIDI file track:
 	- the number of notes it contains;
 	- the number of notes that exceed the maximum duration we can handle;
@@ -582,8 +582,8 @@ short Time2LDurQuantum(long time, Boolean allowTrips)
 	- a value that says, e.g., "all attacks fit a 16th-note grid" or "some attacks
 		don't fit any metric grid Nightingale can handle" (perhaps due to tuplets);
 	- the time of the last event in the track (normally the End-of-Track event).
-Return False if we have trouble parsing the track (in which case values returned
-are as of the point where we had trouble), else True. */
+Return False if we have trouble parsing the track (in which case values returned are
+as of the point where we had trouble), else True. */
 
 Boolean GetTrackInfo(
 				short *noteCount,
@@ -651,7 +651,7 @@ Done:
 	return okay;
 }
 
-/* ----------------------------------------------------------- GetTimingTrackInfo -- */
+/* ---------------------------------------------------------------- GetTimingTrackInfo -- */
 /* Deliver certain information about the current MIDI file track, most appropriately
 but not necessarily the timing track:
 	- the number of time signatures it contains;
@@ -710,7 +710,7 @@ Done:
 }
 
 
-/* ================================================================== MF2MIDNight == */
+/* ======================================================================= MF2MIDNight == */
 /* Convert an entire track of a MIDI file into our "MIDNight" form, an inter-
 mediate form designed simply to make it easier to generate Nightingale data
 structure. The only differences between MIDI file format and MIDNight are:
@@ -836,7 +836,7 @@ Word MF2MIDNight(
 }
 
 
-/* =================================================== MIDNight --> Nightingale == */
+/* ========================================================== MIDNight --> Nightingale == */
 /* This is the fun part: building Nightingale object list from tracks in MIDNight
 format. Each track consists of a sequence of note events and metaevents: no SysEx
 events are allowed (MIDNight doesn't handle them yet, anyway). For now, these
@@ -924,7 +924,7 @@ static TEMPOINFO *tempoInfoTab;
 static short ctrlTabLen;
 static CTRLINFO *ctrlInfoTab;
 
-/* ---------------------------------------------------------------- Miscellaneous -- */
+/* --------------------------------------------------------------------- Miscellaneous -- */
 
 /* Given a LINK to a part and a full name for the part's instrument, fill in the
 part's full name and make a guess at its short name. */
@@ -1233,7 +1233,7 @@ static Boolean DoMetaEvent(
 }
 
 
-/* ------------------------------------------------------ Clef-choosing functions -- */
+/* ----------------------------------------------------------- Clef-choosing functions -- */
 /* AddClefChanges and its helpers crudely add clef changes on a measure-by-measure
 basis to keep notes near the staff. They:
 	- assume the only clefs in the score are the initial ones and all are treble or bass.
@@ -1425,12 +1425,12 @@ static Boolean AddClefChanges(Document *doc)
 	return True;
 }
 
-/* ------------------------------------------------ Functions for AddTempoChanges -- */
+/* ----------------------------------------------------- Functions for AddTempoChanges -- */
 
 //long LastEndTime(Document *doc, LINK fromL, LINK toL);
 
 
-/* ----------------------------------------------------------------SyncSimpleLDur -- */
+/* ---------------------------------------------------------------------SyncSimpleLDur -- */
 /*	Compute the maximum simple logical duration of all notes/rests in the given Sync. */
 
 static long SyncSimpleLDur(LINK syncL)
@@ -1791,7 +1791,7 @@ done:
 }
 
 
-/* ------------------------------------------------------ Track2Night and friends -- */
+/* ----------------------------------------------------------- Track2Night and friends -- */
 
 /* Initialize for converting a track from MIDNight form to Nightingale object list.
 
@@ -2209,7 +2209,7 @@ Done:
 }
 
 
-/* --------------------------------------------------------------- MIDNight2Night -- */
+/* -------------------------------------------------------------------- MIDNight2Night -- */
 /* Convert an entire MIDNight data structure into a Nightingale score. Return True
 if we succeed, False if either there's an error or nothing useful in the MIDI file.
 
@@ -2326,7 +2326,7 @@ Done:
 }
 
 
-/* ---------------------------------------------------------------- MFRespAndRfmt -- */
+/* --------------------------------------------------------------------- MFRespAndRfmt -- */
 
 Boolean MFRespAndRfmt(Document *doc, short quantCode)
 {

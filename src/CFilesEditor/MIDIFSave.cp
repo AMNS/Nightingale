@@ -380,7 +380,7 @@ static void WriteAllMIDISustains(Document *doc, Byte *partChannel, Boolean susOn
 	Byte ctrlNum = MSUSTAIN;
 	Byte ctrlVal = GetSustainCtrlVal(susOn);
 	
-	if (DEBUG_SHOW) LogPrintf(LOG_INFO, "  WriteAllMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteAllMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
 								ctrlNum, ctrlVal, startTime);
 	if (susOn) {
 		for (int j = 1; j<=MAXSTAVES; j++) {
@@ -420,7 +420,7 @@ static void WriteMIDISustains(Document *doc, Byte *partChannel, Boolean susOn, l
 			Byte ctrlNum = MSUSTAIN;
 			Byte ctrlVal = GetSustainCtrlVal(susOn);
 			
-			if (DEBUG_SHOW) LogPrintf(LOG_INFO, "  WriteMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
+			if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteMIDISustains: ctrlNum=%ld ctrlVal=%ld time=%ld\n",
 										ctrlNum, ctrlVal, startTime);
 			
 			short partn = Staff2Part(doc,stf);
@@ -691,7 +691,7 @@ static Boolean WriteTiming(
 					MayErrMsg("Unable to write a tempo event to the MIDI file.");
 					return False;
 				}
-				if (DEBUG_SHOW) LogPrintf(LOG_INFO, "  WriteTiming: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n",
+				if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteTiming: TEMPO pL=%d tempoTime=%ld timeScale=%ld\n",
 									pL, tempoTime, timeScale);
 				prevTempoTime = tempoTime;
 				break;
@@ -730,7 +730,7 @@ static Boolean WriteTrackName(Document *doc, short staffn)
 	LINK aPartL; char str[256];
 
 	aPartL = Staff2PartL(doc, doc->headL, staffn);
-	if (DEBUG_SHOW) LogPrintf(LOG_INFO, "  WriteTrackName: staff=%d name='%s'\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteTrackName: staff=%d name='%s'\n",
 								staffn, PartNAME(aPartL));
 
 	strcpy(str, PartNAME(aPartL));
@@ -767,7 +767,7 @@ static Boolean WriteTrackPatch(Document *doc, short staffn)
 	short partn = Staff2Part(doc, staffn);
 	short patch = partPatch[partn];
 	short channel = partChannel[partn];
-	if (DEBUG_SHOW) LogPrintf(LOG_INFO, "  WriteTrackPatch: staff=%d patch=%d channel=%d\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteTrackPatch: staff=%d patch=%d channel=%d\n",
 								staffn, patch, channel);
 	
 	WriteDeltaTime(0L);
@@ -777,7 +777,7 @@ static Boolean WriteTrackPatch(Document *doc, short staffn)
 	byteCount = 2L;	
 	errCode = FSWrite(fRefNum, &byteCount, buffer); 
 	trackLength += byteCount;
-	if (DEBUG_SHOW) LogPrintf(LOG_DEBUG, "  WriteTrackPatch: staffn=%d buffer[]=%d %d errCode=%d\n",
+	if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "  WriteTrackPatch: staffn=%d buffer[]=%d %d errCode=%d\n",
 								staffn, buffer[0], buffer[1], errCode);
 	return (errCode==noError);
 }	
@@ -822,7 +822,7 @@ static short WriteMFNotes(
 	Boolean		sustainOffPosted = False;
 	Boolean		panPosted = False;
 		
-	if (DEBUG_SHOW) LogPrintf(LOG_INFO, "  WriteMFNotes: staff=%d trkLastEndTime=%d\n", \
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "  WriteMFNotes: staff=%d trkLastEndTime=%d\n", \
 								staffn, trkLastEndTime);
 
 	anyStaff = (staffn==ANYONE);

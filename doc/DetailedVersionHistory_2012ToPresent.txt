@@ -2098,3 +2098,18 @@ Minor cleanup: removed comment referring to a 'TOMG' resource, etc. Affects
 PaletteGlobals.h; AccModNRMouse, Event, Initialize, MiscUtils, SpaceTime, ToolPalette,
 UIFUtils.
 
+-------------------------------------------------------------------------------
+
+12 - 14 Feb.
+
+Fixed newly-introduced bug in creating a doc's spacing table. Affects SpaceTime.
+
+Added calls to FIX_END, for the benefit of the Intel version. Affects PS_Stdio,
+ToolPalette.
+
+Minor cleanup: changed DEBUG_SHOW to DETAIL_SHOW, etc. Affects Defs.h;  Check,
+DelAddRedAccs, DrawHighLevel, Event, Finalize, GRBeam, HeapFileIO, Initialize,
+InitNightingale, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIRecord, MIDIUtils,
+NotelistParse, PS_Stdio, RTRhythmDur, ScoreInfo, SpaceHighLevel, SpaceTime, TextDialog,
+ToolPalette, Transcribe.
+

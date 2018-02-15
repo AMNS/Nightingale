@@ -162,8 +162,7 @@ Boolean ParseNotelistFile(Str255 fileName, FSSpec *fsSpec)
 	if (errCode != noErr) return False;
 	
 #if CNTLKEYFORPRINTNOTELIST
-	if (!DEBUG_SHOW)
-		printNotelist = False;
+	if (!DETAIL_SHOW) printNotelist = False;
 #endif
 
 	WaitCursor();

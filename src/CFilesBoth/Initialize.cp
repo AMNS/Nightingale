@@ -10,7 +10,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 
@@ -25,7 +25,8 @@
 
 static void			InitToolbox(void);
 static Boolean		AddPrefsResource(Handle);
-static OSStatus		FindPrefsFile(unsigned char *name, OSType fType, OSType fCreator, FSSpec *prefsSpec);
+static OSStatus		FindPrefsFile(unsigned char *name, OSType fType, OSType fCreator,
+									FSSpec *prefsSpec);
 static void			DisplayConfig(void);
 static Boolean		CheckRect(Rect aRect, short legalMin, short legalMax);
 static Boolean		CheckConfig(void);
@@ -36,7 +37,7 @@ static void			DisplayToolPalette(PaletteGlobals *whichPalette);
 static Boolean		CheckToolPalette(PaletteGlobals *whichPalette);
 static short		GetToolGrid(PaletteGlobals *whichPalette);
 static void			SetupPaletteRects(Rect *whichRects, short across, short down, short width,
-								short height);
+										short height);
 static void			SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect);
 static Boolean		PrepareClipDoc(void);
 static void			InstallCoreEventHandlers(void);
@@ -1267,10 +1268,10 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 		maxCol = whichPalette->maxAcross;
 		maxRow = whichPalette->maxDown;
 		
-		grid = (GridRec *) NewPtr((Size)maxRow*maxCol*sizeof(GridRec));
+		grid = (GridRec *)NewPtr((Size)maxRow*maxCol*sizeof(GridRec));
 		if (!GoodNewPtr((Ptr)grid)) {
 			OutOfMemory((long)maxRow*maxCol*sizeof(GridRec));
-			return(0);
+			return 0;
 			}
 
 		/* And scan through resource to install grid cells */
@@ -1279,7 +1280,7 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 		pGrid = grid;
 		item = 1;
 		for (row=0; row<maxRow; row++)							/* initialize grid[] */
-			for (col=0; col<maxCol; col++,pGrid++,item++) {
+			for (col=0; col<maxCol; col++, pGrid++, item++) {
 				SetPt(&pGrid->cell, col, row);					/* Doesn't move memory */
 				if ((pGrid->ch = *p++) == CH_ENTER)
 					if (defItem == 0) defItem = item; 
@@ -1294,24 +1295,24 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 
 static void SetupPaletteRects(Rect *whichRects, short itemsAcross, short itemsDown,
 								short itemWidth, short itemHeight)
-	{
-		short across, down;
-		
-		whichRects->left = 0;
-		whichRects->top = 0;
-		whichRects->right = 0;
-		whichRects->bottom = 0;
+{
+	short across, down;
+	
+	whichRects->left = 0;
+	whichRects->top = 0;
+	whichRects->right = 0;
+	whichRects->bottom = 0;
 
-		whichRects++;
-		for (down=0; down<itemsDown; down++)
-			for (across=0; across<itemsAcross; across++, whichRects++) {
-				whichRects->left = across * itemWidth;
-				whichRects->top = down * itemHeight;
-				whichRects->right = (across + 1) * itemWidth;
-				whichRects->bottom = (down + 1) * itemHeight;
-				OffsetRect(whichRects, TOOLS_MARGIN, TOOLS_MARGIN);
-				}
-	}
+	whichRects++;
+	for (down=0; down<itemsDown; down++)
+		for (across=0; across<itemsAcross; across++, whichRects++) {
+			whichRects->left = across * itemWidth;
+			whichRects->top = down * itemHeight;
+			whichRects->right = (across + 1) * itemWidth;
+			whichRects->bottom = (down + 1) * itemHeight;
+			OffsetRect(whichRects, TOOLS_MARGIN, TOOLS_MARGIN);
+		}
+}
 
 
 /* Initialise the tool palette: We use the size of the PICT in resources as well as

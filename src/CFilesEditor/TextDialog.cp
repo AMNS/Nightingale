@@ -1164,7 +1164,7 @@ Boolean TextDialog(
 						DimStylePanels(dlog, True);
 					else
 						InvalWindowRect(GetDialogWindow(dlog), &dimRect);		/* force redrawing by DimStylePanels */
-#ifdef DEBUG_SHOWFONTS
+#ifdef DETAIL_SHOWFONTS
 					DebugShowFonts(doc);
 #endif
 					}
@@ -1524,7 +1524,7 @@ Boolean DefineStyleDialog(Document *doc,
 					InstallTextStyle(dlog, &theCurrent, False);
 					TextEditState(dlog, False);
 					DrawExampleText(dlog, NULL);
-#ifdef DEBUG_SHOWFONTS
+#ifdef DETAIL_SHOWFONTS
 					DebugShowFonts(doc);
 #endif
 				}

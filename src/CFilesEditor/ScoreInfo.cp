@@ -32,7 +32,7 @@ static void SIDrawTextLine(char *theStr)
 	MoveTo(textRect.left, textRect.top+linenum*LEADING);
 	DrawCString(theStr);
 	++linenum;
-	if (DEBUG_SHOW) LogPrintf(LOG_INFO, "%s\n", theStr);
+	if (DETAIL_SHOW) LogPrintf(LOG_INFO, "%s\n", theStr);
 }
 
 /* Return the actual number of measures in the document. (Measure numbers in the object
