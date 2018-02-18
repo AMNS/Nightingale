@@ -1037,7 +1037,6 @@ Boolean TextDialog(
 
 	/* At this point, all arguments are defined whether it's a new or old string */
 	
-	//LogPrintf(LOG_DEBUG, "TextDialog: *expanded=%d theExpanded=%d\n", *expanded, theExpanded);
 	theLineSpacing = LNSPACE(context);
 	
 	isRelative = theCurrent.relFSize;

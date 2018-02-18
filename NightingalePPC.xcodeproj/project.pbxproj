@@ -277,7 +277,7 @@
 		D03E69850D5F60B9005FD177 /* VersionStrings.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = VersionStrings.h; sourceTree = "<group>"; };
 		D03E69B10D5F62E6005FD177 /* MIDICompat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDICompat.h; sourceTree = "<group>"; };
 		D03E69FA0D5F65DC005FD177 /* OpcodeNightingaleDefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = OpcodeNightingaleDefs.h; sourceTree = "<group>"; };
-		D03E6A370D5F6680005FD177 /* Nightingale.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Nightingale.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		D03E6A370D5F6680005FD177 /* Nightingale.app */ = {isa = PBXFileReference; includeInIndex = 0; lastKnownFileType = wrapper.application; path = Nightingale.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		D03E6A670D5F69BE005FD177 /* NightTemplates.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NightTemplates.h; sourceTree = "<group>"; };
 		D03E6A690D5F69E8005FD177 /* MIDIRecUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MIDIRecUtils.h; sourceTree = "<group>"; };
 		D03E6B030D5F6E55005FD177 /* NavServices.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NavServices.h; sourceTree = "<group>"; };

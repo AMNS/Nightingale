@@ -285,7 +285,7 @@ static Boolean InitMusFontTables()
 
 		w = (short *)(*resH);
 		chCount = *w++;
-		FixEndian2(&chCount);
+		FIX_END(chCount);
 		Pstrcpy((StringPtr)musFontName, resName);
 		PToCString((StringPtr)musFontName);
 		LogPrintf(LOG_INFO, "Setting up music font '%s': %d chars.  (InitMusFontTables)\n",

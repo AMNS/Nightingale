@@ -70,7 +70,6 @@ static void DrawPopupSymbol(short, short);
 
 /* --------------------- Functions for managing graphic popups --------------------- */
 
-
 Boolean InitGPopUp(
 	register PGRAPHIC_POPUP	p,				/* pointer to GRAPHIC_POPUP allocated by caller */
 	Point					origin,			/* top, left corner in local coords */
@@ -79,38 +78,38 @@ Boolean InitGPopUp(
 	)
 {
 	register Handle		resH;
-	register PCHARGRID	cgP;
+	register PCHARGRID	chgdP;
 	register short		i, saveFontSize, saveFontNum, fontNameLen;
 	unsigned char		*itemChars;
 	GrafPtr				gp;
 	FontInfo			finfo;
 	
-	p->menu = NULL;	p->itemChars = NULL;		/* in case init fails, but DisposeGPopUp(p) called anyway */
+	p->menu = NULL;	p->itemChars = NULL;		/* in case init fails but DisposeGPopUp(p) called anyway */
 	
 	/* Copy info from 'chgd' resource into popup struct */
 	resH = Get1Resource('chgd', menuID);
 	if (resH==NULL)	return False;
 	HLock(resH);									/* NewPtr & GetFNum below can move memory */
-	cgP = (PCHARGRID)*resH;
-	p->numItems = cgP->numChars;
-	p->numColumns = cgP->numColumns;
-	p->fontSize = cgP->fontSize;
-	p->itemChars = (char *) NewPtr((Size)p->numItems);
+	chgdP = (PCHARGRID)*resH;
+	p->numItems = chgdP->numChars;		FIX_END(p->numItems);
+	p->numColumns = chgdP->numColumns;
+	p->fontSize = chgdP->fontSize;		FIX_END(p->fontSize);
+	p->itemChars = (char *)NewPtr((Size)p->numItems);
 //	if (p->itemChars==NULL) goto broken;    // -ls
     if (p->itemChars==NULL) {
         ReleaseResource(resH);
         return False;
     }
 
-	fontNameLen = cgP->fontName[0] + 1;
+	fontNameLen = chgdP->fontName[0] + 1;
 	if (odd(fontNameLen)) fontNameLen++;
-	itemChars = cgP->fontName + fontNameLen;
+	itemChars = chgdP->fontName + fontNameLen;
 
 	for (i=0; i<p->numItems; i++)
 		p->itemChars[i] = itemChars[i];
 	
 	/* Get popup font number and characteristics */
-	FMFontFamily fff = FMGetFontFamilyFromName(cgP->fontName);
+	FMFontFamily fff = FMGetFontFamilyFromName(chgdP->fontName);
 	p->fontNum = (short)fff;
 
 	HUnlock(resH);
@@ -145,17 +144,16 @@ Boolean InitGPopUp(
 	p->shadow = p->bounds;
 	p->shadow.right++; p->shadow.bottom++;
 
-	/* Get menu */
+	/* Create a custom menu */
 	p->currentChoice = firstChoice;
 	p->menuID = menuID;
-	MenuRef		customMenu;
-	MenuDefSpec	defSpec;
+	MenuRef customMenu;
+	MenuDefSpec defSpec;
 	
 	defSpec.defType = kMenuDefProcPtr;
-	defSpec.u.defProc = NewMenuDefUPP( MyMDefProc );
+	defSpec.u.defProc = NewMenuDefUPP(MyMDefProc);
 
-	// Create a custom menu
-	CreateCustomMenu( &defSpec, menuID, 0, &customMenu );
+	CreateCustomMenu(&defSpec, menuID, 0, &customMenu);
 	p->menu = customMenu;
 	if (p->menu) 
 		;

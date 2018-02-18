@@ -2210,9 +2210,6 @@ void MaySetPSMusSize(Document *doc, PCONTEXT pContext)
 		else {
 			short stfHeight = drSize[doc->srastral];
 			PS_MusSize(doc, d2pt(stfHeight)+config.musFontSizeOffset);			
-		}
-		
-		LogPrintf(LOG_DEBUG, "MaySetPSMusSize: calling PS_MusSize, stfHt %ld, musFontSzOffst %ld\n",
-									pContext->staffHeight, config.musFontSizeOffset);		
+		}		
 	}
 }

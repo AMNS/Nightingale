@@ -172,7 +172,7 @@ Boolean OpenNotelistFile(Str255 fileName, FSSpec *fsSpec)
 	char		fmtStr[256];
 	//FSSpec	fsSpec;
 	
-	LogPrintf(LOG_DEBUG, "In FSSpec version of OpenNF\n");
+	//LogPrintf(LOG_DEBUG, "In FSSpec version of OpenNF\n");
 	gHairpinCount = 0;
 	//fsSpec = pNSD->nsFSSpec;
 	//result = ParseNotelistFile(fileName, &fsSpec);
@@ -1224,12 +1224,10 @@ static Boolean BuildNLDoc(
 	/* Set the initial paper size, margins, etc. */
 	
 	doc->paperRect.top = doc->paperRect.left = 0;
-	//doc->paperRect.bottom = 11*72;
-	//doc->paperRect.right = 8.5*72;
 	doc->paperRect.bottom = config.paperRect.bottom;
 	doc->paperRect.right = config.paperRect.right;
-LogPrintf(LOG_DEBUG, "paperRect.bottom=%d paperRect.right=%d\n", doc->paperRect.bottom,
-		  doc->paperRect.right);
+//LogPrintf(LOG_DEBUG, "paperRect.bottom=%d paperRect.right=%d\n", doc->paperRect.bottom,
+//		  doc->paperRect.right);
 	
 	doc->pageType = 2;		//??Is this even used?
 	doc->measSystem = 0;

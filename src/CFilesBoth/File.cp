@@ -154,13 +154,13 @@ static void PrintHandleError(short err)
 /* 
  * For given document, try to open its resource fork, and set the document's docPageFormat
  * field to either the previously saved print record if one is there, or NULL if there
- * is no resource fork, or we can't get the print record for some other reason.  It
- * is the responsibility of other routines to check doc->docPageFormat for NULLness or not,
+ * is no resource fork or we can't get the print record for some other reason.  It is
+ * the responsibility of other routines to check doc->docPageFormat for NULLness or not,
  * since we don't want to open the Print Driver every time we open a file (which is
  * when this routine should be called) in order to create a default print handle. The
  * document's resource fork, if there is one, is left closed. 
  *
- * Versions prior to N104 use doc->hPrint stared in HPRT 128 resource. N104 and after this
+ * Versions prior to N104 use doc->hPrint stored in HPRT 128 resource. N104 and after this
  * resource is simply ignored, and a new resource PFMT 128 is created. Since N103 files are
  * converted into new N104 files when opened by N104 version application, there is no need
  * to check for and remove the old resource.
@@ -171,7 +171,7 @@ static void GetPrintHandle(Document *doc, short /*vRefNum*/, FSSpec *pfsSpec)
 		short refnum;
 		OSStatus err = noErr;
 		
-		if (version < 'N104' || THIS_VERSION<'N104') {
+		if (version<'N104' || THIS_VERSION<'N104') {
 			doc->flatFormatHandle = NULL;
 		}
 		else {
@@ -189,7 +189,7 @@ static void GetPrintHandle(Document *doc, short /*vRefNum*/, FSSpec *pfsSpec)
 				return;
 			}
 		
-			doc->flatFormatHandle = (Handle)Get1Resource('PFMT',128);
+			doc->flatFormatHandle = (Handle)Get1Resource('PFMT', 128);
 			/*
 			 *	Ordinarily, we'd now call ReportBadResource, which checks if the new Handle
 			 * is NULL as well as checking ResError. But in this case, we don't want to report
@@ -239,7 +239,7 @@ static Boolean WritePrintHandle(Document *doc)
 		short err = noErr;
 		
 		if (THIS_VERSION<'N104') {
-			// Nothing to write.. we should never get here anyway.
+			// Nothing to write. We should never get here anyway.
 			doc->flatFormatHandle = NULL;
 			return True;
 		}

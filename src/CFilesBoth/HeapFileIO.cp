@@ -457,14 +457,14 @@ static short WriteHeapHdr(Document */*doc*/, short refNum, short heapIndex)
 	count = sizeof(HEAP);
 	ioErr = FSWrite(refNum, &count, (Ptr)myHeap);
 
-		if (DETAIL_SHOW) {
-			long position;
-			const char *ps;
-			GetFPos(refNum, &position);
-			ps = NameHeapType(heapIndex, False);
-			LogPrintf(LOG_DEBUG, "WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
-							heapIndex, ps, objCount[heapIndex], myHeap->objSize, myHeap->type, position);
-		}
+	if (DETAIL_SHOW) {
+		long position;
+		const char *ps;
+		GetFPos(refNum, &position);
+		ps = NameHeapType(heapIndex, False);
+		LogPrintf(LOG_DEBUG, "WriteHeapHdr: heap %d (%s) nFObjs=%u  objSize=%d type=%d FPos:%ld\n",
+						heapIndex, ps, objCount[heapIndex], myHeap->objSize, myHeap->type, position);
+	}
 
 	if (ioErr) SaveError(True, refNum, ioErr, heapIndex);
 	return(ioErr);
@@ -997,14 +997,14 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 	
 	myHeap = doc->Heap + heapIndex;
 
-		if (DETAIL_SHOW) {
-			long position;
-			const char *ps;
-			GetFPos(refNum, &position);
-			ps = NameHeapType(heapIndex, False);
-			LogPrintf(LOG_DEBUG, "RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
-							heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type, tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
-		}
+	if (DETAIL_SHOW) {
+		long position;
+		const char *ps;
+		GetFPos(refNum, &position);
+		ps = NameHeapType(heapIndex, False);
+		LogPrintf(LOG_DEBUG, "RdHpHdr: hp %ld (%s) nFObjs=%u blk=%ld objSize=%ld type=%ld ff=%ld nO=%ld nf=%ld ll=%ld FPos:%ld\n",
+						heapIndex, ps, *pnFObjs, tempHeap.block, tempHeap.objSize, tempHeap.type, tempHeap.firstFree, tempHeap.nObjs, tempHeap.nFree, tempHeap.lockLevel, position);
+	}
 
 	if (myHeap->type!=tempHeap.type)
 		{ OpenError(True, refNum, HDR_TYPE_ERR, heapIndex); return HDR_TYPE_ERR; }

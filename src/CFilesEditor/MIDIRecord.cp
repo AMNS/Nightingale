@@ -1969,7 +1969,6 @@ Boolean StepRecord(
 			nChord = FindDeflamGap(doc, nOnBuffer, nOnBufLen, nowTime-midiNow, 10);
 			if (nChord<=0) {
 				long tStamp = nOnBuffer[nOnBufLen-1].tStamp + midiNow;
-				//long endTime = tStamp+doc->deflamTime;
 				long endTime = nowTime+doc->deflamTime + 100;
 				//LogPrintf(LOG_DEBUG, "timenow %ld endTime %ld\n", nowTime, endTime);
 				while (GetMIDITime(0L)<endTime)

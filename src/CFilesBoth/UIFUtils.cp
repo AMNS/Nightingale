@@ -1561,9 +1561,7 @@ void HiliteArrowKey(DialogPtr /*dlog*/, short whichKey, UserPopUp *pPopup,
 }
 
 
-// QuickDraw Globals
-
-// QD Globals
+/* ----------------------------------------------------------------- QuickDraw Globals -- */
 
 Rect GetQDPortBounds()
 {
@@ -1601,8 +1599,7 @@ Pattern *NGetQDGlobalsDarkGray()
 	static Pattern sDkGray;
 	static Boolean once = True;
 	
-	if (once)
-	{	
+	if (once) {	
 		GetQDGlobalsDarkGray(&sDkGray);
 		once = False;
 	}
@@ -1615,8 +1612,7 @@ Pattern *NGetQDGlobalsLightGray()
 	static Pattern sLtGray;
 	static Boolean once = True;
 	
-	if (once)
-	{	
+	if (once) {	
 		GetQDGlobalsLightGray(&sLtGray);
 		once = False;
 	}
@@ -1629,8 +1625,7 @@ Pattern *NGetQDGlobalsGray()
 	static Pattern sGray;
 	static Boolean once = True;
 	
-	if (once)
-	{	
+	if (once) {	
 		GetQDGlobalsGray(&sGray);
 		once = False;
 	}
@@ -1643,8 +1638,7 @@ Pattern *NGetQDGlobalsBlack()
 	static Pattern sBlack;
 	static Boolean once = True;
 	
-	if (once)
-	{	
+	if (once) {	
 		GetQDGlobalsBlack(&sBlack);
 		once = False;
 	}
@@ -1657,8 +1651,7 @@ Pattern *NGetQDGlobalsWhite()
 	static Pattern sWhite;
 	static Boolean once = True;
 	
-	if (once)
-	{	
+	if (once) {	
 		GetQDGlobalsWhite(&sWhite);
 		once = False;
 	}
@@ -1911,30 +1904,6 @@ void OffsetContrlRect(ControlRef ctrl, short dx, short dy)
 	SetControlBounds(ctrl, &contrlRect);
 }
 
-// Strings
-
-StringPtr CtoPstr(StringPtr str)
-{
-	Byte len = strlen((char *)str);
-	StringPtr p = &str[1];
-	
-	BlockMove(str,p,len);
-	str[0] = len;
-	
-	return str;
-}
-
-StringPtr PtoCstr(StringPtr str)
-{
-	Byte len = str[0];
-	StringPtr p = &str[1];
-	
-	BlockMove(p,str,len);
-	str[len] = '\0';
-	
-	return str;
-}
-
 
 /* ----------------------------------------------------------------- Log-file handling -- */
 /* NB: LOG_DEBUG is the lowest level (=_highest_ internal code: caveat!), so --
@@ -1943,9 +1912,9 @@ _should_ cause all messages to go to the log regardless of level. But on my G5 r
 OS 10.5.x (Xcode 2.5), I rarely if ever get anything below LOG_NOTICE; I have no idea
 why. That doesn't seem to happen on my MacBook with OS 10.6.x (Xcode 3.2).
 
-To avoid this problem, LogPrintf() can change anything with a lower level(=higher code)
-to a given level, MIN_LOG_LEVEL. To disable that feature, set MIN_LOG_LEVEL to a
-large number (not a small one!), say 999. --DAB, July 2017. */
+To avoid this problem, LogPrintf() changes anything with a priority level lower (=internal
+code higher) than MIN_LOG_LEVEL to that level. To disable that feature, set MIN_LOG_LEVEL
+to a large number (not a small one!), say 999.  --DAB, July 2017. */
 
 #define MIN_LOG_LEVEL LOG_NOTICE			/* Force lower levels (higher codes) to this */
 
@@ -1978,19 +1947,30 @@ Boolean VLogPrintf(const char *fmt, va_list argp)
  (1) It may be terminated by "\n", i.e., it may be a full line or a chunk ending a line.
  (2) If it's not terminated by "\n", it's a partial line, to be completed on a later call.
  In case #1, we send the complete line to syslog(); in case #2, just add it to a buffer.
- FIXME: Instances of "\n" _within_ the message aren't handled correctly. */
+ FIXME: Instances of "\n" other than at the end of the message aren't handled correctly! */
+
+char levelPrefix[] = { 'A', 'C', 'E', 'W', 'n', 'i', 'd' };
 
 Boolean LogPrintf(short priLevel, const char *fmt, ...)
 {
 	Boolean okay, endLine;
+	char levelStr[32];
+		
+	/* If we're starting a new line, prefix a code for the level. */
 	
-	if (priLevel>MIN_LOG_LEVEL) priLevel = LOG_NOTICE;
+	if (strlen(outStr)==0) {
+		sprintf(levelStr, "%c. ", levelPrefix[priLevel-1]);
+		strcat(outStr, levelStr);
+	}
 	
+	if (priLevel>MIN_LOG_LEVEL) priLevel = LOG_NOTICE;		/* Override low priorities */
 	va_list argp; 
 	va_start(argp, fmt); 
 	okay = VLogPrintf(fmt, argp); 
 	va_end(argp);
+	
 	/* inStr now contains the results of this call. Handle both cases. */
+	
 	strcat(outStr, inStr);
 	endLine = (inStr[strlen(inStr)-1]=='\n');
 	if (endLine) {

@@ -1668,8 +1668,6 @@ static long FixMeasTimeStamps(
 
 	endMeasL = EndMeasSearch(doc, measL);
 	last = GetSpTimeInfo(doc, RightLINK(measL), endMeasL, spTimeInfo, False);
-//for (int k=0; k<=last; k++)
-//LogPrintf(LOG_DEBUG, "FixTimeStamps: spTimeInfo[%d].startTime=%ld\n", k, spTimeInfo[k].startTime);
 	if (last>=0) {
 		for (i = 0; i<last; i++)
 			if (spTimeInfo[i].isSync) {

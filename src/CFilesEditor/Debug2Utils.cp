@@ -116,8 +116,6 @@ Boolean DCheckTempi(Document *doc)
 				theStrOffset = TempoSTRING(pL);
 				Pstrcpy((StringPtr)tempoStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)tempoStr);
-//LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevTempoStr,
-//					pL, tempoStr);
 				/* If this Tempo object has a tempo string, is it the expected string? */
 				if (strlen(tempoStr)>0 && strcmp(prevTempoStr, tempoStr)!=0)
 					COMPLAIN4("DCheckTempi: Tempo marks L%u ('%s') and L%u in measure %d are inconsistent.\n",
@@ -128,8 +126,6 @@ Boolean DCheckTempi(Document *doc)
 				theStrOffset = TempoMETROSTR(pL);
 				Pstrcpy((StringPtr)metroStr, (StringPtr)PCopy(theStrOffset));
 				PtoCstr((StringPtr)metroStr);
-//LogPrintf(LOG_DEBUG, "DCheckTempi: prevTempoL=%u '%s' pL=%u '%s'\n", prevTempoL, prevMetroStr,
-//					pL, metroStr);
 				/* If this Tempo object has an M.M., is it the expected M.M. string? */
 				if (!TempoNOMM(pL) && strcmp(prevMetroStr, metroStr)!=0)
 					COMPLAIN4("DCheckTempi: M.M.s of Tempo objects L%u ('%s') and L%u in measure %d are inconsistent.\n",

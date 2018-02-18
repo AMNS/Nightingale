@@ -420,8 +420,8 @@ static void FillIgnoreChordTable(Document *doc, short nLast, SPACETIMEINFO space
 				if (aNoteL!=NILINK) {
 					aNote = GetPANOTE(aNoteL);
 					if (aNote->rspIgnore!=0) ignoreChord[i][v] = True;
-if (aNote->rspIgnore!=0) LogPrintf(LOG_DEBUG, "FillIgnoreChordTable: i=%d v=%d: rspIgnore=%hd ignoreChord[]=%d\n",
-	i, v, aNote->rspIgnore, ignoreChord[i][v]);
+//if (aNote->rspIgnore!=0) LogPrintf(LOG_DEBUG, "FillIgnoreChordTable: i=%d v=%d: rspIgnore=%hd ignoreChord[]=%d\n",
+//	i, v, aNote->rspIgnore, ignoreChord[i][v]);
 				}
 			} 
 

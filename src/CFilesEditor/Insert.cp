@@ -1340,7 +1340,6 @@ Boolean InsertTempo(Document *doc, Point pt)
 			Pstrcpy((unsigned char *)tempoStr, (unsigned char *)strBuf);
 			if (tmpStr[0]>63) tmpStr[0] = 63;				/* Limit str. length (see above) */
 			Pstrcpy((unsigned char *)metroStr, (unsigned char *)tmpStr);
-//LogPrintf(LOG_DEBUG, "InsertTempo 1: expanded=%d\n", expanded);
 			NewTempo(doc, pt, palChar, clickStaff, pitchLev, useMM, showMM, dur,dotted,
 						expanded, tempoStr, metroStr);
 			return True;

@@ -2642,8 +2642,8 @@ Connect! Which is a curly brace read from a resource, so it's vulnerable to the 
 problem. Skip DrawCONNECT => yep: strrrretched-out stuff disappears, and all staff lines
 appear! Put DrawCONNECT back, add FIX_END()'s => yep: Connect appears!
 
--------------------------------------------------------------------------------
-
+DrawToolPalette: MemBitCount(palPortBits, 600)=427 portRect tlbr=0,0,399,271
+Feb 17 09:59:14 DonDualG5 Ngale[33188]: d. SizeMenu: charHt=26 charWid=24 numRows=3 numColumns=9
 10 - 14 Feb.
 
 Everything from any call to GetResource(), Get1Resource, etc.,  could be vulnerable to
@@ -2669,4 +2669,20 @@ dialog is fine.
 Trying to open an existing Ngale file on Intel CPUs gives a series of strange error
 messages and, on Don's MacBook Air, crashes or at best displays just the background
 image; on his old white MacBook, it hangs.
+
+-------------------------------------------------------------------------------
+
+16 - 17 Feb.
+
+On my MBAir, the Set Duration "menu" (palette) seems to be waaaaay too large.
+In GraphicMDEF.cp on G5 (with "Show two dots" unchecked):
+
+	d. SizeMenu: charHt=26 charWid=24 numRows=2 numColumns=9
+	d. InitGlobals: gNumItems=18 gNumCols=9 gNumRows=2 gItemHt=26 gItemWid=26
+
+...all reasonable values -- and after adding a few FIX_ENDs to GraphicMDEF.cp, on MBAir,
+they're all?? the same, but the Set Duration dialog is no better! Ah, it's _not_ the
+popped-up palette; it's the unpopped version, showing a single char, which is waaaay,
+WAY too large -- and InitGPopUp() in DurationPopUp sure seems to need FIX_ENDs. Add
+'em => all OK!
 

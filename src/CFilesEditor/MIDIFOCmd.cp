@@ -72,7 +72,7 @@ static void DMFDrawLine(char *s)
 			*q = (*p=='\t'? ' ' : *p);
 			p++; q++;
 		}
-		*q = '\0'; LogPrintf(LOG_DEBUG, aStr); LogPrintf(LOG_DEBUG, "\n");
+		*q = '\0'; LogPrintf(LOG_NOTICE, aStr); LogPrintf(LOG_NOTICE, "\n");
 	}
 
 	MoveTo(textRect.left, textRect.top+linenum*LEADING);

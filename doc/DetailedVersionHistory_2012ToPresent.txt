@@ -2100,7 +2100,7 @@ UIFUtils.
 
 -------------------------------------------------------------------------------
 
-12 - 14 Feb.
+12 - 14 Feb.			 ======== NIGHTINGALE 5.8b6 (15 Feb. 2018) ========
 
 Fixed newly-introduced bug in creating a doc's spacing table. Affects SpaceTime.
 
@@ -2112,4 +2112,24 @@ DelAddRedAccs, DrawHighLevel, Event, Finalize, GRBeam, HeapFileIO, Initialize,
 InitNightingale, MIDIFOCmd, MIDIFOpen, MIDIFSave, MIDIPlay, MIDIRecord, MIDIUtils,
 NotelistParse, PS_Stdio, RTRhythmDur, ScoreInfo, SpaceHighLevel, SpaceTime, TextDialog,
 ToolPalette, Transcribe.
+
+===============================================================================
+
+15 - 17 Feb.
+
+Changed version number from 5.8b6 to 5.8b7. Affects Info.plist.
+
+Added calls to FIX_END, for the benefit of the Intel version. Affects DurationPopUp,
+GraphicMDEF, PS_Stdio.
+
+We now prefix a code for the level -- "d' = debug, "W" = warning, etc. -- to LogPrintf()
+messages. Affects UIFUtils.
+
+Minor cleanup; don't display the CNFG and tool palette params on startup unless
+DETAIL_SHOW, comment or remove obsolete LogPrint(LOG_DEBUG...)s, etc. Affects
+DurationPopUp.h, File.h, NightTemplates.h, UIFUtils.h, Utility.h; Check, CheckUtils,
+CoreMIDIUtils, Debug2Utils, DialogsEditor, Dragging, DrawUtils, DurationPopUp, File,
+GraphicMDEF, HeapFileIO, Initialize, InitNightingale, Insert, Menu, MIDIFOCmd,
+MIDIRecord, NotelistOpen, PS_Stdio, SpaceHighLevel, SpaceTime, StringUtils, TextDialog,
+UIFUtils.
 

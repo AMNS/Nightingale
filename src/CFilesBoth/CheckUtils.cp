@@ -813,7 +813,6 @@ LINK FindAndActOnObject(Document *doc, Point pt, short *pIndex, short checkMode)
 							return pL;
 						break;
 					case GRAPHICtype:
-LogPrintf(LOG_DEBUG, "FindAndActOnObject: <CheckGRAPHIC\n");
 						if ((*pIndex = CheckGRAPHIC(doc, pL, context, (Ptr)&pt, checkMode, stfRange, enlarge))!=NOMATCH)
 							return pL;
 						break;

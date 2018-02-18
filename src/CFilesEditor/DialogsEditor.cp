@@ -2011,7 +2011,6 @@ static void DimOrUndimMMNumberEntry(DialogPtr dlog, Boolean undim, unsigned char
 	Rect	box;
 
 	newType = (undim? editText : statText+itemDisable);
-	//LogPrintf(LOG_DEBUG, "DimOrUndimMMNumberEntry: newType=%d\n", newType);
 	GetDialogItem(dlog, MetroDI, &type, &hndl, &box);
 	SetDialogItem(dlog, MetroDI, newType, hndl, &box);
 
@@ -2208,8 +2207,6 @@ Boolean TempoDialog(Boolean *useMM, Boolean *showMM, short *dur, Boolean *dotted
 		GetDlgString(dlog, VerbalDI, tempoStr);
 		for (k=1; k<=Pstrlen(tempoStr); k++)
 			if (tempoStr[k]==CH_NLDELIM) tempoStr[k] = CH_CR;
-//Pstrcpy((unsigned char *)strC, tempoStr); PToCString((unsigned char *)strC);
-//LogPrintf(LOG_DEBUG, "TempoDialog OK2: len=%d tempoStr='%s'\n", Pstrlen(tempoStr), strC);
 
 		GetDlgString(dlog, MetroDI, metroStr);
 	}

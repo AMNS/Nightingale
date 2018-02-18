@@ -1143,7 +1143,7 @@ static Boolean GetConfig()
 
 	/* Display CNFG fields in the log. Then check for problems, and, if any are found,
 		display the (presumably corrected) values. */
-	DisplayConfig();
+	if (DETAIL_SHOW) DisplayConfig();
 	if (!CheckConfig()) {
 		LogPrintf(LOG_WARNING, "Illegal fields have been set to default values.\n");
 		DisplayConfig();
@@ -1255,8 +1255,9 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 		
 		/* We must _not_ "Endian fix" these values: they're read from one-byte fields! */
 		
-		DisplayToolPalette(whichPalette);
+		if (DETAIL_SHOW) DisplayToolPalette(whichPalette);
 		if (!CheckToolPalette(whichPalette)) {
+			if (!DETAIL_SHOW) DisplayToolPalette(whichPalette);
 			GetIndCString(strBuf, INITERRS_STRS, 34);	/* "Your Prefs file has illegal values for the tool palette..." */
 			CParamText(strBuf, "", "", "");
 			StopInform(GENERIC_ALRT);

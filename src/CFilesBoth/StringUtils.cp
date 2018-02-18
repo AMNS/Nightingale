@@ -2,12 +2,13 @@
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
- * NOTATION FOUNDATION. Copyright © 2016 by Avian Music Notation Foundation.
+ * NOTATION FOUNDATION. Copyright © 2018 by Avian Music Notation Foundation.
  * All Rights Reserved.
  */
 
 /*
-		PToCString				CToPString				Pstrcpy
+		PToCString				CToPString				CtoPstr
+		PtoCstr					Pstrcpy
 		PStrncpy				streql					strneql
 		Pstreql					Pstrneql				Pstrlen
 		PStrCat					GoodStrncpy
@@ -18,12 +19,12 @@
 #include <ctype.h>
 #include "Nightingale.appl.h"
 
-/* ======================================================== Pascal string "toolbox" == */
+/* =========================================================== Pascal string "toolbox" == */
 /* The following are mostly versions of standard C library functions that expect
 Pascal strings instead of C strings, plus some general string utilities.  Cf.
 StringToolbox.c.
 
-/* --------------------------------------------------------- PToCString, CToPString -- */
+/* ------------------------------------------------------------ PToCString, CToPString -- */
 /* Convert C to Pascal style strings and vice-versa. */
 
 /* Convert in place a Pascal string to C string */
@@ -38,7 +39,6 @@ char *PToCString(StringPtr str)
 	*p = '\0';
 	return (char *)str;
 }
-
 
 /* Convert in place a C string to Pascal string */
 
@@ -55,7 +55,34 @@ StringPtr CToPString(char *str)
 }
 
 
-/* ------------------------------------------------------------ Copy Pascal strings -- */
+/* FIXME: Here's another pair of P string <=> C string utils, with slightly different types.
+At the moment (Feb. 2018), both pairs are used about equally often. This is silly! Get rid
+of one pair! */
+
+StringPtr CtoPstr(StringPtr str)
+{
+	Byte len = strlen((char *)str);
+	StringPtr p = &str[1];
+	
+	BlockMove(str,p,len);
+	str[0] = len;
+	
+	return str;
+}
+
+StringPtr PtoCstr(StringPtr str)
+{
+	Byte len = str[0];
+	StringPtr p = &str[1];
+	
+	BlockMove(p,str,len);
+	str[len] = '\0';
+	
+	return str;
+}
+
+
+/* --------------------------------------------------------------- Copy Pascal strings -- */
 
 /* Copy Pascal string from src to dst; return dst */
 
@@ -81,9 +108,9 @@ void PStrncpy(StringPtr dst, ConstStringPtr src, short n)
 }
 
 
-/* --------------------------------------------------- String comparison and length -- */
+/* ------------------------------------------------------ String comparison and length -- */
 
-/* Are two C strings the same or not */
+/* Are two C strings the same or not? */
 
 Boolean streql(char *s1, char *s2)
 {
@@ -94,7 +121,7 @@ Boolean streql(char *s1, char *s2)
 }
 
 
-/* Are two C strings the same or not up to given length */
+/* Are two C strings the same or not, up to given length? */
 
 Boolean strneql(char *s1, char *s2, short n)
 {
@@ -108,7 +135,7 @@ Boolean strneql(char *s1, char *s2, short n)
 }
 
 
-/* Are two Pascal strings the same or not */
+/* Are two Pascal strings the same or not? */
 
 Boolean Pstreql(StringPtr s1, StringPtr s2)
 {
@@ -143,7 +170,7 @@ short Pstrlen(ConstStringPtr str)
 }
 
 
-/* ------------------------------------------------------------------------ PStrCat -- */
+/* --------------------------------------------------------------------------- PStrCat -- */
 /* Concatenates a Pascal string at p2 to the end of p1. NB: if the total length
 of the strings is over 255 characters, this will fail but we won't detect it! */
 
@@ -160,7 +187,7 @@ void PStrCat(StringPtr p1, ConstStringPtr p2)
 }
 
 
-/* -------------------------------------------------------------------- GoodStrncpy -- */
+/* ----------------------------------------------------------------------- GoodStrncpy -- */
 /* GoodStrncpy is like the ISO function strncpy, except that it guarantees the
 result will be a valid C string even if the length of srcStr exceeds numChars.
 Note that it does this by storing into the <numChars+1>st location of <dstStr>! */
@@ -174,7 +201,7 @@ void GoodStrncpy(
 }
 
 
-/* ------------------------------------------------------------------ ExpandPString -- */
+/* --------------------------------------------------------------------- ExpandPString -- */
 /* Stretch the given Pascal string by adding one or two blanks between each pair of
 characters. */
 
@@ -208,7 +235,7 @@ Boolean ExpandPString(StringPtr dstStr, StringPtr srcStr, bool wider)
 }
 
 
-/* ----------------------------------------------------------- Substring extraction -- */
+/* -------------------------------------------------------------- Substring extraction -- */
 /* C's standard string functions don't handle substrings well, especially if you don't
 want to do pointer arithmetic. Here are a couple of substring functions, designed for
 handling filenames but potentially useful for other purposes. */

@@ -1073,7 +1073,7 @@ PushLock(GRAPHICheap);
 				}
 				break;
 			case SMDblClick:
-LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 1\n");
+//LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 1\n");
 				InvalObject(doc, pL, True);								/* Insure objRect is correct */
 				oldObjRect = p->objRect;
 				if (GraphicSubType(pL)==GRDraw) {
@@ -1148,7 +1148,7 @@ LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 1\n");
 									p->multiLine = True;
 									break;
 								}
-LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 2/EraseAndInval pL=%u strlen=%d\n", pL, Pstrlen(string));
+//LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 2/EraseAndInval pL=%u strlen=%d\n", pL, Pstrlen(string));
 #if 0
 							DrawGRAPHIC(doc, pL, contextA, False);
 							r = LinkOBJRECT(pL);
@@ -1211,7 +1211,7 @@ LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <InvalObject 2/EraseAndInval pL=%u strlen=%d
 				if (GraphicSubType(pL)!=GRDraw)
 					InvertSymbolHilite(doc, p->firstObj, staffn, False);		/* Hiliting off */
 				if (change) {
-LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <EraseAndInval\n");
+//LogPrintf(LOG_DEBUG, "CheckGRAPHIC: <EraseAndInval\n");
 					/* FIXME: EraseAndInval'ing the OLD objRect MAY NOT BE ENUF! */
 					EraseAndInval(&oldObjRect);
 					aGraphicL = FirstSubLINK(pL);
@@ -2741,7 +2741,7 @@ PushLock(MEASUREheap);
 					if (DETAIL_SHOW)
 						if (SUSPICIOUS_WREL_RECT(wSub))
 							if (!aMeasure->connAbove)
-						LogPrintf(LOG_DEBUG, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
+								LogPrintf(LOG_DEBUG, " %d:Meas %d,%d,%d,%d\n", pL, wSub.left, wSub.top, wSub.right, wSub.bottom);
 					if (!aMeasure->connAbove) HiliteRect(&wSub);
 				}
 				break;

@@ -822,14 +822,17 @@ static Boolean Res2FontName(unsigned char *useFont, short style)
 			HLock(resH);
 			fond = (FamRec *)(*resH);
 			
+			FIX_END(fond->ffStylOff);
+//LogPrintf(LOG_DEBUG, "Res2FontName: fond->ffStylOff=%d\n", fond->ffStylOff);
 			p = (Byte *)(*resH + fond->ffStylOff);		/* Start of style-mapping table */
-LogPrintf(LOG_DEBUG, "Res2FontName: fond->ffStylOff=%d\n", fond->ffStylOff);
 			p += sizeof(short) + 2*sizeof(long);		/* Past header to 48 style indices */
 			styleIndex = p; p += 48;					/* Save table start for later */
 			stringList = p;								/* Save start of string list */
 			count = *(short *)p; p += sizeof(short);	/* Get past string count */
 			FIX_END(count);
-LogPrintf(LOG_DEBUG, "Res2FontName: count=%d\n", count);
+//LogPrintf(LOG_DEBUG, "Res2FontName: count=%d\n", count);
+			if (count<=0 || count>256) LogPrintf(LOG_WARNING,
+						"Fontname char. count of %d is illegal!  (Res2FontName)\n", count);
 			baseName = p; p += 1 + *p;					/* Get font base name from 1st string */
 			
 			/* Convert from Mac style bits to 'FOND' style-mapping table style bits.
@@ -857,24 +860,29 @@ LogPrintf(LOG_DEBUG, "Res2FontName: count=%d\n", count);
 			
 			index = styleIndex[newStyle];
 			/* Get pseudo-string that index points at in string list */
-			suffix = PS_NthString(stringList,index);
+			suffix = PS_NthString(stringList, index);
 			/* Each "character" in suffix is an index into stringList for appendage */
 			nSuffices = *suffix;
 
-			/* Start with base name */
+			/* Start with base name and add any suffixes. */
 			
 			Pstrcpy(useFont, (StringPtr)baseName);
 			for (p=suffix+1; nSuffices>0; nSuffices--, p++) {
 				short lenSuff, lenName;
 				suffix = PS_NthString(stringList, *p);
-				lenName = *useFont;							/* What we've built so far */
-				lenSuff = *(unsigned char *)suffix;			/* What we're about to append */
-				if ((lenName+lenSuff) <= 255)
-					PStrCat(useFont,suffix);
+				lenName = *useFont;								/* What we've built so far */
+				lenSuff = *(unsigned char *)suffix;				/* What we're about to append */
+				if ((lenName+lenSuff) <= 255) {
+					char tmpStr[255];
+					PStrCat(useFont, suffix);
+					Pstrcpy((StringPtr)tmpStr, useFont);
+					PToCString((StringPtr)tmpStr);
+					if (DETAIL_SHOW) LogPrintf(LOG_DEBUG, "useFont='%s'  (Res2FontName)\n", tmpStr);
+				}
 				 else
 					break;
 				}
-			HSetState(resH,state);
+			HSetState(resH, state);
 			return True;		
 			}
 			else {
@@ -1083,7 +1091,6 @@ OSErr PS_Resource(short resFile, ResType type, short id)
 		
 		HUnlock(rsrc); HPurge(rsrc);
 		ReleaseResource(rsrc);
-		
 		UseResFile(thisResFile);
 		
 		return(thisError);
@@ -1131,7 +1138,7 @@ void PS_Print(char *msg, ...)
 		/* Why do we claim <short>s are <int>s in calls to va_args? Before we did this,
 		   GCC 4.0 warned: "'short int' is promoted to 'int' when passed through '...'
 		   (so you should pass 'int' not 'short int' to 'va_arg'). If this code is
-		   reached, the program will abort." */
+		   reached, the program will abort."  --DAB */
 
 		while (*msg)
 			if (*msg != '%') PS_Char(*(unsigned char *)msg++);
@@ -1847,22 +1854,22 @@ OSErr PS_FontString(Document *doc, DDIST x, DDIST y, const unsigned char *str,
 			if (usingFile)
 				PS_Print(" %ld MF\r",(long)ptSize);
 			 else
-				PS_FontRunAround(doc,doc->musicFontNum,ptSize,0);
+				PS_FontRunAround(doc, doc->musicFontNum, ptSize, 0);
 			PS_Print("SQW\r");
-			PS_Print("(%P)%ld %ld MS\r",str,(long)x,(long)y);
+			PS_Print("(%P)%ld %ld MS\r", str, (long)x, (long)y);
 			thisFont = F_None;
 			}
 		else {
 			if (usingFile) {
 				PS_Print("/");
-				PS_PrintFontName(font,style,&fontKnown);
-				PS_Print(" %ld NF\r",(long)ptSize);
+				PS_PrintFontName(font, style, &fontKnown);
+				PS_Print(" %ld NF\r", (long)ptSize);
 				}
 			 else {
-			 	GetFNum(font,&fontNum);
-				PS_FontRunAround(doc,fontNum,ptSize,style);
+			 	GetFNum(font, &fontNum);
+				PS_FontRunAround(doc, fontNum, ptSize, style);
 				}
-			PS_Print("(%P)%ld %ld MS\r",str,(long)x,(long)y);
+			PS_Print("(%P)%ld %ld MS\r", str, (long)x, (long)y);
 			thisFont = F_Other;
 			if (!fontKnown) unknownFonts += 1;
 			}

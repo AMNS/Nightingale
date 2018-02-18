@@ -1,8 +1,8 @@
 /* GraphicMDEF.c for Nightingale
 
-The app's res fork must contain a 'chgd' resource having same ID as a 'MENU' that
-uses this defproc. NB: If you want a special background color for a popup menu, specify 
-it as a menu bar color rather than a menu title color. Because of DeleteMenu in
+The app's resource fork must contain a 'chgd' resource having the same ID as any 'MENU'
+that uses this defproc. NB: If you want a special background color for a popup menu,
+specify  it as a menu bar color rather than a menu title color. Because of DeleteMenu in
 DoGPopUp, the second time the popup is invoked, it loses the title part of its 'mctb'.
 It's not clear to me why this happens. */
 
@@ -29,7 +29,7 @@ static void DrawRow(MenuHandle, Rect *, short);
 static void DrawColumn(MenuHandle, Rect *, short);
 static void InvertItem(short, Boolean, Rect *, MenuHandle);
 static void FindMenuItem(MenuHandle, Rect *, Point, MenuTrackingData* trackingData, CGContextRef context );
-static void	HiliteMenuItem( MenuRef menu, const Rect* bounds, HiliteMenuItemData* hiliteData, CGContextRef context );
+static void	HiliteMenuItem(MenuRef menu, const Rect* bounds, HiliteMenuItemData* hiliteData, CGContextRef context );
 static Boolean ItemIsVisible(short);
 static Boolean InScrollRect(Point, Rect *);
 static void ScrollMenu(MenuHandle, Rect *, short);
@@ -57,11 +57,9 @@ static short		gTopVisRow, gBotVisRow;		/* Number of row containing top or bottom
 														/* changed only in ScrollMenu. */ 
 static short		gLeftVisColumn, gRightVisColumn;	/* analogous to above */
 static short		gNumItems;
-static short		gNumCols;
-static short		gNumRows;
+static short		gNumCols, gNumRows;
 static short		gPopFontNum;
-static short		gItemHt;
-static short		gItemWid;
+static short		gItemHt, gItemWid;
 static Boolean		gIsAPopUp;				/* If this MDEF is used for a popup AND a normal menu, you */
 											/* must call CalcMenuSize for the normal menu EVERY time */
 											/* the user clicks in menu bar. This generates a mSizeMsg */
@@ -107,10 +105,10 @@ static Boolean gHasColorQD=False;
 
 
 /* For a normal menu, the MDEF main gets called with msgs in this order:
- *		1) mSizeMsg, when CalcMenuSize is called (e.g., when installing in Mbar;
+ *		1) mSizeMsg, when CalcMenuSize is called (e.g., when installing in menu bar;
  *				NB: CalcMenuSize normally not called again)
- *		2) mDrawMsg, after mouse clicked in menu title
- *		3) mChooseMsg, while mouse down
+ *		2) mDrawMsg, after mouse is clicked in menu title
+ *		3) mChooseMsg, while mouse is down
  *   In this case, DrawMenu should call InitGlobals.
  * For a popup menu, this is the order:
  *		1) mSizeMsg, when CalcMenuSize is called (e.g., in my DoGPopUp) after click
@@ -133,7 +131,8 @@ static Boolean gHasColorQD=False;
  * 							return: menu rect					return: TopMenuItem
  */
 
-pascal void MyMDefProc(short message, MenuHandle theMenu, Rect *menuRect, Point hitPt, short *whichItem)
+pascal void MyMDefProc(short message, MenuHandle theMenu, Rect *menuRect, Point hitPt,
+						short *whichItem)
 {
 	switch (message) {	
 		case kMenuInitMsg:
@@ -153,7 +152,8 @@ pascal void MyMDefProc(short message, MenuHandle theMenu, Rect *menuRect, Point 
 			break;
 			
 		case kMenuPopUpMsg:
-			PopUpMenu(theMenu, menuRect, hitPt.h, hitPt.v, whichItem);	// NB: h and v are reversed in hitPt for this msg! See TN 172
+			// NB: h and v are reversed in hitPt for this message! See Apple Tech Note 172.
+			PopUpMenu(theMenu, menuRect, hitPt.h, hitPt.v, whichItem);
 			break;
 			
 		case kMenuFindItemMsg:
@@ -183,26 +183,30 @@ static void InitGlobals(MenuHandle theMenu)
 	register short fontNameLen;
 	short menuID = GetMenuID(theMenu);
 	
-	gCharGridH = (HCHARGRID) Get1Resource('chgd', menuID);
+	gCharGridH = (HCHARGRID)Get1Resource('chgd', menuID);
 	if (gCharGridH==NULL) {
 		SysBeep(10);										/* character grid rsrc missing */
+		LogPrintf(LOG_WARNING, "Character grid resource for graphic menu is missing.  (InitGlobals)\n");
 		return;
 	}
 	
 	/* determine number of rows and columns */
-	gNumItems = (*gCharGridH)->numChars;
+	gNumItems = (*gCharGridH)->numChars;	FIX_END(gNumItems);
 	gNumCols = (*gCharGridH)->numColumns;
 	if (gNumItems < gNumCols) gNumItems = gNumCols;
 	gNumRows = gNumItems / gNumCols;
 	if (gNumItems % gNumCols) gNumRows++;
 
-	gItemHt = GetMenuHeight(theMenu) / gNumRows;			/* menu ht,wid already set by SizeMenu */
+	gItemHt = GetMenuHeight(theMenu) / gNumRows;			/* menu ht, wid already set by SizeMenu */
 	gItemWid = GetMenuWidth(theMenu) / gNumCols;
+LogPrintf(LOG_DEBUG, "InitGlobals: gNumItems=%d gNumCols=%d gNumRows=%d gItemHt=%d gItemWid=%d\n",
+gNumItems, gNumCols, gNumRows, gItemHt, gItemWid);
 
 	HLock((Handle)gCharGridH);
 	GetFNum((*gCharGridH)->fontName, &gPopFontNum);			/* this moves memory */
 	if (gPopFontNum==0) {
 		SysBeep(10);										/* font missing */
+		LogPrintf(LOG_WARNING, "Font for graphic menu is missing.  (InitGlobals)\n");
 		HUnlock((Handle)gCharGridH);
 		return;
 	}
@@ -211,7 +215,7 @@ static void InitGlobals(MenuHandle theMenu)
 	fontNameLen = (*gCharGridH)->fontName[0] + 1;
 	if (odd(fontNameLen)) fontNameLen++;
 
-	gItemCharsOffset = (short)((char *)(*gCharGridH)->fontName-(char *)*gCharGridH)+fontNameLen;
+	gItemCharsOffset = (short)((char *)(*gCharGridH)->fontName - (char *)*gCharGridH) + fontNameLen;
 	
 	gArrowRectWid = ARROWRECT_WID;
 }
@@ -222,7 +226,8 @@ cleared to proper color (all by mbarproc). Since this is called only when mouse 
 entered menu title, and not while mouse moves among the menu items--which may scroll,
 we can initialize globals here. */
 
-static void DrawMenu(MenuHandle theMenu, Rect *menuRect, MenuTrackingData* trackingData, CGContextRef context )
+static void DrawMenu(MenuHandle theMenu, Rect *menuRect, MenuTrackingData* trackingData,
+						CGContextRef context )
 {
 #pragma unused(trackingData)
 #pragma unused(context)
@@ -293,13 +298,13 @@ static void DrawItem(short item, Rect *itemRect, MenuHandle theMenu, Boolean lea
 			SetColors(&gItemNameColor, &gMenuBgColor, leaveBlack);
 		else
 			SetColors(&gMyGrayColor, &gMenuBgColor, False);
-		if (gPixelDepth > 1)
-			drawInColor = True;
+			
+		if (gPixelDepth > 1) drawInColor = True;
 	}
 #endif
 
 	/* Prepare for drawing font chars. */
-	GetPort(&gp);										/* window mgr port */
+	GetPort(&gp);										/* Window Manager port */
 	saveFontNum = GetPortTextFont(gp);
 	saveFontSize = GetPortTextSize(gp);
 	
@@ -334,7 +339,7 @@ static void DrawItem(short item, Rect *itemRect, MenuHandle theMenu, Boolean lea
 }
 
 
-/* DrawRow and DrawColumn called only from ScrollMenu. */
+/* DrawRow and DrawColumn should be called only from ScrollMenu. */
 
 static void DrawRow(MenuHandle theMenu, Rect *menuR, short rowNum)
 {
@@ -377,14 +382,13 @@ static void InvertItem(short item, Boolean leaveBlack, Rect *menuRect, MenuHandl
 	}
 #endif
 
-/* •••all this clipping stuff is probably unnecessary */
+/* All this clipping stuff is probably unnecessary, but it doesn't hurt. */
 	saveClip = NewRgn();
 	GetClip(saveClip);
 	GetItemRect(item, menuRect, &itemRect);
 	EraseRect(&itemRect);	
 #if USE_COLOR
-	if (gHasColorQD)
-		RestoreColors();
+	if (gHasColorQD) RestoreColors();
 #endif
 
 	ClipRect(&itemRect);
@@ -401,7 +405,7 @@ static void InvertItem(short item, Boolean leaveBlack, Rect *menuRect, MenuHandl
 	DisposeRgn(saveClip);
 }
 
-static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTrackingData* trackingData, CGContextRef /*context*/ )
+static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTrackingData *trackingData, CGContextRef /*context*/ )
 {
 	register short	newItem, vFromTop, hFromLeft, direction, row, col;
 	Boolean			hitPtInMenuRect = False, doScroll = False;
@@ -414,9 +418,9 @@ static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTr
 
 	hitPtInMenuRect = PtInRect(hitPt, menuRect);
 	
-	/* Scroll even when mouse is not in menu rect in certain circumstances,
-	 * in conformity to the way normal text menus work.
-	 */
+	/* Scroll even when mouse is not in menu rect in certain circumstances, in
+	   conformity to the way normal text menus work. */
+	   
 	if (!hitPtInMenuRect && gScrollStatus != NOSCROLL) {
 		if (gScrollStatus & SCROLLUP || gScrollStatus & SCROLLDOWN) {
 			if (hitPt.h > menuRect->left && hitPt.h < menuRect->right)
@@ -499,16 +503,17 @@ static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTr
 	}
 }
 
-static void HiliteMenuItem( MenuRef theMenu, const Rect* menuRect, HiliteMenuItemData* hiliteData, CGContextRef /*context*/ )
+static void HiliteMenuItem( MenuRef theMenu, const Rect *menuRect, HiliteMenuItemData *hiliteData,
+								CGContextRef /*context*/ )
 {
 	short previousItem = hiliteData->previousItem;
 	short newItem = hiliteData->newItem;
 	
 	if (previousItem != newItem) {
-		char	*p;
-		LoadResource((Handle)gCharGridH);				/* just in case it's been purged */
-		p = (char *) *gCharGridH;						/* no need to lock handle here */
-		p += gItemCharsOffset;							/* point at beginning of item chars */
+		char *p;
+		LoadResource((Handle)gCharGridH);					/* just in case it's been purged */
+		p = (char *)*gCharGridH;							/* no need to lock handle here */
+		p += gItemCharsOffset;								/* point at beginning of item chars */
 		if (newItem <= gNumItems && p[newItem-1] != '\0')
 			InvertItem(newItem, True, (Rect *)menuRect, theMenu);
 		else
@@ -601,8 +606,7 @@ static void ScrollMenu(MenuHandle theMenu, Rect *menuRect, short direction)
 	DisposeRgn(updtRgn);
 
 #if USE_COLOR
-	if (gHasColorQD)
-		RestoreColors();
+	if (gHasColorQD) RestoreColors();
 #endif
 
 	if (direction == UP) {
@@ -651,8 +655,7 @@ static void ScrollMenu(MenuHandle theMenu, Rect *menuRect, short direction)
 		}
 	}
 
-	if (gScrollStatus == NOSCROLL)
-		gArrowRectWid = 0;
+	if (gScrollStatus == NOSCROLL) gArrowRectWid = 0;
 }
 
 
@@ -660,11 +663,11 @@ static void ScrollMenu(MenuHandle theMenu, Rect *menuRect, short direction)
 
 static void DrawEraseScrollArrow(Rect *menuRect, short arrow, Boolean draw)
 {
-	register short		dh, dv, sicnIndex;
-	Rect				arrowRect, sicnRect;
+	register short	dh, dv, sicnIndex;
+	Rect			arrowRect, sicnRect;
 	register Handle	SICNHdl;
-	BitMap				bm;
-	GrafPtr				gp;
+	BitMap			bm;
+	GrafPtr			gp;
 	
 	arrowRect = *menuRect;
 	SetRect(&sicnRect, menuRect->left, menuRect->top,
@@ -698,7 +701,7 @@ static void DrawEraseScrollArrow(Rect *menuRect, short arrow, Boolean draw)
 	OffsetRect(&sicnRect, dh, dv);
 
 	if (draw) {
-		/* get the SICNs */
+		/* get the small icons for arrows */
 		SICNHdl = Get1Resource('SICN', SICN_ID);
 		if (SICNHdl == NULL) return;
 	
@@ -746,8 +749,7 @@ static void EraseMenu(Rect *menuRect)
 	EraseRect(menuRect);
 	
 #if USE_COLOR
-	if (gHasColorQD)
-		RestoreColors();
+	if (gHasColorQD) RestoreColors();
 #endif
 }
 
@@ -756,41 +758,44 @@ static void SizeMenu(MenuHandle theMenu, Point hitPt)
 {
 #pragma unused(hitPt)
 
-	register short			charWid, charHt, numItems, fontSize;
-	short					popFontNum, saveFontSize, saveFontNum;
-	register unsigned char	numColumns, numRows;
-	register Handle			resH;
-	register PCHARGRID		cgP;
-	FontInfo				finfo;
-	GrafPtr					gp;
+	register short		charWid, charHt, numItems, fontSize;
+	short				popFontNum, saveFontSize, saveFontNum;
+	short				numColumns, numRows;
+	register Handle		resH;
+	register PCHARGRID	chgdP;
+	FontInfo			finfo;
+	GrafPtr				gp;
 		
 	/* We can set these globals here. popupmsg follows. However, make sure to call
-		CalcMenuSize before each click in the menu bar for any menus that use this
-		MDEF. (The user might have clicked a popup that uses this MDEF after the
-		initial call to SizeMenu, when the menu bar is drawn.)
-	 */
+	   CalcMenuSize before each click in the menu bar for any menus that use this
+	   MDEF. (The user might have clicked a popup that uses this MDEF after the
+	   initial call to SizeMenu, when the menu bar is drawn.) */
+	
 	gIsAPopUp = False;
 	gScrollStatus = NOSCROLL;
 	gArrowRectWid = 0;
 	
-	/* No point loading the 'chgd' resource for good now, because SizeMenu may be
-		called when the Menu Mgr sets up the menu bar, possibly long before any of
-		our menus are invoked. */
+	/* There's no point loading the 'chgd' resource for good now, because SizeMenu may
+	   be called when the Menu Mgr sets up the menu bar, possibly long before any of
+	   our menus are invoked. */
 	
 	resH = Get1Resource('chgd', GetMenuID(theMenu));
 	if (resH==NULL) {
-		SysBeep(10);										/* character grid rsrc missing */
+		SysBeep(10);									/* character grid rsrc missing */
 		return;
 	}
-	cgP = (PCHARGRID) *resH;
-	numItems = cgP->numChars;								/* Can't put these in a global yet, because */
-	fontSize = cgP->fontSize;								/* another menu may use this code before this */
-	numColumns = cgP->numColumns;							/* one receives its drawMsg. */
+	chgdP = (PCHARGRID)*resH;
+	FIX_END(chgdP->numChars); 
+	FIX_END(chgdP->fontSize); 
+	numItems = chgdP->numChars;							/* Can't put these in a global yet, because */
+	fontSize = chgdP->fontSize;							/* another menu may use this code before this */
+	numColumns = chgdP->numColumns;						/* one receives its drawMsg. */
+
 	/* get maxWidth of popup char font */
 	HLock((Handle)resH);
-	GetFNum(cgP->fontName, &popFontNum);					/* moves memory */
+	GetFNum(chgdP->fontName, &popFontNum);				/* moves memory */
 	if (popFontNum==0) {
-		SysBeep(10);										/* font missing */
+		SysBeep(10);									/* font missing */
 		HUnlock((Handle)resH);
 		return;
 	}
@@ -802,7 +807,7 @@ static void SizeMenu(MenuHandle theMenu, Point hitPt)
 	numRows = numItems / numColumns;
 	if (numItems % numColumns) numRows++;
 
-	GetPort(&gp);											/* window mgr port */
+	GetPort(&gp);										/* Window Manager port */
 	//saveFontNum = gp->txFont;
 	//saveFontSize = gp->txSize;
 	saveFontNum = GetPortTextFont(gp);
@@ -817,13 +822,17 @@ static void SizeMenu(MenuHandle theMenu, Point hitPt)
 	
 	/* calculate menu dimensions */
 	SetMenuHeight(theMenu, charHt * numRows);
-	SetMenuWidth(theMenu, charHt * numColumns);
+	SetMenuWidth(theMenu, charWid * numColumns);
+LogPrintf(LOG_DEBUG, "SizeMenu: charHt=%d charWid=%d numRows=%d numColumns=%d\n", charHt, charWid,
+			numRows, numColumns); 
 }
 
 
 static void GetItemRect(short item, Rect *menuRect, Rect *itemRect)
 {
 	register short	row, col, dh, dv;
+
+	dh = dv = 0;	
 
 	if (item > 0) {
 		row = ((item - 1) / gNumCols) + 1;
@@ -863,7 +872,7 @@ static void GetItemRect(short item, Rect *menuRect, Rect *itemRect)
 
 /* Show the menu under the cursor. This should be called after SizeMenu, but before
  * DrawMenu and ChooseItem.
- * ••See Tech Note 172, "Parameters for MDEF Message #3"
+ * See (ancient) Apple Tech Note 172, "Parameters for MDEF Message #3".
  * From Apple text MDEF:
  * 
  * Calc TopMenuItem and MenuRect so that the top of PopUpItem is at TopLeft
@@ -967,7 +976,7 @@ static void PopUpMenu(MenuHandle theMenu, Rect *menuRect, short v, short h, shor
 	
 	/* Can't handle scrolling in both dimensions at same time yet, so just
 	 * insure that the menu is onscreen. The item that comes up under the
-	 * mouse will not be the current one though. Maybe moving the pointer
+	 * mouse will not be the current one, though. Maybe moving the pointer
 	 * is an acceptible solution in this case.
 	 */
 	if ((gScrollStatus & SCROLLLEFT || gScrollStatus & SCROLLRIGHT) &&
@@ -1010,8 +1019,8 @@ void GetColors(MenuHandle theMenu, short menuItem)
 	register MCEntryPtr	mbarPtr;
 	register MCEntryPtr	titlePtr;
 	register MCEntryPtr	itemPtr;
-	RGBColor					WhiteRGB;
-	RGBColor					BlackRGB;
+	RGBColor			WhiteRGB;
+	RGBColor			BlackRGB;
 
 	WhiteRGB.red = 0xFFFF;
 	WhiteRGB.green = 0xFFFF;
@@ -1028,7 +1037,7 @@ void GetColors(MenuHandle theMenu, short menuItem)
 		return;
 	}
 
-	mbarPtr = GetMCEntry(0,0);
+	mbarPtr = GetMCEntry(0, 0);
 	titlePtr = GetMCEntry(GetMenuID(theMenu), 0);
 	itemPtr = GetMCEntry(GetMenuID(theMenu), menuItem);
 	//titlePtr = GetMCEntry((**theMenu).menuID, 0);

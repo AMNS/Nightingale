@@ -1,9 +1,9 @@
 /* 
- * CoreMIDIUtils.c
+ * CoreMIDIUtils.c for Nightingale
  * 
  * An old comment here: "Implementation of OMSUtils functionality for Core MIDI for
  * Nightingale"; presumably "OMSUtils" means our old C module of that name, written
- * by Ken Brockman.
+ * by Ken Brockman.  --DAB, December 2017
  */
  
 #include "Nightingale_Prefix.pch"
@@ -87,7 +87,6 @@ static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *c
 static Boolean AllocCMPacketList(void)
 {
 	gMIDIPacketList = (MIDIPacketList *)gMIDIPacketListBuf;
-
 	gCurrentPacket = gCurrPktListBegin = gCurrPktListEnd = MIDIPacketListInit(gMIDIPacketList);
 	
 	return (gCurrentPacket != NULL);
@@ -108,8 +107,7 @@ Boolean ResetMIDIPacketList()
 
 Boolean CMCurrentPacketValid()
 {
-	return (gCurrentPacket != NULL && 
-				gCurrentPacket < gCurrPktListEnd &&
+	return (gCurrentPacket != NULL && gCurrentPacket < gCurrPktListEnd &&
 				!CMIsActiveSensingPacket(gCurrentPacket));
 }
 
@@ -225,9 +223,7 @@ static MIDIPacket *AddActiveSensingPacket(MIDIPacket *pm)
 long CMTimeStampToMillis(MIDITimeStamp timeStamp)
 {
 	UInt64 tsNanos = AudioConvertHostTimeToNanos(timeStamp);
-	
 	UInt64 tsMillis = tsNanos / kNanosToMillis;
-	
 	long tsLongMillis = (long)tsMillis;
 	
 	return tsLongMillis;
@@ -236,8 +232,8 @@ long CMTimeStampToMillis(MIDITimeStamp timeStamp)
 long CMGetHostTimeMillis()
 {
 	UInt64 tsNanos = AudioGetCurrentHostTime();
-
 	long hostMillis = CMTimeStampToMillis(AudioGetCurrentHostTime());
+	
 	return hostMillis;
 }
 
@@ -251,7 +247,6 @@ void CMNormalizeTimeStamps()
 	MIDIPacket *packet = gCurrPktListBegin;
 
 	while (packet != gCurrPktListEnd) {
-	
 		if (CMIsNoteOnPacket(packet) || CMIsNoteOffPacket(packet) ) {
 			if (!haveTimeStamp) {
 				haveTimeStamp = True;
@@ -372,7 +367,6 @@ void CMSetup(Document *doc, Byte *partChannel)
 		
 		CMGetUsedChannels(doc, partChannel, activeChannel);
 		Boolean ok = SetupSoftMIDI(activeChannel);
-		
 		if (ok) gCMSoftMIDIActive = True;
 	}
 }
@@ -476,7 +470,7 @@ static void CMFBNoteOffDevID(Document *doc, short noteNum, short channel, MIDIUn
 void CMFBOff(Document *doc)
 {
 	if (doc->feedback) {
-		if (appOwnsBITimer) {					/* use built-in */
+		if (appOwnsBITimer) {						/* use built-in */
 			CMStopTime();
 		}
 	}
@@ -622,11 +616,9 @@ void CMAllNotesOff()
 			gDest = GetMIDIEndpointByID(id);
 			
 			for (j = 1; j<=MAXCHANNEL; j++) {
-				if (CMTransmitChannelValid(id, j))
-				{
-					for (noteNum = 0; noteNum<=MAX_NOTENUM; noteNum++) {
+				if (CMTransmitChannelValid(id, j)) {
+					for (noteNum = 0; noteNum<=MAX_NOTENUM; noteNum++)
 						CMEndNoteNow(id, noteNum, j);
-					}
 				}
 			}
 			
@@ -664,7 +656,7 @@ void CMDebugPrintXMission()
 	for (int i1 = 0; i1 < n1; ++i1) {
 		MIDIEndpointRef endpt1 = MIDIGetDestination(i1);
 		MIDIUniqueID id1 = GetMIDIObjectId(endpt1);
-		LogPrintf(LOG_INFO, "\nXmit dev=%ld  (CMDebugPrintXMission)\n", id1);
+		LogPrintf(LOG_INFO, "Xmit dev=%ld  (CMDebugPrintXMission)\n", id1);
 		
 		for (long j1=1; j1<=kMaxChannels; j1++) {
 			Boolean ok1 = CMTransmitChannelValid(id1, j1);
@@ -683,31 +675,27 @@ MIDIUniqueID GetMIDIObjectId(MIDIObjectRef obj)
 	if (obj != NULL)
 		err = MIDIObjectGetIntegerProperty(obj, kMIDIPropertyUniqueID, &id);
 	
-	if (err != noErr)
-		id = kInvalidMIDIUniqueID;
+	if (err != noErr) id = kInvalidMIDIUniqueID;
 	
 	return id;
 }
 
 static MIDIEndpointRef GetMIDIEndpointByID(MIDIUniqueID id)
 {
-	if (id == kInvalidMIDIUniqueID)
-		return NULL;
+	if (id == kInvalidMIDIUniqueID) return NULL;
 
 	int m = MIDIGetNumberOfSources();
 	for (int i = 0; i < m; ++i) {
 		MIDIEndpointRef src = MIDIGetSource(i);
 		MIDIUniqueID srcID = GetMIDIObjectId(src);
-		if (srcID == id)
-			return src;
+		if (srcID == id) return src;
 	}
 	
 	int n = MIDIGetNumberOfDestinations();
 	for (int i = 0; i < n; ++i) {
 		MIDIEndpointRef dest = MIDIGetDestination(i);
 		MIDIUniqueID destID = GetMIDIObjectId(dest);
-		if (destID == id)
-			return dest;
+		if (destID == id) return dest;
 	}
 	
 	return NULL;
@@ -725,14 +713,16 @@ static void GetInitialDefaultInputDevice()
 	for ( ; i < n; ++i) {
 		s = MIDIGetSource(i);
 		if (s == cfg) { 
-			src = s; break;
+			src = s;
+			break;
 		}
 	}
 	
 	if (src == NULL) {
 		n = MIDIGetNumberOfSources();
 		for (i = 0; i < n; ++i) {
-			src = MIDIGetSource(i); break;
+			src = MIDIGetSource(i);
+			break;
 		}
 	}
 	
@@ -742,7 +732,6 @@ static void GetInitialDefaultInputDevice()
 static Boolean CMChannelValidRange(int channel)
 {
 	if (channel < kCMMinMIOIChannel) return False;
-		
 	if (channel > kCMMaxMIDIChannel) return False;
 		
 	return True;
@@ -812,9 +801,7 @@ static void CheckDefaultInputDevice()
 	MIDIEndpointRef src;
 		
 	if (gDefaultInputDevID == kInvalidMIDIUniqueID)
-	{
 		GetInitialDefaultInputDevice();
-	}
 	
 	src = GetMIDIEndpointByID(gDefaultInputDevID);
 	
@@ -1104,6 +1091,7 @@ void DeletePartnCMDevice(Document *doc, short partn)
 	
 	if (!doc) doc = currentDoc;
 	curLastPartn = LinkNENTRIES(doc->headL) - 1;
+	
 	/* Shift list from partn+1 through curLastPartn down by 1 */
 	for (i=partn+1, j=i-1;i >= curLastPartn;)
 		doc->cmPartDeviceList[i++] = doc->cmPartDeviceList[j++];
@@ -1477,7 +1465,7 @@ static void GetDLSControllerID()
 
 Boolean InitCoreMIDI()
 {
-	int i, n;
+	short i, n;
 	
 	if (!gCoreMIDIInited) {
 	
@@ -1559,8 +1547,7 @@ Boolean InitCoreMIDI()
 		MIDIEndpointRef src = NULL;
 		
 		n = MIDIGetNumberOfSources();
-		//printf("%d sources\n", n);
-		LogPrintf(LOG_INFO, "%ld sources\t\t", n);
+		LogPrintf(LOG_INFO, "%d source(s)    ", n);
 		for (i = 0; i < n && stat==noErr; ++i) {
 			src = MIDIGetSource(i);
 			stat = MIDIPortConnectSource(gInPort, src, NULL);
@@ -1572,15 +1559,13 @@ Boolean InitCoreMIDI()
 		
 		// find the first destination
 		n = MIDIGetNumberOfDestinations();
-		LogPrintf(LOG_INFO, "%ld destinations  (InitCoreMIDI)\n", n);
+		LogPrintf(LOG_INFO, "%d destination(s)  (InitCoreMIDI)\n", n);
 		if (n > 0) {
 			gDest = MIDIGetDestination(0);
-			
 			LogPrintf(LOG_INFO, "Got MIDI Destination: gDest = %ld  (InitCoreMIDI)\n", gDest);
 		}
 		else {
 			gCMNoDestinations = True;
-
 			LogPrintf(LOG_WARNING, "No available MIDI Destinations  (InitCoreMIDI)\n");
 		}
 		

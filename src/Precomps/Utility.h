@@ -89,9 +89,5 @@ char *StdVerNumToStr(long verNum, char *verStr);
 short PlayResource(Handle, Boolean);
 Boolean TrapAvailable(short);
 
-Boolean VLogPrintf(const char *fmt, va_list argp);
-Boolean LogPrintf(short priLevel, const char *fmt, ...);
-short InitLogPrintf();
-
 Boolean FitStavesOnPaper(Document *);
 short CountUnjustifiedSystems(Document *doc, LINK startPageL, LINK endPageL, short *pfirstUnjustPg);

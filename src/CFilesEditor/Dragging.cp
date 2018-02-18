@@ -1170,8 +1170,6 @@ static void SDDrawGraphic(Document *doc, LINK pL, LINK measureL)
 					Str255 textStr;
 					pGraphic = GetPGRAPHIC(pL);
 					if (pGraphic->graphicType==GRString) expandN = (pGraphic->info2!=0);
-					//if (pGraphic->graphicType==GRString)
-					//	LogPrintf(LOG_DEBUG, "SDDrawGraphic: pGraphic->info2=%d\n", pGraphic->info2);
 					if (expandN) {
 						if (!ExpandPString(textStr, (StringPtr)PCopy(strOffset), EXPAND_WIDER))
 							LogPrintf(LOG_WARNING, "SDDrawGraphic: ExpandPString failed.\n");

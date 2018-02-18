@@ -2122,7 +2122,7 @@ void InstallDocMenus(Document *doc)
 static void InstallDebugMenuItems(Boolean installAll)
 {
 	if (debugItemsNeedInstall) {
-		LogPrintf(LOG_DEBUG, "InstallDebugMenuItems: installing debug menu items...\n");
+		LogPrintf(LOG_INFO, "Installing debug menu items...  (InstallDebugMenuItems)\n");
 		AppendMenu(editMenu, "\p(-");
 		AppendMenu(editMenu, "\pBrowser");
 		if (installAll) {
@@ -2131,7 +2131,7 @@ static void InstallDebugMenuItems(Boolean installAll)
 		}
 	}
 	else {
-		LogPrintf(LOG_DEBUG, "InstallDebugMenuItems: removing debug menu items...\n");
+		LogPrintf(LOG_INFO, "Removing debug menu items...  InstallDebugMenuItems)\n");
 		DeleteMenuItem(editMenu, EM_DeleteObjs);			
 		DeleteMenuItem(editMenu, EM_Debug);
 		DeleteMenuItem(editMenu, EM_Browser);

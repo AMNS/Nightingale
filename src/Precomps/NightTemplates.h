@@ -466,6 +466,9 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 
 	char		*PToCString(StringPtr str);
 	StringPtr	CToPString(char *str);
+	StringPtr CtoPstr(StringPtr str);
+	StringPtr PtoCstr(StringPtr str);
+
 	StringPtr	Pstrcpy(StringPtr dst, ConstStringPtr src);
 	void		PStrncpy(StringPtr, ConstStringPtr, short);
 	Boolean		streql(char *s, char *t);

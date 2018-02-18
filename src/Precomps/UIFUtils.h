@@ -131,5 +131,6 @@ void SetDocumentKind(WindowPtr w);
 
 void OffsetContrlRect(ControlRef ctrl, short dx, short dy);
 
-StringPtr CtoPstr(StringPtr str);
-StringPtr PtoCstr(StringPtr str);
+Boolean VLogPrintf(const char *fmt, va_list argp);
+Boolean LogPrintf(short priLevel, const char *fmt, ...);
+short InitLogPrintf();
