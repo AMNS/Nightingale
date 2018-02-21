@@ -185,7 +185,6 @@
 		D088B99B0D5FBA840028C2BC /* MIDIDialogs.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B9980D5FBA840028C2BC /* MIDIDialogs.cp */; };
 		D088B99D0D5FBA840028C2BC /* MIDIPlay.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B99A0D5FBA840028C2BC /* MIDIPlay.cp */; };
 		D088B9C70D5FBE4A0028C2BC /* GraphicMDEF.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B9C50D5FBE4A0028C2BC /* GraphicMDEF.cp */; };
-		D088B9C80D5FBE4A0028C2BC /* SampleMDEF.cp in Sources */ = {isa = PBXBuildFile; fileRef = D088B9C60D5FBE4A0028C2BC /* SampleMDEF.cp */; };
 		D099DB1B0DB2FE0300C228DB /* EndianUtils.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = D099DB1A0DB2FE0300C228DB /* EndianUtils.h */; };
 		D0AFDAE60D5FC197009B73BC /* CoreMIDI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0AFDAE50D5FC197009B73BC /* CoreMIDI.framework */; };
 		D0AFDB330D5FC5D6009B73BC /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D0AFDB320D5FC5D6009B73BC /* AudioToolbox.framework */; };
@@ -378,7 +377,6 @@
 		D03E6E440D5F9A64005FD177 /* NTimeMgr.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = NTimeMgr.h; sourceTree = "<group>"; };
 		D03E6E6F0D5F9C67005FD177 /* helpPrivate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = helpPrivate.h; sourceTree = "<group>"; };
 		D03E6E8D0D5F9D21005FD177 /* GraphicMDEF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = GraphicMDEF.h; sourceTree = "<group>"; };
-		D03E6E8E0D5F9D21005FD177 /* SampleMDEF.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SampleMDEF.h; sourceTree = "<group>"; };
 		D03E6EEA0D5FA2CC005FD177 /* Scroll.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Scroll.cp; sourceTree = "<group>"; };
 		D03E6EEB0D5FA2CC005FD177 /* Search.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Search.cp; sourceTree = "<group>"; };
 		D03E6EEC0D5FA2CC005FD177 /* Select.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Select.cp; sourceTree = "<group>"; };
@@ -489,7 +487,6 @@
 		D088B9980D5FBA840028C2BC /* MIDIDialogs.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIDialogs.cp; sourceTree = "<group>"; };
 		D088B99A0D5FBA840028C2BC /* MIDIPlay.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MIDIPlay.cp; sourceTree = "<group>"; };
 		D088B9C50D5FBE4A0028C2BC /* GraphicMDEF.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = GraphicMDEF.cp; sourceTree = "<group>"; };
-		D088B9C60D5FBE4A0028C2BC /* SampleMDEF.cp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SampleMDEF.cp; sourceTree = "<group>"; };
 		D099DB1A0DB2FE0300C228DB /* EndianUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EndianUtils.h; sourceTree = "<group>"; };
 		D0AFDAE50D5FC197009B73BC /* CoreMIDI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMIDI.framework; path = /System/Library/Frameworks/CoreMIDI.framework; sourceTree = "<absolute>"; };
 		D0AFDB320D5FC5D6009B73BC /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = /System/Library/Frameworks/AudioToolbox.framework; sourceTree = "<absolute>"; };
@@ -819,10 +816,8 @@
 		D03E6E850D5F9CF6005FD177 /* CustomMDEF */ = {
 			isa = PBXGroup;
 			children = (
-				D088B9C50D5FBE4A0028C2BC /* GraphicMDEF.cp */,
-				D088B9C60D5FBE4A0028C2BC /* SampleMDEF.cp */,
 				D03E6E8D0D5F9D21005FD177 /* GraphicMDEF.h */,
-				D03E6E8E0D5F9D21005FD177 /* SampleMDEF.h */,
+				D088B9C50D5FBE4A0028C2BC /* GraphicMDEF.cp */,
 			);
 			name = CustomMDEF;
 			path = src/CustomMDEF;
@@ -1157,7 +1152,6 @@
 				D088B99B0D5FBA840028C2BC /* MIDIDialogs.cp in Sources */,
 				D088B99D0D5FBA840028C2BC /* MIDIPlay.cp in Sources */,
 				D088B9C70D5FBE4A0028C2BC /* GraphicMDEF.cp in Sources */,
-				D088B9C80D5FBE4A0028C2BC /* SampleMDEF.cp in Sources */,
 				D03AF8500D6F4F9C0018F558 /* Main.cp in Sources */,
 				15493FD117B70F3B00724948 /* HeapFileIO.cp in Sources */,
 				15C88DDC17B88265000AF826 /* SysPageEdit.cp in Sources */,

@@ -1,10 +1,7 @@
 /*
 	File:		NavServices.c
-
 	Contains:	Code to support Navigation Services in Nightingale
-
 	Version:	Mac OS X
-
 */
 
 // MAS
@@ -29,30 +26,29 @@ static NavDialogRef gSaveFileDialog = NULL;
 static NavEventUPP GetNavOpenFileEventUPP(void);
 static NavEventUPP GetNavSaveFileEventUPP(void);
 
-
-static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSelector, NavCBRecPtr callbackParms, NavCallBackUserData callbackUD );
-static pascal void NSNavSaveEventProc( const NavEventCallbackMessage callbackSelector, NavCBRecPtr callbackParms, NavCallBackUserData callbackUD );
+static pascal void NSNavOpenEventProc(const NavEventCallbackMessage callbackSelector, NavCBRecPtr callbackParms, NavCallBackUserData callbackUD);
+static pascal void NSNavSaveEventProc(const NavEventCallbackMessage callbackSelector, NavCBRecPtr callbackParms, NavCallBackUserData callbackUD);
 								
 static void NSHandleOpenEvent(NavCBRecPtr callbackParms);
 static void NSHandleSaveEvent(NavCBRecPtr callbackParms);
 
-static void NSHandleNavUserAction( NavDialogRef inNavDialog, NavUserAction inUserAction, void *inContextData );
+static void NSHandleNavUserAction(NavDialogRef inNavDialog, NavUserAction inUserAction, void *inContextData);
 
 static Handle NewOpenHandle(OSType applicationSignature, short numTypes, OSType typeList[]);
 
-static void NSGetOpenFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD);
-static void NSGetSaveFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD);
+static void NSGetOpenFile(NavReplyRecord *pReply, NavCallBackUserData callbackUD);
+static void NSGetSaveFile(NavReplyRecord *pReply, NavCallBackUserData callbackUD);
 
-static void TerminateDialog( NavDialogRef inDialog );
+static void TerminateDialog(NavDialogRef inDialog);
 
 // custom dialog item:
-#define kControlListID		1320
-#define kNewCommand 			1
+#define kControlListID	1320
+#define kNewCommand 	1
 
 // the requested dimensions for our sample open customization area:
 
-#define kCustomWidth			100
-#define kCustomHeight		40
+#define kCustomWidth	100
+#define kCustomHeight	40
 
 static short gLastTryWidth;
 static short gLastTryHeight;
@@ -70,36 +66,29 @@ OSStatus OpenFileDialog(OSType applicationSignature,
 	OSStatus theErr = noErr;
 
 	NavDialogCreationOptions	dialogOptions;
-	NavTypeListHandle				openList	= NULL;
+	NavTypeListHandle			openList = NULL;
 
-	NavGetDefaultDialogCreationOptions( &dialogOptions );
+	NavGetDefaultDialogCreationOptions(&dialogOptions);
 
 	dialogOptions.modality = kWindowModalityAppModal;
-	dialogOptions.clientName = CFStringCreateWithPascalString( NULL, LMGetCurApName(), GetApplicationTextEncoding());
+	dialogOptions.clientName = CFStringCreateWithPascalString(NULL, LMGetCurApName(),
+									GetApplicationTextEncoding());
 	
-	openList = (NavTypeListHandle)NewOpenHandle( applicationSignature, numTypes, typeList );
+	openList = (NavTypeListHandle)NewOpenHandle(applicationSignature, numTypes, typeList);
 	
-	theErr = NavCreateGetFileDialog( &dialogOptions, openList, GetNavOpenFileEventUPP(), NULL, NULL, pNSD, &gOpenFileDialog );
+	theErr = NavCreateGetFileDialog(&dialogOptions, openList, GetNavOpenFileEventUPP(),
+									NULL, NULL, pNSD, &gOpenFileDialog);
 
-	if ( theErr == noErr )
-	{
-		theErr = NavDialogRun( gOpenFileDialog );
-		if ( theErr != noErr )
-		{
-			NavDialogDispose( gOpenFileDialog );
+	if (theErr == noErr) {
+		theErr = NavDialogRun(gOpenFileDialog);
+		if (theErr != noErr) {
+			NavDialogDispose(gOpenFileDialog);
 			gOpenFileDialog = NULL;
 		}
 	}
 
-	if (openList != NULL)
-	{
-		DisposeHandle((Handle)openList);
-	}
-	
-	if ( dialogOptions.clientName != NULL )
-	{
-		CFRelease( dialogOptions.clientName );
-	}
+	if (openList != NULL) DisposeHandle((Handle)openList);
+	if (dialogOptions.clientName != NULL) CFRelease(dialogOptions.clientName);
 	
 	return theErr;
 }
@@ -116,31 +105,26 @@ OSStatus SaveFileDialog(
 	NSClientDataPtr pNSD)
 {
 	NavDialogCreationOptions	dialogOptions;
-	OSStatus							theErr = noErr;
+	OSStatus					theErr = noErr;
 
-	NavGetDefaultDialogCreationOptions( &dialogOptions );
+	NavGetDefaultDialogCreationOptions(&dialogOptions);
 
-	dialogOptions.clientName = CFStringCreateWithPascalString( NULL, LMGetCurApName(), GetApplicationTextEncoding());
+	dialogOptions.clientName = CFStringCreateWithPascalString(NULL, LMGetCurApName(), GetApplicationTextEncoding());
 	dialogOptions.saveFileName = documentName;
 	dialogOptions.modality = kWindowModalityAppModal;
 	dialogOptions.parentWindow = parentWindow;
 
-	theErr = NavCreatePutFileDialog( &dialogOptions, filetype, fileCreator, GetNavSaveFileEventUPP(), pNSD, &gSaveFileDialog );
+	theErr = NavCreatePutFileDialog(&dialogOptions, filetype, fileCreator, GetNavSaveFileEventUPP(), pNSD, &gSaveFileDialog);
 	
-	if ( theErr == noErr )
-	{
-		theErr = NavDialogRun( gSaveFileDialog );
-		if ( theErr != noErr )
-		{
-			NavDialogDispose( gSaveFileDialog );
+	if (theErr == noErr) {
+		theErr = NavDialogRun(gSaveFileDialog);
+		if (theErr != noErr) {
+			NavDialogDispose(gSaveFileDialog);
 			gSaveFileDialog = NULL;
 		}
 	}
 
-	if ( dialogOptions.clientName != NULL )
-	{
-		CFRelease( dialogOptions.clientName );
-	}
+	if (dialogOptions.clientName != NULL) CFRelease(dialogOptions.clientName);
 
 	return theErr;
 }
@@ -148,21 +132,17 @@ OSStatus SaveFileDialog(
 
 static NavEventUPP GetNavOpenFileEventUPP()
 {
-	static NavEventUPP	openEventUPP = NULL;				
-	if ( openEventUPP == NULL )
-	{
-		openEventUPP = NewNavEventUPP( NSNavOpenEventProc );
-	}
+	static NavEventUPP	openEventUPP = NULL;
+	
+	if (openEventUPP == NULL) openEventUPP = NewNavEventUPP(NSNavOpenEventProc);
 	return openEventUPP;
 }
 
 static NavEventUPP GetNavSaveFileEventUPP()
 {
-	static NavEventUPP	saveEventUPP = NULL;				
-	if ( saveEventUPP == NULL )
-	{
-		saveEventUPP = NewNavEventUPP( NSNavSaveEventProc );
-	}
+	static NavEventUPP	saveEventUPP = NULL;
+	
+	if (saveEventUPP == NULL) saveEventUPP = NewNavEventUPP(NSNavSaveEventProc);
 	return saveEventUPP;
 }
 
@@ -171,15 +151,13 @@ static NavEventUPP GetNavSaveFileEventUPP()
 // 	HandleNewButton()
 // 	
 
-void HandleNewButton(ControlHandle theButton, NavCBRecPtr callBackParms)
+void HandleNewButton(ControlHandle /* theButton */, NavCBRecPtr callBackParms)
 {
 	OSErr 	theErr = noErr;
 
-	theErr = NavCustomControl(callBackParms->context,kNavCtlCancel,NULL);
+	theErr = NavCustomControl(callBackParms->context, kNavCtlCancel, NULL);
 
-	if (theErr == noErr) {
-		Boolean ok = DoFileMenu(FM_New);
-	}
+	if (theErr == noErr) Boolean ok = DoFileMenu(FM_New);
 }
 
 
@@ -190,27 +168,25 @@ void HandleNewButton(ControlHandle theButton, NavCBRecPtr callBackParms)
 
 void HandleCustomMouseDown(NavCBRecPtr callBackParms)
 {
-	OSErr				theErr = noErr;
+	OSErr			theErr = noErr;
 	ControlHandle	whichControl;				
 	Point 			where = callBackParms->eventData.eventDataParms.event->where;	
-	short				theItem = 0;	
+	short			theItem = 0;	
 	UInt16 			firstItem = 0;
-	short				realItem = 0;
-	short				partCode = 0;
+	short			realItem = 0;
+	short			partCode = 0;
 		
 	GlobalToLocal(&where);
 	theItem = FindDialogItem(GetDialogFromWindow(callBackParms->window),where);	// get the item number of the control
 	partCode = FindControl(where,callBackParms->window,&whichControl);	// get the control itself
 	
 	// ask NavServices for the first custom control's ID:
-	if (callBackParms->context != 0)	// always check to see if the context is correct
-	{
+	if (callBackParms->context != 0) {	// always check to see if the context is correct
 		theErr = NavCustomControl(callBackParms->context,kNavCtlGetFirstControlID,&firstItem);	
 		realItem = theItem - firstItem + 1;		// map it to our DITL constants:	
 	}
 				
-	if (realItem == kNewCommand)
-		HandleNewButton(whichControl,callBackParms);
+	if (realItem == kNewCommand) HandleNewButton(whichControl,callBackParms);
 }
 
 
@@ -221,8 +197,7 @@ static void NSHandleOpenEvent(NavCBRecPtr callbackParms)
 {
 	EventRecord * pEvent = callbackParms->eventData.eventDataParms.event;
 	
-	switch (pEvent->what)
-	{
+	switch (pEvent->what) {
 		case mouseDown:
 			HandleCustomMouseDown(callbackParms);
 			break;
@@ -241,15 +216,13 @@ static void NSHandleOpenEvent(NavCBRecPtr callbackParms)
 
 // Callback to handle events for Nav Services
 
-static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSelector, 
+static pascal void NSNavOpenEventProc(const NavEventCallbackMessage callbackSelector, 
 												NavCBRecPtr callbackParms, 
 												NavCallBackUserData callbackUD )
 {
-	switch ( callbackSelector )
-	{	
+	switch (callbackSelector) {	
 		case kNavCBEvent:
-			switch (callbackParms->eventData.eventDataParms.event->what)
-			{
+			switch (callbackParms->eventData.eventDataParms.event->what) {
 				case mouseDown:
 				case updateEvt:
 				case activateEvt:
@@ -265,23 +238,21 @@ static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSel
 				short neededHeight = callbackParms->customRect.top + kCustomHeight;
 				            
 				// check to see if this is the first round of negotiations:
-				if (( callbackParms->customRect.right == 0) && (callbackParms->customRect.bottom == 0 ))
-				{
+				if ((callbackParms->customRect.right == 0) && (callbackParms->customRect.bottom == 0 )) {
 				   // it is, so tell NavServices what dimensions we want:
 				   callbackParms->customRect.right = neededWidth;
 				   callbackParms->customRect.bottom = neededHeight;
 				}
-				else
-				{
+				else {
 				   // we are in the middle of negotiating:
-				   if ( gLastTryWidth != callbackParms->customRect.right )
-				      if ( callbackParms->customRect.right < neededWidth )   
+				   if (gLastTryWidth != callbackParms->customRect.right)
+				      if (callbackParms->customRect.right < neededWidth)   
 				         // is the given width too small for us?
 				         callbackParms->customRect.right = neededWidth;
 
 				   // is the given height too small for us?
-				   if ( gLastTryHeight != callbackParms->customRect.bottom )
-				      if ( callbackParms->customRect.bottom < neededHeight )
+				   if (gLastTryHeight != callbackParms->customRect.bottom)
+				      if (callbackParms->customRect.bottom < neededHeight)
 				         callbackParms->customRect.bottom = neededHeight;
 				}
 				            
@@ -298,8 +269,7 @@ static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSel
 				
 				// add the rest of the custom controls via the DITL resource list:
 				gDitlList = GetResource('DITL',kControlListID);
-				if ((gDitlList != NULL) && (ResError() == noErr))
-				{
+				if ((gDitlList != NULL) && (ResError() == noErr)) {
 					if ((theErr = NavCustomControl(callbackParms->context,kNavCtlAddControlList,gDitlList)) == noErr)
 					{
 						// ask NavServices for our first control ID
@@ -311,17 +281,15 @@ static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSel
 			break;
 			
 		case kNavCBUserAction:
-			switch ( callbackParms->userAction)
+			switch (callbackParms->userAction)
 			{
 				case kNavUserActionOpen:
 					NavReplyRecord	reply;
-					OSStatus			status;
+					OSStatus		status;
 					
-					status = NavDialogGetReply( callbackParms->context, &reply );
+					status = NavDialogGetReply(callbackParms->context, &reply);
 					if (status == noErr)
-					{
 						NSGetOpenFile(&reply, (void*)callbackUD);
-					}
 					
 					status = NavDisposeReply(&reply);
 					break;
@@ -334,7 +302,7 @@ static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSel
 					break;
 					
 				default:
-					NSHandleNavUserAction( callbackParms->context, callbackParms->userAction, callbackUD );
+					NSHandleNavUserAction(callbackParms->context, callbackParms->userAction, callbackUD);
 					break;
 			}
 			break;
@@ -345,7 +313,7 @@ static pascal void NSNavOpenEventProc( const NavEventCallbackMessage callbackSel
 				gDitlList = NULL;
 			}	
 				
-			TerminateDialog( callbackParms->context );
+			TerminateDialog(callbackParms->context);
 			break;
 	}
 }
@@ -570,8 +538,8 @@ static void NSGetSaveFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD
 				
 				if (err == noErr) {	
 					err = FSGetCatalogInfo (&fsrFileToSave, kFSCatInfoNone, 
-													NULL,				//FSCatalogInfo catalogInfo, 
-													NULL,				//HFSUniStr255 outName, 
+													NULL,			//FSCatalogInfo catalogInfo, 
+													NULL,			//HFSUniStr255 outName, 
 													&fsSpec, 		//FSSpec fsSpec, 
 													NULL);			//FSRef parentRef
 													
@@ -586,7 +554,7 @@ static void NSGetSaveFile(NavReplyRecord	*pReply, NavCallBackUserData callbackUD
 			 	else if (err == fnfErr) {
 					err = FSGetCatalogInfo (&fsRefParent, kFSCatInfoNodeID, 
 													&fsCatInfo,		//FSCatalogInfo catalogInfo, 
-													NULL,				//HFSUniStr255 outName, 
+													NULL,			//HFSUniStr255 outName, 
 													&fsSpec, 		//FSSpec fsSpec, 
 													NULL);			//FSRef parentRef
 													
@@ -698,24 +666,19 @@ Return:
 //
 // CompleteSave
 //
-OSStatus CompleteSave( NavReplyRecord* inReply, FSRef* inFileRef, Boolean inDidWriteFile )
+OSStatus CompleteSave( NavReplyRecord* inReply, FSRef* inFileRef, Boolean inDidWriteFile)
 {
-	OSStatus theErr;
+	OSStatus theErr = noErr;
 	
-	if ( inReply->validRecord )
-	{
-		if ( inDidWriteFile )
-		{
-			theErr = NavCompleteSave( inReply, kNavTranslateInPlace );
-		}
-		else if ( !inReply->replacing )
-		{
+	if (inReply->validRecord) {
+		if (inDidWriteFile) theErr = NavCompleteSave(inReply, kNavTranslateInPlace);
+		else if (!inReply->replacing) {
 			// Write failed, not replacing, so delete the file
 			// that was created in BeginSave.
-			FSDeleteObject( inFileRef );
+			FSDeleteObject(inFileRef);
 		}
 
-		theErr = NavDisposeReply( inReply );
+		theErr = NavDisposeReply(inReply);
 	}
 
 	return theErr;
@@ -726,11 +689,11 @@ OSStatus CompleteSave( NavReplyRecord* inReply, FSRef* inFileRef, Boolean inDidW
 //
 // TerminateDialog
 //
-static void TerminateDialog( NavDialogRef inDialog )
+static void TerminateDialog(NavDialogRef inDialog)
 {
 	// MAS: this is apparently unnecessary
 	// in Leopard, NavCustomControl never returns, so presumably
 	// the dialog has been closed already
-//	NavCustomControl( inDialog, kNavCtlTerminate, NULL );
+//	NavCustomControl(inDialog, kNavCtlTerminate, NULL);
 	return;
 }

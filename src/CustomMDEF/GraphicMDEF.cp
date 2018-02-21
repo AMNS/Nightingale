@@ -248,6 +248,8 @@ static void DrawMenu(MenuHandle theMenu, Rect *menuRect, MenuTrackingData* track
 		/* draw menu chars into menuRect */
 		for (i=1; i<=gNumItems; i++) {
 			GetItemRect(i, menuRect, &theRect);
+LogPrintf(LOG_DEBUG, "DrawMenu: NOSCROLL i=%d theRect tlbr=%d,%d,%d,%d\n", i, theRect.top,
+theRect.left, theRect.bottom, theRect.right);
 			DrawItem(i, &theRect, theMenu, False);
 		}
 	}
@@ -276,9 +278,9 @@ static void DrawMenu(MenuHandle theMenu, Rect *menuRect, MenuTrackingData* track
 }
 
 
-/* Assumes that caller will save port's font and size and set the port's font and
-size to the popup font before calling DrawItem. Afterwards, it will restore the
-original font and size. */
+/* Draw the menu item with given number. Assumes that caller will save port's font and
+size and set the port's font and size to the popup font before calling DrawItem. Afterwards,
+it will restore the original font and size. */
  
 static void DrawItem(short item, Rect *itemRect, MenuHandle theMenu, Boolean leaveBlack)
 {
@@ -310,17 +312,20 @@ static void DrawItem(short item, Rect *itemRect, MenuHandle theMenu, Boolean lea
 	
 	TextFont(gPopFontNum);
 	LoadResource((Handle)gCharGridH);					/* just in case it's been purged */
+	FIX_END((*gCharGridH)->numChars);
+	FIX_END((*gCharGridH)->fontSize); 
 	TextSize((*gCharGridH)->fontSize);					/* TextSize isn't supposed to move memory */
 
-	p = (unsigned char *) *gCharGridH;					/* no need to lock handle here */
+	p = (unsigned char *)*gCharGridH;					/* no need to lock handle here */
 	p += gItemCharsOffset;								/* point at beginning of item chars */
 	theChar = p[item-1];
+LogPrintf(LOG_DEBUG, "DrawItem: item=%d theChar=%c itemRect->left=%d, ->bottom=%d\n", item,
+			theChar, itemRect->left, itemRect->bottom);
 	MoveTo(itemRect->left, itemRect->bottom);
 	DrawChar(theChar);
 
 #if USE_COLOR
-	if (gHasColorQD)
-		RestoreColors();
+	if (gHasColorQD) RestoreColors();
 #endif
 
 #if USE_COLOR
@@ -512,6 +517,8 @@ static void HiliteMenuItem( MenuRef theMenu, const Rect *menuRect, HiliteMenuIte
 	if (previousItem != newItem) {
 		char *p;
 		LoadResource((Handle)gCharGridH);					/* just in case it's been purged */
+		FIX_END((*gCharGridH)->numChars);
+		FIX_END((*gCharGridH)->fontSize);
 		p = (char *)*gCharGridH;							/* no need to lock handle here */
 		p += gItemCharsOffset;								/* point at beginning of item chars */
 		if (newItem <= gNumItems && p[newItem-1] != '\0')
@@ -891,10 +898,10 @@ static void GetItemRect(short item, Rect *menuRect, Rect *itemRect)
  * 
  *  Historical Note: It would be desireable to have popups change vertical size as they scrolled,
  * 	instead of having all that white space when the scrolling menu is first displayed.
- *		The reason for this is due to the design of the MBDF. The MBDF saves the bits behind
- *		and draws the drop shadow at the same time. If there were two messages instead, one
- *		to save the bits behind and one to draw the drop shadow, the we could save all of the
- *		bits behind the menurect, from the top of the screen to the bottom, and then change
+ *	The reason for this is due to the design of the MBDF. The MBDF saves the bits behind
+ *	and draws the drop shadow at the same time. If there were two messages instead, one
+ *	to save the bits behind and one to draw the drop shadow, the we could save all of the
+ *	bits behind the menurect, from the top of the screen to the bottom, and then change
  * 	the menu's vertical height without worrying about saving more bits each time it got bigger.
  */
 

@@ -22,7 +22,6 @@ short SymType(char);
 char Objtype2Char(SignedByte);
 
 Rect StrToObjRect(unsigned char *string);
-void GetNFontInfo(short, short, short, FontInfo *);
 short NStringWidth(Document *, const unsigned char *, short, short, short);
 short NPtStringWidth(Document *, const unsigned char *, short, short, short);
 void GetNPtStringBBox(Document *, unsigned char *, short, short, short, Boolean, Rect *);
@@ -45,6 +44,7 @@ void UnlockGWorld(GWorldPtr);
 
 GrafPtr NewGrafPort(short, short);
 void DisposGrafPort(GrafPtr);
+void LogPixMapInfo(char *name, PixMapPtr aPixMap, long len);
 
 void D2Rect(DRect *, Rect *);
 void Rect2D(Rect *, DRect *);

@@ -17,7 +17,6 @@
 #include "Nightingale_Prefix.pch"
 #include "Nightingale.appl.h"
 
-#include "SampleMDEF.h"
 #include "GraphicMDEF.h"
 #include "EndianUtils.h"
 
@@ -1370,7 +1369,7 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		whichPalette->findItemProc = (short (*)())FindToolItem;
 		whichPalette->hiliteItemProc = (void (*)())HiliteToolItem;
 		
-//LogPrintf(LOG_DEBUG, "SetupToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
+LogPrintf(LOG_DEBUG, "SetupToolPalette: picRect.right=%d bottom=%d\n", picRect.right, picRect.bottom);
 
 		/* Put picture into offscreen port so that any rearrangements can be saved */
 
@@ -1379,21 +1378,23 @@ static void SetupToolPalette(PaletteGlobals *whichPalette, Rect *windowRect)
 		GWorldPtr gwPtr = MakeGWorld(picRect.right, picRect.bottom, True);
 		SetGWorld(gwPtr, NULL);
 		
+{
+PixMapHandle portPixMapH = GetPortPixMap(gwPtr); PixMapPtr portPixMap = *portPixMapH;
+LogPixMapInfo("SetupToolPalette1", portPixMap, 1000);
+}
 		HLock((Handle)toolPicture);
 		DrawPicture(toolPicture, &picRect);
 		HUnlock((Handle)toolPicture);
 		ReleaseResource((Handle)toolPicture);
 		
 		palPort = gwPtr;
-{ Rect portRect;
-const BitMap *palPortBits = GetPortBitMapForCopyBits(palPort);
-long len = 600; GetPortBounds(palPort, &portRect);
-LogPrintf(LOG_DEBUG, "SetupToolPalette: MemBitCount(palPortBits, %ld)=%ld portRect tlbr=%d,%d,%d,%d\n",
-len, MemBitCount((unsigned char *)palPortBits, len),
-portRect.top, portRect.left, portRect.bottom, portRect.right); }
+{
+PixMapHandle portPixMapH = GetPortPixMap(palPort); PixMapPtr portPixMap = *portPixMapH;
+LogPixMapInfo("SetupToolPalette2", portPixMap, 1000);
+}
 //		UnlockGWorld(gwPtr);
 		RestoreGWorld();
-	}
+}
 
 
 /* Initialize everything about the floating windows, a.k.a. palettes. NB: as of v. 5.7,

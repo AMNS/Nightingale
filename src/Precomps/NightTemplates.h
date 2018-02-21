@@ -113,8 +113,8 @@
 	Boolean		DocumentSaved(Document *doc);
 	Boolean		DoExtract(Document *doc);
 	Boolean		DoCombineParts(Document *doc);
-	Boolean		DoOpenDocument(unsigned char *fileName, short vrefnum, Boolean readOnly, FSSpec *pfsSpec);
-	Boolean		DoOpenDocumentX(unsigned char *fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec,
+	Boolean		DoOpenDocument(StringPtr fileName, short vrefnum, Boolean readOnly, FSSpec *pfsSpec);
+	Boolean		DoOpenDocumentX(StringPtr fileName, short vRefNum, Boolean readOnly, FSSpec *pfsSpec,
 						Document **pDoc);
 	void		DoRevertDocument(Document *doc);
 	Boolean		DoSaveDocument(Document *doc);
@@ -129,7 +129,7 @@
 	void		InstallMagnify(Document *doc);
 	void		InstallStrPool(Document *doc);
 	void		ShowClipDocument(void);
-	void		PositionWindow(WindowPtr,Document *);
+	void		PositionWindow(WindowPtr, Document *);
 	void 		ShowDocument(Document *doc);
 
 /* Double.c */
@@ -214,6 +214,7 @@ pascal OSErr	HandleQUIT(const AppleEvent *appleEvent, AppleEvent *reply, /*unsig
 /* FontUtils.c */
 
 	void		EnumerateFonts(Document *doc);
+	void		GetNFontInfo(short, short, short, FontInfo *);
 
 /* HairpinEdit.c, DragDynamic.c */
 

@@ -68,7 +68,7 @@ static void DrawPopupSymbol(short, short);
 #endif
 
 
-/* --------------------- Functions for managing graphic popups --------------------- */
+/* ------------------------ Functions for managing graphic popups ----------------------- */
 
 Boolean InitGPopUp(
 	register PGRAPHIC_POPUP	p,				/* pointer to GRAPHIC_POPUP allocated by caller */

@@ -2133,3 +2133,13 @@ GraphicMDEF, HeapFileIO, Initialize, InitNightingale, Insert, Menu, MIDIFOCmd,
 MIDIRecord, NotelistOpen, PS_Stdio, SpaceHighLevel, SpaceTime, StringUtils, TextDialog,
 UIFUtils.
 
+-------------------------------------------------------------------------------
+
+19 - 21 Feb.
+
+Added more calls to FIX_END, for the benefit of the Intel version. Affects GraphicMDEF.
+
+Got rid of two useless files. Affects SampleMDEF.h; SampleMDEF.
+
+Minor cleanup. Affects NightTemplates.h, Utility.h: Documents, DurationPopUp, FontUtils,
+GraphicMDEF, Initialize, Main, MiscUtils, NavServices, ToolPalette, UIFUtils, Utility.

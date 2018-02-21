@@ -400,34 +400,6 @@ Rect StrToObjRect(unsigned char *string)
 }
 
 
-/* ---------------------------------------------------------------------- GetNFontInfo -- */
-/* Get FontInfo for the specified font, size, and style (as opposed to the current
-font in its current size and style). */
-
-void GetNFontInfo(
-			short fontID,
-			short size,			/* in points, i.e., pixels at 100% magnification */
-			short style,
-			FontInfo *pfInfo)
-{
-	short oldFont, oldSize, oldStyle;
-
-	oldFont = GetPortTxFont();
-	oldSize = GetPortTxSize();
-	oldStyle = GetPortTxFace();
-
-	TextFont(fontID);
-	TextSize(size);
-	TextFace(style);
-		
-	GetFontInfo(pfInfo);
-
-	TextFont(oldFont);
-	TextSize(oldSize);
-	TextFace(oldStyle);
-}
-
-
 /* ---------------------------------------------------------------------- NStringWidth -- */
 /* Compute and return the StringWidth (in pixels) of the given Pascal string in the
 given font, size and style. */
@@ -866,6 +838,15 @@ void DisposGrafPort(GrafPtr aPort)
 	DisposePort(aPort);
 }
 
+
+void LogPixMapInfo(char *name, PixMapPtr aPixMap, long len)
+{
+	Rect bounds = aPixMap->bounds;
+	LogPrintf(LOG_DEBUG,
+		"%s: aPixMap->rowBytes=%d ->bounds.tlbr=%d,%d,%d,%d ->pmVersion=%d MemBitCount(palPortBits, %ld)=%ld\n",
+		name, aPixMap->rowBytes, aPixMap->bounds.top, bounds.left, bounds.bottom, bounds.right,
+		aPixMap->pmVersion, len, MemBitCount((unsigned char *)aPixMap->baseAddr, len));
+}
 
 /* ------------------------------------------------------------- D2Rect, Rect/PtRect2D -- */
 /* Convert DRect to Rect in pixels */

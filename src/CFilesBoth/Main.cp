@@ -66,16 +66,14 @@ since FileStartup usually allocates non-relocatable memory and loads other segme
 which means that the UnloadSeg(Initialize) above can leave a hole in the heap. */
 
 static void FileStartup()
-	{
-		DoOpenApplication(False);
-	}
+{
+	DoOpenApplication(False);
+}
 
 void DoOpenApplication(Boolean askForFile)
-	{
-		if (askForFile)
-			DoFileMenu(FM_Open);
-		
-		AnalyzeWindows();
-		if (TopDocument)
-			DoViewMenu(VM_SymbolPalette);
-	}
+{
+	if (askForFile) DoFileMenu(FM_Open);
+	
+	AnalyzeWindows();
+	if (TopDocument) DoViewMenu(VM_SymbolPalette);
+}

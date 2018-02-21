@@ -2684,5 +2684,92 @@ In GraphicMDEF.cp on G5 (with "Show two dots" unchecked):
 they're all?? the same, but the Set Duration dialog is no better! Ah, it's _not_ the
 popped-up palette; it's the unpopped version, showing a single char, which is waaaay,
 WAY too large -- and InitGPopUp() in DurationPopUp sure seems to need FIX_ENDs. Add
-'em => all OK!
+'em => all OK! I.e., the unpopped version is drawn correctly; the popped version
+is the right size, the selected item is hilited, and selecting other items works
+correctly; but the popped palette is blank. Just like the tool palette :-( .
+
+-------------------------------------------------------------------------------
+
+19 - 21 Feb.
+
+I made a list of all calls to GetResource, Get1Resource, and GetNamedResource, and
+checked most of 'em out -- but I forgot about LoadResource! There are calls to
+LoadResource in GraphicMDEF; add FIX_ENDs for them => the duration palette is drawn,
+but every other char. is missing %*&#%(_% .
+
+Log on my PPC G5:
+
+	Ngale[68821]: d. SizeMenu: charHt=26 charWid=24 numRows=2 numColumns=9
+	--- last message repeated 1 time ---
+	Ngale[68821]: d. InitGlobals: gNumItems=18 gNumCols=9 gNumRows=2 gItemHt=26 gItemWid=24
+	--- last message repeated 1 time ---
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=1 theRect tlbr=166,768,192,792
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=2 theRect tlbr=166,792,192,816
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=3 theRect tlbr=166,816,192,840
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=4 theRect tlbr=166,840,192,864
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=5 theRect tlbr=166,864,192,888
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=6 theRect tlbr=166,888,192,912
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=7 theRect tlbr=166,912,192,936
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=8 theRect tlbr=166,936,192,960
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=9 theRect tlbr=166,960,192,984
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=10 theRect tlbr=192,768,218,792
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=11 theRect tlbr=192,792,218,816
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=12 theRect tlbr=192,816,218,840
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=13 theRect tlbr=192,840,218,864
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=14 theRect tlbr=192,864,218,888
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=15 theRect tlbr=192,888,218,912
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=16 theRect tlbr=192,912,218,936
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=17 theRect tlbr=192,936,218,960
+	Ngale[68821]: d. DrawMenu: NOSCROLL i=18 theRect tlbr=192,960,218,984
+
+On my Intel MBAir:
+
+	Ngale[68496]: d. SizeMenu: charHt=26 charWid=24 numRows=2 numColumns=9
+	Ngale[68496]: d. SizeMenu: charHt=26 charWid=24 numRows=2 numColumns=9
+	Ngale[68496]: d. InitGlobals: gNumItems=18 gNumCols=9 gNumRows=2 gItemHt=26 gItemWid=24
+	Ngale[68496]: d. InitGlobals: gNumItems=18 gNumCols=9 gNumRows=2 gItemHt=26 gItemWid=24
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=1 theRect tlbr=166,672,192,696
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=2 theRect tlbr=166,696,192,720
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=3 theRect tlbr=166,720,192,744
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=4 theRect tlbr=166,744,192,768
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=5 theRect tlbr=166,768,192,792
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=6 theRect tlbr=166,792,192,816
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=7 theRect tlbr=166,816,192,840
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=8 theRect tlbr=166,840,192,864
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=9 theRect tlbr=166,864,192,888
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=10 theRect tlbr=192,672,218,696
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=11 theRect tlbr=192,696,218,720
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=12 theRect tlbr=192,720,218,744
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=13 theRect tlbr=192,744,218,768
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=14 theRect tlbr=192,768,218,792
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=15 theRect tlbr=192,792,218,816
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=16 theRect tlbr=192,816,218,840
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=17 theRect tlbr=192,840,218,864
+	Ngale[68496]: d. DrawMenu: NOSCROLL i=18 theRect tlbr=192,864,218,888
+
+...exactly the same coords., except on MBAir the x coords. are all 96 less -- which hardly
+explains the missing chars! ??
+
+On Intel, in the 1st row, the odd-numbered chars. are drawn; in the 2nd row, the even-
+numbered chars.; in the 3rd row (if "Show 2 dots" is checked), again the odd-numbered
+chars.
+
+So Ngale is (trying to) draw the chars. in the right positions. What chars. is it drawing?
+On my G5:
+
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=1 theRect tlbr=166,768,192,792
+	Ngale[69602]: d. DrawItem: item=1 theChar=2 itemRect->left=768, ->bottom=192
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=2 theRect tlbr=166,792,192,816
+	Ngale[69602]: d. DrawItem: item=2 theChar=0 itemRect->left=792, ->bottom=192
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=3 theRect tlbr=166,816,192,840
+	Ngale[69602]: d. DrawItem: item=3 theChar=. itemRect->left=816, ->bottom=192
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=4 theRect tlbr=166,840,192,864
+	Ngale[69602]: d. DrawItem: item=4 theChar=, itemRect->left=840, ->bottom=192
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=5 theRect tlbr=166,864,192,888
+	Ngale[69602]: d. DrawItem: item=5 theChar=* itemRect->left=864, ->bottom=192
+	Ngale[69602]: d. DrawMenu: NOSCROLL i=6 theRect tlbr=166,888,192,912
+	Ngale[69602]: d. DrawItem: item=6 theChar=( itemRect->left=888, ->bottom=192
+	etc. etc.
+	
+...and the same sequence of chars. on my MBAir :-( .
 

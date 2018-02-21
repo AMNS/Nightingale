@@ -275,7 +275,7 @@ pascal void DrawToolPalette(Rect *r)
 	const BitMap *thePortBits = GetPortBitMapForCopyBits(GetQDGlobalsThePort());
 	CopyBits(palPortBits, thePortBits, &src, &port, srcCopy, NULL);
 { Rect portRect;
-long len = 600; GetPortBounds(palPort, &portRect);
+long len = 1000; GetPortBounds(palPort, &portRect);
 LogPrintf(LOG_DEBUG, "DrawToolPalette: MemBitCount(palPortBits, %ld)=%ld portRect tlbr=%d,%d,%d,%d\n",
 len, MemBitCount((unsigned char *)palPortBits, len),
 portRect.top, portRect.left, portRect.bottom, portRect.right);
@@ -790,8 +790,10 @@ Boolean SaveToolPalette(Boolean inquire)
 
 static void UpdateGridCoords()
 	{
-		Handle hdl; register unsigned char *p;
-		GridRec *pGrid; short row,col,curResFile;
+		Handle hdl;
+		register unsigned char *p;
+		GridRec *pGrid;
+		short row, col, curResFile;
 		PaletteGlobals *pg = *paletteGlobals[TOOL_PALETTE];
 				
 		/* Get char map of palette from Nightingale Setup file */
@@ -809,7 +811,7 @@ static void UpdateGridCoords()
 
 		/* Pull in the maximum and suggested sizes for palette */
 		
-		p = (unsigned char *) *hdl;
+		p = (unsigned char *)*hdl;
 		
 		*p++ = pg->maxAcross;
 		*p++ = pg->maxDown;

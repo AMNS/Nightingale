@@ -1,9 +1,9 @@
 /*	MiscUtils.c
-	These are miscellaneous routines that are generally-useful extensions to the Mac
-	Toolbox routines. Nightingale formerly contained a module called EssentialTools.c,
-	original version by Doug McKenna, 1989. Most of the functions that were originally
-	in that file were for dialog or other user-interface support, and they've been moved
-	to DialogUtils.c or UIFUtils.c; other functions have been moved to DSUtils.c, etc. */
+These are miscellaneous routines that are generally-useful extensions to the Mac
+Toolbox routines. Nightingale formerly contained a module called EssentialTools.c,
+original version by Doug McKenna, 1989. Most of the functions that were originally
+in that file were for dialog or other user-interface support, and they've been moved
+to DialogUtils.c or UIFUtils.c; other functions have been moved to DSUtils.c, etc. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -507,6 +507,7 @@ OSErr SysEnvirons(
 //	err = Gestalt(gestaltSysVRefNum, &gestaltResponse);
 //	if (err == noErr)
 //		theWorld->sysVRefNum = gestaltResponse;
+
 	theWorld->sysVRefNum = 0;
 	
  	return noErr;

@@ -558,39 +558,39 @@ short GetMyScreen(Rect *r, Rect *bnds)
 
 void PlaceAlert(short id, WindowPtr w, short left, short top)
 {
-	Handle alrt; Rect r,inside,bounds;
+	Handle alrt; Rect r, inside, bounds;
 	Boolean sect;
 	
 	/*
-	 * This originally used Get1Resource, but it should get the ALRT from any
-	 * available resource file.
+	 * This originally used Get1Resource, but it should get the ALRT from any available
+	 * resource file.
 	 */  
-	alrt = GetResource('ALRT',id);
+	alrt = GetResource('ALRT', id);
 	if (alrt!=NULL && *alrt!=NULL && ResError()==noErr) {
 		ArrowCursor();
 		LoadResource(alrt);
 		r = *(Rect *)(*alrt);
 		if (w) {
-			GetGlobalPort(w,&inside);
+			GetGlobalPort(w, &inside);
 		}
 		 else {
 			inside = GetQDScreenBitsBounds();
 			inside.top += 36;
 		}
-		CenterRect(&r,&inside,&r);
-		if (top) OffsetRect(&r,0,(inside.top+top)-r.top);
-		if (left) OffsetRect(&r,(inside.left+left)-r.left,0);
+		CenterRect(&r, &inside, &r);
+		if (top) OffsetRect(&r, 0, (inside.top+top)-r.top);
+		if (left) OffsetRect(&r, (inside.left+left)-r.left, 0);
 		/*
 		 *	If we're centering w/r/t a window, don't let alert get out of bounds.
 		 *	We look for that graphics device that contains the window more than
 		 *	any other, and use its bounds to bring the alert back into if its outside.
 		 */
 		if (w) {
-			GetMyScreen(&inside,&bounds);
-			sect = SectRect(&r,&bounds,&inside);
-			if ((sect && !EqualRect(&r,&inside)) || !sect) {
+			GetMyScreen(&inside, &bounds);
+			sect = SectRect(&r, &bounds, &inside);
+			if ((sect && !EqualRect(&r, &inside)) || !sect) {
 				/* if (!sect) */inside = bounds;
-				PullInsideRect(&r,&inside,16);
+				PullInsideRect(&r, &inside, 16);
 			}
 		}
 		LoadResource(alrt);	/* Probably not necessary, but we do it for good luck */
@@ -598,29 +598,28 @@ void PlaceAlert(short id, WindowPtr w, short left, short top)
 	}
 }
 
-/*
- *	Given a window, dlog, place it with respect to another window, w, or the screen if w is NULL.
- *	If (left,top) == (0,0) center it; otherwise place it at offset (left,top) from the
- *	centering rectangle's upper left corner.  Deliver True if position changed.
- */
+/* Given a window, dlog, place it with respect to another window, w, or the screen if w
+is NULL. If (left,top) == (0,0) center it; otherwise place it at offset (left,top) from
+the centering rectangle's upper left corner.  Deliver True if position changed. */
 
 Boolean PlaceWindow(WindowPtr dlog, WindowPtr w, short left, short top)
 {
-	Rect r,s,inside;  short dx=0,dy=0;
+	Rect r, s, inside;
+	short dx=0, dy=0;
 	
 	if (dlog) {
-		GetGlobalPort(dlog,&r);
+		GetGlobalPort(dlog, &r);
 		s = r;
-		if (w) GetGlobalPort(w,&inside);
-		 else  GetMyScreen(&r,&inside);
-		CenterRect(&r,&inside,&r);
-		if (top) OffsetRect(&r,0,(inside.top+top)-r.top);
-		if (left) OffsetRect(&r,(inside.left+left)-r.left,0);
+		if (w) GetGlobalPort(w, &inside);
+		 else  GetMyScreen(&r, &inside);
+		CenterRect(&r, &inside, &r);
+		if (top) OffsetRect(&r, 0, (inside.top+top)-r.top);
+		if (left) OffsetRect(&r, (inside.left+left)-r.left, 0);
 		
-		GetMyScreen(&r,&inside);
-		PullInsideRect(&r,&inside,16);
+		GetMyScreen(&r, &inside);
+		PullInsideRect(&r, &inside, 16);
 		
-		MoveWindow(dlog,r.left,r.top,False);
+		MoveWindow(dlog, r.left, r.top, False);
 		dx = r.left - s.left;
 		dy = r.top  - s.top;
 		}
