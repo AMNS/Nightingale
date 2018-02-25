@@ -151,7 +151,7 @@ Boolean InitGPopUp(
 	MenuDefSpec defSpec;
 	
 	defSpec.defType = kMenuDefProcPtr;
-	defSpec.u.defProc = NewMenuDefUPP(MyMDefProc);
+	defSpec.u.defProc = NewMenuDefUPP(NMDefProc);
 
 	CreateCustomMenu(&defSpec, menuID, 0, &customMenu);
 	p->menu = customMenu;

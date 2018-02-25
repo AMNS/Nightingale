@@ -1613,7 +1613,7 @@ Boolean InitGlobals()
 		MenuDefSpec		defSpec;
 		
 		defSpec.defType = kMenuDefProcPtr;
-		defSpec.u.defProc = NewMenuDefUPP(MyMDefProc);
+		defSpec.u.defProc = NewMenuDefUPP(NMDefProc);
 
 		// Create a custom menu
 		//CreateCustomMenu( &defSpec, 1201, 0, &customMenu );

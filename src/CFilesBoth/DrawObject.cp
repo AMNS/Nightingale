@@ -502,7 +502,7 @@ static void DrawInstrInfo(Document *doc, short staffn, Rect *paper, CONTEXT cont
 /* ------------------------------------------------------------------------ Draw1Staff -- */
 
 void Draw1Staff(Document *doc,
-				short staffn,
+				short /* staffn */,
 				Rect *paper,
 				PCONTEXT pContext,
 				short ground			/* _STAFF foreground/background code; see enum */
@@ -685,7 +685,7 @@ void DrawCONNECT(Document *doc, LINK pL,
 	DDIST		dLeft,					/* left edge of staff */
 				curlyWider;
 	Boolean		entire;					/* Does connect include the entire system? */
-	PicHandle	pictRsrc;				/* Handle to brace PICT */
+	PicHandle	bracePicH;				/* Handle to brace PICT */
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 
@@ -753,21 +753,25 @@ PushLock(CONNECTheap);
 						case toScreen:
 						case toBitmapPrint:
 						case toPICT:
-							pictRsrc = (PicHandle)GetResource('PICT', 200);
-							if (!GoodResource((Handle)pictRsrc)) goto Cleanup;								
-							cBox = (*pictRsrc)->picFrame;
+							bracePicH = (PicHandle)GetResource('PICT', 200);
+							if (!GoodResource((Handle)bracePicH)) {
+								LogPrintf(LOG_WARNING, "Can't get curly brace resource.  (DrawConnect)\n");
+								goto Cleanup;
+							}
+							cBox = (*bracePicH)->picFrame;
 							FIX_END(cBox.top); FIX_END(cBox.left);
 							FIX_END(cBox.bottom); FIX_END(cBox.right);
 							
-							/* PICT 200 was created from the Sonata 36 brace */
-							width = ((cBox.right-cBox.left)*(UseTextSize(pContext->fontSize, doc->magnify))) / 36;
+							/* PICT 200 was created from the Sonata 36 brace. */
+							width = ((cBox.right-cBox.left)*(UseTextSize(pContext->fontSize,
+																		doc->magnify))) / 36;
 							SetRect(&cBox, d2p(xd), d2p(dTop), d2p(xd)+width, d2p(dBottom));
 							OffsetRect(&cBox, pContext->paper.left, pContext->paper.top);
 							
-							/* FIXME: DrawPicture OVERWRITES ANYTHING ALREADY THERE. Should be or'd
-								in, probably via DrawPicture to bitmap, then CopyBits. */
-							DrawPicture(pictRsrc, &cBox);
-							HUnlock((Handle)pictRsrc); HPurge((Handle)pictRsrc);
+							/* FIXME: DrawPicture OVERWRITES ANYTHING ALREADY THERE. Better to
+							   "or" in, probably via DrawPicture to bitmap, then CopyBits. */
+							DrawPicture(bracePicH, &cBox);
+							HUnlock((Handle)bracePicH); HPurge((Handle)bracePicH);
 							if (doc->masterView && ground==OTHERSYS_STAFF) {
 								PenPat(NGetQDGlobalsGray());
 								PenMode(notPatBic);
@@ -783,7 +787,7 @@ PushLock(CONNECTheap);
 					break;
 				}
 				else {
-					/* Substituting brackets for curly braces--tweak before falling thru to bracket case */
+					/* Substituting brackets for curly brace; tweak before falling thru */
 					curlyWider = ConnectDWidth(doc->srastral, CONNECTCURLY)
 										-ConnectDWidth(doc->srastral, CONNECTBRACKET);
 					xd += curlyWider;
@@ -797,7 +801,7 @@ PushLock(CONNECTheap);
 						pyTop = pContext->paper.top+d2p(dTop);
 						pyBot = pContext->paper.top+d2p(dBottom);
 						xwidth = CharWidth(MCH_topbracket) * .36275;
-						/* Add fudge factor for weird round-off error at this magnification */
+						/* Add fudge factor for weird round-off error at one magnification */
 						if (doc->magnify == 0) xwidth++;
 						PenSize(xwidth>1 ? xwidth : 2, 1);
 						MoveTo(px, pyTop); DrawChar(MCH_topbracket);

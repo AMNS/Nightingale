@@ -43,7 +43,7 @@ static unsigned char shiftKeyPad[] = {
 	'^',		/* 6 */
 	'&',		/* 7 */
 	'*',		/* 8 */
-	'('		/* 9 */
+	'('			/* 9 */
 };
 
 /* TranslatePalChar lets us modify Nightingale's standard mapping of character
@@ -85,7 +85,7 @@ Boolean TranslatePalChar(
 	char		*resP;
 	short		numPairs;
 	PCHARMAP	theCharMap;
-	short		i,curResFile;
+	short		i, curResFile;
 	unsigned char mainTogChar, kpadTogChar;
 	static Boolean note = True;			/* True if note, False if rest; changed only when doNoteRestToggle==True */
 	Boolean		isNote;					/* whether the current remapped char represents a note (e.g., w,h,q,e rather than W,H,Q,E) */
@@ -95,18 +95,17 @@ Boolean TranslatePalChar(
 	
 	ch = (unsigned char)*theChar;
 	
-	/* If the shift key is down and theChar is still a digit, it means theChar
-	 * was produced on the keypad. Remap it so that it appears to have resulted
-	 * from shifting a number on the main keyboard.
-	 * ??If there's a problem with this logic, consider using the new IsOnKeyPad().
-	 */
+	/* If the shift key is down and theChar is still a digit, it means theChar was
+	   produced on the keypad. Remap it so that it appears to have resulted from
+	   shifting a number on the main keyboard. A very old comment: "??If there's a
+	   problem with this logic, consider using the new IsOnKeyPad()." */
+	   
 	if (shiftIsDown && isdigit(ch))
 		ch = shiftKeyPad[ch-48];
 	
-	/* 
-	 * Get the PLMP resource from the Nightingale Setup file, and then restore
-	 * the previous current resource file.
-	 */
+	/* Get the PLMP resource from the Nightingale Setup file, then restore the previous
+	   current resource file. */
+	
 	curResFile = CurResFile();
 	UseResFile(setupFileRefNum);
 
@@ -127,15 +126,14 @@ Boolean TranslatePalChar(
 	resP += 2;
 	theCharMap = (PCHARMAP)resP;
 
-	/* See if we're handling a toggle event. First make sure the toggle state
-	 * is in sync with the currently selected tool palette item. If that item
-	 * is a duration, the toggle state should be the same type (note or rest)
-	 * as the item. If the user hits the rest toggle key to enter rests and
-	 * then clicks on a note in the palette, the toggle state should switch
-	 * to notes without the user having to hit the key again. This seems the
-	 * most natural way to handle it. Once that's taken care of, see if this is
-	 * a toggle key event, and if so, flip the toggle state.
-	 */
+	/* See if we're handling a toggle event. First make sure the toggle state is in
+	sync with the currently selected tool palette item. If that item is a duration,
+	the toggle state should be the same type (note or rest) as the item. If the user
+	hits the rest toggle key to enter rests and then clicks on a note in the palette,
+	the toggle state should switch to notes without the user having to hit the key
+	again. This seems the most natural way to handle it. Once that's taken care of,
+	see if this is a toggle key event, and if so, flip the toggle state. */
+
 	if (doNoteRestToggle) {
 		if (IsDurKey((unsigned char)palChar, &isNote)) {			/* If user has clicked on a duration in palette, reset toggle state */
 			if (note && !isNote)
@@ -203,7 +201,7 @@ of which appear elsewhere in the keymap. A very ancient comment: "The only excep
 that the arrow keys on the Mac Plus fall in this long as well, so we screen those out
 based on their character codes." Assumes no other keys have been pressed since ch. */
 
-Boolean IsOnKeyPad(unsigned char ch)
+static Boolean IsOnKeyPad(unsigned char /* ch */)
 {
 	KeyMap theKeys;
 	
@@ -218,15 +216,15 @@ Boolean IsOnKeyPad(unsigned char ch)
 
 
 static unsigned char durKeys[18] = {
-	0xDD,'@',		/* breve (0xDD == opt-$) */
-	'w','W',		/* whole */
-	'h','H',		/* half */
-	'q','Q',		/* qtr */
-	'e','E',		/* 8th */
-	'x','X',		/* 16th */
-	'r','R',		/* 32nd */
-	't','T',		/* 64th */
-	'y','Y'			/* 128th */
+	0xDD, '@',		/* breve (0xDD == opt-$) */
+	'w', 'W',		/* whole */
+	'h', 'H',		/* half */
+	'q', 'Q',		/* qtr */
+	'e', 'E',		/* 8th */
+	'x', 'X',		/* 16th */
+	'r', 'R',		/* 32nd */
+	't', 'T',		/* 64th */
+	'y', 'Y'		/* 128th */
 };
 
 Boolean IsDurKey(register unsigned char ch, register Boolean *isNote)
@@ -246,7 +244,7 @@ Boolean IsDurKey(register unsigned char ch, register Boolean *isNote)
 	return False;
 }
 
-
+ 
 /* ----------------------------------------------------- regular Tool Palette routines -- */
 
 /* Draw the tool menu palette.  The argument rect must be in global screen coordinates
@@ -308,9 +306,7 @@ portRect.top, portRect.left, portRect.bottom, portRect.right);
 	}
 }
 
-/* 
- *  Toggle hiliting the given item in the tool palette.
- */
+/* Toggle hiliting the given item in the tool palette. */
 
 pascal void HiliteToolItem(Rect *r, short item)
 {
@@ -334,10 +330,8 @@ pascal void HiliteToolItem(Rect *r, short item)
 	}
 }
 
-/*
- *	Locate which item in tools palette a point is within.  Returns an item
- *	number in 1-based menu item coordinates, or 0 if none found.
- */
+/* Locate which item in tools palette a point is within.  Returns an item number
+in 1-based menu item coordinates, or 0 if none found. */
 
 pascal short FindToolItem(Point mousePt)
 {
@@ -353,119 +347,115 @@ pascal short FindToolItem(Point mousePt)
 	return(0);
 }
 
-/*
- *	Handle a mouse down in the Tool Palette.  This tracks the mouse as
- *	as it passes over various items in the palette.
- */
+/* Handle a mouse down in the Tool Palette.  This tracks the mouse as as it passes
+over various items in the palette. */
 
 void DoToolContent(Point pt, short modifiers)
-	{
-		short item = 0, firstItem=0, ch;
-		WindowPtr w = palettes[TOOL_PALETTE];
-		GrafPtr oldPort;
-		Rect frame, portRect, itemCell;
-		Boolean doSwap;
-		
-		GetPort(&oldPort);
-		SetPort(GetWindowPort(w));
-		
-		GetWindowPortBounds(w, &frame);
-		InsetRect(&frame,TOOLS_MARGIN,TOOLS_MARGIN);
-		SetRect(&itemCell,0,0,0,0);
-		doSwap = (modifiers & optionKey)!=0;
-		if (doSwap) {
-			PenMode(patXor);
-			PenPat(NGetQDGlobalsGray());
-			PenSize(2,2);
-			}
-		if (StillDown()) while (WaitMouseUp()) {
-			GetMouse(&pt);
-			if (PtInRect(pt,&frame)) {
-				item = FindToolItem(pt);
-				if (item != (*paletteGlobals[TOOL_PALETTE])->currentItem) {
-					if (doSwap) {
-						FrameRect(&itemCell);					/* Unhilite last item cell */
-						itemCell = toolRects[item];
-						itemCell.right--; itemCell.bottom--;
-						}
-					GetWindowPortBounds(w,&portRect);
-					HiliteToolItem(&portRect, (*paletteGlobals[TOOL_PALETTE])->currentItem);
-					HiliteToolItem(&portRect, item);
-					(*paletteGlobals[TOOL_PALETTE])->currentItem = item;
-					if (doSwap) {
-						FrameRect(&itemCell);					/* Extra hilite for new item */
-						}
-					}
-				if (item>0 && firstItem==0) firstItem = item;
-				}
-			}
-		if (doSwap) {
-			FrameRect(&itemCell);
-			PenNormal();
-			}
-		
-		if (item) {
-			if (doSwap) {
-				GetWindowPortBounds(w,&portRect);
-				HiliteToolItem(&portRect, item);			/* Unhilite while swapping */
-				SwapTools(firstItem,item);
-				HiliteToolItem(&portRect, item);			/* Restore hilight */
-				
-				// CER 10.18.2004
-				// OS 10.3.3 problem?
-				// DoUpdate draws the tool in the global window, not in the palette window
-				// DoUpdate(w);
-				}
-			ch = GetPalChar(item);
-			if (ch != ' ') {
-				HandleToolCursors(item);
-				/*
-				 *	Keep FixCursor() from changing back to an arrow until user
-				 *	moves mouse outside of palette the first time from now.
-				 */
-				holdCursor = True;
-				}
-			 else {
-				/* Palette item is empty: revert to arrow */
-				HandleToolCursors(GetPalItem(CH_ENTER));
-				PalKey(CH_ENTER);
-				}
-			}
-		SetPort(oldPort);
+{
+	short item = 0, firstItem=0, ch;
+	WindowPtr w = palettes[TOOL_PALETTE];
+	GrafPtr oldPort;
+	Rect frame, portRect, itemCell;
+	Boolean doSwap;
+	
+	GetPort(&oldPort);
+	SetPort(GetWindowPort(w));
+	
+	GetWindowPortBounds(w, &frame);
+	InsetRect(&frame, TOOLS_MARGIN, TOOLS_MARGIN);
+	SetRect(&itemCell, 0, 0, 0, 0);
+	doSwap = (modifiers & optionKey)!=0;
+	if (doSwap) {
+		PenMode(patXor);
+		PenPat(NGetQDGlobalsGray());
+		PenSize(2, 2);
 	}
+	if (StillDown()) while (WaitMouseUp()) {
+		GetMouse(&pt);
+		if (PtInRect(pt, &frame)) {
+			item = FindToolItem(pt);
+			if (item != (*paletteGlobals[TOOL_PALETTE])->currentItem) {
+				if (doSwap) {
+					FrameRect(&itemCell);					/* Unhilite last item cell */
+					itemCell = toolRects[item];
+					itemCell.right--; itemCell.bottom--;
+					}
+				GetWindowPortBounds(w, &portRect);
+				HiliteToolItem(&portRect, (*paletteGlobals[TOOL_PALETTE])->currentItem);
+				HiliteToolItem(&portRect, item);
+				(*paletteGlobals[TOOL_PALETTE])->currentItem = item;
+				if (doSwap) FrameRect(&itemCell);			/* Extra hilite for new item */
+			}
+			if (item>0 && firstItem==0) firstItem = item;
+		}
+	}
+	if (doSwap) {
+		FrameRect(&itemCell);
+		PenNormal();
+	}
+	
+	if (item) {
+		if (doSwap) {
+			GetWindowPortBounds(w,&portRect);
+			HiliteToolItem(&portRect, item);			/* Unhilite while swapping */
+			SwapTools(firstItem,item);
+			HiliteToolItem(&portRect, item);			/* Restore hilight */
+			
+			/* CER 10.18.2004: OS 10.3.3 problem? DoUpdate draws the tool in the global
+			   window, not in the palette window.
+			DoUpdate(w);
+			*/
+		}
+		ch = GetPalChar(item);
+		if (ch != ' ') {
+			HandleToolCursors(item);
+			/*
+			 *	Keep FixCursor() from changing back to an arrow until user moves
+			 *	mouse outside of palette the first time from now.
+			 */
+			holdCursor = True;
+		}
+		 else {
+			/* Palette item is empty: revert to arrow */
+			HandleToolCursors(GetPalItem(CH_ENTER));
+			PalKey(CH_ENTER);
+		}
+	}
+	SetPort(oldPort);
+}
 
 /*
  *	Given two items from the Tool Palette, swap them in their respective positions.
  */
 
 void SwapTools(short firstItem, short lastItem)
-	{
-		char tmp; GrafPtr scratchPort,port;
-		
-		if (firstItem == lastItem) return;
+{
+	char tmp; GrafPtr scratchPort, port;
+	
+	if (firstItem == lastItem) return;
 
-		/* Data has been swapped, now swap bitmaps in picture */
-		
-		port = (OpaqueGrafPtr *)palettes[TOOL_PALETTE];
-		scratchPort = NewGrafPort(toolCellWidth+1, toolCellHeight+1);
-		if (scratchPort) {
-			/* Swap source and dest cells in visible palette */
-			PalCopy(scratchPort, port, 0, firstItem);
-			PalCopy(port, port, firstItem,lastItem);
-			PalCopy(port, scratchPort, lastItem, 0);
-			/* Swap source and dest cells in underlying offscreen picture */
-			PalCopy(scratchPort, palPort, 0, firstItem);
-			PalCopy(palPort, palPort, firstItem,lastItem);
-			PalCopy(palPort, scratchPort, lastItem, 0);
-			DisposGrafPort(scratchPort);					/* toss offscreen bitmap */
-			/* Swap source and dest info for items */
-			tmp = grid[firstItem-1].ch;
-			grid[firstItem-1].ch = grid[lastItem-1].ch;
-			grid[lastItem-1].ch = tmp;
-			GetToolZoomBounds();
-			toolPalChanged = True;
-			}
+	/* Data has been swapped, now swap bitmaps in picture */
+	
+	port = (OpaqueGrafPtr *)palettes[TOOL_PALETTE];
+	scratchPort = NewGrafPort(toolCellWidth+1, toolCellHeight+1);
+	if (scratchPort) {
+		/* Swap source and dest cells in visible palette */
+		PalCopy(scratchPort, port, 0, firstItem);
+		PalCopy(port, port, firstItem,lastItem);
+		PalCopy(port, scratchPort, lastItem, 0);
+		/* Swap source and dest cells in underlying offscreen picture */
+		PalCopy(scratchPort, palPort, 0, firstItem);
+		PalCopy(palPort, palPort, firstItem,lastItem);
+		PalCopy(palPort, scratchPort, lastItem, 0);
+		DisposGrafPort(scratchPort);						/* Toss out offscreen bitmap */
+		/* Swap source and dest info for items */
+		tmp = grid[firstItem-1].ch;
+		grid[firstItem-1].ch = grid[lastItem-1].ch;
+		grid[lastItem-1].ch = tmp;
+		GetToolZoomBounds();
+		toolPalChanged = True;
 	}
+}
 
 /*
  *	Copy the tool item sized bitmap in scrPort to dstPort, in the position
@@ -475,7 +465,7 @@ void SwapTools(short firstItem, short lastItem)
 
 static void PalCopy(GrafPtr dstPort, GrafPtr srcPort, short dstItem, short srcItem)
 	{
-		Rect srcRect,dstRect;
+		Rect srcRect, dstRect;
 		
 		if (srcItem) srcRect = toolRects[srcItem];
 		if (dstItem) dstRect = toolRects[dstItem];
@@ -653,13 +643,13 @@ void DoToolGrow(Point pt)
 			x = LoWord(newSize) - margin; y = HiWord(newSize) - margin;
 			across = (x + toolCellWidth/2) / toolCellWidth;
 			down   = (y + toolCellHeight/2) / toolCellHeight;
-			ChangeToolSize(across,down,False);
+			ChangeToolSize(across, down, False);
 			}
 	}
 
-/* Set the tools palette window to show the first across columns by the first down
-rows of the palette.  Force everything to be redrawn. If we're not zooming, record
-the previous palette size so that we can zoom in later. */
+/* Set the tools palette window to show the first <across> columns by the first <down>
+rows.  Force everything to be redrawn. If we're not zooming, record the previous palette
+size so that we can zoom in later. */
 
 void ChangeToolSize(short across, short down, Boolean doingZoom)
 {

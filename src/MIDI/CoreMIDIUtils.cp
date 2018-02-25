@@ -22,28 +22,29 @@ static Boolean CMIsNoteOnPacket(MIDIPacket *p);
 static Boolean CMIsNoteOffPacket(MIDIPacket *p);
 static Boolean CMIsActiveSensingPacket(MIDIPacket *p);
 
-static Boolean AllocCMPacketList(void);
-
 static MIDIEndpointRef GetMIDIEndpointByID(MIDIUniqueID id);
 
-#define CMDEBUG 1			
+#define CMDEBUG 1
 
 // -----------------------------------------------------------------------------------------
 // MIDI Callbacks
 
 /* ------------------------------------------------------------------- NightCMReadProc -- */
 
+static long MIDIPacketSize(int len);
 static long MIDIPacketSize(int len)
 {
 	return CMPKT_HDR_SIZE + len;
 }
 
+static Boolean CMEndOfBuffer(MIDIPacket *pkt, int len);
 static Boolean CMEndOfBuffer(MIDIPacket *pkt, int len)
 {
 	return ((char*)pkt + MIDIPacketSize(len)) > 
 				((char*)gMIDIPacketListBuf + kCMBufLen);
 }
 
+static Boolean CMAcceptPacket(MIDIPacket *pkt);
 static Boolean CMAcceptPacket(MIDIPacket *pkt)
 {
 	if (CMIsNoteOnPacket(pkt)) return True;
@@ -52,6 +53,7 @@ static Boolean CMAcceptPacket(MIDIPacket *pkt)
 	return False;
 }
 
+static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *connRefCon);
 static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *connRefCon)
 {
 //	if (CMEndOfBuffer()) return;
@@ -84,6 +86,7 @@ static void	NightCMReadProc(const MIDIPacketList *pktlist, void *refCon, void *c
 
 /* ----------------------------------------------------------------- AllocCMPacketList -- */
 
+static Boolean AllocCMPacketList(void);
 static Boolean AllocCMPacketList(void)
 {
 	gMIDIPacketList = (MIDIPacketList *)gMIDIPacketListBuf;
@@ -336,8 +339,8 @@ void CMStopTime(void)
 }
 
 
-
-static void InitCoreMidiTimer()
+static void InitCoreMIDITimer();
+static void InitCoreMIDITimer()
 {
 	CMInitTimer();
 }
@@ -345,6 +348,7 @@ static void InitCoreMidiTimer()
 /* -------------------------------------------------- Setup and teardown for Core MIDI -- */
 /* Setup for playback and teardown after playback */
 
+static void CMGetUsedChannels(Document *doc, Byte *partChannel, Byte *activeChannel);
 static void CMGetUsedChannels(Document *doc, Byte *partChannel, Byte *activeChannel)
 {
 	for (int i = 0; i < MAXCHANNEL; i++)
@@ -1301,7 +1305,7 @@ static void DisplayMIDIDevices()
 		CFRelease(pmanuf);
 		CFRelease(pmodel);
 
-		LogPrintf(LOG_INFO, "MIDI device name='%s', manuf='%s', model='%s'  (DisplayMIDIDevices)\n",
+		if (DETAIL_SHOW) LogPrintf(LOG_INFO, "MIDI device name='%s', manuf='%s', model='%s'  (DisplayMIDIDevices)\n",
 					name, manuf, model);
 	}
 }
@@ -1499,7 +1503,7 @@ Boolean InitCoreMIDI()
 			LogPrintf(LOG_WARNING, "Error creating MIDI Client  (InitCoreMIDI)\n");
 		}
 		else {
-			LogPrintf(LOG_INFO, "Created MIDI Client: gClient = %ld  (InitCoreMIDI)\n", gClient);
+			if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Created MIDI Client: gClient = %ld  (InitCoreMIDI)\n", gClient);
 		}
 		
 		stat = MIDIInputPortCreate(gClient, CFSTR("Input port"), NightCMReadProc, NULL, &gInPort);
@@ -1507,14 +1511,14 @@ Boolean InitCoreMIDI()
 			LogPrintf(LOG_WARNING, "Error creating MIDI Input Port  (InitCoreMIDI)\n");
 		}
 		else {
-			LogPrintf(LOG_INFO, "Created MIDI Input Port: gInPort = %ld  (InitCoreMIDI)\n", gInPort);
+			if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Created MIDI Input Port: gInPort = %ld  (InitCoreMIDI)\n", gInPort);
 		}
 		stat = MIDIOutputPortCreate(gClient, CFSTR("Output port"), &gOutPort);
 		if (stat != noErr || gOutPort == NULL) {
 			LogPrintf(LOG_WARNING, "Error creating MIDI Output Port  (InitCoreMIDI)\n");
 		}
 		else {
-			LogPrintf(LOG_INFO, "Created MIDI Output Port: gOutPort = %ld  (InitCoreMIDI)\n", gOutPort);
+			if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Created MIDI Output Port: gOutPort = %ld  (InitCoreMIDI)\n", gOutPort);
 		}
 		
 		if (config.cmDfltOutputChannel > 0 && config.cmDfltOutputChannel <= MAXCHANNEL) {
@@ -1562,7 +1566,7 @@ Boolean InitCoreMIDI()
 		LogPrintf(LOG_INFO, "%d destination(s)  (InitCoreMIDI)\n", n);
 		if (n > 0) {
 			gDest = MIDIGetDestination(0);
-			LogPrintf(LOG_INFO, "Got MIDI Destination: gDest = %ld  (InitCoreMIDI)\n", gDest);
+			if (DETAIL_SHOW) LogPrintf(LOG_INFO, "Got MIDI Destination: gDest = %ld  (InitCoreMIDI)\n", gDest);
 		}
 		else {
 			gCMNoDestinations = True;
@@ -1571,7 +1575,7 @@ Boolean InitCoreMIDI()
 		
 		GetDLSControllerID();
 		
-		InitCoreMidiTimer();
+		InitCoreMIDITimer();
 		
 		gSelectedInputDevice = 0L;
 		gSelectedInputChannel = 0;
@@ -1587,7 +1591,7 @@ Boolean InitCoreMIDI()
 		
 		DisplayMIDIDevices();
 		
-		CMDebugPrintXMission();
+		if (DETAIL_SHOW) CMDebugPrintXMission();
 
 		gCoreMIDIInited = True;
 	}

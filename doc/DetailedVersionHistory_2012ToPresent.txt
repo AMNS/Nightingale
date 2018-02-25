@@ -2143,3 +2143,12 @@ Got rid of two useless files. Affects SampleMDEF.h; SampleMDEF.
 
 Minor cleanup. Affects NightTemplates.h, Utility.h: Documents, DurationPopUp, FontUtils,
 GraphicMDEF, Initialize, Main, MiscUtils, NavServices, ToolPalette, UIFUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+22 - 25 Feb.
+
+Minor cleanup: renamed handler for graphic menus from <MyMDefProc> to <NMDefProc>,
+made most MIDI-related messages on startup only given if DETAIL_SHOW, etc. Affects
+GraphicMDEF.h; CoreMIDIUtils, DrawObject, DurationPopUp, GraphicMDEF, Initialize,
+ToolPalette.

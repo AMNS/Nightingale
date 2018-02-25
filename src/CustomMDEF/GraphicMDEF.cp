@@ -1,5 +1,8 @@
 /* GraphicMDEF.c for Nightingale
 
+This is used for things we think of as _palettes_, Mac OS considers them pop-up menus;
+hence the terminology herein.
+
 The app's resource fork must contain a 'chgd' resource having the same ID as any 'MENU'
 that uses this defproc. NB: If you want a special background color for a popup menu,
 specify  it as a menu bar color rather than a menu title color. Because of DeleteMenu in
@@ -19,8 +22,8 @@ It's not clear to me why this happens. */
 #define SICN_WID		16				/* number of horiz. and vert. bits in any sicn */
 
 	/* Returns 1 if entire menu is enabled */
-#define MenuEnabled(menuH) IsMenuItemEnabled(menuH, 0)
-#define odd(a) ((a) & 1)							/* True if a is odd */
+#define MENU_ENABLED(menuH) IsMenuItemEnabled(menuH, 0)
+#define ODD(a)				((a) & 1)							/* True if a is odd */
 
 static void InitGlobals(MenuHandle);
 static void DrawMenu(MenuHandle, Rect *, MenuTrackingData*, CGContextRef);
@@ -28,8 +31,8 @@ static void DrawItem(short, Rect *, MenuHandle, Boolean);
 static void DrawRow(MenuHandle, Rect *, short);
 static void DrawColumn(MenuHandle, Rect *, short);
 static void InvertItem(short, Boolean, Rect *, MenuHandle);
-static void FindMenuItem(MenuHandle, Rect *, Point, MenuTrackingData* trackingData, CGContextRef context );
-static void	HiliteMenuItem(MenuRef menu, const Rect* bounds, HiliteMenuItemData* hiliteData, CGContextRef context );
+static void FindMenuItem(MenuHandle, Rect *, Point, MenuTrackingData *trackingData, CGContextRef context);
+static void	HiliteMenuItem(MenuRef menu, const Rect *bounds, HiliteMenuItemData *hiliteData, CGContextRef context);
 static Boolean ItemIsVisible(short);
 static Boolean InScrollRect(Point, Rect *);
 static void ScrollMenu(MenuHandle, Rect *, short);
@@ -76,17 +79,19 @@ static RGBColor		gMyGrayColor = {32768, 32768, 32768};
 #endif
 
 
-#define FST_SCROLL_PIXELS	ARROWRECT_WID/2
-#define FST_SCROLL_TICKS	1L
-#define SLO_SCROLL_TICKS	12L
+#define FAST_SCROLL_PIXELS	ARROWRECT_WID/2
+#define FAST_SCROLL_TICKS	1L
+#define SLOW_SCROLL_TICKS	12L
 
 enum {
 	UP,
 	DOWN,
 	LEFT,
-	RIGHT
+	RIGHT,
+	NO_DIRECTION
 };
 
+/* Scroll direction constants are independent bits so they can be combined easily. */
 enum {
 	NOSCROLL = 0,			/* no need to scroll */
 	SCROLLUP = 2,			/* scroll up arrow present */
@@ -101,7 +106,6 @@ enum {
 #if USE_COLOR
 static Boolean gHasColorQD=False;
 #endif
-
 
 
 /* For a normal menu, the MDEF main gets called with msgs in this order:
@@ -131,8 +135,8 @@ static Boolean gHasColorQD=False;
  * 							return: menu rect					return: TopMenuItem
  */
 
-pascal void MyMDefProc(short message, MenuHandle theMenu, Rect *menuRect, Point hitPt,
-						short *whichItem)
+pascal void NMDefProc(short message, MenuHandle theMenu, Rect *menuRect, Point hitPt,
+																		short *whichItem)
 {
 	switch (message) {	
 		case kMenuInitMsg:
@@ -148,7 +152,7 @@ pascal void MyMDefProc(short message, MenuHandle theMenu, Rect *menuRect, Point 
 			break;
 		
 		case kMenuSizeMsg: 
-			SizeMenu(theMenu, hitPt );
+			SizeMenu(theMenu, hitPt);
 			break;
 			
 		case kMenuPopUpMsg:
@@ -165,7 +169,7 @@ pascal void MyMDefProc(short message, MenuHandle theMenu, Rect *menuRect, Point 
 			break;
 			
 		case kMenuCalcItemMsg:
-			//CalcMenuItemBounds( menu, bounds, *whichItem );
+			//CalcMenuItemBounds(menu, bounds, *whichItem);
 			break;
 
 		case kMenuThemeSavvyMsg:
@@ -213,7 +217,7 @@ gNumItems, gNumCols, gNumRows, gItemHt, gItemWid);
 	HUnlock((Handle)gCharGridH);
 	
 	fontNameLen = (*gCharGridH)->fontName[0] + 1;
-	if (odd(fontNameLen)) fontNameLen++;
+	if (ODD(fontNameLen)) fontNameLen++;
 
 	gItemCharsOffset = (short)((char *)(*gCharGridH)->fontName - (char *)*gCharGridH) + fontNameLen;
 	
@@ -226,8 +230,8 @@ cleared to proper color (all by mbarproc). Since this is called only when mouse 
 entered menu title, and not while mouse moves among the menu items--which may scroll,
 we can initialize globals here. */
 
-static void DrawMenu(MenuHandle theMenu, Rect *menuRect, MenuTrackingData* trackingData,
-						CGContextRef context )
+static void DrawMenu(MenuHandle theMenu, Rect *menuRect, MenuTrackingData *trackingData,
+						CGContextRef context)
 {
 #pragma unused(trackingData)
 #pragma unused(context)
@@ -296,7 +300,7 @@ static void DrawItem(short item, Rect *itemRect, MenuHandle theMenu, Boolean lea
 		GetColors(theMenu, item);
 		SaveCurColors();
 		/* Only the whole menu can be disabled, since we don't use the menu's enableFlags */
-		if (MenuEnabled(theMenu))
+		if (MENU_ENABLED(theMenu))
 			SetColors(&gItemNameColor, &gMenuBgColor, leaveBlack);
 		else
 			SetColors(&gMyGrayColor, &gMenuBgColor, False);
@@ -329,9 +333,9 @@ LogPrintf(LOG_DEBUG, "DrawItem: item=%d theChar=%c itemRect->left=%d, ->bottom=%
 #endif
 
 #if USE_COLOR
-	if (!MenuEnabled(theMenu) && !drawInColor) {
+	if (!MENU_ENABLED(theMenu) && !drawInColor) {
 #else
-	if (!MenuEnabled(theMenu)) {
+	if (!MENU_ENABLED(theMenu)) {
 #endif
 		SetGrayPat();
 		PenMode(patBic);
@@ -387,7 +391,7 @@ static void InvertItem(short item, Boolean leaveBlack, Rect *menuRect, MenuHandl
 	}
 #endif
 
-/* All this clipping stuff is probably unnecessary, but it doesn't hurt. */
+/* All this clipping stuff is probably unnecessary, but it shouldn't hurt. */
 	saveClip = NewRgn();
 	GetClip(saveClip);
 	GetItemRect(item, menuRect, &itemRect);
@@ -410,13 +414,14 @@ static void InvertItem(short item, Boolean leaveBlack, Rect *menuRect, MenuHandl
 	DisposeRgn(saveClip);
 }
 
-static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTrackingData *trackingData, CGContextRef /*context*/ )
+static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt,
+							MenuTrackingData *trackingData, CGContextRef /*context*/)
 {
-	register short	newItem, vFromTop, hFromLeft, direction, row, col;
+	register short	newItem, vFromTop, hFromLeft, direction=NO_DIRECTION, row, col;
 	Boolean			hitPtInMenuRect = False, doScroll = False;
 	short			currentItem = trackingData->itemSelected;
 	
-	if (!MenuEnabled(theMenu)) {
+	if (!MENU_ENABLED(theMenu)) {
 		trackingData->itemSelected = 0;
 		return;
 	}
@@ -461,27 +466,27 @@ static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTr
 				
 				/* set scrolling speed and direction */
 				if (gScrollStatus & SCROLLUP) {
-					gScrollTicks = (hitPt.v < menuRect->top + FST_SCROLL_PIXELS) ?
-														FST_SCROLL_TICKS : SLO_SCROLL_TICKS;
+					gScrollTicks = (hitPt.v < menuRect->top + FAST_SCROLL_PIXELS) ?
+														FAST_SCROLL_TICKS : SLOW_SCROLL_TICKS;
 					direction = UP;
 				}
 				else if (gScrollStatus & SCROLLDOWN) {
-					gScrollTicks = (hitPt.v > menuRect->bottom - FST_SCROLL_PIXELS) ?
-														FST_SCROLL_TICKS : SLO_SCROLL_TICKS;
+					gScrollTicks = (hitPt.v > menuRect->bottom - FAST_SCROLL_PIXELS) ?
+														FAST_SCROLL_TICKS : SLOW_SCROLL_TICKS;
 					direction = DOWN;
 				}
 				if (gScrollStatus & SCROLLLEFT) {
-					gScrollTicks = (hitPt.h < menuRect->left + FST_SCROLL_PIXELS) ?
-														FST_SCROLL_TICKS : SLO_SCROLL_TICKS;
+					gScrollTicks = (hitPt.h < menuRect->left + FAST_SCROLL_PIXELS) ?
+														FAST_SCROLL_TICKS : SLOW_SCROLL_TICKS;
 					direction = LEFT;
 				}
 				else if (gScrollStatus & SCROLLRIGHT) {
-					gScrollTicks = (hitPt.h > menuRect->right - FST_SCROLL_PIXELS) ?
-														FST_SCROLL_TICKS : SLO_SCROLL_TICKS;
+					gScrollTicks = (hitPt.h > menuRect->right - FAST_SCROLL_PIXELS) ?
+														FAST_SCROLL_TICKS : SLOW_SCROLL_TICKS;
 					direction = RIGHT;
 				}
 				
-				ScrollMenu(theMenu, menuRect, direction);
+				if (direction!=NO_DIRECTION) ScrollMenu(theMenu, menuRect, direction);
 				newItem = 0;									/* no hiliting while scrolling */
 			}
 			else {												/* make adjustments to newItem */
@@ -499,16 +504,15 @@ static void FindMenuItem(MenuHandle theMenu, Rect *menuRect, Point hitPt, MenuTr
 		}
       trackingData->itemUnderMouse = newItem;
       trackingData->itemRect = *menuRect;
-      //if ( IsMenuItemEnabled( theMenu, newItem ) )
+      //if (IsMenuItemEnabled(theMenu, newItem))
           trackingData->itemSelected = newItem;
-		
 	}
 	else {
 		trackingData->itemSelected = currentItem;
 	}
 }
 
-static void HiliteMenuItem( MenuRef theMenu, const Rect *menuRect, HiliteMenuItemData *hiliteData,
+static void HiliteMenuItem(MenuRef theMenu, const Rect *menuRect, HiliteMenuItemData *hiliteData,
 								CGContextRef /*context*/ )
 {
 	short previousItem = hiliteData->previousItem;
@@ -567,7 +571,7 @@ static void ScrollMenu(MenuHandle theMenu, Rect *menuRect, short direction)
 	static long			endTicks = 0L;
 	
 	startTicks = TickCount();
-	if (startTicks - endTicks < SLO_SCROLL_TICKS << 1) {
+	if (startTicks - endTicks < SLOW_SCROLL_TICKS << 1) {
 		while (TickCount() < startTicks + gScrollTicks) ;
 	}
 	endTicks = TickCount();
@@ -672,7 +676,7 @@ static void DrawEraseScrollArrow(Rect *menuRect, short arrow, Boolean draw)
 {
 	register short	dh, dv, sicnIndex;
 	Rect			arrowRect, sicnRect;
-	register Handle	SICNHdl;
+	register Handle	SICNHdl=NULL;
 	BitMap			bm;
 	GrafPtr			gp;
 	
@@ -704,6 +708,9 @@ static void DrawEraseScrollArrow(Rect *menuRect, short arrow, Boolean draw)
 			dv = ((menuRect->bottom - menuRect->top) >> 1) - (SICN_WID >> 1);
 			sicnIndex = 4;
 			break;
+		default:										/* This should never happen */
+			LogPrintf(LOG_WARNING, "Unknown arrow code.  (DrawEraseScrollArrow)");
+			return;
 	}
 	OffsetRect(&sicnRect, dh, dv);
 
@@ -789,6 +796,7 @@ static void SizeMenu(MenuHandle theMenu, Point hitPt)
 	resH = Get1Resource('chgd', GetMenuID(theMenu));
 	if (resH==NULL) {
 		SysBeep(10);									/* character grid rsrc missing */
+		LogPrintf(LOG_WARNING, "Character grid resource for graphic menu is missing.  (SizeMenu)\n");
 		return;
 	}
 	chgdP = (PCHARGRID)*resH;
@@ -798,18 +806,18 @@ static void SizeMenu(MenuHandle theMenu, Point hitPt)
 	fontSize = chgdP->fontSize;							/* another menu may use this code before this */
 	numColumns = chgdP->numColumns;						/* one receives its drawMsg. */
 
-	/* get maxWidth of popup char font */
 	HLock((Handle)resH);
 	GetFNum(chgdP->fontName, &popFontNum);				/* moves memory */
 	if (popFontNum==0) {
 		SysBeep(10);									/* font missing */
+		LogPrintf(LOG_WARNING, "Font for graphic menu is missing.  (SizeMenu)\n");
 		HUnlock((Handle)resH);
 		return;
 	}
 	HUnlock((Handle)resH);
 	ReleaseResource(resH);
 
-	/* determine number of rows and columns */
+	/* Get max. width and height of popup char font and determine number of rows and columns. */
 	if (numItems < numColumns) numItems = numColumns;
 	numRows = numItems / numColumns;
 	if (numItems % numColumns) numRows++;
@@ -927,26 +935,27 @@ static void PopUpMenu(MenuHandle theMenu, Rect *menuRect, short v, short h, shor
 	col = *item - (gNumCols * (row - 1));
 
 	/* Figure out menu rect, ignoring whether it fits on the screen */
+	
 	menuRect->top = v - ((row - 1) * gItemHt);
 	menuRect->left = h - ((col - 1) * gItemWid);
 	menuRect->bottom = menuRect->top + GetMenuHeight(theMenu);		/* menu ht,wid already set by SizeMenu */
 	menuRect->right = menuRect->left + GetMenuWidth(theMenu);
 
-	/* If menu rect is too big for screen, just return. It's up to the programmer
-	 * to make sure that the app's popup menus will fit on the smallest available
-	 * screen. Someday I'll support double scroll arrows
-	 */
+	/* If menu rect is too big for screen, just return: it's up to us to make sure our
+	   popup menus will fit on the smallest available screen. */
+	
 	if ((GetMenuWidth(theMenu) > (scr.right-scr.left)) || (GetMenuHeight(theMenu) > (scr.bottom-scr.top))) {
 		SysBeep(10);
+		LogPrintf(LOG_WARNING, "Pop-up menu too large for screen.\n");
 		goto broken;
 	}
 
 	if (ContainedRect(menuRect, &scr))
 		goto broken;												/* menu rect needs no adjustment */
 
-	/* Popup is small enough to fit on screen, but part of it is offscreen now.
-	 * Move the menu rect onscreen and set things up for menu scrolling.
-	 */
+	/* Popup is small enough to fit on screen, but part of it is offscreen now. Move
+	   the menu rect onscreen and set things up for menu scrolling. */
+	
 	gTopVisRow = gLeftVisColumn = 1;
 	gBotVisRow = gNumRows;
 	gRightVisColumn = gNumCols;
@@ -981,11 +990,11 @@ static void PopUpMenu(MenuHandle theMenu, Rect *menuRect, short v, short h, shor
 		gRightVisColumn = gNumCols - itemsToScroll;
 	}
 	
-	/* Can't handle scrolling in both dimensions at same time yet, so just
-	 * insure that the menu is onscreen. The item that comes up under the
-	 * mouse will not be the current one, though. Maybe moving the pointer
-	 * is an acceptible solution in this case.
-	 */
+	/* We can't handle scrolling in both dimensions at the same time, so just insure
+	   that the menu is onscreen. The item that comes up under the mouse will not be
+	   the current one, though; Maybe moving the pointer is an acceptable solution
+	   in this case. */
+	
 	if ((gScrollStatus & SCROLLLEFT || gScrollStatus & SCROLLRIGHT) &&
 		 (gScrollStatus & SCROLLUP || gScrollStatus & SCROLLDOWN)) {
 		gScrollStatus = NOSCROLL;

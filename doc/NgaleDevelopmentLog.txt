@@ -2692,10 +2692,11 @@ correctly; but the popped palette is blank. Just like the tool palette :-( .
 
 19 - 21 Feb.
 
-I made a list of all calls to GetResource, Get1Resource, and GetNamedResource, and
-checked most of 'em out -- but I forgot about LoadResource! There are calls to
-LoadResource in GraphicMDEF; add FIX_ENDs for them => the duration palette is drawn,
-but every other char. is missing %*&#%(_% .
+I've been using a list of all calls to GetResource, Get1Resource, and GetNamedResource,
+and checked almost all of 'em out -- but I forgot about LoadResource! There are calls to
+LoadResource in GraphicMDEF; add FIX_ENDs for them => better: the popped-up duration palette is
+filled in now, but every other char. is missing! %*&#%(_%  Likewise for the dynamics popup
+and the Add Modifier palette $($@$%* .
 
 Log on my PPC G5:
 
@@ -2767,9 +2768,35 @@ On my G5:
 	Ngale[69602]: d. DrawItem: item=4 theChar=, itemRect->left=840, ->bottom=192
 	Ngale[69602]: d. DrawMenu: NOSCROLL i=5 theRect tlbr=166,864,192,888
 	Ngale[69602]: d. DrawItem: item=5 theChar=* itemRect->left=864, ->bottom=192
-	Ngale[69602]: d. DrawMenu: NOSCROLL i=6 theRect tlbr=166,888,192,912
-	Ngale[69602]: d. DrawItem: item=6 theChar=( itemRect->left=888, ->bottom=192
 	etc. etc.
 	
-...and the same sequence of chars. on my MBAir :-( .
+...and the log on my MBAir shows the same sequence of chars. :-( .
 
+But the curly brace char. for Connects is fine! So the problems seem to be related to
+drawing palettes that we handle as pop-up menus.
+
+-------------------------------------------------------------------------------
+
+23 - 24 Feb.
+
+Status: In all cases, selecting and hiliting are fine; the only problem is drawing; for
+the pop-ups (all but the tool palette), the problem is only in the popped-up state.
+Exactly what is drawn?
+
+* TOOL PALETTE: 'PLCH' & 'PLMP' resources; drawing via CopyBits(). Nothing is drawn
+except the grid and hiliting.
+
+* ALL OTHERS: 'chgd' (& 'SICN' for arrows) resources; drawing via DrawChar(). Odd numbered
+chars are drawn, but:
+* Duration palette: clicking on an even numbered char. draws it before the palette closes!
+* Dynamic palette: just hovering over an even numbered char. sometimes draws it (and
+erases the next one?); clicking always does.
+* Modifier palette: just hovering over an even numbered char. OFTEN draws it (and
+occasionally erases the next one?); clicking always does.
+
+Ah, if HiliteMenuItem() finds <previousItem> and <newItem> are different, it calls
+InvertItem for each, and InvertItem actually redraws the item! This makes more sense.
+Hmmm... InvertItem sets a clipping region, and it has a comment "All this clipping stuff
+is probably unnecessary, but it doesn't hurt." But maybe it does!? Try on MBAir => nope;
+no change -- except I now see an odd numbered char. disappearing instead of an even one
+appearing! ??
