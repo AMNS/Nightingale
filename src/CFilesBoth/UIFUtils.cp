@@ -33,7 +33,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -1941,6 +1941,28 @@ Boolean VLogPrintf(const char *fmt, va_list argp)
 }
 
 
+const char *NameLogLevel(short priLevel, Boolean friendly);
+const char *NameLogLevel(
+			short priLevel,
+			Boolean friendly)		/* True=give user-friendly names, False=give "real" names */
+{
+	const char *ps;
+
+	switch (priLevel) {
+		case LOG_ALERT:		ps = (friendly? "ALERT" : "ALERT");  break;
+		case LOG_CRIT:		ps = (friendly? "CRITICAL" : "CRIT");  break;
+		case LOG_ERR:		ps = (friendly? "ERROR" : "ERR");  break;
+		case LOG_WARNING:	ps = (friendly? "Warning" : "Warn");  break;
+		case LOG_NOTICE:	ps = (friendly? "notice" : "notice");  break;
+		case LOG_INFO:		ps = (friendly? "info" : "info");  break;
+		case LOG_DEBUG:		ps = (friendly? "debug" : "debug");  break;
+		default:			ps = (friendly? "*UNKNOWN*" : "*UNKNOWN*");
+	}
+
+	return ps;
+}
+
+
 /* Display in the system log and maybe on stderr the message described by the second and
  following parameters. The message may contain at most one "\n". There are two cases:
  (1) It may be terminated by "\n", i.e., it may be a full line or a chunk ending a line.
@@ -1948,17 +1970,17 @@ Boolean VLogPrintf(const char *fmt, va_list argp)
  In case #1, we send the complete line to syslog(); in case #2, just add it to a buffer.
  FIXME: Instances of "\n" other than at the end of the message aren't handled correctly! */
 
-char levelPrefix[] = { 'A', 'C', 'E', 'W', 'n', 'i', 'd' };
-
 Boolean LogPrintf(short priLevel, const char *fmt, ...)
 {
 	Boolean okay, endLine;
+	const char *ps;
 	char levelStr[32];
 		
 	/* If we're starting a new line, prefix a code for the level. */
 	
 	if (strlen(outStr)==0) {
-		sprintf(levelStr, "%c. ", levelPrefix[priLevel-1]);
+		ps = NameLogLevel(priLevel, True);
+		sprintf(levelStr, "%s. ", ps);
 		strcat(outStr, levelStr);
 	}
 	

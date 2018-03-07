@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -755,6 +755,7 @@ PushLock(CONNECTheap);
 						case toPICT:
 							bracePicH = (PicHandle)GetResource('PICT', 200);
 							if (!GoodResource((Handle)bracePicH)) {
+								SysBeep(10);
 								LogPrintf(LOG_WARNING, "Can't get curly brace resource.  (DrawConnect)\n");
 								goto Cleanup;
 							}
@@ -1847,7 +1848,8 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 		LINK aGraphicL;  PAGRAPHIC aGraphic;
 		
 		if (GraphicSubType(pL)!=GRLyric && GraphicSubType(pL)!=GRString) {
-			LogPrintf(LOG_ERR, "DrawTextBlock: Graphic at %d isn't a GRLyric or GRString\n",
+			SysBeep(10);
+			LogPrintf(LOG_ERR, "Graphic at %d isn't a GRLyric or GRString  (DrawTextBlock)\n",
 					  pL);
 			return False;
 		}
@@ -1873,10 +1875,11 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 		voice = -1;
 		GetNFontInfo(fontID, fontSize, fontStyle, &fInfo);
 		dLineSp = pt2d(fInfo.ascent + fInfo.descent + fInfo.leading);
-//		LogPrintf(LOG_DEBUG, "DrawTextBlock: TEMPO lines=%d dim=%d\n", CountTextLines(str), dim);
+//		LogPrintf(LOG_DEBUG, "TEMPO lines=%d dim=%d  (DrawTextBlock)\n", CountTextLines(str), dim);
 	}
 	else {
-		LogPrintf(LOG_ERR, "DrawTextBlock: object at %d isn't a Graphic or Tempo\n", pL);
+		SysBeep(10);
+		LogPrintf(LOG_ERR, "object at %d isn't a Graphic or Tempo  (DrawTextBlock)\n", pL);
 		return False;
 	}
 	
@@ -1929,7 +1932,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 			else {
 				if (expandN) {
 					if (!ExpandPString(strToDraw, str, EXPAND_WIDER)) {
-						LogPrintf(LOG_WARNING, "DrawTextBlock: ExpandPString failed.\n");
+						LogPrintf(LOG_WARNING, "ExpandPString failed.  (DrawTextBlock)\n");
 						break;
 					}
 				}
@@ -1948,7 +1951,8 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 		case toPostScript:
 			Str255 fontName;
 			if (!FontID2Name(doc, fontID, fontName)) {
-				LogPrintf(LOG_ERR, "Can't find font with ID=%d in font table.\n");
+				SysBeep(10);
+				LogPrintf(LOG_ERR, "Can't find font with ID=%d in font table.  (DrawTextBlock)\n");
 				return False;
 			}
 			if (multiLine) {
@@ -1975,7 +1979,8 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 			else {
 				if (expandN) {
 					if (!ExpandPString(strToDraw, str, EXPAND_WIDER)) {
-						LogPrintf(LOG_WARNING, "DrawTextBlock: ExpandPString failed.\n");
+						SysBeep(10);
+						LogPrintf(LOG_WARNING, "ExpandPString failed.  (DrawTextBlock)\n");
 						return False;
 					}
 				}

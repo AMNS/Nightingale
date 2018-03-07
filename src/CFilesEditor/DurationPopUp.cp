@@ -164,7 +164,8 @@ Boolean InitGPopUp(
 	return True;
 	
 broken:
-	LogPrintf(LOG_WARNING, "Can't create the duration pop-up. The font may not be available.\n");
+	SysBeep(10);
+	LogPrintf(LOG_WARNING, "Can't create the duration pop-up. The font may not be available.  (InitGPopUp)\n");
 	ReleaseResource(resH);
 	return False;
 }
