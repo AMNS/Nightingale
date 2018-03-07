@@ -1585,7 +1585,8 @@ void OpenError(Boolean fileIsOpen,
 	char aStr[256], fmtStr[256]; StringHandle strHdl;
 	short strNum;
 	
-	LogPrintf(LOG_ERR, "OpenError: errCode=%d errInfo=%d\n", errCode, errInfo);
+	SysBeep(1);
+	LogPrintf(LOG_ERR, "Can't open the file. errCode=%d errInfo=%d  (OpenError)\n", errCode, errInfo);
 	if (fileIsOpen) FSClose(refNum);
 
 	if (errCode!=0) {
@@ -2243,6 +2244,7 @@ Error:
 	return errCode;
 }
 
+
 /* ------------------------------------------------------------------------- SaveError -- */
 /* Handle errors occurring while writing a file. Parameters are the same as those
 for OpenError(). */
@@ -2256,7 +2258,8 @@ void SaveError(Boolean fileIsOpen,
 	StringHandle strHdl;
 	short strNum;
 
-	LogPrintf(LOG_ERR, "SaveError: errCode=%d errInfo=%d\n", errCode, errInfo);
+	SysBeep(1);
+	LogPrintf(LOG_ERR, "Error saving the file. errCode=%d errInfo=%d  (SaveError)\n", errCode, errInfo);
 	if (fileIsOpen) FSClose(refNum);
 
 	/*

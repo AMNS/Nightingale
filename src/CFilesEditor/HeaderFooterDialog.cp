@@ -1,16 +1,16 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	HeaderFooterDialog.c
 *	PROJ:	Nightingale
 *	DESC:	Code for Header/footer dialog, which replaces the old Page Number
 *			dialog. Written by John Gibson.
-***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -45,7 +45,7 @@ static enum {
 	LAST_HIDEABLE_ITEM = PNHINT_DI
 } E_HeaderFooterItems;
 
-#define PAGENUM_CHAR '%'				// FIXME: should read this from GetIndString((StringPtr)str, HEADERFOOTER_STRS, 3);
+#define PAGENUM_CHAR '%'				/* FIXME: should use GetIndString((StringPtr)str, HEADERFOOTER_STRS, 3); */
 #define HEADERFOOTER_DELIM_CHAR	0x01
 #define MAX_HEADERFOOTER_STRLEN	253		/* 255 for Pascal string minus 2 delimiter chars */
 
@@ -56,8 +56,8 @@ static short okButLeft;
 static short okButMoreOptionsTop;
 static short okButFewerOptionsTop;
 
-	
-/* ------------------------------------------------------- GetHeaderFooterStrings -- */
+
+/* ------------------------------------------------------------ GetHeaderFooterStrings -- */
 /* Unpack the header or footer string stored in the data structure, and parse it
 into left, center, and right strings.  <leftStr>, <centerStr>, and <rightStr> are
 Pascal strings allocated by the caller.  (The data structure's Pascal string has
@@ -117,7 +117,7 @@ Boolean GetHeaderFooterStrings(
 }
 
 
-/* ----------------------------------------------------- StoreHeaderFooterStrings -- */
+/* ---------------------------------------------------------- StoreHeaderFooterStrings -- */
 /* Pack the given strings into a single Pascal string, separated by a delimiter char.
 Store this string in the string pool, and store the resulting string offset into <doc>. */
 
@@ -133,9 +133,9 @@ static Boolean StoreHeaderFooterStrings(
 	
 	/* Stuff the 3 strings, separated by a delimiter char, into one Pascal string. */
 	if (leftStr[0]+centerStr[0]+rightStr[0] > MAX_HEADERFOOTER_STRLEN) {
-		// program error
-		LogPrintf(LOG_ERR, "StoreHeaderFooterStrings: program error: total string length exceeds %d",
-						MAX_HEADERFOOTER_STRLEN);
+		SysBeep(10);
+		LogPrintf(LOG_ERR, "PROGRAM ERROR: total string length of %d exceeds limit of %d  (StoreHeaderFooterStrings)",
+						leftStr[0]+centerStr[0]+rightStr[0], MAX_HEADERFOOTER_STRLEN);
 		return False;
 	}
 	delim[0] = 1;
@@ -167,16 +167,15 @@ static Boolean StoreHeaderFooterStrings(
 }
 
 
-/* --------------------------------------------------------------- SetOptionState -- */
+/* -------------------------------------------------------------------- SetOptionState -- */
 /* Set appearance/visibility/etc. of dialog items depending on whether the user
 wants fewer or more options (i.e., whether they want to see the header/footer
 text fields).  The current state is held in a static global, <showMoreOptions>.
 SetOptionState sets the dialog items to match <optionState>.
 
-If user switches to full options, and all of the header/footer text fields
-are empty, then set the appropriate field to contain the page number code
-character (depending on the state of the left/center/right and top/bottom
-radio buttons). */
+If user switches to full options, and all of the header/footer text fields are
+empty, then set the appropriate field to contain the page number code character
+(depending on the state of the left/center/right and top/bottom radio buttons). */
 
 static void SetOptionState(DialogPtr dlog)
 {
@@ -224,7 +223,7 @@ static void SetOptionState(DialogPtr dlog)
 }
 
 
-/* ------------------------------------------------------------ FixTextFontAscent -- */
+/* ----------------------------------------------------------------- FixTextFontAscent -- */
 /* Adjust lineHeight and fontAscent of dlog's TextEdit handle, so that it works
 well with our 10pt application font. */
 	
@@ -236,7 +235,7 @@ static void FixTextFontAscent(DialogPtr dlog)
 }
 
 
-/* ----------------------------------------------------------- HeaderFooterDialog -- */
+/* ---------------------------------------------------------------- HeaderFooterDialog -- */
 /* Conduct dialog to get page header and footer info and store them in <doc>.
 Delivers False on Cancel or error, True on OK. */
 
@@ -276,15 +275,12 @@ Boolean HeaderFooterDialog(Document *doc)
 	FixTextFontAscent(dlog);		
 
 	/* Set up radio button groups. For now, we don't pay attention to the actual
-	 *	value of doc->startPageNumber, we just distinguish 3 relationships between
-	 *	it and doc->firstPageNumber.
-	 */
-	if (doc->firstPageNumber >= doc->startPageNumber)
-		showGroup = EVERY_DI;
-	else if (doc->firstPageNumber+1 == doc->startPageNumber)
-		showGroup = EVERYBUT_DI;
-	else
-		showGroup = NEVER_DI;
+	   value of doc->startPageNumber, we just distinguish 3 relationships between
+	   it and doc->firstPageNumber. */
+	
+	if (doc->firstPageNumber >= doc->startPageNumber)			showGroup = EVERY_DI;
+	else if (doc->firstPageNumber+1 == doc->startPageNumber)	showGroup = EVERYBUT_DI;
+	else														showGroup = NEVER_DI;
 	PutDlgChkRadio(dlog, showGroup, True);
 	oldShowGroup = showGroup;
 	
@@ -292,12 +288,9 @@ Boolean HeaderFooterDialog(Document *doc)
 	PutDlgChkRadio(dlog, vPosGroup, True);
 	oldVPosGroup = vPosGroup;
 	
-	if (doc->hPosPGN == LEFT_SIDE)
-		hPosGroup = LEFT_DI;
-	else if (doc->hPosPGN == CENTER)
-		hPosGroup = CENTER_DI;
-	else
-		hPosGroup = RIGHT_DI;
+	if (doc->hPosPGN == LEFT_SIDE)		hPosGroup = LEFT_DI;
+	else if (doc->hPosPGN == CENTER)	hPosGroup = CENTER_DI;
+	else								hPosGroup = RIGHT_DI;
 	PutDlgChkRadio(dlog, hPosGroup, True);
 	oldHPosGroup = hPosGroup;	
 
@@ -329,6 +322,7 @@ Boolean HeaderFooterDialog(Document *doc)
 	SelectDialogItemText(dlog, FIRSTNUM_DI, 0, ENDTEXT);
 
 	/* Set globals that help us toggle more/fewer options state of dlog. */
+	
 	GetDialogItem(dlog, Cancel, &type, &hndl, &box);
 	cancelButLeft = box.left;
 	GetDialogItem(dlog, OK, &type, &hndl, &box);

@@ -2777,7 +2777,7 @@ drawing palettes that we handle as pop-up menus.
 
 -------------------------------------------------------------------------------
 
-23 - 24 Feb.
+23 - 25 Feb.
 
 Status: In all cases, selecting and hiliting are fine; the only problem is drawing; for
 the pop-ups (all but the tool palette), the problem is only in the popped-up state.
@@ -2800,3 +2800,22 @@ Hmmm... InvertItem sets a clipping region, and it has a comment "All this clippi
 is probably unnecessary, but it doesn't hurt." But maybe it does!? Try on MBAir => nope;
 no change -- except I now see an odd numbered char. disappearing instead of an even one
 appearing! ??
+
+-------------------------------------------------------------------------------
+
+28 Feb.
+
+Summary of known problems on Intel machines as of the 25 Feb. commit:
+
+* On launch, (a) the initial Open File dialog is much too tall, and (b) the "New
+Nightingale Score" and Cancel buttons usually aren't shown until you resize it;
+nonetheless you can click on them and they work!
+
+* On launch, the tool palette isn't filled in, though it works perfectly in terms of
+selecting tools and hiliting their squares. Nothing I've tried -- resizing, etc. -- gets
+Ngale to fill it in.
+
+* The three pop-up menu palettes all have similar problems drawing their contents.
+Launch, New Nightingale Score, insert a note, Set Duration, click on the note => the
+palette pops up, but only odd-numbered squares are filled in. See 22-25 Feb. above for
+details.

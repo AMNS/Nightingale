@@ -2152,3 +2152,13 @@ Minor cleanup: renamed handler for graphic menus from <MyMDefProc> to <NMDefProc
 made most MIDI-related messages on startup only given if DETAIL_SHOW, etc. Affects
 GraphicMDEF.h; CoreMIDIUtils, DrawObject, DurationPopUp, GraphicMDEF, Initialize,
 ToolPalette.
+
+-------------------------------------------------------------------------------
+
+6 - 7 Mar.
+
+Log messages are now preceded by a word giving the priority level. Affects UIFUtils.
+
+Minor cleanup: on calls to LogPrintf(LOG_ERR... and LOG_WARNING, added SysBeep()s before,
+etc. Affects Double, DrawObject, DurationPopUp, File, HeaderFooterDialog, Initialize,
+UIFUtils, Utility.

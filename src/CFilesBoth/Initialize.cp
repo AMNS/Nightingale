@@ -116,7 +116,7 @@ void Initialize()
 	Pstrcpy((unsigned char *)strBuf, VersionString(versionPStr));
 	PToCString((unsigned char *)strBuf);
 	GoodStrncpy(applVerStr, strBuf, 15);			/* Allow one char. for terminator */
-	LogPrintf(LOG_INFO, "Running Nightingale %s  (Initialize)\n", applVerStr);
+	LogPrintf(LOG_NOTICE, "Running Nightingale %s  (Initialize)\n", applVerStr);
 
 	if (!OpenPrefsFile())							/* needs creatorType */
 		{ BadInit(); ExitToShell(); }
@@ -185,7 +185,7 @@ static OSStatus FindPrefsFile(unsigned char *fileName, OSType fType, OSType fCre
 	
 	/* Find the preferences folder, normally ~/Library/Preferences */
 	err = FindFolder(kOnSystemDisk, kPreferencesFolderType, True, &pvol, &pdir);
-	LogPrintf(LOG_INFO, "FindFolder: err=%d  (FindPrefsFile)\n", err);
+	//LogPrintf(LOG_DEBUG, "FindFolder: err=%d  (FindPrefsFile)\n", err);
 	if (err!=noErr) return err;
 	
 	/* Search the folder for the file */

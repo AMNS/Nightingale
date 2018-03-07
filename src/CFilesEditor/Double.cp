@@ -574,7 +574,7 @@ void FixChordsForClef(Document *doc, LINK syncL,
 			if (NoteSTAFF(aNoteL)==absStaff && MainNote(aNoteL)) {
 				if (NoteINCHORD(aNoteL)) {
 					FixSyncForChord(doc, syncL, NoteVOICE(aNoteL), NoteBEAMED(aNoteL), 0, 0, NULL);
-					}
+				}
 				else {
 					stemDown = GetCStemInfo(doc, syncL, aNoteL, newContext, &qStemLen);
 					NoteYSTEM(aNoteL) = CalcYStem(doc, NoteYD(aNoteL),
@@ -586,7 +586,8 @@ void FixChordsForClef(Document *doc, LINK syncL,
 			}
 	}
 	else if (GRSyncTYPE(syncL)) {
-		SysBeep(1);		/* ??NOT HELPFUL! Either fix this or give an error message. */
+		SysBeep(1);
+		LogPrintf(LOG_WARNING, "Handling grace notes isn't implemented.  (FixChordsForClef)\n");
 	}
 }
 

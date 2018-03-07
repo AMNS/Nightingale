@@ -47,7 +47,8 @@
 #include "CarbonPrinting.h"
 
 
-/* ------------------------------------------------------------------------- CalcYStem -- */
+/* ------------------------------------------------------------- Note/grace note stems -- */
+
 /*	Calculate optimum stem endpoint for a note. */
 
 DDIST CalcYStem(
@@ -89,8 +90,7 @@ DDIST CalcYStem(
 }
 
 
-/* ---------------------------------------------------------------------- GetNoteYStem -- */
-/*	Calculate optimum stem endpoint for a note in main data structure, considering voice
+/*	Calculate optimum stem endpoint for a note in main object list, considering voice
 role, but assuming note is not in a chord and not considering beaming. Cf. GetNCYStem
 in Objects.c. */
 
@@ -107,7 +107,6 @@ DDIST GetNoteYStem(Document *doc, LINK syncL, LINK aNoteL, CONTEXT context)
 }
 
 
-/* -------------------------------------------------------------------- GetGRNoteYStem -- */
 /*	Calculate optimum stem endpoint for a grace note in main data structure, assuming
 normal (one voice per staff) rules, assuming it's not in a chord and not considering
 beaming. Cf. GetGRCYStem in Objects.c. */
@@ -127,7 +126,6 @@ DDIST GetGRNoteYStem(LINK aGRNoteL, CONTEXT context)
 }
 
 
-/* ----------------------------------------------------------------------- ShortenStem -- */
 /*	Returns True if the given note and stem direction require a shorter-than-normal
 stem; intended for use in 2-voice notation. */
 
@@ -149,7 +147,6 @@ Boolean ShortenStem(LINK aNoteL, CONTEXT context, Boolean stemDown)
 }
 
 
-/* ---------------------------------------------------------------------- GetCStemInfo -- */
 /* Given a note and a context, return (in <qStemLen>) its normal stem length and (as
 function value) whether it should be stem down. Considers voice role but assumes the
 note is not in a chord. */
@@ -195,7 +192,6 @@ Boolean GetCStemInfo(Document *doc, LINK /*syncL*/, LINK aNoteL, CONTEXT context
 }
 
 
-/* ----------------------------------------------------------------------- GetStemInfo -- */
 /* Given a note, return (in <qStemLen>) its normal stem length and (as function
 value) whether it should be stem down. Considers voice role but assumes the note
 is not in a chord. */
@@ -209,7 +205,6 @@ Boolean GetStemInfo(Document *doc, LINK syncL, LINK aNoteL, short *qStemLen)
 }
 
 
-/* -------------------------------------------------------------------- GetCGRStemInfo -- */
 /* Given a grace note and a context, return (in <qStemLen>) its normal stem length and
 (as function value) whether it should be stem down. Considers voice role but assumes
 the grace note is not in a chord. */
@@ -244,7 +239,6 @@ Boolean GetCGRStemInfo(Document *doc, LINK /*grSyncL*/, LINK aGRNoteL, CONTEXT /
 }
 
 
-/* --------------------------------------------------------------------- GetGRStemInfo -- */
 /* Given a grace note, return (in <qStemLen>) its normal stem length and (as function
 value) whether it should be stem down. Considers voice role but assumes the grace note
 is not in a chord. */
