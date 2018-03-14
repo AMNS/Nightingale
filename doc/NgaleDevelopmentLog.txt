@@ -2819,3 +2819,129 @@ Ngale to fill it in.
 Launch, New Nightingale Score, insert a note, Set Duration, click on the note => the
 palette pops up, but only odd-numbered squares are filled in. See 22-25 Feb. above for
 details.
+
+* The selectable area (& hiliting for it) is the same as on PPC for timesigs, but slightly
+too low for most other symbols.
+
+(Note: My G5 suddenly became unusuable on 28 Feb.; a one-week hiatus ensued while I got
+it working again.)
+
+-------------------------------------------------------------------------------
+
+9 - 11 March
+
+My comment of 7 Feb.: "Everything from any call to GetResource(), Get1Resource, etc.,
+could be vulnerable to the Endian problem, except (I think!) for Apple-defined resources
+like 'DITL', 'PAT ', 'PICT', 'STR#', 'TEXT'." Apple Universal Binary Programming
+Gudidelines confirms that Apple takes care of Endianness for their own resources, so my
+problems are definitely elsewhere!
+
+How about the excessive height of the initial Open File dialog on my MacBook Air? This
+is set in NSNavOpenEventProc(), called from NavCreateGetFileDialog() via a UPP that's
+the latter's 3rd parameter. On my G5, it's 401; on my MacBook Air, it's 820. Why?? On my
+old MacBook w/ the PPC version (Via Rosetta), it's 397, which is a bit smaller but OK, &
+it shows all its buttons; w/ the Intel version, it's 397, which is OK, & it shows all
+its buttons! On my Mac mini, it's 457, somewhat larger but OK, & it shows all its
+buttons. On all three Intel systems, the tool palette behaves the same (it's never
+filled in, though it works perfectly otherwise), and the three pop-up menu palettes have
+similar problems drawing their contents. Sigh... I have no idea; TBContinued.
+
+-------------------------------------------------------------------------------
+
+11 - 13 March
+On the selection area/hiliting problem: New, Select All => look at log:
+
+On Intel (MBAir):
+3/11/18 5:33:04.485 PM Ngale[81606]: debug. CheckCLEF: wSub=-23904,-23913,-23878,-23904
+3/11/18 5:33:04.485 PM Ngale[81606]: debug. CheckCLEF: wSub=-23859,-23913,-23848,-23903
+
+On PPC (G5):
+Mar 11 17:31:57 DonDualG5 Ngale[45230]: debug. CheckCLEF: wSub=-23908,-23913,-23882,-23904
+Mar 11 17:31:57 DonDualG5 Ngale[45230]: debug. CheckCLEF: wSub=-23863,-23913,-23850,-23903
+
+So wSub.top and wSub.bottom really are slightly less negative (= lower on the page) on
+Intel. Is it the same font? Yep, Briard for both. CheckCLEF sets wSub like this:
+
+		rSub = charRectCache.charRect[glyph];
+		OffsetRect(&rSub, d2p(xd), d2p(yd));
+		wSub = rSub; OffsetRect(&wSub, pContext->paper.left, pContext->paper.top);
+
+So evidently the charRectCache.charRect[]s for many symbols are different on the two
+machines -- and correct on the PPC!?  BuildCharRectCache() does what it sounds like, via:
+
+	bbox = musFontInfo[doc->musFontInfoIndex].cBBox;
+
+...and InitMusFontTables() fills in the cBBox values from our 'BBX#' resource. Does that
+really have slightly different values on the two platforms?
+
+On MBAir:
+3/12/18 2:06:25.384 PM Ngale[97766]: info. Setting up music font 'Sonata': 174 chars.  (InitMusFontTables)
+3/12/18 2:06:25.384 PM Ngale[97766]: debug. InitMusFontTables: ch=&=38 yt=-1079 yb=657	[ht=1736]
+3/12/18 2:06:25.384 PM Ngale[97766]: debug. InitMusFontTables: ch=?=63 yt=-736 yb=64	[ht=800]
+3/12/18 2:06:25.385 PM Ngale[97766]: info. Setting up music font 'Briard': 217 chars.  (InitMusFontTables)
+3/12/18 2:06:25.385 PM Ngale[97766]: debug. InitMusFontTables: ch=&=38 yt=-1079 yb=656
+3/12/18 2:06:25.385 PM Ngale[97766]: debug. InitMusFontTables: ch=?=63 yt=-735 yb=64
+3/12/18 2:06:25.417 PM Ngale[97766]: info. Setting up music font 'BlueNotz-NG': 217 chars.  (InitMusFontTables)
+3/12/18 2:06:25.417 PM Ngale[97766]: debug. InitMusFontTables: ch=&=38 yt=-1079 yb=656
+3/12/18 2:06:25.417 PM Ngale[97766]: debug. InitMusFontTables: ch=?=63 yt=-735 yb=64
+
+On G5:
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: info. Setting up music font 'Sonata': 174 chars.  (InitMusFontTables)
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=&=38 yt=-1334 yb=402	[ht=1736]
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=?=63 yt=-991 yb=-192	[ht=799]
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: info. Setting up music font 'Briard': 217 chars.  (InitMusFontTables)
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=&=38 yt=-1334 yb=401
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=?=63 yt=-990 yb=-192
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: info. Setting up music font 'BlueNotz-NG': 217 chars.  (InitMusFontTables)
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=&=38 yt=-1334 yb=401
+Mar 12 14:11:16 DonDualG5 Ngale[53195]: debug. InitMusFontTables: ch=?=63 yt=-990 yb=-192
+
+!! These values aren't slightly different, they're VERY different! How can that be??
+Actually, they're not so different; the Intel (MBAir) values are just larger by 255!
+Could these different values be present in the 'BBX#'?
+
+Compare the values for char. code 38 & 63 in BBX# 129 (Briard) in the latest
+NightingalePPC.app and NightingaleIntel.app => they're exactly the same. Maybe I'm
+somehow using the BBX#'s from a different resource file? Delete the BBX# for Blue Notz
+from NgaleIntel, run it => BlueNotz is gone, so that's not it. %^&(@#(^$#%  Whatever it
+is, it's something pretty weird! Could FIX_END possibly be the problem??
+
+BBX# values of width & bounding box for char. codes 38 & 63, both before and after FIX_END, on G5:
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: info. Setting up music font 'Sonata': 174 chars.  (InitMusFontTables)
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   611  611
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   0  0
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   402  402
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   611  611
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   -1334  -1334
+
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   694  694
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   0  0
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   -192  -192
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   691  691
+Mar 14 11:30:47 DonDualG5 Ngale[67161]: debug.   -991  -991
+
+On MBAir:
+3/13/18 7:46:16.373 PM Ngale[11513]: info. Setting up music font 'Sonata': 174 chars.  (InitMusFontTables)
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   25346  611
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   0  0
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   -28414  657	**255 GREATER THAN G5 VALUE
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   25346  611
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   -13829  -1079	**255 GREATER THAN G5 VALUE
+
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   46594  694
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   0  0
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   16384  64		**255 GREATER THAN G5 VALUE
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   -19710  691
+3/13/18 7:46:16.374 PM Ngale[11513]: debug.   8445  -736	**255 GREATER THAN G5 VALUE
+
+Nope, FIX_END is okay (confirmed via my own SwapBytes program). What does Ngale do before getting
+the values listed above?
+
+		resH = Get1IndResource('BBX#', i); 
+		if (!GoodResource(resH)) goto error;
+		GetResInfo(resH, &resID, &resType, resName);
+		
+Sure looks like a bug in the Intel implementation of the Resource Manager, a highly unlikely bug
+since it affects things so selectively, but via Sherlock Holmes' dogma... !! In which case, the
+only solution is a kludge to correct it => done.
+

@@ -123,9 +123,9 @@ static short ComputeLimitRTop(Document *doc, LINK sysL,
 		return limitTop;
 	}
 
-	/* Handle case for following systems of page for showFormat.
-		Get position of top of systemRect of sysL; includes vDiff
-		to offset position of mouseLoc relative to top of grayRgn. */
+	/* Handle case for following systems of page for showFormat. Get position of top
+	   of systemRect of sysL; includes vDiff to offset position of mouseLoc relative
+	   to top of grayRgn. */
 
 	limitTop = r.top+vDiff;
 	
@@ -135,9 +135,8 @@ static short ComputeLimitRTop(Document *doc, LINK sysL,
 	limitTop -= AboveStfDist(staffL);
 
 	/* Subtract distance bottom stf of previous system is above previous system's
-		sysRect.bottom.
-		Then can drag sysL up to where bottom of bottom staff of previous system
-		touches top of top staff of this system. */
+	   sysRect.bottom. Then can drag sysL up to where bottom of bottom staff of
+	   previous system touches top of top staff of this system. */
 
 	if (LinkLSYS(sysL))
 		limitTop -= BelowStfDist(doc, LinkLSYS(sysL), LinkLSTAFF(staffL));
@@ -539,8 +538,7 @@ void ContextObject(Document *doc, LINK pL, CONTEXT context[])
 
 /* ----------------------------------------------------------------------- CheckObject -- */
 /* Perform the action selected by <mode> on object <pL>. See Check.h for a list of
-possible values for <mode>. stfRange passes the staff parameters for SMStaffDrag
-mode. */
+possible values for <mode>. stfRange passes the staff parameters for SMStaffDrag mode. */
 
 LINK CheckObject(Document *doc, LINK pL, Boolean *found, Ptr ptr, CONTEXT context[],
 						short mode, short *pIndex, STFRANGE stfRange)

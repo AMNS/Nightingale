@@ -145,8 +145,8 @@ void InitNightFonts()
 }
 
 
-/* Allocate <endingString> and get label strings for Endings into it. Return the
-number of strings found, or -1 if there's an error (probably out of memory). */
+/* Allocate <endingString> and get label strings for Endings into it. Return the number
+of strings found, or -1 if there's an error (probably out of memory). */
 
 static short InitEndingStrings(void);
 static short InitEndingStrings()
@@ -183,11 +183,10 @@ static Boolean InitNightGlobals()
 	char	fmtStr[256];
 	short	j;
 	
-	/*
-	 *	Since initialization routines can (and as of this writing do) use the coordinate-
-	 * conversion macros, set up variables used by those macros as if no magnification
-	 * is in effect.
-	 */	
+	/* Since initialization routines can (and as of this writing do) use the coordinate-
+	   conversion macros, set up variables used by those macros as if no magnification
+	   is in effect. */
+	
 	magShift = 4;
 	magRound = 8;
 		
@@ -235,11 +234,14 @@ and that the resource ID's for a font's four types match.  For example, "Petrucc
 should have 'BBX#' 129, 'MCMp' 129, 'MCOf' 129, and 'MFEx' 129. -JGG, 4/25/01; rev.
 by DAB, 2/1/18. */
 
+#define LPD(z)	if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG, "  %d", (z));
+#define LPDL(z)	if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG, "  %d\n", (z));
+
 static Boolean InitMusFontTables()
 {
 	short	i, nRes, resID, curResFile;
-	short	*w, index;
-	unsigned short ch, chCount, xw, xl, yt, xr, yb;
+	short	*w, index, xl, yt, xr, yb;
+	unsigned short ch, chCount, xw;
 	unsigned char *b;
 	Handle	resH;
 	Size	nBytes;
@@ -268,13 +270,13 @@ static Boolean InitMusFontTables()
 		if (!GoodResource(resH)) goto error;
 		GetResInfo(resH, &resID, &resType, resName);
 		if (ReportResError()) goto error;
-		if (resName[0]>31)			/* font name must have < 32 chars */
+		if (resName[0]>31)					/* font name must have < 32 chars */
 			goto error;
 		Pstrcpy(musFontInfo[index].fontName, resName);
 		GetFNum(resName, &musFontInfo[index].fontID);
 
-		/* Set all bounding boxes to empty, then fill in actual values for chars.
-			that exist in this font. */
+		/* Set all bounding boxes to empty, then fill in actual values for chars. that
+		   exist in this font. */
 		
 		for (ch = 0; ch<256; ch++) {
 			musFontInfo[index].cBBox[ch].left = 
@@ -288,19 +290,39 @@ static Boolean InitMusFontTables()
 		FIX_END(chCount);
 		Pstrcpy((StringPtr)musFontName, resName);
 		PToCString((StringPtr)musFontName);
-		LogPrintf(LOG_INFO, "Setting up music font '%s': %d chars.  (InitMusFontTables)\n",
+		LogPrintf(LOG_NOTICE, "Setting up music font '%s': %d chars.  (InitMusFontTables)\n",
 						musFontName, chCount);
 		while (chCount-- > 0) {
 			ch = *w++; FIX_END(ch);
+#if 0
+			xw = *w++; LPD(xw); FIX_END(xw); LPDL(xw);
+			xl = *w++; LPD(xl); FIX_END(xl); LPDL(xl);
+			yb = -(*w++); LPD(yb); FIX_END(yb); LPDL(yb);	yb -= 255;
+			xr = *w++; LPD(xr); FIX_END(xr); LPDL(xr);
+			yt = -(*w++); LPD(yt); FIX_END(yt); LPDL(yt);	yt -=255;
+#else
 			xw = *w++; FIX_END(xw);
 			xl = *w++; FIX_END(xl);
 			yb = -(*w++); FIX_END(yb);
 			xr = *w++; FIX_END(xr);
 			yt = -(*w++); FIX_END(yt);
+			
+/* An incredibly weird thing I can only attribute (after much digging) to a bug in the Intel
+version of the Resource Manager is that values for yb and yt on Intel are consistently too
+large by 255! So correct for that. (We're only concerned with Intels and PowerPCs, so little
+Endian is equivalent to Intel.) */
+
+#if TARGET_RT_LITTLE_ENDIAN
+	yb -= 255; yt -= 255;
+#endif
+
+if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG,
+				"InitMusFontTables: ch=%c=%u yt=%d yb=%d\n", ch, ch, yt, yb);
+#endif
 			if (ch>=0 && ch<256)
 				SetRect(&musFontInfo[index].cBBox[ch], xl, yt, xr, yb);
 			else
-				MayErrMsg("Info on font '%s' refers to illegal char code %d.  (InitMusFontTables)\n",
+				MayErrMsg("Info on font '%s' refers to illegal char code %u.  (InitMusFontTables)\n",
 							musFontName, ch);
 		}
 		ReleaseResource(resH);
@@ -308,8 +330,8 @@ static Boolean InitMusFontTables()
 	}
 
 	/* For the other resources, we use Get1NamedResource instead of Count1Resources
-		because we can't rely on the order of resources in the resource map being the
-		same as with the 'BBX#' resource. */
+	   because we can't rely on the order of resources in the resource map being the
+	   same as with the 'BBX#' resource. */
 
 	/* Read 'MCMp' (music character mapping) info. */
 	for (i = 0; i < numMusFonts; i++) {

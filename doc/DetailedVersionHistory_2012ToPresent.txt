@@ -2157,8 +2157,17 @@ ToolPalette.
 
 6 - 7 Mar.
 
-Log messages are now preceded by a word giving the level. Affects UIFUtils.
+Log messages are now preceded by a word giving the priority level. Affects UIFUtils.
 
 Minor cleanup: on calls to LogPrintf(LOG_ERR... and LOG_WARNING, added SysBeep()s before,
 etc. Affects Double, DrawObject, DurationPopUp, File, HeaderFooterDialog, Initialize,
 UIFUtils, Utility.
+
+-------------------------------------------------------------------------------
+
+8 - 14 Mar.
+
+Worked around an apparent bug in the Intel version of the Resource Manager that resulted
+in most symbols' bounding boxes being too low. Affects InitNightingale.
+
+Minor cleanup. Affects CheckUtils, Error, NavServices.

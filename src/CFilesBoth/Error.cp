@@ -193,7 +193,7 @@ void OutOfMemory(long nBytes)				{ ErrorNumber(exhaustedMemory,nBytes); }
 
 /* ----------------------------------------------------------- MayErrMsg, AlwaysErrMsg -- */
 
-char	junk[256];
+char	tempStr[256];
 
 static void EMDebugPrintf(char *fmt, ... );
 static void EMDebugPrintf(char *fmt, ... )
@@ -224,12 +224,12 @@ void MayErrMsg(char *fmt, ...)
 	arg6 = va_arg(ap,long);
 	va_end(ap);
 	
-	sprintf(junk, "PROGRAM ERROR: ");  
-	sprintf(&junk[strlen(junk)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
+	sprintf(tempStr, "PROGRAM ERROR: ");  
+	sprintf(&tempStr[strlen(tempStr)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
 	SysBeep(20);
 
 	if (--alertCount>=0 || ShiftKeyDown()) {
-		CParamText(junk, "", "", "");
+		CParamText(tempStr, "", "", "");
 		StopInform(GENERIC_ALRT);
 	}
 
@@ -253,11 +253,11 @@ void AlwaysErrMsg(char *fmt, ...)
 	arg6 = va_arg(ap,long);
 	va_end(ap);
 	
-	sprintf(junk, "PROGRAM ERROR: ");  
-	sprintf(&junk[strlen(junk)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
+	sprintf(tempStr, "PROGRAM ERROR: ");  
+	sprintf(&tempStr[strlen(tempStr)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
 	SysBeep(20);
 
-	CParamText(junk, "", "", "");
+	CParamText(tempStr, "", "", "");
 	StopInform(GENERIC_ALRT);
 
 	EMDebugPrintf(fmt, arg1, arg2, arg3, arg4, arg5, arg6);
