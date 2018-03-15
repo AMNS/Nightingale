@@ -674,6 +674,7 @@ PushLock(CLEFheap);
 		case SMSelect:
 			if (!aClef->selected) {
 				aClef->selected = True;
+LogPrintf(LOG_DEBUG, "CheckCLEF: wSub=%d,%d,%d,%d\n", wSub.top, wSub.left, wSub.bottom, wSub.right);
 				HiliteRect(&wSub);
 			}
 			break;
