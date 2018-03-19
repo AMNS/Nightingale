@@ -1144,7 +1144,7 @@ static Boolean GetConfig()
 		display the (presumably corrected) values. */
 	if (DETAIL_SHOW) DisplayConfig();
 	if (!CheckConfig()) {
-		LogPrintf(LOG_WARNING, "Illegal fields have been set to default values.\n");
+		LogPrintf(LOG_WARNING, "Illegal fields have been set to default values.  (GetConfig)\n");
 		DisplayConfig();
 	}
 	
@@ -1255,10 +1255,13 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 		/* We must _not_ "Endian fix" these values: they're read from one-byte fields! */
 		
 		if (DETAIL_SHOW) DisplayToolPalette(whichPalette);
-		if (!CheckToolPalette(whichPalette)) {
+		LogPrintf(LOG_NOTICE, "Checking tool palette: ");
+		if (CheckToolPalette(whichPalette)) LogPrintf(LOG_NOTICE, "No errors found.  (GetToolGrid)\n");
+		else {
 			if (!DETAIL_SHOW) DisplayToolPalette(whichPalette);
 			GetIndCString(strBuf, INITERRS_STRS, 34);	/* "Your Prefs file has illegal values for the tool palette..." */
 			CParamText(strBuf, "", "", "");
+			LogPrintf(LOG_ERR, "%s\n", strBuf);
 			StopInform(GENERIC_ALRT);
 			return 0;
 		}

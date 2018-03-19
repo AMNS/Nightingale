@@ -197,8 +197,7 @@ static short GetMusFontIndex(short fontNum)
 	short	i;
 
 	for (i = 0; i < numMusFonts; i++)
-		if (musFontInfo[i].fontID==fontNum)
-			return i;
+		if (musFontInfo[i].fontID==fontNum) return i;
 
 	return -1;
 }
@@ -216,7 +215,7 @@ void InitDocMusicFont(Document *doc)
 	GetFNum(doc->musFontName, &fNum);
 	Pstrcpy((StringPtr)musFontName, doc->musFontName);
 	PToCString((StringPtr)musFontName);
-	LogPrintf(LOG_INFO, "Music font is '%s' (font no. %d).  (InitDocMusicFont)\n", musFontName, fNum);
+	LogPrintf(LOG_NOTICE, "Music font is '%s' (font no. %d).  (InitDocMusicFont)\n", musFontName, fNum);
 	if (fNum==0) {
 		GetIndCString(fmtStr, INITERRS_STRS, 29);	/* "The music font this document uses, %s, is not installed..." */
 		sprintf(strBuf, fmtStr, musFontName);
@@ -243,8 +242,8 @@ void InitDocMusicFont(Document *doc)
 /* ----------------------------------------------------------------------- SetTextSize -- */
 /* Set the text size of the port, presumably in preparation for drawing the score. Get
 the first staff object of the list to be drawn and use its fontSize field to determine
-the correct text size. NB: It assumes all staves are the same size! To handle scores
-with more than one staff size, it'd need to be told which staff to consider. */
+the correct text size. NB: It assumes all staves are the same size. To handle scores with
+more than one staff size, it'd need to be told which staff to consider. */
 
 void SetTextSize(Document *doc)
 {

@@ -270,7 +270,7 @@ static Boolean InitMusFontTables()
 		if (!GoodResource(resH)) goto error;
 		GetResInfo(resH, &resID, &resType, resName);
 		if (ReportResError()) goto error;
-		if (resName[0]>31)					/* font name must have < 32 chars */
+		if (resName[0]>31)					/* font name must have < 32 chars. */
 			goto error;
 		Pstrcpy(musFontInfo[index].fontName, resName);
 		GetFNum(resName, &musFontInfo[index].fontID);
@@ -290,8 +290,8 @@ static Boolean InitMusFontTables()
 		FIX_END(chCount);
 		Pstrcpy((StringPtr)musFontName, resName);
 		PToCString((StringPtr)musFontName);
-		LogPrintf(LOG_NOTICE, "Setting up music font '%s': %d chars.  (InitMusFontTables)\n",
-						musFontName, chCount);
+		LogPrintf(LOG_NOTICE, "Setting up music font '%s' (font no. %d): %d chars.  (InitMusFontTables)\n",
+						musFontName, musFontInfo[index].fontID, chCount);
 		while (chCount-- > 0) {
 			ch = *w++; FIX_END(ch);
 #if 0
@@ -307,17 +307,18 @@ static Boolean InitMusFontTables()
 			xr = *w++; FIX_END(xr);
 			yt = -(*w++); FIX_END(yt);
 			
-/* An incredibly weird thing I can only attribute (after much digging) to a bug in the Intel
-version of the Resource Manager is that values for yb and yt on Intel are consistently too
-large by 255! So correct for that. (We're only concerned with Intels and PowerPCs, so little
-Endian is equivalent to Intel.) */
+			/* An incredibly weird thing I can only attribute (after much digging) to a
+			   bug in the Intel version of the Resource Manager is that values for yb and
+			   yt on Intel are consistently too large by 255! So correct for that. (We're
+			   only concerned with Intels and PowerPCs, so little Endian is equivalent to
+			   Intel.) */
 
 #if TARGET_RT_LITTLE_ENDIAN
-	yb -= 255; yt -= 255;
+			yb -= 255; yt -= 255;
 #endif
 
-if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG,
-				"InitMusFontTables: ch=%c=%u yt=%d yb=%d\n", ch, ch, yt, yb);
+			//if (ch==(unsigned short)'&' || ch==(unsigned short)'?') LogPrintf(LOG_DEBUG,
+			//		"InitMusFontTables: ch=%c=%u yt=%d yb=%d\n", ch, ch, yt, yb);
 #endif
 			if (ch>=0 && ch<256)
 				SetRect(&musFontInfo[index].cBBox[ch], xl, yt, xr, yb);
@@ -430,8 +431,8 @@ static Boolean InitTables()
 		modNRDurFactors[i] = (*midiModNRH)->durationFactors[i];  FIX_END(modNRDurFactors[i]);
 	}
 
-	if (!InitMusFontTables())
-		return False;
+	if (!InitMusFontTables()) return False;
+	
 	if (!InitStringPools(256L, 0)) {
 		NoMoreMemory();
 		return False;

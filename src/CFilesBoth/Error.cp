@@ -5,7 +5,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -226,9 +226,10 @@ void MayErrMsg(char *fmt, ...)
 	
 	sprintf(tempStr, "PROGRAM ERROR: ");  
 	sprintf(&tempStr[strlen(tempStr)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
-	SysBeep(20);
+	LogPrintf(LOG_ERR, "%s\n", tempStr);
 
 	if (--alertCount>=0 || ShiftKeyDown()) {
+		SysBeep(20);
 		CParamText(tempStr, "", "", "");
 		StopInform(GENERIC_ALRT);
 	}
@@ -255,8 +256,9 @@ void AlwaysErrMsg(char *fmt, ...)
 	
 	sprintf(tempStr, "PROGRAM ERROR: ");  
 	sprintf(&tempStr[strlen(tempStr)], fmt, arg1, arg2, arg3, arg4, arg5, arg6);
-	SysBeep(20);
+	LogPrintf(LOG_ERR, "%s\n", tempStr);
 
+	SysBeep(20);
 	CParamText(tempStr, "", "", "");
 	StopInform(GENERIC_ALRT);
 
@@ -286,6 +288,9 @@ Boolean ReportIOError(short errCode, short dlog)
 		GetIndCString(fmtStr, ErrorStringsID, 14);		/* "System I/O error number %d." */
 		sprintf(strBuf, fmtStr, errCode);
 	}
+
+	SysBeep(20);
+	LogPrintf(LOG_ERR, "%s\n", strBuf);
 	CParamText(strBuf, "", "", "");
 	StopInform(dlog);
 	return True;
@@ -310,6 +315,9 @@ Boolean ReportResError()
 		
 		sprintf(buf,"Resource Manager error number %d.", theErr);
 		CParamText(buf, "", "", "");
+
+		SysBeep(20);
+		LogPrintf(LOG_ERR, "%s\n", strBuf);
 		StopInform(GENERIC_ALRT);
 		return True;
 	}
@@ -329,6 +337,7 @@ Boolean ReportBadResource(Handle resH)
 			/* It's nice to keep error messages in resources, but too dangerous here! */
 		
 			CParamText("Couldn't get a resource.", "", "", "");
+			SysBeep(20);
 			StopInform(GENERIC_ALRT);
 		}
 		return True;
@@ -338,7 +347,7 @@ Boolean ReportBadResource(Handle resH)
 }
 
 
-/* -------------------------------------------------------------------- MissingDialog -- */
+/* --------------------------------------------------------------------- MissingDialog -- */
 /* Alert user when a dialog resource cannot be found. For now, just beep and put a
 complied-in message in the log. We could also give a compiled-in error message, but
 it's probably too dangerous to try to get one from a resource in this situation. */
@@ -350,7 +359,7 @@ void MissingDialog(short dlogID)
 }
 
 
-/* ------------------------------------------------------------------ AppleEventError -- */
+/* ------------------------------------------------------------------- AppleEventError -- */
 /* Alert user when an Apple event handler gets an error code. */
 
 void AppleEventError(char */*handlerName*/, short errCode)
@@ -360,5 +369,8 @@ void AppleEventError(char */*handlerName*/, short errCode)
 		GetIndCString(fmtStr, ErrorStringsID, 15);		/* "Error %d in an Apple Event Handler (%s)." */
 		sprintf(buf, fmtStr, errCode);
 		CParamText(buf, "", "", "");
+		
+		SysBeep(20);
+		LogPrintf(LOG_ERR, "%s\n", buf);
 		StopInform(GENERIC_ALRT);
 	}

@@ -37,6 +37,8 @@ Boolean			CheckAbort(void);
 Boolean			IsDoubleClick(Point clickPt, short tol, long now);
 OSType			CanPaste(short n, ...);
 
+void			EndianFixRect(Rect *pRect);
+void			EndianFixPoint(Point *pPoint);
 void			EndianFixConfig(void);
 void			EndianFixMIDIModNRTable(void);
 void			EndianFixPaletteGlobals(short idx);

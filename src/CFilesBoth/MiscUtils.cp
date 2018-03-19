@@ -52,12 +52,9 @@ Boolean GoodResource(Handle hndl)
 	return( hndl!=NULL && ResError()==noErr && *hndl!=NULL );
 }
 
-/*
- *	This requests a non-relocatable n-byte block of memory from the Toolbox,
- *	and zeroes it prior to delivering.  If not enough memory, it goes to
- *	error code, which may or may not work, since the error dialog needs
- *	memory too.
- */
+/* This requests a non-relocatable n-byte block of memory from the Toolbox, and zeroes
+it prior to delivering.  If not enough memory, it goes to error code -- which may not
+work, since the error dialog needs memory too. */
 
 void *NewZPtr(Size n)		/* Allocate n bytes of zeroed memory; deliver ptr */
 {
@@ -72,15 +69,12 @@ void *NewZPtr(Size n)		/* Allocate n bytes of zeroed memory; deliver ptr */
 	return(ptr);
 }
 
-/*
- *	GrowMemory() is a very simple grow zone function designed to prevent the ROM or
- *	resident software such as desk accessories from generating out-of-memory errors.
- *	GrowMemory assumes we've pre-allocated an otherwise unused block of memory (this
- *	should normally be done at initialize time); we free it here when the Memory Manager
- *	calls this routine as the installed Grow Zone procedure. We also note that memory
- *	is low for the benefit of possible error messages to the user. See Inside
- *	Macintosh v2, p.42-3.
- */
+/* GrowMemory() is a very simple grow zone function designed to prevent the ROM or
+resident software from generating out-of-memory errors. GrowMemory assumes we've
+pre-allocated an otherwise unused block of memory (this should normally be done at
+initialize time); we free it here when the Memory Manager calls this routine as the
+installed Grow Zone procedure. We also note that memory is low for the benefit of
+possible error messages to the user. See Inside Macintosh vol. 2, p.42-3. */
 
 pascal long GrowMemory(Size /*nBytes*/)		/* nBytes is unused */
 {
@@ -167,15 +161,13 @@ Boolean CheckAbort()
 	return(quit);
 }
 
-/*
- *	Determine if a mouse click is a double click, using given position tolerance,
- *	all in current port.
- */
+/* Determine if a mouse click is a double click, using given position tolerance, all
+in current port. */
 
 Boolean IsDoubleClick(Point pt, short tol, long now)
 {
-	Rect box; Boolean ans=False;
-	static long lastTime; static Point thePt;
+	Rect box;  Boolean ans=False;
+	static long lastTime;  static Point thePt;
 	
 	if ((unsigned long)(now-lastTime)<GetDblTime()) {
 		SetRect(&box,thePt.h-tol,thePt.v-tol,thePt.h+tol+1,thePt.v+tol+1);
@@ -209,10 +201,9 @@ GetScrapFlavorFlags can return
   noScrapErr                    = -100, // No scrap exists error
   noTypeErr                     = -102  // No object of that type in scrap
 
-NB:  
-The line
-			if (err >= -1) return(*nextType);
-testing result of GetScrap does not square with documentation, which states:
+NB: The line
+		if (err >= -1) return(*nextType);
+testing the result of GetScrap does not square with documentation, which states:
 
 	function result [of GetScrap]
 	The length (in bytes) of the data or a negative function result that indicates the error. 	
@@ -240,38 +231,46 @@ OSType CanPaste(short n, ...)
 
 
 /* --------------------------------------------------------------------- Endian issues -- */
+/* Many of Nightingale's resources -- the CNFG, MIDI ModNR table, PaletteGlobals
+resources, etc. -- are stored in Big Endian form. If we're running on a Little Endian
+processor (Intel or compatible), these functions correct the byte order in fields of
+more than one byte; if we're on a Big Endian processor (PowerPC), they do nothing.
+These should be called immediately after opening the resources to ensure they're in the
+appropriate Endian form internally, and immediately before saving them them to ensure
+they're saved in Big Endian form. */
 
-/* The CNFG and MIDI ModNR table, and PaletteGlobals resources are stored in Big Endian
-form. If we're running on a Little Endian processor (no doubt Intel or compatible),
-these functions correct the byte order in fields of more than one byte; if we're on a
-Big Endian processor (PowerPC), they do nothing. These functions should be called
-immediately after opening the resources to ensure they're in the appropriate Endian
-form internally, and immediately before saving them them to ensure they're saved in Big
-Endian form. */
+void EndianFixRect(Rect *pRect)
+{
+	FIX_END(pRect->top);	FIX_END(pRect->left);
+	FIX_END(pRect->bottom);	FIX_END(pRect->right);
+}
+
+void EndianFixPoint(Point *pPoint)
+{
+	FIX_END(pPoint->v);
+	FIX_END(pPoint->h);
+}
 
 void EndianFixConfig()
 {
 #if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END(config.maxDocuments);
 	
-	FIX_END(config.paperRect.top);		FIX_END(config.paperRect.left);
-	FIX_END(config.paperRect.bottom);	FIX_END(config.paperRect.right);
-	FIX_END(config.pageMarg.top);		FIX_END(config.pageMarg.left);
-	FIX_END(config.pageMarg.bottom);	FIX_END(config.pageMarg.right);
-	FIX_END(config.pageNumMarg.top);	FIX_END(config.pageNumMarg.left);
-	FIX_END(config.pageNumMarg.bottom);	FIX_END(config.pageNumMarg.right);
+	EndianFixRect(&config.paperRect);
+	EndianFixRect(&config.pageMarg);
+	EndianFixRect(&config.pageNumMarg);
 
 	FIX_END(config.defaultTempoMM);
 	FIX_END(config.lowMemory);
 	FIX_END(config.minMemory);
 	
-	FIX_END(config.toolsPosition.v);	FIX_END(config.toolsPosition.h);
-	
+	EndianFixPoint(&config.toolsPosition);
+
 	FIX_END(config.numRows);			FIX_END(config.numCols);
 	FIX_END(config.maxRows);			FIX_END(config.maxCols);
 	FIX_END(config.vPageSep);			FIX_END(config.hPageSep);
 	FIX_END(config.vScrollSlop);		FIX_END(config.hScrollSlop);
-	FIX_END(config.origin.v);			FIX_END(config.origin.h);
+	EndianFixPoint(&config.origin);
 
 	FIX_END(config.musicFontID);
 	FIX_END(config.numMasters);
@@ -467,7 +466,7 @@ OSErr SysEnvirons(
    
 	theWorld->environsVersion = versionRequested;
 	
-	// This selector is not available in Carbon. :(
+	/* This selector is not available in Carbon. :-(  */
 	
 	err = Gestalt(gestaltMachineType, &gestaltResponse);
 	if (err == noErr)
@@ -502,11 +501,10 @@ OSErr SysEnvirons(
 		*p++ = *q++; *p++ = *q++;
 	}
 		
-	// This selector does not even exist for Gestalt. :( :(
+	/* This selector does not even exist for Gestalt. :-( :-(  */
 	
 //	err = Gestalt(gestaltSysVRefNum, &gestaltResponse);
-//	if (err == noErr)
-//		theWorld->sysVRefNum = gestaltResponse;
+//	if (err == noErr) theWorld->sysVRefNum = gestaltResponse;
 
 	theWorld->sysVRefNum = 0;
 	

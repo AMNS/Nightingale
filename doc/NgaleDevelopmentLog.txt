@@ -2807,20 +2807,20 @@ appearing! ??
 
 Summary of known problems on Intel machines as of the 25 Feb. commit:
 
-* On launch, (a) the initial Open File dialog is much too tall, and (b) the "New
+1. On launch, (a) the initial Open File dialog is much too tall, and (b) the "New
 Nightingale Score" and Cancel buttons usually aren't shown until you resize it;
 nonetheless you can click on them and they work!
 
-* On launch, the tool palette isn't filled in, though it works perfectly in terms of
+2. On launch, the tool palette isn't filled in, though it works perfectly in terms of
 selecting tools and hiliting their squares. Nothing I've tried -- resizing, etc. -- gets
 Ngale to fill it in.
 
-* The three pop-up menu palettes all have similar problems drawing their contents.
+3. The three pop-up menu palettes all have similar problems drawing their contents.
 Launch, New Nightingale Score, insert a note, Set Duration, click on the note => the
 palette pops up, but only odd-numbered squares are filled in. See 22-25 Feb. above for
 details.
 
-* The selectable area (& hiliting for it) is the same as on PPC for timesigs, but slightly
+4. The selectable area (& hiliting for it) is the same as on PPC for timesigs, but slightly
 too low for most other symbols.
 
 (Note: My G5 suddenly became unusuable on 28 Feb.; a one-week hiatus ensued while I got
@@ -2944,4 +2944,22 @@ the values listed above?
 Sure looks like a bug in the Intel implementation of the Resource Manager, a highly unlikely bug
 since it affects things so selectively, but via Sherlock Holmes' dogma... !! In which case, the
 only solution is a kludge to correct it => done.
+
+-------------------------------------------------------------------------------
+
+18 Mar.
+
+I upgraded my MacBook Air from OS 10.8 to 10.13; problem of 1b of 28 Feb. no longer occurs. Updated
+list of known problems on Intel machines:
+
+1. On launch, the initial Open File dialog is much too tall.
+
+2. On launch, the tool palette isn't filled in, though it works perfectly in terms of
+selecting tools and hiliting their squares. Nothing I've tried -- resizing, etc. -- gets
+Ngale to fill it in.
+
+3. The three pop-up menu palettes all have similar problems drawing their contents.
+Launch, New Nightingale Score, insert a note, Set Duration, click on the note => the
+palette pops up, but only odd-numbered squares are filled in. See 22-25 Feb. above for
+details.
 

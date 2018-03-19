@@ -952,7 +952,7 @@ void CautionInform(short alertID)
 {
 	short dummy;
 	
-	LogPrintf(LOG_NOTICE, "* CautionInform alertID=%d\n", alertID);
+	LogPrintf(LOG_WARNING, "* CautionInform alertID=%d\n", alertID);
 	ArrowCursor();
 	dummy = CautionAlert(alertID, NULL);
 }

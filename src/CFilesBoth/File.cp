@@ -9,7 +9,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -294,8 +294,8 @@ static void ConvertModNRVPositions(Document *, LINK);
 static void ConvertStaffLines(LINK startL);
 
 /* Given a Slur object, return arrays of the paper-relative starting and ending
-positions (expressed in points) of the notes delimiting its subobjects. This is
-an ancient version of GetSlurContext, from Nightingale .996. */
+positions (expressed in points) of the notes delimiting its subobjects. This is an
+ancient version of GetSlurContext, from Nightingale .996. */
 
 static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point endPt[])
 	{
@@ -314,10 +314,11 @@ static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point end
 
 		firstMEAS = lastSYS = False;
 			
-		/* Handle special cases for crossSystem & crossStaff slurs. If p->firstSyncL
-		not a sync, it must be a measure; find the first sync to get the context from.
-		If p->crossStaff, and slur drawn bottom to top, firstStaff is one greater, else
-		lastStaff. */
+		/* Handle special cases for crossSystem & crossStaff slurs. If p->firstSyncL is
+		   not a sync, it must be a measure; find the first sync to get the context from.
+		   If p->crossStaff, and slur drawn bottom to top, firstStaff is one greater, else
+		   lastStaff. */
+		   
 		p = GetPSLUR(pL);
 		firstStaff = lastStaff = p->staffn;
 		if (p->crossStaff) {
@@ -338,9 +339,10 @@ static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point end
 		dFirstLeft = localContext.measureLeft;							/* abs. origin of left end coords. */
 		dFirstTop = localContext.measureTop;
 		
-		/* Handle special cases for crossSystem slurs. If p->lastSyncL not a sync,
-		it must be a system, and must have an RSYS; find the first sync to the
-		left of RSYS to get the context from. */
+		/* Handle special cases for crossSystem slurs. If p->lastSyncL is not a sync,
+		   it must be a system, and must have an RSYS; find the first sync to the left
+		   of RSYS to get the context from. */
+		   
 		p = GetPSLUR(pL);
 		if (SyncTYPE(p->lastSyncL))
 			GetContext(doc, p->lastSyncL, lastStaff, &localContext);	/* Get right end context */
@@ -348,7 +350,7 @@ static void OldGetSlurContext(Document *doc, LINK pL, Point startPt[], Point end
 			if (SystemTYPE(p->lastSyncL) && LinkRSYS(p->lastSyncL)) {
 				lastSYS = True;
 				pSystemL = p->lastSyncL;
-				lastSyncL = LSSearch(LinkRSYS(pSystemL),SYNCtype,lastStaff,GO_LEFT,False);
+				lastSyncL = LSSearch(LinkRSYS(pSystemL), SYNCtype, lastStaff, GO_LEFT, False);
 				GetContext(doc, lastSyncL, lastStaff, &localContext);
 			}
 			else MayErrMsg("OldGetSlurContextontext: for pL=%ld lastSyncL=%ld is bad",
@@ -1264,7 +1266,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 					FSSpec *pfsSpec, long *fileVersion)
 {
 	short		errCode, refNum, strPoolErrCode;
-	short 		errInfo,				/* Type of object being read or other info on error */
+	short 		errInfo=0,				/* Type of object being read or other info on error */
 				lastType;
 	long		count, stringPoolSize,
 				fileTime;
@@ -1325,57 +1327,6 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	/* Read and, if necessary, convert document (i.e., Sheets) and score headers. */
 	
 	switch(version) {
-		case 'N100':
-		case 'N101':
-		case 'N102':
-		{
-			char *src, *dst; SCOREHEADER_N102 oldScoreHdr;
-
-			count = sizeof(DOCUMENTHDR);
-			errCode = FSRead(refNum, &count, &doc->origin);
-			if (errCode) { errInfo = HEADERobj; goto Error; }
-			
-			count = sizeof(SCOREHEADER_N102);
-			errCode = FSRead(refNum, &count, &doc->headL);
-			if (errCode) { errInfo = HEADERobj; goto Error; }
-
-			/* Make room for extra comment chars. */
-			src = (char *)&doc->comment[MAX_COMMENT_LEN_N102+1];
-			dst = src + (MAX_COMMENT_LEN-MAX_COMMENT_LEN_N102);
-			/* NB: Compiler won't let us compute <count> the same way as for fontTable (below), 
-				probably because <feedback> is a bitfield (?). Instead, we use the next field,
-				<currentPage>, and adjust the total by one byte. */
-			count = sizeof(SCOREHEADER_N102) - 
-								((char *)&oldScoreHdr.currentPage - (char *)&oldScoreHdr.headL);
-			count++;
-			BlockMove(src, dst, count);
-
-			/* Make room for 4 new text styles, and init them. */
-			doc->nFontRecords = 15;
-			src = (char *)&doc->fontName6[0];
-			dst = (char *)&doc->fontName6[0] + (4 * 36);			/* 4 new text styles, 36 bytes each */
-			count = sizeof(SCOREHEADER_N102) - 
-								((char *)&oldScoreHdr.nfontsUsed - (char *)&oldScoreHdr.headL);
-			BlockMove(src, dst, count);
-			InitN103FontRecs(doc);
-
-			/* Make room for more slots in the fontTable array. NOTE: We don't init these slots. */
-			src = (char *)&doc->fontTable[MAX_SCOREFONTS_N102];
-			dst = src + (sizeof(FONTITEM) * (MAX_SCOREFONTS-MAX_SCOREFONTS_N102));
-			count = sizeof(SCOREHEADER_N102) - 
-								((char *)&oldScoreHdr.magnify - (char *)&oldScoreHdr.headL);
-			BlockMove(src, dst, count);
-
-			/* Make room for music font name, initialized to Sonata. */
-			src = (char *)&doc->musFontName[0];
-			dst = (char *)&doc->magnify;
-			count = sizeof(SCOREHEADER_N102) - 
-								((char *)&oldScoreHdr.magnify - (char *)&oldScoreHdr.headL);
-			BlockMove(src, dst, count);
-			Pstrcpy(doc->musFontName, "\pSonata");
-
-			break;
-		}
 		case 'N103':
 		case 'N104':
 		case 'N105':
@@ -1414,8 +1365,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	errCode = FSRead(refNum, &count, &stringPoolSize);
 	if (errCode) { errInfo = STRINGobj; goto Error; }
 	FIX_END(stringPoolSize);
-	if (doc->stringPool)
-		DisposeStringPool(doc->stringPool);
+	if (doc->stringPool) DisposeStringPool(doc->stringPool);
 	/*
 	 * Allocate from the StringManager, not NewHandle, in case StringManager is tracking
 	 * its allocations. Then, since we're going to overwrite everything with stuff from file
@@ -1430,12 +1380,10 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	if (errCode) { errInfo = STRINGobj; goto Error; }
 	HUnlock((Handle)doc->stringPool);
 	SetStringPool(doc->stringPool);
-	// MAS FIXME:
-	// code inherited from CW -- always shows error message when loading file
 	StringPoolEndianFix(doc->stringPool);
 	strPoolErrCode = StringPoolProblem(doc->stringPool);
 	if (strPoolErrCode!=0)
-		AlwaysErrMsg("OpenFile: the string pool is probably bad (code=%ld).", (long)strPoolErrCode);
+		AlwaysErrMsg("The string pool is probably bad (code=%ld).  (OpenFile)", (long)strPoolErrCode);
 	
 	//errCode = GetFInfo(filename, vRefNum, &fInfo);
 	errCode = FSpGetFInfo (&fsSpec, &fInfo);
@@ -1456,7 +1404,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	doc->saved = True;									/* Has to be, since we just opened it! */
 	doc->named = True;									/* Has to have a name, since we just opened it! */
 
-	ModifyScore(doc, fileTime);							/* Do any hacking needed--ordinarily none */
+	ModifyScore(doc, fileTime);							/* Do any hacking needed, ordinarily none */
 
 	/*
 	 * Read the document's OMS device numbers for each part. if "devc" signature block not
@@ -1574,15 +1522,16 @@ is either an error code return by the file system manager or one of our own code
 some other additional information on the error. NB: If errCode==0, this will close
 the file but not give an error message; I'm not sure that's a good idea.
 
-Note that after a call to OpenError with fileIsOpen, you should not try to keep
-reading, since the file will no longer be open! */
+Note that after a call to OpenError with fileIsOpen, you should not try to keep reading,
+since the file will no longer be open! */
 
 void OpenError(Boolean fileIsOpen,
 					short refNum,
 					short errCode,
 					short errInfo)	/* More info: at what step error happened, type of obj being read, etc. */
 {
-	char aStr[256], fmtStr[256]; StringHandle strHdl;
+	char aStr[256], fmtStr[256];
+	StringHandle strHdl;
 	short strNum;
 	
 	SysBeep(1);
@@ -1810,26 +1759,24 @@ static short AskSaveType(Boolean canContinue)
 	return SF_Cancel;
 }
 
-/* Check to see if a file can be saved safely, saved only unsafely, or not saved
-at all, onto the current volume. If it cannot be saved safely, ask user what
-to do. */
+/* Check to see if a file can be saved safely, saved only unsafely, or not saved at
+all, onto the current volume. If it cannot be saved safely, ask user what to do. */
 
 static short GetSaveType(Document *doc, Boolean saveAs)
 {
 	Boolean canContinue;
 	long fileSize,freeSpace,oldFileSize,vAlBlkSize;
 	
-	/* If doc->new, no previous document to protect from the save operation.
-		If saveAs, the previous doc will not be replaced, but a new one will
-		be created. */
+	/* If doc->new, no previous document to protect from the save operation. If
+	   saveAs, the previous doc will not be replaced, but a new one will be created. */
 
 	if (doc->docNew || saveAs)
 		oldFileSize = 0L;
 	else {
-		/* Get the amount of space physically allocated to the old file, and
-			the amount of space available on doc's volume. Return value <0
-			indicates FS Error: should forget safe saving. FIXME: GetOldFileSize
-			doesn't do a very good job: see comments on it. */
+		/* Get the amount of space physically allocated to the old file, and the
+		   amount of space available on doc's volume. Return value < 0 indicates
+		   FS Error: should forget safe saving. FIXME: GetOldFileSize() doesn't do a
+		   very good job: see comments on it. */
 	
 		oldFileSize = GetOldFileSize(doc);
 		if (oldFileSize<0L) {
@@ -1873,8 +1820,8 @@ static Boolean SFChkScoreOK(Document */*doc*/)
 }
 
 /* Actually write the file. Write header info, write the string pool, call WriteHeaps
-to write data structure objects, and write the EOF marker. If any error is
-encountered, return that error without continuing. Otherwise, return noErr. */
+to write data structure objects, and write the EOF marker. If any error is encountered,
+return that error without continuing. Otherwise, return noErr. */
 
 static short WriteFile(Document *doc, short refNum)
 {
@@ -1978,7 +1925,7 @@ static short WriteFile(Document *doc, short refNum)
 
 static Boolean GetOutputFile(Document *doc)
 {
-	Str255 name; short vrefnum;
+	Str255 name;  short vrefnum;
 	OSErr result;
 	FInfo fInfo;
 	FSSpec fsSpec;
@@ -2262,12 +2209,11 @@ void SaveError(Boolean fileIsOpen,
 	LogPrintf(LOG_ERR, "Error saving the file. errCode=%d errInfo=%d  (SaveError)\n", errCode, errInfo);
 	if (fileIsOpen) FSClose(refNum);
 
-	/*
-	 * We expect descriptions of the common errors stored by code (negative values,
-	 * for system errors; positive ones for our own I/O errors) in individual 'STR '
-	 * resources. If we find one for this error, print it, else just print the
-	 * raw code.
-	 */
+	/* We expect descriptions of the common errors stored by code (negative values,
+	   for system errors; positive ones for our own I/O errors) in individual 'STR '
+	   resources. If we find one for this error, print it, else just print the raw
+	   code. */
+	   
 	strHdl = GetString(errCode);
 	if (strHdl) {
 		Pstrcpy((unsigned char *)strBuf, (unsigned char *)*strHdl);
