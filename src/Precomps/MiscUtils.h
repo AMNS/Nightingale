@@ -43,6 +43,7 @@ void			EndianFixConfig(void);
 void			EndianFixMIDIModNRTable(void);
 void			EndianFixPaletteGlobals(short idx);
 void			EndianFixSpaceMap(Document *doc);
+void			EndianFixDocumentHdr(Document *doc);
 void			FixEndian2(unsigned short *arg);
 void			FixEndian4(unsigned long *arg);
 

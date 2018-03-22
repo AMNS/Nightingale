@@ -2184,3 +2184,11 @@ Most error messages now write a message of level LOG_ERR to the log. Affects Err
 Minor cleanup: tweak log messages about music fonts, etc. Affects MiscUtils.h; File,
 Initialize, InitNightingle, MiscUtils, MusicFont, UIFUtils.
 
+-------------------------------------------------------------------------------
+
+20 - 21 Mar.
+
+Added CheckDocumentHdr(), DisplayDocumentHdr(), EndianFixDocumentHdr(), for the benefit
+of the Intel version. Affects MiscUtils.h; File, MiscUtils.
+
+Minor cleanup. Affects File, Initialize, MiscUtils, StringPool, UIFUtils.

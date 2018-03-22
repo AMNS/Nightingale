@@ -309,8 +309,6 @@ void EndianFixMIDIModNRTable()
 void EndianFixPaletteGlobals(short idx)
 {
 #if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
-	short totalPalettes = TOTAL_PALETTES;
-	
 	FIX_END((*paletteGlobals[idx])->currentItem);
 	FIX_END((*paletteGlobals[idx])->itemHilited);
 	FIX_END((*paletteGlobals[idx])->maxAcross);
@@ -322,9 +320,8 @@ void EndianFixPaletteGlobals(short idx)
 	FIX_END((*paletteGlobals[idx])->firstAcross);
 	FIX_END((*paletteGlobals[idx])->firstDown);
 
-	FIX_END((*paletteGlobals[idx])->origPort.top);		FIX_END((*paletteGlobals[idx])->origPort.left);
-	FIX_END((*paletteGlobals[idx])->origPort.bottom);	FIX_END((*paletteGlobals[idx])->origPort.right);
-	FIX_END((*paletteGlobals[idx])->position.v);		FIX_END((*paletteGlobals[idx])->position.h);
+	EndianFixRect(&((*paletteGlobals[idx])->origPort));
+	EndianFixPoint(&((*paletteGlobals[idx])->position));
 	FIX_END((*paletteGlobals[idx])->zoomAcross);
 	FIX_END((*paletteGlobals[idx])->zoomDown);
 #endif
@@ -332,9 +329,40 @@ void EndianFixPaletteGlobals(short idx)
 
 void EndianFixSpaceMap(Document *doc)
 {
-	for (short i=0; i<MAX_L_DUR; i++)
+	for (short i = 0; i<MAX_L_DUR; i++)
 		FIX_END(doc->spaceMap[i]);
 }
+
+unsigned short uTmp;
+
+#define FIX_USHRT_END(x)	uTmp = (x); FIX_END(uTmp); (x) = uTmp;
+
+void EndianFixDocumentHdr(Document *doc)
+{
+	EndianFixPoint(&doc->origin);	
+
+	EndianFixRect(&doc->paperRect);
+	EndianFixRect(&doc->origPaperRect);
+
+	EndianFixPoint(&doc->holdOrigin);
+	
+	EndianFixRect(&doc->marginRect);
+
+	EndianFixPoint(&doc->sheetOrigin);
+
+	FIX_USHRT_END(doc->numSheets);
+	FIX_USHRT_END(doc->firstSheet);
+	FIX_USHRT_END(doc->firstPageNumber);
+	FIX_USHRT_END(doc->startPageNumber);
+	FIX_USHRT_END(doc->numRows);
+	FIX_USHRT_END(doc->numCols);
+	FIX_USHRT_END(doc->pageType);
+	FIX_USHRT_END(doc->measSystem);
+
+	EndianFixRect(&doc->headerFooterMargins);
+	EndianFixRect(&doc->currentPaper);
+}
+
 
 /* If we're running on a Little Endian processor (very likely Intel or Intel-compatible),
 reorder bytes to give the Big Endian result C expects. If we're on a Big Endian processor

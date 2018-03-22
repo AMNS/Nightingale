@@ -1953,7 +1953,7 @@ const char *NameLogLevel(
 		case LOG_CRIT:		ps = (friendly? "CRITICAL" : "CRIT");  break;
 		case LOG_ERR:		ps = (friendly? "ERROR" : "ERR");  break;
 		case LOG_WARNING:	ps = (friendly? "Warning" : "Warn");  break;
-		case LOG_NOTICE:	ps = (friendly? "notice" : "notice");  break;
+		case LOG_NOTICE:	ps = (friendly? "Notice" : "Notice");  break;
 		case LOG_INFO:		ps = (friendly? "info" : "info");  break;
 		case LOG_DEBUG:		ps = (friendly? "debug" : "debug");  break;
 		default:			ps = (friendly? "*UNKNOWN*" : "*UNKNOWN*");

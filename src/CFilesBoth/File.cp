@@ -26,6 +26,8 @@ static void FillFontTable(Document *);
 static void GetPrintHandle(Document *, short vRefNum, FSSpec *pfsSpec);
 static Boolean WritePrintHandle(Document *);
 static Boolean ConvertScore(Document *, long);
+static void DisplayDocumentHdr(Document *doc);
+static Boolean CheckDocumentHdr(Document *doc);
 static Boolean ModifyScore(Document *, long);
 static void SetTimeStamps(Document *);
 
@@ -1232,19 +1234,51 @@ void SetTimeStamps(Document *doc)
 	LINK firstUnknown, stopMeas;
 	
 	firstUnknown = FindUnknownDur(doc->headL, GO_RIGHT);
-	stopMeas = (firstUnknown?
-						SSearch(firstUnknown, MEASUREtype, GO_LEFT)
-					:  doc->tailL);
+	stopMeas = (firstUnknown? SSearch(firstUnknown, MEASUREtype, GO_LEFT)
+								:  doc->tailL);
 	FixTimeStamps(doc, doc->headL, LeftLINK(stopMeas));
 }
 
 
-/* -------------------------------------------------------------------------- OpenFile -- */
-/*	Open and read in the specified file. If there's an error, normally (see comments
-in OpenError) gives an error message, and returns <errCode>; else returns noErr (0). 
-Also sets *fileVersion to the Nightingale version that created the file. NB: even
-though vRefNum is a parameter, (routines called by) OpenFile assume the volume is
-already set! This should be changed. */
+
+/* -------------------------------------------------------------------- OpenFile et al -- */
+
+static void DisplayDocumentHdr(Document *doc)
+{
+	LogPrintf(LOG_INFO, "Displaying Document header:\n");
+	LogPrintf(LOG_INFO, "  doc->origin.h=%d", doc->origin.h);
+	LogPrintf(LOG_INFO, "  .v=%d", doc->origin.h);
+	LogPrintf(LOG_INFO, "  numSheets=%d", doc->numSheets);
+	LogPrintf(LOG_INFO, "  firstSheet=%d\n", doc->firstSheet);
+	LogPrintf(LOG_INFO, "  firstPageNumber=%d", doc->firstPageNumber);
+	LogPrintf(LOG_INFO, "  startPageNumber=%d", doc->startPageNumber);
+	LogPrintf(LOG_INFO, "  numRows=%d", doc->numRows);
+	LogPrintf(LOG_INFO, "  numCols=%d\n", doc->numCols);
+	LogPrintf(LOG_INFO, "  pageType=%d", doc->pageType);
+	LogPrintf(LOG_INFO, "  measSystem=%d\n", doc->measSystem);	
+}
+
+/* Do a reality check for Document header values that might be bad. If no problems are found,
+return True, else False. */
+
+static Boolean CheckDocumentHdr(Document *doc)
+{
+	if (doc->numSheets<1 || doc->numSheets>250) return False;
+	if (doc->firstPageNumber<0 || doc->firstPageNumber>250) return False;
+	if (doc->startPageNumber<0 || doc->startPageNumber>250) return False;
+	if (doc->numRows < 1 || doc->numRows > 250) return False;
+	if (doc->numCols < 1 || doc->numCols > 250) return False;
+	if (doc->pageType < 0 || doc->pageType > 20) return False;
+	
+	return True;
+}
+
+
+/*	Open and read in the specified file. If there's an error, normally (see comments in
+OpenError) gives an error message, and returns <errCode>; else returns noErr (0). Also
+sets *fileVersion to the Nightingale version that created the file. FIXME: even though
+vRefNum is a parameter, (routines called by) OpenFile assume the volume is already set!
+This should be changed. */
 
 enum {
 	LOW_VERSION_ERR=-999,
@@ -1261,9 +1295,8 @@ extern short StringPoolProblem(StringPoolRef pool);
 
 #include <ctype.h>
 
-
-short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
-					FSSpec *pfsSpec, long *fileVersion)
+short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pfsSpec,
+																	long *fileVersion)
 {
 	short		errCode, refNum, strPoolErrCode;
 	short 		errInfo=0,				/* Type of object being read or other info on error */
@@ -1277,8 +1310,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 	short		i;
 	FInfo		fInfo;
 	FSSpec 		fsSpec;
-	long		cmHdr;
-	long		cmBufCount, cmDevSize;
+	long		cmHdr, cmBufCount, cmDevSize;
 	FSSpec		*pfsSpecMidiMap;
 
 	WaitCursor();
@@ -1343,6 +1375,20 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum,
 			;
 	}
 
+	EndianFixDocumentHdr(doc);
+	if (DETAIL_SHOW) DisplayDocumentHdr(doc);
+	LogPrintf(LOG_NOTICE, "Checking Document header: ");
+	if (CheckDocumentHdr(doc)) LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
+	else {
+		if (!DETAIL_SHOW) DisplayDocumentHdr(doc);
+		CParamText("Error(s) found in Document header.", "", "", "");
+		LogPrintf(LOG_ERR, "Error(s) found in Document header.\n", strBuf);
+		StopInform(GENERIC_ALRT);
+		errCode = HEADER_ERR;
+		errInfo = 0;
+		goto Error;
+	}
+	
 	FIX_END(doc->nstaves);
 	if (doc->nstaves>MAXSTAVES) {
 		errCode = TOOMANYSTAVES_ERR;

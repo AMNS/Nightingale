@@ -1201,7 +1201,7 @@ static void DisplayToolPalette(PaletteGlobals *whichPalette)
 }
 
 /* Do a reality check for palette values that might be bad. If no problems are found,
-return TRUE, else FALSE. */
+return True, else False. */
 
 static Boolean CheckToolPalette(PaletteGlobals *whichPalette)
 {
@@ -1255,7 +1255,7 @@ static short GetToolGrid(PaletteGlobals *whichPalette)
 		/* We must _not_ "Endian fix" these values: they're read from one-byte fields! */
 		
 		if (DETAIL_SHOW) DisplayToolPalette(whichPalette);
-		LogPrintf(LOG_NOTICE, "Checking tool palette: ");
+		LogPrintf(LOG_NOTICE, "Checking Tool Palette parameters: ");
 		if (CheckToolPalette(whichPalette)) LogPrintf(LOG_NOTICE, "No errors found.  (GetToolGrid)\n");
 		else {
 			if (!DETAIL_SHOW) DisplayToolPalette(whichPalette);
