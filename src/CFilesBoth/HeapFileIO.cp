@@ -81,7 +81,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
 	LINK			pL, oldFirstObj;
 	LINK			leftL, rightL, subL, oldLastObj,
 					oldFirstSync, oldLastSync, oldLRepeat, oldRRepeat;
-	unsigned short j;
+	unsigned short	j;
 	short			ioErr=noErr, hdrErr;
 	long			count, startPosition, endPosition, zero=0L, sizeAllObjs;
 
@@ -114,8 +114,8 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
 		RightLINK(pL) = j+1;
 		if (pL==doc->tailL) RightLINK(pL) = NILINK;
 		
-		/* Save fields in objects that refer to other objects and temporarily set
-		 *	them to the values that are being written out for those objects.  */
+		/* Save fields in objects that refer to other objects and temporarily set them
+		   to the values that are being written out for those objects.  */
 		switch (ObjLType(pL)) {
 			case SLURtype:
 				oldFirstSync = SlurFIRSTSYNC(pL);
@@ -211,7 +211,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
 		if (pL==doc->masterHeadL) LeftLINK(pL) = NILINK;
 		if (pL==doc->masterTailL) RightLINK(pL) = NILINK;
 		
-		/* No special object types in Master Page. */
+		/* There are no special object types in Master Page. */
 
 		ioErr = WriteObject(refNum, OBJtype, pL);
 		
@@ -221,11 +221,9 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
 
 	PopLock(doc->Heap+OBJtype);
 	
-	/*
-	 *	Now get the current file position to find out how much we've written.
-	 *	Then back patch the size into the 4-byte slot we pre-allocated above.
-	 *	NOTE: We have to take into account the 4 bytes for the count as well.
-	 */
+	/* Now get the current file position to find out how much we've written; then
+	   back patch the size into the 4-byte slot we pre-allocated above. NOTE: We
+	   have to take into account the 4 bytes for the count as well. */
 	
 	if (ioErr==noErr) {
 		GetFPos(refNum,&endPosition);
@@ -235,6 +233,7 @@ static short WriteObjHeap(Document *doc, short refNum, LINK *firstSubLINKA,
 		count = sizeof(long);
 		ioErr = FSWrite(refNum,&count,&sizeAllObjs);
 		if (ioErr) { SaveError(True, refNum, ioErr, OBJtype); return ioErr; }
+		
 		/* And move back to where we just were so as not to truncate anything */
 		ioErr = SetFPos(refNum,fsFromStart,endPosition);
 		if (ioErr!=noError) return ioErr;
@@ -480,12 +479,12 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 									short *subObjCount)
 {
 	LINK nextL, subL, tempL, beamSyncL, tupleSyncL, octSyncL, aModNRL;
-	HEAP 			*myHeap;
-	PANOTE 		aNote;
-	PANOTEBEAM 	aNoteBeam;
+	HEAP *myHeap;
+	PANOTE aNote;
+	PANOTEBEAM aNoteBeam;
 	PANOTETUPLE aNoteTuple;
 	PANOTEOTTAVA aNoteOct;
-	short			ioErr=noErr, count;
+	short ioErr=noErr, count;
 	
 	/* The links are now being allocated sequentially, so that the <next> link
 		of the current link <link> is link+1. */
@@ -534,9 +533,10 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 				aNoteOct->opSync = objA[aNoteOct->opSync];
 				break;
 		}
+
 		ioErr = WriteObject(refNum, heapIndex, subL);
-		if (tempL)
-			*(LINK *)LinkToPtr(myHeap, subL) = tempL;
+		if (tempL) *(LINK *)LinkToPtr(myHeap, subL) = tempL;
+
 		switch (heapIndex) {
 			case SYNCtype:
 				aNote = GetPANOTE(subL);
@@ -558,10 +558,10 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 		}
 	}
 
-	/* Then update the firstSubLink field of the owning object. Note that
-		none of the links contain their own addresses, so that the firstSubLink of 
-		pL never needs any of its own internal fields updated. For now, we use
-		a static array so as to preserve the main object list. */
+	/* Now update the firstSubLink field of the owning object. Note that none of the
+	   links contain their own addresses, so that the firstSubLink of pL never needs
+	   any of its own internal fields updated. For now, we use a static array so as to
+	   preserve the main object list. */
 
 	firstSubLINKA[pL] = link;
 	*subObjCount = count;
@@ -571,9 +571,9 @@ static short WriteSubObjs(short refNum, short heapIndex, LINK pL, LINK link,
 
 
 /* Actually write a block, whether object or subobject, to file. Objects are of
-varying lengths: only write out the length of the particular type of object.
-Returns an I/O Error code, or noErr. Heap must be locked by the calling routine
-for the sake of FSWrite. */
+varying lengths: only write out the length of the particular type of object. Returns
+an I/O Error code or noErr. NB: The eap must be locked by the calling routine for the
+sake of FSWrite. */
  
 static short WriteObject(short refNum, short heapIndex, LINK pL)
 {
@@ -773,7 +773,7 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 		/*
 		 * <len> is now the correct object length for the current file format. If any
 		 * object lengths were different in previous file formats, adjust <len> to
-		 *	compensate here. (The CONTENT of the object should be fixed in ConvertObjList.) 
+		 * compensate here. (The CONTENT of the object should be fixed in ConvertObjList.) 
 		 */
 		if (version<='N099') {
 			if (type==MEASUREtype) len -= 4;
@@ -798,22 +798,19 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
 	return(ioErr);
 }
 
-/* 
- * Read all subobject heaps from file. 
- *
- * Note: CER 9/5/2003, PARTINFO conversion, HEADERtype heap.
- * 		N103 conversion to current N105 format.
- *			N103 appears to have been written with 2-byte alignment, yielding 
- *			sizeof(destinationMatch) = 278.
- *			N105 files are written in environment with 4-byte alignment, yielding
- *			sizeof(destinationMatch) = 280.
- *			So newPartFieldsSize and partObjSizeN103 will actually be off by 2 bytes
- *			when computed in the different environments.
- *			The test version<='N103' is therefore not an authoritative test, but
- *			depends on this incidental occurrence, the alignment environment setting
- *			in force in the build environment of the apps which write the files of the
- *			respective formats.
- */
+/* Read all subobject heaps from file.
+ 
+Note: CER 9/5/2003, regarding PARTINFO conversion, HEADERtype heap. Format N103
+conversion to the N105 format.
+N103 appears to have been written with 2-byte alignment, yielding 
+sizeof(destinationMatch) = 278.
+N105 files are written in environment with 4-byte alignment, yielding
+sizeof(destinationMatch) = 280.
+So newPartFieldsSize and partObjSizeN103 will actually be off by 2 bytes when computed
+in the different environments. The test version<='N103' is therefore not really an
+authoritative test; it depends on this incidental occurrence, the alignment
+environment setting in force in the build environment of the apps which write the
+files of the respective formats.*/
 
 static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isViewerFile)
 {
@@ -823,8 +820,8 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 	short partObjSizeN102, partObjSizeN103, partObjSizeN105;
 	unsigned short nFObjs;
 	long count, nExpand, newPartFieldsSize;
-	char *p,*q,*r;
-	short sizeDiff,newPartFieldsChunk1,destinationMatchSize2Byte;
+	char *p, *q, *r;
+	short sizeDiff, newPartFieldsChunk1, destinationMatchSize2Byte;
 	
 	partObjSizeN105 = (doc->Heap+HEADERtype)->objSize;
 	partObjSizeN103 = partObjSizeN105-2;
@@ -946,7 +943,8 @@ static short ReadSubHeaps(Document *doc, short refNum, long version, Boolean isV
 						
 						/*
 						 * Code to realign destinationMatch depends on incidental aspect of
-						 * build process that N103 was built with 2-byte alignment. Caveat programmer.
+						 * build process that N103 was built with 2-byte alignment. Caveat
+						 * programmer.
 						 */
 						q = dst + partObjSizeN102 + newPartFieldsChunk1;
 						r = q + 2;
@@ -989,12 +987,10 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 		{ OpenError(True, refNum, ioErr, heapIndex); return ioErr; }
 	
  	count = sizeof(HEAP);
-	ioErr = FSRead(refNum,&count,&tempHeap);
-	FIX_END(tempHeap.type);
-	FIX_END(tempHeap.objSize);
+	ioErr = FSRead(refNum, &count, &tempHeap);
 	if (ioErr)
 		{ OpenError(True, refNum, ioErr, heapIndex); return ioErr; }
-	
+	EndianFixHeapHdr(doc, &tempHeap);
 	myHeap = doc->Heap + heapIndex;
 
 	if (DETAIL_SHOW) {
@@ -1011,7 +1007,7 @@ static short ReadHeapHdr(Document *doc, short refNum, long /*version*/, Boolean 
 		
 	if (myHeap->objSize!=tempHeap.objSize)
 		{ OpenError(True, refNum, HDR_SIZE_ERR, heapIndex); return HDR_SIZE_ERR; }
-
+	
 	return 0;
 }
 
@@ -1033,28 +1029,25 @@ void HeapFixLinks(Document *doc)
 			case TAILtype:
 				doc->tailL = pL;
 				
-				/* If there is no Master Page object list (I think this should happen
-					only with ancient scores), then doc->masterHeadL will have just
-					been read in as NILINK; do not set it here and confuse the "for"
-					(pL = doc->masterHeadL... ) loop below. */
+				/* If there is no Master Page object list (this should happen only
+				   with ancient scores), then doc->masterHeadL will have just been
+				   read in as NILINK; do not set it here and confuse the "for"
+				   (pL = doc->masterHeadL... ) loop below. */
 
-				if (doc->masterHeadL)
-					doc->masterHeadL = pL+1;
+				if (doc->masterHeadL) doc->masterHeadL = pL+1;
 				tailFound = True;
 				DRightLINK(doc, doc->tailL) = NILINK;
 				break;
 			case PAGEtype:
 				DLinkLPAGE(doc, pL) = prevPage;
-				if (prevPage)
-					DLinkRPAGE(doc, prevPage) = pL;
+				if (prevPage) DLinkRPAGE(doc, prevPage) = pL;
 				DLinkRPAGE(doc, pL) = NILINK;
 				prevPage = pL;
 				break;
 			case SYSTEMtype:
 				DSysPAGE(doc, pL) = prevPage;
 				DLinkLSYS(doc, pL) = prevSystem;
-				if (prevSystem)
-					DLinkRSYS(doc, prevSystem) = pL;
+				if (prevSystem) DLinkRSYS(doc, prevSystem) = pL;
 				prevSystem = pL;
 				break;
 			case STAFFtype:
@@ -1067,8 +1060,7 @@ void HeapFixLinks(Document *doc)
 				DMeasSYSL(doc, pL) = prevSystem;
 				DMeasSTAFFL(doc, pL) = prevStaff;
 				DLinkLMEAS(doc, pL) = prevMeasure;
-				if (prevMeasure)
-					DLinkRMEAS(doc, prevMeasure) = pL;
+				if (prevMeasure) DLinkRMEAS(doc, prevMeasure) = pL;
 				prevMeasure = pL;
 				break;
 			case SLURtype:
@@ -1091,16 +1083,14 @@ void HeapFixLinks(Document *doc)
 				return;
 			case PAGEtype:
 				DLinkLPAGE(doc, pL) = prevPage;
-				if (prevPage)
-					DLinkRPAGE(doc, prevPage) = pL;
+				if (prevPage) DLinkRPAGE(doc, prevPage) = pL;
 				DLinkRPAGE(doc, pL) = NILINK;
 				prevPage = pL;
 				break;
 			case SYSTEMtype:
 				DSysPAGE(doc, pL) = prevPage;
 				DLinkLSYS(doc, pL) = prevSystem;
-				if (prevSystem)
-					DLinkRSYS(doc, prevSystem) = pL;
+				if (prevSystem) DLinkRSYS(doc, prevSystem) = pL;
 				prevSystem = pL;
 				break;
 			case STAFFtype:
@@ -1113,18 +1103,15 @@ void HeapFixLinks(Document *doc)
 				DMeasSYSL(doc, pL) = prevSystem;
 				DMeasSTAFFL(doc, pL) = prevStaff;
 				DLinkLMEAS(doc, pL) = prevMeasure;
-				if (prevMeasure)
-					DLinkRMEAS(doc, prevMeasure) = pL;
+				if (prevMeasure) DLinkRMEAS(doc, prevMeasure) = pL;
 				prevMeasure = pL;
 				break;
 			default:
 				break;
 		}
 		
-	/*
-	 *	In case we never got into the loop due to missing Master Page object list
-	 *	(normally, we return from within the loop when we get to the TAIL object).
-	 */
+	/* In case we never got into the loop due to missing Master Page object list
+	   (normally, we return from within the loop when we get to the TAIL object). */
 	
 	doc->masterTailL = NILINK;
 }
@@ -1138,17 +1125,15 @@ static void RebuildFreeList(Document *doc, short heapIndex, unsigned short nFObj
 	HEAP *myHeap;
 	unsigned short i;
 	
-	/*
-	 *	Set the firstFree object to be the next one past the total number
-	 *	already read in.
-	 */
+	/* Set the firstFree object to be the next one past the total number already read in. */
+	
 	myHeap = doc->Heap + heapIndex;
 	myHeap->firstFree = nFObjs+1;
 	
 	/* Set p to point to the next object past the ones already read in. */
 	
 	p = *(myHeap->block);
-	*(LINK *)p = 1;										/* The <next> field of zeroth object points to first obj */
+	*(LINK *)p = 1;									/* The <next> field of zeroth object points to first obj */
 	p += (unsigned long)myHeap->objSize*(unsigned long)(nFObjs+1);
 	
 	for (i=nFObjs+1; i<myHeap->nObjs-1; i++) {		/* Skip first nFObjs(??) objects */

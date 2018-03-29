@@ -2934,23 +2934,23 @@ On MBAir:
 3/13/18 7:46:16.374 PM Ngale[11513]: debug.   -19710  691
 3/13/18 7:46:16.374 PM Ngale[11513]: debug.   8445  -736	**255 GREATER THAN G5 VALUE
 
-Nope, FIX_END is okay (confirmed via my own SwapBytes program). What does Ngale do before getting
-the values listed above?
+Nope, FIX_END is okay (confirmed via my own SwapBytes program). What does Ngale do
+before getting the values listed above?
 
 		resH = Get1IndResource('BBX#', i); 
 		if (!GoodResource(resH)) goto error;
 		GetResInfo(resH, &resID, &resType, resName);
 		
-Sure looks like a bug in the Intel implementation of the Resource Manager, a highly unlikely bug
-since it affects things so selectively, but via Sherlock Holmes' dogma... !! In which case, the
-only solution is a kludge to correct it => done.
+Sure looks like a bug in the Intel implementation of the Resource Manager, a highly
+unlikely bug since it affects things so selectively, but via Sherlock Holmes' dogma...
+!! In which case, the only solution is a kludge to correct it => done.
 
 -------------------------------------------------------------------------------
 
 18 Mar.
 
-I upgraded my MacBook Air from OS 10.8 to 10.13; problem of 1b of 28 Feb. no longer occurs. Updated
-list of known problems on Intel machines:
+I upgraded my MacBook Air from OS 10.8 to 10.13; problem of 1b of 28 Feb. no longer occurs.
+Updated list of known problems on Intel machines:
 
 1. On launch, the initial Open File dialog is much too tall.
 
@@ -2962,4 +2962,14 @@ Ngale to fill it in.
 Launch, New Nightingale Score, insert a note, Set Duration, click on the note => the
 palette pops up, but only odd-numbered squares are filled in. See 22-25 Feb. above for
 details.
+
+-------------------------------------------------------------------------------
+
+20 - 28 Mar.
+
+Working on opening files on Intel processors; _lots_ of Endian problems.
+
+EndianFixDocumentHdr() works.
+
+EndianFixScoreHdr() calls exit() and quits because sizeof(something) is 1!?! ...Fixed.
 

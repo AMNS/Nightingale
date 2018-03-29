@@ -37,16 +37,6 @@ Boolean			CheckAbort(void);
 Boolean			IsDoubleClick(Point clickPt, short tol, long now);
 OSType			CanPaste(short n, ...);
 
-void			EndianFixRect(Rect *pRect);
-void			EndianFixPoint(Point *pPoint);
-void			EndianFixConfig(void);
-void			EndianFixMIDIModNRTable(void);
-void			EndianFixPaletteGlobals(short idx);
-void			EndianFixSpaceMap(Document *doc);
-void			EndianFixDocumentHdr(Document *doc);
-void			FixEndian2(unsigned short *arg);
-void			FixEndian4(unsigned long *arg);
-
 void			UseStandardType(OSType type);
 void			ClearStandardTypes(void);
 short			GetInputName(char *prompt, Boolean newName, unsigned char *name, short *vrefnum, NSClientDataPtr pnsData);

@@ -2192,3 +2192,16 @@ Added CheckDocumentHdr(), DisplayDocumentHdr(), EndianFixDocumentHdr(), for the 
 of the Intel version. Affects MiscUtils.h; File, MiscUtils.
 
 Minor cleanup. Affects File, Initialize, MiscUtils, StringPool, UIFUtils.
+
+-------------------------------------------------------------------------------
+
+22-28 Mar.
+
+Moved Endian functions into a new file of their own. Affects NightingalePrefix.pch,
+Endian.h; Endian, MiscUtils.
+
+For the benefit of the Intel version, Revised EndianFixDocumentHdr() and added call to
+it, and added DisplayScoreHdr(), EndianFixScoreHdr(), and EndianFixHeapHdr. Affects
+Endian.h; Endian, HeapFileIO.
+
+Minor cleanup. Affects NMiscTypes.h; File, HeapFileIO, StringPool.

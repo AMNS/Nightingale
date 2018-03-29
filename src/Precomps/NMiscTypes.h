@@ -8,7 +8,7 @@
 #pragma options align=mac68k
 
 /* DOCUMENTHEADER is generic: it contains fields appropriate for any program that
-	displays pages of documents. */
+displays pages of documents. */
 
 #define DOCUMENTHEADER	\
 	Point		origin;				/* Current origin of Document window */						\
@@ -38,30 +38,30 @@ typedef struct {
 } DOCUMENTHDR, *PDOCUMENTHDR;
 
 
-/*
- *	Each open Document file is represented on the desktop by a single editing
- *	window with which the user edits the Document.  This Document's window
- *	record is the first field of an extended Document struct, so that pointers
- *	to Documents can be used anywhere a WindowPtr can.  Each Document consists of
- *	a standard page size and margin for all pages, and between 1 and numSheets
- *	pages, called sheets.  Sheets are always numbered from 0 to (numSheets-1)
- *	and are the internal form of a page; pages are numbered according to the
- *	user's whim.  Sheets are laid out to tile the space in the window, extending
- *	first horizontally and then vertically into the window space.  There is always
- *	a currentSheet that we're editing, and whose upper left corner is always
- *	(0,0) with respect to any drawing routines that draw on the sheets.  However,
- *	sheets are kept in an array whose upper left origin (sheetOrigin) is usually
- *	chosen very negative so that we can use as much of Quickdraws 16-bits space as
- *	possible. The coordinate system of the window is continually danced around as
- *	the current sheet changes, as well as during scrolling.  The bounding box of
- *	all sheets is used to compute the scrolling bounds.  The background region
- *	is used to paint a background pattern behind all sheets in the array.
- */
+/* The <Document> struct includes a DOCUMENTHEADER, a set of Heaps, and a
+NIGHTSCOREHEADER, along with many other fields. Each open Document file is represented
+on the desktop by a single window with which the user edits the Document. This
+Document's window record is the first field of an extended Document struct, so that
+pointers to Documents can be used anywhere a WindowPtr can.  Each Document consists of
+a standard page size and margin for all pages, and between 1 and numSheets pages,
+called <sheets>.
+
+Sheets are always numbered from 0 to (numSheets-1) and are the internal form of a
+page; pages are numbered according to the user's whim.  Sheets are laid out to tile
+the space in the window, extending first horizontally and then vertically into the
+window space.  There is always a currentSheet that we're editing, and whose upper left
+corner is always (0,0) with respect to any drawing routines that draw on the sheets. 
+However, sheets are kept in an array whose upper left origin (sheetOrigin) is usually
+chosen very negative so that we can use as much of Quickdraws 16-bits space as
+possible. The coordinate system of the window is continually danced around as the
+current sheet changes, as well as during scrolling.  The bounding box of all sheets is
+used to compute the scrolling bounds.  The background region is used to paint a
+background pattern behind all sheets in the array. */
 
 typedef struct {
 /* These first fields don't need to be saved. */
 	WindowPtr		theWindow;			/* The window being used to show this doc */
-	unsigned char	name[256];			/* File name */
+	Str255			name;				/* File name */
 	FSSpec			fsSpec;
 	short			vrefnum;			/* Directory file name is local to */
 	Rect			viewRect;			/* Port rect minus scroll bars */
@@ -161,14 +161,15 @@ typedef struct {
 	Handle			midiMapFSSpecHdl;
 	Handle			midiMap;
 
-	} Document;
+} Document;
 
 
 /*
- * General configuration information is kept in a 'CNFG' resource, with this structure
- * (size is 256 bytes).
+ * General configuration information is kept in a 'CNFG' resource, with the structure
+ * given below; its size is 256 bytes.
  *
  * To add a field (assuming there's room for it):
+ *
  * 1. Add its declaration just before the unused[] array below.
  * 2. Reduce the size of the unused[] array accordingly. NB: if the size is even, its
  * 	starting offset is odd: this will lead to certain C  compilers sometimes putting a
@@ -441,7 +442,7 @@ typedef struct {
 /* For support of music fonts other than Sonata */
 typedef struct {
 	short			fontID;
-	unsigned char	fontName[32];
+	Str31			fontName;
 
 	/* from 'MFEx' rsrc */
 	Boolean			sonataFlagMethod;		/* (unused) Draw flags like Sonata? */
@@ -455,7 +456,7 @@ typedef struct {
 	short			downstemExtFlagLeading;	/* Down-stem extension flag leading (% of space) */
 	short			upstem8thFlagLeading;	/* Up-stem 8th flag leading (% of space) */
 	short			downstem8thFlagLeading;	/* Down-stem 8th flag leading (% of space) */
-	unsigned char	postscriptFontName[32];	/* PostScript font name of this music font (not printer font file name). This
+	Str31			postscriptFontName;		/* PostScript font name of this music font (not printer font file name). This
 												is usually same as font name, but (e.g.) "Mozart 2001" uses "Mozart-MMI". */
 	Rect			cBBox[256];				/* character bounding boxes (from 'BBX#' rsrc) */
 	unsigned char	cMap[256];				/* map Sonata char (index) to char in this font (from 'MCMp' rsrc) */

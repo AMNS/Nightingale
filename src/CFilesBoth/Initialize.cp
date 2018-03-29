@@ -18,7 +18,7 @@
 #include "Nightingale.appl.h"
 
 #include "GraphicMDEF.h"
-#include "EndianUtils.h"
+#include "Endian.h"
 
 /* Private routines */
 

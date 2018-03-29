@@ -1,17 +1,17 @@
 /*
  *								NOTICE
  *
- *	THIS FILE IS CONFIDENTIAL PROPERTY OF MATHEMAESTHETICS INC.  IT IS
- *	IS CONSIDERED A TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY
- *	PARTIES WHO HAVE NOT RECEIVED WRITTEN AUTHORIZATION FROM THE OWNER.
+ *	THIS FILE IS CONFIDENTIAL PROPERTY OF MATHEMAESTHETICS INC.  IT IS CONSIDERED
+ *	A TRADE SECRET AND IS NOT TO BE DIVULGED OR USED BY PARTIES WHO HAVE NOT RECEIVED
+ *	WRITTEN AUTHORIZATION FROM THE OWNER.
  *
  *	String Pool Manager Source Code, Nightingale version.
  *	Copyright 1987-96	Mathemaesthetics, Inc.
  *	All Rights Reserved.
  *
- *	This file contains routines to implement the String Pool Manager.
- *	A StringPool can contain C or Pascal strings, which are referenced
- *	by the outside world using StringRefs.
+ *	This file contains routines to implement the String Pool Manager. A StringPool
+ *	can contain C or Pascal strings, which are referenced by the outside world
+ *	using StringRefs.
  */
 
 #include "Nightingale_Prefix.pch"
@@ -391,7 +391,7 @@ void ClearFromStringInPool(StringRef offset, StringPoolRef pool)
 	}
 
 /*
- *  Fix endian problems in string pool
+ *  Fix Endian problems in string pool
  */
 
 void StringPoolEndianFix(StringPoolRef pool) {

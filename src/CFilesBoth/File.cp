@@ -124,7 +124,6 @@ static void FillFontTable(Document *doc)
 {
 	short	j, nMissing;
 	
-	FIX_END(doc->nfontsUsed);
 	if (doc->nfontsUsed>MAX_SCOREFONTS || doc->nfontsUsed<0)
 		MayErrMsg("FillFontTable: %ld fonts is illegal.", (long)doc->nfontsUsed);
 
@@ -1273,6 +1272,28 @@ static Boolean CheckDocumentHdr(Document *doc)
 	return True;
 }
 
+static void DisplayScoreHdr(Document *doc)
+{
+	LogPrintf(LOG_INFO, "Displaying Score header:\n");
+	LogPrintf(LOG_INFO, "  nstaves=%d", doc->nstaves);
+	LogPrintf(LOG_INFO, "  nsystems=%d", doc->nsystems);		
+	LogPrintf(LOG_INFO, "  spacePercent=%d", doc->spacePercent);
+	LogPrintf(LOG_INFO, "  srastral=%d", doc->srastral);				
+	LogPrintf(LOG_INFO, "  altsrastral=%d\n", doc->altsrastral);	
+	LogPrintf(LOG_INFO, "  tempo=%d", doc->tempo);		
+	LogPrintf(LOG_INFO, "  channel=%d", doc->channel);			
+	LogPrintf(LOG_INFO, "  velocity=%d", doc->velocity);		
+	LogPrintf(LOG_INFO, "  otherIndent=%d\n", doc->otherIndent);
+	LogPrintf(LOG_INFO, "  firstNames=%d", doc->firstNames);
+	LogPrintf(LOG_INFO, "  otherNames=%d", doc->otherNames);
+	LogPrintf(LOG_INFO, "  nfontsUsed=%d", doc->nfontsUsed);
+	LogPrintf(LOG_INFO, "  magnify=%d\n", doc->magnify);
+	LogPrintf(LOG_INFO, "  selStaff=%d", doc->selStaff);
+	LogPrintf(LOG_INFO, "  firstIndent=%d\n", doc->firstIndent);	
+
+	LogPrintf(LOG_INFO, "  headerStrOffset=%d\n", doc->headerStrOffset);	
+}
+
 
 /*	Open and read in the specified file. If there's an error, normally (see comments in
 OpenError) gives an error message, and returns <errCode>; else returns noErr (0). Also
@@ -1378,7 +1399,8 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	EndianFixDocumentHdr(doc);
 	if (DETAIL_SHOW) DisplayDocumentHdr(doc);
 	LogPrintf(LOG_NOTICE, "Checking Document header: ");
-	if (CheckDocumentHdr(doc)) LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
+	if (CheckDocumentHdr(doc))
+		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
 	else {
 		if (!DETAIL_SHOW) DisplayDocumentHdr(doc);
 		CParamText("Error(s) found in Document header.", "", "", "");
@@ -1389,12 +1411,22 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		goto Error;
 	}
 	
-	FIX_END(doc->nstaves);
-	if (doc->nstaves>MAXSTAVES) {
-		errCode = TOOMANYSTAVES_ERR;
-		errInfo = doc->nstaves;
+	EndianFixScoreHdr(doc);
+	if (DETAIL_SHOW) DisplayScoreHdr(doc);
+#ifdef NOTYETI
+	LogPrintf(LOG_NOTICE, "Checking Score header: ");
+	if (CheckScoreHdr(doc))
+		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
+	else {
+		if (!DETAIL_SHOW) DisplayScoreHdr(doc);
+		CParamText("Error(s) found in Score header.", "", "", "");
+		LogPrintf(LOG_ERR, "Error(s) found in Score header.  (OpenFile)\n", strBuf);
+		StopInform(GENERIC_ALRT);
+		errCode = HEADER_ERR;
+		errInfo = 0;
 		goto Error;
 	}
+#endif
 
 	count = sizeof(lastType);
 	errCode = FSRead(refNum, &count, &lastType);
@@ -1412,11 +1444,11 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	if (errCode) { errInfo = STRINGobj; goto Error; }
 	FIX_END(stringPoolSize);
 	if (doc->stringPool) DisposeStringPool(doc->stringPool);
-	/*
-	 * Allocate from the StringManager, not NewHandle, in case StringManager is tracking
-	 * its allocations. Then, since we're going to overwrite everything with stuff from file
-	 * below, we can resize it to what it was when saved.
-	 */
+	
+	/* Allocate from the StringManager, not NewHandle, in case StringManager is tracking
+	   its allocations. Then, since we're going to overwrite everything with stuff from
+	   file below, we can resize it to what it was when saved. */
+	
 	doc->stringPool = NewStringPool();
 	if (doc->stringPool == NULL) { errInfo = STRINGobj; goto Error; }
 	SetHandleSize((Handle)doc->stringPool,stringPoolSize);
