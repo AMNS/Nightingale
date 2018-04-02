@@ -47,8 +47,8 @@
 	SignedByte		fillerMB;			/* unused */												\
 	DDIST			filler2,			/* unused */												\
 					otherIndent;		/* Amount to indent Systems other than first */				\
-	SignedByte		firstNames,			/* Code for drawing part names: see enum above */			\
-					otherNames,			/* Code for drawing part names: see enum above */			\
+	SignedByte		firstNames,			/* Code for drawing part names: see enum elsewhere */		\
+					otherNames,			/* Code for drawing part names: see enum elsewhere */		\
 					lastGlobalFont,		/* Header index of most recent text style used */			\
 					xMNOffset,			/* Horiz. pos. offset for meas. nos. (half-spaces) */		\
 					yMNOffset,			/* Vert. pos. offset for meas. nos. (half-spaces) */		\

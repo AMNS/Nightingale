@@ -87,7 +87,8 @@ enum {								/* Window types */
 enum {								/* Types of part names (to label left ends of systems) */
 	NONAMES=0,
 	ABBREVNAMES,
-	FULLNAMES
+	FULLNAMES,
+	MAX_NAMES_TYPE=FULLNAMES
 };
 
 

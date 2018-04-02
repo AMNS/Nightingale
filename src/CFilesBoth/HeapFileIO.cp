@@ -802,10 +802,10 @@ static short ReadObjHeap(Document *doc, short refNum, long version, Boolean isVi
  
 Note: CER 9/5/2003, regarding PARTINFO conversion, HEADERtype heap. Format N103
 conversion to the N105 format.
-N103 appears to have been written with 2-byte alignment, yielding 
-sizeof(destinationMatch) = 278.
-N105 files are written in environment with 4-byte alignment, yielding
-sizeof(destinationMatch) = 280.
+	* N103 appears to have been written with 2-byte alignment, yielding 
+		sizeof(destinationMatch) = 278.
+	* N105 files are written in environment with 4-byte alignment, yielding
+		sizeof(destinationMatch) = 280.
 So newPartFieldsSize and partObjSizeN103 will actually be off by 2 bytes when computed
 in the different environments. The test version<='N103' is therefore not really an
 authoritative test; it depends on this incidental occurrence, the alignment

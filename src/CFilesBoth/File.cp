@@ -27,7 +27,10 @@ static void GetPrintHandle(Document *, short vRefNum, FSSpec *pfsSpec);
 static Boolean WritePrintHandle(Document *);
 static Boolean ConvertScore(Document *, long);
 static void DisplayDocumentHdr(Document *doc);
-static Boolean CheckDocumentHdr(Document *doc);
+static short CheckDocumentHdr(Document *doc);
+static void DisplayScoreHdr(Document *doc);
+static short CheckScoreHdr(Document *doc);
+
 static Boolean ModifyScore(Document *, long);
 static void SetTimeStamps(Document *);
 
@@ -1239,37 +1242,52 @@ void SetTimeStamps(Document *doc)
 }
 
 
+/* ----------------------------------------------------------- Utilities for OpenFile  -- */
 
-/* -------------------------------------------------------------------- OpenFile et al -- */
+#define in2d(x)	pt2d(in2pt(x))		/* Convert inches to DDIST */
 
 static void DisplayDocumentHdr(Document *doc)
 {
 	LogPrintf(LOG_INFO, "Displaying Document header:\n");
-	LogPrintf(LOG_INFO, "  doc->origin.h=%d", doc->origin.h);
+	LogPrintf(LOG_INFO, "  origin.h=%d", doc->origin.h);
 	LogPrintf(LOG_INFO, "  .v=%d", doc->origin.h);
+	
+	LogPrintf(LOG_INFO, "  paperRect.top=%d", doc->paperRect.top);
+	LogPrintf(LOG_INFO, "  .left=%d", doc->paperRect.left);
+	LogPrintf(LOG_INFO, "  .bottom=%d", doc->paperRect.bottom);
+	LogPrintf(LOG_INFO, "  .right=%d\n", doc->paperRect.right);
+	LogPrintf(LOG_INFO, "  marginRect.top=%d", doc->marginRect.top);
+	LogPrintf(LOG_INFO, "  .left=%d", doc->marginRect.left);
+	LogPrintf(LOG_INFO, "  .bottom=%d", doc->marginRect.bottom);
+	LogPrintf(LOG_INFO, "  .right=%d\n", doc->marginRect.right);
+
 	LogPrintf(LOG_INFO, "  numSheets=%d", doc->numSheets);
-	LogPrintf(LOG_INFO, "  firstSheet=%d\n", doc->firstSheet);
+	LogPrintf(LOG_INFO, "  firstSheet=%d", doc->firstSheet);
 	LogPrintf(LOG_INFO, "  firstPageNumber=%d", doc->firstPageNumber);
-	LogPrintf(LOG_INFO, "  startPageNumber=%d", doc->startPageNumber);
+	LogPrintf(LOG_INFO, "  startPageNumber=%d\n", doc->startPageNumber);
+	
 	LogPrintf(LOG_INFO, "  numRows=%d", doc->numRows);
-	LogPrintf(LOG_INFO, "  numCols=%d\n", doc->numCols);
+	LogPrintf(LOG_INFO, "  numCols=%d", doc->numCols);
 	LogPrintf(LOG_INFO, "  pageType=%d", doc->pageType);
 	LogPrintf(LOG_INFO, "  measSystem=%d\n", doc->measSystem);	
 }
 
-/* Do a reality check for Document header values that might be bad. If no problems are found,
-return True, else False. */
+/* Do a reality check for Document header values that might be bad. Return the number of
+problems found. */
 
-static Boolean CheckDocumentHdr(Document *doc)
+static short CheckDocumentHdr(Document *doc)
 {
-	if (doc->numSheets<1 || doc->numSheets>250) return False;
-	if (doc->firstPageNumber<0 || doc->firstPageNumber>250) return False;
-	if (doc->startPageNumber<0 || doc->startPageNumber>250) return False;
-	if (doc->numRows < 1 || doc->numRows > 250) return False;
-	if (doc->numCols < 1 || doc->numCols > 250) return False;
-	if (doc->pageType < 0 || doc->pageType > 20) return False;
+	short nerr = 0;
 	
-	return True;
+	//if (!CheckRect(doc->marginRect, 4??, in2pt(5)??)) nerr++;
+	if (doc->numSheets<1 || doc->numSheets>250) nerr++;
+	if (doc->firstPageNumber<0 || doc->firstPageNumber>250) nerr++;
+	if (doc->startPageNumber<0 || doc->startPageNumber>250) nerr++;
+	if (doc->numRows < 1 || doc->numRows > 250) nerr++;
+	if (doc->numCols < 1 || doc->numCols > 250) nerr++;
+	if (doc->pageType < 0 || doc->pageType > 20) nerr++;
+	
+	return nerr;
 }
 
 static void DisplayScoreHdr(Document *doc)
@@ -1283,17 +1301,61 @@ static void DisplayScoreHdr(Document *doc)
 	LogPrintf(LOG_INFO, "  tempo=%d", doc->tempo);		
 	LogPrintf(LOG_INFO, "  channel=%d", doc->channel);			
 	LogPrintf(LOG_INFO, "  velocity=%d", doc->velocity);		
+	LogPrintf(LOG_INFO, "  headerStrOffset=%d", doc->headerStrOffset);	
+	LogPrintf(LOG_INFO, "  footerStrOffset=%d", doc->footerStrOffset);	
 	LogPrintf(LOG_INFO, "  otherIndent=%d\n", doc->otherIndent);
 	LogPrintf(LOG_INFO, "  firstNames=%d", doc->firstNames);
 	LogPrintf(LOG_INFO, "  otherNames=%d", doc->otherNames);
+	LogPrintf(LOG_INFO, "  lastGlobalFont=%d", doc->lastGlobalFont);
+	LogPrintf(LOG_INFO, "  firstMNNumber=%d", doc->firstMNNumber);
 	LogPrintf(LOG_INFO, "  nfontsUsed=%d", doc->nfontsUsed);
 	LogPrintf(LOG_INFO, "  magnify=%d\n", doc->magnify);
 	LogPrintf(LOG_INFO, "  selStaff=%d", doc->selStaff);
-	LogPrintf(LOG_INFO, "  firstIndent=%d\n", doc->firstIndent);	
-
-	LogPrintf(LOG_INFO, "  headerStrOffset=%d\n", doc->headerStrOffset);	
+	LogPrintf(LOG_INFO, "  currentSystem=%d", doc->currentSystem);
+	LogPrintf(LOG_INFO, "  spaceTable=%d", doc->spaceTable);
+	LogPrintf(LOG_INFO, "  htight=%d\n", doc->htight);
+	LogPrintf(LOG_INFO, "  lookVoice=%d", doc->lookVoice);
+	LogPrintf(LOG_INFO, "  ledgerYSp=%d", doc->ledgerYSp);
+	LogPrintf(LOG_INFO, "  deflamTime=%d", doc->deflamTime);
+	LogPrintf(LOG_INFO, "  firstIndent=%d\n", doc->firstIndent);
 }
 
+static short CheckScoreHdr(Document *doc)
+{
+	short nerr = 0;
+	
+	if (doc->nstaves<1 || doc->nstaves>MAXSTAVES) nerr++;
+	if (doc->nsystems<1 || doc->nsystems>2000) nerr++;
+	if (doc->spacePercent<MINSPACE || doc->spacePercent>MAXSPACE) nerr++;
+	if (doc->srastral<0 || doc->srastral>MAXRASTRAL) nerr++;
+	if (doc->altsrastral<1 || doc->altsrastral>MAXRASTRAL) nerr++;
+	if (doc->tempo<MIN_BPM || doc->tempo>MAX_BPM) nerr++;
+	if (doc->channel<1 || doc->channel>MAXCHANNEL) nerr++;
+	if (doc->velocity<-127 || doc->velocity>127) nerr++;
+
+	//if (doc->headerStrOffset<?? || doc->headerStrOffset>??) nerr++;
+	//if (doc->footerStrOffset<?? || doc->footerStrOffset>??) nerr++;
+	if (doc->otherIndent<0 || doc->otherIndent>in2d(5)) nerr++;
+	if (doc->firstNames<0 || doc->firstNames>MAX_NAMES_TYPE) nerr++;
+	if (doc->otherNames<0 || doc->otherNames>MAX_NAMES_TYPE) nerr++;
+	//if (doc->lastGlobalFont<?? || doc->lastGlobalFont>??) nerr++;
+	//if (doc->firstMNNumber<?? || doc->firstMNNumber>??) nerr++;
+	if (doc->nfontsUsed<1 || doc->nfontsUsed>MAX_SCOREFONTS) nerr++;
+	if (doc->magnify<MIN_MAGNIFY || doc->magnify>MAX_MAGNIFY) nerr++;
+	//if (doc->selStaff<?? || doc->selStaff>??) nerr++;
+	if (doc->currentSystem<1 || doc->currentSystem>doc->nsystems) nerr++;
+	//if (doc->spaceTable<?? || doc->spaceTable>??) nerr++;
+	if (doc->htight<MINSPACE || doc->htight>MAXSPACE) nerr++;
+	//if (doc->lookVoice<?? || doc->lookVoice>??) nerr++;
+	if (doc->ledgerYSp<0 || doc->ledgerYSp>40) nerr++;
+	if (doc->deflamTime<1 || doc->deflamTime>1000) nerr++;
+	if (doc->firstIndent<0 || doc->firstIndent>in2d(5)) nerr++;
+	
+	return nerr;
+}
+
+
+/* -------------------------------------------------------------------------- OpenFile -- */
 
 /*	Open and read in the specified file. If there's an error, normally (see comments in
 OpenError) gives an error message, and returns <errCode>; else returns noErr (0). Also
@@ -1328,7 +1390,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	OMSSignature omsDevHdr;
 	long		fmsDevHdr;
 	long		omsBufCount, omsDevSize;
-	short		i;
+	short		i, nDocErr, nScoreErr;
 	FInfo		fInfo;
 	FSSpec 		fsSpec;
 	long		cmHdr, cmBufCount, cmDevSize;
@@ -1399,12 +1461,14 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	EndianFixDocumentHdr(doc);
 	if (DETAIL_SHOW) DisplayDocumentHdr(doc);
 	LogPrintf(LOG_NOTICE, "Checking Document header: ");
-	if (CheckDocumentHdr(doc))
+	nDocErr = CheckDocumentHdr(doc);
+	if (nDocErr==0)
 		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
 	else {
 		if (!DETAIL_SHOW) DisplayDocumentHdr(doc);
-		CParamText("Error(s) found in Document header.", "", "", "");
-		LogPrintf(LOG_ERR, "Error(s) found in Document header.\n", strBuf);
+		sprintf(strBuf, "%d error(s) found in Document header.", nDocErr);
+		CParamText(strBuf, "", "", "");
+		LogPrintf(LOG_ERR, "%d error(s) found in Document header  (OpenFile).\n", nDocErr);
 		StopInform(GENERIC_ALRT);
 		errCode = HEADER_ERR;
 		errInfo = 0;
@@ -1413,20 +1477,20 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 	
 	EndianFixScoreHdr(doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(doc);
-#ifdef NOTYETI
 	LogPrintf(LOG_NOTICE, "Checking Score header: ");
-	if (CheckScoreHdr(doc))
+	nScoreErr = CheckScoreHdr(doc);
+	if (nScoreErr==0)
 		LogPrintf(LOG_NOTICE, "No errors found.  (OpenFile)\n");
 	else {
 		if (!DETAIL_SHOW) DisplayScoreHdr(doc);
-		CParamText("Error(s) found in Score header.", "", "", "");
-		LogPrintf(LOG_ERR, "Error(s) found in Score header.  (OpenFile)\n", strBuf);
+		sprintf(strBuf, "%d error(s) found.", nScoreErr);
+		CParamText(strBuf, "", "", "");
+		LogPrintf(LOG_ERR, "%d error(s) found.  (OpenFile)\n", nScoreErr);
 		StopInform(GENERIC_ALRT);
 		errCode = HEADER_ERR;
 		errInfo = 0;
 		goto Error;
 	}
-#endif
 
 	count = sizeof(lastType);
 	errCode = FSRead(refNum, &count, &lastType);

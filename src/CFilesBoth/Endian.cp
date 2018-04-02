@@ -122,6 +122,7 @@ unsigned long ulTmp;
 
 void EndianFixDocumentHdr(Document *doc)
 {
+#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	EndianFixPoint(&doc->origin);	
 
 	EndianFixRect(&doc->paperRect);
@@ -144,6 +145,7 @@ void EndianFixDocumentHdr(Document *doc)
 
 	EndianFixRect(&doc->headerFooterMargins);
 	EndianFixRect(&doc->currentPaper);
+#endif
 }
 
 void EndianFixScoreHdr(Document *doc)
@@ -156,12 +158,17 @@ void EndianFixScoreHdr(Document *doc)
 	FIX_END(doc->tempo);
 	FIX_END(doc->channel);
 	FIX_END(doc->velocity);
+	FIX_ULONG_END(doc->headerStrOffset);
+	FIX_ULONG_END(doc->footerStrOffset);
 	FIX_END(doc->otherIndent);
 	FIX_END(doc->nfontsUsed);
 	FIX_END(doc->magnify);
 	FIX_END(doc->selStaff);
+	FIX_END(doc->currentSystem);
+	FIX_END(doc->htight);
+	FIX_END(doc->ledgerYSp);
+	FIX_END(doc->deflamTime);
 	FIX_END(doc->firstIndent);
-	FIX_ULONG_END(doc->headerStrOffset);
 }
 
 void EndianFixHeapHdr(Document *doc, HEAP *heap)

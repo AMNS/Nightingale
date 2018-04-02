@@ -257,8 +257,8 @@ Boolean DoFileMenu(short choice)
 						if (returnCode==OP_OpenFile) {
 							fsSpec = nscd.nsFSSpec;
 							vrefnum = nscd.nsFSSpec.vRefNum;
-							DoOpenDocument(tmpStr, vrefnum, False, &fsSpec);
-							LogPrintf(LOG_INFO, "Opened file '%s'.\n", PToCString(tmpStr));
+							if (DoOpenDocument(tmpStr, vrefnum, False, &fsSpec))
+								LogPrintf(LOG_INFO, "Opened file '%s'.\n", PToCString(tmpStr));
 						 }
 						 else if (returnCode==OP_NewFile)
 						 	keepGoing = DoFileMenu(FM_New);

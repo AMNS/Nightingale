@@ -2200,8 +2200,24 @@ Minor cleanup. Affects File, Initialize, MiscUtils, StringPool, UIFUtils.
 Moved Endian functions into a new file of their own. Affects NightingalePrefix.pch,
 Endian.h; Endian, MiscUtils.
 
-For the benefit of the Intel version, Revised EndianFixDocumentHdr() and added call to
-it, and added DisplayScoreHdr(), EndianFixScoreHdr(), and EndianFixHeapHdr. Affects
+For the benefit of the Intel version, revised EndianFixDocumentHdr() and added call to
+it, and added DisplayScoreHdr(), EndianFixScoreHdr(), and EndianFixHeapHdr(). Affects
 Endian.h; Endian, HeapFileIO.
 
 Minor cleanup. Affects NMiscTypes.h; File, HeapFileIO, StringPool.
+
+-------------------------------------------------------------------------------
+
+29 - 2 April
+
+For the benefit of the Intel version, added CheckScoreHdr(), and enhanced
+EndianFixScoreHdr().
+
+Fixed bug: the measure-number dialog accepts first measure number values up to 8000,
+but they're stored in a _signed_ 13-bit field, so 4095 is the limit. Affects NLimits.h;
+DialogsEditor.
+
+Minor cleanup: DisplayDocumentHdr() and DisplayScoreHdr() now display more, renamed a
+#define in NLimits, etc. Affects FileConversion.h, NLimits.h, NTypes.h; File,
+HeapFileIO, Menu, SysPageEdit.
+
