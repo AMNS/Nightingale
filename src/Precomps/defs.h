@@ -1,4 +1,4 @@
-/* Defs.h for Nightingale - general global #defines and enums. Limits are in NLimits.h.
+/* Defs.h for Nightingale - general global #defines and enums. Most limits are in NLimits.h.
 Some other #defines, dependent on _VERSION, are in versionStrings. */
 
 /* -------------------------------------------------------- Miscellaneous global enums -- */
@@ -20,7 +20,7 @@ enum {									/* In the order of TEXTSTYLEs in NIGHTSCOREHDR */
 	FONT_R7,
 	FONT_R8,
 	FONT_R9
-	};
+};
 
 enum {									/* Selection types */
 	MARCHING_ANTS = 1,

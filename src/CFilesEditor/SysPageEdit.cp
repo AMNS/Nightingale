@@ -313,7 +313,7 @@ static RMEASDATA *GetRMeasTable(Document */*doc*/, LINK sysL, short *nMeas)
 	LINK measL; DDIST mWidth;
 	short i=0; RMEASDATA *rmTable;
 
-	rmTable = (RMEASDATA *)NewPtr(MAX_MEASURES*sizeof(RMEASDATA));
+	rmTable = (RMEASDATA *)NewPtr(MAX_RSP_MEASURES*sizeof(RMEASDATA));
 	if (!GoodNewPtr((Ptr)rmTable)) { NoMoreMemory(); return NULL; }
 
 	measL = SSearch(sysL,MEASUREtype,GO_RIGHT);
@@ -439,19 +439,19 @@ static void PSysInvalSys(Document *doc, LINK sysL)
 
 
 /* 
- * Update the system left indent to set the pasted-in system's left indent
- *	to doc->firstIndent.
+ * Update the system left indent to set the pasted-in system's left indent to
+ * doc->dIndentFirst.
  */
 
 static void PSysSetFirstIndent(Document *doc, LINK sysL)
 {
-	LINK masterSysL; DDIST change,firstIndent;
+	LINK masterSysL; DDIST change, firstIndent;
 	PSYSTEM pMasterSys,pSys;
 
-	masterSysL = SSearch(doc->masterHeadL,SYSTEMtype,GO_RIGHT);
+	masterSysL = SSearch(doc->masterHeadL, SYSTEMtype, GO_RIGHT);
 	pMasterSys = GetPSYSTEM(masterSysL);
 
-	firstIndent = doc->firstIndent - doc->otherIndent;
+	firstIndent = doc->dIndentFirst - doc->dIndentOther;
 	pSys = GetPSYSTEM(sysL);
 	change = pMasterSys->systemRect.left - pSys->systemRect.left + firstIndent;
 
@@ -858,7 +858,7 @@ static void Paste1stSysInPage(Document *doc, LINK pageL)
 	PSysFixStfSize(doc,newSys,rSys);
 	
 	/* Update the system left indent to set the pasted-in system's left indent
-		to doc->firstIndent. */
+		to doc->dIndentFirst. */
 		
 	PSysSetFirstIndent(doc,newSys);
 
@@ -1488,7 +1488,7 @@ void PastePages(Document *doc)
 		it up here will not mess up its position. */
 
 	if (newFirstPage)
-		ChangeSysIndent(doc, oldFirstSys, doc->otherIndent-doc->firstIndent);
+		ChangeSysIndent(doc, oldFirstSys, doc->dIndentOther-doc->dIndentFirst);
 	else {
 		pageL = SSearch(prevL,PAGEtype,GO_RIGHT);
 		sysL = SSearch(pageL,SYSTEMtype,GO_RIGHT);

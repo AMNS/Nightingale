@@ -49,11 +49,12 @@ void LogPixMapInfo(char *name, PixMapPtr aPixMap, long len);
 void D2Rect(DRect *, Rect *);
 void Rect2D(Rect *, DRect *);
 void PtRect2D(Rect *, DRect *);
-void AddDPt(DPoint, DPoint *);
-void SetDPt(DPoint *, DDIST, DDIST);
 void SetDRect(DRect *, DDIST, DDIST, DDIST, DDIST);
 void OffsetDRect(DRect *, DDIST, DDIST);
 void InsetDRect(DRect *, DDIST, DDIST);
+Boolean RectIsValid(Rect aRect, short legalMin, short legalMax);
+void SetDPt(DPoint *, DDIST, DDIST);
+void OffsetDPt(DPoint, DPoint *);
 void DMoveTo(DDIST, DDIST);
 
 short GCD(short m, short n);

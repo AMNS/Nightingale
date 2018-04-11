@@ -6,7 +6,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -27,9 +27,9 @@ static DDIST GetNormalStaffLength(Document *doc, LINK pL)
 	
 	systemL = LSSearch(pL, SYSTEMtype, ANYONE, GO_LEFT, False);
 	if (!LinkLSYS(systemL))
-		staffLength = MARGWIDTH(doc)-doc->firstIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentFirst;
 	else
-		staffLength = MARGWIDTH(doc)-doc->otherIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentOther;
 	
 	return staffLength;
 }

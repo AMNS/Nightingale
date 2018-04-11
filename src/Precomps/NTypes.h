@@ -294,7 +294,7 @@ typedef struct {
 	char		fillerPGN:2;		/* unused */												\
 	SignedByte	fillerMB;			/* unused */												\
 	DDIST		filler2,			/* unused */												\
-				otherIndent;		/* Amount to indent Systems other than first */				\
+				dIndentOther;		/* Amount to indent Systems other than first */				\
 	SignedByte	firstNames,			/* Code for drawing part names: see enum above */			\
 				otherNames,			/* Code for drawing part names: see enum above */			\
 				lastGlobalFont,		/* Header index of most recent text style used */			\
@@ -463,11 +463,11 @@ typedef struct {
 					showInvis:1,		/* Display invisible objects? */						\
 					showDurProb:1,		/* Show measures with duration/time sig. problems? */	\
 					recordFlats;		/* True if black-key notes recorded should use flats */ \
-																									\
+																								\
 	long			spaceMap[MAX_L_DUR];	/* Ideal spacing of basic (undotted, non-tuplet) durs. */ \
-	DDIST			firstIndent,		/* Amount to indent first System */						\
+	DDIST			dIndentFirst,		/* Amount to indent first System */						\
 					yBetweenSys;		/* obsolete, was vert. "dead" space btwn Systems */		\
-	VOICEINFO	voiceTab[MAXVOICES+1];	/* Descriptions of voices in use */						\
+	VOICEINFO		voiceTab[MAXVOICES+1];	/* Descriptions of voices in use */					\
 	short			expansion[256-(MAXVOICES+1)];
 
 

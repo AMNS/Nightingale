@@ -1,10 +1,10 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	NotelistOpen.c
 *	PROJ:	Nightingale
 *	DESC:	Routines for opening a Nightingale Notelist file, creating a native
 *			Nightingale file from it. Written by John Gibson with help from Tim
 *			Crawford.
-***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALEª PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -21,7 +21,7 @@
 #include "Notelist.h"
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 
 /* Constants */
 
@@ -91,7 +91,7 @@ extern Boolean		gDelAccs;						/* delete redundant accidentals? */
 static long			gCurSyncTime;
 
 
-/* ------------------------------------------------------------- OpenNotelistFile -- */
+/* ------------------------------------------------------------------ OpenNotelistFile -- */
 /* The top level, public function. Returns True on success, False if there's a problem. */
 
 Boolean OpenNotelistFile(Str255 fileName, NSClientDataPtr pNSD)
@@ -157,7 +157,7 @@ Error:
 }
 
 
-/* ------------------------------------------------------------- OpenNotelistFile -- */
+/* ------------------------------------------------------------------ OpenNotelistFile -- */
 /* The top level, public function; FSSpec calling sequence version. As of v. 5.7, this
 version is used iff user drops a notelist file on the Nightingale icon. Returns True
 on success, False if there's a problem. */
@@ -227,7 +227,7 @@ Error:
 }
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Functions for translating the Notelist data structure into a Nightingale score */
 
 /* Get the note subtype code for the shortest duration of any note/chord in the given
@@ -252,7 +252,7 @@ static short GetShortestDurCode(short voice, LINK startL, LINK endL)
 	return maxDurCode;
 }
 
-/* ---------------------------------------------------------------- NotelistToNight -- */
+/* ------------------------------------------------------------------- NotelistToNight -- */
 
 static Boolean NotelistToNight(Document *doc)
 {
@@ -396,7 +396,7 @@ static Boolean NotelistToNight(Document *doc)
 }
 
 
-/* -------------------------------------------------------------- ConvertNoteRest -- */
+/* ------------------------------------------------------------------- ConvertNoteRest -- */
 /* Assumes <pL> is a note or rest, not a grace note. */
 
 static Boolean ConvertNoteRest(Document *doc, NLINK pL)
@@ -495,7 +495,7 @@ broken:
 }
 
 
-/* ----------------------------------------------------------------- ConvertGrace -- */
+/* ---------------------------------------------------------------------- ConvertGrace -- */
 /* Assumes <pL> is a grace note, not a normal note or rest.
 CAUTION: At this time we do not support:
 	grace note rests,
@@ -582,12 +582,11 @@ static Boolean ConvertGrace(Document *doc, NLINK pL)
 }
 
 
-/* ------------------------------------------------------------------ ConvertMods -- */
+/* ----------------------------------------------------------------------- ConvertMods -- */
 /* Convert all the modifiers attached to the given note. Until we have a reasonable
 auto-placement algorithm (begun in ModNRPitchLev), do something hopelessly crude.
-NB: Don't confuse modifiers in the Notelist temporary data structure with
-those in the Nightingale object list!
-Return True if ok, False if error. */
+NB: Don't confuse modifiers in the Notelist temporary data structure with those in
+the Nightingale object list! Return True if ok, False if error. */
 
 static Boolean ConvertMods(Document *doc, NLINK firstModID, LINK syncL, LINK aNoteL)
 {
@@ -613,7 +612,7 @@ static Boolean ConvertMods(Document *doc, NLINK firstModID, LINK syncL, LINK aNo
 }
 
 
-/* ---------------------------------------------------------------- NLMIDI2HalfLn -- */
+/* --------------------------------------------------------------------- NLMIDI2HalfLn -- */
 /* Given a MIDI note number <noteNum>, an effective accidental <eAcc> code, and the
 half-line  position of middle C <midCHalfLn>, fill in the note's half-line number in
 <pHalfLn> (where top line of staff = 0). Return True if ok, False if error.
@@ -659,7 +658,7 @@ static Boolean NLMIDI2HalfLn(char noteNum, char eAcc, short midCHalfLn, short *p
 }
 
 
-/* ---------------------------------------------------------------- ConvertTuplet -- */
+/* --------------------------------------------------------------------- ConvertTuplet -- */
 
 static Boolean ConvertTuplet(Document *doc, NLINK pL)
 {
@@ -684,7 +683,7 @@ broken:
 }
 
 
-/* --------------------------------------------------------------- ConvertBarline -- */
+/* -------------------------------------------------------------------- ConvertBarline -- */
 
 static Boolean ConvertBarline(Document *doc, NLINK pL)
 {
@@ -703,7 +702,7 @@ broken:
 }
 
 
-/* ------------------------------------------------------------------ ConvertClef -- */
+/* ----------------------------------------------------------------------- ConvertClef -- */
 
 static Boolean ConvertClef(Document *doc, NLINK pL)
 {
@@ -734,7 +733,7 @@ broken:
 }
 
 
-/* ---------------------------------------------------------------- ConvertKeysig -- */
+/* --------------------------------------------------------------------- ConvertKeysig -- */
 
 static Boolean ConvertKeysig(Document *doc, NLINK pL)
 {
@@ -760,7 +759,7 @@ broken:
 }
 
 
-/* --------------------------------------------------------------- ConvertTimesig -- */
+/* -------------------------------------------------------------------- ConvertTimesig -- */
 
 static Boolean ConvertTimesig(Document *doc, NLINK pL)
 {
@@ -772,7 +771,7 @@ static Boolean ConvertTimesig(Document *doc, NLINK pL)
 	if (IsFirstTimesig(pL)) return True;
 
 	pTS = GetPNL_TIMESIG(pL);
-	if (pTS->staff==NOONE) return True;			/* don't convert it -- already handled by another record */
+	if (pTS->staff==NOONE) return True;			/* don't convert it; it's already handled by another record */
 	
 	timeSigL = FIInsertTimeSig(doc, pTS->staff, doc->tailL, pTS->appear, pTS->num, pTS->denom);
 	if (timeSigL==NILINK) goto broken;
@@ -784,7 +783,7 @@ broken:
 }
 
 
-/* ----------------------------------------------------------------- ConvertTempo -- */
+/* ---------------------------------------------------------------------- ConvertTempo -- */
 
 static Boolean ConvertTempo(Document *doc, NLINK pL)
 {
@@ -820,7 +819,7 @@ broken:
 }
 
 
-/* --------------------------------------------------------------- ConvertGraphic -- */
+/* -------------------------------------------------------------------- ConvertGraphic -- */
 
 static Boolean ConvertGraphic(Document *doc, NLINK pL)
 {
@@ -871,7 +870,7 @@ broken:
 }
 
 
-/* --------------------------------------------------------------- ConvertDynamic -- */
+/* -------------------------------------------------------------------- ConvertDynamic -- */
 
 static Boolean ConvertDynamic(Document *doc, NLINK pL)
 {
@@ -913,7 +912,7 @@ static Boolean ConvertDynamic(Document *doc, NLINK pL)
 			dynamicL = FIInsertGRString(doc, pD->staff, NOONE, doc->tailL, NILINK,
 													False, TSRegular2STYLE, NULL, str);
 			if (dynamicL==NILINK) goto broken;
-//****Now problem is that voice should NOT be NOONE!
+// FIXME: ****Now problem is that voice should NOT be NOONE!
 			break;
 		default:
 			goto broken;
@@ -926,7 +925,7 @@ broken:
 }
 
 
-/* --------------------------------------------------------------- SetDefaultCoords -- */
+/* ------------------------------------------------------------------ SetDefaultCoords -- */
 /* Move every Graphic, Tempo mark and Dynamic to a reasonable default position. Since
 the Notelist format does not encode graphic information for these items, we do something
 crude and arbitrary here. It'd be good to make this less crude, e.g.,: If staff has any
@@ -945,8 +944,7 @@ static Boolean SetDefaultCoords(Document *doc)
 	PADYNAMIC	aDynamic;
 
 	/* First get staff height, number of lines and font size for each staff.
-		(GetAllContexts is overkill for our purposes, so we roll our own here.)
-	*/
+	   (GetAllContexts is overkill for our purposes, so we roll our own here.) */
 	firstStaffL = LSSearch(doc->headL, STAFFtype, ANYONE, GO_RIGHT, False);
 	if (!firstStaffL) goto broken;
 	aStaffL = FirstSubLINK(firstStaffL);
@@ -1027,7 +1025,7 @@ broken:
 }
 
 
-/* -------------------------------------------------------------------- FixPlayDurs -- */
+/* ----------------------------------------------------------------------- FixPlayDurs -- */
 /* Set play duration of every note that now has a zero or negative play dur. to a
 reasonable value: this is intended mostly to handle the "default duration" feature
 of notelists. */
@@ -1049,10 +1047,10 @@ static void FixPlayDurs(Document *doc, LINK startL, LINK endL)
 }
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Functions for creating and displaying the converted Notelist document. */
 
-/* ------------------------------------------------------------------- SetupNLScore -- */
+/* ---------------------------------------------------------------------- SetupNLScore -- */
 
 static Boolean SetupNLScore(Document *doc)
 {
@@ -1066,9 +1064,9 @@ static Boolean SetupNLScore(Document *doc)
 	InstallDoc(doc);
 	doc->firstMNNumber = gFirstMNNumber;
 	
-	/* We now have a default score with one part of two staves. Set it up
-		according to the Notelist file structure, and then remove the default part.
-		NB: Calling AddPart with staffn>=63 (62??) will blow up; Addpart doesn't
+	/* We now have a default score with one part of two staves. Set it up according
+	   to the Notelist file structure, and then remove the default part. NB:
+		Calling AddPart with staffn>=63 (62??) will blow up; Addpart doesn't
 		seem to handle this at all well.
 		??Partial solution: delete default part after adding the first part in the loop.
 	*/
@@ -1162,7 +1160,7 @@ static Boolean SetupNLScore(Document *doc)
 }
 
 
-/* ------------------------------------------------------------------ CreateNLDoc -- */
+/* ----------------------------------------------------------------------- CreateNLDoc -- */
 
 #define NL_RASTRAL 5	/* Default staff rastral size */
 
@@ -1201,10 +1199,10 @@ static Document *CreateNLDoc(unsigned char *fileName)
 }
 
 
-/* ------------------------------------------------------------------- BuildNLDoc -- */
+/* ------------------------------------------------------------------------ BuildNLDoc -- */
 /* Initialise a new Document, untitled and empty. Make the Document the current
-grafPort and install it, including magnification. Return True normally,
-False in case of error. */
+grafPort and install it, including magnification. Return True normally, False in
+case of error. */
 
 #define COMMENT_NOTELIST "(origin: notelist file)"	/* ??Should be in resource for I18N */
 
@@ -1244,10 +1242,10 @@ static Boolean BuildNLDoc(
 
 	FillSpaceMap(doc, 0);
 
-	/* Add the standard scroll bar controls to Document's window. The scroll
-	 *	bars are created with a maximum value of 0 here, but this will have no
-	 *	effect if we call RecomputeView, since it resets the max.
-	 */
+	/* Add the standard scroll bar controls to Document's window. The scroll bars are
+	   created with a maximum value of 0 here, but this will have no effect if we call
+	   RecomputeView since it resets the max. */
+	   
 	GetWindowPortBounds(w,&r);
 	r.left = r.right - (SCROLLBAR_WIDTH+1);
 	r.bottom -= SCROLLBAR_WIDTH;
@@ -1269,19 +1267,19 @@ static Boolean BuildNLDoc(
 	doc->selStartL = doc->selEndL = doc->tailL;				/* Empty selection  */
 	
 	/* Set part name showing and corresponding system indents. We'd like to use
-	 * PartNameMargin() to get the appropriate indents, but not enough of the data
-	 * structure is set up, so do something cruder.
-	 */
-	doc->firstNames = NONAMES/*FULLNAMES*/;								/* 1st system: full part names */
-	doc->firstIndent = qd2d(config.indent1st, drSize[doc->srastral], STFLINES);
+	   PartNameMargin() to get the appropriate indents, but not enough of the data
+	   structure is set up, so do something cruder. */
+	   
+	doc->firstNames = NONAMES/*FULLNAMES*/;						/* 1st system: full part names */
+	doc->dIndentFirst = qd2d(config.indent1st, drSize[doc->srastral], STFLINES);
 	doc->otherNames = NONAMES;									/* Other systems: no part names */
-	doc->otherIndent = 0;
+	doc->dIndentOther = 0;
 	
 	*fileVersion = THIS_VERSION;
-	NewDocScore(doc);												/* Set up initial staves, clefs, etc. */
+	NewDocScore(doc);											/* Set up initial staves, clefs, etc. */
 	doc->firstSheet = 0;
 	doc->currentSheet = 0;
-	doc->origin = doc->sheetOrigin;							/* Ignore position recorded in file */
+	doc->origin = doc->sheetOrigin;								/* Ignore position recorded in file */
 
 	strcpy((char *)doc->comment, COMMENT_NOTELIST);
 
@@ -1293,8 +1291,8 @@ static Boolean BuildNLDoc(
 	GetAllSheets(doc);
 
 	/* Finally, set empty selection just after the first Measure and put caret there.
-		N.B. This will not necessarily be on the screen! We should eventually make
-		the initial selection agree with the doc's scrolled position. */
+	   NB: This will not necessarily be on the screen! We should eventually make the
+	   initial selection agree with the doc's scrolled position. */
 
 	SetDefaultSelection(doc);
 	doc->selStaff = 1;
@@ -1305,7 +1303,7 @@ static Boolean BuildNLDoc(
 }
 
 
-/* ----------------------------------------------------------------- DisplayNLDoc -- */
+/* ---------------------------------------------------------------------- DisplayNLDoc -- */
 /* Set up and display the newly created Notelist document. */
 
 static void DisplayNLDoc(Document *newDoc)
@@ -1359,15 +1357,15 @@ static void DisplayNLDoc(Document *newDoc)
 }
 
 
-/* --------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Notelist utility functions */
 
-/* -------------------------------------------------------------- NLtoNightKeysig -- */
+/* ------------------------------------------------------------------- NLtoNightKeysig -- */
 
 static short NLtoNightKeysig(NLINK keysigL)
 {
 	PNL_KEYSIG	pKS;
-	short			sharpsOrFlats;
+	short		sharpsOrFlats;
 
 	pKS = GetPNL_KEYSIG(keysigL);
 	sharpsOrFlats = pKS->numAcc;
@@ -1377,13 +1375,13 @@ static short NLtoNightKeysig(NLINK keysigL)
 }
 
 
-/* ---------------------------------------------------------------- IsFirstKeysig -- */
+/* --------------------------------------------------------------------- IsFirstKeysig -- */
 /* Return True if <ksL> is one of the records comprising the first key signature
 in the Notelist. (There will be one record for each staff.) */
 
 static Boolean IsFirstKeysig(NLINK ksL)
 {
-	NLINK		pL;
+	NLINK	pL;
 	Boolean	ksRun = False;
 	
 	for (pL = 1; pL<=gNumNLItems; pL++) {
@@ -1397,13 +1395,13 @@ static Boolean IsFirstKeysig(NLINK ksL)
 }
 
 
-/* --------------------------------------------------------------- IsFirstTimesig -- */
+/* -------------------------------------------------------------------- IsFirstTimesig -- */
 /* Return True if <tsL> is one of the records comprising the first time signature
 in the Notelist. (There will be one record for each staff.) */
 
 static Boolean IsFirstTimesig(NLINK tsL)
 {
-	NLINK		pL;
+	NLINK	pL;
 	Boolean	tsRun = False;
 	
 	for (pL = 1; pL<=gNumNLItems; pL++) {
@@ -1417,7 +1415,7 @@ static Boolean IsFirstTimesig(NLINK tsL)
 }
 
 
-/* ----------------------------------------------------------------- DynamicGlyph -- */
+/* ---------------------------------------------------------------------- DynamicGlyph -- */
 
 char DynamicGlyph(LINK dynamicL)
 {
@@ -1451,13 +1449,13 @@ char DynamicGlyph(LINK dynamicL)
 
 
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Functions that call Macintosh Toolbox routines. */
 
-/* ------------------------------------------------------- BuildConvertedNLFileName -- */
+/* ---------------------------------------------------------- BuildConvertedNLFileName -- */
 /* Build a filename for the converted score, removing ".nl" suffix, if any, and appending
-" (converted)" to the input filename. Note that we use this _only_ if the header of
-the Notelist file doesn't contain a score name. */
+" (converted)" to the input filename. Note that we use this only if the header of the
+Notelist file doesn't contain a score name. */
 
 static void BuildConvertedNLFileName(Str255 fn, Str255 newfn)
 {

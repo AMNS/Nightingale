@@ -1,4 +1,4 @@
-IDEAS FOR A NEW NIGHTINGALE FILE FORMAT - DAB, mid January 2018
+IDEAS FOR A NEW NIGHTINGALE FILE FORMAT (AND OBJECT LIST) - DAB, mid April 2018 
 
 ANOTE:
 	* 1-2 more bits for accidental offset
@@ -22,6 +22,8 @@ CLEF:
 	* Change codes to leave space for more 8ve-transposing clefs, e.g.,
 		SOPRANO8B and/or TENOR8B for basses
 
+* Rearrange header fields so they're in a sensible order, w/ closely-related
+	things (e.g., firstIndent & otherIndent in Score header)
 * Replace all short (2 bytes, mostly DDIST) coords. with long (4 bytes)
 * Add >=2 bytes for future expansion to everything
 * Remove FreeMIDI and OMS support fields: in PARTINFO, Document; elsewhere?

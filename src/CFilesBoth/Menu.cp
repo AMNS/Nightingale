@@ -1441,9 +1441,9 @@ static void SMLeftEnd(Document *doc)
 	
 	changedNameVis = False;
 	firstNames = doc->firstNames;
-	firstDist = d2pt(doc->firstIndent);
+	firstDist = d2pt(doc->dIndentFirst);
 	otherNames = doc->otherNames;
-	otherDist = d2pt(doc->otherIndent);
+	otherDist = d2pt(doc->dIndentOther);
 	
 	if (LeftEndDialog(&firstNames, &firstDist, &otherNames, &otherDist)) {
 		if (firstNames!=doc->firstNames) {
@@ -1451,9 +1451,9 @@ static void SMLeftEnd(Document *doc)
 			changedNameVis = True;
 			doc->changed = True;
 		}
-		deltaFirstIndent = pt2d(firstDist)-doc->firstIndent;
+		deltaFirstIndent = pt2d(firstDist)-doc->dIndentFirst;
 		if (deltaFirstIndent!=0) {
-			doc->firstIndent = pt2d(firstDist);
+			doc->dIndentFirst = pt2d(firstDist);
 			IndentSystems(doc, deltaFirstIndent, True);
 		}
 
@@ -1462,9 +1462,9 @@ static void SMLeftEnd(Document *doc)
 			changedNameVis = True;
 			doc->changed = True;
 		}
-		deltaOtherIndent = pt2d(otherDist)-doc->otherIndent;
+		deltaOtherIndent = pt2d(otherDist)-doc->dIndentOther;
 		if (deltaOtherIndent!=0) {
-			doc->otherIndent = pt2d(otherDist);
+			doc->dIndentOther = pt2d(otherDist);
 			IndentSystems(doc, deltaOtherIndent, False);
 		}
 

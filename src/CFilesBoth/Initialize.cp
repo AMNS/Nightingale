@@ -27,7 +27,6 @@ static Boolean		AddPrefsResource(Handle);
 static OSStatus		FindPrefsFile(unsigned char *name, OSType fType, OSType fCreator,
 									FSSpec *prefsSpec);
 static void			DisplayConfig(void);
-static Boolean		CheckRect(Rect aRect, short legalMin, short legalMax);
 static Boolean		CheckConfig(void);
 static Boolean		GetConfig(void);
 static Boolean		InitMemory(short numMasters);
@@ -627,16 +626,6 @@ static void DisplayConfig()
 }
 
 
-static Boolean CheckRect(Rect aRect, short legalMin, short legalMax)
-{
-	if (aRect.top<legalMin || aRect.top>legalMax) return False;
-	if (aRect.left<legalMin || aRect.top>legalMax) return False;
-	if (aRect.bottom<legalMin || aRect.top>legalMax) return False;
-	if (aRect.right<legalMin || aRect.top>legalMax) return False;
-	
-	return True;
-}
-
 #define ERR(fn) { nerr++; LogPrintf(LOG_WARNING, " err #%d,", fn); if (firstErr==0) firstErr = fn; }
 
 /* Do a reality check for config values that might be bad. We can't easily check origin,
@@ -754,7 +743,7 @@ static Boolean CheckConfig()
 #define PAGEMARG_BOTTOM_DFLT in2pt(1)/2
 #define PAGEMARG_RIGHT_DFLT in2pt(1)/2
 	/* Check for ridiculously small or large margins. */
-	if (!CheckRect(config.pageMarg, 4, in2pt(5))) {
+	if (!RectIsValid(config.pageMarg, 4, in2pt(5))) {
 		if (config.pageMarg.top<4 || config.pageMarg.top>in2pt(5))
 			{ config.pageMarg.top = PAGEMARG_TOP_DFLT; }
 		if (config.pageMarg.left<4 || config.pageMarg.left>in2pt(5))
@@ -781,7 +770,7 @@ static Boolean CheckConfig()
 #define PAGENUMMARG_LEFT_DFLT in2pt(1)/2
 #define PAGENUMMARG_BOTTOM_DFLT in2pt(1)/2
 #define PAGENUMMARG_RIGHT_DFLT in2pt(1)/2
-	if (!CheckRect(config.pageNumMarg, 4, in2pt(5))) {
+	if (!RectIsValid(config.pageNumMarg, 4, in2pt(5))) {
 		if (config.pageNumMarg.top<4 || config.pageNumMarg.top>in2pt(5))
 			{ config.pageNumMarg.top = PAGENUMMARG_TOP_DFLT; }
 		if (config.pageNumMarg.left<4 || config.pageNumMarg.left>in2pt(5))

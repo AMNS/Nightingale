@@ -129,8 +129,8 @@ typedef struct {
 	Rect			prevMargin;			/* doc->marginRect upon entering Master Page */
 	short			srastralMP;			/* srastral set inside Master Page */
 	short			nSysMP;				/* Number of systems which can fit on a page */
-	DDIST			firstIndentMP,		/* Amount to indent first System */
-					otherIndentMP;		/* Amount to indent Systems other than first */	
+	DDIST			dIndentFirstMP,		/* Amount to indent first System */
+					dIndentOtherMP;		/* Amount to indent Systems other than first */	
 	SignedByte		firstNamesMP,		/* 0=show none, 1=show abbrev., 2=show full names */
 					otherNamesMP;		/* 0=show none, 1=show abbrev., 2=show full names */
 	short			nstavesMP;			/* Number of staves in Master Page */

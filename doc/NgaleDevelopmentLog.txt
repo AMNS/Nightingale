@@ -2973,3 +2973,42 @@ EndianFixDocumentHdr() works.
 
 EndianFixScoreHdr() calls exit() and quits because sizeof(something) is 1!?! ...Fixed.
 
+-------------------------------------------------------------------------------
+
+1 - 10 April
+
+More work on opening files on Intel processors, esp. EndianFixScoreHdr().
+
+Uh-oh. <firstMNNumber> is a 13-bit field; must do something special: write EndianFix_13BitField()
+& test with firstMNNumber = 259 => nope! #%^&*#$%*#)%#$%  It reads 259 = 0x103 as 124 = 0x7c !!
+Then it converts it -1024 = 0xfffffc00 -- garbage, of course; but how does it get 0x7c??
+This is looking really bad, since our objects and subobjects and jammed with bitfields!!
+
+By far the most reasonable solution: a new file format, format "N106"! The Intel version of Ngale
+5.8 won't be able to open N105 or earlier files, but the PPC version will be able to open them
+& save them in the new format. This will also allow making some other desirable changes to files
+& to the object list: cf. NgaleFileFormatIdeas.txt.
+
+This is going to take awhile! TBContinued.
+
+-------------------------------------------------------------------------------
+
+10 - 11 April
+
+The "notes entered on a new system aren't drawn until there's a barline following on the
+system" bug (GitHub Issue #165) is a real pain. Cf. discussion above for Feb. - Mar.
+2016.
+
+The basic problem is that entering the notes leaves measureBBox.right = measureBBox.left.
+One place -- maybe the only one! -- where measureBBox.right is updated is in DrawMEASURE().
+Is it getting called in this situation? Yes -- but measureBBox.right is set to the right
+end of the system, which is correct; the problem is measureBBox.left! Why? The comment:
+
+	/* If this is the last measure of a system, just set its measureBBox to end exactly
+	   at the end of the system. If in addition the previous measure ends at the same
+	   point, this measure's width is zero, and we set its measureBBox to start at that
+	   point as well. */
+
+But the test for the previous measure ending at the same point doesn't consider the case
+where the previous measure is on the previous system! Fixed.
+

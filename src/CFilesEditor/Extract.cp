@@ -611,7 +611,8 @@ static void InitDocFields(register Document *score, register Document *part)
 
 	part->feedback = score->feedback;
 	part->polyTimbral = score->polyTimbral;
-	part->spacePercent = score->spacePercent;	
+	part->spacePercent = score->spacePercent;
+	
 	/* If score staff size is small, the size in the part probably should be larger,
 	   but changing it involves much more than just changing one header field, and it's
 	   easy for the user to change. */
@@ -620,7 +621,7 @@ static void InitDocFields(register Document *score, register Document *part)
 	part->channel = score->channel;
 	part->velocity = score->velocity;
 	part->firstNames = score->firstNames;
-	part->otherIndent = 0.0;
+	part->dIndentOther = 0.0;
 	part->otherNames = NONAMES;
 
 	part->lastGlobalFont = score->lastGlobalFont;
@@ -660,7 +661,7 @@ static void InitDocFields(register Document *score, register Document *part)
 	
 	BlockMove(score->spaceMap, part->spaceMap, (Size)MAX_L_DUR*sizeof(long));
 
-	part->firstIndent = score->firstIndent;
+	part->dIndentFirst = score->dIndentFirst;
 	part->yBetweenSys = score->yBetweenSys;
 
 	for (s = 0; s<=MAXSTAVES; s++)

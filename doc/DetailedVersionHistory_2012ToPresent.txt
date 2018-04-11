@@ -2210,14 +2210,27 @@ Minor cleanup. Affects NMiscTypes.h; File, HeapFileIO, StringPool.
 
 29 - 2 April
 
-For the benefit of the Intel version, added CheckScoreHdr(), and enhanced
-EndianFixScoreHdr().
+For the benefit of the Intel version, added CheckScoreHdr(), enhanced EndianFixScoreHdr().
 
 Fixed bug: the measure-number dialog accepts first measure number values up to 8000,
 but they're stored in a _signed_ 13-bit field, so 4095 is the limit. Affects NLimits.h;
 DialogsEditor.
 
 Minor cleanup: DisplayDocumentHdr() and DisplayScoreHdr() now display more, renamed a
-#define in NLimits, etc. Affects FileConversion.h, NLimits.h, NTypes.h; File,
-HeapFileIO, Menu, SysPageEdit.
+#define in NLimits, etc. Affects FileConversion.h, NLimits.h; File, HeapFileIO,
+SysPageEdit.
 
+-------------------------------------------------------------------------------
+
+3 - 11 April
+
+Enhanced CheckScoreHdr(). Affects File.
+
+Fixed the bug (Issue #165) where "notes entered on a new system aren't drawn until
+there's a barline following on the system". Affects DrawObject.
+
+Minor cleanup: rename a function, rearrange functions, rename header fields for
+consistency, etc. Affects Defs.h, FileConversion.h, NLimits.h, NTypes.h, NMiscTypes.h,
+Utility.h; Browser, Clipboard, DelAddRedTimeSigs, DialogsEditor, Documents, DrawObject,
+DSUtils, Endian, Extract, File, Initialize, InsNewUtils, MasterPage, Menu, MPCommands,
+NotelistOpen, Reformat, Score, SpaceHighLevel, SysPageEdit, Utility.

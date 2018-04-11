@@ -262,9 +262,9 @@ static short NewSysNums(
 		staffLenUse1 = staffLenUse2 = (DDIST)SHRT_MAX;
 	else {
 		staffLenUse1 = staffLenUse2 =
-			MARGWIDTH(doc)-doc->otherIndent+RIGHTEND_SLOP;
+			MARGWIDTH(doc)-doc->dIndentOther+RIGHTEND_SLOP;
 		if (startSysNum==1)
-			staffLenUse1 = MARGWIDTH(doc)-doc->firstIndent+RIGHTEND_SLOP;
+			staffLenUse1 = MARGWIDTH(doc)-doc->dIndentFirst+RIGHTEND_SLOP;
 	}
 	
 	/*

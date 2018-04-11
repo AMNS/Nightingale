@@ -1256,6 +1256,10 @@ static void DisplayDocumentHdr(Document *doc)
 	LogPrintf(LOG_INFO, "  .left=%d", doc->paperRect.left);
 	LogPrintf(LOG_INFO, "  .bottom=%d", doc->paperRect.bottom);
 	LogPrintf(LOG_INFO, "  .right=%d\n", doc->paperRect.right);
+	LogPrintf(LOG_INFO, "  origPaperRect.top=%d", doc->origPaperRect.top);
+	LogPrintf(LOG_INFO, "  .left=%d", doc->origPaperRect.left);
+	LogPrintf(LOG_INFO, "  .bottom=%d", doc->origPaperRect.bottom);
+	LogPrintf(LOG_INFO, "  .right=%d\n", doc->origPaperRect.right);
 	LogPrintf(LOG_INFO, "  marginRect.top=%d", doc->marginRect.top);
 	LogPrintf(LOG_INFO, "  .left=%d", doc->marginRect.left);
 	LogPrintf(LOG_INFO, "  .bottom=%d", doc->marginRect.bottom);
@@ -1279,7 +1283,9 @@ static short CheckDocumentHdr(Document *doc)
 {
 	short nerr = 0;
 	
-	//if (!CheckRect(doc->marginRect, 4??, in2pt(5)??)) nerr++;
+	//if (!RectIsValid(doc->paperRect, 4??, in2pt(5)??)) nerr++;
+	//if (!RectIsValid(doc->origPaperRect, 4??, in2pt(5)??)) nerr++;
+	//if (!RectIsValid(doc->marginRect, 4??, in2pt(5)??)) nerr++;
 	if (doc->numSheets<1 || doc->numSheets>250) nerr++;
 	if (doc->firstPageNumber<0 || doc->firstPageNumber>250) nerr++;
 	if (doc->startPageNumber<0 || doc->startPageNumber>250) nerr++;
@@ -1303,13 +1309,18 @@ static void DisplayScoreHdr(Document *doc)
 	LogPrintf(LOG_INFO, "  velocity=%d", doc->velocity);		
 	LogPrintf(LOG_INFO, "  headerStrOffset=%d", doc->headerStrOffset);	
 	LogPrintf(LOG_INFO, "  footerStrOffset=%d", doc->footerStrOffset);	
-	LogPrintf(LOG_INFO, "  otherIndent=%d\n", doc->otherIndent);
+	LogPrintf(LOG_INFO, "  dIndentOther=%d\n", doc->dIndentOther);
 	LogPrintf(LOG_INFO, "  firstNames=%d", doc->firstNames);
 	LogPrintf(LOG_INFO, "  otherNames=%d", doc->otherNames);
-	LogPrintf(LOG_INFO, "  lastGlobalFont=%d", doc->lastGlobalFont);
-	LogPrintf(LOG_INFO, "  firstMNNumber=%d", doc->firstMNNumber);
+	LogPrintf(LOG_INFO, "  lastGlobalFont=%d\n", doc->lastGlobalFont);
+
+	LogPrintf(LOG_INFO, "  aboveMN=%c", (doc->aboveMN? '1' : '0'));
+	LogPrintf(LOG_INFO, "  sysFirstMN=%c", (doc->sysFirstMN? '1' : '0'));
+	LogPrintf(LOG_INFO, "  startMNPrint1=%c", (doc->startMNPrint1? '1' : '0'));
+	LogPrintf(LOG_INFO, "  firstMNNumber=%d\n", doc->firstMNNumber);
+
 	LogPrintf(LOG_INFO, "  nfontsUsed=%d", doc->nfontsUsed);
-	LogPrintf(LOG_INFO, "  magnify=%d\n", doc->magnify);
+	LogPrintf(LOG_INFO, "  magnify=%d", doc->magnify);
 	LogPrintf(LOG_INFO, "  selStaff=%d", doc->selStaff);
 	LogPrintf(LOG_INFO, "  currentSystem=%d", doc->currentSystem);
 	LogPrintf(LOG_INFO, "  spaceTable=%d", doc->spaceTable);
@@ -1317,7 +1328,7 @@ static void DisplayScoreHdr(Document *doc)
 	LogPrintf(LOG_INFO, "  lookVoice=%d", doc->lookVoice);
 	LogPrintf(LOG_INFO, "  ledgerYSp=%d", doc->ledgerYSp);
 	LogPrintf(LOG_INFO, "  deflamTime=%d", doc->deflamTime);
-	LogPrintf(LOG_INFO, "  firstIndent=%d\n", doc->firstIndent);
+	LogPrintf(LOG_INFO, "  dIndentFirst=%d\n", doc->dIndentFirst);
 }
 
 static short CheckScoreHdr(Document *doc)
@@ -1335,29 +1346,29 @@ static short CheckScoreHdr(Document *doc)
 
 	//if (doc->headerStrOffset<?? || doc->headerStrOffset>??) nerr++;
 	//if (doc->footerStrOffset<?? || doc->footerStrOffset>??) nerr++;
-	if (doc->otherIndent<0 || doc->otherIndent>in2d(5)) nerr++;
+	
+	if (doc->dIndentOther<0 || doc->dIndentOther>in2d(5)) nerr++;
 	if (doc->firstNames<0 || doc->firstNames>MAX_NAMES_TYPE) nerr++;
 	if (doc->otherNames<0 || doc->otherNames>MAX_NAMES_TYPE) nerr++;
-	//if (doc->lastGlobalFont<?? || doc->lastGlobalFont>??) nerr++;
-	//if (doc->firstMNNumber<?? || doc->firstMNNumber>??) nerr++;
+	if (doc->lastGlobalFont<FONT_THISITEMONLY || doc->lastGlobalFont>MAX_FONTSTYLENUM) nerr++;
+	if (doc->firstMNNumber<0 || doc->firstMNNumber>MAX_FIRSTMEASNUM) nerr++;
 	if (doc->nfontsUsed<1 || doc->nfontsUsed>MAX_SCOREFONTS) nerr++;
 	if (doc->magnify<MIN_MAGNIFY || doc->magnify>MAX_MAGNIFY) nerr++;
-	//if (doc->selStaff<?? || doc->selStaff>??) nerr++;
+	if (doc->selStaff<-1 || doc->selStaff>doc->nstaves) nerr++;
 	if (doc->currentSystem<1 || doc->currentSystem>doc->nsystems) nerr++;
-	//if (doc->spaceTable<?? || doc->spaceTable>??) nerr++;
+	if (doc->spaceTable<0 || doc->spaceTable>32767) nerr++;
 	if (doc->htight<MINSPACE || doc->htight>MAXSPACE) nerr++;
-	//if (doc->lookVoice<?? || doc->lookVoice>??) nerr++;
+	if (doc->lookVoice<-1 || doc->lookVoice>MAXVOICES) nerr++;
 	if (doc->ledgerYSp<0 || doc->ledgerYSp>40) nerr++;
 	if (doc->deflamTime<1 || doc->deflamTime>1000) nerr++;
-	if (doc->firstIndent<0 || doc->firstIndent>in2d(5)) nerr++;
+	if (doc->dIndentFirst<0 || doc->dIndentFirst>in2d(5)) nerr++;
 	
 	return nerr;
 }
 
 
 /* -------------------------------------------------------------------------- OpenFile -- */
-
-/*	Open and read in the specified file. If there's an error, normally (see comments in
+/* Open and read in the specified file. If there's an error, normally (see comments in
 OpenError) gives an error message, and returns <errCode>; else returns noErr (0). Also
 sets *fileVersion to the Nightingale version that created the file. FIXME: even though
 vRefNum is a parameter, (routines called by) OpenFile assume the volume is already set!
@@ -1475,6 +1486,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		goto Error;
 	}
 	
+DisplayScoreHdr(doc);		// ??TEMP!!!!
 	EndianFixScoreHdr(doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(doc);
 	LogPrintf(LOG_NOTICE, "Checking Score header: ");

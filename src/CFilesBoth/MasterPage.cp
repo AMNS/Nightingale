@@ -137,7 +137,7 @@ static void UpdateSystemRects(Document *doc, LINK sysL)
 	DDIST sysLeft; PSYSTEM pSystem; short dv;
 
 	/* Update the system left. */
-	sysLeft = MARGLEFT(doc) + doc->otherIndent;
+	sysLeft = MARGLEFT(doc) + doc->dIndentOther;
 	pSystem = GetPSYSTEM(sysL);
 	pSystem->systemRect.left = sysLeft;
 	
@@ -346,7 +346,7 @@ static void MPFixSystemRectXs(Document *doc)
 			
 			if (firstSys) {
 				pSystem = GetPSYSTEM(sysL);
-				pSystem->systemRect.left += (doc->firstIndentMP-doc->otherIndentMP);
+				pSystem->systemRect.left += (doc->dIndentFirstMP-doc->dIndentOtherMP);
 				firstSys = False;
 			}
 		}
@@ -469,9 +469,9 @@ static void SetStaffLinesMP(Document *doc)
 static void ConformLeftEnds(Document *doc)
 {
 	doc->firstNames = doc->firstNamesMP;
-	doc->firstIndent = doc->firstIndentMP;
+	doc->dIndentFirst = doc->dIndentFirstMP;
 	doc->otherNames = doc->otherNamesMP;
-	doc->otherIndent = doc->otherIndentMP;
+	doc->dIndentOther = doc->dIndentOtherMP;
 }
 
 
@@ -892,9 +892,9 @@ void ImportMasterPage(Document *doc)
 	doc->srastralMP = doc->srastral;
 
 	doc->firstNamesMP = doc->firstNames;
-	doc->firstIndentMP = doc->firstIndent;
+	doc->dIndentFirstMP = doc->dIndentFirst;
 	doc->otherNamesMP = doc->otherNames;
-	doc->otherIndentMP = doc->otherIndent;
+	doc->dIndentOtherMP = doc->dIndentOther;
 	doc->oldSelStartL = doc->selStartL;
 	doc->oldSelEndL = doc->selEndL;
 
@@ -1338,7 +1338,7 @@ static LINK MakeNewSystem(Document *doc, LINK qL, LINK qPageL, DDIST sysTop)
 	
 	pL = InsertNode(doc, RightLINK(qL), SYSTEMtype, 0);
 	if (pL) {
-		sysLeft = MARGLEFT(doc)+doc->otherIndent;
+		sysLeft = MARGLEFT(doc)+doc->dIndentOther;
 		SetObject(pL, sysLeft, sysTop, False, True, True);
 		LinkTWEAKED(pL) = False;
 		
@@ -1382,11 +1382,11 @@ static LINK MakeNewStaff(Document *doc, LINK qL, LINK qSystemL, DDIST sysTop)
 	MPinitStfTop1 = (short)(MPledgerYSp*drSize[doc->srastral]/STFHALFLNS);
 	MPinitStfTop2 = (short)(2.5*drSize[doc->srastral]);
 
-	staffLength = MARGWIDTH(doc)-doc->otherIndent;
+	staffLength = MARGWIDTH(doc)-doc->dIndentOther;
 	sysHeight = MEAS_BOTTOM(MPinitStfTop1+MPinitStfTop2, STHEIGHT);
 
 	qSystem = GetPSYSTEM(qSystemL);
-	indent = doc->otherIndent;
+	indent = doc->dIndentOther;
 	SetDRect(&qSystem->systemRect, MARGLEFT(doc)+indent, sysTop,
 			MARGLEFT(doc)+indent+staffLength, sysTop+sysHeight);
 

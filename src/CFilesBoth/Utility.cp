@@ -19,8 +19,9 @@
 		AllocContext			AllocSpTimeInfo			NewGrafPort
 		DisposGrafPort			SamePoint
 		D2Rect					Rect2D					PtRect2D
-		AddDPt					SetDPt					SetDRect
-		OffsetDRect				InsetDRect				DMoveTo
+		SetDRect				OffsetDRect				InsetDRect
+		SetDPt					OffsetDPt
+		DMoveTo
 		GCD						RoundDouble				RoundSignedInt
 		InterpY					FindIntInString			ShellSort
 		BlockCompare			RelIndexToSize			GetTextSize
@@ -37,7 +38,7 @@
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2017 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
  
 #include "Nightingale_Prefix.pch"
@@ -842,7 +843,9 @@ void LogPixMapInfo(char *name, PixMapPtr aPixMap, long len)
 		aPixMap->pmVersion, len, MemBitCount((unsigned char *)aPixMap->baseAddr, len));
 }
 
+
 /* ------------------------------------------------------------- D2Rect, Rect/PtRect2D -- */
+
 /* Convert DRect to Rect in pixels */
 
 void D2Rect(DRect *dRect, Rect *rRect)
@@ -874,26 +877,6 @@ void PtRect2D(Rect *rRect, DRect *dRect)
 }
 
 
-/* ---------------------------------------------------------------------------- AddDPt -- */
-/* Add DPoint <src> to <*dest>. */
-
-void AddDPt(DPoint src, DPoint *dest)
-{
-	dest->h += src.h;
-	dest->v += src.v;
-}
-
-
-/* ---------------------------------------------------------------------------- SetDPt -- */
-/* Initialize a DPoint with the given DDIST coordinates */
-
-void SetDPt(DPoint *dPoint, DDIST dx, DDIST dy)
-{
-	dPoint->h = dx;
-	dPoint->v = dy;
-}
-
-
 /* -------------------------------------------------------------------------- SetDRect -- */
 /* Initialize a DRect with the given DDIST coordinates */
 
@@ -906,8 +889,9 @@ void SetDRect(DRect *dRect, DDIST dLeft, DDIST dTop, DDIST dRight, DDIST dBottom
 }
 
 
-/* ----------------------------------------------------------------------- OffsetDRect -- */
-/* Offset a DRect by the specified DDIST amounts */
+/* ----------------------------------------------------------- OffsetDRect, InsetDRect -- */
+
+/* Offset (move) a DRect by the specified DDIST amounts */
 
 void OffsetDRect(DRect *dRect, DDIST dx, DDIST dy)
 {
@@ -918,7 +902,6 @@ void OffsetDRect(DRect *dRect, DDIST dx, DDIST dy)
 }
 
 
-/* ------------------------------------------------------------------------ InsetDRect -- */
 /* Inset a DRect by the specified DDIST amounts */
 
 void InsetDRect(DRect *dRect, DDIST dx, DDIST dy)
@@ -927,6 +910,38 @@ void InsetDRect(DRect *dRect, DDIST dx, DDIST dy)
 	dRect->left += dx;
 	dRect->bottom -= dy;
 	dRect->right -= dx;
+}
+
+
+/* ----------------------------------------------------------------------- RectIsValid -- */
+
+Boolean RectIsValid(Rect aRect, short legalMin, short legalMax)
+{
+	if (aRect.top<legalMin || aRect.top>legalMax) return False;
+	if (aRect.left<legalMin || aRect.top>legalMax) return False;
+	if (aRect.bottom<legalMin || aRect.top>legalMax) return False;
+	if (aRect.right<legalMin || aRect.top>legalMax) return False;
+	
+	return True;
+}
+
+
+/* ---------------------------------------------------------------------------- Points -- */
+
+/* Initialize a DPoint with the given DDIST coordinates */
+
+void SetDPt(DPoint *dPoint, DDIST dx, DDIST dy)
+{
+	dPoint->h = dx;
+	dPoint->v = dy;
+}
+
+/* Offset (move) DPoint <*dest> by <src> */
+
+void OffsetDPt(DPoint src, DPoint *dest)
+{
+	dest->h += src.h;
+	dest->v += src.v;
 }
 
 
@@ -940,7 +955,7 @@ void DMoveTo(DDIST xd, DDIST yd)
 
 
 /* ------------------------------------------------------------------------------- GCD -- */
-/* Euclid's algorithm for GCD of two integers, from Knuth, The Art of Computer
+/* Euclid's algorithm to find the GCD of two integers. From Knuth, The Art of Computer
 Programming, v. 1, p. 2. */
 
 short GCD(short m, short n)
@@ -1010,8 +1025,8 @@ short InterpY(short x0, short y0, short x1, short y1, short ptx)
 }
 
 /* ------------------------------------------------------------------- FindIntInString -- */
-/* Find the first recognizable unsigned (long) integer, simply a string of digits,
-in the given string. If the string contains no digits, return -1. */
+/* Find the first recognizable unsigned (long) integer, simply a string of digits, in
+the given string. If the string contains no digits, return -1. */
 
 long FindIntInString(unsigned char *string)
 {
@@ -1038,7 +1053,7 @@ long FindIntInString(unsigned char *string)
 
 /* -------------------------------------------------------------------------- ShellSort -- */
 /* ShellSort does a Shell (diminishing increment) sort on the given array, putting
-it into ascending order. Intended for use on at most a few hundred elements. The
+it into ascending order. Intended for use on at most a few thousand elements. The
 increments we use are powers of 2, which does not give the fastest possible execution,
 but the difference should be negligible for such small arrays. See Knuth, The Art of
 Computer Programming, vol. 2, pp. 84-95. */

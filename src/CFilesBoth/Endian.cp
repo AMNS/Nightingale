@@ -20,6 +20,8 @@ immediately before saving them them to ensure they're saved in Big Endian form. 
 
 #include "Nightingale.appl.h"
 
+/* ---------------------------------------------------- Utilities for Endian functions -- */
+
 void EndianFixRect(Rect *pRect)
 {
 	FIX_END(pRect->top);	FIX_END(pRect->left);
@@ -31,6 +33,16 @@ void EndianFixPoint(Point *pPoint)
 	FIX_END(pPoint->v);
 	FIX_END(pPoint->h);
 }
+
+unsigned short EndianFix_13BitField(unsigned short value);
+unsigned short EndianFix_13BitField(unsigned short value)
+{
+	unsigned short temp = value;
+	FIX_END(temp);
+	return temp;
+}
+
+/* ------------------------------------------------------------------ Endian functions -- */
 
 void EndianFixConfig()
 {
@@ -150,6 +162,7 @@ void EndianFixDocumentHdr(Document *doc)
 
 void EndianFixScoreHdr(Document *doc)
 {
+#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 	FIX_END(doc->nstaves);
 	FIX_END(doc->nsystems);
 	FIX_END(doc->spacePercent);
@@ -160,7 +173,10 @@ void EndianFixScoreHdr(Document *doc)
 	FIX_END(doc->velocity);
 	FIX_ULONG_END(doc->headerStrOffset);
 	FIX_ULONG_END(doc->footerStrOffset);
-	FIX_END(doc->otherIndent);
+	FIX_END(doc->dIndentOther);
+LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMNNumber);
+	doc->firstMNNumber = EndianFix_13BitField(doc->firstMNNumber);	/* Special treatment for bitfield */
+LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMNNumber);
 	FIX_END(doc->nfontsUsed);
 	FIX_END(doc->magnify);
 	FIX_END(doc->selStaff);
@@ -168,11 +184,13 @@ void EndianFixScoreHdr(Document *doc)
 	FIX_END(doc->htight);
 	FIX_END(doc->ledgerYSp);
 	FIX_END(doc->deflamTime);
-	FIX_END(doc->firstIndent);
+	FIX_END(doc->dIndentFirst);
+#endif
 }
 
 void EndianFixHeapHdr(Document *doc, HEAP *heap)
 {
+#if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
 //		Handle block;
 //		short objSize;
 //		short type;
@@ -187,28 +205,6 @@ void EndianFixHeapHdr(Document *doc, HEAP *heap)
 	FIX_USHRT_END(heap->nObjs);
 	FIX_USHRT_END(heap->nFree);
 	FIX_END(heap->lockLevel);	
-}
-
-/* If we're running on a Little Endian processor (very likely Intel or Intel-compatible),
-reorder bytes to give the Big Endian result C expects. If we're on a Big Endian processor
-(probably PowerPC), do nothing. Cf. our FIX_END and related macros. */
-
-void FixEndian2(unsigned short *arg)
-{
-#if TARGET_RT_LITTLE_ENDIAN
-	*arg = CFSwapInt16BigToHost(*arg);
-	return;
-#else
-	return;
 #endif
 }
 
-void FixEndian4(unsigned long *arg)
-{
-#if TARGET_RT_LITTLE_ENDIAN
-	*arg = CFSwapInt32BigToHost(*arg);
-	return;
-#else
-	return;
-#endif
-}

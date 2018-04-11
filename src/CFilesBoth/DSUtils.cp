@@ -3145,8 +3145,8 @@ Boolean IsNeighborhoodMultiVoice(LINK syncL, short staff, short voice)
 	}
 	else {
 		/* Criterion #2 */
-LogPrintf(LOG_DEBUG, "IsNeighborhoodMultiVoice #2: syncL=%u staff=%d voice=%d\n",
-			syncL, staff, voice);
+//LogPrintf(LOG_DEBUG, "IsNeighborhoodMultiVoice #2: syncL=%u staff=%d voice=%d\n",
+//			syncL, staff, voice);
 		if (IsSyncMultiVoice(syncL, staff)) return True;
 		lSyncL = LSSearch(LeftLINK(syncL), SYNCtype, staff, GO_LEFT, False);
 		if (lSyncL && IsSyncMultiVoice(lSyncL, staff)) return True;
@@ -3154,8 +3154,8 @@ LogPrintf(LOG_DEBUG, "IsNeighborhoodMultiVoice #2: syncL=%u staff=%d voice=%d\n"
 		if (rSyncL && IsSyncMultiVoice(rSyncL, staff)) return True;		
 
 		/* Criterion #3 */
-LogPrintf(LOG_DEBUG, "IsNeighborhoodMultiVoice #3: syncL=%u staff=%d voice=%d\n",
-			syncL, staff, voice);
+//LogPrintf(LOG_DEBUG, "IsNeighborhoodMultiVoice #3: syncL=%u staff=%d voice=%d\n",
+//			syncL, staff, voice);
 		lSyncL = LVSearch(LeftLINK(syncL), SYNCtype, voice, GO_LEFT, False);
 		if (lSyncL && IsSyncMultiVoice(lSyncL, staff)) return True;
 		rSyncL = LVSearch(RightLINK(syncL), SYNCtype, voice, GO_RIGHT, False);

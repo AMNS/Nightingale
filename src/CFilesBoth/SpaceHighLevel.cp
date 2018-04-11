@@ -1034,9 +1034,9 @@ static short CountRespMeas(
 	measL = startMeasL;
 	for ( ; measL && measL!=LinkRMEAS(endMeasL); measL=LinkRMEAS(measL)) mindex++;
 
-	if (mindex>=MAX_MEASURES) {
+	if (mindex>=MAX_RSP_MEASURES) {
 		GetIndCString(fmtStr, MISCERRS_STRS, 8);		/* "Tried to respace %d measures at once, but..." */
-		sprintf(strBuf, fmtStr, mindex, MAX_MEASURES);
+		sprintf(strBuf, fmtStr, mindex, MAX_RSP_MEASURES);
 		CParamText(strBuf, "", "", "");
 		StopInform(GENERIC_ALRT);
 	}
@@ -1374,7 +1374,7 @@ Boolean RespaceBars(
 	if (endL==startBarL || IsAfter(endL, startBarL)) return False;
 	endBarL = EndMeasSearch(doc, LeftLINK(endL));
 
-	rmTable = (RMEASDATA *)NewPtr(MAX_MEASURES*sizeof(RMEASDATA));
+	rmTable = (RMEASDATA *)NewPtr(MAX_RSP_MEASURES*sizeof(RMEASDATA));
 	if (!GoodNewPtr((Ptr)rmTable)) { NoMoreMemory(); return False; }
 
 	if (command) {
@@ -1427,7 +1427,7 @@ Boolean RespaceBars(
 
 	GetRespaceParams(doc,startBarL,endBarL,&startSysBarL,&endSysBarL,
 													&endSysL,&spaceProp);
-	if (CountRespMeas(doc,startBarL,endSysBarL)>=MAX_MEASURES) goto Done;
+	if (CountRespMeas(doc,startBarL,endSysBarL)>=MAX_RSP_MEASURES) goto Done;
 
 	/*
 	 * Do the basic respacing. In case the user cancels, don't change anything but

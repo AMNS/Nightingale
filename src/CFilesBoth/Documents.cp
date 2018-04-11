@@ -915,9 +915,9 @@ Boolean BuildDocument(
 	 * structure is set up, so do something cruder.
 	 */
 	doc->firstNames = FULLNAMES;							/* 1st system: full part names */
-	doc->firstIndent = qd2d(config.indent1st, drSize[doc->srastral], STFLINES);
+	doc->dIndentFirst = qd2d(config.indent1st, drSize[doc->srastral], STFLINES);
 	doc->otherNames = NONAMES;								/* Other systems: no part names */
-	doc->otherIndent = 0;
+	doc->dIndentOther = 0;
 	
 	if (isNew) {
 		*fileVersion = THIS_VERSION;

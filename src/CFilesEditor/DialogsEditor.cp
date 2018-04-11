@@ -704,7 +704,7 @@ Boolean MeasNumDialog(Document *doc)
 						}
 						
 					if (!GetDlgWord(dlog, FIRSTMNUM_DI, &firstNumber)
-										|| firstNumber<0 || firstNumber>8000) {
+										|| firstNumber<0 || firstNumber>MAX_FIRSTMEASNUM) {
 						GetIndCString(strBuf, DIALOGERRS_STRS, 7);			/* "First measure number..." */
 						CParamText(strBuf, "", "", "");
 						StopInform(GENERIC_ALRT);

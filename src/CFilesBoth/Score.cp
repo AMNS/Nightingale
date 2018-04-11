@@ -632,13 +632,12 @@ Boolean FixSysMeasRectXs(LINK sysL)
 }
 
 /* -------------------------------------------------------------------- SetStaffLength -- */
-/* Update the object list appropriately for the new staff length.  If there's
-any content in the score, it's dangerous to let this routine decrease the width
-of the Systems, since it doesn't worry about redoing System breaks and so on.
-All it does is change the Page width in the header (since for now we have a
-fixed right margin width), the systemRect.right in each System, the staff width
-in each Staff subobject, and the measure width in every Measure subobject that
-ends a System. */
+/* Update the object list appropriately for the new staff length.  If there's any
+content in the score, it's dangerous to let this routine decrease the width of the
+Systems, since it doesn't worry about redoing System breaks and so on. All it does
+is change the Page width in the header (since for now we have a fixed right margin
+width), the systemRect.right in each System, the staff width in each Staff subobject,
+and the measure width in every Measure subobject that ends a System. */
  
 void SetStaffLength(Document *doc, short staffLength)
 {
@@ -648,14 +647,14 @@ void SetStaffLength(Document *doc, short staffLength)
 	LINK		pL, pMeasL, aStaffL, aMeasureL;
 	DDIST		dStaffLength;
 
-	dStaffLength = pt2d(staffLength)-doc->firstIndent;			/* For first System only */
+	dStaffLength = pt2d(staffLength)-doc->dIndentFirst;					/* For first System only */
 	
 	for (pL = doc->headL; pL!=doc->tailL; pL = RightLINK(pL))
 		switch (ObjLType(pL)) {
 			case SYSTEMtype:
 				pSys = GetPSYSTEM(pL);
 				if (pSys->systemNum>1)
-					dStaffLength = pt2d(staffLength)-doc->otherIndent;	/* For all other Systems */
+					dStaffLength = pt2d(staffLength)-doc->dIndentOther;	/* For all other Systems */
 				pSys->systemRect.right = pSys->systemRect.left+dStaffLength;
 				break;
 			case STAFFtype:
@@ -1216,12 +1215,12 @@ LINK MakeSystem(Document *doc, LINK prevL, LINK prevPageL, LINK prevSysL, DDIST 
 	SysPAGE(pL) = prevPageL;
 
 	if (where==FirstSystem || where==BeforeFirstSys) {
-		indent = doc->firstIndent;
-		staffLength = MARGWIDTH(doc)-doc->firstIndent;
+		indent = doc->dIndentFirst;
+		staffLength = MARGWIDTH(doc) - doc->dIndentFirst;
 	}
 	else {
-		indent = doc->otherIndent;
-		staffLength = MARGWIDTH(doc)-doc->otherIndent;
+		indent = doc->dIndentOther;
+		staffLength = MARGWIDTH(doc) - doc->dIndentOther;
 	}
 	sysHeight = GetSysHeight(doc,pL,where);
 
@@ -1554,7 +1553,7 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 
 	aMeasureL = FirstSubLINK(pL);
 	if (where==FirstSystem) {
-		staffLength = MARGWIDTH(doc)-doc->firstIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentFirst;
 		InitMeasure(aMeasureL, 1, pt2d(0), pt2d(0), staffLength-LinkXD(pL),
 									initStfTop1+initStfTop2, False, False, 2, 0);
 		aMeasureL = NextMEASUREL(aMeasureL);
@@ -1562,7 +1561,7 @@ LINK MakeMeasure(Document *doc, LINK prevL, LINK prevMeasL, LINK staffL, LINK sy
 									sysHeight, False, True, 0, 0);
 	}
 	else {
-		staffLength = MARGWIDTH(doc)-doc->otherIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentOther;
 		for (i = 1; i<=doc->nstaves; i++, aMeasureL=NextMEASUREL(aMeasureL)) {
 
 			partL=FirstSubLINK(doc->headL);
@@ -1711,14 +1710,14 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 
 	if (where==FirstSystem) {
 		qSystemL = qStaffL = qMeasureL = qConnectL = NILINK;
-		staffLength = MARGWIDTH(doc)-doc->firstIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentFirst;
 		doc->nstaves = 2;
 		doc->nsystems = 1;
 		InitParts(doc, False);
 	}
 	else if (where==BeforeFirstSys) {
 		qSystemL = qStaffL = qMeasureL = qConnectL = NILINK;
-		staffLength = MARGWIDTH(doc)-doc->firstIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentFirst;
 		FillStaffTopArray(doc, doc->headL, staffTop);
 		doc->nsystems++;
 	}
@@ -1727,7 +1726,7 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 		qStaffL = LSSearch(prevL, STAFFtype, ANYONE, True, False);
 		qMeasureL = LSSearch(prevL, MEASUREtype, ANYONE, True, False);
 		qConnectL = LSSearch(prevL, CONNECTtype, ANYONE, True, False);
-		staffLength = MARGWIDTH(doc)-doc->otherIndent;
+		staffLength = MARGWIDTH(doc)-doc->dIndentOther;
 		FillStaffTopArray(doc, doc->headL, staffTop);
 		doc->nsystems++;
 	}
@@ -1810,7 +1809,7 @@ LINK CreateSystem(Document *doc, LINK prevL, DDIST sysTop, short where)
 		InitObject(doc->tailL, pL, NILINK, 0xFFFF, 0, False, False, True);	/* xd will be set by UpdateTailxd */
 	
 	if (where==BeforeFirstSys) 
-		(void)ChangeSysIndent(doc, LinkRSYS(systemL), -doc->firstIndent);
+		(void)ChangeSysIndent(doc, LinkRSYS(systemL), -doc->dIndentFirst);
 	
 	CreateSysFixContext(doc, staffL, pL, where);
 	

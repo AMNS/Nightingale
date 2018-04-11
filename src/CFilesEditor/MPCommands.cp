@@ -744,18 +744,17 @@ static void InsertPartMP(Document *doc,
 		initStfTop1 = (short)(doc->ledgerYSp*drSize[doc->srastralMP]/STFHALFLNS);
 		
 		newPos = 0;
-		noParts = True;					/* Means there were originally no parts */
+		noParts = True;								/* Means there were originally no parts */
 		stfHeight1 = drSize[doc->srastralMP];
 		stfHeight = (5*stfHeight1/2);
 		stfLeft = 0;
-		stfRight = pt2d(doc->marginRect.right-doc->marginRect.left-doc->otherIndentMP);
+		stfRight = pt2d(doc->marginRect.right-doc->marginRect.left-doc->dIndentOtherMP);
 		doc->staffTopMP[1] = initStfTop1;
 	}
 
-	/* Allocate a list of staves and insert before <aStaffL>, the staff subobj
-		at the insertion point, or as the firstSubLINK, if there were previously
-		no staves. Increment the staff obj nEntries, and initialize the added
-		list of staves. */
+	/* Allocate a list of staves and insert before <aStaffL>, the staff subobj at the
+	   insertion point, or as the firstSubLINK, if there were previously no staves.
+	   Increment the staff obj nEntries, and initialize the added list of staves. */
 
 	stfList = HeapAlloc(STAFFheap,totalStaves);
 	if (!stfList) { NoMoreMemory(); return; }		/* ??not good--leaves doc in inconsistent state! */

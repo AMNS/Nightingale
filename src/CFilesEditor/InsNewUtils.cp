@@ -1,9 +1,9 @@
-/***************************************************************************
+/******************************************************************************************
 	FILE:	InsNewUtils.c
 	PROJ:	Nightingale
 	DESC:	Utility routines for low-level symbol insertion routines that
 			actually modify the data structures - MemMacroized version.
-/***************************************************************************/
+/******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -24,13 +24,13 @@
 #include "Nightingale.appl.h"
 
 
-/* ----------------------------------------------------- UpdateBFClef/KS/TSStaff -- */
-/* Keep the context fields in the staff object consistent with the context
-established by the BeforeFirstMeas objects. */
+/* ----------------------------------------------------------- UpdateBFClef/KS/TSStaff -- */
+/* Keep the context fields in the staff object consistent with the context established
+by the BeforeFirstMeas objects. */
 
 void UpdateBFClefStaff(LINK firstClefL, short staffn, short subtype)
 {
-	LINK staffL,aStaffL;
+	LINK staffL, aStaffL;
 
 	staffL = LSSearch(firstClefL,STAFFtype,ANYONE,GO_LEFT,False);
 	aStaffL = FirstSubLINK(staffL);
@@ -41,7 +41,7 @@ void UpdateBFClefStaff(LINK firstClefL, short staffn, short subtype)
 
 void UpdateBFKSStaff(LINK firstKSL, short staffn, KSINFO newKSInfo)
 {
-	LINK staffL,aStaffL;
+	LINK staffL, aStaffL;
 
 	staffL = LSSearch(firstKSL,STAFFtype,ANYONE,GO_LEFT,False);
 	aStaffL = FirstSubLINK(staffL);
@@ -54,7 +54,7 @@ void UpdateBFKSStaff(LINK firstKSL, short staffn, KSINFO newKSInfo)
 void UpdateBFTSStaff(LINK firstTSL, short staffn, short /*subType*/, short /*numerator*/,
 							short /*denominator*/)
 {
-	LINK staffL,aStaffL;
+	LINK staffL, aStaffL;
 
 	staffL = LSSearch(firstTSL,STAFFtype,ANYONE,GO_LEFT,False);
 	aStaffL = FirstSubLINK(staffL);
@@ -67,14 +67,14 @@ void UpdateBFTSStaff(LINK firstTSL, short staffn, short /*subType*/, short /*num
 }
 
 
-/* ----------------------------------------------------------------- ReplaceClef -- */
+/* ----------------------------------------------------------------------- ReplaceClef -- */
 /* Replace clef before first (with invisible barline) Measure. Return the first
 LINK after the range affected, i.e., the next clef change on the staff, if any. */
 
 LINK ReplaceClef(Document *doc, LINK firstClefL, short staffn, char subtype)
 {
-	LINK			aClefL,doneL;
-	char			oldClefType;
+	LINK	aClefL, doneL;
+	char	oldClefType;
 	
 	LinkSEL(firstClefL) = True;
 	ClefINMEAS(firstClefL) = False;
@@ -101,17 +101,17 @@ LINK ReplaceClef(Document *doc, LINK firstClefL, short staffn, char subtype)
 }
 
 
-/* --------------------------------------------------------------- ReplaceKeySig --- */
-/* Replace key signature before first (with invisible barline) Measure. Return
-the end of the range affected. */
+/* -------------------------------------------------------------------- ReplaceKeySig --- */
+/* Replace key signature before first (with invisible barline) Measure. Return the
+end of the range affected. */
 
 LINK ReplaceKeySig(Document *doc, LINK firstKeySigL,
 							short staffn,							/* Desired staff no., or ANYONE */
 							short sharpsOrFlats
 							)
 {
-	KSINFO		oldKSInfo,newKSInfo;
-	LINK			pL,endL,aKeySigL;
+	KSINFO	oldKSInfo,newKSInfo;
+	LINK	pL,endL,aKeySigL;
 	
 	LinkSEL(firstKeySigL) = True;
 	KeySigINMEAS(firstKeySigL) = False;
@@ -149,7 +149,7 @@ LINK ReplaceKeySig(Document *doc, LINK firstKeySigL,
 }
 
 
-/* ------------------------------------------------------------- ReplaceTimeSig --- */
+/* -------------------------------------------------------------------- ReplaceTimeSig -- */
 /* Replace time signature before first (with invisible barline) Measure */
 
 void ReplaceTimeSig(Document *doc,
@@ -160,8 +160,8 @@ void ReplaceTimeSig(Document *doc,
 							short denominator
 							)
 {
-	PTIMESIG		pTimeSig;
-	LINK			aTimeSigL;
+	PTIMESIG	pTimeSig;
+	LINK		aTimeSigL;
 	TSINFO		timeSigInfo;
 
 	pTimeSig = GetPTIMESIG(firstTimeSigL);
@@ -191,22 +191,22 @@ void ReplaceTimeSig(Document *doc,
 
 
 
-/* -------------------------------------- EnlargeResAreas and FixInitial functions -- */
-/* Enlarge all System reserved areas from <startL> through the System containing
-<endL>, inclusive, by <shift>. */
+/* ------------------------------------------ EnlargeResAreas and FixInitial functions -- */
+/* Enlarge all System reserved areas from <startL> through the System containing <endL>,
+inclusive, by <shift>. */
 
 static Boolean EnlargeResAreas(Document *, LINK, LINK, DDIST);
 static Boolean EnlargeResAreas(Document *doc, LINK startL, LINK endL, DDIST shift)
 {
-	LINK			pL,endSysL;
+	LINK	pL, endSysL;
 	
 	/* Get the measure which terminates the system containing endL. */
 	
 	endSysL = EndSystemSearch(doc, endL);
 
 	/* Move objects following startL in its "Measure" (normally a System's reserved 
-		area), and all following Measures till endSysL regardless of intervening
-		Systems or Pages, to right by <shift>. */
+	   area), and all following Measures till endSysL regardless of intervening
+	   Systems or Pages, to right by <shift>. */
 		
 	pL = MoveInMeasure(startL,endSysL,shift);
 	MoveAllMeasures(pL, endSysL, shift);
@@ -237,25 +237,25 @@ void FixInitialxds(Document *doc, LINK firstObjL, LINK endL, short type)
 }
 
 
-/* Expand or compress the space given to the initial keySig in one or more
-Systems. If the change of keySig is on all staves, simply move by the distance
-needed minus the space already available; else, move by the maximum distance
-needed by all keySigs on any individual staff minus the space available. */
+/* Expand or compress the space given to the initial keySig in one or more Systems.
+If the change of keySig is on all staves, simply move by the distance needed minus the
+space already available; else, move by the maximum distance needed by all keySigs on
+any individual staff minus the space available. */
 
 void FixInitialKSxds(
-						Document *doc,
-						LINK firstKeySigL,		/* the new initial keySig */
-						LINK endL,					/* end of the range affected */
-						short staffn				/* staff no. or ANYONE */
-						)
+					Document *doc,
+					LINK firstKeySigL,		/* the new initial keySig */
+					LINK endL,				/* end of the range affected */
+					short staffn			/* staff no. or ANYONE */
+					)
 {
-	DDIST 	needWidth,haveWidth,change;
-	LINK		rightL;
+	DDIST 	needWidth, haveWidth, change;
+	LINK	rightL;
 	
 	needWidth = GetKeySigWidth(doc,firstKeySigL,staffn);
 
-	/* Cannot use xd of any Graphic or other J_D symbol inserted between
-		keySig and timeSig. */
+	/* We cannot use xd of any Graphic or other J_D symbol inserted between keySig
+	   and timeSig. */
 
 	rightL = FirstValidxd(RightLINK(firstKeySigL),GO_RIGHT);
 	haveWidth = SysRelxd(rightL)-SysRelxd(firstKeySigL);
@@ -264,8 +264,8 @@ void FixInitialKSxds(
 }
 
 
-/* ---------------------------------------------------------------- CreateMeasure -- */
-/*	Add a Measure for all staves to the object list before the given link. Assumes
+/* --------------------------------------------------------------------- CreateMeasure -- */
+/* Add a Measure for all staves to the object list before the given link. Assumes
 there's already at least one Measure before the given link on its System. Makes no
 assumptions about user interface, e.g., whether or not it's being called in response
 to user explicitly inserting a barline. Returns link to the new Measure if it succeeds,
@@ -273,7 +273,7 @@ NILINK if anything goes wrong.
 
 NB: If the position of the new Measure is not yet known, using an arbitrary value for
 <xd> here could (in extreme cases) cause overflow of coords. of objects within the
-Measure, since they're relative to the Measure's position. It's better to pass a
+Measure, since they're relative to the Measure's position. It's safer to pass a
 negative value for <xd> (see below). */
 
 LINK CreateMeasure(register Document *doc,
@@ -317,11 +317,11 @@ PushLock(MEASUREheap);
 		nextMeasure->lMeasure = measureL;
 	}
 	tmpL = LSSearch(LeftLINK(measureL), SYSTEMtype, ANYONE,
-													GO_LEFT, False);			/* Must start search at left! */
+													GO_LEFT, False);	/* Must start search at left! */
 	pMeasure = GetPMEASURE(measureL);
 	pMeasure->systemL = tmpL;
 	tmpL = LSSearch(LeftLINK(measureL), STAFFtype, ANYONE,
-													GO_LEFT, False);			/* Must start search at left! */
+													GO_LEFT, False);	/* Must start search at left! */
 	pMeasure = GetPMEASURE(measureL);
 	pMeasure->staffL = tmpL;
 	SetRect(&pMeasure->measureBBox, 0, 0, 0, 0);						/* Must init. but will be computed when drawn */ 
@@ -343,7 +343,7 @@ PushLock(MEASUREheap);
 							MeasMEASURENUM(aprevMeasL)+1);
 
 		MeasSUBTYPE(aMeasureL) = symtable[sym].subtype;
-		MeasureSEL(aMeasureL) = True;											/* Select the subobj */
+		MeasureSEL(aMeasureL) = True;									/* Select the subobj */
 		MeasSOFT(aMeasureL) = False;
 		
 		/* Make xd relative to the previous Measure. */
@@ -357,8 +357,8 @@ PushLock(MEASUREheap);
 		FixMeasureContext(aMeasureL, &context);
 	}
 	
-	LinkVALID(prevMeasL) = LinkVALID(measureL) = False;			/* recalc measureBBox */
-	if (nextMeasureL)															/* these have new objRects */
+	LinkVALID(prevMeasL) = LinkVALID(measureL) = False;					/* recalc measureBBox */
+	if (nextMeasureL)													/* these have new objRects */
 		InvalRange(measureL, nextMeasureL);
 	else
 		InvalRange(measureL, doc->tailL);

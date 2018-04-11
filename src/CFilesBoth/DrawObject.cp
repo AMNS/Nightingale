@@ -18,7 +18,7 @@
 static void D2ObjRect(DRect *pdEnclBox, Rect *pobjRect);
 static void DrawPageNum(Document *, LINK, Rect *, PCONTEXT);
 static void DrawMeasNum(Document *, DDIST, DDIST, short, PCONTEXT);
-static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat);
+static void ShadeMeasureInRect(Rect *pMRect, PCONTEXT pContext, Pattern *shadePat);
 static void ShadeDurPblmMeasure(Document *, LINK, PCONTEXT);
 static void DrawPartName(Document *, LINK, short, SignedByte, DDIST, Rect *, CONTEXT []);
 static void DrawInstrInfo(Document *, short, Rect *, CONTEXT []);
@@ -634,20 +634,20 @@ PushLock(STAFFheap);
 						DrawInstrInfo(doc, staffn, paper, context);
 				}
 				else if (pSystem->systemNum==1)
-					DrawPartName(doc, pL, staffn, doc->firstNames, doc->firstIndent,
+					DrawPartName(doc, pL, staffn, doc->firstNames, doc->dIndentFirst,
 											paper, context);
 				else
-					DrawPartName(doc, pL, staffn, doc->otherNames, doc->otherIndent,
+					DrawPartName(doc, pL, staffn, doc->otherNames, doc->dIndentOther,
 											paper, context);
 				break;
 			case toPostScript:
 				if (doc->masterView)
 					;
 				else if (pSystem->systemNum==1)
-					DrawPartName(doc, pL, staffn, doc->firstNames, doc->firstIndent,
+					DrawPartName(doc, pL, staffn, doc->firstNames, doc->dIndentFirst,
 											paper, context);
 				else
-					DrawPartName(doc, pL, staffn, doc->otherNames, doc->otherIndent,
+					DrawPartName(doc, pL, staffn, doc->otherNames, doc->dIndentOther,
 											paper, context);
 				break;
 		}
@@ -1863,7 +1863,8 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 		theStrOffset = aGraphic->strOffset;
 		GetNFontInfo(fontID, fontSize, fontStyle, &fInfo);
 		dLineSp = pt2d(fInfo.ascent + fInfo.descent + fInfo.leading);
-		(void)GetGraphicOrTempoDrawInfo(doc, pL, GraphicFIRSTOBJ(pL), GraphicSTAFF(pL), &xd, &yd, &relContext);
+		(void)GetGraphicOrTempoDrawInfo(doc, pL, GraphicFIRSTOBJ(pL), GraphicSTAFF(pL),
+											&xd, &yd, &relContext);
 		Pstrcpy(str, (StringPtr)PCopy(theStrOffset));
 	}
 	else if (ObjLType(pL)==TEMPOtype) {
@@ -1883,7 +1884,7 @@ Boolean DrawTextBlock(Document *doc, DDIST xd, DDIST yd, LINK pL, PCONTEXT pCont
 		return False;
 	}
 	
-	switch (outputTo) { 
+	switch (outputTo) {
 		case toScreen:
 		case toBitmapPrint:
 		case toPICT:
@@ -2571,11 +2572,11 @@ static void DrawMeasNum(Document *doc, DDIST xdMN, DDIST ydMN, short measureNum,
 }
 
 
-/* --------------------------------------------------------------- ShadeDurPblmMeasure -- */
+/* --------------------------------------------------------------- Shade Measure areas -- */
 
-static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat)
+static void ShadeMeasureInRect(Rect *pMRect, PCONTEXT pContext, Pattern *shadePat)
 {
-	OffsetRect(pRect, pContext->paper.left, pContext->paper.top);
+	OffsetRect(pMRect, pContext->paper.left, pContext->paper.top);
 	/*
 	 * Indent shading area horizontally to avoid covering up the barlines,
 	 * and vertically to separate this measure from those in adjacent systems.
@@ -2583,10 +2584,10 @@ static void ShadeRect(Rect *pRect, PCONTEXT pContext, Pattern *shadePat)
 	 * it often makes the blinking caret almost invisible, so use our own
 	 * diagonal stripes.
 	 */
-	InsetRect(pRect, 1, 2);
+	InsetRect(pMRect, 1, 2);
 	PenPat(shadePat);
 	PenMode(patOr);
-	PaintRect(pRect);
+	PaintRect(pMRect);
 	PenNormal();
 }
 
@@ -2646,14 +2647,14 @@ static void ShadeDurPblmMeasure(Document *doc, LINK measureL, PCONTEXT pContext)
 					OffsetDRect(&mrect, xd, 0);
 					InsetDRect(&mrect, 0, pt2d(10));		/* Reduce ht of shading to emphasize staff */
 					DRect2ScreenRect(mrect, SystemRECT(sysL), doc->paperRect, &r);
-					ShadeRect(&r, pContext, &otherLtGray);
+					ShadeMeasureInRect(&r, pContext, &otherLtGray);
 				}
 			}
 		}
 		else {
 			p = GetPMEASURE(measureL);
 			r = p->measureBBox;
-			ShadeRect(&r, pContext, &diagonalLtGray);
+			ShadeMeasureInRect(&r, pContext, &diagonalLtGray);
 		}
 	}
 }
@@ -2806,6 +2807,7 @@ void DrawMEASURE(Document *doc, LINK pL, CONTEXT context[])
 	STFRANGE	stfRange = {0,0};
 	Point		enlarge = {0,0};
 
+//LogPrintf(LOG_DEBUG, "DrawMEASURE(%u)\n", pL);
 PushLock(OBJheap);
 PushLock(MEASUREheap);
 	p = GetPMEASURE(pL);
@@ -2896,12 +2898,12 @@ PushLock(MEASUREheap);
 						break;
 				}
 			}
-/*
- *	Measure numbers should be drawn regardless of whether the Measure is visible,
- *	i.e., whether the barline is drawn. The exact conditions are complex (must be
- *	a "real" measure, must be the top or bottom visible staff of the system, etc.),
- *	so ask a specialist function.
- */
+			
+			/* Measure numbers should be drawn regardless of whether the Measure is
+			   visible, i.e., whether the barline is drawn. The exact conditions are
+			   complex (must be a "real" measure, must be the top or bottom visible
+			   staff of the system, etc.), so ask a specialist function. */
+			   
 			if (ShouldDrawMeasNum(doc, pL, aMeasureL)) {
 				measureNum = aMeasure->measureNum+doc->firstMNNumber;
 				if (FirstMeasInSys(pL) && doc->sysFirstMN)
@@ -2927,38 +2929,43 @@ PushLock(MEASUREheap);
 		}
 	}
 	
-/* If this is the last measure of a system, just set its measureBBox to end exactly
- * at the end of the system. If in addition the previous measure ends at the same
- * point, this measure's width is zero, and we set its measureBBox to start at that
- * point as well.
- */
+	/* If this is the last measure of a system, just set its measureBBox to end exactly
+	   at the end of the system. If in addition the previous measure ends at the same
+	   point, this measure's width is zero, and we set its measureBBox to start at that
+	   point as well. */
+	   
 	if (recalc) {
 		if (LastMeasInSys(pL)) {
+//LogPrintf(LOG_DEBUG, "DrawMEASURE(%u): update measureBBox\n", pL);
 			/*  FIXME: This code seems way more complicated than it should be. */
-			LINK sysL; DRect sysDRect; short sysLeft, boxRight;
+			LINK sysL;  DRect sysDRect;  short sysLeft, boxRight;
 						
 			sysL = LSSearch(pL, SYSTEMtype, ANYONE, True, False);
 			sysDRect = SystemRECT(sysL);
 			sysLeft = d2pt(sysDRect.left);
 			boxRight = sysLeft+STAFF_LEN(doc);
 			if (LinkLSYS(sysL)==NILINK)
-				boxRight -= d2pt(doc->firstIndent);
+				boxRight -= d2pt(doc->dIndentFirst);
 			else
-				boxRight -= d2pt(doc->otherIndent);
+				boxRight -= d2pt(doc->dIndentOther);
 			p->measureBBox.right = UseMagnifiedSize(boxRight, doc->magnify);
+//LogPrintf(LOG_DEBUG, "DrawMEASURE(%u): 1 measureBBox.left=%d right=%d\n", pL,
+//p->measureBBox.left, p->measureBBox.right);
 			
 			prevL = LSSearch(LeftLINK(pL), MEASUREtype, ANYONE, GO_LEFT, False);
-			if (prevL) {
+			if (prevL && SameSystem(pL, prevL)) {
 				prevRight = MeasureBBOX(prevL).right;
 				if (prevRight==p->measureBBox.right)
 					p->measureBBox.left = p->measureBBox.right;
+//LogPrintf(LOG_DEBUG, "DrawMEASURE(%u): 2 measureBBox.left=%d right=%d\n", pL,
+//p->measureBBox.left, p->measureBBox.right);
 			}
 		}
 	}
 
-/* If we're showing measure duration problems, check whether this measure's notated
- * and actual durations agree, and if they don't, shade over the entire measure.
- */
+	/* If we're showing measure duration problems, check whether this measure's notated
+	   and actual durations agree, and if they don't, shade over the measure. */
+	   
 	if (doc->showDurProb)
 		ShadeDurPblmMeasure(doc, pL, lastContext);
 

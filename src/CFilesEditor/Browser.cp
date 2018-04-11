@@ -841,7 +841,7 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 					doc->ledgerYSp, doc->nFontRecords, doc->spacePercent);
 		DrawTextLine(s);
 		sprintf(s, "1stIndent=%d yBtwnSys=%d spTab=%d mag=%d",
-						doc->firstIndent, doc->yBetweenSys, doc->spaceTable,doc->magnify);
+						doc->dIndentFirst, doc->yBetweenSys, doc->spaceTable,doc->magnify);
 		DrawTextLine(s);
 		sprintf(s, "comment='%s'", doc->comment);
 		DrawTextLine(s);

@@ -1065,9 +1065,9 @@ void SetupClipDoc(Document *doc, Boolean updContext)
 	clipboard->yBetweenSys = doc->yBetweenSys;
 
 	clipboard->firstNames = NONAMES;							/* Show no part names */
-	clipboard->firstIndent = 0;
+	clipboard->dIndentFirst = 0;
 	clipboard->otherNames = NONAMES;							/* Show no part names */
-	clipboard->otherIndent = 0;
+	clipboard->dIndentOther = 0;
 	
 	clipboard->nonstdStfSizes = doc->nonstdStfSizes;
 
