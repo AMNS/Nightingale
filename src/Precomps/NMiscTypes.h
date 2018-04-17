@@ -280,7 +280,7 @@ typedef struct {
 	short		musicFontID;		/* S: Font ID of music font (0=use Sonata) */
 	short		numMasters;			/* S: Size of extra MasterPtr blocks */
 
-	SignedByte	indent1st;			/* G: Default 1st system indent (qtr-spaces) */
+	SignedByte	indentFirst;		/* G: Default 1st system indent (qtr-spaces) */
 	SignedByte	mbRestHeight;		/* G: In qtr-spaces: 2 for engraving, 4 for "manuscript" style */
 	short		chordSymMusSize;	/* G: Size of music chars. in chord syms. (% of text size) */
 	SignedByte	enclMargin;			/* G: Margin between text bboxes and enclosures (points) */

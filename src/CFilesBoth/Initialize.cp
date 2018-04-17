@@ -558,7 +558,7 @@ static void DisplayConfig()
 	
 	LogPrintf(LOG_INFO, "  (61)musicFontID=%d", config.musicFontID);
 	LogPrintf(LOG_INFO, "  (62)numMasters=%d", config.numMasters);
-	LogPrintf(LOG_INFO, "  (63)indent1st=%d", config.indent1st);
+	LogPrintf(LOG_INFO, "  (63)indentFirst=%d", config.indentFirst);
 	LogPrintf(LOG_INFO, "  (64)mbRestHeight=%d\n", config.mbRestHeight);
 	LogPrintf(LOG_INFO, "  (65)chordSymMusSize=%d", config.chordSymMusSize);
 
@@ -851,11 +851,11 @@ static Boolean CheckConfig()
 #define NUMMASTERS_DFLT 64
 	if (config.numMasters < 64) { config.numMasters = NUMMASTERS_DFLT; ERR(62); }
 	
-#define INDENT1ST_DFLT 47
+#define INDENT_FIRST_DFLT 47
 #define MBREST_HT_DFLT 2
 #define CHORDSYM_MUS_SIZE_DFLT 150
 #define ENCLMARGIN_DFLT 2
-	if (config.indent1st < 0) { config.indent1st = INDENT1ST_DFLT; ERR(63); }
+	if (config.indentFirst < 0) { config.indentFirst = INDENT_FIRST_DFLT; ERR(63); }
 	if (config.mbRestHeight < 1) { config.mbRestHeight = MBREST_HT_DFLT; ERR(64); }
 	if (config.chordSymMusSize < 20 || config.chordSymMusSize > 400) { config.chordSymMusSize = CHORDSYM_MUS_SIZE_DFLT; ERR(65); }
 	if (config.enclMargin < 0) { config.enclMargin = ENCLMARGIN_DFLT; ERR(66); }
@@ -1059,7 +1059,7 @@ static Boolean GetConfig()
 
 		config.numMasters = -1;
 		
-		config.indent1st = -1;
+		config.indentFirst = -1;
 		config.chordSymMusSize = 0;
 		config.fastScreenSlurs = 0;
 		config.legatoPct = -1;

@@ -2979,15 +2979,20 @@ EndianFixScoreHdr() calls exit() and quits because sizeof(something) is 1!?! ...
 
 More work on opening files on Intel processors, esp. EndianFixScoreHdr().
 
-Uh-oh. <firstMNNumber> is a 13-bit field; must do something special: write EndianFix_13BitField()
-& test with firstMNNumber = 259 => nope! #%^&*#$%*#)%#$%  It reads 259 = 0x103 as 124 = 0x7c !!
-Then it converts it -1024 = 0xfffffc00 -- garbage, of course; but how does it get 0x7c??
-This is looking really bad, since our objects and subobjects and jammed with bitfields!!
+Uh-oh. <firstMNNumber> is a 13-bit field, so we must do something special: write
+EndianFix_13BitField() & test with firstMNNumber = 259 => nope! #%^&*#$%*#)%#$%  It
+reads 259 = 0x103 as 124 = 0x7c !! Then it converts it -1024 = 0xfffffc00 -- garbage, of
+course; but how does it get 0x7c?? It's not just swapping the bytes of the <short> that
+<firstMNNumber> belongs to -- and Harbison & Steele's _C: A Reference Manual_ warns
+that bit fields are "likely to be nonportable". This is looking really bad, since our
+objects and subobjects and jammed with bit fields!!
 
-By far the most reasonable solution: a new file format, format "N106"! The Intel version of Ngale
-5.8 won't be able to open N105 or earlier files, but the PPC version will be able to open them
-& save them in the new format. This will also allow making some other desirable changes to files
-& to the object list: cf. NgaleFileFormatIdeas.txt.
+By far the most reasonable solution I can think of: a new file format, format "N106",
+that doesn't use bit fields at all! Or perhaps it still uses them, but far less than the
+current format, and only in very limited ways. The Intel version of Ngale 5.8 won't be
+able to open N105 or earlier files, but the PPC version will be able to open them & save
+them in the new format. This will also allow making some other desirable changes to
+files & to the object list: cf. NgaleFileFormatIdeas.txt.
 
 This is going to take awhile! TBContinued.
 

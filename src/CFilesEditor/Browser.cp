@@ -226,6 +226,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	else if (headL==doc->undo.headL) strcpy(objList, "Undo ");
 	
 	/* We support the "Go" button only if headL is the head of the main object list. */
+	
 	if (headL!=doc->headL) {
 		GetDialogItem(dlog, iGo, &itype, (Handle *)&tHdl, &tRect);
 		HiliteControl(tHdl, CTL_INACTIVE);
@@ -250,6 +251,7 @@ void Browser(Document *doc, LINK headL, LINK tailL)
 	
 	do {
 		/* If the desired thing has changed or, for Header, may have changed... */
+		
 		if (pL!=oldpL || index!=oldIndex
 		|| (ObjLType(pL)==HEADERtype && index<0 && showBPage!=oldShowBPage)) {
 		
@@ -533,11 +535,10 @@ static void SelSubObj(LINK pL, LINK subL)
 }
 
 /* ------------------------------------------------------------------- ChangeSelectObj -- */
-/* If mode is SMSelect, select pL and (if it has any subobjects) either the
-current one or all of them; if mode is SMDeselect, deselect pL and all of its
-subobjects, if it has any. This function is designed to handle anomalous
-situations resulting (most likely) from bugs in Nightingale, so it tries to
-work in the safest possible way. */
+/* If mode is SMSelect, select pL and (if it has any subobjects) either the current one
+or all of them; if mode is SMDeselect, deselect pL and all of its subobjects, if it has
+any. This function is designed to handle anomalous situations resulting (most likely)
+from bugs in Nightingale, so it tries to work in the safest possible way. */
 
 static void ChangeSelectObj(Document *doc, LINK pL,
 				short	index,		/* Index of subobject currently displayed */
@@ -652,6 +653,7 @@ void ShowObject(Document *doc, LINK pL, short index, Rect *pObjRect)
 		SetDRect(&systemRect, 0, 0, 0, 0);
 	
 	/* Get sheet this object is on so we can mark object's bounding box while browsing */
+	
 	pageL = pL;
 	while (pageL!=NILINK && ObjLType(pageL)!=PAGEtype) pageL = LeftLINK(pageL);
 	if (pageL)
@@ -840,7 +842,7 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 		sprintf(s, "ledgerYSp=%d nFontRecs=%d spPercent=%d",
 					doc->ledgerYSp, doc->nFontRecords, doc->spacePercent);
 		DrawTextLine(s);
-		sprintf(s, "1stIndent=%d yBtwnSys=%d spTab=%d mag=%d",
+		sprintf(s, "indentFirst=%d yBtwnSys=%d spTab=%d mag=%d",
 						doc->dIndentFirst, doc->yBetweenSys, doc->spaceTable,doc->magnify);
 		DrawTextLine(s);
 		sprintf(s, "comment='%s'", doc->comment);
@@ -849,27 +851,24 @@ void BrowseHeader(Document *doc, LINK pL, short index, Rect *pObjRect)
 						GetHandleSize((Handle)doc->stringPool), doc->nfontsUsed);
 		DrawTextLine(s);
 		
-	/* Show a max. of the first 10 fonts used because of dialog space limitations, but
-	 * actually, as of v. 99b6, that's all there can be anyway.
-	 */
+	/* Show at most the first 10 fonts used because of dialog space limitations. */
+	
 		for (i = 0; i<doc->nfontsUsed && i<=10; i++) {
 			Pstrcpy((StringPtr)string, (StringPtr)(doc->fontTable[i].fontName));
 			PToCString((StringPtr)string);
 			sprintf(s, "  (%d) name='%s' ID=%d", i, string, doc->fontTable[i].fontID);
 			DrawTextLine(s);
 		}
-		sprintf(s, "fmsInputDevice=%d",
-			doc->fmsInputDevice);
+		sprintf(s, "fmsInputDevice=%d", doc->fmsInputDevice);
 		DrawTextLine(s);
-		sprintf(s, "(matchType=%d name=%#s)",
-			doc->fmsInputDestination.basic.destinationType,
-			doc->fmsInputDestination.basic.name);
+		sprintf(s, "(matchType=%d name=%#s)", doc->fmsInputDestination.basic.destinationType,
+					doc->fmsInputDestination.basic.name);
 		DrawTextLine(s);
 		
 		sprintf(s, "---------- %d of %d ----------", index+1, LinkNENTRIES(pL));
 		DrawTextLine(s);
 	
-		if (index+1>LinkNENTRIES(pL)) return;			/* should never happen */
+		if (index+1>LinkNENTRIES(pL)) return;				/* should never happen */
 
 		for (i=0, qL=FirstSubLINK(pL); i<index; i++, qL=NextPARTINFOL(qL)) ;
 	
@@ -1277,6 +1276,7 @@ void BrowseMeasure(LINK pL, short index, Rect *pObjRect)
 	/* measSizeRect really just gives the width and height of the Measure; its top and
 	   left should always be 0. So we convert is horizontal coords. to System-relative,
 	   then to screen coordinates. */
+	
 	OffsetDRect(&measSizeRect, xd, 0);
 	DRect2ScreenRect(measSizeRect, systemRect, paperRect, pObjRect);
 	
@@ -2044,7 +2044,8 @@ void ShowContext(Document *doc)
 	
 	/* Though they're not part of the CONTEXT object, the current tempo is really part
 		of the context in the normal sense, and the last previous Graphic may well be
-		(e.g., if it's "solo", "pizz.", etc.) and both are worth showing. */
+		(e.g., if it's "solo", "pizz.", etc.); both are worth showing. */
+	
 	DrawTextLine("----------------------------");
 	tempoL = LSSearch(pL, TEMPOtype, ANYONE, GO_LEFT, False);
 	if (tempoL==NILINK) {

@@ -1271,7 +1271,7 @@ static Boolean BuildNLDoc(
 	   structure is set up, so do something cruder. */
 	   
 	doc->firstNames = NONAMES/*FULLNAMES*/;						/* 1st system: full part names */
-	doc->dIndentFirst = qd2d(config.indent1st, drSize[doc->srastral], STFLINES);
+	doc->dIndentFirst = qd2d(config.indentFirst, drSize[doc->srastral], STFLINES);
 	doc->otherNames = NONAMES;									/* Other systems: no part names */
 	doc->dIndentOther = 0;
 	

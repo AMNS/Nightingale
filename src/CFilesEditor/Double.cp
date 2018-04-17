@@ -291,13 +291,13 @@ short DblNewVoice(Document *, short [], short, short, Boolean);
 
 /* -------------------------------------------------------------------------------------- */
 
-/* Add a new voice number in the given part. Find the lowest user voice number
-that's higher than any used in the part, add an entry for it to <doc->voiceTab>,
-and return the equivalent internal voice number. */
+/* Add a new voice number in the given part. Find the lowest user voice number that's
+higher than any used in the part, add an entry for it to <doc->voiceTab>, and return the
+equivalent internal voice number. */
 
 short AssignNewVoice(Document *doc, LINK partL)
 {
-	short partn; short maxUVUsed, v, iVoice;
+	short partn;  short maxUVUsed, v, iVoice;
 	
 	partn = PartL2Partn(doc,partL);
 	maxUVUsed = -1;
@@ -318,7 +318,7 @@ short DblNewVoice(Document *doc, short vMap[],
 						Boolean sameRel		/* True=srcStf and dstStf are same staffn rel. to their parts */
 						)
 {
-	LINK srcPartL, dstPartL; short uV;
+	LINK srcPartL, dstPartL;  short uV;
 	
 	/* If the voice no. has already been mapped, use the mapping. */
 	
@@ -877,7 +877,7 @@ Search:
 
 /* Update Dynamic context on <dstStf> baseed on Dynamics in the selection range
 (whether actually selected or not) on that staff. Intended for use with Double().
-NB: Notes in the range in the original staff before the 1st Dynamic will have
+FIXME: Notes in the range in the original staff before the 1st Dynamic will have
 velocities based on the Dynamic in effect there, which is probably different from
 the Dynamic in effect at the beginning of the range in <dstStf>. This means that
 velocities of notes at the beginning of the range in <dstStf> won't be consistent

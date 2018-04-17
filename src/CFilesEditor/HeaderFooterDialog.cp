@@ -1,8 +1,7 @@
 /******************************************************************************************
 *	FILE:	HeaderFooterDialog.c
 *	PROJ:	Nightingale
-*	DESC:	Code for Header/footer dialog, which replaces the old Page Number
-*			dialog. Written by John Gibson.
+*	DESC:	Code for Header/footer dialog. Written by John Gibson.
 *******************************************************************************************/
 
 /*
@@ -45,7 +44,6 @@ static enum {
 	LAST_HIDEABLE_ITEM = PNHINT_DI
 } E_HeaderFooterItems;
 
-#define PAGENUM_CHAR '%'				/* FIXME: should use GetIndString((StringPtr)str, HEADERFOOTER_STRS, 3); */
 #define HEADERFOOTER_DELIM_CHAR	0x01
 #define MAX_HEADERFOOTER_STRLEN	253		/* 255 for Pascal string minus 2 delimiter chars */
 
@@ -58,10 +56,10 @@ static short okButFewerOptionsTop;
 
 
 /* ------------------------------------------------------------ GetHeaderFooterStrings -- */
-/* Unpack the header or footer string stored in the data structure, and parse it
-into left, center, and right strings.  <leftStr>, <centerStr>, and <rightStr> are
-Pascal strings allocated by the caller.  (The data structure's Pascal string has
-either zero chars, or exactly two delimiter chars with other chars interspersed.) */
+/* Unpack the header or footer string stored in the data structure, and parse it into
+left, center, and right strings.  <leftStr>, <centerStr>, and <rightStr> are Pascal
+strings allocated by the caller.  (The data structure's Pascal string should have either
+zero chars, or exactly two delimiter chars with other chars interspersed.) */
 
 Boolean GetHeaderFooterStrings(
 		Document	*doc,
@@ -74,15 +72,18 @@ Boolean GetHeaderFooterStrings(
 {
 	short			i, j, count;
 	StringPtr		pSrc, pDst;
-	Str31			pageNumStr;
+	Str31			pageNumStr, pageNumCharStr;
+	unsigned char	pageNumChar;
 	STRINGOFFSET	offset;
 	
 	leftStr[0] = centerStr[0] = rightStr[0] = 0;
 	
 	offset = (isHeader? doc->headerStrOffset : doc->footerStrOffset);
 	pSrc = PCopy(offset);
-	if (pSrc[0] == 0) return True;						/* not an error for string to be empty */
+	if (Pstrlen(pSrc) == 0) return True;					/* it's not an error for string to be empty */
 
+	GetIndString((StringPtr)pageNumCharStr, HEADERFOOTER_STRS, 3);
+	pageNumChar = pageNumCharStr[1];
 	if (usePageNum) NumToString(pageNum, pageNumStr);
 
 	pDst = leftStr;
@@ -96,9 +97,9 @@ Boolean GetHeaderFooterStrings(
 			else if (pDst == centerStr)
 				pDst = rightStr;
 			else
-				return False;							/* "can't happen" */
+				return False;								/* "should never happen */
 		}
-		else if (pSrc[i] == PAGENUM_CHAR && usePageNum) {
+		else if (usePageNum && pSrc[i] == pageNumChar) {
 			for (j = 1; j <= pageNumStr[0]; j++) {
 				count++;
 				pDst[count] = pageNumStr[j];
@@ -148,7 +149,7 @@ static Boolean StoreHeaderFooterStrings(
 	PStrCat(string, rightStr);
 //say("storing: %p\n", string);
 
-	/* Store in string pool. */
+	/* Store the strings in string pool. */
 	offset = (isHeader? doc->headerStrOffset : doc->footerStrOffset);
 	if (offset > 0)
 		newOffset = PReplace(offset, string);
@@ -357,17 +358,17 @@ Boolean HeaderFooterDialog(Document *doc)
 						|| !Pstreql(oldCenterFtrStr, centerFtrStr)
 						|| !Pstreql(oldRightFtrStr, rightFtrStr)) {
 					if (leftHdrStr[0]+centerHdrStr[0]+rightHdrStr[0] > MAX_HEADERFOOTER_STRLEN) {
-						char strBuf[256];
-						GetIndCString(strBuf, HEADERFOOTER_STRS, 4);	/* "The three header text boxes together must not..." */
-						CParamText(strBuf, "", "", "");
+						char stringBuf[256];
+						GetIndCString(stringBuf, HEADERFOOTER_STRS, 4);	/* "The three header text boxes together must not..." */
+						CParamText(stringBuf, "", "", "");
 						StopInform(GENERIC_ALRT);
 						SelectDialogItemText(dlog, HDRLEFT_DI, 0, ENDTEXT);
 						continue;
 					}
 					else if (leftFtrStr[0]+centerFtrStr[0]+rightFtrStr[0] > MAX_HEADERFOOTER_STRLEN) {
-						char strBuf[256];
-						GetIndCString(strBuf, HEADERFOOTER_STRS, 5);	/* "The three footer text boxes together must not..." */
-						CParamText(strBuf, "", "", "");
+						char stringBuf[256];
+						GetIndCString(stringBuf, HEADERFOOTER_STRS, 5);	/* "The three footer text boxes together must not..." */
+						CParamText(stringBuf, "", "", "");
 						StopInform(GENERIC_ALRT);
 						SelectDialogItemText(dlog, FTRLEFT_DI, 0, ENDTEXT);
 						continue;

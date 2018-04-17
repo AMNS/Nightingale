@@ -2234,3 +2234,11 @@ consistency, etc. Affects Defs.h, FileConversion.h, NLimits.h, NTypes.h, NMiscTy
 Utility.h; Browser, Clipboard, DelAddRedTimeSigs, DialogsEditor, Documents, DrawObject,
 DSUtils, Endian, Extract, File, Initialize, InsNewUtils, MasterPage, Menu, MPCommands,
 NotelistOpen, Reformat, Score, SpaceHighLevel, SysPageEdit, Utility.
+
+-------------------------------------------------------------------------------
+
+12 - 16 April
+
+Minor cleanup: improve appearance of Page Numbers/Headers/Footers/ dialog, etc. Affects
+NMiscTypes.h, .rsrc; Beam, Browser, Check, Documents, Double, HeaderFooterDialog,
+Initialize, NotelistOpen.

@@ -193,13 +193,13 @@ LINK Rebeam(Document *doc, LINK beamL)
 
 /* ------------------------------------------------------------------ GetBeamEndYStems -- */
 /* Get the slant to use when creating a beamset, and find the positions to use for the
-endpoints of stems beginning and ending the beam. Slope used is a percentage given
-by config.relBeamSlope of the angle from ystem of firstInBeam to ystem of
-lastInBeam. baseL is the bpSync whose ystem is the extreme stem in the direction
-of the beamset, and which is the base for computing stem positions; ystem is the
-ystem it will have in the beamset; *pFirstystem and *pLastystem are returned to be
-used to compute the stem ends of all the notes in the beamset. NB: Uses the staff
-height of the first note's staff. */
+endpoints of stems beginning and ending the beam. Slope used is a percentage given by
+config.relBeamSlope of the angle from ystem of firstInBeam to ystem of lastInBeam.
+baseL is the bpSync whose ystem is the extreme stem in the direction of the beamset,
+and which is the base for computing stem positions; ystem is the ystem it will have in
+the beamset; *pFirstystem and *pLastystem are returned to be used to compute the stem
+ends of all the notes in the beamset. NB: Uses the staff height of the first note's
+staff. */
 
 Boolean GetBeamEndYStems(
 				Document *doc, short nInBeam,
@@ -211,7 +211,7 @@ Boolean GetBeamEndYStems(
 				DDIST *pLastystem			/* Output */
 				)
 {
-	DDIST endDiff,firstystem1,lastystem1,baseLength,beamLength,yd;
+	DDIST endDiff, firstystem1, lastystem1, baseLength, beamLength, yd;
 	short staff;
 	FASTFLOAT fEndDiff, fSlope, fBaseScale, fBaseOffset;
 	CONTEXT context;
@@ -1092,8 +1092,8 @@ void FixBeamsOnStaff(Document *doc,
 		 firstBeamL = startL;											/* No beams before range on staff */
 	lastBeamL = LSSearch(endL, BEAMSETtype, staffn, GO_RIGHT, False);	/* 1st beam that's definitely NOT affected */
 
-LogPrintf(LOG_DEBUG, "FixBeamsOnStaff: startL=%u endL=%u staffn=%d firstBeamL=%u\n",
-			startL, endL, staffn, firstBeamL);
+//LogPrintf(LOG_DEBUG, "FixBeamsOnStaff: startL=%u endL=%u staffn=%d firstBeamL=%u\n",
+//			startL, endL, staffn, firstBeamL);
 	for (pL = firstBeamL; pL!=lastBeamL; pL=RightLINK(pL))
 		if (BeamsetTYPE(pL))
 			if (BeamSTAFF(pL)==staffn && (!needSelected || BeamHasSelNote(pL)))
@@ -1122,8 +1122,8 @@ void FixBeamsInVoice(Document *doc,
 		 firstBeamL = startL;											/* No beams before range on staff */
 	lastBeamL = LVSearch(endL, BEAMSETtype, voice, GO_RIGHT, False);	/* 1st beam that's definitely NOT affected */
 
-LogPrintf(LOG_DEBUG, "FixBeamsInVoice: startL=%u endL=%u voice=%d firstBeamL=%u\n",
-			startL, endL, voice, firstBeamL);
+//LogPrintf(LOG_DEBUG, "FixBeamsInVoice: startL=%u endL=%u voice=%d firstBeamL=%u\n",
+//			startL, endL, voice, firstBeamL);
 	for (pL = firstBeamL; pL!=lastBeamL; pL=RightLINK(pL))
 		if (BeamsetTYPE(pL))
 			if (BeamVOICE(pL)==voice && (!needSelected || BeamHasSelNote(pL)))
