@@ -18,7 +18,7 @@
 #include "CarbonPrinting.h"
 #include "MidiMap.h"
 
-/* Version code is 'N' followed by three digits, e.g., 'N09n': N-Zero-9-n */
+/* A version code is 'N' followed by three digits, e.g., 'N105': N-one-zero-five */
 static long	version;							/* File version code read/written */
 
 /* Prototypes for internal functions: */
@@ -175,11 +175,11 @@ static void GetPrintHandle(Document *doc, short /*vRefNum*/, FSSpec *pfsSpec)
 		short refnum;
 		OSStatus err = noErr;
 		
-		if (version<'N104' || THIS_VERSION<'N104') {
+		if (version<'N104' || THIS_FILE_VERSION<'N104') {
 			doc->flatFormatHandle = NULL;
 		}
 		else {
-			FSpOpenResFile(pfsSpec, fsRdWrPerm);	/* Open the file */	
+			FSpOpenResFile(pfsSpec, fsRdWrPerm);	/* Open the resource file */	
 			
 			err = ResError();
 			if (err==noErr) {
@@ -194,11 +194,11 @@ static void GetPrintHandle(Document *doc, short /*vRefNum*/, FSSpec *pfsSpec)
 			}
 		
 			doc->flatFormatHandle = (Handle)Get1Resource('PFMT', 128);
-			/*
-			 *	Ordinarily, we'd now call ReportBadResource, which checks if the new Handle
-			 * is NULL as well as checking ResError. But in this case, we don't want to report
-			 * an error if it's NULL--or do we?
-			 */
+			
+			/* Ordinarily, we'd now call ReportBadResource, which checks if the new Handle
+			   is NULL as well as checking ResError. But in this case, we don't want to report
+			   an error if it's NULL--or do we? */
+			   
 			err = ResError();
 			if (err==noErr) {
 				if (doc->flatFormatHandle) {
@@ -211,11 +211,11 @@ static void GetPrintHandle(Document *doc, short /*vRefNum*/, FSSpec *pfsSpec)
 				}
 			}
 			
-			// Close the res file we just opened
+			/* Close the resource file we just opened */
+			
 			CloseResFile(refnum);
 			
 			if (err == noErr) {				
-				// code to read the resource..
 				LoadAndUnflattenPageFormat(doc);
 			}
 			else {
@@ -242,7 +242,7 @@ static Boolean WritePrintHandle(Document *doc)
 	{
 		short err = noErr;
 		
-		if (THIS_VERSION<'N104') {
+		if (THIS_FILE_VERSION<'N104') {
 			// Nothing to write. We should never get here anyway.
 			doc->flatFormatHandle = NULL;
 			return True;
@@ -1432,7 +1432,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		GetIndCString(strBuf, FILEIO_STRS, 6);					/* "IGNORING FILE'S VERSION CODE!" */
 		CParamText(strBuf, "", "", "");
 		CautionInform(GENERIC_ALRT);
-		version = THIS_VERSION;
+		version = THIS_FILE_VERSION;
 	}
 
 	*fileVersion = version;
@@ -1441,9 +1441,9 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 			|| !isdigit(ACHAR(version,1))
 			|| !isdigit(ACHAR(version,0)) )
 		 { errCode = BAD_VERSION_ERR; goto Error; }
-	if (version<FIRST_VERSION) { errCode = LOW_VERSION_ERR; goto Error; }
-	if (version>THIS_VERSION) { errCode = HI_VERSION_ERR; goto Error; }
-	if (version!=THIS_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%T' FILE.\n", version);
+	if (version<FIRST_FILE_VERSION) { errCode = LOW_VERSION_ERR; goto Error; }
+	if (version>THIS_FILE_VERSION) { errCode = HI_VERSION_ERR; goto Error; }
+	if (version!=THIS_FILE_VERSION) LogPrintf(LOG_NOTICE, "CONVERTING VERSION '%T' FILE.\n", version);
 
 	count = sizeof(fileTime);									/* Time file was written */
 	errCode = FSRead(refNum, &count, &fileTime);
@@ -1486,7 +1486,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		goto Error;
 	}
 	
-DisplayScoreHdr(doc);		// ??TEMP!!!!
+DisplayScoreHdr(doc);		// ??TEMPORARY, TO DEBUG INTEL VERSION!!!!
 	EndianFixScoreHdr(doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(doc);
 	LogPrintf(LOG_NOTICE, "Checking Score header: ");
@@ -1919,7 +1919,7 @@ all, onto the current volume. If it cannot be saved safely, ask user what to do.
 static short GetSaveType(Document *doc, Boolean saveAs)
 {
 	Boolean canContinue;
-	long fileSize,freeSpace,oldFileSize,vAlBlkSize;
+	long fileSize, freeSpace, oldFileSize, vAlBlkSize;
 	
 	/* If doc->new, no previous document to protect from the save operation. If
 	   saveAs, the previous doc will not be replaced, but a new one will be created. */
@@ -1927,6 +1927,7 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 	if (doc->docNew || saveAs)
 		oldFileSize = 0L;
 	else {
+	
 		/* Get the amount of space physically allocated to the old file, and the
 		   amount of space available on doc's volume. Return value < 0 indicates
 		   FS Error: should forget safe saving. FIXME: GetOldFileSize() doesn't do a
@@ -1941,7 +1942,7 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 		}
 	}
 
-	freeSpace = GetFreeSpace(doc,&vAlBlkSize);
+	freeSpace = GetFreeSpace(doc, &vAlBlkSize);
 	if (freeSpace<0L) {
 		GetIndCString(strBuf, FILEIO_STRS, 14);			/* "Can't get the disk free space." */
 		CParamText(strBuf, "", "", "");
@@ -1949,12 +1950,12 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 		return AskSaveType(True);						/* Let them try to save on this vol. anyway */
 	}
 
-	fileSize = GetFileSize(doc,vAlBlkSize);
+	fileSize = GetFileSize(doc, vAlBlkSize);
 
-	/* If we have enough space to save safely, we're done (although, if the doc
-		is new or it's a Save As, we tell the caller they don't NEED to do a safe
-		save). If not, ask the user what to do. If canContinue, they can still
-		replace the previous file; otherwise, they can only Save As or Cancel. */
+	/* If we have enough space to save safely, we're done (although, if the doc is
+	   new or it's a Save As, we tell the caller they don't _need_ to do a safe save).
+	   If not, ask the user what to do. If canContinue, they can still replace the
+	   previous file; otherwise, they can only Save As or Cancel. */
 
 	if (fileSize <= freeSpace)
 		return ((doc->docNew || saveAs)? SF_Replace : SF_SafeSave);
@@ -1964,7 +1965,7 @@ static short GetSaveType(Document *doc, Boolean saveAs)
 }
 
 /* To avoid disasterous problems, mostly overwriting a valid file with a bad one, do
-any validity checks we want on the oc about tothe  be saved. Originally written to call
+any validity checks we want on the doc about to be saved. Originally written to call
 DCheckNEntries(), to check nEntries fields in object list, because of "Mackey's Disease",
 which made it impossible to open some saved files. */
 
@@ -1988,16 +1989,12 @@ static short WriteFile(Document *doc, short refNum)
 	long			omsDevSize, fmsDevHdr;
 	long			cmDevSize, cmHdr;
 
-	version = THIS_VERSION;										/* Write version code */
+	version = THIS_FILE_VERSION;								/* Write version code */
 	count = sizeof(version);
 	errCode = FSWrite(refNum, &count, &version);
 	if (errCode) return VERSIONobj;
 
 	GetDateTime(&fileTime);										/* Write current date and time */
-#define VERSION_KLUDGE
-#ifdef VERSION_KLUDGE
-	if (version=='N101') fileTime &= 0x7FFFFFFF;				/* Fake "sub-version" N101+1/2 */
-#endif
 	count = sizeof(fileTime);
 	errCode = FSWrite(refNum, &count, &fileTime);
 	if (errCode) return VERSIONobj;

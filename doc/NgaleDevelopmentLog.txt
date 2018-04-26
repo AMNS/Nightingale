@@ -2980,10 +2980,10 @@ EndianFixScoreHdr() calls exit() and quits because sizeof(something) is 1!?! ...
 More work on opening files on Intel processors, esp. EndianFixScoreHdr().
 
 Uh-oh. <firstMNNumber> is a 13-bit field, so we must do something special: write
-EndianFix_13BitField() & test with firstMNNumber = 259 => nope! #%^&*#$%*#)%#$%  It
-reads 259 = 0x103 as 124 = 0x7c !! Then it converts it -1024 = 0xfffffc00 -- garbage, of
-course; but how does it get 0x7c?? It's not just swapping the bytes of the <short> that
-<firstMNNumber> belongs to -- and Harbison & Steele's _C: A Reference Manual_ warns
+EndianFix_13BitField() & test with firstMNNumber = 259 => nope! #%^&*#$%*#)%#$%  Ngale
+reads in 259 = 0x103 as 124 = 0x7c !! Then it converts it -1024 = 0xfffffc00 -- garbage,
+of course; but how does it get 0x7c?? It's not just swapping the bytes of the <short>
+that <firstMNNumber> belongs to -- and Harbison & Steele's _C: A Reference Manual_ warns
 that bit fields are "likely to be nonportable". This is looking really bad, since our
 objects and subobjects and jammed with bit fields!!
 
@@ -3016,4 +3016,27 @@ end of the system, which is correct; the problem is measureBBox.left! Why? The c
 
 But the test for the previous measure ending at the same point doesn't consider the case
 where the previous measure is on the previous system! Fixed.
+
+-------------------------------------------------------------------------------
+
+21 April
+
+Doing more testing of how Ngale on Intel reads the 13-bit score header field 
+<firstMNNumber> before going ahead with the new file format plan...
+
+In files with the other three bits in the word (aboveMN, sysFirstMN, startMNPrint1) all
+set to 1, Ngale reads firstMNNumber of:
+	0x001 (1)    as  0x03c (60)
+	0x02a (42)   as  0x55c (1372)
+	0x07e (124)  as  0xf9c (3996)
+	0x07e (126)  as  0xfdc (4060)
+	0x07f (127)  as  0xffc (4092)
+	0x103 (259)  as  0x7c (124)
+
+Looks like the other three bits become these bits of firstMNNumber: 0x038; if so, the
+three missing bits of firstMNNumber must go into those flags! -- which makes sense.
+
+So I _could_ unscramble these fields, but I doubt it's worth the trouble. But almost
+all of Ngale's bit fields are less than 8 bits, so fit in a byte; maybe unscrambling
+them is practical?
 

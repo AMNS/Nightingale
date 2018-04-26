@@ -1,4 +1,9 @@
-/*	FileConversion.h - data structure elements for older file versions */
+/*	FileConversion.h - data structure elements for opening older file versions
+and converting them to the current format. This is mostly or entirely for handling
+files in format 'N102', but as of version 5.8b7, Nightingale doesn't handle formats
+that old, so this file could probably go away completely. However, it's likely we'll
+need something similar for converting 'N105' files to the upcoming 'N106'format, so
+keep this (#ifdef'd out)  for reference purposes. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -7,6 +12,8 @@
  *
  * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
  */
+
+#ifdef NOLONGER
 
 #define MAX_SCOREFONTS_N102		10
 #define MAX_COMMENT_LEN_N102	35
@@ -195,4 +202,7 @@ typedef struct {
 
 // MAS: reset alignment
 #pragma options align=reset
+
+#endif
+
 

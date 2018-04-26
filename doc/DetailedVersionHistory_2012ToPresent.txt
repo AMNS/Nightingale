@@ -2242,3 +2242,12 @@ NotelistOpen, Reformat, Score, SpaceHighLevel, SysPageEdit, Utility.
 Minor cleanup: improve appearance of Page Numbers/Headers/Footers/ dialog, etc. Affects
 NMiscTypes.h, .rsrc; Beam, Browser, Check, Documents, Double, HeaderFooterDialog,
 Initialize, NotelistOpen.
+
+-------------------------------------------------------------------------------
+
+18 - 25 April
+
+Minor cleanup: move a couple of MIDI-to-accidental functions to a new home, etc.
+Affects File.h, FileConversion.h, MIDIGeneral.h; AutoBeam, DelAddRedAccs, Documents,
+Endian, File, MidiMap, MIDIUtils, MiscUtils, NotelistOpen.
+

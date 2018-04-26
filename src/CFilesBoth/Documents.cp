@@ -231,7 +231,7 @@ void PositionWindow(WindowPtr w, Document *doc)
 //			box = (*paletteGlobals[TOOL_PALETTE])->paletteWindow->portRect;
 		palWidth = box.right - box.left;
 		palHeight = box.bottom - box.top;
-		/* Place new document window in non-conflicting position */
+		/* Place new document window in a non-conflicting position */
 		GetGlobalPort(w, &box);								/* Set bottom of window near screen bottom */
 		bounds = GetQDScreenBitsBounds();
 		if (box.left < bounds.left+4)
@@ -285,11 +285,11 @@ Document **pDoc)
 {
 	register WindowPtr w;  register Document *doc, *d;
 	short numNew;  long fileVersion;
-	static char ID = '0';
+	static char charZero = '0';
 	
 	*pDoc = NULL;
 	
-	/* If an existing file and already open, then just bring it to front */
+	/* If it's an existing file and already open, then just bring it to front */
 	
 	if (fileName) {
 		doc = AlreadyInUse(fileName, vRefNum, pfsSpec);
@@ -321,13 +321,16 @@ Document **pDoc)
 		}
 		 else {
 			doc->docNew = True;
-			/* Count number of new (untitled) documents on desktop */
+			
+			/* Count new (untitled) documents on desktop so we can give this one a new
+			   noconflicting name */
+			   
 			for (numNew=0, d=documentTable; d<topTable; d++)
 				if (d->inUse && d->docNew && d!=clipboard) numNew++;
 			GetIndString(tmpStr, MiscStringsID, 1);	/* Get "Untitled" */
 			Pstrcpy(doc->name, tmpStr);
 			*(doc->name + 1 + *(doc->name)) = '-';
-			*(doc->name + 2 + *(doc->name)) = ID + numNew;
+			*(doc->name + 2 + *(doc->name)) = charZero + numNew;
 			(*doc->name) += 2;
 			doc->vrefnum = 0;
 		}
@@ -342,8 +345,8 @@ Document **pDoc)
 			RecomputeView(doc);
 			SetControlValue(doc->hScroll, doc->origin.h);
 			SetControlValue(doc->vScroll, doc->origin.v);
-			if (fileVersion != THIS_VERSION) {
-				/* Append " (converted)" to its name and mark the document changed */
+			if (fileVersion != THIS_FILE_VERSION) {
+				/* Append " (converted)" to file's name and mark the document changed */
 				unsigned char str[64];
 				GetIndString(str, MiscStringsID, 5);
 				PStrCat(doc->name, str);
@@ -909,18 +912,17 @@ Boolean BuildDocument(
 	
 	doc->selStartL = doc->selEndL = doc->tailL;				/* Empty selection  */
 	
-	/*
-	 * Set part name showing and corresponding system indents. We'd like to use
-	 * PartNameMargin() to get the appropriate indents, but not enough of the data
-	 * structure is set up, so do something cruder.
-	 */
+	/* Set part name showing and corresponding system indents. We'd like to use
+	   PartNameMargin() to get the appropriate indents, but not enough of the data
+	   structure is set up, so do something cruder. */
+	
 	doc->firstNames = FULLNAMES;							/* 1st system: full part names */
 	doc->dIndentFirst = qd2d(config.indentFirst, drSize[doc->srastral], STFLINES);
 	doc->otherNames = NONAMES;								/* Other systems: no part names */
 	doc->dIndentOther = 0;
 	
 	if (isNew) {
-		*fileVersion = THIS_VERSION;
+		*fileVersion = THIS_FILE_VERSION;
 		NewDocScore(doc);									/* Set up initial staves, clefs, etc. */
 		doc->firstSheet = 0;
 		doc->currentSheet = 0;

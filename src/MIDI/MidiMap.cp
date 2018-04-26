@@ -240,16 +240,15 @@ void ReleaseMidiMapFSSpec(Document *doc)
 
 
 /* ----------------------------------------------------------------------- SaveMidiMap -- */
-/* Save the document's installed Midi Map.
- *	Return True if the operation succeeded, False if it failed. 
- */
+/* Save the document's installed Midi Map. Return True if the operation succeeded, False
+if it failed.  */
 
 Boolean SaveMidiMap(Document *doc)
 {
 	Boolean ok = True;
-	short refnum,err;
+	short refnum, err;
 	
-	if (THIS_VERSION < 'N105')  {
+	if (THIS_FILE_VERSION < 'N105')  {
 		doc->midiMapFSSpecHdl = NULL;
 		return True;
 	}
@@ -300,7 +299,7 @@ void GetMidiMap(Document *doc, FSSpec *pfsSpec)
 	short refnum;
 	OSStatus err = noErr;
 	
-	if (THIS_VERSION < 'N105')  {
+	if (THIS_FILE_VERSION < 'N105')  {
 		doc->midiMapFSSpecHdl = NULL;
 	}
 	else {

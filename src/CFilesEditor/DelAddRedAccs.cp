@@ -12,7 +12,7 @@
 #include "Nightingale.appl.h"
 
 
-/* -------------------------------------------------- DelNoteRedAcc,DelGRNoteRedAcc -- */
+/* ----------------------------------------------------- DelNoteRedAcc,DelGRNoteRedAcc -- */
 /* If the note's accidental is redundant, delete the accidental. */
 
 Boolean DelNoteRedAcc(Document *doc, short code, LINK syncL, LINK aNoteL,
@@ -26,10 +26,9 @@ Boolean DelNoteRedAcc(Document *doc, short code, LINK syncL, LINK aNoteL,
 	GetPitchTable(doc, accTable, syncL, stf);						/* Get pitch modif. situation */
 	halfLn = qd2halfLn(NoteYQPIT(aNoteL));							/* Half-lines below middle C */
 
-	/*
-	 * If the note is tied to the left, always remove its accidental unless it
-	 * involves a spelling change or it's tied across a system break.
-	 */
+	/* If the note is tied to the left, always remove its accidental unless it involves
+	   a spelling change or it's tied across a system break. */
+	   
 	if (NoteTIEDL(aNoteL)) {
 		if (NoteACC(aNoteL)!=0
 		&& (NoteACCSOFT(aNoteL) || code==DELALL_REDUNDANTACCS_DI)) {
@@ -77,7 +76,7 @@ Boolean DelGRNoteRedAcc(Document *doc, short code, LINK syncL, LINK aGRNoteL,
 }
 
 
-/* --------------------------------------------- ArrangeSyncAccs, ArrangeGRSyncAccs -- */
+/* ------------------------------------------------ ArrangeSyncAccs, ArrangeGRSyncAccs -- */
 /* In the given Sync, arrange the accidentals for notes/chords in all voices whose
 flags are set in <syncVChanged>. */
 
@@ -113,7 +112,7 @@ void ArrangeGRSyncAccs(LINK grSyncL, Boolean syncVChanged[])
 }
 
 
-/* ------------------------------------------------------------- DelRedundantAccs -- */
+/* ------------------------------------------------------------------ DelRedundantAccs -- */
 /* Within the selection, if code=DELSOFT_REDUNDANTACCS_DI, delete soft accidentals
 that are redundant (because of the key signature and/or accidentals earlier in the
 bar); if code=DELALL_REDUNDANTACCS_DI, delete all accidentals that are redundant;
@@ -121,8 +120,7 @@ otherwise do nothing. If it found any to delete, return True, else False. Takes 
 user-interface actions, e.g., redrawing.
 
 This assumes standard CMN accidental-carrying rules including ties across barlines.
-If ACC_IN_CONTEXT is False, it should probably do nothing.
-*/
+If ACC_IN_CONTEXT is False, it should probably do nothing. */
 
 Boolean DelRedundantAccs(
 			Document *doc,
@@ -177,7 +175,7 @@ Boolean DelRedundantAccs(
 }
 
 
-/* ------------------------------------------------------------- AddRedundantAccs -- */
+/* ------------------------------------------------------------------ AddRedundantAccs -- */
 /* Within the selection, for any note that has no accidental (either because it's
 natural or because a previous accidental applies under the standard CMN accidental-
 carrying rules), give that note an explicit accidental. Do so regardless of ties
@@ -187,8 +185,8 @@ If code=ALL_ADDREDUNDANTACCS_DI, add redundant accidentals to all notes; if code
 NONAT_ADDREDUNDANTACCS_DI, add to all notes unless they'd get a natural; otherwise
 do nothing.
 
-If any accidentals were added, return True, else False. Takes no user-interface
-actions, e.g., redrawing. */
+If any accidentals were added, return True, else False. Takes no user-interface actions,
+e.g., redrawing. */
 
 Boolean AddRedundantAccs(
 			Document	*doc,
@@ -197,10 +195,10 @@ Boolean AddRedundantAccs(
 			Boolean		addTiedLeft
 			)
 {
-	LINK		pL, aNoteL;
-	LINK		aGRNoteL;
+	LINK	pL, aNoteL;
+	LINK	aGRNoteL;
 	Boolean	didAnything, syncVChanged[MAXVOICES+1], anyStaff, addNaturals;
-	short		v, eAcc, acc;
+	short	v, eAcc, acc;
 
 	if (code!=NONAT_ADDREDUNDANTACCS_DI && code!=ALL_ADDREDUNDANTACCS_DI)
 		return False;
@@ -259,71 +257,7 @@ Boolean AddRedundantAccs(
 }
 
 
-/* ---------------------------------------- MIDI2EffectiveAcc, MIDI2EffectiveGRAcc -- */
-
-/* Given a Sync and a note in that Sync, return the code for the note's correct effective
-accidental, based on comparing the notation to its MIDI note number. If the notation and
-note number are so far apart they can't be reconciled with an accidental, return
-ERROR_INT. ??Could be generally useful: belongs in PitchUtils.c. */
-
-short MIDI2EffectiveAcc(Document *doc, short clefType, short octType, LINK syncL, LINK theNoteL);
-short MIDI2EffectiveAcc(
-			Document */*doc*/,
-			short clefType, short octType,
-			LINK /*syncL*/, LINK theNoteL
-			)
-{
-	short halfLn;										/* Relative to the top of the staff */
-	SHORTQD yqpit;
-	short midCHalfLn, noteNum, delta;
-
-	midCHalfLn = ClefMiddleCHalfLn(clefType);					/* Get middle C staff pos. */		
-	yqpit = NoteYQPIT(theNoteL)+halfLn2qd(midCHalfLn);
-	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
-
-	if (octType>0)
-		noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1], AC_NATURAL);
-	else
-		noteNum = Pitch2MIDI(midCHalfLn-halfLn, AC_NATURAL);
-	
-	delta = NoteNUM(theNoteL)-noteNum;
-	if (delta<-2 || delta>2) return ERROR_INT;
-	return delta+AC_NATURAL;
-}
-
-
-/* Given a GRSync and a grace note in that GRSync, return the code for the grace note's
-correct effective accidental, based on comparing the notation to its MIDI note number.
-If the notation and note number are so far apart they can't be reconciled with an
-accidental, return ERROR_INT. ??Could be generally useful: belongs in PitchUtils.c. */
-
-short MIDI2EffectiveGRAcc(Document *doc, short clefType, short octType, LINK syncL, LINK theGRNoteL);
-short MIDI2EffectiveGRAcc(
-			Document */*doc*/,
-			short clefType, short octType,
-			LINK /*syncL*/, LINK theGRNoteL
-			)
-{
-	short halfLn;									/* Relative to the top of the staff */
-	SHORTQD yqpit;
-	short midCHalfLn, noteNum, delta;
-
-	midCHalfLn = ClefMiddleCHalfLn(clefType);					/* Get middle C staff pos. */		
-	yqpit = GRNoteYQPIT(theGRNoteL)+halfLn2qd(midCHalfLn);
-	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
-
-	if (octType>0)
-		noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1], AC_NATURAL);
-	else
-		noteNum = Pitch2MIDI(midCHalfLn-halfLn, AC_NATURAL);
-	
-	delta = GRNoteNUM(theGRNoteL)-noteNum;
-	if (delta<-2 || delta>2) return ERROR_INT;
-	return delta+AC_NATURAL;
-}
-
-
-/* ---------------------------------------------------------- AddMIDIRedundantAccs -- */
+/* -------------------------------------------------------------- AddMIDIRedundantAccs -- */
 /* For any note (or grace note) that has no explicit accidental because a previous
 accidental applies under the standard CMN accidental-carrying rules, give that note
 an accidental. Do so from the beginning of the score to the given point, and regardless
@@ -339,8 +273,8 @@ and, e.g., ask the user what to do with diamond or other odd-shaped notes.) Cf.
 AddRedundantAccs, which offers more flexibility in some ways but assumes the existing
 accidentals are consistent.
 
-If any accidentals were added, return True, else False. Takes no user-interface
-actions, e.g., redrawing. */
+If any accidentals were added, return True, else False. Takes no user-interface actions,
+e.g., redrawing. */
 
 Boolean AddMIDIRedundantAccs(
 			Document	*doc,
@@ -354,13 +288,12 @@ Boolean AddMIDIRedundantAccs(
 	short	voice, eAcc, acc;
 	short	staff, clefType[MAXSTAVES+1], octType[MAXSTAVES+1];
 		
-	/*
-	 * We'll need each note's clef and octave sign. Clefs are easy, since there are
-	 * always clefs for all staves at the beginning of the object list, and a new clef
-	 * affects all notes on its staff. We keep track of where octave signs begin, but keeping
-	 * track of where they end is messy: to avoid doing that, we just rely on each Note
-	 * subobj's inOttava flag to say whether it's in one.
-	 */
+	/* We'll need each note's clef and octave sign. Clefs are easy, since there are
+	   always clefs for all staves at the beginning of the object list, and a new clef
+	   affects all notes on its staff. We keep track of where octave signs begin, but
+	   keeping track of where they end is messy: to avoid doing that, we just rely on
+	   each Note subobj's inOttava flag to say whether it's in one. */
+	   
 	for (staff = 1; staff<=doc->nstaves; staff++)
 		octType[staff] = 0;											/* Initially, no octave sign */
 
@@ -379,17 +312,17 @@ Boolean AddMIDIRedundantAccs(
 					if (DETAIL_SHOW)
 						LogPrintf(LOG_DEBUG, "AddMIDIRedundantAccs: pL=%d aNoteL=%d stf=%d clf=%d oct=%d\n",
 							pL, aNoteL, staff, clefType[staff], octType[staff]);
-				   eAcc = MIDI2EffectiveAcc(doc, clefType[staff], octType[staff], pL, aNoteL);
-				   if (eAcc==ERROR_INT) {
-				   	MayErrMsg("AddMIDIRedundantAccs: can't find acc for pL=%ld", (long)pL);
+					eAcc = MIDI2EffectiveAcc(doc, clefType[staff], octType[staff], pL, aNoteL);
+					if (eAcc==ERROR_INT) {
+						MayErrMsg("AddMIDIRedundantAccs: can't find acc for pL=%ld", (long)pL);
 						continue;
 					}
 					if (!addNaturals && eAcc==AC_NATURAL) continue;
 					if (!addTiedLeft && NoteTIEDL(aNoteL)) continue;
-			   	NoteACC(aNoteL) = eAcc;
+					NoteACC(aNoteL) = eAcc;
 					NoteACCSOFT(aNoteL) = True;
-			   	voice = NoteVOICE(aNoteL);
-			   	syncVChanged[voice] = didAnything = True;	
+					voice = NoteVOICE(aNoteL);
+					syncVChanged[voice] = didAnything = True;	
 				}				
 				ArrangeSyncAccs(pL, syncVChanged);
 				break;
@@ -401,16 +334,16 @@ Boolean AddMIDIRedundantAccs(
 					acc = GRNoteACC(aGRNoteL);
 			 		if (!acc) {
 			 			staff = NoteSTAFF(aGRNoteL);
-				   	eAcc = MIDI2EffectiveGRAcc(doc, clefType[staff], octType[staff], pL, aGRNoteL);
-					   if (eAcc==ERROR_INT) {
-					   	MayErrMsg("AddMIDIRedundantAccs: can't find acc for pL=%ld", (long)pL);
-							continue;
+						eAcc = MIDI2EffectiveGRAcc(doc, clefType[staff], octType[staff], pL, aGRNoteL);
+						if (eAcc==ERROR_INT) {
+							MayErrMsg("AddMIDIRedundantAccs: can't find acc for pL=%ld", (long)pL);
+								continue;
 						}
 						if (addNaturals || eAcc!=AC_NATURAL) {
-					   	GRNoteACC(aGRNoteL) = eAcc;
+							GRNoteACC(aGRNoteL) = eAcc;
 							GRNoteACCSOFT(aGRNoteL) = True;
-					   	voice = GRNoteVOICE(aGRNoteL);
-					   	syncVChanged[voice] = didAnything = True;	
+							voice = GRNoteVOICE(aGRNoteL);
+							syncVChanged[voice] = didAnything = True;	
 						}
 					}
 				}				

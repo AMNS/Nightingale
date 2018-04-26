@@ -1,5 +1,5 @@
-/* File AutoBeam.c - automatic beaming functions, original versions by Ray Spears,
-rewritten by Charlie Rose and Don Byrd. */
+/* File AutoBeam.c - automatic beaming functions, original versions by Ray Spears of
+Opcode Systems; rewritten by Charlie Rose and Don Byrd. */
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
@@ -55,8 +55,8 @@ static Byte SetBeamCounter(Document *doc, LINK pL, LINK aNoteL);
 static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamState);
 
 
-/* begin: moved here from old OpcodeUtils.c by chirgwin Mon May 28 07:17:18 PDT 2012 
- TODO: remove this function or at least find it a better home
+/* Begin: moved here from old OpcodeUtils.c by chirgwin Mon May 28 07:17:18 PDT 2012 
+FIXME: remove this function or at least find it a better home
  */
   
  /* Given a one-byte value, starting address, and length, fill memory with the value. */
@@ -69,27 +69,25 @@ void FillMem(Byte value, void *loc, DoubleWord len)
 	while (--slen >= 0L) *ptr++ = value;
 }
 
+/* End: moved here from old OpcodeUtils.c by chirgwin Mon May 28 07:17:18 PDT 2012 */
 
-/* end: moved here from old OpcodeUtils.c by chirgwin Mon May 28 07:17:18 PDT 2012 */
 
+/* Some comments by Ray Spears:
+The Beam Beat is the beat across which a beam cannot extend. The beatEX is the beat of
+a compound measure where the quantizing portion of [Opcode's Vision] starts looking for
+triplets and the like. In this model we have one meter per sequence.
 
-/* Some comments by Ray:
-The Beam Beat is the beat across which a beam cannot extend. The beatEX is the
-beat of a compound measure where the quantizing portion of [Vision] starts looking
-for triplets and the like. In this model we have one meter per sequence.
-
-Variable Naming conventions:  Variables whose names end in EX are ones in which a
-beat is FineFactor * LCDs (i.e. 480*14=6720 Decimal to the quarter note, 1A40 Hex).
-The fine factor is 3*5*7*64/480=14.
-Variables whose names end in LCD are 480 to the quarter note.
-*/
+Variable Naming conventions:  Variables whose names end in EX are ones in which a beat
+is FineFactor * LCDs (i.e. 480*14=6720 Decimal to the quarter note, 1A40 Hex). The fine
+factor is 3*5*7*64/480 = 14. Variables whose names end in LCD are 480 to the quarter
+note. */
 
 long BeamBeatListEX[5];
 long beatEX;
 
 static void CreateNBeamBeatList(Byte num, Byte denom)
 {
-	Byte Index, SIndex, meterType;
+	Byte index, sIndex, meterType;
 	long breakDurEX, lTemp;
 	Boolean break4, breakMin;
 	
@@ -115,18 +113,18 @@ static void CreateNBeamBeatList(Byte num, Byte denom)
 	RCP->RunoffdenompH = 0xff;
 	RCP->WatershedEX = MeasureLengthEX;
 	RCP->RelativeStrength = 9;
-	SIndex = Index = RCP - RCPtr;
+	sIndex = index = RCP - RCPtr;
 	while (RCP > RCPtr) {
 		--RCP;
-		--Index;
-		RCP->NextStrongBeat = SIndex;
-		if (RCP->RelativeStrength != 0) SIndex = Index;
+		--index;
+		RCP->NextStrongBeat = sIndex;
+		if (RCP->RelativeStrength != 0) sIndex = index;
 	}
 
 	/* Now mark each beat where beams ought to break.  Eventually these "tab stops"
-		should be settable by the user.  All entries are terminated by 0; the first
-		entry of num is taken for granted.  The breakpoints are arranged in reverse
-		because they will be compared to the beats remaining in the measure. */
+	   should be settable by the user.  All entries are terminated by 0; the first
+	   entry of num is taken for granted.  The breakpoints are arranged in reverse
+	   because they will be compared to the beats remaining in the measure. */
 
 	if (num < breakMin) {								/* Numerator<minimum: no breakpoints */
 		BeamBeatListEX[0] = 0;
@@ -160,27 +158,27 @@ static void CreateNBeamBeatList(Byte num, Byte denom)
 	BeamBeatListEX[0] = beatEX * (1 + (num / 2L));
 }
 
-/* ----------------------------------------------------------------------------------- */
+/* -------------------------------------------------------------------------------------- */
 /* Beam the selection. Traverse the selection once, making potential beam events every
 time a note in a voice is short enough to beam across; when a beam isn't in progress;
 and terminating it and linking it in or discarding it when it terminates. */
 
 static Byte BeamNoteRelationship(LINK aNoteL, Byte beamConditions)
 {
-	long *T;
+	long *t;
 	
 	if (NoteType(aNoteL) <= QTR_L_DUR)
 		return DISCONTINUEBEAM; /* quarter note or longer */
 
-	/* only the above condition can always halt a beam.  The user can override
-		all the other algorithms by selecting notes which violate it */
+	/* Only the above condition can always halt a beam.  The user can override
+	   all the other algorithms by selecting notes which violate it */
 
 	if ((beamConditions & AUTOBEAM) == 0)
 		return CONTINUEBEAM;
 
-	/* we get here if we're beaming by general parameters rather than specific
-		request: as with a MIDI record or a MIDI file (??Looks like a Ray Spears
-		comment: does this make sense in Nightingale? -DAB) */
+	/* We get here if we're beaming by general parameters rather than specific
+	   request: as with a MIDI record or a MIDI file (??Looks like a Ray Spears
+	   comment: does this make sense in Nightingale? -DAB) */
 
 	if (NoteREST(aNoteL)) {
 		if (beamCounterPtr->BeamState == NOTBEAMING) {
@@ -192,12 +190,12 @@ static Byte BeamNoteRelationship(LINK aNoteL, Byte beamConditions)
 		}
 	}
 
-	/* and the timing constraints.  If the time of the sync
-		lies on the opposite side of a beam cross point, then discontinue. ##### */
+	/* and the timing constraints.  If the time of the sync lies on the opposite
+	   side of a beam cross point, then discontinue. ##### */
 
-	for (T = BeamBeatListEX; *T > 0; T++) {
-		if (beamCounterPtr->LCDsIntoThisMeasure >= *T) {
-			if (beamCounterPtr->LastSyncLCDsIntoThisMeasure < *T) {
+	for (t = BeamBeatListEX; *t > 0; t++) {
+		if (beamCounterPtr->LCDsIntoThisMeasure >= *t) {
+			if (beamCounterPtr->LastSyncLCDsIntoThisMeasure < *t) {
 				return CROSSEDBEAMBREAK;
 				}
 			}
@@ -223,11 +221,11 @@ static void PostulateBeam(LINK pL)
 	beamCounterPtr->nextLINK = 1;
 }
 
-/* -------------------------------------------------------------------- GetAnyLTime -- */
+/* ----------------------------------------------------------------------- GetAnyLTime -- */
 /* Get "logical time" since previous Measure of any object:
-		If the argument is a Sync, return its start time, in p_dur units.
-		If the argument is anything else, return the logical time of the next
-			Sync in the Measure; if there is none, return 0. */
+	If the argument is a Sync, return its start time, in p_dur units.
+	If the argument is anything else, return the logical time of the next
+		Sync in the Measure; if there is none, return 0. */
 
 static long GetAnyLTime(Document *doc, LINK target)
 {
@@ -240,10 +238,10 @@ static long GetAnyLTime(Document *doc, LINK target)
 	return 0L;
 }
 
-/* ------------------------------------------------------- Utilities for DoAutoBeam -- */
+/* ---------------------------------------------------------- Utilities for DoAutoBeam -- */
 
-/* We may have created one or more Beamsets just before doc->selStartL; if so,
-	they're all selected, so be sure the selection range includes them. */
+/* We may have created one or more Beamsets just before doc->selStartL; if so, they're
+all selected, so be sure the selection range includes them. */
 
 static void ExpandSelRange(Document *doc)
 {
@@ -317,7 +315,7 @@ static void DoNextBeamState(Document *doc, LINK pL, short voice, Byte nextBeamSt
 }
 
 
-/* ----------------------------------------------------------------------- AutoBeam -- */
+/* -------------------------------------------------------------------------- AutoBeam -- */
 /* Beam the selection "automatically", i.e., according to the meter. Return True
 normally, False if unable to allocate temporary memory blocks. */
 
@@ -325,7 +323,7 @@ Boolean AutoBeam(Document *doc)
 {
 	Boolean firstNoteInVoice;
 	Byte nextBeamState;
-	LINK pL,measL,endMeasL,aTimeSigL;
+	LINK pL, measL, endMeasL, aTimeSigL;
 	Byte voice;
 	LINK aNoteL;
 	Boolean okay=False;
@@ -352,12 +350,12 @@ Boolean AutoBeam(Document *doc)
 	PushLock(TIMESIGheap);
 
 	/* The time signature can be different for each staff, so each voice can have a
-		different time signature and hence different automatic beaming. But since a
-		voice can change staff at any time, handling this fully would be pretty messy.
-		Besides, Nightingale insists all barlines coincide, so there's not that much
-		that can be done with differing time sigs. So, for now, even though our outer
-		loop is by voice, just use the first time sig. subobject of every time sig.
-		object for everything. */
+	   different time signature and hence different automatic beaming. But since a
+	   voice can change staff at any time, handling this fully would be pretty messy.
+	   Besides, Nightingale insists all barlines coincide, so there's not that much
+	   that can be done with differing time sigs. So, for now, even though our outer
+	   loop is by voice, just use the first time sig. subobject of every time sig.
+	   object for everything. */
 
 	for (voice = 1; voice<=MAXVOICES; voice++) {
 		if (!VOICE_MAYBE_USED(doc, voice)) continue;
@@ -370,9 +368,9 @@ Boolean AutoBeam(Document *doc)
 				GetAnyLTime(doc,doc->selStartL) * FineFactor;
 		
 		/* Go thru the range and create beams for the voice. The new Beamsets will be
-			in the middle of the range we're going thru: this won't cause any problems
-			because they'll always be in a part of the range and apply to a part of the
-			range we've already traversed. */
+		   in the middle of the range we're going thru: this won't cause any problems
+		   because they'll always be in a part of the range and apply to a part of the
+		   range we've already traversed. */
 		
 		for (pL=doc->selStartL; pL!=doc->selEndL; pL=RightLINK(pL))
 			switch (ObjLType(pL)) {
@@ -400,7 +398,7 @@ Boolean AutoBeam(Document *doc)
 		
 				case MEASUREtype:
 					/* This might be the first Measure of a system; what we want is the
-						object ending the previous Measure. */
+					   object ending the previous Measure. */
 						
 					measL = SSearch(LeftLINK(pL), MEASUREtype, GO_LEFT);
 					endMeasL = EndMeasSearch(doc, measL);
@@ -432,7 +430,7 @@ Done:
 }
 
 
-/* --------------------------------------------------------------------- DoAutoBeam -- */
+/* ------------------------------------------------------------------------ DoAutoBeam -- */
 /* User-interface level function to automatically beam the selection. */
 
 void DoAutoBeam(Document *doc)
@@ -450,6 +448,5 @@ void DoAutoBeam(Document *doc)
 		PrepareUndo(doc, doc->selStartL, U_AutoBeam, 9);	/* "Undo Automatic Beam" */
 
 	WaitCursor();
-	if (!AutoBeam(doc))
-		DisableUndo(doc, True);
+	if (!AutoBeam(doc)) DisableUndo(doc, True);
 }

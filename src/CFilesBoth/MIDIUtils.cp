@@ -34,15 +34,13 @@ static void		CMKillEventList(void);
 
 
 /* -------------------------------------------------------------------- UseMIDIChannel -- */
-/* Return the MIDI channel number to use for the given part. */
+/* Return the MIDI channel number to use for the given part.
 
-/*
- * UseMIDIChannel will get the channel from the partInfo record (entered in the
- * range [1,16], and pin it inside the range [1,MAXCHANNEL] where MAXCHANNEL = 16.
- * This is always correct, regardless of the channel base; so we do not need to
- * define CMUseMIDIChannel here to take into account CM_CHANNEL_BASE.
- * The channel will be translated to its proper base when constructing the packet
- * either from CMMIDIProgram or using CMGetNotePlayInfo. */
+UseMIDIChannel will get the channel from the partInfo record, entered in the range [1,16],
+and pin it inside the range [1,MAXCHANNEL] where MAXCHANNEL = 16. This is always correct,
+regardless of the channel base; so we do not need to define CMUseMIDIChannel here to take
+into account CM_CHANNEL_BASE. The channel will be translated to its proper base when
+constructing the packet either from CMMIDIProgram or using CMGetNotePlayInfo. */
  
 short UseMIDIChannel(Document *doc, short partn)
 {
@@ -65,9 +63,8 @@ short UseMIDIChannel(Document *doc, short partn)
 
 /* ---------------------------------------------------------------------- NoteNum2Note -- */
 /* Return the note (not rest) in the given sync and voice with the given MIDI note
-number, if there is one; else return NILINK. If the sync and voice have more than
-one note with the same note number, finds the first one. Intended for finding ties'
-notes. */
+number, if there is one; else return NILINK. If the sync and voice have more than one
+note with the same note number, finds the first one. Intended for finding ties' notes. */
 
 LINK NoteNum2Note(LINK syncL, short voice, short noteNum)
 {
@@ -90,9 +87,9 @@ duration for all the others. */
 
 long TiedDur(Document */*doc*/, LINK syncL, LINK aNoteL, Boolean selectedOnly)
 {
-	LINK		syncPrevL, aNotePrevL, continL, continNoteL;
-	short		voice;
-	long		dur, prevDur;
+	LINK	syncPrevL, aNotePrevL, continL, continNoteL;
+	short	voice;
+	long	dur, prevDur;
 	
 	voice = NoteVOICE(aNoteL);
 	
@@ -119,10 +116,9 @@ long TiedDur(Document */*doc*/, LINK syncL, LINK aNoteL, Boolean selectedOnly)
 
 
 /* -------------------------------------------------------------------- UseMIDINoteNum -- */
-/* Return the MIDI note number that should be used to play the given note,
-considering transposition. If the "note" is a rest or the continuation of a
-tied note, or has velocity 0, it should not be played: indicate by returning
--1. */
+/* Return the MIDI note number that should be used to play the given note, considering
+transposition. If the "note" is a rest or the continuation of a tied note, or has
+velocity 0, it should not be played: indicate by returning -1. */
 
 short UseMIDINoteNum(Document *doc, LINK aNoteL, short transpose)
 {
@@ -198,7 +194,8 @@ Boolean GetModNREffects(LINK aNoteL, short *pVelOffset, short *pDurFactor,
 
 long Tempo2TimeScale(LINK tempoL)
 {
-	PTEMPO pTempo; long tempoMM, beatDur, timeScale;
+	PTEMPO pTempo;
+	long tempoMM, beatDur, timeScale;
 	
 	pTempo = GetPTEMPO(tempoL);
 	tempoMM = pTempo->tempoMM;
@@ -217,7 +214,8 @@ long GetTempoMM(
 		Document */*doc*/,		/* unused */
 		LINK startL)
 {
-	LINK tmpL, tempoL; long timeScale;
+	LINK tmpL, tempoL;
+	long timeScale;
 
 	timeScale = (long)config.defaultTempoMM*DFLT_BEATDUR;	/* Default in case no tempo marks found */
 
@@ -251,6 +249,7 @@ long PDur2RealTime(
 	/* If the table is empty, just return zero. Otherwise, find the 1st entry in the
 		table for a PDUR time after <t>, and use the previous entry; if there's no such
 		entry, assume the last entry in the table applies. */
+		
 	if (tabSize<=0) return 0L;
 	
 	for (i = 1; i<tabSize; i++)
@@ -273,11 +272,11 @@ time. Return value is the size of the table, or -1 if the table is too large. In
 to get information for changing tempo during playback. */
 
 short MakeTConvertTable(
-			Document *doc,
-			LINK fromL, LINK toL,					/* range to be played */
-			TCONVERT tConvertTab[],
-			short maxTabSize
-			)
+				Document *doc,
+				LINK fromL, LINK toL,				/* range to be played */
+				TCONVERT tConvertTab[],
+				short maxTabSize
+				)
 {
 	short	tempoCount;
 	LINK	pL, measL, syncL, syncMeasL;
@@ -318,7 +317,7 @@ short MakeTConvertTable(
 				tConvertTab[tempoCount].pDurTime = pDurTime;
 				
 				/* It's OK to call PDur2RealTime here: the part of the table it needs
-					already exists. */
+				   already exists. */
 					 
 				tConvertTab[tempoCount].realTime = PDur2RealTime(pDurTime, tConvertTab,
 													tempoCount);
@@ -551,9 +550,9 @@ Boolean CheckEventList(long pageTurnTOffset)
 	return empty;
 }
 
-/*	Checks eventList[] to see if any notes are ready to be turned off; if so,
-frees their slots in the eventList and (if we're not using MIDI Manager) turns
-them off. Returns True if the list is empty. */
+/*	Checks eventList[] to see if any notes are ready to be turned off; if so, frees
+their slots in the eventList and (if we're not using MIDI Manager) turns them off.
+Returns True if the list is empty. */
 
 Boolean CMCheckEventList(long pageTurnTOffset)
 {
@@ -717,7 +716,6 @@ Boolean CMEndNoteLater(
 {
 	return CMInsertEvent(noteNum, channel, endTime, MULTNOTES_PLAYMAXDUR, ioRefNum);
 }
-
 
 
 /* --------------------------------------------------- MMStartNoteNow, MMEndNoteAtTime -- */
@@ -888,8 +886,8 @@ Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly)
 }
 
 
-/* Given a "note", should it be played? The answer is no if it's actually a rest or
-if it belongs to a part that's curremntly muted. */
+/* Given a "note", should it be played? The answer is no if it's actually a rest or if
+it belongs to a part that's currently muted. */
 
 Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly)
 {
@@ -930,9 +928,10 @@ void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 		case MCHANPRES:
 			strcpy(strDisp, "ChannelPressure"); break;
 		case MSYSEX:
-			/*	This handles only the original one-chunk form of SysEx message. For some
-				elegant code for collecting arbitrary chunks of SysEx, see midifile.c in
-				Tim Thompson's old program mftext. */
+			/* This handles only the original one-chunk form of SysEx message. For some
+			   elegant code for collecting arbitrary chunks of SysEx, see midifile.c in
+			   Tim Thompson's old program mftext. */
+			   
 			strcpy(strDisp, "SysEx"); break;
 		case METAEVENT:									/* No. of data bytes is in the command */
 			strcpy(strDisp, "Metaevent"); break;
@@ -942,3 +941,66 @@ void DisplayMIDIEvent(DoubleWord deltaT, Byte statusByte, Byte eventData1)
 	LogPrintf(LOG_INFO, "DisplayMIDIEvent: deltaT=%ld %s data=%u (0x%x)\n", deltaT, strDisp,
 				eventData1, eventData1);
 }
+
+
+/* -------------------------------------------- MIDI2EffectiveAcc, MIDI2EffectiveGRAcc -- */
+
+/* Given a Sync and a note in that Sync, return the code for the note's correct effective
+accidental, based on comparing the notation to its MIDI note number. If the notation and
+note number are so far apart they can't be reconciled with an accidental, return
+ERROR_INT. */
+
+short MIDI2EffectiveAcc(
+			Document */*doc*/,
+			short clefType, short octType,
+			LINK /*syncL*/, LINK theNoteL
+			)
+{
+	short halfLn;										/* Relative to the top of the staff */
+	SHORTQD yqpit;
+	short midCHalfLn, noteNum, delta;
+
+	midCHalfLn = ClefMiddleCHalfLn(clefType);					/* Get middle C staff pos. */		
+	yqpit = NoteYQPIT(theNoteL)+halfLn2qd(midCHalfLn);
+	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
+
+	if (octType>0)
+		noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1], AC_NATURAL);
+	else
+		noteNum = Pitch2MIDI(midCHalfLn-halfLn, AC_NATURAL);
+	
+	delta = NoteNUM(theNoteL)-noteNum;
+	if (delta<-2 || delta>2) return ERROR_INT;
+	return delta+AC_NATURAL;
+}
+
+
+/* Given a GRSync and a grace note in that GRSync, return the code for the grace note's
+correct effective accidental, based on comparing the notation to its MIDI note number.
+If the notation and note number are so far apart they can't be reconciled with an
+accidental, return ERROR_INT. */
+
+short MIDI2EffectiveGRAcc(
+			Document */*doc*/,
+			short clefType, short octType,
+			LINK /*syncL*/, LINK theGRNoteL
+			)
+{
+	short halfLn;									/* Relative to the top of the staff */
+	SHORTQD yqpit;
+	short midCHalfLn, noteNum, delta;
+
+	midCHalfLn = ClefMiddleCHalfLn(clefType);					/* Get middle C staff pos. */		
+	yqpit = GRNoteYQPIT(theGRNoteL)+halfLn2qd(midCHalfLn);
+	halfLn = qd2halfLn(yqpit);									/* Number of half lines from stftop */
+
+	if (octType>0)
+		noteNum = Pitch2MIDI(midCHalfLn-halfLn+noteOffset[octType-1], AC_NATURAL);
+	else
+		noteNum = Pitch2MIDI(midCHalfLn-halfLn, AC_NATURAL);
+	
+	delta = GRNoteNUM(theGRNoteL)-noteNum;
+	if (delta<-2 || delta>2) return ERROR_INT;
+	return delta+AC_NATURAL;
+}
+

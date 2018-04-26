@@ -191,13 +191,6 @@ LogPrintf(LOG_DEBUG, "firstMNNumber=%d=0x%x\n", doc->firstMNNumber, doc->firstMN
 void EndianFixHeapHdr(Document *doc, HEAP *heap)
 {
 #if TARGET_RT_LITTLE_ENDIAN		/* If not Little Endian, avoid compiler warnings "stmt has no effect" */
-//		Handle block;
-//		short objSize;
-//		short type;
-//		LINK firstFree;
-//		unsigned short nObjs;
-//		unsigned short nFree;
-//		short lockLevel;
 	FIX_END((long)heap->block);
 	FIX_END(heap->objSize);
 	FIX_END(heap->type);

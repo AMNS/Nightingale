@@ -1275,7 +1275,7 @@ static Boolean BuildNLDoc(
 	doc->otherNames = NONAMES;									/* Other systems: no part names */
 	doc->dIndentOther = 0;
 	
-	*fileVersion = THIS_VERSION;
+	*fileVersion = THIS_FILE_VERSION;
 	NewDocScore(doc);											/* Set up initial staves, clefs, etc. */
 	doc->firstSheet = 0;
 	doc->currentSheet = 0;

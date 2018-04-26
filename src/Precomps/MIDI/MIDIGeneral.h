@@ -67,8 +67,8 @@
 #define BIMIDI_SMALLBUFSIZE 30		/* Our standard buffer size for built-in MIDI */
 
 
-/* Constants for Apple's Core MIDI, from CoreMidiUtils.c. (But now that MIDI is over 30
-years old, are these values _still_ not standardized?  --DAB, Sept. 2016) */
+/* Constants for Apple's Core MIDI, from CoreMidiUtils.c. (But MIDI is now over 30 years
+old. Are these values _still_ not standardized?  --DAB, Sept. 2016) */
 
 //#define CM_PATCHNUM_BASE 1			/* Some synths start numbering at 1, some at 0 */
 //#define CM_CHANNEL_BASE 0
@@ -166,6 +166,9 @@ void MIDIFBNoteOff(Document *, short, short, short);
 
 Boolean AnyNoteToPlay(Document *doc, LINK syncL, Boolean selectedOnly);
 Boolean NoteToBePlayed(Document *doc, LINK aNoteL, Boolean selectedOnly);
+
+short MIDI2EffectiveAcc(Document *doc, short clefType, short octType, LINK syncL, LINK theNoteL);
+short MIDI2EffectiveGRAcc(Document *doc, short clefType, short octType, LINK syncL, LINK theGRNoteL);
 
 /* High (UI)-level MIDI play routines */
 

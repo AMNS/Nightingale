@@ -185,16 +185,15 @@ Boolean IsDoubleClick(Point pt, short tol, long now)
 
 /* -------------------------------------------------------------------- Other routines -- */
 
-/* If any of the variable argument scrap types are available for pasting from
-the scrap, deliver the first one.  Otherwise, deliver 0.  For example,
+/* If any of the variable argument scrap types are available for pasting from the
+scrap, deliver the first one.  Otherwise, deliver 0.  For example,
 
     if (whichType = CanPaste(3,'TEXT','PICT','STUF')) ...
 
-There can be any number of types in the list, as long as the preceding count,
-n, is correct. Note that the code for picking up the following arguments
-assumes they're stored in order after the count (a safe assumption in THINK C)
-and are all the correct length. ??This should REALLY be replaced by the ANSI/ISO
-variable arguments mechanism declared in <stdarg.h>. 
+There can be any number of types in the list, as long as the preceding count, <n>, is
+correct. Caveat: the code for picking up the following arguments assumes they're
+stored in order after the count and are all the correct length! FIXME: This should
+REALLY be replaced by the ANSI/ISO variable arguments mechanism declared in <stdarg.h>.
 
 Carbon Note:
 GetScrapFlavorFlags can return 
