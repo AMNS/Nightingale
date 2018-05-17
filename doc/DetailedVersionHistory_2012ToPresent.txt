@@ -2213,8 +2213,8 @@ Minor cleanup. Affects NMiscTypes.h; File, HeapFileIO, StringPool.
 For the benefit of the Intel version, added CheckScoreHdr(), enhanced EndianFixScoreHdr().
 
 Fixed bug: the measure-number dialog accepts first measure number values up to 8000,
-but they're stored in a _signed_ 13-bit field, so 4095 is the limit. Affects NLimits.h;
-DialogsEditor.
+but they're stored in a _signed_ 13-bit field, so the limit is really 4095. Affects
+NLimits.h; DialogsEditor.
 
 Minor cleanup: DisplayDocumentHdr() and DisplayScoreHdr() now display more, renamed a
 #define in NLimits, etc. Affects FileConversion.h, NLimits.h; File, HeapFileIO,
@@ -2245,9 +2245,16 @@ Initialize, NotelistOpen.
 
 -------------------------------------------------------------------------------
 
-18 - 25 April
+18 - 25 April			======== NIGHTINGALE 5.8b7 (25 April 2018) ========
 
 Minor cleanup: move a couple of MIDI-to-accidental functions to a new home, etc.
 Affects File.h, FileConversion.h, MIDIGeneral.h; AutoBeam, DelAddRedAccs, Documents,
 Endian, File, MidiMap, MIDIUtils, MiscUtils, NotelistOpen.
 
+===============================================================================
+
+26 April - 16 May
+
+Changed version number from 5.8b7 to 5.8b8. Affects Info.plist.
+
+Minor cleanup. Affects NResourceID.h; Event, File, InfoDialog, Main, Menu, MIDIUtils.

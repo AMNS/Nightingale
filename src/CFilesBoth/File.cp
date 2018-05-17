@@ -1109,7 +1109,7 @@ LogPrintf(LOG_NOTICE, "  Slur L%d\n", pL);
 #endif
 
 
-static Boolean ModifyScore(Document *doc, long /*fileTime*/)
+static Boolean ModifyScore(Document * /*doc*/, long /*fileTime*/)
 {
 #ifdef SWAP_STAVES
 #error ModifyScore: ATTEMPTED TO COMPILE OLD HACKING CODE!
@@ -1486,7 +1486,7 @@ short OpenFile(Document *doc, unsigned char *filename, short vRefNum, FSSpec *pf
 		goto Error;
 	}
 	
-DisplayScoreHdr(doc);		// ??TEMPORARY, TO DEBUG INTEL VERSION!!!!
+//DisplayScoreHdr(doc);		// ??TEMPORARY, TO DEBUG INTEL VERSION!!!!
 	EndianFixScoreHdr(doc);
 	if (DETAIL_SHOW) DisplayScoreHdr(doc);
 	LogPrintf(LOG_NOTICE, "Checking Score header: ");

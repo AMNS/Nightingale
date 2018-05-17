@@ -244,7 +244,7 @@ Boolean DoFileMenu(short choice)
 				LogPrintf(LOG_INFO, "Opened new score.\n");
 				if (doSymbol && !IsWindowVisible(palettes[TOOL_PALETTE])) {
 					AnalyzeWindows();
-					DoViewMenu(VM_SymbolPalette);
+					DoViewMenu(VM_ToollPalette);
 				}
 				break;
 			case FM_Open:
@@ -964,16 +964,15 @@ void DoViewMenu(short choice)
 			case VM_ShowClipboard:
 				ShowClipDocument();
 				break;
-			case VM_SymbolPalette:
+			case VM_ToollPalette:
 				palIndex = TOOL_PALETTE;
 				GetWindowPortBounds(palettes[palIndex], &pal);
 				OffsetRect(&pal,-pal.left, -pal.right);
 				if (TopDocument) {
-					/*
-					 *	Initial position is the offset in config.toolsPosition from
-					 *	the upper left corner of the document's window, but not
-					 *	offscreen.
-					 */					 
+				
+					/* Initial position is the offset in config.toolsPosition from the
+					   upper left corner of the document's window, but not offscreen. */
+					 					 
 					//docRect = (*((WindowPeek)TopDocument)->contRgn)->rgnBBox;
 					GetWindowRgnBounds(TopDocument, kWindowContentRgn, &docRect);					
 					docRect.right = docRect.left + pal.right;
@@ -981,11 +980,14 @@ void DoViewMenu(short choice)
 					GetMyScreen(&docRect, &screen);
 					OffsetRect(&docRect, config.toolsPosition.h, config.toolsPosition.v);
 					PullInsideRect(&docRect, &screen, 2);
+LogPrintf(LOG_DEBUG, "DoViewMenu/VM_ToollPalette: docRect.top=%d\n", docRect.top);  // FIX ISSUE 67
 				}
 				 else {
 					/* Initial position is upper left corner of main screen */
 					GetQDScreenBitsBounds(&docRect);
 				 	InsetRect(&docRect, 10, GetMBarHeight()+16);
+LogPrintf(LOG_DEBUG, "DoViewMenu/VM_ToollPalette: docRect.top=%d GetMBarHeight()=%d\n",
+docRect.top, GetMBarHeight());														// FIX ISSUE 67
 				}
 				(*paletteGlobals[palIndex])->position.h = docRect.left;
 				(*paletteGlobals[palIndex])->position.v = docRect.top;
@@ -2987,7 +2989,7 @@ static void FixViewMenu(Document *doc)
 	
 	XableItem(viewMenu, VM_ShowClipboard, doc!=NULL && doc!=clipboard);
 	
-	XableItem(viewMenu, VM_SymbolPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
+	XableItem(viewMenu, VM_ToollPalette, !IsWindowVisible(palettes[TOOL_PALETTE]));
 
 	CheckMenuItem(viewMenu,VM_GoTo,doc!=NULL && doc->overview);
 	CheckMenuItem(viewMenu, VM_ColorVoices, doc!=NULL && doc->colorVoices!=0);

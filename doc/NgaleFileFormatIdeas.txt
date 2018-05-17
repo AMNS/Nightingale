@@ -1,5 +1,12 @@
 IDEAS FOR A NEW NIGHTINGALE FILE FORMAT (AND OBJECT LIST) - DAB, mid April 2018 
 
+The current format is 'N105", so the new one will be 'N106'.
+
+NB: On top of the below ideas, it really looks as though making files readable by
+Intel processors as well as Motorola/IBM (G5's etc.) will be a nightmare unless
+we get rid of bit fields! Well, possibly bit fields of < 8 bits -- the vast majority
+-- won't be too bad.  Cf. NgaleDevelopmentLog.txt .
+
 ANOTE:
 	* 1-2 more bits for accidental offset
 	* 2 more bits for microtone
@@ -11,21 +18,21 @@ ANOTE:
 		unknown)
 	* Add 4-byte field for ID that can be referenced externally
 	* Add 4 bytes for future use, initialized to 0
-	* Expand ANOTE to >=38 bytes
 
 DYNAMIC:
-	* Add modifier bits (e.g., for "mpp", adding "subito", "piu")
-	* Add "cross staff" bits: 1 to mean also affects staff below, 1 to say
-		show curly brace or not
-	
+	* Add modifier field(s) (e.g., for "mpp", adding "subito", "piu")
+	* Add "cross staff" fields: one to say also affects staff below, staff above,
+		or neither; one to say "show curly brace"
+
 CLEF:
 	* Change codes to leave space for more 8ve-transposing clefs, e.g.,
 		SOPRANO8B and/or TENOR8B for basses
 
 * Rearrange header fields so they're in a sensible order, w/ closely-related
-	things (e.g., firstIndent & otherIndent in Score header)
+	things close together (e.g., dIndentFirst and dIndentOther in Score header)
 * Replace all short (2 bytes, mostly DDIST) coords. with long (4 bytes)
-* Add >=2 bytes for future expansion to everything
+* Add >=2 bytes for future expansion to every object and subobject
 * Remove FreeMIDI and OMS support fields: in PARTINFO, Document; elsewhere?
-* Initialize all unused fields for everything
+* Initialize all unused fields for everything (to 0 unless there's a very
+	good reason to use something else!)
 

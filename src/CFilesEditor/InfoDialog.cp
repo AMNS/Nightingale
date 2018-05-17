@@ -1,15 +1,15 @@
-/***************************************************************************
+/******************************************************************************************
 *	FILE:	InfoDialog.c
 *	PROJ:	Nightingale
 *	DESC:	Handling routines for "Get Info" and "Modifier Info" dialogs
-/***************************************************************************/
+*******************************************************************************************/
 
 /*
  * THIS FILE IS PART OF THE NIGHTINGALE™ PROGRAM AND IS PROPERTY OF AVIAN MUSIC
  * NOTATION FOUNDATION. Nightingale is an open-source project, hosted at
  * github.com/AMNS/Nightingale .
  *
- * Copyright © 2016 by Avian Music Notation Foundation. All Rights Reserved.
+ * Copyright © 2018 by Avian Music Notation Foundation. All Rights Reserved.
  */
 
 /* File InfoDialog.c - "Get Info" dialog routines:
@@ -43,14 +43,16 @@ that might immediately affect the display; GEN_ACCEPT for all others. */
 #define GEN_ACCEPT(field)	if (newval!=(field)) \
 									{ (field) = newval;  nodeDirty = True; }
 
+#define DIALOG_TOP	194
+
 static short	scaleShift, scaleRound;
 static short	lastEditField = 0, lastObjType = 0;
 
-/* Note: these dialogs are intended for use mostly by expert users. Accordingly, error
-checking is definitely on the permissive side! */
+/* Note: the "Info" dialogs are intended for use mostly by expert users. Accordingly,
+error checking is definitely on the permissive side! */
 
 
-/* ------------------------------------------------------------------- InfoDialog -- */
+/* ------------------------------------------------------------------------ InfoDialog -- */
 
 enum {
 	DDIST_UNITS=0,
@@ -96,6 +98,8 @@ void InfoDialog(Document *doc)
 	}
 }
 
+/* -------------------------------------------------------------------- SyncInfoDialog -- */
+
 static Boolean LegalVert(Document *doc, short newval)
 {
 	if (I2DD(newval)<ABOVE_VLIM(doc) || I2DD(newval)>BELOW_VLIM(doc)) {
@@ -108,10 +112,8 @@ static Boolean LegalVert(Document *doc, short newval)
 		return True;
 }
 
-
 #define INFO_ERROR(str) { CParamText((str), "", "", ""); Inform(GINFO_ALRT); dialogOver = 0; }
 
-/* --------------------------------------------------------------- SyncInfoDialog -- */
 /* Handle Get Info dialog for SYNCs and GRSYNCs. */
 
 static enum										/* Dialog item numbers */
@@ -193,7 +195,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		MissingDialog(SYNCINFO_DLOG);
 		return;
 	}
-	CenterWindow(GetDialogWindow(dlog), 194);
+	CenterWindow(GetDialogWindow(dlog), DIALOG_TOP);
 	SetPort(GetDialogWindowPort(dlog));
 	
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
@@ -614,7 +616,7 @@ static void SyncInfoDialog(Document *doc, LINK pL, char unitLabel[])
 }
 
 
-/* -------------------------------------------------------------- PageRelGraphic -- */
+/* -------------------------------------------------------------------- PageRelGraphic -- */
 
 /* Return True if the given object is a Page-relative Graphic. */
 
@@ -629,7 +631,7 @@ Boolean PageRelGraphic(LINK pL)
 }
 
 
-/* --------------------------------------------------------------- GenInfoDialog -- */
+/* --------------------------------------------------------------------- GenInfoDialog -- */
 /* Handle Get Info dialog for miscellaneous object types. */
 
 static enum {
@@ -691,7 +693,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		MissingDialog(GENERALINFO_DLOG);
 		return;
 	}
-	CenterWindow(GetDialogWindow(dlog), 194);
+	CenterWindow(GetDialogWindow(dlog), DIALOG_TOP);
 	SetPort(GetDialogWindowPort(dlog));
 
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
@@ -871,7 +873,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 					SetDialogItemCText(p1Hdl, "Thickness");
 					break;
 				default:
-					NULL;
+					;
 			}
 		 	
 			PushLock(OBJheap);
@@ -891,7 +893,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 					PutDlgWord(dlog, PARAM1, pGraphic->gu.thickness, False);
 					break;
 				default:
-					NULL;
+					;
 			}			
 			PopLock(OBJheap);
 			break;
@@ -1110,7 +1112,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 							}
 							break;
 						default:
-							NULL;
+							;
 					}			
 					break;
 					
@@ -1289,7 +1291,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 					GRAF_ACCEPT(pGraphic->gu.thickness);
 					break;
 				default:
-					NULL;
+					;
 			}			
 
 			PopLock(OBJheap);
@@ -1351,8 +1353,7 @@ static void GenInfoDialog(Document *doc, LINK pL, char unitLabel[])
 }
 
 
-
-/* ------------------------------------------------------------- ExtendInfoDialog -- */
+/* ------------------------------------------------------------------ ExtendInfoDialog -- */
 /* Handle Get Info dialog for "extended" object types. */
 
 static enum {
@@ -1406,7 +1407,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 		MissingDialog(EXTINFO_DLOG);
 		return;
 	}
-	CenterWindow(GetDialogWindow(dlog), 194);
+	CenterWindow(GetDialogWindow(dlog), DIALOG_TOP);
 	SetPort(GetDialogWindowPort(dlog));
 
 	SetDlgFont(dlog, textFontNum, textFontSmallSize, 0);
@@ -1678,7 +1679,7 @@ static void ExtendInfoDialog(Document *doc, LINK pL, char unitLabel[])
 }
 
 
-/* ======================================================= ModNRDialog and friends == */
+/* =========================================================== ModNRDialog and friends == */
 
 static enum {
 	HORIZ=4,
@@ -1834,9 +1835,9 @@ static Boolean GetModNRValues(PAMODNR aModNR)
 }
 
 
-/* ----------------------------------------------------------------- ModNRDialog -- */
-/* Handler for note/rest modifier dialog. Assumes the first selected node is a
-Sync. Returns True if dialog is OK'ed, False if cancelled or an error occurs. */
+/* ----------------------------------------------------------------------- ModNRDialog -- */
+/* Handler for note/rest modifier dialog. Assumes the first selected node is a Sync.
+ Returns True if dialog is OK'ed, False if cancelled or an error occurs. */
 
 Boolean ModNRDialog(Document *doc)
 {
@@ -2000,7 +2001,7 @@ Boolean ModNRDialog(Document *doc)
 }
 
 
-/* ------------------------------------------------------ XLoadInfoDialogSeg -- */
+/* ---------------------------------------------------------------- XLoadInfoDialogSeg -- */
 /* Null function to allow loading or unloading InfoDialog.c's segment. */
 
 void XLoadInfoDialogSeg()

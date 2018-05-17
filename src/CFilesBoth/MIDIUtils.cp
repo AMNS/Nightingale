@@ -420,12 +420,12 @@ LogPrintf(LOG_DEBUG,
 }
 
 
-/*	Insert the specified note into the event list. Exception FIXME: NOT IMPLEMENTED! :
+/*	Insert the specified note into the event list. Exception FIXME: not implemented! :
 if _playMaxDur_ and there's already an event for that note no. on the same channel
 with a later end time, do nothing. If we succeed, return True; if we fail (because the
 list is full), give an error message and return False. */
 
-static Boolean InsertEvent(short note, SignedByte channel, long endTime, Boolean playMaxDur,
+static Boolean InsertEvent(short note, SignedByte channel, long endTime, Boolean /* playMaxDur */,
 					short ioRefNum)
 {
 	short		i;

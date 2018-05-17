@@ -3019,7 +3019,7 @@ where the previous measure is on the previous system! Fixed.
 
 -------------------------------------------------------------------------------
 
-21 April
+21 April - 11 May
 
 Doing more testing of how Ngale on Intel reads the 13-bit score header field 
 <firstMNNumber> before going ahead with the new file format plan...
@@ -3036,7 +3036,38 @@ set to 1, Ngale reads firstMNNumber of:
 Looks like the other three bits become these bits of firstMNNumber: 0x038; if so, the
 three missing bits of firstMNNumber must go into those flags! -- which makes sense.
 
-So I _could_ unscramble these fields, but I doubt it's worth the trouble. But almost
-all of Ngale's bit fields are less than 8 bits, so fit in a byte; maybe unscrambling
-them is practical?
+So I _could_ unscramble these fields, but I doubt it's worth the trouble! But almost
+all of Ngale's bit fields stored in files are less than 8 bits, so fit in a byte; maybe
+unscrambling them is practical?
+
+Bit fields > 7 bits declared in NTypes.h:
+
+	NIGHTSCOREHEADER:
+				firstMNNumber:13;	/* Number of first measure */								\
+
+	MEASURE obj & subobj:
+				measureNum:15;		/* internal measure number; first is always 0 */
+					spacePercent:15;	/* Percentage of normal horizontal spacing used */
+
+	"Structs for Merge" (VInfo & ClipVInfo):
+				unused:11;
+					unused:13;
+
+Bit fields > 7 bits declared in NMiscTypes.h:
+					moreUnused:11;
+
+NB: It's not obvious even "unused" fields of over 8 bits wo't complicate things, since
+they might result in other fields in the same word getting scrambled across bytes :-( .
+
+Anything declared elsewhere that's written to Ngale files?? TBContinued.
+
+-------------------------------------------------------------------------------
+
+14 - 15 May
+
+Using Xcode 3.2 on Torrey's Old White MacBook: Xcode insists InitNightingale() is
+undefined!? Clean All Targets, Build again => no change. Remove InitNIghtingale.cp from
+the project, put it back in => no change. Replace project file w/ a copy from MacBook
+Air => all OK. Weird.
+
 
